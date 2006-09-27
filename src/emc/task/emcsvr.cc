@@ -21,6 +21,8 @@
 #include <stdlib.h>		// exit()
 #include <string.h>		// strncpy()
 
+#include <signal.h>
+
 #include "rcs.hh"		// EMC NML
 #include "emc.hh"		// EMC NML
 #include "emcglb.h"		// emcGetArgs(), EMC_NMLFILE
@@ -67,6 +69,10 @@ static RCS_STAT_CHANNEL *emcStatusChannel = NULL;
 static NML *emcErrorChannel = NULL;
 static RCS_CMD_CHANNEL *toolCommandChannel = NULL;
 static RCS_STAT_CHANNEL *toolStatusChannel = NULL;
+
+void nice_exit(int ignore) {
+    _exit(0);
+}
 
 int main(int argc, char *argv[])
 {
@@ -170,6 +176,8 @@ int main(int argc, char *argv[])
 	    new RCS_STAT_CHANNEL(emcFormat, "toolSts", "emcsvr",
 				 EMC_NMLFILE);
     }
+
+    signal(SIGTERM, nice_exit);
 
     run_nml_servers();
 
