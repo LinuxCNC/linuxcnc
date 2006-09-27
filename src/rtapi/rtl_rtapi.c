@@ -906,6 +906,7 @@ int rtapi_task_resume(int task_id)
 int rtapi_task_pause(int task_id)
 {
     int retval = 0;
+    int oldstate;
     task_data *task;
 
     /* validate task ID */
@@ -919,12 +920,14 @@ int rtapi_task_pause(int task_id)
 	return RTAPI_INVAL;
     }
     /* pause the task */
+    oldstate = task->state;
+    task->state = PAUSED;
     retval = pthread_suspend_np(ostask_array[task_id]);
     if (retval != 0) {
+	task->state = oldstate;
 	return RTAPI_FAIL;
     }
     /* update task data */
-    task->state = PAUSED;
     return RTAPI_SUCCESS;
 }
 
