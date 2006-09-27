@@ -138,7 +138,7 @@ int process_options(int argc, char *argv[])
 
 int modId;
 
-void handle_sigterm(void) {
+void handle_sigterm(int ignore) {
     ClassicLadderFreeAll(modId);
     hal_exit(modId);
     exit(0);
