@@ -157,8 +157,81 @@ int prompt_mode = 0;	/* when getting input from stdin, print a prompt */
 char comp_name[HAL_NAME_LEN];	/* name for this instance of halcmd */
 
 #ifndef NO_INI
-    FILE *inifile = NULL;
+FILE *inifile = NULL;
 #endif
+
+static pid_t hal_systemv_nowait(char *const argv[]) {
+    pid_t pid;
+    int n;
+
+    /* now we need to fork, and then exec .... */
+    /* disconnect from the HAL shmem area before forking */
+    hal_exit(comp_id);
+    comp_id = 0;
+    /* now the fork() */
+    pid = fork();
+    if ( pid < 0 ) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL:%d: ERROR: loadrt fork() failed\n", linenumber);
+	/* reconnect to the HAL shmem area */
+	comp_id = hal_init(comp_name);
+	if (comp_id < 0) {
+	    fprintf(stderr, "halcmd: hal_init() failed after fork: %d\n",
+                    comp_id );
+	    exit(-1);
+	}
+        hal_ready(comp_id);
+	return -1;
+    }
+    if ( pid == 0 ) {
+	/* print debugging info if "very verbose" (-V) */
+        for(n=0; argv[n] != NULL; n++) {
+	    rtapi_print_msg(RTAPI_MSG_DBG, "%s ", argv[n] );
+	}
+	rtapi_print_msg(RTAPI_MSG_DBG, "\n" );
+        /* call execv() to invoke command */
+	execvp(argv[0], argv);
+	/* should never get here */
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL:%d: ERROR: execv(%s) failed\n", linenumber, argv[0] );
+	exit(1);
+    }
+    /* reconnect to the HAL shmem area */
+    comp_id = hal_init(comp_name);
+
+    return pid;
+}
+
+static int hal_systemv(char *const argv[]) {
+    pid_t pid = hal_systemv_nowait(argv);
+    int status;
+
+    /* this is the parent process, wait for child to end */
+    int retval = waitpid ( pid, &status, 0 );
+    if (comp_id < 0) {
+	fprintf(stderr, "halcmd: hal_init() failed after systemv: %d\n", comp_id );
+	exit(-1);
+    }
+    hal_ready(comp_id);
+    /* check result of waitpid() */
+    if ( retval < 0 ) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL:%d: ERROR: waitpid(%d) failed\n", linenumber, pid );
+	return -1;
+    }
+    if ( WIFEXITED(status) == 0 ) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL:%d: ERROR: child did not exit normally\n", linenumber);
+	return -1;
+    }
+    retval = WEXITSTATUS(status);
+    if ( retval != 0 ) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL:%d: ERROR: systemv failed, returned %d\n", linenumber, retval );
+	return -1;
+    }
+    return 0;
+}
 
 
 /***********************************************************************
@@ -1438,9 +1511,8 @@ static int do_loadrt_cmd(char *mod_name, char *args[])
     char *cp1;
     char *argv[MAX_TOK+1];
     char arg_string[MAX_CMD_LEN+1];
-    int n, m, retval, status;
+    int n, m, retval;
     hal_comp_t *comp;
-    pid_t pid;
 
     if (hal_get_lock()&HAL_LOCK_LOAD) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -1464,73 +1536,21 @@ static int do_loadrt_cmd(char *mod_name, char *args[])
             "HAL:%d: ERROR: Can't find module '%s' in %s\n", linenumber, mod_name, rtmod_dir);
         return -1;
     }
-    /* now we need to fork, and then exec insmod.... */
-    /* disconnect from the HAL shmem area before forking */
-    hal_exit(comp_id);
-    comp_id = 0;
-    /* now the fork() */
-    pid = fork();
-    if ( pid < 0 ) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL:%d: ERROR: loadrt fork() failed\n", linenumber);
-	/* reconnect to the HAL shmem area */
-	comp_id = hal_init(comp_name);
-	if (comp_id < 0) {
-	    fprintf(stderr, "halcmd: hal_init() failed after fork: %d\n",
-                    comp_id );
-	    exit(-1);
-	}
-        hal_ready(comp_id);
-	return -1;
+
+    argv[0] = EMC2_BIN_DIR "/emc_module_helper";
+    argv[1] = "insert";
+    argv[2] = mod_path;
+    /* loop thru remaining arguments */
+    n = 0;
+    m = 3;
+    while ( args[n][0] != '\0' ) {
+        argv[m++] = args[n++];
     }
-    if ( pid == 0 ) {
-	/* this is the child process - prepare to exec() insmod */
-	argv[0] = EMC2_BIN_DIR "/emc_module_helper";
-        argv[1] = "insert";
-	argv[2] = mod_path;
-	/* loop thru remaining arguments */
-	n = 0;
-	m = 3;
-	while ( args[n][0] != '\0' ) {
-	    argv[m++] = args[n++];
-	}
-	/* add a NULL to terminate the argv array */
-	argv[m] = NULL;
-	/* print debugging info if "very verbose" (-V) */
-	rtapi_print_msg(RTAPI_MSG_DBG, "%s %s %s ", argv[0], argv[1], argv[2] );
-	n = 3;
-	while ( argv[n] != NULL ) {
-	    rtapi_print_msg(RTAPI_MSG_DBG, "%s ", argv[n++] );
-	}
-	rtapi_print_msg(RTAPI_MSG_DBG, "\n" );
-        /* call execv() to invoke insmod */
-	execv(argv[0], argv);
-	/* should never get here */
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL:%d: ERROR: execv(%s) failed\n", linenumber, argv[0] );
-	exit(1);
-    }
-    /* this is the parent process, wait for child to end */
-    retval = waitpid ( pid, &status, 0 );
-    /* reconnect to the HAL shmem area */
-    comp_id = hal_init(comp_name);
-    if (comp_id < 0) {
-	fprintf(stderr, "halcmd: hal_init() failed after loadrt: %d\n", comp_id );
-	exit(-1);
-    }
-    hal_ready(comp_id);
-    /* check result of waitpid() */
-    if ( retval < 0 ) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL:%d: ERROR: waitpid(%d) failed\n", linenumber, pid );
-	return -1;
-    }
-    if ( WIFEXITED(status) == 0 ) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL:%d: ERROR: child did not exit normally\n", linenumber);
-	return -1;
-    }
-    retval = WEXITSTATUS(status);
+    /* add a NULL to terminate the argv array */
+    argv[m] = NULL;
+
+    retval = hal_systemv(argv);
+
     if ( retval != 0 ) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL:%d: ERROR: insmod failed, returned %d\n", linenumber, retval );
@@ -1725,67 +1745,17 @@ static int do_unloadrt_cmd(char *mod_name)
 
 static int unloadrt_comp(char *mod_name)
 {
-    int retval, status;
+    int retval;
     char *argv[3];
-    pid_t pid;
 
-    /* now we need to fork, and then exec rmmod.... */
-    /* disconnect from the HAL shmem area before forking */
-    hal_exit(comp_id);
-    comp_id = 0;
-    /* now the fork() */
-    pid = fork();
-    if ( pid < 0 ) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL:%d: ERROR: unloadrt fork() failed\n", linenumber);
-	/* reconnect to the HAL shmem area */
-	comp_id = hal_init(comp_name);
-	if (comp_id < 0) {
-	    fprintf(stderr, "halcmd: hal_init() failed after fork: %d\n",
-                    comp_id);
-	    exit(-1);
-	}
-        hal_ready(comp_id);
-	return -1;
-    }
-    if ( pid == 0 ) {
-	/* this is the child process - prepare to exec() rmmod */
-	argv[0] = EMC2_BIN_DIR "/emc_module_helper";
-	argv[1] = "remove";
-	argv[2] = mod_name;
-	/* add a NULL to terminate the argv array */
-	argv[3] = NULL;
-	/* print debugging info if "very verbose" (-V) */
-	rtapi_print_msg(RTAPI_MSG_DBG, "%s %s %s\n", argv[0], argv[1], argv[2] );
-	/* call execv() to invoke rmmod */
-	execv(argv[0], argv);
-	/* should never get here */
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL:%d: ERROR: execv(%s) failed\n", linenumber, argv[0] );
-	exit(1);
-    }
-    /* this is the parent process, wait for child to end */
-    retval = waitpid ( pid, &status, 0 );
-    /* reconnect to the HAL shmem area */
-    comp_id = hal_init(comp_name);
-    if (comp_id < 0) {
-	fprintf(stderr, "halcmd: hal_init() failed after unloadrt: %d\n",
-                comp_id );
-	exit(-1);
-    }
-    hal_ready(comp_id);
-    /* check result of waitpid() */
-    if ( retval < 0 ) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL:%d: ERROR: waitpid(%d) failed\n", linenumber, pid);
-	return -1;
-    }
-    if ( WIFEXITED(status) == 0 ) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL:%d: ERROR: child did not exit normally\n", linenumber);
-	return -1;
-    }
-    retval = WEXITSTATUS(status);
+    argv[0] = EMC2_BIN_DIR "/emc_module_helper";
+    argv[1] = "remove";
+    argv[2] = mod_name;
+    /* add a NULL to terminate the argv array */
+    argv[3] = NULL;
+
+    retval = hal_systemv(argv);
+
     if ( retval != 0 ) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL:%d: ERROR: rmmod failed, returned %d\n", linenumber, retval);
@@ -1955,59 +1925,19 @@ static int do_loadusr_cmd(char *args[])
 	return -1;
     }
 
-    /* now we need to fork, and then exec the program.... */
-    /* disconnect from the HAL shmem area before forking */
-    hal_exit(comp_id);
-    comp_id = 0;
-    /* now the fork() */
-    pid = fork();
-    if ( pid < 0 ) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL:%d: ERROR: loadusr fork() failed\n", linenumber);
-	/* reconnect to the HAL shmem area */
-	comp_id = hal_init(comp_name);
-	if (comp_id < 0) {
-	    fprintf(stderr, "halcmd: hal_init() failed after fork: %d\n",
-                    comp_id);
-	    exit(-1);
-	}
-        hal_ready(comp_id);
-	return -1;
+    /* prepare to exec() the program */
+    argv[0] = prog_name;
+    /* loop thru remaining arguments */
+    n = 0;
+    m = 1;
+    while ( args[n][0] != '\0' ) {
+        argv[m++] = args[n++];
     }
-    if ( pid == 0 ) {
-	/* this is the child process - prepare to exec() the program */
-	argv[0] = prog_name;
-	/* loop thru remaining arguments */
-	n = 0;
-	m = 1;
-	while ( args[n][0] != '\0' ) {
-	    argv[m++] = args[n++];
-	}
-	/* add a NULL to terminate the argv array */
-	argv[m] = NULL;
-	/* print debugging info if "very verbose" (-V) */
-	rtapi_print_msg(RTAPI_MSG_DBG, "%s ", argv[0] );
-	n = 1;
-	while ( argv[n] != NULL ) {
-	    rtapi_print_msg(RTAPI_MSG_DBG, "%s ", argv[n++] );
-	}
-	rtapi_print_msg(RTAPI_MSG_DBG, "\n" );
-	/* call execv() to invoke the program */
-	execv(prog_path, argv);
-	/* should never get here */
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL:%d: ERROR: execv(%s) failed: %s\n", linenumber, prog_name,
-            strerror(errno));
-	exit(1);
-    }
-    /* this is the parent process, reconnect to the HAL shmem area */
-    comp_id = hal_init(comp_name);
-    if (comp_id < 0) {
-	fprintf(stderr, "halcmd: hal_init() failed after loadusr: %d\n",
-                comp_id);
-	exit(-1);
-    }
-    hal_ready(comp_id);
+    /* add a NULL to terminate the argv array */
+    argv[m] = NULL;
+
+    pid = hal_systemv_nowait(argv);
+
     if ( wait_comp_flag ) {
         int ready = 0, count=0;
         int next;
