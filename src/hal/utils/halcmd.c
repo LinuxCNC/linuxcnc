@@ -59,6 +59,7 @@
 #include <signal.h>
 #include <errno.h>
 #include <time.h>
+#include <fnmatch.h>
 
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "hal.h"		/* HAL public API decls */
@@ -141,6 +142,11 @@ static void save_threads(FILE *dst);
 static void print_help_general(int showR);
 static void print_help_commands(void);
 static int get_input(FILE *srcfile, char *buf, size_t bufsize);
+
+static int match(char *pattern, char *value) {
+    if(strncmp(pattern, value, strlen(pattern)) == 0) return 1;
+    return fnmatch(pattern, value, 0) == 0;
+}
 
 /***********************************************************************
 *                         GLOBAL VARIABLES                             *
@@ -1927,16 +1933,16 @@ static void print_comp_info(char *pattern)
     next = hal_data->comp_list_ptr;
     while (next != 0) {
 	comp = SHMPTR(next);
-	if ( strncmp(pattern, comp->name, len) == 0 ) {
+	if ( match(pattern, comp->name) ) {
 	    rtapi_print("%02d  %s  %-*s",
 		comp->comp_id, (comp->type ? "RT  " : "User"),
                 HAL_NAME_LEN, comp->name);
+            if(comp->type == 0) {
+                    rtapi_print(" %d %s", comp->pid, comp->ready > 0 ?
+                            "ready" : "initializing");
+            }
+            rtapi_print("\n");
 	}
-        if(comp->type == 0) {
-                rtapi_print(" %d %s", comp->pid, comp->ready > 0 ?
-                        "ready" : "initializing");
-	}
-        rtapi_print("\n");
 	next = comp->next_ptr;
     }
     rtapi_mutex_give(&(hal_data->mutex));
@@ -1960,7 +1966,7 @@ static void print_pin_info(char *pattern)
     next = hal_data->pin_list_ptr;
     while (next != 0) {
 	pin = SHMPTR(next);
-	if ( strncmp(pattern, pin->name, len) == 0 ) {
+	if ( match(pattern, pin->name) ) {
 	    comp = SHMPTR(pin->owner_ptr);
 	    if (pin->signal != 0) {
 		sig = SHMPTR(pin->signal);
@@ -2014,7 +2020,7 @@ static void print_sig_info(char *pattern)
     next = hal_data->sig_list_ptr;
     while (next != 0) {
 	sig = SHMPTR(next);
-	if ( strncmp(pattern, sig->name, len) == 0 ) {
+	if ( match(pattern, sig->name) ) {
 	    dptr = SHMPTR(sig->data_ptr);
 	    rtapi_print("%s  %s  %s\n", data_type((int) sig->type),
 		data_value((int) sig->type, dptr), sig->name);
@@ -2047,7 +2053,7 @@ static void print_script_sig_info(char *pattern)
     next = hal_data->sig_list_ptr;
     while (next != 0) {
 	sig = SHMPTR(next);
-	if ( strncmp(pattern, sig->name, len) == 0 ) {
+	if ( match(pattern, sig->name) ) {
 	    dptr = SHMPTR(sig->data_ptr);
 	    rtapi_print("%s  %s  %s", data_type((int) sig->type),
 		data_value2((int) sig->type, dptr), sig->name);
@@ -2081,7 +2087,7 @@ static void print_param_info(char *pattern)
     next = hal_data->param_list_ptr;
     while (next != 0) {
 	param = SHMPTR(next);
-	if ( strncmp(pattern, param->name, len) == 0 ) {
+	if ( match(pattern, param->name) ) {
 	    comp = SHMPTR(param->owner_ptr);
 	    if (scriptmode == 0) {
 		rtapi_print(" %02d    %s  %s  %s  %s\n",
@@ -2118,7 +2124,7 @@ static void print_funct_info(char *pattern)
     next = hal_data->funct_list_ptr;
     while (next != 0) {
 	fptr = SHMPTR(next);
-	if ( strncmp(pattern, fptr->name, len) == 0 ) {
+	if ( match(pattern, fptr->name) ) {
 	    comp = SHMPTR(fptr->owner_ptr);
 	    if (scriptmode == 0) {
 		rtapi_print(" %02d   %08X %08X %s  %3d   %s\n",
@@ -2157,7 +2163,7 @@ static void print_thread_info(char *pattern)
     next_thread = hal_data->thread_list_ptr;
     while (next_thread != 0) {
 	tptr = SHMPTR(next_thread);
-	if ( strncmp(pattern, tptr->name, len) == 0 ) {
+	if ( match(pattern, tptr->name) ) {
 		/* note that the scriptmode format string has no \n */
 		// TODO FIXME add thread runtime and max runtime to this print
 	    rtapi_print(((scriptmode == 0) ? "%11d %s  %s    ( %d, %d )\n" : "%d %s %s %d %d"),
@@ -2199,7 +2205,7 @@ static void print_comp_names(char *pattern)
     next = hal_data->comp_list_ptr;
     while (next != 0) {
 	comp = SHMPTR(next);
-	if ( strncmp(pattern, comp->name, len) == 0 ) {
+	if ( match(pattern, comp->name) ) {
 	    rtapi_print("%s ", comp->name);
 	}
 	next = comp->next_ptr;
@@ -2218,7 +2224,7 @@ static void print_pin_names(char *pattern)
     next = hal_data->pin_list_ptr;
     while (next != 0) {
 	pin = SHMPTR(next);
-	if ( strncmp(pattern, pin->name, len) == 0 ) {
+	if ( match(pattern, pin->name) ) {
 	    rtapi_print("%s ", pin->name);
 	}
 	next = pin->next_ptr;
@@ -2237,7 +2243,7 @@ static void print_sig_names(char *pattern)
     next = hal_data->sig_list_ptr;
     while (next != 0) {
 	sig = SHMPTR(next);
-	if ( strncmp(pattern, sig->name, len) == 0 ) {
+	if ( match(pattern, sig->name) ) {
 	    rtapi_print("%s ", sig->name);
 	}
 	next = sig->next_ptr;
@@ -2256,7 +2262,7 @@ static void print_param_names(char *pattern)
     next = hal_data->param_list_ptr;
     while (next != 0) {
 	param = SHMPTR(next);
-	if ( strncmp(pattern, param->name, len) == 0 ) {
+	if ( match(pattern, param->name) ) {
 	    rtapi_print("%s ", param->name);
 	}
 	next = param->next_ptr;
@@ -2275,7 +2281,7 @@ static void print_funct_names(char *pattern)
     next = hal_data->funct_list_ptr;
     while (next != 0) {
 	fptr = SHMPTR(next);
-	if ( strncmp(pattern, fptr->name, len) == 0 ) {
+	if ( match(pattern, fptr->name) ) {
 	    rtapi_print("%s ", fptr->name);
 	}
 	next = fptr->next_ptr;
@@ -2294,7 +2300,7 @@ static void print_thread_names(char *pattern)
     next_thread = hal_data->thread_list_ptr;
     while (next_thread != 0) {
 	tptr = SHMPTR(next_thread);
-	if ( strncmp(pattern, tptr->name, len) == 0 ) {
+	if ( match(pattern, tptr->name) ) {
 	    rtapi_print("%s ", tptr->name);
 	}
 	next_thread = tptr->next_ptr;
