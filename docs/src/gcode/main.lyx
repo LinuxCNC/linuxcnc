@@ -5984,11 +5984,28 @@ O- call
 #30
 \family default 
 .
- On return from the subroutine the original values of those parameters will
+ On return from the subroutine the previous values of those parameters will
  be restored.
+ Because 
+\begin_inset Quotes eld
+\end_inset 
+
+
+\family typewriter 
+1 2 3
+\family default 
+
+\begin_inset Quotes erd
+\end_inset 
+
+ is parsed as the number 123, the parameters must be enclosed in angle brackets.
+ The following calls a subroutine with 3 arguments:
+\layout LyX-Code
+
+O200 call [1] [2] [3]
 \layout Standard
 
-Subroutine calls may not be nested.
+Subroutine bodies may not be nested.
  They may only be called after they are defined.
  They may be called from other functions, and may call themselves recursively
  if it makes sense to do so.
@@ -6055,7 +6072,7 @@ while
 \begin_inset Quotes erd
 \end_inset 
 
- condition is false.
+ condition evaluates to false.
 \layout LyX-Code
 
 (draw a sawtooth shape)
@@ -6370,8 +6387,8 @@ G-Code Best Practices
 Use an appropriate decimal precision
 \layout Standard
 
-Use 3 digits after the decimal when milling in millimeters, and 4 digits
- after the decimal when milling in inches.
+Use at least 3 digits after the decimal when milling in millimeters, and
+ at least 4 digits after the decimal when milling in inches.
  In particular, arc tolerance checks are made to .001 and .0001 depending
  on the active units.
 \layout Section
@@ -6412,27 +6429,24 @@ Put important modal settings at the top of the file
 
 When correct execution of your program depends on modal settings, be sure
  to set them at the beginning of the part program.
- Modes can carry over from 
+ Modes can carry over from previous programs and from the MDI commands.
 \layout Standard
 
-previous programs and from the MDI command line.
-\layout Standard
-
-As a good preventative measure, put the following line at the top of all
- your programs:
+As a good preventative measure, put a line similar to the following at the
+ top of all your programs:
 \layout LyX-Code
 
 G17 G20 G40 G49 G54 G80 G90 G94 
 \layout Standard
 
-(XY plane select, inch mode, cancel diameter comp, cancel length offset,
+(XY plane, inch mode, cancel diameter compensation, cancel length offset,
  coordinate system 1, cancel motion, non-incremental motion, feed/minute
  mode)
 \layout Standard
 
-Perhaps the most critical modal setting is the distance value--If you do
- not include G20 or G21, (inch or mm,) then different machines will mill
- the program at different scales.
+Perhaps the most critical modal setting is the distance units--If you do
+ not include G20 or G21, then different machines will mill the program at
+ different scales.
  Other settings, such as the return mode in canned cycles may also be important.
 \layout Section
 
@@ -6460,8 +6474,6 @@ Don't use line numbers
 Line numbers offer no benefits.
  When line numbers are reported in error messages, the numbers refer to
  the line number in the file, not the N-word value.
-\layout Standard
-
 \layout Standard
 
 
