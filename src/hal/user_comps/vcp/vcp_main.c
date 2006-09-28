@@ -236,6 +236,8 @@ static void free_tree(void)
 
 static void quit(int sig)
 {
+    free_tree();
+    exit_from_hal();
     gtk_main_quit();
 }
 
