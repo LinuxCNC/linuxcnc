@@ -310,7 +310,7 @@ void emcmotDioWrite(int index, char value)
 */
 void emcmotAioWrite(int index, double value)
 {
-    rtapi_print_msg(RTAPI_MSG_ERR, "emcmotAioWrite called, yet not implemented\n");
+    reportError("emcmotAioWrite called, yet not implemented\n");
 }
 
 /*
