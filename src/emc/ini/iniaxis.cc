@@ -77,7 +77,6 @@ static int strbool(const char *str, int *result)
   MAX_VELOCITY <float>         max vel for axis
   MAX_ACCELERATION <float>     max accel for axis
   BACKLASH <float>             backlash
-  CYCLE_TIME <float>           cycle time
   INPUT_SCALE <float> <float>  scale, offset
   OUTPUT_SCALE <float> <float> scale, offset
   MIN_LIMIT <float>            minimum soft position limit
@@ -97,7 +96,6 @@ static int strbool(const char *str, int *result)
   emcAxisSetAxis(int axis, unsigned char axisType);
   emcAxisSetUnits(int axis, double units);
   emcAxisSetBacklash(int axis, double backlash);
-  emcAxisSetCycleTime(int axis, double cycleTime);
   emcAxisSetInterpolationRate(int axis, int rate);
   emcAxisSetInputScale(int axis, double scale, double offset);
   emcAxisSetOutputScale(int axis, double scale, double offset);
