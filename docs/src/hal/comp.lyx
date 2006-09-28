@@ -154,7 +154,7 @@ halcmd loadrt
  file specifies one component.
 \layout Description
 
-instance A component can have one or more instances.
+instance A component can have zero or more instances.
  Each instance of a component is created equal (they all have the same pins,
  parameters, functions, and data) but behave independently when their pins,
  parameters, and data have different values.
@@ -170,6 +170,33 @@ singleton
  in the system (for instance, a component whose purpose is to provide a
  pin with the current UNIX time, or a hardware driver for the internal PC
  speaker)
+\layout Section
+
+Instance creation
+\layout Standard
+
+For a singleton, the one instance is created when the component is loaded.
+\layout Standard
+
+For a non-singleton, the '
+\family typewriter 
+count
+\family default 
+' module parameter determines how many numbered instances are created.
+ Instances may be created later using '
+\family typewriter 
+halcmd newinst
+\family default 
+'.
+ In this case, the prefix is name given to 
+\family typewriter 
+newinst
+\family default 
+, not 
+\family typewriter 
+component.<num>
+\family default 
+.
 \layout Section
 
 Syntax
@@ -507,9 +534,16 @@ component-name.item-name
 \family typewriter 
 singleton
 \family default 
-, items are named 
+, items for numbered instances are named 
 \family typewriter 
-component-name.<num>.item-name.
+component-name.<num>.item-name
+\family default 
+.
+ A new instance of a singleton cannot be created with '
+\family typewriter 
+halcmd newinst
+\family default 
+'.
 \layout Description
 
 option\SpecialChar ~
@@ -519,11 +553,7 @@ Normally, the module parameter
 \family typewriter 
 count
 \family default 
- defaults to 
-\family typewriter 
-1
-\family default 
-.
+ defaults to 0.
  If specified, the 
 \family typewriter 
 count

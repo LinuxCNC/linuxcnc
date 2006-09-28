@@ -214,9 +214,14 @@ static int comp_id;
         print >>f, "static int get_count(void);"
 
     if options.get("rtapi_app", 1):
+        if options.get("constructable", 1) and not options.get("singleton"):
+            print >>f, "static int export_1(char *prefix, char *argstr) {"
+            print >>f, "    int arg = simple_strtol(argstr, NULL, 0);"
+            print >>f, "    return export(prefix, arg);"
+            print >>f, "}"   
         if not options.get("singleton") and not options.get("count_function") :
             print >>f, "static int count = %s;" \
-                % options.get("default_count", 1)
+                % options.get("default_count", 0)
             print >>f, "RTAPI_MP_INT(count, \"number of %s\");" % comp_name
 
         print >>f, "int rtapi_app_main(void) {"
@@ -240,6 +245,8 @@ static int comp_id;
             print >>f, "        r = export(buf, i);"
             print >>f, "        if(r != 0) break;"
             print >>f, "    }"
+        if options.get("constructable", 1) and not options.get("singleton"):
+            print >>f, "    hal_set_constructor(comp_id, export_1);"
         print >>f, "    if(r) {"
 	if options.get("extra_cleanup"):
             print >>f, "    extra_cleanup();"
@@ -366,6 +373,7 @@ def document(filename, outfilename):
         print >>f, ".B loadrt %s ..." % comp_name
     else:
         print >>f, ".B loadrt %s [count=\\fIN\\fB] ..." % comp_name
+        print >>f, ".PP\n.B newinst %s \\fIname\\fB" % comp_name
 
     print >>f, ".SH FUNCTIONS"
     for _, name, fp, doc in finddocs('funct'):

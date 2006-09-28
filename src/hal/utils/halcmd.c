@@ -95,6 +95,7 @@ static int do_unlock_cmd(char *command);
 static int do_linkpp_cmd(char *first_pin_name, char *second_pin_name);
 static int do_link_cmd(char *pin, char *sig);
 static int do_newsig_cmd(char *name, char *type);
+static int do_newinst_cmd(char *comp_name, char *inst_name);
 static int do_setp_cmd(char *name, char *value);
 static int do_getp_cmd(char *name);
 static int do_sets_cmd(char *name, char *value);
@@ -824,6 +825,8 @@ static int parse_cmd(char *tokens[])
 	retval = do_link_cmd(tokens[1], "\0");
     } else if (strcmp(tokens[0], "newsig") == 0) {
 	retval = do_newsig_cmd(tokens[1], tokens[2]);
+    } else if (strcmp(tokens[0], "newinst") == 0) {
+	retval = do_newinst_cmd(tokens[1], tokens[2]);
     } else if (strcmp(tokens[0], "delsig") == 0) {
 	retval = do_delsig_cmd(tokens[1]);
     } else if (strcmp(tokens[0], "setp") == 0) {
@@ -1024,6 +1027,65 @@ static int do_link_cmd(char *pin, char *sig)
 	rtapi_print_msg(RTAPI_MSG_ERR,"HAL:%d: link failed\n", linenumber);
     }
     return retval;
+}
+
+static int do_newinst_cmd(char *comp_name, char *inst_name) {
+    hal_comp_t *comp = halpr_find_comp_by_name(comp_name);
+    FILE *f;
+
+    if(!comp) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "No such component: %s\n", comp_name);
+        return HAL_NOTFND;
+    }
+    if(!comp->make) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "%s does not support 'newinst'\n", comp_name);
+        return HAL_UNSUP;
+    }
+
+    f = fopen("/proc/rtapi/hal/newinst", "w");
+    if(!f) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "cannot open proc entry: %s\n",
+                strerror(errno));
+        return HAL_FAIL;
+    }
+
+    rtapi_mutex_get(&(hal_data->mutex));
+
+    while(hal_data->pending_constructor) {
+        struct timespec ts = {0, 100 * 1000 * 1000}; // 100ms
+        rtapi_mutex_give(&(hal_data->mutex));
+        nanosleep(&ts, NULL);
+        rtapi_mutex_get(&(hal_data->mutex));
+    }
+    strncpy(hal_data->constructor_prefix, inst_name, HAL_NAME_LEN);
+    hal_data->constructor_prefix[HAL_NAME_LEN]=0;
+    hal_data->pending_constructor = comp->make;
+    rtapi_mutex_give(&(hal_data->mutex));
+
+    if(fputc(' ', f) == EOF) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "cannot write to proc entry: %s\n",
+                strerror(errno));
+        fclose(f);
+        rtapi_mutex_get(&(hal_data->mutex));
+        hal_data->pending_constructor = 0;
+        rtapi_mutex_give(&(hal_data->mutex));
+        return HAL_FAIL;
+    }
+    if(fclose(f) != 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                "cannot close proc entry: %s\n",
+                strerror(errno));
+        rtapi_mutex_get(&(hal_data->mutex));
+        hal_data->pending_constructor = 0;
+        rtapi_mutex_give(&(hal_data->mutex));
+        return HAL_FAIL;
+    }
+
+    while(hal_data->pending_constructor) {
+        struct timespec ts = {0, 100 * 1000 * 1000}; // 100ms
+        nanosleep(&ts, NULL);
+    }
+    return HAL_SUCCESS;
 }
 
 static int do_newsig_cmd(char *name, char *type)

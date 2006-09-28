@@ -81,7 +81,7 @@
 
 #include "procfs_macros.h"	/* macros for read functions */
 
-static struct proc_dir_entry *rtapi_dir = 0;	/* /proc/rtapi directory */
+struct proc_dir_entry *rtapi_dir = 0;	/* /proc/rtapi directory */
 static struct proc_dir_entry *status_file = 0;	/* /proc/rtapi/status */
 static struct proc_dir_entry *modules_file = 0;	/* /proc/rtapi/modules */
 static struct proc_dir_entry *tasks_file = 0;	/* /proc/rtapi/tasks */
@@ -414,6 +414,8 @@ static void proc_clean(void)
 	remove_proc_entry("rtapi", NULL);
     }
 }
+
+EXPORT_SYMBOL(rtapi_dir);
 
 #endif /* CONFIG_PROC_FS */
 #endif /* RTAPI_PROC_H */

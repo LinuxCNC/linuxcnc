@@ -398,6 +398,44 @@ void *hal_malloc(long int size)
     return retval;
 }
 
+#ifdef RTAPI
+int hal_set_constructor(int comp_id, constructor make) {
+    int next;
+    hal_comp_t *comp;
+
+    rtapi_mutex_get(&(hal_data->mutex));
+
+    /* search component list for 'comp_id' */
+    next = hal_data->comp_list_ptr;
+    if (next == 0) {
+	/* list is empty - should never happen, but... */
+	rtapi_mutex_give(&(hal_data->mutex));
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: component %d not found\n", comp_id);
+	return HAL_INVAL;
+    }
+
+    comp = SHMPTR(next);
+    while (comp->comp_id != comp_id) {
+	/* not a match, try the next one */
+	next = comp->next_ptr;
+	if (next == 0) {
+	    /* reached end of list without finding component */
+	    rtapi_mutex_give(&(hal_data->mutex));
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+		"HAL: ERROR: component %d not found\n", comp_id);
+	    return HAL_INVAL;
+	}
+	comp = SHMPTR(next);
+    }
+    
+    comp->make = make;
+
+    rtapi_mutex_give(&(hal_data->mutex));
+    return HAL_SUCCESS;
+}
+#endif
+
 int hal_ready(int comp_id) {
     int next;
     hal_comp_t *comp;
@@ -2255,6 +2293,50 @@ hal_pin_t *halpr_find_pin_by_sig(hal_sig_t * sig, hal_pin_t * start)
    or rmmod'ed.
 */
 
+#ifdef CONFIG_PROC_FS
+#include <linux/proc_fs.h>
+extern struct proc_dir_entry *rtapi_dir;
+static struct proc_dir_entry *hal_dir = 0;
+static struct proc_dir_entry *hal_newinst_file = 0;
+
+static int proc_write_newinst(struct file *file,
+        const char *buffer, unsigned long count, void *data)
+{
+    if(hal_data->pending_constructor) {
+        rtapi_print_msg(RTAPI_MSG_INFO,
+                "HAL: running constructor for %s %s\n",
+                hal_data->constructor_prefix,
+                hal_data->constructor_arg);
+        hal_data->pending_constructor(hal_data->constructor_prefix,
+                hal_data->constructor_arg);
+        hal_data->pending_constructor = 0;
+    }
+    return count;
+}
+
+static void hal_proc_clean(void) {
+    if(hal_newinst_file)
+        remove_proc_entry("newinst", hal_dir);
+    if(hal_dir)
+        remove_proc_entry("hal", rtapi_dir);
+    hal_newinst_file = hal_dir = 0;
+}
+static int hal_proc_init(void) {
+    if(!rtapi_dir) return 0;
+    hal_dir = create_proc_entry("hal", S_IFDIR, rtapi_dir);
+    if(!hal_dir) { hal_proc_clean(); return -1; }
+    hal_newinst_file = create_proc_entry("newinst", 0666, hal_dir);
+    if(!hal_newinst_file) { hal_proc_clean(); return -1; }
+    hal_newinst_file->data = NULL;
+    hal_newinst_file->read_proc = NULL;
+    hal_newinst_file->write_proc = proc_write_newinst;
+    return 0;
+}
+#else
+static void hal_proc_clean(void) {}
+static void hal_proc_init(void) {}
+#endif
+
 int rtapi_app_main(void)
 {
     int retval;
@@ -2294,6 +2376,13 @@ int rtapi_app_main(void)
 	rtapi_exit(lib_module_id);
 	return HAL_FAIL;
     }
+    retval = hal_proc_init();
+    if ( retval ) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL_LIB: ERROR: could not init /proc files\n");
+	rtapi_exit(lib_module_id);
+	return HAL_FAIL;
+    }
     /* done */
     rtapi_print_msg(RTAPI_MSG_DBG,
 	"HAL_LIB: kernel lib installed successfully\n");
@@ -2305,6 +2394,7 @@ void rtapi_app_exit(void)
     hal_thread_t *thread;
 
     rtapi_print_msg(RTAPI_MSG_DBG, "HAL_LIB: removing kernel lib\n");
+    hal_proc_clean();
     /* grab mutex before manipulating list */
     rtapi_mutex_get(&(hal_data->mutex));
     /* must remove all threads before unloading this module */
@@ -2374,7 +2464,6 @@ static void thread_task(void *arg)
 	rtapi_wait();
     }
 }
-
 #endif /* RTAPI */
 
 /* see the declarations of these functions (near top of file) for
@@ -2412,6 +2501,8 @@ static int init_hal_data(void)
     hal_data->sig_free_ptr = 0;
     hal_data->param_free_ptr = 0;
     hal_data->funct_free_ptr = 0;
+    hal_data->pending_constructor = 0;
+    hal_data->constructor_prefix[0] = 0;
     list_init_entry(&(hal_data->funct_entry_free));
     hal_data->thread_free_ptr = 0;
     /* set up for shmalloc_xx() */
@@ -3027,6 +3118,8 @@ EXPORT_SYMBOL(hal_param_s16_set);
 EXPORT_SYMBOL(hal_param_u32_set);
 EXPORT_SYMBOL(hal_param_s32_set);
 EXPORT_SYMBOL(hal_param_set);
+
+EXPORT_SYMBOL(hal_set_constructor);
 
 EXPORT_SYMBOL(hal_export_funct);
 

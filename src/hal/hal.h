@@ -763,6 +763,17 @@ extern int hal_start_threads(void);
 */
 extern int hal_stop_threads(void);
 
+/** HAL 'constructor' typedef
+    If it is not NULL, this points to a function which can construct a new
+    instance of its component.  Return value is >=0 for success,
+    <0 for error.
+*/
+typedef int(*constructor)(char *prefix, char *arg);
+
+/** hal_set_constructor() sets the constructor function for this component
+*/
+extern int hal_set_constructor(int comp_id, constructor make);
+
 #ifdef __cplusplus
 }
 #endif
