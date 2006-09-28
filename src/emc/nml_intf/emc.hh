@@ -45,11 +45,11 @@
 
 #define EMC_AXIS_SET_AXIS_TYPE                       ((NMLTYPE) 101)
 #define EMC_AXIS_SET_UNITS_TYPE                      ((NMLTYPE) 102)
-/*! \todo FIXME - to be deleted later */
-#define EMC_AXIS_SET_GAINS_TYPE                      ((NMLTYPE) 103)
-#define EMC_AXIS_SET_CYCLE_TIME_TYPE                 ((NMLTYPE) 104)
-#define EMC_AXIS_SET_INPUT_SCALE_TYPE                ((NMLTYPE) 105)
-#define EMC_AXIS_SET_OUTPUT_SCALE_TYPE               ((NMLTYPE) 106)
+/* gap because of deleted message types */
+
+
+
+
 #define EMC_AXIS_SET_MIN_POSITION_LIMIT_TYPE         ((NMLTYPE) 107)
 #define EMC_AXIS_SET_MAX_POSITION_LIMIT_TYPE         ((NMLTYPE) 108)
 #define EMC_AXIS_SET_MIN_OUTPUT_LIMIT_TYPE           ((NMLTYPE) 109)
@@ -115,8 +115,8 @@
 #define EMC_TRAJ_SET_OFFSET_TYPE                     ((NMLTYPE) 223)
 #define EMC_TRAJ_SET_ORIGIN_TYPE                     ((NMLTYPE) 224)
 #define EMC_TRAJ_SET_HOME_TYPE                       ((NMLTYPE) 225)
-#define EMC_TRAJ_SET_PROBE_INDEX_TYPE                ((NMLTYPE) 226)
-#define EMC_TRAJ_SET_PROBE_POLARITY_TYPE             ((NMLTYPE) 227)
+/* gap because of removed messages */
+
 #define EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG_TYPE       ((NMLTYPE) 228)
 #define EMC_TRAJ_PROBE_TYPE                          ((NMLTYPE) 229)
 #define EMC_TRAJ_SET_TELEOP_ENABLE_TYPE              ((NMLTYPE) 230)
@@ -231,7 +231,7 @@
 
 #define EMC_SET_DIO_INDEX_TYPE                       ((NMLTYPE) 5001)
 #define EMC_SET_AIO_INDEX_TYPE                       ((NMLTYPE) 5002)
-#define EMC_SET_POLARITY_TYPE                        ((NMLTYPE) 5003)
+
 
 // digital IO point indices
 enum {
@@ -256,32 +256,6 @@ enum {
 enum {
     // spindle
     EMC_SET_AIO_INDEX_SPINDLE_ON = 5201
-};
-
-// IO point polarities
-enum {
-    // axis
-    EMC_SET_POLARITY_AXIS_ENABLE = 5301,
-    EMC_SET_POLARITY_AXIS_MIN_LIMIT_SWITCH,
-    EMC_SET_POLARITY_AXIS_MAX_LIMIT_SWITCH,
-    EMC_SET_POLARITY_AXIS_HOME_SWITCH,
-    EMC_SET_POLARITY_AXIS_HOMING,
-    EMC_SET_POLARITY_AXIS_FAULT,
-    // spindle
-    EMC_SET_POLARITY_SPINDLE_FORWARD,
-    EMC_SET_POLARITY_SPINDLE_REVERSE,
-    EMC_SET_POLARITY_SPINDLE_DECREASE,
-    EMC_SET_POLARITY_SPINDLE_INCREASE,
-    EMC_SET_POLARITY_SPINDLE_BRAKE,
-    EMC_SET_POLARITY_SPINDLE_ENABLE,
-    // coolant
-    EMC_SET_POLARITY_COOLANT_MIST,
-    EMC_SET_POLARITY_COOLANT_FLOOD,
-    // lube
-    EMC_SET_POLARITY_LUBE_SENSE,
-    // aux
-    EMC_SET_POLARITY_ESTOP_SENSE,
-    EMC_SET_POLARITY_ESTOP_WRITE
 };
 
 // EMC_IO aggregate class type declaration
@@ -390,15 +364,8 @@ extern int emcOperatorDisplay(int id, const char *fmt, ...);
 
 extern int emcAxisSetAxis(int axis, unsigned char axisType);
 extern int emcAxisSetUnits(int axis, double units);
-/*! \todo FIXME - soon to be deleted */
-extern int emcAxisSetGains(int axis, double p, double i, double d,
-			   double ff0, double ff1, double ff2,
-			   double bias, double maxError, double deadband);
 extern int emcAxisSetBacklash(int axis, double backlash);
-extern int emcAxisSetCycleTime(int axis, double cycleTime);
 extern int emcAxisSetInterpolationRate(int axis, int rate);
-extern int emcAxisSetInputScale(int axis, double scale, double offset);
-extern int emcAxisSetOutputScale(int axis, double scale, double offset);
 extern int emcAxisSetMinPositionLimit(int axis, double limit);
 extern int emcAxisSetMaxPositionLimit(int axis, double limit);
 extern int emcAxisSetMotorOffset(int axis, double offset);
@@ -406,22 +373,12 @@ extern int emcAxisSetMinOutputLimit(int axis, double limit);
 extern int emcAxisSetMaxOutputLimit(int axis, double limit);
 extern int emcAxisSetFerror(int axis, double ferror);
 extern int emcAxisSetMinFerror(int axis, double ferror);
-/*! \todo FIXME - should be deleted */
-extern int emcAxisSetStepParams(int axis, double setup_time,
-				double hold_time);
 extern int emcAxisSetHomingParams(int axis, double home, double offset,
 				  double search_vel, double latch_vel,
 				  int use_index, int ignore_limits,
 				  int is_shared, int home_sequence);
 extern int emcAxisSetMaxVelocity(int axis, double vel);
 extern int emcAxisSetMaxAcceleration(int axis, double acc);
-/*! \todo FIXME - polarity messages should be deleted */
-extern int emcAxisSetEnablePolarity(int axis, int level);
-extern int emcAxisSetMinLimitSwitchPolarity(int axis, int level);
-extern int emcAxisSetMaxLimitSwitchPolarity(int axis, int level);
-extern int emcAxisSetHomeSwitchPolarity(int axis, int level);
-extern int emcAxisSetHomingPolarity(int axis, int level);
-extern int emcAxisSetFaultPolarity(int axis, int level);
 
 extern int emcAxisInit(int axis);
 extern int emcAxisHalt(int axis);
@@ -478,8 +435,6 @@ extern int emcTrajSetSpindleSync(double spindlesync);
 extern int emcTrajSetOffset(EmcPose offset);
 extern int emcTrajSetOrigin(EmcPose origin);
 extern int emcTrajSetHome(EmcPose home);
-extern int emcTrajSetProbeIndex(int index);
-extern int emcTrajSetProbePolarity(int polarity);
 extern int emcTrajClearProbeTrippedFlag();
 extern int emcTrajProbe(EmcPose pos, int type, double vel, 
 	double ini_maxvel, double acc);
@@ -556,12 +511,6 @@ extern int emcAuxEstopOn();
 extern int emcAuxEstopOff();
 extern int emcAuxEstopReset();
 
-extern int emcAuxEstopSetSenseIndex(int index);
-extern int emcAuxEstopSetWriteIndex(int index);
-
-extern int emcAuxEstopSetSensePolarity(int polarity);
-extern int emcAuxEstopSetWritePolarity(int polarity);
-
 class EMC_AUX_STAT;		// forward decl
 extern int emcAuxUpdate(EMC_AUX_STAT * stat);
 
@@ -594,13 +543,7 @@ extern int emcSpindleSetOnIndex(int index);
 extern int emcMinVoltsPerRpm(double volts);
 extern int emcMaxVoltsPerRpm(double volts);
 
-extern int emcSpindleSetForwardPolarity(int polarity);
-extern int emcSpindleSetReversePolarity(int polarity);
-extern int emcSpindleSetDecreasePolarity(int polarity);
-extern int emcSpindleSetIncreasePolarity(int polarity);
-extern int emcSpindleSetBrakePolarity(int polarity);
-extern int emcSpindleSetEnablePolarity(int polarity);
-
+/*! \todo - FIXME - not used remove */
 extern int emcSpindleSetOffWait(double wait);
 extern int emcSpindleSetOnWait(double wait);
 
@@ -617,12 +560,6 @@ extern int emcCoolantMistOff();
 extern int emcCoolantFloodOn();
 extern int emcCoolantFloodOff();
 
-extern int emcCoolantSetMistIndex(int index);
-extern int emcCoolantSetFloodIndex(int index);
-
-extern int emcCoolantSetMistPolarity(int polarity);
-extern int emcCoolantSetFloodPolarity(int polarity);
-
 class EMC_COOLANT_STAT;		// forward decl
 extern int emcCoolantUpdate(EMC_COOLANT_STAT * stat);
 
@@ -633,11 +570,6 @@ extern int emcLubeHalt();
 extern int emcLubeAbort();
 extern int emcLubeOn();
 extern int emcLubeOff();
-
-extern int emcLubeSetSenseIndex(int index);
-extern int emcLubeSetSensePolarity(int polarity);
-extern int emcLubeSetWriteIndex(int index);
-extern int emcLubeSetWritePolarity(int polarity);
 
 class EMC_LUBE_STAT;		// forward decl
 extern int emcLubeUpdate(EMC_LUBE_STAT * stat);
@@ -823,30 +755,6 @@ class EMC_AXIS_SET_UNITS:public EMC_AXIS_CMD_MSG {
     double units;
 };
 
-/**
- * Set the PID gains.
- * This command sets the PID gains as well as a few other parameters used
- * by the PID compensator.
- */
-class EMC_AXIS_SET_GAINS:public EMC_AXIS_CMD_MSG {
-  public:
-    EMC_AXIS_SET_GAINS():EMC_AXIS_CMD_MSG(EMC_AXIS_SET_GAINS_TYPE,
-					  sizeof(EMC_AXIS_SET_GAINS)) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-
-    double p;
-    double i;
-    double d;
-    double ff0;
-    double ff1;
-    double ff2;
-    double bias;
-    double maxError;
-    double deadband;
-};
 
 /**
  * Set the Axis backlash.
@@ -863,92 +771,6 @@ class EMC_AXIS_SET_BACKLASH:public EMC_AXIS_CMD_MSG {
     void update(CMS * cms);
 
     double backlash;
-};
-
-/**
- * Set the cycle time for the servo task.
- * Increase this value to get more CPU time for running low-priority tasks,
- * decrease it to get more precise control of the motion.
- * There is only one cycle time that applies to all axis, so you might as well
- * set the axis parameter to zero.
- */
-class EMC_AXIS_SET_CYCLE_TIME:public EMC_AXIS_CMD_MSG {
-  public:
-    EMC_AXIS_SET_CYCLE_TIME():EMC_AXIS_CMD_MSG
-	(EMC_AXIS_SET_CYCLE_TIME_TYPE, sizeof(EMC_AXIS_SET_CYCLE_TIME)) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-
-    // PERIOD in seconds, between repeating the low level servo calculations.
-    double cycleTime;
-};
-
-/**
- * Change the scale factor and offset for the position input.
- * This command sets the same value as the INPUT_SCALE parameter in the ".ini"
- * file.
- * These two values are the scale and offset factors for the axis input from
- * the raw feedback device, e.g., an incremental encoder. The second value
- * (offset) is subtracted from raw input (e.g., encoder counts), and
- * divided by the first value (scale factor), before being used as feedback.
- * The units on the scale value are in raw units (e.g., counts) per user units
- * (e.g., inch). The units on the offset value are in raw units(e.g., counts).
- *
- * Specifically, when reading inputs, the EMC first reads the raw sensor
- * values. The units on these values are the sensor units, typically
- * A/D counts, or encoder ticks. These units, and the location of their 0
- * value, will not in general correspond to the quasi-SI units used in the EMC. * Hence a scaling is done immediately upon sampling:
- *
- * input = (raw - offset) / scale
- *
- * The value for scale can be obtained analytically by doing a unit analysis,
- * i.e., units are [sensor units]/[desired input SI units]. For example, on
- * a 2000 counts per rev encoder, and 10 revs/inch gearing, and desired units
- * of mm, we have
- *
- * [scale units] = 2000 [counts/rev] * 10 [rev/inch] * 1/25.4 [inch/mm]
- * [scale units] = 787.4 counts/mm
- *
- * and, as a result,
- *
- * input [mm] = (encoder [counts] - offset [counts]) / 787.4 [counts/mm]
- *
- * Note that the units of the offset are in sensor units, e.g., counts, and
- * they are pre-subtracted from the sensor readings. The value for this offset
- * is obtained by finding the value of counts for which you want your user
- * units to read 0.0. This is normally accomplished automatically during a
- * homing procedure.
- *
- * Note that using this command to change the scale is not a good idea
- * once things have gotten underway, since the axis will
- * jump servo to the "new" position, the gains will no longer
- * be appropriate, etc.
- */
-class EMC_AXIS_SET_INPUT_SCALE:public EMC_AXIS_CMD_MSG {
-  public:
-    EMC_AXIS_SET_INPUT_SCALE():EMC_AXIS_CMD_MSG
-	(EMC_AXIS_SET_INPUT_SCALE_TYPE, sizeof(EMC_AXIS_SET_INPUT_SCALE)) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-
-    double scale, offset;
-};
-
-class EMC_AXIS_SET_OUTPUT_SCALE:public EMC_AXIS_CMD_MSG {
-  public:
-    EMC_AXIS_SET_OUTPUT_SCALE():EMC_AXIS_CMD_MSG
-	(EMC_AXIS_SET_OUTPUT_SCALE_TYPE,
-	 sizeof(EMC_AXIS_SET_OUTPUT_SCALE)) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-
-    double scale, offset;
 };
 
 class EMC_AXIS_SET_MIN_POSITION_LIMIT:public EMC_AXIS_CMD_MSG {
@@ -1291,12 +1113,6 @@ class EMC_AXIS_STAT:public EMC_AXIS_STAT_MSG {
     double setup_time;
     double hold_time;
     double homeOffset;
-    unsigned char enablePolarity;
-    unsigned char minLimitSwitchPolarity;
-    unsigned char maxLimitSwitchPolarity;
-    unsigned char homeSwitchPolarity;
-    unsigned char homingPolarity;
-    unsigned char faultPolarity;
 
     // dynamic status
     /*! \todo FIXME - is this the position cmd from control to PID, or
@@ -1656,31 +1472,6 @@ class EMC_TRAJ_SET_HOME:public EMC_TRAJ_CMD_MSG {
     void update(CMS * cms);
 
     EmcPose home;
-};
-
-class EMC_TRAJ_SET_PROBE_INDEX:public EMC_TRAJ_CMD_MSG {
-  public:
-    EMC_TRAJ_SET_PROBE_INDEX():EMC_TRAJ_CMD_MSG
-	(EMC_TRAJ_SET_PROBE_INDEX_TYPE, sizeof(EMC_TRAJ_SET_PROBE_INDEX)) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-
-    int index;
-};
-
-class EMC_TRAJ_SET_PROBE_POLARITY:public EMC_TRAJ_CMD_MSG {
-  public:
-    EMC_TRAJ_SET_PROBE_POLARITY():EMC_TRAJ_CMD_MSG
-	(EMC_TRAJ_SET_PROBE_POLARITY_TYPE,
-	 sizeof(EMC_TRAJ_SET_PROBE_POLARITY)) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-
-    int polarity;
 };
 
 class EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG:public EMC_TRAJ_CMD_MSG {
@@ -2825,18 +2616,6 @@ class EMC_SET_AIO_INDEX:public RCS_CMD_MSG {
     int index;			// index, 0..max
 };
 
-class EMC_SET_POLARITY:public RCS_CMD_MSG {
-  public:
-    EMC_SET_POLARITY():RCS_CMD_MSG(EMC_SET_POLARITY_TYPE,
-				   sizeof(EMC_SET_POLARITY)) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-
-    int value;			// one of enum EMC_SET_POLARITY_XXX
-    int polarity;		// polarity, 0 or 1
-};
 
 // EMC_IO is aggregate of all EMC IO-related status classes
 

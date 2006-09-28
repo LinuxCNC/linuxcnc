@@ -99,48 +99,6 @@ int emcAxisSetUnits(int axis, double units)
     return 0;
 }
 
-/*! \todo Another #if 0 */
-#if 0
-int emcAxisSetGains(int axis, double p, double i, double d,
-		    double ff0, double ff1, double ff2,
-		    double bias, double maxError, double deadband)
-{
-    if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
-	return 0;
-    }
-
-    emcmotCommand.command = EMCMOT_SET_PID;
-    emcmotCommand.axis = axis;
-
-    emcmotCommand.pid.p = p;
-    emcmotCommand.pid.i = i;
-    emcmotCommand.pid.d = d;
-    emcmotCommand.pid.ff0 = ff0;
-    emcmotCommand.pid.ff1 = ff1;
-    emcmotCommand.pid.ff2 = ff2;
-    emcmotCommand.pid.bias = bias;
-    emcmotCommand.pid.maxError = maxError;
-    emcmotCommand.pid.deadband = deadband;
-
-#ifdef ISNAN_TRAP
-    if (isnan(emcmotCommand.pid.p) ||
-	isnan(emcmotCommand.pid.i) ||
-	isnan(emcmotCommand.pid.d) ||
-	isnan(emcmotCommand.pid.ff0) ||
-	isnan(emcmotCommand.pid.ff1) ||
-	isnan(emcmotCommand.pid.ff2) ||
-	isnan(emcmotCommand.pid.bias) ||
-	isnan(emcmotCommand.pid.maxError) ||
-	isnan(emcmotCommand.pid.deadband)) {
-	printf("isnan error in emcAxisSetGains\n");
-	return -1;
-    }
-#endif
-
-    return usrmotWriteEmcmotCommand(&emcmotCommand);
-}
-#endif
-
 int emcAxisSetBacklash(int axis, double backlash)
 {
     if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
@@ -161,68 +119,6 @@ int emcAxisSetBacklash(int axis, double backlash)
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
-
-/*! \todo Another #if 0 */
-#if 0
-int emcAxisSetCycleTime(int axis, double cycleTime)
-{
-    if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
-	return 0;
-    }
-
-    if (cycleTime <= 0.0) {
-	return -1;
-    }
-
-    emcmotCommand.command = EMCMOT_SET_SERVO_CYCLE_TIME;
-    emcmotCommand.cycleTime = cycleTime;
-
-    return usrmotWriteEmcmotCommand(&emcmotCommand);
-}
-
-int emcAxisSetInputScale(int axis, double scale, double offset)
-{
-    if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
-	return 0;
-    }
-
-    emcmotCommand.command = EMCMOT_SET_INPUT_SCALE;
-    emcmotCommand.axis = axis;
-    emcmotCommand.scale = scale;
-    emcmotCommand.offset = offset;
-
-#ifdef ISNAN_TRAP
-    if (isnan(emcmotCommand.scale) || isnan(emcmotCommand.offset)) {
-	printf("isnan eror in emcAxisSetInputScale\n");
-	return -1;
-    }
-#endif
-
-    return usrmotWriteEmcmotCommand(&emcmotCommand);
-}
-
-int emcAxisSetOutputScale(int axis, double scale, double offset)
-{
-    if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
-	return 0;
-    }
-
-    emcmotCommand.command = EMCMOT_SET_OUTPUT_SCALE;
-    emcmotCommand.axis = axis;
-    emcmotCommand.scale = scale;
-    emcmotCommand.offset = offset;
-
-#ifdef ISNAN_TRAP
-    if (isnan(emcmotCommand.scale) || isnan(emcmotCommand.offset)) {
-	printf("isnan eror in emcAxisSetOutputScale\n");
-	return -1;
-    }
-#endif
-
-    return usrmotWriteEmcmotCommand(&emcmotCommand);
-}
-
-#endif				/* #if 0 */
 
 // saved values of limits, since emcmot expects them to be set in
 // pairs and we set them individually.
@@ -283,59 +179,6 @@ int emcAxisSetMotorOffset(int axis, double offset) {
     
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
-
-/*! \todo Another #if 0 */
-#if 0
-
-// saved values of limits, since emcmot expects them to be set in
-// pairs and we set them individually.
-static double saveMinOutput[EMCMOT_MAX_AXIS];
-static double saveMaxOutput[EMCMOT_MAX_AXIS];
-
-int emcAxisSetMinOutputLimit(int axis, double limit)
-{
-    if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
-	return 0;
-    }
-
-    emcmotCommand.command = EMCMOT_SET_OUTPUT_LIMITS;
-    emcmotCommand.axis = axis;
-    emcmotCommand.maxLimit = saveMaxOutput[axis];
-    emcmotCommand.minLimit = limit;
-    saveMinOutput[axis] = limit;
-
-#ifdef ISNAN_TRAP
-    if (isnan(emcmotCommand.maxLimit) || isnan(emcmotCommand.minLimit)) {
-	printf("isnan error in emcAxisSetMinOutputLimit\n");
-	return -1;
-    }
-#endif
-
-    return usrmotWriteEmcmotCommand(&emcmotCommand);
-}
-
-int emcAxisSetMaxOutputLimit(int axis, double limit)
-{
-    if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
-	return 0;
-    }
-
-    emcmotCommand.command = EMCMOT_SET_OUTPUT_LIMITS;
-    emcmotCommand.axis = axis;
-    emcmotCommand.minLimit = saveMinOutput[axis];
-    emcmotCommand.maxLimit = limit;
-    saveMaxOutput[axis] = limit;
-
-#ifdef ISNAN_TRAP
-    if (isnan(emcmotCommand.maxLimit) || isnan(emcmotCommand.minLimit)) {
-	printf("isnan error in emcAxisSetMaxOutputLimit\n");
-	return -1;
-    }
-#endif
-
-    return usrmotWriteEmcmotCommand(&emcmotCommand);
-}
-#endif
 
 int emcAxisSetFerror(int axis, double ferror)
 {
@@ -559,22 +402,6 @@ int emcAxisOverrideLimits(int axis)
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
-/*! \todo Another #if 0 */
-#if 0
-int emcAxisSetOutput(int axis, double output)
-{
-    if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
-	return 0;
-    }
-
-    emcmotCommand.command = EMCMOT_DAC_OUT;
-    emcmotCommand.axis = axis;
-    emcmotCommand.dacOut = output;
-
-    return usrmotWriteEmcmotCommand(&emcmotCommand);
-}
-#endif
-
 int emcAxisEnable(int axis)
 {
     if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
@@ -687,8 +514,6 @@ int get_emcmot_debug_info = 0;
   these globals are set in emcMotionUpdate(), then referenced in
   emcAxisUpdate(), emcTrajUpdate() to save calls to usrmotReadEmcmotStatus
  */
-/*! \todo FIXME - next line commented out and moved to top of file for debugging */
-//static emcmot_status_t emcmotStatus;*/
 static emcmot_debug_t emcmotDebug;
 static char errorString[EMCMOT_ERROR_LEN];
 static int new_config = 0;
@@ -720,13 +545,6 @@ int emcAxisUpdate(EMC_AXIS_STAT stat[], int numAxes)
 
 	stat[axis].axisType = localEmcAxisAxisType[axis];
 	stat[axis].units = localEmcAxisUnits[axis];
-/*! \todo Another #if 0 */
-#if 0
-	stat[axis].inputScale = emcmotStatus.inputScale[axis];
-	stat[axis].inputOffset = emcmotStatus.inputOffset[axis];
-	stat[axis].outputScale = emcmotStatus.outputScale[axis];
-	stat[axis].outputOffset = emcmotStatus.outputOffset[axis];
-#endif
 	if (new_config) {
 	    stat[axis].backlash = joint->backlash;
 	    stat[axis].minPositionLimit = joint->min_pos_limit;
@@ -822,21 +640,6 @@ int emcTrajSetUnits(double linearUnits, double angularUnits)
 
     return 0;
 }
-
-/*! \todo Another #if 0 */
-#if 0
-int emcTrajSetCycleTime(double cycleTime)
-{
-    if (cycleTime <= 0.0) {
-	return -1;
-    }
-
-    emcmotCommand.command = EMCMOT_SET_TRAJ_CYCLE_TIME;
-    emcmotCommand.cycleTime = cycleTime;
-
-    return usrmotWriteEmcmotCommand(&emcmotCommand);
-}
-#endif
 
 int emcTrajSetMode(int mode)
 {
@@ -1297,11 +1100,6 @@ int emcTrajUpdate(EMC_TRAJ_STAT * stat)
 
     if (new_config) {
 	stat->cycleTime = emcmotConfig.trajCycleTime;
-/*! \todo Another #if 0 */
-#if 0
-	stat->probe_index = emcmotConfig.probeIndex;
-	stat->probe_polarity = emcmotConfig.probePolarity;
-#endif
 	stat->kinematics_type = emcmotConfig.kinematics_type;
 	stat->maxVelocity = emcmotConfig.limitVel;
     }

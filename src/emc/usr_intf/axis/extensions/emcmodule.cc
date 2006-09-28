@@ -565,12 +565,6 @@ static PyObject *Stat_axis_one(pyStatChannel *s, int axisno) {
     F(setup_time);
     F(hold_time);
     F2("home_offset", homeOffset);
-    F2("enable_polarity", enablePolarity);
-    F2("min_limit_switch_polarity", minLimitSwitchPolarity);
-    F2("max_limit_switch_polarity", maxLimitSwitchPolarity);
-    F2("home_switch_polarity", homeSwitchPolarity);
-    F2("homing_polarity", homingPolarity);
-    F2("fault_polarity", faultPolarity);
     F(setpoint);
     F2("ferror_current", ferrorCurrent);
     F2("ferror_highmark", ferrorHighMark);

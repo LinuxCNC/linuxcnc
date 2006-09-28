@@ -1149,49 +1149,6 @@ static int sendLoadToolTable(const char *file)
   return 0;
 }
 
-static int sendAxisCycleTime(int axis, double cycleTime)
-{
-  EMC_AXIS_SET_CYCLE_TIME emc_axis_set_cycle_time_msg;
-
-  emc_axis_set_cycle_time_msg.axis = axis;
-  emc_axis_set_cycle_time_msg.cycleTime = cycleTime;
-  emc_axis_set_cycle_time_msg.serial_number = ++emcCommandSerialNumber;
-  emcCommandBuffer->write(emc_axis_set_cycle_time_msg);
-
-  return 0;
-}
-static int sendAxisSetGains(int axis, double p, double i, double d, double ff0, double ff1, double ff2, double bias, double maxError)
-{
-  EMC_AXIS_SET_GAINS emc_axis_set_gains_msg;
-
-  emc_axis_set_gains_msg.axis = axis;
-  emc_axis_set_gains_msg.p = p;
-  emc_axis_set_gains_msg.i = i;
-  emc_axis_set_gains_msg.d = d;
-  emc_axis_set_gains_msg.ff0 = ff0;
-  emc_axis_set_gains_msg.ff1 = ff1;
-  emc_axis_set_gains_msg.ff2 = ff2;
-  emc_axis_set_gains_msg.bias = bias;
-  emc_axis_set_gains_msg.maxError = maxError;
-  emc_axis_set_gains_msg.serial_number = ++emcCommandSerialNumber;
-  emcCommandBuffer->write(emc_axis_set_gains_msg);
-
-  return 0;
-}
-
-static int sendAxisSetOutputScale(int axis, double scale, double offset)
-{
-  EMC_AXIS_SET_OUTPUT_SCALE emc_axis_set_output_scale_msg;
-
-  emc_axis_set_output_scale_msg.axis = axis;
-  emc_axis_set_output_scale_msg.scale = scale;
-  emc_axis_set_output_scale_msg.offset = offset;
-  emc_axis_set_output_scale_msg.serial_number = ++emcCommandSerialNumber;
-  emcCommandBuffer->write(emc_axis_set_output_scale_msg);
-
-  return 0;
-}
-
 static int sendAxisSetFerror(int axis, double ferror)
 {
   EMC_AXIS_SET_FERROR emc_axis_set_ferror_msg;
@@ -3393,12 +3350,6 @@ static void calibDoDone(int done)
         1 == sscanf(str11, "%lf", &outputScale) &&
         1 == sscanf(str12, "%lf", &outputOffset) &&
         1 == sscanf(str13, "%lf", &ferror)) {
-      sendAxisCycleTime(activeAxis, cycleTime);
-      emcCommandWaitDone(emcCommandSerialNumber);
-      sendAxisSetGains(activeAxis, p, i, d, ff0, ff1, ff2, bias, maxError);
-      emcCommandWaitDone(emcCommandSerialNumber);
-      sendAxisSetOutputScale(activeAxis, outputScale, outputOffset);
-      emcCommandWaitDone(emcCommandSerialNumber);
       sendAxisSetFerror(activeAxis, ferror);
     }
     else {

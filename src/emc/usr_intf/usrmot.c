@@ -338,12 +338,6 @@ int main(int argc, char *argv[])
 		    ("probe <x> <y> <z>\tMove toward x,y,z, if probe is tripped on the way the probe position will be updated and motion stopped.\n");
 		printf
 		    ("probeclear\tClear the probeTripped status flag.\n");
-/*! \todo FIXME
-		printf
-		    ("probeindex <index>\tSet which input is checked for probe status.\n");
-		printf
-		    ("probepolarity <polarity>\tSet whether a probe is tripped on a 0 or 1.\n");
-*/
 	    } else if (!strcmp(cmd, ">")) {
 		disablePrompt = !disablePrompt;
 	    } else if (!strcmp(cmd, ";")) {

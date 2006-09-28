@@ -304,13 +304,6 @@
   units to be displayed. If it's "auto", the units to be displayed match
   the program units.
 
-  emc_probe_index
-  Which wire is the probe on or which bit of digital IO to use? (No args
-  gets it, one arg sets it.)
-
-  emc_probe_polarity
-  Value to look for for probe tripped? (0 args gets it, one arg sets it.)
-
   emc_probe_clear
   Clear the probe tripped flag.
 
@@ -1545,33 +1538,6 @@ static int sendToolSetOffset(int tool, double length, double diameter)
     return 0;
 }
 
-static int sendAxisSetGains(int axis, double p, double i, double d,
-			    double ff0, double ff1, double ff2,
-			    double bias, double maxError, double deadband)
-{
-    EMC_AXIS_SET_GAINS emc_axis_set_gains_msg;
-
-    emc_axis_set_gains_msg.axis = axis;
-    emc_axis_set_gains_msg.p = p;
-    emc_axis_set_gains_msg.i = i;
-    emc_axis_set_gains_msg.d = d;
-    emc_axis_set_gains_msg.ff0 = ff0;
-    emc_axis_set_gains_msg.ff1 = ff1;
-    emc_axis_set_gains_msg.ff2 = ff2;
-    emc_axis_set_gains_msg.bias = bias;
-    emc_axis_set_gains_msg.maxError = maxError;
-    emc_axis_set_gains_msg.deadband = deadband;
-    emc_axis_set_gains_msg.serial_number = ++emcCommandSerialNumber;
-    emcCommandBuffer->write(emc_axis_set_gains_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived(emcCommandSerialNumber);
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone(emcCommandSerialNumber);
-    }
-
-    return 0;
-}
-
 static int sendAxisSetBacklash(int axis, double backlash)
 {
     EMC_AXIS_SET_BACKLASH emc_axis_set_backlash_msg;
@@ -1668,38 +1634,6 @@ static int sendSetTeleopEnable(int enable)
     emc_set_teleop_enable_msg.enable = enable;
     emc_set_teleop_enable_msg.serial_number = ++emcCommandSerialNumber;
     emcCommandBuffer->write(emc_set_teleop_enable_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived(emcCommandSerialNumber);
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone(emcCommandSerialNumber);
-    }
-
-    return 0;
-}
-
-static int sendSetProbeIndex(int index)
-{
-    EMC_TRAJ_SET_PROBE_INDEX emc_set_probe_index_msg;
-
-    emc_set_probe_index_msg.index = index;
-    emc_set_probe_index_msg.serial_number = ++emcCommandSerialNumber;
-    emcCommandBuffer->write(emc_set_probe_index_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived(emcCommandSerialNumber);
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone(emcCommandSerialNumber);
-    }
-
-    return 0;
-}
-
-static int sendSetProbePolarity(int polarity)
-{
-    EMC_TRAJ_SET_PROBE_POLARITY emc_set_probe_polarity_msg;
-
-    emc_set_probe_polarity_msg.serial_number = ++emcCommandSerialNumber;
-    emc_set_probe_polarity_msg.polarity = polarity;
-    emcCommandBuffer->write(emc_set_probe_polarity_msg);
     if (emcWaitType == EMC_WAIT_RECEIVED) {
 	return emcCommandWaitReceived(emcCommandSerialNumber);
     } else if (emcWaitType == EMC_WAIT_DONE) {
@@ -4258,217 +4192,6 @@ static int emc_motion_command_status(ClientData clientdata,
     return TCL_OK;
 }
 
-static int emc_axis_gains(ClientData clientdata,
-			  Tcl_Interp * interp, int objc,
-			  Tcl_Obj * CONST objv[])
-{
-    Tcl_Obj *valobj;
-    int axis;
-    const char *varstr;
-    double val;
-    double p, i, d, ff0, ff1, ff2, bias, maxError, deadband;
-
-    // syntax is emc_axis_gains <axis> <var> {<val>}
-    // or emc_axis_gains <axis> all <p> <i> ... <deadband>
-    // without <val> only, returns value of <var> for <axis>
-    // otherwise sets <var> to <value> for <axis>
-    // <axis> is 0,1,...
-    // <var> is p i d ff0 ff1 ff2 bias maxerror deadband
-    // <val> is floating point number
-
-    if (objc < 3) {
-	Tcl_SetResult(interp, "emc_axis_gains: need <axis> <var> {<val>}",
-		      TCL_VOLATILE);
-	return TCL_ERROR;
-    }
-
-    if (emcUpdateType == EMC_UPDATE_AUTO) {
-	updateStatus();
-    }
-
-    if (0 != Tcl_GetIntFromObj(0, objv[1], &axis) ||
-	axis < 0 || axis >= EMC_AXIS_MAX) {
-	Tcl_SetResult(interp,
-		      "emc_axis_gains: need axis as integer, 0..EMC_AXIS_MAX-1",
-		      TCL_VOLATILE);
-	return TCL_ERROR;
-    }
-
-    varstr = Tcl_GetStringFromObj(objv[2], 0);
-
-    if (objc == 3) {
-	if (!strcmp(varstr, "p")) {
-	    valobj = Tcl_NewDoubleObj(emcStatus->motion.axis[axis].p);
-	    Tcl_SetObjResult(interp, valobj);
-	    return TCL_OK;
-	} else if (!strcmp(varstr, "i")) {
-	    valobj = Tcl_NewDoubleObj(emcStatus->motion.axis[axis].i);
-	    Tcl_SetObjResult(interp, valobj);
-	    return TCL_OK;
-	} else if (!strcmp(varstr, "d")) {
-	    valobj = Tcl_NewDoubleObj(emcStatus->motion.axis[axis].d);
-	    Tcl_SetObjResult(interp, valobj);
-	    return TCL_OK;
-	} else if (!strcmp(varstr, "ff0")) {
-	    valobj = Tcl_NewDoubleObj(emcStatus->motion.axis[axis].ff0);
-	    Tcl_SetObjResult(interp, valobj);
-	    return TCL_OK;
-	} else if (!strcmp(varstr, "ff1")) {
-	    valobj = Tcl_NewDoubleObj(emcStatus->motion.axis[axis].ff1);
-	    Tcl_SetObjResult(interp, valobj);
-	    return TCL_OK;
-	} else if (!strcmp(varstr, "ff2")) {
-	    valobj = Tcl_NewDoubleObj(emcStatus->motion.axis[axis].ff2);
-	    Tcl_SetObjResult(interp, valobj);
-	    return TCL_OK;
-	} else if (!strcmp(varstr, "bias")) {
-	    valobj = Tcl_NewDoubleObj(emcStatus->motion.axis[axis].bias);
-	    Tcl_SetObjResult(interp, valobj);
-	    return TCL_OK;
-	} else if (!strcmp(varstr, "maxerror")) {
-	    valobj =
-		Tcl_NewDoubleObj(emcStatus->motion.axis[axis].maxError);
-	    Tcl_SetObjResult(interp, valobj);
-	    return TCL_OK;
-	} else if (!strcmp(varstr, "deadband")) {
-	    valobj =
-		Tcl_NewDoubleObj(emcStatus->motion.axis[axis].deadband);
-	    Tcl_SetObjResult(interp, valobj);
-	    return TCL_OK;
-	} else {
-	    Tcl_SetResult(interp, "emc_axis_gains: bad value for <val>",
-			  TCL_VOLATILE);
-	    return TCL_ERROR;
-	}
-    } else {
-	// <val> is provided, so set it and use current values for others
-	if (0 != Tcl_GetDoubleFromObj(0, objv[3], &val)) {
-	    Tcl_SetResult(interp,
-			  "emc_axis_gains: need value as floating point number",
-			  TCL_VOLATILE);
-	    return TCL_ERROR;
-	}
-
-	p = emcStatus->motion.axis[axis].p;
-	i = emcStatus->motion.axis[axis].i;
-	d = emcStatus->motion.axis[axis].d;
-	ff0 = emcStatus->motion.axis[axis].ff0;
-	ff1 = emcStatus->motion.axis[axis].ff1;
-	ff2 = emcStatus->motion.axis[axis].ff2;
-	bias = emcStatus->motion.axis[axis].bias;
-	maxError = emcStatus->motion.axis[axis].maxError;
-	deadband = emcStatus->motion.axis[axis].deadband;
-
-	if (!strcmp(varstr, "p")) {
-	    p = val;
-	} else if (!strcmp(varstr, "i")) {
-	    i = val;
-	} else if (!strcmp(varstr, "d")) {
-	    d = val;
-	} else if (!strcmp(varstr, "ff0")) {
-	    ff0 = val;
-	} else if (!strcmp(varstr, "ff1")) {
-	    ff1 = val;
-	} else if (!strcmp(varstr, "ff2")) {
-	    ff2 = val;
-	} else if (!strcmp(varstr, "bias")) {
-	    bias = val;
-	} else if (!strcmp(varstr, "maxerror")) {
-	    maxError = val;
-	} else if (!strcmp(varstr, "deadband")) {
-	    deadband = val;
-	} else if (!strcmp(varstr, "all") && objc == 12) {
-	    // it's "emc_axis_gains axis all p i d ff0 ff1 ff2 bias
-	    // maxerror deadband"
-
-	    // P
-	    if (0 != Tcl_GetDoubleFromObj(0, objv[3], &val)) {
-		Tcl_SetResult(interp,
-			      "emc_axis_gains: need P gain as floating point number",
-			      TCL_VOLATILE);
-		return TCL_ERROR;
-	    }
-	    p = val;
-	    // I
-	    if (0 != Tcl_GetDoubleFromObj(0, objv[4], &val)) {
-		Tcl_SetResult(interp,
-			      "emc_axis_gains: need I gain as floating point number",
-			      TCL_VOLATILE);
-		return TCL_ERROR;
-	    }
-	    i = val;
-	    // D
-	    if (0 != Tcl_GetDoubleFromObj(0, objv[5], &val)) {
-		Tcl_SetResult(interp,
-			      "emc_axis_gains: need D gain as floating point number",
-			      TCL_VOLATILE);
-		return TCL_ERROR;
-	    }
-	    d = val;
-	    // FF0
-	    if (0 != Tcl_GetDoubleFromObj(0, objv[6], &val)) {
-		Tcl_SetResult(interp,
-			      "emc_axis_gains: need FF0 gain as floating point number",
-			      TCL_VOLATILE);
-		return TCL_ERROR;
-	    }
-	    ff0 = val;
-	    // FF1
-	    if (0 != Tcl_GetDoubleFromObj(0, objv[7], &val)) {
-		Tcl_SetResult(interp,
-			      "emc_axis_gains: need FF1 gain as floating point number",
-			      TCL_VOLATILE);
-		return TCL_ERROR;
-	    }
-	    ff1 = val;
-	    // FF2
-	    if (0 != Tcl_GetDoubleFromObj(0, objv[8], &val)) {
-		Tcl_SetResult(interp,
-			      "emc_axis_gains: need FF2 gain as floating point number",
-			      TCL_VOLATILE);
-		return TCL_ERROR;
-	    }
-	    ff2 = val;
-	    // bias
-	    if (0 != Tcl_GetDoubleFromObj(0, objv[9], &val)) {
-		Tcl_SetResult(interp,
-			      "emc_axis_gains: need bias as floating point number",
-			      TCL_VOLATILE);
-		return TCL_ERROR;
-	    }
-	    bias = val;
-	    // maxerror
-	    if (0 != Tcl_GetDoubleFromObj(0, objv[10], &val)) {
-		Tcl_SetResult(interp,
-			      "emc_axis_gains: need maxerror as floating point number",
-			      TCL_VOLATILE);
-		return TCL_ERROR;
-	    }
-	    maxError = val;
-	    // deadband
-	    if (0 != Tcl_GetDoubleFromObj(0, objv[11], &val)) {
-		Tcl_SetResult(interp,
-			      "emc_axis_gains: need deadband as floating point number",
-			      TCL_VOLATILE);
-		return TCL_ERROR;
-	    }
-	    deadband = val;
-	} else {
-	    Tcl_SetResult(interp,
-			  "emc_axis_gains: not enough values for all gains",
-			  TCL_VOLATILE);
-	    return TCL_ERROR;
-	}
-
-	// now write it out
-	sendAxisSetGains(axis, p, i, d, ff0, ff1, ff2, bias,
-			 maxError, deadband);
-	return TCL_OK;
-    }
-
-    return TCL_OK;
-}
-
 static int emc_axis_backlash(ClientData clientdata,
 			     Tcl_Interp * interp, int objc,
 			     Tcl_Obj * CONST objv[])
@@ -4726,55 +4449,6 @@ int emc_kinematics_type(ClientData clientdata,
 	printf("emcStatus->motion.traj.mode = %d\n",
 	       emcStatus->motion.traj.mode);
     }
-    return TCL_OK;
-}
-
-int emc_probe_index(ClientData clientdata,
-		    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
-{
-    int index;
-
-    if (objc != 1) {
-	if (0 != Tcl_GetIntFromObj(0, objv[1], &index)) {
-	    Tcl_SetResult(interp,
-			  "emc_probe_index: <index> must be an integer",
-			  TCL_VOLATILE);
-	    return TCL_ERROR;
-	}
-	sendSetProbeIndex(index);
-    }
-
-    if (emcUpdateType == EMC_UPDATE_AUTO) {
-	updateStatus();
-    }
-
-    Tcl_SetObjResult(interp,
-		     Tcl_NewIntObj(emcStatus->motion.traj.probe_index));
-    return TCL_OK;
-}
-
-int emc_probe_polarity(ClientData clientdata,
-		       Tcl_Interp * interp, int objc,
-		       Tcl_Obj * CONST objv[])
-{
-    int polarity;
-
-    if (objc != 1) {
-	if (0 != Tcl_GetIntFromObj(0, objv[1], &polarity)) {
-	    Tcl_SetResult(interp,
-			  "emc_probe_polarity: <which> must be an integer",
-			  TCL_VOLATILE);
-	    return TCL_ERROR;
-	}
-	sendSetProbePolarity(polarity);
-    }
-
-    if (emcUpdateType == EMC_UPDATE_AUTO) {
-	updateStatus();
-    }
-
-    Tcl_SetObjResult(interp,
-		     Tcl_NewIntObj(emcStatus->motion.traj.probe_polarity));
     return TCL_OK;
 }
 
@@ -5322,9 +4996,6 @@ int Tcl_AppInit(Tcl_Interp * interp)
 			 emc_motion_command_status, (ClientData) NULL,
 			 (Tcl_CmdDeleteProc *) NULL);
 
-    Tcl_CreateObjCommand(interp, "emc_axis_gains", emc_axis_gains,
-			 (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
-
     Tcl_CreateObjCommand(interp, "emc_axis_backlash", emc_axis_backlash,
 			 (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
 
@@ -5347,12 +5018,6 @@ int Tcl_AppInit(Tcl_Interp * interp)
     Tcl_CreateObjCommand(interp, "emc_kinematics_type",
 			 emc_kinematics_type, (ClientData) NULL,
 			 (Tcl_CmdDeleteProc *) NULL);
-
-    Tcl_CreateObjCommand(interp, "emc_probe_index", emc_probe_index,
-			 (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
-
-    Tcl_CreateObjCommand(interp, "emc_probe_polarity", emc_probe_polarity,
-			 (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
 
     Tcl_CreateObjCommand(interp, "emc_probe_clear", emc_probe_clear,
 			 (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);

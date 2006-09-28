@@ -365,13 +365,6 @@
   units to be displayed. If it's "auto", the units to be displayed match
   the program units.
 
-  probe_index
-  Which wire is the probe on or which bit of digital IO to use? (No args
-  gets it, one arg sets it.)
-
-  probe_polarity
-  Value to look for for probe tripped? (0 args gets it, one arg sets it.)
-
   probe_clear
   Clear the probe tripped flag.
 
@@ -451,7 +444,7 @@ typedef enum {
   scPause, scResume, scStep, scAbort, scProgram, scProgramLine, scProgramStatus, scProgramCodes,
   scJointType, scJointUnits, scProgramUnits, scProgramLinearUnits, scProgramAngularUnits, 
   scUserLinearUnits, scUserAngularUnits, scDisplayLinearUnits, scDisplayAngularUnits,
-  scLinearUnitConversion,  scAngularUnitConversion, scProbeIndex, scProbePolarity, scProbeClear, 
+  scLinearUnitConversion,  scAngularUnitConversion, scProbeClear, 
   scProbeTripped, scProbeValue, scProbe, scTeleopEnable, scKinematicsType, scOverrideLimits, 
   scUnknown
   } setCommandType;
@@ -494,8 +487,8 @@ char *setCommands[] = {
   "RESUME", "STEP", "ABORT", "PROGRAM", "PROGRAM_LINE", "PROGRAM_STATUS", "PROGRAM_CODES",
   "JOINT_TYPE", "JOINT_UNITS", "PROGRAM_UNITS", "PROGRAM_LINEAR_UNITS", "PROGRAM_ANGULAR_UNITS", 
   "USER_LINEAR_UNITS", "USER_ANGULAR_UNITS", "DISPLAY_LINEAR_UNITS", "DISPLAY_ANGULAR_UNITS", 
-  "LINEAR_UNIT_CONVERSION", "ANGULAR_UNIT_CONVERSION", "PROBE_INDEX", "PROBE_POLARITY", "PROBE_CLEAR",
-  "PROBE_TRIPPED", "PROBE_VALUE", "PROBE", "TELEOP_ENABLE", "KINEMATICS_TYPE", "OVERRIDE_LIMITS", ""};
+  "LINEAR_UNIT_CONVERSION", "ANGULAR_UNIT_CONVERSION", "PROBE_CLEAR", "PROBE_TRIPPED", 
+  "PROBE_VALUE", "PROBE", "TELEOP_ENABLE", "KINEMATICS_TYPE", "OVERRIDE_LIMITS", ""};
 char *commands[] = {"HELLO", "SET", "GET", "QUIT", "SHUTDOWN", "HELP", ""};
 
 /* static char *skipWhite(char *s)
@@ -1691,38 +1684,6 @@ static int sendSetTeleopEnable(int enable)
     return 0;
 }
 
-static int sendSetProbeIndex(int index)
-{
-    EMC_TRAJ_SET_PROBE_INDEX emc_set_probe_index_msg;
-
-    emc_set_probe_index_msg.index = index;
-    emc_set_probe_index_msg.serial_number = ++emcCommandSerialNumber;
-    emcCommandBuffer->write(emc_set_probe_index_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived(emcCommandSerialNumber);
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone(emcCommandSerialNumber);
-    }
-
-    return 0;
-}
-
-static int sendSetProbePolarity(int polarity)
-{
-    EMC_TRAJ_SET_PROBE_POLARITY emc_set_probe_polarity_msg;
-
-    emc_set_probe_polarity_msg.serial_number = ++emcCommandSerialNumber;
-    emc_set_probe_polarity_msg.polarity = polarity;
-    emcCommandBuffer->write(emc_set_probe_polarity_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived(emcCommandSerialNumber);
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone(emcCommandSerialNumber);
-    }
-
-    return 0;
-}
-
 static int sendClearProbeTrippedFlag()
 {
     EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG emc_clear_probe_tripped_flag_msg;
@@ -2421,26 +2382,6 @@ static cmdResponseType setTeleopEnable(char *s, connectionRecType *context)
    return rtNoError;
 }
 
-static cmdResponseType setProbeIndex(char *s, connectionRecType *context)
-{
-  int probeIndex;
-  
-  if (s == NULL) return rtStandardError;
-  if (sscanf(s, "%d", &probeIndex) <= 0) return rtStandardError;
-  sendSetProbeIndex(probeIndex);
-  return rtNoError;
-}
-
-static cmdResponseType setProbePolarity(char *s, connectionRecType *context)
-{
-  int polarity;
-  
-  if (s == NULL) return rtStandardError;
-  if (sscanf(s, "%d", &polarity) <= 0) return rtStandardError;
-  sendSetProbePolarity(polarity);
-  return rtNoError;
-}
-
 static cmdResponseType setProbe(char *s, connectionRecType *context)
 {
   float x, y, z;
@@ -2557,8 +2498,6 @@ int commandSet(connectionRecType *context)
     case scDisplayAngularUnits: ret = rtStandardError; break;
     case scLinearUnitConversion: ret = setLinearUnitConversion(strtok(NULL, delims), context); break;
     case scAngularUnitConversion: ret = setAngularUnitConversion(strtok(NULL, delims), context); break;
-    case scProbeIndex: ret = setProbeIndex(strtok(NULL, delims), context); break;
-    case scProbePolarity: ret = setProbePolarity(strtok(NULL, delims), context); break;
     case scProbeClear: ret = setProbeClear(pch, context); break;
     case scProbeTripped: ret = rtStandardError; break;
     case scProbeValue: ret = rtStandardError; break;
@@ -3469,22 +3408,6 @@ static cmdResponseType getAngularUnitConversion(char *s, connectionRecType *cont
   return rtNoError;
 }
 
-static cmdResponseType getProbeIndex(char *s, connectionRecType *context)
-{
-  char *pProbeIndex = "PROBE_INDEX %d";
-  
-  sprintf(context->outBuf, pProbeIndex, emcStatus->motion.traj.probe_index);  
-  return rtNoError;
-}
-
-static cmdResponseType getProbePolarity(char *s, connectionRecType *context)
-{
-  char *pProbePolarity = "PROBE_POLARITY %d";
-  
-  sprintf(context->outBuf, pProbePolarity, emcStatus->motion.traj.probe_polarity);  
-  return rtNoError;
-}
-
 static cmdResponseType getProbeValue(char *s, connectionRecType *context)
 {
   char *pProbeValue = "PROBE_VALUE %d";
@@ -3623,8 +3546,6 @@ int commandGet(connectionRecType *context)
     case scDisplayAngularUnits: ret = getDisplayAngularUnits(pch, context); break;
     case scLinearUnitConversion: ret = getLinearUnitConversion(pch, context); break;
     case scAngularUnitConversion: ret = getAngularUnitConversion(pch, context); break;
-    case scProbeIndex: ret = getProbeIndex(pch, context); break;
-    case scProbePolarity: ret = getProbePolarity(pch, context); break;
     case scProbeClear: break;
     case scProbeTripped: ret = getProbeTripped(pch, context); break;
     case scProbeValue: ret = getProbeValue(pch, context); break;
@@ -3740,8 +3661,6 @@ static int helpGet(connectionRecType *context)
   strcat(context->outBuf, "    Override_limits\n\r");
   strcat(context->outBuf, "    Plat\n\r");
   strcat(context->outBuf, "    Pos_offset\n\r");
-  strcat(context->outBuf, "    Probe_index\n\r");
-  strcat(context->outBuf, "    Probe_polarity\n\r");
   strcat(context->outBuf, "    Probe_tripped\n\r");
   strcat(context->outBuf, "    Probe_value\n\r");
   strcat(context->outBuf, "    Program\n\r");
@@ -3803,8 +3722,6 @@ static int helpSet(connectionRecType *context)
   strcat(context->outBuf, "    Pause\n\r");
   strcat(context->outBuf, "    Probe\n\r");
   strcat(context->outBuf, "    Probe_clear\n\r");
-  strcat(context->outBuf, "    Probe_index <Index No>\n\r");
-  strcat(context->outBuf, "    Probe_polarity <0 | 1>\n\r");
   strcat(context->outBuf, "    Resume\n\r");
   strcat(context->outBuf, "    Run <Line No>\n\r");
   strcat(context->outBuf, "    SetWait <Time>\n\r");

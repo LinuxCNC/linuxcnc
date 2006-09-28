@@ -305,12 +305,8 @@ static EMC_AXIS_JOG *jog_msg;
 static EMC_AXIS_ABORT *axis_abort_msg;
 static EMC_AXIS_INCR_JOG *incr_jog_msg;
 static EMC_AXIS_ABS_JOG *abs_jog_msg;
-//static EMC_AXIS_SET_CYCLE_TIME *set_cycle_time_msg;
-//static EMC_AXIS_SET_GAINS *set_gains_msg;
 static EMC_AXIS_SET_BACKLASH *set_backlash_msg;
 static EMC_AXIS_SET_HOMING_PARAMS *set_homing_params_msg;
-//static EMC_AXIS_SET_INPUT_SCALE *set_input_scale_msg;
-//static EMC_AXIS_SET_OUTPUT_SCALE *set_output_scale_msg;
 static EMC_AXIS_SET_FERROR *set_ferror_msg;
 static EMC_AXIS_SET_MIN_FERROR *set_min_ferror_msg;
 static EMC_AXIS_SET_MAX_POSITION_LIMIT *set_max_limit_msg;
@@ -522,13 +518,10 @@ static int emcTaskPlan(void)
 		break;
 
 		// immediate commands
-	    case EMC_AXIS_SET_CYCLE_TIME_TYPE:
-	    case EMC_AXIS_SET_GAINS_TYPE:
 	    case EMC_AXIS_SET_BACKLASH_TYPE:
 	    case EMC_AXIS_SET_HOMING_PARAMS_TYPE:
 	    case EMC_AXIS_DISABLE_TYPE:
 	    case EMC_AXIS_ENABLE_TYPE:
-	    case EMC_AXIS_SET_OUTPUT_SCALE_TYPE:
 	    case EMC_AXIS_SET_FERROR_TYPE:
 	    case EMC_AXIS_SET_MIN_FERROR_TYPE:
 	    case EMC_AXIS_ABORT_TYPE:
@@ -547,8 +540,6 @@ static int emcTaskPlan(void)
 	    case EMC_TASK_PLAN_OPEN_TYPE:
 	    case EMC_TASK_PLAN_SET_OPTIONAL_STOP_TYPE:
 	    case EMC_TASK_ABORT_TYPE:
-	    case EMC_TRAJ_SET_PROBE_INDEX_TYPE:
-	    case EMC_TRAJ_SET_PROBE_POLARITY_TYPE:
 	    case EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG_TYPE:
 	    case EMC_TRAJ_PROBE_TYPE:
 	    case EMC_TRAJ_SET_TELEOP_ENABLE_TYPE:
@@ -620,12 +611,8 @@ static int emcTaskPlan(void)
 
 	    case EMC_AXIS_DISABLE_TYPE:
 	    case EMC_AXIS_ENABLE_TYPE:
-	    case EMC_AXIS_SET_CYCLE_TIME_TYPE:
-	    case EMC_AXIS_SET_GAINS_TYPE:
 	    case EMC_AXIS_SET_BACKLASH_TYPE:
 	    case EMC_AXIS_SET_HOMING_PARAMS_TYPE:
-	    case EMC_AXIS_SET_INPUT_SCALE_TYPE:
-	    case EMC_AXIS_SET_OUTPUT_SCALE_TYPE:
 	    case EMC_AXIS_SET_FERROR_TYPE:
 	    case EMC_AXIS_SET_MIN_FERROR_TYPE:
 	    case EMC_AXIS_SET_MAX_POSITION_LIMIT_TYPE:
@@ -666,8 +653,6 @@ static int emcTaskPlan(void)
 	    case EMC_TASK_PLAN_INIT_TYPE:
 	    case EMC_TASK_PLAN_SYNCH_TYPE:
 	    case EMC_TASK_PLAN_SET_OPTIONAL_STOP_TYPE:
-	    case EMC_TRAJ_SET_PROBE_INDEX_TYPE:
-	    case EMC_TRAJ_SET_PROBE_POLARITY_TYPE:
 	    case EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG_TYPE:
 	    case EMC_TRAJ_PROBE_TYPE:
 	    case EMC_TRAJ_SET_TELEOP_ENABLE_TYPE:
@@ -722,11 +707,8 @@ static int emcTaskPlan(void)
 
 		    // immediate commands
 
-		case EMC_AXIS_SET_CYCLE_TIME_TYPE:
-		case EMC_AXIS_SET_GAINS_TYPE:
 		case EMC_AXIS_SET_BACKLASH_TYPE:
 		case EMC_AXIS_SET_HOMING_PARAMS_TYPE:
-		case EMC_AXIS_SET_OUTPUT_SCALE_TYPE:
 		case EMC_AXIS_SET_FERROR_TYPE:
 		case EMC_AXIS_SET_MIN_FERROR_TYPE:
 		case EMC_AXIS_SET_OUTPUT_TYPE:
@@ -760,8 +742,6 @@ static int emcTaskPlan(void)
 		case EMC_TASK_PLAN_PAUSE_TYPE:
 		case EMC_TASK_PLAN_RESUME_TYPE:
 		case EMC_TASK_PLAN_SET_OPTIONAL_STOP_TYPE:
-		case EMC_TRAJ_SET_PROBE_INDEX_TYPE:
-		case EMC_TRAJ_SET_PROBE_POLARITY_TYPE:
 		case EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG_TYPE:
 		case EMC_TRAJ_PROBE_TYPE:
 		case EMC_SET_DEBUG_TYPE:
@@ -817,11 +797,8 @@ static int emcTaskPlan(void)
 
 		    // immediate commands
 
-		case EMC_AXIS_SET_CYCLE_TIME_TYPE:
-		case EMC_AXIS_SET_GAINS_TYPE:
 		case EMC_AXIS_SET_BACKLASH_TYPE:
 		case EMC_AXIS_SET_HOMING_PARAMS_TYPE:
-		case EMC_AXIS_SET_OUTPUT_SCALE_TYPE:
 		case EMC_AXIS_SET_FERROR_TYPE:
 		case EMC_AXIS_SET_MIN_FERROR_TYPE:
 		case EMC_AXIS_SET_OUTPUT_TYPE:
@@ -841,8 +818,6 @@ static int emcTaskPlan(void)
 		case EMC_TASK_SET_MODE_TYPE:
 		case EMC_TASK_SET_STATE_TYPE:
 		case EMC_TASK_ABORT_TYPE:
-		case EMC_TRAJ_SET_PROBE_INDEX_TYPE:
-		case EMC_TRAJ_SET_PROBE_POLARITY_TYPE:
 		case EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG_TYPE:
 		case EMC_TRAJ_PROBE_TYPE:
 		case EMC_SET_DEBUG_TYPE:
@@ -1007,11 +982,8 @@ interpret_again:
 
 		    // immediate commands
 
-		case EMC_AXIS_SET_CYCLE_TIME_TYPE:
-		case EMC_AXIS_SET_GAINS_TYPE:
 		case EMC_AXIS_SET_BACKLASH_TYPE:
 		case EMC_AXIS_SET_HOMING_PARAMS_TYPE:
-		case EMC_AXIS_SET_OUTPUT_SCALE_TYPE:
 		case EMC_AXIS_SET_FERROR_TYPE:
 		case EMC_AXIS_SET_MIN_FERROR_TYPE:
 		case EMC_AXIS_SET_OUTPUT_TYPE:
@@ -1042,8 +1014,6 @@ interpret_again:
 		case EMC_TASK_PLAN_PAUSE_TYPE:
 		case EMC_TASK_PLAN_RESUME_TYPE:
 		case EMC_TASK_PLAN_SET_OPTIONAL_STOP_TYPE:
-		case EMC_TRAJ_SET_PROBE_INDEX_TYPE:
-		case EMC_TRAJ_SET_PROBE_POLARITY_TYPE:
 		case EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG_TYPE:
 		case EMC_TRAJ_PROBE_TYPE:
 		case EMC_SET_DEBUG_TYPE:
@@ -1093,11 +1063,8 @@ interpret_again:
 
 		    // immediate commands
 
-		case EMC_AXIS_SET_CYCLE_TIME_TYPE:
-		case EMC_AXIS_SET_GAINS_TYPE:
 		case EMC_AXIS_SET_BACKLASH_TYPE:
 		case EMC_AXIS_SET_HOMING_PARAMS_TYPE:
-		case EMC_AXIS_SET_OUTPUT_SCALE_TYPE:
 		case EMC_AXIS_SET_FERROR_TYPE:
 		case EMC_AXIS_SET_MIN_FERROR_TYPE:
 		case EMC_AXIS_SET_OUTPUT_TYPE:
@@ -1118,8 +1085,6 @@ interpret_again:
 		case EMC_TASK_SET_MODE_TYPE:
 		case EMC_TASK_SET_STATE_TYPE:
 		case EMC_TASK_ABORT_TYPE:
-		case EMC_TRAJ_SET_PROBE_INDEX_TYPE:
-		case EMC_TRAJ_SET_PROBE_POLARITY_TYPE:
 		case EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG_TYPE:
 		case EMC_TRAJ_PROBE_TYPE:
 		case EMC_SET_DEBUG_TYPE:
@@ -1191,11 +1156,8 @@ interpret_again:
 
 		// immediate commands
 
-	    case EMC_AXIS_SET_CYCLE_TIME_TYPE:
-	    case EMC_AXIS_SET_GAINS_TYPE:
 	    case EMC_AXIS_SET_BACKLASH_TYPE:
 	    case EMC_AXIS_SET_HOMING_PARAMS_TYPE:
-	    case EMC_AXIS_SET_OUTPUT_SCALE_TYPE:
 	    case EMC_AXIS_SET_FERROR_TYPE:
 	    case EMC_AXIS_SET_MIN_FERROR_TYPE:
 	    case EMC_AXIS_SET_OUTPUT_TYPE:
@@ -1225,8 +1187,6 @@ interpret_again:
 	    case EMC_TASK_PLAN_SET_OPTIONAL_STOP_TYPE:
 	    case EMC_TASK_PLAN_RESUME_TYPE:
 	    case EMC_TASK_ABORT_TYPE:
-	    case EMC_TRAJ_SET_PROBE_INDEX_TYPE:
-	    case EMC_TRAJ_SET_PROBE_POLARITY_TYPE:
 	    case EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG_TYPE:
 	    case EMC_TRAJ_PROBE_TYPE:
 	    case EMC_SET_DEBUG_TYPE:
@@ -1480,22 +1440,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	retval = emcAxisAbsJog(abs_jog_msg->axis,
 			       abs_jog_msg->pos, abs_jog_msg->vel);
 	break;
-/*! \todo Another #if 0 */
-#if 0
-    case EMC_AXIS_SET_GAINS_TYPE:
-	set_gains_msg = (EMC_AXIS_SET_GAINS *) cmd;
-	retval = emcAxisSetGains(set_gains_msg->axis,
-				 set_gains_msg->p,
-				 set_gains_msg->i,
-				 set_gains_msg->d,
-				 set_gains_msg->ff0,
-				 set_gains_msg->ff1,
-				 set_gains_msg->ff2,
-				 set_gains_msg->bias,
-				 set_gains_msg->maxError,
-				 set_gains_msg->deadband);
-	break;
-#endif
+
     case EMC_AXIS_SET_BACKLASH_TYPE:
 	set_backlash_msg = (EMC_AXIS_SET_BACKLASH *) cmd;
 	retval =
@@ -1516,28 +1461,6 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 					set_homing_params_msg->home_sequence);
 	break;
 
-/*! \todo Another #if 0 */
-#if 0
-    case EMC_AXIS_SET_CYCLE_TIME_TYPE:
-	set_cycle_time_msg = (EMC_AXIS_SET_CYCLE_TIME *) cmd;
-	retval = emcAxisSetCycleTime(set_cycle_time_msg->axis,
-				     set_cycle_time_msg->cycleTime);
-	break;
-
-    case EMC_AXIS_SET_INPUT_SCALE_TYPE:
-	set_input_scale_msg = (EMC_AXIS_SET_INPUT_SCALE *) cmd;
-	retval = emcAxisSetInputScale(set_input_scale_msg->axis,
-				      set_input_scale_msg->scale,
-				      set_input_scale_msg->offset);
-	break;
-
-    case EMC_AXIS_SET_OUTPUT_SCALE_TYPE:
-	set_output_scale_msg = (EMC_AXIS_SET_OUTPUT_SCALE *) cmd;
-	retval = emcAxisSetOutputScale(set_output_scale_msg->axis,
-				       set_output_scale_msg->scale,
-				       set_output_scale_msg->offset);
-	break;
-#endif
     case EMC_AXIS_SET_FERROR_TYPE:
 	set_ferror_msg = (EMC_AXIS_SET_FERROR *) cmd;
 	retval = emcAxisSetFerror(set_ferror_msg->axis,
@@ -1571,14 +1494,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	axis_lim_msg = (EMC_AXIS_OVERRIDE_LIMITS *) cmd;
 	retval = emcAxisOverrideLimits(axis_lim_msg->axis);
 	break;
-/*! \todo Another #if 0 */
-#if 0
-    case EMC_AXIS_SET_OUTPUT_TYPE:
-	axis_output_msg = (EMC_AXIS_SET_OUTPUT *) cmd;
-	retval = emcAxisSetOutput(axis_output_msg->axis,
-				  axis_output_msg->output);
-	break;
-#endif
+
     case EMC_AXIS_LOAD_COMP_TYPE:
 	axis_load_comp_msg = (EMC_AXIS_LOAD_COMP *) cmd;
 	retval = emcAxisLoadComp(axis_load_comp_msg->axis,

@@ -524,15 +524,6 @@ void usrmotPrintEmcmotConfig(emcmot_config_t c, int which)
 	}
 	printf("\n");
 #endif
-/*! \todo Another #if 0 */
-#if 0
-	printf("probe index: %d\n", c.probeIndex);
-	printf("probe polarity: %d\n", c.probePolarity);
-	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
-	    htostr(m, c.axisPolarity[t]);
-	    printf("%s ", m);
-	}
-#endif
 	printf("\n");
 	break;
 

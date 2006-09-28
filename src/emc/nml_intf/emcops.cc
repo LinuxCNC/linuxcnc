@@ -47,12 +47,12 @@ EMC_AXIS_STAT_MSG(EMC_AXIS_STAT_TYPE, sizeof(EMC_AXIS_STAT))
     homingVel = 1.0;
     setup_time = 1;
     hold_time = 2;
-    enablePolarity = 1;
+/*    enablePolarity = 1;
     minLimitSwitchPolarity = 1;
     maxLimitSwitchPolarity = 1;
     homeSwitchPolarity = 1;
     homingPolarity = 1;
-    faultPolarity = 1;
+    faultPolarity = 1;*/
     ferrorCurrent = 0.0;
     ferrorHighMark = 0.0;
     output = 0.0;

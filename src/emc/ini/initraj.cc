@@ -56,8 +56,6 @@ static Inifile *trajInifile = 0;
   emcTrajSetMaxVelocity(double vel);
   emcTrajSetMaxAcceleration(double acc);
   emcTrajSetHome(EmcPose home);
-  emcTrajSetProbeIndex(int index);
-  emcTrajSetProbePolarity(int polarity);
   */
 
 static int loadTraj()
@@ -77,8 +75,6 @@ static int loadTraj()
     char home[LINELEN];
     EmcPose homePose = { {0.0, 0.0, 0.0}, 0.0, 0.0, 0.0 };
     double d;
-//  int index;
-//  int polarity;
 
     if (NULL != (inistring = trajInifile->find("AXES", "TRAJ"))) {
 	if (1 == sscanf(inistring, "%d", &axes)) {

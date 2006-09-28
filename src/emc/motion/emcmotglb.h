@@ -63,27 +63,8 @@ extern "C" {
 #endif
 
     extern double MAX_FERROR;
-
-/*! \todo Another #if 0 */
-#if 0
-    extern double P_GAIN;
-    extern double I_GAIN;
-    extern double D_GAIN;
-    extern double FF0_GAIN;
-    extern double FF1_GAIN;
-    extern double FF2_GAIN;
-    extern double BIAS;
-    extern double MAX_ERROR;
-#endif
     extern double BACKLASH;
 
-/*! \todo Another #if 0 */
-#if 0
-    extern double INPUT_SCALE;
-    extern double INPUT_OFFSET;
-    extern double OUTPUT_SCALE;
-    extern double OUTPUT_OFFSET;
-#endif
 
 #ifdef __cplusplus
 }				/* matches extern "C" at top */

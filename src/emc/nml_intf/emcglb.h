@@ -22,20 +22,18 @@
 extern "C" {
 #endif
 
+#include "config.h"
 #include "emcpos.h"		/* EmcPose */
 #include "math.h"		/* M_PI */
 
 #define EMC_AXIS_MAX 8
 
-#define EMC_INIFILE_LEN 256
-    extern char EMC_INIFILE[EMC_INIFILE_LEN];
+    extern char EMC_INIFILE[LINELEN];
 
-#define EMC_NMLFILE_LEN 256
-    extern char EMC_NMLFILE[EMC_NMLFILE_LEN];
+    extern char EMC_NMLFILE[LINELEN];
 
 #define DEFAULT_RS274NGC_STARTUP_CODE ""
-#define RS274NGC_STARTUP_CODE_MAX 256
-    extern char RS274NGC_STARTUP_CODE[RS274NGC_STARTUP_CODE_MAX];
+    extern char RS274NGC_STARTUP_CODE[LINELEN];
 
 
 struct nameval {
@@ -94,8 +92,7 @@ const struct nameval angular_nv_pairs[MAX_ANG_NV_PAIRS] = {
 
     extern double EMC_IO_CYCLE_TIME;
 
-#define TOOL_TABLE_FILE_LEN 256
-    extern char TOOL_TABLE_FILE[TOOL_TABLE_FILE_LEN];
+    extern char TOOL_TABLE_FILE[LINELEN];
 
     extern double TRAJ_DEFAULT_VELOCITY;
     extern double TRAJ_MAX_VELOCITY;
@@ -106,37 +103,9 @@ const struct nameval angular_nv_pairs[MAX_ANG_NV_PAIRS] = {
     extern double SPINDLE_OFF_WAIT;
     extern double SPINDLE_ON_WAIT;
 
-    extern int ESTOP_SENSE_INDEX;
-    extern int LUBE_SENSE_INDEX;
-
-    extern int ESTOP_SENSE_POLARITY;
-    extern int LUBE_SENSE_POLARITY;
-
     extern int SPINDLE_ON_INDEX;
     extern double MIN_VOLTS_PER_RPM;
     extern double MAX_VOLTS_PER_RPM;
-
-    extern int SPINDLE_FORWARD_INDEX;
-    extern int SPINDLE_REVERSE_INDEX;
-    extern int SPINDLE_BRAKE_INDEX;
-    extern int SPINDLE_DECREASE_INDEX;
-    extern int SPINDLE_INCREASE_INDEX;
-    extern int SPINDLE_ENABLE_INDEX;
-    extern int MIST_COOLANT_INDEX;
-    extern int FLOOD_COOLANT_INDEX;
-    extern int ESTOP_WRITE_INDEX;
-    extern int LUBE_WRITE_INDEX;
-
-    extern int SPINDLE_FORWARD_POLARITY;
-    extern int SPINDLE_REVERSE_POLARITY;
-    extern int MIST_COOLANT_POLARITY;
-    extern int FLOOD_COOLANT_POLARITY;
-    extern int SPINDLE_DECREASE_POLARITY;
-    extern int SPINDLE_INCREASE_POLARITY;
-    extern int ESTOP_WRITE_POLARITY;
-    extern int SPINDLE_BRAKE_POLARITY;
-    extern int SPINDLE_ENABLE_POLARITY;
-    extern int LUBE_WRITE_POLARITY;
 
     extern EmcPose TOOL_CHANGE_POSITION;
     extern unsigned char HAVE_TOOL_CHANGE_POSITION;

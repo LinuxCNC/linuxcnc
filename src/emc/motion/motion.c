@@ -174,9 +174,6 @@ int init_module(void)
 {
     int retval;
 
-    /*! \todo FIXME - debug only */
-//    rtapi_set_msg_level(RTAPI_MSG_ALL);
-
     rtapi_print_msg(RTAPI_MSG_INFO, "MOTION: init_module() starting...\n");
 
     /* set flag */
