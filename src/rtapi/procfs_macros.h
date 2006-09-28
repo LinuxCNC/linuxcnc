@@ -58,5 +58,5 @@
             len = 0;                                    \
         return len		// no ";"
 
-#endif /* PROC_FS */
+#endif /* CONFIG_PROC_FS */
 #endif /* PROCFS_MACROS_H */
