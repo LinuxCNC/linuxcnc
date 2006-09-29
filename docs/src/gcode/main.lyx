@@ -1245,7 +1245,7 @@ Parameters Used by the RS274NGC Interpreter
 
 
 \begin_inset  Tabular
-<lyxtabular version="3" rows="14" columns="2">
+<lyxtabular version="3" rows="15" columns="2">
 <features>
 <column alignment="left" valignment="top" leftline="true" width="0">
 <column alignment="left" valignment="top" leftline="true" rightline="true" width="0">
@@ -1264,6 +1264,32 @@ Parameter Number(s)
 \layout Standard
 
 Meaning
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+5061-5066
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Result of 
+\begin_inset Quotes eld
+\end_inset 
+
+G38.2
+\begin_inset Quotes erd
+\end_inset 
+
+ Probe
 \end_inset 
 </cell>
 </row>
@@ -3004,6 +3030,15 @@ MSG,
  Messages should be displayed on the message display device.
  Comments not containing messages need not be displayed there.
  
+\layout Standard
+
+A comment can also be used to specify a file for the results of G38.2 probing.
+ See section 
+\begin_inset LatexCommand \ref{sub:G38.2:-Straight-Probe}
+
+\end_inset 
+
+.
 \layout Section
 
 Repeated Items
@@ -4374,8 +4409,60 @@ G38.2: Straight Probe
 
 \layout Standard
 
-This code is currently unimplemented in EMC2.
- It is accepted, but the behavior is undefined.
+Program G38.2 X- Y- Z- A- B- C- to perform a straight probe operation.
+ The axis words are optional, except that at least one of them must be used.
+ The tool in the spindle must be a probe.
+\layout Standard
+
+It is an error if:
+\layout Itemize
+
+the current point is the same as the programmed point.
+\layout Itemize
+
+G38.2 is used in inverse time feed rate mode
+\layout Itemize
+
+no axis word is used
+\layout Itemize
+
+cutter radius compensation is enabled
+\layout Itemize
+
+the feed rate is zero
+\layout Standard
+
+In response to this command, the machine moves the controlled point (which
+ should be at the end of the probe tip) in a straight line at the current
+ feed rate toward the programmed point.
+ In inverse time feed mode, the feed rate is such that the whole motion
+ from the current point to the programmed point would take the specified
+ time.
+ If the probe does not trip during the move, an error is signalled.
+\layout Standard
+
+After successful probing, parameters 5061 to 5066 will be set to the coordinates
+ of the location of the controlled point at the time the probe tripped.
+\layout Standard
+
+A comment of the form 
+\family typewriter 
+(PROBEOPEN 
+\emph on 
+filename.txt
+\emph default 
+)
+\family default 
+ will open 
+\emph on 
+filename.txt
+\emph default 
+ and store the coordinate of each successful straight probe in it.
+ The file must be closed with 
+\family typewriter 
+(PROBECLOSE)
+\family default 
+.
 \layout Section
 
 G40, G41, G42: Cutter Radius Compensation.
