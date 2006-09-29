@@ -4420,9 +4420,6 @@ It is an error if:
 the current point is the same as the programmed point.
 \layout Itemize
 
-G38.2 is used in inverse time feed rate mode
-\layout Itemize
-
 no axis word is used
 \layout Itemize
 
