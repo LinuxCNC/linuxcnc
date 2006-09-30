@@ -32,13 +32,17 @@ while ARG=$1 ; ! [ "$ARG" = "${ARG#-}" ] ; do
     # argument is an option
     if [ $ARG = "-d" ] ; then
 	# enable echoing of script and command output
-	DEBUG_FILE=/dev/tty
-	echo "Debug mode on" >$DEBUG_FILE
+	if tty -s; then
+            DEBUG_FILE=/dev/tty
+            echo "Debug mode on" >$DEBUG_FILE
+        fi
 	set -x;
     elif [ $ARG = "-v" ] ; then
 	# enable printing of verbose messages
-	PRINT_FILE=/dev/tty
-	echo "Verbose mode on" >$PRINT_FILE
+	if tty -s; then
+            PRINT_FILE=/dev/tty
+            echo "Verbose mode on" >$PRINT_FILE
+        fi
     else
 	echo "Unknown option '$ARG'"
 	exit -1
@@ -99,14 +103,20 @@ function ErrorCheck () {
     echo "catch {send -async popimage destroy .}; destroy ." | wish
     if [ $result -ne 0 ]; then
         if tty -s; then
-            cp $DEBUG_FILE $HOME/emc_debug.txt
-            cp $PRINT_FILE $HOME/emc_print.txt
+            case $DEBUG_FILE in
+            /dev/tty) rm -f $HOME/emc_debug.txt;;
+            *) cp $DEBUG_FILE $HOME/emc_debug.txt
+            esac
+            case $PRINT_FILE in
+            /dev/tty) rm -f $HOME/emc_print.txt;;
+            *) cp $PRINT_FILE $HOME/emc_print.txt
+            esac
             echo "\
 EMC terminated with an error.  You can find more information in the log files
     $HOME/emc_debug.txt
 and
     $HOME/emc_print.txt
-as well as in the output of the shell command 'dmesg'"
+as well as in the output of the shell command 'dmesg' and in the terminal"
         else
             wish $EMC2_TCL_DIR/show_errors.tcl $DEBUG_FILE $PRINT_FILE
         fi
@@ -242,7 +252,7 @@ NMLFILE=$retval
 ################################################################################
 
 KILL_TASK=
-KILL_TIMEOUT=100
+KILL_TIMEOUT=20
 
 ################################################################################
 # 3.1. Kills a list of tasks with timeout
@@ -338,7 +348,7 @@ function Cleanup() {
     $HALCMD unload all
 
     # now kill all the other user space components of emc
-    for KILL_TASK in emcsvr milltask ; do
+    for KILL_TASK in emcsvr milltask simmot ; do
 	if $PIDOF $KILL_TASK >>$DEBUG_FILE ; then
 	    KillTaskWithTimeout
 	fi
@@ -428,7 +438,7 @@ if [ ! -x $EMC2_BIN_DIR/$EMCSERVER ] ; then
     exit 1
 fi
 $EMC2_BIN_DIR/$EMCSERVER -ini $INIFILE &
-
+sleep 1
 
 # 4.3.2. Start REALTIME
 echo "Loading Real Time OS, RTAPI, and HAL_LIB modules" >>$PRINT_FILE
