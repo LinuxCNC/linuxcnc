@@ -73,7 +73,7 @@ extern int tpAddLine(TP_STRUCT * tp, EmcPose end, int type, double vel, double
 extern int tpAddCircle(TP_STRUCT * tp, EmcPose end, PmCartesian center,
         PmCartesian normal, int turn, int type, double vel, double ini_maxvel,
         double acc);
-extern int tpRunCycle(TP_STRUCT * tp);
+extern int tpRunCycle(TP_STRUCT * tp, long period);
 extern int tpPause(TP_STRUCT * tp);
 extern int tpResume(TP_STRUCT * tp);
 extern int tpAbort(TP_STRUCT * tp);

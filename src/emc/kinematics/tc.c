@@ -309,13 +309,18 @@ int tcqLen(TC_QUEUE_STRUCT * tcq)
  *
  * @return	 TC_STRUCT returns the TC elements
  */   
-TC_STRUCT *tcqItem(TC_QUEUE_STRUCT * tcq, int n)
+TC_STRUCT *tcqItem(TC_QUEUE_STRUCT * tcq, int n, long period)
 {
+    TC_STRUCT *t;
     if ((0 == tcq) || (0 == tcq->queue) ||	/* not initialized */
 	(n < 0) || (n >= tcq->_len)) {	/* n too large */
 	return (TC_STRUCT *) 0;
     }
-    return &(tcq->queue[(tcq->start + n) % tcq->size]);
+    t = &(tcq->queue[(tcq->start + n) % tcq->size]);
+#ifndef RTAPI
+    t->cycle_time = period * 0.000000001;;
+#endif
+    return t;
 }
 
 /*! 

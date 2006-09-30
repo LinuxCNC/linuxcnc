@@ -183,7 +183,7 @@ static void do_homing(void);
    now, the free mode code has been re-written.
 */
 
-static void get_pos_cmds(void);
+static void get_pos_cmds(long period);
 
 /* 'compute_backlash()' is responsible for calculating backlash and
    lead screw error compensation.  (Leadscrew error compensation is
@@ -330,7 +330,7 @@ check_stuff ( "after handle_jogwheels()" );
 check_stuff ( "after do_homing_sequence()" );
     do_homing();
 check_stuff ( "after do_homing()" );
-    get_pos_cmds();
+    get_pos_cmds(period);
 check_stuff ( "after get_pos_cmds()" );
     compute_backlash();
 check_stuff ( "after compute_backlash()" );
@@ -1669,7 +1669,7 @@ static void do_homing(void)
     }
 }
 
-static void get_pos_cmds(void)
+static void get_pos_cmds(long period)
 {
     int joint_num, all_homed, all_at_home, result;
     emcmot_joint_t *joint;
@@ -1859,7 +1859,7 @@ static void get_pos_cmds(void)
 	while (cubicNeedNextPoint(&(joints[0].cubic))) {
 	    /* they're empty, pull next point(s) off Cartesian planner */
 	    /* run coordinated trajectory planning cycle */
-	    tpRunCycle(&emcmotDebug->queue);
+	    tpRunCycle(&emcmotDebug->queue, period);
 	    /* gt new commanded traj pos */
 	    emcmotStatus->carte_pos_cmd = tpGetPos(&emcmotDebug->queue);
 	    /* OUTPUT KINEMATICS - convert to joints in local array */

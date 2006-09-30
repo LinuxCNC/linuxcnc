@@ -476,7 +476,7 @@ int acute(TC_STRUCT *a, TC_STRUCT *b) {
 // to motion.  It's not THAT bad and in the interest of not touching
 // stuff outside this directory, I'm going to leave it for now.
 
-int tpRunCycle(TP_STRUCT * tp)
+int tpRunCycle(TP_STRUCT * tp, long period)
 {
     // vel = (new position - old position) / cycle time
     // (two position points required)
@@ -494,7 +494,7 @@ int tpRunCycle(TP_STRUCT * tp)
     static int waiting = 0;
     double save_vel;
 
-    tc = tcqItem(&tp->queue, 0);
+    tc = tcqItem(&tp->queue, 0, period);
     if(!tc) {
         // this means the motion queue is empty.  This can represent
         // the end of the program OR QUEUE STARVATION.  In either case,
@@ -523,7 +523,7 @@ int tpRunCycle(TP_STRUCT * tp)
         tcqRemove(&tp->queue, 1);
 
         // so get next move
-        tc = tcqItem(&tp->queue, 0);
+        tc = tcqItem(&tp->queue, 0, period);
         if(!tc) return 0;
     }
 
@@ -553,7 +553,7 @@ int tpRunCycle(TP_STRUCT * tp)
     // it's not an error if there isn't another one - we just don't
     // do blending.  This happens in MDI for instance.
     if(tc->blend_with_next) 
-        nexttc = tcqItem(&tp->queue, 1);
+        nexttc = tcqItem(&tp->queue, 1, period);
     else
         nexttc = NULL;
 
@@ -596,7 +596,7 @@ int tpRunCycle(TP_STRUCT * tp)
     if(nexttc && nexttc->active == 0) {
         // this means this tc is being read for the first time.
 
-	TC_STRUCT *thirdtc = tcqItem(&tp->queue, 2);
+	TC_STRUCT *thirdtc = tcqItem(&tp->queue, 2, period);
 
         nexttc->currentvel = 0;
         tp->depth = tp->activeDepth = 1;

@@ -1090,6 +1090,7 @@ static int setServoCycleTime(double secs)
 
 #ifndef RTAPI
 #include <signal.h>
+#include <unistd.h>
 int comp_id;
 static void handler(int ignore) {
     hal_exit(mot_comp_id);
