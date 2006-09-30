@@ -57,28 +57,31 @@ CheckConfig(){
     # any module names that are symlinks are resolved to their real names
     MODULES_LOAD=
     MODULES_UNLOAD=
-    for  MOD in $MODULES ; do
-        eval MOD=\${MODPATH_$MOD}
-	if [ -z "$MOD" ]; then continue; fi
-        if [ -L $MOD ]; then
-            MOD=${MOD%/*}/$(readlink $MOD)
-        fi
-	MODULES_LOAD="$MODULES_LOAD $MOD"
-        MOD="${MOD##*/}"
-        MOD="${MOD%$MODULE_EXT}"
-	MODULES_UNLOAD="$MOD $MODULES_UNLOAD"
-    done
-    MODULES_LOAD="$MODULES_LOAD $RTLIB_DIR/rtapi$MODULE_EXT $RTLIB_DIR/hal_lib$MODULE_EXT"
-    MODULES_UNLOAD="hal_lib rtapi $MODULES_UNLOAD"
-    case "$MODULES" in
-    *rtai_shm*)
-        SHM_DEV=/dev/rtai_shm
-    ;;
-    *mbuff*)
-        SHM_DEV=/dev/mbuff
-    ;;
+    case $RTPREFIX in
+    sim) SHM_DEV=/dev/zero;;
+    *)
+        for  MOD in $MODULES ; do
+            eval MOD=\${MODPATH_$MOD}
+            if [ -z "$MOD" ]; then continue; fi
+            if [ -L $MOD ]; then
+                MOD=${MOD%/*}/$(readlink $MOD)
+            fi
+            MODULES_LOAD="$MODULES_LOAD $MOD"
+            MOD="${MOD##*/}"
+            MOD="${MOD%$MODULE_EXT}"
+            MODULES_UNLOAD="$MOD $MODULES_UNLOAD"
+        done
+        MODULES_LOAD="$MODULES_LOAD $RTLIB_DIR/rtapi$MODULE_EXT $RTLIB_DIR/hal_lib$MODULE_EXT"
+        MODULES_UNLOAD="hal_lib rtapi $MODULES_UNLOAD"
+        case "$MODULES" in
+        *rtai_shm*)
+            SHM_DEV=/dev/rtai_shm
+        ;;
+        *mbuff*)
+            SHM_DEV=/dev/mbuff
+        ;;
+        esac
     esac
-
 }
 
 CheckStatus(){
