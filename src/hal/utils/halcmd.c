@@ -1478,6 +1478,7 @@ static int do_status_cmd(char *type)
 
 static int do_loadrt_cmd(char *mod_name, char *args[])
 {
+#ifdef MODULE_EXT
     /* note: these are static so that the various searches can
        be skipped for subsequent commands */
     static char *rtmod_dir = EMC2_RTLIB_DIR;
@@ -1565,6 +1566,12 @@ static int do_loadrt_cmd(char *mod_name, char *args[])
     rtapi_print_msg(RTAPI_MSG_INFO, "Realtime module '%s' loaded\n",
 	mod_name);
     return 0;
+#else
+    rtapi_print_msg(RTAPI_MSG_INFO, "Realtime modules not supported\n",
+	mod_name);
+
+    return HAL_UNSUP;
+#endif
 }
 
 static int do_delsig_cmd(char *mod_name)
@@ -3417,6 +3424,7 @@ static char *loadusr_generator(const char *text, int state) {
 
 
 static char *loadrt_generator(const char *text, int state) {
+#ifdef MODULE_EXT
     static int len;
     static DIR *d;
     struct dirent *ent;
@@ -3436,6 +3444,7 @@ static char *loadrt_generator(const char *text, int state) {
         return result;
     }
     closedir(d);
+#endif
     return NULL;
 }
 
