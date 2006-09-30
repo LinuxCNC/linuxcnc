@@ -9,6 +9,7 @@ EMC2_HOME=@EMC2_HOME@
 KERNELDIR=@KERNELDIR@
 RTLIB_DIR=@EMC2_RTLIB_DIR@
 MODULE_EXT=@MODEXT@
+RTPREFIX=@RTPREFIX@
 
 # Sets the default DEBUG level
 DEBUG='3'
@@ -27,7 +28,7 @@ if [ "@RTAI@" = "3" ] ; then \
     MODPATH_rtai_shm=@MODPATH_rtai_shm@
     MODPATH_rtai_sem=@MODPATH_rtai_sem@
     MODPATH_rtai_math=@MODPATH_rtai_math@
-elif [ @RTPREFIX@ = rtai ] ; then
+elif [ $RTPREFIX = rtai ] ; then
     MODULES="adeos rtai rt_mem_mgr rtai_sched rtai_fifos rtai_shm rtai_libm"
     MODPATH_adeos=@MODPATH_adeos@
     MODPATH_rtai=@MODPATH_rtai@
@@ -35,7 +36,7 @@ elif [ @RTPREFIX@ = rtai ] ; then
     MODPATH_rtai_sched=@MODPATH_rtai_sched@
     MODPATH_rtai_shm=@MODPATH_rtai_shm@
     MODPATH_rtai_libm=@MODPATH_rtai_libm@
-elif [ @RTPREFIX@ = rtl ] ; then
+elif [ $RTPREFIX = rtl ] ; then
     MODULES="rtl mbuff rtl_time rtl_sched rtl_posixio rtl_fifo"
     MODPATH_rtl=@MODPATH_rtl@
     MODPATH_mbuff=@MODPATH_mbuff@
