@@ -152,7 +152,7 @@ void SocketServerTcpMainLoop(void)
 {
     SOCK_FD client_s;		// Client socket descriptor
     struct sockaddr_in client_addr;	// Client Internet address
-    int addr_len;		// Internet address length
+    socklen_t addr_len;		// Internet address length
     unsigned char in_buf[BUF_SIZE];	// Input buffer for resquest
     unsigned char out_buf[BUF_SIZE];	// Output buffer for response
 
