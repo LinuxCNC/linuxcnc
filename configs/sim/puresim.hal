@@ -1,0 +1,40 @@
+# core HAL config file for simulation
+
+# motion controller, get name and thread periods from ini file
+loadusr -Wn motmod simmot
+
+# create HAL signals for position commands from motion module
+newsig Xpos float
+linksp Xpos <= axis.0.motor-pos-cmd
+newsig Ypos float
+linksp Ypos <= axis.1.motor-pos-cmd
+newsig Zpos float
+linksp Zpos <= axis.2.motor-pos-cmd
+
+# loop position commands back to motion module feedback
+linksp Xpos => axis.0.motor-pos-fb
+linksp Ypos => axis.1.motor-pos-fb
+linksp Zpos => axis.2.motor-pos-fb
+
+# estop loopback
+linkpp iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
+
+# create signals for tool loading loopback
+linkpp iocontrol.0.tool-prepare iocontrol.0.tool-prepared
+linkpp iocontrol.0.tool-change iocontrol.0.tool-changed
+
+# amp control
+newsig xena bit
+linksp xena axis.0.amp-enable-out
+newsig yena bit
+linksp yena axis.1.amp-enable-out
+newsig zena bit
+linksp zena axis.2.amp-enable-out
+
+newsig xflt bit
+linksp xflt axis.0.amp-fault-in
+newsig yflt bit
+linksp yflt axis.1.amp-fault-in
+newsig zflt bit
+linksp zflt axis.2.amp-fault-in
+

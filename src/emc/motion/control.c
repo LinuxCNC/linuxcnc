@@ -234,6 +234,7 @@ static void update_status(void);
 
 void emcmotController(void *arg, long period)
 {
+#ifdef RTAPI
     // - overrun detection -
     // maintain some records of how long it's been between calls.  The
     // first time we see a delay that's much longer than the records show
@@ -301,6 +302,7 @@ void emcmotController(void *arg, long period)
     last = now;
 
     // end of overrun detection
+#endif
 
     /* calculate servo period as a double - period is in integer nsec */
     servo_period = period * 0.000000001;

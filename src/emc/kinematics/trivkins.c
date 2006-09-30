@@ -66,6 +66,7 @@ KINEMATICS_TYPE kinematicsType()
     return KINEMATICS_IDENTITY;
 }
 
+#ifdef RTAPI
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
 #include "hal.h"
@@ -83,3 +84,4 @@ int rtapi_app_main(void) {
 }
 
 void rtapi_app_exit(void) { hal_exit(comp_id); }
+#endif

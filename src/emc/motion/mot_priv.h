@@ -290,7 +290,9 @@ extern void reportError(const char *fmt, ...);	/* Use the rtapi_print call */
 
 #define SET_JOINT_FAULT_FLAG(joint,fl) if (fl) (joint)->flag |= EMCMOT_AXIS_FAULT_BIT; else (joint)->flag &= ~EMCMOT_AXIS_FAULT_BIT;
 
+#ifdef LINUX_VERSION_CODE
 #if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,0)
 #define HAVE_CPU_KHZ
+#endif
 #endif
 #endif /* MOT_PRIV_H */

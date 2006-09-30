@@ -14,12 +14,14 @@
 * $Date$
 ********************************************************************/
 
-#ifndef RTAPI
-#error This is a realtime component only!
-#endif
 #include <stdarg.h>
 #include "rtapi.h"		/* RTAPI realtime OS API */
+#ifdef RTAPI
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
+#else
+#include <stdio.h>
+#include <string.h>
+#endif
 #include "hal.h"		/* decls for HAL implementation */
 #include "emcmotglb.h"
 #include "motion.h"
@@ -29,6 +31,7 @@
 *                    KERNEL MODULE PARAMETERS                          *
 ************************************************************************/
 
+static int key = 111;		/* the shared memory key, default value */
 #ifdef MODULE
 /* module information */
 /* register symbols to be modified by insmod
@@ -43,7 +46,6 @@ int DEBUG_MOTION = 0;
 RTAPI_MP_INT(DEBUG_MOTION, "debug motion");
 
 /* RTAPI shmem key - for comms with higher level user space stuff */
-static int key = 100;		/* the shared memory key, default value */
 RTAPI_MP_INT(key, "shared memory key");
 
 #if 0
@@ -928,6 +930,7 @@ static int init_comm_buffers(void)
 */
 static int init_threads(void)
 {
+#ifdef RTAPI
     double base_period_sec, servo_period_sec;
     int servo_base_ratio;
     int retval;
@@ -1013,6 +1016,7 @@ static int init_threads(void)
 	return -1;
     }
 
+#endif
     rtapi_print_msg(RTAPI_MSG_INFO, "MOTION: init_threads() complete\n");
     return 0;
 }
@@ -1083,3 +1087,31 @@ static int setServoCycleTime(double secs)
 
     return 0;
 }
+
+#ifndef RTAPI
+#include <signal.h>
+int comp_id;
+static void handler(int ignore) {
+    hal_exit(mot_comp_id);
+}
+int main(void) {
+    long long t0 = rtapi_get_time(), t1, diff;
+    init_module();
+    setTrajCycleTime(.01);
+    setServoCycleTime(.01);
+    signal(SIGTERM, handler);
+    hal_ready(mot_comp_id);
+    while(1) {
+	t1 = rtapi_get_time();
+	diff = t1-t0;
+	emcmotCommandHandler(0, diff);
+	emcmotController(0, diff);
+	t0 = t1;
+	// t1 = rtapi_get_time();
+	// diff = t1-t0;
+        usleep(10000); //  - diff / 1000);
+    }
+    hal_exit(mot_comp_id);
+    return 0;
+}
+#endif
