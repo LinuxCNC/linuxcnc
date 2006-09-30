@@ -199,7 +199,7 @@ extern "C" {			/* Need this when the header is included in a
 /***********************************************************************
 *                  LIGHTWEIGHT MUTEX FUNCTIONS                         *
 ************************************************************************/
-#ifdef RTAPI
+#if defined(RTAPI) && !defined(SIM)
 #include <linux/sched.h>	/* for blocking when needed */
 #else
 #include <sched.h>		/* for blocking when needed */
@@ -716,7 +716,7 @@ extern "C" {			/* Need this when the header is included in a
 */
     extern unsigned char rtapi_inb(unsigned int port);
 
-#ifdef RTAPI
+#if defined(RTAPI) && !defined(SIM)
 /** 'rtapi_request_region() reserves I/O memory starting at 'base',
     going for 'n' bytes, for component 'name'.
 
@@ -774,17 +774,35 @@ extern "C" {			/* Need this when the header is included in a
     'num' is the number of elements in an array.
 */
 
+#ifdef MODULE_EXT
 #ifndef LINUX_VERSION_CODE
 #include <linux/version.h>
+#endif
 #endif
 #ifndef KERNEL_VERSION
 #define KERNEL_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))
 #endif
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,0)
+#ifndef LINUX_VERSION_CODE
+#define LINUX_VERSION_CODE 0
+#endif
 
+#if !defined(MODULE_EXT) || (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,0))
 #define RTAPI_STRINGIFY(x)    #x
 
+#if !defined(MODULE_INFO)
+#define MODULE_INFO1(t, a, c) __attribute__((section(".modinfo"))) \
+    t rtapi_info_##a = c;
+#define MODULE_INFO2(t, a, b, c) __attribute__((section(".modinfo"))) \
+    t rtapi_info_##a##_##b = c;
+#define MODULE_PARM(v,t) MODULE_INFO2(char*, type, v, t) MODULE_INFO2(void*, address, v, &v)
+#define MODULE_PARM_DESC(v,t) MODULE_INFO2(char*, description, v, t)
+#define MODULE_LICENSE(s) MODULE_INFO1(char*, license, s)
+#define MODULE_AUTHOR(s) MODULE_INFO1(char*, author, s)
+#define MODULE_DESCRIPTION(s) MODULE_INFO1(char*, description, s)
+#define EXPORT_SYMBOL(x)
+#endif
+    
 #define RTAPI_MP_INT(var,descr)    \
   MODULE_PARM(var,"i");            \
   MODULE_PARM_DESC(var,descr);
@@ -842,7 +860,7 @@ extern "C" {			/* Need this when the header is included in a
 
 #endif /* version < 2.6 */
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,4,0)
+#ifndef MODULE_LICENSE
 #define MODULE_LICENSE(license)         \
 static const char __module_license[] __attribute__((section(".modinfo"))) =   \
 "license=" license

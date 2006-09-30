@@ -80,14 +80,12 @@
 #include <float.h>
 #include <rtapi_math.h>
 
-#ifdef MODULE
 /* module information */
 MODULE_AUTHOR("John Kasunich");
 MODULE_DESCRIPTION("Signal Generator Component for EMC HAL");
 MODULE_LICENSE("GPL");
 static int num_chan = 1;	/* number of channels - default = 1 */
 RTAPI_MP_INT(num_chan, "number of channels");
-#endif /* MODULE */
 
 /***********************************************************************
 *                STRUCTURES AND GLOBAL VARIABLES                       *

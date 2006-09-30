@@ -1398,6 +1398,7 @@ if test "${enable_simulator+set}" = set; then
             Y*|y*)
                 SIMULATOR=yes
                 RTS=simulator
+                BUILD_SYS=sim
                 echo "$as_me:$LINENO: result: configuring for simulator" >&5
 echo "${ECHO_T}configuring for simulator" >&6
             ;;
@@ -4969,6 +4970,8 @@ fi
 # tests and linking to mathstubs.o at a later stage.                         #
 ##############################################################################
 
+if test "$SIMULATOR" != "yes"
+then
 echo "$as_me:$LINENO: checking for kernel math support" >&5
 echo $ECHO_N "checking for kernel math support... $ECHO_C" >&6
 USE_LIBM=""
@@ -5083,6 +5086,7 @@ done
 
 
 
+fi
 
 # Checks for header files.
 

@@ -179,7 +179,7 @@ static pid_t hal_systemv_nowait(char *const argv[]) {
     pid = fork();
     if ( pid < 0 ) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL:%d: ERROR: loadrt fork() failed\n", linenumber);
+	    "HAL:%d: ERROR: fork() failed\n", linenumber);
 	/* reconnect to the HAL shmem area */
 	comp_id = hal_init(comp_name);
 	if (comp_id < 0) {
@@ -1478,9 +1478,26 @@ static int do_status_cmd(char *type)
 
 static int do_loadrt_cmd(char *mod_name, char *args[])
 {
-#ifdef MODULE_EXT
-    /* note: these are static so that the various searches can
-       be skipped for subsequent commands */
+#ifndef MODULE_EXT
+    int m, n, result;
+    char *argv[MAX_TOK+3];
+    argv[0] = "-Wn";
+    argv[1] = mod_name;
+    argv[2] = EMC2_BIN_DIR "/rtapi_app";
+    argv[3] = "load";
+    argv[4] = mod_name;
+    /* loop thru remaining arguments */
+    n = 0;
+    m = 5;
+    while ( args[n] && args[n][0] != '\0' ) {
+        argv[m++] = args[n++];
+    }
+    argv[m] = "\0";
+    argv[m+1] = NULL;
+    result = do_loadusr_cmd(argv);
+    sleep(5);
+    return result;
+#else
     static char *rtmod_dir = EMC2_RTLIB_DIR;
     struct stat stat_buf;
     char mod_path[MAX_CMD_LEN+1];
@@ -1566,11 +1583,16 @@ static int do_loadrt_cmd(char *mod_name, char *args[])
     rtapi_print_msg(RTAPI_MSG_INFO, "Realtime module '%s' loaded\n",
 	mod_name);
     return 0;
-#else
-    rtapi_print_msg(RTAPI_MSG_INFO, "Realtime modules not supported\n",
-	mod_name);
+    /* loop thru remaining arguments */
+    n = 0;
+    m = 3;
+    while ( args[n][0] != '\0' ) {
+        argv[m++] = args[n++];
+    }
+    /* add a NULL to terminate the argv array */
+    argv[m] = NULL;
 
-    return HAL_UNSUP;
+    retval = hal_systemv(argv);
 #endif
 }
 
@@ -1730,8 +1752,13 @@ static int unloadrt_comp(char *mod_name)
     int retval;
     char *argv[4];
 
+#ifdef MODULE_EXT
     argv[0] = EMC2_BIN_DIR "/emc_module_helper";
     argv[1] = "remove";
+#else
+    argv[0] = EMC2_BIN_DIR "/rtapi_app";
+    argv[1] = "unload";
+#endif
     argv[2] = mod_name;
     /* add a NULL to terminate the argv array */
     argv[3] = NULL;
@@ -1912,7 +1939,7 @@ static int do_loadusr_cmd(char *args[])
     /* loop thru remaining arguments */
     n = 0;
     m = 1;
-    while ( args[n][0] != '\0' ) {
+    while ( args[n] && args[n][0] != '\0' ) {
         argv[m++] = args[n++];
     }
     /* add a NULL to terminate the argv array */

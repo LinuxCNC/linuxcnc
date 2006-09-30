@@ -121,6 +121,10 @@ def prologue(f):
 #include "rtapi_app.h"
 #include "hal.h"
 
+#ifdef SIMULATOR
+#include <string.h>
+#endif
+
 static int comp_id;
 """
     names = {}

@@ -68,16 +68,17 @@
 #include "rtapi_app.h"			// RTAPI realtime module decls.
 #include "hal.h"			// HAL public API decls.
 
+#ifndef MODULE
+#define MODULE
+#endif
+
 #include "classicladder.h"
 #include "global.h"
 #include "arrays.h"
 #include "vars_access.h"
 #include "calc_rt.h"
 
-
-#ifndef MODULE
-#define MODULE
-#endif
+#include <string.h>
 
 
 #ifdef MODULE

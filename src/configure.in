@@ -83,6 +83,7 @@ AC_ARG_ENABLE(simulator,
             Y*|y*)
                 SIMULATOR=yes
                 RTS=simulator
+                BUILD_SYS=sim
                 AC_MSG_RESULT([configuring for simulator])
             ;;
             *)
@@ -893,6 +894,8 @@ AC_SUBST(BUILD_DOCS)
 # tests and linking to mathstubs.o at a later stage.                         #
 ##############################################################################
 
+if test "$SIMULATOR" != "yes"
+then
 AC_MSG_CHECKING([for kernel math support])
 USE_LIBM=""
 USE_RTLIBM=""
@@ -996,6 +999,7 @@ AC_SUBST(MODPATH_rtl_time)
 AC_SUBST(MODPATH_rtl_sched)
 AC_SUBST(MODPATH_rtl_posixio)
 AC_SUBST(MODPATH_rtl_fifo)
+fi
 
 # Checks for header files.
 

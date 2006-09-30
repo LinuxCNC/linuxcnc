@@ -68,14 +68,12 @@
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
 #include "hal.h"		/* HAL public API decls */
 
-#ifdef MODULE
 /* module information */
 MODULE_AUTHOR("John Kasunich");
 MODULE_DESCRIPTION("Encoder Counter for EMC HAL");
 MODULE_LICENSE("GPL");
 static int num_chan = 3;	/* number of channels - default = 3 */
 RTAPI_MP_INT(num_chan, "number of channels");
-#endif /* MODULE */
 
 /***********************************************************************
 *                STRUCTURES AND GLOBAL VARIABLES                       *

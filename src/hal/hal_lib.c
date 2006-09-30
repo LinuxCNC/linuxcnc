@@ -60,7 +60,14 @@
 #include "hal.h"		/* HAL public API decls */
 #include "hal_priv.h"		/* HAL private decls */
 
-#ifdef RTAPI
+#if defined(RTAPI)
+int is_rtapi = 0;
+#endif
+#if defined(ULAPI)
+int is_ulapi = 0;
+#endif
+
+#if defined(RTAPI) && !defined(SIM)
 /* includes for realtime config */
 /* Suspect only very early kernels are missing the basic string functions.
    To be sure, see what has been implimented by looking in linux/string.h
@@ -82,15 +89,13 @@ static int strcmp(const char *cs, const char *ct)
 #endif
 
 #include "rtapi_app.h"
-#ifdef MODULE
 /* module information */
 MODULE_AUTHOR("John Kasunich");
 MODULE_DESCRIPTION("Hardware Abstraction Layer for EMC");
 MODULE_LICENSE("GPL");
-#endif /* MODULE */
 #endif /* RTAPI */
 
-#ifdef ULAPI
+#if defined(ULAPI) || defined(SIM)
 #include <string.h>		/* strcmp */
 #include <sys/types.h>		/* pid_t */
 #include <unistd.h>		/* getpid() */
@@ -241,8 +246,11 @@ int hal_init(char *name)
 	return HAL_FAIL;
     }
     /* set up internal pointers to shared mem and data structure */
-    hal_shmem_base = (char *) mem;
-    hal_data = (hal_data_t *) mem;
+    rtapi_print_msg(RTAPI_MSG_ERR, "%p %p\n", hal_shmem_base, mem);
+    if(hal_shmem_base == 0) {
+        hal_shmem_base = (char *) mem;
+        hal_data = (hal_data_t *) mem;
+    }
     /* perform a global init if needed */
     retval = init_hal_data();
     if ( retval ) {
@@ -1615,7 +1623,7 @@ int hal_create_thread(char *name, unsigned long period_nsec, int uses_fp)
     if (retval < 0) {
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL_LIB: could not start task for thread %s\n", name);
+	    "HAL_LIB: could not start task for thread %s: %d\n", name, retval);
 	return HAL_FAIL;
     }
     /* insert new structure at head of list */
@@ -2333,8 +2341,8 @@ static int hal_proc_init(void) {
     return 0;
 }
 #else
-static void hal_proc_clean(void) {}
-static void hal_proc_init(void) {}
+static int hal_proc_clean(void) {}
+static int hal_proc_init(void) {}
 #endif
 
 int rtapi_app_main(void)

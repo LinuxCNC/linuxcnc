@@ -488,6 +488,7 @@ obj-$(CONFIG_STREAMER) += streamer.o
 streamer-objs := hal/components/streamer.o $(MATHSTUB)
 
 # Subdirectory: hal/drivers
+ifneq ($(BUILD_SYS),sim)
 obj-$(CONFIG_HAL_PARPORT) += hal_parport.o
 hal_parport-objs := hal/drivers/hal_parport.o $(MATHSTUB)
 obj-$(CONFIG_HAL_TIRO) += hal_tiro.o
@@ -514,6 +515,7 @@ hal_skeleton-objs := hal/drivers/hal_skeleton.o $(MATHSTUB)
 ifneq "$(filter 2.6.%, $(kernelvers))" ""
 obj-$(CONFIG_PROBE_PARPORT) += probe_parport.o
 probe_parport-objs := hal/drivers/probe_parport.o $(MATHSTUB)
+endif
 endif
 
 obj-$(CONFIG_CLASSICLADDER_RT) += classicladder_rt.o
@@ -560,6 +562,28 @@ motmod-objs += libnml/posemath/_posemath.o
 motmod-objs += libnml/posemath/sincos.o $(MATHSTUB)
 
 TORTOBJS = $(foreach file,$($(patsubst %.o,%,$(1))-objs), objects/rt$(file))
+ifeq ($(BUILD_SYS),sim)
+RTOBJS := $(sort $(foreach mod,$(obj-m),$(call TORTOBJS,$(mod))))
+
+RTDEPS := $(sort $(patsubst objects/%.o,depends/%.d, $(RTOBJS)))
+modules: $(patsubst %.o,../rtlib/%.so,$(obj-m))
+../rtlib/%.so:
+	$(ECHO) Linking $@
+	gcc -shared -o $@ $^ -lm
+
+$(sort $(RTDEPS)): depends/rt%.d: %.c
+	@mkdir -p $(dir $@)
+	$(ECHO) Depending $<
+	@$(call DEP,$(CC),$@ $(patsubst depends/%.d,objects/%.o,$@),$@,-DSIM -DRTAPI $(EXTRA_CFLAGS) $<)
+
+# Rules to make .o (object) files
+$(sort $(RTOBJS)) : objects/rt%.o : %.c
+	$(ECHO) Compiling realtime $<
+	@mkdir -p $(dir $@)
+	$(CC) -c -g -DSIM -DSIMULATOR -DRTAPI $(EXTRA_CFLAGS) $< -o $@
+RTLIB_EXT=.so
+endif
+
 ifeq ($(BUILD_SYS),normal)
 modules: $(patsubst %,../rtlib/%,$(obj-m))
 RTOBJS := $(sort $(foreach mod,$(obj-m),$(call TORTOBJS,$(mod))))
@@ -580,45 +604,50 @@ $(sort $(RTOBJS)) : objects/rt%.o : %.c
 ../rtlib/%.o:
 	$(ECHO) Linking $@
 	@ld -r -static -S -O2 -o $@ $^ $(EXTRALINK) $(MATHLIB)
+RTLIB_EXT=.o
+endif
 
-../rtlib/classicladder_rt: $(addprefix objects/rt,$(classicladder_rt-objs))
-../rtlib/rtapi.o: $(addprefix objects/rt,$(rtapi-objs))
-../rtlib/blocks.o: $(addprefix objects/rt,$(blocks-objs))
-../rtlib/debounce.o: $(addprefix objects/rt,$(debounce-objs))
-../rtlib/encoder.o: $(addprefix objects/rt,$(encoder-objs))
-../rtlib/counter.o: $(addprefix objects/rt,$(counter-objs))
-../rtlib/encoder_ratio.o: $(addprefix objects/rt,$(encoder_ratio-objs))
-../rtlib/stepgen.o: $(addprefix objects/rt,$(stepgen-objs))
-../rtlib/freqgen.o: $(addprefix objects/rt,$(freqgen-objs))
-../rtlib/pwmgen.o: $(addprefix objects/rt,$(pwmgen-objs))
-../rtlib/siggen.o: $(addprefix objects/rt,$(siggen-objs))
-../rtlib/pid.o: $(addprefix objects/rt,$(pid-objs))
-../rtlib/threads.o: $(addprefix objects/rt,$(threads-objs))
-../rtlib/supply.o: $(addprefix objects/rt,$(supply-objs))
-../rtlib/timedelay.o: $(addprefix objects/rt,$(timedelay-objs))
-../rtlib/sim_encoder.o: $(addprefix objects/rt,$(sim_encoder-objs))
-../rtlib/weighted_sum.o: $(addprefix objects/rt,$(weighted_sum-objs))
-../rtlib/modmath.o: $(addprefix objects/rt,$(modmath-objs))
-../rtlib/streamer.o: $(addprefix objects/rt,$(streamer-objs))
-../rtlib/hal_parport.o: $(addprefix objects/rt,$(hal_parport-objs))
-../rtlib/hal_tiro.o: $(addprefix objects/rt,$(hal_tiro-objs))
-../rtlib/hal_stg.o: $(addprefix objects/rt,$(hal_stg-objs))
-../rtlib/hal_vti.o: $(addprefix objects/rt,$(hal_vti-objs))
-../rtlib/hal_evoreg.o: $(addprefix objects/rt,$(hal_evoreg-objs))
-../rtlib/hal_motenc.o: $(addprefix objects/rt,$(hal_motenc-objs))
-../rtlib/hal_m5i20.o: $(addprefix objects/rt,$(hal_m5i20-objs))
-../rtlib/hal_ax5214h.o: $(addprefix objects/rt,$(hal_ax5214h-objs))
-../rtlib/hal_ppmc.o: $(addprefix objects/rt,$(hal_ppmc-objs))
-../rtlib/hal_skeleton.o: $(addprefix objects/rt,$(hal_skeleton-objs))
-../rtlib/hal_speaker.o: $(addprefix objects/rt,$(hal_speaker-objs))
-../rtlib/classicladder_rt.o: $(addprefix objects/rt,$(classicladder_rt-objs))
-../rtlib/scope_rt.o: $(addprefix objects/rt,$(scope_rt-objs))
-../rtlib/hal_lib.o: $(addprefix objects/rt,$(hal_lib-objs))
-../rtlib/motmod.o: $(addprefix objects/rt,$(motmod-objs))
-../rtlib/trivkins.o: $(addprefix objects/rt,$(trivkins-objs))
-../rtlib/rotatekins.o: $(addprefix objects/rt,$(rotatekins-objs))
-../rtlib/tripodkins.o: $(addprefix objects/rt,$(tripodkins-objs))
-../rtlib/genhexkins.o: $(addprefix objects/rt,$(genhexkins-objs))
+ifneq "$(filter normal sim,$(BUILD_SYS))" ""
+ifneq "$(BUILD_SYS)" "sim"
+../rtlib/rtapi$(RTLIB_EXT): $(addprefix objects/rt,$(rtapi-objs))
+endif
+../rtlib/classicladder_rt$(RTLIB_EXT): $(addprefix objects/rt,$(classicladder_rt-objs))
+../rtlib/blocks$(RTLIB_EXT): $(addprefix objects/rt,$(blocks-objs))
+../rtlib/debounce$(RTLIB_EXT): $(addprefix objects/rt,$(debounce-objs))
+../rtlib/encoder$(RTLIB_EXT): $(addprefix objects/rt,$(encoder-objs))
+../rtlib/counter$(RTLIB_EXT): $(addprefix objects/rt,$(counter-objs))
+../rtlib/encoder_ratio$(RTLIB_EXT): $(addprefix objects/rt,$(encoder_ratio-objs))
+../rtlib/stepgen$(RTLIB_EXT): $(addprefix objects/rt,$(stepgen-objs))
+../rtlib/freqgen$(RTLIB_EXT): $(addprefix objects/rt,$(freqgen-objs))
+../rtlib/pwmgen$(RTLIB_EXT): $(addprefix objects/rt,$(pwmgen-objs))
+../rtlib/siggen$(RTLIB_EXT): $(addprefix objects/rt,$(siggen-objs))
+../rtlib/pid$(RTLIB_EXT): $(addprefix objects/rt,$(pid-objs))
+../rtlib/threads$(RTLIB_EXT): $(addprefix objects/rt,$(threads-objs))
+../rtlib/supply$(RTLIB_EXT): $(addprefix objects/rt,$(supply-objs))
+../rtlib/timedelay$(RTLIB_EXT): $(addprefix objects/rt,$(timedelay-objs))
+../rtlib/sim_encoder$(RTLIB_EXT): $(addprefix objects/rt,$(sim_encoder-objs))
+../rtlib/weighted_sum$(RTLIB_EXT): $(addprefix objects/rt,$(weighted_sum-objs))
+../rtlib/modmath$(RTLIB_EXT): $(addprefix objects/rt,$(modmath-objs))
+../rtlib/streamer$(RTLIB_EXT): $(addprefix objects/rt,$(streamer-objs))
+../rtlib/hal_parport$(RTLIB_EXT): $(addprefix objects/rt,$(hal_parport-objs))
+../rtlib/hal_tiro$(RTLIB_EXT): $(addprefix objects/rt,$(hal_tiro-objs))
+../rtlib/hal_stg$(RTLIB_EXT): $(addprefix objects/rt,$(hal_stg-objs))
+../rtlib/hal_vti$(RTLIB_EXT): $(addprefix objects/rt,$(hal_vti-objs))
+../rtlib/hal_evoreg$(RTLIB_EXT): $(addprefix objects/rt,$(hal_evoreg-objs))
+../rtlib/hal_motenc$(RTLIB_EXT): $(addprefix objects/rt,$(hal_motenc-objs))
+../rtlib/hal_m5i20$(RTLIB_EXT): $(addprefix objects/rt,$(hal_m5i20-objs))
+../rtlib/hal_ax5214h$(RTLIB_EXT): $(addprefix objects/rt,$(hal_ax5214h-objs))
+../rtlib/hal_ppmc$(RTLIB_EXT): $(addprefix objects/rt,$(hal_ppmc-objs))
+../rtlib/hal_skeleton$(RTLIB_EXT): $(addprefix objects/rt,$(hal_skeleton-objs))
+../rtlib/hal_speaker$(RTLIB_EXT): $(addprefix objects/rt,$(hal_speaker-objs))
+../rtlib/classicladder_rt$(RTLIB_EXT): $(addprefix objects/rt,$(classicladder_rt-objs))
+../rtlib/scope_rt$(RTLIB_EXT): $(addprefix objects/rt,$(scope_rt-objs))
+../rtlib/hal_lib$(RTLIB_EXT): $(addprefix objects/rt,$(hal_lib-objs))
+../rtlib/motmod$(RTLIB_EXT): $(addprefix objects/rt,$(motmod-objs))
+../rtlib/trivkins$(RTLIB_EXT): $(addprefix objects/rt,$(trivkins-objs))
+../rtlib/rotatekins$(RTLIB_EXT): $(addprefix objects/rt,$(rotatekins-objs))
+../rtlib/tripodkins$(RTLIB_EXT): $(addprefix objects/rt,$(tripodkins-objs))
+../rtlib/genhexkins$(RTLIB_EXT): $(addprefix objects/rt,$(genhexkins-objs))
 
 ifneq ($(MAKECMDGOALS),clean)
 RTDEPS := $(sort $(patsubst objects/%.o,depends/%.d,$(RTOBJS)))

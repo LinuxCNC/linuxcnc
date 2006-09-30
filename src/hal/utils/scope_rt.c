@@ -41,13 +41,12 @@
 #include <hal.h>		/* HAL public API decls */
 #include "../hal_priv.h"	/* HAL private API decls */
 #include "scope_rt.h"		/* scope related declarations */
+#include <string.h>
 
-#ifdef MODULE
 /* module information */
 MODULE_AUTHOR("John Kasunich");
 MODULE_DESCRIPTION("Oscilloscope for EMC HAL");
 MODULE_LICENSE("GPL");
-#endif /* MODULE */
 
 /***********************************************************************
 *                         GLOBAL VARIABLES                             *

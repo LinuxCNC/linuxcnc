@@ -61,8 +61,9 @@
 #include "rtapi_app.h"          /* RTAPI realtime module decls */
 #include "hal.h"                /* HAL public API decls */
 #include "streamer.h"		/* decls and such for fifos */
+#include <errno.h>
+#include <string.h>
 
-#ifdef MODULE
 /* module information */
 MODULE_AUTHOR("John Kasunich");
 MODULE_DESCRIPTION("Realtime File Streamer HAL");
@@ -71,7 +72,6 @@ static char *cfg[MAX_STREAMERS];	/* config string, no default */
 RTAPI_MP_ARRAY_STRING(cfg,MAX_STREAMERS,"config string");
 static int depth[MAX_STREAMERS];	/* depth of fifo, default 0 */
 RTAPI_MP_ARRAY_INT(depth,MAX_STREAMERS,"fifo depth");
-#endif /* MODULE */
 
 /***********************************************************************
 *                STRUCTURES AND GLOBAL VARIABLES                       *
