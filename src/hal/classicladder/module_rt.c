@@ -68,20 +68,14 @@
 #include "rtapi_app.h"			// RTAPI realtime module decls.
 #include "hal.h"			// HAL public API decls.
 
-#ifndef MODULE
-#define MODULE
-#endif
-
 #include "classicladder.h"
 #include "global.h"
 #include "arrays.h"
 #include "vars_access.h"
 #include "calc_rt.h"
 
-#include <string.h>
+#include "rtapi_string.h"
 
-
-#ifdef MODULE
 // Module information.
 MODULE_AUTHOR("Pete Vavaroutsos");
 MODULE_DESCRIPTION("PLC component for EMC HAL");
@@ -106,7 +100,6 @@ static int numArithmExpr = 100;
 RTAPI_MP_INT(numArithmExpr, "Number of arithmetic expressions to allocate");
 static int numSections = 10;
 RTAPI_MP_INT(numSections, "Number of sections to allocate");
-#endif // MODULE
 
 
 /******************************************************************************
