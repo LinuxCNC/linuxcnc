@@ -861,6 +861,13 @@ extern "C" {			/* Need this when the header is included in a
 
 #endif /* version < 2.6 */
 
+#if !defined(SIM)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,4,0)
+#define MODULE_LICENSE(license)         \
+static const char __module_license[] __attribute__((section(".modinfo"))) =   \
+"license=" license
+#endif
+#endif
 
 #endif /* RTAPI */
 
