@@ -1747,7 +1747,7 @@ static int unloadrt_comp(char *mod_name)
     int retval;
     char *argv[4];
 
-#ifndef MODULE_EXT
+#ifdef MODULE_EXT
     argv[0] = EMC2_BIN_DIR "/emc_module_helper";
     argv[1] = "remove";
 #else
