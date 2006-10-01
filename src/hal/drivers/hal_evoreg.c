@@ -291,6 +291,7 @@ int rtapi_app_main(void)
 
     rtapi_print_msg(RTAPI_MSG_INFO,
 	"EVOREG: installed driver for %d card(s)\n", num_ports);
+    hal_ready(comp_id);
     return 0;
 }
 

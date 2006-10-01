@@ -133,6 +133,7 @@ int rtapi_app_main(void) {
 	return r;
     }
 
+    hal_ready(comp_id);
     return 0;
 }
 

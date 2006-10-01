@@ -78,7 +78,10 @@ MODULE_LICENSE("GPL");
 int comp_id;
 int rtapi_app_main(void) {
     comp_id = hal_init("rotatekins");
-    if(comp_id > 0) return 0;
+    if(comp_id > 0) {
+	hal_ready(comp_id);
+	return 0;
+    }
     return comp_id;
 }
 

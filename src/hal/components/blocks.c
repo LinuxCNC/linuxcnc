@@ -606,6 +606,7 @@ int rtapi_app_main(void)
 	rtapi_print_msg(RTAPI_MSG_INFO,
 	    "BLOCKS: installed %d min/max blocks\n", minmax);
     }
+    hal_ready(comp_id);
     return 0;
 }
 

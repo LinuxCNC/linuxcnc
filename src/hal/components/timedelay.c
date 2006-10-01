@@ -130,6 +130,7 @@ int rtapi_app_main(void)
 
     rtapi_print_msg(RTAPI_MSG_INFO,
 	"TIMEDELAY: installed %d time delays\n", num_delays);
+    hal_ready(comp_id);
     return 0;
 }
 

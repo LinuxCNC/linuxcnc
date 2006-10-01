@@ -1479,24 +1479,21 @@ static int do_status_cmd(char *type)
 static int do_loadrt_cmd(char *mod_name, char *args[])
 {
 #ifndef MODULE_EXT
-    int m, n, result;
+    int m=0, n, result;
     char *argv[MAX_TOK+3];
-    argv[0] = "-Wn";
-    argv[1] = mod_name;
-    argv[2] = EMC2_BIN_DIR "/rtapi_app";
-    argv[3] = "load";
-    argv[4] = mod_name;
+    argv[m++] = "-Wn";
+    argv[m++] = mod_name;
+    argv[m++] = EMC2_BIN_DIR "/rtapi_app";
+    argv[m++] = "load";
+    argv[m++] = mod_name;
     /* loop thru remaining arguments */
     n = 0;
-    m = 5;
     while ( args[n] && args[n][0] != '\0' ) {
         argv[m++] = args[n++];
     }
     argv[m] = "\0";
     argv[m+1] = NULL;
-    result = do_loadusr_cmd(argv);
-    sleep(5);
-    return result;
+    return do_loadusr_cmd(argv);
 #else
     static char *rtmod_dir = EMC2_RTLIB_DIR;
     struct stat stat_buf;

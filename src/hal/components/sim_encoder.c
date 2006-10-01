@@ -187,6 +187,7 @@ int rtapi_app_main(void)
     }
     rtapi_print_msg(RTAPI_MSG_INFO,
 	"SIM_ENCODER: installed %d simulated encoders\n", num_chan);
+    hal_ready(comp_id);
     return 0;
 }
 

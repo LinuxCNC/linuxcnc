@@ -190,6 +190,7 @@ int rtapi_app_main(void)
     }
     rtapi_print_msg(RTAPI_MSG_INFO,
 	"COUNTER: installed %d counter counters\n", num_chan);
+    hal_ready(comp_id);
     return 0;
 }
 

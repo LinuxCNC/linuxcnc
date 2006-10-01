@@ -223,6 +223,7 @@ rtapi_app_main(void)
 	}
     }
 
+    hal_ready(component.componentId);
     return(0);
 }
 

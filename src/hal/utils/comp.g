@@ -255,6 +255,8 @@ static int comp_id;
 	if options.get("extra_cleanup"):
             print >>f, "    extra_cleanup();"
         print >>f, "        hal_exit(comp_id);"
+        print >>f, "    } else {"
+        print >>f, "        hal_ready(comp_id);"
         print >>f, "    }"
         print >>f, "    return r;";
         print >>f, "}"

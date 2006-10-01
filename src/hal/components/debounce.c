@@ -197,6 +197,7 @@ int rtapi_app_main(void)
     rtapi_print_msg(RTAPI_MSG_INFO,
 	"DEBOUNCE: installed %d groups of debounce filters, %d total\n",
 	num_groups, num_filters);
+    hal_ready(comp_id);
     return 0;
 }
 

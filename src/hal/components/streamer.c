@@ -156,6 +156,7 @@ int rtapi_app_main(void)
     }
     rtapi_print_msg(RTAPI_MSG_INFO,
 	"STREAMER: installed %d data streamers\n", numchan);
+    hal_ready(comp_id);
     return 0;
 }
 

@@ -239,6 +239,7 @@ int rtapi_app_main(void)
     }
     rtapi_print_msg(RTAPI_MSG_INFO, "PID: installed %d PID loops\n",
 	num_chan);
+    hal_ready(comp_id);
     return 0;
 }
 

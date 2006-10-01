@@ -605,6 +605,7 @@ int rtapi_app_main(void)
 	return -1;
     }    
     rtapi_print_msg(RTAPI_MSG_INFO, "PPMC: driver installed\n");
+    hal_ready(comp_id);
     return 0;
 }
 

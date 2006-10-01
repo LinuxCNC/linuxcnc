@@ -192,6 +192,7 @@ int rtapi_app_main(void)
 
     rtapi_print_msg(RTAPI_MSG_INFO,
 	"SKELETON: installed driver for %d ports\n", num_ports);
+    hal_ready(comp_id);
     return 0;
 }
 
