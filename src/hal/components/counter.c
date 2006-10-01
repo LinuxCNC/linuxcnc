@@ -73,8 +73,8 @@
 
 #include "rtapi.h"              /* RTAPI realtime OS API */
 #include "rtapi_app.h"          /* RTAPI realtime module decls */
+#include "rtapi_errno.h"        /* EINVAL etc */
 #include "hal.h"                /* HAL public API decls */
-#include <errno.h>
 
 /* module information */
 MODULE_AUTHOR("Chris Radek");
