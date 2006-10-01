@@ -1479,7 +1479,7 @@ static int do_status_cmd(char *type)
 static int do_loadrt_cmd(char *mod_name, char *args[])
 {
 #ifndef MODULE_EXT
-    int m=0, n, result;
+    int m=0, n=0;
     char *argv[MAX_TOK+3];
     argv[m++] = "-Wn";
     argv[m++] = mod_name;
@@ -1487,12 +1487,10 @@ static int do_loadrt_cmd(char *mod_name, char *args[])
     argv[m++] = "load";
     argv[m++] = mod_name;
     /* loop thru remaining arguments */
-    n = 0;
     while ( args[n] && args[n][0] != '\0' ) {
         argv[m++] = args[n++];
     }
-    argv[m] = "\0";
-    argv[m+1] = NULL;
+    argv[m++] = NULL;
     return do_loadusr_cmd(argv);
 #else
     static char *rtmod_dir = EMC2_RTLIB_DIR;
@@ -1533,7 +1531,7 @@ static int do_loadrt_cmd(char *mod_name, char *args[])
     /* loop thru remaining arguments */
     n = 0;
     m = 3;
-    while ( args[n][0] != '\0' ) {
+    while ( args[n] && args[n][0] != '\0' ) {
         argv[m++] = args[n++];
     }
     /* add a NULL to terminate the argv array */
@@ -1549,7 +1547,7 @@ static int do_loadrt_cmd(char *mod_name, char *args[])
     /* make the args that were passed to the module into a single string */
     n = 0;
     arg_string[0] = '\0';
-    while ( args[n][0] != '\0' ) {
+    while ( args[n] && args[n][0] != '\0' ) {
 	strncat(arg_string, args[n++], MAX_CMD_LEN);
 	strncat(arg_string, " ", MAX_CMD_LEN);
     }
@@ -1583,7 +1581,7 @@ static int do_loadrt_cmd(char *mod_name, char *args[])
     /* loop thru remaining arguments */
     n = 0;
     m = 3;
-    while ( args[n][0] != '\0' ) {
+    while ( args[n] && args[n][0] != '\0' ) {
         argv[m++] = args[n++];
     }
     /* add a NULL to terminate the argv array */
@@ -1749,7 +1747,7 @@ static int unloadrt_comp(char *mod_name)
     int retval;
     char *argv[4];
 
-#ifdef MODULE_EXT
+#ifndef MODULE_EXT
     argv[0] = EMC2_BIN_DIR "/emc_module_helper";
     argv[1] = "remove";
 #else
@@ -1820,7 +1818,7 @@ static int do_loadusr_cmd(char *args[])
     name_flag = 0;
     ignore_flag = 0;
     prog_name = NULL;
-    while ( **args == '-' ) {
+    while ( *args && **args == '-' ) {
 	/* this argument contains option(s) */
 	cp1 = *args;
 	cp1++;
@@ -3448,7 +3446,9 @@ static char *loadusr_generator(const char *text, int state) {
 
 
 static char *loadrt_generator(const char *text, int state) {
-#ifdef MODULE_EXT
+#ifndef MODULE_EXT
+#define MODULE_EXT ".so"
+#endif
     static int len;
     static DIR *d;
     struct dirent *ent;
@@ -3468,7 +3468,6 @@ static char *loadrt_generator(const char *text, int state) {
         return result;
     }
     closedir(d);
-#endif
     return NULL;
 }
 
