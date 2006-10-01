@@ -214,6 +214,8 @@ int rtapi_app_main(void)
 
     rtapi_print_msg(RTAPI_MSG_INFO, "MOTION: init_module() complete\n");
 
+    hal_ready(mot_comp_id);
+
     return 0;
 }
 
@@ -1101,7 +1103,6 @@ int main(void) {
     setTrajCycleTime(.01);
     setServoCycleTime(.01);
     signal(SIGTERM, handler);
-    hal_ready(mot_comp_id);
     while(1) {
 	t1 = rtapi_get_time();
 	diff = t1-t0;
