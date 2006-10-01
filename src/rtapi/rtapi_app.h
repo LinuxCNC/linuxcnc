@@ -13,6 +13,13 @@
 
 #define rtapi_app_main(a) init_module(a)
 #define rtapi_app_exit(a) cleanup_module(a)
+
+#ifndef MODULE_LICENSE
+#define MODULE_LICENSE(license)         \
+static const char __module_license[] __attribute__((section(".modinfo"))) =   \
+"license=" license
+#endif
+
 #endif
 
 #endif /* RTAPI_APP_H */

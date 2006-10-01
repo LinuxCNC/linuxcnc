@@ -774,6 +774,19 @@ extern "C" {			/* Need this when the header is included in a
     'num' is the number of elements in an array.
 */
 
+#ifdef SIM
+#define MODULE_INFO1(t, a, c) __attribute__((section(".modinfo"))) \
+    t rtapi_info_##a = c;
+#define MODULE_INFO2(t, a, b, c) __attribute__((section(".modinfo"))) \
+    t rtapi_info_##a##_##b = c;
+#define MODULE_PARM(v,t) MODULE_INFO2(char*, type, v, t) MODULE_INFO2(void*, address, v, &v)
+#define MODULE_PARM_DESC(v,t) MODULE_INFO2(char*, description, v, t)
+#define MODULE_LICENSE(s) MODULE_INFO1(char*, license, s)
+#define MODULE_AUTHOR(s) MODULE_INFO1(char*, author, s)
+#define MODULE_DESCRIPTION(s) MODULE_INFO1(char*, description, s)
+#define EXPORT_SYMBOL(x)
+#endif
+
 #ifdef MODULE_EXT
 #ifndef LINUX_VERSION_CODE
 #include <linux/version.h>
@@ -787,22 +800,10 @@ extern "C" {			/* Need this when the header is included in a
 #define LINUX_VERSION_CODE 0
 #endif
 
-#if !defined(MODULE_EXT) || (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,0))
+#if defined(SIM) || (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,0))
 #define RTAPI_STRINGIFY(x)    #x
 
-#if !defined(MODULE_INFO)
-#define MODULE_INFO1(t, a, c) __attribute__((section(".modinfo"))) \
-    t rtapi_info_##a = c;
-#define MODULE_INFO2(t, a, b, c) __attribute__((section(".modinfo"))) \
-    t rtapi_info_##a##_##b = c;
-#define MODULE_PARM(v,t) MODULE_INFO2(char*, type, v, t) MODULE_INFO2(void*, address, v, &v)
-#define MODULE_PARM_DESC(v,t) MODULE_INFO2(char*, description, v, t)
-#define MODULE_LICENSE(s) MODULE_INFO1(char*, license, s)
-#define MODULE_AUTHOR(s) MODULE_INFO1(char*, author, s)
-#define MODULE_DESCRIPTION(s) MODULE_INFO1(char*, description, s)
-#define EXPORT_SYMBOL(x)
-#endif
-    
+   
 #define RTAPI_MP_INT(var,descr)    \
   MODULE_PARM(var,"i");            \
   MODULE_PARM_DESC(var,descr);
@@ -860,11 +861,6 @@ extern "C" {			/* Need this when the header is included in a
 
 #endif /* version < 2.6 */
 
-#ifndef MODULE_LICENSE
-#define MODULE_LICENSE(license)         \
-static const char __module_license[] __attribute__((section(".modinfo"))) =   \
-"license=" license
-#endif
 
 #endif /* RTAPI */
 
