@@ -1952,7 +1952,8 @@ static int do_loadusr_cmd(char *args[])
                 retval = waitpid( pid, &status, WNOHANG );
                 if(retval != 0) {
                     exited = 1;
-                    if(retval < 0 || WIFEXITED(status) == 0) goto wait_common;
+                    if(retval < 0 || WIFEXITED(status) == 0
+                            || WEXITSTATUS(status) != 0) goto wait_common;
                 }
             }
 
