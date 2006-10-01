@@ -27,6 +27,9 @@
 /* These structs hold data associated with objects like tasks, etc. */
 /* Task handles are pointers to these structs.                      */
 
+pthread_key_t thread_key;
+pthread_once_t thread_key_once = PTHREAD_ONCE_INIT;
+
 struct rtapi_module {
   int magic;
 };
@@ -37,7 +40,8 @@ struct rtapi_task {
   pthread_t id;			/* OS specific task identifier */
   size_t stacksize;
   int prio;
-  void *arg;
+  int period;
+void *arg;
   void (*taskcode) (void*);	/* pointer to task function */
 };
 
@@ -184,9 +188,16 @@ int rtapi_task_delete(int id) {
 /* pthread wants it to take a void pointer and return a void pointer */
 /* we solve this with a wrapper function that meets pthread's needs */
 
+static void make_thread_key(void) {
+    pthread_key_create(&thread_key, NULL);
+}
+
 static void *wrapper(void *arg)
 {
   struct rtapi_task *task;
+
+  pthread_once(&thread_key_once, make_thread_key);
+  pthread_setspecific(thread_key, arg);
 
   /* use the argument to point to the task data */
   task = (struct rtapi_task*)arg;
@@ -294,13 +305,17 @@ int rtapi_task_set_period(int task_id,
   if (task->magic != TASK_MAGIC)
     return RTAPI_INVAL;
 
-  return RTAPI_UNSUP;
+  task->period = period_nsec;
+
+  return RTAPI_SUCCESS;
 }
 
 
 int rtapi_wait(void)
 {
-  usleep(1);
+  struct rtapi_task *task = pthread_getspecific(thread_key);
+  struct timespec ts = {0, task->period};
+  nanosleep(&ts, NULL);
   pthread_testcancel();
   return RTAPI_SUCCESS;
 }
