@@ -15,14 +15,13 @@
 ********************************************************************/
 
 #include <stdarg.h>
-#include <unistd.h>
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #ifdef RTAPI
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
 #else
-#include <stdio.h>
-#include <string.h>
+#include <stdio.h>              /* vsnprintf */
 #endif
+#include "rtapi_string.h"       /* memset */
 #include "hal.h"		/* decls for HAL implementation */
 #include "emcmotglb.h"
 #include "motion.h"

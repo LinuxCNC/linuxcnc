@@ -60,34 +60,9 @@
 #include "hal.h"		/* HAL public API decls */
 #include "hal_priv.h"		/* HAL private decls */
 
-#if defined(RTAPI)
-int is_rtapi = 0;
-#endif
-#if defined(ULAPI)
-int is_ulapi = 0;
-#endif
+#include "rtapi_string.h"
 
-#if defined(RTAPI) && !defined(SIM)
-/* includes for realtime config */
-/* Suspect only very early kernels are missing the basic string functions.
-   To be sure, see what has been implimented by looking in linux/string.h
-   and {linux_src_dir}/lib/string.c */
-#include <linux/string.h>
-#ifndef __HAVE_ARCH_STRCMP	/* This flag will be defined if we do */
-#define __HAVE_ARCH_STRCMP	/* have strcmp */
-/* some kernels don't have strcmp */
-static int strcmp(const char *cs, const char *ct)
-{
-    signed char __res;
-    while (1) {
-	if ((__res = *cs - *ct++) != 0 || !*cs++) {
-	    break;
-	}
-    }
-    return __res;
-}
-#endif
-
+#ifdef RTAPI
 #include "rtapi_app.h"
 /* module information */
 MODULE_AUTHOR("John Kasunich");
@@ -95,17 +70,9 @@ MODULE_DESCRIPTION("Hardware Abstraction Layer for EMC");
 MODULE_LICENSE("GPL");
 #endif /* RTAPI */
 
-#if defined(ULAPI) || defined(SIM)
-#include <string.h>		/* strcmp */
+#if defined(ULAPI)
 #include <sys/types.h>		/* pid_t */
 #include <unistd.h>		/* getpid() */
-#endif
-
-#ifndef LINUX_VERSION_CODE
-#include <linux/version.h>
-#endif
-#ifndef KERNEL_VERSION
-#define KERNEL_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))
 #endif
 
 char *hal_shmem_base = 0;
@@ -285,13 +252,12 @@ int hal_init(char *name)
     comp->mem_id = mem_id;
 #ifdef RTAPI
     comp->type = 1;
-    comp->ready = 1;
     comp->pid = 0;
 #else /* ULAPI */
     comp->type = 0;
-    comp->ready = 0;
     comp->pid = getpid();
 #endif
+    comp->ready = 0;
     comp->shmem_base = hal_shmem_base;
     comp->insmod_args = 0;
     rtapi_snprintf(comp->name, HAL_NAME_LEN, "%s", hal_name);
