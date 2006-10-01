@@ -105,7 +105,6 @@ int rtapi_shmem_delete(int handle, int module_id)
 
   /* destroy the shared memory */
   r2 = shmctl(shmem->id, IPC_STAT, &d);
-  fprintf(stderr, "r2=%d d.shm_nattch=%d\n", r2, (int)d.shm_nattch);
   if(r2 == 0 && d.shm_nattch == 0) {
       r2 = shmctl(shmem->id, IPC_RMID, &d);
   }

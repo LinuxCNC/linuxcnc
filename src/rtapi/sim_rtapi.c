@@ -100,7 +100,6 @@ int rtapi_init(char *modname)
   /* clear the task array - if magic doesn't contain the magic
      number, that means that array entry is empty */
   for (n = 0; n < MAX_MODULES; n++) {
-      printf("rtapi_init n=%d [n].magic=%d\n", n, module_array[n].magic);
     if(module_array[n].magic != MODULE_MAGIC) {
       result = n + MODULE_OFFSET;
       module_array[n].magic = MODULE_MAGIC;
