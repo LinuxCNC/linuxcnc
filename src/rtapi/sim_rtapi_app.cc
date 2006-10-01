@@ -234,7 +234,7 @@ become_master:
         int fd = -1;
 	for(int i=0 ; fd < 0 && i <3 ; i++) {
 	    fd = open(FIFO_PATH, O_WRONLY | O_EXCL | O_NONBLOCK);
-	    sleep(1);
+	    if(fd < 0) sleep(1);
 	}
 	if(fd < 0 && errno == ENXIO) { 
 	    unlink(FIFO_PATH);
