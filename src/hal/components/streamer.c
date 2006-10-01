@@ -61,8 +61,8 @@
 #include "rtapi_app.h"          /* RTAPI realtime module decls */
 #include "hal.h"                /* HAL public API decls */
 #include "streamer.h"		/* decls and such for fifos */
-#include <errno.h>
-#include <string.h>
+#include "rtapi_errno.h"
+#include "rtapi_string.h"
 
 /* module information */
 MODULE_AUTHOR("John Kasunich");
