@@ -41,7 +41,7 @@
 #include <hal.h>		/* HAL public API decls */
 #include "../hal_priv.h"	/* HAL private API decls */
 #include "scope_rt.h"		/* scope related declarations */
-#include <string.h>
+#include "rtapi_string.h"
 
 /* module information */
 MODULE_AUTHOR("John Kasunich");
