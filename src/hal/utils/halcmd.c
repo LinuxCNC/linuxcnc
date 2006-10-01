@@ -1943,23 +1943,23 @@ static int do_loadusr_cmd(char *args[])
     pid = hal_systemv_nowait(argv);
 
     if ( wait_comp_flag ) {
-        int ready = 0, count=0;
-        int next;
+        int ready = 0, count=0, exited=0;
+        hal_comp_t *comp = NULL;
         while(!ready) {
             struct timespec ts = {0, 10 * 1000 * 1000}; // 10ms
             nanosleep(&ts, NULL);
-            retval = waitpid( pid, &status, WNOHANG );
-            if(retval != 0) goto wait_common;
+            if(!exited) {
+                retval = waitpid( pid, &status, WNOHANG );
+                if(retval != 0) {
+                    exited = 1;
+                    if(retval < 0 || WIFEXITED(status) == 0) goto wait_common;
+                }
+            }
 
             rtapi_mutex_get(&(hal_data->mutex));
-            next = hal_data->comp_list_ptr;
-            while(next) {
-                hal_comp_t *comp = SHMPTR(next);
-                next = comp->next_ptr;
-                if(strcmp(comp->name, new_comp_name) == 0 && comp->ready) {
-                    ready = 1;
-                    break;
-                }
+            comp = halpr_find_comp_by_name(new_comp_name);
+            if(comp && comp->ready) {
+                ready = 1;
             }
             rtapi_mutex_give(&(hal_data->mutex));
 
