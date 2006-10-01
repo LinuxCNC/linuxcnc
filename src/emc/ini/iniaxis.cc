@@ -134,7 +134,7 @@ static int loadAxis(int axis)
     double maxAcceleration;
     double maxFerror;
 
-    // compose string to match, axis = 0 -> AXIS_1, etc.
+    // compose string to match, axis = 0 -> AXIS_0, etc.
     sprintf(axisString, "AXIS_%d", axis);
 
     // set axis type

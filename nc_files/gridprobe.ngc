@@ -32,7 +32,9 @@ O1 while [#9 lt #6]
         O3 else      
             G0X[#1+#2*[#3-#10-1]]
         O3 endif
+	M101
         G38.2Z#8
+	M103
         G0Z#7
         #10=[#10+1]
     O2 endwhile

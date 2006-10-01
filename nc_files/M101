@@ -9,5 +9,6 @@ P=$1
 Q=$2
 
 echo "M101 P$P Q$Q: put your code here"
+/home/juve/emc2/bin/halcmd sets foo true
 
 exit 0
