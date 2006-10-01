@@ -84,6 +84,7 @@ AC_ARG_ENABLE(simulator,
                 SIMULATOR=yes
                 RTS=simulator
                 BUILD_SYS=sim
+                MODEXT=.so
                 AC_MSG_RESULT([configuring for simulator])
             ;;
             *)
@@ -388,6 +389,15 @@ AC_SUBST([KERNELDIR])
 AC_SUBST([RTFLAGS])
 AC_SUBST([RTDIR])
 
+if test $RTPREFIX = sim; then
+    AC_DEFINE(RTAPI_SIM, [], [Realtime system is simulated])
+elif test $RTPREFIX = rtai; then
+    AC_DEFINE(RTAPI_RTAI, [], [Realtime system is RTAI])
+elif test $RTPREFIX = rtl; then
+    AC_DEFINE(RTAPI_RTL, [], [Realtime system is RTL])
+fi
+
+
 # Check for emc2 dir
 # FIXME
 # right now... not done
@@ -505,8 +515,6 @@ if test "x" = "x$MODEXT"; then
     MODEXT=".o"
 fi
 AC_MSG_RESULT([$MODEXT])
-AC_SUBST([MODEXT])
-AC_DEFINE_UNQUOTED([MODULE_EXT], "$MODEXT", [Extension for realtime modules])
 
 # This check should see if kbuild is or isn't used
 AC_MSG_CHECKING([kernel build system])
@@ -580,6 +588,8 @@ if test "x" = "x$MODULE_DIR"; then
    fi
 fi
 fi
+AC_SUBST([MODEXT])
+AC_DEFINE_UNQUOTED([MODULE_EXT], "$MODEXT", [Extension for realtime modules])
 
 AC_ARG_ENABLE(run-in-place,
     [  --enable-run-in-place   Configure EMC to run without make install],

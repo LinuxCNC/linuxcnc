@@ -787,7 +787,7 @@ extern "C" {			/* Need this when the header is included in a
 #define EXPORT_SYMBOL(x)
 #endif
 
-#ifdef MODULE_EXT
+#if !defined(RTAPI_SIM)
 #ifndef LINUX_VERSION_CODE
 #include <linux/version.h>
 #endif

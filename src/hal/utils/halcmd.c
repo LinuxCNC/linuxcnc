@@ -1478,7 +1478,7 @@ static int do_status_cmd(char *type)
 
 static int do_loadrt_cmd(char *mod_name, char *args[])
 {
-#ifndef MODULE_EXT
+#if defined(RTAPI_SIM)
     int m=0, n=0;
     char *argv[MAX_TOK+3];
     argv[m++] = "-Wn";
@@ -1747,12 +1747,12 @@ static int unloadrt_comp(char *mod_name)
     int retval;
     char *argv[4];
 
-#ifdef MODULE_EXT
-    argv[0] = EMC2_BIN_DIR "/emc_module_helper";
-    argv[1] = "remove";
-#else
+#if defined(RTAPI_SIM)
     argv[0] = EMC2_BIN_DIR "/rtapi_app";
     argv[1] = "unload";
+#else
+    argv[0] = EMC2_BIN_DIR "/emc_module_helper";
+    argv[1] = "remove";
 #endif
     argv[2] = mod_name;
     /* add a NULL to terminate the argv array */
@@ -3446,9 +3446,6 @@ static char *loadusr_generator(const char *text, int state) {
 
 
 static char *loadrt_generator(const char *text, int state) {
-#ifndef MODULE_EXT
-#define MODULE_EXT ".so"
-#endif
     static int len;
     static DIR *d;
     struct dirent *ent;
