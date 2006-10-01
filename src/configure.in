@@ -77,7 +77,7 @@ BUILD_TOPLEVEL="$(cd ..; pwd -P)"
 ##############################################################################
 
 AC_ARG_ENABLE(simulator,
-    [  --enable-simulator      Run without a realtime kernel (unfinished)],
+    [  --enable-simulator      Run as a pure userspace program],
     [
         case "$enableval" in
             Y*|y*)

@@ -857,7 +857,7 @@ if test -n "$ac_init_help"; then
 Optional Features:
   --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
-  --enable-simulator      Run without a realtime kernel (unfinished)
+  --enable-simulator      Run as a pure userspace program
   --enable-run-in-place   Configure EMC to run without make install
   --disable-build-documentation   Do not build documentation automatcally
   --disable-nls           don't use NLS
