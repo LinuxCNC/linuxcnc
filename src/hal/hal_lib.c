@@ -213,7 +213,6 @@ int hal_init(char *name)
 	return HAL_FAIL;
     }
     /* set up internal pointers to shared mem and data structure */
-    rtapi_print_msg(RTAPI_MSG_ERR, "%p %p\n", hal_shmem_base, mem);
     if(hal_shmem_base == 0) {
         hal_shmem_base = (char *) mem;
         hal_data = (hal_data_t *) mem;
