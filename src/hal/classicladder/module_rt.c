@@ -74,13 +74,8 @@
 #include "vars_access.h"
 #include "calc_rt.h"
 
+#include "rtapi_string.h"
 
-#ifndef MODULE
-#define MODULE
-#endif
-
-
-#ifdef MODULE
 // Module information.
 MODULE_AUTHOR("Pete Vavaroutsos");
 MODULE_DESCRIPTION("PLC component for EMC HAL");
@@ -105,7 +100,6 @@ static int numArithmExpr = 100;
 RTAPI_MP_INT(numArithmExpr, "Number of arithmetic expressions to allocate");
 static int numSections = 10;
 RTAPI_MP_INT(numSections, "Number of sections to allocate");
-#endif // MODULE
 
 
 /******************************************************************************
@@ -222,6 +216,7 @@ rtapi_app_main(void)
 	}
     }
 
+    hal_ready(component.componentId);
     return(0);
 }
 

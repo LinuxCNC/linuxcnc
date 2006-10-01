@@ -62,7 +62,6 @@
 #include <linux/types.h>
 #include "rtapi_math.h"
 
-#ifdef MODULE
 /* module information */
 MODULE_AUTHOR("John Kasunich");
 MODULE_DESCRIPTION("Functional blocks for EMC HAL");
@@ -109,8 +108,6 @@ static int match8 = 0;            /* number of match detectors */
 RTAPI_MP_INT(match8, "match detectors");
 static int minmax = 0;            /* number of min/max blocks */
 RTAPI_MP_INT(minmax, "minmax blocks");
-
-#endif /* MODULE */
 
 /***********************************************************************
 *                STRUCTURES AND GLOBAL VARIABLES                       *
@@ -609,6 +606,7 @@ int rtapi_app_main(void)
 	rtapi_print_msg(RTAPI_MSG_INFO,
 	    "BLOCKS: installed %d min/max blocks\n", minmax);
     }
+    hal_ready(comp_id);
     return 0;
 }
 

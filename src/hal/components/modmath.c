@@ -43,15 +43,12 @@
 #include <linux/types.h>
 #include "rtapi_math.h"
 
-#ifdef MODULE
 /* module information */
 MODULE_AUTHOR("Stephen Wille Padnos");
 MODULE_DESCRIPTION("Modulo math blocks for EMC HAL");
 MODULE_LICENSE("GPL");
 static int mod_dir = 0;	/* number of mod_dirs */
 RTAPI_MP_INT(mod_dir, "Modulo direction blocks");
-
-#endif /* MODULE */
 
 /***********************************************************************
 *                STRUCTURES AND GLOBAL VARIABLES                       *
@@ -109,6 +106,7 @@ int rtapi_app_main(void)
 	rtapi_print_msg(RTAPI_MSG_INFO,
 	    "MODMATH: installed %d mod-dirs\n", mod_dir);
     }
+    hal_ready(comp_id);
     return 0;
 }
 

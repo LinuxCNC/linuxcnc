@@ -58,17 +58,17 @@
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
 #include "hal.h"		/* HAL public API decls */
+#include "rtapi_string.h"
 
-#ifdef MODULE
 /* module information */
 MODULE_AUTHOR("John Kasunich");
 MODULE_DESCRIPTION("Thread Module for HAL");
 MODULE_LICENSE("GPL");
-static char *name1 = NULL;	/* name of thread */
+static char *name1 = "thread1";	/* name of thread */
 RTAPI_MP_STRING(name1, "name of thread 1");
 static int fp1 = 1;		/* use floating point? default = yes */
 RTAPI_MP_INT(fp1, "thread1 uses floating point");
-static long period1 = 0;	/* thread period - default = no thread */
+static long period1 = 1000*1000;	/* thread period - default = no thread */
 RTAPI_MP_LONG(period1,  "thread1 period (nsecs)");
 static char *name2 = NULL;	/* name of thread */
 RTAPI_MP_STRING(name2, "name of thread 2");
@@ -82,7 +82,6 @@ static int fp3 = 1;		/* use floating point? default = yes */
 RTAPI_MP_INT(fp3, "thread1 uses floating point");
 static long period3 = 0;	/* thread period - default = no thread */
 RTAPI_MP_LONG(period3, "thread3 period (nsecs)");
-#endif /* MODULE */
 
 /***********************************************************************
 *                STRUCTURES AND GLOBAL VARIABLES                       *
@@ -148,6 +147,7 @@ int rtapi_app_main(void)
 	    rtapi_print_msg(RTAPI_MSG_INFO, "THREADS: created %d uS thread\n", period3 / 1000);
 	}
     }
+    hal_ready(comp_id);
     return 0;
 }
 

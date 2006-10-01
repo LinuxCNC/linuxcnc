@@ -70,14 +70,12 @@
 
 #define MAX_CHAN 8
 
-#ifdef MODULE
 /* module information */
 MODULE_AUTHOR("John Kasunich");
 MODULE_DESCRIPTION("Simulated Encoder for EMC HAL");
 MODULE_LICENSE("GPL");
 int num_chan = 1;
 RTAPI_MP_INT(num_chan, "number of 'encoders'");
-#endif /* MODULE */
 
 /***********************************************************************
 *                STRUCTURES AND GLOBAL VARIABLES                       *
@@ -189,6 +187,7 @@ int rtapi_app_main(void)
     }
     rtapi_print_msg(RTAPI_MSG_INFO,
 	"SIM_ENCODER: installed %d simulated encoders\n", num_chan);
+    hal_ready(comp_id);
     return 0;
 }
 

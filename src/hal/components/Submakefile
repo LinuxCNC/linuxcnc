@@ -17,11 +17,12 @@ obj-m += $(patsubst hal/components/%.comp, %.o, $(COMPS))
 	@mkdir -p $(dir $@)
 	../bin/comp --document -o $@ $<
 
-objects/%.mak: %.comp
+objects/%.mak: %.comp hal/components/Submakefile
 	$(ECHO) "Creating $(notdir $@)"
 	@mkdir -p $(dir $@)
 	@echo $(notdir $*)-objs := objects/$*.o > $@.tmp
-	@echo ../rtlib/$(notdir $*).o: objects/$*.o >> $@.tmp
+	@echo ../rtlib/$(notdir $*).so: objects/rtobjects/$*.o >> $@.tmp
+	@echo ../rtlib/$(notdir $*).o: objects/rt$*.o >> $@.tmp
 	@mv -f $@.tmp $@
 
 objects/%.c: %.comp ../bin/comp

@@ -373,6 +373,7 @@ rtapi_app_main(void)
 	return -ENODEV;
     }
 
+    hal_ready(driver.componentId);
     return(0);
 }
 

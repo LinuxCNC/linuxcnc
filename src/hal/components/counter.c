@@ -73,16 +73,15 @@
 
 #include "rtapi.h"              /* RTAPI realtime OS API */
 #include "rtapi_app.h"          /* RTAPI realtime module decls */
+#include "rtapi_errno.h"        /* EINVAL etc */
 #include "hal.h"                /* HAL public API decls */
 
-#ifdef MODULE
 /* module information */
 MODULE_AUTHOR("Chris Radek");
 MODULE_DESCRIPTION("Pulse Counter for EMC HAL");
 MODULE_LICENSE("GPL");
 static int num_chan = 1;        /* number of channels - default = 1 */
 RTAPI_MP_INT(num_chan, "number of channels");
-#endif /* MODULE */
 
 /***********************************************************************
 *                STRUCTURES AND GLOBAL VARIABLES                       *
@@ -191,6 +190,7 @@ int rtapi_app_main(void)
     }
     rtapi_print_msg(RTAPI_MSG_INFO,
 	"COUNTER: installed %d counter counters\n", num_chan);
+    hal_ready(comp_id);
     return 0;
 }
 

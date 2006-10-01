@@ -403,6 +403,7 @@ int rtapi_app_main(void)
     rtapi_print_msg(RTAPI_MSG_INFO,
 	"VTI: installed %d digital outputs\n", outpinnum);
 
+    hal_ready(comp_id);
     return 0;
 }
 

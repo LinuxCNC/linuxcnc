@@ -44,14 +44,14 @@ StrSequential *Sequential;
 int *VarWordArray;
 TYPE_FOR_BOOL_VAR *VarArray;
 
-#if !defined(MODULE) && defined(GTK_INTERFACE)
+#if !defined(RTAPI) && defined(GTK_INTERFACE)
 /* used for the editor */
 StrEditRung EditDatas;
 StrArithmExpr *EditArithmExpr = NULL;
 #endif
 
 /* return TRUE if okay */
-#ifdef MODULE
+#ifdef RTAPI
 int ClassicLadderAllocAll(int compId, plc_sizeinfo_s * pSizesInfos)
 #else
 int ClassicLadderAllocAll(int compId)
@@ -59,13 +59,13 @@ int ClassicLadderAllocAll(int compId)
 {
     unsigned char *pByte;
     unsigned long bytes = sizeof(StrInfosGene);
-#ifdef MODULE
+#ifdef RTAPI
     int numBits, numWords;
 #else
     plc_sizeinfo_s *pSizesInfos;
 #endif
 
-#ifdef MODULE
+#ifdef RTAPI
     // Calculate SHMEM size.
     numBits =
 	pSizesInfos->nbr_bits + pSizesInfos->nbr_phys_inputs +
@@ -97,7 +97,7 @@ int ClassicLadderAllocAll(int compId)
 	rtapi_print("Failed to map shared memory !\n");
 	return FALSE;
     }
-#ifndef MODULE
+#ifndef RTAPI
     // Check signature written by RT module to make sure we have the
     // right region and RT module is loaded.
     if (InfosGene->Signature != CL_SHMEM_KEY) {
@@ -159,7 +159,7 @@ int ClassicLadderAllocAll(int compId)
     // Allocate last for alignment reasons.
     VarArray = (TYPE_FOR_BOOL_VAR *) pByte;
 
-#if !defined(MODULE) && defined(GTK_INTERFACE)
+#if !defined(RTAPI) && defined(GTK_INTERFACE)
     EditArithmExpr =
 	(StrArithmExpr *) malloc(NBR_ARITHM_EXPR * sizeof(StrArithmExpr));
     if (!EditArithmExpr) {
@@ -173,7 +173,7 @@ int ClassicLadderAllocAll(int compId)
 
 void ClassicLadderFreeAll(int compId)
 {
-#if !defined(MODULE) && defined(GTK_INTERFACE)
+#if !defined(RTAPI) && defined(GTK_INTERFACE)
     if (EditArithmExpr)
 	free(EditArithmExpr);
 #endif

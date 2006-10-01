@@ -60,47 +60,19 @@
 #include "hal.h"		/* HAL public API decls */
 #include "hal_priv.h"		/* HAL private decls */
 
-#ifdef RTAPI
-/* includes for realtime config */
-/* Suspect only very early kernels are missing the basic string functions.
-   To be sure, see what has been implimented by looking in linux/string.h
-   and {linux_src_dir}/lib/string.c */
-#include <linux/string.h>
-#ifndef __HAVE_ARCH_STRCMP	/* This flag will be defined if we do */
-#define __HAVE_ARCH_STRCMP	/* have strcmp */
-/* some kernels don't have strcmp */
-static int strcmp(const char *cs, const char *ct)
-{
-    signed char __res;
-    while (1) {
-	if ((__res = *cs - *ct++) != 0 || !*cs++) {
-	    break;
-	}
-    }
-    return __res;
-}
-#endif
+#include "rtapi_string.h"
 
+#ifdef RTAPI
 #include "rtapi_app.h"
-#ifdef MODULE
 /* module information */
 MODULE_AUTHOR("John Kasunich");
 MODULE_DESCRIPTION("Hardware Abstraction Layer for EMC");
 MODULE_LICENSE("GPL");
-#endif /* MODULE */
 #endif /* RTAPI */
 
-#ifdef ULAPI
-#include <string.h>		/* strcmp */
+#if defined(ULAPI)
 #include <sys/types.h>		/* pid_t */
 #include <unistd.h>		/* getpid() */
-#endif
-
-#ifndef LINUX_VERSION_CODE
-#include <linux/version.h>
-#endif
-#ifndef KERNEL_VERSION
-#define KERNEL_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))
 #endif
 
 char *hal_shmem_base = 0;
@@ -241,8 +213,10 @@ int hal_init(char *name)
 	return HAL_FAIL;
     }
     /* set up internal pointers to shared mem and data structure */
-    hal_shmem_base = (char *) mem;
-    hal_data = (hal_data_t *) mem;
+    if(hal_shmem_base == 0) {
+        hal_shmem_base = (char *) mem;
+        hal_data = (hal_data_t *) mem;
+    }
     /* perform a global init if needed */
     retval = init_hal_data();
     if ( retval ) {
@@ -277,13 +251,12 @@ int hal_init(char *name)
     comp->mem_id = mem_id;
 #ifdef RTAPI
     comp->type = 1;
-    comp->ready = 1;
     comp->pid = 0;
 #else /* ULAPI */
     comp->type = 0;
-    comp->ready = 0;
     comp->pid = getpid();
 #endif
+    comp->ready = 0;
     comp->shmem_base = hal_shmem_base;
     comp->insmod_args = 0;
     rtapi_snprintf(comp->name, HAL_NAME_LEN, "%s", hal_name);
@@ -1615,7 +1588,7 @@ int hal_create_thread(char *name, unsigned long period_nsec, int uses_fp)
     if (retval < 0) {
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL_LIB: could not start task for thread %s\n", name);
+	    "HAL_LIB: could not start task for thread %s: %d\n", name, retval);
 	return HAL_FAIL;
     }
     /* insert new structure at head of list */
@@ -2333,8 +2306,8 @@ static int hal_proc_init(void) {
     return 0;
 }
 #else
-static void hal_proc_clean(void) {}
-static void hal_proc_init(void) {}
+static int hal_proc_clean(void) {}
+static int hal_proc_init(void) {}
 #endif
 
 int rtapi_app_main(void)
@@ -3063,6 +3036,7 @@ static void free_thread_struct(hal_thread_t * thread)
 /* only export symbols when we're building a kernel module */
 
 EXPORT_SYMBOL(hal_init);
+EXPORT_SYMBOL(hal_ready);
 EXPORT_SYMBOL(hal_exit);
 EXPORT_SYMBOL(hal_malloc);
 

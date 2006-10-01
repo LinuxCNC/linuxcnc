@@ -315,6 +315,7 @@ rtapi_print ( "config string '%s'\n", cfg );
     }
     rtapi_print_msg(RTAPI_MSG_INFO,
 	"PARPORT: installed driver for %d ports\n", num_ports);
+    hal_ready(comp_id);
     return 0;
 }
 

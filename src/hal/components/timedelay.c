@@ -42,14 +42,12 @@
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
 #include "hal.h"		/* HAL public API decls */
 
-#ifdef MODULE
 /* module information */
 MODULE_AUTHOR("Stephen Wille Padnos");
 MODULE_DESCRIPTION("Time Delay for EMC HAL");
 MODULE_LICENSE("GPL");
 static int num_delays = 1;		/* number of delays to create, default = 1 */
 RTAPI_MP_INT(num_delays, "Number of delays");
-#endif /* MODULE */
 
 /***********************************************************************
 *                STRUCTURES AND GLOBAL VARIABLES                       *
@@ -132,6 +130,7 @@ int rtapi_app_main(void)
 
     rtapi_print_msg(RTAPI_MSG_INFO,
 	"TIMEDELAY: installed %d time delays\n", num_delays);
+    hal_ready(comp_id);
     return 0;
 }
 

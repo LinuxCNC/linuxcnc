@@ -17,6 +17,7 @@
 #endif
 
 #include "rtapi.h"		/* rtapi_print_msg */
+#include "rtapi_string.h"       /* NULL */
 #include "posemath.h"
 #include "tc.h"
 #include "tp.h"

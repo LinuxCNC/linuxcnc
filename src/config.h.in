@@ -169,6 +169,15 @@
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION
 
+/* Realtime system is RTAI */
+#undef RTAPI_RTAI
+
+/* Realtime system is RTL */
+#undef RTAPI_RTL
+
+/* Realtime system is simulated */
+#undef RTAPI_SIM
+
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS
 

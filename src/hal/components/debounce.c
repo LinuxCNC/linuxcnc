@@ -52,14 +52,12 @@
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
 #include "hal.h"		/* HAL public API decls */
 
-#ifdef MODULE
 /* module information */
 MODULE_AUTHOR("John Kasunich");
 MODULE_DESCRIPTION("Debounce filter for EMC HAL");
 MODULE_LICENSE("GPL");
 static char *cfg = "1";		/* config string, default = 1 filter */
 RTAPI_MP_STRING(cfg, "config string");
-#endif /* MODULE */
 
 /***********************************************************************
 *                STRUCTURES AND GLOBAL VARIABLES                       *
@@ -199,6 +197,7 @@ int rtapi_app_main(void)
     rtapi_print_msg(RTAPI_MSG_INFO,
 	"DEBOUNCE: installed %d groups of debounce filters, %d total\n",
 	num_groups, num_filters);
+    hal_ready(comp_id);
     return 0;
 }
 

@@ -179,7 +179,7 @@ static pid_t hal_systemv_nowait(char *const argv[]) {
     pid = fork();
     if ( pid < 0 ) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL:%d: ERROR: loadrt fork() failed\n", linenumber);
+	    "HAL:%d: ERROR: fork() failed\n", linenumber);
 	/* reconnect to the HAL shmem area */
 	comp_id = hal_init(comp_name);
 	if (comp_id < 0) {
@@ -1478,9 +1478,21 @@ static int do_status_cmd(char *type)
 
 static int do_loadrt_cmd(char *mod_name, char *args[])
 {
-#ifdef MODULE_EXT
-    /* note: these are static so that the various searches can
-       be skipped for subsequent commands */
+#if defined(RTAPI_SIM)
+    int m=0, n=0;
+    char *argv[MAX_TOK+3];
+    argv[m++] = "-Wn";
+    argv[m++] = mod_name;
+    argv[m++] = EMC2_BIN_DIR "/rtapi_app";
+    argv[m++] = "load";
+    argv[m++] = mod_name;
+    /* loop thru remaining arguments */
+    while ( args[n] && args[n][0] != '\0' ) {
+        argv[m++] = args[n++];
+    }
+    argv[m++] = NULL;
+    return do_loadusr_cmd(argv);
+#else
     static char *rtmod_dir = EMC2_RTLIB_DIR;
     struct stat stat_buf;
     char mod_path[MAX_CMD_LEN+1];
@@ -1519,7 +1531,7 @@ static int do_loadrt_cmd(char *mod_name, char *args[])
     /* loop thru remaining arguments */
     n = 0;
     m = 3;
-    while ( args[n][0] != '\0' ) {
+    while ( args[n] && args[n][0] != '\0' ) {
         argv[m++] = args[n++];
     }
     /* add a NULL to terminate the argv array */
@@ -1535,7 +1547,7 @@ static int do_loadrt_cmd(char *mod_name, char *args[])
     /* make the args that were passed to the module into a single string */
     n = 0;
     arg_string[0] = '\0';
-    while ( args[n][0] != '\0' ) {
+    while ( args[n] && args[n][0] != '\0' ) {
 	strncat(arg_string, args[n++], MAX_CMD_LEN);
 	strncat(arg_string, " ", MAX_CMD_LEN);
     }
@@ -1566,11 +1578,16 @@ static int do_loadrt_cmd(char *mod_name, char *args[])
     rtapi_print_msg(RTAPI_MSG_INFO, "Realtime module '%s' loaded\n",
 	mod_name);
     return 0;
-#else
-    rtapi_print_msg(RTAPI_MSG_INFO, "Realtime modules not supported\n",
-	mod_name);
+    /* loop thru remaining arguments */
+    n = 0;
+    m = 3;
+    while ( args[n] && args[n][0] != '\0' ) {
+        argv[m++] = args[n++];
+    }
+    /* add a NULL to terminate the argv array */
+    argv[m] = NULL;
 
-    return HAL_UNSUP;
+    retval = hal_systemv(argv);
 #endif
 }
 
@@ -1730,8 +1747,13 @@ static int unloadrt_comp(char *mod_name)
     int retval;
     char *argv[4];
 
+#if defined(RTAPI_SIM)
+    argv[0] = EMC2_BIN_DIR "/rtapi_app";
+    argv[1] = "unload";
+#else
     argv[0] = EMC2_BIN_DIR "/emc_module_helper";
     argv[1] = "remove";
+#endif
     argv[2] = mod_name;
     /* add a NULL to terminate the argv array */
     argv[3] = NULL;
@@ -1796,7 +1818,7 @@ static int do_loadusr_cmd(char *args[])
     name_flag = 0;
     ignore_flag = 0;
     prog_name = NULL;
-    while ( **args == '-' ) {
+    while ( *args && **args == '-' ) {
 	/* this argument contains option(s) */
 	cp1 = *args;
 	cp1++;
@@ -1912,7 +1934,7 @@ static int do_loadusr_cmd(char *args[])
     /* loop thru remaining arguments */
     n = 0;
     m = 1;
-    while ( args[n][0] != '\0' ) {
+    while ( args[n] && args[n][0] != '\0' ) {
         argv[m++] = args[n++];
     }
     /* add a NULL to terminate the argv array */
@@ -1921,23 +1943,24 @@ static int do_loadusr_cmd(char *args[])
     pid = hal_systemv_nowait(argv);
 
     if ( wait_comp_flag ) {
-        int ready = 0, count=0;
-        int next;
+        int ready = 0, count=0, exited=0;
+        hal_comp_t *comp = NULL;
         while(!ready) {
             struct timespec ts = {0, 10 * 1000 * 1000}; // 10ms
             nanosleep(&ts, NULL);
-            retval = waitpid( pid, &status, WNOHANG );
-            if(retval != 0) goto wait_common;
+            if(!exited) {
+                retval = waitpid( pid, &status, WNOHANG );
+                if(retval != 0) {
+                    exited = 1;
+                    if(retval < 0 || WIFEXITED(status) == 0
+                            || WEXITSTATUS(status) != 0) goto wait_common;
+                }
+            }
 
             rtapi_mutex_get(&(hal_data->mutex));
-            next = hal_data->comp_list_ptr;
-            while(next) {
-                hal_comp_t *comp = SHMPTR(next);
-                next = comp->next_ptr;
-                if(strcmp(comp->name, new_comp_name) == 0 && comp->ready) {
-                    ready = 1;
-                    break;
-                }
+            comp = halpr_find_comp_by_name(new_comp_name);
+            if(comp && comp->ready) {
+                ready = 1;
             }
             rtapi_mutex_give(&(hal_data->mutex));
 
@@ -3424,7 +3447,6 @@ static char *loadusr_generator(const char *text, int state) {
 
 
 static char *loadrt_generator(const char *text, int state) {
-#ifdef MODULE_EXT
     static int len;
     static DIR *d;
     struct dirent *ent;
@@ -3444,7 +3466,6 @@ static char *loadrt_generator(const char *text, int state) {
         return result;
     }
     closedir(d);
-#endif
     return NULL;
 }
 

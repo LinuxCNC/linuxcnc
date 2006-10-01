@@ -19,9 +19,9 @@
 #ifdef RTAPI
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
 #else
-#include <stdio.h>
-#include <string.h>
+#include <stdio.h>              /* vsnprintf */
 #endif
+#include "rtapi_string.h"       /* memset */
 #include "hal.h"		/* decls for HAL implementation */
 #include "emcmotglb.h"
 #include "motion.h"
@@ -32,7 +32,8 @@
 ************************************************************************/
 
 static int key = 111;		/* the shared memory key, default value */
-#ifdef MODULE
+
+#ifdef RTAPI
 /* module information */
 /* register symbols to be modified by insmod
    see "Linux Device Drivers", Alessandro Rubini, p. 385
@@ -62,8 +63,7 @@ static long servo_period_nsec = 0;	/* servo thread period */
 RTAPI_MP_LONG(servo_period_nsec, "servo thread period (nsecs)");
 static long traj_period_nsec = 0;	/* trajectory planner period */
 RTAPI_MP_LONG(traj_period_nsec, "trajectory planner period (nsecs)");
-
-#endif /* MODULE */
+#endif
 
 /***********************************************************************
 *                  GLOBAL VARIABLE DEFINITIONS                         *
@@ -172,7 +172,7 @@ void reportError(const char *fmt, ...)
     emcmotErrorPut(emcmotError, error);
 }
 
-int init_module(void)
+int rtapi_app_main(void)
 {
     int retval;
 
@@ -214,10 +214,12 @@ int init_module(void)
 
     rtapi_print_msg(RTAPI_MSG_INFO, "MOTION: init_module() complete\n");
 
+    hal_ready(mot_comp_id);
+
     return 0;
 }
 
-void cleanup_module(void)
+void rtapi_app_exit(void)
 {
 //    int axis;
     int retval;
@@ -1097,11 +1099,10 @@ static void handler(int ignore) {
 }
 int main(void) {
     long long t0 = rtapi_get_time(), t1, diff;
-    init_module();
+    rtapi_app_main();
     setTrajCycleTime(.01);
     setServoCycleTime(.01);
     signal(SIGTERM, handler);
-    hal_ready(mot_comp_id);
     while(1) {
 	t1 = rtapi_get_time();
 	diff = t1-t0;

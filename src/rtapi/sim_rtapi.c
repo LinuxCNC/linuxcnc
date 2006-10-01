@@ -27,29 +27,35 @@
 /* These structs hold data associated with objects like tasks, etc. */
 /* Task handles are pointers to these structs.                      */
 
+pthread_key_t thread_key;
+pthread_once_t thread_key_once = PTHREAD_ONCE_INIT;
+
+struct rtapi_module {
+  int magic;
+};
+
 struct rtapi_task {
   int magic;			/* to check for valid handle */
+  int owner;
   pthread_t id;			/* OS specific task identifier */
-  int arg;			/* argument for task function */
-  void (*taskcode) (int);	/* pointer to task function */
+  size_t stacksize;
+  int prio;
+  int period;
+void *arg;
+  void (*taskcode) (void*);	/* pointer to task function */
 };
 
-struct rtapi_shmem {
-  int magic;			/* to check for valid handle */
-  int key;			/* key to shared memory area */
-  int id;			/* OS identifier for shmem */
-  unsigned long int size;	/* size of shared memory area */
-  void *mem;			/* pointer to the memory */
-};
-
+#define MODULE_MAGIC  30812
 #define TASK_MAGIC    21979	/* random numbers used as signatures */
 #define SHMEM_MAGIC   25453
 
 #define MAX_TASKS  64
+#define MAX_MODULES  64
+#define MODULE_OFFSET 32768
 
 /* data for all tasks */
-static struct rtapi_task task_array[MAX_TASKS];
-
+static struct rtapi_task task_array[MAX_TASKS] = {{0},};
+static struct rtapi_module module_array[MAX_MODULES] = {{0},};
 
 /* Priority functions.  SIM uses 0 as the highest priority, as the
 number increases, the actual priority of the task decreases. */
@@ -88,38 +94,44 @@ int rtapi_prio_next_lower(int prio)
 }
 
 
-int rtapi_init(void)
+int rtapi_init(char *modname)
 {
-  int n;
+  int n, result=0;
   /* clear the task array - if magic doesn't contain the magic
      number, that means that array entry is empty */
-  for (n = 0; n < MAX_TASKS; n++)
-    task_array[n].magic = 0;
-
-  return RTAPI_SUCCESS;
+  for (n = 0; n < MAX_MODULES; n++) {
+    if(module_array[n].magic != MODULE_MAGIC) {
+      result = n + MODULE_OFFSET;
+      module_array[n].magic = MODULE_MAGIC;
+      return result;
+    }
+  }
+  return RTAPI_NOMEM;
 }
 
 
-int rtapi_exit(void)
+int rtapi_exit(int id)
 {
+  int n = id - MODULE_OFFSET;
+  if(n < 0 || n >= MAX_MODULES) return -1;
+  module_array[n].magic = 0;
   return RTAPI_SUCCESS;
 }
 
 
+static int period = 0;
 int rtapi_clock_set_period(unsigned long int nsecs)
 {
-  return RTAPI_SUCCESS;
+  if(nsecs == 0) return period;
+  period = nsecs;
+  return period;
 }
 
 
-int rtapi_task_new(rtapi_task_handle * taskptr)
-{
+int rtapi_task_new(void (*taskcode) (void*), void *arg,
+    int prio, int owner, unsigned long int stacksize, int uses_fp) {
   int n;
-  rtapi_task_handle task;
-
-  /* validate taskptr */
-  if (taskptr == NULL)
-    return RTAPI_INVAL;
+  struct rtapi_task *task;
 
   /* find an empty entry in the task array */
   /*! \todo  FIXME - this is not 100% thread safe.  If another thread
@@ -134,26 +146,38 @@ int rtapi_task_new(rtapi_task_handle * taskptr)
     return RTAPI_NOMEM;
   task = &(task_array[n]);
 
+  /* check requested priority */
+  if ((prio < rtapi_prio_highest()) || (prio > rtapi_prio_lowest()))
+    return RTAPI_INVAL;
+
   /* label as a valid task structure */
   /*! \todo FIXME - end of non-threadsafe window */
   task->magic = TASK_MAGIC;
+  task->owner = owner;
+  task->id = -1;
+  task->arg = arg;
+  task->stacksize = stacksize;
+  task->taskcode = taskcode;
+  task->prio = prio;
 
   /* and return handle to the caller */
-  *taskptr = task;
 
   return RTAPI_SUCCESS;
 }
 
 
-int rtapi_task_delete(rtapi_task_handle task)
-{
+int rtapi_task_delete(int id) {
+  struct rtapi_task *task;
+
+  if(id < 0 || id >= MAX_TASKS) return RTAPI_INVAL;
+
+  task = &(task_array[id]);
   /* validate task handle */
-  if (task == NULL)
-    return RTAPI_BADH;
   if (task->magic != TASK_MAGIC)
-    return RTAPI_BADH;
+    return RTAPI_INVAL;
 
   /* mark the task struct as available */
+  if(task->id != -1) pthread_cancel(task->id);
   task->magic = 0;
   return 0;
 }
@@ -163,12 +187,19 @@ int rtapi_task_delete(rtapi_task_handle task)
 /* pthread wants it to take a void pointer and return a void pointer */
 /* we solve this with a wrapper function that meets pthread's needs */
 
+static void make_thread_key(void) {
+    pthread_key_create(&thread_key, NULL);
+}
+
 static void *wrapper(void *arg)
 {
-  rtapi_task_handle task;
+  struct rtapi_task *task;
+
+  pthread_once(&thread_key_once, make_thread_key);
+  pthread_setspecific(thread_key, arg);
 
   /* use the argument to point to the task data */
-  task = arg;
+  task = (struct rtapi_task*)arg;
   /* call the task function with the task argument */
   (task->taskcode) (task->arg);
   /* done */
@@ -176,58 +207,55 @@ static void *wrapper(void *arg)
 }
 
 
-int rtapi_task_start(rtapi_task_handle task,
-		     void (*taskcode) (int),
-		     int arg, int prio,
-		     unsigned long int stacksize,
-		     unsigned long int period_nsec,
-		     unsigned long long when, unsigned char uses_fp)
+int rtapi_task_start(int task_id, unsigned long int period_nsec)
 {
+  struct rtapi_task *task;
   int retval;
   pthread_attr_t attr;
   struct sched_param sched_param;
 
-  /* validate task handle */
-  if (task == NULL)
-    return RTAPI_BADH;
-  if (task->magic != TASK_MAGIC)
-    return RTAPI_BADH;
+  if(task_id < 0 || task_id >= MAX_TASKS) return RTAPI_INVAL;
+    
+  task = &task_array[task_id];
 
-  /* check requested priority */
-  if ((prio < rtapi_prio_highest()) || (prio > rtapi_prio_lowest()))
+  /* validate task handle */
+  if (task->magic != TASK_MAGIC)
     return RTAPI_INVAL;
 
   /* get default thread attributes */
   pthread_attr_init(&attr);
 
   /* set priority */
-  sched_param.sched_priority = prio;
+  sched_param.sched_priority = task->prio;
   pthread_attr_setschedparam(&attr, &sched_param);
+  pthread_attr_setstacksize(&attr, task->stacksize);
 
   /* create the thread - use the wrapper function, pass it a pointer
      to the task structure so it can call the actual task function */
-  task->taskcode = taskcode;
-  task->arg = arg;
   retval = pthread_create(&(task->id), &attr, wrapper, (void *) task);
   if (retval != 0)
     return RTAPI_NOMEM;
-  retval = pthread_setschedparam(task->id, SCHED_FIFO, &sched_param);
-  if (retval != 0)
+
     /* need to be root to set SCHED_FIFO */
-    return RTAPI_PERM;
+   retval = pthread_setschedparam(task->id, SCHED_FIFO, &sched_param);
+   if (retval != 0) {
+       rtapi_print_msg(RTAPI_MSG_DBG, "could not set SCHED_FIFO (not fatal)\n");
+   }
   return RTAPI_SUCCESS;
 }
 
 
-int rtapi_task_stop(rtapi_task_handle task)
+int rtapi_task_stop(int task_id)
 {
   int retval;
+  struct rtapi_task *task;
+  if(task_id < 0 || task_id >= MAX_TASKS) return RTAPI_INVAL;
+    
+  task = &task_array[task_id];
 
   /* validate task handle */
-  if (task == NULL)
-    return RTAPI_BADH;
   if (task->magic != TASK_MAGIC)
-    return RTAPI_BADH;
+    return RTAPI_INVAL;
 
   retval = pthread_cancel(task->id);
   if (retval != 0)
@@ -235,186 +263,60 @@ int rtapi_task_stop(rtapi_task_handle task)
   return RTAPI_SUCCESS;
 }
 
-int rtapi_task_pause(rtapi_task_handle task)
+int rtapi_task_pause(int task_id)
 {
-
+  struct rtapi_task *task;
+  if(task_id < 0 || task_id >= MAX_TASKS) return RTAPI_INVAL;
+    
+  task = &task_array[task_id];
+  
   /* validate task handle */
-  if (task == NULL)
-    return RTAPI_BADH;
   if (task->magic != TASK_MAGIC)
-    return RTAPI_BADH;
+    return RTAPI_INVAL;
 
-  /*! \todo FIXME - Fred originally had this function return success.
-     I changed it to return Not Supported.  Is that right? */
   return RTAPI_UNSUP;
 }
 
-int rtapi_task_resume(rtapi_task_handle task)
+int rtapi_task_resume(int task_id)
 {
-
+  struct rtapi_task *task;
+  if(task_id < 0 || task_id >= MAX_TASKS) return RTAPI_INVAL;
+    
+  task = &task_array[task_id];
+  
   /* validate task handle */
-  if (task == NULL)
-    return RTAPI_BADH;
   if (task->magic != TASK_MAGIC)
-    return RTAPI_BADH;
+    return RTAPI_INVAL;
 
-  /*! \todo FIXME - Fred originally had this function return success.
-     I changed it to return Not Supported.  Is that right? */
   return RTAPI_UNSUP;
 }
 
 
-int rtapi_task_set_period(rtapi_task_handle task,
+int rtapi_task_set_period(int task_id,
 			  unsigned long int period_nsec)
 {
+  struct rtapi_task *task;
+  if(task_id < 0 || task_id >= MAX_TASKS) return RTAPI_INVAL;
+    
+  task = &task_array[task_id];
+  
   /* validate task handle */
-  if (task == NULL)
-    return RTAPI_BADH;
   if (task->magic != TASK_MAGIC)
-    return RTAPI_BADH;
+    return RTAPI_INVAL;
 
-  /*! \todo FIXME - Fred originally had this function return success.
-     I changed it to return Not Supported.  Is that right? */
-  return RTAPI_UNSUP;
+  task->period = period_nsec;
+
+  return RTAPI_SUCCESS;
 }
 
 
 int rtapi_wait(void)
 {
+  struct rtapi_task *task = pthread_getspecific(thread_key);
+  struct timespec ts = {0, task->period};
+  nanosleep(&ts, NULL);
   pthread_testcancel();
-  usleep(1);
-  pthread_testcancel();
   return RTAPI_SUCCESS;
-}
-
-
-int rtapi_task_get_handle(rtapi_task_handle * taskptr)
-{
-  int n;
-  pthread_t task_id;
-
-  /* validate taskptr */
-  if (taskptr == NULL)
-    return RTAPI_INVAL;
-
-  /* ask OS for task id */
-  task_id = pthread_self();
-
-  /* search task array for a matching entry */
-  n = 0;
-  while (n < MAX_TASKS) {
-    if ((task_array[n].magic == TASK_MAGIC) && (task_array[n].id == task_id)) {
-      /* found it */
-      *taskptr = &(task_array[n]);
-      return RTAPI_SUCCESS;
-    }
-    n++;
-  }
-  return RTAPI_FAIL;
-}
-
-
-int rtapi_shmem_new(int key, unsigned long int size,
-		    rtapi_shmem_handle * shmemptr)
-{
-  rtapi_shmem_handle shmem;
-
-  /* validate shmemptr */
-  if (shmemptr == NULL)
-    return RTAPI_INVAL;
-
-  /* alloc space for shmem structure */
-  shmem = malloc(sizeof(struct rtapi_shmem));
-  if (shmem == NULL)
-    return RTAPI_NOMEM;
-
-  /* now get shared memory block from OS */
-  shmem->id = shmget((key_t) key, (int) size, IPC_CREAT | 0666);
-  if (shmem->id == -1) {
-    free(shmem);
-    return RTAPI_NOMEM;
-  }
-  /* and map it into process space */
-  shmem->mem = shmat(shmem->id, 0, 0);
-  if ((int) (shmem->mem) == -1) {
-    free(shmem);
-    return RTAPI_NOMEM;
-  }
-
-  /* label as a valid shmem structure */
-  shmem->magic = SHMEM_MAGIC;
-  /* fill in the other fields */
-  shmem->size = size;
-  shmem->key = key;
-
-  /* return handle to the caller */
-  *shmemptr = shmem;
-  return RTAPI_SUCCESS;
-}
-
-
-int rtapi_shmem_getptr(rtapi_shmem_handle shmem, void **ptr)
-{
-  /* validate shmem handle */
-  if (shmem == NULL)
-    return RTAPI_BADH;
-  if (shmem->magic != SHMEM_MAGIC)
-    return RTAPI_BADH;
-
-  /* pass memory address back to caller */
-  *ptr = shmem->mem;
-  return RTAPI_SUCCESS;
-}
-
-
-int rtapi_shmem_delete(rtapi_shmem_handle shmem)
-{
-  struct shmid_ds d;
-  int r1, r2;
-
-  /* validate shmem handle */
-  if (shmem == NULL)
-    return RTAPI_BADH;
-  if (shmem->magic != SHMEM_MAGIC)
-    return RTAPI_BADH;
-
-  /* unmap the shared memory */
-  r1 = shmdt(shmem->mem);
-
-  /* destroy the shared memory */
-  r2 = shmctl(shmem->id, IPC_RMID, &d);
-  /*! \todo FIXME - Fred had the first two arguments reversed.  I changed
-     them to match the shmctl man page on my machine.  Since his way
-     worked, maybe there is difference between different libs, or
-     maybe my man page is just wrong. */
-
-  /* free the shmem structure */
-  shmem->magic = 0;
-  free(shmem);
-
-  if ((r1 != 0) || (r2 != 0))
-    return RTAPI_FAIL;
-  return RTAPI_SUCCESS;
-}
-
-
-void rtapi_print(const char *fmt, ...)
-{
-  va_list args;
-
-  va_start(args, fmt);
-  vprintf(fmt, args);
-  va_end(args);
-}
-
-
-void rtapi_print_dbg(int dbg, const char *fmt, ...)
-{
-  va_list args;
-
-  va_start(args, fmt);
-  vprintf(fmt, args);
-  va_end(args);
 }
 
 
@@ -455,32 +357,33 @@ int rtapi_disable_interrupt(unsigned int irq)
 
 /*! \todo FIXME - no support for semaphores */
 
-int rtapi_sem_new(rtapi_sem_handle * semptr)
+int rtapi_sem_new(int key, int module_id)
 {
   return RTAPI_UNSUP;
 }
 
-int rtapi_sem_delete(rtapi_sem_handle sem)
+int rtapi_sem_delete(int id)
 {
   return RTAPI_UNSUP;
 }
 
-int rtapi_sem_give(rtapi_sem_handle sem)
+int rtapi_sem_give(int id)
 {
   return RTAPI_UNSUP;
 }
 
-int rtapi_sem_take(rtapi_sem_handle sem)
+int rtapi_sem_take(int id)
 {
   return RTAPI_UNSUP;
 }
 
-int rtapi_sem_try(rtapi_sem_handle sem)
+int rtapi_sem_try(int id)
 {
   return RTAPI_UNSUP;
 }
 
 
+#if 0
 /*! \todo FIXME - no support for fifos */
 
 int rtapi_fifo_new(int key, unsigned long int size,
@@ -504,3 +407,11 @@ int rtapi_fifo_write(rtapi_fifo_handle fifo,
 {
   return RTAPI_UNSUP;
 }
+#endif
+
+long int simple_strtol(const char *nptr, char **endptr, int base) {
+  return strtol(nptr, endptr, base);
+}
+
+
+#include "rtapi/sim_common.h"
