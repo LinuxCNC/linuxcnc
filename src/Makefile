@@ -100,7 +100,7 @@ DEPS := $(sort $(patsubst objects/%.o,depends/%.d,$(CUSEROBJS) $(CXXUSEROBJS)))
 Makefile: $(DEPS)
 endif
 
-# Each directory in $(INCLDUES) is passed as a -I directory when compiling.
+# Each directory in $(INCLUDES) is passed as a -I directory when compiling.
 INCLUDE := $(patsubst %,-I%, $(INCLUDES)) -I$(RTDIR)/include
 ifeq ($(BUILD_PYTHON),yes)
 INCLUDE += -I$(INCLUDEPY)
@@ -286,9 +286,14 @@ clean: depclean modclean
 # So that nothing is built as root, this rule does not depend on the touched
 # files (Note that files in depends/ might be rebuilt, and there's little that
 # can be done about it)
+ifeq ($(BUILD_SYS),sim)
+setuid:
+	@echo "'make setuid' is not needed for the simulator"
+else
 setuid:
 	chown root ../bin/emc_module_helper
 	chmod 4750 ../bin/emc_module_helper
+endif
 
 # These rules allows a header file from this directory to be installed into
 # ../include.  A pair of rules like these will exist in the Submakefile
