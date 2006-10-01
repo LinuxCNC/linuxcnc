@@ -569,7 +569,7 @@ RTDEPS := $(sort $(patsubst objects/%.o,depends/%.d, $(RTOBJS)))
 modules: $(patsubst %.o,../rtlib/%.so,$(obj-m))
 ../rtlib/%.so:
 	$(ECHO) Linking $@
-	gcc -shared -o $@ $^ -lm
+	@gcc -shared -o $@ $^ -lm
 
 $(sort $(RTDEPS)): depends/rt%.d: %.c
 	@mkdir -p $(dir $@)
@@ -580,7 +580,7 @@ $(sort $(RTDEPS)): depends/rt%.d: %.c
 $(sort $(RTOBJS)) : objects/rt%.o : %.c
 	$(ECHO) Compiling realtime $<
 	@mkdir -p $(dir $@)
-	$(CC) -c -g -DSIM -DSIMULATOR -DRTAPI $(EXTRA_CFLAGS) $< -o $@
+	@$(CC) -c -g -DSIM -DSIMULATOR -DRTAPI $(EXTRA_CFLAGS) $< -o $@
 RTLIB_EXT=.so
 endif
 
