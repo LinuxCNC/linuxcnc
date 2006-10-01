@@ -645,7 +645,6 @@ endif
 ../rtlib/hal_ppmc$(RTLIB_EXT): $(addprefix objects/rt,$(hal_ppmc-objs))
 ../rtlib/hal_skeleton$(RTLIB_EXT): $(addprefix objects/rt,$(hal_skeleton-objs))
 ../rtlib/hal_speaker$(RTLIB_EXT): $(addprefix objects/rt,$(hal_speaker-objs))
-../rtlib/classicladder_rt$(RTLIB_EXT): $(addprefix objects/rt,$(classicladder_rt-objs))
 ../rtlib/scope_rt$(RTLIB_EXT): $(addprefix objects/rt,$(scope_rt-objs))
 ../rtlib/hal_lib$(RTLIB_EXT): $(addprefix objects/rt,$(hal_lib-objs))
 ../rtlib/motmod$(RTLIB_EXT): $(addprefix objects/rt,$(motmod-objs))
