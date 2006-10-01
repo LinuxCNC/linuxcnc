@@ -1,4 +1,6 @@
 #include <sys/types.h>
+#include <sys/socket.h>
+#include <sys/un.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -14,7 +16,7 @@
 
 using namespace std;
 
-#define FIFO_PATH "/tmp/rtapi_fifo"
+#define SOCKET_PATH "/tmp/rtapi_fifo"
 
 template<class T> T DLSYM(void *handle, const string &name) {
 	return reinterpret_cast<T>(dlsym(handle, name.c_str()));
@@ -29,6 +31,7 @@ static std::map<string, void*> modules;
 extern "C" int schedule(void) { return sched_yield(); }
 
 static int instance_count = 0;
+static int force_exit = 0;
 
 static int do_newinst_cmd(string type, string name, string arg) {
     cerr << "newinst not implemented\n";
@@ -122,13 +125,15 @@ static int do_unload_cmd(string name) {
 }
 
 static int read_number(int fd) {
-    int r = 0;
+    int r = 0, neg=1;
     char ch;
 
     while(1) {
-        read(fd, &ch, 1);
-        if(ch == ' ') return r;
-        r = 10 * r + ch - '0';
+        int res = read(fd, &ch, 1);
+        if(res != 1) return -1;
+        if(ch == '-') neg = -1;
+        else if(ch == ' ') return r * neg;
+        else r = 10 * r + ch - '0';
     }
 }
 
@@ -178,8 +183,8 @@ static void print_strings(vector<string> strings) {
 
 static int handle_command(vector<string> args) {
     if(args.size() == 1 && args[0] == "exit") {
-        unlink(FIFO_PATH);
-        exit(0);
+        force_exit = 1;
+        return 0;
     } else if(args.size() >= 2 && args[0] == "load") {
         string name = args[1];
         args.erase(args.begin());
@@ -200,7 +205,8 @@ static int handle_command(vector<string> args) {
 static int slave(int fd, vector<string> args) {
     cout << "slave\n"; fflush(stdout);
     write_strings(fd, args);
-    return 0;
+    int result = read_number(fd);
+    return result;
 }
 
 static int master(int fd, vector<string> args) {
@@ -208,40 +214,57 @@ static int master(int fd, vector<string> args) {
     dlopen(NULL, RTLD_GLOBAL);
     do_load_cmd("hal_lib", vector<string>()); instance_count = 0;
     if(args.size()) handle_command(args);
-    do { handle_command(read_strings(fd));
-        cerr << "INSTANCE COUNT:" << instance_count << endl; } while(instance_count > 0);
+    do {
+        struct sockaddr_un client_addr;
+        socklen_t len = sizeof(client_addr);
+        int fd1 = accept(fd, (sockaddr*)&client_addr, &len);
+        if(fd1 < 0) {
+            perror("accept");
+        } else {
+            int result = handle_command(read_strings(fd1));
+            string buf;
+            write_number(buf, result);
+            write(fd1, buf.data(), buf.size());
+            close(fd1);
+        }
+        cerr << "INSTANCE COUNT:" << instance_count << endl;
+    } while(!force_exit && instance_count > 0);
+
     return 0;
 }
 
 int main(int argc, char **argv) {
     vector<string> args;
     for(int i=1; i<argc; i++) { args.push_back(string(argv[i])); }
+
 become_master:
-    int result = mknod(FIFO_PATH, 0666 | S_IFIFO, 0);
-    if(result != 0 && errno != EEXIST) {
-        cout << result << " " << (result != 0) << " " << (result != EEXIST) << endl;
-        perror("mknod"); exit(1);
-    }
+    int fd = socket(PF_UNIX, SOCK_STREAM, 0);
+    if(fd == -1) { perror("socket"); exit(1); }
+
+    struct sockaddr_un addr = { AF_UNIX, SOCKET_PATH };
+    int result = bind(fd, (sockaddr*)&addr, sizeof(addr));
+
     if(result == 0) {
-        int fd = open(FIFO_PATH, O_RDWR | O_EXCL);
-        if(fd < 0) {
-            perror("open"); exit(1);
-        }
-        int result = master(fd, args);
-        unlink(FIFO_PATH);
+        int result = listen(fd, 10);
+        if(result != 0) { perror("bind"); exit(1); }
+        result = master(fd, args);
+        unlink(SOCKET_PATH);
         return result;
+    } else if( errno == EADDRINUSE) {
+       for(int i=0; i < 3 ; i++) {
+           result = connect(fd, (sockaddr*)&addr, sizeof(addr));
+           if(result == 0) break;
+           sleep(1);
+       }
+       if(result < 0 && errno == ECONNREFUSED) { 
+           unlink(SOCKET_PATH);
+           fprintf(stdout, "Waited 3 seconds for master.  giving up.\n");
+           close(fd);
+           goto become_master;
+       }
+       if(result < 0) { perror("connect"); exit(1); }
+       return slave(fd, args);
     } else {
-        int fd = -1;
-	for(int i=0 ; fd < 0 && i <3 ; i++) {
-	    fd = open(FIFO_PATH, O_WRONLY | O_EXCL | O_NONBLOCK);
-	    if(fd < 0) sleep(1);
-	}
-	if(fd < 0 && errno == ENXIO) { 
-	    unlink(FIFO_PATH);
-	    fprintf(stdout, "Waited 3 seconds for master.  giving up.\n");
-	    goto become_master;
-	}
-        return slave(fd, args);
+        perror("bind"); exit(1);
     }
 }
-
