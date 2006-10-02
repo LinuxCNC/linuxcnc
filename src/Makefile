@@ -149,7 +149,7 @@ config.h: config.h.in config.status
 INFILES = \
 	../docs/man/man1/emc.1 ../scripts/emc ../scripts/realtime \
 	../scripts/rtapi.conf Makefile.inc depend.sh Makefile.modinc \
-	../tcl/emc.tcl 
+	../tcl/emc.tcl ../scripts/halrun
 $(INFILES): %: %.in config.status
 	@./config.status --file=$@
 

@@ -1,0 +1,17 @@
+#!/bin/bash
+
+PATH=@EMC2_BIN_DIR@:$PATH
+REALTIME=@REALTIME@
+
+if $REALTIME status > /dev/null; then
+    echo "Realtime already running"
+    exit 1
+fi
+
+$REALTIME start
+
+halcmd $@
+
+halcmd unload all
+
+$REALTIME stop

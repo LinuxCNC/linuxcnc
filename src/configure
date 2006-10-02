@@ -9505,6 +9505,8 @@ esac
 
           ac_config_files="$ac_config_files ../scripts/emc"
 
+          ac_config_files="$ac_config_files ../scripts/halrun"
+
           ac_config_files="$ac_config_files ../scripts/realtime"
 
           ac_config_files="$ac_config_files Makefile.inc"
@@ -10042,6 +10044,7 @@ do
   "../scripts/rtapi.conf" ) CONFIG_FILES="$CONFIG_FILES ../scripts/rtapi.conf" ;;
   "../docs/man/man1/emc.1" ) CONFIG_FILES="$CONFIG_FILES ../docs/man/man1/emc.1" ;;
   "../scripts/emc" ) CONFIG_FILES="$CONFIG_FILES ../scripts/emc" ;;
+  "../scripts/halrun" ) CONFIG_FILES="$CONFIG_FILES ../scripts/halrun" ;;
   "../scripts/realtime" ) CONFIG_FILES="$CONFIG_FILES ../scripts/realtime" ;;
   "Makefile.inc" ) CONFIG_FILES="$CONFIG_FILES Makefile.inc" ;;
   "Makefile.modinc" ) CONFIG_FILES="$CONFIG_FILES Makefile.modinc" ;;
@@ -10495,6 +10498,7 @@ s,@abs_top_builddir@,$ac_abs_top_builddir,;t t
   # Run the commands associated with the file.
   case $ac_file in
     ../scripts/emc ) chmod +x ../scripts/emc ;;
+    ../scripts/halrun ) chmod +x ../scripts/halrun ;;
     ../scripts/realtime ) chmod +x ../scripts/realtime ;;
   esac
 done
