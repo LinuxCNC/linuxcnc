@@ -1,6 +1,10 @@
 # some of EMC2 History & News
 #############################
 
+2006.10.01 - added a userspace simulator which includes rtapi threads.
+	     Use "--enable-simulator" to enable this mode, which cannot
+	     be used to control real hardware
+
 2006.09.27 - added support to optionally save joint positions between
              runs ([TRAJ] POSITION_FILE = position.txt)
 
