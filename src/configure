@@ -6005,6 +6005,10 @@ else
 fi;
 
 # if not specified, search for tclConfig.sh
+if test -z "$TKCONFIG"; then
+    TKCONFIG=$(dirname $TCLCONFIG)/tkConfig.sh
+    if ! test -f $TKCONFIG; then unset TKCONFIG; fi
+fi
 if (test "x$TKCONFIG" = "x"); then
     # search for tkConfig.sh
     TKCONFIG=$(find /usr/lib -maxdepth 2 -name tkConfig.sh | head -n1)
@@ -6305,9 +6309,17 @@ echo "${ECHO_T}$TKCONFIG found" >&6
    TK_LIBS="$TK_LIBS $TK_LIB_SPEC"
 fi
 
-echo "$as_me:$LINENO: checking for BWidget" >&5
-echo $ECHO_N "checking for BWidget... $ECHO_C" >&6
-if  (unset DISPLAY; echo "catch { package require bwidget }; exit [expr [lsearch [package names] BWidget] == -1]" | tclsh) ; then
+if test -f $TCL_EXEC_PREFIX/bin/tclsh$TCL_VERSION; then
+    TCLSH=$TCL_EXEC_PREFIX/bin/tclsh$TCL_VERSION
+elif test -f $TCL_EXEC_PREFIX/bin/tclsh; then
+    TCLSH=$TCL_EXEC_PREFIX/bin/tclsh
+else
+    TCLSH=tclsh
+fi
+
+echo "$as_me:$LINENO: checking for BWidget using $TCLSH" >&5
+echo $ECHO_N "checking for BWidget using $TCLSH... $ECHO_C" >&6
+if  (unset DISPLAY; echo "catch { package require bwidget }; exit [expr [lsearch [package names] BWidget] == -1]" | $TCL_EXEC_PREFIX/bin/tclsh$TCL_VERSION) ; then
     echo "$as_me:$LINENO: result: found" >&5
 echo "${ECHO_T}found" >&6
 else
@@ -10798,24 +10810,23 @@ echo "#   such as milling machines. EMC2 is released under the GPL.        #"
 echo "#   Check out http://www.linuxcnc.org/ for more details.             #"
 echo "#                                                                    #"
 echo "#                                                                    #"
-if test $SIMULATOR = yes; then
 echo "#   It seems that ./configure completed successfully.                #"
+if test $SIMULATOR = yes; then
 echo "#   However, the configuration is for a simulator only, no RT        #"
 echo "#   capabilities will be used. In this mode no control of hardware   #"
 echo "#   is possible. Drivers won't be built.                             #"
-echo "#                                                                    #"
-
 else
-echo "#   It seems that ./configure completed successfully                 #"
 echo "#   This means that RT is properly installed                         #"
+fi
 echo "#   If things don't work check config.log for errors & warnings      #"
 echo "#                                                                    #"
-fi
 
 if test "xyes" = "x$RUN_IN_PLACE"; then
 echo "#   Next compile by typing                                           #"
 echo "#         make                                                       #"
+if test $SIMULATOR != yes; then
 echo "#         sudo make setuid                                           #"
+fi
 echo "#                                                                    #"
 echo "#   to run the software you need to change to the top level          #"
 echo "#   EMC2 directory:                                                  #"
