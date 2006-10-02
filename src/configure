@@ -1728,23 +1728,25 @@ elif (test $RTS = sim); then
     RTFLAGS=-DSIMULATOR
 fi
 
-echo "$as_me:$LINENO: checking for location of kernel headers" >&5
+if test $RTS != sim; then
+    echo "$as_me:$LINENO: checking for location of kernel headers" >&5
 echo $ECHO_N "checking for location of kernel headers... $ECHO_C" >&6
 
 # Check whether --with-kernel-headers or --without-kernel-headers was given.
 if test "${with_kernel_headers+set}" = set; then
   withval="$with_kernel_headers"
 
-        KERNELDIR="$withval"
-        echo "$as_me:$LINENO: result: using specified value: $KERNELDIR" >&5
+	    KERNELDIR="$withval"
+	    echo "$as_me:$LINENO: result: using specified value: $KERNELDIR" >&5
 echo "${ECHO_T}using specified value: $KERNELDIR" >&6
 
 else
 
-        echo "$as_me:$LINENO: result: using value from $RTS: $KERNELDIR" >&5
+	    echo "$as_me:$LINENO: result: using value from $RTS: $KERNELDIR" >&5
 echo "${ECHO_T}using value from $RTS: $KERNELDIR" >&6
 
 fi;
+fi
 
 
 
@@ -6319,7 +6321,7 @@ fi
 
 echo "$as_me:$LINENO: checking for BWidget using $TCLSH" >&5
 echo $ECHO_N "checking for BWidget using $TCLSH... $ECHO_C" >&6
-if  (unset DISPLAY; echo "catch { package require bwidget }; exit [expr [lsearch [package names] BWidget] == -1]" | $TCLSH) ; then
+if (unset DISPLAY; echo "catch { package require bwidget }; exit [expr [lsearch [package names] BWidget] == -1]" | $TCLSH); then
     echo "$as_me:$LINENO: result: found" >&5
 echo "${ECHO_T}found" >&6
 else
