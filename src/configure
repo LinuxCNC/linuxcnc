@@ -876,6 +876,8 @@ Optional Packages:
   --with-rmmod=</path/rmmod>              rmmod variant
   --with-insmod=</path/insmod>            insmod variant
   --with-python=<path>                    Specify the Python interpreter
+  --with-tclConfig=<path>                 Specify the path to tclConfig
+  --with-tkConfig=<path>                  Specify the path to tkConfig
   --with-x                use the X Window System
   --with-locale-dir=DIR   Location of the locale file(s)
                           DATADIR/locale
@@ -5673,10 +5675,25 @@ done
 echo "$as_me:$LINENO: checking for tcl" >&5
 echo $ECHO_N "checking for tcl... $ECHO_C" >&6
 
-# search for tclConfig.sh
-TCLCONFIG=$(find /usr/lib -maxdepth 2 -name tclConfig.sh | head -n1)
+
+# Check whether --with-tclConfig or --without-tclConfig was given.
+if test "${with_tclConfig+set}" = set; then
+  withval="$with_tclConfig"
+
+        TCLCONFIG=$withval
+
+else
+
+        TCLCONFIG=
+
+fi;
+
+# if not specified, search for tclConfig.sh
 if (test "x$TCLCONFIG" = "x"); then
-    TCLCONFIG=$(find /usr/local/lib -maxdepth 2 -name tclConfig.sh | head -n1)
+    TCLCONFIG=$(find /usr/lib -maxdepth 2 -name tclConfig.sh | head -n1)
+    if (test "x$TCLCONFIG" = "x"); then
+	TCLCONFIG=$(find /usr/local/lib -maxdepth 2 -name tclConfig.sh | head -n1)
+    fi
 fi
 
 if (test "x$TCLCONFIG" = "x"); then
@@ -5974,10 +5991,26 @@ fi
 echo "$as_me:$LINENO: checking for tk" >&5
 echo $ECHO_N "checking for tk... $ECHO_C" >&6
 
-# search for tkConfig.sh
-TKCONFIG=$(find /usr/lib -maxdepth 2 -name tkConfig.sh | head -n1)
+
+# Check whether --with-tkConfig or --without-tkConfig was given.
+if test "${with_tkConfig+set}" = set; then
+  withval="$with_tkConfig"
+
+        TKCONFIG=$withval
+
+else
+
+        TKCONFIG=
+
+fi;
+
+# if not specified, search for tclConfig.sh
 if (test "x$TKCONFIG" = "x"); then
-    TKCONFIG=$(find /usr/local/lib -maxdepth 2 -name tkConfig.sh | head -n1)
+    # search for tkConfig.sh
+    TKCONFIG=$(find /usr/lib -maxdepth 2 -name tkConfig.sh | head -n1)
+    if (test "x$TKCONFIG" = "x"); then
+	TKCONFIG=$(find /usr/local/lib -maxdepth 2 -name tkConfig.sh | head -n1)
+    fi
 fi
 
 if (test "x$TKCONFIG" = "x"); then
