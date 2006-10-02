@@ -21,6 +21,8 @@
 #include <unistd.h>		/* usleep() */
 #include <sys/ipc.h>		/* IPC_* */
 #include <sys/shm.h>		/* shmget() */
+#include <time.h>               /* gettimeofday */
+#include <sys/time.h>           /* gettimeofday */
 #include "rtapi.h"		/* these decls */
 
 
@@ -41,6 +43,7 @@ struct rtapi_task {
   size_t stacksize;
   int prio;
   int period;
+  struct timespec schedule;
 void *arg;
   void (*taskcode) (void*);	/* pointer to task function */
 };
@@ -56,6 +59,13 @@ void *arg;
 /* data for all tasks */
 static struct rtapi_task task_array[MAX_TASKS] = {{0},};
 static struct rtapi_module module_array[MAX_MODULES] = {{0},};
+
+static void gettimeofday_nano(struct timespec *ts) {
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    ts->tv_sec = tv.tv_sec;
+    ts->tv_nsec = tv.tv_usec * 1000;
+}
 
 /* Priority functions.  SIM uses 0 as the highest priority, as the
 number increases, the actual priority of the task decreases. */
@@ -200,6 +210,10 @@ static void *wrapper(void *arg)
 
   /* use the argument to point to the task data */
   task = (struct rtapi_task*)arg;
+  if(task->period == 0) task->period = period;
+  printf("task period = %d\n", task->period);
+
+  gettimeofday_nano(&task->schedule);
   /* call the task function with the task argument */
   (task->taskcode) (task->arg);
   /* done */
@@ -309,12 +323,33 @@ int rtapi_task_set_period(int task_id,
   return RTAPI_SUCCESS;
 }
 
+static void maybe_sleep(struct rtapi_task *t) {
+    struct timespec now;
+    struct timespec interval;
+
+    gettimeofday_nano(&now);
+    t->schedule.tv_nsec += t->period;
+    if(t->schedule.tv_nsec > 1000000000) {
+        t->schedule.tv_nsec -= 1000000000;
+        t->schedule.tv_sec ++;
+    }
+    interval.tv_sec = t->schedule.tv_sec - now.tv_sec;
+    interval.tv_nsec = t->schedule.tv_nsec - now.tv_nsec;
+
+    if(interval.tv_nsec < 0) {
+        interval.tv_sec --;
+        interval.tv_nsec += 1000000000;
+    }
+
+    if(interval.tv_sec > 0 ||  interval.tv_nsec >= 0) {
+        nanosleep(&interval, NULL);
+    }
+}
 
 int rtapi_wait(void)
 {
   struct rtapi_task *task = pthread_getspecific(thread_key);
-  struct timespec ts = {0, task->period};
-  nanosleep(&ts, NULL);
+  maybe_sleep(task);
   pthread_testcancel();
   return RTAPI_SUCCESS;
 }
