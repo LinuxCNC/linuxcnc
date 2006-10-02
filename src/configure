@@ -6406,7 +6406,7 @@ _ACEOF
 cat confdefs.h >>conftest.$ac_ext
 cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
-#include <X11/Intrinsic.h>
+#include <X11/Xlib.h>
 _ACEOF
 if { (eval echo "$as_me:$LINENO: \"$ac_cpp conftest.$ac_ext\"") >&5
   (eval $ac_cpp conftest.$ac_ext) 2>conftest.er1
@@ -6433,7 +6433,7 @@ else
 sed 's/^/| /' conftest.$ac_ext >&5
 
   for ac_dir in $ac_x_header_dirs; do
-  if test -r "$ac_dir/X11/Intrinsic.h"; then
+  if test -r "$ac_dir/X11/Xlib.h"; then
     ac_x_includes=$ac_dir
     break
   fi
@@ -6447,18 +6447,18 @@ if test "$ac_x_libraries" = no; then
   # See if we find them without any special options.
   # Don't add to $LIBS permanently.
   ac_save_LIBS=$LIBS
-  LIBS="-lXt $LIBS"
+  LIBS="-lX11 $LIBS"
   cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
 _ACEOF
 cat confdefs.h >>conftest.$ac_ext
 cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
-#include <X11/Intrinsic.h>
+#include <X11/Xlib.h>
 int
 main ()
 {
-XtMalloc (0)
+XrmInitialize ()
   ;
   return 0;
 }
@@ -6496,7 +6496,7 @@ for ac_dir in `echo "$ac_x_includes $ac_x_header_dirs" | sed s/include/lib/g`
 do
   # Don't even attempt the hair of trying to link an X program!
   for ac_extension in a so sl; do
-    if test -r $ac_dir/libXt.$ac_extension; then
+    if test -r $ac_dir/libX11.$ac_extension; then
       ac_x_libraries=$ac_dir
       break 2
     fi
@@ -10765,10 +10765,20 @@ echo "#   such as milling machines. EMC2 is released under the GPL.        #"
 echo "#   Check out http://www.linuxcnc.org/ for more details.             #"
 echo "#                                                                    #"
 echo "#                                                                    #"
+if test $SIMULATOR = yes; then
+echo "#   It seems that ./configure completed successfully.                #"
+echo "#   However, the configuration is for a simulator only, no RT        #"
+echo "#   capabilities will be used. In this mode no control of hardware   #"
+echo "#   is possible. Drivers won't be built.                             #"
+echo "#                                                                    #"
+
+else
 echo "#   It seems that ./configure completed successfully                 #"
 echo "#   This means that RT is properly installed                         #"
 echo "#   If things don't work check config.log for errors & warnings      #"
 echo "#                                                                    #"
+fi
+
 if test "xyes" = "x$RUN_IN_PLACE"; then
 echo "#   Next compile by typing                                           #"
 echo "#         make                                                       #"
@@ -10779,10 +10789,13 @@ echo "#   EMC2 directory:                                                  #"
 echo "#         cd ..                                                      #"
 echo "#   and run it:                                                      #"
 echo "#         scripts/emc                                                #"
+
 else
 echo "#   hint: you are using the standard way of compile/install          #"
 echo "#         if you are trying only to test the software (without       #"
 echo "#         installing), use ./configure --enable-run-in-place instead #"
+echo "#   warning: If you already have an installed emc2, this might cause #"
+echo "#         incompatibilities.                                         #"
 echo "#                                                                    #"
 echo "#   Next compile by typing                                           #"
 echo "#         make                                                       #"
