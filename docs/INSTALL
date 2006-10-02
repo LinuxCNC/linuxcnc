@@ -85,7 +85,7 @@ The simplest way to compile this package is:
 
   2. Type `make' to compile the package.
 
-  3. Type `scripts/emc.run` to test the software. 
+  3. Type `scripts/emc` to test the software. 
   
 
 Compilers and Options
@@ -104,9 +104,14 @@ Or on systems that have the `env' program, you can do it like this:
 
 Optional Features
 =================
-   EMC is a software that runs only if a real time system has been installed.
-Either RTLinux or RTAI. If you don't have any installed, please install one 
-(refer to the documentation of that project on how to achieve that).
+   EMC is a software that can operate hardware only if a real time system has 
+been installed. Either RTLinux or RTAI. If you don't have any installed, you 
+cannot run EMC2 to control any machines. Please install one of the RT patches
+(refer to the documentation of the project on how to achieve that).
+
+    However, it is possible to test EMC2 without a realtime system. This is 
+possible using a simulator mode, which doesn't allow hardware control. To
+enable this mode there is a special option '--enable-simulator' you can use.
 
 If you have multiple RTAI or RTLinux source directories in /usr/src,
 the correct one can be declared as a command line argument:
@@ -125,9 +130,16 @@ configure also accepts other arguments. Use --help to view the list.
   --with-rtlinuxpro=<path to RTLINUXPRO>  path where RTLinuxPro is installed
   --with-module-dir=<module-dir>          Installation directory for kernel modules
   --with-gtk_ver=<GTK-version>            GTK version
-  --with-make-quiet                       make will run quietly
   --with-locale-dir=DIR                   Location of the locale file(s)
                                           DATADIR/locale
+  --with-kbuild=<y/n>                     Specify if your kernel uses kbuild or not
+  --with-rmmod=</path/rmmod>              rmmod variant
+  --with-insmod=</path/insmod>            insmod variant
+  --with-python=<path>                    Specify the Python interpreter
+  --with-tclConfig=<path>                 Specify the path to tclConfig
+  --with-tkConfig=<path>                  Specify the path to tkConfig
+  --with-x                                use the X Window System
+
 
 Operation Controls
 ==================
