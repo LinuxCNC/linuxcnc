@@ -118,7 +118,9 @@ int main(int argc, gchar * argv[])
     }
     /* register an exit function to free the tree */
     g_atexit(free_tree);
+#ifdef DEBUG    
     printf ( "Got a good tree\n" );
+#endif
     /* connect to the HAL */
     comp_id = hal_init("halvcp");
     if (comp_id < 0) {
@@ -127,7 +129,9 @@ int main(int argc, gchar * argv[])
     }
     /* register an exit function to cleanup and disconnect from the HAL */
     g_atexit(exit_from_hal);
+#ifdef DEBUG
     printf ( "connected to HAL\n" );
+#endif
 
     /* look for main window in widget tree */
     if ( root->child == NULL ) {
@@ -225,13 +229,17 @@ static int init_widget ( vcp_widget_t *wp )
 static void exit_from_hal(void)
 {
     hal_exit(comp_id);
+#ifdef DEBUG
     printf ( "exited from HAL\n" );
+#endif
 }
 
 static void free_tree(void)
 {
     free_widget(root);
+#ifdef DEBUG
     printf ( "freed widget tree\n" );
+#endif
 }
 
 static void quit(int sig)
