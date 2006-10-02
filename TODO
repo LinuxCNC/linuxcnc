@@ -20,7 +20,7 @@ OBSOLETE Get the config picker tool's backup function working (to allow people t
          when they need support)
          JMK
 
-resolve any possible GPL ambiguities
+DONE	 resolve any possible GPL ambiguities
 DONE     * hal/classicladder - mark files that have been modified JMK/PeteV (won't get better:)
 DONE     * hal/classicladder/README.txt - add notice "CL has been modified for EMC2,
          report bugs to EMC2 team, not original author" 
@@ -62,24 +62,26 @@ those that use ISA cards
 
 THINGS THAT ARE DESIRABLE FOR THE NEXT MAJOR RELEASE (EMC-2.2)
 
-Investigate/fix missed-deadline reporting??
-https://sourceforge.net/tracker/index.php?func=detail&aid=1372949&group_id=6744&atid=106744
-RTAPI needs a reliable, portable, and high resolution time measurement.  The one provided
-by RTAI doesn't do the trick - it seems to have 54mS granularity on my BDI-TNG box, for
-example.  And the one provided by the kernel (do_gettimeofday) seems to block for some
-folks.  Deferred until we have more time.
+DONE     Investigate/fix missed-deadline reporting??
+	 https://sourceforge.net/tracker/index.php?func=detail&aid=1372949&group_id=6744&atid=106744
+	 RTAPI needs a reliable, portable, and high resolution time measurement.  The one provided
+	 by RTAI doesn't do the trick - it seems to have 54mS granularity on my BDI-TNG box, for
+         example.  And the one provided by the kernel (do_gettimeofday) seems to block for some
+	 folks.  Deferred until we have more time.
 
-A sim mode that works without realtime kernel patches
+DONE     A sim mode that works without realtime kernel patches
 
-A failed emc run should collect data and give the option of sending it to the developers.
+DONE     A failed emc run should collect data and give the option of sending it to the developers.
 
 Improved classicladder GUI
 
-Change halcmd to use GNU getline in interactive mode (history, tab completion, etc)
+DONE     Change halcmd to use GNU getline in interactive mode (history, tab completion, etc)
 
-Finish HALUI
+DONE 	 Finish HALUI
 
-Define canonical encoder interface, convert all hardware drivers to use it, convert homing
+DONE	 Define canonical encoder interface.
+
+Convert all hardware drivers to use it, convert homing
 to use it.
 
 Fixes in HAL modules:
