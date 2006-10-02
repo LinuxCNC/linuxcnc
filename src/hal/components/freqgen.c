@@ -925,7 +925,7 @@ static int export_freqgen(int num, freqgen_t * addr, int step_type)
 	addr->wd.st2.state = 0;
 	addr->wd.st2.cycle_max = cycle_len_lut[step_type - 2] - 1;
 	addr->wd.st2.num_phases = num_phases_lut[step_type - 2];
-	addr->wd.st2.lut = (char *) (&(master_lut[step_type - 2][0]));
+	addr->wd.st2.lut = (unsigned char *) (&(master_lut[step_type - 2][0]));
 	/* export pins for output phases */
 	for (n = 0; n < addr->wd.st2.num_phases; n++) {
 	    rtapi_snprintf(buf, HAL_NAME_LEN, "freqgen.%d.phase-%c", num,
