@@ -123,6 +123,9 @@ there is an option to configure to run-in-place
   --enable-run-in-place                  Enables running in the local dir 
                                          (without installing)
 
+If you don't want to generate the documentation from source:
+  --disable-build-documentation          Do not build documentation automatically
+
 configure also accepts other arguments. Use --help to view the list.
  
   --with-rtai=<path to RTAI>              path where RTAI is installed
@@ -130,8 +133,6 @@ configure also accepts other arguments. Use --help to view the list.
   --with-rtlinuxpro=<path to RTLINUXPRO>  path where RTLinuxPro is installed
   --with-module-dir=<module-dir>          Installation directory for kernel modules
   --with-gtk_ver=<GTK-version>            GTK version
-  --with-locale-dir=DIR                   Location of the locale file(s)
-                                          DATADIR/locale
   --with-kbuild=<y/n>                     Specify if your kernel uses kbuild or not
   --with-rmmod=</path/rmmod>              rmmod variant
   --with-insmod=</path/insmod>            insmod variant
@@ -139,6 +140,8 @@ configure also accepts other arguments. Use --help to view the list.
   --with-tclConfig=<path>                 Specify the path to tclConfig
   --with-tkConfig=<path>                  Specify the path to tkConfig
   --with-x                                use the X Window System
+  --with-locale-dir=DIR                   Location of the locale file(s)
+                                          DATADIR/locale
 
 
 Operation Controls
