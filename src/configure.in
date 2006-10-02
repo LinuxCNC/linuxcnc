@@ -1152,7 +1152,7 @@ else
 fi
 
 AC_MSG_CHECKING([for BWidget using $TCLSH])
-if changequote(<,>) (unset DISPLAY; echo "catch { package require bwidget }; exit [expr [lsearch [package names] BWidget] == -1]" | $TCL_EXEC_PREFIX/bin/tclsh$TCL_VERSION) changequote([,]); then
+if changequote(<,>) (unset DISPLAY; echo "catch { package require bwidget }; exit [expr [lsearch [package names] BWidget] == -1]" | $TCLSH) changequote([,]); then
     AC_MSG_RESULT([found])
 else
     AC_MSG_ERROR([not found])
