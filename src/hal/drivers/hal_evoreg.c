@@ -71,7 +71,7 @@
 #endif
 
 #ifdef RTAPI			/* realtime */
-#include <linux/ctype.h>	/* isspace() */
+#include "rtapi_ctype.h"	/* isspace() */
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
 #else /* user space */

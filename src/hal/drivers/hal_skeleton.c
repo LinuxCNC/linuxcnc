@@ -75,7 +75,6 @@
 #error parport needs RTAPI, check makefile and flags
 #endif
 
-#include <linux/ctype.h>	/* isspace() */
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
 

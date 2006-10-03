@@ -102,18 +102,16 @@
 #error parport needs RTAPI/ULAPI, check makefile and flags
 #endif
 
-#ifdef RTAPI			/* realtime */
-#include <linux/ctype.h>	/* isspace() */
 #include "rtapi.h"		/* RTAPI realtime OS API */
+#include "rtapi_ctype.h"	/* isspace() */
+#ifdef RTAPI			/* realtime */
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
 #else /* user space */
-#include <ctype.h>		/* isspace() */
 #include <signal.h>		/* signal() */
 #include <sys/time.h>		/* stuct timeval */
 #include <sys/types.h>		/* for select() */
 #include <unistd.h>		/* for select() */
 #include <sys/io.h>		/* iopl() */
-#include "rtapi.h"		/* RTAPI realtime OS API */
 #endif
 
 #include "hal.h"		/* HAL public API decls */
