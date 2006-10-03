@@ -162,6 +162,7 @@ extern "C" {
 	EMCMOT_SPINDLE_BRAKE_ENGAGE,	/* engage the spindle brake */
 	EMCMOT_SPINDLE_BRAKE_RELEASE,	/* release the spindle brake */
 	EMCMOT_SET_MOTOR_OFFSET,	/* set the offset between joint and motor */
+	EMCMOT_SET_JOINT_COMP,	/* set a compensation triplet for a joint (nominal, forw., rev.) */
     } cmd_code_t;
 
 /* this enum lists the possible results of a command */
@@ -219,6 +220,7 @@ extern "C" {
 	int wdWait;		/* cycle to wait before toggling wd */
 	int debug;		/* debug level, from DEBUG in .ini file */
 	unsigned char now, out, start, end;	/* these are related to synched AOUT/DOUT. now=wether now or synched, out = which gets set, start=start value, end=end value */
+	double comp_nominal, comp_forward, comp_reverse; /* compensation triplet, nominal, forward, reverse */
 	unsigned char tail;	/* flag count for mutex detect */
     } emcmot_command_t;
 

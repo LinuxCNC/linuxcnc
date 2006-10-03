@@ -43,11 +43,6 @@ static emcmot_status_t *emcmotStatus = 0;
 static emcmot_config_t *emcmotConfig = 0;
 static emcmot_debug_t *emcmotDebug = 0;
 static emcmot_error_t *emcmotError = 0;
-/*! \todo Another #if 0 */
-#if 0
-/*! \todo FIXME - no longer in shared memory */
-static emcmot_comp_t *emcmotComp[EMCMOT_MAX_AXIS] = { 0 };
-#endif
 static emcmot_struct_t *emcmotStruct = 0;
 emcmot_struct_t *emcmotshmem = NULL;	// Shared memory base address.
 
@@ -862,31 +857,15 @@ int usrmotExit(void)
 
 int usrmotLoadComp(int axis, const char *file)
 {
-/*! \todo FIXME - this routine currently assumes that the comp structs
-   reside in shared memory, and writes directly to them.  The
-   comp structs have been moved out of shmem, so this needs to
-   be re-written to use a command to load the struct.  In the
-   meantime, we return -1 to indicate failure.
-*/
-return -1;
-/*! \todo Another #if 0 */
-#if 0
-
     FILE *fp;
     char buffer[LINELEN];
     double nom, fwd, rev;
-    int index = 0;
-    int total = 0;
+    int ret = 0;
+    emcmot_command_t emcmotCommand;
 
     /* check axis range */
     if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
 	fprintf(stderr, "axis out of range for compensation\n");
-	return -1;
-    }
-
-    /* first check if comp pointer is valid */
-    if (emcmotComp[axis] == 0) {
-	fprintf(stderr, "compensation data structure not present\n");
 	return -1;
     }
 
@@ -901,23 +880,24 @@ return -1;
 	    break;
 	}
 	/*
-	   expecting nominal-forward-reverse triplets, e.g., 0.000000
-	   0.000000 -0.001279 0.100000 0.098742 0.051632 0.200000 0.171529
-	   0.194216 */
+	   expecting nominal-forward-reverse triplets, e.g., 
+	   0.000000 0.000000 -0.001279 
+	   0.100000 0.098742  0.051632 
+	   0.200000 0.171529  0.194216 */
 	if (3 != sscanf(buffer, "%lf %lf %lf", &nom, &fwd, &rev)) {
 	    break;
+	} else {
+	    emcmotCommand.command = EMCMOT_SET_JOINT_COMP;
+    	    emcmotCommand.comp_nominal = nom;
+    	    emcmotCommand.comp_forward = fwd;
+    	    emcmotCommand.comp_reverse = rev;
+	    ret |= usrmotWriteEmcmotCommand(&emcmotCommand);
 	}
-	if (index >= EMCMOT_COMP_SIZE) {
-	    break;
-	}
-	emcmotComp[axis]->nominal[index] = nom;
-	emcmotComp[axis]->forward[index] = fwd;
-	emcmotComp[axis]->reverse[index] = rev;
-	index++;
-	total++;
     }
     fclose(fp);
 
+#if 0
+/* should move to RT */
     if (total > 1) {
 	emcmotComp[axis]->avgint = (emcmotComp[axis]->nominal[total - 1] -
 	    emcmotComp[axis]->nominal[0]) / (total - 1);
@@ -935,9 +915,8 @@ return -1;
     }
 
     /* leave alter alone */
-
-    return 0;
 #endif
+    return ret;
 }
 
 int usrmotAlter(int axis, double alter)

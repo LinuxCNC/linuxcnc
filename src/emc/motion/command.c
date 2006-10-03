@@ -1267,6 +1267,21 @@ check_stuff ( "before command_handler()" );
 	    emcmotStatus->spindle.brake = 0;
 	    break;
 
+	case EMCMOT_SET_JOINT_COMP:
+	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_JOINT_COMP for joint %d", joint_num);
+	    if (joint == 0) {
+		break;
+	    }
+	    if (joint->comp.total >= EMCMOT_COMP_SIZE) {
+		reportError("compensation size for joint %d exceeded!", joint_num);
+		break;
+	    }
+	    joint->comp.nominal[joint->comp.total] = emcmotCommand->comp_nominal;
+	    joint->comp.forward[joint->comp.total] = emcmotCommand->comp_forward;
+	    joint->comp.reverse[joint->comp.total++] = emcmotCommand->comp_reverse;
+	    /*! \todo FIXME - do something with the comp structure */
+	    break;
+
 	default:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "UNKNOWN");
 	    reportError("unrecognized command %d", emcmotCommand->command);
