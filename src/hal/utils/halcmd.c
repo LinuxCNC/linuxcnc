@@ -1806,19 +1806,17 @@ static int do_unload_cmd(char *mod_name) {
         return do_unloadrt_cmd(mod_name);
     } else {
         hal_comp_t *comp;
-        int next;
         int type = -1;
         rtapi_mutex_get(&(hal_data->mutex));
-        next = hal_data->comp_list_ptr;
-        while (next != 0) {
-            comp = SHMPTR(next);
-            if ( strcmp(mod_name, comp->name) == 0 ) {
-                type = comp->type;
-                break;
-            }
-            next = comp->next_ptr;
-        }
+        comp = halpr_find_comp_by_name(mod_name);
+        if(comp) type = comp->type;
         rtapi_mutex_give(&(hal_data->mutex));
+        if(type == -1) {
+            rtapi_print_msg(RTAPI_MSG_ERR,
+                "HAL:%d: ERROR: component '%s' is not loaded\n",
+                linenumber, mod_name);
+            return -1;
+        }
         if(type) return do_unloadrt_cmd(mod_name);
         else return do_unloadusr_cmd(mod_name);
     }
