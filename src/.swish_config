@@ -1,6 +1,7 @@
 FileRules filename contains .o$
 FileRules filename contains .ko$
 FileRules filename contains .mod.c$
+FileRules filename contains .dvi$
 FileRules filename contains .pdf$
 FileRules filename contains .eps$
 FileRules filename contains .png$
