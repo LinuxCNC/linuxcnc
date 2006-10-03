@@ -328,7 +328,7 @@ typedef struct {
     unsigned char state;	/* current position in state table */
     unsigned char cycle_max;	/* cycle length for step types 2 and up */
     unsigned char num_phases;	/* number of phases for types 2 and up */
-    unsigned char *lut;		/* pointer to lookup table */
+    const unsigned char *lut;		/* pointer to lookup table */
 } st2_t;
 
 typedef struct {
@@ -924,7 +924,7 @@ static int export_freqgen(int num, freqgen_t * addr, int step_type)
 	addr->wd.st2.state = 0;
 	addr->wd.st2.cycle_max = cycle_len_lut[step_type - 2] - 1;
 	addr->wd.st2.num_phases = num_phases_lut[step_type - 2];
-	addr->wd.st2.lut = (unsigned char *) (&(master_lut[step_type - 2][0]));
+	addr->wd.st2.lut = &(master_lut[step_type - 2][0]);
 	/* export pins for output phases */
 	for (n = 0; n < addr->wd.st2.num_phases; n++) {
 	    rtapi_snprintf(buf, HAL_NAME_LEN, "freqgen.%d.phase-%c", num,
