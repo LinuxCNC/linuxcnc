@@ -4,6 +4,7 @@ INCLUDES += hal
 	cp $^ $@
 
 HALLIBSRCS := hal/hal_lib.c $(ULAPISRCS)
+$(call TOOBJSDEPS, $(HALLIBSRCS)): EXTRAFLAGS += -fPIC
 USERSRCS += $(HALLIBSRCS)
 
 HALLIB := ../lib/libemchal.so

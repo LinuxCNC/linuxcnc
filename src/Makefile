@@ -88,6 +88,7 @@ $(call ASSERT_EMPTY,$(filter-out %.c %.cc, $(USERSRCS)))
 $(call ASSERT_EMPTY,$(filter-out %.c, $(RTSRCS)))
 
 ifeq ($(BUILD_PYTHON),yes)
+$(call TOOBJSDEPS,$(PYSRCS)) : EXTRAFLAGS += -fPIC
 USERSRCS += $(PYSRCS)
 endif
 
@@ -570,6 +571,7 @@ motmod-objs += libnml/posemath/sincos.o $(MATHSTUB)
 
 TORTOBJS = $(foreach file,$($(patsubst %.o,%,$(1))-objs), objects/rt$(file))
 ifeq ($(BUILD_SYS),sim)
+EXTRA_CFLAGS += -fPIC
 RTOBJS := $(sort $(foreach mod,$(obj-m),$(call TORTOBJS,$(mod))))
 
 RTDEPS := $(sort $(patsubst objects/%.o,depends/%.d, $(RTOBJS)))
