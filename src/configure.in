@@ -1088,9 +1088,9 @@ AC_ARG_WITH(tclConfig,
 
 # if not specified, search for tclConfig.sh
 if (test "x$TCLCONFIG" = "x"); then
-    TCLCONFIG=$(find /usr/lib -maxdepth 2 -name tclConfig.sh | head -n1)
+    TCLCONFIG=$(find /usr/lib /usr/lib64 -maxdepth 2 -name tclConfig.sh | head -n1)
     if (test "x$TCLCONFIG" = "x"); then
-	TCLCONFIG=$(find /usr/local/lib -maxdepth 2 -name tclConfig.sh | head -n1)
+	TCLCONFIG=$(find /usr/local/lib /usr/lib64 -maxdepth 2 -name tclConfig.sh | head -n1)
     fi
 fi
 
