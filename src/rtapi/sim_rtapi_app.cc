@@ -14,6 +14,9 @@
 
 #include "config.h"
 
+#include "hal.h"
+#include "hal/hal_priv.h"
+
 using namespace std;
 
 #define SOCKET_PATH "/tmp/rtapi_fifo"
@@ -34,8 +37,26 @@ static int instance_count = 0;
 static int force_exit = 0;
 
 static int do_newinst_cmd(string type, string name, string arg) {
-    cerr << "newinst not implemented\n";
-    return -1;
+    void *module = modules["hal_lib"];
+    if(!module) {
+        cerr << "hal_lib not loaded\n";
+        return -1;
+    }
+
+    hal_comp_t *(*find_comp_by_name)(char*) =
+        DLSYM<hal_comp_t*(*)(char *)>(module, "halpr_find_comp_by_name");
+    if(!find_comp_by_name) {
+        cerr << "halpr_find_comp_by_name not found\n";
+        return -1;
+    }
+
+    hal_comp_t *comp = find_comp_by_name((char*)type.c_str());
+    if(!comp) {
+        cerr << "Component not found\n";
+        return -1;
+    }
+
+    return comp->make((char*)name.c_str(), (char*)arg.c_str());
 }
 
 static int do_comp_args(void *module, vector<string> args) {
@@ -60,8 +81,6 @@ static int do_comp_args(void *module, vector<string> args) {
             return -1;
         }
         string item_type_string = *item_type;
-        cerr << "Type for item " << param_name << " is " << *item_type << endl;
-        printf("item: %p\n", item);
 
         if(item_type_string == "l") {
             **(long**)item = strtol(param_value.c_str(), NULL, 0);
@@ -80,7 +99,7 @@ static int do_load_cmd(string name, vector<string> args) {
     if(w == NULL) {
         char what[LINELEN+1];
         snprintf(what, LINELEN, "%s/%s.so", EMC2_RTLIB_DIR, name.c_str());
-        void *module = modules[name] = dlopen(what, RTLD_GLOBAL | RTLD_NOW);
+        void *module = modules[name] = dlopen(what, RTLD_GLOBAL | RTLD_LAZY);
         if(!module) {
             printf("%s: dlopen: %s\n", name.c_str(), dlerror());
             return -1;
@@ -203,19 +222,18 @@ static int handle_command(vector<string> args) {
 }
 
 static int slave(int fd, vector<string> args) {
-    cout << "slave\n"; fflush(stdout);
     write_strings(fd, args);
     int result = read_number(fd);
     return result;
 }
 
 static int master(int fd, vector<string> args) {
-    cout << "master\n"; fflush(stdout);
     dlopen(NULL, RTLD_GLOBAL);
     do_load_cmd("hal_lib", vector<string>()); instance_count = 0;
     if(args.size()) handle_command(args);
     do {
         struct sockaddr_un client_addr;
+        memset(&client_addr, 0, sizeof(client_addr));
         socklen_t len = sizeof(client_addr);
         int fd1 = accept(fd, (sockaddr*)&client_addr, &len);
         if(fd1 < 0) {
@@ -227,7 +245,6 @@ static int master(int fd, vector<string> args) {
             write(fd1, buf.data(), buf.size());
             close(fd1);
         }
-        cerr << "INSTANCE COUNT:" << instance_count << endl;
     } while(!force_exit && instance_count > 0);
 
     return 0;
