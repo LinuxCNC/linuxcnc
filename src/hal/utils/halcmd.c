@@ -2044,7 +2044,7 @@ static void print_comp_info(char *pattern)
 
     if (scriptmode == 0) {
 	rtapi_print("Loaded HAL Components:\n");
-	rtapi_print("ID  Type  %-*s   PID  Ready?\n", HAL_NAME_LEN, "Name");
+	rtapi_print("ID  Type  %-*s PID   State\n", HAL_NAME_LEN, "Name");
     }
     rtapi_mutex_get(&(hal_data->mutex));
     len = strlen(pattern);
@@ -2056,7 +2056,10 @@ static void print_comp_info(char *pattern)
 		comp->comp_id, (comp->type ? "RT  " : "User"),
                 HAL_NAME_LEN, comp->name);
             if(comp->type == 0) {
-                    rtapi_print(" %d %s", comp->pid, comp->ready > 0 ?
+                    rtapi_print(" %5d %s", comp->pid, comp->ready > 0 ?
+                            "ready" : "initializing");
+            } else {
+                    rtapi_print(" %5s %s", "", comp->ready > 0 ?
                             "ready" : "initializing");
             }
             rtapi_print("\n");
