@@ -1031,7 +1031,6 @@ static int do_link_cmd(char *pin, char *sig)
 
 static int do_newinst_cmd(char *comp_name, char *inst_name) {
     hal_comp_t *comp = halpr_find_comp_by_name(comp_name);
-    FILE *f;
 
     if(!comp) {
         rtapi_print_msg(RTAPI_MSG_ERR, "No such component: %s\n", comp_name);
@@ -1042,6 +1041,25 @@ static int do_newinst_cmd(char *comp_name, char *inst_name) {
         return HAL_UNSUP;
     }
 
+#if defined(RTAPI_SIM)
+    {
+        char *argv[MAX_TOK];
+        int m = 0, result;
+        argv[m++] = EMC2_BIN_DIR "/rtapi_app";
+        argv[m++] = "newinst";
+        argv[m++] = comp_name;
+        argv[m++] = inst_name;
+        argv[m++] = 0;
+        result = hal_systemv(argv);
+        if(result != 0) {
+            rtapi_print_msg(RTAPI_MSG_ERR, "newinst failed: %d\n", result);
+            return HAL_FAIL;
+        }
+        return HAL_SUCCESS;
+    }
+#else
+    {
+    FILE *f;
     f = fopen("/proc/rtapi/hal/newinst", "w");
     if(!f) {
         rtapi_print_msg(RTAPI_MSG_ERR, "cannot open proc entry: %s\n",
@@ -1085,6 +1103,9 @@ static int do_newinst_cmd(char *comp_name, char *inst_name) {
         struct timespec ts = {0, 100 * 1000 * 1000}; // 100ms
         nanosleep(&ts, NULL);
     }
+    }
+#endif
+
     return HAL_SUCCESS;
 }
 
