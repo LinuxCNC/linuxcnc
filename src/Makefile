@@ -30,7 +30,9 @@ ifeq ($(KERNELRELEASE),)
 # The "modules" target is the gateway to the kernel module build.
 default: configs userspace modules
 ifeq ($(RUN_IN_PLACE),yes)
+ifneq ($(BUILD_SYS),sim)
 	@if [ -f ../bin/emc_module_helper ]; then if ! [ `stat -c %u ../bin/emc_module_helper` -eq 0 -a -u ../bin/emc_module_helper ]; then $(VECHO) "You now need to run 'sudo make setuid' in order to run in place."; fi; fi
+endif
 endif
 
 # Create the variables with := so that subsequent += alterations keep it
