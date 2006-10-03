@@ -3185,7 +3185,7 @@ static String jogIncrementMenuEntryNames[] = {
 
 static void fileMenuSelect(Widget w, XtPointer client_data, XtPointer call_data)
 {
-  switch ((int) client_data) {
+  switch ((long) client_data) {
   case 0:                       // Open...
     dialogPopup(NULL, fileOpenShell, NULL);
     // trap window kill
@@ -3219,7 +3219,7 @@ static void viewMenuSelect(Widget w, XtPointer client_data, XtPointer call_data)
 {
   char string[256];
 
-  switch ((int) client_data) {
+  switch ((long) client_data) {
   case 0:                       // Tools
     createToolTableShell();
     dialogPopup(NULL, toolTableShell, NULL);
@@ -3406,7 +3406,7 @@ static void settingsMenuSelect(Widget w, XtPointer client_data, XtPointer call_d
 {
   char string[256];             // FIXME-- hardcoded value
 
-  switch ((int) client_data) {
+  switch ((long) client_data) {
   case 0:                       // Relative
     coords = COORD_RELATIVE;
     break;
@@ -3476,7 +3476,7 @@ static void settingsMenuSelect(Widget w, XtPointer client_data, XtPointer call_d
 
 static void helpMenuSelect(Widget w, XtPointer client_data, XtPointer call_data)
 {
-  switch ((int) client_data) {
+  switch ((long) client_data) {
   case 0:                       // Help...
     dialogPopup(w, helpXemcShell, NULL);
     // trap window kill
@@ -3497,7 +3497,7 @@ static void helpMenuSelect(Widget w, XtPointer client_data, XtPointer call_data)
 
 static void stateMenuSelect(Widget w, XtPointer client_data, XtPointer call_data)
 {
-  switch ((int) client_data) {
+  switch ((long) client_data) {
   case 0:
     sendEstop();
     break;
@@ -3523,7 +3523,7 @@ static void stateMenuSelect(Widget w, XtPointer client_data, XtPointer call_data
 
 static void modeMenuSelect(Widget w, XtPointer client_data, XtPointer call_data)
 {
-  switch ((int) client_data) {
+  switch ((long) client_data) {
   case 0:
     sendManual();
     break;
@@ -3543,7 +3543,7 @@ static void modeMenuSelect(Widget w, XtPointer client_data, XtPointer call_data)
 
 static void mistMenuSelect(Widget w, XtPointer client_data, XtPointer call_data)
 {
-  switch ((int) client_data) {
+  switch ((long) client_data) {
   case 0:
     sendMistOn();
     break;
@@ -3559,7 +3559,7 @@ static void mistMenuSelect(Widget w, XtPointer client_data, XtPointer call_data)
 
 static void floodMenuSelect(Widget w, XtPointer client_data, XtPointer call_data)
 {
-  switch ((int) client_data) {
+  switch ((long) client_data) {
   case 0:
     sendFloodOn();
     break;
@@ -3575,7 +3575,7 @@ static void floodMenuSelect(Widget w, XtPointer client_data, XtPointer call_data
 
 static void spindleMenuSelect(Widget w, XtPointer client_data, XtPointer call_data)
 {
-  switch ((int) client_data) {
+  switch ((long) client_data) {
   case 0:
     sendSpindleForward();
     break;
@@ -3595,7 +3595,7 @@ static void spindleMenuSelect(Widget w, XtPointer client_data, XtPointer call_da
 
 static void brakeMenuSelect(Widget w, XtPointer client_data, XtPointer call_data)
 {
-  switch ((int) client_data) {
+  switch ((long) client_data) {
   case 0:
     sendBrakeEngage();
     break;
@@ -3611,7 +3611,7 @@ static void brakeMenuSelect(Widget w, XtPointer client_data, XtPointer call_data
 
 static void jogIncrementMenuSelect(Widget w, XtPointer client_data, XtPointer call_data)
 {
-  switch ((int) client_data) {
+  switch ((long) client_data) {
   case 0:
     jogIncrement = 0.1000;
     break;

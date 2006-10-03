@@ -48,7 +48,7 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
   }
   /* and map it into process space */
   shmem->mem = shmat(shmem->id, 0, 0);
-  if ((int) (shmem->mem) == -1) {
+  if ((ssize_t) (shmem->mem) == -1) {
     return RTAPI_NOMEM;
   }
 
