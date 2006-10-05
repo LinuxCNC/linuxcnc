@@ -12,7 +12,7 @@ B emcError              SHMEM   localhost       8192    0       0       3       
 
 # These are for the IO controller, EMCIO
 B toolCmd               SHMEM   localhost       1024    0       0       4       16 1004 TCP=5005 xdr
-B toolSts               SHMEM   localhost       4096    0       0       5       16 1005 TCP=5005 xdr
+B toolSts               SHMEM   localhost       8192    0       0       5       16 1005 TCP=5005 xdr
 
 # Processes
 # Name          Buffer          Type    Host            Ops     server? timeout master? cnum
