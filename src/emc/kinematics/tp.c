@@ -28,6 +28,7 @@
 #define ACCEL_USAGE 0.95
 
 extern emcmot_status_t *emcmotStatus;
+extern emcmot_debug_t *emcmotDebug;
 
 int output_chan = 0;
 
@@ -553,7 +554,7 @@ int tpRunCycle(TP_STRUCT * tp, long period)
     // now we have the active tc.  get the upcoming one, if there is one.
     // it's not an error if there isn't another one - we just don't
     // do blending.  This happens in MDI for instance.
-    if(tc->blend_with_next) 
+    if(!emcmotDebug->stepping && tc->blend_with_next) 
         nexttc = tcqItem(&tp->queue, 1, period);
     else
         nexttc = NULL;
