@@ -1560,7 +1560,11 @@ int hal_create_thread(char *name, unsigned long period_nsec, int uses_fp)
 		"HAL_LIB: ERROR: clock period too long: %ld\n", curr_period);
 	    return HAL_FAIL;
 	}
-	hal_data->base_period = curr_period;
+	if(hal_data->exact_base_period) {
+		hal_data->base_period = period_nsec;
+	} else {
+		hal_data->base_period = curr_period;
+	}
 	/* reserve the highest priority (maybe for a watchdog?) */
 	prev_priority = rtapi_prio_highest();
     } else {
@@ -2478,6 +2482,7 @@ static int init_hal_data(void)
     hal_data->constructor_prefix[0] = 0;
     list_init_entry(&(hal_data->funct_entry_free));
     hal_data->thread_free_ptr = 0;
+    hal_data->exact_base_period = 0;
     /* set up for shmalloc_xx() */
     hal_data->shmem_bot = sizeof(hal_data_t);
     hal_data->shmem_top = HAL_SIZE;

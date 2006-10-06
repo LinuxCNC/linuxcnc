@@ -134,6 +134,7 @@ static char *data_arrow2(int dir);
 static char *data_value(int type, void *valptr);
 static char *data_value2(int type, void *valptr);
 static int do_save_cmd(char *type, char *filename);
+static int do_setexact_cmd(void);
 static void save_comps(FILE *dst);
 static void save_signals(FILE *dst);
 static void save_links(FILE *dst, int arrows);
@@ -896,6 +897,8 @@ static int parse_cmd(char *tokens[])
 	    /* print success message */
 	    rtapi_print_msg(RTAPI_MSG_INFO, "Realtime threads stopped\n");
 	}
+    } else if (strcmp(tokens[0], "setexact_for_test_suite_only") == 0) {
+        retval = do_setexact_cmd();
     } else {
 	rtapi_print_msg(RTAPI_MSG_ERR, "HAL:%d: Unknown command '%s'\n", linenumber, tokens[0]);
 	retval = -1;
@@ -2248,16 +2251,16 @@ static void print_funct_info(char *pattern)
 	if ( match(pattern, fptr->name) ) {
 	    comp = SHMPTR(fptr->owner_ptr);
 	    if (scriptmode == 0) {
-		rtapi_print(" %02d   %08p %08p %s  %3d   %s\n",
+		rtapi_print(" %02d   %08lx %08lx %s  %3d   %s\n",
 		    comp->comp_id,
-		    fptr->funct,
-		    fptr->arg, (fptr->uses_fp ? "YES" : "NO "),
+		    (long)fptr->funct,
+		    (long)fptr->arg, (fptr->uses_fp ? "YES" : "NO "),
 		    fptr->users, fptr->name);
 	    } else {
-		rtapi_print("%s %08p %08p %s %3d %s\n",
+		rtapi_print("%s %08lx %08lx %s %3d %s\n",
 		    comp->name,
-		    fptr->funct,
-		    fptr->arg, (fptr->uses_fp ? "YES" : "NO "),
+		    (long)fptr->funct,
+		    (long)fptr->arg, (fptr->uses_fp ? "YES" : "NO "),
 		    fptr->users, fptr->name);
 	    } 
 	}
@@ -2916,6 +2919,25 @@ static void save_threads(FILE *dst)
 	next_thread = tptr->next_ptr;
     }
     rtapi_mutex_give(&(hal_data->mutex));
+}
+
+static int do_setexact_cmd() {
+    int retval = HAL_SUCCESS;
+    rtapi_mutex_get(&(hal_data->mutex));
+    if(hal_data->base_period) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+            "HAL_LIB: ERROR: Cannot run 'setexact'"
+            " after a thread has been created\n");
+        retval = HAL_FAIL;
+    } else {
+        rtapi_print_msg(RTAPI_MSG_INFO,
+            "HAL_LIB: HAL will pretend that the exact"
+            " base period requested is possible.\n"
+            "This mode is not suitable for running real hardware.");
+        hal_data->exact_base_period = 1;
+    }
+    rtapi_mutex_give(&(hal_data->mutex));
+    return retval;
 }
 
 static int do_help_cmd(char *command)

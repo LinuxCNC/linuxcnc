@@ -167,6 +167,8 @@ typedef struct {
     int funct_free_ptr;		/* list of free function structs */
     hal_list_t funct_entry_free;	/* list of free funct entry structs */
     int thread_free_ptr;	/* list of free thread structs */
+    int exact_base_period;      /* if set, pretend that rtapi satisfied our
+				   period request exactly */
     unsigned char lock;         /* hal locking, can be one of the HAL_LOCK_* types */
 } hal_data_t;
 
@@ -299,7 +301,7 @@ typedef struct {
 */
 
 #define HAL_KEY   0x48414C32	/* key used to open HAL shared memory */
-#define HAL_VER   0x00000005	/* version code */
+#define HAL_VER   0x00000006	/* version code */
 #define HAL_SIZE  131000
 
 /* These pointers are set by hal_init() to point to the shmem block
