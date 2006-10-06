@@ -1025,16 +1025,6 @@ interpret_again:
 			emcStatus->motion.traj.queue > 0) {
 			// there are pending motions paused; step them
 			emcTrajStep();
-		    } else {
-			// motion is not paused, or it is but there is no
-			// queue,
-			// so we can resume normal interpretation in step
-			// mode
-			emcTrajResume();
-			stepping = 1;	// set stepping mode in case it's not
-			steppingWait = 0;	// clear the wait
-			emcStatus->task.interpState =
-			    (enum EMC_TASK_INTERP_ENUM) interpResumeState;
 		    }
 		    break;
 

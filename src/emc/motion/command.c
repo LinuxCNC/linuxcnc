@@ -935,11 +935,13 @@ check_stuff ( "before command_handler()" );
 	case EMCMOT_STEP:
 	    /* resume paused motion until id changes */
 	    /* can happen at any time */
-	    rtapi_print_msg(RTAPI_MSG_DBG, "STEP");
-	    emcmotDebug->idForStep = emcmotStatus->id;
-	    emcmotDebug->stepping = 1;
-	    tpResume(&emcmotDebug->queue);
-	    emcmotStatus->paused = 0;
+            rtapi_print_msg(RTAPI_MSG_DBG, "STEP");
+            if(emcmotStatus->paused) {
+                emcmotDebug->idForStep = emcmotStatus->id;
+                emcmotDebug->stepping = 1;
+                tpResume(&emcmotDebug->queue);
+                emcmotStatus->paused = 0;
+            }
 	    break;
 
 	case EMCMOT_SCALE:
