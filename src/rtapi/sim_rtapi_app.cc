@@ -59,6 +59,32 @@ static int do_newinst_cmd(string type, string name, string arg) {
     return comp->make((char*)name.c_str(), (char*)arg.c_str());
 }
 
+static int do_one_item(char item_type_char, const string &param_value, void *vitem, int idx=0) {
+    fprintf(stderr, "do_one_item: %c %s %p\n", item_type_char, param_value.c_str(), vitem);
+    switch(item_type_char) {
+        case 'l': {
+            long *litem = *(long**) vitem;
+            litem[idx] = strtol(param_value.c_str(), NULL, 0);
+            return 0;
+        }
+        case 'i': {
+            int *iitem = *(int**) vitem;
+            iitem[idx] = strtol(param_value.c_str(), NULL, 0);
+            return 0;
+        }
+        case 's': {
+            char **sitem = *(char***) vitem;
+            sitem[idx] = strdup(param_value.c_str());
+            return 0;
+        }
+        default:
+            cerr << "Cannot understand: " << param_value <<
+                " (type " << item_type_char << ")\n";
+            return -1;
+        }
+    return 0;
+}
+
 static int do_comp_args(void *module, vector<string> args) {
     for(unsigned i=1; i < args.size(); i++) {
         string &s = args[i];
@@ -81,14 +107,34 @@ static int do_comp_args(void *module, vector<string> args) {
             return -1;
         }
         string item_type_string = *item_type;
+        char item_type_char = item_type_string.size() ? item_type_string[item_type_string.size() - 1] : 0;
 
-        if(item_type_string == "l") {
-            **(long**)item = strtol(param_value.c_str(), NULL, 0);
-        } else if(item_type_string == "i") {
-            **(int**)item = strtol(param_value.c_str(), NULL, 0);
+        if(item_type_string.size() > 1) {
+            int a, b;
+            char c;
+            int r = sscanf(item_type_string.c_str(), "%d-%d%c", &a, &b, &c);
+            if(r != 3) {
+                cerr << "Cannot understand: " << s
+                    << " (sscanf " << item_type_string << ")\n";
+                return -1;
+            }
+            size_t idx = 0;
+            int i = 0;
+            while(idx != string::npos) {
+                if(i == b) {
+                    cerr << "Too many items for " << s << "\n";
+                    return -1;
+                }
+                size_t idx1 = param_value.find(",", idx);
+                string substr(param_value, idx, idx1 - idx);
+                int result = do_one_item(item_type_char, substr, item, i);
+                if(result != 0) return result;
+                i++;
+                idx = idx1 == string::npos ? idx1 : idx1 + 1;
+            }
         } else {
-            cerr << "Cannot understand: " << s << " (type)\n";
-            return -1;
+            int result = do_one_item(item_type_char, param_value, item);
+            if(result != 0) return result;
         }
     }
     return 0;
@@ -230,7 +276,11 @@ static int slave(int fd, vector<string> args) {
 static int master(int fd, vector<string> args) {
     dlopen(NULL, RTLD_GLOBAL);
     do_load_cmd("hal_lib", vector<string>()); instance_count = 0;
-    if(args.size()) handle_command(args);
+    if(args.size()) { 
+        int result = handle_command(args);
+        if(result != 0) return result;
+        if(force_exit || instance_count == 0) return 0;
+    }
     do {
         struct sockaddr_un client_addr;
         memset(&client_addr, 0, sizeof(client_addr));
@@ -238,6 +288,7 @@ static int master(int fd, vector<string> args) {
         int fd1 = accept(fd, (sockaddr*)&client_addr, &len);
         if(fd1 < 0) {
             perror("accept");
+            return -1;
         } else {
             int result = handle_command(read_strings(fd1));
             string buf;
