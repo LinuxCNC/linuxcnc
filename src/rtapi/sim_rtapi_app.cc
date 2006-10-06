@@ -22,11 +22,11 @@ using namespace std;
 #define SOCKET_PATH "/tmp/rtapi_fifo"
 
 template<class T> T DLSYM(void *handle, const string &name) {
-	return reinterpret_cast<T>(dlsym(handle, name.c_str()));
+	return (T)(dlsym(handle, name.c_str()));
 }
 
 template<class T> T DLSYM(void *handle, const char *name) {
-	return reinterpret_cast<T>(dlsym(handle, name));
+	return (T)(dlsym(handle, name));
 }
 
 static std::map<string, void*> modules;
