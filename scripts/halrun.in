@@ -10,8 +10,10 @@ fi
 
 $REALTIME start
 
-halcmd $@
+halcmd $@; result=$?
 
-halcmd unload all
+halcmd unload all || result=$?
 
-$REALTIME stop
+$REALTIME stop || result=$?
+
+exit $result
