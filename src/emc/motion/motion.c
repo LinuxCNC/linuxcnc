@@ -946,7 +946,7 @@ static int init_threads(void)
     /* servo period must be greater or equal to base period */
     if (servo_period_nsec < base_period_nsec) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "MOTION: bad servo period %d nsec\n", servo_period_nsec);
+	    "MOTION: bad servo period %ld nsec\n", servo_period_nsec);
 	return -1;
     }
     /* convert desired periods to floating point */
@@ -962,7 +962,7 @@ static int init_threads(void)
 	retval = hal_create_thread("base-thread", base_period_nsec, 0);
 	if (retval != HAL_SUCCESS) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"MOTION: failed to create %d nsec base thread\n",
+		"MOTION: failed to create %ld nsec base thread\n",
 		base_period_nsec);
 	    return -1;
 	}
@@ -970,7 +970,7 @@ static int init_threads(void)
     retval = hal_create_thread("servo-thread", servo_period_nsec, 1);
     if (retval != HAL_SUCCESS) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "MOTION: failed to create %d nsec servo thread\n",
+	    "MOTION: failed to create %ld nsec servo thread\n",
 	    servo_period_nsec);
 	return -1;
     }
@@ -1029,7 +1029,7 @@ static int setTrajCycleTime(double secs)
     static int t;
 
     rtapi_print_msg(RTAPI_MSG_INFO,
-	"MOTION: setting Traj cycle time to %d nsecs\n", (long) (secs * 1e9));
+	"MOTION: setting Traj cycle time to %ld nsecs\n", (long) (secs * 1e9));
 
     /* make sure it's not zero */
     if (secs <= 0.0) {
@@ -1064,7 +1064,7 @@ static int setServoCycleTime(double secs)
     static int t;
 
     rtapi_print_msg(RTAPI_MSG_INFO,
-	"MOTION: setting Servo cycle time to %d nsecs\n", (long) (secs * 1e9));
+	"MOTION: setting Servo cycle time to %ld nsecs\n", (long) (secs * 1e9));
 
     /* make sure it's not zero */
     if (secs <= 0.0) {

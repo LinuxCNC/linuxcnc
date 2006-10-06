@@ -95,7 +95,7 @@ static int parport_pc_pnp_probe(struct pnp_dev *dev, const struct pnp_device_id 
 	} else
 		io_hi = 0;
 
-	rtapi_print_msg(RTAPI_MSG_INFO, "parport: PnPBIOS parport detected, io_lo=%x io_hi=%x\n",
+	rtapi_print_msg(RTAPI_MSG_INFO, "parport: PnPBIOS parport detected, io_lo=%lx io_hi=%lx\n",
                 io_lo, io_hi);
 
 	pnp_set_drvdata(dev,NULL);

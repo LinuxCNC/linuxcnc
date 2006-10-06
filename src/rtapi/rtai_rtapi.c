@@ -316,7 +316,7 @@ int rtapi_init(char *modname)
     if (n > RTAPI_MAX_MODULES) {
 	/* no room */
 	rtapi_mutex_give(&(rtapi_data->mutex));
-	rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: ERROR: reached module limit\n",
+	rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: ERROR: reached module limit %d\n",
 	    n);
 	return RTAPI_LIMIT;
     }
@@ -714,7 +714,7 @@ int rtapi_task_new(void (*taskcode) (void *), void *arg,
     rtapi_data->task_count++;
     /* announce the birth of a brand new baby task */
     rtapi_print_msg(RTAPI_MSG_DBG,
-	"RTAPI: task %02d installed by module %02d, priority %d, code: %p\n",
+	"RTAPI: task %02ld installed by module %02d, priority %d, code: %p\n",
 	task_id, task->owner, task->prio, taskcode);
     /* and return the ID to the proud parent */
     rtapi_mutex_give(&(rtapi_data->mutex));

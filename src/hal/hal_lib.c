@@ -1490,7 +1490,7 @@ int hal_create_thread(char *name, unsigned long period_nsec, int uses_fp)
 #endif
 
     rtapi_print_msg(RTAPI_MSG_INFO,
-	"HAL: creating thread %s, %d nsec\n", name, period_nsec);
+	"HAL: creating thread %s, %ld nsec\n", name, period_nsec);
     if (hal_data == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: create_thread called before init\n");

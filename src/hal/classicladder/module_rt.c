@@ -212,7 +212,7 @@ rtapi_app_main(void)
 	    hal_exit(component.componentId);
 	    return(-1);
 	} else {
-	    rtapi_print_msg(RTAPI_MSG_INFO, "CLRT: created %d uS thread\n", period / 1000);
+	    rtapi_print_msg(RTAPI_MSG_INFO, "CLRT: created %ld uS thread\n", period / 1000);
 	}
     }
 

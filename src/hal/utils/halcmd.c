@@ -2248,13 +2248,13 @@ static void print_funct_info(char *pattern)
 	if ( match(pattern, fptr->name) ) {
 	    comp = SHMPTR(fptr->owner_ptr);
 	    if (scriptmode == 0) {
-		rtapi_print(" %02d   %08X %08X %s  %3d   %s\n",
+		rtapi_print(" %02d   %08p %08p %s  %3d   %s\n",
 		    comp->comp_id,
 		    fptr->funct,
 		    fptr->arg, (fptr->uses_fp ? "YES" : "NO "),
 		    fptr->users, fptr->name);
 	    } else {
-		rtapi_print("%s %08X %08X %s %3d %s\n",
+		rtapi_print("%s %08p %08p %s %3d %s\n",
 		    comp->name,
 		    fptr->funct,
 		    fptr->arg, (fptr->uses_fp ? "YES" : "NO "),
@@ -2287,7 +2287,7 @@ static void print_thread_info(char *pattern)
 	if ( match(pattern, tptr->name) ) {
 		/* note that the scriptmode format string has no \n */
 		// TODO FIXME add thread runtime and max runtime to this print
-	    rtapi_print(((scriptmode == 0) ? "%11d %s  %s    ( %d, %d )\n" : "%d %s %s %d %d"),
+	    rtapi_print(((scriptmode == 0) ? "%11ld %s  %s    ( %ld, %ld )\n" : "%ld %s %s %ld %ld"),
 		tptr->period, (tptr->uses_fp ? "YES" : "NO "), tptr->name, tptr->runtime, tptr->maxtime);
 	    list_root = &(tptr->funct_list);
 	    list_entry = list_next(list_root);
@@ -2471,7 +2471,7 @@ static void print_mem_status()
     int active, recycled;
 
     rtapi_print("HAL memory status\n");
-    rtapi_print("  used/total shared memory:   %d/%d\n", HAL_SIZE - hal_data->shmem_avail, HAL_SIZE);
+    rtapi_print("  used/total shared memory:   %ld/%d\n", HAL_SIZE - hal_data->shmem_avail, HAL_SIZE);
     // count components
     active = count_list(hal_data->comp_list_ptr);
     recycled = count_list(hal_data->comp_free_ptr);

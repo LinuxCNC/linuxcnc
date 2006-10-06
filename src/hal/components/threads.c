@@ -120,7 +120,7 @@ int rtapi_app_main(void)
 	    hal_exit(comp_id);
 	    return -1;
 	} else {
-	    rtapi_print_msg(RTAPI_MSG_INFO, "THREADS: created %d uS thread\n", period1 / 1000);
+	    rtapi_print_msg(RTAPI_MSG_INFO, "THREADS: created %ld uS thread\n", period1 / 1000);
 	}
     }
     if ((period2 > 0) && (name2 != NULL) && (*name2 != '\0')) {
@@ -132,7 +132,7 @@ int rtapi_app_main(void)
 	    hal_exit(comp_id);
 	    return -1;
 	} else {
-	    rtapi_print_msg(RTAPI_MSG_INFO, "THREADS: created %d uS thread\n", period2 / 1000);
+	    rtapi_print_msg(RTAPI_MSG_INFO, "THREADS: created %ld uS thread\n", period2 / 1000);
 	}
     }
     if ((period3 > 0) && (name3 != NULL) && (*name3 != '\0')) {
@@ -144,7 +144,7 @@ int rtapi_app_main(void)
 	    hal_exit(comp_id);
 	    return -1;
 	} else {
-	    rtapi_print_msg(RTAPI_MSG_INFO, "THREADS: created %d uS thread\n", period3 / 1000);
+	    rtapi_print_msg(RTAPI_MSG_INFO, "THREADS: created %ld uS thread\n", period3 / 1000);
 	}
     }
     hal_ready(comp_id);

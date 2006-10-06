@@ -147,7 +147,7 @@ int rtapi_init(char *modname)
     if (n > RTAPI_MAX_MODULES) {
 	/* no room */
 	rtapi_mutex_give(&(rtapi_data->mutex));
-	rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: ERROR: reached module limit\n",
+	rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: ERROR: reached module limit %d\n",
 	    n);
 	return RTAPI_LIMIT;
     }
@@ -471,7 +471,7 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
     if (n > RTAPI_MAX_SHMEMS) {
 	/* no room */
 	rtapi_mutex_give(&(rtapi_data->mutex));
-	rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: ERROR: reached shmem limit\n",
+	rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: ERROR: reached shmem limit %d\n",
 	    n);
 	return RTAPI_LIMIT;
     }
@@ -483,7 +483,7 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
     if (shmem_addr_array[shmem_id] == NULL) {
 	rtapi_mutex_give(&(rtapi_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "RTAPI: ERROR: could not create shmem\n", n);
+	    "RTAPI: ERROR: could not create shmem %d\n", n);
 	return RTAPI_NOMEM;
     }
     /* the block has been created, update data */

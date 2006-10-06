@@ -189,7 +189,7 @@ int rtapi_app_main(void)
 
     /*! \todo FIXME: Test memory area and setup the card */
     port_data_array->io_base = ioremap(ISA_BASE, ISA_MAX - ISA_BASE);
-    rtapi_print_msg(RTAPI_MSG_ERR,"EVOREG: io_base: %x \n", port_data_array->io_base);
+    rtapi_print_msg(RTAPI_MSG_ERR,"EVOREG: io_base: %p \n", port_data_array->io_base);
     outw(0x82c9,base); /* set indexregister */
 
     /* Set all outputs to zero */
