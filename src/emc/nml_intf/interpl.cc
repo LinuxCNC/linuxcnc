@@ -88,7 +88,8 @@ int NML_INTERP_LIST::append(NMLmsg & nml_msg)
 								   size %
 								   32), 1);
 
-#ifdef DEBUG_INTERPL
+// #ifdef DEBUG_INTERPL
+#if 1
     if (EMC_DEBUG & EMC_DEBUG_INTERP_LIST) {
 	rcs_print
 	    ("NML_INTERP_LIST::append(nml_msg{size=%d,type=%d}) : list_size=%d, line_number = %d\n",
@@ -234,4 +235,9 @@ int NML_INTERP_LIST::len()
 int NML_INTERP_LIST::get_line_number()
 {
     return line_number;
+}
+
+int NML_INTERP_LIST::get_next_line_number()
+{
+    return next_line_number;
 }

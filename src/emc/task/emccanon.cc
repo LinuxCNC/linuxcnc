@@ -433,7 +433,7 @@ double getStraightVelocity(double x, double y, double z,
 }
 
 #include <vector>
-struct pt { double x, y, z, a, b, c; };
+struct pt { double x, y, z, a, b, c; int line_no;};
 
 static std::vector<struct pt>& chained_points(void) {
     static std::vector<struct pt> points;
@@ -446,6 +446,7 @@ static void flush_segments(void) {
     struct pt &pos = chained_points().back();
 
     double x = pos.x, y = pos.y, z = pos.z, a = pos.a, b = pos.b, c = pos.c;
+    int line_no = pos.line_no;
 
 #ifdef SHOW_JOINED_SEGMENTS
     for(unsigned int i=0; i != chained_points().size(); i++) { printf("."); }
@@ -488,7 +489,10 @@ static void flush_segments(void) {
     linearMoveMsg.acc = toExtAcc(acc);
 
     linearMoveMsg.type = EMC_MOTION_TYPE_FEED;
+    int save = interp_list.get_next_line_number();
+    interp_list.set_line_number(line_no);
     interp_list.append(linearMoveMsg);
+    interp_list.set_line_number(save);
     canonUpdateEndPoint(x, y, z, a, b, c);
 
     chained_points().clear();
@@ -527,7 +531,7 @@ see_segment(double x, double y, double z, double a, double b, double c) {
     if(!chained_points().empty() && !linkable(x, y, z, a, b, c)) {
         flush_segments();
     }
-    pt pos = {x, y, z, a, b, c};
+    pt pos = {x, y, z, a, b, c, interp_list.get_next_line_number()};
     chained_points().push_back(pos);
 }
 

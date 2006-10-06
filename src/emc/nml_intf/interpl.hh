@@ -53,6 +53,7 @@ class NML_INTERP_LIST {
 
     int set_line_number(int line);
     int get_line_number();
+    int get_next_line_number();
     int append(NMLmsg &);
     int append(NMLmsg *);
     NMLmsg *get();
