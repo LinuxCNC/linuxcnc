@@ -45,26 +45,26 @@ struct nameval {
 /* The next const struct holds pairs for linear units which are 
    valid under the [TRAJ] section. These are of the form {"name", value}.
    If the name "name" is encountered in the ini, the value will be used */
-#define MAX_LIN_NV_PAIRS 5
-const struct nameval linear_nv_pairs[MAX_LIN_NV_PAIRS] = {
+const struct nameval linear_nv_pairs[] = {
 	{ "mm", 	1.0 },
 	{ "metric", 	1.0 },
 	{ "in", 	1/25.4 },
 	{ "inch", 	1/25.4 },
 	{ "imperial", 	1/25.4 },
+	{ NULL, 0 },
     };
     
 /* The next const struct holds pairs for angular units which are 
    valid under the [TRAJ] section. These are of the form {"name", value}.
    If the name "name" is encountered in the ini, the value will be used */
-#define MAX_ANG_NV_PAIRS 6
-const struct nameval angular_nv_pairs[MAX_ANG_NV_PAIRS] = {
+const struct nameval angular_nv_pairs[] = {
 	{ "deg", 	1.0 },
 	{ "degree", 	1.0 },
 	{ "grad", 	0.9 },
 	{ "gon", 	0.9 },
 	{ "rad", 	M_PI / 180 },
 	{ "radian", 	M_PI / 180 },
+	{ NULL, 0 },
     };
 
 /* debug bitflags */

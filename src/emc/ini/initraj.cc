@@ -58,18 +58,27 @@ static Inifile *trajInifile = 0;
   emcTrajSetHome(EmcPose home);
   */
 
+static int getValueFromTable(double *value, const char *inistring, const struct nameval *table) {
+    if (1 == sscanf(inistring, "%lf", value)) { return 1; }
+    for(; table->name; table++) {
+        if(strcmp(inistring, table->name) == 0) {
+            *value = table->value;
+            return 1;
+        }
+    }
+    return 0;
+}
+
 static int loadTraj()
 {
     const char *inistring;
     int axes;
     double linearUnits;
-    char linearUnitsName[LINELEN], angularUnitsName[LINELEN];
     double angularUnits;
     double vel;
     double acc;
     unsigned char coordinateMark[6] = { 1, 1, 1, 0, 0, 0 };
     int t;
-    unsigned char i;
     int len;
     char homes[LINELEN];
     char home[LINELEN];
@@ -102,53 +111,29 @@ static int loadTraj()
     }
 
     if (NULL != (inistring = trajInifile->find("LINEAR_UNITS", "TRAJ"))) {
-	if (1 == sscanf(inistring, "%lf", &linearUnits)) {
-	    // found, and valid
-	} else { //didn't find a number, check for a string
-	    if (1 == sscanf(inistring, "%s", linearUnitsName)) {
-		//got a string check in the linear_nv_pairs
-		for (i=0; i < MAX_LIN_NV_PAIRS ; i++) {
-		    if (strcmp(linearUnitsName, linear_nv_pairs[i].name) == 0) {
-			linearUnits = linear_nv_pairs[i].value;
-			if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-			    rcs_print("got LINEAR_UNITS '%s' : %lf\n", linearUnitsName, linearUnits);
-			}
-		    }
-		}
-	    } else {
-		    if (EMC_DEBUG & EMC_DEBUG_INVALID) {
-		    rcs_print
-			("invalid inifile value for [TRAJ] LINEAR_UNITS: %s\n",
-			 inistring);
-		    }
-		    linearUnits = 1;	// default
-	    }
-	}
+        if (1 == getValueFromTable(&linearUnits, inistring, linear_nv_pairs)) {
+            if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+                rcs_print("got LINEAR_UNITS '%s' : %lf\n", inistring, linearUnits);
+            }
+        } else {
+            rcs_print
+                ("invalid inifile value for [TRAJ] LINEAR_UNITS: %s\n",
+                 inistring);
+             linearUnits = 0;
+        }
     }
     if (NULL != (inistring = trajInifile->find("ANGULAR_UNITS", "TRAJ"))) {
-	if (1 == sscanf(inistring, "%lf", &angularUnits)) {
-	    // found, and valid
-	} else { //didn't find a number, check for a string
-	    if (1 == sscanf(inistring, "%s", angularUnitsName)) {
-		//got a string check in the angular_nv_pairs
-		for (i=0; i < MAX_ANG_NV_PAIRS ; i++) {
-		    if (strcmp(angularUnitsName, angular_nv_pairs[i].name) == 0) {
-			angularUnits = angular_nv_pairs[i].value;
-			if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-			    rcs_print("got ANGULAR_UNITS '%s' : %lf\n", angularUnitsName, angularUnits);
-			}
-		    }
-		}
-	    } else {
-		// found, but invalid
-		if (EMC_DEBUG & EMC_DEBUG_INVALID) {
-		    rcs_print
-			("invalid inifile value for [TRAJ] ANGULAR_UNITS: %s\n",
-			 inistring);
-		}
-		angularUnits = 1;	// default
-	    }
-	}
+        if (1 == getValueFromTable(&angularUnits, inistring, angular_nv_pairs)) {
+            if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+                rcs_print("got ANGULAR_UNITS '%s' : %lf\n", inistring, angularUnits);
+            }
+        } else {
+            // found, but invalid
+            rcs_print
+                ("invalid inifile value for [TRAJ] ANGULAR_UNITS: %s\n",
+                 inistring);
+             angularUnits = 0;
+        }
     }
 
     if (0 != emcTrajSetUnits(linearUnits, angularUnits)) {
