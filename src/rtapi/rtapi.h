@@ -134,7 +134,8 @@ extern "C" {			/* Need this when the header is included in a
     May be called from user, init/cleanup, and realtime code.
 */
     extern int rtapi_snprintf(char *buf, unsigned long int size,
-	const char *fmt, ...);
+	const char *fmt, ...)
+	    __attribute__((format(printf,3,4)));
 
 /** 'rtapi_vsnprintf()' works like 'vsnprintf()' from the normal
     C library, except that it doesn't handle floats or longlongs.
@@ -164,7 +165,8 @@ extern "C" {			/* Need this when the header is included in a
     the format string and OS.  May be called from user, init/cleanup,
     and realtime code.
 */
-    extern void rtapi_print(const char *fmt, ...);
+    extern void rtapi_print(const char *fmt, ...)
+	    __attribute__((format(printf,1,2)));
 
 /** 'rtapi_print_msg()' prints debug messages.  Works like rtapi_print
     but only prints if 'level' is less than or equal to the current
@@ -185,7 +187,8 @@ extern "C" {			/* Need this when the header is included in a
 	RTAPI_MSG_ALL
     } msg_level_t;
 
-    extern void rtapi_print_msg(int level, const char *fmt, ...);
+    extern void rtapi_print_msg(int level, const char *fmt, ...)
+	    __attribute__((format(printf,2,3)));
 
 /** 'rtapi_set_msg_level()' and rtapi_get_msg_level() access the message
     level used by rtapi_print_msg().  The default is RTAPI_MSG_INFO, and
