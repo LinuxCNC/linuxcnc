@@ -6,6 +6,8 @@
 
 export LANG=C
 
+PIDOF=@PIDOF@
+
 if ! type -path readlink > /dev/null 2>& 1; then
     function readlink () {
         perl -le 'print readlink(shift)' -- $1
@@ -85,21 +87,30 @@ CheckConfig(){
 }
 
 CheckStatus(){
-    # check loaded/unloaded status of modules
-    unset NOTLOADED
-    for MOD in $MODULES_UNLOAD ; do
-	if /sbin/lsmod | awk '{print $1}' | grep -x $MOD >/dev/null ; then
-	    echo "$MOD is loaded"
-	else
-	    echo "$MOD is not loaded"
-            NOTLOADED=NOT
-	fi
-    done
-    if [ -z $NOTLOADED ]; then
-        exit 0
-    else
-        exit 1
-    fi
+    case $RTPREFIX in
+    sim)
+        if [ -z "$($PIDOF rtapi_app)" ]; then
+            exit 1
+        else
+            exit 0
+        fi ;;
+    *)
+        # check loaded/unloaded status of modules
+        unset NOTLOADED
+        for MOD in $MODULES_UNLOAD ; do
+            if /sbin/lsmod | awk '{print $1}' | grep -x $MOD >/dev/null ; then
+                echo "$MOD is loaded"
+            else
+                echo "$MOD is not loaded"
+                NOTLOADED=NOT
+            fi
+        done
+        if [ -z $NOTLOADED ]; then
+            exit 0
+        else
+            exit 1
+        fi
+    esac
 }
 
 CheckMem(){
@@ -124,12 +135,17 @@ CheckMem(){
 }
 
 Load(){
-    for MOD in $MODULES_LOAD ; do
-        $INSMOD $MOD || return $?
-    done
-    if [ "$DEBUG" != "" ] && [ -w /proc/rtapi/debug ] ; then
-        echo "$DEBUG" > /proc/rtapi/debug
-    fi
+    case $RTPREFIX in
+    sim)
+    ;;
+    *)
+        for MOD in $MODULES_LOAD ; do
+            $INSMOD $MOD || return $?
+        done
+        if [ "$DEBUG" != "" ] && [ -w /proc/rtapi/debug ] ; then
+            echo "$DEBUG" > /proc/rtapi/debug
+        fi
+    esac
 }
 
 CheckLoaded(){
@@ -147,9 +163,16 @@ CheckLoaded(){
 }
 
 Unload(){
-    for module in $MODULES_UNLOAD ; do
-        $RMMOD $module
-    done
+    case $RTPREFIX in
+    sim)
+        rtapi_app exit 
+        ipcrm -M 0x48414c32 2>/dev/null
+        ;;
+    *)
+        for module in $MODULES_UNLOAD ; do
+            $RMMOD $module
+        done
+    esac
 }
 
 CheckUnloaded(){
