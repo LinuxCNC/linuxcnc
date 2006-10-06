@@ -60,7 +60,6 @@ static int do_newinst_cmd(string type, string name, string arg) {
 }
 
 static int do_one_item(char item_type_char, const string &param_value, void *vitem, int idx=0) {
-    fprintf(stderr, "do_one_item: %c %s %p\n", item_type_char, param_value.c_str(), vitem);
     switch(item_type_char) {
         case 'l': {
             long *litem = *(long**) vitem;
