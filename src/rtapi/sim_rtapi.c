@@ -211,7 +211,7 @@ static void *wrapper(void *arg)
   /* use the argument to point to the task data */
   task = (struct rtapi_task*)arg;
   if(task->period == 0) task->period = period;
-  printf("task period = %d\n", task->period);
+  rtapi_print_msg(RTAPI_MSG_DBG, "task period = %d\n", task->period);
 
   gettimeofday_nano(&task->schedule);
   /* call the task function with the task argument */
