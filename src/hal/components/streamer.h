@@ -11,6 +11,7 @@
 ********************************************************************/
 
 #define MAX_STREAMERS		8
+#define MAX_SAMPLERS		8
 #define MAX_PINS 		20
 #define MAX_SHMEM 		64000
 #define STREAMER_SHMEM_KEY 	0x48535430
@@ -27,6 +28,7 @@ typedef struct {
     volatile unsigned int out;
     int depth;
     int num_pins;
+    unsigned long last_sample;
     hal_type_t type[MAX_PINS];
 } fifo_t;
 

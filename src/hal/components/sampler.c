@@ -1,8 +1,8 @@
 /********************************************************************
-* Description:  streamer.c
-*               A HAL component that can be used to stream data
-*               from a file onto HAL pins at a specific realtime
-*               sample rate.
+* Description:  sampler.c
+*               A HAL component that can be used to capture data
+*               from HAL pins at a specific realtime sample rate,
+*		and allows the data to be written to stdout.
 *
 * Author: John Kasunich <jmkasunich at sourceforge dot net>
 * License: GPL Version 2
@@ -10,17 +10,17 @@
 * Copyright (c) 2006 All rights reserved.
 *
 ********************************************************************/
-/** This file, 'streamer.c', is the realtime part of a HAL component
-    that allows numbers stored in a file to be "streamed" onto HAL
-    pins at a uniform realtime sample rate.  When the realtime module
-    is loaded, it creates a fifo in shared memory.  Then, the user
-    space program 'hal_streamer' is invoked.  'hal_streamer' takes 
-    input from stdin and writes it to the fifo, and this component 
-    transfers the data from the fifo to HAL pins.
+/** This file, 'sampler.c', is the realtime part of a HAL component
+    that allows data from HAL pins to be sampled at a uniform realtime
+    sample rate and then be transferred to a file.  When this realtime
+    module is loaded, it creates a fifo in shared memory and begins 
+    capturing data from HAL pins to the fifo.  Then, the user space 
+    program 'hal_sampler' is invoked, which reads the fifo and writes
+    the data to stdout.
 
     Loading:
 
-    loadrt streamer depth=100 cfg=u8ffb
+    loadrt sampler depth=100 cfg=u8ffb
 
 
 */
@@ -66,37 +66,38 @@
 
 /* module information */
 MODULE_AUTHOR("John Kasunich");
-MODULE_DESCRIPTION("Realtime File Streamer HAL");
+MODULE_DESCRIPTION("Realtime HAL Sampler");
 MODULE_LICENSE("GPL");
-static char *cfg[MAX_STREAMERS];	/* config string, no default */
-RTAPI_MP_ARRAY_STRING(cfg,MAX_STREAMERS,"config string");
-static int depth[MAX_STREAMERS];	/* depth of fifo, default 0 */
-RTAPI_MP_ARRAY_INT(depth,MAX_STREAMERS,"fifo depth");
+static char *cfg[MAX_SAMPLERS];	/* config string, no default */
+RTAPI_MP_ARRAY_STRING(cfg,MAX_SAMPLERS,"config string");
+static int depth[MAX_SAMPLERS];	/* depth of fifo, default 0 */
+RTAPI_MP_ARRAY_INT(depth,MAX_SAMPLERS,"fifo depth");
 
 /***********************************************************************
 *                STRUCTURES AND GLOBAL VARIABLES                       *
 ************************************************************************/
 
-/* this structure contains the HAL shared memory data for one streamer */
+/* this structure contains the HAL shared memory data for one sampler */
 
 typedef struct {
     fifo_t *fifo;		/* pointer to user/RT fifo */
     hal_s32_t *curr_depth;	/* pin: current fifo depth */
-    hal_bit_t *empty;		/* pin: underrun flag */
-    hal_s32_t underruns;	/* param: number of underruns */
-} streamer_t;
+    hal_bit_t *full;		/* pin: overrun flag */
+    hal_s32_t overruns;		/* param: number of overruns */
+    hal_s32_t sample_num;	/* param: sample ID / timestamp */
+} sampler_t;
 
 /* other globals */
 static int comp_id;		/* component ID */
-static int shmem_id[MAX_STREAMERS];
+static int shmem_id[MAX_SAMPLERS];
 
 /***********************************************************************
 *                  LOCAL FUNCTION DECLARATIONS                         *
 ************************************************************************/
 
 static int parse_types(fifo_t *f, char *cfg);
-static int init_streamer(int num, fifo_t *tmp_fifo);
-static void update(void *arg, long period);
+static int init_sampler(int num, fifo_t *tmp_fifo);
+static void sample(void *arg, long period);
 
 /***********************************************************************
 *                       INIT AND EXIT CODE                             *
@@ -105,57 +106,58 @@ static void update(void *arg, long period);
 int rtapi_app_main(void)
 {
     int n, numchan, max_depth, retval;
-    fifo_t tmp_fifo[MAX_STREAMERS];
+    fifo_t tmp_fifo[MAX_SAMPLERS];
 
     /* validate config info */
-    for ( n = 0 ; n < MAX_STREAMERS ; n++ ) {
+    for ( n = 0 ; n < MAX_SAMPLERS ; n++ ) {
 	if (( cfg[n] == NULL ) || ( *cfg == '\0' ) || ( depth[n] <= 0 )) {
 	    break;
 	}
 	tmp_fifo[n].num_pins = parse_types(&(tmp_fifo[n]), cfg[n]);
 	if ( tmp_fifo[n].num_pins == 0 ) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"STREAMER: ERROR: bad config string '%s'\n", cfg[n]);
+		"SAMPLER: ERROR: bad config string '%s'\n", cfg[n]);
 	    return -EINVAL;
 	}
-	max_depth = MAX_SHMEM / (sizeof(shmem_data_t) * tmp_fifo[n].num_pins);
+	/* allow one extra "slot" for the sample number */
+	max_depth = MAX_SHMEM / (sizeof(shmem_data_t) * (tmp_fifo[n].num_pins + 1));
 	if ( depth[n] > max_depth ) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"STREAMER: ERROR: depth too large, max is %d\n", max_depth);
+		"SAMPLER: ERROR: depth too large, max is %d\n", max_depth);
 	    return -ENOMEM;
 	}
 	tmp_fifo[n].depth = depth[n];
     }
     if ( n == 0 ) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "STREAMER: ERROR: no channels specified\n");
+	    "SAMPLER: ERROR: no channels specified\n");
 	return -EINVAL;
     }
     numchan = n;
     /* clear shmem IDs */
-    for ( n = 0 ; n < MAX_STREAMERS ; n++ ) {
+    for ( n = 0 ; n < MAX_SAMPLERS ; n++ ) {
 	shmem_id[n] = -1;
     }
 
     /* have good config info, connect to the HAL */
-    comp_id = hal_init("streamer");
+    comp_id = hal_init("sampler");
     if (comp_id < 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR, "STREAMER: ERROR: hal_init() failed\n");
+	rtapi_print_msg(RTAPI_MSG_ERR, "SAMPLER: ERROR: hal_init() failed\n");
 	return -EINVAL;
     }
 
-    /* create the streamers - allocate memory, export pins, etc. */
+    /* create the samplers - allocate memory, export pins, etc. */
     for (n = 0; n < numchan; n++) {
-	retval = init_streamer(n, &(tmp_fifo[n]));
+	retval = init_sampler(n, &(tmp_fifo[n]));
 	if (retval != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"STREAMER: ERROR: streamer %d init failed\n", n);
+		"SAMPLER: ERROR: sampler %d init failed\n", n);
 	    hal_exit(comp_id);
 	    return retval;
 	}
     }
     rtapi_print_msg(RTAPI_MSG_INFO,
-	"STREAMER: installed %d data streamers\n", numchan);
+	"SAMPLER: installed %d data samplers\n", numchan);
     hal_ready(comp_id);
     return 0;
 }
@@ -165,7 +167,7 @@ void rtapi_app_exit(void)
     int n;
 
     /* free any shmem blocks */
-    for ( n = 0 ; n < MAX_STREAMERS ; n++ ) {
+    for ( n = 0 ; n < MAX_SAMPLERS ; n++ ) {
 	if ( shmem_id[n] > 0 ) {
 	    rtapi_shmem_delete(shmem_id[n], comp_id);
 	}
@@ -177,72 +179,74 @@ void rtapi_app_exit(void)
 *            REALTIME COUNTER COUNTING AND UPDATE FUNCTIONS            *
 ************************************************************************/
 
-static void update(void *arg, long period)
+static void sample(void *arg, long period)
 {
-    streamer_t *str;
+    sampler_t *samp;
     fifo_t *fifo;
     pin_data_t *pptr;
     shmem_data_t *dptr;
-    int tmpin, tmpout, n;
+    int tmpin, newin, tmpout, n;
 
-    /* point at streamer struct in HAL shmem */
-    str = arg;
-    /* HAL pins are right after the streamer_t struct in HAL shmem */
-    pptr = (pin_data_t *)(str+1);
+    /* point at sampler struct in HAL shmem */
+    samp = arg;
+    /* HAL pins are right after the sampler_t struct in HAL shmem */
+    pptr = (pin_data_t *)(samp+1);
     /* point at user/RT fifo in other shmem */
-    fifo = str->fifo;
+    fifo = samp->fifo;
     /* fifo data area is right after the fifo_t struct in shmem */
     dptr = (shmem_data_t *)(fifo+1);
-    /* find the next block of data in the fifo */
+    /* calculate _next_ value for in */
     tmpin = fifo->in;
+    newin = tmpin + 1;
+    if ( newin >= fifo->depth ) {
+	newin = 0;
+    }
     tmpout = fifo->out;
-    if ( tmpout == tmpin ) {
-        /* fifo empty - log it */
-	str->underruns++;
-	*(str->empty) = 1;
-	*(str->curr_depth) = 0;
-	/* done - output pins retain current values */
-	return;
+    if ( newin == tmpout ) {
+	/* fifo is full, need to overwrite the oldest data */
+	tmpout++;
+	if ( tmpout >= fifo->depth ) {
+	    tmpout = 0;
+	}
+	fifo->out = tmpout;
+        /* log the overrun */
+	samp->overruns++;
+	*(samp->full) = 1;
+    } else {
+	*(samp->full) = 0;
     }
-    /* clear the "empty" pin */
-    *(str->empty) = 0;
-    /* calculate current depth */
-    if ( tmpin < tmpout ) {
-	tmpin += fifo->depth;
-    }
-    *(str->curr_depth) = tmpin - tmpout;
-    /* make ptr to first data item of the current fifo record */
-    dptr += tmpout * fifo->num_pins;
-    /* copy data from fifo to HAL pins */
+    /* make pointer to fifo entry */
+    dptr += tmpin * (fifo->num_pins+1);
+    /* copy data from HAL pins to fifo */
     for ( n = 0 ; n < fifo->num_pins ; n++ ) {
 	switch ( fifo->type[n] ) {
 	case HAL_FLOAT:
-	    *(pptr->hfloat) = dptr->f;
+	    dptr->f = *(pptr->hfloat);
 	    break;
 	case HAL_BIT:
-	    if ( dptr->b ) {
-		*(pptr->hbit) = 1;
+	    if ( *(pptr->hbit) ) {
+		dptr->b = 1;
 	    } else {
-		*(pptr->hbit) = 0;
+		dptr->b = 0;
 	    }
 	    break;
 	case HAL_U8:
-	    *(pptr->hu8) = dptr->u;
+	    dptr->u = *(pptr->hu8);
 	    break;
 	case HAL_U16:
-	    *(pptr->hu16) = dptr->u;
+	    dptr->u = *(pptr->hu16);
 	    break;
 	case HAL_U32:
-	    *(pptr->hu32) = dptr->u;
+	    dptr->u = *(pptr->hu32);
 	    break;
 	case HAL_S8:
-	    *(pptr->hs8) = dptr->s;
+	    dptr->s = *(pptr->hs8);
 	    break;
 	case HAL_S16:
-	    *(pptr->hs16) = dptr->s;
+	    dptr->s = *(pptr->hs16);
 	    break;
 	case HAL_S32:
-	    *(pptr->hs32) = dptr->s;
+	    dptr->s = *(pptr->hs32);
 	    break;
 	default:
 	    break;
@@ -250,12 +254,15 @@ static void update(void *arg, long period)
 	dptr++;
 	pptr++;
     }
-    tmpout++;
-    if ( tmpout >= fifo->depth ) {
-        tmpout = 0;
+    /* store sample number at the end of the fifo record */
+    dptr->u = samp->sample_num++;
+    /* update fifo pointer */
+    fifo->in = newin;
+    /* calculate current depth */
+    if ( newin < tmpout ) {
+	newin += fifo->depth;
     }
-    /* store new value of out */
-    fifo->out = tmpout;
+    *(samp->curr_depth) = newin - tmpout;
 }
 
 /***********************************************************************
@@ -300,7 +307,7 @@ static int parse_types(fifo_t *f, char *cfg)
 		break;
 	    }
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"STREAMER: ERROR: type 'U' needs length (8, 16, or 32)\n");
+		"SAMPLER: ERROR: type 'U' needs length (8, 16, or 32)\n");
 	    return 0;
 	case 's':
 	case 'S':
@@ -321,77 +328,85 @@ static int parse_types(fifo_t *f, char *cfg)
 		break;
 	    }
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"STREAMER: ERROR: type 'S' needs length (8, 16, or 32)\n");
+		"SAMPLER: ERROR: type 'S' needs length (8, 16, or 32)\n");
 	    return 0;
 	default:
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"STREAMER: ERROR: unknown type '%c', must be F, B, U, or S\n", c);
+		"SAMPLER: ERROR: unknown type '%c', must be F, B, U, or S\n", c);
 	    return 0;
 	}
     }
     if ( *c != '\0' ) {
 	/* didn't reach end of cfg string */
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "STREAMER: ERROR: more than %d items\n", MAX_PINS);
+	    "SAMPLER: ERROR: more than %d items\n", MAX_PINS);
 	return 0;
     }
     return n;
 }
 
-static int init_streamer(int num, fifo_t *tmp_fifo)
+static int init_sampler(int num, fifo_t *tmp_fifo)
 {
     int size, retval, n, usefp;
     void *shmem_ptr;
-    streamer_t *str;
+    sampler_t *str;
     pin_data_t *pptr;
     fifo_t *fifo;
     char buf[HAL_NAME_LEN + 2];
 
-    /* alloc shmem for base streamer data and user specified pins */
-    size = sizeof(streamer_t) + tmp_fifo->num_pins*sizeof(pin_data_t);
+    /* alloc shmem for base sampler data and user specified pins */
+    size = sizeof(sampler_t) + tmp_fifo->num_pins * sizeof(pin_data_t);
     str = hal_malloc(size);
 
     if (str == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "STREAMER: ERROR: couldn't allocate HAL shared memory\n");
+	    "SAMPLER: ERROR: couldn't allocate HAL shared memory\n");
 	return -ENOMEM;
     }
     /* export "standard" pins and params */
-    retval = hal_pin_bit_newf(HAL_OUT, &(str->empty), comp_id,
-	"streamer.%d.empty", num);
+    retval = hal_pin_bit_newf(HAL_OUT, &(str->full), comp_id,
+	"sampler.%d.full", num);
     if (retval != 0 ) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "STREAMER: ERROR: 'empty' pin export failed\n");
+	    "SAMPLER: ERROR: 'full' pin export failed\n");
 	return -EIO;
     }
     retval = hal_pin_s32_newf(HAL_OUT, &(str->curr_depth), comp_id,
-	"streamer.%d.curr_depth", num);
+	"sampler.%d.curr_depth", num);
     if (retval != 0 ) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "STREAMER: ERROR: 'curr_depth' pin export failed\n");
+	    "SAMPLEr: ERROR: 'curr_depth' pin export failed\n");
 	return -EIO;
     }
-    retval = hal_param_s32_newf(HAL_RW, &(str->underruns), comp_id,
-	"streamer.%d.underruns", num);
+    retval = hal_param_s32_newf(HAL_RW, &(str->overruns), comp_id,
+	"sampler.%d.overruns", num);
     if (retval != 0 ) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "STREAMER: ERROR: 'underruns' parameter export failed\n");
+	    "SAMPLER: ERROR: 'overruns' parameter export failed\n");
+	return -EIO;
+    }
+    retval = hal_param_s32_newf(HAL_RW, &(str->sample_num), comp_id,
+	"sampler.%d.sample-num", num);
+    if (retval != 0 ) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "SAMPLER: ERROR: 'sample-num' parameter export failed\n");
 	return -EIO;
     }
     /* init the standard pins and params */
-    *(str->empty) = 1;
+    *(str->full) = 0;
     *(str->curr_depth) = 0;
-    str->underruns = 0;
-    /* HAL pins are right after the streamer_t struct in HAL shmem */
+    str->overruns = 0;
+    str->sample_num = 0;
+    /* HAL pins are right after the sampler_t struct in HAL shmem */
     pptr = (pin_data_t *)(str+1);
     usefp = 0;
-    /* export user specified pins (the ones that stream data) */
+    /* export user specified pins (the ones that sample data) */
     for ( n = 0 ; n < tmp_fifo->num_pins ; n++ ) {
-	rtapi_snprintf(buf, HAL_NAME_LEN, "streamer.%d.pin.%d", num, n);
-	retval = hal_pin_new(buf, tmp_fifo->type[n], HAL_OUT, (void **)pptr, comp_id );
+	rtapi_snprintf(buf, HAL_NAME_LEN, "sampler.%d.pin.%d", num, n);
+	retval = hal_pin_new(buf, tmp_fifo->type[n], HAL_IN, (void **)pptr, comp_id );
 	if (retval != 0 ) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"STREAMER: ERROR: pin '%s' export failed\n", buf);
+		"SAMPLER: ERROR: pin '%s' export failed\n", buf);
 	    return -EIO;
 	}
 	/* init the pin value */
@@ -427,26 +442,26 @@ static int init_streamer(int num, fifo_t *tmp_fifo)
 	pptr++;
     }
     /* export update function */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "streamer.%d", num);
-    retval = hal_export_funct(buf, update, str, usefp, 0, comp_id);
+    rtapi_snprintf(buf, HAL_NAME_LEN, "sampler.%d", num);
+    retval = hal_export_funct(buf, sample, str, usefp, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "STREAMER: ERROR: function export failed\n");
+	    "SAMPLER: ERROR: function export failed\n");
 	return retval;
     }
 
     /* alloc shmem for user/RT comms (fifo) */
-    size = sizeof(fifo_t) + tmp_fifo->num_pins * tmp_fifo->depth * sizeof(shmem_data_t);
+    size = sizeof(fifo_t) + (tmp_fifo->num_pins + 1) * tmp_fifo->depth * sizeof(shmem_data_t);
     shmem_id[num] = rtapi_shmem_new(SAMPLER_SHMEM_KEY+num, comp_id, size);
     if ( shmem_id[num] < 0 ) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "STREAMER: ERROR: couldn't allocate user/RT shared memory\n");
+	    "SAMPLEr: ERROR: couldn't allocate user/RT shared memory\n");
 	return -ENOMEM;
     }
     retval = rtapi_shmem_getptr(shmem_id[num], &shmem_ptr);
     if ( retval < 0 ) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "STREAMER: ERROR: couldn't map user/RT shared memory\n");
+	    "SAMPLER: ERROR: couldn't map user/RT shared memory\n");
 	return -ENOMEM;
     }
     fifo = shmem_ptr;
@@ -457,6 +472,7 @@ static int init_streamer(int num, fifo_t *tmp_fifo)
     fifo->in = 0;
     fifo->out = 0;
     fifo->last_sample = 0;
+    fifo->last_sample--;
 
     /* mark it inited for user program */
     fifo->magic = FIFO_MAGIC_NUM;

@@ -32,3 +32,20 @@ objects/%.c: %.comp ../bin/comp
 
 modules: $(patsubst %.comp, objects/%.c, $(COMPS))
 endif
+
+HALSTREAMERSRCS := hal/components/streamer_usr.c
+USERSRCS += $(HALSTREAMERSRCS)
+
+../bin/halstreamer: $(call TOOBJS, $(HALSTREAMERSRCS)) ../lib/libemchal.so
+	$(ECHO) Linking $(notdir $@)
+	@$(CXX) $(LDFLAGS) -o $@ $^
+TARGETS += ../bin/halstreamer
+
+HALSAMPLERSRCS := hal/components/sampler_usr.c
+USERSRCS += $(HALSAMPLERSRCS)
+
+../bin/halsampler: $(call TOOBJS, $(HALSAMPLERSRCS)) ../lib/libemchal.so
+	$(ECHO) Linking $(notdir $@)
+	@$(CXX) $(LDFLAGS) -o $@ $^
+TARGETS += ../bin/halsampler
+
