@@ -148,7 +148,7 @@ void rtapi_print_msg(int level, const char *fmt, ...)
 	va_start(args, fmt);
 	/* call the normal library vnsprintf() */
 	vsnprintf(buffer, BUFFERLEN, fmt, args);
-	fputs(buffer, stdout);
+	fputs(buffer, stderr);
 	va_end(args);
     }
 }
