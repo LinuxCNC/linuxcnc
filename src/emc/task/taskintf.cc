@@ -502,11 +502,6 @@ int emcAxisLoadComp(int axis, const char *file)
     return usrmotLoadComp(axis, file);
 }
 
-int emcAxisAlter(int axis, double alter)
-{
-    return usrmotAlter(axis, alter);
-}
-
 static emcmot_config_t emcmotConfig;
 int get_emcmot_debug_info = 0;
 
@@ -586,7 +581,6 @@ int emcAxisUpdate(EMC_AXIS_STAT stat[], int numAxes)
 #if 0				/*! \todo FIXME - per-axis Vscale temporarily? removed */
 	stat[axis].scale = emcmotStatus.axVscale[axis];
 #endif
-	usrmotQueryAlter(axis, &stat[axis].alter);
 #ifdef WATCH_FLAGS
 	if (old_joint_flag[axis] != joint->flag) {
 	    printf("joint %d flag: %04X -> %04X\n", axis,

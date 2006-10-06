@@ -1534,22 +1534,6 @@ static int sendAxisLoadComp(int axis, const char *file)
     return 0;
 }
 
-static int sendAxisAlter(int axis, double alter)
-{
-    EMC_AXIS_ALTER emc_axis_alter_msg;
-
-    emc_axis_alter_msg.alter = alter;
-    emc_axis_alter_msg.serial_number = ++emcCommandSerialNumber;
-    emcCommandBuffer->write(emc_axis_alter_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived(emcCommandSerialNumber);
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone(emcCommandSerialNumber);
-    }
-
-    return 0;
-}
-
 static int sendSetTeleopEnable(int enable)
 {
     EMC_TRAJ_SET_TELEOP_ENABLE emc_set_teleop_enable_msg;

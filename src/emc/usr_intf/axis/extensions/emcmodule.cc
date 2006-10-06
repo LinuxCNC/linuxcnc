@@ -581,7 +581,6 @@ static PyObject *Stat_axis_one(pyStatChannel *s, int axisno) {
     F2("max_hard_limit", maxHardLimit);
     F2("override_limits", overrideLimits);
     F(scale);
-    F(alter);
     return res;
 }
 #undef F

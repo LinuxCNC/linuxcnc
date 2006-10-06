@@ -834,7 +834,6 @@ static int init_comm_buffers(void)
 	   and reverse, since these can't be zero and the total flag prevents
 	   their use anyway */
 	joint->comp.total = 0;
-	joint->comp.alter = 0.0;
 
 	/* init status info */
 	joint->flag = 0;

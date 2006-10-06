@@ -360,7 +360,6 @@ Suggestion: Split this in to an Error and a Status flag register..
 	double nominal[EMCMOT_COMP_SIZE];	/* nominal points */
 	double forward[EMCMOT_COMP_SIZE];	/* forward comp points */
 	double reverse[EMCMOT_COMP_SIZE];	/* reverse comp points */
-	double alter;		/* additive dynamic compensation */
     } emcmot_comp_t;
 
 /* motion controller states */

@@ -182,7 +182,6 @@ int main(int argc, char *argv[])
     int axis;			/* axis selected for command */
     int errCode;		/* returned from usrmotWrite,Read... */
     char compfile[LINELEN];	/* name of the compensation file */
-    double alter;		/* value for external alter */
 
     /* print the sizes first, so that even if emcmot isn't up and running we
        can use usrmot to simply print the size and fail */
@@ -979,25 +978,6 @@ int main(int argc, char *argv[])
 		    } else {
 			if (0 != usrmotPrintComp(axis)) {
 			    fprintf(stderr, "Can't print comp table\n");
-			}
-		    }
-		}
-	    } else if (!strcmp(cmd, "alter")) {
-		if (1 != sscanf(input, "%*s %d", &axis)) {
-		    fprintf(stderr, "syntax: alter <axis> {<value>}\n");
-		} else {
-		    /* try a double for the alter val, else it's blank which
-		       means print */
-		    if (1 == sscanf(input, "%*s %*d %lf", &alter)) {
-			if (0 != usrmotAlter(axis, alter)) {
-			    fprintf(stderr, "Can't set alter value %f\n",
-				    alter);
-			}
-		    } else {
-			if (0 != usrmotQueryAlter(axis, &alter)) {
-			    fprintf(stderr, "Can't print alter value\n");
-			} else {
-			    printf("axis %d alter: %f\n", axis, alter);
 			}
 		    }
 		}

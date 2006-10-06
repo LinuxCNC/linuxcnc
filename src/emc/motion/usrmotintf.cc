@@ -914,64 +914,10 @@ int usrmotLoadComp(int axis, const char *file)
 	return -1;
     }
 
-    /* leave alter alone */
 #endif
     return ret;
 }
 
-int usrmotAlter(int axis, double alter)
-{
-/*! \todo FIXME - the comp stuff is temporarily disabled, so "alter" must
-   be disabled too.  BTW, what the heck is "alter" anyway?
-*/
-return -1;
-/*! \todo Another #if 0 */
-#if 0
-    /* check axis range */
-    if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
-	fprintf(stderr, "axis out of range for alter\n");
-	return -1;
-    }
-
-    /* first check if comp pointer is valid */
-    if (emcmotComp[axis] == 0) {
-	fprintf(stderr, "compensation data structure not present\n");
-	return -1;
-    }
-
-    /* set alter value */
-    emcmotComp[axis]->alter = alter;
-
-    return 0;
-#endif
-}
-
-int usrmotQueryAlter(int axis, double *alter)
-{
-/*! \todo FIXME - the comp stuff is temporarily disabled, so "alter" must
-   be disabled too.  BTW, what the heck is "alter" anyway?
-*/
-return -1;
-/*! \todo Another #if 0 */
-#if 0
-    /* check axis range */
-    if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
-	fprintf(stderr, "axis out of range for alter query\n");
-	return -1;
-    }
-
-    /* first check if comp pointer is valid */
-    if (emcmotComp[axis] == 0) {
-	fprintf(stderr, "compensation data structure not present\n");
-	return -1;
-    }
-
-    /* set alter value */
-    *alter = emcmotComp[axis]->alter;
-
-    return 0;
-#endif
-}
 
 int usrmotPrintComp(int axis)
 {
@@ -995,7 +941,6 @@ return -1;
 
     printf("total:  %d\n", emcmotComp[axis]->total);
     printf("avgint: %f\n", emcmotComp[axis]->avgint);
-    printf("alter:  %f\n", emcmotComp[axis]->alter);
     for (t = 0; t < emcmotComp[axis]->total; t++) {
 	printf("%f\t%f\t%f\n",
 	    emcmotComp[axis]->nominal[t],

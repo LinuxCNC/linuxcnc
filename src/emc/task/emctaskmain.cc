@@ -314,7 +314,6 @@ static EMC_AXIS_SET_MIN_POSITION_LIMIT *set_min_limit_msg;
 static EMC_AXIS_OVERRIDE_LIMITS *axis_lim_msg;
 //static EMC_AXIS_SET_OUTPUT *axis_output_msg;
 static EMC_AXIS_LOAD_COMP *axis_load_comp_msg;
-static EMC_AXIS_ALTER *axis_alter_msg;
 //static EMC_AXIS_SET_STEP_PARAMS *set_step_params_msg;
 
 static EMC_TRAJ_SET_SCALE *emcTrajSetScaleMsg;
@@ -527,7 +526,6 @@ static int emcTaskPlan(void)
 	    case EMC_AXIS_ABORT_TYPE:
 	    case EMC_AXIS_SET_OUTPUT_TYPE:
 	    case EMC_AXIS_LOAD_COMP_TYPE:
-	    case EMC_AXIS_ALTER_TYPE:
 	    case EMC_AXIS_SET_STEP_PARAMS_TYPE:
 	    case EMC_TRAJ_SET_SCALE_TYPE:
 	    case EMC_TRAJ_SET_SPINDLE_SCALE_TYPE:
@@ -626,7 +624,6 @@ static int emcTaskPlan(void)
 	    case EMC_AXIS_ABS_JOG_TYPE:
 	    case EMC_AXIS_OVERRIDE_LIMITS_TYPE:
 	    case EMC_AXIS_SET_OUTPUT_TYPE:
-	    case EMC_AXIS_ALTER_TYPE:
 	    case EMC_TRAJ_PAUSE_TYPE:
 	    case EMC_TRAJ_RESUME_TYPE:
 	    case EMC_TRAJ_ABORT_TYPE:
@@ -712,7 +709,6 @@ static int emcTaskPlan(void)
 		case EMC_AXIS_SET_FERROR_TYPE:
 		case EMC_AXIS_SET_MIN_FERROR_TYPE:
 		case EMC_AXIS_SET_OUTPUT_TYPE:
-		case EMC_AXIS_ALTER_TYPE:
 		case EMC_AXIS_SET_STEP_PARAMS_TYPE:
 		case EMC_TRAJ_PAUSE_TYPE:
 		case EMC_TRAJ_RESUME_TYPE:
@@ -802,7 +798,6 @@ static int emcTaskPlan(void)
 		case EMC_AXIS_SET_FERROR_TYPE:
 		case EMC_AXIS_SET_MIN_FERROR_TYPE:
 		case EMC_AXIS_SET_OUTPUT_TYPE:
-		case EMC_AXIS_ALTER_TYPE:
 		case EMC_AXIS_SET_STEP_PARAMS_TYPE:
 		case EMC_TRAJ_PAUSE_TYPE:
 		case EMC_TRAJ_RESUME_TYPE:
@@ -987,7 +982,6 @@ interpret_again:
 		case EMC_AXIS_SET_FERROR_TYPE:
 		case EMC_AXIS_SET_MIN_FERROR_TYPE:
 		case EMC_AXIS_SET_OUTPUT_TYPE:
-		case EMC_AXIS_ALTER_TYPE:
 		case EMC_AXIS_SET_STEP_PARAMS_TYPE:
 		case EMC_TRAJ_PAUSE_TYPE:
 		case EMC_TRAJ_RESUME_TYPE:
@@ -1058,7 +1052,6 @@ interpret_again:
 		case EMC_AXIS_SET_FERROR_TYPE:
 		case EMC_AXIS_SET_MIN_FERROR_TYPE:
 		case EMC_AXIS_SET_OUTPUT_TYPE:
-		case EMC_AXIS_ALTER_TYPE:
 		case EMC_AXIS_SET_STEP_PARAMS_TYPE:
 		case EMC_TRAJ_PAUSE_TYPE:
 		case EMC_TRAJ_RESUME_TYPE:
@@ -1151,7 +1144,6 @@ interpret_again:
 	    case EMC_AXIS_SET_FERROR_TYPE:
 	    case EMC_AXIS_SET_MIN_FERROR_TYPE:
 	    case EMC_AXIS_SET_OUTPUT_TYPE:
-	    case EMC_AXIS_ALTER_TYPE:
 	    case EMC_AXIS_SET_STEP_PARAMS_TYPE:
 	    case EMC_TRAJ_SET_SCALE_TYPE:
 	    case EMC_TRAJ_SET_SPINDLE_SCALE_TYPE:
@@ -1489,11 +1481,6 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	axis_load_comp_msg = (EMC_AXIS_LOAD_COMP *) cmd;
 	retval = emcAxisLoadComp(axis_load_comp_msg->axis,
 				 axis_load_comp_msg->file);
-	break;
-
-    case EMC_AXIS_ALTER_TYPE:
-	axis_alter_msg = (EMC_AXIS_ALTER *) cmd;
-	retval = emcAxisAlter(axis_alter_msg->axis, axis_alter_msg->alter);
 	break;
 
 	// traj commands

@@ -76,7 +76,7 @@
 #define EMC_AXIS_OVERRIDE_LIMITS_TYPE                ((NMLTYPE) 129)
 #define EMC_AXIS_SET_OUTPUT_TYPE                     ((NMLTYPE) 130)
 #define EMC_AXIS_LOAD_COMP_TYPE                      ((NMLTYPE) 131)
-#define EMC_AXIS_ALTER_TYPE                          ((NMLTYPE) 132)
+// gap because of deleted message type (EMC_AXIS_ALTER_TYPE)
 #define EMC_AXIS_SET_STEP_PARAMS_TYPE                ((NMLTYPE) 133)
 #define EMC_AXIS_SET_BACKLASH_TYPE                   ((NMLTYPE) 134)
 
@@ -394,7 +394,7 @@ extern int emcAxisDeactivate(int axis);
 extern int emcAxisOverrideLimits(int axis);
 extern int emcAxisSetOutput(int axis, double output);
 extern int emcAxisLoadComp(int axis, const char *file);
-extern int emcAxisAlter(int axis, double alter);
+
 
 class EMC_AXIS_STAT;		// forward decl
 extern int emcAxisUpdate(EMC_AXIS_STAT stat[], int numAxes);
@@ -1035,17 +1035,6 @@ class EMC_AXIS_LOAD_COMP:public EMC_AXIS_CMD_MSG {
     char file[LINELEN];
 };
 
-class EMC_AXIS_ALTER:public EMC_AXIS_CMD_MSG {
-  public:
-    EMC_AXIS_ALTER():EMC_AXIS_CMD_MSG(EMC_AXIS_ALTER_TYPE,
-				      sizeof(EMC_AXIS_ALTER)) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-
-    double alter;
-};
 
 /**
  * Set the step parameters.
@@ -1135,7 +1124,6 @@ class EMC_AXIS_STAT:public EMC_AXIS_STAT_MSG {
     unsigned char overrideLimits;	// non-zero means limits are
     // overridden
     double scale;		// velocity scale
-    double alter;		// external position alter value
 };
 
 // declarations for EMC_TRAJ classes

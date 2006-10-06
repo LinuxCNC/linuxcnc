@@ -1611,22 +1611,6 @@ static int sendAxisLoadComp(int axis, const char *file)
     return 0;
 }
 
-static int sendAxisAlter(int axis, double alter)
-{
-    EMC_AXIS_ALTER emc_axis_alter_msg;
-
-    emc_axis_alter_msg.alter = alter;
-    emc_axis_alter_msg.serial_number = ++emcCommandSerialNumber;
-    emcCommandBuffer->write(emc_axis_alter_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived(emcCommandSerialNumber);
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone(emcCommandSerialNumber);
-    }
-
-    return 0;
-}
-
 static int sendSetTeleopEnable(int enable)
 {
     EMC_TRAJ_SET_TELEOP_ENABLE emc_set_teleop_enable_msg;
@@ -4347,60 +4331,6 @@ static int emc_axis_load_comp(ClientData clientdata,
     return TCL_OK;
 }
 
-static int emc_axis_alter(ClientData clientdata,
-			  Tcl_Interp * interp, int objc,
-			  Tcl_Obj * CONST objv[])
-{
-    int axis;
-    double alter;
-    Tcl_Obj *alterobj;
-
-    if (objc > 1) {
-	// try for first arg as axis value
-	if (0 != Tcl_GetIntFromObj(0, objv[1], &axis) ||
-	    axis < 0 || axis >= EMC_AXIS_MAX) {
-	    Tcl_SetResult(interp,
-			  "emc_axis_alter: need axis as integer, 0..EMC_AXIS_MAX-1",
-			  TCL_VOLATILE);
-	    return TCL_ERROR;
-	}
-	// axis arg OK, so try for next arg, returning current alter val if
-	// it's not there, setting it if it is
-
-	if (objc == 2) {
-	    if (emcUpdateType == EMC_UPDATE_AUTO) {
-		updateStatus();
-	    }
-	    alterobj =
-		Tcl_NewDoubleObj(emcStatus->motion.axis[axis].alter);
-	    Tcl_SetObjResult(interp, alterobj);
-	    return TCL_OK;
-	}
-
-	if (objc == 3) {
-	    if (0 != Tcl_GetDoubleFromObj(0, objv[2], &alter)) {
-		Tcl_SetResult(interp,
-			      "emc_axis_alter: need alter as real number",
-			      TCL_VOLATILE);
-		return TCL_ERROR;
-	    }
-	    if (0 != sendAxisAlter(axis, alter)) {
-		Tcl_SetResult(interp,
-			      "emc_axis_alter: can't set alter value",
-			      TCL_VOLATILE);
-		return TCL_OK;	// no TCL_ERROR, which is a syntax error
-	    }
-	    // sent it OK
-	    return TCL_OK;
-	}
-    }
-    // else no args, or more than 2 args, so syntax error
-    Tcl_SetResult(interp,
-		  "emc_axis_alter: need axis, optional alter value",
-		  TCL_VOLATILE);
-    return TCL_ERROR;
-}
-
 int emc_teleop_enable(ClientData clientdata,
 		      Tcl_Interp * interp, int objc,
 		      Tcl_Obj * CONST objv[])
@@ -5004,9 +4934,6 @@ int Tcl_AppInit(Tcl_Interp * interp)
 			 (Tcl_CmdDeleteProc *) NULL);
 
     Tcl_CreateObjCommand(interp, "emc_axis_load_comp", emc_axis_load_comp,
-			 (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
-
-    Tcl_CreateObjCommand(interp, "emc_axis_alter", emc_axis_alter,
 			 (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
 
     Tcl_CreateObjCommand(interp, "emc_axis_enable", emc_axis_enable,

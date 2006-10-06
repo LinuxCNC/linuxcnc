@@ -79,12 +79,6 @@ extern "C" {
 /* usrmotLoadComp() loads the compensation data in file into the axis */
     extern int usrmotLoadComp(int axis, const char *file);
 
-/* usrmotAlter() loads the alter value to modify the axis position */
-    extern int usrmotAlter(int axis, double alter);
-
-/* usrmotQueryAlter() sets the alter ptr to the current alter value */
-    extern int usrmotQueryAlter(int axis, double *alter);
-
 /* usrmotPrintComp() prints the axis compensation data for axis */
     extern int usrmotPrintComp(int axis);
 
