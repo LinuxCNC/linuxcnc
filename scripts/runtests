@@ -1,0 +1,71 @@
+#!/bin/bash
+
+case "$0" in
+	*/*) MYDIR="${0%/*}" ;;
+	*) MYDIR="`type -path $0`"; MYDIR="${MYDIR%/*}"
+esac
+
+NUM=0
+FAIL=0
+XFAIL=0
+
+TMPDIR=`mktemp -d /tmp/runtest.XXXXXX`
+trap "rm -rf $TMPDIR" 0 1 2 3 9 15
+
+find $* -name test.hal > $TMPDIR/alltests
+
+while read testname; do
+    NUM=$(($NUM+1))
+    testdir=$(dirname $testname)
+    echo "Running test: $testdir" 1>&2
+    $MYDIR/halrun -f $testname > $testdir/result 2> $testdir/stderr
+    exitcode=$?
+    if [ $exitcode -ne 0 ]; then
+        reason="halrun exited with $exitcode"
+    else
+        if [ -e $testdir/checkresult ]; then
+            $testdir/checkresult $testdir/result
+            exitcode=$?
+            reason="checkresult exited with $exitcode"
+        elif [ -f $testdir/expected ]; then
+            cmp -s $testdir/expected $testdir/result
+            exitcode=$?
+            reason="result differed from expected"
+            if [ $exitcode -ne 0 ]; then
+                diff -U1 $testdir/expected $testdir/result > $TMPDIR/diff
+                SIZE=$(wc -l < $TMPDIR/diff)
+                if [ $SIZE -lt 15 ]; then
+                    cat $TMPDIR/diff
+                else
+                    OMIT=$((SIZE-15))
+                    head -15 $TMPDIR/diff
+                    echo "($OMIT more lines omitted)"
+                fi
+            fi
+        else
+            exitcode=1
+            reason="Neither result nor checkresult existed"
+        fi
+    fi
+    if [ $exitcode -ne 0 ]; then
+        if [ -f $testdir/xfail ]; then
+            XFAIL=$(($XFAIL+1))
+            echo "** $testdir: XFAIL: $reason"
+        else
+            FAIL=$(($FAIL+1))
+            echo "** $testdir: FAIL: $reason"
+        fi
+    else
+        if [ -f $testdir/xfail ]; then
+            echo "** $testdir: XPASS: Passed, but was expected to fail"
+        fi
+    fi
+done < $TMPDIR/alltests
+
+SUCC=$((NUM-FAIL-XFAIL))
+if [ $XFAIL -eq 0 ]; then
+echo "Runtest: $NUM tests run, $SUCC successful, $FAIL failed"
+else
+echo "Runtest: $NUM tests run, $SUCC successful, $FAIL failed + $XFAIL expected"
+fi
+if [ $FAIL -ne 0 ]; then exit 1; else exit 0; fi
