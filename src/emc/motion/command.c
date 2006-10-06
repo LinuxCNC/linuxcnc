@@ -941,7 +941,9 @@ check_stuff ( "before command_handler()" );
                 emcmotDebug->stepping = 1;
                 tpResume(&emcmotDebug->queue);
                 emcmotStatus->paused = 0;
-            }
+            } else {
+		reportError("MOTION: can't STEP while already executing");
+	    }
 	    break;
 
 	case EMCMOT_SCALE:
