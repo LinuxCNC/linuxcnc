@@ -417,7 +417,7 @@ static PyObject *pyhal_exit(halobject *self, PyObject *o) {
 
 static PyObject *pyhal_repr(halobject *self) {
     return PyString_FromFormat("<hal component %s(%d) with %d pins and params>",
-            self->name, self->hal_id, self->items->size());
+            self->name, self->hal_id, (int)self->items->size());
 }
 
 static PyObject *pyhal_getattro(halobject *self, PyObject *attro)  {
