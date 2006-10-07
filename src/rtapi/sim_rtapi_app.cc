@@ -14,6 +14,7 @@
 
 #include "config.h"
 
+#include "rtapi.h"
 #include "hal.h"
 #include "hal/hal_priv.h"
 
@@ -87,7 +88,7 @@ static int do_one_item(char item_type_char, const string &param_value, void *vit
 static int do_comp_args(void *module, vector<string> args) {
     for(unsigned i=1; i < args.size(); i++) {
         string &s = args[i];
-        unsigned idx = s.find('=');
+        size_t idx = s.find('=');
         if(idx == string::npos) {
             cerr << "Cannot understand: " << s << endl;
             return -1;
@@ -146,13 +147,13 @@ static int do_load_cmd(string name, vector<string> args) {
         snprintf(what, LINELEN, "%s/%s.so", EMC2_RTLIB_DIR, name.c_str());
         void *module = modules[name] = dlopen(what, RTLD_GLOBAL | RTLD_LAZY);
         if(!module) {
-            printf("%s: dlopen: %s\n", name.c_str(), dlerror());
+            rtapi_print_msg(RTAPI_MSG_ERR, "%s: dlopen: %s\n", name.c_str(), dlerror());
             return -1;
         }
 	/// XXX handle arguments
         int (*start)(void) = DLSYM<int(*)(void)>(module, "rtapi_app_main");
         if(!start) {
-            printf("%s: dlsym: %s\n", name.c_str(), dlerror());
+            rtapi_print_msg(RTAPI_MSG_ERR, "%s: dlsym: %s\n", name.c_str(), dlerror());
             return -1;
         }
         int result;
@@ -161,14 +162,14 @@ static int do_load_cmd(string name, vector<string> args) {
         if(result < 0) { dlclose(module); return -1; }
 
         if ((result=start()) < 0) {
-            printf("%s: rtapi_app_main: %d\n", name.c_str(), result);
+            rtapi_print_msg(RTAPI_MSG_ERR, "%s: rtapi_app_main: %d\n", name.c_str(), result);
 	    return result;
         } else {
             instance_count ++;
 	    return 0;
         }
     } else {
-        printf("%s: already exists\n", name.c_str());
+        rtapi_print_msg(RTAPI_MSG_ERR, "%s: already exists\n", name.c_str());
         return -1;
     }
 }
@@ -176,7 +177,7 @@ static int do_load_cmd(string name, vector<string> args) {
 static int do_unload_cmd(string name) {
     void *w = modules[name];
     if(w == NULL) {
-        printf("%s: not loaded\n", name.c_str());
+        rtapi_print_msg(RTAPI_MSG_ERR, "%s: not loaded\n", name.c_str());
 	return -1;
     } else {
         int (*stop)(void) = DLSYM<int(*)(void)>(w, "rtapi_app_exit");
@@ -238,11 +239,11 @@ static void write_strings(int fd, vector<string> strings) {
 }
 
 static void print_strings(vector<string> strings) {
-    cout << "STRINGS:";
+    cerr << "STRINGS:";
     for(unsigned int i=0; i<strings.size(); i++) { 
-        cout << " " << strings[i];
+        cerr << " " << strings[i];
     }
-    cout << "\n";
+    cerr << "\n";
 }
 
 static int handle_command(vector<string> args) {
@@ -260,7 +261,7 @@ static int handle_command(vector<string> args) {
     } else if(args.size() == 4 && args[0] == "newinst") {
         return do_newinst_cmd(args[1], args[2], args[3]);
     } else {
-        cout << "Unrecognized command: ";
+        cerr << "Unrecognized command: ";
         print_strings(args);
         return -1;
     }
@@ -325,7 +326,7 @@ become_master:
        }
        if(result < 0 && errno == ECONNREFUSED) { 
            unlink(SOCKET_PATH);
-           fprintf(stdout, "Waited 3 seconds for master.  giving up.\n");
+           fprintf(stderr, "Waited 3 seconds for master.  giving up.\n");
            close(fd);
            goto become_master;
        }
