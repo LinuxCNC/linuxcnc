@@ -317,7 +317,6 @@ static int AxisOrTrajInited(void)
 int emcAxisInit(int axis)
 {
     int retval = 0;
-
     if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
 	return 0;
     }
@@ -1150,8 +1149,8 @@ int emcMotionInit()
     r2 = emcTrajInit(); // we want to check Traj first, the sane defaults for units are there
 
     r1 = 0;
-    for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
-	if (0 == emcAxisInit(axis)) {
+    for (axis = 0; axis < localEmcTrajAxes; axis++) {
+	if (0 != emcAxisInit(axis)) {
 	    r1 = -1;		// at least one is busted
 	}
     }
