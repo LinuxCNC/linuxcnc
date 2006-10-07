@@ -13,8 +13,10 @@ hal_joystick
 hal_manualtoolchange
 halmeter
 hal_parport
+halsampler
 halscope
 hal_skeleton
+halstreamer
 halui
 halvcp
 image-to-gcode
