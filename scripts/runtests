@@ -9,16 +9,29 @@ NUM=0
 FAIL=0
 XFAIL=0
 
+run_without_overruns () {
+    testname=$1
+    testdir=$(dirname $testname)
+    for i in $(seq 10); do
+        if [ $i != 1 ]; then echo "--- $testdir: overrun detected in sampler, re-running test"; fi
+        $MYDIR/halrun -f $testname > $testdir/result 2> $testdir/stderr
+        exitcode=$?
+        if ! grep -q '^overrun$' $testdir/result; then return $exitcode; fi
+    done
+    echo "--- $testdir: $i overruns detected, giving up"
+    return 1
+}
+
 TMPDIR=`mktemp -d /tmp/runtest.XXXXXX`
 trap "rm -rf $TMPDIR" 0 1 2 3 9 15
 
-find $* -name test.hal > $TMPDIR/alltests
+find $* -name test.hal | sort > $TMPDIR/alltests
 
 while read testname; do
     NUM=$(($NUM+1))
     testdir=$(dirname $testname)
     echo "Running test: $testdir" 1>&2
-    $MYDIR/halrun -f $testname > $testdir/result 2> $testdir/stderr
+    run_without_overruns $testname
     exitcode=$?
     if [ $exitcode -ne 0 ]; then
         reason="halrun exited with $exitcode"
@@ -50,10 +63,10 @@ while read testname; do
     if [ $exitcode -ne 0 ]; then
         if [ -f $testdir/xfail ]; then
             XFAIL=$(($XFAIL+1))
-            echo "** $testdir: XFAIL: $reason"
+            echo "*** $testdir: XFAIL: $reason"
         else
             FAIL=$(($FAIL+1))
-            echo "** $testdir: FAIL: $reason"
+            echo "*** $testdir: FAIL: $reason"
         fi
     else
         if [ -f $testdir/xfail ]; then
