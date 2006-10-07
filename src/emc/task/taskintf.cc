@@ -497,9 +497,9 @@ int emcAxisAbsJog(int axis, double pos, double vel)
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
-int emcAxisLoadComp(int axis, const char *file)
+int emcAxisLoadComp(int axis, const char *file, int type)
 {
-    return usrmotLoadComp(axis, file);
+    return usrmotLoadComp(axis, file, type);
 }
 
 static emcmot_config_t emcmotConfig;

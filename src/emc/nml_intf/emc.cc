@@ -2131,6 +2131,7 @@ void EMC_AXIS_LOAD_COMP::update(CMS * cms)
 
     EMC_AXIS_CMD_MSG::update(cms);
     cms->update(file, 256);
+    cms->update(type);
 
 }
 

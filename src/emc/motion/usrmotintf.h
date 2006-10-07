@@ -77,7 +77,7 @@ extern "C" {
     extern int usrmotExit(void);
 
 /* usrmotLoadComp() loads the compensation data in file into the axis */
-    extern int usrmotLoadComp(int axis, const char *file);
+    extern int usrmotLoadComp(int axis, const char *file, int type);
 
 /* usrmotPrintComp() prints the axis compensation data for axis */
     extern int usrmotPrintComp(int axis);

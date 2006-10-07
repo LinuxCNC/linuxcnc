@@ -130,6 +130,7 @@ static int loadAxis(int axis)
     int ignore_limits;
     int is_shared;
     int sequence;
+    int comp_file_type; //type for the compensation file. type==0 means nom, forw, rev. 
     double maxVelocity;
     double maxAcceleration;
     double maxFerror;
@@ -623,8 +624,25 @@ static int loadAxis(int axis)
 	return -1;
     }
 
+    if (NULL != (inistring = axisInifile->find("COMP_FILE_TYPE", axisString))) {
+	if (1 == sscanf(inistring, "%d", &comp_file_type)) {
+	    // found, and valid
+	} else {
+	    // found, but invalid
+	    if (EMC_DEBUG & EMC_DEBUG_INVALID) {
+		rcs_print_error
+		    ("invalid inifile value for [%s] COMP_FILE_TYPE: %s\n",
+		     axisString, inistring);
+	    }
+	    comp_file_type = 0;	// default
+	}
+    } else {
+	//not found at all, use old style of comp_file
+	comp_file_type = 0; 
+    }
+
     if (NULL != (inistring = axisInifile->find("COMP_FILE", axisString))) {
-	if (0 != emcAxisLoadComp(axis, inistring)) {
+	if (0 != emcAxisLoadComp(axis, inistring, comp_file_type)) {
 	    if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
 		rcs_print_error("bad return from emcAxisLoadComp\n");
 	    }

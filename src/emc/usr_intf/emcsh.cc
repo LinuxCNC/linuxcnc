@@ -1595,11 +1595,12 @@ static int sendAxisEnable(int axis, int val)
     return 0;
 }
 
-static int sendAxisLoadComp(int axis, const char *file)
+static int sendAxisLoadComp(int axis, const char *file, int type)
 {
     EMC_AXIS_LOAD_COMP emc_axis_load_comp_msg;
 
     strcpy(emc_axis_load_comp_msg.file, file);
+    emc_axis_load_comp_msg.type = type;
     emc_axis_load_comp_msg.serial_number = ++emcCommandSerialNumber;
     emcCommandBuffer->write(emc_axis_load_comp_msg);
     if (emcWaitType == EMC_WAIT_RECEIVED) {
@@ -4305,13 +4306,13 @@ static int emc_axis_load_comp(ClientData clientdata,
 			      Tcl_Interp * interp, int objc,
 			      Tcl_Obj * CONST objv[])
 {
-    int axis;
+    int axis, type;
     char file[256];
 
     // syntax is emc_axis_load_comp <axis> <file>
 
-    if (objc != 3) {
-	Tcl_SetResult(interp, "emc_axis_load_comp: need <axis> <file>",
+    if (objc != 4) {
+	Tcl_SetResult(interp, "emc_axis_load_comp: need <axis> <file> <type>",
 		      TCL_VOLATILE);
 	return TCL_ERROR;
     }
@@ -4326,8 +4327,13 @@ static int emc_axis_load_comp(ClientData clientdata,
     // copy objv[1] to file arg, to make sure it's not modified
     strcpy(file, Tcl_GetStringFromObj(objv[2], 0));
 
+    if (0 != Tcl_GetIntFromObj(0, objv[3], &type)) {
+	Tcl_SetResult(interp, "emc_load_comp: <type> must be an int",
+		      TCL_VOLATILE);
+    }
+
     // now write it out
-    sendAxisLoadComp(axis, file);
+    sendAxisLoadComp(axis, file, type);
     return TCL_OK;
 }
 

@@ -855,7 +855,13 @@ int usrmotExit(void)
     return 0;
 }
 
-int usrmotLoadComp(int axis, const char *file)
+/* Loads pairs of comp from the compensation file.
+   The default way is to specify nominal, forward & reverse triplets in the file
+   However if type != 0, it expects nominal, forward_trim & reverse_trim 
+	(where forward_trim = nominal - forward
+	       reverse_trim = nominal - reverse)
+*/
+int usrmotLoadComp(int axis, const char *file, int type)
 {
     FILE *fp;
     char buffer[LINELEN];
@@ -879,42 +885,30 @@ int usrmotLoadComp(int axis, const char *file)
 	if (NULL == fgets(buffer, LINELEN, fp)) {
 	    break;
 	}
-	/*
-	   expecting nominal-forward-reverse triplets, e.g., 
-	   0.000000 0.000000 -0.001279 
-	   0.100000 0.098742  0.051632 
-	   0.200000 0.171529  0.194216 */
 	if (3 != sscanf(buffer, "%lf %lf %lf", &nom, &fwd, &rev)) {
 	    break;
 	} else {
+	    // got a triplet
+	    if (type == 0) {
+		/* expecting nominal-forward-reverse triplets, e.g., 
+		    0.000000 0.000000 -0.001279 
+		    0.100000 0.098742  0.051632 
+		    0.200000 0.171529  0.194216 */
+    		emcmotCommand.comp_nominal = nom;
+    		emcmotCommand.comp_forward = nom - fwd; //convert to diffs
+    		emcmotCommand.comp_reverse = nom - rev; //convert to diffs
+	    } else {
+		/* expecting nominal-forw_trim-rev_trim triplets */
+    		emcmotCommand.comp_nominal = nom;
+    		emcmotCommand.comp_forward = fwd;
+    		emcmotCommand.comp_reverse = rev;		
+	    }
 	    emcmotCommand.command = EMCMOT_SET_JOINT_COMP;
-    	    emcmotCommand.comp_nominal = nom;
-    	    emcmotCommand.comp_forward = fwd;
-    	    emcmotCommand.comp_reverse = rev;
 	    ret |= usrmotWriteEmcmotCommand(&emcmotCommand);
 	}
     }
     fclose(fp);
 
-#if 0
-/* should move to RT */
-    if (total > 1) {
-	emcmotComp[axis]->avgint = (emcmotComp[axis]->nominal[total - 1] -
-	    emcmotComp[axis]->nominal[0]) / (total - 1);
-    }
-
-    /* ->total is the flag to emcmot that the comp table is valid, so only
-       set this to be >1 if the data is really valid: total > 1 and avgint >
-       0 */
-    if (total > 1 && emcmotComp[axis]->avgint > DBL_MIN) {
-	emcmotComp[axis]->total = total;
-    } else {
-	fprintf(stderr, "compensation file %s has too few distinct points\n",
-	    file);
-	return -1;
-    }
-
-#endif
     return ret;
 }
 

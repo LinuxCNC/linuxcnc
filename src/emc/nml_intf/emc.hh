@@ -393,7 +393,7 @@ extern int emcAxisActivate(int axis);
 extern int emcAxisDeactivate(int axis);
 extern int emcAxisOverrideLimits(int axis);
 extern int emcAxisSetOutput(int axis, double output);
-extern int emcAxisLoadComp(int axis, const char *file);
+extern int emcAxisLoadComp(int axis, const char *file, int type);
 
 
 class EMC_AXIS_STAT;		// forward decl
@@ -1033,6 +1033,8 @@ class EMC_AXIS_LOAD_COMP:public EMC_AXIS_CMD_MSG {
     void update(CMS * cms);
 
     char file[LINELEN];
+    int type; // type of the comp file. type==0 means nom, forw, rev triplets
+              // type != 0 means nom, forw_trim, rev_trim triplets
 };
 
 

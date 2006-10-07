@@ -1518,22 +1518,6 @@ static int sendOverrideLimits(int axis)
     return 0;
 }
 
-static int sendAxisLoadComp(int axis, const char *file)
-{
-    EMC_AXIS_LOAD_COMP emc_axis_load_comp_msg;
-
-    strcpy(emc_axis_load_comp_msg.file, file);
-    emc_axis_load_comp_msg.serial_number = ++emcCommandSerialNumber;
-    emcCommandBuffer->write(emc_axis_load_comp_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived(emcCommandSerialNumber);
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone(emcCommandSerialNumber);
-    }
-
-    return 0;
-}
-
 static int sendSetTeleopEnable(int enable)
 {
     EMC_TRAJ_SET_TELEOP_ENABLE emc_set_teleop_enable_msg;

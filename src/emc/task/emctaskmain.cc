@@ -1480,7 +1480,8 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
     case EMC_AXIS_LOAD_COMP_TYPE:
 	axis_load_comp_msg = (EMC_AXIS_LOAD_COMP *) cmd;
 	retval = emcAxisLoadComp(axis_load_comp_msg->axis,
-				 axis_load_comp_msg->file);
+				 axis_load_comp_msg->file,
+				 axis_load_comp_msg->type);
 	break;
 
 	// traj commands

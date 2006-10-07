@@ -167,6 +167,7 @@ int main(int argc, char *argv[])
     char errorString[EMCMOT_ERROR_LEN];
     int valid;
     int done;
+    int type=0;
     int nchars;
     int printPrompt;
     int disablePrompt = 0;	/* flag for disabling prompt printing via > */
@@ -966,12 +967,12 @@ int main(int argc, char *argv[])
 		}
 	    } else if (!strcmp(cmd, "comp")) {
 		if (1 != sscanf(input, "%*s %d", &axis)) {
-		    fprintf(stderr, "syntax: comp <axis> {<file>}\n");
+		    fprintf(stderr, "syntax: comp <axis> {<file> <type>}\n");
 		} else {
 		    /* try a string for the compfile, else it's blank which
 		       means print */
-		    if (1 == sscanf(input, "%*s %*d %s", compfile)) {
-			if (0 != usrmotLoadComp(axis, compfile)) {
+		    if (1 == sscanf(input, "%*s %*d %s %d", compfile, &type)) {
+			if (0 != usrmotLoadComp(axis, compfile, type)) {
 			    fprintf(stderr, "Can't load comp file %s\n",
 				    compfile);
 			}
