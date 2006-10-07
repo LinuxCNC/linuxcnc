@@ -1149,10 +1149,10 @@ int emcMotionInit()
 
     r2 = emcTrajInit(); // we want to check Traj first, the sane defaults for units are there
 
-    r1 = -1;
+    r1 = 0;
     for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
 	if (0 == emcAxisInit(axis)) {
-	    r1 = 0;		// at least one is okay
+	    r1 = -1;		// at least one is busted
 	}
     }
 
