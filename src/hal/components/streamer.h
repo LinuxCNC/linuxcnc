@@ -35,8 +35,8 @@ typedef struct {
 typedef union {
     float f;
     char  b;
-    long  s;
-    unsigned long u;
+    hal_s32_t s;
+    hal_u32_t u;
 } shmem_data_t;
 
 /* this struct lives in HAL shared memory */

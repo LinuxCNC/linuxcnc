@@ -265,12 +265,12 @@ int main(int argc, char **argv)
 	    case HAL_U8:
 	    case HAL_U16:
 	    case HAL_U32:
-		printf ( "%lu ", buf[n].u);
+		printf ( "%lu ", (unsigned long)buf[n].u);
 		break;
 	    case HAL_S8:
 	    case HAL_S16:
 	    case HAL_S32:
-		printf ( "%ld ", buf[n].s);
+		printf ( "%ld ", (long)buf[n].s);
 		break;
 	    default:
 		/* better not happen */
