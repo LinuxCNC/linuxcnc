@@ -310,16 +310,18 @@ typedef enum {
 #define HAL_WR 32
 #define HAL_RD_WR 48
 
+#include <asm/types.h>
+
 #if 1  /* right now we assume x86 */
 /* Use these for x86 machines, and anything else that can write to
    individual bytes in a machine word. */
 typedef volatile unsigned char hal_bit_t;
 typedef volatile unsigned char hal_u8_t;
 typedef volatile signed char hal_s8_t;
-typedef volatile unsigned short hal_u16_t;
-typedef volatile signed short hal_s16_t;
-typedef volatile unsigned long hal_u32_t;
-typedef volatile signed long hal_s32_t;
+typedef volatile __u16 hal_u16_t;
+typedef volatile __s16 hal_s16_t;
+typedef volatile __u32 hal_u32_t;
+typedef volatile __s32 hal_s32_t;
 typedef volatile float hal_float_t;
 #else
 /* Use these for weird machines that can't access bytes individually.
