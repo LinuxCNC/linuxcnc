@@ -322,6 +322,7 @@ void emcmotCommandHandler(void *arg, long period)
     int joint_num;
     emcmot_joint_t *joint;
     double tmp1;
+    emcmot_comp_entry_t *comp_entry;
     
 check_stuff ( "before command_handler()" );
 
@@ -1276,14 +1277,34 @@ check_stuff ( "before command_handler()" );
 	    if (joint == 0) {
 		break;
 	    }
-	    if (joint->comp.total >= EMCMOT_COMP_SIZE) {
-		reportError("compensation size for joint %d exceeded!", joint_num);
+	    if (joint->comp.entries >= EMCMOT_COMP_SIZE) {
+		reportError("joint %d: too many compensation entries", joint_num);
 		break;
 	    }
-	    joint->comp.nominal[joint->comp.total] = emcmotCommand->comp_nominal;
-	    joint->comp.forward[joint->comp.total] = emcmotCommand->comp_forward;
-	    joint->comp.reverse[joint->comp.total++] = emcmotCommand->comp_reverse;
-	    /*! \todo FIXME - do something with the comp structure */
+	    /* point to last entry */
+	    comp_entry = &(joint->comp.array[joint->comp.entries]);
+	    if (emcmotCommand->comp_nominal <= comp_entry[0].nominal) {
+		reportError("joint %d: compensation values must increase", joint_num);
+		break;
+	    }
+	    /* store data to new entry */
+	    comp_entry[1].nominal = emcmotCommand->comp_nominal;
+	    comp_entry[1].fwd_trim = emcmotCommand->comp_forward;
+	    comp_entry[1].rev_trim = emcmotCommand->comp_reverse;
+	    /* calculate slopes from previous entry to the new one */
+	    if ( comp_entry[0].nominal != -HUGE_VAL ) {
+		/* but only if the previous entry is "real" */
+		tmp1 = comp_entry[1].nominal - comp_entry[0].nominal;
+		comp_entry[0].fwd_slope =
+		    (comp_entry[1].fwd_trim - comp_entry[0].fwd_trim) / tmp1;
+		comp_entry[0].rev_slope =
+		    (comp_entry[1].rev_trim - comp_entry[0].rev_trim) / tmp1;
+	    } else {
+		/* previous entry is at minus infinity, slopes are zero */
+		comp_entry[0].fwd_trim = comp_entry[1].fwd_trim;
+		comp_entry[0].rev_trim = comp_entry[1].rev_trim;
+	    }
+	    joint->comp.entries++;
 	    break;
 
 	default:

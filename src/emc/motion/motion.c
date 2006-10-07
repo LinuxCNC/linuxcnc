@@ -26,6 +26,7 @@
 #include "emcmotglb.h"
 #include "motion.h"
 #include "mot_priv.h"
+#include "rtapi_math.h"
 
 /***********************************************************************
 *                    KERNEL MODULE PARAMETERS                          *
@@ -700,7 +701,7 @@ static int export_axis(int num, axis_hal_t * addr)
 */
 static int init_comm_buffers(void)
 {
-    int joint_num;
+    int joint_num, n;
     emcmot_joint_t *joint;
     int retval;
 
@@ -830,10 +831,24 @@ static int init_comm_buffers(void)
 	joint->home_flags = 0;
 	joint->home_sequence = -1;
 	joint->backlash = 0.0;
-	/* init compensation struct - leave out the avgint, nominal, forward,
-	   and reverse, since these can't be zero and the total flag prevents
-	   their use anyway */
-	joint->comp.total = 0;
+
+	joint->comp.entries = 0;
+	joint->comp.entry = &(joint->comp.array[0]);
+	/* the compensation code has -HUGE_VAL at one end of the table
+	   and +HUGE_VAL at the other so _all_ commanded positions are
+	   guaranteed to be covered by the table */
+	joint->comp.array[0].nominal = -HUGE_VAL;
+	joint->comp.array[0].fwd_trim = 0.0;
+	joint->comp.array[0].rev_trim = 0.0;
+	joint->comp.array[0].fwd_slope = 0.0;
+	joint->comp.array[0].rev_slope = 0.0;
+	for ( n = 1 ; n < EMCMOT_COMP_SIZE+2 ; n++ ) {
+	    joint->comp.array[n].nominal = HUGE_VAL;
+	    joint->comp.array[n].fwd_trim = 0.0;
+	    joint->comp.array[n].rev_trim = 0.0;
+	    joint->comp.array[n].fwd_slope = 0.0;
+	    joint->comp.array[n].rev_slope = 0.0;
+	}
 
 	/* init status info */
 	joint->flag = 0;

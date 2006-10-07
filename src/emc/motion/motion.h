@@ -352,14 +352,22 @@ Suggestion: Split this in to an Error and a Status flag register..
 
 */
 
-/* compensation structure */
+/* compensation structures */
+    typedef struct {
+	double nominal;		/* nominal (command) position */
+	float fwd_trim;		/* correction for forward movement */
+	float rev_trim;		/* correction for reverse movement */
+	float fwd_slope;	/* slopes between here and next pt */
+	float rev_slope;
+    } emcmot_comp_entry_t; 
+
+
 #define EMCMOT_COMP_SIZE 256
     typedef struct {
-	int total;		/* how many comp points */
-	double avgint;		/* average interval between points */
-	double nominal[EMCMOT_COMP_SIZE];	/* nominal points */
-	double forward[EMCMOT_COMP_SIZE];	/* forward comp points */
-	double reverse[EMCMOT_COMP_SIZE];	/* reverse comp points */
+	int entries;		/* number of entries in the array */
+	emcmot_comp_entry_t *entry;  /* current entry in array */
+	emcmot_comp_entry_t array[EMCMOT_COMP_SIZE+2];
+	/* +2 because array has -HUGE_VAL and +HUGE_VAL entries at the ends */
     } emcmot_comp_t;
 
 /* motion controller states */

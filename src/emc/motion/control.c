@@ -113,9 +113,10 @@ void check_stuff(char *location)
 
 /* 'process_inputs()' is responsible for reading hardware input
    signals (from the HAL) and doing basic processing on them.  In
-   the case of position feedback, that means removing backlash comp
-   and calculating the following error.  For switches, it means
-   debouncing them and setting flags in the emcmotStatus structure.
+   the case of position feedback, that means removing backlash or
+   screw error comp and calculating the following error.  For 
+   switches, it means debouncing them and setting flags in the
+   emcmotStatus structure.
 */
 static void process_inputs(void);
 
@@ -185,7 +186,7 @@ static void do_homing(void);
 
 static void get_pos_cmds(long period);
 
-/* 'compute_backlash()' is responsible for calculating backlash and
+/* 'compute_screw_comp()' is responsible for calculating backlash and
    lead screw error compensation.  (Leadscrew error compensation is
    a more sophisticated version that includes backlash comp.)  It uses
    the velocity in emcmotStatus->joint_vel_cmd to determine which way
@@ -199,10 +200,10 @@ static void get_pos_cmds(long period);
    the direction reverses.  backlash_filt is a ramped version, and
    that is the one that is later added/subtracted from the position.
 */
-static void compute_backlash(void);
+static void compute_screw_comp(void);
 
 /* 'output_to_hal()' writes the handles the final stages of the
-   control function.  It applies backlash comp and writes the
+   control function.  It applies screw comp and writes the
    final motor position to the HAL (which routes it to the PID
    loop).  It also drives other HAL outputs, and it writes a
    number of internal variables to HAL parameters so they can
@@ -334,8 +335,8 @@ check_stuff ( "after do_homing_sequence()" );
 check_stuff ( "after do_homing()" );
     get_pos_cmds(period);
 check_stuff ( "after get_pos_cmds()" );
-    compute_backlash();
-check_stuff ( "after compute_backlash()" );
+    compute_screw_comp();
+check_stuff ( "after compute_screw_comp()" );
     output_to_hal();
 check_stuff ( "after output_to_hal()" );
     update_status();
@@ -2151,17 +2152,68 @@ Their exact contents and meaning are as follows:
 
 }
 
-static void compute_backlash(void)
+static void compute_screw_comp(void)
 {
     int joint_num;
     emcmot_joint_t *joint;
+    emcmot_comp_t *comp;
+    double dpos;
     double a_max, v_max, v, s_to_go, ds_stop, ds_vel, ds_acc, dv_acc;
 
+
+    /* compute the correction */
+    for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
+        /* point to joint struct */
+        joint = &joints[joint_num];
+	/* point to compensation data */
+	comp = &(joint->comp);
+	if ( comp->entries > 0 ) {
+	    /* there is data in the comp table, use it */
+	    /* first make sure we're in the right spot in the table */
+	    while ( joint->pos_cmd < comp->entry->nominal ) {
+		comp->entry--;
+	    }
+	    while ( joint->pos_cmd >= (comp->entry+1)->nominal ) {
+		comp->entry++;
+	    }
+	    /* now interpolate */
+	    dpos = joint->pos_cmd - comp->entry->nominal;
+	    if (joint->vel_cmd > 0.0) {
+	        /* moving "up". apply forward screw comp */
+		joint->backlash_corr = comp->entry->fwd_trim + 
+					comp->entry->fwd_slope * dpos;
+	    } else if (joint->vel_cmd < 0.0) {
+	        /* moving "down". apply reverse screw comp */
+		joint->backlash_corr = comp->entry->rev_trim +
+					comp->entry->rev_slope * dpos;
+	    } else {
+		/* not moving, use whatever was there before */
+	    }
+	} else {
+	    /* no compensation data, just use +/- 1/2 of backlash */
+	    /** FIXME: this can actually be removed - if the user space code
+		sends a single compensation entry with any nominal value,
+		and with fwd_trim = +0.5 times the backlash value, and 
+		rev_trim = -0.5 times backlash, the above screw comp code
+		will give exactly the same result as this code. */
+	    /* determine which way the compensation should be applied */
+	    if (joint->vel_cmd > 0.0) {
+	        /* moving "up". apply positive backlash comp */
+		joint->backlash_corr = 0.5 * joint->backlash;
+	    } else if (joint->vel_cmd < 0.0) {
+	        /* moving "down". apply negative backlash comp */
+		joint->backlash_corr = -0.5 * joint->backlash;
+	    } else {
+		/* not moving, use whatever was there before */
+	    }
+	}
+	/* at this point, the correction has been computed, but
+	   the value may make abrupt jumps on direction reversal */
     /*
      * 07/09/2005 - S-curve implementation by Bas Laarhoven
      *
      * Implementation:
-     *   Generate a ramped velocity profile for the backlash compensation.
+     *   Generate a ramped velocity profile for backlash or screw error comp.
      *   The velocity is ramped up to the maximum speed setting (if possible),
      *   using the maximum acceleration setting.
      *   At the end, the speed is ramped dowm using the same acceleration.
@@ -2183,23 +2235,6 @@ static void compute_backlash(void)
      *   movements and less following errors than the original code.
      */
 
-    for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
-        /* point to joint struct */
-        joint = &joints[joint_num];
-        /* determine which way the compensation should be applied */
-        if (joint->vel_cmd > 0.0) {
-            /* moving "up". apply positive backlash comp */
-            if (joint->backlash_corr <= 0.0) {
-                joint->backlash_corr = 0.5 * joint->backlash;
-            }
-        } else if (joint->vel_cmd < 0.0) {
-            /* moving "down". apply negative backlash comp */
-            if (joint->backlash_corr >= 0.0) {
-               joint->backlash_corr = -0.5 * joint->backlash;
-            }
-        } else {
-            /* not moving, use whatever was there before */
-        }
 	/* Limit maximum accelleration and velocity 'overshoot'
 	 * to 150% of the maximum settings.
 	 * The TP and backlash shouldn't use more than 100%
