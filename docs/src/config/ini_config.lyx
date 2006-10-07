@@ -835,6 +835,30 @@ BACKLASH\SpecialChar ~
  The value set here is in UNITS.
 \layout Description
 
+COMP_FILE\SpecialChar ~
+=\SpecialChar ~
+file.extension A file holding a compensation structure for the
+ specific axis.
+ The values inside are triplets of nominal, forward and reverse positions
+ which correspond to the nominal position (where it should be), forward
+ (where the axis is while travelling forward) and reverse (where the axis
+ is while travelling back).
+ One set of triplets per line.
+ Currently the limit inside EMC2 is for 256 triplets / axis.
+\layout Description
+
+COMP_FILE_TYPE\SpecialChar ~
+=\SpecialChar ~
+1 Specifying a non-zero value changes the expected format
+ of the COMP_FILE.
+ While type == 0, the expected values are triplets for nominal, forward
+ & reverse.
+ With COMP_FILE_TYPE non-zero, the expected values in teh COMP_FILE are
+ nominal, forward_trim and reverse_trim.
+ These correspond to the nominal, nominal-forward and nominal-reverse defined
+ above.
+\layout Description
+
 
 \color black
 INPUT_SCALE\SpecialChar ~
