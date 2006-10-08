@@ -95,6 +95,23 @@ module called \fImodname\fR.  If \fImodname\fR is "all", it will
 unload all currently loaded realtime HAL modules.  \fBunloadrt\fR
 also works by execing \fBemc_module_helper\fR, just like \fBloadrt\fR.
 .TP
+\fBloadusr\fR \fI[flags]\fR \fIunix-command\fR
+(\fIload\fr \fIUs\fRe\fIr\fRspace component) Executes the given
+\fIunix-command\fR, usually to load a userspace component.
+\fI[flags]\fR may be one or more of:
+.RS
+.IP \(bu 4
+\fB-W\fR to wait for the component to become ready.  The component
+	is assumed to have the same name as the first argument of the command.
+.IP \(bu 4
+\fB-Wn name\fR to wait for the component, which will have the given
+	name.
+.IP \(bu 4
+\fB-w\fR to wait for the program to exit
+.IP \(bu 4
+\fB-i\fR to ignore the program return value (with -w)
+.RE
+.TP
 \fBunloadusr\fR \fIcompname\fR
 (\fIunload\fR \fIUs\fRe\fIr\fRspace component)  Unloads a userspace
 component called \fIcompname\fR.  If \fIcompname\fR is "all", it will
