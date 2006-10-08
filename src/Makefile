@@ -673,6 +673,9 @@ tags:
 		--extra=+fq \
 		--exclude=depends --exclude=objects --exclude=.mod.c \
 		'--langmap=make:+(Submakefile),make:+(Makefile.inc),c:+.comp' \
+		-I EXPORT_SYMBOL+,RTAPI_MP_INT+,RTAPI_MP_LONG+,RTAPI_MP_STRING+ \
+		-I RTAPI_MP_ARRAY_INT+,RTAPI_MP_ARRAY_LONG+,RTAPI_MP_ARRAY_STRING+ \
+                -I MODULE_AUTHOR+,MODULE_DESCRIPTION+,MODULE_LICENSE+ \
 		-R . ../tcl ../scripts
 .PHONY: swish
 swish:
