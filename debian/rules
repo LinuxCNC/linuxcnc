@@ -55,9 +55,10 @@ install: build
 	mkdir -p debian/tmp
 	-(cd debian/extras && find . |cpio -pdmuv ../tmp)
 	(cd src; export DESTDIR=`pwd`/../debian/tmp; $(MAKE) $@)
-	mkdir -p debian/tmp/usr/lib debian/tmp/usr/include
-	cp -va include debian/tmp/usr/include/emc2
-	cp -a lib/*.a debian/tmp/usr/lib
+	python2.4 /usr/lib/python2.4/compileall.py debian/tmp/usr/lib/python2.4
+	find debian/tmp/usr/lib/python2.4 -name \*.py -exec rm {} \;
+	mkdir -p debian/tmp/usr/lib debian/tmp/usr/include/emc2
+	cp lib/*.a debian/tmp/usr/lib
 	dh_movefiles
 
 # Build architecture-independent files here.
@@ -78,6 +79,7 @@ binary-arch: build install
 	dh_fixperms -X/emc_module_helper
 	dh_installdeb
 	dh_shlibdeps
+	dh_python
 	dh_gencontrol
 	dh_md5sums
 	dh_builddeb
