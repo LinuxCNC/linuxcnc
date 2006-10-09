@@ -2291,7 +2291,7 @@ static void print_thread_info(char *pattern)
 		/* note that the scriptmode format string has no \n */
 		// TODO FIXME add thread runtime and max runtime to this print
 	    rtapi_print(((scriptmode == 0) ? "%11ld %s  %s    ( %ld, %ld )\n" : "%ld %s %s %ld %ld"),
-		tptr->period, (tptr->uses_fp ? "YES" : "NO "), tptr->name, tptr->runtime, tptr->maxtime);
+		tptr->period, (tptr->uses_fp ? "YES" : "NO "), tptr->name, (long)tptr->runtime, (long)tptr->maxtime);
 	    list_root = &(tptr->funct_list);
 	    list_entry = list_next(list_root);
 	    n = 1;
@@ -2474,7 +2474,7 @@ static void print_mem_status()
     int active, recycled;
 
     rtapi_print("HAL memory status\n");
-    rtapi_print("  used/total shared memory:   %ld/%d\n", HAL_SIZE - hal_data->shmem_avail, HAL_SIZE);
+    rtapi_print("  used/total shared memory:   %ld/%d\n", (long)(HAL_SIZE - hal_data->shmem_avail), HAL_SIZE);
     // count components
     active = count_list(hal_data->comp_list_ptr);
     recycled = count_list(hal_data->comp_free_ptr);
