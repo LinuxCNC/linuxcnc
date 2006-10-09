@@ -243,5 +243,3 @@ linkps ddt.5.out => Zacc
 
 #######################################################
 # want a scope to observe things
-loadusr halscope
-
