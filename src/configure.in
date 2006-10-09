@@ -635,7 +635,7 @@ if test "xyes" = "x$RUN_IN_PLACE"; then
     REALTIME=$EMC2_HOME/scripts/realtime
     EMC2_IMAGE_DIR=$EMC2_HOME
 else
-    EMC2_BIN_DIR=${bindir}
+    EMC2_BIN_DIR=${prefix}/bin
     EMC2_TCL_DIR=${prefix}/share/emc/tcl
     EMC2_LANG_DIR=${prefix}/share/emc/tcl/msgs
     EMC2_HELP_DIR=${prefix}/share/doc/emc2
