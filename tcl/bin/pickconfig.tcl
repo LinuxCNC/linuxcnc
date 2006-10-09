@@ -317,7 +317,7 @@ proc wait_and_see {node {wait 10}} {
 
 proc prompt_copy configname {
 
-    set res [tk_dialog .d [msgcat::mc "Copy Configuration?"] [msgcat::mc "The configuration you selected, %s, is in a directory you cannot write to.\n\nThis will cause certain features not to function properly, and you will be unable to modify the .ini and .hal files.\n\nIt is recommended that you make a copy of this configuration to your home directory.  Do you wish to copy the configuration?" $configname] warning 0 [msgcat::mc "Yes"] [msgcat::mc "No"] [msgcat::mc "Cancel"]]
+    set res [tk_dialog .d [msgcat::mc "Copy Configuration?"] [msgcat::mc "The configuration you selected, %s, is in a directory you cannot write to.\n\nThis is normal for a sample configuration but will cause certain features not to function properly, and you will be unable to modify the .ini and .hal files.\n\nIt is recommended that you make a copy of this configuration in your home directory.  Do you want to copy the configuration now?" $configname] warning 0 [msgcat::mc "Yes"] [msgcat::mc "No"] [msgcat::mc "Cancel"]]
 
     if {$res == -1 || $res == 2} { return "" }
     if {$res == 1} { return $configname }
