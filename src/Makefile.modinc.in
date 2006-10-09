@@ -39,8 +39,9 @@ ifeq ($(RUN_IN_PLACE),yes)
 EXTRA_CFLAGS := $(RTFLAGS) -D__MODULE__ -I$(EMC2_HOME)/include
 RTLIBDIR := @EMC2_HOME@/rtlib
 else
-EXTRA_CFLAGS := $(RTFLAGS) -D__MODULE__ -I@includedir@
-RTLIBDIR := $(moduledir)/emc2
+prefix := @prefix@
+EXTRA_CFLAGS := $(RTFLAGS) -D__MODULE__ -I@includedir@/emc2
+RTLIBDIR := @EMC2_RTLIB_DIR@
 endif
 
 ifeq ($(BUILDSYS),kbuild)
@@ -68,7 +69,7 @@ getsrcs = $(patsubst %.c,%.o,$(call getobjs,$(1)))
 	$(CC) -shared -o $@ $(getsrcs $*)
 endif
 
-ifneq ($(BUILDSYS),normal)
+ifeq ($(BUILDSYS),normal)
 $(error Makefile.modinc is only suitable for 'kbuild' kernels and 'sim' systems)
 endif
 
