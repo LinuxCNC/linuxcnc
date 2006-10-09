@@ -22,61 +22,18 @@
 # $Date$
 ################################################################################
 
-DEBUG_FILE=$(mktemp /tmp/emc.debug.XXXXXX)
-PRINT_FILE=$(mktemp /tmp/emc.print.XXXXXX)
-
 ################################################################################
-# 1.1. strip and process command line options
-################################################################################
-while ARG=$1 ; ! [ "$ARG" = "${ARG#-}" ] ; do
-    # argument is an option
-    if [ $ARG = "-d" ] ; then
-	# enable echoing of script and command output
-	if tty -s; then
-            DEBUG_FILE=/dev/tty
-            echo "Debug mode on" >$DEBUG_FILE
-        fi
-	set -x;
-    elif [ $ARG = "-v" ] ; then
-	# enable printing of verbose messages
-	if tty -s; then
-            PRINT_FILE=/dev/tty
-            echo "Verbose mode on" >$PRINT_FILE
-        fi
-    else
-	echo "Unknown option '$ARG'"
-	exit -1
-    fi
-    # discard option, check next argument
-    shift
-done
-
-if ! tty -s; then
-    exec 2>> $DEBUG_FILE
-    exec >> $PRINT_FILE
-fi
-
-################################################################################
-# 1.2. check for some programs that we need, values get replaced by configure  #
+# 0. Values that come from configure
 ################################################################################
 prefix=@prefix@
 exec_prefix=@exec_prefix@
 
-INSMOD="@INSMOD@"
-RMMOD="@RMMOD@"
 LSMOD=@LSMOD@
 PIDOF=@PIDOF@
-GREP=@GREP@
 PS=@PS@
-WHOAMI=@WHOAMI@
 AWK=@AWK@
 IPCS=@IPCS@
 KILL=@KILL@
-
-
-################################################################################
-# 1.3. Directories                           values get replaced by configure  #
-################################################################################
 
 EMC2_HOME=@EMC2_HOME@
 
@@ -97,6 +54,66 @@ XFILESEARCHPATH=%D:@EMC2_HOME@/%T/%N%C:@EMC2_HOME@/%T/%N
 export XFILESEARCHPATH
 
 MODULE_EXT=@MODEXT@ # module extension, used when insmod'ing
+
+DEBUG_FILE=$(mktemp /tmp/emc.debug.XXXXXX)
+PRINT_FILE=$(mktemp /tmp/emc.print.XXXXXX)
+
+usage () {
+	P=${0##*/}
+	cat <<EOF
+$P: Run EMC2
+
+Usage:
+	$P [-d] [-v]
+		Choose the configuration file graphically
+
+	$P [-d] [-v] path/to/your.ini
+		Name the configuration file using its path
+
+	$P [-d] [-v] -l
+		Use the previous configuration file
+
+	-d: Turn on "debug" mode
+	-v: Turn on "verbose" mode
+EOF
+
+}
+
+################################################################################
+# 1.1. strip and process command line options
+################################################################################
+while getopts "dvlh" opt
+do
+	case "$opt" in
+	d)
+		# enable echoing of script and command output
+		if tty -s; then
+		    DEBUG_FILE=/dev/tty
+		    echo "Debug mode on" >$DEBUG_FILE
+		fi
+		set -x;;
+	v)
+		# enable printing of verbose messages
+		if tty -s; then
+		    PRINT_FILE=/dev/tty
+		    echo "Verbose mode on" >$PRINT_FILE
+		fi;;
+	l)
+		USE_LAST_INIFILE=1;;
+	h)
+		usage
+		exit 0;;
+	*)
+		usage
+		exit 1
+	esac
+done
+shift $(($OPTIND-1))
+
+if ! tty -s; then
+    exec 2>> $DEBUG_FILE
+    exec >> $PRINT_FILE
+fi
 
 function ErrorCheck () {
     result=$?
@@ -162,13 +179,17 @@ echo EMC2_CONFIG_DIR=$EMC2_CONFIG_DIR >>$PRINT_FILE
 echo EMC2_LANG_DIR=$EMC2_LANG_DIR >>$PRINT_FILE
 echo INIVAR=$INIVAR >>$PRINT_FILE
 echo HALCMD=$HALCMD >>$PRINT_FILE
-echo SETUPCONFIG=$SETUPCONFIG >>$PRINT_FILE
 echo EMC2_EMCSH=$EMC2_EMCSH >>$PRINT_FILE
 echo EMC2_IOSH=$EMC2_IOSH >>$PRINT_FILE
 
 echo "EMC2 - $EMC2VERSION" 
 
 # was an inifile specified on the command line?
+if [ ! -z "$USE_LAST_INIFILE" ]; then
+    INIFILE=$($INIVAR -ini ~/.emcrc -var LAST_CONFIG -sec PICKCONFIG 2>>$DEBUG_FILE)
+    echo "Using previous inifile: $INIFILE" >> $PRINT_FILE
+fi
+
 if [ ! -n "$INIFILE" ] ; then
     # nothing specified, get from the user
     INIFILE=$($PICKCONFIG "$EMC2_CONFIG_PATH")
@@ -179,10 +200,10 @@ if [ ! -n "$INIFILE" ] ; then
     # still nothing specified, exit
     exit 0
 fi
+
 # delete directories from path, save name only
-INI_NAME=`echo $INIFILE | sed s#^.*/##`
-# delete name from path to get directory
-INI_DIR=`echo $INIFILE | sed s/$INI_NAME//`
+INI_NAME=${INIFILE##*/}
+INI_DIR=${INIFILE%/*}
 
 echo "Machine configuration directory is '$INI_DIR'"
 echo "Machine configuration file is '$INI_NAME'"
