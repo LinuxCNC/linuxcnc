@@ -444,12 +444,24 @@ def process(filename, mode, outfilename):
     finally:
         shutil.rmtree(tempdir) 
 
+def usage(exitval=0):
+    print """%(name)s: Build, compile, and install EMC HAL components
+
+Usage:
+    %(name)s [--install|--compile|--preprocess|--document] compfile...
+    %(name)s [--install|--compile] cfile...
+""" % {'name': os.path.basename(sys.argv[0])}
+    raise SystemExit, exitval
+
 def main():
     mode = PREPROCESS
     outfile = None
-    opts, args = getopt.getopt(sys.argv[1:], "icpdo:",
-                       ['install', 'compile', 'preprocess', 'outfile=',
-                        'document'])
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], "icpdo:h?",
+                           ['install', 'compile', 'preprocess', 'outfile=',
+                            'document', 'help'])
+    except getopt.GetoptError:
+        usage(1)
 
     for k, v in opts:
         if k in ("-i", "--install"):
@@ -464,6 +476,9 @@ def main():
             if len(args) != 1:
                 raise SystemExit, "Cannot specify -o with multiple input files"
             outfile = v 
+        if k in ("-?", "-h", "--help"):
+            usage(0)
+
     if outfile and mode != PREPROCESS and mode != DOCUMENT:
         raise SystemExit, "Can only specify -o when preprocessing or documenting"
 
