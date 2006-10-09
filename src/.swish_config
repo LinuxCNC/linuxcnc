@@ -1,3 +1,6 @@
+FileRules filename contains ^configure$
+FileRules filename contains ^config.log$
+FileRules filename contains ^config.status$
 FileRules filename contains .o$
 FileRules filename contains .ko$
 FileRules filename contains .mod.c$
@@ -12,5 +15,6 @@ FileRules pathname contains /objects/
 FileRules pathname contains /depends/
 FileRules pathname contains /CVS/
 FileRules pathname contains /tags$
+FileRules pathname contains /autom4te.cache/
 IndexFile .swishindex
 DefaultContents TXT
