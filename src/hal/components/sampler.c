@@ -332,7 +332,7 @@ static int parse_types(fifo_t *f, char *cfg)
 	    return 0;
 	default:
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"SAMPLER: ERROR: unknown type '%c', must be F, B, U, or S\n", c);
+		"SAMPLER: ERROR: unknown type '%c', must be F, B, U, or S\n", *c);
 	    return 0;
 	}
     }
