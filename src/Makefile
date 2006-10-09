@@ -230,11 +230,14 @@ HEADERS := \
     libnml/rcs/rcs_exit.hh \
     libnml/rcs/rcs_print.hh \
     libnml/rcs/rcsversion.h \
-    rtapi/procfs_macros.h \
     rtapi/rtapi.h \
     rtapi/rtapi_app.h \
     rtapi/rtapi_math.h \
     rtapi/rtapi_math_i386.h \
+    rtapi/rtapi_common.h \
+    rtapi/rtapi_ctype.h \
+    rtapi/rtapi_errno.h \
+    rtapi/rtapi_string.h
 
 # Make each include file a target
 TARGETS += $(patsubst %,../include/%,$(foreach h,$(HEADERS),$(notdir $h)))
@@ -332,7 +335,9 @@ $(FILE) $(call GLOB,../configs/$(1)/*) $(DESTDIR)$(sysconfdir)/emc2/sample-confi
 endef
 INSTALL_CONFIGS=$(foreach config,$(CONFIGS), $(call INSTALL_CONFIG,$(config)))
 
-DOCS=AUTHORS EMC2_User_Manual.pdf HAL_User_Manual.pdf INSTALL NEWS README
+DOCS=EMC2_Developer_Manual.pdf EMC2_Integrator_Manual.pdf \
+	EMC2_User_Manual.pdf HAL_User_Manual.pdf \
+	INSTALL NEWS README AUTHORS
 
 DOCS_HELP=$(call GLOB,../docs/help/*)
 NC_FILES=$(call GLOB,../nc_files/*)
@@ -346,37 +351,36 @@ install-kernel-indep:
 	$(DIR) $(DESTDIR)$(initd_dir) $(DESTDIR)$(moduledir)/emc2 \
 		$(DESTDIR)$(sysconfdir)/emc2 $(DESTDIR)$(bindir) \
 		$(DESTDIR)/usr/local/etc/emc2/configs \
-		$(DESTDIR)$(libdir) $(DESTDIR)$(includedir) \
+		$(DESTDIR)$(libdir) $(DESTDIR)$(includedir)/emc2 \
 		$(DESTDIR)$(docsdir)/help $(DESTDIR)$(ncfilesdir) \
 		$(DESTDIR)/etc/X11/app-defaults $(DESTDIR)$(tcldir)/bin \
-		$(DESTDIR)$(tcldir)/scripts $(DESTDIR)$(mandir)/man1 \
+		$(DESTDIR)$(tcldir)/scripts \
+		$(DESTDIR)$(mandir)/man1 \
+		$(DESTDIR)$(mandir)/man9 \
 		$(DESTDIR)$(tcldir)/msgs \
 		$(DESTDIR)$(localedir)/de/LC_MESSAGES \
 		$(DESTDIR)$(SITEPY) \
 		$(DESTDIR)$(SITEPY)/rs274 \
 		$(DESTDIR)$(datadir)/axis/images \
 		$(DESTDIR)$(datadir)/axis/tcl		
-	$(FILE) ../docs/man/man1/halcmd.1 $(DESTDIR)$(mandir)/man1
-	$(FILE) ../docs/man/man1/halui.1 $(DESTDIR)$(mandir)/man1
-	$(FILE) ../docs/man/man1/halmeter.1 $(DESTDIR)$(mandir)/man1
-	$(FILE) ../docs/man/man1/hal_joystick.1 $(DESTDIR)$(mandir)/man1
-	$(FILE) ../docs/man/man1/emc.1 $(DESTDIR)$(mandir)/man1
+	$(FILE) ../docs/man/man1/*.1 $(DESTDIR)$(mandir)/man1
+	$(FILE) ../docs/man/man9/*.9 $(DESTDIR)$(mandir)/man9
 	$(FILE) po/*.msg $(DESTDIR)$(tcldir)/msgs
 	$(EXE) ../scripts/realtime $(DESTDIR)$(initd_dir)
 	$(FILE) ../*.png ../*.gif $(DESTDIR)$(sysconfdir)/emc2
 	$(INSTALL_CONFIGS)
-	$(EXE) $(filter ../bin/%,$(TARGETS)) $(DESTDIR)$(bindir)
+	$(EXE) $(filter-out ../bin/emc_module_helper, $(filter ../bin/%,$(TARGETS))) $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/emc $(DESTDIR)$(bindir)
 	$(FILE) $(filter ../lib/%.a ../lib/%.so,$(TARGETS)) $(DESTDIR)$(libdir)
 	$(FILE) ../lib/python/*.py ../lib/python/*.so $(DESTDIR)$(SITEPY)
 	$(FILE) ../lib/python/rs274/*.py $(DESTDIR)$(SITEPY)/rs274
-	$(EXE) ../bin/axis ../bin/axis-remote ../bin/emctop ../bin/mdi $(DESTDIR)$(bindir)
+	$(EXE) ../bin/axis ../bin/axis-remote ../bin/emctop ../bin/mdi ../bin/hal_manualtoolchange ../bin/image-to-gcode $(DESTDIR)$(bindir)
 	$(FILE) emc/usr_intf/axis/etc/axis_light_background $(DESTDIR)$(docsdir)
 	$(FILE) emc/usr_intf/axis/README $(DESTDIR)$(docsdir)/README.axis
 	$(FILE) ../share/axis/images/*.gif ../share/axis/images/*.xbm ../share/axis/images/*.ngc $(DESTDIR)$(datadir)/axis/images
 	$(FILE) ../share/axis/tcl/*.tcl $(DESTDIR)$(datadir)/axis/tcl
 	-ldconfig $(DESTDIR)$(libdir)
-	$(FILE) $(filter %.h %.hh,$(TARGETS)) $(DESTDIR)$(includedir)
+	$(FILE) $(filter %.h %.hh,$(TARGETS)) $(DESTDIR)$(includedir)/emc2/
 	$(FILE) $(addprefix ../docs/,$(DOCS)) $(DESTDIR)$(docsdir)
 	$(FILE) $(DOCS_HELP) $(DESTDIR)$(docsdir)/help
 	$(FILE) $(NC_FILES) $(DESTDIR)$(ncfilesdir)
