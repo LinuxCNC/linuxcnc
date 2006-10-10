@@ -64,13 +64,25 @@ linksp Ahome => axis.3.home-sw-in
 #
 
 # connect e-stop write/sense to I/O controller
-newsig EstopSense bit
-newsig EstopWrite bit
-linksp EstopSense <= ppmc.0.din.15.in
-linksp EstopSense => iocontrol.0.emc-enable-in
-linksp EstopWrite <= ppmc.0.dout.07.out
-linksp EstopWrite => iocontrol.0.user-enable-out
-#estop may need to be inverted
+# and univpwm's fault with estop's output, so  estop FF is reset, but
+#      prevent continued estop signal from univpwm from holding FF cleared
+newsig ppmcEstop bit
+linksp ppmcEstop ppmc.0.din.15.in-not
+linksp ppmcEstop and2.0.in0
+newsig EstopOkIn bit
+linksp EstopOkIn estop.0.fault-in
+linksp EstopOkIn and2.0.out
+newsig EstopOkOut bit
+linksp EstopOkOut <= ppmc.0.dout.07.out
+linksp EstopOkOut iocontrol.0.emc-enable-in
+linksp EstopOkOut estop.0.ok-out
+linksp EstopOkOut and2.0.in1
+newsig emc-estop-out bit
+linksp emc-estop-out iocontrol.0.user-enable-out
+linksp emc-estop-out estop.0.ok-in
+newsig emc-estop-reset bit
+linksp emc-estop-reset iocontrol.0.user-request-enable
+linksp emc-estop-reset estop.0.reset
 
 # connect spindle fwd/rev to I/O controller
 newsig SpindleFwd bit
