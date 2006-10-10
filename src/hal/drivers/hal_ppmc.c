@@ -662,17 +662,15 @@ static void read_all(void *arg, long period)
 	if ( bus->slot_valid[slotnum] ) {
 	    /* point at slot data */
 	    slot = &(bus->slot_data[slotnum]);
-	    /* We should check if this slot needs a latch strobe, but the
-	       docs aren't clear about master operation without auto-latching.
-	       So, we always latch the values for all boards, and never use master mode */
-	    /* the check would be:  if ( slot->strobe == 1 )  */
-	    /* set the strobe bit, slave mode */
-	    SelWrt(0x20, slot->slot_base + ENCRATE, slot->port_addr);
-	    /* repeat to guarantee at least 2uS */
-	    SelWrt(0x20, slot->slot_base + ENCRATE, slot->port_addr);
-	    /* end of strobe pulse, stay in slave mode */
-	    SelWrt(0x00, slot->slot_base + ENCRATE, slot->port_addr);
-
+	    /* We only need to send a latch strobe on the master encoder */
+	    if ( slot->strobe == 1 ) {
+	      /* set the strobe bit, slave mode */
+	      SelWrt(0x20, slot->slot_base + ENCRATE, slot->port_addr);
+	      /* repeat to guarantee at least 2uS */
+	      SelWrt(0x20, slot->slot_base + ENCRATE, slot->port_addr);
+	      /* end of strobe pulse, stay in slave mode */
+	      SelWrt(0x00, slot->slot_base + ENCRATE, slot->port_addr);
+	    }
 	    /* fetch data from EPP to cache */
 	    if ( slot->first_rd <= slot->last_rd ) {
 		/* need to read some data */
@@ -811,15 +809,17 @@ static void read_PPMC_digins(slot_data_t *slot)
 	mask <<= 1;
 	b++;
     }
-    /* read the 2 Estop-related inputs */
-    indata = slot->rd_buf[DIO_ESTOP_IN];
-    /* and split them too */
-    mask = 0x01;
-    while ( b < 18 ) {
+    if (slot->digin[b].data != NULL) {
+      /* read the 2 Estop-related inputs */
+      indata = slot->rd_buf[DIO_ESTOP_IN];
+      /* and split them too */
+      mask = 0x01;
+      while ( b < 18 ) {
 	*(slot->digin[b].data) = indata & mask;
 	*(slot->digin[b].data_not) = !(indata & mask);
 	mask <<= 1;
 	b++;
+      }
     }
 }
 
@@ -844,14 +844,17 @@ static void write_PPMC_digouts(slot_data_t *slot)
     }
     /* write it to the hardware (cache) */
     slot->wr_buf[DIO_DOUTA] = outdata;
-    outdata = 0;  // now process estop bit
-    if ((*(slot->digout[8].data)) && (!slot->digout[8].invert)) {
-      outdata =1;
+    if (slot->digout[8].data != NULL) {  // no estop funct on slave boards - hal pin doesn't exist
+      outdata = 0;  // now process estop bit
+      if ((*(slot->digout[8].data)) && (!slot->digout[8].invert)) {
+	outdata =1;
+      }
+      if ((!*(slot->digout[8].data)) && (slot->digout[8].invert)) {
+	outdata |= 1;
+      }
+      slot->wr_buf[DIO_ESTOP_OUT] = outdata;
     }
-    if ((!*(slot->digout[8].data)) && (slot->digout[8].invert)) {
-	    outdata |= 1;
-    }
-    slot->wr_buf[DIO_ESTOP_OUT] = outdata;
+    else slot->wr_buf[DIO_ESTOP_OUT] = 2;  // force 2 to set additional boards to slave
 }
 
 static void read_encoders(slot_data_t *slot)
@@ -1404,36 +1407,42 @@ static int export_PPMC_digin(slot_data_t *slot, bus_data_t *bus)
 	/* increment number to prepare for next output */
 	bus->last_digin++;
     }
+    if (bus->last_digin < 31) {
 	rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.din.estop.in",
-	    bus->busnum);
+	    bus->busnum, bus->last_digin);
 	retval = hal_pin_bit_new(buf, HAL_OUT, 
 	    &(slot->digin[16].data), comp_id);
 	if (retval != 0) {
 	    return retval;
 	}
 	rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.din.estop.in-not",
-	    bus->busnum);
+	    bus->busnum, bus->last_digin);
 	retval = hal_pin_bit_new(buf, HAL_OUT, 
 	    &(slot->digin[16].data_not), comp_id);
 	if (retval != 0) {
 	    return retval;
 	}
 	rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.din.fault.in",
-	    bus->busnum);
+	    bus->busnum, bus->last_digin);
 	retval = hal_pin_bit_new(buf, HAL_OUT, 
 	    &(slot->digin[17].data), comp_id);
 	if (retval != 0) {
 	    return retval;
 	}
 	rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.din.fault.in-not",
-	    bus->busnum);
+	    bus->busnum, bus->last_digin);
 	retval = hal_pin_bit_new(buf, HAL_OUT, 
 	    &(slot->digin[17].data_not), comp_id);
 	if (retval != 0) {
 	    return retval;
 	}
-
     add_rd_funct(read_PPMC_digins, slot, DIO_DINA, DIO_ESTOP_IN);
+    rtapi_print_msg(RTAPI_MSG_INFO, "PPMC:  exporting as MASTER D In\n");
+    }
+    else {
+      add_rd_funct(read_PPMC_digins, slot, DIO_DINA, DIO_DINB);
+      rtapi_print_msg(RTAPI_MSG_INFO, "PPMC:  exporting as SLAVE D In\n");
+    }
     return 0;
 }
 
@@ -1447,6 +1456,11 @@ static int export_PPMC_digout(slot_data_t *slot, bus_data_t *bus)
     /* do hardware init */
     /* turn off all outputs */
     SelWrt(0, slot->slot_base+DIO_DOUTA, slot->port_addr);
+    if (bus->last_digout > 7) {   // if not first PPMC DIO, set it to slave mode
+      rtapi_print_msg(RTAPI_MSG_INFO, "PPMC:  slave DIO addr %x\n",slot->slot_base+DIO_ESTOP_OUT);
+      SelWrt(2,slot->slot_base+DIO_ESTOP_OUT,slot->port_addr);
+      rtapi_print_msg(RTAPI_MSG_INFO, "PPMC:  slave DIO # %d\n",bus->last_digout);
+    }
 
     /* allocate shared memory for the digital output data */
     slot->digout = hal_malloc(9 * sizeof(dout_t));              // 8 outputs per board + estop
@@ -1475,22 +1489,32 @@ static int export_PPMC_digout(slot_data_t *slot, bus_data_t *bus)
 	bus->last_digout++;
     }
 	/* export pin for E-Stop control */
-	rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.dout.Estop.out",
-	    bus->busnum);
-	retval = hal_pin_bit_new(buf, HAL_IN, &(slot->digout[8].data), comp_id);
-	if (retval != 0) {
-	    return retval;
-	}
-	/* export parameter for inversion */
-	rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.dout.Estop.invert",
-	    bus->busnum);
-	retval = hal_param_bit_new(buf, HAL_RW, &(slot->digout[8].invert), comp_id);
-	if (retval != 0) {
-	    return retval;
-	}
-	slot->digout[8].invert = 0;
-	bus->last_digout++;
-    add_wr_funct(write_PPMC_digouts, slot, DIO_DOUTA, DIO_ESTOP_OUT);
+    if (bus->last_digout < 15) {                // only on first DIO board
+      rtapi_print_msg(RTAPI_MSG_INFO, "PPMC:  master DIO at # %d\n",bus->last_digout);
+      rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.dout.Estop.out",
+		     bus->busnum, bus->last_digout);
+      retval = hal_pin_bit_new(buf, HAL_IN, &(slot->digout[8].data), comp_id);
+      if (retval != 0) {
+	return retval;
+      }
+      /* export parameter for inversion */
+      rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.dout.Estop.invert",
+		     bus->busnum, bus->last_digout);
+      retval = hal_param_bit_new(buf, HAL_RW, &(slot->digout[8].invert), comp_id);
+      if (retval != 0) {
+	return retval;
+      }
+      slot->digout[8].invert = 0;
+      bus->last_digout++;
+      add_wr_funct(write_PPMC_digouts, slot, DIO_DOUTA, DIO_ESTOP_OUT);
+      rtapi_print_msg(RTAPI_MSG_INFO, "PPMC:  exporting as MASTER D Out\n");
+    }
+    else {
+      add_wr_funct(write_PPMC_digouts, slot, DIO_DOUTA, DIO_DOUTA);
+      //add_wr_funct(write_PPMC_digouts, slot, DIO_DOUTA, DIO_ESTOP_OUT); // hack to keep slave boards in slave
+      rtapi_print_msg(RTAPI_MSG_INFO, "PPMC:  exporting as SLAVE D Out\n");
+      SelWrt(2,slot->slot_base+DIO_ESTOP_OUT,slot->port_addr);
+    }
     return 0;
 }
 
@@ -1871,7 +1895,7 @@ static int ClrTimeout(unsigned int port_addr)
 /* remove after testing */
 rtapi_print("EPP Bus Timeout!\n" );
     /* To clear timeout some chips require double read */
-    BusReset(port_addr);
+/*    BusReset(port_addr);  don't do this, it resets all registers in PPMC boards!!  */
     r = rtapi_inb(STATUSPORT(port_addr));
     rtapi_outb(r | 0x01, STATUSPORT(port_addr)); /* Some reset by writing 1 */
     r = rtapi_inb(STATUSPORT(port_addr));
