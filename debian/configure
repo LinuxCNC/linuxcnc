@@ -28,7 +28,7 @@ if [ $1 = "-r" ]; then
     set -- `uname -r`
 fi
 
-MODULE_PATH=usr/lib/realtime-$1/modules/emc2
+MODULE_PATH=usr/realtime-$1/modules/emc2
 MODULE_EXT=.ko
 KERNEL_DEPENDS=linux-image-$1,rtai-modules-$1
 KERNEL_HEADERS=linux-headers-$1
