@@ -367,6 +367,7 @@ install-kernel-indep:
 	$(FILE) ../docs/man/man9/*.9 $(DESTDIR)$(mandir)/man9
 	$(FILE) po/*.msg $(DESTDIR)$(tcldir)/msgs
 	$(EXE) ../scripts/realtime $(DESTDIR)$(initd_dir)
+	$(EXE) ../scripts/halrun $(DESTDIR)$(bindir)
 	$(FILE) ../*.png ../*.gif $(DESTDIR)$(sysconfdir)/emc2
 	$(INSTALL_CONFIGS)
 	$(EXE) $(filter-out ../bin/emc_module_helper, $(filter ../bin/%,$(TARGETS))) $(DESTDIR)$(bindir)
