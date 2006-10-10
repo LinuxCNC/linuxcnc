@@ -1,5 +1,3 @@
-etc/init.d/realtime
-etc/emc2/rtapi.conf
 etc/emc2/emc2icon.png
 etc/emc2/emc2.gif
 etc/emc2/emc2-wizard.gif
@@ -170,14 +168,11 @@ etc/emc2/sample-configs/vti/vti_motion.hal
 etc/emc2/sample-configs/vti/vti.tbl
 etc/emc2/sample-configs/vti/vti.var
 usr/bin/classicladder
-usr/bin/emc
 usr/bin/emcrsh
 usr/bin/emcsh
 usr/bin/emcsvr
-usr/bin/halcmd
 usr/bin/hal_joystick
 usr/bin/halmeter
-usr/bin/halrun
 usr/bin/halsampler
 usr/bin/halscope
 usr/bin/halstreamer
@@ -193,13 +188,8 @@ usr/bin/milltaskcanon
 usr/bin/usrmot
 usr/bin/xemc
 usr/lib/libnml.so
-usr/lib/libemchal.so
 usr/lib/librs274.so
 usr/share/doc/emc2/AUTHORS
-usr/share/doc/emc2/HAL_User_Manual.pdf
-usr/share/doc/emc2/EMC2_User_Manual.pdf
-usr/share/doc/emc2/EMC2_Developer_Manual.pdf
-usr/share/doc/emc2/EMC2_Integrator_Manual.pdf
 usr/share/doc/emc2/INSTALL
 usr/share/doc/emc2/NEWS
 usr/share/doc/emc2/README
@@ -271,3 +261,4 @@ usr/share/man/man9/or2.9
 usr/share/man/man9/scale.9
 usr/share/man/man9/sum2.9
 usr/share/man/man9/wcomp.9
+

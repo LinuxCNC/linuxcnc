@@ -1,0 +1,56 @@
+#!/bin/sh
+usage () {
+    P=${0##*/}
+    cat <<EOF
+$P: Set up debian/ files to build for a particular kernel
+
+Usage:
+    $P sim
+        Build for a system without a realtime kernel
+
+    $P [kernel-version]
+        Build for the realtime kernel [kernel-version], such as 2.6.12-magma
+EOF
+}
+
+if [ $# -ne 1 -o "$1" == "-h" -o "$1" == "-help" -o "$1" == "--help" ]; then
+    usage
+    if [ $# -ne 1 ]; then
+        exit 1
+    fi
+    exit 0
+fi
+
+MODULE_PATH=usr/lib/realtime-$1/modules/emc2
+MODULE_EXT=.ko
+KERNEL_DEPENDS=linux-image-$1,rtai-modules-$1
+KERNEL_HEADERS=linux-headers-$1
+EXTRA_FILES="usr/bin/emc_module_helper"
+KERNEL_VERSION=$1
+
+case $1 in
+    sim)
+        MODULE_PATH=usr/lib/emc2/modules
+	MODULE_EXT=.so
+	KERNEL_DEPENDS=
+	KERNEL_HEADERS=	
+        EXTRA_FILES="usr/bin/rtapi_app usr/bin/simmot"
+    ;;
+    2.6.12-magma)
+        KERNEL_HEADERS="$KERNEL_HEADERS,gcc-3.4"
+    ;;
+esac
+
+subst () {
+sed -e "s|@MODULE_PATH@|$MODULE_PATH|g" \
+    -e "s|@MODULE_EXT@|$MODULE_EXT|g" \
+    -e "s|@KERNEL_VERSION@|$KERNEL_VERSION|g" \
+    -e "s|@KERNEL_DEPENDS@|$KERNEL_DEPENDS|g" \
+    -e "s|@KERNEL_HEADERS@|$KERNEL_HEADERS|g" \
+    -e "s|@EXTRA_FILES@|$EXTRA_FILES|g" \
+    $1 > $2
+}
+
+subst control.in control
+subst rules.in rules; chmod +x rules
+subst emc2.files.in emc2-$1.files

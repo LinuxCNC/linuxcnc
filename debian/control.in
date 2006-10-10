@@ -2,22 +2,59 @@ Source: emc2
 Section: misc
 Priority: extra
 Maintainer: Chris Radek <chris@timeguy.com>
-Build-Depends: debhelper (>> 4.0.0),linux-headers-@@KVERSION@@,g++,gcc-3.4,make,libc6-dev,tcl8.4-dev,tk8.4-dev,libgtk2.0-dev,pciutils-dev,libncurses-dev,gettext,libxaw7-dev,rtai-modules-2.6.12-magma,libreadline5-dev,lyx,lyx-qt,python,tetex-bin,latex2html,yapps2
-Standards-Version: 2.0.0-rc0
+Build-Depends: debhelper (>> 4.0.0),@KERNEL_DEPENDS@,@KERNEL_HEADERS@,g++,make,libc6-dev,tcl8.4-dev,tk8.4-dev,libgtk2.0-dev,pciutils-dev,libncurses-dev,gettext,libxaw7-dev,libreadline5-dev,lyx-qt,python,tetex-bin,latex2html,yapps2
+Standards-Version: 2.0.0-rc
 
-Package: emc2
-Architecture: any
-Depends: ${shlibs:Depends},linux-image-@@KVERSION@@,rtai-modules-@@KVERSION@@,libgtk2.0,tcl8.4,tk8.4,bwidget,libncurses,libreadline5,yapps2-runtime
-Provides: emc2
-Suggests: emc2-axis
+Package: emc2-docs
+Architecture: all
+Suggests: pdf-viewer
 Description: PC based motion controller for real-time Linux.
  EMC2 is the next-generation Enhanced Machine Controller which
  provides motion control for CNC machine tools and robotic 
  applications (milling, cutting, routing, etc.).
+ .
+ This package contains documentation for emc2.
+ 
+Package: emc2-common
+Architecture: any
+Depends: ${shlibs:Depends},tcl8.4,tk8.4,bwidget,libreadline5,emc2-common
+Description: PC based motion controller for real-time Linux.
+ EMC2 is the next-generation Enhanced Machine Controller which
+ provides motion control for CNC machine tools and robotic 
+ applications (milling, cutting, routing, etc.).
+ .
+ This package contains the portions of emc2 that are independent of the kernel
+ version
+
+Package: emc2-@KERNEL_VERSION@
+Replaces: emc2
+Conflicts: emc2
+Provides: emc2
+Architecture: any
+Depends: ${shlibs:Depends},@KERNEL_DEPENDS@,tcl8.4,tk8.4,bwidget,libreadline5,emc2-common
+Provides: emc2
+Suggests: emc2-python
+Description: PC based motion controller for real-time Linux.
+ EMC2 is the next-generation Enhanced Machine Controller which
+ provides motion control for CNC machine tools and robotic 
+ applications (milling, cutting, routing, etc.).
+ .
+ This package contains the portions of emc2 that are dependent on the kernel
+ version
 
 Package: emc2-dev
 Architecture: any
-Depends: ${shlibs:Depends},g++,gcc-3.4,linux-headers-@@KVERSION@@
+Depends: g++, @KERNEL_HEADERS@, yapps2-runtime, python (>= 2.4), python (<< 2.5)
 Section: libs
 Description: PC based motion controller for real-time Linux.
- Includes files needed to build alternate front-ends for emc2
+ Includes files needed to build new realtime components and alternate
+ front-ends for emc2
+
+Package: emc2-python
+Replaces: emc2-axis
+Conflicts: emc2-axis
+Architecture: any
+Depends: python2.4-numarray, python2.4-imaging, python2.4-imaging-tk, python (>= 2.4), python (<< 2.5), emc2, ${python:Depends}, ${shlibs:Depends}, bwidget (>= 1.7), bwidget (<<1.8), python2.4-tk
+Description: PC based motion controller for real-time Linux.
+ Includes the AXIS User Interface, image-to-gcode, hal_manualtoolchange, and
+ Python interfaces to rs274, hal, and emc.

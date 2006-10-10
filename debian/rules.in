@@ -16,9 +16,7 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
-#get kernel version from the debian/Changelog (once it's there)
-#kernel_version     = $(shell dpkg-parsechangelog | grep ^Source | sed 's/.*-//')
-kernel_version ?= 2.6.12-magma
+kernel_version = @KERNEL_VERSION@
 
 debian/control:
 	echo '# THIS FILE IS AUTO-GENERATED FROM control.in' > debian/control
@@ -66,16 +64,6 @@ install: build
 	find debian/tmp/usr/lib/python2.4 -name \*.py -exec rm {} \;
 	mkdir -p debian/tmp/usr/lib debian/tmp/usr/include/emc2
 	cp lib/*.a debian/tmp/usr/lib
-ifeq "$(kernel_version)" "sim"
-	(cat debian/emc2.files.pre; cd debian/tmp; \
-	find usr/lib/emc2/modules -name \*.so; \
-	echo usr/bin/rtapi_app; \
-	echo usr/bin/simmot ) > debian/emc2-sim.files
-else
-	(cat debian/emc2.files.pre; cd debian/tmp; \
-	find usr/realtime*/modules/emc2/ -name \*.so; \
-	echo usr/bin/emc_module_helper) > debian/emc2.files
-endif
 	dh_movefiles
 
 # Build architecture-independent files here.
@@ -99,19 +87,7 @@ endif
 	dh_installdeb
 	dh_shlibdeps
 	dh_python
-ifeq "$(kernel_version)" "sim"
-	echo "kernel:Depends=" >> debian/emc2.substvars
-	echo "kernel:Headers=" >> debian/emc2-dev.substvars
-else
-	echo "kernel:Depends=linux-image-$(kernel_version),rtai-modules-$(kernel_version)" >> debian/emc2.substvars	
-ifeq "$(kernel_version)" "linux-2.6.12-magma"
-	echo "kernel:Headers=linux-headers-$(kernel_version),gcc-3.4" >> debian/emc2-dev.substvars	
-else
-	echo "kernel:Headers=linux-headers-$(kernel_version)" >> debian/emc2-dev.substvars	
-endif
-endif
 	dh_gencontrol
-	sed -i -e '/^Package:/s/$$/-'"$(kernel_version)/" debian/emc2/DEBIAN/control debian/emc2-dev/DEBIAN/control
 	dh_md5sums
 	dh_builddeb
 
