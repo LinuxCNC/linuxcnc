@@ -241,6 +241,7 @@ usr/bin/emcsvr
 usr/bin/halcmd
 usr/bin/hal_joystick
 usr/bin/halmeter
+usr/bin/halrun
 usr/bin/halsampler
 usr/bin/halscope
 usr/bin/halstreamer
