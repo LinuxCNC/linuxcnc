@@ -11,7 +11,7 @@ FAIL=0
 XFAIL=0
 
 clean () {
-    find $* -name "stderr" -or -name "result" -print0 | xargs -0 rm -f
+    find $* \( -name "stderr" -or -name "result" \) -print0 | xargs -0 rm -f
 }
 
 run_without_overruns () {
