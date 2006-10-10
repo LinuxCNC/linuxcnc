@@ -4,81 +4,129 @@ case "$0" in
 	*/*) MYDIR="${0%/*}" ;;
 	*) MYDIR="`type -path $0`"; MYDIR="${MYDIR%/*}"
 esac
+TOPDIR=$(cd $MYDIR/..; pwd)
 
 NUM=0
 FAIL=0
 XFAIL=0
 
+clean () {
+    find $* -name "stderr" -or -name "result" -print0 | xargs -0 rm -f
+}
+
 run_without_overruns () {
     testname=$1
     testdir=$(dirname $testname)
     for i in $(seq 10); do
-        if [ $i != 1 ]; then echo "--- $testdir: overrun detected in sampler, re-running test"; fi
+        if [ $i != 1 ]; then echo "--- $testdir: overrun detected in sampler, re-running test" 1>&2 ; fi
         $MYDIR/halrun -f $testname > $testdir/result 2> $testdir/stderr
         exitcode=$?
         if ! grep -q '^overrun$' $testdir/result; then return $exitcode; fi
     done
-    echo "--- $testdir: $i overruns detected, giving up"
+    echo "--- $testdir: $i overruns detected, giving up" 1>&2
     return 1
 }
 
 TMPDIR=`mktemp -d /tmp/runtest.XXXXXX`
 trap "rm -rf $TMPDIR" 0 1 2 3 9 15
 
-find $* -name test.hal | sort > $TMPDIR/alltests
 
-while read testname; do
-    NUM=$(($NUM+1))
-    testdir=$(dirname $testname)
-    echo "Running test: $testdir" 1>&2
-    run_without_overruns $testname
-    exitcode=$?
-    if [ $exitcode -ne 0 ]; then
-        reason="halrun exited with $exitcode"
-    else
-        if [ -e $testdir/checkresult ]; then
-            $testdir/checkresult $testdir/result
-            exitcode=$?
-            reason="checkresult exited with $exitcode"
-        elif [ -f $testdir/expected ]; then
-            cmp -s $testdir/expected $testdir/result
-            exitcode=$?
-            reason="result differed from expected"
-            if [ $exitcode -ne 0 ]; then
-                diff -U1 $testdir/expected $testdir/result > $TMPDIR/diff
-                SIZE=$(wc -l < $TMPDIR/diff)
-                if [ $SIZE -lt 15 ]; then
-                    cat $TMPDIR/diff
-                else
-                    OMIT=$((SIZE-15))
-                    head -15 $TMPDIR/diff
-                    echo "($OMIT more lines omitted)"
-                fi
-            fi
-        else
-            exitcode=1
-            reason="Neither result nor checkresult existed"
-        fi
-    fi
-    if [ $exitcode -ne 0 ]; then
-        if [ -f $testdir/xfail ]; then
-            XFAIL=$(($XFAIL+1))
-            echo "*** $testdir: XFAIL: $reason"
-        else
-            FAIL=$(($FAIL+1))
-            echo "*** $testdir: FAIL: $reason"
-        fi
-    else
-        if [ -f $testdir/xfail ]; then
-            echo "** $testdir: XPASS: Passed, but was expected to fail"
-        fi
-    fi
-done < $TMPDIR/alltests
+run_tests () {
+    find $* -name test.hal | sort > $TMPDIR/alltests
 
-SUCC=$((NUM-FAIL-XFAIL))
-if [ $XFAIL -eq 0 ]; then
-echo "Runtest: $NUM tests run, $SUCC successful, $FAIL failed"
-else
-echo "Runtest: $NUM tests run, $SUCC successful, $FAIL failed + $XFAIL expected"
+    while read testname; do
+	NUM=$(($NUM+1))
+	testdir=$(dirname $testname)
+	echo "Running test: $testdir" 1>&2
+	run_without_overruns $testname
+	exitcode=$?
+	if [ $exitcode -ne 0 ]; then
+	    reason="halrun exited with $exitcode"
+	else
+	    if [ -e $testdir/checkresult ]; then
+		$testdir/checkresult $testdir/result
+		exitcode=$?
+		reason="checkresult exited with $exitcode"
+	    elif [ -f $testdir/expected ]; then
+		cmp -s $testdir/expected $testdir/result
+		exitcode=$?
+		reason="result differed from expected"
+		if [ $exitcode -ne 0 ]; then
+		    diff -U1 $testdir/expected $testdir/result > $TMPDIR/diff
+		    SIZE=$(wc -l < $TMPDIR/diff)
+		    if [ $SIZE -lt 15 ]; then
+			cat $TMPDIR/diff
+		    else
+			OMIT=$((SIZE-15))
+			head -15 $TMPDIR/diff
+			echo "($OMIT more lines omitted)"
+		    fi
+		fi
+	    else
+		exitcode=1
+		reason="Neither result nor checkresult existed"
+	    fi
+	fi
+	if [ $exitcode -ne 0 ]; then
+	    if [ -f $testdir/xfail ]; then
+		XFAIL=$(($XFAIL+1))
+		echo "*** $testdir: XFAIL: $reason"
+		if [ $NOCLEAN -eq 0 ]; then
+		    rm -f $testdir/stderr $testdir/result
+		fi
+	    else
+		FAIL=$(($FAIL+1))
+		echo "*** $testdir: FAIL: $reason"
+	    fi
+	else
+	    if [ -f $testdir/xfail ]; then
+		echo "** $testdir: XPASS: Passed, but was expected to fail"
+	    else
+		if [ $NOCLEAN -eq 0 ]; then
+		    rm -f $testdir/stderr $testdir/result
+		fi
+	    fi
+	fi
+    done < $TMPDIR/alltests
+
+    SUCC=$((NUM-FAIL-XFAIL))
+    echo "Runtest: $NUM tests run, $SUCC successful, $FAIL failed + $XFAIL expected"
+    if [ $FAIL -ne 0 ]; then exit 1; else exit 0; fi
+}
+
+usage () {
+    P=${0##*/}
+    cat <<EOF
+$P: Run HAL test suite items
+
+Usage:
+    $P [-n] tests
+	Run tests.  With '-n', do not remove temporary files for successful
+	tests.
+
+    $P -c tests
+	Remove temporary files from an earlier test fun.
+EOF
+}
+
+CLEAN_ONLY=0
+NOCLEAN=0
+while getopts cnh opt; do
+    case "$opt" in
+    c) CLEAN_ONLY=1 ;;
+    n) NOCLEAN=1 ;;
+    h|?) usage; exit 0 ;;
+    *) usage; exit 1 ;;
+    esac
+done
+shift $((OPTIND-1))
+
+if [ $# -eq 0 ]; then
+    set -- $TOPDIR/tests
 fi
-if [ $FAIL -ne 0 ]; then exit 1; else exit 0; fi
+
+if [ $CLEAN_ONLY -eq 1 ]; then
+    clean "$@"
+else
+    run_tests "$@"
+fi
