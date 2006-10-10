@@ -334,6 +334,11 @@ proc prompt_copy configname {
         }
 
         eval file copy [glob -directory $configdir *] [list $copydir]
+        foreach f [glob -directory $copydir *] {
+            if {$::tcl_platform(platform) == "unix"} {
+                file attributes $f -permissions u+w
+            }
+        }
         break
     }
 
