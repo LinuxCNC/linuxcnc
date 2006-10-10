@@ -1128,6 +1128,8 @@ int emcPositionSave() {
     const char *posfile = ini.find("POSITION_FILE", "TRAJ");
     ini.close();
     if(!posfile || !posfile[0]) return 0;
+    // like the var file, make sure the posfile is recreated according to umask
+    unlink(posfile);
     FILE *f = fopen(posfile, "w");
     if(!f) return -1;
     for(int i=0; i<EMCMOT_MAX_AXIS; i++) {
