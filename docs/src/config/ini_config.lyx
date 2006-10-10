@@ -43,10 +43,10 @@ Files Used for Configuration
 \layout Standard
 
 The EMC is configured with human readable text files.
- All of these files can be read and edited in any of the commen test file
+ All of these files can be read and edited in any of the common text file
  editors available with most any Linux distribution.
 \begin_inset Foot
-collapsed true
+collapsed false
 
 \layout Standard
 
@@ -61,7 +61,7 @@ Don't confuse a text editor with a word processor.
  You'll need to be a bit careful when you edit these files.
  Some mistakes will cause the startup to fail.
  These files are read whenever the software starts up.
- Some of them are read repeadedly while the CNC is running.
+ Some of them are read repeatedly while the CNC is running.
  
 \layout Standard
 
@@ -92,7 +92,7 @@ NML The nml file configures the communication channels used by the EMC.
 .emcrc This file saves user specific information and is created to save the
  name of the directory when the user first selects an EMC configuration.
 \begin_inset Foot
-collapsed true
+collapsed false
 
 \layout Standard
 
@@ -288,12 +288,6 @@ The following sections detail each section of the configuration file, using
 \end_inset 
 
 INI Variable Definitions
-\layout Standard
-
-We'll list these variables under section names in much the same way a real
- file contains them.
- Remember that this list describes those that you are most likely to change
- when you set up a newbee control.
 \layout Subsection
 
 
@@ -377,7 +371,7 @@ G21
 \series bold 
 G90
 \series default 
- A string of NC codes that the interpreter is initalised with.
+ A string of NC codes that the interpreter is initialized with.
  These are the codes that an interpreter will be reset to.
 \layout Subsection
 
@@ -435,8 +429,8 @@ xemc
 
 BASE_PERIOD\SpecialChar ~
 =\SpecialChar ~
-50000 Base task period, in nanosecs - this is the fastest thread
- in the machine.
+50000 Base task period, in nanoseconds - this is the fastest
+ thread in the machine.
  It's units are nanoseconds.
  This is a fairly conservative value but if you are installing on a very
  old, slow processor you may have to make this a larger number or the machine
@@ -447,7 +441,7 @@ You might want to make this value smaller if you have a fast computer because
  this value sets the maximum number of stepper pulses you can get from your
  machine.
  It has little effect on servo systems so leave it large.
- In the absense of long setup or hold times, the absolute maximum step rate
+ In the absence of long setup or hold times, the absolute maximum step rate
  for a step+direction motor is one step per two BASE_PERIOD, so
 \begin_inset Formula \begin{eqnarray*}
 max\_ step\_ rate & [\frac{steps}{second}]= & \frac{10^{9}}{2*base\_ period}\end{eqnarray*}
@@ -461,7 +455,7 @@ Thus, the BASE_PERIOD shown above gives an absolute maximum step rate of
 SERVO_PERIOD\SpecialChar ~
 =\SpecialChar ~
 1000000 Servo task period is also in nanoseconds.
- This value will be rounded to an interger multiple of BASE_PERIOD.
+ This value will be rounded to an integer multiple of BASE_PERIOD.
  
 \newline 
 Most systems will not need to change this value.
@@ -528,7 +522,7 @@ The [HAL] section lists files and commands to setup the Hardware Abstraction
  The exact set would depend upon the configuration of signals at the parallel
  port.
  At a minimum you would see the following.
- Sherline mlls use the 
+ Sherline mills use the 
 \begin_inset Quotes eld
 \end_inset 
 
@@ -556,7 +550,7 @@ HALFILE = standard_pinout.hal
 
 You can also add variables (commands really) here.
 \begin_inset Foot
-collapsed true
+collapsed false
 
 \layout Standard
 
@@ -791,19 +785,12 @@ TYPE\SpecialChar ~
 =\SpecialChar ~
 LINEAR The type of axes, either LINEAR or ANGULAR.
  
-\layout Standard
+\layout Description
 
 MAX_VELOCITY\SpecialChar ~
-
-\series bold 
-=
-\series default 
-\SpecialChar ~
-
-\series bold 
-1.2
-\series default 
- Per axis maximum velocity while coordinated motion is in effect.
+=\SpecialChar ~
+1.2 Per axis maximum velocity while coordinated motion is in
+ effect.
 \layout Description
 
 MAX_ACCELERATION\SpecialChar ~
@@ -853,7 +840,7 @@ COMP_FILE_TYPE\SpecialChar ~
  of the COMP_FILE.
  While type == 0, the expected values are triplets for nominal, forward
  & reverse.
- With COMP_FILE_TYPE non-zero, the expected values in teh COMP_FILE are
+ With COMP_FILE_TYPE non-zero, the expected values in the COMP_FILE are
  nominal, forward_trim and reverse_trim.
  These correspond to the nominal, nominal-forward and nominal-reverse defined
  above.
@@ -869,17 +856,20 @@ INPUT_SCALE\SpecialChar ~
 \SpecialChar ~
 
 \series bold 
-40000\SpecialChar ~
-\SpecialChar ~
-\SpecialChar ~
-0
+40000
 \series default 
 \color default
- This variable has slightly different meaning for stepper and for servo
- systems.
- For steppers, the first number it is the number of pulses required to move
- the axis one UNIT.
  
+\layout Description
+
+INPUT_SCALE\SpecialChar ~
+=\SpecialChar ~
+40000\SpecialChar ~
+05 This variable has slightly different meaning for stepper
+ and for servo systems.
+ For steppers, the only number it is the number of pulses required to move
+ the axis one UNIT.
+ The second number, if it is specified, is ignored.
 \newline 
 For servos
 \color black
@@ -1337,7 +1327,7 @@ The maximum value for the output of the PID compensation that is written
 \color black
 MIN_OUTPUT\SpecialChar ~
 =\SpecialChar ~
-10 The minumum value for the output of the PID compensation that
+10 The minimum value for the output of the PID compensation that
  is written to the motor amplifier, in volts.
  The computed output value is clamped to this limit.
  The limit is applied before scaling to raw output units.
@@ -1653,6 +1643,11 @@ STEPGEN_MAXVEL\SpecialChar ~
 
 \series bold 
 1.4
+\series default 
+ A value applied to the stepper pulse generator to provide some overhead
+ for following error catch up.
+\series bold 
+
 \begin_inset Foot
 collapsed true
 
@@ -1671,8 +1666,6 @@ The step generator module, stepgen, applies its own limits to acceleration
 
 
 \series default 
- A value applied to the stepper pulse generator to provide some overhead
- for following error catch up.
  
 \layout Description
 
