@@ -6453,7 +6453,7 @@ _ACEOF
 cat confdefs.h >>conftest.$ac_ext
 cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
-#include <X11/Intrinsic.h>
+#include <X11/Xlib.h>
 _ACEOF
 if { (eval echo "$as_me:$LINENO: \"$ac_cpp conftest.$ac_ext\"") >&5
   (eval $ac_cpp conftest.$ac_ext) 2>conftest.er1
@@ -6480,7 +6480,7 @@ else
 sed 's/^/| /' conftest.$ac_ext >&5
 
   for ac_dir in $ac_x_header_dirs; do
-  if test -r "$ac_dir/X11/Intrinsic.h"; then
+  if test -r "$ac_dir/X11/Xlib.h"; then
     ac_x_includes=$ac_dir
     break
   fi
@@ -6494,18 +6494,18 @@ if test "$ac_x_libraries" = no; then
   # See if we find them without any special options.
   # Don't add to $LIBS permanently.
   ac_save_LIBS=$LIBS
-  LIBS="-lXt $LIBS"
+  LIBS="-lX11 $LIBS"
   cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
 _ACEOF
 cat confdefs.h >>conftest.$ac_ext
 cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
-#include <X11/Intrinsic.h>
+#include <X11/Xlib.h>
 int
 main ()
 {
-XtMalloc (0)
+XrmInitialize ()
   ;
   return 0;
 }
@@ -6543,7 +6543,7 @@ for ac_dir in `echo "$ac_x_includes $ac_x_header_dirs" | sed s/include/lib/g`
 do
   # Don't even attempt the hair of trying to link an X program!
   for ac_extension in a so sl; do
-    if test -r $ac_dir/libXt.$ac_extension; then
+    if test -r $ac_dir/libX11.$ac_extension; then
       ac_x_libraries=$ac_dir
       break 2
     fi
@@ -9548,6 +9548,8 @@ esac
 
           ac_config_files="$ac_config_files ../scripts/halrun"
 
+          ac_config_files="$ac_config_files ../scripts/emc-environment"
+
           ac_config_files="$ac_config_files ../scripts/realtime"
 
           ac_config_files="$ac_config_files Makefile.inc"
@@ -10086,6 +10088,7 @@ do
   "../docs/man/man1/emc.1" ) CONFIG_FILES="$CONFIG_FILES ../docs/man/man1/emc.1" ;;
   "../scripts/emc" ) CONFIG_FILES="$CONFIG_FILES ../scripts/emc" ;;
   "../scripts/halrun" ) CONFIG_FILES="$CONFIG_FILES ../scripts/halrun" ;;
+  "../scripts/emc-environment" ) CONFIG_FILES="$CONFIG_FILES ../scripts/emc-environment" ;;
   "../scripts/realtime" ) CONFIG_FILES="$CONFIG_FILES ../scripts/realtime" ;;
   "Makefile.inc" ) CONFIG_FILES="$CONFIG_FILES Makefile.inc" ;;
   "Makefile.modinc" ) CONFIG_FILES="$CONFIG_FILES Makefile.modinc" ;;
@@ -10540,6 +10543,7 @@ s,@abs_top_builddir@,$ac_abs_top_builddir,;t t
   case $ac_file in
     ../scripts/emc ) chmod +x ../scripts/emc ;;
     ../scripts/halrun ) chmod +x ../scripts/halrun ;;
+    ../scripts/emc-environment ) chmod +x ../scripts/emc-environment ;;
     ../scripts/realtime ) chmod +x ../scripts/realtime ;;
   esac
 done
