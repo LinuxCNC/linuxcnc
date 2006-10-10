@@ -1402,6 +1402,7 @@ if test "${enable_simulator+set}" = set; then
                 RTS=simulator
                 BUILD_SYS=sim
                 MODEXT=.so
+                MODULE_DIR=$prefix/lib/emc2/modules
                 echo "$as_me:$LINENO: result: configuring for simulator" >&5
 echo "${ECHO_T}configuring for simulator" >&6
             ;;
@@ -3316,6 +3317,7 @@ echo "$as_me: error: You must supply a path for --with-module-dir." >&2;}
 
 fi;
 
+
 # if not specified, ask the realtime config script where the directory is
 # if the config script returns an error, set MODULE_DIR to nothing
 if test "x" = "x$MODULE_DIR" ; then
@@ -3404,7 +3406,10 @@ else
     EMC2_TCL_DIR=${prefix}/share/emc/tcl
     EMC2_LANG_DIR=${prefix}/share/emc/tcl/msgs
     EMC2_HELP_DIR=${prefix}/share/doc/emc2
-    EMC2_RTLIB_DIR=$MODULE_DIR/emc2
+    case $MODULE_DIR in
+        */emc2*) EMC2_RTLIB_DIR=$MODULE_DIR ;;
+	*) EMC2_RTLIB_DIR=$MODULE_DIR/emc2
+    esac
     EMC2_CONFIG_PATH="~/emc2/configs:/usr/local/etc/emc2/configs:"$(eval echo $sysconfdir)"/emc2/sample-configs"
     EMC2_NCFILES_DIR=${prefix}/share/emc/ncfiles
     REALTIME=/etc/init.d/realtime

@@ -288,6 +288,7 @@ clean: depclean modclean
 	-rm -rf objects 
 	-rm -f $(TARGETS)
 	-rm -f $(COPY_CONFIGS)
+	-rm -f ../rtlib/*.$(MODULE_EXT)
 
 # So that nothing is built as root, this rule does not depend on the touched
 # files (Note that files in depends/ might be rebuilt, and there's little that
@@ -348,7 +349,7 @@ install: install-kernel-dep install-kernel-indep
 	$(ECHO) "Installed in $(DESTDIR) with prefix $(prefix)"
 
 install-kernel-indep:
-	$(DIR) $(DESTDIR)$(initd_dir) $(DESTDIR)$(moduledir)/emc2 \
+	$(DIR) $(DESTDIR)$(initd_dir) $(DESTDIR)$(EMC2_RTLIB_DIR) \
 		$(DESTDIR)$(sysconfdir)/emc2 $(DESTDIR)$(bindir) \
 		$(DESTDIR)/usr/local/etc/emc2/configs \
 		$(DESTDIR)$(libdir) $(DESTDIR)$(includedir)/emc2 \
@@ -398,8 +399,10 @@ install-kernel-dep:
 	$(DIR)  $(DESTDIR)$(moduledir)/emc2 \
 		$(DESTDIR)$(bindir) \
 		$(DESTDIR)$(sysconfdir)/emc2
-	$(FILE) ../rtlib/*$(MODULE_EXT) $(DESTDIR)$(moduledir)/emc2
+	$(FILE) ../rtlib/*$(MODULE_EXT) $(DESTDIR)$(EMC2_RTLIB_DIR)
+ifneq "$(BUILD_SYS)" "sim"
 	$(SETUID) ../bin/emc_module_helper $(DESTDIR)$(bindir)
+endif
 	$(FILE) ../scripts/rtapi.conf $(DESTDIR)$(sysconfdir)/emc2
 endif # RUN_IN_PLACE
 
