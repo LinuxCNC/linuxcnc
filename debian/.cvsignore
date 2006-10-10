@@ -1,0 +1,7 @@
+files
+tmp
+emc2.files
+emc2
+emc2-dev
+emc2-python
+*.substvars

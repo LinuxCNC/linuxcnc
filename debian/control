@@ -7,8 +7,11 @@ Build-Depends: debhelper (>> 4.0.0),linux-headers-2.6.12-magma,g++,gcc-3.4,make,
 Standards-Version: 2.0.0-rc0
 
 Package: emc2
+Replaces: emc2
+Conflicts: emc2
+Provides: emc2
 Architecture: any
-Depends: ${shlibs:Depends},linux-image-2.6.12-magma,rtai-modules-2.6.12-magma,tcl8.4,tk8.4,bwidget,libreadline5
+Depends: ${shlibs:Depends},${kernel:Depends},tcl8.4,tk8.4,bwidget,libreadline5
 Provides: emc2
 Suggests: emc2-python
 Description: PC based motion controller for real-time Linux.
@@ -17,8 +20,11 @@ Description: PC based motion controller for real-time Linux.
  applications (milling, cutting, routing, etc.).
 
 Package: emc2-dev
+Replaces: emc2-dev
+Conflicts: emc2-dev
+Provides: emc2-dev
 Architecture: any
-Depends: g++,gcc-3.4,linux-headers-2.6.12-magma, yapps2-runtime, python (>= 2.4), python (<< 2.5)
+Depends: g++,${kernel:Headers}, yapps2-runtime, python (>= 2.4), python (<< 2.5)
 Section: libs
 Description: PC based motion controller for real-time Linux.
  Includes files needed to build new realtime components and alternate
