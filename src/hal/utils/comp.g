@@ -344,7 +344,7 @@ def to_hal_man(s):
     s = s.replace("_", "-")
     s = s.rstrip("-")
     s = s.rstrip(".")
-    s = s.replace("-", "\\-")
+    # s = s.replace("-", "\\-")
     return s
 
 def document(filename, outfilename):
@@ -366,16 +366,26 @@ def document(filename, outfilename):
     print >>f, ".SH NAME\n"
     doc = finddoc('component')    
     if doc and doc[2]:
-        print >>f, "%s \\- %s" % (doc[1], doc[2])
+        if '\n' in doc[2]:
+            firstline, rest = doc[2].split('\n', 1)
+        else:
+            firstline = doc[2]
+            rest = ''
+        print >>f, "%s \\- %s" % (doc[1], firstline)
     else:
+        rest = ''
         print >>f, "%s" % doc[1]
 
 
     print >>f, ".SH SYNOPSIS"
-    if options.get("singleton"):
-        print >>f, ".B loadrt %s ..." % comp_name
+
+    if rest:
+        print >>f, rest
+    elif options.get("singleton") or options.get("count_function"):
+        print >>f, ".B loadrt %s" % comp_name
     else:
-        print >>f, ".B loadrt %s [count=\\fIN\\fB] ..." % comp_name
+        print >>f, ".B loadrt %s [count=\\fIN\\fB]" % comp_name
+    if options.get("constructable", 1) and not options.get("singleton"):
         print >>f, ".PP\n.B newinst %s \\fIname\\fB" % comp_name
 
     print >>f, ".SH FUNCTIONS"
@@ -399,7 +409,7 @@ def document(filename, outfilename):
         print >>f, ".SH PARAMETERS"
         for _, name, type, dir, doc, value in finddocs('param'):
             print >>f, ".TP"
-            print >>f, "\\fB%s" % to_hal_man(name),
+            print >>f, "\\fB%s\\fR" % to_hal_man(name),
             print >>f, type, dir,
             if value:
                 print >>f, "\\fR(default: \\fI%s\\fR)" % value
