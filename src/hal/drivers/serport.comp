@@ -16,14 +16,14 @@ the Linux kernel by setting a kernel commandline parameter or not loading
 the serial kernel module if it is a modularized driver.
 """;
 
-pin out bit pin_9_in "Also called RI (ring indicator); pin 22 on the 25-pin serial pinout";
-pin out bit pin_9_in_not "Inverted version of pin-9-in";
+pin out bit pin_1_in "Also called DCD (data carrier detect); pin 8 on the 25-pin serial pinout";
+pin out bit pin_1_in_not "Inverted version of pin-1-in";
 pin out bit pin_6_in "Also called DSR (data set ready); pin 6 on the 25-pin serial pinout";
 pin out bit pin_6_in_not "Inverted version of pin-6-in";
 pin out bit pin_8_in "Also called CTS (clear to send); pin 5 on the 25-pin serial pinout";
 pin out bit pin_8_in_not "Inverted version of pin-8-in";
-pin out bit pin_1_in "Also called DCD (data carrier detect); pin 8 on the 25-pin serial pinout";
-pin out bit pin_1_in_not "Inverted version of pin-1-in";
+pin out bit pin_9_in "Also called RI (ring indicator); pin 22 on the 25-pin serial pinout";
+pin out bit pin_9_in_not "Inverted version of pin-9-in";
 
 pin in bit pin_4_out "Also called DTR (data terminal ready); pin 20 on the 25-pin serial pinout";
 pin in bit pin_7_out "Also called RTS (request to send); pin 4 on the 25-pin serial pinout";
@@ -108,5 +108,5 @@ FUNCTION(write) {
     if(!pin_4_out ^ !pin_4_out_invert) i |= DTR;
     if(!pin_7_out ^ !pin_7_out_invert) i |= RTS;
 
-    outb(i, ioaddr);
+    outb(i, MCR);
 }
