@@ -7,6 +7,7 @@ function _;
 option count_function;
 option extra_setup;
 option extra_cleanup;
+option constructable no;
 
 ;;
 #include <asm/io.h>
@@ -35,7 +36,7 @@ EXTRA_SETUP() {
 EXTRA_CLEANUP() {
     int i;
     for(i=0; i < MAX && io[i]; i++) {
-        rtapi_release_region(i, 1);
+        rtapi_release_region(io[i], 1);
     }
 }
 
