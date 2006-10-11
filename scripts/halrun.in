@@ -8,6 +8,12 @@ if $REALTIME status > /dev/null; then
     exit 1
 fi
 
+if [ $# -eq 0 ]; then set -- -kf; fi
+
+case $1 in
+*.hal) set -- -f $1
+esac
+
 $REALTIME start
 
 halcmd $@; result=$?
