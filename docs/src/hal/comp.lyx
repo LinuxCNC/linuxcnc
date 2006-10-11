@@ -681,6 +681,18 @@ rtapi_app_exit
 rtapi_app_main
 \family default 
 .
+\layout Description
+
+option\SpecialChar ~
+constructable\SpecialChar ~
+no (default: yes)
+\newline 
+If specified, new instances of the component may not be created by 
+\family typewriter 
+halcmd newinst
+\family default 
+.
+ Singletons are also not constructable.
 \layout Standard
 
 If an option's VALUE is not specified, then it is equivalent to specifying
@@ -823,6 +835,17 @@ make
 Comp
 \family default 
  files are automatically detected by the build system.
+\layout Standard
+
+If a 
+\family typewriter 
+.comp
+\family default 
+ file is a driver for hardware, it may be placed in 
+\family typewriter 
+emc2/src/hal/components
+\family default 
+ and will be built except if emc2 is configured as a userspace simulator.
 \layout Section
 
 Compiling components outside the source tree
@@ -917,7 +940,7 @@ function _
 \begin_inset Quotes erd
 \end_inset 
 
- creates functions named 'constant.0'.
+ creates functions named 'constant.0', etc.
 \layout LyX-Code
 
 component constant;
