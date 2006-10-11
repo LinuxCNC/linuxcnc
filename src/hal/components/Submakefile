@@ -1,19 +1,24 @@
 ifneq ($(YAPPS),none)
 ifneq ($(KERNELRELEASE),)
-COMPS := $(patsubst $(BASEPWD)/%,%,$(wildcard $(BASEPWD)/hal/components/*.comp))
+COMPS := $(patsubst $(BASEPWD)/%,%,$(wildcard $(BASEPWD)/hal/components/*.comp $(BASEPWD)/hal/drivers/*.comp))
 include $(patsubst %.comp, $(BASEPWD)/objects/%.mak, $(COMPS))
 else
 COMPS := $(wildcard hal/components/*.comp)
 COMP_MANPAGES := $(patsubst hal/components/%.comp, ../docs/man/man9/%.9, $(COMPS))
-manpages: $(COMP_MANPAGES)
+COMP_DRIVERS := $(wildcard hal/drivers/*.comp)
+COMP_DRIVER_MANPAGES := $(patsubst hal/drivers/%.comp, ../docs/man/man9/%.9, $(COMP_DRIVERS))
+manpages: $(COMP_MANPAGES) $(COMP_DRIVER_MANPAGES)
 TARGETS += manpages
--include $(patsubst %.comp, objects/%.mak, $(COMPS))
-Makefile: $(patsubst %.comp, objects/%.mak, $(COMPS))
+-include $(patsubst %.comp, objects/%.mak, $(COMPS) $(COMP_DRIVERS))
+Makefile: $(patsubst %.comp, objects/%.mak, $(COMPS) $(COMP_DRIVERS))
 endif
 
-obj-m += $(patsubst hal/components/%.comp, %.o, $(COMPS))
+obj-m += $(patsubst hal/drivers/%.comp, %.o, $(patsubst hal/components/%.comp, %.o, $(COMPS)))
 
-../docs/man/man9/%.9: hal/components/%.comp ../bin/comp
+$(COMP_MANPAGES): ../docs/man/man9/%.9: hal/components/%.comp ../bin/comp
+	@mkdir -p $(dir $@)
+	../bin/comp --document -o $@ $<
+$(COMP_DRIVER_MANPAGES): ../docs/man/man9/%.9: hal/drivers/%.comp ../bin/comp
 	@mkdir -p $(dir $@)
 	../bin/comp --document -o $@ $<
 
@@ -30,7 +35,7 @@ objects/%.c: %.comp ../bin/comp
 	@mkdir -p $(dir $@)
 	@../bin/comp -o $@ $<
 
-modules: $(patsubst %.comp, objects/%.c, $(COMPS))
+modules: $(patsubst %.comp, objects/%.c, $(COMPS) $(COMP_DRIVERS))
 endif
 
 HALSTREAMERSRCS := hal/components/streamer_usr.c
