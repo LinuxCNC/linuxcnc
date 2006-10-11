@@ -58,7 +58,7 @@ int get_count(void) {
 EXTRA_SETUP() {
     rtapi_print_msg(RTAPI_MSG_ERR, "requesting I/O region 0x%x\n",
 			io[extra_arg]);
-    if(!rtapi_request_region(io[extra_arg], 7, "hal_8250")) {
+    if(!rtapi_request_region(io[extra_arg], 7, "serport")) {
 	// set this I/O port to 0 so that EXTRA_CLEANUP does not release the IO
 	// ports that were never requested.
         io[extra_arg] = 0; 
