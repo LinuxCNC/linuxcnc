@@ -1,0 +1,31 @@
+
+.TH rtapi_set_msg_level "3rtapi" "2006-10-12" "EMC Documentation" "RTAPI"
+.SH NAME
+
+rtapi_get_msg_level, rtapi_set_msg_level \- Get or set the logging level
+
+.SH SYNTAX
+.HP
+ int rtapi_set_msg_level(int \fIlevel\fR)
+
+.HP
+ int rtapi_get_msg_level()
+
+.SH  ARGUMENTS
+.IP \fIlevel\fR
+The desired logging level
+
+.SH DESCRIPTION
+Get or set the RTAPI message level used by \fBrtapi_print_msg\fR.  Depending
+on the RTOS, this level may apply to a single RTAPI module, or it may apply
+to a group of modules.
+
+.SH REALTIME CONSIDERATIONS
+May be called from user, init/cleanup, and realtime code.
+
+.SH RETURN VALUE
+\fBrtapi_set_msg_level\fR returns a status code, and \fBrtapi_get_msg_level\fR
+returns the current level.
+
+.SH SEE ALSO
+\fBrtapi_print_msg(3rtapi)\fR

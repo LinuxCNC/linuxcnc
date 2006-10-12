@@ -1,0 +1,19 @@
+.TH funct "3hal" "2006-10-12" "EMC Documentation" "HAL"
+.SH NAME
+
+funct \- one-line description of funct
+
+.SH SYNTAX
+.HP
+int funct(\fIsignature\fR)
+
+.SH  ARGUMENTS
+.IP \fIcomp_id\fR
+A HAL component identifier returned by an earlier call to \fBhal_init\fR.
+
+.SH DESCRIPTION
+
+.SH RETURN VALUE
+Returns a HAL status code.
+
+.SH SEE ALSO

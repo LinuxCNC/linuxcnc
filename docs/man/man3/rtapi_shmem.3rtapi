@@ -1,0 +1,64 @@
+
+.TH rtapi_shmem "3rtapi" "2006-10-12" "EMC Documentation" "RTAPI"
+.SH NAME
+
+rtapi_shmem \- Functions for managing shared memory blocks
+
+.SH SYNTAX
+.HP
+ int rtapi_shmem_new(int \fIkey\fR, int \fImodule_id\fR, unsigned long int \fIsize\fR)
+
+.HP
+ int rtapi_shmem_delete(int \fIshmem_id\fR, int \fImodule_id\fR)
+
+.HP
+ int rtapi_shmem_getptr(int \fIshmem_id\fR, void ** \fIptr\fR)
+
+.SH  ARGUMENTS
+.IP \fIkey\fB
+Identifies the memory block.  Key must be nonzero.  All modules wishing to use the same memory must use the same key.
+
+.IP \fImodule_id\fB
+Module identifier returned by a prior call to \fBrtapi_init\fR.
+
+.IP \fIsize\fB
+The desired size of the shared memory block, in bytes
+
+.IP \fIptr\fB
+The pointer to the shared memory block.  Note that the block may be mapped
+at a different address for different modules.
+
+.SH DESCRIPTION
+
+\fBrtapi_shmem_new\fR allocates a block of shared memory.  \fIkey\fR
+identifies the memory block, and must be non-zero.  All modules
+wishing to access the same memory must use the same key.
+\fImodule_id\fR is the ID of the module that is making the call (see
+rtapi_init).  The block will be at least \fIsize\fR bytes, and may
+be rounded up.  Allocating many small blocks may be very wasteful.
+When a particular block is allocated for the first time, the first
+4 bytes are zeroed.  Subsequent allocations of the same block
+by other modules or processes will not touch the contents of the
+block.  Applications can use those bytes to see if they need to 
+initialize the block, or if another module already did so.
+On success, it returns a positive integer ID, which is used for
+all subsequent calls dealing with the block.  On failure it 
+returns a negative error code.
+
+\fBrtapi_shmem_delete\fR frees the shared memory block associated
+with \fIshmem_id\fR.  \fImodule_id\fR is the ID of the calling module.
+Returns a status code.
+
+\fBrtapi_shmem_getptr\fR sets \fI*ptr\fR to point to shared memory block
+associated with \fIshmem_id\fR.
+
+.SH REALTIME CONSIDERATIONS
+
+\fBrtapi_shmem_getptr\fR may be called from user code, init/cleanup code,
+or realtime tasks.
+
+\fBrtapi_shmem_new\fR and \fBrtapi_shmem_dete\fR may not be called from
+realtime tasks.
+
+.SH RETURN VALUE
+

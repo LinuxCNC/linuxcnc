@@ -1,0 +1,40 @@
+.TH rtapi_mutex "3rtapi" "2006-10-12" "EMC Documentation" "RTAPI"
+.SH NAME
+
+rtapi_mutex \- Mutex-related functions
+
+.SH SYNTAX
+.HP
+ int rtapi_mutex_try(unsigned long *\fImutex\fR)
+
+.HP
+ void rtapi_mutex_get(unsigned long *\fImutex\fR)
+
+.HP
+ void rtapi_mutex_give(unsigned long *\fImutex\fR)
+
+.SH  ARGUMENTS
+.IP \fImutex\fR
+A pointer to the mutex.
+
+.SH DESCRIPTION
+\fBrtapi_mutex_try\fR makes a non-blocking attempt to get the mutex.
+If the mutex is available, it returns 0, and the mutex is no longer available.
+Otherwise, it returns a nonzero value.
+
+\fBrtapi_mutex_get\fR blocks until the mutex is available.
+
+\fBrtapi_mutex_give\fR releases a mutex acquired by \fBrtapi_mutex_try\fR or
+\fBrtapi_mutex_get\fR.
+
+.SH REALTIME CONSIDERATIONS
+\fBrtapi_mutex_give\fR and \fBrtapi_mutex_try\fR may be used from user,
+init/cleanup, and realtime code.
+
+\fBrtapi_mutex_get\fR may not be used from realtime code.
+
+.SH RETURN VALUE
+\fBrtapi_mutex_try\fR returns 0 for if the mutex was claimed, and nonzero
+otherwise.
+
+\fBrtapi_mutex_get\fR and \fBrtapi_mutex_gif\fR have no return value.

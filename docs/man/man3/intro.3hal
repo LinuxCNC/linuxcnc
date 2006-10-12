@@ -1,0 +1,67 @@
+.TH intro "3hal" "2006-10-12" "EMC Documentation" "HAL"
+.SH NAME
+
+hal \- Introduction to the HAL API
+
+.SH DESCRIPTION
+
+HAL stands for Hardware Abstraction Layer, and is used by EMC to transfer
+realtime data to and from I/O devices and other low-level modules.
+
+\fBhal.h\fR defines the API and data structures used by the HAL.  This file is
+included in both realtime and non-realtime HAL components.  HAL uses the RTPAI
+real time interface, and the #define symbols RTAPI and ULAPI are used to
+distinguish between realtime and non-realtime code.  The API defined in this
+file is implemented in hal_lib.c and can be compiled for linking to either
+realtime or user space HAL components.  
+
+The HAL is a very modular approach to the low level parts of a motion control
+system.  The goal of the HAL is to allow a systems integrator to connect a
+group of software components together to meet whatever I/O requirements he (or
+she) needs.  This includes realtime and non-realtime I/O, as well as basic
+motor control up to and including a PID position loop.  What these functions
+have in common is that they all process signals.  In general, a signal is a
+data item that is updated at regular intervals.  For example, a PID loop gets
+position command and feedback signals, and produces a velocity command signal.  
+
+HAL is based on the approach used to design electronic circuits.  In
+electronics, off-the-shelf components like integrated circuits are placed on a
+circuit board and their pins are interconnected to build whatever overall
+function is needed.  The individual components may be as simple as an op-amp,
+or as complex as a digital signal processor.  Each component can be
+individually tested, to make sure it works as designed.  After the components
+are placed in a larger circuit, the signals connecting them can still be
+monitored for testing and troubleshooting.
+
+Like electronic components, HAL components have pins, and the pins can be
+interconnected by signals.
+
+In the HAL, a \fIsignal\fR contains the actual data value that passes from one pin
+to another.  When a signal is created, space is allocated for the data value.
+A \fIpin\fR on the other hand, is a pointer, not a data value.  When a pin is
+connected to a signal, the pin's pointer is set to point at the signal's data
+value.  This allows the component to access the signal with very little
+run-time overhead.  (If a pin is not linked to any signal, the pointer points
+to a dummy location, so the realtime code doesn't have to deal with null
+pointers or treat unlinked variables as a special case in any way.)
+
+There are three approaches to writing a HAL component.  Those that do not
+require hard realtime performance can be written as a single user mode process.
+Components that need hard realtime performance but have simple configuration
+and init requirements can be done as a single kernel module, using either
+pre-defined init info, or insmod-time parameters.  Finally, complex components
+may use both a kernel module for the realtime part, and a user space process to
+handle ini file access, user interface (possibly including GUI features), and
+other details.
+
+HAL uses the RTAPI/ULAPI interface.  If RTAPI is #defined hal_lib.c would
+generate a kernel module hal_lib.o that is insmoded and provides the functions
+for all kernel module based components.  The same source file compiled with the
+ULAPI #define would make a user space hal_lib.o that is staticlly linked to
+user space code to make user space executables.  The variable lists and link
+information are stored in a block of shared memory and protected with mutexes,
+so that kernel modules and any of several user mode programs can access the
+data.
+
+.SH SEE ALSO
+\fBintro(3rtapi)\fR

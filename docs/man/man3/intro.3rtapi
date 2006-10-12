@@ -1,0 +1,15 @@
+.TH intro "3rtapi" "2006-10-02" "EMC Documentation" "RTAPI"
+.SH NAME
+
+rtapi \- Introduction to the RTAPI API
+
+.SH DESCRIPTION
+RTAPI is a library providing a uniform API for several real time operating
+systems.  As of ver 2.1, RTLinux, RTAI, and a pure userspace simulator are
+supported.
+
+The file \fBrtapi.h\fR defines the RTAPI for both realtime and non-realtime
+code.  This is a change from Rev 2, where the non-realtime (user space) API
+was defined in ulapi.h and used different function names.  The symbols RTAPI
+and ULAPI are used to determine which mode is being compiled, RTAPI for
+realtime and ULAPI for non-realtime.

@@ -1,0 +1,27 @@
+.TH rtapi_snprintf "3rtapi" "2006-10-12" "EMC Documentation" "RTAPI"
+.SH NAME
+
+rtapi_snprintf, rtapi_vsnprintf \- Perform snprintf-like string formatting
+
+.SH SYNTAX
+.HP
+ int rtapi_snprintf(char *\fIbuf\fR, unsigned long int \fIsize\fR, const char *\fIfmt\fR, \fI...\fR)
+
+.HP
+ int rtapi_vsnprintf(char *\fIbuf\fR, unsigned long int \fIsize\fR, const char *\fIfmt\fR, va_list \fIapfB)
+
+.SH  ARGUMENTS
+As for \fIsnprintf(3)\fR or \fIvsnprintf(3)\fR.
+
+.SH DESCRIPTION
+These functions work like the standard C printf functions, except that a
+reduced set of formatting operations are supported.
+
+.SH REALTIME CONSIDERATIONS
+May be called from user, init/cleanup, and realtime code.
+
+.SH RETURN VALUE
+The number of characters written to \fIbuf\fR.
+
+.SH SEE ALSO
+\fBprintf(3)\fR

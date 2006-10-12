@@ -1,0 +1,31 @@
+.TH hal_malloc "3hal" "2006-10-12" "EMC Documentation" "HAL"
+.SH NAME
+
+hal_malloc \- Allocate space in the HAL shared memory area
+
+.SH SYNTAX
+.HP
+ void *hal_malloc(long int \fIsize\fR)
+
+.SH  ARGUMENTS
+.IP \fIsize\fR
+Gives the size, in bytes, of the block
+
+.SH DESCRIPTION
+\fBhal_malloc\fR allocates a block of memory from the main HAL shared memory area.
+It should be used by all components to allocate memory for HAL pins and
+parameters.  It allocates `size' bytes, and returns a pointer to the allocated
+space, or NULL (0) on error.  The returned pointer will be properly aligned for
+any type HAL supports.  A component should allocate during initialization all
+the memory it needs.
+
+The allocator is very simple, and there is no `free'.  The entire HAL shared
+memory area is freed when the last component calls \fBhal_exit\fR.  This means
+that if you continuously install and remove one component while other
+components are present, you eventually will fill up the shared memory and an
+install will fail.  Removing all components completely clears memory and you
+start fresh.
+
+.SH RETURN VALUE
+A pointer to the allocated space, which is properly aligned for any variable
+HAL supports.  Returns NULL on error.

@@ -1,0 +1,39 @@
+.TH rtapi_print "3rtapi" "2006-10-12" "EMC Documentation" "RTAPI"
+.SH NAME
+
+rtapi_print, rtapi_print_msg \- print diagnostic messages
+
+.SH SYNTAX
+.HP
+ void rtapi_print(const char *\fIfmt\fR, \fI...\fR)
+
+.HP
+ void rtapi_print_msg(int level, const char *\fIfmt\fR, \fI...\fR)
+.SH  ARGUMENTS
+.IP \fIlevel\fR
+A message level: One of \fBRTAPI_MSG_ERR\fR,
+\fBRTAPI_MSG_WARN\fR, \fBRTAPI_MSG_INFO\fR, or \fBRTAPI_MSG_DBG\fR.
+
+.IP \fIfmt\fI
+.IP \fI...\fI
+Other arguments are as for \fIprintf(3)\fR.
+
+.SH DESCRIPTION
+These functions work like the standard C printf functions, except that a
+reduced set of formatting operations are supported.
+
+Depending on the RTOS, the message may be printed to stdout, stderr, a kernel
+log message, etc.
+
+\fBrtapi_print_msg\fR works like \fRrtapi_print\fR but only prints if
+\fIlevel\fR is less than or equal to the current message level.
+
+.SH REALTIME CONSIDERATIONS
+May be called from user, init/cleanup, and realtime code.
+
+.SH RETURN VALUE
+None.
+
+.SH SEE ALSO
+\fBrtapi_set_msg_level(3rtapi)\fR, \fBrtapi_get_msg_level(3rtapi)\fR,
+\fBprintf(3)\fR

@@ -1,0 +1,14 @@
+.TH funct "3rtapi" "2006-10-12" "EMC Documentation" "RTAPI"
+.SH NAME
+
+funct \- one-line description of funct
+
+.SH SYNTAX
+.HP
+void funct(\fIsignature\fR)
+
+.SH  ARGUMENTS
+.SH DESCRIPTION
+.SH REALTIME CONSIDERATIONS
+.SH RETURN VALUE
+.SH SEE ALSO

@@ -1,0 +1,32 @@
+
+.TH hal_init "3hal" "2006-10-12" "EMC Documentation" "HAL"
+.SH NAME
+
+hal_init \- Sets up HAL and RTAPI
+
+.SH SYNTAX
+.HP
+ int hal_init(char *\fImodname\fR)
+
+.SH ARGUMENTS
+.IP \fImodname\fR
+The name of this hal module
+
+.SH DESCRIPTION
+
+\fBhal_init\fR sets up HAL and RTAPI.  It must be called by any
+module that intends to use the API, before any other RTAPI
+calls.
+
+\fImodname\fR can optionally point to a string that identifies
+the module.  The string will be truncated at \fBRTAPI_NAME_LEN\fR
+characters.  If \fImodname\fR is \fBNULL\fR, the system will assign a
+name.
+
+.SH REALTIME CONSIDERATIONS
+Call only from within user or init/cleanup code, not from relatime tasks.
+
+.SH RETURN VALUE
+On success, returns a positive integer module ID, which is
+used for subsequent calls to hal and rtapi APIs.
+On failure, returns a HAL error code.

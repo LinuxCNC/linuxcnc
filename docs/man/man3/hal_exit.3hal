@@ -1,0 +1,23 @@
+.TH hal_exit "3rtapi" "2006-10-12" "EMC Documentation" "HAL"
+.SH NAME
+
+hal_exit \- Shut down HAL
+
+.SH SYNTAX
+.HP
+int hal_exit(int \fIcomp_id\fR)
+
+.SH ARGUMENTS
+.IP \fIcomp_id\fR
+A HAL component identifier returned by an earlier call to \fBhal_init\fR.
+
+.SH DESCRIPTION
+\fBhal_exit\fR shuts down and cleans up HAL and RTAPI.  It must be
+called prior to exit by any module that called \fBhal_init\fR.
+
+.SH REALTIME CONSIDERATIONS
+Call only from within user or init/cleanup code, not from realtime tasks.
+
+.SH RETURN VALUE
+Returns a HAL status code.
+

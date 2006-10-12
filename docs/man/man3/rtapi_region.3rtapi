@@ -1,0 +1,38 @@
+
+.TH rtapi_region "3rtapi" "2006-10-12" "EMC Documentation" "RTAPI"
+.SH NAME
+
+rtapi_region \- functions to manage I/O memory regions
+
+.SH SYNTAX
+.HP
+ void *rtapi_request_region(unsigned long \fIbase\fR, unsigned long int \fIsize\fR, const char *\fIname\fR)
+
+.HP
+ void rtapi_release_region(unsigned long \fIbase\fR, unsigned long int \fIsize\fR)
+
+.SH ARGUMENTS
+.IP \fIbase\fR
+The base address of the I/O region
+
+.IP \fIsize\fR
+The size of the I/O region
+
+.IP \fIname\fR
+The name to be shown in /proc/ioports
+
+.SH DESCRIPTION
+\fBrtapi_request_region\fR reserves I/O memory starting at \fIbase\fR
+and going for \fIsize\fR bytes.
+
+.SH REALTIME CONSIDERATIONS
+May be called from realtime init/cleanup code only.
+
+.SH BUGS
+On kernels before 2.4.0, \fBrtapi_request_region\fR always suceeds.
+
+.SH RETURN VALUE
+\fBrtapi_request_region\fR returns NULL if the allocation fails, and a non-NULL
+value otherwise.
+
+\fBrtapi_release_region\fR has no return value.

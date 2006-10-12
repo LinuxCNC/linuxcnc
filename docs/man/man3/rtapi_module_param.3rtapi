@@ -1,0 +1,54 @@
+.TH rtapi_module_param "3rtapi" "2006-10-12" "EMC Documentation" "RTAPI"
+.SH NAME
+
+rtapi_module_param \- Specifying module parameters
+
+.SH SYNTAX
+.HP
+RTAPI_MP_INT(\fIvar\fR, \fInum\fR, \fIdescription\fR)
+
+.HP
+RTAPI_MP_LONG(\fIvar\fR, \fInum\fR, \fIdescription\fR)
+
+.HP
+RTAPI_MP_STRING(\fIvar\fR, \fInum\fR, \fIdescription\fR)
+
+.HP
+RTAPI_MP_ARRAY_INT(\fIvar\fR, \fInum\fR, \fIdescription\fR)
+
+.HP
+RTAPI_MP_ARRAY_LONG(\fIvar\fR, \fInum\fR, \fIdescription\fR)
+
+.HP
+RTAPI_MP_ARRAY_STRING(\fIvar\fR, \fInum\fR, \fIdescription\fR)
+
+.HP
+MODULE_LICENSE(\fIlicense\fR)
+
+.HP
+MODULE_AUTHOR(\fIauthor\fR)
+
+.HP
+MODULE_DESCRIPTION(\fIdescription\fR)
+
+.HP
+EXPORT_FUNCTION(\fIfunction\fR)
+
+.SH  ARGUMENTS
+.IP \fIvar\fR
+The variable where the parameter should be stored
+.IP \fIdescription\fR
+A short description of the parameter or module
+.IP \fInum\fR
+The maximum number of values for an array parameter
+.IP \fIlicense\fR
+The license of the module, for instance "GPL"
+.IP \fIauthor\fR
+The author of the module
+.IP \fIfunction\fR
+The pointer to the function to be exported
+
+.SH DESCRIPTION
+These macros are portable ways to declare kernel module parameters.  They must
+be used in the global scope, and are not followed by a terminating semicolon.
+They must be used after the associated variable or function has been defined.
