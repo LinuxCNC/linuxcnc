@@ -38,6 +38,7 @@ DOC_SRCS := \
 	Master_HAL.lyx
 
 MAN_SRCS := $(COMP_MANPAGES) $(COMP_DRIVER_MANPAGES) \
+	$(wildcard $(DOC_DIR)/man/man3/*.3rtapi $(DOC_DIR)/man/man3/*.3hal) \
 	$(DOC_DIR)/man/man1/emc.1 \
 	$(DOC_DIR)/man/man1/halcmd.1 \
 	$(DOC_DIR)/man/man1/hal_joystick.1 \
