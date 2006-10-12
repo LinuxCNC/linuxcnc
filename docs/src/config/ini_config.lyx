@@ -388,7 +388,7 @@ G90
 
 \series bold 
 \color black
-DISLAY\SpecialChar ~
+DISPLAY\SpecialChar ~
 =\SpecialChar ~
 tkemc
 \series default 
@@ -1201,8 +1201,10 @@ OUTPUT_SCALE\SpecialChar ~
 
 \series bold 
 1.000
-\series default 
-\SpecialChar ~
+\layout Description
+
+OUTPUT_OFFSET\SpecialChar ~
+=\SpecialChar ~
 
 \series bold 
 0.000
@@ -1327,8 +1329,8 @@ The maximum value for the output of the PID compensation that is written
 \color black
 MIN_OUTPUT\SpecialChar ~
 =\SpecialChar ~
-10 The minimum value for the output of the PID compensation that
- is written to the motor amplifier, in volts.
+-10 The minimum value for the output of the PID compensation
+ that is written to the motor amplifier, in volts.
  The computed output value is clamped to this limit.
  The limit is applied before scaling to raw output units.
  
@@ -1720,32 +1722,6 @@ tool.tbl
 \end_inset 
 
 
-\layout Description
-
-SPINDLE_OFF_WAIT\SpecialChar ~
-
-\series bold 
-=
-\series default 
-\SpecialChar ~
-
-\series bold 
-1.0
-\series default 
- How long, in seconds, to wait after the spindle has been turned off before
- applying the brake.
- 
-\layout Description
-
-SPINDLE_ON_WAIT\SpecialChar ~
-
-\series bold 
-=\SpecialChar ~
-1.5
-\series default 
- How long, in seconds, to wait after the spindle brake has been released
- before turning the spindle on.
- 
 \layout Description
 
 TOOL_CHANGE_POSITION\SpecialChar ~
