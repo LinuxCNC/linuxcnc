@@ -13,18 +13,18 @@ EOF
 	exit 1 ;;
 esac
 
+if ! test "xyes" = "x@RUN_IN_PLACE@"; then
+    echo "This script is only useful on run-in-place systems."
+    return
+fi
+
 case "$PATH" in
     @EMC2_BIN_DIR@:*|*:@EMC2_BIN_DIR@:*)
 	echo "This script only needs to be run once per shell session."
 	return ;;
 esac
 
-if test "xyes" = "x@RUN_IN_PLACE@"; then
-    PATH=@EMC2_BIN_DIR@:@EMC2_HOME@/scripts:"$PATH"
-else
-    echo "This script is only useful on run-in-place systems."
-    return
-fi
+PATH=@EMC2_BIN_DIR@:@EMC2_HOME@/scripts:"$PATH"
 
 if [ -z "$PYTHONPATH" ]; then
     PYTHONPATH=@EMC2_HOME@/lib/python
@@ -32,4 +32,10 @@ else
     PYTHONPATH=@EMC2_HOME@/lib/python:"$PYTHONPATH"
 fi
 
-export PYTHONPATH
+if [ -z "$MANPATH" ]; then
+    MANPATH=@EMC2_HOME@/docs/man
+else
+    MANPATH=@EMC2_HOME@/docs/man:"$MANPATH"
+fi
+
+export PYTHONPATH MANPATH
