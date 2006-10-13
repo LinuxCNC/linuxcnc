@@ -2,7 +2,7 @@
 .TH hal_signal_new "3hal" "2006-10-12" "EMC Documentation" "HAL"
 .SH NAME
 
-hal_signal_new, hal_signal_delete \- Create or delete HAL signals
+hal_signal_new, hal_signal_delete, hal_link \- Manipulate HAL signals
 
 .SH SYNTAX
 .HP
@@ -45,4 +45,4 @@ are unlinked.
 Returns a HAL status code.
 
 .SH SEE ALSO
-\fBhal_type_t(3hal)\fR, \fBhal_link\fR
+\fBhal_type_t(3hal)\fR
