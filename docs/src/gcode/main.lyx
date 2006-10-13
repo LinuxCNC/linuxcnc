@@ -4560,6 +4560,39 @@ It is OK to program using the same offset already in use.
  
 \layout Section
 
+G50, G51: Adaptive Feed
+\begin_inset LatexCommand \label{sec:G50,-G51:-Adaptive}
+
+\end_inset 
+
+
+\layout Standard
+
+To use an adaptive feed, program 
+\family typewriter 
+G50
+\family default 
+.
+ To stop using adaptive feed, program 
+\family typewriter 
+G51
+\family default 
+.
+ When adaptive feed is enabled, some external input value is used together
+ with the user interface feed override value and the commanded feed rate
+ to set the actual feed rate.
+ In EMC2, the HAL pin 
+\family typewriter 
+motion.adaptive-feed
+\family default 
+ is used for this purpose.
+ Values on 
+\family typewriter 
+motion.adaptive-feed
+\family default 
+ should range from 0 (feed hold) to 1 (full speed).
+\layout Section
+
 G53: Move in absolute coordinates
 \begin_inset LatexCommand \label{sub:G53:-Move-in}
 
