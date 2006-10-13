@@ -80,8 +80,7 @@ A HAL component identifier returned by an earlier call to \fBhal_init\fR.
 A printf-style format string and arguments
 
 .IP \fItype\fR
-The type of the pin, one of: \fBHAL_BIT\fR, \fBHAL_FLOAT\fR, \fBHAL_S8\fR,
-\fBHAL_U8\fR, \fBHAL_S16\fR, \fBHAL_U16\fR, \fBHAL_S32\fR, \fBHAL_U32\fR.
+The type of the param, as specified in \fBhal_type_t(3hal)\fR.
 
 .SH DESCRIPTION
 The \fBhal_pin_new\fR family of functions create a new \fIpin\fR object.  Once
@@ -95,3 +94,5 @@ only be linked to signals of the same type.
 
 .SH RETURN VALUE
 Returns a HAL status code.
+.SH SEE ALSO
+\fBhal_type_t(3hal)\fR, \fBhal_link(3hal)\fR

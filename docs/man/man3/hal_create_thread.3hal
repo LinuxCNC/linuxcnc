@@ -1,0 +1,43 @@
+.TH hal_create_thread "3hal" "2006-10-12" "EMC Documentation" "HAL"
+.SH NAME
+
+hal_create_thread \- Create a HAL thread
+
+.SH SYNTAX
+.HP
+int hal_create_thread(char *\fIname\fR, unsigned long \fIperiod\fR, int \fIuses_fp\fR)
+
+.HP
+int hal_thread_delete(char *\fIname\fR)
+
+.SH  ARGUMENTS
+.IP \fIname\fR
+The name of the thread
+
+.IP \fIperiod\fR
+The interval, in nanoseconds, between iterations of the thread
+
+.IP \fIuses_fp\fR
+Must be nonzero if a function which uses floating-point will be attached
+to this thread.
+
+.SH DESCRIPTION
+\fBhal_create_thread\fR establishes a realtime thread that will
+execute one or more HAL functions periodically.
+
+All threads must run at an integer multiple of the fastest thread, and the
+fastest thread must be created first.  In general, threads should be created in
+order, from the fastest to the slowest.  HAL assigns decreasing priorities to
+threads that are created later, so creating them from fastest to slowest
+results in rate monotonic priority scheduling, usually a good thing.
+
+\fBhal_delete_thread\fR deletes a previously created thread.
+
+.SH REALTIME CONSIDERATIONS
+Call only from realtime init code, not from user space or realtime code.
+
+.SH RETURN VALUE
+Returns a HAL status code.
+
+.SH SEE ALSO
+\fBhal_export_funct(3hal)\fR
