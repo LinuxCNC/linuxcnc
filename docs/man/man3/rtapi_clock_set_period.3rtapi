@@ -33,4 +33,4 @@ function is not available from user (non-realtime) code.
 
 .SH RETURN VALUE
 The actual period provided by the RTOS, which may be different than the
-requested period
+requested period, or a RTAPI status code.
