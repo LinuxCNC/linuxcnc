@@ -5945,6 +5945,34 @@ M49
  
 \layout Section
 
+M62 to M65: Digital IO Control
+\begin_inset LatexCommand \label{sec:M62-to-M65:}
+
+\end_inset 
+
+
+\layout Standard
+
+To control a digital output bit, program 
+\family typewriter 
+M- P-
+\family default 
+, where the M-word ranges from 62 to 65, and the P-word ranges from 0 to
+ an implementation-defined maximum.
+\layout Description
+
+M62 Turn on digital output synched with motion
+\layout Description
+
+M63 Turn off digital output synched with motion
+\layout Description
+
+M64 Turn on digital output immediately
+\layout Description
+
+M65 Turn off digital output immediately
+\layout Section
+
 M100 to M199: User Defined Commands
 \layout Standard
 
