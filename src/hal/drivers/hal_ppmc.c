@@ -1409,28 +1409,28 @@ static int export_PPMC_digin(slot_data_t *slot, bus_data_t *bus)
     }
     if (bus->last_digin < 31) {
 	rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.din.estop.in",
-	    bus->busnum, bus->last_digin);
+	    bus->busnum);
 	retval = hal_pin_bit_new(buf, HAL_OUT, 
 	    &(slot->digin[16].data), comp_id);
 	if (retval != 0) {
 	    return retval;
 	}
 	rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.din.estop.in-not",
-	    bus->busnum, bus->last_digin);
+	    bus->busnum);
 	retval = hal_pin_bit_new(buf, HAL_OUT, 
 	    &(slot->digin[16].data_not), comp_id);
 	if (retval != 0) {
 	    return retval;
 	}
 	rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.din.fault.in",
-	    bus->busnum, bus->last_digin);
+	    bus->busnum);
 	retval = hal_pin_bit_new(buf, HAL_OUT, 
 	    &(slot->digin[17].data), comp_id);
 	if (retval != 0) {
 	    return retval;
 	}
 	rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.din.fault.in-not",
-	    bus->busnum, bus->last_digin);
+	    bus->busnum);
 	retval = hal_pin_bit_new(buf, HAL_OUT, 
 	    &(slot->digin[17].data_not), comp_id);
 	if (retval != 0) {
@@ -1492,14 +1492,14 @@ static int export_PPMC_digout(slot_data_t *slot, bus_data_t *bus)
     if (bus->last_digout < 15) {                // only on first DIO board
       rtapi_print_msg(RTAPI_MSG_INFO, "PPMC:  master DIO at # %d\n",bus->last_digout);
       rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.dout.Estop.out",
-		     bus->busnum, bus->last_digout);
+		     bus->busnum);
       retval = hal_pin_bit_new(buf, HAL_IN, &(slot->digout[8].data), comp_id);
       if (retval != 0) {
 	return retval;
       }
       /* export parameter for inversion */
       rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.dout.Estop.invert",
-		     bus->busnum, bus->last_digout);
+		     bus->busnum);
       retval = hal_param_bit_new(buf, HAL_RW, &(slot->digout[8].invert), comp_id);
       if (retval != 0) {
 	return retval;
