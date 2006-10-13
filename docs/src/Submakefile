@@ -81,7 +81,7 @@ $(DOC_DIR)/EMC2_Integrator_Manual.pdf: $(DOC_SRCDIR)/Master_Integrator.pdf
 
 $(DOC_DIR)/html/man/%.html: $(DOC_DIR)/man/%
 	@mkdir -p $(dir $@)
-	groff -Thtml -man $< > $@
+	(cd $(DOC_DIR)/man; groff -Thtml -man $(patsubst $(DOC_DIR)/man/%,%,$<)) > $@
 
 objects/index.incl: objects/var-MAN_HTML_TARGETS
 	echo "<LI>Section 1<UL>" > $@.tmp
