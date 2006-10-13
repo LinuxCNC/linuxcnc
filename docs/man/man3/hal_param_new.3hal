@@ -74,7 +74,7 @@ The address of the data, which must lie within memory allocated by
 .IP \fIcomp_id\fR
 A HAL component identifier returned by an earlier call to \fBhal_init\fR.
 
-.IP \fIfmt, ...\fR
+.IP \fIfmt,\ ...\fR
 A printf-style format string and arguments
 
 .IP \fItype\fR
