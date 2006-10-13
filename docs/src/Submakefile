@@ -3,6 +3,21 @@
 DOC_DIR=../docs
 DOC_SRCDIR=../docs/src
 
+MAN_SRCS := \
+	$(DOC_DIR)/man/man1/emc.1 \
+	$(DOC_DIR)/man/man1/halcmd.1 \
+	$(DOC_DIR)/man/man1/hal_joystick.1 \
+	$(DOC_DIR)/man/man1/halmeter.1 \
+	$(DOC_DIR)/man/man1/halui.1 \
+	$(sort $(filter-out $(DOC_DIR)/man/man3/skeleton%, $(wildcard $(DOC_DIR)/man/man3/*.3rtapi $(DOC_DIR)/man/man3/*.3hal))) \
+	$(sort $(COMP_MANPAGES) $(COMP_DRIVER_MANPAGES)) \
+
+ifneq ($(MANDB),)
+default: $(DOC_DIR)/man/index.db
+$(DOC_DIR)/man/index.db: $(MAN_SRCS)
+	$(MANDB) $(DOC_DIR)/man
+endif
+
 ifeq ($(BUILD_DOCS),yes)
 DOC_SRCS := \
 	code/Code_Notes.lyx \
@@ -36,15 +51,6 @@ DOC_SRCS := \
 	install/installing_emc2.lyx \
 	motion/kinematics.lyx \
 	Master_HAL.lyx
-
-MAN_SRCS := \
-	$(DOC_DIR)/man/man1/emc.1 \
-	$(DOC_DIR)/man/man1/halcmd.1 \
-	$(DOC_DIR)/man/man1/hal_joystick.1 \
-	$(DOC_DIR)/man/man1/halmeter.1 \
-	$(DOC_DIR)/man/man1/halui.1 \
-	$(sort $(filter-out $(DOC_DIR)/man/man3/skeleton%, $(wildcard $(DOC_DIR)/man/man3/*.3rtapi $(DOC_DIR)/man/man3/*.3hal))) \
-	$(sort $(COMP_MANPAGES) $(COMP_DRIVER_MANPAGES)) \
 
 MAN_HTML_TARGETS := $(patsubst $(DOC_DIR)/man/%, $(DOC_DIR)/html/man/%.html, $(MAN_SRCS))
 PDF_TARGETS := $(addprefix $(DOC_DIR)/,HAL_User_Manual.pdf EMC2_User_Manual.pdf EMC2_Developer_Manual.pdf EMC2_Integrator_Manual.pdf)

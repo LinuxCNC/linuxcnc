@@ -759,6 +759,7 @@ AC_PATH_PROG(LSMOD, lsmod, "", /sbin:/usr/sbin:/usr/local/sbin)
 AC_PATH_PROG(PIDOF, pidof, "", /bin:/sbin:/usr/sbin:/usr/local/sbin)
 AC_PATH_PROG(IPCS, ipcs, "", /bin:/usr/bin:/usr/local/bin)
 AC_PATH_PROG(FUSER, fuser, "", /bin:/usr/bin:/usr/local/bin:/sbin:/usr/sbin:/usr/local/sbin)
+AC_PATH_PROG(MANDB, mandb, "", /bin:/usr/bin:/usr/local/bin)
 
 AC_ARG_WITH(rmmod,
     [  --with-rmmod=</path/rmmod>              rmmod variant],
