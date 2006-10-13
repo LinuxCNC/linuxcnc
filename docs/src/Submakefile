@@ -15,7 +15,8 @@ MAN_SRCS := \
 ifneq ($(MANDB),)
 default: $(DOC_DIR)/man/index.db
 $(DOC_DIR)/man/index.db: $(MAN_SRCS)
-	$(MANDB) $(DOC_DIR)/man
+	@echo "Updating 'whatis' database"
+	@$(MANDB) $(DOC_DIR)/man
 endif
 
 ifeq ($(BUILD_DOCS),yes)
@@ -80,8 +81,9 @@ $(DOC_DIR)/EMC2_Integrator_Manual.pdf: $(DOC_SRCDIR)/Master_Integrator.pdf
 	@ln -f $< $@
 
 $(DOC_DIR)/html/man/%.html: $(DOC_DIR)/man/%
+	@echo Formatting $(notdir $<) as HTML
 	@mkdir -p $(dir $@)
-	(cd $(DOC_DIR)/man; groff -Thtml -man $(patsubst $(DOC_DIR)/man/%,%,$<)) > $@
+	@(cd $(DOC_DIR)/man; groff -Thtml -man $(patsubst $(DOC_DIR)/man/%,%,$<)) > $@
 
 objects/index.incl: objects/var-MAN_HTML_TARGETS
 	echo "<LI>Section 1<UL>" > $@.tmp
@@ -93,7 +95,7 @@ objects/index.incl: objects/var-MAN_HTML_TARGETS
 	echo "</UL><LI>Section 9<UL>" >> $@.tmp
 	for i in $(filter %.9.html, $(MAN_HTML_TARGETS)); do j=$$(basename $$i .html); echo "<LI><A HREF=$${i#$(DOC_DIR)/html/}>$$j</A>"; done >> $@.tmp
 	echo "</UL>" >> $@.tmp
-	mv $@.tmp $@
+	mv -f $@.tmp $@
 
 $(DOC_DIR)/html/index.html: $(DOC_SRCDIR)/index.tmpl objects/index.incl $(DOC_SRCDIR)/index.foot
 	(cat $(DOC_SRCDIR)/index.tmpl objects/index.incl $(DOC_SRCDIR)/index.foot)  > $@	
@@ -141,3 +143,16 @@ docclean:
 	-rm -f $(DOC_SRCDIR)/*.pdf
 	-rm -f $(patsubst %,$(DOC_SRCDIR)/%, $(DOC_SRCS:.lyx=.tex))
 	-rm -rf $(patsubst %.lyx,$(DOC_DIR)/html/%, $(DOC_SRCS))
+
+MAN_DEPS := $(patsubst $(DOC_DIR)/man/%, depends/%.d, $(MAN_SRCS))
+$(MAN_DEPS): depends/%.d: $(DOC_DIR)/man/%
+	@echo Depending $(notdir $<)
+	@mkdir -p $(dir $@)
+	@echo -n "$(DOC_DIR)/html/man/$*.html: $<" > $@.tmp
+	@grep '^\.so ' $< | awk '{printf " \\\n\t$(DOC_DIR)/man/%s", $$2}' >> $@.tmp
+	@echo >> $@.tmp
+	@mv -f $@.tmp $@
+
+-include $(MAN_DEPS)
+Makefile: $(MAN_DEPS)
+
