@@ -1,0 +1,374 @@
+#LyX 1.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 221
+\textclass book
+\language english
+\inputencoding auto
+\fontscheme default
+\graphics default
+\paperfontsize default
+\spacing single 
+\papersize Default
+\paperpackage a4
+\use_geometry 0
+\use_amsmath 0
+\use_natbib 0
+\use_numerical_citations 0
+\paperorientation portrait
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\defskip medskip
+\quotes_language english
+\quotes_times 2
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+
+\layout Chapter
+
+EMC2 and HAL
+\layout Section
+
+motion (realtime)
+\layout Standard
+
+These pins, parameters, and functions are created by the realtime 
+\family typewriter 
+motmod
+\family default 
+ module.
+\layout Subsection
+
+Pins
+\layout Description
+
+motion.adaptive-feed\SpecialChar ~
+IN\SpecialChar ~
+float When adaptive feed is enabled with G50 (See section
+ 
+\begin_inset LatexCommand \ref{sec:G50,-G51:-Adaptive}
+
+\end_inset 
+
+), the commanded velocity is multiplied by this value.
+ This effect is multiplicative with the NML-level feed override value
+\layout Description
+
+motion.digital-out-NN\SpecialChar ~
+OUT\SpecialChar ~
+bit These pins are controlled by the 
+\family typewriter 
+M62
+\family default 
+ through 
+\family typewriter 
+M65 words.
+\layout Description
+
+motion.enable\SpecialChar ~
+IN\SpecialChar ~
+bit If this bit is set to false, motion stops.
+ Otherwise, motion may proceed.
+\layout Description
+
+motion.motion-inpos\SpecialChar ~
+OUT\SpecialChar ~
+bit TRUE if the machine is in position
+\layout Description
+
+motion.probe-input\SpecialChar ~
+IN\SpecialChar ~
+bit 
+\family typewriter 
+G38.2
+\family default 
+ uses the value on this pin to dermine when the probe has made contact.
+ TRUE for probe contact closed (touching), FALSE for probe contact open.
+\layout Description
+
+motion.spindle-brake\SpecialChar ~
+OUT\SpecialChar ~
+bit TRUE when the spindle brake should be applied
+\layout Description
+
+motion.spindle-forward\SpecialChar ~
+OUT\SpecialChar ~
+bit TRUE when the spindle should rotate forward
+\layout Description
+
+motion.spindle-reverse\SpecialChar ~
+OUT\SpecialChar ~
+bit TRUE when the spindle should rotate backward
+\layout Description
+
+motion.spindle-on\SpecialChar ~
+OUT\SpecialChar ~
+bit TRUE when spindle should rotate
+\layout Description
+
+motion.spindle-speed-out\SpecialChar ~
+OUT\SpecialChar ~
+float Desired spindle speed in rotations per minute
+\layout Description
+
+motion.spindle-sync\SpecialChar ~
+OUT\SpecialChar ~
+bit For correct operation of spindle synchronized moves,
+ this signal must be hooked to the index-enable pin of the spindle encoder.
+\layout Description
+
+motion.spindle-revs\SpecialChar ~
+IN\SpecialChar ~
+float For correct operation of spindle synchronized
+ moves, this signal must be hooked to the position pin of the spindle encoder.
+\layout Subsection
+
+Parameters
+\layout Description
+
+motion.coord-error
+\layout Description
+
+motion.coord-mode
+\layout Description
+
+motion.in-position Same as the pin 
+\emph on 
+motion.motion-inpos
+\layout Description
+
+motion.motion-enabled
+\layout Description
+
+motion.servo.last-period The number of CPU cycles between invocations of the
+ servo thread.
+ Typically, this number divided by the CPU speed gives the time in seconds,
+ and can be used to determine whether the relatime motion controller is
+ meeting its timing constraints
+\layout Description
+
+motion.servo.overruns By noting large differences between successive values
+ of 
+\emph on 
+motion.servo.last-period
+\emph default 
+, the motion controller can determine that there has probably been a failure
+ to meet its timing constraints.
+ Each time such a failure is detected, this value is incremented.
+\layout Description
+
+motion.debug-bit-0
+\layout Description
+
+motion.debug-bit-1
+\layout Description
+
+motion.debug-float-0
+\layout Description
+
+motion.debug-float-1 These values are used for debugging purposes.
+ 
+\layout Subsection
+
+Functions
+\layout Description
+
+motion-command-handler
+\layout Description
+
+motion-controller Generally, hese functions are both added to the servo-thread
+ in the order shown
+\layout Section
+
+axis.N (realtime)
+\layout Standard
+
+These pins, parameters, and functions are created by the realtime 
+\family typewriter 
+motmod
+\family default 
+ module.
+ In machines with nontrivial kinematics, these are actually joint values,
+ but the pins and parameters are still called 
+\begin_inset Quotes eld
+\end_inset 
+
+axis.N
+\begin_inset Quotes erd
+\end_inset 
+
+.
+\layout Subsection
+
+Pins
+\layout Description
+
+axis.N.amp-enable-out\SpecialChar ~
+OUT\SpecialChar ~
+bit TRUE if the amplifier for this axis should be
+ enabled
+\layout Description
+
+axis.N.amp-fault-in\SpecialChar ~
+IN\SpecialChar ~
+bit Should be driven TRUE if an external fault is detected
+ with the amplifier for this axis
+\layout Description
+
+axis.N.home-sw-in\SpecialChar ~
+IN\SpecialChar ~
+bit Should be driven TRUE if the home switch for this axis
+ is closed
+\layout Description
+
+axis.N.index-enable\SpecialChar ~
+OUT\SpecialChar ~
+BIT
+\layout Description
+
+axis.N.jog-counts\SpecialChar ~
+IN\SpecialChar ~
+s32
+\layout Description
+
+axis.N.jog-enable\SpecialChar ~
+IN\SpecialChar ~
+bit
+\layout Description
+
+axis.N.jog-scale\SpecialChar ~
+IN\SpecialChar ~
+float These pins can be used to jog the axis, for instance
+ using a physical jogwheel
+\layout Description
+
+axis.N.motor-pos-cmd\SpecialChar ~
+OUT\SpecialChar ~
+float The commanded position for this axis
+\layout Description
+
+axis.N.motor-pos-fb\SpecialChar ~
+IN\SpecialChar ~
+float The actual position for this axis.
+\layout Subsection
+
+Parameters
+\layout Description
+
+axis.N.active
+\layout Description
+
+axis.N.backlash-corr
+\layout Description
+
+axis.N.backlash-filt
+\layout Description
+
+axis.N.backlash-vel
+\layout Description
+
+axis.N.coarse-pos-cmd
+\layout Description
+
+axis.N.error
+\layout Description
+
+axis.N.f-error
+\layout Description
+
+axis.N.f-error-lim
+\layout Description
+
+axis.N.f-errored
+\layout Description
+
+axis.N.free-pos-cmd
+\layout Description
+
+axis.N.free-tp-enable
+\layout Description
+
+axis.N.free-vel-lim
+\layout Description
+
+axis.N.home-state
+\layout Description
+
+axis.N.homed
+\layout Description
+
+axis.N.homing
+\layout Description
+
+axis.N.in-position
+\layout Description
+
+axis.N.joint-pos-cmd
+\layout Description
+
+axis.N.joint-pos-fb
+\layout Description
+
+axis.N.joint-vel-cmd
+\layout Description
+
+axis.N.neg-hard-limit
+\layout Description
+
+axis.N.neg-soft-limit
+\layout Description
+
+axis.N.pos-hard-limit
+\layout Description
+
+axis.N.pos-soft-limit
+\layout Section
+
+iocontrol (userspace)
+\layout Standard
+
+These pins are created by the userspace IO controller, usually called 
+\family typewriter 
+io
+\family default 
+.
+\layout Subsection
+
+Pins
+\layout Description
+
+iocontrol.0.coolant-flood 
+\layout Description
+
+iocontrol.0.coolant-mist
+\layout Description
+
+iocontrol.0.emc-enable-in
+\layout Description
+
+iocontrol.0.lube
+\layout Description
+
+iocontrol.0.lube_level 
+\layout Description
+
+iocontrol.0.tool-change 
+\layout Description
+
+iocontrol.0.tool-changed
+\layout Description
+
+iocontrol.0.tool-prep-number
+\layout Description
+
+iocontrol.0.tool-prepare
+\layout Description
+
+iocontrol.0.tool-prepared
+\layout Description
+
+iocontrol.0.user-enable-out
+\layout Description
+
+iocontrol.0.user-request-enable 
+\the_end

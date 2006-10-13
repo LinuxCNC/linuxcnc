@@ -150,6 +150,15 @@ preview false
 \end_inset 
 
 
+\layout Standard
+
+
+\begin_inset Include \include{config/emc2hal.lyx}
+preview false
+
+\end_inset 
+
+
 \layout Part
 
 HAL Specifics

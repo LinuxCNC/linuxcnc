@@ -35,6 +35,7 @@ DOC_SRCS := \
 	common/emc2_introduction.lyx \
 	config/ini_config.lyx \
 	config/ini_homing.lyx \
+	config/emc2hal.lyx \
 	config/stepper.lyx \
 	gcode/coordinates.lyx \
 	gcode/main.lyx \
