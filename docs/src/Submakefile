@@ -84,7 +84,16 @@ $(DOC_DIR)/html/man/%.html: $(DOC_DIR)/man/%
 	groff -Thtml -man $< > $@
 
 objects/index.incl: objects/var-MAN_HTML_TARGETS
-	for i in $(MAN_HTML_TARGETS); do j=$$(basename $$i .html); echo "<LI><A HREF=$${i#$(DOC_DIR)/html/}>$$j</A>"; done > $@
+	echo "<LI>Section 1<UL>" > $@.tmp
+	for i in $(filter %.1.html, $(MAN_HTML_TARGETS)); do j=$$(basename $$i .html); echo "<LI><A HREF=$${i#$(DOC_DIR)/html/}>$$j</A>"; done >> $@.tmp
+	echo "</UL><LI>Section 3hal<UL>" >> $@.tmp
+	for i in $(filter %.3hal.html, $(MAN_HTML_TARGETS)); do j=$$(basename $$i .html); echo "<LI><A HREF=$${i#$(DOC_DIR)/html/}>$$j</A>"; done >> $@.tmp
+	echo "</UL><LI>Section 3rtapi<UL>" >> $@.tmp
+	for i in $(filter %.3rtapi.html, $(MAN_HTML_TARGETS)); do j=$$(basename $$i .html); echo "<LI><A HREF=$${i#$(DOC_DIR)/html/}>$$j</A>"; done >> $@.tmp
+	echo "</UL><LI>Section 9<UL>" >> $@.tmp
+	for i in $(filter %.9.html, $(MAN_HTML_TARGETS)); do j=$$(basename $$i .html); echo "<LI><A HREF=$${i#$(DOC_DIR)/html/}>$$j</A>"; done >> $@.tmp
+	echo "</UL>" >> $@.tmp
+	mv $@.tmp $@
 
 $(DOC_DIR)/html/index.html: $(DOC_SRCDIR)/index.tmpl objects/index.incl $(DOC_SRCDIR)/index.foot
 	(cat $(DOC_SRCDIR)/index.tmpl objects/index.incl $(DOC_SRCDIR)/index.foot)  > $@	
