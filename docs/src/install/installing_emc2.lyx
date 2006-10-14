@@ -148,14 +148,59 @@ For information regarding other Linux variants, check the Developers Handbook
 \layout Section
 
 
+\begin_inset LatexCommand \label{sec:EMC2-Ubuntu-Live-CD}
+
+\end_inset 
+
+EMC2 Live CD
+\layout Standard
+
+The EMC2 team now has a custom Live-CD based on Ubuntu 6.06 that will let
+ you try out EMC2 before installing, and it's also the easiest way to install
+ Ubuntu and EMC2 together.
+\layout Standard
+
+Just download the 
+\begin_inset LatexCommand \url[ISO]{http://linuxcnc.org/iso/emc2-ubuntu6.06-desktop-i386.iso}
+
+\end_inset 
+
+ (
+\begin_inset LatexCommand \url[EU Mirror]{http://dsplabs.utt.ro/~juve/emc/}
+
+\end_inset 
+
+) and burn it to a CD.
+ (The MD5SUM of the CD is 6ee5048eb9cb424aa030dfedccc5386b)
+\layout Standard
+
+When you boot the CD on your machine, you can see and experiment with the
+ exact environment and EMC2 software that you will have if you choose to
+ install it.
+\layout Standard
+
+If you like what you see, just click the Install icon on the desktop, answer
+ a few questions (your name, timezone, password) and the install completes
+ in a few minutes.
+\layout Standard
+
+This install gives you all the benefits of the community-supported Ubuntu
+ distribution as well as being automatically configured for EMC2.
+ As new Ubuntu updates or EMC2 releases are made, the Update manager will
+ let you know and allow you to easily upgrade.
+ 
+\layout Section
+
+
 \begin_inset LatexCommand \label{sec:EMC2-install-script}
 
 \end_inset 
 
-EMC2 install script - the easy way to install
+EMC2 install script
 \layout Standard
 
-Chris Radek put together a simple script to install emc2 on Ubuntu.
+We also provide a simple script to install emc2 on Ubuntu for users with
+ an existing installation of Ubuntu.
  It  runs the commands explained in 
 \begin_inset LatexCommand \ref{sec:Manual-installing-using}
 
@@ -172,7 +217,12 @@ Download the script from
 
 \end_inset 
 
+ (for Ubuntu 5.10) or 
+\begin_inset LatexCommand \url{http://linuxcnc.org/dapper/emc2-install.sh}
 
+\end_inset 
+
+ (For Ubuntu 6.06)
 \layout Itemize
 
 Save it on your Desktop.
