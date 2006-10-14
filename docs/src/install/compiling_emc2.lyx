@@ -36,7 +36,7 @@ Introduction
 The third hurdle that you face when you begin to set up the EMC2 is getting
  and installing the EMC2 software itself.
  All of EMC2 has been placed on cvs.linuxcnc.org in a concurrent versioning
- repository.
+ (CVS) repository.
  EMC2 is also available as a precompiled package (for various platforms)
  for download from that site.
  
@@ -86,8 +86,8 @@ Released
 \series bold 
 "Released"
 \series default 
- is available in several forms, including .debs for ubuntu and possibly BDI-4.xx,
- and source tarballs for local compilation.
+ is available in several forms, including .debs for Ubuntu and source tarballs
+ for local compilation.
  There will be a debian repository which will always have the latest released
  version (and thus allows for easy upgrades from one stable release to the
  next).
@@ -168,47 +168,62 @@ The following few section will describe how to get EMC2, and compile it.
 \layout Standard
 
 To download, simply go to www.linuxcnc.org to the Download page, and get the
- latest release tarball.
+ latest release or testing tarball.
 \layout Standard
 
 Once you have it, extract it to your home folder:
-\layout Standard
+\layout LyX-Code
 
-
-\family typewriter 
-\size scriptsize 
 $ cd ~/
-\layout Standard
+\layout LyX-Code
 
-
-\family typewriter 
-\size scriptsize 
-$ tar -xvzf emc2-version.tar.gz
-\layout Standard
-
-Now move into the emc2 directory.
-\layout Standard
-
-
-\family typewriter 
-\size scriptsize 
-$ cd ~/emc2
+$ tar xzvf emc2-version.tar.gz
 \layout Standard
 
 Next you'll need to decide what kind of install you want.
- There are two ways to try EMC2 out : run-in-place or installed.
- 
+ There are two ways to try EMC2 out:
+\layout Description
+
+Installed Like most other software on Linux, the files are placed in system
+ directories, and is automatically available to all users of that computer.
+\begin_inset Foot
+collapsed false
+
 \layout Standard
 
-The run-in-place is the version where all EMC2 lives in your home directory,
- doesn't get installed properly.
- This way is usefull for trying out EMC2, maybe along another already installed
- EMC/EMC2 version.
+The pre-built packages for Ubuntu Linux use the 
+\begin_inset Quotes eld
+\end_inset 
+
+installed
+\begin_inset Quotes erd
+\end_inset 
+
+ method
+\end_inset 
+
+
+\layout Description
+
+Run-in-place All the files for EMC2 are kept inside the 
+\family typewriter 
+emc2
+\family default 
+ directory.
+ This is useful for trying out EMC2, especially when there is another version
+ of EMC2 already installed on the system.
+\layout Subsection
+
+Downloading the CVS version
 \layout Standard
 
-The installed way is the standard way to use EMC2.
- Just like any other linux software EMC2 will get installed in the right
- places, so any user can run EMC2.
+If you wish to use the HEAD version of emc2, please follow the instructions
+ on our wiki to obtain the source code: 
+\begin_inset LatexCommand \url{http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?CVS}
+
+\end_inset 
+
+
 \layout Section
 
 Installed
@@ -216,87 +231,80 @@ Installed
 
 EMC2 followes the standard way of compiling linux software.
  To compile it simply go to the sources folder:
-\layout Standard
+\layout LyX-Code
 
-
-\family typewriter 
-\size scriptsize 
 $ cd ~/emc2/src
 \layout Standard
 
 and issue these commands:
-\layout Standard
+\layout LyX-Code
 
-
-\family typewriter 
-\size scriptsize 
 $ ./configure
+\newline 
+$ make && sudo make install
 \layout Standard
 
-
-\family typewriter 
-\size scriptsize 
-$ make
-\layout Standard
-
-
-\family typewriter 
-\size scriptsize 
-$ sudo make install
-\layout Standard
-
-This should be enough to get EMC2 installed.
- To run it simply type 'emc'.
+To run it simply type 'emc'.
 \layout Section
 
-Try-out (Run-in-place)
+Run-in-place
 \layout Standard
 
 If you want only to test the software before installing it, or if you're
  worried about overwriting an existing installation, there is a Run-In-Place
  (RIP) mode which you can try out.
-\layout Standard
+\layout LyX-Code
 
-
-\family typewriter 
-\size scriptsize 
 $ cd ~/emc2/src
 \layout Standard
 
 and issue these commands:
-\layout Standard
+\layout LyX-Code
 
-
-\family typewriter 
-\size scriptsize 
 $ ./configure --enable-run-in-place
+\newline 
+$ make && sudo make setuid
 \layout Standard
 
+In a shell session where you want to use the run-in-place version of emc,
+ execute
+\layout LyX-Code
 
+$ .
+ ~/emc2/scripts/emc-environment
+\layout Standard
+
+Until you close that terminal, it will be set up so that the programs and
+ manual pages from the Run-In-Place directory are available without referring
+ to the path each time
+\begin_inset Foot
+collapsed false
+
+\layout Standard
+
+Note: The emc-environment script is a new feature in the HEAD version of
+ emc2.
+ In EMC 2.0.x, you must refer to programs using their path, such as 
 \family typewriter 
-\size scriptsize 
-$ make
-\layout Standard
-
-
+~/emc2/scripts/emc or ~/emc2/bin/halcmd
+\family default 
+, or relative path such as 
 \family typewriter 
-\size scriptsize 
-$ sudo make setuid
-\layout Standard
-
-After that you can run EMC2 by issuing:
-\layout Standard
-
-
+scripts/emc
+\family default 
+ or 
 \family typewriter 
-\size scriptsize 
-$ cd ~/emc2
-\layout Standard
+bin/halcmd
+\family default 
+.
+ Examples in this documentation will generally omit these paths.
+\end_inset 
 
+.
+ After that you can run EMC2 by issuing:
+\layout LyX-Code
 
-\family typewriter 
-\size scriptsize 
-$ scripts/emc
+$ emc
 \layout Section
 
 Editing and Recompiling
@@ -306,20 +314,12 @@ You may need to recompile the EMC2 code for a number of reasons.
  You may have modified the source code, or you may have downloaded just
  a few new files.
  To recompile, do the following:
-\layout Standard
+\layout LyX-Code
 
+$ cd ~/emc2/src
+\layout LyX-Code
 
-\family typewriter 
-\size small 
-$ 
-\shape italic 
-\size footnotesize 
-cd ~/emc2/src 
-\shape default 
-\size small 
-
-\newline 
-$ make
+$ make && sudo make setuid
 \layout Standard
 
 The build process is smart enough to only build things that are relevant
