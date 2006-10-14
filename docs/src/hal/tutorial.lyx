@@ -34,7 +34,7 @@
 
 \layout Chapter
 
-
+i
 \begin_inset LatexCommand \label{cha:HAL-Tutorial}
 
 \end_inset 
@@ -103,181 +103,6 @@ emc2/
  
 \layout Subsection
 
-Root Privileges
-\layout Standard
-
-In the beginning days of HAL there was quite often the need to run things
- with root privileges.
- Most of those things were related to the fact that HAL uses kernel modules
- to do much of its work, and because it also can access hardware directly.
- Knowing that it is usually safer to avoid doing day-to-day work as root,
- most of those things were reworked so that very limited root privileges
- are required.
- If you are running a version of EMC2 and HAL more recent than early 2006,
- you can pretty much ignore this section.
-\layout Standard
-
-To get around the need for root, emc2 uses a small program called emc_module_hel
-per, which during the build process gets setuid status (thus has root privileges
-).
- This small software module takes care of the insmod/rmmod commands that
- are needed to insert/delete modules from the HAL.
- You can use this program directly, but it's lots easier to use the 
-\series bold 
-halcmd loadrt & unloadrt
-\series default 
- commands 
-\begin_inset LatexCommand \ref{sec:Halcmd}
-
-\end_inset 
-
-
-\layout Standard
-
-Here is an example of what happens when you don't have root privileges:
-\layout LyX-Code
-
-emc2$ 
-\series bold 
-bin/hal_parport 0278
-\layout LyX-Code
-
-PARPORT: ERROR: could not get I/O permission
-\layout LyX-Code
-
-emc2$
-\layout LyX-Code
-
-\layout Standard
-
-As an alternative to logging in as root, you can use the 
-\family typewriter 
-sudo
-\family default 
- command or the 
-\family typewriter 
-su -c
-\family default 
- command.
- The 
-\family typewriter 
-sudo
-\family default 
- command is very convenient to use, and does not require you to know the
- root password.
- However, it needs to be configured by someone who does know the root password.
- The configuration determines who may use 
-\family typewriter 
-sudo
-\family default 
-, and what commands they can use it for.
- We will not discuss 
-\family typewriter 
-sudo
-\family default 
- configuration here, try 
-\family typewriter 
-man sudo
-\family default 
- and/or talk to your system administrator.
- If sudo is properly configured, here is what happens:
-\layout LyX-Code
-
-emc2$ 
-\series bold 
-sudo bin/hal_parport 0278
-\layout LyX-Code
-
-Password: 
-\series bold 
-<enter your password>
-\layout LyX-Code
-
-PARPORT: installed driver for 1 ports
-\layout LyX-Code
-
-emc2$
-\layout LyX-Code
-
-\layout Standard
-
-As an added convenience, 
-\family typewriter 
-sudo
-\family default 
- remembers your password for a short time, so if you enter another 
-\family typewriter 
-sudo
-\family default 
- command within the time limit (usually 5 minutes) you don't have to type
- your password again.
-\layout Standard
-
-The 
-\family typewriter 
-su -c
-\family default 
- command does not require configuration, but does require you to know the
- root password, and to type it in for every command.
- You also must put quotes around the command you are trying to run:
-\layout LyX-Code
-
-emc2$ 
-\series bold 
-su -c "bin/hal_parport 0278"
-\layout LyX-Code
-
-Password: 
-\series bold 
-<enter root password>
-\layout LyX-Code
-
-PARPORT: installed driver for 1 ports
-\layout LyX-Code
-
-emc2$
-\layout LyX-Code
-
-\layout Standard
-
-To avoid cluttering up the examples, we will not show 
-\family typewriter 
-sudo
-\family default 
- or 
-\family typewriter 
-su -c
-\family default 
-.
- Instead, commands that require root privileges will be preceded by 
-\family typewriter 
-#
-\family default 
-, and other commands will be preceded by by 
-\family typewriter 
-$
-\family default 
-.
-\layout LyX-Code
-
-emc2$ 
-\series bold 
-ls bin
-\layout LyX-Code
-
-emc2# 
-\series bold 
-bin/hal_parport 0278
-\layout Standard
-
-Remember, if you are using a version of EMC later than spring 2006 (including
- 
-\series bold 
-any
-\series default 
- released version), you don't need to worry about root access at all.
-\layout Subsection
-
 The RTAPI environment
 \layout Standard
 
@@ -308,17 +133,106 @@ For this tutorial, we are going to assume that you have successfully compiled
  the emc2/ source tree.
  In that case, all you need to do is load the required RTOS and RTAPI modules
  into memory.
- Just run the following command (needs root privileges):
+ Just run the following command:
 \layout LyX-Code
 
-emc2# 
+emc2$ 
 \series bold 
-scripts/realtime start
-\layout LyX-Code
+halrun
+\newline 
 
+\series default 
+halcmd:
 \layout Standard
 
 With the realtime OS and RTAPI loaded, we can move into the first example.
+ Notice that the prompt has changed from the shell's 
+\begin_inset Quotes eld
+\end_inset 
+
+$
+\begin_inset Quotes erd
+\end_inset 
+
+ to 
+\begin_inset Quotes eld
+\end_inset 
+
+halcmd
+\begin_inset Quotes erd
+\end_inset 
+
+.
+ This is because subsequent commands will be interpreted as HAL commands,
+ not shell commands.
+ 
+\family typewriter 
+halrun
+\family default 
+ is a simple shell script, and it is more or less equivalent to running
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+realtime start
+\newline 
+
+\series default 
+emc2$ 
+\series bold 
+halcmd -kf
+\layout Standard
+
+When 
+\family typewriter 
+halcmd
+\family default 
+ exits, halrun stops the realtime system, just like
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+realtime stop
+\layout Standard
+
+You can also supply arguments to halrun that are passed on to halcmd, or
+ give the name of a .hal file.
+ Because 
+\family typewriter 
+halrun
+\family default 
+ stops the realtime system when it exits, the hal file run in this way will
+ typically end with a command that waits for completion, like 
+\family typewriter 
+loadrt -w halscope
+\family default 
+.
+\layout Section
+
+Tab-completion
+\layout Standard
+
+Your version of halcmd may include tab-completion.
+ Instead of completing filenames as a shell does, it completes commands
+ with HAL identifiers.
+ Try pressing tab after starting a HAL command:
+\layout LyX-Code
+
+halcmd: 
+\series bold 
+lo<TAB>
+\series default 
+
+\newline 
+loadrt    loadusr   lock
+\newline 
+halcmd: 
+\series bold 
+loadrt d<TAB>
+\series default 
+
+\newline 
+ddt       debounce
 \layout Section
 
 
@@ -347,12 +261,7 @@ siggen
 \end_inset 
 
  of this document.
- It is a realtime component, implemented as a Linux kernel module and located
- in the directory 
-\family typewriter 
-emc2/rtlib/
-\family default 
-.
+ It is a realtime component, implemented as a Linux kernel module.
  To load 
 \family typewriter 
 siggen
@@ -364,14 +273,9 @@ halcmd loadrt
  command:
 \layout LyX-Code
 
-emc2$ 
+halcmd:
 \series bold 
-bin/halcmd loadrt siggen
-\layout LyX-Code
-
-emc2$
-\layout LyX-Code
-
+ loadrt siggen
 \layout Subsection
 
 Examining the HAL
@@ -402,26 +306,19 @@ halcmd
  To show all installed components:
 \layout LyX-Code
 
-emc2$ 
+halcmd:
 \series bold 
-bin/halcmd show comp
-\layout LyX-Code
+ show comp
+\series default 
 
+\newline 
 Loaded HAL Components:
-\layout LyX-Code
-
-ID  Type  Name
-\layout LyX-Code
-
-02  User  halcmd21345
-\layout LyX-Code
-
-01  RT    siggen
-\layout LyX-Code
-
-emc2$
-\layout LyX-Code
-
+\newline 
+ID     Type  Name                                      PID   State
+\newline 
+32769  RT    siggen                                          ready 
+\newline 
+9775   User  halcmd9775                                 9775 initializing
 \layout Standard
 
 Since 
@@ -476,37 +373,24 @@ siggen
  makes available:
 \layout LyX-Code
 
-emc2$ 
+halcmd:
 \series bold 
-bin/halcmd show pin
-\layout LyX-Code
+ show pin
+\series default 
 
+\newline 
 Component Pins:
-\layout LyX-Code
-
-Owner  Type  Dir    Value      Name
-\layout LyX-Code
-
- 02    float -W   0.00000e+00  siggen.0.cosine
-\layout LyX-Code
-
- 02    float -W   0.00000e+00  siggen.0.sawtooth
-\layout LyX-Code
-
- 02    float -W   0.00000e+00  siggen.0.sine
-\layout LyX-Code
-
- 02    float -W   0.00000e+00  siggen.0.square
-\layout LyX-Code
-
- 02    float -W   0.00000e+00  siggen.0.triangle
-\layout LyX-Code
-
-\layout LyX-Code
-
-emc2$
-\layout LyX-Code
-
+\newline 
+Owner  Type  Dir    Value      Name 02    float -W   0.00000e+00  siggen.0.cosine
+ 
+\newline 
+32769  float OUT  0.00000e+00  siggen.0.sawtooth 
+\newline 
+32769  float OUT  0.00000e+00  siggen.0.sine 
+\newline 
+32769  float OUT  0.00000e+00  siggen.0.square 
+\newline 
+32769  float OUT  0.00000e+00  siggen.0.triangle
 \layout Standard
 
 This command displays all of the pins in the HAL - a complex system could
@@ -525,35 +409,25 @@ siggen
 The next step is to look at parameters:
 \layout LyX-Code
 
-emc2$ 
+halcmd:
 \series bold 
-bin/halcmd show param
-\layout LyX-Code
+ show param
+\series default 
 
+\newline 
 Parameters:
-\layout LyX-Code
-
+\newline 
 Owner  Type  Dir    Value      Name
-\layout LyX-Code
-
- 02    float  -W   1.00000e+00  siggen.0.amplitude
-\layout LyX-Code
-
- 02    float  -W   1.00000e+00  siggen.0.frequency
-\layout LyX-Code
-
- 02    float  -W   0.00000e+00  siggen.0.offset
-\layout LyX-Code
-
- 02    s32    R-            0   siggen.0.update.time
-\layout LyX-Code
-
- 02    s32    RW            0   siggen.0.update.tmax 
-\layout LyX-Code
-
-emc2$
-\layout LyX-Code
-
+\newline 
+ 32769    float  RW   1.00000e+00  siggen.0.amplitude
+\newline 
+ 32769    float  RW   1.00000e+00  siggen.0.frequency
+\newline 
+ 32769    float  RW   0.00000e+00  siggen.0.offset
+\newline 
+ 32769    s32    RO            0   siggen.0.update.time
+\newline 
+ 32769    s32    RW            0   siggen.0.update.tmax
 \layout Standard
 
 The show param command shows all the parameters in the HAL.
@@ -595,12 +469,12 @@ siggen.0.update.tmax
  are for debugging purposes, and won't be covered in this section.
  
 \begin_inset Note
-collapsed true
+collapsed false
 
 \layout Standard
 
 The thread.time and thread.tmax parameters are associated with the thread
- that was created when the component was insmod'ed.
+ that was created when the component was loaded.
  Once the rewrite is complete, the thread would not have been created at
  this point, so those parameters would not be present.
 \layout Standard
@@ -611,7 +485,7 @@ ax} parameters.
 
 
 \begin_inset Note
-collapsed true
+collapsed false
 
 \layout Standard
 
@@ -623,7 +497,7 @@ The thread parameters are owned by component 02, the siggen module.
 
 
 \begin_inset Note
-collapsed true
+collapsed false
 
 \layout Standard
 
@@ -652,23 +526,17 @@ siggen
  exported:
 \layout LyX-Code
 
-emc2$ 
+halcmd:
 \series bold 
-bin/halcmd show funct
-\layout LyX-Code
+ show funct
+\series default 
 
+\newline 
 Exported Functions:
-\layout LyX-Code
-
+\newline 
 Owner CodeAddr   Arg    FP  Users  Name
-\layout LyX-Code
-
- 02   C48E31C4 C48D2054 YES    0   siggen.0.update
-\layout LyX-Code
-
-emc2$
-\layout LyX-Code
-
+\newline 
+ 32769   b7f74ac5 b7d0c0b4 YES    0   siggen.0.update
 \layout Standard
 
 The siggen component exported a single function.
@@ -725,31 +593,25 @@ test-thread
  with a period of 1mS (1000000nS):
 \layout LyX-Code
 
-emc2$ 
+halcmd:
 \series bold 
-bin/halcmd loadrt threads name1=test-thread period1=1000000
+ loadrt threads name1=test-thread period1=1000000
 \layout Standard
 
 Let's see if that worked:
 \layout LyX-Code
 
-emc2$ 
+halcmd:
 \series bold 
-bin/halcmd show thread
-\layout LyX-Code
+ show thread
+\newline 
 
+\series default 
 Realtime Threads:
-\layout LyX-Code
-
+\newline 
    Period   FP   Name    (Time, Max-Time)
-\layout LyX-Code
-
+\newline 
      999849 YES  test-thread    ( 0, 0 )
-\layout LyX-Code
-
-emc2$
-\layout LyX-Code
-
 \layout Standard
 
 It did.
@@ -759,14 +621,9 @@ It did.
  The next step is to connect the function to the thread:
 \layout LyX-Code
 
-emc2$ 
+halcmd:
 \series bold 
-bin/halcmd addf siggen.0.update test-thread
-\layout LyX-Code
-
-emc2$
-\layout LyX-Code
-
+ addf siggen.0.update test-thread
 \layout Standard
 
 Up till now, we've been using 
@@ -794,26 +651,19 @@ test-thread
 , and if we look at the thread list again, we see that it succeeded:
 \layout LyX-Code
 
-emc2$ 
+halcmd:
 \series bold 
-bin/halcmd show thread
-\layout LyX-Code
+ show thread
+\newline 
 
+\series default 
 Realtime Threads:
-\layout LyX-Code
-
+\newline 
    Period   FP   Name    (Time, Max-Time)
-\layout LyX-Code
-
+\newline 
      999849 YES  test-thread    ( 0, 0 )
-\layout LyX-Code
-
-                  1 siggen.0.update
-\layout LyX-Code
-
-emc2$
-\layout LyX-Code
-
+\newline 
+                 1 siggen.0.update
 \layout Standard
 
 There is one more step needed before the 
@@ -828,75 +678,46 @@ siggen
  like this:
 \layout LyX-Code
 
-emc2$ 
+halcmd:
 \series bold 
-bin/halcmd start
-\layout LyX-Code
-
-emc2$
-\layout LyX-Code
-
+ start
 \layout Standard
 
 Now the signal generator is running.
  Let's look at its output pins:
 \layout LyX-Code
 
-emc2$ 
-\series bold 
-bin/halcmd show pin
-\layout LyX-Code
-
+halcmd: show pin
+\newline 
 Component Pins:
-\layout LyX-Code
-
-Owner  Type  Dir    Value      Name
-\layout LyX-Code
-
- 02    float -W   5.61498e-01  siggen.0.cosine
-\layout LyX-Code
-
- 02    float -W  -6.89775e-01  siggen.0.sawtooth
-\layout LyX-Code
-
- 02    float -W   8.27478e-01  siggen.0.sine
-\layout LyX-Code
-
- 02    float -W  -1.00000e+00  siggen.0.square
-\layout LyX-Code
-
- 02    float -W   3.79549e-01  siggen.0.triangle
-\layout LyX-Code
-
-emc2$ 
-\series bold 
-bin/halcmd show pin
-\layout LyX-Code
-
+\newline 
+Owner  Type  Dir     Value      Name
+\newline 
+ 32769    float OUT   2.12177e-01  siggen.0.cosine
+\newline 
+ 32769    float OUT  -5.64055e-01  siggen.0.sawtooth
+\newline 
+ 32769    float OUT   9.79820e-01  siggen.0.sine
+\newline 
+ 32769    float OUT  -1.00000e+00  siggen.0.square
+\newline 
+ 32769    float OUT   1.28110e-01  siggen.0.triangle
+\newline 
+halcmd: show pin
+\newline 
 Component Pins:
-\layout LyX-Code
-
-Owner  Type  Dir    Value      Name
-\layout LyX-Code
-
- 02    float -W   9.23063e-01  siggen.0.cosine
-\layout LyX-Code
-
- 02    float -W  -8.74322e-01  siggen.0.sawtooth
-\layout LyX-Code
-
- 02    float -W   3.84649e-01  siggen.0.sine
-\layout LyX-Code
-
- 02    float -W  -1.00000e+00  siggen.0.square
-\layout LyX-Code
-
- 02    float -W   7.48645e-01  siggen.0.triangle
-\layout LyX-Code
-
-emc2$
-\layout LyX-Code
-
+\newline 
+Owner  Type  Dir     Value      Name
+\newline 
+ 32769    float OUT   5.19530e-01  siggen.0.cosine
+\newline 
+ 32769    float OUT   6.73893e-01  siggen.0.sawtooth
+\newline 
+ 32769    float OUT  -8.54452e-01  siggen.0.sine
+\newline 
+ 32769    float OUT   1.00000e+00  siggen.0.square
+\newline 
+ 32769    float OUT   3.47785e-01  siggen.0.triangle
 \layout Standard
 
 We did two 
@@ -907,7 +728,7 @@ show pin
  zero.
  The sine, cosine, sawtooth, and triangle outputs are changing constantly.
  The square output is also working, however it simply switches from +1.0
- to -1.0 every cycle, and it happened to be at -1.0 for both commands.
+ to -1.0 every cycle.
 \layout Subsection
 
 Changing parameters
@@ -922,9 +743,9 @@ setp
  Let's change the amplitude of the signal generator from 1.0 to 5.0:
 \layout LyX-Code
 
-emc2$ 
+halcmd:
 \series bold 
-bin/halcmd setp siggen.0.amplitude 5
+ setp siggen.0.amplitude 5
 \layout LyX-Code
 
 emc2$
@@ -935,81 +756,39 @@ emc2$
 Check the parameters and pins again:
 \layout LyX-Code
 
-emc2$ 
-\series bold 
-bin/halcmd show param
-\layout LyX-Code
-
+halcmd: setp siggen.0.amplitude 5
+\newline 
+halcmd: show param
+\newline 
 Parameters:
-\layout LyX-Code
-
+\newline 
 Owner  Type  Dir    Value      Name
-\layout LyX-Code
-
- 02    float  -W   5.00000e+00  siggen.0.amplitude
-\layout LyX-Code
-
- 02    float  -W   1.00000e+00  siggen.0.frequency
-\layout LyX-Code
-
- 02    float  -W   0.00000e+00  siggen.0.offset
-\layout LyX-Code
-
-emc2$ 
-\series bold 
-bin/halcmd show pin
-\layout LyX-Code
-
+\newline 
+ 32769    float  RW   5.00000e+00  siggen.0.amplitude
+\newline 
+ 32769    float  RW   1.00000e+00  siggen.0.frequency
+\newline 
+ 32769    float  RW   0.00000e+00  siggen.0.offset
+\newline 
+ 32769    s32    RO          397   siggen.0.update.time
+\newline 
+ 32769    s32    RW       109100   siggen.0.update.tmax
+\newline 
+halcmd: show pin
+\newline 
 Component Pins:
-\layout LyX-Code
-
-Owner  Type  Dir    Value      Name
-\layout LyX-Code
-
- 02    float -W  -1.66602e+00  siggen.0.cosine
-\layout LyX-Code
-
- 02    float -W   1.95935e+00  siggen.0.sawtooth
-\layout LyX-Code
-
- 02    float -W  -4.71428e+00  siggen.0.sine
-\layout LyX-Code
-
- 02    float -W   5.00000e+00  siggen.0.square
-\layout LyX-Code
-
- 02    float -W  -1.08130e+00  siggen.0.triangle
-\layout LyX-Code
-
-emc2$ 
-\series bold 
-bin/halcmd show pin
-\layout LyX-Code
-
-Component Pins:
-\layout LyX-Code
-
-Owner  Type  Dir    Value      Name
-\layout LyX-Code
-
- 02    float -W  -3.82623e+00  siggen.0.cosine
-\layout LyX-Code
-
- 02    float -W  -1.11309e+00  siggen.0.sawtooth
-\layout LyX-Code
-
- 02    float -W   3.21869e+00  siggen.0.sine
-\layout LyX-Code
-
- 02    float -W  -5.00000e+00  siggen.0.square
-\layout LyX-Code
-
- 02    float -W  -2.77382e+00  siggen.0.triangle
-\layout LyX-Code
-
-emc2$
-\layout LyX-Code
-
+\newline 
+Owner  Type  Dir     Value      Name
+\newline 
+ 32769    float OUT   4.78453e+00  siggen.0.cosine
+\newline 
+ 32769    float OUT  -4.53106e+00  siggen.0.sawtooth
+\newline 
+ 32769    float OUT   1.45198e+00  siggen.0.sine
+\newline 
+ 32769    float OUT  -5.00000e+00  siggen.0.square
+\newline 
+ 32769    float OUT   4.02213e+00  siggen.0.triangle
 \layout Standard
 
 Note that the value of parameter
@@ -1017,8 +796,6 @@ Note that the value of parameter
  siggen.0.amplitude
 \family default 
  has changed to 5.000, and that the pins now have larger values.
- The square wave output now switches from +5.0 to -5.0, and we happened to
- catch it switching this time.
 \layout Subsection
 
 Saving the HAL configuration
@@ -1043,47 +820,33 @@ show
  We can save the configuration of the entire HAL with a single command:
 \layout LyX-Code
 
-emc2$ 
+halcmd:
 \series bold 
-bin/halcmd save
-\layout LyX-Code
+ save
+\series default 
 
+\newline 
 # components
-\layout LyX-Code
-
+\newline 
 loadrt threads name1=test-thread period1=1000000
-\layout LyX-Code
-
+\newline 
 loadrt siggen
-\layout LyX-Code
-
+\newline 
 # signals
-\layout LyX-Code
-
+\newline 
 # links
-\layout LyX-Code
-
+\newline 
 # parameter values
-\layout LyX-Code
-
+\newline 
 setp siggen.0.amplitude  5.00000e+00
-\layout LyX-Code
-
+\newline 
 setp siggen.0.frequency  1.00000e+00
-\layout LyX-Code
-
+\newline 
 setp siggen.0.offset  0.00000e+00
-\layout LyX-Code
-
+\newline 
 # realtime thread/function links
-\layout LyX-Code
-
+\newline 
 addf siggen.0.update test-thread
-\layout LyX-Code
-
-emc2$
-\layout LyX-Code
-
 \layout Standard
 
 The output of the 
@@ -1109,14 +872,9 @@ save
  a file:
 \layout LyX-Code
 
-emc2$ 
+halcmd: 
 \series bold 
-bin/halcmd save >saved.hal
-\layout LyX-Code
-
-emc2$
-\layout LyX-Code
-
+save all saved.hal
 \layout Subsection
 
 Restoring the HAL configuration
@@ -1136,10 +894,7 @@ halcmd -f <filename>
 
 emc2$ 
 \series bold 
-bin/halcmd -f saved.hal
-\layout LyX-Code
-
-emc2$
+halcmd -f saved.hal
 \layout Section
 
 
@@ -1164,35 +919,37 @@ We will use the siggen component again to check out halmeter.
 
 emc2$ 
 \series bold 
-scripts/realtime start
-\layout LyX-Code
+halrun
+\newline 
 
-emc2$ 
+\series default 
+halcmd: 
 \series bold 
 loadrt siggen
-\layout LyX-Code
+\newline 
 
-emc2$ 
+\series default 
+halcmd: 
 \series bold 
 loadrt threads name1=test-thread period1=1000000
-\layout LyX-Code
+\newline 
 
-emc2$ 
+\series default 
+halcmd: 
 \series bold 
-bin/halcmd addf siggen.0.update test-thread
-\layout LyX-Code
+addf siggen.0.update test-thread
+\newline 
 
-emc2$ 
+\series default 
+halcmd:
 \series bold 
-bin/halcmd start
-\layout LyX-Code
+ start
+\newline 
 
-emc2$ 
+\series default 
+halcmd:
 \series bold 
-bin/halcmd setp siggen.0.amplitude 5
-\layout LyX-Code
-
-emc2$
+ setp siggen.0.amplitude 5
 \layout Subsection
 
 Starting halmeter
@@ -1201,44 +958,20 @@ Starting halmeter
 At this point we have the siggen component loaded and running.
  It's time to start halmeter.
  Since halmeter is a GUI app, X must be running.
- We can start halmeter in the background by following its name with a '
-\family typewriter 
-&
-\family default 
-':
 \layout LyX-Code
 
-emc2$ 
+halcmd: 
 \series bold 
-bin/halmeter &
-\layout LyX-Code
-
-[1] 22093
-\layout LyX-Code
-
-emc2$
+loadusr halmeter
 \layout Standard
 
-Since we started halmeter in the background, Linux prints its process id
- 
-\family typewriter 
-[1] 22093
-\family default 
- and immediately returns to the shell prompt.
- At the same time, a halcmd window opens on your screen, looking something
+At the same time, a halmeter window opens on your screen, looking something
  like figure 
 \begin_inset LatexCommand \ref{fig:Halmeter-demo-1}
 
 \end_inset 
 
 .
- Note that you don't have to run halmeter in the background.
- If you omit '
-\family typewriter 
-&
-\family default 
-', it will start and behave exactly the same, but you won't get your shell
- prompt back until you exit from halmeter.
 \layout Standard
 
 
@@ -1451,17 +1184,15 @@ Before we can begin building this new example, we want to start with a clean
  all components and reload the RTAPI and HAL libraries:
 \layout LyX-Code
 
+halcmd: 
+\series bold 
+exit
+\newline 
+
+\series default 
 emc2$ 
 \series bold 
-bin/halcmd unloadrt all
-\layout LyX-Code
-
-emc2$ 
-\series bold 
-scripts/realtime restart
-\layout LyX-Code
-
-emc2$
+halrun
 \layout Subsection
 
 Installing the components
@@ -1508,29 +1239,21 @@ The
 
 \layout LyX-Code
 
-emc2$ 
+halrun: 
 \series bold 
-bin/halcmd loadrt freqgen step_type=0,0
-\layout LyX-Code
+loadrt freqgen step_type=0,0
+\newline 
 
-emc2$ 
+\series default 
+halcmd:
 \series bold 
-bin/halcmd loadrt siggen
-\layout LyX-Code
+ loadrt siggen
+\newline 
 
-emc2$
+\series default 
+halcmd:
 \series bold 
- bin/halcmd loadrt threads name1=fast fp1=0 period1=50000 
-\backslash 
-
-\layout LyX-Code
-
-
-\series bold 
-name2=slow period2=1000000
-\layout LyX-Code
-
-emc2$
+ loadrt threads name1=fast fp1=0 period1=50000 name2=slow period2=1000000
 \layout Standard
 
 The first command loads two step generators, both configured to generate
@@ -1549,145 +1272,101 @@ halcmd show
  This time we have a lot more pins and parameters than before:
 \layout LyX-Code
 
-emc2$ 
+halcmd:
 \series bold 
-bin/halcmd show pin
-\layout LyX-Code
+ show pin
+\newline 
 
+\series default 
 Component Pins:
-\layout LyX-Code
-
+\newline 
 Owner  Type  Dir    Value      Name
-\layout LyX-Code
-
+\newline 
  03    float -W   0.00000e+00  siggen.0.cosine
-\layout LyX-Code
-
+\newline 
  03    float -W   0.00000e+00  siggen.0.sawtooth
-\layout LyX-Code
-
+\newline 
  03    float -W   0.00000e+00  siggen.0.sine
-\layout LyX-Code
-
+\newline 
  03    float -W   0.00000e+00  siggen.0.square
-\layout LyX-Code
-
+\newline 
  03    float -W   0.00000e+00  siggen.0.triangle
-\layout LyX-Code
-
+\newline 
  02    s32   -W            0   freqgen.0.counts
-\layout LyX-Code
-
+\newline 
  02    bit   -W     FALSE      freqgen.0.dir
-\layout LyX-Code
-
+\newline 
  02    float -W   0.00000e+00  freqgen.0.position
-\layout LyX-Code
-
+\newline 
  02    bit   -W     FALSE      freqgen.0.step
-\layout LyX-Code
-
+\newline 
  02    float R-   0.00000e+00  freqgen.0.velocity
-\layout LyX-Code
-
+\newline 
  02    s32   -W            0   freqgen.1.counts
-\layout LyX-Code
-
+\newline 
  02    bit   -W     FALSE      freqgen.1.dir
-\layout LyX-Code
-
+\newline 
  02    float -W   0.00000e+00  freqgen.1.position
-\layout LyX-Code
-
+\newline 
  02    bit   -W     FALSE      freqgen.1.step
-\layout LyX-Code
-
+\newline 
  02    float R-   0.00000e+00  freqgen.1.velocity
-\layout LyX-Code
-
-emc2$ 
+\newline 
+halcmd:
 \series bold 
-bin/halcmd show param
-\layout LyX-Code
+ show param
+\newline 
 
+\series default 
 Parameters:
-\layout LyX-Code
-
+\newline 
 Owner  Type  Dir    Value      Name
-\layout LyX-Code
-
+\newline 
  03    float  -W   1.00000e+00  siggen.0.amplitude
-\layout LyX-Code
-
+\newline 
  03    float  -W   1.00000e+00  siggen.0.frequency
-\layout LyX-Code
-
+\newline 
  03    float  -W   0.00000e+00  siggen.0.offset
-\layout LyX-Code
-
+\newline 
  02    u8     -W      1  (01)   freqgen.0.dirhold
-\layout LyX-Code
-
+\newline 
  02    u8     -W      1  (01)   freqgen.0.dirsetup
-\layout LyX-Code
-
+\newline 
  02    float  R-   0.00000e+00  freqgen.0.frequency
-\layout LyX-Code
-
+\newline 
  02    float  -W   0.00000e+00  freqgen.0.maxaccel
-\layout LyX-Code
-
+\newline 
  02    float  -W   1.00000e+15  freqgen.0.maxfreq
-\layout LyX-Code
-
+\newline 
  02    float  -W   1.00000e+00  freqgen.0.position-scale
-\layout LyX-Code
-
+\newline 
  02    s32    R-            0   freqgen.0.rawcounts
-\layout LyX-Code
-
+\newline 
  02    u8     -W      1  (01)   freqgen.0.steplen
-\layout LyX-Code
-
+\newline 
  02    u8     -W      1  (01)   freqgen.0.stepspace
-\layout LyX-Code
-
+\newline 
  02    float  -W   1.00000e+00  freqgen.0.velocity-scale
-\layout LyX-Code
-
+\newline 
  02    u8     -W      1  (01)   freqgen.1.dirhold
-\layout LyX-Code
-
+\newline 
  02    u8     -W      1  (01)   freqgen.1.dirsetup
-\layout LyX-Code
-
+\newline 
  02    float  R-   0.00000e+00  freqgen.1.frequency
-\layout LyX-Code
-
+\newline 
  02    float  -W   0.00000e+00  freqgen.1.maxaccel
-\layout LyX-Code
-
+\newline 
  02    float  -W   1.00000e+15  freqgen.1.maxfreq
-\layout LyX-Code
-
+\newline 
  02    float  -W   1.00000e+00  freqgen.1.position-scale
-\layout LyX-Code
-
+\newline 
  02    s32    R-            0   freqgen.1.rawcounts
-\layout LyX-Code
-
+\newline 
  02    u8     -W      1  (01)   freqgen.1.steplen
-\layout LyX-Code
-
+\newline 
  02    u8     -W      1  (01)   freqgen.1.stepspace
-\layout LyX-Code
-
+\newline 
  02    float  -W   1.00000e+00  freqgen.1.velocity-scale
-\layout LyX-Code
-
-emc2$ 
-\layout LyX-Code
-
 \layout Subsection
 
 Connecting pins with signals
@@ -1744,40 +1423,33 @@ wires
 , in this case it is floating point:
 \layout LyX-Code
 
-emc2$ 
+halcmd:
 \series bold 
-bin/halcmd newsig X_vel float
-\layout LyX-Code
+ newsig X_vel float
+\series default 
 
-emc2$ 
+\newline 
+halcmd:
 \series bold 
-bin/halcmd newsig Y_vel float
-\layout LyX-Code
-
-emc2$ 
+ newsig Y_vel float
 \layout Standard
 
 To make sure that worked, we can look at all the signals:
 \layout LyX-Code
 
-emc2$ 
+halcmd:
 \series bold 
-bin/halcmd show sig
-\layout LyX-Code
+ show sig
+\newline 
 
+\series default 
 Signals:
-\layout LyX-Code
-
+\newline 
 Type      Value      Name
-\layout LyX-Code
-
+\newline 
 float   0.00000e+00  X_vel
-\layout LyX-Code
-
+\newline 
 float   0.00000e+00  Y_vel
-\layout LyX-Code
-
-emc2$ 
 \layout Standard
 
 The next step is to connect the signals to component pins.
@@ -1795,12 +1467,9 @@ linksp
  command.
 \layout LyX-Code
 
-emc2$ 
+halcmd:
 \series bold 
-bin/halcmd linksp X_vel siggen.0.cosine
-\layout LyX-Code
-
-emc2$
+ linksp X_vel siggen.0.cosine
 \layout Standard
 
 To see the effect of the 
@@ -1810,29 +1479,21 @@ linksp
  command, we show the signals again:
 \layout LyX-Code
 
-emc2$ 
+halcmd:
 \series bold 
-bin/halcmd show sig
-\layout LyX-Code
+ show sig
+\series default 
 
-Signals:
-\layout LyX-Code
-
+\newline 
+ignals:
+\newline 
 Type      Value      Name
-\layout LyX-Code
-
+\newline 
 float   0.00000e+00  X_vel
-\layout LyX-Code
-
+\newline 
                          <== siggen.0.cosine
-\layout LyX-Code
-
+\newline 
 float   0.00000e+00  Y_vel
-\layout LyX-Code
-
-emc2$
-\layout LyX-Code
-
 \layout Standard
 
 When a signal is connected to one or more pins, the show command lists the
@@ -1861,12 +1522,9 @@ X_vel
  to the velocity input of a step pulse generator:
 \layout LyX-Code
 
-emc2$ 
+halcmd:
 \series bold 
-bin/halcmd linksp X_vel freqgen.0.velocity
-\layout LyX-Code
-
-emc2$ 
+ linksp X_vel freqgen.0.velocity
 \layout Standard
 
 We can also connect up the Y axis signal 
@@ -1878,52 +1536,40 @@ Y_vel
  input of the second step pulse generator:
 \layout LyX-Code
 
-emc2$ 
+halcmd:
 \series bold 
-bin/halcmd linksp Y_vel siggen.0.sine
+ linksp Y_vel siggen.0.sine
 \layout LyX-Code
 
-emc2$ 
+halcmd:
 \series bold 
-bin/halcmd linksp Y_vel freqgen.1.velocity
-\layout LyX-Code
-
-emc2$ 
+ linksp Y_vel freqgen.1.velocity
 \layout Standard
 
 Now let's take a final look at the signals and the pins connected to them:
 \layout LyX-Code
 
-emc2$ 
+halcmd:
 \series bold 
-bin/halcmd show sig
-\layout LyX-Code
+ show sig
+\series default 
 
+\newline 
 Signals:
-\layout LyX-Code
-
+\newline 
 Type      Value      Name
-\layout LyX-Code
-
+\newline 
 float   0.00000e+00  X_vel
-\layout LyX-Code
-
+\newline 
                          <== siggen.0.cosine
-\layout LyX-Code
-
+\newline 
                          ==> freqgen.0.velocity
-\layout LyX-Code
-
+\newline 
 float   0.00000e+00  Y_vel
-\layout LyX-Code
-
+\newline 
                          <== siggen.0.sine
-\layout LyX-Code
-
+\newline 
                          ==> freqgen.1.velocity
-\layout LyX-Code
-
-emc2$
 \layout Standard
 
 The 
@@ -1965,30 +1611,23 @@ wires
  First let's look at the functions available to us:
 \layout LyX-Code
 
-emc2$ 
+halcmd:
 \series bold 
-bin/halcmd show funct
-\layout LyX-Code
+ show funct
+\newline 
 
+\series default 
 Exported Functions:
-\layout LyX-Code
-
+\newline 
 Owner CodeAddr   Arg    FP  Users  Name
-\layout LyX-Code
-
+\newline 
  03   D89051C4 D88F10FC YES    0   siggen.0.update
-\layout LyX-Code
-
+\newline 
  02   D8902868 D88F1054 YES    0   freqgen.capture_position
-\layout LyX-Code
-
+\newline 
  02   D8902498 D88F1054 NO     0   freqgen.make_pulses
-\layout LyX-Code
-
+\newline 
  02   D89026F0 D88F1054 YES    0   freqgen.update_freq
-\layout LyX-Code
-
-emc2$
 \layout Standard
 
 In general, you will have to refer to the documentation for each component
@@ -2077,24 +1716,19 @@ We run functions by adding them to threads.
  Let's see what threads we have available:
 \layout LyX-Code
 
-emc2$ 
+halcmd:
 \series bold 
-bin/halcmd show thread
-\layout LyX-Code
+ show thread
+\series default 
 
+\newline 
 Realtime Threads:
-\layout LyX-Code
-
+\newline 
    Period   FP   Name
-\layout LyX-Code
-
+\newline 
     1005720 YES  slow    ( 0, 0 )
-\layout LyX-Code
-
+\newline 
       50286 NO   fast    ( 0, 0 )
-\layout LyX-Code
-
-emc2$
 \layout Standard
 
 The two threads were created when we loaded 
@@ -2134,22 +1768,21 @@ addf
  We specify the function first, followed by the thread:
 \layout LyX-Code
 
-emc2$ 
+halcmd:
 \series bold 
-bin/halcmd addf siggen.0.update slow
-\layout LyX-Code
+ addf siggen.0.update slow
+\series default 
 
-emc2$ 
+\newline 
+halcmd:
 \series bold 
-bin/halcmd addf freqgen.update_freq slow
-\layout LyX-Code
+ addf freqgen.update_freq slow
+\series default 
 
-emc2$ 
+\newline 
+halcmd:
 \series bold 
-bin/halcmd addf freqgen.make_pulses fast
-\layout LyX-Code
-
-emc2$
+ addf freqgen.make_pulses fast
 \layout Standard
 
 After we give these commands, we can run the 
@@ -2159,33 +1792,25 @@ show thread
  command again to see what happened:
 \layout LyX-Code
 
-emc2$ 
+halcmd:
 \series bold 
-bin/halcmd show thread
-\layout LyX-Code
+ show thread
+\newline 
 
+\series default 
 Realtime Threads:
-\layout LyX-Code
-
+\newline 
    Period   FP   Name    (Time, Max-Time)
-\layout LyX-Code
-
+\newline 
     1005720 YES  slow    ( 0, 0 )
-\layout LyX-Code
-
+\newline 
                   1 siggen.0.update
-\layout LyX-Code
-
+\newline 
                   2 freqgen.update-freq
-\layout LyX-Code
-
+\newline 
       50286 NO   fast    ( 0, 0 )
-\layout LyX-Code
-
+\newline 
                   1 freqgen.make-pulses
-\layout LyX-Code
-
-emc2$
 \layout Standard
 
 Now each thread is followed by the names of the functions, in the order
@@ -2222,17 +1847,15 @@ freqgen.n.velocity-scale
  scaling parameters for both to 10000:
 \layout LyX-Code
 
-emc2$ 
+halcmd:
 \series bold 
-bin/halcmd setp freqgen.0.velocity-scale 10000
-\layout LyX-Code
+ setp freqgen.0.velocity-scale 10000
+\newline 
 
-emc2$ 
+\series default 
+halcmd:
 \series bold 
-bin/halcmd setp freqgen.1.velocity-scale 10000
-\layout LyX-Code
-
-emc2$
+ setp freqgen.1.velocity-scale 10000
 \layout Standard
 
 This velocity scaling means that when the pin 
@@ -2269,12 +1892,9 @@ start
  command:
 \layout LyX-Code
 
-emc2$ 
+halcmd:
 \series bold 
-bin/halcmd start
-\layout LyX-Code
-
-emc2$
+ start
 \layout Standard
 
 Although nothing appears to happen, inside the computer the step pulse generator
@@ -2305,31 +1925,13 @@ Starting Halscope
 
 Halscope has two parts - a realtime part that is loaded as a kernel module,
  and a user part that supplies the GUI and display.
- Before starting the GUI you must load the realtime part:
+ However, you don't need to worry about this, because the userspace portion
+ will automatically request that the realtime part be loaded.
 \layout LyX-Code
 
-emc2$ 
+halcmd:
 \series bold 
-bin/halcmd loadrt scope_rt
-\layout LyX-Code
-
-emc2$
-\layout Standard
-
-Once the realtime part is loaded, we can start the GUI.
- Like halmeter, you can follow it with & so it runs in the background and
- you get your shell prompt back immediately:
-\layout LyX-Code
-
-emc2$ 
-\series bold 
-bin/halscope &
-\layout LyX-Code
-
-[2] 3678
-\layout LyX-Code
-
-emc2$
+ loadusr halscope
 \layout Standard
 
 The scope GUI window will open, immediately followed by a 

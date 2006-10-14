@@ -171,7 +171,7 @@ Realtime version, from command line:
 
 emc2$ 
 \series bold 
-bin/halcmd loadrt hal_parport 'cfg=
+halcmd loadrt hal_parport 'cfg=
 \begin_inset Quotes erd
 \end_inset 
 
@@ -315,7 +315,7 @@ Realtime version:
 
 emc2$ 
 \series bold 
-bin/halcmd unloadrt hal_parport
+halcmd unloadrt hal_parport
 \layout Standard
 
 
@@ -659,7 +659,7 @@ From command line:
 
 emc2$ 
 \series bold 
-bin/halcmd loadrt hal_ax5214h 'cfg=
+halcmd loadrt hal_ax5214h 'cfg=
 \begin_inset Quotes erd
 \end_inset 
 
@@ -756,7 +756,7 @@ Removing
 
 emc2$ 
 \series bold 
-bin/halcmd unloadrt hal_ax5214
+halcmd unloadrt hal_ax5214
 \layout Subsection
 
 Pins
@@ -921,7 +921,7 @@ Installing:
 
 emc2$ 
 \series bold 
-bin/halcmd loadrt hal_stg [base=<address>] [num_chan=<nr>] 
+halcmd loadrt hal_stg [base=<address>] [num_chan=<nr>] 
 \backslash 
 
 \layout LyX-Code
@@ -969,7 +969,7 @@ hint: after starting up the driver, 'dmesg' can be consulted for messages
 
 emc2$ 
 \series bold 
-bin/halcmd loadrt hal_stg base=0x300 num_chan=4 dio=''IOIO''
+halcmd loadrt hal_stg base=0x300 num_chan=4 dio=''IOIO''
 \layout Standard
 
 This example installs the stg driver for a card found at the base address
@@ -981,7 +981,7 @@ This example installs the stg driver for a card found at the base address
 
 emc2$ 
 \series bold 
-bin/halcmd loadrt hal_stg
+halcmd loadrt hal_stg
 \layout Standard
 
 This example installs the driver and attempts to autodetect the board address
@@ -994,7 +994,7 @@ Removing
 
 emc2$ 
 \series bold 
-bin/halcmd unloadrt hal_stg
+halcmd unloadrt hal_stg
 \layout Subsection
 
 Pins
@@ -1328,7 +1328,7 @@ Installing:
 
 emc2$ 
 \series bold 
-bin/halcmd loadrt hal_m5i20 [loadFpga=1|0] [dacRate=<rate>]
+halcmd loadrt hal_m5i20 [loadFpga=1|0] [dacRate=<rate>]
 \layout Standard
 
 If 
@@ -1375,7 +1375,7 @@ Removing
 
 emc2$ 
 \series bold 
-bin/halcmd unloadrt hal_m5i20
+halcmd unloadrt hal_m5i20
 \layout Subsection
 
 Pins
@@ -3930,7 +3930,7 @@ Installing:
 
 emc2$ 
 \series bold 
-bin/halcmd loadrt hal_motenc
+halcmd loadrt hal_motenc
 \layout Standard
 
 During loading (or attempted loading) the driver prints some usefull debugging
@@ -3948,7 +3948,7 @@ Removing
 
 emc2$ 
 \series bold 
-bin/halcmd unloadrt hal_motenc
+halcmd unloadrt hal_motenc
 \layout Subsection
 
 Pins
@@ -4301,7 +4301,7 @@ Installing:
 
 emc2$ 
 \series bold 
-bin/halcmd loadrt hal_ppmc port_addr=<addr1>[,<addr2>[,<addr3>]]
+halcmd loadrt hal_ppmc port_addr=<addr1>[,<addr2>[,<addr3>]]
 \layout Standard
 
 The 
@@ -4353,7 +4353,7 @@ Removing
 
 emc2$ 
 \series bold 
-bin/halcmd unloadrt hal_ppmc
+halcmd unloadrt hal_ppmc
 \layout Subsection
 
 Pins

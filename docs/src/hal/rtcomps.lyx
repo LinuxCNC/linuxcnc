@@ -104,15 +104,7 @@ Installing
 
 emc2$ 
 \series bold 
-bin/halcmd loadrt stepgen step_type=
-\begin_inset Quotes erd
-\end_inset 
-
-<config-array>
-\begin_inset Quotes erd
-\end_inset 
-
-
+halcmd loadrt stepgen step_type=<config-array>
 \layout Standard
 
 
@@ -127,15 +119,7 @@ bin/halcmd loadrt stepgen step_type=
 
 emc2# 
 \series bold 
-/sbin/insmod rtlib/stepgen.o step_type=
-\begin_inset Quotes erd
-\end_inset 
-
-0,0,2
-\begin_inset Quotes erd
-\end_inset 
-
-
+halcmd loadrt stepgen.o step_type=0,0,2
 \layout Standard
 
 will install three step generators, two with step type '0' (step and direction)
@@ -173,7 +157,7 @@ Removing
 
 emc2$ 
 \series bold 
-bin/halcmd unloadrt stepgen
+halcmd unloadrt stepgen
 \layout Subsection
 
 Pins
@@ -818,15 +802,7 @@ Installing
 
 emc2$ 
 \series bold 
-bin/halcmd loadrt freqgen step_type=
-\begin_inset Quotes erd
-\end_inset 
-
-<config-array>
-\begin_inset Quotes erd
-\end_inset 
-
-
+halcmd loadrt freqgen step_type=<config-array>
 \layout Standard
 
 
@@ -841,15 +817,7 @@ bin/halcmd loadrt freqgen step_type=
 
 emc2$ 
 \series bold 
-bin/halcmd loadrt freqgen step_type=
-\begin_inset Quotes erd
-\end_inset 
-
-0,0,2
-\begin_inset Quotes erd
-\end_inset 
-
-
+halcmd loadrt freqgen step_type=0,0,2
 \layout Standard
 
 will install three frequency generators, two with step type '0' (step and
@@ -888,7 +856,7 @@ Removing
 
 emc2$ 
 \series bold 
-bin/halcmd unloadrt freqgen
+halcmd unloadrt freqgen
 \layout Subsection
 
 Pins
@@ -1300,7 +1268,7 @@ Installing
 
 emc2$ 
 \series bold 
-bin/halcmd loadrt encoder [num_chan=<counters>]
+halcmd loadrt encoder [num_chan=<counters>]
 \layout Standard
 
 
@@ -1329,7 +1297,7 @@ Removing
 
 emc2$ 
 \series bold 
-bin/halcmd unloadrt encoder
+halcmd unloadrt encoder
 \layout Subsection
 
 Pins
@@ -1569,7 +1537,7 @@ Installing
 
 emc2$ 
 \series bold 
-bin/halcmd loadrt pid [num_chan=<loops>] [debug=1] [fp_period=<nsec>]
+halcmd loadrt pid [num_chan=<loops>] [debug=1] [fp_period=<nsec>]
 \layout Standard
 
 
@@ -1621,7 +1589,7 @@ Removing
 
 emc2$ 
 \series bold 
-bin/halcmd unloadrt pid
+halcmd unloadrt pid
 \layout Subsection
 
 Pins
@@ -2013,7 +1981,7 @@ Installing
 
 emc2$ 
 \series bold 
-bin/halcmd loadrt sim-encoder num_chan=<number>
+halcmd loadrt sim-encoder num_chan=<number>
 \layout Standard
 
 
@@ -2031,7 +1999,7 @@ Removing
 
 emc2$ 
 \series bold 
-bin/halcmd unloadrt sim-encoder
+halcmd unloadrt sim-encoder
 \layout Subsection
 
 Pins
@@ -2211,7 +2179,7 @@ Installing
 
 emc2$ 
 \series bold 
-bin/halcmd loadrt debounce cfg=
+halcmd loadrt debounce cfg=
 \begin_inset Quotes erd
 \end_inset 
 
@@ -2234,7 +2202,7 @@ bin/halcmd loadrt debounce cfg=
 
 emc2$ 
 \series bold 
-bin/halcmd loadrt debounce cfg=
+halcmd loadrt debounce cfg=
 \begin_inset Quotes erd
 \end_inset 
 
@@ -2288,7 +2256,7 @@ Removing
 
 emc2$ 
 \series bold 
-bin/halcmd unloadrt debounce
+halcmd unloadrt debounce
 \layout Subsection
 
 Pins
@@ -2507,7 +2475,7 @@ Installing
 
 emc2$ 
 \series bold 
-bin/halcmd loadrt blocks <blockname>=<number>
+halcmd loadrt blocks <blockname>=<number>
 \layout LyX-Code
 
 \layout Standard
@@ -2529,7 +2497,7 @@ bin/halcmd loadrt blocks <blockname>=<number>
 
 emc2$ 
 \series bold 
-bin/halcmd loadrt blocks wcomp=2 sum2=1 comp=3
+halcmd loadrt blocks wcomp=2 sum2=1 comp=3
 \layout Standard
 
 installs two window comparators (wcomp), one two-input summer (sum2), and
@@ -2542,7 +2510,7 @@ Removing
 
 emc2$ 
 \series bold 
-bin/halcmd unloadrt blocks
+halcmd unloadrt blocks
 \layout Subsection
 
 Pins
@@ -3058,7 +3026,7 @@ Installing
 
 emc2$ 
 \series bold 
-bin/halcmd loadrt siggen [num_chan=<chans>] [fp_period=<nsec>]
+halcmd loadrt siggen [num_chan=<chans>] [fp_period=<nsec>]
 \layout LyX-Code
 
 \layout Standard
@@ -3101,7 +3069,7 @@ Removing
 
 emc2$ 
 \series bold 
-bin/halcmd unloadrt siggen
+halcmd unloadrt siggen
 \layout Subsection
 
 Pins
