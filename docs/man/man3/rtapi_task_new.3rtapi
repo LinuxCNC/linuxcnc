@@ -1,0 +1,40 @@
+
+.TH rtapi_task_new "3rtapi" "2006-10-12" "EMC Documentation" "RTAPI"
+.SH NAME
+
+rtapi_task_new \- create a realtime task
+
+.SH SYNTAX
+.HP
+int rtapi_task_new(void (*\fItaskcode\fR)(void*), void *\fIarg\fR,
+	int \fIprio\fR, unsigned long \fIstacksize\fR, int \fIuses_fp\fR)
+.HP
+int rtapi_task_delete(int \fItask_id\fR)
+.HP
+.SH  ARGUMENTS
+.IP \fItaskcode\fR
+A pointer to the function to be called when the task is started
+.IP \fIarg\fR
+An argument to be passed to the \fItaskcode\fR function when the task is
+started
+.IP \fIprio\fR
+A task priority value returned by \fBrtapi_prio_xxxx\fR
+.IP \fIuses_fp\fR
+A flag that tells the OS whether the task uses floating point or not.
+.IP \fItask_id\fR
+A task ID returned by a previous call to \fBrtapi_task_new\fR
+.SH DESCRIPTION
+\fBrtapi_task_new\fR creates but does not start a realtime task.  The task is
+created in the "paused" state.  To start it, call either \fBrtapi_task_start\fR
+for periodic tasks, or \fBrtapi_task_resume\fR for free-running tasks.
+
+.SH REALTIME CONSIDERATIONS
+Call only from within init/cleanup code, not from realtime tasks.
+
+.SH RETURN VALUE
+On success, returns a positive integer task ID.  This ID is used
+for all subsequent calls that need to act on the task.  On failure,
+returns an RTAPI status code.
+
+.SH SEE ALSO
+\fBrtapi_prio(3rtapi)\fR, \fBrtapi_task_start(3rtapi)\fR, \fBrtapi_task_wait(3rtapi)\fR, \fBrtapi_task_resume(3rtapi)

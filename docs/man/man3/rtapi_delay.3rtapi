@@ -1,0 +1,34 @@
+
+.TH rtapi_delay "3rtapi" "2006-10-12" "EMC Documentation" "RTAPI"
+.SH NAME
+
+rtapi_delay \- one-line description of rtapi_delay
+
+.SH SYNTAX
+.HP
+void rtapi_delay(long int \fInsec\fR)
+.HP
+void rtapi_delay_max()
+
+.SH  ARGUMENTS
+.IP \fInsec\fR
+The desired delay length in nanoseconds
+
+.SH DESCRIPTION
+\fBrtapi_delay\fR is a simple delay.  It is intended only for short delays,
+since it simply loops, wasting CPU cycles.  'nsec' is the desired delay, in
+nano-seconds.  'rtapi_delay_max() returns the max delay permitted (usually
+approximately 1/4 of the clock period).  Any call to 'rtapi_delay()' requesting
+a delay longer than the max will delay for the max time only.
+'rtapi_delay_max()' should be called befure using 'rtapi_delay()' to make sure
+the required delays can be achieved.  The actual resolution of the delay may be
+as good as one nano-second, or as bad as a several microseconds. 
+
+.SH REALTIME CONSIDERATIONS
+May be called from init/cleanup code, and from within realtime tasks.
+
+.SH RETURN VALUE
+\fBrtapi_delay_max\fB returns the maximum delay permitted.
+
+.SH SEE ALSO
+\fBrtapi_clock_set_period(3rtapi)\fR

@@ -63,5 +63,38 @@ information are stored in a block of shared memory and protected with mutexes,
 so that kernel modules and any of several user mode programs can access the
 data.
 
+.SH HAL STATUS CODES
+
+.TP
+HAL_SUCCESS       
+call successful
+.TP
+HAL_UNSUP         
+function not supported  
+.TP
+HAL_BADVAR        
+duplicate or not-found variable name 
+.TP
+HAL_INVAL         
+invalid argument  
+.TP
+HAL_NOMEM         
+not enough memory 
+.TP
+HAL_LIMIT         
+resource limit reached 
+.TP
+HAL_PERM          
+permission denied 
+.TP
+HAL_BUSY          
+resource is busy or locked 
+.TP
+HAL_NOTFND        
+object not found 
+.TP
+HAL_FAIL          
+operation failed 
+
 .SH SEE ALSO
 \fBintro(3rtapi)\fR

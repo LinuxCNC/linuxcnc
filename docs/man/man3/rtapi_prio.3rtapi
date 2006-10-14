@@ -1,0 +1,49 @@
+
+.TH rtapi_prio "3hal" "2006-10-12" "EMC Documentation" "RTAPI"
+.SH NAME
+
+rtapi_prio \- thread priority functions
+
+.SH SYNTAX
+.HP
+int rtapi_prio_highest()
+.HP
+int rtapi_prio_lowest()
+.HP
+int rtapi_prio_next_higher(int \fIprio\fR)
+.HP
+int rtapi_prio_next_lower(int \fIprio\fR)
+
+.SH  ARGUMENTS
+.IP \fIprio\fR
+A value returned by a prior \fBrtapi_prio_xxx\fR call
+
+.SH DESCRIPTION
+The \fBrtapi_prio_xxxx\fR functions provide a portable way to set task
+priority.  The mapping of actual priority to priority number depends on the
+RTOS.  Priorities range from \fBrtapi_prio_lowest\fR to
+\fBrtapi_prio_highest\fR, inclusive. To use this API, use one of two methods:
+
+.IP 1)
+Set your lowest priority task to \fBrtapi_prio_lowest\fR, and for
+each task of the next lowest priority, set their priorities to
+\fBrtapi_prio_next_higher(previous)\fR.
+
+.IP 2)
+Set your highest priority task to \fBrtapi_prio_highest\fR, and
+for each task of the next highest priority, set their priorities
+to \fBrtapi_prio_next_lower(previous)\fR.
+
+.PP
+N.B. A high priority task will pre-empt or interrupt a lower priority
+task. Linux is always the lowest priority!
+
+.SH REALTIME CONSIDERATIONS
+Call these functions only from within init/cleanup code, not from realtime
+tasks.
+
+.SH RETURN VALUE
+Returns an opaque real-time priority number.
+
+.SH SEE ALSO
+\fBrtapi_task_new(3rtapi)\fR

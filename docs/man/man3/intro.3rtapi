@@ -13,3 +13,36 @@ code.  This is a change from Rev 2, where the non-realtime (user space) API
 was defined in ulapi.h and used different function names.  The symbols RTAPI
 and ULAPI are used to determine which mode is being compiled, RTAPI for
 realtime and ULAPI for non-realtime.
+
+
+.SH RTAPI STATUS CODES
+.TP
+RTAPI_SUCCESS     
+call successfull 
+.TP
+RTAPI_UNSUP       
+function not supported 
+.TP
+RTAPI_BADID       
+bad task, shmem, sem, or fifo ID 
+.TP
+RTAPI_INVAL       
+invalid argument 
+.TP
+RTAPI_NOMEM       
+not enough memory 
+.TP
+RTAPI_LIMIT       
+resource limit reached 
+.TP
+RTAPI_PERM        
+permission denied 
+.TP
+RTAPI_BUSY        
+resource is busy or locked 
+.TP
+RTAPI_NOTFND      
+object not found 
+.TP
+RTAPI_FAIL        
+operation failed

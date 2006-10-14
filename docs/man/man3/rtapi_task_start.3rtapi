@@ -1,0 +1,26 @@
+
+.TH rtapi_task_start "3rtapi" "2006-10-12" "EMC Documentation" "RTAPI"
+.SH NAME
+
+rtapi_task_start \- start a realtime task in periodic mode
+
+.SH SYNTAX
+.HP
+int rtapi_task_start(int \fItask_id\fR, unsigned long \fIperiod_nsec\fR)
+.SH  ARGUMENTS
+.IP \fItask_id\fR
+A task ID returned by a previous call to \fBrtapi_task_new\fR
+.IP \fIperiod_nsec\fR
+The clock period in nanoseconds between iterations of a periodic task
+.SH DESCRIPTION
+\fBrtapi_task_start\fR starts a task in periodic mode.  The task must be in the
+\fIpaused\fR state.
+
+.SH REALTIME CONSIDERATIONS
+Call only from within init/cleanup code, not from realtime tasks.
+
+.SH RETURN VALUE
+Returns an RTAPI status code.
+
+.SH SEE ALSO
+\fBrtapi_task_new(3rtapi)\fR, \fBrtapi_task_pause(3rtapi)\fR, \fBrtapi_task_resume(3rtapi)
