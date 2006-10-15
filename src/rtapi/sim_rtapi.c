@@ -133,6 +133,10 @@ static int period = 0;
 int rtapi_clock_set_period(unsigned long int nsecs)
 {
   if(nsecs == 0) return period;
+  if(period != 0) {
+      rtapi_print_msg(RTAPI_MSG_ERR, "attempt to set period twice\n");
+      return RTAPI_INVAL;
+  }
   period = nsecs;
   return period;
 }
@@ -172,7 +176,7 @@ int rtapi_task_new(void (*taskcode) (void*), void *arg,
 
   /* and return handle to the caller */
 
-  return RTAPI_SUCCESS;
+  return n;
 }
 
 
@@ -210,8 +214,8 @@ static void *wrapper(void *arg)
 
   /* use the argument to point to the task data */
   task = (struct rtapi_task*)arg;
-  if(task->period == 0) task->period = period;
-  rtapi_print_msg(RTAPI_MSG_DBG, "task period = %d\n", task->period);
+  if(task->period < period) task->period = period;
+  rtapi_print_msg(RTAPI_MSG_INFO, "task %p period = %d\n", task, task->period);
 
   gettimeofday_nano(&task->schedule);
   /* call the task function with the task argument */
@@ -236,13 +240,23 @@ int rtapi_task_start(int task_id, unsigned long int period_nsec)
   if (task->magic != TASK_MAGIC)
     return RTAPI_INVAL;
 
+  task->period = period_nsec;
+
   /* get default thread attributes */
   pthread_attr_init(&attr);
 
   /* set priority */
   sched_param.sched_priority = task->prio;
-  pthread_attr_setschedparam(&attr, &sched_param);
-  pthread_attr_setstacksize(&attr, task->stacksize);
+  retval = pthread_attr_setschedparam(&attr, &sched_param);
+  if(retval != 0) {
+      rtapi_print_msg(RTAPI_MSG_ERR, "pthread_attr_setschedparam failed: %d\n",
+	      retval);
+  }
+  retval = pthread_attr_setstacksize(&attr, task->stacksize);
+  if(retval != 0) {
+      rtapi_print_msg(RTAPI_MSG_ERR, "pthread_attr_setstacksize failed: %d\n",
+	      retval);
+  }
 
   /* create the thread - use the wrapper function, pass it a pointer
      to the task structure so it can call the actual task function */
@@ -250,11 +264,13 @@ int rtapi_task_start(int task_id, unsigned long int period_nsec)
   if (retval != 0)
     return RTAPI_NOMEM;
 
+
     /* need to be root to set SCHED_FIFO */
    retval = pthread_setschedparam(task->id, SCHED_FIFO, &sched_param);
    if (retval != 0) {
        rtapi_print_msg(RTAPI_MSG_DBG, "could not set SCHED_FIFO (not fatal)\n");
    }
+
   return RTAPI_SUCCESS;
 }
 
@@ -328,6 +344,7 @@ static void maybe_sleep(struct rtapi_task *t) {
     struct timespec interval;
 
     gettimeofday_nano(&now);
+
     t->schedule.tv_nsec += t->period;
     if(t->schedule.tv_nsec > 1000000000) {
         t->schedule.tv_nsec -= 1000000000;
