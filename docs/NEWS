@@ -1,6 +1,8 @@
 # some of EMC2 History & News
 #############################
 
+2006.10.14 - manpages have been created for most rtapi and hal calls
+
 2006.10.01 - added a userspace simulator which includes rtapi threads.
 	     Use "--enable-simulator" to enable this mode, which cannot
 	     be used to control real hardware
