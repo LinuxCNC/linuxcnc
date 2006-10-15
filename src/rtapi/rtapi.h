@@ -874,6 +874,9 @@ static const char __module_license[] __attribute__((section(".modinfo"))) =   \
 
 #endif /* RTAPI */
 
+#if defined(SIM)
+extern long int simple_strtol(const char *nptr, char **endptr, int base);
+#endif
 
 #ifdef __cplusplus
 }
