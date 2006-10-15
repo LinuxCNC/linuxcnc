@@ -536,9 +536,9 @@ static int get_sample_info(int chan_num, int x, double *t, double *v) {
 
     if(!vert->chan_enabled[chan_num - 1]
 		    || vert->data_offset[chan_num - 1] < 0) {
-	    return -1;
+        return -1;
     }
-    if(n < 0 || n > ctrl_shm->rec_len) return 0;
+    if(n < 0 || n > ctrl_shm->rec_len) { return 0; }
     dptr += n * sample_len;
 
     switch (type) {
@@ -648,6 +648,11 @@ static int handle_motion(GtkWidget *widget, GdkEventButton *event, gpointer data
     return TRUE;
 }
 
+#ifdef MARKUP
+#define TIPFORMAT "<tt>f(% 8.5f) = % 8.3f</tt>"
+#else
+#define TIPFORMAT "f(% 8.5f) = % 8.3f"
+#endif
 static void update_readout(void) {
     scope_vert_t *vert = &(ctrl_usr->vert);
     char tip[512];
@@ -655,27 +660,21 @@ static void update_readout(void) {
             vert->readout_label->allocation.y,
             vert->readout_label->allocation.width,
             vert->readout_label->allocation.height};
-#ifdef MARKUP
-    char tip2[sizeof(tip) + 10];
-#endif
     if(vert->selected != -1) {
-        double t, v;
+        double t=0, v=0;
         int result = get_sample_info(vert->selected, motion_x, &t, &v);
         t = t * 1e-6;
-        if(result) { 
-            snprintf(tip, sizeof(tip),
-                    "f(% 8.5f) = % 8.3f", t, v);
+        if(result > 0) { 
+            snprintf(tip, sizeof(tip), TIPFORMAT, t, v);
         } else { 
 	    strcpy(tip, "");
         }
-
     } else {
             strcpy(tip, "");
     }
 
 #ifdef MARKUP
-    snprintf(tip2, sizeof(tip2), "<tt>%s</tt>", tip);
-    gtk_label_set_markup(GTK_LABEL(vert->readout_label), tip2);
+    gtk_label_set_markup(GTK_LABEL(vert->readout_label), tip);
 #else
     gtk_label_set_text(GTK_LABEL(vert->readout_label), tip);
 #endif
