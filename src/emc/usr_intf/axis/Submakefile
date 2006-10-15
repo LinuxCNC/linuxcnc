@@ -40,9 +40,11 @@ PYTARGETS += $(EMCMODULE) $(MINIGLMODULE) $(SETICONMODULE) $(TOGLMODULE)
 
 PYSCRIPTS := axis.py axis-remote.py emctop.py hal_manualtoolchange.py \
 	mdi.py image-to-gcode.py lintini.py
+PYBIN := $(patsubst %.py,../bin/%,$(PYSCRIPTS))
+PYTARGETS += $(PYBIN)
 
 
-../bin/%: emc/usr_intf/axis/scripts/%.py
+$(PYBIN): ../bin/%: emc/usr_intf/axis/scripts/%.py
 	@$(ECHO) Syntax checking python script $(notdir $@)
 	@$(PYTHON) -c 'import sys; compile(open(sys.argv[1]).read(), sys.argv[1], "exec")' $<
 	$(ECHO) Copying python script $(notdir $@)
@@ -52,7 +54,6 @@ PYI18NSRCS := $(addprefix emc/usr_intf/axis/scripts/, $(PYSCRIPTS))  \
 	../lib/python/propertywindow.py \
 	../share/axis/tcl/axis.tcl
 
-PYTARGETS += $(patsubst %.py,../bin/%,$(PYSCRIPTS))
 
 po/axis.pot: $(PYI18NSRCS)
 	$(XGETTEXT) -k_ -o $@ $^
