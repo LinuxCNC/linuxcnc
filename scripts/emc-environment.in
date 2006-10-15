@@ -42,4 +42,10 @@ else
     MANPATH=@EMC2_HOME@/docs/man:"$MANPATH"
 fi
 
+# TODO: if these completion directives give trouble for any versions
+# of bash actively in use, protect them with checks of BASH_VERSINFO
+complete -o plusdirs -f -X '!*.ini' emc axis mdi
+complete -o plusdirs -f -X '!*.hal' halrun halcmd
+complete -W 'start stop restart status' realtime
+
 export PYTHONPATH MANPATH
