@@ -110,9 +110,9 @@ INCLUDE += -I$(INCLUDEPY)
 endif
 
 # Compilation options.  Perhaps some of these should come from Makefile.inc?
-OPT := -O
+OPT := -O2 $(call cc-option, -funit-at-a-time) $(call cc-option,-fno-strict-aliasing)
 DEBUG := -g -Wall
-CFLAGS := $(INCLUDE) $(OPT) $(DEBUG) -DULAPI $(call cc-option, -Wdeclaration-after-statement)
+CFLAGS := $(INCLUDE) $(OPT) $(DEBUG) -DULAPI $(call cc-option, -std=gnu89) $(call cc-option, -Wdeclaration-after-statement)
 CXXFLAGS := $(INCLUDE) $(OPT) $(DEBUG) -DULAPI
 
 ifeq ($(RUN_IN_PLACE),yes)
@@ -581,7 +581,7 @@ motmod-objs += libnml/posemath/sincos.o $(MATHSTUB)
 
 TORTOBJS = $(foreach file,$($(patsubst %.o,%,$(1))-objs), objects/rt$(file))
 ifeq ($(BUILD_SYS),sim)
-EXTRA_CFLAGS += -fPIC
+EXTRA_CFLAGS += -fPIC -O2
 RTOBJS := $(sort $(foreach mod,$(obj-m),$(call TORTOBJS,$(mod))))
 
 RTDEPS := $(sort $(patsubst objects/%.o,depends/%.d, $(RTOBJS)))
@@ -593,13 +593,13 @@ modules: $(patsubst %.o,../rtlib/%.so,$(obj-m))
 $(sort $(RTDEPS)): depends/rt%.d: %.c
 	@mkdir -p $(dir $@)
 	$(ECHO) Depending $<
-	@$(call DEP,$(CC),$@ $(patsubst depends/%.d,objects/%.o,$@),$@,-DSIM -DRTAPI $(EXTRA_CFLAGS) $<)
+	@$(call DEP,$(CC),$@ $(patsubst depends/%.d,objects/%.o,$@),$@,$(OPT) $(DEBUG) -DSIM -DRTAPI $(EXTRA_CFLAGS) $<)
 
 # Rules to make .o (object) files
 $(sort $(RTOBJS)) : objects/rt%.o : %.c
 	$(ECHO) Compiling realtime $<
 	@mkdir -p $(dir $@)
-	@$(CC) -c -g -DSIM -DSIMULATOR -DRTAPI $(EXTRA_CFLAGS) $< -o $@
+	@$(CC) -c $(OPT) $(DEBUG) -DSIM -DSIMULATOR -DRTAPI $(EXTRA_CFLAGS) $< -o $@
 endif
 
 ifeq ($(BUILD_SYS),normal)
