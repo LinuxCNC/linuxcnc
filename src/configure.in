@@ -812,16 +812,14 @@ AC_ARG_WITH(python,
         PYTHON=python
     ])
 AC_PATH_PROG(PYTHON,$PYTHON,"none", /bin:/usr/bin:/usr/local/bin)
-
-AC_PATH_PROG(YAPPS,yapps,"none", /bin:/usr/bin:/usr/local/bin)
-AC_SUBST([YAPPS])
-if test $YAPPS = "none"
+if test $PYTHON = "none"
 then
-    AC_MSG_WARN([yapps not found, .comp files will not be built -- install the 'yapps2' package])
+    AC_MSG_ERROR([python not found])
 fi
+
 AC_MSG_CHECKING([whether to build documentation])
 AC_ARG_ENABLE(build-documentation,
-    [  --disable-build-documentation   Do not build documentation automatically],
+    [  --disable-build-documentation   Do not build documentation],
     [
         case "$enableval" in
         Y*|y*)

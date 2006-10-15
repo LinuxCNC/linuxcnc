@@ -1,4 +1,3 @@
-ifneq ($(YAPPS),none)
 ifneq ($(KERNELRELEASE),)
 COMPS := $(patsubst $(BASEPWD)/%,%,$(wildcard $(BASEPWD)/hal/components/*.comp $(BASEPWD)/hal/drivers/*.comp))
 include $(patsubst %.comp, $(BASEPWD)/objects/%.mak, $(COMPS))
@@ -36,7 +35,6 @@ objects/%.c: %.comp ../bin/comp
 	@../bin/comp -o $@ $<
 
 modules: $(patsubst %.comp, objects/%.c, $(COMPS) $(COMP_DRIVERS))
-endif
 
 HALSTREAMERSRCS := hal/components/streamer_usr.c
 USERSRCS += $(HALSTREAMERSRCS)
