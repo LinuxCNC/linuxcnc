@@ -246,7 +246,7 @@ extern "C" {			/* Need this when the header is included in a
 */
     static __inline__ void rtapi_mutex_get(unsigned long *mutex) {
 	while (test_and_set_bit(0, mutex)) {
-#ifdef RTAPI
+#if defined(RTAPI) && !defined(SIM)
 	    schedule();
 #else
 	    sched_yield();
