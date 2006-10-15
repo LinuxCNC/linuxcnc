@@ -1,6 +1,6 @@
 component integ "Integrator";
 pin in float in;
-pin io float out "The discrete integral of 'in' since 'reset' was deasserted";
+pin out float out "The discrete integral of 'in' since 'reset' was deasserted";
 pin in bit reset "When asserted, set out to 0";
 function _;
 ;;

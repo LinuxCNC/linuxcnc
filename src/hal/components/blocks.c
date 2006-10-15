@@ -1047,7 +1047,7 @@ static int export_constant(int num)
     msg = rtapi_get_msg_level();
     rtapi_set_msg_level(RTAPI_MSG_WARN);
 
-    /* allocate shared memory for window comparator */
+    /* allocate shared memory for constant */
     constant = hal_malloc(sizeof(constant_t));
     if (constant == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,

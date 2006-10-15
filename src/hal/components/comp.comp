@@ -1,4 +1,4 @@
-component comp "Two input comparator";
+component comp "Two input comparator with hystersis";
 pin in float in0 "Inverting input to the comparator";
 pin in float in1 "Non-inverting input to the comparator";
 pin out bit out """Output of the comparator.

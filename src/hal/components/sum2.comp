@@ -1,9 +1,9 @@
 component sum2 "Sum of two inputs (each with a gain) and an offset";
 pin in float in0;
 pin in float in1;
-pin in float gain0;
-pin in float gain1;
-pin in float offset;
+param rw float gain0;
+param rw float gain1;
+param rw float offset;
 pin out float out "out = in0 * gain0 + in1 * gain1 + offset";
 function _;
 ;;

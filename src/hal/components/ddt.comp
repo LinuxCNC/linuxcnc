@@ -19,7 +19,7 @@ component ddt "Compute the derivative of the input function";
 pin in float in;
 pin out float out;
 
-option data float;
+option data ddt_data;
 
 function _;
 ;;
@@ -29,6 +29,6 @@ typedef struct { float old; } ddt_data;
 
 FUNCTION(_) {
     float tmp = in;
-    out = (tmp - data) / (period * 1e-9);
-    data = tmp;
+    out = (tmp - data.old) / (period * 1e-9);
+    data.old = tmp;
 }
