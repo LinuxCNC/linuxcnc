@@ -416,9 +416,6 @@ Suggestion: Split this in to an Error and a Status flag register..
 #define HOME_USE_INDEX		2
 #define HOME_IS_SHARED		4
 
-/* flags for switch config */
-#define SWITCHES_LATCH_LIMITS	16
-
 /* This structure contains all of the data associated with
    a single joint.  Note that this structure does not need
    to be in shared memory (but it can, if desired for debugging
@@ -440,7 +437,6 @@ Suggestion: Split this in to an Error and a Status flag register..
 	double acc_limit;	/* upper limit of joint accel */
 	double min_ferror;	/* zero speed following error limit */
 	double max_ferror;	/* max speed following error limit */
-	int switch_flags;	/* config flags for limit switches */
 	double home_search_vel;	/* dir/spd to look for home switch */
 	double home_latch_vel;	/* dir/spd to latch switch/index pulse */
 	double home_offset;	/* dir/dist from switch to home point */
@@ -476,10 +472,8 @@ Suggestion: Split this in to an Error and a Status flag register..
 	   space */
 	CUBIC_STRUCT cubic;	/* cubic interpolator data */
 
-	double pos_limit_pos;	/* latched position of limit sw */
-	int pos_limit_latch;	/* non-zero if on limit */
-	double neg_limit_pos;	/* latched position of limit sw */
-	int neg_limit_latch;	/* non-zero if on limit */
+	int on_pos_limit;	/* non-zero if on limit */
+	int on_neg_limit;	/* non-zero if on limit */
 	double home_sw_pos;	/* latched position of home sw */
 	int home_pause_timer;	/* used to delay between homing states */
 	char home_sw_old;	/* previous value, for edge detection */

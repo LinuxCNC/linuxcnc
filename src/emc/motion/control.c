@@ -480,46 +480,8 @@ static void process_inputs(void)
 	} else {
 	    SET_JOINT_NHL_FLAG(joint, 0);
 	}
-	/* Some machines can coast past the limit switches - this makes EMC
-	   think the machine is no longer on the limit. To avoid this
-	   problem, we latch the position when the limit first trips, and we
-	   won't release the limit unless the current position is inside the
-	   latched position. We use motor position because joint position
-	   makes step changes during homing */
-	/* latching of limit switches is optional - it should not be used if
-	   pos_limit and neg_limit are tied together */
-	if (joint->switch_flags & SWITCHES_LATCH_LIMITS) {
-	    if (GET_JOINT_PHL_FLAG(joint)) {
-		if (!joint->pos_limit_latch) {
-		    /* on switch and not latched */
-		    joint->pos_limit_latch = 1;
-		    joint->pos_limit_pos = joint->motor_pos_fb;
-		}
-	    } else {
-		if (joint->pos_limit_latch &&
-		    (joint->motor_pos_fb < joint->pos_limit_pos)) {
-		    /* off switch and inside switch position */
-		    joint->pos_limit_latch = 0;
-		}
-	    }
-	    if (GET_JOINT_NHL_FLAG(joint)) {
-		if (!joint->neg_limit_latch) {
-		    /* on switch and not latched */
-		    joint->neg_limit_latch = 1;
-		    joint->neg_limit_pos = joint->motor_pos_fb;
-		}
-	    } else {
-		if (joint->neg_limit_latch &&
-		    (joint->motor_pos_fb > joint->neg_limit_pos)) {
-		    /* off switch and inside switch position */
-		    joint->neg_limit_latch = 0;
-		}
-	    }
-	} else {
-	    /* don't latch, just copy flags */
-	    joint->pos_limit_latch = GET_JOINT_PHL_FLAG(joint);
-	    joint->neg_limit_latch = GET_JOINT_NHL_FLAG(joint);
-	}
+	joint->on_pos_limit = GET_JOINT_PHL_FLAG(joint);
+	joint->on_neg_limit = GET_JOINT_NHL_FLAG(joint);
 	/* read amp fault input */
 	if (*(axis_data->amp_fault)) {
 	    SET_JOINT_FAULT_FLAG(joint, 1);
@@ -1083,7 +1045,7 @@ void home_start_move(emcmot_joint_t * joint, double vel)
 static void home_do_moving_checks(emcmot_joint_t * joint)
 {
     /* check for limit switches */
-    if (joint->pos_limit_latch || joint->neg_limit_latch) {
+    if (joint->on_pos_limit || joint->on_neg_limit) {
 	/* on limit, check to see if we should trip */
 	if (!(joint->home_flags & HOME_IGNORE_LIMITS)) {
 	    /* not ignoring limits, time to quit */
@@ -1630,7 +1592,7 @@ static void do_homing(void)
 		    immediate_state = 1;
 		    break;
 		}
-		if (joint->pos_limit_latch || joint->neg_limit_latch) {
+		if (joint->on_pos_limit || joint->on_neg_limit) {
 		    /* on limit, check to see if we should trip */
 		    if (!(joint->home_flags & HOME_IGNORE_LIMITS)) {
 			/* not ignoring limits, time to quit */

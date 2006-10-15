@@ -824,7 +824,6 @@ static int init_comm_buffers(void)
 	joint->acc_limit = 1.0;
 	joint->min_ferror = 0.01;
 	joint->max_ferror = 1.0;
-	joint->switch_flags = 0;
 	joint->home_search_vel = 0.0;
 	joint->home_latch_vel = 0.0;
 	joint->home_offset = 0.0;
