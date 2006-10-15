@@ -33,7 +33,11 @@ else
 fi
 
 if [ -z "$MANPATH" ]; then
-    MANPATH=@EMC2_HOME@/docs/man
+    if type -path manpath > /dev/null 2>&1; then
+	MANPATH=@EMC2_HOME@/docs/man:"$(manpath)"
+    else
+	MANPATH=@EMC2_HOME@/docs/man:/usr/local/man:/usr/local/share/man:/usr/share/man
+    fi
 else
     MANPATH=@EMC2_HOME@/docs/man:"$MANPATH"
 fi
