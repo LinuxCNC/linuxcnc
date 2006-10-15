@@ -2310,8 +2310,8 @@ static int hal_proc_init(void) {
     return 0;
 }
 #else
-static int hal_proc_clean(void) {}
-static int hal_proc_init(void) {}
+static int hal_proc_clean(void) { return 0; }
+static int hal_proc_init(void) { return 0; }
 #endif
 
 int rtapi_app_main(void)
