@@ -427,6 +427,10 @@ static void process_inputs(void)
 	axis_data = &(emcmot_hal_data->axis[joint_num]);
 	/* point to joint data */
 	joint = &joints[joint_num];
+	if (!GET_JOINT_ACTIVE_FLAG(joint)) {
+	    /* if joint is not active, skip it */
+	    continue;
+	}
 	/* copy data from HAL to joint structure */
 	joint->index_enable = *(axis_data->index_enable);
 	joint->motor_pos_fb = *(axis_data->motor_pos_fb);
@@ -937,6 +941,10 @@ static void handle_jogwheels(void)
 	/* point to joint data */
 	axis_data = &(emcmot_hal_data->axis[joint_num]);
 	joint = &joints[joint_num];
+	if (!GET_JOINT_ACTIVE_FLAG(joint)) {
+	    /* if joint is not active, skip it */
+	    continue;
+	}
 	/* get counts from jogwheel */
 	new_jog_counts = *(axis_data->jog_counts);
 	delta = new_jog_counts - joint->old_jog_counts;
@@ -1147,6 +1155,10 @@ static void do_homing(void)
     for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
 	/* point to joint struct */
 	joint = &joints[joint_num];
+	if (!GET_JOINT_ACTIVE_FLAG(joint)) {
+	    /* if joint is not active, skip it */
+	    continue;
+	}
 	/* detect rising and falling edges on home switch */
 	home_sw_rise = 0;
 	home_sw_fall = 0;
@@ -1638,7 +1650,7 @@ static void get_pos_cmds(long period)
 {
     int joint_num, all_homed, all_at_home, result;
     emcmot_joint_t *joint;
-    double positions[EMCMOT_MAX_AXIS] = {0,};
+    double positions[EMCMOT_MAX_AXIS];
 /*! \todo Another #if 0 */
 #if 0
     static int interpolationCounter = 0;
@@ -2127,6 +2139,10 @@ static void compute_screw_comp(void)
     for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
         /* point to joint struct */
         joint = &joints[joint_num];
+	if (!GET_JOINT_ACTIVE_FLAG(joint)) {
+	    /* if joint is not active, skip it */
+	    continue;
+	}
 	/* point to compensation data */
 	comp = &(joint->comp);
 	if ( comp->entries > 0 ) {
