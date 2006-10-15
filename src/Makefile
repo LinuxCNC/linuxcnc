@@ -112,7 +112,7 @@ endif
 # Compilation options.  Perhaps some of these should come from Makefile.inc?
 OPT := -O2 $(call cc-option, -funit-at-a-time) $(call cc-option,-fno-strict-aliasing)
 DEBUG := -g -Wall
-CFLAGS := $(INCLUDE) $(OPT) $(DEBUG) -DULAPI $(call cc-option, -std=gnu89) $(call cc-option, -Wdeclaration-after-statement)
+CFLAGS := $(INCLUDE) $(OPT) $(DEBUG) -DULAPI $(call cc-option, -Wdeclaration-after-statement)
 CXXFLAGS := $(INCLUDE) $(OPT) $(DEBUG) -DULAPI
 
 ifeq ($(RUN_IN_PLACE),yes)
