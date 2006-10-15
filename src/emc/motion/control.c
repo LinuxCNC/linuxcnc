@@ -1676,7 +1676,7 @@ static void get_pos_cmds(long period)
 {
     int joint_num, all_homed, all_at_home, result;
     emcmot_joint_t *joint;
-    double positions[EMCMOT_MAX_AXIS];
+    double positions[EMCMOT_MAX_AXIS] = {0,};
 /*! \todo Another #if 0 */
 #if 0
     static int interpolationCounter = 0;
