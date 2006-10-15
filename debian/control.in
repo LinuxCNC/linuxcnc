@@ -33,7 +33,7 @@ Provides: emc2
 Architecture: any
 Depends: ${shlibs:Depends},@KERNEL_DEPENDS@,tcl8.4,tk8.4,bwidget,libreadline5,emc2-common
 Provides: emc2
-Suggests: emc2-python
+Suggests: emc2-python, emc2-docs
 Description: PC based motion controller for real-time Linux.
  EMC2 is the next-generation Enhanced Machine Controller which
  provides motion control for CNC machine tools and robotic 
