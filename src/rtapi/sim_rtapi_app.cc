@@ -11,6 +11,8 @@
 #include <vector>
 #include <string>
 #include <map>
+#include <sys/time.h>
+#include <time.h>
 
 #include "config.h"
 
@@ -40,36 +42,52 @@ static int force_exit = 0;
 static int do_newinst_cmd(string type, string name, string arg) {
     void *module = modules["hal_lib"];
     if(!module) {
-        cerr << "hal_lib not loaded\n";
+        rtapi_print_msg(RTAPI_MSG_ERR, 
+                "newinst: hal_lib is required, but not loaded\n");
         return -1;
     }
 
     hal_comp_t *(*find_comp_by_name)(char*) =
         DLSYM<hal_comp_t*(*)(char *)>(module, "halpr_find_comp_by_name");
     if(!find_comp_by_name) {
-        cerr << "halpr_find_comp_by_name not found\n";
+        rtapi_print_msg(RTAPI_MSG_ERR, 
+                "newinst: halpr_find_comp_by_name not found\n");
         return -1;
     }
 
     hal_comp_t *comp = find_comp_by_name((char*)type.c_str());
     if(!comp) {
-        cerr << "Component not found\n";
+        rtapi_print_msg(RTAPI_MSG_ERR, 
+                "newinst: component %s not found\n", type.c_str());
         return -1;
     }
 
     return comp->make((char*)name.c_str(), (char*)arg.c_str());
 }
 
-static int do_one_item(char item_type_char, const string &param_value, void *vitem, int idx=0) {
+static int do_one_item(char item_type_char, const string &param_name, const string &param_value, void *vitem, int idx=0) {
+    char *endp;
     switch(item_type_char) {
         case 'l': {
             long *litem = *(long**) vitem;
-            litem[idx] = strtol(param_value.c_str(), NULL, 0);
+            litem[idx] = strtol(param_value.c_str(), &endp, 0);
+	    if(*endp) {
+                rtapi_print_msg(RTAPI_MSG_ERR,
+                        "`%s' invalid for parameter `%s'",
+                        param_value.c_str(), param_name.c_str());
+                return -1;
+            }
             return 0;
         }
         case 'i': {
             int *iitem = *(int**) vitem;
-            iitem[idx] = strtol(param_value.c_str(), NULL, 0);
+            iitem[idx] = strtol(param_value.c_str(), &endp, 0);
+	    if(*endp) {
+                rtapi_print_msg(RTAPI_MSG_ERR,
+                        "`%s' invalid for parameter `%s'",
+                        param_value.c_str(), param_name.c_str());
+                return -1;
+            }
             return 0;
         }
         case 's': {
@@ -78,8 +96,9 @@ static int do_one_item(char item_type_char, const string &param_value, void *vit
             return 0;
         }
         default:
-            cerr << "Cannot understand: " << param_value <<
-                " (type " << item_type_char << ")\n";
+            rtapi_print_msg(RTAPI_MSG_ERR,
+                    "%s: Invalid type character `%c'\n",
+                    param_name.c_str(), item_type_char);
             return -1;
         }
     return 0;
@@ -90,50 +109,57 @@ static int do_comp_args(void *module, vector<string> args) {
         string &s = args[i];
         size_t idx = s.find('=');
         if(idx == string::npos) {
-            cerr << "Cannot understand: " << s << endl;
+            rtapi_print_msg(RTAPI_MSG_ERR, "Invalid paramter `%s'\n",
+                    s.c_str());
             return -1;
         }
         string param_name(s, 0, idx);
         string param_value(s, idx+1);
         void *item=DLSYM<void*>(module, "rtapi_info_address_" + param_name);
         if(!item) {
-            cerr << "Cannot understand: (NULL item) " << s << "\n";
-            cerr << dlerror() << endl;
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+                    "Unknown parameter `%s'\n", s.c_str());
             return -1;
         }
         char **item_type=DLSYM<char**>(module, "rtapi_info_type_" + param_name);
         if(!item_type || !*item_type) {
-            cerr << "Cannot understand: (NULL type) " << s << dlerror() << "\n";
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+                    "Unknown parameter `%s' (type information missing)\n",
+                    s.c_str());
             return -1;
         }
         string item_type_string = *item_type;
-        char item_type_char = item_type_string.size() ? item_type_string[item_type_string.size() - 1] : 0;
 
         if(item_type_string.size() > 1) {
             int a, b;
-            char c;
-            int r = sscanf(item_type_string.c_str(), "%d-%d%c", &a, &b, &c);
+            char item_type_char;
+            int r = sscanf(item_type_string.c_str(), "%d-%d%c",
+                    &a, &b, &item_type_char);
             if(r != 3) {
-                cerr << "Cannot understand: " << s
-                    << " (sscanf " << item_type_string << ")\n";
+                rtapi_print_msg(RTAPI_MSG_ERR,
+                    "Unknown parameter `%s' (corrupt array type information)\n",
+                    s.c_str());
                 return -1;
             }
             size_t idx = 0;
             int i = 0;
             while(idx != string::npos) {
                 if(i == b) {
-                    cerr << "Too many items for " << s << "\n";
+                    rtapi_print_msg(RTAPI_MSG_ERR,
+                            "%s: can only take %d arguments\n",
+                            s.c_str(), b);
                     return -1;
                 }
                 size_t idx1 = param_value.find(",", idx);
                 string substr(param_value, idx, idx1 - idx);
-                int result = do_one_item(item_type_char, substr, item, i);
+                int result = do_one_item(item_type_char, s, substr, item, i);
                 if(result != 0) return result;
                 i++;
                 idx = idx1 == string::npos ? idx1 : idx1 + 1;
             }
         } else {
-            int result = do_one_item(item_type_char, param_value, item);
+            char item_type_char = item_type_string[0];
+            int result = do_one_item(item_type_char, s, param_value, item);
             if(result != 0) return result;
         }
     }
@@ -238,15 +264,8 @@ static void write_strings(int fd, vector<string> strings) {
     write(fd, buf.data(), buf.size());
 }
 
-static void print_strings(vector<string> strings) {
-    cerr << "STRINGS:";
-    for(unsigned int i=0; i<strings.size(); i++) { 
-        cerr << " " << strings[i];
-    }
-    cerr << "\n";
-}
-
 static int handle_command(vector<string> args) {
+    if(args.size() == 0) { return 0; }
     if(args.size() == 1 && args[0] == "exit") {
         force_exit = 1;
         return 0;
@@ -261,8 +280,8 @@ static int handle_command(vector<string> args) {
     } else if(args.size() == 4 && args[0] == "newinst") {
         return do_newinst_cmd(args[1], args[2], args[3]);
     } else {
-        cerr << "Unrecognized command: ";
-        print_strings(args);
+        rtapi_print_msg(RTAPI_MSG_ERR, "Unrecognized command starting with %s",
+                args[0].c_str());
         return -1;
     }
 }
@@ -309,29 +328,36 @@ become_master:
     int fd = socket(PF_UNIX, SOCK_STREAM, 0);
     if(fd == -1) { perror("socket"); exit(1); }
 
+    int enable = 1;
+    setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(enable));
     struct sockaddr_un addr = { AF_UNIX, SOCKET_PATH };
     int result = bind(fd, (sockaddr*)&addr, sizeof(addr));
 
     if(result == 0) {
         int result = listen(fd, 10);
-        if(result != 0) { perror("bind"); exit(1); }
+        if(result != 0) { perror("listen"); exit(1); }
         result = master(fd, args);
         unlink(SOCKET_PATH);
         return result;
-    } else if( errno == EADDRINUSE) {
-       for(int i=0; i < 3 ; i++) {
-           result = connect(fd, (sockaddr*)&addr, sizeof(addr));
-           if(result == 0) break;
-           sleep(1);
-       }
-       if(result < 0 && errno == ECONNREFUSED) { 
-           unlink(SOCKET_PATH);
-           fprintf(stderr, "Waited 3 seconds for master.  giving up.\n");
-           close(fd);
-           goto become_master;
-       }
-       if(result < 0) { perror("connect"); exit(1); }
-       return slave(fd, args);
+    } else if(errno == EADDRINUSE) {
+        struct timeval t0, t1;
+        gettimeofday(&t0, NULL);
+        gettimeofday(&t1, NULL);
+        for(int i=0; i < 3 || (t1.tv_sec < 3 + t0.tv_sec) ; i++) {
+            result = connect(fd, (sockaddr*)&addr, sizeof(addr));
+            if(result == 0) break;
+            if(i==0) srand48(t0.tv_sec ^ t0.tv_usec);
+            usleep(lrand48() % 100000);
+            gettimeofday(&t1, NULL);
+        }
+        if(result < 0 && errno == ECONNREFUSED) { 
+            unlink(SOCKET_PATH);
+            fprintf(stderr, "Waited 3 seconds for master.  giving up.\n");
+            close(fd);
+            goto become_master;
+        }
+        if(result < 0) { perror("connect"); exit(1); }
+        return slave(fd, args);
     } else {
         perror("bind"); exit(1);
     }
