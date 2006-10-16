@@ -80,10 +80,13 @@ loadrt weighted_sum wsum_sizes=5
 
 # Now we load some more HAL components:
 #
-# the rest of these blocks implement spindle speed scaling
-# (for high/low shifting) and spindle orient
-loadrt blocks mux2=2 mux4=1 wcomp=2 scale=2
+# the rest of these components implement spindle speed
+# scaling (for high/low shifting) and spindle orient
 
+loadrt mux2 count=2
+loadrt mux4 count=1
+loadrt wcomp count=2
+loadrt scale count=2
 loadrt modmath mod_dir=1
 
 # Software encoder counter, for the jogwheel, and possibly a future

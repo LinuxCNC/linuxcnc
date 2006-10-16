@@ -1,7 +1,7 @@
 # HAL config file to simulate limit switches using window comparators
 #
 # first install nine comparators
-loadrt blocks wcomp=9
+loadrt wcomp count=9
 
 # add comparators to servo thread so they will be evaluated
 # every servo period

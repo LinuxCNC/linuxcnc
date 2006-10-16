@@ -16,7 +16,9 @@ loadrt hal_ppmc
 loadrt scope_rt
 
 # make some signals for the scope for tuning.
-loadrt blocks ddt=4 n_estop=1 and2=1
+loadrt ddt count=4
+loadrt estop-latch count=1
+loadrt and2 count=1
 
 # set up the realtime thread
 # read inputs first
@@ -24,7 +26,7 @@ addf ppmc.0.read servo-thread
 # then run the motion controller
 addf motion-command-handler servo-thread
 addf and2.0 servo-thread
-addf estop.0 servo-thread
+addf estop-latch.0 servo-thread
 addf motion-controller servo-thread
 # then the PID loops
 addf pid.0.do-pid-calcs servo-thread

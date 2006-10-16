@@ -46,8 +46,8 @@ linksp Apos-fb => axis.3.motor-pos-fb
 
 # send the position commands thru differentiators to
 # generate velocity and accel signals
-# first load the block module with 6 differentiators
-loadrt blocks ddt=8
+# first 8 differentiators
+loadrt ddt count=8
 # link the differentiator functions into the code
 addf ddt.0 servo-thread
 addf ddt.1 servo-thread

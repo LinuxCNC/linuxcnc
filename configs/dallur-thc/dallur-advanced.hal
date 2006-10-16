@@ -122,8 +122,13 @@ linksp stepcp parport.1.pin-17-out
 
 ###########Torch Height Control ########
 
-#Create four muxes and four invert blocks
-loadrt blocks mux2=7 or2=4 not=4 sum2=2 comp=2 and2=2
+# Load the neccessary functions
+loadrt mux2 count=7
+loadrt or2 count=4
+loadrt not count=4
+loadrt sum2 count=2
+loadrt comp count=2
+loadrt and2 count=2
 
 # Make a sensor for the ARC OK signal with an active low
 newsig senseArcOKInverted bit

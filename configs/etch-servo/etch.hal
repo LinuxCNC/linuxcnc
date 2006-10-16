@@ -6,7 +6,9 @@ loadrt hal_parport cfg="0x378"
 loadrt encoder num_chan=2
 loadrt pid num_chan=2
 loadrt freqgen step_type=1,1
-loadrt blocks comp=2 constant=1 ddt=4
+loadrt comp count=2
+loadrt ddt count=4
+loadrt constant count=1
 
 # define the order of execution for RT code
 addf parport.0.read            base-thread

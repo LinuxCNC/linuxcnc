@@ -16,7 +16,7 @@ loadrt hal_ppmc
 loadrt scope_rt
 
 # make some signals for the scope for tuning.
-loadrt blocks ddt=4
+loadrt ddt count=4
 
 # set up the realtime thread
 # read inputs first
