@@ -26,7 +26,7 @@ objects/%.mak: %.comp hal/components/Submakefile
 	@mkdir -p $(dir $@)
 	@echo $(notdir $*)-objs := objects/$*.o > $@.tmp
 	@echo ../rtlib/$(notdir $*).so: objects/rtobjects/$*.o >> $@.tmp
-	@echo ../rtlib/$(notdir $*).o: objects/rt$*.o >> $@.tmp
+	@echo ../rtlib/$(notdir $*).o: objects/rtobjects/$*.o >> $@.tmp
 	@mv -f $@.tmp $@
 
 objects/%.c: %.comp ../bin/comp
