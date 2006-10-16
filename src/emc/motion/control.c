@@ -415,10 +415,20 @@ static void process_inputs(void)
 	    tmp = 0.0;
 	}
 	/* set overall scale to user command times hal value */
-	emcmotStatus->overallVscale = tmp * emcmotStatus->qVscale;
+	/* if fo_mode == 0, override = 0, and we travel at 100% Feed_override (leave adaptive still working)*/
+	if (emcmotStatus->fo_mode == 0) {
+	    emcmotStatus->overallVscale = tmp;
+	} else {
+	    emcmotStatus->overallVscale = tmp * emcmotStatus->qVscale;
+	}
     } else {
 	/* set overall scale based on user command only */
-	emcmotStatus->overallVscale = emcmotStatus->qVscale;
+	/* if fo_mode == 0, override = 0, and we travel at 100% Feed_override*/
+	if (emcmotStatus->fo_mode == 0) {
+	    emcmotStatus->overallVscale = 1;
+	} else {
+	    emcmotStatus->overallVscale = emcmotStatus->qVscale;
+	}
     }
 
     /* read and process per-joint inputs */
@@ -2331,8 +2341,14 @@ static void output_to_hal(void)
     emcmot_hal_data->teleop_mode = GET_MOTION_TELEOP_FLAG();
     emcmot_hal_data->coord_error = GET_MOTION_ERROR_FLAG();
     
-    *(emcmot_hal_data->spindle_speed_out) = emcmotStatus->spindle.speed * emcmotStatus->spindle_scale;
-    *(emcmot_hal_data->spindle_on) = ((emcmotStatus->spindle.speed * emcmotStatus->spindle_scale) != 0) ? 1 : 0;
+    /* if so_mode == 0, override is not possible, we use  100% Spindle speed*/
+    if (emcmotStatus->so_mode == 0) {
+	*(emcmot_hal_data->spindle_speed_out) = emcmotStatus->spindle.speed;
+	*(emcmot_hal_data->spindle_on) = (emcmotStatus->spindle.speed != 0) ? 1 : 0;
+    } else {
+	*(emcmot_hal_data->spindle_speed_out) = emcmotStatus->spindle.speed * emcmotStatus->spindle_scale;
+	*(emcmot_hal_data->spindle_on) = ((emcmotStatus->spindle.speed * emcmotStatus->spindle_scale) != 0) ? 1 : 0;
+    }
     *(emcmot_hal_data->spindle_forward) = (emcmotStatus->spindle.speed > 0) ? 1 : 0;
     *(emcmot_hal_data->spindle_reverse) = (emcmotStatus->spindle.speed < 0) ? 1 : 0;
     *(emcmot_hal_data->spindle_brake) = (emcmotStatus->spindle.brake != 0) ? 1 : 0;

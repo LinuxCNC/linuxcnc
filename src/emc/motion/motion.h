@@ -118,7 +118,9 @@ extern "C" {
 	EMCMOT_TELEOP,		/* set mode to teleop */
 
 	EMCMOT_SCALE,		/* scale the speed */
+	EMCMOT_FEED_OVERRIDE,	/* enable scaling the speed (M48/M49) */
 	EMCMOT_SPINDLE_SCALE,	/* scale the spindle speed */
+	EMCMOT_SPINDLE_OVERRIDE,	/* enable scaling the spindle speed (M48/M49) */
 	EMCMOT_ADAPTIVE_FEED,	/* enable/disable adaptive feedrate */
 	EMCMOT_OVERRIDE_LIMITS,	/* temporarily ignore limits until jog done */
 
@@ -220,6 +222,7 @@ extern "C" {
 	int wdWait;		/* cycle to wait before toggling wd */
 	int debug;		/* debug level, from DEBUG in .ini file */
 	unsigned char now, out, start, end;	/* these are related to synched AOUT/DOUT. now=wether now or synched, out = which gets set, start=start value, end=end value */
+	unsigned char mode;	/* used for turning feed/spindle overrides on/off */
 	double comp_nominal, comp_forward, comp_reverse; /* compensation triplet, nominal, forward, reverse */
 	unsigned char tail;	/* flag count for mutex detect */
     } emcmot_command_t;
@@ -557,7 +560,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 	double qVscale;		/* velocity scale factor for all motion */
 	double spindle_scale;	/* velocity scale factor for spindle speed */
 	int adaptiveEnabled;	/* non-zero when adaptive feed is enabled */
-	double overallVscale;	/* net scale factor (includes adaptive) */
+	double overallVscale;	/* net scale factor (includes adaptive, and uses 1 for qVscale if mode = 0) */
 	/* the rest are updated every cycle */
 	motion_state_t motion_state; /* operating state: FREE, COORD, etc. */
 	EMCMOT_MOTION_FLAG motionFlag;	/* see above for bit details */
@@ -582,6 +585,9 @@ Suggestion: Split this in to an Error and a Status flag register..
         double spindleRevs;     /* position of spindle in revolutions */
 
 	spindle_status spindle;	/* data types for spindle status */
+
+	unsigned char fo_mode;	/* mode for feed_override. while 0 no feed_override will be possible. will work at 100% */
+	unsigned char so_mode;	/* mode for spindle_override. while 0 no spindle_override will be possible. will work at 100% */
 
 /*! \todo FIXME - all structure members beyond this point are in limbo */
 

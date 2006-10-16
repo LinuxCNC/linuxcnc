@@ -123,6 +123,8 @@
 #define EMC_TRAJ_SET_TELEOP_VECTOR_TYPE              ((NMLTYPE) 231)
 #define EMC_TRAJ_SET_SPINDLESYNC_TYPE                ((NMLTYPE) 232)
 #define EMC_TRAJ_SET_SPINDLE_SCALE_TYPE              ((NMLTYPE) 233)
+#define EMC_TRAJ_SET_FEED_OVERRIDE_TYPE              ((NMLTYPE) 234)
+#define EMC_TRAJ_SET_SPINDLE_OVERRIDE_TYPE           ((NMLTYPE) 235)
 
 #define EMC_TRAJ_STAT_TYPE                           ((NMLTYPE) 299)
 
@@ -411,7 +413,9 @@ extern int emcTrajSetAcceleration(double acc);
 extern int emcTrajSetMaxVelocity(double vel);
 extern int emcTrajSetMaxAcceleration(double acc);
 extern int emcTrajSetScale(double scale);
+extern int emcTrajSetFeedOverride(unsigned char mode);
 extern int emcTrajSetSpindleScale(double scale);
+extern int emcTrajSetSpindleOverride(unsigned char mode);
 extern int emcTrajSetAdaptiveFeed(unsigned char enable);
 extern int emcTrajSetMotionId(int id);
 extern double emcTrajGetLinearUnits();
@@ -1265,6 +1269,31 @@ class EMC_TRAJ_SET_SPINDLE_SCALE:public EMC_TRAJ_CMD_MSG {
 
     double scale;
 };
+
+class EMC_TRAJ_SET_FEED_OVERRIDE:public EMC_TRAJ_CMD_MSG {
+  public:
+    EMC_TRAJ_SET_FEED_OVERRIDE():EMC_TRAJ_CMD_MSG(EMC_TRAJ_SET_FEED_OVERRIDE_TYPE,
+					  sizeof(EMC_TRAJ_SET_FEED_OVERRIDE)) {
+    };
+
+    // For internal NML/CMS use only.
+    void update(CMS * cms);
+
+    unsigned char mode; //mode=0, override off (will work with 100% FO), mode != 0, override on, user can change FO
+};
+
+class EMC_TRAJ_SET_SPINDLE_OVERRIDE:public EMC_TRAJ_CMD_MSG {
+  public:
+    EMC_TRAJ_SET_SPINDLE_OVERRIDE():EMC_TRAJ_CMD_MSG(EMC_TRAJ_SET_SPINDLE_OVERRIDE_TYPE,
+					  sizeof(EMC_TRAJ_SET_SPINDLE_OVERRIDE)) {
+    };
+
+    // For internal NML/CMS use only.
+    void update(CMS * cms);
+
+    unsigned char mode; //mode=0, override off (will work with 100% SO), mode != 0, override on, user can change SO
+};
+
 
 class EMC_TRAJ_SET_MOTION_ID:public EMC_TRAJ_CMD_MSG {
   public:

@@ -1344,24 +1344,38 @@ void COMMENT(char *comment)
     return;
 }
 
+// refers to feed rate
 void DISABLE_FEED_OVERRIDE()
 {
-    /*! \todo FIXME-- unimplemented */
+    EMC_TRAJ_SET_FEED_OVERRIDE set_feed_override_msg;
+    
+    set_feed_override_msg.mode = 0;
+    interp_list.append(set_feed_override_msg);
 }
 
+//refers to spindle speed
 void DISABLE_SPEED_OVERRIDE()
 {
-    /*! \todo FIXME-- unimplemented */
+    EMC_TRAJ_SET_SPINDLE_OVERRIDE set_spindle_override_msg;
+    
+    set_spindle_override_msg.mode = 0;
+    interp_list.append(set_spindle_override_msg);
 }
 
 void ENABLE_FEED_OVERRIDE()
 {
-    /*! \todo FIXME-- unimplemented */
+    EMC_TRAJ_SET_FEED_OVERRIDE set_feed_override_msg;
+    
+    set_feed_override_msg.mode = 1;
+    interp_list.append(set_feed_override_msg);
 }
 
 void ENABLE_SPEED_OVERRIDE()
 {
-    /*! \todo FIXME-- unimplemented */
+    EMC_TRAJ_SET_SPINDLE_OVERRIDE set_spindle_override_msg;
+    
+    set_spindle_override_msg.mode = 1;
+    interp_list.append(set_spindle_override_msg);
 }
 
 void FLOOD_OFF()

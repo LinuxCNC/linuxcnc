@@ -957,6 +957,13 @@ check_stuff ( "before command_handler()" );
 	    emcmotStatus->qVscale = emcmotCommand->scale;
 	    break;
 
+	case EMCMOT_FEED_OVERRIDE:
+	    /* enable/disable overriding speed */
+	    /* can happen at any time */
+	    rtapi_print_msg(RTAPI_MSG_DBG, "FEED_OVERRIDE");
+	    emcmotStatus->fo_mode = emcmotCommand->mode; //0 means no override is possible
+	    break;
+
 	case EMCMOT_SPINDLE_SCALE:
 	    /* override spindle speed */
 	    /* can happen at any time */
@@ -966,6 +973,14 @@ check_stuff ( "before command_handler()" );
 	    }
 	    emcmotStatus->spindle_scale = emcmotCommand->scale;
 	    break;
+
+	case EMCMOT_SPINDLE_OVERRIDE:
+	    /* enable/disable overriding spindle speed */
+	    /* can happen at any time */
+	    rtapi_print_msg(RTAPI_MSG_DBG, "SPINDLE_OVERRIDE");
+	    emcmotStatus->so_mode = emcmotCommand->mode; //0 means no override is possible
+	    break;
+
 
 	case EMCMOT_ADAPTIVE_FEED:
 	    /* enable/disable adaptive feedrate override from HAL pin */
