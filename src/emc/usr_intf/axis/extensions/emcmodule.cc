@@ -19,7 +19,6 @@
 #include <Python.h>
 #include <structseq.h>
 #include <pthread.h>
-#include <GL/gl.h>
 #include <structmember.h>
 #include "rcs.hh"
 #include "emc.hh"
@@ -1344,6 +1343,8 @@ static PyTypeObject Error_Type = {
     0,                      /*tp_is_gc*/
 };
 
+#ifdef HAVE_GL_GL_H
+#include <GL/gl.h>
 struct color {
     unsigned char r, g, b, a;
     bool operator==(const color &o) const {
@@ -1640,6 +1641,7 @@ static PyTypeObject PositionLoggerType = {
     0,                      /*tp_free*/
     0,                      /*tp_is_gc*/
 };
+#endif
 
 static PyMethodDef emc_methods[] = {
     {NULL}
@@ -1665,7 +1667,6 @@ initemc(void) {
     PyType_Ready(&Command_Type);
     PyType_Ready(&Error_Type);
     PyType_Ready(&Ini_Type);
-    PyType_Ready(&PositionLoggerType);
     error = PyErr_NewException("emc.error", PyExc_RuntimeError, NULL);
 
     PyModule_AddObject(m, "stat", (PyObject*)&Stat_Type);
@@ -1673,8 +1674,11 @@ initemc(void) {
     PyModule_AddObject(m, "error_channel", (PyObject*)&Error_Type);
     PyModule_AddObject(m, "ini", (PyObject*)&Ini_Type);
     PyModule_AddObject(m, "error", error);
-    PyModule_AddObject(m, "positionlogger", (PyObject*)&PositionLoggerType);
 
+#ifdef HAVE_GL_GL_H
+    PyType_Ready(&PositionLoggerType);
+    PyModule_AddObject(m, "positionlogger", (PyObject*)&PositionLoggerType);
+#endif
     PyModule_AddStringConstant(m, "nmlfile", DEFAULT_NMLFILE);
 
     PyModule_AddIntConstant(m, "OPERATOR_ERROR", EMC_OPERATOR_ERROR_TYPE);
