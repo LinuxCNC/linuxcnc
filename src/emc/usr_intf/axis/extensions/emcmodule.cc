@@ -1678,6 +1678,7 @@ initemc(void) {
 #ifdef HAVE_GL_GL_H
     PyType_Ready(&PositionLoggerType);
     PyModule_AddObject(m, "positionlogger", (PyObject*)&PositionLoggerType);
+    pthread_mutex_init(&mutex, NULL);
 #endif
     PyModule_AddStringConstant(m, "nmlfile", DEFAULT_NMLFILE);
 
@@ -1742,7 +1743,6 @@ initemc(void) {
     ENUM(KINEMATICS_INVERSE_ONLY);
     ENUM(KINEMATICS_BOTH);
 
-    pthread_mutex_init(&mutex, NULL);
 }
 
 
