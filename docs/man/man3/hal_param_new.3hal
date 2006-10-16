@@ -2,7 +2,7 @@
 .TH hal_param_new "3hal" "2006-10-12" "EMC Documentation" "HAL"
 .SH NAME
 
-hal_param_new \- Create a HAL param
+hal_param_new \- Create a HAL parameter
 
 .SH SYNTAX
 
@@ -58,27 +58,28 @@ hal_param_new \- Create a HAL param
  int hal_param_new(char *\fIname\fR, hal_type_t \fItype\fR, hal_in_dir_t \fIdir\fR, void *\fIdata_addr\fR, int \fIcomp_id\fR) 
 
 .SH  ARGUMENTS
-.IP \fIname\fR
-The name of the param
-.IP \fIdir\fR
-
-The direction of the param, from the viewpoint of the component.  It may be one
-of \fBHAL_RO\fR, or \fBHAL_RW\fR
-A component may assign a value to any param, but other programs (such as halcmd)
-may only assign a value to a param that is \fBHAL_RW\fR.
-
-.IP \fIdata_addr\fR
+.TP
+\fIname\fR
+The name to give to the created parameter
+.TP
+\fIdir\fR
+The direction of the parameter, from the viewpoint of the component.  It may be
+one of \fBHAL_RO\fR, or \fBHAL_RW\fR A component may assign a value to any
+parameter, but other programs (such as halcmd) may only assign a value to a
+parameter that is \fBHAL_RW\fR.
+.TP
+\fIdata_addr\fR
 The address of the data, which must lie within memory allocated by
 \fBhal_malloc\fR.
-
-.IP \fIcomp_id\fR
+.TP
+\fIcomp_id\fR
 A HAL component identifier returned by an earlier call to \fBhal_init\fR.
-
-.IP \fIfmt,\ ...\fR
+.TP
+\fIfmt,\ ...\fR
 A printf-style format string and arguments
-
-.IP \fItype\fR
-The type of the param, as specified in \fBhal_type_t(3hal)\fR.
+.TP
+\fItype\fR
+The type of the parameter, as specified in \fBhal_type_t(3hal)\fR.
 
 .SH DESCRIPTION
 The \fBhal_param_new\fR family of functions create a new \fIparam\fR object.
