@@ -1382,6 +1382,19 @@ BUILD_AXIS=$BUILD_PYTHON
 if test "$BUILD_AXIS" = "yes"; then
     AC_CHECK_HEADERS(GL/gl.h GL/glu.h,[],BUILD_AXIS=no)
 fi
+if test "$BUILD_AXIS" = "yes"; then
+    AC_MSG_CHECKING(for working GLU quadrics)
+    AC_TRY_COMPILE([
+#include <GL/gl.h>
+#include <GL/glu.h>
+],
+	[GLUquadric *q;],
+	[AC_MSG_RESULT(yes)],[
+		AC_MSG_RESULT(no)
+		BUILD_AXIS=no
+	]
+    )
+fi
 
 case $BUILD_AXIS in 
     yes) AC_MSG_RESULT([Will build AXIS]) ;;
