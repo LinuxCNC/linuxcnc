@@ -76,7 +76,7 @@ PROGRAMS :=
 # TOOBJSDEPS is used.  See Submakefile.skel for an example.
 TOOBJS = $(patsubst %.cc,objects/%.o,$(patsubst %.c,objects/%.o,$(1)))
 TODEPS = $(patsubst %.cc,depends/%.d,$(patsubst %.c,depends/%.d,$(1)))
-TOOBJSDEPS = $(call TOOBJS,$(1)) $(call TODEPS,$(1))
+TOOBJSDEPS = $(call TOOBJS,$(1)) $(call TODEPS,$(1) $(patsubst %.cc,%.i,$(patsubst %.c,%.i,$(1))))
 
 SUBMAKEFILES := $(patsubst %,%/Submakefile,$(SUBDIRS))
 -include $(SUBMAKEFILES)
@@ -93,8 +93,10 @@ USERSRCS += $(PYSRCS)
 endif
 
 # Find the list of object files for each type of source file
-CUSEROBJS := $(call TOOBJS,$(filter %.c,$(USERSRCS)))
-CXXUSEROBJS += $(call TOOBJS,$(filter %.cc,$(USERSRCS)))
+CUSERSRCS := $(filter %.c,$(USERSRCS))
+CXXUSERSRCS := $(filter %.cc,$(USERSRCS))
+CUSEROBJS := $(call TOOBJS,$(CUSERSRCS))
+CXXUSEROBJS += $(call TOOBJS,$(CXXUSERSRCS))
 
 ifneq ($(MAKECMDGOALS),clean)
 # Find the dependency filenames, then include them all
@@ -142,6 +144,15 @@ $(sort $(CXXUSEROBJS)) : objects/%.o: %.cc
 	$(ECHO) Compiling $<
 	@mkdir -p $(dir $@)
 	@$(CXX) -c $(CXXFLAGS) $(EXTRAFLAGS) $< -o $@
+
+# Rules to make .i (preprocessed) files
+$(sort $(patsubst %.c,%.i,$(CUSERSRCS))): %.i: %.c
+	@echo Preprocessing $< to $@
+	@$(CC) -dD $(CFLAGS) $(EXTRAFLAGS) -E $< -o $@
+
+$(sort $(patsubst %.cc,%.ii,$(CXXUSERSRCS))): %.ii: %.cc
+	@echo Preprocessing $< to $@
+	@$(CXX) -dD $(CXXFLAGS) $(EXTRAFLAGS) -E $< -o $@
 
 config.status: configure
 	if [ -f config.status ]; then ./config.status --recheck; else ./configure --enable-run-in-place; fi
