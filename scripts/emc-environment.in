@@ -44,8 +44,14 @@ fi
 
 # TODO: if these completion directives give trouble for any versions
 # of bash actively in use, protect them with checks of BASH_VERSINFO
-complete -o plusdirs -f -X '!*.ini' emc axis mdi
-complete -o plusdirs -f -X '!*.hal' halrun halcmd
-complete -W 'start stop restart status' realtime
+if [ $BASH_VERSINFO -eq 2 ]; then
+    complete -o dirnames -f -X '!*.ini' emc axis mdi
+    complete -o dirnames -f -X '!*.hal' halrun halcmd
+    complete -W 'start stop restart status' realtime
+else
+    complete -o plusdirs -f -X '!*.ini' emc axis mdi
+    complete -o plusdirs -f -X '!*.hal' halrun halcmd
+    complete -W 'start stop restart status' realtime
+fi
 
 export PYTHONPATH MANPATH
