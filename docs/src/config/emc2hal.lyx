@@ -62,7 +62,9 @@ M62
 \family default 
  through 
 \family typewriter 
-M65 words.
+M65
+\family default 
+ words.
 \layout Description
 
 motion.enable\SpecialChar ~
@@ -82,7 +84,7 @@ bit
 \family typewriter 
 G38.2
 \family default 
- uses the value on this pin to dermine when the probe has made contact.
+ uses the value on this pin to determine when the probe has made contact.
  TRUE for probe contact closed (touching), FALSE for probe contact open.
 \layout Description
 
@@ -124,12 +126,33 @@ float For correct operation of spindle synchronized
 \layout Subsection
 
 Parameters
+\layout Standard
+
+Many of these parameters serve as debugging aids, and are subject to change
+ or removal at any time.
 \layout Description
 
-motion.coord-error
+motion.coord-error TRUE when motion has encountered an error, such as exceeding
+ a soft limit
 \layout Description
 
-motion.coord-mode
+motion.coord-mode TRUE when motion is in 
+\begin_inset Quotes eld
+\end_inset 
+
+coordinated mode
+\begin_inset Quotes erd
+\end_inset 
+
+, as opposed to 
+\begin_inset Quotes eld
+\end_inset 
+
+teleop mode
+\begin_inset Quotes erd
+\end_inset 
+
+
 \layout Description
 
 motion.in-position Same as the pin 
@@ -137,13 +160,13 @@ motion.in-position Same as the pin
 motion.motion-inpos
 \layout Description
 
-motion.motion-enabled
+motion.motion-enabled TRUE when motion is enabled
 \layout Description
 
 motion.servo.last-period The number of CPU cycles between invocations of the
  servo thread.
  Typically, this number divided by the CPU speed gives the time in seconds,
- and can be used to determine whether the relatime motion controller is
+ and can be used to determine whether the realtime motion controller is
  meeting its timing constraints
 \layout Description
 
@@ -171,25 +194,28 @@ motion.debug-float-1 These values are used for debugging purposes.
 \layout Subsection
 
 Functions
+\layout Standard
+
+Generally, these functions are both added to the servo-thread in the order
+ shown.
 \layout Description
 
-motion-command-handler
+motion-command-handler Processes motion commands coming from user space
 \layout Description
 
-motion-controller Generally, hese functions are both added to the servo-thread
- in the order shown
+motion-controller Runs the emc motion controller
 \layout Section
 
 axis.N (realtime)
 \layout Standard
 
-These pins, parameters, and functions are created by the realtime 
+These pins and parameters are created by the realtime 
 \family typewriter 
 motmod
 \family default 
  module.
- In machines with nontrivial kinematics, these are actually joint values,
- but the pins and parameters are still called 
+ These are actually joint values, but the pins and parameters are still
+ called 
 \begin_inset Quotes eld
 \end_inset 
 
@@ -198,6 +224,27 @@ axis.N
 \end_inset 
 
 .
+\begin_inset Foot
+collapsed false
+
+\layout Standard
+
+In 
+\begin_inset Quotes eld
+\end_inset 
+
+trivial kinematics
+\begin_inset Quotes erd
+\end_inset 
+
+ machines, there is a one-to-one correspondence between joints and axes.
+\end_inset 
+
+ They are read and updated by the 
+\emph on 
+motion-controller
+\emph default 
+ function.
 \layout Subsection
 
 Pins
@@ -205,25 +252,26 @@ Pins
 
 axis.N.amp-enable-out\SpecialChar ~
 OUT\SpecialChar ~
-bit TRUE if the amplifier for this axis should be
+bit TRUE if the amplifier for this joint should be
  enabled
 \layout Description
 
 axis.N.amp-fault-in\SpecialChar ~
 IN\SpecialChar ~
 bit Should be driven TRUE if an external fault is detected
- with the amplifier for this axis
+ with the amplifier for this joint
 \layout Description
 
 axis.N.home-sw-in\SpecialChar ~
 IN\SpecialChar ~
-bit Should be driven TRUE if the home switch for this axis
+bit Should be driven TRUE if the home switch for this joint
  is closed
 \layout Description
 
 axis.N.index-enable\SpecialChar ~
 OUT\SpecialChar ~
-BIT
+BIT Should be attached to the index-enable pin of the
+ joint's encoder to enable homing to index pulse
 \layout Description
 
 axis.N.jog-counts\SpecialChar ~
@@ -238,90 +286,122 @@ bit
 
 axis.N.jog-scale\SpecialChar ~
 IN\SpecialChar ~
-float These pins can be used to jog the axis, for instance
- using a physical jogwheel
+float These pins can be used to jog the joint, for instance
+ using a physical jog wheel
 \layout Description
 
 axis.N.motor-pos-cmd\SpecialChar ~
 OUT\SpecialChar ~
-float The commanded position for this axis
+float The commanded position for this joint
 \layout Description
 
 axis.N.motor-pos-fb\SpecialChar ~
 IN\SpecialChar ~
-float The actual position for this axis.
+float The actual position for this joint.
 \layout Subsection
 
 Parameters
+\layout Standard
+
+Many of these parameters serve as debugging aids, and are subject to change
+ or removal at any time.
 \layout Description
 
-axis.N.active
+axis.N.active TRUE when this joint is active
 \layout Description
 
-axis.N.backlash-corr
+axis.N.backlash-corr Backlash or screw compensation raw value
 \layout Description
 
-axis.N.backlash-filt
+axis.N.backlash-filt Backlash or screw compensation filtered value (respecting
+ motion limits)
 \layout Description
 
-axis.N.backlash-vel
+axis.N.backlash-vel Backlash or screw compensation velocity 
 \layout Description
 
 axis.N.coarse-pos-cmd
 \layout Description
 
-axis.N.error
+axis.N.error TRUE when this joint has encountered an error, such as a limit
+ switch closing
 \layout Description
 
-axis.N.f-error
+axis.N.f-error The actual following error
 \layout Description
 
-axis.N.f-error-lim
+axis.N.f-error-lim The following error limit
 \layout Description
 
-axis.N.f-errored
+axis.N.f-errored TRUE when this joint has exceeded the following error limit
 \layout Description
 
-axis.N.free-pos-cmd
+axis.N.free-pos-cmd The 
+\begin_inset Quotes eld
+\end_inset 
+
+free planner
+\begin_inset Quotes erd
+\end_inset 
+
+ commanded position for this joint.
 \layout Description
 
-axis.N.free-tp-enable
+axis.N.free-tp-enable TRUE when the 
+\begin_inset Quotes eld
+\end_inset 
+
+free planner
+\begin_inset Quotes erd
+\end_inset 
+
+ is enabled for this joint
 \layout Description
 
-axis.N.free-vel-lim
+axis.N.free-vel-lim The velocity limit for the free planner
 \layout Description
 
-axis.N.home-state
+axis.N.home-state Reflects the step of homing currently taking place
 \layout Description
 
-axis.N.homed
+axis.N.homed TRUE if the joint has been homed
 \layout Description
 
-axis.N.homing
+axis.N.homing TRUE if the joint is currently homing
 \layout Description
 
-axis.N.in-position
+axis.N.in-position TRUE if the joint is using the 
+\begin_inset Quotes eld
+\end_inset 
+
+free planner
+\begin_inset Quotes erd
+\end_inset 
+
+ and has come to a stop
 \layout Description
 
-axis.N.joint-pos-cmd
+axis.N.joint-pos-cmd The joint (as opposed to motor) commanded position.
+ There may be an offset between the joint and motor positions--for example,
+ the homing process sets this offset
 \layout Description
 
-axis.N.joint-pos-fb
+axis.N.joint-pos-fb The joint (as opposed to motor) feedback position.
 \layout Description
 
-axis.N.joint-vel-cmd
+axis.N.joint-vel-cmd The joint's commanded velocity
 \layout Description
 
-axis.N.neg-hard-limit
+axis.N.neg-hard-limit The negative hard limit for the joint
 \layout Description
 
-axis.N.neg-soft-limit
+axis.N.neg-soft-limit The negative soft limit for the joint
 \layout Description
 
-axis.N.pos-hard-limit
+axis.N.pos-hard-limit The positive hard limit for the joint
 \layout Description
 
-axis.N.pos-soft-limit
+axis.N.pos-soft-limit The positive soft limit for the joint
 \layout Section
 
 iocontrol (userspace)
@@ -337,38 +417,42 @@ io
 Pins
 \layout Description
 
-iocontrol.0.coolant-flood 
+iocontrol.0.coolant-flood TRUE when flood coolant is requested
 \layout Description
 
-iocontrol.0.coolant-mist
+iocontrol.0.coolant-mist TRUE when mist coolant is requested
 \layout Description
 
-iocontrol.0.emc-enable-in
+iocontrol.0.emc-enable-in Should be driven FALSE when an external estop condition
+ exists
 \layout Description
 
 iocontrol.0.lube
 \layout Description
 
-iocontrol.0.lube_level 
+iocontrol.0.lube_level Should be driven TRUE when 
 \layout Description
 
-iocontrol.0.tool-change 
+iocontrol.0.tool-change TRUE when a tool change is requested
 \layout Description
 
-iocontrol.0.tool-changed
+iocontrol.0.tool-changed Should be driven TRUE when a tool change is completed
 \layout Description
 
-iocontrol.0.tool-prep-number
+iocontrol.0.tool-prep-number The number of the next tool, from the RS274NGC
+ T-word
 \layout Description
 
-iocontrol.0.tool-prepare
+iocontrol.0.tool-prepare TRUE when a tool prepare is requested
 \layout Description
 
-iocontrol.0.tool-prepared
+iocontrol.0.tool-prepared Should be driven TRUE when a tool prepare is completed
+ 
 \layout Description
 
-iocontrol.0.user-enable-out
+iocontrol.0.user-enable-out FALSE when an internal estop condition exists
 \layout Description
 
-iocontrol.0.user-request-enable 
+iocontrol.0.user-request-enable TRUE when the user has requested that estop
+ be cleared
 \the_end
