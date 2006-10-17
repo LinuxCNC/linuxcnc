@@ -1268,9 +1268,9 @@ check_stuff ( "before command_handler()" );
 
 	case EMCMOT_SPINDLE_DECREASE:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SPINDLE_DECREASE");
-	    if (emcmotStatus->spindle.speed > 0) {
+	    if (emcmotStatus->spindle.speed > 1) {
 		emcmotStatus->spindle.speed -= 1; //FIXME - make the step a HAL parameter
-	    } else if (emcmotStatus->spindle.speed < 0) {
+	    } else if (emcmotStatus->spindle.speed < -1) {
 		emcmotStatus->spindle.speed += 1;
 	    }
 	    break;
