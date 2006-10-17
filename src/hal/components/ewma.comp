@@ -4,7 +4,7 @@ pin in float in "Input value";
 pin out float out """Smoothed version of input value: equal to 
 .IP
 in * weight + old_out * (1-weight)""";
-param rw float weight = .01 "Weight factor from 0 to 1: larger numbers make out change more slowly";
+param rw float weight = .01 "Weight factor from 0 to 1: smaller numbers make out change more slowly";
 function _;
 ;;
 FUNCTION(_) {
