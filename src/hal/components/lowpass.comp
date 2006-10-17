@@ -1,6 +1,6 @@
 component lowpass "Low-pass filter";
 pin in float in;
-pin out float out;
+pin out float out " out += (in - out) * gain ";
 param rw float gain;
 function _;
 ;;
