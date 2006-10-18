@@ -13,6 +13,6 @@ USERSRCS += $(RTAPI_APP_SRCS)
 
 ../bin/rtapi_app: $(call TOOBJS, $(RTAPI_APP_SRCS))
 	$(ECHO) Linking $(notdir $@)
-	@$(CXX) -rdynamic $(LDFLAGS) -o $@ $^ -ldl -pthread
+	@$(CXX) -rdynamic $(LDFLAGS) -o $@ $^ -ldl -lpth
 TARGETS += ../bin/rtapi_app
 endif

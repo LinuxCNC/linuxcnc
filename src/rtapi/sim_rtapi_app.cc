@@ -20,6 +20,8 @@
 #include "hal.h"
 #include "hal/hal_priv.h"
 
+extern "C" int sim_rtapi_run_threads(int fd);
+
 using namespace std;
 
 #define SOCKET_PATH "/tmp/rtapi_fifo"
@@ -304,6 +306,9 @@ static int master(int fd, vector<string> args) {
         struct sockaddr_un client_addr;
         memset(&client_addr, 0, sizeof(client_addr));
         socklen_t len = sizeof(client_addr);
+
+	sim_rtapi_run_threads(fd);
+
         int fd1 = accept(fd, (sockaddr*)&client_addr, &len);
         if(fd1 < 0) {
             perror("accept");

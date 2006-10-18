@@ -17,20 +17,18 @@
 #include <stdio.h>		/* vprintf() */
 #include <stdlib.h>		/* malloc(), sizeof() */
 #include <stdarg.h>		/* va_* */
-#include <pthread.h>		/* pthread_create() */
+#include <pth.h>		/* pth_uctx_* */
 #include <unistd.h>		/* usleep() */
 #include <sys/ipc.h>		/* IPC_* */
 #include <sys/shm.h>		/* shmget() */
 #include <time.h>               /* gettimeofday */
 #include <sys/time.h>           /* gettimeofday */
 #include "rtapi.h"		/* these decls */
-
+#include <errno.h>
+#include <string.h>
 
 /* These structs hold data associated with objects like tasks, etc. */
 /* Task handles are pointers to these structs.                      */
-
-pthread_key_t thread_key;
-pthread_once_t thread_key_once = PTHREAD_ONCE_INIT;
 
 struct rtapi_module {
   int magic;
@@ -39,14 +37,18 @@ struct rtapi_module {
 struct rtapi_task {
   int magic;			/* to check for valid handle */
   int owner;
-  pthread_t id;			/* OS specific task identifier */
+  pth_uctx_t ctx;		/* thread's context */
   size_t stacksize;
   int prio;
   int period;
-  struct timespec schedule;
-void *arg;
+  int ratio;
+  void *arg;
   void (*taskcode) (void*);	/* pointer to task function */
 };
+
+static struct timeval schedule;
+static int base_periods;
+static pth_uctx_t main_ctx, this_ctx;
 
 #define MODULE_MAGIC  30812
 #define TASK_MAGIC    21979	/* random numbers used as signatures */
@@ -59,13 +61,6 @@ void *arg;
 /* data for all tasks */
 static struct rtapi_task task_array[MAX_TASKS] = {{0},};
 static struct rtapi_module module_array[MAX_MODULES] = {{0},};
-
-static void gettimeofday_nano(struct timespec *ts) {
-    struct timeval tv;
-    gettimeofday(&tv, NULL);
-    ts->tv_sec = tv.tv_sec;
-    ts->tv_nsec = tv.tv_usec * 1000;
-}
 
 /* Priority functions.  SIM uses 0 as the highest priority, as the
 number increases, the actual priority of the task decreases. */
@@ -138,6 +133,7 @@ int rtapi_clock_set_period(unsigned long int nsecs)
       return RTAPI_INVAL;
   }
   period = nsecs;
+  gettimeofday(&schedule, NULL);
   return period;
 }
 
@@ -166,9 +162,10 @@ int rtapi_task_new(void (*taskcode) (void*), void *arg,
 
   /* label as a valid task structure */
   /*! \todo FIXME - end of non-threadsafe window */
+  if(stacksize < 16384) stacksize = 16384;
   task->magic = TASK_MAGIC;
   task->owner = owner;
-  task->id = -1;
+  task->ctx = NULL;
   task->arg = arg;
   task->stacksize = stacksize;
   task->taskcode = taskcode;
@@ -190,38 +187,28 @@ int rtapi_task_delete(int id) {
   if (task->magic != TASK_MAGIC)
     return RTAPI_INVAL;
 
-  /* mark the task struct as available */
-  if(task->id != -1) pthread_cancel(task->id);
+  pth_uctx_destroy(task->ctx);
+  
   task->magic = 0;
-  return 0;
+  return RTAPI_SUCCESS;
 }
 
 
-/* we define taskcode as taking an int and returning void. */
-/* pthread wants it to take a void pointer and return a void pointer */
-/* we solve this with a wrapper function that meets pthread's needs */
-
-static void make_thread_key(void) {
-    pthread_key_create(&thread_key, NULL);
-}
-
-static void *wrapper(void *arg)
+static void wrapper(void *arg)
 {
   struct rtapi_task *task;
-
-  pthread_once(&thread_key_once, make_thread_key);
-  pthread_setspecific(thread_key, arg);
 
   /* use the argument to point to the task data */
   task = (struct rtapi_task*)arg;
   if(task->period < period) task->period = period;
-  rtapi_print_msg(RTAPI_MSG_INFO, "task %p period = %d\n", task, task->period);
+  task->ratio = task->period / period;
+  rtapi_print_msg(RTAPI_MSG_INFO, "task %p period = %d ratio=%d\n",
+	  task, task->period, task->ratio);
 
-  gettimeofday_nano(&task->schedule);
   /* call the task function with the task argument */
   (task->taskcode) (task->arg);
-  /* done */
-  return NULL;
+
+  rtapi_print("ERROR: reached end of wrapper for task %d\n", task - task_array);
 }
 
 
@@ -229,8 +216,6 @@ int rtapi_task_start(int task_id, unsigned long int period_nsec)
 {
   struct rtapi_task *task;
   int retval;
-  pthread_attr_t attr;
-  struct sched_param sched_param;
 
   if(task_id < 0 || task_id >= MAX_TASKS) return RTAPI_INVAL;
     
@@ -240,36 +225,19 @@ int rtapi_task_start(int task_id, unsigned long int period_nsec)
   if (task->magic != TASK_MAGIC)
     return RTAPI_INVAL;
 
+  if(period_nsec < period) period_nsec = period;
   task->period = period_nsec;
-
-  /* get default thread attributes */
-  pthread_attr_init(&attr);
-
-  /* set priority */
-  sched_param.sched_priority = task->prio;
-  retval = pthread_attr_setschedparam(&attr, &sched_param);
-  if(retval != 0) {
-      rtapi_print_msg(RTAPI_MSG_ERR, "pthread_attr_setschedparam failed: %d\n",
-	      retval);
-  }
-  retval = pthread_attr_setstacksize(&attr, task->stacksize);
-  if(retval != 0) {
-      rtapi_print_msg(RTAPI_MSG_ERR, "pthread_attr_setstacksize failed: %d\n",
-	      retval);
-  }
+  task->ratio = period_nsec / period;
 
   /* create the thread - use the wrapper function, pass it a pointer
      to the task structure so it can call the actual task function */
-  retval = pthread_create(&(task->id), &attr, wrapper, (void *) task);
-  if (retval != 0)
+  retval = pth_uctx_create(&task->ctx);
+  if (retval == FALSE)
     return RTAPI_NOMEM;
-
-
-    /* need to be root to set SCHED_FIFO */
-   retval = pthread_setschedparam(task->id, SCHED_FIFO, &sched_param);
-   if (retval != 0) {
-       rtapi_print_msg(RTAPI_MSG_DBG, "could not set SCHED_FIFO (not fatal)\n");
-   }
+  retval = pth_uctx_make(task->ctx, NULL, task->stacksize, NULL,
+	  wrapper, (void*)task, 0);
+  if (retval == FALSE)
+    return RTAPI_NOMEM;
 
   return RTAPI_SUCCESS;
 }
@@ -277,7 +245,6 @@ int rtapi_task_start(int task_id, unsigned long int period_nsec)
 
 int rtapi_task_stop(int task_id)
 {
-  int retval;
   struct rtapi_task *task;
   if(task_id < 0 || task_id >= MAX_TASKS) return RTAPI_INVAL;
     
@@ -287,9 +254,8 @@ int rtapi_task_stop(int task_id)
   if (task->magic != TASK_MAGIC)
     return RTAPI_INVAL;
 
-  retval = pthread_cancel(task->id);
-  if (retval != 0)
-    return RTAPI_FAIL;
+  pth_uctx_destroy(task->ctx);
+
   return RTAPI_SUCCESS;
 }
 
@@ -339,35 +305,9 @@ int rtapi_task_set_period(int task_id,
   return RTAPI_SUCCESS;
 }
 
-static void maybe_sleep(struct rtapi_task *t) {
-    struct timespec now;
-    struct timespec interval;
-
-    gettimeofday_nano(&now);
-
-    t->schedule.tv_nsec += t->period;
-    if(t->schedule.tv_nsec > 1000000000) {
-        t->schedule.tv_nsec -= 1000000000;
-        t->schedule.tv_sec ++;
-    }
-    interval.tv_sec = t->schedule.tv_sec - now.tv_sec;
-    interval.tv_nsec = t->schedule.tv_nsec - now.tv_nsec;
-
-    if(interval.tv_nsec < 0) {
-        interval.tv_sec --;
-        interval.tv_nsec += 1000000000;
-    }
-
-    if(interval.tv_sec > 0 ||  interval.tv_nsec >= 0) {
-        nanosleep(&interval, NULL);
-    }
-}
-
 int rtapi_wait(void)
 {
-  struct rtapi_task *task = pthread_getspecific(thread_key);
-  maybe_sleep(task);
-  pthread_testcancel();
+  pth_uctx_switch(this_ctx, main_ctx);
   return RTAPI_SUCCESS;
 }
 
@@ -463,6 +403,81 @@ int rtapi_fifo_write(rtapi_fifo_handle fifo,
 
 long int simple_strtol(const char *nptr, char **endptr, int base) {
   return strtol(nptr, endptr, base);
+}
+
+#define MIN_RUNS 10
+
+static int maybe_sleep(int fd) {
+    struct timeval now;
+    struct timeval interval;
+
+    if(period == 0) {
+	fd_set fds;
+	FD_ZERO(&fds);
+	FD_SET(fd, &fds);
+
+	return select(fd+1, &fds, NULL, NULL, NULL);
+    } else {
+	schedule.tv_usec += period / 1000;
+	if(schedule.tv_usec > 1000000) {
+	    schedule.tv_usec -= 1000000;
+	    schedule.tv_sec ++;
+	}
+
+	// run 10 times (e.g., enough for 10ms if base_period is 1mS, 
+	// or enough for .5ms if base_period is 50uS) without any syscalls
+	if(base_periods % MIN_RUNS) return;
+
+	gettimeofday(&now, NULL);
+	interval.tv_sec = schedule.tv_sec - now.tv_sec;
+	interval.tv_usec = schedule.tv_usec - now.tv_usec;
+
+	if(interval.tv_usec < 0) {
+	    interval.tv_sec --;
+	    interval.tv_usec += 1000000;
+	}
+
+	if(interval.tv_sec > 0
+		|| (interval.tv_sec == 0 &&  interval.tv_usec >= 0)) {
+	    fd_set fds;
+	    FD_ZERO(&fds);
+	    FD_SET(fd, &fds);
+
+	    return select(fd+1, &fds, NULL, NULL, &interval);
+	}
+    }
+    return 0;
+}
+
+
+int sim_rtapi_run_threads(int fd) {
+    static int first_time = 1;
+    if(first_time) {
+	int result = pth_uctx_create(&main_ctx);
+	if(result == FALSE) _exit(1);
+	first_time = 0;	
+    }
+    while(1) {
+	int result = maybe_sleep(fd);
+	if(result) {
+	    return result;
+	}
+
+	if(period) {
+	    int t;
+	    base_periods++;
+	    for(t=0; t<MAX_TASKS; t++) {
+		struct rtapi_task *task = &task_array[t];
+		if(task->magic == TASK_MAGIC && task->ctx && 
+			(base_periods % task->ratio == 0)) {
+		    int result;
+		    this_ctx = task->ctx;
+		    result = pth_uctx_switch(main_ctx, task->ctx);
+		    if(result == FALSE) _exit(1);
+		}
+	    }
+	}
+    }
 }
 
 
