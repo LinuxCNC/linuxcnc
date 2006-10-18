@@ -25,8 +25,7 @@ objects/%.mak: %.comp hal/components/Submakefile
 	$(ECHO) "Creating $(notdir $@)"
 	@mkdir -p $(dir $@)
 	@echo $(notdir $*)-objs := objects/$*.o > $@.tmp
-	@echo ../rtlib/$(notdir $*).so: objects/rtobjects/$*.o >> $@.tmp
-	@echo ../rtlib/$(notdir $*).o: objects/rtobjects/$*.o >> $@.tmp
+	@echo ../rtlib/$(notdir $*)$(MODULE_EXT): objects/rtobjects/$*.o >> $@.tmp
 	@mv -f $@.tmp $@
 
 objects/%.c: %.comp ../bin/comp
