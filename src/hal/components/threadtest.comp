@@ -1,0 +1,9 @@
+component threadtest;
+pin out u32 count;
+function increment nofp;
+function reset nofp;
+
+;;
+
+FUNCTION(increment) { count++; }
+FUNCTION(reset) { count=0; }
