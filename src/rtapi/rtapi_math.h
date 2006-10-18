@@ -1,7 +1,7 @@
 #ifndef RTAPI_MATH_H
 #define RTAPI_MATH_H
 
-#ifdef RTAPI
+#if defined(RTAPI) && !defined(SIM)
 extern double sin(double);
 extern double cos(double);
 extern double sqrt(double);

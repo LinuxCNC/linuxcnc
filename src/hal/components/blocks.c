@@ -59,7 +59,9 @@
 #include "hal.h"		/* HAL public API decls */
 
 #include <linux/types.h>
+#define hypot libm_hypot
 #include "rtapi_math.h"
+#undef hypot
 
 /* module information */
 MODULE_AUTHOR("John Kasunich");
