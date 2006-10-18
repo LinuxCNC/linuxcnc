@@ -251,6 +251,18 @@ pack $f5 -side bottom -anchor e -fill none -expand n -padx 15
 pack $f1 -fill both -expand y
 
 set config_count 0
+set nonsample_count 0
+
+proc describe {dir} {
+    if {[string compare $dir [file normalize ~/emc2/configs]] == 0} {
+	return "My Configurations"
+    }
+    if {[string compare $dir "/etc/emc2/sample-configs"] == 0} {
+	return "Sample Configurations"
+    }
+    return $dir/
+}
+
 foreach dir $configs_dir_list {
     set dir [file normalize $dir]
     if {[info exists seen($dir)]} continue
@@ -264,7 +276,8 @@ foreach dir $configs_dir_list {
 	    # only one ini file, no second level
 	    # add dir to tree if not already
 	    if { $dir_in_tree == 0 } {
-		$tree insert end root $dir -text $dir/ -open 1
+		set text [describe $dir]
+		$tree insert end root $dir -text $text -open 1
 		set dir_in_tree 1
 	    }
 	    # add inifile to tree
@@ -272,6 +285,7 @@ foreach dir $configs_dir_list {
             set parts [file split $inifile]
 	    $tree insert end $dir $inifile -text [lindex $parts end-1] -open 1
 	    incr config_count
+	    if {[string first sample-configs $dir] == -1} { incr nonsample_count }
 	} elseif { [ llength $inifile_list ] > 1 } {
 	    # multiples, use second level and sort
   	    set inifile_list [ lsort $inifile_list ]
@@ -288,10 +302,16 @@ foreach dir $configs_dir_list {
                 set text [file rootname [file tail $inifile]]
 		$tree insert end $subdir $inifile -text $text -open 1
 		incr config_count
+		if {[string first sample-configs $dir] == -1} { incr nonsample_count }
 	    }
 	}
     }
 }
+
+if {$nonsample_count} {
+    catch { $tree closetree /etc/emc2/sample-configs }
+}
+
 unset seen
 
 if { $config_count == 0 } {
