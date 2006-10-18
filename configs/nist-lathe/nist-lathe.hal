@@ -16,7 +16,12 @@ loadrt encoder num_chan=1
 loadrt ddt count=6
 loadrt not count=1
 # spindle speed pwm
-loadrt freqgen step_type=1
+loadrt pwmgen output_type=0
+# spindle speed feedback
+loadrt lowpass count=1
+loadrt mult2 count=1
+loadrt scale count=1
+
 # gotta see whats happening
 loadrt scope_rt
 
@@ -31,7 +36,7 @@ addf encoder.update-counters    base-thread
 # generate step and dir signals
 addf stepgen.make-pulses	base-thread
 # generate spindle pwm
-addf freqgen.make-pulses        base-thread
+addf pwmgen.make-pulses        base-thread
 # write to outputs
 addf parport.0.write		base-thread
 
@@ -55,10 +60,12 @@ addf ddt.4			servo-thread
 addf ddt.5			servo-thread
 # other misc blocks
 addf not.0			servo-thread
-addf freqgen.update-freq        servo-thread
+addf scale.0			servo-thread
+addf pwmgen.update              servo-thread
 # update output info, axis and spindle
 addf stepgen.update-freq	servo-thread
-
+addf lowpass.0			servo-thread
+addf mult2.0			servo-thread
 
 
 #######################################################
@@ -115,16 +122,55 @@ linkps stepgen.1.dir  => Ydir
 linkps stepgen.2.step => Zstep
 linkps stepgen.2.dir  => Zdir
 
-# spindle speed
+#############################################################################
+# Spindle Speed
+# The spindle goes forward only
+newsig spindle-forward bit
+linkps motion.spindle-forward => spindle-forward
+linksp spindle-forward => pwmgen.0.enable
+
+# PID is not used to give closed-loop spindle speed control, because at the
+# highest speeds the software-based encoder cannot keep up
+# Instead, this offset and scale have been determined emperically
+# -- if these numbers are accurate, then top speed at this gearing is about
+# 1200 rpm
+#
+# note that this does not depend on the base_period, unlike freqgen
+# gain = 1/1128 ~ .00089
+# offset = .07
+# PWM    Measured RPM
+# 25%    200
+# 50%    482
+# 60%    595
+setp scale.0.gain .00089
+setp scale.0.offset .07
+
 newsig spindle-speed-cmd float
 linkps motion.spindle-speed-out => spindle-speed-cmd
-linksp spindle-speed-cmd => freqgen.0.velocity
+linksp spindle-speed-cmd => scale.0.in
+newsig spindle-speed-pwm float
+linkps scale.0.out => spindle-speed-pwm
+linksp spindle-speed-pwm => pwmgen.0.value
 
-# determined emperically: changes if you change base period
-# top speed at this gearing of about 1600 rpm
-setp freqgen.0.velocity-scale 36.0
-# accel limiting disabled
-setp freqgen.0.maxaccel 0.0 
+# Spindle speed feedback -- spindle-speed-fb-rpm can be metered or scoped
+# but beware that at the highest speeds the software-based encoder cannot
+# keep up, and the speed is estimated incorrectly
+newsig spindle-speed-fb-raw float
+newsig spindle-speed-fb-filtered  float
+newsig spindle-speed-fb-rpm  float
+
+# The gain of the lowpass filter is a trade-off: Higher numbers track spindle
+# speed better when the speed changes.  Lower numbers give a more steady
+# estimate of average spindle speed when the speed is nominally constant
+setp lowpass.0.gain 0.01
+linkps encoder.0.velocity => spindle-speed-fb-raw
+linksp spindle-speed-fb-raw => lowpass.0.in
+linkps lowpass.0.out => spindle-speed-fb-filtered
+
+setp mult2.0.in0 60
+linksp spindle-speed-fb-filtered mult2.0.in1
+linkps mult2.0.out spindle-speed-fb-rpm
+#############################################################################
 
 # create a signal for the estop loopback
 linkpp iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
@@ -152,7 +198,7 @@ linksp Zdir		=> parport.0.pin-06-out
 linksp spindle_on	=> parport.0.pin-01-out
 setp parport.0.pin-01-out-invert 1
 
-linkpp freqgen.0.up	=> parport.0.pin-14-out
+linkpp pwmgen.0.pwm	=> parport.0.pin-14-out
 
 #######################################################
 # set scaling and other parameters of the basic machine
