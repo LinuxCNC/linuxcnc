@@ -122,7 +122,11 @@ done
 shift $((OPTIND-1))
 
 if [ $# -eq 0 ]; then
-    set -- $TOPDIR/tests
+    if [ -f test.hal ]; then
+        set -- .
+    else
+        set -- $TOPDIR/tests
+    fi
 fi
 
 if [ $CLEAN_ONLY -eq 1 ]; then
