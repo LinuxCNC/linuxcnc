@@ -171,8 +171,10 @@ fi
 #at this point if RTDIR is empty, we need to find RT ourselves
 if test $SIMULATOR = yes; then
   RTS=sim
-  AC_CHECK_HEADER(pth.h,[],[
-	AC_MSG_ERROR([GNU PTH library is required: get it with apt-get install libpth-dev])])
+  AC_PATH_PROG(PTH_CONFIG,pth-config,"")
+  if test "$PTH_CONFIG" = ""; then
+    AC_MSG_ERROR([GNU PTH library is required: get it with apt-get install libpth-dev])
+  fi
 elif test -z "$RTDIR"; then
   for location in /usr/realtime-`uname -r` /usr/realtime /usr /usr/src/rtai*; do
     for subdir in scripts bin; do
