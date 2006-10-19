@@ -1,8 +1,8 @@
 setexact_for_test_suite_only
 
-loadrt sampler cfg=u32 depth=4096
-loadrt threadtest count=1
 loadrt threads name1=fast period1=100000 name2=slow period2=1000000
+loadrt threadtest count=1
+loadrt sampler cfg=u32 depth=4096
 
 linkpp threadtest.0.count sampler.0.pin.0
 
