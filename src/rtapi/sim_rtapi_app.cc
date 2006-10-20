@@ -24,7 +24,7 @@ extern "C" int sim_rtapi_run_threads(int fd);
 
 using namespace std;
 
-#define SOCKET_PATH "/tmp/rtapi_fifo"
+#define SOCKET_PATH "\0/tmp/rtapi_fifo"
 
 template<class T> T DLSYM(void *handle, const string &name) {
 	return (T)(dlsym(handle, name.c_str()));
@@ -282,7 +282,8 @@ static int handle_command(vector<string> args) {
     } else if(args.size() == 4 && args[0] == "newinst") {
         return do_newinst_cmd(args[1], args[2], args[3]);
     } else {
-        rtapi_print_msg(RTAPI_MSG_ERR, "Unrecognized command starting with %s",
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                "Unrecognized command starting with %s\n",
                 args[0].c_str());
         return -1;
     }
