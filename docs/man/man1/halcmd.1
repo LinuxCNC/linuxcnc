@@ -29,12 +29,24 @@ halcmd \- manipulate the Enhanced Machine Controller HAL from the command line
 .SH SYNOPSIS
 .B halcmd
 [\fIOPTIONS\fR] [\fICOMMAND\fR [\fIARG\fR]]
+.PP
+.B halrun 
+[\fI-I\fR] [\fIHALCMD OPTIONS\fR]
 .SH DESCRIPTION
 \fBhalcmd\fR is used to manipulate the HAL (Hardware Abstraction
 Layer) from the command line.  \fBhalcmd\fR can optionally read
 commands from a file, allowing complex HAL configurations to be
 set up with a single command.
+
+\fBhalrun\fR is a convenience script which sets up the realtime environment,
+executes \fBhalcmd\fR with the given arguments, optionally runs an interactive
+\fBhalcmd -kf\fR if \fI-I\fR is given, then tears down the realtime
+environment.
 .SH OPTIONS
+.TP
+\fB-I\fR
+Before tearing down the realtime environment, run an interactive halcmd.
+\fBhalrun\fR only.  \fB-I\fR must precede all other commandline arguments.
 .TP
 \fB\-f\fR [\fIfile\fR]
 Ignore commands on command line, take input from \fIfile\fR
