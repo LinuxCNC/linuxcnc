@@ -246,7 +246,7 @@ $button_ok configure -state disabled
 button $f5.cancel -text [msgcat::mc  "Cancel"] -command "button_pushed Cancel" -width 8 -default normal
 pack $f5.cancel -side right -padx 4 -pady 4
 pack $f5.ok -side right -padx 4 -pady 4
-pack $f5 -side bottom -anchor e -fill none -expand n -padx 15
+pack $f5 -side bottom -anchor e -fill x -expand n -padx 15
 
 pack $f1 -fill both -expand y
 
@@ -374,6 +374,27 @@ if {$last_ini != -1 && [file exists $last_ini] && ![catch {$tree index $last_ini
     wait_and_see $last_ini
 }
 
+proc make_shortcut {inifile} {
+    if {[catch {open $inifile} inifd]} { return }
+    set inistring [read $inifd]
+    close $inifd
+    set name [getVal $inistring EMC MACHINE]
+    set filename0 ~/Desktop/[file rootname [file tail $inifile]]
+    set filename ${filename0}.desktop
+    set i 0
+    while {[file exists $filename]} {
+	incr i
+	set filename $filename0${i}.desktop
+    }
+    exec emcmkdesktop $inifile $name > $filename
+    tk_dialog .d [msgcat::mc "Shortcut Created"] [msgcat::mc "A shortcut to this configuration file has been created in your desktop.  You can use it to automatically launch this configuration."] info 0 [msgcat::mc "OK"]
+}
+
+if {[file isdir ~/Desktop]} {
+    checkbutton $f5.c -variable make_shortcut -text "Create Desktop Shortcut"
+    pack $f5.c -side left -expand 1 -anchor w
+}
+
 while {1} {
     focus $tree
     vwait choice
@@ -384,6 +405,7 @@ while {1} {
             if {$copied_inifile == ""} { continue }
             set inifile $copied_inifile
         }
+	if {$make_shortcut} { make_shortcut $inifile }
         puts $inifile
 
         # test for ~/.emcrc file and modify if needed.
@@ -413,9 +435,10 @@ while {1} {
         set newfilestring "# .emcrc is a startup configuration file for EMC2. \n# format is INI like. \n# \[SECTION_NAME\] \n# VARNAME = varvalue \n# where section name is the name of the system writing to this file \n\n# written by pickconfig.tcl \n\[PICKCONFIG\]\nLAST_CONFIG = $inifile\n"
                 
         if {[catch {open ~/.emcrc w+} fileout]} {
-            puts stdout [msgcat::mc "can't save %s" ~/.emcrc ]
+            puts stderr [msgcat::mc "can't save %s" ~/.emcrc ]
             exit
         }
+
         puts $fileout $newfilestring
         catch {close $fileout}
     }
