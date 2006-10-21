@@ -8,7 +8,7 @@ emc2 (1:2.0.4) unstable; urgency=low
   * fix step sometimes moving significantly past the end of a segment.
   * fix bug where hitting step too quickly in a row could cause a resume.
 
- -- Chris Radek <chris@buster>  Fri, 20 Oct 2006 21:23:02 -0500
+ -- Chris Radek <chris@timeguy.com>  Fri, 20 Oct 2006 22:20:34 -0500
 
 emc2 (1:2.0.3) unstable; urgency=low
 
