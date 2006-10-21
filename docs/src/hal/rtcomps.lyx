@@ -1537,7 +1537,7 @@ Installing
 
 emc2$ 
 \series bold 
-halcmd loadrt pid [num_chan=<loops>] [debug=1] [fp_period=<nsec>]
+halcmd loadrt pid [num_chan=<loops>] [debug=1]
 \layout Standard
 
 
@@ -1568,20 +1568,6 @@ debug=1
  be useful during debugging and tuning.
  By default, the extra parameters are not exported, to save shared memory
  space and avoid cluttering the parameter list.
-\layout Standard
-
-If 
-\family typewriter 
-fp_period
-\family default 
- is specified, the component will create a realtime thread, capable of running
- floating point functions.
- The period of the thread will be 
-\family typewriter 
-<nsec>
-\family default 
- nano-seconds.
- By default, no thread is created.
 \layout Subsection
 
 Removing
@@ -3026,7 +3012,7 @@ Installing
 
 emc2$ 
 \series bold 
-halcmd loadrt siggen [num_chan=<chans>] [fp_period=<nsec>]
+halcmd loadrt siggen [num_chan=<chans>]
 \layout LyX-Code
 
 \layout Standard
@@ -3048,20 +3034,6 @@ numchan
 <chan>
 \family default 
  is the number of a specific signal generator (the numbers start at 0).
-\layout Standard
-
-If 
-\family typewriter 
-fp_period
-\family default 
- is specified, the component will create a realtime thread, capable of running
- floating point functions.
- The period of the thread will be 
-\family typewriter 
-<nsec>
-\family default 
- nano-seconds.
- By default, no thread is created.
 \layout Subsection
 
 Removing
