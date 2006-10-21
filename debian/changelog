@@ -1,3 +1,15 @@
+emc2 (1:2.0.4) unstable; urgency=low
+
+  * use scientific notation in halmeter only when really necessary
+  * fix a position jump on stepper machines when reenabling after estop
+  * fix moving to [EMCIO]TOOL_CHANGE_POSITION during M6
+  * detect and report to the user some realtime problems (unexpected delays)
+    that reflect a problem with the hardware or realtime subsystem.
+  * fix step sometimes moving significantly past the end of a segment.
+  * fix bug where hitting step too quickly in a row could cause a resume.
+
+ -- Chris Radek <chris@buster>  Fri, 20 Oct 2006 21:23:02 -0500
+
 emc2 (1:2.0.3) unstable; urgency=low
 
   * stupid bugfix - I forgot to enable the loading of probe_parport.
