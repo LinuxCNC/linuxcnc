@@ -10,6 +10,9 @@ fi
 
 if [ $# -eq 0 ]; then set -- -kf; fi
 
+INTERACTIVE=0
+if [ "$1" = "-I" ]; then INTERACTIVE=1; shift; fi
+
 case $1 in
 *.hal) set -- -f $1
 esac
@@ -17,6 +20,8 @@ esac
 $REALTIME start
 
 halcmd $@; result=$?
+
+if [ $INTERACTIVE -eq 1 ]; then halcmd -kf; fi
 
 halcmd unload all || result=$?
 
