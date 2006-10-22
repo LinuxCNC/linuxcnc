@@ -48,6 +48,9 @@ case $1 in
     2.6.12-magma)
         KERNEL_HEADERS="$KERNEL_HEADERS,gcc-3.4"
     ;;
+    2.6.15-magma)
+        KERNEL_HEADERS="$KERNEL_HEADERS,gcc-4.0"
+    ;;
 esac
 
 subst () {
