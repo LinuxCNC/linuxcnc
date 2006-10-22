@@ -323,7 +323,8 @@ static void write_DACs(slot_data_t *slot);
 *                  REALTIME I/O FUNCTION DECLARATIONS                  *
 ************************************************************************/
 
-static void BusReset(unsigned int port_addr);
+/* FIXME not used: 
+static void BusReset(unsigned int port_addr); */
 static int ClrTimeout(unsigned int port_addr);
 static unsigned short SelRead(unsigned char epp_addr, unsigned int port_addr);
 static unsigned short ReadMore(unsigned int port_addr);
@@ -1875,12 +1876,13 @@ static int export_encoders(slot_data_t *slot, bus_data_t *bus)
 /* utility functions for EPP bus */
 
 /* reset all boards attached to the EPP bus */
+/* FIXME not used
 static void BusReset(unsigned int port_addr)
 {
   rtapi_outb(0,CONTROLPORT(port_addr));
   rtapi_outb(4,CONTROLPORT(port_addr));
   return;
-}
+}*/
 
 /* tests for an EPP bus timeout, and clears it if so */
 static int ClrTimeout(unsigned int port_addr)
