@@ -738,12 +738,12 @@ int Interp::convert_axis_offsets(int g_code,     //!< g_code being executed (mus
                         settings->BB_axis_offset),
                        (settings->CC_origin_offset +
                         settings->CC_axis_offset));
-    pars[5211] = TO_EXT_LEN(settings->axis_offset_x);
-    pars[5212] = TO_EXT_LEN(settings->axis_offset_y);
-    pars[5213] = TO_EXT_LEN(settings->axis_offset_z);
-    pars[5214] = TO_EXT_ANG(settings->AA_axis_offset);
-    pars[5215] = TO_EXT_ANG(settings->BB_axis_offset);
-    pars[5216] = TO_EXT_ANG(settings->CC_axis_offset);
+    pars[5211] = PROGRAM_TO_USER_LEN(settings->axis_offset_x);
+    pars[5212] = PROGRAM_TO_USER_LEN(settings->axis_offset_y);
+    pars[5213] = PROGRAM_TO_USER_LEN(settings->axis_offset_z);
+    pars[5214] = PROGRAM_TO_USER_ANG(settings->AA_axis_offset);
+    pars[5215] = PROGRAM_TO_USER_ANG(settings->BB_axis_offset);
+    pars[5216] = PROGRAM_TO_USER_ANG(settings->CC_axis_offset);
 
   } else if ((g_code == G_92_1) || (g_code == G_92_2)) {
     settings->current_x = settings->current_x + settings->axis_offset_x;
