@@ -405,7 +405,7 @@ long int simple_strtol(const char *nptr, char **endptr, int base) {
   return strtol(nptr, endptr, base);
 }
 
-#define MIN_RUNS 10
+#define MIN_RUNS 13
 
 static int maybe_sleep(int fd) {
     struct timeval now;
