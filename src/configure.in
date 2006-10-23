@@ -482,12 +482,15 @@ OLD_CC=$CC
 CC="$CC -Werror"
 AC_TRY_COMPILE([#include <asm/bitops.h>],
     [],
-    [
-        AC_MSG_RESULT(yes)
-        AC_DEFINE(ASM_BITOPS_H_USABLE, [],
-        [asm/bitops.h is usable from userspace])],
-    [AC_MSG_RESULT(no)])
+    [ASM_BITOPS_H_USABLE=yes],
+    [ASM_BITOPS_H_USABLE=no])
 CC=$OLD_CC
+AC_MSG_RESULT($ASM_BITOPS_H_USABLE)
+ 
+if test "$ASM_BITOPS_H_USABLE" = yes; then
+	AC_DEFINE(ASM_BITOPS_H_USABLE, [yes],
+		[asm/bitops.h is usable from userspace])
+fi
 
 ##############################################################################
 # Subsection 3.2 - check for the kernel version, with RT patches             #
