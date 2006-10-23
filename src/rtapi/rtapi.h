@@ -207,7 +207,7 @@ extern "C" {			/* Need this when the header is included in a
 #else
 #include <sched.h>		/* for blocking when needed */
 #endif
-#include <asm/bitops.h>		/* atomic bit ops for lightweight mutex */
+#include "rtapi_bitops.h"	/* atomic bit ops for lightweight mutex */
 
 /** These three functions provide a very simple way to do mutual
     exclusion around shared resources.  They do _not_ replace

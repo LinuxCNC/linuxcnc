@@ -74,10 +74,7 @@
 #include <sched.h>		/* for blocking when needed */
 #endif
 
-#include <asm/bitops.h>		/* atomic bit ops for lightweight mutex. This 
-				   will need checking - RH9.0 puts a warning
-				   in the header whilst 'normal' distros
-				   don't */
+#include "rtapi_bitops.h"
 
 /* maximum number of various resources */
 #define RTAPI_MAX_MODULES 64
