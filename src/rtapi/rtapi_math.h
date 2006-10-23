@@ -10,6 +10,7 @@ extern double atan2(double, double);
 extern double acos(double);
 extern double pow(double, double);
 
+extern double round(double);
 extern double ceil(double);
 extern double floor(double);
 
