@@ -477,6 +477,18 @@ fi
 AC_SUBST([WFLAGS])
 AC_SUBST([DEPSTYLE])
 
+AC_MSG_CHECKING([if asm/bitops.h is usable])
+OLD_CC=$CC
+CC="$CC -Werror"
+AC_TRY_COMPILE([#include <asm/bitops.h>],
+    [],
+    [
+        AC_MSG_RESULT(yes)
+        AC_DEFINE(ASM_BITOPS_H_USABLE, [],
+        [asm/bitops.h is usable from userspace])],
+    [AC_MSG_RESULT(no)])
+CC=$OLD_CC
+
 ##############################################################################
 # Subsection 3.2 - check for the kernel version, with RT patches             #
 #----------------------------------------------------------------------------#

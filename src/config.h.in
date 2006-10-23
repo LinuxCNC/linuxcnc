@@ -39,6 +39,9 @@
 #define ANGULAR_TOLERANCE 0.0001
 
 
+/* asm/bitops.h is usable from userspace */
+#undef ASM_BITOPS_H_USABLE
+
 /* Directory for binaries */
 #undef EMC2_BIN_DIR
 
