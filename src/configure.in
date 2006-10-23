@@ -488,9 +488,9 @@ CC=$OLD_CC
 AC_MSG_RESULT($ASM_BITOPS_H_USABLE)
  
 if test "$ASM_BITOPS_H_USABLE" = yes; then
-	AC_DEFINE(ASM_BITOPS_H_USABLE, [yes],
-		[asm/bitops.h is usable from userspace])
+    ASM_BITOPS_DEFINE="-DASM_BITOPS_H_USABLE"
 fi
+AC_SUBST([ASM_BITOPS_DEFINE])
 
 ##############################################################################
 # Subsection 3.2 - check for the kernel version, with RT patches             #
