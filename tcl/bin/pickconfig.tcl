@@ -30,7 +30,6 @@ exec wish "$0" "$@"
 #
 ###############################################################
 
-
 # Load the emc.tcl file, which defines variables for various useful paths
 source [file join [file dirname [info script]] .. emc.tcl]
 
@@ -43,14 +42,7 @@ option add *Tree*background white
 
 ################### PROCEDURE DEFINITIONS #####################
 
-package require msgcat
-if ([info exists env(LANG)]) {
-    msgcat::mclocale $env(LANG)
-    msgcat::mcload $emc::LANG_DIR
-}
-
 # use initialize_config for bwidget and .emcrc
-
 proc initialize_config {} {
     # need bwidget
     set result [catch {package require BWidget 1.7}]
@@ -165,7 +157,7 @@ proc node_clicked {} {
 # parse command line 
 set configs_path [ lindex $argv 0 ]
 if { $configs_path == "" } {
-    puts stderr [ msgcat::mc "ERROR: must specify a path to search for configurations" ]
+    puts stderr [msgcat::mc "ERROR: must specify a path to search for configurations"]
     exit 1
 }
 # split into a list of dirs
@@ -255,10 +247,10 @@ set nonsample_count 0
 
 proc describe {dir} {
     if {[string compare $dir [file normalize ~/emc2/configs]] == 0} {
-	return "My Configurations"
+	return [msgcat::mc "My Configurations"]
     }
     if {[string compare $dir "/etc/emc2/sample-configs"] == 0} {
-	return "Sample Configurations"
+	return [msgcat::mc "Sample Configurations"]
     }
     return $dir/
 }
@@ -391,7 +383,7 @@ proc make_shortcut {inifile} {
 }
 
 if {[file isdir ~/Desktop]} {
-    checkbutton $f5.c -variable make_shortcut -text "Create Desktop Shortcut"
+    checkbutton $f5.c -variable make_shortcut -text [msgcat::mc "Create Desktop Shortcut"]
     pack $f5.c -side left -expand 1 -anchor w
 }
 

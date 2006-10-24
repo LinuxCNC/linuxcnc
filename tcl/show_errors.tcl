@@ -1,3 +1,6 @@
+# Load the emc.tcl file, which defines variables for various useful paths
+source [file join [file dirname [info script]] emc.tcl]
+
 proc insert_file {w title f {p {}}} {
     set f [open $f r]
     set t [read $f]
@@ -18,10 +21,10 @@ proc insert_file {w title f {p {}}} {
 }
 
 
-wm ti . "EMC2 Errors"
+wm ti . [msgcat::mc "EMC2 Errors"]
 frame .f
 label .f.b -bitmap error
-label .f.l -justify l -wraplength 400 -text "EMC terminated with an error.  When reporting problems, please include the information below in your message."
+label .f.l -justify l -wraplength 400 -text [msgcat::mc "EMC2 terminated with an error.  When reporting problems, please include the information below in your message."]
 pack .f.b -side left -padx 8 -pady 8
 pack .f.l -side left
 pack .f -side top -fill x -anchor w
@@ -43,8 +46,8 @@ insert_file .f2.t "Debug file information:" [lindex $argv 0]
 .f2.t configure -state disabled
 
 frame .f3
-button .f3.b1 -text "Select All" -command {.f2.t tag add sel 0.0 end; tk_textCopy .f2.t} -width 10 -padx 4 -pady 1
-button .f3.b2 -text "Close" -command {destroy .} -width 10 -padx 4 -pady 1
+button .f3.b1 -text [msgcat::mc "Select All"] -command {.f2.t tag add sel 0.0 end; tk_textCopy .f2.t} -width 15 -padx 4 -pady 1
+button .f3.b2 -text [msgcat::mc "Close"] -command {destroy .} -width 15 -padx 4 -pady 1
 pack .f3.b1 -side left -anchor e -padx 4 -pady 4
 pack .f3.b2 -side left -anchor e -padx 4 -pady 4
 pack .f3 -side top -anchor e
