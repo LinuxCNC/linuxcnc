@@ -1,0 +1,98 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+   "http://www.w3.org/TR/html4/strict.dtd">
+<HTML>
+<HEAD>
+<STYLE type="text/css">
+table { border: 1px solid black; border-collapse: collapse; }
+table #titlerow th { border-bottom: 2px solid black; border-left: 2px solid black; text-align: center; }
+table #titlerow th:first-child { border-bottom: 2px solid black; border-left: 0px; text-align: center; }
+table td:first-child { border-left: 0px; }
+table td { border-left: 1px solid black; padding-left: .25em; padding-right: .25em; }
+table th { text-align: left; border-bottom: 1px solid black; border-top: 1px solid black; }
+
+@page { margin: .150in; }
+@media print {
+html { padding: 0; margin: 0; }
+body { padding: 3px; margin: 3px; }
+* { font-size: 8pt }
+a { text-decoration: none; color: black; }
+}
+</STYLE>
+<TITLE>EMC2 "G-Code" Quick Reference</TITLE>
+</HEAD>
+
+<BODY>
+<TABLE ID=ref1>
+<CAPTION> EMC2 "G-Code" Quick Reference </CAPTION>
+<COL id="group"> <COL id="code"> <COL id="params"> <COL id="description">
+<TR id="titlerow"> <TH>Code <TH>Parameters <TH>Description </TR>
+<TR> <TH>Motion <TD COLSPAN=2 STYLE="border-bottom: 1px solid black">(X- Y- Z- A- B- C- apply to all motions) </TR>
+<TR> <TD> <A HREF="http://www.linuxcnc.org/handbook/RS274NGC_3/RS274NGC_33a.html#1012810">G0</A> <TD> <TD> Rapid motion </TR>
+<TR> <TD> <A HREF="http://www.linuxcnc.org/handbook/RS274NGC_3/RS274NGC_33a.html#1002443">G1</A> <TD> <TD> Coordinated motion ("Straight feed") </TR>
+<TR> <TD> <A HREF="http://www.linuxcnc.org/handbook/RS274NGC_3/RS274NGC_33a.html#1002442">G2</A>, <A HREF="http://www.linuxcnc.org/handbook/RS274NGC_3/RS274NGC_33a.html#1002442">G3</A> <TD> I- J- K- or R- <TD> Coordinated helical motion ("Arc feed") </TR>
+<TR> <TD> <A HREF="http://www.linuxcnc.org/handbook/RS274NGC_3/RS274NGC_33a.html#1001097">G38.2</A> <TD> <TD> Straight Probe </TR>
+<TR> <TD> <A HREF="http://www.linuxcnc.org/handbook/RS274NGC_3/RS274NGC_33a.html#1003378">G80</A> <TD> <TD> Cancel motion mode  </TR>
+<TR> <TD> <A HREF="http://www.linuxcnc.org/handbook/RS274NGC_3/RS274NGC_33a.html#1003380">G81</A> <TD> R- L- P- <TD> Drilling Cycle </TR>
+<TR> <TD> <A HREF="http://www.linuxcnc.org/handbook/RS274NGC_3/RS274NGC_33a.html#1003380">G82&hellip;G89</A> <TD> R- L- P- Q- <TD> Other canned cycles </TR>
+<TR> <TD> <A HREF="http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?SpindleSynchronizedMotion">G33</A> <TD> K- <TD> Spindle-synchronized motion </TR>
+<TR> <TH COLSPAN=3>Plane Selection (affects G2, G3, G81&hellip;G89)</TR>
+<TR> <TD> <A HREF="http://www.linuxcnc.org/handbook/RS274NGC_3/RS274NGC_33a.html#1012609">G17</A> <TD> <TD> Select XY plane </TR>
+<TR> <TD> <A HREF="http://www.linuxcnc.org/handbook/RS274NGC_3/RS274NGC_33a.html#1012609">G18</A> <TD> <TD> Select XZ plane </TR>
+<TR> <TD> <A HREF="http://www.linuxcnc.org/handbook/RS274NGC_3/RS274NGC_33a.html#1012609">G19</A> <TD> <TD> Select YZ plane </TR>
+<TR> <TH COLSPAN=3>Distance Mode </TR>
+<TR> <TD> <A HREF="http://www.linuxcnc.org/handbook/RS274NGC_3/RS274NGC_33a.html#1015809">G90</A> <TD> <TD> Absolute distance mode </TR>
+<TR> <TD> <A HREF="http://www.linuxcnc.org/handbook/RS274NGC_3/RS274NGC_33a.html#1015809">G91</A> <TD> <TD> Incremental distance mode </TR>
+<TR> <TH COLSPAN=3>Feed Rate Mode </TR>
+<TR> <TD> <A HREF="http://www.linuxcnc.org/handbook/RS274NGC_3/RS274NGC_33a.html#1003508">G93</A> <TD> <TD> Units per minute </TR>
+<TR> <TD> <A HREF="http://www.linuxcnc.org/handbook/RS274NGC_3/RS274NGC_33a.html#1003508">G94</A> <TD> <TD> Inverse time feed rate </TR>
+<TR> <TH COLSPAN=3>Units </TR>
+<TR> <TD> <A HREF="http://www.linuxcnc.org/handbook/RS274NGC_3/RS274NGC_33a.html#1004239">G20</A> <TD> <TD> Inches </TR>
+<TR> <TD> <A HREF="http://www.linuxcnc.org/handbook/RS274NGC_3/RS274NGC_33a.html#1004239">G21</A> <TD> <TD> Millimeters </TR>
+<TR> <TH COLSPAN=3>Cutter Radius Compensation </TR>
+<TR> <TD> <A HREF="http://www.linuxcnc.org/handbook/RS274NGC_3/RS274NGC_33a.html#1003540">G41</A>, <A HREF="http://www.linuxcnc.org/handbook/RS274NGC_3/RS274NGC_33a.html#1003540">G42</A> <TD> <TD> Start cutter radius compensation left or right </TR>
+<TR> <TD> <A HREF="http://www.linuxcnc.org/handbook/RS274NGC_3/RS274NGC_33a.html#1003540">G40</A> <TD> <TD> Cancel cutter radious compensation </TR>
+<TR> <TH COLSPAN=3>Tool Length Offset </TR>
+<TR> <TD> <A HREF="http://www.linuxcnc.org/handbook/RS274NGC_3/RS274NGC_33a.html#1013768">G43</A> <TD> H- <TD> Use tool length offset </TR>
+<TR> <TD> <A HREF="http://www.linuxcnc.org/handbook/RS274NGC_3/RS274NGC_33a.html#1013768">G49</A> <TD> <TD> Cancel tool length offset </TR>
+<TR> <TH COLSPAN=3>Return Mode in Canned Cycles </TR>
+<TR> <TD> <A HREF="http://www.linuxcnc.org/handbook/RS274NGC_3/RS274NGC_33a.html#1016050">G98</A> <TD> <TD> Retract to R- position </TR>
+<TR> <TD> <A HREF="http://www.linuxcnc.org/handbook/RS274NGC_3/RS274NGC_33a.html#1016050">G99</A> <TD> <TD> Retract to prior position </TR>
+<TR> <TH COLSPAN=3>Path Control Mode </TR>
+<TR> <TD> <A HREF="http://www.linuxcnc.org/handbook/RS274NGC_3/RS274NGC_33a.html#1013869">G61</A> <TD> <TD> Exact Path mode </TR>
+<TR> <TD> <A HREF="http://www.linuxcnc.org/handbook/RS274NGC_3/RS274NGC_33a.html#1013869">G61.1</A> <TD> <TD> Exact Stop mode </TR>
+<TR> <TD> <A HREF="http://www.linuxcnc.org/handbook/RS274NGC_3/RS274NGC_33a.html#1013869">G64</A> <TD> P- <TD> Continuous mode with optional path tolerance </TR>
+<TR> <TH COLSPAN=3>Stopping </TR>
+<TR> <TD> <A HREF="http://www.linuxcnc.org/handbook/RS274NGC_3/RS274NGC_33a.html#1002379">M0</A> <TD> <TD> Pause Program </TR>
+<TR> <TD> <A HREF="http://www.linuxcnc.org/handbook/RS274NGC_3/RS274NGC_33a.html#1002379">M2</A> <TD> <TD> End Program </TR>
+<TR> <TD COLSPAN=2> <A HREF="http://www.linuxcnc.org/handbook/RS274NGC_3/RS274NGC_33a.html#1002379">M1, M30, M60</A> <TD> Other stop codes </TR>
+<TR> <TH COLSPAN=3>Spindle Control </TR>
+<TR> <TD> <A HREF="http://www.linuxcnc.org/handbook/RS274NGC_3/RS274NGC_33a.html#1016064">M3, M4</A> <TD> S- <TD> Turn spindle clockwise or counterclockwise </TR>
+<TR> <TD> <A HREF="http://www.linuxcnc.org/handbook/RS274NGC_3/RS274NGC_33a.html#1016064">M5</A> <TD> <TD> Stop spindle </TR>
+<TR> <TH COLSPAN=3>Coolant </TR>
+<TR> <TD> <A HREF="http://www.linuxcnc.org/handbook/RS274NGC_3/RS274NGC_33a.html#1016069">M7</A> <TD> <TD> Turn mist on </TR>
+<TR> <TD> <A HREF="http://www.linuxcnc.org/handbook/RS274NGC_3/RS274NGC_33a.html#1016069">M8</A> <TD> <TD> Turn flood on </TR>
+<TR> <TD> <A HREF="http://www.linuxcnc.org/handbook/RS274NGC_3/RS274NGC_33a.html#1016069">M9</A> <TD> <TD> Turn all coolant off </TR>
+<TR> <TH COLSPAN=3>Other Input Codes </TR>
+<TR> <TD> <A HREF="http://www.linuxcnc.org/handbook/RS274NGC_3/RS274NGC_33a.html#1016396">F-</A> <TD> <TD> Set Feed Rate </TR>
+<TR> <TD> <A HREF="http://www.linuxcnc.org/handbook/RS274NGC_3/RS274NGC_33a.html#1016398">S-</A> <TD> <TD> Set Spindle Speed </TR>
+<TR> <TD> <A HREF="http://www.linuxcnc.org/handbook/RS274NGC_3/RS274NGC_33a.html#1016400">T-</A> <TD> <TD> Select Tool </TR>
+<TR> <TD> <A HREF="http://www.linuxcnc.org/handbook/RS274NGC_3/RS274NGC_33a.html#1016072">M48, M49</A> <TD> <TD> Enable/disable override switches </TR>
+<TR> <TD COLSPAN=2><A HREF="http://www.linuxcnc.org/handbook/RS274NGC_3/RS274NGC_33a.html#1013862">G54&hellip;G59, G59.1&hellip;G59.3</A><TD> Select coordinate system </TR>
+<TR> <TH COLSPAN=3>Flow-control Codes </TR>
+<TR> <TD> <A HREF="http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?Oword">O-</A> <TD COLSPAN=2> sub/endsub, while/endwhile, if/else/endif, do/while, call, break/continue/return </TR>
+<TR> <TH COLSPAN=3>Non-modal Codes </TR>
+<TR> <TD> <A HREF="http://www.linuxcnc.org/handbook/RS274NGC_3/RS274NGC_33a.html#1016063">M6</A> <TD> T- <TD> Change tool </TR>
+<TR> <TD> <A HREF="http://www.linuxcnc.org/handbook/RS274NGC_3/RS274NGC_33a.html#1002447">G4</A> <TD> P- <TD> Dwell (seconds) </TR>
+<TR> <TD> <A HREF="http://www.linuxcnc.org/handbook/RS274NGC_3/RS274NGC_33a.html#1002552">G10</A> <TD> L2 P- X- Y- Z- A- B- C- <TD> Coordinate system origin setting </TR>
+<TR> <TD> <A HREF="http://www.linuxcnc.org/handbook/RS274NGC_3/RS274NGC_33a.html#1013246">G28</A> <TD> <TD> Return to home </TR>
+<TR> <TD> <A HREF="http://www.linuxcnc.org/handbook/RS274NGC_3/RS274NGC_33a.html#1013246">G30</A> <TD> <TD> Return to secondary home </TR>
+<TR> <TD> <A HREF="http://www.linuxcnc.org/handbook/RS274NGC_3/RS274NGC_33a.html#1002573">G53</A> <TD> <TD> Motion in machine coordinate system </TR>
+<TR> <TD> <A HREF="http://www.linuxcnc.org/handbook/RS274NGC_3/RS274NGC_33a.html#1015878">G92</A> <TD> X- Y- Z- A- B- C- <TD> Offset coordinate systems and set parameters </TR>
+<TR> <TD> <A HREF="http://www.linuxcnc.org/handbook/RS274NGC_3/RS274NGC_33a.html#1015878">G92.1</A> <TD> <TD> Cancel offset coordinate systems and set parameters to zero </TR>
+<TR> <TD> <A HREF="http://www.linuxcnc.org/handbook/RS274NGC_3/RS274NGC_33a.html#1015878">G92.2</A> <TD> <TD> Cancel offset coordinate systems but do not reset parameters </TR>
+<TR> <TD> <A HREF="http://www.linuxcnc.org/handbook/RS274NGC_3/RS274NGC_33a.html#1015878">G92.3</A> <TD> <TD> Apply parameters to offset coordinate systems  </TR>
+<TR> <TD> <A HREF="http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?UserDefinedMcodes">M101&hellip;M199</A> <TD> P- Q- <TD> User-defined M-codes </TR>
+<!-- <TR> <TD> <A HREF="http://www.linuxcnc.org/handbook/RS274NGC_3/RS274NGC_33a.html#1001587">(&hellip;)</A> <TD> <TD> A comment <STRONG>&hellip;</STRONG>" to the user</TR> -->
+<TR> <TD> <A HREF="http://www.linuxcnc.org/handbook/RS274NGC_3/RS274NGC_33a.html#1001587">(MSG,&hellip;)</A> <TD> <TD> Display the message "<STRONG>&hellip;</STRONG>" to the user</TR>
+</TABLE>
+</BODY>
