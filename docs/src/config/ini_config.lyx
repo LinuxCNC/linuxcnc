@@ -257,7 +257,7 @@ Each of these section names are on a line by themselves so you can quickly
  
 \layout Subsection
 
-Variable
+Variables
 \layout Standard
 
 A variable line is made up of a variable name, an equals sign(=), and a
@@ -279,7 +279,12 @@ Everything from the first non-whitespace character after the = up to the
 \color black
 The following sections detail each section of the configuration file, using
  sample values for the configuration lines.
- 
+\layout Standard
+
+Some of the variables are used by EMC, and must always use the section names
+ and variable names shown.
+ Other variables are used only by HAL, and the section names and variable
+ names shown are those used in the sample configuration files.
 \layout Section
 
 
@@ -784,7 +789,6 @@ Values for the various parameters of LINEAR axes are in the units specified
 TYPE\SpecialChar ~
 =\SpecialChar ~
 LINEAR The type of axes, either LINEAR or ANGULAR.
- 
 \layout Description
 
 MAX_VELOCITY\SpecialChar ~
@@ -994,6 +998,12 @@ ies.
  and verify their results so that the proper values can be put in the INI
  file with a minimum of trouble.
  
+\layout Description
+
+UNITS\SpecialChar ~
+inch Historically, the UNITS were specified for each axis.
+ It is now preferable to specify the [TRAJ]LINEAR_UNITS and [TRAJ]ANGULAR_UNITS
+ values only, and have no [AXIS_n]UNITS setting.
 \layout Subsubsection
 
 Homing-related items
