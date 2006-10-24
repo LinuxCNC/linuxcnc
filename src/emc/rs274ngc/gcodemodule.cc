@@ -333,7 +333,7 @@ void PALLET_SHUTTLE() {}
 void CHANGE_TOOL(int tool) {}
 void SELECT_TOOL(int tool) {}
 void OPTIONAL_PROGRAM_STOP() {}
-ON_OFF GET_BLOCK_DELETE() { return 0; }
+bool GET_BLOCK_DELETE() { return 0; }
 void DISABLE_FEED_OVERRIDE() {}
 void DISABLE_SPEED_OVERRIDE() {}
 void ENABLE_FEED_OVERRIDE() {}
