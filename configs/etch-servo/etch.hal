@@ -73,7 +73,7 @@ linksp Xpwm => parport.0.pin-03-out
 
 linksp Ydir    => parport.0.pin-05-out
 linksp Ydir    => parport.0.pin-07-out
-setp parport.0.pin-06-out-invert TRUE
+setp parport.0.pin-07-out-invert TRUE
 linksp Ypwm => parport.0.pin-06-out
 
 setp pid.0.maxoutput 1.0
