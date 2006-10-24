@@ -566,7 +566,7 @@ The machining center may be put into any one of three path control modes:
 Interpreter Interaction with Switches
 \layout Standard
 
-The Interpreter interacts with three switches.
+The Interpreter interacts with several switches.
  This section describes the interactions in more detail.
  In no case does the Interpreter know what the setting of any of these switches
  is.
