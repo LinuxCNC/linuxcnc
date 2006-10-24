@@ -667,7 +667,7 @@ else
     EMC2_CONFIG_PATH="~/emc2/configs:/usr/local/etc/emc2/configs:"$(eval echo $sysconfdir)"/emc2/sample-configs"
     EMC2_NCFILES_DIR=${prefix}/share/emc/ncfiles
     REALTIME=/etc/init.d/realtime
-    EMC2_IMAGE_DIR=${sysconfdir}/emc2/
+    EMC2_IMAGE_DIR=$(eval echo $sysconfdir)/emc2/
 fi
 
 AC_DEFINE_UNQUOTED([EMC2_BIN_DIR], "$EMC2_BIN_DIR", [Directory for binaries])
