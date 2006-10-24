@@ -5,15 +5,14 @@ loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EM
 loadrt hal_parport cfg="0x378"
 loadrt encoder num_chan=2
 loadrt pid num_chan=2
-loadrt freqgen step_type=1,1
-loadrt comp count=2
+loadrt pwmgen output_type=1,1
 loadrt ddt count=4
 loadrt constant count=1
 
 # define the order of execution for RT code
 addf parport.0.read            base-thread
 addf encoder.update-counters   base-thread
-addf freqgen.make-pulses       base-thread
+addf pwmgen.make-pulses        base-thread
 addf parport.0.write           base-thread
 
 addf encoder.capture-position  servo-thread
@@ -22,9 +21,7 @@ addf motion-controller         servo-thread
 addf pid.0.do-pid-calcs        servo-thread
 addf pid.1.do-pid-calcs        servo-thread
 addf constant.0                servo-thread
-addf comp.0                    servo-thread
-addf comp.1                    servo-thread
-addf freqgen.update-freq       servo-thread
+addf pwmgen.update             servo-thread
 addf ddt.0                     servo-thread
 addf ddt.1                     servo-thread
 addf ddt.2                     servo-thread
@@ -56,32 +53,27 @@ linksp Ypos-fb => axis.1.motor-pos-fb
 linksp Xvel-cmd <= pid.0.output
 linksp Yvel-cmd <= pid.1.output
 
-linksp Xvel-cmd => freqgen.0.velocity
-linksp Yvel-cmd => freqgen.1.velocity
+linksp Xvel-cmd => pwmgen.0.value
+linksp Yvel-cmd => pwmgen.1.value
 
 newsig Xpwm bit
 newsig Ypwm bit
-linkps freqgen.0.count Xpwm
-linkps freqgen.1.count Ypwm
+linkps pwmgen.0.pwm Xpwm
+linkps pwmgen.1.pwm Ypwm
 
-setp constant.0.value 0.0
-linkpp constant.0.out comp.0.in0
-linksp constant.0.out comp.1.in0
-linksp Xvel-cmd comp.0.in1
-linksp Yvel-cmd comp.1.in1
 newsig Xdir bit
 newsig Ydir bit
-linkps comp.0.out => Xdir
-linkps comp.1.out => Ydir
+linkps pwmgen.0.dir => Xdir
+linkps pwmgen.1.dir => Ydir
 
 linksp Xdir    => parport.0.pin-02-out
 linksp Xdir    => parport.0.pin-04-out
-setp parport.0.pin-02-out-invert TRUE
+setp parport.0.pin-04-out-invert TRUE
 linksp Xpwm => parport.0.pin-03-out
 
 linksp Ydir    => parport.0.pin-05-out
 linksp Ydir    => parport.0.pin-07-out
-setp parport.0.pin-05-out-invert TRUE
+setp parport.0.pin-06-out-invert TRUE
 linksp Ypwm => parport.0.pin-06-out
 
 setp pid.0.maxoutput 1.0
@@ -112,8 +104,14 @@ linksp Xpos-cmd <= axis.0.motor-pos-cmd
 linksp Ypos-cmd <= axis.1.motor-pos-cmd
 linkps pid.0.command <= Xpos-cmd
 linkps pid.1.command <= Ypos-cmd
-linkpp pid.0.enable axis.0.amp-enable-out
-linkpp pid.1.enable axis.1.amp-enable-out
+newsig Xenable bit
+newsig Yenable bit
+linkps axis.0.amp-enable-out => Xenable
+linkps axis.1.amp-enable-out => Yenable
+linksp Xenable => pid.0.enable 
+linksp Xenable => pwmgen.0.enable
+linksp Yenable => pid.1.enable
+linksp Yenable => pwmgen.1.enable
 
 linkpp iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
 
@@ -130,14 +128,5 @@ linkps ddt.2.out => Yvel
 linksp Yvel => ddt.3.in
 linkps ddt.3.out => Yacc
 
-# These depend on the rounded BASE_PERIOD
-#setp freqgen.0.velocity-scale 19885
-#setp freqgen.1.velocity-scale 19885
-setp freqgen.0.velocity-scale 49885
-setp freqgen.1.velocity-scale 49885
-
 linkpp iocontrol.0.tool-prepare iocontrol.0.tool-prepared
 linkpp iocontrol.0.tool-change iocontrol.0.tool-changed
-
-loadrt scope_rt
-loadusr halscope
