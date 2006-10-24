@@ -262,9 +262,15 @@ int emcTaskPlanSynch(void)
     return 0;
 }
 
-int emcTaskPlanSetOptionalStop(char state)
+int emcTaskPlanSetOptionalStop(bool state)
 {
     SET_OPTIONAL_PROGRAM_STOP(state);
+    return 0;
+}
+
+int emcTaskPlanSetBlockDelete(bool state)
+{
+    SET_BLOCK_DELETE(state);
     return 0;
 }
 

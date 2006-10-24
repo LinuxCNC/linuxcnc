@@ -60,6 +60,9 @@
 #define CC
 #endif
 
+#define OFF 0
+#define ON 1
+
 typedef int CANON_PLANE;
 #define CANON_PLANE_XY 1
 #define CANON_PLANE_YZ 2
@@ -545,6 +548,17 @@ extern void NURB_CONTROL_POINT(int i, double x, double y, double z,
 			       double w);
 extern void NURB_FEED(double sStart, double sEnd);
 
+
+/* Block delete */
+extern void SET_BLOCK_DELETE(bool enabled);
+/* Command to set the internal reference of block delete.
+The ON value for enabled will cause the interpreter to discard lines
+that start with the "/" character. */
+
+extern bool GET_BLOCK_DELETE(void);
+/* Command to get the internal reference of optional block delete. */
+
+
 /* Program Functions */
 extern void OPTIONAL_PROGRAM_STOP();
 /* If the machining center has an optional stop switch, and it is on
@@ -555,14 +569,13 @@ switch, or commands are being executed with a stop after each one
 already (such as when the interpreter is being used with keyboard
 input), this command has no effect. */
 
-extern void SET_OPTIONAL_PROGRAM_STOP(char state);
+extern void SET_OPTIONAL_PROGRAM_STOP(bool state);
 /* Command to set the internal reference of optional program stop.
 Any non-zero value for state will cause the execution to stop on
 optional stops. */
 
-extern char GET_OPTIONAL_PROGRAM_STOP();
+extern bool GET_OPTIONAL_PROGRAM_STOP();
 /* Command to get the internal reference of optional program stop. */
-
 
 extern void PROGRAM_END();
 /* If a program is being read, stop executing the program and be prepared

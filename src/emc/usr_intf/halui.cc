@@ -220,6 +220,9 @@ struct halui_str {
     hal_bit_t *program_os_on;      //pin for setting optional stop on
     hal_bit_t *program_os_off;     //pin for setting optional stop off
     hal_bit_t *program_os_is_on;   //status pin that optional stop is on
+    hal_bit_t *program_bd_on;      //pin for setting block delete on
+    hal_bit_t *program_bd_off;     //pin for setting block delete off
+    hal_bit_t *program_bd_is_on;   //status pin that block delete is on
 
     hal_s32_t *jog_wheel_counts;
     hal_u8_t *jog_wheel_axis;
@@ -298,6 +301,8 @@ struct local_halui_str {
     hal_bit_t program_step;       //pin for running one line of the program
     hal_bit_t program_os_on;      //pin for setting optional stop on
     hal_bit_t program_os_off;     //pin for setting optional stop off
+    hal_bit_t program_bd_on;      //pin for setting block delete on
+    hal_bit_t program_bd_off;     //pin for setting block delete off
 
     hal_s32_t jog_wheel_counts;
     hal_u8_t jog_wheel_axis;
@@ -712,6 +717,8 @@ int halui_hal_init(void)
     if (retval != HAL_SUCCESS) return retval;
     retval = halui_export_pin_OUT_bit(&(halui_data->program_os_is_on), "halui.program.optional-stop.is-on"); 
     if (retval != HAL_SUCCESS) return retval;
+    retval = halui_export_pin_OUT_bit(&(halui_data->program_bd_is_on), "halui.program.block-delete.is-on"); 
+    if (retval != HAL_SUCCESS) return retval;
     retval = halui_export_pin_OUT_bit(&(halui_data->spindle_is_on), "halui.spindle.is-on"); 
     if (retval != HAL_SUCCESS) return retval;
     retval = halui_export_pin_OUT_bit(&(halui_data->spindle_runs_forward), "halui.spindle.runs-forward"); 
@@ -801,6 +808,10 @@ int halui_hal_init(void)
     retval = halui_export_pin_IN_bit(&(halui_data->program_os_on), "halui.program.optional-stop.on"); 
     if (retval != HAL_SUCCESS) return retval;
     retval = halui_export_pin_IN_bit(&(halui_data->program_os_off), "halui.program.optional-stop.off"); 
+    if (retval != HAL_SUCCESS) return retval;
+    retval = halui_export_pin_IN_bit(&(halui_data->program_bd_on), "halui.program.block-delete.on"); 
+    if (retval != HAL_SUCCESS) return retval;
+    retval = halui_export_pin_IN_bit(&(halui_data->program_bd_off), "halui.program.block-delete.off"); 
     if (retval != HAL_SUCCESS) return retval;
 
     retval = halui_export_pin_IN_s32(&(halui_data->jog_wheel_counts), "halui.jog-wheel.counts");
@@ -1126,13 +1137,29 @@ static int sendProgramPause()
     return 0;
 }
 
-static int sendSetOptionalStop(char state)
+static int sendSetOptionalStop(bool state)
 {
     EMC_TASK_PLAN_SET_OPTIONAL_STOP emc_task_plan_set_optional_stop_msg;
 
     emc_task_plan_set_optional_stop_msg.state = state;
     emc_task_plan_set_optional_stop_msg.serial_number = ++emcCommandSerialNumber;
     emcCommandBuffer->write(emc_task_plan_set_optional_stop_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
+static int sendSetBlockDelete(bool state)
+{
+    EMC_TASK_PLAN_SET_BLOCK_DELETE emc_task_plan_set_block_delete_msg;
+
+    emc_task_plan_set_block_delete_msg.state = state;
+    emc_task_plan_set_block_delete_msg.serial_number = ++emcCommandSerialNumber;
+    emcCommandBuffer->write(emc_task_plan_set_block_delete_msg);
     if (emcWaitType == EMC_WAIT_RECEIVED) {
 	return emcCommandWaitReceived(emcCommandSerialNumber);
     } else if (emcWaitType == EMC_WAIT_DONE) {
@@ -1786,10 +1813,16 @@ static void check_hal_changes()
 	sendProgramPause();
 
     if (check_bit_changed(halui_data->program_os_on, &(old_halui_data.program_os_on)) != 0)
-	sendSetOptionalStop(1);
+	sendSetOptionalStop(ON);
 
     if (check_bit_changed(halui_data->program_os_off, &(old_halui_data.program_os_off)) != 0)
-	sendSetOptionalStop(0);
+	sendSetOptionalStop(OFF);
+
+    if (check_bit_changed(halui_data->program_bd_on, &(old_halui_data.program_bd_on)) != 0)
+	sendSetBlockDelete(ON);
+
+    if (check_bit_changed(halui_data->program_bd_off, &(old_halui_data.program_bd_off)) != 0)
+	sendSetBlockDelete(OFF);
 
     if (check_bit_changed(halui_data->program_resume, &(old_halui_data.program_resume)) != 0)
 	sendProgramResume();
@@ -1985,6 +2018,7 @@ static void modify_hal_pins()
                                         emcStatus->task.interpState == EMC_TASK_INTERP_WAITING;
     *(halui_data->program_is_idle) = emcStatus->task.interpState == EMC_TASK_INTERP_IDLE;
     *(halui_data->program_os_is_on) = emcStatus->task.optional_stop_state;
+    *(halui_data->program_bd_is_on) = emcStatus->task.block_delete_state;
 
     *(halui_data->fo_value) = emcStatus->motion.traj.scale; //feedoverride from 0 to 1 for 100%
     *(halui_data->so_value) = emcStatus->motion.traj.spindle_scale; //spindle-speed-override from 0 to 1 for 100%

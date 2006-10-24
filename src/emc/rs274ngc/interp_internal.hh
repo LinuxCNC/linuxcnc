@@ -206,7 +206,7 @@ typedef enum
 { R_PLANE, OLD_Z }
 RETRACT_MODE;
 
-typedef int ON_OFF;
+typedef bool ON_OFF;
 
 typedef struct block_struct
 {

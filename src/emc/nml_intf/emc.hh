@@ -158,6 +158,8 @@
 #define EMC_TASK_PLAN_INIT_TYPE                      ((NMLTYPE) 515)
 #define EMC_TASK_PLAN_SYNCH_TYPE                     ((NMLTYPE) 516)
 #define EMC_TASK_PLAN_SET_OPTIONAL_STOP_TYPE         ((NMLTYPE) 517)
+#define EMC_TASK_PLAN_SET_BLOCK_DELETE_TYPE          ((NMLTYPE) 518)
+#define EMC_TASK_PLAN_OPTIONAL_STOP_TYPE             ((NMLTYPE) 519)
 
 #define EMC_TASK_STAT_TYPE                           ((NMLTYPE) 599)
 
@@ -472,7 +474,8 @@ extern int emcTaskPlanSetWait();
 extern int emcTaskPlanIsWait();
 extern int emcTaskPlanClearWait();
 extern int emcTaskPlanSynch();
-extern int emcTaskPlanSetOptionalStop(char state);
+extern int emcTaskPlanSetOptionalStop(bool state);
+extern int emcTaskPlanSetBlockDelete(bool state);
 extern int emcTaskPlanExit();
 extern int emcTaskPlanOpen(const char *file);
 extern int emcTaskPlanRead();
@@ -1939,7 +1942,30 @@ class EMC_TASK_PLAN_SET_OPTIONAL_STOP:public EMC_TASK_CMD_MSG {
     // For internal NML/CMS use only.
     void update(CMS * cms);
     
-    char state; //state != 0, optional stop is on (e.g. we stop on any stops)
+    bool state; //state == ON, optional stop is on (e.g. we stop on any stops)
+};
+
+class EMC_TASK_PLAN_SET_BLOCK_DELETE:public EMC_TASK_CMD_MSG {
+  public:
+    EMC_TASK_PLAN_SET_BLOCK_DELETE():EMC_TASK_CMD_MSG(EMC_TASK_PLAN_SET_BLOCK_DELETE_TYPE,
+					   sizeof(EMC_TASK_PLAN_SET_BLOCK_DELETE)) {
+    };
+
+    // For internal NML/CMS use only.
+    void update(CMS * cms);
+    
+    bool state; //state == ON, block delete is on, we ignore lines starting with "/"
+};
+
+class EMC_TASK_PLAN_OPTIONAL_STOP:public EMC_TASK_CMD_MSG {
+  public:
+    EMC_TASK_PLAN_OPTIONAL_STOP():EMC_TASK_CMD_MSG(EMC_TASK_PLAN_OPTIONAL_STOP_TYPE,
+					   sizeof(EMC_TASK_PLAN_OPTIONAL_STOP)) {
+    };
+
+    // For internal NML/CMS use only.
+    void update(CMS * cms);
+    
 };
 
 
@@ -1971,7 +1997,8 @@ class EMC_TASK_STAT:public EMC_TASK_STAT_MSG {
     int motionLine;		// line motion is executing-- may lag
     int currentLine;		// line currently executing
     int readLine;		// line interpreter has read to
-    char optional_stop_state;	// state of optional stop (!= 0 means we stop on M1)
+    bool optional_stop_state;	// state of optional stop (== ON means we stop on M1)
+    bool block_delete_state;	// state of block delete (== ON means we ignore lines starting with "/")
     char file[LINELEN];
     char command[LINELEN];
     EmcPose origin;		// origin, in user units, currently active

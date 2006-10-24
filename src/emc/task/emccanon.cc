@@ -134,8 +134,10 @@ static double spindleSpeed = 0.0;
 static int preppedTool = 0;
 
 /* optional program stop */
-static int optional_program_stop = 1; //set enabled by default (previous EMC behaviour)
+static bool optional_program_stop = ON; //set enabled by default (previous EMC behaviour)
 
+/* optional block delete */
+static bool block_delete = ON; //set enabled by default (previous EMC behaviour)
 
 /* Tool length offset is saved here */
 static double currentXToolOffset = 0.0;
@@ -1461,24 +1463,34 @@ void PROGRAM_STOP()
     interp_list.append(pauseMsg);
 }
 
-void SET_OPTIONAL_PROGRAM_STOP(char state)
+void SET_BLOCK_DELETE(bool state)
 {
-
-    optional_program_stop = state; //state != 0, means we stop
+    block_delete = state; //state == ON, means we don't interpret lines starting with "/"
 }
 
-char GET_OPTIONAL_PROGRAM_STOP()
+bool GET_BLOCK_DELETE()
 {
+    return block_delete; //state == ON, means we  don't interpret lines starting with "/"
+}
 
-    return optional_program_stop; //state != 0, means we stop
+
+void SET_OPTIONAL_PROGRAM_STOP(bool state)
+{
+    optional_program_stop = state; //state == ON, means we stop
+}
+
+bool GET_OPTIONAL_PROGRAM_STOP()
+{
+    return optional_program_stop; //state == ON, means we stop
 }
 
 void OPTIONAL_PROGRAM_STOP()
 {
-    if (optional_program_stop) {
-	flush_segments();
-        PROGRAM_STOP();
-    }
+    EMC_TASK_PLAN_OPTIONAL_STOP stopMsg;
+
+    flush_segments();
+
+    interp_list.append(stopMsg);
 }
 
 void PROGRAM_END()

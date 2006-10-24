@@ -324,12 +324,17 @@ int emcTaskPlanClearWait()
     return 0;
 }
 
-int emcTaskPlanSetOptionalStop(char state)
+int emcTaskPlanSetOptionalStop(ON_OFF state)
 {
     SET_OPTIONAL_PROGRAM_STOP(state);
     return 0;
 }
 
+int emcTaskPlanSetBlockDelete(ON_OFF state)
+{
+    SET_BLOCK_DELETE(state);
+    return 0;
+}
 
 int emcTaskPlanSynch()
 {
@@ -444,6 +449,9 @@ int emcTaskUpdate(EMC_TASK_STAT * stat)
 
     //update state of optional stop
     stat->optional_stop_state = GET_OPTIONAL_PROGRAM_STOP();
+    
+    //update state of block delete
+    stat->block_delete_state = GET_BLOCK_DELETE();
     
     stat->heartbeat++;
 

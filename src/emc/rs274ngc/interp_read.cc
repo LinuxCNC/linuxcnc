@@ -2546,7 +2546,11 @@ int Interp::read_text(const char *command,       //!< a string which may have in
   else
     *length = strlen(line);
 
-  return ((line[0] == '/') ? INTERP_EXECUTE_FINISH : INTERP_OK);
+
+  if ((line[0] == '/') && (GET_BLOCK_DELETE() == ON)) 
+    return INTERP_EXECUTE_FINISH;
+  else
+    return INTERP_OK;
 }
 
 /****************************************************************************/

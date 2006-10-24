@@ -1457,7 +1457,7 @@ static int sendProgramResume()
     return 0;
 }
 
-static int sendSetOptionalStop(char state)
+static int sendSetOptionalStop(bool state)
 {
     EMC_TASK_PLAN_SET_OPTIONAL_STOP emc_task_plan_set_optional_stop_msg;
 

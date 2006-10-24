@@ -343,6 +343,7 @@ static EMC_TASK_PLAN_RUN *run_msg;
 static EMC_TASK_PLAN_EXECUTE *execute_msg;
 static EMC_TASK_PLAN_OPEN *open_msg;
 static EMC_TASK_PLAN_SET_OPTIONAL_STOP *os_msg;
+static EMC_TASK_PLAN_SET_BLOCK_DELETE *bd_msg;
 
 // commands we compose here
 static EMC_TASK_PLAN_RUN taskPlanRunCmd;	// 16-Aug-1999 FMP
@@ -541,6 +542,7 @@ static int emcTaskPlan(void)
 	    case EMC_TASK_PLAN_INIT_TYPE:
 	    case EMC_TASK_PLAN_OPEN_TYPE:
 	    case EMC_TASK_PLAN_SET_OPTIONAL_STOP_TYPE:
+	    case EMC_TASK_PLAN_SET_BLOCK_DELETE_TYPE:
 	    case EMC_TASK_ABORT_TYPE:
 	    case EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG_TYPE:
 	    case EMC_TRAJ_PROBE_TYPE:
@@ -656,6 +658,8 @@ static int emcTaskPlan(void)
 	    case EMC_TASK_PLAN_INIT_TYPE:
 	    case EMC_TASK_PLAN_SYNCH_TYPE:
 	    case EMC_TASK_PLAN_SET_OPTIONAL_STOP_TYPE:
+	    case EMC_TASK_PLAN_SET_BLOCK_DELETE_TYPE:
+	    case EMC_TASK_PLAN_OPTIONAL_STOP_TYPE:
 	    case EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG_TYPE:
 	    case EMC_TRAJ_PROBE_TYPE:
 	    case EMC_TRAJ_SET_TELEOP_ENABLE_TYPE:
@@ -746,6 +750,8 @@ static int emcTaskPlan(void)
 		case EMC_TASK_PLAN_PAUSE_TYPE:
 		case EMC_TASK_PLAN_RESUME_TYPE:
 		case EMC_TASK_PLAN_SET_OPTIONAL_STOP_TYPE:
+		case EMC_TASK_PLAN_SET_BLOCK_DELETE_TYPE:
+		case EMC_TASK_PLAN_OPTIONAL_STOP_TYPE:
 		case EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG_TYPE:
 		case EMC_TRAJ_PROBE_TYPE:
 		case EMC_SET_DEBUG_TYPE:
@@ -820,6 +826,8 @@ static int emcTaskPlan(void)
 		case EMC_TASK_PLAN_PAUSE_TYPE:
 		case EMC_TASK_PLAN_RESUME_TYPE:
 		case EMC_TASK_PLAN_SET_OPTIONAL_STOP_TYPE:
+		case EMC_TASK_PLAN_SET_BLOCK_DELETE_TYPE:
+		case EMC_TASK_PLAN_OPTIONAL_STOP_TYPE:
 		case EMC_TASK_SET_MODE_TYPE:
 		case EMC_TASK_SET_STATE_TYPE:
 		case EMC_TASK_ABORT_TYPE:
@@ -1020,6 +1028,8 @@ interpret_again:
 		case EMC_TASK_PLAN_PAUSE_TYPE:
 		case EMC_TASK_PLAN_RESUME_TYPE:
 		case EMC_TASK_PLAN_SET_OPTIONAL_STOP_TYPE:
+		case EMC_TASK_PLAN_SET_BLOCK_DELETE_TYPE:
+		case EMC_TASK_PLAN_OPTIONAL_STOP_TYPE:
 		case EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG_TYPE:
 		case EMC_TRAJ_PROBE_TYPE:
 		case EMC_SET_DEBUG_TYPE:
@@ -1079,6 +1089,8 @@ interpret_again:
 		case EMC_TASK_PLAN_PAUSE_TYPE:
 		case EMC_TASK_PLAN_RESUME_TYPE:
 		case EMC_TASK_PLAN_SET_OPTIONAL_STOP_TYPE:
+		case EMC_TASK_PLAN_SET_BLOCK_DELETE_TYPE:
+		case EMC_TASK_PLAN_OPTIONAL_STOP_TYPE:
 		case EMC_TASK_SET_MODE_TYPE:
 		case EMC_TASK_SET_STATE_TYPE:
 		case EMC_TASK_ABORT_TYPE:
@@ -1183,7 +1195,9 @@ interpret_again:
 	    case EMC_TASK_PLAN_EXECUTE_TYPE:
 	    case EMC_TASK_PLAN_PAUSE_TYPE:
 	    case EMC_TASK_PLAN_SET_OPTIONAL_STOP_TYPE:
+	    case EMC_TASK_PLAN_SET_BLOCK_DELETE_TYPE:
 	    case EMC_TASK_PLAN_RESUME_TYPE:
+	    case EMC_TASK_PLAN_OPTIONAL_STOP_TYPE:
 	    case EMC_TASK_ABORT_TYPE:
 	    case EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG_TYPE:
 	    case EMC_TRAJ_PROBE_TYPE:
@@ -1300,6 +1314,7 @@ static int emcTaskCheckPreconditions(NMLmsg * cmd)
 	break;
 
     case EMC_TASK_PLAN_PAUSE_TYPE:
+    case EMC_TASK_PLAN_OPTIONAL_STOP_TYPE:
 	/* pause on the interp list is queued, so wait until all are done */
 	return EMC_TASK_EXEC_WAITING_FOR_MOTION_AND_IO;
 	break;
@@ -1895,6 +1910,17 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	retval = 0;
 	break;
 
+    case EMC_TASK_PLAN_OPTIONAL_STOP_TYPE:
+	if (GET_OPTIONAL_PROGRAM_STOP() == ON) {
+	    emcTrajPause();
+	    if (emcStatus->task.interpState != EMC_TASK_INTERP_PAUSED) {
+		interpResumeState = emcStatus->task.interpState;
+	    }
+	    emcStatus->task.interpState = EMC_TASK_INTERP_PAUSED;
+	}
+	retval = 0;
+	break;
+
     case EMC_TASK_PLAN_RESUME_TYPE:
 	emcTrajResume();
 	emcStatus->task.interpState =
@@ -1931,6 +1957,12 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
     case EMC_TASK_PLAN_SET_OPTIONAL_STOP_TYPE:
 	os_msg = (EMC_TASK_PLAN_SET_OPTIONAL_STOP *) cmd;
 	emcTaskPlanSetOptionalStop(os_msg->state);
+	retval = 0;
+	break;
+
+    case EMC_TASK_PLAN_SET_BLOCK_DELETE_TYPE:
+	bd_msg = (EMC_TASK_PLAN_SET_BLOCK_DELETE *) cmd;
+	emcTaskPlanSetBlockDelete(bd_msg->state);
 	retval = 0;
 	break;
 
@@ -2022,6 +2054,7 @@ static int emcTaskCheckPostconditions(NMLmsg * cmd)
     case EMC_TASK_PLAN_INIT_TYPE:
     case EMC_TASK_PLAN_SYNCH_TYPE:
     case EMC_TASK_PLAN_EXECUTE_TYPE:
+    case EMC_TASK_PLAN_OPTIONAL_STOP_TYPE:
 	return EMC_TASK_EXEC_DONE;
 	break;
 
