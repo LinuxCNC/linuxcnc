@@ -750,7 +750,10 @@ This component provides software based generation of step pulses from a
  One such application is using step type 1 as a pseudo-PWM output.
  Combined with a PID loop.
  the software encoder counter module, and a simple H-bridge, this has been
- used to run small DC servomotors.
+ used to run small DC servomotors, however now that the pwmgen component
+ has been added, it is a better choice for this purpose.
+ Another possible use for freqgen is to simply spin a stepper motor at a
+ constant (or adjustable) rate, while ignoring position.
  Freqgen uses the same pulse generator core as stepgen, however it has no
  position loop.
  It is a realtime component only, and depending on CPU speed, etc, is capable
@@ -869,7 +872,7 @@ Each frequency generator will have only some of these pins, depending on
 
 \family typewriter 
 \noun on 
-(bit)
+(float)
 \noun default 
  freqgen.<chan>.velocity
 \family default 
@@ -1198,6 +1201,311 @@ ies of the computer.
  the time unit used by the length, space, setup, and hold parameters (step
  type 0).
  The other two functions can be called at a much lower rate.
+\layout Section
+
+
+\begin_inset LatexCommand \label{sec:PWMgen}
+
+\end_inset 
+
+PWMgen
+\layout Standard
+
+This component provides software based generation of PWM (Pulse Width Modulation
+) and PDM (Pulse Density Modulation) waveforms.
+ It is a realtime component only, and depending on CPU speed, etc, is capable
+ of PWM frequencies from a few hundred Hertz at pretty good resolution,
+ to perhaps 10KHz with limited resolution.
+\layout Subsection
+
+Installing
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+halcmd loadrt pwmgen output_type=<config-array>
+\layout Standard
+
+
+\family typewriter 
+<config-array>
+\family default 
+ is a series of comma separated decimal integers.
+ Each number causes a single PWM generator to be loaded, the value of the
+ number determines the output type.
+ For example:
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+halcmd loadrt pwmgen step_type=0,1,2
+\layout Standard
+
+will install three PWM generators.
+ The first one will use output type '0' (PWM only), the next uses output
+ type 1 (PWM and direction) and the last one uses output type 2 (UP and
+ DOWN).
+ There is no default value, if 
+\family typewriter 
+<config-array>
+\family default 
+ is not specified, no PWM generators will be installed.
+ The maximum number of frequency generators is 8 (as defined by MAX_CHAN
+ in pwmgen.c).
+ Each generator is independent, but all are updated by the same function(s)
+ at the same time.
+ In the following descriptions, 
+\family typewriter 
+<chan>
+\family default 
+ is the number of a specific generator.
+ The first generator is number 0.
+\layout Subsection
+
+Removing
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+halcmd unloadrt pwmgen
+\layout Subsection
+
+Pins
+\layout Standard
+
+Each PWM generator will have the following pins:
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(float)
+\noun default 
+ pwmgen.<chan>.value
+\family default 
+ -- Command value, in arbitrary units.
+ Will be scaled by the 
+\family typewriter 
+scale
+\family default 
+ parameter (see below).
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(bit)
+\noun default 
+ pwmgen.<chan>.enable
+\family default 
+ -- Enables or disables the PWM generator outputs.
+\layout Standard
+
+Each PWM generator will also have some of these pins, depending on the output
+ type selected:
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(bit)
+\noun default 
+ pwmgen.<chan>.pwm
+\family default 
+ -- PWM (or PDM) output, (output types 0 and 1 only).
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(bit)
+\noun default 
+ pwmgen.<chan>.dir
+\family default 
+ -- Direction output (output type 1 only).
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(bit) 
+\noun default 
+pwmgen.<chan>.up
+\family default 
+ -- PWM/PDM output for positive input value (output type 2 only).
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(bit) 
+\noun default 
+pwmgen.<chan>.down
+\family default 
+ -- PWM/PDM output for negative input value (output type 2 only).
+\layout Subsection
+
+Parameters
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(float)
+\noun default 
+ pwmgen.<chan>.scale
+\family default 
+ -- Scaling factor to convert 
+\family typewriter 
+value
+\family default 
+ from arbitrary units to duty cycle.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(float)
+\noun default 
+ pwmgen.<chan>.pwm-freq
+\family default 
+ -- Desired PWM frequency, in Hz.
+ If 0.0, generates PDM instead of PWM.
+ If set higher than internal limits, next call of 
+\family typewriter 
+update_freq()
+\family default 
+ will set it to the internal limit.
+ If non-zero, and 
+\family typewriter 
+dither
+\family default 
+ is false, next call of 
+\family typewriter 
+update_freq()
+\family default 
+ will set it to the nearest integer multiple of the 
+\family typewriter 
+make_pulses()
+\family default 
+ function period.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(bit)
+\noun default 
+ pwmgen.<chan>.dither-pwm
+\family default 
+ -- If true, enables dithering to achieve average PWM frequencies or duty
+ cycles that are unobtainable with pure PWM.
+ If false, both the PWM frequency and the duty cycle will be rounded to
+ values that can be achieved exactly.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(float)
+\noun default 
+ pwmgen.<chan>.min-dc
+\family default 
+ -- Minimum duty cycle, between 0.0 and 1.0 (duty cycle will go to zero when
+ disabled, regardless of this setting).
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(float)
+\noun default 
+ pwmgen.<chan>.max-dc
+\family default 
+ -- Maximum duty cycle, between 0.0 and 1.0.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(float)
+\noun default 
+ pwmgen.<chan>.curr-dc
+\family default 
+ -- Current duty cycle - after all limiting and rounding (read only).
+\layout Subsection
+
+Output Types
+\layout Standard
+
+The PWM generator supports three different 
+\begin_inset Quotes eld
+\end_inset 
+
+output types
+\begin_inset Quotes erd
+\end_inset 
+
+.
+ Type 0 has a single output pin.
+ Only positive commands are accepted, negative values are treated as zero
+ (and will be affected by
+\family typewriter 
+ min-dc
+\family default 
+ if it is non-zero).
+ Type 1 has two output pins, one for the PWM/PDM signal and one to indicate
+ direction.
+ The duty cycle on the PWM pin is based on the absolute value of the command,
+ so negative values are acceptable.
+ The direction pin is false for positive commands, and true for negative
+ commands.
+ Finally, type 2 also has two outputs, called up and down.
+ For positive commands, the PWM signal appears on the up output, and the
+ down output remains false.
+ For negative commands, the PWM signal appears on the down output, and the
+ up output remains false.
+ Output type 2 is suitable for driving most H-bridges.
+\layout Subsection
+
+Functions
+\layout Standard
+
+The component exports two functions.
+ Each function acts on all of the PWM generators - running different generators
+ in different threads is not supported.
+ 
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(funct)
+\noun default 
+ pwmgen.make-pulses
+\family default 
+ -- High speed function to generate PWM waveforms (no floating point).
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(funct)
+\noun default 
+ pwmgen.update
+\family default 
+ -- Low speed function to scale and limit value and handle other paremeters.
+\layout Standard
+
+The high speed function 
+\family typewriter 
+pwmgen.make-pulses
+\family default 
+ should be run in a very fast thread, from 10 to 50uS depending on the capabilit
+ies of the computer.
+ That thread's period determines the maximum PWM carrier frequency, as well
+ as the resolution of the PWM or PDM signals.
+ The other function can be called at a much lower rate.
 \layout Standard
 
 
