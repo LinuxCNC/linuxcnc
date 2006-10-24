@@ -172,6 +172,7 @@ static gint VScrollBar_value_changed_event(GtkAdjustment * ScrollBar,
 		int NumRung =
 			((int) ScrollBar->value) / (InfosGene->BlockHeight * RUNG_HEIGHT);
 		int ScanRung = 0;
+		if(NumRung < 0) NumRung = 0;
 		InfosGene->TopRungDisplayed = InfosGene->FirstRung;
 		while (ScanRung != NumRung) {
 			InfosGene->TopRungDisplayed =
