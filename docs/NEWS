@@ -1,6 +1,12 @@
 # some of EMC2 History & News
 #############################
 
+2006.10.24 - added support for block delete as defined by Section 2.2.2
+             in the RS274NGC_3 specs.
+
+2006.10.24 - added support for optional program stop as defined by Section 
+             2.2.3 in the RS274NGC_3 specs.
+
 2006.10.14 - manpages have been created for most rtapi and hal calls
 
 2006.10.01 - added a userspace simulator which includes rtapi threads.
