@@ -261,6 +261,21 @@ preview false
 \layout Part
 
 Tuning
+\layout Section
+
+Tuning servo systems
+\layout Standard
+
+
+\begin_inset Include \include{motion/pid_theory.lyx}
+preview false
+
+\end_inset 
+
+
+\layout Section
+
+Tuning stepper systems
 \layout Standard
 \start_of_appendix 
 
