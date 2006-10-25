@@ -676,12 +676,12 @@ bind $_tabs_manual.jogf.jog.jogplus <ButtonRelease-1> {
     if {[is_continuous]} { jog_stop }
 }
 
-combobox $_tabs_manual.jogf.jog.jogspeed \
+combobox $_tabs_manual.jogf.jog.jogincr \
 	-editable 0 \
 	-textvariable jogincrement \
 	-value [_ Continuous] \
 	-width 10
-$_tabs_manual.jogf.jog.jogspeed list insert end [_ Continuous] 0.1000 0.0100 0.0010 0.0001
+$_tabs_manual.jogf.jog.jogincr list insert end [_ Continuous] 0.1000 0.0100 0.0010 0.0001
 
 frame $_tabs_manual.jogf.zerohome
 
@@ -752,8 +752,8 @@ grid $_tabs_manual.jogf.jog.jogplus \
 	-pady 2 \
 	-sticky nsw
 
-# Grid widget $_tabs_manual.jogf.jog.jogspeed
-grid $_tabs_manual.jogf.jog.jogspeed \
+# Grid widget $_tabs_manual.jogf.jog.jogincr
+grid $_tabs_manual.jogf.jog.jogincr \
 	-column 2 \
 	-row 0 \
 	-pady 2 \
@@ -1136,6 +1136,19 @@ pack ${pane_bottom}.t.sb \
 	-fill y \
 	-side left
 
+frame ${pane_top}.ajogspeed
+label ${pane_top}.ajogspeed.l0 -text [_ "Jog Speed:"]
+label ${pane_top}.ajogspeed.l1
+scale ${pane_top}.ajogspeed.s -bigincrement 0 -from .06 -to 1 -resolution .010 -showvalue 0 -variable ajog_slider_val -command update_ajog_slider_vel -orient h -takefocus 0
+label ${pane_top}.ajogspeed.l -textv jog_aspeed -width 6 -anchor e
+pack ${pane_top}.ajogspeed.l0 -side left
+pack ${pane_top}.ajogspeed.l -side left
+pack ${pane_top}.ajogspeed.l1 -side left
+pack ${pane_top}.ajogspeed.s -side right
+bind . <less> [regsub %W [bind Scale <Left>] ${pane_top}.ajogspeed.s]
+bind . <greater> [regsub %W [bind Scale <Right>] ${pane_top}.ajogspeed.s]
+
+
 frame ${pane_top}.jogspeed
 label ${pane_top}.jogspeed.l0 -text [_ "Jog Speed:"]
 label ${pane_top}.jogspeed.l1
@@ -1280,10 +1293,16 @@ grid ${pane_top}.jogspeed \
 	-column 0 \
 	-row 3 \
 	-sticky new
+
+grid ${pane_top}.ajogspeed \
+	-column 0 \
+	-row 4 \
+	-sticky new
+
 # Grid widget .info
 grid .info \
 	-column 0 \
-	-row 4 \
+	-row 5 \
 	-columnspan 2 \
 	-sticky ew
 
@@ -1458,9 +1477,9 @@ proc update_state {args} {
     if {$::task_state == $::STATE_ON && $::interp_state == $::INTERP_IDLE &&
         ($::motion_mode == $::TRAJ_MODE_FREE
             || $::kinematics_type == $::KINEMATICS_IDENTITY)} {
-        $::_tabs_manual.jogf.jog.jogspeed configure -state normal
+        $::_tabs_manual.jogf.jog.jogincr configure -state normal
     } else {
-        $::_tabs_manual.jogf.jog.jogspeed configure -state disabled
+        $::_tabs_manual.jogf.jog.jogincr configure -state disabled
     }
 
     if {$::task_state == $::STATE_ON && $::interp_state == $::INTERP_IDLE &&
@@ -1563,7 +1582,7 @@ foreach b { <Key-Left> <Key-Right>
 bind Entry <Key> {+if {[%W cget -state] == "normal" && [string length %A]} break}
 
 proc is_continuous {} {
-    expr {"[$::_tabs_manual.jogf.jog.jogspeed get]" == [_ "Continuous"]}
+    expr {"[$::_tabs_manual.jogf.jog.jogincr get]" == [_ "Continuous"]}
 }
 
 proc show_all text {
@@ -1595,18 +1614,16 @@ proc size_combobox_to_entries c {
     $c configure -width $sz
 }
 
-size_combobox_to_entries $_tabs_manual.jogf.jog.jogspeed
+size_combobox_to_entries $_tabs_manual.jogf.jog.jogincr
 
-proc setval {vel} {
-    global max_speed
+proc setval {vel max_speed} {
     if {$vel == $max_speed} { return 1 }
     if {$vel == 0} { return 0 }
     set x [expr {-1/(log($vel/60./$max_speed)-1)}]
     expr {round($x * 200.) / 200.}
 }
 
-proc val2vel {val} {
-    global max_speed
+proc val2vel {val max_speed} {
     if {$val == 0} { return 0 }
     if {$val == 1} { return [expr {$max_speed * 60.}] }
     format "%32.16f" [expr {60 * $max_speed * exp(-1/$val) * exp(1)}]
@@ -1627,16 +1644,16 @@ proc places {s1 s2} {
     return [string length $s1]
 }
 
-proc val2vel_show {val} {
-    set this_vel [val2vel $val]
+proc val2vel_show {val maxvel} {
+    set this_vel [val2vel $val $maxvel]
     set next_places 0
     set last_places 0
     if {$val > .005} {
-        set next_vel [val2vel [expr {$val - .005}]]
+        set next_vel [val2vel [expr {$val - .005}] $maxvel]
         set next_places [places $this_vel $next_vel]
     }
     if {$val < .995} {
-        set prev_vel [val2vel [expr {$val + .005}]]
+        set prev_vel [val2vel [expr {$val + .005}] $maxvel]
         set prev_places [places $this_vel $prev_vel]
     }
     if {$next_places > $last_places} {
@@ -1648,12 +1665,24 @@ proc val2vel_show {val} {
 
 proc set_slider_min {minval} {
     global pane_top
-    ${pane_top}.jogspeed.s configure -from [setval $minval]
+    global max_speed
+    ${pane_top}.jogspeed.s configure -from [setval $minval $max_speed]
+}
+
+proc set_aslider_min {minval} {
+    global pane_top
+    global max_aspeed
+    ${pane_top}.ajogspeed.s configure -from [setval $minval $max_aspeed]
 }
 
 proc update_jog_slider_vel {newval} {
-    global jog_slider_val jog_speed max_speed
-    set jog_speed [val2vel_show $newval];
+    global jog_speed max_speed
+    set jog_speed [val2vel_show $newval $max_speed];
+}
+
+proc update_ajog_slider_vel {newval} {
+    global jog_aspeed max_aspeed
+    set jog_aspeed [val2vel_show $newval $max_aspeed];
 }
 
 
@@ -1686,7 +1715,7 @@ DynamicHelp::add $_tabs_manual.axes.axisb -text [_ "Activate axis \[4\]"]
 DynamicHelp::add $_tabs_manual.axes.axisc -text [_ "Activate axis \[5\]"]
 DynamicHelp::add $_tabs_manual.jogf.jog.jogminus -text [_ "Jog selected axis"]
 DynamicHelp::add $_tabs_manual.jogf.jog.jogplus -text [_ "Jog selected axis"]
-DynamicHelp::add $_tabs_manual.jogf.jog.jogspeed -text [_ "Select jog ingrement"]
+DynamicHelp::add $_tabs_manual.jogf.jog.jogincr -text [_ "Select jog ingrement"]
 DynamicHelp::add $_tabs_manual.jogf.override -text [_ "Temporarily allow jogging outside machine limits \[L\]"]
 
 # vim:ts=8:sts=4:et:sw=4:

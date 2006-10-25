@@ -1708,7 +1708,9 @@ vars = nf.Variables(root_window,
     ("override_limits", BooleanVar),
     ("view_type", IntVar),
     ("jog_speed", DoubleVar),
+    ("jog_aspeed", DoubleVar),
     ("max_speed", DoubleVar),
+    ("max_aspeed", DoubleVar),
     ("joint_mode", IntVar),
     ("motion_mode", IntVar),
     ("kinematics_type", IntVar),
@@ -1742,7 +1744,9 @@ widgets = nf.Widgets(root_window,
     ("axis_b", Radiobutton, tabs_manual + ".axes.axisb"),
     ("axis_c", Radiobutton, tabs_manual + ".axes.axisc"),
 
-    ("jogspeed", Entry, tabs_manual + ".jogf.jog.jogspeed"),
+    ("jogincr", Entry, tabs_manual + ".jogf.jog.jogincr"),
+
+    ("ajogspeed", Entry, pane_top + ".ajogspeed"),
 
     ("flood", Checkbutton, tabs_manual + ".flood"),
     ("mist", Checkbutton, tabs_manual + ".mist"),
@@ -1777,21 +1781,21 @@ def set_first_line(lineno):
     program_start_line = lineno
 
 def jogspeed_continuous():
-    widgets.jogspeed.configure(editable=1)
-    widgets.jogspeed.delete(0, "end")
-    widgets.jogspeed.insert("end", _("Continuous"))
-    widgets.jogspeed.configure(editable=0)
+    widgets.jogincr.configure(editable=1)
+    widgets.jogincr.delete(0, "end")
+    widgets.jogincr.insert("end", _("Continuous"))
+    widgets.jogincr.configure(editable=0)
 
 def jogspeed_incremental():
-    jogspeed = widgets.jogspeed.get()
-    if jogspeed == _("Continuous") or jogspeed == "0.0001":
-        newjogspeed = 0.1
+    jogincr = widgets.jogincr.get()
+    if jogincr == _("Continuous") or jogincr == "0.0001":
+        newjogincr = 0.1
     else:
-        newjogspeed = float(jogspeed) / 10
-    widgets.jogspeed.configure(editable=1)
-    widgets.jogspeed.delete(0, "end")
-    widgets.jogspeed.insert("end", "%s" % newjogspeed)
-    widgets.jogspeed.configure(editable=0)
+        newjogincr = float(jogincr) / 10
+    widgets.jogincr.configure(editable=1)
+    widgets.jogincr.delete(0, "end")
+    widgets.jogincr.insert("end", "%s" % newjogincr)
+    widgets.jogincr.configure(editable=0)
 
 class SelectionHandler:
     def __init__(self, win, **kw):
@@ -2286,9 +2290,19 @@ class TclCommands(nf.TclCommands):
     # The next three don't have 'manual_ok' because that's done in jog_on /
     # jog_off
     def jog_plus(event=None):
-        jog_on(vars.current_axis.get(), vars.jog_speed.get()/60.)
+        a = vars.current_axis.get()
+        if isinstance(a, (str, unicode)):
+            a = "xyzabc".index(a)
+        if a < 3: speed = vars.jog_speed.get()
+        else: speed = vars.jog_aspeed.get()
+        jog_on(a, speed/60.)
     def jog_minus(event=None):
-        jog_on(vars.current_axis.get(), -vars.jog_speed.get()/60.)
+        a = vars.current_axis.get()
+        if isinstance(a, (str, unicode)):
+            a = "xyzabc".index(a)
+        if a < 3: speed = vars.jog_speed.get()
+        else: speed = vars.jog_aspeed.get()
+        jog_on(a, -speed/60.)
     def jog_stop(event=None):
         jog_off(vars.current_axis.get())
 
@@ -2521,21 +2535,21 @@ def jog_on(a, b):
         root_window.after_cancel(jog_after[a])
         jog_after[a] = None
         return
-    jogspeed = widgets.jogspeed.get()
+    jogincr = widgets.jogincr.get()
     if s.motion_mode == emc.TRAJ_MODE_TELEOP:
         jogging[a] = b
         jog_cont[a] = False
         c.teleop_vector(*jogging)
     else:
-        if jogspeed != _("Continuous"):
+        if jogincr != _("Continuous"):
             s.poll()
             if s.state != 1: return
-            if "/" in jogspeed:
-                p, q = jogspeed.split("/")
-                jogspeed = float(p) / float(q)
+            if "/" in jogincr:
+                p, q = jogincr.split("/")
+                jogincr = float(p) / float(q)
             else:
-                jogspeed = float(jogspeed)
-            jog(emc.JOG_INCREMENT, a, b, jogspeed)
+                jogincr = float(jogincr)
+            jog(emc.JOG_INCREMENT, a, b, jogincr)
             jog_cont[a] = False
         else:
             jog(emc.JOG_CONTINUOUS, a, b)
@@ -2604,9 +2618,12 @@ if len(sys.argv) > 1 and sys.argv[1] == '-ini':
     postgui_halfile = inifile.find("HAL", "POSTGUI_HALFILE")
     max_feed_override = float(inifile.find("DISPLAY", "MAX_FEED_OVERRIDE"))
     max_feed_override = int(max_feed_override * 100 + 0.5)
-    vars.jog_speed.set(float(inifile.find("TRAJ", "DEFAULT_VELOCITY")))
+    vars.jog_speed.set(float(inifile.find("TRAJ", "DEFAULT_VELOCITY"))*60)
+    vars.jog_aspeed.set(float(inifile.find("TRAJ", "DEFAULT_ANGULAR_VELOCITY") or vars.jog_speed.get())*60)
     vars.max_speed.set(float(inifile.find("TRAJ", "MAX_VELOCITY")))
-    root_window.tk.eval("${pane_top}.jogspeed.s set [setval $jog_speed]")
+    vars.max_aspeed.set(float(inifile.find("TRAJ", "MAX_ANGULAR_VELOCITY") or vars.max_speed.get()))
+    root_window.tk.eval("${pane_top}.jogspeed.s set [setval $jog_speed $max_speed]")
+    root_window.tk.eval("${pane_top}.ajogspeed.s set [setval $jog_aspeed $max_aspeed]")
     widgets.feedoverride.configure(to=max_feed_override)
     emc.nmlfile = inifile.find("EMC", "NML_FILE")
     vars.coord_type.set(inifile.find("DISPLAY", "POSITION_OFFSET") == "RELATIVE")
@@ -2624,8 +2641,9 @@ if len(sys.argv) > 1 and sys.argv[1] == '-ini':
         root_window.tk.eval("${pane_top}.jogspeed.l1 configure -text mm/min")
     else:
         root_window.tk.eval("${pane_top}.jogspeed.l1 configure -text in/min")
+    root_window.tk.eval(u"${pane_top}.ajogspeed.l1 configure -text deg/min")
 
-    step_size = 1
+    astep_size = step_size = 1
     for a in range(axiscount):
         section = "AXIS_%d" % a
         unit = inifile.find(section, "UNITS") or lu
@@ -2633,11 +2651,17 @@ if len(sys.argv) > 1 and sys.argv[1] == '-ini':
         machine_limit_min[a] = float(inifile.find(section, "MIN_LIMIT")) / unit
         machine_limit_max[a] = float(inifile.find(section, "MAX_LIMIT")) / unit
         try:
-            step_size = min(step_size, 1. / abs(float(inifile.find(section, "INPUT_SCALE").split()[0])))
+            step_size_tmp = min(step_size, 1. / abs(float(inifile.find(section, "INPUT_SCALE").split()[0])))
         except ValueError:
             continue
+        else:
+            if a < 3: step_size = astep_size = step_size_tmp
+            else: astep_size = step_size_tmp
+    print "step sizes", step_size, astep_size
     if step_size != 1:
         root_window.tk.call("set_slider_min", step_size*30)
+    if astep_size != 1:
+        root_window.tk.call("set_aslider_min", astep_size*30)
     increments = inifile.find("DISPLAY", "INCREMENTS")
     if increments:
         root_window.call(widgets.jogspeed._w, "list", "delete", "1", "end")
@@ -2658,13 +2682,21 @@ else:
     bind_axis("KP_Left", "KP_Right", 0)
     bind_axis("KP_Down", "KP_Up", 1)
     bind_axis("KP_Next", "KP_Prior", 2)
-    bind_axis("bracketleft", "bracketright", 3)
+    root_window.bind("<KeyPress-bracketleft>",
+        lambda e: jog_on(3,-vars.jog_aspeed.get()/60.))
+    root_window.bind("<KeyPress-bracketright>",
+        lambda e: jog_on(3, vars.jog_aspeed.get()/60.))
+    root_window.bind("<KeyRelease-bracketleft>", lambda e: jog_off(3))
+    root_window.bind("<KeyRelease-bracketright>", lambda e: jog_off(3))
+
 
 
 opts, args = getopt.getopt(sys.argv[1:], 'd:')
 for i in range(len(axisnames), 6):
     c = getattr(widgets, "axis_%s" % ("xyzabc"[i]))
     c.grid_forget()
+if len(axisnames) < 4:
+    widgets.ajogspeed.grid_forget()
 s = emc.stat(); s.poll()
 c = emc.command()
 e = emc.error_channel()
