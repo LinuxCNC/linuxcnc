@@ -696,11 +696,11 @@ tags:
 		-I EXPORT_SYMBOL+,RTAPI_MP_INT+,RTAPI_MP_LONG+,RTAPI_MP_STRING+ \
 		-I RTAPI_MP_ARRAY_INT+,RTAPI_MP_ARRAY_LONG+,RTAPI_MP_ARRAY_STRING+ \
                 -I MODULE_AUTHOR+,MODULE_DESCRIPTION+,MODULE_LICENSE+ \
-		-R . ../tcl ../scripts
+		-R . ../tcl ../scripts ../share/axis/tcl
 .PHONY: swish
 swish:
 	swish-e -c .swish_config -v 0 -i $(BASEPWD) \
-		$(dir $(BASEPWD)){tcl,scripts,configs,docs/src,docs/man/man1}
+		$(dir $(BASEPWD)){tcl,share/axis/tcl,scripts,configs,docs/src,docs/man/man1}
         
 # When you depend on objects/var-ZZZ you are depending on the contents of the
 # variable ZZZ, which is assumed to depend on a Makefile, a Submakefile, or
