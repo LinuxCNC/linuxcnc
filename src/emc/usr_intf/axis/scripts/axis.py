@@ -2687,7 +2687,7 @@ else:
     root_window.bind("<KeyRelease-bracketleft>", lambda e: jog_off(3))
     root_window.bind("<KeyRelease-bracketright>", lambda e: jog_off(3))
 root_window.bind("<KeyPress-minus>", commands.jog_minus)
-root_window.bind("<KeyPress-equal>", commands.jog_minus)
+root_window.bind("<KeyPress-equal>", commands.jog_plus)
 root_window.bind("<KeyRelease-minus>", commands.jog_stop)
 root_window.bind("<KeyRelease-equal>", commands.jog_stop)
 
