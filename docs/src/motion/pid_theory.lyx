@@ -448,7 +448,7 @@ Another tuning method is formally known as the "Ziegler-Nichols method",
 
 \layout Standard
 
-Control
+Control type
 \end_inset 
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
@@ -464,7 +464,7 @@ P
 
 \layout Standard
 
-Tr
+I
 \end_inset 
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
@@ -472,7 +472,7 @@ Tr
 
 \layout Standard
 
-Td
+D
 \end_inset 
 </cell>
 </row>
