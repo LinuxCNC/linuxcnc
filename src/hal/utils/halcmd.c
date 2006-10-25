@@ -577,6 +577,10 @@ int main(int argc, char **argv)
 		}
 	    }
 	    tokens[MAX_TOK] = "";
+
+            /* Some rare conditions can leave us with no tokens */
+            if(!tokens[0]) continue;
+
 	    /* the "quit" command is not handled by parse_cmd() */
 	    if ( ( strcasecmp(tokens[0],"quit") == 0 ) || ( strcasecmp(tokens[0],"exit") == 0 ) ) {
 		break;
@@ -697,13 +701,16 @@ static int replace_vars(char *source_str, char *dest_str, int max_chars)
     dest_str[max_chars-1] = '\0';	/* make sure there's a terminator */
     while ((remaining = strlen(sp)) > 0) {
 	loopcount++;
-	next_delim=strcspn(sp, "$[");
+	next_delim=strcspn(sp, "#$[");
 	strncpy(dp, sp, next_delim);
 	dp[next_delim]='\0';
 	dp += next_delim;
 	sp += next_delim;
 	if (next_delim < remaining) {		/* a new delimiter was found */
 	    switch (*sp++) {	/* this is the found delimiter, since sp was incremented */
+            case '#': /* A comment is encountered, do not substitute the rest */
+                sp += strlen(sp);
+                break;
 	    case '$':
 		varP = sp;
 		if (*sp=='(') {		/* look for a parenthesized var */
