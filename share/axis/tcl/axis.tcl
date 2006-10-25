@@ -1311,7 +1311,7 @@ grid ${pane_top}.preview \
 	-column 1 \
 	-row 1 \
 	-columnspan 2 \
-	-rowspan 3 \
+	-rowspan 4 \
 	-sticky nesw
 
 grid ${pane_top}.tabs \
