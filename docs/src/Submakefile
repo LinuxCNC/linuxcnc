@@ -52,6 +52,7 @@ DOC_SRCS := \
 	install/compiling_emc2.lyx \
 	install/installing_emc2.lyx \
 	motion/kinematics.lyx \
+	motion/pid_theory.lyx \
 	Master_HAL.lyx
 
 MAN_HTML_TARGETS := $(patsubst $(DOC_DIR)/man/%, $(DOC_DIR)/html/man/%.html, $(MAN_SRCS))
