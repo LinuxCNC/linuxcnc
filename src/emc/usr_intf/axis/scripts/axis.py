@@ -112,6 +112,7 @@ def install_help(app):
         ("Home", _("Send active axis home")),
         ("Shift-Home", _("Zero G54 offset for active axis")),
         ("End", _("Set G54 offset for active axis")),
+        ("-, =", _("Jog active axis")),
         ("Left, Right", _("Jog first axis")),
         ("Up, Down", _("Jog second axis")),
         ("Pg Up, Pg Dn", _("Jog third axis")),
@@ -222,10 +223,7 @@ class MyOpengl(Opengl):
         self.perspective = False
         Opengl.__init__(self, *args, **kw)
         self.bind('<Button-4>', self.zoomin)
-        root_window.bind('<Key-minus>', self.zoomout)
         self.bind('<Button-5>', self.zoomout)
-        root_window.bind('<Key-plus>', self.zoomin)
-        root_window.bind('<Key-equal>', self.zoomin)
         self.bind('<MouseWheel>', self.zoomwheel)
         self.bind('<Button-1>', self.select_prime, add=True)
         self.bind('<ButtonRelease-1>', self.select_fire, add=True)
@@ -2688,6 +2686,10 @@ else:
         lambda e: jog_on(3, vars.jog_aspeed.get()/60.))
     root_window.bind("<KeyRelease-bracketleft>", lambda e: jog_off(3))
     root_window.bind("<KeyRelease-bracketright>", lambda e: jog_off(3))
+root_window.bind("<KeyPress-minus>", commands.jog_minus)
+root_window.bind("<KeyPress-equal>", commands.jog_minus)
+root_window.bind("<KeyRelease-minus>", commands.jog_stop)
+root_window.bind("<KeyRelease-equal>", commands.jog_stop)
 
 
 
