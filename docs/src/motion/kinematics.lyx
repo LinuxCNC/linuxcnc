@@ -49,7 +49,7 @@ The Cartesian Coordinate system is composed of 3 axes (X, Y, Z) each perpendicul
 ar to the other 2.
  
 \begin_inset Foot
-collapsed false
+collapsed true
 
 \layout Standard
 
@@ -79,7 +79,7 @@ When we talk about a G-code program (RS274NGC) we talk about a number of
 
 kinematics
 \begin_inset Foot
-collapsed false
+collapsed true
 
 \layout Standard
 
@@ -118,7 +118,7 @@ Trivial Kinematics).
  These are the most common machines used in milling, but are not very common
  in other domains of machine control (e.g.
  welding: puma-typed robots).
-\layout Subsection
+\layout Section
 
 Trivial Kinematics
 \layout Standard
@@ -193,7 +193,7 @@ g the software.
 \end_inset 
 
 
-\layout Subsection
+\layout Section
 
 Non-trivial kinematics
 \layout Standard
@@ -263,9 +263,14 @@ Our tooltip will be in point D which gets defined by the distances AD and
 
 The job of the kinematics is to transform from joint lengths (AD, BD) to
  Cartesian coordinates (Dx, Dy) and vice-versa.
-\layout Subsubsection
+\layout Subsection
 
 Forward transformation
+\begin_inset LatexCommand \label{sub:Forward-transformation}
+
+\end_inset 
+
+
 \layout Standard
 
 To transform from joint space into Cartesian space we will use some trigonometry
@@ -318,9 +323,44 @@ y=\sqrt{AD^{2}-x^{2}}\]
 \end_inset 
 
 
-\layout Subsubsection
+\layout Standard
+
+Note that the calculation for y involves the square root of a difference,
+ which may not result in a real number.
+ If there is no single Cartesian coordinate for this joint position, then
+ the position is said to be a singularity.
+ In this case, the forward kinematics return -1.
+\layout Standard
+
+Translated to actual code:
+\layout LyX-Code
+
+double AD2 = joints[0] * joints[0];
+\newline 
+double BD2 = joints[1] * joints[1];
+\newline 
+double x = (AD2 - BD2 + Bx * Bx) / (2 * Bx);
+\newline 
+double y2 = AD2 - x * x;
+\newline 
+if(y2 < 0) return -1;
+\newline 
+pos->tran.x = x;
+\newline 
+pos->tran.y = sqrt(y2);
+\layout LyX-Code
+
+return 0;
+\layout LyX-Code
+
+\layout Subsection
 
 Inverse transformation
+\begin_inset LatexCommand \label{sub:Inverse-transformation}
+
+\end_inset 
+
+
 \layout Standard
 
 The inverse kinematics is lots easier in our example, as we can write it
@@ -355,4 +395,83 @@ double y2 = pos->tran.y * pos->tran.y;
 joints[0] = sqrt(x2 + y2);
 \newline 
 joints[1] = sqrt((Bx - pos->tran.x)*(Bx - pos->tran.x) + y2);
+\newline 
+return 0;
+\layout Section
+
+Implementation details
+\layout Standard
+
+A kinematics module is implemented as a HAL component, and is permitted
+ to export pins and parameters.
+ It consists of several functions:
+\layout Itemize
+
+
+\family typewriter 
+int kinematicsForward(const double *joint, EmcPose *world, const KINEMATICS_FORW
+ARD_FLAGS *fflags, KINEMATICS_INVERSE_FLAGS *iflags)
+\begin_deeper 
+\layout Standard
+
+Implements the forward kinematics function as described in section 
+\begin_inset LatexCommand \ref{sub:Forward-transformation}
+
+\end_inset 
+
+.
+\end_deeper 
+\layout Itemize
+
+
+\family typewriter 
+extern int kinematicsInverse(const EmcPose * world, double *joints, const
+ KINEMATICS_INVERSE_FLAGS *iflags, KINEMATICS_FORWARD_FLAGS *fflags)
+\begin_deeper 
+\layout Standard
+
+Implements the inverse kinematics function as described in section 
+\begin_inset LatexCommand \ref{sub:Inverse-transformation}
+
+\end_inset 
+
+.
+\end_deeper 
+\layout Itemize
+
+
+\family typewriter 
+extern KINEMATICS_TYPE kinematicsType(void)
+\begin_deeper 
+\layout Standard
+
+Returns the kinematics type identifier.
+\end_deeper 
+\layout Itemize
+
+
+\family typewriter 
+int kinematicsHome(EmcPose *world, double *joint, KINEMATICS_FORWARD_FLAGS
+ *fflags, KINEMATICS_INVERSE_FLAGS *iflags)
+\begin_deeper 
+\layout Standard
+
+The home kinematics function sets all its arguments to their proper values
+ at the known home position.
+ When called, these should be set, when known, to initial values, e.g., from
+ an INI file.
+ If the home kinematics can accept arbitrary starting points, these initial
+ values should be used.
+ 
+\end_deeper 
+\layout Itemize
+
+int rtapi_app_main(void)
+\layout Itemize
+
+void rtapi_app_exit(void)
+\begin_deeper 
+\layout Standard
+
+These are the standard setup and tear-down functions of RTAPI modules.
 \the_end
