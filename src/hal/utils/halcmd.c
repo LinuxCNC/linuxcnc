@@ -1065,7 +1065,6 @@ static int do_newinst_cmd(char *comp_name, char *inst_name) {
             rtapi_print_msg(RTAPI_MSG_ERR, "newinst failed: %d\n", result);
             return HAL_FAIL;
         }
-        return HAL_SUCCESS;
     }
 #else
     {
@@ -1116,6 +1115,29 @@ static int do_newinst_cmd(char *comp_name, char *inst_name) {
     }
 #endif
 
+    rtapi_mutex_get(&hal_data->mutex);
+    {
+    hal_comp_t *inst = halpr_alloc_comp_struct();
+    if (inst == 0) {
+        /* couldn't allocate structure */
+        rtapi_mutex_give(&(hal_data->mutex));
+        rtapi_print_msg(RTAPI_MSG_ERR,
+            "HAL: ERROR: insufficient memory for instance '%s'\n", inst_name);
+        return HAL_NOMEM;
+    }
+    inst->comp_id = comp->comp_id | 0x10000;
+    inst->mem_id = -1;
+    inst->type = 2;
+    inst->pid = 0;
+    inst->ready = 1;
+    inst->shmem_base = 0;
+    rtapi_snprintf(inst->name, HAL_NAME_LEN, "%s", inst_name);
+    /* insert new structure at head of list */
+    inst->next_ptr = hal_data->comp_list_ptr;
+    hal_data->comp_list_ptr = SHMOFF(inst);
+
+    rtapi_mutex_give(&(hal_data->mutex));
+    }
     return HAL_SUCCESS;
 }
 
@@ -1815,7 +1837,7 @@ static int do_unload_cmd(char *mod_name) {
                 linenumber, mod_name);
             return -1;
         }
-        if(type) return do_unloadrt_cmd(mod_name);
+        if(type == 1) return do_unloadrt_cmd(mod_name);
         else return do_unloadusr_cmd(mod_name);
     }
 }
@@ -2050,15 +2072,22 @@ static void print_comp_info(char *pattern)
     while (next != 0) {
 	comp = SHMPTR(next);
 	if ( match(pattern, comp->name) ) {
-	    rtapi_print("%02d  %s  %-*s",
-		comp->comp_id, (comp->type ? "RT  " : "User"),
-                HAL_NAME_LEN, comp->name);
-            if(comp->type == 0) {
-                    rtapi_print(" %5d %s", comp->pid, comp->ready > 0 ?
-                            "ready" : "initializing");
+            if(comp->type == 2) {
+                hal_comp_t *comp1 = halpr_find_comp_by_id(comp->comp_id & 0xffff);
+                rtapi_print("    INST %s %s",
+                        comp1 ? comp1->name : "(unknown)", 
+                        comp->name);
             } else {
-                    rtapi_print(" %5s %s", "", comp->ready > 0 ?
-                            "ready" : "initializing");
+                rtapi_print("%05d  %s  %-*s",
+                    comp->comp_id, (comp->type ? "RT  " : "User"),
+                    HAL_NAME_LEN, comp->name);
+                if(comp->type == 0) {
+                        rtapi_print(" %5d %s", comp->pid, comp->ready > 0 ?
+                                "ready" : "initializing");
+                } else {
+                        rtapi_print(" %5s %s", "", comp->ready > 0 ?
+                                "ready" : "initializing");
+                }
             }
             rtapi_print("\n");
 	}
@@ -2794,6 +2823,15 @@ static void save_comps(FILE *dst)
 		    (char *)SHMPTR(comp->insmod_args));
 	    }
 	}
+	next = comp->next_ptr;
+    }
+    next = hal_data->comp_list_ptr;
+    while (next != 0) {
+	comp = SHMPTR(next);
+	if ( comp->type == 2 ) {
+            hal_comp_t *comp1 = halpr_find_comp_by_id(comp->comp_id & 0xffff);
+            fprintf(dst, "newinst %s %s\n", comp1->name, comp->name);
+        }
 	next = comp->next_ptr;
     }
     rtapi_mutex_give(&(hal_data->mutex));

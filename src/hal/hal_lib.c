@@ -127,7 +127,7 @@ static void *shmalloc_dn(long int size);
     All of these functions assume that the caller has already
     grabbed the hal_data mutex.
 */
-static hal_comp_t *alloc_comp_struct(void);
+hal_comp_t *halpr_alloc_comp_struct(void);
 static hal_pin_t *alloc_pin_struct(void);
 static hal_sig_t *alloc_sig_struct(void);
 static hal_param_t *alloc_param_struct(void);
@@ -237,7 +237,7 @@ int hal_init(char *name)
 	return HAL_FAIL;
     }
     /* allocate a new component structure */
-    comp = alloc_comp_struct();
+    comp = halpr_alloc_comp_struct();
     if (comp == 0) {
 	/* couldn't allocate structure */
 	rtapi_mutex_give(&(hal_data->mutex));
@@ -2545,7 +2545,7 @@ static void *shmalloc_dn(long int size)
     return retval;
 }
 
-static hal_comp_t *alloc_comp_struct(void)
+hal_comp_t *halpr_alloc_comp_struct(void)
 {
     hal_comp_t *p;
 

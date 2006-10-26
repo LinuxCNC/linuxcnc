@@ -367,6 +367,9 @@ extern hal_param_t *halpr_find_param_by_name(char *name);
 extern hal_thread_t *halpr_find_thread_by_name(char *name);
 extern hal_funct_t *halpr_find_funct_by_name(char *name);
 
+/** Allocates a HAL component structure */
+extern hal_comp_t *halpr_alloc_comp_struct(void);
+
 /** 'find_comp_by_id()' searches the component list for an object whose
     component ID matches 'id'.  It returns a pointer to that component,
     or NULL if no match is found.
