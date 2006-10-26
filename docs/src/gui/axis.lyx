@@ -2033,4 +2033,64 @@ After AXIS has created these HAL pins, it executes the halfile named in
 [HAL]HALFILE
 \family default 
 , only one such file may be used.
+\layout Subsection
+
+~/.axisrc
+\layout Standard
+
+If it exists, the contents of 
+\family typewriter 
+~/.axisrc
+\family default 
+ are executed as Python source code just before the AXIS gui is displayed.
+ The details of what may be written in the axisrc are subject to change
+ during the development cycle.
+\layout Standard
+
+The lines shown in Figure 
+\begin_inset LatexCommand \ref{cap:Sample-.axisrc-file}
+
+\end_inset 
+
+ add Control-Q as a keyboard shortcut for Quit, and re-organize the spindle
+ control buttons, getting rid of 
+\begin_inset Quotes eld
+\end_inset 
+
+spindle counterclockwise
+\begin_inset Quotes erd
+\end_inset 
+
+.
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Caption
+
+Sample .axisrc file
+\begin_inset LatexCommand \label{cap:Sample-.axisrc-file}
+
+\end_inset 
+
+
+\layout LyX-Code
+
+root_window.bind("<Control-q>", "destroy .")
+\newline 
+help2.append(("Control-Q", "Quit"))
+\newline 
+
+\newline 
+widgets.brake.grid_forget() widgets.spindle_ccw.grid_forget()
+\newline 
+widgets.spindle_stop.grid(row=0, column=0, columnspan=3)
+\newline 
+widgets.spindle_cw.grid(row=0, column=3)
+\end_inset 
+
+
 \the_end
