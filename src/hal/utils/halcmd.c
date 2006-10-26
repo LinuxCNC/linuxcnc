@@ -1509,9 +1509,12 @@ static int do_status_cmd(char *type)
 
 static int do_loadrt_cmd(char *mod_name, char *args[])
 {
-#if defined(RTAPI_SIM)
-    int m=0, n=0;
+    char arg_string[MAX_CMD_LEN+1];
+    int m=0, n=0, retval;
+    hal_comp_t *comp;
     char *argv[MAX_TOK+3];
+    char *cp1;
+#if defined(RTAPI_SIM)
     argv[m++] = "-Wn";
     argv[m++] = mod_name;
     argv[m++] = EMC2_BIN_DIR "/rtapi_app";
@@ -1522,16 +1525,11 @@ static int do_loadrt_cmd(char *mod_name, char *args[])
         argv[m++] = args[n++];
     }
     argv[m++] = NULL;
-    return do_loadusr_cmd(argv);
+    retval = do_loadusr_cmd(argv);
 #else
     static char *rtmod_dir = EMC2_RTLIB_DIR;
     struct stat stat_buf;
     char mod_path[MAX_CMD_LEN+1];
-    char *cp1;
-    char *argv[MAX_TOK+1];
-    char arg_string[MAX_CMD_LEN+1];
-    int n, m, retval;
-    hal_comp_t *comp;
 
     if (hal_get_lock()&HAL_LOCK_LOAD) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -1576,6 +1574,7 @@ static int do_loadrt_cmd(char *mod_name, char *args[])
     argv[m] = NULL;
 
     retval = hal_systemv(argv);
+#endif
 
     if ( retval != 0 ) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -1616,17 +1615,6 @@ static int do_loadrt_cmd(char *mod_name, char *args[])
     rtapi_print_msg(RTAPI_MSG_INFO, "Realtime module '%s' loaded\n",
 	mod_name);
     return 0;
-    /* loop thru remaining arguments */
-    n = 0;
-    m = 3;
-    while ( args[n] && args[n][0] != '\0' ) {
-        argv[m++] = args[n++];
-    }
-    /* add a NULL to terminate the argv array */
-    argv[m] = NULL;
-
-    retval = hal_systemv(argv);
-#endif
 }
 
 static int do_delsig_cmd(char *mod_name)
