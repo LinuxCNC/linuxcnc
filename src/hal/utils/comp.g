@@ -309,7 +309,6 @@ def find_modinc():
     raise SystemExit, "Unable to locate Makefile.modinc"
 
 def build(tempdir, filename, mode):
-    kobjname = os.path.splitext(filename)[0] + ".ko"
     objname = os.path.basename(os.path.splitext(filename)[0] + ".o")
     makefile = os.path.join(tempdir, "Makefile")
     f = open(makefile, "w")
@@ -324,7 +323,13 @@ def build(tempdir, filename, mode):
     if result != 0:
         raise SystemExit, result
     if mode == COMPILE:
-        shutil.copy(kobjname, os.path.basename(kobjname))
+        for extension in ".ko", ".so", ".o":
+            kobjname = os.path.splitext(filename)[0] + extension
+            if os.path.exists(kobjname):
+                shutil.copy(kobjname, os.path.basename(kobjname))
+                break
+        else:
+            raise SystemExit, "Unable to copy module from temporary directory"
 
 def finddoc(section=None, name=None):
     for item in docs:
