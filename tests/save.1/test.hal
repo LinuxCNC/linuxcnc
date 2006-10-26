@@ -1,0 +1,9 @@
+setexact_for_test_suite_only
+
+loadrt or2 count=1
+newinst or2 a
+loadrt wcomp count=1
+newinst wcomp b
+newinst or2 c
+
+save
