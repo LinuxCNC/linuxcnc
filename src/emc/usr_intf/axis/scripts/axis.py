@@ -93,66 +93,67 @@ if sys.version_info <= (2,3):
             yield index, item
             index += 1
 
-def install_help(app):
-    help1 = [
-        ("F1", _("Emergency stop")),
-        ("F2", _("Turn machine on")),
-        ("", ""),
-        ("X, `", _("Activate first axis")),
-        ("Y, 1", _("Activate second axis")),
-        ("Z, 2", _("Activate third axis")),
-        ("A, 3", _("Activate fourth axis")),
-        ("   4", _("Activate fifth axis")),
-        ("   5", _("Activate sixth axis")),
-        ("`, 1..9, 0", _("Set Feed Override from 0% to 100%")),
-        (", and .", _("Select jog speed")),
-        ("< and >", _("Select angular jog speed")),
-        ("I", _("Select jog increment")),
-        ("C", _("Continuous jog")),
-        ("Home", _("Send active axis home")),
-        ("Shift-Home", _("Zero G54 offset for active axis")),
-        ("End", _("Set G54 offset for active axis")),
-        ("-, =", _("Jog active axis")),
-        ("Left, Right", _("Jog first axis")),
-        ("Up, Down", _("Jog second axis")),
-        ("Pg Up, Pg Dn", _("Jog third axis")),
-        ("[, ]", _("Jog fourth axis")),
-        ("", ""),
-        (_("Left Button"), _("Pan view or select line")),
-        (_("Shift+Left Button"), _("Rotate view")),
-        (_("Right Button"), _("Zoom view")),
-        (_("Wheel Button"), _("Rotate view")),
-        (_("Rotate Wheel"), _("Zoom view")),
-        (_("Control+Left Button"), _("Zoom view")),
-    ]
-    help2 = [
-        ("F3", _("Manual control")),
-        ("F5", _("Code entry (MDI)")),
-        ("L", _("Override Limits")),
-        ("", ""),
-        ("O", _("Open program")),
-        ("Control-R", _("Reload program")),
-        ("R", _("Run program")),
-        ("T", _("Step program")),
-        ("P", _("Pause program")),
-        ("S", _("Resume program")),
-        ("ESC", _("Stop running program, or")),
-        ("", _("stop loading program preview")),
-        ("", ""),
-        ("F7", _("Toggle mist")),
-        ("F8", _("Toggle flood")),
-        ("", ""),
-        ("B", _("Spindle brake off")),
-        ("Shift-B", _("Spindle brake on")),
-        ("F9", _("Turn spindle clockwise")),
-        ("F10", _("Turn spindle counterclockwise")),
-        ("F11", _("Turn spindle more slowly")),
-        ("F12", _("Turn spindle more quickly")),
-        ("", ""),
-        ("Control-K", _("Clear live plot")),
-        ("V", _("Cycle among preset views")),
-    ]
+help1 = [
+    ("F1", _("Emergency stop")),
+    ("F2", _("Turn machine on")),
+    ("", ""),
+    ("X, `", _("Activate first axis")),
+    ("Y, 1", _("Activate second axis")),
+    ("Z, 2", _("Activate third axis")),
+    ("A, 3", _("Activate fourth axis")),
+    ("   4", _("Activate fifth axis")),
+    ("   5", _("Activate sixth axis")),
+    ("`, 1..9, 0", _("Set Feed Override from 0% to 100%")),
+    (", and .", _("Select jog speed")),
+    ("< and >", _("Select angular jog speed")),
+    ("I", _("Select jog increment")),
+    ("C", _("Continuous jog")),
+    ("Home", _("Send active axis home")),
+    ("Shift-Home", _("Zero G54 offset for active axis")),
+    ("End", _("Set G54 offset for active axis")),
+    ("-, =", _("Jog active axis")),
+    ("Left, Right", _("Jog first axis")),
+    ("Up, Down", _("Jog second axis")),
+    ("Pg Up, Pg Dn", _("Jog third axis")),
+    ("[, ]", _("Jog fourth axis")),
+    ("", ""),
+    (_("Left Button"), _("Pan view or select line")),
+    (_("Shift+Left Button"), _("Rotate view")),
+    (_("Right Button"), _("Zoom view")),
+    (_("Wheel Button"), _("Rotate view")),
+    (_("Rotate Wheel"), _("Zoom view")),
+    (_("Control+Left Button"), _("Zoom view")),
+]
+help2 = [
+    ("F3", _("Manual control")),
+    ("F5", _("Code entry (MDI)")),
+    ("L", _("Override Limits")),
+    ("", ""),
+    ("O", _("Open program")),
+    ("Control-R", _("Reload program")),
+    ("R", _("Run program")),
+    ("T", _("Step program")),
+    ("P", _("Pause program")),
+    ("S", _("Resume program")),
+    ("ESC", _("Stop running program, or")),
+    ("", _("stop loading program preview")),
+    ("", ""),
+    ("F7", _("Toggle mist")),
+    ("F8", _("Toggle flood")),
+    ("", ""),
+    ("B", _("Spindle brake off")),
+    ("Shift-B", _("Spindle brake on")),
+    ("F9", _("Turn spindle clockwise")),
+    ("F10", _("Turn spindle counterclockwise")),
+    ("F11", _("Turn spindle more slowly")),
+    ("F12", _("Turn spindle more quickly")),
+    ("", ""),
+    ("Control-K", _("Clear live plot")),
+    ("V", _("Cycle among preset views")),
+]
 
+
+def install_help(app):
     keys = nf.makewidget(app, Frame, '.keys.text')
     for i in range(len(help1)):
         a, b = help1[i]
@@ -163,8 +164,6 @@ def install_help(app):
         Label(keys, text=a, font="fixed", padx=4, pady=0, highlightthickness=0).grid(row=i, column=3, sticky="w")
         Label(keys, text=b, padx=4, pady=0, highlightthickness=0).grid(row=i, column=4, sticky="w")
     Label(keys, text="    ").grid(row=0, column=2)
-
-install_help(root_window)
 
 color_names = [
     ('back', 'Background'),
@@ -2839,6 +2838,19 @@ if lathe:
 
 widgets.feedoverride.set(100)
 commands.set_feedrate(100)
+
+rcfile = os.path.expanduser("~/.axisrc")
+if os.path.exists(rcfile):
+    import traceback
+    try:
+        execfile(rcfile)
+    except:
+        tb = traceback.format_exc()
+        print >>sys.stderr, tb
+        root_window.tk.call("nf_dialog", ".error", _("Error in ~/.axisrc"),
+            tb, "error", 0, _("OK"))
+
+install_help(root_window)
 
 live_plotter.update()
 o.mainloop()
