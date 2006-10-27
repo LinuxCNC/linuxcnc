@@ -853,9 +853,9 @@ class MyOpengl(Opengl):
 
             if vars.metric.get():
                 positions = from_internal_units(positions, 1)
-                format = "  %c:% 9.2f"
+                format = "%3s:% 9.3f"
             else:
-                format = "  %c:% 9.4f"
+                format = "%3s:% 9.4f"
             positions = [format % i for i in zip(axisnames, positions)]
 
             if lathe:
@@ -867,15 +867,18 @@ class MyOpengl(Opengl):
                 homed = s.homed[:]
 
             if vars.show_machine_speed.get():
-                positions.append("Vel: % 6.2f" %
-                    (live_plotter.logger.average_speed*60))
+                spd = to_internal_linear_unit(live_plotter.logger.average_speed)
+                if vars.metric.get():
+                    spd = spd * 25.4 * 60
+                else:
+                    spd = spd * 60
+                positions.append(format % ("Vel", spd))
 
             if hasattr(s, "distance_to_go") and vars.show_distance_to_go.get():
                 dtg = to_internal_linear_unit(s.distance_to_go)
                 if vars.metric.get():
-                    positions.append("DTG: % 6.2f" % (dtg * 25.4))
-                else:
-                    positions.append("DTG: % 6.4f" % (dtg))
+                    dtg *= 25.4
+                positions.append(format % ("DTG", dtg))
         else:
             limit = s.limit[:]
             homed = s.homed[:]
@@ -1953,7 +1956,7 @@ class TclCommands(nf.TclCommands):
             if vars.metric.get():
                 conv = 1
                 units = "mm"
-                fmt = "%.2f"
+                fmt = "%.3f"
             else:
                 conv = 1/25.4
                 units = "in"
