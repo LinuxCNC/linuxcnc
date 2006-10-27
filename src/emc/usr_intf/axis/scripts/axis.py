@@ -1675,56 +1675,6 @@ def open_file_guts(f, filtered = False):
             pass
         o.tkRedraw()
         root_window.tk.call("set_mode_from_tab")
-
-vars = nf.Variables(root_window, 
-    ("emctop_command", StringVar),
-    ("emcini", StringVar),
-    ("mdi_command", StringVar),
-    ("taskfile", StringVar),
-    ("interp_pause", IntVar),
-    ("exec_state", IntVar),
-    ("task_state", IntVar),
-    ("interp_state", IntVar),
-    ("task_mode", IntVar),
-    ("current_axis", StringVar),
-    ("mist", BooleanVar),
-    ("flood", BooleanVar),
-    ("brake", BooleanVar),
-    ("spindledir", IntVar),
-    ("running_line", IntVar),
-    ("highlight_line", IntVar),
-    ("show_program", IntVar),
-    ("show_live_plot", IntVar),
-    ("show_tool", IntVar),
-    ("show_extents", IntVar),
-    ("show_machine_speed", IntVar),
-    ("show_distance_to_go", IntVar),
-    ("feedrate", IntVar),
-    ("tool", StringVar),
-    ("active_codes", StringVar),
-    ("metric", IntVar),
-    ("coord_type", IntVar),
-    ("display_type", IntVar),
-    ("override_limits", BooleanVar),
-    ("view_type", IntVar),
-    ("jog_speed", DoubleVar),
-    ("jog_aspeed", DoubleVar),
-    ("max_speed", DoubleVar),
-    ("max_aspeed", DoubleVar),
-    ("joint_mode", IntVar),
-    ("motion_mode", IntVar),
-    ("kinematics_type", IntVar),
-)
-vars.emctop_command.set(os.path.join(os.path.dirname(sys.argv[0]), "emctop"))
-vars.highlight_line.set(-1)
-vars.running_line.set(-1)
-vars.show_program.set(1)
-vars.show_live_plot.set(1)
-vars.show_tool.set(1)
-vars.show_extents.set(1)
-vars.show_machine_speed.set(1)
-vars.show_distance_to_go.set(0)
-
 tabs_mdi = str(root_window.tk.call("set", "_tabs_mdi"))
 tabs_manual = str(root_window.tk.call("set", "_tabs_manual"))
 pane_top = str(root_window.tk.call("set", "pane_top"))
@@ -1934,6 +1884,13 @@ def dist((x,y,z),(p,q,r)):
     return ((x-p)**2 + (y-q)**2 + (z-r)**2) ** .5
 
 class TclCommands(nf.TclCommands):
+    def to_internal_linear_unit(a, b=None):
+        if b is not None: b = float(b)
+        return to_internal_linear_unit(float(a), b)
+    def from_internal_linear_unit(a, b=None):
+        if b is not None: b = float(b)
+        return from_internal_linear_unit(float(a), b)
+
     def gcode_properties(event=None):
         props = {}
         if not loaded_file:
@@ -2461,6 +2418,56 @@ class TclCommands(nf.TclCommands):
 
 commands = TclCommands(root_window)
 
+vars = nf.Variables(root_window, 
+    ("emctop_command", StringVar),
+    ("emcini", StringVar),
+    ("mdi_command", StringVar),
+    ("taskfile", StringVar),
+    ("interp_pause", IntVar),
+    ("exec_state", IntVar),
+    ("task_state", IntVar),
+    ("interp_state", IntVar),
+    ("task_mode", IntVar),
+    ("current_axis", StringVar),
+    ("mist", BooleanVar),
+    ("flood", BooleanVar),
+    ("brake", BooleanVar),
+    ("spindledir", IntVar),
+    ("running_line", IntVar),
+    ("highlight_line", IntVar),
+    ("show_program", IntVar),
+    ("show_live_plot", IntVar),
+    ("show_tool", IntVar),
+    ("show_extents", IntVar),
+    ("show_machine_speed", IntVar),
+    ("show_distance_to_go", IntVar),
+    ("feedrate", IntVar),
+    ("tool", StringVar),
+    ("active_codes", StringVar),
+    ("metric", IntVar),
+    ("coord_type", IntVar),
+    ("display_type", IntVar),
+    ("override_limits", BooleanVar),
+    ("view_type", IntVar),
+    ("jog_speed", DoubleVar),
+    ("jog_aspeed", DoubleVar),
+    ("max_speed", DoubleVar),
+    ("max_aspeed", DoubleVar),
+    ("joint_mode", IntVar),
+    ("motion_mode", IntVar),
+    ("kinematics_type", IntVar),
+)
+vars.emctop_command.set(os.path.join(os.path.dirname(sys.argv[0]), "emctop"))
+vars.highlight_line.set(-1)
+vars.running_line.set(-1)
+vars.show_program.set(1)
+vars.show_live_plot.set(1)
+vars.show_tool.set(1)
+vars.show_extents.set(1)
+vars.show_machine_speed.set(1)
+vars.show_distance_to_go.set(0)
+
+
 def set_feedrate(n):
     widgets.feedoverride.set(n)
 
@@ -2531,6 +2538,9 @@ def jog_on(a, b):
     if not manual_ok(): return
     if isinstance(a, (str, unicode)):
         a = "xyzabc".index(a)
+    if a < 3:
+        if vars.metric.get(): b = b / 25.4
+        b = from_internal_linear_unit(b)
     if jog_after[a]:
         root_window.after_cancel(jog_after[a])
         jog_after[a] = None
@@ -2853,6 +2863,7 @@ if os.path.exists(rcfile):
         root_window.tk.call("nf_dialog", ".error", _("Error in ~/.axisrc"),
             tb, "error", 0, _("OK"))
 
+root_window.tk.call("trace", "variable", "metric", "w", "update_units")
 install_help(root_window)
 
 live_plotter.update()

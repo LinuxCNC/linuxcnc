@@ -1540,6 +1540,8 @@ set display_type 0
 set spindledir {}
 set motion_mode 0
 set kinematics_type -1
+set metric 0
+set max_speed 1
 trace variable taskfile w update_title
 trace variable taskfile w queue_update_state
 trace variable task_state w queue_update_state
@@ -1677,7 +1679,20 @@ proc set_aslider_min {minval} {
 
 proc update_jog_slider_vel {newval} {
     global jog_speed max_speed
-    set jog_speed [val2vel_show $newval $max_speed];
+    set max_speed_units [to_internal_linear_unit $max_speed]
+    if {$max_speed_units == {None}} return
+    if {$::metric} { set max_speed_units [expr {25.4 * $max_speed_units}] }
+    set speed [val2vel_show $newval $max_speed_units];
+    set jog_speed $speed
+}
+
+proc update_units {args} {
+    if {$::metric} {
+        ${::pane_top}.jogspeed.l1 configure -text mm/min
+    } else {
+        ${::pane_top}.jogspeed.l1 configure -text in/min
+    }
+    update_jog_slider_vel $::jog_slider_val
 }
 
 proc update_ajog_slider_vel {newval} {
