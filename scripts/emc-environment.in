@@ -24,22 +24,25 @@ case "$PATH" in
 	return ;;
 esac
 
-PATH=@EMC2_BIN_DIR@:@EMC2_HOME@/scripts:"$PATH"
+EMC2_HOME=@EMC2_HOME@; export EMC2_HOME
+EMC2VERSION="@EMC2VERSION@"; export EMC2VERSION
+
+PATH=@EMC2_BIN_DIR@:$EMC2_HOME/scripts:"$PATH"
 
 if [ -z "$PYTHONPATH" ]; then
-    PYTHONPATH=@EMC2_HOME@/lib/python
+    PYTHONPATH=$EMC2_HOME/lib/python
 else
-    PYTHONPATH=@EMC2_HOME@/lib/python:"$PYTHONPATH"
+    PYTHONPATH=$EMC2_HOME/lib/python:"$PYTHONPATH"
 fi
 
 if [ -z "$MANPATH" ]; then
     if type -path manpath > /dev/null 2>&1; then
-	MANPATH=@EMC2_HOME@/docs/man:"$(manpath)"
+	MANPATH=$EMC2_HOME/docs/man:"$(manpath)"
     else
-	MANPATH=@EMC2_HOME@/docs/man:/usr/local/man:/usr/local/share/man:/usr/share/man
+	MANPATH=$EMC2_HOME/docs/man:/usr/local/man:/usr/local/share/man:/usr/share/man
     fi
 else
-    MANPATH=@EMC2_HOME@/docs/man:"$MANPATH"
+    MANPATH=$EMC2_HOME/docs/man:"$MANPATH"
 fi
 
 # TODO: if these completion directives give trouble for any versions
