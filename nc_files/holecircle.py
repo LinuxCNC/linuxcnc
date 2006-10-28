@@ -27,47 +27,33 @@ def ui():
     f.grid(row=0, column=1, sticky="nw")
     b.grid(row=1, column=0, columnspan=2, sticky="ne")
 
-    def filter_nonint(event):
-        if event.keysym in ("Return", "Tab", "ISO_Left_Tab", "BackSpace"):
-            return
-        if event.char == "": return
-        if event.char in "0123456789": return
-        return "break"
-
-    def filter_nonfloat(event):
-        if event.keysym in ("Return", "Tab", "ISO_Left_Tab", "BackSpace"):
-            return
-        if event.char == "": return
-        if event.char in "0123456789.": return
-        return "break"
-        
-    validate_float    = "expr {![regexp {^-?([0-9]+(\.[0-9]*)?|\.[0-9]+|)$} %P]}"
-    validate_int      = "expr {![regexp {^-?([0-9]+|)$} %P]}"
-    validate_posfloat = "expr {![regexp {^?([0-9]+(\.[0-9]*)?|\.[0-9]+|)$} %P]}"
-    validate_posint   = "expr {![regexp {^([0-9]+|)$} %P]}"
+    validate_float    = "puts stderr {validate float}; expr {[regexp {^-?([0-9]+(\.[0-9]*)?|\.[0-9]+|)$} %P]}"
+    validate_int      = "expr {[regexp {^-?([0-9]+|)$} %P]}"
+    validate_posfloat = "expr {[regexp {^?([0-9]+(\.[0-9]*)?|\.[0-9]+|)$} %P]}"
+    validate_posint   = "expr {[regexp {^([0-9]+|)$} %P]}"
     def posfloatentry(f, v):
         var = Tkinter.DoubleVar(f)
         var.set(v)
-        w = Tkinter.Entry(f, textvariable=var, validatecommand=validate_posfloat, validate="key", width=10)
+        w = Tkinter.Entry(f, textvariable=var, validatecommand=validate_posfloat, validate="all", width=10)
         return w, var
 
     def floatentry(f, v):
         var = Tkinter.DoubleVar(f)
         var.set(v)
-        w = Tkinter.Entry(f, textvariable=var, validatecommand=validate_float, validate="key", width=10)
+        w = Tkinter.Entry(f, textvariable=var, validatecommand=validate_float, validate="all", width=10)
         return w, var
 
     def posintentry(f, v):
         var = Tkinter.IntVar(f)
         var.set(v)
-        w = Tkinter.Entry(f, textvariable=var, validatecommand=validate_posint, validate="key", width=10)
+        w = Tkinter.Entry(f, textvariable=var, validatecommand=validate_posint, validate="all", width=10)
         return w, var
 
 
     def intentry(f, v):
         var = Tkinter.IntVar(f)
         var.set(v)
-        w = Tkinter.Entry(f, textvariable=var, validatecommand=validate_int, validate="key", width=10)
+        w = Tkinter.Entry(f, textvariable=var, validatecommand=validate_int, validate="all", width=10)
         return w, var
 
     def checkbutton(k, v):
@@ -174,30 +160,46 @@ def ui():
 
     def update_preview(*args):
 	prev.delete("all")
-	count = vars['count'].get()
-	th0 = vars['th0'].get()
-	inc = vars['inc'].get()
+	try:
+	    count = vars['count'].get()
+	    th0 = vars['th0'].get()
+	    inc = vars['inc'].get()
+	except ValueError: return
 	for i in range(count):
 	    th = (th0 + i * inc) * math.pi / 180
 	    x = 100 + 75 * math.cos(th)
 	    y = 100 - 75 * math.sin(th)
 	    prev.create_oval((x-4,y-4,x+4,y+4), fill='black')
 
+    def update_ok(*args):
+	result = True
+	for i in vars.values():
+	    try:
+		i.get()
+	    except ValueError:
+		result = False
+		break
+	if result: bb.configure(state="normal")
+	else: bb.configure(state="disabled")
+	print >>sys.stderr, "update_ok", args
+    
     vars['count'].trace('w', update_preview)
     vars['inc'].trace('w', update_preview)
     vars['th0'].trace('w', update_preview)
+
+    for i in vars.values(): i.trace('w', update_ok)
 
     update_preview()
 
     status = Tkinter.IntVar()
     bb = Tkinter.Button(b, text=_("OK"), command=lambda:status.set(1), width=8, default="active")
     bb.pack(side="left", padx=4, pady=4)
-    bb = Tkinter.Button(b, text=_("Cancel"), command=lambda:status.set(-1), width=8, default="normal")
-    bb.pack(side="left", padx=4, pady=4)
+    bc = Tkinter.Button(b, text=_("Cancel"), command=lambda:status.set(-1), width=8, default="normal")
+    bc.pack(side="left", padx=4, pady=4)
     
-    app.bind("<Escape>", lambda evt: status.set(-1))
-    app.bind("<Return>", lambda evt: status.set(1))
-    app.wm_protocol("WM_DELETE_WINDOW", lambda: status.set(-1))
+    app.bind("<Escape>", lambda evt: bc.invoke())
+    app.bind("<Return>", lambda evt: bb.invoke())
+    app.wm_protocol("WM_DELETE_WINDOW", lambda: bc.invoke())
     app.wm_resizable(0,0)
 
     app.wait_visibility()
@@ -205,13 +207,13 @@ def ui():
     #app.tk_focusNext().focus()
     app.wait_variable(status)
 
+    if status.get() == -1:
+	raise SystemExit(1)
 
     for k, v in vars.items():
         defaults[k] = v.get()
 
     app.destroy()
-
-    if status.get() == -1: raise SystemExit(1)
 
     pickle.dump(defaults, open(rc, "wb"))
 
