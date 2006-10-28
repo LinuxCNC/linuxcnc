@@ -196,7 +196,7 @@ e of the Linux OS.
 History of the Software
 \layout Standard
 
-The EMC2 code was started by the Intelligent Systems Division at the National
+The EMC code was started by the Intelligent Systems Division at the National
  Institute of Standards and Technology in the United States.
  The quotation below, taken from the NIST web presence some time back, should
  lend some understanding of the essential reasons for the existence of this
@@ -211,8 +211,8 @@ As part of our (NIST) collaboration with the OMAC User's Group, we have
  application programming interfaces; and second, to provide a vehicle for
  the transfer of control technology to small- and medium-sized manufacturers
  via the NIST Manufacturing Extension Partnership.
- The EMC2 software is based on the NIST Real-time Control System (RCS) Methodolo
-gy, and is programmed using the NIST RCS Library.
+ The EMC software is based on the NIST Real-time Control System (RCS) Methodolog
+y, and is programmed using the NIST RCS Library.
  The RCS Library eases the porting of controller code to a variety of Unix
  and Microsoft platforms, providing a neutral application programming interface
  (API) to operating system resources such as shared memory, semaphores,
@@ -221,15 +221,15 @@ gy, and is programmed using the NIST RCS Library.
 g Language, which allows control processes to read and write C++ data structures
  throughout a single homogeneous environment or a heterogeneous networked
  environment.
- The EMC2 software is written in C and C++, and has been ported to the PC
+ The EMC software is written in C and C++, and has been ported to the PC
  Linux, Windows NT, and Sun Solaris operating systems.
  When running actual equipment, a real-time version of Linux is used to
  achieve the deterministic computation rates required (200 microseconds
  is typical).
  The software can also be run entirely in simulation, down to simulations
  of the machine motors.
- This enables entire factories of EMC2 machines to be set up and run in
- a computer integrated manufacturing environment.
+ This enables entire factories of EMC machines to be set up and run in a
+ computer integrated manufacturing environment.
  
 \layout Standard
 
@@ -977,7 +977,7 @@ The EMC2 is configured with files that are read at startup and used to override
 There are five kinds of configuration files: INI, NML, TBL, VAR and HAL
  files.
  These are reflected in lower case file extensions to a file name.
- They may be named EMC2.tbl or generic.tbl but they do the same thing when
+ They may be named stepper.tbl or generic.tbl but they do the same thing when
  they are read by the EMC2 as it starts up.
  Many users copy these and name them for the specific machine.
  A set of these files named Sherlinemill.ini, Sherlinemill.var, Sherlinemill.tbl
