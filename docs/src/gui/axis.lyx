@@ -2052,16 +2052,7 @@ The lines shown in Figure
 
 \end_inset 
 
- add Control-Q as a keyboard shortcut for Quit, and re-organize the spindle
- control buttons, getting rid of 
-\begin_inset Quotes eld
-\end_inset 
-
-spindle counterclockwise
-\begin_inset Quotes erd
-\end_inset 
-
-.
+ add Control-Q as a keyboard shortcut for Quit.
 \layout Standard
 
 
@@ -2082,14 +2073,6 @@ Sample .axisrc file
 root_window.bind("<Control-q>", "destroy .")
 \newline 
 help2.append(("Control-Q", "Quit"))
-\newline 
-
-\newline 
-widgets.brake.grid_forget() widgets.spindle_ccw.grid_forget()
-\newline 
-widgets.spindle_stop.grid(row=0, column=0, columnspan=3)
-\newline 
-widgets.spindle_cw.grid(row=0, column=3)
 \end_inset 
 
 
