@@ -4,6 +4,7 @@
 using namespace std;
 
 #include "hal.h"
+#include "hal_priv.h"
 
 #include "emc.hh"
 
@@ -501,7 +502,33 @@ PyTypeObject halobject_type = {
     0,                         /*tp_is_gc*/
 };
 
+PyObject *pin_has_writer(PyObject *self, PyObject *args) {
+    char *name;
+    if(!PyArg_ParseTuple(args, "s", &name)) return NULL;
+    if(!SHMPTR(0)) {
+	PyErr_Format(PyExc_RuntimeError,
+		"Cannot call before creating component");
+	return NULL;
+    }
+
+    hal_pin_t *pin = halpr_find_pin_by_name(name);
+    if(!pin) {
+	PyErr_Format(PyExc_NameError, "Pin `%s' does not exist", name);
+	return NULL;
+    }
+
+    if(pin->signal) {
+	hal_sig_t *signal = (hal_sig_t*)SHMPTR(pin->signal);
+	return PyBool_FromLong(signal->writers > 0);
+    }
+    Py_INCREF(Py_False);
+    return Py_False;
+}
+
+
 PyMethodDef module_methods[] = {
+    {"pin_has_writer", (PyCFunction)pin_has_writer, METH_VARARGS,
+	"Return a FALSE value if a pin has no writers and TRUE if it does"},
     {NULL},
 };
 

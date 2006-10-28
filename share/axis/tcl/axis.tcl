@@ -766,6 +766,8 @@ label $_tabs_manual.spindlel
 setup_widget_accel $_tabs_manual.spindlel [_ Spindle:]
 
 frame $_tabs_manual.spindlef
+frame $_tabs_manual.spindlef.row1
+frame $_tabs_manual.spindlef.row2
 
 radiobutton $_tabs_manual.spindlef.ccw \
 	-borderwidth 2 \
@@ -832,43 +834,43 @@ setup_widget_accel $_tabs_manual.spindlef.brake [_ Brake]
 # Grid widget $_tabs_manual.spindlef.brake
 grid $_tabs_manual.spindlef.brake \
 	-column 0 \
-	-row 2 \
-	-columnspan 3 \
+	-row 3 \
 	-pady 2 \
 	-sticky w
+
+grid $_tabs_manual.spindlef.row1 -row 1 -column 0 -sticky nw
+grid $_tabs_manual.spindlef.row2 -row 2 -column 0 -sticky nw
 
 # Grid widget $_tabs_manual.spindlef.ccw
-grid $_tabs_manual.spindlef.ccw \
-	-column 0 \
-	-row 0 \
-	-pady 2
-
-# Grid widget $_tabs_manual.spindlef.cw
-grid $_tabs_manual.spindlef.cw \
-	-column 2 \
-	-row 0 \
-	-sticky w
-
-# Grid widget $_tabs_manual.spindlef.spindleminus
-grid $_tabs_manual.spindlef.spindleminus \
-	-column 0 \
-	-row 1 \
-	-pady 2 \
-	-sticky ns
-
-# Grid widget $_tabs_manual.spindlef.spindleplus
-grid $_tabs_manual.spindlef.spindleplus \
-	-column 1 \
-	-row 1 \
-	-columnspan 2 \
-	-pady 2 \
-	-sticky nsw
+pack $_tabs_manual.spindlef.ccw  \
+        -in $_tabs_manual.spindlef.row1 \
+        -side left \
+        -pady 2
 
 # Grid widget $_tabs_manual.spindlef.stop
-grid $_tabs_manual.spindlef.stop \
-	-column 1 \
-	-row 0 \
-	-ipadx 8
+pack $_tabs_manual.spindlef.stop \
+        -in $_tabs_manual.spindlef.row1 \
+        -side left \
+        -pady 2 \
+        -ipadx 8
+
+# Grid widget $_tabs_manual.spindlef.cw
+pack $_tabs_manual.spindlef.cw \
+        -in $_tabs_manual.spindlef.row1 \
+        -side left \
+        -pady 2
+
+# Grid widget $_tabs_manual.spindlef.spindleminus
+pack $_tabs_manual.spindlef.spindleminus \
+        -in $_tabs_manual.spindlef.row2 \
+        -side left \
+        -pady 2
+
+# Grid widget $_tabs_manual.spindlef.spindleplus
+pack $_tabs_manual.spindlef.spindleplus \
+        -in $_tabs_manual.spindlef.row2 \
+        -side left \
+        -pady 2
 
 vspace $_tabs_manual.space2 \
 	-height 12

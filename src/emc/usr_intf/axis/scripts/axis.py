@@ -1698,14 +1698,20 @@ widgets = nf.Widgets(root_window,
 
     ("ajogspeed", Entry, pane_top + ".ajogspeed"),
 
+    ("lubel", Label, tabs_manual + ".coolant"),
     ("flood", Checkbutton, tabs_manual + ".flood"),
     ("mist", Checkbutton, tabs_manual + ".mist"),
 
     ("brake", Checkbutton, tabs_manual + ".spindlef.brake"),
 
+    ("spindlel", Label, tabs_manual + ".spindlel"),
+    ("spindlef", Frame, tabs_manual + ".spindlef"),
     ("spindle_ccw", Radiobutton, tabs_manual + ".spindlef.ccw"),
     ("spindle_stop", Radiobutton, tabs_manual + ".spindlef.stop"),
     ("spindle_cw", Radiobutton, tabs_manual + ".spindlef.cw"),
+
+    ("spindle_minus", Button, tabs_manual + ".spindlef.spindleminus"),
+    ("spindle_plus", Button, tabs_manual + ".spindlef.spindleplus"),
 
     ("view_z", Button, ".toolbar.view_z"),
     ("view_z2", Button, ".toolbar.view_z2"),
@@ -2851,6 +2857,33 @@ if lathe:
 
 widgets.feedoverride.set(100)
 commands.set_feedrate(100)
+
+def forget(widget, *pins):
+    for p in pins:
+        print "forget", widget, repr(p)
+        if hal.pin_has_writer(p): return
+    m = widget.winfo_manager()
+    print "manager", repr(m)
+    if m in ("grid", "pack"):
+        widget.tk.call(m, "forget", widget._w)
+
+forget(widgets.brake, "motion.spindle-brake")
+forget(widgets.spindle_cw, "motion.spindle-forward")
+forget(widgets.spindle_ccw, "motion.spindle-reverse")
+forget(widgets.spindle_stop, "motion.spindle-forward", "motion.spindle-reverse")
+forget(widgets.spindle_plus, "motion.spindle-speed-out")
+forget(widgets.spindle_minus, "motion.spindle-speed-out")
+#forget(widgets.spindle_override, "motion.spindle-speed-out")
+forget(widgets.spindlef,  "motion.spindle-forward", "motion.spindle-reverse",
+    "motion.spindle-on", "motion.spindle-revs", "motion.spindle-speed-out",
+    "motion.spindle-brake")
+forget(widgets.spindlel,  "motion.spindle-forward", "motion.spindle-reverse",
+    "motion.spindle-on", "motion.spindle-revs", "motion.spindle-speed-out",
+    "motion.spindle-brake")
+
+forget(widgets.mist, "iocontrol.0.coolant-mist")
+forget(widgets.flood, "iocontrol.0.coolant-mist")
+forget(widgets.lubel, "iocontrol.0.coolant-mist", "iocontrol.0.coolant-mist")
 
 rcfile = os.path.expanduser("~/.axisrc")
 if os.path.exists(rcfile):
