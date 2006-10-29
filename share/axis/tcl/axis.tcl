@@ -1163,12 +1163,53 @@ pack ${pane_top}.jogspeed.s -side right
 bind . , [regsub %W [bind Scale <Left>] ${pane_top}.jogspeed.s]
 bind . . [regsub %W [bind Scale <Right>] ${pane_top}.jogspeed.s]
 
+frame ${pane_top}.spinoverride
+
+label ${pane_top}.spinoverride.foentry \
+	-textvariable spindlerate \
+	-width 3 \
+        -anchor e
+setup_widget_accel ${pane_top}.spinoverride.foentry 0
+
+scale ${pane_top}.spinoverride.foscale \
+	-command set_spindlerate \
+	-orient horizontal \
+	-resolution 1.0 \
+	-showvalue 0 \
+	-takefocus 0 \
+	-to 120.0 \
+	-variable spindlerate
+
+label ${pane_top}.spinoverride.l
+setup_widget_accel ${pane_top}.spinoverride.l [_ "Spindle Override:"]
+label ${pane_top}.spinoverride.m -width 1
+setup_widget_accel ${pane_top}.spinoverride.m [_ "%"]
+
+# Pack widget ${pane_top}.spinoverride.l
+pack ${pane_top}.spinoverride.l \
+	-side left
+
+# Pack widget ${pane_top}.spinoverride.foscale
+pack ${pane_top}.spinoverride.foscale \
+	-side right
+
+# Pack widget ${pane_top}.spinoverride.foentry
+pack ${pane_top}.spinoverride.m \
+	-side right
+
+# Pack widget ${pane_top}.spinoverride.foentry
+pack ${pane_top}.spinoverride.foentry \
+	-side right
+
+
+
 frame ${pane_top}.feedoverride
 
 label ${pane_top}.feedoverride.foentry \
 	-textvariable feedrate \
-	-width 3
-setup_widget_accel ${pane_top}.feedoverride.foentry [_ 0]
+	-width 3 \
+        -anchor e
+setup_widget_accel ${pane_top}.feedoverride.foentry 0
 
 scale ${pane_top}.feedoverride.foscale \
 	-command set_feedrate \
@@ -1188,15 +1229,16 @@ setup_widget_accel ${pane_top}.feedoverride.m [_ "%"]
 pack ${pane_top}.feedoverride.l \
 	-side left
 
-# Pack widget ${pane_top}.feedoverride.foentry
-pack ${pane_top}.feedoverride.foentry \
-	-side left
+# Pack widget ${pane_top}.feedoverride.foscale
+pack ${pane_top}.feedoverride.foscale \
+	-side right
 
 # Pack widget ${pane_top}.feedoverride.foentry
 pack ${pane_top}.feedoverride.m \
-	-side left
-# Pack widget ${pane_top}.feedoverride.foscale
-pack ${pane_top}.feedoverride.foscale \
+	-side right
+
+# Pack widget ${pane_top}.feedoverride.foentry
+pack ${pane_top}.feedoverride.foentry \
 	-side right
 
 toplevel .about
@@ -1291,14 +1333,20 @@ grid ${pane_top}.feedoverride \
 	-row 2 \
 	-sticky new
 
-grid ${pane_top}.jogspeed \
+# Grid widget ${pane_top}.spinoverride
+grid ${pane_top}.spinoverride \
 	-column 0 \
 	-row 3 \
 	-sticky new
 
-grid ${pane_top}.ajogspeed \
+grid ${pane_top}.jogspeed \
 	-column 0 \
 	-row 4 \
+	-sticky new
+
+grid ${pane_top}.ajogspeed \
+	-column 0 \
+	-row 5 \
 	-sticky new
 
 # Grid widget .info
@@ -1313,7 +1361,7 @@ grid ${pane_top}.preview \
 	-column 1 \
 	-row 1 \
 	-columnspan 2 \
-	-rowspan 4 \
+	-rowspan 99 \
 	-sticky nesw
 
 grid ${pane_top}.tabs \

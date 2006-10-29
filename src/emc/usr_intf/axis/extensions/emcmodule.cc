@@ -357,6 +357,7 @@ static PyMemberDef Stat_members[] = {
     {"id", T_INT, O(motion.traj.id), READONLY},
     {"paused", T_INT, O(motion.traj.paused), READONLY},
     {"feedrate", T_DOUBLE, O(motion.traj.scale), READONLY},
+    {"spindlerate", T_DOUBLE, O(motion.traj.spindle_scale), READONLY},
     
     {"velocity", T_DOUBLE, O(motion.traj.velocity), READONLY},
     {"acceleration", T_DOUBLE, O(motion.traj.acceleration), READONLY},
@@ -621,7 +622,6 @@ static PyObject *Stat_tool_table(pyStatChannel *s) {
         struct CANON_TOOL_TABLE &t = s->status.io.tool.toolTable[i];
         if(t.id == 0) continue;
         PyObject *tool = PyStructSequence_New(&ToolResultType);
-#if EMC_VERSION_CHECK(2,1,0)
         PyStructSequence_SET_ITEM(tool, 0, PyInt_FromLong(t.id));
         PyStructSequence_SET_ITEM(tool, 1, PyFloat_FromDouble(t.zoffset));
         PyStructSequence_SET_ITEM(tool, 2, PyFloat_FromDouble(t.xoffset));
@@ -629,15 +629,6 @@ static PyObject *Stat_tool_table(pyStatChannel *s) {
         PyStructSequence_SET_ITEM(tool, 4, PyFloat_FromDouble(t.frontangle));
         PyStructSequence_SET_ITEM(tool, 5, PyFloat_FromDouble(t.backangle));
         PyStructSequence_SET_ITEM(tool, 6, PyInt_FromLong(t.orientation));
-#else
-        PyStructSequence_SET_ITEM(tool, 0, PyInt_FromLong(t.id));
-        PyStructSequence_SET_ITEM(tool, 1, PyFloat_FromDouble(t.length));
-        PyStructSequence_SET_ITEM(tool, 2, PyFloat_FromDouble(0.));
-        PyStructSequence_SET_ITEM(tool, 3, PyFloat_FromDouble(t.diameter));
-        PyStructSequence_SET_ITEM(tool, 4, PyFloat_FromDouble(0.));
-        PyStructSequence_SET_ITEM(tool, 5, PyFloat_FromDouble(0.));
-        PyStructSequence_SET_ITEM(tool, 6, PyInt_FromLong(0));
-#endif
         PyTuple_SetItem(res, j, tool);
         j++;
     }
@@ -781,6 +772,16 @@ static PyObject *feedrate(pyCommandChannel *s, PyObject *o) {
     Py_INCREF(Py_None);
     return Py_None;
 }
+
+static PyObject *spindleoverride(pyCommandChannel *s, PyObject *o) {
+    EMC_TRAJ_SET_SPINDLE_SCALE m;
+    if(!PyArg_ParseTuple(o, "d", &m.scale)) return NULL;
+    m.serial_number = next_serial(s);
+    s->c->write(m);
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 
 static PyObject *spindle(pyCommandChannel *s, PyObject *o) {
     int dir;
@@ -1171,6 +1172,7 @@ static PyMethodDef Command_methods[] = {
     {"mdi", (PyCFunction)mdi, METH_VARARGS},
     {"mode", (PyCFunction)mode, METH_VARARGS},
     {"feedrate", (PyCFunction)feedrate, METH_VARARGS},
+    {"spindleoverride", (PyCFunction)spindleoverride, METH_VARARGS},
     {"spindle", (PyCFunction)spindle, METH_VARARGS},
     {"tool_offset", (PyCFunction)tool_offset, METH_VARARGS},
     {"mist", (PyCFunction)mist, METH_VARARGS},

@@ -70,6 +70,7 @@ program_start_line_last = -1
 lathe = 0
 
 feedrate_blackout = 0
+spindlerate_blackout = 0
 from math import hypot, atan2, sin, cos, pi, sqrt
 from rs274 import ArcsToSegmentsMixin
 import emc
@@ -1317,6 +1318,8 @@ class LivePlotter:
         vupdate(vars.brake, self.stat.spindle_brake)
         vupdate(vars.spindledir, self.stat.spindle_direction)
         vupdate(vars.motion_mode, self.stat.motion_mode)
+        if time.time() > spindlerate_blackout:
+            vupdate(vars.spindlerate, int(100 * self.stat.spindlerate + .5))
         if time.time() > feedrate_blackout:
             vupdate(vars.feedrate, int(100 * self.stat.feedrate + .5))
         vupdate(vars.override_limits, self.stat.axis[0]['override_limits'])
@@ -1675,6 +1678,7 @@ def open_file_guts(f, filtered = False):
             pass
         o.tkRedraw()
         root_window.tk.call("set_mode_from_tab")
+
 tabs_mdi = str(root_window.tk.call("set", "_tabs_mdi"))
 tabs_manual = str(root_window.tk.call("set", "_tabs_manual"))
 pane_top = str(root_window.tk.call("set", "pane_top"))
@@ -1720,6 +1724,8 @@ widgets = nf.Widgets(root_window,
     ("view_p", Button, ".toolbar.view_p"),
 
     ("feedoverride", Scale, pane_top + ".feedoverride.foscale"),
+    ("spinoverride", Scale, pane_top + ".spinoverride.foscale"),
+    ("spinoverridef", Scale, pane_top + ".spinoverride"),
 
     ("menu_view", Menu, ".menu.view"),
     ("menu_machine", Menu, ".menu.machine"),
@@ -1944,6 +1950,16 @@ class TclCommands(nf.TclCommands):
     def launch_website(event=None):
         import webbrowser
         webbrowser.open("http://axis.unpy.net")
+
+    def set_spindlerate(newval):
+        global spindlerate_blackout
+        try:
+            value = int(newval)
+        except ValueError: return
+        value = value / 100.
+        c.spindleoverride(value)
+        spindlerate_blackout = time.time() + 1
+
 
     def set_feedrate(newval):
         global feedrate_blackout
@@ -2448,6 +2464,7 @@ vars = nf.Variables(root_window,
     ("show_machine_speed", IntVar),
     ("show_distance_to_go", IntVar),
     ("feedrate", IntVar),
+    ("spindlerate", IntVar),
     ("tool", StringVar),
     ("active_codes", StringVar),
     ("metric", IntVar),
@@ -2633,7 +2650,9 @@ if len(sys.argv) > 1 and sys.argv[1] == '-ini':
     extensions = tuple([(v, tuple(k.split(","))) for k, v in extensions])
     postgui_halfile = inifile.find("HAL", "POSTGUI_HALFILE")
     max_feed_override = float(inifile.find("DISPLAY", "MAX_FEED_OVERRIDE"))
+    max_spindle_override = float(inifile.find("DISPLAY", "MAX_SPINDLE_OVERRIDE") or max_feed_override)
     max_feed_override = int(max_feed_override * 100 + 0.5)
+    max_spindle_override = int(max_spindle_override * 100 + 0.5)
     vars.jog_speed.set(float(inifile.find("TRAJ", "DEFAULT_VELOCITY"))*60)
     vars.jog_aspeed.set(float(inifile.find("TRAJ", "DEFAULT_ANGULAR_VELOCITY") or vars.jog_speed.get())*60)
     vars.max_speed.set(float(inifile.find("TRAJ", "MAX_VELOCITY")))
@@ -2641,6 +2660,7 @@ if len(sys.argv) > 1 and sys.argv[1] == '-ini':
     root_window.tk.eval("${pane_top}.jogspeed.s set [setval $jog_speed $max_speed]")
     root_window.tk.eval("${pane_top}.ajogspeed.s set [setval $jog_aspeed $max_aspeed]")
     widgets.feedoverride.configure(to=max_feed_override)
+    widgets.spinoverride.configure(to=max_spindle_override)
     emc.nmlfile = inifile.find("EMC", "NML_FILE")
     vars.coord_type.set(inifile.find("DISPLAY", "POSITION_OFFSET") == "RELATIVE")
     vars.display_type.set(inifile.find("DISPLAY", "POSITION_FEEDBACK") == "COMMANDED")
@@ -2871,13 +2891,13 @@ forget(widgets.spindle_ccw, "motion.spindle-reverse")
 forget(widgets.spindle_stop, "motion.spindle-forward", "motion.spindle-reverse")
 forget(widgets.spindle_plus, "motion.spindle-speed-out")
 forget(widgets.spindle_minus, "motion.spindle-speed-out")
-#forget(widgets.spindle_override, "motion.spindle-speed-out")
 forget(widgets.spindlef,  "motion.spindle-forward", "motion.spindle-reverse",
-    "motion.spindle-on", "motion.spindle-revs", "motion.spindle-speed-out",
+    "motion.spindle-on", "motion.spindle-speed-out",
     "motion.spindle-brake")
 forget(widgets.spindlel,  "motion.spindle-forward", "motion.spindle-reverse",
-    "motion.spindle-on", "motion.spindle-revs", "motion.spindle-speed-out",
+    "motion.spindle-on", "motion.spindle-speed-out",
     "motion.spindle-brake")
+forget(widgets.spinoverridef, "motion.spindle-speed-out")
 
 forget(widgets.mist, "iocontrol.0.coolant-mist")
 forget(widgets.flood, "iocontrol.0.coolant-mist")
