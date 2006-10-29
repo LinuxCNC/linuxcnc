@@ -1931,12 +1931,24 @@ class TclCommands(nf.TclCommands):
                 units = "in"
                 fmt = "%.4f"
 
-            print o.g.traverse[0]
+            mf = vars.max_speed.get()
+            print mf
+            #print o.g.traverse[0]
             g0 = sum(dist(l[1], l[2]) for l in o.g.traverse)
             g1 = (sum(dist(l[1], l[2]) for l in o.g.feed) +
                 sum(dist(l[1], l[2]) for l in o.g.arcfeed))
+            gt = (sum(dist(l[1], l[2])/min(mf, l[3]) for l in o.g.feed) +
+                sum(dist(l[1], l[2])/min(mf, l[3])  for l in o.g.arcfeed) +
+                sum(dist(l[1], l[2])/mf  for l in o.g.traverse) +
+                o.g.dwell_time
+                )
+ 
             props['g0'] = "%f %s".replace("%f", fmt) % (from_internal_linear_unit(g0, conv), units)
             props['g1'] = "%f %s".replace("%f", fmt) % (from_internal_linear_unit(g1, conv), units)
+            if gt > 120:
+                props['run'] = "%.1f minutes" % (gt/60)
+            else:
+                props['run'] = "%d seconds" % (int(gt))
 
             min_extents = from_internal_units(o.g.min_extents, conv)
             max_extents = from_internal_units(o.g.max_extents, conv)

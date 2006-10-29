@@ -29,6 +29,7 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         self.arcfeed = []; self.arcfeed_append = self.arcfeed.append
         self.dwells = []; self.dwells_append = self.dwells.append
         self.choice = None
+        self.feedrate = 1
         self.lo = (0,0,0)
         self.first_move = True
         self.offset_x = self.offset_y = self.offset_z = 0
@@ -38,6 +39,7 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         self.colors = widget.colors
         self.in_arc = 0
         self.old_xo = self.old_zo = 0
+        self.dwell_time = 0
 
     def message(self, message): pass
 
@@ -72,7 +74,7 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         self.old_zo = zo
 
     def set_spindle_rate(self, arg): pass
-    def set_feed_rate(self, arg): pass
+    def set_feed_rate(self, arg): self.feedrate = arg / 60.
     def comment(self, arg): pass
     def select_plane(self, arg): pass
 
@@ -102,9 +104,9 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         self.first_move = False
         l = (x + self.offset_x,y + self.offset_y,z + self.offset_z)
         if self.in_arc:
-            self.arcfeed_append((self.lineno, self.lo, l))
+            self.arcfeed_append((self.lineno, self.lo, l, self.feedrate))
         else:
-            self.feed_append((self.lineno, self.lo, l))
+            self.feed_append((self.lineno, self.lo, l, self.feedrate))
         self.lo = l
     straight_probe = straight_feed
 
@@ -113,6 +115,7 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         self.dwells_append((self.lineno, color, self.lo[0], self.lo[1], self.lo[2], self.state.plane/10-17))
         
     def dwell(self, arg):
+        self.dwell_time += arg
         color = self.colors['dwell']
         self.dwells_append((self.lineno, color, self.lo[0], self.lo[1], self.lo[2], self.state.plane/10-17))
 
