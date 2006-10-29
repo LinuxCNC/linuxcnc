@@ -123,33 +123,6 @@ Configuring EMC2
 \layout Standard
 
 
-\begin_inset Include \input{hal/intro.lyx}
-preview false
-
-\end_inset 
-
-
-\layout Standard
-
-
-\begin_inset Include \input{hal/tutorial.lyx}
-preview true
-
-\end_inset 
-
-
-\layout Standard
-
-
-\begin_inset Include \input{hal/drivers.lyx}
-preview false
-
-\end_inset 
-
-
-\layout Standard
-
-
 \begin_inset Include \input{config/stepper.lyx}
 preview false
 
@@ -169,6 +142,33 @@ preview false
 
 
 \begin_inset Include \input{config/ini_homing.lyx}
+preview false
+
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset Include \input{hal/intro.lyx}
+preview false
+
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset Include \input{hal/tutorial.lyx}
+preview true
+
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset Include \input{hal/drivers.lyx}
 preview false
 
 \end_inset 
