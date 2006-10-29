@@ -564,8 +564,10 @@ Common problems
 If loading the module reports
 \layout LyX-Code
 
-insmod: error inserting '/home/jepler/emc2/rtlib/hal_parport.ko': -1 Device
- or resource busy 
+insmod: error inserting '/home/jepler/emc2/rtlib/hal_parport.ko': 
+\layout LyX-Code
+
+-1 Device or resource busy 
 \layout Standard
 
 then ensure that the standard kernel module 
