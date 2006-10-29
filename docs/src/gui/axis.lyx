@@ -788,7 +788,8 @@ For a machine configured as imperial (inches), a good setting might be
 INCREMENTS = 1/8 .1 1/16 1/32 .01 0.001 0.0001
 \layout Standard
 
-By pressing 
+By pressing the Ctrl-HOME key combination, the homing sequence is performed.
+ By pressing 
 \begin_inset Quotes eld
 \end_inset 
 
@@ -797,8 +798,8 @@ Home
 \end_inset 
 
  or the HOME key, the selected axis will be homed.
- Depending on your configuration, this may just set the current axis value
- to be the absolute position 0.0, or it may make the machine move to a specific
+ Depending on your configuration, this may just set the axis value to be
+ the absolute position 0.0, or it may make the machine move to a specific
  home location through use of 
 \begin_inset Quotes eld
 \end_inset 
@@ -892,7 +893,9 @@ The buttons on the first row select the direction for the spindle to rotate:
  Counterclockwise, Stopped, Clockwise.
  The buttons on the next row increase or decrease the rotation speed.
  The checkbox on the third row allows the spindle brake to be engaged or
- released
+ released.
+ Depending on your machine configuration, not all the items in this group
+ may appear.
 \layout Subsubsection
 
 The 
@@ -923,6 +926,8 @@ Flood
 \end_inset 
 
  coolants to be turned on and off.
+ Depending on your machine configuration, not all the items in this group
+ may appear.
 \layout Subsection
 
 Code Entry
@@ -1032,6 +1037,10 @@ By moving this slider, the speed of jogs can be modified.
  Near the left side (slow jogs) the values are spaced closely together,
  while near the right side (fast jogs) they are spaced much further apart,
  allowing a wide range of jog speeds with fine control when it is most important.
+\layout Standard
+
+On machines with a rotary axis, a second jog speed slider is shown.
+ This slider sets the jog rate for the rotary axes (A, B and C).
 \layout Section
 
 Keyboard Controls
@@ -1505,7 +1514,7 @@ V
 
 \layout Standard
 
-5Cycle among preset views
+Cycle among preset views
 \end_inset 
 </cell>
 </row>
@@ -1797,34 +1806,11 @@ in-place
 \begin_inset Quotes erd
 \end_inset 
 
-, place 
+, this can be done by using 
 \family typewriter 
-$(EMC2_HOME)/lib/python
+scripts/emc-environment
 \family default 
- in the environment variable 
-\family typewriter 
-PYTHONPATH
-\family default 
- or put the script in the 
-\family typewriter 
-$(EMC2_HOME)/bin
-\family default 
- directory and include the following boilerplate lines at the top:
-\layout LyX-Code
-
-import sys, os
-\newline 
-BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
-\newline 
-sys.path.insert(0, os.path.join(BASE, "lib", "python"))
-\layout Standard
-
-Refer to the 
-\begin_inset LatexCommand \url[Python documentation]{http://docs.python.org/tut/node8.html#SECTION008110000000000000000}
-
-\end_inset 
-
- for more information on the module search path.
+.
 \layout Section
 
 Using AXIS to control a CNC Lathe
@@ -1945,6 +1931,47 @@ PROGRAM_EXTENSION = .png,.gif Greyscale Depth Image
 png = image-to-gcode.py
 \newline 
 gif = image-to-gcode.py
+\layout Standard
+
+It is also possible to specify an interpreter:
+\layout LyX-Code
+
+PROGRAM_EXTENSION = .py Python Script
+\newline 
+py = python
+\layout Standard
+
+In this way, any Python script can be opened, and its output is treated
+ as g-code.
+ One such example script is available at 
+\family typewriter 
+nc_files/holecircle.py
+\family default 
+.
+ This script creates g-code for drilling a series of holes along the circumferen
+ce of a circle.
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Caption
+
+Circular Holes
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename holes.png
+
+\end_inset 
+
+
+\end_inset 
+
+
 \layout Subsection
 
 The X Resource Database
