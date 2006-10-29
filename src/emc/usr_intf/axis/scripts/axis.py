@@ -2860,10 +2860,8 @@ commands.set_feedrate(100)
 
 def forget(widget, *pins):
     for p in pins:
-        print "forget", widget, repr(p)
         if hal.pin_has_writer(p): return
     m = widget.winfo_manager()
-    print "manager", repr(m)
     if m in ("grid", "pack"):
         widget.tk.call(m, "forget", widget._w)
 
