@@ -155,6 +155,10 @@ $(MAN_DEPS): depends/%.d: $(DOC_DIR)/man/%
 	@echo >> $@.tmp
 	@mv -f $@.tmp $@
 
+ifneq ($(MAKECMDGOALS),clean)
+ifneq ($(MAKECMDGOALS),docclean)
 -include $(MAN_DEPS)
 Makefile: $(MAN_DEPS)
+endif
+endif
 
