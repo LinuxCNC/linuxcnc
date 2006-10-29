@@ -893,14 +893,6 @@ static int init_comm_buffers(void)
 
     /*! \todo FIXME-- add emcmotError */
 
-    /* init min-max-avg stats */
-    mmxavgInit(&emcmotDebug->tMmxavg, emcmotDebug->tMmxavgSpace, MMXAVG_SIZE);
-    mmxavgInit(&emcmotDebug->sMmxavg, emcmotDebug->sMmxavgSpace, MMXAVG_SIZE);
-    mmxavgInit(&emcmotDebug->nMmxavg, emcmotDebug->nMmxavgSpace, MMXAVG_SIZE);
-    mmxavgInit(&emcmotDebug->yMmxavg, emcmotDebug->yMmxavgSpace, MMXAVG_SIZE);
-    mmxavgInit(&emcmotDebug->fMmxavg, emcmotDebug->fMmxavgSpace, MMXAVG_SIZE);
-    mmxavgInit(&emcmotDebug->fyMmxavg, emcmotDebug->fyMmxavgSpace,
-	MMXAVG_SIZE);
     emcmotDebug->tMin = 0.0;
     emcmotDebug->tMax = 0.0;
     emcmotDebug->tAvg = 0.0;

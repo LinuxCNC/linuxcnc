@@ -47,15 +47,6 @@ double MIN_OUTPUT = DEFAULT_MIN_OUTPUT;
 
 int TC_QUEUE_SIZE = DEFAULT_TC_QUEUE_SIZE;
 
-int MMXAVG_SIZE = DEFAULT_MMXAVG_SIZE;
-
-/*! \todo Another #if 0 */
-#if 0
-double tMmxavgSpace[DEFAULT_MMXAVG_SIZE];
-double sMmxavgSpace[DEFAULT_MMXAVG_SIZE];
-double nMmxavgSpace[DEFAULT_MMXAVG_SIZE];
-#endif
-
 double MAX_FERROR = DEFAULT_MAX_FERROR;
 
 double P_GAIN = DEFAULT_P_GAIN;

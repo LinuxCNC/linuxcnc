@@ -52,16 +52,6 @@ extern "C" {
 
     extern int TC_QUEUE_SIZE;
 
-    extern int MMXAVG_SIZE;
-
-/*! \todo Another #if 0 */
-#if 0
-    // Moved to emcmotDebug struct
-    extern double tMmxavgSpace[];
-    extern double sMmxavgSpace[];
-    extern double nMmxavgSpace[];
-#endif
-
     extern double MAX_FERROR;
     extern double BACKLASH;
 

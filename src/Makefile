@@ -182,7 +182,6 @@ HEADERS := \
     emc/kinematics/cubic.h \
     emc/kinematics/kinematics.h \
     emc/kinematics/genhexkins.h \
-    emc/kinematics/mmxavg.h \
     emc/kinematics/tc.h \
     emc/kinematics/tp.h \
     emc/motion/emcmotcfg.h \
@@ -580,7 +579,6 @@ genhexkins-objs := emc/kinematics/genhexkins.o
 
 obj-$(CONFIG_MOTMOD) += motmod.o
 motmod-objs := emc/kinematics/cubic.o 
-motmod-objs += emc/kinematics/mmxavg.o 
 motmod-objs += emc/kinematics/tc.o 
 motmod-objs += emc/kinematics/tp.o 
 motmod-objs += emc/motion/motion.o 

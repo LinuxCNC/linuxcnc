@@ -343,110 +343,19 @@ void usrmotPrintEmcmotDebug(emcmot_debug_t d, int which)
 #endif
     case 5:
 	printf("traj  m/m/a:\t%f\t%f\t%f\n", d.tMin, d.tMax, d.tAvg);
-	printf("tMmxavg : sum=%f, in=%d, size=%d, index=%d\n",
-	    d.tMmxavg.sum, d.tMmxavg.in, d.tMmxavg.size, d.tMmxavg.index);
-/*! \todo Another #if 0 */
-#if 0
-	if (d.tMmxavg.in > 0 && d.tMmxavg.size > 0) {
-	    printf("tMmxavg : nums \n\t ");
-	    for (t = 0; t < d.tMmxavg.in && t < d.tMmxavg.size; t++) {
-		printf("%3.3e \t", d.tMmxavgSpace[t]);
-		if (t % 8 == 0 && t > 0) {
-		    printf("\n\t ");
-		}
-	    }
-	}
-#endif
 	printf("\n");
 	printf("servo m/m/a:\t%f\t%f\t%f\n", d.sMin, d.sMax, d.sAvg);
-	printf("sMmxavg : sum=%f, in=%d, size=%d, index=%d\n",
-	    d.sMmxavg.sum, d.sMmxavg.in, d.sMmxavg.size, d.sMmxavg.index);
-
-/*! \todo Another #if 0 */
-#if 0
-	if (d.sMmxavg.in > 0 && d.sMmxavg.size > 0) {
-	    printf("sMmxavg : nums \n\t ");
-	    for (t = 0; t < d.sMmxavg.in && t < d.sMmxavg.size; t++) {
-		printf("%3.3e \t", d.sMmxavgSpace[t]);
-		if (t % 8 == 0 && t > 0) {
-		    printf("\n\t ");
-		}
-	    }
-	}
-#endif
 	printf("\n");
 	printf("(off) m/m/a:\t%f\t%f\t%f\n", d.nMin, d.nMax, d.nAvg);
-	printf("nMmxavg : sum=%f, in=%d, size=%d, index=%d\n",
-	    d.nMmxavg.sum, d.nMmxavg.in, d.nMmxavg.size, d.nMmxavg.index);
-/*! \todo Another #if 0 */
-#if 0
-	if (d.nMmxavg.in > 0 && d.nMmxavg.size > 0) {
-	    printf("nMmxavg : nums \n\t ");
-	    for (t = 0; t < d.nMmxavg.in && t < d.nMmxavg.size; t++) {
-		printf("%3.3e \t", d.nMmxavgSpace[t]);
-		if (t % 8 == 0 && t > 0) {
-		    printf("\n\t ");
-		}
-	    }
-	}
-#endif
 	printf("\n");
-
 	printf("(cycle to cycle  time) m/m/a:\t%f\t%f\t%f\n", d.yMin, d.yMax,
 	    d.yAvg);
-	printf("yMmxavg : sum=%f, in=%d, size=%d, index=%d\n", d.yMmxavg.sum,
-	    d.yMmxavg.in, d.yMmxavg.size, d.yMmxavg.index);
-/*! \todo Another #if 0 */
-#if 0
-	if (d.yMmxavg.in > 0 && d.yMmxavg.size > 0) {
-	    printf("nMmxavg : nums \n\t ");
-	    for (t = 0; t < d.yMmxavg.in && t < d.yMmxavg.size; t++) {
-		printf("%3.3e \t", d.yMmxavgSpace[t]);
-		if (t % 8 == 0 && t > 0) {
-		    printf("\n\t ");
-		}
-	    }
-	}
-#endif
-
 	printf("\n");
-
 	printf("(frequency compute  time) m/m/a:\t%f\t%f\t%f\n", d.fMin,
 	    d.fMax, d.fAvg);
-	printf("fMmxavg : sum=%f, in=%d, size=%d, index=%d\n", d.fMmxavg.sum,
-	    d.fMmxavg.in, d.fMmxavg.size, d.fMmxavg.index);
-/*! \todo Another #if 0 */
-#if 0
-	if (d.fMmxavg.in > 0 && d.fMmxavg.size > 0) {
-	    printf("nMmxavg : nums \n\t ");
-	    for (t = 0; t < d.fMmxavg.in && t < d.fMmxavg.size; t++) {
-		printf("%3.3e \t", d.fMmxavgSpace[t]);
-		if (t % 8 == 0 && t > 0) {
-		    printf("\n\t ");
-		}
-	    }
-	}
-#endif
-
 	printf("\n");
-
 	printf("(frequecy cycle to cycle  time) m/m/a:\t%f\t%f\t%f\n",
 	    d.fyMin, d.fyMax, d.fyAvg);
-	printf("fyMmxavg : sum=%f, in=%d, size=%d, index=%d\n",
-	    d.fyMmxavg.sum, d.fyMmxavg.in, d.fyMmxavg.size, d.fyMmxavg.index);
-/*! \todo Another #if 0 */
-#if 0
-	if (d.fyMmxavg.in > 0 && d.fyMmxavg.size > 0) {
-	    printf("nMmxavg : nums \n\t ");
-	    for (t = 0; t < d.fyMmxavg.in && t < d.fyMmxavg.size; t++) {
-		printf("%3.3e \t", d.fyMmxavgSpace[t]);
-		if (t % 8 == 0 && t > 0) {
-		    printf("\n\t ");
-		}
-	    }
-	}
-#endif
-
 	printf("\n");
 	break;
 

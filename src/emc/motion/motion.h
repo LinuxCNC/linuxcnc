@@ -82,7 +82,6 @@ to another.
 #include "emcmotcfg.h"		/* EMCMOT_MAX_AXIS */
 #include "tp.h"			/* TP_STRUCT */
 #include "tc.h"			/* TC_STRUCT, TC_QUEUE_STRUCT */
-#include "mmxavg.h"		/* MMXAVG_STRUCT */
 #include "kinematics.h"
 
 #ifdef __cplusplus
@@ -773,21 +772,6 @@ Suggestion: Split this in to an Error and a Status flag register..
 #ifdef STRUCTS_IN_SHMEM
 	emcmot_joint_t joints[EMCMOT_MAX_AXIS];	/* joint data */
 #endif
-
-	/* min-max-avg structs for traj and servo cycles */
-	MMXAVG_STRUCT tMmxavg;
-	MMXAVG_STRUCT sMmxavg;
-	MMXAVG_STRUCT nMmxavg;
-	MMXAVG_STRUCT yMmxavg;
-	MMXAVG_STRUCT fMmxavg;
-	MMXAVG_STRUCT fyMmxavg;
-
-	double tMmxavgSpace[DEFAULT_MMXAVG_SIZE];
-	double sMmxavgSpace[DEFAULT_MMXAVG_SIZE];
-	double nMmxavgSpace[DEFAULT_MMXAVG_SIZE];
-	double yMmxavgSpace[DEFAULT_MMXAVG_SIZE];
-	double fMmxavgSpace[DEFAULT_MMXAVG_SIZE];
-	double fyMmxavgSpace[DEFAULT_MMXAVG_SIZE];
 
 	double start_time;
 	double running_time;

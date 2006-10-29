@@ -72,9 +72,6 @@
  * about a megabyte.  */
 #define DEFAULT_TC_QUEUE_SIZE 2000
 
-/* size of window for averages */
-#define DEFAULT_MMXAVG_SIZE 100
-
 /* max following error */
 #define DEFAULT_MAX_FERROR 100
 

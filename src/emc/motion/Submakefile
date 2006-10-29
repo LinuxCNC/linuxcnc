@@ -8,7 +8,6 @@ INCLUDES += emc/motion
 ifeq ("$(RTPREFIX)","sim")
 SIMMOTSRCS := \
 	emc/kinematics/cubic.c  \
-	emc/kinematics/mmxavg.c  \
 	emc/kinematics/tc.c  \
 	emc/kinematics/tp.c  \
 	emc/motion/motion.c  \
