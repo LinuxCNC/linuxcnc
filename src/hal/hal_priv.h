@@ -95,6 +95,10 @@
     up a little.
 */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* SHMPTR(offset) converts 'offset' to a void pointer. */
 #define SHMPTR(offset)  ( (void *)( hal_shmem_base + (offset) ) )
 
@@ -398,4 +402,7 @@ extern hal_funct_t *halpr_find_funct_by_owner(hal_comp_t * owner,
 */
 extern hal_pin_t *halpr_find_pin_by_sig(hal_sig_t * sig, hal_pin_t * start);
 
+#ifdef __cplusplus
+}
+#endif
 #endif /* HAL_PRIV_H */

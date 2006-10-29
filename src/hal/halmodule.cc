@@ -4,9 +4,7 @@
 using namespace std;
 
 #include "hal.h"
-extern "C" {
 #include "hal_priv.h"
-}
 
 #include "emc.hh"
 
