@@ -2693,7 +2693,6 @@ if len(sys.argv) > 1 and sys.argv[1] == '-ini':
         else:
             if a < 3: step_size = astep_size = step_size_tmp
             else: astep_size = step_size_tmp
-    print "step sizes", step_size, astep_size
     if step_size != 1:
         root_window.tk.call("set_slider_min", step_size*30)
     if astep_size != 1:
