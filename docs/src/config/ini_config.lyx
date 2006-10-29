@@ -92,7 +92,7 @@ NML The nml file configures the communication channels used by the EMC.
 .emcrc This file saves user specific information and is created to save the
  name of the directory when the user first selects an EMC configuration.
 \begin_inset Foot
-collapsed false
+collapsed true
 
 \layout Standard
 
@@ -555,7 +555,7 @@ HALFILE = standard_pinout.hal
 
 You can also add variables (commands really) here.
 \begin_inset Foot
-collapsed false
+collapsed true
 
 \layout Standard
 
@@ -752,6 +752,16 @@ POSITION_FILE\SpecialChar ~
 =\SpecialChar ~
 position.txt If set to a non-empty value, the joint positions
  are stored between runs in this file.
+ This allows the machine to start with the same coordinates it had on shutdown.
+\begin_inset Foot
+collapsed true
+
+\layout Standard
+
+This assumes there was no movement of the machine while powered off.
+ It helps on smaller machines without home switches.
+\end_inset 
+
  If unset, joint positions are not stored and will begin at 0 each time
  emc is started.
 \layout Subsection
@@ -962,6 +972,27 @@ MAX_LIMIT\SpecialChar ~
  
 \layout Description
 
+MIN_FERROR\SpecialChar ~
+
+\series bold 
+=
+\series default 
+\SpecialChar ~
+
+\series bold 
+0.010
+\series default 
+ This is the value by which the axis is permitted to deviate from commanded
+ position at very low speeds.
+ If MIN_FERROR is smaller than FERROR, the two produce a ramp of error trip
+ points.
+ You could think of this as a graph where one dimension is speed and the
+ other is permitted following error.
+ As speed increases the amount of following error also increases toward
+ the FERROR value.
+ 
+\layout Description
+
 
 \color black
 FERROR\SpecialChar ~
@@ -969,14 +1000,8 @@ FERROR\SpecialChar ~
 \series bold 
 =\SpecialChar ~
 1.0 
-\layout Description
-
-
-\color black
-MIN_FERROR\SpecialChar ~
-=\SpecialChar ~
-0.010 FERROR is the maximum allowable following error, in user
- units.
+\series default 
+FERROR is the maximum allowable following error, in user units.
  If the difference between commanded and sensed position exceeds this amount,
  the controller disables servo calculations, sets all the outputs to 0.0,
  and disables the amplifiers.
@@ -988,10 +1013,9 @@ nally smaller following errors for slower speeds.
  The maximum allowable following error will always be greater than MIN_FERROR.
  This prevents small following errors for stationary axes from inadvertently
  aborting motion.
- Small following errors will always be present due to vibration, etc.\SpecialChar ~
- The
- following polarity values determine how inputs are interpreted and how
- outputs are applied.
+ Small following errors will always be present due to vibration, etc.
+ The following polarity values determine how inputs are interpreted and
+ how outputs are applied.
  They can usually be set via trial-and-error since there are only two possibilit
 ies.
  The EMCMOT utility program USRMOT can be used to set these interactively
@@ -1001,6 +1025,7 @@ ies.
 \layout Description
 
 UNITS\SpecialChar ~
+=\SpecialChar ~
 inch Historically, the UNITS were specified for each axis.
  It is now preferable to specify the [TRAJ]LINEAR_UNITS and [TRAJ]ANGULAR_UNITS
  values only, and have no [AXIS_n]UNITS setting.
@@ -1021,27 +1046,6 @@ The next few parameters are Homing related, for a better explanation read
 \end_inset 
 
 
-\layout Description
-
-MIN_FERROR\SpecialChar ~
-
-\series bold 
-=
-\series default 
-\SpecialChar ~
-
-\series bold 
-0.010
-\series default 
- This is the value by which the axis is permitted to deviate from commanded
- position at very low speeds.
- If MIN_FERROR is smaller than FERROR, the two produce a ramp of error trip
- points.
- You could think of this as a graph where one dimension is speed and the
- other is permitted following error.
- As speed increases the amount of following error also increases toward
- the FERROR value.
- 
 \layout Description
 
 HOME_OFFSET\SpecialChar ~
@@ -1118,7 +1122,18 @@ Servo-related items
 \layout Standard
 
 The following items are for servo-based systems and servo-like systems including
- the univstep board from PICO.
+ the univstep board from Pico Systems.
+ 
+\begin_inset Foot
+collapsed true
+
+\layout Standard
+
+Refer to the the EMC2_Integrator_Manual for further information about servo
+ systems and PID control.
+\end_inset 
+
+
 \layout Description
 
 
