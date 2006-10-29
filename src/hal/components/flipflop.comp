@@ -16,16 +16,13 @@ MODULE_LICENSE("GPL");
 FUNCTION(_) {
     int c;
 
-    /* evaluate from low priority to high */
     c = clk;
-    if ( c && ! data.oldclk ) {
+    if ( reset ) {
+	out = 0;
+    } else if ( set ) {
+	out = 1;
+    } else if ( c && ! data.oldclk ) {
 	out = data_;
     }
     data.oldclk = c;
-    if ( set ) {
-	out = 1;
-    }
-    if ( reset ) {
-	out = 0;
-    }
 }
