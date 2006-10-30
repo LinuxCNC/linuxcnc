@@ -329,6 +329,8 @@ typedef struct {
     unsigned int last_pwmgen;	/* used for numbering PWM generators */
     unsigned int last_encoder;	/* used for numbering encoders */
     unsigned int last_DAC;	/* used for numbering DACs */
+    unsigned int last_extraDAC;	/* used for numbering DACs */
+//    unsigned int last_extradout;/* used for numbering digital outputs */
     char slot_valid[NUM_SLOTS];	/* tags for slots that are used */
     slot_data_t slot_data[NUM_SLOTS];  /* data for slots on EPP bus */
 } bus_data_t;
@@ -354,13 +356,15 @@ static void write_stepgens(slot_data_t *slot);
 static void write_pwmgens(slot_data_t *slot);
 static void read_encoders(slot_data_t *slot);
 static void write_DACs(slot_data_t *slot);
+static void write_extraDAC(slot_data_t *slot);
 
 /***********************************************************************
 *                  REALTIME I/O FUNCTION DECLARATIONS                  *
 ************************************************************************/
 
-/* FIXME not used: 
-static void BusReset(unsigned int port_addr); */
+#if 0 /* FIXME not used */
+static void BusReset(unsigned int port_addr);
+#endif
 static int ClrTimeout(unsigned int port_addr);
 static unsigned short SelRead(unsigned char epp_addr, unsigned int port_addr);
 static unsigned short ReadMore(unsigned int port_addr);
@@ -478,6 +482,7 @@ int rtapi_app_main(void)
 	bus->last_pwmgen = 0;
 	bus->last_DAC = 0;
 	bus->last_encoder = 0;
+	bus->last_extraDAC = 0;
 	/* clear the slot data structures (part of the bus struct) */
 	for ( slotnum = 0 ; slotnum < NUM_SLOTS ; slotnum ++ ) {
 	    /* clear slot valid flag in bus struct */
@@ -670,13 +675,13 @@ int rtapi_app_main(void)
     for ( n = 0 ; n < MAX_BUS*8 ; n++ ) {
 	if ( extradac[n] != -1 ) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"PPMC: ERROR: no USC/UPC found for extra dac at bus %d, slot %d\n",
+		"PPMC: ERROR: no USC/UPC for extra dac at bus %d, slot %d\n",
 		extradac[n]>>4, extradac[n] & 0x0F );
 	    rv = -1;
 	}
 	if ( extradout[n] != -1 ) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"PPMC: ERROR: no USC/UPC found for extra dig outs at bus %d, slot %d\n",
+		"PPMC: ERROR: no USC/UPC for extra douts at bus %d, slot %d\n",
 		extradout[n]>>4, extradout[n] & 0x0F );
 	    rv = -1;
 	}
@@ -879,14 +884,6 @@ static void write_digouts(slot_data_t *slot)
     /* write it to the hardware (cache) */
     slot->wr_buf[UxC_DOUTA] = outdata;
 }
-
-#if 0
-static void write_spindle(slot_data_t *slot)
-{
-    /* write it to the hardware (cache) */
-    slot->wr_buf[UxC_SPINDLE] = *slot->spindle.speed;
-}
-#endif
 
 static void read_PPMC_digins(slot_data_t *slot)
 {
@@ -1311,6 +1308,7 @@ static void write_DACs(slot_data_t *slot)
     int n;
     DAC_t *pg;
     long dc;
+    float volts;
 
     //    rtapi_print_msg(RTAPI_MSG_INFO, "enter write_DACs()\n");
     /* now do the four individual DACs */
@@ -1328,13 +1326,13 @@ static void write_DACs(slot_data_t *slot)
 	  pg->scale = 1.0;
 	}
       }
-      /* calculate desired duty cycle */
-      dc = *(pg->value) / pg->scale;  
+      /* calculate desired output voltage */
+      volts = *(pg->value) / pg->scale;
       /* output to DAC word works like:
 	 0xFFFF -> +10 V
 	 0x8000 ->   0 V
 	 0x0000 -> -10 V   */
-      dc = (long) (((*(pg->value) / pg->scale) * 0x7FFF)+0x8000);
+      dc = (long) (((volts / 10.0) * 0x7FFF)+0x8000);
       if (dc > 0xffff)
 	{
 	  dc = 0xffff;
@@ -1348,6 +1346,47 @@ static void write_DACs(slot_data_t *slot)
       slot->wr_buf[DAC_0+(n*2)+1] = dc & 0xff;  // put high byte in cache
     }
 }
+
+
+static void write_extraDAC(slot_data_t *slot)
+{
+    DAC_t *pg;
+    long dc;
+    float volts;
+
+    /* point to the DAC */
+    pg = &(slot->extra->dac);
+    /* validate the scale value */
+    if ( pg->scale < 0.0 ) {
+	if ( pg->scale > -EPSILON ) {
+	    /* too small, divide by zero is bad */
+	    pg->scale = -1.0;
+	}
+    } else {
+	if ( pg->scale < EPSILON ) {
+	    pg->scale = 1.0;
+	}
+    }
+    /* calculate desired output voltage */
+    volts = *(pg->value) / pg->scale;
+    /* output to DAC word works like:
+	0xFF -> +10 V
+	0x00 ->   0 V */
+    /* there is NO negative.  You can invert the signal with
+	an external signal into the post-DAC amplifier, but
+	the software is completely unaware of that */
+    dc = (long) ((volts / 10.0) * 0xff);
+    if (dc > 0xff) {
+	dc = 0xff;
+    }
+    if (dc < 0 ) {
+	dc = 0;
+    }
+    slot->wr_buf[UxC_EXTRA] = dc & 0xff;  // put in cache
+}
+
+
+
 
 /***********************************************************************
 *                   LOCAL FUNCTION DEFINITIONS                         *
@@ -1980,8 +2019,9 @@ static int export_encoders(slot_data_t *slot, bus_data_t *bus)
 
 static int export_extra_dac(slot_data_t *slot, bus_data_t *bus)
 {
-    int n;
-rtapi_print_msg(RTAPI_MSG_ERR, "called export_extra_dac\n" );
+    int retval, n;
+    char buf[HAL_NAME_LEN+2];
+    DAC_t *pg;
 
     /* does the board have the extra port? */
     n=0;
@@ -1992,15 +2032,50 @@ rtapi_print_msg(RTAPI_MSG_ERR, "called export_extra_dac\n" );
 	    "PPMC: ERROR: board doesn't support 'extra' port\n");
 	return -1;
     }
-rtapi_print_msg(RTAPI_MSG_ERR, "export code goes here\n" );
-
-return 0;
+    /* allocate shared memory for the DAC */
+    slot->extra = hal_malloc(sizeof(extra_t));
+    if (slot->extra == 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "PPMC: ERROR: hal_malloc() failed\n");
+	return -1;
+    }
+    slot->extra_mode = EXTRA_DAC;
+    /* export DAC pins and params, and set initial values */
+    /* pointer to the DAC struct */
+    pg = &(slot->extra->dac);
+    /* value command pin */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.DAC8.%02d.value",
+	bus->busnum, bus->last_extraDAC);
+    retval = hal_pin_float_new(buf, HAL_IN, &(pg->value), comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    /* output scaling parameter */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.DAC8.%02d.scale",
+	bus->busnum, bus->last_extraDAC);
+    retval = hal_param_float_new(buf, HAL_RW, &(pg->scale), comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    pg->scale = 1.0;
+    /* actual DAC digital number */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.DAC8.%02d.DAC_value",
+	bus->busnum, bus->last_extraDAC);
+    retval = hal_param_float_new(buf, HAL_RW, &(pg->DAC_value), comp_id);
+    if (retval != 0) {
+	return retval;
+    /* increment number to prepare for next output */
+    bus->last_extraDAC++;
+    }
+    add_wr_funct(write_extraDAC, slot, UxC_EXTRA, UxC_EXTRA);
+    return 0;
 }
 
 static int export_extra_dout(slot_data_t *slot, bus_data_t *bus)
 {
-    int n;
-rtapi_print_msg(RTAPI_MSG_ERR, "called export_extra_dout\n" );
+//    int retval, n;
+//    char buf[HAL_NAME_LEN+2];
+int n;
 
     /* does the board have the extra port? */
     n=0;
@@ -2011,22 +2086,34 @@ rtapi_print_msg(RTAPI_MSG_ERR, "called export_extra_dout\n" );
 	    "PPMC: ERROR: board doesn't support 'extra' port\n");
 	return -1;
     }
+    /* allocate shared memory for the douts */
+    slot->extra = hal_malloc(sizeof(extra_t));
+    if (slot->extra == 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "PPMC: ERROR: hal_malloc() failed\n");
+	return -1;
+    }
+    slot->extra_mode = EXTRA_DOUT;
+
+
 rtapi_print_msg(RTAPI_MSG_ERR, "export code goes here\n" );
 
-return 0;
+
+    return 0;
 }
 
 
 /* utility functions for EPP bus */
 
 /* reset all boards attached to the EPP bus */
-/* FIXME not used
+#if 0  /* FIXME not used */
 static void BusReset(unsigned int port_addr)
 {
   rtapi_outb(0,CONTROLPORT(port_addr));
   rtapi_outb(4,CONTROLPORT(port_addr));
   return;
-}*/
+}
+#endif
 
 /* tests for an EPP bus timeout, and clears it if so */
 static int ClrTimeout(unsigned int port_addr)
