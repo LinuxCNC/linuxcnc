@@ -95,7 +95,9 @@ static int do_unlock_cmd(char *command);
 static int do_linkpp_cmd(char *first_pin_name, char *second_pin_name);
 static int do_link_cmd(char *pin, char *sig);
 static int do_newsig_cmd(char *name, char *type);
+#if 0  /* newinst deferred to version 2.2 */
 static int do_newinst_cmd(char *comp_name, char *inst_name);
+#endif
 static int do_setp_cmd(char *name, char *value);
 static int do_getp_cmd(char *name);
 static int do_sets_cmd(char *name, char *value);
@@ -833,8 +835,10 @@ static int parse_cmd(char *tokens[])
 	retval = do_link_cmd(tokens[1], "\0");
     } else if (strcmp(tokens[0], "newsig") == 0) {
 	retval = do_newsig_cmd(tokens[1], tokens[2]);
+#if 0  /* newinst deferred to version 2.2 */
     } else if (strcmp(tokens[0], "newinst") == 0) {
 	retval = do_newinst_cmd(tokens[1], tokens[2]);
+#endif
     } else if (strcmp(tokens[0], "delsig") == 0) {
 	retval = do_delsig_cmd(tokens[1]);
     } else if (strcmp(tokens[0], "setp") == 0) {
@@ -1039,6 +1043,7 @@ static int do_link_cmd(char *pin, char *sig)
     return retval;
 }
 
+#if 0  /* newinst deferred to version 2.2 */
 static int do_newinst_cmd(char *comp_name, char *inst_name) {
     hal_comp_t *comp = halpr_find_comp_by_name(comp_name);
 
@@ -1050,6 +1055,10 @@ static int do_newinst_cmd(char *comp_name, char *inst_name) {
         rtapi_print_msg(RTAPI_MSG_ERR, "%s does not support 'newinst'\n", comp_name);
         return HAL_UNSUP;
     }
+    if ( *inst_name == '\0' ) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "Must supply name for new instance\n");
+        return HAL_INVAL;
+    }	
 
 #if defined(RTAPI_SIM)
     {
@@ -1114,7 +1123,6 @@ static int do_newinst_cmd(char *comp_name, char *inst_name) {
     }
     }
 #endif
-
     rtapi_mutex_get(&hal_data->mutex);
     {
     hal_comp_t *inst = halpr_alloc_comp_struct();
@@ -1140,6 +1148,7 @@ static int do_newinst_cmd(char *comp_name, char *inst_name) {
     }
     return HAL_SUCCESS;
 }
+#endif /* newinst deferred */
 
 static int do_newsig_cmd(char *name, char *type)
 {
@@ -2826,6 +2835,7 @@ static void save_comps(FILE *dst)
 	next = comp->next_ptr;
     }
     next = hal_data->comp_list_ptr;
+#if 0  /* newinst deferred to version 2.2 */
     while (next != 0) {
 	comp = SHMPTR(next);
 	if ( comp->type == 2 ) {
@@ -2834,6 +2844,7 @@ static void save_comps(FILE *dst)
         }
 	next = comp->next_ptr;
     }
+#endif
     rtapi_mutex_give(&(hal_data->mutex));
 }
 
@@ -2982,6 +2993,12 @@ static int do_help_cmd(char *command)
 	printf("loadrt modname [modarg(s)]\n");
 	printf("  Loads realtime HAL module 'modname', passing 'modargs'\n");
 	printf("  to the module.\n");
+#if 0  /* newinst deferred to version 2.2 */
+    } else if (strcmp(command, "newinst") == 0) {
+	printf("newinst modname instname\n");
+	printf("  Creates another instance of previously loaded module\n" );
+	printf("  'modname', nameing it 'instname'.\n");
+#endif
     } else if (strcmp(command, "unload") == 0) {
 	printf("unload compname\n");
 	printf("  Unloads HAL module 'compname', whether user space or realtime.\n");
