@@ -28,6 +28,12 @@
 #define INIFILE_CHECK_FAILURE(x) (!(x))
 #include <cmath>
 
+// The C++ standard probably doesn't specify the amount of storage for a 'bool',
+// and on some systems it might be more than one byte.  However, on x86 and
+// x86-64, sizeof(bool) == 1.  When a counterexample is found, this must be
+// replaced with the result of a configure test.
+#define T_BOOL T_UBYTE
+
 #ifndef PyMODINIT_FUNC
 #if defined(__cplusplus)
 #define PyMODINIT_FUNC extern "C" void
@@ -343,6 +349,8 @@ static PyMemberDef Stat_members[] = {
     {"command", T_STRING_INPLACE, O(task.command), READONLY},
     {"program_units", T_INT, O(task.programUnits), READONLY},
     {"interpreter_errcode", T_INT, O(task.interpreter_errcode), READONLY},
+    {"optional_stop", T_BOOL, O(task.optional_stop_state), READONLY},
+    {"block_delete", T_BOOL, O(task.block_delete_state), READONLY},
 
 // motion
 //   EMC_TRAJ_STAT traj
@@ -731,6 +739,19 @@ static int Command_init(pyCommandChannel *self, PyObject *a, PyObject *k) {
 static void Command_dealloc(PyObject *self) {
     delete ((pyCommandChannel*)self)->c;
     PyObject_Del(self);
+}
+
+
+static PyObject *block_delete(pyCommandChannel *s, PyObject *o) {
+    EMC_TASK_PLAN_SET_BLOCK_DELETE m;
+
+    if(!PyArg_ParseTuple(o, "i", &m.state)) return NULL;
+            
+    m.serial_number = next_serial(s);
+    s->c->write(m);
+
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 
@@ -1187,6 +1208,7 @@ static PyMethodDef Command_methods[] = {
     {"program_open", (PyCFunction)program_open, METH_VARARGS},
     {"auto", (PyCFunction)emcauto, METH_VARARGS},
     {"set_optional_stop", (PyCFunction)optional_stop, METH_VARARGS},
+    {"set_block_delete", (PyCFunction)block_delete, METH_VARARGS},
     {NULL}
 };
 
