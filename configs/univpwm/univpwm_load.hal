@@ -17,7 +17,7 @@ loadrt scope_rt
 
 # make some signals for the scope for tuning.
 loadrt ddt count=4
-loadrt estop-latch count=1
+loadrt estop_latch count=1
 loadrt and2 count=1
 
 # set up the realtime thread
