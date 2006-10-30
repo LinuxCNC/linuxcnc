@@ -1318,6 +1318,8 @@ class LivePlotter:
         vupdate(vars.brake, self.stat.spindle_brake)
         vupdate(vars.spindledir, self.stat.spindle_direction)
         vupdate(vars.motion_mode, self.stat.motion_mode)
+        vupdate(vars.optional_stop, self.stat.optional_stop)
+        vupdate(vars.block_delete, self.stat.block_delete)
         if time.time() > spindlerate_blackout:
             vupdate(vars.spindlerate, int(100 * self.stat.spindlerate + .5))
         if time.time() > feedrate_blackout:
@@ -1902,6 +1904,11 @@ class TclCommands(nf.TclCommands):
     def from_internal_linear_unit(a, b=None):
         if b is not None: b = float(b)
         return from_internal_linear_unit(float(a), b)
+
+    def toggle_optional_stop(event=None):
+        c.set_optional_stop(vars.optional_stop.get())
+    def toggle_block_delete(event=None):
+        c.set_block_delete(vars.block_delete.get())
 
     def gcode_properties(event=None):
         props = {}
@@ -2491,6 +2498,8 @@ vars = nf.Variables(root_window,
     ("joint_mode", IntVar),
     ("motion_mode", IntVar),
     ("kinematics_type", IntVar),
+    ("optional_stop", BooleanVar),
+    ("block_delete", BooleanVar),
 )
 vars.emctop_command.set(os.path.join(os.path.dirname(sys.argv[0]), "emctop"))
 vars.highlight_line.set(-1)
