@@ -2679,29 +2679,29 @@ static char *data_value(int type, void *valptr)
 	value_str = buf;
 	break;
     case HAL_S8:
-	snprintf(buf, 14, "    %4d    ", *((signed char *) valptr));
+	snprintf(buf, 14, "    %4d    ", *((hal_s8_t *) valptr));
 	value_str = buf;
 	break;
     case HAL_U8:
 	snprintf(buf, 14, "  %3u  (%02X) ",
-	    *((unsigned char *) valptr), *((unsigned char *) valptr));
+	    *((unsigned char *) valptr), *((hal_u8_t *) valptr));
 	value_str = buf;
 	break;
     case HAL_S16:
-	snprintf(buf, 14, "  %6d    ", *((signed short *) valptr));
+	snprintf(buf, 14, "  %6d    ", *((hal_s16_t *) valptr));
 	value_str = buf;
 	break;
     case HAL_U16:
 	snprintf(buf, 14, "%5u (%04X)",
-	    *((unsigned short *) valptr), *((unsigned short *) valptr));
+	    *((unsigned short *) valptr), *((hal_u16_t *) valptr));
 	value_str = buf;
 	break;
     case HAL_S32:
-	snprintf(buf, 14, " %10ld ", *((signed long *) valptr));
+	snprintf(buf, 14, " %10ld ", (long)*((hal_u32_t *) valptr));
 	value_str = buf;
 	break;
     case HAL_U32:
-	snprintf(buf, 14, "  %08lX  ", *((unsigned long *) valptr));
+	snprintf(buf, 14, "  %08lX  ", (unsigned long)*((hal_u32_t *) valptr));
 	value_str = buf;
 	break;
     default:
@@ -2730,27 +2730,27 @@ static char *data_value2(int type, void *valptr)
 	value_str = buf;
 	break;
     case HAL_S8:
-	snprintf(buf, 14, "%d", *((signed char *) valptr));
+	snprintf(buf, 14, "%d", (int)*((hal_s8_t *) valptr));
 	value_str = buf;
 	break;
     case HAL_U8:
-	snprintf(buf, 14, "%u", *((unsigned char *) valptr));
+	snprintf(buf, 14, "%u", (int)*((hal_u8_t *) valptr));
 	value_str = buf;
 	break;
     case HAL_S16:
-	snprintf(buf, 14, "%d", *((signed short *) valptr));
+	snprintf(buf, 14, "%d", (int)*((hal_s16_t *) valptr));
 	value_str = buf;
 	break;
     case HAL_U16:
-	snprintf(buf, 14, "%u", *((unsigned short *) valptr));
+	snprintf(buf, 14, "%u", (unsigned)*((hal_u16_t *) valptr));
 	value_str = buf;
 	break;
     case HAL_S32:
-	snprintf(buf, 14, "%ld", *((signed long *) valptr));
+	snprintf(buf, 14, "%ld", (long)*((hal_s32_t *) valptr));
 	value_str = buf;
 	break;
     case HAL_U32:
-	snprintf(buf, 14, "%ld", *((unsigned long *) valptr));
+	snprintf(buf, 14, "%ld", (unsigned long)*((hal_u32_t *) valptr));
 	value_str = buf;
 	break;
     default:
