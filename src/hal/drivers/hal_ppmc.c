@@ -5,8 +5,20 @@
 *               the PPMC board set, the USC, and the UPC. 
 *
 * Usage:  halcmd loadrt hal_ppmc port_addr=<addr1>[,addr2[,addr3]]
+*		[extradac=<slotcode1>,[<slotcode2>]]
+*		[extradout=<slotcode1,[<slotcode2>]]
+*
 *               where 'addr1', 'addr2', and 'addr3' are the addresses
 *               of up to three parallel ports.
+*
+*		extradac and extradout allow you to tell the driver
+* 		that you have an 8 bit DAC, or 8 digital outputs, on
+*		the 'extra' port of a USC or UPC board.  The slotcode
+*		is a two digit hex number of the form 0X12, where the
+*		first digit is the bus number (0, 1, or 2), and the
+*		second digit is the slot number on that bus (0 to F).
+*		The slotcode tells the driver which board(s) have the
+*		optional DAC or digital outs installed.
 *
 * Author: John Kasunich, Jon Elson, Stephen Wille Padnos
 * License: GPL Version 2
@@ -70,7 +82,17 @@ MODULE_AUTHOR("John Kasunich");
 MODULE_DESCRIPTION("HAL driver for Universal PWM Controller");
 MODULE_LICENSE("GPL");
 int port_addr[MAX_BUS] = { 0x0378, 0, 0 };  /* default, 1 bus at 0x0378 */
-RTAPI_MP_ARRAY_INT(port_addr, 3, "port address(es) for EPP bus(es)");
+RTAPI_MP_ARRAY_INT(port_addr, MAX_BUS, "port address(es) for EPP bus(es)");
+int extradac[MAX_BUS*8] = {
+        -1,-1,-1,-1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,-1,-1,-1 };  /* default, no extra stuff */
+RTAPI_MP_ARRAY_INT(extradac, MAX_BUS*8, "bus/slot locations of extra DAC modules");
+int extradout[MAX_BUS*8] = {
+        -1,-1,-1,-1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,-1,-1,-1 };  /* default, no extra stuff */
+RTAPI_MP_ARRAY_INT(extradout, MAX_BUS*8, "bus/slot locations of extra dig out modules");
 #endif /* MODULE */
 
 /***********************************************************************
@@ -136,6 +158,12 @@ RTAPI_MP_ARRAY_INT(port_addr, 3, "port address(es) for EPP bus(es)");
 /* The "estop" input will always report OFF to the software, regardless
    of the actual state of the physical input, unless the "estop" output
    has being turned on by the software. */
+#define UxC_EXTRA       0x0F    /* 8 bit "extra" port on USC and UPC */
+
+/* codes to indicate if/how the extra port is being used */
+#define EXTRA_UNUSED	0
+#define	EXTRA_DAC	1
+#define	EXTRA_DOUT	2
 
 #define UxC_DOUTA       0x1F	/* EPP address of digital outputs */
 #define UxC_ESTOP_OUT   0x1F
@@ -231,6 +259,12 @@ typedef struct {
     DAC_t pg[4];		/* per DAC data */
 } DACs_t;
 
+/* runtime data for an "extra" port - can be either a DAC, or 8 digouts */
+typedef union {
+    DAC_t  dac;			/* if the port is used for a DAC */
+    dout_t douts[8];		/* if the port is used for digital outs */
+} extra_t;
+
 /* runtime data for a single encoder */
 typedef struct {
     hal_float_t *position;      /* output: scaled position pointer */
@@ -279,6 +313,8 @@ typedef struct slot_data_s {
     pwmgens_t *pwmgen;		/* ptr to shmem data for PWM generators */
     encoder_t *encoder;         /* ptr to shmem data for encoders */
     DACs_t *DAC;                /* ptr to shmem data for DACs */
+    int extra_mode;		/* indicates if/how "extra" port is used */
+    extra_t *extra;		/* ptr to shmem for "extra" port */
 } slot_data_t;
 
 /* this structure contains the runtime data for a complete EPP bus */
@@ -347,6 +383,8 @@ static int export_USC_stepgen(slot_data_t *slot, bus_data_t *bus);
 static int export_UPC_pwmgen(slot_data_t *slot, bus_data_t *bus);
 static int export_PPMC_DAC(slot_data_t *slot, bus_data_t *bus);
 static int export_encoders(slot_data_t *slot, bus_data_t *bus);
+static int export_extra_dac(slot_data_t *slot, bus_data_t *bus);
+static int export_extra_dout(slot_data_t *slot, bus_data_t *bus);
 
 /***********************************************************************
 *                       INIT AND EXIT CODE                             *
@@ -355,6 +393,7 @@ static int export_encoders(slot_data_t *slot, bus_data_t *bus);
 int rtapi_app_main(void)
 {
     int msg, rv, rv1, busnum, slotnum, n, boards;
+    int bus_slot_code, need_extra_dac, need_extra_dout;
     int idcode, id, ver;
     bus_data_t *bus;
     slot_data_t *slot;
@@ -473,6 +512,8 @@ int rtapi_app_main(void)
             slot->pwmgen = NULL;
             slot->DAC = NULL;
             slot->encoder = NULL;
+	    slot->extra_mode = EXTRA_UNUSED;
+	    slot->extra = NULL;
 	}    
 	/* scan the bus */
 	for ( slotnum = 0 ; slotnum < NUM_SLOTS ; slotnum ++ ) {
@@ -523,6 +564,27 @@ int rtapi_app_main(void)
 		rv1 += export_UxC_digout(slot, bus);
 		rv1 += export_USC_stepgen(slot, bus);
 		rv1 += export_encoders(slot, bus);
+		bus_slot_code = (busnum << 4) | slotnum;
+		need_extra_dac = 0;
+		need_extra_dout = 0;
+		for ( n = 0; n < MAX_BUS*8 ; n++ ) {
+		    if ( extradac[n] == bus_slot_code ) {
+			need_extra_dac = 1;
+			extradac[n] = -1;
+		    }
+		    if ( extradout[n] == bus_slot_code ) {
+			need_extra_dout = 1;
+			extradout[n] = -1;
+		    }
+		}
+		if ( need_extra_dac && need_extra_dout ) {
+		    rtapi_print_msg(RTAPI_MSG_ERR,
+			"PPMC: ERROR: Can't have extra DAC and DOUT on same slot\n");
+		} else if ( need_extra_dac ) {
+		    rv1 += export_extra_dac(slot, bus);
+		} else if ( need_extra_dout ) {
+		    rv1 += export_extra_dout(slot, bus);
+		}		
 		/* the USC occupies two slots, so skip the second one */
 		slotnum++;
 		break;
@@ -533,6 +595,27 @@ int rtapi_app_main(void)
 		rv1 += export_UxC_digout(slot, bus);
 		rv1 += export_UPC_pwmgen(slot, bus);
 		rv1 += export_encoders(slot, bus);
+		bus_slot_code = (busnum << 4) | slotnum;
+		need_extra_dac = 0;
+		need_extra_dout = 0;
+		for ( n = 0; n < MAX_BUS*8 ; n++ ) {
+		    if ( extradac[n] == bus_slot_code ) {
+			need_extra_dac = 1;
+			extradac[n] = -1;
+		    }
+		    if ( extradout[n] == bus_slot_code ) {
+			need_extra_dout = 1;
+			extradout[n] = -1;
+		    }
+		}
+		if ( need_extra_dac && need_extra_dout ) {
+		    rtapi_print_msg(RTAPI_MSG_ERR,
+			"PPMC: ERROR: Can't have extra DAC and DOUT on same slot\n");
+		} else if ( need_extra_dac ) {
+		    rv1 += export_extra_dac(slot, bus);
+		} else if ( need_extra_dout ) {
+		    rv1 += export_extra_dout(slot, bus);
+		}		
 		/* the UPC occupies two slots, so skip the second one */
 		slotnum++;
 		break;
@@ -583,6 +666,20 @@ int rtapi_app_main(void)
 	/* save pointer to bus data */
 	bus_array[busnum] = bus;
 	rtapi_print_msg(RTAPI_MSG_INFO, "PPMC: bus %d complete\n", busnum);
+    }
+    for ( n = 0 ; n < MAX_BUS*8 ; n++ ) {
+	if ( extradac[n] != -1 ) {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+		"PPMC: ERROR: no USC/UPC found for extra dac at bus %d, slot %d\n",
+		extradac[n]>>4, extradac[n] & 0x0F );
+	    rv = -1;
+	}
+	if ( extradout[n] != -1 ) {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+		"PPMC: ERROR: no USC/UPC found for extra dig outs at bus %d, slot %d\n",
+		extradout[n]>>4, extradout[n] & 0x0F );
+	    rv = -1;
+	}
     }
     /* restore saved message level */
     rtapi_set_msg_level(msg);
@@ -782,6 +879,14 @@ static void write_digouts(slot_data_t *slot)
     /* write it to the hardware (cache) */
     slot->wr_buf[UxC_DOUTA] = outdata;
 }
+
+#if 0
+static void write_spindle(slot_data_t *slot)
+{
+    /* write it to the hardware (cache) */
+    slot->wr_buf[UxC_SPINDLE] = *slot->spindle.speed;
+}
+#endif
 
 static void read_PPMC_digins(slot_data_t *slot)
 {
@@ -1298,7 +1403,7 @@ static int export_UxC_digin(slot_data_t *slot, bus_data_t *bus)
     int retval, n;
     char buf[HAL_NAME_LEN + 2];
 
-    rtapi_print_msg(RTAPI_MSG_INFO, "PPMC:  exporting digital inputs\n");
+    rtapi_print_msg(RTAPI_MSG_INFO, "PPMC:  exporting UxC digital inputs\n");
 
     /* do hardware init */
 
@@ -1337,7 +1442,7 @@ static int export_UxC_digout(slot_data_t *slot, bus_data_t *bus)
     int retval, n;
     char buf[HAL_NAME_LEN + 2];
 
-    rtapi_print_msg(RTAPI_MSG_INFO, "PPMC:  exporting digital outputs\n");
+    rtapi_print_msg(RTAPI_MSG_INFO, "PPMC:  exporting UxC digital outputs\n");
 
     /* do hardware init */
     /* turn off all outputs */
@@ -1872,6 +1977,45 @@ static int export_encoders(slot_data_t *slot, bus_data_t *bus)
     add_rd_funct(read_encoders, slot, ENCCNT0, ENCISR);
     return 0;
 }
+
+static int export_extra_dac(slot_data_t *slot, bus_data_t *bus)
+{
+    int n;
+rtapi_print_msg(RTAPI_MSG_ERR, "called export_extra_dac\n" );
+
+    /* does the board have the extra port? */
+    n=0;
+    if (slot->id == 0x40) n=1;
+    if (slot->id == 0x50 && slot->ver >= 3) n=1;
+    if ( n == 0 ) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "PPMC: ERROR: board doesn't support 'extra' port\n");
+	return -1;
+    }
+rtapi_print_msg(RTAPI_MSG_ERR, "export code goes here\n" );
+
+return 0;
+}
+
+static int export_extra_dout(slot_data_t *slot, bus_data_t *bus)
+{
+    int n;
+rtapi_print_msg(RTAPI_MSG_ERR, "called export_extra_dout\n" );
+
+    /* does the board have the extra port? */
+    n=0;
+    if (slot->id == 0x40) n=1;
+    if (slot->id == 0x50 && slot->ver >= 3) n=1;
+    if ( n == 0 ) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "PPMC: ERROR: board doesn't support 'extra' port\n");
+	return -1;
+    }
+rtapi_print_msg(RTAPI_MSG_ERR, "export code goes here\n" );
+
+return 0;
+}
+
 
 /* utility functions for EPP bus */
 
