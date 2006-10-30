@@ -95,6 +95,16 @@ setup_menu_accel .menu.machine end [_ "S_top"]
 	-command reload_tool_table
 setup_menu_accel .menu.machine end [_ "Reload tool ta_ble"]
 
+.menu.machine add checkbutton \
+        -command toggle_optional_stop \
+        -variable optional_stop
+setup_menu_accel .menu.machine end [_ "Stop at M_1"]
+
+.menu.machine add checkbutton \
+        -command toggle_block_delete \
+        -variable block_delete
+setup_menu_accel .menu.machine end [_ "Skip lines with '_/'"]
+
 .menu.machine add separator
 
 .menu.machine add command \
@@ -114,7 +124,7 @@ setup_menu_accel .menu.machine end [_ "H_al Meter"]
 setup_menu_accel .menu.machine end [_ "Ha_l Scope"]
 
 .menu.machine add command \
-	-command {exec $emctop_command -ini $emcini &}
+	-command {exec emctop -ini $emcini &}
 setup_menu_accel .menu.machine end [_ "Sho_w EMC Status"]
 
 
