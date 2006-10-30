@@ -35,8 +35,14 @@ run_tests () {
     find $* -name test.hal | sort > $TMPDIR/alltests
 
     while read testname; do
-	NUM=$(($NUM+1))
 	testdir=$(dirname $testname)
+	if [ -e $testdir/skip ]; then
+	    if ! [ -x $testdir/skip ] || ! $testdir/skip; then
+		echo "Skipping test: $testdir" 1>&2
+		continue
+	    fi
+	fi
+	NUM=$(($NUM+1))
 	echo "Running test: $testdir" 1>&2
 	run_without_overruns $testname
 	exitcode=$?
