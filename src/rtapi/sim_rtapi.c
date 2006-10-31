@@ -437,6 +437,13 @@ static int maybe_sleep(int fd) {
 	    interval.tv_usec += 1000000;
 	}
 
+	if(interval.tv_sec < -10) {
+	    // Something happened, like getting stopped in the debugger
+	    // for a long time.  Instead of playing catch-up, just forget
+	    // about it
+	    rtapi_print_msg(RTAPI_MSG_DBG, "Long pause, resetting schedule\n");
+	    memcpy(&schedule, &now, sizeof(struct timeval));
+	}
 	if(interval.tv_sec > 0
 		|| (interval.tv_sec == 0 &&  interval.tv_usec >= 0)) {
 	    fd_set fds;
