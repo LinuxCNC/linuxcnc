@@ -505,6 +505,9 @@ PyObject *parse_file(PyObject *self, PyObject *args) {
 
     interp_init();
     interp_open(f);
+
+    maybe_new_line();
+
     int result = INTERP_OK;
     if(unitcode) {
         result = interp_read(unitcode);
