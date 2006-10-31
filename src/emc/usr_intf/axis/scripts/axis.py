@@ -110,6 +110,7 @@ help1 = [
     ("I", _("Select jog increment")),
     ("C", _("Continuous jog")),
     ("Home", _("Send active axis home")),
+    ("Ctrl-Home", _("Home all axes")),
     ("Shift-Home", _("Zero G54 offset for active axis")),
     ("End", _("Set G54 offset for active axis")),
     ("-, =", _("Jog active axis")),
