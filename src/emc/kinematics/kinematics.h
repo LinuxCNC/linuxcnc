@@ -73,11 +73,6 @@ typedef unsigned long int KINEMATICS_FORWARD_FLAGS;
    indicate this. */
 typedef unsigned long int KINEMATICS_INVERSE_FLAGS;
 
-/* This function gets a descriptive and hopefully unique name so
-that the controller can adjust the meaning of the parameters passed
-to kinematicsSetParams() */
-extern const char *kinematicsGetName(void);
-
 /* the forward kinematics take joint values and determine world coordinates,
    given forward kinematics flags to resolve any ambiguities. The inverse
    flags are set to indicate their value appropriate to the joint values
@@ -92,7 +87,7 @@ extern int kinematicsForward(const double *joint,
    flags are set to indicate their value appropriate to the world coordinates
    passed in. */
 extern int kinematicsInverse(const EmcPose * world,
-			     double *joints,
+			     double *joint,
 			     const KINEMATICS_INVERSE_FLAGS * iflags,
 			     KINEMATICS_FORWARD_FLAGS * fflags);
 
@@ -108,20 +103,5 @@ extern int kinematicsHome(EmcPose * world,
 			  KINEMATICS_INVERSE_FLAGS * iflags);
 
 extern KINEMATICS_TYPE kinematicsType(void);
-
-/* sets the mechanism parameters. The caller needs to know how to set
-   each p[] value. Typically this is either hard-coded, or can be part
-   of a .ini file, e.g., [TRAJ] KINEMATICS_PARAMETERS = 1.0 2.0 -3.1416,
-   where the writer of the .ini file knows how the kinematicsSetParameters()
-   function for the particular controller will use these values. */
-extern int kinematicsSetParameters(const double *p);
-
-extern int jacobianInverse(const EmcPose * pos,
-			   const EmcPose * vel, const double *joints,
-			   double *jointvels);
-
-extern int jacobianForward(const double *joints,
-			   const double *jointvels, const EmcPose * pos,
-			   EmcPose * vel);
 
 #endif
