@@ -183,20 +183,6 @@ For a non-singleton, the '
 count
 \family default 
 ' module parameter determines how many numbered instances are created.
- Instances may be created later using '
-\family typewriter 
-halcmd newinst
-\family default 
-'.
- In this case, the prefix is name given to 
-\family typewriter 
-newinst
-\family default 
-, not 
-\family typewriter 
-component.<num>
-\family default 
-.
 \layout Section
 
 Syntax
@@ -539,11 +525,6 @@ singleton
 component-name.<num>.item-name
 \family default 
 .
- A new instance of a singleton cannot be created with '
-\family typewriter 
-halcmd newinst
-\family default 
-'.
 \layout Description
 
 option\SpecialChar ~
@@ -681,18 +662,6 @@ rtapi_app_exit
 rtapi_app_main
 \family default 
 .
-\layout Description
-
-option\SpecialChar ~
-constructable\SpecialChar ~
-no (default: yes)
-\newline 
-If specified, new instances of the component may not be created by 
-\family typewriter 
-halcmd newinst
-\family default 
-.
- Singletons are also not constructable.
 \layout Standard
 
 If an option's VALUE is not specified, then it is equivalent to specifying
