@@ -6029,6 +6029,12 @@ O Codes
 O-codes provide for flow control in NC programs.
  Each block has an associated number, which is the number used after O.
  Care must be taken to properly match the O-numbers.
+\layout Standard
+
+The behavior is undefined if
+\layout Itemize
+
+Other words are used on a line with an O- word
 \layout Section
 
 Subroutines: 
@@ -6116,7 +6122,8 @@ O- endsub
 \family typewriter 
 O- call
 \family default 
- takes optional arguments, which are passed to the subroutine as 
+ takes up to 30 optional arguments, which are passed to the subroutine as
+ 
 \family typewriter 
 #1
 \family default 
@@ -6124,14 +6131,14 @@ O- call
 \family typewriter 
 #2
 \family default 
-, etc up to 
-\family typewriter 
-#30
-\family default 
-.
- On return from the subroutine the previous values of those parameters will
- be restored.
- Because 
+, ..., #N.
+ Parameters from #N+1 to #30 have the same value as in the calling context.
+ On return from the subroutine the previous values parameters #1 through
+ #30 (regardless of the number of arguments) will be restored to the values
+ they had before the call.
+\layout Standard
+
+Because 
 \begin_inset Quotes eld
 \end_inset 
 
@@ -6143,7 +6150,8 @@ O- call
 \begin_inset Quotes erd
 \end_inset 
 
- is parsed as the number 123, the parameters must be enclosed in angle brackets.
+ is parsed as the number 123, the parameters must be enclosed in square
+ brackets.
  The following calls a subroutine with 3 arguments:
 \layout LyX-Code
 
@@ -6155,6 +6163,18 @@ Subroutine bodies may not be nested.
  They may be called from other functions, and may call themselves recursively
  if it makes sense to do so.
  The maximum subroutine nesting level is 10.
+\layout Standard
+
+Subroutines do not have 
+\begin_inset Quotes eld
+\end_inset 
+
+return values
+\begin_inset Quotes erd
+\end_inset 
+
+, but they may change the value of parameters above #30 and those changes
+ will be visible to the calling code.
 \layout Section
 
 Looping: 
@@ -6304,6 +6324,15 @@ O102 else
 F200
 \newline 
 O102 endif
+\layout Section
+
+Indirection
+\layout Standard
+
+The O- value may be given by a parameter or calculation.
+\layout LyX-Code
+
+O[#101+2] call
 \layout Chapter
 
 Other Codes
@@ -6478,8 +6507,7 @@ spindle on or off (M3, M4, M5).
 coolant on or off (M7, M8, M9).
 \layout Enumerate
 
-.
- enable or disable overrides (M48, M49).
+enable or disable overrides (M48, M49).
  
 \layout Enumerate
 
