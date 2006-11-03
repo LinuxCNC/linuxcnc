@@ -1,0 +1,74 @@
+# counting the spindle encoder in software
+loadrt encoder num_chan=1
+# simulate the encoder
+loadrt sim_encoder num_chan=1
+loadrt not count=1
+addf not.0			servo-thread
+
+#######################################################
+# Beginning of threading related stuff
+#######################################################
+
+# spindle speed control
+newsig spindle-speed-cmd float
+linkps motion.spindle-speed-out => spindle-speed-cmd
+linksp spindle-speed-cmd => sim-encoder.0.speed
+
+# spindle encoder
+# connect encoder signals to encoder counter
+newsig spindle-phase-A bit
+newsig spindle-phase-B bit
+newsig spindle-phase-Z bit
+linksp spindle-phase-A => encoder.0.phase-A
+linksp spindle-phase-B => encoder.0.phase-B
+linksp spindle-phase-Z => encoder.0.phase-Z
+
+linkps sim-encoder.0.phase-A => spindle-phase-A
+linkps sim-encoder.0.phase-B => spindle-phase-B
+linkps sim-encoder.0.phase-Z => spindle-phase-Z
+
+# assume 120 ppr = 480 counts/rev for the spindle
+setp sim-encoder.0.ppr 120
+# iocontrol output is in rpm, but sim-encoder speed is rps
+setp sim-encoder.0.scale 60
+# scale encoder output to read in revolutions
+# (that way thread pitches can be straightforward,
+#  a 20 tpi thread would multiply the encoder output
+#  by 1/20, etc)
+setp encoder.0.position-scale 480
+
+# encoder reset control
+# this signal will eventually be driven by the motion
+# controller, TRUE for synced motion, FALSE the rest of
+# the time.
+newsig spindle-sync bit
+# needs inverted to connect to index enable
+newsig spindle-index-en bit
+linksp spindle-sync	=> not.0.in
+linkps not.0.out	=> spindle-index-en
+linksp spindle-index-en	=> encoder.0.index-enable
+
+# hook up motion controller's sync output
+linkps motion.spindle-sync => spindle-sync
+
+# report our revolution count to the motion controller
+newsig spindle-pos float
+linkps encoder.0.position => spindle-pos
+linksp spindle-pos => motion.spindle-revs
+
+# for spindle velocity estimate
+loadrt lowpass count=1
+newsig spindle-rpm-raw float
+newsig spindle-rpm-filtered float
+linksp spindle-rpm-raw encoder.0.velocity
+linksp spindle-rpm-raw lowpass.0.in
+linksp spindle-rpm-filtered lowpass.0.out
+setp lowpass.0.gain .03
+addf lowpass.0 servo-thread
+
+
+addf encoder.capture-position servo-thread
+addf sim-encoder.update-speed servo-thread
+
+addf sim-encoder.make-pulses    base-thread
+addf encoder.update-counters    base-thread
