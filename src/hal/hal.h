@@ -494,14 +494,11 @@ extern int hal_link(char *pin_name, char *sig_name);
     'name' is the name of the new parameter.  If longer than HAL_NAME_LEN
     it will be truncated.  If there is already a parameter with the same
     name the call will fail.
-    'dir' is the parameter direction.  HAL_WR parameters may be written
-    from outside the component, and are not modified by the component
-    itself.  They are typically used for tuning or configuring the
-    component.  HAL_RD paramters are read only from outside, and are
-    written to by the component itself, typically to provide a view
-    "into" the component for testing or troubleshooting.  HAL_RD_WR
-    parameters are writable from outside and also sometimes modified
-    by the component itself as well.
+    'dir' is the parameter direction.  HAL_RO paramters are read only from
+    outside, and are written to by the component itself, typically to provide a
+    view "into" the component for testing or troubleshooting.  HAL_RW
+    parameters are writable from outside and also sometimes modified by the
+    component itself as well.
     'data_addr' is the address where the value of the parameter is to be
     stored.  'data_addr' must point to memory allocated by hal_malloc().
     Typically the component allocates space for a data structure with
@@ -564,14 +561,11 @@ extern int hal_param_s32_newf(hal_param_dir_t dir, hal_s32_t * data_addr,
     functions above.
     'type' is the hal type of the new parameter - the type of data
     that will be stored in the parameter.
-    'dir' is the parameter direction.  HAL_WR parameters may be written
-    from outside the component, and are not modified by the component
-    itself.  They are typically used for tuning or configuring the
-    component.  HAL_RD paramters are read only from outside, and are
-    written to by the component itself, typically to provide a view
-    "into" the component for testing or troubleshooting.  HAL_RD_WR
-    parameters are writable from outside and also sometimes modified
-    by the component itself as well.
+    'dir' is the parameter direction.  HAL_RO paramters are read only from
+    outside, and are written to by the component itself, typically to provide a
+    view "into" the component for testing or troubleshooting.  HAL_RW
+    parameters are writable from outside and also sometimes modified by the
+    component itself as well.
     If successful, hal_param_new() returns HAL_SUCCESS.  On failure
     it returns a negative error code.
 */
