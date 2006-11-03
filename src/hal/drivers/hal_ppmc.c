@@ -297,13 +297,11 @@ typedef struct slot_data_s {
     unsigned char strobe;	/* does this slot need a latch strobe */
     unsigned char slot_base;	/* base addr of this 16 byte slot */
     unsigned int port_addr;	/* addr of parport */
-    unsigned char first_rd;	/* first epp address needed by read_all */
-    unsigned char last_rd;	/* last epp address needed by read_all */
+    __u32 read_bitmap;		/* map showing which registers to read */
     unsigned char num_rd_functs;/* number of read functions */
     unsigned char rd_buf[32];	/* cached data read from epp bus */
     slot_funct_t *rd_functs[MAX_FUNCT];	/* array of read functions */
-    unsigned char first_wr;	/* first epp address needed by write_all */
-    unsigned char last_wr;	/* last epp address needed by write_all */
+    __u32 write_bitmap;		/* map showing which registers to write */
     unsigned char num_wr_functs;/* number of write functions */
     unsigned char wr_buf[32];	/* cached data to be written to epp bus */
     slot_funct_t *wr_functs[MAX_FUNCT];	/* array of write functions */
@@ -495,10 +493,8 @@ int rtapi_app_main(void)
 	    slot->strobe = 0;
 	    slot->slot_base = slotnum * SLOT_SIZE;
 	    slot->port_addr = port_addr[busnum];
-	    slot->first_rd = 31;
-	    slot->last_rd = 0;
-	    slot->first_wr = 31;
-	    slot->last_wr = 0;
+	    slot->read_bitmap = 0;
+	    slot->write_bitmap = 0;
 	    /* clear EPP read and write caches */
 	    for ( n = 0 ; n < 32 ; n++ ) {
 		slot->rd_buf[n] = 0;
@@ -632,6 +628,10 @@ int rtapi_app_main(void)
 		rv1 = -1;
 		break;
             }
+rtapi_print_msg(RTAPI_MSG_ERR,
+    "read cache bitmap: %08x\n", slot->read_bitmap );
+rtapi_print_msg(RTAPI_MSG_ERR,
+    "write cache bitmap: %08x\n", slot->write_bitmap );
 	} /* end of slot loop */
 	if ( rv1 != 0 ) {
 	    /* error during slot scan, already printed */
@@ -750,8 +750,9 @@ static void read_all(void *arg, long period)
 {
     bus_data_t *bus;
     slot_data_t *slot;
-    int slotnum, functnum;
+    int slotnum, functnum, addr_ok;
     unsigned char n, eppaddr;
+    __u32 bitmap;
 
     /* get pointer to bus data structure */
     bus = *(bus_data_t **)(arg);
@@ -775,16 +776,31 @@ static void read_all(void *arg, long period)
 	      SelWrt(0x00, slot->slot_base + ENCRATE, slot->port_addr);
 	    }
 	    /* fetch data from EPP to cache */
-	    if ( slot->first_rd <= slot->last_rd ) {
-		/* need to read some data */
-		n = slot->first_rd;
-		eppaddr = slot->slot_base + slot->first_rd;
-		/* read first byte */
-		slot->rd_buf[n++] = SelRead(eppaddr, slot->port_addr);
-		/* read the rest */
-		while ( n <= slot->last_rd ) {
-		    slot->rd_buf[n++] = ReadMore(slot->port_addr);
+	    addr_ok = 0;
+	    bitmap = slot->read_bitmap;
+	    n = 0;
+	    while ( bitmap ) {
+		if ( bitmap & 1 ) {
+		    /* need to read register 'n' */
+		    if ( addr_ok ) {
+			/* auto-increment address is usable */
+			slot->rd_buf[n] = ReadMore(slot->port_addr);
+		    } else {
+			/* need to specify address */
+			eppaddr = slot->slot_base + n;
+			/* send address and read byte */
+			slot->rd_buf[n++] = SelRead(eppaddr, slot->port_addr);
+			/* mark auto-incrementing address as valid */
+			addr_ok = 1;
+		    }
+		} else {
+		    /* don't need to read this register */
+		    /* mark auto-incrementing address as invalid */
+		    addr_ok = 0;
 		}
+		/* next register */
+		n++;
+		bitmap >>= 1;
 	    }
 	    /* loop thru all functions associated with slot */
 	    for ( functnum = 0 ; functnum < slot->num_rd_functs ; functnum++ ) {
@@ -799,8 +815,9 @@ static void write_all(void *arg, long period)
 {
     bus_data_t *bus;
     slot_data_t *slot;
-    int slotnum, functnum;
+    int slotnum, functnum, addr_ok;
     unsigned char n, eppaddr;
+    __u32 bitmap;
 
     /* get pointer to bus data structure */
     bus = *(bus_data_t **)(arg);
@@ -820,16 +837,31 @@ static void write_all(void *arg, long period)
 		(slot->wr_functs[functnum])(slot);
 	    }
 	    /* write data from cache to EPP */
-	    if ( slot->first_wr <= slot->last_wr ) {
-		/* need to write some data */
-		n = slot->first_wr;
-		eppaddr = slot->slot_base + slot->first_wr;
-		/* write first byte */
-		SelWrt(slot->wr_buf[n++], eppaddr, slot->port_addr);
-		/* write the rest */
-		while ( n <= slot->last_wr ) {
-		    WrtMore(slot->wr_buf[n++], slot->port_addr);
+	    addr_ok = 0;
+	    bitmap = slot->write_bitmap;
+	    n = 0;
+	    while ( bitmap ) {
+		if ( bitmap & 1 ) {
+		    /* need to write data register 'n' */
+		    if ( addr_ok ) {
+			/* auto-increment address is usable */
+			WrtMore(slot->wr_buf[n], slot->port_addr);
+		    } else {
+			/* need to specify address */
+			eppaddr = slot->slot_base + n;
+			/* send address and write byte */
+			SelWrt(slot->wr_buf[n], eppaddr, slot->port_addr);
+			/* mark auto-incrementing address as valid */
+			addr_ok = 1;
+		    }
+		} else {
+		    /* don't need to write this one */
+		    /* mark auto-incrementing address as invalid */
+		    addr_ok = 0;
 		}
+		/* next register */
+		n++;
+		bitmap >>= 1;
 	    }
 	}
     }
@@ -1141,7 +1173,7 @@ static void write_stepgens(slot_data_t *slot)
 	    control_byte |= 0x80;
 	}
 	/* set dir bit in the control byte, and save the frequency */
-	if ( reverse ) {	    
+	if ( reverse ) {
 	    sg->freq = -freq;
 	} else {
 	    sg->freq = freq;
@@ -1395,7 +1427,7 @@ static void write_extraDAC(slot_data_t *slot)
 /* these functions are used to register a runtime function to be called
    by either read_all or write_all.  'min_addr' and 'max_addr' define
    the range of EPP addresses that the function needs.  All addresses
-   needed by all functions associated with the slot woll be sequentially
+   needed by all functions associated with the slot will be sequentially
    read into the rd_buf cache (or written from the wr_buf cache) 
    by read_all or write_all respectively, to minimize the number of 
    slow inb and outb operations needed.
@@ -1404,17 +1436,18 @@ static void write_extraDAC(slot_data_t *slot)
 static int add_rd_funct(slot_funct_t *funct, slot_data_t *slot,
 			int min_addr, int max_addr )
 {
+    int n;
+
     if ( slot->num_rd_functs >= MAX_FUNCT ) {
 	rtapi_print_msg(RTAPI_MSG_ERR, 
 	    "PPMC: ERROR: too many read functions\n");
 	return -1;
     }
     slot->rd_functs[slot->num_rd_functs++] = funct;
-    if ( slot->first_rd > min_addr ) {
-	slot->first_rd = min_addr;
-    }
-    if ( slot->last_rd < max_addr ) {
-	slot->last_rd = max_addr;
+    for ( n = min_addr ; n <= max_addr ; n++ ) {
+	slot->read_bitmap |= ( 1 << n );
+rtapi_print_msg(RTAPI_MSG_ERR,
+    "PPMC: added register %d to read cache bitmap\n", n );
     }
     return 0;
 }
@@ -1422,17 +1455,18 @@ static int add_rd_funct(slot_funct_t *funct, slot_data_t *slot,
 static int add_wr_funct(slot_funct_t *funct, slot_data_t *slot,
 			int min_addr, int max_addr )
 {
+    int n;
+
     if ( slot->num_wr_functs >= MAX_FUNCT ) {
 	rtapi_print_msg(RTAPI_MSG_ERR, 
 	    "PPMC: ERROR: too many write functions\n");
 	return -1;
     }
     slot->wr_functs[slot->num_wr_functs++] = funct;
-    if ( slot->first_wr > min_addr ) {
-	slot->first_wr = min_addr;
-    }
-    if ( slot->last_wr < max_addr ) {
-	slot->last_wr = max_addr;
+    for ( n = min_addr ; n <= max_addr ; n++ ) {
+	slot->write_bitmap |= ( 1 << n );
+rtapi_print_msg(RTAPI_MSG_ERR,
+    "PPMC: added register %d to write cache bitmap\n", n );
     }
     return 0;
 }
