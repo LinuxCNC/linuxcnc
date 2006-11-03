@@ -108,10 +108,6 @@ int rtapi_shmem_delete(int handle, int module_id)
   if(r2 == 0 && d.shm_nattch == 0) {
       r2 = shmctl(shmem->id, IPC_RMID, &d);
   }
-  /* FIXME - Fred had the first two arguments reversed.  I changed
-     them to match the shmctl man page on my machine.  Since his way
-     worked, maybe there is difference between different libs, or
-     maybe my man page is just wrong. */
 
   /* free the shmem structure */
   shmem->magic = 0;
