@@ -789,7 +789,7 @@ static void read_all(void *arg, long period)
 			/* need to specify address */
 			eppaddr = slot->slot_base + n;
 			/* send address and read byte */
-			slot->rd_buf[n++] = SelRead(eppaddr, slot->port_addr);
+			slot->rd_buf[n] = SelRead(eppaddr, slot->port_addr);
 			/* mark auto-incrementing address as valid */
 			addr_ok = 1;
 		    }
@@ -2060,7 +2060,7 @@ static int export_extra_dac(slot_data_t *slot, bus_data_t *bus)
     /* does the board have the extra port? */
     n=0;
     if (slot->id == 0x40) n=1;
-    if (slot->id == 0x50 && slot->ver >= 3) n=1;
+    if (slot->id == 0x50 && slot->ver >= 2) n=1;
     if ( n == 0 ) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "PPMC: ERROR: board doesn't support 'extra' port\n");
