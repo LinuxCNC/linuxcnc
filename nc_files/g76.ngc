@@ -1,0 +1,24 @@
+s800 m3
+g20 g64
+t6 m6
+g0x.2
+
+(taper)
+g0z.025
+g0x.07
+f2
+g1x.14z-.04
+
+(turn OD)
+g0x.2
+z0
+g1x.120
+z-.5
+
+(thread)
+g0x.2
+z.2
+g76 p.05 z-.5 i[.2-.125] j.008 k.043 h4 r2 q29
+g0x.5
+m2
+
