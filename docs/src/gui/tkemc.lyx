@@ -44,7 +44,7 @@ Introduction
 
 TkEMC is one of the most traditional graphical front-ends for EMC.
  It is written in Tcl and uses the Tk toolkit for the display.
- Beeing written in TCL makes it very portable (runs on a multitude of platforms).
+ Being written in TCL makes it very portable (runs on a multitude of platforms).
 \layout Standard
 
 
@@ -121,7 +121,7 @@ Clear the
 \begin_inset Quotes eld
 \end_inset 
 
-ESTOP
+E-STOP
 \begin_inset Quotes erd
 \end_inset 
 
@@ -438,9 +438,7 @@ Backplot
 \layout Standard
 
 When the machine moves, it leaves a trail called the backplot.
- The color of the line indicates the type of motion: Yellow for jogs, faint
- green for rapid movements, red for straight moves at a feed rate, and magenta
- for circular moves at a feed rate.
+ You can start the backplot window by selecting View->Backplot.
 \layout Subsection
 
 Automatic control
