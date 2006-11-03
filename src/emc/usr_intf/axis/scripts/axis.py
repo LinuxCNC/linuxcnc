@@ -1969,7 +1969,7 @@ class TclCommands(nf.TclCommands):
 
     def launch_website(event=None):
         import webbrowser
-        webbrowser.open("http://axis.unpy.net")
+        webbrowser.open("http://www.linuxcnc.org/")
 
     def set_spindlerate(newval):
         global spindlerate_blackout
@@ -2900,6 +2900,7 @@ widgets.feedoverride.set(100)
 commands.set_feedrate(100)
 
 def forget(widget, *pins):
+    if os.environ.has_key("AXIS_NO_AUTOCONFIGURE"): return
     for p in pins:
         if hal.pin_has_writer(p): return
     m = widget.winfo_manager()
