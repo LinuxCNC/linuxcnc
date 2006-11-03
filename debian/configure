@@ -43,7 +43,7 @@ case $1 in
 	KERNEL_DEPENDS=
 	KERNEL_HEADERS=	
 	DRIVERS=
-        EXTRA_FILES="usr/bin/rtapi_app usr/bin/simmot"
+        EXTRA_FILES="usr/bin/rtapi_app"
     ;;
     2.6.12-magma)
         KERNEL_HEADERS="$KERNEL_HEADERS,gcc-3.4"
