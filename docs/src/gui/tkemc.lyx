@@ -464,6 +464,7 @@ TkEMC Interpreter / program control
 
 \begin_inset Graphics
 	filename tkemc_interp.png
+	scale 80
 
 \end_inset 
 
@@ -670,6 +671,7 @@ TkEMC Override Limits & Jogging increments example
 
 \begin_inset Graphics
 	filename tkemc_override_limits.png
+	scale 80
 
 \end_inset 
 
@@ -753,6 +755,7 @@ The Code Entry tab
 
 \begin_inset Graphics
 	filename tkemc_mdi.png
+	scale 80
 
 \end_inset 
 
