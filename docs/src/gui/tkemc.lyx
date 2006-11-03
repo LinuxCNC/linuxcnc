@@ -1,18 +1,29 @@
-#LyX 1.1 created this file. For more info see http://www.lyx.org/
-\lyxformat 218
+#LyX 1.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 221
 \textclass book
+\begin_preamble
+\usepackage[plainpages=false,pdfpagelabels,colorlinks=true,linkcolor=blue]{hyperref}
+\end_preamble
 \language english
 \inputencoding default
 \fontscheme bookman
 \graphics default
-\float_placement h
+\float_placement !!h
 \paperfontsize 10
 \spacing single 
-\papersize Default
-\paperpackage a4wide
-\use_geometry 0
+\papersize Custom
+\paperpackage a4
+\use_geometry 1
 \use_amsmath 0
+\use_natbib 0
+\use_numerical_citations 0
 \paperorientation portrait
+\paperwidth 8.5in
+\paperheight 11in
+\leftmargin 1.2in
+\topmargin 1in
+\rightmargin 0.6in
+\bottommargin 0.6in
 \secnumdepth 5
 \tocdepth 5
 \paragraph_separation skip
@@ -25,9 +36,1100 @@
 
 \layout Chapter
 
-Using The TKEMC Graphical Interface
-\layout Comment
+Using the TkEMC Graphical Interface
+\layout Section
 
-Describe the logic of tkemc.
- Show the screen and how to access configuration and scripts
+Introduction
+\layout Standard
+
+TkEMC is one of the most traditional graphical front-ends for EMC.
+ It is written in Tcl and uses the Tk toolkit for the display.
+ Beeing written in TCL makes it very portable (runs on a multitude of platforms).
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Caption
+
+TkEMC Window
+\begin_inset LatexCommand \label{cap:TkEMC-Window}
+
+\end_inset 
+
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename ../common/tkemc.png
+	lyxscale 50
+	width 80page%
+	keepAspectRatio
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Section
+
+Getting Started
+\layout Standard
+
+To select TkEMC as the front-end for emc2, edit the .ini file.
+ In the section 
+\family typewriter 
+[DISPLAY]
+\family default 
+ change the 
+\family typewriter 
+DISPLAY
+\family default 
+ line to read
+\layout LyX-Code
+
+DISPLAY = tkemc
+\layout Standard
+
+Then, start emc2 and select that ini file.
+ The sample configuration 
+\family typewriter 
+sim/tkemc.ini
+\family default 
+ is already configured to use TkEMC as its front-end.
+\layout Standard
+
+When you start emc2 with TkEMC, a window like the one in Figure 
+\begin_inset LatexCommand \ref{cap:TkEMC-Window}
+
+\end_inset 
+
+ is shown.
+\layout Subsection
+
+A typical session with TkEMC
+\layout Enumerate
+
+Start emc and select a configuration file.
+\layout Enumerate
+
+Clear the 
+\begin_inset Quotes eld
+\end_inset 
+
+ESTOP
+\begin_inset Quotes erd
+\end_inset 
+
+ condition and turn the machine on (by pressing F1 then F2).
+\layout Enumerate
+
+
+\begin_inset Quotes eld
+\end_inset 
+
+Home
+\begin_inset Quotes erd
+\end_inset 
+
+ each axis.
+\layout Enumerate
+
+Load the file to be milled.
+\layout Enumerate
+
+Put the stock to be milled on the table.
+\layout Enumerate
+
+Set the proper offsets for each axis by jogging and either homing again
+ or richt-clicking an axis name and entering an offset value.
+\layout Enumerate
+
+Run the program.
+\layout Enumerate
+
+To mill the same file again, return to step 6.
+ To mill a different file, return to step 4.
+ When you're done, exit emc2.
+\layout Section
+
+Elements of the TkEMC window
+\layout Standard
+
+The TkEMC window contains the following elements:
+\layout Itemize
+
+A menubar that allows you to perform various actions ;
+\layout Itemize
+
+A set of buttons that allow you to change the current working mode, start/stop
+ spindle and other relevant I/O ;
+\layout Itemize
+
+Status bar for various offset related displays ;
+\layout Itemize
+
+Coordinate display area ;
+\layout Itemize
+
+A set of sliders which control 
+\begin_inset Quotes eld
+\end_inset 
+
+Jogging speed
+\begin_inset Quotes erd
+\end_inset 
+
+, 
+\begin_inset Quotes eld
+\end_inset 
+
+Feed Override
+\begin_inset Quotes erd
+\end_inset 
+
+, and 
+\begin_inset Quotes eld
+\end_inset 
+
+Spindle speed Override
+\begin_inset Quotes erd
+\end_inset 
+
+ which allow you to increase or decrease those settings ;
+\layout Itemize
+
+Manual data input text box ; 
+\layout Itemize
+
+Status bar display with active G-codes, M-codes, F- and S-words ;
+\layout Itemize
+
+Interpreter related buttons ;
+\layout Itemize
+
+A text display area that shows the G-code source of the loaded file.
+\layout Subsection
+
+Main buttons
+\layout Standard
+
+From left to right, the buttons are:
+\layout Enumerate
+
+Machine enable: 
+\begin_inset Quotes eld
+\end_inset 
+
+ESTOP
+\begin_inset Quotes erd
+\end_inset 
+
+ / 
+\begin_inset Quotes eld
+\end_inset 
+
+ESTOP RESET
+\begin_inset Quotes erd
+\end_inset 
+
+ / 
+\begin_inset Quotes eld
+\end_inset 
+
+ON
+\begin_inset Quotes erd
+\end_inset 
+
+ 
+\layout Enumerate
+
+Toggle mist
+\layout Enumerate
+
+Decrease spindle speed
+\layout Enumerate
+
+Set spindle direction 
+\begin_inset Quotes eld
+\end_inset 
+
+SPINDLE OFF
+\begin_inset Quotes erd
+\end_inset 
+
+ / 
+\begin_inset Quotes eld
+\end_inset 
+
+SPINDLE FORWARD
+\begin_inset Quotes erd
+\end_inset 
+
+ / 
+\begin_inset Quotes eld
+\end_inset 
+
+SPINDLE REVERSE
+\begin_inset Quotes erd
+\end_inset 
+
+
+\layout Enumerate
+
+Increase spindle speed
+\layout Enumerate
+
+Abort
+\layout Standard
+
+then on the second line:
+\layout Enumerate
+
+Operation mode: 
+\begin_inset Quotes eld
+\end_inset 
+
+MANUAL
+\begin_inset Quotes erd
+\end_inset 
+
+ / 
+\begin_inset Quotes eld
+\end_inset 
+
+MDI
+\begin_inset Quotes erd
+\end_inset 
+
+ / 
+\begin_inset Quotes eld
+\end_inset 
+
+AUTO
+\begin_inset Quotes erd
+\end_inset 
+
+
+\layout Enumerate
+
+Toggle flood
+\layout Enumerate
+
+Toggle spindle brake control
+\layout Subsection
+
+Offset display status bar
+\layout Standard
+
+The Offset display status bar displays the currently selected tool (selected
+ with Txx M6), the tool length offset (if active), and the work offsets
+ (set by right clicking the coordinates).
+\layout Subsection
+
+Coordinate Display Area
+\layout Standard
+
+The main part of the display shows the current position of the tool.
+ The colour of the position readout depends on the state of the axis.
+ If the axis is unhomed the axis will be displayed in yellow letters.
+ Once homed it will be displayed in green letters.
+ If there is an error with the current axis TkEMC will use red letter to
+ show that.
+ (for example if an hardware limit switch is tripped).
+\layout Standard
+
+To properly interpret these numbers, refer to the radio boxes on the right.
+ If the position is 
+\begin_inset Quotes eld
+\end_inset 
+
+Machine
+\begin_inset Quotes erd
+\end_inset 
+
+, then the displayed number is in the machine coordinate system.
+ If it is 
+\begin_inset Quotes eld
+\end_inset 
+
+Relative
+\begin_inset Quotes erd
+\end_inset 
+
+, then the displayed number is in the offset coordinate system.
+ Further down the choices can be 
+\begin_inset Quotes eld
+\end_inset 
+
+actual
+\begin_inset Quotes erd
+\end_inset 
+
+ or 
+\begin_inset Quotes eld
+\end_inset 
+
+commanded
+\begin_inset Quotes erd
+\end_inset 
+
+.
+ Actual refers to the feedback coming from encoders (if you have a servo
+ machine), and the 
+\begin_inset Quotes eld
+\end_inset 
+
+commanded
+\begin_inset Quotes erd
+\end_inset 
+
+ refers to the position command send out to the motors.
+ These values can differ for several reasons: Following error, deadband,
+ encoder resolution, or step size.
+ For instance, if you command a movement to X 0.0033 on your mill, but one
+ step of your stepper motor is 0.00125, then the 
+\begin_inset Quotes eld
+\end_inset 
+
+Commanded
+\begin_inset Quotes erd
+\end_inset 
+
+ position will be 0.0033 but the 
+\begin_inset Quotes eld
+\end_inset 
+
+Actual
+\begin_inset Quotes erd
+\end_inset 
+
+ position will be 0.0025 (2 steps) or 0.00375 (3 steps).
+\layout Standard
+
+Another set of radio buttons allows you to choose between 
+\begin_inset Quotes eld
+\end_inset 
+
+joint
+\begin_inset Quotes erd
+\end_inset 
+
+ and 
+\begin_inset Quotes eld
+\end_inset 
+
+world
+\begin_inset Quotes erd
+\end_inset 
+
+ view.
+ These make little sense on a normal type of machine (e.g.
+ trivial kinematics), but helps on machines with non-trivial kinematics
+ like robots or stewart platforms.
+ (you can read more about kinematics in the Integrators Handbook).
+\layout Subsubsection
+
+Backplot
+\layout Standard
+
+When the machine moves, it leaves a trail called the backplot.
+ The color of the line indicates the type of motion: Yellow for jogs, faint
+ green for rapid movements, red for straight moves at a feed rate, and magenta
+ for circular moves at a feed rate.
+\layout Subsection
+
+Automatic control
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Caption
+
+TkEMC Interpreter / program control
+\begin_inset LatexCommand \label{cap:TkEMC-Interpreter}
+
+\end_inset 
+
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename tkemc_interp.png
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Subsubsection
+
+Buttons for control
+\layout Standard
+
+The buttons in the lower part of TkEMC (seen in Figure 
+\begin_inset LatexCommand \ref{cap:TkEMC-Interpreter}
+
+\end_inset 
+
+) are used to control the execution of a program: 
+\begin_inset Quotes eld
+\end_inset 
+
+Open
+\begin_inset Quotes erd
+\end_inset 
+
+ to load a program, 
+\begin_inset Quotes eld
+\end_inset 
+
+Verify
+\begin_inset Quotes erd
+\end_inset 
+
+ to check it for errors, 
+\begin_inset Quotes eld
+\end_inset 
+
+Run
+\begin_inset Quotes erd
+\end_inset 
+
+ to start the actual cutting, 
+\begin_inset Quotes eld
+\end_inset 
+
+Pause
+\begin_inset Quotes erd
+\end_inset 
+
+ to stop it while running, 
+\begin_inset Quotes eld
+\end_inset 
+
+Resume
+\begin_inset Quotes erd
+\end_inset 
+
+ to resume an already paused program, 
+\begin_inset Quotes eld
+\end_inset 
+
+Step
+\begin_inset Quotes erd
+\end_inset 
+
+ to advance one line in the program and 
+\begin_inset Quotes eld
+\end_inset 
+
+Optional Stop
+\begin_inset Quotes erd
+\end_inset 
+
+ to toggle the optional stop switch (if the button is green the program
+ execution will be stopped on any M1 encountered).
+\layout Subsubsection
+
+Text Program Display Area
+\layout Standard
+
+When the program is running, the line currently being executed is highlighted
+ in white.
+ The text display will automatically scroll to show the current line.
+\layout Subsection
+
+Manual Control
+\layout Subsubsection
+
+Implicit keys
+\layout Standard
+
+TkEMC allows you to manually move the machine.
+ This action is known as 
+\begin_inset Quotes eld
+\end_inset 
+
+jogging
+\begin_inset Quotes erd
+\end_inset 
+
+.
+ First, select the axis to be moved by clicking it.
+ Then, click and hold the 
+\begin_inset Quotes eld
+\end_inset 
+
++
+\begin_inset Quotes erd
+\end_inset 
+
+ or 
+\begin_inset Quotes eld
+\end_inset 
+
+-
+\begin_inset Quotes erd
+\end_inset 
+
+ button depending on the desired direction of motion.
+ The first four axes can also be moved by the arrow keys (X and Y), PAGE
+ UP and PAGE DOWN keys (Z) and the [ and ] keys (A).
+\layout Standard
+
+If 
+\begin_inset Quotes eld
+\end_inset 
+
+Continuous
+\begin_inset Quotes erd
+\end_inset 
+
+ is selected, the motion will continue as long as the button or key is pressed.
+ If another value is selected, the machine will move exactly the displayed
+ distance each time the button is clicked or the key is pressed.
+ The available values are:
+\layout Quotation
+
+1.0000 0.1000 0.0100 0.0010 0.0001
+\layout Standard
+
+By pressing 
+\begin_inset Quotes eld
+\end_inset 
+
+Home
+\begin_inset Quotes erd
+\end_inset 
+
+ or the HOME key, the selected axis will be homed.
+ Depending on your configuration, this may just set the axis value to be
+ the absolute position 0.0, or it may make the machine move to a specific
+ home location through use of 
+\begin_inset Quotes eld
+\end_inset 
+
+home switches
+\begin_inset Quotes erd
+\end_inset 
+
+ (see section 
+\begin_inset LatexCommand \ref{sec:Homing}
+
+\end_inset 
+
+ for more information on homing)
+\layout Standard
+
+By pressing 
+\begin_inset Quotes eld
+\end_inset 
+
+Override Limits
+\begin_inset Quotes erd
+\end_inset 
+
+, the machine will temporarily be permitted to jog outside the limits defined
+ in the .ini file.
+ (Note: if 
+\begin_inset Quotes eld
+\end_inset 
+
+Override Limits
+\begin_inset Quotes erd
+\end_inset 
+
+ is active the button will be displayed using a red colour).
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Caption
+
+TkEMC Override Limits & Jogging increments example 
+\begin_inset LatexCommand \label{cap:Override-Limits}
+
+\end_inset 
+
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename tkemc_override_limits.png
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Subsubsection
+
+The 
+\begin_inset Quotes eld
+\end_inset 
+
+Spindle
+\begin_inset Quotes erd
+\end_inset 
+
+ group
+\layout Standard
+
+The buttons on the first row select the direction for the spindle to rotate:
+ Counterclockwise, Stopped, Clockwise.
+ The buttons on the next row increase or decrease the rotation speed.
+ The checkbox on the third row allows the spindle brake to be engaged or
+ released.
+ Depending on your machine configuration, not all the items in this group
+ may appear.
+\layout Subsubsection
+
+The 
+\begin_inset Quotes eld
+\end_inset 
+
+Coolant
+\begin_inset Quotes erd
+\end_inset 
+
+ group
+\layout Standard
+
+The two buttons allow the 
+\begin_inset Quotes eld
+\end_inset 
+
+Mist
+\begin_inset Quotes erd
+\end_inset 
+
+ and 
+\begin_inset Quotes eld
+\end_inset 
+
+Flood
+\begin_inset Quotes erd
+\end_inset 
+
+ coolants to be turned on and off.
+ Depending on your machine configuration, not all the items in this group
+ may appear.
+\layout Subsection
+
+Code Entry
+\layout Standard
+
+Manual Data Input (also called MDI), allows G-code programs to be entered
+ manually, one line at a time.
+ When the machine is not turned on, and not set to MDI mode, the code entry
+ controls are unavailable.
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Caption
+
+The Code Entry tab
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename tkemc_mdi.png
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Subsubsection
+
+MDI:
+\layout Standard
+
+This allows you to enter a g-code command to be executed.
+ Execute the command by pressing Enter.
+\layout Subsubsection
+
+Active G-Codes
+\layout Standard
+
+This shows the 
+\begin_inset Quotes eld
+\end_inset 
+
+modal codes
+\begin_inset Quotes erd
+\end_inset 
+
+ that are active in the interpreter.
+ For instance, 
+\begin_inset Quotes eld
+\end_inset 
+
+G54
+\begin_inset Quotes erd
+\end_inset 
+
+ indicates that the 
+\begin_inset Quotes eld
+\end_inset 
+
+G54 offset
+\begin_inset Quotes erd
+\end_inset 
+
+ is applied to all coordinates that are entered.
+\layout Subsection
+
+Jog Speed 
+\layout Standard
+
+By moving this slider, the speed of jogs can be modified.
+ The numbers above refer to axis units / second.
+ The text box with the number is clickable.
+ Once clicked a popup window will appear, allowing for a number to be entered.
+\layout Subsection
+
+Feed Override
+\layout Standard
+
+By moving this slider, the programmed feed rate can be modified.
+ For instance, if a program requests 
+\family typewriter 
+F60
+\family default 
+ and the slider is set to 120%, then the resulting feed rate will be 72.
+ The text box with the number is clickable.
+ Once clicked a popup window will appear, allowing for a number to be entered.
+\layout Subsection
+
+Spindle speed Override
+\layout Standard
+
+The spindle speed override slider works exactly like the feed override slider,
+ but it controls to the spindle speed.
+ If a program requested S500 (spindle speed 500 RPM), and the slider is
+ set to 80%, then the resulting spindle speed will be 400 RPM.
+ This slider has a minimum and maximum value defined in the ini file.
+ If those are missing the slider is stuck at 100%.
+ The text box with the number is clickable.
+ Once clicked a popup window will appear, allowing for a number to be entered.
+\layout Section
+
+Keyboard Controls
+\layout Standard
+
+Almost all actions in TkEMC can be accomplished with the keyboard.
+ Many of the shortcuts are unavailable when in MDI mode.
+\layout Standard
+
+The most frequently used keyboard shortcuts are shown in Table 
+\begin_inset LatexCommand \ref{cap:Most-Common-Keyboard}
+
+\end_inset 
+
+.
+\layout Standard
+
+
+\begin_inset Float table
+wide false
+collapsed false
+
+\layout Caption
+
+Most Common Keyboard Shortcuts
+\begin_inset LatexCommand \label{cap:Most-Common-Keyboard}
+
+\end_inset 
+
+
+\layout Standard
+\align center 
+
+\begin_inset  Tabular
+<lyxtabular version="3" rows="14" columns="2">
+<features>
+<column alignment="center" valignment="top" leftline="true" width="0">
+<column alignment="center" valignment="top" leftline="true" rightline="true" width="0">
+<row topline="true" bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Keystroke
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Action Taken
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+F1
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Toggle Emergency Stop
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+F2
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Turn machine on/off
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+`, 1 ..
+ 9, 0
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Set feed override from 0% to 100%
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+X, `
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Activate first axis
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Y, 1
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Activate second axis
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Z, 2
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Activate third axis
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+A, 3
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Activate fourth axis
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Home
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Send active axis Home
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Left, Right
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Jog first axis
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Up, Down
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Jog second axis
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Pg Up, Pg Dn
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Jog third axis
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+[, ]
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Jog fourth axis
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+ESC
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Stop execution
+\end_inset 
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset 
+
+
+\end_inset 
+
+
 \the_end
