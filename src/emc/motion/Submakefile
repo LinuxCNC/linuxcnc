@@ -4,23 +4,3 @@ INCLUDES += emc/motion
 	cp $^ $@
 ../include/%.hh: ./emc/motion/%.hh
 	cp $^ $@
-
-ifeq ("$(RTPREFIX)","sim")
-SIMMOTSRCS := \
-	emc/kinematics/cubic.c  \
-	emc/kinematics/tc.c  \
-	emc/kinematics/tp.c  \
-	emc/motion/motion.c  \
-	emc/motion/command.c  \
-	emc/motion/control.c  \
-	emc/motion/emcmotglb.c  \
-	emc/motion/emcmotutil.c  \
-	emc/kinematics/trivkins.c \
-	libnml/posemath/_posemath.c
-USERSRCS += $(SIMMOTSRCS)
-
-../bin/simmot: $(call TOOBJS, $(SIMMOTSRCS)) ../lib/libemchal.so
-	$(ECHO) Linking $(notdir $@)
-	@$(CC) $(LDFLAGS) -o $@ $^ -lm
-TARGETS += ../bin/simmot
-endif
