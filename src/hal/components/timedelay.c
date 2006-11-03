@@ -231,7 +231,7 @@ static int export_delay(int num, bit_delay_t * addr)
     }
     /* export elapsed time parameter */
     rtapi_snprintf(buf, HAL_NAME_LEN, "delay.%d.elapsed", num);
-    retval = hal_param_float_new(buf, HAL_RD, &(addr->elapsed), comp_id);
+    retval = hal_param_float_new(buf, HAL_RO, &(addr->elapsed), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "TIMEDELAY: ERROR: '%s' parameter export failed\n", buf);

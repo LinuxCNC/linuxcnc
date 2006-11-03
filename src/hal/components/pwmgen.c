@@ -512,7 +512,7 @@ static int export_pwmgen(int num, pwmgen_t * addr, int output_type)
     if (retval != 0) {
 	return retval;
     }
-    retval = hal_param_float_newf(HAL_RD, &(addr->curr_dc), comp_id,
+    retval = hal_param_float_newf(HAL_RO, &(addr->curr_dc), comp_id,
 	    "pwmgen.%d.curr-dc", num);
     if (retval != 0) {
 	return retval;

@@ -1742,7 +1742,7 @@ static int export_USC_stepgen(slot_data_t *slot, bus_data_t *bus)
 	/* actual frequency parameter */
 	rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.stepgen.%02d.freq",
 	    bus->busnum, bus->last_stepgen);
-	retval = hal_param_float_new(buf, HAL_RD, &(sg->freq), comp_id);
+	retval = hal_param_float_new(buf, HAL_RO, &(sg->freq), comp_id);
 	if (retval != 0) {
 	    return retval;
 	}
@@ -1825,7 +1825,7 @@ static int export_UPC_pwmgen(slot_data_t *slot, bus_data_t *bus)
 	/* actual duty cycle parameter */
 	rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.pwm.%02d.duty-cycle",
 	    bus->busnum, bus->last_pwmgen);
-	retval = hal_param_float_new(buf, HAL_RD, &(pg->duty_cycle), comp_id);
+	retval = hal_param_float_new(buf, HAL_RO, &(pg->duty_cycle), comp_id);
 	if (retval != 0) {
 	    return retval;
 	}
@@ -1999,7 +1999,7 @@ static int export_encoders(slot_data_t *slot, bus_data_t *bus)
 	     this function, so export the pin */
 	  rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.encoder.%02d.index-enable",
 			 bus->busnum, bus->last_encoder);
-	  retval = hal_pin_bit_new(buf, HAL_RD, &(slot->encoder[n].index_enable), comp_id);
+	  retval = hal_pin_bit_new(buf, HAL_IO, &(slot->encoder[n].index_enable), comp_id);
 	  if (retval != 0) {
 	    return retval;
 	  }

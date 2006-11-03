@@ -2605,10 +2605,6 @@ static char *param_data_dir(int dir)
     case HAL_RW:
 	param_dir = "RW";
 	break;
-/* TODO there should be no "write only" params, the user can always read */
-    case HAL_WR:
-	param_dir = "WO";
-	break;
     default:
 	/* Shouldn't get here, but just in case... */
 	param_dir = "??";

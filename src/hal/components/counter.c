@@ -272,7 +272,7 @@ static int export_counter(int num, counter_t * addr)
     }
     /* export parameter for raw counts */
     rtapi_snprintf(buf, HAL_NAME_LEN, "counter.%d.rawcounts", num);
-    retval = hal_param_s32_new(buf, HAL_RD, &(addr->raw_count), comp_id);
+    retval = hal_param_s32_new(buf, HAL_RO, &(addr->raw_count), comp_id);
     if (retval != 0) {
 	return retval;
     }

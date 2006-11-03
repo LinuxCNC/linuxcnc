@@ -291,25 +291,6 @@ typedef enum {
     HAL_RW = 48,
 } hal_param_dir_t;
 
-/** Earlier versions of HAL used the same direction flags for both
-    pins and parameters.  The flags were HAL_RD, HAL_WR, and HAL_RD_WR.
-    Those names were confusing, because for pins they described what
-    the component could do to the pin, but for params they described
-    what the users could to do the parameter.  They have been
-    replaced by the ones above, but the old symbols are still
-    defined here for compatibility.  These will go away some day
-    and should _not_ be used in new code.
-*/
-
-/* TODO:  delete these definitions, and replace the dozens or
-   hundreds of places they are invoked in the existing HAL
-   components with the proper names from above
-*/
-
-#define HAL_RD 16
-#define HAL_WR 32
-#define HAL_RD_WR 48
-
 #include <asm/types.h>
 
 #if 1  /* right now we assume x86 */

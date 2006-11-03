@@ -589,7 +589,7 @@ static int export_axis(int num, axis_hal_t * addr)
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.backlash-vel", num);
     retval =
-	hal_param_float_new(buf, HAL_RD, &(addr->backlash_vel), mot_comp_id);
+	hal_param_float_new(buf, HAL_RO, &(addr->backlash_vel), mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
