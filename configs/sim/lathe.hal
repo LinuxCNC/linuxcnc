@@ -66,6 +66,8 @@ linksp spindle-rpm-filtered lowpass.0.out
 setp lowpass.0.gain .03
 addf lowpass.0 servo-thread
 
+newsig spindle-fwd bit
+linksp spindle-fwd <= motion.spindle-forward
 
 addf encoder.capture-position servo-thread
 addf sim-encoder.update-speed servo-thread
