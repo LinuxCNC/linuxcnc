@@ -558,11 +558,6 @@ void inithal(void) {
     PyModule_AddIntConstant(m, "HAL_OUT", HAL_OUT);
     PyModule_AddIntConstant(m, "HAL_IO", HAL_IO);
 
-/* these three are obsolete, but are retained just in case */
-    PyModule_AddIntConstant(m, "HAL_RD", HAL_RD);
-    PyModule_AddIntConstant(m, "HAL_WR", HAL_WR);
-    PyModule_AddIntConstant(m, "HAL_RD_WR", HAL_RD_WR);
-    
     PyRun_SimpleString(
             "(lambda s=__import__('signal'):"
                  "s.signal(s.SIGTERM, s.default_int_handler))()");
