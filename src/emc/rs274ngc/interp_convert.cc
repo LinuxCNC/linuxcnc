@@ -2526,6 +2526,7 @@ int convert_threading_cycle(block_pointer block, setup_pointer settings,
 
 #define AABBCC settings->AA_current, settings->BB_current, settings->CC_current
     depth = start_depth;
+    DISABLE_FEED_OVERRIDE();
     while (depth < end_depth) {
         zoff = (depth - start_depth) * tan(angle);
         STRAIGHT_TRAVERSE(safe_x - depth, start_y, start_z - zoff, AABBCC);
@@ -2551,6 +2552,7 @@ int convert_threading_cycle(block_pointer block, setup_pointer settings,
         STRAIGHT_TRAVERSE(safe_x, start_y, end_z - zoff, AABBCC);
         STRAIGHT_TRAVERSE(safe_x, start_y, start_z - zoff, AABBCC);
     }
+    ENABLE_FEED_OVERRIDE();
 #undef AABBC
     return INTERP_OK;
 }
