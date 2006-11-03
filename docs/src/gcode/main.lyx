@@ -2132,7 +2132,7 @@ Words and their meanings
 
 
 \begin_inset  Tabular
-<lyxtabular version="3" rows="21" columns="2">
+<lyxtabular version="3" rows="23" columns="2">
 <features>
 <column alignment="center" valignment="top" leftline="true" width="0">
 <column alignment="left" valignment="top" leftline="true" rightline="true" width="0">
@@ -2330,23 +2330,24 @@ K
 
 \layout Standard
 
-
-\begin_inset Minipage
-position 1
-inner_position 0
-height "0pt"
-width "100col%"
-collapsed false
+Z offset for arcs and G87 canned cycles.
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
 
 \layout Standard
 
-Z offset for arcs and G87 canned cycles.
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
 \layout Standard
 
 Spindle-Motion Ratio for G33 synchronized movements.
-\end_inset 
-
-
 \end_inset 
 </cell>
 </row>
@@ -2400,24 +2401,25 @@ P
 
 \layout Standard
 
-
-\begin_inset Minipage
-position 1
-inner_position 0
-height "0pt"
-width "100col%"
-collapsed true
-
-\layout Standard
-
 Dwell time in canned cycles and with G4.
  
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
 \layout Standard
 
-Key used with G10
 \end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
 
+\layout Standard
 
+Key used with G10.
 \end_inset 
 </cell>
 </row>
