@@ -838,7 +838,7 @@ fi
 
 AC_MSG_CHECKING([whether to build documentation])
 AC_ARG_ENABLE(build-documentation,
-    [  --enable-build-documentation   Do not build documentation],
+    [  --enable-build-documentation   Build documentation],
     [
         case "$enableval" in
         Y*|y*)

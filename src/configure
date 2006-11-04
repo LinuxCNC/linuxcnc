@@ -859,7 +859,7 @@ Optional Features:
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
   --enable-simulator      Run as a pure userspace program
   --enable-run-in-place   Configure EMC to run without make install
-  --enable-build-documentation   Do not build documentation
+  --enable-build-documentation   Build documentation
   --disable-nls           don't use NLS
   --enable-python         Enable the parts of emc2 that depend on Python
 
