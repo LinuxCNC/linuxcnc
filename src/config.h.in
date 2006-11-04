@@ -29,7 +29,7 @@
 
 /* Assorted defines used through out the source code. */
 #define ACTIVE_G_CODES 13
-#define ACTIVE_M_CODES 7
+#define ACTIVE_M_CODES 9
 #define ACTIVE_SETTINGS 3
 
 #define MM_PER_INCH 25.4

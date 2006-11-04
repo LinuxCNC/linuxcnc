@@ -317,9 +317,7 @@ static EMC_AXIS_LOAD_COMP *axis_load_comp_msg;
 //static EMC_AXIS_SET_STEP_PARAMS *set_step_params_msg;
 
 static EMC_TRAJ_SET_SCALE *emcTrajSetScaleMsg;
-static EMC_TRAJ_SET_FEED_OVERRIDE *emcTrajSetFeedOverrideMsg;
 static EMC_TRAJ_SET_SPINDLE_SCALE *emcTrajSetSpindleScaleMsg;
-static EMC_TRAJ_SET_SPINDLE_OVERRIDE *emcTrajSetSpindleOverrideMsg;
 static EMC_TRAJ_SET_VELOCITY *emcTrajSetVelocityMsg;
 static EMC_TRAJ_SET_ACCELERATION *emcTrajSetAccelerationMsg;
 static EMC_TRAJ_LINEAR_MOVE *emcTrajLinearMoveMsg;
@@ -532,8 +530,9 @@ static int emcTaskPlan(void)
 	    case EMC_AXIS_SET_STEP_PARAMS_TYPE:
 	    case EMC_TRAJ_SET_SCALE_TYPE:
 	    case EMC_TRAJ_SET_SPINDLE_SCALE_TYPE:
-	    case EMC_TRAJ_SET_FEED_OVERRIDE_TYPE:
-	    case EMC_TRAJ_SET_SPINDLE_OVERRIDE_TYPE:
+	    case EMC_TRAJ_SET_FO_ENABLE_TYPE:
+	    case EMC_TRAJ_SET_FH_ENABLE_TYPE:
+	    case EMC_TRAJ_SET_SO_ENABLE_TYPE:
 	    case EMC_TRAJ_SET_VELOCITY_TYPE:
 	    case EMC_TRAJ_SET_ACCELERATION_TYPE:
 	    case EMC_TASK_INIT_TYPE:
@@ -635,8 +634,9 @@ static int emcTaskPlan(void)
 	    case EMC_TRAJ_ABORT_TYPE:
 	    case EMC_TRAJ_SET_SCALE_TYPE:
 	    case EMC_TRAJ_SET_SPINDLE_SCALE_TYPE:
-	    case EMC_TRAJ_SET_FEED_OVERRIDE_TYPE:
-	    case EMC_TRAJ_SET_SPINDLE_OVERRIDE_TYPE:
+	    case EMC_TRAJ_SET_FO_ENABLE_TYPE:
+	    case EMC_TRAJ_SET_FH_ENABLE_TYPE:
+	    case EMC_TRAJ_SET_SO_ENABLE_TYPE:
 	    case EMC_SPINDLE_ON_TYPE:
 	    case EMC_SPINDLE_OFF_TYPE:
 	    case EMC_SPINDLE_BRAKE_RELEASE_TYPE:
@@ -725,8 +725,9 @@ static int emcTaskPlan(void)
 		case EMC_TRAJ_ABORT_TYPE:
 		case EMC_TRAJ_SET_SCALE_TYPE:
 		case EMC_TRAJ_SET_SPINDLE_SCALE_TYPE:
-		case EMC_TRAJ_SET_FEED_OVERRIDE_TYPE:
-		case EMC_TRAJ_SET_SPINDLE_OVERRIDE_TYPE:
+		case EMC_TRAJ_SET_FO_ENABLE_TYPE:
+	        case EMC_TRAJ_SET_FH_ENABLE_TYPE:
+		case EMC_TRAJ_SET_SO_ENABLE_TYPE:
 		case EMC_SPINDLE_ON_TYPE:
 		case EMC_SPINDLE_OFF_TYPE:
 		case EMC_SPINDLE_BRAKE_RELEASE_TYPE:
@@ -818,8 +819,9 @@ static int emcTaskPlan(void)
 		case EMC_TRAJ_ABORT_TYPE:
 		case EMC_TRAJ_SET_SCALE_TYPE:
 		case EMC_TRAJ_SET_SPINDLE_SCALE_TYPE:
-		case EMC_TRAJ_SET_FEED_OVERRIDE_TYPE:
-		case EMC_TRAJ_SET_SPINDLE_OVERRIDE_TYPE:
+		case EMC_TRAJ_SET_FO_ENABLE_TYPE:
+		case EMC_TRAJ_SET_FH_ENABLE_TYPE:
+		case EMC_TRAJ_SET_SO_ENABLE_TYPE:
 		case EMC_SPINDLE_INCREASE_TYPE:
 		case EMC_SPINDLE_DECREASE_TYPE:
 		case EMC_SPINDLE_CONSTANT_TYPE:
@@ -1006,8 +1008,9 @@ interpret_again:
 		case EMC_TRAJ_ABORT_TYPE:
 		case EMC_TRAJ_SET_SCALE_TYPE:
 		case EMC_TRAJ_SET_SPINDLE_SCALE_TYPE:
-		case EMC_TRAJ_SET_FEED_OVERRIDE_TYPE:
-		case EMC_TRAJ_SET_SPINDLE_OVERRIDE_TYPE:
+		case EMC_TRAJ_SET_FO_ENABLE_TYPE:
+	        case EMC_TRAJ_SET_FH_ENABLE_TYPE:
+		case EMC_TRAJ_SET_SO_ENABLE_TYPE:
 		case EMC_SPINDLE_ON_TYPE:
 		case EMC_SPINDLE_OFF_TYPE:
 		case EMC_SPINDLE_BRAKE_RELEASE_TYPE:
@@ -1080,8 +1083,9 @@ interpret_again:
 		case EMC_TRAJ_ABORT_TYPE:
 		case EMC_TRAJ_SET_SCALE_TYPE:
 		case EMC_TRAJ_SET_SPINDLE_SCALE_TYPE:
-		case EMC_TRAJ_SET_FEED_OVERRIDE_TYPE:
-		case EMC_TRAJ_SET_SPINDLE_OVERRIDE_TYPE:
+		case EMC_TRAJ_SET_FO_ENABLE_TYPE:
+	        case EMC_TRAJ_SET_FH_ENABLE_TYPE:
+		case EMC_TRAJ_SET_SO_ENABLE_TYPE:
 		case EMC_SPINDLE_INCREASE_TYPE:
 		case EMC_SPINDLE_DECREASE_TYPE:
 		case EMC_SPINDLE_CONSTANT_TYPE:
@@ -1173,8 +1177,9 @@ interpret_again:
 	    case EMC_AXIS_SET_STEP_PARAMS_TYPE:
 	    case EMC_TRAJ_SET_SCALE_TYPE:
 	    case EMC_TRAJ_SET_SPINDLE_SCALE_TYPE:
-	    case EMC_TRAJ_SET_FEED_OVERRIDE_TYPE:
-	    case EMC_TRAJ_SET_SPINDLE_OVERRIDE_TYPE:
+	    case EMC_TRAJ_SET_FO_ENABLE_TYPE:
+	    case EMC_TRAJ_SET_FH_ENABLE_TYPE:
+	    case EMC_TRAJ_SET_SO_ENABLE_TYPE:
 	    case EMC_SPINDLE_ON_TYPE:
 	    case EMC_SPINDLE_OFF_TYPE:
 	    case EMC_SPINDLE_BRAKE_RELEASE_TYPE:
@@ -1278,8 +1283,9 @@ static int emcTaskCheckPreconditions(NMLmsg * cmd)
     case EMC_TRAJ_SET_ACCELERATION_TYPE:
     case EMC_TRAJ_SET_TERM_COND_TYPE:
     case EMC_TRAJ_SET_SPINDLESYNC_TYPE:
-    case EMC_TRAJ_SET_FEED_OVERRIDE_TYPE:
-    case EMC_TRAJ_SET_SPINDLE_OVERRIDE_TYPE:
+    case EMC_TRAJ_SET_FO_ENABLE_TYPE:
+    case EMC_TRAJ_SET_FH_ENABLE_TYPE:
+    case EMC_TRAJ_SET_SO_ENABLE_TYPE:
 	return EMC_TASK_EXEC_WAITING_FOR_IO;
 	break;
 
@@ -1529,14 +1535,16 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	retval = emcTrajSetSpindleScale(emcTrajSetSpindleScaleMsg->scale);
 	break;
 
-    case EMC_TRAJ_SET_FEED_OVERRIDE_TYPE:
-	emcTrajSetFeedOverrideMsg = (EMC_TRAJ_SET_FEED_OVERRIDE *) cmd;
-	retval = emcTrajSetFeedOverride(emcTrajSetFeedOverrideMsg->mode);
+    case EMC_TRAJ_SET_FO_ENABLE_TYPE:
+	retval = emcTrajSetFOEnable(((EMC_TRAJ_SET_FO_ENABLE *) cmd)->mode);  // feed override enable/disable
 	break;
 
-    case EMC_TRAJ_SET_SPINDLE_OVERRIDE_TYPE:
-	emcTrajSetSpindleOverrideMsg = (EMC_TRAJ_SET_SPINDLE_OVERRIDE *) cmd;
-	retval = emcTrajSetSpindleOverride(emcTrajSetSpindleOverrideMsg->mode);
+    case EMC_TRAJ_SET_FH_ENABLE_TYPE:
+	retval = emcTrajSetFHEnable(((EMC_TRAJ_SET_FH_ENABLE *) cmd)->mode); //feed hold enable/disable
+	break;
+
+    case EMC_TRAJ_SET_SO_ENABLE_TYPE:
+	retval = emcTrajSetSOEnable(((EMC_TRAJ_SET_SO_ENABLE *) cmd)->mode); //spindle speed override enable/disable
 	break;
 
     case EMC_TRAJ_SET_VELOCITY_TYPE:
@@ -1652,7 +1660,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	break;
 
     case EMC_MOTION_ADAPTIVE_TYPE:
-	retval = emcTrajSetAdaptiveFeed(((EMC_MOTION_ADAPTIVE *) cmd)->status);
+	retval = emcTrajSetAFEnable(((EMC_MOTION_ADAPTIVE *) cmd)->status);
 	break;
 
     case EMC_SET_DEBUG_TYPE:
@@ -2027,8 +2035,9 @@ static int emcTaskCheckPostconditions(NMLmsg * cmd)
     case EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG_TYPE:
     case EMC_TRAJ_SET_TELEOP_ENABLE_TYPE:
     case EMC_TRAJ_SET_TELEOP_VECTOR_TYPE:
-    case EMC_TRAJ_SET_FEED_OVERRIDE_TYPE:
-    case EMC_TRAJ_SET_SPINDLE_OVERRIDE_TYPE:
+    case EMC_TRAJ_SET_FO_ENABLE_TYPE:
+    case EMC_TRAJ_SET_FH_ENABLE_TYPE:
+    case EMC_TRAJ_SET_SO_ENABLE_TYPE:
 	return EMC_TASK_EXEC_DONE;
 	break;
 

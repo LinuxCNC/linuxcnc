@@ -98,7 +98,6 @@ int Interp::write_g_codes(block_pointer block,   //!< pointer to a block of RS27
   gez[11] =
     (settings->control_mode == CANON_CONTINUOUS) ? G_64 :
     (settings->control_mode == CANON_EXACT_PATH) ? G_61 : G_61_1;
-  gez[12] = (settings->adaptive_feed != 0) ? G_50 : G_51;
 
   return INTERP_OK;
 }
@@ -137,8 +136,18 @@ int Interp::write_m_codes(block_pointer block,   //!< pointer to a block of RS27
     (settings->mist == ON) ? 7 : (settings->flood == ON) ? -1 : 9;
   emz[5] =                      /* 5 flood       */
     (settings->flood == ON) ? 8 : -1;
-  emz[6] =                      /* 6 overrides   */
-    (settings->feed_override == ON) ? 48 : 49;
+  if (settings->feed_override == ON) {
+    if (settings->speed_override == ON) emz[6] =  48;
+    else emz[6] = 50;
+  } else if (settings->speed_override == ON) {
+    emz[6] = 51;
+  } else emz[6] = 49;
+  
+  emz[7] =                      /* 7 overrides   */
+    (settings->adaptive_feed == ON) ? 52 : -1;
+
+  emz[8] =                      /* 8 overrides   */
+    (settings->feed_hold == ON) ? 53 : -1;
 
   return INTERP_OK;
 }

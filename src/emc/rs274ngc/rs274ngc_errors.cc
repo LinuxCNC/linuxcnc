@@ -241,14 +241,13 @@ char * _rs274ngc_errors[] = {
 /* 213 */ _("Return outside of subroutine"), // convert control functions
 /* 214 */ _("File not open"), // control back to
 /* 215 */ _("Need tool prepared -Txx- for toolchange"), // if M6 is issued without Txx
-/* 216 */ _("Bug code not g50 or g51"), // convert_adaptive_mode
-/* 217 */ _("Cannot change planes with cutter radius compensation on"),
-/* 218 */ _("Cutter radius compensation allowed only in XY, XZ planes"),
+/* 216 */ _("Cannot change planes with cutter radius compensation on"),
+/* 217 */ _("Cutter radius compensation allowed only in XY, XZ planes"),
 
-/* 219 */ _("P word missing with G76"),
-/* 220 */ _("I J or K words missing with G76"),
-/* 221 */ _("Cannot move rotary axes with G76"),
+/* 218 */ _("P word missing with G76"),
+/* 219 */ _("I J or K words missing with G76"),
+/* 220 */ _("Cannot move rotary axes with G76"),
 
-/* 222 */ _("Unknown error"), // dummy
+/* 221 */ _("Unknown error"), // dummy
 _("The End")};
 // *INDENT-ON*

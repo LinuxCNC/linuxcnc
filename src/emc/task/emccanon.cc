@@ -745,21 +745,6 @@ void STOP_CUTTER_RADIUS_COMPENSATION()
     // nothing need be done here
 }
 
-void START_ADAPTIVE_FEED()
-{
-    flush_segments();
-    EMC_MOTION_ADAPTIVE emcmotAdaptiveMsg;
-    emcmotAdaptiveMsg.status = 1;
-    interp_list.append(emcmotAdaptiveMsg);
-}
-
-void STOP_ADAPTIVE_FEED()
-{
-    flush_segments();
-    EMC_MOTION_ADAPTIVE emcmotAdaptiveMsg;
-    emcmotAdaptiveMsg.status = 0;
-    interp_list.append(emcmotAdaptiveMsg);
-}
 
 
 void START_SPEED_FEED_SYNCH(double sync)
@@ -1343,35 +1328,69 @@ void COMMENT(char *comment)
 // refers to feed rate
 void DISABLE_FEED_OVERRIDE()
 {
-    EMC_TRAJ_SET_FEED_OVERRIDE set_feed_override_msg;
+    EMC_TRAJ_SET_FO_ENABLE set_fo_enable_msg;
     
-    set_feed_override_msg.mode = 0;
-    interp_list.append(set_feed_override_msg);
+    set_fo_enable_msg.mode = 0;
+    interp_list.append(set_fo_enable_msg);
+}
+
+void ENABLE_FEED_OVERRIDE()
+{
+    EMC_TRAJ_SET_FO_ENABLE set_fo_enable_msg;
+    
+    set_fo_enable_msg.mode = 1;
+    interp_list.append(set_fo_enable_msg);
+}
+
+//refers to adaptive feed override (HAL input, usefull for EDM for example)
+void DISABLE_ADAPTIVE_FEED()
+{
+    flush_segments();
+    EMC_MOTION_ADAPTIVE emcmotAdaptiveMsg;
+    emcmotAdaptiveMsg.status = 0;
+    interp_list.append(emcmotAdaptiveMsg);
+}
+
+void ENABLE_ADAPTIVE_FEED()
+{
+    flush_segments();
+    EMC_MOTION_ADAPTIVE emcmotAdaptiveMsg;
+    emcmotAdaptiveMsg.status = 1;
+    interp_list.append(emcmotAdaptiveMsg);
 }
 
 //refers to spindle speed
 void DISABLE_SPEED_OVERRIDE()
 {
-    EMC_TRAJ_SET_SPINDLE_OVERRIDE set_spindle_override_msg;
+    EMC_TRAJ_SET_SO_ENABLE set_so_enable_msg;
     
-    set_spindle_override_msg.mode = 0;
-    interp_list.append(set_spindle_override_msg);
+    set_so_enable_msg.mode = 0;
+    interp_list.append(set_so_enable_msg);
 }
 
-void ENABLE_FEED_OVERRIDE()
-{
-    EMC_TRAJ_SET_FEED_OVERRIDE set_feed_override_msg;
-    
-    set_feed_override_msg.mode = 1;
-    interp_list.append(set_feed_override_msg);
-}
 
 void ENABLE_SPEED_OVERRIDE()
 {
-    EMC_TRAJ_SET_SPINDLE_OVERRIDE set_spindle_override_msg;
+    EMC_TRAJ_SET_SO_ENABLE set_so_enable_msg;
     
-    set_spindle_override_msg.mode = 1;
-    interp_list.append(set_spindle_override_msg);
+    set_so_enable_msg.mode = 1;
+    interp_list.append(set_so_enable_msg);
+}
+
+void ENABLE_FEED_HOLD()
+{
+    EMC_TRAJ_SET_FH_ENABLE set_feed_hold_msg;
+    
+    set_feed_hold_msg.mode = 1;
+    interp_list.append(set_feed_hold_msg);
+}
+
+void DISABLE_FEED_HOLD()
+{
+    EMC_TRAJ_SET_FH_ENABLE set_feed_hold_msg;
+    
+    set_feed_hold_msg.mode = 0;
+    interp_list.append(set_feed_hold_msg);
 }
 
 void FLOOD_OFF()

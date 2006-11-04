@@ -117,10 +117,11 @@ extern "C" {
 	EMCMOT_TELEOP,		/* set mode to teleop */
 
 	EMCMOT_SCALE,		/* scale the speed */
-	EMCMOT_FEED_OVERRIDE,	/* enable scaling the speed (M48/M49) */
+	EMCMOT_FO_ENABLE,	/* enable/disable scaling the speed (M48/M49) */
+	EMCMOT_FH_ENABLE,	/* enable/disable feed_hold */
 	EMCMOT_SPINDLE_SCALE,	/* scale the spindle speed */
-	EMCMOT_SPINDLE_OVERRIDE,	/* enable scaling the spindle speed (M48/M49) */
-	EMCMOT_ADAPTIVE_FEED,	/* enable/disable adaptive feedrate */
+	EMCMOT_SO_ENABLE,	/* enable/disable scaling the spindle speed (M48/M49) */
+	EMCMOT_AF_ENABLE,	/* enable/disable adaptive feedrate */
 	EMCMOT_OVERRIDE_LIMITS,	/* temporarily ignore limits until jog done */
 
 	EMCMOT_HOME,		/* home an axis */

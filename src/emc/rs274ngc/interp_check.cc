@@ -299,6 +299,10 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
          (block->m_modes[5] != 63) &&
          (block->m_modes[5] != 64) &&
          (block->m_modes[5] != 65) &&
+         (block->m_modes[9] != 50) &&
+         (block->m_modes[9] != 51) &&
+         (block->m_modes[9] != 52) &&
+         (block->m_modes[9] != 53) &&
          (block->user_m != 1) &&
          (motion != G_82) && (motion != G_86) &&
          (motion != G_88) && (motion != G_89) && (motion != G_76)),

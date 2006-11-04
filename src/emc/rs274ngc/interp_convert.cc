@@ -924,34 +924,6 @@ int Interp::convert_control_mode(int g_code,     //!< g_code being executed (G_6
   return INTERP_OK;
 }
 
-/* 
-
-Called by: convert_g.
-
-For G50 & G51, the canon functions START_ADAPTIVE_FEED() and
-STOP_ADAPTIVE_FEED() are called. These enable a second feed override
-control based on an external input (this second override goes from
-0 to 1 and corresponds to 0..100%). It gets multiplied with the
-user feed override.  This is useful for EDM machines for example.
-
-*/
-
-int Interp::convert_adaptive_mode(int g_code, setup_pointer settings)
-{
-    static char name[] = "convert_adaptive_mode";
-
-    if(g_code == G_50) {
-        START_ADAPTIVE_FEED();
-	settings->adaptive_feed=1;
-    } else if (g_code == G_51) {
-        STOP_ADAPTIVE_FEED();
-	settings->adaptive_feed=0;
-    } else
-        ERM(NCE_BUG_CODE_NOT_G50_OR_G51);
-
-    return INTERP_OK;
-}
-
 /****************************************************************************/
 
 /*! convert_coordinate_system
@@ -1493,9 +1465,6 @@ int Interp::convert_g(block_pointer block,       //!< pointer to a block of RS27
   if (block->g_modes[13] != -1) {
     CHP(convert_control_mode(block->g_modes[13], block->p_number, settings));
   }
-  if (block->g_modes[14] != -1) {
-    CHP(convert_adaptive_mode(block->g_modes[14], settings));
-  }
   if (block->g_modes[3] != -1) {
     CHP(convert_distance_mode(block->g_modes[3], settings));
   }
@@ -1774,6 +1743,47 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
     settings->feed_override = OFF;
     settings->speed_override = OFF;
   }
+
+  if (block->m_modes[9] == 50) {
+    if (block->p_number != 0) {
+	ENABLE_FEED_OVERRIDE();
+	settings->feed_override = ON;
+    } else {
+	DISABLE_FEED_OVERRIDE();
+	settings->feed_override = OFF;
+    }
+  }
+
+  if (block->m_modes[9] == 51) {
+    if (block->p_number != 0) {
+	ENABLE_SPEED_OVERRIDE();
+	settings->speed_override = ON;
+    } else {
+	DISABLE_SPEED_OVERRIDE();
+	settings->speed_override = OFF;
+    }
+  }
+  
+  if (block->m_modes[9] == 52) {
+    if (block->p_number != 0) {
+	ENABLE_ADAPTIVE_FEED();
+	settings->adaptive_feed = ON;
+    } else {
+	DISABLE_ADAPTIVE_FEED();
+	settings->adaptive_feed = OFF;
+    }
+  }
+  
+  if (block->m_modes[9] == 53) {
+    if (block->p_number != 0) {
+	ENABLE_FEED_HOLD();
+	settings->feed_hold = ON;
+    } else {
+	DISABLE_FEED_HOLD();
+	settings->feed_hold = OFF;
+    }
+  }
+
   /* user-defined M codes */
   if (block->m_modes[10] != -1) {
     int index = block->m_modes[10];

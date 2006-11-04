@@ -957,11 +957,26 @@ check_stuff ( "before command_handler()" );
 	    emcmotStatus->qVscale = emcmotCommand->scale;
 	    break;
 
-	case EMCMOT_FEED_OVERRIDE:
+	case EMCMOT_FO_ENABLE:
 	    /* enable/disable overriding speed */
 	    /* can happen at any time */
-	    rtapi_print_msg(RTAPI_MSG_DBG, "FEED_OVERRIDE");
+	    if ( emcmotCommand->mode != 0 ) {
+		rtapi_print_msg(RTAPI_MSG_DBG, "FEED OVERRIDE: ON");
+            } else {
+		rtapi_print_msg(RTAPI_MSG_DBG, "FEED OVERRIDE: OFF");
+	    }
 	    emcmotStatus->fo_mode = emcmotCommand->mode; //0 means no override is possible
+	    break;
+
+	case EMCMOT_FH_ENABLE:
+	    /* enable/disable feed hold */
+	    /* can happen at any time */
+	    if ( emcmotCommand->mode != 0 ) {
+		rtapi_print_msg(RTAPI_MSG_DBG, "FEED HOLD: ENABLED");
+            } else {
+		rtapi_print_msg(RTAPI_MSG_DBG, "FEED HOLD: DISABLED");
+	    }
+	    /*FIXME : JMK does something usefull here with emcmotCommand->mode; //0 means feed_hold is not taken into consideration*/
 	    break;
 
 	case EMCMOT_SPINDLE_SCALE:
@@ -974,15 +989,19 @@ check_stuff ( "before command_handler()" );
 	    emcmotStatus->spindle_scale = emcmotCommand->scale;
 	    break;
 
-	case EMCMOT_SPINDLE_OVERRIDE:
+	case EMCMOT_SO_ENABLE:
 	    /* enable/disable overriding spindle speed */
 	    /* can happen at any time */
-	    rtapi_print_msg(RTAPI_MSG_DBG, "SPINDLE_OVERRIDE");
+	    if ( emcmotCommand->mode != 0 ) {
+		rtapi_print_msg(RTAPI_MSG_DBG, "SPINDLE OVERRIDE: ON");
+            } else {
+		rtapi_print_msg(RTAPI_MSG_DBG, "SPINDLE OVERRIDE: OFF");
+	    }
 	    emcmotStatus->so_mode = emcmotCommand->mode; //0 means no override is possible
 	    break;
 
 
-	case EMCMOT_ADAPTIVE_FEED:
+	case EMCMOT_AF_ENABLE:
 	    /* enable/disable adaptive feedrate override from HAL pin */
 	    /* can happen at any time */
 	    if ( emcmotCommand->flags != 0 ) {

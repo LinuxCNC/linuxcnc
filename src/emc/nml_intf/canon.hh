@@ -329,9 +329,6 @@ translation commands. */
 extern void START_SPEED_FEED_SYNCH(double spindlesync);
 extern void STOP_SPEED_FEED_SYNCH();
 
-/* used for EDM adaptive moves with motion internal feed override (0..1) */
-extern void START_ADAPTIVE_FEED();
-extern void STOP_ADAPTIVE_FEED();
 
 /* Machining Functions */
 
@@ -506,10 +503,23 @@ logged, the comment command is printed or logged, including the string
 which is the value of comment_text. This serves to allow formal
 comments at specific locations in programs or command files. */
 
+/* used for EDM adaptive moves with motion internal feed override (0..1) */
+extern void DISABLE_ADAPTIVE_FEED();
+extern void ENABLE_ADAPTIVE_FEED();
+
+/* used to deactivate user control of feed override */
 extern void DISABLE_FEED_OVERRIDE();
 extern void ENABLE_FEED_OVERRIDE();
+
+/* used to deactivate user control of spindle speed override */
 extern void DISABLE_SPEED_OVERRIDE();
 extern void ENABLE_SPEED_OVERRIDE();
+
+/* used to deactivate user control of feed hold */
+extern void DISABLE_FEED_HOLD();
+extern void ENABLE_FEED_HOLD();
+
+
 extern void FLOOD_OFF();
 /* Turn flood coolant off. */
 extern void FLOOD_ON();

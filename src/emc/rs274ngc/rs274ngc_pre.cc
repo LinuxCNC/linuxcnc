@@ -381,6 +381,8 @@ int Interp::init()
 //_setup.tool_table set in Interp::synch
   _setup.tool_table_index = 1;
 //_setup.traverse_rate set in Interp::synch
+  _setup.adaptive_feed = 0;
+  _setup.feed_hold = ON; //enable feed hold
 
   write_g_codes((block_pointer) NULL, &_setup);
   write_m_codes((block_pointer) NULL, &_setup);
@@ -391,7 +393,6 @@ int Interp::init()
   _setup.defining_sub = 0;
   _setup.skipping_o = 0;
   _setup.oword_labels = 0;
-  _setup.adaptive_feed = 0;
 
   // Synch rest of settings to external world
   synch();

@@ -376,7 +376,8 @@ typedef struct setup_struct
   context sub_context[INTERP_SUB_ROUTINE_LEVELS];
   int oword_labels;
   offset oword_offset[INTERP_OWORD_LABELS];
-  int adaptive_feed;                // adaptive feed is enabled
+  ON_OFF adaptive_feed;              // adaptive feed is enabled
+  ON_OFF feed_hold;                  // feed hold is enabled
 }
 setup;
 

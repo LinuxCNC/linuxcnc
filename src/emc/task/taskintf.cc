@@ -776,25 +776,33 @@ int emcTrajSetSpindleScale(double scale)
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
-int emcTrajSetFeedOverride(unsigned char mode)
+int emcTrajSetFOEnable(unsigned char mode)
 {
-    emcmotCommand.command = EMCMOT_FEED_OVERRIDE;
+    emcmotCommand.command = EMCMOT_FO_ENABLE;
     emcmotCommand.mode = mode;
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
-int emcTrajSetSpindleOverride(unsigned char mode)
+int emcTrajSetFHEnable(unsigned char mode)
 {
-    emcmotCommand.command = EMCMOT_SPINDLE_OVERRIDE;
+    emcmotCommand.command = EMCMOT_FH_ENABLE;
     emcmotCommand.mode = mode;
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
-int emcTrajSetAdaptiveFeed(unsigned char enable)
+int emcTrajSetSOEnable(unsigned char mode)
 {
-    emcmotCommand.command = EMCMOT_ADAPTIVE_FEED;
+    emcmotCommand.command = EMCMOT_SO_ENABLE;
+    emcmotCommand.mode = mode;
+
+    return usrmotWriteEmcmotCommand(&emcmotCommand);
+}
+
+int emcTrajSetAFEnable(unsigned char enable)
+{
+    emcmotCommand.command = EMCMOT_AF_ENABLE;
 
     if ( enable ) {
 	emcmotCommand.flags = 1;
