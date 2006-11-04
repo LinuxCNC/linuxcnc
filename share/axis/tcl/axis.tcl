@@ -1793,4 +1793,14 @@ DynamicHelp::add $_tabs_manual.jogf.jog.jogplus -text [_ "Jog selected axis"]
 DynamicHelp::add $_tabs_manual.jogf.jog.jogincr -text [_ "Select jog ingrement"]
 DynamicHelp::add $_tabs_manual.jogf.override -text [_ "Temporarily allow jogging outside machine limits \[L\]"]
 
+# On at least some versions of Tk (tk8.4 on ubuntu 6.06), this hides files
+# beginning with "." from the open dialog.  Who knows what it does on other
+# versions.
+catch {
+    auto_load ::tk::dialog::file:: 
+    namespace eval ::tk::dialog::file {}
+    set ::tk::dialog::file::showHiddenBtn 1
+    set ::tk::dialog::file::showHiddenVar 0
+}
+
 # vim:ts=8:sts=4:et:sw=4:
