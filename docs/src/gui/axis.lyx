@@ -678,27 +678,44 @@ When the program is running, the line currently being executed is highlighted
 Manual Control
 \layout Standard
 
-Not all the items shown in this tab are useful on all machines.
- For instance, many machines have a spindle that can only turn in one direction.
- However, AXIS will still show both the 
+While the machine is turned on but not running a program, the items in the
+ 
 \begin_inset Quotes eld
 \end_inset 
 
-Rotate spindle clockwise
+Manual Control
 \begin_inset Quotes erd
 \end_inset 
 
- and 
-\begin_inset Quotes eld
-\end_inset 
+ tab can be used to move the machining center or turn different parts of
+ it on and off.
+\layout Standard
 
-Rotate spindle counterclockwise
-\begin_inset Quotes erd
-\end_inset 
-
- buttons.
- When the machine is not turned on, or when a program is running, the manual
+When the machine is not turned on, or when a program is running, the manual
  controls are unavailable.
+\layout Standard
+
+Many of the items described below are not useful on all machines.
+ When AXIS detects that a particular pin is not connected in HAL, the correspond
+ing item in the Manual Control tab is removed.
+ For instance, if the HAL pin 
+\family typewriter 
+motion.spindle-brake
+\family default 
+ is not connected, then the 
+\begin_inset Quotes eld
+\end_inset 
+
+Brake
+\begin_inset Quotes erd
+\end_inset 
+
+ button will not appear on the screen.
+ If the environment variable 
+\family typewriter 
+AXIS_NO_AUTOCONFIGURE
+\family default 
+ is set, this behavior is disabled and all the items will appear.
 \layout Subsubsection
 
 The 
@@ -1028,6 +1045,19 @@ F60
  and the slider is set to 120%, then the resulting feed rate will be 72.
 \layout Subsection
 
+Spindle Speed Override
+\layout Standard
+
+By moving this slider, the programmed spindle feed rate can be modified.
+ For instance, if a program requests F8000 and the slider is set to 80%,
+ then the resulting spindle speed will be 6400.
+ This item only appears when the HAL pin 
+\family typewriter 
+motion.spindle-speed-out
+\family default 
+ is connected.
+\layout Subsection
+
 Jog Speed 
 \layout Standard
 
@@ -1272,7 +1302,7 @@ Continuous jog
 
 \layout Standard
 
-Home
+Control-Home
 \end_inset 
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
@@ -1280,7 +1310,7 @@ Home
 
 \layout Standard
 
-Send active axis Home
+Perform homing sequence
 \end_inset 
 </cell>
 </row>
