@@ -384,18 +384,21 @@ int Interp::init()
 //_setup.adaptive_feed set in Interp::synch
 //_setup.feed_hold set in Interp::synch
 
-  write_g_codes((block_pointer) NULL, &_setup);
-  write_m_codes((block_pointer) NULL, &_setup);
-  write_settings(&_setup);
-
   // initialization stuff for subroutines and control structures
   _setup.call_level = 0;
   _setup.defining_sub = 0;
   _setup.skipping_o = 0;
   _setup.oword_labels = 0;
 
+  synch(); //synch first, then update the interface
+
+
+  write_g_codes((block_pointer) NULL, &_setup);
+  write_m_codes((block_pointer) NULL, &_setup);
+  write_settings(&_setup);
+
+
   // Synch rest of settings to external world
-  synch();
   return INTERP_OK;
 }
 
