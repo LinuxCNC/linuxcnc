@@ -489,6 +489,7 @@ CANON_MOTION_MODE GET_EXTERNAL_MOTION_CONTROL_MODE() { return motion_mode; }
 PyObject *parse_file(PyObject *self, PyObject *args) {
     char *f;
     char *unitcode=0, *initcode=0;
+    int error_line_offset = 0;
     struct timeval t0, t1;
     int wait = 1;
     if(!PyArg_ParseTuple(args, "sO|ss", &f, &callback, &unitcode, &initcode))
@@ -522,6 +523,7 @@ PyObject *parse_file(PyObject *self, PyObject *args) {
         result = interp_execute();
     }
     while(!interp_error && RESULT_OK) {
+        error_line_offset = 1;
         result = interp_read();
         gettimeofday(&t1, NULL);
         if(t1.tv_sec > t0.tv_sec + wait) {
@@ -529,6 +531,7 @@ PyObject *parse_file(PyObject *self, PyObject *args) {
             t0 = t1;
         }
         if(!RESULT_OK) break;
+        error_line_offset = 0;
         result = interp_execute();
     }
 out_error:
@@ -540,9 +543,11 @@ out_error:
         return NULL;
     }
     PyErr_Clear();
+    maybe_new_line();
+    if(PyErr_Occurred()) { interp_error = 1; goto out_error; }
     PyObject *retval = PyTuple_New(2);
     PyTuple_SetItem(retval, 0, PyInt_FromLong(result));
-    PyTuple_SetItem(retval, 1, PyInt_FromLong(last_sequence_number));
+    PyTuple_SetItem(retval, 1, PyInt_FromLong(last_sequence_number + error_line_offset));
     return retval;
 }
 

@@ -1652,7 +1652,7 @@ def open_file_guts(f, filtered = False):
             error_str = r_(gcode.strerror(result))
             root_window.tk.call("nf_dialog", ".error",
                     _("G-Code error in %s") % os.path.basename(f),
-                    _("Near line %d of %s:\n%s") % (seq+1, f, error_str),
+                    _("Near line %d of %s:\n%s") % (seq, f, error_str),
                     "error",0,_("OK"))
 
         t.configure(state="disabled")
