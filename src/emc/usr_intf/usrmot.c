@@ -477,7 +477,7 @@ int main(int argc, char *argv[])
 		}
 	    } else if (!strcmp(cmd, "scale")) {
 		if (1 == sscanf(input, "%*s %lf", &emcmotCommand.scale)) {
-		    emcmotCommand.command = EMCMOT_SCALE;
+		    emcmotCommand.command = EMCMOT_FEED_SCALE;
 		    if (emcmotCommand.scale < 0.0) {
 			emcmotCommand.scale = 0.0;	/* clamp it */
 		    }

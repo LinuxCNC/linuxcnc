@@ -758,7 +758,7 @@ int emcTrajSetScale(double scale)
 	scale = 0.0;
     }
 
-    emcmotCommand.command = EMCMOT_SCALE;
+    emcmotCommand.command = EMCMOT_FEED_SCALE;
     emcmotCommand.scale = scale;
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
@@ -778,7 +778,7 @@ int emcTrajSetSpindleScale(double scale)
 
 int emcTrajSetFOEnable(unsigned char mode)
 {
-    emcmotCommand.command = EMCMOT_FO_ENABLE;
+    emcmotCommand.command = EMCMOT_FS_ENABLE;
     emcmotCommand.mode = mode;
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
@@ -794,7 +794,7 @@ int emcTrajSetFHEnable(unsigned char mode)
 
 int emcTrajSetSOEnable(unsigned char mode)
 {
-    emcmotCommand.command = EMCMOT_SO_ENABLE;
+    emcmotCommand.command = EMCMOT_SS_ENABLE;
     emcmotCommand.mode = mode;
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);

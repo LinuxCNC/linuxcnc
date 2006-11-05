@@ -947,23 +947,23 @@ check_stuff ( "before command_handler()" );
 	    }
 	    break;
 
-	case EMCMOT_SCALE:
+	case EMCMOT_FEED_SCALE:
 	    /* override speed */
 	    /* can happen at any time */
-	    rtapi_print_msg(RTAPI_MSG_DBG, "SCALE");
+	    rtapi_print_msg(RTAPI_MSG_DBG, "FEED SCALE");
 	    if (emcmotCommand->scale < 0.0) {
 		emcmotCommand->scale = 0.0;	/* clamp it */
 	    }
 	    emcmotStatus->qVscale = emcmotCommand->scale;
 	    break;
 
-	case EMCMOT_FO_ENABLE:
+	case EMCMOT_FS_ENABLE:
 	    /* enable/disable overriding speed */
 	    /* can happen at any time */
 	    if ( emcmotCommand->mode != 0 ) {
-		rtapi_print_msg(RTAPI_MSG_DBG, "FEED OVERRIDE: ON");
+		rtapi_print_msg(RTAPI_MSG_DBG, "FEED SCALE: ON");
             } else {
-		rtapi_print_msg(RTAPI_MSG_DBG, "FEED OVERRIDE: OFF");
+		rtapi_print_msg(RTAPI_MSG_DBG, "FEED SCALE: OFF");
 	    }
 	    emcmotStatus->fo_mode = emcmotCommand->mode; //0 means no override is possible
 	    break;
@@ -982,20 +982,20 @@ check_stuff ( "before command_handler()" );
 	case EMCMOT_SPINDLE_SCALE:
 	    /* override spindle speed */
 	    /* can happen at any time */
-	    rtapi_print_msg(RTAPI_MSG_DBG, "SPINDLE_SCALE");
+	    rtapi_print_msg(RTAPI_MSG_DBG, "SPINDLE SCALE");
 	    if (emcmotCommand->scale < 0.0) {
 		emcmotCommand->scale = 0.0;	/* clamp it */
 	    }
 	    emcmotStatus->spindle_scale = emcmotCommand->scale;
 	    break;
 
-	case EMCMOT_SO_ENABLE:
+	case EMCMOT_SS_ENABLE:
 	    /* enable/disable overriding spindle speed */
 	    /* can happen at any time */
 	    if ( emcmotCommand->mode != 0 ) {
-		rtapi_print_msg(RTAPI_MSG_DBG, "SPINDLE OVERRIDE: ON");
+		rtapi_print_msg(RTAPI_MSG_DBG, "SPINDLE SCALE: ON");
             } else {
-		rtapi_print_msg(RTAPI_MSG_DBG, "SPINDLE OVERRIDE: OFF");
+		rtapi_print_msg(RTAPI_MSG_DBG, "SPINDLE SCALE: OFF");
 	    }
 	    emcmotStatus->so_mode = emcmotCommand->mode; //0 means no override is possible
 	    break;
