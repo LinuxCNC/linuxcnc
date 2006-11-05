@@ -25,12 +25,6 @@
 \papersides 2
 \paperpagestyle default
 
-\layout Chapter
-
-Glossary of Common Terms Used in the EMC Documents 
-\layout Standard
-\align center 
-GPLD Copyright 2003, LinuxCNC.org 
 \layout Standard
 
 A listing of terms and what they mean.

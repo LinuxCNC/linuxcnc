@@ -231,8 +231,11 @@ preview false
 \end_inset 
 
 
-\layout Standard
+\layout Chapter
 \start_of_appendix 
+Glossary of Common Terms Used in the EMC Documents 
+\layout Standard
+
 
 \begin_inset Include \input{common/Glossary.lyx}
 preview false
@@ -240,6 +243,9 @@ preview false
 \end_inset 
 
 
+\layout Chapter
+
+Legal Section
 \layout Standard
 
 

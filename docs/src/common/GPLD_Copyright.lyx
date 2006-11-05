@@ -1,5 +1,5 @@
-#LyX 1.1 created this file. For more info see http://www.lyx.org/
-\lyxformat 218
+#LyX 1.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 221
 \textclass book
 \language english
 \inputencoding default
@@ -12,6 +12,8 @@
 \paperpackage a4wide
 \use_geometry 0
 \use_amsmath 0
+\use_natbib 0
+\use_numerical_citations 0
 \paperorientation portrait
 \secnumdepth 5
 \tocdepth 5
@@ -23,9 +25,6 @@
 \papersides 2
 \paperpagestyle default
 
-\layout Chapter
-\start_of_appendix 
-Legal Section
 \layout Section*
 
 Handbook Copyright Terms

@@ -24,9 +24,9 @@
 \papersides 1
 \paperpagestyle default
 
-\layout Chapter
+\layout Section
 
-Coding Style Guide
+Introduction
 \begin_inset Foot
 collapsed false
 
@@ -39,9 +39,6 @@ Most of this style guide has been copied wholesale from the Linux kernel
 \end_inset 
 
 
-\layout Section
-
-Introduction
 \layout Standard
 
 This chapter describes in some detail the source code style prefered by
