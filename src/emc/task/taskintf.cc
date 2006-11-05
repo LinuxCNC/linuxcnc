@@ -1080,7 +1080,7 @@ int emcTrajUpdate(EMC_TRAJ_STAT * stat)
     }
 
     stat->paused = emcmotStatus.paused;
-    stat->scale = emcmotStatus.qVscale;
+    stat->scale = emcmotStatus.feed_scale;
     stat->spindle_scale = emcmotStatus.spindle_scale;
 
     stat->position = emcmotStatus.carte_pos_cmd;

@@ -69,10 +69,10 @@ extern int tpGetExecId(TP_STRUCT * tp);
 extern int tpSetTermCond(TP_STRUCT * tp, int cond, double tolerance);
 extern int tpSetPos(TP_STRUCT * tp, EmcPose pos);
 extern int tpAddLine(TP_STRUCT * tp, EmcPose end, int type, double vel, double
-        ini_maxvel, double acc);
+        ini_maxvel, double acc, unsigned char enables);
 extern int tpAddCircle(TP_STRUCT * tp, EmcPose end, PmCartesian center,
         PmCartesian normal, int turn, int type, double vel, double ini_maxvel,
-        double acc);
+        double acc, unsigned char enables);
 extern int tpRunCycle(TP_STRUCT * tp, long period);
 extern int tpPause(TP_STRUCT * tp);
 extern int tpResume(TP_STRUCT * tp);

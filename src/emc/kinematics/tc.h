@@ -70,6 +70,7 @@ typedef struct {
     int synchronized;       // spindle sync required for this move
     double uu_per_rev;      // for sync, user units per rev (e.g. 0.0625 for 16tpi)
     double vel_at_blend_start;
+    unsigned char enables;  // Feed scale, etc, enable bits for this move
 } TC_STRUCT;
 
 /* TC_STRUCT functions */

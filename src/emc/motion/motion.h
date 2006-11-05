@@ -419,6 +419,15 @@ Suggestion: Split this in to an Error and a Status flag register..
 #define HOME_USE_INDEX		2
 #define HOME_IS_SHARED		4
 
+
+/* flags for enabling spindle scaling, feed scaling,
+   adaptive feed, and feed hold */
+
+#define SS_ENABLED 0x01
+#define FS_ENABLED 0x02
+#define AF_ENABLED 0x04
+#define FH_ENABLED 0x08
+
 /* This structure contains all of the data associated with
    a single joint.  Note that this structure does not need
    to be in shared memory (but it can, if desired for debugging
@@ -557,11 +566,16 @@ Suggestion: Split this in to an Error and a Status flag register..
 	int commandNumEcho;	/* echo of input command number */
 	cmd_status_t commandStatus;	/* result of most recent command */
 	/* these are config info, updated when a command changes them */
-	double qVscale;		/* velocity scale factor for all motion */
+	double feed_scale;	/* velocity scale factor for all motion */
 	double spindle_scale;	/* velocity scale factor for spindle speed */
-	int adaptiveEnabled;	/* non-zero when adaptive feed is enabled */
-	double overallVscale;	/* net scale factor (includes adaptive, and uses 1 for qVscale if mode = 0) */
+	unsigned char enables_new;	/* flags for FS, SS, etc */
+		/* the above set is the enables in effect for new moves */
 	/* the rest are updated every cycle */
+	double net_feed_scale;	/* net scale factor for all motion */
+	double net_spindle_scale;	/* net scale factor for spindle */
+	unsigned char enables_queued;	/* flags for FS, SS, etc */
+		/* the above set is the enables in effect for the
+		   currently executing move */
 	motion_state_t motion_state; /* operating state: FREE, COORD, etc. */
 	EMCMOT_MOTION_FLAG motionFlag;	/* see above for bit details */
 	EmcPose carte_pos_cmd;	/* commanded Cartesian position */
@@ -585,9 +599,6 @@ Suggestion: Split this in to an Error and a Status flag register..
         double spindleRevs;     /* position of spindle in revolutions */
 
 	spindle_status spindle;	/* data types for spindle status */
-
-	unsigned char fo_mode;	/* mode for feed_override. while 0 no feed_override will be possible. will work at 100% */
-	unsigned char so_mode;	/* mode for spindle_override. while 0 no spindle_override will be possible. will work at 100% */
 
 /*! \todo FIXME - all structure members beyond this point are in limbo */
 

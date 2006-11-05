@@ -285,6 +285,8 @@ static int init_hal_io(void)
     if ((retval = hal_pin_float_newf(HAL_IN, &(emcmot_hal_data->spindle_revs), mot_comp_id, "motion.spindle-revs")) != HAL_SUCCESS) goto error;
     if ((retval = hal_pin_float_newf(HAL_IN, &(emcmot_hal_data->adaptive_feed), mot_comp_id, "motion.adaptive-feed")) != HAL_SUCCESS) goto error;
     *(emcmot_hal_data->adaptive_feed) = 1.0;
+    if ((retval = hal_pin_bit_newf(HAL_IN, &(emcmot_hal_data->feed_hold), mot_comp_id, "motion.feed-hold")) != HAL_SUCCESS) goto error;
+    *(emcmot_hal_data->feed_hold) = 0;
 
     if ((retval = hal_pin_bit_newf(HAL_IN, &(emcmot_hal_data->enable), mot_comp_id, "motion.enable")) != HAL_SUCCESS) goto error;
 
@@ -692,7 +694,7 @@ static int export_axis(int num, axis_hal_t * addr)
 
     /* restore saved message level */
     rtapi_set_msg_level(msg);
-
+rtapi_set_msg_level(RTAPI_MSG_ALL);
     return 0;
 }
 
@@ -782,12 +784,11 @@ static int init_comm_buffers(void)
     emcmotStatus->vel = VELOCITY;
     emcmotConfig->limitVel = VELOCITY;
     emcmotStatus->acc = ACCELERATION;
-    emcmotStatus->qVscale = 1.0;
-    emcmotStatus->fo_mode = 1;
-    emcmotStatus->so_mode = 1;
+    emcmotStatus->feed_scale = 1.0;
     emcmotStatus->spindle_scale = 1.0;
-    emcmotStatus->overallVscale = 1.0;
-    emcmotStatus->adaptiveEnabled = 0;
+    emcmotStatus->net_feed_scale = 1.0;
+    emcmotStatus->enables_new = 0;
+    emcmotStatus->enables_queued = 0;
     emcmotStatus->id = 0;
     emcmotStatus->depth = 0;
     emcmotStatus->activeDepth = 0;

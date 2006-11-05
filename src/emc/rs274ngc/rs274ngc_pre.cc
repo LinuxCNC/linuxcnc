@@ -384,6 +384,14 @@ int Interp::init()
   _setup.adaptive_feed = 0;
   _setup.feed_hold = ON; //enable feed hold
 
+// tell the motion controller the inital states of the
+// various overrides and feed controls
+  if ( _setup.speed_override ) ENABLE_SPEED_OVERRIDE(); else DISABLE_SPEED_OVERRIDE();
+  if ( _setup.feed_override ) ENABLE_FEED_OVERRIDE(); else DISABLE_FEED_OVERRIDE();
+  if ( _setup.adaptive_feed ) ENABLE_ADAPTIVE_FEED(); else DISABLE_ADAPTIVE_FEED();
+  if ( _setup.feed_hold ) ENABLE_FEED_HOLD(); else DISABLE_FEED_HOLD();
+
+
   write_g_codes((block_pointer) NULL, &_setup);
   write_m_codes((block_pointer) NULL, &_setup);
   write_settings(&_setup);

@@ -80,7 +80,7 @@ int tpClear(TP_STRUCT * tp)
     tp->depth = tp->activeDepth = 0;
     tp->aborting = 0;
     tp->pausing = 0;
-    tp->vScale = emcmotStatus->overallVscale;
+    tp->vScale = emcmotStatus->net_feed_scale;
     tp->synchronized = 0;
     tp->uu_per_rev = 0.0;
     emcmotStatus->spindleSync = 0;
@@ -243,7 +243,7 @@ int tpSetPos(TP_STRUCT * tp, EmcPose pos)
 // of the previous move to the new end specified here at the
 // currently-active accel and vel settings from the tp struct.
 
-int tpAddLine(TP_STRUCT * tp, EmcPose end, int type, double vel, double ini_maxvel, double acc)
+int tpAddLine(TP_STRUCT * tp, EmcPose end, int type, double vel, double ini_maxvel, double acc, unsigned char enables)
 {
     TC_STRUCT tc;
     PmLine line_xyz, line_abc;
@@ -296,6 +296,7 @@ int tpAddLine(TP_STRUCT * tp, EmcPose end, int type, double vel, double ini_maxv
 
     tc.synchronized = tp->synchronized;
     tc.uu_per_rev = tp->uu_per_rev;
+    tc.enables = enables;
 
     if (tcqPut(&tp->queue, tc) == -1) {
         rtapi_print_msg(RTAPI_MSG_ERR, "tcqPut failed.\n");
@@ -321,7 +322,7 @@ int tpAddLine(TP_STRUCT * tp, EmcPose end, int type, double vel, double ini_maxv
 
 int tpAddCircle(TP_STRUCT * tp, EmcPose end,
 		PmCartesian center, PmCartesian normal, int turn, int type,
-                double vel, double ini_maxvel, double acc)
+                double vel, double ini_maxvel, double acc, unsigned char enables)
 {
     TC_STRUCT tc;
     PmCircle circle;
@@ -376,6 +377,7 @@ int tpAddCircle(TP_STRUCT * tp, EmcPose end,
 
     tc.synchronized = tp->synchronized;
     tc.uu_per_rev = tp->uu_per_rev;
+    tc.enables = enables;
 
     if (tcqPut(&tp->queue, tc) == -1) {
 	return -1;
@@ -509,6 +511,8 @@ int tpRunCycle(TP_STRUCT * tp, long period)
         tp->execId = 0;
         tp->motionType = 0;
         tpResume(tp);
+	// when not executing a move, use the current enable flags
+	emcmotStatus->enables_queued = emcmotStatus->enables_new;
         return 0;
     }
 
@@ -528,10 +532,6 @@ int tpRunCycle(TP_STRUCT * tp, long period)
         tc = tcqItem(&tp->queue, 0, period);
         if(!tc) return 0;
     }
-
-    // report our line number to the guis
-    tp->execId = tc->id;
-
     // this is no longer the segment we were waiting for
     if(waiting && waiting != tc->id) 
         waiting = 0;
@@ -654,13 +654,13 @@ int tpRunCycle(TP_STRUCT * tp, long period)
 		nexttc->feed_override = 1.0;
 		if(nexttc->reqvel < 0.0) nexttc->reqvel = 0.0;
 	    } else {
-		nexttc->feed_override = emcmotStatus->overallVscale;
+		nexttc->feed_override = emcmotStatus->net_feed_scale;
 	    }
 	}
     } else {
-        tc->feed_override = emcmotStatus->overallVscale;
+        tc->feed_override = emcmotStatus->net_feed_scale;
         if(nexttc) {
-	    nexttc->feed_override = emcmotStatus->overallVscale;
+	    nexttc->feed_override = emcmotStatus->net_feed_scale;
 	}
     }
     /* handle pausing */
@@ -740,9 +740,15 @@ int tpRunCycle(TP_STRUCT * tp, long period)
         if(tc->currentvel > nexttc->currentvel) {
             tp->motionType = tc->canon_motion_type;
 	    emcmotStatus->distance_to_go = tc->target - tc->progress;
+	    emcmotStatus->enables_queued = tc->enables;
+	    // report our line number to the guis
+	    tp->execId = tc->id;
         } else {
             tp->motionType = nexttc->canon_motion_type;
 	    emcmotStatus->distance_to_go = nexttc->target - nexttc->progress;
+	    emcmotStatus->enables_queued = nexttc->enables;
+	    // report our line number to the guis
+	    tp->execId = nexttc->id;
         }
 
         secondary_before = tcGetPos(nexttc);
@@ -769,6 +775,9 @@ int tpRunCycle(TP_STRUCT * tp, long period)
         tp->motionType = tc->canon_motion_type;
 	emcmotStatus->distance_to_go = tc->target - tc->progress;
         tp->currentPos = primary_after;
+	emcmotStatus->enables_queued = tc->enables;
+	// report our line number to the guis
+	tp->execId = tc->id;
     }
     return 0;
 }

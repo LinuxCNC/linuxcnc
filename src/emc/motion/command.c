@@ -804,8 +804,7 @@ check_stuff ( "before command_handler()" );
 
 	    /* append it to the emcmotDebug->queue */
 	    tpSetId(&emcmotDebug->queue, emcmotCommand->id);
-	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_LINE");
-	    if (-1 == tpAddLine(&emcmotDebug->queue, emcmotCommand->pos, emcmotCommand->motion_type, emcmotCommand->vel, emcmotCommand->ini_maxvel, emcmotCommand->acc)) {
+	    if (-1 == tpAddLine(&emcmotDebug->queue, emcmotCommand->pos, emcmotCommand->motion_type, emcmotCommand->vel, emcmotCommand->ini_maxvel, emcmotCommand->acc, emcmotStatus->enables_new)) {
 		reportError("can't add linear move");
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_BAD_EXEC;
 		tpAbort(&emcmotDebug->queue);
@@ -852,7 +851,7 @@ check_stuff ( "before command_handler()" );
 		    emcmotCommand->center, emcmotCommand->normal,
 		    emcmotCommand->turn, emcmotCommand->motion_type,
                     emcmotCommand->vel, emcmotCommand->ini_maxvel,
-                    emcmotCommand->acc)) {
+                    emcmotCommand->acc, emcmotStatus->enables_new)) {
 		reportError("can't add circular move");
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_BAD_EXEC;
 		tpAbort(&emcmotDebug->queue);
@@ -954,7 +953,7 @@ check_stuff ( "before command_handler()" );
 	    if (emcmotCommand->scale < 0.0) {
 		emcmotCommand->scale = 0.0;	/* clamp it */
 	    }
-	    emcmotStatus->qVscale = emcmotCommand->scale;
+	    emcmotStatus->feed_scale = emcmotCommand->scale;
 	    break;
 
 	case EMCMOT_FS_ENABLE:
@@ -962,10 +961,11 @@ check_stuff ( "before command_handler()" );
 	    /* can happen at any time */
 	    if ( emcmotCommand->mode != 0 ) {
 		rtapi_print_msg(RTAPI_MSG_DBG, "FEED SCALE: ON");
+		emcmotStatus->enables_new |= FS_ENABLED;
             } else {
 		rtapi_print_msg(RTAPI_MSG_DBG, "FEED SCALE: OFF");
+		emcmotStatus->enables_new &= ~FS_ENABLED;
 	    }
-	    emcmotStatus->fo_mode = emcmotCommand->mode; //0 means no override is possible
 	    break;
 
 	case EMCMOT_FH_ENABLE:
@@ -973,10 +973,11 @@ check_stuff ( "before command_handler()" );
 	    /* can happen at any time */
 	    if ( emcmotCommand->mode != 0 ) {
 		rtapi_print_msg(RTAPI_MSG_DBG, "FEED HOLD: ENABLED");
+		emcmotStatus->enables_new |= FH_ENABLED;
             } else {
 		rtapi_print_msg(RTAPI_MSG_DBG, "FEED HOLD: DISABLED");
+		emcmotStatus->enables_new &= ~FH_ENABLED;
 	    }
-	    /*FIXME : JMK does something usefull here with emcmotCommand->mode; //0 means feed_hold is not taken into consideration*/
 	    break;
 
 	case EMCMOT_SPINDLE_SCALE:
@@ -994,22 +995,22 @@ check_stuff ( "before command_handler()" );
 	    /* can happen at any time */
 	    if ( emcmotCommand->mode != 0 ) {
 		rtapi_print_msg(RTAPI_MSG_DBG, "SPINDLE SCALE: ON");
+		emcmotStatus->enables_new |= SS_ENABLED;
             } else {
 		rtapi_print_msg(RTAPI_MSG_DBG, "SPINDLE SCALE: OFF");
+		emcmotStatus->enables_new &= ~SS_ENABLED;
 	    }
-	    emcmotStatus->so_mode = emcmotCommand->mode; //0 means no override is possible
 	    break;
-
 
 	case EMCMOT_AF_ENABLE:
 	    /* enable/disable adaptive feedrate override from HAL pin */
 	    /* can happen at any time */
 	    if ( emcmotCommand->flags != 0 ) {
 		rtapi_print_msg(RTAPI_MSG_DBG, "ADAPTIVE FEED: ON");
-		emcmotStatus->adaptiveEnabled = 1;
+		emcmotStatus->enables_new |= AF_ENABLED;
             } else {
 		rtapi_print_msg(RTAPI_MSG_DBG, "ADAPTIVE FEED: OFF");
-		emcmotStatus->adaptiveEnabled = 0;
+		emcmotStatus->enables_new &= ~AF_ENABLED;
 	    }
 	    break;
 
@@ -1176,7 +1177,7 @@ check_stuff ( "before command_handler()" );
 
 	    /* append it to the emcmotDebug->queue */
 	    tpSetId(&emcmotDebug->queue, emcmotCommand->id);
-	    if (-1 == tpAddLine(&emcmotDebug->queue, emcmotCommand->pos, emcmotCommand->motion_type, emcmotCommand->vel, emcmotCommand->ini_maxvel, emcmotCommand->acc)) {
+	    if (-1 == tpAddLine(&emcmotDebug->queue, emcmotCommand->pos, emcmotCommand->motion_type, emcmotCommand->vel, emcmotCommand->ini_maxvel, emcmotCommand->acc, emcmotStatus->enables_new)) {
 		reportError("can't add probe move");
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_BAD_EXEC;
 		tpAbort(&emcmotDebug->queue);

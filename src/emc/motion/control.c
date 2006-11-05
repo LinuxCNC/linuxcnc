@@ -363,9 +363,10 @@ check_stuff ( "after update_status()" );
 static void process_inputs(void)
 {
     int joint_num;
-    double abs_ferror, tmp;
+    double abs_ferror, tmp, scale;
     axis_hal_t *axis_data;
     emcmot_joint_t *joint;
+    unsigned char enables;
 
     /* read probe input */
     if (*(emcmot_hal_data->probe_input)) {
@@ -406,30 +407,45 @@ static void process_inputs(void)
     }
     /* read spindle angle (for threading, etc) */
     emcmotStatus->spindleRevs = *emcmot_hal_data->spindle_revs;
-    if ( emcmotStatus->adaptiveEnabled ) {
-	/* read and clamp (0.0 to 1.0) adaptive feed pin */
+    /* compute net feed and spindle scale factors */
+    if ( emcmotStatus->motion_state == EMCMOT_MOTION_COORD ) {
+	/* use the enables that were queued with the current move */
+	enables = emcmotStatus->enables_queued;
+    } else {
+	/* use the enables that are in effect right now */
+	enables = emcmotStatus->enables_new;
+    }
+    /* feed scaling first:  feed_scale, adaptive_feed, and feed_hold */
+    scale = 1.0;
+    if ( enables & FS_ENABLED ) {
+	scale *= emcmotStatus->feed_scale;
+    }
+    if ( enables & AF_ENABLED ) {
+	/* read and clamp (0.0 to 1.0) adaptive feed HAL pin */
 	tmp = *emcmot_hal_data->adaptive_feed;
 	if ( tmp > 1.0 ) {
 	    tmp = 1.0;
 	} else if ( tmp < 0.0 ) {
 	    tmp = 0.0;
 	}
-	/* set overall scale to user command times hal value */
-	/* if fo_mode == 0, override = 0, and we travel at 100% Feed_override (leave adaptive still working)*/
-	if (emcmotStatus->fo_mode == 0) {
-	    emcmotStatus->overallVscale = tmp;
-	} else {
-	    emcmotStatus->overallVscale = tmp * emcmotStatus->qVscale;
-	}
-    } else {
-	/* set overall scale based on user command only */
-	/* if fo_mode == 0, override = 0, and we travel at 100% Feed_override*/
-	if (emcmotStatus->fo_mode == 0) {
-	    emcmotStatus->overallVscale = 1;
-	} else {
-	    emcmotStatus->overallVscale = emcmotStatus->qVscale;
+	scale *= tmp;
+    }
+    if ( enables & FH_ENABLED ) {
+	/* read feed hold HAL pin */
+	if ( *emcmot_hal_data->feed_hold ) {
+	    scale = 0;
 	}
     }
+    /* save the resulting combined scale factor */
+    emcmotStatus->net_feed_scale = scale;
+
+    /* now do spindle scaling: only one item to consider */
+    scale = 1.0;
+    if ( enables & SS_ENABLED ) {
+	scale *= emcmotStatus->spindle_scale;
+    }
+    /* save the resulting combined scale factor */
+    emcmotStatus->net_spindle_scale = scale;
 
     /* read and process per-joint inputs */
     for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
@@ -1732,7 +1748,7 @@ static void get_pos_cmds(long period)
 		}
 		/* velocity limit = planner limit * global scale factor */
 		/* the global factor is used for feedrate override */
-		vel_lim = joint->free_vel_lim * emcmotStatus->overallVscale;
+		vel_lim = joint->free_vel_lim * emcmotStatus->net_feed_scale;
 		/* must not be greater than the joint physical limit */
 		if (vel_lim > joint->vel_limit) {
 		    vel_lim = joint->vel_limit;
@@ -2229,7 +2245,7 @@ static void compute_screw_comp(void)
 	 * (together) but this requires some interaction that
 	 * isn't implemented yet.
 	 */ 
-        v_max = 0.5 * joint->vel_limit * emcmotStatus->overallVscale;
+        v_max = 0.5 * joint->vel_limit * emcmotStatus->net_feed_scale;
         a_max = 0.5 * joint->acc_limit;
         v = joint->backlash_vel;
         if (joint->backlash_corr >= 0.0) {
@@ -2340,15 +2356,8 @@ static void output_to_hal(void)
     emcmot_hal_data->coord_mode = GET_MOTION_COORD_FLAG();
     emcmot_hal_data->teleop_mode = GET_MOTION_TELEOP_FLAG();
     emcmot_hal_data->coord_error = GET_MOTION_ERROR_FLAG();
-    
-    /* if so_mode == 0, override is not possible, we use  100% Spindle speed*/
-    if (emcmotStatus->so_mode == 0) {
-	*(emcmot_hal_data->spindle_speed_out) = emcmotStatus->spindle.speed;
-	*(emcmot_hal_data->spindle_on) = (emcmotStatus->spindle.speed != 0) ? 1 : 0;
-    } else {
-	*(emcmot_hal_data->spindle_speed_out) = emcmotStatus->spindle.speed * emcmotStatus->spindle_scale;
-	*(emcmot_hal_data->spindle_on) = ((emcmotStatus->spindle.speed * emcmotStatus->spindle_scale) != 0) ? 1 : 0;
-    }
+    *(emcmot_hal_data->spindle_speed_out) = emcmotStatus->spindle.speed * emcmotStatus->spindle_scale;
+    *(emcmot_hal_data->spindle_on) = ((emcmotStatus->spindle.speed * emcmotStatus->net_spindle_scale) != 0) ? 1 : 0;
     *(emcmot_hal_data->spindle_forward) = (emcmotStatus->spindle.speed > 0) ? 1 : 0;
     *(emcmot_hal_data->spindle_reverse) = (emcmotStatus->spindle.speed < 0) ? 1 : 0;
     *(emcmot_hal_data->spindle_brake) = (emcmotStatus->spindle.brake != 0) ? 1 : 0;
@@ -2359,8 +2368,8 @@ static void output_to_hal(void)
        and copy elsewhere if you want to observe an automatic variable that
        isn't in scope here. */
     emcmot_hal_data->debug_bit_0 = joints[1].free_tp_active;
-    emcmot_hal_data->debug_bit_1 = emcmotStatus->adaptiveEnabled;
-    emcmot_hal_data->debug_float_0 = emcmotStatus->overallVscale;
+    emcmot_hal_data->debug_bit_1 = emcmotStatus->enables_new & AF_ENABLED;
+    emcmot_hal_data->debug_float_0 = emcmotStatus->net_feed_scale;
     emcmot_hal_data->debug_float_1 = 0.0;
     *emcmot_hal_data->spindle_sync = emcmotStatus->spindleSync;
 
