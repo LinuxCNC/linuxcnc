@@ -427,6 +427,12 @@ int GET_EXTERNAL_TOOL_MAX() { return CANON_TOOL_MAX; }
 void DISABLE_ADAPTIVE_FEED() {} 
 void ENABLE_ADAPTIVE_FEED() {} 
 
+int GET_EXTERNAL_FEED_OVERRIDE_ENABLE() {return 1;}
+int GET_EXTERNAL_SPINDLE_OVERRIDE_ENABLE() {return 1;}
+int GET_EXTERNAL_ADAPTIVE_FEED_ENABLE() {return 0;}
+int GET_EXTERNAL_FEED_HOLD_ENABLE() {return 1;}
+
+
 bool PyFloat_CheckAndError(const char *func, PyObject *p)  {
     if(PyFloat_Check(p)) return true;
     PyErr_Format(PyExc_TypeError,
