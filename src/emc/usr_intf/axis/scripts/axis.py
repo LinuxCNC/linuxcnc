@@ -367,7 +367,7 @@ class MyOpengl(Opengl):
                 t.see("%d.0" % line)
             t.tag_add("executing", "%d.0" % line, "%d.end" % line)
         else:
-            vupdate(vars.running_line, -1)
+            vupdate(vars.running_line, 0)
 
     def set_highlight_line(self, line):
         if line == vars.highlight_line.get(): return
@@ -1276,11 +1276,7 @@ class LivePlotter:
                                     _("AXIS error"), text, "info", 0, _("OK"))
         self.after = self.win.after(20, self.update)
 
-        if program_start_line_last == -1 or \
-                self.stat.read_line < program_start_line_last:
-            self.win.set_current_line(self.stat.read_line)
-        else:
-            self.win.set_current_line(self.stat.motion_line)
+        self.win.set_current_line(self.stat.id)
 
         try:
             speed = live_plotter.logger.average_speed
