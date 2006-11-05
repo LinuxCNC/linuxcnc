@@ -65,9 +65,8 @@ TkEMC Window
 
 \begin_inset Graphics
 	filename ../common/tkemc.png
-	lyxscale 50
+	lyxscale 80
 	width 80page%
-	keepAspectRatio
 
 \end_inset 
 
