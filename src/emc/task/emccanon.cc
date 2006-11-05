@@ -1329,6 +1329,7 @@ void COMMENT(char *comment)
 void DISABLE_FEED_OVERRIDE()
 {
     EMC_TRAJ_SET_FO_ENABLE set_fo_enable_msg;
+    flush_segments();
     
     set_fo_enable_msg.mode = 0;
     interp_list.append(set_fo_enable_msg);
@@ -1337,6 +1338,7 @@ void DISABLE_FEED_OVERRIDE()
 void ENABLE_FEED_OVERRIDE()
 {
     EMC_TRAJ_SET_FO_ENABLE set_fo_enable_msg;
+    flush_segments();
     
     set_fo_enable_msg.mode = 1;
     interp_list.append(set_fo_enable_msg);
@@ -1345,16 +1347,18 @@ void ENABLE_FEED_OVERRIDE()
 //refers to adaptive feed override (HAL input, usefull for EDM for example)
 void DISABLE_ADAPTIVE_FEED()
 {
-    flush_segments();
     EMC_MOTION_ADAPTIVE emcmotAdaptiveMsg;
+    flush_segments();
+
     emcmotAdaptiveMsg.status = 0;
     interp_list.append(emcmotAdaptiveMsg);
 }
 
 void ENABLE_ADAPTIVE_FEED()
 {
-    flush_segments();
     EMC_MOTION_ADAPTIVE emcmotAdaptiveMsg;
+    flush_segments();
+
     emcmotAdaptiveMsg.status = 1;
     interp_list.append(emcmotAdaptiveMsg);
 }
@@ -1363,6 +1367,7 @@ void ENABLE_ADAPTIVE_FEED()
 void DISABLE_SPEED_OVERRIDE()
 {
     EMC_TRAJ_SET_SO_ENABLE set_so_enable_msg;
+    flush_segments();
     
     set_so_enable_msg.mode = 0;
     interp_list.append(set_so_enable_msg);
@@ -1372,6 +1377,7 @@ void DISABLE_SPEED_OVERRIDE()
 void ENABLE_SPEED_OVERRIDE()
 {
     EMC_TRAJ_SET_SO_ENABLE set_so_enable_msg;
+    flush_segments();
     
     set_so_enable_msg.mode = 1;
     interp_list.append(set_so_enable_msg);
@@ -1380,6 +1386,7 @@ void ENABLE_SPEED_OVERRIDE()
 void ENABLE_FEED_HOLD()
 {
     EMC_TRAJ_SET_FH_ENABLE set_feed_hold_msg;
+    flush_segments();
     
     set_feed_hold_msg.mode = 1;
     interp_list.append(set_feed_hold_msg);
@@ -1388,6 +1395,7 @@ void ENABLE_FEED_HOLD()
 void DISABLE_FEED_HOLD()
 {
     EMC_TRAJ_SET_FH_ENABLE set_feed_hold_msg;
+    flush_segments();
     
     set_feed_hold_msg.mode = 0;
     interp_list.append(set_feed_hold_msg);
