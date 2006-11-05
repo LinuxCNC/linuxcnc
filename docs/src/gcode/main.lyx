@@ -523,7 +523,7 @@ The feed and speed override switches may be enabled (so they work as expected)
  or disabled (so they have no effect on the feed rate or spindle speed).
  The RS274/NGC language has one command that enables both switches and one
  command that disables both (see Section 
-\begin_inset LatexCommand \ref{sub:M7,-M8,-M9:}
+\begin_inset LatexCommand \ref{sub:M48,-M49:-Override}
 
 \end_inset 
 
@@ -4562,39 +4562,6 @@ It is OK to program using the same offset already in use.
  
 \layout Section
 
-G50, G51: Adaptive Feed
-\begin_inset LatexCommand \label{sec:G50,-G51:-Adaptive}
-
-\end_inset 
-
-
-\layout Standard
-
-To use an adaptive feed, program 
-\family typewriter 
-G50
-\family default 
-.
- To stop using adaptive feed, program 
-\family typewriter 
-G51
-\family default 
-.
- When adaptive feed is enabled, some external input value is used together
- with the user interface feed override value and the commanded feed rate
- to set the actual feed rate.
- In EMC2, the HAL pin 
-\family typewriter 
-motion.adaptive-feed
-\family default 
- is used for this purpose.
- Values on 
-\family typewriter 
-motion.adaptive-feed
-\family default 
- should range from 0 (feed hold) to 1 (full speed).
-\layout Section
-
 G53: Move in absolute coordinates
 \begin_inset LatexCommand \label{sub:G53:-Move-in}
 
@@ -5924,9 +5891,19 @@ M48, M49: Override Control
 \end_inset 
 
 
+\begin_inset LatexCommand \index{M48}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \index{M49}
+
+\end_inset 
+
+
 \layout Standard
 
-To enable the speed and feed override switches, program 
+To enable the spindle speed and feedrate override switches, program 
 \family typewriter 
 M48
 \family default 
@@ -5944,11 +5921,194 @@ M49
  for more details.
  It is OK to enable or disable the switches when they are already enabled
  or disabled.
- 
+ These switches can also be toggled individually using M50 and M51 as described
+ in the sections 
+\begin_inset LatexCommand \ref{sec:M50:-Feed-Override}
+
+\end_inset 
+
+ and 
+\begin_inset LatexCommand \ref{sec:M51:-Spindle-Speed-Override-Control}
+
+\end_inset 
+
+.
+\layout Section
+
+M50: Feed Override Control
+\begin_inset LatexCommand \label{sec:M50:-Feed-Override}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \index{M50}
+
+\end_inset 
+
+
+\layout Standard
+
+To enable the feedrate override switch, program 
+\family typewriter 
+M50
+\family default 
+ or 
+\family typewriter 
+M50 P1
+\family default 
+.
+ To disable the switch program 
+\family typewriter 
+M50 P0
+\family default 
+.
+ While disabled the feed override will have no influence, and the motion
+ will be executed at programmed feedrate.
+ (unless there is an adaptive feedrate override active).
+\layout Section
+
+M51: Spindle Speed Override Control
+\begin_inset LatexCommand \label{sec:M51:-Spindle-Speed-Override-Control}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \index{M51}
+
+\end_inset 
+
+
+\layout Standard
+
+To enable the spindle speed override switch, program 
+\family typewriter 
+M51
+\family default 
+ or 
+\family typewriter 
+M51 P1
+\family default 
+.
+ To disable the switch program 
+\family typewriter 
+M51 P0
+\family default 
+.
+ While disabled the spindle speed override will have no influence, and the
+ spindle speed will have the exact program specified value (using the S-word
+ as described in 
+\begin_inset LatexCommand \ref{sub:S:-Set-Spindle}
+
+\end_inset 
+
+).
+\layout Section
+
+M52: Adaptive Feed Control
+\begin_inset LatexCommand \label{sec:M52:-Adaptive-Feed-Control}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \index{M52}
+
+\end_inset 
+
+
+\layout Standard
+
+To use an adaptive feed, program 
+\family typewriter 
+M52
+\family default 
+ or 
+\family typewriter 
+M51 P1
+\family default 
+.
+ To stop using adaptive feed, program 
+\family typewriter 
+M52 P0
+\family default 
+.
+ When adaptive feed is enabled, some external input value is used together
+ with the user interface feed override value and the commanded feed rate
+ to set the actual feed rate.
+ In EMC2, the HAL pin 
+\family typewriter 
+motion.adaptive-feed
+\family default 
+ is used for this purpose.
+ Values on 
+\family typewriter 
+motion.adaptive-feed
+\family default 
+ should range from 0 (feed hold) to 1 (full speed).
+\layout Section
+
+M53: Feed Stop Control
+\begin_inset LatexCommand \label{sec:M53:-Feed-Stop-Control}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \index{M53}
+
+\end_inset 
+
+
+\layout Standard
+
+To enable the feed stop switch, program 
+\family typewriter 
+M53
+\family default 
+ or 
+\family typewriter 
+M53 P1
+\family default 
+.
+ To disable the switch program 
+\family typewriter 
+M53 P0
+\family default 
+.
+ Enabling the feed stop switch will allow motion to be interrupted by means
+ of the feedstop control.
+ In EMC2, the HAL pin 
+\family typewriter 
+motion.feed-hold
+\family default 
+ is used for this purpose.
+ Values of 1 will cause the motion to stop (if 
+\family typewriter 
+M53
+\family default 
+ is active).
 \layout Section
 
 M62 to M65: Digital IO Control
 \begin_inset LatexCommand \label{sec:M62-to-M65:}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \index{M62}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \index{M63}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \index{M64}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \index{M65}
 
 \end_inset 
 
