@@ -1,6 +1,12 @@
 # some of EMC2 History & News
 #############################
 
+2006.11.04 - added a feed-hold HAL pin.  Added M codes to enable/disable
+	     feed override, spindle override, feed hold, and adaptive feed
+	     individually.  Feed override is M50, spindle override is M51,
+	     adaptive feed is M52, and feed hold is M53.  G50/51 are no
+	     longer used to enable/disable adaptive feed, use M52 instead.
+
 2006.10.24 - added support for block delete as defined by Section 2.2.2
              in the RS274NGC_3 specs.
 

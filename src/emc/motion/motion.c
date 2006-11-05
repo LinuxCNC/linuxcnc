@@ -787,8 +787,10 @@ static int init_comm_buffers(void)
     emcmotStatus->feed_scale = 1.0;
     emcmotStatus->spindle_scale = 1.0;
     emcmotStatus->net_feed_scale = 1.0;
-    emcmotStatus->enables_new = 0;
-    emcmotStatus->enables_queued = 0;
+    /* adaptive feed is off by default, feed override, spindle 
+       override, and feed hold are on */
+    emcmotStatus->enables_new = FS_ENABLED | SS_ENABLED | FH_ENABLED;
+    emcmotStatus->enables_queued = emcmotStatus->enables_new;
     emcmotStatus->id = 0;
     emcmotStatus->depth = 0;
     emcmotStatus->activeDepth = 0;

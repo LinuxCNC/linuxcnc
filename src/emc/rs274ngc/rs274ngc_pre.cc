@@ -341,7 +341,7 @@ int Interp::init()
 //_setup.cycle values do not need initialization
   _setup.distance_mode = MODE_ABSOLUTE;
   _setup.feed_mode = UNITS_PER_MINUTE;
-  _setup.feed_override = ON;
+//_setup.feed_override set in Interp::synch
 //_setup.feed_rate set in Interp::synch
   _setup.filename[0] = 0;
   _setup.file_pointer = NULL;
@@ -371,7 +371,7 @@ int Interp::init()
   _setup.sequence_number = 0;   /*DOES THIS NEED TO BE AT TOP? */
 //_setup.speed set in Interp::synch
   _setup.speed_feed_mode = CANON_INDEPENDENT;
-  _setup.speed_override = ON;
+//_setup.speed_override set in Interp::synch
 //_setup.spindle_turning set in Interp::synch
 //_setup.stack does not need initialization
 //_setup.stack_index does not need initialization
@@ -381,16 +381,8 @@ int Interp::init()
 //_setup.tool_table set in Interp::synch
   _setup.tool_table_index = 1;
 //_setup.traverse_rate set in Interp::synch
-  _setup.adaptive_feed = 0;
-  _setup.feed_hold = ON; //enable feed hold
-
-// tell the motion controller the inital states of the
-// various overrides and feed controls
-  if ( _setup.speed_override ) ENABLE_SPEED_OVERRIDE(); else DISABLE_SPEED_OVERRIDE();
-  if ( _setup.feed_override ) ENABLE_FEED_OVERRIDE(); else DISABLE_FEED_OVERRIDE();
-  if ( _setup.adaptive_feed ) ENABLE_ADAPTIVE_FEED(); else DISABLE_ADAPTIVE_FEED();
-  if ( _setup.feed_hold ) ENABLE_FEED_HOLD(); else DISABLE_FEED_HOLD();
-
+//_setup.adaptive_feed set in Interp::synch
+//_setup.feed_hold set in Interp::synch
 
   write_g_codes((block_pointer) NULL, &_setup);
   write_m_codes((block_pointer) NULL, &_setup);
@@ -404,7 +396,6 @@ int Interp::init()
 
   // Synch rest of settings to external world
   synch();
-
   return INTERP_OK;
 }
 
@@ -915,6 +906,10 @@ int Interp::synch()
   _setup.spindle_turning = GET_EXTERNAL_SPINDLE();
   _setup.tool_max = GET_EXTERNAL_TOOL_MAX();
   _setup.traverse_rate = GET_EXTERNAL_TRAVERSE_RATE();
+  _setup.feed_override = GET_EXTERNAL_FEED_OVERRIDE_ENABLE();
+  _setup.speed_override = GET_EXTERNAL_SPINDLE_OVERRIDE_ENABLE();
+  _setup.adaptive_feed = GET_EXTERNAL_ADAPTIVE_FEED_ENABLE();
+  _setup.feed_hold = GET_EXTERNAL_FEED_HOLD_ENABLE();
 
   GET_EXTERNAL_PARAMETER_FILE_NAME(file_name, (LINELEN - 1));
   save_parameters(((file_name[0] ==

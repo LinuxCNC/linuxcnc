@@ -1993,6 +1993,25 @@ int GET_EXTERNAL_SELECTED_TOOL_SLOT()
     return emcStatus->io.tool.toolPrepped;
 }
 
+int GET_EXTERNAL_FEED_OVERRIDE_ENABLE()
+{
+    return emcStatus->motion.traj.feed_override_enabled;
+}
+
+int GET_EXTERNAL_SPINDLE_OVERRIDE_ENABLE()
+{
+    return emcStatus->motion.traj.spindle_override_enabled;
+}
+
+int GET_EXTERNAL_ADAPTIVE_FEED_ENABLE()
+{
+    return emcStatus->motion.traj.adaptive_feed_enabled;
+}
+
+int GET_EXTERNAL_FEED_HOLD_ENABLE()
+{
+    return emcStatus->motion.traj.feed_hold_enabled;
+}
 
 CANON_PLANE GET_EXTERNAL_PLANE()
 {

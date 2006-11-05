@@ -1114,6 +1114,10 @@ int emcTrajUpdate(EMC_TRAJ_STAT * stat)
     stat->probedPosition.tran.z = emcmotStatus.probedPos.tran.z;
     stat->probeval = emcmotStatus.probeVal;
     stat->probe_tripped = emcmotStatus.probeTripped;
+    stat->feed_override_enabled = emcmotStatus.enables_new & FS_ENABLED;
+    stat->spindle_override_enabled = emcmotStatus.enables_new & SS_ENABLED;
+    stat->adaptive_feed_enabled = emcmotStatus.enables_new & AF_ENABLED;
+    stat->feed_hold_enabled = emcmotStatus.enables_new & FH_ENABLED;
 
     if (new_config) {
 	stat->cycleTime = emcmotConfig.trajCycleTime;
