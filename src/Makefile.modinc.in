@@ -31,7 +31,7 @@ BUILDSYS = @BUILD_SYS@
 KERNELDIR := @KERNELDIR@
 CC := @CC@
 RTFLAGS = @RTFLAGS@ @EXT_RTFLAGS@
-RTFLAGS := -I. -I@RTDIR@/include $(RTFLAGS) -DRTAPI -D_GNU_SOURCE -Drealtime -D_FORTIFY_SOURCE=0 @ASM_BITOPS_DEFINE@
+RTFLAGS := -g -I. -I@RTDIR@/include $(RTFLAGS) -DRTAPI -D_GNU_SOURCE -Drealtime -D_FORTIFY_SOURCE=0 @ASM_BITOPS_DEFINE@
 USE_RTLIBM = @USE_RTLIBM@
 EMC2_HOME=@EMC2_HOME@
 RUN_IN_PLACE=@RUN_IN_PLACE@
@@ -56,17 +56,24 @@ install:
 endif
 
 ifeq ($(BUILDSYS),sim)
+EXTRA_CFLAGS += -DSIM
 allmodules = $(patsubst %.o,%.so,$(obj-m))
 modules: $(allmodules)
 
 install:
 	cp $(allmodules) $(DESTDIR)$(RTLIBDIR)/
 
-getobjs = $(ifeq $(origin $(1)-objs, undefined), $(1).o, $(1)-objs)
-getsrcs = $(patsubst %.c,%.o,$(call getobjs,$(1)))
+getobjs = $(if $(filter undefined, $(origin $(1)-objs)), $(1).o, $($(1)-objs))
+getsrcs = $(patsubst %.o,%.c,$(call getobjs,$(1)))
+
+maks := $(patsubst %.o,.%.modinc,$(obj-m))
+
+.%.modinc:
+	echo 
+
 .PHONY: %.so
 %.so:
-	$(CC) -shared -o $@ $(getsrcs $*)
+	$(CC) -shared -o $@ $(EXTRA_CFLAGS) $(call getsrcs,$*)
 endif
 
 ifeq ($(BUILDSYS),normal)
