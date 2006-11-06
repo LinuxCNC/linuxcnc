@@ -243,6 +243,7 @@ HEADERS := \
     libnml/rcs/rcsversion.h \
     rtapi/rtapi.h \
     rtapi/rtapi_app.h \
+    rtapi/rtapi_bitops.h \
     rtapi/rtapi_math.h \
     rtapi/rtapi_math_i386.h \
     rtapi/rtapi_common.h \
