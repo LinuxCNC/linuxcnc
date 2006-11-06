@@ -1,7 +1,7 @@
 /* Classic Ladder Project */
-/* Copyright (C) 2001-2004 Marc Le Douarain */
-/* mavati@club-internet.fr */
+/* Copyright (C) 2001-2006 Marc Le Douarain */
 /* http://www.multimania.com/mavati/classicladder */
+/* http://www.sourceforge.net/projects/classicladder */
 /* May 2001 */
 /* --------------------------- */
 /* Editor - GTK interface part */
@@ -30,343 +30,328 @@
 #include "edit_gtk.h"
 #include "editproperties_gtk.h"
 
-static GdkPixmap *EditorPixmap = NULL;
-GtkWidget *EditorDrawingArea;
-GtkWidget *EditorButtonOk, *EditorButtonCancel;
-GtkWidget *EditorButtonAdd, *EditorButtonIns, *EditorButtonDel;
-GtkWidget *EditorButtonModify;
-#define NBR_ELE_TOOLBAR_Y 10
-static short int ToolBarElementsLadder[NBR_ELE_TOOLBAR_Y + 1][2] =
-    { {ELE_INPUT, ELE_INPUT_NOT},
-{ELE_RISING_INPUT, ELE_FALLING_INPUT},
-{ELE_CONNECTION, EDIT_CNX_WITH_TOP},
-{EDIT_LONG_CONNECTION, ELE_COMPAR},
-{ELE_TIMER, ELE_MONOSTABLE},
-{ELE_OUTPUT, ELE_OUTPUT_NOT},
-{ELE_OUTPUT_SET, ELE_OUTPUT_RESET},
-{ELE_OUTPUT_JUMP, ELE_OUTPUT_CALL},
-{ELE_OUTPUT_OPERATE, 0},
-{0, EDIT_POINTER},
-{-1, -1}			/* end */
-};
+static GtkWidget *EditorButtonOk,*EditorButtonCancel;
+static GtkWidget *EditorButtonAdd,*EditorButtonIns,*EditorButtonDel;
+static GtkWidget *EditorButtonModify;
+
+#define NBR_ELE_IN_TOOLBAR 50
+#define NBR_ELE_TOOLBAR_Y_MAX 15 // used for each GtkTable
+#define NBR_ELE_TOOLBAR_X_MAX 4
+static GtkWidget * ToolbarBtnRadio[ NBR_ELE_IN_TOOLBAR ];
+static GtkWidget * ToolbarImage[ NBR_ELE_IN_TOOLBAR ];
+static GdkPixmap * ToolbarPixmap[ NBR_ELE_IN_TOOLBAR ];
+#define NUM_TOOLBAR_FOR_RUNGS 0
+#define NUM_TOOLBAR_FOR_SEQ 1
+static GtkWidget * ToolbarTable[ 2 ];
+static int NumWidgetEditPointer[ 2 ];
+GtkTooltips * TheTooltips;
+
+#define PIXELS_SIZE_IN_TOOLBAR 32
+
+static short int ToolBarElementsLadder[ ][NBR_ELE_TOOLBAR_X_MAX] =
+            { {EDIT_POINTER , EDIT_ERASER, 0 , 0} ,
+              {ELE_INPUT , ELE_INPUT_NOT , ELE_RISING_INPUT , ELE_FALLING_INPUT} ,
+              {ELE_CONNECTION , EDIT_CNX_WITH_TOP, EDIT_LONG_CONNECTION , 0} ,
+              {ELE_TIMER , ELE_MONOSTABLE , ELE_COUNTER , ELE_COMPAR} ,
+              {ELE_OUTPUT , ELE_OUTPUT_NOT, ELE_OUTPUT_SET , ELE_OUTPUT_RESET} ,
+              {ELE_OUTPUT_JUMP, ELE_OUTPUT_CALL , ELE_OUTPUT_OPERATE , 0} ,
+              {-1,-1}/*end*/ };
 
 #ifdef SEQUENTIAL_SUPPORT
 #include "drawing_sequential.h"
 #include "edit_sequential.h"
-static short int ToolBarElementsSequential[][2] =
-    { {ELE_SEQ_STEP, EDIT_SEQ_INIT_STEP},
-{ELE_SEQ_TRANSITION, EDIT_SEQ_STEP_AND_TRANS},
-{EDIT_SEQ_START_MANY_TRANS, EDIT_SEQ_END_MANY_TRANS},
-{EDIT_SEQ_START_MANY_STEPS, EDIT_SEQ_END_MANY_STEPS},
-{EDIT_SEQ_LINK, 0},
-{0, EDIT_POINTER},
-{-1, -1}			/* end */
-};
+static short int ToolBarElementsSequential[ ][NBR_ELE_TOOLBAR_X_MAX] =
+            { {EDIT_POINTER , EDIT_ERASER , 0 , 0} ,
+              {ELE_SEQ_STEP , EDIT_SEQ_INIT_STEP , 0 , 0} ,
+              {ELE_SEQ_TRANSITION , EDIT_SEQ_STEP_AND_TRANS , 0 , 0} ,
+              {EDIT_SEQ_START_MANY_TRANS , EDIT_SEQ_END_MANY_TRANS , 0 , 0} ,
+              {EDIT_SEQ_START_MANY_STEPS , EDIT_SEQ_END_MANY_STEPS , 0 , 0} ,
+              {EDIT_SEQ_LINK , 0 , 0 , 0} ,
+              {ELE_SEQ_COMMENT , 0 , 0 , 0} ,
+              {-1,-1}/*end*/ };
 #endif
 
-static short int ToolBarYMaxi = 0;
-static short int (*PtrToolBarElementsList)[2] = NULL;	// ptr for array with 
-							// 
-							// 2 dimensions, is
-							// hard... :-(
-static int ToolBarX = -1;
-static int ToolBarY = -1;
+GtkWidget *EditWindow;
 
-/* Draw a rectangle on the screen */
-static void draw_brush(GtkWidget * widget,
-    gdouble x, gdouble y, GdkGC * color)
-{
-    GdkRectangle update_rect;
-
-    update_rect.x = x;
-    update_rect.y = y;
-    update_rect.width = BLOCK_WIDTH_DEF + 1;
-    update_rect.height = BLOCK_HEIGHT_DEF + 1;
-    if (color == NULL)
-	color = widget->style->black_gc;
-    gdk_draw_rectangle(EditorPixmap,
-	color,
-	FALSE,
-	update_rect.x, update_rect.y,
-	update_rect.width - 1, update_rect.height - 1);
-    gtk_widget_draw(widget, &update_rect);
-}
-
-/* Draw the tool bar of elements */
-void DrawToolBarElements(short int PtrOnToolBarElementsList[][2])
-{
-    StrElement ToolBarEle;
-    int ScanToolBarX, ScanToolBarY;
-    ScanToolBarX = 0;
-    ScanToolBarY = 0;
-    do {
-	ToolBarYMaxi = ScanToolBarY;
-	ToolBarEle.Type =
-	    PtrOnToolBarElementsList[ScanToolBarY][ScanToolBarX];
-	ToolBarEle.ConnectedWithTop = 0;
-#ifdef SEQUENTIAL_SUPPORT
-	if (PtrOnToolBarElementsList == ToolBarElementsSequential)
-	    DrawSeqElementForToolBar(EditorPixmap,
-		ScanToolBarX * (BLOCK_WIDTH_DEF + 2) + 2,
-		ScanToolBarY * (BLOCK_HEIGHT_DEF + 2) + 2, BLOCK_WIDTH_DEF,
-		ToolBarEle.Type);
-	else
-#endif
-	    DrawElement(EditorPixmap,
-		ScanToolBarX * (BLOCK_WIDTH_DEF + 2) + 2,
-		ScanToolBarY * (BLOCK_HEIGHT_DEF + 2) + 2, BLOCK_WIDTH_DEF,
-		BLOCK_HEIGHT_DEF, ToolBarEle, TRUE);
-	/* draw current element selected in the toolbar (required to display
-	   default pointer selected at startup) */
-	if (ToolBarEle.Type == EditDatas.NumElementSelectedInToolBar) {
-	    draw_brush(GTK_WIDGET(EditorDrawingArea),
-		ScanToolBarX * (BLOCK_WIDTH_DEF + 2) + 2,
-		ScanToolBarY * (BLOCK_HEIGHT_DEF + 2) + 2, NULL);
-	    ToolBarX = ScanToolBarX;
-	    ToolBarY = ScanToolBarY;
-	}
-
-	ScanToolBarX++;
-	if (ScanToolBarX > 1) {
-	    ScanToolBarX = 0;
-	    ScanToolBarY++;
-	}
-    }
-    while (PtrOnToolBarElementsList[ScanToolBarY][ScanToolBarX] != -1);
-    PtrToolBarElementsList = PtrOnToolBarElementsList;
-}
-void ReDrawToolBarElements(void)
-{
-    if (PtrToolBarElementsList != NULL)
-	DrawToolBarElements(PtrToolBarElementsList);
-}
-
-/* Create a new backing pixmap of the appropriate size */
-static gint EditorConfigureEvent(GtkWidget * widget,
-    GdkEventConfigure * event)
-{
-    if (EditorPixmap)
-	gdk_pixmap_unref(EditorPixmap);
-
-    EditorPixmap = gdk_pixmap_new(widget->window,
-	widget->allocation.width, widget->allocation.height, -1);
-    gdk_draw_rectangle(EditorPixmap,
-	widget->style->white_gc,
-	TRUE, 0, 0, widget->allocation.width, widget->allocation.height);
-    ReDrawToolBarElements();
-    return TRUE;
-}
-
-/* Redraw the screen from the backing pixmap */
-static gint EditorExposeEvent(GtkWidget * widget, GdkEventExpose * event)
-{
-    gdk_draw_pixmap(widget->window,
-	widget->style->fg_gc[GTK_WIDGET_STATE(widget)],
-	EditorPixmap,
-	event->area.x, event->area.y,
-	event->area.x, event->area.y, event->area.width, event->area.height);
-
-    return FALSE;
-}
-
-static gint EditorSelectElement(GtkWidget * widget, GdkEventButton * event)
-{
-    if (EditDatas.ModeEdit) {
-	int ToolBarXBak = ToolBarX;
-	int ToolBarYBak = ToolBarY;
-	if (event->button == 1 && pixmap != NULL) {
-	    ToolBarX = event->x / BLOCK_WIDTH_DEF;
-	    ToolBarY = event->y / BLOCK_HEIGHT_DEF;
-	    if ((ToolBarXBak != -1) && (ToolBarYBak != -1))
-		draw_brush(widget, ToolBarXBak * (BLOCK_WIDTH_DEF + 2) + 2,
-		    ToolBarYBak * (BLOCK_HEIGHT_DEF + 2) + 2,
-		    widget->style->white_gc);
-	    if (ToolBarX > 1)
-		ToolBarX = 1;
-	    draw_brush(widget, ToolBarX * (BLOCK_WIDTH_DEF + 2) + 2,
-		ToolBarY * (BLOCK_HEIGHT_DEF + 2) + 2,
-		widget->style->black_gc);
-	    if (ToolBarY <= ToolBarYMaxi)
-		EditDatas.NumElementSelectedInToolBar =
-		    PtrToolBarElementsList[ToolBarY][ToolBarX];
-	    else
-		EditDatas.NumElementSelectedInToolBar = ELE_FREE;
-	}
-    }
-    return TRUE;
-}
 
 void ButtonsForStart()
 {
-    gtk_widget_hide(EditorButtonAdd);
-    gtk_widget_hide(EditorButtonIns);
-    gtk_widget_hide(EditorButtonDel);
-    gtk_widget_hide(EditorButtonModify);
-    gtk_widget_show(EditorButtonOk);
-    gtk_widget_show(EditorButtonCancel);
-    ShowPropertiesWindow(TRUE);
-    /* select directly the pointer in toolbar */
-    EditDatas.NumElementSelectedInToolBar = EDIT_POINTER;
+	gtk_widget_hide (EditorButtonAdd);
+	gtk_widget_hide (EditorButtonIns);
+	gtk_widget_hide (EditorButtonDel);
+	gtk_widget_hide (EditorButtonModify);
+	gtk_widget_show (EditorButtonOk);
+	gtk_widget_show (EditorButtonCancel);
+	ShowPropertiesWindow( TRUE );
+	// select directly the pointer in toolbar per default...
+	EditDatas.NumElementSelectedInToolBar = EDIT_POINTER;
+	// ...in rung toolbar
+	if ( NumWidgetEditPointer[ NUM_TOOLBAR_FOR_RUNGS ]!=-1 )
+	{
+		gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(ToolbarBtnRadio[ NumWidgetEditPointer[ NUM_TOOLBAR_FOR_RUNGS ] ]), TRUE );
+		gtk_widget_set_sensitive( ToolbarTable[ NUM_TOOLBAR_FOR_RUNGS ], TRUE );
+	}
+	// ...in sequential toolbar
+	if ( NumWidgetEditPointer[ NUM_TOOLBAR_FOR_SEQ ]!=-1 )
+	{
+		gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(ToolbarBtnRadio[ NumWidgetEditPointer[ NUM_TOOLBAR_FOR_SEQ ] ]), TRUE );
+		gtk_widget_set_sensitive( ToolbarTable[ NUM_TOOLBAR_FOR_SEQ ], TRUE );
+	}
 }
-void ButtonsForEnd(char ForRung)
+void ButtonsForEnd( char ForRung )
 {
-    if (ForRung) {
-	gtk_widget_show(EditorButtonAdd);
-	gtk_widget_show(EditorButtonIns);
-	gtk_widget_show(EditorButtonDel);
-    } else {
-	gtk_widget_hide(EditorButtonAdd);
-	gtk_widget_hide(EditorButtonIns);
-	gtk_widget_hide(EditorButtonDel);
-    }
-    gtk_widget_show(EditorButtonModify);
-    gtk_widget_hide(EditorButtonOk);
-    gtk_widget_hide(EditorButtonCancel);
-    ShowPropertiesWindow(FALSE);
+	if ( ForRung )
+	{
+		gtk_widget_show (EditorButtonAdd);
+		gtk_widget_show (EditorButtonIns);
+		gtk_widget_show (EditorButtonDel);
+		gtk_widget_set_sensitive( ToolbarTable[ NUM_TOOLBAR_FOR_RUNGS ], FALSE );
+	}
+	else
+	{
+		gtk_widget_hide (EditorButtonAdd);
+		gtk_widget_hide (EditorButtonIns);
+		gtk_widget_hide (EditorButtonDel);
+		gtk_widget_set_sensitive( ToolbarTable[ NUM_TOOLBAR_FOR_SEQ ], FALSE );
+	}
+	gtk_widget_show (EditorButtonModify);
+	gtk_widget_hide (EditorButtonOk);
+	gtk_widget_hide (EditorButtonCancel);
+	ShowPropertiesWindow( FALSE );
 }
 
-void EditorButtonsAccordingSectionType()
+void EditorButtonsAccordingSectionType( )
 {
-    int iCurrentLanguage = SectionArray[InfosGene->CurrentSection].Language;
-    ButtonsForEnd(iCurrentLanguage == SECTION_IN_LADDER);
+	int iCurrentLanguage = SectionArray[ InfosGene->CurrentSection ].Language;
+	ButtonsForEnd( iCurrentLanguage==SECTION_IN_LADDER );
 #ifdef SEQUENTIAL_SUPPORT
-    if (iCurrentLanguage == SECTION_IN_SEQUENTIAL)
-	DrawToolBarElements(ToolBarElementsSequential);
+	if ( iCurrentLanguage==SECTION_IN_SEQUENTIAL )
+	{
+		gtk_widget_hide( ToolbarTable[ NUM_TOOLBAR_FOR_RUNGS ] );
+		gtk_widget_show( ToolbarTable[ NUM_TOOLBAR_FOR_SEQ ] );
+	}
     else
+	{
+		gtk_widget_hide( ToolbarTable[ NUM_TOOLBAR_FOR_SEQ ] );
+		gtk_widget_show( ToolbarTable[ NUM_TOOLBAR_FOR_RUNGS ] );
+	}
 #endif
-	DrawToolBarElements(ToolBarElementsLadder);
 }
 
 void ButtonAddRung()
 {
-    AddRung();
-    ButtonsForStart();
+	AddRung();
+	ButtonsForStart();
 }
-
 void ButtonInsertRung()
 {
-    InsertRung();
-    ButtonsForStart();
+	InsertRung();
+	ButtonsForStart();
 }
-
 void ButtonDeleteCurrentRung()
 {
-    ShowConfirmationBox("Delete",
-	"Do you really want to delete the current rung ?", DeleteCurrentRung);
+	ShowConfirmationBox("Delete","Do you really want to delete the current rung ?",DeleteCurrentRung);
 }
-
 void ButtonModifyCurrentRung()
 {
-    int iCurrentLanguage = SectionArray[InfosGene->CurrentSection].Language;
-    if (iCurrentLanguage == SECTION_IN_LADDER) {
-	ModifyCurrentRung();
-	ButtonsForStart();
-    }
+	int iCurrentLanguage = SectionArray[ InfosGene->CurrentSection ].Language;
+	if ( iCurrentLanguage==SECTION_IN_LADDER )
+	{
+		ModifyCurrentRung();
+		ButtonsForStart();
+	}
 #ifdef SEQUENTIAL_SUPPORT
-    if (iCurrentLanguage == SECTION_IN_SEQUENTIAL) {
-	ModifyCurrentSeqPage();
-	ButtonsForStart();
-    }
+	if ( iCurrentLanguage==SECTION_IN_SEQUENTIAL )
+	{
+		ModifyCurrentSeqPage();
+		ButtonsForStart();
+	}
 #endif
 }
 void ButtonOkCurrentRung()
 {
-    int iCurrentLanguage = SectionArray[InfosGene->CurrentSection].Language;
-    if (iCurrentLanguage == SECTION_IN_LADDER)
-	ApplyRungEdited();
+	int iCurrentLanguage = SectionArray[ InfosGene->CurrentSection ].Language;
+	if ( iCurrentLanguage==SECTION_IN_LADDER )
+		ApplyRungEdited();
 #ifdef SEQUENTIAL_SUPPORT
-    if (iCurrentLanguage == SECTION_IN_SEQUENTIAL)
-	ApplySeqPageEdited();
+	if ( iCurrentLanguage==SECTION_IN_SEQUENTIAL )
+		ApplySeqPageEdited();
 #endif
-    ButtonsForEnd(iCurrentLanguage == SECTION_IN_LADDER);
+	ButtonsForEnd( iCurrentLanguage==SECTION_IN_LADDER );
 }
-
 void ButtonCancelCurrentRung()
 {
-    int iCurrentLanguage = SectionArray[InfosGene->CurrentSection].Language;
-    if (iCurrentLanguage == SECTION_IN_LADDER)
-	CancelRungEdited();
+	int iCurrentLanguage = SectionArray[ InfosGene->CurrentSection ].Language;
+	if ( iCurrentLanguage==SECTION_IN_LADDER )
+		CancelRungEdited();
 #ifdef SEQUENTIAL_SUPPORT
-    if (iCurrentLanguage == SECTION_IN_SEQUENTIAL)
-	CancelSeqPageEdited();
+	if ( iCurrentLanguage==SECTION_IN_SEQUENTIAL )
+		CancelSeqPageEdited();
 #endif
-    ButtonsForEnd(iCurrentLanguage == SECTION_IN_LADDER);
+	ButtonsForEnd( iCurrentLanguage==SECTION_IN_LADDER );
 }
 
-gint EditorWindowDeleteEvent(GtkWidget * widget, GdkEvent * event,
-    gpointer data)
+gint EditorWindowDeleteEvent( GtkWidget * widget, GdkEvent * event, gpointer data )
 {
-    // we do not want that the window be destroyed.
-    return TRUE;
+	gtk_widget_hide( EditWindow );
+	// we do not want that the window be destroyed.
+	return TRUE;
 }
+
+
+void ButtonToolbarSignal( GtkWidget * widget, gpointer data )
+{
+	EditDatas.NumElementSelectedInToolBar = GPOINTER_TO_INT( data );
+}
+
+void InitAllForToolbar( void )
+{
+	int Search = 0;
+	for ( Search=0; Search<NBR_ELE_IN_TOOLBAR; Search++ )
+	{
+		ToolbarBtnRadio[ Search ] = NULL;
+		ToolbarImage[ Search ] = NULL;
+		ToolbarPixmap[ Search ] = NULL;
+	}
+	NumWidgetEditPointer[ NUM_TOOLBAR_FOR_RUNGS ] = -1;
+	NumWidgetEditPointer[ NUM_TOOLBAR_FOR_SEQ ] = -1;
+}
+void CreateOneToolbar( GtkWidget * Box, int NumTable, short int PtrOnToolBarElementsList[][NBR_ELE_TOOLBAR_X_MAX] )
+{
+	int CurrentAvail = 0;
+	while( ToolbarBtnRadio[ CurrentAvail ]!=NULL && CurrentAvail<NBR_ELE_IN_TOOLBAR )
+		CurrentAvail++;
+	if ( CurrentAvail<NBR_ELE_IN_TOOLBAR )
+	{
+		StrElement ToolBarEle;
+		int ScanToolBarX,ScanToolBarY;
+		GSList * PtrListRadiosBtn = NULL;
+		ScanToolBarX = 0;
+		ScanToolBarY = 0;
+		ToolbarTable[ NumTable ] = gtk_table_new( NBR_ELE_TOOLBAR_X_MAX, NBR_ELE_TOOLBAR_Y_MAX, FALSE/*homogeneous*/ );
+		gtk_box_pack_start (GTK_BOX(Box), ToolbarTable[ NumTable ], TRUE, TRUE, 0);
+		do
+		{
+			ToolBarEle.Type = PtrOnToolBarElementsList[ScanToolBarY][ScanToolBarX];
+			ToolBarEle.ConnectedWithTop = 0;
+			if ( ToolBarEle.Type==EDIT_POINTER )
+			{
+				if ( PtrOnToolBarElementsList!=ToolBarElementsSequential )
+					NumWidgetEditPointer[ NUM_TOOLBAR_FOR_RUNGS ] = CurrentAvail;
+				else
+					NumWidgetEditPointer[ NUM_TOOLBAR_FOR_SEQ ] = CurrentAvail;
+			}
+
+			if ( ToolBarEle.Type!=0 )
+			{
+				GdkGC * gc = drawing_area->style->bg_gc[0];
+				ToolbarPixmap[ CurrentAvail ] = gdk_pixmap_new( GDK_DRAWABLE(drawing_area->window), PIXELS_SIZE_IN_TOOLBAR, PIXELS_SIZE_IN_TOOLBAR, -1 );
+				gdk_draw_rectangle (GDK_DRAWABLE(ToolbarPixmap[ CurrentAvail ]), gc, TRUE, 0, 0, PIXELS_SIZE_IN_TOOLBAR, PIXELS_SIZE_IN_TOOLBAR);
+	
+	#ifdef SEQUENTIAL_SUPPORT
+				if ( PtrOnToolBarElementsList==ToolBarElementsSequential )
+					DrawSeqElementForToolBar(ToolbarPixmap[ CurrentAvail ], 0, 0, PIXELS_SIZE_IN_TOOLBAR, ToolBarEle.Type );
+				else
+	#endif
+					DrawElement(ToolbarPixmap[ CurrentAvail ], 0, 0, PIXELS_SIZE_IN_TOOLBAR, PIXELS_SIZE_IN_TOOLBAR, ToolBarEle, TRUE);
+	
+				ToolbarImage[ CurrentAvail ] = gtk_image_new_from_pixmap( ToolbarPixmap[ CurrentAvail ], NULL );
+				ToolbarBtnRadio[ CurrentAvail ] = gtk_radio_button_new( PtrListRadiosBtn );
+				PtrListRadiosBtn = gtk_radio_button_get_group (GTK_RADIO_BUTTON(ToolbarBtnRadio[ CurrentAvail ]));
+				gtk_button_set_relief (GTK_BUTTON( ToolbarBtnRadio[ CurrentAvail ] ), GTK_RELIEF_NONE);
+				gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON(ToolbarBtnRadio[ CurrentAvail ]), FALSE);
+				gtk_container_add( GTK_CONTAINER( ToolbarBtnRadio[ CurrentAvail ] ), ToolbarImage[ CurrentAvail ] );
+				gtk_widget_show( ToolbarImage[ CurrentAvail ] );
+				gtk_table_attach( GTK_TABLE( ToolbarTable[ NumTable ] ), ToolbarBtnRadio[ CurrentAvail ], 
+									ScanToolBarX, ScanToolBarX+1, ScanToolBarY, ScanToolBarY+1,
+									0, 0, 0, 0 );
+
+				gtk_signal_connect( GTK_OBJECT (ToolbarBtnRadio[ CurrentAvail ]), "clicked", (GtkSignalFunc) ButtonToolbarSignal, GINT_TO_POINTER((int)ToolBarEle.Type) );
+
+				switch( ToolBarEle.Type )
+				{
+					case EDIT_POINTER:
+						gtk_tooltips_set_tip (TheTooltips, ToolbarBtnRadio[ CurrentAvail ], "Selector", NULL);
+						break;
+					case EDIT_ERASER:
+						gtk_tooltips_set_tip (TheTooltips, ToolbarBtnRadio[ CurrentAvail ], "Eraser", NULL);
+						break;
+				}
+
+				gtk_widget_show( ToolbarBtnRadio[ CurrentAvail ] );
+				CurrentAvail++;
+			}//if ( ToolBarEle.Type!=0 )
+
+			ScanToolBarX++;
+			if (ScanToolBarX>=NBR_ELE_TOOLBAR_X_MAX)
+			{
+				ScanToolBarX = 0;
+				ScanToolBarY++;
+			}
+		}
+		while( PtrOnToolBarElementsList[ScanToolBarY][ScanToolBarX]!=-1 );
+	}
+}
+
 
 void EditorInitGtk()
 {
-    GtkWidget *EditWindow;
-    GtkWidget *vbox;
+	GtkWidget *vbox;
 
-    EditWindow = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-    gtk_window_set_title((GtkWindow *) EditWindow, "Editor");
+	EditWindow = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+	gtk_window_set_title ( GTK_WINDOW( EditWindow ), "Editor");
 
-    vbox = gtk_vbox_new(FALSE, 0);
-    gtk_container_add(GTK_CONTAINER(EditWindow), vbox);
-    gtk_widget_show(vbox);
+	vbox = gtk_vbox_new (FALSE, 0);
+	gtk_container_add (GTK_CONTAINER (EditWindow), vbox);
+	gtk_widget_show (vbox);
 
-    EditorButtonAdd = gtk_button_new_with_label("Add");
-    gtk_box_pack_start(GTK_BOX(vbox), EditorButtonAdd, FALSE, FALSE, 0);
-    gtk_signal_connect(GTK_OBJECT(EditorButtonAdd), "clicked",
-	(GtkSignalFunc) ButtonAddRung, 0);
-    gtk_widget_show(EditorButtonAdd);
-    EditorButtonIns = gtk_button_new_with_label("Insert");
-    gtk_box_pack_start(GTK_BOX(vbox), EditorButtonIns, FALSE, FALSE, 0);
-    gtk_signal_connect(GTK_OBJECT(EditorButtonIns), "clicked",
-	(GtkSignalFunc) ButtonInsertRung, 0);
-    gtk_widget_show(EditorButtonIns);
-    EditorButtonDel = gtk_button_new_with_label("Delete");
-    gtk_box_pack_start(GTK_BOX(vbox), EditorButtonDel, FALSE, FALSE, 0);
-    gtk_signal_connect(GTK_OBJECT(EditorButtonDel), "clicked",
-	(GtkSignalFunc) ButtonDeleteCurrentRung, 0);
-    gtk_widget_show(EditorButtonDel);
-    EditorButtonModify = gtk_button_new_with_label("Modify");
-    gtk_box_pack_start(GTK_BOX(vbox), EditorButtonModify, FALSE, FALSE, 0);
-    gtk_signal_connect(GTK_OBJECT(EditorButtonModify), "clicked",
-	(GtkSignalFunc) ButtonModifyCurrentRung, 0);
-    gtk_widget_show(EditorButtonModify);
-    EditorButtonOk = gtk_button_new_with_label("Ok");
-    gtk_box_pack_start(GTK_BOX(vbox), EditorButtonOk, FALSE, FALSE, 0);
-    gtk_signal_connect(GTK_OBJECT(EditorButtonOk), "clicked",
-	(GtkSignalFunc) ButtonOkCurrentRung, 0);
-    EditorButtonCancel = gtk_button_new_with_label("Cancel");
-    gtk_box_pack_start(GTK_BOX(vbox), EditorButtonCancel, FALSE, FALSE, 0);
-    gtk_signal_connect(GTK_OBJECT(EditorButtonCancel), "clicked",
-	(GtkSignalFunc) ButtonCancelCurrentRung, 0);
+	EditorButtonAdd = gtk_button_new_with_label ("Add");
+	gtk_box_pack_start (GTK_BOX (vbox), EditorButtonAdd, FALSE, FALSE, 0);
+	gtk_signal_connect(GTK_OBJECT (EditorButtonAdd), "clicked",
+						(GtkSignalFunc) ButtonAddRung, 0);
+	gtk_widget_show (EditorButtonAdd);
+	EditorButtonIns = gtk_button_new_with_label ("Insert");
+	gtk_box_pack_start (GTK_BOX (vbox), EditorButtonIns, FALSE, FALSE, 0);
+	gtk_signal_connect(GTK_OBJECT (EditorButtonIns), "clicked",
+						(GtkSignalFunc) ButtonInsertRung, 0);
+	gtk_widget_show (EditorButtonIns);
+	EditorButtonDel = gtk_button_new_with_label ("Delete");
+	gtk_box_pack_start (GTK_BOX (vbox), EditorButtonDel, FALSE, FALSE, 0);
+	gtk_signal_connect(GTK_OBJECT (EditorButtonDel), "clicked",
+						(GtkSignalFunc) ButtonDeleteCurrentRung, 0);
+	gtk_widget_show (EditorButtonDel);
+	EditorButtonModify = gtk_button_new_with_label ("Modify");
+	gtk_box_pack_start (GTK_BOX (vbox), EditorButtonModify, FALSE, FALSE, 0);
+	gtk_signal_connect(GTK_OBJECT (EditorButtonModify), "clicked",
+						(GtkSignalFunc) ButtonModifyCurrentRung, 0);
+	gtk_widget_show (EditorButtonModify);
+	EditorButtonOk = gtk_button_new_with_label ("Ok");
+	gtk_box_pack_start (GTK_BOX (vbox), EditorButtonOk, FALSE, FALSE, 0);
+	gtk_signal_connect(GTK_OBJECT (EditorButtonOk), "clicked",
+						(GtkSignalFunc) ButtonOkCurrentRung, 0);
+	EditorButtonCancel = gtk_button_new_with_label ("Cancel");
+	gtk_box_pack_start (GTK_BOX (vbox), EditorButtonCancel, FALSE, FALSE, 0);
+	gtk_signal_connect(GTK_OBJECT (EditorButtonCancel), "clicked",
+						(GtkSignalFunc) ButtonCancelCurrentRung, 0);
 
-    /* Create the drawing area */
-    EditorDrawingArea = gtk_drawing_area_new();
-    gtk_drawing_area_size(GTK_DRAWING_AREA(EditorDrawingArea),
-	(BLOCK_WIDTH_DEF + 2) * 2 + 2,
-	(BLOCK_HEIGHT_DEF + 2) * NBR_ELE_TOOLBAR_Y + 2);
-    gtk_box_pack_start(GTK_BOX(vbox), EditorDrawingArea, TRUE, TRUE, 0);
-    gtk_widget_show(EditorDrawingArea);
+	InitAllForToolbar( );
+	TheTooltips = gtk_tooltips_new();
+	/* Rungs elements toolbar */
+	CreateOneToolbar( vbox, NUM_TOOLBAR_FOR_RUNGS, ToolBarElementsLadder );
+	gtk_widget_set_sensitive( ToolbarTable[ NUM_TOOLBAR_FOR_RUNGS ], FALSE );
+	gtk_widget_show( ToolbarTable[ NUM_TOOLBAR_FOR_RUNGS ] );
+	/* Sequential elements toolbar */
+#ifdef SEQUENTIAL_SUPPORT
+	CreateOneToolbar( vbox, NUM_TOOLBAR_FOR_SEQ, ToolBarElementsSequential );
+	gtk_widget_set_sensitive( ToolbarTable[ NUM_TOOLBAR_FOR_SEQ ], FALSE );
+#endif
 
-    /* Signals used to handle backing pixmap */
-    gtk_signal_connect(GTK_OBJECT(EditorDrawingArea), "expose_event",
-	(GtkSignalFunc) EditorExposeEvent, NULL);
-    gtk_signal_connect(GTK_OBJECT(EditorDrawingArea), "configure_event",
-	(GtkSignalFunc) EditorConfigureEvent, NULL);
+	gtk_signal_connect( GTK_OBJECT(EditWindow), "delete_event",
+		(GtkSignalFunc)EditorWindowDeleteEvent, 0 );
 
-    /* Event signals */
-    gtk_signal_connect(GTK_OBJECT(EditorDrawingArea), "button_press_event",
-	(GtkSignalFunc) EditorSelectElement, NULL);
+	gtk_window_set_resizable( GTK_WINDOW( EditWindow ), FALSE );
+//gtk_widget_show (EditWindow);
 
-    gtk_widget_set_events(EditorDrawingArea, GDK_EXPOSURE_MASK
-	| GDK_LEAVE_NOTIFY_MASK
-	| GDK_BUTTON_PRESS_MASK
-	| GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK);
-
-    gtk_signal_connect(GTK_OBJECT(EditWindow), "delete_event",
-	(GtkSignalFunc) EditorWindowDeleteEvent, 0);
-    gtk_widget_show(EditWindow);
-
-    EditDatas.NumElementSelectedInToolBar = -1;
+	EditDatas.NumElementSelectedInToolBar = -1;
 }
+

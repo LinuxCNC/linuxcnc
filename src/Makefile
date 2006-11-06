@@ -457,7 +457,8 @@ EXTRA_CFLAGS = $(RTFLAGS) -D__MODULE__ -I$(BASEPWD) -I$(BASEPWD)/libnml/linklist
 	-I$(BASEPWD)/libnml/cms -I$(BASEPWD)/libnml/rcs -I$(BASEPWD)/libnml/inifile \
 	-I$(BASEPWD)/libnml/os_intf -I$(BASEPWD)/libnml/nml -I$(BASEPWD)/libnml/buffer \
 	-I$(BASEPWD)/libnml/posemath -I$(BASEPWD)/rtapi -I$(BASEPWD)/hal \
-	-I$(BASEPWD)/emc/nml_intf -I$(BASEPWD)/emc/kinematics -I$(BASEPWD)/emc/motion
+	-I$(BASEPWD)/emc/nml_intf -I$(BASEPWD)/emc/kinematics -I$(BASEPWD)/emc/motion \
+        -DSEQUENTIAL_SUPPORT -DHAL_SUPPORT -DDYNAMIC_PLCSIZE -DRT_SUPPORT
 
 ifeq "$(USE_STUBS)" "1"
 MATHSTUB := rtapi/mathstubs.o
@@ -549,12 +550,14 @@ endif
 endif
 
 obj-$(CONFIG_CLASSICLADDER_RT) += classicladder_rt.o
-classicladder_rt-objs := hal/classicladder/module_rt.o $(MATHSTUB)
-classicladder_rt-objs += hal/classicladder/calc_rt.o
-classicladder_rt-objs += hal/classicladder/vars_access.o
+classicladder_rt-objs := hal/classicladder/module_hal.o $(MATHSTUB)
 classicladder_rt-objs += hal/classicladder/arithm_eval.o
-classicladder_rt-objs += hal/classicladder/manager.o
 classicladder_rt-objs += hal/classicladder/arrays.o
+classicladder_rt-objs += hal/classicladder/calc.o
+classicladder_rt-objs += hal/classicladder/calc_sequential.o
+classicladder_rt-objs += hal/classicladder/manager.o
+classicladder_rt-objs += hal/classicladder/symbols.o
+classicladder_rt-objs += hal/classicladder/vars_access.o
 
 ifdef SEQUENTIAL_SUPPORT
 classicladder_rt-objs += hal/classicladder/calc_sequential_rt.o

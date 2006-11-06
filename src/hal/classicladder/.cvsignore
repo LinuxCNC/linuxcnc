@@ -1,3 +1,4 @@
+.*.sw?
 *.cmd
 *.ko
 .tmp_versions
