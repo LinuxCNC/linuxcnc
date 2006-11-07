@@ -1,0 +1,34 @@
+loadusr -W halvcp panel.vcp
+
+linkpp in-00 classicladder.0.in-00
+linkpp in-01 classicladder.0.in-01
+linkpp in-02 classicladder.0.in-02
+linkpp in-03 classicladder.0.in-03
+linkpp in-04 classicladder.0.in-04
+linkpp in-05 classicladder.0.in-05
+linkpp in-06 classicladder.0.in-06
+linkpp in-07 classicladder.0.in-07
+linkpp in-08 classicladder.0.in-08
+linkpp in-09 classicladder.0.in-09
+linkpp in-10 classicladder.0.in-10
+linkpp in-11 classicladder.0.in-11
+linkpp in-12 classicladder.0.in-12
+linkpp in-13 classicladder.0.in-13
+linkpp in-14 classicladder.0.in-14
+
+linkpp out-00 classicladder.0.out-00
+linkpp out-01 classicladder.0.out-01
+linkpp out-02 classicladder.0.out-02
+linkpp out-03 classicladder.0.out-03
+linkpp out-04 classicladder.0.out-04
+linkpp out-05 classicladder.0.out-05
+linkpp out-06 classicladder.0.out-06
+linkpp out-07 classicladder.0.out-07
+linkpp out-08 classicladder.0.out-08
+linkpp out-09 classicladder.0.out-09
+linkpp out-10 classicladder.0.out-10
+linkpp out-11 classicladder.0.out-11
+linkpp out-12 classicladder.0.out-12
+linkpp out-13 classicladder.0.out-13
+linkpp out-14 classicladder.0.out-14
+

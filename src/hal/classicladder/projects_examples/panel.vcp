@@ -1,0 +1,41 @@
+vcp {
+main-window {
+title = "Ladder Control Panel"
+box { layout = horizontal
+box { layout = vertical  title = "Inputs"
+	toggle { label {text="00"} halpin=in-00 }
+	toggle { label {text="01"} halpin=in-01 }
+	toggle { label {text="02"} halpin=in-02 }
+	toggle { label {text="03"} halpin=in-03 }
+	toggle { label {text="04"} halpin=in-04 }
+	toggle { label {text="05"} halpin=in-05 }
+	toggle { label {text="06"} halpin=in-06 }
+	toggle { label {text="07"} halpin=in-07 }
+	toggle { label {text="08"} halpin=in-08 }
+	toggle { label {text="09"} halpin=in-09 }
+	toggle { label {text="10"} halpin=in-10 }
+	toggle { label {text="11"} halpin=in-11 }
+	toggle { label {text="12"} halpin=in-12 }
+	toggle { label {text="13"} halpin=in-13 }
+	toggle { label {text="14"} halpin=in-14 }
+}
+box { layout = vertical  title = "Outputs"
+	LED { on-color = "#00F" off-color = "#006" halpin=out-00 }
+	LED { on-color = "#00F" off-color = "#006" halpin=out-01 }
+	LED { on-color = "#00F" off-color = "#006" halpin=out-02 }
+	LED { on-color = "#00F" off-color = "#006" halpin=out-03 }
+	LED { on-color = "#00F" off-color = "#006" halpin=out-04 }
+	LED { on-color = "#00F" off-color = "#006" halpin=out-05 }
+	LED { on-color = "#00F" off-color = "#006" halpin=out-06 }
+	LED { on-color = "#00F" off-color = "#006" halpin=out-07 }
+	LED { on-color = "#00F" off-color = "#006" halpin=out-08 }
+	LED { on-color = "#00F" off-color = "#006" halpin=out-09 }
+	LED { on-color = "#00F" off-color = "#006" halpin=out-10 }
+	LED { on-color = "#00F" off-color = "#006" halpin=out-11 }
+	LED { on-color = "#00F" off-color = "#006" halpin=out-12 }
+	LED { on-color = "#00F" off-color = "#006" halpin=out-13 }
+	LED { on-color = "#00F" off-color = "#006" halpin=out-14 }
+}
+}
+}
+}
