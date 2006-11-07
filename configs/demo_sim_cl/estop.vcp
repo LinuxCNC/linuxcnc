@@ -1,0 +1,29 @@
+vcp {
+    main-window {
+	title = "E STOP !"
+	width = 130
+	height = 30
+	box { layout = horizontal 
+	    button {
+		halpin = vcp.button.estop
+		label { text = "STOP" }
+	    }
+	    LED {
+		size = 15
+		halpin = vcp.led.estop
+		on-color = "#006"
+		off-color = "#F00"
+	    }
+	    LED {
+		size = 15
+		halpin = vcp.led.lube
+		on-color = "#00F"
+		off-color = "#006"
+	    }
+	    button {
+		halpin = vcp.button.lube-up
+		label { text = "LUBE UP" }
+	    }
+	}
+    }
+}
