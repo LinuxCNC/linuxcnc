@@ -6,7 +6,7 @@
 # includes coolant and spindle forward, reverse
 
 # from standard pinout config file for 3-axis steppers
-loadusr -W halvcp estop.vcp
+loadusr -W halvcp demo_sim_cl.vcp
 
 # This configuration uses classicladder for machine logic
 # (load the realtime portion)

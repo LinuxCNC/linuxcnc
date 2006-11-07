@@ -20,9 +20,10 @@ vcp {
 		on-color = "#00F"
 		off-color = "#006"
 	    }
-	    button {
+	    toggle {
 		halpin = vcp.button.lube-up
 		label { text = "LUBE UP" }
+		state = 1
 	    }
 	}
     }
