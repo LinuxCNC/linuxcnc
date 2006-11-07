@@ -1123,12 +1123,13 @@ void UpdateAllLabelsBoolsVars( )
 void quit_appli()
 {
 	InfosGene->LadderState = STATE_LOADING;
-#ifndef HAL_SUPPORT
+#ifdef HAL_SUPPORT
+        hal_exit(compId);
+#else
 	CloseSocketModbusMaster( );
 	CloseSocketServer( );
 #endif
 	ClassicLadderFreeAll();
-        hal_exit(compId);
 	gtk_exit (0);
 }
 

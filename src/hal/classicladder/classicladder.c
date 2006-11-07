@@ -79,7 +79,9 @@ void HandlerSignalInterrupt( int signal_id )
 {
 	printf("End of application asked\n");
 	InfosGene->LadderState = STATE_LOADING;
-#ifndef HAL_SUPPORT
+#ifdef HAL_SUPPORT
+	hal_exit(compId);
+#else
 	CloseSocketModbusMaster( );
 	CloseSocketServer( );
 #endif
@@ -306,6 +308,7 @@ int main( int   argc, char *argv[] )
                     InitAllLadderDatas( TRUE );
                     InitTempDir( );
                     LoadProjectFiles( LadderDirectory );
+		    ClassicLadderFreeAll();
                     hal_exit(compId);
                     return 0;
                 }
