@@ -402,6 +402,17 @@ char CommonSearchForManyStepsOrTransi( char ForManySteps, int TypeEle1, int OffE
 		Ele1X = EditSeqDatas.Step[ OffEle1 ].PosiX;
 		StepsBaseY = EditSeqDatas.Step[ OffEle1 ].PosiY;
 	}
+	else if ( TypeEle1==ELE_SEQ_TRANSITION )
+	{
+		OffsetTransiFound = OffEle1;
+		Ele1X = EditSeqDatas.Transition[ OffEle1 ].PosiX;
+		TransitionsBaseY = EditSeqDatas.Transition[ OffEle1 ].PosiY;
+	}
+	else
+	{
+		ShowMessageBox("Error","Unknown element type for Ele1","Ok");
+		return FALSE;
+	}
 	if ( TypeEle2==ELE_SEQ_STEP )
 	{
 		Ele2X = EditSeqDatas.Step[ OffEle2 ].PosiX;
@@ -418,15 +429,7 @@ char CommonSearchForManyStepsOrTransi( char ForManySteps, int TypeEle1, int OffE
 			}
 		}
 	}
-	// search transition corresponding...
-	// directly clicked on it ?
-	if ( TypeEle1==ELE_SEQ_TRANSITION )
-	{
-		OffsetTransiFound = OffEle1;
-		Ele1X = EditSeqDatas.Transition[ OffEle1 ].PosiX;
-		TransitionsBaseY = EditSeqDatas.Transition[ OffEle1 ].PosiY;
-	}
-	if ( TypeEle2==ELE_SEQ_TRANSITION )
+	else if ( TypeEle2==ELE_SEQ_TRANSITION )
 	{
 		OffsetTransiFound = OffEle2;
 		Ele2X = EditSeqDatas.Transition[ OffEle2 ].PosiX;
@@ -442,6 +445,11 @@ char CommonSearchForManyStepsOrTransi( char ForManySteps, int TypeEle1, int OffE
 				return FALSE;
 			}
 		}
+	}
+	else
+	{
+		ShowMessageBox("Error","Unknown element type for Ele2","Ok");
+		return FALSE;
 	}
 
 	LeftX = Ele1X;
