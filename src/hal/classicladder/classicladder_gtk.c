@@ -540,31 +540,18 @@ void CreateFileSelection(char * Prompt,int Save)
                                            (gpointer) FileSelector);
 	
 	#else
-	if(Save)
-  FileSelector = gtk_file_chooser_dialog_new (Prompt, NULL, GTK_FILE_CHOOSER_ACTION_SAVE, NULL);
-	else
-	FileSelector = gtk_file_chooser_dialog_new (Prompt, NULL, GTK_FILE_CHOOSER_ACTION_OPEN, NULL);
+	if(Save) {
+  FileSelector = gtk_file_chooser_dialog_new (Prompt, NULL, GTK_FILE_CHOOSER_ACTION_SAVE,
+		GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+		GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT, NULL);
+	} else {
+	FileSelector = gtk_file_chooser_dialog_new (Prompt, NULL, GTK_FILE_CHOOSER_ACTION_OPEN,
+		GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+		GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT, NULL);
+}
+
   gtk_window_set_type_hint (GTK_WINDOW (FileSelector), GDK_WINDOW_TYPE_HINT_DIALOG);
-	
 
-	
-	dialog_vbox1 = GTK_DIALOG (FileSelector)->vbox;
-  gtk_widget_show (dialog_vbox1);
-
-  dialog_action_area1 = GTK_DIALOG (FileSelector)->action_area;
-  gtk_widget_show (dialog_action_area1);
-  gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area1), GTK_BUTTONBOX_END);
-
-  button3 = gtk_button_new_from_stock ("gtk-cancel");
-  gtk_widget_show (button3);
-  gtk_dialog_add_action_widget (GTK_DIALOG (FileSelector), button3, GTK_RESPONSE_CANCEL);
-  GTK_WIDGET_SET_FLAGS (button3, GTK_CAN_DEFAULT);
-
-  button4 = gtk_button_new_from_stock ("gtk-open");
-  gtk_widget_show (button4);
-  gtk_dialog_add_action_widget (GTK_DIALOG (FileSelector), button4, GTK_RESPONSE_OK);
-  GTK_WIDGET_SET_FLAGS (button4, GTK_CAN_DEFAULT);
-/*
   g_signal_connect ((gpointer) filechooserdialog, "file_activated",
                     G_CALLBACK (on_filechooserdialog_file_activated),
                     NULL);
