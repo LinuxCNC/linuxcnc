@@ -121,7 +121,7 @@ void ButtonAddSectionDoneClickSignal( )
 		SubNbr = atoi( &SubNbrValue[2] );
 
 	// verify if name already exist...
-	if (VerifyIfSectionNameAlreadyExist(   gtk_entry_get_text( GTK_ENTRY(EditName) )   ) )
+	if (VerifyIfSectionNameAlreadyExist(   (char *)gtk_entry_get_text( GTK_ENTRY(EditName) )   ) )
 	{
 		ShowMessageBox( "Error", "This section name already exist or is incorrect !!!", "Ok" );
 	}
@@ -134,7 +134,7 @@ void ButtonAddSectionDoneClickSignal( )
 		else
 		{
 			// create the new section
-			if ( !AddSection( gtk_entry_get_text( GTK_ENTRY(EditName) ) , Language , SubNbr ) )
+			if ( !AddSection( (char *)gtk_entry_get_text( GTK_ENTRY(EditName) ) , Language , SubNbr ) )
 				ShowMessageBox( "Error", "Failed to add a new section. Full?", "Ok" );
 			gtk_widget_hide( AddSectionWindow );
 
