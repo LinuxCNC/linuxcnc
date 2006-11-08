@@ -513,12 +513,6 @@ gtk_widget_destroy(GTK_WIDGET(dialog));
 
 void CreateFileSelection(char * Prompt,int Save)
 {
-	#ifdef GTK2
-	GtkWidget *dialog_vbox1;
-  GtkWidget *dialog_action_area1;
-  GtkWidget *button3;
-  GtkWidget *button4;
-	#endif
 	
     /* From the example in gtkfileselection help */
     /* Create the selector */
@@ -551,7 +545,7 @@ void CreateFileSelection(char * Prompt,int Save)
 }
 
   gtk_window_set_type_hint (GTK_WINDOW (FileSelector), GDK_WINDOW_TYPE_HINT_DIALOG);
-
+/*
   g_signal_connect ((gpointer) filechooserdialog, "file_activated",
                     G_CALLBACK (on_filechooserdialog_file_activated),
                     NULL);
