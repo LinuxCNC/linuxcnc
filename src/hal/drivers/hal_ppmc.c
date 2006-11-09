@@ -1400,7 +1400,17 @@ static void write_extraDAC(slot_data_t *slot)
 	}
     }
     /* calculate desired output voltage */
-    volts = *(pg->value) / pg->scale;
+//    volts = *(pg->value) / pg->scale;
+    /* this DAC is sign-magnitude, and the sign enable
+       bits are controlled by digital output bits.
+       driving P8 pin 12 to ground enables + output.
+       driving P8 pin 11 to ground enables - output.
+       leaving both pins high or floating forces output to 0 V.
+       don't drive both outputs low at the same time - undefined.
+       UPC and USC boards sold with the spindle DAC option
+       have SSR1 set up for + output, and SSR2 for - output.  */
+
+    volts = abs(*(pg->value)) / pg->scale;
     /* output to DAC word works like:
 	0xFF -> +10 V
 	0x00 ->   0 V */
@@ -2114,7 +2124,7 @@ int n;
     /* does the board have the extra port? */
     n=0;
     if (slot->id == 0x40) n=1;
-    if (slot->id == 0x50 && slot->ver >= 3) n=1;
+    if (slot->id == 0x50 && slot->ver >= 2) n=1;
     if ( n == 0 ) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "PPMC: ERROR: board doesn't support 'extra' port\n");
