@@ -250,7 +250,6 @@ typedef struct {
 /* this structure contains the runtime data for a 16-bit DAC */
 typedef struct {
     hal_float_t *value;		/* value command pin */
-    hal_float_t DAC_value;	/* Binary DAC value pin */
     hal_float_t scale;		/* parameter: scaling */
 } DAC_t;
 
@@ -1925,13 +1924,6 @@ static int export_PPMC_DAC(slot_data_t *slot, bus_data_t *bus)
 	    return retval;
 	}
 	pg->scale = 1.0;
-	/* actual DAC digital number */
-	rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.DAC.%02d.DAC_value",
-	    bus->busnum, bus->last_DAC);
-	retval = hal_param_float_new(buf, HAL_RW, &(pg->DAC_value), comp_id);
-	if (retval != 0) {
-	    return retval;
-	}
 	/* increment number to prepare for next output */
 	bus->last_DAC++;
     }
@@ -2102,15 +2094,8 @@ static int export_extra_dac(slot_data_t *slot, bus_data_t *bus)
 	return retval;
     }
     pg->scale = 1.0;
-    /* actual DAC digital number */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.DAC8.%02d.DAC_value",
-	bus->busnum, bus->last_extraDAC);
-    retval = hal_param_float_new(buf, HAL_RW, &(pg->DAC_value), comp_id);
-    if (retval != 0) {
-	return retval;
     /* increment number to prepare for next output */
     bus->last_extraDAC++;
-    }
     add_wr_funct(write_extraDAC, slot, UxC_EXTRA, UxC_EXTRA);
     return 0;
 }
