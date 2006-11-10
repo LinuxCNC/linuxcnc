@@ -2,14 +2,31 @@ ifneq ($(KERNELRELEASE),)
 COMPS := $(patsubst $(BASEPWD)/%,%,$(wildcard $(BASEPWD)/hal/components/*.comp $(BASEPWD)/hal/drivers/*.comp))
 include $(patsubst %.comp, $(BASEPWD)/objects/%.mak, $(COMPS))
 else
-COMPS := $(wildcard hal/components/*.comp)
+CONVERTERS :=  conv_float_bit.comp conv_float_s8.comp conv_float_u8.comp \
+    conv_float_s16.comp conv_float_u16.comp conv_float_s32.comp \
+    conv_float_u32.comp conv_bit_float.comp conv_bit_s8.comp conv_bit_u8.comp \
+    conv_bit_s16.comp conv_bit_u16.comp conv_bit_s32.comp conv_bit_u32.comp \
+    conv_s8_float.comp conv_s8_bit.comp conv_s8_u8.comp conv_s8_s16.comp \
+    conv_s8_u16.comp conv_s8_s32.comp conv_s8_u32.comp conv_u8_float.comp \
+    conv_u8_bit.comp conv_u8_s8.comp conv_u8_s16.comp conv_u8_u16.comp \
+    conv_u8_s32.comp conv_u8_u32.comp conv_s16_float.comp conv_s16_bit.comp \
+    conv_s16_s8.comp conv_s16_u8.comp conv_s16_u16.comp conv_s16_s32.comp \
+    conv_s16_u32.comp conv_u16_float.comp conv_u16_bit.comp conv_u16_s8.comp \
+    conv_u16_u8.comp conv_u16_s16.comp conv_u16_s32.comp conv_u16_u32.comp \
+    conv_s32_float.comp conv_s32_bit.comp conv_s32_s8.comp conv_s32_u8.comp \
+    conv_s32_s16.comp conv_s32_u16.comp conv_s32_u32.comp conv_u32_float.comp \
+    conv_u32_bit.comp conv_u32_s8.comp conv_u32_u8.comp conv_u32_s16.comp \
+    conv_u32_u16.comp conv_u32_s32.comp
+COMPS := $(sort $(wildcard hal/components/*.comp) $(addprefix hal/components/, $(CONVERTERS)))
 COMP_MANPAGES := $(patsubst hal/components/%.comp, ../docs/man/man9/%.9, $(COMPS))
 COMP_DRIVERS := $(wildcard hal/drivers/*.comp)
 COMP_DRIVER_MANPAGES := $(patsubst hal/drivers/%.comp, ../docs/man/man9/%.9, $(COMP_DRIVERS))
 manpages: $(COMP_MANPAGES) $(COMP_DRIVER_MANPAGES)
 TARGETS += manpages
+ifneq ($(MAKECMDGOALS),clean)
 -include $(patsubst %.comp, objects/%.mak, $(COMPS) $(COMP_DRIVERS))
 Makefile: $(patsubst %.comp, objects/%.mak, $(COMPS) $(COMP_DRIVERS))
+endif
 endif
 
 obj-m += $(patsubst hal/drivers/%.comp, %.o, $(patsubst hal/components/%.comp, %.o, $(COMPS)))
@@ -51,3 +68,170 @@ USERSRCS += $(HALSAMPLERSRCS)
 	@$(CXX) $(LDFLAGS) -o $@ $^
 TARGETS += ../bin/halsampler
 
+hal/components/conv_float_bit.comp: hal/components/conv.comp.in hal/components/mkconv.sh
+	sh hal/components/mkconv.sh float bit "" 0 1 < $< > $@
+
+hal/components/conv_float_s8.comp: hal/components/conv.comp.in hal/components/mkconv.sh
+	sh hal/components/mkconv.sh float s8 "" -128 127 < $< > $@
+
+hal/components/conv_float_u8.comp: hal/components/conv.comp.in hal/components/mkconv.sh
+	sh hal/components/mkconv.sh float u8 "" 0 255 < $< > $@
+
+hal/components/conv_float_s16.comp: hal/components/conv.comp.in hal/components/mkconv.sh
+	sh hal/components/mkconv.sh float s16 "" -32768 32767 < $< > $@
+
+hal/components/conv_float_u16.comp: hal/components/conv.comp.in hal/components/mkconv.sh
+	sh hal/components/mkconv.sh float u16 "" 0 65535 < $< > $@
+
+hal/components/conv_float_s32.comp: hal/components/conv.comp.in hal/components/mkconv.sh
+	sh hal/components/mkconv.sh float s32 "" 0 2147483647 < $< > $@
+
+hal/components/conv_float_u32.comp: hal/components/conv.comp.in hal/components/mkconv.sh
+	sh hal/components/mkconv.sh float u32 "" -2147483647-1 2147483647 < $< > $@
+
+hal/components/conv_bit_float.comp: hal/components/conv.comp.in hal/components/mkconv.sh
+	sh hal/components/mkconv.sh bit float // < $< > $@
+
+hal/components/conv_bit_s8.comp: hal/components/conv.comp.in hal/components/mkconv.sh
+	sh hal/components/mkconv.sh bit s8 // < $< > $@
+
+hal/components/conv_bit_u8.comp: hal/components/conv.comp.in hal/components/mkconv.sh
+	sh hal/components/mkconv.sh bit u8 // < $< > $@
+
+hal/components/conv_bit_s16.comp: hal/components/conv.comp.in hal/components/mkconv.sh
+	sh hal/components/mkconv.sh bit s16 // < $< > $@
+
+hal/components/conv_bit_u16.comp: hal/components/conv.comp.in hal/components/mkconv.sh
+	sh hal/components/mkconv.sh bit u16 // < $< > $@
+
+hal/components/conv_bit_s32.comp: hal/components/conv.comp.in hal/components/mkconv.sh
+	sh hal/components/mkconv.sh bit s32 // < $< > $@
+
+hal/components/conv_bit_u32.comp: hal/components/conv.comp.in hal/components/mkconv.sh
+	sh hal/components/mkconv.sh bit u32 // < $< > $@
+
+hal/components/conv_s8_float.comp: hal/components/conv.comp.in hal/components/mkconv.sh
+	sh hal/components/mkconv.sh s8 float // < $< > $@
+
+hal/components/conv_s8_bit.comp: hal/components/conv.comp.in hal/components/mkconv.sh
+	sh hal/components/mkconv.sh s8 bit "" 0 1 < $< > $@
+
+hal/components/conv_s8_u8.comp: hal/components/conv.comp.in hal/components/mkconv.sh
+	sh hal/components/mkconv.sh s8 u8 "" 0 0 < $< > $@
+
+hal/components/conv_s8_s16.comp: hal/components/conv.comp.in hal/components/mkconv.sh
+	sh hal/components/mkconv.sh s8 s16 // < $< > $@
+
+hal/components/conv_s8_u16.comp: hal/components/conv.comp.in hal/components/mkconv.sh
+	sh hal/components/mkconv.sh s8 u16 // < $< > $@
+
+hal/components/conv_s8_s32.comp: hal/components/conv.comp.in hal/components/mkconv.sh
+	sh hal/components/mkconv.sh s8 s32 // < $< > $@
+
+hal/components/conv_s8_u32.comp: hal/components/conv.comp.in hal/components/mkconv.sh
+	sh hal/components/mkconv.sh s8 u32 // < $< > $@
+
+hal/components/conv_u8_float.comp: hal/components/conv.comp.in hal/components/mkconv.sh
+	sh hal/components/mkconv.sh u8 float // < $< > $@
+
+hal/components/conv_u8_bit.comp: hal/components/conv.comp.in hal/components/mkconv.sh
+	sh hal/components/mkconv.sh u8 bit "" -1 1 < $< > $@
+
+hal/components/conv_u8_s8.comp: hal/components/conv.comp.in hal/components/mkconv.sh
+	sh hal/components/mkconv.sh u8 s8 "" -1 127 < $< > $@
+
+hal/components/conv_u8_s16.comp: hal/components/conv.comp.in hal/components/mkconv.sh
+	sh hal/components/mkconv.sh u8 s16 // < $< > $@
+
+hal/components/conv_u8_u16.comp: hal/components/conv.comp.in hal/components/mkconv.sh
+	sh hal/components/mkconv.sh u8 u16 // < $< > $@
+
+hal/components/conv_u8_s32.comp: hal/components/conv.comp.in hal/components/mkconv.sh
+	sh hal/components/mkconv.sh u8 s32 // < $< > $@
+
+hal/components/conv_u8_u32.comp: hal/components/conv.comp.in hal/components/mkconv.sh
+	sh hal/components/mkconv.sh u8 u32 // < $< > $@
+
+hal/components/conv_s16_float.comp: hal/components/conv.comp.in hal/components/mkconv.sh
+	sh hal/components/mkconv.sh s16 float // < $< > $@
+
+hal/components/conv_s16_bit.comp: hal/components/conv.comp.in hal/components/mkconv.sh
+	sh hal/components/mkconv.sh s16 bit "" -1 1 < $< > $@
+
+hal/components/conv_s16_s8.comp: hal/components/conv.comp.in hal/components/mkconv.sh
+	sh hal/components/mkconv.sh s16 s8 "" -127 128 < $< > $@
+
+hal/components/conv_s16_u8.comp: hal/components/conv.comp.in hal/components/mkconv.sh
+	sh hal/components/mkconv.sh s16 u8 "" 0 255 < $< > $@
+
+hal/components/conv_s16_u16.comp: hal/components/conv.comp.in hal/components/mkconv.sh
+	sh hal/components/mkconv.sh s16 u16 "" 0 0 < $< > $@
+
+hal/components/conv_s16_s32.comp: hal/components/conv.comp.in hal/components/mkconv.sh
+	sh hal/components/mkconv.sh s16 s32 // < $< > $@
+
+hal/components/conv_s16_u32.comp: hal/components/conv.comp.in hal/components/mkconv.sh
+	sh hal/components/mkconv.sh s16 u32 "" 0 0 < $< > $@
+
+hal/components/conv_u16_float.comp: hal/components/conv.comp.in hal/components/mkconv.sh
+	sh hal/components/mkconv.sh u16 float // < $< > $@
+
+hal/components/conv_u16_bit.comp: hal/components/conv.comp.in hal/components/mkconv.sh
+	sh hal/components/mkconv.sh u16 bit "" -1 1 < $< > $@
+
+hal/components/conv_u16_s8.comp: hal/components/conv.comp.in hal/components/mkconv.sh
+	sh hal/components/mkconv.sh u16 s8 "" -1 127 < $< > $@
+
+hal/components/conv_u16_u8.comp: hal/components/conv.comp.in hal/components/mkconv.sh
+	sh hal/components/mkconv.sh u16 u8 "" -1 255 < $< > $@
+
+hal/components/conv_u16_s16.comp: hal/components/conv.comp.in hal/components/mkconv.sh
+	sh hal/components/mkconv.sh u16 s16 "" -1 32767 < $< > $@
+
+hal/components/conv_u16_s32.comp: hal/components/conv.comp.in hal/components/mkconv.sh
+	sh hal/components/mkconv.sh u16 s32 "" -1 0 < $< > $@
+
+hal/components/conv_u16_u32.comp: hal/components/conv.comp.in hal/components/mkconv.sh
+	sh hal/components/mkconv.sh u16 u32 // < $< > $@
+
+hal/components/conv_s32_float.comp: hal/components/conv.comp.in hal/components/mkconv.sh
+	sh hal/components/mkconv.sh s32 float // < $< > $@
+
+hal/components/conv_s32_bit.comp: hal/components/conv.comp.in hal/components/mkconv.sh
+	sh hal/components/mkconv.sh s32 bit "" 0 1 < $< > $@
+
+hal/components/conv_s32_s8.comp: hal/components/conv.comp.in hal/components/mkconv.sh
+	sh hal/components/mkconv.sh s32 s8 "" -128 127 < $< > $@
+
+hal/components/conv_s32_u8.comp: hal/components/conv.comp.in hal/components/mkconv.sh
+	sh hal/components/mkconv.sh s32 u8 "" 0 255 < $< > $@
+
+hal/components/conv_s32_s16.comp: hal/components/conv.comp.in hal/components/mkconv.sh
+	sh hal/components/mkconv.sh s32 s16 "" -32768 32767 < $< > $@
+
+hal/components/conv_s32_u16.comp: hal/components/conv.comp.in hal/components/mkconv.sh
+	sh hal/components/mkconv.sh s32 u16 "" 0 65535 < $< > $@
+
+hal/components/conv_s32_u32.comp: hal/components/conv.comp.in hal/components/mkconv.sh
+	sh hal/components/mkconv.sh s32 u32 "" 0 0 < $< > $@
+
+hal/components/conv_u32_float.comp: hal/components/conv.comp.in hal/components/mkconv.sh
+	sh hal/components/mkconv.sh u32 float // < $< > $@
+
+hal/components/conv_u32_bit.comp: hal/components/conv.comp.in hal/components/mkconv.sh
+	sh hal/components/mkconv.sh u32 bit "" -1 1 < $< > $@
+
+hal/components/conv_u32_s8.comp: hal/components/conv.comp.in hal/components/mkconv.sh
+	sh hal/components/mkconv.sh u32 s8 "" -128 127 < $< > $@
+
+hal/components/conv_u32_u8.comp: hal/components/conv.comp.in hal/components/mkconv.sh
+	sh hal/components/mkconv.sh u32 u8 "" -1 255 < $< > $@
+
+hal/components/conv_u32_s16.comp: hal/components/conv.comp.in hal/components/mkconv.sh
+	sh hal/components/mkconv.sh u32 s16 "" -32768 32767 < $< > $@
+
+hal/components/conv_u32_u16.comp: hal/components/conv.comp.in hal/components/mkconv.sh
+	sh hal/components/mkconv.sh u32 u16 "" -1 65535 < $< > $@
+
+hal/components/conv_u32_s32.comp: hal/components/conv.comp.in hal/components/mkconv.sh
+	sh hal/components/mkconv.sh u32 s32 "" -1 2147483647 < $< > $@

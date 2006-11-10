@@ -1,3 +1,4 @@
+conv_*.comp
 *.cmd
 *.ko
 .tmp_versions
