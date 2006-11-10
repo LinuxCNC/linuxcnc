@@ -306,9 +306,7 @@ linkpp iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
 with
 \layout LyX-Code
 
-linkpp parport.0.pin-01-in
-\newline 
-iocontrol.0.emc-enable-in
+linkpp parport.0.pin-01-in iocontrol.0.emc-enable-in
 \layout Standard
 
 This assumes an ESTOP switch connected to pin 01 on the parport.
