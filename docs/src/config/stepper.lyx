@@ -149,7 +149,7 @@ This file contains several HAL commands, and usually looks like this:
 \layout LyX-Code
 
 
-\begin_inset Include \verbatiminput{/home/jepler/emc2+newcl/configs/stepper/standard_pinout.hal}
+\begin_inset Include \verbatiminput{../../../configs/stepper/standard_pinout.hal}
 preview false
 
 \end_inset 
