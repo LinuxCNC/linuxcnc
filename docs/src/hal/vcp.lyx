@@ -34,14 +34,227 @@
 
 \layout Chapter
 
-halvcp: The HAL Virtual Control Panel
+Virtual Control Panels
+\layout Section
+
+Introduction
 \layout Standard
 
-The Virtual Control Panel can be used to display or control the state of
- HAL signals.
+Traditional machine control panels are large sheets of steel with pushbuttons,
+ knobs, lights and sometimes meters mounted on them.
+ They have many advantages - the buttons are far more rugged than a computer
+ keyboard, and large enough that you can usually operate the correct one
+ by feel while looking elsewhere, for example at the tool.
+ However, they also have disadvantages.
+ The occupy a lot of panel space, they are expensive, and wiring them into
+ the PC can use up a lot of I/O pins.
+ That is where Virtual Control Panels come in.
+\layout Standard
+
+A Virtual Control Panel (VCP) is a window on the computer screen with buttons,
+ meters, switches, etc.
+ When you click on a VCP button, it changes the state of a HAL pin, exactly
+ as if you had pressed a physical button wired to an input pin on an I/O
+ card.
+ Likewise, a VCP LED lights up when a HAL pin goes true, just like a physical
+ indicator lamp wired to an output pin on an I/O card.
+ Virtual control panels are not intended to replace physical panels - sometimes
+ there is just no substiture for a big rugged oil-tight pushbutton.
+ But virtual panels can be used for testing or monitoring things that don't
+ require physical buttons and lights, to temporarily replace real I/O devices
+ while debugging ladder logic, or perhaps to simulate a physical panel before
+ you build it and wire it to an I/O board.
 \layout Section
 
 A small example
+\layout Standard
+
+Place the following in the file 
+\family typewriter 
+tiny.vcp
+\family default 
+:
+\layout LyX-Code
+
+vcp {
+\layout LyX-Code
+
+  main-window {
+\layout LyX-Code
+
+    box {
+\layout LyX-Code
+
+      button {
+\layout LyX-Code
+
+        halpin = vcp.pushbutton
+\layout LyX-Code
+
+        label { text = "Push Me" }
+\layout LyX-Code
+
+      }
+\layout LyX-Code
+
+      LED {
+\layout LyX-Code
+
+        halpin = vcp.light
+\layout LyX-Code
+
+      }
+\layout LyX-Code
+
+    }
+\layout LyX-Code
+
+  }
+\layout LyX-Code
+
+}
+\layout Standard
+
+The above file describes a tiny Virtual Control Panel, with one push button,
+ and one light.
+ To see what it looks like, we need to start HAL:
+\layout LyX-Code
+
+$
+\series bold 
+halrun
+\layout LyX-Code
+
+halcmd:
+\layout LyX-Code
+
+\layout Standard
+
+Next we load halvcp, and give it the name of our .vcp file:
+\layout LyX-Code
+
+halcmd: 
+\series bold 
+loadusr halvcp tiny.vcp
+\layout LyX-Code
+
+halcmd:
+\layout Standard
+
+There may be some text printed as halvcp parses the tiny.vcp file, but when
+ it finishes, there should be a small window on your screen, with a button
+ and an LED.
+ It will look something like figure 
+\begin_inset LatexCommand \ref{fig:tiny.vpc_onscreen}
+
+\end_inset 
+
+.
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename tinyvcp.png
+	rotateOrigin center
+
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:tiny.vpc_onscreen}
+
+\end_inset 
+
+tiny.vcp on the screen
+\end_inset 
+
+
+\layout Standard
+
+So, we have a button and an LED, but they aren't connected to anything,
+ so nothing happens when you push the button.
+ However, the LED and the button both have HAL pins associated with them:
+\layout LyX-Code
+
+halcmd: 
+\series bold 
+show pin
+\layout LyX-Code
+
+Component Pins:
+\layout LyX-Code
+
+Owner  Type  Dir     Value      Name
+\layout LyX-Code
+
+ 03    bit   IN      FALSE      vcp.light
+\layout LyX-Code
+
+ 03    bit   OUT     FALSE      vcp.pushbutton
+\layout LyX-Code
+
+halcmd:
+\layout LyX-Code
+
+\layout Standard
+
+To make something happen, we can connect a HAL signal between the button
+ and the light:
+\layout LyX-Code
+
+halcmd: 
+\series bold 
+newsig jumper bit
+\layout LyX-Code
+
+halcmd: 
+\series bold 
+linksp jumper vcp.pushbutton
+\layout LyX-Code
+
+halcmd: 
+\series bold 
+linksp jumper vcp.light
+\layout LyX-Code
+
+halcmd: 
+\series bold 
+show sig
+\layout LyX-Code
+
+Signals:
+\layout LyX-Code
+
+Type      Value      Name
+\layout LyX-Code
+
+bit       FALSE      jumper
+\layout LyX-Code
+
+                         ==> vcp.light
+\layout LyX-Code
+
+                         <== vcp.pushbutton
+\layout LyX-Code
+
+halcmd:
+\layout LyX-Code
+
+\layout Standard
+
+Now push the button, and the the LED should light up!
+\layout Section
+
+Another small example with EMC
 \layout Standard
 
 Place the following in the file 
@@ -102,7 +315,11 @@ contents
  }
 \layout Standard
 
-A key's format is
+The contents can consist of attributes that describe the block, or other
+ blocks that nest inside it.
+\layout Standard
+
+A attribute's format is
 \layout LyX-Code
 
 
@@ -112,4 +329,8 @@ name
  = 
 \emph on 
 value
+\layout Standard
+
+The attribute names that are acceptable for each block depend on the block
+ tag, and will be listed later.
 \the_end

@@ -129,6 +129,12 @@ preview false
 \end_inset 
 
 
+\begin_inset Include \include{hal/vcp.lyx}
+preview false
+
+\end_inset 
+
+
 \layout Part
 
 HAL Programming
