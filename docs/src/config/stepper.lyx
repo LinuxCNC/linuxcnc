@@ -112,8 +112,7 @@ Note: we are only presenting one axis to keep it short, all others are similar.
 \layout LyX-Code
 
 signals: Xstep, Xdir & Xen
-\layout LyX-Code
-
+\newline 
 pins: parport.0.pin-XX-out & parport.0.pin-XX-in 
 \begin_inset Foot
 collapsed true
@@ -149,109 +148,13 @@ standard_pinout.hal
 This file contains several HAL commands, and usually looks like this:
 \layout LyX-Code
 
-# standard pinout config file for 3-axis steppers 
-\layout LyX-Code
 
-# using a parport for I/O 
-\layout LyX-Code
+\begin_inset Include \verbatiminput{/home/jepler/emc2+newcl/configs/stepper/standard_pinout.hal}
+preview false
 
-#
-\layout LyX-Code
+\end_inset 
 
-# first load the parport driver 
-\layout LyX-Code
 
-loadrt hal_parport cfg="0x0378" 
-\layout LyX-Code
-
-# 
-\layout LyX-Code
-
-# next connect the parport functions to threads 
-\layout LyX-Code
-
-# read inputs first 
-\layout LyX-Code
-
-addf parport.0.read base-thread 1 
-\layout LyX-Code
-
-# write outputs last 
-\layout LyX-Code
-
-addf parport.0.write base-thread -1 
-\layout LyX-Code
-
-# 
-\layout LyX-Code
-
-# finally connect physical pins to the signals 
-\layout LyX-Code
-
-linksp Xstep parport.0.pin-03-out 
-\layout LyX-Code
-
-linksp Xdir  parport.0.pin-02-out 
-\layout LyX-Code
-
-linksp Ystep parport.0.pin-05-out 
-\layout LyX-Code
-
-linksp Ydir  parport.0.pin-04-out 
-\layout LyX-Code
-
-linksp Zstep parport.0.pin-07-out 
-\layout LyX-Code
-
-linksp Zdir  parport.0.pin-06-out
-\layout LyX-Code
-
-# create a signal for the estop loopback 
-\layout LyX-Code
-
-linkpp iocontrol.0.user-enable-out 
-\backslash 
-
-\layout LyX-Code
-
-       iocontrol.0.emc-enable-in
-\layout LyX-Code
-
-# create signals for tool loading loopback 
-\layout LyX-Code
-
-linkpp iocontrol.0.tool-prepare 
-\backslash 
-
-\layout LyX-Code
-
-       iocontrol.0.tool-prepared 
-\layout LyX-Code
-
-linkpp iocontrol.0.tool-change 
-\backslash 
-
-\layout LyX-Code
-
-       iocontrol.0.tool-changed
-\layout LyX-Code
-
-# create a signal for "spindle on" 
-\layout LyX-Code
-
-newsig spindle_on bit
-\layout LyX-Code
-
-# connect it to the spindle controller (in RT)
-\layout LyX-Code
-
-linksp spindle_on motion.spindle-on 
-\layout LyX-Code
-
-# connect it to a physical pin 
-\layout LyX-Code
-
-linksp spindle_on parport.0.pin-09-out 
 \layout Standard
 
 The files starting with '#' are comments, and their only purpose is to guide
@@ -321,8 +224,7 @@ If you want for example to change the pin for the X-axis Step & Directions
 \layout LyX-Code
 
 linksp Xstep parport.0.pin-03-out 
-\layout LyX-Code
-
+\newline 
 linksp Xdir  parport.0.pin-02-out
 \layout Standard
 
@@ -330,8 +232,7 @@ can be changed to:
 \layout LyX-Code
 
 linksp Xstep parport.0.pin-02-out 
-\layout LyX-Code
-
+\newline 
 linksp Xdir  parport.0.pin-03-out
 \layout Standard
 
@@ -399,18 +300,15 @@ An extensive explanation of hooking up ESTOP circuitry is explained in the
 To add a simple external button you need to replace the line:
 \layout LyX-Code
 
-linkpp iocontrol.0.user-enable-out 
-\backslash 
-
-\layout LyX-Code
-
-       iocontrol.0.emc-enable-in
+linkpp iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
 \layout Standard
 
 with
 \layout LyX-Code
 
-linkpp parport.0.pin-01-in iocontrol.0.emc-enable-in
+linkpp parport.0.pin-01-in
+\newline 
+iocontrol.0.emc-enable-in
 \layout Standard
 
 This assumes an ESTOP switch connected to pin 01 on the parport.
