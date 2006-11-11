@@ -45,7 +45,7 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
 
     def next_line(self, st):
         self.state = st
-        self.lineno = self.state.sequence_number + 1
+        self.lineno = self.state.sequence_number
 
     def calc_extents(self):
         x = [f[1][0] for f in self.arcfeed] + [f[1][0] for f in self.feed] + [f[1][0] for f in self.traverse]

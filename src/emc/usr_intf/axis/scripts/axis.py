@@ -1549,7 +1549,7 @@ class AxisCanon(GLCanon):
 
     def next_line(self, st):
         self.state = st
-        lineno = self.lineno = st.sequence_number + 1
+        lineno = self.lineno = st.sequence_number
         self.progress.update(lineno)
 
     def get_tool(self, tool):

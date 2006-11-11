@@ -164,7 +164,8 @@ void maybe_new_line() {
     active_settings(new_line_code->settings);
     active_g_codes(new_line_code->gcodes);
     active_m_codes(new_line_code->mcodes);
-    int sequence_number = new_line_code->gcodes[0];
+    int sequence_number = interp_new.sequence_number();
+    new_line_code->gcodes[0] = sequence_number;
     if(sequence_number == last_sequence_number) {
         Py_DECREF(new_line_code);
         return;
