@@ -32,5 +32,5 @@ MODULE_LICENSE("GPL");
 FUNCTION(_) {
     double select_ = select;
     if(!open) { if(select_ < 0) select_ = 0; if(select_ > 1) select_ = 1; }
-    out = in1 * select_ + in2 + (1 - select_);
+    out = in1 * select_ + in2 * (1 - select_);
 }
