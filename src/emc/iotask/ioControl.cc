@@ -863,8 +863,10 @@ int main(int argc, char *argv[])
 
 	case EMC_TOOL_PREPARE_TYPE:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_TOOL_PREPARE\n");
-	    *(iocontrol_data->tool_prepare) = 1;
+	    /* set tool number first */
 	    *(iocontrol_data->tool_prep_number) = ((EMC_TOOL_PREPARE *) emcioCommand)->tool;
+	    /* then set the prepare pin to tell external logic to get started */
+	    *(iocontrol_data->tool_prepare) = 1;
 	    // the feedback logic is done inside read_hal_inputs()
 	    // we only need to set RCS_EXEC if RCS_DONE is not already set by the above logic
 	    if (tool_status != 10) //set above to 10 in case PREP already finished (HAL loopback machine)
