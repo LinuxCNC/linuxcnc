@@ -124,8 +124,8 @@ typedef struct {
 	hal_float_t *position[3];	   /* ptrs for encoder input */
 	hal_bit_t *digital_in[47];    /* ptrs for digital input pins 0 - 45 */
         hal_bit_t *digital_out[25];    /* ptrs for digital output pins 0 - 20 */
-        hal_u16_t raw_counts_old[3];
-        hal_s32_t counts[3];
+        __u16 raw_counts_old[3];
+        __s32 counts[3];
         hal_float_t pos_scale;         /*! \todo scale for position command FIXME schould be one per axis */
 } evoreg_t;
 
@@ -314,7 +314,7 @@ static void update_port(void *arg, long period)
     evoreg_t *port;
     int pin;
     unsigned char tmp, mask;
-    hal_u16_t raw_counts[3];
+    __u16 raw_counts[3];
 
     port = arg;
 
@@ -324,17 +324,17 @@ static void update_port(void *arg, long period)
     writew((*(port->dac_out[2])/10 * 0x7fff), port->io_base + 0xa0);
 
 /* Read Encoders, improve the 16bit hardware counters to 32bit and scale the values */
-    raw_counts[0] = (hal_u16_t) readw(port->io_base);
-    raw_counts[1] = (hal_u16_t) readw(port->io_base + 0x08 );
-    raw_counts[2] = (hal_u16_t) readw(port->io_base + 0x10 );
+    raw_counts[0] = (__u16) readw(port->io_base);
+    raw_counts[1] = (__u16) readw(port->io_base + 0x08 );
+    raw_counts[2] = (__u16) readw(port->io_base + 0x10 );
 
-    port->counts[0] += (hal_s16_t) (raw_counts[0] - port->raw_counts_old[0]);
+    port->counts[0] += (__s16) (raw_counts[0] - port->raw_counts_old[0]);
     port->raw_counts_old[0] = raw_counts[0];
 
-    port->counts[1] += (hal_s16_t) (raw_counts[1] - port->raw_counts_old[1]);
+    port->counts[1] += (__s16) (raw_counts[1] - port->raw_counts_old[1]);
     port->raw_counts_old[1] = raw_counts[1];
 
-    port->counts[2] += (hal_s16_t) (raw_counts[2] - port->raw_counts_old[2]);
+    port->counts[2] += (__s16) (raw_counts[2] - port->raw_counts_old[2]);
     port->raw_counts_old[2] = raw_counts[2];
 
     *port->position[0] = port->counts[0] * port->pos_scale;

@@ -843,7 +843,7 @@ Device_EncoderRead(void *arg, long period)
     M5i20HostMotRegMap			*pCard32 = this->pCard32;
     EncoderPinsParams			*pEncoder;
     int					i, j;
-    hal_u16_t				status;
+    __u16				status;
 
     pEncoder = &this->encoder[0];
 
@@ -904,7 +904,7 @@ Device_DacWrite(void *arg, long period)
     DacPinsParams			*pDac;
     int					i;
     hal_float_t				volts;
-    hal_s16_t				dacCount;
+    __s16				dacCount;
 
     if(this->misc.watchdogControl & WDT_CONTROL_AUTO_RESET){
 	// Reset the watchdog timer.
@@ -936,7 +936,7 @@ Device_DacWrite(void *arg, long period)
 	}
 
 	// Transform volts to counts.
-	dacCount = (hal_s16_t)(volts * M5I20_DAC_SCALE_MULTIPLY /
+	dacCount = (__s16)(volts * M5I20_DAC_SCALE_MULTIPLY /
 				M5I20_DAC_SCALE_DIVIDE);
 
 	// Write DAC.
