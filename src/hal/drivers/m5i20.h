@@ -70,29 +70,29 @@
 
 
 typedef struct {
-    hal_u32_t				data;
-    hal_u32_t				direction;	// 1 = out.
+    volatile __u32			data;
+    volatile __u32			direction;	// 1 = out.
 } volatile M5i20DioRegMap;
 
 // For use with HOSTMOT FPGA firmware.
 typedef struct {
-    hal_s32_t				encoderCount[M5I20_MAX_ENCODER_CHANNELS];
-    hal_u16_t				encoderControl[M5I20_MAX_ENCODER_CHANNELS];
+    volatile __s32			encoderCount[M5I20_MAX_ENCODER_CHANNELS];
+    volatile __u16			encoderControl[M5I20_MAX_ENCODER_CHANNELS];
 
-    hal_u16_t				pwmValue[M5I20_MAX_PWM_CHANNELS];
-    hal_u16_t				pwmControl[M5I20_MAX_PWM_CHANNELS];
+    volatile __u16			pwmValue[M5I20_MAX_PWM_CHANNELS];
+    volatile __u16			pwmControl[M5I20_MAX_PWM_CHANNELS];
 
     M5i20DioRegMap			digitalIo[M5I20_MAX_DIGITAL_IO_PORTS];
 
-    hal_u16_t				control;
-    hal_u16_t				mode;
-    hal_u16_t				irqDivisor;
-    hal_u16_t				pwmRate;
-    hal_u16_t				wdTimeout;	// In micro-seconds.
-    hal_u16_t				wdTimer;
-    hal_u16_t				ledView;
-    hal_u16_t				reserved1;
-    hal_u8_t				fpgaCfgData;	// This can be anywhere in map on bits 0..7.
+    volatile __u16			control;
+    volatile __u16			mode;
+    volatile __u16			irqDivisor;
+    volatile __u16			pwmRate;
+    volatile __u16			wdTimeout;	// In micro-seconds.
+    volatile __u16			wdTimer;
+    volatile __u16			ledView;
+    volatile __u16			reserved1;
+    volatile __u8			fpgaCfgData;	// This can be anywhere in map on bits 0..7.
 } volatile M5i20HostMotRegMap;
 
 // For use with digitalIo reg.
