@@ -373,8 +373,9 @@ static void WrtMore(unsigned char byte, unsigned int port_addr);
 *                  LOCAL FUNCTION DECLARATIONS                         *
 ************************************************************************/
 
-static int add_rd_funct(slot_funct_t *funct, slot_data_t *slot, int min_addr, int max_addr );
-static int add_wr_funct(slot_funct_t *funct, slot_data_t *slot, int min_addr, int max_addr );
+static __u32 block(int min, int max);
+static int add_rd_funct(slot_funct_t *funct, slot_data_t *slot, __u32 cache_bitmap );
+static int add_wr_funct(slot_funct_t *funct, slot_data_t *slot, __u32 cache_bitmap );
 
 static int export_UxC_digin(slot_data_t *slot, bus_data_t *bus);
 static int export_UxC_digout(slot_data_t *slot, bus_data_t *bus);
@@ -1433,50 +1434,54 @@ static void write_extraDAC(slot_data_t *slot)
 *                   LOCAL FUNCTION DEFINITIONS                         *
 ************************************************************************/
 
+/* this function converts a range of EPP addresses into a bitmap
+   to be passed to add_rd_funct() or add_wr_funct()
+*/
+
+static __u32 block(int min, int max)
+{
+    int n;
+    __u32 mask;
+
+    mask = 0;
+    for ( n = min ; n <= max ; n++ ) {
+	mask |= ( 1 << n );
+    }
+    return mask;
+}
+
 /* these functions are used to register a runtime function to be called
-   by either read_all or write_all.  'min_addr' and 'max_addr' define
-   the range of EPP addresses that the function needs.  All addresses
-   needed by all functions associated with the slot will be sequentially
-   read into the rd_buf cache (or written from the wr_buf cache) 
-   by read_all or write_all respectively, to minimize the number of 
-   slow inb and outb operations needed.
+   by either read_all or write_all.  'cache_bitmap' defines the EPP
+   addresses that the function needs.  All addresses needed by all 
+   functions associated with the slot will be sequentially read into
+   the rd_buf cache (or written from the wr_buf cache) by read_all 
+   or write_all respectively, to minimize the number of slow inb
+   and outb operations needed.
 */
 
 static int add_rd_funct(slot_funct_t *funct, slot_data_t *slot,
-			int min_addr, int max_addr )
+			__u32 cache_bitmap )
 {
-    int n;
-
     if ( slot->num_rd_functs >= MAX_FUNCT ) {
 	rtapi_print_msg(RTAPI_MSG_ERR, 
 	    "PPMC: ERROR: too many read functions\n");
 	return -1;
     }
     slot->rd_functs[slot->num_rd_functs++] = funct;
-    for ( n = min_addr ; n <= max_addr ; n++ ) {
-	slot->read_bitmap |= ( 1 << n );
-rtapi_print_msg(RTAPI_MSG_ERR,
-    "PPMC: added register %d to read cache bitmap\n", n );
-    }
+    slot->read_bitmap |= cache_bitmap;
     return 0;
 }
 
 static int add_wr_funct(slot_funct_t *funct, slot_data_t *slot,
-			int min_addr, int max_addr )
+			__u32 cache_bitmap )
 {
-    int n;
-
     if ( slot->num_wr_functs >= MAX_FUNCT ) {
 	rtapi_print_msg(RTAPI_MSG_ERR, 
 	    "PPMC: ERROR: too many write functions\n");
 	return -1;
     }
     slot->wr_functs[slot->num_wr_functs++] = funct;
-    for ( n = min_addr ; n <= max_addr ; n++ ) {
-	slot->write_bitmap |= ( 1 << n );
-rtapi_print_msg(RTAPI_MSG_ERR,
-    "PPMC: added register %d to write cache bitmap\n", n );
-    }
+    slot->write_bitmap |= cache_bitmap;
     return 0;
 }
 
@@ -1515,7 +1520,7 @@ static int export_UxC_digin(slot_data_t *slot, bus_data_t *bus)
 	/* increment number to prepare for next output */
 	bus->last_digin++;
     }
-    add_rd_funct(read_digins, slot, UxC_DINA, UxC_DINB);
+    add_rd_funct(read_digins, slot, block(UxC_DINA, UxC_DINB));
     return 0;
 }
 
@@ -1556,7 +1561,7 @@ static int export_UxC_digout(slot_data_t *slot, bus_data_t *bus)
 	/* increment number to prepare for next output */
 	bus->last_digout++;
     }
-    add_wr_funct(write_digouts, slot, UxC_DOUTA, UxC_DOUTA);
+    add_wr_funct(write_digouts, slot, block(UxC_DOUTA, UxC_DOUTA));
     return 0;
 }
 
@@ -1624,11 +1629,11 @@ static int export_PPMC_digin(slot_data_t *slot, bus_data_t *bus)
 	if (retval != 0) {
 	    return retval;
 	}
-    add_rd_funct(read_PPMC_digins, slot, DIO_DINA, DIO_ESTOP_IN);
+    add_rd_funct(read_PPMC_digins, slot, block(DIO_DINA, DIO_ESTOP_IN));
     rtapi_print_msg(RTAPI_MSG_INFO, "PPMC:  exporting as MASTER D In\n");
     }
     else {
-      add_rd_funct(read_PPMC_digins, slot, DIO_DINA, DIO_DINB);
+      add_rd_funct(read_PPMC_digins, slot, block(DIO_DINA, DIO_DINB));
       rtapi_print_msg(RTAPI_MSG_INFO, "PPMC:  exporting as SLAVE D In\n");
     }
     return 0;
@@ -1694,11 +1699,11 @@ static int export_PPMC_digout(slot_data_t *slot, bus_data_t *bus)
       }
       slot->digout[8].invert = 0;
       bus->last_digout++;
-      add_wr_funct(write_PPMC_digouts, slot, DIO_DOUTA, DIO_ESTOP_OUT);
+      add_wr_funct(write_PPMC_digouts, slot, block(DIO_DOUTA, DIO_ESTOP_OUT));
       rtapi_print_msg(RTAPI_MSG_INFO, "PPMC:  exporting as MASTER D Out\n");
     }
     else {
-      add_wr_funct(write_PPMC_digouts, slot, DIO_DOUTA, DIO_DOUTA);
+      add_wr_funct(write_PPMC_digouts, slot, block(DIO_DOUTA, DIO_DOUTA));
       //add_wr_funct(write_PPMC_digouts, slot, DIO_DOUTA, DIO_ESTOP_OUT); // hack to keep slave boards in slave
       rtapi_print_msg(RTAPI_MSG_INFO, "PPMC:  exporting as SLAVE D Out\n");
       SelWrt(2,slot->slot_base+DIO_ESTOP_OUT,slot->port_addr);
@@ -1792,7 +1797,7 @@ static int export_USC_stepgen(slot_data_t *slot, bus_data_t *bus)
 	/* increment number to prepare for next output */
 	bus->last_stepgen++;
     }
-    add_wr_funct(write_stepgens, slot, RATE_GEN_0, RATE_WIDTH_0);
+    add_wr_funct(write_stepgens, slot, block(RATE_GEN_0, RATE_WIDTH_0));
     return 0;
 }
 
@@ -1885,7 +1890,7 @@ static int export_UPC_pwmgen(slot_data_t *slot, bus_data_t *bus)
 	/* increment number to prepare for next output */
 	bus->last_pwmgen++;
     }
-    add_wr_funct(write_pwmgens, slot, PWM_GEN_0, PWM_GEN_3+1);
+    add_wr_funct(write_pwmgens, slot, block(PWM_GEN_0, PWM_GEN_3+1));
     return 0;
 }
 static int export_PPMC_DAC(slot_data_t *slot, bus_data_t *bus)
@@ -1927,7 +1932,7 @@ static int export_PPMC_DAC(slot_data_t *slot, bus_data_t *bus)
 	/* increment number to prepare for next output */
 	bus->last_DAC++;
     }
-    add_wr_funct(write_DACs, slot, DAC_0, DAC_3+1);
+    add_wr_funct(write_DACs, slot, block(DAC_0, DAC_3+1));
     return 0;
 }
 
@@ -2049,7 +2054,7 @@ static int export_encoders(slot_data_t *slot, bus_data_t *bus)
 	/* increment number to prepare for next output */
 	bus->last_encoder++;
     }
-    add_rd_funct(read_encoders, slot, ENCCNT0, ENCISR);
+    add_rd_funct(read_encoders, slot, block(ENCCNT0, ENCISR));
     return 0;
 }
 
@@ -2096,7 +2101,7 @@ static int export_extra_dac(slot_data_t *slot, bus_data_t *bus)
     pg->scale = 1.0;
     /* increment number to prepare for next output */
     bus->last_extraDAC++;
-    add_wr_funct(write_extraDAC, slot, UxC_EXTRA, UxC_EXTRA);
+    add_wr_funct(write_extraDAC, slot, block(UxC_EXTRA, UxC_EXTRA));
     return 0;
 }
 
