@@ -701,6 +701,7 @@ static int replace_vars(char *source_str, char *dest_str, int max_chars)
 	* words = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.-_";
 
     dest_str[max_chars-1] = '\0';	/* make sure there's a terminator */
+    *dest_str='\0';			/* return null string if input is null string */
     while ((remaining = strlen(sp)) > 0) {
 	loopcount++;
 	next_delim=strcspn(sp, "#$[");
@@ -3695,6 +3696,7 @@ static int get_input(FILE *srcfile, char *buf, size_t bufsize) {
     if(!scriptmode && srcfile == stdin && isatty(0)) {
         if(first_time) {
             halcmd_init_readline();
+            first_time = 0;
         }
         rlbuf = readline("halcmd: ");
         if(!rlbuf) return 0;
