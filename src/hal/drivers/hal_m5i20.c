@@ -211,9 +211,9 @@ typedef struct {
     hal_bit_t				*pWatchdogReset;// This pin is self clearing.
 
     // Parameters.
-    hal_u16_t				watchdogControl;
-    hal_u16_t				watchdogTimeout;
-    hal_u16_t				ledView;
+    hal_u32_t				watchdogControl;
+    hal_u32_t				watchdogTimeout;
+    hal_u32_t				ledView;
 } MiscPinsParams;
 
 #define WDT_CONTROL_ENABLE		0x0001
@@ -793,17 +793,17 @@ Device_ExportMiscPinsParametersFunctions(Device *this, int componentId, int boar
     // Export Parameters.
     if(!halError){
 	rtapi_snprintf(name, HAL_NAME_LEN, "m5i20.%d.watchdog-control", boardId);
-	halError = hal_param_u16_new(name, HAL_RW, &(this->misc.watchdogControl), componentId);
+	halError = hal_param_u32_new(name, HAL_RW, &(this->misc.watchdogControl), componentId);
     }
 
     if(!halError){
 	rtapi_snprintf(name, HAL_NAME_LEN, "m5i20.%d.watchdog-timeout", boardId);
-	halError = hal_param_u16_new(name, HAL_RW, &(this->misc.watchdogTimeout), componentId);
+	halError = hal_param_u32_new(name, HAL_RW, &(this->misc.watchdogTimeout), componentId);
     }
 
     if(!halError){
 	rtapi_snprintf(name, HAL_NAME_LEN, "m5i20.%d.led-view", boardId);
-	halError = hal_param_u16_new(name, HAL_RW, &(this->misc.ledView), componentId);
+	halError = hal_param_u32_new(name, HAL_RW, &(this->misc.ledView), componentId);
     }
 
     // Init pins.
@@ -1024,7 +1024,7 @@ Device_MiscUpdate(void *arg, long period)
 
     // Write watchdog timer configuration to hardware.
     if(this->misc.watchdogControl & WDT_CONTROL_ENABLE){
-	pCard16->wdTimeout = this->misc.watchdogTimeout;
+	pCard16->wdTimeout = this->misc.watchdogTimeout & 0x0000FFFF;
 	pCard16->mode |= M5I20_MODE_STOP_ON_WDT;
     }else{
 	pCard16->mode &= ~M5I20_MODE_STOP_ON_WDT;
@@ -1045,7 +1045,7 @@ Device_MiscUpdate(void *arg, long period)
     *(this->misc.pEstopInNot) = !*(this->misc.pEstopIn);
 
     // Write LED view channel to hardware.
-    pCard16->ledView = this->misc.ledView;
+    pCard16->ledView = this->misc.ledView & 0x0000FFFF;
 }
 
 
