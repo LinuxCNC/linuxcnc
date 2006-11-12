@@ -14,7 +14,7 @@
 * Default behavior results in a binary -> unsigned conversion.
 *
 * There is one array parameter at module load time, the number of bits for
-* each weighted summer.  There is a limit of 8 weighted muxes, and each
+* each weighted summer.  There is a limit of 8 weighted summers, and each
 * may have up to 16 input bits.
 *
 *********************************************************************
@@ -45,7 +45,7 @@ MODULE_AUTHOR("Stephen Wille Padnos");
 MODULE_DESCRIPTION("Weighted Summer for EMC HAL");
 MODULE_LICENSE("GPL");
 int wsum_sizes[MAX_SUMMERS] = { -1, -1, -1, -1, -1, -1, -1, -1 };
-RTAPI_MP_ARRAY_INT(wsum_sizes, MAX_CHAN, "Sizes of up to 8 weighted summers");
+RTAPI_MP_ARRAY_INT(wsum_sizes, MAX_SUMMERS, "Sizes of up to 8 weighted summers");
 
 /***********************************************************************
 *                STRUCTURES AND GLOBAL VARIABLES                       *
