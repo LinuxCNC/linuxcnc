@@ -1890,7 +1890,8 @@ static int export_UPC_pwmgen(slot_data_t *slot, bus_data_t *bus)
 	/* increment number to prepare for next output */
 	bus->last_pwmgen++;
     }
-    add_wr_funct(write_pwmgens, slot, block(PWM_GEN_0, PWM_GEN_3+1));
+    add_wr_funct(write_pwmgens, slot, block(PWM_GEN_0, PWM_GEN_3+1) | block(PWM_CTRL_0,PWM_FREQ_HI));
+    //    add_wr_funct(write_pwmgens, slot, block(PWM_GEN_0, PWM_GEN_3+1));
     return 0;
 }
 static int export_PPMC_DAC(slot_data_t *slot, bus_data_t *bus)
