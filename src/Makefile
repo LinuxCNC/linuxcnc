@@ -325,6 +325,7 @@ endif
 
 DIR=install -d -m 0755 -o root
 FILE=install -m 0644 -o root
+TREE=cp -dR
 CONFIGFILE=install -m 0644
 EXE=install -m 0755 -o root
 SETUID=install -m 4755 -o root
@@ -349,9 +350,7 @@ $(FILE) $(call GLOB,../configs/$(1)/*) $(DESTDIR)$(sysconfdir)/emc2/sample-confi
 endef
 INSTALL_CONFIGS=$(foreach config,$(CONFIGS), $(call INSTALL_CONFIG,$(config)))
 
-DOCS=EMC2_Developer_Manual.pdf EMC2_Integrator_Manual.pdf \
-	EMC2_User_Manual.pdf HAL_User_Manual.pdf \
-	INSTALL NEWS README AUTHORS
+DOCS=INSTALL NEWS README AUTHORS
 
 DOCS_HELP=$(call GLOB,../docs/help/*)
 NC_FILES=$(call GLOB,../nc_files/*)
@@ -370,6 +369,7 @@ install-kernel-indep:
 		$(DESTDIR)/etc/X11/app-defaults $(DESTDIR)$(tcldir)/bin \
 		$(DESTDIR)$(tcldir)/scripts \
 		$(DESTDIR)$(mandir)/man1 \
+		$(DESTDIR)$(mandir)/man3 \
 		$(DESTDIR)$(mandir)/man9 \
 		$(DESTDIR)$(tcldir)/msgs \
 		$(DESTDIR)$(localedir)/de/LC_MESSAGES \
@@ -378,6 +378,7 @@ install-kernel-indep:
 		$(DESTDIR)$(datadir)/axis/images \
 		$(DESTDIR)$(datadir)/axis/tcl		
 	$(FILE) ../docs/man/man1/*.1 $(DESTDIR)$(mandir)/man1
+	$(FILE) ../docs/man/man3/*.3{hal,rtapi} $(DESTDIR)$(mandir)/man3
 	$(FILE) ../docs/man/man9/*.9 $(DESTDIR)$(mandir)/man9
 	$(FILE) po/*.msg $(DESTDIR)$(tcldir)/msgs
 	$(EXE) ../scripts/realtime $(DESTDIR)$(initd_dir)
@@ -595,6 +596,7 @@ TORTOBJS = $(foreach file,$($(patsubst %.o,%,$(1))-objs), objects/rt$(file))
 ifeq ($(BUILD_SYS),sim)
 EXTRA_CFLAGS += -fPIC -O2
 RTOBJS := $(sort $(foreach mod,$(obj-m),$(call TORTOBJS,$(mod))))
+$(warning $(RTOBJS))
 
 RTDEPS := $(sort $(patsubst objects/%.o,depends/%.d, $(RTOBJS)))
 modules: $(patsubst %.o,../rtlib/%.so,$(obj-m))
@@ -680,6 +682,7 @@ endif
 
 ifneq ($(MAKECMDGOALS),clean)
 RTDEPS := $(sort $(patsubst objects/%.o,depends/%.d,$(RTOBJS)))
+$(warning $(RTDEPS))
 -include $(RTDEPS)
 Makefile: $(RTDEPS)
 endif

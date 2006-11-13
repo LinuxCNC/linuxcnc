@@ -130,12 +130,18 @@ $(DOC_DIR)/html/%/index.html: $(DOC_SRCDIR)/%.tex
 	@mv $(<:.tex=)/* $(dir $@)
 
 default: docs
+
+install-doc:
+	$(DIR) $(DESTDIR)$(docsdir)
+	$(FILE) $(PDF_TARGETS) $(DESTDIR)$(docsdir)
+	cp -a $(DOC_DIR)/html $(DESTDIR)$(docsdir)
+install-kernel-indep: install-doc
 else
 docs:
 	$(error Cannot build documents, missing LyX or some other required program, or explicitly disabled in configure)
 
 endif
-
+    
 docclean:
 	-rm -f $(DOC_DIR)/HAL_User_Manual.pdf
 	-rm -f $(DOC_DIR)/EMC2_User_Manual.pdf
