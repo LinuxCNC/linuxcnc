@@ -260,10 +260,8 @@ typedef enum {
     HAL_FLOAT = 2,
     HAL_S8 = 3,
     HAL_U8 = 4,
-    HAL_S16 = 5,
-    HAL_U16 = 6,
-    HAL_S32 = 7,
-    HAL_U32 = 8
+    HAL_S32 = 5,
+    HAL_U32 = 6
 } hal_type_t;
 
 /** HAL pins have a direction attribute.  A pin may be an input to 
@@ -299,8 +297,6 @@ typedef enum {
 typedef volatile unsigned char hal_bit_t;
 typedef volatile unsigned char hal_u8_t;
 typedef volatile signed char hal_s8_t;
-typedef volatile __u16 hal_u16_t;
-typedef volatile __s16 hal_s16_t;
 typedef volatile __u32 hal_u32_t;
 typedef volatile __s32 hal_s32_t;
 typedef volatile float hal_float_t;
@@ -310,8 +306,6 @@ typedef volatile float hal_float_t;
 typedef volatile unsigned int hal_bit_t;
 typedef volatile unsigned int hal_u8_t;
 typedef volatile signed int hal_s8_t;
-typedef volatile unsigned int hal_u16_t;
-typedef volatile signed int hal_s16_t;
 typedef volatile unsigned long hal_u32_t;
 typedef volatile signed long hal_s32_t;
 typedef volatile float hal_float_t;
@@ -378,10 +372,6 @@ extern int hal_pin_u8_new(char *name, hal_pin_dir_t dir,
     hal_u8_t ** data_ptr_addr, int comp_id);
 extern int hal_pin_s8_new(char *name, hal_pin_dir_t dir,
     hal_s8_t ** data_ptr_addr, int comp_id);
-extern int hal_pin_u16_new(char *name, hal_pin_dir_t dir,
-    hal_u16_t ** data_ptr_addr, int comp_id);
-extern int hal_pin_s16_new(char *name, hal_pin_dir_t dir,
-    hal_s16_t ** data_ptr_addr, int comp_id);
 extern int hal_pin_u32_new(char *name, hal_pin_dir_t dir,
     hal_u32_t ** data_ptr_addr, int comp_id);
 extern int hal_pin_s32_new(char *name, hal_pin_dir_t dir,
@@ -401,10 +391,6 @@ extern int hal_pin_u8_newf(hal_pin_dir_t dir,
     hal_u8_t ** data_ptr_addr, int comp_id, char *fmt, ...);
 extern int hal_pin_s8_newf(hal_pin_dir_t dir,
     hal_s8_t ** data_ptr_addr, int comp_id, char *fmt, ...);
-extern int hal_pin_u16_newf(hal_pin_dir_t dir,
-    hal_u16_t ** data_ptr_addr, int comp_id, char *fmt, ...);
-extern int hal_pin_s16_newf(hal_pin_dir_t dir,
-    hal_s16_t ** data_ptr_addr, int comp_id, char *fmt, ...);
 extern int hal_pin_u32_newf(hal_pin_dir_t dir,
     hal_u32_t ** data_ptr_addr, int comp_id, char *fmt, ...);
 extern int hal_pin_s32_newf(hal_pin_dir_t dir,
@@ -522,10 +508,6 @@ extern int hal_param_u8_new(char *name, hal_param_dir_t dir, hal_u8_t * data_add
     int comp_id);
 extern int hal_param_s8_new(char *name, hal_param_dir_t dir, hal_s8_t * data_addr,
     int comp_id);
-extern int hal_param_u16_new(char *name, hal_param_dir_t dir, hal_u16_t * data_addr,
-    int comp_id);
-extern int hal_param_s16_new(char *name, hal_param_dir_t dir, hal_s16_t * data_addr,
-    int comp_id);
 extern int hal_param_u32_new(char *name, hal_param_dir_t dir, hal_u32_t * data_addr,
     int comp_id);
 extern int hal_param_s32_new(char *name, hal_param_dir_t dir, hal_s32_t * data_addr,
@@ -539,10 +521,6 @@ extern int hal_param_float_newf(hal_param_dir_t dir,
 extern int hal_param_u8_newf(hal_param_dir_t dir, hal_u8_t * data_addr,
     int comp_id, char *fmt, ...);
 extern int hal_param_s8_newf(hal_param_dir_t dir, hal_s8_t * data_addr,
-    int comp_id, char *fmt, ...);
-extern int hal_param_u16_newf(hal_param_dir_t dir, hal_u16_t * data_addr,
-    int comp_id, char *fmt, ...);
-extern int hal_param_s16_newf(hal_param_dir_t dir, hal_s16_t * data_addr,
     int comp_id, char *fmt, ...);
 extern int hal_param_u32_newf(hal_param_dir_t dir, hal_u32_t * data_addr,
     int comp_id, char *fmt, ...);
@@ -590,8 +568,6 @@ extern int hal_param_bit_set(char *name, int value);
 extern int hal_param_float_set(char *name, float value);
 extern int hal_param_u8_set(char *name, unsigned char value);
 extern int hal_param_s8_set(char *name, signed char value);
-extern int hal_param_u16_set(char *name, unsigned short value);
-extern int hal_param_s16_set(char *name, signed short value);
 extern int hal_param_u32_set(char *name, unsigned long value);
 extern int hal_param_s32_set(char *name, signed long value);
 

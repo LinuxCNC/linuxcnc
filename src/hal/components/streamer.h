@@ -45,10 +45,8 @@ typedef union {
     hal_bit_t *hbit;
     hal_float_t *hfloat;
     hal_u8_t *hu8;
-    hal_u16_t *hu16;
     hal_u32_t *hu32;
     hal_s8_t *hs8;
-    hal_s16_t *hs16;
     hal_s32_t *hs32;
 } pin_data_t;
 

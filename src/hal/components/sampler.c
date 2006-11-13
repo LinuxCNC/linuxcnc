@@ -233,17 +233,11 @@ static void sample(void *arg, long period)
 	case HAL_U8:
 	    dptr->u = *(pptr->hu8);
 	    break;
-	case HAL_U16:
-	    dptr->u = *(pptr->hu16);
-	    break;
 	case HAL_U32:
 	    dptr->u = *(pptr->hu32);
 	    break;
 	case HAL_S8:
 	    dptr->s = *(pptr->hs8);
-	    break;
-	case HAL_S16:
-	    dptr->s = *(pptr->hs16);
 	    break;
 	case HAL_S32:
 	    dptr->s = *(pptr->hs32);
@@ -296,18 +290,13 @@ static int parse_types(fifo_t *f, char *cfg)
 		c++;
 		break;
 	    }
-	    if (( c[0] == '1' ) && ( c[1] == '6' )) {
-		f->type[n++] = HAL_U16;
-		c += 2;
-		break;
-	    }
 	    if (( c[0] == '3' ) && ( c[1] == '2' )) {
 		f->type[n++] = HAL_U32;
 		c += 2;
 		break;
 	    }
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"SAMPLER: ERROR: type 'U' needs length (8, 16, or 32)\n");
+		"SAMPLER: ERROR: type 'U' needs length (8 or 32)\n");
 	    return 0;
 	case 's':
 	case 'S':
@@ -317,18 +306,13 @@ static int parse_types(fifo_t *f, char *cfg)
 		c++;
 		break;
 	    }
-	    if (( c[0] == '1' ) && ( c[1] == '6' )) {
-		f->type[n++] = HAL_S16;
-		c += 2;
-		break;
-	    }
 	    if (( c[0] == '3' ) && ( c[1] == '2' )) {
 		f->type[n++] = HAL_S32;
 		c += 2;
 		break;
 	    }
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"SAMPLER: ERROR: type 'S' needs length (8, 16, or 32)\n");
+		"SAMPLER: ERROR: type 'S' needs length (8 or 32)\n");
 	    return 0;
 	default:
 	    rtapi_print_msg(RTAPI_MSG_ERR,
@@ -421,17 +405,11 @@ static int init_sampler(int num, fifo_t *tmp_fifo)
 	case HAL_U8:
 	    *(pptr->hu8) = 0;
 	    break;
-	case HAL_U16:
-	    *(pptr->hu16) = 0;
-	    break;
 	case HAL_U32:
 	    *(pptr->hu32) = 0;
 	    break;
 	case HAL_S8:
 	    *(pptr->hs8) = 0;
-	    break;
-	case HAL_S16:
-	    *(pptr->hs16) = 0;
 	    break;
 	case HAL_S32:
 	    *(pptr->hs32) = 0;

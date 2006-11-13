@@ -240,12 +240,6 @@ int main(int argc, char **argv)
 		    errmsg = "u8 value greater than 255";
 		}
 		break;
-	    case HAL_U16:
-		dptr->u = strtoul(cp, &cp2, 10);
-		if ( dptr->u > 65535 ) {
-		    errmsg = "u16 value greater than 65535";
-		}
-		break;
 	    case HAL_U32:
 		dptr->u = strtoul(cp, &cp2, 10);
 		break;
@@ -253,12 +247,6 @@ int main(int argc, char **argv)
 		dptr->s = strtol(cp, &cp2, 10);
 		if (( dptr->s > 127 ) || ( dptr->s < -128 )) {
 		    errmsg ="s8 value outside -128 to +127";
-		}
-		break;
-	    case HAL_S16:
-		dptr->s = strtol(cp, &cp2, 10);
-		if (( dptr->s > 32767 ) || ( dptr->s < -32768 )) {
-		    errmsg ="s16 value outside -32768 to +32767";
 		}
 		break;
 	    case HAL_S32:

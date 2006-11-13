@@ -263,12 +263,10 @@ int main(int argc, char **argv)
 		}
 		break;
 	    case HAL_U8:
-	    case HAL_U16:
 	    case HAL_U32:
 		printf ( "%lu ", (unsigned long)buf[n].u);
 		break;
 	    case HAL_S8:
-	    case HAL_S16:
 	    case HAL_S32:
 		printf ( "%ld ", (long)buf[n].s);
 		break;

@@ -349,12 +349,6 @@ static int check_trigger(void)
     case HAL_U8:
 	compare_result = (value->d_u8 > level->d_u8);
 	break;
-    case HAL_S16:
-	compare_result = (value->d_s16 > level->d_s16);
-	break;
-    case HAL_U16:
-	compare_result = (value->d_u16 > level->d_u16);
-	break;
     case HAL_S32:
 	compare_result = (value->d_s32 > level->d_s32);
 	break;

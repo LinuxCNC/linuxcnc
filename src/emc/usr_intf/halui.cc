@@ -153,7 +153,7 @@ DONE - jogging:
    halui.jog.selected.plus             bit
 
 DONE - tool:
-   halui.tool.number                   u16  //current selected tool
+   halui.tool.number                   u32  //current selected tool
    halui.tool.length-offset            float //current applied tool-length-offset
 
 DONE: - program:
@@ -229,7 +229,7 @@ struct halui_str {
     hal_float_t *jog_wheel_scale;
     hal_float_t *jog_wheel_speed;
 
-    hal_u16_t *tool_number;		//pin for current selected tool
+    hal_u32_t *tool_number;		//pin for current selected tool
     hal_float_t *tool_length_offset;	//current applied tool-length-offset
 
     hal_bit_t *spindle_start;		//pin for starting the spindle
@@ -762,7 +762,7 @@ int halui_hal_init(void)
     if (retval != HAL_SUCCESS) return retval;
     retval = hal_pin_u8_newf(HAL_OUT, &(halui_data->joint_selected), comp_id, "halui.joint.selected"); 
     if (retval != HAL_SUCCESS) return retval;
-    retval = hal_pin_u16_newf(HAL_OUT, &(halui_data->tool_number), comp_id, "halui.tool.number"); 
+    retval = hal_pin_u32_newf(HAL_OUT, &(halui_data->tool_number), comp_id, "halui.tool.number"); 
     if (retval != HAL_SUCCESS) return retval;
     retval =  hal_pin_float_newf(HAL_OUT, &(halui_data->tool_length_offset), comp_id, "halui.tool.length_offset"); 
     if (retval != HAL_SUCCESS) return retval;

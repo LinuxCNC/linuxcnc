@@ -16,8 +16,6 @@ union paramunion {
     hal_bit_t b;
     hal_u8_t u8;
     hal_s8_t s8;
-    hal_u16_t u16;
-    hal_s16_t s16;
     hal_u32_t u32;
     hal_s32_t s32;
     hal_float_t f;
@@ -28,8 +26,6 @@ union pinunion {
     hal_bit_t *b;
     hal_u8_t *u8;
     hal_s8_t *s8;
-    hal_u16_t *u16;
-    hal_s16_t *s16;
     hal_u32_t *u32;
     hal_s32_t *s32;
     hal_float_t *f;
@@ -168,16 +164,6 @@ static int pyhal_write_common(halitem *pin, PyObject *value) {
                 if(intval < -0x80 || intval > 0x7f) goto rangeerr;
                 *pin->u->pin.s8 = intval;
                 break;
-            case HAL_U16:
-                if(!is_int) goto typeerr;
-                if(intval < 0 || intval > 0xffff) goto rangeerr;
-                *pin->u->pin.u16 = intval;
-                break;
-            case HAL_S16:
-                if(!is_int) goto typeerr;
-                if(intval < -0x8000 || intval > 0x7fff) goto rangeerr;
-                *pin->u->pin.s16 = intval;
-                break;
             case HAL_U32:
                 if(is_int) {
                     if(intval < 0) goto rangeerr;
@@ -228,16 +214,6 @@ static int pyhal_write_common(halitem *pin, PyObject *value) {
                 if(intval < -0x80 || intval > 0x7f) goto rangeerr;
                 pin->u->param.s8 = intval;
                 break;
-            case HAL_U16:
-                if(!is_int) goto typeerr;
-                if(intval < 0 || intval > 0xffff) goto rangeerr;
-                pin->u->param.u16 = intval;
-                break;
-            case HAL_S16:
-                if(!is_int) goto typeerr;
-                if(intval < -0x8000 || intval > 0x7fff) goto rangeerr;
-                pin->u->param.s16 = intval;
-                break;
             case HAL_U32:
                 if(is_int) {
                     if(intval < 0) goto rangeerr;
@@ -279,8 +255,6 @@ static PyObject *pyhal_read_common(halitem *item) {
             case HAL_BIT: return PyBool_FromLong(*(item->u->pin.b));
             case HAL_U8: return PyInt_FromLong(*(item->u->pin.u8));
             case HAL_S8: return PyInt_FromLong(*(item->u->pin.s8));
-            case HAL_U16: return PyInt_FromLong(*(item->u->pin.u16));
-            case HAL_S16: return PyInt_FromLong(*(item->u->pin.s16));
             case HAL_U32: return PyLong_FromUnsignedLong(*(item->u->pin.u32));
             case HAL_S32: return PyInt_FromLong(*(item->u->pin.s32));
             case HAL_FLOAT: return PyFloat_FromDouble(*(item->u->pin.f));
@@ -290,8 +264,6 @@ static PyObject *pyhal_read_common(halitem *item) {
             case HAL_BIT: return PyBool_FromLong(item->u->param.b);
             case HAL_U8: return PyInt_FromLong(item->u->param.u8);
             case HAL_S8: return PyInt_FromLong(item->u->param.s8);
-            case HAL_U16: return PyInt_FromLong(item->u->param.u16);
-            case HAL_S16: return PyInt_FromLong(item->u->param.s16);
             case HAL_U32: return PyLong_FromUnsignedLong(item->u->param.u32);
             case HAL_S32: return PyInt_FromLong(item->u->param.s32);
             case HAL_FLOAT: return PyFloat_FromDouble(item->u->param.f);
@@ -547,8 +519,6 @@ void inithal(void) {
     PyModule_AddIntConstant(m, "HAL_FLOAT", HAL_FLOAT);
     PyModule_AddIntConstant(m, "HAL_S8", HAL_S8);
     PyModule_AddIntConstant(m, "HAL_U8", HAL_U8);
-    PyModule_AddIntConstant(m, "HAL_S16", HAL_S16);
-    PyModule_AddIntConstant(m, "HAL_U16", HAL_U16);
     PyModule_AddIntConstant(m, "HAL_S32", HAL_S32);
     PyModule_AddIntConstant(m, "HAL_U32", HAL_U32);
 

@@ -153,24 +153,6 @@ void refresh_trigger(void)
 	}
 	ctrl_shm->trig_level.d_u8 = fp_level;
 	break;
-    case HAL_S16:
-	if (fp_level > 32767.0) {
-	    fp_level = 32767.0;
-	}
-	if (fp_level < -32768.0) {
-	    fp_level = -32768.0;
-	}
-	ctrl_shm->trig_level.d_s16 = fp_level;
-	break;
-    case HAL_U16:
-	if (fp_level > 65535.0) {
-	    fp_level = 65535.0;
-	}
-	if (fp_level < 0.0) {
-	    fp_level = 0.0;
-	}
-	ctrl_shm->trig_level.d_u16 = fp_level;
-	break;
     case HAL_S32:
 	if (fp_level > 2147483647.0) {
 	    fp_level = 2147483647.0;

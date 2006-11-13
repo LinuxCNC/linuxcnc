@@ -542,15 +542,6 @@ static char *data_value(int type, void *valptr)
 	    *((unsigned char *) valptr), *((unsigned char *) valptr));
 	value_str = buf;
 	break;
-    case HAL_S16:
-	snprintf(buf, 24, "%6d", *((signed short *) valptr));
-	value_str = buf;
-	break;
-    case HAL_U16:
-	snprintf(buf, 24, "%5u (0x%04X)",
-	    *((unsigned short *) valptr), *((unsigned short *) valptr));
-	value_str = buf;
-	break;
     case HAL_S32:
 	snprintf(buf, 24, "%10ld", *((signed long *) valptr));
 	value_str = buf;

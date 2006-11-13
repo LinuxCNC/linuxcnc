@@ -335,12 +335,6 @@ void write_sample(FILE *fp, char *label, scope_data_t *dptr, hal_type_t type)
 		case HAL_U8:
 			data_value = dptr->d_u8;
 			break;
-		case HAL_S16:
-			data_value = dptr->d_s16;
-			break;
-		case HAL_U16:
-			data_value = dptr->d_u16;
-			break;
 		case HAL_S32:
 			data_value = dptr->d_s32;
 			break;

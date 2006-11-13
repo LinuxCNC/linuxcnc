@@ -1164,10 +1164,6 @@ static int do_newsig_cmd(char *name, char *type)
     } else if (strcasecmp(type, "s8") == 0) {
 	retval = hal_signal_new(name, HAL_S8);
     } else if (strcasecmp(type, "u16") == 0) {
-	retval = hal_signal_new(name, HAL_U16);
-    } else if (strcasecmp(type, "s16") == 0) {
-	retval = hal_signal_new(name, HAL_S16);
-    } else if (strcasecmp(type, "u32") == 0) {
 	retval = hal_signal_new(name, HAL_U32);
     } else if (strcasecmp(type, "s32") == 0) {
 	retval = hal_signal_new(name, HAL_S32);
@@ -1233,28 +1229,6 @@ static int set_common(hal_type_t type, void *d_ptr, char *value) {
 	    retval = HAL_INVAL;
 	} else {
 	    *((hal_u8_t *) (d_ptr)) = ulval;
-	}
-	break;
-    case HAL_S16:
-	lval = strtol(value, &cp, 0);
-	if (((*cp != '\0') && (!isspace(*cp))) || (lval > 32767) || (lval < -32768)) {
-	    /* invalid chars in string, or outside limits of S16 */
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"HAL:%d: ERROR: value '%s' invalid for S16\n", linenumber, value);
-	    retval = HAL_INVAL;
-	} else {
-	    *((hal_s16_t *) (d_ptr)) = lval;
-	}
-	break;
-    case HAL_U16:
-	ulval = strtoul(value, &cp, 0);
-	if (((*cp != '\0') && (!isspace(*cp))) || (ulval > 65535)) {
-	    /* invalid chars in string, or outside limits of U16 */
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"HAL:%d: ERROR: value '%s' invalid for U16\n", linenumber, value);
-	    retval = HAL_INVAL;
-	} else {
-	    *((hal_u16_t *) (d_ptr)) = ulval;
 	}
 	break;
     case HAL_S32:
@@ -1344,12 +1318,13 @@ static int do_setp_cmd(char *name, char *value)
     rtapi_mutex_give(&(hal_data->mutex));
     if (retval == 0) {
 	/* print success message */
-        if(param)
+        if(param) {
             rtapi_print_msg(RTAPI_MSG_INFO,
                 "Parameter '%s' set to %s\n", name, value);
-        else
+        } else {
             rtapi_print_msg(RTAPI_MSG_INFO,
                 "Pin '%s' set to %s\n", name, value);
+	}
     } else {
 	rtapi_print_msg(RTAPI_MSG_ERR,"HAL:%d: setp failed\n", linenumber);
     }
@@ -2553,12 +2528,6 @@ static char *data_type(int type)
     case HAL_U8:
 	type_str = "u8   ";
 	break;
-    case HAL_S16:
-	type_str = "s16  ";
-	break;
-    case HAL_U16:
-	type_str = "u16  ";
-	break;
     case HAL_S32:
 	type_str = "s32  ";
 	break;
@@ -2684,15 +2653,6 @@ static char *data_value(int type, void *valptr)
 	    *((unsigned char *) valptr), *((hal_u8_t *) valptr));
 	value_str = buf;
 	break;
-    case HAL_S16:
-	snprintf(buf, 14, "  %6d    ", *((hal_s16_t *) valptr));
-	value_str = buf;
-	break;
-    case HAL_U16:
-	snprintf(buf, 14, "%5u (%04X)",
-	    *((unsigned short *) valptr), *((hal_u16_t *) valptr));
-	value_str = buf;
-	break;
     case HAL_S32:
 	snprintf(buf, 14, " %10ld ", (long)*((hal_u32_t *) valptr));
 	value_str = buf;
@@ -2732,14 +2692,6 @@ static char *data_value2(int type, void *valptr)
 	break;
     case HAL_U8:
 	snprintf(buf, 14, "%u", (int)*((hal_u8_t *) valptr));
-	value_str = buf;
-	break;
-    case HAL_S16:
-	snprintf(buf, 14, "%d", (int)*((hal_s16_t *) valptr));
-	value_str = buf;
-	break;
-    case HAL_U16:
-	snprintf(buf, 14, "%u", (unsigned)*((hal_u16_t *) valptr));
 	value_str = buf;
 	break;
     case HAL_S32:

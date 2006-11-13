@@ -510,18 +510,6 @@ int hal_pin_s8_new(char *name, hal_pin_dir_t dir,
     return hal_pin_new(name, HAL_S8, dir, (void **) data_ptr_addr, comp_id);
 }
 
-int hal_pin_u16_new(char *name, hal_pin_dir_t dir,
-    hal_u16_t ** data_ptr_addr, int comp_id)
-{
-    return hal_pin_new(name, HAL_U16, dir, (void **) data_ptr_addr, comp_id);
-}
-
-int hal_pin_s16_new(char *name, hal_pin_dir_t dir,
-    hal_s16_t ** data_ptr_addr, int comp_id)
-{
-    return hal_pin_new(name, HAL_S16, dir, (void **) data_ptr_addr, comp_id);
-}
-
 int hal_pin_u32_new(char *name, hal_pin_dir_t dir,
     hal_u32_t ** data_ptr_addr, int comp_id)
 {
@@ -585,32 +573,6 @@ int hal_pin_s8_newf(hal_pin_dir_t dir,
     va_end(ap);
     if(sz == -1 || sz >= HAL_NAME_LEN) return HAL_NOMEM;
     return hal_pin_new(name, HAL_S8, dir, (void **) data_ptr_addr, comp_id);
-}
-
-int hal_pin_u16_newf(hal_pin_dir_t dir,
-    hal_u16_t ** data_ptr_addr, int comp_id, char *fmt, ...)
-{
-    char name[HAL_NAME_LEN];
-    va_list ap;
-    int sz;
-    va_start(ap, fmt);
-    sz = rtapi_vsnprintf(name, HAL_NAME_LEN, fmt, ap);
-    va_end(ap);
-    if(sz == -1 || sz >= HAL_NAME_LEN) return HAL_NOMEM;
-    return hal_pin_new(name, HAL_U16, dir, (void **) data_ptr_addr, comp_id);
-}
-
-int hal_pin_s16_newf(hal_pin_dir_t dir,
-    hal_s16_t ** data_ptr_addr, int comp_id, char *fmt, ...)
-{
-    char name[HAL_NAME_LEN];
-    va_list ap;
-    int sz;
-    va_start(ap, fmt);
-    sz = rtapi_vsnprintf(name, HAL_NAME_LEN, fmt, ap);
-    va_end(ap);
-    if(sz == -1 || sz >= HAL_NAME_LEN) return HAL_NOMEM;
-    return hal_pin_new(name, HAL_S16, dir, (void **) data_ptr_addr, comp_id);
 }
 
 int hal_pin_u32_newf(hal_pin_dir_t dir,
@@ -774,10 +736,6 @@ int hal_signal_new(char *name, hal_type_t type)
     case HAL_U8:
 	data_addr = shmalloc_up(1);
 	break;
-    case HAL_S16:
-    case HAL_U16:
-	data_addr = shmalloc_up(2);
-	break;
     case HAL_S32:
     case HAL_U32:
     case HAL_FLOAT:
@@ -805,10 +763,6 @@ int hal_signal_new(char *name, hal_type_t type)
     case HAL_S8:
     case HAL_U8:
 	*((char *) data_addr) = 0;
-	break;
-    case HAL_S16:
-    case HAL_U16:
-	*((short *) data_addr) = 0;
 	break;
     case HAL_S32:
     case HAL_U32:
@@ -1018,18 +972,6 @@ int hal_param_s8_new(char *name, hal_param_dir_t dir, hal_s8_t * data_addr,
     return hal_param_new(name, HAL_S8, dir, (void *) data_addr, comp_id);
 }
 
-int hal_param_u16_new(char *name, hal_param_dir_t dir, hal_u16_t * data_addr,
-    int comp_id)
-{
-    return hal_param_new(name, HAL_U16, dir, (void *) data_addr, comp_id);
-}
-
-int hal_param_s16_new(char *name, hal_param_dir_t dir, hal_s16_t * data_addr,
-    int comp_id)
-{
-    return hal_param_new(name, HAL_S16, dir, (void *) data_addr, comp_id);
-}
-
 int hal_param_u32_new(char *name, hal_param_dir_t dir, hal_u32_t * data_addr,
     int comp_id)
 {
@@ -1092,32 +1034,6 @@ int hal_param_s8_newf(hal_param_dir_t dir, hal_s8_t * data_addr,
     va_end(ap);
     if(sz == -1 || sz >= HAL_NAME_LEN) return HAL_NOMEM;
     return hal_param_new(name, HAL_S8, dir, (void *) data_addr, comp_id);
-}
-
-int hal_param_u16_newf(hal_param_dir_t dir, hal_u16_t * data_addr,
-    int comp_id, char *fmt, ...)
-{
-    char name[HAL_NAME_LEN];
-    va_list ap;
-    int sz;
-    va_start(ap, fmt);
-    sz = rtapi_vsnprintf(name, HAL_NAME_LEN, fmt, ap);
-    va_end(ap);
-    if(sz == -1 || sz >= HAL_NAME_LEN) return HAL_NOMEM;
-    return hal_param_new(name, HAL_U16, dir, (void *) data_addr, comp_id);
-}
-
-int hal_param_s16_newf(hal_param_dir_t dir, hal_s16_t * data_addr,
-    int comp_id, char *fmt, ...)
-{
-    char name[HAL_NAME_LEN];
-    va_list ap;
-    int sz;
-    va_start(ap, fmt);
-    sz = rtapi_vsnprintf(name, HAL_NAME_LEN, fmt, ap);
-    va_end(ap);
-    if(sz == -1 || sz >= HAL_NAME_LEN) return HAL_NOMEM;
-    return hal_param_new(name, HAL_S16, dir, (void *) data_addr, comp_id);
 }
 
 int hal_param_u32_newf(hal_param_dir_t dir, hal_u32_t * data_addr,
@@ -1259,16 +1175,6 @@ int hal_param_s8_set(char *name, signed char value)
     return hal_param_set(name, HAL_S8, &value);
 }
 
-int hal_param_u16_set(char *name, unsigned short value)
-{
-    return hal_param_set(name, HAL_U16, &value);
-}
-
-int hal_param_s16_set(char *name, signed short value)
-{
-    return hal_param_set(name, HAL_S16, &value);
-}
-
 int hal_param_u32_set(char *name, unsigned long value)
 {
     return hal_param_set(name, HAL_U32, &value);
@@ -1343,12 +1249,6 @@ int hal_param_set(char *name, hal_type_t type, void *value_addr)
 	break;
     case HAL_U8:
 	*((hal_u8_t *) (d_ptr)) = *((unsigned char *) (value_addr));
-	break;
-    case HAL_S16:
-	*((hal_s16_t *) (d_ptr)) = *((signed short *) (value_addr));
-	break;
-    case HAL_U16:
-	*((hal_u16_t *) (d_ptr)) = *((unsigned short *) (value_addr));
 	break;
     case HAL_S32:
 	*((hal_s32_t *) (d_ptr)) = *((signed long *) (value_addr));
@@ -3049,8 +2949,6 @@ EXPORT_SYMBOL(hal_pin_bit_new);
 EXPORT_SYMBOL(hal_pin_float_new);
 EXPORT_SYMBOL(hal_pin_u8_new);
 EXPORT_SYMBOL(hal_pin_s8_new);
-EXPORT_SYMBOL(hal_pin_u16_new);
-EXPORT_SYMBOL(hal_pin_s16_new);
 EXPORT_SYMBOL(hal_pin_u32_new);
 EXPORT_SYMBOL(hal_pin_s32_new);
 EXPORT_SYMBOL(hal_pin_new);
@@ -3059,8 +2957,6 @@ EXPORT_SYMBOL(hal_pin_bit_newf);
 EXPORT_SYMBOL(hal_pin_float_newf);
 EXPORT_SYMBOL(hal_pin_u8_newf);
 EXPORT_SYMBOL(hal_pin_s8_newf);
-EXPORT_SYMBOL(hal_pin_u16_newf);
-EXPORT_SYMBOL(hal_pin_s16_newf);
 EXPORT_SYMBOL(hal_pin_u32_newf);
 EXPORT_SYMBOL(hal_pin_s32_newf);
 
@@ -3073,8 +2969,6 @@ EXPORT_SYMBOL(hal_param_bit_new);
 EXPORT_SYMBOL(hal_param_float_new);
 EXPORT_SYMBOL(hal_param_u8_new);
 EXPORT_SYMBOL(hal_param_s8_new);
-EXPORT_SYMBOL(hal_param_u16_new);
-EXPORT_SYMBOL(hal_param_s16_new);
 EXPORT_SYMBOL(hal_param_u32_new);
 EXPORT_SYMBOL(hal_param_s32_new);
 EXPORT_SYMBOL(hal_param_new);
@@ -3083,8 +2977,6 @@ EXPORT_SYMBOL(hal_param_bit_newf);
 EXPORT_SYMBOL(hal_param_float_newf);
 EXPORT_SYMBOL(hal_param_u8_newf);
 EXPORT_SYMBOL(hal_param_s8_newf);
-EXPORT_SYMBOL(hal_param_u16_newf);
-EXPORT_SYMBOL(hal_param_s16_newf);
 EXPORT_SYMBOL(hal_param_u32_newf);
 EXPORT_SYMBOL(hal_param_s32_newf);
 
@@ -3092,8 +2984,6 @@ EXPORT_SYMBOL(hal_param_bit_set);
 EXPORT_SYMBOL(hal_param_float_set);
 EXPORT_SYMBOL(hal_param_u8_set);
 EXPORT_SYMBOL(hal_param_s8_set);
-EXPORT_SYMBOL(hal_param_u16_set);
-EXPORT_SYMBOL(hal_param_s16_set);
 EXPORT_SYMBOL(hal_param_u32_set);
 EXPORT_SYMBOL(hal_param_s32_set);
 EXPORT_SYMBOL(hal_param_set);
