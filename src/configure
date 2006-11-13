@@ -312,7 +312,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS PACKAGE EMC2VERSION SIMULATOR PTH_CONFIG RTNAME RTAI RTLINUX RTLINUXPRO RTPREFIX KERNELDIR RTFLAGS RTDIR EMC2_HOME AUTODIRS CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CPP WFLAGS DEPSTYLE ASM_BITOPS_DEFINE EGREP KERNEL_VERS BUILD_SYS EXT_RTFLAGS MODEXT MODULE_DIR RIP_MODULE_DIR RUN_IN_PLACE EMC2_BIN_DIR EMC2_TCL_DIR EMC2_HELP_DIR EMC2_RTLIB_DIR EMC2_LANG_DIR EMC2_CONFIG_PATH EMC2_NCFILES_DIR REALTIME EMC2_IMAGE_DIR GTK_VER GTK_LIBS GTK_CFLAGS CXX CXXFLAGS ac_ct_CXX SET_MAKE RANLIB ac_ct_RANLIB AR GREP INSTALL SED PS KILL WHOAMI AWK INSMOD RMMOD LSMOD PIDOF IPCS FUSER MANDB PYTHON LYX PDFLATEX LATEX2HTML EPSTOPDF BUILD_DOCS USE_LIBM USE_STUBS USE_RTLIBM MATHINC MATHLIB RTAI3_MOD RTAI_MOD RTL_MOD MODPATH_adeos MODPATH_rtai_hal MODPATH_rtai_ksched MODPATH_rtai_fifos MODPATH_rtai_shm MODPATH_rtai_sem MODPATH_rtai_math MODPATH_rtai MODPATH_rt_mem_mgr MODPATH_rtai_sched MODPATH_rtai_libm MODPATH_rtl MODPATH_mbuff MODPATH_rtl_time MODPATH_rtl_sched MODPATH_rtl_posixio MODPATH_rtl_fifo TCL_DBGX TK_DBGX TCL_CFLAGS TK_CFLAGS TCL_LIBS TK_LIBS DATE X_CFLAGS X_PRE_LIBS X_LIBS X_EXTRA_LIBS HAVE_XAW XAW_LIBS HAVE_READLINE READLINE_LIBS HAVE_NCURSES NCURSES_LIBS USE_NLS HAVE_LOCALE_H LANGUAGES HAVE_LIBINTL_H HAVE_LIBINTL LOCALEDIR XGETTEXT XGETTEXT_TCL_WORKS MSGFMT MSGFMT_TCL_WORKS BUILD_AXIS BUILD_PYTHON INCLUDEPY SITEPY LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS PACKAGE EMC2VERSION SIMULATOR PTH_CONFIG RTNAME RTAI RTLINUX RTLINUXPRO RTPREFIX KERNELDIR RTFLAGS RTDIR EMC2_HOME AUTODIRS CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CPP WFLAGS DEPSTYLE ASM_BITOPS_DEFINE EGREP KERNEL_VERS BUILD_SYS EXT_RTFLAGS MODEXT MODULE_DIR RIP_MODULE_DIR RUN_IN_PLACE EMC2_BIN_DIR EMC2_TCL_DIR EMC2_HELP_DIR EMC2_RTLIB_DIR EMC2_LANG_DIR EMC2_CONFIG_PATH EMC2_NCFILES_DIR REALTIME EMC2_IMAGE_DIR GTK_VER GTK_LIBS GTK_CFLAGS CXX CXXFLAGS ac_ct_CXX SET_MAKE RANLIB ac_ct_RANLIB AR GREP INSTALL SED PS KILL WHOAMI AWK INSMOD RMMOD LSMOD PIDOF IPCS FUSER MANDB PYTHON LYX PDFLATEX LATEX2HTML EPSTOPDF BUILD_DOCS USE_LIBM USE_STUBS USE_RTLIBM MATHINC MATHLIB RTAI3_MOD RTAI_MOD RTL_MOD MODPATH_adeos MODPATH_rtai_hal MODPATH_rtai_ksched MODPATH_rtai_fifos MODPATH_rtai_shm MODPATH_rtai_sem MODPATH_rtai_math MODPATH_rtai MODPATH_rt_mem_mgr MODPATH_rtai_sched MODPATH_rtai_libm MODPATH_rtl MODPATH_mbuff MODPATH_rtl_time MODPATH_rtl_sched MODPATH_rtl_posixio MODPATH_rtl_fifo TCL_DBGX TK_DBGX TCL_CFLAGS TK_CFLAGS TCL_LIBS TK_LIBS WISH DATE X_CFLAGS X_PRE_LIBS X_LIBS X_EXTRA_LIBS HAVE_XAW XAW_LIBS HAVE_READLINE READLINE_LIBS HAVE_NCURSES NCURSES_LIBS USE_NLS HAVE_LOCALE_H LANGUAGES HAVE_LIBINTL_H HAVE_LIBINTL LOCALEDIR XGETTEXT XGETTEXT_TCL_WORKS MSGFMT MSGFMT_TCL_WORKS BUILD_AXIS BUILD_PYTHON INCLUDEPY SITEPY LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -5568,6 +5568,8 @@ _ACEOF
 fi
 done
 
+LDFLAGS_hold=$LDFLAGS
+LDFLAGS="$LDFLAGS -lm"
 
 for ac_func in sincos
 do
@@ -5770,6 +5772,7 @@ _ACEOF
 fi
 done
 
+LDFLAGS=$LDFLAGS_hold
 
 
 
@@ -6418,6 +6421,14 @@ echo "${ECHO_T}$TKCONFIG found" >&6
    TK_LIBS="$TK_LIBS $TK_LIB_SPEC"
 fi
 
+if test -f $TCL_EXEC_PREFIX/bin/wish$TCL_VERSION; then
+    WISH=$TCL_EXEC_PREFIX/bin/wish$TCL_VERSION
+elif test -f $TCL_EXEC_PREFIX/bin/wish; then
+    WISH=$TCL_EXEC_PREFIX/bin/wish
+else
+    WISH=wish
+fi
+
 if test -f $TCL_EXEC_PREFIX/bin/tclsh$TCL_VERSION; then
     TCLSH=$TCL_EXEC_PREFIX/bin/tclsh$TCL_VERSION
 elif test -f $TCL_EXEC_PREFIX/bin/tclsh; then
@@ -6436,6 +6447,7 @@ else
 echo "$as_me: error: not found" >&2;}
    { (exit 1); exit 1; }; }
 fi
+
 
 
 
@@ -6560,7 +6572,7 @@ _ACEOF
 cat confdefs.h >>conftest.$ac_ext
 cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
-#include <X11/Xlib.h>
+#include <X11/Intrinsic.h>
 _ACEOF
 if { (eval echo "$as_me:$LINENO: \"$ac_cpp conftest.$ac_ext\"") >&5
   (eval $ac_cpp conftest.$ac_ext) 2>conftest.er1
@@ -6587,7 +6599,7 @@ else
 sed 's/^/| /' conftest.$ac_ext >&5
 
   for ac_dir in $ac_x_header_dirs; do
-  if test -r "$ac_dir/X11/Xlib.h"; then
+  if test -r "$ac_dir/X11/Intrinsic.h"; then
     ac_x_includes=$ac_dir
     break
   fi
@@ -6601,18 +6613,18 @@ if test "$ac_x_libraries" = no; then
   # See if we find them without any special options.
   # Don't add to $LIBS permanently.
   ac_save_LIBS=$LIBS
-  LIBS="-lX11 $LIBS"
+  LIBS="-lXt $LIBS"
   cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
 _ACEOF
 cat confdefs.h >>conftest.$ac_ext
 cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
-#include <X11/Xlib.h>
+#include <X11/Intrinsic.h>
 int
 main ()
 {
-XrmInitialize ()
+XtMalloc (0)
   ;
   return 0;
 }
@@ -6650,7 +6662,7 @@ for ac_dir in `echo "$ac_x_includes $ac_x_header_dirs" | sed s/include/lib/g`
 do
   # Don't even attempt the hair of trying to link an X program!
   for ac_extension in a so sl; do
-    if test -r $ac_dir/libX11.$ac_extension; then
+    if test -r $ac_dir/libXt.$ac_extension; then
       ac_x_libraries=$ac_dir
       break 2
     fi
@@ -10449,6 +10461,7 @@ s,@TCL_CFLAGS@,$TCL_CFLAGS,;t t
 s,@TK_CFLAGS@,$TK_CFLAGS,;t t
 s,@TCL_LIBS@,$TCL_LIBS,;t t
 s,@TK_LIBS@,$TK_LIBS,;t t
+s,@WISH@,$WISH,;t t
 s,@DATE@,$DATE,;t t
 s,@X_CFLAGS@,$X_CFLAGS,;t t
 s,@X_PRE_LIBS@,$X_PRE_LIBS,;t t

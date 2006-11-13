@@ -1086,8 +1086,11 @@ AH_VERBATIM([_GNU_SOURCE],
 AC_HEADER_STDC
 AC_HEADER_SYS_WAIT
 AC_CHECK_FUNCS(semtimedop)
+LDFLAGS_hold=$LDFLAGS
+LDFLAGS="$LDFLAGS -lm"
 AC_CHECK_FUNCS(sincos)
 AC_CHECK_FUNCS(__sincos)
+LDFLAGS=$LDFLAGS_hold
 
 AH_BOTTOM(#endif
 )
@@ -1168,6 +1171,14 @@ else
    TK_LIBS="$TK_LIBS $TK_LIB_SPEC"
 fi
 
+if test -f $TCL_EXEC_PREFIX/bin/wish$TCL_VERSION; then
+    WISH=$TCL_EXEC_PREFIX/bin/wish$TCL_VERSION
+elif test -f $TCL_EXEC_PREFIX/bin/wish; then
+    WISH=$TCL_EXEC_PREFIX/bin/wish
+else
+    WISH=wish
+fi
+
 if test -f $TCL_EXEC_PREFIX/bin/tclsh$TCL_VERSION; then
     TCLSH=$TCL_EXEC_PREFIX/bin/tclsh$TCL_VERSION
 elif test -f $TCL_EXEC_PREFIX/bin/tclsh; then
@@ -1189,6 +1200,7 @@ AC_SUBST([TCL_CFLAGS])
 AC_SUBST([TK_CFLAGS])
 AC_SUBST([TCL_LIBS])
 AC_SUBST([TK_LIBS])
+AC_SUBST([WISH])
 
 ##############################################################################
 # Section 6 - Miscelaneous support                                           #

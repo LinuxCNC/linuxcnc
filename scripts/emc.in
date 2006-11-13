@@ -168,7 +168,7 @@ EMC2VERSION="@EMC2VERSION@"; export EMC2VERSION
 # common from here..
 INIVAR=$EMC2_BIN_DIR/inivar
 HALCMD=$EMC2_BIN_DIR/halcmd
-PICKCONFIG=$EMC2_TCL_DIR/bin/pickconfig.tcl
+PICKCONFIG="@WISH@ $EMC2_TCL_DIR/bin/pickconfig.tcl"
 EMC2_EMCSH=$EMC2_BIN_DIR/emcsh
 EMC2_IOSH=$EMC2_BIN_DIR/iosh
 
