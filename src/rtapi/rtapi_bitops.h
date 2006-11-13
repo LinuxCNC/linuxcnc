@@ -1,6 +1,6 @@
 #ifndef RTAPI_BITOPS_H
 #define RTAPI_BITOPS_H
-#if defined(__MODULE__) || defined(ASM_BITOPS_H_USABLE)
+#if (defined(__MODULE__) && !defined(SIM)) || defined(ASM_BITOPS_H_USABLE)
 #include <asm/bitops.h>
 #else
 #if defined(__i386__)
