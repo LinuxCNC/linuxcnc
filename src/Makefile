@@ -596,7 +596,6 @@ TORTOBJS = $(foreach file,$($(patsubst %.o,%,$(1))-objs), objects/rt$(file))
 ifeq ($(BUILD_SYS),sim)
 EXTRA_CFLAGS += -fPIC -O2
 RTOBJS := $(sort $(foreach mod,$(obj-m),$(call TORTOBJS,$(mod))))
-$(warning $(RTOBJS))
 
 RTDEPS := $(sort $(patsubst objects/%.o,depends/%.d, $(RTOBJS)))
 modules: $(patsubst %.o,../rtlib/%.so,$(obj-m))
@@ -682,7 +681,6 @@ endif
 
 ifneq ($(MAKECMDGOALS),clean)
 RTDEPS := $(sort $(patsubst objects/%.o,depends/%.d,$(RTOBJS)))
-$(warning $(RTDEPS))
 -include $(RTDEPS)
 Makefile: $(RTDEPS)
 endif
