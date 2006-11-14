@@ -1,6 +1,6 @@
 #!/bin/sh
 # the next line restarts using emcsh \
-exec $EMC2_EMCSH "$0" "$@"
+exec ${EMC2_EMCSH-emcsh} "$0" "$@"
 
 ###############################################################
 # Description:  mini.tcl
