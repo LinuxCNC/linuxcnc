@@ -378,7 +378,8 @@ install-kernel-indep:
 		$(DESTDIR)$(datadir)/axis/images \
 		$(DESTDIR)$(datadir)/axis/tcl		
 	$(FILE) ../docs/man/man1/*.1 $(DESTDIR)$(mandir)/man1
-	$(FILE) ../docs/man/man3/*.3{hal,rtapi} $(DESTDIR)$(mandir)/man3
+	$(FILE) ../docs/man/man3/*.3hal $(DESTDIR)$(mandir)/man3
+	$(FILE) ../docs/man/man3/*.3rtapi $(DESTDIR)$(mandir)/man3
 	$(FILE) ../docs/man/man9/*.9 $(DESTDIR)$(mandir)/man9
 	$(FILE) po/*.msg $(DESTDIR)$(tcldir)/msgs
 	$(EXE) ../scripts/realtime $(DESTDIR)$(initd_dir)
