@@ -12,11 +12,6 @@
 * System: Linux
 *    
 * Copyright (c) 2004 All rights reserved.
-*
-* Last change: 
-* $Revision$
-* $Author$
-* $Date$
 ********************************************************************/
 #ifndef EMC2_CONFIG_H
 #define EMC2_CONFIG_H
@@ -29,7 +24,7 @@
 
 /* Assorted defines used through out the source code. */
 #define ACTIVE_G_CODES 13
-#define ACTIVE_M_CODES 7
+#define ACTIVE_M_CODES 9
 #define ACTIVE_SETTINGS 3
 
 #define MM_PER_INCH 25.4
@@ -68,10 +63,6 @@
 
 /* Define to 1 if you have the <GL/gl.h> header file. */
 #undef HAVE_GL_GL_H
-
-/* Define to 1 if you have the 'libgnomeprintui' library and required headers
-   */
-#undef HAVE_GNOMEPRINT
 
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H

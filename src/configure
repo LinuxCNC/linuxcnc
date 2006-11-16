@@ -312,7 +312,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS AUTODIRS PACKAGE EMC2VERSION SIMULATOR PTH_CONFIG RTNAME RTAI RTLINUX RTLINUXPRO RTPREFIX KERNELDIR RTFLAGS RTDIR EMC2_HOME CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CPP WFLAGS DEPSTYLE ASM_BITOPS_DEFINE EGREP KERNEL_VERS BUILD_SYS EXT_RTFLAGS MODEXT MODULE_DIR RIP_MODULE_DIR RUN_IN_PLACE EMC2_BIN_DIR EMC2_TCL_DIR EMC2_HELP_DIR EMC2_RTLIB_DIR EMC2_LANG_DIR EMC2_CONFIG_PATH EMC2_NCFILES_DIR REALTIME EMC2_IMAGE_DIR HAVE_GNOMEPRINT GTK_PKG GTK_VER GTK_LIBS GTK_CFLAGS CXX CXXFLAGS ac_ct_CXX SET_MAKE RANLIB ac_ct_RANLIB AR GREP INSTALL SED PS KILL WHOAMI AWK INSMOD RMMOD LSMOD PIDOF IPCS FUSER MANDB PYTHON LYX PDFLATEX LATEX2HTML EPSTOPDF BUILD_DOCS USE_LIBM USE_STUBS USE_RTLIBM MATHINC MATHLIB RTAI3_MOD RTAI_MOD RTL_MOD MODPATH_adeos MODPATH_rtai_hal MODPATH_rtai_ksched MODPATH_rtai_fifos MODPATH_rtai_shm MODPATH_rtai_sem MODPATH_rtai_math MODPATH_rtai MODPATH_rt_mem_mgr MODPATH_rtai_sched MODPATH_rtai_libm MODPATH_rtl MODPATH_mbuff MODPATH_rtl_time MODPATH_rtl_sched MODPATH_rtl_posixio MODPATH_rtl_fifo TCL_DBGX TK_DBGX TCL_CFLAGS TK_CFLAGS TCL_LIBS TK_LIBS WISH DATE X_CFLAGS X_PRE_LIBS X_LIBS X_EXTRA_LIBS HAVE_XAW XAW_LIBS HAVE_READLINE READLINE_LIBS HAVE_NCURSES NCURSES_LIBS USE_NLS HAVE_LOCALE_H LANGUAGES HAVE_LIBINTL_H HAVE_LIBINTL LOCALEDIR XGETTEXT XGETTEXT_TCL_WORKS MSGFMT MSGFMT_TCL_WORKS BUILD_AXIS BUILD_PYTHON INCLUDEPY SITEPY LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS AUTODIRS PACKAGE EMC2VERSION SIMULATOR PTH_CONFIG RTNAME RTAI RTLINUX RTLINUXPRO RTPREFIX KERNELDIR RTFLAGS RTDIR EMC2_HOME CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CPP WFLAGS DEPSTYLE ASM_BITOPS_DEFINE EGREP KERNEL_VERS BUILD_SYS EXT_RTFLAGS MODEXT MODULE_DIR RIP_MODULE_DIR RUN_IN_PLACE EMC2_BIN_DIR EMC2_TCL_DIR EMC2_HELP_DIR EMC2_RTLIB_DIR EMC2_LANG_DIR EMC2_CONFIG_PATH EMC2_NCFILES_DIR REALTIME EMC2_IMAGE_DIR HAVE_GNOMEPRINT GTK_VER GTK_LIBS GTK_CFLAGS CXX CXXFLAGS ac_ct_CXX SET_MAKE RANLIB ac_ct_RANLIB AR GREP INSTALL SED PS KILL WHOAMI AWK INSMOD RMMOD LSMOD PIDOF IPCS FUSER MANDB PYTHON LYX PDFLATEX LATEX2HTML EPSTOPDF BUILD_DOCS USE_LIBM USE_STUBS USE_RTLIBM MATHINC MATHLIB RTAI3_MOD RTAI_MOD RTL_MOD MODPATH_adeos MODPATH_rtai_hal MODPATH_rtai_ksched MODPATH_rtai_fifos MODPATH_rtai_shm MODPATH_rtai_sem MODPATH_rtai_math MODPATH_rtai MODPATH_rt_mem_mgr MODPATH_rtai_sched MODPATH_rtai_libm MODPATH_rtl MODPATH_mbuff MODPATH_rtl_time MODPATH_rtl_sched MODPATH_rtl_posixio MODPATH_rtl_fifo TCL_DBGX TK_DBGX TCL_CFLAGS TK_CFLAGS TCL_LIBS TK_LIBS WISH DATE X_CFLAGS X_PRE_LIBS X_LIBS X_EXTRA_LIBS HAVE_XAW XAW_LIBS HAVE_READLINE READLINE_LIBS HAVE_NCURSES NCURSES_LIBS USE_NLS HAVE_LOCALE_H LANGUAGES HAVE_LIBINTL_H HAVE_LIBINTL LOCALEDIR XGETTEXT XGETTEXT_TCL_WORKS MSGFMT MSGFMT_TCL_WORKS BUILD_AXIS BUILD_PYTHON INCLUDEPY SITEPY LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -861,14 +861,12 @@ Optional Features:
   --enable-run-in-place   Configure EMC to run without make install
   --enable-build-documentation   Build documentation
   --disable-nls           don't use NLS
-  --enable-python         Enable the parts of emc2 that depend on Python
+  --disable-python        Disable the parts of emc2 that depend on Python
 
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
-  --with-rtai=<path to RTAI>              path where RTAI is installed
-  --with-rtlinux=<path to RTLINUX>        path where RTLinux is installed
-  --with-rtlinuxpro=<path to RTLINUXPRO>  path where RTLinuxPro is installed
+  --with-realtime=<path to realtime>     Path where RTAI or RTlinux is installed
   --with-kernel-headers=<directory>       Location for kernel headers
   --with-kbuild=<y/n>                     Specify if your kernel uses kbuild or not
   --with-module-dir=<module-dir>          Installation directory for kernel modules
@@ -1372,7 +1370,7 @@ fi
 ##############################################################################
 # Section 2                                                                  #
 # RealTime checking (either RTAI, or RT-Linux)                               #
-# Subsection 2.1 - arguments to ./configure (--with-rtai,rtlinux,rtlinuxpro) #
+# Subsection 2.1 - arguments to ./configure (--with-realtime)                #
 # Subsection 2.2 - if none specified above, RTDIR needs to be found by search#
 # Subsection 2.3 - RTS(RT-script) is found, it gets queried for values       #
 ##############################################################################
@@ -1399,9 +1397,7 @@ BUILD_TOPLEVEL="$(cd ..; pwd -P)"
 ##############################################################################
 # Subsection 2.1                                                             #
 # Check for arguments to ./configure                                         #
-# accept --with-rtai=<path> from commandline                                 #
-# accept --with-rtlinux=<path> from commandline                              #
-# accept --with-rtlinuxpro=<path> from commandline                           #
+# accept --with-realtime=<path> from commandline                             #
 ##############################################################################
 
 # Check whether --enable-simulator or --disable-simulator was given.
@@ -1429,83 +1425,57 @@ else
 fi;
 
 
-# check for path from --with-rtai=<path>
 
-# Check whether --with-rtai or --without-rtai was given.
-if test "${with_rtai+set}" = set; then
-  withval="$with_rtai"
-  	case "$withval" in
+# Check whether --with-realtime or --without-realtime was given.
+if test "${with_realtime+set}" = set; then
+  withval="$with_realtime"
+     case "$withval" in
 	"" | y | ye | yes | n | no)
 	    { { echo "$as_me:$LINENO: error: You must supply a path for --with-rtai." >&5
 echo "$as_me: error: You must supply a path for --with-rtai." >&2;}
-   { (exit 1); exit 1; }; }
-	  ;;
-	esac
-	RTAIDIR="$withval"
+   { (exit 1); exit 1; }; } ;;
+	*)
+		case "$SIMULATOR" in
+		yes) { { echo "$as_me:$LINENO: error: --with-realtime and --enable-simulator are mutually exclusive" >&5
+echo "$as_me: error: --with-realtime and --enable-simulator are mutually exclusive" >&2;}
+   { (exit 1); exit 1; }; } ;;
+		*) RTDIR="$withval" ;;
+		esac
+	;;
+        esac
 fi;
 
-if (! test -z "$RTAIDIR") ; then
-  RTDIR=$RTAIDIR
-  echo "$as_me:$LINENO: checking specified rtai=$RTDIR" >&5
-echo $ECHO_N "checking specified rtai=$RTDIR... $ECHO_C" >&6
+# These do not use AC_ARG_WITH to avoid putting entries in --help
+# check for path from --with-rtai=<path>
+if ! test -z "$with_rtai"; then
+  case "$with_rtai" in
+    y|ye|yes|n|no)
+      { { echo "$as_me:$LINENO: error: You must supply a path for --with-rtai." >&5
+echo "$as_me: error: You must supply a path for --with-rtai." >&2;}
+   { (exit 1); exit 1; }; } ;;
+  esac
+  if test ! -z "$RTDIR"; then
+     { { echo "$as_me:$LINENO: error: You must only specify one location for the realtime system" >&5
+echo "$as_me: error: You must only specify one location for the realtime system" >&2;}
+   { (exit 1); exit 1; }; }
+  fi
+  { echo "$as_me:$LINENO: WARNING: --with-rtai= is deprecated, use --with-realtime=" >&5
+echo "$as_me: WARNING: --with-rtai= is deprecated, use --with-realtime=" >&2;}
+  RTDIR="$with_rtai"
 fi
 
 # check for path from --with-rtlinux=<path>
-
-# Check whether --with-rtlinux or --without-rtlinux was given.
-if test "${with_rtlinux+set}" = set; then
-  withval="$with_rtlinux"
-  	case "$withval" in
-	"" | y | ye | yes | n | no)
-	    { { echo "$as_me:$LINENO: error: You must supply a path for --with-rtlinux." >&5
+if ! test -z "$with_rtlinux"; then
+  case "$with_rtlinux" in
+    y|ye|yes|n|no)
+      { { echo "$as_me:$LINENO: error: You must supply a path for --with-rtlinux." >&5
 echo "$as_me: error: You must supply a path for --with-rtlinux." >&2;}
    { (exit 1); exit 1; }; }
-	  ;;
-	esac
-	RTLINUXDIR="$withval"
-fi;
-
-# check to see if rtai and rtlinux have been specified
-# this is bad, and is reson for aborting ./configure
-if (! test -z "$RTLINUXDIR") ; then
-  if (! test -z "$RTDIR") ; then
-    { { echo "$as_me:$LINENO: error: rtai=$RTAIDIR & rtlinux=$RTLINUXDIR defined. Only one is possible" >&5
-echo "$as_me: error: rtai=$RTAIDIR & rtlinux=$RTLINUXDIR defined. Only one is possible" >&2;}
-   { (exit 1); exit 1; }; }
-  else
-    RTDIR=$RTLINUXDIR
-    echo "$as_me:$LINENO: checking specified rtlinux=$RTDIR" >&5
-echo $ECHO_N "checking specified rtlinux=$RTDIR... $ECHO_C" >&6
-  fi
-fi
-
-# check for path from --with-rtlinuxpro=<path>
-
-# Check whether --with-rtlinuxpro or --without-rtlinuxpro was given.
-if test "${with_rtlinuxpro+set}" = set; then
-  withval="$with_rtlinuxpro"
-  	case "$withval" in
-	"" | y | ye | yes | n | no)
-	    { { echo "$as_me:$LINENO: error: You must supply a path for --with-rtlinuxpro." >&5
-echo "$as_me: error: You must supply a path for --with-rtlinuxpro." >&2;}
-   { (exit 1); exit 1; }; }
-	  ;;
-	esac
-	RTLINUXPRODIR="$withval"
-fi;
-
-# check to see if rtai or rtlinux and rtlinuxpro have been specified
-# this is bad, and is reson for aborting ./configure
-if (! test -z "$RTLINUXPRODIR") ; then
-  if (! test -z "$RTDIR") ; then
-    { { echo "$as_me:$LINENO: error: rtdir=$RTDIR & rtlinuxpro=$RTLINUXPRODIR defined. Only one is possible" >&5
-echo "$as_me: error: rtdir=$RTDIR & rtlinuxpro=$RTLINUXPRODIR defined. Only one is possible" >&2;}
-   { (exit 1); exit 1; }; }
-  else
-    RTDIR=$RTLINUXPRODIR
-    echo "$as_me:$LINENO: checking specified rtlinuxpro=$RTDIR" >&5
-echo $ECHO_N "checking specified rtlinuxpro=$RTDIR... $ECHO_C" >&6
-  fi
+    ;;
+  esac
+  { echo "$as_me:$LINENO: WARNING: --with-rtlinux= is deprecated, use --with-realtime=" >&5
+echo "$as_me: WARNING: --with-rtlinux= is deprecated, use --with-realtime=" >&2;}
+  RTDIR="$with_rtlinux"
 fi
 
 ##############################################################################
@@ -1570,9 +1540,14 @@ fi
 echo "$as_me: error: GNU PTH library is required: get it with apt-get install libpth-dev" >&2;}
    { (exit 1); exit 1; }; }
   fi
-elif test -z "$RTDIR"; then
-  for location in /usr/realtime-`uname -r` /usr/realtime /usr /usr/src/rtai*; do
-    for subdir in scripts bin; do
+else
+  if test -z "$RTDIR"; then
+    DIRS="/usr/realtime-`uname -r` /usr/realtime /usr /usr/src/rtai*"
+  else
+    DIRS="$RTDIR"
+  fi
+  for location in $DIRS; do
+    for subdir in . scripts bin; do
       for signature in rtai rtl realtime; do
 	candidate=$location/$subdir/$signature-config
 	if test -z "$RTS" -a -e $candidate; then
@@ -1583,85 +1558,21 @@ elif test -z "$RTDIR"; then
  done
  if test -z "$RTS"; then
     { { echo "$as_me:$LINENO: error: RT not found.  Specify one of:
-	--with-rtai=<path>
-	--with-rtlinux=<path>
-	--with-rtlinuxpro=<path>
+	--with-realtime=<path>
 or use
 	--enable-simulator
 to build without a realtime system." >&5
 echo "$as_me: error: RT not found.  Specify one of:
-	--with-rtai=<path>
-	--with-rtlinux=<path>
-	--with-rtlinuxpro=<path>
+	--with-realtime=<path>
 or use
 	--enable-simulator
 to build without a realtime system." >&2;}
    { (exit 1); exit 1; }; }
   fi
-else
-  # we have RTDIR from the user... let's check for rtai-config, realtime-config, and rtl-config
-  RTDIR=$(cd $RTDIR ; pwd -P )
-  if (! test "x$RTAIDIR" = "x") ; then
-    # Test for rtai-config - RTAI3.x
-    if (test -f $RTDIR/rtai-config); then
-       RTS=$RTDIR/rtai-config
-    elif (test -r $RTDIR/bin/rtai-config); then
-       RTS=$RTDIR/bin/rtai-config
-    elif (test `rtai-config --version 2> /dev/null`); then
-       RTS=rtai-config
-       #we have RTDIR defined by the user, let's check if $RTS --prefix = $RTDIR
-       if (! test "$RTDIR" = `$RTS --prefix`); then
-	  { echo "$as_me:$LINENO: WARNING: RTAIDIR=$RTDIR specified contains no rtai-config, however one was found in PATH" >&5
-echo "$as_me: WARNING: RTAIDIR=$RTDIR specified contains no rtai-config, however one was found in PATH" >&2;}
-          RTDIR=`$RTS --prefix`
-	  { echo "$as_me:$LINENO: WARNING: using RTAIDIR=$RTDIR from now on" >&5
-echo "$as_me: WARNING: using RTAIDIR=$RTDIR from now on" >&2;}
-       fi
-    # Test for realtime-config - RTAI24.1.x
-    elif (test -f $RTDIR/realtime-config); then
-       RTS=$RTDIR/realtime-config
-    elif (test -r $RTDIR/bin/realtime-config); then
-       RTS=$RTDIR/bin/realtime-config
-    elif (test -r $RTDIR/scripts/realtime-config); then
-       RTS=$RTDIR/scripts/realtime-config
-    elif (test `realtime-config --version 2> /dev/null`); then
-       RTS=realtime-config
-       #we have RTDIR defined by the user, let's check if $RTS --prefix = $RTDIR
-       if (! test "$RTDIR" = `$RTS --prefix`); then
-	  { echo "$as_me:$LINENO: WARNING: RTAIDIR=$RTDIR specified contains no realtime-config, however one was found in PATH" >&5
-echo "$as_me: WARNING: RTAIDIR=$RTDIR specified contains no realtime-config, however one was found in PATH" >&2;}
-          RTDIR=`$RTS --prefix`
-	  { echo "$as_me:$LINENO: WARNING: using RTAIDIR=$RTDIR from now on" >&5
-echo "$as_me: WARNING: using RTAIDIR=$RTDIR from now on" >&2;}
-       fi
-    else
-       { { echo "$as_me:$LINENO: error: RTAIDIR=$RTAIDIR specified, but neither rtai-config \(RTAI-3.x\) nor realtime-config \(rtai-24.1.x\) found. Check your RTAI install" >&5
-echo "$as_me: error: RTAIDIR=$RTAIDIR specified, but neither rtai-config \(RTAI-3.x\) nor realtime-config \(rtai-24.1.x\) found. Check your RTAI install" >&2;}
-   { (exit 1); exit 1; }; }
-    fi
-
-  elif (! test "x$RTLINUXDIR" = "x") ; then
-    # test for rtl-config
-    if (test -f $RTLINUXDIR/rtl-config); then
-       RTS=$RTLINUXDIR/rtl-config
-    elif (test -r $RTLINUXDIR/bin/rtl-config); then
-       RTS=$RTLINUXDIR/bin/rtl-config
-    elif (test -r $RTLINUXDIR/scripts/rtl-config); then
-       RTS=$RTLINUXDIR/scripts/rtl-config
-    fi
-  elif (! test "x$RTLINUXPRODIR" = "x") ; then
-    # test for RTLinuxPro
-    # right now unsupported
-    { { echo "$as_me:$LINENO: error: RTLinuxPro support to be added" >&5
-echo "$as_me: error: RTLinuxPro support to be added" >&2;}
-   { (exit 1); exit 1; }; }
-  fi
-  echo "$as_me:$LINENO: result: $RTDIR set from command line" >&5
-echo "${ECHO_T}$RTDIR set from command line" >&6 # Spit out an error if/when it fails ??
+  echo "$as_me:$LINENO: result: Using $RTS as the RT signature" >&5
+echo "${ECHO_T}Using $RTS as the RT signature" >&6
 fi
 
-echo "$as_me:$LINENO: result: Using $RTS as the RT signature" >&5
-echo "${ECHO_T}Using $RTS as the RT signature" >&6
 
 ##############################################################################
 # Subsection 2.3                                                             #
@@ -1670,16 +1581,8 @@ echo "${ECHO_T}Using $RTS as the RT signature" >&6
 # see each case for more details                                             #
 ##############################################################################
 
-# For RTAI-3.x $RTS = rtai-config
-if (test `echo $RTS | awk -F/ '{print $NF }'` = rtai-config); then
-# Options and their return values for rtai-config
-#	 Option		Returns
-#	--prefix	Path to the rtai installation (usually /usr/realtime), not the original source tree.
-#	--version	Version number of the installed RTAI (e.g. 3.1, 3.0r4)
-#	--cc		The compiler used for the C sources - Not necessarily the default cc
-#	--module-cflags	Flags used to compile the realtime modules with - It is a good idea to use these !
-#	--linux-dir	Path to the source directory f the patched kernel.
-#	--module-dir	Path to the directory where the rtai modules are installed
+case $RTS in
+*/rtai-config)
     RTNAME=rtai-3.0
     RTPREFIX=rtai
     RTAI=3
@@ -1689,8 +1592,9 @@ if (test `echo $RTS | awk -F/ '{print $NF }'` = rtai-config); then
     RTFLAGS="$RTFLAGS -DRTAI=3"
     KERNELDIR=`$RTS --linux-dir`
 
+;;
+*/realtime-config)
 # For RTAI-24.1x $RTS = realtime-config
-elif (test `echo $RTS | awk -F/ '{print $NF }'` = "realtime-config"); then
 # Options and their return values for realtime-config
 #	 Option		Returns
 #	--prefix	Path to the rtai installation (usually /usr/realtime), not the original source tree. - USE WITH CAUTION
@@ -1762,9 +1666,9 @@ echo "${ECHO_T}ok" >&6
 	KERNELDIR=$(cd $KERNELDIR ; pwd -P )
     fi
 
-
+;;
+*/rtl-config)
 # For RTLinux-3.? $RTS = rtl-config
-elif (test `echo $RTS | awk -F/ '{print $NF }'` = "rtl-config"); then
 # Options and their return values for rtl-config
 #	 Option		Returns
 #	--prefix	Path to the RTLinux installation (usually /usr/rtlinux-{rtlVersion}), not the original source tree.
@@ -1779,12 +1683,12 @@ elif (test `echo $RTS | awk -F/ '{print $NF }'` = "rtl-config"); then
     RTDIR=$(cd $RTDIR ; pwd -P )
     RTFLAGS=`$RTS --cflags`
     KERNELDIR=`$RTS --linux`
-# elif test for RTLinux-Pro ???
-elif (test $RTS = sim); then
+;;
+sim)
     RTPREFIX=sim
     RTDIR=$(pwd -P)
     RTFLAGS=-DSIMULATOR
-fi
+esac
 
 if test $RTS != sim; then
     echo "$as_me:$LINENO: checking for location of kernel headers" >&5
@@ -1800,8 +1704,8 @@ echo "${ECHO_T}using specified value: $KERNELDIR" >&6
 
 else
 
-	    echo "$as_me:$LINENO: result: using value from $RTS: $KERNELDIR" >&5
-echo "${ECHO_T}using value from $RTS: $KERNELDIR" >&6
+	    echo "$as_me:$LINENO: result: using value from RTS: $KERNELDIR" >&5
+echo "${ECHO_T}using value from RTS: $KERNELDIR" >&6
 
 fi;
 fi
@@ -2847,7 +2751,6 @@ echo "$as_me: error: gcc version 2.96 found, but not supported.
 fi
 
 if test `$CC -dumpversion | cut -d '.' -f 1` -gt 2 ; then
-  WFLAGS="-Wno-strict-aliasing -fno-strict-aliasing"
   DEPSTYLE=gcc3
 else
   WFLAGS=""
@@ -3362,7 +3265,7 @@ echo "${ECHO_T}$MODEXT" >&6
 echo "$as_me:$LINENO: checking kernel build system" >&5
 echo $ECHO_N "checking kernel build system... $ECHO_C" >&6
 # FIXME FIXME FIXME
-# right now it will assume based on wether it's a 2.6 kernel or not
+# right now it will assume based on the kernel module extension
 EXT_RTFLAGS=""
 BUILD_SYS="normal"
 
@@ -3468,6 +3371,8 @@ echo "${ECHO_T}configuring for run-in-place" >&6
 else
 
         RUN_IN_PLACE=no
+	echo "$as_me:$LINENO: checking for realtime module directory" >&5
+echo $ECHO_N "checking for realtime module directory... $ECHO_C" >&6
         echo "$as_me:$LINENO: result: $MODULE_DIR" >&5
 echo "${ECHO_T}$MODULE_DIR" >&6
 
@@ -3572,36 +3477,17 @@ _ACEOF
 
 ##############################################################################
 # Subsection 3.5 - check for GTK                                             #
-#                                                                            #
-# pkg-config and gtk+-2.0 - GTK 2.0                                          #
-# pkg-config and gtk+-2.2 - GTK 2.2                                          #
+# FIXME: allow it to be enabled or disabled command line                     #
 ##############################################################################
-
-# Check for GTK
-# FIXME: allow it to be enabled or disabled command line
 
 echo "$as_me:$LINENO: checking for GTK 2.4.0 or above" >&5
 echo $ECHO_N "checking for GTK 2.4.0 or above... $ECHO_C" >&6
-if type pkg-config 2>/dev/null >/dev/null ; then
-  # found pkg-config, that means GTK 2.x _might_ be installed
-  if pkg-config gtk+-2.0 --atleast-version 2.4.0 ; then
-    # found the .pc file for gtk-2.0
-    GTK_PKG="2.0"
-  elif pkg-config gtk+-2.2 --atleast-version 2.4.0 ; then
-    # found the .pc file for gtk-2.2
-    GTK_PKG="2.2"
-  fi
-fi
-
-if (test "" = "$GTK_PKG" ) ; then
-  { echo "$as_me:$LINENO: WARNING: GTK2 not found, some utilities (halmeter, halscope) will not be built" >&5
-echo "$as_me: WARNING: GTK2 not found, some utilities (halmeter, halscope) will not be built" >&2;}
-else
-  GTK_VER=`pkg-config gtk+-$GTK_PKG --modversion`
+if pkg-config gtk+-2.0 --atleast-version 2.4.0 >/dev/null 2>&1; then
+  GTK_VER=`pkg-config gtk+-2.0 --modversion`
   echo "$as_me:$LINENO: result: yes - $GTK_VER" >&5
 echo "${ECHO_T}yes - $GTK_VER" >&6
-  GTK_CFLAGS=`pkg-config gtk+-$GTK_PKG --cflags`
-  GTK_LIBS=`pkg-config gtk+-$GTK_PKG --libs`
+  GTK_CFLAGS=`pkg-config gtk+-2.0 --cflags`
+  GTK_LIBS=`pkg-config gtk+-2.0 --libs`
   echo "$as_me:$LINENO: checking for libgnomeprintui-2.2" >&5
 echo $ECHO_N "checking for libgnomeprintui-2.2... $ECHO_C" >&6
   if pkg-config --exists libgnomeprintui-2.2; then
@@ -3615,8 +3501,10 @@ echo "${ECHO_T}yes" >&6
 echo "${ECHO_T}no -- printing from classicladder will not be possible" >&6
     HAVE_GNOMEPRINT=
   fi
+else
+  { echo "$as_me:$LINENO: WARNING: GTK2 not found, some utilities (halscope, halvcp, classicladder) will not be built" >&5
+echo "$as_me: WARNING: GTK2 not found, some utilities (halscope, halvcp, classicladder) will not be built" >&2;}
 fi
-
 
 
 
@@ -6552,7 +6440,7 @@ _ACEOF
 cat confdefs.h >>conftest.$ac_ext
 cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
-#include <X11/Xlib.h>
+#include <X11/Intrinsic.h>
 _ACEOF
 if { (eval echo "$as_me:$LINENO: \"$ac_cpp conftest.$ac_ext\"") >&5
   (eval $ac_cpp conftest.$ac_ext) 2>conftest.er1
@@ -6579,7 +6467,7 @@ else
 sed 's/^/| /' conftest.$ac_ext >&5
 
   for ac_dir in $ac_x_header_dirs; do
-  if test -r "$ac_dir/X11/Xlib.h"; then
+  if test -r "$ac_dir/X11/Intrinsic.h"; then
     ac_x_includes=$ac_dir
     break
   fi
@@ -6593,18 +6481,18 @@ if test "$ac_x_libraries" = no; then
   # See if we find them without any special options.
   # Don't add to $LIBS permanently.
   ac_save_LIBS=$LIBS
-  LIBS="-lX11 $LIBS"
+  LIBS="-lXt $LIBS"
   cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
 _ACEOF
 cat confdefs.h >>conftest.$ac_ext
 cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
-#include <X11/Xlib.h>
+#include <X11/Intrinsic.h>
 int
 main ()
 {
-XrmInitialize ()
+XtMalloc (0)
   ;
   return 0;
 }
@@ -6642,7 +6530,7 @@ for ac_dir in `echo "$ac_x_includes $ac_x_header_dirs" | sed s/include/lib/g`
 do
   # Don't even attempt the hair of trying to link an X program!
   for ac_extension in a so sl; do
-    if test -r $ac_dir/libX11.$ac_extension; then
+    if test -r $ac_dir/libXt.$ac_extension; then
       ac_x_libraries=$ac_dir
       break 2
     fi
@@ -7834,7 +7722,6 @@ fi
 
 # check for Xaw, that is needed for emc2/src/emc/usr_intf/xemc.cc
 
-echo "have_x: $have_x"
 if test "$have_x" = "yes"; then
 CFLAGS_hold=$CFLAGS
 LDFLAGS_hold=$LDFLAGS
@@ -8376,7 +8263,6 @@ else
 fi
 
 
-echo "HAVE_READLINE: $HAVE_READLINE"
 if test "x$HAVE_READLINE" = "xyes"; then
     READLINE_LIBS="-lreadline"
 
@@ -9681,9 +9567,13 @@ fi
 rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
 fi
 
+echo "$as_me:$LINENO: checking whether to build axis" >&5
+echo $ECHO_N "checking whether to build axis... $ECHO_C" >&6
 case $BUILD_AXIS in
-    yes) echo "$as_me:$LINENO: result: Will build AXIS" >&5
-echo "${ECHO_T}Will build AXIS" >&6 ;;
+    yes) echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6 ;;
+    *) echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
 esac
 
 
@@ -10381,7 +10271,6 @@ s,@EMC2_NCFILES_DIR@,$EMC2_NCFILES_DIR,;t t
 s,@REALTIME@,$REALTIME,;t t
 s,@EMC2_IMAGE_DIR@,$EMC2_IMAGE_DIR,;t t
 s,@HAVE_GNOMEPRINT@,$HAVE_GNOMEPRINT,;t t
-s,@GTK_PKG@,$GTK_PKG,;t t
 s,@GTK_VER@,$GTK_VER,;t t
 s,@GTK_LIBS@,$GTK_LIBS,;t t
 s,@GTK_CFLAGS@,$GTK_CFLAGS,;t t

@@ -56,7 +56,7 @@ AC_SUBST([EMC2VERSION])
 ##############################################################################
 # Section 2                                                                  #
 # RealTime checking (either RTAI, or RT-Linux)                               #
-# Subsection 2.1 - arguments to ./configure (--with-rtai,rtlinux,rtlinuxpro) #
+# Subsection 2.1 - arguments to ./configure (--with-realtime)                #
 # Subsection 2.2 - if none specified above, RTDIR needs to be found by search#
 # Subsection 2.3 - RTS(RT-script) is found, it gets queried for values       #
 ##############################################################################
@@ -82,9 +82,7 @@ BUILD_TOPLEVEL="$(cd ..; pwd -P)"
 ##############################################################################
 # Subsection 2.1                                                             #
 # Check for arguments to ./configure                                         #
-# accept --with-rtai=<path> from commandline                                 #
-# accept --with-rtlinux=<path> from commandline                              #
-# accept --with-rtlinuxpro=<path> from commandline                           #
+# accept --with-realtime=<path> from commandline                             #
 ##############################################################################
 
 AC_ARG_ENABLE(simulator,
@@ -108,61 +106,42 @@ AC_ARG_ENABLE(simulator,
     ])
 AC_SUBST(SIMULATOR)
 
-# check for path from --with-rtai=<path>
-AC_ARG_WITH(rtai,
-    [  --with-rtai=<path to RTAI>              path where RTAI is installed],
-    [	case "$withval" in
+AC_ARG_WITH(realtime,
+    [  --with-realtime=<path to realtime>     Path where RTAI or RTlinux is installed],
+    [   case "$withval" in
 	"" | y | ye | yes | n | no)
-	    AC_MSG_ERROR([You must supply a path for --with-rtai.])
-	  ;;
-	esac
-	RTAIDIR="$withval"])
+	    AC_MSG_ERROR([You must supply a path for --with-rtai.]) ;;
+	*)
+		case "$SIMULATOR" in
+		yes) AC_MSG_ERROR([--with-realtime and --enable-simulator are mutually exclusive]) ;;
+		*) RTDIR="$withval" ;;
+		esac
+	;;
+        esac])
 
-if (! test -z "$RTAIDIR") ; then
-  RTDIR=$RTAIDIR
-  AC_MSG_CHECKING(specified rtai=$RTDIR)
+# These do not use AC_ARG_WITH to avoid putting entries in --help
+# check for path from --with-rtai=<path>
+if ! test -z "$with_rtai"; then
+  case "$with_rtai" in
+    y|ye|yes|n|no)
+      AC_MSG_ERROR([You must supply a path for --with-rtai.]) ;;
+  esac
+  if test ! -z "$RTDIR"; then
+     AC_MSG_ERROR([You must only specify one location for the realtime system])
+  fi
+  AC_MSG_WARN([--with-rtai= is deprecated, use --with-realtime=])
+  RTDIR="$with_rtai"
 fi
 
 # check for path from --with-rtlinux=<path>
-AC_ARG_WITH(rtlinux,
-    [  --with-rtlinux=<path to RTLINUX>        path where RTLinux is installed],
-    [	case "$withval" in
-	"" | y | ye | yes | n | no)
-	    AC_MSG_ERROR([You must supply a path for --with-rtlinux.])
-	  ;;
-	esac
-	RTLINUXDIR="$withval"])
-
-# check to see if rtai and rtlinux have been specified 
-# this is bad, and is reson for aborting ./configure
-if (! test -z "$RTLINUXDIR") ; then
-  if (! test -z "$RTDIR") ; then 
-    AC_MSG_ERROR([rtai=$RTAIDIR & rtlinux=$RTLINUXDIR defined. Only one is possible])
-  else
-    RTDIR=$RTLINUXDIR
-    AC_MSG_CHECKING(specified rtlinux=$RTDIR)
-  fi
-fi
-
-# check for path from --with-rtlinuxpro=<path>
-AC_ARG_WITH(rtlinuxpro,
-    [  --with-rtlinuxpro=<path to RTLINUXPRO>  path where RTLinuxPro is installed],
-    [	case "$withval" in
-	"" | y | ye | yes | n | no)
-	    AC_MSG_ERROR([You must supply a path for --with-rtlinuxpro.])
-	  ;;
-	esac
-	RTLINUXPRODIR="$withval"])
-
-# check to see if rtai or rtlinux and rtlinuxpro have been specified 
-# this is bad, and is reson for aborting ./configure
-if (! test -z "$RTLINUXPRODIR") ; then
-  if (! test -z "$RTDIR") ; then 
-    AC_MSG_ERROR([rtdir=$RTDIR & rtlinuxpro=$RTLINUXPRODIR defined. Only one is possible])
-  else
-    RTDIR=$RTLINUXPRODIR
-    AC_MSG_CHECKING(specified rtlinuxpro=$RTDIR)
-  fi
+if ! test -z "$with_rtlinux"; then
+  case "$with_rtlinux" in
+    y|ye|yes|n|no)
+      AC_MSG_ERROR([You must supply a path for --with-rtlinux.])
+    ;;
+  esac
+  AC_MSG_WARN([--with-rtlinux= is deprecated, use --with-realtime=])
+  RTDIR="$with_rtlinux"
 fi
 
 ##############################################################################
@@ -186,9 +165,14 @@ if test $SIMULATOR = yes; then
   if test "$PTH_CONFIG" = ""; then
     AC_MSG_ERROR([GNU PTH library is required: get it with apt-get install libpth-dev])
   fi
-elif test -z "$RTDIR"; then
-  for location in /usr/realtime-`uname -r` /usr/realtime /usr /usr/src/rtai*; do
-    for subdir in scripts bin; do
+else
+  if test -z "$RTDIR"; then
+    DIRS="/usr/realtime-`uname -r` /usr/realtime /usr /usr/src/rtai*"
+  else
+    DIRS="$RTDIR"
+  fi
+  for location in $DIRS; do
+    for subdir in . scripts bin; do
       for signature in rtai rtl realtime; do
 	candidate=$location/$subdir/$signature-config
 	if test -z "$RTS" -a -e $candidate; then
@@ -198,68 +182,15 @@ elif test -z "$RTDIR"; then
     done
  done
  if test -z "$RTS"; then
-    AC_MSG_ERROR([RT not found.  Specify one of:
-	--with-rtai=<path>
-	--with-rtlinux=<path>
-	--with-rtlinuxpro=<path>
+    AC_MSG_ERROR([RT not found.  Specify:
+	--with-realtime=<path>
 or use
 	--enable-simulator
 to build without a realtime system.])
   fi
-else
-  # we have RTDIR from the user... let's check for rtai-config, realtime-config, and rtl-config
-  RTDIR=$(cd $RTDIR ; pwd -P )
-  if (! test "x$RTAIDIR" = "x") ; then
-    # Test for rtai-config - RTAI3.x
-    if (test -f $RTDIR/rtai-config); then
-       RTS=$RTDIR/rtai-config
-    elif (test -r $RTDIR/bin/rtai-config); then
-       RTS=$RTDIR/bin/rtai-config
-    elif (test `rtai-config --version 2> /dev/null`); then
-       RTS=rtai-config 
-       #we have RTDIR defined by the user, let's check if $RTS --prefix = $RTDIR
-       if (! test "$RTDIR" = `$RTS --prefix`); then
-	  AC_MSG_WARN([RTAIDIR=$RTDIR specified contains no rtai-config, however one was found in PATH]) 
-          RTDIR=`$RTS --prefix`
-	  AC_MSG_WARN([using RTAIDIR=$RTDIR from now on])
-       fi
-    # Test for realtime-config - RTAI24.1.x
-    elif (test -f $RTDIR/realtime-config); then
-       RTS=$RTDIR/realtime-config
-    elif (test -r $RTDIR/bin/realtime-config); then
-       RTS=$RTDIR/bin/realtime-config
-    elif (test -r $RTDIR/scripts/realtime-config); then
-       RTS=$RTDIR/scripts/realtime-config
-    elif (test `realtime-config --version 2> /dev/null`); then
-       RTS=realtime-config 
-       #we have RTDIR defined by the user, let's check if $RTS --prefix = $RTDIR
-       if (! test "$RTDIR" = `$RTS --prefix`); then
-	  AC_MSG_WARN([RTAIDIR=$RTDIR specified contains no realtime-config, however one was found in PATH]) 
-          RTDIR=`$RTS --prefix`
-	  AC_MSG_WARN([using RTAIDIR=$RTDIR from now on])
-       fi
-    else
-       AC_MSG_ERROR([RTAIDIR=$RTAIDIR specified, but neither rtai-config \(RTAI-3.x\) nor realtime-config \(rtai-24.1.x\) found. Check your RTAI install])
-    fi
-    
-  elif (! test "x$RTLINUXDIR" = "x") ; then
-    # test for rtl-config
-    if (test -f $RTLINUXDIR/rtl-config); then
-       RTS=$RTLINUXDIR/rtl-config
-    elif (test -r $RTLINUXDIR/bin/rtl-config); then
-       RTS=$RTLINUXDIR/bin/rtl-config
-    elif (test -r $RTLINUXDIR/scripts/rtl-config); then
-       RTS=$RTLINUXDIR/scripts/rtl-config
-    fi
-  elif (! test "x$RTLINUXPRODIR" = "x") ; then
-    # test for RTLinuxPro
-    # right now unsupported
-    AC_MSG_ERROR([RTLinuxPro support to be added])
-  fi
-  AC_MSG_RESULT([$RTDIR set from command line]) # Spit out an error if/when it fails ??
+  AC_MSG_RESULT([Using $RTS as the RT signature])
 fi
 
-AC_MSG_RESULT([Using $RTS as the RT signature])
 
 ##############################################################################
 # Subsection 2.3                                                             #
@@ -268,16 +199,8 @@ AC_MSG_RESULT([Using $RTS as the RT signature])
 # see each case for more details                                             #
 ##############################################################################
 
-# For RTAI-3.x $RTS = rtai-config
-if (test `echo $RTS | awk -F/ '{print $NF }'` = rtai-config); then
-# Options and their return values for rtai-config
-#	 Option		Returns
-#	--prefix	Path to the rtai installation (usually /usr/realtime), not the original source tree.
-#	--version	Version number of the installed RTAI (e.g. 3.1, 3.0r4)
-#	--cc		The compiler used for the C sources - Not necessarily the default cc
-#	--module-cflags	Flags used to compile the realtime modules with - It is a good idea to use these !
-#	--linux-dir	Path to the source directory f the patched kernel.
-#	--module-dir	Path to the directory where the rtai modules are installed
+case $RTS in
+*/rtai-config)
     RTNAME=rtai-3.0
     RTPREFIX=rtai
     RTAI=3
@@ -287,8 +210,9 @@ if (test `echo $RTS | awk -F/ '{print $NF }'` = rtai-config); then
     RTFLAGS="$RTFLAGS -DRTAI=3"
     KERNELDIR=`$RTS --linux-dir`
 
+;;
+*/realtime-config)
 # For RTAI-24.1x $RTS = realtime-config
-elif (test `echo $RTS | awk -F/ '{print $NF }'` = "realtime-config"); then
 # Options and their return values for realtime-config
 #	 Option		Returns
 #	--prefix	Path to the rtai installation (usually /usr/realtime), not the original source tree. - USE WITH CAUTION
@@ -352,9 +276,9 @@ elif (test `echo $RTS | awk -F/ '{print $NF }'` = "realtime-config"); then
 	KERNELDIR=$(cd $KERNELDIR ; pwd -P )
     fi
 
-
+;;
+*/rtl-config)
 # For RTLinux-3.? $RTS = rtl-config
-elif (test `echo $RTS | awk -F/ '{print $NF }'` = "rtl-config"); then
 # Options and their return values for rtl-config
 #	 Option		Returns
 #	--prefix	Path to the RTLinux installation (usually /usr/rtlinux-{rtlVersion}), not the original source tree.
@@ -369,12 +293,12 @@ elif (test `echo $RTS | awk -F/ '{print $NF }'` = "rtl-config"); then
     RTDIR=$(cd $RTDIR ; pwd -P )
     RTFLAGS=`$RTS --cflags`
     KERNELDIR=`$RTS --linux`
-# elif test for RTLinux-Pro ???
-elif (test $RTS = sim); then
+;;
+sim)
     RTPREFIX=sim
     RTDIR=$(pwd -P)
     RTFLAGS=-DSIMULATOR
-fi
+esac
 
 if test $RTS != sim; then
     AC_MSG_CHECKING([for location of kernel headers])
@@ -384,7 +308,7 @@ if test $RTS != sim; then
 	    KERNELDIR="$withval"
 	    AC_MSG_RESULT(using specified value: $KERNELDIR)
 	],[
-	    AC_MSG_RESULT(using value from $RTS: $KERNELDIR)
+	    AC_MSG_RESULT(using value from RTS: $KERNELDIR)
 	])
 fi
 
@@ -469,7 +393,6 @@ else
 fi
 
 if test `$CC -dumpversion | cut -d '.' -f 1` -gt 2 ; then
-  WFLAGS="-Wno-strict-aliasing -fno-strict-aliasing"
   DEPSTYLE=gcc3 
 else
   WFLAGS=""
@@ -532,7 +455,7 @@ AC_MSG_RESULT([$MODEXT])
 # This check should see if kbuild is or isn't used
 AC_MSG_CHECKING([kernel build system])
 # FIXME FIXME FIXME
-# right now it will assume based on wether it's a 2.6 kernel or not
+# right now it will assume based on the kernel module extension
 EXT_RTFLAGS=""
 BUILD_SYS="normal"
 
@@ -621,6 +544,7 @@ AC_ARG_ENABLE(run-in-place,
     ],
     [
         RUN_IN_PLACE=no
+	AC_MSG_CHECKING(for realtime module directory)
         AC_MSG_RESULT([$MODULE_DIR])
     ])
 
@@ -691,33 +615,15 @@ AC_SUBST([EMC2_IMAGE_DIR])
 
 ##############################################################################
 # Subsection 3.5 - check for GTK                                             #
-#                                                                            #
-# pkg-config and gtk+-2.0 - GTK 2.0                                          #
-# pkg-config and gtk+-2.2 - GTK 2.2                                          #
+# FIXME: allow it to be enabled or disabled command line                     #
 ##############################################################################
 
-# Check for GTK
-# FIXME: allow it to be enabled or disabled command line
-
 AC_MSG_CHECKING([for GTK 2.4.0 or above])
-if type pkg-config 2>/dev/null >/dev/null ; then
-  # found pkg-config, that means GTK 2.x _might_ be installed
-  if pkg-config gtk+-2.0 --atleast-version 2.4.0 ; then
-    # found the .pc file for gtk-2.0
-    GTK_PKG="2.0"
-  elif pkg-config gtk+-2.2 --atleast-version 2.4.0 ; then
-    # found the .pc file for gtk-2.2
-    GTK_PKG="2.2"
-  fi
-fi
-
-if (test "" = "$GTK_PKG" ) ; then
-  AC_MSG_WARN([GTK2 not found, some utilities (halmeter, halscope) will not be built])
-else
-  GTK_VER=`pkg-config gtk+-$GTK_PKG --modversion`
+if pkg-config gtk+-2.0 --atleast-version 2.4.0 >/dev/null 2>&1; then
+  GTK_VER=`pkg-config gtk+-2.0 --modversion`
   AC_MSG_RESULT(yes - $GTK_VER)
-  GTK_CFLAGS=`pkg-config gtk+-$GTK_PKG --cflags`
-  GTK_LIBS=`pkg-config gtk+-$GTK_PKG --libs`
+  GTK_CFLAGS=`pkg-config gtk+-2.0 --cflags`
+  GTK_LIBS=`pkg-config gtk+-2.0 --libs`
   AC_MSG_CHECKING(for libgnomeprintui-2.2)
   if pkg-config --exists libgnomeprintui-2.2; then
     AC_MSG_RESULT(yes)
@@ -728,9 +634,10 @@ else
     AC_MSG_RESULT(no -- printing from classicladder will not be possible)
     HAVE_GNOMEPRINT= 
   fi
+else
+  AC_MSG_WARN([GTK2 not found, some utilities (halscope, halvcp, classicladder) will not be built])
 fi
 AC_SUBST(HAVE_GNOMEPRINT)
-AC_SUBST(GTK_PKG)
 AC_SUBST(GTK_VER)
 AC_SUBST(GTK_LIBS)
 AC_SUBST(GTK_CFLAGS)
@@ -1030,11 +937,6 @@ AH_TOP([/********************************************************************
 * System: Linux
 *    
 * Copyright (c) 2004 All rights reserved.
-*
-* Last change: 
-* $Revision$
-* $Author$
-* $Date$
 ********************************************************************/
 #ifndef EMC2_CONFIG_H
 #define EMC2_CONFIG_H
@@ -1202,7 +1104,6 @@ AC_SUBST([X_CFLAGS])
 
 # check for Xaw, that is needed for emc2/src/emc/usr_intf/xemc.cc
 
-echo "have_x: $have_x"
 if test "$have_x" = "yes"; then
 CFLAGS_hold=$CFLAGS
 LDFLAGS_hold=$LDFLAGS
@@ -1239,7 +1140,6 @@ AC_CHECK_HEADERS(readline/readline.h, [HAVE_READLINE=yes], [HAVE_READLINE=no])
 AC_CHECK_HEADERS(readline/history.h, [], [HAVE_READLINE=no])
 AC_CHECK_LIB(readline, readline, [], [HAVE_READLINE=no])
 
-echo "HAVE_READLINE: $HAVE_READLINE"
 if test "x$HAVE_READLINE" = "xyes"; then
     READLINE_LIBS="-lreadline"
     AC_DEFINE([HAVE_READLINE], [], [Define to 1 if you have the `readline' library (-lreadline) and required headers])
@@ -1349,7 +1249,7 @@ AC_SUBST(MSGFMT)
 
 AC_MSG_CHECKING(--enable-python)
 AC_ARG_ENABLE(python,
-    [  --enable-python         Enable the parts of emc2 that depend on Python],
+    [  --disable-python        Disable the parts of emc2 that depend on Python],
     [
 	case "$enableval" in
 	Y*|y*)
@@ -1408,8 +1308,10 @@ if test "$BUILD_AXIS" = "yes"; then
     )
 fi
 
+AC_MSG_CHECKING([whether to build axis])
 case $BUILD_AXIS in 
-    yes) AC_MSG_RESULT([Will build AXIS]) ;;
+    yes) AC_MSG_RESULT(yes) ;;
+    *) AC_MSG_RESULT(no)
 esac
 
 AC_SUBST([BUILD_AXIS])
