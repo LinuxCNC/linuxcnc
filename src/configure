@@ -3582,6 +3582,7 @@ _ACEOF
 echo "$as_me:$LINENO: checking for GTK2" >&5
 echo $ECHO_N "checking for GTK2... $ECHO_C" >&6
 
+GTK_VER=none
 if type pkg-config 2>/dev/null >/dev/null ; then
   # found pkg-config, that means GTK 2.x _might_ be installed
   if pkg-config gtk+-2.0 --exists ; then

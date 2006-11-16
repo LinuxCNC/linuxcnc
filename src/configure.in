@@ -700,6 +700,7 @@ AC_SUBST([EMC2_IMAGE_DIR])
 # accept GTK_VER from command line
 AC_MSG_CHECKING([for GTK2])
 
+GTK_VER=none
 if type pkg-config 2>/dev/null >/dev/null ; then
   # found pkg-config, that means GTK 2.x _might_ be installed
   if pkg-config gtk+-2.0 --exists ; then
