@@ -699,24 +699,25 @@ AC_SUBST([EMC2_IMAGE_DIR])
 # Check for GTK
 # FIXME: allow it to be enabled or disabled command line
 
-AC_MSG_CHECKING([for GTK2])
+AC_MSG_CHECKING([for GTK 2.4.0 or above])
 if type pkg-config 2>/dev/null >/dev/null ; then
   # found pkg-config, that means GTK 2.x _might_ be installed
-  if pkg-config gtk+-2.0 --exists ; then
+  if pkg-config gtk+-2.0 --atleast-version 2.4.0 ; then
     # found the .pc file for gtk-2.0
-    GTK_VER="2.0"
-  elif pkg-config gtk+-2.2 --exists ; then
+    GTK_PKG="2.0"
+  elif pkg-config gtk+-2.2 --atleast-version 2.4.0 ; then
     # found the .pc file for gtk-2.2
-    GTK_VER="2.2"
+    GTK_PKG="2.2"
   fi
 fi
 
-if (test "" = "$GTK_VER" ) ; then
+if (test "" = "$GTK_PKG" ) ; then
   AC_MSG_WARN([GTK2 not found, some utilities (halmeter, halscope) will not be built])
 else
+  GTK_VER=`pkg-config gtk+-$GTK_PKG --modversion`
   AC_MSG_RESULT(yes - $GTK_VER)
-  GTK_CFLAGS=`pkg-config gtk+-$GTK_VER --cflags`
-  GTK_LIBS=`pkg-config gtk+-$GTK_VER --libs`
+  GTK_CFLAGS=`pkg-config gtk+-$GTK_PKG --cflags`
+  GTK_LIBS=`pkg-config gtk+-$GTK_PKG --libs`
   AC_MSG_CHECKING(for libgnomeprintui-2.2)
   if pkg-config --exists libgnomeprintui-2.2; then
     AC_MSG_RESULT(yes)
@@ -729,7 +730,7 @@ else
   fi
 fi
 AC_SUBST(HAVE_GNOMEPRINT)
-AC_SUBST(GTK_VER)
+AC_SUBST(GTK_PKG)
 AC_SUBST(GTK_VER)
 AC_SUBST(GTK_LIBS)
 AC_SUBST(GTK_CFLAGS)
