@@ -3,37 +3,33 @@ CLASSICLADDERSRCS := $(addprefix hal/classicladder/, \
 	arithm_eval.c \
 	arrays.c \
 	calc.c \
+	calc_sequential.c \
 	classicladder.c \
-	files.c \
-	manager.c \
-	protocol_modbus_slave.c \
-	socket_server.c \
-	vars_access.c \
 	classicladder_gtk.c \
 	config_gtk.c \
 	drawing.c \
+        drawing_sequential.c \
 	edit.c \
 	edit_gtk.c \
+	edit_sequential.c \
 	editproperties_gtk.c \
-	manager_gtk.c) \
-	hal/utils/miscgtk.c
-ifdef SEQUENTIAL_SUPPORT
-CLASSICLADDERSRCS += $(addprefix hal/classicladder/, \
-	calc_sequential.cc \
-	files_sequential.cc)
-endif
+	files.c \
+	files_sequential.c \
+	manager.c \
+	manager_gtk.c \
+        symbols.c \
+        symbols_gtk.c \
+	vars_access.c \
+        ) hal/utils/miscgtk.c
 	
-GTK_CFLAGS +=	-DGTK_INTERFACE
-ifeq ($(GTK_VERSION), 1.2)
-GTK_CFLAGS += -DNO_GTK_STYLE_GET_FONT
+GTK_CFLAGS += -DGTK_INTERFACE -DGTK2
+ifeq ($(HAVE_GNOMEPRINT),yes)
+CLASSICLADDERSRCS += hal/classicladder/print_gnome.c
+GTK_CFLAGS += -DGNOME_PRINT_USE
 endif
 
 
-ifdef SEQUENTIAL_SUPPORT
-$(call TOOBJSDEPS,$(CLASSICLADDERSRCS)) : EXTRAFLAGS = $(GTK_CFLAGS) -DSEQUENTIAL_SUPPORT
-else
-$(call TOOBJSDEPS,$(CLASSICLADDERSRCS)) : EXTRAFLAGS = $(GTK_CFLAGS)
-endif
+$(call TOOBJSDEPS,$(CLASSICLADDERSRCS)) : EXTRAFLAGS = $(GTK_CFLAGS) -DSEQUENTIAL_SUPPORT -DHAL_SUPPORT -DDYNAMIC_PLCSIZE -DRT_SUPPORT
 $(call TOOBJS, $(CLASSICLADDERSRCS)): Makefile.inc
 
 USERSRCS += $(CLASSICLADDERSRCS)

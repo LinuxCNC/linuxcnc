@@ -1,19 +1,14 @@
 
+
 CLASSIC LADDER PROJECT
-Copyright (C) 2001-2004 Marc Le Douarain
-marc.le-douarain AT laposte DOT net
+Copyright (C) 2001-2006 Marc Le Douarain
+marc . le - douarain /AT\ laposte \DOT/ net
 http://www.sourceforge.net/projects/classicladder
 http://www.multimania.com/mavati/classicladder
 February 2001
 
-NOTICE: This version of ClassicLadder has been modified to work with 
-the HAL (hardware abstraction layer), part of the EMC2 project.
-Bugs should be reported to the EMC2 project, not to the original
-author of Classicladder.
-
-
-Version 0.7.3 (28 December 2004)
---------------------------------
+Version 0.7.100 (4 November 2006)
+---------------------------------
 
 
 A project to have a free ladder language in C.
@@ -35,7 +30,7 @@ displaying dynamically it under Gtk, to see if my first idea to realise all
 this works.
 And as quickly I've found that it advanced quite well, I've continued with
 more complex elements : timer, multiples rungs, etc...
-Voilï¿½ here is this work...
+Voilà, here is this work...
 And for the controller at job? Well, in fact, it's already a lot of work to
 do the basic features of the traffic lights and I don't think we will add
 a ladder language to it one day... ;-)
@@ -54,6 +49,7 @@ In the actual version, the following elements are implemented :
    * Rising / falling edges
    * Timers
    * Monostables
+   * Counters (since v0.7.80)
    * Compare of arithmetic expressions (since v0.4)
 
    * Booleans outputs
@@ -74,9 +70,11 @@ You can:
 When editing, use the pointer of the toolbar if you want only to modify properties, else select the element
 you want to place in the rung.
 
-Since v0.5.3, many rungs can be displayed at the same time, and you can use a vertical scollbar.
-The current rung is the rung with the blue bars on each side. It is automatically selected for the moment :
-it is the toppest rung which is completely visible.
+Many rungs can be displayed at the same time, and you can use a vertical scollbar.
+The current rung is the rung with the blue bars on each side. When window resized, it is automatically
+selected by choosing the toppest rung which is completely visible. You can manually select one between the
+others below (if you can see them with a large vertical window).
+
 
 Since v0.5.5, the program can be split in many sections.
 There is a window 'Sections manager' where you can see all the sections defined, add/delete a section,
@@ -96,15 +94,34 @@ bottom part of it is very important !!!
 
 
 List of known variables :
-Bxxx : Bit memory xxx (boolean)
-Wxxx : Word memory xxx (32 bits integer)
-Txx,R : Timer xx running (boolean)
-Txx,D : Timer xx done (boolean)
-Mxx,R : Monostable xx running (boolean)
-Ixxx : Physical input xxx (boolean) - see hardware -
-Qxxx : Physical output xxx (boolean) - see hardware -
-Xxxx : Activity of step xxx (sequential language)
-Xxxx,V : Time of activity in seconds of step xxx (sequential language)
+%Bxxx : Bit memory xxx (boolean)
+%Wxxx : Word memory xxx (32 bits integer)
+%Txx.R : Timer xx running (boolean, user read only)
+%Txx.D : Timer xx done (boolean, user read only)
+%Txx.V : Timer xx current value (integer, user read only)
+%Txx.P : Timer xx preset (integer)
+%Mxx.R : Monostable xx running (boolean)
+%Mxx.V : Monostable xx current value (integer, user read only)
+%Mxx.P : Monostable xx preset (integer)
+%Cxx.D : Counter xx done (boolean, user read only)
+%Cxx.E : Counter xx empty overflow (boolean, user read only)
+%Cxx.F : Counter xx full overflow (boolean, user read only)
+%Cxx.V : Counter xx current value (integer, user read only)
+%Cxx.P : Counter xx preset (integer)
+%Ixxx : Physical input xxx (boolean) - see hardware -
+%Qxxx : Physical output xxx (boolean) - see hardware -
+%Xxxx : Activity of step xxx (sequential language)
+%Xxxx.V : Time of activity in seconds of step xxx (sequential language)
+
+Each variable can be associated to a symbol name that can be then used instead of the
+real variable name.
+Partial symbol or complete symbol are possible.
+A complete symbol corresponds directly to a real variable name:
+ex: "InputK4" => %I17
+A partial symbol is a part of a variable name without an attribute:
+ex: "MyTimer" => %T0 (that can not be used directly, but by adding
+the attribute wanted: MyTimer.D (= %T0.D)
+
 
 ClassicLadder can run in real-time with RTLinux or RTAI (optional). See below.
 
@@ -114,16 +131,23 @@ REQUIREMENTS...
 For using Classic Ladder as it is, you need :
 
    * Linux
-   * Gtk
+   * Gtk version 2
 
-I personnaly used the following distribution : Mandrake v9.2 (kernel v2.4.22)
+I personnaly used the following distribution : Mandriva 2006.
 
 In a console :
 type make if you want to recompile the sources.
 type ./classicladder to launch this project.
 or ./classicladder xxxxxxxx to start with using project datas xxxxxxxx.
 
-Ensure you've the package libgtk+1.2-devel installed before to compile.
+Ensure you've the package libgtk+1.2-devel installed before to compile
+(no more necessary since v0.7.60 using GTK2).
+
+To compile on PowerPC processor, in the Makefile, add the caracter '#' to comment
+the line MAKE_IO_ACCESS.
+
+A Windows port is available, but not with all the i/o features, and in an older
+version.
 
 
 MODBUS SERVER INCLUDED (SLAVE)...
@@ -139,12 +163,167 @@ http://www.sourceforge.net/projects/jamod
 http://www.modicon.com/techpubs/toc7.html
 
 
-HARDWARE...
------------
-This version of ClassicLadder runs in the EMC2 HAL environment. When the real time
-classicladder_rt HAL component is loaded, it exports I/O pins to the HAL which can be
-connected to any other HAL pins. The other HAL pins may represent real hardware pins,
-if exported from a HAL driver.
+REAL-TIME SUPPORT WITH XENOMAI (IN USER-SPACE)...
+-------------------------------------------------
+Added in v0.7.92, september 2006.
+See http://www.xenomai.org
+xeno-config command must be in your path.
+Uncomment the corresponding line in the Makefile.
+Then type "make clean;make" to compile the project.
+With a "./classicladder" you will launch the real-time version !!!
+Xenomai rules! And is advised instead of a RTLinux/RTAI kernel module version.
+To have real-time in user-land is really easier than with the module, the future
+is here, and now !!!
+
+
+REAL-TIME SUPPORT WITH RTLINUX...
+---------------------------------
+To have RTLinux v3 installed before is required (see http://www.rtlinux.org)
+Be sure that the hello example works after RTLinux installation (perhaps
+you will have to type dmesg to verify if the hello texts was correctly displayed).
+With this version, the refresh of the rungs is done in real-time.
+Verify the symbolic link (or real directory depending how you've installed)
+"/usr/rtlinux" pointing on the rtlinux directory, exists.
+Here, I've done the following :
+cd /usr
+ln -sf /usr/src/your-rtlinux+linux-dir/rtlinux-3.1 rtlinux
+
+
+In a console, type the following to recompile and run :
+make clean;make rtl_support
+su
+./run_rt
+
+run_rt script accepts two optional arguments : first for the name of project to load,
+second for a config file with sizes to alloc at startup.
+
+I've tested here the real-time version with RTLinux v3.2pre3 and Linux kernel v2.4.20
+compiled with gcc v3.2
+
+
+REAL-TIME SUPPORT WITH RTAI...
+------------------------------
+Verify the symbolic link (or real directory depending how you've installed)
+"/usr/src/rtai" pointing on the rtai directory, exists.
+Here, I've done the following :
+ln -sf /usr/src/your-rtai  /usr/src/rtai
+
+In a console, type the following to recompile and run :
+make clean
+make rtai_support
+su
+./run_rt
+
+run_rt script accepts two optional arguments : first for the name of project to load,
+second for a config file with sizes to alloc at startup.
+
+Tested with 2.4.22 kernel patched with ADEOS and compiled with gcc-3.2 running
+on a Debian (Sid) system.
+
+
+HARDWARE (LOCAL INPUTS/OUTPUTS)...
+----------------------------------
+Since v0.6.5, hardware interface has been completly rewritten (before limited
+to the parallels ports only).
+First, if you use ClassicLadder to drive real things, it can crash, and I
+will not be responsible if it produces any damages !
+
+You can configure any logical inputs/ouputs with any addresses ports or a
+Comedi device (see www.comedi.org). Comedi is a collection of drivers
+for many data acquisition boards.
+You configure the mapping in the config window : tabs "Inputs" and "Outputs".
+In each line, you set the first logical I/O that will be mapped with the
+hardware you will set.
+For a direct port access, you then give the address in hexa to use.
+For a comedi device, you then give the sub-device associated.
+After, you set the first channel offset and the number of channels
+to map.
+For example : I5 mapped with 4 channels means that I5, I6, I7 and I8
+are affected to an hardware channel. So be carrefull not to overlap.
+
+Comedi or direct access can works with Linux version or RTLinux version.
+For direct access under Linux, the application must be launched as
+root, as it used the ioperm( ) functions.
+
+Per default, Comedi support is not compiled. Take a look at the Makefile
+and uncomment the COMEDI_SUPPORT line.
+Comedi is included since RLinux3.2pre2, but you still must download
+the comedilib archive (comedi_config) !!!
+
+Here I've made a test with the builtin parallel port.
+You will find the 2 projects : 'parallel_port_direct' and
+'parallel_port_comedi'.
+
+Here the pins and I/O map for the direct project:
+
+* -- Parallel port 1 --
+Inputs     DB25Pin     ClassicLadder
+S3         15          I3
+S4         13          I4
+S5         12          I5
+S6         10          I6
+S7         11          I7
+Outputs    DB25Pin     Classicladder
+D0         2           Q0
+D1         3           Q1
+D2         4           Q2
+D3         5           Q3
+D4         6           Q4
+D5         7           Q5
+D6         8           Q6
+D7         9           Q7
+
+I've tested with 3 DELs and 4 switches on the parallel port 1.
+The switches on inputs are linked to ground (pin 24) :
+           _n_
+   (Sx) o--   --O (24)
+
+The DELs are linked in serial with a resistance of 330 ohms to ground (pin 25) :
+                      ,
+   (Dx) o--[ 330 ]--|>|--o (25)
+
+
+HARDWARE (DISTRIBUTED INPUTS/OUTPUTS)...
+----------------------------------------
+ClassicLadder can use distributed inputs/outputs on modules using the modbus
+protocol ("master": pooling slaves).
+The slaves and theirs I/O can be configured in the config window.
+2 exclusive modes are available : ethernet using Modbus/TCP and serial using Modbus/RTU.
+For the serial one, the serial port and the speed must be correctly set in the config file
+(manually with a text editor), and then you must pass this file to classicladder with -c
+argument. No parity is used.
+If no port name for serial is set, IP mode will be used...
+The slave address is the slave address (Modbus/RTU) or the IP address.
+The IP address can be followed per the port number to use (xx.xx.xx.xx:pppp) else
+the port 502 will be used per default.
+The modbus address element 1 is the first one (0 in the frame).
+2 products have been used for tests: a Modbus/TCP one (Adam-6051, http://www.advantech.com)
+and a serial Modbus/RTU one (http://www.ipac.ws)
+See examples: adam-6051 and modbus_rtu_serial.
+Web links: http://www.modbus.org and this interesting one: http://www.iatips.com/modbus.html
+
+
+EMBEDDED VERSION...
+-------------------
+If you want to make an embedded version of classicladder without the GTK interface:
+comment the GTK_INTERFACE line in the Makefile.
+Type 'CRTL-C' if you want to exit the Linux application.
+
+Since v0.6.4 it is possible to define maximum sizes for the differents arrays to save
+a lot of memory if you're short on it on your target.
+You must give a config file at startup...
+
+
+LINKS...
+--------
+You should take a look at the MAT project. Classicladder has been integrated to this project to
+have a relay ladder logic to program this PLC.
+http://mat.sourceforge.net/
+
+Another project using ClassicLadder: EMC2, used to control machine tools.
+http://www.linuxcnc.org/
+
+Comedi project at www.comedi.org
 
 
 KNOWN LIMITATIONS /  BUGS...
@@ -157,29 +336,13 @@ KNOWN LIMITATIONS /  BUGS...
 * Scan of physical inputs are not filtered.
 * If you add an arithmetic expression (eval or compar), and let it blank, its buffer will be
   reused again next time you add one.
-* The rung activated, is always the rung which is on the top visible (clicking on another one has
-  no effect for now).
+* Modbus master for distributed I/O recently developped, should be use with caution...
+  Generally, the logic used on a PLC is: get inputs, apply logic (rungs/grafcet), and then
+  set ouputs, but it is absolutely not the case with distributed I/O. Perhaps it could cause
+  some troubles...?
 
-  
-FUTURE / TO DO...
------------------
-* New words variables : Txx,V Txx,P Mxx,V Mxx,P : timers and monostables presets and
-  current values (integers)
-* To have the following functions modes for the timers family : TON, TOFF, TP as
-  defined in IEC61131. And delete the monostables???
-* Perhaps the config file with sizes should be placed directly in each project dir?. So
-  in the config window we can modify the values associated to the current project
-  edited. Theses new values would be taken into account at the next run of classicladder
-  with this project path given at startup.
-  Add 'refresh_time' parameter in the config file (actually 100 ms in hard).
-* For the library, defining 4 functions pointers for I/O access instead of some duplicated
-  code?
-* Mnemonics possible for all variables. Adding the '%' caracter at the beginning of all
-  official variables names and take a look at the same time to be in conformity with
-  IEC61131.
-* Add new family blocks: counters.
-* Add filter value in ms on each line in config input window.
-* Modbus/UDP mode support.
-* Your ideas, improvements, bug-fixes (?!?!), etc...
 
+FUTURE / TO DO LIST...
+----------------------
+see file TODO.txt
 

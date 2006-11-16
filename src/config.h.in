@@ -29,7 +29,7 @@
 
 /* Assorted defines used through out the source code. */
 #define ACTIVE_G_CODES 13
-#define ACTIVE_M_CODES 9
+#define ACTIVE_M_CODES 7
 #define ACTIVE_SETTINGS 3
 
 #define MM_PER_INCH 25.4
@@ -38,9 +38,6 @@
 #define LINEAR_TOLERANCE 0.0001
 #define ANGULAR_TOLERANCE 0.0001
 
-
-/* asm/bitops.h is usable from userspace */
-#undef ASM_BITOPS_H_USABLE
 
 /* Directory for binaries */
 #undef EMC2_BIN_DIR
@@ -71,6 +68,10 @@
 
 /* Define to 1 if you have the <GL/gl.h> header file. */
 #undef HAVE_GL_GL_H
+
+/* Define to 1 if you have the 'libgnomeprintui' library and required headers
+   */
+#undef HAVE_GNOMEPRINT
 
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H

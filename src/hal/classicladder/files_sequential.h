@@ -1,3 +1,3 @@
 
-char LoadSequential(char *FileName);
-char SaveSequential(char *FileName);
+char LoadSequential(char * FileName);
+char SaveSequential(char * FileName);
