@@ -56,9 +56,6 @@ GtkWidget *HScrollBar;
 GtkAdjustment * AdjustVScrollBar;
 GtkAdjustment * AdjustHScrollBar;
 GtkWidget *FileSelector;
-#ifdef GTK2
-GtkFileFilter *FilterForFileSelector = NULL;
-#endif
 GtkWidget *ConfirmDialog;
 GtkWidget *RungWindow;
 
@@ -565,14 +562,6 @@ void CreateFileSelection(char * Prompt,int Save)
                             G_CALLBACK (gtk_widget_destroy),
                             GTK_OBJECT (FileSelector));
 
-/*	if (FilterForFileSelector == NULL)
-	{
-		FilterForFileSelector = gtk_file_filter_new();
-		gtk_file_filter_add_pattern (FilterForFileSelector, "*.clp");
-		gtk_file_filter_add_pattern (FilterForFileSelector, "*.csv"); // old dir projects
-	}
-	gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(FileSelector), FilterForFileSelector);
-*/
 	#endif
     
    /* Display that dialog */
