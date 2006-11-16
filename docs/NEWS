@@ -1,6 +1,8 @@
 # some of EMC2 History & News
 #############################
 
+2006.11.15 - merged classicladder 0.7.100
+
 2006.11.04 - added a feed-hold HAL pin.  Added M codes to enable/disable
 	     feed override, spindle override, feed hold, and adaptive feed
 	     individually.  Feed override is M50, spindle override is M51,
