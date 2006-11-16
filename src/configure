@@ -312,7 +312,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS AUTODIRS PACKAGE EMC2VERSION SIMULATOR PTH_CONFIG RTNAME RTAI RTLINUX RTLINUXPRO RTPREFIX KERNELDIR RTFLAGS RTDIR EMC2_HOME CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CPP WFLAGS DEPSTYLE ASM_BITOPS_DEFINE EGREP KERNEL_VERS BUILD_SYS EXT_RTFLAGS MODEXT MODULE_DIR RIP_MODULE_DIR RUN_IN_PLACE EMC2_BIN_DIR EMC2_TCL_DIR EMC2_HELP_DIR EMC2_RTLIB_DIR EMC2_LANG_DIR EMC2_CONFIG_PATH EMC2_NCFILES_DIR REALTIME EMC2_IMAGE_DIR GTK_VER GTK_LIBS GTK_CFLAGS CXX CXXFLAGS ac_ct_CXX SET_MAKE RANLIB ac_ct_RANLIB AR GREP INSTALL SED PS KILL WHOAMI AWK INSMOD RMMOD LSMOD PIDOF IPCS FUSER MANDB PYTHON LYX PDFLATEX LATEX2HTML EPSTOPDF BUILD_DOCS USE_LIBM USE_STUBS USE_RTLIBM MATHINC MATHLIB RTAI3_MOD RTAI_MOD RTL_MOD MODPATH_adeos MODPATH_rtai_hal MODPATH_rtai_ksched MODPATH_rtai_fifos MODPATH_rtai_shm MODPATH_rtai_sem MODPATH_rtai_math MODPATH_rtai MODPATH_rt_mem_mgr MODPATH_rtai_sched MODPATH_rtai_libm MODPATH_rtl MODPATH_mbuff MODPATH_rtl_time MODPATH_rtl_sched MODPATH_rtl_posixio MODPATH_rtl_fifo TCL_DBGX TK_DBGX TCL_CFLAGS TK_CFLAGS TCL_LIBS TK_LIBS WISH DATE X_CFLAGS X_PRE_LIBS X_LIBS X_EXTRA_LIBS HAVE_XAW XAW_LIBS HAVE_READLINE READLINE_LIBS HAVE_NCURSES NCURSES_LIBS USE_NLS HAVE_LOCALE_H LANGUAGES HAVE_LIBINTL_H HAVE_LIBINTL LOCALEDIR XGETTEXT XGETTEXT_TCL_WORKS MSGFMT MSGFMT_TCL_WORKS BUILD_AXIS BUILD_PYTHON INCLUDEPY SITEPY LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS AUTODIRS PACKAGE EMC2VERSION SIMULATOR PTH_CONFIG RTNAME RTAI RTLINUX RTLINUXPRO RTPREFIX KERNELDIR RTFLAGS RTDIR EMC2_HOME CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CPP WFLAGS DEPSTYLE ASM_BITOPS_DEFINE EGREP KERNEL_VERS BUILD_SYS EXT_RTFLAGS MODEXT MODULE_DIR RIP_MODULE_DIR RUN_IN_PLACE EMC2_BIN_DIR EMC2_TCL_DIR EMC2_HELP_DIR EMC2_RTLIB_DIR EMC2_LANG_DIR EMC2_CONFIG_PATH EMC2_NCFILES_DIR REALTIME EMC2_IMAGE_DIR HAVE_GNOMEPRINT GTK_VER GTK_LIBS GTK_CFLAGS CXX CXXFLAGS ac_ct_CXX SET_MAKE RANLIB ac_ct_RANLIB AR GREP INSTALL SED PS KILL WHOAMI AWK INSMOD RMMOD LSMOD PIDOF IPCS FUSER MANDB PYTHON LYX PDFLATEX LATEX2HTML EPSTOPDF BUILD_DOCS USE_LIBM USE_STUBS USE_RTLIBM MATHINC MATHLIB RTAI3_MOD RTAI_MOD RTL_MOD MODPATH_adeos MODPATH_rtai_hal MODPATH_rtai_ksched MODPATH_rtai_fifos MODPATH_rtai_shm MODPATH_rtai_sem MODPATH_rtai_math MODPATH_rtai MODPATH_rt_mem_mgr MODPATH_rtai_sched MODPATH_rtai_libm MODPATH_rtl MODPATH_mbuff MODPATH_rtl_time MODPATH_rtl_sched MODPATH_rtl_posixio MODPATH_rtl_fifo TCL_DBGX TK_DBGX TCL_CFLAGS TK_CFLAGS TCL_LIBS TK_LIBS WISH DATE X_CFLAGS X_PRE_LIBS X_LIBS X_EXTRA_LIBS HAVE_XAW XAW_LIBS HAVE_READLINE READLINE_LIBS HAVE_NCURSES NCURSES_LIBS USE_NLS HAVE_LOCALE_H LANGUAGES HAVE_LIBINTL_H HAVE_LIBINTL LOCALEDIR XGETTEXT XGETTEXT_TCL_WORKS MSGFMT MSGFMT_TCL_WORKS BUILD_AXIS BUILD_PYTHON INCLUDEPY SITEPY LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -3573,46 +3573,49 @@ _ACEOF
 ##############################################################################
 # Subsection 3.5 - check for GTK                                             #
 #                                                                            #
-# Provides the user the possibility to specify (--with-gtk_ver=<version>)    #
-# If not specified a search for a gtk script is done:                        #
-# gtk-config  - GTK 1.2                                                      #
 # pkg-config and gtk+-2.0 - GTK 2.0                                          #
 # pkg-config and gtk+-2.2 - GTK 2.2                                          #
 ##############################################################################
 
 # Check for GTK
 # accept GTK_VER from command line
-echo "$as_me:$LINENO: checking for GTK" >&5
-echo $ECHO_N "checking for GTK... $ECHO_C" >&6
+echo "$as_me:$LINENO: checking for GTK2" >&5
+echo $ECHO_N "checking for GTK2... $ECHO_C" >&6
 
 if type pkg-config 2>/dev/null >/dev/null ; then
-# found pkg-config, that means GTK 2.x _might_ be installed
-if pkg-config gtk+-2.0 --exists ; then
-  # found the .pc file for gtk-2.0
-  GTK_VER="2.0"
-elif pkg-config gtk+-2.2 --exists ; then
-  # found the .pc file for gtk-2.2
-  GTK_VER="2.2"
+  # found pkg-config, that means GTK 2.x _might_ be installed
+  if pkg-config gtk+-2.0 --exists ; then
+    # found the .pc file for gtk-2.0
+    GTK_VER="2.0"
+  elif pkg-config gtk+-2.2 --exists ; then
+    # found the .pc file for gtk-2.2
+    GTK_VER="2.2"
+  fi
 fi
 
-echo "$as_me:$LINENO: result: $GTK_VER" >&5
-echo "${ECHO_T}$GTK_VER" >&6
 if (test "none" = "$GTK_VER" ) ; then
   { echo "$as_me:$LINENO: WARNING: GTK2 not found, some utilities (halmeter, halscope) will not be built" >&5
 echo "$as_me: WARNING: GTK2 not found, some utilities (halmeter, halscope) will not be built" >&2;}
 else
+  echo "$as_me:$LINENO: result: yes - $GTK_VER" >&5
+echo "${ECHO_T}yes - $GTK_VER" >&6
   GTK_CFLAGS=`pkg-config gtk+-$GTK_VER --cflags`
   GTK_LIBS=`pkg-config gtk+-$GTK_VER --libs`
+  echo "$as_me:$LINENO: checking for libgnomeprintui-2.2" >&5
+echo $ECHO_N "checking for libgnomeprintui-2.2... $ECHO_C" >&6
   if pkg-config --exists libgnomeprintui-2.2; then
-
-cat >>confdefs.h <<\_ACEOF
-#define HAVE_GNOMEPRINT
-_ACEOF
-
-    GTK_CFLAGS="$GTK_CFLAGS `pkg-config --cflags libgnomeprintui-2.2`
-    GTK_LIBS="$GTK_LIBS `pkg-config --libs libgnomeprintui-2.2`
+    echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6
+    GTK_CFLAGS="$GTK_CFLAGS `pkg-config --cflags libgnomeprintui-2.2`"
+    GTK_LIBS="$GTK_LIBS `pkg-config --libs libgnomeprintui-2.2`"
+    HAVE_GNOMEPRINT=yes
+  else
+    echo "$as_me:$LINENO: result: no -- printing from classicladder will not be possible" >&5
+echo "${ECHO_T}no -- printing from classicladder will not be possible" >&6
+    HAVE_GNOMEPRINT=
   fi
 fi
+
 
 
 
@@ -10376,6 +10379,7 @@ s,@EMC2_CONFIG_PATH@,$EMC2_CONFIG_PATH,;t t
 s,@EMC2_NCFILES_DIR@,$EMC2_NCFILES_DIR,;t t
 s,@REALTIME@,$REALTIME,;t t
 s,@EMC2_IMAGE_DIR@,$EMC2_IMAGE_DIR,;t t
+s,@HAVE_GNOMEPRINT@,$HAVE_GNOMEPRINT,;t t
 s,@GTK_VER@,$GTK_VER,;t t
 s,@GTK_LIBS@,$GTK_LIBS,;t t
 s,@GTK_CFLAGS@,$GTK_CFLAGS,;t t
