@@ -178,7 +178,7 @@ arithmtype Variable(void)
     }
 }
 
-arithmtype Function()
+arithmtype Function(void)
 {
 	char tcFonc[ 20 ], *pFonc;
 	int Res = 0;
