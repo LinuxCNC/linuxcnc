@@ -56,7 +56,7 @@
 
 
 \newline 
-V2.0 User Handbook
+V2.1 User Handbook
 \layout Author
 \added_space_top medskip 
 The EMC Team
@@ -123,7 +123,7 @@ Configuring EMC2
 \layout Standard
 
 
-\begin_inset Include \input{config/stepper.lyx}
+\begin_inset Include \include{config/stepper.lyx}
 preview false
 
 \end_inset 
@@ -132,7 +132,7 @@ preview false
 \layout Standard
 
 
-\begin_inset Include \input{config/ini_config.lyx}
+\begin_inset Include \include{config/ini_config.lyx}
 preview false
 
 \end_inset 
@@ -141,7 +141,7 @@ preview false
 \layout Standard
 
 
-\begin_inset Include \input{config/ini_homing.lyx}
+\begin_inset Include \include{config/ini_homing.lyx}
 preview false
 
 \end_inset 
@@ -150,7 +150,7 @@ preview false
 \layout Standard
 
 
-\begin_inset Include \input{hal/intro.lyx}
+\begin_inset Include \include{hal/intro.lyx}
 preview false
 
 \end_inset 
@@ -159,8 +159,8 @@ preview false
 \layout Standard
 
 
-\begin_inset Include \input{hal/tutorial.lyx}
-preview true
+\begin_inset Include \include{hal/tutorial.lyx}
+preview false
 
 \end_inset 
 
@@ -168,7 +168,7 @@ preview true
 \layout Standard
 
 
-\begin_inset Include \input{hal/drivers.lyx}
+\begin_inset Include \include{hal/drivers.lyx}
 preview false
 
 \end_inset 
@@ -180,7 +180,7 @@ Using EMC2
 \layout Standard
 
 
-\begin_inset Include \input{gui/axis.lyx}
+\begin_inset Include \include{gui/axis.lyx}
 preview false
 
 \end_inset 
@@ -189,25 +189,7 @@ preview false
 \layout Standard
 
 
-\begin_inset Include \input{gui/tkemc.lyx}
-preview true
-
-\end_inset 
-
-
-\layout Standard
-
-
-\begin_inset Include \input{gui/mini.lyx}
-preview true
-
-\end_inset 
-
-
-\layout Standard
-
-
-\begin_inset Include \input{gcode/main.lyx}
+\begin_inset Include \include{gui/tkemc.lyx}
 preview false
 
 \end_inset 
@@ -216,7 +198,7 @@ preview false
 \layout Standard
 
 
-\begin_inset Include \input{gcode/coordinates.lyx}
+\begin_inset Include \include{gui/mini.lyx}
 preview false
 
 \end_inset 
@@ -225,7 +207,25 @@ preview false
 \layout Standard
 
 
-\begin_inset Include \input{gcode/mill_canned.lyx}
+\begin_inset Include \include{gcode/main.lyx}
+preview false
+
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset Include \include{gcode/coordinates.lyx}
+preview false
+
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset Include \include{gcode/mill_canned.lyx}
 preview false
 
 \end_inset 
