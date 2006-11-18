@@ -224,11 +224,6 @@ struct halui_str {
     hal_bit_t *program_bd_off;     //pin for setting block delete off
     hal_bit_t *program_bd_is_on;   //status pin that block delete is on
 
-    hal_s32_t *jog_wheel_counts;
-    hal_u8_t *jog_wheel_axis;
-    hal_float_t *jog_wheel_scale;
-    hal_float_t *jog_wheel_speed;
-
     hal_u32_t *tool_number;		//pin for current selected tool
     hal_float_t *tool_length_offset;	//current applied tool-length-offset
 
@@ -303,11 +298,6 @@ struct local_halui_str {
     hal_bit_t program_os_off;     //pin for setting optional stop off
     hal_bit_t program_bd_on;      //pin for setting block delete on
     hal_bit_t program_bd_off;     //pin for setting block delete off
-
-    hal_s32_t jog_wheel_counts;
-    hal_u8_t jog_wheel_axis;
-    hal_float_t jog_wheel_scale;
-    hal_float_t jog_wheel_speed;
 
     hal_bit_t spindle_start;      //pin for starting the spindle
     hal_bit_t spindle_stop;       //pin for stoping the spindle
@@ -814,16 +804,6 @@ int halui_hal_init(void)
     retval = halui_export_pin_IN_bit(&(halui_data->program_bd_off), "halui.program.block-delete.off"); 
     if (retval != HAL_SUCCESS) return retval;
 
-    retval = halui_export_pin_IN_s32(&(halui_data->jog_wheel_counts), "halui.jog-wheel.counts");
-    if (retval != HAL_SUCCESS) return retval;
-    *halui_data->jog_wheel_counts = 0;
-    retval = halui_export_pin_IN_u8(&(halui_data->jog_wheel_axis), "halui.jog-wheel.axis");
-    if (retval != HAL_SUCCESS) return retval;
-    retval = halui_export_pin_IN_float(&(halui_data->jog_wheel_scale), "halui.jog-wheel.scale");
-    if (retval != HAL_SUCCESS) return retval;
-    retval = halui_export_pin_IN_float(&(halui_data->jog_wheel_speed), "halui.jog-wheel.speed");
-    if (retval != HAL_SUCCESS) return retval;
-
     retval = halui_export_pin_IN_bit(&(halui_data->spindle_start), "halui.spindle.start");
     if (retval != HAL_SUCCESS) return retval;
     retval = halui_export_pin_IN_bit(&(halui_data->spindle_stop), "halui.spindle.stop");
@@ -1199,29 +1179,6 @@ static int sendProgramStep()
 
     return 0;
 }
-
-static int sendJogIncr(int axis, double speed, double incr)
-{
-    EMC_AXIS_INCR_JOG emc_axis_incr_jog_msg;
-
-    if (axis < 0 || axis >= EMC_AXIS_MAX) {
-	return -1;
-    }
-
-    emc_axis_incr_jog_msg.serial_number = ++emcCommandSerialNumber;
-    emc_axis_incr_jog_msg.axis = axis;
-    emc_axis_incr_jog_msg.vel = speed;
-    emc_axis_incr_jog_msg.incr = incr;
-    emcCommandBuffer->write(emc_axis_incr_jog_msg);
-
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived(emcCommandSerialNumber);
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone(emcCommandSerialNumber);
-    }
-    return 0;
-}
-
 
 static int sendSpindleForward()
 {
@@ -1829,15 +1786,6 @@ static void check_hal_changes()
 
     if (check_bit_changed(halui_data->program_step, &(old_halui_data.program_step)) != 0)
 	sendProgramStep();
-
-    counts = *halui_data->jog_wheel_counts;
-    if(counts != old_halui_data.jog_wheel_counts) {
-        sendJogIncr(*halui_data->jog_wheel_axis, 
-                *halui_data->jog_wheel_speed,
-                (counts - old_halui_data.jog_wheel_counts) *
-                *halui_data->jog_wheel_scale);
-        old_halui_data.jog_wheel_counts = counts;
-    }
 
     //feed-override stuff
     counts = *halui_data->fo_counts;
