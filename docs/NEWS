@@ -1,6 +1,12 @@
 # some of EMC2 History & News
 #############################
 
+2006.11.17 - removed HAL types s8, u8, s16, and u16.  HAL now uses float
+	     for analog values, bit for booleans, and s32 or u32 for
+	     integer values.  The only users who will be affected are
+	     those with Universal Stepper Controller cards.  See item 9 at
+	     http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?UpdatingConfigurationsForDevelopmentVersions
+
 2006.11.15 - merged classicladder 0.7.100
 
 2006.11.04 - added a feed-hold HAL pin.  Added M codes to enable/disable
