@@ -611,18 +611,6 @@ int halui_export_pin_IN_s32(hal_s32_t **pin, char name[HAL_NAME_LEN+2])
     return HAL_SUCCESS;
 }
 
-int halui_export_pin_IN_u8(hal_u8_t **pin, char name[HAL_NAME_LEN+2]) 
-{
-    int retval;
-    retval = hal_pin_u8_new(name, HAL_IN, pin, comp_id);
-    if (retval != HAL_SUCCESS) {
-	rtapi_print_msg(RTAPI_MSG_ERR,"HALUI: ERROR: halui pin %s export failed with err=%i\n", name, retval);
-	hal_exit(comp_id);
-	return -1;
-    }
-    return HAL_SUCCESS;
-}
-
 int halui_export_pin_IN_float(hal_float_t **pin, char name[HAL_NAME_LEN+2]) 
 {
     int retval;
