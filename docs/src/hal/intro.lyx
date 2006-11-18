@@ -50,7 +50,12 @@ Introduction
 What is HAL?
 \layout Standard
 
-HAL stands for Hardware Abstraction Layer.
+HAL
+\begin_inset LatexCommand \index{HAL}
+
+\end_inset 
+
+ stands for Hardware Abstraction Layer.
  At the highest level, it is simply a way to allow a number of 
 \begin_inset Quotes eld
 \end_inset 
@@ -81,7 +86,12 @@ HAL is based on the same principles that are used to design hardware circuits
  and systems, so it is useful to examine those principles first.
 \layout Standard
 
-Any system (including a CNC machine), consists of interconnected components.
+Any system (including a CNC
+\begin_inset LatexCommand \index{CNC}
+
+\end_inset 
+
+ machine), consists of interconnected components.
  For the CNC machine, those components might be the main controller, servo
  amps or stepper drives, motors, encoders, limit switches, pushbutton pendants,
  perhaps a VFD for the spindle drive, a PLC to run a toolchanger, etc.
@@ -92,7 +102,8 @@ Any system (including a CNC machine), consists of interconnected components.
 Part Selection
 \layout Standard
 
-The machine builder does not need to worry about how each individual part works.
+The machine builder does not need to worry about how each individual part
+ works.
  He treats them as black boxes.
  During the design stage, he decides which parts he is going to use - steppers
  or servos, which brand of servo amp, what kind of limit switches and how
@@ -122,8 +133,8 @@ The designer of a hardware system not only selects the parts, he also decides
  Each black box has terminals, perhaps only two for a simple switch, or
  dozens for a servo drive or PLC.
  They need to be wired together.
- The motors connect to the servo amps,
- the limit switches connect to the controller, and so on.
+ The motors connect to the servo amps, the limit switches connect to the
+ controller, and so on.
  As the machine builder works on the design, he creates a large wiring diagram
  that shows how all the parts should be interconnected.
 \layout Standard
@@ -185,13 +196,13 @@ Testing
 \layout Standard
 
 Very few machines work right the first time.
- While testing, the builder may use a meter to see whether a limit switch is working
- or to measure the DC voltage going to a servo motor.
+ While testing, the builder may use a meter to see whether a limit switch
+ is working or to measure the DC voltage going to a servo motor.
  He may hook up an oscilloscope to check the tuning of a drive, or to look
  for electrical noise.
- He may find a problem that requires the wiring diagram to be changed;
- perhaps a part needs to be connected differently or replaced with something
- completely different.
+ He may find a problem that requires the wiring diagram to be changed; perhaps
+ a part needs to be connected differently or replaced with something completely
+ different.
 \layout Standard
 
 HAL provides the software equivalents of a voltmeter, oscilloscope, signal
@@ -219,18 +230,17 @@ The traditional hardware design as described above ends at the edge of the
 HAL extends this traditional hardware design method to the inside of the
  big black box.
  It makes device drivers and even some internal parts of the controller
- into smaller black boxes that can be interconnected and even replaced
- just like the external hardware.
+ into smaller black boxes that can be interconnected and even replaced just
+ like the external hardware.
  It allows the 
 \begin_inset Quotes eld
-\end_inset
+\end_inset 
 
 system wiring diagram
 \begin_inset Quotes erd
-\end_inset
+\end_inset 
 
-to show part of the internal controller,
- rather than just a big black box.
+to show part of the internal controller, rather than just a big black box.
  And most importantly it allows the integrator to test and modify the controller
  using the same methods he would use on the rest of the hardware.
 \layout Standard
@@ -274,8 +284,13 @@ l order.
  
 \layout Description
 
-Component: When we talked about hardware design, we referred to the individual
- pieces as "parts", "building blocks", "black boxes", etc.
+Component
+\begin_inset LatexCommand \index{HAL Component}
+
+\end_inset 
+
+: When we talked about hardware design, we referred to the individual pieces
+ as "parts", "building blocks", "black boxes", etc.
  The HAL equivalent is a "component" or "HAL component".
  (This document uses "HAL component" when there is likely to be confusion
  with other kinds of components, but normally just uses "component".) A HAL
@@ -284,20 +299,30 @@ Component: When we talked about hardware design, we referred to the individual
  
 \layout Description
 
-Parameter: Many hardware components have adjustments that are not connected
- to any other components but still need to be accessed.
+Parameter
+\begin_inset LatexCommand \index{HAL Parameter}
+
+\end_inset 
+
+: Many hardware components have adjustments that are not connected to any
+ other components but still need to be accessed.
  For example, servo amps often have trim pots to allow for tuning adjustments,
  and test points where a meter or scope can be attached to view the tuning
  results.
  HAL components also can have such items, which are referred to as "parameters".
- There are two types of parameters:
- Input parameters are equivalent to trim pots - they are values that can
- be adjusted by the user, and remain fixed once they are set.
+ There are two types of parameters: Input parameters are equivalent to trim
+ pots - they are values that can be adjusted by the user, and remain fixed
+ once they are set.
  Output parameters cannot be adjusted by the user - they are equivalent
  to test points that allow internal signals to be monitored.
 \layout Description
 
-Pin: Hardware components have terminals which are used to interconnect them.
+Pin
+\begin_inset LatexCommand \index{HAL Pin}
+
+\end_inset 
+
+: Hardware components have terminals which are used to interconnect them.
  The HAL equivalent is a "pin" or "HAL pin".
  ("HAL pin" is used when needed to avoid confusion.) All HAL pins are named,
  and the pin names are used when interconnecting them.
@@ -305,8 +330,13 @@ Pin: Hardware components have terminals which are used to interconnect them.
  
 \layout Description
 
-Physical_Pin: Many I/O devices have real physical pins or terminals that
- connect to external hardware, for example the pins of a parallel port connector.
+Physical_Pin
+\begin_inset LatexCommand \index{HAL Physical-Pin}
+
+\end_inset 
+
+: Many I/O devices have real physical pins or terminals that connect to
+ external hardware, for example the pins of a parallel port connector.
  To avoid confusion, these are referred to as "physical pins".
  These are the things that 
 \begin_inset Quotes eld
@@ -332,15 +362,25 @@ Might need some explanation how HAL_pins and Physical pin relates to something
 
 \layout Description
 
-Signal: In a physical machine, the terminals of real hardware components
- are interconnected by wires.
+Signal
+\begin_inset LatexCommand \index{HAL Signal}
+
+\end_inset 
+
+: In a physical machine, the terminals of real hardware components are interconn
+ected by wires.
  The HAL equivalent of a wire is a "signal" or "HAL signal".
  HAL signals connect HAL pins together as required by the machine builder.
  HAL signals can be disconnected and reconnected at will (even while the
  machine is running).
 \layout Description
 
-Type: When using real hardware, you would not connect a 24 volt relay output
+Type
+\begin_inset LatexCommand \index{HAL Type}
+
+\end_inset 
+
+: When using real hardware, you would not connect a 24 volt relay output
  to the +/-10V analog input of a servo amp.
  HAL pins have the same restrictions, which are based upon their type.
  Both pins and signals have types, and signals can only be connected to
@@ -377,34 +417,6 @@ float
 
 
 \noun on 
-u8
-\noun default 
- - an 8 bit unsigned integer, legal values are 0 to +255
-\layout Itemize
-
-
-\noun on 
-s8
-\noun default 
- - an 8 bit signed integer, legal values are -128 to +127
-\layout Itemize
-
-
-\noun on 
-u16 
-\noun default 
-- a 16 bit unsigned integer, legal values are 0 to +65535
-\layout Itemize
-
-
-\noun on 
-s16
-\noun default 
- - a 16 bit signed integer, legal values are -32768 to +32767
-\layout Itemize
-
-
-\noun on 
 u32
 \noun default 
  - a 32 bit unsigned integer, legal values are 0 to +4294967295
@@ -422,7 +434,12 @@ s32
 
 \end_inset 
 
-Function: Real hardware components tend to act immediately on their inputs.
+Function
+\begin_inset LatexCommand \index{HAL Function}
+
+\end_inset 
+
+: Real hardware components tend to act immediately on their inputs.
  For example, if the input voltage to a servo amp changes, the output also
  changes automatically.
  However software components cannot act "automatically".
@@ -446,25 +463,29 @@ Function: Real hardware components tend to act immediately on their inputs.
 
 \end_inset 
 
-Thread: A "thread" is a list of functions that runs at specific intervals
- as part of a realtime task.
+Thread
+\begin_inset LatexCommand \index{HAL Thread}
+
+\end_inset 
+
+: A "thread" is a list of functions that runs at specific intervals as part
+ of a realtime task.
  When a thread is first created, it has a specific time interval (period),
  but no functions.
  Functions can be added to the thread, and will be executed in order every
  time the thread runs.
 \layout Standard
 
-As an example, suppose
- we have a parport component named hal_parport.
+As an example, suppose we have a parport component named hal_parport.
  That component defines one or more HAL pins for each physical pin.
  The pins are described in that component's doc section: their names, how
  each pin relates to the physical pin, are they inverted, can you change
  polarity, etc.
  But that alone doesn't get the data from the HAL pins to the physical pins.
  It takes code to do that, and that is where functions come into the picture.
- The parport component needs at least two functions:
- one to read the physical input pins and update the HAL pins, the other
- to take data from the HAL pins and write it to the physical output pins.
+ The parport component needs at least two functions: one to read the physical
+ input pins and update the HAL pins, the other to take data from the HAL
+ pins and write it to the physical output pins.
  Both of these functions are part of the parport driver.
  
 \layout Section
@@ -492,20 +513,40 @@ Each HAL component is a piece of software with well-defined inputs, outputs,
 External Programs with HAL hooks
 \layout Description
 
-motion A realtime module that accepts NML motion commands and interacts
- with HAL 
+motion
+\begin_inset LatexCommand \index{motion}
+
+\end_inset 
+
+ A realtime module that accepts NML motion commands and interacts with HAL
+ 
 \layout Description
 
-iocontrol A user space module that accepts NML I/O commands and interacts
- with HAL 
+iocontrol
+\begin_inset LatexCommand \index{iocontrol}
+
+\end_inset 
+
+ A user space module that accepts NML I/O commands and interacts with HAL
+ 
 \layout Description
 
-classicladder A PLC using HAL for all I/O
+classicladder
+\begin_inset LatexCommand \index{classicladder}
+
+\end_inset 
+
+ A PLC using HAL for all I/O
 \layout Description
 
-halui A user space program that interacts with HAL and sends NML commands
- (note: right now experimental), it is intended to work as a full User Interface
- using external knobs & switches 
+halui
+\begin_inset LatexCommand \index{halui}
+
+\end_inset 
+
+ A user space program that interacts with HAL and sends NML commands, it
+ is intended to work as a full User Interface using external knobs & switches
+ 
 \layout Subsection
 
 
@@ -516,7 +557,12 @@ halui A user space program that interacts with HAL and sends NML commands
 Internal Components
 \layout Description
 
-stepgen Software step pulse generator with position loop.
+stepgen
+\begin_inset LatexCommand \index{stepgen}
+
+\end_inset 
+
+ Software step pulse generator with position loop.
  See section 
 \begin_inset LatexCommand \ref{sec:Stepgen}
 
@@ -525,7 +571,12 @@ stepgen Software step pulse generator with position loop.
 
 \layout Description
 
-freqgen Software step pulse generator.
+freqgen
+\begin_inset LatexCommand \index{freqgen}
+
+\end_inset 
+
+ Software step pulse generator.
  See section 
 \begin_inset LatexCommand \ref{sec:Freqgen}
 
@@ -534,7 +585,12 @@ freqgen Software step pulse generator.
 
 \layout Description
 
-encoder Software based encoder counter.
+encoder
+\begin_inset LatexCommand \index{encoder}
+
+\end_inset 
+
+ Software based encoder counter.
  See section 
 \begin_inset LatexCommand \ref{sec:Encoder}
 
@@ -543,7 +599,12 @@ encoder Software based encoder counter.
 
 \layout Description
 
-pid Proportional/Integral/Derivative control loops.
+pid
+\begin_inset LatexCommand \index{pid}
+
+\end_inset 
+
+ Proportional/Integral/Derivative control loops.
  See section 
 \begin_inset LatexCommand \ref{sec:PID}
 
@@ -552,7 +613,12 @@ pid Proportional/Integral/Derivative control loops.
 
 \layout Description
 
-siggen A sine/cosine/triangle/square wave generator for testing.
+siggen
+\begin_inset LatexCommand \index{siggen}
+
+\end_inset 
+
+ A sine/cosine/triangle/square wave generator for testing.
  See section 
 \begin_inset LatexCommand \ref{sec:Siggen}
 
@@ -561,11 +627,21 @@ siggen A sine/cosine/triangle/square wave generator for testing.
 
 \layout Description
 
-supply a simple source for testing
+supply
+\begin_inset LatexCommand \index{supply}
+
+\end_inset 
+
+ a simple source for testing
 \layout Description
 
-blocks assorted useful components (mux, demux, or, and, integ, ddt, limit,
- wcomp, etc.)
+blocks
+\begin_inset LatexCommand \index{blocks}
+
+\end_inset 
+
+ assorted useful components (mux, demux, or, and, integ, ddt, limit, wcomp,
+ etc.)
 \layout Subsection
 
 
@@ -576,17 +652,36 @@ blocks assorted useful components (mux, demux, or, and, integ, ddt, limit,
 Hardware Drivers
 \layout Description
 
-hal_ax5214h A driver for the Axiom Measurement & Control AX5241H digital
- I/O board
+hal_ax5214h
+\begin_inset LatexCommand \index{hal-ax5214h}
+
+\end_inset 
+
+ A driver for the Axiom Measurement & Control AX5241H digital I/O board
 \layout Description
 
-hal_m5i20 Mesa Electronics 5i20 board
+hal_m5i20
+\begin_inset LatexCommand \index{hal-m5i20}
+
+\end_inset 
+
+ Mesa Electronics 5i20 board
 \layout Description
 
-hal_motenc Vital Systems MOTENC-100 board
+hal_motenc
+\begin_inset LatexCommand \index{hal-motenc}
+
+\end_inset 
+
+ Vital Systems MOTENC-100 board
 \layout Description
 
-hal_parport PC parallel port.
+hal_parport
+\begin_inset LatexCommand \index{hal-parport}
+
+\end_inset 
+
+ PC parallel port.
  See section 
 \begin_inset LatexCommand \ref{sec:Parport}
 
@@ -595,13 +690,28 @@ hal_parport PC parallel port.
 
 \layout Description
 
-hal_ppmc Pico Systems family of controllers (PPMC, USC and UPC)
+hal_ppmc
+\begin_inset LatexCommand \index{hal-ppmc}
+
+\end_inset 
+
+ Pico Systems family of controllers (PPMC, USC and UPC)
 \layout Description
 
-hal_stg Servo To Go card (version 1 & 2)
+hal_stg
+\begin_inset LatexCommand \index{hal-stg}
+
+\end_inset 
+
+ Servo To Go card (version 1 & 2)
 \layout Description
 
-hal_vti Vigilant Technologies PCI ENCDAC-4 controller
+hal_vti
+\begin_inset LatexCommand \index{hal-vti}
+
+\end_inset 
+
+ Vigilant Technologies PCI ENCDAC-4 controller
 \layout Subsection
 
 
@@ -612,7 +722,12 @@ hal_vti Vigilant Technologies PCI ENCDAC-4 controller
 Tools and Utilities
 \layout Description
 
-halcmd Command line tool for configuration and tuning.
+halcmd
+\begin_inset LatexCommand \index{halcmd}
+
+\end_inset 
+
+ Command line tool for configuration and tuning.
  See section 
 \begin_inset LatexCommand \ref{sec:Halcmd}
 
@@ -624,7 +739,12 @@ halcmd Command line tool for configuration and tuning.
 halgui GUI tool for configuration and tuning (not implemented yet).
 \layout Description
 
-halmeter A handy multimeter for HAL signals.
+halmeter
+\begin_inset LatexCommand \index{halmeter}
+
+\end_inset 
+
+ A handy multimeter for HAL signals.
  See section 
 \begin_inset LatexCommand \ref{sec:Halmeter}
 
@@ -633,7 +753,12 @@ halmeter A handy multimeter for HAL signals.
 
 \layout Description
 
-halscope A full featured digital storage oscilloscope for HAL signals.
+halscope
+\begin_inset LatexCommand \index{halscope}
+
+\end_inset 
+
+ A full featured digital storage oscilloscope for HAL signals.
  See section 
 \begin_inset LatexCommand \ref{sec:Halscope}
 

@@ -68,29 +68,59 @@ Don't confuse a text editor with a word processor.
 Configuration files include;
 \layout Description
 
-INI The ini file overrides defaults that are compiled into the EMC code.
+INI
+\begin_inset LatexCommand \index{INI}
+
+\end_inset 
+
+ The ini file overrides defaults that are compiled into the EMC code.
  It also provides sections that are read directly by the Hardware Abstraction
  Layer.
 \layout Description
 
-HAL The hal files start up process modules and provide linkages between
- EMC signals and specific hardware pins.
+HAL
+\begin_inset LatexCommand \index{HAL}
+
+\end_inset 
+
+ The hal files start up process modules and provide linkages between EMC
+ signals and specific hardware pins.
 \layout Description
 
-VAR The var file provide a set of numbered variables for use by the interpreter.
+VAR
+\begin_inset LatexCommand \index{VAR}
+
+\end_inset 
+
+ The var file provide a set of numbered variables for use by the interpreter.
  These values are saved from one run to another.
 \layout Description
 
-TBL The tbl file saves tool information.
+TBL
+\begin_inset LatexCommand \index{TBL}
+
+\end_inset 
+
+ The tbl file saves tool information.
 \layout Description
 
-NML The nml file configures the communication channels used by the EMC.
+NML
+\begin_inset LatexCommand \index{NML}
+
+\end_inset 
+
+ The nml file configures the communication channels used by the EMC.
  It is normally setup to run all of the communication within a single computer
  but can be modified to communicate between several computers.
 \layout Description
 
-.emcrc This file saves user specific information and is created to save the
- name of the directory when the user first selects an EMC configuration.
+.emcrc
+\begin_inset LatexCommand \index{.emcrc}
+
+\end_inset 
+
+ This file saves user specific information and is created to save the name
+ of the directory when the user first selects an EMC configuration.
 \begin_inset Foot
 collapsed true
 
@@ -140,6 +170,11 @@ Each of these elements is separated on single lines.
 \layout Subsection
 
 Comments
+\begin_inset LatexCommand \index{Comments}
+
+\end_inset 
+
+
 \layout Standard
 
 A comment line is started with a ; or a # mark.
@@ -159,16 +194,40 @@ Comments can also be used to select between several values of a single variable.
 \layout LyX-Code
 
 # DISPLAY = tkemc
+\begin_inset LatexCommand \index{tkemc}
+
+\end_inset 
+
+
 \newline 
 DISPLAY = axis
+\begin_inset LatexCommand \index{AXIS}
+
+\end_inset 
+
+
 \newline 
 # DISPLAY = mini
+\begin_inset LatexCommand \index{mini}
+
+\end_inset 
+
+
 \newline 
 # DISPLAY = keystick
+\begin_inset LatexCommand \index{keystick}
+
+\end_inset 
+
+
 \layout Standard
 
-In this list, the DISPLAY variable will be set to axis because all of the
- others are commented out.
+In this list, the DISPLAY
+\begin_inset LatexCommand \index{DISPLAY}
+
+\end_inset 
+
+ variable will be set to axis because all of the others are commented out.
  If someone carelessly edits a list like this and leaves two of the lines
  uncommented, the first one encountered will be used.
 \layout Subsection
@@ -183,7 +242,12 @@ Sections in an INI file work like file folders in a drawer.
  Common INI files have several sections including;
 \layout Itemize
 
-[EMC] general information (
+[EMC
+\begin_inset LatexCommand \index{EMC}
+
+\end_inset 
+
+] general information (
 \begin_inset LatexCommand \ref{sub:[EMC]-Section}
 
 \end_inset 
@@ -191,7 +255,12 @@ Sections in an INI file work like file folders in a drawer.
 )
 \layout Itemize
 
-[DISPLAY] selects and sets up some display characteristics (
+[DISPLAY
+\begin_inset LatexCommand \index{DISPLAY}
+
+\end_inset 
+
+] selects and sets up some display characteristics (
 \begin_inset LatexCommand \ref{sub:[DISPLAY]-Section}
 
 \end_inset 
@@ -199,7 +268,12 @@ Sections in an INI file work like file folders in a drawer.
 
 \layout Itemize
 
-[TASK] sets up the task planner (
+[TASK
+\begin_inset LatexCommand \index{TASK}
+
+\end_inset 
+
+] sets up the task planner (
 \begin_inset LatexCommand \ref{sub:[TASK]-Section}
 
 \end_inset 
@@ -207,10 +281,20 @@ Sections in an INI file work like file folders in a drawer.
 )
 \layout Itemize
 
-[RS274NGC] location of interpreter specific file
+[RS274NGC
+\begin_inset LatexCommand \index{RS274NGC}
+
+\end_inset 
+
+] location of interpreter specific file
 \layout Itemize
 
-[EMCMOT] motion module and default characteristics (
+[EMCMOT
+\begin_inset LatexCommand \index{EMCMOT}
+
+\end_inset 
+
+] motion module and default characteristics (
 \begin_inset LatexCommand \ref{sub:[EMCMOT]-Section}
 
 \end_inset 
@@ -218,7 +302,12 @@ Sections in an INI file work like file folders in a drawer.
 )
 \layout Itemize
 
-[HAL] hardware configuration files and commands (
+[HAL
+\begin_inset LatexCommand \index{HAL}
+
+\end_inset 
+
+] hardware configuration files and commands (
 \begin_inset LatexCommand \ref{sub:[HAL]-section}
 
 \end_inset 
@@ -226,7 +315,12 @@ Sections in an INI file work like file folders in a drawer.
 )
 \layout Itemize
 
-[TRAJ] information for the motion planner (
+[TRAJ
+\begin_inset LatexCommand \index{TRAJ}
+
+\end_inset 
+
+] information for the motion planner (
 \begin_inset LatexCommand \ref{sub:[TRAJ]-Section}
 
 \end_inset 
@@ -234,7 +328,12 @@ Sections in an INI file work like file folders in a drawer.
 )
 \layout Itemize
 
-[AXIS_0] ...
+[AXIS_0
+\begin_inset LatexCommand \index{AXIS 0,1,2,..}
+
+\end_inset 
+
+] ...
  [AXIS_n] individual axis variables (
 \begin_inset LatexCommand \ref{sub:[AXIS]-Section}
 
@@ -243,7 +342,12 @@ Sections in an INI file work like file folders in a drawer.
 )
 \layout Itemize
 
-[EMCIO] emc's input and output variables.
+[EMCIO
+\begin_inset LatexCommand \index{EMCIO}
+
+\end_inset 
+
+] emc's input and output variables.
  (
 \begin_inset LatexCommand \ref{sub:[EMCIO]-Section}
 
@@ -361,7 +465,12 @@ Controller
 
 
 \color black
-RS274NGC_STARTUP_CODE\SpecialChar ~
+RS274NGC_STARTUP_CODE
+\begin_inset LatexCommand \index{RS274NGC STARTUP CODE}
+
+\end_inset 
+
+\SpecialChar ~
 
 \series bold 
 =
@@ -432,10 +541,15 @@ xemc
 
 \layout Description
 
-BASE_PERIOD\SpecialChar ~
+BASE_PERIOD
+\begin_inset LatexCommand \index{BASE PERIOD}
+
+\end_inset 
+
+\SpecialChar ~
 =\SpecialChar ~
-50000 Base task period, in nanoseconds - this is the fastest
- thread in the machine.
+50000 Base task period, in nanoseconds - this is the fastest thread in
+ the machine.
  It's units are nanoseconds.
  This is a fairly conservative value but if you are installing on a very
  old, slow processor you may have to make this a larger number or the machine
@@ -457,7 +571,12 @@ Thus, the BASE_PERIOD shown above gives an absolute maximum step rate of
  10000 steps per second.
 \layout Description
 
-SERVO_PERIOD\SpecialChar ~
+SERVO_PERIOD
+\begin_inset LatexCommand \index{SERVO PERIOD}
+
+\end_inset 
+
+\SpecialChar ~
 =\SpecialChar ~
 1000000 Servo task period is also in nanoseconds.
  This value will be rounded to an integer multiple of BASE_PERIOD.
@@ -469,7 +588,12 @@ Most systems will not need to change this value.
  
 \layout Description
 
-TRAJ_PERIOD\SpecialChar ~
+TRAJ_PERIOD
+\begin_inset LatexCommand \index{TRAJ PERIOD}
+
+\end_inset 
+
+\SpecialChar ~
 =\SpecialChar ~
 
 \series bold 
@@ -652,7 +776,12 @@ Coordinates of the homed position of each axis.
 
 
 \color black
-LINEAR_UNITS\SpecialChar ~
+LINEAR_UNITS
+\begin_inset LatexCommand \index{LINEAR UNITS}
+
+\end_inset 
+
+\SpecialChar ~
 
 \series bold 
 =
@@ -677,7 +806,12 @@ The name of units to be used.
 
 
 \color black
-ANGULAR_UNITS\SpecialChar ~
+ANGULAR_UNITS
+\begin_inset LatexCommand \index{ANGULAR UNITS}
+
+\end_inset 
+
+\SpecialChar ~
 
 \series bold 
 =
@@ -719,7 +853,12 @@ DEFAULT_ACCELERATION\SpecialChar ~
 
 
 \color black
-MAX_VELOCITY\SpecialChar ~
+MAX_VELOCITY
+\begin_inset LatexCommand \index{MAX VELOCITY}
+
+\end_inset 
+
+\SpecialChar ~
 
 \series bold 
 =\SpecialChar ~
@@ -734,7 +873,12 @@ MAX_VELOCITY\SpecialChar ~
 
 
 \color black
-MAX_ACCELERATION\SpecialChar ~
+MAX_ACCELERATION
+\begin_inset LatexCommand \index{MAX ACCELERATION}
+
+\end_inset 
+
+\SpecialChar ~
 
 \series bold 
 =
@@ -862,7 +1006,12 @@ COMP_FILE_TYPE\SpecialChar ~
 
 
 \color black
-INPUT_SCALE\SpecialChar ~
+INPUT_SCALE
+\begin_inset LatexCommand \index{INPUT SCALE}
+
+\end_inset 
+
+\SpecialChar ~
 
 \series bold 
 =
@@ -948,7 +1097,12 @@ input[mm]=(encoder[counts]-offset[counts])/787.4\]
 
 
 \color black
-MIN_LIMIT\SpecialChar ~
+MIN_LIMIT
+\begin_inset LatexCommand \index{MIN LIMIT}
+
+\end_inset 
+
+\SpecialChar ~
 =\SpecialChar ~
 
 \series bold 
@@ -961,7 +1115,12 @@ The minimum limit (soft limit) for axis motion, in user units.
 
 
 \color black
-MAX_LIMIT\SpecialChar ~
+MAX_LIMIT
+\begin_inset LatexCommand \index{MAX LIMIT}
+
+\end_inset 
+
+\SpecialChar ~
 
 \series bold 
 =\SpecialChar ~
@@ -972,7 +1131,12 @@ MAX_LIMIT\SpecialChar ~
  
 \layout Description
 
-MIN_FERROR\SpecialChar ~
+MIN_FERROR
+\begin_inset LatexCommand \index{MIN FERROR}
+
+\end_inset 
+
+\SpecialChar ~
 
 \series bold 
 =
@@ -995,7 +1159,12 @@ MIN_FERROR\SpecialChar ~
 
 
 \color black
-FERROR\SpecialChar ~
+FERROR
+\begin_inset LatexCommand \index{FERROR}
+
+\end_inset 
+
+\SpecialChar ~
 
 \series bold 
 =\SpecialChar ~
@@ -1024,7 +1193,12 @@ ies.
  
 \layout Description
 
-UNITS\SpecialChar ~
+UNITS
+\begin_inset LatexCommand \index{UNITS}
+
+\end_inset 
+
+\SpecialChar ~
 =\SpecialChar ~
 inch Historically, the UNITS were specified for each axis.
  It is now preferable to specify the [TRAJ]LINEAR_UNITS and [TRAJ]ANGULAR_UNITS
@@ -1059,7 +1233,12 @@ HOME_OFFSET\SpecialChar ~
  after the HOME_OFFSET distance has been moved.
 \layout Description
 
-HOME_SEARCH_VEL\SpecialChar ~
+HOME_SEARCH_VEL
+\begin_inset LatexCommand \index{HOME SEARCH VEL}
+
+\end_inset 
+
+\SpecialChar ~
 
 \series bold 
 =
@@ -1214,6 +1393,22 @@ FF1\SpecialChar ~
  This number is multiplied by the change in commanded position per second,
  resulting in a contribution to the computed voltage for the motor amplifier.
  The units on the FF1 gain are volts per user unit per second.
+ 
+\layout Description
+
+
+\color black
+FF2\SpecialChar ~
+
+\series bold 
+=\SpecialChar ~
+0
+\series default 
+ The 2nd order feedforward gain.
+ This number is multiplied by the change in commanded position per second
+ per second, resulting in a contribution to the computed voltage for the
+ motor amplifier.
+ The units on the FF1 gain are volts per user unit per second per second.
  
 \layout Description
 

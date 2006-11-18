@@ -97,6 +97,11 @@ There are six pieces of information that determine exactly how the home
 \layout Subsubsection
 
 HOME_SEARCH_VEL
+\begin_inset LatexCommand \index{HOME SEARCH VEL}
+
+\end_inset 
+
+
 \layout Standard
 
 'HOME_SEARCH_VEL' is defined in each AXIS_* section.
@@ -154,6 +159,11 @@ If 'HOME_SEARCH_VEL' is non-zero, then EMC assumes that there is a home
 \layout Subsubsection
 
 HOME_LATCH_VEL
+\begin_inset LatexCommand \index{HOME LATCH VEL}
+
+\end_inset 
+
+
 \layout Standard
 
 'HOME_LATCH_VEL' is also defined in the ini file, for each AXIS.
@@ -175,6 +185,11 @@ HOME_LATCH_VEL
 \layout Subsubsection
 
 HOME_IGNORE_LIMITS
+\begin_inset LatexCommand \index{HOME IGNORE LIMITS}
+
+\end_inset 
+
+
 \layout Standard
 
 'HOME_IGNORE_LIMITS' is another settable option in the AXIS_* section.
@@ -188,6 +203,11 @@ HOME_IGNORE_LIMITS
 \layout Subsubsection
 
 HOME_USE_INDEX
+\begin_inset LatexCommand \index{HOME USE INDEX}
+
+\end_inset 
+
+
 \layout Standard
 
 'HOME_USE_INDEX' is a single bit settable in the AXIS_* section.
@@ -202,6 +222,11 @@ HOME_USE_INDEX
 \layout Subsubsection
 
 HOME_OFFSET
+\begin_inset LatexCommand \index{HOME OFFSET}
+
+\end_inset 
+
+
 \layout Standard
 
 'HOME_OFFSET' is a value setable from the ini in the AXIS_* section.
@@ -223,6 +248,11 @@ HOME_OFFSET
 \layout Subsubsection
 
 HOME
+\begin_inset LatexCommand \index{HOME}
+
+\end_inset 
+
+
 \layout Standard
 
 'HOME' is a value setable from the ini in the AXIS_* section.
@@ -268,6 +298,11 @@ The distinction between 'home' and 'home_offset' is not as clear as I would
 \layout Subsubsection
 
 HOME_IS_SHARED
+\begin_inset LatexCommand \index{HOME IS SHARED}
+
+\end_inset 
+
+
 \layout Standard
 
 'HOME_IS_SHARED' is a value setable from the ini in the AXIS_* section.
@@ -278,6 +313,11 @@ HOME_IS_SHARED
 \layout Subsubsection
 
 HOME_SEQUENCE
+\begin_inset LatexCommand \index{HOME SEQUENCE}
+
+\end_inset 
+
+
 \layout Standard
 
 'HOME_SEQUENCE' is a value setable from the ini in the AXIS_* section.

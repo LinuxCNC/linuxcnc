@@ -65,8 +65,12 @@ It is one of the simpler setups, because the motors run open-loop (no feedback
 \layout Standard
 
 Most of this chapter is based on the sample config released along with EMC2.
- The config is called stepper, and usually it is found in /etc/emc2/sample-confi
-gs/stepper
+ The config is called stepper
+\begin_inset LatexCommand \index{stepper}
+
+\end_inset 
+
+, and usually it is found in /etc/emc2/sample-configs/stepper
 \layout Section
 
 
@@ -75,6 +79,11 @@ gs/stepper
 \end_inset 
 
 Pinout
+\begin_inset LatexCommand \index{Pinout}
+
+\end_inset 
+
+
 \layout Standard
 
 One of the majour flaws in EMC was that you couldn't specify the pinout
@@ -142,7 +151,12 @@ Depending on what you have chosen in your ini file you are using either
 
 \end_inset 
 
-standard_pinout.hal 
+standard_pinout.hal
+\begin_inset LatexCommand \index{standard pinout}
+
+\end_inset 
+
+ 
 \layout Standard
 
 This file contains several HAL commands, and usually looks like this:
@@ -250,6 +264,11 @@ Hint: make sure you don't have more than one signal connected to the same
 \end_inset 
 
 Adding an enable signal
+\begin_inset LatexCommand \index{enable signal}
+
+\end_inset 
+
+
 \layout Standard
 
 Some amplifiers (drives) require an enable signal before they accept and

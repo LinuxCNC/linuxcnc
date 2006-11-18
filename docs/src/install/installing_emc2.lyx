@@ -42,8 +42,13 @@ One of the problems users often complained about EMC was installing the
  up a RT-patched Linux, etc.
  The developers of EMC2 chose to go with a standard distribution called
  Ubuntu
+\begin_inset LatexCommand \index{Ubuntu}
+
+\end_inset 
+
+
 \begin_inset Foot
-collapsed false
+collapsed true
 
 \layout Standard
 
@@ -87,8 +92,12 @@ I am what I am because of who we all are
  
 \layout Standard
 
-Ubuntu has been chosen, because it fits perfectly into the Open Source views
- of EMC2:
+Ubuntu has been chosen, because it fits perfectly into the Open Source
+\begin_inset LatexCommand \index{Open Source}
+
+\end_inset 
+
+ views of EMC2:
 \layout Itemize
 
 Ubuntu will always be free of charge, and there is no extra fee for the
@@ -124,7 +133,7 @@ EMC Download Page
 You will find the most recent releases of EMC2 announced on www.linuxcnc.org.
  The releases of EMC2 will be done in two ways (sources and binary package).
  The sources (described in the Developers Handbook) consist of a tarball
- (emc2-version.tar.gz), which you should download and unpack into your home
+ (emc2-<version>.tar.gz), which you should download and unpack into your home
  directory.
 \layout Standard
 
@@ -153,6 +162,11 @@ For information regarding other Linux variants, check the Developers Handbook
 \end_inset 
 
 EMC2 Live CD
+\begin_inset LatexCommand \index{Installing: LiveCD}
+
+\end_inset 
+
+
 \layout Standard
 
 The EMC2 team now has a custom Live-CD based on Ubuntu 6.06 that will let
@@ -197,6 +211,11 @@ This install gives you all the benefits of the community-supported Ubuntu
 \end_inset 
 
 EMC2 install script
+\begin_inset LatexCommand \index{Installing: script}
+
+\end_inset 
+
+
 \layout Standard
 
 We also provide a simple script to install emc2 on Ubuntu for users with
@@ -242,7 +261,7 @@ When the installation asks if you are sure you want to install the EMC2
 
 When it is done, you must reboot (System > Log Out > Restart the Computer),
  and when you log in again you can run EMC2 by selecting it on the Applications
- > Other menu.
+ > CNC Menu.
 \layout Itemize
 
 If you aren't ready to set up a machine configuration, try the sim-AXIS
@@ -262,6 +281,11 @@ Now that the initial installation is done, Ubuntu will prompt you when updates
 \end_inset 
 
 Manual installing using apt commands.
+\begin_inset LatexCommand \index{Installing: manual}
+
+\end_inset 
+
+
 \layout Standard
 
 The following few section will describe how to install EMC2 using a console
@@ -307,7 +331,7 @@ $ sudo apt-get install emc2-axis
 
 This command will install the emc2-axis
 \begin_inset Foot
-collapsed false
+collapsed true
 
 \layout Standard
 
@@ -316,7 +340,7 @@ The emc2-axis package is the AXIS gui packaged for emc2.
 
  package along with all dependencies
 \begin_inset Foot
-collapsed false
+collapsed true
 
 \layout Standard
 

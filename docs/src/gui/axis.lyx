@@ -42,9 +42,28 @@ Using the AXIS Graphical Interface
 Introduction
 \layout Standard
 
-AXIS is a graphical front-end for emc2 which features a live preview and
- backplot.
- It is written in Python and uses Tk and OpenGL to display its user interface.
+AXIS
+\begin_inset LatexCommand \index{AXIS}
+
+\end_inset 
+
+ is a graphical front-end for emc2 which features a live preview and backplot.
+ It is written in Python
+\begin_inset LatexCommand \index{Python}
+
+\end_inset 
+
+ and uses Tk
+\begin_inset LatexCommand \index{Tk}
+
+\end_inset 
+
+ and OpenGL
+\begin_inset LatexCommand \index{OpenGL}
+
+\end_inset 
+
+ to display its user interface.
 \layout Standard
 
 
@@ -122,6 +141,11 @@ Clear the
 \end_inset 
 
 ESTOP
+\begin_inset LatexCommand \index{ESTOP}
+
+\end_inset 
+
+
 \begin_inset Quotes erd
 \end_inset 
 
@@ -153,6 +177,11 @@ Set the proper offsets for each axis by jogging and using the
 \end_inset 
 
 Touch Off
+\begin_inset LatexCommand \index{Touch Off}
+
+\end_inset 
+
+
 \begin_inset Quotes erd
 \end_inset 
 
@@ -181,7 +210,12 @@ axis.ngc
 \begin_inset Quotes erd
 \end_inset 
 
-), as well as the current location of the CNC machine's 
+), as well as the current location of the CNC
+\begin_inset LatexCommand \index{CNC}
+
+\end_inset 
+
+ machine's 
 \begin_inset Quotes eld
 \end_inset 
 
@@ -210,6 +244,11 @@ A menubar and toolbar that allow you to perform various actions
 \end_inset 
 
 Manual Control
+\begin_inset LatexCommand \index{Manual}
+
+\end_inset 
+
+
 \begin_inset Quotes erd
 \end_inset 
 
@@ -225,8 +264,12 @@ Code Entry
 \begin_inset Quotes erd
 \end_inset 
 
- (also called MDI), where G-code programs can be entered manually, one line
- at a time.
+ (also called MDI
+\begin_inset LatexCommand \index{MDI}
+
+\end_inset 
+
+), where G-code programs can be entered manually, one line at a time.
 \layout Itemize
 
 
@@ -234,6 +277,11 @@ Code Entry
 \end_inset 
 
 Feed Override
+\begin_inset LatexCommand \index{Feed Override}
+
+\end_inset 
+
+
 \begin_inset Quotes erd
 \end_inset 
 
@@ -251,6 +299,11 @@ A status bar which shows the state of the machine.
 \end_inset 
 
 Relative
+\begin_inset LatexCommand \index{Position: Relative}
+
+\end_inset 
+
+
 \begin_inset Quotes erd
 \end_inset 
 
@@ -259,6 +312,11 @@ Relative
 \end_inset 
 
 Absolute
+\begin_inset LatexCommand \index{Position: Absolute}
+
+\end_inset 
+
+
 \begin_inset Quotes erd
 \end_inset 
 
@@ -267,6 +325,11 @@ Absolute
 \end_inset 
 
 Actual
+\begin_inset LatexCommand \index{Position: Actual}
+
+\end_inset 
+
+
 \begin_inset Quotes erd
 \end_inset 
 
@@ -275,6 +338,11 @@ Actual
 \end_inset 
 
 Commanded
+\begin_inset LatexCommand \index{Position: Commanded}
+
+\end_inset 
+
+
 \begin_inset Quotes erd
 \end_inset 
 
@@ -295,10 +363,20 @@ Emergency Stop
 \begin_inset Quotes erd
 \end_inset 
 
- (also called E-Stop)
+ (also called E-Stop
+\begin_inset LatexCommand \index{ESTOP}
+
+\end_inset 
+
+)
 \layout Enumerate
 
 Toggle machine power
+\begin_inset LatexCommand \index{MachineOn}
+
+\end_inset 
+
+
 \layout Enumerate
 
 Open a file
@@ -491,6 +569,11 @@ Actual
 \layout Subsubsection
 
 Preview Plot
+\begin_inset LatexCommand \index{Preview Plot}
+
+\end_inset 
+
+
 \layout Standard
 
 When a file is loaded, a preview of it is shown in the display area.
@@ -520,6 +603,11 @@ X
 \layout Subsubsection
 
 Program Extents
+\begin_inset LatexCommand \index{Program Extents}
+
+\end_inset 
+
+
 \layout Standard
 
 The 
@@ -676,6 +764,11 @@ When the program is running, the line currently being executed is highlighted
 \layout Subsection
 
 Manual Control
+\begin_inset LatexCommand \index{Manual}
+
+\end_inset 
+
+
 \layout Standard
 
 While the machine is turned on but not running a program, the items in the
@@ -904,6 +997,11 @@ Spindle
 \end_inset 
 
  group
+\begin_inset LatexCommand \index{Spindle}
+
+\end_inset 
+
+
 \layout Standard
 
 The buttons on the first row select the direction for the spindle to rotate:
@@ -924,6 +1022,11 @@ Coolant
 \end_inset 
 
  group
+\begin_inset LatexCommand \index{Coolant}
+
+\end_inset 
+
+
 \layout Standard
 
 The two buttons allow the 
@@ -954,8 +1057,12 @@ Code Entry
 \begin_inset Quotes erd
 \end_inset 
 
- (also called MDI), allows G-code programs can be entered manually, one
- line at a time.
+ (also called MDI
+\begin_inset LatexCommand \index{MDI}
+
+\end_inset 
+
+), allows G-code programs can be entered manually, one line at a time.
  When the machine is not turned on, or when a program is running, the code
  entry controls are unavailable.
 \layout Standard
@@ -1035,6 +1142,11 @@ G54 offset
 \layout Subsection
 
 Feed Override
+\begin_inset LatexCommand \index{Feed Override}
+
+\end_inset 
+
+
 \layout Standard
 
 By moving this slider, the programmed feed rate can be modified.
@@ -1046,6 +1158,11 @@ F60
 \layout Subsection
 
 Spindle Speed Override
+\begin_inset LatexCommand \index{Spindle Speed Override}
+
+\end_inset 
+
+
 \layout Standard
 
 By moving this slider, the programmed spindle feed rate can be modified.
@@ -1058,7 +1175,12 @@ motion.spindle-speed-out
  is connected.
 \layout Subsection
 
-Jog Speed 
+Jog Speed
+\begin_inset LatexCommand \index{Jog Speed}
+
+\end_inset 
+
+ 
 \layout Standard
 
 By moving this slider, the speed of jogs can be modified.
@@ -1766,7 +1888,17 @@ The Manual Toolchange Window
 Python modules 
 \layout Standard
 
-AXIS includes several Python modules which may be useful to others.
+AXIS
+\begin_inset LatexCommand \index{AXIS}
+
+\end_inset 
+
+ includes several Python
+\begin_inset LatexCommand \index{Python}
+
+\end_inset 
+
+ modules which may be useful to others.
  For more information on one of these modules, use 
 \begin_inset Quotes eld
 \end_inset 
@@ -1844,6 +1976,11 @@ scripts/emc-environment
 \layout Section
 
 Using AXIS to control a CNC Lathe
+\begin_inset LatexCommand \index{Lathe}
+
+\end_inset 
+
+
 \layout Standard
 
 By including the line 
@@ -2093,6 +2230,11 @@ After AXIS has created these HAL pins, it executes the halfile named in
 \layout Subsection
 
 ~/.axisrc
+\begin_inset LatexCommand \index{.axisrc}
+
+\end_inset 
+
+
 \layout Standard
 
 If it exists, the contents of 

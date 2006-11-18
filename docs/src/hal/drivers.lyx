@@ -43,6 +43,11 @@ Hardware Drivers
 \end_inset 
 
 Parport
+\begin_inset LatexCommand \index{Parport}
+
+\end_inset 
+
+
 \layout Standard
 
 Parport is a driver for the traditional PC parallel port.
@@ -77,7 +82,7 @@ x
  In other parallel ports, the control group has push-pull drivers and cannot
  be used as an input.
 \begin_inset Foot
-collapsed false
+collapsed true
 
 \layout Standard
 

@@ -42,8 +42,23 @@ Using the TkEMC Graphical Interface
 Introduction
 \layout Standard
 
-TkEMC is one of the most traditional graphical front-ends for EMC.
- It is written in Tcl and uses the Tk toolkit for the display.
+TkEMC
+\begin_inset LatexCommand \index{tkemc}
+
+\end_inset 
+
+ is one of the most traditional graphical front-ends for EMC.
+ It is written in Tcl
+\begin_inset LatexCommand \index{Tcl}
+
+\end_inset 
+
+ and uses the Tk
+\begin_inset LatexCommand \index{Tk}
+
+\end_inset 
+
+ toolkit for the display.
  Being written in TCL makes it very portable (runs on a multitude of platforms).
 \layout Standard
 
@@ -121,6 +136,11 @@ Clear the
 \end_inset 
 
 E-STOP
+\begin_inset LatexCommand \index{ESTOP}
+
+\end_inset 
+
+
 \begin_inset Quotes erd
 \end_inset 
 
@@ -132,6 +152,11 @@ E-STOP
 \end_inset 
 
 Home
+\begin_inset LatexCommand \index{Home}
+
+\end_inset 
+
+
 \begin_inset Quotes erd
 \end_inset 
 
@@ -180,6 +205,11 @@ A set of sliders which control
 \end_inset 
 
 Jogging speed
+\begin_inset LatexCommand \index{Jog Speed}
+
+\end_inset 
+
+
 \begin_inset Quotes erd
 \end_inset 
 
@@ -188,6 +218,11 @@ Jogging speed
 \end_inset 
 
 Feed Override
+\begin_inset LatexCommand \index{Feed Override}
+
+\end_inset 
+
+
 \begin_inset Quotes erd
 \end_inset 
 
@@ -196,13 +231,23 @@ Feed Override
 \end_inset 
 
 Spindle speed Override
+\begin_inset LatexCommand \index{Spindle Speed Override}
+
+\end_inset 
+
+
 \begin_inset Quotes erd
 \end_inset 
 
  which allow you to increase or decrease those settings ;
 \layout Itemize
 
-Manual data input text box ; 
+Manual data input text box 
+\begin_inset LatexCommand \index{MDI}
+
+\end_inset 
+
+; 
 \layout Itemize
 
 Status bar display with active G-codes, M-codes, F- and S-words ;
@@ -225,6 +270,11 @@ Machine enable:
 \end_inset 
 
 ESTOP
+\begin_inset LatexCommand \index{ESTOP}
+
+\end_inset 
+
+
 \begin_inset Quotes erd
 \end_inset 
 
@@ -248,12 +298,22 @@ ON
 \layout Enumerate
 
 Toggle mist
+\begin_inset LatexCommand \index{MIST}
+
+\end_inset 
+
+
 \layout Enumerate
 
 Decrease spindle speed
 \layout Enumerate
 
-Set spindle direction 
+Set spindle
+\begin_inset LatexCommand \index{Spindle}
+
+\end_inset 
+
+ direction 
 \begin_inset Quotes eld
 \end_inset 
 
@@ -294,6 +354,11 @@ Operation mode:
 \end_inset 
 
 MANUAL
+\begin_inset LatexCommand \index{Manual}
+
+\end_inset 
+
+
 \begin_inset Quotes erd
 \end_inset 
 
@@ -302,6 +367,11 @@ MANUAL
 \end_inset 
 
 MDI
+\begin_inset LatexCommand \index{MDI}
+
+\end_inset 
+
+
 \begin_inset Quotes erd
 \end_inset 
 
@@ -310,6 +380,11 @@ MDI
 \end_inset 
 
 AUTO
+\begin_inset LatexCommand \index{Auto}
+
+\end_inset 
+
+
 \begin_inset Quotes erd
 \end_inset 
 
@@ -484,6 +559,11 @@ The buttons in the lower part of TkEMC (seen in Figure
 \end_inset 
 
 Open
+\begin_inset LatexCommand \index{Open}
+
+\end_inset 
+
+
 \begin_inset Quotes erd
 \end_inset 
 
@@ -492,6 +572,11 @@ Open
 \end_inset 
 
 Verify
+\begin_inset LatexCommand \index{Verify}
+
+\end_inset 
+
+
 \begin_inset Quotes erd
 \end_inset 
 
@@ -500,6 +585,11 @@ Verify
 \end_inset 
 
 Run
+\begin_inset LatexCommand \index{Run}
+
+\end_inset 
+
+
 \begin_inset Quotes erd
 \end_inset 
 
@@ -508,6 +598,11 @@ Run
 \end_inset 
 
 Pause
+\begin_inset LatexCommand \index{Pause}
+
+\end_inset 
+
+
 \begin_inset Quotes erd
 \end_inset 
 
@@ -516,6 +611,11 @@ Pause
 \end_inset 
 
 Resume
+\begin_inset LatexCommand \index{Resume}
+
+\end_inset 
+
+
 \begin_inset Quotes erd
 \end_inset 
 
@@ -524,6 +624,11 @@ Resume
 \end_inset 
 
 Step
+\begin_inset LatexCommand \index{Step}
+
+\end_inset 
+
+
 \begin_inset Quotes erd
 \end_inset 
 
@@ -532,6 +637,11 @@ Step
 \end_inset 
 
 Optional Stop
+\begin_inset LatexCommand \index{Optional Stop}
+
+\end_inset 
+
+
 \begin_inset Quotes erd
 \end_inset 
 
@@ -683,6 +793,11 @@ The
 \end_inset 
 
 Spindle
+\begin_inset LatexCommand \index{Spindle}
+
+\end_inset 
+
+
 \begin_inset Quotes erd
 \end_inset 
 
@@ -703,6 +818,11 @@ The
 \end_inset 
 
 Coolant
+\begin_inset LatexCommand \index{Coolant}
+
+\end_inset 
+
+
 \begin_inset Quotes erd
 \end_inset 
 
