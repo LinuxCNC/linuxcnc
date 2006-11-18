@@ -216,9 +216,9 @@ typedef struct {
 /* runtime data for a set of 4 step pulse generators */
 typedef struct {
     stepgen_t sg[4];		/* per generator data */
-    hal_u8_t setup_time;	/* setup time in 100nS increments */
-    hal_u8_t pulse_width;	/* pulse width in 100nS increments */
-    hal_u8_t pulse_space;	/* min pulse space in 100nS increments */
+    hal_u32_t setup_time_ns;	/* setup time in nanoseconds */
+    hal_u32_t pulse_width_ns;	/* pulse width in nanoseconds */
+    hal_u32_t pulse_space_ns;	/* min pulse space in nanoseconds */
 } stepgens_t;
 
 #define BOOT_NORMAL 0
@@ -995,7 +995,7 @@ static void write_PPMC_digouts(slot_data_t *slot)
 static void read_encoders(slot_data_t *slot)
 {
     int i, byteindex;
-    hal_u8_t mask = 0x01, indextemp;
+    unsigned char mask = 0x01, indextemp;
 
     union pos_tag {
         signed long l;
@@ -1007,7 +1007,7 @@ static void read_encoders(slot_data_t *slot)
         } byte;
     } pos, oldpos;
     
-    indextemp = (hal_u8_t)(slot->rd_buf[ENCISR]);
+    indextemp = slot->rd_buf[ENCISR];
     byteindex = ENCCNT0;        /* first encoder count register */
     for (i = 0; i < 4; i++) {
         oldpos.l = slot->encoder[i].oldreading;
@@ -1075,34 +1075,45 @@ static void read_encoders(slot_data_t *slot)
     }
 }
 
+
+/* fetch a time parameter (in nS), make sure it is a multiple
+   of 100nS, and is between min_ns and 25.4uS, and return the
+   value in 10MHz clock pulses. */
+static unsigned int ns2cp( hal_u32_t *pns, unsigned int min_ns )
+{
+    int ns, cp;
+
+    ns = *pns;
+    if ( ns < min_ns ) ns = min_ns;
+    if ( ns > 25400 ) ns = 25400;
+    cp = ns / 100;
+    ns = cp * 100;
+    *pns = ns;
+    return cp;
+}
+
+
 static void write_stepgens(slot_data_t *slot)
 {
-    int n, reverse, run;
+    int n, reverse, run, pulse_width, pulse_space, setup_time;
     unsigned int divisor;
     stepgen_t *sg;
     double bd_max_freq, ch_max_freq, abs_scale, freq;
     unsigned char control_byte;
 
-    /* pulse width cannot be less than 2 (HW limitation) */
-    if ( slot->stepgen->pulse_width < 2 ) {
-	slot->stepgen->pulse_width = 2;
-    }
-    /* write it to the cache, inverted */
-    slot->wr_buf[RATE_WIDTH_0] = 256 - slot->stepgen->pulse_width;
-    /* pulse space cannot be less than 3 (HW limitation) */
-    if ( slot->stepgen->pulse_space < 3 ) {
-	slot->stepgen->pulse_space = 3;
-    }
+    /* pulse width cannot be less than 200nS (HW limit) */
+    pulse_width = ns2cp(&(slot->stepgen->pulse_width_ns), 200);
+    /* write pulse width to the cache, inverted */
+    slot->wr_buf[RATE_WIDTH_0] = 256 - pulse_width;
+    /* pulse space cannot be less than 300nS (HW limitation) */
+    pulse_space = ns2cp(&(slot->stepgen->pulse_space_ns), 300);
     /* setup time cannot be less than 2 (HW limit) */
-    if ( slot->stepgen->setup_time < 2 ) {
-	slot->stepgen->setup_time = 2;
-    }
+    setup_time = ns2cp(&(slot->stepgen->setup_time_ns), 200);
     /* write it to the cache, inverted */
-    slot->wr_buf[RATE_SETUP_0] = 256 - slot->stepgen->setup_time;
+    slot->wr_buf[RATE_SETUP_0] = 256 - setup_time;
     /* calculate the max frequency, varies with pulse width and
        min pulse spacing */
-    bd_max_freq = 10000000.0 / 
-	(slot->stepgen->pulse_width + slot->stepgen->pulse_space);
+    bd_max_freq = 10000000.0 / (pulse_width + pulse_space);
     /* now do the four individual stepgens */
     control_byte = 0;
     for ( n = 0 ; n < 4 ; n++ ) {
@@ -1729,30 +1740,30 @@ static int export_USC_stepgen(slot_data_t *slot, bus_data_t *bus)
 	return -1;
     }
     /* export params that apply to all four stepgens */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.stepgen.%02d-%02d.setup-time",
+    rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.stepgen.%02d-%02d.setup-time-ns",
 	bus->busnum, bus->last_stepgen, bus->last_stepgen+3);
-    retval = hal_param_u8_new(buf, HAL_RW, &(slot->stepgen->setup_time), comp_id);
+    retval = hal_param_u32_new(buf, HAL_RW, &(slot->stepgen->setup_time_ns), comp_id);
     if (retval != 0) {
 	return retval;
     }
     /* 10uS default setup time */
-    slot->stepgen->setup_time = 100;
-    rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.stepgen.%02d-%02d.pulse-width",
+    slot->stepgen->setup_time_ns = 10000;
+    rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.stepgen.%02d-%02d.pulse-width-ns",
 	bus->busnum, bus->last_stepgen, bus->last_stepgen+3);
-    retval = hal_param_u8_new(buf, HAL_RW, &(slot->stepgen->pulse_width), comp_id);
+    retval = hal_param_u32_new(buf, HAL_RW, &(slot->stepgen->pulse_width_ns), comp_id);
     if (retval != 0) {
 	return retval;
     }
     /* 4uS default pulse width */
-    slot->stepgen->pulse_width = 40;
-    rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.stepgen.%02d-%02d.pulse-space-min",
+    slot->stepgen->pulse_width_ns = 4000;
+    rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.stepgen.%02d-%02d.pulse-space-min-ns",
 	bus->busnum, bus->last_stepgen, bus->last_stepgen+3);
-    retval = hal_param_u8_new(buf, HAL_RW, &(slot->stepgen->pulse_space), comp_id);
+    retval = hal_param_u32_new(buf, HAL_RW, &(slot->stepgen->pulse_space_ns), comp_id);
     if (retval != 0) {
 	return retval;
     }
     /* 4uS default pulse spacing */
-    slot->stepgen->pulse_space = 40;
+    slot->stepgen->pulse_space_ns = 4000;
     /* export per-stepgen pins and params */
     for ( n = 0 ; n < 4 ; n++ ) {
 	/* pointer to the stepgen struct */

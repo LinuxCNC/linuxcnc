@@ -1,11 +1,12 @@
 # HAL config file for Pico Systems USC board
 
 # set sane pulse timing - these are basically Gecko numbers
-# both pulse width and space are aset to 3.5 uS, to prevent
+# both pulse width and space are set to 3.5 uS, to prevent
 # problems if the outputs are inverted externally
-setp ppmc.0.stepgen.00-03.pulse-width 35
-setp ppmc.0.stepgen.00-03.pulse-space-min 35
-setp ppmc.0.stepgen.00-03.setup-time 10
+setp ppmc.0.stepgen.00-03.pulse-width-ns 3500
+setp ppmc.0.stepgen.00-03.pulse-space-min-ns 3500
+# setup time is set to 1 uS
+setp ppmc.0.stepgen.00-03.setup-time-ns 1000
 
 # connect position feedback signals to encoders
 linksp Xpos-fb <= ppmc.0.encoder.00.position
