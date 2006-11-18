@@ -78,14 +78,28 @@ The Mini Graphical Interface
 
 \layout Standard
 
-Mini was designed to be a full screen graphical interface.
- It was first written for the Sherline CNC but is available for anyone to
- use, copy, and distribute under the terms of the GPL copyright.
+Mini
+\begin_inset LatexCommand \index{mini}
+
+\end_inset 
+
+ was designed to be a full screen graphical interface.
+ It was first written for the Sherline
+\begin_inset LatexCommand \index{Sherline}
+
+\end_inset 
+
+ CNC
+\begin_inset LatexCommand \index{CNC}
+
+\end_inset 
+
+ but is available for anyone to use, copy, and distribute under the terms
+ of the GPL copyright.
 \layout Standard
 
 Rather than popup new windows for each thing that an operator might want
  to do, Mini allows you to display these within the regular screen.
- Mini was written largely for the Sherline CNC mill.
  Parts of this chapter are copied from the instructions that were written
  for that mill by Joe Martin and Ray Henry.
 \layout Section
@@ -147,11 +161,20 @@ When you compare figure
 each axis has been homed -- the display numbers are dark green
 \layout Itemize
 
-the EMC mode is auto -- the auto button has a light green background
+the EMC mode is auto
+\begin_inset LatexCommand \index{Auto}
+
+\end_inset 
+
+ -- the auto button has a light green background
 \layout Itemize
 
-the backplotter has been turned on -- backplot is visible in the pop-in
- window
+the backplotter has been turned on -- backplot
+\begin_inset LatexCommand \index{backplot}
+
+\end_inset 
+
+ is visible in the pop-in window
 \layout Itemize
 
 the tool path from the program is showing in the display.
@@ -315,6 +338,11 @@ You can also use the [FEEDHOLD], [ABORT], and [ESTOP] buttons to control
 \layout Subsection
 
 MANUAL
+\begin_inset LatexCommand \index{Manual}
+
+\end_inset 
+
+
 \layout Standard
 
 This button or pressing <F3> sets the EMC to Manual mode and displays an
@@ -435,6 +463,11 @@ incremental
 \layout Subsection
 
 AUTO
+\begin_inset LatexCommand \index{Auto}
+
+\end_inset 
+
+
 \layout Standard
 
 When the Auto button is pressed, or <F4> on the keyboard, the EMC is changed
@@ -540,6 +573,11 @@ The [Verify] button runs the interpreter through the code without initiating
 \layout Subsection
 
 MDI
+\begin_inset LatexCommand \index{MDI}
+
+\end_inset 
+
+
 \layout Standard
 
 The MDI button or <F5> sets the Manual Data Input mode.
@@ -597,7 +635,12 @@ The abort button stops any motion when it is pressed.
  up the reasons for pressing it.
 \layout Subsection
 
-[ESTOP]
+[ESTOP
+\begin_inset LatexCommand \index{ESTOP}
+
+\end_inset 
+
+]
 \layout Standard
 
 The estop button is also a toggle but it works in three possible settings.
@@ -653,7 +696,7 @@ When all else fails press a software [ESTOP].
  port or DIO pin, a software estop can turn off power to the motors.
 \layout Quotation
 
-Most of the time, when we abort or EStop it's because something went wrong.
+Most of the time, when we abort or E-Stop it's because something went wrong.
  Perhaps we broke a tool and want to change it.
  We switch to manual mode and raise the spindle, change tools, and assuming
  that we got the length the same, get ready to go on.
@@ -703,6 +746,11 @@ The position can be changed to display any one of several values by using
 \layout Subsection
 
 Feedrate Override
+\begin_inset LatexCommand \index{Feed Override}
+
+\end_inset 
+
+
 \layout Standard
 
 Immediately below the axis position displays is the feedrate override slider.
@@ -822,7 +870,12 @@ paste
  
 \layout Subsection
 
-Backplot Display
+Backplot
+\begin_inset LatexCommand \index{backplot}
+
+\end_inset 
+
+ Display
 \layout Standard
 
 
@@ -1029,6 +1082,11 @@ F12 increase spindle speed
 \layout Subsection
 
 Manual Mode
+\begin_inset LatexCommand \index{Manual}
+
+\end_inset 
+
+
 \layout Description
 
 1-9\SpecialChar ~
@@ -1096,6 +1154,11 @@ Alt-b put spindle brake on
 \layout Subsection
 
 Auto Mode 
+\begin_inset LatexCommand \index{Auto}
+
+\end_inset 
+
+
 \layout Description
 
 1-9,0 set feed override to 10%-90%, 0 is 100%

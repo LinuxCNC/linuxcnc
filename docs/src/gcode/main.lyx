@@ -45,10 +45,15 @@ This section gives a brief description of how a machining center is viewed
  It is assumed the reader is already familiar with machining centers.
 \layout Standard
 
-Both the RS274/NGC input language and the output canonical machining functions
- have a view of (1) mechanical components of a machining center being controlled
- and (2) what activities of the machining center may be controlled, and
- what data is used in control.
+Both the RS274/NGC
+\begin_inset LatexCommand \index{RS274NGC}
+
+\end_inset 
+
+ input language and the output canonical machining functions have a view
+ of (1) mechanical components of a machining center being controlled and
+ (2) what activities of the machining center may be controlled, and what
+ data is used in control.
  
 \layout Standard
 
@@ -125,6 +130,11 @@ The requirement of parallelism is not used by either language, so both languages
 \layout Subsection
 
 Spindle
+\begin_inset LatexCommand \index{Spindle}
+
+\end_inset 
+
+
 \layout Standard
 
 A machining center has a spindle which holds one cutting tool, probe, or
@@ -140,12 +150,22 @@ A machining center has a spindle which holds one cutting tool, probe, or
 \layout Subsection
 
 Coolant
+\begin_inset LatexCommand \index{Coolant}
+
+\end_inset 
+
+
 \layout Standard
 
 A machining center has components to provide mist coolant and/or flood coolant.
 \layout Subsection
 
 Pallet Shuttle
+\begin_inset LatexCommand \index{Pallet Shuttle}
+
+\end_inset 
+
+
 \layout Standard
 
 A machining center has a pallet shuttle system.
@@ -155,6 +175,11 @@ A machining center has a pallet shuttle system.
 \layout Subsection
 
 Tool Carousel
+\begin_inset LatexCommand \index{Tool Carousel}
+
+\end_inset 
+
+
 \layout Standard
 
 A machining center has a tool carousel with slots for tools fixed in tool
@@ -163,6 +188,11 @@ A machining center has a tool carousel with slots for tools fixed in tool
 \layout Subsection
 
 Tool Changer
+\begin_inset LatexCommand \index{Tool Changer}
+
+\end_inset 
+
+
 \layout Standard
 
 A machining center has a mechanism for changing tools (fixed in tool holders)
@@ -177,7 +207,17 @@ A machining center has a device that can display messages.
  
 \layout Subsection
 
-Feed and Speed Override Switches
+Feed
+\begin_inset LatexCommand \index{Feed Override}
+
+\end_inset 
+
+ and Speed
+\begin_inset LatexCommand \index{Spindle Speed Override}
+
+\end_inset 
+
+ Override Switches
 \begin_inset LatexCommand \label{sub:Feed-and-Speed}
 
 \end_inset 
@@ -198,6 +238,11 @@ A machining center has separate feed and speed override switches, which
 \layout Subsection
 
 Block Delete Switch
+\begin_inset LatexCommand \index{Optional Block Delete}
+
+\end_inset 
+
+
 \begin_inset LatexCommand \label{sub:Block-Delete-Switch}
 
 \end_inset 
@@ -214,7 +259,12 @@ A machining center has a block delete switch.
 .
 \layout Subsection
 
-Optional Program Stop Switch
+Optional Program Stop
+\begin_inset LatexCommand \index{Optional Program Stop}
+
+\end_inset 
+
+ Switch
 \begin_inset LatexCommand \label{sub:Optional-Program-Stop}
 
 \end_inset 
@@ -353,6 +403,11 @@ Coordinated linear motion can be performed either at the prevailing feed
 \layout Subsection
 
 Feed Rate
+\begin_inset LatexCommand \index{Feed Rate}
+
+\end_inset 
+
+
 \begin_inset LatexCommand \label{sub:Feed-Rate}
 
 \end_inset 
@@ -404,6 +459,11 @@ For motion of two or three rotational axes with X, Y, and Z axes not moving,
 \layout Subsection
 
 Coolant
+\begin_inset LatexCommand \index{Coolant}
+
+\end_inset 
+
+
 \layout Standard
 
 Flood coolant and mist coolant may each be turned on independently.
@@ -416,6 +476,11 @@ Flood coolant and mist coolant may each be turned on independently.
 \layout Subsection
 
 Dwell
+\begin_inset LatexCommand \index{Dwell}
+
+\end_inset 
+
+
 \layout Standard
 
 A machining center may be commanded to dwell (i.e., keep all axes unmoving)
@@ -432,6 +497,11 @@ A machining center may be commanded to dwell (i.e., keep all axes unmoving)
 \layout Subsection
 
 Units
+\begin_inset LatexCommand \index{Units}
+
+\end_inset 
+
+
 \layout Standard
 
 Units used for distances along the X, Y, and Z axes may be measured in millimete
@@ -538,6 +608,11 @@ The feed and speed override switches may be enabled (so they work as expected)
 \layout Subsection
 
 Path Control Mode
+\begin_inset LatexCommand \index{Path Control Mode}
+
+\end_inset 
+
+
 \begin_inset LatexCommand \label{sub:Path-Control-Mode}
 
 \end_inset 
@@ -600,7 +675,12 @@ EMC2 reacts to the setting of the speed or feed override switches on the
  control panel, when these switches are enabled.
 \layout Subsection
 
-Block Delete Switch
+Block Delete
+\begin_inset LatexCommand \index{Block Delete}
+
+\end_inset 
+
+ Switch
 \begin_inset LatexCommand \label{sub:Block-Delete-Switch-Interaction}
 
 \end_inset 
@@ -639,7 +719,12 @@ Execute that line.
  that the line starting with the slash is not executed.
 \layout Subsection
 
-Optional Program Stop Switch
+Optional Program Stop
+\begin_inset LatexCommand \index{Optional Program Stop}
+
+\end_inset 
+
+ Switch
 \begin_inset LatexCommand \label{sub:Optional-Program-Stop-Interaction}
 
 \end_inset 
@@ -1210,6 +1295,11 @@ The lines do not have to be in any particular order.
 \layout Section
 
 Parameters
+\begin_inset LatexCommand \index{Parameters}
+
+\end_inset 
+
+
 \begin_inset LatexCommand \label{sub:Parameters}
 
 \end_inset 
@@ -1728,6 +1818,11 @@ G28 Home Y
 \layout Section
 
 Coordinate Systems
+\begin_inset LatexCommand \index{Coordinate Systems}
+
+\end_inset 
+
+
 \begin_inset LatexCommand \label{sub:Coordinate-Systems}
 
 \end_inset 
@@ -1962,7 +2057,12 @@ M codes.
 
 \layout Standard
 
-The RS274/NGC language has no indicator for the start of a program.
+The RS274/NGC
+\begin_inset LatexCommand \index{RS274NGC}
+
+\end_inset 
+
+ language has no indicator for the start of a program.
  The Interpreter, however, deals with files.
  A single program may be in a single file, or a program may be spread across
  several files.
@@ -3298,7 +3398,52 @@ Group 1
 
 \layout Standard
 
-G0 G1 G2 G3 G33 G38.2 G80 G81 G82
+G0
+\begin_inset LatexCommand \index{G0}
+
+\end_inset 
+
+ G1
+\begin_inset LatexCommand \index{G1}
+
+\end_inset 
+
+ G2
+\begin_inset LatexCommand \index{G2}
+
+\end_inset 
+
+ G3
+\begin_inset LatexCommand \index{G3}
+
+\end_inset 
+
+ G33
+\begin_inset LatexCommand \index{G33}
+
+\end_inset 
+
+ G38.2
+\begin_inset LatexCommand \index{G38.2}
+
+\end_inset 
+
+ G80
+\begin_inset LatexCommand \index{G80}
+
+\end_inset 
+
+ G81
+\begin_inset LatexCommand \index{G81}
+
+\end_inset 
+
+ G82
+\begin_inset LatexCommand \index{G82}
+
+\end_inset 
+
+
 \end_inset 
 </cell>
 </row>
@@ -3315,7 +3460,42 @@ G0 G1 G2 G3 G33 G38.2 G80 G81 G82
 
 \layout Standard
 
-G83 G84 G85 G86 G87 G88 G89
+G83
+\begin_inset LatexCommand \index{G83}
+
+\end_inset 
+
+ G84
+\begin_inset LatexCommand \index{G84}
+
+\end_inset 
+
+ G85
+\begin_inset LatexCommand \index{G85}
+
+\end_inset 
+
+ G86
+\begin_inset LatexCommand \index{G86}
+
+\end_inset 
+
+ G87
+\begin_inset LatexCommand \index{G87}
+
+\end_inset 
+
+ G88
+\begin_inset LatexCommand \index{G88}
+
+\end_inset 
+
+ G89
+\begin_inset LatexCommand \index{G89}
+
+\end_inset 
+
+
 \end_inset 
 </cell>
 </row>
@@ -3333,7 +3513,22 @@ Plane selection
 
 \layout Standard
 
-G17 G18 G19
+G17
+\begin_inset LatexCommand \index{G17}
+
+\end_inset 
+
+ G18
+\begin_inset LatexCommand \index{G18}
+
+\end_inset 
+
+ G19
+\begin_inset LatexCommand \index{G19}
+
+\end_inset 
+
+
 \end_inset 
 </cell>
 </row>
@@ -3351,7 +3546,17 @@ Distance Mode
 
 \layout Standard
 
-G90 G91
+G90
+\begin_inset LatexCommand \index{G90}
+
+\end_inset 
+
+ G91
+\begin_inset LatexCommand \index{G91}
+
+\end_inset 
+
+
 \end_inset 
 </cell>
 </row>
@@ -3369,7 +3574,17 @@ Feed Rate Mode
 
 \layout Standard
 
-G93, G94
+G93
+\begin_inset LatexCommand \index{G93}
+
+\end_inset 
+
+, G94
+\begin_inset LatexCommand \index{G94}
+
+\end_inset 
+
+
 \end_inset 
 </cell>
 </row>
@@ -3387,7 +3602,17 @@ Units
 
 \layout Standard
 
-G20, G21
+G20
+\begin_inset LatexCommand \index{G20}
+
+\end_inset 
+
+, G21
+\begin_inset LatexCommand \index{G21}
+
+\end_inset 
+
+
 \end_inset 
 </cell>
 </row>
@@ -3405,7 +3630,22 @@ Cutter Radius Compensation
 
 \layout Standard
 
-G40, G41, G42
+G40
+\begin_inset LatexCommand \index{G40}
+
+\end_inset 
+
+, G41
+\begin_inset LatexCommand \index{G41}
+
+\end_inset 
+
+, G42
+\begin_inset LatexCommand \index{G42}
+
+\end_inset 
+
+
 \end_inset 
 </cell>
 </row>
@@ -3423,7 +3663,17 @@ Tool Length Offset
 
 \layout Standard
 
-G43, G49
+G43
+\begin_inset LatexCommand \index{G43}
+
+\end_inset 
+
+, G49
+\begin_inset LatexCommand \index{G49}
+
+\end_inset 
+
+
 \end_inset 
 </cell>
 </row>
@@ -3441,7 +3691,17 @@ Return Mode in Canned Cycles
 
 \layout Standard
 
-G98, G99
+G98
+\begin_inset LatexCommand \index{G98}
+
+\end_inset 
+
+, G99
+\begin_inset LatexCommand \index{G99}
+
+\end_inset 
+
+
 \end_inset 
 </cell>
 </row>
@@ -3459,7 +3719,32 @@ Coordinate System Selection
 
 \layout Standard
 
-G54, G55, G56, G57, G58,
+G54
+\begin_inset LatexCommand \index{G54}
+
+\end_inset 
+
+, G55
+\begin_inset LatexCommand \index{G55}
+
+\end_inset 
+
+, G56
+\begin_inset LatexCommand \index{G56}
+
+\end_inset 
+
+, G57
+\begin_inset LatexCommand \index{G57}
+
+\end_inset 
+
+, G58
+\begin_inset LatexCommand \index{G58}
+
+\end_inset 
+
+,
 \end_inset 
 </cell>
 </row>
@@ -3476,7 +3761,27 @@ G54, G55, G56, G57, G58,
 
 \layout Standard
 
-G59, G59.1, G59.2, G59.3
+G59
+\begin_inset LatexCommand \index{G59}
+
+\end_inset 
+
+, G59.1
+\begin_inset LatexCommand \index{G59.1}
+
+\end_inset 
+
+, G59.2
+\begin_inset LatexCommand \index{G59.2}
+
+\end_inset 
+
+, G59.3
+\begin_inset LatexCommand \index{G59.3}
+
+\end_inset 
+
+
 \end_inset 
 </cell>
 </row>
@@ -3494,7 +3799,32 @@ Stopping
 
 \layout Standard
 
-M0, M1, M2, M30, M60
+M0
+\begin_inset LatexCommand \index{M0}
+
+\end_inset 
+
+, M1
+\begin_inset LatexCommand \index{M1}
+
+\end_inset 
+
+, M2
+\begin_inset LatexCommand \index{M2}
+
+\end_inset 
+
+, M30
+\begin_inset LatexCommand \index{M30}
+
+\end_inset 
+
+, M60
+\begin_inset LatexCommand \index{M60}
+
+\end_inset 
+
+
 \end_inset 
 </cell>
 </row>
@@ -3513,6 +3843,11 @@ Tool Change
 \layout Standard
 
 M6
+\begin_inset LatexCommand \index{M6}
+
+\end_inset 
+
+
 \end_inset 
 </cell>
 </row>
@@ -3530,7 +3865,22 @@ Spindle Turning
 
 \layout Standard
 
-M3, M4, M5
+M3
+\begin_inset LatexCommand \index{M3}
+
+\end_inset 
+
+, M4
+\begin_inset LatexCommand \index{M4}
+
+\end_inset 
+
+, M5
+\begin_inset LatexCommand \index{M5}
+
+\end_inset 
+
+
 \end_inset 
 </cell>
 </row>
@@ -3548,7 +3898,22 @@ Coolant
 
 \layout Standard
 
-M7, M8, M9.
+M7
+\begin_inset LatexCommand \index{M7}
+
+\end_inset 
+
+, M8
+\begin_inset LatexCommand \index{M8}
+
+\end_inset 
+
+, M9
+\begin_inset LatexCommand \index{M9}
+
+\end_inset 
+
+.
  Special case:
 \end_inset 
 </cell>
@@ -3584,7 +3949,17 @@ Override Switches
 
 \layout Standard
 
-M48, M49
+M48
+\begin_inset LatexCommand \index{M48}
+
+\end_inset 
+
+, M49
+\begin_inset LatexCommand \index{M49}
+
+\end_inset 
+
+
 \end_inset 
 </cell>
 </row>
@@ -3628,7 +4003,32 @@ Group 0
 
 \layout Standard
 
-G4, G10, G28, G30, G53
+G4
+\begin_inset LatexCommand \index{G4}
+
+\end_inset 
+
+, G10
+\begin_inset LatexCommand \index{G10}
+
+\end_inset 
+
+, G28
+\begin_inset LatexCommand \index{G28}
+
+\end_inset 
+
+, G30
+\begin_inset LatexCommand \index{G30}
+
+\end_inset 
+
+, G53
+\begin_inset LatexCommand \index{G53}
+
+\end_inset 
+
+
 \end_inset 
 </cell>
 </row>
@@ -3645,7 +4045,27 @@ G4, G10, G28, G30, G53
 
 \layout Standard
 
-G92, G92.1, G92.2, G92.3
+G92
+\begin_inset LatexCommand \index{G92}
+
+\end_inset 
+
+, G92.1
+\begin_inset LatexCommand \index{G92.1}
+
+\end_inset 
+
+, G92.2
+\begin_inset LatexCommand \index{G92.2}
+
+\end_inset 
+
+, G92.3
+\begin_inset LatexCommand \index{G92.3}
+
+\end_inset 
+
+
 \end_inset 
 </cell>
 </row>
@@ -3662,7 +4082,12 @@ G92, G92.1, G92.2, G92.3
 
 \layout Standard
 
-M100 to M199
+M100
+\begin_inset LatexCommand \index{M100..199}
+
+\end_inset 
+
+ to M199
 \end_inset 
 </cell>
 </row>
@@ -3844,7 +4269,12 @@ H number
  
 \layout Section
 
-G0: Rapid Linear Motion
+G0
+\begin_inset LatexCommand \index{G0}
+
+\end_inset 
+
+: Rapid Linear Motion
 \layout Standard
 
 For rapid linear motion, program 
@@ -3898,7 +4328,12 @@ G53
  
 \layout Section
 
-G1: Linear Motion at Feed Rate
+G1
+\begin_inset LatexCommand \index{G1}
+
+\end_inset 
+
+: Linear Motion at Feed Rate
 \layout Standard
 
 For linear motion at feed rate (for cutting or not), program 
@@ -3946,7 +4381,17 @@ G53
 .
 \layout Section
 
-G2, G3: Arc at Feed Rate
+G2
+\begin_inset LatexCommand \index{G2}
+
+\end_inset 
+
+, G3
+\begin_inset LatexCommand \index{G3}
+
+\end_inset 
+
+: Arc at Feed Rate
 \begin_inset LatexCommand \label{sub:G2,-G3:-Arc}
 
 \end_inset 
@@ -4193,7 +4638,12 @@ In the center format, the radius of the arc is not specified, but it may
  
 \layout Section
 
-G33: Spindle-Synchronized Motion
+G33
+\begin_inset LatexCommand \index{G33}
+
+\end_inset 
+
+: Spindle-Synchronized Motion
 \layout Standard
 
 For spindle-synchronized motion, code 
@@ -4236,7 +4686,12 @@ the requested linear motion exceeds machine velocity limits due to the spindle
  speed
 \layout Section
 
-G4: Dwell
+G4
+\begin_inset LatexCommand \index{G4}
+
+\end_inset 
+
+: Dwell
 \layout Standard
 
 For a dwell, program G4 P- .
@@ -4248,7 +4703,12 @@ For a dwell, program G4 P- .
 the P number is negative.
 \layout Section
 
-G10: Set Coordinate System Data
+G10
+\begin_inset LatexCommand \index{G10}
+
+\end_inset 
+
+: Set Coordinate System Data
 \begin_inset LatexCommand \label{sub:G10:-Set-Coordinate}
 
 \end_inset 
@@ -4327,7 +4787,22 @@ G10 L2 P1 x 3.5 y 17.2
  
 \layout Section
 
-G17, G18, G19: Plane Selection
+G17
+\begin_inset LatexCommand \index{G17}
+
+\end_inset 
+
+, G18
+\begin_inset LatexCommand \index{G18}
+
+\end_inset 
+
+, G19
+\begin_inset LatexCommand \index{G19}
+
+\end_inset 
+
+: Plane Selection
 \begin_inset LatexCommand \label{sub:G17,-G18,-G19:}
 
 \end_inset 
@@ -4350,7 +4825,17 @@ Program G17 to select the XY-plane, G18 to select the XZ-plane, or G19 to
 
 \layout Section
 
-G20, G21: Length Units
+G20
+\begin_inset LatexCommand \index{G20}
+
+\end_inset 
+
+, G21
+\begin_inset LatexCommand \index{G21}
+
+\end_inset 
+
+: Length Units
 \layout Standard
 
 Program G20 to use inches for length units.
@@ -4365,7 +4850,17 @@ It is usually a good idea to program either G20 or G21 near the beginning
  
 \layout Section
 
-G28, G30: Return to Home
+G28
+\begin_inset LatexCommand \index{G28}
+
+\end_inset 
+
+, G30
+\begin_inset LatexCommand \index{G30}
+
+\end_inset 
+
+: Return to Home
 \begin_inset LatexCommand \label{sub:G28,-G30:-Return}
 
 \end_inset 
@@ -4403,7 +4898,12 @@ G30
  
 \layout Section
 
-G38.2: Straight Probe
+G38.2
+\begin_inset LatexCommand \index{G38.2}
+
+\end_inset 
+
+: Straight Probe
 \begin_inset LatexCommand \label{sub:G38.2:-Straight-Probe}
 
 \end_inset 
@@ -4464,7 +4964,22 @@ filename.txt
 .
 \layout Section
 
-G40, G41, G42: Cutter Radius Compensation.
+G40
+\begin_inset LatexCommand \index{G40}
+
+\end_inset 
+
+, G41
+\begin_inset LatexCommand \index{G41}
+
+\end_inset 
+
+, G42
+\begin_inset LatexCommand \index{G42}
+
+\end_inset 
+
+: Cutter Radius Compensation.
 \begin_inset LatexCommand \label{sub:G40,-G41,-G42:}
 
 \end_inset 
@@ -4527,7 +5042,17 @@ The behavior of the machining center when cutter radius compensation is
 
 \layout Section
 
-G43, G49: Tool Length Offsets
+G43
+\begin_inset LatexCommand \index{G43}
+
+\end_inset 
+
+, G49
+\begin_inset LatexCommand \index{G49}
+
+\end_inset 
+
+: Tool Length Offsets
 \begin_inset LatexCommand \label{sub:G43,-G49:-Tool}
 
 \end_inset 
@@ -4562,7 +5087,12 @@ It is OK to program using the same offset already in use.
  
 \layout Section
 
-G53: Move in absolute coordinates
+G53
+\begin_inset LatexCommand \index{G53}
+
+\end_inset 
+
+: Move in absolute coordinates
 \begin_inset LatexCommand \label{sub:G53:-Move-in}
 
 \end_inset 
@@ -4633,7 +5163,52 @@ See Section
  
 \layout Section
 
-G54 to G59.3: Select Coordinate System
+G54
+\begin_inset LatexCommand \index{G54}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \index{G55}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \index{G56}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \index{G57}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \index{G58}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \index{G59}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \index{G59.1}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \index{G59.2}
+
+\end_inset 
+
+ to G59.3
+\begin_inset LatexCommand \index{G59.3}
+
+\end_inset 
+
+: Select Coordinate System
 \begin_inset LatexCommand \label{sub:G54-to-G59.3:}
 
 \end_inset 
@@ -4697,7 +5272,22 @@ See Section
  
 \layout Section
 
-G61, G61.1, G64: Set Path Control Mode
+G61
+\begin_inset LatexCommand \index{G61}
+
+\end_inset 
+
+, G61.1
+\begin_inset LatexCommand \index{G61.1}
+
+\end_inset 
+
+, G64
+\begin_inset LatexCommand \index{G64}
+
+\end_inset 
+
+: Set Path Control Mode
 \begin_inset LatexCommand \label{sub:G61,-G61.1,-G64:}
 
 \end_inset 
@@ -4728,7 +5318,12 @@ G64 P-
  
 \layout Section
 
-G80: Cancel Modal Motion
+G80
+\begin_inset LatexCommand \index{G80}
+
+\end_inset 
+
+: Cancel Modal Motion
 \layout Standard
 
 Program 
@@ -4743,7 +5338,17 @@ Axis words are programmed when G80 is active, unless a modal group 0 G code
  is programmed which uses axis words.
 \layout Section
 
-G81 to G89: Canned Cycles
+G81
+\begin_inset LatexCommand \index{G81}
+
+\end_inset 
+
+ to G89
+\begin_inset LatexCommand \index{G89}
+
+\end_inset 
+
+: Canned Cycles
 \begin_inset LatexCommand \label{sub:G81-to-G89:}
 
 \end_inset 
