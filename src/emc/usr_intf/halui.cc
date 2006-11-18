@@ -248,8 +248,7 @@ struct halui_str {
     hal_bit_t *joint_on_hard_min_limit[EMCMOT_MAX_AXIS+1];   //status pin that the joint is on the hardware min limit
     hal_bit_t *joint_on_hard_max_limit[EMCMOT_MAX_AXIS+1];   //status pin that the joint is on the hardware max limit
     hal_bit_t *joint_has_fault[EMCMOT_MAX_AXIS+1];   //status pin that the joint has a fault
-    hal_u8_t  *joint_select;                                 // pin for selecting a joint
-    hal_u8_t  *joint_selected;                               // status pin for the joint selected
+    hal_u32_t *joint_selected;                               // status pin for the joint selected
     hal_bit_t *joint_nr_select[EMCMOT_MAX_AXIS];             // nr. of pins to select a joint
     hal_bit_t *joint_is_selected[EMCMOT_MAX_AXIS];           // nr. of status pins for joint selected
 
@@ -310,8 +309,7 @@ struct local_halui_str {
     hal_bit_t spindle_brake_off;  //pin for deactivating spindle/brake
 
     hal_bit_t joint_home[EMCMOT_MAX_AXIS+1];   //pin for homing one joint
-    hal_u8_t joint_select;
-    hal_u8_t joint_selected;
+    hal_u32_t joint_selected;
     hal_bit_t joint_nr_select[EMCMOT_MAX_AXIS];
     hal_bit_t joint_is_selected[EMCMOT_MAX_AXIS];
 
@@ -750,7 +748,7 @@ int halui_hal_init(void)
 
     retval =  hal_pin_float_newf(HAL_OUT, &(halui_data->fo_value), comp_id, "halui.feed-override.value"); 
     if (retval != HAL_SUCCESS) return retval;
-    retval = hal_pin_u8_newf(HAL_OUT, &(halui_data->joint_selected), comp_id, "halui.joint.selected"); 
+    retval = hal_pin_u32_newf(HAL_OUT, &(halui_data->joint_selected), comp_id, "halui.joint.selected"); 
     if (retval != HAL_SUCCESS) return retval;
     retval = hal_pin_u32_newf(HAL_OUT, &(halui_data->tool_number), comp_id, "halui.tool.number"); 
     if (retval != HAL_SUCCESS) return retval;
@@ -842,9 +840,6 @@ int halui_hal_init(void)
     if (retval != HAL_SUCCESS) return retval;
 
     retval = halui_export_pin_IN_bit(&(halui_data->abort), "halui.abort"); 
-    if (retval != HAL_SUCCESS) return retval;
-
-    retval = hal_pin_u8_newf(HAL_IN, &(halui_data->joint_select), comp_id, "halui.joint.select"); 
     if (retval != HAL_SUCCESS) return retval;
 
     for (joint=0; joint < num_axes ; joint++) {
@@ -1695,8 +1690,6 @@ static void hal_init_pins()
     *(halui_data->jog_minus[num_axes]) = old_halui_data.jog_minus[num_axes] = 0;
     *(halui_data->jog_plus[num_axes]) = old_halui_data.jog_plus[num_axes] = 0;
 
-
-    old_halui_data.joint_select = *(halui_data->joint_select) = 0;
     *(halui_data->joint_selected) = 0; // select joint 0 by default
     
     *(halui_data->fo_scale) = old_halui_data.fo_scale = 0.1; //sane default
