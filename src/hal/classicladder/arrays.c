@@ -54,8 +54,10 @@ extern void CopySizesInfosFromModuleParams( void );
 #endif
 
 
+#ifndef HAL_SUPPORT
 #if defined( RTLINUX ) || defined ( __RTL__ )
 #include "/usr/rtlinux/include/mbuff.h"
+#endif
 #endif
 
 #ifdef HAL_SUPPORT
