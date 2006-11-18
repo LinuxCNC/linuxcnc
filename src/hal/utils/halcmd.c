@@ -1159,10 +1159,6 @@ static int do_newsig_cmd(char *name, char *type)
 	retval = hal_signal_new(name, HAL_BIT);
     } else if (strcasecmp(type, "float") == 0) {
 	retval = hal_signal_new(name, HAL_FLOAT);
-    } else if (strcasecmp(type, "u8") == 0) {
-	retval = hal_signal_new(name, HAL_U8);
-    } else if (strcasecmp(type, "s8") == 0) {
-	retval = hal_signal_new(name, HAL_S8);
     } else if (strcasecmp(type, "u16") == 0) {
 	retval = hal_signal_new(name, HAL_U32);
     } else if (strcasecmp(type, "s32") == 0) {
@@ -1207,28 +1203,6 @@ static int set_common(hal_type_t type, void *d_ptr, char *value) {
 	    retval = HAL_INVAL;
 	} else {
 	    *((hal_float_t *) (d_ptr)) = fval;
-	}
-	break;
-    case HAL_S8:
-	lval = strtol(value, &cp, 0);
-	if (((*cp != '\0') && (!isspace(*cp))) || (lval > 127) || (lval < -128)) {
-	    /* invalid chars in string, or outside limits of S8 */
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"HAL:%d: ERROR: value '%s' invalid for S8\n", linenumber, value);
-	    retval = HAL_INVAL;
-	} else {
-	    *((hal_s8_t *) (d_ptr)) = lval;
-	}
-	break;
-    case HAL_U8:
-	ulval = strtoul(value, &cp, 0);
-	if (((*cp != '\0') && (!isspace(*cp))) || (ulval > 255)) {
-	    /* invalid chars in string, or outside limits of U8 */
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"HAL:%d: ERROR: value '%s' invalid for U8\n", linenumber, value);
-	    retval = HAL_INVAL;
-	} else {
-	    *((hal_u8_t *) (d_ptr)) = ulval;
 	}
 	break;
     case HAL_S32:
@@ -2522,12 +2496,6 @@ static char *data_type(int type)
     case HAL_FLOAT:
 	type_str = "float";
 	break;
-    case HAL_S8:
-	type_str = "s8   ";
-	break;
-    case HAL_U8:
-	type_str = "u8   ";
-	break;
     case HAL_S32:
 	type_str = "s32  ";
 	break;
@@ -2644,15 +2612,6 @@ static char *data_value(int type, void *valptr)
 	snprintf(buf, 14, "%12.5e", *((float *) valptr));
 	value_str = buf;
 	break;
-    case HAL_S8:
-	snprintf(buf, 14, "    %4d    ", *((hal_s8_t *) valptr));
-	value_str = buf;
-	break;
-    case HAL_U8:
-	snprintf(buf, 14, "  %3u  (%02X) ",
-	    *((unsigned char *) valptr), *((hal_u8_t *) valptr));
-	value_str = buf;
-	break;
     case HAL_S32:
 	snprintf(buf, 14, " %10ld ", (long)*((hal_u32_t *) valptr));
 	value_str = buf;
@@ -2684,14 +2643,6 @@ static char *data_value2(int type, void *valptr)
 	break;
     case HAL_FLOAT:
 	snprintf(buf, 14, "%e", *((float *) valptr));
-	value_str = buf;
-	break;
-    case HAL_S8:
-	snprintf(buf, 14, "%d", (int)*((hal_s8_t *) valptr));
-	value_str = buf;
-	break;
-    case HAL_U8:
-	snprintf(buf, 14, "%u", (int)*((hal_u8_t *) valptr));
 	value_str = buf;
 	break;
     case HAL_S32:
@@ -2993,8 +2944,8 @@ static int do_help_cmd(char *command)
 	printf("  all  - HAL completely unlocked.\n");
     } else if (strcmp(command, "newsig") == 0) {
 	printf("newsig signame type\n");
-	printf("  Creates a new signal called 'signame'.  Type is 'bit',\n");
-	printf("  'float', 'u8', 's8', 'u16', 's16', 'u32', or 's32'.\n");
+	printf("  Creates a new signal called 'signame'.  Type\n");
+	printf("  is 'bit', 'float', 'u32', or 's32'.\n");
     } else if (strcmp(command, "delsig") == 0) {
 	printf("delsig signame\n");
 	printf("  Deletes signal 'signame'.  If 'signame is 'all',\n");
@@ -3174,7 +3125,7 @@ static char *status_table[] = {
 };
 
 static char *pintype_table[] = {
-    "bit", "float", "u8", "s8", "u16", "s16", "u32", "s32", 
+    "bit", "float", "u32", "s32", 
     NULL
 };
 

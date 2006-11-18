@@ -70,7 +70,7 @@ typedef struct {
 				         encoder clears: index arrived */
     hal_bit_t *amp_fault;	/* RPI: amp fault input */
     hal_bit_t *amp_enable;	/* WPI: amp enable output */
-    hal_s8_t home_state;	/* RPA: homing state machine state */
+    hal_s32_t home_state;	/* RPA: homing state machine state */
 
     hal_s32_t *jog_counts;	/* RPI: jogwheel position input */
     hal_bit_t *jog_enable;	/* RPI: enable jogwheel */
@@ -127,7 +127,7 @@ typedef struct {
     // FIXME - debug only, remove later
     hal_float_t traj_pos_out;	/* RPA: traj internals, for debugging */
     hal_float_t traj_vel_out;	/* RPA: traj internals, for debugging */
-    hal_u8_t traj_active_tc;	/* RPA: traj internals, for debugging */
+    hal_u32_t traj_active_tc;	/* RPA: traj internals, for debugging */
     hal_float_t tc_pos[4];	/* RPA: traj internals, for debugging */
     hal_float_t tc_vel[4];	/* RPA: traj internals, for debugging */
     hal_float_t tc_acc[4];	/* RPA: traj internals, for debugging */

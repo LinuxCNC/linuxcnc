@@ -552,12 +552,6 @@ static int get_sample_info(int chan_num, int x, double *t, double *v) {
     case HAL_FLOAT:
         fy = dptr->d_float;
         break;
-    case HAL_S8:
-        fy = dptr->d_s8;
-        break;
-    case HAL_U8:
-        fy = dptr->d_u8;
-        break;
     case HAL_S32:
         fy = dptr->d_s32;
         break;
@@ -853,12 +847,6 @@ void draw_waveform(int chan_num, int highlight)
 	    break;
 	case HAL_FLOAT:
 	    fy = dptr->d_float;
-	    break;
-	case HAL_S8:
-	    fy = dptr->d_s8;
-	    break;
-	case HAL_U8:
-	    fy = dptr->d_u8;
 	    break;
 	case HAL_S32:
 	    fy = dptr->d_s32;

@@ -383,7 +383,7 @@ static int init_hal_io(void)
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "traj.active_tc");
     retval =
-	hal_param_u8_new(buf, HAL_RO, &(emcmot_hal_data->traj_active_tc),
+	hal_param_u32_new(buf, HAL_RO, &(emcmot_hal_data->traj_active_tc),
 	mot_comp_id);
     if (retval != 0) {
 	return retval;
@@ -687,7 +687,7 @@ static int export_axis(int num, axis_hal_t * addr)
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.home-state", num);
-    retval = hal_param_s8_new(buf, HAL_RO, &(addr->home_state), mot_comp_id);
+    retval = hal_param_s32_new(buf, HAL_RO, &(addr->home_state), mot_comp_id);
     if (retval != 0) {
 	return retval;
     }

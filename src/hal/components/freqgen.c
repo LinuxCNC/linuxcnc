@@ -313,14 +313,14 @@ RTAPI_MP_ARRAY_INT(step_type, 8, "stepping types for up to 8 channels");
 typedef struct {
     unsigned char step_type;	/* stepping type - see list above */
     unsigned char need_step;	/* non-zero if we need to step */
-    unsigned char setup_timer;	/* timer for dir setup time */
-    unsigned char hold_timer;	/* timer for dir hold time */
-    unsigned char space_timer;	/* timer for pulse spacing */
-    unsigned char len_timer;	/* timer for pulse length */
-    hal_u8_t dir_setup;		/* parameter: direction setup time */
-    hal_u8_t dir_hold;		/* parameter: direction hold time */
-    hal_u8_t step_len;		/* parameter: step pulse length */
-    hal_u8_t step_space;	/* parameter: min step pulse spacing */
+    unsigned int setup_timer;	/* timer for dir setup time */
+    unsigned int hold_timer;	/* timer for dir hold time */
+    unsigned int space_timer;	/* timer for pulse spacing */
+    unsigned int len_timer;	/* timer for pulse length */
+    hal_u32_t dir_setup;	/* parameter: direction setup time */
+    hal_u32_t dir_hold;		/* parameter: direction hold time */
+    hal_u32_t step_len;		/* parameter: step pulse length */
+    hal_u32_t step_space;	/* parameter: min step pulse spacing */
 } st0_t;
 
 typedef struct {
@@ -852,25 +852,25 @@ static int export_freqgen(int num, freqgen_t * addr, int step_type)
 	/* export parameters for step/dir pulse timing */
 	rtapi_snprintf(buf, HAL_NAME_LEN, "freqgen.%d.dirsetup", num);
 	retval =
-	    hal_param_u8_new(buf, HAL_RW, &(addr->wd.st0.dir_setup), comp_id);
+	    hal_param_u32_new(buf, HAL_RW, &(addr->wd.st0.dir_setup), comp_id);
 	if (retval != 0) {
 	    return retval;
 	}
 	rtapi_snprintf(buf, HAL_NAME_LEN, "freqgen.%d.dirhold", num);
 	retval =
-	    hal_param_u8_new(buf, HAL_RW, &(addr->wd.st0.dir_hold), comp_id);
+	    hal_param_u32_new(buf, HAL_RW, &(addr->wd.st0.dir_hold), comp_id);
 	if (retval != 0) {
 	    return retval;
 	}
 	rtapi_snprintf(buf, HAL_NAME_LEN, "freqgen.%d.steplen", num);
 	retval =
-	    hal_param_u8_new(buf, HAL_RW, &(addr->wd.st0.step_len), comp_id);
+	    hal_param_u32_new(buf, HAL_RW, &(addr->wd.st0.step_len), comp_id);
 	if (retval != 0) {
 	    return retval;
 	}
 	rtapi_snprintf(buf, HAL_NAME_LEN, "freqgen.%d.stepspace", num);
 	retval =
-	    hal_param_u8_new(buf, HAL_RW, &(addr->wd.st0.step_space),
+	    hal_param_u32_new(buf, HAL_RW, &(addr->wd.st0.step_space),
 	    comp_id);
 	if (retval != 0) {
 	    return retval;

@@ -338,8 +338,8 @@ int main(int argc, char *argv[])
 {
     char name[HAL_NAME_LEN + 2];
     int n, retval;
-    hal_s8_t *read_funct_flags;
-    hal_s8_t *write_funct_flags;
+    hal_s32_t *read_funct_flags;
+    hal_s32_t *write_funct_flags;
     struct timeval tv;
 
     /* ask linux for permission to use the I/O ports */
@@ -355,7 +355,7 @@ int main(int argc, char *argv[])
 	return retval;
     }
     /* allocate space for function run/stop parameters */
-    read_funct_flags = hal_malloc((num_ports + 1) * sizeof(hal_s8_t) * 2);
+    read_funct_flags = hal_malloc((num_ports + 1) * sizeof(hal_s32_t) * 2);
     if (read_funct_flags == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "PARPORT: ERROR: hal_malloc() failed\n");
@@ -367,7 +367,7 @@ int main(int argc, char *argv[])
     for (n = 0; n < num_ports; n++) {
 	/* export read function parameter */
 	retval =
-	    hal_param_s8_newf(HAL_RW, &read_funct_flags[n + 1],
+	    hal_param_s32_newf(HAL_RW, &read_funct_flags[n + 1],
                     comp_id, "parport.%d.read", n);
 	if (retval != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
@@ -378,7 +378,7 @@ int main(int argc, char *argv[])
 	/* make write function name */
 	/* export read function parameter */
 	retval =
-	    hal_param_s8_newf(name, HAL_RW, &write_funct_flags[n + 1],
+	    hal_param_s32_newf(name, HAL_RW, &write_funct_flags[n + 1],
                     comp_id, "parport.%d.write", n);
 	if (retval != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
@@ -389,7 +389,7 @@ int main(int argc, char *argv[])
     }
     /* export parameters for read/write all port functuons */
     retval =
-	hal_param_s8_new("parport.read_all", HAL_RW, &read_funct_flags[0],
+	hal_param_s32_new("parport.read_all", HAL_RW, &read_funct_flags[0],
 	comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -398,7 +398,7 @@ int main(int argc, char *argv[])
 	return -1;
     }
     retval =
-	hal_param_s8_new("parport.write_all", HAL_RW,
+	hal_param_s32_new("parport.write_all", HAL_RW,
 	&write_funct_flags[0], comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,

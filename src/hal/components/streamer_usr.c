@@ -234,20 +234,8 @@ int main(int argc, char **argv)
 		    cp2 = cp;
 		}
 		break;
-	    case HAL_U8:
-		dptr->u = strtoul(cp, &cp2, 10);
-		if ( dptr->u > 255 ) {
-		    errmsg = "u8 value greater than 255";
-		}
-		break;
 	    case HAL_U32:
 		dptr->u = strtoul(cp, &cp2, 10);
-		break;
-	    case HAL_S8:
-		dptr->s = strtol(cp, &cp2, 10);
-		if (( dptr->s > 127 ) || ( dptr->s < -128 )) {
-		    errmsg ="s8 value outside -128 to +127";
-		}
 		break;
 	    case HAL_S32:
 		dptr->s = strtol(cp, &cp2, 10);

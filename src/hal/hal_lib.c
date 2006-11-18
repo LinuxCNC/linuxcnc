@@ -498,18 +498,6 @@ int hal_pin_float_new(char *name, hal_pin_dir_t dir,
 	comp_id);
 }
 
-int hal_pin_u8_new(char *name, hal_pin_dir_t dir,
-    hal_u8_t ** data_ptr_addr, int comp_id)
-{
-    return hal_pin_new(name, HAL_U8, dir, (void **) data_ptr_addr, comp_id);
-}
-
-int hal_pin_s8_new(char *name, hal_pin_dir_t dir,
-    hal_s8_t ** data_ptr_addr, int comp_id)
-{
-    return hal_pin_new(name, HAL_S8, dir, (void **) data_ptr_addr, comp_id);
-}
-
 int hal_pin_u32_new(char *name, hal_pin_dir_t dir,
     hal_u32_t ** data_ptr_addr, int comp_id)
 {
@@ -547,32 +535,6 @@ int hal_pin_float_newf(hal_pin_dir_t dir,
     if(sz == -1 || sz >= HAL_NAME_LEN) return HAL_NOMEM;
     return hal_pin_new(name, HAL_FLOAT, dir, (void **) data_ptr_addr,
 	comp_id);
-}
-
-int hal_pin_u8_newf(hal_pin_dir_t dir,
-    hal_u8_t ** data_ptr_addr, int comp_id, char *fmt, ...)
-{
-    char name[HAL_NAME_LEN];
-    va_list ap;
-    int sz;
-    va_start(ap, fmt);
-    sz = rtapi_vsnprintf(name, HAL_NAME_LEN, fmt, ap);
-    va_end(ap);
-    if(sz == -1 || sz >= HAL_NAME_LEN) return HAL_NOMEM;
-    return hal_pin_new(name, HAL_U8, dir, (void **) data_ptr_addr, comp_id);
-}
-
-int hal_pin_s8_newf(hal_pin_dir_t dir,
-    hal_s8_t ** data_ptr_addr, int comp_id, char *fmt, ...)
-{
-    char name[HAL_NAME_LEN];
-    va_list ap;
-    int sz;
-    va_start(ap, fmt);
-    sz = rtapi_vsnprintf(name, HAL_NAME_LEN, fmt, ap);
-    va_end(ap);
-    if(sz == -1 || sz >= HAL_NAME_LEN) return HAL_NOMEM;
-    return hal_pin_new(name, HAL_S8, dir, (void **) data_ptr_addr, comp_id);
 }
 
 int hal_pin_u32_newf(hal_pin_dir_t dir,
@@ -732,8 +694,6 @@ int hal_signal_new(char *name, hal_type_t type)
     /* allocate memory for the signal value */
     switch (type) {
     case HAL_BIT:
-    case HAL_S8:
-    case HAL_U8:
 	data_addr = shmalloc_up(1);
 	break;
     case HAL_S32:
@@ -760,8 +720,6 @@ int hal_signal_new(char *name, hal_type_t type)
     /* initialize the signal value */
     switch (type) {
     case HAL_BIT:
-    case HAL_S8:
-    case HAL_U8:
 	*((char *) data_addr) = 0;
 	break;
     case HAL_S32:
@@ -960,18 +918,6 @@ int hal_param_float_new(char *name, hal_param_dir_t dir, hal_float_t * data_addr
     return hal_param_new(name, HAL_FLOAT, dir, (void *) data_addr, comp_id);
 }
 
-int hal_param_u8_new(char *name, hal_param_dir_t dir, hal_u8_t * data_addr,
-    int comp_id)
-{
-    return hal_param_new(name, HAL_U8, dir, (void *) data_addr, comp_id);
-}
-
-int hal_param_s8_new(char *name, hal_param_dir_t dir, hal_s8_t * data_addr,
-    int comp_id)
-{
-    return hal_param_new(name, HAL_S8, dir, (void *) data_addr, comp_id);
-}
-
 int hal_param_u32_new(char *name, hal_param_dir_t dir, hal_u32_t * data_addr,
     int comp_id)
 {
@@ -1008,32 +954,6 @@ int hal_param_float_newf(hal_param_dir_t dir, hal_float_t * data_addr,
     va_end(ap);
     if(sz == -1 || sz >= HAL_NAME_LEN) return HAL_NOMEM;
     return hal_param_new(name, HAL_FLOAT, dir, (void *) data_addr, comp_id);
-}
-
-int hal_param_u8_newf(hal_param_dir_t dir, hal_u8_t * data_addr,
-    int comp_id, char *fmt, ...)
-{
-    char name[HAL_NAME_LEN];
-    va_list ap;
-    int sz;
-    va_start(ap, fmt);
-    sz = rtapi_vsnprintf(name, HAL_NAME_LEN, fmt, ap);
-    va_end(ap);
-    if(sz == -1 || sz >= HAL_NAME_LEN) return HAL_NOMEM;
-    return hal_param_new(name, HAL_U8, dir, (void *) data_addr, comp_id);
-}
-
-int hal_param_s8_newf(hal_param_dir_t dir, hal_s8_t * data_addr,
-    int comp_id, char *fmt, ...)
-{
-    char name[HAL_NAME_LEN];
-    va_list ap;
-    int sz;
-    va_start(ap, fmt);
-    sz = rtapi_vsnprintf(name, HAL_NAME_LEN, fmt, ap);
-    va_end(ap);
-    if(sz == -1 || sz >= HAL_NAME_LEN) return HAL_NOMEM;
-    return hal_param_new(name, HAL_S8, dir, (void *) data_addr, comp_id);
 }
 
 int hal_param_u32_newf(hal_param_dir_t dir, hal_u32_t * data_addr,
@@ -1165,16 +1085,6 @@ int hal_param_float_set(char *name, float value)
     return hal_param_set(name, HAL_FLOAT, &value);
 }
 
-int hal_param_u8_set(char *name, unsigned char value)
-{
-    return hal_param_set(name, HAL_U8, &value);
-}
-
-int hal_param_s8_set(char *name, signed char value)
-{
-    return hal_param_set(name, HAL_S8, &value);
-}
-
 int hal_param_u32_set(char *name, unsigned long value)
 {
     return hal_param_set(name, HAL_U32, &value);
@@ -1243,12 +1153,6 @@ int hal_param_set(char *name, hal_type_t type, void *value_addr)
 	break;
     case HAL_FLOAT:
 	*((hal_float_t *) (d_ptr)) = *((float *) (value_addr));
-	break;
-    case HAL_S8:
-	*((hal_s8_t *) (d_ptr)) = *((signed char *) (value_addr));
-	break;
-    case HAL_U8:
-	*((hal_u8_t *) (d_ptr)) = *((unsigned char *) (value_addr));
 	break;
     case HAL_S32:
 	*((hal_s32_t *) (d_ptr)) = *((signed long *) (value_addr));
@@ -2947,16 +2851,12 @@ EXPORT_SYMBOL(hal_malloc);
 
 EXPORT_SYMBOL(hal_pin_bit_new);
 EXPORT_SYMBOL(hal_pin_float_new);
-EXPORT_SYMBOL(hal_pin_u8_new);
-EXPORT_SYMBOL(hal_pin_s8_new);
 EXPORT_SYMBOL(hal_pin_u32_new);
 EXPORT_SYMBOL(hal_pin_s32_new);
 EXPORT_SYMBOL(hal_pin_new);
 
 EXPORT_SYMBOL(hal_pin_bit_newf);
 EXPORT_SYMBOL(hal_pin_float_newf);
-EXPORT_SYMBOL(hal_pin_u8_newf);
-EXPORT_SYMBOL(hal_pin_s8_newf);
 EXPORT_SYMBOL(hal_pin_u32_newf);
 EXPORT_SYMBOL(hal_pin_s32_newf);
 
@@ -2967,23 +2867,17 @@ EXPORT_SYMBOL(hal_link);
 
 EXPORT_SYMBOL(hal_param_bit_new);
 EXPORT_SYMBOL(hal_param_float_new);
-EXPORT_SYMBOL(hal_param_u8_new);
-EXPORT_SYMBOL(hal_param_s8_new);
 EXPORT_SYMBOL(hal_param_u32_new);
 EXPORT_SYMBOL(hal_param_s32_new);
 EXPORT_SYMBOL(hal_param_new);
 
 EXPORT_SYMBOL(hal_param_bit_newf);
 EXPORT_SYMBOL(hal_param_float_newf);
-EXPORT_SYMBOL(hal_param_u8_newf);
-EXPORT_SYMBOL(hal_param_s8_newf);
 EXPORT_SYMBOL(hal_param_u32_newf);
 EXPORT_SYMBOL(hal_param_s32_newf);
 
 EXPORT_SYMBOL(hal_param_bit_set);
 EXPORT_SYMBOL(hal_param_float_set);
-EXPORT_SYMBOL(hal_param_u8_set);
-EXPORT_SYMBOL(hal_param_s8_set);
 EXPORT_SYMBOL(hal_param_u32_set);
 EXPORT_SYMBOL(hal_param_s32_set);
 EXPORT_SYMBOL(hal_param_set);

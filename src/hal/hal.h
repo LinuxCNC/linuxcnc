@@ -258,10 +258,8 @@ extern int hal_ready(int comp_id);
 typedef enum {
     HAL_BIT = 1,
     HAL_FLOAT = 2,
-    HAL_S8 = 3,
-    HAL_U8 = 4,
-    HAL_S32 = 5,
-    HAL_U32 = 6
+    HAL_S32 = 3,
+    HAL_U32 = 4
 } hal_type_t;
 
 /** HAL pins have a direction attribute.  A pin may be an input to 
@@ -295,8 +293,6 @@ typedef enum {
 /* Use these for x86 machines, and anything else that can write to
    individual bytes in a machine word. */
 typedef volatile unsigned char hal_bit_t;
-typedef volatile unsigned char hal_u8_t;
-typedef volatile signed char hal_s8_t;
 typedef volatile __u32 hal_u32_t;
 typedef volatile __s32 hal_s32_t;
 typedef volatile float hal_float_t;
@@ -304,8 +300,6 @@ typedef volatile float hal_float_t;
 /* Use these for weird machines that can't access bytes individually.
    It wastes memory and may be slower, but it can't be helped. */
 typedef volatile unsigned int hal_bit_t;
-typedef volatile unsigned int hal_u8_t;
-typedef volatile signed int hal_s8_t;
 typedef volatile unsigned long hal_u32_t;
 typedef volatile signed long hal_s32_t;
 typedef volatile float hal_float_t;
@@ -368,10 +362,6 @@ extern int hal_pin_bit_new(char *name, hal_pin_dir_t dir,
     hal_bit_t ** data_ptr_addr, int comp_id);
 extern int hal_pin_float_new(char *name, hal_pin_dir_t dir,
     hal_float_t ** data_ptr_addr, int comp_id);
-extern int hal_pin_u8_new(char *name, hal_pin_dir_t dir,
-    hal_u8_t ** data_ptr_addr, int comp_id);
-extern int hal_pin_s8_new(char *name, hal_pin_dir_t dir,
-    hal_s8_t ** data_ptr_addr, int comp_id);
 extern int hal_pin_u32_new(char *name, hal_pin_dir_t dir,
     hal_u32_t ** data_ptr_addr, int comp_id);
 extern int hal_pin_s32_new(char *name, hal_pin_dir_t dir,
@@ -387,10 +377,6 @@ extern int hal_pin_bit_newf(hal_pin_dir_t dir,
     hal_bit_t ** data_ptr_addr, int comp_id, char *fmt, ...);
 extern int hal_pin_float_newf(hal_pin_dir_t dir,
     hal_float_t ** data_ptr_addr, int comp_id, char *fmt, ...);
-extern int hal_pin_u8_newf(hal_pin_dir_t dir,
-    hal_u8_t ** data_ptr_addr, int comp_id, char *fmt, ...);
-extern int hal_pin_s8_newf(hal_pin_dir_t dir,
-    hal_s8_t ** data_ptr_addr, int comp_id, char *fmt, ...);
 extern int hal_pin_u32_newf(hal_pin_dir_t dir,
     hal_u32_t ** data_ptr_addr, int comp_id, char *fmt, ...);
 extern int hal_pin_s32_newf(hal_pin_dir_t dir,
@@ -500,32 +486,24 @@ extern int hal_link(char *pin_name, char *sig_name);
     If successful, the hal_param_xxx_new() functions return HAL_SUCCESS.
     On failure they return a negative error code.
 */
-extern int hal_param_bit_new(char *name, hal_param_dir_t dir, hal_bit_t * data_addr,
-    int comp_id);
+extern int hal_param_bit_new(char *name, hal_param_dir_t dir,
+    hal_bit_t * data_addr, int comp_id);
 extern int hal_param_float_new(char *name, hal_param_dir_t dir,
     hal_float_t * data_addr, int comp_id);
-extern int hal_param_u8_new(char *name, hal_param_dir_t dir, hal_u8_t * data_addr,
-    int comp_id);
-extern int hal_param_s8_new(char *name, hal_param_dir_t dir, hal_s8_t * data_addr,
-    int comp_id);
-extern int hal_param_u32_new(char *name, hal_param_dir_t dir, hal_u32_t * data_addr,
-    int comp_id);
-extern int hal_param_s32_new(char *name, hal_param_dir_t dir, hal_s32_t * data_addr,
-    int comp_id);
+extern int hal_param_u32_new(char *name, hal_param_dir_t dir,
+    hal_u32_t * data_addr, int comp_id);
+extern int hal_param_s32_new(char *name, hal_param_dir_t dir,
+    hal_s32_t * data_addr, int comp_id);
 
 /** printf-style versions of hal_param_XXX_new */
-extern int hal_param_bit_newf(hal_param_dir_t dir, hal_bit_t * data_addr,
-    int comp_id, char *fmt, ...);
+extern int hal_param_bit_newf(hal_param_dir_t dir, 
+    hal_bit_t * data_addr, int comp_id, char *fmt, ...);
 extern int hal_param_float_newf(hal_param_dir_t dir,
     hal_float_t * data_addr, int comp_id, char *fmt, ...);
-extern int hal_param_u8_newf(hal_param_dir_t dir, hal_u8_t * data_addr,
-    int comp_id, char *fmt, ...);
-extern int hal_param_s8_newf(hal_param_dir_t dir, hal_s8_t * data_addr,
-    int comp_id, char *fmt, ...);
-extern int hal_param_u32_newf(hal_param_dir_t dir, hal_u32_t * data_addr,
-    int comp_id, char *fmt, ...);
-extern int hal_param_s32_newf(hal_param_dir_t dir, hal_s32_t * data_addr,
-    int comp_id, char *fmt, ...);
+extern int hal_param_u32_newf(hal_param_dir_t dir,
+    hal_u32_t * data_addr, int comp_id, char *fmt, ...);
+extern int hal_param_s32_newf(hal_param_dir_t dir,
+    hal_s32_t * data_addr, int comp_id, char *fmt, ...);
 
 
 /** 'hal_param_new()' creates a new 'parameter' object.  It is a generic
@@ -566,8 +544,6 @@ extern int hal_param_new(char *name, hal_type_t type, hal_param_dir_t dir,
 */
 extern int hal_param_bit_set(char *name, int value);
 extern int hal_param_float_set(char *name, float value);
-extern int hal_param_u8_set(char *name, unsigned char value);
-extern int hal_param_s8_set(char *name, signed char value);
 extern int hal_param_u32_set(char *name, unsigned long value);
 extern int hal_param_s32_set(char *name, signed long value);
 

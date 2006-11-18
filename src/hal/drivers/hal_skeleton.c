@@ -38,6 +38,13 @@
  at startup. Please look at the parport driver how to implement this if you need
  this for your driver.
 
+ (added 17 Nov 2006)
+ The approach used for writing HAL drivers has evolved quite a bit over the
+ three years since this was written.  Driver writers should consult the HAL
+ User Manual for information about canonical device interfaces, and should
+ examine some of the more complex drivers, before using this as a basis for
+ a new driver.
+
 */
 
 /** Copyright (C) 2003 John Kasunich
@@ -113,7 +120,7 @@ RTAPI_MP_STRING(cfg, "config string"); */
 */
 
 typedef struct {
-    hal_u8_t *data_out;		/* ptrs for output */
+    hal_u32_t *data_out;		/* ptrs for output */
 } skeleton_t;
 
 /* pointer to array of skeleton_t structs in shared memory, 1 per port */
@@ -168,7 +175,7 @@ int rtapi_app_main(void)
     /* STEP 3: export the pin(s) */
     rtapi_snprintf(name, HAL_NAME_LEN, "skeleton.%d.pin-%02d-out", n, 1);
     retval =
-	hal_pin_u8_new(name, HAL_IN, &(port_data_array->data_out), comp_id);
+	hal_pin_u32_new(name, HAL_IN, &(port_data_array->data_out), comp_id);
     if (retval != HAL_SUCCESS) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "SKELETON: ERROR: port %d var export failed with err=%i\n", n,
@@ -207,8 +214,10 @@ void rtapi_app_exit(void)
 static void write_port(void *arg, long period)
 {
     skeleton_t *port;
+    unsigned char outdata;
     port = arg;
 
+    outdata = *(port->data_out) & 0xFF;
     /* write it to the hardware */
-    rtapi_outb(*(port->data_out), 0x378);
+    rtapi_outb(outdata, 0x378);
 }

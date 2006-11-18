@@ -120,7 +120,7 @@ typedef struct {
 } DigitalOutPinsParams;
 
 typedef struct {
-    hal_u8_t				*pStatus;
+    hal_u32_t				*pStatus;
     DigitalInPinsParams			*pInPins;
     DigitalOutPinsParams		*pOutPins;
 } Plc;
@@ -314,7 +314,7 @@ Plc_ExportPinsParametersFunctions(Plc *this, int componentId, int plcId)
 
     // Export pins and parameters.
     rtapi_snprintf(name, HAL_NAME_LEN, "classicladder.%d.status", plcId);
-    if((error = hal_pin_u8_new(name, HAL_OUT, &(this->pStatus), componentId)) == 0){
+    if((error = hal_pin_u32_new(name, HAL_OUT, &(this->pStatus), componentId)) == 0){
 
 	// Init pin.
 	*(this->pStatus) = InfosGene->LadderState;

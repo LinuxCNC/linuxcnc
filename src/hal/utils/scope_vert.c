@@ -252,16 +252,6 @@ int set_channel_source(int chan_num, int type, char *name)
 	chan->min_index = -36;
 	chan->max_index = 36;
 	break;
-    case HAL_S8:
-	chan->data_len = sizeof(hal_s8_t);
-	chan->min_index = -2;
-	chan->max_index = 8;
-	break;
-    case HAL_U8:
-	chan->data_len = sizeof(hal_u8_t);
-	chan->min_index = -2;
-	chan->max_index = 8;
-	break;
     case HAL_S32:
 	chan->data_len = sizeof(hal_s32_t);
 	chan->min_index = -2;

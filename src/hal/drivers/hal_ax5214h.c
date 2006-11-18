@@ -151,7 +151,6 @@ typedef struct {
     io_pin_t port_2B[8];
     io_pin_t port_2CL[4];
     io_pin_t port_2CH[4];
-    hal_u8_t raw[8];		/* raw read data, for debug */
 } board_t;
 
 /* pointer to array of board_t structs in shared memory, 1 per board */

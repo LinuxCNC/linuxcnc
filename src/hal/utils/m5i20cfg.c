@@ -971,7 +971,7 @@ static void programfpga(void)
 
 	if(PrintConfig)
 	{
-	    fprintf(OutStr, "\nstatic hal_u8_t\n");
+	    fprintf(OutStr, "\nstatic unsigned char\n");
 	    fprintf(OutStr, "fpgaConfig[] = {");
 	}
 	else

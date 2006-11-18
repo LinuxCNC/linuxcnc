@@ -20,7 +20,7 @@
 
     Loading:
 
-    loadrt sampler depth=100 cfg=u8ffb
+    loadrt sampler depth=100 cfg=uffb
 
 
 */
@@ -230,14 +230,8 @@ static void sample(void *arg, long period)
 		dptr->b = 0;
 	    }
 	    break;
-	case HAL_U8:
-	    dptr->u = *(pptr->hu8);
-	    break;
 	case HAL_U32:
 	    dptr->u = *(pptr->hu32);
-	    break;
-	case HAL_S8:
-	    dptr->s = *(pptr->hs8);
 	    break;
 	case HAL_S32:
 	    dptr->s = *(pptr->hs32);
@@ -284,36 +278,14 @@ static int parse_types(fifo_t *f, char *cfg)
 	    break;
 	case 'u':
 	case 'U':
-	    c++;
-	    if ( c[0] == '8' ) {
-		f->type[n++] = HAL_U8;
-		c++;
-		break;
-	    }
-	    if (( c[0] == '3' ) && ( c[1] == '2' )) {
-		f->type[n++] = HAL_U32;
-		c += 2;
-		break;
-	    }
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"SAMPLER: ERROR: type 'U' needs length (8 or 32)\n");
-	    return 0;
+	    f->type[n++] = HAL_U32;
+	    c ++;
+	    break;
 	case 's':
 	case 'S':
+	    f->type[n++] = HAL_S32;
 	    c++;
-	    if ( c[0] == '8' ) {
-		f->type[n++] = HAL_S8;
-		c++;
-		break;
-	    }
-	    if (( c[0] == '3' ) && ( c[1] == '2' )) {
-		f->type[n++] = HAL_S32;
-		c += 2;
-		break;
-	    }
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"SAMPLER: ERROR: type 'S' needs length (8 or 32)\n");
-	    return 0;
+	    break;
 	default:
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"SAMPLER: ERROR: unknown type '%c', must be F, B, U, or S\n", *c);
@@ -402,14 +374,8 @@ static int init_sampler(int num, fifo_t *tmp_fifo)
 	case HAL_BIT:
 	    *(pptr->hbit) = 0;
 	    break;
-	case HAL_U8:
-	    *(pptr->hu8) = 0;
-	    break;
 	case HAL_U32:
 	    *(pptr->hu32) = 0;
-	    break;
-	case HAL_S8:
-	    *(pptr->hs8) = 0;
 	    break;
 	case HAL_S32:
 	    *(pptr->hs32) = 0;

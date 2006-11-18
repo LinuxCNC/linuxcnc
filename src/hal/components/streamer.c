@@ -20,7 +20,7 @@
 
     Loading:
 
-    loadrt streamer depth=100 cfg=u8ffb
+    loadrt streamer depth=100 cfg=uffb
 
 
 */
@@ -226,14 +226,8 @@ static void update(void *arg, long period)
 		*(pptr->hbit) = 0;
 	    }
 	    break;
-	case HAL_U8:
-	    *(pptr->hu8) = dptr->u;
-	    break;
 	case HAL_U32:
 	    *(pptr->hu32) = dptr->u;
-	    break;
-	case HAL_S8:
-	    *(pptr->hs8) = dptr->s;
 	    break;
 	case HAL_S32:
 	    *(pptr->hs32) = dptr->s;
@@ -277,36 +271,14 @@ static int parse_types(fifo_t *f, char *cfg)
 	    break;
 	case 'u':
 	case 'U':
+	    f->type[n++] = HAL_U32;
 	    c++;
-	    if ( c[0] == '8' ) {
-		f->type[n++] = HAL_U8;
-		c++;
-		break;
-	    }
-	    if (( c[0] == '3' ) && ( c[1] == '2' )) {
-		f->type[n++] = HAL_U32;
-		c += 2;
-		break;
-	    }
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"STREAMER: ERROR: type 'U' needs length (8 or 32)\n");
-	    return 0;
+	    break;
 	case 's':
 	case 'S':
+	    f->type[n++] = HAL_S32;
 	    c++;
-	    if ( c[0] == '8' ) {
-		f->type[n++] = HAL_S8;
-		c++;
-		break;
-	    }
-	    if (( c[0] == '3' ) && ( c[1] == '2' )) {
-		f->type[n++] = HAL_S32;
-		c += 2;
-		break;
-	    }
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"STREAMER: ERROR: type 'S' needs length (8 or 32)\n");
-	    return 0;
+	    break;
 	default:
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"STREAMER: ERROR: unknown type '%c', must be F, B, U, or S\n", *c);
@@ -387,14 +359,8 @@ static int init_streamer(int num, fifo_t *tmp_fifo)
 	case HAL_BIT:
 	    *(pptr->hbit) = 0;
 	    break;
-	case HAL_U8:
-	    *(pptr->hu8) = 0;
-	    break;
 	case HAL_U32:
 	    *(pptr->hu32) = 0;
-	    break;
-	case HAL_S8:
-	    *(pptr->hs8) = 0;
 	    break;
 	case HAL_S32:
 	    *(pptr->hs32) = 0;
