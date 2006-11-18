@@ -10,8 +10,8 @@ loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EM
 loadrt stepgen step_type=0,0,0
 # I/O thru the parport
 loadrt hal_parport cfg="0x0378"
-# counting the spindle encoder in software
-loadrt encoder num_chan=1
+# counting the spindle counter in software
+loadrt counter num_chan=1
 # misc blocks needed to do fun things
 loadrt ddt count=6
 loadrt not count=1
@@ -31,8 +31,8 @@ loadrt scope_rt
 #######################################################
 # first we read parport inputs
 addf parport.0.read		base-thread
-# update encoder counter
-addf encoder.update-counters    base-thread
+# update counter
+addf counter.update-counters    base-thread
 # generate step and dir signals
 addf stepgen.make-pulses	base-thread
 # generate spindle pwm
@@ -46,7 +46,7 @@ addf parport.0.write		base-thread
 ########################################################
 # capture axis and spindle positions
 addf stepgen.capture-position	servo-thread
-addf encoder.capture-position	servo-thread
+addf counter.capture-position	servo-thread
 # process motion commands coming from user space
 addf motion-command-handler	servo-thread
 # run main motion controller
@@ -130,7 +130,8 @@ linkps motion.spindle-forward => spindle-forward
 linksp spindle-forward => pwmgen.0.enable
 
 # PID is not used to give closed-loop spindle speed control, because at the
-# highest speeds the software-based encoder cannot keep up
+# highest speeds the software-based counter cannot keep up (note: with 'counter',
+# it can)
 # Instead, this offset and scale have been determined emperically
 # -- if these numbers are accurate, then top speed at this gearing is about
 # 1200 rpm
@@ -153,7 +154,7 @@ linkps scale.0.out => spindle-speed-pwm
 linksp spindle-speed-pwm => pwmgen.0.value
 
 # Spindle speed feedback -- spindle-speed-fb-rpm can be metered or scoped
-# but beware that at the highest speeds the software-based encoder cannot
+# but beware that at the highest speeds the software-based counter cannot
 # keep up, and the speed is estimated incorrectly
 newsig spindle-speed-fb-raw float
 newsig spindle-speed-fb-filtered  float
@@ -163,7 +164,7 @@ newsig spindle-speed-fb-rpm  float
 # speed better when the speed changes.  Lower numbers give a more steady
 # estimate of average spindle speed when the speed is nominally constant
 setp lowpass.0.gain 0.01
-linkps encoder.0.velocity => spindle-speed-fb-raw
+linkps counter.0.velocity => spindle-speed-fb-raw
 linksp spindle-speed-fb-raw => lowpass.0.in
 linkps lowpass.0.out => spindle-speed-fb-filtered
 
@@ -230,25 +231,25 @@ linkps axis.2.home-sw-in <= homeswitches
 # Beginning of threading-related stuff
 #######################################################
 
-# spindle encoder
-# connect encoder signals to encoder counter
+# spindle counter
+# connect encoder signals to counter counter
+# B is not used because it is the counter module, not encoder
 newsig spindle-phase-A bit
 newsig spindle-phase-B bit
 newsig spindle-phase-Z bit
-linksp spindle-phase-A => encoder.0.phase-A
-linksp spindle-phase-B => encoder.0.phase-B
-linksp spindle-phase-Z => encoder.0.phase-Z
+linksp spindle-phase-A => counter.0.phase-A
+linksp spindle-phase-Z => counter.0.phase-Z
 
 linkps parport.0.pin-11-in => spindle-phase-A
 linkps parport.0.pin-12-in => spindle-phase-B
 linkps parport.0.pin-13-in => spindle-phase-Z
 
 # (that way thread pitches can be straightforward,
-#  a 20 tpi thread would multiply the encoder output
+#  a 20 tpi thread would multiply the counter output
 #  by 1/20, etc)
-setp encoder.0.position-scale 4096
+setp counter.0.position-scale 1024
 
-# encoder reset control
+# counter reset control
 # this signal is driven by the motion
 # controller, TRUE for synced motion, FALSE the rest of
 # the time.
@@ -260,11 +261,11 @@ linkps motion.spindle-sync => spindle-sync
 newsig spindle-index-en bit
 linksp spindle-sync	=> not.0.in
 linkps not.0.out	=> spindle-index-en
-linksp spindle-index-en	=> encoder.0.index-enable
+linksp spindle-index-en	=> counter.0.index-enable
 
 # report our revolution count to the motion controller
 newsig spindle-pos float
-linkps encoder.0.position => spindle-pos
+linkps counter.0.position => spindle-pos
 linksp spindle-pos => motion.spindle-revs
 
 
