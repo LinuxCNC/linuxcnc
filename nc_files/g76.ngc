@@ -18,6 +18,15 @@ z-.5
 (thread)
 g0x.2
 z.2
+(p = thread pitch, distance per revolution)
+(z = end of safe move)
+(i = first cut depth measured from safe move)
+(j = initial depth increment; subsequent depths follow degression formula)
+(r = depth degression: 1.0 = constant depth, 2.0 = constant area)
+(                      any number >1.0 allowed)
+(k = last cut depth measured from safe move)
+(q = "compound slide" angle)
+(h = number of spring passes)
 g76 p.05 z-.5 i[.2-.125] j.008 k.043 h4 r2 q29
 g0x.5
 m2
