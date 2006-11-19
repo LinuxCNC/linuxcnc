@@ -44,6 +44,16 @@
 
 2006.08.06 - Documentation can be built from source with the 'make docs' target
 
+2006.06.11 - added realtime support for jogwheels.  Three HAL pins per axis:
+	     one accepts raw counts from the wheel, one sets the distance moved
+	     per count, and one enables that axis to move.
+
+2006.05.17 - added 'adaptive feed', a HAL pin that can be used to scale the
+	     feedrate in real time.  Simular to feedrate override, but can
+	     only vary from 0.0 to 1.0, and reacts much faster.  Intended 
+	     for use with EDM and other applications that require closed 
+	     loop control of feedrate.
+
 2006.03.18 - A new pin "count" exists for freqgen.  It is the same as the
              internal symbol "count" shown in the hal introduction.pdf,
              or the result of up OR down if there was an "OR" component.
