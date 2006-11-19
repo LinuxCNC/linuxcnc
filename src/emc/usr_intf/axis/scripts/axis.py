@@ -2894,6 +2894,8 @@ if lathe:
 
 widgets.feedoverride.set(100)
 commands.set_feedrate(100)
+widgets.spindleoverride.set(100)
+commands.set_spindlerate(100)
 
 def forget(widget, *pins):
     if os.environ.has_key("AXIS_NO_AUTOCONFIGURE"): return
