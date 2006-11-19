@@ -694,7 +694,6 @@ static int export_axis(int num, axis_hal_t * addr)
 
     /* restore saved message level */
     rtapi_set_msg_level(msg);
-rtapi_set_msg_level(RTAPI_MSG_ALL);
     return 0;
 }
 
