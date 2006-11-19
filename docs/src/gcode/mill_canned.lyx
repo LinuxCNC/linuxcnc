@@ -617,7 +617,12 @@ The G84
  Start the spindle clockwise.
 \layout Section
 
-G85 Cycle
+G85
+\begin_inset LatexCommand \index{G85}
+
+\end_inset 
+
+ Cycle
 \layout Standard
 
 The G85 cycle is intended for boring or reaming.
@@ -640,7 +645,12 @@ The G85 cycle is intended for boring or reaming.
  the hole at feedrate rather than rapid.
 \layout Section
 
-G86 Cycle
+G86
+\begin_inset LatexCommand \index{G86}
+
+\end_inset 
+
+ Cycle
 \layout Standard
 
 The G86 cycle is intended for boring.
@@ -679,15 +689,15 @@ The G86 cycle is intended for boring.
  value R.
 \layout Section
 
-G87 Cycle
-\layout Standard
-
-The G87
+G87
 \begin_inset LatexCommand \index{G87}
 
 \end_inset 
 
- cycle is intended for back boring.
+ Cycle
+\layout Standard
+
+The G87 cycle is intended for back boring.
  
 \layout Standard
 

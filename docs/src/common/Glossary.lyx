@@ -59,6 +59,11 @@ so that they look good in the published documents.
 
 Acme\SpecialChar ~
 Screw
+\begin_inset LatexCommand \index{Acme Screw}
+
+\end_inset 
+
+
 \begin_inset LatexCommand \label{AcmeScrew}
 
 \end_inset 
@@ -93,6 +98,11 @@ ely.
 \layout Description
 
 Backlash
+\begin_inset LatexCommand \index{Backlash}
+
+\end_inset 
+
+
 \begin_inset LatexCommand \label{Backlash}
 
 \end_inset 
@@ -118,8 +128,13 @@ Backlash
 \layout Description
 
 Backlash\SpecialChar ~
-Compensation - Any technique that attempts to reduce the effect
- of backlash without actually removing it from the mechanical system.
+Compensation
+\begin_inset LatexCommand \index{Backlash Compensation}
+
+\end_inset 
+
+ - Any technique that attempts to reduce the effect of backlash without
+ actually removing it from the mechanical system.
  This is typically done in software in the controller.
  This can correct the final resting place of the part in motion but fails
  to solve problems related to direction changes while in motion (think circular
@@ -129,6 +144,11 @@ Compensation - Any technique that attempts to reduce the effect
 
 Ball\SpecialChar ~
 Screw
+\begin_inset LatexCommand \index{Ball Screw}
+
+\end_inset 
+
+
 \begin_inset LatexCommand \label{Ballscrew}
 
 \end_inset 
@@ -150,6 +170,11 @@ Screw
 
 Ball\SpecialChar ~
 Nut
+\begin_inset LatexCommand \index{Ball Nut}
+
+\end_inset 
+
+
 \begin_inset LatexCommand \label{Ballnut}
 
 \end_inset 
@@ -159,26 +184,12 @@ Nut
  of the screw to the other.
 \layout Description
 
-bridgeportio
-\begin_inset LatexCommand \label{bridgeportio}
-
-\end_inset 
-
- An I/O task 
-\begin_inset LatexCommand \ref{EMCIO}
-
-\end_inset 
-
- designed to work with a Bridgeport milling machine, having a variable speed
- spindle 
-\begin_inset LatexCommand \ref{Spindle}
-
-\end_inset 
-
-, coolant, and lube pumps, and some other stuff.
-\layout Description
-
 CNC
+\begin_inset LatexCommand \index{CNC}
+
+\end_inset 
+
+
 \begin_inset LatexCommand \label{CNC}
 
 \end_inset 
@@ -204,7 +215,12 @@ Machine A Coordinate Measuring Machine is used to make
  
 \layout Description
 
-DRO A Digital Read Out is a device attached to the slides of a machine tool
+DRO
+\begin_inset LatexCommand \index{DRO}
+
+\end_inset 
+
+ A Digital Read Out is a device attached to the slides of a machine tool
  or other device which has parts that move in a precise manner to indicate
  the current location of the tool with respect to some reference position.
  Nearly all DRO's use linear quadrature encoders to pick up position information
@@ -212,9 +228,14 @@ DRO A Digital Read Out is a device attached to the slides of a machine tool
  
 \layout Description
 
-EDM EDM is a method of removing metal in hard or difficult to machine or
- tough metals, or where rotating tools would not be able to produce the
- desired shape in a cost-effective manner.
+EDM
+\begin_inset LatexCommand \index{EDM}
+
+\end_inset 
+
+ EDM is a method of removing metal in hard or difficult to machine or tough
+ metals, or where rotating tools would not be able to produce the desired
+ shape in a cost-effective manner.
  An excellent example is rectangular punch dies, where sharp internal corners
  are desired.
  Milling operations can not give sharp internal corners with finite diameter
@@ -227,6 +248,11 @@ EDM EDM is a method of removing metal in hard or difficult to machine or
 \layout Description
 
 EMC
+\begin_inset LatexCommand \index{EMC}
+
+\end_inset 
+
+
 \begin_inset LatexCommand \label{EMC}
 
 \end_inset 
@@ -242,6 +268,11 @@ EMC
 \layout Description
 
 EMCIO
+\begin_inset LatexCommand \index{EMCIO}
+
+\end_inset 
+
+
 \begin_inset LatexCommand \label{EMCIO}
 
 \end_inset 
@@ -253,20 +284,14 @@ EMCIO
 
  that handles general purpose I/O, unrelated to the actual motion of the
  axes.
- A couple examples are bridgeportio 
-\begin_inset LatexCommand \ref{bridgeportio}
-
-\end_inset 
-
- and minimillio 
-\begin_inset LatexCommand \ref{minimillio}
-
-\end_inset 
-
-.
 \layout Description
 
 EMCMOT
+\begin_inset LatexCommand \index{EMCMOT}
+
+\end_inset 
+
+
 \begin_inset LatexCommand \label{EMCMOT}
 
 \end_inset 
@@ -281,14 +306,27 @@ EMCMOT
 \layout Description
 
 Encoder
-\begin_inset LatexCommand \label{Encoder}
+\begin_inset LatexCommand \index{Encoder}
 
 \end_inset 
 
 
+\begin_inset LatexCommand \label{Encoder}
+
+\end_inset 
+
+ A device to measure position.
+ Usually a machanical-optical device, which outputs a quadrature signal.
+ The signal can be counted by special hardware, or directly by the parport
+ with emc2.
 \layout Description
 
 Feed
+\begin_inset LatexCommand \index{Feed}
+
+\end_inset 
+
+
 \begin_inset LatexCommand \label{Feed}
 
 \end_inset 
@@ -296,7 +334,12 @@ Feed
  Relatively slow, controlled motion of the tool used when making a cut.
 \layout Description
 
-Feedrate The speed at which a motion occurs.
+Feedrate
+\begin_inset LatexCommand \index{Feedrate}
+
+\end_inset 
+
+ The speed at which a motion occurs.
  In manual mode, jog speed can be set from the graphical interface.
  In auto or mdi mode feedrate is commanded using a (f) word.
  F10 would mean ten units per minute.
@@ -312,6 +355,11 @@ Feedback
 
 Feedrate\SpecialChar ~
 Override
+\begin_inset LatexCommand \index{Feed Override}
+
+\end_inset 
+
+
 \begin_inset LatexCommand \label{FeedrateOveride}
 
 \end_inset 
@@ -331,6 +379,11 @@ tweaked
 \layout Description
 
 G-Code
+\begin_inset LatexCommand \index{G-Code}
+
+\end_inset 
+
+
 \begin_inset LatexCommand \label{G-Code}
 
 \end_inset 
@@ -365,6 +418,11 @@ EMC An application that presents a graphical screen to the machine operator
 \layout Description
 
 Home
+\begin_inset LatexCommand \index{Home}
+
+\end_inset 
+
+
 \begin_inset LatexCommand \label{Home}
 
 \end_inset 
@@ -375,6 +433,11 @@ Home
 
 ini\SpecialChar ~
 file
+\begin_inset LatexCommand \index{INI}
+
+\end_inset 
+
+
 \begin_inset LatexCommand \label{inifile}
 
 \end_inset 
@@ -435,6 +498,11 @@ s.
 \layout Description
 
 Lead-screw
+\begin_inset LatexCommand \index{LeadScrew}
+
+\end_inset 
+
+
 \begin_inset LatexCommand \label{Leadscrew}
 
 \end_inset 
@@ -456,6 +524,11 @@ Lead-screw
 \layout Description
 
 MDI
+\begin_inset LatexCommand \index{MDI}
+
+\end_inset 
+
+
 \begin_inset LatexCommand \label{MDI}
 
 \end_inset 
@@ -470,20 +543,12 @@ MDI
  as they are typed by the operator.
 \layout Description
 
-minimillio
-\begin_inset LatexCommand \label{minimillio}
-
-\end_inset 
-
- An I/O task 
-\begin_inset LatexCommand \ref{EMCIO}
-
-\end_inset 
-
- designed to work with small table-top mills.
-\layout Description
-
 NIST
+\begin_inset LatexCommand \index{NIST}
+
+\end_inset 
+
+
 \begin_inset LatexCommand \label{NIST}
 
 \end_inset 
@@ -547,6 +612,11 @@ Real-time
 \layout Description
 
 RTAI
+\begin_inset LatexCommand \index{RTAI}
+
+\end_inset 
+
+
 \begin_inset LatexCommand \label{RTAI}
 
 \end_inset 
@@ -566,6 +636,11 @@ RTAI
 \layout Description
 
 RTLINUX
+\begin_inset LatexCommand \index{RTLINUX}
+
+\end_inset 
+
+
 \begin_inset LatexCommand \label{RTLINUX}
 
 \end_inset 
@@ -585,6 +660,11 @@ RTLINUX
 \layout Description
 
 RS-274/NGC
+\begin_inset LatexCommand \index{RS274NGC}
+
+\end_inset 
+
+
 \begin_inset LatexCommand \label{RS274NGC}
 
 \end_inset 
@@ -604,6 +684,11 @@ RS-274/NGC
 
 Servo\SpecialChar ~
 Motor
+\begin_inset LatexCommand \index{Servo Motor}
+
+\end_inset 
+
+
 \begin_inset LatexCommand \label{ServoMotor}
 
 \end_inset 
@@ -621,6 +706,11 @@ Loop
 \layout Description
 
 Spindle
+\begin_inset LatexCommand \index{Spindle}
+
+\end_inset 
+
+
 \begin_inset LatexCommand \label{Spindle}
 
 \end_inset 
@@ -631,6 +721,11 @@ Spindle
 
 Stepper\SpecialChar ~
 Motor
+\begin_inset LatexCommand \index{Stepper Motor}
+
+\end_inset 
+
+
 \begin_inset LatexCommand \label{StepperMotor}
 
 \end_inset 
@@ -669,7 +764,7 @@ Tcl/Tk
 \layout Description
 
 World\SpecialChar ~
-Coordinates:
+Coordinates
 \begin_inset LatexCommand \label{World_Coordinates}
 
 \end_inset 

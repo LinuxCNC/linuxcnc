@@ -46,13 +46,68 @@ This chapter introduces you to offsets as they are used by the EMC.
  These include;
 \layout Itemize
 
-machine coordinates (G53) 
+machine coordinates (G53
+\begin_inset LatexCommand \index{G53}
+
+\end_inset 
+
+) 
 \layout Itemize
 
-nine offsets (G54-G59.3) 
+nine offsets (G54-G59.3
+\begin_inset LatexCommand \index{G54}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \index{G55}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \index{G56}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \index{G57}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \index{G58}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \index{G59}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \index{G59.1}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \index{G59.2}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \index{G59.3}
+
+\end_inset 
+
+ ) 
 \layout Itemize
 
-a set of global offsets (G92).
+a set of global offsets (G92
+\begin_inset LatexCommand \index{G92}
+
+\end_inset 
+
+).
 \layout Section
 
 The Machine Position Command (G53)
@@ -85,7 +140,52 @@ G53 is not a modal command.
  
 \layout Section
 
-Fixture Offsets (G54-G59.3)
+Fixture Offsets (G54-G59.3
+\begin_inset LatexCommand \index{G54}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \index{G55}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \index{G56}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \index{G57}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \index{G58}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \index{G59}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \index{G59.1}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \index{G59.2}
+
+\end_inset 
+
+ 
+\begin_inset LatexCommand \index{G59.3}
+
+\end_inset 
+
+)
 \layout Standard
 
 
@@ -376,19 +476,34 @@ G59\SpecialChar ~
 use preset work coordinate system 6
 \layout Quote
 
-G59.1\SpecialChar ~
+G59.1
+\begin_inset LatexCommand \index{G59.1}
+
+\end_inset 
+
+\SpecialChar ~
 \SpecialChar ~
 \SpecialChar ~
 use preset work coordinate system 7
 \layout Quote
 
-G59.2\SpecialChar ~
+G59.2
+\begin_inset LatexCommand \index{G59.2}
+
+\end_inset 
+
+\SpecialChar ~
 \SpecialChar ~
 \SpecialChar ~
 use preset work coordinate system 8
 \layout Quote
 
-G59.3\SpecialChar ~
+G59.3
+\begin_inset LatexCommand \index{G59.3}
+
+\end_inset 
+
+\SpecialChar ~
 \SpecialChar ~
 \SpecialChar ~
 use preset work coordinate system 9
@@ -419,7 +534,12 @@ In the general programming chapter we listed a G10 command word.
  (add here)
 \layout Section
 
-G92 Offsets
+G92
+\begin_inset LatexCommand \index{G92}
+
+\end_inset 
+
+ Offsets
 \layout Standard
 
 G92 is the most misunderstood and maligned part of EMC programming.
@@ -452,13 +572,28 @@ This set of commands include;
 G92 This command, when used with axis names, sets values to offset variables.
 \layout Description
 
-G92.1 This command sets zero values to the g92 variables.
+G92.1
+\begin_inset LatexCommand \index{G92.1}
+
+\end_inset 
+
+ This command sets zero values to the g92 variables.
 \layout Description
 
-G92.2 This command suspends but does not zero out the g92 variables.
+G92.2
+\begin_inset LatexCommand \index{G92.2}
+
+\end_inset 
+
+ This command suspends but does not zero out the g92 variables.
 \layout Description
 
-G92.3 This command applies offset values that have been suspended.
+G92.3
+\begin_inset LatexCommand \index{G92.3}
+
+\end_inset 
+
+ This command applies offset values that have been suspended.
 \layout Standard
 
 When the commands are used as described above, they will work pretty much
