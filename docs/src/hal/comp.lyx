@@ -386,21 +386,9 @@ better.""";
 \end_deeper 
 \layout Description
 
-TYPE One of the HAL types: bit, 
+TYPE One of the HAL types: 
 \family typewriter 
-s8
-\family default 
-, 
-\family typewriter 
-u8
-\family default 
-, 
-\family typewriter 
-s16
-\family default 
-, 
-\family typewriter 
-u16
+bit
 \family default 
 , 
 \family typewriter 

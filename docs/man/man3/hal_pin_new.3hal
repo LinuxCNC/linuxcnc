@@ -13,18 +13,6 @@ hal_pin_new \- Create a HAL pin
  int hal_pin_float_new(char *\fIname\fR, hal_pin_dir_t \fIdir\fR, hal_float_t ** \fIdata_ptr_addr\fR, int \fIcomp_id\fR)
 
 .HP
- int hal_pin_u8_new(char *\fIname\fR, hal_pin_dir_t \fIdir\fR, hal_u8_t ** \fIdata_ptr_addr\fR, int \fIcomp_id\fR)
-
-.HP
- int hal_pin_s8_new(char *\fIname\fR, hal_pin_dir_t \fIdir\fR, hal_s8_t ** \fIdata_ptr_addr\fR, int \fIcomp_id\fR)
-
-.HP
- int hal_pin_u16_new(char *\fIname\fR, hal_pin_dir_t \fIdir\fR, hal_u16_t ** \fIdata_ptr_addr\fR, int \fIcomp_id\fR)
-
-.HP
- int hal_pin_s16_new(char *\fIname\fR, hal_pin_dir_t \fIdir\fR, hal_s16_t ** \fIdata_ptr_addr\fR, int \fIcomp_id\fR)
-
-.HP
  int hal_pin_u32_new(char *\fIname\fR, hal_pin_dir_t \fIdir\fR, hal_u32_t ** \fIdata_ptr_addr\fR, int \fIcomp_id\fR)
 
 .HP
@@ -35,18 +23,6 @@ hal_pin_new \- Create a HAL pin
 
 .HP
  int hal_pin_float_newf(hal_pin_dir_t \fIdir\fR, hal_float_t ** \fIdata_ptr_addr\fR, int \fIcomp_id\fR)
-
-.HP
- int hal_pin_u8_newf(hal_pin_dir_t \fIdir\fR, hal_u8_t ** \fIdata_ptr_addr\fR, int \fIcomp_id\fR, char *\fIfmt\fR, \fI...\fR)
-
-.HP
- int hal_pin_s8_newf(hal_pin_dir_t \fIdir\fR, hal_s8_t ** \fIdata_ptr_addr\fR, int \fIcomp_id\fR, char *\fIfmt\fR, \fI...\fR)
-
-.HP
- int hal_pin_u16_newf(hal_pin_dir_t \fIdir\fR, hal_u16_t ** \fIdata_ptr_addr\fR, int \fIcomp_id\fR, char *\fIfmt\fR, \fI...\fR)
-
-.HP
- int hal_pin_s16_newf(hal_pin_dir_t \fIdir\fR, hal_s16_t ** \fIdata_ptr_addr\fR, int \fIcomp_id\fR, char *\fIfmt\fR, \fI...\fR)
 
 .HP
  int hal_pin_u32_newf(hal_pin_dir_t \fIdir\fR, hal_u32_t ** \fIdata_ptr_addr\fR, int \fIcomp_id\fR, char *\fIfmt\fR, \fI...\fR)

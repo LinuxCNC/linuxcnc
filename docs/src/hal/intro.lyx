@@ -385,19 +385,7 @@ Type
  HAL pins have the same restrictions, which are based upon their type.
  Both pins and signals have types, and signals can only be connected to
  pins of the same type.
- Currently there are 8 types
-\begin_inset Foot
-collapsed true
-
-\layout Standard
-
-There has been some discussion about whether we really need all the integer
- types.
- Maybe they will be reduced or eliminated later.
- Most signals and pins will be either floats or bits.
-\end_inset 
-
-, as follows:
+ Currently there are 4 types, as follows:
 \layout Itemize
 
 

@@ -19,19 +19,9 @@ A single-bit type, which may have a value of 0 or 1.  Corresponds to \fBhal_bit_
 
 .IP \fBHAL_FLOAT\fR
 A floating-point type, which typically has the same precision and range
-as the C type \fBfloat\fR.  Corresponds to \fBhal_bit_t\fR
-
-.IP \fBHAL_S8\fR
-A signed type with range from -128 to 127.  Corresponds to \fBhal_s8_t\fR
-.IP \fBHAL_U8\fR
-A signed type with range from 0 to 255.  Corresponds to \fBhal_u8_t\fR
-
-.IP \fBHAL_S16\fR
-A signed type with range from -32768 to 32767.  Corresponds to \fBhal_s16_t\fR
-.IP \fBHAL_U16\fR
-A signed type with range from 0 to 65535.  Corresponds to \fBhal_u16_t\fR
+as the C type \fBfloat\fR.  Corresponds to \fBhal_float_t\fR
 
 .IP \fBHAL_S32\fR
-A signed type with range from -2147483648 to 2147483648.  Corresponds to \fBhal_s32_t\fR
+A signed type with range of at least -2147483648 to 2147483648.  Corresponds to \fBhal_s32_t\fR
 .IP \fBHAL_U32\fR
-A signed type with range from 0 to 4294967295.  Corresponds to \fBhal_u32_t\fR
+A signed type with range of at least 0 to 4294967295.  Corresponds to \fBhal_u32_t\fR

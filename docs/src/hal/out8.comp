@@ -1,5 +1,5 @@
 component out8;
-pin out u8 out_;
+pin out u32 out_ "Output value; only low 8 bits are used";
 param r u32 ioaddr;
 
 function _;
