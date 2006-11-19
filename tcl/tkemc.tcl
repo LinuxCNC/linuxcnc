@@ -886,7 +886,7 @@ pack $decrbutton -side left -fill both -expand true
 bind $decrbutton <ButtonPress-1> {emc_spindle decrease}
 bind $decrbutton <ButtonRelease-1> {emc_spindle constant}
 
-set spindlebutton [menubutton $commandbuttonsl3t1.spindle -textvariable spindlelabel -direction below -relief raised -width 16]
+set spindlebutton [menubutton $commandbuttonsl3t1.spindle -textvariable spindlelabel -direction below -relief raised -width 15]
 set spindlemenu [menu $spindlebutton.menu -tearoff 0]
 $spindlebutton configure -menu $spindlemenu
 $spindlemenu add command -label [msgcat::mc "Spindle forward"] -command {emc_spindle forward}
