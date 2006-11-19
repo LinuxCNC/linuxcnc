@@ -2894,7 +2894,7 @@ if lathe:
 
 widgets.feedoverride.set(100)
 commands.set_feedrate(100)
-widgets.spindleoverride.set(100)
+widgets.spinoverride.set(100)
 commands.set_spindlerate(100)
 
 def forget(widget, *pins):
