@@ -5560,7 +5560,12 @@ If the XZ or YZ plane is active, the preliminary and in-between motions
  
 \layout Subsection
 
-G81: Drilling Cycle
+G81
+\begin_inset LatexCommand \index{G81}
+
+\end_inset 
+
+: Drilling Cycle
 \layout Standard
 
 The 
@@ -5703,7 +5708,12 @@ a feed parallel to the Z-axis to (13,17, 4.2)
 a traverse parallel to the Z-axis to (13,17,4.8) 
 \layout Subsection
 
-G82: Drilling Cycle with Dwell
+G82
+\begin_inset LatexCommand \index{G82}
+
+\end_inset 
+
+: Drilling Cycle with Dwell
 \layout Standard
 
 The 
@@ -5730,7 +5740,12 @@ Retract the Z-axis at traverse rate to clear Z.
  
 \layout Subsection
 
-G83: Peck Drilling
+G83
+\begin_inset LatexCommand \index{G83}
+
+\end_inset 
+
+: Peck Drilling
 \layout Standard
 
 The 
@@ -5784,7 +5799,12 @@ It is an error if:
 the Q number is negative or zero.
 \layout Subsection
 
-G84: Right-Hand Tapping
+G84
+\begin_inset LatexCommand \index{G84}
+
+\end_inset 
+
+: Right-Hand Tapping
 \begin_inset LatexCommand \label{sub:G84:-Right-Hand-Tapping}
 
 \end_inset 
@@ -5796,7 +5816,12 @@ This code is currently unimplemented in EMC2.
  It is accepted, but the behavior is undefined.
 \layout Subsection
 
-G85: Boring, No Dwell, Feed Out
+G85
+\begin_inset LatexCommand \index{G85}
+
+\end_inset 
+
+: Boring, No Dwell, Feed Out
 \layout Standard
 
 The 
@@ -5821,7 +5846,12 @@ Retract the Z-axis at the current feed rate to clear Z.
  
 \layout Subsection
 
-G86: Boring, Spindle Stop, Rapid Out
+G86
+\begin_inset LatexCommand \index{G86}
+
+\end_inset 
+
+: Boring, Spindle Stop, Rapid Out
 \layout Standard
 
 The 
@@ -5862,7 +5892,12 @@ The spindle must be turning before this cycle is used.
 the spindle is not turning before this cycle is executed.
 \layout Subsection
 
-G87: Back Boring
+G87
+\begin_inset LatexCommand \index{G87}
+
+\end_inset 
+
+: Back Boring
 \begin_inset LatexCommand \label{sub:G87:-Back-Boring}
 
 \end_inset 
@@ -5874,14 +5909,24 @@ This code is currently unimplemented in EMC2.
  It is accepted, but the behavior is undefined.
 \layout Subsection
 
-G88: Boring, Spindle Stop, Manual Out
+G88
+\begin_inset LatexCommand \index{G88}
+
+\end_inset 
+
+: Boring, Spindle Stop, Manual Out
 \layout Standard
 
 This code is currently unimplemented in EMC2.
  It is accepted, but the behavior is undefined.
 \layout Subsection
 
-G89: Boring, Dwell, Feed Out
+G89
+\begin_inset LatexCommand \index{G89}
+
+\end_inset 
+
+: Boring, Dwell, Feed Out
 \begin_inset LatexCommand \label{sub:G89:-Boring,-Dwell,}
 
 \end_inset 
@@ -5916,7 +5961,17 @@ Retract the Z-axis at the current feed rate to clear Z.
  
 \layout Subsection
 
-G90, G99: Set Distance Mode
+G90
+\begin_inset LatexCommand \index{G90}
+
+\end_inset 
+
+, G99
+\begin_inset LatexCommand \index{G99}
+
+\end_inset 
+
+: Set Distance Mode
 \begin_inset LatexCommand \label{sub:G90,-G99:-Set}
 
 \end_inset 
@@ -5963,7 +6018,27 @@ I and J numbers always represent increments, regardless of the distance
  
 \layout Section
 
-G92, G92.1, G92.2, G92.3: Coordinate System Offsets
+G92
+\begin_inset LatexCommand \index{G92}
+
+\end_inset 
+
+, G92.1
+\begin_inset LatexCommand \index{G92.1}
+
+\end_inset 
+
+, G92.2
+\begin_inset LatexCommand \index{G92.2}
+
+\end_inset 
+
+, G92.3
+\begin_inset LatexCommand \index{G92.3}
+
+\end_inset 
+
+: Coordinate System Offsets
 \begin_inset LatexCommand \label{sub:G92,-G92.1,-G92.2,}
 
 \end_inset 
@@ -6118,7 +6193,17 @@ G92.3
  
 \layout Section
 
-G93, G94: Set Feed Rate Mode
+G93
+\begin_inset LatexCommand \index{G93}
+
+\end_inset 
+
+, G94
+\begin_inset LatexCommand \index{G94}
+
+\end_inset 
+
+: Set Feed Rate Mode
 \begin_inset LatexCommand \label{sub:G93,-G94:-Set}
 
 \end_inset 
@@ -6155,7 +6240,17 @@ inverse time feed rate mode is active and a line with G1, G2, or G3 (explicitly
  or implicitly) does not have an F word.
 \layout Section
 
-G98, G99: Set Canned Cycle Return Level
+G98
+\begin_inset LatexCommand \index{G98}
+
+\end_inset 
+
+, G99
+\begin_inset LatexCommand \index{G99}
+
+\end_inset 
+
+: Set Canned Cycle Return Level
 \begin_inset LatexCommand \label{sub:G98,-G99:-Set}
 
 \end_inset 
@@ -6189,7 +6284,32 @@ G98
 M Codes
 \layout Section
 
-M0, M1, M2, M30, M60: Program Stopping and Ending
+M0
+\begin_inset LatexCommand \index{M0}
+
+\end_inset 
+
+, M1
+\begin_inset LatexCommand \index{M1}
+
+\end_inset 
+
+, M2
+\begin_inset LatexCommand \index{M2}
+
+\end_inset 
+
+, M30
+\begin_inset LatexCommand \index{M30}
+
+\end_inset 
+
+, M60
+\begin_inset LatexCommand \index{M60}
+
+\end_inset 
+
+: Program Stopping and Ending
 \begin_inset LatexCommand \label{sub:M0,-M1,-M2,}
 
 \end_inset 
@@ -6335,7 +6455,22 @@ No more lines of code in an RS274/NGC file will be executed after the M2
  
 \layout Section
 
-M3, M4, M5: Spindle Control
+M3
+\begin_inset LatexCommand \index{M3}
+
+\end_inset 
+
+, M4
+\begin_inset LatexCommand \index{M4}
+
+\end_inset 
+
+, M5
+\begin_inset LatexCommand \index{M5}
+
+\end_inset 
+
+: Spindle Control
 \begin_inset LatexCommand \label{sub:M3,-M4,-M5:}
 
 \end_inset 
@@ -6395,7 +6530,12 @@ M5
  
 \layout Section
 
-M6: Tool Change
+M6
+\begin_inset LatexCommand \index{M6}
+
+\end_inset 
+
+: Tool Change
 \begin_inset LatexCommand \label{sub:M6:-Tool-Change}
 
 \end_inset 
@@ -6456,7 +6596,22 @@ The tool change may include axis motion while it is in progress.
  
 \layout Section
 
-M7, M8, M9: Coolant Control
+M7
+\begin_inset LatexCommand \index{M7}
+
+\end_inset 
+
+, M8
+\begin_inset LatexCommand \index{M8}
+
+\end_inset 
+
+, M9
+\begin_inset LatexCommand \index{M9}
+
+\end_inset 
+
+: Coolant Control
 \begin_inset LatexCommand \label{sub:M7,-M8,-M9:}
 
 \end_inset 
@@ -6490,7 +6645,17 @@ It is always OK to use any of these commands, regardless of what coolant
  
 \layout Section
 
-M48, M49: Override Control
+M48
+\begin_inset LatexCommand \index{M48}
+
+\end_inset 
+
+, M49
+\begin_inset LatexCommand \index{M49}
+
+\end_inset 
+
+: Override Control
 \begin_inset LatexCommand \label{sub:M48,-M49:-Override}
 
 \end_inset 
@@ -6540,7 +6705,12 @@ M49
 .
 \layout Section
 
-M50: Feed Override Control
+M50
+\begin_inset LatexCommand \index{M50}
+
+\end_inset 
+
+: Feed Override Control
 \begin_inset LatexCommand \label{sec:M50:-Feed-Override}
 
 \end_inset 
@@ -6572,7 +6742,12 @@ M50 P0
  (unless there is an adaptive feedrate override active).
 \layout Section
 
-M51: Spindle Speed Override Control
+M51
+\begin_inset LatexCommand \index{M51}
+
+\end_inset 
+
+: Spindle Speed Override Control
 \begin_inset LatexCommand \label{sec:M51:-Spindle-Speed-Override-Control}
 
 \end_inset 
@@ -6609,7 +6784,12 @@ M51 P0
 ).
 \layout Section
 
-M52: Adaptive Feed Control
+M52
+\begin_inset LatexCommand \index{M52}
+
+\end_inset 
+
+: Adaptive Feed Control
 \begin_inset LatexCommand \label{sec:M52:-Adaptive-Feed-Control}
 
 \end_inset 
@@ -6651,7 +6831,12 @@ motion.adaptive-feed
  should range from 0 (feed hold) to 1 (full speed).
 \layout Section
 
-M53: Feed Stop Control
+M53
+\begin_inset LatexCommand \index{M53}
+
+\end_inset 
+
+: Feed Stop Control
 \begin_inset LatexCommand \label{sec:M53:-Feed-Stop-Control}
 
 \end_inset 
@@ -6728,19 +6913,44 @@ M- P-
  an implementation-defined maximum.
 \layout Description
 
-M62 Turn on digital output synched with motion
+M62
+\begin_inset LatexCommand \index{M62}
+
+\end_inset 
+
+ Turn on digital output synched with motion
 \layout Description
 
-M63 Turn off digital output synched with motion
+M63
+\begin_inset LatexCommand \index{M63}
+
+\end_inset 
+
+ Turn off digital output synched with motion
 \layout Description
 
-M64 Turn on digital output immediately
+M64
+\begin_inset LatexCommand \index{M64}
+
+\end_inset 
+
+ Turn on digital output immediately
 \layout Description
 
-M65 Turn off digital output immediately
+M65
+\begin_inset LatexCommand \index{M65}
+
+\end_inset 
+
+ Turn off digital output immediately
 \layout Section
 
-M100 to M199: User Defined Commands
+M100 to M199
+\begin_inset LatexCommand \index{M100..199}
+
+\end_inset 
+
+: User Defined Commands
 \layout Standard
 
 To invoke a user-defined command, program 
@@ -6809,6 +7019,11 @@ Subroutines:
 \end_inset 
 
 sub
+\begin_inset LatexCommand \index{sub}
+
+\end_inset 
+
+
 \begin_inset Quotes erd
 \end_inset 
 
@@ -6817,6 +7032,11 @@ sub
 \end_inset 
 
 endsub
+\begin_inset LatexCommand \index{endsub}
+
+\end_inset 
+
+
 \begin_inset Quotes erd
 \end_inset 
 
@@ -6825,6 +7045,11 @@ endsub
 \end_inset 
 
 return
+\begin_inset LatexCommand \index{return}
+
+\end_inset 
+
+
 \begin_inset Quotes erd
 \end_inset 
 
@@ -6833,6 +7058,11 @@ return
 \end_inset 
 
 call
+\begin_inset LatexCommand \index{call}
+
+\end_inset 
+
+
 \begin_inset Quotes erd
 \end_inset 
 
@@ -6949,6 +7179,11 @@ Looping:
 \end_inset 
 
 do
+\begin_inset LatexCommand \index{do}
+
+\end_inset 
+
+
 \begin_inset Quotes erd
 \end_inset 
 
@@ -6957,6 +7192,11 @@ do
 \end_inset 
 
 while
+\begin_inset LatexCommand \index{while}
+
+\end_inset 
+
+
 \begin_inset Quotes erd
 \end_inset 
 
@@ -6965,6 +7205,11 @@ while
 \end_inset 
 
 endwhile
+\begin_inset LatexCommand \index{endwhile}
+
+\end_inset 
+
+
 \begin_inset Quotes erd
 \end_inset 
 
@@ -6973,6 +7218,11 @@ endwhile
 \end_inset 
 
 break
+\begin_inset LatexCommand \index{break}
+
+\end_inset 
+
+
 \begin_inset Quotes erd
 \end_inset 
 
@@ -6981,6 +7231,11 @@ break
 \end_inset 
 
 continue
+\begin_inset LatexCommand \index{continue}
+
+\end_inset 
+
+
 \begin_inset Quotes erd
 \end_inset 
 
@@ -7046,6 +7301,11 @@ Conditional:
 \end_inset 
 
 if
+\begin_inset LatexCommand \index{if}
+
+\end_inset 
+
+
 \begin_inset Quotes erd
 \end_inset 
 
@@ -7054,6 +7314,11 @@ if
 \end_inset 
 
 else
+\begin_inset LatexCommand \index{else}
+
+\end_inset 
+
+
 \begin_inset Quotes erd
 \end_inset 
 
@@ -7062,6 +7327,11 @@ else
 \end_inset 
 
 endif
+\begin_inset LatexCommand \index{endif}
+
+\end_inset 
+
+
 \begin_inset Quotes erd
 \end_inset 
 
