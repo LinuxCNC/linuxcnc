@@ -42,6 +42,10 @@ objects/%.c: %.comp ../bin/comp
 
 modules: $(patsubst %.comp, objects/%.c, $(COMPS) $(COMP_DRIVERS))
 
+clean: clean-comp-manpages
+clean-comp-manpages:
+	-rm -f $(COMP_MANPAGES) $(COMP_DRIVER_MANPAGES)
+
 HALSTREAMERSRCS := hal/components/streamer_usr.c
 USERSRCS += $(HALSTREAMERSRCS)
 
