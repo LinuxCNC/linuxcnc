@@ -2609,8 +2609,15 @@ static char *data_value(int type, void *valptr)
 	    value_str = "   TRUE     ";
 	break;
     case HAL_FLOAT:
-	snprintf(buf, 14, "%12.5e", *((float *) valptr));
-	value_str = buf;
+        {
+            double v = *(hal_float_t*) valptr;
+            if(v == 0 || ( v > 0.00001 &&  v < 100000) ||
+                         (-v > 0.00001 && -v < 100000))
+                snprintf(buf, 14, "%f", v);
+            else
+                snprintf(buf, 14, "%12.5e", v);
+            value_str = buf;
+        }
 	break;
     case HAL_S32:
 	snprintf(buf, 14, " %10ld ", (long)*((hal_u32_t *) valptr));
@@ -2642,8 +2649,15 @@ static char *data_value2(int type, void *valptr)
 	    value_str = "TRUE";
 	break;
     case HAL_FLOAT:
-	snprintf(buf, 14, "%e", *((float *) valptr));
-	value_str = buf;
+        {
+            double v = *((hal_float_t *) valptr);
+            if(v == 0 || ( v > 0.00001 &&  v < 100000) ||
+                         (-v > 0.00001 && -v < 100000))
+                snprintf(buf, 24, "%f", v);
+            else
+                snprintf(buf, 24, "%e", v);
+            value_str = buf;
+        }
 	break;
     case HAL_S32:
 	snprintf(buf, 14, "%ld", (long)*((hal_s32_t *) valptr));
