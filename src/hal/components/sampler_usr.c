@@ -162,6 +162,10 @@ int main(int argc, char **argv)
 	case 't':
 	    tag = 1;
 	    break;
+	default:
+	    fprintf(stderr,"ERROR: unknown option '%s'\n", cp );
+	    exit(1);
+	    break;
 	}
     }
     /* register signal handlers - if the process is killed

@@ -381,7 +381,7 @@ static int init_streamer(int num, fifo_t *tmp_fifo)
 
     /* alloc shmem for user/RT comms (fifo) */
     size = sizeof(fifo_t) + tmp_fifo->num_pins * tmp_fifo->depth * sizeof(shmem_data_t);
-    shmem_id[num] = rtapi_shmem_new(SAMPLER_SHMEM_KEY+num, comp_id, size);
+    shmem_id[num] = rtapi_shmem_new(STREAMER_SHMEM_KEY+num, comp_id, size);
     if ( shmem_id[num] < 0 ) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "STREAMER: ERROR: couldn't allocate user/RT shared memory\n");

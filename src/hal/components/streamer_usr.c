@@ -123,24 +123,29 @@ int main(int argc, char **argv)
 
     /* set return code to "fail", clear it later if all goes well */
     exitval = 1;
-    channel = -1;
-    if (argc == 1) {
-	channel = 0;
-    }
-    if (argc == 2) {
-	/* a channel number? */
-	n = strtol(argv[1], &cp, 10);
-	if ( *cp == '\0' ) {
-	    channel = n;
-	} else {
-	    fprintf (stderr, "ERROR: bad channel number '%s'\n", argv[1] );
+    channel = 0;
+    for ( n = 1 ; n < argc ; n++ ) {
+	cp = argv[n];
+	if ( *cp != '-' ) {
+	    fprintf(stderr, "ERROR: expecting option, found '%s'\n", cp );
+	    exit(1);
 	}
-    }
-    if ( channel < 0 ) {
-	fprintf (stderr, "\nUsage:\n");
-	fprintf (stderr, "halstreamer chan_num\n");
-	fprintf (stderr, "Sends data from stdin to hal pins\n\n");
-	goto out;
+	switch ( *(++cp) ) {
+	case 'c':
+	    if (( *(++cp) == '\0' ) && ( ++n < argc )) { 
+		cp = argv[n];
+	    }
+	    channel = strtol(cp, &cp2, 10);
+	    if (( *cp2 ) || ( channel < 0 ) || ( channel >= MAX_SAMPLERS )) {
+		fprintf(stderr,"ERROR: invalid channel number '%s'\n", cp );
+		exit(1);
+	    }
+	    break;
+	default:
+	    fprintf(stderr,"ERROR: unknown option '%s'\n", cp );
+	    exit(1);
+	    break;
+	}
     }
     /* register signal handlers - if the process is killed
        we need to call hal_exit() to free the shared memory */
@@ -162,7 +167,7 @@ int main(int argc, char **argv)
     hal_ready(comp_id);
     /* open shmem for user/RT comms (fifo) */
     /* initial size is unknown, assume only the fifo structure */
-    shmem_id = rtapi_shmem_new(SAMPLER_SHMEM_KEY+channel, comp_id, sizeof(fifo_t));
+    shmem_id = rtapi_shmem_new(STREAMER_SHMEM_KEY+channel, comp_id, sizeof(fifo_t));
     if ( shmem_id < 0 ) {
 	fprintf(stderr, "ERROR: couldn't allocate user/RT shared memory\n");
 	goto out;
