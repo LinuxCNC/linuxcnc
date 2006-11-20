@@ -361,6 +361,55 @@ int Interp::read_d(char *line,   //!< string: line of RS274 code being processed
 
 /****************************************************************************/
 
+/*! read_e
+
+Returned Value: int
+   If read_real_value returns an error code, this returns that code.
+   If any of the following errors occur, this returns the error code shown.
+   Otherwise, it returns INTERP_OK.
+   1. The first character read is not e:
+      NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED
+   2. A e value has already been inserted in the block:
+      NCE_MULTIPLE_E_WORDS_ON_ONE_LINE
+
+Side effects:
+   counter is reset to point to the first character following the e value.
+   The e value setting is inserted in block.
+
+Called by: read_one_item
+
+When this function is called, counter is pointing at an item on the
+line that starts with the character 'e', indicating a e value
+setting. The function reads characters which tell how to set the e
+value, up to the start of the next item or the end of the line. This
+information is inserted in the block.
+
+E codes are used for:
+Infeed/Outfeed angle specification with G76
+
+*/
+
+int Interp::read_e(char *line,   //!< string: line of RS274/NGC code being processed
+                  int *counter, //!< pointer to a counter for position on the line 
+                  block_pointer block,  //!< pointer to a block being filled from the line 
+                  double *parameters)   //!< array of system parameters                    
+{
+  static char name[] = "read_e";
+  double value;
+  int status;
+
+  CHK((line[*counter] != 'e'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
+  *counter = (*counter + 1);
+  CHK((block->e_flag != OFF), NCE_MULTIPLE_E_WORDS_ON_ONE_LINE);
+  CHP(read_real_value(line, counter, &value, parameters));
+  block->e_flag = ON;
+  block->e_number = value;
+  return INTERP_OK;
+}
+
+
+/****************************************************************************/
+
 /*! read_f
 
 Returned Value: int
@@ -542,8 +591,9 @@ int Interp::read_h(char *line,   //!< string: line of RS274/NGC code being proce
   *counter = (*counter + 1);
   CHK((block->h_number > -1), NCE_MULTIPLE_H_WORDS_ON_ONE_LINE);
   CHP(read_integer_value(line, counter, &value, parameters));
-  CHK((value < 0), NCE_NEGATIVE_H_WORD_TOOL_LENGTH_OFFSET_INDEX_USED);
-  CHK((value > _setup.tool_max), NCE_TOOL_LENGTH_OFFSET_INDEX_TOO_BIG);
+  CHK((value < 0), NCE_NEGATIVE_H_WORD_USED);
+  CHK((block->g_modes[_gees[G_43]] == G_43 && value > _setup.tool_max), 
+          NCE_TOOL_LENGTH_OFFSET_INDEX_TOO_BIG);
   block->h_number = value;
   return INTERP_OK;
 }
@@ -1510,7 +1560,6 @@ Returned Value: int
       NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED
    2. A p value has already been inserted in the block:
       NCE_MULTIPLE_P_WORDS_ON_ONE_LINE
-   3. The p value is negative: NCE_NEGATIVE_P_WORD_USED
 
 Side effects:
    counter is reset to point to the first character following the p value.
@@ -1708,7 +1757,6 @@ Returned Value: int
       NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED
    2. A q value has already been inserted in the block:
       NCE_MULTIPLE_Q_WORDS_ON_ONE_LINE
-   3. The q value is negative or zero: NCE_NEGATIVE_OR_ZERO_Q_VALUE_USED
 
 Side effects:
    counter is reset to point to the first character following the q value.

@@ -149,7 +149,7 @@ char * _rs274ngc_errors[] = {
 /* 122 */ _("Negative d word tool radius index used"), // read_d
 /* 123 */ _("Negative f word used"), // read_f
 /* 124 */ _("Negative g code used"), // read_g
-/* 125 */ _("Negative h word tool length offset index used"), // read_h
+/* 125 */ _("Negative h word used"), // read_h
 /* 126 */ _("Negative l word used"), // read_l
 /* 127 */ _("Negative m code used"), // read_m
 /* 128 */ _("Negative or zero q value used"), // read_q
@@ -248,6 +248,9 @@ char * _rs274ngc_errors[] = {
 /* 219 */ _("I J or K words missing with G76"),
 /* 220 */ _("Cannot move rotary axes with G76"),
 
-/* 221 */ _("Unknown error"), // dummy
+/* 221 */ _("Multiple e words on one line"),
+/* 222 */ _("E word with no G76 to use it"),
+
+/* 223 */ _("Unknown error"), // dummy
 _("The End")};
 // *INDENT-ON*

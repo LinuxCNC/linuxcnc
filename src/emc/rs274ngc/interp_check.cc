@@ -213,6 +213,8 @@ Returned Value: int
       NCE_R_WORD_WITH_NO_G_CODE_THAT_USES_IT
   13. A k word is missing from a G33 block:
       NCE_K_WORD_MISSING_WITH_G33
+  14. An e word is in a block with no G76 to use it:
+      NCE_E_WORD_WITH_NO_G76_TO_USE_IT
 
 Side effects: none
 
@@ -312,6 +314,10 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
   if (block->q_number != -1.0) {
     CHK((motion != G_83) && (block->user_m != 1) && motion != G_76, 
             NCE_Q_WORD_WITH_NO_G83);
+  }
+
+  if (block->e_flag == ON) {
+    CHK((motion != G_76), NCE_E_WORD_WITH_NO_G76_TO_USE_IT);
   }
 
   if (block->r_flag == ON) {

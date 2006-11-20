@@ -218,6 +218,8 @@ typedef struct block_struct
   double c_number;
   char comment[256];
   int d_number;
+  ON_OFF e_flag;
+  double e_number;
   double f_number;
   int g_modes[15];
   int h_number;

@@ -229,7 +229,7 @@ const read_function_pointer Interp::_readers[] = {
 &Interp::read_b, // reads b or ASCII 0x62
 &Interp::read_c, // reads c or ASCII 0x63
 &Interp::read_d, // reads d or ASCII 0x64
-0,
+&Interp::read_e, // reads d or ASCII 0x65
 &Interp::read_f, // reads f or ASCII 0x66
 &Interp::read_g, // reads g or ASCII 0x67
 &Interp::read_h, // reads h or ASCII 0x68
