@@ -28,8 +28,7 @@
 halstreamer \- stream file data into HAL in real time
 .SH SYNOPSIS
 .B halstreamer
-.I [chan_num|
-.BI < data_file
+.RI [ options ]
 
 .SH DESCRIPTION
 .BR streamer (9)
@@ -45,13 +44,13 @@ can write it to the HAL pins.
 
 .SH OPTIONS
 .TP
-.I [chan_num]
+.BI "-c " CHAN
 instructs 
 .B halstreamer
-to write to a specific FIFO.  FIFOs are numbered from zero, and the default
-value is zero, so 
-.I chan_num
-is not needed unless multiple FIFOs have been created.
+to write to FIFO
+.IR CHAN .
+FIFOs are numbered from zero, and the default value is zero, so
+this option is not needed unless multiple FIFOs have been created.
 .SH USAGE
 A FIFO must first be created by loading 
 .BR streamer (9)
@@ -63,7 +62,11 @@ command in a .hal file.  Then
 .B halstreamer
 can be invoked to begin writing data into the FIFO.
 .P
-Data is read from stdin, and each line of input must match the pins that are attached to the FIFO, for example, if the 
+Data is read from stdin, and is almost always either redirected from a file
+or piped from some other program, since keyboard input would be unable to keep
+up with even slow streaming rates.
+.P
+Each line of input must match the pins that are attached to the FIFO, for example, if the
 .B streamer
 config string was "ffbs" then each
 line of input must consist of two floats, a bit, and a signed integer, in that
