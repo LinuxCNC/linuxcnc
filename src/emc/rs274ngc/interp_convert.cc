@@ -2513,7 +2513,8 @@ int convert_threading_cycle(block_pointer block, setup_pointer settings,
     double start_z = settings->current_z;
 
     double safe_x = start_x;
-    double start_depth = block->i_number;
+    double full_dia_depth = block->i_number;
+    double start_depth = block->i_number + block->j_number;
     double cut_increment = block->j_number;
     double end_depth = block->k_number + block->i_number;
 
@@ -2530,15 +2531,16 @@ int convert_threading_cycle(block_pointer block, setup_pointer settings,
     if(degression < 1.0) degression = 1.0;
 
     double depth, zoff;
-    int pass = 0;
+    int pass = 1;
 
     double target_z = end_z + block->k_number * tan(compound_angle);
 
 #define AABBCC settings->AA_current, settings->BB_current, settings->CC_current
     depth = start_depth;
     DISABLE_FEED_OVERRIDE();
+    zoff = (depth - full_dia_depth) * tan(compound_angle);
+    STRAIGHT_TRAVERSE(safe_x, start_y, start_z - zoff, AABBCC);
     while (depth < end_depth) {
-        zoff = (depth - start_depth) * tan(compound_angle);
         STRAIGHT_TRAVERSE(safe_x - depth, start_y, start_z - zoff, AABBCC); //in
         START_SPEED_FEED_SYNCH(pitch);
         //maybe entry STRAIGHT_FEED
@@ -2546,16 +2548,16 @@ int convert_threading_cycle(block_pointer block, setup_pointer settings,
         //maybe exit STRAIGHT_FEED
         STOP_SPEED_FEED_SYNCH();
         STRAIGHT_TRAVERSE(safe_x, start_y, target_z - zoff, AABBCC); //out
-        depth = start_depth + cut_increment * pow(++pass, 1.0/degression);
-        zoff = (depth - start_depth) * tan(compound_angle);
+        depth = full_dia_depth + cut_increment * pow(++pass, 1.0/degression);
+        zoff = (depth - full_dia_depth) * tan(compound_angle);
         STRAIGHT_TRAVERSE(safe_x, start_y, start_z - zoff, AABBCC); //back
     } 
     // full specified depth now
     depth = end_depth;
-    zoff = (depth - start_depth) * tan(compound_angle);
+    zoff = (depth - full_dia_depth) * tan(compound_angle);
     // cut at least once -- more if spring cuts.
     for(int i = 0; i<spring_cuts+1; i++) {
-        if(i>0) STRAIGHT_TRAVERSE(safe_x, start_y, start_z - zoff, AABBCC); //back
+        STRAIGHT_TRAVERSE(safe_x, start_y, start_z - zoff, AABBCC); //back
         STRAIGHT_TRAVERSE(safe_x - depth, start_y, start_z - zoff, AABBCC); //in
         START_SPEED_FEED_SYNCH(pitch);
         //maybe entry STRAIGHT_FEED
