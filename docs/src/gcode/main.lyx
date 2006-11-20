@@ -2777,7 +2777,6 @@ An expression is a set of characters starting with a left bracket
 \layout Standard
 
 Binary operations appear only inside expressions.
- Nine binary operations are defined.
  There are four basic mathematical operations: addition (
 \family typewriter 
 +
@@ -2827,6 +2826,31 @@ power
 \family default 
 ) of raising the number on the left of the operation to the power on the
  right.
+ The relational operators are equality (
+\family typewriter 
+EQ
+\family default 
+), inequality (
+\family typewriter 
+NE
+\family default 
+), strictly greater than (
+\family typewriter 
+GT
+\family default 
+), greater than or equal to (
+\family typewriter 
+GE
+\family default 
+), strictly less than (
+\family typewriter 
+LT
+\family default 
+), and less than or equal to (
+\family typewriter 
+LE
+\family default 
+).
 \layout Standard
 
 The binary operations are divided into three groups.
@@ -7352,7 +7376,7 @@ if
 
 (Set feed rate depending on a variable)
 \newline 
-O102 if [#2 > 5]
+O102 if [#2 GT 5]
 \newline 
 F100
 \newline 
