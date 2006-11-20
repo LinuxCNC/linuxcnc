@@ -24,10 +24,10 @@ z.2
 (j = initial depth increment; subsequent depths follow degression formula)
 (r = depth degression: 1.0 = constant depth, 2.0 = constant area)
 (                      any number >= 1.0 allowed)
-(k = last cut depth measured from safe move)
+(k = depth of last cut, measured from depth of first cut)
 (q = "compound slide" angle)
 (h = number of spring passes)
-g76 p.05 z-.5 i[.2-.125] j.008 k.043 h4 r2 q29
+g76 p.05 z-.5 i[.2-.125] j.008 k.043 h3 r2.0 q29.0
 g0x.5
 m2
 
