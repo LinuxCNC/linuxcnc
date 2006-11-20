@@ -1,0 +1,493 @@
+#LyX 1.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 221
+\textclass book
+\begin_preamble
+\usepackage[plainpages=false,pdfpagelabels,colorlinks=true,linkcolor=blue]{hyperref}
+\end_preamble
+\language english
+\inputencoding default
+\fontscheme bookman
+\graphics default
+\float_placement !htbp
+\paperfontsize default
+\spacing single 
+\papersize letterpaper
+\paperpackage a4
+\use_geometry 1
+\use_amsmath 0
+\use_natbib 0
+\use_numerical_citations 0
+\paperorientation portrait
+\leftmargin 1in
+\topmargin 1in
+\rightmargin 0.8in
+\bottommargin 0.8in
+\secnumdepth 1
+\tocdepth 5
+\paragraph_separation skip
+\defskip smallskip
+\quotes_language english
+\quotes_times 2
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+
+\layout Chapter
+
+Running EMC2
+\layout Standard
+
+One advantage of EMC has always been it's ability to run a wide variety
+ of machines and devices.
+ This flexibility can be a bit scary when you first begin to work with the
+ system.
+ The material in this chapter will show you how to start up EMC2 using sample
+ configurations and how to copy these sample configurations so that you
+ are ready to create the configuration you need for your machine.
+\layout Section
+
+Configuration Selector
+\layout Standard
+
+The installation of EMC2 includes quite a few different configurations that
+ can be started from a graphical screen.
+ This configuration selector is designed to make those first test runs easier
+ by showing the different configurations available and a bit of information
+ about each.
+ You will probably not be able to run all of these configurations on the
+ same computer.
+ Several require that specific hardware like the PICO Systems Universal
+ Stepper Controller be connected or a or the Motinc Light board be installed
+ before starting that configuration.
+ This hardware requirement is true of most all of the servo configurations.
+ There are also stepper configurations that use one or more parallel ports
+ as well as simulators that do not require any specific hardware.
+ 
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed true
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{cap:EMC2-Configuration-Selector}
+
+\end_inset 
+
+EMC2 Configuration Selector
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename configuration-selector1.png
+	lyxscale 50
+	width 80text%
+	keepAspectRatio
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Standard
+
+EMC2 starts just like most installed Linux software.
+ With a regularly installed system, you can issue the command 
+\begin_inset Quotes eld
+\end_inset 
+
+emc
+\begin_inset Quotes erd
+\end_inset 
+
+ in most any terminal at most any location within the Linux tree.
+ If you have used a Ubuntu install you will find EMC2 under the Applications->CN
+C menu.
+ Either of these methods will pop up the configuration selector.
+ Figure 
+\begin_inset LatexCommand \ref{cap:EMC2-Configuration-Selector}
+
+\end_inset 
+
+ shows the appearance of the configuration selector screen.
+\layout Standard
+
+Move your mouse cursor over and click on any of the configurations listed
+ in the center tree and you'll be able to read about that configuration
+ on the right side of the screen.
+ When you've found a configuration that you'd like to try, click the OK
+ button and this script will start that configuration.
+ This script remembers the last configuration you ran so that you don't
+ have to run through the whole list each time while trying to remember which
+ one you tried last time.
+\layout Standard
+
+If you look closer at the listing of available configurations you will see
+ that they are divided into main sections that show where those configurations
+ are located in the file system.
+ Your configuration selector will show a different set of configurations
+ that the one shown in Figure 
+\begin_inset LatexCommand \ref{cap:EMC2-Configuration-Selector}
+
+\end_inset 
+
+ because this selector looks for and finds these configurations in both
+ the /etc/emc2 directory and a user's home directory.
+ In this case it shows all of the configurations it found in /home/rayh/emc2/con
+figs as well as those samples found in /etc/emc2.
+\begin_inset Foot
+collapsed false
+
+\layout Standard
+
+We recommend making a copy of the sample configuration needed by a user
+ in the home directory as emc2/configs/myconfig.
+ If a user leaves the sample configurations intact in /etc/emc2 they can
+ always make a new copy for editing.
+\end_inset 
+
+
+\layout Standard
+
+It is far easier to find a sample configuration that is close to what is
+ required for a specific machine and then editing that sample to exactly
+ fit the axis ratios and IO buttons and relays than it is to start from
+ scratch and write a new configuration.
+ A user can quickly copy /etc/emc2 into the home directory and prune out
+ those configurations that are not ever going to be used.
+ Or you can create a new emc2/configs directory in home and copy or drag
+ in those configurations that you want to try modifying.
+ 
+\layout Section
+
+Copying Sample Configurations
+\layout Standard
+
+The files in /etc/emc2/configs are just samples.
+ You should copy them to your home directory before modifying them.
+ There are three possible ways to make a copy of an existing configuration;
+ copy and paste 
+\begin_inset LatexCommand \ref{sub:Copy-and-Paste}
+
+\end_inset 
+
+, drag and drop 
+\begin_inset LatexCommand \ref{sub:Drag-and-Drop}
+
+\end_inset 
+
+, and command line
+\begin_inset LatexCommand \ref{sub:Comand-Line-Copy}
+
+\end_inset 
+
+.
+ Any one of these will copy a sample configuration.
+\layout Subsection
+
+
+\begin_inset LatexCommand \label{sub:Copy-and-Paste}
+
+\end_inset 
+
+Copy and Paste
+\layout Standard
+
+Here's how to do it with the menu system and file browser on Ubuntu systems:
+\layout Itemize
+
+From the "Places" Menu choose "Computer"
+\layout Itemize
+
+click "Filesystem"
+\layout Itemize
+
+click "etc"
+\layout Itemize
+
+click "emc2"
+\layout Itemize
+
+click "sample-configs"
+\layout Standard
+
+You will see a number of sample configurations, with names like "sim", "stepper"
+, "motenc", etc.
+ These are the ones that you've been looking at with the Conifguration Selector.
+ You can copy any of them to use as the beginning of your customized configurati
+on.
+ You should pick one that is close to what you ultimately need.
+ For instance, if your machine uses stepper motors, you probably should
+ choose the "stepper" configuration.
+ If you are using servos with a Servo-to-Go card, "stg" is for you.
+ Move your mouse cursor over the configuration directory you wish to copy,
+ right-click it and choose "copy." 
+\layout Standard
+
+Now we need to create a couple of directories in your home folder.
+\layout Itemize
+
+From the "Places" Menu choose "Home Folder"
+\layout Itemize
+
+From "File" choose "Create Folder".
+ 
+\layout Itemize
+
+Enter the name "emc2" where "untitled folder" is highlighted.
+\layout Itemize
+
+click the new "emc2" folder.
+ 
+\layout Itemize
+
+From "File" choose "Create Folder".
+ 
+\layout Itemize
+
+Enter the name "configs" where "untitled folder" is highlighted.
+\layout Itemize
+
+double click the new "configs" folder.
+ 
+\layout Itemize
+
+right-click in the empty space in that folder and choose "paste".
+\layout Standard
+
+Start EMC2 from the menu.
+ The Configuration Selector will show you your new configuration at the
+ top of the Tree.
+ Press the Cancel button to go back to the file browser that you used to
+ copy with.
+ Now you can move into the copied folder and begin to specific files to
+ suit your specific machine.
+ To edit one of the files (e.g., sim.ini), right click it and choose 'Open
+ with "Text Editor"'.
+ Details of the configuration files are in the next chapters.
+ 
+\begin_inset Note
+collapsed true
+
+\layout Standard
+
+Might list the chapters in more detail here and use cross references.
+\end_inset 
+
+
+\layout Subsection
+
+
+\begin_inset LatexCommand \label{sub:Drag-and-Drop}
+
+\end_inset 
+
+Drag and Drop
+\layout Standard
+
+To copy via dragging instead of cut & paste:
+\layout Itemize
+
+From "Places", choose "Home Folder".
+ 
+\layout Itemize
+
+From "File" choose "Create Folder".
+ 
+\layout Itemize
+
+Enter the name "emc2".
+\layout Itemize
+
+click "emc2".
+ 
+\layout Itemize
+
+From "File" choose "Create Folder".
+ 
+\layout Itemize
+
+Enter the name "configs".
+\layout Itemize
+
+double click "configs".
+\layout Standard
+
+Now you have one copy of the file browser showing the empty configs folder.
+ Leave this browser on the screen and create another.
+\layout Itemize
+
+From "Places" choose "Computer"
+\layout Itemize
+
+click "Filesystem"
+\layout Itemize
+
+click "etc"
+\layout Itemize
+
+click "emc2"
+\layout Itemize
+
+click "sample-configs".
+ 
+\layout Standard
+
+Hold down Ctrl and drag "sim" from this window to the window "configs".
+ If you do not hold down Ctrl, you will get an error that a folder could
+ not be removed (because the user can't make changes to the /etc/emc2/sample-con
+figs folder)
+\layout Subsection
+
+
+\begin_inset LatexCommand \label{sub:Comand-Line-Copy}
+
+\end_inset 
+
+Comand Line Copy
+\layout Standard
+
+To copy using the unix shell: Open a terminal window, and type
+\layout LyX-Code
+
+mkdir -p ~/emc2/configs
+\layout LyX-Code
+
+cp -R /etc/emc2/sample-configs/stepper ~/emc2/configs 
+\layout Standard
+
+
+\begin_inset Wrap figure
+width "60col%"
+collapsed false
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{cap:Terminal-Window}
+
+\end_inset 
+
+Terminal Window
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename term1.png
+	lyxscale 50
+	width 50text%
+
+\end_inset 
+
+
+\end_inset 
+
+You'll find the unix terminal under the Applications menu and Accessories
+ sub menu.
+ As you gain more experience with Linux you will find yourself using this
+ terminal to enter commands.
+ These commands can be very powerful.
+ As you can see from the two lines above text commands can simplify many
+ of the menu or click things you can do in the graphical environment.
+ The only limitation you'll find in the text environment is that you will
+ have to type each command with great care for precision so that Linux's
+ command interpreter will understand what you want it to do.
+\layout Standard
+
+Figure 
+\begin_inset LatexCommand \ref{cap:Terminal-Window}
+
+\end_inset 
+
+ shows a terminal.
+ Whenever a terminal starts it will give you a command prompt.
+ This prompt will include information about where it is running within the
+ file system and who it thinks you are.
+ In this picture the terminal thinks I am rayh on a computer named rayu
+ and I am in my home (~) directory.
+\layout Section
+
+Starting a Custom Configuration
+\layout Standard
+
+You will be able to see and easily run your custom configurations if you
+ place them where the Configuration Selector can find them.
+ Any of the methods above will make a copy that the Configuration Selector
+ will find.
+ 
+\layout Standard
+
+Once a configuration has been edited into shape and tested on a machine,
+ it is possible to start that configuration using a command like 
+\layout LyX-Code
+
+emc emc2/configs/stepper/stepper_inch.ini
+\layout Standard
+
+issued in a terminal in the users home directory.
+ 
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{cap:Create-Launcher-Icon}
+
+\end_inset 
+
+Create Launcher Icon
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename launcher.png
+	lyxscale 50
+	width 90text%
+
+\end_inset 
+
+
+\end_inset 
+
+It is also possible to make an icon on the desktop that starts the system.
+ The dialog shown as Figure 
+\begin_inset LatexCommand \ref{cap:Create-Launcher-Icon}
+
+\end_inset 
+
+ is what the Ubuntu Launcher Icon maker looks like.
+ Start it by left clicking on any empty desktop space.
+ Type in the name of your machine where it says 
+\begin_inset Quotes eld
+\end_inset 
+
+name.
+\begin_inset Quotes erd
+\end_inset 
+
+ Type in a command like that shown above in the Command space and tick the
+ 
+\begin_inset Quotes eld
+\end_inset 
+
+Run in terminal
+\begin_inset Quotes erd
+\end_inset 
+
+ checkbox.
+ The OK button will put the icon on the desktop.
+ You can even select a custom EMC2 icon to use if you wish.
+\layout Standard
+
+Users of other distributions will need to explore the way that their desktop
+ system works to build these kind of custom launcher icons.
+\the_end
