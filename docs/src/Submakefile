@@ -128,6 +128,7 @@ $(DOC_DIR)/html/%/index.html: $(DOC_SRCDIR)/%.tex
 	@rm -rf $(dir $@)
 	@mkdir -p $(dir $@)
 	@mv $(<:.tex=)/* $(dir $@)
+	@rmdir $(<:.tex=)
 
 default: docs
 
