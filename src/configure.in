@@ -1295,6 +1295,9 @@ if test "$BUILD_AXIS" = "yes"; then
     AC_CHECK_HEADERS(GL/gl.h GL/glu.h,[],BUILD_AXIS=no)
 fi
 if test "$BUILD_AXIS" = "yes"; then
+    AC_CHECK_LIB(GL, glBegin, [], BUILD_AXIS=no)
+fi
+if test "$BUILD_AXIS" = "yes"; then
     AC_MSG_CHECKING(for working GLU quadrics)
     AC_TRY_COMPILE([
 #include <GL/gl.h>
