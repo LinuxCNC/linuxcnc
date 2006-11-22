@@ -1,0 +1,105 @@
+Notes on EMC2 documentation:
+
+The main EMC2 makefile can optionally build the documentation from lyx and
+other files in this directory tree.  Use --enable-build-documentation when
+invoking emc2/src/configure, and run make from emc2/src
+
+Notes about drawings:
+
+Many of the lyx documents include drawings.  Most of them were originally
+created using EasyCad, a non-free Windows app, then exported to .eps files
+and included in the the docs.  The original 'source' files (EasyCad .FC7
+format) were not usable on a free system.  To fix this problem, all of
+the source files have been converted to .dxf files, and added to CVS.
+The .dxf files can be edited with multiple CAD packages, and serve as the
+'source' files for future changes to the drawings.  They can be converted
+from .dxf to postscript (not .eps) using Qcad, which is available as an 
+ubuntu package (and I believe also available for debian).
+
+Unfortunately, EasyCad (and AutoCad) support a number of entities that
+Qcad does not.  Including some that were used in the EMC2 drawings: filled
+circles, filled arrowheads, non-zero width lines, and dashed lines.  Qcad
+renders filled circles as hollow, it renders all lines the same width, and
+it renders dashed lines as solid.  All of these things make the drawings
+less attractive, but are somewhat acceptable.  However, Qcad doesn't render
+filled arrowheads at all, which seriously hurts the drawings.  So EasyCad
+was used to convert the arrowheads to hollow before exporting them.  Hollow
+arrowheads don't look as nice as solid ones, but at least they are visible.
+
+Once exported, the arrowheads lose their relationship with the line they 
+are on, and and need to be moved and/or rotated manually if the line is 
+moved.  I believe that even if they were imported back into EasyCad, the
+line/arrow connection would remain broken.
+
+Because the original EPS files with filled lines and circles, wide lines,
+and dashed lines look so much nicer, they will remain in CVS and should
+probably be used for the documents, however if they become inaccurate
+because of changes in the software, we will have to edit the DXF files,
+generate postscript, and use the less pretty but factually corrrect 
+images.
+
+Since Qcad itself is a GUI application, the dxf to postscript conversion
+involves going clicky clicky, and can't be automated and made part of the
+makefile.  Also, not everyone will have Qcad installed on their system.
+Therefore, we will store both the DXF files and the resulting postscript
+files in CVS, and the normal documentation build process will use the
+postscript files only.  If/when the dxf files are edited, they will need
+to be converted to postscript manually. The conversion procedure is as
+follows:
+
+start qcad
+File->Open-> choose dxf file
+drawing appears in window
+Edit->CurrentDrawingPreferences->Paper
+set paper size to A4, set orientation to landscape or portrait
+  depending on the aspect ratio of the drawing
+File->PrintPreview
+click the "fit to page" button on the toolbar (last button on the right at
+  least on version 2.0.4.0 of qcad)
+File->Print
+  select "print to file"
+  set the path to point to the same directory as the source .dxf file
+  set the name to be the same as the source file, but .ps instead of .dxf
+  click OK
+
+
+
+
+
+
+The makers of Qcad also have a GPL'ed format converter called vec2web,
+which can do dxf to postscript conversion from the command line.  It
+is not available as a precompiled package, but is available in source
+form from http://www.ribbonsoft.com/vec2web.html
+
+vec2web depends on qt3 development packages for compilation, so it should 
+not be a dependency for building the EMC docs.  But if configure can detect
+it, it would be nice to automate conversion from dxf to ps for those systems
+where vec2web is installed.
+
+To build vec2web, I had to apt-get install qt3-dev-tools
+The vec2web tarball contains a build script, but before you run it you
+must set $QTDIR to point at your QT3 installation - in my case it was
+  export QTDIR=/usr/share/qt3
+Then run the build script:
+  ./build_vec2web.sh
+There is no install step, the executable gets dumped in the build directory.
+There is also no man page, but running it with no args prints the following
+usage instructions:
+
+Usage: vec2web <input file> <output file> [options]
+Where options are:
+        -x #      maximum x size for the output bitmap in pixel
+        -y #      maximum y size for the output bitmap in pixel
+        -b        black/white instead of using colors
+        -o [l|p]  orientation for PS output (landscape or portrait)
+        -s ..     page size for PS output (A4, A5)
+
+e.g. vec2web drawing.dxf drawing.png
+        converts drawing.dxf to a portable network graphic
+
+My initial attempts to use vec2web resulted in the graphical parts of the
+drawing being converted, but all text was lost.  I don't know if vec2web is
+worth spending much more time on, however, it _is_ GPL, and it includes a
+library for reading DXF files which might be a worthwhile thing to the 
+Linux CNC community.

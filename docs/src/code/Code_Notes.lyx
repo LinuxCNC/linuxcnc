@@ -207,10 +207,11 @@ collapsed false
 \align center 
 
 \begin_inset Graphics
-	filename emc2-motion-joint-controller-block-diag.eps
+	filename emc2-motion-joint-controller-block-diag.ps
 	width 7in
 	height 7in
 	keepAspectRatio
+	clip
 
 \end_inset 
 
@@ -1102,7 +1103,7 @@ collapsed false
 \align center 
 
 \begin_inset Graphics
-	filename emc2-motion-homing-diag.eps
+	filename emc2-motion-homing-diag.ps
 	width 7in
 	height 9in
 	keepAspectRatio
