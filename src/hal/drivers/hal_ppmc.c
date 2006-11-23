@@ -1438,7 +1438,29 @@ static void write_extraDAC(slot_data_t *slot)
     slot->wr_buf[UxC_EXTRA] = dc & 0xff;  // put in cache
 }
 
+static void write_extra_dout(slot_data_t *slot)
+{
+    dout_t *pg;
+    int b;
+    unsigned char outdata, mask;
 
+    //    rtapi_print_msg(RTAPI_MSG_INFO, "enter write_extra_dout()\n");
+    outdata = 0x00;
+    mask = 0x01;
+    /* assemble output byte from 8 source variables */
+    for (b = 0; b < 8; b++) {
+      pg = &(slot->extra->douts[b]);
+	/* get the data, add to output byte */
+	if ((*(pg->data)) && (!pg->invert)) {
+	    outdata |= mask;
+	}
+	if ((!*(pg->data)) && (pg->invert)) {
+	    outdata |= mask;
+	}
+	mask <<= 1;
+    }
+    slot->wr_buf[UxC_EXTRA] = outdata;  // put in cache
+}
 
 
 /***********************************************************************
@@ -2082,7 +2104,7 @@ static int export_extra_dac(slot_data_t *slot, bus_data_t *bus)
     if (slot->id == 0x50 && slot->ver >= 2) n=1;
     if ( n == 0 ) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "PPMC: ERROR: board doesn't support 'extra' port\n");
+	    "PPMC: ERROR: board firmware doesn't support 'extra' port\n");
 	return -1;
     }
     /* allocate shared memory for the DAC */
@@ -2119,9 +2141,9 @@ static int export_extra_dac(slot_data_t *slot, bus_data_t *bus)
 
 static int export_extra_dout(slot_data_t *slot, bus_data_t *bus)
 {
-//    int retval, n;
-//    char buf[HAL_NAME_LEN+2];
-int n;
+    int retval, n;
+    char buf[HAL_NAME_LEN+2];
+    dout_t *pg;
 
     /* does the board have the extra port? */
     n=0;
@@ -2129,7 +2151,7 @@ int n;
     if (slot->id == 0x50 && slot->ver >= 2) n=1;
     if ( n == 0 ) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "PPMC: ERROR: board doesn't support 'extra' port\n");
+	    "PPMC: ERROR: board firmware doesn't support 'extra' port\n");
 	return -1;
     }
     /* allocate shared memory for the douts */
@@ -2140,11 +2162,27 @@ int n;
 	return -1;
     }
     slot->extra_mode = EXTRA_DOUT;
-
-
-rtapi_print_msg(RTAPI_MSG_ERR, "export code goes here\n" );
-
-
+    for ( n = 0 ; n < 8 ; n++ ) {
+      pg = &(slot->extra->douts[n]);
+	/* export pin for output data */
+	rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.dout.%02d.out",
+	    bus->busnum, bus->last_digout);
+	retval = hal_pin_bit_new(buf, HAL_IN, &(pg->data), comp_id);
+	if (retval != 0) {
+	    return retval;
+	}
+	/* export parameter for inversion */
+	rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.dout.%02d.invert",
+	    bus->busnum, bus->last_digout);
+	retval = hal_param_bit_new(buf, HAL_RW, &(pg->invert), comp_id);
+	if (retval != 0) {
+	    return retval;
+	}
+	pg->invert = 0;
+	/* increment number to prepare for next output */
+	bus->last_digout++;
+    }
+    add_wr_funct(write_extra_dout, slot, block(UxC_EXTRA, UxC_EXTRA));
     return 0;
 }
 
