@@ -2537,17 +2537,18 @@ int convert_threading_cycle(block_pointer block, setup_pointer settings,
 
 #define AABBCC settings->AA_current, settings->BB_current, settings->CC_current
     depth = start_depth;
-    DISABLE_FEED_OVERRIDE();
     zoff = (depth - full_dia_depth) * tan(compound_angle);
     STRAIGHT_TRAVERSE(safe_x, start_y, start_z - zoff, AABBCC);
     while (depth < end_depth) {
         STRAIGHT_TRAVERSE(safe_x - depth, start_y, start_z - zoff, AABBCC); //in
+        DISABLE_FEED_OVERRIDE();
         START_SPEED_FEED_SYNCH(pitch);
         //maybe entry STRAIGHT_FEED
         STRAIGHT_FEED(safe_x - depth, start_y, target_z - zoff, AABBCC); //over
         //maybe exit STRAIGHT_FEED
         STOP_SPEED_FEED_SYNCH();
         STRAIGHT_TRAVERSE(safe_x, start_y, target_z - zoff, AABBCC); //out
+        ENABLE_FEED_OVERRIDE();
         depth = full_dia_depth + cut_increment * pow(++pass, 1.0/degression);
         zoff = (depth - full_dia_depth) * tan(compound_angle);
         STRAIGHT_TRAVERSE(safe_x, start_y, start_z - zoff, AABBCC); //back
@@ -2559,18 +2560,19 @@ int convert_threading_cycle(block_pointer block, setup_pointer settings,
     for(int i = 0; i<spring_cuts+1; i++) {
         STRAIGHT_TRAVERSE(safe_x, start_y, start_z - zoff, AABBCC); //back
         STRAIGHT_TRAVERSE(safe_x - depth, start_y, start_z - zoff, AABBCC); //in
+        DISABLE_FEED_OVERRIDE();
         START_SPEED_FEED_SYNCH(pitch);
         //maybe entry STRAIGHT_FEED
         STRAIGHT_FEED(safe_x - depth, start_y, target_z - zoff, AABBCC); //over
         //maybe exit STRAIGHT_FEED
         STOP_SPEED_FEED_SYNCH();
         STRAIGHT_TRAVERSE(safe_x, start_y, target_z - zoff, AABBCC); //out
+        ENABLE_FEED_OVERRIDE();
     }
     STRAIGHT_TRAVERSE(end_x, end_y, end_z, AABBCC);
     settings->current_x = end_x;
     settings->current_y = end_y;
     settings->current_z = end_z;
-    ENABLE_FEED_OVERRIDE();
 #undef AABBC
     return INTERP_OK;
 }
