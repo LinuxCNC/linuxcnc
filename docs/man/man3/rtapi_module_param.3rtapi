@@ -5,13 +5,13 @@ rtapi_module_param \- Specifying module parameters
 
 .SH SYNTAX
 .HP
-RTAPI_MP_INT(\fIvar\fR, \fInum\fR, \fIdescription\fR)
+RTAPI_MP_INT(\fIvar\fR, \fIdescription\fR)
 
 .HP
-RTAPI_MP_LONG(\fIvar\fR, \fInum\fR, \fIdescription\fR)
+RTAPI_MP_LONG(\fIvar\fR, \fIdescription\fR)
 
 .HP
-RTAPI_MP_STRING(\fIvar\fR, \fInum\fR, \fIdescription\fR)
+RTAPI_MP_STRING(\fIvar\fR, \fIdescription\fR)
 
 .HP
 RTAPI_MP_ARRAY_INT(\fIvar\fR, \fInum\fR, \fIdescription\fR)
