@@ -29,9 +29,9 @@ build-stamp:
 
 	# Add here commands to compile the package.
 ifeq "$(kernel_version)" "sim"
-	cd src && ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --enable-simulator
+	cd src && ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --enable-simulator --enable-build-documentation
 else
-	cd src && ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --with-rtai=/usr/realtime-$(kernel_version)
+	cd src && ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --with-rtai=/usr/realtime-$(kernel_version) --enable-build-documentation
 endif
 	(cd src; $(MAKE) && $(MAKE) docs)
 	touch build-stamp
