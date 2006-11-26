@@ -1,0 +1,10 @@
+emc2-common
+emc2-docs
+emc2-sim
+files
+rules
+tmp
+emc2
+emc2-dev
+emc2-python
+*.substvars

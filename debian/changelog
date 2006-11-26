@@ -1,3 +1,9 @@
+emc2 (2.2.0pre) testing; urgency=low
+
+  * integrate improved-dpkg branch and bump to 2.2.0pre
+
+ -- jepler <jepler@sofa>  Sun, 26 Nov 2006 08:39:19 -0600
+
 emc2 (2.1.0pre) testing; urgency=low
 
   * build-depends: programs for building documentation
