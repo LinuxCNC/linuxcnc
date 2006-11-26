@@ -135,6 +135,7 @@ void refresh_trigger(void)
     switch (chan->data_type) {
     case HAL_FLOAT:
 	ctrl_shm->trig_level.d_float = fp_level;
+	break;
     case HAL_S32:
 	if (fp_level > 2147483647.0) {
 	    fp_level = 2147483647.0;
