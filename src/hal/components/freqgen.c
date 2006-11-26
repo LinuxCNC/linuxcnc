@@ -511,7 +511,7 @@ void rtapi_app_exit(void)
     to frequency to an accumulator.  When the accumulator overflows (or
     underflows), it is time to generate an up (or down) output pulse.
     The add value is limited to +/-2^30, and overflows are detected
-    at bit 30, not bit 31.  This means that with add_val at it's max
+    at bit 30, not bit 31.  This means that with add_val at its max
     (or min) value, and overflow (or underflow) occurs on every cycle.
     NOTE:  step/dir outputs cannot generate a step every cycle.  The
     maximum steprate is determined by the timing parameters.  The
