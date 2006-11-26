@@ -97,12 +97,10 @@ etc/emc2/sample-configs/ppmc/ppmc.var
 etc/emc2/sample-configs/ppmc/README
 etc/emc2/sample-configs/sim/axis.ini
 etc/emc2/sample-configs/sim/axis_manualtoolchange.hal
-etc/emc2/sample-configs/sim/axis-puresim.ini
 etc/emc2/sample-configs/sim/core_sim.hal
 etc/emc2/sample-configs/sim/emc.nml
 etc/emc2/sample-configs/sim/keystick.ini
 etc/emc2/sample-configs/sim/mini.ini
-etc/emc2/sample-configs/sim/puresim.hal
 etc/emc2/sample-configs/sim/README
 etc/emc2/sample-configs/sim/servo_sim.hal
 etc/emc2/sample-configs/sim/servo_sim.ini
