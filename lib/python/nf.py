@@ -95,7 +95,10 @@ def find_prefix(f):
     if f == "/" or f == '': raise RuntimeError, "Share directory not found"
     return find_prefix(os.path.dirname(f))
 
-PREFIX = find_prefix(__file__)
+if os.environ.has_key('EMC2_BIN_DIR'):
+    PREFIX = os.path.basename(os.environ['EMC2_BIN_DIR'])
+else:
+    PREFIX = find_prefix(__file__)
 SHARE = os.path.join(PREFIX, "share", "axis")
 tcl_libdir = os.path.join(SHARE, "tcl")
 
