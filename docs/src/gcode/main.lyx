@@ -7655,7 +7655,7 @@ I- J- K-
 R-
 \family default 
 ) behave more consistently than R-format arcs, particularly for included
- angles near 180 degrees.
+ angles near 180 or 360 degrees.
 \layout Section
 
 Put important modal settings at the top of the file
