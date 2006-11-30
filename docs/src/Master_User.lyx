@@ -130,7 +130,7 @@ preview false
 
 
 \layout Standard
-\align center 
+
 
 \begin_inset Include \include{config/stepper.lyx}
 preview false
