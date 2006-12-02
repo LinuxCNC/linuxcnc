@@ -119,7 +119,7 @@ char * _rs274ngc_errors[] = {
 /*  92 */ _("K word given for arc in xy plane"), // convert_arc
 /*  93 */ _("K word missing with g87"), // convert_cycle_xy, convert_cycle_yz, convert_cycle_zx
 /*  94 */ _("K word with no g2, g3, g33, or g87 to use it"), // check_other_codes
-/*  95 */ _("L word with no canned cycle or g10"), // check_other_codes
+/*  95 */ _("L word with no canned cycle, g10, or g76 to use it"), // check_other_codes
 /*  96 */ _("Left bracket missing after slash with atan"), // read_atan
 /*  97 */ _("Left bracket missing after unary operation name"), // read_unary
 /*  98 */ _("Line number greater than 99999"), // read_line_number

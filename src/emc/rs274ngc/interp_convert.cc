@@ -2424,8 +2424,6 @@ calculated as zero otherwise.
 
 */
 
-int convert_threading_cycle(block_pointer block, setup_pointer settings,
-        double end_x, double end_y, double end_z);
 
 int Interp::convert_straight(int move,   //!< either G_0 or G_1                       
                             block_pointer block,        //!< pointer to a block of RS274 instructions
@@ -2506,7 +2504,7 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
   return INTERP_OK;
 }
 
-int convert_threading_cycle(block_pointer block, setup_pointer settings,
+int Interp::convert_threading_cycle(block_pointer block, setup_pointer settings,
         double end_x, double end_y, double end_z) {
     double start_x = settings->current_x;
     double start_y = settings->current_y;
@@ -2516,6 +2514,7 @@ int convert_threading_cycle(block_pointer block, setup_pointer settings,
     double full_dia_depth = block->i_number;
     double start_depth = block->i_number + block->j_number;
     double cut_increment = block->j_number;
+    double full_threadheight = block->k_number;
     double end_depth = block->k_number + block->i_number;
 
     double pitch = block->p_number;
@@ -2530,6 +2529,18 @@ int convert_threading_cycle(block_pointer block, setup_pointer settings,
     double degression = block->r_number;
     if(degression < 1.0) degression = 1.0;
 
+    double taper_dist = block->e_flag? block->e_number: 0.0;
+    if(taper_dist < 0.0) taper_dist = 0.0;
+    double taper_pitch = taper_dist > 0.0? pitch * hypot(taper_dist, full_threadheight)/taper_dist: pitch;
+
+    if(end_z > start_z) taper_dist = -taper_dist;
+
+    int taper_flags = block->l_number;
+    if(taper_flags < 0) taper_flags = 0;
+
+    int entry_taper = taper_flags & 1;
+    int exit_taper = taper_flags & 2;
+
     double depth, zoff;
     int pass = 1;
 
@@ -2540,12 +2551,25 @@ int convert_threading_cycle(block_pointer block, setup_pointer settings,
     zoff = (depth - full_dia_depth) * tan(compound_angle);
     STRAIGHT_TRAVERSE(safe_x, start_y, start_z - zoff, AABBCC);
     while (depth < end_depth) {
-        STRAIGHT_TRAVERSE(safe_x - depth, start_y, start_z - zoff, AABBCC); //in
-        DISABLE_FEED_OVERRIDE();
-        START_SPEED_FEED_SYNCH(pitch);
-        //maybe entry STRAIGHT_FEED
-        STRAIGHT_FEED(safe_x - depth, start_y, target_z - zoff, AABBCC); //over
-        //maybe exit STRAIGHT_FEED
+        if(taper_dist && entry_taper) {
+            DISABLE_FEED_OVERRIDE();
+            START_SPEED_FEED_SYNCH(taper_pitch);
+            STRAIGHT_FEED(safe_x - depth + full_threadheight, start_y, start_z - zoff, AABBCC); //in
+            STRAIGHT_FEED(safe_x - depth, start_y, start_z - zoff - taper_dist, AABBCC); //angled in
+            START_SPEED_FEED_SYNCH(pitch);
+        } else {
+            STRAIGHT_TRAVERSE(safe_x - depth, start_y, start_z - zoff, AABBCC); //in
+            DISABLE_FEED_OVERRIDE();
+            START_SPEED_FEED_SYNCH(pitch);
+        }
+
+        if(taper_dist && exit_taper) { 
+            STRAIGHT_FEED(safe_x - depth, start_y, target_z - zoff + taper_dist, AABBCC); //over most of the way
+            START_SPEED_FEED_SYNCH(taper_pitch);
+            STRAIGHT_FEED(safe_x - depth + full_threadheight, start_y, target_z - zoff, AABBCC); //angled out
+        } else {
+            STRAIGHT_FEED(safe_x - depth, start_y, target_z - zoff, AABBCC); //over
+        }
         STOP_SPEED_FEED_SYNCH();
         STRAIGHT_TRAVERSE(safe_x, start_y, target_z - zoff, AABBCC); //out
         ENABLE_FEED_OVERRIDE();
@@ -2559,16 +2583,29 @@ int convert_threading_cycle(block_pointer block, setup_pointer settings,
     // cut at least once -- more if spring cuts.
     for(int i = 0; i<spring_cuts+1; i++) {
         STRAIGHT_TRAVERSE(safe_x, start_y, start_z - zoff, AABBCC); //back
-        STRAIGHT_TRAVERSE(safe_x - depth, start_y, start_z - zoff, AABBCC); //in
-        DISABLE_FEED_OVERRIDE();
-        START_SPEED_FEED_SYNCH(pitch);
-        //maybe entry STRAIGHT_FEED
-        STRAIGHT_FEED(safe_x - depth, start_y, target_z - zoff, AABBCC); //over
-        //maybe exit STRAIGHT_FEED
+        if(taper_dist && entry_taper) { 
+            DISABLE_FEED_OVERRIDE();
+            START_SPEED_FEED_SYNCH(taper_pitch);
+            STRAIGHT_FEED(safe_x - depth + full_threadheight, start_y, start_z - zoff, AABBCC); //in
+            STRAIGHT_FEED(safe_x - depth, start_y, start_z - zoff - taper_dist, AABBCC); //angled in
+            START_SPEED_FEED_SYNCH(pitch);
+        } else {
+            STRAIGHT_TRAVERSE(safe_x - depth, start_y, start_z - zoff, AABBCC); //in
+            DISABLE_FEED_OVERRIDE();
+            START_SPEED_FEED_SYNCH(pitch);
+        }
+
+        if(taper_dist && exit_taper) {
+            STRAIGHT_FEED(safe_x - depth, start_y, target_z - zoff + taper_dist, AABBCC); //over most of the way
+            START_SPEED_FEED_SYNCH(taper_pitch);
+            STRAIGHT_FEED(safe_x - depth + full_threadheight, start_y, target_z - zoff, AABBCC); //angled out
+        } else {
+            STRAIGHT_FEED(safe_x - depth, start_y, target_z - zoff, AABBCC); //over
+        }
         STOP_SPEED_FEED_SYNCH();
         STRAIGHT_TRAVERSE(safe_x, start_y, target_z - zoff, AABBCC); //out
         ENABLE_FEED_OVERRIDE();
-    }
+    } 
     STRAIGHT_TRAVERSE(end_x, end_y, end_z, AABBCC);
     settings->current_x = end_x;
     settings->current_y = end_y;

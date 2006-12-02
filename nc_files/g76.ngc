@@ -3,18 +3,6 @@ g20 g64
 t6 m6
 g0x.2
 
-(taper)
-g0z.025
-g0x.07
-f2
-g1x.14z-.04
-
-(turn OD)
-g0x.2
-z0
-g1x.125
-z-.5
-
 (thread)
 g0x.2
 z.2
@@ -27,7 +15,9 @@ z.2
 (k = full thread depth)
 (q = "compound slide" angle)
 (h = number of spring passes)
-g76 p.05 z-.5 i[.2-.125] j.008 k.043 h3 r2.0 q29.5
+(e = distance along drive line used for tapered start/end)
+(l = which ends get the taper: 0=none, 1=begin, 2=end, 3=both)
+g76 p.05 z-.5 i[.2-.125] j.015 k.045 h1 r2.0 q29.5 e.045 l2
 g0x.5
 m2
 

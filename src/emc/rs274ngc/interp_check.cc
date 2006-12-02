@@ -289,7 +289,8 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
 
   if (block->l_number != -1) {
     CHK((((motion < G_81) || (motion > G_89)) &&
-         (block->g_modes[0] != G_10)),
+         (block->g_modes[0] != G_10) &&
+         (motion != G_76)),
         NCE_L_WORD_WITH_NO_CANNED_CYCLE_OR_G10);
   }
 
