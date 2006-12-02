@@ -1,3 +1,10 @@
+emc2 (1:2.0.5) unstable; urgency=low
+
+  * fix units problem with G92/G92.3
+  * fix typo in the license statement in a few files
+
+ -- Chris Radek <chris@timeguy.com>  Sat,  2 Dec 2006 16:54:00 -0600
+
 emc2 (1:2.0.4) unstable; urgency=low
 
   * use scientific notation in halmeter only when really necessary
