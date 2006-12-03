@@ -4550,10 +4550,13 @@ In the center format, the coordinates of the end point of the arc in the
  arc from the current location.
  In this format, it is OK if the end point of the arc is the same as the
  current point.
- It is an error if: · when the arc is projected on the selected plane,
- the distance from the current point to the center differs from the distance
- from the end point to the center by more than 0.0002 inch (if inches are
- being used) or 0.002 millimeter (if millimeters are being used).
+ It is an error if:
+\layout Itemize
+
+When the arc is projected on the selected plane, the distance from the current
+ point to the center differs from the distance from the end point to the
+ center by more than 0.0002 inch (if inches are being used) or 0.002 millimeter
+ (if millimeters are being used).
 \layout Standard
 
 When the XY-plane is selected, program 
