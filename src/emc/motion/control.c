@@ -1746,9 +1746,14 @@ static void get_pos_cmds(long period)
 		if (joint->free_tp_active) {
 		    SET_JOINT_AT_HOME_FLAG(joint, 0);
 		}
-		/* velocity limit = planner limit * global scale factor */
-		/* the global factor is used for feedrate override */
-		vel_lim = joint->free_vel_lim * emcmotStatus->net_feed_scale;
+                if ( joint->home_state == HOME_IDLE ) {
+                    /* velocity limit = planner limit * global scale factor */
+                    /* the global factor is used for feedrate override */
+                    vel_lim = joint->free_vel_lim * emcmotStatus->net_feed_scale;
+                } else {
+                    /* except if homing, when we ignore FO */
+                    vel_lim = joint->free_vel_lim;
+                }
 		/* must not be greater than the joint physical limit */
 		if (vel_lim > joint->vel_limit) {
 		    vel_lim = joint->vel_limit;
