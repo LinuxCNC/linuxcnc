@@ -53,11 +53,11 @@ linksp Ahome => axis.3.home-sw-in
 #newsig Yindex  bit
 #newsig Zindex bit
 #linksp Xindex <= ppmc.0.encoder.00.index
-#linksp Xindex => axis.0.index-pulse-in
+#linksp Xindex => axis.0.index-enable
 #linksp Yindex <= ppmc.0.encoder.01.index
-#linksp Yindex => axis.1.index-pulse-in
+#linksp Yindex => axis.1.index-enable
 #linksp Zindex <= ppmc.0.encoder.02.index
-#linksp Zindex => axis.2.index-pulse-in
+#linksp Zindex => axis.2.index-enable
 
 #
 # Connect I/O controller I/Os
