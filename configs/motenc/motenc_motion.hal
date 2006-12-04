@@ -73,8 +73,8 @@ setp pid.2.maxoutput [AXIS_2]MAX_OUTPUT
 #newsig Yindex  bit
 #newsig Zindex bit
 #linksp Xindex <= motenc.0.enc-00-index
-#linksp Xindex => axis.0.index-pulse-in
+#linksp Xindex => axis.0.index-enable
 #linksp Yindex <= motenc.0.enc-01-index
-#linksp Yindex => axis.1.index-pulse-in
+#linksp Yindex => axis.1.index-enable
 #linksp Zindex <= motenc.0.enc-02-index
-#linksp Zindex => axis.2.index-pulse-in
+#linksp Zindex => axis.2.index-enable

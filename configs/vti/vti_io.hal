@@ -67,11 +67,11 @@ addf vti.do-write servo-thread -1
 #newsig Yindex  bit
 #newsig Zindex bit
 #linksp Xindex <= vti.0.enc-index
-#linksp Xindex => axis.0.index-pulse-in
+#linksp Xindex => axis.0.index-enable
 #linksp Yindex <= vti.1.enc-index
-#linksp Yindex => axis.1.index-pulse-in
+#linksp Yindex => axis.1.index-enable
 #linksp Zindex <= vti.2.enc-index
-#linksp Zindex => axis.2.index-pulse-in
+#linksp Zindex => axis.2.index-enable
 
 # connect amp enables to motion controller
 #linksp Xenable => vti.out-00

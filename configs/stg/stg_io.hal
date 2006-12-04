@@ -67,11 +67,11 @@ linksp Zfault => axis.2.amp-fault-in
 #newsig Yindex  bit
 #newsig Zindex bit
 #linksp Xindex <= stg.0.enc-index
-#linksp Xindex => axis.0.index-pulse-in
+#linksp Xindex => axis.0.index-enable
 #linksp Yindex <= stg.1.enc-index
-#linksp Yindex => axis.1.index-pulse-in
+#linksp Yindex => axis.1.index-enable
 #linksp Zindex <= stg.2.enc-index
-#linksp Zindex => axis.2.index-pulse-in
+#linksp Zindex => axis.2.index-enable
 
 # connect amp enables to motion controller
 linksp Xenable => stg.out-00
