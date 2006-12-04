@@ -352,6 +352,7 @@ typedef struct {
     hal_float_t maxfreq;	/* parameter: max frequency in Hz */
     hal_float_t freq;		/* parameter: velocity cmd scaled to Hz */
     hal_float_t maxaccel;	/* parameter: max accel rate in Hz/sec */
+    int printed_error;          /* Has the error message been logged? */
 } freqgen_t;
 
 /* ptr to array of freqgen_t structs in shared memory, 1 per channel */
@@ -698,6 +699,15 @@ static void update_freq(void *arg, long period)
 	} else {
 	    /* parameter is non-zero, compare to limf */
 	    if (freqgen->maxfreq > limf) {
+                 if(!freqgen->printed_error) {
+                     rtapi_print_msg(RTAPI_MSG_ERR,
+                         "FREQGEN: Channel %d: The requested maximum velocity of %d steps per second is not attainable.\n",
+                         n, (int) freqgen->maxfreq);
+                     rtapi_print_msg(RTAPI_MSG_ERR,
+                         "FREQGEN: The maximum number of steps possible is %d per second\n",
+                             (int) limf);
+                     freqgen->printed_error = 1;
+                 }
 		/* parameter is too high, lower it */
 		freqgen->maxfreq = limf;
 	    } else {
@@ -842,6 +852,7 @@ static int export_freqgen(int num, freqgen_t * addr, int step_type)
     addr->newaddval = 0;
     addr->deltalim = 0;
     addr->rawcount = 0;
+    addr->printed_error = 0;
     if (step_type == 0) {
 	/* setup for stepping type 0 - step/dir */
 	addr->wd.st0.need_step = 0;

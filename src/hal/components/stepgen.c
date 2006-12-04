@@ -345,6 +345,7 @@ typedef struct {
     hal_float_t freq;		/* param: frequency command */
     hal_float_t maxvel;		/* param: max velocity, (pos units/sec) */
     hal_float_t maxaccel;	/* param: max accel (pos units/sec^2) */
+    int printed_error;          /* Has the error message been logged? */
 } stepgen_t;
 
 /* ptr to array of stepgen_t structs in shared memory, 1 per channel */
@@ -759,6 +760,15 @@ static void update_freq(void *arg, long period)
 	} else {
 	    /* parameter is non-zero, compare to max_freq */
 	    if ((stepgen->maxvel * fabs(stepgen->pos_scale)) > max_freq) {
+                if(!stepgen->printed_error) {
+                    rtapi_print_msg(RTAPI_MSG_ERR,
+                        "STEPGEN: Channel %d: The requested maximum velocity of %d steps per second is not attainable.\n",
+                        n, (int) (stepgen->maxvel * fabs(stepgen->pos_scale)));
+                    rtapi_print_msg(RTAPI_MSG_ERR,
+                        "STEPGEN: The maximum number of steps possible is %d per second\n",
+                            (int)max_freq);
+                    stepgen->printed_error = 1;
+                }
 		/* parameter is too high, lower it */
 		stepgen->maxvel = max_freq * fabs(stepgen->scale_recip);
 	    } else {
@@ -972,6 +982,9 @@ static int export_stepgen(int num, stepgen_t * addr, int step_type)
     addr->newaddval = 0;
     addr->deltalim = 0;
     addr->rawcount = 0;
+    /* set other default values */
+    addr->printed_error = 0;
+
     /* init the position controller */
 
     if (step_type == 0) {
