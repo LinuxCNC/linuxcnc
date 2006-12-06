@@ -157,7 +157,7 @@ RTAPI_MP_ARRAY_INT(extradout, MAX_BUS*8, "bus/slot locations of extra dig out mo
 #define UxC_ESTOP_IN    0x0E
 /* The "estop" input will always report OFF to the software, regardless
    of the actual state of the physical input, unless the "estop" output
-   has being turned on by the software. */
+   has been turned on by the software. */
 #define UxC_EXTRA       0x0F    /* 8 bit "extra" port on USC and UPC */
 
 /* codes to indicate if/how the extra port is being used */
@@ -167,6 +167,7 @@ RTAPI_MP_ARRAY_INT(extradout, MAX_BUS*8, "bus/slot locations of extra dig out mo
 
 #define UxC_DOUTA       0x1F	/* EPP address of digital outputs */
 #define UxC_ESTOP_OUT   0x1F
+#define UxC_SLAVE       0x06	/* EPP address of slave register */
 /* The physical output associated with the "estop" output will not come on
    unless the physical "estop" input is also on.  All physical outputs
    will not come on unless the physical "estop" output is on. */
@@ -1567,7 +1568,11 @@ static int export_UxC_digout(slot_data_t *slot, bus_data_t *bus)
     /* do hardware init */
     /* turn off all outputs */
     SelWrt(0, slot->slot_base+UxC_DOUTA, slot->port_addr);
-
+    if (bus->last_digout > 7) {   // if not first UxC, set it to slave mode
+      rtapi_print_msg(RTAPI_MSG_INFO, "PPMC:  slave UxC addr %x\n",slot->slot_base+UxC_SLAVE);
+      SelWrt(1,slot->slot_base+UxC_SLAVE,slot->port_addr);
+      rtapi_print_msg(RTAPI_MSG_INFO, "PPMC:  slave UxC # %d\n",bus->last_digout);
+    }
     /* allocate shared memory for the digital output data */
     slot->digout = hal_malloc(8 * sizeof(dout_t));
     if (slot->digout == 0) {
@@ -2210,7 +2215,7 @@ static int ClrTimeout(unsigned int port_addr)
 	return 0;
     }
 /* remove after testing */
-rtapi_print("EPP Bus Timeout!\n" );
+/* rtapi_print("EPP Bus Timeout!\n" ); */
     /* To clear timeout some chips require double read */
 /*    BusReset(port_addr);  don't do this, it resets all registers in PPMC boards!!  */
     r = rtapi_inb(STATUSPORT(port_addr));
