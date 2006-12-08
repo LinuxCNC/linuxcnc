@@ -13,9 +13,9 @@ MODULE_LICENSE("GPL");
 #include "rtapi_math.h"
 
 typedef struct {
-    float old_in;	/* previous input */
-    float old_out;	/* previous output */
-    float old_v;	/* previous 1st derivative */
+    double old_in;	/* previous input */
+    double old_out;	/* previous output */
+    double old_v;	/* previous 1st derivative */
 } limit3_data;
 
 FUNCTION(_) {
