@@ -5993,13 +5993,13 @@ G90
 
 \end_inset 
 
-, G99
-\begin_inset LatexCommand \index{G99}
+, G91
+\begin_inset LatexCommand \index{G91}
 
 \end_inset 
 
 : Set Distance Mode
-\begin_inset LatexCommand \label{sub:G90,-G99:-Set}
+\begin_inset LatexCommand \label{sub:G90,-G91:-Set}
 
 \end_inset 
 
