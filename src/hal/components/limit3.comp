@@ -83,6 +83,6 @@ FUNCTION(_) {
 	}
     }
     data.old_out = lout;
-    data.old_in = in;
+    data.old_in = lin;
     out = lout;
 }
