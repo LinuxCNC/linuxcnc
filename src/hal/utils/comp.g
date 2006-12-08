@@ -31,7 +31,7 @@ parser Hal:
     token PINDIRECTION: "in|out|io"
     token TYPE: "float|bit|u32|s32|u16|s16|u8|s8"
     token NAME: "[a-zA-Z_][a-zA-Z0-9_]*"
-    token FPNUMBER: "-?([0-9]*\.[0-9]+|[0-9]+\.)([Ee][+-]?[0-9]+)?f?"
+    token FPNUMBER: "-?([0-9]*\.[0-9]+|[0-9]+\.?)([Ee][+-]?[0-9]+)?f?"
     token NUMBER: "-?[0-9]+|0x[0-9a-fA-F]+"
     token STRING: '"(\\.|[^\\"])*"'
     token TSTRING: '"""(\\.|\\\n|[^\\"]|"(?!"")|\n)*"""'
@@ -79,19 +79,19 @@ def comp(name, doc):
     docs.append(('component', name, doc))
     global comp_name
     if comp_name:
-        raise runtime.SyntaxError, "Duplicate specification of component name"
+        raise SyntaxError, "Duplicate specification of component name"
     comp_name = name;
 
 def pin(name, type, dir, doc):
     if name in names:
-        raise runtime.SyntaxError, "Duplicate item name %s" % name
+        raise SyntaxError, "Duplicate item name %s" % name
     docs.append(('pin', name, type, dir, doc))
     names[name] = None
     pins.append((name, type, dir))
 
 def param(name, type, dir, doc, value):
     if name in names:
-        raise runtime.SyntaxError, "Duplicate item name %s" % name
+        raise SyntaxError, "Duplicate item name %s" % name
     docs.append(('param', name, type, dir, doc, value))
     names[name] = None
     params.append((name, type, dir, value))
