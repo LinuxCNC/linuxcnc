@@ -14,13 +14,13 @@ linkps stepgen.0.step  stepgen.0.step
 setp sampler.0.overruns           0 
 setp sampler.0.sample-num           0 
 setp sampler.0.tmax           0 
-setp stepgen.0.dirhold     1  (01) 
-setp stepgen.0.dirsetup     1  (01) 
-setp stepgen.0.maxaccel  2.00000e+00
-setp stepgen.0.maxvel  1.50000e-01
-setp stepgen.0.position-scale  3.20000e+04
-setp stepgen.0.steplen     1  (01) 
-setp stepgen.0.stepspace     1  (01) 
+setp stepgen.0.dirhold   00000001  
+setp stepgen.0.dirsetup   00000001  
+setp stepgen.0.maxaccel 2.000000
+setp stepgen.0.maxvel 0.150000
+setp stepgen.0.position-scale 32000.000000
+setp stepgen.0.steplen   00000001  
+setp stepgen.0.stepspace   00000001  
 setp stepgen.capture-position.tmax           0 
 setp stepgen.make-pulses.tmax           0 
 setp stepgen.update-freq.tmax           0 
