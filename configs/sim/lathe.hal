@@ -3,7 +3,10 @@ loadrt encoder num_chan=1
 # simulate the encoder
 loadrt sim_encoder num_chan=1
 loadrt not count=1
+loadrt limit2 count=1
+
 addf not.0			servo-thread
+addf limit2.0                   servo-thread
 
 #######################################################
 # Beginning of threading related stuff
@@ -11,8 +14,14 @@ addf not.0			servo-thread
 
 # spindle speed control
 newsig spindle-speed-cmd float
+newsig spindle-speed-limited float
 linkps motion.spindle-speed-out => spindle-speed-cmd
-linksp spindle-speed-cmd => sim-encoder.0.speed
+linksp spindle-speed-cmd => limit2.0.in
+linkps limit2.0.out => spindle-speed-limited
+linksp spindle-speed-limited => sim-encoder.0.speed
+
+# simulate spindle mass
+setp limit2.0.maxv 500.0 # rpm/second
 
 # spindle encoder
 # connect encoder signals to encoder counter
