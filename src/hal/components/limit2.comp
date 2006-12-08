@@ -21,6 +21,6 @@ FUNCTION(_) {
     double maxdelta = maxv * fperiod;
     tmp = clamp(tmp, min_, max_);
     tmp = clamp(tmp, data.old_out - maxdelta, data.old_out + maxdelta);
-    data.old_out = out;
+    data.old_out = tmp;
     out = tmp;
 }

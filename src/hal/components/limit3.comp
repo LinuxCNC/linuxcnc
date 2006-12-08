@@ -82,7 +82,7 @@ FUNCTION(_) {
 	    data.old_v = max_v;
 	}
     }
-    data.old_out = out;
+    data.old_out = lout;
     data.old_in = in;
     out = lout;
 }
