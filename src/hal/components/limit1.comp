@@ -1,8 +1,8 @@
 component limit1 "Limit the output signal to fall between min and max";
 pin in float in;
 pin out float out;
-param rw float min_;
-param rw float max_;
+param rw float min_=-1e20;
+param rw float max_=1e20;
 function _;
 ;;
 MODULE_LICENSE("GPL");
