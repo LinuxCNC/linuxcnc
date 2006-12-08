@@ -70,7 +70,7 @@ run_tests () {
 		fi
 	    else
 		exitcode=1
-		reason="Neither result nor checkresult existed"
+		reason="Neither expected nor checkresult existed"
 	    fi
 	fi
 	if [ $exitcode -ne 0 ]; then
