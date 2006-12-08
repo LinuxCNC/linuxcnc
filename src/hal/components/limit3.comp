@@ -1,10 +1,10 @@
 component limit3 "Limit the output signal to fall between min and max, limit its slew rate to less than maxv per second, and limit its second derivative to less than maxa per second squared.  When the signal is a position, this means that the position, velocity, and acceleration are limited.";
 pin in float in;
 pin out float out;
-param rw float min_;
-param rw float max_;
-param rw float maxv;
-param rw float maxa;
+param rw float min_=-1e20;
+param rw float max_=1e20;
+param rw float maxv=1e20;
+param rw float maxa=1e20;
 option data limit3_data;
 function _;
 ;;
