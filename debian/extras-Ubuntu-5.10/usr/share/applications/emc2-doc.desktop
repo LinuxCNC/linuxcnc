@@ -1,0 +1,12 @@
+[Desktop Entry]
+Encoding=UTF-8
+Version=
+Type=Application
+Exec=/usr/bin/evince /usr/share/doc/emc2/EMC2_User_Manual.pdf
+Icon=gnome-help
+X-GNOME-DocPath=
+Terminal=false
+Name=EMC2 User Manual
+Comment=The Enhanced Machine Controller
+StartupNotify=false
+Categories=X-CNC;
