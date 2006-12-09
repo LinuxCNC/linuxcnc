@@ -33,8 +33,7 @@
  *	s32	motenc.<boardId>.enc-<channel>-count
  *	float	motenc.<boardId>.enc-<channel>-position
  *	bit	motenc.<boardId>.enc-<channel>-index
- *	bit	motenc.<boardId>.enc-<channel>-idx-latch
- *	bit	motenc.<boardId>.enc-<channel>-latch-index
+ *	bit	motenc.<boardId>.enc-<channel>-index-enable
  *	bit	motenc.<boardId>.enc-<channel>-reset-count
  *
  *   Functions:
@@ -169,21 +168,20 @@ typedef struct {
     hal_s32_t				*pCount;	// Captured binary count value.
     hal_float_t				*pPosition;	// Scaled position (floating point).
     hal_bit_t				*pIndex;	// Current state of index.
-    hal_bit_t				*pIndexLatch;
-    hal_bit_t				*pLatchIndex;	// Setting this pin enables the index
-							// latch. When the next index pulse is
-							// seen, Count is cleared and IndexLatch
-							// is set. Clearing this pin resets the
-							// index latch. Use this feature at your
-							// own risk as the PID loop may get upset.
+    hal_bit_t				*pIndexEnable;	// Setting this pin causes the count
+							// to be cleared on the next index pulse.
+							// Use this feature at your own risk as the PID loop
+							// may get upset. This pin is self clearing.
     hal_bit_t				*pResetCount;	// Setting this pin causes Count to be reset.
 							// This pin is self clearing.
 
     // Parameters.
     hal_float_t				scale;		// Scaling factor for position.
-    // internal values
-    float old_scale;		/* stored scale value */
-    double scale_recip;		/* reciprocal value used for scaling */
+
+    // Private data.
+    float				oldScale;	// Stored scale value.
+    double				scaleRecip;	// Reciprocal value used for scaling.
+    int					latchEnabled;
 } EncoderPinsParams;
 
 typedef struct {
@@ -229,14 +227,15 @@ typedef struct {
 } MiscPinsParams;
 
 typedef struct {
+    // Private data.
     MotencRegMap			*pCard;
-    int					adcState;
-    hal_u32_t				watchdogControl;// Shadow HW register.
-    // private data
     int					boardType;
-    char				*typeName;
+    char				*pTypeName;
     int					boardID;
     int					numFpga;
+    int					adcState;
+    hal_u32_t				watchdogControl;// Shadow HW register.
+
     // Exported to HAL.
     EncoderPinsParams			encoder[MOTENC_NUM_ENCODER_CHANNELS];
     DacPinsParams			dac[MOTENC_NUM_DAC_CHANNELS];
@@ -334,7 +333,7 @@ rtapi_app_main(void)
 
 	// Initialize device.
 	Device_Init(pDevice, pCard);
-	rtapi_print_msg(RTAPI_MSG_INFO, "MOTENC: Card is %s, ID: %d\n", pDevice->typeName, pDevice->boardID);
+	rtapi_print_msg(RTAPI_MSG_INFO, "MOTENC: Card is %s, ID: %d\n", pDevice->pTypeName, pDevice->boardID);
         if ( pDevice->boardType == 0 ) {
 	    rtapi_print_msg(RTAPI_MSG_ERR, "MOTENC: ERROR, unknown card detected\n");
 	    hal_exit(driver.componentId);
@@ -424,26 +423,27 @@ Device_Init(Device *this, MotencRegMap *pCard)
     this->adcState = 0;
     this->watchdogControl = 0;
 
-    // identify type of board
+    // Identify type of board.
     status = pCard->fpga[0].boardVersion;
     if ( status == 0 ) {
-	// MOTENC-100
+	// MOTENC-100.
 	this->boardType = 1;
-	this->typeName = "MOTENC-100";
+	this->pTypeName = "MOTENC-100";
 	this->numFpga = 2;
     } else if ( status == 1 ) {
-	// MOTENC-Lite
+	// MOTENC-Lite.
 	this->boardType = 2;
-	this->typeName = "MOTENC-Lite";
+	this->pTypeName = "MOTENC-Lite";
 	this->numFpga = 1;
     } else {
-	// no idea what it is
+	// No idea what it is.
 	this->boardType = 0;
-	this->typeName = "unknown";
+	this->pTypeName = "unknown";
 	this->numFpga = 0;
 	return -1;
     }
-    // extract board id from first FPGA. The user sets this via jumpers on the card.
+
+    // Extract board id from first FPGA. The user sets this via jumpers on the card.
     status = pCard->fpga[0].statusControl;
     this->boardID = (status & MOTENC_STATUS_BOARD_ID) >> MOTENC_STATUS_BOARD_ID_SHFT;
     
@@ -523,12 +523,8 @@ Device_ExportEncoderPinsParametersFunctions(Device *this, int componentId, int b
 	if((halError = hal_pin_bit_new(name, HAL_OUT, &(this->encoder[channel].pIndex), componentId)) != 0)
 	    break;
 
-	rtapi_snprintf(name, HAL_NAME_LEN, "motenc.%d.enc-%02d-idx-latch", boardId, channel);
-	if((halError = hal_pin_bit_new(name, HAL_OUT, &(this->encoder[channel].pIndexLatch), componentId)) != 0)
-	    break;
-
-	rtapi_snprintf(name, HAL_NAME_LEN, "motenc.%d.enc-%02d-latch-index", boardId, channel);
-	if((halError = hal_pin_bit_new(name, HAL_IN, &(this->encoder[channel].pLatchIndex), componentId)) != 0)
+	rtapi_snprintf(name, HAL_NAME_LEN, "motenc.%d.enc-%02d-index-enable", boardId, channel);
+	if((halError = hal_pin_bit_new(name, HAL_IO, &(this->encoder[channel].pIndexEnable), componentId)) != 0)
 	    break;
 
 	rtapi_snprintf(name, HAL_NAME_LEN, "motenc.%d.enc-%02d-reset-count", boardId, channel);
@@ -544,10 +540,12 @@ Device_ExportEncoderPinsParametersFunctions(Device *this, int componentId, int b
 	*(this->encoder[channel].pCount) = 0;
 	*(this->encoder[channel].pPosition) = 0.0;
 	*(this->encoder[channel].pIndex) = 0;
-	*(this->encoder[channel].pIndexLatch) = 0;
-	*(this->encoder[channel].pLatchIndex) = 0;
+	*(this->encoder[channel].pIndexEnable) = 0;
 	*(this->encoder[channel].pResetCount) = 0;
 	this->encoder[channel].scale = 1.0;
+	this->encoder[channel].oldScale = 1.0;
+	this->encoder[channel].scaleRecip = 1.0 / this->encoder[channel].scale;
+	this->encoder[channel].latchEnabled = 0;
     }
 
     // Export functions.
@@ -809,30 +807,46 @@ Device_EncoderRead(void *arg, long period)
 		pCard->fpga[i].statusControl = 1 << (MOTENC_CONTROL_ENCODER_RESET_SHFT + j);
 	    }
 
-	    // Write index latch with pin value.
-	    pCard->fpga[i].encoderCount[j] = *(pEncoder->pLatchIndex);
+	    // Check index enable pin.
+	    if(*(pEncoder->pIndexEnable) && !pEncoder->latchEnabled){
+		// Set index latch.
+		pCard->fpga[i].encoderCount[j] = 1;
+		pEncoder->latchEnabled = 1;
+	    }
 
 	    // Update index and index latched pins.
 	    status = pCard->fpga[i].statusControl;
 	    *(pEncoder->pIndex) = (status >> (MOTENC_STATUS_INDEX_SHFT + j)) & 1;
-	    *(pEncoder->pIndexLatch) = (status >> (MOTENC_STATUS_INDEX_LATCH_SHFT + j)) & 1;
+
+	    if((status >> (MOTENC_STATUS_INDEX_LATCH_SHFT + j)) & 1){
+		// Clear index latch.
+		pCard->fpga[i].encoderCount[j] = 0;
+		pEncoder->latchEnabled = 0;
+
+		// Clear pin.
+		*(pEncoder->pIndexEnable) = 0;
+	    }
 
 	    // Read encoder counts.
 	    *(pEncoder->pCount) = pCard->fpga[i].encoderCount[j];
-	    /* check for change in scale value */
-	    if ( pEncoder->scale != pEncoder->old_scale ) {
-		/* get ready to detect future scale changes */
-		pEncoder->old_scale = pEncoder->scale;
-		/* validate the new scale value */
+
+	    // Check for change in scale value.
+	    if ( pEncoder->scale != pEncoder->oldScale ) {
+		// Get ready to detect future scale changes.
+		pEncoder->oldScale = pEncoder->scale;
+
+		// Validate the new scale value.
 		if ((pEncoder->scale < 1e-20) && (pEncoder->scale > -1e-20)) {
-		    /* value too small, divide by zero is a bad thing */
+		    // Value too small, divide by zero is a bad thing.
 		    pEncoder->scale = 1.0;
 		}
-		/* we will need the reciprocal */
-		pEncoder->scale_recip = 1.0 / pEncoder->scale;
+
+		// We will need the reciprocal.
+		pEncoder->scaleRecip = 1.0 / pEncoder->scale;
 	    }
+
 	    // Scale count to make floating point position.
-	    *(pEncoder->pPosition) = *(pEncoder->pCount) * pEncoder->scale_recip;
+	    *(pEncoder->pPosition) = *(pEncoder->pCount) * pEncoder->scaleRecip;
 	}
     }
 }
