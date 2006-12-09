@@ -47,6 +47,13 @@ EXTRA_FILES="usr/bin/emc_module_helper"
 KERNEL_VERSION=$1
 DRIVERS=drivers.files.in
 
+# hope this works on other systems too
+DISTRIB_NAME=
+if [ -f /etc/lsb-release ]; then
+    source /etc/lsb-release
+    DISTRIB_NAME=$DISTRIB_ID-$DISTRIB_RELEASE
+fi
+
 case $1 in
     sim)
         MODULE_PATH=usr/lib/emc2/modules
@@ -71,6 +78,7 @@ sed -e "s|@MODULE_PATH@|$MODULE_PATH|g" \
     -e "s|@KERNEL_DEPENDS@|$KERNEL_DEPENDS|g" \
     -e "s|@KERNEL_HEADERS@|$KERNEL_HEADERS|g" \
     -e "s|@EXTRA_FILES@|$EXTRA_FILES|g" \
+    -e "s|@DISTRIB_NAME@|$DISTRIB_NAME|g" \
     $*
 }
 

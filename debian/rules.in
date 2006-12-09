@@ -59,6 +59,7 @@ install: build
 	#start the install
 	mkdir -p debian/tmp
 	-(cd debian/extras && find . |cpio -pdmuv ../tmp)
+	-(cd debian/extras-@DISTRIB_NAME@ && find . |cpio -pdmuv ../tmp)
 	(cd src; export DESTDIR=`pwd`/../debian/tmp; $(MAKE) $@)
 	python2.4 /usr/lib/python2.4/compileall.py debian/tmp/usr/lib/python2.4
 	find debian/tmp/usr/lib/python2.4 -name \*.py -exec rm {} \;
