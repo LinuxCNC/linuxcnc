@@ -62,6 +62,7 @@ case $1 in
 	KERNEL_HEADERS=	
 	DRIVERS=
         EXTRA_FILES="usr/bin/rtapi_app"
+	DISTRIB_NAME=sim-$DISTRIB_NAME
     ;;
     2.6.12-magma)
         KERNEL_HEADERS="$KERNEL_HEADERS,gcc-3.4"
@@ -84,4 +85,8 @@ sed -e "s|@MODULE_PATH@|$MODULE_PATH|g" \
 
 subst control.in > control
 subst rules.in > rules; chmod +x rules
-subst emc2.files.in $DRIVERS > emc2-$1.files
+if [ -f extras-$DISTRIB_NAME/emc2.files ]; then
+    subst emc2.files.in $DRIVERS extras-$DISTRIB_NAME/emc2.files > emc2-$1.files
+else
+    subst emc2.files.in $DRIVERS > emc2-$1.files
+fi
