@@ -1,6 +1,6 @@
-emc2 (2.1.0-alpha0) testing; urgency=low
+emc2 (2.1.0~alpha0) testing; urgency=low
 
-  * integrate improved-dpkg branch and bump to 2.1.0-alpha0
+  * integrate improved-dpkg branch and bump to 2.1.0~alpha0
 
  -- alex_joni <alex_joni@user.sourceforge.net>  Sun, 10 Dec 2006 16:52:20 +0200
 
