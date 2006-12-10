@@ -16,9 +16,7 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
-#get kernel version from the debian/Changelog (once it's there)
-#kernel_version     = $(shell dpkg-parsechangelog | grep ^Source | sed 's/.*-//')
-kernel_version = 2.6.12-magma
+kernel_version = sim
 
 debian/control:
 	echo '# THIS FILE IS AUTO-GENERATED FROM control.in' > debian/control
@@ -30,7 +28,11 @@ build-stamp:
 	dh_testdir
 
 	# Add here commands to compile the package.
-	cd src && ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man
+ifeq "$(kernel_version)" "sim"
+	cd src && ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --enable-simulator --enable-build-documentation
+else
+	cd src && ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --with-rtai=/usr/realtime-$(kernel_version) --enable-build-documentation
+endif
 	(cd src; $(MAKE) && $(MAKE) docs)
 	touch build-stamp
 
@@ -39,8 +41,11 @@ clean: debian/control
 	dh_testroot
 	rm -f build-stamp
 
-	# Add here commands to clean up after the build process.
-	cd src && ./configure --prefix=/usr --sysconfdir=/etc
+ifeq "$(kernel_version)" "sim"
+	cd src && ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --enable-simulator
+else
+	cd src && ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --with-rtai=/usr/realtime-$(kernel_version)
+endif
 	cd src && $(MAKE) depclean -s
 	rm -f Makefile.inc
 
@@ -54,6 +59,7 @@ install: build
 	#start the install
 	mkdir -p debian/tmp
 	-(cd debian/extras && find . |cpio -pdmuv ../tmp)
+	-(cd debian/extras-sim-Ubuntu-6.06 && find . |cpio -pdmuv ../tmp)
 	(cd src; export DESTDIR=`pwd`/../debian/tmp; $(MAKE) $@)
 	python2.4 /usr/lib/python2.4/compileall.py debian/tmp/usr/lib/python2.4
 	find debian/tmp/usr/lib/python2.4 -name \*.py -exec rm {} \;
@@ -76,7 +82,9 @@ binary-arch: build install
 	dh_link
 	dh_strip
 	dh_compress -X.pdf -X.txt
+ifneq "$(kernel_version)" "sim"
 	dh_fixperms -X/emc_module_helper
+endif
 	dh_installdeb
 	dh_shlibdeps
 	dh_python

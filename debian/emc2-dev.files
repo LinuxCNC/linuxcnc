@@ -1,4 +1,3 @@
-etc/emc2/Makefile.modinc
 usr/bin/comp
 usr/include/emc2/canon.hh
 usr/include/emc2/cmd_msg.hh
@@ -33,7 +32,6 @@ usr/include/emc2/kinematics.h
 usr/include/emc2/linklist.hh
 usr/include/emc2/locmem.hh
 usr/include/emc2/memsem.hh
-usr/include/emc2/mmxavg.h
 usr/include/emc2/motion.h
 usr/include/emc2/nmldiag.hh
 usr/include/emc2/nml.hh
