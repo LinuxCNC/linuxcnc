@@ -1,0 +1,96 @@
+#!/usr/bin/make -f
+# Simple set of debian/rules that uses debhelper.
+# Based on an example by Joey Hess. 
+# extended by Paul Corner, Alex Joni, Chris Radek, Jeff Epler (in cronological order)
+
+# Copyright (C) 2006 Jeff Epler
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# When used to produce a debian package, this file is a script "used to
+# control compilation and installation of the executable"
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+kernel_version = @KERNEL_VERSION@
+
+debian/control:
+	echo '# THIS FILE IS AUTO-GENERATED FROM control.in' > debian/control
+	sed -e 's/@@KVERSION@@/$(kernel_version)/g' \
+	    debian/control.in >> debian/control
+
+build: build-stamp
+build-stamp:
+	dh_testdir
+
+	# Add here commands to compile the package.
+ifeq "$(kernel_version)" "sim"
+	cd src && ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --enable-simulator --enable-build-documentation
+else
+	cd src && ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --with-rtai=/usr/realtime-$(kernel_version) --enable-build-documentation
+endif
+	(cd src; $(MAKE) && $(MAKE) docs)
+	touch build-stamp
+
+clean: debian/control
+	dh_testdir
+	dh_testroot
+	rm -f build-stamp
+
+ifeq "$(kernel_version)" "sim"
+	cd src && ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --enable-simulator
+else
+	cd src && ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --with-rtai=/usr/realtime-$(kernel_version)
+endif
+	cd src && $(MAKE) depclean -s
+	rm -f Makefile.inc
+
+	dh_clean
+
+install: build
+	dh_testdir
+	dh_testroot
+	dh_clean -k
+	dh_installdirs
+	#start the install
+	mkdir -p debian/tmp
+	-(cd debian/extras && find . |cpio -pdmuv ../tmp)
+	-(cd debian/extras-@DISTRIB_NAME@ && find . |cpio -pdmuv ../tmp)
+	(cd src; export DESTDIR=`pwd`/../debian/tmp; $(MAKE) $@)
+	python2.4 /usr/lib/python2.4/compileall.py debian/tmp/usr/lib/python2.4
+	find debian/tmp/usr/lib/python2.4 -name \*.py -exec rm {} \;
+	mkdir -p debian/tmp/usr/lib debian/tmp/usr/include/emc2
+	cp lib/*.a debian/tmp/usr/lib
+	dh_movefiles
+
+# Build architecture-independent files here.
+binary-indep: build install
+# We have nothing to do by default.
+
+# Build architecture-dependent files here.
+binary-arch: build install
+	dh_testdir
+	dh_testroot
+	dh_installchangelogs
+	dh_installdocs
+	dh_installexamples
+	dh_installman
+	dh_link
+	dh_strip
+	dh_compress -X.pdf -X.txt
+ifneq "$(kernel_version)" "sim"
+	dh_fixperms -X/emc_module_helper
+endif
+	dh_installdeb
+	dh_shlibdeps
+	dh_python
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+binary: binary-indep binary-arch
+.PHONY: build clean binary-indep binary-arch binary install
