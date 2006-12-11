@@ -53,6 +53,7 @@ void DrawPrint( GnomePrintContext *gpc )
 	int the_width = RUNG_WIDTH*bl_width;
 	int the_height = RUNG_HEIGHT*bl_height;
 	int iCurrentLanguage = SectionArray[ InfosGene->CurrentSection ].Language;
+	GdkPixmap *pixmap_for_print;
 #ifdef SEQUENTIAL_SUPPORT
 	if ( iCurrentLanguage==SECTION_IN_SEQUENTIAL )
 	{
@@ -61,7 +62,7 @@ void DrawPrint( GnomePrintContext *gpc )
 	}
 #endif
 
-	GdkPixmap *pixmap_for_print = gdk_pixmap_new( drawing_area->window/*drawable*/,                                          the_width, the_height, -1/*depth*/ );
+	pixmap_for_print = gdk_pixmap_new( drawing_area->window/*drawable*/,                                          the_width, the_height, -1/*depth*/ );
 	if ( pixmap_for_print )
 	{
 
@@ -74,6 +75,7 @@ void DrawPrint( GnomePrintContext *gpc )
 		do
 		{
 			char Buffer[ LGT_LABEL+LGT_COMMENT+20 ];
+			GdkPixbuf *pixbuf_for_print;
 
 			if ( NewPage==TRUE )
 			{
@@ -99,7 +101,7 @@ void DrawPrint( GnomePrintContext *gpc )
 			}
 #endif
 
-			GdkPixbuf* pixbuf_for_print = gdk_pixbuf_get_from_drawable( NULL /*GdkPixbuf *dest*/,
+			pixbuf_for_print = gdk_pixbuf_get_from_drawable( NULL /*GdkPixbuf *dest*/,
                                              pixmap_for_print,
                                              NULL /*cmap*/,
                                              0 /*src_x*/,
@@ -110,6 +112,8 @@ void DrawPrint( GnomePrintContext *gpc )
                                              the_height);
 			if ( pixbuf_for_print )
 			{
+				guchar *raw_image;
+				gint rowstride;
 
 				if ( iCurrentLanguage==SECTION_IN_LADDER )
 				{
@@ -122,8 +126,8 @@ void DrawPrint( GnomePrintContext *gpc )
 					gnome_print_show( gpc, (guchar *)Buffer );
 				}
 
-				guchar * raw_image = gdk_pixbuf_get_pixels( pixbuf_for_print );
-				gint rowstride = gdk_pixbuf_get_rowstride( pixbuf_for_print );
+				raw_image = gdk_pixbuf_get_pixels( pixbuf_for_print );
+				rowstride = gdk_pixbuf_get_rowstride( pixbuf_for_print );
 
 				gnome_print_gsave( gpc );
 				gnome_print_translate( gpc, 20, SizePageOffset-the_height+15 );
