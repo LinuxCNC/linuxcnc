@@ -308,12 +308,13 @@ def find_modinc():
             return e
     raise SystemExit, "Unable to locate Makefile.modinc"
 
-def build(tempdir, filename, mode):
+def build(tempdir, filename, mode, origfilename):
     objname = os.path.basename(os.path.splitext(filename)[0] + ".o")
     makefile = os.path.join(tempdir, "Makefile")
     f = open(makefile, "w")
-    print >>f, "include %s" % find_modinc()
     print >>f, "obj-m += %s" % objname
+    print >>f, "include %s" % find_modinc()
+    print >>f, "EXTRA_CFLAGS += -I%s" % os.path.abspath(os.path.dirname(origfilename))
     f.close()
     if mode == INSTALL:
         target = "modules install"
@@ -456,7 +457,7 @@ def process(filename, mode, outfilename):
         f.close()
 
         if mode != PREPROCESS:
-            build(tempdir, outfilename, mode)
+            build(tempdir, outfilename, mode, filename)
 
     finally:
         shutil.rmtree(tempdir) 
@@ -508,7 +509,7 @@ def main():
             tempdir = tempfile.mkdtemp()
             try:
                 shutil.copy(f, tempdir)
-                build(tempdir, os.path.join(tempdir, os.path.basename(f)), mode)
+                build(tempdir, os.path.join(tempdir, os.path.basename(f)), mode, f)
             finally:
                 shutil.rmtree(tempdir) 
         else:
