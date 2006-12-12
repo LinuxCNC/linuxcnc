@@ -13,18 +13,24 @@
 # An example Makefile using Makefile.modinc to build one kernel module from a
 # single source file would read:
 # 
-# include .../Makefile.modinc
 # obj-m += example.o
+# include .../Makefile.modinc
 
 # An example Makefile using Makefile.modinc to build one kernel module from
 # several source files would read:
 # 
-# include .../Makefile.modinc
 # obj-m += complex.o
 # complex-objs := complex1.o complex2.o complex_main.o
+# include .../Makefile.modinc
 
-# Currently this Makefile is onlt suitable for 'kbuild' systems, but there is
-# no technical reason it cannot be extended to pre-kbuild systems.
+# Currently this Makefile is only suitable for 'kbuild' and 'sim' systems, but
+# there is no technical reason it cannot be extended to pre-kbuild systems.
+
+# When there is a single module and it consists of a single source file, an
+# easier way to build modules is to invoke 'comp':
+#  comp --compile example.c
+# or
+#  comp --install example.c
 
 BUILDSYS = @BUILD_SYS@
 
@@ -67,9 +73,6 @@ getobjs = $(if $(filter undefined, $(origin $(1)-objs)), $(1).o, $($(1)-objs))
 getsrcs = $(patsubst %.o,%.c,$(call getobjs,$(1)))
 
 maks := $(patsubst %.o,.%.modinc,$(obj-m))
-
-.%.modinc:
-	echo 
 
 .PHONY: %.so
 %.so:
