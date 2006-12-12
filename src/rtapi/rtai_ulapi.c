@@ -264,9 +264,7 @@ void rtapi_print_msg(int level, const char *fmt, ...)
 
     if ((level <= msg_level) && (msg_level != RTAPI_MSG_NONE)) {
 	va_start(args, fmt);
-	/* call the normal library vnsprintf() */
-	vsnprintf(buffer, BUFFERLEN, fmt, args);
-	fputs(buffer, stdout);
+	vfprintf(stderr, fmt, args);
 	va_end(args);
     }
 }
