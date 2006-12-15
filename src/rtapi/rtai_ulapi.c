@@ -259,7 +259,6 @@ void rtapi_print(const char *fmt, ...)
 
 void rtapi_print_msg(int level, const char *fmt, ...)
 {
-    char buffer[BUFFERLEN + 1];
     va_list args;
 
     if ((level <= msg_level) && (msg_level != RTAPI_MSG_NONE)) {
