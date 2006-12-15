@@ -902,7 +902,7 @@ static void set_operating_mode(void)
 	if (emcmotDebug->coordinating && !GET_MOTION_COORD_FLAG()) {
 	    if (GET_MOTION_INPOS_FLAG()) {
 		/* preset traj planner to current position */
-		tpSetPos(&emcmotDebug->queue, emcmotStatus->carte_pos_fb);
+		tpSetPos(&emcmotDebug->queue, emcmotStatus->carte_pos_cmd);
 		/* drain the cubics so they'll synch up */
 		for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
 		    /* point to joint data */
