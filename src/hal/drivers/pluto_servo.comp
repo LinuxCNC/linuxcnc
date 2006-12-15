@@ -1,0 +1,464 @@
+component pluto_servo """Hardware driver and firmware for the Pluto-P parallel-port FPGA, for use with servo machines.
+
+The driver has 4 PWM channels, 4 quadrature channels with index pulse, 16
+digital outputs (6 shared with PWM), and 20 digital inputs (12 shared with
+quadrature).""";
+pin out s32 encoder_0_count """The encoder pins and parameters conform to the
+`canonical encoder' interface described in the HAL manual.  It operates in
+`x4 mode'.
+
+The sample rate of the encoder is 40MHz.  The encoder reports 14 bits of
+position, extended to 32 bits internally.  Thus, to maintain correct counting,
+the pluto-servo.read function must be called frequently enough for this counter
+not to overflow.
+
+For correct handling of the index pulse, the number of encoder counts per
+revolution may not be 2^14 = 16384 per revolution""";
+pin out float encoder_0_position;
+pin out float encoder_0_velocity;
+pin in bit encoder_0_reset;
+pin io bit encoder_0_index_enable;
+param rw float encoder_0_scale=1;
+
+pin out s32 encoder_1_count;
+pin out float encoder_1_position;
+pin out float encoder_1_velocity;
+pin in bit encoder_1_reset;
+pin io bit encoder_1_index_enable;
+param rw float encoder_1_scale=1;
+
+pin out s32 encoder_2_count;
+pin out float encoder_2_position;
+pin out float encoder_2_velocity;
+pin in bit encoder_2_reset;
+pin io bit encoder_2_index_enable;
+param rw float encoder_2_scale=1;
+
+pin out s32 encoder_3_count;
+pin out float encoder_3_position;
+pin out float encoder_3_velocity;
+pin in bit encoder_3_reset;
+pin io bit encoder_3_index_enable;
+param rw float encoder_3_scale=1;
+
+param rw bit encoder_z_polarity;
+
+pin in float pwm_0_value """The PWM pins and parameters conform to the `canonical analog output' interface described in the HAL manual.  The output pins are 'up/down' pins as described in the documentation for the 'pwmgen' component.
+
+Internally the PWM generator is based on a 12-bit, 40MHz counter, giving 2047 levels of control and a period of approximately 20 microseconds.
+""";
+pin in bit pwm_0_enable;
+param rw float pwm_0_offset;
+param rw float pwm_0_scale=1;
+
+pin in float pwm_1_value;
+pin in bit pwm_1_enable;
+param rw float pwm_1_offset;
+param rw float pwm_1_scale=1;
+
+pin in float pwm_2_value;
+pin in bit pwm_2_enable;
+param rw float pwm_2_offset;
+param rw float pwm_2_scale=1;
+
+pin in float pwm_3_value;
+pin in bit pwm_3_enable;
+param rw float pwm_3_offset;
+param rw float pwm_3_scale=1;
+
+pin in bit dout_00 "These pins conform to the `canonical digital output' interface described in the HAL manual";
+pin in bit dout_01;
+pin in bit dout_02;
+pin in bit dout_03;
+pin in bit dout_04;
+pin in bit dout_05;
+pin in bit dout_06;
+pin in bit dout_07;
+pin in bit dout_08;
+pin in bit dout_09;
+pin in bit dout_10 "This function is shared with the pwm-0 `up' pin";
+pin in bit dout_11 "This function is shared with the pwm-0 `down' pin";
+pin in bit dout_12 "This function is shared with the pwm-1 `up' pin";
+pin in bit dout_13 "This function is shared with the pwm-1 `down' pin";
+pin in bit dout_14 "This function is shared with the pwm-2 `up' pin";
+pin in bit dout_15 "This function is shared with the pwm-2 `down' pin";
+pin in bit dout_16 "This function is shared with the pwm-3 `up' pin";
+pin in bit dout_17 "This function is shared with the pwm-3 `down' pin";
+param rw bit dout_00_invert;
+param rw bit dout_01_invert;
+param rw bit dout_02_invert;
+param rw bit dout_03_invert;
+param rw bit dout_04_invert;
+param rw bit dout_05_invert;
+param rw bit dout_06_invert;
+param rw bit dout_07_invert;
+param rw bit dout_08_invert;
+param rw bit dout_09_invert;
+param rw bit dout_10_invert;
+param rw bit dout_11_invert;
+param rw bit dout_12_invert;
+param rw bit dout_13_invert;
+param rw bit dout_14_invert;
+param rw bit dout_15_invert;
+param rw bit dout_16_invert;
+param rw bit dout_17_invert;
+
+pin out bit din_00 "These pins conform to the `canonical digital input' interface described in the HAL manual";
+pin out bit din_01;
+pin out bit din_02;
+pin out bit din_03;
+pin out bit din_04;
+pin out bit din_05;
+pin out bit din_06;
+pin out bit din_07;
+pin out bit din_08 "This function is shared with the encoder-0 `Z' pin";
+pin out bit din_09 "This function is shared with the encoder-1 `Z' pin";
+pin out bit din_10 "This function is shared with the encoder-2 `Z' pin";
+pin out bit din_11 "This function is shared with the encoder-3 `Z' pin";
+pin out bit din_12 "This function is shared with the encoder-0 `B' pin";
+pin out bit din_13 "This function is shared with the encoder-1 `B' pin";
+pin out bit din_14 "This function is shared with the encoder-2 `B' pin";
+pin out bit din_15 "This function is shared with the encoder-3 `B' pin";
+pin out bit din_16 "This function is shared with the encoder-0 `A' pin";
+pin out bit din_17 "This function is shared with the encoder-1 `A' pin";
+pin out bit din_18 "This function is shared with the encoder-2 `A' pin";
+pin out bit din_19 "This function is shared with the encoder-3 `A' pin";
+pin out bit din_20 "This function is shared with the encoder-3 `Z' pin";
+pin out bit din_21 "This function is shared with the encoder-3 `Z' pin";
+pin out bit din_22 "This function is shared with the encoder-3 `Z' pin";
+pin out bit din_23 "This function is shared with the encoder-3 `Z' pin";
+pin out bit din_00_not;
+pin out bit din_01_not;
+pin out bit din_02_not;
+pin out bit din_03_not;
+pin out bit din_04_not;
+pin out bit din_05_not;
+pin out bit din_06_not;
+pin out bit din_07_not;
+pin out bit din_08_not;
+pin out bit din_09_not;
+pin out bit din_10_not;
+pin out bit din_11_not;
+pin out bit din_12_not;
+pin out bit din_13_not;
+pin out bit din_14_not;
+pin out bit din_15_not;
+pin out bit din_16_not;
+pin out bit din_17_not;
+pin out bit din_18_not;
+pin out bit din_19_not;
+pin out bit din_20_not;
+pin out bit din_21_not;
+pin out bit din_22_not;
+pin out bit din_23_not;
+
+param rw s32 debug_0;
+param rw s32 debug_1;
+
+param rw u32 communication_error """Increment each time 
+pluto-servo.read detects an error code in the EPP status register.  While
+this register is nonzero, new values are not being written to the Pluto-P
+board, and the status of digital outputs and the PWM duty cycle of the PWM
+outputs will remain unchanged.  To continue after a communication error,
+set this parameter back to zero.""";
+
+option singleton;
+option extra_setup;
+option extra_cleanup;
+
+option data internal;
+
+function read "Read all the inputs from the pluto-servo board";
+function write "Write all the outputs on the pluto-servo board";
+;;
+MODULE_LICENSE("GPL");
+
+#ifdef SIM
+#include <sys/io.h>
+#else
+#include <asm/io.h>
+#endif
+
+int ioaddr = 0x378;
+int ioaddr_hi = 0;
+
+typedef struct {
+    long last_index[4];
+    long last_count[4];
+    long reset_count[4];
+} internal;
+
+long extend(long oldval, int newbits) {
+    int oldhighbits = oldval & 0x3000;
+    int newhighbits = newbits & 0x3000;
+    long newval = (oldval & ~0x3fff) | newbits;
+
+    if(oldhighbits == 0x3000 && newhighbits == 0)
+	newval += 0x4000;	
+    else if(oldhighbits == 0 && newhighbits == 0x3000)
+	newval -= 0x4000;	
+
+    return newval;
+}
+
+void ADDR(int w) {
+    outb(w, ioaddr+3);
+}
+
+void WRITE(int w) {
+    outb(w, ioaddr+4);
+}
+
+int READ(void) {
+    return inb(ioaddr+4);
+}
+
+int wide_epp = 1;
+
+unsigned long read32(void) {
+    unsigned char a, b, c, d;
+
+    if(wide_epp)
+	return inl(ioaddr+4);
+
+    a = READ();
+    b = READ();
+    c = READ();
+    d = READ();
+
+    return a + (b<<8) + (c<<16) + (d<<24);
+}
+
+void write32(long w) {
+    if(wide_epp) {
+	outl(w, ioaddr+4);
+	return;
+    }
+
+    WRITE(w);
+    WRITE(w >> 8);
+    WRITE(w >> 16);
+    WRITE(w >> 24);
+}
+
+void write16(int w) {
+    if(wide_epp) {
+	outw(w, ioaddr+4);
+	return;
+    }
+
+    WRITE(w & 0xff);
+    WRITE(w >> 8);
+}
+
+int PWM(int enable, float value, float offset, float scale) {
+    if(enable == 0) return 0;
+
+    value = value / scale + offset;
+    value = 2047 * value;
+    if(value < -2047) value = -2047;
+    if(value > 2047) value = 2047;
+
+    if(value < 0) return (1<<15) | (int)(-value);
+    else return value;
+}
+
+FUNCTION(write) {
+    int r = 0;
+
+    if(communication_error) return;
+
+    ADDR(0);
+    
+    // write16(PWM(pwm_0_enable, pwm_0_value, pwm_0_offset, pwm_0_scale));
+    // write16(PWM(pwm_1_enable, pwm_1_value, pwm_1_offset, pwm_1_scale));
+    // write16(PWM(pwm_2_enable, pwm_2_value, pwm_2_offset, pwm_2_scale));
+    // write16(PWM(pwm_3_enable, pwm_3_value, pwm_3_offset, pwm_3_scale));
+    write32(PWM(pwm_0_enable, pwm_0_value, pwm_0_offset, pwm_0_scale) +
+	    (PWM(pwm_1_enable, pwm_1_value, pwm_1_offset, pwm_1_scale) << 16));
+    write32(PWM(pwm_2_enable, pwm_2_value, pwm_2_offset, pwm_2_scale) +
+	    (PWM(pwm_3_enable, pwm_3_value, pwm_3_offset, pwm_3_scale) << 16));
+
+    if (!dout_00 ^ !dout_00_invert) r |= 0x1;
+    if (!dout_01 ^ !dout_01_invert) r |= 0x2;
+    if (!dout_02 ^ !dout_02_invert) r |= 0x4;
+    if (!dout_03 ^ !dout_03_invert) r |= 0x8;
+    if (!dout_04 ^ !dout_04_invert) r |= 0x10;
+    if (!dout_05 ^ !dout_05_invert) r |= 0x20;
+    if (!dout_06 ^ !dout_06_invert) r |= 0x40;
+    if (!dout_07 ^ !dout_07_invert) r |= 0x80;
+    if (!dout_08 ^ !dout_08_invert) r |= 0x100;
+    if (!dout_09 ^ !dout_09_invert) r |= 0x200;
+    if (!dout_10 ^ !dout_10_invert) r |= 0x400;
+    if (!dout_11 ^ !dout_11_invert) r |= 0x800;
+    if (!dout_12 ^ !dout_12_invert) r |= 0x1000;
+    if (!dout_13 ^ !dout_13_invert) r |= 0x2000;
+    if (!dout_14 ^ !dout_14_invert) r |= 0x4000;
+    if (!dout_15 ^ !dout_15_invert) r |= 0x8000;
+    if (!dout_16 ^ !dout_16_invert) r |= 0x10000;
+    if (!dout_17 ^ !dout_17_invert) r |= 0x20000;
+    if (encoder_z_polarity) r |= 40000;
+    write32(r);
+}
+
+FUNCTION(read) {
+    unsigned long ppdata;
+    long count, index;
+    int status;
+
+    ADDR(0);
+    
+    ppdata = read32();
+    status = inb(ioaddr+1) & 1;
+    if(status) communication_error ++;
+
+    if(communication_error) return;
+    count = extend(data.last_count[0], ppdata & 0x3fff);;
+    index = extend(data.last_index[0], (ppdata >> 14) & 0x3fff);
+
+    if(encoder_0_index_enable && index != data.last_index[0]) {
+	encoder_0_index_enable = 0;
+	data.reset_count[0] = index;
+    }
+    encoder_0_velocity = (count - data.last_count[0]) / encoder_0_scale;
+    data.last_index[0] = index;
+    data.last_count[0] = count;
+    if(encoder_0_reset) data.reset_count[0] = count;
+    encoder_0_count = count - data.reset_count[0];
+    encoder_0_position = encoder_0_count / encoder_0_scale;
+
+    ppdata = read32();
+    count = extend(data.last_count[1], ppdata & 0x3fff);
+    index = extend(data.last_index[1], (ppdata >> 14) & 0x3fff);
+    if(encoder_1_index_enable && index != data.last_index[1]) {
+	encoder_1_index_enable = 0;
+	data.reset_count[1] = index;
+    }
+    encoder_1_velocity = (count - data.last_count[1]) / encoder_1_scale;
+    data.last_index[1] = index;
+    data.last_count[1] = count;
+    if(encoder_1_reset) data.reset_count[1] = count;
+    encoder_1_count = count - data.reset_count[1];
+    encoder_1_position = encoder_1_count / encoder_1_scale;
+
+    ppdata = read32();
+    count = extend(data.last_count[2], ppdata & 0x3fff);
+    index = extend(data.last_index[2], (ppdata >> 14) & 0x3fff);
+    if(encoder_2_index_enable && index != data.last_index[2]) {
+	encoder_2_index_enable = 0;
+	data.reset_count[2] = index;
+    }
+    encoder_2_velocity = (count - data.last_count[2]) / encoder_2_scale;
+    debug_0 = count; debug_1 = index;
+
+    data.last_index[2] = index;
+    data.last_count[2] = count;
+    if(encoder_2_reset) data.reset_count[2] = count;
+    encoder_2_count = count - data.reset_count[2];
+    encoder_2_position = encoder_2_count / encoder_2_scale;
+
+    ppdata = read32();
+    count = extend(data.last_count[3], ppdata & 0x3fff);
+    index = extend(data.last_index[3], (ppdata >> 14) & 0x3fff);
+    if(encoder_3_index_enable && index != data.last_index[3]) {
+	encoder_3_index_enable = 0;
+	data.reset_count[3] = index;
+    }
+    encoder_3_velocity = (count - data.last_count[3]) / encoder_3_scale;
+    data.last_index[3] = index;
+    data.last_count[3] = count;
+    if(encoder_3_reset) data.reset_count[3] = count;
+    encoder_3_count = count - data.reset_count[3];
+    encoder_3_position = encoder_3_count / encoder_3_scale;
+
+    ppdata = read32();
+
+    din_00 = !!(ppdata & 0x1); din_00_not = !(ppdata & 0x1);
+    din_01 = !!(ppdata & 0x2); din_01_not = !(ppdata & 0x2);
+    din_02 = !!(ppdata & 0x4); din_02_not = !(ppdata & 0x4);
+    din_03 = !!(ppdata & 0x8); din_03_not = !(ppdata & 0x8);
+    din_04 = !!(ppdata & 0x10); din_04_not = !(ppdata & 0x10);
+    din_05 = !!(ppdata & 0x20); din_05_not = !(ppdata & 0x20);
+    din_06 = !!(ppdata & 0x40); din_06_not = !(ppdata & 0x40);
+    din_07 = !!(ppdata & 0x80); din_07_not = !(ppdata & 0x80);
+    din_08 = !!(ppdata & 0x100); din_08_not = !(ppdata & 0x100);
+    din_09 = !!(ppdata & 0x200); din_09_not = !(ppdata & 0x200);
+    din_10 = !!(ppdata & 0x400); din_10_not = !(ppdata & 0x400);
+    din_11 = !!(ppdata & 0x800); din_11_not = !(ppdata & 0x800);
+    din_12 = !!(ppdata & 0x1000); din_12_not = !(ppdata & 0x1000);
+    din_13 = !!(ppdata & 0x2000); din_13_not = !(ppdata & 0x2000);
+    din_14 = !!(ppdata & 0x4000); din_14_not = !(ppdata & 0x4000);
+    din_15 = !!(ppdata & 0x8000); din_15_not = !(ppdata & 0x8000);
+    din_16 = !!(ppdata & 0x10000); din_16_not = !(ppdata & 0x10000);
+    din_17 = !!(ppdata & 0x20000); din_17_not = !(ppdata & 0x20000);
+    din_18 = !!(ppdata & 0x40000); din_18_not = !(ppdata & 0x40000);
+    din_19 = !!(ppdata & 0x80000); din_19_not = !(ppdata & 0x80000);
+    din_20 = !!(ppdata & 0x100000); din_20_not = !(ppdata & 0x100000);
+    din_21 = !!(ppdata & 0x200000); din_21_not = !(ppdata & 0x200000);
+    din_22 = !!(ppdata & 0x400000); din_22_not = !(ppdata & 0x400000);
+    din_23 = !!(ppdata & 0x800000); din_23_not = !(ppdata & 0x800000);
+}
+
+#include "hal/drivers/pluto_servo_rbf.h"
+#define SZ 19895
+
+void program(int base, unsigned char firmware[SZ]) {
+    int byte, bit;
+    int i;
+    rtapi_print_msg(RTAPI_MSG_INFO, "uploading firmware\n");
+
+    // pull the reset low -- bit 2 of status register
+    // keep it low 2 microseconds
+    for(i=0; i<4; i++) outb(0, base+2);
+
+    // let it go high again
+    // delay 10 microseconds to guarantee nStatus high
+    for(i=0; i<20; i++) outb(4, base+2);
+
+    // Now program the device...
+    for(byte = 0; byte < SZ; byte++) {
+	for(bit = 0; bit < 8; bit++) {
+	    int v = firmware[byte] & (1<<bit);
+	    if(v) outb(0xff, base); else outb(0, base);
+	    outb(0|4, base+2);
+//	    outb(0|4, base+2);
+//	    outb(0|4, base+2);
+//	    outb(0|4, base+2);
+//	    outb(0|4, base+2);
+//	    outb(0|4, base+2);
+	    outb(1|4, base+2);
+//	    outb(1|4, base+2);
+//	    outb(1|4, base+2);
+//	    outb(1|4, base+2);
+//	    outb(1|4, base+2);
+//	    outb(1|4, base+2);
+	    outb(0|4, base+2);
+//	    outb(0|4, base+2);
+//	    outb(0|4, base+2);
+//	    outb(0|4, base+2);
+//	    outb(0|4, base+2);
+//	    outb(0|4, base+2);
+	}
+    }
+    rtapi_print_msg(RTAPI_MSG_INFO, "done\n");
+}
+
+EXTRA_SETUP() {
+    if(ioaddr_hi == 0) ioaddr_hi = ioaddr + 0x400;
+
+    outb(4, ioaddr + 2);        // set control lines and input mode
+    outb(0, ioaddr_hi + 0x2);    // select SPP mode in ECR
+    program(ioaddr, firmware);
+    outb(0x80, ioaddr_hi + 0x2); // select EPP mode in ECR
+    return 0;
+}
+
+EXTRA_CLEANUP() {
+    outb(0, ioaddr+2); // set nInitialize low and reset the FPGA
+    // ADDR(11);
+    // WRITE(0xEE);		// resets the FPGA
+    rtapi_print_msg(RTAPI_MSG_ERR, "cleanup\n");
+}
+
+RTAPI_MP_INT(ioaddr, "Address of parallel port where pluto-p is attached");
+RTAPI_MP_INT(ioaddr_hi, "Secondary address of parallel port (0 to use ioaddr+0x400)");
