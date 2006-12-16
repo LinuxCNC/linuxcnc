@@ -1,19 +1,36 @@
 component pluto_servo """Hardware driver and firmware for the Pluto-P parallel-port FPGA, for use with servo machines.
 
-The driver has 4 PWM channels, 4 quadrature channels with index pulse, 16
-digital outputs (6 shared with PWM), and 20 digital inputs (12 shared with
+.B loadrt pluto_servo ioaddr=\\fIaddr\\fB ioaddr_hi=\\fIaddr\\fB epp_soft=\\fI[0|1]\\fB epp_wide=\\fI[0|1]\\fB
+
+.TP
+\\fBioaddr\\fR [default: 0x378]
+The base address of the parallel port.
+
+.TP
+\\fBioaddr_hi\\fR [default: 0]
+The secondary address of the parallel port, used to set EPP
+mode.  0 means to use ioaddr + 0x400.  -1 means there is no
+secondary address.
+
+.\\" .TP
+.\\" \\fBepp_soft\\fR [default: 0]
+.\\" Enables "soft EPP mode".  This emulates the EPP communication
+.\\" protocol using a bidirectional parallel port.  This mode is slower, and
+.\\" cannot detect communication errors.
+.\\"
+.TP
+\\fBepp_wide\\fR [default: 0]
+Enables "wide EPP mode".  This allows 16- and 32-bit EPP transfers, which can
+reduce the time spent in the read and write functions.  However, this mode may
+not work on all EPP parallel ports.
+
+.SH DESCRIPTION
+Pluto_servo is an emc2 software driver and associated firmware that allow the Pluto-P board to be used to control a servo-based CNC machine.
+
+The driver has 4 PWM channels, 4 quadrature channels with index pulse, 18
+digital outputs (8 shared with PWM), and 20 digital inputs (12 shared with
 quadrature).""";
-pin out s32 encoder_0_count """The encoder pins and parameters conform to the
-`canonical encoder' interface described in the HAL manual.  It operates in
-`x4 mode'.
-
-The sample rate of the encoder is 40MHz.  The encoder reports 14 bits of
-position, extended to 32 bits internally.  Thus, to maintain correct counting,
-the pluto-servo.read function must be called frequently enough for this counter
-not to overflow.
-
-For correct handling of the index pulse, the number of encoder counts per
-revolution may not be 2^14 = 16384 per revolution""";
+pin out s32 encoder_0_count;
 pin out float encoder_0_position;
 pin out float encoder_0_velocity;
 pin in bit encoder_0_reset;
@@ -38,33 +55,49 @@ pin out s32 encoder_3_count;
 pin out float encoder_3_position;
 pin out float encoder_3_velocity;
 pin in bit encoder_3_reset;
-pin io bit encoder_3_index_enable;
+pin io bit encoder_3_index_enable """The encoder pins and parameters conform to the
+`canonical encoder' interface described in the HAL manual.  It operates in
+`x4 mode'.
+
+The sample rate of the encoder is 40MHz.  The maximum number quadrature
+rate is 8191 counts per emc2 servo cycle.
+
+For correct handling of the index pulse, the number of encoder counts per
+revolution must be less than 8191.""";
 param rw float encoder_3_scale=1;
 
-param rw bit encoder_z_polarity;
+param rw bit encoder_z_polarity "Set to TRUE if the index pulse is active low, FALSE if it is active high.  Affects all encoders.";
 
-pin in float pwm_0_value """The PWM pins and parameters conform to the `canonical analog output' interface described in the HAL manual.  The output pins are 'up/down' pins as described in the documentation for the 'pwmgen' component.
-
-Internally the PWM generator is based on a 12-bit, 40MHz counter, giving 2047 levels of control and a period of approximately 20 microseconds.
-""";
+pin in float pwm_0_value;
 pin in bit pwm_0_enable;
 param rw float pwm_0_offset;
 param rw float pwm_0_scale=1;
+param rw float pwm_0_max_dc=1;
+param rw float pwm_0_min_dc=0;
 
 pin in float pwm_1_value;
 pin in bit pwm_1_enable;
 param rw float pwm_1_offset;
 param rw float pwm_1_scale=1;
+param rw float pwm_1_max_dc=1;
+param rw float pwm_1_min_dc=0;
 
 pin in float pwm_2_value;
 pin in bit pwm_2_enable;
 param rw float pwm_2_offset;
 param rw float pwm_2_scale=1;
+param rw float pwm_2_max_dc=1;
+param rw float pwm_2_min_dc=0;
 
 pin in float pwm_3_value;
-pin in bit pwm_3_enable;
+pin in bit pwm_3_enable """The PWM pins and parameters conform to the `canonical analog output' interface described in the HAL manual.  The output pins are 'up/down' pins as described in the documentation for the 'pwmgen' component.
+
+Internally the PWM generator is based on a 12-bit, 40MHz counter, giving 4095 duty cycles from -100% to +100% and a frequency of approximately 19.5kHz.
+""";
 param rw float pwm_3_offset;
 param rw float pwm_3_scale=1;
+param rw float pwm_3_max_dc=1;
+param rw float pwm_3_min_dc=0;
 
 pin in bit dout_00 "These pins conform to the `canonical digital output' interface described in the HAL manual";
 pin in bit dout_01;
@@ -155,7 +188,7 @@ pin out bit din_23_not;
 param rw s32 debug_0;
 param rw s32 debug_1;
 
-param rw u32 communication_error """Increment each time 
+param rw u32 communication_error """Incremented each time 
 pluto-servo.read detects an error code in the EPP status register.  While
 this register is nonzero, new values are not being written to the Pluto-P
 board, and the status of digital outputs and the PWM duty cycle of the PWM
@@ -181,6 +214,8 @@ MODULE_LICENSE("GPL");
 
 int ioaddr = 0x378;
 int ioaddr_hi = 0;
+int epp_wide = 0;
+int epp_soft = 0;
 
 typedef struct {
     long last_index[4];
@@ -201,24 +236,70 @@ long extend(long oldval, int newbits) {
     return newval;
 }
 
+void EPP_DIR_WRITE(void) {
+    if(epp_soft) {
+	// set write LOW to indicate write
+	outb(4 | 1, ioaddr+2);
+    }
+}
+void EPP_DIR_READ(void) {
+    if(epp_soft) {
+	// set write HIGH to indicate read
+	// set port direction to input
+	outb(32 | 4, ioaddr+2);
+	
+    }
+}
 void ADDR(int w) {
-    outb(w, ioaddr+3);
+    if(epp_soft) {
+	// Write address
+	outb(w, ioaddr);
+	// set address strobe low
+	outb(4 | 8 | 1, ioaddr + 2);
+	// (port would be polled here for WAIT/ if we didn't know the device
+	// was faster than us)
+	// set address strobe high
+	outb(4 | 1, ioaddr + 2);
+    } else {
+	outb(w, ioaddr+3);
+    }
 }
 
 void WRITE(int w) {
-    outb(w, ioaddr+4);
+    if(epp_soft) {
+	// Write data
+	outb(w, ioaddr);
+	// set data strobe low
+	outb(4 | 2 | 1, ioaddr+2);
+	// (port would be polled here for WAIT/ if we didn't know the device
+	// was faster than us)
+	// set data strobe high
+	outb(4 | 1, ioaddr+2);
+    } else
+	outb(w, ioaddr+4);
 }
 
 int READ(void) {
-    return inb(ioaddr+4);
+    if(epp_soft) {
+	int result;
+	// set data strobe low
+	outb(32 | 4 | 1, ioaddr+2);
+	// (port would be polled here for WAIT/ if we didn't know the device
+	// was faster than us)
+	// read data
+	result = inb(ioaddr);
+	// set data strobe high
+	outb(32 | 4, ioaddr+2);
+	return result;
+    } else
+	return inb(ioaddr+4);
 }
 
-int wide_epp = 1;
 
 unsigned long read32(void) {
     unsigned char a, b, c, d;
 
-    if(wide_epp)
+    if(epp_wide && !epp_soft)
 	return inl(ioaddr+4);
 
     a = READ();
@@ -230,7 +311,7 @@ unsigned long read32(void) {
 }
 
 void write32(long w) {
-    if(wide_epp) {
+    if(epp_wide && !epp_soft) {
 	outl(w, ioaddr+4);
 	return;
     }
@@ -242,7 +323,7 @@ void write32(long w) {
 }
 
 void write16(int w) {
-    if(wide_epp) {
+    if(epp_wide && !epp_soft) {
 	outw(w, ioaddr+4);
 	return;
     }
@@ -251,10 +332,15 @@ void write16(int w) {
     WRITE(w >> 8);
 }
 
-int PWM(int enable, float value, float offset, float scale) {
+int PWM(int enable, float value, float offset, float scale, float min_dc, float max_dc) {
     if(enable == 0) return 0;
 
     value = value / scale + offset;
+    if(value < -max_dc) value = -max_dc;
+    else if(value > -min_dc && value < 0) value = -min_dc;
+    else if(value > 0 && value < min_dc) value = min_dc;
+    else if(value > max_dc) value = max_dc;
+
     value = 2047 * value;
     if(value < -2047) value = -2047;
     if(value > 2047) value = 2047;
@@ -269,15 +355,31 @@ FUNCTION(write) {
     if(communication_error) return;
 
     ADDR(0);
-    
-    // write16(PWM(pwm_0_enable, pwm_0_value, pwm_0_offset, pwm_0_scale));
-    // write16(PWM(pwm_1_enable, pwm_1_value, pwm_1_offset, pwm_1_scale));
-    // write16(PWM(pwm_2_enable, pwm_2_value, pwm_2_offset, pwm_2_scale));
-    // write16(PWM(pwm_3_enable, pwm_3_value, pwm_3_offset, pwm_3_scale));
-    write32(PWM(pwm_0_enable, pwm_0_value, pwm_0_offset, pwm_0_scale) +
-	    (PWM(pwm_1_enable, pwm_1_value, pwm_1_offset, pwm_1_scale) << 16));
-    write32(PWM(pwm_2_enable, pwm_2_value, pwm_2_offset, pwm_2_scale) +
-	    (PWM(pwm_3_enable, pwm_3_value, pwm_3_offset, pwm_3_scale) << 16));
+
+    if(pwm_0_max_dc > 1) pwm_0_max_dc = 1;
+    else if(pwm_0_max_dc < 0) pwm_0_max_dc = 0;
+    if(pwm_0_min_dc < 0) pwm_0_min_dc = 0;
+    else if(pwm_0_min_dc > pwm_0_max_dc) pwm_0_min_dc = pwm_0_max_dc;
+
+    if(pwm_1_max_dc > 1) pwm_1_max_dc = 1;
+    else if(pwm_1_max_dc < 0) pwm_1_max_dc = 0;
+    if(pwm_1_min_dc < 0) pwm_1_min_dc = 0;
+    else if(pwm_1_min_dc > pwm_1_max_dc) pwm_1_min_dc = pwm_1_max_dc;
+
+    if(pwm_2_max_dc > 1) pwm_2_max_dc = 1;
+    else if(pwm_2_max_dc < 0) pwm_2_max_dc = 0;
+    if(pwm_2_min_dc < 0) pwm_2_min_dc = 0;
+    else if(pwm_2_min_dc > pwm_2_max_dc) pwm_2_min_dc = pwm_2_max_dc;
+
+    if(pwm_3_max_dc > 1) pwm_3_max_dc = 1;
+    else if(pwm_3_max_dc < 0) pwm_3_max_dc = 0;
+    if(pwm_3_min_dc < 0) pwm_3_min_dc = 0;
+    else if(pwm_3_min_dc > pwm_3_max_dc) pwm_3_min_dc = pwm_3_max_dc;
+
+    write32(PWM(pwm_0_enable, pwm_0_value, pwm_0_offset, pwm_0_scale, pwm_0_min_dc, pwm_0_max_dc) +
+	    (PWM(pwm_1_enable, pwm_1_value, pwm_1_offset, pwm_1_scale, pwm_1_min_dc, pwm_1_max_dc) << 16));
+    write32(PWM(pwm_2_enable, pwm_2_value, pwm_2_offset, pwm_2_scale, pwm_2_min_dc, pwm_2_max_dc) +
+	    (PWM(pwm_3_enable, pwm_3_value, pwm_3_offset, pwm_3_scale, pwm_3_min_dc, pwm_3_max_dc) << 16));
 
     if (!dout_00 ^ !dout_00_invert) r |= 0x1;
     if (!dout_01 ^ !dout_01_invert) r |= 0x2;
@@ -307,12 +409,13 @@ FUNCTION(read) {
     int status;
 
     ADDR(0);
-    
+    EPP_DIR_READ();
+
     ppdata = read32();
     status = inb(ioaddr+1) & 1;
     if(status) communication_error ++;
 
-    if(communication_error) return;
+    if(communication_error) { EPP_DIR_WRITE(); return; }
     count = extend(data.last_count[0], ppdata & 0x3fff);;
     index = extend(data.last_index[0], (ppdata >> 14) & 0x3fff);
 
@@ -397,6 +500,8 @@ FUNCTION(read) {
     din_21 = !!(ppdata & 0x200000); din_21_not = !(ppdata & 0x200000);
     din_22 = !!(ppdata & 0x400000); din_22_not = !(ppdata & 0x400000);
     din_23 = !!(ppdata & 0x800000); din_23_not = !(ppdata & 0x800000);
+
+    EPP_DIR_WRITE();
 }
 
 #include "hal/drivers/pluto_servo_rbf.h"
@@ -421,23 +526,8 @@ void program(int base, unsigned char firmware[SZ]) {
 	    int v = firmware[byte] & (1<<bit);
 	    if(v) outb(0xff, base); else outb(0, base);
 	    outb(0|4, base+2);
-//	    outb(0|4, base+2);
-//	    outb(0|4, base+2);
-//	    outb(0|4, base+2);
-//	    outb(0|4, base+2);
-//	    outb(0|4, base+2);
 	    outb(1|4, base+2);
-//	    outb(1|4, base+2);
-//	    outb(1|4, base+2);
-//	    outb(1|4, base+2);
-//	    outb(1|4, base+2);
-//	    outb(1|4, base+2);
 	    outb(0|4, base+2);
-//	    outb(0|4, base+2);
-//	    outb(0|4, base+2);
-//	    outb(0|4, base+2);
-//	    outb(0|4, base+2);
-//	    outb(0|4, base+2);
 	}
     }
     rtapi_print_msg(RTAPI_MSG_INFO, "done\n");
@@ -447,9 +537,17 @@ EXTRA_SETUP() {
     if(ioaddr_hi == 0) ioaddr_hi = ioaddr + 0x400;
 
     outb(4, ioaddr + 2);        // set control lines and input mode
-    outb(0, ioaddr_hi + 0x2);    // select SPP mode in ECR
+    if(ioaddr_hi != -1)
+	outb(0, ioaddr_hi + 0x2);    // select SPP mode in ECR
     program(ioaddr, firmware);
-    outb(0x80, ioaddr_hi + 0x2); // select EPP mode in ECR
+
+    if(ioaddr_hi != -1) {
+	if(epp_soft)
+	    outb(0x20, ioaddr_hi + 0x2); // select EPP mode in ECR
+	else
+	    outb(0x80, ioaddr_hi + 0x2); // select EPP mode in ECR
+    }
+
     return 0;
 }
 
@@ -462,3 +560,5 @@ EXTRA_CLEANUP() {
 
 RTAPI_MP_INT(ioaddr, "Address of parallel port where pluto-p is attached");
 RTAPI_MP_INT(ioaddr_hi, "Secondary address of parallel port (0 to use ioaddr+0x400)");
+RTAPI_MP_INT(epp_soft, "Emulate EPP mode on bidirectional port");
+RTAPI_MP_INT(epp_wide, "Use 16- and 32-bit EPP transfers with hardware EPP");
