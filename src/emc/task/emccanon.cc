@@ -696,9 +696,9 @@ void SET_MOTION_CONTROL_MODE(CANON_MOTION_MODE mode, double tolerance)
 
     flush_segments();
 
-    if ((mode != canonMotionMode) || (TO_EXT_LEN(FROM_PROG_LEN(tolerance)) != canonMotionTolerance)) {
+    if ((mode != canonMotionMode) || (FROM_PROG_LEN(tolerance) != canonMotionTolerance)) {
 	canonMotionMode = mode;
-	canonMotionTolerance =  TO_EXT_LEN(FROM_PROG_LEN(tolerance));
+	canonMotionTolerance =  FROM_PROG_LEN(tolerance);
 
 	switch (mode) {
 	case CANON_CONTINUOUS:
@@ -1967,7 +1967,7 @@ CANON_MOTION_MODE GET_EXTERNAL_MOTION_CONTROL_MODE()
 
 double GET_EXTERNAL_MOTION_CONTROL_TOLERANCE()
 {
-    return canonMotionTolerance;
+    return TO_PROG_LEN(canonMotionTolerance);
 }
 
 
