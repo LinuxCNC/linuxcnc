@@ -47,6 +47,7 @@ function write nofp;
 MODULE_LICENSE("GPL");
 
 #include <asm/io.h>
+#include <rtapi_errno.h>
 
 #define MAX 8
 int io[MAX] = {0,};
