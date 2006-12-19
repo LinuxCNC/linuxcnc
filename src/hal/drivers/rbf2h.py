@@ -16,6 +16,12 @@ for k, v in opts:
 
 sys.stdout.write("\n".join(EXTRA))
 
+print """
+//    This is a generated file; the "corresponding source code" is the set of
+//    files used by Altera's Quartus software to generate an .rbf-format
+//    fpga firmware file.
+"""
+
 if GPL:
     print """\
 //    This program is free software; you can redistribute it and/or modify

@@ -1,6 +1,11 @@
 //   This is a component of pluto_servo, a PWM servo driver and
 //   quadrature counter for emc2
-//   Copyright (C) 2006 Jeff Epler//    This program is free software; you can redistribute it and/or modify
+//   Copyright (C) 2006 Jeff Epler
+//    This is a generated file; the "corresponding source code" is the set of
+//    files used by Altera's Quartus software to generate an .rbf-format
+//    fpga firmware file.
+
+//    This program is free software; you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
 //    the Free Software Foundation; either version 2 of the License, or
 //    (at your option) any later version.
