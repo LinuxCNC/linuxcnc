@@ -1,0 +1,90 @@
+# Copyright (C) 1991-2006 Altera Corporation
+# Your use of Altera Corporation's design tools, logic functions 
+# and other software and tools, and its AMPP partner logic 
+# functions, and any output files any of the foregoing 
+# (including device programming or simulation files), and any 
+# associated documentation or information are expressly subject 
+# to the terms and conditions of the Altera Program License 
+# Subscription Agreement, Altera MegaCore Function License 
+# Agreement, or other applicable license agreement, including, 
+# without limitation, that your use is for the sole purpose of 
+# programming logic devices manufactured by Altera and sold by 
+# Altera or its authorized distributors.  Please refer to the 
+# applicable agreement for further details.
+
+
+# The default values for assignments are stored in the file
+#		hal_pwm_assignment_defaults.qdf
+# If this file doesn't exist, and for assignments not listed, see file
+#		assignment_defaults.qdf
+
+# Altera recommends that you do not modify this file. This
+# file is updated automatically by the Quartus II software
+# and any changes you make may be lost or overwritten.
+
+
+set_global_assignment -name FAMILY ACEX1K
+set_global_assignment -name DEVICE "EP1K10TC100-3"
+set_global_assignment -name TOP_LEVEL_ENTITY pluto_servo
+set_global_assignment -name ORIGINAL_QUARTUS_VERSION "6.0 SP1"
+set_global_assignment -name PROJECT_CREATION_TIME_DATE "08:32:07  NOVEMBER 25, 2006"
+set_global_assignment -name LAST_QUARTUS_VERSION "6.0 SP1"
+set_global_assignment -name FMAX_REQUIREMENT "40 MHz"
+set_global_assignment -name FMAX_REQUIREMENT "40 MHz" -section_id clk
+set_global_assignment -name GENERATE_RBF_FILE ON
+set_global_assignment -name IGNORE_CLOCK_SETTINGS OFF
+set_global_assignment -name MESSAGE_SUPPRESSION_RULE_FILE hal_pwm.srf
+set_global_assignment -name OPTIMIZE_HOLD_TIMING OFF
+set_global_assignment -name VERILOG_FILE servo.v
+set_global_assignment -name VERILOG_FILE quad.v
+set_instance_assignment -name CLOCK_SETTINGS clk -to clk
+set_location_assignment PIN_91 -to clk
+set_location_assignment PIN_38 -to din[0]
+set_location_assignment PIN_5 -to din[7]
+set_location_assignment PIN_65 -to dout[0]
+set_location_assignment PIN_68 -to dout[1]
+set_location_assignment PIN_69 -to dout[2]
+set_location_assignment PIN_70 -to dout[3]
+set_location_assignment PIN_9 -to dout[4]
+set_location_assignment PIN_10 -to dout[5]
+set_location_assignment PIN_8 -to dout[7]
+set_location_assignment PIN_93 -to dout[8]
+set_location_assignment PIN_19 -to down[0]
+set_location_assignment PIN_22 -to down[1]
+set_location_assignment PIN_62 -to down[2]
+set_location_assignment PIN_64 -to down[3]
+set_location_assignment PIN_81 -to epp_nReset
+set_location_assignment PIN_50 -to led
+set_location_assignment PIN_84 -to nAddrStr
+set_location_assignment PIN_49 -to nConfig
+set_location_assignment PIN_80 -to nDataStr
+set_location_assignment PIN_87 -to nWait
+set_location_assignment PIN_90 -to nWrite
+set_location_assignment PIN_77 -to pport_data[0]
+set_location_assignment PIN_79 -to pport_data[1]
+set_location_assignment PIN_82 -to pport_data[2]
+set_location_assignment PIN_85 -to pport_data[3]
+set_location_assignment PIN_86 -to pport_data[4]
+set_location_assignment PIN_94 -to pport_data[5]
+set_location_assignment PIN_96 -to pport_data[6]
+set_location_assignment PIN_97 -to pport_data[7]
+set_location_assignment PIN_23 -to quadA[0]
+set_location_assignment PIN_26 -to quadA[1]
+set_location_assignment PIN_27 -to quadA[2]
+set_location_assignment PIN_46 -to quadA[3]
+set_location_assignment PIN_15 -to quadB[0]
+set_location_assignment PIN_14 -to quadB[1]
+set_location_assignment PIN_29 -to quadB[2]
+set_location_assignment PIN_48 -to quadB[3]
+set_location_assignment PIN_40 -to quadZ[1]
+set_location_assignment PIN_28 -to quadZ[2]
+set_location_assignment PIN_47 -to quadZ[3]
+set_location_assignment PIN_20 -to up[0]
+set_location_assignment PIN_21 -to up[1]
+set_location_assignment PIN_61 -to up[2]
+set_location_assignment PIN_63 -to up[3]
+set_global_assignment -name FITTER_EFFORT "FAST FIT"
+set_global_assignment -name SMART_RECOMPILE ON
+set_global_assignment -name AUTO_PACKED_REGISTERS "MINIMIZE AREA"
+set_global_assignment -name ENABLE_INIT_DONE_OUTPUT OFF
+set_instance_assignment -name SLOW_SLEW_RATE ON -to *
