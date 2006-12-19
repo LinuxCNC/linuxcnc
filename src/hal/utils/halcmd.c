@@ -2595,7 +2595,7 @@ static char *data_arrow2(int dir)
 }
 
 /* Switch function to return var value for the print_*_list functions  */
-/* the value is printed in a fixed width field */
+/* the value is printed in a 12 character wide field */
 static char *data_value(int type, void *valptr)
 {
     char *value_str;
@@ -2604,27 +2604,20 @@ static char *data_value(int type, void *valptr)
     switch (type) {
     case HAL_BIT:
 	if (*((char *) valptr) == 0)
-	    value_str = "   FALSE    ";
+	    value_str = "       FALSE";
 	else
-	    value_str = "   TRUE     ";
+	    value_str = "        TRUE";
 	break;
     case HAL_FLOAT:
-        {
-            double v = *(hal_float_t*) valptr;
-            if(v == 0 || ( v > 0.00001 &&  v < 100000) ||
-                         (-v > 0.00001 && -v < 100000))
-                snprintf(buf, 14, "%f", v);
-            else
-                snprintf(buf, 14, "%12.5e", v);
-            value_str = buf;
-        }
+	snprintf(buf, 14, "%12.7g", (double)*((hal_float_t *) valptr));
+	value_str = buf;
 	break;
     case HAL_S32:
-	snprintf(buf, 14, " %10ld ", (long)*((hal_u32_t *) valptr));
+	snprintf(buf, 14, "  %10ld", (long)*((hal_u32_t *) valptr));
 	value_str = buf;
 	break;
     case HAL_U32:
-	snprintf(buf, 14, "  %08lX  ", (unsigned long)*((hal_u32_t *) valptr));
+	snprintf(buf, 14, "    %08lX", (unsigned long)*((hal_u32_t *) valptr));
 	value_str = buf;
 	break;
     default:
@@ -2649,15 +2642,8 @@ static char *data_value2(int type, void *valptr)
 	    value_str = "TRUE";
 	break;
     case HAL_FLOAT:
-        {
-            double v = *((hal_float_t *) valptr);
-            if(v == 0 || ( v > 0.00001 &&  v < 100000) ||
-                         (-v > 0.00001 && -v < 100000))
-                snprintf(buf, 24, "%f", v);
-            else
-                snprintf(buf, 24, "%e", v);
-            value_str = buf;
-        }
+	snprintf(buf, 14, "%.7g", (double)*((hal_float_t *) valptr));
+	value_str = buf;
 	break;
     case HAL_S32:
 	snprintf(buf, 14, "%ld", (long)*((hal_s32_t *) valptr));

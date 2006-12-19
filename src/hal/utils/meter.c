@@ -523,14 +523,7 @@ static char *data_value(int type, void *valptr)
 	    value_str = "TRUE";
 	break;
     case HAL_FLOAT:
-        {
-            float v = *((float *) valptr);
-            if(v == 0 || ( v > 0.00001 &&  v < 100000) ||
-                         (-v > 0.00001 && -v < 100000))
-                snprintf(buf, 24, "%f", v);
-            else
-                snprintf(buf, 24, "%12.5e", v);
-        }
+	snprintf(buf, 14, "%.7g", (double)*((float *) valptr));
 	value_str = buf;
 	break;
     case HAL_S32:
