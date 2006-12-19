@@ -170,10 +170,6 @@ pin out bit din_16 "This function is shared with the encoder-0 `A' pin";
 pin out bit din_17 "This function is shared with the encoder-1 `A' pin";
 pin out bit din_18 "This function is shared with the encoder-2 `A' pin";
 pin out bit din_19 "This function is shared with the encoder-3 `A' pin";
-pin out bit din_20 "This function is shared with the encoder-3 `Z' pin";
-pin out bit din_21 "This function is shared with the encoder-3 `Z' pin";
-pin out bit din_22 "This function is shared with the encoder-3 `Z' pin";
-pin out bit din_23 "This function is shared with the encoder-3 `Z' pin";
 pin out bit din_00_not;
 pin out bit din_01_not;
 pin out bit din_02_not;
@@ -194,10 +190,6 @@ pin out bit din_16_not;
 pin out bit din_17_not;
 pin out bit din_18_not;
 pin out bit din_19_not;
-pin out bit din_20_not;
-pin out bit din_21_not;
-pin out bit din_22_not;
-pin out bit din_23_not;
 
 param rw s32 debug_0;
 param rw s32 debug_1;
@@ -510,10 +502,6 @@ FUNCTION(read) {
     din_17 = !!(ppdata & 0x20000); din_17_not = !(ppdata & 0x20000);
     din_18 = !!(ppdata & 0x40000); din_18_not = !(ppdata & 0x40000);
     din_19 = !!(ppdata & 0x80000); din_19_not = !(ppdata & 0x80000);
-    din_20 = !!(ppdata & 0x100000); din_20_not = !(ppdata & 0x100000);
-    din_21 = !!(ppdata & 0x200000); din_21_not = !(ppdata & 0x200000);
-    din_22 = !!(ppdata & 0x400000); din_22_not = !(ppdata & 0x400000);
-    din_23 = !!(ppdata & 0x800000); din_23_not = !(ppdata & 0x800000);
 
     EPP_DIR_WRITE();
 }

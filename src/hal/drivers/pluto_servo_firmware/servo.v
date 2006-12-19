@@ -107,19 +107,14 @@ always @(posedge clk) begin
 end
 
 reg [31:0] data_buf;
-reg [3:0] Zlatch;
 
 always @(posedge clk) begin
-    if(EPP_strobe_edge1 && EPP_read && addr_reg[1:0] == 2'd0 && addr_reg[4:2] == 3'd4)
-        Zlatch <= 0;
-    else 
-        Zlatch <= Zlatch | quadZ;
     if(EPP_strobe_edge1 & EPP_read && addr_reg[1:0] == 2'd0) begin
 		if(addr_reg[4:2] == 3'd0) data_buf <= quad0;
 		else if(addr_reg[4:2] == 3'd1) data_buf <= quad1;
 		else if(addr_reg[4:2] == 3'd2) data_buf <= quad2;
 		else if(addr_reg[4:2] == 3'd3) data_buf <= quad3;
-		else if(addr_reg[4:2] == 3'd4) begin data_buf <= {Zlatch, quadA, quadB, quadZ, din}; end
+		else if(addr_reg[4:2] == 3'd4) begin data_buf <= {4'd0, quadA, quadB, quadZ, din}; end
     end
 end
 
