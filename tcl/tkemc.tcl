@@ -786,6 +786,11 @@ $unitsmenu add command -label [msgcat::mc "inches"] -command {emc_linear_unit_co
 $unitsmenu add command -label [msgcat::mc "mm"] -command {emc_linear_unit_conversion mm} -underline 0
 $unitsmenu add command -label [msgcat::mc "cm"] -command {emc_linear_unit_conversion cm} -underline 0
 
+set toolsmenu [menu $menubar.tools -tearoff 1]
+$menubar add cascade -label [msgcat::mc "Tools"] -menu $toolsmenu -underline 1
+$toolsmenu add command -label [msgcat::mc "Hal Scope"] -command {exec halscope -- -ini $EMC_INIFILE &}
+$toolsmenu add command -label [msgcat::mc "Hal Meter"] -command {exec halmeter &}
+
 # Add a scripts menu that looks for *.tcl files in tcl/scripts subdirectory
 set scriptsmenu [menu $menubar.scripts -tearoff 1]
 $menubar add cascade -label [msgcat::mc "Scripts"] -menu $scriptsmenu -underline 1
