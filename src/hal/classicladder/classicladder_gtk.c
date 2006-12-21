@@ -494,7 +494,7 @@ on_filechooserdialog_save_response(GtkDialog  *dialog,gint response_id,gpointer 
 {
 	printf("SAVE %s %d\n",gtk_file_chooser_get_filename (GTK_FILE_CHOOSER(FileSelector)),response_id);	
 
-if(response_id==-5)SaveAsLadder();
+if(response_id==GTK_RESPONSE_ACCEPT || response_id==GTK_RESPONSE_OK)SaveAsLadder();
 gtk_widget_destroy(GTK_WIDGET(dialog));
 }
 void
