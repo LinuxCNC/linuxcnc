@@ -29,7 +29,7 @@ prefix=@prefix@
 exec_prefix=@exec_prefix@
 
 LSMOD=@LSMOD@
-PIDOF=@PIDOF@
+PIDOF="@PIDOF@ -x"
 PS=@PS@
 AWK=@AWK@
 IPCS=@IPCS@
@@ -341,7 +341,7 @@ function Cleanup() {
     echo "Shutting down and cleaning up EMC2..."
     # Kill displays first - that should cause an orderly
     #   shutdown of the rest of emc2
-    for KILL_TASK in xemc yemc emcpanel keystick iosh emcsh emcrsh ; do
+    for KILL_TASK in xemc yemc emcpanel keystick iosh emcsh emcrsh emctop mdi debuglevel; do
 	if $PIDOF $KILL_TASK >>$DEBUG_FILE ; then
 	    KillTaskWithTimeout
 	fi
@@ -371,7 +371,7 @@ function Cleanup() {
     $HALCMD unload all
 
     # now kill all the other user space components of emc
-    for KILL_TASK in emcsvr milltask simmot ; do
+    for KILL_TASK in emcsvr milltask; do
 	if $PIDOF $KILL_TASK >>$DEBUG_FILE ; then
 	    KillTaskWithTimeout
 	fi
