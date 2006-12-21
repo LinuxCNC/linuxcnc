@@ -773,8 +773,6 @@ $viewmenu add command -label [msgcat::mc "Backplot..."] -command {popupPlot} -un
 set settingsmenu [menu $menubar.settings -tearoff 0]
 $menubar add cascade -label [msgcat::mc "Settings"] -menu $settingsmenu -underline 0
 $settingsmenu add command -label [msgcat::mc "Calibration..."] -command "exec $emc::TCL_BIN_DIR/emccalib.tcl -- -ini $EMC_INIFILE &"
-$settingsmenu add command -label [msgcat::mc "Logging..."] -command {popupLog} -underline 0
-$settingsmenu add command -label [msgcat::mc "Testing..."] -command {popupTesting} -underline 0 -state disabled
 $settingsmenu add command -label [msgcat::mc "Debug..."] -command {popupDebug} -underline 0
 $settingsmenu add command -label [msgcat::mc "Font..."] -command {popupFont} -underline 0
 
@@ -785,6 +783,11 @@ $unitsmenu add command -label [msgcat::mc "auto"] -command {emc_linear_unit_conv
 $unitsmenu add command -label [msgcat::mc "inches"] -command {emc_linear_unit_conversion inch} -underline 0
 $unitsmenu add command -label [msgcat::mc "mm"] -command {emc_linear_unit_conversion mm} -underline 0
 $unitsmenu add command -label [msgcat::mc "cm"] -command {emc_linear_unit_conversion cm} -underline 0
+
+set toolsmenu [menu $menubar.tools -tearoff 1]
+$menubar add cascade -label [msgcat::mc "Tools"] -menu $toolsmenu -underline 1
+$toolsmenu add command -label [msgcat::mc "Hal Scope"] -command {exec halscope -- -ini $EMC_INIFILE &}
+$toolsmenu add command -label [msgcat::mc "Hal Meter"] -command {exec halmeter &}
 
 # Add a scripts menu that looks for *.tcl files in tcl/scripts subdirectory
 set scriptsmenu [menu $menubar.scripts -tearoff 1]
@@ -806,7 +809,6 @@ if { $windows == 0 } {
 # add halconfig, to help for HAL setup, it's under Scripts, but it's in the TCL_BIN_DIR
 $scriptsmenu add separator
 $scriptsmenu add command -label [msgcat::mc "HAL Show"] -command "exec $emc::TCL_BIN_DIR/halshow.tcl -- -ini $EMC_INIFILE &"
-$scriptsmenu add command -label [msgcat::mc "HAL Config"] -command "exec $emc::TCL_BIN_DIR/halconfig.tcl -- -ini $EMC_INIFILE &"
 
 # add the help menu
 set helpmenu [menu $menubar.help -tearoff 0]
