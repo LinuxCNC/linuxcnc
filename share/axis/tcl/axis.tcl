@@ -127,6 +127,10 @@ setup_menu_accel .menu.machine end [_ "Ha_l Scope"]
 	-command {exec emctop -ini $emcini &}
 setup_menu_accel .menu.machine end [_ "Sho_w EMC Status"]
 
+.menu.machine add command \
+	-command {exec debuglevel &}
+setup_menu_accel .menu.machine end [_ "Set _Debug Level"]
+
 
 
 # ----------------------------------------------------------------------
