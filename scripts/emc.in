@@ -119,7 +119,7 @@ fi
 
 function ErrorCheck () {
     result=$?
-    echo "catch {send -async popimage destroy .}; destroy ." | wish
+    echo "catch {send -async popimage destroy .}; destroy ." | @WISH@
     if [ $result -ne 0 ]; then
         if tty -s; then
             case $DEBUG_FILE in
@@ -137,7 +137,7 @@ and
     $HOME/emc_print.txt
 as well as in the output of the shell command 'dmesg' and in the terminal"
         else
-            wish $EMC2_TCL_DIR/show_errors.tcl $DEBUG_FILE $PRINT_FILE
+            @WISH@ $EMC2_TCL_DIR/show_errors.tcl $DEBUG_FILE $PRINT_FILE
         fi
     fi
     rm -f $DEBUG_FILE $PRINT_FILE 2>/dev/null
@@ -404,7 +404,7 @@ if [ -f $LOCKFILE ]; then
     echo -n "EMC2 is still running.  Restart it? [Y/n] "
     read input; [ -z $input ] && input=y
   else
-    input=$(wish <<EOF
+    input=$(@WISH@ <<EOF
 wm wi .
 puts [tk_messageBox -title EMC2 -message "EMC2 is still running.  Restart it?" -type yesno]
 exit
