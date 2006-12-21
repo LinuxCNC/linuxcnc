@@ -174,7 +174,6 @@ int usrmotReadEmcmotStatus(emcmot_status_t * s)
 	}
 	/* inc counter and try again, max three times */
     } while ( ++split_read_count < 3 );
-fprintf(stderr, "%%" ); fflush(stderr);
     return EMCMOT_COMM_SPLIT_READ_TIMEOUT;
 }
 
