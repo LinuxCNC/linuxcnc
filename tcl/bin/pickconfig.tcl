@@ -382,6 +382,7 @@ proc make_shortcut {inifile} {
     tk_dialog .d [msgcat::mc "Shortcut Created"] [msgcat::mc "A shortcut to this configuration file has been created in your desktop.  You can use it to automatically launch this configuration."] info 0 [msgcat::mc "OK"]
 }
 
+set make_shortcut 0
 if {[file isdir ~/Desktop]} {
     checkbutton $f5.c -variable make_shortcut -text [msgcat::mc "Create Desktop Shortcut"]
     pack $f5.c -side left -expand 1 -anchor w
