@@ -1,20 +1,33 @@
 FileRules filename contains ^configure$
 FileRules filename contains ^config.log$
 FileRules filename contains ^config.status$
-FileRules filename contains .o$
-FileRules filename contains .ko$
-FileRules filename contains .mod.c$
-FileRules filename contains .dvi$
-FileRules filename contains .pdf$
-FileRules filename contains .eps$
-FileRules filename contains .png$
-FileRules filename contains .BIT$
-FileRules filename contains .tex$
-FileRules filename contains .aux$
+FileRules filename contains \.o$
+FileRules filename contains \.mo$
+FileRules filename contains \.so$
+FileRules filename contains \.ko$
+FileRules filename contains \.mod\.c$
+FileRules filename contains \.dvi$
+FileRules filename contains \.pdf$
+FileRules filename contains \.eps$
+FileRules filename contains \.png$
+FileRules filename contains \.BIT$
+FileRules filename contains \.tex$
+FileRules filename contains \.aux$
 FileRules pathname contains /objects/
 FileRules pathname contains /depends/
 FileRules pathname contains /CVS/
 FileRules pathname contains /tags$
 FileRules pathname contains /autom4te.cache/
+
+# Binary files created by Quartus II
+FileRules pathname contains /db/
+FileRules filename contains \.rbf$
+FileRules filename contains \.sof$
+FileRules filename contains \.pof$
+
+# Binary files created by Xilinx ISE
+FileRules filename contains \.ise
+FileRules filename contains \.vho$
+
 IndexFile .swishindex
 DefaultContents TXT
