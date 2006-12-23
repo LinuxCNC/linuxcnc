@@ -2906,9 +2906,9 @@ def forget(widget, *pins):
         widget.tk.call(m, "forget", widget._w)
 
 forget(widgets.brake, "motion.spindle-brake")
-forget(widgets.spindle_cw, "motion.spindle-forward")
+forget(widgets.spindle_cw, "motion.spindle-forward", "motion.spindle-on")
 forget(widgets.spindle_ccw, "motion.spindle-reverse")
-forget(widgets.spindle_stop, "motion.spindle-forward", "motion.spindle-reverse")
+forget(widgets.spindle_stop, "motion.spindle-forward", "motion.spindle-reverse", "motion.spindle-on")
 forget(widgets.spindle_plus, "motion.spindle-speed-out")
 forget(widgets.spindle_minus, "motion.spindle-speed-out")
 forget(widgets.spindlef,  "motion.spindle-forward", "motion.spindle-reverse",
