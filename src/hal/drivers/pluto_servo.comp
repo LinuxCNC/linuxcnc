@@ -14,7 +14,7 @@
 
 component pluto_servo """Hardware driver and firmware for the Pluto-P parallel-port FPGA, for use with servo machines.
 
-.B loadrt pluto_servo ioaddr=\\fIaddr\\fB ioaddr_hi=\\fIaddr\\fB epp_soft=\\fI[0|1]\\fB epp_wide=\\fI[0|1]\\fB
+.B loadrt pluto_servo ioaddr=\\fIaddr\\fB ioaddr_hi=\\fIaddr\\fB epp_wide=\\fI[0|1]\\fB
 
 .TP
 \\fBioaddr\\fR [default: 0x378]
