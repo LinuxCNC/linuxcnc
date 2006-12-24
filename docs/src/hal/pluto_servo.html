@@ -136,14 +136,16 @@ recompile emc2.
 
 <H2> Pinout Key </H2>
 <DL>
-<DT>UPx     <DD> The "up" signal from PWM generator X.  May be used as a
-digital output if the corresponding PWM channel is unused, or the output on the
-channel is always negative.  Alternately, the corresponding digital output may
-be set to TRUE to make UPx active low rather than active high.
-<DT>DNx     <DD>The "down" signal from PWM generator X.  May be used as a
-digital output if the corresponding PWM channel is unused, or the output on the
-channel is never negative.  Alternately, the corresponding digital ouput may
-be set to TRUE to make DNx active low rather than active high.
+<DT>UPx     <DD> The "up" signal from PWM generator X (up/down mode) or "pwm"
+signal (pwm+dir mode).  May be used as a digital output if the corresponding
+PWM channel is unused, or the output on the channel is always negative.
+Alternately, the corresponding digital output may be set to TRUE to make UPx
+active low rather than active high.
+<DT>DNx     <DD>The "down" signal from PWM generator X (up/down mode) or
+"direction" signal (pwm+dir mode).  May be used as a digital output if the
+corresponding PWM channel is unused, or the output on the channel is never
+negative.  Alternately, the corresponding digital ouput may be set to TRUE to
+make DNx active low rather than active high.
 <DT>QAx, QBx <DD>The A and B signals for Quadrature counter X.  May be
 used as a digital input if the corresponding quadrature channel is unused.
 <DT>QZx     <DD>The Z (index) signal for quadrature counter X.  May be used as
@@ -210,7 +212,15 @@ software bugs in the pluto_servo firmware or emc2, or a crash of the computer
 where emc2 is running, can leave the Pluto-P pins in an undefined state.
 
 <P>When the device is unprogrammed, the LED glows faintly.  When the device is
-programmed, the LED glows according to the duty cycle of PWM0 (LED = UP0 | DOWN0).
+programmed, the LED glows according to the duty cycle of PWM0 (LED = UP0 <i>xor</i> DOWN0).
+
+<P>The index pulse is level-triggered, rather than edge triggered.  This may
+lead to problems if the index pulse is many encoder counts long.  A future
+version of the firmware may be fixed to use edge triggering instead.
+
+<P>In pwm+dir mode, by default dir is HIGH for negative values and LOW for
+positive values.  To select HIGH for positive values and LOW for negative
+values, set the corresponding dout-NN pin HIGH to invert the signal.
 
 <P>Initial testing has shown that the QZx inputs are particularly noise
 sensitive, due to being level triggered and polled every 25ns.  Digital
@@ -234,7 +244,7 @@ current is not yet known, but is probably around 50mA plus I/O current.
 the power jack will allow the regulator to work properly.
 
 <H2>PC interface</H2>
-<P>The "software EPP emulation" (<tt>epp_soft=1</tt>is only partially
+<P>The "software EPP emulation" (<tt>epp_soft=1</tt>) is only partially
 implemented.  An EPP-capable parallel port is currently a requirement.
 
 <P>At present, only a single pluto_servo board is supported.  At present there
@@ -267,18 +277,10 @@ inexpensive and can easily be used for motors up to 4A (one motor per L298) or
 up to 2A (two motors per L298) with the supply voltage up to 46V.  However, the
 L298 does not have built-in current limiting, a problem for motors with high
 stall currents.  For higher currents and voltages, some users have reported
-success with IRF's integrated high-side/low-side drivers.
+<A HREF="http://www.cnczone.com/forums/showthread.php?t=25929">success</A> with
+International Rectifier's integrated high-side/low-side drivers.
 
 <H2>The details of the register set</H2>
 <P>The EPP protocol works by reading and writing values from registers on the
 connected device.  However, the details of the register set are subject to
 change between releases of pluto_servo.
-
-<P><A HREF="http://www.beyondlogic.org/epp/epp.htm">Beyond Logic</A> has been a
-wonderful resource for details about the EPP protocol.
-<H1>About the author</H1>
-<P>Jeff Epler has been contributing to the development of emc and emc2 for
-over two years.  His major contribution is the <A
-HREF="http://axis.unpy.net">AXIS User Interface for emc2</A>.  He now has more
-than 20 years experience programming, but only if you count the early years
-writing BASIC programs on the VIC-20.
