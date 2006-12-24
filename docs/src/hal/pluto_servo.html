@@ -1,0 +1,284 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+            "http://www.w3.org/TR/html4/strict.dtd">
+<HTML>
+<HEAD>
+<META http-equiv="Content-Type" content="text/html;charset=utf-8" >
+<STYLE type="text/css">
+h1, h2 { background: #ececec; color: black; }
+
+/*
+// indent subsequent paragraphs -- looks kinda bad
+p { text-indent: 0; margin-top: 1.33em; margin-bottom: .67em; }
+p + p { text-indent: 2ex; margin-top: 0; }
+*/
+
+pre { margin-left: 8ex; color: white; background: black; margin-right: 8ex; 
+    padding: 2ex; }
+p.box { text-align: center; border: 2px solid blue; margin-left: 2ex; margin-right: 2ex; padding: 1ex; width: 66%; margin-left: auto; margin-right: auto; }
+table { border-collapse: collapse }
+td { text-align: center; }
+td.h1 { border-top: 2px solid black; }
+td.h2 { border-right: 2px solid black; }
+td.h3 { border-bottom: 2px solid black; }
+td.h4 { border-left: 2px solid black; }
+
+td.v { background: #d9d9d9; color: #0000ff; }
+td.g { background: #d9d9d9; color: #008000; }
+td.i { background: white; color: blue; }
+td.o { background: white; color: green; }
+td.l { color: red; }
+td.l1 { border-top: 1px dashed black; }
+td.l2 { border-right: 1px dashed black; }
+td.l3 { border-bottom: 1px dashed black; }
+td.l4 { border-left: 1px dashed black; }
+dt { font-weight: bold; }
+
+table#pinout td { height: 4ex; }
+table#altf { border: 1px solid black; caption-side: bottom; }
+table#altf th { padding: 0 1ex; }
+table#altf td { text-align: left; padding-left: 2ex;}
+table#altf caption { font-size: larger; font-weight: bold; }
+
+/* table#altf th:after { content: ":";} 
+table#altf th { border-left: 1px solid black; }
+table#altf td { border-right: 1px solid black; } */
+
+</STYLE>
+<TITLE> pluto_servo: EMC2 Servo control for Pluto-P </TITLE>
+</HEAD>
+
+<BODY>
+<H1> About pluto_servo</H1>
+<P><B>Pluto_servo</B> is an <A HREF="http://linuxcnc.org/">emc2</A> software
+driver and associated firmware that allow the Pluto-P board to be used to
+control a servo-based CNC machine.  The Pluto-P is an inexpensive ($60) FPGA
+board featuring the ACEX1K chip from Altera.  Pluto_servo is released
+under the terms of the GNU General Public License version 2.
+
+The pluto_servo system is suitable for control of a 4-axis CNC mill with servo
+motors, a 3-axis mill with PWM spindle control, a lathe with spindle encoder,
+etc.  The large number of inputs allows a full set of limit switches.
+
+<P>The board features:
+<UL>
+<LI> 4 quadrature channels with 40MHz sample rate.  The counters operate in
+"4x" mode.  The maximum useful quadrature rate is 8191 counts per emc2 servo
+cycle, or about 8MHz for EMC2's default 1ms servo rate.  An axis with index
+pulse must have fewer than 8192 counts per revolution.
+<LI> 4 PWM channels, "up/down" or "pwm+dir" style.  4095 duty cycles from -100%
+to +100%, including 0%.  The PWM period is approximately 19.5kHz (40MHz /
+2047).  A PDM-like mode is also available.
+<LI> 18 digital outputs: 10 dedicated, 8 shared with PWM functions. (Example: A
+lathe with unidirectional PWM spindle control may use 13 total digital outputs)
+<LI> 20 digital inputs: 8 dedicated, 12 shared with Quadrature functions.
+(Example: A lathe with index pulse only on the spindle may use 13 total digital
+inputs)
+<LI> EPP communication with the PC.  The EPP communication typically takes
+around 100uS on machines tested so far, enabling servo rates above 1kHz. 
+</UL>
+
+<P class=box>
+<B>This program is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.</B>
+
+<H1>Requirements</H1>
+<UL>
+<LI> A Pluto-P board
+<LI> An EPP-compatible parallel port, configured for EPP mode in the system BIOS
+<LI> The CVS HEAD version of emc2 from 12/19 or later.
+</UL>
+
+<H1>Obtaining the source code</H1>
+<P>The source code (including the verilog source code and Quartus project
+files) is included with the emc2 source in the <tt>src/hal/drivers/</tt>
+directory.
+
+<H1>Compilation and installation</H1>
+<P>Pluto_servo is built by the normal emc2 build process.
+
+<H2>Rebuilding the FPGA firmware</H2>
+<P>Like the HAL hardware driver, the FPGA firmware is licensed under the
+terms of the GNU General Public License.  The
+<tt>src/hal/drivers/pluto_servo_firmware/</tt> subdirectory contains the
+Verilog HDL source code plus additional files used by Quartus&mdash;which are
+"scripts used to control compilation"&mdash;for the FPGA firmware.  Altera's
+Quartus II software is required to rebuild it.  The <A
+HREF="http://en.wikipedia.org/wiki/Gratis_versus_Libre">gratis</A> version of
+Quartus II runs only on Microsoft Windows, although there is apparently a paid
+version that runs on Linux.  To rebuild the firmware from the .hdl and other
+source files, open <tt>pluto_servo.qpf</tt> and press CTRL-L.  Then, in Linux,
+recompile emc2.
+
+<H1> Pinout </H1>
+
+<TABLE id=pinout>
+
+<COL WIDTH="6.25%"> <COL WIDTH="6.25%"> <COL WIDTH="6.25%"> <COL WIDTH="6.25%">
+<COL WIDTH="6.25%"> <COL WIDTH="6.25%"> <COL WIDTH="6.25%"> <COL WIDTH="6.25%">
+<COL WIDTH="6.25%"> <COL WIDTH="6.25%"> <COL WIDTH="6.25%"> <COL WIDTH="6.25%">
+<COL WIDTH="6.25%"> <COL WIDTH="6.25%"> <COL WIDTH="6.25%"> <COL WIDTH="6.25%">
+<!-- -->
+<TR> <TD CLASS="i h1 h4">IN1 <TD CLASS="g h1 h2">GND <TD COLSPAN=11> ^^ Parallel port connector ^^ <TD ROWSPAN=2 COLSPAN=3> Power Jack&nbsp;&gt;
+<TR> <TD CLASS="i h4">IN2 <TD CLASS="v h2">VCC <TD> <TD COLSPAN=9 ROWSPAN=4 CLASS="l1 l2 l3 l4">FPGA
+<TR> <TD CLASS="i">IN3 <TD CLASS="i h2">IN4
+        <TD> <TD COLSPAN=2> <TD CLASS="o h1 h4">OUT8 <TD CLASS="o h1 h2">OUT9
+<TR> <TD CLASS="i h4">IN5 <TD CLASS="i h2">IN6
+        <TD> <TD COLSPAN=2> <TD CLASS="o h4">OUT6 <TD CLASS="o h2">OUT7
+<TR> <TD CLASS="i h3 h4">IN7 <TD CLASS="g h2 h3">GND
+        <TD> <TD COLSPAN=2> <TD CLASS="o h4">OUT4 <TD CLASS="o h2">OUT5
+<TR> <TD COLSPAN=12> <TD CLASS="l"> LED <TD>      <TD CLASS="o h4">OUT2 <TD CLASS="o h2">OUT3
+<TR> <TD CLASS="i h1 h4">IN0 <TD CLASS="o h1">UP0
+<TD CLASS="o h1">UP1 <TD CLASS="g h1">GND   <TD CLASS="o h1">DN3 <TD CLASS="o h1">UP3    <TD CLASS="i h1">QB0 <TD CLASS="v h1">VCC <TD CLASS="i h1">QZ0 <TD CLASS="i h1">QB1 <TD CLASS="i h1">QA2 <TD CLASS="i h1">QB2 <TD CLASS="o h1 h2">OUT0 <TD CLASS="l1"><TD CLASS="i l1 h4">QB3 <TD CLASS="o l1 h2">OUT1
+<TR><TD CLASS="o h3 h4">DN0 <TD CLASS="g h3">GND   <TD CLASS="o h3">DN1 <TD CLASS="o h3">DN2 <TD CLASS="o h3">UP2 <TD CLASS="g h3">GND   <TD CLASS="i h3">QA0 <TD CLASS="v h3">VCC <TD CLASS="g h3">GND   <TD CLASS="i h3">QA1 <TD CLASS="i h3">QZ1 <TD CLASS="g h3">GND   <TD CLASS="i h2 h3">QZ2 <TD CLASS="l3"> <TD CLASS="i h3 h4">QA3 <TD CLASS="i h2 h3">QZ3
+</TABLE>
+<P> The actual pinout used, using the FPGA pin numbering, is in <tt>src/hal/drivers/pluto_servo_firmware/pluto_servo.pin</tt>. (<A HREF="http://cvs.linuxcnc.org/cgi-bin/cvsweb.cgi/emc2/src/hal/drivers/pluto_servo_firmware/pluto_servo.pin?rev=HEAD;content-type=text%2Fplain">view CVS version</A>).
+
+<H2> Pinout Key </H2>
+<DL>
+<DT>UPx     <DD> The "up" signal from PWM generator X.  May be used as a
+digital output if the corresponding PWM channel is unused, or the output on the
+channel is always negative.  Alternately, the corresponding digital output may
+be set to TRUE to make UPx active low rather than active high.
+<DT>DNx     <DD>The "down" signal from PWM generator X.  May be used as a
+digital output if the corresponding PWM channel is unused, or the output on the
+channel is never negative.  Alternately, the corresponding digital ouput may
+be set to TRUE to make DNx active low rather than active high.
+<DT>QAx, QBx <DD>The A and B signals for Quadrature counter X.  May be
+used as a digital input if the corresponding quadrature channel is unused.
+<DT>QZx     <DD>The Z (index) signal for quadrature counter X.  May be used as
+a digital input if the index feature of the corresponding quadrature channel is
+unused.
+<DT>INx     <DD>Dedicated digital input #x
+<DT>OUTx    <DD>Dedicated digital output #x
+<DT>GND     <DD>Ground                                                   
+<DT>VCC     <DD>+3.3V regulated DC                                              </DL>
+
+<TABLE ID=altf>
+<CAPTION>Pin Alternate Functions</CAPTION>
+<TR><TH>Primary function<TH>Alternate function <TH> Behavior if both functions used
+<TR><TH>UP0 <TD> PWM0 <TD> When pwm-0-pwmdir is TRUE, this pin is the PWM output
+<TR><TD>    <TD>OUT10 <TD> XOR'd with UP0 or PWM0
+<TR><TH>UP1 <TD> PWM1 <TD> When pwm-1-pwmdir is TRUE, this pin is the PWM output
+<TR><TD>    <TD>OUT12 <TD> XOR'd with UP1 or PWM1
+<TR><TH>UP2 <TD> PWM2 <TD> When pwm-2-pwmdir is TRUE, this pin is the PWM output
+<TR><TD>    <TD>OUT14 <TD> XOR'd with UP2 or PWM2
+<TR><TH>UP3 <TD> PWM3 <TD> When pwm-3-pwmdir is TRUE, this pin is the PWM output
+<TR><TD>    <TD>OUT16 <TD> XOR'd with UP3 or PWM3
+<TR><TH>DN0 <TD> DIR0 <TD> When pwm-0-pwmdir is TRUE, this pin is the DIR output
+<TR><TD>    <TD>OUT11 <TD> XOR'd with DN0 or UP0
+<TR><TH>DN1 <TD> DIR1 <TD> When pwm-1-pwmdir is TRUE, this pin is the DIR output
+<TR><TD>    <TD>OUT13 <TD> XOR'd with DN1 or UP1
+<TR><TH>DN2 <TD> DIR2 <TD> When pwm-2-pwmdir is TRUE, this pin is the DIR output
+<TR><TD>    <TD>OUT15 <TD> XOR'd with DN2 or UP2
+<TR><TH>DN3 <TD> DIR3 <TD> When pwm-3-pwmdir is TRUE, this pin is the DIR output
+<TR><TD>    <TD>OUT17 <TD> XOR'd with DN3 or UP3
+<TR><TH>QZ0 <TD>IN8 <TD> Read same value
+<TR><TH>QZ1 <TD>IN9 <TD> Read same value
+<TR><TH>QZ2 <TD>IN10 <TD> Read same value
+<TR><TH>QZ3 <TD>IN11 <TD> Read same value
+<TR><TH>QA0 <TD>IN12 <TD> Read same value
+<TR><TH>QA1 <TD>IN13 <TD> Read same value
+<TR><TH>QA2 <TD>IN14 <TD> Read same value
+<TR><TH>QA3 <TD>IN15 <TD> Read same value
+<TR><TH>QB0 <TD>IN16 <TD> Read same value
+<TR><TH>QB1 <TD>IN17 <TD> Read same value
+<TR><TH>QB2 <TD>IN18 <TD> Read same value
+<TR><TH>QB3 <TD>IN19 <TD> Read same value
+</TABLE>
+
+<H1>Notes:</H1>
+<H2>Connectors</H2>
+<P>The Pluto-P board is shipped with the left connector presoldered, with the
+key in the indicated position.  The other connectors are unpopulated.  There
+does not seem to be a standard 12-pin IDC connector, but some of the pins of a
+16P connector can hang off the board next to QA3/QZ3.
+
+<P>The bottom and right connectors are on the same .1" grid, but the left
+connector is not.  If OUT2&hellip;OUT9 are not required, a single IDC connector
+can span the bottom connector and the bottom two rows of the right connector.
+
+<H2>Pins</H2>
+<P>Read the <A
+HREF="http://www.altera.com/literature/ds/acex.pdf">ACEX1K datasheet</A> for
+information about input and output voltage thresholds.  The pins are all
+configured in "LVTTL/LVCMOS" mode and are generally compatible with 5V TTL logic.
+
+<P>Before configuration and after properly exiting emc2, all Pluto-P pins are
+tristated with weak pull-ups (20k&Omega; min, 50k&Omega; max).  However,
+software bugs in the pluto_servo firmware or emc2, or a crash of the computer
+where emc2 is running, can leave the Pluto-P pins in an undefined state.
+
+<P>When the device is unprogrammed, the LED glows faintly.  When the device is
+programmed, the LED glows according to the duty cycle of PWM0 (LED = UP0 | DOWN0).
+
+<P>Initial testing has shown that the QZx inputs are particularly noise
+sensitive, due to being level triggered and polled every 25ns.  Digital
+filtering has been added to filter pulses shorter than 75ns (three polling
+times).  Additional external filtering, such as a Schmitt buffer or inverter,
+RC filter, or differential receiver (if applicable) is recommended.
+
+<P>The IN1&hellip;IN7 pins have 22-ohm series resistors to their associated FPGA
+pins.  No other pins have any sort of protection for out-of-spec voltages or
+currents.  It is up to the integrator to add appropriate isolation and
+protection.  Traditional parallel port optoisolator boards do not work
+with pluto_servo due to the bidirectional nature of the EPP protocol.
+
+<H2>Power</H2>
+<P>A small amount of current may be drawn from VCC.  The available current
+depends on the unregulated DC input to the board.  Alternately, regulated
++3.3VDC may be supplied to the FPGA through these VCC pins.  The required
+current is not yet known, but is probably around 50mA plus I/O current.
+
+<P>The regulator on the Pluto-P board is a low dropout type.  Supplying 5V at
+the power jack will allow the regulator to work properly.
+
+<H2>PC interface</H2>
+<P>The "software EPP emulation" (<tt>epp_soft=1</tt>is only partially
+implemented.  An EPP-capable parallel port is currently a requirement.
+
+<P>At present, only a single pluto_servo board is supported.  At present there
+is no provision for multiple boards on one parallel port (all boards reside at
+the same EPP address) but supporting one board per parallel port should be
+possible.
+
+<H2>Input latching and output updating</H2>
+<P>PWM duty cycles for each channel are updated at different times.
+<P>digital outputs OUT0 through OUT9 are all updated at the same
+time.  Digital outputs OUT10 through OUT17 are updated at the same time as the pwm function they are shared with.
+<P>Digital inputs IN0 through IN19 are all latched at the same time.
+<P>Quadrature positions for each channel are latched at different times.
+
+<H1>For more information</H1>
+<P>A list of all HAL function names, pin names and parameter names is in the
+manual page, <A HREF="http://linuxcnc.org/docs/html/man/man9/pluto_servo.9.html"><tt>pluto_servo.9</tt></A>.
+
+<P>The Pluto-P board may be ordered from <A
+HREF="http://www.knjn.com/ShopBoards_Parallel.html">knjn.com</A> (US based,
+international shipping is available).  Some additional information about it is
+available from <A
+HREF="http://www.fpga4fun.com/board_pluto-P.html">fpga4fun.com</A> and from <A
+HREF="http://emergent.unpy.net/01165081407">my blog</A>.
+
+<P>A schematic for a 2A, 2-axis PWM servo amplifier board is <A
+HREF="http://emergent.unpy.net/projects/01148303608">available</A>.  The <A
+HREF="http://www.st.com/stonline/books/pdf/docs/1773.pdf">L298 H-bridge</A> is
+inexpensive and can easily be used for motors up to 4A (one motor per L298) or
+up to 2A (two motors per L298) with the supply voltage up to 46V.  However, the
+L298 does not have built-in current limiting, a problem for motors with high
+stall currents.  For higher currents and voltages, some users have reported
+success with IRF's integrated high-side/low-side drivers.
+
+<H2>The details of the register set</H2>
+<P>The EPP protocol works by reading and writing values from registers on the
+connected device.  However, the details of the register set are subject to
+change between releases of pluto_servo.
+
+<P><A HREF="http://www.beyondlogic.org/epp/epp.htm">Beyond Logic</A> has been a
+wonderful resource for details about the EPP protocol.
+<H1>About the author</H1>
+<P>Jeff Epler has been contributing to the development of emc and emc2 for
+over two years.  His major contribution is the <A
+HREF="http://axis.unpy.net">AXIS User Interface for emc2</A>.  He now has more
+than 20 years experience programming, but only if you count the early years
+writing BASIC programs on the VIC-20.
