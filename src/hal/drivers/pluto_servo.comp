@@ -82,12 +82,15 @@ param rw float encoder_3_scale=1;
 
 param rw bit encoder_z_polarity "Set to TRUE if the index pulse is active low, FALSE if it is active high.  Affects all encoders.";
 
+param rw bit pwm_is_pdm "Set to TRUE to use PDM (also called interleaved PWM) mode.  Set to FALSE to use traditional PWM mode.";
+
 pin in float pwm_0_value;
 pin in bit pwm_0_enable;
 param rw float pwm_0_offset;
 param rw float pwm_0_scale=1;
 param rw float pwm_0_max_dc=1;
 param rw float pwm_0_min_dc=0;
+param rw bit pwm_0_pwmdir "Set to TRUE use PWM+direction mode.  Set to FALSE to use Up/Down mode.";
 
 pin in float pwm_1_value;
 pin in bit pwm_1_enable;
@@ -95,6 +98,7 @@ param rw float pwm_1_offset;
 param rw float pwm_1_scale=1;
 param rw float pwm_1_max_dc=1;
 param rw float pwm_1_min_dc=0;
+param rw bit pwm_1_pwmdir "Set to TRUE use PWM+direction mode.  Set to FALSE to use Up/Down mode.";
 
 pin in float pwm_2_value;
 pin in bit pwm_2_enable;
@@ -102,6 +106,7 @@ param rw float pwm_2_offset;
 param rw float pwm_2_scale=1;
 param rw float pwm_2_max_dc=1;
 param rw float pwm_2_min_dc=0;
+param rw bit pwm_2_pwmdir "Set to TRUE use PWM+direction mode.  Set to FALSE to use Up/Down mode.";
 
 pin in float pwm_3_value;
 pin in bit pwm_3_enable """The PWM pins and parameters conform to the `canonical analog output' interface described in the HAL manual.  The output pins are 'up/down' pins as described in the documentation for the 'pwmgen' component.
@@ -112,6 +117,7 @@ param rw float pwm_3_offset;
 param rw float pwm_3_scale=1;
 param rw float pwm_3_max_dc=1;
 param rw float pwm_3_min_dc=0;
+param rw bit pwm_3_pwmdir "Set to TRUE use PWM+direction mode.  Set to FALSE to use Up/Down mode.";
 
 pin in bit dout_00 "These pins conform to the `canonical digital output' interface described in the HAL manual";
 pin in bit dout_01;
@@ -338,7 +344,8 @@ void write16(int w) {
     WRITE(w >> 8);
 }
 
-int PWM(int enable, float value, float offset, float scale, float min_dc, float max_dc) {
+int PWM(int enable, float value, float offset, float scale, float min_dc, float max_dc, int dio0, int dio1, int is_pdm, int is_pwmdir) {
+    int result;
     if(enable == 0) return 0;
 
     value = value / scale + offset;
@@ -351,8 +358,18 @@ int PWM(int enable, float value, float offset, float scale, float min_dc, float 
     if(value < -2047) value = -2047;
     if(value > 2047) value = 2047;
 
-    if(value < 0) return (1<<15) | (int)(-value);
-    else return value;
+    if(value < 0) {
+	if(is_pwmdir) {
+	     result = (1<<13) | (int)(-value);
+	} else {
+	     result = (1<<15) | (int)(-value);
+	}
+    } else result = value;
+    if(is_pdm) result |= 1<<14;
+    if(dio0) result ^= 1<<12;
+    if(dio1) result ^= 1<<13;
+
+    return result;
 }
 
 FUNCTION(write) {
@@ -382,10 +399,10 @@ FUNCTION(write) {
     if(pwm_3_min_dc < 0) pwm_3_min_dc = 0;
     else if(pwm_3_min_dc > pwm_3_max_dc) pwm_3_min_dc = pwm_3_max_dc;
 
-    write32(PWM(pwm_0_enable, pwm_0_value, pwm_0_offset, pwm_0_scale, pwm_0_min_dc, pwm_0_max_dc) +
-	    (PWM(pwm_1_enable, pwm_1_value, pwm_1_offset, pwm_1_scale, pwm_1_min_dc, pwm_1_max_dc) << 16));
-    write32(PWM(pwm_2_enable, pwm_2_value, pwm_2_offset, pwm_2_scale, pwm_2_min_dc, pwm_2_max_dc) +
-	    (PWM(pwm_3_enable, pwm_3_value, pwm_3_offset, pwm_3_scale, pwm_3_min_dc, pwm_3_max_dc) << 16));
+    write32(PWM(pwm_0_enable, pwm_0_value, pwm_0_offset, pwm_0_scale, pwm_0_min_dc, pwm_0_max_dc, !dout_10 ^ !dout_10_invert, !dout_11 ^ !dout_11_invert, pwm_is_pdm, pwm_0_pwmdir) +
+	    (PWM(pwm_1_enable, pwm_1_value, pwm_1_offset, pwm_1_scale, pwm_1_min_dc, pwm_1_max_dc, !dout_12 ^ !dout_12_invert, !dout_13 ^ !dout_13_invert, pwm_is_pdm, pwm_1_pwmdir) << 16));
+    write32(PWM(pwm_2_enable, pwm_2_value, pwm_2_offset, pwm_2_scale, pwm_2_min_dc, pwm_2_max_dc, !dout_14 ^ !dout_14_invert, !dout_15 ^ !dout_15_invert, pwm_is_pdm, pwm_2_pwmdir) +
+	    (PWM(pwm_3_enable, pwm_3_value, pwm_3_offset, pwm_3_scale, pwm_3_min_dc, pwm_3_max_dc, !dout_16 ^ !dout_16_invert, !dout_17 ^ !dout_17_invert, pwm_is_pdm, pwm_3_pwmdir) << 16));
 
     if (!dout_00 ^ !dout_00_invert) r |= 0x1;
     if (!dout_01 ^ !dout_01_invert) r |= 0x2;
@@ -397,16 +414,8 @@ FUNCTION(write) {
     if (!dout_07 ^ !dout_07_invert) r |= 0x80;
     if (!dout_08 ^ !dout_08_invert) r |= 0x100;
     if (!dout_09 ^ !dout_09_invert) r |= 0x200;
-    if (!dout_10 ^ !dout_10_invert) r |= 0x400;
-    if (!dout_11 ^ !dout_11_invert) r |= 0x800;
-    if (!dout_12 ^ !dout_12_invert) r |= 0x1000;
-    if (!dout_13 ^ !dout_13_invert) r |= 0x2000;
-    if (!dout_14 ^ !dout_14_invert) r |= 0x4000;
-    if (!dout_15 ^ !dout_15_invert) r |= 0x8000;
-    if (!dout_16 ^ !dout_16_invert) r |= 0x10000;
-    if (!dout_17 ^ !dout_17_invert) r |= 0x20000;
-    if (encoder_z_polarity) r |= 40000;
-    write32(r);
+    if (encoder_z_polarity) r |= 0x8000;
+    write16(r);
 }
 
 FUNCTION(read) {

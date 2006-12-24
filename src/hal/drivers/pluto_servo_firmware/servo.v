@@ -24,7 +24,7 @@ inout [7:0] pport_data;
 input nWrite;
 output nWait;
 input nDataStr, nAddrStr, epp_nReset;
-output [9:0] dout; reg[17:0] dout_; assign dout = dout_[9:0];
+output [9:0] dout; reg[9:0] dout;
 input [7:0] din;
 input [3:0] quadA;
 input [3:0] quadB;
@@ -45,14 +45,18 @@ always @(posedge clk) begin
 	else pwmcnt <= pwmcnt + 11'd1;
 end
 
-assign up[0] = dout_[10] ^ (pwm0[15] ? 1'd0 : pwm0[10:0] > pwmcnt);
-assign up[1] = dout_[12] ^ (pwm1[15] ? 1'd0 : pwm1[10:0] > pwmcnt);
-assign up[2] = dout_[14] ^ (pwm2[15] ? 1'd0 : pwm2[10:0] > pwmcnt);
-assign up[3] = dout_[16] ^ (pwm3[15] ? 1'd0 : pwm3[10:0] > pwmcnt);
-assign down[0] = dout_[11] ^ (~pwm0[15] ? 1'd0 : pwm0[10:0] > pwmcnt);
-assign down[1] = dout_[13] ^ (~pwm1[15] ? 1'd0 : pwm1[10:0] > pwmcnt);
-assign down[2] = dout_[15] ^ (~pwm2[15] ? 1'd0 : pwm2[10:0] > pwmcnt);
-assign down[3] = dout_[17] ^ (~pwm3[15] ? 1'd0 : pwm3[10:0] > pwmcnt);
+wire [10:0] pwmrev = { pwmcnt[2], pwmcnt[3],
+    pwmcnt[4], pwmcnt[5], pwmcnt[6], pwmcnt[7], pwmcnt[8], pwmcnt[9],
+    pwmcnt[10], pwmcnt[1:0]};
+
+assign up[0] = pwm0[12] ^ (pwm0[15] ? 1'd0 : pwm0[10:0] > (pwm0[14] ? pwmrev : pwmcnt));
+assign up[1] = pwm1[12] ^ (pwm1[15] ? 1'd0 : pwm1[10:0] > (pwm0[14] ? pwmrev : pwmcnt));
+assign up[2] = pwm2[12] ^ (pwm2[15] ? 1'd0 : pwm2[10:0] > (pwm0[14] ? pwmrev : pwmcnt));
+assign up[3] = pwm3[12] ^ (pwm3[15] ? 1'd0 : pwm3[10:0] > (pwm0[14] ? pwmrev : pwmcnt));
+assign down[0] = pwm0[13] ^ (~pwm0[15] ? 1'd0 : pwm0[10:0] > (pwm0[14] ? pwmrev : pwmcnt));
+assign down[1] = pwm1[13] ^ (~pwm1[15] ? 1'd0 : pwm1[10:0] > (pwm0[14] ? pwmrev : pwmcnt));
+assign down[2] = pwm2[13] ^ (~pwm2[15] ? 1'd0 : pwm2[10:0] > (pwm0[14] ? pwmrev : pwmcnt));
+assign down[3] = pwm3[13] ^ (~pwm3[15] ? 1'd0 : pwm3[10:0] > (pwm0[14] ? pwmrev : pwmcnt));
 
 // Quadrature stuff
 // Quadrature is digitized at 40MHz into 12-bit counters
@@ -96,10 +100,9 @@ always @(posedge clk) begin
 	else if(addr_reg[3:0] == 4'd3) pwm1 <= { EPP_datain, lowbyte };
 	else if(addr_reg[3:0] == 4'd5) pwm2 <= { EPP_datain, lowbyte };
 	else if(addr_reg[3:0] == 4'd7) pwm3 <= { EPP_datain, lowbyte };
-	else if(addr_reg[3:0] == 4'd9) dout_[15:0] <= { EPP_datain, lowbyte };
-	else if(addr_reg[3:0] == 4'd11) begin
-		dout_[17:16] <= EPP_datain[1:0];
-		Zpolarity <= EPP_datain[2];
+	else if(addr_reg[3:0] == 4'd9) begin
+		dout[9:0] <= { EPP_datain[1:0], lowbyte };
+		Zpolarity <= EPP_datain[7];
 	end
 //	else if(addr_reg[3:0] == 4'd11) reset <= EPP_datain == 8'hee;
 	else lowbyte <= EPP_datain;
@@ -129,6 +132,6 @@ wire [7:0] data_reg = addr_reg[1:0] == 2'd1 ? data_buf[7:0] :
 wire [7:0] EPP_data_mux = EPP_addr_strobe ? addr_reg : data_reg;
 assign EPP_dataout = (EPP_read & EPP_wait) ? EPP_data_mux : 8'hZZ;
 
-assign led = up[0] | down[0];
+assign led = up[0] ^ down[0];
 assign nConfig = epp_nReset; // 1'b1;
 endmodule

@@ -100,4 +100,17 @@ set_global_assignment -name SMART_RECOMPILE OFF
 set_global_assignment -name SLOW_SLEW_RATE OFF
 set_global_assignment -name AUTO_PACKED_REGISTERS "MINIMIZE AREA"
 set_global_assignment -name ENABLE_INIT_DONE_OUTPUT OFF
-set_instance_assignment -name SLOW_SLEW_RATE ON -to *
+#set_instance_assignment -name SLOW_SLEW_RATE ON -to *
+
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to dout
+set_global_assignment -name REMOVE_REDUNDANT_LOGIC_CELLS ON
+set_global_assignment -name ALLOW_ANY_ROM_SIZE_FOR_RECOGNITION ON
+set_global_assignment -name AUTO_IMPLEMENT_IN_ROM ON
+set_global_assignment -name ALLOW_ANY_SHIFT_REGISTER_SIZE_FOR_RECOGNITION ON
+set_global_assignment -name STATE_MACHINE_PROCESSING AUTO
+set_global_assignment -name IGNORE_LCELL_BUFFERS ON
+#set_global_assignment -name IGNORE_CARRY_BUFFERS ON
+set_global_assignment -name IGNORE_CASCADE_BUFFERS ON
+
+set_global_assignment -name ALLOW_POWER_UP_DONT_CARE OFF
+set_instance_assignment -name POWER_UP_LEVEL LOW -to *
