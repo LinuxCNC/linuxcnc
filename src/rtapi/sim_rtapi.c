@@ -424,10 +424,11 @@ static int maybe_sleep(int fd) {
 	    schedule.tv_sec ++;
 	}
 
-	// run 10 times (e.g., enough for 10ms if base_period is 1mS, 
-	// or enough for .5ms if base_period is 50uS) without any syscalls
-	if(base_periods % MIN_RUNS) return 0;
-
+	if(period < 100000) {
+	    // if base_period is fast (<.1ms) then run 10 times (e.g., enough
+	    // for .5ms if base_period is 50uS) without any syscalls
+	    if(base_periods % MIN_RUNS) return 0;
+	}
 	gettimeofday(&now, NULL);
 	interval.tv_sec = schedule.tv_sec - now.tv_sec;
 	interval.tv_usec = schedule.tv_usec - now.tv_usec;
