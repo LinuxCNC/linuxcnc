@@ -21,13 +21,14 @@ input clk, A, B, Z;
 output [13:0] c, i;
 reg [13:0] c, i;
 
-reg [2:0] Ad, Bd, Zd;
+reg [2:0] Ad, Bd;
+reg [5:0] Zd;
 always @(posedge clk) Ad <= {Ad[1:0], A};
 always @(posedge clk) Bd <= {Bd[1:0], B};
-always @(posedge clk) Zd <= {Zd[1:0], Z};
+always @(posedge clk) Zd <= {Zd[4:0], Z};
 
-// stabalizes Z and requires that the index pulse be at least 3 clocks (75ns @ 40MHz) long
-wire index_pulse = Zd == 3'b111;
+// stabalizes Z, finds rising edge, and requires that the index pulse be at least 3 clocks (75ns @ 40MHz) long
+wire index_pulse = Zd == 6'b000111;
 wire count_enable = Ad[1] ^ Ad[2] ^ Bd[1] ^ Bd[2];
 wire count_direction = Ad[1] ^ Bd[2];
 
