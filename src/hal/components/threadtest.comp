@@ -1,5 +1,5 @@
 component threadtest;
-pin out u32 count;
+pin out signed count;
 function increment nofp;
 function reset nofp;
 
