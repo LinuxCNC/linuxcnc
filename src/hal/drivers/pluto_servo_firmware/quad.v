@@ -27,17 +27,23 @@ always @(posedge clk) Ad <= {Ad[1:0], A};
 always @(posedge clk) Bd <= {Bd[1:0], B};
 always @(posedge clk) Zd <= {Zd[4:0], Z};
 
-// stabalizes Z, finds rising edge, and requires that the index pulse be at least 3 clocks (75ns @ 40MHz) long
-wire index_pulse = Zd == 6'b000111;
+wire good_one = Zd == 6'b111111;
+wire good_zero = Zd == 6'b000000;
+reg last_good;
+
+wire index_pulse = good_one && ! last_good;
+
 wire count_enable = Ad[1] ^ Ad[2] ^ Bd[1] ^ Bd[2];
 wire count_direction = Ad[1] ^ Bd[2];
 
 always @(posedge clk)
 begin
+    if(good_one) last_good <= 1;
+    else if(good_zero) last_good <= 0;
     if(count_enable)
     begin
-		if(count_direction) c = c + 14'd1;
-		else c = c - 14'd1;
+	if(count_direction) c = c + 14'd1;
+	else c = c - 14'd1;
     end 
     if(index_pulse) i = c;
 end
