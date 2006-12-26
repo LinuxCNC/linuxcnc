@@ -392,17 +392,34 @@ bit
 \family default 
 , 
 \family typewriter 
-s32
+signed
 \family default 
 , 
 \family typewriter 
-u32
+unsigned
 \family default 
 , or 
 \family typewriter 
 float
 \family default 
 .
+ The old names 
+\family typewriter 
+s32
+\family default 
+ and 
+\family typewriter 
+u32
+\family default 
+ may also be used, but 
+\family typewriter 
+signed
+\family default 
+ and 
+\family typewriter 
+unsigned
+\family default 
+ are preferred.
 \layout Description
 
 PINDIRECTION One of the following: 

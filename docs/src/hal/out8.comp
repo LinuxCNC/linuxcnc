@@ -1,6 +1,6 @@
 component out8;
-pin out u32 out_ "Output value; only low 8 bits are used";
-param r u32 ioaddr;
+pin out unsigned out_ "Output value; only low 8 bits are used";
+param r unsigned ioaddr;
 
 function _;
 
