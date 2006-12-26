@@ -1654,18 +1654,16 @@ encoder.<chan>.reset
 \end_inset 
 
 .
-\begin_inset Foot
-collapsed true
+\layout Itemize
 
-\layout Standard
 
-The component doesn't currently implement the 
 \family typewriter 
-velocity
+\noun on 
+(bit) 
+\noun default 
+encoder.<chan>.velocity
 \family default 
- pin, so it is not a complete implementation of the canonical interface.
-\end_inset 
-
+ -- Estimated speed of the quadrature signal.
  
 \layout Itemize
 
