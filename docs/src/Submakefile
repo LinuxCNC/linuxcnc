@@ -99,8 +99,8 @@ objects/index.incl: objects/var-MAN_HTML_TARGETS
 	echo "</UL>" >> $@.tmp
 	mv -f $@.tmp $@
 
-$(DOC_DIR)/html/index.html: $(DOC_SRCDIR)/index.tmpl objects/index.incl $(DOC_SRCDIR)/index.foot
-	(cat $(DOC_SRCDIR)/index.tmpl objects/index.incl $(DOC_SRCDIR)/index.foot)  > $@	
+$(DOC_DIR)/html/index.html: $(DOC_SRCDIR)/index.tmpl objects/index.incl $(DOC_SRCDIR)/index.foot ../VERSION $(DOC_SRCDIR)/Submakefile
+	(cat $(DOC_SRCDIR)/index.tmpl objects/index.incl $(DOC_SRCDIR)/index.foot) | sed "s/@VERSION@/`cat ../VERSION`/" > $@	
 $(DOC_SRCDIR)/%.pdf: $(DOC_SRCDIR)/%.lyx
 	$(ECHO) Building $@
 	@rm -f $@
