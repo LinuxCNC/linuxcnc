@@ -218,12 +218,12 @@ programmed, the LED glows according to the duty cycle of PWM0 (LED = UP0 <i>xor<
 positive values.  To select HIGH for positive values and LOW for negative
 values, set the corresponding dout-NN pin HIGH to invert the signal.
 
-<P>The index pulse input is edge triggered.  Initial testing has shown that the
-QZx inputs are particularly noise sensitive, due to being level triggered and
-polled every 25ns.  Digital filtering has been added to filter pulses shorter
-than 150ns (six polling times).  Additional external filtering, such as a
-Schmitt buffer or inverter, RC filter, or differential receiver (if applicable)
-is recommended.
+<P>The index input is triggered on the rising edge.  Initial testing has shown
+that the QZx inputs are particularly noise sensitive, due to being level
+triggered and polled every 25ns.  Digital filtering has been added to filter
+pulses shorter than 150ns (six polling times).  Additional external filtering,
+such as a Schmitt buffer or inverter, RC filter, or differential receiver (if
+applicable) is recommended.
 
 <P>The IN1&hellip;IN7 pins have 22-ohm series resistors to their associated FPGA
 pins.  No other pins have any sort of protection for out-of-spec voltages or
