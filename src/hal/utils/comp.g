@@ -29,7 +29,7 @@ parser Hal:
     token END: ";;"
     token PARAMDIRECTION: "rw|r"
     token PINDIRECTION: "in|out|io"
-    token TYPE: "float|bit|u32|s32|u16|s16|u8|s8"
+    token TYPE: "float|bit|u32|s32"
     token NAME: "[a-zA-Z_][a-zA-Z0-9_]*"
     token FPNUMBER: "-?([0-9]*\.[0-9]+|[0-9]+\.?)([Ee][+-]?[0-9]+)?f?"
     token NUMBER: "-?[0-9]+|0x[0-9a-fA-F]+"
@@ -61,10 +61,15 @@ parser Hal:
 %%
 
 def parse(rule, text, filename=None):
-    P = Hal(HalScanner(text, filename=filename))
+    global P, S
+    S = HalScanner(text, filename=filename)
+    P = Hal(S)
     return runtime.wrap_error_reporter(P, rule)
 
 dirmap = {'r': 'HAL_RO', 'rw': 'HAL_RW', 'in': 'HAL_IN', 'out': 'HAL_OUT', 'io': 'HAL_IO' }
+typemap = {'signed': 's32', 'unsigned': 'u32'}
+deprmap = {'s32': 'signed', 'u32': 'unsigned'}
+deprecated = ['s32', 'u32']
 
 def initialize():
     global functions, params, pins, options, comp_name, names, docs
@@ -75,23 +80,40 @@ def initialize():
 
     names = {}
 
+def Warn(msg, *args):
+    if args:
+        msg = msg % args
+    print >>sys.stderr, "%s:%d: Warning: %s" % (S.filename, S.line, msg)
+
+def Error(msg, *args):
+    if args:
+        msg = msg % args
+    raise runtime.SyntaxError(S.get_pos(), msg, None)
+
 def comp(name, doc):
     docs.append(('component', name, doc))
     global comp_name
     if comp_name:
-        raise SyntaxError, "Duplicate specification of component name"
+        Error("Duplicate specification of component name")
     comp_name = name;
 
+def type2type(type):
+    if type in deprecated:
+        Warn("Use of deprecated type '%s': Use '%s' instead", type, deprmap[type])
+    return typemap.get(type, type)
+    
 def pin(name, type, dir, doc):
+    type = type2type(type)
     if name in names:
-        raise SyntaxError, "Duplicate item name %s" % name
+        Error("Duplicate item name %s" % name)
     docs.append(('pin', name, type, dir, doc))
     names[name] = None
     pins.append((name, type, dir))
 
 def param(name, type, dir, doc, value):
+    type = type2type(type)
     if name in names:
-        raise SyntaxError, "Duplicate item name %s" % name
+        Error("Duplicate item name %s" % name)
     docs.append(('param', name, type, dir, doc, value))
     names[name] = None
     params.append((name, type, dir, value))
