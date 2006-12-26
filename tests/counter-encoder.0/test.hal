@@ -1,0 +1,36 @@
+setexact_for_test_suite_only
+
+loadrt sampler cfg=sss depth=3500
+loadrt stepgen step_type=2
+loadrt encoder num_chan=2
+loadrt counter
+loadrt threads name1=fast period1=100000
+
+linkpp stepgen.0.phase-A encoder.0.phase-A
+linkpp stepgen.0.phase-B encoder.0.phase-B
+linkpp encoder.0.counts sampler.0.pin.0
+
+linksp stepgen.0.phase-A encoder.1.phase-A
+linksp stepgen.0.phase-B encoder.1.phase-B
+linkpp encoder.1.counts sampler.0.pin.1
+
+linksp stepgen.0.phase-A counter.0.phase-A
+linksp encoder.1.counts sampler.0.pin.2
+
+addf stepgen.update-freq fast
+addf stepgen.make-pulses fast
+addf encoder.update-counters fast
+addf counter.update-counters fast
+addf encoder.capture-position fast
+addf counter.capture-position fast
+addf sampler.0 fast
+
+setp stepgen.0.maxvel .15
+setp stepgen.0.maxaccel 2
+setp stepgen.0.position-cmd .04
+setp stepgen.0.enable 1
+setp stepgen.0.position-scale 32000
+setp encoder.1.x4-mode 0
+
+start
+loadusr -w halsampler -n 3500
