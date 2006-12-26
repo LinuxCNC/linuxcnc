@@ -1,0 +1,19 @@
+setexact_for_test_suite_only
+
+loadrt sampler cfg=ff depth=350
+loadrt siggen
+loadrt abs
+loadrt threads name1=fast period1=100000
+
+linkpp siggen.0.sawtooth abs.0.in
+linksp siggen.0.sawtooth sampler.0.pin.0
+linkpp abs.0.out sampler.0.pin.1
+
+setp siggen.0.frequency 50
+
+addf siggen.0.update fast
+addf abs.0 fast
+addf sampler.0 fast
+
+start
+loadusr -w halsampler -n 350

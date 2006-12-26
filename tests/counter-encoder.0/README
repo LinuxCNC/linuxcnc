@@ -1,0 +1,2 @@
+Tests that the encoder and counter modules give the expected results
+on a simple increasing quadrature input
