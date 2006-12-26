@@ -266,7 +266,7 @@ void emcmotController(void *arg, long period)
         int i;
 
         for(i=0; i<CYCLE_HISTORY; i++) {
-            if (this_run > 1.1 * cycles[i]) {
+            if (this_run > 1.2 * cycles[i]) {
                 emcmot_hal_data->overruns++;
 		// print message on first overrun only
 	        if(emcmot_hal_data->overruns == 1) {
