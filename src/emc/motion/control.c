@@ -273,7 +273,7 @@ void emcmotController(void *arg, long period)
 	            rtapi_print_msg(RTAPI_MSG_ERR, 
 	                "elapsed clocks between calls to the motion controller.\n");
 	            rtapi_print_msg(RTAPI_MSG_ERR, 
-	                "This time, there were %ld which is so anomolously\n",
+	                "This time, there were %ld which is so anomalously\n",
 	                this_run);
 	            rtapi_print_msg(RTAPI_MSG_ERR, 
 	                "large that it probably signifies a problem with your\n");
