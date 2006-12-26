@@ -29,7 +29,7 @@ parser Hal:
     token END: ";;"
     token PARAMDIRECTION: "rw|r"
     token PINDIRECTION: "in|out|io"
-    token TYPE: "float|bit|u32|s32"
+    token TYPE: "float|bit|signed|unsigned|u32|s32"
     token NAME: "[a-zA-Z_][a-zA-Z0-9_]*"
     token FPNUMBER: "-?([0-9]*\.[0-9]+|[0-9]+\.?)([Ee][+-]?[0-9]+)?f?"
     token NUMBER: "-?[0-9]+|0x[0-9a-fA-F]+"
@@ -98,8 +98,7 @@ def comp(name, doc):
     comp_name = name;
 
 def type2type(type):
-    if type in deprecated:
-        Warn("Use of deprecated type '%s': Use '%s' instead", type, deprmap[type])
+    # When we start warning about s32/u32 this is where the warning goes
     return typemap.get(type, type)
     
 def pin(name, type, dir, doc):
