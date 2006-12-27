@@ -136,7 +136,7 @@ int main(int argc, char **argv)
 		cp = argv[n];
 	    }
 	    channel = strtol(cp, &cp2, 10);
-	    if (( *cp2 ) || ( channel < 0 ) || ( channel >= MAX_SAMPLERS )) {
+	    if (( *cp2 ) || ( channel < 0 ) || ( channel >= MAX_STREAMERS )) {
 		fprintf(stderr,"ERROR: invalid channel number '%s'\n", cp );
 		exit(1);
 	    }
@@ -186,7 +186,7 @@ int main(int argc, char **argv)
     size = sizeof(fifo_t) + fifo->num_pins * fifo->depth * sizeof(shmem_data_t);
     /* close shmem, re-open with proper size */
     rtapi_shmem_delete(shmem_id, comp_id);
-    shmem_id = rtapi_shmem_new(SAMPLER_SHMEM_KEY+channel, comp_id, size);
+    shmem_id = rtapi_shmem_new(STREAMER_SHMEM_KEY+channel, comp_id, size);
     if ( shmem_id < 0 ) {
 	fprintf(stderr, "ERROR: couldn't re-allocate user/RT shared memory\n");
 	goto out;
