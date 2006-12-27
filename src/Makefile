@@ -552,8 +552,6 @@ hal_skeleton-objs := hal/drivers/hal_skeleton.o $(MATHSTUB)
 ifneq "$(filter 2.6.%, $(kernelvers))" ""
 obj-$(CONFIG_PROBE_PARPORT) += probe_parport.o
 probe_parport-objs := hal/drivers/probe_parport.o $(MATHSTUB)
-obj-$(CONFIG_HAL_SMI) += hal_smi.o
-hal_smi-objs := hal/drivers/hal_smi.o $(MATHSTUB)
 endif
 endif
 
