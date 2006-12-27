@@ -190,6 +190,11 @@ it were:
    \fBhalcmd\fR \fBlinksp\fR pinname1 pinname1
    \fBhalcmd\fR \fBlinksp\fR pinname1 pinname2
 .TP
+\fBnet\fR \fIsigname\fR \fIpinname\fR \fI...\fR
+Create \fIsignname\fR to match the type of \fIpinname\fR if it does not yet
+exist.  Then, link \fIsigname\fR to each \fIpinname\fR in turn.  Arrows may
+be used as in \fBlinkps\fR.
+.TP
 \fBunlinkp\fR \fIpinname\fR
 (\fIunlink\fR \fIp\fRin)  Breaks any previous link to \fIpinname\fR.
 Fails if \fIpinname\fR does not exist.
@@ -246,17 +251,18 @@ These commands can be redirected to a file and later executed
 using \fBhalcmd -f\fR to restore the saved configuration.
 \fIitem\fR can be one of the following: "\fBcomp\fR" generates
 a \fBloadrt\fR command for realtime component.  "\fBsig\fR" 
-generates a \fBnewsig\fR command for each signal.  "\fBlink\fR"
-and "\fBlinka\fR" both generate \fBlinkps\fR commands for each 
-link. (\fBlinka\fR includes arrows, while \fBlink\fR does not.)
-"\fBnet\fR" and "\fBneta\fR" both generate one \fBnewsig\fR
-command for each signal, followed by \fBlinksp\fR commands for
-each pin linked to that signal.  (\fBneta\fR includes arrows.)
-"\fBparam\fR" generates one \fBsetp\fR command for each parameter.
-"\fBthread\fR" generates one \fBaddf\fR command for each function
-in each realtime thread.  If \fIitem\fR is omitted, \fBsave\fR
-does the equivalent of \fBcomp\fR, \fBsig\fR, \fBlink\fR, 
-\fBparam\fR, and \fBthread\fR.
+generates a \fBnewsig\fR command for each signal, and "\fBsigu\fR" generates a
+\fBnewsig\fR command for each unlinked signal (for use with \fBnetl\fR and
+\fBnetla\fR).  "\fBlink\fR" and "\fBlinka\fR" both generate \fBlinkps\fR
+commands for each link. (\fBlinka\fR includes arrows, while \fBlink\fR does
+not.) "\fBnet\fR" and "\fBneta\fR" both generate one \fBnewsig\fR command for
+each signal, followed by \fBlinksp\fR commands for each pin linked to that
+signal.  (\fBneta\fR includes arrows.) "\fBnetl\fR" generates one \fBnet\fR
+command for each linked signal, and "\fBnetla\fR" generates a similar command
+using arrows.  "\fBparam\fR" generates one \fBsetp\fR command for each
+parameter.  "\fBthread\fR" generates one \fBaddf\fR command for each function
+in each realtime thread.  If \fIitem\fR is omitted, \fBsave\fR does the
+equivalent of \fBcomp\fR, \fBsigu\fR, \fBlink\fR, \fBparam\fR, and \fBthread\fR.
 .SH EXAMPLES
 
 .SH "SEE ALSO"

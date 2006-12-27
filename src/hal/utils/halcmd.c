@@ -98,6 +98,7 @@ static int do_newsig_cmd(char *name, char *type);
 #if 0  /* newinst deferred to version 2.2 */
 static int do_newinst_cmd(char *comp_name, char *inst_name);
 #endif
+static int do_net_cmd(char *signame, char *pins[]);
 static int do_setp_cmd(char *name, char *value);
 static int do_getp_cmd(char *name);
 static int do_sets_cmd(char *name, char *value);
@@ -138,7 +139,7 @@ static char *data_value2(int type, void *valptr);
 static int do_save_cmd(char *type, char *filename);
 static int do_setexact_cmd(void);
 static void save_comps(FILE *dst);
-static void save_signals(FILE *dst);
+static void save_signals(FILE *dst, int only_unlinked);
 static void save_links(FILE *dst, int arrows);
 static void save_nets(FILE *dst, int arrows);
 static void save_params(FILE *dst);
@@ -807,6 +808,8 @@ static int parse_cmd(char *tokens[])
 	    print_help_commands();
 	    retval = 0;
 	}
+    } else if (strcmp(tokens[0], "net") == 0) {
+	retval = do_net_cmd(tokens[1], &tokens[2]);
     } else if (strcmp(tokens[0], "linkps") == 0) {
 	/* check for an arrow */
 	if ((tokens[2][0] == '=') || (tokens[2][0] == '<')) {
@@ -1041,6 +1044,93 @@ static int do_link_cmd(char *pin, char *sig)
     } else {
 	rtapi_print_msg(RTAPI_MSG_ERR,"HAL:%d: link failed\n", linenumber);
     }
+    return retval;
+}
+
+static int isdir(char *s) {
+    if(!s) return 0;
+    return s[0] == '=' || s[0] == '<';
+}
+
+static int preflight_net_cmd(char *signal, hal_sig_t *sig, char *pins[]) {
+    int type = -1, writers=0, i, pincnt=0;
+    if(sig) { type = sig->type; writers = sig->writers; }
+    for(i=0; pins[i] && *pins[i]; i++) {
+        hal_pin_t *pin = 0;
+        if(isdir(pins[i])) continue;
+        pin = halpr_find_pin_by_name(pins[i]);
+        if(!pin) {
+            rtapi_print_msg(RTAPI_MSG_ERR, "HAL:%d: pin '%s' does not exist\n",
+                    linenumber, pins[i]);
+            return HAL_NOTFND;
+        }
+        if(SHMPTR(pin->signal) == sig) continue; /* Already on this signal */
+        if(type != -1 && type != pin->type) {
+            rtapi_print_msg(RTAPI_MSG_ERR,"HAL:%d: Type mismatch on pin '%s'\n",
+                    linenumber, pin->name);
+            return HAL_INVAL;
+        }
+        if(pin->dir == HAL_OUT) {
+            if(writers) {
+                rtapi_print_msg(RTAPI_MSG_ERR,
+                        "HAL:%d: Signal '%s' may not add OUT pin '%s'\n",
+                        linenumber, signal, pin->name);
+                return HAL_INVAL;
+            }
+        }
+        if(pin->dir & HAL_OUT) {
+            writers++;
+        }
+        type = pin->type;
+        pincnt++;
+    }
+    if(pincnt)
+        return HAL_SUCCESS;
+    rtapi_print_msg(RTAPI_MSG_ERR,
+            "HAL:%d: 'net' requires at least one pin, none given\n",
+            linenumber);
+    return HAL_INVAL;
+}
+
+static int do_net_cmd(char *signal, char *pins[]) {
+    hal_sig_t *sig;
+    int i, retval;
+
+    while(pins[0] && isdir(pins[0])) pins++;
+
+    rtapi_mutex_get(&(hal_data->mutex));
+    sig = halpr_find_sig_by_name(signal);
+
+    retval = preflight_net_cmd(signal, sig, pins);
+    if(retval != HAL_SUCCESS) {
+        rtapi_mutex_give(&(hal_data->mutex));
+        return retval;
+    }
+
+    if(!sig) {
+        /* Create the signal with the type of the first pin */
+        hal_pin_t *pin = halpr_find_pin_by_name(pins[0]);
+        rtapi_mutex_give(&(hal_data->mutex));
+        if(!pin) {
+            return HAL_NOTFND;
+        }
+        retval = hal_signal_new(signal, pin->type);
+    } else {
+        rtapi_mutex_give(&(hal_data->mutex));
+    }
+
+    for(i=0; retval == HAL_SUCCESS && pins[i] && *pins[i]; i++) {
+        hal_pin_t *pin;
+        if(isdir(pins[i])) continue;
+        rtapi_mutex_get(&(hal_data->mutex));
+        pin = halpr_find_pin_by_name(pins[i]);
+        rtapi_mutex_give(&(hal_data->mutex));
+        if(pin && SHMPTR(pin->signal) == sig)
+            continue; /* Pin is already on this signal */
+        
+        retval = do_link_cmd(pins[i], signal);
+    }
+
     return retval;
 }
 
@@ -2683,14 +2773,16 @@ static int do_save_cmd(char *type, char *filename)
     if (strcmp(type, "all" ) == 0) {
 	/* save everything */
 	save_comps(dst);
-	save_signals(dst);
-	save_links(dst, 0);
+        save_signals(dst, 1);
+        save_nets(dst, 3);
 	save_params(dst);
 	save_threads(dst);
     } else if (strcmp(type, "comp") == 0) {
 	save_comps(dst);
     } else if (strcmp(type, "sig") == 0) {
-	save_signals(dst);
+	save_signals(dst, 0);
+    } else if (strcmp(type, "sigu") == 0) {
+	save_signals(dst, 1);
     } else if (strcmp(type, "link") == 0) {
 	save_links(dst, 0);
     } else if (strcmp(type, "linka") == 0) {
@@ -2699,6 +2791,10 @@ static int do_save_cmd(char *type, char *filename)
 	save_nets(dst, 0);
     } else if (strcmp(type, "neta") == 0) {
 	save_nets(dst, 1);
+    } else if (strcmp(type, "netl") == 0) {
+	save_nets(dst, 2);
+    } else if (strcmp(type, "netla") == 0 || strcmp(type, "netal") == 0) {
+	save_nets(dst, 3);
     } else if (strcmp(type, "param") == 0) {
 	save_params(dst);
     } else if (strcmp(type, "thread") == 0) {
@@ -2748,18 +2844,18 @@ static void save_comps(FILE *dst)
     rtapi_mutex_give(&(hal_data->mutex));
 }
 
-static void save_signals(FILE *dst)
+static void save_signals(FILE *dst, int only_unlinked)
 {
     int next;
     hal_sig_t *sig;
 
     fprintf(dst, "# signals\n");
     rtapi_mutex_get(&(hal_data->mutex));
-    next = hal_data->sig_list_ptr;
-    while (next != 0) {
+    
+    for( next = hal_data->sig_list_ptr; next; next = sig->next_ptr) {
 	sig = SHMPTR(next);
+        if(only_unlinked && (sig->readers || sig->writers)) continue;
 	fprintf(dst, "newsig %s %s\n", sig->name, data_type((int) sig->type));
-	next = sig->next_ptr;
     }
     rtapi_mutex_give(&(hal_data->mutex));
 }
@@ -2802,17 +2898,64 @@ static void save_nets(FILE *dst, int arrow)
     next = hal_data->sig_list_ptr;
     while (next != 0) {
 	sig = SHMPTR(next);
-	fprintf(dst, "newsig %s %s\n", sig->name, data_type((int) sig->type));
-	pin = halpr_find_pin_by_sig(sig, 0);
-	while (pin != 0) {
-	    if (arrow != 0) {
-		arrow_str = data_arrow2((int) pin->dir);
-	    } else {
-		arrow_str = "\0";
-	    }
-	    fprintf(dst, "linksp %s %s %s\n", sig->name, arrow_str, pin->name);
-	    pin = halpr_find_pin_by_sig(sig, pin);
-	}
+        if(arrow == 3) {
+            int state = 0, first = 1;
+            fprintf(dst, "net %s", sig->name);
+
+            /* Step 1: Output pin, if any */
+            
+            for(pin = halpr_find_pin_by_sig(sig, 0); pin;
+                    pin = halpr_find_pin_by_sig(sig, pin)) {
+                if(pin->dir != HAL_OUT) continue;
+                fprintf(dst, " %s", pin->name);
+                state = 1;
+            }
+            
+            /* Step 2: I/O pins, if any */
+            for(pin = halpr_find_pin_by_sig(sig, 0); pin;
+                    pin = halpr_find_pin_by_sig(sig, pin)) {
+                if(pin->dir != HAL_IO) continue;
+                fprintf(dst, " ");
+                if(state) { fprintf(dst, "=> "); state = 0; }
+                else if(!first) { fprintf(dst, "<=> "); }
+                fprintf(dst, "%s", pin->name);
+                first = 0;
+            }
+            if(!first) state = 1;
+
+            /* Step 3: Input pins, if any */
+            for(pin = halpr_find_pin_by_sig(sig, 0); pin;
+                    pin = halpr_find_pin_by_sig(sig, pin)) {
+                if(pin->dir != HAL_IN) continue;
+                fprintf(dst, " ");
+                if(state) { fprintf(dst, "=> "); state = 0; }
+                fprintf(dst, "%s", pin->name);
+            }
+
+            fprintf(dst, "\n");
+        } else if(arrow == 2) {
+            fprintf(dst, "net %s", sig->name);
+            pin = halpr_find_pin_by_sig(sig, 0);
+            while (pin != 0) {
+                fprintf(dst, " %s", pin->name);
+                pin = halpr_find_pin_by_sig(sig, pin);
+            }
+            fprintf(dst, "\n");
+        } else {
+            fprintf(dst, "newsig %s %s\n",
+                    sig->name, data_type((int) sig->type));
+            pin = halpr_find_pin_by_sig(sig, 0);
+            while (pin != 0) {
+                if (arrow != 0) {
+                    arrow_str = data_arrow2((int) pin->dir);
+                } else {
+                    arrow_str = "\0";
+                }
+                fprintf(dst, "linksp %s %s %s\n",
+                        sig->name, arrow_str, pin->name);
+                pin = halpr_find_pin_by_sig(sig, pin);
+            }
+        }
 	next = sig->next_ptr;
     }
     rtapi_mutex_give(&(hal_data->mutex));
@@ -2928,6 +3071,10 @@ static int do_help_cmd(char *command)
     } else if (strcmp(command, "linkpp") == 0) {
 	printf("linkpp firstpin secondpin\n");
 	printf("  Creates a signal with the name of the first pin,\n");	printf("  then links both pins to the signal. \n");
+    } else if(strcmp(command, "net") == 0) {
+        printf("net signame pinname ...\n");
+        printf("Creates 'signame' with the type of 'pinname' if it does not yet exist\n");
+        printf("And then links signame to each pinname specified.\n");
     }else if (strcmp(command, "unlinkp") == 0) {
 	printf("unlinkp pinname\n");
 	printf("  Unlinks pin 'pinname' if it is linked to any signal.\n");
@@ -3014,10 +3161,10 @@ static int do_help_cmd(char *command)
 	printf("  Prints HAL state to 'filename' (or stdout), as a series\n");
 	printf("  of HAL commands.  State can later be restored by using\n");
 	printf("  \"halcmd -f filename\".\n");
-	printf("  Type can be 'comp', 'sig', 'link[a]', 'net[a]', 'param',\n");
+	printf("  Type can be 'comp', 'sig', 'link[a]', 'net[a]', 'netl', 'param',\n");
 	printf("  or 'thread'.  ('linka' and 'neta' show arrows for pin\n");
 	printf("  direction.)  If 'type' is omitted or 'all', does the\n");
-	printf("  equivalent of 'comp', 'sig', 'link', 'param', and 'thread'.\n");
+	printf("  equivalent of 'comp', 'netl', 'param', and 'thread'.\n");
     } else if (strcmp(command, "start") == 0) {
 	printf("start\n");
 	printf("  Starts all realtime threads.\n");
@@ -3077,6 +3224,7 @@ static void print_help_commands(void)
     printf("  lock, unlock        Lock/unlock HAL behaviour\n");
     printf("  linkps              Link pin to signal\n");
     printf("  linksp              Link signal to pin\n");
+    printf("  net                 Link a number of pins to a signal\n");
     printf("  linkpp              Shortcut to link two pins together\n");
     printf("  unlinkp             Unlink pin\n");
     printf("  newsig, delsig      Create/delete a signal\n");
@@ -3098,7 +3246,7 @@ static int argno;
 static char *command_table[] = {
     "loadrt", "loadusr", "unload", "lock", "unlock",
     "linkps", "linksp", "linkpp", "unlinkp",
-    "newsig", "delsig", "getp", "gets", "setp", "sets",
+    "net", "newsig", "delsig", "getp", "gets", "setp", "sets",
     "addf", "delf", "show", "list", "status", "save",
     "start", "stop", "quit", "exit", "help", 
     NULL,
@@ -3474,6 +3622,12 @@ static inline int isskip(int ch) {
     return isspace(ch) || ch == '=' || ch == '<' || ch == '>';
 }
 
+char *nextword(char *s) {
+    s = strchr(s, ' ');
+    if(!s) return NULL;
+    return s+1;
+}
+
 char **completer(const char *text, int start, int end) {
     int i;
     char **result = NULL;
@@ -3501,6 +3655,18 @@ char **completer(const char *text, int start, int end) {
     } else if(startswith(rl_line_buffer, "linkps ") && argno == 2) {
         check_match_type_pin(rl_line_buffer + 7);
         result = rl_completion_matches(text, signal_generator);
+    } else if(startswith(rl_line_buffer, "net ") && argno == 1) {
+        result = rl_completion_matches(text, signal_generator);
+    } else if(startswith(rl_line_buffer, "net ") && argno == 2) {
+        check_match_type_signal(nextword(rl_line_buffer));
+        result = rl_completion_matches(text, pin_generator);
+    } else if(startswith(rl_line_buffer, "net ") && argno > 2) {
+        check_match_type_signal(nextword(rl_line_buffer));
+        if(match_type == -1) {
+            check_match_type_pin(nextword(nextword(rl_line_buffer)));
+            if(match_direction == HAL_IN) match_direction = -1;
+        }
+        result = rl_completion_matches(text, pin_generator);
     } else if(startswith(rl_line_buffer, "linksp ") && argno == 1) {
         result = rl_completion_matches(text, signal_generator);
     } else if(startswith(rl_line_buffer, "linksp ") && argno == 2) {
