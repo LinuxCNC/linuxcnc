@@ -1,0 +1,56 @@
+loadrt threads name1=fast period1=100000
+loadrt and2
+loadrt or2
+loadrt not
+loadrt mux2
+loadrt mux4
+
+loadrt sampler depth=1000 cfg=bbbff
+loadrt streamer depth=32 cfg=bbbb
+
+newsig a bit
+newsig b bit
+newsig c bit
+newsig d bit
+
+linkps streamer.0.pin.0 a
+linkps streamer.0.pin.1 b
+linkps streamer.0.pin.2 c
+linkps streamer.0.pin.3 d
+
+linksp a and2.0.in0
+linksp b and2.0.in1
+linkpp and2.0.out sampler.0.pin.0
+
+linksp a or2.0.in0
+linksp b or2.0.in1
+linkpp or2.0.out sampler.0.pin.1
+
+linksp a not.0.in
+linkpp not.0.out sampler.0.pin.2
+
+linksp a mux2.0.sel
+linkpp mux2.0.out sampler.0.pin.3
+setp mux2.0.in0 1
+setp mux2.0.in1 2
+
+linksp a mux4.0.sel0
+linksp b mux4.0.sel1
+linkpp mux4.0.out sampler.0.pin.4
+setp mux4.0.in0 3
+setp mux4.0.in1 4
+setp mux4.0.in2 5
+setp mux4.0.in3 6
+
+addf streamer.0 fast
+addf and2.0 fast
+addf or2.0 fast
+addf not.0 fast
+addf mux2.0 fast
+addf mux4.0 fast
+addf sampler.0 fast
+
+loadusr sh runstreamer
+loadusr -w sleep .1
+start
+loadusr -w halsampler -n 16
