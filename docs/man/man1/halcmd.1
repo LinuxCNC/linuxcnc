@@ -23,6 +23,10 @@
 .\"
 .\"
 .\"
+.de URL
+\\$2 \(laURL: \\$1 \(ra\\$3
+..
+.if \n[.g] .mso www.tmac
 .TH HALCMD "1"  "2003-12-18" "EMC Documentation" "HAL User's Manual"
 .SH NAME
 halcmd \- manipulate the Enhanced Machine Controller HAL from the command line
@@ -89,23 +93,31 @@ Anything following '\fB#\fR' on a line is a comment.
 .TP
 \fBloadrt\fR \fImodname\fR
 (\fIload\fR \fIr\fReal\fIt\fRime module)  Loads a realtime HAL
-module called \fImodname\fR.  \fBhalcmd\fR looks in the directory
-specified by environment variable HAL_RTMOD_DIR for the module.
-\fBhalcmd\fR calls the \fBemc_module_helper\fR to load realtime
-modules.  \fBemc_module_helper\fR is a setuid program and 
-is compiled with a whitelist of modules it is allowed to load.
-This is currently just a list of \fBEMC\fR-related modules.  The
+module called \fImodname\fR.  \fBhalcmd\fR looks for the module
+in a directory specified at compile time.
+
+In systems with realtime, \fBhalcmd\fR calls the
+\fBemc_module_helper\fR to load realtime modules.
+\fBemc_module_helper\fR is a setuid program and is compiled with
+a whitelist of modules it is allowed to load.  This is currently
+just a list of \fBEMC\fR-related modules.  The
 \fBemc_module_helper\fR execs insmod, so return codes and error
-messages are those from insmod.  Administrators who wish to 
-restrict which users can load these \fBEMC\fR-related kernel 
-modules can do this by setting the permissions and group on 
+messages are those from insmod.  Administrators who wish to
+restrict which users can load these \fBEMC\fR-related kernel
+modules can do this by setting the permissions and group on
 \fBemc_module_helper\fR appropriately.
+
+In systems without realtime \fBhalcmd\fR calls the
+\fBrtapi_app\fR which creates the simulated realtime environment
+if it did not yet exist, and then loads the requested component
+with a call to \fBdlopen(3)\fR.
 .TP
 \fBunloadrt\fR \fImodname\fR
 (\fIunload\fR \fIr\fReal\fIt\fRime module)  Unloads a realtime HAL
 module called \fImodname\fR.  If \fImodname\fR is "all", it will
 unload all currently loaded realtime HAL modules.  \fBunloadrt\fR
-also works by execing \fBemc_module_helper\fR, just like \fBloadrt\fR.
+also works by execing \fBemc_module_helper\fR or \fBrtapi_app\fR, just like
+\fBloadrt\fR.
 .TP
 \fBloadusr\fR \fI[flags]\fR \fIunix-command\fR
 (\fIload\fR \fIUs\fRe\fIr\fRspace component) Executes the given
@@ -256,17 +268,12 @@ None known at this time.  There are a few things I might want
 to change - perhaps \fBsave\fR without \fIitem\fR should do
 the equivalent of net,param,thread.  Perhaps \fBsave param\fR
 should use the "=" form of the \fBsetp\fR command.  Etc.
-.PP
-The \fBloadrt\fR command contains some really crufty code that
-looks for the realtime module directory if the environment
-variable HAL_RTMOD_DIR is not present.  That code should
-probably be removed, but I need to come up with a better
-method first.
 .SH AUTHOR
 Written by John Kasunich, as part of the Enhanced Machine
 Controller (EMC) project.
 .SH REPORTING BUGS
-Report bugs to jmkasunich AT users DOT sourceforge DOT net
+Report bugs to the
+.URL http://sf.net/tracker/?group_id=6744&atid=106744 "emc bug tracker" .
 .SH COPYRIGHT
 Copyright \(co 2003 John Kasunich.
 .br
