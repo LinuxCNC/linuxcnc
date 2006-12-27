@@ -1138,10 +1138,25 @@ LIBS=
 # check for readline.h and friends, optional for halcmd
 AC_CHECK_HEADERS(readline/readline.h, [HAVE_READLINE=yes], [HAVE_READLINE=no])
 AC_CHECK_HEADERS(readline/history.h, [], [HAVE_READLINE=no])
-AC_CHECK_LIB(readline, readline, [], [HAVE_READLINE=no])
+
+echo "Trying readline without -ltermcap"
+AC_CHECK_LIB(readline, readline, [HAVE_READLINE_NOTERMCAP=yes], [])
+unset ac_cv_lib_readline_readline
+echo "Trying readline with -ltermcap"
+AC_CHECK_LIB(readline, readline, [HAVE_READLINE_TERMCAP=yes], [], -ltermcap)
+unset ac_cv_lib_readline_readline
+
+if test "x$HAVE_READLINE_NOTERMCAP" = "xyes"; then
+    echo "Readline does not require -ltermcap"
+    READLINE_LIBS="-lreadline"
+elif test "x$HAVE_READLINE_TERMCAP" = "xyes"; then
+    echo "Readline requires -ltermcap"
+    READLINE_LIBS="-lreadline -ltermcap"
+else
+    HAVE_READLINE=no
+fi
 
 if test "x$HAVE_READLINE" = "xyes"; then
-    READLINE_LIBS="-lreadline"
     AC_DEFINE([HAVE_READLINE], [], [Define to 1 if you have the `readline' library (-lreadline) and required headers])
 fi
 AC_SUBST([HAVE_READLINE])
