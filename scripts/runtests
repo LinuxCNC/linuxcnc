@@ -4,6 +4,7 @@ case "$0" in
 	*/*) MYDIR="${0%/*}" ;;
 	*) MYDIR="`type -path $0`"; MYDIR="${MYDIR%/*}"
 esac
+MYDIR=$(cd $MYDIR; pwd)
 TOPDIR=$(cd $MYDIR/..; pwd)
 
 NUM=0
@@ -15,11 +16,11 @@ clean () {
 }
 
 run_without_overruns () {
-    testname=$1
-    testdir=$(dirname $testname)
+    testname=$(basename $1)
+    testdir=$(dirname $1)
     for i in $(seq 10); do
         if [ $i != 1 ]; then echo "--- $testdir: overrun detected in sampler, re-running test" 1>&2 ; fi
-        $MYDIR/halrun -f $testname > $testdir/result 2> $testdir/stderr
+	(cd $testdir; $MYDIR/halrun -f $testname > result 2> stderr)
         exitcode=$?
         if ! grep -q '^overrun$' $testdir/result; then return $exitcode; fi
     done
@@ -70,7 +71,7 @@ run_tests () {
 		fi
 	    else
 		exitcode=1
-		reason="Neither result nor checkresult existed"
+		reason="Neither expected nor checkresult existed"
 	    fi
 	fi
 	if [ $exitcode -ne 0 ]; then
