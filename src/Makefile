@@ -15,6 +15,9 @@ BASEPWD := $(shell pwd)
 export BASEPWD
 endif
 include $(BASEPWD)/Makefile.inc
+ifeq ($(RTPREFIX),)
+$(error Makefile.inc must specify RTPREFIX and other variables)
+endif
 
 ifeq ($(DEPSTYLE),gcc3)
 DEP = $(1) -MM -MG -MT "$(2)" $(4) -o $(3).tmp && mv -f "$(3)".tmp "$(3)"
