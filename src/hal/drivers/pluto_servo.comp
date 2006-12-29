@@ -33,10 +33,10 @@ secondary address.
 .\\" cannot detect communication errors.
 .\\"
 .TP
-\\fBepp_wide\\fR [default: 0]
-Enables "wide EPP mode".  This allows 16- and 32-bit EPP transfers, which can
-reduce the time spent in the read and write functions.  However, this mode may
-not work on all EPP parallel ports.
+\\fBepp_wide\\fR [default: 1]
+Set to zero to disable "wide EPP mode".  "Wide" mode allows 16- and 32-bit EPP
+transfers, which can reduce the time spent in the read and write functions.
+However, this mode may not work on all EPP parallel ports.
 
 .SH DESCRIPTION
 Pluto_servo is an emc2 software driver and associated firmware that allow the Pluto-P board to be used to control a servo-based CNC machine.
@@ -226,7 +226,7 @@ MODULE_LICENSE("GPL");
 
 int ioaddr = 0x378;
 int ioaddr_hi = 0;
-int epp_wide = 0;
+int epp_wide = 1;
 int epp_soft = 0;
 
 typedef struct {
