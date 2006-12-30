@@ -16,3 +16,15 @@ DONE     convert homing to use canonical interface.
 
 Fixes in HAL modules:
 TODO     canonical interfaces and naming conventions
+
+TODO     hal_m5i20 driver update
+         -conform to canonical interfaces
+         -enable loading of different configs
+              - should be possible to load a different config on separate 
+                cards if many cards are present
+              - make the PWM rate a HAL parameter 
+                 (currently it's specified when loading the driver)
+         -enable autodetection of configs
+              - 33 or 100 MHz PWM clock (affects timing calculations)
+              - 4 or 8-axis config (how many ENCs and DACs, how much I/O)
+         -enable writing the CCR register (is this needed?)
