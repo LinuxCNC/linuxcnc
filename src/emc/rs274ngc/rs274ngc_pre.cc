@@ -93,6 +93,8 @@ extern char * _rs274ngc_errors[];
 
 #undef LOG_FILE
 
+//#define LOG_FILE "emc_log"
+
 void Interp::doLog(char *fmt, ...)
 {
 #ifdef LOG_FILE
@@ -218,6 +220,25 @@ int Interp::execute(const char *command)
     _setup.parameters[_setup.parameter_numbers[n]]
       = _setup.parameter_values[n];
   }
+
+  logDebug("_setup.named_parameter_occurrence = %d",
+           _setup.named_parameter_occurrence);
+  for (n = 0; n < _setup.named_parameter_occurrence; n++)
+  {  // copy parameter settings from parameter buffer into parameter table
+
+      logDebug("storing param");
+      logDebug("storing param:|%s|", _setup.named_parameters[n]);
+    CHP(store_named_param(_setup.named_parameters[n],
+                          _setup.named_parameter_values[n]));
+
+    // free the string
+      logDebug("freeing param[%d]:|%s|:0x%x", n, _setup.named_parameters[n],
+               _setup.named_parameters[n]);
+    free(_setup.named_parameters[n]);
+  }
+
+  _setup.named_parameter_occurrence = 0;
+
   if (_setup.line_length != 0) {        /* line not blank */
     status = execute_block(&(_setup.block1), &_setup);
     write_g_codes(&(_setup.block1), &_setup);

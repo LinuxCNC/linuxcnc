@@ -258,10 +258,20 @@ block;
 
 typedef block *block_pointer;
 
+#define NAMED_PARAMETERS_ALLOC_UNIT 20
+struct named_parameters_struct {
+  int named_parameter_alloc_size;
+  int named_parameter_used_size;
+//  char *named_parameters[];
+  char **named_parameters;
+  double *named_param_values;
+  };
+
 typedef struct context_struct {
   long position;       // location (ftell) in file
   int sequence_number; // location (line number) in file
   double saved_params[INTERP_SUB_PARAMS];
+  struct named_parameters_struct named_parameters;
 }context;
 
 typedef struct offset_struct {
@@ -345,6 +355,9 @@ typedef struct setup_struct
   int parameter_occurrence;     // parameter buffer index
   int parameter_numbers[50];    // parameter number buffer
   double parameter_values[50];  // parameter value buffer
+  int named_parameter_occurrence;
+  char *named_parameters[50];
+  double named_parameter_values[50];
   ON_OFF percent_flag;          // ON means first line was percent sign
   CANON_PLANE plane;            // active plane, XY-, YZ-, or XZ-plane
   ON_OFF probe_flag;            // flag indicating probing done

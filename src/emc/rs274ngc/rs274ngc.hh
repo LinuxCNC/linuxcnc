@@ -338,16 +338,25 @@ private:
                   double *parameters);
  int read_o(char *line, int *counter, block_pointer block,
                   double *parameters);
+ int free_named_parameters(int level, setup_pointer settings);
  int read_one_item(char *line, int *counter, block_pointer block,
-                         double *parameters);
+                   double *parameters);
  int read_operation(char *line, int *counter, int *operation);
  int read_operation_unary(char *line, int *counter, int *operation);
  int read_p(char *line, int *counter, block_pointer block,
                   double *parameters);
+ int store_named_param(char *nameBuf, double value);
+ int add_named_param(char *nameBuf);
+ int find_named_param(char *nameBuf, int *status, double *value);
+ int read_name(char *line, int *counter, char *nameBuf);
+ int read_named_parameter(char *line, int *counter, double *double_ptr,
+                          double *parameters);
  int read_parameter(char *line, int *counter, double *double_ptr,
                           double *parameters);
  int read_parameter_setting(char *line, int *counter,
                                   block_pointer block, double *parameters);
+ int read_named_parameter_setting(char *line, int *counter,
+                                  char **param, double *parameters);
  int read_q(char *line, int *counter, block_pointer block,
                   double *parameters);
  int read_r(char *line, int *counter, block_pointer block,

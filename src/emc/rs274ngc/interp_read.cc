@@ -764,7 +764,7 @@ Called by: parse_line
 
 int Interp::read_items(block_pointer block,      //!< pointer to a block being filled from the line 
                       char *line,       //!< string: line of RS274/NGC code being processed
-                      double *parameters)       //!< array of system parameters                    
+                      double *parameters)   //!< array of system parameters 
 {
   static char name[] = "read_items";
   int counter;
@@ -1109,10 +1109,11 @@ has been found, and that comments are not nested.
 
 */
 
-int Interp::read_one_item(char *line,    //!< string: line of RS274/NGC code being processed
-                         int *counter,  //!< pointer to a counter for position on the line 
-                         block_pointer block,   //!< pointer to a block being filled from the line 
-                         double *parameters)    //!< array of system parameters                    
+int Interp::read_one_item(
+    char *line,    //!< string: line of RS274/NGC code being processed
+    int *counter,  //!< pointer to a counter for position on the line 
+    block_pointer block,   //!< pointer to a block being filled from the line 
+    double * parameters) /* array of system parameters  */
 {
   static char name[] = "read_one_item";
   int status;
@@ -1468,6 +1469,14 @@ int Interp::read_o(    /* ARGUMENTS                                     */
     }
   else if(CMP("call"))
     {
+      // we need to NOT evaluate parameters if skipping
+      // skipping never ends on a "call"
+      if(_setup.skipping_o != 0)
+      {
+          block->o_type = O_none;
+          return INTERP_OK;
+      }
+
       *counter += strlen("call");
       block->o_type = O_call;
 
@@ -1599,6 +1608,292 @@ int Interp::read_p(char *line,   //!< string: line of RS274/NGC code being proce
   return INTERP_OK;
 }
 
+int Interp::read_name(
+    char *line,   //!< string: line of RS274/NGC code being processed
+    int *counter, //!< pointer to a counter for position on the line 
+    char *nameBuf)   //!< pointer to name to be read
+{
+  static char name[] = "read_name";
+
+  int done = 0;
+  int i;
+
+  CHK(((line[*counter] != '$') && !isalpha(line[*(counter)])),
+      NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
+
+  for(i=0; (i<LINELEN) && (line[*counter]); i++)
+  {
+      if((i != 0) && (line[*counter] == '$'))
+      {
+          nameBuf[i] = 0; // terminate the name
+          *counter = (*counter + 1);
+          done = 1;
+          break;
+      }
+      nameBuf[i] = line[*counter];
+      *counter = (*counter + 1);
+  }
+
+  // !!!KL need to rename the error message and change text
+  CHK((!done), NCE_NAMED_PARAMETER_NOT_TERMINATED);
+
+  return INTERP_OK;
+}
+
+int Interp::find_named_param(
+    char *nameBuf, //!< pointer to name to be read
+    int *status,    //!< pointer to return status 1 => found
+    double *value   //!< pointer to value of found parameter
+    )   
+{
+    //static char name[] = "find_named_param";
+  struct named_parameters_struct *nameList;
+
+  int level;
+  int i;
+
+  // now look it up
+  if(nameBuf[0] == '$') // local scope
+  {
+      level = _setup.call_level;
+  }
+  else
+  {
+      // call level zero is global scope
+      level = 0;
+  }
+
+  nameList = &_setup.sub_context[level].named_parameters;
+
+  for(i=0; i<nameList->named_parameter_used_size; i++)
+  {
+      if(0 == strcmp(nameList->named_parameters[i], nameBuf))
+      {
+          *value = nameList->named_param_values[i];
+          *status = 1;
+          return INTERP_OK;
+      }
+  }
+
+  *value = 0.0;
+  *status = 0;
+
+  return INTERP_OK;
+}
+
+int Interp::store_named_param(
+    char *nameBuf, //!< pointer to name to be written
+    double value   //!< value to be written
+    )   
+{
+  //static char name[] = "store_named_param";
+  struct named_parameters_struct *nameList;
+
+  int level;
+  int i;
+
+  // now look it up
+  if(nameBuf[0] == '$') // local scope
+  {
+      level = _setup.call_level;
+  }
+  else
+  {
+      // call level zero is global scope
+      level = 0;
+  }
+
+  nameList = &_setup.sub_context[level].named_parameters;
+
+  logDebug("store_named_parameter: nameList[%d]=0x%x storing:|%s|", level,
+           nameList, nameBuf);
+  logDebug("store_named_parameter: named_parameter_used_size=%d",
+           nameList->named_parameter_used_size);
+
+
+  for(i=0; i<nameList->named_parameter_used_size; i++)
+  {
+#if 0
+      logDebug("store_named_parameter: named_parameter[%d]=|%s|",
+               i, nameList->named_parameters[i]);
+#endif
+      if(0 == strcmp(nameList->named_parameters[i], nameBuf))
+      {
+          nameList->named_param_values[i] = value;
+          logDebug("store_named_parameter: level[%d] %s value=%lf",
+                   level, nameBuf, value);
+
+          return INTERP_OK;
+      }
+  }
+
+  logDebug("%s: param:|%s| returning not defined", "store_named_param",
+           nameBuf);
+
+  return NCE_NAMED_PARAMETER_NOT_DEFINED;
+}
+
+int Interp::add_named_param(
+    char *nameBuf //!< pointer to name to be added
+    )   
+{
+  static char name[] = "add_named_param";
+  struct named_parameters_struct *nameList;
+
+  int status;
+
+  int findStatus;
+  double value;
+  int level;
+  char *dup;
+
+  // look it up to see if already exists
+  CHP(find_named_param(nameBuf, &findStatus, &value));
+
+  if(findStatus)
+  {
+      logDebug("%s: parameter:|%s| already exists", name, nameBuf);
+      return INTERP_OK;
+  }
+
+  // must do an add
+  if(nameBuf[0] == '$') // local scope
+  {
+      level = _setup.call_level;
+  }
+  else
+  {
+      // call level zero is global scope
+      level = 0;
+  }
+
+  nameList = &_setup.sub_context[level].named_parameters;
+
+  if(nameList->named_parameter_used_size >=
+     nameList->named_parameter_alloc_size)
+  {
+      // must realloc space
+      nameList->named_parameter_alloc_size += NAMED_PARAMETERS_ALLOC_UNIT;
+
+      logDebug("realloc space level[%d] size:%d",
+               level, nameList->named_parameter_alloc_size);
+
+      nameList->named_parameters =
+          (char **)realloc((void *)nameList->named_parameters,
+                      sizeof(char *)*nameList->named_parameter_alloc_size);
+
+      nameList->named_param_values =
+          (double *)realloc((void *)nameList->named_param_values,
+                      sizeof(double)*nameList->named_parameter_alloc_size);
+
+      if((nameList->named_parameters == 0) ||
+         (nameList->named_param_values == 0))
+      {
+          ERP(NCE_OUT_OF_MEMORY);
+      }
+  }
+
+  dup = strdup(nameBuf);
+  if(dup == 0)
+  {
+      ERP(NCE_OUT_OF_MEMORY);
+  }
+  logDebug("%s strdup[0x%x]:|%s|", name, dup, dup);
+  nameList->named_parameters[nameList->named_parameter_used_size++] = dup;
+
+  return INTERP_OK;
+}
+
+/****************************************************************************/
+
+/*! read_named_parameter
+
+Returned Value: int
+   If read_integer_value returns an error code, this returns that code.
+   If any of the following errors occur, this returns the error code shown.
+   Otherwise, this returns INTERP_OK.
+   1. The first character read is not a letter or $:
+      NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED
+   2. The named parameter string is not terminated by $:
+      NCE_NAMED_PARAMETER_NOT_TERMINATED
+   3. The named parameter has not been defined before use:
+      NCE_NAMED_PARAMETER_NOT_DEFINED
+
+Side effects:
+   The value of the given parameter is put into what double_ptr points at.
+   The counter is reset to point to the first character after the
+   characters which make up the value.
+
+Called by:  read_parameter
+
+This attempts to read the value of a parameter out of the line,
+starting at the index given by the counter.
+
+According to the RS274/NGC manual [NCMS, p. 62], the characters following
+# may be any "parameter expression". Thus, the following are legal
+and mean the same thing (the value of the parameter whose number is
+stored in parameter 2):
+  ##2
+  #[#2]
+
+
+!!!KL ADDED by K. Lerman
+Named parameters are now supported.
+#abcd$ is a parameter with name "abcd"
+#$abce$ is a named parameter of local scope.
+
+*/
+
+int Interp::read_named_parameter(
+    char *line,   //!< string: line of RS274/NGC code being processed
+    int *counter, //!< pointer to a counter for position on the line 
+    double *double_ptr,   //!< pointer to double to be read
+    double *parameters)   //!< array of system parameters
+{
+  static char name[] = "read_named_parameter";
+
+  char paramNameBuf[LINELEN+1];
+  int status;
+  int level;
+  int i;
+
+  struct named_parameters_struct *nameList;
+  
+  CHK(((line[*counter] != '$') && !isalpha(line[*(counter)])),
+      NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
+
+  CHP(read_name(line, counter, paramNameBuf));
+
+  // now look it up
+  if(paramNameBuf[0] == '$') // local scope
+  {
+      level = _setup.call_level;
+  }
+  else
+  {
+      // call level zero is global scope
+      level = 0;
+  }
+
+  nameList = &_setup.sub_context[level].named_parameters;
+
+  for(i=0; i<nameList->named_parameter_used_size; i++)
+  {
+      if(0 == strcmp(nameList->named_parameters[i], paramNameBuf))
+      {
+          *double_ptr = nameList->named_param_values[i];
+          return INTERP_OK;
+      }
+  }
+
+  *double_ptr = 0.0;
+  
+  logDebug("%s: level[%d] param:|%s| returning not defined", name, level,
+           paramNameBuf);
+  return NCE_NAMED_PARAMETER_NOT_DEFINED;
+}
+
+
 /****************************************************************************/
 
 /*! read_parameter
@@ -1634,12 +1929,20 @@ if #1 is 5 before the line "#1=10 #2=#1" is read, then after the line
 is is executed, #1 is 10 and #2 is 5. If parameter setting were done
 sequentially, the value of #2 would be 10 after the line was executed.
 
+!!!KL ADDED by K. Lerman
+Named parameters are now supported.
+#[abcd] is a parameter with name "abcd"
+#[#2] is NOT a named parameter.
+When a [ is seen after a #, if the next char is not a #, it is a named
+parameter.
+
 */
 
-int Interp::read_parameter(char *line,   //!< string: line of RS274/NGC code being processed
-                          int *counter, //!< pointer to a counter for position on the line 
-                          double *double_ptr,   //!< pointer to double to be read                  
-                          double *parameters)   //!< array of system parameters                    
+int Interp::read_parameter(
+    char *line,   //!< string: line of RS274/NGC code being processed
+    int *counter, //!< pointer to a counter for position on the line 
+    double *double_ptr,   //!< pointer to double to be read                  
+    double *parameters)   //!< array of system parameters                    
 {
   static char name[] = "read_parameter";
   int index;
@@ -1647,12 +1950,44 @@ int Interp::read_parameter(char *line,   //!< string: line of RS274/NGC code bei
 
   CHK((line[*counter] != '#'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
   *counter = (*counter + 1);
-  CHP(read_integer_value(line, counter, &index, parameters));
-  CHK(((index < 1) || (index >= RS274NGC_MAX_PARAMETERS)),
-      NCE_PARAMETER_NUMBER_OUT_OF_RANGE);
-  *double_ptr = parameters[index];
+  // !!!KL
+  // named parameters look like 'letter...$' or '$.....$'
+  if((line[*counter] == '$') || isalpha(line[*(counter)]))
+  {
+      //_setup.stack_index = 0; -- reminder of variable we need
+      // find the matching string (if any) -- or create it
+      // then get the value and store it
+      CHP(read_named_parameter(line, counter, double_ptr, parameters));
+  }
+  else
+  {
+      CHP(read_integer_value(line, counter, &index, parameters));
+      CHK(((index < 1) || (index >= RS274NGC_MAX_PARAMETERS)),
+          NCE_PARAMETER_NUMBER_OUT_OF_RANGE);
+      *double_ptr = parameters[index];
+  }
   return INTERP_OK;
 }
+
+int Interp::free_named_parameters( // ARGUMENTS
+    int level,      // level to free
+    setup_pointer settings)   // pointer to machine settings
+{
+#if 1
+    struct named_parameters_struct *nameList;
+    int i;
+ 
+    nameList = &settings->sub_context[level].named_parameters;
+
+    for(i=0; i<nameList->named_parameter_used_size; i++)
+    {
+        free(nameList->named_parameters[i]);
+    }
+    nameList->named_parameter_used_size = 0;
+#endif
+    return INTERP_OK;
+}
+
 
 /****************************************************************************/
 
@@ -1721,27 +2056,156 @@ to be evaluated. That situation is handled by read_parameter.
 
 */
 
-int Interp::read_parameter_setting(char *line,   //!< string: line of RS274/NGC code being processed
-                                  int *counter, //!< pointer to a counter for position on the line 
-                                  block_pointer block,  //!< pointer to a block being filled from the line 
-                                  double *parameters)   //!< array of system parameters                    
+int Interp::read_parameter_setting(
+    char *line,   //!< string: line of RS274/NGC code being processed
+    int *counter, //!< pointer to a counter for position on the line 
+    block_pointer block,  //!< pointer to a block being filled from the line 
+    double *parameters)   //!< array of system parameters
 {
   static char name[] = "read_parameter_setting";
   int index;
   double value;
+  char *param;
   int status;
+  char *dup;
 
   CHK((line[*counter] != '#'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
   *counter = (*counter + 1);
-  CHP(read_integer_value(line, counter, &index, parameters));
-  CHK(((index < 1) || (index >= RS274NGC_MAX_PARAMETERS)),
-      NCE_PARAMETER_NUMBER_OUT_OF_RANGE);
-  CHK((line[*counter] != '='), NCE_EQUAL_SIGN_MISSING_IN_PARAMETER_SETTING);
-  *counter = (*counter + 1);
-  CHP(read_real_value(line, counter, &value, parameters));
-  _setup.parameter_numbers[_setup.parameter_occurrence] = index;
-  _setup.parameter_values[_setup.parameter_occurrence] = value;
-  _setup.parameter_occurrence++;
+  // !!!KL
+  // named parameters look like 'letter...$' or '$.....$'
+  if((line[*counter] == '$') || isalpha(line[*(counter)]))
+  {
+      CHP(read_named_parameter_setting(line, counter, &param, parameters));
+
+      CHK((line[*counter] != '='),
+          NCE_EQUAL_SIGN_MISSING_IN_PARAMETER_SETTING);
+      *counter = (*counter + 1);
+      CHP(read_real_value(line, counter, &value, parameters));
+
+      logDebug("setting up named param[%d]:|%s| value:%lf",
+               _setup.named_parameter_occurrence, param, value);
+
+      dup = strdup(param);
+      if(dup == 0)
+      {
+          ERP(NCE_OUT_OF_MEMORY);
+      }
+      logDebug("%s strdup[0x%x]:|%s|", name, dup, dup);
+      _setup.named_parameters[_setup.named_parameter_occurrence] = dup;
+
+      _setup.named_parameter_values[_setup.named_parameter_occurrence] = value;
+      _setup.named_parameter_occurrence++;
+      logDebug("done setting up named param[%d]:|%s| value:%lf",
+               _setup.named_parameter_occurrence, param, value);
+  }
+  else
+  {
+      CHP(read_integer_value(line, counter, &index, parameters));
+      CHK(((index < 1) || (index >= RS274NGC_MAX_PARAMETERS)),
+          NCE_PARAMETER_NUMBER_OUT_OF_RANGE);
+      CHK((line[*counter] != '='),
+          NCE_EQUAL_SIGN_MISSING_IN_PARAMETER_SETTING);
+      *counter = (*counter + 1);
+      CHP(read_real_value(line, counter, &value, parameters));
+      _setup.parameter_numbers[_setup.parameter_occurrence] = index;
+      _setup.parameter_values[_setup.parameter_occurrence] = value;
+      _setup.parameter_occurrence++;
+  }
+  return INTERP_OK;
+}
+
+/****************************************************************************/
+
+/*! read_named_parameter_setting
+
+Returned Value: int
+   If read_real_value or read_integer_value returns an error code,
+   this returns that code.
+   If any of the following errors occur, this returns the error code shown.
+   Otherwise, it returns INTERP_OK.
+   1. The first character read is not # :
+      NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED
+   2. The parameter index is out of range: PARAMETER_NUMBER_OUT_OF_RANGE
+   3. An equal sign does not follow the parameter expression:
+      NCE_EQUAL_SIGN_MISSING_IN_PARAMETER_SETTING
+
+Side effects:
+   counter is reset to the character following the end of the parameter
+   setting. The parameter whose index follows "#" is set to the
+   real value following "=".
+
+Called by: read_parameter_setting
+
+When this function is called, counter is pointing at an item on the
+line that starts with the character '#', indicating a parameter
+setting when found by read_one_item.  The function reads characters
+which tell how to set the parameter.
+
+Any number of parameters may be set on a line. If parameters set early
+on the line are used in expressions farther down the line, the
+parameters have their old values, not their new values. This is
+usually called setting parameters in parallel.
+
+Parameter setting is not clearly described in [NCMS, pp. 51 - 62]: it is
+not clear if more than one parameter setting per line is allowed (any
+number is OK in this implementation). The characters immediately following
+the "#" must constitute a "parameter expression", but it is not clear
+what that is. Here we allow any expression as long as it evaluates to
+an integer.
+
+Parameters are handled in the interpreter by having a parameter table
+and a parameter buffer as part of the machine settings. The parameter
+table is passed to the reading functions which need it. The parameter
+buffer is used directly by functions that need it. Reading functions
+may set parameter values in the parameter buffer. Reading functions
+may obtain parameter values; these come from parameter table.
+
+The parameter buffer has three parts: (i) a counter for how many
+parameters have been set while reading the current line (ii) an array
+of the indexes of parameters that have been set while reading the
+current line, and (iii) an array of the values for the parameters that
+have been set while reading the current line; the nth value
+corresponds to the nth index. Any given index will appear once in the
+index number array for each time the parameter with that index is set
+on a line. There is no point in setting the same parameter more than
+one on a line because only the last setting of that parameter will
+take effect.
+
+The syntax recognized by this this function is # followed by an
+integer expression (explicit integer or expression evaluating to an
+integer) followed by = followed by a real value (number or
+expression).
+
+Note that # also starts a bunch of characters which represent a parameter
+to be evaluated. That situation is handled by read_parameter.
+
+*/
+
+int Interp::read_named_parameter_setting(
+    char *line,   //!< string: line of RS274/NGC code being processed
+    int *counter, //!< pointer to a counter for position on the line 
+    char **param,  //!< pointer to the char * to be returned 
+    double *parameters)   //!< array of system parameters
+{
+  static char name[] = "read_named_parameter_setting";
+  int status;
+  static char paramNameBuf[LINELEN+1];
+
+  *param = paramNameBuf;
+
+  logDebug("entered %s", name);
+  CHK(((line[*counter] != '$') && !isalpha(line[*(counter)])),
+      NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
+
+  CHP(read_name(line, counter, paramNameBuf));
+
+  logDebug("%s: returned(%d) from read_name:|%s|", name, status, paramNameBuf);
+
+  CHP(add_named_param(paramNameBuf));
+  logDebug("%s: returned(%d) from add_named_param:|%s|", name, status, paramNameBuf);
+
+  // the rest of the work is done in read_parameter_setting
+
   return INTERP_OK;
 }
 
@@ -2265,7 +2729,10 @@ int Interp::read_real_value(char *line,  //!< string: line of RS274/NGC code bei
   if (c == '[')
     CHP(read_real_expression(line, counter, double_ptr, parameters));
   else if (c == '#')
+  {
+      // !!!KL
     CHP(read_parameter(line, counter, double_ptr, parameters));
+  }
   else if ((c >= 'a') && (c <= 'z'))
     CHP(read_unary(line, counter, double_ptr, parameters));
   else
@@ -2551,15 +3018,17 @@ the reduced line.
 
 */
 
-int Interp::read_text(const char *command,       //!< a string which may have input text, or null
-                     FILE * inport,     //!< a file pointer for an input file, or null  
-                     char *raw_line,    //!< array to write raw input line into         
-                     char *line,        //!< array for input line to be processed in    
-                     int *length)       //!< a pointer to an integer to be set          
+int Interp::read_text(
+    const char *command,       //!< a string which may have input text, or null
+    FILE * inport,     //!< a file pointer for an input file, or null
+    char *raw_line,    //!< array to write raw input line into
+    char *line,        //!< array for input line to be processed in
+    int *length)       //!< a pointer to an integer to be set
 {
   static char name[] = "read_text";
   int status;                   /* used in CHP */
   int index;
+  int n;
 
   if (command == NULL) {
     if (fgets(raw_line, LINELEN, inport) == NULL) {
@@ -2588,7 +3057,20 @@ int Interp::read_text(const char *command,       //!< a string which may have in
     strcpy(line, command);
     CHP(close_and_downcase(line));
   }
+
   _setup.parameter_occurrence = 0;      /* initialize parameter buffer */
+
+  // just in case free the strings
+  if(_setup.named_parameter_occurrence != 0)
+  {
+      for (n = 0; n < _setup.named_parameter_occurrence; n++)
+      {
+          // free the string
+          free(_setup.named_parameters[n]);
+      }
+  }
+  _setup.named_parameter_occurrence = 0;      /* initialize parameter buffer */
+
   if ((line[0] == 0) || ((line[0] == '/') && (line[1] == 0)))
     *length = 0;
   else

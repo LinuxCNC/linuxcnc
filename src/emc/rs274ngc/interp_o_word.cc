@@ -200,6 +200,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
           // restore old values of parameters
           // restore file position from context
 
+          free_named_parameters(settings->call_level, settings);
           settings->call_level--;
 
           for(i=0; i<INTERP_SUB_PARAMS; i++)
@@ -503,6 +504,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
       // restore old values of parameters
       // restore file position from context
 
+      free_named_parameters(settings->call_level, settings);
       settings->call_level--;
 
       for(i=0; i<INTERP_SUB_PARAMS; i++)
