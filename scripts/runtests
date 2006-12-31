@@ -87,7 +87,7 @@ run_tests () {
 	    fi
 	else
 	    if [ -f $testdir/xfail ]; then
-		echo "** $testdir: XPASS: Passed, but was expected to fail"
+		echo "*** $testdir: XPASS: Passed, but was expected to fail"
 	    else
 		if [ $NOCLEAN -eq 0 ]; then
 		    rm -f $testdir/stderr $testdir/result
