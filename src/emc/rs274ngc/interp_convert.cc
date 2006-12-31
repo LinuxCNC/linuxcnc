@@ -807,6 +807,98 @@ int Interp::convert_axis_offsets(int g_code,     //!< g_code being executed (mus
   return INTERP_OK;
 }
 
+// Both named and numeric params must have trailing $
+int Interp::convert_param_comment(char *comment, char *expanded, int len)
+{
+    static char name[] = "convert_param_comment";
+    int i;
+    int done;
+    char param[LINELEN+1];
+    int paramNumber;
+    int stat;
+    double value;
+    char valbuf[30]; // max double length + room
+    char *v;
+    int found;
+
+    while(*comment)
+    {
+        if(*comment == '#')
+        {
+            found = 0;
+            comment++;
+            for(i=0, done=0; i<LINELEN; )
+            {
+                if((i != 0) && (*comment == '$'))
+                {
+                    param[i] = 0; // terminate the name
+                    comment++;
+                    done = 1;
+                    break;
+                }
+                if(isspace(*comment))
+                {
+                    continue;
+                }
+                param[i] = *comment;
+                comment++;
+                i++;
+            }
+            CHK((!done), NCE_NAMED_PARAMETER_NOT_TERMINATED);
+
+            // we have a parameter -- now insert it
+
+            if(isdigit(param[0]))
+            {
+                paramNumber = atoi(param);
+                if((paramNumber < 0) ||
+                   (paramNumber >= RS274NGC_MAX_PARAMETERS))
+                {
+                    value = 99999.999999;
+                }
+                else
+                {
+                    value = _setup.parameters[paramNumber];
+                    found = 1;
+                }
+            }
+            else
+            {
+                find_named_param(param, &stat, &value);
+                if(!stat)
+                {
+                    value = 99999.999999;
+                }
+                else
+                {
+                    found = 1;
+                }
+            }
+
+            // we have the value
+
+            if(found)
+            {
+                sprintf(valbuf, "%lf", value);
+            }
+            else
+            {
+                strcpy(valbuf, "######");
+            }
+
+            v = valbuf;
+            while(*v)
+            {
+                *expanded++ = *v++;
+            }
+        }
+        *expanded++ = *comment++;
+    }
+    *expanded = 0; // the final nul
+    
+    return INTERP_OK;
+}
+
 /****************************************************************************/
 
 /*! convert_comment
@@ -835,8 +927,14 @@ int Interp::convert_comment(char *comment)       //!< string with comment
   enum
   { LC_SIZE = 256 };            // 256 from comment[256] in rs274ngc.hh
   char lc[LC_SIZE];
+  char expanded[2*LC_SIZE+1];
   char MSG_STR[] = "msg,";
   char SYSTEM_STR[] = "system,";
+
+  //!!!KL add two -- debug => same as msg
+  //!!!KL         -- print => goes to stderr
+  char DEBUG_STR[] = "debug,";
+  char PRINT_STR[] = "print,";
   int m, n, start;
 
   // step over leading white space in comment
@@ -850,11 +948,26 @@ int Interp::convert_comment(char *comment)       //!< string with comment
   }
   lc[n] = 0;                    // null terminate
 
-  // compare with MSG, SYSTEM
+  // compare with MSG, SYSTEM, DEBUG, PRINT
   if (!strncmp(lc, MSG_STR, strlen(MSG_STR))) {
     MESSAGE(comment + start + strlen(MSG_STR));
     return INTERP_OK;
-  } else if (!strncmp(lc, SYSTEM_STR, strlen(SYSTEM_STR))) {
+  }
+  else if (!strncmp(lc, DEBUG_STR, strlen(DEBUG_STR)))
+  {
+      convert_param_comment(comment+start+strlen(DEBUG_STR), expanded,
+                            2*LC_SIZE);
+      MESSAGE(expanded);
+      return INTERP_OK;
+  }
+  else if (!strncmp(lc, PRINT_STR, strlen(PRINT_STR)))
+  {
+      convert_param_comment(comment+start+strlen(DEBUG_STR), expanded,
+                            2*LC_SIZE);
+      fprintf(stdout, "%s\n", expanded);
+      return INTERP_OK;
+  }
+  else if (!strncmp(lc, SYSTEM_STR, strlen(SYSTEM_STR))) {
 /*! \todo Implement SYSTEM commands in the task controller */
 /*! \todo Another #if 0 */
 #if 0
