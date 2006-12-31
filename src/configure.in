@@ -374,10 +374,8 @@ fi
 if test `$CC -dumpversion | cut -d '.' -f 1` -gt 2 ; then
   DEPSTYLE=gcc3 
 else
-  WFLAGS=""
   DEPSTYLE=gcc2
 fi
-AC_SUBST([WFLAGS])
 AC_SUBST([DEPSTYLE])
 
 AC_MSG_CHECKING([if asm/bitops.h is usable])
@@ -560,6 +558,7 @@ if test "xyes" = "x$RUN_IN_PLACE"; then
     REALTIME=$EMC2_HOME/scripts/realtime
     EMC2_IMAGE_DIR=$EMC2_HOME
 else
+    EMC2_HOME=${prefix}
     EMC2_BIN_DIR=${prefix}/bin
     EMC2_TCL_DIR=${prefix}/share/emc/tcl
     EMC2_LANG_DIR=${prefix}/share/emc/tcl/msgs
