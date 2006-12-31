@@ -1451,39 +1451,6 @@ echo "$as_me: error: --with-realtime and --enable-simulator are mutually exclusi
         esac
 fi;
 
-# These do not use AC_ARG_WITH to avoid putting entries in --help
-# check for path from --with-rtai=<path>
-if ! test -z "$with_rtai"; then
-  case "$with_rtai" in
-    y|ye|yes|n|no)
-      { { echo "$as_me:$LINENO: error: You must supply a path for --with-rtai." >&5
-echo "$as_me: error: You must supply a path for --with-rtai." >&2;}
-   { (exit 1); exit 1; }; } ;;
-  esac
-  if test ! -z "$RTDIR"; then
-     { { echo "$as_me:$LINENO: error: You must only specify one location for the realtime system" >&5
-echo "$as_me: error: You must only specify one location for the realtime system" >&2;}
-   { (exit 1); exit 1; }; }
-  fi
-  { echo "$as_me:$LINENO: WARNING: --with-rtai= is deprecated, use --with-realtime=" >&5
-echo "$as_me: WARNING: --with-rtai= is deprecated, use --with-realtime=" >&2;}
-  RTDIR="$with_rtai"
-fi
-
-# check for path from --with-rtlinux=<path>
-if ! test -z "$with_rtlinux"; then
-  case "$with_rtlinux" in
-    y|ye|yes|n|no)
-      { { echo "$as_me:$LINENO: error: You must supply a path for --with-rtlinux." >&5
-echo "$as_me: error: You must supply a path for --with-rtlinux." >&2;}
-   { (exit 1); exit 1; }; }
-    ;;
-  esac
-  { echo "$as_me:$LINENO: WARNING: --with-rtlinux= is deprecated, use --with-realtime=" >&5
-echo "$as_me: WARNING: --with-rtlinux= is deprecated, use --with-realtime=" >&2;}
-  RTDIR="$with_rtlinux"
-fi
-
 ##############################################################################
 # Subsection 2.2                                                             #
 # 1. If a RT has been specified by the user it needs to be checked for       #
