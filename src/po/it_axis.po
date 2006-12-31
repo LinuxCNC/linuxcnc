@@ -731,10 +731,6 @@ msgstr "Attiva asse [5]"
 msgid "Jog selected axis"
 msgstr "Muovi asse selezionato"
 
-#: ../tcl/axis.tcl:1581
-msgid "Select jog increment"
-msgstr "Seleziona incremento Movimento"
-
 #: ../tcl/axis.tcl:1582
 msgid "Temporarily allow jogging outside machine limits [L]"
 msgstr "Permetti movimento temporaneo oltre i limiti macchina [L]"

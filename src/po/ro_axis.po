@@ -681,10 +681,6 @@ msgstr "Activeaza axa [5]"
 msgid "Jog selected axis"
 msgstr "Misca axa selectata"
 
-#: ../tcl/axis.tcl:1640
-msgid "Select jog increment"
-msgstr "Selecteaza increment miscare"
-
 #: ../tcl/axis.tcl:1641
 msgid "Temporarily allow jogging outside machine limits [L]"
 msgstr "Permite temporar miscarea in afara limitelor [L]"

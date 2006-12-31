@@ -688,10 +688,6 @@ msgstr "Aktivera axel [5]"
 msgid "Jog selected axis"
 msgstr ""
 
-#: ../tcl/axis.tcl:1640
-msgid "Select jog increment"
-msgstr ""
-
 #: ../tcl/axis.tcl:1641
 msgid "Temporarily allow jogging outside machine limits [L]"
 msgstr ""

@@ -1013,10 +1013,6 @@ msgstr "Ativa o eixo [5]"
 msgid "Jog selected axis"
 msgstr "Jog no eixo selecionado"
 
-#: ../share/axis/tcl/axis.tcl:1689
-msgid "Select jog increment"
-msgstr "Seleciona incremento de Jog"
-
 #: ../share/axis/tcl/axis.tcl:1690
 msgid "Temporarily allow jogging outside machine limits [L]"
 msgstr "Permite temporariamente Jog além do limite da máquina [L]"

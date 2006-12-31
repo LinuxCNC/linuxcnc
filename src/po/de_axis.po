@@ -49,10 +49,6 @@ msgstr "Fünfte Achse aktivieren"
 msgid "Activate sixth axis"
 msgstr "Sechste Achse aktivieren"
 
-#: ../scripts/axis.py:101
-msgid "Select jog increment"
-msgstr "Schrittweite auswählen"
-
 #: ../scripts/axis.py:102
 msgid "Continuous jog"
 msgstr "Durchgehende Bewegung"
