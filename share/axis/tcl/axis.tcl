@@ -1790,7 +1790,7 @@ DynamicHelp::add $_tabs_manual.axes.axisb -text [_ "Activate axis \[4\]"]
 DynamicHelp::add $_tabs_manual.axes.axisc -text [_ "Activate axis \[5\]"]
 DynamicHelp::add $_tabs_manual.jogf.jog.jogminus -text [_ "Jog selected axis"]
 DynamicHelp::add $_tabs_manual.jogf.jog.jogplus -text [_ "Jog selected axis"]
-DynamicHelp::add $_tabs_manual.jogf.jog.jogincr -text [_ "Select jog ingrement"]
+DynamicHelp::add $_tabs_manual.jogf.jog.jogincr -text [_ "Select jog increment"]
 DynamicHelp::add $_tabs_manual.jogf.override -text [_ "Temporarily allow jogging outside machine limits \[L\]"]
 
 # On at least some versions of Tk (tk8.4 on ubuntu 6.06), this hides files
