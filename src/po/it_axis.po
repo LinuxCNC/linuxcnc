@@ -732,7 +732,7 @@ msgid "Jog selected axis"
 msgstr "Muovi asse selezionato"
 
 #: ../tcl/axis.tcl:1581
-msgid "Select jog ingrement"
+msgid "Select jog increment"
 msgstr "Seleziona incremento Movimento"
 
 #: ../tcl/axis.tcl:1582

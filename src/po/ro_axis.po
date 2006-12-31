@@ -682,7 +682,7 @@ msgid "Jog selected axis"
 msgstr "Misca axa selectata"
 
 #: ../tcl/axis.tcl:1640
-msgid "Select jog ingrement"
+msgid "Select jog increment"
 msgstr "Selecteaza increment miscare"
 
 #: ../tcl/axis.tcl:1641

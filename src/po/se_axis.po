@@ -689,7 +689,7 @@ msgid "Jog selected axis"
 msgstr ""
 
 #: ../tcl/axis.tcl:1640
-msgid "Select jog ingrement"
+msgid "Select jog increment"
 msgstr ""
 
 #: ../tcl/axis.tcl:1641

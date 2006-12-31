@@ -694,7 +694,7 @@ msgid "Jog selected axis"
 msgstr "Lépés a kiválasztott tengelyen"
 
 #: ../tcl/axis.tcl:1640
-msgid "Select jog ingrement"
+msgid "Select jog increment"
 msgstr "Lépés növelés"
 
 #: ../tcl/axis.tcl:1641

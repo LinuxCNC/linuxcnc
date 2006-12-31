@@ -1014,7 +1014,7 @@ msgid "Jog selected axis"
 msgstr "Jog no eixo selecionado"
 
 #: ../share/axis/tcl/axis.tcl:1689
-msgid "Select jog ingrement"
+msgid "Select jog increment"
 msgstr "Seleciona incremento de Jog"
 
 #: ../share/axis/tcl/axis.tcl:1690

@@ -692,7 +692,7 @@ msgid "Jog selected axis"
 msgstr "Aktive Achse verfahren"
 
 #: ../tcl/axis.tcl:1640
-msgid "Select jog ingrement"
+msgid "Select jog increment"
 msgstr "Schrittweite auswählen"
 
 #: ../tcl/axis.tcl:1641
