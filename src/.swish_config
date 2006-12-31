@@ -24,10 +24,12 @@ FileRules pathname contains /db/
 FileRules filename contains \.rbf$
 FileRules filename contains \.sof$
 FileRules filename contains \.pof$
+FileRules filename contains \.qar$
 
 # Binary files created by Xilinx ISE
 FileRules filename contains \.ise
 FileRules filename contains \.vho$
+FileRules filename contains \.bit$
 
 IndexFile .swishindex
 DefaultContents TXT
