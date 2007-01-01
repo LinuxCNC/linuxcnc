@@ -112,7 +112,7 @@ def widget_creator(parent,widget_name,params,level):
 def paramiterator(node):
      " this function returns a list of all parameters for a widget element"
 
-     params = ["size","text","orient","halpin","format","font"]
+     params = ["size","text","orient","halpin","format","font","endval"]
      outparams =[]
      for e in node.childNodes:
           if e.nodeType == e.ELEMENT_NODE and (e.nodeName in params):
@@ -139,10 +139,12 @@ def create_vcp(master, comp = None):
     print pycomp
     read_file()
     updater()
+    return comp
     
 if __name__ == '__main__':
     pyvcp0 = Tk()
     create_vcp(pyvcp0)
+    pycomp.ready()
     pyvcp0.mainloop()
 
 
