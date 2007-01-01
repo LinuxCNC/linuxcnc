@@ -24,7 +24,7 @@ from pyvcp import *
 from hal import *; import time
 
 
-filename="testfile.xml"
+filename="pyvcp_demo.xml"
 
 
 
