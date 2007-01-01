@@ -67,13 +67,14 @@ linksp spindle-pos => motion.spindle-revs
 
 # for spindle velocity estimate
 loadrt lowpass count=1
-newsig spindle-rpm-raw float
-newsig spindle-rpm-filtered float
-linksp spindle-rpm-raw encoder.0.velocity
-linksp spindle-rpm-raw lowpass.0.in
-linksp spindle-rpm-filtered lowpass.0.out
-setp lowpass.0.gain .03
+loadrt scale count=1
+net spindle-rps-raw encoder.0.velocity lowpass.0.in
+net spindle-rps-filtered lowpass.0.out scale.0.in
+net spindle-rpm-filtered scale.0.out
+setp scale.0.gain 60
+setp lowpass.0.gain .07
 addf lowpass.0 servo-thread
+addf scale.0 servo-thread
 
 newsig spindle-fwd bit
 linksp spindle-fwd <= motion.spindle-forward
