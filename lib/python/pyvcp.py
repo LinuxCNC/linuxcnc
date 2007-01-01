@@ -50,16 +50,23 @@ class pyvcp_hbox(Frame):
 
 class pyvcp_number(Label):
      " (indicator) shows a float as text "
-     def __init__(self,master,pycomp,halpin="text",format="2.1f",**kw):
+     def __init__(self,master,pycomp,halpin="number",format="2.1f",**kw):
           self.v = StringVar()
           self.format=format
           Label.__init__(self,master,textvariable=self.v,**kw)
           self.halpin=halpin
+          self.value=0.0
+          dummy = "%(b)"+self.format
+          self.v.set( str( dummy  % {'b':self.value} ) )
+          #self.update(pycomp)
           pycomp.newpin(halpin, HAL_FLOAT, HAL_IN)
 
      def update(self,pycomp):    
-          dummy = "%(b)"+self.format
-          self.v.set( str( dummy  % {'b':pycomp[self.halpin]} ) )
+          newvalue = pycomp[self.halpin]
+          if newvalue != self.value:
+               self.value=newvalue
+               dummy = "%(b)"+self.format
+               self.v.set( str( dummy  % {'b':newvalue} ) )
 
   
 
