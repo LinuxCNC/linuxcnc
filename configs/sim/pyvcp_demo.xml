@@ -1,0 +1,195 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<pyvcp>
+  <vbox>
+
+     <label><text>"Meet the widgets:"</text></label>
+     <hbox>
+          <vbox>
+               <hbox>
+                    <label><text>"A LED indicates a HAL_BIT:"</text></label>
+                    <led>
+                         <halpin>"led-sample"</halpin>
+                         <size>20</size>
+                    </led>
+               </hbox>
+               <hbox>
+                    <label><text>"A Button controls a HAL_BIT..."</text></label>
+                      <button>  
+                            <text>"Button"</text>
+                            <halpin>"button-sample"</halpin>
+                      </button>
+               </hbox>
+                 <hbox>
+                    <label><text>"and so does a checkbox"</text></label>
+                      <checkbutton>  
+                            
+                            <halpin>"chbutton-sample"</halpin>
+                      </checkbutton>
+               </hbox>
+          </vbox>
+          <vbox>
+               <hbox>
+                    <label><text>"A Scale controls a HAL_FLOAT..."</text></label>
+                    <scale>
+                         <orient>HORIZONTAL</orient>
+                         <halpin>"scale-sample"</halpin>
+                    </scale>
+               </hbox>
+               <hbox>
+                    <label><text>"which can be indicated with a Bar..."</text></label>
+                       <bar>
+                              <halpin>"bar-sample"</halpin>
+                         </bar>
+               </hbox>
+               <hbox>
+                    <label><text>"or a Number"</text></label>
+                       <number>
+                              <halpin>"number-sample"</halpin>
+                              <format>"+004.4f"</format>
+                         </number>
+               </hbox>
+          </vbox>
+     </hbox>
+
+     <label><text>"This is a hbox. Widgets are packed horizontally:"</text></label>
+  <hbox>
+           <button>  
+               <text>"Button1"</text>
+           </button>
+
+            <led>
+                    <halpin>"led1"</halpin>
+                    <size>20</size>
+            </led>
+
+            <scale>
+                    <orient>HORIZONTAL</orient>
+            </scale>
+
+          <checkbutton>
+          </checkbutton>
+          <bar>
+               <halpin>"bar2"</halpin>
+          </bar>
+            <led>
+                    <halpin>"led2"</halpin>
+                    <size>20</size>
+            </led>
+            <led>
+                    <halpin>"led3"</halpin>
+                    <size>30</size>
+            </led>
+            <led>
+                    <halpin>"led4"</halpin>
+                    <size>40</size>
+            </led>
+            <led>
+                    <halpin>"led5"</halpin>
+                    <size>50</size>
+            </led>
+   </hbox>
+     
+     <label><text>"These are a vboxes within a hbox. This demonstrates box nesting and vertical packing:"</text></label>
+  
+  <hbox>
+     <vbox>
+           <button>  
+               <text>"Button2"</text>
+               <halpin>"b2"</halpin>
+           </button>
+
+            <led>
+                    <size>20</size>
+                    <halpin>"led22"</halpin>
+            </led>
+
+            <scale>
+                    <orient>VERTICAL</orient>
+                    <halpin>"scale2"</halpin>
+            </scale>
+
+          <checkbutton>
+                    <halpin>"scale2"</halpin>
+          </checkbutton>
+
+     </vbox>
+
+
+    <vbox>    
+          <checkbutton>
+                    <halpin>"scale22"</halpin>
+          </checkbutton>
+
+           <button>  
+               <text>"Button2"</text>
+               <halpin>"b5"</halpin>
+           </button>
+
+        
+
+            <scale>
+                    <orient>VERTICAL</orient>
+                    <halpin>"scale22"</halpin>
+            </scale>
+          <led>
+                    <size>20</size>
+                    <halpin>"led222"</halpin>
+            </led>
+      
+          <button>  
+               <text>"Button3"</text>
+               <halpin>"b53"</halpin>
+           </button>
+          <button>  
+               <text>"Button4"</text>
+               <halpin>"b54"</halpin>
+           </button>
+          <button>  
+               <text>"Button5"</text>
+               <halpin>"b55"</halpin>
+           </button>
+     </vbox>
+
+     <vbox>
+          <number>
+               <format>"+4.3f"</format>
+               <font>('Helvetica',40)</font>
+               <halpin>"nr1"</halpin>
+          </number>
+          <number>
+               <format>"+4.3f"</format>
+               <font>('Helvetica',40)</font>
+               <halpin>"nr2"</halpin>
+          </number>
+          <number>
+               <format>"+4.3f"</format>
+               <font>('Helvetica',40)</font>
+               <halpin>"nr3"</halpin>
+          </number>
+                    <number>
+               <format>"+4.3f"</format>
+               <font>('Helvetica',40)</font>
+               <halpin>"nr4"</halpin>
+          </number>
+      </vbox>  
+     
+     <vbox>
+            <bar>
+                    <halpin>"bar22"</halpin>
+               </bar>
+            <bar>
+                    <halpin>"bar3"</halpin>
+               </bar>
+            <bar>
+                    <halpin>"bar4"</halpin>
+               </bar>
+            <bar>
+                    <halpin>"bar5"</halpin>
+               </bar>
+     </vbox>
+   </hbox>
+
+<!-- this is a comment-->
+
+</vbox>
+</pyvcp>
