@@ -33,18 +33,18 @@ def read_file():
      # find the pydoc element
      for e in doc.childNodes:
           if e.nodeType == e.ELEMENT_NODE and e.localName == "pyvcp":
-               print "found pyvcp element"
+               #print "found pyvcp element"
                break
      if e.localName != "pyvcp":
           print "Error: no pyvcp element in file!"
      pyvcproot=e
-     print "PYVCP contains:"
+     #print "PYVCP contains:"
      level=0
      nodeiterator(pyvcproot,pyvcp0,level)          
      #for e in pyvcproot.childNodes:
 
-     print "-------------------------"
-     print "file read"
+     #print "-------------------------"
+     #print "file read"
      # print doc.childNodes
      # pass
 
@@ -78,7 +78,7 @@ def widget_creator(parent,widget_name,params,level):
      w_command=w_command+")"
      
      # this prints the statement generated above, 
-     print str(widgethandle) + " = " + w_command
+     #print str(widgethandle) + " = " + w_command
      # and evaluated here:
      locals()[widgethandle] = eval(w_command)
 
@@ -95,7 +95,7 @@ def widget_creator(parent,widget_name,params,level):
                pack_command = widgethandle +".pack(side='left',fill=Y)"
                
           
-     print pack_command
+     #print pack_command
      eval(pack_command)
 
      # add the widget to a global list widgets
@@ -136,8 +136,10 @@ def create_vcp(master, comp = None):
     pyvcp0 = master
     if comp is None: comp = component("pyvcp")
     pycomp = comp
-    print pycomp
+    #print pycomp
+    print "Creating pyVCP widgets...",
     read_file()
+    print "Done."
     updater()
     return comp
     
