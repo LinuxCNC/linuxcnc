@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<pyvcp>
+ <vbox>
+    <label><text>"Spindle speed:"</text></label>
+    <!--<number><width>10</width><format>" 5.0f"</format><halpin>"spindle-speed"</halpin></number>-->
+    <bar><halpin>"spindle-speed"</halpin><endval>5000</endval></bar>
+ </vbox>
+</pyvcp>
