@@ -232,13 +232,23 @@ class pyvcp_scale(Scale):
      " halpin-i is integer output "
      " halpin-f is float output "
      
-     def __init__(self,master,pycomp,halpin="scale",**kw):
+     def __init__(self,master,pycomp,
+                    resolution=1,halpin="scale",**kw):
           Scale.__init__(self,master,**kw)
           self.halpin=halpin
-          #self.h = component(halpin)
+          self.resolution=resolution
           pycomp.newpin(halpin+"-i", HAL_S32, HAL_OUT)
           pycomp.newpin(halpin+"-f", HAL_FLOAT, HAL_OUT)
+          self.bind('<Button-4>',self.wheel_up)
+          self.bind('<Button-5>',self.wheel_down)
 
      def update(self,pycomp):
           pycomp[self.halpin+"-f"]=self.get()
           pycomp[self.halpin+"-i"]=int(self.get())
+
+     def wheel_up(self,event):
+          self.set(self.get()+self.resolution)
+
+     def wheel_down(self,event):
+          self.set(self.get()-self.resolution)
+
