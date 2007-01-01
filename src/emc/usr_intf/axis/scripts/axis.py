@@ -2719,6 +2719,9 @@ if len(sys.argv) > 1 and sys.argv[1] == '-ini':
     if increments:
         root_window.call(widgets.jogspeed._w, "list", "delete", "1", "end")
         root_window.call(widgets.jogspeed._w, "list", "insert", "end", *increments.split())
+
+    vcp = inifile.find("DISPLAY", "PYVCP")
+
     del sys.argv[1:3]
 else:
     widgets.menu_machine.entryconfigure(_("Show EMC Status"), state="disabled")
@@ -2790,6 +2793,14 @@ comp.newpin("jog.z", hal.HAL_BIT, hal.HAL_OUT)
 comp.newpin("jog.a", hal.HAL_BIT, hal.HAL_OUT)
 comp.newpin("jog.b", hal.HAL_BIT, hal.HAL_OUT)
 comp.newpin("jog.c", hal.HAL_BIT, hal.HAL_OUT)
+
+if vcp:
+    import vcpparse
+    f = Tkinter.Frame(root_window)
+    f.grid(row=0, column=4, rowspan=6, sticky="nw", padx=4, pady=4)
+    vcpparse.filename = vcp
+    vcpparse.create_vcp(f, comp)
+
 comp.ready()
 
 activate_axis(0, True)
