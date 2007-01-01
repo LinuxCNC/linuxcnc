@@ -87,9 +87,10 @@ class pyvcp_bar(Canvas):
           self.itemconfig(border,fill=bgcolor)
 
           # the bar
-          self.bar=self.create_rectangle(self.pad+1,2,self.pad+self.bw,self.bh-1)
+          self.bar=self.create_rectangle(self.pad+1,2,self.pad+1,self.bh-1)
           self.itemconfig(self.bar,fill=fillcolor)
           self.value=0.0 # some dummy value to start with     
+          
 
           # start text
           start_text=self.create_text(self.pad,self.bh+10,text=str(startval) )
@@ -102,18 +103,19 @@ class pyvcp_bar(Canvas):
           
      def update(self,pycomp):
           # update value
-          self.value=pycomp[self.halpin]
-          percent=self.value/(self.endval-self.startval)
-          if percent < 0.0:
-               percent = 0
-          elif percent > 1.0:
-               percent = 1.0
-               
-          # set value text
-          valtext = str( "%(b)3.1f" % {'b':self.value} )
-          self.itemconfig(self.val_text,text=valtext)
-          # set bar size
-          self.coords(self.bar, self.pad+1, 2, self.pad+self.bw*percent, self.bh-1)
+          newvalue=pycomp[self.halpin]
+          if newvalue != self.value:
+               self.value = newvalue
+               percent = self.value/(self.endval-self.startval)
+               if percent < 0.0:
+                    percent = 0
+               elif percent > 1.0:
+                    percent = 1.0  
+               # set value text
+               valtext = str( "%(b)3.1f" % {'b':self.value} )
+               self.itemconfig(self.val_text,text=valtext)
+               # set bar size
+               self.coords(self.bar, self.pad+1, 2, self.pad+self.bw*percent, self.bh-1)
 
 
 
