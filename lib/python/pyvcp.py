@@ -135,15 +135,20 @@ class pyvcp_led(Canvas):
           self.off_color=off_color
           self.on_color=on_color
           self.oh=self.create_oval(1,1,size,size)
+          self.state=0
           self.itemconfig(self.oh,fill=off_color)
           self.halpin=halpin
           pycomp.newpin(halpin, HAL_BIT, HAL_IN)
 
      def update(self,pycomp):
-          if pycomp[self.halpin] == 1:
-              self.itemconfig(self.oh,fill=self.on_color)
-          else:
-              self.itemconfig(self.oh,fill=self.off_color) 
+          newstate = pycomp[self.halpin]
+          if newstate != self.state:
+               if newstate == 1:
+                    self.itemconfig(self.oh,fill=self.on_color)
+                    self.state=1
+               else:
+                    self.itemconfig(self.oh,fill=self.off_color) 
+                    self.state=0
 
 
 
