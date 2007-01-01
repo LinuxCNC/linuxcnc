@@ -1,0 +1,30 @@
+loadrt threads name1=fast period1=100000
+loadrt flipflop
+
+loadrt sampler depth=1000 cfg=b
+loadrt streamer depth=32 cfg=bbbb
+
+newsig a bit
+newsig b bit
+newsig c bit
+newsig d bit
+
+linkps streamer.0.pin.0 a
+linkps streamer.0.pin.1 b
+linkps streamer.0.pin.2 c
+linkps streamer.0.pin.3 d
+
+linksp a flipflop.0.data
+linksp b flipflop.0.clk
+linksp c flipflop.0.reset
+linksp d flipflop.0.set
+
+linkpp flipflop.0.out sampler.0.pin.0
+
+addf streamer.0 fast
+addf flipflop.0 fast
+addf sampler.0 fast
+
+loadusr -w sh runstreamer
+start
+loadusr -w halsampler -n 10

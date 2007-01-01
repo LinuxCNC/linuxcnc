@@ -33,6 +33,10 @@ The directories named on the commandline are searched recursively for
 'test.hal' files, and a directory with such a file is assumed to contain a
 regression test or a functional test.
 
+Tests may contain files other than the ones specified below.  For instance,
+when using 'streamer' data as test input, a shell script with
+"halstreamer<<EOF" and a "here document" will generally be present.
+(see and-or-not-mux.0/runstreamer for an example)
 
 Regression Tests
 ~~~~~~~~~~~~~~~~
@@ -46,8 +50,8 @@ A regression test should consist of these three files:
 			halrun -f test.hal
 
 A typical regression test will load several components, usually including
-'threads' and 'sample', then collect samples from some number of calls
-to the realtime thread, then exit.
+'threads' and 'sampler', and often including 'streamer', then collect samples
+from some number of calls to the realtime thread, then exit.
 
 Regression test "test.hal" files will almost always include the line
 	setexact_for_test_suite_only
