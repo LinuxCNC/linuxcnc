@@ -21,12 +21,18 @@ from Tkinter import *
 from hal import *
 
 
+# -------------------------------------------
+
 class pyvcp_label(Label):
      " a static text label "
      def __init__(self,master,pycomp,**kw):
           Label.__init__(self,master,**kw)
      def update(self,pycomp):
           pass
+
+
+# -------------------------------------------
+
 
 class pyvcp_vbox(Frame):
      " a box in which widgets are packed vertically"
@@ -37,6 +43,7 @@ class pyvcp_vbox(Frame):
      def packtype(self):
           return "top"
 
+# -------------------------------------------
 
 class pyvcp_hbox(Frame):
      " a box in which widgets are packed horizontally"
@@ -47,6 +54,46 @@ class pyvcp_hbox(Frame):
      def packtype(self):
           return "left"
 
+
+# -------------------------------------------
+
+
+class pyvcp_jognumber(Label):
+     " (control) controls a float, also shown as text "
+     " reacts to the mouse wheel "
+     def __init__(self,master,pycomp,halpin="jognumber",
+                    min_=0,max_=100,resolution=1,format="2.1f",**kw):
+          self.v = StringVar()
+          Label.__init__(self,master,textvariable=self.v,**kw)
+          self.halpin=halpin
+          self.value=min_
+          self.format = "%(b)"+format
+          self.max_=max_
+          self.min_=min_
+          self.resolution=resolution
+          self.v.set( str( self.format  % {'b':self.value} ) )
+          pycomp.newpin(halpin, HAL_FLOAT, HAL_OUT)
+          self.bind('<Button-4>',self.wheel_up)
+          self.bind('<Button-5>',self.wheel_down)
+
+     def update(self,pycomp):  
+          pycomp[self.halpin] = self.value 
+          self.v.set( str( self.format  % {'b':self.value} ) ) 
+          
+     def wheel_up(self,event):
+          self.value += self.resolution
+          if self.value > self.max_:
+               self.value = self.max_
+          print self.value
+     
+     def wheel_down(self,event):
+          self.value -= self.resolution
+          if self.value < self.min_:
+               self.value = self.min_
+          print self.value
+
+
+# -------------------------------------------
 
 class pyvcp_number(Label):
      " (indicator) shows a float as text "
