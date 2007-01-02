@@ -67,6 +67,7 @@ class pyvcp_jognumber(Label):
           Label.__init__(self,master,textvariable=self.v,**kw)
           self.halpin=halpin
           self.value=min_
+          self.oldvalue=min_
           self.format = "%(b)"+format
           self.max_=max_
           self.min_=min_
@@ -78,7 +79,9 @@ class pyvcp_jognumber(Label):
 
      def update(self,pycomp):  
           pycomp[self.halpin] = self.value 
-          self.v.set( str( self.format  % {'b':self.value} ) ) 
+          if self.value != self.oldvalue:
+               self.v.set( str( self.format  % {'b':self.value} ) ) 
+               self.oldvalue=self.value
           
      def wheel_up(self,event):
           self.value += self.resolution
