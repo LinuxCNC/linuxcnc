@@ -84,13 +84,13 @@ class pyvcp_jognumber(Label):
           self.value += self.resolution
           if self.value > self.max_:
                self.value = self.max_
-          print self.value
+          
      
      def wheel_down(self,event):
           self.value -= self.resolution
           if self.value < self.min_:
                self.value = self.min_
-          print self.value
+          
 
 
 # -------------------------------------------
