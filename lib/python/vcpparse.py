@@ -38,21 +38,15 @@ def read_file():
      if e.localName != "pyvcp":
           print "Error: no pyvcp element in file!"
      pyvcproot=e
-     #print "PYVCP contains:"
      level=0
      nodeiterator(pyvcproot,pyvcp0,level)          
-     #for e in pyvcproot.childNodes:
 
-     #print "-------------------------"
-     #print "file read"
-     # print doc.childNodes
-     # pass
 
 
 num=0
 def nodeiterator(node,widgetparent,level):
      els =["led","vbox","hbox","vbox"
-          ,"button","scale","checkbutton","bar","label","number"]
+          ,"button","scale","checkbutton","bar","label","number","jognumber"]
      global num
      num+=1
      params=[]
@@ -112,7 +106,7 @@ def widget_creator(parent,widget_name,params,level):
 def paramiterator(node):
      " this function returns a list of all parameters for a widget element"
 
-     params = ["size","text","orient","halpin","format","font","endval"]
+     params = ["size","text","orient","halpin","format","font","endval","min_","max_"]
      outparams =[]
      for e in node.childNodes:
           if e.nodeType == e.ELEMENT_NODE and (e.nodeName in params):
