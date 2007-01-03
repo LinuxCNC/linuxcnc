@@ -34,8 +34,8 @@ def main():
     pyvcp0 = Tk()
     vcpparse.filename=filename
     pycomp=vcpparse.create_vcp(pyvcp0)
-    pyvcp0.mainloop()
     pycomp.ready()
+    pyvcp0.mainloop()
 
 
 main()
