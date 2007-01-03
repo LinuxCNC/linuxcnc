@@ -401,7 +401,24 @@ static int pyhal_len(halobject *self) {
     return self->items->size();
 }
 
+static PyObject *pyhal_set_prefix(halobject *self, PyObject *args) {
+    char *newprefix;
+    if(!PyArg_ParseTuple(args, "s", &newprefix)) return NULL;
+
+    if(self->prefix)
+        free(self->prefix);
+    self->prefix = strdup(newprefix);
+
+    if(!self->prefix) {
+        PyErr_SetString(PyExc_MemoryError, "strdup(prefix) failed");
+    }
+
+    Py_RETURN_NONE;
+}
+
 static PyMethodDef hal_methods[] = {
+    {"setprefix", (PyCFunction)pyhal_set_prefix, METH_VARARGS,
+        "Set the prefix for newly created pins and parameters"},
     {"newparam", (PyCFunction)pyhal_new_param, METH_VARARGS,
         "Create a new parameter"},
     {"newpin", (PyCFunction)pyhal_new_pin, METH_VARARGS,
