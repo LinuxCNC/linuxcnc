@@ -24,22 +24,27 @@ from pyvcp import *
 from hal import *; import time
 
 
-filename="pyvcp_demo.xml"
+global filename
 
 
 
 def read_file():
-     doc = xml.dom.minidom.parse(filename) 
-     # find the pydoc element
-     for e in doc.childNodes:
-          if e.nodeType == e.ELEMENT_NODE and e.localName == "pyvcp":
-               #print "found pyvcp element"
-               break
-     if e.localName != "pyvcp":
-          print "Error: no pyvcp element in file!"
-     pyvcproot=e
-     level=0
-     nodeiterator(pyvcproot,pyvcp0,level)          
+    try:
+        doc = xml.dom.minidom.parse(filename) 
+    except:
+        print "Error: could not open",filename
+        sys.exit()
+    
+    # find the pydoc element
+    for e in doc.childNodes:
+        if e.nodeType == e.ELEMENT_NODE and e.localName == "pyvcp":
+            #print "found pyvcp element"
+            break
+    if e.localName != "pyvcp":
+        print "Error: no pyvcp element in file!"
+    pyvcproot=e
+    level=0
+    nodeiterator(pyvcproot,pyvcp0,level)          
 
 
 
@@ -131,13 +136,20 @@ def create_vcp(master, comp = None):
     if comp is None: comp = component("pyvcp")
     pycomp = comp
     #print pycomp
-    print "Creating pyVCP widgets...",
+    print "Creating pyVCP widgets from",filename,"...",
     read_file()
     print "Done."
     updater()
     return comp
     
 if __name__ == '__main__':
+    global filename
+    try:
+        filename=sys.argv[1]
+    except:
+        print "No XML file specified. Exiting."
+        sys.exit()
+
     pyvcp0 = Tk()
     create_vcp(pyvcp0)
     pycomp.ready()
