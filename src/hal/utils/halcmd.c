@@ -2895,11 +2895,16 @@ static void save_nets(FILE *dst, int arrow)
 
     fprintf(dst, "# nets\n");
     rtapi_mutex_get(&(hal_data->mutex));
-    next = hal_data->sig_list_ptr;
-    while (next != 0) {
+    
+    for (next = hal_data->sig_list_ptr; next != 0; next = sig->next_ptr) {
 	sig = SHMPTR(next);
         if(arrow == 3) {
             int state = 0, first = 1;
+
+            /* If there are no pins connected to this signal, do nothing */
+            pin = halpr_find_pin_by_sig(sig, 0);
+            if(!pin) continue;
+
             fprintf(dst, "net %s", sig->name);
 
             /* Step 1: Output pin, if any */
@@ -2934,6 +2939,10 @@ static void save_nets(FILE *dst, int arrow)
 
             fprintf(dst, "\n");
         } else if(arrow == 2) {
+            /* If there are no pins connected to this signal, do nothing */
+            pin = halpr_find_pin_by_sig(sig, 0);
+            if(!pin) continue;
+
             fprintf(dst, "net %s", sig->name);
             pin = halpr_find_pin_by_sig(sig, 0);
             while (pin != 0) {
@@ -2956,7 +2965,6 @@ static void save_nets(FILE *dst, int arrow)
                 pin = halpr_find_pin_by_sig(sig, pin);
             }
         }
-	next = sig->next_ptr;
     }
     rtapi_mutex_give(&(hal_data->mutex));
 }
