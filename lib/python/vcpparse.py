@@ -51,7 +51,7 @@ def read_file():
 num=0
 def nodeiterator(node,widgetparent,level):
      els =["led","vbox","hbox","vbox"
-          ,"button","scale","checkbutton","bar","label","number","jognumber"]
+          ,"button","scale","checkbutton","bar","label","number","spinbox"]
      global num
      num+=1
      params=[]

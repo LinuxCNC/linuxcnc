@@ -37,7 +37,7 @@ class pyvcp_label(Label):
 class pyvcp_vbox(Frame):
      " a box in which widgets are packed vertically"
      def __init__(self,master,pycomp):
-          Frame.__init__(self,master,bd=2,relief=GROOVE)
+          Frame.__init__(self,master,bd=0,relief=FLAT)
      def update(self,pycomp): 
           pass
      def packtype(self):
@@ -48,7 +48,7 @@ class pyvcp_vbox(Frame):
 class pyvcp_hbox(Frame):
      " a box in which widgets are packed horizontally"
      def __init__(self,master,pycomp):
-          Frame.__init__(self,master,bd=2,relief=GROOVE)
+          Frame.__init__(self,master,bd=0,relief=FLAT)
      def update(self,pycomp): 
           pass
      def packtype(self):
@@ -58,13 +58,18 @@ class pyvcp_hbox(Frame):
 # -------------------------------------------
 
 
-class pyvcp_jognumber(Label):
+class pyvcp_spinbox(Spinbox):
      " (control) controls a float, also shown as text "
      " reacts to the mouse wheel "
-     def __init__(self,master,pycomp,halpin="jognumber",
+     def __init__(self,master,pycomp,halpin="spinbox",
                     min_=0,max_=100,resolution=1,format="2.1f",**kw):
-          self.v = StringVar()
-          Label.__init__(self,master,textvariable=self.v,**kw)
+          self.v = DoubleVar()
+          if 'increment' not in kw: kw['increment'] = resolution
+          if 'from' not in kw: kw['from'] = min_
+          if 'to' not in kw: kw['to'] = max_
+          if 'format' not in kw: kw['format'] = "%" + format
+          kw['command'] = self.command
+          Spinbox.__init__(self,master,textvariable=self.v,**kw)
           self.halpin=halpin
           self.value=min_
           self.oldvalue=min_
@@ -76,6 +81,9 @@ class pyvcp_jognumber(Label):
           pycomp.newpin(halpin, HAL_FLOAT, HAL_OUT)
           self.bind('<Button-4>',self.wheel_up)
           self.bind('<Button-5>',self.wheel_down)
+
+     def command(self):
+          self.value = self.v.get()
 
      def update(self,pycomp):  
           pycomp[self.halpin] = self.value 

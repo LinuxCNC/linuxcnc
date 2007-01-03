@@ -63,9 +63,9 @@
                </hbox>
                <hbox>
                          <label><text>"Jognumber:"</text></label>
-                          <jognumber>
+                          <spinbox>
                               <font>('Helvetica',40)</font>
-                         </jognumber>
+                         </spinbox>
                </hbox>
      </vbox>
 
