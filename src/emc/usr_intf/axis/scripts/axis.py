@@ -2796,6 +2796,7 @@ comp.newpin("jog.c", hal.HAL_BIT, hal.HAL_OUT)
 
 if vcp:
     import vcpparse
+    comp.setprefix("pyvcp")
     f = Tkinter.Frame(root_window)
     f.grid(row=0, column=4, rowspan=6, sticky="nw", padx=4, pady=4)
     vcpparse.filename = vcp
