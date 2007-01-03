@@ -62,7 +62,7 @@
                     </scale>
                </hbox>
                <hbox>
-                         <label><text>"Jognumber:"</text></label>
+                         <label><text>"Spinbox:"</text></label>
                           <spinbox>
                               <font>('Helvetica',40)</font>
                          </spinbox>
