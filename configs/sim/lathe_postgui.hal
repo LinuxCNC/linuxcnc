@@ -1,1 +1,1 @@
-linksp spindle-rpm-filtered  axisui.spindle-speed
+linksp spindle-rpm-filtered  pyvcp.spindle-speed
