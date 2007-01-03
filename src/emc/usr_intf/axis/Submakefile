@@ -21,7 +21,7 @@ $(call TOOBJSDEPS, $(EMCMODULESRCS)) : Makefile.inc
 
 $(EMCMODULE): $(call TOOBJS, $(EMCMODULESRCS)) ../lib/libemc.a ../lib/libnml.so
 	$(ECHO) Linking python module $(notdir $@)
-	@$(CXX) $(LDFLAGS) -shared -o $@ $^ -L/usr/X11R6/lib -lemc -lnml -lm -lGL
+	@$(CXX) $(LDFLAGS) -shared -o $@ $^ -L/usr/X11R6/lib -lm -lGL
 
 
 $(MINIGLMODULE): $(call TOOBJS, $(MINIGLMODULESRCS))
