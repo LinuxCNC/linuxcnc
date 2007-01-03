@@ -1657,6 +1657,7 @@ static void do_homing(void)
 		SET_JOINT_AT_HOME_FLAG(joint, 0);
 		joint->free_tp_enable = 0;
 		joint->home_state = HOME_IDLE;
+		joint->index_enable = 0;
 		immediate_state = 1;
 		break;
 
