@@ -661,7 +661,10 @@ static int pins_and_params(char *argv[])
 	port_data_array[n].base_addr = port_addr[n];
 	port_data_array[n].data_dir = data_dir[n];
 	port_data_array[n].use_control_in = use_control_in[n];
-
+	/* set data port (pins 2-9) direction to "in" if needed */
+	if (data_dir[n]) {
+	    rtapi_outb(rtapi_inb(port_addr[n]+2) | 0x20, port_addr[n]+2);
+	}
 	/* export all vars */
 	retval = export_port(n, &(port_data_array[n]));
 	if (retval != 0) {
