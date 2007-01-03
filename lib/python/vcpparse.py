@@ -20,15 +20,13 @@ import xml.dom.ext
 from Tkinter import *
 import sys, os
 import emc
-from pyvcp import *
+from pyvcp_widgets import *
 from hal import *; import time
-
 
 global filename
 
-
-
 def read_file():
+    
     try:
         doc = xml.dom.minidom.parse(filename) 
     except:
@@ -38,13 +36,15 @@ def read_file():
     # find the pydoc element
     for e in doc.childNodes:
         if e.nodeType == e.ELEMENT_NODE and e.localName == "pyvcp":
-            #print "found pyvcp element"
             break
+
     if e.localName != "pyvcp":
         print "Error: no pyvcp element in file!"
+        sys.exit()
     pyvcproot=e
     level=0
-    nodeiterator(pyvcproot,pyvcp0,level)          
+    nodeiterator(pyvcproot,pyvcp0,level) 
+    print "Done."         
 
 
 
@@ -135,23 +135,17 @@ def create_vcp(master, comp = None):
     pyvcp0 = master
     if comp is None: comp = component("pyvcp")
     pycomp = comp
+    print "pyVCP:",
     read_file()
+    
     updater()
     return comp
     
 if __name__ == '__main__':
-    global filename
-    print "pyVCP:", 
-    try:
-        filename=sys.argv[1]
-    except:
-        print "Error: No XML file specified!"
-        sys.exit()
+    print "You can't run vcpparse.py by itself..."
 
-    pyvcp0 = Tk()
-    create_vcp(pyvcp0)
-    pycomp.ready()
-    print "Done."
-    pyvcp0.mainloop()
+    
+    
+
 
 
