@@ -32,9 +32,9 @@ def read_file():
     try:
         doc = xml.dom.minidom.parse(filename) 
     except:
-        print "Error: could not open",filename
+        print "Error: could not open",filename,"!"
         sys.exit()
-    
+    print "Creating widgets from",filename,"...",
     # find the pydoc element
     for e in doc.childNodes:
         if e.nodeType == e.ELEMENT_NODE and e.localName == "pyvcp":
@@ -135,24 +135,23 @@ def create_vcp(master, comp = None):
     pyvcp0 = master
     if comp is None: comp = component("pyvcp")
     pycomp = comp
-    #print pycomp
-    print "Creating pyVCP widgets from",filename,"...",
     read_file()
-    print "Done."
     updater()
     return comp
     
 if __name__ == '__main__':
     global filename
+    print "pyVCP:", 
     try:
         filename=sys.argv[1]
     except:
-        print "No XML file specified. Exiting."
+        print "Error: No XML file specified!"
         sys.exit()
 
     pyvcp0 = Tk()
     create_vcp(pyvcp0)
     pycomp.ready()
+    print "Done."
     pyvcp0.mainloop()
 
 
