@@ -23,18 +23,58 @@ sys.path.insert(0, os.path.join(BASE, "lib", "python"))
 import vcpparse
 import hal
 from Tkinter import Tk
+import getopt
+
+def usage():
+    print "Usage: pyvcp -c hal_component_name myfile.xml"
 
 def main():
- 
     try:
-        filename=sys.argv[1]
+        opts, args = getopt.getopt(sys.argv[1:], "c:")
+    except getopt.GetoptError, detail:
+        print detail
+        usage()
+        sys.exit(1)
+
+    
+    #try:
+    #    opts, args = getopt.getopt(sys.argv[1:], "c:")
+    #except getopt.GetoptError:
+    #    print "usage: pyvcp -c hal_component_name myfile.xml"
+    #    sys.exit(0)
+
+    #print opts
+    #print args
+    component_name = None
+    for o, a in opts: 
+        if o == "-c": 
+            component_name = a
+       
+            
+
+    if component_name is None:
+        usage()
+        sys.exit(1)
+
+    
+    try:
+        filename=args[0]
     except:
-        print "Error: No XML file specified!"
-        sys.exit()
+        usage()
+        sys.exit(1)
+
+    #try:
+    #    filename=sys.argv[1]
+    #except:
+    #    print "Error: No XML file specified!"
+    #    sys.exit()
+
     pyvcp0 = Tk()
+    pyvcp0.title(component_name)
     vcpparse.filename=filename
-    pycomp=vcpparse.create_vcp(pyvcp0)
+    pycomp=vcpparse.create_vcp(compname=component_name, master=pyvcp0)
     pycomp.ready()
+
     try: 
         pyvcp0.mainloop()
     except KeyboardInterrupt:
