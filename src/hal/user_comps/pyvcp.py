@@ -35,7 +35,10 @@ def main():
     vcpparse.filename=filename
     pycomp=vcpparse.create_vcp(pyvcp0)
     pycomp.ready()
-    pyvcp0.mainloop()
+    try: 
+        pyvcp0.mainloop()
+    except KeyboardInterrupt:
+        sys.exit(0)
 
 
 main()
