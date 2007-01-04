@@ -133,7 +133,13 @@ widgets=[];
 def create_vcp(master, comp = None):
     global pyvcp0, pycomp
     pyvcp0 = master
-    if comp is None: comp = component("pyvcp")
+    if comp is None:
+        try: 
+            comp = component("pyvcp")
+        except:
+            print "Error: Only one running pyVCP allowed."
+            sys.exit(0)
+
     pycomp = comp
     print "pyVCP:",
     read_file()
