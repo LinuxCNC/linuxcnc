@@ -14,8 +14,14 @@ if ! type -path readlink > /dev/null 2>& 1; then
     }
 fi
 
+RUN_IN_PLACE=@RUN_IN_PLACE@
+if [ $RUN_IN_PLACE = yes ]; then
+    # When using RIP make sure PATH includes the directory where rtapi_app
+    # resides
+    PATH=@EMC2_HOME@/bin:$PATH; export PATH
+fi
+
 CheckConfig(){
-    RUN_IN_PLACE=@RUN_IN_PLACE@
     prefix=@prefix@
     exec_prefix=@exec_prefix@
     sysconfdir=@sysconfdir@
