@@ -128,14 +128,15 @@ def updater():
           a.update(pycomp)
      pyvcp0.after(100,updater)
 
+
 widgets=[];
 
-def create_vcp(master, comp = None):
+def create_vcp(master, comp = None, compname="pyvcp"):
     global pyvcp0, pycomp
     pyvcp0 = master
     if comp is None:
         try: 
-            comp = component("pyvcp")
+            comp = component(compname)
         except:
             print "Error: Only one running pyVCP allowed."
             sys.exit(0)
