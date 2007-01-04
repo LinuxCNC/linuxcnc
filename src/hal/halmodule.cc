@@ -511,10 +511,36 @@ PyMethodDef module_methods[] = {
     {NULL},
 };
 
+char *module_doc = "Interface to emc2's hal\n"
+"\n"
+"This module allows the creation of userspace HAL components in Python.\n"
+"This includes pins and parameters of the various HAL types.\n"
+"\n"
+"Typical usage:\n"
+"\n"
+"import hal, time\n"
+"h = hal.component(\"component-name\")\n"
+"# create pins and parameters with calls to h.newpin and h.newparam\n"
+"h.newpin(\"in\", hal.HAL_FLOAT, hal.HAL_IN)\n"
+"h.newpin(\"out\", hal.HAL_FLOAT, hal.HAL_OUT)\n"
+"h.ready() # mark the component as 'ready'\n"
+"\n"
+"try:\n"
+"    while 1:\n"
+"        # act on changed input pins; update values on output pins\n"
+"        time.sleep(1)\n"
+"        h['out'] = h['in']\n"
+"except KeyboardInterrupt: pass"
+"\n"
+"\n"
+"When the component is requested to exit with 'halcmd unload', a\n"
+"KeyboardInterrupt exception will be raised."
+;
+
 extern "C"
 void inithal(void) {
     PyObject *m = Py_InitModule3("hal", module_methods,
-            "Interface to emc2's hal");
+            module_doc);
 
     pyhal_error_type = PyErr_NewException("hal.error", NULL, NULL);
     PyModule_AddObject(m, "error", pyhal_error_type);
