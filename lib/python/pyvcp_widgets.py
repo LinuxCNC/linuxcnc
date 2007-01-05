@@ -20,6 +20,8 @@
 from Tkinter import *
 from hal import *
 
+elements =["led","vbox","hbox","vbox" \
+          ,"button","scale","checkbutton","bar","label","number","spinbox"]
 
 # -------------------------------------------
 
