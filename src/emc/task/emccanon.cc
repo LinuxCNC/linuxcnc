@@ -703,7 +703,7 @@ void SET_MOTION_CONTROL_MODE(CANON_MOTION_MODE mode, double tolerance)
 	switch (mode) {
 	case CANON_CONTINUOUS:
 	    setTermCondMsg.cond = EMC_TRAJ_TERM_COND_BLEND;
-	    setTermCondMsg.tolerance = canonMotionTolerance;
+	    setTermCondMsg.tolerance = TO_EXT_LEN(canonMotionTolerance);
 	    break;
 
 	default:
