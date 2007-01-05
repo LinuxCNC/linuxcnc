@@ -75,128 +75,140 @@ class pyvcp_hbox(Frame):
 
 
 class pyvcp_spinbox(Spinbox):
-     " (control) controls a float, also shown as text "
-     " reacts to the mouse wheel "
-     def __init__(self,master,pycomp,halpin="spinbox",
+    """ (control) controls a float, also shown as text 
+        reacts to the mouse wheel 
+    """
+    n=0
+    def __init__(self,master,pycomp,halpin=None,
                     min_=0,max_=100,resolution=1,format="2.1f",**kw):
-          self.v = DoubleVar()
-          if 'increment' not in kw: kw['increment'] = resolution
-          if 'from' not in kw: kw['from'] = min_
-          if 'to' not in kw: kw['to'] = max_
-          if 'format' not in kw: kw['format'] = "%" + format
-          kw['command'] = self.command
-          Spinbox.__init__(self,master,textvariable=self.v,**kw)
-          self.halpin=halpin
-          self.value=min_
-          self.oldvalue=min_
-          self.format = "%(b)"+format
-          self.max_=max_
-          self.min_=min_
-          self.resolution=resolution
-          self.v.set( str( self.format  % {'b':self.value} ) )
-          pycomp.newpin(halpin, HAL_FLOAT, HAL_OUT)
-          self.bind('<Button-4>',self.wheel_up)
-          self.bind('<Button-5>',self.wheel_down)
+        self.v = DoubleVar()
+        if 'increment' not in kw: kw['increment'] = resolution
+        if 'from' not in kw: kw['from'] = min_
+        if 'to' not in kw: kw['to'] = max_
+        if 'format' not in kw: kw['format'] = "%" + format
+        kw['command'] = self.command
+        Spinbox.__init__(self,master,textvariable=self.v,**kw)
+        if halpin == None:
+            halpin = "spinbox."+str(pyvcp_spinbox.n)
+        pyvcp_spinbox.n += 1
+        self.halpin=halpin
+        self.value=min_
+        self.oldvalue=min_
+        self.format = "%(b)"+format
+        self.max_=max_
+        self.min_=min_
+        self.resolution=resolution
+        self.v.set( str( self.format  % {'b':self.value} ) )
+        pycomp.newpin(halpin, HAL_FLOAT, HAL_OUT)
+        self.bind('<Button-4>',self.wheel_up)
+        self.bind('<Button-5>',self.wheel_down)
 
-     def command(self):
-          self.value = self.v.get()
+    def command(self):
+        self.value = self.v.get()
 
-     def update(self,pycomp):  
-          pycomp[self.halpin] = self.value 
-          if self.value != self.oldvalue:
-               self.v.set( str( self.format  % {'b':self.value} ) ) 
-               self.oldvalue=self.value
+    def update(self,pycomp):  
+        pycomp[self.halpin] = self.value 
+        if self.value != self.oldvalue:
+            self.v.set( str( self.format  % {'b':self.value} ) ) 
+            self.oldvalue=self.value
           
-     def wheel_up(self,event):
-          self.value += self.resolution
-          if self.value > self.max_:
-               self.value = self.max_
+    def wheel_up(self,event):
+        self.value += self.resolution
+        if self.value > self.max_:
+            self.value = self.max_
           
      
-     def wheel_down(self,event):
-          self.value -= self.resolution
-          if self.value < self.min_:
-               self.value = self.min_
+    def wheel_down(self,event):
+        self.value -= self.resolution
+        if self.value < self.min_:
+            self.value = self.min_
           
 
 
 # -------------------------------------------
 
 class pyvcp_number(Label):
-     " (indicator) shows a float as text "
-     def __init__(self,master,pycomp,halpin="number",format="2.1f",**kw):
-          self.v = StringVar()
-          self.format=format
-          Label.__init__(self,master,textvariable=self.v,**kw)
-          self.halpin=halpin
-          self.value=0.0
-          dummy = "%(b)"+self.format
-          self.v.set( str( dummy  % {'b':self.value} ) )
-          #self.update(pycomp)
-          pycomp.newpin(halpin, HAL_FLOAT, HAL_IN)
+    """ (indicator) shows a float as text """
+    n=0
+    def __init__(self,master,pycomp,halpin=None,format="2.1f",**kw):
+        self.v = StringVar()
+        self.format=format
+        Label.__init__(self,master,textvariable=self.v,**kw)
+        if halpin == None:
+            halpin = "number."+str(pyvcp_number.n)
+        pyvcp_number.n += 1
+        self.halpin=halpin
+        self.value=0.0
+        dummy = "%(b)"+self.format
+        self.v.set( str( dummy  % {'b':self.value} ) )
+        pycomp.newpin(halpin, HAL_FLOAT, HAL_IN)
 
-     def update(self,pycomp):    
-          newvalue = pycomp[self.halpin]
-          if newvalue != self.value:
-               self.value=newvalue
-               dummy = "%(b)"+self.format
-               self.v.set( str( dummy  % {'b':newvalue} ) )
+    def update(self,pycomp):    
+        newvalue = pycomp[self.halpin]
+        if newvalue != self.value:
+            self.value=newvalue
+            dummy = "%(b)"+self.format
+            self.v.set( str( dummy  % {'b':newvalue} ) )
 
   
 
 # -------------------------------------------
 
 class pyvcp_bar(Canvas):
-     " (indicator) a bar-indicator "
-     def __init__(self,master,pycomp,
+    """ (indicator) a bar-indicator for a float"""
+    n=0
+    def __init__(self,master,pycomp,
               fillcolor="green",bgcolor="grey",
-               halpin="bar",startval=0.0,endval=100.0,**kw):
-          self.cw=200    # canvas width
-          self.ch=50     # canvas height
-          self.bh=30     # bar height
-          self.bw=150    # bar width
-          self.pad=((self.cw-self.bw)/2)
+               halpin=None,startval=0.0,endval=100.0,**kw):
+        self.cw=200    # canvas width
+        self.ch=50     # canvas height
+        self.bh=30     # bar height
+        self.bw=150    # bar width
+        self.pad=((self.cw-self.bw)/2)
 
-          Canvas.__init__(self,master,width=self.cw,height=self.ch)
-          self.halpin=halpin
-          self.endval=endval
-          self.startval=startval
-          pycomp.newpin(halpin, HAL_FLOAT, HAL_IN)
+        Canvas.__init__(self,master,width=self.cw,height=self.ch)
 
-          # the border
-          border=self.create_rectangle(self.pad,1,self.pad+self.bw,self.bh)
-          self.itemconfig(border,fill=bgcolor)
+        if halpin == None:
+            halpin = "bar."+str(pyvcp_bar.n)
+        pyvcp_bar.n += 1
+        self.halpin=halpin
+        self.endval=endval
+        self.startval=startval
+        pycomp.newpin(halpin, HAL_FLOAT, HAL_IN)
 
-          # the bar
-          self.bar=self.create_rectangle(self.pad+1,2,self.pad+1,self.bh-1)
-          self.itemconfig(self.bar,fill=fillcolor)
-          self.value=0.0 # some dummy value to start with     
+        # the border
+        border=self.create_rectangle(self.pad,1,self.pad+self.bw,self.bh)
+        self.itemconfig(border,fill=bgcolor)
+
+        # the bar
+        self.bar=self.create_rectangle(self.pad+1,2,self.pad+1,self.bh-1)
+        self.itemconfig(self.bar,fill=fillcolor)
+        self.value=0.0 # some dummy value to start with     
           
-
-          # start text
-          start_text=self.create_text(self.pad,self.bh+10,text=str(startval) )
-
-          #end text
-          end_text=self.create_text(self.pad+self.bw,self.bh+10,text=str(endval) )
-          # value text
-          self.val_text=self.create_text(self.pad+self.bw/2,
+        # start text
+        start_text=self.create_text(self.pad,self.bh+10,text=str(startval) )
+        #end text
+        end_text=self.create_text(self.pad+self.bw,self.bh+10,text=str(endval) )
+        # value text
+        self.val_text=self.create_text(self.pad+self.bw/2,
                                    self.bh/2,text=str(self.value) )
           
-     def update(self,pycomp):
-          # update value
-          newvalue=pycomp[self.halpin]
-          if newvalue != self.value:
-               self.value = newvalue
-               percent = self.value/(self.endval-self.startval)
-               if percent < 0.0:
-                    percent = 0
-               elif percent > 1.0:
-                    percent = 1.0  
-               # set value text
-               valtext = str( "%(b)3.1f" % {'b':self.value} )
-               self.itemconfig(self.val_text,text=valtext)
-               # set bar size
-               self.coords(self.bar, self.pad+1, 2, self.pad+self.bw*percent, self.bh-1)
+    def update(self,pycomp):
+        # update value
+        newvalue=pycomp[self.halpin]
+        if newvalue != self.value:
+            self.value = newvalue
+            percent = self.value/(self.endval-self.startval)
+            if percent < 0.0:
+                percent = 0
+            elif percent > 1.0:
+                percent = 1.0  
+            # set value text
+            valtext = str( "%(b)3.1f" % {'b':self.value} )
+            self.itemconfig(self.val_text,text=valtext)
+            # set bar size
+            self.coords(self.bar, self.pad+1, 2, 
+                        self.pad+self.bw*percent, self.bh-1)
 
 
 
@@ -212,8 +224,8 @@ class pyvcp_led(Canvas):
     """ (indicator) a LED 
         color is on_color when halpin is 1, off_color when halpin is 0 """
     n=0
-    def __init__(self,master,pycomp,
-                    halpin=None,off_color="red",on_color="green",size=20,**kw):
+    def __init__(self,master,pycomp, halpin=None,      
+                    off_color="red",on_color="green",size=20,**kw):
         Canvas.__init__(self,master,width=size,height=size,bd=0)
         self.off_color=off_color
         self.on_color=on_color
