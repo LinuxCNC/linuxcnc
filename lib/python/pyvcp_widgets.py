@@ -250,17 +250,21 @@ class pyvcp_led(Canvas):
 
 
 class pyvcp_checkbutton(Checkbutton):
-     " (control) a check button "
-     " halpin is 1 when button checked, 0 otherwise "
+    """ (control) a check button 
+        halpin is 1 when button checked, 0 otherwise 
+    """
+    n=0
+    def __init__(self,master,pycomp,halpin=None,**kw):
+        self.v = BooleanVar(master)
+        Checkbutton.__init__(self,master,variable=self.v,onvalue=1, offvalue=0,**kw)
+        if halpin == None:
+            halpin = "checkbutton."+str(pyvcp_checkbutton.n)
+        self.halpin=halpin
+        pycomp.newpin(halpin, HAL_BIT, HAL_OUT)
+        pyvcp_checkbutton.n += 1
 
-     def __init__(self,master,pycomp,halpin="chbutton",**kw):
-          self.v = BooleanVar(master)
-          Checkbutton.__init__(self,master,variable=self.v,onvalue=1, offvalue=0,**kw)
-          self.halpin=halpin
-          pycomp.newpin(halpin, HAL_BIT, HAL_OUT)
-
-     def update(self,pycomp):
-          pycomp[self.halpin]=self.v.get()
+    def update(self,pycomp):
+        pycomp[self.halpin]=self.v.get()
 
 
 
