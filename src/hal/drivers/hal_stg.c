@@ -48,9 +48,7 @@
 	s32	stg.<channel>.counts
 	float	stg.<channel>.position
 
-/todo   bit	stg.<channel>.enc-index
-/todo  	bit	stg.<channel>.enc-idx-latch
-/todo  	bit	stg.<channel>.enc-latch-index
+/todo   bit	stg.<channel>.index-enable
 /todo  	bit	stg.<channel>.enc-reset-count
    
       Functions:
@@ -187,8 +185,11 @@ typedef struct {
 typedef struct {
 /* counter data */
     hal_s32_t *count[MAX_CHANS];		/* captured binary count value */
+	hal_s32_t offset[MAX_CHANS];		/* offset to hold latched position from index pulse */
     hal_float_t *pos[MAX_CHANS];		/* scaled position (floating point) */
     hal_float_t pos_scale[MAX_CHANS];		/* parameter: scaling factor for pos */
+    hal_bit_t *index_enable[MAX_CHANS];		/* pins for index homing */
+	hal_s32_t check_index[MAX_CHANS];
 
 /* dac data */
     hal_float_t *dac_value[MAX_CHANS];		/* value to be written to dac */
@@ -241,6 +242,10 @@ static unsigned short stg_autodetect(void);
 /* counter related functions */
 static int stg_counter_init(int ch);
 static long stg_counter_read(int i);
+static void stg_counter_latch(int i);
+static void stg_select_index_axis(void *arg, unsigned int chan);
+static void stg_reset_index_latch(void *arg, unsigned int chan);
+static unsigned short stg_get_index_pulse_latch(void *arg, unsigned int chan);
 
 /* dac related functions */
 static int stg_dac_init(int ch);
@@ -354,8 +359,11 @@ int rtapi_app_main(void)
 	}
 	/* init counter */
 	*(stg_driver->count[n]) = 0;
+	stg_driver->offset[n] = 0;
 	*(stg_driver->pos[n]) = 0.0;
+	*(stg_driver->index_enable[n]) = 0;
 	stg_driver->pos_scale[n] = 1.0;
+	stg_driver->check_index[n] = 0;
 
 	/* init counter chip */
 	stg_counter_init(n);
@@ -470,8 +478,31 @@ static void stg_counter_capture(void *arg, long period)
 
     stg = arg;
     for (n = 0; n < num_chan; n++) {
+	/* check for index-enable = high, set from the outside, we need to reset position based on index pulse */
+	if (*(stg->index_enable[n])) {
+		// if check_index[n] == 0 set up polling for index on axis n
+		if (stg->check_index[n] == 0) {
+			/* select current axis to be reset by index */
+			stg_select_index_axis(arg, n);
+			/* remember axis beeing polled */
+			stg->check_index[n] = 1;
+		} 
+		if (stg->check_index[n] != 0) { // otherwise, we already did that, and we need to see if the index arrived
+			if (stg_get_index_pulse_latch(arg, n)) {
+				//index arrived, we need to clear the index, and substract the position
+				stg->check_index[n] = 0;
+				stg->offset[n] = stg_counter_read(n);	// read the value without latching, latching was done on index
+														// remember this as an offset, it will be substracted from nominal
+				/* set index-enable false, so outside knows we found the index, and reset the position */
+				*(stg->index_enable[n]) = 0;
+			}
+		}
+		
+	}
 	/* capture raw counts to latches */
-	*(stg->count[n]) = stg_counter_read(n);
+	stg_counter_latch(n);
+	/* read raw count, and substract the offset (determined by indexed homing) */
+	*(stg->count[n]) = stg_counter_read(n) - stg->offset[n]; 
 	/* make sure scale isn't zero or tiny to avoid divide error */
 	if (stg->pos_scale[n] < 0.0) {
 	    if (stg->pos_scale[n] > -EPSILON)
@@ -820,6 +851,12 @@ static int stg_dio_init(void)
 *            these do the actual data exchange with the board          *
 ************************************************************************/
 
+static void stg_counter_latch(int i) 
+{
+    outb(0x03, CTRL(i));
+}
+
+
 /*
   stg_counter_read() - reads one channel
   FIXME - todo, extend to 32 bits in software
@@ -838,7 +875,6 @@ static long stg_counter_read(int i)
 	} byte;
     } pos;
 
-    outb(0x03, CTRL(i));
     pos.byte.b0 = inb(DATA(i));
     pos.byte.b1 = inb(DATA(i));
     pos.byte.b2 = inb(DATA(i));
@@ -850,6 +886,66 @@ static long stg_counter_read(int i)
     return pos.l;
 }
 
+static void stg_select_index_axis(void *arg, unsigned int chan)
+{
+    stg_struct *stg = arg;
+    unsigned char byIntc,byAxis;
+	unsigned char byPol=1; //FIXME: make HAL parameter
+
+    if (stg->model == 1){   // routine for Model 1
+		// initialize stuff to poll index pulse
+		byAxis = chan;
+		
+		byAxis &= 0x6;						// ignore low bit, we check 2 axes at a time
+		byAxis <<= 3;						// shift into position for IXS1, IXS0
+		byIntc = inb(base + INTC);			// get a copy of INTC, we'll change
+											// some bits in it, not all
+		byIntc &= ~(IXLVL | IXS1 | IXS0);	// zero bits for axis and polarity
+		byIntc |= byAxis;					// put axes address in INTC
+		if (byPol != 0)					// is index pulse active high?
+			byIntc |= IXLVL;
+		outb(byIntc, base + INTC);
+		stg_reset_index_latch(arg, chan);
+	}
+}
+
+static void stg_reset_index_latch(void *arg, unsigned int chan)
+{
+    stg_struct *stg = arg;
+
+    if (stg->model == 1){   // routine for Model 1
+    	inb(base + ODDRST);        //reset index pulse latch for ODD axis
+    	inb(base + BRDTST);        //reset index pulse latch for EVEN axis
+	} else if (stg->model == 2) {
+		//FIXME: reset index latch, write to IDL reg.
+	}
+}
+
+unsigned char stg_get_current_IRR(void)
+{
+    outb(base + OCW3, 0x0a);           // IRR on next read
+    return inb(base + IRR);
+}
+
+static unsigned short stg_get_index_pulse_latch(void *arg, unsigned int chan)
+{
+    // routine for Model 1 board
+
+    stg_struct *stg = arg;
+    unsigned char byIRR, byAxisMask;
+
+    if (stg->model == 1){   // routine for Model 1
+		byIRR = stg_get_current_IRR();
+		byAxisMask = (chan & 1) ? LIXODD : LIXEVN;  // even or odd axis?
+		if (byIRR & byAxisMask)                          // check latched index pulse
+			return 1;
+		return 0;
+	} else if (stg->model == 2) {
+		//FIXME: return if latched index pulse is there
+		return 0;
+	}
+	return 0;
+}
 
 /*
   stg_dac_write() - writes a dac channel
@@ -1088,6 +1184,12 @@ static int export_counter(int num, stg_struct *addr)
     /* export parameter for scaling */
     rtapi_snprintf(buf, HAL_NAME_LEN, "stg.%d.position-scale", num);
     retval = hal_param_float_new(buf, HAL_RW, &addr->pos_scale[num], comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    /* export pin for index */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "stg.%d.index-enable", num);
+    retval = hal_pin_bit_new(buf, HAL_IO, &addr->index_enable[num], comp_id);
     if (retval != 0) {
 	return retval;
     }

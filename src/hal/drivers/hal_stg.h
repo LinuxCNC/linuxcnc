@@ -109,4 +109,26 @@
 #define ISR        0x409
 #define IMR        0x40b
 
+/*
+ * Some bit masks for various registers for Model 1
+ */
+// for IRR, ISR, and IMR
+#define IXEVN      0x80
+#define IXODD      0x40
+#define LIXEVN     0x20
+#define LIXODD     0x10
+#define EOC        0x08
+#define TP0        0x04
+#define USR_INT    0x02
+#define TP2        0x01
+// for INTC
+#define AUTOZERO   0x80
+#define IXLVL      0x40
+#define IXS1       0x20
+#define IXS0       0x10
+#define USRINT     0x08
+#define IA2        0x04
+#define IA1        0x02
+#define IA0        0x01
+ 
 #endif
