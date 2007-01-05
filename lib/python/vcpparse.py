@@ -15,21 +15,35 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+"""
+    Parses a pyVCP XML file and creates widgets by calling pyvcp_widgets.py
+"""
+
+
 import xml.dom.minidom
 import xml.dom.ext
 from Tkinter import *
 import sys, os
 import emc
-from pyvcp_widgets import *
 import pyvcp_widgets
-from hal import *; import time
+import hal 
+import time
 
-global filename
+# this statement is required so that stuff from Tkinter
+# is not included in the pydoc documentation __All__ should list all 
+# functions in this module
+__all__=["read_file","nodeiterator",
+        "widget_creator","paramiterator","updater","create_vcp"]
+
 
 
 
 def read_file():
-    
+    """
+        Reads the XML file specified by global 'filename'
+        finds the <pyvcp> element and starts the parsing of the 
+        file by calling nodeiterator()
+    """
     try:
         doc = xml.dom.minidom.parse(filename) 
     except:
@@ -53,27 +67,37 @@ def read_file():
 
 num=0
 def nodeiterator(node,widgetparent,level):
-
-     global num
-     num+=1
-     params=[]
-     for e in node.childNodes:
-          if e.nodeType == e.ELEMENT_NODE and (e.nodeName in elements):  
-               params = paramiterator(e)  # find all the parameters for this node
-               parent = str(e.parentNode.nodeName) + str(level)
-               newwidget = widget_creator(widgetparent,e.nodeName,params,level+1)
-               nodeiterator(e,newwidget,level+1)
+    """
+        A recursive function that traverses the dom tree
+        and calls widget_creator() when it finds a valid element
+    """
+    global num
+    num+=1
+    params=[]
+    for e in node.childNodes:
+        if e.nodeType == e.ELEMENT_NODE and (e.nodeName in pyvcp_widgets.elements):  
+            params = paramiterator(e)  # find all the parameters for this node
+            parent = str(e.parentNode.nodeName) + str(level)
+            newwidget = widget_creator(widgetparent,e.nodeName,params,level+1)
+            nodeiterator(e,newwidget,level+1)
       
 
 
-
+widgets=[];
 def widget_creator(parent,widget_name,params,level):
+     """
+        creates a pyVCP widget
+            parent = parent widget
+            widget_name = name of widget to be created 
+            params = a list of parameters passed to the widget __init__
+            level = what level in the dom tree are we at?
+     """
   
      global widgets
      widgethandle= str(widget_name) + str(level)
    
      w_command=""
-     w_command += "pyvcp_"+str(widget_name)+"("+"parent"+",pycomp"
+     w_command += "pyvcp_widgets.pyvcp_"+str(widget_name)+"("+"parent"+",pycomp"
      for a in params:
           w_command=w_command+","+str(a) 
      w_command=w_command+")"
@@ -94,9 +118,7 @@ def widget_creator(parent,widget_name,params,level):
                pack_command = widgethandle +".pack(side='top',fill=X)"
           else:
                pack_command = widgethandle +".pack(side='left',fill=Y)"
-               
-          
-     #print pack_command
+     
      eval(pack_command)
 
      # add the widget to a global list widgets
@@ -111,12 +133,10 @@ def widget_creator(parent,widget_name,params,level):
 
 
 def paramiterator(node):
-     " this function returns a list of all parameters for a widget element"
-
-     params = ["size","text","orient","halpin","format","font","endval","min_","max_"]
+     """ returns a list of all parameters for a widget element """
      outparams =[]
      for e in node.childNodes:
-          if e.nodeType == e.ELEMENT_NODE and (e.nodeName in params):
+          if e.nodeType == e.ELEMENT_NODE and (e.nodeName in pyvcp_widgets.parameters):
                outparams.append(str(e.nodeName) + \
                     " = " +  str(e.childNodes[0].nodeValue) )
      return outparams
@@ -124,21 +144,27 @@ def paramiterator(node):
 
 
 def updater():
-     " this function goes through all widgets and calls update() on them "
+     """ calls pyvcp_widgets.update() on each widget repeatedly every 100 ms """
      global widgets, pycomp
      for a in widgets:
           a.update(pycomp)
      pyvcp0.after(100,updater)
 
 
-widgets=[];
+
 
 def create_vcp(master, comp = None, compname="pyvcp"):
+    """ 
+        create a pyVCP panel 
+            master = Tkinter root window or other master container
+            comp = HAL component
+            compname = name of HAL component which is created if comp=None
+    """
     global pyvcp0, pycomp
     pyvcp0 = master
     if comp is None:
         try: 
-            comp = component(compname)
+            comp = hal.component(compname)
         except:
             print "Error: Multiple components with the same name."
             sys.exit(0)
