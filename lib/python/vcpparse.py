@@ -21,9 +21,12 @@ from Tkinter import *
 import sys, os
 import emc
 from pyvcp_widgets import *
+import pyvcp_widgets
 from hal import *; import time
 
 global filename
+
+
 
 def read_file():
     
@@ -50,13 +53,12 @@ def read_file():
 
 num=0
 def nodeiterator(node,widgetparent,level):
-     els =["led","vbox","hbox","vbox"
-          ,"button","scale","checkbutton","bar","label","number","spinbox"]
+
      global num
      num+=1
      params=[]
      for e in node.childNodes:
-          if e.nodeType == e.ELEMENT_NODE and (e.nodeName in els):  
+          if e.nodeType == e.ELEMENT_NODE and (e.nodeName in elements):  
                params = paramiterator(e)  # find all the parameters for this node
                parent = str(e.parentNode.nodeName) + str(level)
                newwidget = widget_creator(widgetparent,e.nodeName,params,level+1)
@@ -138,13 +140,12 @@ def create_vcp(master, comp = None, compname="pyvcp"):
         try: 
             comp = component(compname)
         except:
-            print "Error: Only one running pyVCP allowed."
+            print "Error: Multiple components with the same name."
             sys.exit(0)
 
     pycomp = comp
     print "pyVCP:",
-    read_file()
-    
+    read_file() 
     updater()
     return comp
     
