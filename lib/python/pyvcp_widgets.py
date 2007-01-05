@@ -222,7 +222,7 @@ class pyvcp_led(Canvas):
         self.itemconfig(self.oh,fill=off_color)
         if halpin == None:
             halpin = "led."+str(pyvcp_led.n)
-        print halpin
+        
         self.halpin=halpin
         pycomp.newpin(halpin, HAL_BIT, HAL_IN)
         pyvcp_led.n+=1
