@@ -42,6 +42,7 @@ class pyvcp_label(Label):
     """
     def __init__(self,master,pycomp,**kw):
         Label.__init__(self,master,**kw)
+        
     def update(self,pycomp):
         pass
 
@@ -208,29 +209,33 @@ class pyvcp_bar(Canvas):
 
 
 class pyvcp_led(Canvas):
-     " (indicator) a LED "
-     " color is on_color when halpin is 1, off_color when halpin is 0 "
+    """ (indicator) a LED 
+        color is on_color when halpin is 1, off_color when halpin is 0 """
+    n=0
+    def __init__(self,master,pycomp,
+                    halpin=None,off_color="red",on_color="green",size=20,**kw):
+        Canvas.__init__(self,master,width=size,height=size,bd=0)
+        self.off_color=off_color
+        self.on_color=on_color
+        self.oh=self.create_oval(1,1,size,size)
+        self.state=0
+        self.itemconfig(self.oh,fill=off_color)
+        if halpin == None:
+            halpin = "led."+str(pyvcp_led.n)
+        print halpin
+        self.halpin=halpin
+        pycomp.newpin(halpin, HAL_BIT, HAL_IN)
+        pyvcp_led.n+=1
 
-     def __init__(self,master,pycomp,
-                    halpin="led",off_color="red",on_color="green",size=20,**kw):
-          Canvas.__init__(self,master,width=size,height=size,bd=0)
-          self.off_color=off_color
-          self.on_color=on_color
-          self.oh=self.create_oval(1,1,size,size)
-          self.state=0
-          self.itemconfig(self.oh,fill=off_color)
-          self.halpin=halpin
-          pycomp.newpin(halpin, HAL_BIT, HAL_IN)
-
-     def update(self,pycomp):
-          newstate = pycomp[self.halpin]
-          if newstate != self.state:
-               if newstate == 1:
-                    self.itemconfig(self.oh,fill=self.on_color)
-                    self.state=1
-               else:
-                    self.itemconfig(self.oh,fill=self.off_color) 
-                    self.state=0
+    def update(self,pycomp):
+        newstate = pycomp[self.halpin]
+        if newstate != self.state:
+            if newstate == 1:
+                self.itemconfig(self.oh,fill=self.on_color)
+                self.state=1
+            else:
+                self.itemconfig(self.oh,fill=self.off_color) 
+                self.state=0
 
 
 
