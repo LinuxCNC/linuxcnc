@@ -15,22 +15,35 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-
+""" A widget library for pyVCP """
 
 from Tkinter import *
 from hal import *
 
+# this makes only functions named here be included in the pydoc
+__all__=["pyvcp_label"]
+
+
 elements =["led","vbox","hbox","vbox" \
           ,"button","scale","checkbutton","bar","label","number","spinbox"]
+
+parameters = ["size","text","orient","halpin","format","font","endval","min_","max_"]
+
+
+
 
 # -------------------------------------------
 
 class pyvcp_label(Label):
-     " a static text label "
-     def __init__(self,master,pycomp,**kw):
-          Label.__init__(self,master,**kw)
-     def update(self,pycomp):
-          pass
+    """ a static text label """
+    """ <label>
+            <text>"My Label:"</text>
+        </label>
+    """
+    def __init__(self,master,pycomp,**kw):
+        Label.__init__(self,master,**kw)
+    def update(self,pycomp):
+        pass
 
 
 # -------------------------------------------
