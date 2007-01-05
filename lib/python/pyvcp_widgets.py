@@ -278,27 +278,31 @@ class pyvcp_checkbutton(Checkbutton):
 
 
 class pyvcp_button(Button):
-     " (control) a button "
-     " halpin is 1 when button pressed, 0 otherwise "
-     def __init__(self,master,pycomp,halpin="button",**kw):
-          Button.__init__(self,master,**kw)
-          self.halpin=halpin
-          #p = component("test2");
-          pycomp.newpin(halpin, HAL_BIT, HAL_OUT)
-          self.state=0;
-          self.bind("<ButtonPress>", self.pressed)
-          self.bind("<ButtonRelease>", self.released)     
+    """ (control) a button 
+        halpin is 1 when button pressed, 0 otherwise 
+    """
+    n=0
+    def __init__(self,master,pycomp,halpin=None,**kw):
+        Button.__init__(self,master,**kw)
+        if halpin == None:
+            halpin = "button."+str(pyvcp_button.n)
+        self.halpin=halpin 
+        pycomp.newpin(halpin, HAL_BIT, HAL_OUT)
+        self.state=0;
+        self.bind("<ButtonPress>", self.pressed)
+        self.bind("<ButtonRelease>", self.released) 
+        pyvcp_button.n += 1    
 
-     def pressed(self,event):
-          # "the button was pressed"
-          self.state=1     
+    def pressed(self,event):
+        # "the button was pressed"
+        self.state=1     
 
-     def released(self,event):
-          # the button was released
-          self.state=0
+    def released(self,event):
+        # the button was released
+        self.state=0
 
-     def update(self,pycomp):
-          pycomp[self.halpin]=self.state
+    def update(self,pycomp):
+        pycomp[self.halpin]=self.state
 
 
 
@@ -310,27 +314,31 @@ class pyvcp_button(Button):
 
 
 class pyvcp_scale(Scale):
-     " (control) a slider "
-     " halpin-i is integer output "
-     " halpin-f is float output "
-     
-     def __init__(self,master,pycomp,
-                    resolution=1,halpin="scale",**kw):
-          Scale.__init__(self,master,**kw)
-          self.halpin=halpin
-          self.resolution=resolution
-          pycomp.newpin(halpin+"-i", HAL_S32, HAL_OUT)
-          pycomp.newpin(halpin+"-f", HAL_FLOAT, HAL_OUT)
-          self.bind('<Button-4>',self.wheel_up)
-          self.bind('<Button-5>',self.wheel_down)
+    """ (control) a slider 
+        halpin-i is integer output 
+        halpin-f is float output 
+    """
+    n=0
+    def __init__(self,master,pycomp,
+                    resolution=1,halpin=None,**kw):
+        Scale.__init__(self,master,**kw)
+        if halpin == None:
+            halpin = "scale."+str(pyvcp_scale.n)
+        self.halpin=halpin
+        self.resolution=resolution
+        pycomp.newpin(halpin+"-i", HAL_S32, HAL_OUT)
+        pycomp.newpin(halpin+"-f", HAL_FLOAT, HAL_OUT)
+        self.bind('<Button-4>',self.wheel_up)
+        self.bind('<Button-5>',self.wheel_down)
+        pyvcp_scale.n += 1
 
-     def update(self,pycomp):
-          pycomp[self.halpin+"-f"]=self.get()
-          pycomp[self.halpin+"-i"]=int(self.get())
+    def update(self,pycomp):
+        pycomp[self.halpin+"-f"]=self.get()
+        pycomp[self.halpin+"-i"]=int(self.get())
 
-     def wheel_up(self,event):
-          self.set(self.get()+self.resolution)
+    def wheel_up(self,event):
+        self.set(self.get()+self.resolution)
 
-     def wheel_down(self,event):
-          self.set(self.get()-self.resolution)
+    def wheel_down(self,event):
+        self.set(self.get()-self.resolution)
 
