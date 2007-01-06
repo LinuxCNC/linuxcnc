@@ -48,8 +48,9 @@ MODULE_AUTHOR("John Kasunich");
 MODULE_DESCRIPTION("Oscilloscope for EMC HAL");
 MODULE_LICENSE("GPL");
 
-long shm_size = SCOPE_SHM_SIZE_DEFAULT;
-RTAPI_MP_LONG(shm_size, "Size of shared memory block")
+long num_samples = 16000;
+long shm_size;
+RTAPI_MP_LONG(num_samples, "Number of samples in the shared memory block")
 
 /***********************************************************************
 *                         GLOBAL VARIABLES                             *
@@ -85,7 +86,7 @@ int rtapi_app_main(void)
 {
     int retval;
     void *shm_base;
-
+    long skip;
     /* connect to the HAL */
     comp_id = hal_init("scope_rt");
     if (comp_id < 0) {
@@ -93,6 +94,8 @@ int rtapi_app_main(void)
 	return -1;
     }
     /* connect to scope shared memory block */
+    skip = (sizeof(scope_shm_control_t) + 3) & ~3;
+    shm_size = skip + num_samples * sizeof(scope_data_t);
     shm_id = rtapi_shmem_new(SCOPE_SHM_KEY, comp_id, shm_size);
     if (shm_id < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -375,7 +378,6 @@ static void init_rt_control_struct(void *shmem)
 {
     char *cp;
     int n, skip;
-    hal_comp_t *comp;
 
     /* first clear entire struct to all zeros */
     cp = (char *) ctrl_rt;

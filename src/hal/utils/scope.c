@@ -96,14 +96,15 @@ static void rm_stop_button_clicked(GtkWidget * widget, gpointer * gdata);
 int main(int argc, gchar * argv[])
 {
     int retval;
-    int shm_size = SCOPE_SHM_SIZE_DEFAULT;
+    int num_samples = SCOPE_NUM_SAMPLES_DEFAULT;
     void *shm_base;
 
     /* process and remove any GTK specific command line args */
     gtk_init(&argc, &argv);
     /* process halscope command line args (if any) here */
-    if(argc > 1) shm_size = atoi(argv[1]);
-    if(shm_size < SCOPE_SHM_SIZE_DEFAULT) shm_size = SCOPE_SHM_SIZE_DEFAULT;
+    if(argc > 1) num_samples = atoi(argv[1]);
+    if(num_samples <= 0)
+	num_samples = SCOPE_NUM_SAMPLES_DEFAULT;
 
     /* connect to the HAL */
     comp_id = hal_init("halscope");
@@ -114,8 +115,8 @@ int main(int argc, gchar * argv[])
 
     if (!halpr_find_funct_by_name("scope.sample")) {
 	char buf[1000];
-	sprintf(buf, EMC2_BIN_DIR "/halcmd loadrt scope_rt shm_size=%d",
-		shm_size);
+	sprintf(buf, EMC2_BIN_DIR "/halcmd loadrt scope_rt num_samples=%d",
+		num_samples);
 	if(system(buf) != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR, "loadrt scope_rt failed\n");
 	    hal_exit(comp_id);
@@ -123,7 +124,7 @@ int main(int argc, gchar * argv[])
 	}
     }
     /* set up a shared memory region for the scope data */
-    shm_id = rtapi_shmem_new(SCOPE_SHM_KEY, comp_id, SCOPE_SHM_SIZE_DEFAULT);
+    shm_id = rtapi_shmem_new(SCOPE_SHM_KEY, comp_id, sizeof(scope_shm_control_t));
     if (shm_id < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "SCOPE: ERROR: failed to get shared memory\n");
