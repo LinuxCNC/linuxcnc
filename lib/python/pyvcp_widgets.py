@@ -38,6 +38,7 @@
 
 from Tkinter import *
 from hal import *
+import math
 
 # this makes only functions named here be included in the pydoc
 __all__=["pyvcp_label"]
@@ -45,13 +46,60 @@ __all__=["pyvcp_label"]
 
 elements =["pyvcp","led","vbox","hbox","vbox" \
             ,"button","scale","checkbutton","bar" \
-            ,"label","number","spinbox"]
+            ,"label","number","spinbox","radiobutton"]
 
 parameters = ["size","text","orient","halpin","format" \
-            ,"font","endval","min_","max_","resolution"]
+            ,"font","endval","min_","max_","resolution" \
+            ,"from_","to","choices"]
 
 
 
+class pyvcp_radiobutton(Frame):
+    n=0
+    def __init__(self,master,pycomp,halpin=None,choices=[],**kw):
+        f=Frame.__init__(self,master,bd=2,relief=GROOVE)
+        self.v = IntVar()
+        self.v.set(1)
+        self.choices=choices
+        if halpin == None:
+            halpin = "radiobutton."+str(pyvcp_radiobutton.n)
+        pyvcp_radiobutton.n += 1
+        
+        self.halpins=[]
+        n=0
+        for c in choices:
+            b=Radiobutton(self,f, text=str(c)
+                        ,variable=self.v, value=pow(2,n))
+            b.pack()
+            if n==0:
+                b.select()
+
+            c_halpin=halpin+"."+str(c)
+            pycomp.newpin(c_halpin, HAL_BIT, HAL_OUT)
+            self.halpins.append(c_halpin)
+            n+=1
+
+    # FIXME
+    # this is a fairly stupid way of updating the pins
+    # since the calculation is done every 100ms wether a change
+    # has happened or not. see below.   
+    def update(self,pycomp):
+        index=math.log(self.v.get(),2)
+        index=int(index)
+        for pin in self.halpins:
+            pycomp[pin]=0;
+        pycomp[self.halpins[index]]=1;
+
+    # this would be a much better way of updating the
+    # pins, but at the moment I can't get it to work
+    # this is never called even if I set command=self.update()
+    # in the call to Radiobutton above
+    def changed(self):
+        index=math.log(self.v.get(),2)
+        index=int(index)
+        print "active:",self.halpins[index]
+
+# -------------------------------------------
 
 # -------------------------------------------
 
