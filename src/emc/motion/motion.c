@@ -174,6 +174,12 @@ void reportError(const char *fmt, ...)
     emcmotErrorPut(emcmotError, error);
 }
 
+rtapi_msg_handler_t old_handler = NULL;
+static void emc_message_handler(msg_level_t level, char *message) {
+    if(level == RTAPI_MSG_ERR) reportError(message);
+    if(old_handler) old_handler(level, message);
+}
+
 int rtapi_app_main(void)
 {
     int retval;
@@ -218,6 +224,8 @@ int rtapi_app_main(void)
 
     hal_ready(mot_comp_id);
 
+    old_handler = rtapi_get_msg_handler();
+    rtapi_set_msg_handler(emc_message_handler);
     return 0;
 }
 
@@ -225,6 +233,8 @@ void rtapi_app_exit(void)
 {
 //    int axis;
     int retval;
+
+    rtapi_set_msg_handler(old_handler);
 
     rtapi_print_msg(RTAPI_MSG_INFO, "MOTION: cleanup_module() started.\n");
 
