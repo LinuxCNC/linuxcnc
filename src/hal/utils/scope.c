@@ -44,6 +44,7 @@
 #include <ctype.h>
 #include <string.h>
 
+#include "config.h"
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "hal.h"		/* HAL public API decls */
 #include "../hal_priv.h"	/* HAL private API decls */
@@ -73,7 +74,6 @@ static scope_usr_control_t ctrl_struct;	/* scope control structure */
 
 /* init functions */
 static void init_usr_control_struct(void *shmem);
-static void init_shared_control_struct(void);
 
 static void define_scope_windows(void);
 static void init_run_mode_window(void);
@@ -96,11 +96,14 @@ static void rm_stop_button_clicked(GtkWidget * widget, gpointer * gdata);
 int main(int argc, gchar * argv[])
 {
     int retval;
+    int shm_size = SCOPE_SHM_SIZE_DEFAULT;
     void *shm_base;
 
     /* process and remove any GTK specific command line args */
     gtk_init(&argc, &argv);
     /* process halscope command line args (if any) here */
+    if(argc > 1) shm_size = atoi(argv[1]);
+    if(shm_size < SCOPE_SHM_SIZE_DEFAULT) shm_size = SCOPE_SHM_SIZE_DEFAULT;
 
     /* connect to the HAL */
     comp_id = hal_init("halscope");
@@ -108,8 +111,19 @@ int main(int argc, gchar * argv[])
 	rtapi_print_msg(RTAPI_MSG_ERR, "SCOPE: ERROR: hal_init() failed\n");
 	return -1;
     }
+
+    if (!halpr_find_funct_by_name("scope.sample")) {
+	char buf[1000];
+	sprintf(buf, EMC2_BIN_DIR "/halcmd loadrt scope_rt shm_size=%d",
+		shm_size);
+	if(system(buf) != 0) {
+	    rtapi_print_msg(RTAPI_MSG_ERR, "loadrt scope_rt failed\n");
+	    hal_exit(comp_id);
+	    exit(1);
+	}
+    }
     /* set up a shared memory region for the scope data */
-    shm_id = rtapi_shmem_new(SCOPE_SHM_KEY, comp_id, SCOPE_SHM_SIZE);
+    shm_id = rtapi_shmem_new(SCOPE_SHM_KEY, comp_id, SCOPE_SHM_SIZE_DEFAULT);
     if (shm_id < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "SCOPE: ERROR: failed to get shared memory\n");
@@ -334,7 +348,6 @@ static void init_usr_control_struct(void *shmem)
 {
     char *cp;
     int n, skip;
-    hal_comp_t *comp;
 
     /* first clear entire user struct to all zeros */
     cp = (char *) ctrl_usr;
@@ -349,10 +362,11 @@ static void init_usr_control_struct(void *shmem)
     /* the rest of the shared memory area is the data buffer */
     ctrl_usr->buffer = (scope_data_t *) (((char *) (shmem)) + skip);
     /* is the realtime component loaded already? */
-    comp = halpr_find_comp_by_name("scope_rt");
-    if (comp == NULL) {
-	/* no, must init shared structure */
-	init_shared_control_struct();
+    if (ctrl_shm->shm_size == 0) {
+	/* no, this is an error condition */
+	rtapi_print_msg(RTAPI_MSG_ERR, "Realtime component not loaded? ctrl_shm->size == 0");
+	hal_exit(comp_id);
+	exit(1);
     }
     /* init any non-zero fields */
     /* set all 16 channels to "no source assigned" */
@@ -360,25 +374,6 @@ static void init_usr_control_struct(void *shmem)
 	ctrl_usr->chan[n].data_source_type = -1;
     }
     /* done */
-}
-
-static void init_shared_control_struct(void)
-{
-    char *cp;
-    int skip, n;
-
-    /* first clear entire struct to all zeros */
-    cp = (char *) ctrl_shm;
-    for (n = 0; n < sizeof(scope_shm_control_t); n++) {
-	cp[n] = 0;
-    }
-    /* round size of shared struct up to a multiple of 4 for alignment */
-    skip = (sizeof(scope_shm_control_t) + 3) & ~3;
-    /* remainder of shmem area is buffer */
-    ctrl_shm->buf_len = (SCOPE_SHM_SIZE - skip) / sizeof(scope_data_t);
-    /* init any non-zero fields */
-    ctrl_shm->mult = 1;
-    ctrl_shm->state = IDLE;
 }
 
 /** 'define_scope_windows()' defines the overall layout of the main

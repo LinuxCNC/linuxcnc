@@ -41,8 +41,8 @@
 *                         TYPEDEFS AND DEFINES                         *
 ************************************************************************/
 
-#define SCOPE_SHM_KEY  0x130CF405
-#define SCOPE_SHM_SIZE 65000
+#define SCOPE_SHM_KEY  0x130CF406
+#define SCOPE_SHM_SIZE_DEFAULT 65000
 
 typedef enum {
     IDLE = 0,			/* waiting for run command */
@@ -73,6 +73,7 @@ typedef union {
 */
 
 typedef struct {
+    unsigned long shm_size;	/* Actual size of SHM area */
     int buf_len;		/* I length of buffer */
     int watchdog;		/* RU rt sets to zero, user incs */
     char thread_name[HAL_NAME_LEN + 1];	/* U thread used for sampling */

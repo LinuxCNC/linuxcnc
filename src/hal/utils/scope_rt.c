@@ -48,6 +48,9 @@ MODULE_AUTHOR("John Kasunich");
 MODULE_DESCRIPTION("Oscilloscope for EMC HAL");
 MODULE_LICENSE("GPL");
 
+long shm_size = SCOPE_SHM_SIZE_DEFAULT;
+RTAPI_MP_LONG(shm_size, "Size of shared memory block")
+
 /***********************************************************************
 *                         GLOBAL VARIABLES                             *
 ************************************************************************/
@@ -90,7 +93,7 @@ int rtapi_app_main(void)
 	return -1;
     }
     /* connect to scope shared memory block */
-    shm_id = rtapi_shmem_new(SCOPE_SHM_KEY, comp_id, SCOPE_SHM_SIZE);
+    shm_id = rtapi_shmem_new(SCOPE_SHM_KEY, comp_id, shm_size);
     if (shm_id < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "SCOPE: ERROR: failed to get shared memory\n");
@@ -385,12 +388,7 @@ static void init_rt_control_struct(void *shmem)
     skip = (sizeof(scope_shm_control_t) + 3) & ~3;
     /* the rest of the shared memory area is the data buffer */
     ctrl_rt->buffer = (scope_data_t *) (((char *) (shmem)) + skip);
-    /* is the user space component loaded already? */
-    comp = halpr_find_comp_by_name("scope_gui");
-    if (comp == NULL) {
-	/* no, must init shared structure */
-	init_shm_control_struct();
-    }
+    init_shm_control_struct();
     /* init any non-zero fields */
 
     /* done */
@@ -407,9 +405,10 @@ static void init_shm_control_struct(void)
 	cp[n] = 0;
     }
     /* round size of shared struct up to a multiple of 4 for alignment */
+    ctrl_shm->shm_size = shm_size;
     skip = (sizeof(scope_shm_control_t) + 3) & ~3;
     /* remainder of shmem area is buffer */
-    ctrl_shm->buf_len = (SCOPE_SHM_SIZE - skip) / sizeof(scope_data_t);
+    ctrl_shm->buf_len = (shm_size - skip) / sizeof(scope_data_t);
     /* init any non-zero fields */
     ctrl_shm->mult = 1;
     ctrl_shm->state = IDLE;
