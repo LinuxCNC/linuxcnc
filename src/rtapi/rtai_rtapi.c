@@ -1688,6 +1688,8 @@ EXPORT_SYMBOL(rtapi_print);
 EXPORT_SYMBOL(rtapi_print_msg);
 EXPORT_SYMBOL(rtapi_set_msg_level);
 EXPORT_SYMBOL(rtapi_get_msg_level);
+EXPORT_SYMBOL(rtapi_set_msg_handler);
+EXPORT_SYMBOL(rtapi_get_msg_handler);
 EXPORT_SYMBOL(rtapi_clock_set_period);
 EXPORT_SYMBOL(rtapi_get_time);
 EXPORT_SYMBOL(rtapi_get_clocks);
