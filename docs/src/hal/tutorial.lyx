@@ -2817,4 +2817,31 @@ Looking at Step Pulses
 \end_inset 
 
 
+\layout Subsection
+
+More samples
+\layout Standard
+
+If you want to record more samples at once, restart realtime and load halscope
+ with a numeric argument which indicates the number of samples you want
+ to capture, such as
+\layout LyX-Code
+
+halcmd:
+\series bold 
+ loadusr halscope 80000
+\layout Standard
+
+if the 
+\family typewriter 
+scope_rt
+\family default 
+ component was not already loaded, halscope will load it and request 80000
+ total samples, so that when sampling 4 channels at a time there will be
+ 20000 samples per channel.
+ (If 
+\family typewriter 
+scope_rt
+\family default 
+ was already loaded, the numeric argument to halscope will have no effect)
 \the_end
