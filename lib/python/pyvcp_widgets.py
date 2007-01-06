@@ -15,7 +15,26 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-""" A widget library for pyVCP """
+""" A widget library for pyVCP 
+    
+    The layoyt and composition of a Python Virtual Control Panel is specified
+    with an XML file. The file must begin with <pyvcp>, and end with </pyvcp>
+
+    In the documentation for each widget, optional tags are shown bracketed:
+    [ <option>Something</option> ]
+    such a tag is not required for pyVCP to work, but may add functionality or
+    modify the behaviour of a widget.
+
+    Example XML file:
+    <pyvcp>
+        <led>
+            <size>40</size>
+            <halpin>"my-led"</halpin>
+        </led>
+    </pyvcp>
+    This will create a VCP with a single LED widget which indicates the value 
+    of HAL pin compname.my-led 
+"""
 
 from Tkinter import *
 from hal import *
@@ -35,8 +54,8 @@ parameters = ["size","text","orient","halpin","format","font","endval","min_","m
 # -------------------------------------------
 
 class pyvcp_label(Label):
-    """ a static text label """
-    """ <label>
+    """ Static text label 
+        <label>
             <text>"My Label:"</text>
         </label>
     """
@@ -51,24 +70,32 @@ class pyvcp_label(Label):
 
 
 class pyvcp_vbox(Frame):
-     " a box in which widgets are packed vertically"
-     def __init__(self,master,pycomp):
-          Frame.__init__(self,master,bd=0,relief=FLAT)
-     def update(self,pycomp): 
-          pass
-     def packtype(self):
-          return "top"
+    """ Box in which widgets are packed vertically
+        <vbox>
+                place widgets here
+        </vbox>
+    """
+    def __init__(self,master,pycomp):
+        Frame.__init__(self,master,bd=0,relief=FLAT)
+    def update(self,pycomp): 
+        pass
+    def packtype(self):
+        return "top"
 
 # -------------------------------------------
 
 class pyvcp_hbox(Frame):
-     " a box in which widgets are packed horizontally"
-     def __init__(self,master,pycomp):
-          Frame.__init__(self,master,bd=0,relief=FLAT)
-     def update(self,pycomp): 
-          pass
-     def packtype(self):
-          return "left"
+    """ Box in which widgets are packed horizontally
+        <vbox>
+                place widgets here
+        </vbox>        
+    """
+    def __init__(self,master,pycomp):
+        Frame.__init__(self,master,bd=0,relief=FLAT)
+    def update(self,pycomp): 
+        pass
+    def packtype(self):
+        return "left"
 
 
 # -------------------------------------------
@@ -77,6 +104,11 @@ class pyvcp_hbox(Frame):
 class pyvcp_spinbox(Spinbox):
     """ (control) controls a float, also shown as text 
         reacts to the mouse wheel 
+        <spinbox>
+            [ <halpin>"my-spinbox"</halpin> ]
+            [ <min_>55</min_> ]   sets the minimum value to 55
+            [ <max_>123</max_> ]  sets the maximum value to 123
+        </spinbox>
     """
     n=0
     def __init__(self,master,pycomp,halpin=None,
@@ -354,3 +386,5 @@ class pyvcp_scale(Scale):
     def wheel_down(self,event):
         self.set(self.get()-self.resolution)
 
+if __name__ == '__main__':
+    print "You can't run pyvcp_widgets.py by itself..."
