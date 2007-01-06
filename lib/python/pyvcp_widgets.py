@@ -44,9 +44,11 @@ __all__=["pyvcp_label"]
 
 
 elements =["pyvcp","led","vbox","hbox","vbox" \
-          ,"button","scale","checkbutton","bar","label","number","spinbox"]
+            ,"button","scale","checkbutton","bar" \
+            ,"label","number","spinbox"]
 
-parameters = ["size","text","orient","halpin","format","font","endval","min_","max_"]
+parameters = ["size","text","orient","halpin","format" \
+            ,"font","endval","min_","max_","resolution"]
 
 
 
@@ -365,11 +367,12 @@ class pyvcp_scale(Scale):
     n=0
     def __init__(self,master,pycomp,
                     resolution=1,halpin=None,**kw):
-        Scale.__init__(self,master,**kw)
+        self.resolution=resolution
+        Scale.__init__(self,master,resolution=self.resolution,**kw)
         if halpin == None:
             halpin = "scale."+str(pyvcp_scale.n)
         self.halpin=halpin
-        self.resolution=resolution
+        
         pycomp.newpin(halpin+"-i", HAL_S32, HAL_OUT)
         pycomp.newpin(halpin+"-f", HAL_FLOAT, HAL_OUT)
         self.bind('<Button-4>',self.wheel_up)
