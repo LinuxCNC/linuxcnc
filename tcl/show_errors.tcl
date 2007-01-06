@@ -24,7 +24,7 @@ proc insert_file {w title f {p {}}} {
 wm ti . [msgcat::mc "EMC2 Errors"]
 frame .f
 label .f.b -bitmap error
-label .f.l -justify l -wraplength 400 -text [msgcat::mc "EMC2 terminated with an error.  When reporting problems, please include the information below in your message."]
+label .f.l -justify l -wraplength 400 -text [msgcat::mc "EMC2 terminated with an error.  When reporting problems, please include all the information below in your message."]
 pack .f.b -side left -padx 8 -pady 8
 pack .f.l -side left
 pack .f -side top -fill x -anchor w
@@ -40,8 +40,10 @@ grid .f2.s -row 0 -column 1 -sticky ns
 pack .f2 -fill both -expand 1
 
 insert_file .f2.t "Print file information:" [lindex $argv 1]
-insert_file .f2.t "Kernel message information:" {|dmesg} \
-    "^.*Adeos: Pipelining started."
+if {$emc::SIMULATOR != "yes"} {
+    insert_file .f2.t "Kernel message information:" {|dmesg} \
+	"^.*Adeos: Pipelining started."
+}
 insert_file .f2.t "Debug file information:" [lindex $argv 0]
 .f2.t configure -state disabled
 

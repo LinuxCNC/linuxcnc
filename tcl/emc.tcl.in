@@ -11,7 +11,7 @@ namespace eval emc {
     variable LANG_DIR @EMC2_LANG_DIR@
     variable IMAGEDIR @EMC2_IMAGE_DIR@
     variable REALTIME @REALTIME@
-
+    variable SIMULATOR @SIMULATOR@
     variable _langinit 1
 }
 
