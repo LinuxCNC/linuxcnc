@@ -24,7 +24,7 @@ from hal import *
 __all__=["pyvcp_label"]
 
 
-elements =["led","vbox","hbox","vbox" \
+elements =["pyvcp","led","vbox","hbox","vbox" \
           ,"button","scale","checkbutton","bar","label","number","spinbox"]
 
 parameters = ["size","text","orient","halpin","format","font","endval","min_","max_"]
