@@ -225,16 +225,6 @@ echo INIFILE=$INIFILE >>$PRINT_FILE
 retval=
 
 # 2.1. define helper function
-function GetFromIniQuiet {
-    #$1 var name   $2 - section name
-    name=$1
-    retval=`$INIVAR -ini $INIFILE -var $1 -sec $2 > /dev/null 2>&1`
-    if [ ! -n "$1" ] ; then
-	exit -1
-    fi
-    echo "$name=$retval" >>$PRINT_FILE
-}
-
 function GetFromIni {
     #$1 var name   $2 - section name
     name=$1
@@ -267,7 +257,7 @@ EMCTASK=$retval
 EMCSERVER=emcsvr
 
 # 2.7. get halui information
-GetFromIniQuiet HALUI HAL
+GetFromIni HALUI HAL 
 HALUI=$retval
 
 # 2.9. get display information
@@ -301,7 +291,7 @@ function KillTaskWithTimeout() {
     fi
     for KILL_PID in $KILL_PIDS ; do
 	echo "Killing task $KILL_TASK, PID=$KILL_PID" >>$PRINT_FILE
-	# first a "gentle" kill with signal TERM
+	# first a "gentle" sudo kill with signal TERM
 	$KILL $KILL_PID
 	WAIT=$KILL_TIMEOUT
 	# wait and see if it dissappears
@@ -508,7 +498,7 @@ fi
 # 4.3.6. execute HALCMD config files (if any)
 # get first config file name from ini file
 NUM=1
-CFGFILE=`$INIVAR -ini $INIFILE -var HALFILE -sec HAL -num $NUM > /dev/null 2>&1`
+CFGFILE=`$INIVAR -ini $INIFILE -var HALFILE -sec HAL -num $NUM 2>>$DEBUG_FILE`
 while [ -n "$CFGFILE" ] ; do
     if [ ! -f $INI_DIR/$CFGFILE ] ; then
 	echo "Can't find HAL config file: $INI_DIR/$CFGFILE"
@@ -525,13 +515,13 @@ while [ -n "$CFGFILE" ] ; do
     fi
     # get next config file name from ini file
     NUM=$(($NUM+1))
-    CFGFILE=`$INIVAR -ini $INIFILE -var HALFILE -sec HAL -num $NUM > /dev/null 2>&1`
+    CFGFILE=`$INIVAR -ini $INIFILE -var HALFILE -sec HAL -num $NUM 2>>$DEBUG_FILE`
 done
 
 # 4.3.7. execute discrete HAL commands from ini file (if any)
 # get first command from ini file
 NUM=1
-HALCOMMAND=`$INIVAR -ini $INIFILE -var HALCMD -sec HAL -num $NUM > /dev/null 2>&1`
+HALCOMMAND=`$INIVAR -ini $INIFILE -var HALCMD -sec HAL -num $NUM 2>>$DEBUG_FILE`
 while [ -n "$HALCOMMAND" ] ; do
     if [ -n "$HALCOMMAND" ] ; then
 	echo "Running HAL command: $HALCOMMAND" >>$PRINT_FILE
@@ -543,7 +533,7 @@ while [ -n "$HALCOMMAND" ] ; do
     fi
     # get next command from ini file
     NUM=$(($NUM+1))
-    HALCOMMAND=`$INIVAR -ini $INIFILE -var HALCMD -sec HAL -num $NUM > /dev/null 2>&1`
+    HALCOMMAND=`$INIVAR -ini $INIFILE -var HALCMD -sec HAL -num $NUM 2>>$DEBUG_FILE`
 done
 
 # 4.3.8. start the realtime stuff ticking
@@ -557,6 +547,11 @@ if [ ! -x $EMC2_BIN_DIR/$EMCTASK ] ; then
     exit 1
 fi
 $EMC2_BIN_DIR/$EMCTASK -ini $INIFILE &
+
+# Debugging information, remove later
+$PS -ael >>$DEBUG_FILE
+$IPCS >>$DEBUG_FILE
+$LSMOD >>$DEBUG_FILE
 
 #export some common directories, used by some of the GUI's
 export EMC2_TCL_DIR=$EMC2_TCL_DIR
