@@ -100,9 +100,9 @@ typedef struct {
     hal_float_t *triangle;	/* pin: output */
     hal_float_t *sine;		/* pin: output */
     hal_float_t *cosine;	/* pin: output */
-    hal_float_t *frequency;	/* param: frequency */
-    hal_float_t *amplitude;	/* param: amplitude */
-    hal_float_t *offset;		/* param: offset */
+    hal_float_t *frequency;	/* pin: frequency */
+    hal_float_t *amplitude; /* pin: amplitude */
+    hal_float_t *offset;    /* pin: offset */
     float index;		/* position within output cycle */
 } hal_siggen_t;
 
