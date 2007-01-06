@@ -166,7 +166,7 @@ foreach temp $axiscoordmap {
     set axisType($temp) [emc_ini TYPE AXIS_$temp]
  }
 
-set programDirectory [emc_ini PROGRAM_PREFIX DISPLAY]
+set programDirectory $emc::NCFILES_DIR
 # set HELPDIRname [emc_ini HELP_FILE DISPLAY]
 
 # set some initial values to variables to be used during a run
@@ -1657,14 +1657,28 @@ pack $programfiletext  -side left -fill y
 pack $programrestart -side left -fill both -expand yes
 pack $programframe $programfileframe -side top -anchor w -fill both -expand yes
 
-# msgcat doesn't work here.  Seems the tk_getOpenFile can't handle it.
 proc fileDialog {} {
     global programDirectory programnamestring
-    set types {
-        {"All files" *}
-        {"Text files" {.txt}}
-        {"NC files" {.nc .ngc}}
-    }
+
+    set allfilestring [msgcat::mc "All files"]
+    set textfilestring [msgcat::mc "Text files"]
+    set ncfilestring [msgcat::mc "NC files"]
+
+    set all [list ]
+    lappend all $allfilestring
+    lappend all *
+    set text [list ]
+    lappend text $textfilestring
+    lappend text ".txt"
+    set nc [list ]
+    lappend nc $ncfilestring
+    lappend nc ".nc .ngc"
+
+    set types [list ]
+    lappend types $all
+    lappend types $text
+    lappend types $nc
+
     set f [tk_getOpenFile -filetypes $types -initialdir $programDirectory]
     if {[string len $f] > 0} {
         set programDirectory [file dirname $f]
@@ -2435,8 +2449,6 @@ proc popinEditor {} {
     global editFilename textwin programnamestring
     global editwidth editheight popinframe undo_id
 
-    set editTypes {{[msgcat::mc "All files"] *} {[msgcat::mc "Text files"]} {.txt}}
-
     if { ![info exists editwidth] } {set editwidth 80}
     if { ![info exists editheight] } {set editheight 40}
     set editframe [frame $popinframe.editor ]
@@ -2754,14 +2766,29 @@ proc setTextTitleAsNew {} {
     outccount
 }
 
-# msgcat doesn't work here
 # bring up open win
 proc showopenwin {} {
     global programDirectory
-    set types {
-        {"NC files" {*.ngc *.nc *.tap} }
-	    {"All files" *}
-    }
+
+    set allfilestring [msgcat::mc "All files"]
+    set textfilestring [msgcat::mc "Text files"]
+    set ncfilestring [msgcat::mc "NC files"]
+
+    set all [list ]
+    lappend all $allfilestring
+    lappend all *
+    set text [list ]
+    lappend text $textfilestring
+    lappend text ".txt"
+    set nc [list ]
+    lappend nc $ncfilestring
+    lappend nc ".nc .ngc"
+
+    set types [list ]
+    lappend types $all
+    lappend types $text
+    lappend types $nc
+
     set file [tk_getOpenFile -filetypes $types -parent . -initialdir $programDirectory]
 ###if [string compare $file ""]
     if { [string len $file] > 0} {
@@ -2798,14 +2825,29 @@ proc filetosave {} {
     }
 }
 
-# msgcat doesn't work here
 #save a file as
 proc filesaveas {} {
     global editFilename
-    set types {
-        {"NC files" {*.ngc *.nc *.tap} }
-        {"All files" *}
-    }
+
+    set allfilestring [msgcat::mc "All files"]
+    set textfilestring [msgcat::mc "Text files"]
+    set ncfilestring [msgcat::mc "NC files"]
+
+    set all [list ]
+    lappend all $allfilestring
+    lappend all *
+    set text [list ]
+    lappend text $textfilestring
+    lappend text ".txt"
+    set nc [list ]
+    lappend nc $ncfilestring
+    lappend nc ".nc .ngc"
+
+    set types [list ]
+    lappend types $all
+    lappend types $text
+    lappend types $nc
+
     set myfile [tk_getSaveFile -filetypes $types -parent .  -initialdir "~/gcode" -initialfile $editFilename]
     if { [expr [string compare $myfile ""]] != 0} {
 	writesave  $myfile 
