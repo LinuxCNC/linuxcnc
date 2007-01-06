@@ -46,6 +46,11 @@ set up with a single command.
 executes \fBhalcmd\fR with the given arguments, optionally runs an interactive
 \fBhalcmd -kf\fR if \fI-I\fR is given, then tears down the realtime
 environment.
+
+If the \fBreadline\fR library is available when emc is compiled, then
+\fBhalcmd\fR offers commandline editing and completion when running
+interactively.  Use the up arrow to recall previous commands, and press tab to
+complete the names of items such as pins and signals.
 .SH OPTIONS
 .TP
 \fB-I\fR
@@ -209,6 +214,8 @@ If a pin and a parameter both exist with the given name, the parameter is acted
 on.
 .TP
 \fIparamname\fR \fB=\fR \fIvalue\fR
+.TP
+\fIpinname\fR \fB=\fR \fIvalue\fR
 Identical to \fBsetp\fR.  This alternate form of the command may
 be more convenient and readable when used in a file.
 .TP
