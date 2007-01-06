@@ -100,9 +100,9 @@ typedef struct {
     hal_float_t *triangle;	/* pin: output */
     hal_float_t *sine;		/* pin: output */
     hal_float_t *cosine;	/* pin: output */
-    hal_float_t frequency;	/* param: frequency */
-    hal_float_t amplitude;	/* param: amplitude */
-    hal_float_t offset;		/* param: offset */
+    hal_float_t *frequency;	/* param: frequency */
+    hal_float_t *amplitude;	/* param: amplitude */
+    hal_float_t *offset;		/* param: offset */
     float index;		/* position within output cycle */
 } hal_siggen_t;
 
@@ -263,10 +263,10 @@ static void calc_siggen(void *arg, long period)
     tmp1 = period * 0.000000001;
 
     /* calculate how much of an output cycle that has passed */
-    tmp2 = siggen->frequency * tmp1;
+    tmp2 = *(siggen->frequency) * tmp1;
     /* limit frequency to comply with Nyquist limit */
     if ( tmp2 > 0.5 ) {
-	siggen->frequency = 0.5 / tmp1;
+	*(siggen->frequency) = 0.5 / tmp1;
 	tmp2 = 0.5;
     }
     /* index ramps from 0.0 to 0.99999 for each output cycle */
@@ -284,13 +284,13 @@ static void calc_siggen(void *arg, long period)
 	tmp1 = -1.0;
     }
     /* apply scaling and offset, and write to output */
-    *(siggen->square) = (tmp1 * siggen->amplitude) + siggen->offset;
+    *(siggen->square) = (tmp1 * *(siggen->amplitude)) + *(siggen->offset);
 
     /* generate the sawtooth wave output */
     /* tmp2 ramps from -1.0 to +1.0 as index goes from 0 to 1 */
     tmp2 = (siggen->index * 2.0) - 1.0;
     /* apply scaling and offset, and write to output */
-    *(siggen->sawtooth) = (tmp2 * siggen->amplitude) + siggen->offset;
+    *(siggen->sawtooth) = (tmp2 * *(siggen->amplitude)) + *(siggen->offset);
 
     /* generate the triangle wave output */
     /* tmp2 ramps from -2.0 to +2.0 as index goes from 0 to 1 */
@@ -298,17 +298,17 @@ static void calc_siggen(void *arg, long period)
     /* flip first half of ramp, now goes from +1 to -1 to +1 */
     tmp2 = (tmp2 * tmp1) - 1.0;
     /* apply scaling and offset, and write to output */
-    *(siggen->triangle) = (tmp2 * siggen->amplitude) + siggen->offset;
+    *(siggen->triangle) = (tmp2 * *(siggen->amplitude)) + *(siggen->offset);
 
     /* generate the sine wave output */
     /* tmp1 is angle in radians */
     tmp1 = siggen->index * (2.0 * 3.1415927);
     /* get sine, apply scaling and offset, and write to output */
-    *(siggen->sine) = (sin(tmp1) * siggen->amplitude) + siggen->offset;
+    *(siggen->sine) = (sin(tmp1) * *(siggen->amplitude)) + *(siggen->offset);
 
     /* generate the cosine wave output */
     /* get cosine, apply scaling and offset, and write to output */
-    *(siggen->cosine) = (cos(tmp1) * siggen->amplitude) + siggen->offset;
+    *(siggen->cosine) = (cos(tmp1) * *(siggen->amplitude)) + *(siggen->offset);
     /* done */
 }
 
@@ -347,7 +347,26 @@ static int export_siggen(int num, hal_siggen_t * addr)
     if (retval != 0) {
 	return retval;
     }
+
+    /* export more pins */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "siggen.%d.frequency", num);
+    retval = hal_pin_float_new(buf, HAL_RW, &(addr->frequency), comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "siggen.%d.amplitude", num);
+    retval = hal_pin_float_new(buf, HAL_RW, &(addr->amplitude), comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "siggen.%d.offset", num);
+    retval = hal_pin_float_new(buf, HAL_RW, &(addr->offset), comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+
     /* export parameters */
+    /*
     rtapi_snprintf(buf, HAL_NAME_LEN, "siggen.%d.frequency", num);
     retval = hal_param_float_new(buf, HAL_RW, &(addr->frequency), comp_id);
     if (retval != 0) {
@@ -363,16 +382,23 @@ static int export_siggen(int num, hal_siggen_t * addr)
     if (retval != 0) {
 	return retval;
     }
+    */
     /* init all structure members */
     *(addr->square) = 0.0;
     *(addr->sawtooth) = 0.0;
     *(addr->triangle) = 0.0;
     *(addr->sine) = 0.0;
     *(addr->cosine) = 0.0;
+    *(addr->frequency) = 1.0;
+    *(addr->amplitude) = 1.0;
+    *(addr->offset) = 0.0;
+    addr->index = 0.0;    
+    /* old params
     addr->frequency = 1.0;
     addr->amplitude = 1.0;
     addr->offset = 0.0;
     addr->index = 0.0;
+    */
     /* export function for this loop */
     rtapi_snprintf(buf, HAL_NAME_LEN, "siggen.%d.update", num);
     retval =
