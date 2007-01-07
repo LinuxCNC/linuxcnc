@@ -940,7 +940,7 @@ static gboolean search_for_entry(GtkWidget *widget, GdkEventKey *event, dialog_g
     }
 
     search_time = event->time;
-    if(strcmp(event->string, "'") == 0) {
+    if(strcmp(event->string, " ") == 0) {
 	char *text;
 	search_row = search_row + 1;
 	if(!gtk_clist_get_text(clist, search_row, 0, &text))
