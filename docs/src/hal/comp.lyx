@@ -225,7 +225,7 @@ TYPE
 \emph on 
 NAME
 \emph default 
- [
+ [= STARTVALUE] [
 \emph on 
 DOC
 \emph default 
@@ -470,7 +470,7 @@ rw
  parameter.
 \layout Description
 
-STARTVALUE Specifies the initial value of a parameter.
+STARTVALUE Specifies the initial value of a pin or parameter.
  If it is not specified, then the default is 
 \family typewriter 
 0
@@ -479,7 +479,7 @@ STARTVALUE Specifies the initial value of a parameter.
 \family typewriter 
 FALSE
 \family default 
-, depending on the type of the parameter.
+, depending on the type of the item.
 \layout Description
 
 fp Indicates that the function performs floating-point calculations.
