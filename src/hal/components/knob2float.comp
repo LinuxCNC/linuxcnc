@@ -33,12 +33,12 @@ function _;
 MODULE_LICENSE("GPL");
 
 typedef struct {
-    s32 old_counts;
+    long old_counts;
     float old_out;
 } knob2float_data;
 
 FUNCTION(_) {
-    s32 delta_counts;
+    long delta_counts;
     float tmp_out;
 
     if ( min_out > max_out ) {
