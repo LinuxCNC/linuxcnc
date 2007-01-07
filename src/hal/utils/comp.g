@@ -249,7 +249,7 @@ static int comp_id;
         print >>f, "static int get_count(void);"
 
     if options.get("rtapi_app", 1):
-        if options.get("constructable", 0) and not options.get("singleton"):
+        if options.get("constructable") and not options.get("singleton"):
             print >>f, "static int export_1(char *prefix, char *argstr) {"
             print >>f, "    int arg = simple_strtol(argstr, NULL, 0);"
             print >>f, "    return export(prefix, arg);"
@@ -282,7 +282,7 @@ static int comp_id;
             print >>f, "        r = export(buf, i);"
             print >>f, "        if(r != 0) break;"
             print >>f, "    }"
-        if options.get("constructable", 0) and not options.get("singleton"):
+        if options.get("constructable") and not options.get("singleton"):
             print >>f, "    hal_set_constructor(comp_id, export_1);"
         print >>f, "    if(r) {"
 	if options.get("extra_cleanup"):
@@ -303,14 +303,14 @@ static int comp_id;
 
     if options.get("userspace"):
         print >>f, "static void user_mainloop(void);"
-        if options.get("userinit", 0):
-            print >>f, "static void user_init(void);"
+        if options.get("userinit"):
+            print >>f, "static void user_init(int argc, char **argv);"
         print >>f, "int argc=0; char **argv=0;"
         print >>f, "int main(int argc_, char **argv_) {"    
         print >>f, "    argc = argc_; argv = argv;"
         print >>f 
         if options.get("userinit", 0):
-            print >>f, "    userinit()";
+            print >>f, "    userinit(argc, argv)";
         print >>f 
         print >>f, "    if(rtapi_app_main() < 0) return 1;"
         print >>f, "    user_mainloop();"
@@ -460,25 +460,27 @@ def document(filename, outfilename):
 
 
     print >>f, ".SH SYNOPSIS"
-
-    if rest:
-        print >>f, rest
-    elif options.get("singleton") or options.get("count_function"):
-        print >>f, ".B loadrt %s" % comp_name
+    if options.get("userspace"):
+        print >>f, ".B %s" % comp_name
     else:
-        print >>f, ".B loadrt %s [count=\\fIN\\fB]" % comp_name
-    if options.get("constructable", 0) and not options.get("singleton"):
-        print >>f, ".PP\n.B newinst %s \\fIname\\fB" % comp_name
-
-    print >>f, ".SH FUNCTIONS"
-    for _, name, fp, doc in finddocs('funct'):
-        print >>f, ".TP"
-        print >>f, "\\fB%s\\fR" % to_hal_man(name),
-        if fp:
-            print >>f, "(uses floating-point)"
+        if rest:
+            print >>f, rest
+        elif options.get("singleton") or options.get("count_function"):
+            print >>f, ".B loadrt %s" % comp_name
         else:
-            print >>f
-        print >>f, doc
+            print >>f, ".B loadrt %s [count=\\fIN\\fB]" % comp_name
+        if options.get("constructable") and not options.get("singleton"):
+            print >>f, ".PP\n.B newinst %s \\fIname\\fB" % comp_name
+
+        print >>f, ".SH FUNCTIONS"
+        for _, name, fp, doc in finddocs('funct'):
+            print >>f, ".TP"
+            print >>f, "\\fB%s\\fR" % to_hal_man(name),
+            if fp:
+                print >>f, "(uses floating-point)"
+            else:
+                print >>f
+            print >>f, doc
 
     print >>f, ".SH PINS"
     for _, name, type, dir, doc, value in finddocs('pin'):
