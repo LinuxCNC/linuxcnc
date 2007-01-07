@@ -952,14 +952,14 @@ static gboolean search_for_entry(GtkWidget *widget, GdkEventKey *event, dialog_g
     
     for(z = search_row, wrapped=0; z != search_row || !wrapped; z ++) {
 	char *text;
-again:
+
 	printf("search: %d (wrapped=%d)\n", z, wrapped);
 	if(!gtk_clist_get_text(clist, z, 0, &text)) {
 	    if(wrapped) break; // wrapped second time (why?)
 	    z = 0;
 	    wrapped = 1; 
-	    goto again;
 	}
+	
 	if(strstr(text, search_target)) {
 	    double pos = (z+.5) / (clist->rows-1);
 	    if(pos > 1) pos = 1;
