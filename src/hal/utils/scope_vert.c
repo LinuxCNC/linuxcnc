@@ -47,6 +47,8 @@
 #include "../hal_priv.h"	/* private HAL decls */
 
 #include <gtk/gtk.h>
+#include <gdk/gdkkeysyms.h>
+
 #include "miscgtk.h"		/* generic GTK stuff */
 #include "scope_usr.h"		/* scope related declarations */
 
@@ -879,6 +881,107 @@ static void change_source_button(GtkWidget * widget, gpointer gdata)
     channel_changed();
 }
 
+static char search_target[HAL_NAME_LEN+1];
+static guint32 search_time = 0;
+static int search_row = -1;
+#define SEARCH_RESET_TIME 1000 /* ms */
+
+static void selection_made_common(GtkWidget *clist, gint row, dialog_generic_t *dptr) {
+    gint n, listnum;
+    gchar *name;
+    int rv, chan_num;
+
+    scope_vert_t *vert;
+    /* If we get here, it should be a valid selection */
+    vert = &(ctrl_usr->vert);
+    chan_num = *((int *)(dptr->app_data));
+    /* figure out which notebook tab it was */
+    listnum = -1;
+    for (n = 0; n < 3; n++) {
+	if (clist == vert->lists[n]) {
+	    listnum = n;
+	}
+    }
+    /* Get the text from the list */
+    gtk_clist_get_text(GTK_CLIST(clist), row, 0, &name);
+    /* try to set up the new source */
+    rv = set_channel_source(chan_num, listnum, name);
+    if ( rv == 0 ) {
+	/* set return value of dialog to indicate success */
+	dptr->retval = 1;
+    } else {
+	/* new source invalid, return as if user hit cancel */
+	dptr->retval = 2;
+    }
+    /* destroy window to cause dialog_generic_destroyed() to be called */
+    gtk_widget_destroy(dptr->window);
+    return;
+}
+
+
+static gboolean search_for_entry(GtkWidget *widget, GdkEventKey *event, dialog_generic_t *dptr)
+{
+    GtkCList *clist = GTK_CLIST(widget);
+    int z, wrapped;
+
+    if(event->keyval == GDK_Return) {
+	selection_made_common(widget, clist->focus_row, dptr);
+    }
+
+    if(!isprint(event->string[0])) {
+	strcpy(search_target, "");
+	search_row = clist->focus_row;
+	return 0;
+    }
+
+    if(event->time - search_time > SEARCH_RESET_TIME) {
+	strcpy(search_target, "");
+	search_row = clist->focus_row;
+    }
+
+    search_time = event->time;
+    if(strcmp(event->string, "'") == 0) {
+	char *text;
+	search_row = search_row + 1;
+	if(!gtk_clist_get_text(clist, search_row, 0, &text))
+	    search_row = 0;
+	printf("next search: %d\n", search_row);
+    } else {
+	strcat(search_target, event->string);
+    }
+    
+    for(z = search_row, wrapped=0; z != search_row || !wrapped; z ++) {
+	char *text;
+again:
+	printf("search: %d (wrapped=%d)\n", z, wrapped);
+	if(!gtk_clist_get_text(clist, z, 0, &text)) {
+	    if(wrapped) break; // wrapped second time (why?)
+	    z = 0;
+	    wrapped = 1; 
+	    goto again;
+	}
+	if(strstr(text, search_target)) {
+	    double pos = (z+.5) / (clist->rows-1);
+	    if(pos > 1) pos = 1;
+	    
+	    GTK_CLIST_GET_CLASS(clist)->scroll_vertical(clist, GTK_SCROLL_JUMP, pos);
+	    gtk_clist_select_row(clist, z, 0);
+	    search_row = z;
+	    return 1;
+	}
+    }
+    return 0;
+}
+
+static gboolean change_page(GtkNotebook *notebook, GtkNotebookPage *page, guint page_num, gpointer user_data) {
+    scope_vert_t *vert;
+    vert = &(ctrl_usr->vert);
+    printf("change_page: %d\n", page_num);
+    if(page_num >= 0 && page_num  < 3)
+	gtk_widget_grab_focus(GTK_WIDGET(vert->lists[page_num]));
+    return 0;
+}
+
 static gboolean dialog_select_source(int chan_num)
 {
     scope_vert_t *vert;
@@ -926,6 +1029,7 @@ static gboolean dialog_select_source(int chan_num)
 	TRUE, 0);
     /* set overall notebook parameters */
     gtk_notebook_set_homogeneous_tabs(GTK_NOTEBOOK(notebk), TRUE);
+    gtk_signal_connect(GTK_OBJECT(notebk), "switch-page", GTK_SIGNAL_FUNC(change_page), &dialog);
     /* text for tab labels */
     tab_label_text[0] = "Pins";
     tab_label_text[1] = "Signals";
@@ -943,6 +1047,8 @@ static gboolean dialog_select_source(int chan_num)
 	/* set up a callback for when the user selects a line */
 	gtk_signal_connect(GTK_OBJECT(vert->lists[n]), "select_row",
 	    GTK_SIGNAL_FUNC(selection_made), &dialog);
+	gtk_signal_connect(GTK_OBJECT(vert->lists[n]), "key-press-event",
+	    GTK_SIGNAL_FUNC(search_for_entry), &dialog);
 	/* It isn't necessary to shadow the border, but it looks nice :) */
 	gtk_clist_set_shadow_type(GTK_CLIST(vert->lists[n]), GTK_SHADOW_OUT);
 	/* set list for single selection only */
@@ -1061,16 +1167,11 @@ static gboolean dialog_select_source(int chan_num)
     channel_changed();
     return TRUE;
 }
-
-/* If we come here, then the user has selected a row in the list. */
+/* If we come here, then the user has clicked a row in the list. */
 static void selection_made(GtkWidget * clist, gint row, gint column,
     GdkEventButton * event, dialog_generic_t * dptr)
 {
-    scope_vert_t *vert;
     GdkEventType type;
-    gint n, listnum;
-    gchar *name;
-    int rv, chan_num;
     
     if ((event == NULL) || (clist == NULL)) {
 	/* We get spurious events when the lists are populated I don't know
@@ -1084,32 +1185,9 @@ static void selection_made(GtkWidget * clist, gint row, gint column,
 	   their event type is 3, not 4. */
 	return;
     }
-    /* If we get here, it should be a valid selection */
-    vert = &(ctrl_usr->vert);
-    chan_num = *((int *)(dptr->app_data));
-    /* figure out which notebook tab it was */
-    listnum = -1;
-    for (n = 0; n < 3; n++) {
-	if (clist == vert->lists[n]) {
-	    listnum = n;
-	}
-    }
-    /* Get the text from the list */
-    gtk_clist_get_text(GTK_CLIST(clist), row, column, &name);
-    /* try to set up the new source */
-    rv = set_channel_source(chan_num, listnum, name);
-    if ( rv == 0 ) {
-	/* set return value of dialog to indicate success */
-	dptr->retval = 1;
-    } else {
-	/* new source invalid, return as if user hit cancel */
-	dptr->retval = 2;
-    }
-    /* destroy window to cause dialog_generic_destroyed() to be called */
-    gtk_widget_destroy(dptr->window);
-    return;
-}    
-    
+    selection_made_common(clist, row, dptr);
+}
+
 void channel_changed(void)
 {
     scope_vert_t *vert;
