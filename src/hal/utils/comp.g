@@ -39,7 +39,7 @@ parser Hal:
     rule File: Declaration* "$" {{ return True }}
     rule Declaration:
         "component" NAME OptString";" {{ comp(NAME, OptString); }}
-      | "pin" PINDIRECTION TYPE NAME OptString ";"  {{ pin(NAME, TYPE, PINDIRECTION, OptString) }}
+      | "pin" PINDIRECTION TYPE NAME OptAssign OptString ";"  {{ pin(NAME, TYPE, PINDIRECTION, OptString, OptAssign) }}
       | "param" PARAMDIRECTION TYPE NAME OptAssign OptString ";" {{ param(NAME, TYPE, PARAMDIRECTION, OptString, OptAssign) }}
       | "function" NAME OptFP OptString ";"       {{ function(NAME, OptFP, OptString) }}
       | "option" NAME OptValue ";"   {{ option(NAME, OptValue) }}
@@ -101,13 +101,13 @@ def type2type(type):
     # When we start warning about s32/u32 this is where the warning goes
     return typemap.get(type, type)
     
-def pin(name, type, dir, doc):
+def pin(name, type, dir, doc, value):
     type = type2type(type)
     if name in names:
         Error("Duplicate item name %s" % name)
-    docs.append(('pin', name, type, dir, doc))
+    docs.append(('pin', name, type, dir, doc, value))
     names[name] = None
-    pins.append((name, type, dir))
+    pins.append((name, type, dir, value))
 
 def param(name, type, dir, doc, value):
     type = type2type(type)
@@ -170,7 +170,7 @@ static int comp_id;
 
     print >>f
     print >>f, "struct state {"
-    for name, type, dir in pins:
+    for name, type, dir, value in pins:
         if names.has_key(name):
             raise RuntimeError, "Duplicate item name: %s" % name
         print >>f, "    hal_%s_t *%s;" % (type, name)
@@ -211,11 +211,13 @@ static int comp_id;
 	print >>f, "    r = extra_setup(inst, extra_arg);"
 	print >>f, "    if(r != 0) return r;"
 
-    for name, type, dir in pins:
+    for name, type, dir, value in pins:
         print >>f, "    r = hal_pin_%s_newf(%s, &(inst->%s), comp_id," % (
             type, dirmap[dir], name)
         print >>f, "        \"%%s%s\", prefix);" % to_hal("." + name)
         print >>f, "    if(r != 0) return r;"
+        if value is not None:
+            print >>f, "    *(inst->%s) = %s;" % (name, value)
 
     for name, type, dir, value in params:
         print >>f, "    r = hal_param_%s_newf(%s, &(inst->%s), comp_id," % (
@@ -294,7 +296,7 @@ static int comp_id;
         print >>f, "#define EXTRA_SETUP() static int extra_setup(struct state *inst, long extra_arg)"
         print >>f, "#define EXTRA_CLEANUP() static void extra_cleanup(void)"
         print >>f, "#define fperiod (period * 1e-9)"
-        for name, type, dir in pins:
+        for name, type, dir, value in pins:
             if dir == 'in':
                 print >>f, "#define %s (0+*inst->%s)" % (name, name)
             else:
@@ -428,10 +430,14 @@ def document(filename, outfilename):
         print >>f, doc
 
     print >>f, ".SH PINS"
-    for _, name, type, dir, doc in finddocs('pin'):
+    for _, name, type, dir, doc, value in finddocs('pin'):
         print >>f, ".TP"
         print >>f, "\\fB%s\\fR" % to_hal_man(name),
-        print >>f, type, dir
+        print >>f, type, dir,
+        if value:
+            print >>f, "\\fR(default: \\fI%s\\fR)" % value
+        else:
+            print >>f, "\\fR"
         print >>f, doc
 
     if params:
