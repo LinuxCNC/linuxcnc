@@ -170,6 +170,7 @@ static int comp_id;
 
     print >>f
     print >>f, "struct state {"
+    print >>f, "    struct state *_next;"
     for name, type, dir, value in pins:
         if names.has_key(name):
             raise RuntimeError, "Duplicate item name: %s" % name
@@ -186,6 +187,12 @@ static int comp_id;
         print >>f, "    void *_data;"
 
     print >>f, "};"
+
+    if options.get("userspace"):
+        print >>f, "#include <stdlib.h>"
+
+    print >>f, "struct state *inst=0;"
+    print >>f, "struct state *first_inst=0;"
     
     print >>f
     for name, fp in functions:
@@ -233,6 +240,8 @@ static int comp_id;
         print >>f, "    r = hal_export_funct(buf, (void(*)(void *inst, long))%s, inst, %s, 0, comp_id);" % (
             name, int(fp))
         print >>f, "    if(r != 0) return r;"
+    print >>f, "    inst->_next = first_inst;"
+    print >>f, "    first_inst = inst;"
     print >>f, "    return 0;"
     print >>f, "}"
 
@@ -248,7 +257,8 @@ static int comp_id;
         if not options.get("singleton") and not options.get("count_function") :
             print >>f, "static int count = %s;" \
                 % options.get("default_count", 1)
-            print >>f, "RTAPI_MP_INT(count, \"number of %s\");" % comp_name
+            if not options.get("userspace"):
+                print >>f, "RTAPI_MP_INT(count, \"number of %s\");" % comp_name
 
         print >>f, "int rtapi_app_main(void) {"
         print >>f, "    int r = 0;"
@@ -256,6 +266,7 @@ static int comp_id;
             print >>f, "    int i;"
         if options.get("count_function"):
             print >>f, "    int count = get_count();"
+
         print >>f, "    comp_id = hal_init(\"%s\");" % comp_name
         print >>f, "    if(comp_id < 0) return comp_id;"
 
@@ -290,6 +301,23 @@ static int comp_id;
         print >>f, "    hal_exit(comp_id);"
         print >>f, "}"
 
+    if options.get("userspace"):
+        print >>f, "static void user_mainloop(void);"
+        if options.get("userinit", 0):
+            print >>f, "static void user_init(void);"
+        print >>f, "int argc=0; char **argv=0;"
+        print >>f, "int main(int argc_, char **argv_) {"    
+        print >>f, "    argc = argc_; argv = argv;"
+        print >>f 
+        if options.get("userinit", 0):
+            print >>f, "    userinit()";
+        print >>f 
+        print >>f, "    if(rtapi_app_main() < 0) return 1;"
+        print >>f, "    user_mainloop();"
+        print >>f, "    rtapi_app_exit();"
+        print >>f, "    return 0;"
+        print >>f, "}"
+
     print >>f
     if not options.get("no_convenience_defines"):
         print >>f, "#define FUNCTION(name) static void name(struct state *inst, long period)"
@@ -306,6 +334,9 @@ static int comp_id;
         
         if has_data:
             print >>f, "#define data (*(%s*)&(inst->_data))" % options['data']
+
+        if options.get("userspace"):
+            print >>f, "#define FOR_ALL_INSTS() for(inst = first_inst; inst; inst = inst->_next)"    
     print >>f
     print >>f
 
@@ -331,7 +362,27 @@ def find_modinc():
             return e
     raise SystemExit, "Unable to locate Makefile.modinc"
 
-def build(tempdir, filename, mode, origfilename):
+def build_usr(tempdir, filename, mode, origfilename):
+    binname = os.path.basename(os.path.splitext(filename)[0])
+
+    makefile = os.path.join(tempdir, "Makefile")
+    f = open(makefile, "w")
+    print >>f, "%s: %s" % (binname, filename)
+    print >>f, "\t$(CC) $(EXTRA_CFLAGS) -URTAPI -DULAPI -O2 %s -o $@ $< -Wl,-rpath,$(LIBDIR) -L$(LIBDIR) -lemchal %s" % (
+        options.get("extra_compile_args", ""),
+        options.get("extra_link_args", ""))
+    print >>f, "include %s" % find_modinc()
+    f.close()
+    result = os.system("cd %s; make -S %s" % (tempdir, binname))
+    if result != 0:
+        raise SystemExit, result
+    output = os.path.join(tempdir, binname)
+    if mode == INSTALL:
+        shutil.copy(output, os.path.join(BASE, "bin", binname))
+    elif mode == COMPILE:
+        shutil.copy(output, os.path.join(os.path.dirname(origfilename),binname))
+
+def build_rt(tempdir, filename, mode, origfilename):
     objname = os.path.basename(os.path.splitext(filename)[0] + ".o")
     makefile = os.path.join(tempdir, "Makefile")
     f = open(makefile, "w")
@@ -472,8 +523,12 @@ def process(filename, mode, outfilename):
 
         f = open(outfilename, "w")
 
-        if not functions:
-            raise SystemExit, "Component must have at least one function"
+        if options.get("userspace"):
+            if functions:
+                raise SystemExit, "Userspace components may not have functions"
+        else:
+            if not functions:
+                raise SystemExit, "Realtime component must have at least one function"
         if not pins:
             raise SystemExit, "Component must have at least one pin"
         prologue(f)
@@ -484,7 +539,10 @@ def process(filename, mode, outfilename):
         f.close()
 
         if mode != PREPROCESS:
-            build(tempdir, outfilename, mode, filename)
+            if options.get("userspace"):
+                build_usr(tempdir, outfilename, mode, filename)
+            else:
+                build_rt(tempdir, outfilename, mode, filename)
 
     finally:
         shutil.rmtree(tempdir) 
