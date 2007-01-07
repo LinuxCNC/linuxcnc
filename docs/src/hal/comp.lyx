@@ -61,7 +61,7 @@ comp
  will write all this code for you, automatically.
 \layout Standard
 
-Compiling a realtime HAL component is also much easier when using 
+Compiling a HAL component is also much easier when using 
 \emph on 
 comp
 \emph default 
@@ -196,8 +196,7 @@ A
 \family typewriter 
 ;;
 \family default 
- on a line of its own, followed by C code implementing the module's realtime
- functions.
+ on a line of its own, followed by C code implementing the module's functions.
 \layout Standard
 
 Declarations include:
@@ -537,7 +536,12 @@ component-name.<num>.item-name
 \layout Description
 
 option\SpecialChar ~
-default_count (default: 1)
+default_count\SpecialChar ~
+
+\emph on 
+number
+\emph default 
+ (default: 1)
 \newline 
 Normally, the module parameter 
 \family typewriter 
@@ -671,6 +675,71 @@ rtapi_app_exit
 rtapi_app_main
 \family default 
 .
+\layout Description
+
+option\SpecialChar ~
+userspace\SpecialChar ~
+yes (default: no)
+\newline 
+If specified, this file describes a userspace component, rather than a real
+ one.
+ A userspace component may not have functions defined by the 
+\family typewriter 
+function
+\family default 
+ directive.
+ Instead, after all the instances are constructed, the C function 
+\family typewriter 
+user_mainloop()
+\family default 
+ is called.
+ When this function returns, the component exits.
+ Typically, 
+\family typewriter 
+user_mainloop()
+\family default 
+ will use 
+\family typewriter 
+FOR_ALL_INSTS()
+\family default 
+ to perform the update action for each instance, then sleep for a short
+ time.
+ Another common action in 
+\family typewriter 
+user_mainloop()
+\family default 
+ may be to call the event handler loop of a GUI toolkit.
+\layout Description
+
+option\SpecialChar ~
+userinit\SpecialChar ~
+yes (default: no)
+\newline 
+If specified, the function 
+\family typewriter 
+userinit(argc,argv)
+\family default 
+ is called before 
+\family typewriter 
+rtapi_app_main()
+\family default 
+ (and thus before the call to 
+\family typewriter 
+hal_init()
+\family default 
+).
+ This function may process the commandline arguments or take other actions.
+ Its return type is 
+\family typewriter 
+void
+\family default 
+; it may call 
+\family typewriter 
+exit()
+\family default 
+ if it wishes to terminate rather than create a hal component (for instance,
+ because the commandline arguments were invalid).
+\end_deeper 
 \layout Standard
 
 If an option's VALUE is not specified, then it is equivalent to specifying
@@ -682,7 +751,6 @@ option \SpecialChar \ldots{}
 .
  The result of assigning an inappropriate value to an option is undefined.
  The result of using any other option is undefined.
-\end_deeper 
 \layout Standard
 
 C++-style one-line comments (
@@ -766,10 +834,16 @@ EXTRA_CLEANUP() Use this macro to begin the definition of the function called
  The 'pin_name', 'parameter_name', and 'data' macros may not be used here.
 \layout Description
 
+
+\emph on 
 pin_name
 \layout Description
 
-parameter_name For each pin 
+
+\emph on 
+parameter_name
+\emph default 
+ For each pin 
 \family typewriter 
 pin_name
 \family default 
@@ -785,7 +859,39 @@ data If 'option data' is specified, this macro allows access to the instance
  data.
 \layout Description
 
-fperiod The floating-point number of seconds between calls to this function.
+fperiod The floating-point number of seconds between calls to this realtime
+ function.
+\layout Description
+
+FOR_ALL_INSTS()\SpecialChar ~
+{
+\family typewriter 
+\SpecialChar \ldots{}
+
+\family default 
+} For userspace components.
+ This macro uses the variable 
+\family typewriter 
+struct state *inst
+\family default 
+ to iterate over all the defined instances.
+ Inside the body of the loop, the 
+\series bold 
+\emph on 
+pin_name
+\series default 
+\emph default 
+, 
+\series bold 
+\emph on 
+parameter_name
+\series default 
+\emph default 
+, and 
+\series bold 
+data
+\series default 
+ macros work as they do in realtime functions.
 \layout Section
 
 Compiling 
@@ -826,32 +932,36 @@ emc2/src/hal/components
  and will be built except if emc2 is configured as a userspace simulator.
 \layout Section
 
-Compiling components outside the source tree
+Compiling realtime components outside the source tree
 \layout Standard
 
 
 \family typewriter 
 comp
 \family default 
- can process, compile, and install a component in a single step, placing
- 
+ can process, compile, and install a realtime component in a single step,
+ placing 
 \family typewriter 
-example.ko
+rtexample.ko
 \family default 
  in the emc2 realtime module directory:
 \layout LyX-Code
 
-comp --install example.comp
+comp --install rtexample.comp
 \layout Standard
 
 Or, it can process and compile in one step, leaving 
 \family typewriter 
 example.ko
 \family default 
- in the current directory:
+ (or 
+\family typewriter 
+example.so
+\family default 
+ for the simulator) in the current directory:
 \layout LyX-Code
 
-comp --compile example.comp
+comp --compile rtexample.comp
 \layout Standard
 
 Or it can simply process, leaving 
@@ -861,7 +971,7 @@ example.c
  in the current directory:
 \layout LyX-Code
 
-comp example.comp
+comp rtexample.comp
 \layout Standard
 
 
@@ -879,14 +989,14 @@ comp
  options shown above:
 \layout LyX-Code
 
-comp --install example2.c
+comp --install rtexample2.c
 \layout Standard
 
 man-format documentation can also be created from the information in the
  declaration section:
 \layout LyX-Code
 
-comp --document example.comp
+comp --document rtexample.comp
 \layout Standard
 
 The resulting manpage, 
@@ -900,6 +1010,36 @@ man ./example.9
 \layout Standard
 
 or copied to a standard location for manual pages.
+\layout Section
+
+Compiling userspace components outside the source tree
+\layout Standard
+
+
+\family typewriter 
+comp
+\family default 
+ can process, compile, install, and document userspace components:
+\layout LyX-Code
+
+comp usrexample.comp
+\newline 
+comp --compile usrexample.comp
+\newline 
+comp --install usrexample.comp
+\newline 
+comp --document usrexample.comp
+\layout Standard
+
+This only works for 
+\family typewriter 
+.comp
+\family default 
+ files, not for 
+\family typewriter 
+.c
+\family default 
+ files.
 \layout Section
 
 Examples
@@ -1092,6 +1232,24 @@ loop.0.example
 hal-loop.0.example
 \family default 
 .
+\layout Subsection
+
+rand
+\layout Standard
+
+This userspace component changes the value on its output pin to a new random
+ value in the range 
+\begin_inset Formula $[0,1)$
+\end_inset 
+
+ about once every 1ms.
 \layout LyX-Code
+
+
+\begin_inset Include \verbatiminput{rand.comp}
+preview false
+
+\end_inset 
+
 
 \the_end

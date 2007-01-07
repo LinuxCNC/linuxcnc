@@ -1,0 +1,14 @@
+component rand;
+option userspace;
+
+pin out float out;
+;;
+#include <unistd.h>
+
+void user_mainloop(void) {
+    while(1) {
+        usleep(1000);
+        FOR_ALL_INSTS() out = drand48();
+    }
+}
+
