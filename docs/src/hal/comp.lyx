@@ -225,7 +225,11 @@ TYPE
 \emph on 
 NAME
 \emph default 
- [= STARTVALUE] [
+ [= 
+\emph on 
+STARTVALUE
+\emph default 
+] [
 \emph on 
 DOC
 \emph default 
