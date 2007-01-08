@@ -656,11 +656,11 @@ static void comp_funct(void *arg, long period)
     /* calculate output */
     tmp = *(comp->in1) - *(comp->in0);
     if (*(comp->out)) {
-	if (tmp < -comp->hyst) {
+	if (tmp < -comp->hyst/2.) {
 	    *(comp->out) = 0;
 	}
     } else {
-	if (tmp > comp->hyst) {
+	if (tmp > comp->hyst/2.) {
 	    *(comp->out) = 1;
 	}
     }
