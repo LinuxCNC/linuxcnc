@@ -1,11 +1,14 @@
 component comp "Two input comparator with hystersis";
 pin in float in0 "Inverting input to the comparator";
 pin in float in1 "Non-inverting input to the comparator";
-pin out bit out """Output of the comparator.
+pin out bit out "Output of the comparator.";
 
-The output changes when the magnitude of the difference exceeds the hysteresis.
-As long as the hysteresis is unchanged, the output is unchanged.""";
-param rw float hyst=0.0 "Hysteresis of the comparator";
+param rw float hyst=0.0 """Hysteresis of the comparator (default 0.0)
+
+With zero hysteresis, the output is true when in1 > in0.  With nonzero
+hysteresis, the output switches on and off at two different values, 
+separated by distance hyst around the point where in1 = in0.""";
+
 function _ fp "Update the comparator";
 ;;
 MODULE_LICENSE("GPL");
@@ -13,9 +16,9 @@ FUNCTION(_) {
     float tmp = in1 - in0;
 
     if(out) {
-	if(tmp < -hyst) out = 0;
+	if(tmp < -hyst/2.) out = 0;
     } else {
-	if(tmp > hyst) out = 1;
+	if(tmp > hyst/2.) out = 1;
     }
 }
 
