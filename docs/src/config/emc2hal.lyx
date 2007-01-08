@@ -44,9 +44,9 @@ Pins
 
 motion.adaptive-feed\SpecialChar ~
 IN\SpecialChar ~
-float When adaptive feed is enabled with G50 (See section
+float When adaptive feed is enabled with M52 (See section
  
-\begin_inset LatexCommand \ref{sec:G50,-G51:-Adaptive}
+\begin_inset LatexCommand \ref{sec:M52:-Adaptive-Feed-Control}
 
 \end_inset 
 
