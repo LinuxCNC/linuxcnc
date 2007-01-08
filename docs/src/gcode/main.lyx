@@ -6835,7 +6835,7 @@ M52
 \family default 
  or 
 \family typewriter 
-M51 P1
+M52 P1
 \family default 
 .
  To stop using adaptive feed, program 
