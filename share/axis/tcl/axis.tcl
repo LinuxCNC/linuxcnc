@@ -703,7 +703,7 @@ button $_tabs_manual.jogf.zerohome.home \
 	-command home_axis \
 	-padx 2m \
 	-pady 0
-setup_widget_accel $_tabs_manual.jogf.zerohome.home [_ Home]
+setup_widget_accel $_tabs_manual.jogf.zerohome.home [_ "Home"]
 
 button $_tabs_manual.jogf.zerohome.zero \
 	-command touch_off \
