@@ -26,6 +26,8 @@ menu .menu.file \
 	-tearoff 0
 menu .menu.machine \
 	-tearoff 0
+menu .menu.machine.home \
+	-tearoff 0
 menu .menu.view \
 	-tearoff 0
 menu .menu.help \
@@ -130,6 +132,12 @@ setup_menu_accel .menu.machine end [_ "Sho_w EMC Status"]
 .menu.machine add command \
 	-command {exec debuglevel &}
 setup_menu_accel .menu.machine end [_ "Set _Debug Level"]
+
+.menu.machine add separator
+
+.menu.machine add cascade \
+        -menu .menu.machine.home
+setup_menu_accel .menu.machine end [_ "Homin_g"]
 
 
 
@@ -1490,6 +1498,9 @@ proc update_state {args} {
     state  {$interp_state == $INTERP_IDLE} .toolbar.file_open {.menu.file 0}
     state  {$interp_state == $INTERP_IDLE && $taskfile != ""} \
                 .toolbar.reload {.menu.file 1} {.menu.file 2}
+
+    state  {$task_state == $STATE_ON && $interp_state == $INTERP_IDLE} \
+                {.menu.machine 21}
 
     state  {$task_state == $STATE_ON && $interp_state == $INTERP_IDLE \
             && $taskfile != ""} \

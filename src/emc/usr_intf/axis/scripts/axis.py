@@ -1729,7 +1729,8 @@ widgets = nf.Widgets(root_window,
     ("menu_view", Menu, ".menu.view"),
     ("menu_machine", Menu, ".menu.machine"),
 
-    ("homebutton", Scale, tabs_manual + ".jogf.zerohome.home"),
+    ("homebutton", Button, tabs_manual + ".jogf.zerohome.home"),
+    ("homemenu", Menu, ".menu.machine.home")
 )
 
 def activate_axis(i, force=0):
@@ -2313,6 +2314,10 @@ class TclCommands(nf.TclCommands):
         ensure_mode(emc.MODE_MANUAL)
         c.home("xyzabc".index(vars.current_axis.get()))
 
+    def home_axis_number(num):
+        ensure_mode(emc.MODE_MANUAL)
+        c.home(num)
+
     def touch_off(event=None, new_axis_value = None):
         if not manual_ok(): return
         if s.motion_mode == emc.TRAJ_MODE_FREE and s.kinematics_type != emc.KINEMATICS_IDENTITY: return
@@ -2706,6 +2711,15 @@ if homing_order_defined:
     widgets.homebutton.configure(text=_("Home All"), command="home_all_axes")
     root_window.tk.call("DynamicHelp::add", widgets.homebutton,
             "-text", _("Home all axes [Ctrl-Home]"))
+    widgets.homemenu.add_command(command=commands.home_all_axes)
+    root_window.tk.call("setup_menu_accel", widgets.homemenu, "end",
+            _("Home All Axes"))
+
+for i,j in enumerate(axisnames):
+    if i == 1 and lathe: continue
+    widgets.homemenu.add_command(command=lambda i=i: commands.home_axis_number(i))
+    root_window.tk.call("setup_menu_accel", widgets.homemenu, "end",
+            _("Home Axis _%s") % j)
 
 astep_size = step_size = 1
 for a in range(axiscount):
