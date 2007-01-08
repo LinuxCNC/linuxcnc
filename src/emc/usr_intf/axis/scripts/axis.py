@@ -1728,6 +1728,8 @@ widgets = nf.Widgets(root_window,
 
     ("menu_view", Menu, ".menu.view"),
     ("menu_machine", Menu, ".menu.machine"),
+
+    ("homebutton", Scale, tabs_manual + ".jogf.zerohome.home"),
 )
 
 def activate_axis(i, force=0):
@@ -2698,6 +2700,12 @@ if lu == 1:
 else:
     root_window.tk.eval("${pane_top}.jogspeed.l1 configure -text in/min")
 root_window.tk.eval(u"${pane_top}.ajogspeed.l1 configure -text deg/min")
+homing_order_defined = inifile.find("AXIS_0", "HOME_SEQUENCE") is not None
+
+if homing_order_defined:
+    widgets.homebutton.configure(text=_("Home All"), command="home_all_axes")
+    root_window.tk.call("DynamicHelp::add", widgets.homebutton,
+            "-text", _("Home all axes [Ctrl-Home]"))
 
 astep_size = step_size = 1
 for a in range(axiscount):
