@@ -44,8 +44,12 @@ Pins
 
 motion.adaptive-feed\SpecialChar ~
 IN\SpecialChar ~
-float When adaptive feed is enabled with M52 (See section
- 
+float When adaptive feed is enabled with 
+\family typewriter 
+M52\SpecialChar ~
+P1
+\family default 
+ (See section 
 \begin_inset LatexCommand \ref{sec:M52:-Adaptive-Feed-Control}
 
 \end_inset 
@@ -69,13 +73,28 @@ M65
 
 motion.enable\SpecialChar ~
 IN\SpecialChar ~
-bit If this bit is set to false, motion stops.
- Otherwise, motion may proceed.
+bit If this bit is driven FALSE, motion stops, the machine
+ is placed in the 
+\begin_inset Quotes eld
+\end_inset 
+
+machine off
+\begin_inset Quotes erd
+\end_inset 
+
+ state, and a message is displayed for the operator.
+ For normal motion, drive this bit TRUE.
+\layout Description
+
+motion.feed-hold\SpecialChar ~
+IN\SpecialChar ~
+bit If this bit is set to false, the feed rate is set to
+ 0.
 \layout Description
 
 motion.motion-inpos\SpecialChar ~
 OUT\SpecialChar ~
-bit TRUE if the machine is in position
+bit TRUE if the machine is in position.
 \layout Description
 
 motion.probe-input\SpecialChar ~
