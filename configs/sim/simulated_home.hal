@@ -10,9 +10,9 @@ linksp Zhomeswpos comp.2.in0
 linksp Xpos comp.0.in1
 linksp Ypos comp.1.in1
 linksp Zpos comp.2.in1
-setp comp.0.hyst .01
-setp comp.1.hyst .01
-setp comp.2.hyst .01
+setp comp.0.hyst .02
+setp comp.1.hyst .02
+setp comp.2.hyst .02
 
 newsig Xhomesw bit
 newsig Yhomesw bit
