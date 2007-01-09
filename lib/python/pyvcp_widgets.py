@@ -46,13 +46,120 @@ __all__=["pyvcp_label"]
 
 elements =["pyvcp","led","vbox","hbox","vbox" \
             ,"button","scale","checkbutton","bar" \
-            ,"label","number","spinbox","radiobutton"]
+            ,"label","number","spinbox","radiobutton","jogwheel"]
 
 parameters = ["size","text","orient","halpin","format" \
             ,"font","endval","min_","max_","resolution" \
-            ,"from_","to","choices"]
+            ,"from_","to","choices","cpr"]
 
 
+
+from Tkinter import *
+import math
+
+class pyvcp_jogwheel(Canvas):
+    """" A jogwheel that outputs a HAL_FLOAT count
+        reacts to both mouse-wheel and mouse dragging
+        <jogwheel>
+            [ <cpr>33</cpr> ]                       (counts per revolution)
+            [ <halpin>"myjogwheel"</halpin> ]
+            [ <size>300</size> ]
+        </jogwheel>
+    """
+    # FIXME:
+    # -jogging should be enabled only when the circle has focus
+    # -circle should maintain focus when mouse over line
+    # -jogging by dragging with the mouse could work better
+    # -react on arrow keys?
+    n=0
+    def __init__(self,root,pycomp,halpin=None,size=200,cpr=40,**kw):
+        pad=10
+        self.count=0
+        Canvas.__init__(self,root,width=size,height=size)
+        self.circle=self.create_oval(pad,pad,size-pad,size-pad)
+        self.itemconfig(self.circle,fill="lightgrey",activefill="darkgrey")
+        self.mid=size/2
+        self.r=(size-2*pad)/2
+        self.alfa=0
+        self.d_alfa=2*math.pi/cpr
+        self.line = self.create_line([self.mid,self.mid, \
+                            self.mid+self.r*math.cos(self.alfa), \
+                            self.mid+self.r*math.sin(self.alfa)])
+        self.itemconfig(self.line,arrow="last")
+        self.itemconfig(self.line,width=3)
+        self.bind('<Button-4>',self.wheel_up)
+        self.bind('<Button-5>',self.wheel_down)
+        self.bind('<Button1-Motion>',self.motion)
+        self.bind('<ButtonPress>',self.bdown)
+        self.draw_ticks(cpr)
+        self.dragstartx=0
+        self.dragstarty=0
+        self.dragstart=0
+
+        # create the hal pin
+        if halpin == None:
+            halpin = "jogwheel."+str(pyvcp_jogwheel.n)+".count"
+        pyvcp_jogwheel.n += 1
+        pycomp.newpin(halpin, HAL_FLOAT, HAL_OUT)
+        self.halpin=halpin
+        pycomp[self.halpin] = self.count
+        self.pycomp=pycomp
+    
+    def bdown(self,event):
+        self.dragstartx=event.x
+        self.dragstarty=event.y
+        self.dragstart=math.atan2((event.y-self.mid),(event.x-self.mid))
+
+    def motion(self,event):
+        dragstop = math.atan2((event.y-self.mid),(event.x-self.mid))
+        delta = dragstop - self.dragstart
+        if delta>=self.d_alfa:
+            self.up()
+            self.dragstart=math.atan2((event.y-self.mid),(event.x-self.mid))
+        elif delta<=-self.d_alfa:
+            self.down()
+            self.dragstart=math.atan2((event.y-self.mid),(event.x-self.mid))
+    
+    def wheel_up(self,event):
+        self.up()
+        
+    def wheel_down(self,event):
+        self.down()
+
+
+    def down(self):
+        self.alfa-=self.d_alfa
+        self.count-=1
+        self.pycomp[self.halpin] = self.count
+        self.update_line()       
+    
+    def up(self):
+        self.alfa+=self.d_alfa
+        self.count+=1
+        self.pycomp[self.halpin] = self.count
+        self.update_line()  
+
+    def update_line(self):
+        self.coords(self.line, self.mid,self.mid, \
+                            self.mid+self.r*math.cos(self.alfa), \
+                            self.mid+self.r*math.sin(self.alfa))      
+
+    def draw_ticks(self,cpr):
+        for n in range(0,cpr):
+            startx=self.mid+self.r*math.cos(n*self.d_alfa)
+            starty=self.mid+self.r*math.sin(n*self.d_alfa)
+            stopx=self.mid+1.15*self.r*math.cos(n*self.d_alfa)
+            stopy=self.mid+1.15*self.r*math.sin(n*self.d_alfa)
+            self.create_line([startx,starty,stopx,stopy])
+
+    def update(self,pycomp):
+        pass # this is an event drive widget
+        
+
+
+
+
+# -------------------------------------------
 
 class pyvcp_radiobutton(Frame):
     n=0
@@ -99,7 +206,7 @@ class pyvcp_radiobutton(Frame):
         index=int(index)
         print "active:",self.halpins[index]
 
-# -------------------------------------------
+
 
 # -------------------------------------------
 
