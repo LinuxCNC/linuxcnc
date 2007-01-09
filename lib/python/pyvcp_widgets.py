@@ -44,10 +44,16 @@ import math
 __all__=["pyvcp_label"]
 
 
+# FIXME: this is ugly, a list of valid widgets in this module should be 
+# created somehow automagically
+# or another mechanism for vcpparse.py to know which elements are valid should
+# be constructed
 elements =["pyvcp","led","vbox","hbox","vbox" \
             ,"button","scale","checkbutton","bar" \
-            ,"label","number","spinbox","radiobutton","jogwheel"]
+            ,"label","number","spinbox","radiobutton","jogwheel","meter"]
 
+# FIXME: this is ugly, each widget should know what parameters are valid
+# for itself, and vcpparse.py should check validity for each widget individually
 parameters = ["size","text","orient","halpin","format" \
             ,"font","endval","min_","max_","resolution" \
             ,"from_","to","choices","cpr"]
@@ -56,6 +62,86 @@ parameters = ["size","text","orient","halpin","format" \
 
 from Tkinter import *
 import math
+
+
+
+
+class pyvcp_meter(Canvas):
+    """ Meter - shows the value of a FLOAT with an analog meter
+        <meter>
+            [ <size>300</size> ]
+            [ <halpin>"mymeter"</halpin> ]
+            [ <text>"My Voltage"</text> ]
+            [ <min_>-22</min_> ]
+            [ <max_>123</max_> ]
+        </meter>
+    """
+    n=0
+    def __init__(self,root,pycomp,halpin=None,
+                        size=200,text=None,min_=0,max_=100,**kw):
+        pad=10
+        Canvas.__init__(self,root,width=size,height=size)
+        self.halpin=halpin
+        self.min_=min_
+        self.max_=max_
+        range_=2.5
+        self.min_alfa=-math.pi/2-range_
+        self.max_alfa=-math.pi/2+range_
+        self.circle=self.create_oval(pad,pad,size-pad,size-pad)
+        self.itemconfig(self.circle,fill="white")
+        self.mid=size/2
+        self.r=(size-2*pad)/2
+        self.alfa=0
+        self.line = self.create_line([self.mid,self.mid, \
+                            self.mid+0.8*self.r*math.cos(self.alfa), \
+                            self.mid+0.8*self.r*math.sin(self.alfa)],fill="red")
+        self.itemconfig(self.line,width=3)
+        if text!=None:
+            t=self.create_text([self.mid,self.mid-20])
+            self.itemconfig(t,text=text)
+            self.itemconfig(t,font=('Arial',20))
+
+        self.draw_ticks()
+
+        # create the hal pin
+        if halpin == None:
+            self.halpin = "meter."+str(pyvcp_meter.n)+".value"
+        pyvcp_meter.n += 1
+        pycomp.newpin(self.halpin, HAL_FLOAT, HAL_IN)
+        self.value = pycomp[self.halpin]
+
+    def update(self,pycomp):
+        self.value = pycomp[self.halpin]
+        scale=(self.max_-self.min_)/(self.max_alfa-self.min_alfa)
+        self.alfa=self.min_alfa + (self.value-self.min_)/scale
+        if self.alfa > self.max_alfa:
+            self.alfa = self.max_alfa
+        elif self.alfa < self.min_alfa:
+            self.alfa = self.min_alfa
+
+        self.coords(self.line, self.mid,self.mid, \
+                            self.mid+0.8*self.r*math.cos(self.alfa), \
+                            self.mid+0.8*self.r*math.sin(self.alfa))   
+
+    def draw_ticks(self):
+        d_alfa = float((self.max_alfa-self.min_alfa))/10
+        d_value = float((self.max_-self.min_))/10
+        for n in range(0,11):
+            startx=self.mid+self.r*math.cos(self.min_alfa + n*d_alfa)
+            starty=self.mid+self.r*math.sin(self.min_alfa + n*d_alfa)
+            stopx=self.mid+0.85*self.r*math.cos(self.min_alfa + n*d_alfa)
+            stopy=self.mid+0.85*self.r*math.sin(self.min_alfa + n*d_alfa)
+            textx=stopx - 0.1*self.r*math.cos(self.min_alfa + n*d_alfa)
+            texty=stopy - 0.1*self.r*math.sin(self.min_alfa + n*d_alfa)
+            self.create_line([startx,starty,stopx,stopy])
+            t=self.create_text([textx,texty])
+            self.itemconfig(t,text=str(self.min_+d_value*n))
+
+
+
+# -------------------------------------------
+
+
 
 class pyvcp_jogwheel(Canvas):
     """" A jogwheel that outputs a HAL_FLOAT count
