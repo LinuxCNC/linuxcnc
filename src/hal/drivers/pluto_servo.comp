@@ -43,33 +43,9 @@ Pluto_servo is an emc2 software driver and associated firmware that allow the Pl
 
 The driver has 4 PWM channels, 4 quadrature channels with index pulse, 18
 digital outputs (8 shared with PWM), and 20 digital inputs (12 shared with
-quadrature).""";
-pin out s32 encoder_0_count;
-pin out float encoder_0_position;
-pin out float encoder_0_velocity;
-pin in bit encoder_0_reset;
-pin io bit encoder_0_index_enable;
-param rw float encoder_0_scale=1;
+quadrature).
 
-pin out s32 encoder_1_count;
-pin out float encoder_1_position;
-pin out float encoder_1_velocity;
-pin in bit encoder_1_reset;
-pin io bit encoder_1_index_enable;
-param rw float encoder_1_scale=1;
-
-pin out s32 encoder_2_count;
-pin out float encoder_2_position;
-pin out float encoder_2_velocity;
-pin in bit encoder_2_reset;
-pin io bit encoder_2_index_enable;
-param rw float encoder_2_scale=1;
-
-pin out s32 encoder_3_count;
-pin out float encoder_3_position;
-pin out float encoder_3_velocity;
-pin in bit encoder_3_reset;
-pin io bit encoder_3_index_enable """The encoder pins and parameters conform to the
+The encoder pins and parameters conform to the
 `canonical encoder' interface described in the HAL manual.  It operates in
 `x4 mode'.
 
@@ -77,15 +53,58 @@ The sample rate of the encoder is 40MHz.  The maximum number quadrature
 rate is 8191 counts per emc2 servo cycle.
 
 For correct handling of the index pulse, the number of encoder counts per
-revolution must be less than 8191.""";
+revolution must be less than 8191.
+
+The PWM pins and parameters conform to the `canonical analog output' interface
+described in the HAL manual.  The output pins are `up/down' or `pwm/dir'
+pins as described in the documentation for the `pwmgen' component.
+
+Internally the PWM generator is based on a 12-bit, 40MHz counter, giving 4095
+duty cycles from -100% to +100% and a frequency of approximately 19.5kHz.  In
+PDM mode, the duty periods are approximately 100ns long.
+
+The digital output pins conform to the `canonical digital output' interface
+described in the HAL manual.
+
+The digital input pins conform to the `canonical digital input' interface
+described in the HAL manual.
+""";
+pin out s32 encoder_0_count;
+pin out float encoder_0_position;
+pin out float encoder_0_velocity;
+pin in bit encoder_0_reset;
+pin io bit encoder_0_index_enable """encoder-0 corresponds to the pins labeled
+QA0, QB0, and QZ0 on the pinout diagram""";
+param rw float encoder_0_scale=1;
+
+pin out s32 encoder_1_count;
+pin out float encoder_1_position;
+pin out float encoder_1_velocity;
+pin in bit encoder_1_reset;
+pin io bit encoder_1_index_enable """encoder-1 corresponds to the pins labeled
+QA1, QB1 and QZ1 on the pinout diagram""";
+param rw float encoder_1_scale=1;
+
+pin out s32 encoder_2_count;
+pin out float encoder_2_position;
+pin out float encoder_2_velocity;
+pin in bit encoder_2_reset;
+pin io bit encoder_2_index_enable """encoder-2 corresponds to the pins labeled
+QA2, QB2, and QZ2 on the pinout diagram""";
+param rw float encoder_2_scale=1;
+
+pin out s32 encoder_3_count;
+pin out float encoder_3_position;
+pin out float encoder_3_velocity;
+pin in bit encoder_3_reset;
+pin io bit encoder_3_index_enable """encoder-3 corresponds to the pins labeled
+QA3, QB3, and QZ3 on the pinout diagram""";
 param rw float encoder_3_scale=1;
 
 param rw bit encoder_z_polarity "Set to TRUE if the index pulse is active low, FALSE if it is active high.  Affects all encoders.";
 
-param rw bit pwm_is_pdm "Set to TRUE to use PDM (also called interleaved PWM) mode.  Set to FALSE to use traditional PWM mode.";
-
 pin in float pwm_0_value;
-pin in bit pwm_0_enable;
+pin in bit pwm_0_enable "pwm-0 corresponds to the pins labeled UP0 and DN0 on the pinout diagram";
 param rw float pwm_0_offset;
 param rw float pwm_0_scale=1;
 param rw float pwm_0_max_dc=1;
@@ -93,7 +112,7 @@ param rw float pwm_0_min_dc=0;
 param rw bit pwm_0_pwmdir "Set to TRUE use PWM+direction mode.  Set to FALSE to use Up/Down mode.";
 
 pin in float pwm_1_value;
-pin in bit pwm_1_enable;
+pin in bit pwm_1_enable "pwm-1 corresponds to the pins labeled UP1 and DN1 on the pinout diagram";
 param rw float pwm_1_offset;
 param rw float pwm_1_scale=1;
 param rw float pwm_1_max_dc=1;
@@ -101,7 +120,7 @@ param rw float pwm_1_min_dc=0;
 param rw bit pwm_1_pwmdir "Set to TRUE use PWM+direction mode.  Set to FALSE to use Up/Down mode.";
 
 pin in float pwm_2_value;
-pin in bit pwm_2_enable;
+pin in bit pwm_2_enable "pwm-2 corresponds to the pins labeled UP2 and DN2 on the pinout diagram";
 param rw float pwm_2_offset;
 param rw float pwm_2_scale=1;
 param rw float pwm_2_max_dc=1;
@@ -109,93 +128,93 @@ param rw float pwm_2_min_dc=0;
 param rw bit pwm_2_pwmdir "Set to TRUE use PWM+direction mode.  Set to FALSE to use Up/Down mode.";
 
 pin in float pwm_3_value;
-pin in bit pwm_3_enable """The PWM pins and parameters conform to the `canonical analog output' interface described in the HAL manual.  The output pins are 'up/down' pins as described in the documentation for the 'pwmgen' component.
-
-Internally the PWM generator is based on a 12-bit, 40MHz counter, giving 4095 duty cycles from -100% to +100% and a frequency of approximately 19.5kHz.
-""";
+pin in bit pwm_3_enable "pwm-3 corresponds to the pins labeled UP3 and DN3 on the pinout diagram";
 param rw float pwm_3_offset;
 param rw float pwm_3_scale=1;
 param rw float pwm_3_max_dc=1;
 param rw float pwm_3_min_dc=0;
 param rw bit pwm_3_pwmdir "Set to TRUE use PWM+direction mode.  Set to FALSE to use Up/Down mode.";
 
-pin in bit dout_00 "These pins conform to the `canonical digital output' interface described in the HAL manual";
-pin in bit dout_01;
-pin in bit dout_02;
-pin in bit dout_03;
-pin in bit dout_04;
-pin in bit dout_05;
-pin in bit dout_06;
-pin in bit dout_07;
-pin in bit dout_08;
-pin in bit dout_09;
-pin in bit dout_10 "This function is shared with the pwm-0 `up' pin";
-pin in bit dout_11 "This function is shared with the pwm-0 `down' pin";
-pin in bit dout_12 "This function is shared with the pwm-1 `up' pin";
-pin in bit dout_13 "This function is shared with the pwm-1 `down' pin";
-pin in bit dout_14 "This function is shared with the pwm-2 `up' pin";
-pin in bit dout_15 "This function is shared with the pwm-2 `down' pin";
-pin in bit dout_16 "This function is shared with the pwm-3 `up' pin";
-pin in bit dout_17 "This function is shared with the pwm-3 `down' pin";
-param rw bit dout_00_invert;
-param rw bit dout_01_invert;
-param rw bit dout_02_invert;
-param rw bit dout_03_invert;
-param rw bit dout_04_invert;
-param rw bit dout_05_invert;
-param rw bit dout_06_invert;
-param rw bit dout_07_invert;
-param rw bit dout_08_invert;
-param rw bit dout_09_invert;
-param rw bit dout_10_invert;
-param rw bit dout_11_invert;
-param rw bit dout_12_invert;
-param rw bit dout_13_invert;
-param rw bit dout_14_invert;
-param rw bit dout_15_invert;
-param rw bit dout_16_invert;
-param rw bit dout_17_invert;
+param rw bit pwm_is_pdm "Set to TRUE to use PDM (also called interleaved PWM) mode.  Set to FALSE to use traditional PWM mode.  Affects all PWM outputs.";
 
-pin out bit din_00 "These pins conform to the `canonical digital input' interface described in the HAL manual";
-pin out bit din_01;
-pin out bit din_02;
-pin out bit din_03;
-pin out bit din_04;
-pin out bit din_05;
-pin out bit din_06;
-pin out bit din_07;
-pin out bit din_08 "This function is shared with the encoder-0 `Z' pin";
-pin out bit din_09 "This function is shared with the encoder-1 `Z' pin";
-pin out bit din_10 "This function is shared with the encoder-2 `Z' pin";
-pin out bit din_11 "This function is shared with the encoder-3 `Z' pin";
-pin out bit din_12 "This function is shared with the encoder-0 `B' pin";
-pin out bit din_13 "This function is shared with the encoder-1 `B' pin";
-pin out bit din_14 "This function is shared with the encoder-2 `B' pin";
-pin out bit din_15 "This function is shared with the encoder-3 `B' pin";
-pin out bit din_16 "This function is shared with the encoder-0 `A' pin";
-pin out bit din_17 "This function is shared with the encoder-1 `A' pin";
-pin out bit din_18 "This function is shared with the encoder-2 `A' pin";
-pin out bit din_19 "This function is shared with the encoder-3 `A' pin";
+
+pin in bit dout_00 "dout-00 corresponds to the pin labeled OUT0 on the pinout diagram";
+param rw bit dout_00_invert;
+pin in bit dout_01 "dout-01 corresponds to the pin labeled OUT1 on the pinout diagram";
+param rw bit dout_01_invert;
+pin in bit dout_02 "dout-02 corresponds to the pin labeled OUT2 on the pinout diagram";
+param rw bit dout_02_invert;
+pin in bit dout_03 "dout-03 corresponds to the pin labeled OUT3 on the pinout diagram";
+param rw bit dout_03_invert;
+pin in bit dout_04 "dout-04 corresponds to the pin labeled OUT4 on the pinout diagram";
+param rw bit dout_04_invert;
+pin in bit dout_05 "dout-05 corresponds to the pin labeled OUT5 on the pinout diagram";
+param rw bit dout_05_invert;
+pin in bit dout_06 "dout-06 corresponds to the pin labeled OUT6 on the pinout diagram";
+param rw bit dout_06_invert;
+pin in bit dout_07 "dout-07 corresponds to the pin labeled OUT7 on the pinout diagram";
+param rw bit dout_07_invert;
+pin in bit dout_08 "dout-08 corresponds to the pin labeled OUT8 on the pinout diagram";
+param rw bit dout_08_invert;
+pin in bit dout_09 "dout-09 corresponds to the pin labeled OUT9 on the pinout diagram";
+param rw bit dout_09_invert;
+pin in bit dout_10 "This function is shared with the pwm-0 `up' pin";
+param rw bit dout_10_invert;
+pin in bit dout_11 "This function is shared with the pwm-0 `down' pin";
+param rw bit dout_11_invert;
+pin in bit dout_12 "This function is shared with the pwm-1 `up' pin";
+param rw bit dout_12_invert;
+pin in bit dout_13 "This function is shared with the pwm-1 `down' pin";
+param rw bit dout_13_invert;
+pin in bit dout_14 "This function is shared with the pwm-2 `up' pin";
+param rw bit dout_14_invert;
+pin in bit dout_15 "This function is shared with the pwm-2 `down' pin";
+param rw bit dout_15_invert;
+pin in bit dout_16 "This function is shared with the pwm-3 `up' pin";
+param rw bit dout_16_invert;
+pin in bit dout_17 "This function is shared with the pwm-3 `down' pin";
+param rw bit dout_17_invert "When TRUE, invert the corresponding digital output";
+
 pin out bit din_00_not;
+pin out bit din_00 "din-00 corresponds to the pin labeled OUT0 on the pinout diagram";
 pin out bit din_01_not;
+pin out bit din_01 "din-01 corresponds to the pin labeled OUT1 on the pinout diagram";
 pin out bit din_02_not;
+pin out bit din_02 "din-02 corresponds to the pin labeled OUT2 on the pinout diagram";
 pin out bit din_03_not;
+pin out bit din_03 "din-03 corresponds to the pin labeled OUT3 on the pinout diagram";
 pin out bit din_04_not;
+pin out bit din_04 "din-04 corresponds to the pin labeled OUT4 on the pinout diagram";
 pin out bit din_05_not;
+pin out bit din_05 "din-05 corresponds to the pin labeled OUT5 on the pinout diagram";
 pin out bit din_06_not;
+pin out bit din_06 "din-06 corresponds to the pin labeled OUT6 on the pinout diagram";
 pin out bit din_07_not;
+pin out bit din_07 "din-07 corresponds to the pin labeled OUT7 on the pinout diagram";
 pin out bit din_08_not;
+pin out bit din_08 "This function is shared with the encoder-0 `Z' pin";
 pin out bit din_09_not;
+pin out bit din_09 "This function is shared with the encoder-1 `Z' pin";
 pin out bit din_10_not;
+pin out bit din_10 "This function is shared with the encoder-2 `Z' pin";
 pin out bit din_11_not;
+pin out bit din_11 "This function is shared with the encoder-3 `Z' pin";
 pin out bit din_12_not;
+pin out bit din_12 "This function is shared with the encoder-0 `B' pin";
 pin out bit din_13_not;
+pin out bit din_13 "This function is shared with the encoder-1 `B' pin";
 pin out bit din_14_not;
+pin out bit din_14 "This function is shared with the encoder-2 `B' pin";
 pin out bit din_15_not;
+pin out bit din_15 "This function is shared with the encoder-3 `B' pin";
 pin out bit din_16_not;
+pin out bit din_16 "This function is shared with the encoder-0 `A' pin";
 pin out bit din_17_not;
+pin out bit din_17 "This function is shared with the encoder-1 `A' pin";
 pin out bit din_18_not;
+pin out bit din_18 "This function is shared with the encoder-2 `A' pin";
 pin out bit din_19_not;
+pin out bit din_19 "This function is shared with the encoder-3 `A' pin";
 
 param rw s32 debug_0;
 param rw s32 debug_1;
