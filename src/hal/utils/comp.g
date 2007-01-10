@@ -444,6 +444,7 @@ def document(filename, outfilename):
 
     print >>f, ".TH %s \"9\" \"%s\" \"EMC Documentation\" \"HAL Component\"" % (
         comp_name.upper(), time.strftime("%F"))
+    print >>f, ".de TQ\n.br\n.ns\n.TP \\\\$1\n..\n"
 
     print >>f, ".SH NAME\n"
     doc = finddoc('component')    
@@ -482,28 +483,38 @@ def document(filename, outfilename):
                 print >>f
             print >>f, doc
 
+    lead = ".TP"
     print >>f, ".SH PINS"
     for _, name, type, dir, doc, value in finddocs('pin'):
-        print >>f, ".TP"
-        print >>f, "\\fB%s\\fR" % to_hal_man(name),
+        print >>f, lead
+        print >>f, ".B %s\\fR" % to_hal_man(name),
         print >>f, type, dir,
         if value:
             print >>f, "\\fR(default: \\fI%s\\fR)" % value
         else:
             print >>f, "\\fR"
-        print >>f, doc
+        if doc:
+            print >>f, doc
+            lead = ".TP"
+        else:
+            lead = ".TQ"
 
+    lead = ".TP"
     if params:
         print >>f, ".SH PARAMETERS"
         for _, name, type, dir, doc, value in finddocs('param'):
-            print >>f, ".TP"
-            print >>f, "\\fB%s\\fR" % to_hal_man(name),
+            print >>f, lead
+            print >>f, ".B %s\\fR" % to_hal_man(name),
             print >>f, type, dir,
             if value:
                 print >>f, "\\fR(default: \\fI%s\\fR)" % value
             else:
                 print >>f, "\\fR"
-            print >>f, doc
+            if doc:
+                print >>f, doc
+                lead = ".TP"
+            else:
+                lead = ".TQ"
 
 def process(filename, mode, outfilename):
     tempdir = tempfile.mkdtemp()
