@@ -16,6 +16,7 @@ component pluto_servo """Hardware driver and firmware for the Pluto-P parallel-p
 
 .B loadrt pluto_servo ioaddr=\\fIaddr\\fB ioaddr_hi=\\fIaddr\\fB epp_wide=\\fI[0|1]\\fB
 
+.RS 4
 .TP
 \\fBioaddr\\fR [default: 0x378]
 The base address of the parallel port.
@@ -37,6 +38,7 @@ secondary address.
 Set to zero to disable "wide EPP mode".  "Wide" mode allows 16- and 32-bit EPP
 transfers, which can reduce the time spent in the read and write functions.
 However, this mode may not work on all EPP parallel ports.
+.RE
 
 .SH DESCRIPTION
 Pluto_servo is an emc2 software driver and associated firmware that allow the Pluto-P board to be used to control a servo-based CNC machine.
@@ -45,24 +47,25 @@ The driver has 4 PWM channels, 4 quadrature channels with index pulse, 18
 digital outputs (8 shared with PWM), and 20 digital inputs (12 shared with
 quadrature).
 
+.SS Encoders
 The encoder pins and parameters conform to the
 `canonical encoder' interface described in the HAL manual.  It operates in
 `x4 mode'.
 
-The sample rate of the encoder is 40MHz.  The maximum number quadrature
-rate is 8191 counts per emc2 servo cycle.
+The sample rate of the encoder is 40MHz.  The maximum number quadrature rate is
+8191 counts per emc2 servo cycle.  For correct handling of the index pulse, the
+number of encoder counts per revolution must be less than 8191.
 
-For correct handling of the index pulse, the number of encoder counts per
-revolution must be less than 8191.
-
+.SS PWM
 The PWM pins and parameters conform to the `canonical analog output' interface
 described in the HAL manual.  The output pins are `up/down' or `pwm/dir'
-pins as described in the documentation for the `pwmgen' component.
+pins as described in the documentation of the `pwmgen' component.
 
 Internally the PWM generator is based on a 12-bit, 40MHz counter, giving 4095
 duty cycles from -100% to +100% and a frequency of approximately 19.5kHz.  In
 PDM mode, the duty periods are approximately 100ns long.
 
+.SS Digital I/O
 The digital output pins conform to the `canonical digital output' interface
 described in the HAL manual.
 
