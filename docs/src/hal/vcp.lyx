@@ -74,7 +74,9 @@ Currently there are two VCP implementations included with EMC2: The older,
 pyVCP
 \layout Standard
 
-The layout of a pyVCP panel is specified with an XML file, for example:
+The layout of a pyVCP panel is specified with an XML file that contains
+ widget tags between <pyvcp> and </pyvcp>.
+ For example:
 \layout LyX-Code
 
 <pyvcp>
@@ -115,6 +117,154 @@ mypanel.
 ).
  Since no <halpin> tag was present inside the <led> tag, pyVCP will automaticall
 y name the HAL pin for the LED widget mypanel.led.0
+\layout Standard
+
+For a list of widgets and their tags and options, see the widget reference
+ below.
+\layout Standard
+
+Once you have created your panel, connecting HAL signals to and form the
+ pyVCP pins is done with 'halcmd linksp' as usual.
+ If you are new to HAL, the HAL Tutorial
+\begin_inset LatexCommand \ref{cha:HAL-Tutorial}
+
+\end_inset 
+
+ is recommended.
+\layout Section
+
+Using pyVCP with AXIS
+\layout Standard
+
+Since AXIS uses the same GUI toolkit (Tkinter) as pyVCP, it is possible
+ to include a pyVCP panel on the right side of the normal AXIS user interface.
+ A typical example is explained below.
+\layout Standard
+
+Place your pyVCP XML file describing the panel in the same directory where
+ your .ini file is.
+ Say we we want to display the current spindle speed using a Bar widget.
+ Place the following in a file called spindle.xml:
+\layout LyX-Code
+
+<pyvcp>
+\layout LyX-Code
+
+    <label>
+\layout LyX-Code
+
+        <text>
+\begin_inset Quotes erd
+\end_inset 
+
+Spindle speed:
+\begin_inset Quotes erd
+\end_inset 
+
+</text>
+\layout LyX-Code
+
+    </label>
+\layout LyX-Code
+
+    <bar>
+\layout LyX-Code
+
+        <halpin>
+\begin_inset Quotes erd
+\end_inset 
+
+spindle-speed
+\begin_inset Quotes erd
+\end_inset 
+
+</halpin>
+\layout LyX-Code
+
+        <endval>5000</endval>
+\layout LyX-Code
+
+    </bar>
+\layout LyX-Code
+
+</pyvcp>
+\layout Standard
+
+Here we've made a panel with a single Bar widget, specified that its HAL
+ pin should be named 
+\begin_inset Quotes eld
+\end_inset 
+
+spindle-speed
+\begin_inset Quotes erd
+\end_inset 
+
+, and set the maximum value of the bar to 5000 (see widget reference below
+ for all options).
+ To make AXIS aware of this file, and call it at startup, we need to specify
+ the following in the [DISPLAY] section of the .ini file:
+\layout LyX-Code
+
+PYVCP = spindle.xml
+\layout Standard
+
+To make our widget actually display the spindle-speed it needs to be hooked
+ up to the appropriate HAL signal.
+ A .hal file that will be run once AXIS and pyVCP have started can be specified
+ in the [HAL] section of the .ini file:
+\layout LyX-Code
+
+POSTGUI_HALFILE = spindle_to_pyvcp.hal
+\layout Standard
+
+This change will run the HAL commands specified in 
+\begin_inset Quotes eld
+\end_inset 
+
+spindle_to_pyvcp.hal
+\begin_inset Quotes erd
+\end_inset 
+
+.
+ In our example the contents could look like this:
+\layout LyX-Code
+
+linksp spindle-rpm-filtered  pyvcp.spindle-speed
+\layout Standard
+
+assuming that a singlal called 
+\begin_inset Quotes eld
+\end_inset 
+
+spindle-rpm-filtered
+\begin_inset Quotes erd
+\end_inset 
+
+ already exists.
+ Note that when running together with AXIS, all pyVCP widget HAL pins have
+ names that start with 
+\begin_inset Quotes eld
+\end_inset 
+
+pyvcp.
+\begin_inset Quotes erd
+\end_inset 
+
+.
+\layout Standard
+
+
+\begin_inset Graphics
+	filename pyvcp_AXIS.png
+	lyxscale 50
+	scale 50
+
+\end_inset 
+
+
+\layout Standard
+
+This is what the newly created pyVCP panel should look like in AXIS.
 \layout Section
 
 pyVCP Widget reference
