@@ -82,6 +82,23 @@ The layout of a pyVCP panel is specified with an XML file that contains
 <pyvcp>
 \layout LyX-Code
 
+    <label>
+\layout LyX-Code
+
+        <text>
+\begin_inset Quotes erd
+\end_inset 
+
+This is a LED indicator
+\begin_inset Quotes erd
+\end_inset 
+
+</text>
+\layout LyX-Code
+
+    </label>
+\layout LyX-Code
+
     <led>
 \layout LyX-Code
 
@@ -89,6 +106,17 @@ The layout of a pyVCP panel is specified with an XML file that contains
 \layout LyX-Code
 
 </pyvcp>
+\layout LyX-Code
+
+\layout LyX-Code
+
+
+\begin_inset Graphics
+	filename pyvcp_mypanel.png
+
+\end_inset 
+
+
 \layout Standard
 
 If you place this text in a file called tiny.xml, and run 
@@ -97,8 +125,17 @@ If you place this text in a file called tiny.xml, and run
 pyvcp -c mypanel tiny.xml
 \layout Standard
 
-pyVCP will create the panel for you, which includes only one widget, a LED.
- It will also create a HAL pin component named 
+pyVCP will create the panel for you, which includes two widgets, a Label
+ with the text 
+\begin_inset Quotes eld
+\end_inset 
+
+This is a LED indicator
+\begin_inset Quotes erd
+\end_inset 
+
+, and a LED, used for displaying the state of a HAL BIT signal.
+ It will also create a HAL component named 
 \begin_inset Quotes eld
 \end_inset 
 
@@ -188,10 +225,12 @@ spindle-speed
 \layout LyX-Code
 
 </pyvcp>
+\layout LyX-Code
+
 \layout Standard
 
-Here we've made a panel with a single Bar widget, specified that its HAL
- pin should be named 
+Here we've made a panel with a Label and a Bar widget, specified that the
+ HAL pin connected to the Bar should be named 
 \begin_inset Quotes eld
 \end_inset 
 
@@ -270,9 +309,9 @@ This is what the newly created pyVCP panel should look like in AXIS.
 pyVCP Widget reference
 \layout Standard
 
-HAL pins come in two variants, BIT and FLOAT.
- pyVCP can either display the value of the pin with an indicator widget,
- or modify the pin value with a control widget.
+HAL signals come in two variants, BIT and FLOAT.
+ pyVCP can either display the value of the signal with an indicator widget,
+ or modify the signal value with a control widget.
  Thus there are four classes of pyVCP widgets that you can connect to a
  HAL signal.
  A fifth class of helper widgets allow you to organize and label your panel.
@@ -280,27 +319,233 @@ HAL pins come in two variants, BIT and FLOAT.
 \labelwidthstring 00.00.0000
 
 1.
- Widgets for indicating BIT pins: LED
+ Widgets for indicating BIT signals: LED
 \layout List
 \labelwidthstring 00.00.0000
 
 2.
- Widgets for controlling BIT pins: Button, Checkbutton, Radiobutton
+ Widgets for controlling BIT signals: Button, Checkbutton, Radiobutton
 \layout List
 \labelwidthstring 00.00.0000
 
 3.
- Widgets for indicating FLOAT pins: Number, Bar, Meter
+ Widgets for indicating FLOAT signals: Number, Bar, Meter
 \layout List
 \labelwidthstring 00.00.0000
 
 4.
- Widgets for controlling FLOAT pins: Spinbox, Scale, Jogwheel
+ Widgets for controlling FLOAT signals: Spinbox, Scale, Jogwheel
 \layout List
 \labelwidthstring 00.00.0000
 
 5.
  Helper widgets: Hbox, Vbox, Label
+\layout Subsection
+
+Syntax
+\layout Standard
+
+Each widget is described briefly, followed by the markup used, and a screenshot.
+ Tags in brackets [ ] are optional, and comments in parenthesis ( ) should
+ not be included in the final file.
+\layout Subsection
+
+LED
+\layout Standard
+
+A LED is used to indicate the status of a BIT signal.
+ The LED color will be on_color when the BIT signal is true, and off_color
+ otherwise.
+\layout LyX-Code
+
+<led>
+\layout LyX-Code
+
+    [ <halpin>
+\begin_inset Quotes erd
+\end_inset 
+
+my-led
+\begin_inset Quotes erd
+\end_inset 
+
+</halpin> ]          (default is led.n)
+\layout LyX-Code
+
+    [ <size>50</size> ]                      (default is 20)
+\layout LyX-Code
+
+    [ <on_color>
+\begin_inset Quotes erd
+\end_inset 
+
+blue
+\begin_inset Quotes erd
+\end_inset 
+
+</on_color> ]        (default is 
+\begin_inset Quotes eld
+\end_inset 
+
+green
+\begin_inset Quotes erd
+\end_inset 
+
+)
+\layout LyX-Code
+
+    [ <off_color>
+\begin_inset Quotes erd
+\end_inset 
+
+black
+\begin_inset Quotes erd
+\end_inset 
+
+</off_color> ]     (default is 
+\begin_inset Quotes eld
+\end_inset 
+
+red
+\begin_inset Quotes erd
+\end_inset 
+
+)
+\layout LyX-Code
+
+</led>
+\layout Standard
+
+see the example above for a screenshot of a LED.
+\layout Subsection
+
+Button
+\layout Standard
+
+A button is used to control a BIT pin.
+ The pin will be set True when the button is pressed and held down, and
+ will be set False when the button is released.
+\layout LyX-Code
+
+<button>
+\layout LyX-Code
+
+    [ <halpin>
+\begin_inset Quotes erd
+\end_inset 
+
+my-button
+\begin_inset Quotes erd
+\end_inset 
+
+</halpin> ]          (default is button.n)
+\layout LyX-Code
+
+    [ <text>
+\begin_inset Quotes erd
+\end_inset 
+
+ON
+\begin_inset Quotes erd
+\end_inset 
+
+</text> ]                           (default is an empty string 
+\begin_inset Quotes eld
+\end_inset 
+
+
+\begin_inset Quotes erd
+\end_inset 
+
+)
+\layout LyX-Code
+
+</button>
+\layout LyX-Code
+
+\layout LyX-Code
+
+
+\begin_inset Graphics
+	filename pyvcp_button.png
+
+\end_inset 
+
+
+\layout Subsection
+
+Checkbutton
+\layout Standard
+
+A checkbutton controls a BIT pin.
+ The pin will be set True when the button is checked, and false when the
+ button is unchecked.
+\layout LyX-Code
+
+<checkbutton>
+\layout LyX-Code
+
+    [ <halpin>
+\begin_inset Quotes erd
+\end_inset 
+
+my-checkbox
+\begin_inset Quotes erd
+\end_inset 
+
+</halpin> ]          (default is checkbutton.n)
+\layout LyX-Code
+
+</checkbutton>
+\layout Standard
+
+An unchecked checkbutton: 
+\begin_inset Graphics
+	filename pyvcp_checkbutton1.png
+
+\end_inset 
+
+ , and a checked one: 
+\begin_inset Graphics
+	filename pyvcp_checkbutton2.png
+
+\end_inset 
+
+
+\layout Subsection
+
+Radiobutton
+\layout Standard
+
+A radiobutton will set one of a number of BIT pins true.
+ The other pins are set false.
+\layout LyX-Code
+
+<radiobutton>                   
+\layout LyX-Code
+
+    <choices>["one","two","three"]</choices> 
+\layout LyX-Code
+
+    [ <halpin>"my-radio"</halpin> ]          (defalut is radiobutton.n)
+\layout LyX-Code
+
+</radiobutton>
+\layout LyX-Code
+
+\layout LyX-Code
+
+
+\begin_inset Graphics
+	filename pyvcp_radiobutton.png
+
+\end_inset 
+
+
+\layout Standard
+
+Note that the HAL pins in the example above will me named my-radio.one, my-radio.t
+wo, and my-radio.three
 \layout Section
 
 VCP: A small example
