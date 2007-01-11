@@ -64,9 +64,96 @@ A Virtual Control Panel (VCP) is a window on the computer screen with buttons,
  require physical buttons and lights, to temporarily replace real I/O devices
  while debugging ladder logic, or perhaps to simulate a physical panel before
  you build it and wire it to an I/O board.
+\layout Standard
+
+Currently there are two VCP implementations included with EMC2: The older,
+ simply named VCP, which used GTK widgets, and the newer, called pyVCP,
+ which uses Tkinter widgets.
 \layout Section
 
-A small example
+pyVCP
+\layout Standard
+
+The layout of a pyVCP panel is specified with an XML file, for example:
+\layout LyX-Code
+
+<pyvcp>
+\layout LyX-Code
+
+    <led>
+\layout LyX-Code
+
+    </led>
+\layout LyX-Code
+
+</pyvcp>
+\layout Standard
+
+If you place this text in a file called tiny.xml, and run 
+\layout LyX-Code
+
+pyvcp -c mypanel tiny.xml
+\layout Standard
+
+pyVCP will create the panel for you, which includes only one widget, a LED.
+ It will also create a HAL pin component named 
+\begin_inset Quotes eld
+\end_inset 
+
+mypanel
+\begin_inset Quotes erd
+\end_inset 
+
+ (all widgets in this panel are connected to pins that start with 
+\begin_inset Quotes eld
+\end_inset 
+
+mypanel.
+\begin_inset Quotes erd
+\end_inset 
+
+).
+ Since no <halpin> tag was present inside the <led> tag, pyVCP will automaticall
+y name the HAL pin for the LED widget mypanel.led.0
+\layout Section
+
+pyVCP Widget reference
+\layout Standard
+
+HAL pins come in two variants, BIT and FLOAT.
+ pyVCP can either display the value of the pin with an indicator widget,
+ or modify the pin value with a control widget.
+ Thus there are four classes of pyVCP widgets that you can connect to a
+ HAL signal.
+ A fifth class of helper widgets allow you to organize and label your panel.
+\layout List
+\labelwidthstring 00.00.0000
+
+1.
+ Widgets for indicating BIT pins: LED
+\layout List
+\labelwidthstring 00.00.0000
+
+2.
+ Widgets for controlling BIT pins: Button, Checkbutton, Radiobutton
+\layout List
+\labelwidthstring 00.00.0000
+
+3.
+ Widgets for indicating FLOAT pins: Number, Bar, Meter
+\layout List
+\labelwidthstring 00.00.0000
+
+4.
+ Widgets for controlling FLOAT pins: Spinbox, Scale, Jogwheel
+\layout List
+\labelwidthstring 00.00.0000
+
+5.
+ Helper widgets: Hbox, Vbox, Label
+\layout Section
+
+VCP: A small example
 \layout Standard
 
 Place the following in the file 
@@ -254,7 +341,7 @@ halcmd:
 Now push the button, and the the LED should light up!
 \layout Section
 
-Another small example with EMC
+VCP: Another small example with EMC
 \layout Standard
 
 Place the following in the file 
@@ -295,7 +382,7 @@ Now, when running your machine, the ESTOP button in the GUI is disabled,
  and the ESTOP button in the VCP window is used instead.
 \layout Section
 
-The VCP Syntax
+VCP Syntax
 \layout Subsection
 
 Block
