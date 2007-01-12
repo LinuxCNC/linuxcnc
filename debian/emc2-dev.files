@@ -50,6 +50,7 @@ usr/include/emc2/recvn.h
 usr/include/emc2/rem_msg.hh
 usr/include/emc2/rs274ngc.hh
 usr/include/emc2/rtapi_app.h
+usr/include/emc2/rtapi_bitops.h
 usr/include/emc2/rtapi_common.h
 usr/include/emc2/rtapi_ctype.h
 usr/include/emc2/rtapi_errno.h
