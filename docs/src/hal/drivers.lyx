@@ -1572,6 +1572,16 @@ m5i20.<board>.estop-in-not
 m5i20.<board>.watchdog-reset
 \family default 
  -- Bidirectional, - Set TRUE to reset watchdog once, is automatically cleared.
+ If bit value 16 is set in 
+\family typewriter 
+watchdog-control
+\family default 
+ then this value is not used, and the hardware watchdog is cleared every
+ time the 
+\family typewriter 
+dac-write
+\family default 
+ function is executed.
 \layout Subsection
 
 Parameters
@@ -1657,18 +1667,102 @@ u16
 ) m5i20.<board>.watchdog-control
 \family default 
  -- Configures the watchdog.
- (0x0001 = watchdog enable, 0x0002 = watchdog auto-reset ?)
-\layout Itemize
+ The value should be a bitwise OR of the following values:
+\newline 
 
+\begin_inset  Tabular
+<lyxtabular version="3" rows="4" columns="2">
+<features>
+<column alignment="center" valignment="top" leftline="true" width="0">
+<column alignment="center" valignment="top" leftline="true" rightline="true" width="0">
+<row topline="true" bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
 
+\layout Standard
+
+Bit
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Meaning
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+1
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Timeout is 16ms if set, 8ms if unset
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+4
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Watchdog is enabled
+\end_inset 
+</cell>
+</row>
+<row topline="true" bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+16
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Watchdog is automatically reset by DAC writes (the HAL 
 \family typewriter 
-(
-\noun on 
-u16
-\noun default 
-) m5i20.<board>.watchdog-timeout
+dac-write
 \family default 
- -- Sets watchdog timeout period (in microseconds)
+ function
+\end_inset 
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset 
+
+
+\newline 
+Typically, the useful values are 0 (watchdog disabled) or 20 (8ms watchdog
+ enabled, cleared by 
+\family typewriter 
+dac-write
+\family default 
+).
 \layout Itemize
 
 
