@@ -1618,12 +1618,15 @@ int Interp::read_name(
   int done = 0;
   int i;
 
-  CHK(((line[*counter] != '$') && !isalpha(line[*(counter)])),
+  CHK(((line[*counter] != '<') && !isalpha(line[*(counter)])),
       NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
+
+  // skip over the '<'
+  *counter = (*counter + 1);
 
   for(i=0; (i<LINELEN) && (line[*counter]); i++)
   {
-      if((i != 0) && (line[*counter] == '$'))
+      if(line[*counter] == '>')
       {
           nameBuf[i] = 0; // terminate the name
           *counter = (*counter + 1);
@@ -1653,7 +1656,7 @@ int Interp::find_named_param(
   int i;
 
   // now look it up
-  if(nameBuf[0] == '$') // local scope
+  if(nameBuf[0] != '_') // local scope
   {
       level = _setup.call_level;
   }
@@ -1693,7 +1696,7 @@ int Interp::store_named_param(
   int i;
 
   // now look it up
-  if(nameBuf[0] == '$') // local scope
+  if(nameBuf[0] != '_') // local scope
   {
       level = _setup.call_level;
   }
@@ -1757,7 +1760,7 @@ int Interp::add_named_param(
   }
 
   // must do an add
-  if(nameBuf[0] == '$') // local scope
+  if(nameBuf[0] != '_') // local scope
   {
       level = _setup.call_level;
   }
@@ -1812,9 +1815,9 @@ Returned Value: int
    If read_integer_value returns an error code, this returns that code.
    If any of the following errors occur, this returns the error code shown.
    Otherwise, this returns INTERP_OK.
-   1. The first character read is not a letter or $:
+   1. The first character read is not a <:
       NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED
-   2. The named parameter string is not terminated by $:
+   2. The named parameter string is not terminated by >:
       NCE_NAMED_PARAMETER_NOT_TERMINATED
    3. The named parameter has not been defined before use:
       NCE_NAMED_PARAMETER_NOT_DEFINED
@@ -1839,8 +1842,8 @@ stored in parameter 2):
 
 !!!KL ADDED by K. Lerman
 Named parameters are now supported.
-#abcd$ is a parameter with name "abcd"
-#$abce$ is a named parameter of local scope.
+#<_abcd> is a parameter with name "abcd" of global scope
+#<abce> is a named parameter of local scope.
 
 */
 
@@ -1859,13 +1862,13 @@ int Interp::read_named_parameter(
 
   struct named_parameters_struct *nameList;
   
-  CHK(((line[*counter] != '$') && !isalpha(line[*(counter)])),
+  CHK((line[*counter] != '<'),
       NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
 
   CHP(read_name(line, counter, paramNameBuf));
 
   // now look it up
-  if(paramNameBuf[0] == '$') // local scope
+  if(paramNameBuf[0] != '_') // local scope
   {
       level = _setup.call_level;
   }
@@ -1951,8 +1954,8 @@ int Interp::read_parameter(
   CHK((line[*counter] != '#'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
   *counter = (*counter + 1);
   // !!!KL
-  // named parameters look like 'letter...$' or '$.....$'
-  if((line[*counter] == '$') || isalpha(line[*(counter)]))
+  // named parameters look like '<letter...>' or '<_.....>'
+  if(line[*counter] == '<')
   {
       //_setup.stack_index = 0; -- reminder of variable we need
       // find the matching string (if any) -- or create it
@@ -1973,7 +1976,6 @@ int Interp::free_named_parameters( // ARGUMENTS
     int level,      // level to free
     setup_pointer settings)   // pointer to machine settings
 {
-#if 1
     struct named_parameters_struct *nameList;
     int i;
  
@@ -1984,7 +1986,7 @@ int Interp::free_named_parameters( // ARGUMENTS
         free(nameList->named_parameters[i]);
     }
     nameList->named_parameter_used_size = 0;
-#endif
+
     return INTERP_OK;
 }
 
@@ -2072,8 +2074,8 @@ int Interp::read_parameter_setting(
   CHK((line[*counter] != '#'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
   *counter = (*counter + 1);
   // !!!KL
-  // named parameters look like 'letter...$' or '$.....$'
-  if((line[*counter] == '$') || isalpha(line[*(counter)]))
+  // named parameters look like '<letter...>' or '<_letter.....>'
+  if((line[*counter] == '<') || isalpha(line[*(counter)]))
   {
       CHP(read_named_parameter_setting(line, counter, &param, parameters));
 
@@ -2194,7 +2196,7 @@ int Interp::read_named_parameter_setting(
   *param = paramNameBuf;
 
   logDebug("entered %s", name);
-  CHK(((line[*counter] != '$') && !isalpha(line[*(counter)])),
+  CHK(((line[*counter] != '<') && !isalpha(line[*(counter)])),
       NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
 
   CHP(read_name(line, counter, paramNameBuf));

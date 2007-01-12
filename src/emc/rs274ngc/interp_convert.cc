@@ -807,12 +807,11 @@ int Interp::convert_axis_offsets(int g_code,     //!< g_code being executed (mus
   return INTERP_OK;
 }
 
-// Both named and numeric params must have trailing $
+
 int Interp::convert_param_comment(char *comment, char *expanded, int len)
 {
     static char name[] = "convert_param_comment";
     int i;
-    int done;
     char param[LINELEN+1];
     int paramNumber;
     int stat;
@@ -826,57 +825,86 @@ int Interp::convert_param_comment(char *comment, char *expanded, int len)
         if(*comment == '#')
         {
             found = 0;
+            logDebug("a parameter");
+
+            // skip over the '#'
             comment++;
-            for(i=0, done=0; i<LINELEN; )
-            {
-                if((i != 0) && (*comment == '$'))
-                {
-                    param[i] = 0; // terminate the name
-                    comment++;
-                    done = 1;
-                    break;
-                }
-                if(isspace(*comment))
-                {
-                    continue;
-                }
-                param[i] = *comment;
-                comment++;
-                i++;
-            }
-            CHK((!done), NCE_NAMED_PARAMETER_NOT_TERMINATED);
+            CHK((0 == *comment), NCE_NAMED_PARAMETER_NOT_TERMINATED);
 
-            // we have a parameter -- now insert it
-
-            if(isdigit(param[0]))
+            if(isdigit(*comment))  // is this numeric param?
             {
+                logDebug("numeric parameter");
+                for(i=0; isdigit(*comment)&& (i<LINELEN); i++)
+                {
+                    param[i] = *comment++;
+                }
                 paramNumber = atoi(param);
-                if((paramNumber < 0) ||
-                   (paramNumber >= RS274NGC_MAX_PARAMETERS))
-                {
-                    value = 99999.999999;
-                }
-                else
+                if((paramNumber >= 0) &&
+                   (paramNumber < RS274NGC_MAX_PARAMETERS))
                 {
                     value = _setup.parameters[paramNumber];
                     found = 1;
                 }
             }
-            else
+            else if(*comment == '<')
             {
-                find_named_param(param, &stat, &value);
-                if(!stat)
+                logDebug("name parameter");
+                // this is a name parameter
+                // skip over the '<'
+                comment++;
+                CHK((0 == *comment), NCE_NAMED_PARAMETER_NOT_TERMINATED);
+
+                for(i=0; (')' != *comment) &&
+                        (i<LINELEN) && (0 != *comment);)
                 {
-                    value = 99999.999999;
+                    if('>' == *comment)
+                    {
+                        break;     // done
+                    }
+                    if(isspace(*comment)) // skip space inside the param
+                    {
+                        comment++;
+                        continue;
+                    }
+                    else
+                    {
+                        param[i] = *comment++;
+                        i++;
+                    }
+                }
+                if('>' != *comment)
+                {
+                    ERM(NCE_NAMED_PARAMETER_NOT_TERMINATED);
+                    logDebug("parameter not terminated");
                 }
                 else
+                {
+                    comment++;
+                }
+
+                // terminate the name
+                param[i] = 0;
+
+                // now lookup the name
+                find_named_param(param, &stat, &value);
+                if(stat)
                 {
                     found = 1;
                 }
             }
+            else
+            {
+                // neither numeric or name
+                logDebug("neither numeric nor name");
+                // just store the '#'
+                *expanded++ = '#';
 
+                CHK((*comment == 0), NCE_NAMED_PARAMETER_NOT_TERMINATED);
+                continue;
+            }
+
+            // we have a parameter -- now insert it
             // we have the value
-
             if(found)
             {
                 sprintf(valbuf, "%lf", value);
@@ -885,6 +913,7 @@ int Interp::convert_param_comment(char *comment, char *expanded, int len)
             {
                 strcpy(valbuf, "######");
             }
+            logDebug("found:%d value:|%s|", found, valbuf);
 
             v = valbuf;
             while(*v)
@@ -892,7 +921,10 @@ int Interp::convert_param_comment(char *comment, char *expanded, int len)
                 *expanded++ = *v++;
             }
         }
-        *expanded++ = *comment++;
+        else  // not a '#'
+        {
+            *expanded++ = *comment++;
+        }
     }
     *expanded = 0; // the final nul
     
