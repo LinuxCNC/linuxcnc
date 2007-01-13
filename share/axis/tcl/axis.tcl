@@ -129,6 +129,10 @@ setup_menu_accel .menu.machine end [_ "Ha_l Scope"]
 	-command {exec emctop -ini $emcini &}
 setup_menu_accel .menu.machine end [_ "Sho_w EMC Status"]
 
+.menu.machine add command \
+	-command {exec debuglevel &}
+setup_menu_accel .menu.machine end [_ "Set _Debug Level"]
+
 .menu.machine add separator
 
 .menu.machine add cascade \
@@ -1494,7 +1498,7 @@ proc update_state {args} {
                 .toolbar.reload {.menu.file 1} {.menu.file 2}
 
     state  {$task_state == $STATE_ON && $interp_state == $INTERP_IDLE} \
-                {.menu.machine 20}
+                {.menu.machine 21}
 
     state  {$task_state == $STATE_ON && $interp_state == $INTERP_IDLE \
             && $taskfile != ""} \
