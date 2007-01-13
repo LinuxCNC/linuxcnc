@@ -57,7 +57,7 @@ elements =["pyvcp","led","vbox","hbox","vbox" \
 # for itself, and vcpparse.py should check validity for each widget individually
 parameters = ["size","text","orient","halpin","format" \
             ,"font","endval","min_","max_","resolution" \
-            ,"from_","to","choices","cpr"]
+            ,"from_","to","choices","cpr","fillcolor","bgcolor"]
 
 
 
@@ -439,7 +439,7 @@ class pyvcp_bar(Canvas):
     """ (indicator) a bar-indicator for a float"""
     n=0
     # FIXME logarithmic scale?
-    # FIXME allow user to specify color
+    # FIXME specifying negative startval or endval does not work
     def __init__(self,master,pycomp,
               fillcolor="green",bgcolor="grey",
                halpin=None,startval=0.0,endval=100.0,**kw):
