@@ -1,0 +1,30 @@
+hal/drivers/pluto_servo_rbf.h: hal/drivers/pluto_servo_firmware/pluto_servo.rbf hal/drivers/rbf2h.py
+	python hal/drivers/rbf2h.py -g \
+    -c "This is a component of pluto_servo, a PWM servo driver and" \
+    -c "quadrature counter for emc2" \
+    -c "Copyright (C) 2006 Jeff Epler" \
+	    $< > $@
+
+clean: pluto_clean
+pluto_clean:
+	rm  -rf \
+	    pluto_servo_firmware/db \
+	    pluto_servo_firmware/pluto_servo.asm.rpt \
+	    pluto_servo_firmware/pluto_servo.done \
+	    pluto_servo_firmware/pluto_servo.fit.rpt \
+	    pluto_servo_firmware/pluto_servo.fit.summary \
+	    pluto_servo_firmware/pluto_servo.flow.rpt \
+	    pluto_servo_firmware/pluto_servo.map.rpt \
+	    pluto_servo_firmware/pluto_servo.map.summary \
+	    pluto_servo_firmware/pluto_servo.pin \
+	    pluto_servo_firmware/pluto_servo.pof \
+	    pluto_servo_firmware/pluto_servo.qws \
+	    pluto_servo_firmware/pluto_servo.rbf \
+	    pluto_servo_firmware/pluto_servo.sof \
+	    pluto_servo_firmware/pluto_servo.tan.rpt \
+	    pluto_servo_firmware/pluto_servo.tan.summary \
+	    pluto_servo_firmware/undo_redo.txt
+
+# The kernel's build system won't know how to rebuild generated files
+# so modules must depend on them explicitly
+modules: hal/drivers/pluto_servo_rbf.h hal/drivers/m5i20_HM5-4E.h
