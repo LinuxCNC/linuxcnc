@@ -561,7 +561,7 @@ wo, and my-radio.three
 Number
 \layout Standard
 
-The number widget displays the value of a FLOAT pin.
+The number widget displays the value of a FLOAT signal.
 \layout LyX-Code
 
 <number> 
@@ -605,36 +605,314 @@ The number widget displays the value of a FLOAT pin.
 \layout Subsection
 
 Bar
+\layout Standard
+
+A bar widget displays the value of a FLOAT signal both graphically using
+ a bar display and numerically.
+\layout LyX-Code
+
+<bar> 
+\layout LyX-Code
+
+    [ <halpin>"my-bar"</halpin> ]       (default is bar.n)
+\layout LyX-Code
+
+    [ <startval>0</startval> ]          (default is 0)
+\layout LyX-Code
+
+    [ <endval>123</endval> ]            (default is 100)
+\layout LyX-Code
+
+    [ <bgcolor>"grey"</bgcolor> ]       (default is 
+\begin_inset Quotes eld
+\end_inset 
+
+grey
+\begin_inset Quotes erd
+\end_inset 
+
+)
+\layout LyX-Code
+
+    [ <fillcolor>"red"</fillcolor> ]    (default is 
+\begin_inset Quotes eld
+\end_inset 
+
+green
+\begin_inset Quotes erd
+\end_inset 
+
+>
+\layout LyX-Code
+
+</bar>
+\layout LyX-Code
+
+\layout LyX-Code
+
+
+\begin_inset Graphics
+	filename pyvcp_bar.png
+
+\end_inset 
+
+
 \layout Subsection
 
 Meter
+\layout Standard
+
+Meter displays the value of a FLOAT signal using a traditional dial indicator.
+\layout LyX-Code
+
+<meter> 
+\layout LyX-Code
+
+    [ <halpin>"my-meter"</halpin> ]    (default is meter.0)
+\layout LyX-Code
+
+    [ <text>"Voltage"</text> ]         (default is none)
+\layout LyX-Code
+
+    [ <size>300</size> ]               (default is 200)
+\layout LyX-Code
+
+    [ <min_>-12</min_> ]               (default is 0)
+\layout LyX-Code
+
+    [ <max_>33</max_> ]                (default is 100)
+\layout LyX-Code
+
+</meter> 
+\layout LyX-Code
+
+\layout LyX-Code
+
+
+\begin_inset Graphics
+	filename pyvcp_meter.png
+	lyxscale 50
+	scale 50
+
+\end_inset 
+
+
 \layout Subsection
 
 Spinbox
+\layout Standard
+
+Spinbox controls a FLOAT pin.
+ You increase or decrease the value of the pin by 'resolution' by either
+ pressing on the arrows, or pointing at the spinbox and rolling your mouse-wheel.
+\layout LyX-Code
+
+<spinbox> 
+\layout LyX-Code
+
+    <halpin>"my-spibox"</halpin> 
+\layout LyX-Code
+
+    <min_>-12</min_> 
+\layout LyX-Code
+
+    <max_>33</max_> 
+\layout LyX-Code
+
+    <resolution>0.1</resolution> 
+\layout LyX-Code
+
+    <format>"2.3f"</format> 
+\layout LyX-Code
+
+    <font>('Arial',30)</font> 
+\layout LyX-Code
+
+</spinbox>
+\layout LyX-Code
+
+\layout LyX-Code
+
+
+\begin_inset Graphics
+	filename pyvcp_spinbox.png
+
+\end_inset 
+
+
 \layout Subsection
 
 Scale
+\layout Standard
+
+Scale controls a FLOAT pin.
+ You increase or decrease the value of the pin be either dragging the slider,
+ or pointing at the scale and rolling your mouse-wheel.
+\layout LyX-Code
+
+<scale> 
+\layout LyX-Code
+
+    <halpin>"my-scale"</halpin> 
+\layout LyX-Code
+
+    <resolution>0.1</resolution> 
+\layout LyX-Code
+
+    <orient>HORIZONTAL</orient> 
+\layout LyX-Code
+
+    <from_>-33</from_> 
+\layout LyX-Code
+
+    <to>26</to> 
+\layout LyX-Code
+
+</scale>
+\layout LyX-Code
+
+\layout LyX-Code
+
+
+\begin_inset Graphics
+	filename pyvcp_scale.png
+
+\end_inset 
+
+
 \layout Subsection
 
 Jogwheel
+\layout Standard
+
+Jogwheel mimics a real jogwheel by outputting a FLOAT pin which counts up
+ or down as the wheel is turned, either by dragging in a cricular motion,
+ or by rolling the mouse-wheel.
+\layout LyX-Code
+
+<jogwheel> 
+\layout LyX-Code
+
+    <halpin>"my-wheel"</halpin> 
+\layout LyX-Code
+
+    <cpr>45</cpr> 
+\layout LyX-Code
+
+    <size>250</size> 
+\layout LyX-Code
+
+</jogwheel>
+\layout LyX-Code
+
+
+\begin_inset Graphics
+	filename pyvcp_jogwheel.png
+	lyxscale 50
+	scale 50
+
+\end_inset 
+
+
 \layout Subsection
 
 Hbox
+\layout Standard
+
+Use a Hbox when you want to stack widgets horizontally next to eachother.
+\layout LyX-Code
+
+<hbox> 
+\layout LyX-Code
+
+    <label><text>"a vbox:"</text></label> 
+\layout LyX-Code
+
+    <led></led> 
+\layout LyX-Code
+
+    <number></number> 
+\layout LyX-Code
+
+    <bar></bar> 
+\layout LyX-Code
+
+</hbox>
+\layout LyX-Code
+
+\layout LyX-Code
+
+
+\begin_inset Graphics
+	filename pyvcp_hbox.png
+
+\end_inset 
+
+
 \layout Subsection
 
 Vbox
+\layout Standard
+
+Use a Vbox when you want to stack widgets verticallyon top of eachother.
+\layout LyX-Code
+
+<vbox> 
+\layout LyX-Code
+
+    <label><text>"a vbox:"</text></label> 
+\layout LyX-Code
+
+    <led></led> 
+\layout LyX-Code
+
+    <number></number> 
+\layout LyX-Code
+
+    <bar></bar> 
+\layout LyX-Code
+
+</vbox>
+\layout LyX-Code
+
+\layout LyX-Code
+
+
+\begin_inset Graphics
+	filename pyvcp_vbox.png
+
+\end_inset 
+
+
 \layout Subsection
 
 Label
-\layout Subsection
+\layout Standard
 
-pyVCP Example: DRO
-\layout Subsection
+A label is a piece of text on your panel.
+\layout LyX-Code
 
-pyVCP Example: Virtual jog pendant
-\layout Subsection
+<label> 
+\layout LyX-Code
 
-pyVCP Example: a GUI for siggen
+    <text>"This is a Label:"</text>
+\layout LyX-Code
+
+    <font>('Helvetica',20)</font> 
+\layout LyX-Code
+
+</label> 
+\layout LyX-Code
+
+\layout LyX-Code
+
+
+\begin_inset Graphics
+	filename pyvcp_label.png
+
+\end_inset 
+
+
 \layout Section
 
 VCP: A small example
