@@ -38,7 +38,7 @@ Depending on the RTOS, the default may be to print the message to stdout,
 stderr, a kernel log, etc.   In RTAPI code, the action may be changed by
 a call to \fBrtapi_set_msg_handler\fR.  A \fBNULL\fR argument to
 \fBrtapi_set_msg_handler\fR restores the default handler.
-\fBrtapi_msg_get_handler\fB returns the current handler.  When the
+\fBrtapi_msg_get_handler\fR returns the current handler.  When the
 message came from \fBrtapi_print\fR, \fIlevel\fR is RTAPI_MSG_ALL.
 
 \fBrtapi_print_msg\fR works like \fRrtapi_print\fR but only prints if
