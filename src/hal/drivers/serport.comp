@@ -50,7 +50,7 @@ MODULE_LICENSE("GPL");
 
 #define MAX 8
 int io[MAX] = {0,};
-RTAPI_MP_ARRAY_INT(io, MAX, "I/O addresses of out8 boards");
+RTAPI_MP_ARRAY_INT(io, MAX, "I/O addresses of serial ports");
 
 int get_count(void) {
     int i = 0;
