@@ -493,6 +493,20 @@ int rtapi_snprintf(char *buf, unsigned long int size, const char *fmt, ...)
 
 #define BUFFERLEN 80
 
+void default_rtapi_msg_handler(msg_level_t *level, char *buffer) {
+    rt_printk(buffer);
+}
+static rtapi_msg_handler_t rtapi_msg_handler = default_rtapi_msg_handler;
+
+rtapi_msg_handler_t rtapi_get_msg_handler(void) {
+    return rtapi_msg_handler;
+}
+
+rtapi_msg_handler_t rtapi_set_msg_handler(rtapi_msg_handler_t handler) {
+    if(handler == NULL) rtapi_msg_handler = default_rtapi_msg_handler;
+    else rtapi_msg_handler = handler;
+}
+
 void rtapi_print(const char *fmt, ...)
 {
     char buffer[BUFFERLEN];
@@ -502,7 +516,7 @@ void rtapi_print(const char *fmt, ...)
     /* call our own vsn_printf(), which is #defined to vsnprintf() if the
        kernel supplies one. */
     vsn_printf(buffer, BUFFERLEN, fmt, args);
-    rt_printk(buffer);
+    rtapi_msg_handler(RTAPI_MSG_ALL, buffer);
     va_end(args);
 }
 
@@ -516,7 +530,7 @@ void rtapi_print_msg(int level, const char *fmt, ...)
 	/* call our own vsn_printf(), which is #defined to vsnprintf() if the 
 	   kernel supplies one. */
 	vsn_printf(buffer, BUFFERLEN, fmt, args);
-	rt_printk(buffer);
+	rtapi_msg_handler(level, buffer);
 	va_end(args);
     }
 }

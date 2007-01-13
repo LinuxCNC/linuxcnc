@@ -193,11 +193,26 @@ extern "C" {			/* Need this when the header is included in a
 /** 'rtapi_set_msg_level()' and rtapi_get_msg_level() access the message
     level used by rtapi_print_msg().  The default is RTAPI_MSG_INFO, and
     the legal range is defined in the enumerate msg_level_t.
-    rtapi_set_msg_level() returns a status code, and rtapi__get_msg_level()
+    rtapi_set_msg_level() returns a status code, and rtapi_get_msg_level()
     returns the current level.
 */
     extern int rtapi_set_msg_level(int level);
     extern int rtapi_get_msg_level(void);
+
+/** 'rtapi_get_msg_handler' and 'rtapi_set_msg_handler' access the function
+    pointer used by rtapi_print and rtapi_print_msg.  By default, messages
+    appear in the kernel log, but by replacing the handler a user of the rtapi
+    library can send the messages to another destination.  Calling
+    rtapi_set_msg_handler with NULL restores the default handler. Call from
+    real-time init/cleanup code only.  When called from rtapi_print(),
+    'level' is RTAPI_MSG_ALL, a level which should not normally be used
+    with rtapi_print_msg().
+*/
+    typedef void(*rtapi_msg_handler_t)(msg_level_t level, char *msg);
+#ifdef RTAPI
+    extern void rtapi_set_msg_handler(rtapi_msg_handler_t handler);
+    extern rtapi_msg_handler_t rtapi_get_msg_handler(void);
+#endif
 
 /***********************************************************************
 *                  LIGHTWEIGHT MUTEX FUNCTIONS                         *
