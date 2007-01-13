@@ -36,6 +36,7 @@
     of HAL pin compname.my-led 
 """
 
+
 from Tkinter import *
 from hal import *
 import math
@@ -76,6 +77,7 @@ class pyvcp_meter(Canvas):
             [ <max_>123</max_> ]
         </meter>
     """
+    # FIXME: logarithmic scale option
     n=0
     def __init__(self,root,pycomp,halpin=None,
                         size=200,text=None,min_=0,max_=100,**kw):
@@ -156,7 +158,7 @@ class pyvcp_jogwheel(Canvas):
     # -jogging should be enabled only when the circle has focus
     # -circle should maintain focus when mouse over line
     # -jogging by dragging with the mouse could work better
-    # -react on arrow keys?
+    # -add a scaled output, scale changes when alt/ctrl/shift is held down
     n=0
     def __init__(self,root,pycomp,halpin=None,size=200,cpr=40,**kw):
         pad=10
@@ -283,6 +285,7 @@ class pyvcp_radiobutton(Frame):
             pycomp[pin]=0;
         pycomp[self.halpins[index]]=1;
 
+    # FIXME
     # this would be a much better way of updating the
     # pins, but at the moment I can't get it to work
     # this is never called even if I set command=self.update()
@@ -318,6 +321,7 @@ class pyvcp_vbox(Frame):
                 place widgets here
         </vbox>
     """
+    # FIXME: allow user to choose border widht and type?
     def __init__(self,master,pycomp):
         Frame.__init__(self,master,bd=0,relief=FLAT)
     def update(self,pycomp): 
@@ -333,6 +337,7 @@ class pyvcp_hbox(Frame):
                 place widgets here
         </vbox>        
     """
+    # FIXME: allow user to choose border widht and type?
     def __init__(self,master,pycomp):
         Frame.__init__(self,master,bd=0,relief=FLAT)
     def update(self,pycomp): 
@@ -353,6 +358,7 @@ class pyvcp_spinbox(Spinbox):
             [ <max_>123</max_> ]  sets the maximum value to 123
         </spinbox>
     """
+    # FIXME: scale resolution when shift/ctrl/alt is held down?
     n=0
     def __init__(self,master,pycomp,halpin=None,
                     min_=0,max_=100,resolution=1,format="2.1f",**kw):
@@ -432,9 +438,14 @@ class pyvcp_number(Label):
 class pyvcp_bar(Canvas):
     """ (indicator) a bar-indicator for a float"""
     n=0
+    # FIXME logarithmic scale?
+    # FIXME allow user to specify color
     def __init__(self,master,pycomp,
               fillcolor="green",bgcolor="grey",
                halpin=None,startval=0.0,endval=100.0,**kw):
+
+        ## FIXME: call startval min_ and endval max_ 
+    
         self.cw=200    # canvas width
         self.ch=50     # canvas height
         self.bh=30     # bar height
@@ -605,6 +616,8 @@ class pyvcp_scale(Scale):
         halpin-i is integer output 
         halpin-f is float output 
     """
+    # FIXME scale resolution when ctrl/alt/shift is held down?
+    # FIXME allow user to specify size
     n=0
     def __init__(self,master,pycomp,
                     resolution=1,halpin=None,**kw):
