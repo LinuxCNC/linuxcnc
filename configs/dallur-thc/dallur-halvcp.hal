@@ -1,8 +1,5 @@
 loadusr -W halvcp dallur-advanced.vcp
 
-#linkpp button.spindle-increase  halui.spindle.increase
-#linkpp button.spindle-decrease  halui.spindle.decrease
-
 linksp senseZUp led.senseZUP 
 linksp senseZDown led.senseZDown
 linksp senseZFloatSwitch led.senseZFloatSwitch

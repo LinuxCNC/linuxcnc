@@ -111,14 +111,6 @@ addf vti.do-write servo-thread -1
 #linksp SpindleRev <= vti.out-05
 #linksp SpindleRev => motion.spindle-reverse
 
-# connect spindle speed up/down to I/O controller
-#newsig SpindleUp bit
-#newsig SpindleDown bit
-#linksp SpindleUp <= vti.out-08
-#linksp SpindleUp => motion.spindle-incr-speed
-#linksp SpindleDown <= vti.out-09
-#linksp SpindleDown => motion.spindle-decr-speed
-
 # connect spindle brake to I/O controller
 #newsig SpindleBrakeOn bit
 #linksp SpindleBrakeOn <= vti.out-10

@@ -111,14 +111,6 @@ linksp SpindleFwd => motion.spindle-forward
 linksp SpindleRev <= stg.out-05
 linksp SpindleRev => motion.spindle-reverse
 
-# connect spindle speed up/down to I/O controller
-newsig SpindleUp bit
-newsig SpindleDown bit
-#linksp SpindleUp <= stg.out-08
-#linksp SpindleUp => motion.spindle-incr-speed
-#linksp SpindleDown <= stg.out-09
-#linksp SpindleDown => motion.spindle-decr-speed
-
 # connect spindle brake to I/O controller
 newsig SpindleBrakeOn bit
 linksp SpindleBrakeOn <= stg.out-10
