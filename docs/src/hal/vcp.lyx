@@ -305,6 +305,7 @@ pyvcp.
 \layout Standard
 
 This is what the newly created pyVCP panel should look like in AXIS.
+ 
 \layout Section
 
 pyVCP Widget reference
@@ -415,9 +416,17 @@ red
 \layout LyX-Code
 
 </led>
-\layout Standard
+\layout LyX-Code
 
-see the example above for a screenshot of a LED.
+\layout LyX-Code
+
+
+\begin_inset Graphics
+	filename pyvcp_led.png
+
+\end_inset 
+
+
 \layout Subsection
 
 Button
@@ -547,6 +556,85 @@ A radiobutton will set one of a number of BIT pins true.
 
 Note that the HAL pins in the example above will me named my-radio.one, my-radio.t
 wo, and my-radio.three
+\layout Subsection
+
+Number
+\layout Standard
+
+The number widget displays the value of a FLOAT pin.
+\layout LyX-Code
+
+<number> 
+\layout LyX-Code
+
+    [ <halpin>"my-number"</halpin> ]        (default is number.n)
+\layout LyX-Code
+
+    [ <font>('Helvetica',50)</font> ]       (default is ??)
+\layout LyX-Code
+
+    [ <format>"+4.3f"</format> ]            (default is ??)
+\layout LyX-Code
+
+</number>
+\layout LyX-Code
+
+\layout LyX-Code
+
+
+\begin_inset Graphics
+	filename pyvcp_number.png
+
+\end_inset 
+
+
+\layout Standard
+
+<font> is a Tkinter font type and size specification.
+ Note that on Ubuntu 6.06 'Helvetica' is not available in sizes above ca
+ 40 or 50.
+ One font that will show up to at least size 200 is 'courier 10 pitch',
+ so for a really big Number widget you could specify:
+\layout LyX-Code
+
+<font>('courier 10 pitch',100)</font>
+\layout Standard
+
+<format> is a 'C-style' format specified that determines how the number
+ is displayed.
+\layout Subsection
+
+Bar
+\layout Subsection
+
+Meter
+\layout Subsection
+
+Spinbox
+\layout Subsection
+
+Scale
+\layout Subsection
+
+Jogwheel
+\layout Subsection
+
+Hbox
+\layout Subsection
+
+Vbox
+\layout Subsection
+
+Label
+\layout Subsection
+
+pyVCP Example: DRO
+\layout Subsection
+
+pyVCP Example: Virtual jog pendant
+\layout Subsection
+
+pyVCP Example: a GUI for siggen
 \layout Section
 
 VCP: A small example
