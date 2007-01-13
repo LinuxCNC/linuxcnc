@@ -2,3 +2,4 @@
 *.ko
 .tmp_versions
 *.mod.c
+comp.py
