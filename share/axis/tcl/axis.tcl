@@ -26,6 +26,8 @@ menu .menu.file \
 	-tearoff 0
 menu .menu.machine \
 	-tearoff 0
+menu .menu.machine.home \
+	-tearoff 0
 menu .menu.view \
 	-tearoff 0
 menu .menu.help \
@@ -127,7 +129,11 @@ setup_menu_accel .menu.machine end [_ "Ha_l Scope"]
 	-command {exec emctop -ini $emcini &}
 setup_menu_accel .menu.machine end [_ "Sho_w EMC Status"]
 
+.menu.machine add separator
 
+.menu.machine add cascade \
+        -menu .menu.machine.home
+setup_menu_accel .menu.machine end [_ "Homin_g"]
 
 # ----------------------------------------------------------------------
 .menu.view add radiobutton \
@@ -699,7 +705,7 @@ button $_tabs_manual.jogf.zerohome.home \
 	-command home_axis \
 	-padx 2m \
 	-pady 0
-setup_widget_accel $_tabs_manual.jogf.zerohome.home [_ Home]
+setup_widget_accel $_tabs_manual.jogf.zerohome.home [_ "Home"]
 
 button $_tabs_manual.jogf.zerohome.zero \
 	-command touch_off \
@@ -1486,6 +1492,9 @@ proc update_state {args} {
     state  {$interp_state == $INTERP_IDLE} .toolbar.file_open {.menu.file 0}
     state  {$interp_state == $INTERP_IDLE && $taskfile != ""} \
                 .toolbar.reload {.menu.file 1} {.menu.file 2}
+
+    state  {$task_state == $STATE_ON && $interp_state == $INTERP_IDLE} \
+                {.menu.machine 20}
 
     state  {$task_state == $STATE_ON && $interp_state == $INTERP_IDLE \
             && $taskfile != ""} \

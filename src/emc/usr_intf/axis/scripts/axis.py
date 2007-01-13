@@ -1728,6 +1728,9 @@ widgets = nf.Widgets(root_window,
 
     ("menu_view", Menu, ".menu.view"),
     ("menu_machine", Menu, ".menu.machine"),
+
+    ("homebutton", Button, tabs_manual + ".jogf.zerohome.home"),
+    ("homemenu", Menu, ".menu.machine.home")
 )
 
 def activate_axis(i, force=0):
@@ -2311,6 +2314,10 @@ class TclCommands(nf.TclCommands):
         ensure_mode(emc.MODE_MANUAL)
         c.home("xyzabc".index(vars.current_axis.get()))
 
+    def home_axis_number(num):
+        ensure_mode(emc.MODE_MANUAL)
+        c.home(num)
+
     def touch_off(event=None, new_axis_value = None):
         if not manual_ok(): return
         if s.motion_mode == emc.TRAJ_MODE_FREE and s.kinematics_type != emc.KINEMATICS_IDENTITY: return
@@ -2655,73 +2662,91 @@ def units(s, d=1.0):
     except ValueError:
         return unit_values.get(s, d)
 
-if len(sys.argv) > 1 and sys.argv[1] == '-ini':
-    import ConfigParser
-    inifile = emc.ini(sys.argv[2])
-    vars.emcini.set(sys.argv[2])
-    axiscount = int(inifile.find("TRAJ", "AXES"))
-    axisnames = inifile.find("TRAJ", "COORDINATES").split()
-    jointnames = "012345678"[:axiscount]
-    open_directory = inifile.find("DISPLAY", "PROGRAM_PREFIX")
-    extensions = inifile.findall("FILTER", "PROGRAM_EXTENSION")
-    extensions = [e.split(None, 1) for e in extensions]
-    extensions = tuple([(v, tuple(k.split(","))) for k, v in extensions])
-    postgui_halfile = inifile.find("HAL", "POSTGUI_HALFILE")
-    max_feed_override = float(inifile.find("DISPLAY", "MAX_FEED_OVERRIDE"))
-    max_spindle_override = float(inifile.find("DISPLAY", "MAX_SPINDLE_OVERRIDE") or max_feed_override)
-    max_feed_override = int(max_feed_override * 100 + 0.5)
-    max_spindle_override = int(max_spindle_override * 100 + 0.5)
-    vars.jog_speed.set(float(inifile.find("TRAJ", "DEFAULT_VELOCITY"))*60)
-    vars.jog_aspeed.set(float(inifile.find("TRAJ", "DEFAULT_ANGULAR_VELOCITY") or vars.jog_speed.get())*60)
-    vars.max_speed.set(float(inifile.find("TRAJ", "MAX_VELOCITY")))
-    vars.max_aspeed.set(float(inifile.find("TRAJ", "MAX_ANGULAR_VELOCITY") or vars.max_speed.get()))
-    root_window.tk.eval("${pane_top}.jogspeed.s set [setval $jog_speed $max_speed]")
-    root_window.tk.eval("${pane_top}.ajogspeed.s set [setval $jog_aspeed $max_aspeed]")
-    widgets.feedoverride.configure(to=max_feed_override)
-    widgets.spinoverride.configure(to=max_spindle_override)
-    emc.nmlfile = inifile.find("EMC", "NML_FILE")
-    vars.coord_type.set(inifile.find("DISPLAY", "POSITION_OFFSET") == "RELATIVE")
-    vars.display_type.set(inifile.find("DISPLAY", "POSITION_FEEDBACK") == "COMMANDED")
-    coordinate_display = inifile.find("DISPLAY", "POSITION_UNITS")
-    lathe = bool(inifile.find("DISPLAY", "LATHE"))
-    lu = units(inifile.find("TRAJ", "LINEAR_UNITS"))
-    if coordinate_display:
-        if coordinate_display.lower() in ("mm", "metric"): vars.metric.set(1)
-        else: vars.metric.set(0)
-    else:
-        if lu in [.001, .01, .1, 1, 10]: vars.metric.set(1)
-        else: vars.metric.set(0)
-    if lu == 1:
-        root_window.tk.eval("${pane_top}.jogspeed.l1 configure -text mm/min")
-    else:
-        root_window.tk.eval("${pane_top}.jogspeed.l1 configure -text in/min")
-    root_window.tk.eval(u"${pane_top}.ajogspeed.l1 configure -text deg/min")
+if sys.argv[1] != "-ini":
+    raise SystemExit, "-ini must be first argument"
 
-    astep_size = step_size = 1
-    for a in range(axiscount):
-        section = "AXIS_%d" % a
-        unit = inifile.find(section, "UNITS") or lu
-        unit = units(unit) * 25.4
-        machine_limit_min[a] = float(inifile.find(section, "MIN_LIMIT")) / unit
-        machine_limit_max[a] = float(inifile.find(section, "MAX_LIMIT")) / unit
-        try:
-            step_size_tmp = min(step_size, 1. / abs(float(inifile.find(section, "INPUT_SCALE").split()[0])))
-        except ValueError:
-            continue
-        else:
-            if a < 3: step_size = astep_size = step_size_tmp
-            else: astep_size = step_size_tmp
-    if step_size != 1:
-        root_window.tk.call("set_slider_min", step_size*30)
-    if astep_size != 1:
-        root_window.tk.call("set_aslider_min", astep_size*30)
-    increments = inifile.find("DISPLAY", "INCREMENTS")
-    if increments:
-        root_window.call(widgets.jogspeed._w, "list", "delete", "1", "end")
-        root_window.call(widgets.jogspeed._w, "list", "insert", "end", *increments.split())
-    del sys.argv[1:3]
+import ConfigParser
+inifile = emc.ini(sys.argv[2])
+vars.emcini.set(sys.argv[2])
+axiscount = int(inifile.find("TRAJ", "AXES"))
+axisnames = inifile.find("TRAJ", "COORDINATES").split()
+jointnames = "012345678"[:axiscount]
+open_directory = inifile.find("DISPLAY", "PROGRAM_PREFIX")
+extensions = inifile.findall("FILTER", "PROGRAM_EXTENSION")
+extensions = [e.split(None, 1) for e in extensions]
+extensions = tuple([(v, tuple(k.split(","))) for k, v in extensions])
+postgui_halfile = inifile.find("HAL", "POSTGUI_HALFILE")
+max_feed_override = float(inifile.find("DISPLAY", "MAX_FEED_OVERRIDE"))
+max_spindle_override = float(inifile.find("DISPLAY", "MAX_SPINDLE_OVERRIDE") or max_feed_override)
+max_feed_override = int(max_feed_override * 100 + 0.5)
+max_spindle_override = int(max_spindle_override * 100 + 0.5)
+vars.jog_speed.set(float(inifile.find("TRAJ", "DEFAULT_VELOCITY"))*60)
+vars.jog_aspeed.set(float(inifile.find("TRAJ", "DEFAULT_ANGULAR_VELOCITY") or vars.jog_speed.get())*60)
+vars.max_speed.set(float(inifile.find("TRAJ", "MAX_VELOCITY")))
+vars.max_aspeed.set(float(inifile.find("TRAJ", "MAX_ANGULAR_VELOCITY") or vars.max_speed.get()))
+root_window.tk.eval("${pane_top}.jogspeed.s set [setval $jog_speed $max_speed]")
+root_window.tk.eval("${pane_top}.ajogspeed.s set [setval $jog_aspeed $max_aspeed]")
+widgets.feedoverride.configure(to=max_feed_override)
+widgets.spinoverride.configure(to=max_spindle_override)
+emc.nmlfile = inifile.find("EMC", "NML_FILE")
+vars.coord_type.set(inifile.find("DISPLAY", "POSITION_OFFSET") == "RELATIVE")
+vars.display_type.set(inifile.find("DISPLAY", "POSITION_FEEDBACK") == "COMMANDED")
+coordinate_display = inifile.find("DISPLAY", "POSITION_UNITS")
+lathe = bool(inifile.find("DISPLAY", "LATHE"))
+lu = units(inifile.find("TRAJ", "LINEAR_UNITS"))
+if coordinate_display:
+    if coordinate_display.lower() in ("mm", "metric"): vars.metric.set(1)
+    else: vars.metric.set(0)
 else:
-    widgets.menu_machine.entryconfigure(_("Show EMC Status"), state="disabled")
+    if lu in [.001, .01, .1, 1, 10]: vars.metric.set(1)
+    else: vars.metric.set(0)
+if lu == 1:
+    root_window.tk.eval("${pane_top}.jogspeed.l1 configure -text mm/min")
+else:
+    root_window.tk.eval("${pane_top}.jogspeed.l1 configure -text in/min")
+root_window.tk.eval(u"${pane_top}.ajogspeed.l1 configure -text deg/min")
+homing_order_defined = inifile.find("AXIS_0", "HOME_SEQUENCE") is not None
+
+if homing_order_defined:
+    widgets.homebutton.configure(text=_("Home All"), command="home_all_axes")
+    root_window.tk.call("DynamicHelp::add", widgets.homebutton,
+            "-text", _("Home all axes [Ctrl-Home]"))
+    widgets.homemenu.add_command(command=commands.home_all_axes)
+    root_window.tk.call("setup_menu_accel", widgets.homemenu, "end",
+            _("Home All Axes"))
+
+for i,j in enumerate(axisnames):
+    if i == 1 and lathe: continue
+    widgets.homemenu.add_command(command=lambda i=i: commands.home_axis_number(i))
+    root_window.tk.call("setup_menu_accel", widgets.homemenu, "end",
+            _("Home Axis _%s") % j)
+
+astep_size = step_size = 1
+for a in range(axiscount):
+    section = "AXIS_%d" % a
+    unit = inifile.find(section, "UNITS") or lu
+    unit = units(unit) * 25.4
+    machine_limit_min[a] = float(inifile.find(section, "MIN_LIMIT")) / unit
+    machine_limit_max[a] = float(inifile.find(section, "MAX_LIMIT")) / unit
+    try:
+        step_size_tmp = min(step_size, 1. / abs(float(inifile.find(section, "INPUT_SCALE").split()[0])))
+    except ValueError:
+        continue
+    else:
+        if a < 3: step_size = astep_size = step_size_tmp
+        else: astep_size = step_size_tmp
+if step_size != 1:
+    root_window.tk.call("set_slider_min", step_size*30)
+if astep_size != 1:
+    root_window.tk.call("set_aslider_min", astep_size*30)
+increments = inifile.find("DISPLAY", "INCREMENTS")
+if increments:
+    root_window.call(widgets.jogspeed._w, "list", "delete", "1", "end")
+    root_window.call(widgets.jogspeed._w, "list", "insert", "end", *increments.split())
+
+vcp = inifile.find("DISPLAY", "PYVCP")
+
+del sys.argv[1:3]
 
 if lathe:
     bind_axis("Left", "Right", 2)
@@ -2790,6 +2815,15 @@ comp.newpin("jog.z", hal.HAL_BIT, hal.HAL_OUT)
 comp.newpin("jog.a", hal.HAL_BIT, hal.HAL_OUT)
 comp.newpin("jog.b", hal.HAL_BIT, hal.HAL_OUT)
 comp.newpin("jog.c", hal.HAL_BIT, hal.HAL_OUT)
+
+if vcp:
+    import vcpparse
+    comp.setprefix("pyvcp")
+    f = Tkinter.Frame(root_window)
+    f.grid(row=0, column=4, rowspan=6, sticky="nw", padx=4, pady=4)
+    vcpparse.filename = vcp
+    vcpparse.create_vcp(f, comp)
+
 comp.ready()
 
 activate_axis(0, True)
