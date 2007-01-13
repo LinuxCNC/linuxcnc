@@ -76,9 +76,12 @@ typedef struct {
     hal_bit_t *reset;		/* counter reset input */
     hal_s32_t *count;		/* captured binary count value */
     hal_float_t *pos;		/* scaled position (floating point) */
+    hal_float_t *vel;		/* scaled velocity (floating point) */
     hal_float_t pos_scale;	/* parameter: scaling factor for pos */
     float old_scale;		/* stored scale value */
     double scale;		/* reciprocal value used for scaling */
+    hal_s32_t last_count;
+    hal_s32_t last_index_count;
 } counter_t;
 
 /* pointer to array of counter_t structs in shmem, 1 per counter */
@@ -191,7 +194,7 @@ static void update(void *arg, long period)
 
         // reset on rising edge
         if(cntr->reset_on_index && !cntr->oldZ && *cntr->phaseZ) {
-            cntr->raw_count = 0;
+            cntr->last_index_count = cntr->raw_count;
             *(cntr->index_ena) = 0;
         }
         cntr->oldZ = *cntr->phaseZ;
@@ -205,12 +208,20 @@ static void capture(void *arg, long period)
 
     for (cntr = arg, n = 0; n < num_chan; cntr++, n++) {
 	/* check reset input */
+        int raw_count;
+        int counts;
 	if (*(cntr->reset)) {
 	    /* reset is active, reset the counter */
 	    cntr->raw_count = 0;
+            cntr->last_index_count = 0;
+            cntr->last_count = 0;
 	}
 	/* capture raw counts to latches */
-	*(cntr->count) = cntr->raw_count;
+        raw_count = cntr->raw_count;
+	*(cntr->count) = raw_count - cntr->last_index_count;
+        counts = (raw_count - cntr->last_count);
+        cntr->last_count = raw_count;
+
 	/* check for change in scale value */
 	if ( cntr->pos_scale != cntr->old_scale ) {
 	    /* save new scale to detect future changes */
@@ -225,6 +236,9 @@ static void capture(void *arg, long period)
 	}
 	/* scale count to make floating point position */
 	*(cntr->pos) = *(cntr->count) * cntr->scale;
+	/* scale counts to make floating point velocity */
+        *(cntr->vel) = counts * cntr->scale * 1e9 / period;
+
 	/* update reset_on_index based on index_ena */
         cntr->reset_on_index = *(cntr->index_ena);
     }
@@ -285,6 +299,12 @@ static int export_counter(int num, counter_t * addr)
     /* export pin for scaled position captured by capture() */
     rtapi_snprintf(buf, HAL_NAME_LEN, "counter.%d.position", num);
     retval = hal_pin_float_new(buf, HAL_OUT, &(addr->pos), comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    /* export pin for scaled velocity captured by capture() */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "counter.%d.velocity", num);
+    retval = hal_pin_float_new(buf, HAL_OUT, &(addr->vel), comp_id);
     if (retval != 0) {
 	return retval;
     }
