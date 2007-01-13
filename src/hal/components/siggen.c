@@ -25,8 +25,8 @@
     names begin with 'siggen.x.', where 'x' is the generator number.
     Generator numbers start at zero.
 
-    Each generator is controlled by three parameters.  'frequency'
-    sets the frequency in Hertz.  'amplitude' sets the peak amplitude,
+    Each generator is controlled by three pins.  'frequency' sets
+    the frequency in Hertz.  'amplitude' sets the peak amplitude,
     and 'offset' sets the DC offset.  For example, if 'amplitude'
     is 1.0 and 'offset' is 0.0, the outputs will swing from -1.0
     to +1.0.  If 'amplitude' is 2.5 and 'offset' is 10.0, then
@@ -101,8 +101,8 @@ typedef struct {
     hal_float_t *sine;		/* pin: output */
     hal_float_t *cosine;	/* pin: output */
     hal_float_t *frequency;	/* pin: frequency */
-    hal_float_t *amplitude; /* pin: amplitude */
-    hal_float_t *offset;    /* pin: offset */
+    hal_float_t *amplitude;	/* pin: amplitude */
+    hal_float_t *offset;	/* pin: offset */
     float index;		/* position within output cycle */
 } hal_siggen_t;
 
@@ -118,83 +118,6 @@ static int comp_id;		/* component ID */
 
 static int export_siggen(int num, hal_siggen_t * addr);
 static void calc_siggen(void *arg, long period);
-
-/*! \todo Another #if 0 */
-#if 0
-/*! \todo FIXME - these are no longer used, they should be deleted once
-   we're sure we don't need them */
-/*! \todo FIXME - these are here because rtapi doesn't yet handle linking
-   to the math library */
-
-#define PI 3.1415927
-
-double sin(double x)
-{
-    int flip;
-    double retval, top;
-/*! \todo FIXME 
-    math.h includes defines for pi, 2*pi, pi/2, and more.
-    It would make sense to use these and save on a few
-    fp ops.
-*/
-    /* reduce x to 0-2pi */
-    while (x < 0.0) {
-	x += PI * 2.0;
-    }
-    while (x > (PI * 2.0)) {
-	x -= PI * 2.0;
-    }
-    /* reduce x to 0-PI */
-    flip = 0;
-    if (x > PI) {
-	x -= PI;
-	flip = 1;
-    }
-    /* reduce x to 0-PI/2 */
-    if (x > PI * 0.5) {
-	x = PI - x;
-    }
-    /* if x > pi/4, use cos taylor series */
-    if (x > PI * 0.25) {
-	x = (PI * 0.5) - x;
-	/* cosine taylor series */
-	retval = 1;
-	top = x * x;
-	retval -= top * (1.0 / 2.0);
-	top *= x * x;
-	retval += top * (1.0 / 24.0);
-	top *= x * x;
-	retval -= top * (1.0 / 720.0);
-	top *= x * x;
-	retval += top * (1.0 / 40320.0);
-	top *= x * x;
-	retval -= top * (1.0 / 3628800.0);
-    } else {
-	/* sine taylor series */
-	retval = x;
-	top = x * x * x;
-	retval -= top * (1.0 / 6.0);
-	top *= x * x;
-	retval += top * (1.0 / 120.0);
-	top *= x * x;
-	retval -= top * (1.0 / 5040.0);
-	top *= x * x;
-	retval += top * (1.0 / 362880.0);
-	top *= x * x;
-	retval -= top * (1.0 / 39916800.0);
-    }
-    if (flip) {
-	retval *= -1.0;
-    }
-    return retval;
-}
-
-double cos(double x)
-{
-    return sin(x + (PI / 2.0));
-}
-
-#endif
 
 /***********************************************************************
 *                       INIT AND EXIT CODE                             *
@@ -347,8 +270,6 @@ static int export_siggen(int num, hal_siggen_t * addr)
     if (retval != 0) {
 	return retval;
     }
-
-    /* export more pins */
     rtapi_snprintf(buf, HAL_NAME_LEN, "siggen.%d.frequency", num);
     retval = hal_pin_float_new(buf, HAL_RW, &(addr->frequency), comp_id);
     if (retval != 0) {
@@ -364,25 +285,6 @@ static int export_siggen(int num, hal_siggen_t * addr)
     if (retval != 0) {
 	return retval;
     }
-
-    /* export parameters */
-    /*
-    rtapi_snprintf(buf, HAL_NAME_LEN, "siggen.%d.frequency", num);
-    retval = hal_param_float_new(buf, HAL_RW, &(addr->frequency), comp_id);
-    if (retval != 0) {
-	return retval;
-    }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "siggen.%d.amplitude", num);
-    retval = hal_param_float_new(buf, HAL_RW, &(addr->amplitude), comp_id);
-    if (retval != 0) {
-	return retval;
-    }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "siggen.%d.offset", num);
-    retval = hal_param_float_new(buf, HAL_RW, &(addr->offset), comp_id);
-    if (retval != 0) {
-	return retval;
-    }
-    */
     /* init all structure members */
     *(addr->square) = 0.0;
     *(addr->sawtooth) = 0.0;
@@ -392,13 +294,7 @@ static int export_siggen(int num, hal_siggen_t * addr)
     *(addr->frequency) = 1.0;
     *(addr->amplitude) = 1.0;
     *(addr->offset) = 0.0;
-    addr->index = 0.0;    
-    /* old params
-    addr->frequency = 1.0;
-    addr->amplitude = 1.0;
-    addr->offset = 0.0;
     addr->index = 0.0;
-    */
     /* export function for this loop */
     rtapi_snprintf(buf, HAL_NAME_LEN, "siggen.%d.update", num);
     retval =
