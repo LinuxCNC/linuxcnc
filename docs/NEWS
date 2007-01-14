@@ -1,6 +1,23 @@
 # some of EMC2 History & News
 #############################
 
+============ emc2.1.0 =========================================================
+
+2007-01.13 - backported AXIS debug level dialog. Users can now chose
+             verbosity directly from AXIS
+
+2007.01.13 - backported HAL driver & sample config for the pluto FPGA 
+             board
+
+2007.01.13 - backported AXIS home-all and pyvcp support
+
+2007.01.13 - backported 'unobtainable step rate' error message. when the
+	     user requests a velocity which is too high (improper config)
+	     this gets reported as a warning during startup.
+
+2006.12.27 - backported streamer (component for data passing from realtime 
+             to userspace)
+
 2006.11.17 - removed HAL types s8, u8, s16, and u16.  HAL now uses float
 	     for analog values, bit for booleans, and s32 or u32 for
 	     integer values.  The only users who will be affected are
@@ -53,6 +70,8 @@
 	     only vary from 0.0 to 1.0, and reacts much faster.  Intended 
 	     for use with EDM and other applications that require closed 
 	     loop control of feedrate.
+
+============ emc2.0.0 =========================================================
 
 2006.03.18 - A new pin "count" exists for freqgen.  It is the same as the
              internal symbol "count" shown in the hal introduction.pdf,
