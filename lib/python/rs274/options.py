@@ -17,6 +17,8 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 options = '''
+. configure -bg #d9d9d9
+
 set BASE_FONT {Helvetica -12}
 
 proc option_nont {args} {
