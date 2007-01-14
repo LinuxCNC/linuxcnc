@@ -17,7 +17,7 @@
 
 """ A widget library for pyVCP 
     
-    The layoyt and composition of a Python Virtual Control Panel is specified
+    The layout and composition of a Python Virtual Control Panel is specified
     with an XML file. The file must begin with <pyvcp>, and end with </pyvcp>
 
     In the documentation for each widget, optional tags are shown bracketed:
@@ -57,7 +57,8 @@ elements =["pyvcp","led","vbox","hbox","vbox" \
 # for itself, and vcpparse.py should check validity for each widget individually
 parameters = ["size","text","orient","halpin","format" \
             ,"font","endval","min_","max_","resolution" \
-            ,"from_","to","choices","cpr","fillcolor","bgcolor"]
+            ,"from_","to","choices","cpr","fillcolor","bgcolor" \
+            ,"bd","relief"]
 
 
 
@@ -214,7 +215,6 @@ class pyvcp_jogwheel(Canvas):
     def wheel_down(self,event):
         self.down()
 
-
     def down(self):
         self.alfa-=self.d_alfa
         self.count-=1
@@ -318,12 +318,13 @@ class pyvcp_label(Label):
 class pyvcp_vbox(Frame):
     """ Box in which widgets are packed vertically
         <vbox>
-                place widgets here
+            <relief>GROOVE</relief>         (FLAT, SUNKEN, RAISED, GROOVE, RIDGE)
+            <bd>3</bd>                      (border width)
+            place widgets here
         </vbox>
     """
-    # FIXME: allow user to choose border widht and type?
-    def __init__(self,master,pycomp):
-        Frame.__init__(self,master,bd=0,relief=FLAT)
+    def __init__(self,master,pycomp,bd=0,relief=FLAT):
+        Frame.__init__(self,master,bd=bd,relief=relief)
     def update(self,pycomp): 
         pass
     def packtype(self):
@@ -334,12 +335,13 @@ class pyvcp_vbox(Frame):
 class pyvcp_hbox(Frame):
     """ Box in which widgets are packed horizontally
         <vbox>
-                place widgets here
+            <relief>GROOVE</relief>         (FLAT, SUNKEN, RAISED, GROOVE, RIDGE)
+            <bd>3</bd>                      (border width)
+            place widgets here
         </vbox>        
     """
-    # FIXME: allow user to choose border widht and type?
-    def __init__(self,master,pycomp):
-        Frame.__init__(self,master,bd=0,relief=FLAT)
+    def __init__(self,master,pycomp,bd=0,relief=FLAT):
+        Frame.__init__(self,master,bd=bd,relief=relief)
     def update(self,pycomp): 
         pass
     def packtype(self):
