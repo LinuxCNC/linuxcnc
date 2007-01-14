@@ -183,7 +183,7 @@ Place your pyVCP XML file describing the panel in the same directory where
 \newline 
         <halpin>"spindle-speed"</halpin>
 \newline 
-        <endval>5000</endval>
+        <max_>5000</max_>
 \newline 
     </bar>
 \newline 
@@ -522,9 +522,9 @@ A bar widget displays the value of a FLOAT signal both graphically using
 \newline 
     <halpin>"my-bar"</halpin>
 \newline 
-    <startval>0</startval>
+    <min_>0</min_>
 \newline 
-    <endval>123</endval>
+    <max_>123</max_>
 \newline 
     <bgcolor>"grey"</bgcolor>
 \newline 
@@ -630,9 +630,9 @@ Scale controls a FLOAT pin.
 \newline 
     <orient>HORIZONTAL</orient>
 \newline 
-    <from_>-33</from_>
+    <min_>-33</min_>
 \newline 
-    <to>26</to>
+    <max_>26</max_>
 \newline 
 </scale>
 \layout LyX-Code
