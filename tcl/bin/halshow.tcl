@@ -423,8 +423,8 @@ proc makeShow {} {
             -relief flat -borderwidth 0 -height 26 -yscrollcommand "sSlide $stf"]
         set stt $stf.sc
         scrollbar $stt -orient vert -command "$disp yview"
-        pack $stt -side right -fill both -expand yes
-        pack $disp -side right -fill both -expand yes
+        pack $disp -side left -fill both -expand yes
+        pack $stt -side left -fill y
         set seps [frame $showhal.sep -bg black -borderwidth 2]
         set cfent [frame $showhal.b]
         set lab [label $cfent.label -text [msgcat::mc "Test HAL command :"] ]
@@ -434,9 +434,12 @@ proc makeShow {} {
             -command {showEx $halcommand} ]
         set showtext [text $showhal.txt -height 2  -borderwidth 2 -relief groove ]
         pack $lab -side left -padx 5 -pady 3 
-        pack $com -side left -fill x -expand yes -pady 3
+        pack $com -side left -fill x -expand 1 -pady 3
         pack $ex -side left -padx 5 -pady 3
-        pack $stf $seps $cfent $showtext -side top -fill both -expand yes
+        pack $stf -side top -fill both -expand 1
+        pack $cfent -side top -fill x -anchor w
+        pack $seps -side top -fill x -anchor w
+        pack $showtext -side top -fill both -anchor w
     }
 }
 
