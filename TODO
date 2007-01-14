@@ -1,12 +1,6 @@
-THINGS THAT ARE DESIRABLE FOR THE EMC2.0.x RELEASE
-
-TO DROP  Need to come up with a way to handle "bridgeport" style machines (more I/O than generic)
-Update: this has been regarded as not needed, HAL can take care of it
-
-Choose BASE_PERIOD carefully (larger) for non-stepper configs, especially for 
-those that use ISA cards
-
 THINGS THAT ARE DESIRABLE FOR THE NEXT MAJOR RELEASE (EMC-2.2)
+
+- this isn't a complete list, check www.linuxcnc.org for more recent information
 
 TODO     Improved classicladder GUI
 
