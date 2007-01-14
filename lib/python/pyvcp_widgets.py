@@ -56,8 +56,8 @@ elements =["pyvcp","led","vbox","hbox","vbox" \
 # FIXME: this is ugly, each widget should know what parameters are valid
 # for itself, and vcpparse.py should check validity for each widget individually
 parameters = ["size","text","orient","halpin","format" \
-            ,"font","endval","min_","max_","resolution" \
-            ,"from_","to","choices","cpr","fillcolor","bgcolor" \
+            ,"font","min_","max_","resolution" \
+            ,"choices","cpr","fillcolor","bgcolor" \
             ,"bd","relief"]
 
 
@@ -444,9 +444,7 @@ class pyvcp_bar(Canvas):
     # FIXME specifying negative startval or endval does not work
     def __init__(self,master,pycomp,
               fillcolor="green",bgcolor="grey",
-               halpin=None,startval=0.0,endval=100.0,**kw):
-
-        ## FIXME: call startval min_ and endval max_ 
+               halpin=None,min_=0.0,max_=100.0,**kw)
     
         self.cw=200    # canvas width
         self.ch=50     # canvas height
@@ -460,8 +458,8 @@ class pyvcp_bar(Canvas):
             halpin = "bar."+str(pyvcp_bar.n)
         pyvcp_bar.n += 1
         self.halpin=halpin
-        self.endval=endval
-        self.startval=startval
+        self.endval=max_
+        self.startval=min_
         pycomp.newpin(halpin, HAL_FLOAT, HAL_IN)
 
         # the border
@@ -474,9 +472,9 @@ class pyvcp_bar(Canvas):
         self.value=0.0 # some dummy value to start with     
           
         # start text
-        start_text=self.create_text(self.pad,self.bh+10,text=str(startval) )
+        start_text=self.create_text(self.pad,self.bh+10,text=str(self.startval) )
         #end text
-        end_text=self.create_text(self.pad+self.bw,self.bh+10,text=str(endval) )
+        end_text=self.create_text(self.pad+self.bw,self.bh+10,text=str(self.endval) )
         # value text
         self.val_text=self.create_text(self.pad+self.bw/2,
                                    self.bh/2,text=str(self.value) )
@@ -622,9 +620,10 @@ class pyvcp_scale(Scale):
     # FIXME allow user to specify size
     n=0
     def __init__(self,master,pycomp,
-                    resolution=1,halpin=None,**kw):
+                    resolution=1,halpin=None,min_=0,max_=10,**kw):
         self.resolution=resolution
-        Scale.__init__(self,master,resolution=self.resolution,**kw)
+        Scale.__init__(self,master,resolution=self.resolution,
+                         from_=min_,to=max_,**kw)
         if halpin == None:
             halpin = "scale."+str(pyvcp_scale.n)
         self.halpin=halpin
