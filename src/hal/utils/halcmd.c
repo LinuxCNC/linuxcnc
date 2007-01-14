@@ -86,6 +86,8 @@
 #define MAX_EXPECTED_SIGS 999
 
 static int release_HAL_mutex(void);
+static int preprocess_line ( char *line, char **tokens);
+static int strip_comments ( char *buf );
 static int replace_vars(char *source_str, char *dest_str, int max_chars);
 static int tokenize(char *src, char **tokens);
 static int parse_cmd(char *tokens[]);
@@ -182,6 +184,7 @@ static pid_t hal_systemv_nowait(char *const argv[]) {
     /* now the fork() */
     pid = fork();
     if ( pid < 0 ) {
+	/* fork failed */
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL:%d: ERROR: fork() failed\n", linenumber);
 	/* reconnect to the HAL shmem area */
@@ -195,6 +198,7 @@ static pid_t hal_systemv_nowait(char *const argv[]) {
 	return -1;
     }
     if ( pid == 0 ) {
+	/* child process */
 	/* print debugging info if "very verbose" (-V) */
         for(n=0; argv[n] != NULL; n++) {
 	    rtapi_print_msg(RTAPI_MSG_DBG, "%s ", argv[n] );
@@ -207,6 +211,7 @@ static pid_t hal_systemv_nowait(char *const argv[]) {
 	    "HAL:%d: ERROR: execv(%s) failed\n", linenumber, argv[0] );
 	exit(1);
     }
+    /* parent process */
     /* reconnect to the HAL shmem area */
     comp_id = hal_init(comp_name);
 
@@ -214,11 +219,14 @@ static pid_t hal_systemv_nowait(char *const argv[]) {
 }
 
 static int hal_systemv(char *const argv[]) {
-    pid_t pid = hal_systemv_nowait(argv);
+    pid_t pid;
     int status;
+    int retval;
 
+    /* do the fork */
+    pid = hal_systemv_nowait(argv);
     /* this is the parent process, wait for child to end */
-    int retval = waitpid ( pid, &status, 0 );
+    retval = waitpid ( pid, &status, 0 );
     if (comp_id < 0) {
 	fprintf(stderr, "halcmd: hal_init() failed after systemv: %d\n", comp_id );
 	exit(-1);
@@ -267,9 +275,10 @@ static void quit(int sig)
     }
 }
 
-
-/* tokenize():
-   this sets an array of pointers to each non-whitespace token in the input line
+/* tokenize() sets an array of pointers to each non-whitespace
+   token in the input line.  It expects that variable substitution
+   and comment removal have already been done, and that any
+   trailing newline has been removed.
 */
 static int tokenize(char *cmd_buf, char **tokens)
 {
@@ -280,7 +289,6 @@ static int tokenize(char *cmd_buf, char **tokens)
 	   END_OF_LINE } state;
     char *cp1;
     int m;
-
     /* convert a line of text into individual tokens */
     m = 0;
     cp1 = cmd_buf;
@@ -288,12 +296,20 @@ static int tokenize(char *cmd_buf, char **tokens)
     while ( m < MAX_TOK ) {
 	switch ( state ) {
 	case BETWEEN_TOKENS:
-	    if (( *cp1 == '\n' ) || ( *cp1 == '\0' )) {
+	    if ( *cp1 == '\0' ) {
 		/* end of the line */
 		state = END_OF_LINE;
 	    } else if ( isspace(*cp1) ) {
 		/* whitespace, skip it */
 		cp1++;
+	    } else if ( *cp1 == '\'' ) {
+		/* start of a quoted string and a new token */
+		tokens[m] = cp1++;
+		state = SINGLE_QUOTE;
+	    } else if ( *cp1 == '\"' ) {
+		/* start of a quoted string and a new token */
+		tokens[m] = cp1++;
+		state = DOUBLE_QUOTE;
 	    } else {
 		/* first char of a token */
 		tokens[m] = cp1++;
@@ -301,9 +317,8 @@ static int tokenize(char *cmd_buf, char **tokens)
 	    }
 	    break;
 	case IN_TOKEN:
-	    if (( *cp1 == '\n' ) || ( *cp1 == '\0' )) {
-		/* end of the line, terminate current token */
-		*cp1++ = '\0';
+	    if ( *cp1 == '\0' ) {
+		/* end of the line */
 		m++;
 		state = END_OF_LINE;
 	    } else if ( *cp1 == '\'' ) {
@@ -325,9 +340,8 @@ static int tokenize(char *cmd_buf, char **tokens)
 	    }
 	    break;
 	case SINGLE_QUOTE:
-	    if (( *cp1 == '\n' ) || ( *cp1 == '\0' )) {
-		/* end of the line, terminate current token */
-		*cp1++ = '\0';
+	    if ( *cp1 == '\0' ) {
+		/* end of the line */
 		m++;
 		state = END_OF_LINE;
 	    } else if ( *cp1 == '\'' ) {
@@ -340,9 +354,8 @@ static int tokenize(char *cmd_buf, char **tokens)
 	    }
 	    break;
 	case DOUBLE_QUOTE:
-	    if (( *cp1 == '\n' ) || ( *cp1 == '\0' )) {
-		/* end of the line, terminate current token */
-		*cp1++ = '\0';
+	    if ( *cp1 == '\0' ) {
+		/* end of the line */
 		m++;
 		state = END_OF_LINE;
 	    } else if ( *cp1 == '\"' ) {
@@ -355,13 +368,15 @@ static int tokenize(char *cmd_buf, char **tokens)
 	    }
 	    break;
 	case END_OF_LINE:
-	    *cp1 = '\0';
 	    tokens[m++] = cp1;
 	    break;
 	default:
 	    /* should never get here */
-	    return -1;
+	    state = BETWEEN_TOKENS;
 	}
+    }
+    if ( state != END_OF_LINE ) {
+	return -1;
     }
     return 0;
 }
@@ -379,7 +394,7 @@ int main(int argc, char **argv)
     int keep_going, retval, errorcount;
     char *cp1, *filename = NULL;
     FILE *srcfile = NULL;
-    char raw_buf[MAX_CMD_LEN+1], cmd_buf[2*MAX_CMD_LEN];
+    char raw_buf[MAX_CMD_LEN+1];
     char *tokens[MAX_TOK+1];
 
     if (argc < 2) {
@@ -529,31 +544,15 @@ int main(int argc, char **argv)
 	/* copy them to a long string for variable replacement */
 	raw_buf[0] = '\0';
 	while (n < argc) {
-	    strcat(raw_buf, argv[n++]);
-	    strcat(raw_buf, " ");
+	    strncat(raw_buf, argv[n++], MAX_CMD_LEN);
+	    strncat(raw_buf, " ", MAX_CMD_LEN);
 	}
-	raw_buf[strlen(raw_buf)]='\0';
-	
-	retval = replace_vars(raw_buf, cmd_buf, sizeof(cmd_buf)-2);
-	if (retval != 0) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"HAL:%d: bad variable replacement\n", linenumber);
-	} else {
-	    retval = tokenize(cmd_buf, tokens);
-	    if (retval != 0) {
-		rtapi_print_msg(RTAPI_MSG_ERR,
-		    "HAL:%d: Bad state in token parser\n", linenumber);
-		/* the only error that can happen here is so strange, that we exit the program */
-		goto out;
-	    }
-	}
-	/* tokens[] contains MAX_TOK+1 elements so there is always
-	   at least one empty one at the end... make it empty now */
-	tokens[MAX_TOK] = "";
+	/* remove comments, do var substitution, and tokenise */
+	retval = preprocess_line(raw_buf, tokens);
 	/* process the command */
 	if (retval == 0) {
 	    retval = parse_cmd(tokens);
-	    if ( retval != 0 ) {
+	    if (retval != 0) {
 		errorcount++;
 	    }
 	}
@@ -561,36 +560,17 @@ int main(int argc, char **argv)
 	/* read command line(s) from 'srcfile' */
 	while (get_input(srcfile, raw_buf, MAX_CMD_LEN)) {
 	    linenumber++;
-
-	    /* do variable replacements on command line */
-	    retval = replace_vars(raw_buf, cmd_buf, sizeof(cmd_buf)-2);
-	    if (retval != 0) {
-		rtapi_print_msg(RTAPI_MSG_ERR,
-		    "HAL:%d: bad variable replacement\n", linenumber);
-	    }
-	    if (retval==0) {
-		retval = tokenize(cmd_buf, tokens);
-		/* tokens[] contains MAX_TOK+1 elements so there is always
-		   at least one empty one at the end... make it empty now */
-		if (retval != 0) {
-		    rtapi_print_msg(RTAPI_MSG_ERR,
-			"HAL:%d: Bad state in token parser\n", linenumber);
-		    /* the only error that can happen here is so strange, that we exit the program */
-		    goto out;
+	    /* remove comments, do var substitution, and tokenise */
+	    retval = preprocess_line(raw_buf, tokens);
+	    if (retval == 0) {
+		/* the "quit" command is not handled by parse_cmd() */
+		if ( ( strcasecmp(tokens[0],"quit") == 0 ) ||
+		     ( strcasecmp(tokens[0],"exit") == 0 ) ) {
+		    break;
 		}
-	    }
-	    tokens[MAX_TOK] = "";
-
-            /* Some rare conditions can leave us with no tokens */
-            if(!tokens[0]) continue;
-
-	    /* the "quit" command is not handled by parse_cmd() */
-	    if ( ( strcasecmp(tokens[0],"quit") == 0 ) || ( strcasecmp(tokens[0],"exit") == 0 ) ) {
-		break;
-	    }
-	    /* process command */
-	    if (retval == 0)
+		/* process command */
 		retval = parse_cmd(tokens);
+	    }
 	    /* did a signal happen while we were busy? */
 	    if ( done ) {
 		/* treat it as an error */
@@ -608,7 +588,6 @@ int main(int argc, char **argv)
 	}
     }
     /* all done */
-out:
     /* tell the signal handler we might have the mutex */
     hal_flag = 1;
     hal_exit(comp_id);
@@ -622,6 +601,108 @@ out:
 /***********************************************************************
 *                   LOCAL FUNCTION DEFINITIONS                         *
 ************************************************************************/
+
+static int preprocess_line ( char *line, char **tokens )
+{
+    int retval;
+    static char cmd_buf[2*MAX_CMD_LEN];
+
+    /* strip comments and trailing newline (if any) */
+    retval = strip_comments(line);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL:%d: unterminated quoted string\n", linenumber);
+	return -1;
+    }
+    /* copy to cmd_buf while doing variable replacements */
+    retval = replace_vars(line, cmd_buf, sizeof(cmd_buf)-2);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL:%d: bad variable replacement\n", linenumber);
+	return -2;
+    }
+    /* split cmd_buff into tokens */
+    retval = tokenize(cmd_buf, tokens);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL:%d: too many tokens on line\n", linenumber);
+	return -3;
+    }
+    /* tokens[] contains MAX_TOK+1 elements so there is always
+       at least one empty one at the end... make it empty now */
+    tokens[MAX_TOK] = "";
+    return 0;
+}
+
+/* strip_comments() removes any comment in the string.  It also
+   removes any trailing newline.  Single- or double-quoted strings
+   are respected - a '#' inside a quoted string does not indicate
+   a comment.
+*/
+static int strip_comments ( char *buf )
+{
+    enum { NORMAL,
+	   SINGLE_QUOTE,
+	   DOUBLE_QUOTE
+	 } state;
+    char *cp1;
+
+    cp1 = buf;
+    state = NORMAL;
+    while ( 1 ) {
+	switch ( state ) {
+	case NORMAL:
+	    if (( *cp1 == '#' ) || ( *cp1 == '\n' ) || ( *cp1 == '\0' )) {
+		/* end of the line */
+		*cp1 = '\0';
+		return 0;
+	    } else if ( *cp1 == '\'' ) {
+		/* start of a quoted string */
+		cp1++;
+		state = SINGLE_QUOTE;
+	    } else if ( *cp1 == '\"' ) {
+		/* start of a quoted string */
+		cp1++;
+		state = DOUBLE_QUOTE;
+	    } else {
+		/* normal character */
+		cp1++;
+	    }
+	    break;
+	case SINGLE_QUOTE:
+	    if (( *cp1 == '\n' ) || ( *cp1 == '\0' )) {
+		/* end of the line, unterminated quoted string */
+		*cp1 = '\0';
+		return -1;
+	    } else if ( *cp1 == '\'' ) {
+		/* end of quoted string */
+		cp1++;
+		state = NORMAL;
+	    } else {
+		/* ordinary character */
+		cp1++;
+	    }
+	    break;
+	case DOUBLE_QUOTE:
+	    if (( *cp1 == '\n' ) || ( *cp1 == '\0' )) {
+		/* end of the line, unterminated quoted string */
+		*cp1 = '\0';
+		return -1;
+	    } else if ( *cp1 == '\"' ) {
+		/* end of quoted string */
+		cp1++;
+		state = NORMAL;
+	    } else {
+		/* ordinary character */
+		cp1++;
+	    }
+	    break;
+	default:
+	    /* should never get here */
+	    state = NORMAL;
+	}
+    }
+}
 
 /* release_HAL_mutex() unconditionally releases the hal_mutex
    very useful after a program segfaults while holding the mutex
@@ -705,16 +786,14 @@ static int replace_vars(char *source_str, char *dest_str, int max_chars)
     *dest_str='\0';			/* return null string if input is null string */
     while ((remaining = strlen(sp)) > 0) {
 	loopcount++;
-	next_delim=strcspn(sp, "#$[");
+	next_delim=strcspn(sp, "$[");
+/* FIXME: overflow if source_str is longer than dest_str buffer */
 	strncpy(dp, sp, next_delim);
 	dp[next_delim]='\0';
 	dp += next_delim;
 	sp += next_delim;
 	if (next_delim < remaining) {		/* a new delimiter was found */
 	    switch (*sp++) {	/* this is the found delimiter, since sp was incremented */
-            case '#': /* A comment is encountered, do not substitute the rest */
-                sp += strlen(sp);
-                break;
 	    case '$':
 		varP = sp;
 		if (*sp=='(') {		/* look for a parenthesized var */
@@ -726,11 +805,13 @@ static int replace_vars(char *source_str, char *dest_str, int max_chars)
 		} else next_delim = strspn(varP, words);
 		if (next_delim == 0)
 		    return -2;
+/* FIXME: overflow if variable name longer than 128 bytes */
 		strncpy(var, varP, next_delim);
 		var[next_delim]='\0';
 		replacement = getenv(var);
 		if (replacement == NULL)
 		    return -4;
+/* FIXME: replacement can be longer than source, there is no length check */
 		strcat(dp, replacement);
 		dp += strlen(replacement);
 		sp += next_delim;
@@ -740,6 +821,7 @@ static int replace_vars(char *source_str, char *dest_str, int max_chars)
 		next_delim = strcspn(secP, "]");
 		if (next_delim > strlen(secP))	/* error - no matching square bracket */
 		    return -3;
+/* FIXME: overflow if section name longer than 128 bytes */
 		strncpy(sec, secP, next_delim);
 		sec[next_delim]='\0';
 		sp += next_delim+1;
@@ -753,6 +835,7 @@ static int replace_vars(char *source_str, char *dest_str, int max_chars)
 		} else next_delim = strspn(varP, words);
 		if (next_delim == 0)
 		    return -2;
+/* FIXME: overflow if variable name longer than 128 bytes */
 		strncpy(var, varP, next_delim);
 		var[next_delim]='\0';
 		if ( strlen(sec) > 0 ) {
@@ -765,6 +848,7 @@ static int replace_vars(char *source_str, char *dest_str, int max_chars)
 		}
 		if (replacement==NULL)
 		    return -5;
+/* FIXME: replacement can be longer than source, there is no length check */
 		strcat(dp, replacement);
 		dp += strlen(replacement);
 		sp += next_delim;
