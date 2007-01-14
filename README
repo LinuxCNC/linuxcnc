@@ -7,6 +7,7 @@ Please also see the files in docs/
     INSTALL - information about compiling and installing the software
     AUTHORS - information about authors
     NEWS    - latest news
+    UPGRADE - configuration upgrade notes (2.0.x -> 2.1.y)
 
 
 Quickstart:
