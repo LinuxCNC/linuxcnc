@@ -25,26 +25,39 @@ Overview of the emc2 directory:
     |
     |--- configs/ 
     |      |
+    |      |--- common/        (some common files which get copied over)
+    |      |--- dallur-thc/    (sample plasma machine with torch height control)
     |      |--- demo_mazak/    (sample mazak config files)
+    |      |--- demo_sim_cl/   (sample simulation with ladder IO)
     |      |--- demo_step_cl/  (sample stepper with ladder IO)
+    |      |--- etch-servo/    (sample low cost servo)
+    |      |--- halui_halvcp/  (sample config showing halui and halvcp capabilities)
+    |      |--- hexapod-sim/   (sample 6-axes hexapod simulation)
+    |      |--- lathe-pluto/   (sample servo using the pluto board)
     |      |--- m5i20/         (sample servo using Mesa PCI)
+    |      |--- max/           (sample mill with simple spindle control)
     |      |--- motenc/        (sample servo using Vital PCI)
+    |      |--- nist-lathe/    (sample servo lathe setup)
+    |      |--- ppmc/          (sample config for the PPMC board set from Pico systems)
     |      |--- sim/           (simulated motion and IO)
-    |      |--- stepper        (parport stepper driver) 
+    |      |--- stepper        (sample parport stepper driver) 
+    |      |--- stepper-xyza   (sample parport stepper driver, 4 axes mill) 
     |      |--- stg            (sample servo using STG ISA)
     |      |--- univpwm        (sample PICO servo generator)
-    |      \--- univstep       (sample PICO stepper generator)
+    |      |--- univstep       (sample PICO stepper generator)
+    |      \--- vti            (sample servo using VTI PCI)
     |
     |--- docs/ (All the important and relevant Docs.)
     |      |    (API and source notes should be in each src dir.)
     |      |
-    |      |--- handbooks/  (PDF versions of handbooks)
+    |      |--- handbooks   (PDF versions of handbooks)
     |      |                (LyX source is in the src/ tree)
     |      |
     |      |--- man/ (man pages)
     |      |      |
     |      |      |--- man1/  (user man pages)
-    |      |      \--- man3/  (API man pages)
+    |      |      |--- man3/  (API man pages)
+    |      |      \--- man9/  (man pages for components)
     |      |
     |      \--- src/   (source for the handbooks) (top level .lyx files)
     |             |
