@@ -23,8 +23,7 @@ contact the emc-developers mailing list.
 Graphical tools for editing .po files
 =====================================
 On Dapper there seem to be two graphical front-ends for editing .po files:
-gtranslator (a part of the Gnome desktop) and kbabel (part of KDE).  There
-is also "potool", 
+gtranslator (a part of the Gnome desktop) and kbabel (part of KDE).
 
 
 The different translation files
