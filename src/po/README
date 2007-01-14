@@ -1,64 +1,50 @@
-
 Note for translators of the pot files:
 ======================================
 
 Please make a copy of the pot file renaming it to reflect the language it is
 being translated in to. For example, for a German translation of rs274_err.pot,
 your working file would be de_rs274_err.po - If the file does not exist within
-the CVS repository, then feel free to create one from a *.pot template.
+the CVS repository, then feel free to create one from a *.pot template:
+    cp axis.pot xx_axis.pot
+
+To update a language's .po file from its .pot file, use the "msgmerge" command.
+Because doing this frequently creates lots of uneeded revisions of the
+.po files in CVS, and because different translators have preferences about
+msgmerge flags (particularly --width, --no-wrap, and --no-fuzzy-matching),
+this is not done automatically by the "make" process.  The simplest "msgmerge"
+commandline is:
+    msgmerge -U xx_axis.po axis.pot
+
+When you are done, "cvs commit" the new .po file.  If you have not yet arranged
+to have "commit access", then e-mail the updated .po file to a developer or
+contact the emc-developers mailing list.
 
 
-Note for translators of the .msg files (flo-h's method):
-========================================================
-
-(A better way is perhaps only publishing the po files here and creating the msg files by makefile)
-Replace all de's with your language identifier.
-
-1. Create a empty .pot file with all existing translations (creates messages.po):
-cd ~/emc2/tcl
-xgettext tkemc.tcl mini.tcl bin/emccalib.tcl bin/emcdebug.tcl bin/emclog.tcl bin/emctesting.tcl bin/emctuning.tcl bin/genedit.tcl bin/pickconfig.tcl bin/tkbackplot.tcl bin/tkio.tcl bin/halconfig.tcl bin/halshow.tcl scripts/balloon.tcl scripts/emchelp.tcl scripts/Set_Coordinates.tcl (and add other files with translations)
-
-2. merge the .po file with the existing translations
-msgmerge ../src/po/de_msg.po messages.po > de_new_msg.po
-
-3. Edit the new .po file (etc. with poedit)
-poedit de_new_msg.po
-
-4. create a .msg file from the .po file
-msgfmt --tcl -l de -d ./ de_new_msg.po
-mv de.msg ../src/po/
-
-5. Replace the old .po file
-mv de_new_msg.po ../src/po/de_msg.po
-
-6. Update the two files
-cvs commit ../src/po/de.msg ../src/po/de_msg.po
+Graphical tools for editing .po files
+=====================================
+On Dapper there seem to be two graphical front-ends for editing .po files:
+gtranslator (a part of the Gnome desktop) and kbabel (part of KDE).
 
 
-Convertion of existing .msg files to .po files
-----------------------------------------------
-1. Open the file withe an Editor (KEdit)
-2. Delete head an comments
-3. Delete multiple entrys
-4. Replace [::msgcat::mcset de] with [msgid] (change language identifier like "de" with the one in your file)
-5. Replace [" "] with [" msgstr "]
-6. Add head (like this):
+The different translation files
+===============================
+    axis.pot
+	For the AXIS User Interface
+    rs274_err.pot
+	Error messages from the interpreter (only shown in the AXIS GUI?)
+    tcl.pot
+	For tkemc, mini, and other TCL/Tk programs
+	The .po files are named xx.po, not xx_tcl.po
 
-# This file provides german translations for EMC2
-# Copyright (C) 2005 THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the EMC2 package
-# Your Name <Your.Mail@domain.tld>, 01.Jan.2006
-#
-msgid ""
-msgstr ""
-"Project-Id-Version: EMC2\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-03-26 01:03+0100\n"
-"PO-Revision-Date: 2006-03-26 01:10+0100\n"
-"Last-Translator: This is automatically changeg by POEdit <i@ii.ii>\n"
-"Language-Team: EMC LOCALIZATION TEAM <emc-developers@lists.sourceforge.net>\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
-"Content-Transfer-Encoding: 8bit\n"
 
-7. Thats it
+Required versions of xgettext and msgmerge
+==========================================
+If you see a message like
+    xgettext version 0.14.1 buggy -- need at least 0.14.5
+from configure, then your system has a version of xgettext that cannot properly
+create .pot files from .tcl sources.  Upgrade to the named version.
+
+If you see a message like
+    checking for --tcl support in msgfmt... no
+then your system has a version of msgfmt that cannot create .msg files
+from .po files.  Version 0.14.5 has support for --tcl.
