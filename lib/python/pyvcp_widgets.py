@@ -157,7 +157,7 @@ class pyvcp_jogwheel(Canvas):
     """
     # FIXME:
     # -jogging should be enabled only when the circle has focus
-    # -circle should maintain focus when mouse over line
+    # -circle should maintain focus when mouse over dot
     # -jogging by dragging with the mouse could work better
     # -add a scaled output, scale changes when alt/ctrl/shift is held down
     n=0
@@ -171,11 +171,14 @@ class pyvcp_jogwheel(Canvas):
         self.r=(size-2*pad)/2
         self.alfa=0
         self.d_alfa=2*math.pi/cpr
-        self.line = self.create_line([self.mid,self.mid, \
-                            self.mid+self.r*math.cos(self.alfa), \
-                            self.mid+self.r*math.sin(self.alfa)])
-        self.itemconfig(self.line,arrow="last")
-        self.itemconfig(self.line,width=3)
+        self.size=size
+        
+        
+        self.dot = self.create_oval(self.dot_coords())
+        self.itemconfig(self.dot,fill="black")
+        #self.itemconfig(self.line,arrow="last")
+        #self.itemconfig(self.line,width=3)
+
         self.bind('<Button-4>',self.wheel_up)
         self.bind('<Button-5>',self.wheel_down)
         self.bind('<Button1-Motion>',self.motion)
@@ -193,6 +196,13 @@ class pyvcp_jogwheel(Canvas):
         self.halpin=halpin
         pycomp[self.halpin] = self.count
         self.pycomp=pycomp
+
+    def dot_coords(self):
+        DOTR=0.08*self.size
+        DOTPOS=0.75
+        midx = self.mid+DOTPOS*self.r*math.cos(self.alfa)
+        midy = self.mid+DOTPOS*self.r*math.sin(self.alfa)
+        return midx-DOTR, midy-DOTR,midx+DOTR,midy+DOTR
     
     def bdown(self,event):
         self.dragstartx=event.x
@@ -219,18 +229,16 @@ class pyvcp_jogwheel(Canvas):
         self.alfa-=self.d_alfa
         self.count-=1
         self.pycomp[self.halpin] = self.count
-        self.update_line()       
+        self.update_dot()       
     
     def up(self):
         self.alfa+=self.d_alfa
         self.count+=1
         self.pycomp[self.halpin] = self.count
-        self.update_line()  
+        self.update_dot()  
 
-    def update_line(self):
-        self.coords(self.line, self.mid,self.mid, \
-                            self.mid+self.r*math.cos(self.alfa), \
-                            self.mid+self.r*math.sin(self.alfa))      
+    def update_dot(self):
+        self.coords(self.dot, self.dot_coords() )      
 
     def draw_ticks(self,cpr):
         for n in range(0,cpr):
@@ -444,7 +452,7 @@ class pyvcp_bar(Canvas):
     # FIXME specifying negative startval or endval does not work
     def __init__(self,master,pycomp,
               fillcolor="green",bgcolor="grey",
-               halpin=None,min_=0.0,max_=100.0,**kw)
+               halpin=None,min_=0.0,max_=100.0,**kw):
     
         self.cw=200    # canvas width
         self.ch=50     # canvas height
