@@ -81,31 +81,17 @@ The layout of a pyVCP panel is specified with an XML file that contains
 \layout LyX-Code
 
 <pyvcp>
-\layout LyX-Code
-
+\newline 
     <label>
-\layout LyX-Code
-
-        <text>
-\begin_inset Quotes erd
-\end_inset 
-
-This is a LED indicator
-\begin_inset Quotes erd
-\end_inset 
-
-</text>
-\layout LyX-Code
-
+\newline 
+        <text>"This is a LED indicator"</text>
+\newline 
     </label>
-\layout LyX-Code
-
+\newline 
     <led>
-\layout LyX-Code
-
+\newline 
     </led>
-\layout LyX-Code
-
+\newline 
 </pyvcp>
 \layout LyX-Code
 
@@ -186,45 +172,21 @@ Place your pyVCP XML file describing the panel in the same directory where
 \layout LyX-Code
 
 <pyvcp>
-\layout LyX-Code
-
+\newline 
     <label>
-\layout LyX-Code
-
-        <text>
-\begin_inset Quotes erd
-\end_inset 
-
-Spindle speed:
-\begin_inset Quotes erd
-\end_inset 
-
-</text>
-\layout LyX-Code
-
+\newline 
+        <text>"Spindle speed:"</text>
+\newline 
     </label>
-\layout LyX-Code
-
+\newline 
     <bar>
-\layout LyX-Code
-
-        <halpin>
-\begin_inset Quotes erd
-\end_inset 
-
-spindle-speed
-\begin_inset Quotes erd
-\end_inset 
-
-</halpin>
-\layout LyX-Code
-
+\newline 
+        <halpin>"spindle-speed"</halpin>
+\newline 
         <endval>5000</endval>
-\layout LyX-Code
-
+\newline 
     </bar>
-\layout LyX-Code
-
+\newline 
 </pyvcp>
 \layout LyX-Code
 
@@ -348,8 +310,7 @@ Syntax
 \layout Standard
 
 Each widget is described briefly, followed by the markup used, and a screenshot.
- Tags in brackets [ ] are optional, and comments in parenthesis ( ) should
- not be included in the final file.
+ All tags inside the main widget tag are optional.
 \layout Subsection
 
 LED
@@ -361,60 +322,15 @@ A LED is used to indicate the status of a BIT signal.
 \layout LyX-Code
 
 <led>
-\layout LyX-Code
-
-    [ <halpin>
-\begin_inset Quotes erd
-\end_inset 
-
-my-led
-\begin_inset Quotes erd
-\end_inset 
-
-</halpin> ]          (default is led.n)
-\layout LyX-Code
-
-    [ <size>50</size> ]                      (default is 20)
-\layout LyX-Code
-
-    [ <on_color>
-\begin_inset Quotes erd
-\end_inset 
-
-blue
-\begin_inset Quotes erd
-\end_inset 
-
-</on_color> ]        (default is 
-\begin_inset Quotes eld
-\end_inset 
-
-green
-\begin_inset Quotes erd
-\end_inset 
-
-)
-\layout LyX-Code
-
-    [ <off_color>
-\begin_inset Quotes erd
-\end_inset 
-
-black
-\begin_inset Quotes erd
-\end_inset 
-
-</off_color> ]     (default is 
-\begin_inset Quotes eld
-\end_inset 
-
-red
-\begin_inset Quotes erd
-\end_inset 
-
-)
-\layout LyX-Code
-
+\newline 
+    <halpin>"my-led"</halpin> 
+\newline 
+    <size>50</size> 
+\newline 
+    <on_color>"blue"</on_color>
+\newline 
+    <off_color>"black"</off_color>
+\newline 
 </led>
 \layout LyX-Code
 
@@ -424,6 +340,41 @@ red
 \begin_inset Graphics
 	filename pyvcp_led.png
 
+\end_inset 
+
+
+\layout Standard
+
+<halpin> sets the name of the pin, default is 
+\begin_inset Quotes eld
+\end_inset 
+
+led.n
+\begin_inset Quotes erd
+\end_inset 
+
+, where n is an integer
+\newline 
+<size> sets the size of the led, default is 20
+\newline 
+<on_color> sets the color of the LED when the pin is true.
+ default is 
+\begin_inset Quotes eld
+\end_inset 
+
+green
+\begin_inset Quotes erd
+\end_inset 
+
+
+\newline 
+<off_color> sets the color of the LED when the pin is false.
+ default is 
+\begin_inset Quotes eld
+\end_inset 
+
+ref
+\begin_inset Quotes erd
 \end_inset 
 
 
@@ -438,38 +389,11 @@ A button is used to control a BIT pin.
 \layout LyX-Code
 
 <button>
-\layout LyX-Code
-
-    [ <halpin>
-\begin_inset Quotes erd
-\end_inset 
-
-my-button
-\begin_inset Quotes erd
-\end_inset 
-
-</halpin> ]          (default is button.n)
-\layout LyX-Code
-
-    [ <text>
-\begin_inset Quotes erd
-\end_inset 
-
-ON
-\begin_inset Quotes erd
-\end_inset 
-
-</text> ]                           (default is an empty string 
-\begin_inset Quotes eld
-\end_inset 
-
-
-\begin_inset Quotes erd
-\end_inset 
-
-)
-\layout LyX-Code
-
+\newline 
+    <halpin>"my-button"</halpin>
+\newline 
+    <text>"ON"</text> 
+\newline 
 </button>
 \layout LyX-Code
 
@@ -493,19 +417,9 @@ A checkbutton controls a BIT pin.
 \layout LyX-Code
 
 <checkbutton>
-\layout LyX-Code
-
-    [ <halpin>
-\begin_inset Quotes erd
-\end_inset 
-
-my-checkbox
-\begin_inset Quotes erd
-\end_inset 
-
-</halpin> ]          (default is checkbutton.n)
-\layout LyX-Code
-
+\newline 
+    <halpin>"my-checkbutton"</halpin>
+\newline 
 </checkbutton>
 \layout Standard
 
@@ -531,15 +445,12 @@ A radiobutton will set one of a number of BIT pins true.
  The other pins are set false.
 \layout LyX-Code
 
-<radiobutton>                   
-\layout LyX-Code
-
+<radiobutton>
+\newline 
     <choices>["one","two","three"]</choices> 
-\layout LyX-Code
-
-    [ <halpin>"my-radio"</halpin> ]          (defalut is radiobutton.n)
-\layout LyX-Code
-
+\newline 
+    <halpin>"my-radio"</halpin> 
+\newline 
 </radiobutton>
 \layout LyX-Code
 
@@ -564,18 +475,14 @@ Number
 The number widget displays the value of a FLOAT signal.
 \layout LyX-Code
 
-<number> 
-\layout LyX-Code
-
-    [ <halpin>"my-number"</halpin> ]        (default is number.n)
-\layout LyX-Code
-
-    [ <font>('Helvetica',50)</font> ]       (default is ??)
-\layout LyX-Code
-
-    [ <format>"+4.3f"</format> ]            (default is ??)
-\layout LyX-Code
-
+<number>
+\newline 
+    <halpin>"my-number"</halpin>
+\newline 
+    <font>('Helvetica',50)</font>
+\newline 
+    <format>"+4.3f"</format>
+\newline 
 </number>
 \layout LyX-Code
 
@@ -611,40 +518,18 @@ A bar widget displays the value of a FLOAT signal both graphically using
  a bar display and numerically.
 \layout LyX-Code
 
-<bar> 
-\layout LyX-Code
-
-    [ <halpin>"my-bar"</halpin> ]       (default is bar.n)
-\layout LyX-Code
-
-    [ <startval>0</startval> ]          (default is 0)
-\layout LyX-Code
-
-    [ <endval>123</endval> ]            (default is 100)
-\layout LyX-Code
-
-    [ <bgcolor>"grey"</bgcolor> ]       (default is 
-\begin_inset Quotes eld
-\end_inset 
-
-grey
-\begin_inset Quotes erd
-\end_inset 
-
-)
-\layout LyX-Code
-
-    [ <fillcolor>"red"</fillcolor> ]    (default is 
-\begin_inset Quotes eld
-\end_inset 
-
-green
-\begin_inset Quotes erd
-\end_inset 
-
->
-\layout LyX-Code
-
+<bar>
+\newline 
+    <halpin>"my-bar"</halpin>
+\newline 
+    <startval>0</startval>
+\newline 
+    <endval>123</endval>
+\newline 
+    <bgcolor>"grey"</bgcolor>
+\newline 
+    <fillcolor>"red"</fillcolor>
+\newline 
 </bar>
 \layout LyX-Code
 
@@ -665,24 +550,18 @@ Meter
 Meter displays the value of a FLOAT signal using a traditional dial indicator.
 \layout LyX-Code
 
-<meter> 
-\layout LyX-Code
-
-    [ <halpin>"my-meter"</halpin> ]    (default is meter.0)
-\layout LyX-Code
-
-    [ <text>"Voltage"</text> ]         (default is none)
-\layout LyX-Code
-
-    [ <size>300</size> ]               (default is 200)
-\layout LyX-Code
-
-    [ <min_>-12</min_> ]               (default is 0)
-\layout LyX-Code
-
-    [ <max_>33</max_> ]                (default is 100)
-\layout LyX-Code
-
+<meter>
+\newline 
+    <halpin>"my-meter"</halpin>
+\newline 
+    <text>"Voltage"</text>
+\newline 
+    <size>300</size>
+\newline 
+    <min_>-12</min_>
+\newline 
+    <max_>33</max_>
+\newline 
 </meter> 
 \layout LyX-Code
 
@@ -707,27 +586,20 @@ Spinbox controls a FLOAT pin.
  pressing on the arrows, or pointing at the spinbox and rolling your mouse-wheel.
 \layout LyX-Code
 
-<spinbox> 
-\layout LyX-Code
-
-    <halpin>"my-spibox"</halpin> 
-\layout LyX-Code
-
-    <min_>-12</min_> 
-\layout LyX-Code
-
-    <max_>33</max_> 
-\layout LyX-Code
-
-    <resolution>0.1</resolution> 
-\layout LyX-Code
-
-    <format>"2.3f"</format> 
-\layout LyX-Code
-
-    <font>('Arial',30)</font> 
-\layout LyX-Code
-
+<spinbox>
+\newline 
+    <halpin>"my-spibox"</halpin>
+\newline 
+    <min_>-12</min_>
+\newline 
+    <max_>33</max_>
+\newline 
+    <resolution>0.1</resolution>
+\newline 
+    <format>"2.3f"</format>
+\newline 
+    <font>('Arial',30)</font>
+\newline 
 </spinbox>
 \layout LyX-Code
 
@@ -750,24 +622,18 @@ Scale controls a FLOAT pin.
  or pointing at the scale and rolling your mouse-wheel.
 \layout LyX-Code
 
-<scale> 
-\layout LyX-Code
-
-    <halpin>"my-scale"</halpin> 
-\layout LyX-Code
-
-    <resolution>0.1</resolution> 
-\layout LyX-Code
-
-    <orient>HORIZONTAL</orient> 
-\layout LyX-Code
-
-    <from_>-33</from_> 
-\layout LyX-Code
-
-    <to>26</to> 
-\layout LyX-Code
-
+<scale>
+\newline 
+    <halpin>"my-scale"</halpin>
+\newline 
+    <resolution>0.1</resolution>
+\newline 
+    <orient>HORIZONTAL</orient>
+\newline 
+    <from_>-33</from_>
+\newline 
+    <to>26</to>
+\newline 
 </scale>
 \layout LyX-Code
 
@@ -790,18 +656,14 @@ Jogwheel mimics a real jogwheel by outputting a FLOAT pin which counts up
  or by rolling the mouse-wheel.
 \layout LyX-Code
 
-<jogwheel> 
-\layout LyX-Code
-
-    <halpin>"my-wheel"</halpin> 
-\layout LyX-Code
-
-    <cpr>45</cpr> 
-\layout LyX-Code
-
-    <size>250</size> 
-\layout LyX-Code
-
+<jogwheel>
+\newline 
+    <halpin>"my-wheel"</halpin>
+\newline 
+    <cpr>45</cpr>
+\newline 
+    <size>250</size>
+\newline 
 </jogwheel>
 \layout LyX-Code
 
@@ -822,21 +684,16 @@ Hbox
 Use a Hbox when you want to stack widgets horizontally next to eachother.
 \layout LyX-Code
 
-<hbox> 
-\layout LyX-Code
-
-    <label><text>"a vbox:"</text></label> 
-\layout LyX-Code
-
-    <led></led> 
-\layout LyX-Code
-
-    <number></number> 
-\layout LyX-Code
-
-    <bar></bar> 
-\layout LyX-Code
-
+<hbox>
+\newline 
+    <label><text>"a vbox:"</text></label>
+\newline 
+    <led></led>
+\newline 
+    <number></number>
+\newline 
+    <bar></bar>
+\newline 
 </hbox>
 \layout LyX-Code
 
@@ -857,21 +714,16 @@ Vbox
 Use a Vbox when you want to stack widgets verticallyon top of eachother.
 \layout LyX-Code
 
-<vbox> 
-\layout LyX-Code
-
-    <label><text>"a vbox:"</text></label> 
-\layout LyX-Code
-
-    <led></led> 
-\layout LyX-Code
-
-    <number></number> 
-\layout LyX-Code
-
-    <bar></bar> 
-\layout LyX-Code
-
+<vbox>
+\newline 
+    <label><text>"a vbox:"</text></label>
+\newline 
+    <led></led>
+\newline 
+    <number></number>
+\newline 
+    <bar></bar>
+\newline 
 </vbox>
 \layout LyX-Code
 
@@ -892,15 +744,12 @@ Label
 A label is a piece of text on your panel.
 \layout LyX-Code
 
-<label> 
-\layout LyX-Code
-
+<label>
+\newline 
     <text>"This is a Label:"</text>
-\layout LyX-Code
-
-    <font>('Helvetica',20)</font> 
-\layout LyX-Code
-
+\newline 
+    <font>('Helvetica',20)</font>
+\newline 
 </label> 
 \layout LyX-Code
 
