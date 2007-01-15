@@ -736,6 +736,7 @@ int hal_signal_new(char *name, hal_type_t type)
     new->type = type;
     new->readers = 0;
     new->writers = 0;
+    new->bidirs = 0;
     rtapi_snprintf(new->name, HAL_NAME_LEN, "%s", name);
     /* search list for 'name' and insert new structure */
     prev = &(hal_data->sig_list_ptr);
@@ -864,19 +865,34 @@ int hal_link(char *pin_name, char *sig_name)
 	    "HAL: ERROR: signal '%s' not found\n", sig_name);
 	return HAL_INVAL;
     }
-    /* found both pin and signal, check types */
+    /* found both pin and signal, are they already connected? */
+    if (SHMPTR(pin->signal) == sig) {
+	rtapi_mutex_give(&(hal_data->mutex));
+	rtapi_print_msg(RTAPI_MSG_WARN,
+	    "HAL: Warning: pin '%s' already linked to '%s'\n", pin_name, sig_name);
+	return HAL_SUCCESS;
+    }
+    /* check types */
     if (pin->type != sig->type) {
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: type mismatch '%s' <- '%s'\n", pin_name, sig_name);
 	return HAL_INVAL;
     }
-    /* are we linking output pin to sig that already has writer? */
-    if ((pin->dir == HAL_OUT) && (sig->writers > 0)) {
+    /* linking output pin to sig that already has output or I/O pins? */
+    if ((pin->dir == HAL_OUT) && ((sig->writers > 0) || (sig->bidirs > 0 ))) {
 	/* yes, can't do that */
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: signal '%s' already has writer(s)\n", sig_name);
+	    "HAL: ERROR: signal '%s' already has output or I/O pin(s)\n", sig_name);
+	return HAL_INVAL;
+    }
+    /* linking bidir pin to sig that already has output pin? */
+    if ((pin->dir == HAL_IO) && (sig->writers > 0)) {
+	/* yes, can't do that */
+	rtapi_mutex_give(&(hal_data->mutex));
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: signal '%s' already has output pin\n", sig_name);
 	return HAL_INVAL;
     }
     /* everything is OK, break any old link */
@@ -886,12 +902,15 @@ int hal_link(char *pin_name, char *sig_name)
     comp = SHMPTR(pin->owner_ptr);
     data_addr = comp->shmem_base + sig->data_ptr;
     *data_ptr_addr = data_addr;
-    /* update the signal's reader/writer counts */
+    /* update the signal's reader/writer/bidir counts */
     if ((pin->dir & HAL_IN) != 0) {
 	sig->readers++;
     }
-    if ((pin->dir & HAL_OUT) != 0) {
+    if (pin->dir == HAL_OUT) {
 	sig->writers++;
+    }
+    if (pin->dir == HAL_IO) {
+	sig->bidirs++;
     }
     /* and update the pin */
     pin->signal = SHMOFF(sig);
@@ -2427,6 +2446,7 @@ static hal_sig_t *alloc_sig_struct(void)
 	p->type = 0;
 	p->readers = 0;
 	p->writers = 0;
+	p->bidirs = 0;
 	p->name[0] = '\0';
     }
     return p;
@@ -2638,8 +2658,11 @@ static void unlink_pin(hal_pin_t * pin)
 	if ((pin->dir & HAL_IN) != 0) {
 	    sig->readers--;
 	}
-	if ((pin->dir & HAL_OUT) != 0) {
+	if (pin->dir == HAL_OUT) {
 	    sig->writers--;
+	}
+	if (pin->dir == HAL_IO) {
+	    sig->bidirs--;
 	}
 	/* mark pin as unlinked */
 	pin->signal = 0;
@@ -2680,6 +2703,7 @@ static void free_sig_struct(hal_sig_t * sig)
     sig->type = 0;
     sig->readers = 0;
     sig->writers = 0;
+    sig->bidirs = 0;
     sig->name[0] = '\0';
     /* add it to free list */
     sig->next_ptr = hal_data->sig_free_ptr;
