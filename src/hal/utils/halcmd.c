@@ -879,8 +879,8 @@ static int parse_cmd(char *tokens[])
        can't just quit */
     hal_flag = 1;
     /* tokens[0] is the command */
-    if ((tokens[0][0] == '#') || (tokens[0][0] == '\0')) {
-	/* comment or blank line, do nothing */
+    if (tokens[0][0] == '\0') {
+	/* blank line, do nothing */
 	retval = 0;
     } else if (strcasecmp(tokens[0], "help") == 0) {
 	/* help for a specific command? */
@@ -1036,7 +1036,7 @@ static int do_unlock_cmd(char *command)
 {
     int retval=0;
 
-    /* if command is blank, want to lock everything */
+    /* if command is blank, want to unlock everything */
     if (*command == '\0') {
 	retval = hal_set_lock(HAL_LOCK_NONE);
     } else if (strcmp(command, "all") == 0) {
@@ -1081,7 +1081,7 @@ static int do_linkpp_cmd(char *first_pin_name, char *second_pin_name)
     rtapi_mutex_give(&(hal_data->mutex));
     
     /* check that both pins have the same type, 
-       don't want ot create a sig, which after that won't be usefull */
+       don't want to create a sig, which after that won't be usefull */
     if (first_pin->type != second_pin->type) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL:%d: ERROR: pins '%s' and '%s' not of the same type\n", linenumber, first_pin_name, second_pin_name);
@@ -1131,17 +1131,18 @@ static int do_link_cmd(char *pin, char *sig)
     return retval;
 }
 
-static int isdir(char *s) {
-    if(!s) return 0;
-    return s[0] == '=' || s[0] == '<';
-}
-
 static int preflight_net_cmd(char *signal, hal_sig_t *sig, char *pins[]) {
-    int type = -1, writers=0, i, pincnt=0;
-    if(sig) { type = sig->type; writers = sig->writers; }
+    int i, type=-1, writers=0, bidirs=0, pincnt=0;
+
+    /* if signal already exists, use its info */
+    if (sig) {
+	type = sig->type;
+	writers = sig->writers;
+	bidirs = sig->bidirs;
+    }
+
     for(i=0; pins[i] && *pins[i]; i++) {
         hal_pin_t *pin = 0;
-        if(isdir(pins[i])) continue;
         pin = halpr_find_pin_by_name(pins[i]);
         if(!pin) {
             rtapi_print_msg(RTAPI_MSG_ERR, "HAL:%d: pin '%s' does not exist\n",
@@ -1149,23 +1150,33 @@ static int preflight_net_cmd(char *signal, hal_sig_t *sig, char *pins[]) {
             return HAL_NOTFND;
         }
         if(SHMPTR(pin->signal) == sig) continue; /* Already on this signal */
-        if(type != -1 && type != pin->type) {
+	if (type == -1) {
+	    /* no pre-existing type, use this pin's type */
+	    type = pin->type;
+	}
+        if(type != pin->type) {
             rtapi_print_msg(RTAPI_MSG_ERR,"HAL:%d: Type mismatch on pin '%s'\n",
                     linenumber, pin->name);
             return HAL_INVAL;
         }
         if(pin->dir == HAL_OUT) {
-            if(writers) {
+            if(writers || bidirs) {
                 rtapi_print_msg(RTAPI_MSG_ERR,
                         "HAL:%d: Signal '%s' may not add OUT pin '%s'\n",
                         linenumber, signal, pin->name);
                 return HAL_INVAL;
             }
-        }
-        if(pin->dir & HAL_OUT) {
             writers++;
         }
-        type = pin->type;
+	if(pin->dir == HAL_IO) {
+            if(writers) {
+                rtapi_print_msg(RTAPI_MSG_ERR,
+                        "HAL:%d: Signal '%s' may not add I/O pin '%s'\n",
+                        linenumber, signal, pin->name);
+                return HAL_INVAL;
+            }
+            bidirs++;
+        }
         pincnt++;
     }
     if(pincnt)
@@ -1178,13 +1189,27 @@ static int preflight_net_cmd(char *signal, hal_sig_t *sig, char *pins[]) {
 
 static int do_net_cmd(char *signal, char *pins[]) {
     hal_sig_t *sig;
+    int s, d;
     int i, retval;
 
-    while(pins[0] && isdir(pins[0])) pins++;
+    /* remove any direction arrows, they are for human use only */
+    s = d = 0;
+    while ((pins[s] != NULL) && (pins[s][0] != '\0')) {
+	if ((pins[s][0] == '=') || ( pins[s][0] == '<')) {
+	    /* arrow, skip it */
+	    s++;
+	} else {
+	    /* name, keep it */
+	    pins[d++] = pins[s++];
+	}
+    }
+    pins[d][0] = '\0';
 
     rtapi_mutex_get(&(hal_data->mutex));
+    /* see if signal already exists */
     sig = halpr_find_sig_by_name(signal);
 
+    /* verify that everything matches up (pin types, etc) */
     retval = preflight_net_cmd(signal, sig, pins);
     if(retval != HAL_SUCCESS) {
         rtapi_mutex_give(&(hal_data->mutex));
@@ -1200,18 +1225,11 @@ static int do_net_cmd(char *signal, char *pins[]) {
         }
         retval = hal_signal_new(signal, pin->type);
     } else {
+	/* signal already exists */
         rtapi_mutex_give(&(hal_data->mutex));
     }
-
+    /* add pins to signal */
     for(i=0; retval == HAL_SUCCESS && pins[i] && *pins[i]; i++) {
-        hal_pin_t *pin;
-        if(isdir(pins[i])) continue;
-        rtapi_mutex_get(&(hal_data->mutex));
-        pin = halpr_find_pin_by_name(pins[i]);
-        rtapi_mutex_give(&(hal_data->mutex));
-        if(pin && SHMPTR(pin->signal) == sig)
-            continue; /* Pin is already on this signal */
-        
         retval = do_link_cmd(pins[i], signal);
     }
 
