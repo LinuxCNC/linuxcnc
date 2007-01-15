@@ -610,7 +610,7 @@ RTDEPS := $(sort $(patsubst objects/%.o,depends/%.d, $(RTOBJS)))
 modules: $(patsubst %.o,../rtlib/%.so,$(obj-m))
 ../rtlib/%.so:
 	$(ECHO) Linking $@
-	@gcc -shared -o $@ $^ -lm
+	@$(CC) -shared -o $@ $^ -lm
 
 $(sort $(RTDEPS)): depends/rt%.d: %.c
 	@mkdir -p $(dir $@)
