@@ -3353,7 +3353,7 @@ halcmd unloadrt siggen
 Pins
 \layout Standard
 
-Each generator has four output pins.
+Each generator has five output pins.
 \layout Itemize
 
 
@@ -3407,13 +3407,9 @@ siggen.<chan>.square
 \layout Standard
 
 All five outputs have the same frequency, amplitude, and offset.
-\layout Subsection
-
-Parameters
 \layout Standard
 
-Each generator is controlled by three parameters.
- 
+In addition to the output pins, there are three control pins:
 \layout Itemize
 
 
@@ -3464,6 +3460,23 @@ siggen.0.amplitude
 siggen.0.offset
 \family default 
  is 10.0, then the outputs will swing from 7.5 to 12.5.
+\layout Subsection
+
+Parameters
+\layout Standard
+
+None.
+ 
+\begin_inset Foot
+collapsed true
+
+\layout Standard
+
+Prior to version 2.1, frequency, amplitude, and offset were parameters.
+ They were changed to pins to allow control by other components.
+\end_inset 
+
+
 \layout Subsection
 
 Functions
