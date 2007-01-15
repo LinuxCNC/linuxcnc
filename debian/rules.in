@@ -66,6 +66,7 @@ install: build
 	mkdir -p debian/tmp/usr/lib debian/tmp/usr/include/emc2
 	cp lib/*.a debian/tmp/usr/lib
 	cp docs/html/hal/pluto_servo.html debian/tmp/usr/share/doc/emc2/
+	cp docs/html/gcode.html debian/tmp/usr/share/doc/emc2/
 	dh_movefiles
 
 # Build architecture-independent files here.
