@@ -57,7 +57,7 @@ DOC_SRCS := \
 
 MAN_HTML_TARGETS := $(patsubst $(DOC_DIR)/man/%, $(DOC_DIR)/html/man/%.html, $(MAN_SRCS))
 PDF_TARGETS := $(addprefix $(DOC_DIR)/,HAL_User_Manual.pdf EMC2_User_Manual.pdf EMC2_Developer_Manual.pdf EMC2_Integrator_Manual.pdf)
-HTML_TARGETS := $(patsubst %.lyx,$(DOC_DIR)/html/%/index.html, $(filter-out Master_%, $(DOC_SRCS))) $(MAN_HTML_TARGETS) $(DOC_DIR)/html/index.html
+HTML_TARGETS := $(patsubst %.lyx,$(DOC_DIR)/html/%/index.html, $(filter-out Master_%, $(DOC_SRCS))) $(MAN_HTML_TARGETS) $(DOC_DIR)/html/index.html $(DOC_DIR)/html/hal/pluto_servo.html
 
 L2HFLAGS := -init_file src/.latex2html-init -local_icons \
 	-unsegment -link 4 -info 0 -split +0 -html_version 4.0,math,table 
@@ -80,6 +80,10 @@ $(DOC_DIR)/EMC2_User_Manual.pdf: $(DOC_SRCDIR)/Master_User.pdf
 $(DOC_DIR)/EMC2_Developer_Manual.pdf: $(DOC_SRCDIR)/Master_Developer.pdf
 	@ln -f $< $@
 $(DOC_DIR)/EMC2_Integrator_Manual.pdf: $(DOC_SRCDIR)/Master_Integrator.pdf
+	@ln -f $< $@
+
+$(DOC_DIR)/html/hal/pluto_servo.html: $(DOC_DIR)/html/%.html: $(DOC_SRCDIR)/%.html
+	@mkdir -p $(dir $@)
 	@ln -f $< $@
 
 $(DOC_DIR)/html/man/%.html: $(DOC_DIR)/man/%
