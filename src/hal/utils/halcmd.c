@@ -1149,7 +1149,11 @@ static int preflight_net_cmd(char *signal, hal_sig_t *sig, char *pins[]) {
                     linenumber, pins[i]);
             return HAL_NOTFND;
         }
-        if(SHMPTR(pin->signal) == sig) continue; /* Already on this signal */
+        if(SHMPTR(pin->signal) == sig) {
+	     /* Already on this signal */
+	    pincnt++;
+	    continue;
+	}
 	if (type == -1) {
 	    /* no pre-existing type, use this pin's type */
 	    type = pin->type;
