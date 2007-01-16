@@ -88,6 +88,7 @@
 static int release_HAL_mutex(void);
 static int preprocess_line ( char *line, char **tokens);
 static int strip_comments ( char *buf );
+static int strlimcpy(char **dest, char *src, int srclen, int *destspace);
 static int replace_vars(char *source_str, char *dest_str, int max_chars);
 static int tokenize(char *src, char **tokens);
 static int parse_cmd(char *tokens[]);
@@ -172,6 +173,16 @@ char comp_name[HAL_NAME_LEN];	/* name for this instance of halcmd */
 #ifndef NO_INI
 FILE *inifile = NULL;
 #endif
+
+char *replace_errors[] = {
+	"Missing close parenthesis",
+	"Zero length variable name",
+	"Missing close square bracket",
+	"Environment variable not found",
+	"Ini variable not found",
+	"Replacement would overflow output buffer",
+	"Variable name too long",
+};
 
 static pid_t hal_systemv_nowait(char *const argv[]) {
     pid_t pid;
@@ -617,8 +628,13 @@ static int preprocess_line ( char *line, char **tokens )
     /* copy to cmd_buf while doing variable replacements */
     retval = replace_vars(line, cmd_buf, sizeof(cmd_buf)-2);
     if (retval != 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL:%d: bad variable replacement\n", linenumber);
+	if ((retval < 0) && (retval >= -7)) {  /* print better replacement errors */
+		rtapi_print_msg(RTAPI_MSG_ERR,
+		    "HAL:%d: %s.\n", linenumber, replace_errors[(-retval) -1]);
+	} else {
+		rtapi_print_msg(RTAPI_MSG_ERR,
+		    "HAL:%d: unknown variable replacement error\n", linenumber);
+	}
 	return -2;
     }
     /* split cmd_buff into tokens */
@@ -747,6 +763,42 @@ static int release_HAL_mutex(void)
 
 }
 
+
+/* strlimcpy:
+   a wrapper for strncpy which has two improvements:
+   1) takes two variables for limits, and uses the lower of the two for the limit
+   2) subtracts the number of characters copied from the second limit
+
+   This allows one to keep track of remaining buffer size and use the correct limits
+   simply
+
+   Parameters are:
+   pointer to destination string pointer
+   source string pointer
+   source length to copy
+   pointer to remaining destination space
+
+   return value:
+   -1 if the copy was limited by destination space remaining
+   0 otherwise
+   Side Effects:
+	the value of *destspace will be reduced by the copied length
+	The value of *dest will will be advanced by the copied length
+
+*/
+static int strlimcpy(char **dest, char *src, int srclen, int *destspace) {
+    if (*destspace < srclen) {
+	return -1;
+    } else {
+	strncpy(*dest, src, srclen);
+	(*dest)[srclen] = '\0';
+	srclen = strlen(*dest);		/* use the actual number of bytes copied */
+	*destspace -= srclen;
+	*dest += srclen;
+    }
+    return 0;
+}
+
 /* replace_vars:
    replaces environment and ini var references in source_str.
    This routine does string replacement only
@@ -772,11 +824,13 @@ static int release_HAL_mutex(void)
    -3	missing close square bracket
    -4	environment variable not found
    -5	ini variable not found
+   -6	replacement would overflow output buffer
+   -7	var name exceeds limit
 */
 static int replace_vars(char *source_str, char *dest_str, int max_chars)
 {
     int retval = 0, loopcount=0;
-    int next_delim, remaining;
+    int next_delim, remaining, buf_space;
     char *replacement, sec[128], var[128];
     char *sp=source_str, *dp=dest_str, *secP, *varP;
     const char 
@@ -784,13 +838,12 @@ static int replace_vars(char *source_str, char *dest_str, int max_chars)
 
     dest_str[max_chars-1] = '\0';	/* make sure there's a terminator */
     *dest_str='\0';			/* return null string if input is null string */
+    buf_space = max_chars-1;		/* leave space for terminating null */
     while ((remaining = strlen(sp)) > 0) {
 	loopcount++;
 	next_delim=strcspn(sp, "$[");
-/* FIXME: overflow if source_str is longer than dest_str buffer */
-	strncpy(dp, sp, next_delim);
-	dp[next_delim]='\0';
-	dp += next_delim;
+	if (strlimcpy(&dp, sp, next_delim, &buf_space) < 0)
+	    return -6;
 	sp += next_delim;
 	if (next_delim < remaining) {		/* a new delimiter was found */
 	    switch (*sp++) {	/* this is the found delimiter, since sp was incremented */
@@ -799,29 +852,30 @@ static int replace_vars(char *source_str, char *dest_str, int max_chars)
 		if (*sp=='(') {		/* look for a parenthesized var */
 		    varP=++sp;
 		    next_delim=strcspn(varP, ")");
-		    if (next_delim > strlen(varP))	/* error - no matching parens */
+		    if (next_delim >= strlen(varP))	/* error - no matching parens */
 			return -1;
 		    sp++;
 		} else next_delim = strspn(varP, words);
-		if (next_delim == 0)
+		if (next_delim == 0)		/* null var name */
 		    return -2;
-/* FIXME: overflow if variable name longer than 128 bytes */
+		if (next_delim > 127)		/* var name too long */
+		    return -7;
 		strncpy(var, varP, next_delim);
 		var[next_delim]='\0';
 		replacement = getenv(var);
 		if (replacement == NULL)
 		    return -4;
-/* FIXME: replacement can be longer than source, there is no length check */
-		strcat(dp, replacement);
-		dp += strlen(replacement);
+		if (strlimcpy(&dp, replacement, strlen(replacement), &buf_space) <0)
+		    return -6;
 		sp += next_delim;
 		break;
 	    case '[':
 		secP = sp;
 		next_delim = strcspn(secP, "]");
-		if (next_delim > strlen(secP))	/* error - no matching square bracket */
+		if (next_delim >= strlen(secP))	/* error - no matching square bracket */
 		    return -3;
-/* FIXME: overflow if section name longer than 128 bytes */
+		if (next_delim > 127)		/* section name too long */
+		    return -7;
 		strncpy(sec, secP, next_delim);
 		sec[next_delim]='\0';
 		sp += next_delim+1;
@@ -835,7 +889,8 @@ static int replace_vars(char *source_str, char *dest_str, int max_chars)
 		} else next_delim = strspn(varP, words);
 		if (next_delim == 0)
 		    return -2;
-/* FIXME: overflow if variable name longer than 128 bytes */
+		if (next_delim > 127)		/* var name too long */
+		    return -7;
 		strncpy(var, varP, next_delim);
 		var[next_delim]='\0';
 		if ( strlen(sec) > 0 ) {
@@ -848,9 +903,8 @@ static int replace_vars(char *source_str, char *dest_str, int max_chars)
 		}
 		if (replacement==NULL)
 		    return -5;
-/* FIXME: replacement can be longer than source, there is no length check */
-		strcat(dp, replacement);
-		dp += strlen(replacement);
+		if (strlimcpy(&dp, replacement, strlen(replacement), &buf_space) < 0)
+		    return -6;
 		sp += next_delim;
 		break;
 	    }
