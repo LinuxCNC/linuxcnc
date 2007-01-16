@@ -300,7 +300,7 @@ bit Should be driven TRUE if the negative limit switch
 \layout Description
 
 axis.N.index-enable\SpecialChar ~
-OUT\SpecialChar ~
+IO\SpecialChar ~
 BIT Should be attached to the index-enable pin of the
  joint's encoder to enable homing to index pulse
 \layout Description
