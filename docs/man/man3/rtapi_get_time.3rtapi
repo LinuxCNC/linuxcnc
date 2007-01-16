@@ -29,8 +29,8 @@ fast, since it just reads the TSC in the CPU instead of calling a
 kernel or RTOS function.  Of course, times measured in CPU clocks
 are not as convenient, but for relative measurements this works
 fine.  Its absolute value means nothing, but it is monotonically
-increasing* and can be used to schedule future events, or to time
-the duration of some activity.  (* on SMP machines, the two TSC's
+increasing and can be used to schedule future events, or to time
+the duration of some activity.  (on SMP machines, the two TSC's
 may get out of sync, so if a task reads the TSC, gets swapped to
 the other CPU, and reads again, the value may decrease.  RTAPI
 tries to force all RT tasks to run on one CPU.)
@@ -56,6 +56,11 @@ Returns the current time in nanoseconds or CPU clocks.
 Certain versions of the Linux kernel provide a global variable \fBcpu_khz\fR.
 Computing 
 .RS
-	deltat = (end_clocks - start_clocks) / cpu_khz
+	deltat = (end_clocks - start_clocks) / cpu_khz:
 .RE
-gives the duration measured in milliseconds.
+gives the duration measured in milliseconds.  Computing
+.RS
+	deltat = (end_clocks - start_clocks) * 1000000 / cpu_khz:
+.RE
+gives the duration measured in nanoseconds for deltas less than about 9
+trillion clocks (e.g., 3000 seconds at 3GHz).
