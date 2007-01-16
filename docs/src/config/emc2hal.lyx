@@ -287,6 +287,18 @@ bit Should be driven TRUE if the home switch for this joint
  is closed
 \layout Description
 
+axis.N.pos-lim-sw-in\SpecialChar ~
+IN\SpecialChar ~
+bit Should be driven TRUE if the positive limit switch
+ for this joint is closed
+\layout Description
+
+axis.N.neg-lim-sw-in\SpecialChar ~
+IN\SpecialChar ~
+bit Should be driven TRUE if the negative limit switch
+ for this joint is closed
+\layout Description
+
 axis.N.index-enable\SpecialChar ~
 OUT\SpecialChar ~
 BIT Should be attached to the index-enable pin of the
