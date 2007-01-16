@@ -772,6 +772,8 @@ HOME\SpecialChar ~
 \series default 
 Coordinates of the homed position of each axis.
  Again for a fourth axis you will need 0 0 0 0.
+ This value is only used for machines with nontrivial kinematics.
+ On machines with trivial kinematics this value is ignored.
 \layout Description
 
 
@@ -1228,9 +1230,7 @@ HOME_OFFSET\SpecialChar ~
 =\SpecialChar ~
 0.0
 \series default 
- A distance to move once the home position has been found.
- The axis position is set to zero or the [TRAJ] HOME value for that axis
- after the HOME_OFFSET distance has been moved.
+ The axis position of the home switch or index pulse.
 \layout Description
 
 HOME_SEARCH_VEL
