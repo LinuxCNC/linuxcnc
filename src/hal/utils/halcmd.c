@@ -2140,24 +2140,42 @@ static int do_loadusr_cmd(char *args[])
     }
     /* add a NULL to terminate the argv array */
     argv[m] = NULL;
-
+    /* start the child process */
     pid = hal_systemv_nowait(argv);
-
+    /* make sure we reconnected to the HAL */
+    if (comp_id < 0) {
+	fprintf(stderr, "halcmd: hal_init() failed after fork: %d\n",
+	    comp_id );
+	exit(-1);
+    }
+    hal_ready(comp_id);
     if ( wait_comp_flag ) {
-        int ready = 0, count=0, exited=0;
+        int ready = 0, count=0;
         hal_comp_t *comp = NULL;
         while(!ready) {
-            struct timespec ts = {0, 10 * 1000 * 1000}; // 10ms
+	    /* sleep for 10mS */
+            struct timespec ts = {0, 10 * 1000 * 1000};
             nanosleep(&ts, NULL);
-            if(!exited) {
-                retval = waitpid( pid, &status, WNOHANG );
-                if(retval != 0) {
-                    exited = 1;
-                    if(retval < 0 || WIFEXITED(status) == 0
-                            || WEXITSTATUS(status) != 0) goto wait_common;
-                }
-            }
 
+	    /* check for program ending without ever becoming ready */
+	    retval = waitpid( pid, &status, WNOHANG );
+	    if ( retval < 0 ) {
+	        if (count >= 100) {
+		    fprintf(stderr, "\n");
+		}
+		rtapi_print_msg(RTAPI_MSG_ERR,
+		    "HAL:%d: ERROR: waitpid(%d) failed\n", linenumber, pid);
+		return -1;
+	    }
+	    if ( retval > 0 ) {
+	        if (count >= 100) {
+		    fprintf(stderr, "\n");
+		}
+		rtapi_print_msg(RTAPI_MSG_ERR,
+		    "HAL:%d: ERROR: %s exited without becoming ready\n", linenumber, prog_name);
+		return -1;
+	    }
+	    /* check for program becoming ready */
             rtapi_mutex_get(&(hal_data->mutex));
             comp = halpr_find_comp_by_name(new_comp_name);
             if(comp && comp->ready) {
@@ -2184,7 +2202,6 @@ static int do_loadusr_cmd(char *args[])
 	/* wait for child process to complete */
 	retval = waitpid ( pid, &status, 0 );
 	/* check result of waitpid() */
-wait_common:
 	if ( retval < 0 ) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"HAL:%d: ERROR: waitpid(%d) failed\n", linenumber, pid);
