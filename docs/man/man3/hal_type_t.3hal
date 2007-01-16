@@ -1,26 +1,45 @@
 .TH hal_type_t "3hal" "2006-10-12" "EMC Documentation" "HAL"
 .SH NAME
-
-hal_type_t \- typedef for HAL-supported datatypes
-
-.SH SYNTAX
-.HP
-typedef enum hal_type_t
-
-.SH DESCRIPTION
-
-HAL pins and signals are typed, and the HAL only allows pins to be attached to
-signals of the same type.  All HAL types can be read or written atomically.
-Read-modify-write operations are not atomic.
-
-.IP \fBHAL_BIT\fR
-A single-bit type, which may have a value of 0 or 1.  Corresponds to \fBhal_bit_t\fR
-
-.IP \fBHAL_FLOAT\fR
+hal_type_t \- typedefs for HAL datatypes
+.SH DESRCIPTION
+.TP
+typedef ... \fBhal_bit_t;
+A type which may have a value of 0 or nonzero.
+.TP
+typedef ... \fBhal_s32_t\fR;
+A type which may have a value from -2147483648 to 2147483647.
+.TP
+typedef ... \fBhal_u32_t\fR;
+A type which may have a value from 0 to 4294967295.
+.TP
+typedef ... \fBhal_float_t\fR;
 A floating-point type, which typically has the same precision and range
-as the C type \fBfloat\fR.  Corresponds to \fBhal_float_t\fR
-
-.IP \fBHAL_S32\fR
-A signed type with range of at least -2147483648 to 2147483648.  Corresponds to \fBhal_s32_t\fR
-.IP \fBHAL_U32\fR
-A signed type with range of at least 0 to 4294967295.  Corresponds to \fBhal_u32_t\fR
+as the C type \fBfloat\fR.
+.TP
+typedef enum \fBhal_type_t\fR;
+.RS
+.TP
+\fBHAL_BIT\fR
+Corresponds to the type \fBhal_bit_t\fR.
+.TP
+\fBHAL_FLOAT\fR
+Corresponds to the type \fBhal_float_t\fR.
+.TP
+\fBHAL_S32\fR
+Corresponds to the type \fBhal_s32_t\fR.
+.TP
+\fBHAL_U32\fR
+Corresponds to the type \fBhal_u32_t\fR.
+.RE
+.SH NOTES
+\fBhal_bit_t\fR is typically a typedef to an integer type whose range is larger
+than just 0 and 1.  When testing the value of a \fBhal_bit_t\fR, never compare
+it to 1.  Prefer one of the following:
+.RS
+.IP \(bu 4
+if(b)
+.IP \(bu 4
+if(b != 0)
+.RE
+.SH SEE ALSO
+\fBhal_pin_new(3hal)\fR, \fBhal_param_new(3hal)\fR
