@@ -1,8 +1,12 @@
-emc2 (2.1.0~alpha0) testing; urgency=low
+emc2 (1:2.1.0~alpha0) testing; urgency=low
 
+  [ alex_joni ]
   * integrate improved-dpkg branch and bump to 2.1.0~alpha0
 
- -- alex_joni <alex_joni@user.sourceforge.net>  Sun, 10 Dec 2006 16:52:20 +0200
+  [ Alex Joni ]
+  * bump version to 1:2.1.0~alpha0 (to be better than 1:2.0.x)
+
+ -- Alex Joni <alex_joni@users.sourceforge.net>  Wed, 17 Jan 2007 00:27:32 +0200
 
 emc2 (2.1.0pre) testing; urgency=low
 
