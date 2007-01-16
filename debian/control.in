@@ -16,12 +16,11 @@ Description: PC based motion controller for real-time Linux.
  This package contains documentation for emc2.
  
 Package: emc2-@KERNEL_VERSION@
-Replaces: emc2
-Conflicts: emc2
-Provides: emc2
+Replaces: emc2, emc2-axis
+Conflicts: emc2, emc2-axis
+Provides: emc2, emc2-axis
 Architecture: any
 Depends: ${shlibs:Depends},@KERNEL_DEPENDS@,tcl8.4,tk8.4,libreadline5, python2.4-numarray, python2.4-imaging, python2.4-imaging-tk, python (>= 2.4), python (<< 2.5), emc2, ${python:Depends}, bwidget (>= 1.7), bwidget (<<1.8), python2.4-tk
-Provides: emc2
 Suggests: emc2-docs
 Description: PC based motion controller for real-time Linux.
  EMC2 is the next-generation Enhanced Machine Controller which
