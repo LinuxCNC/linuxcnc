@@ -15,7 +15,7 @@ Description: PC based motion controller for real-time Linux.
  .
  This package contains documentation for emc2.
  
-Package: emc2-@KERNEL_VERSION@
+Package: @EMC2_PACKAGE_NAME@
 Replaces: emc2, emc2-axis
 Conflicts: emc2, emc2-axis
 Provides: emc2, emc2-axis
