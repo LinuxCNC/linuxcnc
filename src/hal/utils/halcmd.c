@@ -2131,7 +2131,7 @@ static int do_loadusr_cmd(char *args[])
     }
 
     /* prepare to exec() the program */
-    argv[0] = prog_name;
+    argv[0] = prog_path;
     /* loop thru remaining arguments */
     n = 0;
     m = 1;
