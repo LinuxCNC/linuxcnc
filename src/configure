@@ -4920,6 +4920,16 @@ if ( test "$BUILD_DOCS" = "yes" ) ; then
 echo "$as_me: WARNING: no python, documentation will not be built" >&2;}
     fi
 fi
+echo "$as_me:$LINENO: checking for HTML support in groff" >&5
+echo $ECHO_N "checking for HTML support in groff... $ECHO_C" >&6
+if ! groff -Thtml < /dev/null > /dev/null 2>&1 ; then
+    echo "$as_me:$LINENO: result: no groff -Thtml, documentation will not be built" >&5
+echo "${ECHO_T}no groff -Thtml, documentation will not be built" >&6
+    BUILD_DOCS=no
+else
+    echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6
+fi
 
 
 #############################################################################

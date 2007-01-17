@@ -768,6 +768,13 @@ if ( test "$BUILD_DOCS" = "yes" ) ; then
         AC_MSG_WARN([no python, documentation will not be built])
     fi
 fi
+AC_MSG_CHECKING([for HTML support in groff])
+if ! groff -Thtml < /dev/null > /dev/null 2>&1 ; then
+    AC_MSG_RESULT([no groff -Thtml, documentation will not be built])
+    BUILD_DOCS=no
+else
+    AC_MSG_RESULT(yes)
+fi
 AC_SUBST(BUILD_DOCS)
 
 #############################################################################
