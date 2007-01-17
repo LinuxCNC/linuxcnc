@@ -2204,30 +2204,17 @@ static int do_loadusr_cmd(char *args[])
     }
     hal_ready(comp_id);
     if ( wait_comp_flag ) {
-        int ready = 0, count=0;
+        int ready = 0, count=0, exited=0;
         hal_comp_t *comp = NULL;
-        while(!ready) {
+	retval = 0;
+        while(!ready && !exited) {
 	    /* sleep for 10mS */
             struct timespec ts = {0, 10 * 1000 * 1000};
             nanosleep(&ts, NULL);
-
-	    /* check for program ending without ever becoming ready */
+	    /* check for program ending */
 	    retval = waitpid( pid, &status, WNOHANG );
-	    if ( retval < 0 ) {
-	        if (count >= 100) {
-		    fprintf(stderr, "\n");
-		}
-		rtapi_print_msg(RTAPI_MSG_ERR,
-		    "HAL:%d: ERROR: waitpid(%d) failed\n", linenumber, pid);
-		return -1;
-	    }
-	    if ( retval > 0 ) {
-	        if (count >= 100) {
-		    fprintf(stderr, "\n");
-		}
-		rtapi_print_msg(RTAPI_MSG_ERR,
-		    "HAL:%d: ERROR: %s exited without becoming ready\n", linenumber, prog_name);
-		return -1;
+	    if ( retval != 0 ) {
+		exited = 1;
 	    }
 	    /* check for program becoming ready */
             rtapi_mutex_get(&(hal_data->mutex));
@@ -2236,7 +2223,7 @@ static int do_loadusr_cmd(char *args[])
                 ready = 1;
             }
             rtapi_mutex_give(&(hal_data->mutex));
-
+	    /* pacify the user */
             count++;
             if(count == 100) {
                 fprintf(stderr, "Waiting for component '%s' to become ready.",
@@ -2248,9 +2235,22 @@ static int do_loadusr_cmd(char *args[])
             }
         }
         if (count >= 100) {
+	    /* terminate pacifier */
 	    fprintf(stderr, "\n");
 	}
-	rtapi_print_msg(RTAPI_MSG_INFO, "Component '%s' ready\n", new_comp_name);
+	/* did it work? */
+	if (ready) {
+	    rtapi_print_msg(RTAPI_MSG_INFO, "Component '%s' ready\n", new_comp_name);
+	} else {
+	    if ( retval < 0 ) {
+		rtapi_print_msg(RTAPI_MSG_ERR,
+		    "\nHAL:%d: ERROR: waitpid(%d) failed\n", linenumber, pid);
+	    } else {
+		rtapi_print_msg(RTAPI_MSG_ERR,
+		    "HAL:%d: ERROR: %s exited without becoming ready\n", linenumber, prog_name);
+	    }
+	    return -1;
+	}
     }
     if ( wait_flag ) {
 	/* wait for child process to complete */
