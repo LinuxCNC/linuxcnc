@@ -762,11 +762,11 @@ static void update_freq(void *arg, long period)
 	    if ((stepgen->maxvel * fabs(stepgen->pos_scale)) > max_freq) {
                 if(!stepgen->printed_error) {
                     rtapi_print_msg(RTAPI_MSG_ERR,
-                        "STEPGEN: Channel %d: The requested maximum velocity of %d steps per second is not attainable.\n",
-                        n, (int) (stepgen->maxvel * fabs(stepgen->pos_scale)));
-                    rtapi_print_msg(RTAPI_MSG_ERR,
-                        "STEPGEN: The maximum number of steps possible is %d per second\n",
-                            (int)max_freq);
+"STEPGEN: Channel %d: The requested step rate of %dHz is not attainable.  "
+"The maximum step rate is %dHz.  You must reduce MAX_VELOCITY, INPUT_SCALE, "
+"or BASE_PERIOD.  Otherwise, following errors will result.\n",
+                        n, (int) (stepgen->maxvel * fabs(stepgen->pos_scale)),
+                        (int)max_freq);
                     stepgen->printed_error = 1;
                 }
 		/* parameter is too high, lower it */
