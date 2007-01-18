@@ -177,6 +177,8 @@ void SET_ORIGIN_OFFSETS(double x, double y, double z,
 {
     EMC_TRAJ_SET_ORIGIN set_origin_msg;
 
+    flush_segments();
+
     /* convert to mm units */
     x = FROM_PROG_LEN(x);
     y = FROM_PROG_LEN(y);
