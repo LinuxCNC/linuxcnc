@@ -130,7 +130,7 @@ setup_menu_accel .menu.machine end [_ "Ha_l Scope"]
 setup_menu_accel .menu.machine end [_ "Sho_w EMC Status"]
 
 .menu.machine add command \
-	-command {exec debuglevel &}
+	-command {exec debuglevel -ini $emcini &}
 setup_menu_accel .menu.machine end [_ "Set _Debug Level"]
 
 .menu.machine add separator
