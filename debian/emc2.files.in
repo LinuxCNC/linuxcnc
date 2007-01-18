@@ -386,6 +386,7 @@ usr/share/man/man9/threadtest.9usr/share/man/man1/emc.1
 usr/share/man/man9/wcomp.9
 usr/bin/axis
 usr/bin/axis-remote
+usr/bin/debuglevel
 usr/bin/emctop
 usr/bin/hal_manualtoolchange
 usr/bin/image-to-gcode
