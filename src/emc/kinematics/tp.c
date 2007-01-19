@@ -469,7 +469,7 @@ int acute(TC_STRUCT *a, TC_STRUCT *b) {
     v2 = tcGetStartingUnitVector(b);
     pmCartCartDot(v1, v2, &dot);
 
-    return dot < 0;
+    return dot < 0.5;
 }
 
 // This is the brains of the operation.  It's called every TRAJ period
