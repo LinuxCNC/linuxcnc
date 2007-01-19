@@ -59,7 +59,7 @@ case $1 in
         MODULE_PATH=usr/lib/emc2/modules
 	MODULE_EXT=.so
 	KERNEL_DEPENDS=
-	KERNEL_HEADERS=	
+	KERNEL_HEADERS=libpth-dev
 	DRIVERS=
         EXTRA_FILES="usr/bin/rtapi_app"
 	DISTRIB_NAME=sim-$DISTRIB_NAME
