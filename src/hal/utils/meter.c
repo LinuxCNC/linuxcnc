@@ -465,10 +465,12 @@ static int refresh_value(gpointer data)
     meter = (meter_t *) data;
     probe = meter->probe;
 
+    rtapi_mutex_get(&(hal_data->mutex));
     if (probe->pin != NULL) {
 	if (probe->pin->name[0] == '\0') {
 	    /* pin has been deleted, can't display it any more */
 	    probe->pin = NULL;
+	    rtapi_mutex_give(&(hal_data->mutex));
 	    return 1;
 	}
 	name_str = probe->pin->name;
@@ -484,6 +486,7 @@ static int refresh_value(gpointer data)
 	if (probe->sig->name[0] == '\0') {
 	    /* signal has been deleted, can't display it any more */
 	    probe->sig = NULL;
+	    rtapi_mutex_give(&(hal_data->mutex));
 	    return 1;
 	}
 	name_str = probe->sig->name;
@@ -493,6 +496,7 @@ static int refresh_value(gpointer data)
 	if (probe->param->name[0] == '\0') {
 	    /* parameter has been deleted, can't display it any more */
 	    probe->param = NULL;
+	    rtapi_mutex_give(&(hal_data->mutex));
 	    return 1;
 	}
 	name_str = probe->param->name;
@@ -502,6 +506,7 @@ static int refresh_value(gpointer data)
 	name_str = "-----";
 	value_str = "---";
     }
+    rtapi_mutex_give(&(hal_data->mutex));
     gtk_label_set_text(GTK_LABEL(meter->value_label), value_str);
     if (!small) {
 	gtk_label_set_text(GTK_LABEL(meter->name_label), name_str);
