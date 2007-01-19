@@ -1,5 +1,5 @@
 component match8 "8-bit binary match detector";
-pin in bit in "cascade input - if false, output is false regardless of other inputs";
+pin in bit in = TRUE "cascade input - if false, output is false regardless of other inputs";
 pin in bit a0;
 pin in bit a1;
 pin in bit a2;
