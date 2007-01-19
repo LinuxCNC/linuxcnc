@@ -2280,6 +2280,7 @@ static int export_match8(int num)
 	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
 	return retval;
     }
+    *match8->in = 1;
     /* export pins for A and B inputs */
     for ( n = 0 ; n < 8 ; n++ ) {
 	rtapi_snprintf(buf, HAL_NAME_LEN, "match8.%d.a%1d", num, n);
