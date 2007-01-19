@@ -45,8 +45,8 @@ Basic configurations for a stepper based system
 Introduction
 \layout Standard
 
-This chapter tries to describe some of the more common settings that users
- want to change when setting up EMC2.
+This chapter describes some of the more common settings that users want
+ to change when setting up EMC2.
  Because of the various possibilities of configuring EMC2, it is very hard
  to document them all, and keep this document relatively short.
  
@@ -70,7 +70,49 @@ Most of this chapter is based on the sample config released along with EMC2.
 
 \end_inset 
 
-, and usually it is found in /etc/emc2/sample-configs/stepper
+, and usually it is found in 
+\family typewriter 
+/etc/emc2/sample-configs/stepper
+\family default 
+.
+\layout Section
+
+
+\begin_inset LatexCommand \label{sec:Maximum-step-rate}
+
+\end_inset 
+
+Maximum step rate
+\begin_inset LatexCommand \index{Step Rate}
+
+\end_inset 
+
+
+\layout Standard
+
+With software step generation, the maximum step rate is one step per two
+ BASE_PERIODs for step-and-direction output.
+ The maximum requested step rate is the product of an axis's MAX_VELOCITY
+ and its INPUT_SCALE.
+ If the requested step rate is not attainable, following errors will occur,
+ particularly during fast jogs and G0 moves.
+\layout Standard
+
+If your stepper driver can accept quadrature input, use this mode.
+ With a quadrature signal, one step is possible for each BASE_PERIOD, doubling
+ the maximum step rate.
+\layout Standard
+
+The other remedies are to decrease one or more of: the BASE_PERIOD (setting
+ this too low will cause the machine to become unresponsive or even lock
+ up), the INPUT_SCALE (if you can select different step sizes on your stepper
+ driver, change pulley ratios, or leadscrew pitch), or the MAX_VELOCITY
+ and STEPGEN_MAXVEL.
+\layout Standard
+
+If no valid combination of BASE_PERIOD, INPUT_SCALE, and MAX_VELOCITY is
+ acceptable, then hardware step generation (such as with the emc2-supported
+ Universal Stepper Controller)
 \layout Section
 
 
@@ -256,6 +298,87 @@ or basicly any other numbers you like.
 
 Hint: make sure you don't have more than one signal connected to the same
  pin.
+\layout Subsection
+
+
+\begin_inset LatexCommand \label{sub:Changing-the-polarity}
+
+\end_inset 
+
+Changing the polarity of a signal
+\begin_inset LatexCommand \index{Signal Polarity}
+
+\end_inset 
+
+
+\layout Standard
+
+If external hardware expects an 
+\begin_inset Quotes eld
+\end_inset 
+
+active low
+\begin_inset Quotes erd
+\end_inset 
+
+ signal, set the corresponding 
+\family typewriter 
+-invert
+\family default 
+ parameter.
+ For instance, to invert the spindle control signal:
+\layout LyX-Code
+
+setp parport.0.pin-09-invert TRUE
+\layout Subsection
+
+
+\begin_inset LatexCommand \label{sub:PWM-Spindle-Speed}
+
+\end_inset 
+
+Adding PWM Spindle Speed Control
+\begin_inset LatexCommand \index{Spindle Speed Control}
+
+\end_inset 
+
+
+\layout Standard
+
+If your spindle can be controlled by a PWM signal, use the 
+\family typewriter 
+pwmgen
+\family default 
+ component to create the signal:
+\layout LyX-Code
+
+loadrt pwmgen output_type=0
+\newline 
+addf pwmgen.update servo-thread
+\newline 
+addf pwmgen.make-pulses base-thread
+\newline 
+net spindle-speed-cmd motion.spindle-speed-out => pwmgen.0.value
+\newline 
+net spindle-on motion.spindle-on => pwmgen.0.enable
+\newline 
+net spindle-pwm pwmgen.0.pwm => parport.0.pin-09-out
+\newline 
+setp pwmgen.0.scale 1800 # Change to your spindle's top speed in RPM
+\layout Standard
+
+This assumes that the spindle controller's response to PWM is simple: 0%
+ PWM gives 0RPM, 10% PWM gives 180 RPM, etc.
+ If there is a minimum PWM required to get the spindle to turn, follow the
+ example in the 
+\emph on 
+nist-lathe
+\emph default 
+ sample configuration to use a 
+\family typewriter 
+scale
+\family default 
+ component.
 \layout Subsection
 
 
