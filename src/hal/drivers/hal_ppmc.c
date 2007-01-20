@@ -116,7 +116,7 @@ RTAPI_MP_ARRAY_INT(extradout, MAX_BUS*8, "bus/slot locations of extra dig out mo
 
 #define ENCCTRL     0x03	/* EPP address of encoder control register */
 #define ENCRATE     0x04	/* interrupt rate register, only on master encoder */
-#define ENCISR      0x0C	/* index sense register */
+#define ENCISR      0x0C	/* index detect latch register (read only) */
 #define ENCINDX     0x0D	/* index reset register (write only) */
                                 /* only available with rev 2 and above FPGA config */
 #define ENCLOAD     0x00	/* EPP address to write into first byte of preset */
@@ -157,7 +157,7 @@ RTAPI_MP_ARRAY_INT(extradout, MAX_BUS*8, "bus/slot locations of extra dig out mo
 #define UxC_ESTOP_IN    0x0E
 /* The "estop" input will always report OFF to the software, regardless
    of the actual state of the physical input, unless the "estop" output
-   has being turned on by the software. */
+   has been turned on by the software. */
 #define UxC_EXTRA       0x0F    /* 8 bit "extra" port on USC and UPC */
 
 /* codes to indicate if/how the extra port is being used */
@@ -167,6 +167,7 @@ RTAPI_MP_ARRAY_INT(extradout, MAX_BUS*8, "bus/slot locations of extra dig out mo
 
 #define UxC_DOUTA       0x1F	/* EPP address of digital outputs */
 #define UxC_ESTOP_OUT   0x1F
+#define UxC_SLAVE       0x06	/* EPP address of slave register */
 /* The physical output associated with the "estop" output will not come on
    unless the physical "estop" input is also on.  All physical outputs
    will not come on unless the physical "estop" output is on. */
@@ -272,8 +273,8 @@ typedef struct {
     hal_float_t scale;          /* parameter: scale factor */
     hal_bit_t *index;           /* output: index flag */
     hal_bit_t *index_enable;    /* enable index pulse to reset encoder count */
-    hal_bit_t *ind_enb_copy;    /* copy of index pulse to reset encoder count */
     signed long oldreading;     /* used to detect overflow / underflow of the counter */
+  unsigned int indres;        /* copy of reset-on-index register bits (only valid on 1st encoder of board)*/
 } encoder_t;
 
 /* this structure contains the runtime data for a single EPP bus slot */
@@ -628,10 +629,8 @@ int rtapi_app_main(void)
 		rv1 = -1;
 		break;
             }
-rtapi_print_msg(RTAPI_MSG_ERR,
-    "read cache bitmap: %08x\n", slot->read_bitmap );
-rtapi_print_msg(RTAPI_MSG_ERR,
-    "write cache bitmap: %08x\n", slot->write_bitmap );
+	    rtapi_print_msg(RTAPI_MSG_INFO,"read cache bitmap: %08x\n", slot->read_bitmap );
+	    rtapi_print_msg(RTAPI_MSG_INFO,"write cache bitmap: %08x\n", slot->write_bitmap );
 	} /* end of slot loop */
 	if ( rv1 != 0 ) {
 	    /* error during slot scan, already printed */
@@ -1007,7 +1006,7 @@ static void read_encoders(slot_data_t *slot)
         } byte;
     } pos, oldpos;
     
-    indextemp = slot->rd_buf[ENCISR];
+    indextemp = slot->rd_buf[ENCISR];  /* see if index was seen, clears latches */
     byteindex = ENCCNT0;        /* first encoder count register */
     for (i = 0; i < 4; i++) {
         oldpos.l = slot->encoder[i].oldreading;
@@ -1041,36 +1040,37 @@ static void read_encoders(slot_data_t *slot)
 	   function active at a time, so the code takes a shortcut
 	   and the highest numbered channel takes precedence. */
 	if (slot->ver >= 2) {
-	  /*	  rtapi_print_msg(RTAPI_MSG_INFO, "index_enable is  %d\n",
-	   *(slot->encoder[i].index_enable));	*/
+	  /*	  rtapi_print_msg(RTAPI_MSG_INFO, "index_enable is  %d\n",*(slot->encoder[i].index_enable));	*/
 	  if (*(slot->encoder[i].index_enable) != 0) {
-	    /* clear encoder count load register, this will be loaded on the index pulse */
-	    SelWrt(0x00, slot->slot_base+ENCLOAD, slot->port_addr);
-	    WrtMore(0x00, slot->port_addr);
-	    WrtMore(0x00, slot->port_addr);
-	    /*		j = (1<<i); */
-	    SelWrt(8,slot->slot_base + ENCINDX, slot->port_addr);
-	    *(slot->encoder[i].ind_enb_copy) = 1;
-	  }
-	  else {
-	    SelWrt(0,slot->slot_base + ENCINDX, slot->port_addr);
-	    *(slot->encoder[i].ind_enb_copy) = 0;
-	  }
-	  
-	  /*	  rtapi_print_msg(RTAPI_MSG_INFO, "encoder %d = %d %d %d %d\n",i,pos.byte.b3,
-	    pos.byte.b2,pos.byte.b1,pos.byte.b0);  */
-	
-	/* if in index_enable mode and we have seen the index pulse
-	   on that axis, then turn off index-enable */
-	  if (*(slot->encoder[i].index_enable) && i ==3) {
-	    if ((indextemp & (1<<i)) != 0) {
-	  *(slot->encoder[i].index_enable) = 0;
-	  /* major shortcut here - assumes never can have more than
-	     one ENCINDX bit set at a time */
-	  SelWrt(0x00,slot->slot_base + ENCINDX, slot->port_addr);
-	  *(slot->encoder[i].ind_enb_copy) = 0;
+	    if (((slot->encoder[0].indres >>i) & 1)==0) {  /* detects first time .index_enable is set  */
+	      (slot->encoder[0].indres) |= (1 << i);  /* set the copy of the reg bit */
+	      /* rtapi_print_msg(RTAPI_MSG_INFO, "enabling index reset on axis  %d, indres = %x, indextemp = %x\n",i,slot->encoder[0].indres,indextemp); */
+	      /* clear encoder count load register, this will be loaded on the index pulse */
+	      SelWrt(0x00, slot->slot_base+ENCLOAD, slot->port_addr);
+	      WrtMore(0x00, slot->port_addr);
+	      WrtMore(0x00, slot->port_addr);
+	      SelWrt(slot->encoder[0].indres,slot->slot_base + ENCINDX, slot->port_addr);
 	    }
-	  }  
+	    
+	    
+	    /*	  rtapi_print_msg(RTAPI_MSG_INFO, "encoder %d = %d %d %d %d\n",i,pos.byte.b3,
+	      pos.byte.b2,pos.byte.b1,pos.byte.b0);  */
+	    
+	    /* if in index_enable mode and we have seen the index pulse
+	       on that axis, then turn off index-enable on that axis */
+	    if ((indextemp & (1<<i)) != 0) {
+	      *(slot->encoder[i].index_enable) = 0;  /* turn off index enable on hal IO pin */
+	      (slot->encoder[0].indres) &= ~(1 << i);  /* clear the copy of the reg bit */
+	      SelWrt(slot->encoder[0].indres,slot->slot_base + ENCINDX, slot->port_addr);
+	      /* rtapi_print_msg(RTAPI_MSG_INFO, "clearing index reset on axis  %d, indres = %x\n",i,slot->encoder[0].indres); */
+	    }
+	  } else {
+	    if (((slot->encoder[0].indres >>i) & 1) ==1) {  /* enable is set, but request has been dropped */
+	      (slot->encoder[0].indres) &= ~(1 << i);  /* clear the copy of the reg bit */
+	      SelWrt(slot->encoder[0].indres,slot->slot_base + ENCINDX, slot->port_addr);
+	      /*  rtapi_print_msg(RTAPI_MSG_INFO, "cancelling index reset on axis  %d, indres = %x\n",i,slot->encoder[0].indres); */
+	    }
+	  }
 	}
     }
 }
@@ -1567,7 +1567,11 @@ static int export_UxC_digout(slot_data_t *slot, bus_data_t *bus)
     /* do hardware init */
     /* turn off all outputs */
     SelWrt(0, slot->slot_base+UxC_DOUTA, slot->port_addr);
-
+    if (bus->last_digout > 7) {   // if not first UxC, set it to slave mode
+      rtapi_print_msg(RTAPI_MSG_INFO, "PPMC:  slave UxC addr %x\n",slot->slot_base+UxC_SLAVE);
+      SelWrt(1,slot->slot_base+UxC_SLAVE,slot->port_addr);
+      rtapi_print_msg(RTAPI_MSG_INFO, "PPMC:  slave UxC # %d\n",bus->last_digout);
+    }
     /* allocate shared memory for the digital output data */
     slot->digout = hal_malloc(8 * sizeof(dout_t));
     if (slot->digout == 0) {
@@ -2031,6 +2035,7 @@ static int export_encoders(slot_data_t *slot, bus_data_t *bus)
                         "PPMC: ERROR: hal_malloc() failed\n");
         return -1;
     }
+    slot->encoder[0].indres = 0;  /* clear reset-on-index reg copy */
     /* export per-encoder pins and params */
     for ( n = 0 ; n < 4 ; n++ ) {
         /* scale input parameter */
@@ -2075,12 +2080,6 @@ static int export_encoders(slot_data_t *slot, bus_data_t *bus)
 	  rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.encoder.%02d.index-enable",
 			 bus->busnum, bus->last_encoder);
 	  retval = hal_pin_bit_new(buf, HAL_IO, &(slot->encoder[n].index_enable), comp_id);
-	  if (retval != 0) {
-	    return retval;
-	  }
-	  rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.encoder.%02d.ind-enb-copy",
-			 bus->busnum, bus->last_encoder);
-	  retval = hal_pin_bit_new(buf, HAL_OUT, &(slot->encoder[n].ind_enb_copy), comp_id);
 	  if (retval != 0) {
 	    return retval;
 	  }
@@ -2210,7 +2209,7 @@ static int ClrTimeout(unsigned int port_addr)
 	return 0;
     }
 /* remove after testing */
-rtapi_print("EPP Bus Timeout!\n" );
+/* rtapi_print("EPP Bus Timeout!\n" ); */
     /* To clear timeout some chips require double read */
 /*    BusReset(port_addr);  don't do this, it resets all registers in PPMC boards!!  */
     r = rtapi_inb(STATUSPORT(port_addr));
