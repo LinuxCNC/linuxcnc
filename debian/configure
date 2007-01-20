@@ -73,6 +73,8 @@ case $1 in
 	EMC2_PACKAGE_NAME=emc2
         KERNEL_HEADERS="$KERNEL_HEADERS,gcc-4.0"
     ;;
+    *)
+	echo "your kernel '$1' is not known. There might be needed dependencies which won't get set automatically."
 esac
 
 subst () {
@@ -94,3 +96,5 @@ if [ -f extras-$DISTRIB_NAME/emc2.files ]; then
 else
     subst emc2.files.in $DRIVERS > emc2-$1.files
 fi
+
+echo "successfully configured for '$1'.."
