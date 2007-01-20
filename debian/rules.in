@@ -46,7 +46,7 @@ ifeq "$(kernel_version)" "sim"
 else
 	cd src && ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --with-rtai=/usr/realtime-$(kernel_version)
 endif
-	cd src && $(MAKE) depclean -s
+	cd src && $(MAKE) clean -s
 	rm -f Makefile.inc
 
 	dh_clean
