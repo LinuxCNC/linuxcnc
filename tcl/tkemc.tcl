@@ -919,7 +919,7 @@ set abortbutton [button $commandbuttons.abort -text [msgcat::mc "ABORT"] -width 
 
 pack $abortbutton -side left -fill both -expand true
 
-bind $abortbutton <ButtonPress-1> {emc_abort}
+bind $abortbutton <ButtonPress-1> {tkemc_abort}
 pack $abortbutton -side top -fill both -expand true
 
 set toolsetting 0
@@ -1822,7 +1822,7 @@ proc nextUp {} {
 bind ManualBindings <KeyPress-Next> nextDown
 bind ManualBindings <KeyRelease-Next> nextUp
 
-bind . <Escape> {emc_abort}
+bind . <Escape> {tkemc_abort}
 
 # force explicit updates, so calls to emc_estop, for example, don't
 # always cause an NML read; they just return last latched status
@@ -2407,6 +2407,18 @@ proc updateStatus {} {
 
 # schedule this again
     after $displayCycleTime updateStatus
+}
+
+# abort to a sane state and also coerce the interpreter to send an
+# EMC_TRAJ_SET_ORIGIN message so the stat buffer (and our gui) gets updated
+proc tkemc_abort {} {
+    emc_abort
+    set oldmode [emc_mode]
+    emc_mode mdi
+    emc_mdi "G55"
+    emc_mdi "G54"
+    emc_mdi "G92.2"
+    emc_mode $oldmode
 }
 
 updateStatus
