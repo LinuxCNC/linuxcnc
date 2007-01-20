@@ -86,6 +86,9 @@
 #define MAX_EXPECTED_SIGS 999
 
 static int release_HAL_mutex(void);
+static int preprocess_line ( char *line, char **tokens);
+static int strip_comments ( char *buf );
+static int strlimcpy(char **dest, char *src, int srclen, int *destspace);
 static int replace_vars(char *source_str, char *dest_str, int max_chars);
 static int tokenize(char *src, char **tokens);
 static int parse_cmd(char *tokens[]);
@@ -98,6 +101,7 @@ static int do_newsig_cmd(char *name, char *type);
 #if 0  /* newinst deferred to version 2.2 */
 static int do_newinst_cmd(char *comp_name, char *inst_name);
 #endif
+static int do_net_cmd(char *signame, char *pins[]);
 static int do_setp_cmd(char *name, char *value);
 static int do_getp_cmd(char *name);
 static int do_sets_cmd(char *name, char *value);
@@ -138,7 +142,7 @@ static char *data_value2(int type, void *valptr);
 static int do_save_cmd(char *type, char *filename);
 static int do_setexact_cmd(void);
 static void save_comps(FILE *dst);
-static void save_signals(FILE *dst);
+static void save_signals(FILE *dst, int only_unlinked);
 static void save_links(FILE *dst, int arrows);
 static void save_nets(FILE *dst, int arrows);
 static void save_params(FILE *dst);
@@ -170,6 +174,16 @@ char comp_name[HAL_NAME_LEN];	/* name for this instance of halcmd */
 FILE *inifile = NULL;
 #endif
 
+char *replace_errors[] = {
+	"Missing close parenthesis",
+	"Zero length variable name",
+	"Missing close square bracket",
+	"Environment variable not found",
+	"Ini variable not found",
+	"Replacement would overflow output buffer",
+	"Variable name too long",
+};
+
 static pid_t hal_systemv_nowait(char *const argv[]) {
     pid_t pid;
     int n;
@@ -181,6 +195,7 @@ static pid_t hal_systemv_nowait(char *const argv[]) {
     /* now the fork() */
     pid = fork();
     if ( pid < 0 ) {
+	/* fork failed */
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL:%d: ERROR: fork() failed\n", linenumber);
 	/* reconnect to the HAL shmem area */
@@ -194,6 +209,7 @@ static pid_t hal_systemv_nowait(char *const argv[]) {
 	return -1;
     }
     if ( pid == 0 ) {
+	/* child process */
 	/* print debugging info if "very verbose" (-V) */
         for(n=0; argv[n] != NULL; n++) {
 	    rtapi_print_msg(RTAPI_MSG_DBG, "%s ", argv[n] );
@@ -206,6 +222,7 @@ static pid_t hal_systemv_nowait(char *const argv[]) {
 	    "HAL:%d: ERROR: execv(%s) failed\n", linenumber, argv[0] );
 	exit(1);
     }
+    /* parent process */
     /* reconnect to the HAL shmem area */
     comp_id = hal_init(comp_name);
 
@@ -213,11 +230,14 @@ static pid_t hal_systemv_nowait(char *const argv[]) {
 }
 
 static int hal_systemv(char *const argv[]) {
-    pid_t pid = hal_systemv_nowait(argv);
+    pid_t pid;
     int status;
+    int retval;
 
+    /* do the fork */
+    pid = hal_systemv_nowait(argv);
     /* this is the parent process, wait for child to end */
-    int retval = waitpid ( pid, &status, 0 );
+    retval = waitpid ( pid, &status, 0 );
     if (comp_id < 0) {
 	fprintf(stderr, "halcmd: hal_init() failed after systemv: %d\n", comp_id );
 	exit(-1);
@@ -266,9 +286,10 @@ static void quit(int sig)
     }
 }
 
-
-/* tokenize():
-   this sets an array of pointers to each non-whitespace token in the input line
+/* tokenize() sets an array of pointers to each non-whitespace
+   token in the input line.  It expects that variable substitution
+   and comment removal have already been done, and that any
+   trailing newline has been removed.
 */
 static int tokenize(char *cmd_buf, char **tokens)
 {
@@ -279,7 +300,6 @@ static int tokenize(char *cmd_buf, char **tokens)
 	   END_OF_LINE } state;
     char *cp1;
     int m;
-
     /* convert a line of text into individual tokens */
     m = 0;
     cp1 = cmd_buf;
@@ -287,12 +307,20 @@ static int tokenize(char *cmd_buf, char **tokens)
     while ( m < MAX_TOK ) {
 	switch ( state ) {
 	case BETWEEN_TOKENS:
-	    if (( *cp1 == '\n' ) || ( *cp1 == '\0' )) {
+	    if ( *cp1 == '\0' ) {
 		/* end of the line */
 		state = END_OF_LINE;
 	    } else if ( isspace(*cp1) ) {
 		/* whitespace, skip it */
 		cp1++;
+	    } else if ( *cp1 == '\'' ) {
+		/* start of a quoted string and a new token */
+		tokens[m] = cp1++;
+		state = SINGLE_QUOTE;
+	    } else if ( *cp1 == '\"' ) {
+		/* start of a quoted string and a new token */
+		tokens[m] = cp1++;
+		state = DOUBLE_QUOTE;
 	    } else {
 		/* first char of a token */
 		tokens[m] = cp1++;
@@ -300,9 +328,8 @@ static int tokenize(char *cmd_buf, char **tokens)
 	    }
 	    break;
 	case IN_TOKEN:
-	    if (( *cp1 == '\n' ) || ( *cp1 == '\0' )) {
-		/* end of the line, terminate current token */
-		*cp1++ = '\0';
+	    if ( *cp1 == '\0' ) {
+		/* end of the line */
 		m++;
 		state = END_OF_LINE;
 	    } else if ( *cp1 == '\'' ) {
@@ -324,9 +351,8 @@ static int tokenize(char *cmd_buf, char **tokens)
 	    }
 	    break;
 	case SINGLE_QUOTE:
-	    if (( *cp1 == '\n' ) || ( *cp1 == '\0' )) {
-		/* end of the line, terminate current token */
-		*cp1++ = '\0';
+	    if ( *cp1 == '\0' ) {
+		/* end of the line */
 		m++;
 		state = END_OF_LINE;
 	    } else if ( *cp1 == '\'' ) {
@@ -339,9 +365,8 @@ static int tokenize(char *cmd_buf, char **tokens)
 	    }
 	    break;
 	case DOUBLE_QUOTE:
-	    if (( *cp1 == '\n' ) || ( *cp1 == '\0' )) {
-		/* end of the line, terminate current token */
-		*cp1++ = '\0';
+	    if ( *cp1 == '\0' ) {
+		/* end of the line */
 		m++;
 		state = END_OF_LINE;
 	    } else if ( *cp1 == '\"' ) {
@@ -354,13 +379,15 @@ static int tokenize(char *cmd_buf, char **tokens)
 	    }
 	    break;
 	case END_OF_LINE:
-	    *cp1 = '\0';
 	    tokens[m++] = cp1;
 	    break;
 	default:
 	    /* should never get here */
-	    return -1;
+	    state = BETWEEN_TOKENS;
 	}
+    }
+    if ( state != END_OF_LINE ) {
+	return -1;
     }
     return 0;
 }
@@ -378,7 +405,7 @@ int main(int argc, char **argv)
     int keep_going, retval, errorcount;
     char *cp1, *filename = NULL;
     FILE *srcfile = NULL;
-    char raw_buf[MAX_CMD_LEN+1], cmd_buf[2*MAX_CMD_LEN];
+    char raw_buf[MAX_CMD_LEN+1];
     char *tokens[MAX_TOK+1];
 
     if (argc < 2) {
@@ -528,31 +555,15 @@ int main(int argc, char **argv)
 	/* copy them to a long string for variable replacement */
 	raw_buf[0] = '\0';
 	while (n < argc) {
-	    strcat(raw_buf, argv[n++]);
-	    strcat(raw_buf, " ");
+	    strncat(raw_buf, argv[n++], MAX_CMD_LEN);
+	    strncat(raw_buf, " ", MAX_CMD_LEN);
 	}
-	raw_buf[strlen(raw_buf)]='\0';
-	
-	retval = replace_vars(raw_buf, cmd_buf, sizeof(cmd_buf)-2);
-	if (retval != 0) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"HAL:%d: bad variable replacement\n", linenumber);
-	} else {
-	    retval = tokenize(cmd_buf, tokens);
-	    if (retval != 0) {
-		rtapi_print_msg(RTAPI_MSG_ERR,
-		    "HAL:%d: Bad state in token parser\n", linenumber);
-		/* the only error that can happen here is so strange, that we exit the program */
-		goto out;
-	    }
-	}
-	/* tokens[] contains MAX_TOK+1 elements so there is always
-	   at least one empty one at the end... make it empty now */
-	tokens[MAX_TOK] = "";
+	/* remove comments, do var substitution, and tokenise */
+	retval = preprocess_line(raw_buf, tokens);
 	/* process the command */
 	if (retval == 0) {
 	    retval = parse_cmd(tokens);
-	    if ( retval != 0 ) {
+	    if (retval != 0) {
 		errorcount++;
 	    }
 	}
@@ -560,36 +571,17 @@ int main(int argc, char **argv)
 	/* read command line(s) from 'srcfile' */
 	while (get_input(srcfile, raw_buf, MAX_CMD_LEN)) {
 	    linenumber++;
-
-	    /* do variable replacements on command line */
-	    retval = replace_vars(raw_buf, cmd_buf, sizeof(cmd_buf)-2);
-	    if (retval != 0) {
-		rtapi_print_msg(RTAPI_MSG_ERR,
-		    "HAL:%d: bad variable replacement\n", linenumber);
-	    }
-	    if (retval==0) {
-		retval = tokenize(cmd_buf, tokens);
-		/* tokens[] contains MAX_TOK+1 elements so there is always
-		   at least one empty one at the end... make it empty now */
-		if (retval != 0) {
-		    rtapi_print_msg(RTAPI_MSG_ERR,
-			"HAL:%d: Bad state in token parser\n", linenumber);
-		    /* the only error that can happen here is so strange, that we exit the program */
-		    goto out;
+	    /* remove comments, do var substitution, and tokenise */
+	    retval = preprocess_line(raw_buf, tokens);
+	    if (retval == 0) {
+		/* the "quit" command is not handled by parse_cmd() */
+		if ( ( strcasecmp(tokens[0],"quit") == 0 ) ||
+		     ( strcasecmp(tokens[0],"exit") == 0 ) ) {
+		    break;
 		}
-	    }
-	    tokens[MAX_TOK] = "";
-
-            /* Some rare conditions can leave us with no tokens */
-            if(!tokens[0]) continue;
-
-	    /* the "quit" command is not handled by parse_cmd() */
-	    if ( ( strcasecmp(tokens[0],"quit") == 0 ) || ( strcasecmp(tokens[0],"exit") == 0 ) ) {
-		break;
-	    }
-	    /* process command */
-	    if (retval == 0)
+		/* process command */
 		retval = parse_cmd(tokens);
+	    }
 	    /* did a signal happen while we were busy? */
 	    if ( done ) {
 		/* treat it as an error */
@@ -607,7 +599,6 @@ int main(int argc, char **argv)
 	}
     }
     /* all done */
-out:
     /* tell the signal handler we might have the mutex */
     hal_flag = 1;
     hal_exit(comp_id);
@@ -621,6 +612,113 @@ out:
 /***********************************************************************
 *                   LOCAL FUNCTION DEFINITIONS                         *
 ************************************************************************/
+
+static int preprocess_line ( char *line, char **tokens )
+{
+    int retval;
+    static char cmd_buf[2*MAX_CMD_LEN];
+
+    /* strip comments and trailing newline (if any) */
+    retval = strip_comments(line);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL:%d: unterminated quoted string\n", linenumber);
+	return -1;
+    }
+    /* copy to cmd_buf while doing variable replacements */
+    retval = replace_vars(line, cmd_buf, sizeof(cmd_buf)-2);
+    if (retval != 0) {
+	if ((retval < 0) && (retval >= -7)) {  /* print better replacement errors */
+		rtapi_print_msg(RTAPI_MSG_ERR,
+		    "HAL:%d: %s.\n", linenumber, replace_errors[(-retval) -1]);
+	} else {
+		rtapi_print_msg(RTAPI_MSG_ERR,
+		    "HAL:%d: unknown variable replacement error\n", linenumber);
+	}
+	return -2;
+    }
+    /* split cmd_buff into tokens */
+    retval = tokenize(cmd_buf, tokens);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL:%d: too many tokens on line\n", linenumber);
+	return -3;
+    }
+    /* tokens[] contains MAX_TOK+1 elements so there is always
+       at least one empty one at the end... make it empty now */
+    tokens[MAX_TOK] = "";
+    return 0;
+}
+
+/* strip_comments() removes any comment in the string.  It also
+   removes any trailing newline.  Single- or double-quoted strings
+   are respected - a '#' inside a quoted string does not indicate
+   a comment.
+*/
+static int strip_comments ( char *buf )
+{
+    enum { NORMAL,
+	   SINGLE_QUOTE,
+	   DOUBLE_QUOTE
+	 } state;
+    char *cp1;
+
+    cp1 = buf;
+    state = NORMAL;
+    while ( 1 ) {
+	switch ( state ) {
+	case NORMAL:
+	    if (( *cp1 == '#' ) || ( *cp1 == '\n' ) || ( *cp1 == '\0' )) {
+		/* end of the line */
+		*cp1 = '\0';
+		return 0;
+	    } else if ( *cp1 == '\'' ) {
+		/* start of a quoted string */
+		cp1++;
+		state = SINGLE_QUOTE;
+	    } else if ( *cp1 == '\"' ) {
+		/* start of a quoted string */
+		cp1++;
+		state = DOUBLE_QUOTE;
+	    } else {
+		/* normal character */
+		cp1++;
+	    }
+	    break;
+	case SINGLE_QUOTE:
+	    if (( *cp1 == '\n' ) || ( *cp1 == '\0' )) {
+		/* end of the line, unterminated quoted string */
+		*cp1 = '\0';
+		return -1;
+	    } else if ( *cp1 == '\'' ) {
+		/* end of quoted string */
+		cp1++;
+		state = NORMAL;
+	    } else {
+		/* ordinary character */
+		cp1++;
+	    }
+	    break;
+	case DOUBLE_QUOTE:
+	    if (( *cp1 == '\n' ) || ( *cp1 == '\0' )) {
+		/* end of the line, unterminated quoted string */
+		*cp1 = '\0';
+		return -1;
+	    } else if ( *cp1 == '\"' ) {
+		/* end of quoted string */
+		cp1++;
+		state = NORMAL;
+	    } else {
+		/* ordinary character */
+		cp1++;
+	    }
+	    break;
+	default:
+	    /* should never get here */
+	    state = NORMAL;
+	}
+    }
+}
 
 /* release_HAL_mutex() unconditionally releases the hal_mutex
    very useful after a program segfaults while holding the mutex
@@ -665,6 +763,42 @@ static int release_HAL_mutex(void)
 
 }
 
+
+/* strlimcpy:
+   a wrapper for strncpy which has two improvements:
+   1) takes two variables for limits, and uses the lower of the two for the limit
+   2) subtracts the number of characters copied from the second limit
+
+   This allows one to keep track of remaining buffer size and use the correct limits
+   simply
+
+   Parameters are:
+   pointer to destination string pointer
+   source string pointer
+   source length to copy
+   pointer to remaining destination space
+
+   return value:
+   -1 if the copy was limited by destination space remaining
+   0 otherwise
+   Side Effects:
+	the value of *destspace will be reduced by the copied length
+	The value of *dest will will be advanced by the copied length
+
+*/
+static int strlimcpy(char **dest, char *src, int srclen, int *destspace) {
+    if (*destspace < srclen) {
+	return -1;
+    } else {
+	strncpy(*dest, src, srclen);
+	(*dest)[srclen] = '\0';
+	srclen = strlen(*dest);		/* use the actual number of bytes copied */
+	*destspace -= srclen;
+	*dest += srclen;
+    }
+    return 0;
+}
+
 /* replace_vars:
    replaces environment and ini var references in source_str.
    This routine does string replacement only
@@ -690,11 +824,13 @@ static int release_HAL_mutex(void)
    -3	missing close square bracket
    -4	environment variable not found
    -5	ini variable not found
+   -6	replacement would overflow output buffer
+   -7	var name exceeds limit
 */
 static int replace_vars(char *source_str, char *dest_str, int max_chars)
 {
     int retval = 0, loopcount=0;
-    int next_delim, remaining;
+    int next_delim, remaining, buf_space;
     char *replacement, sec[128], var[128];
     char *sp=source_str, *dp=dest_str, *secP, *varP;
     const char 
@@ -702,43 +838,44 @@ static int replace_vars(char *source_str, char *dest_str, int max_chars)
 
     dest_str[max_chars-1] = '\0';	/* make sure there's a terminator */
     *dest_str='\0';			/* return null string if input is null string */
+    buf_space = max_chars-1;		/* leave space for terminating null */
     while ((remaining = strlen(sp)) > 0) {
 	loopcount++;
-	next_delim=strcspn(sp, "#$[");
-	strncpy(dp, sp, next_delim);
-	dp[next_delim]='\0';
-	dp += next_delim;
+	next_delim=strcspn(sp, "$[");
+	if (strlimcpy(&dp, sp, next_delim, &buf_space) < 0)
+	    return -6;
 	sp += next_delim;
 	if (next_delim < remaining) {		/* a new delimiter was found */
 	    switch (*sp++) {	/* this is the found delimiter, since sp was incremented */
-            case '#': /* A comment is encountered, do not substitute the rest */
-                sp += strlen(sp);
-                break;
 	    case '$':
 		varP = sp;
 		if (*sp=='(') {		/* look for a parenthesized var */
 		    varP=++sp;
 		    next_delim=strcspn(varP, ")");
-		    if (next_delim > strlen(varP))	/* error - no matching parens */
+		    if (next_delim >= strlen(varP))	/* error - no matching parens */
 			return -1;
 		    sp++;
 		} else next_delim = strspn(varP, words);
-		if (next_delim == 0)
+		if (next_delim == 0)		/* null var name */
 		    return -2;
+		if (next_delim > 127)		/* var name too long */
+		    return -7;
 		strncpy(var, varP, next_delim);
 		var[next_delim]='\0';
 		replacement = getenv(var);
 		if (replacement == NULL)
 		    return -4;
-		strcat(dp, replacement);
-		dp += strlen(replacement);
+		if (strlimcpy(&dp, replacement, strlen(replacement), &buf_space) <0)
+		    return -6;
 		sp += next_delim;
 		break;
 	    case '[':
 		secP = sp;
 		next_delim = strcspn(secP, "]");
-		if (next_delim > strlen(secP))	/* error - no matching square bracket */
+		if (next_delim >= strlen(secP))	/* error - no matching square bracket */
 		    return -3;
+		if (next_delim > 127)		/* section name too long */
+		    return -7;
 		strncpy(sec, secP, next_delim);
 		sec[next_delim]='\0';
 		sp += next_delim+1;
@@ -752,6 +889,8 @@ static int replace_vars(char *source_str, char *dest_str, int max_chars)
 		} else next_delim = strspn(varP, words);
 		if (next_delim == 0)
 		    return -2;
+		if (next_delim > 127)		/* var name too long */
+		    return -7;
 		strncpy(var, varP, next_delim);
 		var[next_delim]='\0';
 		if ( strlen(sec) > 0 ) {
@@ -764,8 +903,8 @@ static int replace_vars(char *source_str, char *dest_str, int max_chars)
 		}
 		if (replacement==NULL)
 		    return -5;
-		strcat(dp, replacement);
-		dp += strlen(replacement);
+		if (strlimcpy(&dp, replacement, strlen(replacement), &buf_space) < 0)
+		    return -6;
 		sp += next_delim;
 		break;
 	    }
@@ -794,8 +933,8 @@ static int parse_cmd(char *tokens[])
        can't just quit */
     hal_flag = 1;
     /* tokens[0] is the command */
-    if ((tokens[0][0] == '#') || (tokens[0][0] == '\0')) {
-	/* comment or blank line, do nothing */
+    if (tokens[0][0] == '\0') {
+	/* blank line, do nothing */
 	retval = 0;
     } else if (strcasecmp(tokens[0], "help") == 0) {
 	/* help for a specific command? */
@@ -807,6 +946,8 @@ static int parse_cmd(char *tokens[])
 	    print_help_commands();
 	    retval = 0;
 	}
+    } else if (strcmp(tokens[0], "net") == 0) {
+	retval = do_net_cmd(tokens[1], &tokens[2]);
     } else if (strcmp(tokens[0], "linkps") == 0) {
 	/* check for an arrow */
 	if ((tokens[2][0] == '=') || (tokens[2][0] == '<')) {
@@ -949,7 +1090,7 @@ static int do_unlock_cmd(char *command)
 {
     int retval=0;
 
-    /* if command is blank, want to lock everything */
+    /* if command is blank, want to unlock everything */
     if (*command == '\0') {
 	retval = hal_set_lock(HAL_LOCK_NONE);
     } else if (strcmp(command, "all") == 0) {
@@ -994,7 +1135,7 @@ static int do_linkpp_cmd(char *first_pin_name, char *second_pin_name)
     rtapi_mutex_give(&(hal_data->mutex));
     
     /* check that both pins have the same type, 
-       don't want ot create a sig, which after that won't be usefull */
+       don't want to create a sig, which after that won't be usefull */
     if (first_pin->type != second_pin->type) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL:%d: ERROR: pins '%s' and '%s' not of the same type\n", linenumber, first_pin_name, second_pin_name);
@@ -1041,6 +1182,115 @@ static int do_link_cmd(char *pin, char *sig)
     } else {
 	rtapi_print_msg(RTAPI_MSG_ERR,"HAL:%d: link failed\n", linenumber);
     }
+    return retval;
+}
+
+static int preflight_net_cmd(char *signal, hal_sig_t *sig, char *pins[]) {
+    int i, type=-1, writers=0, bidirs=0, pincnt=0;
+
+    /* if signal already exists, use its info */
+    if (sig) {
+	type = sig->type;
+	writers = sig->writers;
+	bidirs = sig->bidirs;
+    }
+
+    for(i=0; pins[i] && *pins[i]; i++) {
+        hal_pin_t *pin = 0;
+        pin = halpr_find_pin_by_name(pins[i]);
+        if(!pin) {
+            rtapi_print_msg(RTAPI_MSG_ERR, "HAL:%d: pin '%s' does not exist\n",
+                    linenumber, pins[i]);
+            return HAL_NOTFND;
+        }
+        if(SHMPTR(pin->signal) == sig) {
+	     /* Already on this signal */
+	    pincnt++;
+	    continue;
+	}
+	if (type == -1) {
+	    /* no pre-existing type, use this pin's type */
+	    type = pin->type;
+	}
+        if(type != pin->type) {
+            rtapi_print_msg(RTAPI_MSG_ERR,"HAL:%d: Type mismatch on pin '%s'\n",
+                    linenumber, pin->name);
+            return HAL_INVAL;
+        }
+        if(pin->dir == HAL_OUT) {
+            if(writers || bidirs) {
+                rtapi_print_msg(RTAPI_MSG_ERR,
+                        "HAL:%d: Signal '%s' may not add OUT pin '%s'\n",
+                        linenumber, signal, pin->name);
+                return HAL_INVAL;
+            }
+            writers++;
+        }
+	if(pin->dir == HAL_IO) {
+            if(writers) {
+                rtapi_print_msg(RTAPI_MSG_ERR,
+                        "HAL:%d: Signal '%s' may not add I/O pin '%s'\n",
+                        linenumber, signal, pin->name);
+                return HAL_INVAL;
+            }
+            bidirs++;
+        }
+        pincnt++;
+    }
+    if(pincnt)
+        return HAL_SUCCESS;
+    rtapi_print_msg(RTAPI_MSG_ERR,
+            "HAL:%d: 'net' requires at least one pin, none given\n",
+            linenumber);
+    return HAL_INVAL;
+}
+
+static int do_net_cmd(char *signal, char *pins[]) {
+    hal_sig_t *sig;
+    int s, d;
+    int i, retval;
+
+    /* remove any direction arrows, they are for human use only */
+    s = d = 0;
+    while ((pins[s] != NULL) && (pins[s][0] != '\0')) {
+	if ((pins[s][0] == '=') || ( pins[s][0] == '<')) {
+	    /* arrow, skip it */
+	    s++;
+	} else {
+	    /* name, keep it */
+	    pins[d++] = pins[s++];
+	}
+    }
+    pins[d][0] = '\0';
+
+    rtapi_mutex_get(&(hal_data->mutex));
+    /* see if signal already exists */
+    sig = halpr_find_sig_by_name(signal);
+
+    /* verify that everything matches up (pin types, etc) */
+    retval = preflight_net_cmd(signal, sig, pins);
+    if(retval != HAL_SUCCESS) {
+        rtapi_mutex_give(&(hal_data->mutex));
+        return retval;
+    }
+
+    if(!sig) {
+        /* Create the signal with the type of the first pin */
+        hal_pin_t *pin = halpr_find_pin_by_name(pins[0]);
+        rtapi_mutex_give(&(hal_data->mutex));
+        if(!pin) {
+            return HAL_NOTFND;
+        }
+        retval = hal_signal_new(signal, pin->type);
+    } else {
+	/* signal already exists */
+        rtapi_mutex_give(&(hal_data->mutex));
+    }
+    /* add pins to signal */
+    for(i=0; retval == HAL_SUCCESS && pins[i] && *pins[i]; i++) {
+        retval = do_link_cmd(pins[i], signal);
+    }
+
     return retval;
 }
 
@@ -1935,7 +2185,7 @@ static int do_loadusr_cmd(char *args[])
     }
 
     /* prepare to exec() the program */
-    argv[0] = prog_name;
+    argv[0] = prog_path;
     /* loop thru remaining arguments */
     n = 0;
     m = 1;
@@ -1944,31 +2194,36 @@ static int do_loadusr_cmd(char *args[])
     }
     /* add a NULL to terminate the argv array */
     argv[m] = NULL;
-
+    /* start the child process */
     pid = hal_systemv_nowait(argv);
-
+    /* make sure we reconnected to the HAL */
+    if (comp_id < 0) {
+	fprintf(stderr, "halcmd: hal_init() failed after fork: %d\n",
+	    comp_id );
+	exit(-1);
+    }
+    hal_ready(comp_id);
     if ( wait_comp_flag ) {
         int ready = 0, count=0, exited=0;
         hal_comp_t *comp = NULL;
-        while(!ready) {
-            struct timespec ts = {0, 10 * 1000 * 1000}; // 10ms
+	retval = 0;
+        while(!ready && !exited) {
+	    /* sleep for 10mS */
+            struct timespec ts = {0, 10 * 1000 * 1000};
             nanosleep(&ts, NULL);
-            if(!exited) {
-                retval = waitpid( pid, &status, WNOHANG );
-                if(retval != 0) {
-                    exited = 1;
-                    if(retval < 0 || WIFEXITED(status) == 0
-                            || WEXITSTATUS(status) != 0) goto wait_common;
-                }
-            }
-
+	    /* check for program ending */
+	    retval = waitpid( pid, &status, WNOHANG );
+	    if ( retval != 0 ) {
+		exited = 1;
+	    }
+	    /* check for program becoming ready */
             rtapi_mutex_get(&(hal_data->mutex));
             comp = halpr_find_comp_by_name(new_comp_name);
             if(comp && comp->ready) {
                 ready = 1;
             }
             rtapi_mutex_give(&(hal_data->mutex));
-
+	    /* pacify the user */
             count++;
             if(count == 100) {
                 fprintf(stderr, "Waiting for component '%s' to become ready.",
@@ -1980,15 +2235,27 @@ static int do_loadusr_cmd(char *args[])
             }
         }
         if (count >= 100) {
+	    /* terminate pacifier */
 	    fprintf(stderr, "\n");
 	}
-	rtapi_print_msg(RTAPI_MSG_INFO, "Component '%s' ready\n", new_comp_name);
+	/* did it work? */
+	if (ready) {
+	    rtapi_print_msg(RTAPI_MSG_INFO, "Component '%s' ready\n", new_comp_name);
+	} else {
+	    if ( retval < 0 ) {
+		rtapi_print_msg(RTAPI_MSG_ERR,
+		    "\nHAL:%d: ERROR: waitpid(%d) failed\n", linenumber, pid);
+	    } else {
+		rtapi_print_msg(RTAPI_MSG_ERR,
+		    "HAL:%d: ERROR: %s exited without becoming ready\n", linenumber, prog_name);
+	    }
+	    return -1;
+	}
     }
     if ( wait_flag ) {
 	/* wait for child process to complete */
 	retval = waitpid ( pid, &status, 0 );
 	/* check result of waitpid() */
-wait_common:
 	if ( retval < 0 ) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"HAL:%d: ERROR: waitpid(%d) failed\n", linenumber, pid);
@@ -2683,14 +2950,16 @@ static int do_save_cmd(char *type, char *filename)
     if (strcmp(type, "all" ) == 0) {
 	/* save everything */
 	save_comps(dst);
-	save_signals(dst);
-	save_links(dst, 0);
+        save_signals(dst, 1);
+        save_nets(dst, 3);
 	save_params(dst);
 	save_threads(dst);
     } else if (strcmp(type, "comp") == 0) {
 	save_comps(dst);
     } else if (strcmp(type, "sig") == 0) {
-	save_signals(dst);
+	save_signals(dst, 0);
+    } else if (strcmp(type, "sigu") == 0) {
+	save_signals(dst, 1);
     } else if (strcmp(type, "link") == 0) {
 	save_links(dst, 0);
     } else if (strcmp(type, "linka") == 0) {
@@ -2699,6 +2968,10 @@ static int do_save_cmd(char *type, char *filename)
 	save_nets(dst, 0);
     } else if (strcmp(type, "neta") == 0) {
 	save_nets(dst, 1);
+    } else if (strcmp(type, "netl") == 0) {
+	save_nets(dst, 2);
+    } else if (strcmp(type, "netla") == 0 || strcmp(type, "netal") == 0) {
+	save_nets(dst, 3);
     } else if (strcmp(type, "param") == 0) {
 	save_params(dst);
     } else if (strcmp(type, "thread") == 0) {
@@ -2748,18 +3021,18 @@ static void save_comps(FILE *dst)
     rtapi_mutex_give(&(hal_data->mutex));
 }
 
-static void save_signals(FILE *dst)
+static void save_signals(FILE *dst, int only_unlinked)
 {
     int next;
     hal_sig_t *sig;
 
     fprintf(dst, "# signals\n");
     rtapi_mutex_get(&(hal_data->mutex));
-    next = hal_data->sig_list_ptr;
-    while (next != 0) {
+    
+    for( next = hal_data->sig_list_ptr; next; next = sig->next_ptr) {
 	sig = SHMPTR(next);
+        if(only_unlinked && (sig->readers || sig->writers)) continue;
 	fprintf(dst, "newsig %s %s\n", sig->name, data_type((int) sig->type));
-	next = sig->next_ptr;
     }
     rtapi_mutex_give(&(hal_data->mutex));
 }
@@ -2799,21 +3072,76 @@ static void save_nets(FILE *dst, int arrow)
 
     fprintf(dst, "# nets\n");
     rtapi_mutex_get(&(hal_data->mutex));
-    next = hal_data->sig_list_ptr;
-    while (next != 0) {
+    
+    for (next = hal_data->sig_list_ptr; next != 0; next = sig->next_ptr) {
 	sig = SHMPTR(next);
-	fprintf(dst, "newsig %s %s\n", sig->name, data_type((int) sig->type));
-	pin = halpr_find_pin_by_sig(sig, 0);
-	while (pin != 0) {
-	    if (arrow != 0) {
-		arrow_str = data_arrow2((int) pin->dir);
-	    } else {
-		arrow_str = "\0";
-	    }
-	    fprintf(dst, "linksp %s %s %s\n", sig->name, arrow_str, pin->name);
-	    pin = halpr_find_pin_by_sig(sig, pin);
-	}
-	next = sig->next_ptr;
+        if(arrow == 3) {
+            int state = 0, first = 1;
+
+            /* If there are no pins connected to this signal, do nothing */
+            pin = halpr_find_pin_by_sig(sig, 0);
+            if(!pin) continue;
+
+            fprintf(dst, "net %s", sig->name);
+
+            /* Step 1: Output pin, if any */
+            
+            for(pin = halpr_find_pin_by_sig(sig, 0); pin;
+                    pin = halpr_find_pin_by_sig(sig, pin)) {
+                if(pin->dir != HAL_OUT) continue;
+                fprintf(dst, " %s", pin->name);
+                state = 1;
+            }
+            
+            /* Step 2: I/O pins, if any */
+            for(pin = halpr_find_pin_by_sig(sig, 0); pin;
+                    pin = halpr_find_pin_by_sig(sig, pin)) {
+                if(pin->dir != HAL_IO) continue;
+                fprintf(dst, " ");
+                if(state) { fprintf(dst, "=> "); state = 0; }
+                else if(!first) { fprintf(dst, "<=> "); }
+                fprintf(dst, "%s", pin->name);
+                first = 0;
+            }
+            if(!first) state = 1;
+
+            /* Step 3: Input pins, if any */
+            for(pin = halpr_find_pin_by_sig(sig, 0); pin;
+                    pin = halpr_find_pin_by_sig(sig, pin)) {
+                if(pin->dir != HAL_IN) continue;
+                fprintf(dst, " ");
+                if(state) { fprintf(dst, "=> "); state = 0; }
+                fprintf(dst, "%s", pin->name);
+            }
+
+            fprintf(dst, "\n");
+        } else if(arrow == 2) {
+            /* If there are no pins connected to this signal, do nothing */
+            pin = halpr_find_pin_by_sig(sig, 0);
+            if(!pin) continue;
+
+            fprintf(dst, "net %s", sig->name);
+            pin = halpr_find_pin_by_sig(sig, 0);
+            while (pin != 0) {
+                fprintf(dst, " %s", pin->name);
+                pin = halpr_find_pin_by_sig(sig, pin);
+            }
+            fprintf(dst, "\n");
+        } else {
+            fprintf(dst, "newsig %s %s\n",
+                    sig->name, data_type((int) sig->type));
+            pin = halpr_find_pin_by_sig(sig, 0);
+            while (pin != 0) {
+                if (arrow != 0) {
+                    arrow_str = data_arrow2((int) pin->dir);
+                } else {
+                    arrow_str = "\0";
+                }
+                fprintf(dst, "linksp %s %s %s\n",
+                        sig->name, arrow_str, pin->name);
+                pin = halpr_find_pin_by_sig(sig, pin);
+            }
+        }
     }
     rtapi_mutex_give(&(hal_data->mutex));
 }
@@ -2928,6 +3256,10 @@ static int do_help_cmd(char *command)
     } else if (strcmp(command, "linkpp") == 0) {
 	printf("linkpp firstpin secondpin\n");
 	printf("  Creates a signal with the name of the first pin,\n");	printf("  then links both pins to the signal. \n");
+    } else if(strcmp(command, "net") == 0) {
+        printf("net signame pinname ...\n");
+        printf("Creates 'signame' with the type of 'pinname' if it does not yet exist\n");
+        printf("And then links signame to each pinname specified.\n");
     }else if (strcmp(command, "unlinkp") == 0) {
 	printf("unlinkp pinname\n");
 	printf("  Unlinks pin 'pinname' if it is linked to any signal.\n");
@@ -3014,10 +3346,10 @@ static int do_help_cmd(char *command)
 	printf("  Prints HAL state to 'filename' (or stdout), as a series\n");
 	printf("  of HAL commands.  State can later be restored by using\n");
 	printf("  \"halcmd -f filename\".\n");
-	printf("  Type can be 'comp', 'sig', 'link[a]', 'net[a]', 'param',\n");
+	printf("  Type can be 'comp', 'sig', 'link[a]', 'net[a]', 'netl', 'param',\n");
 	printf("  or 'thread'.  ('linka' and 'neta' show arrows for pin\n");
 	printf("  direction.)  If 'type' is omitted or 'all', does the\n");
-	printf("  equivalent of 'comp', 'sig', 'link', 'param', and 'thread'.\n");
+	printf("  equivalent of 'comp', 'netl', 'param', and 'thread'.\n");
     } else if (strcmp(command, "start") == 0) {
 	printf("start\n");
 	printf("  Starts all realtime threads.\n");
@@ -3077,6 +3409,7 @@ static void print_help_commands(void)
     printf("  lock, unlock        Lock/unlock HAL behaviour\n");
     printf("  linkps              Link pin to signal\n");
     printf("  linksp              Link signal to pin\n");
+    printf("  net                 Link a number of pins to a signal\n");
     printf("  linkpp              Shortcut to link two pins together\n");
     printf("  unlinkp             Unlink pin\n");
     printf("  newsig, delsig      Create/delete a signal\n");
@@ -3098,7 +3431,7 @@ static int argno;
 static char *command_table[] = {
     "loadrt", "loadusr", "unload", "lock", "unlock",
     "linkps", "linksp", "linkpp", "unlinkp",
-    "newsig", "delsig", "getp", "gets", "setp", "sets",
+    "net", "newsig", "delsig", "getp", "gets", "setp", "sets",
     "addf", "delf", "show", "list", "status", "save",
     "start", "stop", "quit", "exit", "help", 
     NULL,
@@ -3474,6 +3807,12 @@ static inline int isskip(int ch) {
     return isspace(ch) || ch == '=' || ch == '<' || ch == '>';
 }
 
+char *nextword(char *s) {
+    s = strchr(s, ' ');
+    if(!s) return NULL;
+    return s+1;
+}
+
 char **completer(const char *text, int start, int end) {
     int i;
     char **result = NULL;
@@ -3501,6 +3840,18 @@ char **completer(const char *text, int start, int end) {
     } else if(startswith(rl_line_buffer, "linkps ") && argno == 2) {
         check_match_type_pin(rl_line_buffer + 7);
         result = rl_completion_matches(text, signal_generator);
+    } else if(startswith(rl_line_buffer, "net ") && argno == 1) {
+        result = rl_completion_matches(text, signal_generator);
+    } else if(startswith(rl_line_buffer, "net ") && argno == 2) {
+        check_match_type_signal(nextword(rl_line_buffer));
+        result = rl_completion_matches(text, pin_generator);
+    } else if(startswith(rl_line_buffer, "net ") && argno > 2) {
+        check_match_type_signal(nextword(rl_line_buffer));
+        if(match_type == -1) {
+            check_match_type_pin(nextword(nextword(rl_line_buffer)));
+            if(match_direction == HAL_IN) match_direction = -1;
+        }
+        result = rl_completion_matches(text, pin_generator);
     } else if(startswith(rl_line_buffer, "linksp ") && argno == 1) {
         result = rl_completion_matches(text, signal_generator);
     } else if(startswith(rl_line_buffer, "linksp ") && argno == 2) {
