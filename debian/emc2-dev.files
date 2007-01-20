@@ -147,7 +147,5 @@ usr/share/man/man3/rtapi_task_pause.3rtapi
 usr/share/man/man3/rtapi_task_resume.3rtapi
 usr/share/man/man3/rtapi_task_start.3rtapi
 usr/share/man/man3/rtapi_task_wait.3rtapi
-usr/share/man/man3/skeleton.3hal
-usr/share/man/man3/skeleton.3rtapi
 usr/share/man/man3/undocumented.3hal
 usr/share/man/man3/undocumented.3rtapi
