@@ -215,8 +215,9 @@ typedef struct {
     int next_ptr;		/* next signal in linked list */
     int data_ptr;		/* offset of signal value */
     hal_type_t type;		/* data type */
-    int readers;		/* number of read pins linked */
-    int writers;		/* number of write pins linked */
+    int readers;		/* number of input pins linked */
+    int writers;		/* number of output pins linked */
+    int bidirs;			/* number of I/O pins linked */
     char name[HAL_NAME_LEN + 1];	/* signal name */
 } hal_sig_t;
 
@@ -305,7 +306,7 @@ typedef struct {
 */
 
 #define HAL_KEY   0x48414C32	/* key used to open HAL shared memory */
-#define HAL_VER   0x00000006	/* version code */
+#define HAL_VER   0x00000007	/* version code */
 #define HAL_SIZE  131000
 
 /* These pointers are set by hal_init() to point to the shmem block
