@@ -131,15 +131,22 @@ also works by execing \fBemc_module_helper\fR or \fBrtapi_app\fR, just like
 .RS
 .IP \(bu 4
 \fB-W\fR to wait for the component to become ready.  The component
-	is assumed to have the same name as the first argument of the command.
+is assumed to have the same name as the first argument of the command.
 .IP \(bu 4
 \fB-Wn name\fR to wait for the component, which will have the given
-	name.
+name.
 .IP \(bu 4
 \fB-w\fR to wait for the program to exit
 .IP \(bu 4
 \fB-i\fR to ignore the program return value (with -w)
 .RE
+.TP
+\fBwaitusr\fR \fIname\fR
+(\fIwait\fR for \fIUs\fRe\fIr\fRspace component) Waits for user
+space component \fIname\fR to disconnect from HAL (usually on exit).
+The component must already be loaded.  Usefull near the end of a
+HAL file to wait until the user closes some user interface component
+before cleaning up and exiting.
 .TP
 \fBunloadusr\fR \fIcompname\fR
 (\fIunload\fR \fIUs\fRe\fIr\fRspace component)  Unloads a userspace
@@ -277,13 +284,11 @@ equivalent of \fBcomp\fR, \fBsigu\fR, \fBlink\fR, \fBparam\fR, and \fBthread\fR.
 .SH HISTORY
 
 .SH BUGS
-None known at this time.  There are a few things I might want
-to change - perhaps \fBsave\fR without \fIitem\fR should do
-the equivalent of net,param,thread.  Perhaps \fBsave param\fR
-should use the "=" form of the \fBsetp\fR command.  Etc.
+None known at this time.
 .SH AUTHOR
-Written by John Kasunich, as part of the Enhanced Machine
-Controller (EMC) project.
+Original version by John Kasunich, as part of the Enhanced Machine
+Controller (EMC) project.  Now includes major contributions by several
+members of the project.
 .SH REPORTING BUGS
 Report bugs to the
 .URL http://sf.net/tracker/?group_id=6744&atid=106744 "emc bug tracker" .
