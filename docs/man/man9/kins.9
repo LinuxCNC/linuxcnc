@@ -1,0 +1,34 @@
+.TH KINS "9" "2007-01-20" "EMC Documentation" "HAL Component"
+.SH NAME
+kinematics definitions for emc2
+.SH SYNOPSIS
+.B loadrt trivkins
+.PP
+.B loadrt rotatekins 
+.PP
+.B loadrt tripodkins
+.PP
+.B loadrt genhexkins
+.SH DESCRIPTION
+Rather than exporting HAL pins and functions, these components provide the
+forward and inverse kinematics definitions for emc2.
+.SS trivkins \- Trivial Kinematics
+There is a 1:1 correspondance between joints and axes.  Most standard milling
+machines and lathes use the trivial kinematics module.
+.SS rotatekins \- Rotated Kinematics
+The X and Y axes are rotated 45 degrees compared to the joints 0 and 1.
+.SS tripodkins \- Tripod Kinematics
+The joints represent the distance of the controlled point from three predefined
+locations (the motors), giving three degrees of freedom in position (XYZ)
+.TP
+.B tripodkins.Bx
+.TQ
+.B tripodkins.Cx
+.TQ
+.B tripodkins.Cy
+The location of the three motors is (0,0), (Bx,0), and (Cx,Cy)
+.SS genhexkins \- Hexapod Kinematics
+Gives six degrees of freedom in position and orientation (XYZABC).  The
+location of the motors is defined at compile time.
+.SH SEE ALSO
+The Kinematics section of the EMC2 Developer Manual
