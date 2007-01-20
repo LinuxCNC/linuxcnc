@@ -1,0 +1,67 @@
+
+.TH ENCODER_RATIO "9" "2007-01-16" "EMC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+encoder_ratio \- an electronic gear to synchronize two axes
+.SH SYNOPSIS
+.B loadrt encoder_ratio [num_chan=\fIN\fB]
+.SH DESCRIPTION
+\fBencoder_ratio\fR can be used to synchronize two axes (like an "electronic
+gear").  It counts encoder pulses from both axes in software, and produces an
+error value that can be used with a PID loop to make the slave encoder track
+the master encoder with a specific ratio.
+
+This module supports up to eight axis pairs.  The number of pairs is set by the
+module parameter \fBnum_chan\fR.
+
+.SH FUNCTIONS
+.TP
+.B encoder-ratio.sample
+Read all input pins.  Must be called at twice the maximum desired count rate.
+.TP
+.B encoder-ratio.update (uses floating-point)
+Updates all output pins.  May be called from a slower thread.
+
+.SH PINS
+.TP
+.B encoder-ratio.\fIN\fB.master-A\fR bit in
+.TQ
+.B encoder-ratio.\fIN\fB.master-B\fR bit in
+.TQ
+.B encoder-ratio.\fIN\fB.slave-A\fR bit in
+.TQ
+.B encoder-ratio.\fIN\fB.slave-B\fR bit in
+The encoder channels of the master and slave axes
+.TP
+.B encoder-ratio.\fIN\fB.enable\fR bit in
+When the enable pin is FALSE, the error pin simply reports the slave axis
+position, in revolutions.  As such, it would normally be connected to the
+feedback pin of a PID block for closed loop control of the slave axis.
+Normally the command input of the PID block is left unconnected (zero), so the
+slave axis simply sits still.  However when the enable input goes TRUE, the
+error pin becomes the slave position minus the scaled master position.  The
+scale factor is the ratio of master teeth to slave teeth.  As the master moves,
+error becomes non-zero, and the PID loop will drive the slave axis to track the
+master.  
+.TP
+.B encoder-ratio.\fIN\fB.error\fR float out
+The error in the position of the slave (in revolutions)
+.SH PARAMETERS
+.TP
+.B encoder-ratio.N.master-ppr\fR unsigned rw
+.TQ
+.B encoder-ratio.N.slave-ppr\fR unsigned rw
+The number of pulses per revolution of the master and slave axes
+.TP
+.B encoder-ratio.N.master-teeth\fR unsigned rw
+.TQ
+.B encoder-ratio.N.slave-teeth\fR unsigned rw
+The number of "teeth" on the master and slave gears.
+
+.SH SEE ALSO
+\fBencoder(9)\fR
