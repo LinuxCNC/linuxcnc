@@ -10,7 +10,7 @@ MAN_SRCS := \
 	$(DOC_DIR)/man/man1/halmeter.1 \
 	$(DOC_DIR)/man/man1/halui.1 \
 	$(sort $(filter-out $(DOC_DIR)/man/man3/skeleton%, $(wildcard $(DOC_DIR)/man/man3/*.3rtapi $(DOC_DIR)/man/man3/*.3hal))) \
-	$(sort $(COMP_MANPAGES) $(COMP_DRIVER_MANPAGES)) \
+	$(sort $(filter-out $(DOC_DIR)/man/man9/skeleton%, $(wildcard $(DOC_DIR)/man/man9/*.9)))
 
 ifneq ($(MANDB),)
 default: $(DOC_DIR)/man/index.db
