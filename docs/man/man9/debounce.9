@@ -1,0 +1,43 @@
+.TH DEBOUNCE "9" "2007-01-16" "EMC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+debounce \- filter noisy digital inputs
+.SH SYNOPSIS
+.B loadrt debounce [cfg=\fIsize[,size,...]\fB]
+.P
+Creates filter groups each with the given number of filters (\fIsize\fR).  Each
+filter group has the same sample rate and delay.
+
+.SH DESCRIPTION
+The debounce filter works by incrementing a counter whenver the input is true,
+and decrementing the counter when it is false.  If the counter decrements to
+zero, the output is set false and the counter ignores further decrements.  If
+the counter increments up to a threshold, the output is set true and the
+counter ignores further increments.  If the counter is between zero and the
+threshold, the output retains its previous state.  The threshold determines the
+amount of filtering: a threshold of 1 does no filtering at all, and a threshold
+of N requires a signal to be present for N samples before the output changes
+state.  
+
+.SH FUNCTIONS
+.TP
+.B debounce.\fIG\fR
+Sample all the input pins in group G and update the output pins.
+.SH PINS
+.TP
+.B debounce.\FIG\fR.\fIF\Fr.in
+The F'th input pin in group G.  
+.TP
+.B debounce.\FIG\fR.\fIF\Fr.out
+The F'th output pin in group G.  Reflects the last "stable" input seen on the
+corresponding input pin.
+.SH PARAMETERS
+.TP
+.B debounce.\FIG\fR.delay
+Sets the amount of filtering for all pins in group G.
