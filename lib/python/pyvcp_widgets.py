@@ -51,22 +51,253 @@ __all__=["pyvcp_label"]
 # be constructed
 elements =["pyvcp","led","vbox","hbox","vbox" \
             ,"button","scale","checkbutton","bar" \
-            ,"label","number","spinbox","radiobutton","jogwheel","meter"]
+            ,"label","number","spinbox","radiobutton","jogwheel"\
+            ,"meter","dial"]
 
 # FIXME: this is ugly, each widget should know what parameters are valid
 # for itself, and vcpparse.py should check validity for each widget individually
 parameters = ["size","text","orient","halpin","format" \
             ,"font","min_","max_","resolution" \
             ,"choices","cpr","fillcolor","bgcolor" \
-            ,"bd","relief"]
+            ,"bd","relief","init"]
 
 
 
 from Tkinter import *
 import math
 
+# -------------------------------------------
+
+class pyvcp_dial(Canvas):
+    # Dial widget by tomp
+    """ A dial that outputs a HAL_FLOAT 
+        reacts to both mouse-wheel and mouse dragging
+        <dial>
+            [ <size>376</size> ]
+                
+            [ <cpr>100</cpr> ]    number of changes per rev, is # of dial tick marks, beware hi values)            
+            [ <min_>-33.123456</min_> ]
+            [ <max_>3.3</max_> ]
+            [ <text>"Gallons per Hour"</text> ]            (knob label)
+            [ <init>123</init> ]           (initial value a whole number must end in '.')
+            [ <resolution>.001</resolution> ]          (scale value a whole number must end in '.')
+            [ <halpin>"anaout"</halpin> ]
+        </dial>
+                
+                key bindings:
+                    <Button-4>              untested no wheel mouse
+                    <Button-5>              untested no wheel mouse
+
+                    <Button1-Motion>      used internally during drag
+                    <ButtonPress>          used internally to record beginning of drag
+                    <ButtonRelease>          used internally at end of drag
+
+                    <Double-1> divides scale by 10
+                    <Double-2> resets scale to original value
+                    <Double-3> multiplies scale by 10
+        
+                    <Shift-1>   shift-click resets original analog value 
+
+                features:
+                    text autoscales
+
+    """
+    # FIXME:
+    # -jogging should be enabled only when the circle has focus
+    #   TJP nocando:   only widgets have events, not thier 'items', the circle is an item
+    
+    # -circle should maintain focus when mouse over dot
+    #   TJP nocando:   ditto, the circle is an item, so focus & event are not aligned to it
+    
+    # -jogging by dragging with the mouse could work better
+    
+    # -add a scaled output, scale changes when alt/ctrl/shift is held down
+    #   TJP dblLeftClick divides scale by 10 , dblRightClcik muxs by 10
+    
+    
+    n=0
+    #TJP TODO: let some artists look at it, butt ugly!
+    #TJP cpr is overloaded, now it means "chgs per rev" not "counts per rev"
+    #TJP the tik marks could get very fine, avoid high cpr to size ratios (easily seen)
+    
+    def __init__(self,root,pycomp,halpin=None,size=200,cpr=40, \
+            min_=None,max_=None, \
+            text=None,init=0,resolution=0.1, \
+            **kw):
+        
+        pad=10
+
+        self.out=init                    #  float output   out   
+        self.origValue=init       # in case user wants to reset the pot/valve/thingy
+
+        #self.text3=resolution
+
+        Canvas.__init__(self,root,width=size,height=size)
+        self.circle=self.create_oval(pad,pad,size-pad,size-pad)
+
+        self.itemconfig(self.circle)
+        self.mid=size/2
+        self.r=(size-2*pad)/2
+        self.alfa=0
+        self.d_alfa=2*math.pi/cpr
+        self.size=size
+
+        self.funit=resolution          
+        self.origFunit=self.funit        # allow restoration
+        
+        self.mymin=min_            
+        self.mymax=max_
+
+        self.dot = self.create_oval(self.dot_coords())
+        self.itemconfig(self.dot,fill="yellow",activefill="green")
+
+        #TJP items get rendered in order of creation, so the knob will be behind these texts
+        #TJP the font can be described with pixel size by using negative value
+        self.txtroom=size/6
+
+        # a title, if the user has supplied one
+        if text!=None:
+            self.title=self.create_text([self.mid,self.mid-self.txtroom],
+                        text=text,font=('Arial',-self.txtroom))
+        # the output
+        self.dro=self.create_text([self.mid,self.mid],
+                        text=str(self.out),font=('Arial',-self.txtroom))
+        # the scale
+        self.delta=self.create_text([self.mid,self.mid+self.txtroom], 
+                        text=str(self.funit),font=('Arial',-self.txtroom))
+
+        
+        self.bind('<Button-4>',self.wheel_up)            # untested no wheel mouse
+        self.bind('<Button-5>',self.wheel_down)          # untested no wheel mouse
+        
+        self.bind('<Button1-Motion>',self.motion)        #during drag
+        self.bind('<ButtonPress>',self.bdown)                #begin of drag
+        self.bind('<ButtonRelease>',self.bup)                #end of drag 
+
+        self.bind('<Double-1>',self.chgScaleDn)            # doubleclick scales down
+        self.bind('<Double-2>',self.resetScale)         # doubleclick resets scale
+        self.bind('<Double-3>',self.chgScaleUp)         # doubleclick scales up
+
+        self.bind('<Shift-1>',self.resetValue)          # shift resets value
+        
+        self.draw_ticks(cpr)
+
+        self.dragstartx=0
+        self.dragstarty=0
+
+        self.dragstart=0
+
+        # create the hal pin
+        if halpin == None:
+            halpin = "dial."+str(pyvcp_dial.n)+".out"
+        pyvcp_dial.n += 1
+        pycomp.newpin(halpin, HAL_FLOAT, HAL_OUT)
+
+        self.halpin=halpin
+        self.pycomp=pycomp
 
 
+    def chgScaleDn(self,event):
+        # reduces the scale by 10x
+        self.funit=self.funit/10.0
+        self.update_scale()
+    
+    def chgScaleUp(self,event):
+        # increases the scale by 10x
+        self.funit=self.funit*10.0
+        self.update_scale()
+    
+    def resetScale(self,event):
+        # reset scale to original value
+        self.funit=self.origFunit
+        self.update_scale()
+    
+    def resetValue(self,event):
+        # reset output to orifinal value
+        self.out=self.origValue
+        self.update_dro()
+
+    def dot_coords(self):
+        # calculate the coordinates for the dot
+        DOTR=0.08*self.size
+        DOTPOS=0.75
+        midx = self.mid+DOTPOS*self.r*math.cos(self.alfa)
+        midy = self.mid+DOTPOS*self.r*math.sin(self.alfa)
+        return midx-DOTR, midy-DOTR,midx+DOTR,midy+DOTR
+
+    def bdown(self,event):
+        self.dragstartx=event.x
+        self.dragstarty=event.y
+        self.dragstart=math.atan2((event.y-self.mid),(event.x-self.mid))
+        self.itemconfig(self.dot,fill="green",activefill="green")
+
+    def bup(self,event):
+        self.itemconfig(self.dot,fill="yellow")
+
+    def motion(self,event):
+        dragstop = math.atan2((event.y-self.mid),(event.x-self.mid))
+        delta = dragstop - self.dragstart
+        if delta>=self.d_alfa:
+            self.up()
+            self.dragstart=math.atan2((event.y-self.mid),(event.x-self.mid))
+        elif delta<=-self.d_alfa:
+            self.down()
+            self.dragstart=math.atan2((event.y-self.mid),(event.x-self.mid))
+        self.itemconfig(self.dot,fill="green",activefill="green")
+
+    def wheel_up(self,event):
+        self.up()
+
+    def wheel_down(self,event):
+        self.down()
+
+    def down(self):
+        self.alfa-=self.d_alfa
+        self.out-=self.funit
+        #TJP clip down side
+        if self.mymin != None:
+            if self.out<self.mymin:
+                self.out=self.mymin
+        self.update_dot()
+        self.update_dro()
+
+    def up(self):
+        self.alfa+=self.d_alfa
+        self.out+=self.funit
+        #TJP clip up side
+        if self.mymax != None:
+            if self.out>self.mymax:
+                self.out=self.mymax
+        self.update_dot()
+        self.update_dro()
+
+    def update_dot(self):
+        self.coords(self.dot, self.dot_coords() )
+
+    def update_dro(self):
+        valtext = str(self.out)
+        self.itemconfig(self.dro,text=valtext)
+
+    def update_scale(self):
+        valtext = str(self.funit)
+        valtext = 'x ' + valtext
+        self.itemconfig(self.delta,text=valtext)
+
+    def draw_ticks(self,cpr):
+        for n in range(0,cpr):
+            startx=self.mid+self.r*math.cos(n*self.d_alfa)
+            starty=self.mid+self.r*math.sin(n*self.d_alfa)
+            stopx=self.mid+1.15*self.r*math.cos(n*self.d_alfa)
+            stopy=self.mid+1.15*self.r*math.sin(n*self.d_alfa)
+            self.create_line([startx,starty,stopx,stopy])
+
+    def update(self,pycomp):
+        self.pycomp[self.halpin] = self.out
+
+
+
+
+# -------------------------------------------
 
 class pyvcp_meter(Canvas):
     """ Meter - shows the value of a FLOAT with an analog meter
@@ -249,7 +480,9 @@ class pyvcp_jogwheel(Canvas):
             self.create_line([startx,starty,stopx,stopy])
 
     def update(self,pycomp):
-        pass # this is an event drive widget
+        # this is stupid, but required for updating pin
+        # when first connected to a signal
+        self.pycomp[self.halpin] = self.count
         
 
 
