@@ -11,7 +11,7 @@ Conflicts: emc2, emc2-axis
 Provides: emc2, emc2-axis
 Architecture: any
 Suggests: pdf-viewer
-Depends: ${shlibs:Depends},@KERNEL_DEPENDS@,tcl8.4,tk8.4,libreadline5, python2.4-numarray, python2.4-imaging, python2.4-imaging-tk, python (>= 2.4), python (<< 2.5), emc2, ${python:Depends}, bwidget (>= 1.7), bwidget (<<1.8), python2.4-tk
+Depends: ${shlibs:Depends},@KERNEL_DEPENDS@,tcl8.4,tk8.4,libreadline5, python2.4-numarray, python2.4-imaging, python2.4-imaging-tk, python (>= 2.4), python (<< 2.5), emc2, ${python:Depends}, bwidget (>= 1.7), bwidget (<<1.8), python2.4-tk,python2.4-xml
 Description: PC based motion controller for real-time Linux.
  EMC2 is the next-generation Enhanced Machine Controller which
  provides motion control for CNC machine tools and robotic 
