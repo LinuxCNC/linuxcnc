@@ -319,23 +319,24 @@ Or replace 'dapper' above with 'breezy' if you still use Ubuntu 5.10 Breezy
  Badger.
 \layout Standard
 
-Then update & get emc2-axis.
+Then update & get emc2.
 \layout LyX-Code
 
 
 \size scriptsize 
 $ sudo apt-get update
 \newline 
-$ sudo apt-get install emc2-axis
+$ sudo apt-get install emc2
 \layout Standard
 
-This command will install the emc2-axis
+This command will install the emc2
 \begin_inset Foot
 collapsed true
 
 \layout Standard
 
-The emc2-axis package is the AXIS gui packaged for emc2.
+AXIS is now part of emc2.
+ You don't need to install emc2-axis as previously.
 \end_inset 
 
  package along with all dependencies
