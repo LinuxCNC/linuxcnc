@@ -1,0 +1,103 @@
+This file describes needed steps to update configurations from 2.0.x to TRUNK
+=============================================================================
+
+Please review the following list if you plan to update a configuration from
+emc2.0.x to the latest CVS. It is not needed if you start with a new 
+configuration based on the sample configs supplied with this version of emc2.
+
+1. emc.nml
+The emc.nml file has been heavily revised. Unless you made your own changes to 
+emc.nml, simply make a fresh copy. If you made your own changes, then you'll 
+have to apply them to emc.nml manually. 
+
+2. kinematics
+Now a separate kinematics module must be loaded before MOTMOD, as shown below:
+    core_sim.hal:
+    + loadrt trivkins 
+
+3. spindle control
+The HAL pins for spindle control have been renamed to reflect the fact that 
+they are controlled by the realtime 'motion' component, and not by the 
+userspace 'iocontrol' component.
+    change 'iocontrol.0.spindle-speed-out' with 'motion.spindle-speed-out'
+
+4. halcmd "loadusr -W" replaces wait-for-pin and sleep
+In 2.0 there was no way to wait for a userspace component to create its pins. 
+The "wait-for-pin" program (which took a pin name as an argument) was added 
+and then removed during the 2.1 development cycle. 
+Now, the correct way to wait for a userspace component is 
+    "loadusr -W ...". 
+This requires that the component call hal_ready() after it has created all its 
+pins and is ready for use. If the executable name and the component name 
+differ, use "halcmd loadusr -W -n component-name". 
+
+5. inifile units
+Instead of specifying [AXIS_*]UNITS as a decimal number, 
+specify [TRAJ]LINEAR_UNITS and [TRAJ]ANGULAR_UNITS as unit names, 
+including "inch", "mm", "degree", and "radian". 
+The old [AXIS_*]UNITS syntax is still supported, however.
+
+6. "HAL: WARNING: blocks is deprecated, please use the subcomponents generated 
+    by 'comp' instead"
+In emc 2.1, a new tool called "comp" makes it easy to create HAL components. 
+All the items that are in the 'blocks' module have been broken into separate 
+modules such as 'ddt', 'wcomp', and so on. 
+No corrective action is needed at this time, because 'blocks' will still be 
+present in the 2.1 series. However, it may be removed in the 2.2 series, 
+and changes to HAL files will be required at that time. 
+
+If you wish to silence this warning, then change a line like 
+    loadrt blocks ddt=6 wcomp=6
+to 
+    loadrt ddt count=6
+    loadrt wcomp count=6
+   
+7. elimination of "period" from most HAL components
+In version 2.0.x, many HAL components would accept a command line argument 
+"period" (or "periodfp", or other variations on that theme). When "period" was 
+specified, the component would create a realtime thread running at the 
+specified period. This capability was _not_ used in normal EMC configurations; 
+it was mostly used for testing. 
+(In a normal EMC configuration, the servo and base periods are passed to motmod
+and it creates the threads.) 
+In version 2.1, the period argument has been removed from all HAL components. 
+'motmod' still creates the threads for EMC, and none of the sample 
+configurations should need to be changed. For other applications such as 
+testing, etc., there is now a component called "threads" which can create up 
+to three threads. 
+To create a thread, use 
+    loadrt threads name1=<name-of-thread> period1=<period-in-ns> 
+
+To create more than one, use name2, period2, and name3, period3. By default, 
+"threads" creates floating point capable threads. If you don't need floating 
+point, you can specify "fp1=0" (or fp2=0 or fp3=0) to turn off floating point 
+support for one or more threads. Disabling floating point support might save a 
+microsecond or so, and is commonly done for the "fast" thread for software 
+encoder counting and step pulse or PWM generation. 
+   
+8. elimination of s8, u8, s16, u16 HAL types
+The number of HAL types has been reduced. "newsig" commands which formerly used 
+one of those types should be converted to the corresponding 32-bit type, s32 or 
+u32. 
+   
+9. hal_ppmc uses ns units for setup-time, pulse-width, and pulse-space; pins 
+   renamed
+Instead of being specified in units of 100ns, these values (now named 
+setup-time-ns, etc) are in units of 1ns.
+   
+10. the pin axis.N.index-pulse-in has been renamed to axis.N.index-enable
+The name of the pin used for indexing (homing to index pulse) has been changed 
+to be more descriptive and to match the canonical encoder interface.
+   
+11. the meaning of the 'comp.N.hyst' parameter has changed
+In emc 2.0.x, the output of the comparator would not change until the difference
+between the inputs exceeded the hysteresis parameter, giving an effective 
+hysteresis of double the parameter. Now, the output will change when the 
+difference exceeds hyst/2. This more closely matches the [usual definition of 
+hysteresis]. Existing users of the 'comp' block must change (double) the value 
+of the 'comp.N.hyst' parameter.
+
+12. the connection to the lathe's spindle encoder has changed
+In the preliminary lathe threading support in 2.0 versions, a "not" block was 
+needed to connect the motion controller to the spindle encoder's index-enable 
+pin. This is no longer necessary (and will not work).
