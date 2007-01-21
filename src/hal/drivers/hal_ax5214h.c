@@ -33,7 +33,7 @@
 
     example:    insmod AX5214.o cfg="0x220 IIIOIIOO"
     
-    The example above is for one card, with it's base address 
+    The example above is for one card, with its base address 
     set to hex 220, and with 36 channels of input (Ports 1A, 
     1B, 1CL, 2A, and 2B) and 12 channels of output (Ports 1CH,
     2CL, and 2CH).
