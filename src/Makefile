@@ -528,8 +528,8 @@ sampler-objs := hal/components/sampler.o $(MATHSTUB)
 ifneq ($(BUILD_SYS),sim)
 obj-$(CONFIG_HAL_PARPORT) += hal_parport.o
 hal_parport-objs := hal/drivers/hal_parport.o $(MATHSTUB)
-obj-$(CONFIG_HAL_8255) += hal_8255.o
-hal_8255-objs := hal/drivers/hal_8255.o
+obj-$(CONFIG_PCI_8255) += pci_8255.o
+pci_8255-objs := hal/drivers/pci_8255.o
 obj-$(CONFIG_HAL_TIRO) += hal_tiro.o
 hal_tiro-objs := hal/drivers/hal_tiro.o $(MATHSTUB)
 obj-$(CONFIG_HAL_STG) += hal_stg.o
@@ -670,7 +670,7 @@ endif
 ../rtlib/streamer$(MODULE_EXT): $(addprefix objects/rt,$(streamer-objs))
 ../rtlib/sampler$(MODULE_EXT): $(addprefix objects/rt,$(sampler-objs))
 ../rtlib/hal_parport$(MODULE_EXT): $(addprefix objects/rt,$(hal_parport-objs))
-../rtlib/hal_8255$(MODULE_EXT): $(addprefix objects/rt,$(hal_8255-objs))
+../rtlib/pci_8255$(MODULE_EXT): $(addprefix objects/rt,$(pci_8255-objs))
 ../rtlib/hal_tiro$(MODULE_EXT): $(addprefix objects/rt,$(hal_tiro-objs))
 ../rtlib/hal_stg$(MODULE_EXT): $(addprefix objects/rt,$(hal_stg-objs))
 ../rtlib/hal_vti$(MODULE_EXT): $(addprefix objects/rt,$(hal_vti-objs))
