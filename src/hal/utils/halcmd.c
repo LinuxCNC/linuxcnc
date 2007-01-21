@@ -115,6 +115,7 @@ static int do_unload_cmd(char *mod_name);
 static int do_unloadrt_cmd(char *mod_name);
 static int do_unloadusr_cmd(char *mod_name);
 static int do_loadusr_cmd(char *args[]);
+static int do_waitusr_cmd(char *comp_name);
 static int unloadrt_comp(char *mod_name);
 static void print_comp_info(char *pattern);
 static void print_pin_info(char *pattern);
@@ -1009,6 +1010,8 @@ static int parse_cmd(char *tokens[])
 	retval = do_unloadrt_cmd(tokens[1]);
     } else if (strcmp(tokens[0], "loadusr") == 0) {
 	retval = do_loadusr_cmd(&tokens[1]);
+    } else if (strcmp(tokens[0], "waitusr") == 0) {
+	retval = do_waitusr_cmd(tokens[1]);
     } else if (strcmp(tokens[0], "unloadusr") == 0) {
 	retval = do_unloadusr_cmd(tokens[1]);
     } else if (strcmp(tokens[0], "unload") == 0) {
@@ -2283,6 +2286,52 @@ static int do_loadusr_cmd(char *args[])
     return 0;
 }
 
+
+static int do_waitusr_cmd(char *comp_name)
+{
+    hal_comp_t *comp;
+    int exited;
+
+    if (*comp_name == '\0') {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL:%d: ERROR: component name missing\n", linenumber);
+	return HAL_INVAL;
+    }
+    rtapi_mutex_get(&(hal_data->mutex));
+    comp = halpr_find_comp_by_name(comp_name);
+    if (comp == NULL) {
+	rtapi_mutex_give(&(hal_data->mutex));
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL:%d: ERROR: component '%s' not found\n", linenumber, comp_name);
+	return HAL_INVAL;
+    }
+    if (comp->type != 0) {
+	rtapi_mutex_give(&(hal_data->mutex));
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL:%d: ERROR: '%s' is not a userspace component\n", linenumber, comp_name);
+	return HAL_INVAL;
+    }
+    rtapi_mutex_give(&(hal_data->mutex));
+    /* let the user know what is going on */
+    rtapi_print_msg(RTAPI_MSG_INFO, "Waiting for component '%s'\n", comp_name);
+    exited = 0;
+    while(!exited) {
+	/* sleep for 200mS */
+	struct timespec ts = {0, 200 * 1000 * 1000};
+	nanosleep(&ts, NULL);
+	/* check for component still around */
+	rtapi_mutex_get(&(hal_data->mutex));
+	comp = halpr_find_comp_by_name(comp_name);
+	if(comp == NULL) {
+		exited = 1;
+	}
+	rtapi_mutex_give(&(hal_data->mutex));
+    }
+    rtapi_print_msg(RTAPI_MSG_INFO, "Component '%s' finished\n", comp_name);
+    return 0;
+}
+
+
 static void print_comp_info(char *pattern)
 {
     int next, len;
@@ -3231,6 +3280,9 @@ static int do_help_cmd(char *command)
 	printf("unload compname\n");
 	printf("  Unloads HAL module 'compname', whether user space or realtime.\n");
         printf("  If 'compname' is 'all', unloads all components.\n");
+    } else if (strcmp(command, "waitusr") == 0) {
+	printf("waitusr compname\n");
+	printf("  Waits for user space HAL module 'compname' to exit.\n");
     } else if (strcmp(command, "unloadusr") == 0) {
 	printf("unloadusr compname\n");
 	printf("  Unloads user space HAL module 'compname'.  If 'compname'\n");
@@ -3243,6 +3295,7 @@ static int do_help_cmd(char *command)
 	printf("loadusr [options] progname [progarg(s)]\n");
 	printf("  Starts user space program 'progname', passing\n");
 	printf("  'progargs' to it.  Options are:\n");
+	printf("  -W  wait for HAL component to become ready\n");
 	printf("  -w  wait for program to finish\n");
 	printf("  -i  ignore program return value (use with -w)\n");
     } else if ((strcmp(command, "linksp") == 0) || (strcmp(command,"linkps") == 0)) {
@@ -3917,6 +3970,8 @@ char **completer(const char *text, int start, int end) {
     } else if(startswith(rl_line_buffer, "help ") && argno == 1) {
         result = completion_matches_table(text, command_table);
     } else if(startswith(rl_line_buffer, "unloadusr ") && argno == 1) {
+        result = rl_completion_matches(text, usrcomp_generator);
+    } else if(startswith(rl_line_buffer, "waitusr ") && argno == 1) {
         result = rl_completion_matches(text, usrcomp_generator);
     } else if(startswith(rl_line_buffer, "unloadrt ") && argno == 1) {
         result = rl_completion_matches(text, rtcomp_generator);
