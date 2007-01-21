@@ -101,11 +101,9 @@ int main(int argc, gchar * argv[])
     /* process and remove any GTK specific command line args */
     gtk_init(&argc, &argv);
 
-#if 0    
-    printf ( "NOTICE:  VCP is still under construction\n" );
-    printf ( "It may be broken at any time, and should not be used yet!\n" );
-#endif
-//    sleep(2);
+    printf ( "NOTICE:  vcp is obsoleted, please use pyvcp instead\n" );
+    printf ( "vcp will probably be removed in version 2.2\n" );
+    sleep(2);
 
     /* process halvcp command line args (if any) here */
     if ( argc != 2 ) {
