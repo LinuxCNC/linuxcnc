@@ -99,4 +99,4 @@ else
     subst emc2.files.in $DRIVERS > emc2-$1.files
 fi
 
-echo "successfully configured for '$1'.."
+echo "successfully configured for '$DISTRIB_NAME'-'$1'.."
