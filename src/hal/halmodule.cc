@@ -401,7 +401,24 @@ static int pyhal_len(halobject *self) {
     return self->items->size();
 }
 
+static PyObject *pyhal_set_prefix(halobject *self, PyObject *args) {
+    char *newprefix;
+    if(!PyArg_ParseTuple(args, "s", &newprefix)) return NULL;
+
+    if(self->prefix)
+        free(self->prefix);
+    self->prefix = strdup(newprefix);
+
+    if(!self->prefix) {
+        PyErr_SetString(PyExc_MemoryError, "strdup(prefix) failed");
+    }
+
+    Py_RETURN_NONE;
+}
+
 static PyMethodDef hal_methods[] = {
+    {"setprefix", (PyCFunction)pyhal_set_prefix, METH_VARARGS,
+        "Set the prefix for newly created pins and parameters"},
     {"newparam", (PyCFunction)pyhal_new_param, METH_VARARGS,
         "Create a new parameter"},
     {"newpin", (PyCFunction)pyhal_new_pin, METH_VARARGS,
@@ -494,10 +511,36 @@ PyMethodDef module_methods[] = {
     {NULL},
 };
 
+char *module_doc = "Interface to emc2's hal\n"
+"\n"
+"This module allows the creation of userspace HAL components in Python.\n"
+"This includes pins and parameters of the various HAL types.\n"
+"\n"
+"Typical usage:\n"
+"\n"
+"import hal, time\n"
+"h = hal.component(\"component-name\")\n"
+"# create pins and parameters with calls to h.newpin and h.newparam\n"
+"h.newpin(\"in\", hal.HAL_FLOAT, hal.HAL_IN)\n"
+"h.newpin(\"out\", hal.HAL_FLOAT, hal.HAL_OUT)\n"
+"h.ready() # mark the component as 'ready'\n"
+"\n"
+"try:\n"
+"    while 1:\n"
+"        # act on changed input pins; update values on output pins\n"
+"        time.sleep(1)\n"
+"        h['out'] = h['in']\n"
+"except KeyboardInterrupt: pass"
+"\n"
+"\n"
+"When the component is requested to exit with 'halcmd unload', a\n"
+"KeyboardInterrupt exception will be raised."
+;
+
 extern "C"
 void inithal(void) {
     PyObject *m = Py_InitModule3("hal", module_methods,
-            "Interface to emc2's hal");
+            module_doc);
 
     pyhal_error_type = PyErr_NewException("hal.error", NULL, NULL);
     PyModule_AddObject(m, "error", pyhal_error_type);

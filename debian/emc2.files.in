@@ -186,6 +186,8 @@ etc/emc2/sample-configs/sim/core_sim.hal
 etc/emc2/sample-configs/sim/emc.nml
 etc/emc2/sample-configs/sim/keystick.ini
 etc/emc2/sample-configs/sim/lathe.hal
+etc/emc2/sample-configs/sim/lathe.xml
+etc/emc2/sample-configs/sim/lathe_postgui.hal
 etc/emc2/sample-configs/sim/lathe.ini
 etc/emc2/sample-configs/sim/lathe.tbl
 etc/emc2/sample-configs/sim/mini.ini
@@ -392,6 +394,7 @@ usr/bin/emctop
 usr/bin/hal_manualtoolchange
 usr/bin/image-to-gcode
 usr/bin/mdi
+usr/bin/pyvcp
 usr/lib/python2.4/site-packages/bwidget.pyc
 usr/lib/python2.4/site-packages/emc.so
 usr/lib/python2.4/site-packages/gcode.so
@@ -399,6 +402,8 @@ usr/lib/python2.4/site-packages/hal.so
 usr/lib/python2.4/site-packages/hershey.pyc
 usr/lib/python2.4/site-packages/minigl.so
 usr/lib/python2.4/site-packages/nf.pyc
+usr/lib/python2.4/site-packages/vcpparse.pyc
+usr/lib/python2.4/site-packages/pyvcp_widgets.pyc
 usr/lib/python2.4/site-packages/propertywindow.pyc
 usr/lib/python2.4/site-packages/rs274/author.pyc
 usr/lib/python2.4/site-packages/rs274/glcanon.pyc
