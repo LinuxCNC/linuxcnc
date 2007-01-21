@@ -96,3 +96,8 @@ hysteresis of double the parameter. Now, the output will change when the
 difference exceeds hyst/2. This more closely matches the [usual definition of 
 hysteresis]. Existing users of the 'comp' block must change (double) the value 
 of the 'comp.N.hyst' parameter.
+
+12. the connection to the lathe's spindle encoder has changed
+In the preliminary lathe threading support in 2.0 versions, a "not" block was 
+needed to connect the motion controller to the spindle encoder's index-enable 
+pin. This is no longer necessary (and will not work).
