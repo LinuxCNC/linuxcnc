@@ -217,7 +217,7 @@ emc2
 Downloading the CVS version
 \layout Standard
 
-If you wish to use the HEAD version of emc2, please follow the instructions
+If you wish to use the TRUNK version of emc2, please follow the instructions
  on our wiki to obtain the source code: 
 \begin_inset LatexCommand \url{http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?CVS}
 
