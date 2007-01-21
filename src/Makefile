@@ -588,6 +588,8 @@ tripodkins-objs := emc/kinematics/tripodkins.o
 
 obj-m += genhexkins.o
 genhexkins-objs := emc/kinematics/genhexkins.o
+genhexkins-objs += libnml/posemath/_posemath.o
+genhexkins-objs += libnml/posemath/sincos.o $(MATHSTUB)
 
 obj-$(CONFIG_MOTMOD) += motmod.o
 motmod-objs := emc/kinematics/cubic.o 
