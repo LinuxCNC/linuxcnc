@@ -130,16 +130,16 @@ preview false
 
 
 \layout Standard
-\align center 
+\align left 
 
-\begin_inset Include \include{config/stepper.lyx}
+\begin_inset Include \input{config/stepper.lyx}
 preview false
 
 \end_inset 
 
 
 \layout Standard
-
+\align left 
 
 \begin_inset Include \include{config/ini_config.lyx}
 preview false
@@ -148,7 +148,7 @@ preview false
 
 
 \layout Standard
-
+\align left 
 
 \begin_inset Include \include{config/ini_homing.lyx}
 preview false
@@ -157,7 +157,7 @@ preview false
 
 
 \layout Standard
-
+\align left 
 
 \begin_inset Include \include{hal/intro.lyx}
 preview false
@@ -166,7 +166,7 @@ preview false
 
 
 \layout Standard
-
+\align left 
 
 \begin_inset Include \include{hal/tutorial.lyx}
 preview false
@@ -175,7 +175,7 @@ preview false
 
 
 \layout Standard
-
+\align left 
 
 \begin_inset Include \include{hal/drivers.lyx}
 preview false
