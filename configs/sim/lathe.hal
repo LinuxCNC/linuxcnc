@@ -2,8 +2,9 @@
 loadrt encoder num_chan=1
 # simulate the encoder
 loadrt sim_encoder num_chan=1
-loadrt not count=1
-addf not.0			servo-thread
+loadrt limit2 count=1
+
+addf limit2.0                   servo-thread
 
 #######################################################
 # Beginning of threading related stuff
@@ -11,8 +12,14 @@ addf not.0			servo-thread
 
 # spindle speed control
 newsig spindle-speed-cmd float
+newsig spindle-speed-limited float
 linkps motion.spindle-speed-out => spindle-speed-cmd
-linksp spindle-speed-cmd => sim-encoder.0.speed
+linksp spindle-speed-cmd => limit2.0.in
+linkps limit2.0.out => spindle-speed-limited
+linksp spindle-speed-limited => sim-encoder.0.speed
+
+# simulate spindle mass
+setp limit2.0.maxv 500.0 # rpm/second
 
 # spindle encoder
 # connect encoder signals to encoder counter
@@ -38,18 +45,10 @@ setp sim-encoder.0.scale 60
 setp encoder.0.position-scale 480
 
 # encoder reset control
-# this signal will eventually be driven by the motion
-# controller, TRUE for synced motion, FALSE the rest of
-# the time.
-newsig spindle-sync bit
-# needs inverted to connect to index enable
-newsig spindle-index-en bit
-linksp spindle-sync	=> not.0.in
-linkps not.0.out	=> spindle-index-en
-linksp spindle-index-en	=> encoder.0.index-enable
-
 # hook up motion controller's sync output
-linkps motion.spindle-sync => spindle-sync
+newsig spindle-index-enable bit
+linkps motion.spindle-index-enable => spindle-index-enable
+linksp spindle-index-enable => encoder.0.index-enable
 
 # report our revolution count to the motion controller
 newsig spindle-pos float
@@ -58,13 +57,14 @@ linksp spindle-pos => motion.spindle-revs
 
 # for spindle velocity estimate
 loadrt lowpass count=1
-newsig spindle-rpm-raw float
-newsig spindle-rpm-filtered float
-linksp spindle-rpm-raw encoder.0.velocity
-linksp spindle-rpm-raw lowpass.0.in
-linksp spindle-rpm-filtered lowpass.0.out
-setp lowpass.0.gain .03
+loadrt scale count=1
+net spindle-rps-raw encoder.0.velocity lowpass.0.in
+net spindle-rps-filtered lowpass.0.out scale.0.in
+net spindle-rpm-filtered scale.0.out
+setp scale.0.gain 60
+setp lowpass.0.gain .07
 addf lowpass.0 servo-thread
+addf scale.0 servo-thread
 
 newsig spindle-fwd bit
 linksp spindle-fwd <= motion.spindle-forward
