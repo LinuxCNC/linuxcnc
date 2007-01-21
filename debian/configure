@@ -27,6 +27,8 @@ Usage:
 EOF
 }
 
+cd "${0%/*}"
+
 if [ $# -ne 1 -o "$1" == "-h" -o "$1" == "-help" -o "$1" == "--help" ]; then
     usage
     if [ $# -ne 1 ]; then
