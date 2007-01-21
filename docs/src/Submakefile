@@ -49,6 +49,7 @@ DOC_SRCS := \
 	hal/rtcomps.lyx \
 	hal/tools.lyx \
 	hal/tutorial.lyx \
+	hal/vcp.lyx \
 	install/compiling_emc2.lyx \
 	install/installing_emc2.lyx \
 	motion/kinematics.lyx \
@@ -91,7 +92,7 @@ $(DOC_DIR)/html/man/%.html: $(DOC_DIR)/man/%
 	@mkdir -p $(dir $@)
 	@(cd $(DOC_DIR)/man; groff -Thtml -man $(patsubst $(DOC_DIR)/man/%,%,$<)) > $@
 
-objects/index.incl: objects/var-MAN_HTML_TARGETS
+objects/index.incl: objects/var-MAN_HTML_TARGETS $(DOC_SRCDIR)/Submakefile
 	echo "<LI>Section 1<UL>" > $@.tmp
 	for i in $(filter %.1.html, $(MAN_HTML_TARGETS)); do j=$$(basename $$i .html); echo "<LI><A HREF=$${i#$(DOC_DIR)/html/}>$$j</A>"; done >> $@.tmp
 	echo "</UL><LI>Section 3hal<UL>" >> $@.tmp
