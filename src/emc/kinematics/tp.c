@@ -494,7 +494,7 @@ int tpRunCycle(TP_STRUCT * tp, long period)
     EmcPose primary_before, primary_after;
     EmcPose secondary_before, secondary_after;
     EmcPose primary_displacement, secondary_displacement;
-    static double oldrevs, spindleoffset;
+    static double spindleoffset;
     static int waiting = 0;
     double save_vel;
 
@@ -537,10 +537,8 @@ int tpRunCycle(TP_STRUCT * tp, long period)
         waiting = 0;
 
     if(waiting) {
-        double r;
-        if((r = emcmotStatus->spindleRevs) >= oldrevs) {
+        if(emcmotStatus->spindle_index_enable) {
             /* haven't passed index yet */
-            oldrevs = r;
             return 0;
         } else {
             /* passed index, start the move */
@@ -579,7 +577,8 @@ int tpRunCycle(TP_STRUCT * tp, long period)
             if(!emcmotStatus->spindleSync) {
                 // if we aren't already synced, wait
                 waiting = tc->id;
-                oldrevs = emcmotStatus->spindleRevs;
+                // ask for an index reset
+                emcmotStatus->spindle_index_enable = 1;
                 spindleoffset = 0.0;
                 // don't move: wait
                 return 0;

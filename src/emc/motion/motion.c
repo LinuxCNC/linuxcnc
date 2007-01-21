@@ -283,7 +283,7 @@ static int init_hal_io(void)
 
     /* export machine wide hal pins */
     if ((retval = hal_pin_bit_newf(HAL_IN, &(emcmot_hal_data->probe_input), mot_comp_id, "motion.probe-input")) != HAL_SUCCESS) goto error;
-    if ((retval = hal_pin_bit_newf(HAL_OUT, &(emcmot_hal_data->spindle_sync), mot_comp_id, "motion.spindle-sync")) != HAL_SUCCESS) goto error;
+    if ((retval = hal_pin_bit_newf(HAL_IO, &(emcmot_hal_data->spindle_index_enable), mot_comp_id, "motion.spindle-index-enable")) != HAL_SUCCESS) goto error;
 
     if ((retval = hal_pin_bit_newf(HAL_OUT, &(emcmot_hal_data->spindle_on), mot_comp_id, "motion.spindle-on")) != HAL_SUCCESS) goto error;
     if ((retval = hal_pin_bit_newf(HAL_OUT, &(emcmot_hal_data->spindle_forward), mot_comp_id, "motion.spindle-forward")) != HAL_SUCCESS) goto error;

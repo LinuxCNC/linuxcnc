@@ -2354,6 +2354,7 @@ static void output_to_hal(void)
     int joint_num;
     emcmot_joint_t *joint;
     axis_hal_t *axis_data;
+    static int old_motion_index=0, old_hal_index=0;
 
     /* output machine info to HAL for scoping, etc */
     emcmot_hal_data->motion_enabled = GET_MOTION_ENABLE_FLAG();
@@ -2377,7 +2378,18 @@ static void output_to_hal(void)
     emcmot_hal_data->debug_bit_1 = emcmotStatus->enables_new & AF_ENABLED;
     emcmot_hal_data->debug_float_0 = emcmotStatus->net_feed_scale;
     emcmot_hal_data->debug_float_1 = 0.0;
-    *emcmot_hal_data->spindle_sync = emcmotStatus->spindleSync;
+
+    /* two way handshaking for the spindle encoder */
+    if(emcmotStatus->spindle_index_enable && !old_motion_index) {
+        *emcmot_hal_data->spindle_index_enable = 1;
+    }
+
+    if(!*emcmot_hal_data->spindle_index_enable && old_hal_index) {
+        emcmotStatus->spindle_index_enable = 0;
+    }
+
+    old_motion_index = emcmotStatus->spindle_index_enable;
+    old_hal_index = *emcmot_hal_data->spindle_index_enable;
 
     /* output axis info to HAL for scoping, etc */
     for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
