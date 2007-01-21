@@ -2316,8 +2316,8 @@ static int do_waitusr_cmd(char *comp_name)
     rtapi_print_msg(RTAPI_MSG_INFO, "Waiting for component '%s'\n", comp_name);
     exited = 0;
     while(!exited) {
-	/* sleep for 10mS */
-	struct timespec ts = {0, 10 * 1000 * 1000};
+	/* sleep for 200mS */
+	struct timespec ts = {0, 200 * 1000 * 1000};
 	nanosleep(&ts, NULL);
 	/* check for component still around */
 	rtapi_mutex_get(&(hal_data->mutex));
