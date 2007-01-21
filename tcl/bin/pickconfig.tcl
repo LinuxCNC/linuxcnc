@@ -327,6 +327,19 @@ proc wait_and_see {node {wait 10}} {
     }
 }
 
+proc get_file_contents {f} {
+    set fd [open $f]
+    set contents [read $fd]
+    close $fd
+    return $contents
+}
+
+proc put_file_contents {f c} {
+    set fd [open $f w]
+    puts -nonewline $fd $c
+    close $fd
+}
+
 proc prompt_copy configname {
 
     set res [tk_dialog .d [msgcat::mc "Copy Configuration?"] [msgcat::mc "Would you like to copy the %s configuration to your home directory so you can customize it?" $configname] warning 0 [msgcat::mc "Yes"] [msgcat::mc "No"] [msgcat::mc "Cancel"]]
@@ -337,7 +350,12 @@ proc prompt_copy configname {
     set copydir [file normalize [file join ~ emc2 configs [file tail $configdir]]]
     set copybase $copydir
     set i 0
+    set ncfiles [file normalize [file join ~ emc2 nc_files]]
     file mkdir [file join ~ emc2 configs]
+    if {![file exists $ncfiles]} {
+	file mkdir $ncfiles
+	file link -symbolic [file join $ncfiles/examples] $emc::NCFILES_DIR
+    }
     while {1} {
         if [catch { exec mkdir $copydir }] {
             incr i
@@ -347,6 +365,11 @@ proc prompt_copy configname {
 
         eval file copy [glob -directory $configdir *] [list $copydir]
         foreach f [glob -directory $copydir *] {
+	    if {[file extension $f] == ".ini"} {
+		set c [get_file_contents $f]
+		regsub {(?n)^(PROGRAM_PREFIX\s*=\s*).*$} $c "\\1$ncfiles" c
+		put_file_contents $f $c
+	    }
             if {$::tcl_platform(platform) == "unix"} {
                 file attributes $f -permissions u+w
             }
