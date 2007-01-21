@@ -1,5 +1,6 @@
 usr/share/applications/emc2.desktop
-usr/share/applications/emc2-doc.desktop
+usr/share/applications/emc2-usermanual.desktop
+usr/share/applications/emc2-integratormanual.desktop
 usr/share/applications/emc2-gcoderef.desktop
 usr/share/pixmaps/emc2icon.png
 etc/udev/rules.d/emc2.rules
