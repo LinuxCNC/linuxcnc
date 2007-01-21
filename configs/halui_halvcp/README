@@ -2,7 +2,8 @@ Sample config to show the usage of halui & halvcp.
 
 halvcp = HAL Virtual Control Panel is a way to define virtual buttons & sliders,
 they will be instantiated as buttons on a GUI, but will behave just like real
-hardware.
+hardware. halvcp is beeing replaced by pyvcp. Check the Integrators Manual for
+additional details.
 
 halui = HAL User Interface is a tool to allow emc2 to be controlled by hardware
 panels.
