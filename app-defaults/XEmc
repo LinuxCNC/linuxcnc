@@ -602,7 +602,7 @@ National Institute of\n\
 ! *workOffsetFormName.borderColor: white
 
 *posLabel0.width: 600
-*posLabel0.font: -adobe-courier-bold-r-normal--64-*-*-*-*-*-*-1
+*posLabel0.font: -*-courier 10 pitch-*-r-*-*-64-*-*-*-*-*-*-*
 ! *posLabel0.foreground: white
 *posLabel0.background: blue
 *posLabel0.borderColor: white
