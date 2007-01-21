@@ -12,7 +12,6 @@ minitetra.ini
 
   To get it working you need to #define MINITETRA inside the kinematics sources  (emc2/src/emc/kinematics/genhexkins.h), and 
   specify that genhexkins should be used instead of the normal trivkins (inside emc2/src/Makefile.inc)
-
   
   If you change the HOME location in TRAJ, make sure you change the appropiate HOME locations of the AXES 
   aswell, and make sure the position match (when run through the kinematics).
