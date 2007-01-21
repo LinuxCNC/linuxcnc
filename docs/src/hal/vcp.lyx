@@ -64,9 +64,729 @@ A Virtual Control Panel (VCP) is a window on the computer screen with buttons,
  require physical buttons and lights, to temporarily replace real I/O devices
  while debugging ladder logic, or perhaps to simulate a physical panel before
  you build it and wire it to an I/O board.
+\layout Standard
+
+Currently there are two VCP implementations included with EMC2: The older,
+ simply named VCP, which used GTK widgets, and the newer, called pyVCP,
+ which uses Tkinter widgets.
+ VCP is deprecated and should not be used - it may be removed in the future.
 \layout Section
 
-A small example
+pyVCP
+\layout Standard
+
+The layout of a pyVCP panel is specified with an XML file that contains
+ widget tags between <pyvcp> and </pyvcp>.
+ For example:
+\layout LyX-Code
+
+<pyvcp>
+\newline 
+    <label>
+\newline 
+        <text>"This is a LED indicator"</text>
+\newline 
+    </label>
+\newline 
+    <led>
+\newline 
+    </led>
+\newline 
+</pyvcp>
+\layout LyX-Code
+
+\layout LyX-Code
+
+
+\begin_inset Graphics
+	filename pyvcp_mypanel.png
+
+\end_inset 
+
+
+\layout Standard
+
+If you place this text in a file called tiny.xml, and run 
+\layout LyX-Code
+
+pyvcp -c mypanel tiny.xml
+\layout Standard
+
+pyVCP will create the panel for you, which includes two widgets, a Label
+ with the text 
+\begin_inset Quotes eld
+\end_inset 
+
+This is a LED indicator
+\begin_inset Quotes erd
+\end_inset 
+
+, and a LED, used for displaying the state of a HAL BIT signal.
+ It will also create a HAL component named 
+\begin_inset Quotes eld
+\end_inset 
+
+mypanel
+\begin_inset Quotes erd
+\end_inset 
+
+ (all widgets in this panel are connected to pins that start with 
+\begin_inset Quotes eld
+\end_inset 
+
+mypanel.
+\begin_inset Quotes erd
+\end_inset 
+
+).
+ Since no <halpin> tag was present inside the <led> tag, pyVCP will automaticall
+y name the HAL pin for the LED widget mypanel.led.0
+\layout Standard
+
+For a list of widgets and their tags and options, see the widget reference
+ below.
+\layout Standard
+
+Once you have created your panel, connecting HAL signals to and form the
+ pyVCP pins is done with 'halcmd linksp' as usual.
+ If you are new to HAL, the HAL Tutorial
+\begin_inset LatexCommand \ref{cha:HAL-Tutorial}
+
+\end_inset 
+
+ is recommended.
+\layout Section
+
+Using pyVCP with AXIS
+\layout Standard
+
+Since AXIS uses the same GUI toolkit (Tkinter) as pyVCP, it is possible
+ to include a pyVCP panel on the right side of the normal AXIS user interface.
+ A typical example is explained below.
+\layout Standard
+
+Place your pyVCP XML file describing the panel in the same directory where
+ your .ini file is.
+ Say we we want to display the current spindle speed using a Bar widget.
+ Place the following in a file called spindle.xml:
+\layout LyX-Code
+
+<pyvcp>
+\newline 
+    <label>
+\newline 
+        <text>"Spindle speed:"</text>
+\newline 
+    </label>
+\newline 
+    <bar>
+\newline 
+        <halpin>"spindle-speed"</halpin>
+\newline 
+        <max_>5000</max_>
+\newline 
+    </bar>
+\newline 
+</pyvcp>
+\layout LyX-Code
+
+\layout Standard
+
+Here we've made a panel with a Label and a Bar widget, specified that the
+ HAL pin connected to the Bar should be named 
+\begin_inset Quotes eld
+\end_inset 
+
+spindle-speed
+\begin_inset Quotes erd
+\end_inset 
+
+, and set the maximum value of the bar to 5000 (see widget reference below
+ for all options).
+ To make AXIS aware of this file, and call it at startup, we need to specify
+ the following in the [DISPLAY] section of the .ini file:
+\layout LyX-Code
+
+PYVCP = spindle.xml
+\layout Standard
+
+To make our widget actually display the spindle-speed it needs to be hooked
+ up to the appropriate HAL signal.
+ A .hal file that will be run once AXIS and pyVCP have started can be specified
+ in the [HAL] section of the .ini file:
+\layout LyX-Code
+
+POSTGUI_HALFILE = spindle_to_pyvcp.hal
+\layout Standard
+
+This change will run the HAL commands specified in 
+\begin_inset Quotes eld
+\end_inset 
+
+spindle_to_pyvcp.hal
+\begin_inset Quotes erd
+\end_inset 
+
+.
+ In our example the contents could look like this:
+\layout LyX-Code
+
+linksp spindle-rpm-filtered  pyvcp.spindle-speed
+\layout Standard
+
+assuming that a singlal called 
+\begin_inset Quotes eld
+\end_inset 
+
+spindle-rpm-filtered
+\begin_inset Quotes erd
+\end_inset 
+
+ already exists.
+ Note that when running together with AXIS, all pyVCP widget HAL pins have
+ names that start with 
+\begin_inset Quotes eld
+\end_inset 
+
+pyvcp.
+\begin_inset Quotes erd
+\end_inset 
+
+.
+\layout Standard
+
+
+\begin_inset Graphics
+	filename pyvcp_AXIS.png
+	lyxscale 50
+	scale 50
+
+\end_inset 
+
+
+\layout Standard
+
+This is what the newly created pyVCP panel should look like in AXIS.
+ 
+\layout Section
+
+pyVCP Widget reference
+\layout Standard
+
+HAL signals come in two variants, BIT and FLOAT.
+ pyVCP can either display the value of the signal with an indicator widget,
+ or modify the signal value with a control widget.
+ Thus there are four classes of pyVCP widgets that you can connect to a
+ HAL signal.
+ A fifth class of helper widgets allow you to organize and label your panel.
+\layout List
+\labelwidthstring 00.00.0000
+
+1.
+ Widgets for indicating BIT signals: LED
+\layout List
+\labelwidthstring 00.00.0000
+
+2.
+ Widgets for controlling BIT signals: Button, Checkbutton, Radiobutton
+\layout List
+\labelwidthstring 00.00.0000
+
+3.
+ Widgets for indicating FLOAT signals: Number, Bar, Meter
+\layout List
+\labelwidthstring 00.00.0000
+
+4.
+ Widgets for controlling FLOAT signals: Spinbox, Scale, Jogwheel
+\layout List
+\labelwidthstring 00.00.0000
+
+5.
+ Helper widgets: Hbox, Vbox, Label
+\layout Subsubsection
+
+Syntax
+\layout Standard
+
+Each widget is described briefly, followed by the markup used, and a screenshot.
+ All tags inside the main widget tag are optional.
+\layout Subsection
+
+LED
+\layout Standard
+
+A LED is used to indicate the status of a BIT signal.
+ The LED color will be on_color when the BIT signal is true, and off_color
+ otherwise.
+\layout LyX-Code
+
+<led>
+\newline 
+    <halpin>"my-led"</halpin> 
+\newline 
+    <size>50</size> 
+\newline 
+    <on_color>"blue"</on_color>
+\newline 
+    <off_color>"black"</off_color>
+\newline 
+</led>
+\layout LyX-Code
+
+\layout LyX-Code
+
+
+\begin_inset Graphics
+	filename pyvcp_led.png
+
+\end_inset 
+
+
+\layout Standard
+
+<halpin> sets the name of the pin, default is 
+\begin_inset Quotes eld
+\end_inset 
+
+led.n
+\begin_inset Quotes erd
+\end_inset 
+
+, where n is an integer
+\newline 
+<size> sets the size of the led, default is 20
+\newline 
+<on_color> sets the color of the LED when the pin is true.
+ default is 
+\begin_inset Quotes eld
+\end_inset 
+
+green
+\begin_inset Quotes erd
+\end_inset 
+
+
+\newline 
+<off_color> sets the color of the LED when the pin is false.
+ default is 
+\begin_inset Quotes eld
+\end_inset 
+
+ref
+\begin_inset Quotes erd
+\end_inset 
+
+
+\layout Subsection
+
+Button
+\layout Standard
+
+A button is used to control a BIT pin.
+ The pin will be set True when the button is pressed and held down, and
+ will be set False when the button is released.
+\layout LyX-Code
+
+<button>
+\newline 
+    <halpin>"my-button"</halpin>
+\newline 
+    <text>"ON"</text> 
+\newline 
+</button>
+\layout LyX-Code
+
+\layout LyX-Code
+
+
+\begin_inset Graphics
+	filename pyvcp_button.png
+
+\end_inset 
+
+
+\layout Subsection
+
+Checkbutton
+\layout Standard
+
+A checkbutton controls a BIT pin.
+ The pin will be set True when the button is checked, and false when the
+ button is unchecked.
+\layout LyX-Code
+
+<checkbutton>
+\newline 
+    <halpin>"my-checkbutton"</halpin>
+\newline 
+</checkbutton>
+\layout Standard
+
+An unchecked checkbutton: 
+\begin_inset Graphics
+	filename pyvcp_checkbutton1.png
+
+\end_inset 
+
+ , and a checked one: 
+\begin_inset Graphics
+	filename pyvcp_checkbutton2.png
+
+\end_inset 
+
+
+\layout Subsection
+
+Radiobutton
+\layout Standard
+
+A radiobutton will set one of a number of BIT pins true.
+ The other pins are set false.
+\layout LyX-Code
+
+<radiobutton>
+\newline 
+    <choices>["one","two","three"]</choices> 
+\newline 
+    <halpin>"my-radio"</halpin> 
+\newline 
+</radiobutton>
+\layout LyX-Code
+
+\layout LyX-Code
+
+
+\begin_inset Graphics
+	filename pyvcp_radiobutton.png
+
+\end_inset 
+
+
+\layout Standard
+
+Note that the HAL pins in the example above will me named my-radio.one, my-radio.t
+wo, and my-radio.three
+\layout Subsection
+
+Number
+\layout Standard
+
+The number widget displays the value of a FLOAT signal.
+\layout LyX-Code
+
+<number>
+\newline 
+    <halpin>"my-number"</halpin>
+\newline 
+    <font>('Helvetica',50)</font>
+\newline 
+    <format>"+4.3f"</format>
+\newline 
+</number>
+\layout LyX-Code
+
+\layout LyX-Code
+
+
+\begin_inset Graphics
+	filename pyvcp_number.png
+
+\end_inset 
+
+
+\layout Standard
+
+<font> is a Tkinter font type and size specification.
+ Note that on Ubuntu 6.06 'Helvetica' is not available in sizes above ca
+ 40 or 50.
+ One font that will show up to at least size 200 is 'courier 10 pitch',
+ so for a really big Number widget you could specify:
+\layout LyX-Code
+
+<font>('courier 10 pitch',100)</font>
+\layout Standard
+
+<format> is a 'C-style' format specified that determines how the number
+ is displayed.
+\layout Subsection
+
+Bar
+\layout Standard
+
+A bar widget displays the value of a FLOAT signal both graphically using
+ a bar display and numerically.
+\layout LyX-Code
+
+<bar>
+\newline 
+    <halpin>"my-bar"</halpin>
+\newline 
+    <min_>0</min_>
+\newline 
+    <max_>123</max_>
+\newline 
+    <bgcolor>"grey"</bgcolor>
+\newline 
+    <fillcolor>"red"</fillcolor>
+\newline 
+</bar>
+\layout LyX-Code
+
+\layout LyX-Code
+
+
+\begin_inset Graphics
+	filename pyvcp_bar.png
+
+\end_inset 
+
+
+\layout Subsection
+
+Meter
+\layout Standard
+
+Meter displays the value of a FLOAT signal using a traditional dial indicator.
+\layout LyX-Code
+
+<meter>
+\newline 
+    <halpin>"my-meter"</halpin>
+\newline 
+    <text>"Voltage"</text>
+\newline 
+    <size>300</size>
+\newline 
+    <min_>-12</min_>
+\newline 
+    <max_>33</max_>
+\newline 
+</meter> 
+\layout LyX-Code
+
+\layout LyX-Code
+
+
+\begin_inset Graphics
+	filename pyvcp_meter.png
+	lyxscale 50
+	scale 50
+
+\end_inset 
+
+
+\layout Subsection
+
+Spinbox
+\layout Standard
+
+Spinbox controls a FLOAT pin.
+ You increase or decrease the value of the pin by 'resolution' by either
+ pressing on the arrows, or pointing at the spinbox and rolling your mouse-wheel.
+\layout LyX-Code
+
+<spinbox>
+\newline 
+    <halpin>"my-spibox"</halpin>
+\newline 
+    <min_>-12</min_>
+\newline 
+    <max_>33</max_>
+\newline 
+    <resolution>0.1</resolution>
+\newline 
+    <format>"2.3f"</format>
+\newline 
+    <font>('Arial',30)</font>
+\newline 
+</spinbox>
+\layout LyX-Code
+
+\layout LyX-Code
+
+
+\begin_inset Graphics
+	filename pyvcp_spinbox.png
+
+\end_inset 
+
+
+\layout Subsection
+
+Scale
+\layout Standard
+
+Scale controls a FLOAT pin.
+ You increase or decrease the value of the pin be either dragging the slider,
+ or pointing at the scale and rolling your mouse-wheel.
+\layout LyX-Code
+
+<scale>
+\newline 
+    <halpin>"my-scale"</halpin>
+\newline 
+    <resolution>0.1</resolution>
+\newline 
+    <orient>HORIZONTAL</orient>
+\newline 
+    <min_>-33</min_>
+\newline 
+    <max_>26</max_>
+\newline 
+</scale>
+\layout LyX-Code
+
+\layout LyX-Code
+
+
+\begin_inset Graphics
+	filename pyvcp_scale.png
+
+\end_inset 
+
+
+\layout Subsection
+
+Jogwheel
+\layout Standard
+
+Jogwheel mimics a real jogwheel by outputting a FLOAT pin which counts up
+ or down as the wheel is turned, either by dragging in a cricular motion,
+ or by rolling the mouse-wheel.
+\layout LyX-Code
+
+<jogwheel>
+\newline 
+    <halpin>"my-wheel"</halpin>
+\newline 
+    <cpr>45</cpr>
+\newline 
+    <size>250</size>
+\newline 
+</jogwheel>
+\layout LyX-Code
+
+
+\begin_inset Graphics
+	filename pyvcp_jogwheel.png
+	lyxscale 50
+	scale 50
+
+\end_inset 
+
+
+\layout Subsection
+
+Hbox
+\layout Standard
+
+Use a Hbox when you want to stack widgets horizontally next to eachother.
+\layout LyX-Code
+
+<hbox>
+\newline 
+    <label><text>"a vbox:"</text></label>
+\newline 
+    <led></led>
+\newline 
+    <number></number>
+\newline 
+    <bar></bar>
+\newline 
+</hbox>
+\layout LyX-Code
+
+\layout LyX-Code
+
+
+\begin_inset Graphics
+	filename pyvcp_hbox.png
+
+\end_inset 
+
+
+\layout Subsection
+
+Vbox
+\layout Standard
+
+Use a Vbox when you want to stack widgets verticallyon top of eachother.
+\layout LyX-Code
+
+<vbox>
+\newline 
+    <label><text>"a vbox:"</text></label>
+\newline 
+    <led></led>
+\newline 
+    <number></number>
+\newline 
+    <bar></bar>
+\newline 
+</vbox>
+\layout LyX-Code
+
+\layout LyX-Code
+
+
+\begin_inset Graphics
+	filename pyvcp_vbox.png
+
+\end_inset 
+
+
+\layout Subsection
+
+Label
+\layout Standard
+
+A label is a piece of text on your panel.
+\layout LyX-Code
+
+<label>
+\newline 
+    <text>"This is a Label:"</text>
+\newline 
+    <font>('Helvetica',20)</font>
+\newline 
+</label> 
+\layout LyX-Code
+
+\layout LyX-Code
+
+
+\begin_inset Graphics
+	filename pyvcp_label.png
+
+\end_inset 
+
+
+\layout Section
+
+VCP: A small example
+\layout Standard
+
+NOTE: VCP is deprecated, and will most likely not be getting any new development
+ or additional widgets.
+ We strongly recommend using pyVCP.
+ However, pyVCP won't be released until version 2.2 comes out, and VCP is
+ in version 2.1.
+ That means some people will wind up using VCP, so we can't simply drop
+ it.
+\begin_inset Foot
+collapsed false
+
+\layout Standard
+
+A .vcp to .xml translator that takes a vcp file and turns it into one that
+ pyVCP can use is on my to-do list.
+ That would enable VCP users to easily switch over to pyVCP.
+ If such a translator is written, VCP may be removed from the version 2.2
+ release.
+\end_inset 
+
+
 \layout Standard
 
 Place the following in the file 
@@ -254,7 +974,7 @@ halcmd:
 Now push the button, and the the LED should light up!
 \layout Section
 
-Another small example with EMC
+VCP: Another small example with EMC
 \layout Standard
 
 Place the following in the file 
@@ -295,7 +1015,7 @@ Now, when running your machine, the ESTOP button in the GUI is disabled,
  and the ESTOP button in the VCP window is used instead.
 \layout Section
 
-The VCP Syntax
+VCP Syntax
 \layout Subsection
 
 Block
