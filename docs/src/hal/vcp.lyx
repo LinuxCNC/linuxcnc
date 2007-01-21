@@ -770,10 +770,9 @@ VCP: A small example
 NOTE: VCP is deprecated, and will most likely not be getting any new development
  or additional widgets.
  We strongly recommend using pyVCP.
- However, pyVCP won't be released until version 2.2 comes out, and VCP is
- in version 2.1.
- That means some people will wind up using VCP, so we can't simply drop
- it.
+ Both pyVCP and VCP are included in EMC version 2.1, but it is likely that
+ only pyVCP will be included in EMC 2.2.
+ 
 \begin_inset Foot
 collapsed false
 
