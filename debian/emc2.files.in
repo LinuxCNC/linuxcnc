@@ -151,6 +151,12 @@ etc/emc2/sample-configs/m5i20/m5i20_pidtest.hal
 etc/emc2/sample-configs/m5i20/m5i20.tbl
 etc/emc2/sample-configs/m5i20/m5i20.var
 etc/emc2/sample-configs/m5i20/README
+etc/emc2/sample-configs/lathe-pluto/emc.nml
+etc/emc2/sample-configs/lathe-pluto/emc.tbl
+etc/emc2/sample-configs/lathe-pluto/emc.var
+etc/emc2/sample-configs/lathe-pluto/lathe-pluto.hal
+etc/emc2/sample-configs/lathe-pluto/lathe-pluto.ini
+etc/emc2/sample-configs/lathe-pluto/README
 etc/emc2/sample-configs/max/emc.nml
 etc/emc2/sample-configs/max/max.hal
 etc/emc2/sample-configs/max/max.ini
@@ -171,6 +177,7 @@ etc/emc2/sample-configs/nist-lathe/inch.ini
 etc/emc2/sample-configs/nist-lathe/nist-lathe.hal
 etc/emc2/sample-configs/nist-lathe/nist-lathe.tbl
 etc/emc2/sample-configs/nist-lathe/nist-lathe.var
+etc/emc2/sample-configs/nist-lathe/README
 etc/emc2/sample-configs/ppmc/emc.nml
 etc/emc2/sample-configs/ppmc/ppmc.ini
 etc/emc2/sample-configs/ppmc/ppmc_io.hal
@@ -281,6 +288,7 @@ usr/share/doc/emc2/AUTHORS
 usr/share/doc/emc2/INSTALL
 usr/share/doc/emc2/NEWS
 usr/share/doc/emc2/README
+usr/share/doc/emc2/UPDATING
 usr/share/doc/emc2/help/tkemc.txt
 usr/share/doc/emc2/help/xemc.txt
 usr/share/emc/ncfiles/3D_Chips.ngc
@@ -357,6 +365,7 @@ usr/share/man/man9/edge.9
 usr/share/man/man9/encoder_ratio.9
 usr/share/man/man9/estop_latch.9
 usr/share/man/man9/flipflop.9
+usr/share/man/man9/freqgen.9
 usr/share/man/man9/genhexkins.9
 usr/share/man/man9/hypot.9
 usr/share/man/man9/integ.9
@@ -376,10 +385,12 @@ usr/share/man/man9/offset.9
 usr/share/man/man9/oneshot.9
 usr/share/man/man9/or2.9
 usr/share/man/man9/pluto_servo.9
+usr/share/man/man9/pwmgen.9
 usr/share/man/man9/rotatekins.9
 usr/share/man/man9/sampler.9
 usr/share/man/man9/scale.9
 usr/share/man/man9/serport.9
+usr/share/man/man9/stepgen.9
 usr/share/man/man9/streamer.9
 usr/share/man/man9/sum2.9
 usr/share/man/man9/threadtest.9
