@@ -166,7 +166,7 @@ foreach temp $axiscoordmap {
     set axisType($temp) [emc_ini TYPE AXIS_$temp]
  }
 
-set programDirectory $emc::NCFILES_DIR
+set programDirectory [emc_ini PROGRAM_PREFIX DISPLAY]
 # set HELPDIRname [emc_ini HELP_FILE DISPLAY]
 
 # set some initial values to variables to be used during a run
