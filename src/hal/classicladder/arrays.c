@@ -265,7 +265,7 @@ int ClassicLadderAllocAll()
 
 #ifdef SEQUENTIAL_SUPPORT
     Sequential = (StrSequential *) pByte;
-    rtapi_print_msg(RTAPI_MSG_ERR, "Sequential: %p\n", Sequential);
+    rtapi_print_msg(RTAPI_MSG_INFO, "Sequential: %p\n", Sequential);
     pByte += sizeof(StrSequential);
 #endif
 
