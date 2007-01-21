@@ -30,6 +30,7 @@ m5i20cfg
 mdi
 milltask
 milltaskcanon
+pyvcp
 rtapi_app
 shmemusr
 simio
