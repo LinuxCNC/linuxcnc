@@ -41,6 +41,8 @@ if [ $1 = "-r" ]; then
     set -- `uname -r`
 fi
 
+TARGET=$1
+
 MODULE_PATH=usr/realtime-$1/modules/emc2
 MODULE_EXT=.ko
 KERNEL_DEPENDS=linux-image-$1,rtai-modules-$1
@@ -56,7 +58,7 @@ if [ -f /etc/lsb-release ]; then
     DISTRIB_NAME=$DISTRIB_ID-$DISTRIB_RELEASE
 fi
 
-case $1 in
+case $TARGET in
     sim)
         MODULE_PATH=usr/lib/emc2/modules
 	MODULE_EXT=.so
@@ -76,7 +78,7 @@ case $1 in
         KERNEL_HEADERS="$KERNEL_HEADERS,gcc-4.0"
     ;;
     *)
-	echo "your kernel '$1' is not known. There might be needed dependencies which won't get set automatically."
+	echo "your kernel '$TARGET' is not known. There might be needed dependencies which won't get set automatically."
 esac
 
 subst () {
@@ -88,6 +90,7 @@ sed -e "s|@MODULE_PATH@|$MODULE_PATH|g" \
     -e "s|@EMC2_PACKAGE_NAME@|$EMC2_PACKAGE_NAME|g" \
     -e "s|@EXTRA_FILES@|$EXTRA_FILES|g" \
     -e "s|@DISTRIB_NAME@|$DISTRIB_NAME|g" \
+    -e "s|@TARGET@|$TARGET|g" \
     $*
 }
 
@@ -96,7 +99,8 @@ subst rules.in > rules; chmod +x rules
 if [ -f extras-$DISTRIB_NAME/emc2.files ]; then
     subst emc2.files.in $DRIVERS extras-$DISTRIB_NAME/emc2.files > $EMC2_PACKAGE_NAME.files
 else
-    subst emc2.files.in $DRIVERS > emc2-$1.files
+    subst emc2.files.in $DRIVERS > emc2-$TARGET.files
 fi
 
-echo "successfully configured for '$DISTRIB_NAME'-'$1'.."
+rm -f ../build-stamp
+echo "successfully configured for '$DISTRIB_NAME'-'$TARGET'.."

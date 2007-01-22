@@ -96,3 +96,6 @@ endif
 
 binary: binary-indep binary-arch
 .PHONY: build clean binary-indep binary-arch binary install
+
+debian/rules: debian/configure debian/*.in
+	debian/configure @TARGET@
