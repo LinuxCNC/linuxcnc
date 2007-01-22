@@ -115,14 +115,6 @@ newsig SpindleBrakeOn bit
 linksp SpindleBrakeOn => motenc.0.out-02
 linksp SpindleBrakeOn <= motion.spindle-brake
 
-# Connect spindle speed up/down to I/O controller.
-newsig SpindleUp bit
-newsig SpindleDown bit
-linksp SpindleUp => motenc.0.out-03
-linksp SpindleUp <= motion.spindle-incr-speed
-linksp SpindleDown => motenc.0.out-04
-linksp SpindleDown <= motion.spindle-decr-speed
-
 # Connect mist/flood coolant to I/O controller.
 newsig MistOn bit
 newsig FloodOn bit

@@ -80,14 +80,6 @@ linksp SpindleFwd => motion.spindle-forward
 linksp SpindleRev <= ppmc.0.dout.01.out
 linksp SpindleRev => motion.spindle-reverse
 
-# connect spindle speed up/down to I/O controller
-newsig SpindleUp bit
-newsig SpindleDown bit
-#linksp SpindleUp <= ppmc.0.dout.06.out
-#linksp SpindleUp => motion.spindle-incr-speed
-#linksp SpindleDown <= ppmc.0.dout.05.out
-#linksp SpindleDown => motion.spindle-decr-speed
-
 # connect spindle brake to I/O controller
 newsig SpindleBrakeOn bit
 linksp SpindleBrakeOn <= ppmc.0.dout.02.out
