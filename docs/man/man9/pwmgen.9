@@ -43,60 +43,63 @@ a bipolar output.
 
 .SH FUNCTIONS
 .TP 
-\fBmake-pulses \fR(no floating-point)
+\fBpwmgen.make-pulses \fR(no floating-point)
 Generates the actual PWM waveforms, using information computed by
 \fBupdate\fR.  Must be called as frequently as possible, to maximize
 the attainable PWM frequency and resolution, and minimize jitter.
+Operates on all channels at once.
 .TP
-\fBupdate \fR(uses floating point)
+\fBpwmgen.update \fR(uses floating point)
 Accepts an input value, performs scaling and limit checks, and converts
 it into a form usable by \fBmake-pulses\fR for PWM/PDM generation.  Can
-(and should) be called less frequently than \fBmake-pulses\fR.
+(and should) be called less frequently than \fBmake-pulses\fR.  Operates
+on all channels at once.
 
 .SH PINS
 .TP
-\fBenable\fR bit in
-Enables output - when false, all output pins are low.
+\fBpwmgen.\fIN\fB.enable\fR bit in
+Enables PWM generator \fIN\fR - when false, all \fBpwmgen.\fIN\fR output
+pins are low.
 .TP
-\fBvalue\fR float in
+\fBpwmgen.\fIN\fB.value\fR float in
 Commanded value.  When \fBvalue\fR = 0.0, duty cycle is 0%, and when
-\fBvalue\fR \ +/-\fBscale\fR, duty cycle is +/- 100%, subject to
-\fBmin-dc\fR and \fBmax-dc\fR limitations.
+\fBvalue\fR = +/-\fBscale\fR, duty cycle is +/- 100%. (Subject to
+\fBmin-dc\fR and \fBmax-dc\fR limitations.)
 .TP
-\fBpwm\fR bit out (output types 0 and 1 only)
+\fBpwmgen.\fIN\fB.pwm\fR bit out (output types 0 and 1 only)
 PWM/PDM waveform.
 .TP
-\fBdir\fR bit out (output type 1 only)
+\fBpwmgen.\fIN\fB.dir\fR bit out (output type 1 only)
 Direction output: low for forward, high for reverse.
 .TP
-\fBup\fR bit out (output type 2 only)
+\fBpwmgen.\fIN\fB.up\fR bit out (output type 2 only)
 PWM/PDM waveform for positive input values, low for negative inputs.
 .TP
-\fBdown\fR bit out (output type 2 only)
+\fBpwmgen.\fIN\fB.down\fR bit out (output type 2 only)
 PWM/PDM waveform for negative input values, low for positive inputs.
 
 .SH PARAMETERS
 .TP
-\fBcurr-dc\fR float ro
+\fBpwmgen.\fIN\fB.curr-dc\fR float ro
 The current duty cycle, after all scaling and limits have been applied.
 Range is from -1.0 to +1.0.
 .TP
-\fBmax-dc\fR float rw
+\fBpwmgen.\fIN\fB.max-dc\fR float rw
 The maximum duty cycle.  A value of 1.0 corresponds to 100%.  This can
 be usefull when using transistor drivers with bootstrapped power supplies,
 since the supply requires some low time to recharge.
 .TP
-\fBmin-dc\fR float rw
+\fBpwmgen.\fIN\fB.min-dc\fR float rw
 The minimum duty cycle.  A value of 1.0 corresponds to 100%.  Note that
 when the pwm generator is disabled, the outputs are constantly low,
 regardless of the setting of \fBmin-dc\fR.
 .TP
-\fBscale\fR float rw
+\fBpwmgen.\fIN\fB.scale\fR float rw
 Scaling from the \fBvalue\fR pin to the actual duty cycle.  When
 \fBvalue\fR equals \fBscale\fR, the desired duty cycle is 100%.
 (The actual output may not be 100% due to \fBmax-dc\fR limiting.)
 .TP
-\fBpwm-freq\fR float rw
+\fBpwmgen.\fIN\fB.pwm-freq\fR float rw
 PWM frequency in Hz.  The upper limit is half of the frequency at which
 \fBmake-pulses\fR is invoked, and values above that limit will be changed
 to the limit.  If \fBdither-pwm\fR is false, the value will be changed to
@@ -104,7 +107,7 @@ the nearest integer submultiple of the \fBmake-pulses\fR frequency.  A
 value of zero produces Pulse Density Modulation instead of Pulse Width
 Modulation.
 .TP
-\fBdither-pwn\fR bit rw
+\fBpwmgen.\fIN\fB.dither-pwm\fR bit rw
 Because software generated PWM uses a fairly slow timebase (several to many
 microseconds), it has limited resolution.  For example, if \fBmake-pulses\fR
 is called at a 20KHz rate, and \fBpwm-freq\fR is 2KHz, there are only 10

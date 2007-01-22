@@ -26,57 +26,59 @@ value is three.
 
 .SH FUNCTIONS
 .TP 
-\fBupdate-counters\fR (no floating-point)
+\fBencoder.update-counters\fR (no floating-point)
 Does the actual counting, by sampling the encoder signals and decoding
 the quadrature waveforms.  Must be called as frequently as possible,
-preferrably twice as fast as the maximum desired count rate.
+preferrably twice as fast as the maximum desired count rate.  Operates
+on all channels at once.
 .TP
-\fBcapture-position\fR (uses floating point)
+\fBencoder.capture-position\fR (uses floating point)
 Captures the raw counts from \fBupdate-counters\fR and performs scaling
 and other neccessary conversion, handles counter rollover, etc.  Can
 (and should) be called less frequently than \fBupdate-counters\fR.
+Operates on all channels at once.
 
 .SH PINS
 .TP
-\fBphase-A\fR bit in
+\fBencoder.\fIN\fB.phase-A\fR bit in
+Quadrature input for encoder channel \fIN\fR.
+.TP
+\fBencoder.\fIN\fB.phase-B\fR bit in
 Quadrature input.
 .TP
-\fBphase-B\fR bit in
-Quadrature input.
-.TP
-\fBphase-Z\fR bit in
+\fBencoder.\fIN\fB.phase-Z\fR bit in
 Index pulse input.
 .TP
-\fBreset\fR bit in
+\fBencoder.\fIN\fB.reset\fR bit in
 When true, \fBcounts\fR and \fBposition\fR are reset to zero immediately.
 .TP
-\fBindex-enable\fR bit i/o
+\fBencoder.\fIN\fB.index-enable\fR bit i/o
 When true, \fBcounts\fR and \fBposition\fR are reset to zero on the next
 rising edge of \fBPhase-Z\fR.  At the same time, \fBindex-enable\fR is reset
 to zero to indicate that the rising edge has occurred.
 .TP
-\fBcounts\fR s32 out
+\fBencoder.\fIN\fB.counts\fR s32 out
 Position in encoder counts.
 .TP
-\fBposition\fR float out
+\fBencoder.\fIN\fB.position\fR float out
 Position in scaled units (see \fBposition-scale\fR)
 .TP
-\fBvelocity\fR float out
+\fBencoder.\fIN\fB.velocity\fR float out
 Velocity in scaled units per second.
 
 .SH PARAMETERS
 .TP
-\fBposition-scale\fR float rw
+\fBencoder.\fIN\fB.position-scale\fR float rw
 Scale factor, in counts per length unit.  For example, if \fBposition-scale\fR
 is 500, then 1000 counts of the encoder will be reported as a postion of 2.0
 units.
 .TP
-\fBx4-mode\fR bit rw
+\fBencoder.\fIN\fB.x4-mode\fR bit rw
 Enables times-4 mode.  When true (the default), the counter counts each edge
 of the quadrature waveform (four counts per full cycle).  When false, it only
 counts once per full cycle.
 .TP
-\fBrawcounts\fR s32 ro
+\fBencoder.\fIN\fB.rawcounts\fR s32 ro
 The raw count, as determined by \fBupdate-counters\fR.  This value is updated
 more frequently than \fBcounts\fR and \fBposition\fR.
 
