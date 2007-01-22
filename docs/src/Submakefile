@@ -54,10 +54,11 @@ DOC_SRCS := \
 	install/installing_emc2.lyx \
 	motion/kinematics.lyx \
 	motion/pid_theory.lyx \
+	quickstart/stepper_quickstart.lyx \
 	Master_HAL.lyx
 
 MAN_HTML_TARGETS := $(patsubst $(DOC_DIR)/man/%, $(DOC_DIR)/html/man/%.html, $(MAN_SRCS))
-PDF_TARGETS := $(addprefix $(DOC_DIR)/,HAL_User_Manual.pdf EMC2_User_Manual.pdf EMC2_Developer_Manual.pdf EMC2_Integrator_Manual.pdf)
+PDF_TARGETS := $(addprefix $(DOC_DIR)/,HAL_User_Manual.pdf EMC2_User_Manual.pdf EMC2_Developer_Manual.pdf EMC2_Integrator_Manual.pdf stepper_quickstart.pdf)
 HTML_TARGETS := $(patsubst %.lyx,$(DOC_DIR)/html/%/index.html, $(filter-out Master_%, $(DOC_SRCS))) $(MAN_HTML_TARGETS) $(DOC_DIR)/html/index.html $(DOC_DIR)/html/hal/pluto_servo.html
 
 L2HFLAGS := -init_file src/.latex2html-init -local_icons \
@@ -81,6 +82,8 @@ $(DOC_DIR)/EMC2_User_Manual.pdf: $(DOC_SRCDIR)/Master_User.pdf
 $(DOC_DIR)/EMC2_Developer_Manual.pdf: $(DOC_SRCDIR)/Master_Developer.pdf
 	@ln -f $< $@
 $(DOC_DIR)/EMC2_Integrator_Manual.pdf: $(DOC_SRCDIR)/Master_Integrator.pdf
+	@ln -f $< $@
+$(DOC_DIR)/stepper_quickstart.pdf: $(DOC_SRCDIR)/quickstart/stepper_quickstart.pdf
 	@ln -f $< $@
 
 $(DOC_DIR)/html/hal/pluto_servo.html: $(DOC_DIR)/html/%.html: $(DOC_SRCDIR)/%.html
@@ -153,8 +156,10 @@ docclean:
 	-rm -f $(DOC_DIR)/EMC2_User_Manual.pdf
 	-rm -f $(DOC_DIR)/EMC2_Developer_Manual.pdf
 	-rm -f $(DOC_DIR)/EMC2_Integrator_Manual.pdf
+	-rm -f $(DOC_DIR)/stepper_quickstart.pdf
 	-rm -f $(DOC_SRCDIR)/*.d
 	-rm -f $(DOC_SRCDIR)/*.pdf
+	-rm -f $(DOC_SRCDIR)/quickstart/*.pdf
 	-rm -f $(patsubst %,$(DOC_SRCDIR)/%, $(DOC_SRCS:.lyx=.tex))
 	-rm -rf $(patsubst %.lyx,$(DOC_DIR)/html/%, $(DOC_SRCS))
 
