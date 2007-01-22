@@ -362,6 +362,7 @@ usr/share/man/man9/counter.9
 usr/share/man/man9/ddt.9
 usr/share/man/man9/debounce.9
 usr/share/man/man9/edge.9
+usr/share/man/man9/encoder.9
 usr/share/man/man9/encoder_ratio.9
 usr/share/man/man9/estop_latch.9
 usr/share/man/man9/flipflop.9
