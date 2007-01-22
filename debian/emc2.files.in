@@ -289,8 +289,8 @@ usr/share/doc/emc2/INSTALL
 usr/share/doc/emc2/NEWS
 usr/share/doc/emc2/README
 usr/share/doc/emc2/UPDATING
-usr/share/doc/emc2/help/tkemc.txt
-usr/share/doc/emc2/help/xemc.txt
+usr/share/doc/emc2/tkemc.txt
+usr/share/doc/emc2/xemc.txt
 usr/share/emc/ncfiles/3D_Chips.ngc
 usr/share/emc/ncfiles/arcspiral.ngc
 usr/share/emc/ncfiles/cds.ngc
