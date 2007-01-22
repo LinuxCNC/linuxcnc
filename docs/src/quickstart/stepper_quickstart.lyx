@@ -31,7 +31,7 @@ Quick Start Guide for Stepper Configurations
 
 
 \series bold 
-Step 1: Setting up your units:
+Set machine units:
 \series default 
  You need to decide whether you want the machine to use inches or millimeters
  by default.
@@ -57,7 +57,7 @@ ini (or stepper_mm.ini if you chose that config).
 
 
 \series bold 
-Step 2: Determining the size of a step:
+Determine the size of a step:
 \series default 
  EMC2 needs to know how far your machine will move for each step pulse it
  sends to the motors.
@@ -131,7 +131,15 @@ Let's set the X axis resolution to 40000 steps/inch.
 
 
 \series bold 
-Step 3: Setting up stepgen:
+Set up the parallel port connections:
+\series default 
+ You need to tell EMC2 where you stepper drives are connected to the computer.
+ There are two sample confi
+\layout Standard
+
+
+\series bold 
+Set up stepgen:
 \series default 
  Stepgen is the module EMC2 uses to convert the position outputs from the
  trajectory planner to steps for the motor.
