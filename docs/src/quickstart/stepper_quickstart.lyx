@@ -1,0 +1,139 @@
+#LyX 1.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 221
+\textclass book
+\language english
+\inputencoding auto
+\fontscheme default
+\graphics default
+\paperfontsize default
+\spacing single 
+\papersize Default
+\paperpackage a4
+\use_geometry 0
+\use_amsmath 0
+\use_natbib 0
+\use_numerical_citations 0
+\paperorientation portrait
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\defskip medskip
+\quotes_language english
+\quotes_times 2
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+
+\layout Title
+
+Quick Start Guide for Stepper Configurations
+\layout Standard
+
+
+\series bold 
+Step 1: Setting up your units:
+\series default 
+ You need to decide whether you want the machine to use inches or millimeters
+ by default.
+ This is done by choosing either the stepper/stepper_inch config or the
+ stepper/stepper_mm config.
+ The first time you run EMC2, a dialog will prompt you to copy the configuration
+ to your home directory.
+ You should select 
+\begin_inset Quotes eld
+\end_inset 
+
+yes
+\begin_inset Quotes erd
+\end_inset 
+
+.
+\layout Standard
+
+Before going on, you should open the ini file in a text editor.
+ The file will be in your home directory under emc2/configs/stepper/stepper_inch.
+ini (or stepper_mm.ini if you chose that config).
+\layout Standard
+
+
+\series bold 
+Step 2: Determining the size of a step:
+\series default 
+ EMC2 needs to know how far your machine will move for each step pulse it
+ sends to the motors.
+ The equation to calculate this is 
+\layout Standard
+
+
+\series bold 
+steps * usteps * pitch * ratio
+\series default 
+, where 
+\layout Standard
+
+
+\series bold 
+steps
+\series default 
+ is the number of steps per revolution for your motor (usually 200)
+\layout Standard
+
+
+\series bold 
+usteps
+\series default 
+ is the number of microsteps your drive is set to.
+ This is 2 for half stepping, 4 for quarter stepping, etc.
+\layout Standard
+
+
+\series bold 
+pitch
+\series default 
+ is the screw pitch: How many turns does it take to move the table one unit?
+\layout Standard
+
+
+\series bold 
+ratio
+\series default 
+ is the drive ratio between the motor and the screw.
+ If using a belt or gear drive, use the final drive ratio.
+\layout Standard
+
+So, for a standard stepper (200 steps/rev), using Gecko drives (10x microsteppin
+g), a 10 pitch screw, and 2:1 belt drive, the formula is:
+\layout Standard
+
+200 * 10 * 10 * 2 = 40000 steps/inch
+\layout Standard
+
+This needs to be determined independently for each axis.
+\layout Standard
+
+Let's set the X axis resolution to 40000 steps/inch.
+ Find the [AXIS_0] section of the ini file.
+ This contains all of the X-axis specific information.
+ Change INPUT_SCALE (yes, input - EMC2 still keeps track of where the motor
+ should be) to 40000 0.
+ The second number, 
+\begin_inset Quotes eld
+\end_inset 
+
+0
+\begin_inset Quotes erd
+\end_inset 
+
+, is needed for other types of motor systems, but can't be left out for
+ steppers.
+ The other axes would be done the same way (Y = AXIS_1, Z = AXIS_2 ...)
+\layout Standard
+
+
+\series bold 
+Step 3: Setting up stepgen:
+\series default 
+ Stepgen is the module EMC2 uses to convert the position outputs from the
+ trajectory planner to steps for the motor.
+ 
+\the_end
