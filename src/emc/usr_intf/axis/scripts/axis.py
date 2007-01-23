@@ -2533,7 +2533,7 @@ vars.show_live_plot.set(1)
 vars.show_tool.set(1)
 vars.show_extents.set(1)
 vars.show_machine_speed.set(1)
-vars.show_distance_to_go.set(1)
+vars.show_distance_to_go.set(0)
 
 
 def set_feedrate(n):
