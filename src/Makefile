@@ -368,7 +368,7 @@ install-kernel-indep:
 		$(DESTDIR)$(sysconfdir)/emc2 $(DESTDIR)$(bindir) \
 		$(DESTDIR)/usr/local/etc/emc2/configs \
 		$(DESTDIR)$(libdir) $(DESTDIR)$(includedir)/emc2 \
-		$(DESTDIR)$(docsdir)/help $(DESTDIR)$(ncfilesdir) \
+		$(DESTDIR)$(docsdir) $(DESTDIR)$(ncfilesdir) \
 		$(DESTDIR)/etc/X11/app-defaults $(DESTDIR)$(tcldir)/bin \
 		$(DESTDIR)$(tcldir)/scripts \
 		$(DESTDIR)$(mandir)/man1 \
@@ -402,7 +402,7 @@ install-kernel-indep:
 	-ldconfig $(DESTDIR)$(libdir)
 	$(FILE) $(filter %.h %.hh,$(TARGETS)) $(DESTDIR)$(includedir)/emc2/
 	$(FILE) $(addprefix ../docs/,$(DOCS)) $(DESTDIR)$(docsdir)
-	$(FILE) $(DOCS_HELP) $(DESTDIR)$(docsdir)/help
+	$(FILE) $(DOCS_HELP) $(DESTDIR)$(docsdir)
 	$(FILE) $(NC_FILES) $(DESTDIR)$(ncfilesdir)
 	$(EXE) ../nc_files/M101 $(DESTDIR)$(ncfilesdir)
 	$(FILE) ../tcl/TkEmc $(DESTDIR)/etc/X11/app-defaults
