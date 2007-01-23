@@ -44,6 +44,7 @@ limit1.9
 limit2.9
 limit3.9
 lowpass.9
+knob2float.9
 maj3.9
 match8.9
 minmax.9
@@ -54,6 +55,7 @@ not.9
 offset.9
 oneshot.9
 or2.9
+pluto_servo.9
 scale.9
 serport.9
 sum2.9
