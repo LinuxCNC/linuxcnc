@@ -385,6 +385,7 @@ usr/share/man/man9/not.9
 usr/share/man/man9/offset.9
 usr/share/man/man9/oneshot.9
 usr/share/man/man9/or2.9
+usr/share/man/man9/pid.9
 usr/share/man/man9/pluto_servo.9
 usr/share/man/man9/pwmgen.9
 usr/share/man/man9/rotatekins.9
