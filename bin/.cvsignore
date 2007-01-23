@@ -2,6 +2,7 @@ axis
 axis-remote
 classicladder
 comp
+debuglevel
 emc_module_helper
 emcrsh
 emcsh
@@ -29,6 +30,7 @@ m5i20cfg
 mdi
 milltask
 milltaskcanon
+pyvcp
 rtapi_app
 shmemusr
 simio
