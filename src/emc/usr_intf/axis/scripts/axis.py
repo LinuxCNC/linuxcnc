@@ -71,6 +71,7 @@ lathe = 0
 
 feedrate_blackout = 0
 spindlerate_blackout = 0
+jogincr_index_last = 1
 from math import hypot, atan2, sin, cos, pi, sqrt
 from rs274 import ArcsToSegmentsMixin
 import emc
@@ -1744,22 +1745,41 @@ def set_first_line(lineno):
     global program_start_line
     program_start_line = lineno
 
+def jogspeed_listbox_change(dummy, value):
+    global jogincr_index_last
+    # pdb.set_trace()
+    # FJ: curselection is not always up to date here, so 
+    #     do a linear search by hand
+    iterator = iter(root_window.call(widgets.jogincr._w, "list", "get", "0", "end"))
+    idx = 0
+    cursel = -1
+    for i in iterator:
+        if str(i) == value:
+            cursel= idx
+            break
+        idx += 1
+    if cursel > 0:
+        jogincr_index_last= cursel
+
 def jogspeed_continuous():
-    widgets.jogincr.configure(editable=1)
-    widgets.jogincr.delete(0, "end")
-    widgets.jogincr.insert("end", _("Continuous"))
-    widgets.jogincr.configure(editable=0)
+    root_window.call(widgets.jogincr._w, "select", 0)
 
 def jogspeed_incremental():
-    jogincr = widgets.jogincr.get()
-    if jogincr == _("Continuous") or jogincr == "0.0001":
-        newjogincr = 0.1
+    global jogincr_index_last
+    jogincr_size = root_window.call(widgets.jogincr._w, "list", "size")
+    # pdb.set_trace()
+    cursel = root_window.call(widgets.jogincr._w, "curselection")
+    if cursel == "":
+        cursel = 0
     else:
-        newjogincr = float(jogincr) / 10
-    widgets.jogincr.configure(editable=1)
-    widgets.jogincr.delete(0, "end")
-    widgets.jogincr.insert("end", "%s" % newjogincr)
-    widgets.jogincr.configure(editable=0)
+        cursel = int(cursel)
+    if cursel > 0:
+        # If it was "Continous" just before, then don't change last jog increment!
+        jogincr_index_last += 1
+    if jogincr_index_last >= int(jogincr_size):
+        jogincr_index_last = 1
+    root_window.call(widgets.jogincr._w, "select", jogincr_index_last)   
+
 
 class SelectionHandler:
     def __init__(self, win, **kw):
@@ -2741,8 +2761,10 @@ if astep_size != 1:
     root_window.tk.call("set_aslider_min", astep_size*30)
 increments = inifile.find("DISPLAY", "INCREMENTS")
 if increments:
-    root_window.call(widgets.jogspeed._w, "list", "delete", "1", "end")
-    root_window.call(widgets.jogspeed._w, "list", "insert", "end", *increments.split())
+    root_window.call(widgets.jogincr._w, "list", "delete", "1", "end")
+    root_window.call(widgets.jogincr._w, "list", "insert", "end", *increments.split())
+widgets.jogincr.configure(command= jogspeed_listbox_change)
+root_window.call(widgets.jogincr._w, "select", 0)   
 
 vcp = inifile.find("DISPLAY", "PYVCP")
 
