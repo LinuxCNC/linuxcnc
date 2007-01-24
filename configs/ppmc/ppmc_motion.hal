@@ -28,18 +28,13 @@ linksp Aoutput => ppmc.0.DAC.03.value
 #linksp Aenable => ppmc.0.pwm.03.enable
 
 # set output scaling from ini file
-# note that these are using PWM_OUTPUT_SCALE - they should
-# use OUTPUT_SCALE, but right now EMC2 re-writes that to
-# 1 on shutdown for some reason.  Once that is fixed, this
-# should be changed
-#setp ppmc.0.DAC.00.scale [AXIS_0]PWM_OUTPUT_SCALE
-#setp ppmc.0.DAC.01.scale [AXIS_1]PWM_OUTPUT_SCALE
-#setp ppmc.0.DAC.02.scale [AXIS_2]PWM_OUTPUT_SCALE
-#setp ppmc.0.DAC.03.scale [AXIS_3]PWM_OUTPUT_SCALE
+#setp ppmc.0.DAC.00.scale [AXIS_0]OUTPUT_SCALE
+#setp ppmc.0.DAC.01.scale [AXIS_1]OUTPUT_SCALE
+#setp ppmc.0.DAC.02.scale [AXIS_2]OUTPUT_SCALE
+#setp ppmc.0.DAC.03.scale [AXIS_3]OUTPUT_SCALE
 
 # add a couple of tuning test links
 # if these are useful will want to add them to the other axes as well
 # or make these setup with the tuning script
 linkps ddt.0.in Xoutput
 linkps ddt.1.in Xpos-fb
-

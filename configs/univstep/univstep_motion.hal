@@ -35,7 +35,6 @@ linksp Aenable => ppmc.0.stepgen.03.enable
 # set output scaling from ini file
 # note that these are using INPUT_SCALE - this is because the
 # input and output scales should (normally) be the same for a USC
-# and emc2 always rewrites OUTPUT_SCALE to 1
 setp ppmc.0.stepgen.00.scale [AXIS_0]INPUT_SCALE
 setp ppmc.0.stepgen.01.scale [AXIS_1]INPUT_SCALE
 setp ppmc.0.stepgen.02.scale [AXIS_2]INPUT_SCALE
