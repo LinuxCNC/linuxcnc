@@ -392,9 +392,12 @@ usr/share/man/man9/rotatekins.9
 usr/share/man/man9/sampler.9
 usr/share/man/man9/scale.9
 usr/share/man/man9/serport.9
+usr/share/man/man9/siggen.9
+usr/share/man/man9/sim_encoder.9
 usr/share/man/man9/stepgen.9
 usr/share/man/man9/streamer.9
 usr/share/man/man9/sum2.9
+usr/share/man/man9/supply.9
 usr/share/man/man9/threadtest.9
 usr/share/man/man9/tripodkins.9
 usr/share/man/man9/trivkins.9

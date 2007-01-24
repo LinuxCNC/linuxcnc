@@ -1,0 +1,73 @@
+.TH SIGGEN "9" "2007-01-16" "EMC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+siggen \- signal generator
+.SH SYNOPSIS
+\fBloadrt siggen num_chan=\fInum\fR
+
+.SH DESCRIPTION
+\fBsiggen\fR is a signal generator that can be used for testing and
+other applications that need simple waveforms.  It produces sine,
+cosine, triangle, sawtooth, and square waves of variable frequency,
+amplitude, and offset, which can be used as inputs to other HAL
+components.
+
+.P
+\fBsiggen\fR supports a maximum of sixteen channels.  The number of
+channels actually loaded is set by the \fBnum_chan\fR argument when
+the module is loaded.  If \fBnumchan\fR is not specified, the default
+value is one.
+
+.SH FUNCTIONS
+.TP 
+\fBsiggen.\fIN\fB.update\fR (uses floating-point)
+Updates output pins for signal generator \fIN\fR.  Each time it is
+called it calculates a new sample.  It should be called many times
+faster than the desired signal frequency, to avoid distortion and
+aliasing.
+
+.SH PINS
+.TP
+\fBsiggen.\fIN\fB.frequency\fR float in
+The output frequency for signal generator \fIN\fR, in Hertz.  The default
+value is 1.0 Hertz.
+.TP
+\fBsiggen.\fIN\fB.amplitude\fR float in
+The output amplitude for signal generator \fIN\fR.  If \fBoffset\fR is
+zero, the outputs will swing from -\fBamplitude\fR to +\fBamplitude\fR.
+The default value is 1.00.
+.TP
+\fBsiggen.\fIN\fB.offset\fR float in
+The output offset for signal generator \fIN\fR.  This value is added
+directly to the output signal.  The default value is zero.
+.TP
+\fBsiggen.\fIN\fB.square\fR float out
+The square wave output.  Positive while \fBtriangle\fR and \fBcosine\fR
+are ramping upwards, and while \fBsine\fR is negative.
+.TP
+\fBsiggen.\fIN\fB.sine\fR float out
+The sine output.  Lags \fBcosine\fR by 90 degrees.
+.TP
+\fBsiggen.\fIN\fB.cosine\fR float out
+The cosine output.  Leads \fBsine\fR by 90 degrees.
+.TP
+\fBsiggen.\fIN\fB.triangle\fR float out
+The triangle wave output.  Ramps up while \fBsquare\fR is positive, and
+down while \fBsquare\fR is negative.  Reaches its positive and negative
+peaks at the same time as \fBcosine\fR.
+.TP
+\fBsiggen.\fIN\fB.sawtooth\fR float out
+The sawtooth output.  Ramps upwards to its positive peak, then instantly
+drops to its negative peak and starts ramping again.  The drop occurs
+when \fBtriangle\fR and \fBcosine\fR are at their postive peaks, and
+coincides with the falling edge of \fBsquare\fR.
+
+.SH PARAMETERS
+.P
+None
+
