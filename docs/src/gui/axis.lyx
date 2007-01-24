@@ -885,17 +885,39 @@ The .ini file setting
 \family default 
  can be used to override the default.
  Its value can contain decimal numbers (e.g., 0.1000) or fractional numbers
- (e.g., 1/16).
- For machines configured as metric, a good setting might be
+ (e.g., 1/16), optionally followed by a unit (one of 'cm', 'mm', 'um', 'inch',
+ 'in', or 'mil').
+ If a unit is not specified the machine's native unit is assumed.
+ For users who prefer metric units, a good setting might be
 \layout LyX-Code
 
-INCREMENTS = 1 0.1 0.01 0.001
+INCREMENTS = 10 um, 50 um, 0.1mm, 0.5mm, 1mm, 5mm, 10 mm
 \layout Standard
 
-For a machine configured as imperial (inches), a good setting might be
+For users who prefer 
+\begin_inset Quotes eld
+\end_inset 
+
+imperial
+\begin_inset Quotes erd
+\end_inset 
+
+ units, a good setting might be
 \layout LyX-Code
 
-INCREMENTS = 1/8 .1 1/16 1/32 .01 0.001 0.0001
+INCREMENTS = 1/4 in, 1/16 in, 1/32 in, 1/64 in, 1 mil, .1 mil
+\layout Standard
+
+or
+\layout LyX-Code
+
+INCREMENTS = .5 in, .1 in, 50 mil, 10 mil, 5 mil, 1 mil, .1 mil
+\layout Standard
+
+Metric and imperial distances may be mixed:
+\layout LyX-Code
+
+INCREMENTS = 1 inch, 1 mil, 1 cm, 1 mm, 1 um
 \layout Standard
 
 By pressing the Ctrl-HOME key combination, the homing sequence is performed.
@@ -2089,15 +2111,24 @@ Run
 \end_inset 
 
 .
+ The following lines add support for the 
+\begin_inset Quotes eld
+\end_inset 
+
+image-to-gcode
+\begin_inset Quotes erd
+\end_inset 
+
+ converter included with emc2:
 \layout LyX-Code
 
 [FILTER]
 \newline 
 PROGRAM_EXTENSION = .png,.gif Greyscale Depth Image
 \newline 
-png = image-to-gcode.py
+png = image-to-gcode
 \newline 
-gif = image-to-gcode.py
+gif = image-to-gcode
 \layout Standard
 
 It is also possible to specify an interpreter:
@@ -2251,7 +2282,15 @@ The lines shown in Figure
 
 \end_inset 
 
- add Control-Q as a keyboard shortcut for Quit.
+ add Control-Q as a keyboard shortcut for Quit and turns on 
+\begin_inset Quotes eld
+\end_inset 
+
+Distance to go
+\begin_inset Quotes erd
+\end_inset 
+
+ by default.
 \layout Standard
 
 
@@ -2272,6 +2311,8 @@ Sample .axisrc file
 root_window.bind("<Control-q>", "destroy .")
 \newline 
 help2.append(("Control-Q", "Quit"))
+\newline 
+vars.show_distance_to_go.set(1)
 \end_inset 
 
 
