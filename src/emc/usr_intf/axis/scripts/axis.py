@@ -108,7 +108,7 @@ help1 = [
     ("`, 1..9, 0", _("Set Feed Override from 0% to 100%")),
     (", and .", _("Select jog speed")),
     ("< and >", _("Select angular jog speed")),
-    ("I", _("Select jog increment")),
+    ("I, Shift-I", _("Select jog increment")),
     ("C", _("Continuous jog")),
     ("Home", _("Send active axis home")),
     ("Ctrl-Home", _("Home all axes")),
@@ -1764,7 +1764,7 @@ def jogspeed_listbox_change(dummy, value):
 def jogspeed_continuous():
     root_window.call(widgets.jogincr._w, "select", 0)
 
-def jogspeed_incremental():
+def jogspeed_incremental(dir=1):
     global jogincr_index_last
     jogincr_size = root_window.call(widgets.jogincr._w, "list", "size")
     # pdb.set_trace()
@@ -1773,11 +1773,17 @@ def jogspeed_incremental():
         cursel = 0
     else:
         cursel = int(cursel)
-    if cursel > 0:
-        # If it was "Continous" just before, then don't change last jog increment!
-        jogincr_index_last += 1
-    if jogincr_index_last >= int(jogincr_size):
-        jogincr_index_last = 1
+    if dir == 1:
+        if cursel > 0:
+            # If it was "Continous" just before, then don't change last jog increment!
+            jogincr_index_last += 1
+        if jogincr_index_last >= int(jogincr_size):
+            jogincr_index_last = 1
+    else:
+        if cursel > 0:
+            jogincr_index_last -= 1
+        if jogincr_index_last < 1:
+            jogincr_index_last = int(jogincr_size) - 1
     root_window.call(widgets.jogincr._w, "select", jogincr_index_last)   
 
 
@@ -2583,6 +2589,7 @@ root_window.bind("9", lambda event: set_feedrate(90))
 root_window.bind("0", lambda event: set_feedrate(100))
 root_window.bind("c", lambda event: jogspeed_continuous())
 root_window.bind("i", lambda event: jogspeed_incremental())
+root_window.bind("I", lambda event: jogspeed_incremental(-1))
 root_window.bind("@", commands.toggle_display_type)
 root_window.bind("#", commands.toggle_coord_type)
 root_window.bind("$", commands.toggle_joint_mode)
@@ -2622,12 +2629,32 @@ def jog_on(a, b):
         if jogincr != _("Continuous"):
             s.poll()
             if s.state != 1: return
+            print jogincr, 
+            if jogincr.endswith("mm"):
+                print "mm",
+                scale = from_internal_linear_unit(1/25.4)
+            elif jogincr.endswith("cm"):
+                print "cm",
+                scale = from_internal_linear_unit(10/25.4)
+            elif jogincr.endswith("um"):
+                print "um",
+                scale = from_internal_linear_unit(.001/25.4)
+            elif jogincr.endswith("in") or jogincr.endswith("inch"):
+                print "in",
+                scale = from_internal_linear_unit(1.)
+            elif jogincr.endswith("mil"):
+                print "mil",
+                scale = from_internal_linear_unit(.001)
+            else:
+                scale = 1
+            jogincr = jogincr.rstrip(" inchmuil")
             if "/" in jogincr:
                 p, q = jogincr.split("/")
                 jogincr = float(p) / float(q)
             else:
                 jogincr = float(jogincr)
-            jog(emc.JOG_INCREMENT, a, b, jogincr)
+            print jogincr, scale
+            jog(emc.JOG_INCREMENT, a, b, jogincr * scale)
             jog_cont[a] = False
         else:
             jog(emc.JOG_CONTINUOUS, a, b)
@@ -2708,7 +2735,7 @@ root_window.tk.eval("${pane_top}.jogspeed.s set [setval $jog_speed $max_speed]")
 root_window.tk.eval("${pane_top}.ajogspeed.s set [setval $jog_aspeed $max_aspeed]")
 widgets.feedoverride.configure(to=max_feed_override)
 widgets.spinoverride.configure(to=max_spindle_override)
-emc.nmlfile = inifile.find("EMC", "NML_FILE")
+emc.nmlfile = os.path.join(os.path.dirname(sys.argv[2]), inifile.find("EMC", "NML_FILE"))
 vars.coord_type.set(inifile.find("DISPLAY", "POSITION_OFFSET") == "RELATIVE")
 vars.display_type.set(inifile.find("DISPLAY", "POSITION_FEEDBACK") == "COMMANDED")
 coordinate_display = inifile.find("DISPLAY", "POSITION_UNITS")
@@ -2761,8 +2788,12 @@ if astep_size != 1:
     root_window.tk.call("set_aslider_min", astep_size*30)
 increments = inifile.find("DISPLAY", "INCREMENTS")
 if increments:
+    if "," in increments:
+        increments = [i.strip() for i in increments.split(",")]
+    else:
+        increments = increments.split()
     root_window.call(widgets.jogincr._w, "list", "delete", "1", "end")
-    root_window.call(widgets.jogincr._w, "list", "insert", "end", *increments.split())
+    root_window.call(widgets.jogincr._w, "list", "insert", "end", *increments)
 widgets.jogincr.configure(command= jogspeed_listbox_change)
 root_window.call(widgets.jogincr._w, "select", 0)   
 
