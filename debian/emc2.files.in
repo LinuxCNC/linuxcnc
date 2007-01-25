@@ -398,6 +398,7 @@ usr/share/man/man9/stepgen.9
 usr/share/man/man9/streamer.9
 usr/share/man/man9/sum2.9
 usr/share/man/man9/supply.9
+usr/share/man/man9/threads.9
 usr/share/man/man9/threadtest.9
 usr/share/man/man9/tripodkins.9
 usr/share/man/man9/trivkins.9
