@@ -5642,8 +5642,9 @@ On all passes but the last, a traverse Z move to the beginning point for
  the next pass
 \layout Standard
 
-The tool will pause briefly both before each threading pass, so a relief
- groove may be required at the entry.
+The tool will pause briefly before each threading pass, so a relief groove
+ will be required at the entry unless the beginning of the thread is past
+ the end of the material.
 \layout Standard
 
 The exit move (traverse to original X) is not synchronized to the spindle
