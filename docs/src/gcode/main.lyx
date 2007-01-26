@@ -37,7 +37,7 @@
 
 \layout Chapter
 
-Machining Center Overview
+groMachining Center Overview
 \layout Standard
 
 This section gives a brief description of how a machining center is viewed
@@ -5363,6 +5363,270 @@ G80
 
 Axis words are programmed when G80 is active, unless a modal group 0 G code
  is programmed which uses axis words.
+\layout Section
+
+G76: Threading Canned Cycle
+\layout Standard
+
+Program 
+\family typewriter 
+G76 P- Z- I- J- R- K- Q- H- 
+\family default 
+to perform a threading canned cycle.
+ It is an error if:
+\layout Itemize
+
+The active plane is not the ZX plane
+\layout Itemize
+
+Other axis words, such as X- or Y-, are specified
+\layout Itemize
+
+The 
+\family typewriter 
+R-
+\family default 
+ digression value is less than 1.0.
+\layout Itemize
+
+All the required words are not specified
+\layout Itemize
+
+
+\family typewriter 
+J-
+\family default 
+, 
+\family typewriter 
+K-
+\family default 
+ or 
+\family typewriter 
+H-
+\family default 
+ is negative
+\layout Standard
+
+The 
+\begin_inset Quotes eld
+\end_inset 
+
+drive line
+\begin_inset Quotes erd
+\end_inset 
+
+ is safe line outside the thread material.
+ The 
+\begin_inset Quotes eld
+\end_inset 
+
+drive line
+\begin_inset Quotes erd
+\end_inset 
+
+ goes from the initial location to the 
+\family typewriter 
+Z-
+\family default 
+ value specified with 
+\family typewriter 
+G76
+\family default 
+.
+ The Z extent of the thread is the same as the Z extent of the drive line.
+\layout Standard
+
+The 
+\begin_inset Quotes eld
+\end_inset 
+
+thread pitch
+\begin_inset Quotes erd
+\end_inset 
+
+, or distance per revolution, is given by the 
+\family typewriter 
+P-
+\family default 
+ value.
+\layout Standard
+
+The 
+\begin_inset Quotes eld
+\end_inset 
+
+thread peak
+\begin_inset Quotes erd
+\end_inset 
+
+ is given by the 
+\family typewriter 
+I-
+\family default 
+ value, which is an offset
+\layout Standard
+
+from the initial X position.
+ Negative I values indicate external threads, and positive I values indicate
+ internal threads.
+ Generally the material has been turned to this depth before the canned
+ cycle.
+\layout Standard
+
+The 
+\begin_inset Quotes eld
+\end_inset 
+
+initial cut depth
+\begin_inset Quotes erd
+\end_inset 
+
+ is given by the 
+\family typewriter 
+J-
+\family default 
+ value.
+ The first threading will be J beyond the 
+\begin_inset Quotes eld
+\end_inset 
+
+thread peak
+\begin_inset Quotes erd
+\end_inset 
+
+ position.
+ 
+\family typewriter 
+J-
+\family default 
+ is positive, even when 
+\family typewriter 
+I-
+\family default 
+ is negative.
+\layout Standard
+
+The 
+\begin_inset Quotes eld
+\end_inset 
+
+full thread depth is given by the 
+\family typewriter 
+K-
+\family default 
+ value.
+ The final threading cut will be K beyond the 
+\begin_inset Quotes eld
+\end_inset 
+
+thread peak
+\begin_inset Quotes erd
+\end_inset 
+
+ position.
+ 
+\family typewriter 
+K-
+\family default 
+ is positive, even when 
+\family typewriter 
+I-
+\family default 
+ is negative.
+\layout Standard
+
+The 
+\begin_inset Quotes eld
+\end_inset 
+
+depth digression
+\begin_inset Quotes erd
+\end_inset 
+
+ is given by the 
+\family typewriter 
+R-
+\family default 
+ value.
+ 
+\family typewriter 
+R1.0
+\family default 
+ selects constant depth on successive threading passes.
+ 
+\family typewriter 
+R2.0
+\family default 
+ selects constant area.
+ Values between 1.0 and 2.0 select decreasing depth and increasing area.
+ Values above 2.0 select decreasing area.
+\layout Standard
+
+The 
+\begin_inset Quotes eld
+\end_inset 
+
+compound slide angle
+\begin_inset Quotes erd
+\end_inset 
+
+ 
+\family typewriter 
+Q-
+\family default 
+ is the angle (in degrees) of the line that passes through successive thread
+ starts and stops.
+ A positive value cuts on the leading edge of the tool even if the drive
+ line is towards +Z.
+ Typical values are 29, 29.5 or 30.
+\layout Standard
+
+The number of spring passes is given by the 
+\family typewriter 
+H-
+\family default 
+ value.
+ Spring passes are additional passes at full thread depth.
+ If no additional passes are desired, program 
+\family typewriter 
+H0
+\family default 
+.
+\layout Standard
+
+Each pass begins at a position on the drive line.
+ It consists of
+\layout Enumerate
+
+An X traverse to the thread start position
+\layout Enumerate
+
+A pause for the spindle to reach index position
+\layout Enumerate
+
+A spindle-synchronized Z feed along the thread
+\layout Enumerate
+
+A traverse to the original X
+\layout Enumerate
+
+On all passes but the last, a traverse Z move the next thread start
+\layout Standard
+
+The tool will pause briefly both before and after each threading pass, so
+ a relief groove may be required at the entry.
+\layout Standard
+
+The sample program 
+\family typewriter 
+g76.ngc
+\family default 
+ shows the use of the G76 canned cycle, and can be previewed and executed
+ on any machine using the 
+\family typewriter 
+sim/lathe.ini
+\family default 
+ configuration.k
 \layout Section
 
 G81
