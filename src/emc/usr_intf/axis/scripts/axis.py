@@ -68,10 +68,16 @@ program_start_line = 0
 program_start_line_last = -1
 
 lathe = 0
+mdi_history_max_entries = 16
+mdi_history_save_filename= "~/.axis_mdi_history"
+
+
 
 feedrate_blackout = 0
 spindlerate_blackout = 0
 jogincr_index_last = 1
+mdi_history_index= -1
+
 from math import hypot, atan2, sin, cos, pi, sqrt
 from rs274 import ArcsToSegmentsMixin
 import emc
@@ -130,6 +136,7 @@ help1 = [
 help2 = [
     ("F3", _("Manual control")),
     ("F5", _("Code entry (MDI)")),
+    ("Control-M", _("Clear MDI history")),
     ("L", _("Override Limits")),
     ("", ""),
     ("O", _("Open program")),
@@ -1688,7 +1695,8 @@ widgets = nf.Widgets(root_window,
     ("about_window", Toplevel, ".about"),
     ("text", Text, pane_bottom + ".t.text"),
     ("preview_frame", Frame, pane_top + ".preview"),
-    ("mdi_history", Text, tabs_mdi + ".history"),
+    ("mdi_history", Listbox, tabs_mdi + ".history"),
+    ("mdi_command", Entry, tabs_mdi + ".command"),
     ("code_text", Text, tabs_mdi + ".gcodes"),
 
     ("axis_x", Radiobutton, tabs_manual + ".axes.axisx"),
@@ -2285,16 +2293,111 @@ class TclCommands(nf.TclCommands):
     def task_stop(*event):
         c.abort()
 
+    def mdi_up_cmd(*event):
+        global mdi_history_index
+        if widgets.mdi_command.cget("state") == "disabled":
+            return
+        if mdi_history_index != -1:
+            if mdi_history_index > 0:
+                mdi_history_index -= 1
+            else:
+                mdi_history_index = widgets.mdi_history.size() - 1
+            widgets.mdi_history.selection_clear(0, "end")
+            widgets.mdi_history.see(mdi_history_index)
+            if mdi_history_index != (widgets.mdi_history.size() - 1):
+                widgets.mdi_history.selection_set(mdi_history_index, mdi_history_index)
+            vars.mdi_command.set(widgets.mdi_history.get(mdi_history_index))
+    
+    def mdi_down_cmd(*event):
+        global mdi_history_index
+        if widgets.mdi_command.cget("state") == "disabled":
+            return
+        history_size = widgets.mdi_history.size()
+        if mdi_history_index != -1:
+            if mdi_history_index < (history_size - 1):
+                mdi_history_index += 1
+            else:
+                mdi_history_index = 0
+            widgets.mdi_history.selection_clear(0, "end")
+            widgets.mdi_history.see(mdi_history_index)
+            if mdi_history_index != (widgets.mdi_history.size() - 1):
+                widgets.mdi_history.selection_set(mdi_history_index, mdi_history_index)
+            vars.mdi_command.set(widgets.mdi_history.get(mdi_history_index))
+
     def send_mdi(*event):
+        global mdi_history_index, mdi_history_save_filename
         command = vars.mdi_command.get()
-        vars.mdi_command.set("")
-        ensure_mode(emc.MODE_MDI)
-        widgets.mdi_history.configure(state="normal")
-        widgets.mdi_history.see("end")
-        widgets.mdi_history.insert("end", "%s\n" % command)
-        widgets.mdi_history.configure(state="disabled")
-        c.mdi(command)
-        o.tkRedraw()
+        if command != "":
+            command= command.lstrip().rstrip()
+            vars.mdi_command.set("")
+            ensure_mode(emc.MODE_MDI)
+            widgets.mdi_history.selection_clear(0, "end")
+            # check if input is already in list. If so, then delete old element
+            idx = 0
+            for ele in widgets.mdi_history.get(0, "end"):
+                if ele == command:
+                    widgets.mdi_history.delete(idx)
+                    break
+                idx += 1
+            history_size = widgets.mdi_history.size()
+            widgets.mdi_history.insert(history_size - 1, "%s" % command)
+            widgets.mdi_history.see(history_size - 1)
+            if history_size > mdi_history_max_entries:
+                widgets.mdi_history.delete(0, 0)
+                history_size= mdi_history_max_entries
+            history_size += 1
+            # pdb.set_trace()
+            mdi_history_index = widgets.mdi_history.index("end") - 1
+            c.mdi(command)
+            o.tkRedraw()
+            commands.mdi_history_write_to_file(mdi_history_save_filename, history_size)
+
+    # write out mdi history file (history_size equal to -1 will delete history)
+    def mdi_history_write_to_file(file_name, history_size):
+        # print "mdi_history_write: %s : %d" % (file_name, history_size)
+        if history_size > 1 or history_size == -1:
+            file_name = os.path.expanduser(file_name)
+            try:
+                f = open(file_name, "w")
+                try:
+                    if history_size != -1:
+                        for idx in range(history_size - 1):
+                            f.write("%s\n" % widgets.mdi_history.get(idx, idx))
+                finally:    
+                    f.close()
+            except IOError:
+                print >>sys.stderr, "Can't open MDI history file [%s] for writing" % file_name
+
+    def mdi_history_double_butt_1(event):
+        if widgets.mdi_command.cget("state") == "disabled":
+            return
+        cursel= widgets.mdi_history.index("active")
+        #pdb.set_trace()
+        if cursel < (widgets.mdi_history.size() - 1):
+            commands.send_mdi(event)
+       
+    def mdi_history_butt_1(event):
+        global mdi_history_index
+        # single ckick is allowed with, also with MDI input disabled
+        cursel = widgets.mdi_history.index('@' + str(event.x) + ',' + str(event.y))
+        bbox = widgets.mdi_history.bbox(cursel)
+        if bbox and (event.y <= (bbox[1] + bbox[3])) and  (cursel < widgets.mdi_history.size() - 1):
+            mdi_history_index = cursel
+            vars.mdi_command.set(widgets.mdi_history.get(cursel))
+        else:
+            widgets.mdi_history.see("end")
+            widgets.mdi_history.selection_clear(0, "end")
+            vars.mdi_command.set("")
+            mdi_history_index = widgets.mdi_history.size()
+                            
+    def clear_mdi_history(*ignored):
+        global mdi_history_index, mdi_history_save_filename
+        widgets.mdi_history.delete(0, "end")
+        widgets.mdi_history.insert(0, "")
+        widgets.mdi_history.see(0)
+        widgets.mdi_history.selection_clear(0, 0)
+        mdi_history_index = 0
+        commands.mdi_history_write_to_file(mdi_history_save_filename, -1)
 
     def ensure_manual(*event):
         if not manual_ok(): return
@@ -2572,6 +2675,7 @@ root_window.bind("<Key-F12>", commands.spindle_increase)
 root_window.bind("B", commands.brake_on)
 root_window.bind("b", commands.brake_off)
 root_window.bind("<Control-k>", commands.clear_live_plot)
+root_window.bind("<Control-m>", commands.clear_mdi_history)
 root_window.bind("x", lambda event: activate_axis(0))
 root_window.bind("y", lambda event: activate_axis(1))
 root_window.bind("z", lambda event: activate_axis(2))
@@ -2598,7 +2702,36 @@ root_window.bind("<Home>", commands.home_axis)
 root_window.bind("<Control-Home>", commands.home_all_axes)
 root_window.bind("<Shift-Home>", commands.set_axis_offset)
 root_window.bind("<End>", commands.touch_off)
-widgets.mdi_history.bind("<Configure>", "%W see {end - 1 lines}")
+widgets.mdi_history.bind("<Configure>", "%W see end" )
+widgets.mdi_history.bind("<Button-1>", commands.mdi_history_butt_1)
+widgets.mdi_history.bind("<Double-Button-1>", commands.mdi_history_double_butt_1)
+
+# try to read back previously saved mdi history data
+mdi_hist_file = os.path.expanduser(mdi_history_save_filename)
+try:
+    line_cnt = 0
+    f = open(mdi_hist_file, "r")
+    try:
+        for line in f:
+            line_cnt += 1
+    finally:
+        f.seek(0)
+    skip = line_cnt - mdi_history_max_entries
+    history_size = 1
+    try:
+        for line in f:
+            if skip <= 0:
+                widgets.mdi_history.insert(history_size - 1, "%s" % line.rstrip("\r\n"))
+                history_size += 1
+            else:
+                skip -= 1
+    finally:    
+        f.close()
+except IOError:
+    print >>sys.stderr, "Can't open MDI history file [%s] for reading" % mdi_hist_file
+
+
+
 
 def jog(*args):
     if not manual_ok(): return
