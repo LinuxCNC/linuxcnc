@@ -1,18 +1,8 @@
-THINGS THAT ARE DESIRABLE FOR THE EMC2.0.x RELEASE
-
-TO DROP  Need to come up with a way to handle "bridgeport" style machines (more I/O than generic)
-Update: this has been regarded as not needed, HAL can take care of it
-
-Choose BASE_PERIOD carefully (larger) for non-stepper configs, especially for 
-those that use ISA cards
-
 THINGS THAT ARE DESIRABLE FOR THE NEXT MAJOR RELEASE (EMC-2.2)
 
 TODO     Improved classicladder GUI
 
 TODO     Convert all hardware drivers to use canonical homing, 
-
-DONE     convert homing to use canonical interface.
 
 Fixes in HAL modules:
 TODO     canonical interfaces and naming conventions
