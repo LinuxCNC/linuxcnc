@@ -440,16 +440,16 @@ Selecting a joint
 
 (
 \noun on 
-u8
+u32
 \noun default 
-) halui.joint.select u8 - select joint (0..7) - internal halui
+) halui.joint.select - select joint (0..7) - internal halui
 \layout Itemize
 
 (
 \noun on 
-u8
+u32
 \noun default 
-) halui.joint.selected u8 - selected joint (0..7) - internal halui
+) halui.joint.selected - selected joint (0..7) - internal halui
 \layout Itemize
 
 (
@@ -573,7 +573,7 @@ float
 
 (
 \noun on 
-u8
+u32
 \noun default 
 ) halui.jog-wheel.axis - sets the axis to be jogged
 \layout Subsection
