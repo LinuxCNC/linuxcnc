@@ -5365,7 +5365,17 @@ Axis words are programmed when G80 is active, unless a modal group 0 G code
  is programmed which uses axis words.
 \layout Section
 
-G76: Threading Canned Cycle
+G76
+\begin_inset LatexCommand \index{G76}
+
+\end_inset 
+
+: Threading Canned Cycle
+\begin_inset LatexCommand \label{sec:G76:-Threading-Canned}
+
+\end_inset 
+
+
 \layout Standard
 
 Program 
@@ -5683,7 +5693,7 @@ G76 canned cycle
 
 \begin_inset Graphics
 	filename g76.epsi
-	scale 200
+	scale 75
 
 \end_inset 
 
