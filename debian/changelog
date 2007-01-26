@@ -1,3 +1,9 @@
+emc2 (1:2.1.0~alpha2) testing; urgency=low
+
+  * Version bump. More fixes, cleanups, bugfixes etc (remove double values from INPUT_SCALE for all configs).
+
+ -- Alex Joni <alex_joni@users.sourceforge.net>  Fri, 26 Jan 2007 18:39:42 +0200
+
 emc2 (1:2.1.0~alpha1) testing; urgency=low
 
   * include the docs, minor fixes and backports
