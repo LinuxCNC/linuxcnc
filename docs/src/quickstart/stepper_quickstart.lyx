@@ -115,17 +115,7 @@ Let's set the X axis resolution to 40000 steps/inch.
  Find the [AXIS_0] section of the ini file.
  This contains all of the X-axis specific information.
  Change INPUT_SCALE (yes, input - EMC2 still keeps track of where the motor
- should be) to 40000 0.
- The second number, 
-\begin_inset Quotes eld
-\end_inset 
-
-0
-\begin_inset Quotes erd
-\end_inset 
-
-, is needed for other types of motor systems, but can't be left out for
- steppers.
+ should be) to 40000.
  The other axes would be done the same way (Y = AXIS_1, Z = AXIS_2 ...)
 \layout Standard
 
