@@ -1662,17 +1662,18 @@ bit
 \family typewriter 
 (
 \noun on 
-u16
+u32
 \noun default 
 ) m5i20.<board>.watchdog-control
 \family default 
  -- Configures the watchdog.
- The value should be a bitwise OR of the following values:
+ The value may be a bitwise OR of the following values:
 \newline 
 
 \begin_inset  Tabular
-<lyxtabular version="3" rows="4" columns="2">
+<lyxtabular version="3" rows="3" columns="3">
 <features>
+<column alignment="center" valignment="top" leftline="true" width="0">
 <column alignment="center" valignment="top" leftline="true" width="0">
 <column alignment="center" valignment="top" leftline="true" rightline="true" width="0">
 <row topline="true" bottomline="true">
@@ -1681,7 +1682,15 @@ u16
 
 \layout Standard
 
-Bit
+Bit #
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Value
 \end_inset 
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
@@ -1699,25 +1708,15 @@ Meaning
 
 \layout Standard
 
-1
+0
 \end_inset 
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\layout Standard
-
-Timeout is 16ms if set, 8ms if unset
-\end_inset 
-</cell>
-</row>
-<row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
 \layout Standard
 
-4
+1
 \end_inset 
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
@@ -1735,7 +1734,15 @@ Watchdog is enabled
 
 \layout Standard
 
-16
+1
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+2
 \end_inset 
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
@@ -1747,7 +1754,7 @@ Watchdog is automatically reset by DAC writes (the HAL
 \family typewriter 
 dac-write
 \family default 
- function
+ function)
 \end_inset 
 </cell>
 </row>
@@ -1755,10 +1762,8 @@ dac-write
 
 \end_inset 
 
-
-\newline 
-Typically, the useful values are 0 (watchdog disabled) or 20 (8ms watchdog
- enabled, cleared by 
+ Typically, the useful values are 0 (watchdog disabled) or 3 (watchdog enabled,
+ cleared by 
 \family typewriter 
 dac-write
 \family default 
@@ -1769,7 +1774,7 @@ dac-write
 \family typewriter 
 (
 \noun on 
-u16
+u32
 \noun default 
 ) m5i20.<board>.led-view
 \family default 
@@ -4303,18 +4308,145 @@ bit
 \family typewriter 
 (
 \noun on 
-u16
+u32
 \noun default 
 ) motenc.<board>.watchdog-control
 \family default 
- -- Configures the watchdog?
+ -- Configures the watchdog.
+ The value may be a bitwise OR of the following values:
+\newline 
+
+\begin_inset  Tabular
+<lyxtabular version="3" rows="4" columns="3">
+<features>
+<column alignment="center" valignment="top" leftline="true" width="0">
+<column alignment="center" valignment="top" leftline="true" width="0">
+<column alignment="center" valignment="top" leftline="true" rightline="true" width="0">
+<row topline="true" bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Bit #
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Value
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Meaning
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+0
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+1
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Timeout is 16ms if set, 8ms if unset
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+2
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+4
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Watchdog is enabled
+\end_inset 
+</cell>
+</row>
+<row topline="true" bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+4
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+16
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Watchdog is automatically reset by DAC writes (the HAL 
+\family typewriter 
+dac-write
+\family default 
+ function)
+\end_inset 
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset 
+
+ Typically, the useful values are 0 (watchdog disabled) or 20 (8ms watchdog
+ enabled, cleared by 
+\family typewriter 
+dac-write
+\family default 
+).
 \layout Itemize
 
 
 \family typewriter 
 (
 \noun on 
-u16
+u32
 \noun default 
 ) motenc.<board>.led-view
 \family default 
@@ -4702,7 +4834,7 @@ bit
 \family typewriter 
 (
 \noun on 
-u8
+u32
 \noun default 
 ) ppmc.<port>.stepgen.<channel-range>.setup-time 
 \family default 
@@ -4720,7 +4852,7 @@ u8
 \family typewriter 
 (
 \noun on 
-u8
+u32
 \noun default 
 ) ppmc.<port>.stepgen.<channel-range>.pulse-width 
 \family default 
@@ -4737,7 +4869,7 @@ u8
 \family typewriter 
 (
 \noun on 
-u8
+u32
 \noun default 
 ) ppmc.<port>.stepgen.<channel-range>.pulse-space-min 
 \family default 
