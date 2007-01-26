@@ -5668,6 +5668,29 @@ g76.ngc
 sim/lathe.ini
 \family default 
  configuration.
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Caption
+
+G76 canned cycle
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename g76.epsi
+	scale 200
+
+\end_inset 
+
+
+\end_inset 
+
+
 \layout Section
 
 G81
