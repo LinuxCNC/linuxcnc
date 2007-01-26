@@ -583,7 +583,7 @@ Tool
 
 (
 \noun on 
-u16
+u32
 \noun default 
 ) halui.tool.number - indicates current selected tool
 \layout Itemize
