@@ -2512,11 +2512,16 @@ int convert_threading_cycle(block_pointer block, setup_pointer settings,
     double start_y = settings->current_y;
     double start_z = settings->current_z;
 
+    int boring = 0;
+
+    if (block->i_number > 0.0)
+        boring = 1;
+
     double safe_x = start_x;
-    double full_dia_depth = block->i_number;
-    double start_depth = block->i_number + block->j_number;
-    double cut_increment = block->j_number;
-    double end_depth = block->k_number + block->i_number;
+    double full_dia_depth = fabs(block->i_number);
+    double start_depth = fabs(block->i_number) + fabs(block->j_number);
+    double cut_increment = fabs(block->j_number);
+    double end_depth = fabs(block->k_number) + fabs(block->i_number);
 
     double pitch = block->p_number;
     double compound_angle = block->q_number;
@@ -2533,18 +2538,18 @@ int convert_threading_cycle(block_pointer block, setup_pointer settings,
     double depth, zoff;
     int pass = 1;
 
-    double target_z = end_z + block->k_number * tan(compound_angle);
+    double target_z = end_z + fabs(block->k_number) * tan(compound_angle);
 
 #define AABBCC settings->AA_current, settings->BB_current, settings->CC_current
     depth = start_depth;
     zoff = (depth - full_dia_depth) * tan(compound_angle);
     STRAIGHT_TRAVERSE(safe_x, start_y, start_z - zoff, AABBCC);
     while (depth < end_depth) {
-        STRAIGHT_TRAVERSE(safe_x - depth, start_y, start_z - zoff, AABBCC); //in
+        STRAIGHT_TRAVERSE(boring? safe_x + depth: safe_x - depth, start_y, start_z - zoff, AABBCC); //in
         DISABLE_FEED_OVERRIDE();
         START_SPEED_FEED_SYNCH(pitch);
         //maybe entry STRAIGHT_FEED
-        STRAIGHT_FEED(safe_x - depth, start_y, target_z - zoff, AABBCC); //over
+        STRAIGHT_FEED(boring? safe_x + depth: safe_x - depth, start_y, target_z - zoff, AABBCC); //over
         //maybe exit STRAIGHT_FEED
         STOP_SPEED_FEED_SYNCH();
         STRAIGHT_TRAVERSE(safe_x, start_y, target_z - zoff, AABBCC); //out
@@ -2559,11 +2564,11 @@ int convert_threading_cycle(block_pointer block, setup_pointer settings,
     // cut at least once -- more if spring cuts.
     for(int i = 0; i<spring_cuts+1; i++) {
         STRAIGHT_TRAVERSE(safe_x, start_y, start_z - zoff, AABBCC); //back
-        STRAIGHT_TRAVERSE(safe_x - depth, start_y, start_z - zoff, AABBCC); //in
+        STRAIGHT_TRAVERSE(boring? safe_x + depth: safe_x - depth, start_y, start_z - zoff, AABBCC); //in
         DISABLE_FEED_OVERRIDE();
         START_SPEED_FEED_SYNCH(pitch);
         //maybe entry STRAIGHT_FEED
-        STRAIGHT_FEED(safe_x - depth, start_y, target_z - zoff, AABBCC); //over
+        STRAIGHT_FEED(boring? safe_x + depth: safe_x - depth, start_y, target_z - zoff, AABBCC); //over
         //maybe exit STRAIGHT_FEED
         STOP_SPEED_FEED_SYNCH();
         STRAIGHT_TRAVERSE(safe_x, start_y, target_z - zoff, AABBCC); //out
