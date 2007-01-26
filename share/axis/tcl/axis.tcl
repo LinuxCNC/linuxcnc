@@ -110,6 +110,13 @@ setup_menu_accel .menu.machine end [_ "Skip lines with '_/'"]
 .menu.machine add separator
 
 .menu.machine add command \
+	-accelerator [_ "Ctrl-M"] \
+	-command clear_mdi_history
+setup_menu_accel .menu.machine end [_ "Clear _MDI history"]
+
+.menu.machine add separator
+
+.menu.machine add command \
         -command {exec $env(EMC2_TCL_DIR)/bin/emccalib.tcl -- -ini $emcini &}
 setup_menu_accel .menu.machine end [_ "_Calibration"]
 
@@ -982,12 +989,21 @@ grid $_tabs_manual.spindlel \
 label $_tabs_mdi.historyl
 setup_widget_accel $_tabs_mdi.historyl [_ History:]
 
-text $_tabs_mdi.history \
-	-height 8 \
-	-takefocus 0 \
-	-width 40
-$_tabs_mdi.history insert end {}
-$_tabs_mdi.history configure -state disabled
+# MDI-history listbox
+listbox $_tabs_mdi.history \
+    -width 40 \
+    -height 8 \
+    -exportselection 0 \
+    -selectmode single \
+    -relief flat \
+    -highlightthickness 0 \
+    -takefocus 0 \
+    -yscrollcommand "$_tabs_mdi.history.sby set"
+# always have an empty element at the end
+$_tabs_mdi.history insert end ""
+
+scrollbar $_tabs_mdi.history.sby -borderwidth 0  -command "$_tabs_mdi.history yview"
+pack $_tabs_mdi.history.sby -side right -fill y
 grid rowconfigure $_tabs_mdi.history 0 -weight 1
 
 vspace $_tabs_mdi.vs1 \
@@ -999,6 +1015,12 @@ setup_widget_accel $_tabs_mdi.commandl [_ "MDI Command:"]
 entry $_tabs_mdi.command \
 	-textvariable mdi_command
 bind $_tabs_mdi.command <Key-Return> send_mdi
+bind $_tabs_mdi.command <Up> mdi_up_cmd
+bind $_tabs_mdi.command <Down> mdi_down_cmd
+# additional binding ctrl-m on the entry-widget, 
+# else clear history will not work with
+# activated MDI tab (F5)
+bind $_tabs_mdi.command <Control-m> clear_mdi_history
 
 button $_tabs_mdi.go \
 	-command send_mdi \
@@ -1500,7 +1522,7 @@ proc update_state {args} {
                 .toolbar.reload {.menu.file 1} {.menu.file 2}
 
     state  {$task_state == $STATE_ON && $interp_state == $INTERP_IDLE} \
-                {.menu.machine 21}
+                {.menu.machine 23}
 
     state  {$task_state == $STATE_ON && $interp_state == $INTERP_IDLE \
             && $taskfile != ""} \
