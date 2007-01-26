@@ -1328,9 +1328,9 @@ Owner  Type  Dir    Value      Name
 \newline 
  03    float  -W   0.00000e+00  siggen.0.offset
 \newline 
- 02    u8     -W      1  (01)   freqgen.0.dirhold
+ 02    u32    -W     000000001  freqgen.0.dirhold
 \newline 
- 02    u8     -W      1  (01)   freqgen.0.dirsetup
+ 02    u32    -W     000000001  freqgen.0.dirsetup
 \newline 
  02    float  R-   0.00000e+00  freqgen.0.frequency
 \newline 
@@ -1342,15 +1342,15 @@ Owner  Type  Dir    Value      Name
 \newline 
  02    s32    R-            0   freqgen.0.rawcounts
 \newline 
- 02    u8     -W      1  (01)   freqgen.0.steplen
+ 02    u32    -W     000000001  freqgen.0.steplen
 \newline 
- 02    u8     -W      1  (01)   freqgen.0.stepspace
+ 02    u32    -W     000000001  freqgen.0.stepspace
 \newline 
  02    float  -W   1.00000e+00  freqgen.0.velocity-scale
 \newline 
- 02    u8     -W      1  (01)   freqgen.1.dirhold
+ 02    u32    -W     000000001  freqgen.1.dirhold
 \newline 
- 02    u8     -W      1  (01)   freqgen.1.dirsetup
+ 02    u32    -W     000000001  freqgen.1.dirsetup
 \newline 
  02    float  R-   0.00000e+00  freqgen.1.frequency
 \newline 
@@ -1362,9 +1362,9 @@ Owner  Type  Dir    Value      Name
 \newline 
  02    s32    R-            0   freqgen.1.rawcounts
 \newline 
- 02    u8     -W      1  (01)   freqgen.1.steplen
+ 02    u32    -W     000000001  freqgen.1.steplen
 \newline 
- 02    u8     -W      1  (01)   freqgen.1.stepspace
+ 02    u32    -W     000000001  freqgen.1.stepspace
 \newline 
  02    float  -W   1.00000e+00  freqgen.1.velocity-scale
 \layout Subsection
