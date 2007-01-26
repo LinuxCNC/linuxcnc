@@ -13,9 +13,9 @@ $HANDSEED
   5
 FFFF
   9
-$DIMASZ
- 40
-2.5
+$DIMADEC
+ 70
+2
   9
 $GRIDUNIT
  10
@@ -23,45 +23,45 @@ $GRIDUNIT
  20
 0.0
   9
-$DIMADEC
- 70
-2
+$DIMASZ
+ 40
+2.5
   9
 $DIMGAP
  40
 0.625
   9
-$SPLINESEGS
+$LUNITS
  70
-8
+2
   9
 $AUPREC
  70
 2
   9
-$LUNITS
+$SPLINESEGS
  70
-2
-  9
-$DIMEXO
- 40
-0.625
+8
   9
 $INSUNITS
  70
 4
   9
+$DIMEXO
+ 40
+0.625
+  9
 $DIMLUNIT
  70
 2
   9
-$DIMTXT
- 40
-3.0
-  9
 $GRIDMODE
  70
 1
+  9
+$DIMTXT
+ 40
+3.0
   9
 $LUPREC
  70
@@ -71,17 +71,17 @@ $DIMSTYLE
   2
 Standard
   9
-$PLIMMAX
- 10
-210.0
- 20
-297.0
-  9
 $PLIMMIN
  10
 0.0
  20
 0.0
+  9
+$PLIMMAX
+ 10
+210.0
+ 20
+297.0
   9
 $DIMEXE
  40
@@ -1807,7 +1807,7 @@ AcDbDimension
  71
 5
  72
-0
+1
  41
 1.0
  42
@@ -1863,7 +1863,7 @@ AcDbDimension
  71
 5
  72
-1
+0
  41
 1.0
  42
@@ -1923,7 +1923,7 @@ AcDbDimension
  71
 5
  72
-0
+1
  41
 1.0
  42
@@ -1995,7 +1995,7 @@ normallatin1
  50
 0.0
  73
-0
+1
  44
 1.0
   0
@@ -2035,7 +2035,7 @@ normallatin1
  50
 0.0
  73
-0
+1
  44
 1.0
   0
@@ -2075,7 +2075,7 @@ normallatin1
  50
 0.0
  73
-0
+1
  44
 1.0
   0
@@ -2115,7 +2115,7 @@ normallatin1
  50
 0.0
  73
-0
+1
  44
 1.0
   0
@@ -2155,81 +2155,13 @@ normallatin1
  50
 0.0
  73
-0
+1
  44
 1.0
   0
-DIMENSION
-  5
-5B
-100
-AcDbEntity
-  8
-0
- 62
-256
-370
--1
-  6
-CONTINUOUS
-100
-AcDbDimension
- 10
-171.0
- 20
--26.0
- 30
-0.0
- 11
-106.0
- 21
--31.0
- 31
-0.0
- 70
-2
- 71
-5
- 72
-0
- 41
-1.0
- 42
-0.0
-  1
-\S^\~Q;
-  3
-Standard
-100
-AcDb2LineAngularDimension
- 13
-171.0
- 23
--11.0
- 33
-0.0
- 14
-165.3422722181223037
- 24
--1.0
- 34
-0.0
- 15
-171.0
- 25
--11.0
- 35
-0.0
- 16
-171.0
- 26
-14.0
- 36
-0.0
-  0
 LINE
   5
-5C
+5B
 100
 AcDbEntity
 100
@@ -2257,7 +2189,7 @@ ByLayer
   0
 LINE
   5
-5D
+5C
 100
 AcDbEntity
 100
@@ -2285,7 +2217,7 @@ ByLayer
   0
 LINE
   5
-5E
+5D
 100
 AcDbEntity
 100
@@ -2313,7 +2245,7 @@ ByLayer
   0
 LINE
   5
-5F
+5E
 100
 AcDbEntity
 100
@@ -2341,7 +2273,7 @@ ByLayer
   0
 LINE
   5
-60
+5F
 100
 AcDbEntity
 100
@@ -2369,7 +2301,7 @@ ByLayer
   0
 LINE
   5
-61
+60
 100
 AcDbEntity
 100
@@ -2397,7 +2329,7 @@ ByLayer
   0
 LINE
   5
-62
+61
 100
 AcDbEntity
 100
@@ -2425,7 +2357,7 @@ DASHEDX2
   0
 LINE
   5
-63
+62
 100
 AcDbEntity
 100
@@ -2453,7 +2385,7 @@ DASHEDX2
   0
 DIMENSION
   5
-64
+63
 100
 AcDbEntity
   8
@@ -2483,7 +2415,7 @@ AcDbDimension
  71
 5
  72
-1
+0
  41
 1.0
  42
@@ -2513,7 +2445,7 @@ AcDbRotatedDimension
   0
 DIMENSION
   5
-65
+64
 100
 AcDbEntity
   8
@@ -2543,7 +2475,7 @@ AcDbDimension
  71
 5
  72
-1
+0
  41
 1.0
  42
@@ -2573,7 +2505,7 @@ AcDbRotatedDimension
   0
 DIMENSION
   5
-66
+65
 100
 AcDbEntity
   8
@@ -2603,7 +2535,7 @@ AcDbDimension
  71
 5
  72
-1
+0
  41
 1.0
  42
@@ -2633,7 +2565,7 @@ AcDbRotatedDimension
   0
 DIMENSION
   5
-67
+66
 100
 AcDbEntity
   8
@@ -2663,7 +2595,7 @@ AcDbDimension
  71
 5
  72
-1
+0
  41
 1.0
  42
@@ -2693,67 +2625,7 @@ AcDbRotatedDimension
   0
 DIMENSION
   5
-68
-100
-AcDbEntity
-  8
-0
- 62
-256
-370
--1
-  6
-ByLayer
-100
-AcDbDimension
- 10
-150.0
- 20
-90.0
- 30
-0.0
- 11
-140.0
- 21
-92.125
- 31
-0.0
- 70
-0
- 71
-5
- 72
-1
- 41
-1.0
- 42
-0.0
-  1
-
-  3
-Standard
-100
-AcDbAlignedDimension
- 13
-130.0
- 23
-77.3205080756887639
- 33
-0.0
- 14
-150.0
- 24
-77.3205080756887639
- 34
-0.0
- 50
-0.0
-100
-AcDbRotatedDimension
-  0
-DIMENSION
-  5
-69
+67
 100
 AcDbEntity
   8
@@ -2783,7 +2655,7 @@ AcDbDimension
  71
 5
  72
-1
+0
  41
 1.0
  42
@@ -2821,47 +2693,7 @@ AcDb2LineAngularDimension
   0
 MTEXT
   5
-6A
-100
-AcDbEntity
-100
-AcDbMText
-  8
-0
- 62
-256
-370
--1
-  6
-ByLayer
- 10
-110.0
- 20
-80.0
- 30
-0.0
- 40
-5.0
- 41
-100.0
- 71
-1
- 72
-0
-  1
-Dimensions\~of\~the\~thread
-  7
-normallatin1
- 50
-0.0
- 73
-1
- 44
-1.0
-  0
-MTEXT
-  5
-6B
+68
 100
 AcDbEntity
 100
@@ -2887,7 +2719,7 @@ ByLayer
  71
 1
  72
-0
+2
   1
 Tool\~Motions
   7
@@ -2895,7 +2727,47 @@ normallatin1
  50
 0.0
  73
+0
+ 44
+1.0
+  0
+MTEXT
+  5
+69
+100
+AcDbEntity
+100
+AcDbMText
+  8
+0
+ 62
+256
+370
+-1
+  6
+ByLayer
+ 10
+110.0
+ 20
+80.0
+ 30
+0.0
+ 40
+5.0
+ 41
+100.0
+ 71
 1
+ 72
+2
+  1
+Thread\~Dimensions
+  7
+normallatin1
+ 50
+0.0
+ 73
+0
  44
 1.0
   0
@@ -2937,7 +2809,7 @@ E
   3
 AcDbVariableDictionary
 350
-6C
+6A
   0
 DICTIONARY
   5
@@ -3401,7 +3273,7 @@ Layout2
   0
 DICTIONARY
   5
-6C
+6A
 100
 AcDbDictionary
 281
@@ -3409,15 +3281,15 @@ AcDbDictionary
   3
 DIMASSOC
 350
-6E
+6C
   3
 HIDETEXT
 350
-6D
+6B
   0
 DICTIONARYVAR
   5
-6D
+6B
 100
 DictionaryVariables
 280
@@ -3427,7 +3299,7 @@ DictionaryVariables
   0
 DICTIONARYVAR
   5
-6E
+6C
 100
 DictionaryVariables
 280
