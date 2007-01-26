@@ -391,6 +391,7 @@ install-kernel-indep:
 	$(INSTALL_CONFIGS)
 	$(EXE) $(filter-out ../bin/emc_module_helper, $(filter ../bin/%,$(TARGETS))) $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/emc $(DESTDIR)$(bindir)
+	$(EXE) ../scripts/emcmkdesktop $(DESTDIR)$(bindir)
 	$(FILE) $(filter ../lib/%.a ../lib/%.so,$(TARGETS)) $(DESTDIR)$(libdir)
 	$(FILE) ../lib/python/*.py ../lib/python/*.so $(DESTDIR)$(SITEPY)
 	$(FILE) ../lib/python/rs274/*.py $(DESTDIR)$(SITEPY)/rs274

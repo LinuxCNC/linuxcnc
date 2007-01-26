@@ -2,6 +2,7 @@ etc/emc2/Makefile.modinc
 etc/init.d/realtime
 etc/emc2/rtapi.conf
 usr/bin/emc
+usr/bin/emcmkdesktop
 usr/bin/halcmd
 usr/bin/halrun
 usr/lib/libemchal.so
