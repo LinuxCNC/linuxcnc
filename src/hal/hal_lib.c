@@ -579,6 +579,11 @@ int hal_pin_new(char *name, hal_type_t type, hal_pin_dir_t dir,
 	return HAL_INVAL;
     }
     
+    if(dir != HAL_IN && dir != HAL_OUT && dir != HAL_IO) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: pin direction not one of HAL_IN, HAL_OUT, or HAL_IO\n");
+	return HAL_INVAL;
+    }
     if (hal_data->lock & HAL_LOCK_LOAD)  {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: pin_new called while HAL locked\n");
@@ -1014,6 +1019,12 @@ int hal_param_new(char *name, hal_type_t type, hal_param_dir_t dir, void *data_a
     if (hal_data == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: param_new called before init\n");
+	return HAL_INVAL;
+    }
+
+    if(dir != HAL_RO && dir != HAL_RW) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: param direction not one of HAL_RO, or HAL_RW\n");
 	return HAL_INVAL;
     }
 

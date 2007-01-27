@@ -306,7 +306,7 @@ typedef struct {
 */
 
 #define HAL_KEY   0x48414C32	/* key used to open HAL shared memory */
-#define HAL_VER   0x00000007	/* version code */
+#define HAL_VER   0x00000008	/* version code */
 #define HAL_SIZE  131000
 
 /* These pointers are set by hal_init() to point to the shmem block

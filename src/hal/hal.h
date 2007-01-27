@@ -283,8 +283,8 @@ typedef enum {
 */
 
 typedef enum {
-    HAL_RO = 16,
-    HAL_RW = 48,
+    HAL_RO = 64,
+    HAL_RW = 192,
 } hal_param_dir_t;
 
 #include <asm/types.h>
