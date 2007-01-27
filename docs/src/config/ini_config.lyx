@@ -837,7 +837,7 @@ DEFAULT_VELOCITY\SpecialChar ~
 \series default 
  The initial velocity used for axis or coordinated axis motion, in user
  units per second.
- The value shown is one inch per minute.
+ The value shown is one unit per minute.
 \layout Description
 
 
@@ -1021,57 +1021,36 @@ INPUT_SCALE
 \SpecialChar ~
 
 \series bold 
-40000
+4000
 \series default 
 \color default
- 
-\layout Description
-
-INPUT_SCALE\SpecialChar ~
-=\SpecialChar ~
-40000\SpecialChar ~
-05 This variable has slightly different meaning for stepper
- and for servo systems.
+ This variable has slightly different meaning for stepper and for servo
+ systems.
  For steppers, the only number it is the number of pulses required to move
  the axis one UNIT.
- The second number, if it is specified, is ignored.
+ 
 \newline 
 For servos
 \color black
- these two values are the scale and offset factors for the axis input from
- the raw feedback device, e.g., an incremental encoder
+ this value is the scale factors for the axis input from the raw feedback
+ device, e.g., an incremental encoder
 \begin_inset LatexCommand \index{encoder}
 
 \end_inset 
 
 .
- The second value (offset) is subtracted from raw input (e.g., encoder counts),
- and divided by the first value (scale factor), before being used as feedback.
  The units on the scale value are in raw units (e.g., counts) per user units
  (e.g., inch).
- The units on the offset value are in raw units (e.g., counts).
  
 \newline 
-Specifically, when reading inputs, the EMC first reads the raw sensor values.
- The units on these values are the sensor units, typically A/D counts, or
- encoder ticks.
- These units, and the location of their 0 value, will not in general correspond
- to the quasi-SI units used in the EMC.
- Hence a scaling is done immediately upon sampling: 
-\begin_inset Formula \[
-input=\frac{{raw-offset}}{scale}\]
-
-\end_inset 
-
- The value for scale can be obtained by doing a unit analysis, i.e., units
+The value for scale can be obtained by doing a unit analysis, i.e., units
  are
 \begin_inset Formula \[
 \frac{sensor\, units}{desired\, input\, SI\, units}\]
 
 \end_inset 
 
-.
- For example, on a 2000 counts per rev encoder
+For example, on a 2000 counts per rev encoder
 \begin_inset LatexCommand \index{encoder}
 
 \end_inset 
@@ -1085,16 +1064,11 @@ input=\frac{{raw-offset}}{scale}\]
 
 and, as a result, 
 \begin_inset Formula \[
-input[mm]=(encoder[counts]-offset[counts])/787.4\]
+input[mm]=(encoder[counts])/787.4\]
 
 \end_inset 
 
- Note that the units of the offset are in sensor units, e.g., counts, and
- they are pre-subtracted from the sensor readings.
- The value for this offset is obtained by finding the value of counts for
- which you want your user units to read 0.0.
- This is normally accomplished automatically during a homing procedure.
- 
+
 \layout Description
 
 
@@ -1184,15 +1158,8 @@ nally smaller following errors for slower speeds.
  The maximum allowable following error will always be greater than MIN_FERROR.
  This prevents small following errors for stationary axes from inadvertently
  aborting motion.
- Small following errors will always be present due to vibration, etc.
- The following polarity values determine how inputs are interpreted and
- how outputs are applied.
- They can usually be set via trial-and-error since there are only two possibilit
-ies.
- The EMCMOT utility program USRMOT can be used to set these interactively
- and verify their results so that the proper values can be put in the INI
- file with a minimum of trouble.
- 
+ Small following errors will always be present due to limited position resolutio
+n, vibration, etc.
 \layout Description
 
 UNITS
