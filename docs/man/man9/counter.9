@@ -40,6 +40,7 @@ Samples the phase-A and phase-Z inputs and updates internal counters.
 .B \fBcounter.\fIN\fB.phase-A\fR bit in
 The primary input signal.  The internal counter is incremented on each
 rising edge.
+.TP
 .B \fBcounter.\fIN\fB.phase-Z\fR bit in
 The index input signal.  When the \fBindex-enable\fR pin is TRUE and a rising
 edge on \fBphase-Z\fR is seen, \fBindex-enable\fR is set to FALSE and the
@@ -58,7 +59,8 @@ These pins function according to the canonical digital encoder interface.
 .SH PARAMETERS
 .TP
 .B \fBcounter.\fIN\fB.position-scale\fR float rw
-This parameter function according to the canonical digital encoder interface.
+This parameter functions according to the canonical digital encoder interface.
+.TP
 .B \fBcounter.\fIN\fB.rawcounts\fR signed ro
 The internal counts value, updated from \fBupdate-counters\fR and reflected
 in the output pins at the next call to \fBcapture-position\fR.

@@ -15,7 +15,7 @@ Creates filter groups each with the given number of filters (\fIsize\fR).  Each
 filter group has the same sample rate and delay.
 
 .SH DESCRIPTION
-The debounce filter works by incrementing a counter whenver the input is true,
+The debounce filter works by incrementing a counter whenever the input is true,
 and decrementing the counter when it is false.  If the counter decrements to
 zero, the output is set false and the counter ignores further decrements.  If
 the counter increments up to a threshold, the output is set true and the
