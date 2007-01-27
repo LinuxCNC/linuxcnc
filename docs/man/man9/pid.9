@@ -12,15 +12,15 @@ pid \- proportional/integral/derivative controller
 
 .SH DESCRIPTION
 \fBpid\fR is a classic Proportional/Integral/Derivative controller,
-used to control position or speed feedback loops for servomotors and
+used to control position or speed feedback loops for servo motors and
 other closed-loop applications.
 .P
 \fBpid\fR supports a maximum of sixteen controllers.  The number that
 are actually loaded is set by the \fBnum_chan\fR argument when
 the module is loaded.  If \fBnumchan\fR is not specified, the default
 value is three.  If \fBdebug\fR is set to 1 (the default is 0), some
-additional HAL parameters will be exported, which might be usefull
-for tuning but are otherwise unneccessary.
+additional HAL parameters will be exported, which might be useful
+for tuning, but are otherwise unnecessary.
 
 .SH FUNCTIONS
 .TP 
@@ -39,7 +39,7 @@ The actual (feedback) value, from some sensor such as an encoder.
 The difference between command and feedback.
 .TP
 \fBpid.\fIN\fB.output\fR float out
-The output of the PID loop, goes to some actuator such as a motor.
+The output of the PID loop, which goes to some actuator such as a motor.
 .TP
 \fBpid.\fIN\fB.enable\fR bit in
 When true, enables the PID calculations.  When false, \fBoutput\fR is zero,
@@ -74,21 +74,21 @@ even when the PID loop is disabled, it should be added with an external HAL
 sum2 block.
 .TP
 \fBpid.\fIN\fB.FF0\fR float rw
-Zero order feed-foward term.  Produces a contribution to the output that is
-\fBFF0\fR multipled by the commanded value.  For position loops, it should
+Zero order feed-forward term.  Produces a contribution to the output that is
+\fBFF0\fR multiplied by the commanded value.  For position loops, it should
 usually be left at zero.  For velocity loops, \fBFF0\fR can compensate for
 friction or motor counter-EMF and may permit better tuning if used properly.
 .TP
 \fBpid.\fIN\fB.FF1\fR float rw
-First order feed-foward term.  Produces a contribution to the output that
-\FbFF1\fR multiplied by the derivative of the commanded value.  For
+First order feed-forward term.  Produces a contribution to the output that
+\fBFF1\fR multiplied by the derivative of the commanded value.  For
 position loops, the contribution is proportional to speed, and can be used
 to compensate for friction or motor CEMF.  For velocity loops, it is
 proportional to acceleration and can compensate for inertia.  In both
 cases, it can result in better tuning if used properly.
 .TP
 \fBpid.\fIN\fB.FF2\fR float rw
-Second order feed-foward term.  Produces a contribution to the output that is
+Second order feed-forward term.  Produces a contribution to the output that is
 \fBFF2\fR multiplied by the second derivative of the commanded value.  For
 position loops, the contribution is proportional to acceleration, and can be
 used to compensate for inertia.  For velocity loops, it should usually be
@@ -127,7 +127,7 @@ needed.
 \fBpid.\fIN\fB.maxerrorI\fR float rw
 Limit on error integrator.  The error integrator used by the \fBIgain\fR
 term will be limited to this value, unless it is zero.  Can be used to prevent
-intetgrator windup and the resulting overshoot during/after sustained errors.
+integrator windup and the resulting overshoot during/after sustained errors.
 Not normally needed.
 .TP
 \fBpid.\fIN\fB.maxcmdD\fR float rw
@@ -143,7 +143,7 @@ used to prevent \fBFF2\fR from producing large output spikes if there is a
 step change on the command.  Not normally needed.
 .TP
 \fBpid.\fIN\fB.errorI\fR float ro (only if debug=1)
-Integeral of error.  This is the value that is multiplied by \fBIgain\fR to produce the Integral term of the output.
+Integral of error.  This is the value that is multiplied by \fBIgain\fR to produce the Integral term of the output.
 .TP
 \fBpid.\fIN\fB.errorD\fR float ro (only if debug=1)
 Derivative of error.  This is the value that is multiplied by \fBDgain\fR to produce the Derivative term of the output.
@@ -152,7 +152,7 @@ Derivative of error.  This is the value that is multiplied by \fBDgain\fR to pro
 Derivative of command.  This is the value that is multiplied by \fBFF1\fR to produce the first order feed-forward term of the output.
 .TP
 \fBpid.\fIN\fB.commandDD\fR float ro (only if debug=1)
-Second Derivative of command.  This is the value that is multiplied by
+Second derivative of command.  This is the value that is multiplied by
 \fBFF2\fR to produce the second order feed-forward term of the output.
 
 .SH BUGS
@@ -161,6 +161,6 @@ treated as zero if it is within the deadband, and be unmodified if it is outside
 the deadband.  This was not done because it would cause a step in the transfer
 function equal to the size of the deadband.  People who prefer that behavior are
 welcome to add a parameter that will change the behavior, or to write their own
-version of \fBpid\fR, however the default behavior should not be changed.
+version of \fBpid\fR. However, the default behavior should not be changed.
 
 

@@ -13,8 +13,8 @@ pwmgen \- software PWM/PDM generation
 .SH DESCRIPTION
 \fBpwmgen\fR is used to generate PWM (pulse width modulation) or
 PDM (pulse density modulation) signals.  The maximum PWM frequency
-and the resolution is quite limited compared to hardware based 
-approaches, but in many cases software PWM can be ver usefull.
+and the resolution is quite limited compared to hardware-based 
+approaches, but in many cases software PWM can be very useful.
 If better performance is needed, a hardware PWM generator is a
 better choice.
 .P
@@ -86,7 +86,7 @@ Range is from -1.0 to +1.0.
 .TP
 \fBpwmgen.\fIN\fB.max-dc\fR float rw
 The maximum duty cycle.  A value of 1.0 corresponds to 100%.  This can
-be usefull when using transistor drivers with bootstrapped power supplies,
+be useful when using transistor drivers with bootstrapped power supplies,
 since the supply requires some low time to recharge.
 .TP
 \fBpwmgen.\fIN\fB.min-dc\fR float rw
@@ -108,14 +108,14 @@ value of zero produces Pulse Density Modulation instead of Pulse Width
 Modulation.
 .TP
 \fBpwmgen.\fIN\fB.dither-pwm\fR bit rw
-Because software generated PWM uses a fairly slow timebase (several to many
+Because software-generated PWM uses a fairly slow timebase (several to many
 microseconds), it has limited resolution.  For example, if \fBmake-pulses\fR
 is called at a 20KHz rate, and \fBpwm-freq\fR is 2KHz, there are only 10
 possible duty cycles.  If \fBdither-pwm\fR is false, the commanded duty cycle
 will be rounded to the nearest of those values.  Assuming \fBvalue\fR remains
 constant, the same output will repeat every PWM cycle.  If \fBdither-pwm\fR is
 true, the output duty cycle will be dithered between the two closest values,
-so that the long term average is closer to the desired level.  \fBdither-pwm\fR
+so that the long-term average is closer to the desired level.  \fBdither-pwm\fR
 has no effect if \fBpwm-freq\fR is zero (PDM mode), since PDM is an inherently
 dithered process.
 
