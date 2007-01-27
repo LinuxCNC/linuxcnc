@@ -402,7 +402,7 @@ proc make_shortcut {inifile} {
 	set filename $filename0${i}.desktop
     }
     exec emcmkdesktop $inifile $name > $filename
-    tk_dialog .d [msgcat::mc "Shortcut Created"] [msgcat::mc "A shortcut to this configuration file has been created in your desktop.  You can use it to automatically launch this configuration."] info 0 [msgcat::mc "OK"]
+    tk_dialog .d [msgcat::mc "Shortcut Created"] [msgcat::mc "A shortcut to this configuration file has been created on your desktop.  You can use it to automatically launch this configuration."] info 0 [msgcat::mc "OK"]
 }
 
 set make_shortcut 0
