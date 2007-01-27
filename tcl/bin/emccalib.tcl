@@ -158,7 +158,6 @@ for {set i $startline} {$i < $endline} {incr i} {
 
 # Does a bit more than 'halcmd getp' does, since it finds a param or a pin
 proc halcmd_getp {name} {
-    puts [list halcmd -s show all $name]
     set tmpval [exec halcmd -s show all $name]
     regsub {\S*} $tmpval { } tmpval
     lindex $tmpval 3
