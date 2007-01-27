@@ -975,8 +975,8 @@ static gboolean search_for_entry(GtkWidget *widget, GdkEventKey *event, dialog_g
 
 static gboolean change_page(GtkNotebook *notebook, GtkNotebookPage *page, guint page_num, gpointer user_data) {
     scope_vert_t *vert;
+
     vert = &(ctrl_usr->vert);
-    printf("change_page: %d\n", page_num);
     if(page_num >= 0 && page_num  < 3)
 	gtk_widget_grab_focus(GTK_WIDGET(vert->lists[page_num]));
     return 0;
