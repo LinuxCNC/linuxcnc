@@ -1,28 +1,27 @@
 emc2 (1:2.1.0~alpha0) testing; urgency=low
 
   * Prepare for release
-  * AXIS debug level dialog. Users can now chose
-    verbosity directly from AXIS
+  * AXIS debug level dialog. Users can now choose verbosity directly from AXIS
   * HAL driver & sample config for the pluto FPGA board
   * AXIS home-all and pyvcp support
-  * 'unobtainable step rate' error message. when the user requests a 
-    velocity which is too high (improper config) this gets reported as 
+  * 'unobtainable step rate' error message. when the user requests a
+    velocity which is too high (improper config) this gets reported as
     a warning during startup.
   * streamer (component for data passing from realtime to userspace)
-  * removed HAL types s8, u8, s16, and u16.  HAL now uses float for 
-    analog values, bit for booleans, and s32 or u32 for integer values.  
-    The only users who will be affected are those with Universal Stepper 
+  * removed HAL types s8, u8, s16, and u16.  HAL now uses float for
+    analog values, bit for booleans, and s32 or u32 for integer values.
+    The only users who will be affected are those with Universal Stepper
     Controller cards.  See item 9 at
     http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?UpdatingConfigurationsForDevelopmentVersions
   * merged classicladder 0.7.100
-  * added a feed-hold HAL pin.  Added M codes to enable/disable feed 
+  * added a feed-hold HAL pin.  Added M codes to enable/disable feed
     override, spindle override, feed hold, and adaptive feed individually.
-    Feed override is M50, spindle override is M51, adaptive feed is M52, 
-    and feed hold is M53.  G50/51 are no longer used to enable/disable 
+    Feed override is M50, spindle override is M51, adaptive feed is M52,
+    and feed hold is M53.  G50/51 are no longer used to enable/disable
     adaptive feed, use M52 instead.
-  * added support for block delete as defined by Section 2.2.2 in the 
+  * added support for block delete as defined by Section 2.2.2 in the
     RS274NGC_3 specs.
-  * added support for optional program stop as defined by Section 2.2.3 
+  * added support for optional program stop as defined by Section 2.2.3
     in the RS274NGC_3 specs.
   * manpages have been created for most rtapi and hal calls
   * added a userspace simulator which includes rtapi threads.
@@ -30,25 +29,58 @@ emc2 (1:2.1.0~alpha0) testing; urgency=low
     be used to control real hardware
   * added support to optionally save joint positions between
     runs ([TRAJ] POSITION_FILE = position.txt)
-  * added support to specify UNITS in literal in the ini. 
+  * added support to specify UNITS in literal in the ini.
     (e.g. [TRAJ] LINEAR_UNITS = mm )
   * fixed bug #1384883, optional stop was not optional.
   * AXIS is now a part of EMC2, not a separate source download.
   * Added a spindle-speed override. This allows to override the spindle
-    speed during a program run. The MIN_SPINDLE_OVERRIDE and 
-    MAX_SPINDLE_OVERRIDE in the ini assure that speed doesn't get 
-    reduced or increased too much. Both values are in %.
+    speed during a program run. The MIN_SPINDLE_OVERRIDE and
+    MAX_SPINDLE_OVERRIDE in the ini assure that speed doesn't get
+    reduced or increased too much. 1.0 is 100%, just like feed override
   * Documentation can be built from source with the 'make docs' target
   * added realtime support for jogwheels.  Three HAL pins per axis:
     one accepts raw counts from the wheel, one sets the distance moved
     per count, and one enables that axis to move.
   * added 'adaptive feed', a HAL pin that can be used to scale the
     feedrate in real time.  Simular to feedrate override, but can
-    only vary from 0.0 to 1.0, and reacts much faster.  Intended 
-    for use with EDM and other applications that require closed 
+    only vary from 0.0 to 1.0, and reacts much faster.  Intended
+    for use with EDM and other applications that require closed
     loop control of feedrate.
+  * contouring performance is improved when using tolerance mode (G64 Pxxx)
+  * G76 multipass threading cycle for lathes
+  * lathe tool shape compensation and offsets
+  * AXIS gui draws the lathe tool shape as described in the tool table
+  * index pulse support for the PPMC family (for homing and spindle sensing)
+  * "extra DAC" support for some PPMC cards
+  * added FF2 (acceleration feedforward) to PID
+  * new sample configs including a torch height controller and lathes
+  * regression test infrastructure
+  * emcrsh, a telnet based user interface
+  * xemc and keystick user interfaces for low-powered computers
+  * kinematics are loaded as modules, eliminating the need for recompiling
+  * support for safe homing when several home switches to the same input pin
+  * a "home all" message that homes the axes together or in a particular order
+  * axis_manualtoolchange, which prompts the user to change the tool when
+    the standard M6 is encountered in the program
+  * AXIS configurable filtering, where an input file can be run through a
+    filter to create gcode automatically
+  * some example AXIS input filters for images and python code, and example
+    inputs
+  * readline support in halcmd
+  * "net" HAL command which can simplify HAL files by replacing a "newsig"
+    and several "link" commands with one command
+  * "pwmgen" HAL component to make PWM generation simpler
+  * leadscrew compensation
+  * improved backlash compensation
+  * many new inputs and outputs in halui
+  * parallel port "X mode" (control port as inputs) which works on some
+    hardware.  this gives a nice combination of 8 outputs and 9 inputs.
+  * many improvements in presentation and usability in halscope
+  * the configuration picker allows you to automatically copy a sample
+    configuration to your home directory and/or create a launching icon
+    on the desktop
 
- -- Alex Joni <alex_joni@users.sourceforge.net>  Sat, 27 Jan 2007 22:49:19 +0200
+ -- Chris Radek <chris@timeguy.com>  Sat, 27 Jan 2007 15:38:21 -0600
 
 emc2 (1:2.0.5) unstable; urgency=low
 
