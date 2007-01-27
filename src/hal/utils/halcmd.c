@@ -1575,6 +1575,7 @@ static int do_getp_cmd(char *name)
     if (param) {
         /* found it */
         type = param->type;
+        d_ptr = SHMPTR(param->data_ptr);
         rtapi_print("%s\n", data_value2((int) type, d_ptr));
         rtapi_mutex_give(&(hal_data->mutex));
         return HAL_SUCCESS;
