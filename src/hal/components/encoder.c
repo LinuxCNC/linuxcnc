@@ -79,29 +79,48 @@ RTAPI_MP_INT(num_chan, "number of channels");
 *                STRUCTURES AND GLOBAL VARIABLES                       *
 ************************************************************************/
 
-/* this structure contains the runtime data for a single counter */
+/* data that is atomically passed from fast function to slow one */
 
 typedef struct {
-    unsigned char state;	/* quad decode state machine state */
-    unsigned char oldZ;		/* previous value of phase Z */
-    unsigned char Zmask;	/* mask for oldZ, based on index_ena */
-    unsigned char pad;		/* padding for alignment */
-    hal_s32_t raw_count;	/* parameter: raw binary count value */
-    hal_bit_t *phaseA;		/* quadrature input */
-    hal_bit_t *phaseB;		/* quadrature input */
-    hal_bit_t *phaseZ;		/* index pulse input */
-    hal_bit_t *index_ena;	/* index enable input */
-    hal_bit_t *reset;		/* counter reset input */
-    hal_s32_t *count;		/* captured binary count value */
-    hal_float_t *pos;		/* scaled position (floating point) */
-    hal_float_t *vel;		/* scaled velocity (floating point) */
-    hal_float_t pos_scale;	/* parameter: scaling factor for pos */
-    float old_scale;		/* stored scale value */
-    double scale;		/* reciprocal value used for scaling */
-    hal_bit_t x4_mode;		/* enables x4 counting (default) */
-    hal_s32_t last_count;
-    hal_s32_t last_index_count;
+    char count_detected;
+    __s32 raw_count;
+    __u32 timestamp;
+    char index_detected;
+    __s32 index_count;
+} atomic;
+
+/* this structure contains the runtime data for a single counter
+   u:rw means update() reads and writes the
+   c:w  means capture() writes the field
+   c:s u:rc means capture() sets (to 1), update() reads and clears
+*/
+
+typedef struct {
+    unsigned char state;	/* u:rw quad decode state machine state */
+    unsigned char oldZ;		/* u:rw previous value of phase Z */
+    unsigned char Zmask;	/* u:rc c:s mask for oldZ, from index-ena */
+    hal_bit_t x4_mode;		/* u:r enables x4 counting (default) */
+    atomic buf[2];		/* u:w c:r double buffer for atomic data */
+    volatile atomic *bp;	/* u:r c:w ptr to in-use buffer */
+    hal_s32_t raw_counts;	/* u:rw raw count value, in update() only */
+    hal_bit_t *phaseA;		/* u:r quadrature input */
+    hal_bit_t *phaseB;		/* u:r quadrature input */
+    hal_bit_t *phaseZ;		/* u:r index pulse input */
+    hal_bit_t *index_ena;	/* c:rw index enable input */
+    hal_bit_t *reset;		/* c:r counter reset input */
+    __s32 raw_count;		/* c:rw captured raw_count */
+    __u32 timestamp;		/* c:rw captured timestamp */
+    __s32 index_count;		/* c:rw captured index count */
+    hal_s32_t *count;		/* c:w captured binary count value */
+    hal_float_t *pos;		/* c:w scaled position (floating point) */
+    hal_float_t *vel;		/* c:w scaled velocity (floating point) */
+    hal_float_t pos_scale;	/* c:r parameter: scaling factor for pos */
+    float old_scale;		/* c:rw stored scale value */
+    double scale;		/* c:rw reciprocal value used for scaling */
+    int counts_since_timeout;	/* c:rw used for velocity calcs */
 } counter_t;
+
+static __u32 timebase;		/* master timestamp for all counters */
 
 /* pointer to array of counter_t structs in shmem, 1 per counter */
 static counter_t *counter_array;
@@ -153,6 +172,7 @@ static void capture(void *arg, long period);
 int rtapi_app_main(void)
 {
     int n, retval;
+    counter_t *cntr;
 
     /* test for number of channels */
     if ((num_chan <= 0) || (num_chan > MAX_CHAN)) {
@@ -174,10 +194,14 @@ int rtapi_app_main(void)
 	hal_exit(comp_id);
 	return -1;
     }
+    /* init master timestamp counter */
+    timebase = 0;
     /* export all the variables for each counter */
     for (n = 0; n < num_chan; n++) {
+	/* point to struct */
+	cntr = &(counter_array[n]);
 	/* export all vars */
-	retval = export_counter(n, &(counter_array[n]));
+	retval = export_counter(n, cntr);
 	if (retval != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"ENCODER: ERROR: counter %d var export failed\n", n);
@@ -185,16 +209,26 @@ int rtapi_app_main(void)
 	    return -1;
 	}
 	/* init counter */
-	counter_array[n].state = 0;
-	counter_array[n].oldZ = 0;
-	counter_array[n].Zmask = 0;
-	counter_array[n].raw_count = 0;
-	*(counter_array[n].count) = 0;
-	*(counter_array[n].pos) = 0.0;
-	counter_array[n].pos_scale = 1.0;
-	counter_array[n].old_scale = 1.0;
-	counter_array[n].scale = 1.0;
-	counter_array[n].x4_mode = 1;
+	cntr->state = 0;
+	cntr->oldZ = 0;
+	cntr->Zmask = 0;
+	cntr->x4_mode = 1;
+	cntr->buf[0].count_detected = 0;
+	cntr->buf[1].count_detected = 0;
+	cntr->buf[0].index_detected = 0;
+	cntr->buf[1].index_detected = 0;
+	cntr->bp = &(cntr->buf[0]);
+	cntr->raw_counts = 0;
+	cntr->raw_count = 0;
+	cntr->timestamp = 0;
+	cntr->index_count = 0;
+	*(cntr->count) = 0;
+	*(cntr->pos) = 0.0;
+	*(cntr->vel) = 0.0;
+	cntr->pos_scale = 1.0;
+	cntr->old_scale = 1.0;
+	cntr->scale = 1.0;
+	cntr->counts_since_timeout = 0;
     }
     /* export functions */
     retval = hal_export_funct("encoder.update-counters", update,
@@ -231,11 +265,13 @@ void rtapi_app_exit(void)
 static void update(void *arg, long period)
 {
     counter_t *cntr;
+    atomic *buf;
     int n;
     unsigned char state;
 
     cntr = arg;
     for (n = 0; n < num_chan; n++) {
+	buf = (atomic *) cntr->bp;
 	/* get state machine current state */
 	state = cntr->state;
 	/* add input bits to state code */
@@ -253,9 +289,15 @@ static void update(void *arg, long period)
 	}
 	/* should we count? */
 	if (state & SM_CNT_UP_MASK) {
-	    cntr->raw_count++;
+	    cntr->raw_counts++;
+	    buf->raw_count = cntr->raw_counts;
+	    buf->timestamp = timebase;
+	    buf->count_detected = 1;
 	} else if (state & SM_CNT_DN_MASK) {
-	    cntr->raw_count--;
+	    cntr->raw_counts--;
+	    buf->raw_count = cntr->raw_counts;
+	    buf->timestamp = timebase;
+	    buf->count_detected = 1;
 	}
 	/* save state machine state */
 	cntr->state = state;
@@ -268,39 +310,55 @@ static void update(void *arg, long period)
 	cntr->oldZ = state & 3;
 	/* test for index enabled and rising edge on phase Z */
 	if ((state & cntr->Zmask) == 1) {
-	    /* reset counter, Zmask, and index enable */
-	    cntr->last_index_count = cntr->raw_count;
+	    /* capture counts, reset Zmask */
+	    buf->index_count = cntr->raw_counts;
+	    buf->index_detected = 1;
 	    cntr->Zmask = 0;
-	    *(cntr->index_ena) = 0;
 	}
 	/* move on to next channel */
 	cntr++;
     }
+    /* increment main timestamp counter */
+    timebase += period;
     /* done */
 }
+
+
+/* if no edges in 100mS time, force vel to zero */
+#define TIMEOUT 100000000
 
 static void capture(void *arg, long period)
 {
     counter_t *cntr;
+    atomic *buf;
     int n;
+    __s32 delta_counts;
+    __u32 delta_time;
+    double vel;
 
     cntr = arg;
     for (n = 0; n < num_chan; n++) {
-        int raw_count;
-        int counts;
-    	/* check reset input */
-	if (*(cntr->reset)) {
-	    /* reset is active, reset the counter */
-	    cntr->raw_count = 0;
-            cntr->last_index_count = 0;
-            cntr->last_count = 0;
+	/* point to active buffer */
+	buf = (atomic *) cntr->bp;
+	/* tell update() to use the other buffer */
+	if ( buf == &(cntr->buf[0]) ) {
+	    cntr->bp = &(cntr->buf[1]);
+	} else {
+	    cntr->bp = &(cntr->buf[0]);
 	}
-	/* capture raw counts to latches */
-        raw_count = cntr->raw_count;
-	*(cntr->count) = raw_count - cntr->last_index_count;
-        counts = (raw_count - cntr->last_count);
-        cntr->last_count = raw_count;
-
+	/* handle index */
+	if ( buf->index_detected ) {
+	    buf->index_detected = 0;
+	    cntr->index_count = buf->index_count;
+	    *(cntr->index_ena) = 0;
+	}
+	/* update Zmask based on index_ena */
+	if (*(cntr->index_ena)) {
+	    cntr->Zmask = 3;
+	} else {
+	    cntr->Zmask = 0;
+	}
+	/* done interacting with update() */
 	/* check for change in scale value */
 	if ( cntr->pos_scale != cntr->old_scale ) {
 	    /* save new scale to detect future changes */
@@ -313,17 +371,55 @@ static void capture(void *arg, long period)
 	    /* we actually want the reciprocal */
 	    cntr->scale = 1.0 / cntr->pos_scale;
 	}
+	/* check reset input */
+	if (*(cntr->reset)) {
+	    /* reset is active, reset the counter */
+	    /* note: we NEVER reset raw_counts, that is always a
+		running count of edges seen since startup.  The
+		public "count" is the difference between raw_count
+		and index_count, so it will become zero. */
+	    cntr->raw_count = cntr->raw_counts;
+	    cntr->index_count = cntr->raw_count;
+	}
+	/* process data from update() */
+	if ( buf->count_detected ) {
+	    buf->count_detected = 0;
+	    delta_counts = buf->raw_count - cntr->raw_count;
+	    delta_time = buf->timestamp - cntr->timestamp;
+	    cntr->raw_count = buf->raw_count;
+	    cntr->timestamp = buf->timestamp;
+	    if ( cntr->counts_since_timeout < 2 ) {
+		cntr->counts_since_timeout++;
+	    } else {
+		vel = (delta_counts * cntr->scale ) / (delta_time * 1e-9);
+		*(cntr->vel) = vel;
+	    }
+	} else {
+	    /* no count */
+	    if ( cntr->counts_since_timeout ) {
+		/* calc time since last count */
+		delta_time = timebase - cntr->timestamp;
+		if ( delta_time < TIMEOUT ) {
+		    /* not to long, estimate vel if a count arrived now */
+		    vel = ( cntr->scale ) / (delta_time * 1e-9);
+		    /* use lesser of estimate and previous value */
+		    if ( vel < *(cntr->vel) ) {
+			*(cntr->vel) = vel;
+		    }
+		} else {
+		    /* its been a long time, stop estimating */
+		    cntr->counts_since_timeout = 0;
+		    *(cntr->vel) = 0;
+		}
+	    } else {
+		/* we already stopped estimating */
+		*(cntr->vel) = 0;
+	    }
+	}
+	/* compute net counts */
+	*(cntr->count) = cntr->raw_count - cntr->index_count;
 	/* scale count to make floating point position */
 	*(cntr->pos) = *(cntr->count) * cntr->scale;
-	/* scale counts to make floating point velocity */
-        *(cntr->vel) = counts * cntr->scale * 1e9 / period;
-
-	/* update Zmask based on index_ena */
-	if (*(cntr->index_ena)) {
-	    cntr->Zmask = 3;
-	} else {
-	    cntr->Zmask = 0;
-	}
 	/* move on to next channel */
 	cntr++;
     }
@@ -377,7 +473,7 @@ static int export_counter(int num, counter_t * addr)
     }
     /* export parameter for raw counts */
     rtapi_snprintf(buf, HAL_NAME_LEN, "encoder.%d.rawcounts", num);
-    retval = hal_param_s32_new(buf, HAL_RO, &(addr->raw_count), comp_id);
+    retval = hal_param_s32_new(buf, HAL_RO, &(addr->raw_counts), comp_id);
     if (retval != 0) {
 	return retval;
     }

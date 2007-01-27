@@ -64,7 +64,9 @@ Position in encoder counts.
 Position in scaled units (see \fBposition-scale\fR)
 .TP
 \fBencoder.\fIN\fB.velocity\fR float out
-Velocity in scaled units per second.
+Velocity in scaled units per second.  \fBencoder\fR uses an algorithm that
+greatly reduces quantization noise as compared to simply differentiating
+the \fBposition\fR output.
 
 .SH PARAMETERS
 .TP
@@ -80,7 +82,8 @@ counts once per full cycle.
 .TP
 \fBencoder.\fIN\fB.rawcounts\fR s32 ro
 The raw count, as determined by \fBupdate-counters\fR.  This value is updated
-more frequently than \fBcounts\fR and \fBposition\fR.
+more frequently than \fBcounts\fR and \fBposition\fR.  It is also unaffected
+by \fBreset\fR or the index pulse.
 
 .SH
 SEE ALSO
