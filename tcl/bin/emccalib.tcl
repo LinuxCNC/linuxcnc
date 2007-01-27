@@ -156,6 +156,14 @@ for {set i $startline} {$i < $endline} {incr i} {
     }
 }
 
+# Does a bit more than 'halcmd getp' does, since it finds a param or a pin
+proc halcmd_getp {name} {
+    puts [list halcmd -s show all $name]
+    set tmpval [exec halcmd -s show all $name]
+    regsub {\S*} $tmpval { } tmpval
+    lindex $tmpval 3
+}
+
 proc makeIniTune {} {
     global axisentry top initext sectionarray thisconfigdir haltext
     global numaxes ininamearray commandarray thisinifile halfilelist
@@ -201,8 +209,7 @@ proc makeIniTune {} {
                         set thisininame [string trimright [lindex [split $tmpstring "\]" ] end ]]
                         set lowername "[string tolower $thisininame]"
                         set thishalcommand [lindex $tmpstring 1]
-                        set tmpval [expr [lindex [split \
-                            [exec halcmd -s show param $thishalcommand] " "] 3]]
+			set tmpval [halcmd_getp $thishalcommand]
                         global axis$j-$lowername axis$j-$lowername-next
                         set axis$j-$lowername $tmpval
                         set axis$j-$lowername-next $tmpval
