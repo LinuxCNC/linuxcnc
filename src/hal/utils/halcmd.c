@@ -1562,26 +1562,45 @@ static int do_setp_cmd(char *name, char *value)
 static int do_getp_cmd(char *name)
 {
     hal_param_t *param;
+    hal_pin_t *pin;
+    hal_sig_t *sig;
     hal_type_t type;
     void *d_ptr;
-
+    
     rtapi_print_msg(RTAPI_MSG_DBG, "HAL: getting parameter '%s'\n", name);
     /* get mutex before accessing shared data */
     rtapi_mutex_get(&(hal_data->mutex));
     /* search param list for name */
     param = halpr_find_param_by_name(name);
-    if (param == 0) {
-	rtapi_mutex_give(&(hal_data->mutex));
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL:%d: ERROR: parameter '%s' not found\n", linenumber, name);
-	return HAL_INVAL;
+    if (param) {
+        /* found it */
+        type = param->type;
+        rtapi_print("%s\n", data_value2((int) type, d_ptr));
+        rtapi_mutex_give(&(hal_data->mutex));
+        return HAL_SUCCESS;
     }
-    /* found it */
-    type = param->type;
-    d_ptr = SHMPTR(param->data_ptr);
-    rtapi_print("%s\n", data_value2((int) type, d_ptr));
+        
+    /* not found, search pin list for name */
+    pin = halpr_find_pin_by_name(name);
+    if(pin) {
+        /* found it */
+        type = pin->type;
+        if (pin->signal != 0) {
+            sig = SHMPTR(pin->signal);
+            d_ptr = SHMPTR(sig->data_ptr);
+        } else {
+            sig = 0;
+            d_ptr = &(pin->dummysig);
+        }
+        rtapi_print("%s\n", data_value2((int) type, d_ptr));
+        rtapi_mutex_give(&(hal_data->mutex));
+        return HAL_SUCCESS;
+    }   
+    
     rtapi_mutex_give(&(hal_data->mutex));
-    return HAL_SUCCESS;
+    rtapi_print_msg(RTAPI_MSG_ERR,
+        "HAL:%d: ERROR: parameter '%s' not found\n", linenumber, name);
+    return HAL_INVAL;
 }
 
 static int do_sets_cmd(char *name, char *value)
