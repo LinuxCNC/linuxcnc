@@ -1,4 +1,4 @@
-component hypot "Three-input hypotenuse (euclidean distance) calculator";
+component hypot "Three-input hypotenuse (Euclidean distance) calculator";
 pin in float in0;
 pin in float in1;
 pin in float in2;
