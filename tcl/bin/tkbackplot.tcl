@@ -206,6 +206,8 @@ scrollbar $screen.xyplot.vscroll -orient vertical -command "$screen.xyplot.canv 
 grid $screen.xyplot.canv -row 0 -column 0 -sticky nsew
 grid $screen.xyplot.vscroll -row 0 -column 1 -sticky ns
 grid $screen.xyplot.hscroll -row 1 -column 0 -sticky ew
+grid rowconfigure $screen.xyplot 0 -weight 1
+grid columnconfigure $screen.xyplot 0 -weight 1
 
 frame $screen.xzplot
 canvas $screen.xzplot.canv -borderwidth 0 -scrollregion "$xztopx $xztopz $xzbotx $xzbotz" \
@@ -217,6 +219,8 @@ scrollbar $screen.xzplot.vscroll -orient vertical -command "$screen.xzplot.canv 
 grid $screen.xzplot.canv -row 0 -column 0 -sticky nsew
 grid $screen.xzplot.vscroll -row 0 -column 1 -sticky ns
 grid $screen.xzplot.hscroll -row 1 -column 0 -sticky ew
+grid rowconfigure $screen.xzplot 0 -weight 1
+grid columnconfigure $screen.xzplot 0 -weight 1
 
 frame $screen.yzplot
 canvas $screen.yzplot.canv -borderwidth 0 -scrollregion "$yztopy $yztopz $yzboty $yzbotz" \
@@ -228,6 +232,8 @@ scrollbar $screen.yzplot.vscroll -orient vertical -command "$screen.yzplot.canv 
 grid $screen.yzplot.canv -row 0 -column 0 -sticky nsew
 grid $screen.yzplot.vscroll -row 0 -column 1 -sticky ns
 grid $screen.yzplot.hscroll -row 1 -column 0 -sticky ew
+grid rowconfigure $screen.yzplot 0 -weight 1
+grid columnconfigure $screen.yzplot 0 -weight 1
 
 frame $screen.3dplot
 canvas $screen.3dplot.canv -borderwidth 0 -scrollregion "$yztopy $yztopz $yzboty $yzbotz" \
@@ -239,6 +245,8 @@ scrollbar $screen.3dplot.vscroll -orient vertical -command "$screen.3dplot.canv 
 grid $screen.3dplot.canv -row 0 -column 0 -sticky nsew
 grid $screen.3dplot.vscroll -row 0 -column 1 -sticky ns
 grid $screen.3dplot.hscroll -row 1 -column 0 -sticky ew
+grid rowconfigure $screen.3dplot 0 -weight 1
+grid columnconfigure $screen.3dplot 0 -weight 1
 
 set cft [frame $screen.config ]
 
