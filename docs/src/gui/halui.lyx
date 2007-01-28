@@ -546,44 +546,12 @@ bit
 ) halui.spindle-override.decrease - pin for decreasing the SO (-=scale)
 \layout Subsection
 
-Jog-wheel
-\layout Itemize
-
-(
-\noun on 
-s32
-\noun default 
-) halui.jog-wheel.counts - jog-wheel encoder count input
-\layout Itemize
-
-(
-\noun on 
-float
-\noun default 
-) halui.jog-wheel.scale - sets the jogwheel scale in user units/count (usually
- mm/count or inch/coun)
-\layout Itemize
-
-(
-\noun on 
-float
-\noun default 
-) halui.jog-wheel.speed - sets the jogging speed
-\layout Itemize
-
-(
-\noun on 
-u32
-\noun default 
-) halui.jog-wheel.axis - sets the axis to be jogged
-\layout Subsection
-
 Tool
 \layout Itemize
 
 (
 \noun on 
-u16
+u32
 \noun default 
 ) halui.tool.number - indicates current selected tool
 \layout Itemize
