@@ -307,18 +307,50 @@ BIT Should be attached to the index-enable pin of the
 
 axis.N.jog-counts\SpecialChar ~
 IN\SpecialChar ~
-s32
+s32 Connect to the 
+\begin_inset Quotes eld
+\end_inset 
+
+counts
+\begin_inset Quotes erd
+\end_inset 
+
+ pin of an external encoder to use a physical jog wheel.
 \layout Description
 
 axis.N.jog-enable\SpecialChar ~
 IN\SpecialChar ~
-bit
+bit When TRUE (and in manual mode), any change in 
+\begin_inset Quotes eld
+\end_inset 
+
+jog-counts
+\begin_inset Quotes erd
+\end_inset 
+
+ will result in motion.
+ When false, 
+\begin_inset Quotes eld
+\end_inset 
+
+jog-counts
+\begin_inset Quotes erd
+\end_inset 
+
+ is ignored.
 \layout Description
 
 axis.N.jog-scale\SpecialChar ~
 IN\SpecialChar ~
-float These pins can be used to jog the joint, for instance
- using a physical jog wheel
+float Sets the distance moved for each count on 
+\begin_inset Quotes eld
+\end_inset 
+
+jog-counts
+\begin_inset Quotes erd
+\end_inset 
+
+, in machine units.
 \layout Description
 
 axis.N.motor-pos-cmd\SpecialChar ~
