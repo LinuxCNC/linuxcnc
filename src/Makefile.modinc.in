@@ -44,10 +44,12 @@ RUN_IN_PLACE=@RUN_IN_PLACE@
 ifeq ($(RUN_IN_PLACE),yes)
 EXTRA_CFLAGS := $(RTFLAGS) -D__MODULE__ -I$(EMC2_HOME)/include
 RTLIBDIR := @EMC2_HOME@/rtlib
+LIBDIR := @EMC2_HOME@/lib
 else
 prefix := @prefix@
 EXTRA_CFLAGS := $(RTFLAGS) -D__MODULE__ -I@includedir@/emc2
 RTLIBDIR := @EMC2_RTLIB_DIR@
+LIBDIR := @libdir@
 endif
 
 ifeq ($(BUILDSYS),kbuild)
@@ -62,7 +64,7 @@ install:
 endif
 
 ifeq ($(BUILDSYS),sim)
-EXTRA_CFLAGS += -DSIM
+EXTRA_CFLAGS += -DSIM -fPIC
 allmodules = $(patsubst %.o,%.so,$(obj-m))
 modules: $(allmodules)
 
