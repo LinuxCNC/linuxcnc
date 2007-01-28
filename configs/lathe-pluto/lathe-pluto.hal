@@ -3,14 +3,12 @@ loadrt trivkins
 loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD traj_period_nsec=[EMCMOT]TRAJ_PERIOD key=[EMCMOT]SHMEM_KEY
 loadrt pid num_chan=2
 loadrt ddt count=4 
-loadrt not count=1
 loadrt pluto_servo
 
 # define the order of execution for RT code
 addf pluto-servo.read servo-thread
 addf pluto-servo.write servo-thread
 
-addf not.0                     servo-thread
 addf motion-command-handler    servo-thread
 addf motion-controller         servo-thread
 addf pid.0.do-pid-calcs        servo-thread
@@ -24,15 +22,11 @@ addf ddt.3                     servo-thread
 newsig Xpos-fb float
 newsig Zpos-fb float
 
-newsig spindle-sync bit
-newsig spindle-index-en bit
+newsig spindle-index-enable bit
+linkps motion.spindle-index-enable <=> spindle-index-enable
+linksp spindle-index-enable <=> pluto-servo.encoder-2-index-enable
+
 newsig spindle-pos float
-
-linkps motion.spindle-sync => spindle-sync
-linksp spindle-sync => not.0.in
-linkps not.0.out => spindle-index-en
-
-linksp spindle-index-en => pluto-servo.encoder-2-index-enable
 linkps pluto-servo.encoder-0-position => spindle-pos
 linksp spindle-pos => motion.spindle-revs
 

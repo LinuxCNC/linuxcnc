@@ -16,7 +16,6 @@ loadrt encoder num_chan=1
 loadrt sim_encoder num_chan=1
 # misc blocks needed to do fun things
 loadrt ddt count=8
-loadrt not count=1
 # gotta see whats happening
 loadrt scope_rt
 
@@ -54,8 +53,6 @@ addf ddt.4			servo-thread
 addf ddt.5			servo-thread
 addf ddt.6			servo-thread
 addf ddt.7			servo-thread
-# other misc blocks
-addf not.0			servo-thread
 # update output info, axis and spindle
 addf stepgen.update-freq	servo-thread
 addf sim-encoder.update-speed   servo-thread
@@ -213,18 +210,10 @@ setp sim-encoder.0.scale 60
 setp encoder.0.position-scale 480
 
 # encoder reset control
-# this signal will eventually be driven by the motion
-# controller, TRUE for synced motion, FALSE the rest of
-# the time.
-newsig spindle-sync bit
-# needs inverted to connect to index enable
-newsig spindle-index-en bit
-linksp spindle-sync	=> not.0.in
-linkps not.0.out	=> spindle-index-en
-linksp spindle-index-en	=> encoder.0.index-enable
+newsig spindle-index-enable bit
+linkps motion.spindle-index-enable <=> spindle-index-enable
+linksp spindle-index-enable <=> encoder.0.index-enable
 
-# hook up motion controller's sync output
-linkps motion.spindle-sync => spindle-sync
 
 # report our revolution count to the motion controller
 newsig spindle-pos float
