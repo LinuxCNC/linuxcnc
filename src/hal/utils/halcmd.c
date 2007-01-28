@@ -1264,7 +1264,7 @@ static int do_net_cmd(char *signal, char *pins[]) {
 	    pins[d++] = pins[s++];
 	}
     }
-    pins[d][0] = '\0';
+    pins[d] = NULL;
 
     rtapi_mutex_get(&(hal_data->mutex));
     /* see if signal already exists */
