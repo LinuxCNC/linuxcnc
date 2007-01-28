@@ -1,8 +1,9 @@
 #!/bin/sh
 [ -x /etc/init.d/udev ] && /etc/init.d/udev restart
 
+if [ -z "$HOME" -o "$HOME" = "/root" ]; then HOME=$(eval echo ~$USERNAME); fi
 unud=/var/lib/update-notifier/user.d
-if test -d ~/emc2/configs && test -d $unud; then
+if test -d $HOME/emc2/configs && test -d $unud; then
 case $2 in 
 1:2.0.*)
     cat <<END >$unud/emc2-configs-changed
