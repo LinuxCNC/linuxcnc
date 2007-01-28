@@ -62,7 +62,7 @@ install:
 endif
 
 ifeq ($(BUILDSYS),sim)
-EXTRA_CFLAGS += -DSIM
+EXTRA_CFLAGS += -DSIM -fPIC
 allmodules = $(patsubst %.o,%.so,$(obj-m))
 modules: $(allmodules)
 
