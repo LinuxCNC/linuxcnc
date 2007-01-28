@@ -135,4 +135,3 @@ setp stepgen.3.maxaccel [AXIS_3]STEPGEN_MAXACCEL
 
 # load realtime portion of scope, just to have it handy
 loadrt scope_rt
-loadusr halscope
