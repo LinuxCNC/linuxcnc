@@ -105,8 +105,3 @@ newsig bflt bit
 linksp bflt axis.4.amp-fault-in
 newsig cflt bit
 linksp cflt axis.5.amp-fault-in
-
-# load realtime portion of scope
-loadrt scope_rt
-# start up scope user interface
-# loadusr halscope

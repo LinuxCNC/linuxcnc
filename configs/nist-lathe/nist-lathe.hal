@@ -21,9 +21,6 @@ loadrt lowpass count=1
 loadrt mult2 count=1
 loadrt scale count=1
 
-# gotta see whats happening
-loadrt scope_rt
-
 #######################################################
 # add realtime functions to the threads
 # first the high speed thread

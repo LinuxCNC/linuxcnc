@@ -41,9 +41,6 @@ sets I0 0
 sets I1 0
 sets I2 0
 
-# load realtime portion of scope, just to have it handy
-loadrt scope_rt
-
 # start realtime execution
 #start
 

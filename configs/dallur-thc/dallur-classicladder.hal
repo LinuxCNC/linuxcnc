@@ -80,9 +80,6 @@ sets I2 0
 # set the intra_communication signals
 sets A0 0
 
-# load realtime portion of scope, just to have it handy
-loadrt scope_rt
-
 # start realtime execution
 #start
 

@@ -105,9 +105,6 @@ loadrt classicladder_rt numRungs=50 numBits=50 numWords=8 numTimers=20 numMonost
 # invoke the user part of CL to silently load the program
 loadusr -w classicladder --nogui demo_mazak.clp
 
-# load the realtime part of halscope
-loadrt scope_rt
-
 # load debounce to handle the pushbuttons on the operator panels
 loadrt debounce cfg="8"
 setp debounce.0.delay 3
