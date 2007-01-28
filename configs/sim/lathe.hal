@@ -47,8 +47,8 @@ setp encoder.0.position-scale 480
 # encoder reset control
 # hook up motion controller's sync output
 newsig spindle-index-enable bit
-linkps motion.spindle-index-enable => spindle-index-enable
-linksp spindle-index-enable => encoder.0.index-enable
+linkps motion.spindle-index-enable <=> spindle-index-enable
+linksp spindle-index-enable <=> encoder.0.index-enable
 
 # report our revolution count to the motion controller
 newsig spindle-pos float
