@@ -1,4 +1,4 @@
-emc2 (1:2.1.0~alpha0) testing; urgency=low
+emc2 (1:2.1.0) testing; urgency=low
 
   * Prepare for release
   * AXIS debug level dialog. Users can now choose verbosity directly from AXIS
@@ -80,7 +80,7 @@ emc2 (1:2.1.0~alpha0) testing; urgency=low
     configuration to your home directory and/or create a launching icon
     on the desktop
 
- -- Chris Radek <chris@timeguy.com>  Sat, 27 Jan 2007 15:38:21 -0600
+ -- Chris Radek <chris@timeguy.com>  Sun, 28 Jan 2007 16:11:12 -0600
 
 emc2 (1:2.0.5) unstable; urgency=low
 
