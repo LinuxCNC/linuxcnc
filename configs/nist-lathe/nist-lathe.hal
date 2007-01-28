@@ -247,11 +247,6 @@ linkps parport.0.pin-13-in => spindle-phase-Z
 #  by 1/20, etc)
 setp counter.0.position-scale 1024
 
-# counter reset control
-# this signal is driven by the motion
-# controller, TRUE for synced motion, FALSE the rest of
-# the time.
-#
 # hook up motion controller's spindle indexing pin
 newsig spindle-index-enable bit
 linkps motion.spindle-index-enable <=> spindle-index-enable
