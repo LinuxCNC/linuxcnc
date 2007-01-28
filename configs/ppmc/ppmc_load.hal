@@ -13,9 +13,6 @@ loadrt pid num_chan=4
 # install Universal PWM Controller driver
 loadrt hal_ppmc
 
-# load realtime portion of scope, just to have it handy
-loadrt scope_rt
-
 # make some signals for the scope for tuning.
 loadrt ddt count=4
 loadrt estop_latch count=1

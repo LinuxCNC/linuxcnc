@@ -16,8 +16,6 @@ loadrt encoder num_chan=1
 loadrt sim_encoder num_chan=1
 # misc blocks needed to do fun things
 loadrt ddt count=8
-# gotta see whats happening
-loadrt scope_rt
 
 #######################################################
 # add realtime functions to the threads
@@ -266,8 +264,4 @@ linksp spindle-rpm-raw lowpass.0.in
 linksp spindle-rpm-filtered lowpass.0.out
 setp lowpass.0.gain .03
 addf lowpass.0 servo-thread
-
-#######################################################
-# want a scope to observe things
-loadusr halscope
 

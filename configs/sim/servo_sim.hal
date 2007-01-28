@@ -395,8 +395,3 @@ setp wcomp.7.max [AXIS_2]MAX_HARD_LIMIT_RELEASE
 # home switch
 setp wcomp.8.min [AXIS_2]HOME_SW_MIN
 setp wcomp.8.max [AXIS_2]HOME_SW_MAX
-
-# load realtime portion of scope
-loadrt scope_rt
-# start up scope user interface
-# loadusr halscope

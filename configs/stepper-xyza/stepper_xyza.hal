@@ -132,6 +132,3 @@ setp stepgen.0.maxaccel [AXIS_0]STEPGEN_MAXACCEL
 setp stepgen.1.maxaccel [AXIS_1]STEPGEN_MAXACCEL
 setp stepgen.2.maxaccel [AXIS_2]STEPGEN_MAXACCEL
 setp stepgen.3.maxaccel [AXIS_3]STEPGEN_MAXACCEL
-
-# load realtime portion of scope, just to have it handy
-loadrt scope_rt

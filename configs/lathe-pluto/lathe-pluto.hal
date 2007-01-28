@@ -113,5 +113,3 @@ newsig Xhome bit
 linkps pluto-servo.din-00-not => Xhome
 linkps axis.0.home-sw-in <= Xhome
 linkps axis.0.pos-lim-sw-in <= Xhome
-
-loadrt scope_rt
