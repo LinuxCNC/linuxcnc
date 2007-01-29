@@ -27,6 +27,8 @@ Usage:
 EOF
 }
 
+cd "${0%/*}"
+
 if [ $# -ne 1 -o "$1" == "-h" -o "$1" == "-help" -o "$1" == "--help" ]; then
     usage
     if [ $# -ne 1 ]; then
@@ -38,6 +40,8 @@ fi
 if [ $1 = "-r" ]; then
     set -- `uname -r`
 fi
+
+TARGET=$1
 
 MODULE_PATH=usr/realtime-$1/modules/emc2
 MODULE_EXT=.ko
@@ -54,7 +58,7 @@ if [ -f /etc/lsb-release ]; then
     DISTRIB_NAME=$DISTRIB_ID-$DISTRIB_RELEASE
 fi
 
-case $1 in
+case $TARGET in
     sim)
         MODULE_PATH=usr/lib/emc2/modules
 	MODULE_EXT=.so
@@ -63,13 +67,18 @@ case $1 in
 	DRIVERS=
         EXTRA_FILES="usr/bin/rtapi_app"
 	DISTRIB_NAME=sim-$DISTRIB_NAME
+	EMC2_PACKAGE_NAME=emc2-sim
     ;;
     2.6.12-magma)
+	EMC2_PACKAGE_NAME=emc2
         KERNEL_HEADERS="$KERNEL_HEADERS,gcc-3.4"
     ;;
     2.6.15-magma)
+	EMC2_PACKAGE_NAME=emc2
         KERNEL_HEADERS="$KERNEL_HEADERS,gcc-4.0"
     ;;
+    *)
+	echo "your kernel '$TARGET' is not known. There might be needed dependencies which won't get set automatically."
 esac
 
 subst () {
@@ -78,15 +87,20 @@ sed -e "s|@MODULE_PATH@|$MODULE_PATH|g" \
     -e "s|@KERNEL_VERSION@|$KERNEL_VERSION|g" \
     -e "s|@KERNEL_DEPENDS@|$KERNEL_DEPENDS|g" \
     -e "s|@KERNEL_HEADERS@|$KERNEL_HEADERS|g" \
+    -e "s|@EMC2_PACKAGE_NAME@|$EMC2_PACKAGE_NAME|g" \
     -e "s|@EXTRA_FILES@|$EXTRA_FILES|g" \
     -e "s|@DISTRIB_NAME@|$DISTRIB_NAME|g" \
+    -e "s|@TARGET@|$TARGET|g" \
     $*
 }
 
 subst control.in > control
 subst rules.in > rules; chmod +x rules
 if [ -f extras-$DISTRIB_NAME/emc2.files ]; then
-    subst emc2.files.in $DRIVERS extras-$DISTRIB_NAME/emc2.files > emc2-$1.files
+    subst emc2.files.in $DRIVERS extras-$DISTRIB_NAME/emc2.files > $EMC2_PACKAGE_NAME.files
 else
-    subst emc2.files.in $DRIVERS > emc2-$1.files
+    subst emc2.files.in $DRIVERS > emc2-$TARGET.files
 fi
+
+rm -f ../build-stamp
+echo "successfully configured for '$DISTRIB_NAME'-'$TARGET'.."

@@ -1,0 +1,19 @@
+#!/bin/sh
+[ -x /etc/init.d/udev ] && /etc/init.d/udev restart
+
+if [ -z "$HOME" -o "$HOME" = "/root" ]; then HOME=$(eval echo ~$USERNAME); fi
+unud=/var/lib/update-notifier/user.d
+if test -d $HOME/emc2/configs && test -d $unud; then
+case $2 in 
+1:2.0.*)
+    cat <<END >$unud/emc2-configs-changed
+Name: EMC2 Configuration changes
+Priority: High
+Terminal: False
+DontShowAfterReboot: True
+Description: Your custom EMC2 configurations (available in ~/emc2/configs) need adjustments in order to work with the newest release.
+ The changes are described in the file /usr/share/doc/emc2/UPDATING or online at http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?UPDATING
+END
+;;
+esac
+fi

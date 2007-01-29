@@ -65,6 +65,9 @@ install: build
 	find debian/tmp/usr/lib/python2.4 -name \*.py -exec rm {} \;
 	mkdir -p debian/tmp/usr/lib debian/tmp/usr/include/emc2
 	cp lib/*.a debian/tmp/usr/lib
+	mkdir -p debian/tmp/usr/share/doc/emc2-dev
+	mv debian/tmp/usr/share/doc/emc2/EMC2_Developer_Manual.pdf \
+		debian/tmp/usr/share/doc/emc2-dev/
 	cp docs/html/hal/pluto_servo.html debian/tmp/usr/share/doc/emc2/
 	cp docs/html/gcode.html debian/tmp/usr/share/doc/emc2/
 	dh_movefiles
@@ -96,3 +99,6 @@ endif
 
 binary: binary-indep binary-arch
 .PHONY: build clean binary-indep binary-arch binary install
+
+debian/rules: debian/configure debian/*.in
+	debian/configure @TARGET@
