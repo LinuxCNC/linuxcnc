@@ -5365,6 +5365,344 @@ Axis words are programmed when G80 is active, unless a modal group 0 G code
  is programmed which uses axis words.
 \layout Section
 
+G76
+\begin_inset LatexCommand \index{G76}
+
+\end_inset 
+
+: Threading Canned Cycle
+\begin_inset LatexCommand \label{sec:G76:-Threading-Canned}
+
+\end_inset 
+
+
+\layout Standard
+
+Program 
+\family typewriter 
+G76 P- Z- I- J- R- K- Q- H- 
+\family default 
+to perform a threading canned cycle.
+ It is an error if:
+\layout Itemize
+
+The active plane is not the ZX plane
+\layout Itemize
+
+Other axis words, such as X- or Y-, are specified
+\layout Itemize
+
+The 
+\family typewriter 
+R-
+\family default 
+ degression value is less than 1.0.
+\layout Itemize
+
+All the required words are not specified
+\layout Itemize
+
+
+\family typewriter 
+J-
+\family default 
+, 
+\family typewriter 
+K-
+\family default 
+ or 
+\family typewriter 
+H-
+\family default 
+ is negative
+\layout Standard
+
+The 
+\begin_inset Quotes eld
+\end_inset 
+
+drive line
+\begin_inset Quotes erd
+\end_inset 
+
+ is a safe line outside the thread material.
+ The 
+\begin_inset Quotes eld
+\end_inset 
+
+drive line
+\begin_inset Quotes erd
+\end_inset 
+
+ goes from the initial location to the 
+\family typewriter 
+Z-
+\family default 
+ value specified with 
+\family typewriter 
+G76
+\family default 
+.
+ The Z extent of the thread is the same as the drive line.
+\layout Standard
+
+The 
+\begin_inset Quotes eld
+\end_inset 
+
+thread pitch
+\begin_inset Quotes erd
+\end_inset 
+
+, or distance per revolution, is given by the 
+\family typewriter 
+P-
+\family default 
+ value.
+\layout Standard
+
+The 
+\begin_inset Quotes eld
+\end_inset 
+
+thread peak
+\begin_inset Quotes erd
+\end_inset 
+
+ is given by the 
+\family typewriter 
+I-
+\family default 
+ value, which is an offset from the drive line.
+ Negative 
+\family typewriter 
+I
+\family default 
+ values indicate external threads, and positive 
+\family typewriter 
+I
+\family default 
+ values indicate internal threads.
+ Generally the material has been turned to this size before the canned cycle.
+\layout Standard
+
+The 
+\begin_inset Quotes eld
+\end_inset 
+
+initial cut depth
+\begin_inset Quotes erd
+\end_inset 
+
+ is given by the 
+\family typewriter 
+J-
+\family default 
+ value.
+ The first threading cut will be 
+\family typewriter 
+J
+\family default 
+ beyond the 
+\begin_inset Quotes eld
+\end_inset 
+
+thread peak
+\begin_inset Quotes erd
+\end_inset 
+
+ position.
+ 
+\family typewriter 
+J-
+\family default 
+ is positive, even when 
+\family typewriter 
+I-
+\family default 
+ is negative.
+\layout Standard
+
+The 
+\begin_inset Quotes eld
+\end_inset 
+
+full thread depth
+\begin_inset Quotes erd
+\end_inset 
+
+ is given by the 
+\family typewriter 
+K-
+\family default 
+ value.
+ The final threading cut will be 
+\family typewriter 
+K
+\family default 
+ beyond the 
+\begin_inset Quotes eld
+\end_inset 
+
+thread peak
+\begin_inset Quotes erd
+\end_inset 
+
+ position.
+ 
+\family typewriter 
+K-
+\family default 
+ is positive, even when 
+\family typewriter 
+I-
+\family default 
+ is negative.
+\layout Standard
+
+The 
+\begin_inset Quotes eld
+\end_inset 
+
+depth degression
+\begin_inset Quotes erd
+\end_inset 
+
+ is given by the 
+\family typewriter 
+R-
+\family default 
+ value.
+ 
+\family typewriter 
+R1.0
+\family default 
+ selects constant depth on successive threading passes.
+ 
+\family typewriter 
+R2.0
+\family default 
+ selects constant area.
+ Values between 1.0 and 2.0 select decreasing depth and increasing area.
+ Values above 2.0 select decreasing area.
+\layout Standard
+
+The 
+\begin_inset Quotes eld
+\end_inset 
+
+compound slide angle
+\begin_inset Quotes erd
+\end_inset 
+
+ 
+\family typewriter 
+Q-
+\family default 
+ is the angle (in degrees) describing to what extent successive passes should
+ be offset along the drive line.
+ This is used to cause one side of the tool to remove more material than
+ the other.
+ A positive 
+\family typewriter 
+Q
+\family default 
+ value causes the leading edge of the tool to cut more heavily.
+ Typical values are 29, 29.5 or 30.
+\layout Standard
+
+The number of 
+\begin_inset Quotes eld
+\end_inset 
+
+spring passes
+\begin_inset Quotes erd
+\end_inset 
+
+ is given by the 
+\family typewriter 
+H-
+\family default 
+ value.
+ Spring passes are additional passes at full thread depth.
+ If no additional passes are desired, program 
+\family typewriter 
+H0
+\family default 
+.
+\layout Standard
+
+Each pass begins at a position on the drive line.
+ It consists of
+\layout Enumerate
+
+An X traverse to the depth for this pass
+\layout Enumerate
+
+A pause for the spindle to reach index position
+\layout Enumerate
+
+A spindle-synchronized Z feed along the thread
+\layout Enumerate
+
+A traverse to the original X
+\layout Enumerate
+
+On all passes but the last, a traverse Z move to the beginning point for
+ the next pass
+\layout Standard
+
+The tool will pause briefly before each threading pass, so a relief groove
+ will be required at the entry unless the beginning of the thread is past
+ the end of the material.
+\layout Standard
+
+The exit move (traverse to original X) is not synchronized to the spindle
+ speed.
+ With a slow spindle, the exit move might take only a small fraction of
+ a revolution.
+ If the spindle speed is increased after several passes are complete, subsequent
+ exit moves will require a larger portion of a revolution, resulting in
+ a very heavy cut during the exit move.
+ This can be avoided by providing a relief groove at the exit, or by not
+ changing the spindle speed while threading.
+\layout Standard
+
+The sample program 
+\family typewriter 
+g76.ngc
+\family default 
+ shows the use of the G76 canned cycle, and can be previewed and executed
+ on any machine using the 
+\family typewriter 
+sim/lathe.ini
+\family default 
+ configuration.
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Caption
+
+G76 canned cycle
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename g76.epsi
+	scale 75
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Section
+
 G81
 \begin_inset LatexCommand \index{G81}
 
