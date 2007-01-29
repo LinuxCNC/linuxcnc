@@ -160,7 +160,7 @@ Home
 \begin_inset Quotes erd
 \end_inset 
 
- each axis.
+ all axes.
 \layout Enumerate
 
 Load the file to be milled.
@@ -477,6 +477,13 @@ In the upper-left corner of the program display is the coordinate display.
 \end_inset 
 
 ) is shown if the axis has been properly homed.
+ To the right of the axis name, a limit symbol (
+\begin_inset Graphics
+	filename axis-limit.png
+
+\end_inset 
+
+) is shown if the axis is on one of its limit switches.
 \layout Standard
 
 To properly interpret these numbers, refer to the 
@@ -898,8 +905,16 @@ For a machine configured as imperial (inches), a good setting might be
 INCREMENTS = 1/8 .1 1/16 1/32 .01 0.001 0.0001
 \layout Standard
 
-By pressing the Ctrl-HOME key combination, the homing sequence is performed.
- By pressing 
+If your machine has a homing sequence defined, the 
+\begin_inset Quotes eld
+\end_inset 
+
+Home All
+\begin_inset Quotes erd
+\end_inset 
+
+ button or the Ctrl-HOME key will send all axes home.
+ Otherwise, the button will read 
 \begin_inset Quotes eld
 \end_inset 
 
@@ -907,9 +922,11 @@ Home
 \begin_inset Quotes erd
 \end_inset 
 
- or the HOME key, the selected axis will be homed.
- Depending on your configuration, this may just set the axis value to be
- the absolute position 0.0, or it may make the machine move to a specific
+, and will send the current axis home.
+ Pressing the HOME key sends the current axis home, even if a homing sequence
+ is defined.
+ Depending on your configuration, homing may just set the axis value to
+ be the absolute position 0.0, or it may make the machine move to a specific
  home location through use of 
 \begin_inset Quotes eld
 \end_inset 
@@ -918,12 +935,13 @@ home switches
 \begin_inset Quotes erd
 \end_inset 
 
- (see section 
+.
+ See section 
 \begin_inset LatexCommand \ref{sec:Homing}
 
 \end_inset 
 
- for more information on homing)
+ for more information on homing.
 \layout Standard
 
 By pressing 
