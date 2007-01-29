@@ -4976,4 +4976,1181 @@ ppmc.<port>.read
 ppmc.<port>.write 
 \family default 
 -- Writes all outputs (digital outputs, stepgens, PWMs) on one port.
+\layout Section
+
+
+\begin_inset LatexCommand \label{sec:pluto-servo}
+
+\end_inset 
+
+pluto-servo
+\begin_inset LatexCommand \index{Pluto-servo}
+
+\end_inset 
+
+
+\layout Standard
+
+The Pluto
+\begin_inset LatexCommand \index{Pluto}
+
+\end_inset 
+
+-P is an inexpensive ($60) FPGA board featuring the ACEX1K
+\begin_inset LatexCommand \index{ACEX1K}
+
+\end_inset 
+
+ chip from Altera.
+ Pluto_servo is released under the terms of the GNU General Public License
+ version 2.
+ The pluto_servo system is suitable for control of a 4-axis CNC mill with
+ servo motors, a 3-axis mill with PWM spindle control, a lathe with spindle
+ encoder, etc.
+ The large number of inputs allows a full set of limit switches.
+\layout Standard
+
+The board features:
+\layout Itemize
+
+4 quadrature channels with 40MHz sample rate.
+ The counters operate in "4x" mode.
+ The maximum useful quadrature rate is 8191 counts per emc2 servo cycle,
+ or about 8MHz for EMC2's default 1ms servo rate.
+ An axis with index pulse must have fewer than 8192 counts per revolution.
+\layout Itemize
+
+4 PWM channels, "up/down" or "pwm+dir" style.
+ 4095 duty cycles from -100% to +100%, including 0%.
+ The PWM period is approximately 19.5kHz (40MHz / 2047).
+ A PDM-like mode is also available.
+ 
+\layout Itemize
+
+18 digital outputs: 10 dedicated, 8 shared with PWM functions.
+ (Example: A lathe with unidirectional PWM spindle control may use 13 total
+ digital outputs) 
+\layout Itemize
+
+20 digital inputs: 8 dedicated, 12 shared with Quadrature functions.
+ (Example: A lathe with index pulse only on the spindle may use 13 total
+ digital inputs) 
+\layout Itemize
+
+EPP communication with the PC.
+ The EPP communication typically takes around 100uS on machines tested so
+ far, enabling servo rates above 1kHz.
+ 
+\layout Subsection
+
+Requirements
+\layout Enumerate
+
+A Pluto-P board
+\layout Enumerate
+
+An EPP-compatible parallel port, configured for EPP mode in the system BIOS
+\layout Subsection
+
+Pinout
+\layout Description
+
+UPx The "up" (up/down mode) or 
+\begin_inset Quotes eld
+\end_inset 
+
+pwm
+\begin_inset Quotes erd
+\end_inset 
+
+ (pwm+direction mode) signal from PWM generator X.
+ May be used as a digital output if the corresponding PWM channel is unused,
+ or the output on the channel is always negative.
+ The corresponding digital output invert may be set to TRUE to make UPx
+ active low rather than active high.
+\layout Description
+
+DNx The "down" (up/down mode) or 
+\begin_inset Quotes eld
+\end_inset 
+
+direction
+\begin_inset Quotes erd
+\end_inset 
+
+ (pwm+direction mode) signal from PWM generator X.
+ May be used as a digital output if the corresponding PWM channel is unused,
+ or the output on the channel is never negative.
+ The corresponding digital ouput invert may be set to TRUE to make DNx active
+ low rather than active high.
+ 
+\layout Description
+
+QAx,\SpecialChar ~
+QBx The A and B signals for Quadrature counter X.
+ May be used as a digital input if the corresponding quadrature channel
+ is unused.
+\layout Description
+
+QZx The Z (index) signal for quadrature counter X.
+ May be used as a digital input if the index feature of the corresponding
+ quadrature channel is unused.
+ 
+\layout Description
+
+INx Dedicated digital input #x 
+\layout Description
+
+OUTx Dedicated digital output #x 
+\layout Description
+
+GND Ground 
+\layout Description
+
+VCC +3.3V regulated DC
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Caption
+
+Pluto-P Pinout
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename pluto-pinout.eps
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset Float table
+wide false
+collapsed false
+
+\layout Caption
+
+Pluto-P Pin Alternate Functions
+\layout Standard
+
+
+\begin_inset  Tabular
+<lyxtabular version="3" rows="29" columns="3">
+<features>
+<column alignment="center" valignment="top" leftline="true" width="0">
+<column alignment="left" valignment="top" leftline="true" width="0">
+<column alignment="left" valignment="top" leftline="true" rightline="true" width="0">
+<row topline="true" bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Primary function
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Alternate Function
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Behavior if both functions used
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\series bold 
+UP0
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+PWM0
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+When pwm-0-pwmdir is TRUE, this pin is the PWM output
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+OUT10
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+XOR'd with UP0 or PWM0
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\series bold 
+UP1
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+PWM1
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+When pwm-1-pwmdir is TRUE, this pin is the PWM output
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+OUT12
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+XOR'd with UP1 or PWM1
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\series bold 
+UP2
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+PWM2
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+When pwm-2-pwmdir is TRUE, this pin is the PWM output
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+OUT14
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+XOR'd with UP2 or PWM2
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\series bold 
+UP3
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+PWM3
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+When pwm-3-pwmdir is TRUE, this pin is the PWM output
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+OUT16
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+XOR'd with UP3 or PWM3
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\series bold 
+DN0
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+DIR0
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+When pwm-0-pwmdir is TRUE, this pin is the DIR output
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+OUT11
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+XOR'd with DN0 or DIR0
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\series bold 
+DN1
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+DIR1
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+When pwm-1-pwmdir is TRUE, this pin is the DIR output
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+OUT13
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+XOR'd with DN1 or DIR1
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\series bold 
+DN2
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+DIR2
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+When pwm-2-pwmdir is TRUE, this pin is the DIR output
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+OUT15
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+XOR'd with DN2 or DIR2
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\series bold 
+DN3
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+DIR3
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+When pwm-3-pwmdir is TRUE, this pin is the DIR output
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+OUT17
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+XOR'd with DN3 or DIR3
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\series bold 
+QZ0
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+IN8
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Read same value
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\series bold 
+QZ1
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+IN9
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Read same value
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\series bold 
+QZ2
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+IN10
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Read same value
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\series bold 
+QZ3
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+IN11
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Read same value
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\series bold 
+QA0
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+IN12
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Read same value
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\series bold 
+QA1
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+IN13
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Read same value
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\series bold 
+QA2
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+IN14
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Read same value
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\series bold 
+QA3
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+IN15
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Read same value
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\series bold 
+QB0
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+IN16
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Read same value
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\series bold 
+QB1
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+IN17
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Read same value
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\series bold 
+QB2
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+IN18
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Read same value
+\end_inset 
+</cell>
+</row>
+<row topline="true" bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\series bold 
+QB3
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+IN19
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Read same value
+\end_inset 
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Subsection
+
+Connectors
+\layout Itemize
+
+The Pluto-P board is shipped with the left connector presoldered, with the
+ key in the indicated position.
+ The other connectors are unpopulated.
+ There does not seem to be a standard 12-pin IDC connector, but some of
+ the pins of a 16P connector can hang off the board next to QA3/QZ3.
+\layout Itemize
+
+The bottom and right connectors are on the same .1" grid, but the left connector
+ is not.
+ If OUT2\SpecialChar \ldots{}
+OUT9 are not required, a single IDC connector can span the bottom
+ connector and the bottom two rows of the right connector.
+ 
+\layout Subsection
+
+Physical Pins
+\layout Itemize
+
+Read the ACEX1K datasheet for information about input and output voltage
+ thresholds.
+ The pins are all configured in "LVTTL/LVCMOS" mode and are generally compatible
+ with 5V TTL logic.
+\layout Itemize
+
+Before configuration and after properly exiting emc2, all Pluto-P pins are
+ tristated with weak pull-ups (20k
+\begin_inset Formula $\Omega$
+\end_inset 
+
+ min, 50k
+\begin_inset Formula $\Omega$
+\end_inset 
+
+ max).
+ However, software bugs in the pluto_servo firmware or emc2, or a crash
+ of the computer where emc2 is running, can leave the Pluto-P pins in an
+ undefined state.
+\layout Itemize
+
+In pwm+dir mode, by default dir is HIGH for negative values and LOW for
+ positive values.
+ To select HIGH for positive values and LOW for negative values, set the
+ corresponding dout-NN-invert parameter TRUE to invert the signal.
+\layout Itemize
+
+The index input is triggered on the rising edge.
+ Initial testing has shown that the QZx inputs are particularly noise sensitive,
+ due to being polled every 25ns.
+ Digital filtering has been added to filter pulses shorter than 150ns (six
+ polling times).
+ Additional external filtering, such as a Schmitt buffer or inverter, RC
+ filter, or differential receiver (if applicable) is recommended.
+\layout Itemize
+
+The IN1\SpecialChar \ldots{}
+IN7 pins have 22-ohm series resistors to their associated FPGA pins.
+ No other pins have any sort of protection for out-of-spec voltages or currents.
+ It is up to the integrator to add appropriate isolation and protection.
+ Traditional parallel port optoisolator boards do not work with pluto_servo
+ due to the bidirectional nature of the EPP protocol.
+ 
+\layout Subsection
+
+LED
+\layout Itemize
+
+When the device is unprogrammed, the LED glows faintly.
+ When the device is programmed, the LED glows according to the duty cycle
+ of PWM0 (
+\series bold 
+LED
+\series default 
+ = 
+\series bold 
+UP0
+\series default 
+ 
+\emph on 
+xor
+\emph default 
+ 
+\series bold 
+DOWN0
+\series default 
+).
+\layout Subsection
+
+Power
+\layout Itemize
+
+A small amount of current may be drawn from VCC.
+ The available current depends on the unregulated DC input to the board.
+ Alternately, regulated +3.3VDC may be supplied to the FPGA through these
+ VCC pins.
+ The required current is not yet known, but is probably around 50mA plus
+ I/O current.
+\layout Itemize
+
+The regulator on the Pluto-P board is a low-dropout type.
+ Supplying 5V at the power jack will allow the regulator to work properly.
+\layout Subsection
+
+PC interface
+\layout Itemize
+
+At present, only a single pluto_servo board is supported.
+ At present there is no provision for multiple boards on one parallel port
+ (because all boards reside at the same EPP address) but supporting one
+ board per parallel port should be possible.
+\layout Subsection
+
+Input latching and output updating
+\layout Itemize
+
+PWM duty cycles for each channel are updated at different times.
+\layout Itemize
+
+Digital outputs OUT0 through OUT9 are all updated at the same time.
+ Digital outputs OUT10 through OUT17 are updated at the same time as the
+ pwm function they are shared with.
+\layout Itemize
+
+Digital inputs IN0 through IN19 are all latched at the same time.
+\layout Itemize
+
+Quadrature positions for each channel are latched at different times.
+ 
+\layout Subsection
+
+Rebuilding the FPGA firmware
+\layout Standard
+
+The src/hal/drivers/pluto_servo_firmware/ subdirectory contains the Verilog
+ source code plus additional files used by Quartus for the FPGA firmware.
+ Altera's Quartus II software is required to rebuild the FPGA firmware.
+ To rebuild the firmware from the .hdl and other source files, open pluto_servo.qp
+f and press CTRL-L.
+ Then, recompile emc2.
+\layout Standard
+
+Like the HAL hardware driver, the FPGA firmware is licensed under the terms
+ of the GNU General Public License.
+\layout Standard
+
+The gratis version of Quartus II runs only on Microsoft Windows, although
+ there is apparently a paid version that runs on Linux.
+ 
+\layout Subsection
+
+HAL Functions, Pins and Parameters
+\layout Standard
+
+A list of all HAL function names, pin names and parameter names is in the
+ manual page, 
+\emph on 
+pluto_servo.9
+\emph default 
+.
+\layout Subsection
+
+For more information
+\layout Standard
+
+The Pluto-P board may be ordered from 
+\begin_inset LatexCommand \htmlurl{http://www.knjn.com/ShopBoards_Parallel.html}
+
+\end_inset 
+
+ (US based, international shipping is available).
+ Some additional information about it is available from 
+\begin_inset LatexCommand \htmlurl{http://www.fpga4fun.com/board_pluto-P.html}
+
+\end_inset 
+
+ and from 
+\begin_inset LatexCommand \htmlurl[the developer's blog]{http://emergent.unpy.net/01165081407}
+
+\end_inset 
+
+.
+\layout Standard
+
+A schematic for a 2A, 2-axis PWM servo amplifier board is available (
+\begin_inset LatexCommand \htmlurl{http://emergent.unpy.net/projects/01148303608}
+
+\end_inset 
+
+).
+ The L298 H-Bridge (
+\begin_inset LatexCommand \htmlurl[L298 H-bridge]{http://www.st.com/stonline/books/pdf/docs/1773.pdf}
+
+\end_inset 
+
+) is inexpensive and can easily be used for motors up to 4A (one motor per
+ L298) or up to 2A (two motors per L298) with the supply voltage up to 46V.
+ However, the L298 does not have built-in current limiting, a problem for
+ motors with high stall currents.
+ For higher currents and voltages, some users have reported success with
+ International Rectifier's integrated high-side/low-side drivers.
+ (
+\begin_inset LatexCommand \url{http://www.cnczone.com/forums/showthread.php?t=25929}
+
+\end_inset 
+
+)
 \the_end
