@@ -7,6 +7,6 @@ Icon=gnome-help
 X-GNOME-DocPath=
 Terminal=false
 Name=EMC2 User Manual
-Comment=The Enhanced Machine Controller
+Comment=The EMC2 User Manual. All you need to know to get started.
 StartupNotify=false
 Categories=X-CNC;

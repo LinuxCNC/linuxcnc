@@ -1,8 +1,9 @@
 usr/share/applications/emc2.desktop
-usr/share/applications/emc2-doc.desktop
+usr/share/applications/emc2-usermanual.desktop
+usr/share/applications/emc2-integratormanual.desktop
+usr/share/applications/emc2-gcoderef.desktop
 usr/share/pixmaps/emc2icon.png
 etc/udev/rules.d/emc2.rules
-etc/udev/scripts/rtai_fifos.sh
 etc/modprobe.d/emc2
 etc/xdg/menus/applications-merged/cnc.menu
 usr/share/desktop-directories/cnc.directory
