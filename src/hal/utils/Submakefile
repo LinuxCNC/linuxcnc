@@ -1,5 +1,17 @@
-HALCMDSRCS := hal/utils/halcmd.c
-USERSRCS += $(HALCMDSRCS)
+HALCMDSRCS := hal/utils/halcmd.c hal/utils/halcmd_commands.c hal/utils/halcmd_main.c
+HALSHSRCS := hal/utils/halcmd.c hal/utils/halcmd_commands.c hal/utils/halsh.c
+
+ifneq ($(READLINE_LIBS),)
+HALCMDSRCS += hal/utils/halcmd_completion.c
+endif
+USERSRCS += $(sort $(HALCMDSRCS) $(HALSHSRCS))
+
+$(call TOOBJSDEPS, $(HALSHSRCS)) : EXTRAFLAGS = -fPIC
+$(call TOOBJSDEPS, hal/utils/halsh.c) : EXTRAFLAGS += $(TCL_CFLAGS)
+../tcl/hal.so: $(call TOOBJS, $(HALSHSRCS)) ../lib/libemc.a ../lib/libnml.so ../lib/libemchal.so
+	$(ECHO) Linking $(notdir $@)
+	$(CXX) $(LDFLAGS) -shared -o $@ $^
+TARGETS += ../tcl/hal.so
 
 ../bin/halcmd: $(call TOOBJS, $(HALCMDSRCS)) ../lib/libemc.a ../lib/libnml.so ../lib/libemchal.so 
 	$(ECHO) Linking $(notdir $@)
