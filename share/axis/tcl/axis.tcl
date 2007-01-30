@@ -112,7 +112,15 @@ setup_menu_accel .menu.machine end [_ "Skip lines with '_/'"]
 .menu.machine add command \
 	-accelerator [_ "Ctrl-M"] \
 	-command clear_mdi_history
-setup_menu_accel .menu.machine end [_ "Clear _MDI history"]
+setup_menu_accel .menu.machine end [_ "Clear MDI h_istory"]
+.menu.machine add command \
+	-accelerator [_ "Ctrl-H"] \
+	-command mdi_history_hist2clip
+setup_menu_accel .menu.machine end [_ "Copy from MDI hist_ory"]
+.menu.machine add command \
+	-accelerator [_ "Ctrl-Shift-H"] \
+	-command mdi_history_clip2hist
+setup_menu_accel .menu.machine end [_ "Paste to MDI histor_y"]
 
 .menu.machine add separator
 
@@ -994,7 +1002,7 @@ listbox $_tabs_mdi.history \
     -width 40 \
     -height 8 \
     -exportselection 0 \
-    -selectmode single \
+    -selectmode extended \
     -relief flat \
     -highlightthickness 0 \
     -takefocus 0 \
@@ -1014,13 +1022,6 @@ setup_widget_accel $_tabs_mdi.commandl [_ "MDI Command:"]
 
 entry $_tabs_mdi.command \
 	-textvariable mdi_command
-bind $_tabs_mdi.command <Key-Return> send_mdi
-bind $_tabs_mdi.command <Up> mdi_up_cmd
-bind $_tabs_mdi.command <Down> mdi_down_cmd
-# additional binding ctrl-m on the entry-widget, 
-# else clear history will not work with
-# activated MDI tab (F5)
-bind $_tabs_mdi.command <Control-m> clear_mdi_history
 
 button $_tabs_mdi.go \
 	-command send_mdi \
@@ -1522,7 +1523,7 @@ proc update_state {args} {
                 .toolbar.reload {.menu.file 1} {.menu.file 2}
 
     state  {$task_state == $STATE_ON && $interp_state == $INTERP_IDLE} \
-                {.menu.machine 23}
+                {.menu.machine 25}
 
     state  {$task_state == $STATE_ON && $interp_state == $INTERP_IDLE \
             && $taskfile != ""} \
