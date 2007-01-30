@@ -18,6 +18,8 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 
+# import pdb
+
 import sys, os
 BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
 sys.path.insert(0, os.path.join(BASE, "lib", "python"))
@@ -68,7 +70,7 @@ program_start_line = 0
 program_start_line_last = -1
 
 lathe = 0
-mdi_history_max_entries = 16
+mdi_history_max_entries = 1000
 mdi_history_save_filename= "~/.axis_mdi_history"
 
 
@@ -137,6 +139,9 @@ help2 = [
     ("F3", _("Manual control")),
     ("F5", _("Code entry (MDI)")),
     ("Control-M", _("Clear MDI history")),
+    ("Control-H", _("Copy selected MDI history elements")),
+    ("",          _("to clipboard")),
+    ("Control-Shift-H", _("Paste clipboard to MDI history")),
     ("L", _("Override Limits")),
     ("", ""),
     ("O", _("Open program")),
@@ -2332,20 +2337,25 @@ class TclCommands(nf.TclCommands):
             vars.mdi_command.set("")
             ensure_mode(emc.MODE_MDI)
             widgets.mdi_history.selection_clear(0, "end")
-            # check if input is already in list. If so, then delete old element
-            idx = 0
-            for ele in widgets.mdi_history.get(0, "end"):
-                if ele == command:
-                    widgets.mdi_history.delete(idx)
-                    break
-                idx += 1
+            ## check if input is already in list. If so, then delete old element
+            #idx = 0
+            #for ele in widgets.mdi_history.get(0, "end"):
+            #    if ele == command:
+            #        widgets.mdi_history.delete(idx)
+            #        break
+            #    idx += 1
             history_size = widgets.mdi_history.size()
-            widgets.mdi_history.insert(history_size - 1, "%s" % command)
+            new_entry = 1
+            if history_size > 1 and widgets.mdi_history.get(history_size - 2) == command:
+                new_entry = 0
+            if new_entry != 0:
+                # if command is already at end of list, don't add it again
+                widgets.mdi_history.insert(history_size - 1, "%s" % command)
+                history_size += 1
             widgets.mdi_history.see(history_size - 1)
-            if history_size > mdi_history_max_entries:
+            if history_size > (mdi_history_max_entries + 1):
                 widgets.mdi_history.delete(0, 0)
-                history_size= mdi_history_max_entries
-            history_size += 1
+                history_size= (mdi_history_max_entries + 1)
             # pdb.set_trace()
             mdi_history_index = widgets.mdi_history.index("end") - 1
             c.mdi(command)
@@ -2368,17 +2378,59 @@ class TclCommands(nf.TclCommands):
             except IOError:
                 print >>sys.stderr, "Can't open MDI history file [%s] for writing" % file_name
 
+    def mdi_history_hist2clip(*event):
+        cursel = widgets.mdi_history.curselection()
+        root_window.clipboard_clear()
+	selection = ""
+        count = 0
+        if cursel != "":
+            for data in cursel:
+                selection += "%s\n" % widgets.mdi_history.get(data)
+                count += 1
+            if selection != "":
+	        root_window.clipboard_append(selection, type = "STRING")
+        print "DBG: Copying %d selected mdi history element(s) to clipboard ..." % count
+
+    def mdi_history_clip2hist(*event):
+        try:
+            history_size = widgets.mdi_history.size()
+            vars.mdi_command.set("")
+            count = 0
+            for data in root_window.selection_get(selection="CLIPBOARD").split("\n"):
+                if data != "":
+                    history_size = widgets.mdi_history.size()
+                    new_entry = 1
+                    if history_size > 1 and widgets.mdi_history.get(history_size - 2) == data:
+                        new_entry = 0
+                    if new_entry != 0:
+                        # if command is already at end of list, don't add it again
+                        widgets.mdi_history.insert(history_size - 1, "%s" % data)
+                        history_size += 1
+                        count += 1
+                        widgets.mdi_history.see(history_size - 1)
+                        if history_size > (mdi_history_max_entries + 1):
+                            widgets.mdi_history.delete(0, 0)
+                            history_size= (mdi_history_max_entries + 1)
+                        mdi_history_index = widgets.mdi_history.index("end") - 1
+            commands.mdi_history_write_to_file(mdi_history_save_filename, history_size)
+            print "DBG: Copy clipboard to mdi history. Added %d elements." % count
+            return
+        except Tkinter.TclError:
+            print "DBG: Sorry, but the clipboard is empty ..."
+        
     def mdi_history_double_butt_1(event):
         if widgets.mdi_command.cget("state") == "disabled":
             return
         cursel= widgets.mdi_history.index("active")
-        #pdb.set_trace()
         if cursel < (widgets.mdi_history.size() - 1):
             commands.send_mdi(event)
        
     def mdi_history_butt_1(event):
         global mdi_history_index
-        # single ckick is allowed with, also with MDI input disabled
+        if len(widgets.mdi_history.curselection()) > 1:
+            # multiple selection: clear mdi entry field and return
+            vars.mdi_command.set("")
+            return
         cursel = widgets.mdi_history.index('@' + str(event.x) + ',' + str(event.y))
         bbox = widgets.mdi_history.bbox(cursel)
         if bbox and (event.y <= (bbox[1] + bbox[3])) and  (cursel < widgets.mdi_history.size() - 1):
@@ -2675,7 +2727,6 @@ root_window.bind("<Key-F12>", commands.spindle_increase)
 root_window.bind("B", commands.brake_on)
 root_window.bind("b", commands.brake_off)
 root_window.bind("<Control-k>", commands.clear_live_plot)
-root_window.bind("<Control-m>", commands.clear_mdi_history)
 root_window.bind("x", lambda event: activate_axis(0))
 root_window.bind("y", lambda event: activate_axis(1))
 root_window.bind("z", lambda event: activate_axis(2))
@@ -2703,8 +2754,17 @@ root_window.bind("<Control-Home>", commands.home_all_axes)
 root_window.bind("<Shift-Home>", commands.set_axis_offset)
 root_window.bind("<End>", commands.touch_off)
 widgets.mdi_history.bind("<Configure>", "%W see end" )
-widgets.mdi_history.bind("<Button-1>", commands.mdi_history_butt_1)
+widgets.mdi_history.bind("<ButtonRelease-1>", commands.mdi_history_butt_1)
 widgets.mdi_history.bind("<Double-Button-1>", commands.mdi_history_double_butt_1)
+widgets.mdi_command.unbind("<Control-h>")
+widgets.mdi_command.bind("<Control-m>", commands.clear_mdi_history)
+widgets.mdi_command.bind("<Control-h>", commands.mdi_history_hist2clip)
+widgets.mdi_command.bind("<Control-Shift-H>", commands.mdi_history_clip2hist)
+widgets.mdi_command.bind("<Key-Return>", commands.send_mdi)
+widgets.mdi_command.bind("<Up>",  commands.mdi_up_cmd)
+widgets.mdi_command.bind("<Down>", commands.mdi_down_cmd)
+
+
 
 # try to read back previously saved mdi history data
 mdi_hist_file = os.path.expanduser(mdi_history_save_filename)
@@ -2722,6 +2782,7 @@ try:
         for line in f:
             if skip <= 0:
                 widgets.mdi_history.insert(history_size - 1, "%s" % line.rstrip("\r\n"))
+                mdi_history_index = history_size
                 history_size += 1
             else:
                 skip -= 1
