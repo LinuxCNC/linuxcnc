@@ -226,7 +226,7 @@ class PagesManager(BWidget, Tkinter.Frame):
         return self.tk.call(self._w, "delete", page)
 
     def getframe(self, page):
-        return self.tk.call(self._w, "delete", page)
+        return self.tk.call(self._w, "getframe", page)
     getframe = makeswidget(getframe, Tkinter.Frame)
 
     def pages(self, *args):
@@ -244,8 +244,9 @@ class NoteBook(PagesManager, _Items):
     def delete(self, page, destroyframe=True):
         return self.tk.call(self._w, "delete", page, destroyframe)
 
-    def insert(self, index, page, *kw):
+    def insert(self, index, page, **kw):
         return self.tk.call(self._w, "insert", index, page, *self._options(kw))
+    insert = makeswidget(insert, Tkinter.Frame)
 
     def move(self, page, index):
         return self.tk.call(self._w, "move", page, index)
