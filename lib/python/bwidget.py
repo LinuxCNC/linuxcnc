@@ -254,6 +254,9 @@ class NoteBook(PagesManager, _Items):
     def see(self, page):
         return self.tk.call(self._w, "see", page)
 
+    def raise_page(self, page):
+        return self.tk.call(self._w, "raise", page)
+
 class Dialog(ButtonBox, Tkinter.BaseWidget, _Frame):
     def draw(self, focus=None):
         if focus is None:

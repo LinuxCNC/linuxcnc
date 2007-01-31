@@ -85,60 +85,56 @@ def nodeiterator(node,widgetparent,level):
 
 widgets=[];
 def widget_creator(parent,widget_name,params,level):
-     """
-        creates a pyVCP widget
-            parent = parent widget
-            widget_name = name of widget to be created 
-            params = a list of parameters passed to the widget __init__
-            level = what level in the dom tree are we at?
-     """
-  
-     global widgets
-     widgethandle= str(widget_name) + str(level)
-   
-     w_command=""
-     w_command += "pyvcp_widgets.pyvcp_"+str(widget_name)+"("+"parent"+",pycomp"
-     for a in params:
-          w_command=w_command+","+str(a) 
-     w_command=w_command+")"
-     
-     # this prints the statement generated above, 
-     #print str(widgethandle) + " = " + w_command
-     # and evaluated here:
-     locals()[widgethandle] = eval(w_command)
-
-     # pack the widget according to parent
-     # either hbox or vbox
-     if parent==pyvcp0:
-          #print "this is the root element"
-          pack_command = widgethandle +".pack(side='top',fill=X)"
-     else:
-          a= parent.packtype()
-          if a == "top":
-               pack_command = widgethandle +".pack(side='top',fill=X)"
-          else:
-               pack_command = widgethandle +".pack(side='left',fill=Y)"
-     
-     eval(pack_command)
-
-     # add the widget to a global list widgets
-     # to enable calling update() later
-     list_command = 'widgets.append( ' + widgethandle + ' ) '
-     eval(list_command)
-     return_command = "return "+str(widgethandle) 
-     
+    """
+       creates a pyVCP widget
+           parent = parent widget
+           widget_name = name of widget to be created 
+           params = a list of parameters passed to the widget __init__
+           level = what level in the dom tree are we at?
+    """
  
-     return eval(str(widgethandle))
+    global widgets
+    widgethandle= str(widget_name) + str(level)
+  
+    constructor = getattr(pyvcp_widgets, "pyvcp_" + str(widget_name))
+    if hasattr(parent, "getcontainer"):
+	container = parent.getcontainer()
+    else:
+	container = parent
+    positional_params = (container, pycomp)
+    
+    widget = constructor(*positional_params, **params)
 
+    # pack the widget according to parent
+    # either hbox or vbox
+    if container==pyvcp0:
+	print "pack", widget, "in top"
+	widget.pack(side='top', fill=X)
+    else:
+        if hasattr(parent, "add"):
+	    print "add", widget, "in container"
+	    parent.add(container, widget)
+        else:
+	    print "add", widget, "in parent"
+            a = parent.packtype()
+            if a == "top":
+		widget.pack(side='top', fill='x')
+	    else:
+		widget.pack(side='left', fill='y')
+   
+    # add the widget to a global list widgets
+    # to enable calling update() later
+    widgets.append(widget)
 
+    return widget
 
 def paramiterator(node):
      """ returns a list of all parameters for a widget element """
-     outparams =[]
+     outparams = {}
      for e in node.childNodes:
           if e.nodeType == e.ELEMENT_NODE and (e.nodeName in pyvcp_widgets.parameters):
-               outparams.append(str(e.nodeName) + \
-                    " = " +  str(e.childNodes[0].nodeValue) )
+		print "paramiterator", repr(e.nodeName), repr(e.childNodes[0].nodeValue)
+		outparams[str(e.nodeName)] = eval(e.childNodes[0].nodeValue)
      return outparams
 
 

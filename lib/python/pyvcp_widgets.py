@@ -40,6 +40,7 @@
 from Tkinter import *
 from hal import *
 import math
+import bwidget
 
 # this makes only functions named here be included in the pydoc
 __all__=["pyvcp_label"]
@@ -49,17 +50,17 @@ __all__=["pyvcp_label"]
 # created somehow automagically
 # or another mechanism for vcpparse.py to know which elements are valid should
 # be constructed
-elements =["pyvcp","led","vbox","hbox","vbox" \
-            ,"button","scale","checkbutton","bar" \
-            ,"label","number","spinbox","radiobutton","jogwheel"\
-            ,"meter","dial"]
+elements =["pyvcp","led","vbox","hbox","vbox"
+            ,"button","scale","checkbutton","bar"
+            ,"label","number","spinbox","radiobutton","jogwheel"
+            ,"meter","dial", "tabs"]
 
 # FIXME: this is ugly, each widget should know what parameters are valid
 # for itself, and vcpparse.py should check validity for each widget individually
-parameters = ["size","text","orient","halpin","format" \
-            ,"font","min_","max_","resolution" \
-            ,"choices","cpr","fillcolor","bgcolor" \
-            ,"bd","relief","init"]
+parameters = ["size","text","orient","halpin","format"
+            ,"font","min_","max_","resolution"
+            ,"choices","cpr","fillcolor","bgcolor"
+            ,"bd","relief","init", "names"]
 
 
 
@@ -588,6 +589,27 @@ class pyvcp_hbox(Frame):
     def packtype(self):
         return "left"
 
+
+class pyvcp_tabs(bwidget.NoteBook):
+    def __init__(self, master, pycomp, cnf={}, **kw):
+	self.names = kw.pop("names", [])
+	self.idx = 0
+	self._require(master)
+	Widget.__init__(self, master, "NoteBook", cnf, kw)
+
+    def update(self, pycomp): pass
+
+    def add(self, container, child):
+	child.pack(side="top", fill="both", anchor="ne")
+	if self.idx == 1:
+	    self.raise_page(self.names[0])
+
+    def getcontainer(self):
+	if len(self.names) < self.idx:
+	    self.names.append("Tab-%d" % self.idx)
+	name = self.names[self.idx]
+	self.idx += 1
+	return self.insert("end", name, text=name)
 
 # -------------------------------------------
 
