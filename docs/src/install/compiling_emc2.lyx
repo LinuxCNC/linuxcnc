@@ -96,36 +96,36 @@ Released
 
 
 \series bold 
-"Testing"
+Testing
 \series default 
  is a version of EMC2 that is ready for "beta testing" but not for general
  release.
  Before a version is labeled 
 \series bold 
-"testing"
+testing
 \series default 
  it will be known to compile and run on several different platforms, but
  there will probably be various limitations and known problems.
  The 
 \series bold 
-"Testing"
+Testing
 \series default 
  wiki page will attempt to list known problems and workarounds, but there
  will probably also be undiscovered bugs.
  Since 
 \series bold 
-"Testing"
+Testing
 \series default 
  is "beta" software, it should not be used for anything critical.
  Users of 
 \series bold 
-"Testing"
+Testing
 \series default 
  need to understand that it is beta software, and must be willing to give
  detailed bug reports if things go wrong.
  
 \series bold 
-"Testing"
+Testing
 \series default 
  is available primarily as a tag in CVS, although for convenience of testers,
  a "testing" debian repository and/or tarballs may also be available.
@@ -138,23 +138,38 @@ Released
 
 
 \series bold 
-Head
+TRUNK
 \series default 
- is the HEAD of the CVS version control system.
- It is where all the primary development takes place.
- "Head" can be broken at any time.
- When "Head" reaches a state that is deemed worthy of testing by a larger
- number of people, the "Testing" tag will be moved.
+ is a CVS term for where all the primary development takes place.
+ 
+\series bold 
+TRUNK
+\series default 
+ can be broken at any time.
+ When 
+\series bold 
+TRUNK
+\series default 
+ reaches a state that is deemed worthy of testing by a larger number of
+ people, the 
+\series bold 
+"Testing"
+\series default 
+ tag will be moved.
  This is an informal decision, made by concensus of lead developers, usually
  on IRC.
  Development will immediately continue, and 
 \series bold 
-"Head"
+TRUNK
 \series default 
- will once again diverge from "Testing".
+ will once again diverge from 
+\series bold 
+Testing
+\series default 
+.
  
 \series bold 
-"Head"
+TRUNK
 \series default 
  has no "version number", and on a busy weekend it can literally change
  every 10 minutes.
@@ -217,7 +232,7 @@ emc2
 Downloading the CVS version
 \layout Standard
 
-If you wish to use the HEAD version of emc2, please follow the instructions
+If you wish to use the TRUNK version of emc2, please follow the instructions
  on our wiki to obtain the source code: 
 \begin_inset LatexCommand \url{http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?CVS}
 
@@ -253,6 +268,12 @@ Run-in-place
 If you want only to test the software before installing it, or if you're
  worried about overwriting an existing installation, there is a Run-In-Place
  (RIP) mode which you can try out.
+ In this mode, there is no installation step, and no files are placed outside
+ the top directory , 
+\family typewriter 
+~/emc2
+\family default 
+ in this example.
 \layout LyX-Code
 
 $ cd ~/emc2/src
@@ -266,8 +287,20 @@ $ ./configure --enable-run-in-place
 $ make && sudo make setuid
 \layout Standard
 
-In a shell session where you want to use the run-in-place version of emc,
- execute
+In a shell session where you want to use the run-in-place version of emc
+\begin_inset Foot
+collapsed true
+
+\layout Standard
+
+By putting this command in a shell start-up script, such as 
+\family typewriter 
+~/.bash_profile
+\family default 
+, you do not need to manually run it in each terminal window.
+\end_inset 
+
+, execute
 \layout LyX-Code
 
 $ .
@@ -276,35 +309,38 @@ $ .
 
 Until you close that terminal, it will be set up so that the programs and
  manual pages from the Run-In-Place directory are available without referring
- to the path each time
-\begin_inset Foot
-collapsed false
-
-\layout Standard
-
-Note: The emc-environment script is a new feature in the HEAD version of
- emc2.
- In EMC 2.0.x, you must refer to programs using their path, such as 
-\family typewriter 
-~/emc2/scripts/emc or ~/emc2/bin/halcmd
-\family default 
-, or relative path such as 
-\family typewriter 
-scripts/emc
-\family default 
- or 
-\family typewriter 
-bin/halcmd
-\family default 
-.
- Examples in this documentation will generally omit these paths.
-\end_inset 
-
-.
+ to the path each time.
  After that you can run EMC2 by issuing:
 \layout LyX-Code
 
 $ emc
+\layout Section
+
+Simulator
+\layout Standard
+
+To install EMC2 on a system without a realtime kernel, add 
+\family typewriter 
+--enable-simulator
+\family default 
+ to the 
+\family typewriter 
+configure
+\family default 
+ commandline.
+ In this mode, EMC2 runs as a purely userspace program.
+ No hardware can be controlled and realtime scheduling is not guaranteed,
+ but the other features of HAL, EMC and its various user interfaces are
+ available.
+ When using 
+\family typewriter 
+--enable-run-in-place
+\family default 
+, the 
+\family typewriter 
+sudo make setuid
+\family default 
+ step is unneeded.
 \layout Section
 
 Editing and Recompiling
@@ -317,11 +353,14 @@ You may need to recompile the EMC2 code for a number of reasons.
 \layout LyX-Code
 
 $ cd ~/emc2/src
-\layout LyX-Code
-
-$ make && sudo make setuid
+\newline 
+$ make && sudo make install # for run-installed
+\newline 
+$ make && sudo make setuid  # for run-in-place
+\newline 
+$ make                      # for run-in-place, simulator
 \layout Standard
 
-The build process is smart enough to only build things that are relevant
- to your changes.
+The build process is smart enough to only rebuild things that are affected
+ by your changes.
 \the_end
