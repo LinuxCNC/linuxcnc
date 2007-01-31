@@ -1160,8 +1160,8 @@ int do_loadusr_cmd(char *args[])
     pid_t pid;
 
     int argc = 0;
-    args--;
     while(args[argc] && *args[argc]) argc++;
+    args--; argc++;
 
     if (hal_get_lock()&HAL_LOCK_LOAD) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
