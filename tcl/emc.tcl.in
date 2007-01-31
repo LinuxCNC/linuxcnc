@@ -20,7 +20,7 @@ if {[string first $::emc::BIN_DIR: $env(PATH)] != 0} {
 }
 
 proc emc::image_search i {
-    set paths "$emc::HOME $emc::HOME/etc/emc2 /etc/emc2 ."
+    set paths "$emc::IMAGEDIR $emc::HOME $emc::HOME/etc/emc2 /etc/emc2 ."
     foreach f $paths {
         if [file exists $f/$i] {
             return [image create photo -file $f/$i]
