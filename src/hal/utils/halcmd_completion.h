@@ -40,6 +40,7 @@
 #ifndef HALCMD_COMPLETION_H
 #define HALCMD_COMPLETION_H
 
+#include <stdio.h>
 #include <readline/readline.h>
 #include <readline/history.h>
 
