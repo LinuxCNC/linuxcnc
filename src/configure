@@ -3333,9 +3333,11 @@ if test "${enable_run_in_place+set}" = set; then
             RUN_IN_PLACE=yes
             echo "$as_me:$LINENO: result: configuring for run-in-place" >&5
 echo "${ECHO_T}configuring for run-in-place" >&6
+            prefix=${BUILD_TOPLEVEL}
         ;;
         *)
             RUN_IN_PLACE=no
+            EMC2_HOME=$prefix
         ;;
     esac
 
@@ -9738,6 +9740,8 @@ esac
 
           ac_config_files="$ac_config_files ../tcl/emc.tcl"
 
+          ac_config_files="$ac_config_files ../lib/python/nf.py"
+
           ac_config_files="$ac_config_files ../scripts/emcmkdesktop"
 
 cat >confcache <<\_ACEOF
@@ -10274,6 +10278,7 @@ do
   "Makefile.modinc" ) CONFIG_FILES="$CONFIG_FILES Makefile.modinc" ;;
   "depend.sh" ) CONFIG_FILES="$CONFIG_FILES depend.sh" ;;
   "../tcl/emc.tcl" ) CONFIG_FILES="$CONFIG_FILES ../tcl/emc.tcl" ;;
+  "../lib/python/nf.py" ) CONFIG_FILES="$CONFIG_FILES ../lib/python/nf.py" ;;
   "../scripts/emcmkdesktop" ) CONFIG_FILES="$CONFIG_FILES ../scripts/emcmkdesktop" ;;
   "config.h" ) CONFIG_HEADERS="$CONFIG_HEADERS config.h" ;;
   *) { { echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5

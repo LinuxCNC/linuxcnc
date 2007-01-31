@@ -167,7 +167,7 @@ INFILES = \
 	../docs/man/man1/emc.1 ../scripts/emc ../scripts/realtime \
 	../scripts/rtapi.conf Makefile.inc depend.sh Makefile.modinc \
 	../tcl/emc.tcl ../scripts/halrun ../scripts/emc-environment \
-	../scripts/emcmkdesktop
+	../scripts/emcmkdesktop ../lib/python/nf.py
 $(INFILES): %: %.in config.status
 	@./config.status --file=$@
 
