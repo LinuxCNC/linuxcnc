@@ -49,7 +49,7 @@ def read_file():
     except xml.parsers.expat.ExpatError, detail:
         print "Error: could not open",filename,"!"
 	print detail
-        sys.exit()
+        sys.exit(1)
     print "Creating widgets from",filename,"...",
     # find the pydoc element
     for e in doc.childNodes:
@@ -60,14 +60,13 @@ def read_file():
         print "Error: no pyvcp element in file!"
         sys.exit()
     pyvcproot=e
-    level=0
-    nodeiterator(pyvcproot,pyvcp0,level) 
+    nodeiterator(pyvcproot,pyvcp0) 
     print "Done."         
 
 
 
 num=0
-def nodeiterator(node,widgetparent,level):
+def nodeiterator(node,widgetparent):
     """
         A recursive function that traverses the dom tree
         and calls widget_creator() when it finds a valid element
@@ -78,24 +77,21 @@ def nodeiterator(node,widgetparent,level):
     for e in node.childNodes:
         if e.nodeType == e.ELEMENT_NODE and (e.nodeName in pyvcp_widgets.elements):  
             params = paramiterator(e)  # find all the parameters for this node
-            parent = str(e.parentNode.nodeName) + str(level)
-            newwidget = widget_creator(widgetparent,e.nodeName,params,level+1)
-            nodeiterator(e,newwidget,level+1)
+            newwidget = widget_creator(widgetparent,e.nodeName,params)
+            nodeiterator(e,newwidget)
       
 
 
 widgets=[];
-def widget_creator(parent,widget_name,params,level):
+def widget_creator(parent,widget_name,params):
     """
        creates a pyVCP widget
            parent = parent widget
            widget_name = name of widget to be created 
            params = a list of parameters passed to the widget __init__
-           level = what level in the dom tree are we at?
     """
  
     global widgets
-    widgethandle= str(widget_name) + str(level)
   
     constructor = getattr(pyvcp_widgets, "pyvcp_" + str(widget_name))
     if hasattr(parent, "getcontainer"):
