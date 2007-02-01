@@ -747,6 +747,7 @@ int do_gets_cmd(char *name)
 int do_show_cmd(char *type, char *pattern)
 {
 
+    if (!pattern) pattern = "";
     if (rtapi_get_msg_level() == RTAPI_MSG_NONE) {
 	/* must be -Q, don't print anything */
 	return 0;
@@ -788,7 +789,11 @@ int do_show_cmd(char *type, char *pattern)
 
 int do_list_cmd(char *type, char *pattern)
 {
-
+    if ( !type) {
+	rtapi_print_msg(RTAPI_MSG_ERR, "HAL:%d: 'list' requires type'\n", linenumber);
+	return -1;
+    }
+    if (!pattern) pattern = "";
     if (rtapi_get_msg_level() == RTAPI_MSG_NONE) {
 	/* must be -Q, don't print anything */
 	return 0;
