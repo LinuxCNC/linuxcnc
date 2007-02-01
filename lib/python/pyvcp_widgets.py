@@ -42,10 +42,6 @@ from hal import *
 import math
 import bwidget
 
-# this makes only functions named here be included in the pydoc
-__all__=["pyvcp_label"]
-
-
 from Tkinter import *
 import math
 
@@ -889,10 +885,66 @@ class pyvcp_scale(Scale):
     def wheel_down(self,event):
         self.set(self.get()-self.resolution)
 
+
+class pyvcp_table(Frame):
+    def __init__(self, master, pycomp, flexible_rows=[], flexible_columns=[]):
+	Frame.__init__(self, master)
+	for r in flexible_rows:
+	    self.grid_rowconfigure(r, weight=1)
+	for c in flexible_columns:
+	    self.grid_columnconfigure(c, weight=1)
+	self._r = self._c = 0
+	self.occupied = {}
+	self.span = (1,1)
+	self.sticky = "ne"
+
+    def add(self, container, child):
+	if isinstance(child, pyvcp_tablerow):
+	    self._r += 1
+	    self._c = 1
+	    return
+	elif isinstance(child, pyvcp_tablespan):
+	    self.span = child.span
+	    return
+	elif isinstance(child, pyvcp_tablesticky):
+	    self.sticky = child.sticky
+	    return
+	r, c = self._r, self._c
+	while self.occupied.has_key((r, c)):
+	    c = c + 1
+	rs, cs = self.span
+	child.grid(row=r, column=c, rowspan=rs, columnspan=cs,
+			sticky=self.sticky)
+	for ri in range(r, r+rs):
+	    for ci in range(c, c+cs):
+		self.occupied[ri,ci] = True
+
+	self.span = 1,1
+	self._c = c+cs
+
+    def update(self, pycomp): pass
+
+class pyvcp_tablerow:
+    def __init__(self, master, pycomp): pass
+    def update(self, pycomp): pass
+
+class pyvcp_tablespan:
+    def __init__(self, master, pycomp, rows=1, columns=1):
+	self.span = rows, columns
+    def update(self, pycomp): pass
+
+class pyvcp_tablesticky:
+    def __init__(self, master, pycomp, sticky):
+	self.sticky = sticky
+    def update(self, pycomp): pass
+    
+# This must come after all the pyvcp_xxx classes
 elements = []
+__all__ = []
 for _key in globals().keys():
     if _key.startswith("pyvcp_"):
 	elements.append(_key[6:])
+	__all__.append(_key)
 
 if __name__ == '__main__':
     print "You can't run pyvcp_widgets.py by itself..."
