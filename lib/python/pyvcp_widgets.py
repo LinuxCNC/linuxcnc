@@ -545,10 +545,31 @@ class pyvcp_vbox(Frame):
     """
     def __init__(self,master,pycomp,bd=0,relief=FLAT):
         Frame.__init__(self,master,bd=bd,relief=relief)
+	self.fill = 'x'
+	self.side = 'top'
+	self.anchor = 'center'
+
     def update(self,pycomp): 
         pass
-    def packtype(self):
-        return "top"
+
+    def add(self, container, widget):
+	if isinstance(widget, pyvcp_boxfill):
+	    self.fill = widget.fill
+	    return
+	if isinstance(widget, pyvcp_boxanchor):
+	    self.anchor = widget.anchor
+	    return
+	widget.pack(side=self.side, anchor=self.anchor, fill=self.fill)
+
+class pyvcp_boxfill:
+    def __init__(self, master, pycomp, fill):
+	self.fill = fill
+    def update(self, pycomp): pass
+
+class pyvcp_boxanchor:
+    def __init__(self, master, pycomp, anchor):
+	self.anchor = anchor
+    def update(self, pycomp): pass
 
 # -------------------------------------------
 
@@ -562,11 +583,33 @@ class pyvcp_hbox(Frame):
     """
     def __init__(self,master,pycomp,bd=0,relief=FLAT):
         Frame.__init__(self,master,bd=bd,relief=relief)
+	self.fill = 'y'
+	self.side = 'left'
+	self.anchor = 'center'
+
     def update(self,pycomp): 
         pass
-    def packtype(self):
-        return "left"
 
+    def add(self, container, widget):
+	if isinstance(widget, pyvcp_boxfill):
+	    self.fill = widget.fill
+	    return
+	if isinstance(widget, pyvcp_boxanchor):
+	    self.anchor = widget.anchor
+	    return
+	widget.pack(side=self.side, anchor=self.anchor, fill=self.fill)
+
+class pyvcp_labelframe(LabelFrame):
+    """
+     frame with a title
+    """
+    def __init__(self,master,pycomp,**kw):
+        LabelFrame.__init__(self,master,**kw)
+        self.pack(expand=1,fill=BOTH)
+    def update(self,pycomp):
+        pass
+    def add(self, container, widget):
+	widget.pack(side="top", fill="both", expand="yes")
 
 class pyvcp_tabs(bwidget.NoteBook):
     def __init__(self, master, pycomp, cnf={}, **kw):
