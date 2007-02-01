@@ -113,16 +113,9 @@ def widget_creator(parent,widget_name,params,level):
     # pack the widget according to parent
     # either hbox or vbox
     if container==pyvcp0:
-	widget.pack(side='top', fill=X)
+	widget.pack(side='top', fill=BOTH)
     else:
-        if hasattr(parent, "add"):
-	    parent.add(container, widget)
-        else:
-            a = parent.packtype()
-            if a == "top":
-		widget.pack(side='top', fill='x')
-	    else:
-		widget.pack(side='left', fill='y')
+	parent.add(container, widget)
    
     # add the widget to a global list widgets
     # to enable calling update() later
