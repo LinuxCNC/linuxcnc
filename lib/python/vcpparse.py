@@ -129,7 +129,7 @@ def paramiterator(node):
      """ returns a list of all parameters for a widget element """
      outparams = {}
      for e in node.childNodes:
-          if e.nodeType == e.ELEMENT_NODE and (e.nodeName in pyvcp_widgets.parameters):
+          if e.nodeType == e.ELEMENT_NODE and (e.nodeName not in pyvcp_widgets.elements):
 		outparams[str(e.nodeName)] = eval(e.childNodes[0].nodeValue)
      return outparams
 

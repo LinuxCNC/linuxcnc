@@ -46,24 +46,6 @@ import bwidget
 __all__=["pyvcp_label"]
 
 
-# FIXME: this is ugly, a list of valid widgets in this module should be 
-# created somehow automagically
-# or another mechanism for vcpparse.py to know which elements are valid should
-# be constructed
-elements =["pyvcp","led","vbox","hbox","vbox"
-            ,"button","scale","checkbutton","bar"
-            ,"label","number","spinbox","radiobutton","jogwheel"
-            ,"meter","dial", "tabs"]
-
-# FIXME: this is ugly, each widget should know what parameters are valid
-# for itself, and vcpparse.py should check validity for each widget individually
-parameters = ["size","text","orient","halpin","format"
-            ,"font","min_","max_","resolution"
-            ,"choices","cpr","fillcolor","bgcolor"
-            ,"bd","relief","init", "names"]
-
-
-
 from Tkinter import *
 import math
 
@@ -906,6 +888,11 @@ class pyvcp_scale(Scale):
 
     def wheel_down(self,event):
         self.set(self.get()-self.resolution)
+
+elements = []
+for _key in globals().keys():
+    if _key.startswith("pyvcp_"):
+	elements.append(_key[6:])
 
 if __name__ == '__main__':
     print "You can't run pyvcp_widgets.py by itself..."
