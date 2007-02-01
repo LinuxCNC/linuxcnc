@@ -80,4 +80,5 @@ TARGETS += ../bin/m5i20cfg
 
 TARGETS += ../bin/comp
 objects/%.py: %.g ../bin/yapps
+	@mkdir -p $(dir $@)
 	../bin/yapps $< $@
