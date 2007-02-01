@@ -993,6 +993,42 @@ class pyvcp_tablesticky:
 	self.sticky = sticky
     def update(self, pycomp): pass
     
+class pyvcp_include(Frame):
+    def __init__(self, master, pycomp, src, expand="yes", fill="both", anchor="center", **kw):
+        Frame.__init__(self,master,**kw)
+
+        self.master = master
+        self.fill = fill
+        self.anchor = anchor
+        self.expand = expand
+
+        import vcpparse, xml.dom.minidom, xml.parsers.expat
+
+        try:
+            doc = xml.dom.minidom.parse(src) 
+        except xml.parsers.expat.ExpatError, detail:
+            print "Error: could not open",src,"!"
+            print detail
+            sys.exit(1)
+
+        print "Creating widgets from",src,"...",
+        # find the pydoc element
+        for e in doc.childNodes:
+            if e.nodeType == e.ELEMENT_NODE and e.localName == "pyvcp":
+                break
+
+        if e.localName != "pyvcp":
+            print "Error: no pyvcp element in file!"
+            sys.exit()
+        pyvcproot=e
+        vcpparse.nodeiterator(pyvcproot,self)
+        print "Done."         
+
+    def update(self, pycomp): pass
+
+    def add(self, container, widget):
+        widget.pack(fill=self.fill, anchor=self.anchor, expand=self.expand)
+
 # This must come after all the pyvcp_xxx classes
 elements = []
 __all__ = []
