@@ -43,7 +43,12 @@ parser Hal:
       | "param" PARAMDIRECTION TYPE NAME OptAssign OptString ";" {{ param(NAME, TYPE, PARAMDIRECTION, OptString, OptAssign) }}
       | "function" NAME OptFP OptString ";"       {{ function(NAME, OptFP, OptString) }}
       | "option" NAME OptValue ";"   {{ option(NAME, OptValue) }}
+      | "see_also" String ";"   {{ see_also(String) }}
+      | "description" String ";"   {{ description(String) }}
 
+    rule String: TSTRING {{ return eval(TSTRING) }} 
+            | STRING {{ return eval(STRING) }}
+ 
     rule OptString: TSTRING {{ return eval(TSTRING) }} 
             | STRING {{ return eval(STRING) }}
             | {{ return '' }}
@@ -96,6 +101,12 @@ def comp(name, doc):
     if comp_name:
         Error("Duplicate specification of component name")
     comp_name = name;
+
+def description(doc):
+    docs.append(('descr', doc));
+
+def see_also(doc):
+    docs.append(('see_also', doc));
 
 def type2type(type):
     # When we start warning about s32/u32 this is where the warning goes
@@ -483,6 +494,11 @@ def document(filename, outfilename):
                 print >>f
             print >>f, doc
 
+    doc = finddoc('descr')    
+    if doc and doc[1]:
+        print >>f, ".SH DESCRIPTION\n"
+        print >>f, "%s" % doc[1]
+
     lead = ".TP"
     print >>f, ".SH PINS"
     for _, name, type, dir, doc, value in finddocs('pin'):
@@ -515,6 +531,11 @@ def document(filename, outfilename):
                 lead = ".TP"
             else:
                 lead = ".TQ"
+
+    doc = finddoc('see_also')    
+    if doc and doc[1]:
+        print >>f, ".SH SEE ALSO\n"
+        print >>f, "%s" % doc[1]
 
 def process(filename, mode, outfilename):
     tempdir = tempfile.mkdtemp()
