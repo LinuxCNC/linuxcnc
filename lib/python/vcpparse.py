@@ -46,8 +46,9 @@ def read_file():
     """
     try:
         doc = xml.dom.minidom.parse(filename) 
-    except:
+    except xml.parsers.expat.ExpatError, detail:
         print "Error: could not open",filename,"!"
+	print detail
         sys.exit()
     print "Creating widgets from",filename,"...",
     # find the pydoc element
@@ -103,7 +104,11 @@ def widget_creator(parent,widget_name,params,level):
 	container = parent
     positional_params = (container, pycomp)
     
-    widget = constructor(*positional_params, **params)
+    try:
+	widget = constructor(*positional_params, **params)
+    except Exception, detail:
+	raise SystemExit, "Error constructing %s(%s):\n%s" % (
+			widget_name, params, detail)
 
     # pack the widget according to parent
     # either hbox or vbox
@@ -126,12 +131,26 @@ def widget_creator(parent,widget_name,params,level):
     return widget
 
 def paramiterator(node):
-     """ returns a list of all parameters for a widget element """
-     outparams = {}
-     for e in node.childNodes:
-          if e.nodeType == e.ELEMENT_NODE and (e.nodeName not in pyvcp_widgets.elements):
-		outparams[str(e.nodeName)] = eval(e.childNodes[0].nodeValue)
-     return outparams
+    """ returns a list of all parameters for a widget element """
+    outparams = {}
+    for k, v in node.attributes.items():
+	if v and v[0] in "{[(\"'":
+	    v = eval(v)
+	else:
+	    try:
+		v = int(v)
+	    except ValueError:
+		try:
+		    v = float(v)
+		except ValueError:
+		    pass
+	outparams[str(k)] = v
+
+    for e in node.childNodes:
+	if e.nodeType == e.ELEMENT_NODE \
+		and (e.nodeName not in pyvcp_widgets.elements):
+	    outparams[str(e.nodeName)] = eval(e.childNodes[0].nodeValue)
+    return outparams
 
 
 
