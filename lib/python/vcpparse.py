@@ -108,14 +108,11 @@ def widget_creator(parent,widget_name,params,level):
     # pack the widget according to parent
     # either hbox or vbox
     if container==pyvcp0:
-	print "pack", widget, "in top"
 	widget.pack(side='top', fill=X)
     else:
         if hasattr(parent, "add"):
-	    print "add", widget, "in container"
 	    parent.add(container, widget)
         else:
-	    print "add", widget, "in parent"
             a = parent.packtype()
             if a == "top":
 		widget.pack(side='top', fill='x')
@@ -133,7 +130,6 @@ def paramiterator(node):
      outparams = {}
      for e in node.childNodes:
           if e.nodeType == e.ELEMENT_NODE and (e.nodeName in pyvcp_widgets.parameters):
-		print "paramiterator", repr(e.nodeName), repr(e.childNodes[0].nodeValue)
 		outparams[str(e.nodeName)] = eval(e.childNodes[0].nodeValue)
      return outparams
 
