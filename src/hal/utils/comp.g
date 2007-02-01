@@ -484,6 +484,12 @@ def document(filename, outfilename):
         if options.get("constructable") and not options.get("singleton"):
             print >>f, ".PP\n.B newinst %s \\fIname\\fB" % comp_name
 
+    doc = finddoc('descr')    
+    if doc and doc[1]:
+        print >>f, ".SH DESCRIPTION\n"
+        print >>f, "%s" % doc[1]
+
+    if not options.get("userspace"):
         print >>f, ".SH FUNCTIONS"
         for _, name, fp, doc in finddocs('funct'):
             print >>f, ".TP"
@@ -493,11 +499,6 @@ def document(filename, outfilename):
             else:
                 print >>f
             print >>f, doc
-
-    doc = finddoc('descr')    
-    if doc and doc[1]:
-        print >>f, ".SH DESCRIPTION\n"
-        print >>f, "%s" % doc[1]
 
     lead = ".TP"
     print >>f, ".SH PINS"
