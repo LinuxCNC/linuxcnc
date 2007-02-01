@@ -275,6 +275,10 @@ NAME
 VALUE
 \emph default 
 ];
+\newline 
+description DOC;
+\newline 
+see_also DOC;
 \layout Standard
 
 Brackets indicate optional items.
