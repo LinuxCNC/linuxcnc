@@ -82,15 +82,9 @@ The layout of a pyVCP panel is specified with an XML file that contains
 
 <pyvcp>
 \newline 
-    <label>
+    <label text="This is a LED indicator"/>
 \newline 
-        <text>"This is a LED indicator"</text>
-\newline 
-    </label>
-\newline 
-    <led>
-\newline 
-    </led>
+    <led/>
 \newline 
 </pyvcp>
 \layout LyX-Code
@@ -155,6 +149,14 @@ Once you have created your panel, connecting HAL signals to and form the
 \end_inset 
 
  is recommended.
+\layout Section
+
+Security of pyVCP
+\layout Standard
+
+Parts of pyVCP files are evaluated as Python code, and can take any action
+ available to Python programs.
+ Only use pyVCP .xml files from a source that you trust.
 \layout Section
 
 Using pyVCP with AXIS
@@ -267,7 +269,11 @@ pyvcp.
 \layout Standard
 
 This is what the newly created pyVCP panel should look like in AXIS.
- 
+ The 
+\family typewriter 
+sim/lathe
+\family default 
+ configuration is already configured this way.
 \layout Section
 
 pyVCP Widget reference
@@ -303,7 +309,7 @@ HAL signals come in two variants, BIT and FLOAT.
 \labelwidthstring 00.00.0000
 
 5.
- Helper widgets: Hbox, Vbox, Label
+ Helper widgets: Hbox, Vbox, Tabel, Label, Labelframe
 \layout Subsubsection
 
 Syntax
@@ -311,6 +317,49 @@ Syntax
 
 Each widget is described briefly, followed by the markup used, and a screenshot.
  All tags inside the main widget tag are optional.
+\layout Subsubsection
+
+General Notes
+\layout Standard
+
+At the present time, both a tag-based and an attribute-based syntax are
+ supported.
+ For instance, the following XML fragments are treated identically:
+\layout LyX-Code
+
+<led halpin="my-led"/>
+\layout Standard
+
+and
+\layout LyX-Code
+
+<led><halpin>"my-led"</halpin></led>
+\layout Standard
+
+When the attribute-based syntax is used, the following rules are used to
+ turn the attribute's value into a Python value:
+\layout Enumerate
+
+If the first character of the attribute is one of the following, it is evaluated
+ as a Python expression: 
+\family typewriter 
+{(["'
+\layout Enumerate
+
+If the string is accepted by int(), the value is treated as an integer
+\layout Enumerate
+
+If the string is accepted by float(), the value is treated as floating-point
+\layout Enumerate
+
+Otherwise, the string is accepted as a string.
+\layout Standard
+
+When the tag-based syntax is used, the text within the tag is always evalued
+ as a Python expression.
+\layout Standard
+
+The examples below show a mix of formats.
 \layout Subsection
 
 LED
@@ -335,7 +384,7 @@ A LED is used to indicate the status of a BIT signal.
 \layout LyX-Code
 
 \layout LyX-Code
-
+\align center 
 
 \begin_inset Graphics
 	filename pyvcp_led.png
@@ -398,7 +447,7 @@ A button is used to control a BIT pin.
 \layout LyX-Code
 
 \layout LyX-Code
-
+\align center 
 
 \begin_inset Graphics
 	filename pyvcp_button.png
@@ -455,7 +504,7 @@ A radiobutton will set one of a number of BIT pins true.
 \layout LyX-Code
 
 \layout LyX-Code
-
+\align center 
 
 \begin_inset Graphics
 	filename pyvcp_radiobutton.png
@@ -466,7 +515,16 @@ A radiobutton will set one of a number of BIT pins true.
 \layout Standard
 
 Note that the HAL pins in the example above will me named my-radio.one, my-radio.t
-wo, and my-radio.three
+wo, and my-radio.three.
+ In the image above, 
+\begin_inset Quotes eld
+\end_inset 
+
+three
+\begin_inset Quotes erd
+\end_inset 
+
+ is the selected value.
 \layout Subsection
 
 Number
@@ -487,7 +545,7 @@ The number widget displays the value of a FLOAT signal.
 \layout LyX-Code
 
 \layout LyX-Code
-
+\align center 
 
 \begin_inset Graphics
 	filename pyvcp_number.png
@@ -534,7 +592,7 @@ A bar widget displays the value of a FLOAT signal both graphically using
 \layout LyX-Code
 
 \layout LyX-Code
-
+\align center 
 
 \begin_inset Graphics
 	filename pyvcp_bar.png
@@ -566,7 +624,7 @@ Meter displays the value of a FLOAT signal using a traditional dial indicator.
 \layout LyX-Code
 
 \layout LyX-Code
-
+\align center 
 
 \begin_inset Graphics
 	filename pyvcp_meter.png
@@ -604,7 +662,7 @@ Spinbox controls a FLOAT pin.
 \layout LyX-Code
 
 \layout LyX-Code
-
+\align center 
 
 \begin_inset Graphics
 	filename pyvcp_spinbox.png
@@ -638,7 +696,7 @@ Scale controls a FLOAT pin.
 \layout LyX-Code
 
 \layout LyX-Code
-
+\align center 
 
 \begin_inset Graphics
 	filename pyvcp_scale.png
@@ -652,7 +710,7 @@ Jogwheel
 \layout Standard
 
 Jogwheel mimics a real jogwheel by outputting a FLOAT pin which counts up
- or down as the wheel is turned, either by dragging in a cricular motion,
+ or down as the wheel is turned, either by dragging in a circular motion,
  or by rolling the mouse-wheel.
 \layout LyX-Code
 
@@ -665,8 +723,8 @@ Jogwheel mimics a real jogwheel by outputting a FLOAT pin which counts up
     <size>250</size>
 \newline 
 </jogwheel>
-\layout LyX-Code
-
+\layout Standard
+\align center 
 
 \begin_inset Graphics
 	filename pyvcp_jogwheel.png
@@ -676,6 +734,12 @@ Jogwheel mimics a real jogwheel by outputting a FLOAT pin which counts up
 \end_inset 
 
 
+\layout Section
+
+pyVCP Container reference
+\layout Standard
+
+Containers are widgets that contain other widgets.
 \layout Subsection
 
 Hbox
@@ -697,8 +761,8 @@ Use a Hbox when you want to stack widgets horizontally next to eachother.
 </hbox>
 \layout LyX-Code
 
-\layout LyX-Code
-
+\layout Standard
+\align center 
 
 \begin_inset Graphics
 	filename pyvcp_hbox.png
@@ -706,12 +770,49 @@ Use a Hbox when you want to stack widgets horizontally next to eachother.
 \end_inset 
 
 
+\layout Standard
+
+Inside a Hbox, you can use the 
+\family typewriter 
+<boxfill fill=""/>
+\family default 
+, 
+\family typewriter 
+<boxanchor anchor=""/>
+\family default 
+, and 
+\family typewriter 
+<boxexpand expand=""/>
+\family default 
+ tags to choose how items in the box behave when the window is resized.
+ For details of how fill, anchor, and expand behave, refer to the Tk 
+\family typewriter 
+pack
+\family default 
+ manual page, 
+\family typewriter 
+pack(3tk)
+\family default 
+.
+ By default, 
+\family typewriter 
+fill='y'
+\family default 
+, 
+\family typewriter 
+anchor='center'
+\family default 
+, 
+\family typewriter 
+expand='yes'
+\family default 
+.
 \layout Subsection
 
 Vbox
 \layout Standard
 
-Use a Vbox when you want to stack widgets verticallyon top of eachother.
+Use a Vbox when you want to stack widgets vertically on top of each other.
 \layout LyX-Code
 
 <vbox>
@@ -727,8 +828,8 @@ Use a Vbox when you want to stack widgets verticallyon top of eachother.
 </vbox>
 \layout LyX-Code
 
-\layout LyX-Code
-
+\layout Standard
+\align center 
 
 \begin_inset Graphics
 	filename pyvcp_vbox.png
@@ -736,6 +837,43 @@ Use a Vbox when you want to stack widgets verticallyon top of eachother.
 \end_inset 
 
 
+\layout Standard
+
+Inside a Hbox, you can use the 
+\family typewriter 
+<boxfill fill=""/>
+\family default 
+, 
+\family typewriter 
+<boxanchor anchor=""/>
+\family default 
+, and 
+\family typewriter 
+<boxexpand expand=""/>
+\family default 
+ tags to choose how items in the box behave when the window is resized.
+ For details of how fill, anchor, and expand behave, refer to the Tk 
+\family typewriter 
+pack
+\family default 
+ manual page, 
+\family typewriter 
+pack(3tk)
+\family default 
+.
+ By default, 
+\family typewriter 
+fill='x'
+\family default 
+, 
+\family typewriter 
+anchor='center'
+\family default 
+, 
+\family typewriter 
+expand='yes'
+\family default 
+.
 \layout Subsection
 
 Label
@@ -754,7 +892,7 @@ A label is a piece of text on your panel.
 \layout LyX-Code
 
 \layout LyX-Code
-
+\align center 
 
 \begin_inset Graphics
 	filename pyvcp_label.png
@@ -762,6 +900,93 @@ A label is a piece of text on your panel.
 \end_inset 
 
 
+\layout Subsection
+
+Labelframe
+\layout Standard
+
+A labelframe is a frame with a groove and a label at the upper-left corner.
+\layout LyX-Code
+
+<labelframe text="Group Title">
+\newline 
+  <hbox>
+\newline 
+    <led/> <led/>
+\newline 
+  </hbox>
+\newline 
+</labelframe>
+\layout Subsection
+
+Table
+\layout Standard
+
+A table is a container that allows layout in a grid of rows and columns.
+ Each row is started by a 
+\family typewriter 
+<tablerow/>
+\family default 
+ tag.
+ A contained widget may span rows or columns through the use of the 
+\family typewriter 
+<tablespan rows= cols=/>
+\family default 
+ tag.
+ The sides of the cells to which the contained widgets 
+\begin_inset Quotes eld
+\end_inset 
+
+stick
+\begin_inset Quotes erd
+\end_inset 
+
+ may be set through the use of the 
+\family typewriter 
+<tablesticky sticky=/>
+\family default 
+ tag.
+ A table expands on its flexible rows and columns.
+\layout Standard
+
+Example:
+\layout LyX-Code
+
+<table flexible_rows="[2]" flexible_columns="[1,4]">
+\newline 
+   <tablesticky sticky="new"/>
+\newline 
+   <tablerow/>
+\newline 
+    <label text="A (cell 1,1)"/>
+\newline 
+    <label text="B (cell 1,2)"/>
+\newline 
+    <tablespan columns="2"/><label text="C, D (cells 1,3 and 1,4)"> 
+\newline 
+   <tablerow/>
+\newline 
+    <label text="E (cell 2,1)"/>
+\newline 
+    <tablesticky sticky="nsew"/><tablespan rows="2"/>
+\newline 
+        <label text="'spans
+\backslash 
+n2 rows'"/>
+\newline 
+    <tablesticky sticky="new"/><label text="G (cell 2,3)"/>
+\newline 
+    <label text="H (cell 2,4)"/>
+\newline 
+   <tablerow/> 
+\newline 
+    <label text="J (cell 3,1)"/>
+\newline 
+    <label text="K (cell 3,2)"/>
+\newline 
+    <label text="M (cell 3,4)"/>
+\newline 
+</table> 
 \layout Section
 
 VCP: A small example
