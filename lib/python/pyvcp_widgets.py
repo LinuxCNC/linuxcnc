@@ -942,12 +942,18 @@ class pyvcp_scale(Scale):
 
 
 class pyvcp_table(Frame):
-    def __init__(self, master, pycomp, flexible_rows=[], flexible_columns=[]):
+    def __init__(self, master, pycomp, flexible_rows=[], flexible_columns=[], uniform_columns="", uniform_rows=""):
 	Frame.__init__(self, master)
 	for r in flexible_rows:
 	    self.grid_rowconfigure(r, weight=1)
 	for c in flexible_columns:
 	    self.grid_columnconfigure(c, weight=1)
+
+        for i, r in enumerate(uniform_rows):
+            self.grid_rowconfigure(i+1, uniform=r)
+        for i, c in enumerate(uniform_columns):
+            self.grid_columnconfigure(i+1, uniform=c)
+
 	self._r = self._c = 0
 	self.occupied = {}
 	self.span = (1,1)
