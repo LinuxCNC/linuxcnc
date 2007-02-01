@@ -548,18 +548,22 @@ class pyvcp_vbox(Frame):
 	self.fill = 'x'
 	self.side = 'top'
 	self.anchor = 'center'
+	self.expand = 'yes'
 
     def update(self,pycomp): 
         pass
 
     def add(self, container, widget):
+	if isinstance(widget, pyvcp_boxexpand):
+	    self.expand = widget.expand
+	    return
 	if isinstance(widget, pyvcp_boxfill):
 	    self.fill = widget.fill
 	    return
 	if isinstance(widget, pyvcp_boxanchor):
 	    self.anchor = widget.anchor
 	    return
-	widget.pack(side=self.side, anchor=self.anchor, fill=self.fill)
+	widget.pack(side=self.side, anchor=self.anchor, fill=self.fill, expand=self.expand)
 
 class pyvcp_boxfill:
     def __init__(self, master, pycomp, fill):
@@ -569,6 +573,11 @@ class pyvcp_boxfill:
 class pyvcp_boxanchor:
     def __init__(self, master, pycomp, anchor):
 	self.anchor = anchor
+    def update(self, pycomp): pass
+
+class pyvcp_boxexpand:
+    def __init__(self, master, pycomp, expand):
+	self.expand = expand
     def update(self, pycomp): pass
 
 # -------------------------------------------
@@ -591,6 +600,9 @@ class pyvcp_hbox(Frame):
         pass
 
     def add(self, container, widget):
+	if isinstance(widget, pyvcp_boxexpand):
+	    self.expand = widget.expand
+	    return
 	if isinstance(widget, pyvcp_boxfill):
 	    self.fill = widget.fill
 	    return
