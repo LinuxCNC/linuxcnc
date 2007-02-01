@@ -1,0 +1,29 @@
+component clarkeinv "Inverse Clarke transform";
+description """The inverse Clarke transform can be used to translate
+a vector quantity from Cartesian coordinate system to a three phase
+system (three components 120 degrees apart).""";
+see_also """\\fBclarke2\\fR and \\fBclarke3\\fR for the forward transform.""";
+pin in float x;
+pin in float y "cartesian components of input";
+pin in float h "homopolar component of input (usually zero)";
+pin out float a;
+pin out float b;
+pin out float c "three phase output vector";
+function _;
+;;
+MODULE_LICENSE("GPL");
+
+/* for the details, google "clarke transform", or see section 3 of
+   http://focus.ti.com/lit/an/bpra048/bpra048.pdf and/or appendix B of
+   http://www.esat.kuleuven.be/electa/publications/fulltexts/pub_1610.pdf
+*/
+
+#define K1 (0.500000000000000)  /* 1/2       */
+#define K2 (0.866025403784439)  /* sqrt(3)/2 */
+#define K3 (0.707106781186547)  /* 1/sqrt(2) */
+
+FUNCTION(_) {
+    a =  x +  K3*h;
+    b = -K1*x + K2*y + K3*h;
+    c = -K1*x - K2*y + K3*h;
+}
