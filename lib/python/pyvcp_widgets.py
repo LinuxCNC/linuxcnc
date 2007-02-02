@@ -595,6 +595,7 @@ class pyvcp_hbox(Frame):
 	self.fill = 'y'
 	self.side = 'left'
 	self.anchor = 'center'
+	self.expand = 'yes'
 
     def update(self,pycomp): 
         pass
