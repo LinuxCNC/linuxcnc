@@ -1,0 +1,33 @@
+(this is the program describing entry moves for)
+(radius compensation in Figure 3 of the Handbook)
+(http://www.linuxcnc.org/handbook/RS274NGC_3/RS274NGC_38a.html#999268)
+
+g20 f60
+
+(first, no compensation so we can see the part outline)
+g0 x1 y5
+g1 y4
+g3 x2 y3 i1
+g2 x3 y2 j-1
+g1 y-1
+g2 x2 y-2 i-1
+g1 x-2
+g2 x-2.6 y-0.2 j1
+g1 x1.4 y2.8
+g2 x2 y3 i.6 j-.8
+
+(with compensation)
+t4 m6
+g0 x1 y5
+g41 g1 y4
+g3 x2 y3 i1
+g2 x3 y2 j-1
+g1 y-1
+g2 x2 y-2 i-1
+g1 x-2
+g2 x-2.6 y-0.2 j1
+g1 x1.4 y2.8
+g2 x2 y3 i.6 j-.8
+g40
+
+m2
