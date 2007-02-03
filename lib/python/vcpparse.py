@@ -109,7 +109,7 @@ def widget_creator(parent,widget_name,params):
     # pack the widget according to parent
     # either hbox or vbox
     if container==pyvcp0:
-	widget.pack(side='top', fill=BOTH)
+	widget.pack(side='top', fill=BOTH, expand=YES)
     else:
 	parent.add(container, widget)
    
