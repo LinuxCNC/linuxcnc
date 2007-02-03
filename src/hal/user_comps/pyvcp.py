@@ -42,7 +42,8 @@ import getopt
 
 def usage():
     """ prints the usage message """
-    print "Usage: pyvcp -c hal_component_name myfile.xml"
+    print "Usage: pyvcp [-c hal_component_name] myfile.xml"
+    print "If the component name is not specified, the basename of the xml file is used."
 
 def main():
     """ creates a HAL component.
@@ -60,15 +61,14 @@ def main():
         if o == "-c": 
             component_name = a
 
-    if component_name is None:
-        usage()
-        sys.exit(1)
-
     try:
         filename=args[0]
     except:
         usage()
         sys.exit(1)
+
+    if component_name is None:
+	component_name = os.path.splitext(os.path.basename(filename))[0]
 
     pyvcp0 = Tk()
     pyvcp0.title(component_name)
