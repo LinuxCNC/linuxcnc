@@ -41,9 +41,8 @@ from Tkinter import *
 from hal import *
 import math
 import bwidget
-
-from Tkinter import *
-import math
+# from Tkinter import *
+# import math
 
 # -------------------------------------------
 
@@ -738,7 +737,6 @@ class pyvcp_bar(Canvas):
     """ (indicator) a bar-indicator for a float"""
     n=0
     # FIXME logarithmic scale?
-    # FIXME specifying negative startval or endval does not work
     def __init__(self,master,pycomp,
               fillcolor="green",bgcolor="grey",
                halpin=None,min_=0.0,max_=100.0,**kw):
@@ -757,16 +755,20 @@ class pyvcp_bar(Canvas):
         self.halpin=halpin
         self.endval=max_
         self.startval=min_
+        self.value=0.0 # some dummy value to start with   
         pycomp.newpin(halpin, HAL_FLOAT, HAL_IN)
 
         # the border
         border=self.create_rectangle(self.pad,1,self.pad+self.bw,self.bh)
         self.itemconfig(border,fill=bgcolor)
-
+        
         # the bar
-        self.bar=self.create_rectangle(self.pad+1,2,self.pad+1,self.bh-1)
+        tmp=self.bar_coords()
+        start=tmp[0]
+        end=tmp[1]
+        self.bar=self.create_rectangle(start,2,end,self.bh-1)
         self.itemconfig(self.bar,fill=fillcolor)
-        self.value=0.0 # some dummy value to start with     
+         
           
         # start text
         start_text=self.create_text(self.pad,self.bh+10,text=str(self.startval) )
@@ -775,25 +777,44 @@ class pyvcp_bar(Canvas):
         # value text
         self.val_text=self.create_text(self.pad+self.bw/2,
                                    self.bh/2,text=str(self.value) )
+    
+    def bar_coords(self):
+        """ calculates the coordinates in pixels for the bar """
+        # the bar should start at value = zero 
+        # and extend to value = self.value
+        # it should not extend beyond the initial box reserved for the bar
+        min_pixels=self.pad
+        max_pixels=self.pad+self.bw
+        bar_end = min_pixels + ((float)(max_pixels-min_pixels)/(float)(self.endval-self.startval)) * (self.value-self.startval)
+        if bar_end>max_pixels:
+            bar_end = max_pixels
+        elif bar_end < min_pixels:
+            bar_end = min_pixels
+        bar_start = min_pixels + ((float)(max_pixels-min_pixels)/(float)(self.endval-self.startval)) * (0-self.startval)
+        if bar_start < min_pixels:  # don't know if this is really needed
+            bar_start = min_pixels
+
+        return [bar_start, bar_end]
           
     def update(self,pycomp):
         # update value
         newvalue=pycomp[self.halpin]
         if newvalue != self.value:
             self.value = newvalue
-            percent = self.value/(self.endval-self.startval)
-            if percent < 0.0:
-                percent = 0
-            elif percent > 1.0:
-                percent = 1.0  
+            # percent = self.value/(self.endval-self.startval)
+            # if percent < 0.0:
+            #     percent = 0
+            # elif percent > 1.0:
+            #    percent = 1.0  
             # set value text
             valtext = str( "%(b)3.1f" % {'b':self.value} )
             self.itemconfig(self.val_text,text=valtext)
             # set bar size
-            self.coords(self.bar, self.pad+1, 2, 
-                        self.pad+self.bw*percent, self.bh-1)
-
-
+            tmp=self.bar_coords()
+            start=tmp[0]
+            end=tmp[1]
+            self.coords(self.bar, start, 2, 
+                        end, self.bh-1)
 
 
 
