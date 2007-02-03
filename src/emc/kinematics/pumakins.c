@@ -1,6 +1,7 @@
 /*****************************************************************
 * Description: pumakins.c
-*   Kinematics for a puma typed robot
+*   Kinematics for puma typed robots
+*   Set the params using HAL to fit your robot
 *
 *   Derived from a work by Fred Proctor
 *
@@ -14,8 +15,6 @@
 * $Revision$
 * $Author$
 * $Date$
-*******************************************************************
-* This is the header file to accompany pumakins.c.  
 *******************************************************************
 */
 
