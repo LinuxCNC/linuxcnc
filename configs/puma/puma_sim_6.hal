@@ -119,3 +119,13 @@ newsig bflt bit
 linksp bflt axis.4.amp-fault-in
 newsig cflt bit
 linksp cflt axis.5.amp-fault-in
+
+loadusr -W pumagui
+
+net j0 axis.0.joint-pos-fb pumagui.joint1
+net j1 axis.1.joint-pos-fb pumagui.joint2
+net j2 axis.2.joint-pos-fb pumagui.joint3
+net j3 axis.3.joint-pos-fb pumagui.joint4
+net j4 axis.4.joint-pos-fb pumagui.joint5
+net j5 axis.5.joint-pos-fb pumagui.joint6
+net j6 axis.6.joint-pos-fb pumagui.grip

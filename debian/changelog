@@ -1,5 +1,6 @@
 emc2 (2.2.0pre) testing; urgency=low
 
+  * opengl machine visualization, starting with puma-style robots
   * new m5i20 firmwares
   * userspace "comp"
   * hal-8255 driver for a PCI multiple-8255 card
