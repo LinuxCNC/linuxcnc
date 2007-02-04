@@ -379,6 +379,30 @@ static PyObject *pygluDeleteQuadric(PyObject *s, PyObject *o) {
     return Py_None;
 }
 
+static PyObject *pygluSphere(PyObject *s, PyObject *o) {
+    Quadric *q;
+    double radius;
+    int slices, stacks;
+
+    if(!PyArg_ParseTuple(o, "O!dddii:gluCylinder",
+			    &Quadric_Type, &q, &radius,
+			    &slices, &stacks))
+        return NULL;
+
+    if(!q->q) {
+        PyErr_SetString(PyExc_TypeError, "Operation on deleted quadric");
+        return NULL;
+    }
+
+    gluSphere(q->q, radius, slices, stacks);
+
+    CHECK_ERROR;
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+
 static PyObject *pygluCylinder(PyObject *s, PyObject *o) {
     Quadric *q;
     double base, top, height;
@@ -747,6 +771,7 @@ METH(glPixelStorei, "set pixel storage modes"),
 METH(glSelectBuffer, "establish a buffer for selection mode values"),
 METH(glFeedbackBuffer, "establish a buffer for feedback mode values"),
 // METH(glVertex3fv, ""),
+METH(gluSphere, "draw a sphere"),
 METH(gluCylinder, "draw a cylinder"),
 METH(gluDeleteQuadric, "destroy a quadrics object"),
 METH(gluDisk, "draw a disk"),
