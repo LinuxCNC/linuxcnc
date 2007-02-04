@@ -1,6 +1,6 @@
-linksp J0pos pyvcp.joint0
-linksp J1pos pyvcp.joint1
-linksp J2pos pyvcp.joint2
-linksp J3pos pyvcp.joint3
-linksp J4pos pyvcp.joint4
-linksp J5pos pyvcp.joint5
+net j0 pyvcp.joint0
+net j1 pyvcp.joint1
+net j2 pyvcp.joint2
+net j3 pyvcp.joint3
+net j4 pyvcp.joint4
+net j5 pyvcp.joint5
