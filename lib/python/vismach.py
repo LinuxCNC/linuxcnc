@@ -309,4 +309,7 @@ def main(model, distance=10):
 	t.tkRedraw()
 	t.after(50, update)
     update()
-    app.mainloop()
+    try:
+	app.mainloop()
+    except KeyboardInterrupt:
+	raise SystemExit
