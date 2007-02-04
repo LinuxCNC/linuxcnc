@@ -52,6 +52,13 @@ PATH=$EMC2_BIN_DIR:$PATH
 #ditto scripts if not RIP
 [ -d $EMC2_HOME/scripts ] && PATH=$EMC2_HOME/scripts:$PATH
 
+if [ -z "$PYTHONPATH" ]; then
+    PYTHONPATH=$EMC2_HOME/lib/python
+else
+    PYTHONPATH=$EMC2_HOME/lib/python:"$PYTHONPATH"
+fi
+export PYTHONPATH
+
 XFILESEARCHPATH=%D:@EMC2_HOME@/%T/%N%C:@EMC2_HOME@/%T/%N
 export XFILESEARCHPATH
 
