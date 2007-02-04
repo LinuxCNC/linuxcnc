@@ -1022,7 +1022,7 @@ class pyvcp_tablesticky:
     def update(self, pycomp): pass
     
 class pyvcp_include(Frame):
-    def __init__(self, master, pycomp, src, expand="yes", fill="both", anchor="center", **kw):
+    def __init__(self, master, pycomp, src, expand="yes", fill="both", anchor="center", prefix=None, **kw):
         Frame.__init__(self,master,**kw)
 
         self.master = master
@@ -1030,6 +1030,9 @@ class pyvcp_include(Frame):
         self.anchor = anchor
         self.expand = expand
 
+        if prefix is not None:
+            oldprefix = pycomp.getprefix()
+            pycomp.setprefix(prefix)
         import vcpparse, xml.dom.minidom, xml.parsers.expat
 
         try:
@@ -1050,6 +1053,10 @@ class pyvcp_include(Frame):
             sys.exit()
         pyvcproot=e
         vcpparse.nodeiterator(pyvcproot,self)
+
+        if prefix is not None:
+            pycomp.setprefix(oldprefix)
+
         print "Done."         
 
     def update(self, pycomp): pass
@@ -1067,3 +1074,4 @@ for _key in globals().keys():
 
 if __name__ == '__main__':
     print "You can't run pyvcp_widgets.py by itself..."
+# vim:sts=4:sw=4:et:
