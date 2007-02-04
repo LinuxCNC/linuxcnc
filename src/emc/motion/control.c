@@ -2402,16 +2402,16 @@ static void output_to_hal(void)
 	axis_data = &(emcmot_hal_data->axis[joint_num]);
 	/* write to HAL pins */
 	*(axis_data->motor_pos_cmd) = joint->motor_pos_cmd;
+	*(axis_data->joint_pos_cmd) = joint->pos_cmd;
+	*(axis_data->joint_pos_fb) = joint->pos_fb;
 	*(axis_data->amp_enable) = GET_JOINT_ENABLE_FLAG(joint);
 	*(axis_data->index_enable) = joint->index_enable;
 	/* output to parameters (for scoping, etc.) */
 	axis_data->coarse_pos_cmd = joint->coarse_pos;
-	axis_data->joint_pos_cmd = joint->pos_cmd;
 	axis_data->joint_vel_cmd = joint->vel_cmd;
 	axis_data->backlash_corr = joint->backlash_corr;
 	axis_data->backlash_filt = joint->backlash_filt;
 	axis_data->backlash_vel = joint->backlash_vel;
-	axis_data->joint_pos_fb = joint->pos_fb;
 	axis_data->f_error = joint->ferror;
 	axis_data->f_error_lim = joint->ferror_limit;
 

@@ -355,12 +355,20 @@ jog-counts
 
 axis.N.motor-pos-cmd\SpecialChar ~
 OUT\SpecialChar ~
-float The commanded position for this joint
+float The commanded position for thisr joint.
 \layout Description
 
 axis.N.motor-pos-fb\SpecialChar ~
 IN\SpecialChar ~
 float The actual position for this joint.
+\layout Description
+
+axis.N.joint-pos-cmd The joint (as opposed to motor) commanded position.
+ There may be an offset between the joint and motor positions--for example,
+ the homing process sets this offset.
+\layout Description
+
+axis.N.joint-pos-fb The joint (as opposed to motor) feedback position.
 \layout Subsection
 
 Parameters
@@ -442,14 +450,6 @@ free planner
 \end_inset 
 
  and has come to a stop
-\layout Description
-
-axis.N.joint-pos-cmd The joint (as opposed to motor) commanded position.
- There may be an offset between the joint and motor positions--for example,
- the homing process sets this offset
-\layout Description
-
-axis.N.joint-pos-fb The joint (as opposed to motor) feedback position.
 \layout Description
 
 axis.N.joint-vel-cmd The joint's commanded velocity

@@ -510,7 +510,19 @@ static int export_axis(int num, axis_hal_t * addr)
     rtapi_set_msg_level(RTAPI_MSG_WARN);
 
     /* export axis pins */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.motor-pos-cmd", num);
+    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.joint-pos-cmd", num);
+    retval =
+	hal_pin_float_new(buf, HAL_OUT, &(addr->joint_pos_cmd), mot_comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.joint-pos-fb", num);
+    retval =
+	hal_pin_float_new(buf, HAL_OUT, &(addr->joint_pos_fb), mot_comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.motor-pos-cmd", num);
     retval =
 	hal_pin_float_new(buf, HAL_OUT, &(addr->motor_pos_cmd), mot_comp_id);
     if (retval != 0) {
@@ -575,12 +587,6 @@ static int export_axis(int num, axis_hal_t * addr)
     if (retval != 0) {
 	return retval;
     }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.joint-pos-cmd", num);
-    retval =
-	hal_param_float_new(buf, HAL_RO, &(addr->joint_pos_cmd), mot_comp_id);
-    if (retval != 0) {
-	return retval;
-    }
     rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.joint-vel-cmd", num);
     retval =
 	hal_param_float_new(buf, HAL_RO, &(addr->joint_vel_cmd), mot_comp_id);
@@ -602,12 +608,6 @@ static int export_axis(int num, axis_hal_t * addr)
     rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.backlash-vel", num);
     retval =
 	hal_param_float_new(buf, HAL_RO, &(addr->backlash_vel), mot_comp_id);
-    if (retval != 0) {
-	return retval;
-    }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.joint-pos-fb", num);
-    retval =
-	hal_param_float_new(buf, HAL_RO, &(addr->joint_pos_fb), mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
