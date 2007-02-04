@@ -57,20 +57,20 @@ int kinematicsForward(const double * joint,
    PmRpy rpy;
 
    /* Calculate sin of joints for future use */
-   s1 = sin(joint[0]);
-   s2 = sin(joint[1]);
-   s3 = sin(joint[2]);
-   s4 = sin(joint[3]);
-   s5 = sin(joint[4]);
-   s6 = sin(joint[5]);
+   s1 = sin(joint[0]*PM_PI/180);
+   s2 = sin(joint[1]*PM_PI/180);
+   s3 = sin(joint[2]*PM_PI/180);
+   s4 = sin(joint[3]*PM_PI/180);
+   s5 = sin(joint[4]*PM_PI/180);
+   s6 = sin(joint[5]*PM_PI/180);
 
    /* Calculate cos of joints for future use */
-   c1 = cos(joint[0]);
-   c2 = cos(joint[1]);
-   c3 = cos(joint[2]);
-   c4 = cos(joint[3]);
-   c5 = cos(joint[4]);
-   c6 = cos(joint[5]);
+   c1 = cos(joint[0]*PM_PI/180);
+   c2 = cos(joint[1]*PM_PI/180);
+   c3 = cos(joint[2]*PM_PI/180);
+   c4 = cos(joint[3]*PM_PI/180);
+   c5 = cos(joint[4]*PM_PI/180);
+   c6 = cos(joint[5]*PM_PI/180);
 
    s23 = c2 * s3 + s2 * c3;
    c23 = c2 * c3 - s2 * s3;
@@ -166,9 +166,9 @@ int kinematicsForward(const double * joint,
    pmHomPoseConvert(hom, &worldPose);
    pmQuatRpyConvert(worldPose.rot,&rpy);
    world->tran = worldPose.tran;
-   world->a = rpy.r*180.0/PM_PI;
-   world->b = rpy.p*180.0/PM_PI;
-   world->c = rpy.y*180.0/PM_PI;
+   world->a = rpy.r * 180.0/PM_PI;
+   world->b = rpy.p * 180.0/PM_PI;
+   world->c = rpy.y * 180.0/PM_PI;
 
    
    /* return 0 and exit */
@@ -313,12 +313,12 @@ int kinematicsInverse(const EmcPose * world,
    }
 
    /* copy out */
-   joint[0] = th1;
-   joint[1] = th2;
-   joint[2] = th3;
-   joint[3] = th4;
-   joint[4] = th5;
-   joint[5] = th6;
+   joint[0] = th1*PM_PI/180;
+   joint[1] = th2*PM_PI/180;
+   joint[2] = th3*PM_PI/180;
+   joint[3] = th4*PM_PI/180;
+   joint[4] = th5*PM_PI/180;
+   joint[5] = th6*PM_PI/180;
 
    return singular == 0 ? 0 : -1;
 }
