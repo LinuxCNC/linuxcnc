@@ -47,7 +47,7 @@ link6 = Collection([
 	Box(-0.060, -0.015, 0.02, 0.060, 0.015, 0.1),
 	Box(-0.05, -0.05, 0.0, 0.05, 0.05, 0.02)])
 # assembly fingers, and make it rotate
-link6 = HalRotate([finger1,finger2,link6],c,"joint6",360,0,0,1)
+link6 = HalRotate([finger1,finger2,link6],c,"joint6",1,0,0,1)
 
 # moving part of wrist joint
 link5 = Collection([
@@ -59,7 +59,7 @@ link5 = Collection([
 	link5,
 	Translate([link6],0,0,0.070)])
 # make wrist bend
-link5 = HalRotate([link5],c,"joint5",90,1,0,0)
+link5 = HalRotate([link5],c,"joint5",1,1,0,0)
 
 # fixed part of wrist joint (rotates on end of arm)
 link4 = Collection([
@@ -71,7 +71,7 @@ link4 = Collection([
 # attach wrist, move whole assembly forward so joint 4 is at origin
 link4 = Translate([link4,link5], 0, 0, 0.090)
 # make joint 4 rotate
-link4 = HalRotate([link4],c,"joint4",360,0,0,1)
+link4 = HalRotate([link4],c,"joint4",1,0,0,1)
 
 # next chunk
 link3 = Collection([
@@ -84,7 +84,7 @@ link3 = Collection([
 # move whole assembly over so joint 3 is at origin
 link3 = Translate([link3],-0.08, 0.0, 0.0)
 # make joint 3 rotate
-link3 = HalRotate([link3],c,"joint3",360,1,0,0)
+link3 = HalRotate([link3],c,"joint3",1,1,0,0)
 
 # elbow stuff
 link2 = Collection([
@@ -105,7 +105,7 @@ link2 = Collection([
 # move whole assembly over so joint 2 is at origin
 link2 = Translate([link2],0.14, 0.0, 0.0)
 # make joint 2 rotate
-link2 = HalRotate([link2],c,"joint2",360,1,0,0)
+link2 = HalRotate([link2],c,"joint2",1,1,0,0)
 
 # shoulder stuff
 link1 = Collection([
@@ -120,7 +120,7 @@ link1 = Collection([
 # move whole assembly up so joint 1 is at origin
 link1 = Translate([link1],0.0, 0.0, 0.2)
 # make joint 1 rotate
-link1 = HalRotate([link1],c,"joint1",360,0,0,1)
+link1 = HalRotate([link1],c,"joint1",1,0,0,1)
 
 # stationary base
 link0 = Collection([
