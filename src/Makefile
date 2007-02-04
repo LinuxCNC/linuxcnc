@@ -599,6 +599,11 @@ pumakins-objs := emc/kinematics/pumakins.o
 pumakins-objs += libnml/posemath/_posemath.o
 pumakins-objs += libnml/posemath/sincos.o $(MATHSTUB)
 
+obj-m += scarakins.o
+scarakins-objs := emc/kinematics/scarakins.o
+scarakins-objs += libnml/posemath/_posemath.o
+scarakins-objs += libnml/posemath/sincos.o $(MATHSTUB)
+
 obj-$(CONFIG_MOTMOD) += motmod.o
 motmod-objs := emc/kinematics/cubic.o 
 motmod-objs += emc/kinematics/tc.o 
