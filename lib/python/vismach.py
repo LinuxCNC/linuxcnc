@@ -116,11 +116,12 @@ class CylinderX:
 	# the cylinder starts out at Z=0
 	gluCylinder(self.q, r1, r2, z2-z1, 32, 1)
 	# bottom cap
+	glRotatef(180,1,0,0)
 	gluDisk(self.q, 0, r1, 32, 1)
+	glRotatef(180,1,0,0)
 	# the top cap needs flipped and translated
 	glPushMatrix()
 	glTranslatef(0,0,z2-z1)
-	glRotatef(180,1,0,0)
 	gluDisk(self.q, 0, r2, 32, 1)
 	glPopMatrix()
 	glPopMatrix()
@@ -151,11 +152,12 @@ class CylinderY:
 	# the cylinder starts out at Z=0
 	gluCylinder(self.q, r1, r2, z2-z1, 32, 1)
 	# bottom cap
+	glRotatef(180,1,0,0)
 	gluDisk(self.q, 0, r1, 32, 1)
+	glRotatef(180,1,0,0)
 	# the top cap needs flipped and translated
 	glPushMatrix()
 	glTranslatef(0,0,z2-z1)
-	glRotatef(180,1,0,0)
 	gluDisk(self.q, 0, r2, 32, 1)
 	glPopMatrix()
 	glPopMatrix()
@@ -182,11 +184,12 @@ class CylinderZ:
 	# the cylinder starts out at Z=0
 	gluCylinder(self.q, r1, r2, z2-z1, 32, 1)
 	# bottom cap
+	glRotatef(180,1,0,0)
 	gluDisk(self.q, 0, r1, 32, 1)
+	glRotatef(180,1,0,0)
 	# the top cap needs flipped and translated
 	glPushMatrix()
 	glTranslatef(0,0,z2-z1)
-	glRotatef(180,1,0,0)
 	gluDisk(self.q, 0, r2, 32, 1)
 	glPopMatrix()
 	glPopMatrix()
@@ -214,10 +217,10 @@ class Box:
         glBegin(GL_QUADS)
 	# bottom face
         glNormal3f(0,0,1)
-        glVertex3f(x2, y2, z1)
-        glVertex3f(x1, y2, z1)
-        glVertex3f(x1, y1, z1)
         glVertex3f(x2, y1, z1)
+        glVertex3f(x1, y1, z1)
+        glVertex3f(x1, y2, z1)
+        glVertex3f(x2, y2, z1)
 	# positive X face
         glNormal3f(1,0,0)
         glVertex3f(x2, y1, z1)
@@ -226,28 +229,28 @@ class Box:
         glVertex3f(x2, y1, z2)
 	# positive Y face
         glNormal3f(0,1,0)
-        glVertex3f(x2, y2, z1)
-        glVertex3f(x2, y2, z2)
-        glVertex3f(x1, y2, z2)
         glVertex3f(x1, y2, z1)
+        glVertex3f(x1, y2, z2)
+        glVertex3f(x2, y2, z2)
+        glVertex3f(x2, y2, z1)
 	# negative Y face
         glNormal3f(0,-1,0)
-        glVertex3f(x2, y1, z1)
-        glVertex3f(x1, y1, z1)
-        glVertex3f(x1, y1, z2)
         glVertex3f(x2, y1, z2)
+        glVertex3f(x1, y1, z2)
+        glVertex3f(x1, y1, z1)
+        glVertex3f(x2, y1, z1)
 	# negative X face
         glNormal3f(-1,0,0)
-        glVertex3f(x1, y2, z1)
-        glVertex3f(x1, y2, z2)
-        glVertex3f(x1, y1, z2)
         glVertex3f(x1, y1, z1)
+        glVertex3f(x1, y1, z2)
+        glVertex3f(x1, y2, z2)
+        glVertex3f(x1, y2, z1)
 	# top face
         glNormal3f(0,0,-1)
-        glVertex3f(x2, y2, z2)
-        glVertex3f(x2, y1, z2)
-        glVertex3f(x1, y1, z2)
         glVertex3f(x1, y2, z2)
+        glVertex3f(x1, y1, z2)
+        glVertex3f(x2, y1, z2)
+        glVertex3f(x2, y2, z2)
         glEnd()
 
 # specify the width in X and Y, and the height in Z
@@ -278,6 +281,7 @@ class O(rs274.OpenGLTk.Opengl):
         glLightfv(GL_LIGHT0+1, GL_AMBIENT, (.0,.0,.0,0))
         glLightfv(GL_LIGHT0+1, GL_DIFFUSE, (.0,.0,.4,0))
         glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, (1,1,1,0))
+	glEnable(GL_CULL_FACE)
         glEnable(GL_LIGHTING)
         glEnable(GL_LIGHT0)
         glEnable(GL_LIGHT0+1)
