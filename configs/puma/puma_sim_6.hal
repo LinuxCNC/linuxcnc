@@ -138,12 +138,12 @@ linksp J3pos scale.3.in
 linksp J4pos scale.4.in
 linksp J5pos scale.5.in
 
-setp scale.0.gain 0.002777777
-setp scale.1.gain 0.002777777
-setp scale.2.gain 0.002777777
-setp scale.3.gain 0.002777777
-setp scale.4.gain 0.002777777
-setp scale.5.gain 0.002777777
+setp scale.0.gain 1
+setp scale.1.gain 1
+setp scale.2.gain 1
+setp scale.3.gain 1
+setp scale.4.gain 1
+setp scale.5.gain 1
 
 net J0scaled scale.0.out pumagui.joint1
 net J1scaled scale.1.out pumagui.joint2
