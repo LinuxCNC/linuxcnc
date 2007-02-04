@@ -122,10 +122,40 @@ linksp cflt axis.5.amp-fault-in
 
 loadusr -W pumagui
 
-net j0 axis.0.joint-pos-fb pumagui.joint1
-net j1 axis.1.joint-pos-fb pumagui.joint2
-net j2 axis.2.joint-pos-fb pumagui.joint3
-net j3 axis.3.joint-pos-fb pumagui.joint4
-net j4 axis.4.joint-pos-fb pumagui.joint5
-net j5 axis.5.joint-pos-fb pumagui.joint6
-net j6 axis.6.joint-pos-fb pumagui.grip
+loadrt scale count=6
+
+addf scale.0 servo-thread
+addf scale.1 servo-thread
+addf scale.2 servo-thread
+addf scale.3 servo-thread
+addf scale.4 servo-thread
+addf scale.5 servo-thread
+
+linksp J0pos scale.0.in
+linksp J1pos scale.1.in
+linksp J2pos scale.2.in
+linksp J3pos scale.3.in
+linksp J4pos scale.4.in
+linksp J5pos scale.5.in
+
+setp scale.0.gain 0.002777777
+setp scale.1.gain 0.002777777
+setp scale.2.gain 0.002777777
+setp scale.3.gain 0.002777777
+setp scale.4.gain 0.002777777
+setp scale.5.gain 0.002777777
+
+net J0scaled scale.0.out pumagui.joint1
+net J1scaled scale.1.out pumagui.joint2
+net J2scaled scale.2.out pumagui.joint3
+net J3scaled scale.3.out pumagui.joint4
+net J4scaled scale.4.out pumagui.joint5
+net J5scaled scale.5.out pumagui.joint6
+
+#net j0 axis.0.joint-pos-fb pumagui.joint1
+#net j1 axis.1.joint-pos-fb pumagui.joint2
+#net j2 axis.2.joint-pos-fb pumagui.joint3
+#net j3 axis.3.joint-pos-fb pumagui.joint4
+#net j4 axis.4.joint-pos-fb pumagui.joint5
+#net j5 axis.5.joint-pos-fb pumagui.joint6
+#net j6 axis.6.joint-pos-fb pumagui.grip
