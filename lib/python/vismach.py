@@ -271,6 +271,16 @@ class O(rs274.OpenGLTk.Opengl):
     def __init__(self, *args, **kw):
         rs274.OpenGLTk.Opengl.__init__(self, *args, **kw)
         self.r_back = self.g_back = self.b_back = 0
+        self.bind('<Button-4>', self.zoomin)
+        self.bind('<Button-5>', self.zoomout)
+
+    def zoomin(self, event):
+        self.distance = self.distance / 1.1
+        self.tkRedraw()
+
+    def zoomout(self, event):
+        self.distance = self.distance * 1.1
+        self.tkRedraw()
 
     def basic_lighting(self):
         self.activate()
