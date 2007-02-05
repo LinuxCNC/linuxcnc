@@ -206,7 +206,7 @@ int main(int argc, char **argv)
         }
     }
 
-    halcmd_startup();
+    if ( halcmd_startup() != 0 ) return 1;
 
     retval = 0;
     errorcount = 0;
