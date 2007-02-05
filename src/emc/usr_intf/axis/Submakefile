@@ -42,7 +42,7 @@ PYTARGETS += $(MINIGLMODULE) $(SETICONMODULE) $(TOGLMODULE)
 endif
 
 PYSCRIPTS := axis.py axis-remote.py emctop.py hal_manualtoolchange.py \
-	mdi.py image-to-gcode.py lintini.py debuglevel.py pumagui.py
+	mdi.py image-to-gcode.py lintini.py debuglevel.py pumagui.py scaragui.py
 PYBIN := $(patsubst %.py,../bin/%,$(PYSCRIPTS))
 PYTARGETS += $(PYBIN)
 
