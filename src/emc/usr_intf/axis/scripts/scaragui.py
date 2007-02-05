@@ -159,4 +159,4 @@ floor = Box(-0.5*size,-0.5*size,-0.02*size,0.5*size,0.5*size,0.0)
 
 model = Collection([link0, floor])
 
-main(model, 10)
+main(model, size)
