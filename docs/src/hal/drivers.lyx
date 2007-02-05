@@ -171,20 +171,12 @@ t.c).
 Installing
 \layout Standard
 
-Realtime version, from command line:
+From command line:
 \layout LyX-Code
 
 emc2$ 
 \series bold 
-halcmd loadrt hal_parport 'cfg=
-\begin_inset Quotes erd
-\end_inset 
-
-<config-string>
-\begin_inset Quotes erd
-\end_inset 
-
-'
+halcmd loadrt hal_parport cfg="<config-string>"
 \begin_inset Foot
 collapsed true
 
@@ -205,20 +197,16 @@ cfg=
 
 \layout Standard
 
-Realtime version, from a file:
+From a file or at the 
+\family typewriter 
+halcmd:
+\family default 
+ prompt:
 \layout LyX-Code
 
 
 \series bold 
-loadrt hal_parport cfg=
-\begin_inset Quotes erd
-\end_inset 
-
-<config-string>
-\begin_inset Quotes erd
-\end_inset 
-
-
+loadrt hal_parport cfg="<config-string>"
 \layout Standard
 
 The config string consists of a hex port address, followed by an optional
@@ -255,7 +243,7 @@ x
 
 
 \series bold 
-loadrt hal_parport 278 378 in 20A0 out
+loadrt hal_parport cfg="0x278 0x378 in 0x20A0 out"
 \layout Standard
 
 This example installs drivers for one port at 0x0278, with pins 2-9 as outputs
@@ -313,9 +301,6 @@ Perhaps a future version of this driver will attempt to auto-identify PCI
 \layout Subsection
 
 Removing
-\layout Standard
-
-Realtime version:
 \layout LyX-Code
 
 emc2$ 
@@ -666,15 +651,7 @@ From command line:
 
 emc2$ 
 \series bold 
-halcmd loadrt hal_ax5214h 'cfg=
-\begin_inset Quotes erd
-\end_inset 
-
-<config-string>
-\begin_inset Quotes erd
-\end_inset 
-
-'
+halcmd loadrt hal_ax5214h 'cfg="<config-string>"'
 \begin_inset Foot
 collapsed true
 
@@ -700,15 +677,7 @@ From a file:
 
 
 \series bold 
-loadrt hal_ax5214h cfg=
-\begin_inset Quotes erd
-\end_inset 
-
-<config-string>
-\begin_inset Quotes erd
-\end_inset 
-
-
+loadrt hal_ax5214h cfg="<config-string>"
 \layout Standard
 
 The config string consists of a hex port address, followed by an 8 character
@@ -739,15 +708,7 @@ O
  As an example, the string 
 \family typewriter 
 \series bold 
-
-\begin_inset Quotes eld
-\end_inset 
-
-0x220 IIIOIIOO 0x300 OIOOIOIO
-\begin_inset Quotes erd
-\end_inset 
-
-
+"0x220 IIIOIIOO 0x300 OIOOIOIO"
 \family default 
 \series default 
  installs drivers for two boards.
@@ -935,15 +896,7 @@ halcmd loadrt hal_stg [base=<address>] [num_chan=<nr>]
 
 
 \series bold 
-[dio=
-\begin_inset Quotes erd
-\end_inset 
-
-<dio-string>
-\begin_inset Quotes erd
-\end_inset 
-
-] [model=<model>]
+[dio="<dio-string>"] [model=<model>]
 \layout Standard
 
 The base address field is optional; if it's not provided the driver attempts
@@ -976,7 +929,7 @@ hint: after starting up the driver, 'dmesg' can be consulted for messages
 
 emc2$ 
 \series bold 
-halcmd loadrt hal_stg base=0x300 num_chan=4 dio=''IOIO''
+halcmd loadrt hal_stg base=0x300 num_chan=4 dio="IOIO"
 \layout Standard
 
 This example installs the stg driver for a card found at the base address
