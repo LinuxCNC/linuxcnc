@@ -1,0 +1,4 @@
+net j0 pyvcp.joint0
+net j1 pyvcp.joint1
+net j2 pyvcp.joint2
+net j3 pyvcp.joint3
