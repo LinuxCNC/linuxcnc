@@ -1,5 +1,6 @@
 emc2 (2.2.0pre) testing; urgency=low
 
+  * scara robot sample configuration with visualization
   * opengl machine visualization, starting with puma-style robots
   * new m5i20 firmwares
   * userspace "comp"
@@ -16,7 +17,7 @@ emc2 (2.2.0pre) testing; urgency=low
   * home to index on STG1
   * number of samples in halscope can be specified at runtime
 
- -- Chris Radek <chris@timeguy.com>  Sat,  3 Feb 2007 20:37:06 -0600
+ -- Chris Radek <chris@timeguy.com>  Mon,  5 Feb 2007 11:08:38 -0600
 
 *** here, insert 2.1.x changes before releasing 2.2.0 ***
 
