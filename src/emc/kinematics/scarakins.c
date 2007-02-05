@@ -133,7 +133,7 @@ int kinematicsInverse(const EmcPose * world,
 
     /* center of end effector (correct for D6) */
     xt = x - D6*cos(a3);
-    yt = y - D6*cos(a3);
+    yt = y - D6*sin(a3);
 
     /* horizontal distance (squared) from end effector centerline
 	to main column centerline */
