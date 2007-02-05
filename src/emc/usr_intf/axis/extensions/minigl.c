@@ -384,7 +384,7 @@ static PyObject *pygluSphere(PyObject *s, PyObject *o) {
     double radius;
     int slices, stacks;
 
-    if(!PyArg_ParseTuple(o, "O!dddii:gluCylinder",
+    if(!PyArg_ParseTuple(o, "O!dii:gluSphere",
 			    &Quadric_Type, &q, &radius,
 			    &slices, &stacks))
         return NULL;
