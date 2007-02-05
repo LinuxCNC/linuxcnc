@@ -120,7 +120,7 @@ int kinematicsInverse(const EmcPose * world,
 {
     double a3;
     double q0, q1;
-    double xt, yt, rsq;
+    double xt, yt, rsq, cc;
     double x, y, z, c;
 
     x = world->tran.x;
@@ -139,7 +139,10 @@ int kinematicsInverse(const EmcPose * world,
 	to main column centerline */
     rsq = xt*xt + yt*yt;
     /* joint 1 angle needed to make arm length match sqrt(rsq) */
-    q1 = acos((rsq - D2*D2 - D4*D4) / (2*D2*D4));
+    cc = (rsq - D2*D2 - D4*D4) / (2*D2*D4);
+    if(cc < -1) cc = -1;
+    if(cc > 1) cc = 1;
+    q1 = acos(cc);
 
     if (*iflags)
 	q1 = -q1;
