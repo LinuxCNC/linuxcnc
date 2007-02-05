@@ -194,6 +194,21 @@ class CylinderZ:
 	glPopMatrix()
 	glPopMatrix()
 
+# give center and radius
+class Sphere:
+    def __init__(self, x, y, z, r):
+	self.coords = x, y, z, r
+	self.q = gluNewQuadric()
+
+    def draw(self):
+	x, y, z, r = self.coords
+	# need to translate the whole thing to x,y,z
+	glPushMatrix()
+	glTranslatef(x,y,z)
+	# the cylinder starts out at the origin
+	gluSphere(self.q, r, 32, 16)
+	glPopMatrix()
+
 # six coordinate version - specify each side of the box
 class Box:
     def __init__(self, x1, y1, z1, x2, y2, z2):
@@ -305,13 +320,15 @@ class O(rs274.OpenGLTk.Opengl):
 	self.model.traverse() 
 
 
-def main(model, distance=10):
+def main(model, size=10):
     app = Tkinter.Tk()
 
     t = O(app, double=1, depth=1)
 
     t.model = model
-    t.distance = distance
+    t.distance = size * 3
+    t.near = size * 0.01
+    t.far = size * 10.0
 
     t.pack(fill="both", expand=1)
 
