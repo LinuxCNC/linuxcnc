@@ -434,7 +434,7 @@ COPY_CONFIGS := \
 	$(patsubst %,../configs/%/emc.nml, demo_mazak halui_halvcp hexapod-sim max \
 		univpwm univstep stepper-xyza demo_step_cl stepper motenc m5i20 stg \
 		sim vti nist-lathe dallur-thc demo_sim_cl etch-servo ppmc lathe-pluto \
-		puma) \
+		puma scara) \
 	$(patsubst %,../configs/%/core_stepper.hal, demo_step_cl stepper demo_sim_cl) \
 	$(patsubst %,../configs/%/core_servo.hal, motenc m5i20 stg vti) \
 	$(patsubst %,../configs/%/core_sim.hal, halui_halvcp sim) \
