@@ -1284,7 +1284,7 @@ text .about.message \
 	.about.message configure -cursor hand2
 	.about.message tag configure link -foreground red}
 .about.message tag bind link <ButtonPress-1><ButtonRelease-1> {launch_website}
-.about.message insert end [subst [_ "EMC2/AXIS version \$version\n\nCopyright (C) 2004, 2005, 2006 Jeff Epler and Chris Radek.\n\nThis is free software, and you are welcome to redistribute it under certain conditions.  See the file COPYING, included with EMC2.\n\nVisit the EMC web site: "]] {} {http://www.linuxcnc.org/} link
+.about.message insert end [subst [_ "EMC2/AXIS version \$version\n\nCopyright (C) 2004, 2005, 2006, 2007 Jeff Epler and Chris Radek.\n\nThis is free software, and you are welcome to redistribute it under certain conditions.  See the file COPYING, included with EMC2.\n\nVisit the EMC web site: "]] {} {http://www.linuxcnc.org/} link
 .about.message configure -state disabled
 
 button .about.ok \
@@ -1651,7 +1651,9 @@ foreach b [bind Entry] {
 }
 foreach b { <Key-Left> <Key-Right>
         <Key-Up> <Key-Down> <Key-Prior> <Key-Next> <Key-Home>
-        <Left> <Right> <Up> <Down> <Prior> <Next> <Home> } {
+        <Left> <KP_Left> <Right> <KP_Right> <Up> <KP_Up> <Down> 
+        <KP_Down> <Prior> <KP_Prior> <Next> <KP_Next> <Home> <KP_Home>
+        <Control-Home> <Control-KP_Home> <End> <KP_End> } {
     bind Entry $b {+if {[%W cget -state] == "normal"} break}
 }
 bind Entry <Key> {+if {[%W cget -state] == "normal" && [string length %A]} break}
