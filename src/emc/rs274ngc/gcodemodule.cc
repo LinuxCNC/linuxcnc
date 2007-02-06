@@ -569,13 +569,15 @@ static int find_maxerror(void) {
     }
 }
 
+static char savedError[LINELEN+1];
 static PyObject *rs274_strerror(PyObject *s, PyObject *o) {
     int err;
     if(!PyArg_ParseTuple(o, "i", &err)) return NULL;
     if(err < 0 || err >= maxerror) {
         return PyString_FromString("Error number out of range");
     }
-    return PyString_FromString(_rs274ngc_errors[err]);
+    interp_new.error_text(err, savedError, LINELEN);
+    return PyString_FromString(savedError);
 }
 
 PyMethodDef gcode_methods[] = {
