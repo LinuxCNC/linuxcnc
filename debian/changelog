@@ -1,3 +1,10 @@
+emc2 (1:2.1.1~alpha0) testing; urgency=low
+
+  * fix behavior of certain keys in the AXIS MDI entry field, particularly the
+    numeric keypad arrows
+
+ -- jepler <jepler@sofa>  Mon,  5 Feb 2007 20:05:47 -0600
+
 emc2 (1:2.1.0) testing; urgency=low
 
   * Prepare for release
