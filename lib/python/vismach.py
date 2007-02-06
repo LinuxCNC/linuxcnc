@@ -25,6 +25,8 @@ class Collection:
 	for p in self.parts:
 	    if hasattr(p, "apply"):
 		p.apply()
+	    if hasattr(p, "capture"):
+		p.capture()
 	    if hasattr(p, "draw"):
 		p.draw()
 	    if hasattr(p, "traverse"):
@@ -281,6 +283,39 @@ class BoxCenteredXY(Box):
     def __init__(self, xw, yw, zw):
         self.coords = -xw/2.0, -yw/2.0, 0, xw/2.0, yw/2.0, zw
 
+# capture current transformation matrix
+# note that this tranforms from the current coordinate system
+# to the viewport system, NOT to the world system
+class Capture:
+    def __init__(self):
+	self.t = []
+
+    def capture(self):
+	self.t = glGetDoublev(GL_MODELVIEW_MATRIX)
+
+# function to invert a transform matrix
+# based on http://steve.hollasch.net/cgindex/math/matrix/afforthinv.c
+# with simplifications since we don't do scaling
+
+# This function inverts a 4x4 matrix that is affine and orthogonal.  In
+# other words, the perspective components are [0 0 0 1], and the basis
+# vectors are orthogonal to each other.  In addition, the matrix must
+# not do scaling
+
+def invert(src):
+	# make a copy
+	inv=src[:]
+	# The inverse of the upper 3x3 is the transpose (since the basis
+	# vectors are orthogonal to each other.
+	inv[1],inv[4] = inv[4],inv[1]
+	inv[2],inv[8] = inv[8],inv[2]
+	inv[6],inv[9] = inv[9],inv[6]
+	# The inverse of the translation component is just the negation
+	# of the translation after dotting with the new upper3x3 rows. */	
+	inv[12] = -(src[12]*inv[0] + src[13]*inv[4] + src[14]*inv[8])
+	inv[13] = -(src[12]*inv[1] + src[13]*inv[5] + src[14]*inv[9])
+	inv[14] = -(src[12]*inv[2] + src[13]*inv[6] + src[14]*inv[10])
+	return inv
 
 class O(rs274.OpenGLTk.Opengl):
     def __init__(self, *args, **kw):
@@ -288,6 +323,11 @@ class O(rs274.OpenGLTk.Opengl):
         self.r_back = self.g_back = self.b_back = 0
         self.bind('<Button-4>', self.zoomin)
         self.bind('<Button-5>', self.zoomout)
+	#self.q1 = gluNewQuadric()
+	#self.q2 = gluNewQuadric()
+	#self.q3 = gluNewQuadric()
+	self.plotdata = []
+	self.plotlen = 4000
 
     def zoomin(self, event):
         self.distance = self.distance / 1.1
@@ -317,24 +357,100 @@ class O(rs274.OpenGLTk.Opengl):
 
     def redraw(self, *args):
         if self.winfo_width() == 1: return
-	self.model.traverse() 
+        self.model.traverse()
+	# current coords: world
+	# the matrices tool2view, work2view, and world2view
+	# transform from tool/work/world coords to viewport coords
+	# if we want to draw in tool coords, we need to do
+	# "tool -> view -> world" (since the current frame is world)
+	# and if we want to draw in work coords, we need
+	# "work -> view -> world".  For both, we need to invert
+	# the world2view matrix to do the second step
+	view2world = invert(self.world2view.t)
+	# likewise, for backplot, we want to transform the tooltip
+	# position from tool coords (where it is [0,0,0]) to work
+	# coords, so we need tool -> view -> work
+	# so lets also invert the work2view matrix
+	view2work = invert(self.work2view.t)
+
+	# since backplot lines only need vertexes, not orientation,
+	# and the tooltip is at the origin, getting the tool coords
+	# is easy
+	tx, ty, tz = self.tool2view.t[12:15]
+	# now we have to transform them to the work frame
+	wx = tx*view2work[0]+ty*view2work[4]+tz*view2work[8]+view2work[12]
+	wy = tx*view2work[1]+ty*view2work[5]+tz*view2work[9]+view2work[13]
+	wz = tx*view2work[2]+ty*view2work[6]+tz*view2work[10]+view2work[14]
+	# wx, wy, wz are the values to use for backplot
+	# so we save them in a buffer
+        if len(self.plotdata) == self.plotlen:
+	    del self.plotdata[:self.plotlen / 10]
+	point = [ wx, wy, wz ]
+	if not self.plotdata or point != self.plotdata[-1]:
+	    self.plotdata.append(point)
+
+	# now lets draw something in the tool coordinate system
+	#glPushMatrix()
+	# matrixes take effect in reverse order, so the next
+	# two lines do "tool -> view -> world"
+	#glMultMatrixd(view2world)
+	#glMultMatrixd(self.tool2view.t)
+
+	# do drawing here
+	# cylinder normally goes to +Z, we want it down
+	#glTranslatef(0,0,-60)
+	#gluCylinder(self.q1, 20, 20, 60, 32, 16)
+
+	# back to world coords
+	#glPopMatrix()
+	
+	
+	# we can also draw in the work coord system
+	glPushMatrix()
+	# "work -> view -> world"
+	glMultMatrixd(view2world)
+	glMultMatrixd(self.work2view.t)
+	# now we can draw in work coords, and whatever we draw
+	# will move with the work, (if the work is attached to
+	# a table or indexer or something that moves with
+	# respect to the world
+
+	# just a test object, sitting on the table
+	#gluCylinder(self.q2, 40, 20, 60, 32, 16)
+
+	# draw backplot
+	glDisable(GL_LIGHTING)
+        glBegin(GL_LINE_STRIP)
+	for p in self.plotdata:
+	    glVertex3f(*p)
+	glEnd()
+	glEnable(GL_LIGHTING)
+
+	# back to world again
+	glPopMatrix()
 
 
-def main(model, size=10):
+def main(model, tool, work, size=10 ):
     app = Tkinter.Tk()
 
     t = O(app, double=1, depth=1)
 
-    t.model = model
+    # need to capture the world coordinate system
+    world = Capture()
+
+    t.model = Collection([model, world])
     t.distance = size * 3
     t.near = size * 0.01
     t.far = size * 10.0
+    t.tool2view = tool
+    t.world2view = world
+    t.work2view = work
 
     t.pack(fill="both", expand=1)
 
     def update():
 	t.tkRedraw()
-	t.after(50, update)
+	t.after(100, update)
     update()
     try:
 	app.mainloop()

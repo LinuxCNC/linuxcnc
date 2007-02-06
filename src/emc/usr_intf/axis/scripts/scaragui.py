@@ -25,6 +25,7 @@ c.newpin("joint0", hal.HAL_FLOAT, hal.HAL_IN)
 c.newpin("joint1", hal.HAL_FLOAT, hal.HAL_IN)
 c.newpin("joint2", hal.HAL_FLOAT, hal.HAL_IN)
 c.newpin("joint3", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("joint4", hal.HAL_FLOAT, hal.HAL_IN)
 c.ready()
 
 # parameters that define the geometry
@@ -85,10 +86,16 @@ j2_rad = j2_dia / 2.0
 size = max(d1+d3+l3_len,d2+d4+d6)
 
 # tool - cylinder with a point, and a ball to hide the blunt back end
+# the origin starts out at the tool tip, and we want to capture this
+# "tooltip" coordinate system
+tooltip = Capture()
 tool = Collection([
-	Sphere(0.0, 0.0, 0.0, tool_dia),
-	CylinderZ(0.0, tool_radius, -(tool_len-tool_dia), tool_radius),
-	CylinderZ(-tool_len, 0, -(tool_len-tool_dia), tool_radius)])
+	tooltip,
+	Sphere(0.0, 0.0, tool_len, tool_dia),
+	CylinderZ(tool_len, tool_radius, tool_dia, tool_radius),
+	CylinderZ(tool_dia, tool_radius, 0.0, 0.0)])
+# translate so origin is at base of tool, not the tip
+tool = Translate([tool],0.0,0.0,-tool_len)	
 # the tool might not be pointing straight down
 tool = Rotate([tool],tool_angle,0.0,-1.0,0.0)
 # make joint 3 rotate
@@ -157,6 +164,20 @@ link0 = Collection([
 # add a floor
 floor = Box(-0.5*size,-0.5*size,-0.02*size,0.5*size,0.5*size,0.0)
 
-model = Collection([link0, floor])
+# and a table for the workpiece - define in workpiece coords
+reach = d2+d4-d6
+table_height = d1+d3-j3max-d5
+work = Capture()
+table = Collection([
+	work,
+	Box(-0.35*reach,-0.5*reach, -0.1*d1, 0.35*reach, 0.5*reach, 0.0)])
 
-main(model, size)
+# for testing, make the table moveable (tilting)
+table = HalRotate([table],c,"joint4",1,0,1,0)
+
+# put the table into its proper place
+table = Translate([table],0.5*reach,0.0,table_height)
+
+model = Collection([link0, floor, table])
+
+main(model, tooltip, work, size)

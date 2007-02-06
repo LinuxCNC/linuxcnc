@@ -43,7 +43,10 @@ finger2 = HalRotate([finger2],c,"grip",-40,0,1,0)
 finger1 = Translate([finger1], 0.025,0.0,0.1)
 finger2 = Translate([finger2],-0.025,0.0,0.1)
 # "hand" - the part the fingers are attached to
+# "tooltip" for backplot will be the origin of the hand for now
+tooltip = Capture()
 link6 = Collection([
+	tooltip,
 	Box(-0.060, -0.015, 0.02, 0.060, 0.015, 0.1),
 	Box(-0.05, -0.05, 0.0, 0.05, 0.05, 0.02)])
 # assembly fingers, and make it rotate
@@ -135,6 +138,8 @@ link0 = Collection([
 # add a floor
 floor = Box(-1.5,-1.5,-0.02,1.5,1.5,0.0)
 
-model = Collection([link0, floor])
+work = Capture()
 
-main(model, 10)
+model = Collection([link0, floor, work])
+
+main(model, tooltip, work, 5)
