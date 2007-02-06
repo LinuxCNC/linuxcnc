@@ -1676,7 +1676,8 @@ foreach b [bind Entry] {
 }
 foreach b { <Key-Left> <Key-Right>
         <Key-Up> <Key-Down> <Key-Prior> <Key-Next> <Key-Home>
-        <Left> <Right> <Up> <Down> <Prior> <Next> <Home> } {
+        <Left> <KP_Left> <Right> <KP_Right> <Up> <KP_Up> <Down> 
+        <KP_Down> <Prior> <KP_Prior> <Next> <KP_Next> <Home> } {
     bind Entry $b {+if {[%W cget -state] == "normal"} break}
 }
 bind Entry <Key> {+if {[%W cget -state] == "normal" && [string length %A]} break}
