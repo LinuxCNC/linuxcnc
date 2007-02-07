@@ -19,6 +19,7 @@
 from vismach import *
 import hal
 import math
+import sys
 
 c = hal.component("scaragui")
 c.newpin("joint0", hal.HAL_FLOAT, hal.HAL_IN)
@@ -28,21 +29,20 @@ c.newpin("joint3", hal.HAL_FLOAT, hal.HAL_IN)
 c.newpin("joint4", hal.HAL_FLOAT, hal.HAL_IN)
 c.ready()
 
-# parameters that define the geometry
-# see scarakins.c for definitions
-# these numbers match the defaults there,
-# and will need to be changed if you are
-# not using the defaults.
-# TODO: automate getting these values
+# parameters that define the geometry see scarakins.c for definitions these
+# numbers match the defaults there, and will need to be changed or specified on
+# the commandline if you are not using the defaults.
 
-d1 = 490.0
-d2 = 340.0
-d3 =  50.0
-d4 = 250.0
-d5 =  50.0
-d6 =  50.0
+d1 =  490.0
+d2 =  340.0
+d3 =   50.0
+d4 =  250.0
+d5 =   50.0
+d6 =   50.0
 j3min =  40.0
 j3max = 270.0
+
+for setting in sys.argv[1:]: exec setting
 
 # calculate a bunch of other dimensions that are used
 # to scale the model of the machine
