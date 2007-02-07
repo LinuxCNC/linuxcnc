@@ -1,1050 +1,1898 @@
+# translation of de-new.po to
 msgid ""
-msgstr "Project-Id-Version: EMC2\nReport-Msgid-Bugs-To: \nPOT-Creation-Date: 2006-06-15 02:22+0200\nPO-Revision-Date: 2006-06-15 02:21+0100\nLast-Translator: Florian Hahn <flo-h@users.sourceforge.net>\nLanguage-Team: EMC LOCALIZATION TEAM <emc-developers@lists.sourceforge.net>\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\n"
+msgstr ""
+"Project-Id-Version: de-new\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2006-12-10 22:43+0100\n"
+"PO-Revision-Date: 2007-02-04 01:03+0100\n"
+"Last-Translator: Florian Hahn\n"
+"Language-Team:  <de@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: KBabel 1.11.4\n"
 
+#: tkemc.tcl:205 tkemc.tcl:232
 msgid "Set Run Mark"
-msgstr "Setze Startpunkt"
+msgstr "Startpunkt setzen"
 
+#: tkemc.tcl:207
+#, tcl-format
 msgid "Set run mark at line %s?"
-msgstr "Setze Startpunkt in Zeile %s?"
+msgstr "Startpunkt in Zeile %s setzen?"
 
+#: tkemc.tcl:211 tkemc.tcl:314 tkemc.tcl:460 tkemc.tcl:1237 tkemc.tcl:1285
+#: tkemc.tcl:1316 tkemc.tcl:1347 tkemc.tcl:1840 tkemc.tcl:1859 tkemc.tcl:1878
+#: tkemc.tcl:1925 mini.tcl:2845 bin/emccalib.tcl:234 bin/genedit.tcl:186
+#: bin/genedit.tcl:456 bin/pickconfig.tcl:235 bin/pickconfig.tcl:357
+#: bin/pickconfig.tcl:382 bin/halconfig.tcl:678 bin/halconfig.tcl:729
 msgid "OK"
 msgstr "OK"
 
+#: tkemc.tcl:213 tkemc.tcl:256 tkemc.tcl:282 tkemc.tcl:461 tkemc.tcl:1238
+#: tkemc.tcl:1286 tkemc.tcl:1317 tkemc.tcl:1348 tkemc.tcl:1926 mini.tcl:2846
+#: mini.tcl:3018 bin/emccalib.tcl:236 bin/genedit.tcl:300
+#: bin/pickconfig.tcl:238 bin/pickconfig.tcl:332 bin/halconfig.tcl:99
+#: bin/halconfig.tcl:680 bin/halconfig.tcl:731
 msgid "Cancel"
 msgstr "Abbrechen"
 
+#: tkemc.tcl:227 tkemc.tcl:250 tkemc.tcl:273
 msgid "untitled"
 msgstr "unbenannt"
 
+#: tkemc.tcl:255
 msgid "Load Tool Table"
 msgstr "Speichern"
 
+#: tkemc.tcl:281
 msgid "Load Parameter File"
 msgstr "Speichern"
 
+#: tkemc.tcl:330
 msgid "EMC Diagnostics"
 msgstr "EMC2 Diagnose"
 
+#: tkemc.tcl:332
 msgid "Task"
 msgstr "Prozess"
 
+#: tkemc.tcl:334 tkemc.tcl:357 tkemc.tcl:380
 msgid "Heartbeat:"
 msgstr "Takt:"
 
+#: tkemc.tcl:337 tkemc.tcl:360 tkemc.tcl:383
 msgid "Command:"
 msgstr "Befehlskennung:"
 
+#: tkemc.tcl:340 tkemc.tcl:363 tkemc.tcl:386
 msgid "Command #:"
-msgstr "Befehlsanzahl:"
+msgstr "Befehlsnummer:"
 
+#: tkemc.tcl:343 tkemc.tcl:366 tkemc.tcl:389
 msgid "Status:"
 msgstr "Status:"
 
+#: tkemc.tcl:355
 msgid "Io"
 msgstr "Ein-/Ausgänge"
 
+#: tkemc.tcl:378
 msgid "Motion"
 msgstr "Achssteuerung"
 
+#: tkemc.tcl:419
 msgid "About TkEmc"
 msgstr "Über TkEmc"
 
-msgid "TkEmc\n\nTcl/Tk GUI for Enhanced Machine Controller version 2 (EMC2)\n\nGPL Version 2 (2006)"
-msgstr "TkEmc\n\nGrafische Oberfläche in Tcl/Tk für den Enhanced Machine Controller, Version 2 (EMC2)\n\n\nGPL Version 2 (2006)"
+#: tkemc.tcl:420
+msgid ""
+"TkEmc\n"
+"\n"
+"Tcl/Tk GUI for Enhanced Machine Controller version 2 (EMC2)\n"
+"\n"
+"GPL Version 2 (2006)"
+msgstr ""
+"TkEmc\n"
+"\n"
+"Grafische Oberfläche in Tcl/Tk für den\n"
+"»Enhanced Machine Controller«, Version "
+"2 (EMC2)\n"
+"\n"
+"\n"
+"GPL Version 2 (2006)"
 
+#: tkemc.tcl:440
 msgid "Set Tool Offset"
 msgstr "Werkzeugoffset"
 
+#: tkemc.tcl:448 tkemc.tcl:928
 msgid "Tool:"
 msgstr "Werkzeug:"
 
+#: tkemc.tcl:452
 msgid "Length:"
 msgstr "Länge:"
 
+#: tkemc.tcl:456
 msgid "Diameter:"
 msgstr "Durchmesser:"
 
+#: tkemc.tcl:501 mini.tcl:1358 mini.tcl:1713 bin/genedit.tcl:203
+#, tcl-format
 msgid "can't open %s"
-msgstr "Die Datei %s konnte nicht geöffnet werden"
+msgstr "Die Datei »%s« kann nicht geöffnet werden."
 
+#: tkemc.tcl:515 mini.tcl:2438
 msgid "All files"
 msgstr "Alle Dateien"
 
+#: tkemc.tcl:516 mini.tcl:2438
 msgid "Text files"
 msgstr "Textdateien"
 
+#: tkemc.tcl:517
 msgid "NC files"
 msgstr "NC Dateien"
 
+#: tkemc.tcl:755 mini.tcl:2454 bin/emccalib.tcl:109 bin/genedit.tcl:83
+#: bin/halconfig.tcl:147
 msgid "File"
 msgstr "Datei"
 
+#: tkemc.tcl:756 tkemc.tcl:1490 mini.tcl:1619 mini.tcl:2472 bin/genedit.tcl:86
 msgid "Open..."
 msgstr "Öffnen..."
 
+#: tkemc.tcl:758
 msgid "Edit..."
 msgstr "Bearbeiten..."
 
+#: tkemc.tcl:759 mini.tcl:942 mini.tcl:3473
 msgid "Reset"
 msgstr "Zurücksetzen"
 
+#: tkemc.tcl:761 mini.tcl:945 bin/genedit.tcl:93 bin/halconfig.tcl:161
 msgid "Exit"
 msgstr "Beenden"
 
+#: tkemc.tcl:766 mini.tcl:907 bin/halconfig.tcl:164
 msgid "View"
 msgstr "Ansicht"
 
+#: tkemc.tcl:767
 msgid "Tools..."
 msgstr "Werkzeugtabelle..."
 
+#: tkemc.tcl:768
 msgid "Offsets and Variables..."
 msgstr "Parameterdatei..."
 
+#: tkemc.tcl:769
 msgid "Diagnostics..."
 msgstr "Diagnose..."
 
+#: tkemc.tcl:770
 msgid "Backplot..."
 msgstr "Backplot..."
 
+#: tkemc.tcl:774 mini.tcl:908 mini.tcl:2456 bin/genedit.tcl:146
 msgid "Settings"
 msgstr "Einstellungen"
 
+#: tkemc.tcl:775 mini.tcl:979
 msgid "Calibration..."
-msgstr "Achsabstimmung..."
+msgstr "Kalibrierung..."
 
+#: tkemc.tcl:776
 msgid "Logging..."
 msgstr "Protokollierung..."
 
+#: tkemc.tcl:777
 msgid "Testing..."
 msgstr "Testen..."
 
+#: tkemc.tcl:778
 msgid "Debug..."
 msgstr "Debug..."
 
+#: tkemc.tcl:779
 msgid "Font..."
 msgstr "Schrift..."
 
+#: tkemc.tcl:783
 msgid "Units"
 msgstr "Maßeinheit"
 
+#: tkemc.tcl:784
 msgid "auto"
 msgstr "auto"
 
+#: tkemc.tcl:785
 msgid "inches"
 msgstr "inch"
 
+#: tkemc.tcl:786
 msgid "mm"
 msgstr "mm"
 
+#: tkemc.tcl:787
 msgid "cm"
 msgstr "cm"
 
+#: tkemc.tcl:791 bin/genedit.tcl:156
 msgid "Scripts"
 msgstr "Extras"
 
+#: tkemc.tcl:808
 msgid "HAL Show"
-msgstr "HAL Anzeigen..."
+msgstr "HAL anzeigen..."
 
+#: tkemc.tcl:809
 msgid "HAL Config"
-msgstr "HAL Konfiguration..."
+msgstr "HAL konfigurieren..."
 
+#: tkemc.tcl:813 mini.tcl:910 mini.tcl:2457 bin/genedit.tcl:110
+#: bin/halconfig.tcl:188
 msgid "Help"
 msgstr "Hilfe"
 
+#: tkemc.tcl:814 mini.tcl:1001 mini.tcl:2496
 msgid "Help..."
 msgstr "Hilfe..."
 
+#: tkemc.tcl:815
 msgid "Balloon help"
-msgstr "Balloon Hilfe"
+msgstr "Popup-Hilfe"
 
+#: tkemc.tcl:819 mini.tcl:1002 mini.tcl:2497 bin/genedit.tcl:111
 msgid "About..."
 msgstr "Über..."
 
+#: tkemc.tcl:838
 msgid "Estop on"
 msgstr "Notaus gesetzt"
 
+#: tkemc.tcl:839
 msgid "Estop off"
 msgstr "Notaus zurückgesetzt"
 
+#: tkemc.tcl:841
 msgid "Machine on"
 msgstr "Maschine an"
 
+#: tkemc.tcl:842
 msgid "Machine off"
 msgstr "Maschine aus"
 
+#: tkemc.tcl:849 bin/emclog.tcl:248 bin/emclog.tcl:251
 msgid "Manual"
 msgstr "Manuell"
 
+#: tkemc.tcl:850
 msgid "Auto"
 msgstr "Auto"
 
+#: tkemc.tcl:851 tkemc.tcl:2064 mini.tcl:1035
 msgid "MDI"
 msgstr "MDI"
 
+#: tkemc.tcl:858
 msgid "Mist on"
 msgstr "Nebel an"
 
+#: tkemc.tcl:859
 msgid "Mist off"
 msgstr "Nebel aus"
 
+#: tkemc.tcl:866
 msgid "Flood on"
 msgstr "Kühlmittel an"
 
+#: tkemc.tcl:867
 msgid "Flood off"
 msgstr "Kühlmittel aus"
 
+#: tkemc.tcl:874
 msgid "Lube on"
 msgstr "Schmieröl an"
 
+#: tkemc.tcl:875
 msgid "Lube off"
 msgstr "Schmieröl aus"
 
+#: tkemc.tcl:892
 msgid "Spindle forward"
 msgstr "Spindel vor"
 
+#: tkemc.tcl:893
 msgid "Spindle reverse"
 msgstr "Spindel zurück"
 
+#: tkemc.tcl:894 mini.tcl:1542
 msgid "Spindle off"
 msgstr "Spindel aus"
 
+#: tkemc.tcl:908
 msgid "Brake on"
 msgstr "Bremse an"
 
+#: tkemc.tcl:909
 msgid "Brake off"
 msgstr "Bremse aus"
 
+#: tkemc.tcl:913 mini.tcl:1018
 msgid "ABORT"
 msgstr "ABBRECHEN"
 
+#: tkemc.tcl:930
 msgid "Offset:"
 msgstr "Werkzeugoffset:"
 
+#: tkemc.tcl:932
 msgid "Work Offsets:"
 msgstr "Arbeitsoffset:"
 
+#: tkemc.tcl:1135 mini.tcl:1385
 msgid "override limits"
 msgstr "Grenzw. aufheben"
 
+#: tkemc.tcl:1141
 msgid "relative"
 msgstr "Relativ"
 
+#: tkemc.tcl:1142
 msgid "machine"
 msgstr "Maschine"
 
+#: tkemc.tcl:1144
 msgid "actual"
 msgstr "- Aktuell"
 
+#: tkemc.tcl:1145
 msgid "commanded"
 msgstr "- Erwartet"
 
+#: tkemc.tcl:1147
 msgid "joint"
 msgstr "Achse"
 
+#: tkemc.tcl:1148
 msgid "world"
 msgstr "Global"
 
+#: tkemc.tcl:1157 tkemc.tcl:1161 mini.tcl:1473
 msgid "continuous"
-msgstr "durchgehend"
+msgstr "Durchgehend"
 
+#: tkemc.tcl:1171 mini.tcl:1390
+msgid "home"
+msgstr "Home"
+
+#: tkemc.tcl:1232
 msgid "Axis Offset"
 msgstr "Achsoffset"
 
+#: tkemc.tcl:1234
 msgid "Set axis value:"
-msgstr "Achsenoffset:"
+msgstr "Achsoffset:"
 
+#: tkemc.tcl:1276
 msgid "Set Jog Speed"
-msgstr "Achsgeschwindigkeit"
+msgstr "Schrittgeschwindigkeit"
 
+#: tkemc.tcl:1282
 msgid "Set jog speed:"
-msgstr "Achsgeschwindigkeit:"
+msgstr "Schrittgeschwindigkeit:"
 
+#: tkemc.tcl:1307
 msgid "Set Feed Override"
-msgstr "Geschwindigkeitsübersteuerung"
+msgstr "Vorschubübersteuerung"
 
+#: tkemc.tcl:1313
 msgid "Set feed override:"
-msgstr "Geschwindigkeitsübersteuerung:"
+msgstr "Vorschubübersteuerung:"
 
+#: tkemc.tcl:1338
+msgid "Set Spindle Override"
+msgstr "Spindelübersteuerung"
+
+#: tkemc.tcl:1344
+msgid "Set spindle speed override:"
+msgstr "Spindelübersteuerung:"
+
+#: tkemc.tcl:1392
 msgid "Axis Speed:"
-msgstr "Achsgeschwindigkeit:"
+msgstr "Schrittgeschwindigkeit:"
 
+#: tkemc.tcl:1411 mini.tcl:1159
 msgid "Feed Override:"
-msgstr "Geschwindigkeitsübersteuerung:"
+msgstr "Vorschubübersteuerung:"
 
+#: tkemc.tcl:1430
+msgid "Spindle speed Override:"
+msgstr "Spindelübersteuerung:"
+
+#: tkemc.tcl:1453 mini.tcl:1584
 msgid "MDI:"
 msgstr "MDI:"
 
+#: tkemc.tcl:1475
 msgid "Program: "
 msgstr "Programm: "
 
+#: tkemc.tcl:1480
 msgid "  -  Status: "
 msgstr " - Status: "
 
+#: tkemc.tcl:1491 mini.tcl:1621
 msgid "Run"
 msgstr "Ausführen"
 
+#: tkemc.tcl:1492 mini.tcl:1623
 msgid "Pause"
 msgstr "Pause"
 
+#: tkemc.tcl:1493 mini.tcl:1625
 msgid "Resume"
 msgstr "Fortsetzen"
 
+#: tkemc.tcl:1494 mini.tcl:1627
 msgid "Step"
 msgstr "Schritt"
 
+#: tkemc.tcl:1495 mini.tcl:1629
 msgid "Verify"
 msgstr "Überprüfen"
 
+#: tkemc.tcl:1496
+msgid "Optional Stop"
+msgstr "Optionaler Halt"
+
+#: tkemc.tcl:1833
 msgid "Error"
 msgstr "Fehler"
 
+#: tkemc.tcl:1893
 msgid "Set Font"
 msgstr "Schrift auswählen"
 
+#: tkemc.tcl:1902
 msgid "Font"
 msgstr "Schriftart"
 
+#: tkemc.tcl:1909
 msgid "Size"
 msgstr "Größe"
 
+#: tkemc.tcl:1916
 msgid "Style"
 msgstr "Stil"
 
+#: tkemc.tcl:1964 tkemc.tcl:2077 mini.tcl:1043 mini.tcl:1748
 msgid "MANUAL"
 msgstr "MANUELL"
 
+#: tkemc.tcl:2045
 msgid "ESTOP"
 msgstr "NOTAUS"
 
+#: tkemc.tcl:2047
 msgid "ON"
 msgstr "AN"
 
+#: tkemc.tcl:2049 mini.tcl:1828
 msgid "ESTOP RESET"
 msgstr "NOTAUS RESET"
 
+#: tkemc.tcl:2055 mini.tcl:1039
 msgid "AUTO"
 msgstr "AUTO"
 
+#: tkemc.tcl:2090 mini.tcl:1855
 msgid "MIST ON"
 msgstr "NEBEL AN"
 
+#: tkemc.tcl:2092 mini.tcl:1857
 msgid "MIST OFF"
 msgstr "NEBEL AUS"
 
+#: tkemc.tcl:2094 mini.tcl:1859
 msgid "MIST ?"
 msgstr "NEBEL ?"
 
+#: tkemc.tcl:2098 mini.tcl:1863
 msgid "FLOOD ON"
 msgstr "KÜHLM. AN"
 
+#: tkemc.tcl:2100 mini.tcl:1865
 msgid "FLOOD OFF"
 msgstr "KÜHLM. AUS"
 
+#: tkemc.tcl:2102 mini.tcl:1867
 msgid "FLOOD ?"
 msgstr "KÜHLM. ?"
 
+#: tkemc.tcl:2106
 msgid "LUBE ON"
 msgstr "SCHMIERM. AN"
 
+#: tkemc.tcl:2108
 msgid "LUBE OFF"
 msgstr "SCHMIERM. AUS"
 
+#: tkemc.tcl:2110
 msgid "LUBE ?"
 msgstr "SCHMIERM. AN"
 
+#: tkemc.tcl:2114 mini.tcl:1833
 msgid "SPINDLE FORWARD"
 msgstr "SPINDEL VORWÄRTS"
 
+#: tkemc.tcl:2116 mini.tcl:1835
 msgid "SPINDLE REVERSE"
 msgstr "SPINDEL RÜCKWÄRTS"
 
+#: tkemc.tcl:2118 mini.tcl:1837
 msgid "SPINDLE OFF"
 msgstr "SPINDEL HALT"
 
+#: tkemc.tcl:2120 mini.tcl:1839
 msgid "SPINDLE INCREASE"
 msgstr "SPINDEL ERHÖHEND"
 
+#: tkemc.tcl:2122 mini.tcl:1841
 msgid "SPINDLE DECREASE"
 msgstr "SPINDEL ABNEHMEND"
 
+#: tkemc.tcl:2124 mini.tcl:1843
 msgid "SPINDLE ?"
 msgstr "SPINDEL ?"
 
+#: tkemc.tcl:2128 mini.tcl:1847
 msgid "BRAKE ON"
 msgstr "BREMSE AN"
 
+#: tkemc.tcl:2130 mini.tcl:1849
 msgid "BRAKE OFF"
 msgstr "BREMSE AUS"
 
+#: tkemc.tcl:2132 mini.tcl:1851
 msgid "BRAKE ?"
 msgstr "BREMSE ?"
 
+#: mini.tcl:481
+#, tcl-format
 msgid "JOG %s +"
 msgstr "%s +"
 
+#: mini.tcl:482
+#, tcl-format
 msgid "JOG %s -"
 msgstr "%s -"
 
-msgid "%s\n\nZ\nE\nR\nO"
-msgstr "%s\n\nN\nU\nL\nL\nE\nN"
+#: mini.tcl:483
+#, tcl-format
+msgid ""
+"%s\n"
+"\n"
+"Z\n"
+"E\n"
+"R\n"
+"O"
+msgstr ""
+"%s\n"
+"\n"
+"R\n"
+"E\n"
+"F\n"
+"."
 
+#: mini.tcl:831 mini.tcl:2723 bin/halconfig.tcl:190
 msgid "About"
 msgstr "Über"
 
-msgid "TkMini  \n\nTcl/Tk GUI for Enhanced Machine Controller\n\nGPL Copyright 2003  \nRay Henry <rehenry@up.net>\n\n 3D backplotter by Paul Corner <paul_c@users.sourceforge.net>\n \nThis software comes with ABSOLUTELY NO GUARANTEE!   \nFor details see the copyright.html file in this directory."
-msgstr "TkMini  \n\nGraphische Tcl/Tk Oberfläche für EMC2\n\nGPL Copyright 2003  \nRay Henry <rehenry@up.net>\n\n 3D backplotter by Paul Corner <paul_c@users.sourceforge.net>\n \nThis software comes with ABSOLUTELY NO GUARANTEE!   \nFor details see the copyright.html file in this directory."
+#: mini.tcl:831
+msgid ""
+"TkMini  \n"
+"\n"
+"Tcl/Tk GUI for Enhanced Machine Controller\n"
+"\n"
+"GPL Copyright 2003  \n"
+"Ray Henry <rehenry@up.net>\n"
+"\n"
+" 3D backplotter by Paul Corner <paul_c@users.sourceforge.net>\n"
+" \n"
+"This software comes with ABSOLUTELY NO GUARANTEE!   \n"
+"For details see the copyright.html file in this directory."
+msgstr ""
+"TkMini  \n"
+"\n"
+"Graphische Tcl/Tk Oberfläche für EMC2\n"
+"\n"
+"GPL Copyright 2003  \n"
+"Ray Henry <rehenry@up.net>\n"
+"\n"
+" 3D backplotter by Paul Corner <paul_c@users.sourceforge.net>\n"
+" \n"
+"This software comes with ABSOLUTELY NO GUARANTEE!\n"
+"For details see the copyright.html file in this directory."
 
+#: mini.tcl:906
 msgid "Program"
 msgstr "Programm"
 
+#: mini.tcl:909
 msgid "Info"
 msgstr "Info"
 
+#: mini.tcl:914
 msgid "Backplot"
 msgstr "Backplot"
 
+#: mini.tcl:916
 msgid "Editor"
 msgstr "Editor"
 
+#: mini.tcl:918
 msgid "Offsets"
 msgstr "Offsets"
 
+#: mini.tcl:920
 msgid "Tools"
 msgstr "Werkzeuge"
 
+#: mini.tcl:951
 msgid "Position Type"
 msgstr "Positionierungs-Info"
 
+#: mini.tcl:953
 msgid "Tool Info"
 msgstr "Werkzeug-Info"
 
+#: mini.tcl:955
 msgid "Offset Info"
 msgstr "Offset-Info"
 
+#: mini.tcl:958
 msgid "Show Restart"
 msgstr "Neustart anzeigen"
 
+#: mini.tcl:959
 msgid "Hide Restart"
 msgstr "Neustart verbergen"
 
+#: mini.tcl:961
 msgid "Show Split Right"
 msgstr "Fenster teilen"
 
+#: mini.tcl:963
 msgid "Show Mode Full"
 msgstr "Nur Menü anzeigen"
 
+#: mini.tcl:965
 msgid "Show Popin Full"
 msgstr "Nur Auswahl anzeigen"
 
+#: mini.tcl:969
 msgid "Actual Position"
 msgstr "Aktuelle Position"
 
+#: mini.tcl:971
 msgid "Commanded Position"
 msgstr "Erwartete Position"
 
+#: mini.tcl:974
 msgid "Machine Position"
 msgstr "Maschinenposition"
 
+#: mini.tcl:976
 msgid "Relative Position"
 msgstr "Relative Position"
 
+#: mini.tcl:981
 msgid "HAL Show..."
-msgstr "HAL Anzeigen..."
+msgstr "HAL anzeigen..."
 
+#: mini.tcl:983
 msgid "HAL Config..."
-msgstr "HAL Konfiguration..."
+msgstr "HAL konfigurieren..."
 
+#: mini.tcl:988
 msgid "Program File"
-msgstr "Programmdatei "
+msgstr "Programmdatei"
 
+#: mini.tcl:989
+#, tcl-format
 msgid "Program file is %s"
-msgstr "Programmdatei  ist %s"
+msgstr "Programmdatei ist »%s«"
 
+#: mini.tcl:990
 msgid "Editor File"
 msgstr "Editordatei"
 
+#: mini.tcl:991
+#, tcl-format
 msgid "Editor file is %s"
-msgstr "Editordatei ist %s"
+msgstr "Editordatei ist »%s«"
 
+#: mini.tcl:992
 msgid "Parameter File"
 msgstr "Parameterdatei"
 
+#: mini.tcl:993
+#, tcl-format
 msgid "Parameter file is %s"
-msgstr "Parameterdatei ist %s"
+msgstr "Parameterdatei ist »%s«"
 
+#: mini.tcl:994
 msgid "Tool File"
 msgstr "Werkzeugdatei"
 
+#: mini.tcl:995
+#, tcl-format
 msgid "Tool file is %s"
-msgstr "Werkzeugdatei ist %s"
+msgstr "Werkzeugdatei ist »%s«"
 
+#: mini.tcl:997
 msgid "Active G Codes"
 msgstr "Aktive G-Codes"
 
-msgid "Active codes include; \n%s"
-msgstr "Aktive G-Codes sind:\n%s"
+#: mini.tcl:998
+#, tcl-format
+msgid ""
+"Active codes include; \n"
+"%s"
+msgstr ""
+"Aktive G-Codes sind:\n"
+"%s"
 
+#: mini.tcl:1029 mini.tcl:1984
 msgid "CONTINUE"
 msgstr "FORTSETZEN"
 
+#: mini.tcl:1097
 msgid "Tool #:"
-msgstr "Werkzeug #:"
+msgstr "Werkzeug:"
 
+#: mini.tcl:1099
 msgid "Length :"
 msgstr "Länge:"
 
+#: mini.tcl:1110
 msgid "Work Offsets: "
 msgstr "Arbeitsoffset:"
 
+#: mini.tcl:1112
+msgid "start offsets popup here"
+msgstr ""
+
+#: mini.tcl:1156
+msgid "start override popup here"
+msgstr ""
+
+#: mini.tcl:1171
 msgid "-- MESSAGES --"
 msgstr "-- MITTEILUNGEN --"
 
+#: mini.tcl:1221
+msgid "toggleView's not doin nothin yet"
+msgstr ""
+
+#: mini.tcl:1273
+msgid "Can't set zero with a tool offset active so I issued G49 to cancel it."
+msgstr "Mit aktivem Werkzeugoffset kann keine Referenzfahrt durchgeführt werden. Es wird empfohlen diesen mit dem Befehl »G49« zu beenden."
+
+#: mini.tcl:1331
+#, tcl-format
+msgid "Can't update the var file while machine is in auto and %s."
+msgstr "Die .var-Datei kann nicht aktualisiert werden, solange die Maschine im »auto«-Modus und »%s« ist."
+
+#: mini.tcl:1411
 msgid "DEFAULT"
 msgstr "STANDART"
 
+#: mini.tcl:1412
 msgid "Speed:"
 msgstr "Geschw.:"
 
+#: mini.tcl:1415
 msgid "RAPID"
 msgstr "MAXIMAL"
 
+#: mini.tcl:1466
 msgid "JOG X +"
 msgstr "X +"
 
+#: mini.tcl:1467
 msgid "JOG X -"
 msgstr "X -"
 
+#: mini.tcl:1471
 msgid "increment"
-msgstr "inkrementell"
+msgstr "Inkrementell"
 
-msgid "A\nL\nL\n\nZ\nE\nR\nO"
-msgstr "A\nL\nL\nE\n\nN\nU\nL\nL\nE\nN"
+#: mini.tcl:1475
+msgid ""
+"A\n"
+"L\n"
+"L\n"
+"\n"
+"Z\n"
+"E\n"
+"R\n"
+"O"
+msgstr ""
+"R\n"
+"E\n"
+"F\n"
+".\n"
+"\n"
+"A\n"
+"L\n"
+"L\n"
+"E"
 
+#: mini.tcl:1540
 msgid "Spindle Forward"
-msgstr "Spindel vorwärts"
+msgstr "SPINDEL VORWÄRTS"
 
+#: mini.tcl:1541
 msgid "Spindle Reverse"
-msgstr "Spindel rückwärts"
+msgstr "SPINDEL RÜCKWÄRTS"
 
+#: mini.tcl:1544
 msgid "Spindle Slower"
-msgstr "Spindel langsamer"
+msgstr "SPINDEL LANGSAMER"
 
+#: mini.tcl:1548
 msgid "Spindle Faster"
-msgstr "Spindel schneller"
+msgstr "SPINDEL SCHNELLER"
 
+#: mini.tcl:1650
+msgid "RESTART LINE"
+msgstr "Neustart von:"
+
+#: mini.tcl:1651
 msgid "Back"
-msgstr "Vorherige Zeile"
+msgstr "vorheriger Zeile"
 
+#: mini.tcl:1652
 msgid "Ahead"
-msgstr "Gleiche Zeile"
+msgstr "gleicher Zeile"
 
+#: mini.tcl:1653
 msgid "Restart"
-msgstr "Neu starten"
+msgstr "Anfang an"
 
-msgid "The interpreter is running. \n Pressing OK will abort and load the new program"
-msgstr "Der Interpreter arbeitet gerade. \nBestätigen Sie mit 'OK', um abzubrechen und die neue Datei zu laden."
+#: mini.tcl:1691
+msgid ""
+"The interpreter is running. \n"
+" Pressing OK will abort and load the new program"
+msgstr ""
+"Der Interpreter arbeitet gerade. \n"
+"Bestätigen Sie mit »OK«, um abzubrechen und die neue Datei zu laden."
 
+#: mini.tcl:1822
 msgid "ESTOPPED"
-msgstr "NOTAUS ZURÜCKSETZEN"
+msgstr "EINSCHALTEN"
 
+#: mini.tcl:1825
 msgid "ESTOP PUSH"
 msgstr "NOTAUS"
 
+#: mini.tcl:1988
 msgid "FEEDHOLD"
 msgstr "ANHALTEN"
 
-msgid "TOOL SETUP \n Click or tab to edit.   Press enter to return to keyboard machine control."
-msgstr "WERKZEUG SETUP \nWählen Sie mit der Maus oder der Tabulator-Taste den gewünschten Wert aus.\nMit der Enter-Taste wird der Wert übernommen."
+#: mini.tcl:2060
+msgid ""
+"TOOL SETUP \n"
+" Click or tab to edit.   Press enter to return to keyboard machine control."
+msgstr ""
+"WERKZEUG SETUP \n"
+"\n"
+"Wählen Sie mit der Maus oder der Tabulator-Taste den gewünschten Wert aus.\n"
+"Mit der Eingabetaste wird der Wert übernommen."
 
+#: mini.tcl:2066
 msgid "  TOOL NUMBER  "
 msgstr "  WERKZEUG  "
 
+#: mini.tcl:2067
 msgid "  LENGTH  "
 msgstr "  LÄNGE  "
 
+#: mini.tcl:2068
 msgid "  DIAMETER  "
 msgstr "  DURCHMESSER  "
 
+#: mini.tcl:2069
 msgid "  COMMENT  "
 msgstr "  BEMERKUNG  "
 
+#: mini.tcl:2124
 msgid "Add Extra Tool"
 msgstr "Werkzeug hinzufügen"
 
+#: mini.tcl:2125
 msgid "Remove Last Tool"
 msgstr "Letztes Werkzeug löschen"
 
+#: mini.tcl:2153 mini.tcl:2189
+#, tcl-format
+msgid "Can't update the tool file while machine is in auto and %s."
+msgstr "Die Werkzeugdatei kann nicht aktualisiert werden solange die Maschine im »auto«-Modus und »%s« ist."
+
+#: mini.tcl:2165
 msgid "This is not a good number."
 msgstr "Es wurde kein gültiger Wert angegeben."
 
-msgid "COORDINATE SYSTEM SETUP \n\n  Click value to edit with keyboard.  Press enter to return to keyboard control of machine. \n "
-msgstr "KOORDINATENSYSTEM SETUP \n\nWählen Sie mit der Maus oder der Tabulator-Taste den gewünschten Wert aus.\nMit der Enter-Taste wird der Wert übernommen. "
+#: mini.tcl:2229
+msgid ""
+"COORDINATE SYSTEM SETUP \n"
+"\n"
+"  Click value to edit with keyboard.  Press enter to return to keyboard "
+"control of machine. \n"
+" "
+msgstr ""
+"KOORDINATENSYSTEM SETUP \n"
+"\n"
+"Wählen Sie mit der Maus oder der Tabulator-Taste den gewünschten Wert aus.\n"
+"Mit der Eingabetaste wird der Wert übernommen. "
 
+#: mini.tcl:2256 scripts/Set_Coordinates.tcl:82
 msgid "Axis "
 msgstr "Achse"
 
+#: mini.tcl:2257
 msgid "Value "
 msgstr "Wert"
 
+#: mini.tcl:2262 scripts/Set_Coordinates.tcl:92
 msgid "Teach"
 msgstr "Anwenden"
 
+#: mini.tcl:2270
 msgid "Write And Load File "
-msgstr "Speichern und Neu Laden"
+msgstr "Speichern"
 
+#: mini.tcl:2272
 msgid "Offset By Radius"
 msgstr "Offset über Radius"
 
+#: mini.tcl:2273
 msgid "Offset By Length"
 msgstr "Offset über Länge"
 
+#: mini.tcl:2278
 msgid "Subtract"
 msgstr "Abziehen"
 
+#: mini.tcl:2280
 msgid "Add"
 msgstr "Dazuzählen"
 
+#: mini.tcl:2302
 msgid "Zero All G54"
 msgstr "G54 auf Null setzen"
 
+#: mini.tcl:2303
 msgid "Zero All G55"
 msgstr "G55 auf Null setzen"
 
+#: mini.tcl:2304
 msgid "Zero All G56"
 msgstr "G56 auf Null setzen"
 
+#: mini.tcl:2305
 msgid "Zero All G57"
 msgstr "G57 auf Null setzen"
 
+#: mini.tcl:2306
 msgid "Zero All G58"
 msgstr "G58 auf Null setzen"
 
+#: mini.tcl:2307
 msgid "Zero All G59"
 msgstr "G59 auf Null setzen"
 
+#: mini.tcl:2308
 msgid "Zero All G59.1"
 msgstr "G59.1 auf Null setzen"
 
+#: mini.tcl:2309
 msgid "Zero All G59.2"
-msgstr "G59.2 suf Null setzen"
+msgstr "G59.2 auf Null setzen"
 
+#: mini.tcl:2310
 msgid "Zero All G59.3"
 msgstr "G59.3 auf Null setzen"
 
+#: mini.tcl:2311
 msgid "Zero All ????"
 msgstr "Alle auf Null setzen ????"
 
+#: mini.tcl:2429
+msgid "Modified..."
+msgstr "Geändert..."
+
+#: mini.tcl:2455 bin/genedit.tcl:97
 msgid "Edit"
 msgstr "Bearbeiten"
 
+#: mini.tcl:2471 bin/genedit.tcl:84
 msgid "New"
 msgstr "Neu"
 
+#: mini.tcl:2473 bin/emccalib.tcl:113 bin/emclog.tcl:290 bin/genedit.tcl:88
+#: bin/halconfig.tcl:151
 msgid "Save"
 msgstr "Speichern"
 
+#: mini.tcl:2474 bin/genedit.tcl:90
 msgid "Save As..."
 msgstr "Speichern unter..."
 
+#: mini.tcl:2476
 msgid "Save and Load"
 msgstr "Speichern und Beenden"
 
+#: mini.tcl:2478
 msgid "Undo"
 msgstr "Rückgängig"
 
+#: mini.tcl:2479
 msgid "Redo"
 msgstr "Wiederherstellen"
 
+#: mini.tcl:2481 bin/genedit.tcl:98
 msgid "Cut"
 msgstr "Ausschneiden"
 
+#: mini.tcl:2482 bin/genedit.tcl:100
 msgid "Copy"
 msgstr "Kopieren"
 
+#: mini.tcl:2483 bin/genedit.tcl:102
 msgid "Paste"
 msgstr "Einfügen"
 
+#: mini.tcl:2484
 msgid "Delete"
 msgstr "Löschen"
 
+#: mini.tcl:2486 bin/genedit.tcl:105 show_errors.tcl:49
 msgid "Select All"
 msgstr "Alles makieren"
 
+#: mini.tcl:2488 bin/genedit.tcl:139
 msgid "Find..."
 msgstr "Suchen..."
 
+#: mini.tcl:2489
 msgid "Replace..."
 msgstr "Ersetzen..."
 
+#: mini.tcl:2490 bin/genedit.tcl:141
 msgid "Renumber File..."
 msgstr "Zeilennummerierung aktualisieren..."
 
+#: mini.tcl:2492 bin/genedit.tcl:147
 msgid "No Numbering"
 msgstr "Zeilennummerierung deaktivieren"
 
+#: mini.tcl:2494 bin/genedit.tcl:150
 msgid "Line Numbering..."
 msgstr "Zeilennummerierung aktivieren..."
 
+#: mini.tcl:2578 bin/genedit.tcl:428
 msgid "Set Line Numbering"
 msgstr "Zeilennummerierung"
 
+#: mini.tcl:2582 bin/genedit.tcl:430
 msgid "Increment"
 msgstr "Intervall"
 
+#: mini.tcl:2584 bin/genedit.tcl:432
 msgid "One"
 msgstr "Eins"
 
+#: mini.tcl:2586 bin/genedit.tcl:435
 msgid "Two"
 msgstr "Zwei"
 
+#: mini.tcl:2588 bin/genedit.tcl:438
 msgid "Five"
 msgstr "Fünf"
 
+#: mini.tcl:2590 bin/genedit.tcl:441
 msgid "Ten"
 msgstr "Zehn"
 
+#: mini.tcl:2592 bin/genedit.tcl:445
 msgid "Space"
 msgstr "Abstand"
 
+#: mini.tcl:2594 bin/genedit.tcl:447
 msgid "Single Space"
 msgstr "ein Leerzeichen"
 
+#: mini.tcl:2596 bin/genedit.tcl:450
 msgid "Double Space"
 msgstr "zwei Leerzeichen"
 
+#: mini.tcl:2598 bin/genedit.tcl:453
 msgid "Tab Space"
 msgstr "Tabulator"
 
+#: mini.tcl:2602
 msgid "Next Number: "
 msgstr "Startnummer:"
 
+#: mini.tcl:2606 bin/genedit.tcl:480
 msgid "Renumber"
 msgstr "Anwenden"
 
+#: mini.tcl:2703
 msgid "Basic Help"
 msgstr "Hilfe"
 
-msgid "This is a simple ASCII editor like many others.\n\nCtrl+O  Open\nCtrl+S  Save\nCtrl+Z  Undo\nCtrl+Y  Redo\nCtrl+X  Cut\nCtrl+C  Copy\nCtrl+V  Paste\nDel     Delete\nCtrl+A  Select All\n\nCtrl+F  Find\nCtrl+R  Replace "
-msgstr "Dies ist ein simpler Texteditor.\n\nCtrl+O  Öffnen\nCtrl+S  Speichern\nCtrl+Z  Rückgängig\nCtrl+Y  Wiederherstellen\nCtrl+X  Ausschneiden\nCtrl+C  Kopieren\nCtrl+V  Einfügen\nDel     Löschen\nCtrl+A  Alles makieren\n\nCtrl+F  Suchen\nCtrl+R  Ersetzen "
+#: mini.tcl:2703
+msgid ""
+"This is a simple ASCII editor like many others.\n"
+"\n"
+"Ctrl+O  Open\n"
+"Ctrl+S  Save\n"
+"Ctrl+Z  Undo\n"
+"Ctrl+Y  Redo\n"
+"Ctrl+X  Cut\n"
+"Ctrl+C  Copy\n"
+"Ctrl+V  Paste\n"
+"Del     Delete\n"
+"Ctrl+A  Select All\n"
+"\n"
+"Ctrl+F  Find\n"
+"Ctrl+R  Replace "
+msgstr ""
+"Dies ist ein simpler Texteditor.\n"
+"\n"
+"Strg+O:\tÖffnen\n"
+"Strg+S:\tSpeichern\n"
+"Strg+Z:\tRückgängig\n"
+"Strg+Y:\tWiederherstellen\n"
+"Strg+X:\tAusschneiden\n"
+"Strg+C:\tKopieren\n"
+"Strg+V:\tEinfügen\n"
+"Entf:\tLöschen\n"
+"Strg+A:\tAlles makieren\n"
+"\n"
+"Strg+F:\tSuchen\n"
+"Strg+R:\tErsetzen "
 
-msgid "tknotepad by Joseph Acosta. <joeja@mindspring.com>\n\n Modified for EMC by: Paul Corner <paul_c@users.sourceforge.net>"
-msgstr "tknotepad by Joseph Acosta <joeja@mindspring.com>\n\nModifiziert für EMC von: Paul Corner <paul_c@users.sourceforge.net>"
+#: mini.tcl:2723
+msgid ""
+"tknotepad by Joseph Acosta. <joeja@mindspring.com>\n"
+"\n"
+" Modified for EMC by: Paul Corner <paul_c@users.sourceforge.net>"
+msgstr ""
+"tknotepad by Joseph Acosta <joeja@mindspring.com>\n"
+"\n"
+"Modifiziert für EMC von: Paul Corner <paul_c@users.sourceforge.net>"
 
+#: mini.tcl:2731
+msgid ""
+"The contents of this file may have changed, do you wish to to save your "
+"changes?"
+msgstr "Der Inhalt dieser Datei wurde wahrscheinlich geändert. Sollen die Änderungen gespeichert werden?"
+
+#: mini.tcl:2732
 msgid "New Confirm?"
 msgstr "Änderungen bestätigen"
 
+#: mini.tcl:2836
+msgid "Print Setup"
+msgstr "Drucker-Einstellungen"
+
+#: mini.tcl:2840
 msgid "Print Command: "
 msgstr "Drucker-Befehl:"
 
+#: mini.tcl:2998 bin/genedit.tcl:273
 msgid "Find"
 msgstr "Suchen"
 
+#: mini.tcl:3003
 msgid "Find what:"
 msgstr "Suchen:"
 
+#: mini.tcl:3009
 msgid "Replace with:"
 msgstr "Ersetzen mit:"
 
+#: mini.tcl:3017
 msgid "Find Next"
 msgstr "Weitersuchen"
 
+#: mini.tcl:3020
 msgid "Replace"
 msgstr "Ersetzen"
 
+#: mini.tcl:3021 bin/genedit.tcl:291
 msgid "Replace All"
 msgstr "Alle ersetzen"
 
+#: mini.tcl:3028
 msgid "Up"
 msgstr "Aufwärts"
 
+#: mini.tcl:3029
 msgid "Down"
 msgstr "Abwärts"
 
+#: mini.tcl:3032
 msgid "Match case"
 msgstr "Groß-/Kleinschreibung beachten"
 
+#: mini.tcl:3466 bin/emccalib.tcl:111 bin/halconfig.tcl:149
 msgid "Refresh"
 msgstr "Aktualisieren"
 
+#: mini.tcl:3477
 msgid "rot-x"
 msgstr "Rot-X"
 
+#: mini.tcl:3487
 msgid "rot-y"
 msgstr "Rot-Y"
 
+#: mini.tcl:3497
 msgid "rot-z"
 msgstr "Rot-Z"
 
+#: mini.tcl:3507
 msgid "zoom"
 msgstr "Zoom"
 
+#: mini.tcl:3563
+msgid "TEST"
+msgstr "TEST"
+
+#: mini.tcl:3607
 msgid "Hide Setup"
 msgstr "Optionen ausbl."
 
+#: mini.tcl:3611
 msgid "Show Setup"
 msgstr "Optionen anz."
 
+#: bin/emccalib.tcl:84
 msgid "EMC2 Axis Calibration"
-msgstr "EMC2 Achsabstimmung"
+msgstr "EMC2 Achsen-Kalibrierung"
 
+#: bin/emccalib.tcl:94
 msgid "Save To File"
 msgstr "Speichern"
 
+#: bin/emccalib.tcl:95 bin/halconfig.tcl:99
 msgid "Quit"
 msgstr "Beenden"
 
+#: bin/emccalib.tcl:166 bin/halconfig.tcl:619
+#, tcl-format
 msgid "Tune %d"
 msgstr "Achse %d"
 
+#: bin/emccalib.tcl:171 bin/halconfig.tcl:624
 msgid "INI Name"
 msgstr "INI-Name"
 
+#: bin/emccalib.tcl:172 bin/halconfig.tcl:625
 msgid "HAL's Value"
 msgstr "HAL-Wert"
 
+#: bin/emccalib.tcl:174 bin/halconfig.tcl:627
 msgid "Next Value"
 msgstr "Nächster Wert"
 
+#: bin/emccalib.tcl:232 bin/halconfig.tcl:676 bin/halconfig.tcl:727
 msgid "Test"
 msgstr "Ausprobieren"
 
-msgid "The HAL parameter \n  %s \n has changed. \n Really quit?"
-msgstr "Das HAL Parameter \n%s \nwurde geändert. \nWirklich beenden?"
+#: bin/emccalib.tcl:342 bin/halconfig.tcl:879
+#, tcl-format
+msgid ""
+"The HAL parameter \n"
+"  %s \n"
+" has changed. \n"
+" Really quit?"
+msgstr ""
+"Das HAL-Parameter \n"
+"»%s« \n"
+"wurde geändert. \n"
+"Wirklich beenden?"
 
-msgid "Not permitted to save here.\n\n  You need to copy a configuration to your home directory and work there."
-msgstr "Sie sind nicht berechtigt hier zu speichern.\n\nKopieren Sie eine Konfiguration in Ihr home-Verzeichnis, um damit zu arbeiten."
+#: bin/emccalib.tcl:366 bin/halconfig.tcl:1166
+msgid ""
+"Not permitted to save here.\n"
+"\n"
+"  You need to copy a configuration to your home directory and work there."
+msgstr ""
+"Sie sind nicht berechtigt hier zu speichern.\n"
+"\n"
+"Kopieren Sie eine Konfiguration in Ihr »home«-Verzeichnis, um damit zu "
+"arbeiten."
 
+#: bin/emccalib.tcl:422 bin/genedit.tcl:217 bin/pickconfig.tcl:419
+#: bin/pickconfig.tcl:430 bin/halconfig.tcl:1238
+#: scripts/Set_Coordinates.tcl:205 scripts/Set_Coordinates.tcl:228
+#, tcl-format
 msgid "can't save %s"
-msgstr "Die Datei %s konnte nicht gespeichert werden"
+msgstr "Die Datei »%s« konnte nicht gespeichert werden."
 
+#: bin/emcdebug.tcl:170 bin/emcdebug.tcl:181
 msgid "EMC Debug"
 msgstr "EMC2 Debug"
 
+#: bin/emcdebug.tcl:189
 msgid "Invalid INI file entries"
 msgstr "Ungültige Einträge in der INI-Datei"
 
+#: bin/emcdebug.tcl:190
 msgid "Configuration information"
-msgstr "Konfigurations-Informationen"
+msgstr "Konfigurationsinformationen"
 
+#: bin/emcdebug.tcl:191
+msgid "Use of defaults"
+msgstr "Benutzen der Standartwerte"
+
+#: bin/emcdebug.tcl:192
+msgid "Version information"
+msgstr "Versionsinformationen"
+
+#: bin/emcdebug.tcl:193
+msgid "Command issuing"
+msgstr "Betroffener Befehl"
+
+#: bin/emcdebug.tcl:194
+msgid "IO points"
+msgstr "Ein-/Ausgänge"
+
+#: bin/emcdebug.tcl:195
+msgid "NML"
+msgstr "NML"
+
+#: bin/emcdebug.tcl:196
+msgid "Motion time"
+msgstr "Laufzeit"
+
+#: bin/emcdebug.tcl:197
+msgid "Interpreter"
+msgstr "Interpreter"
+
+#: bin/emcdebug.tcl:198
+msgid "RCS"
+msgstr "RCS"
+
+#: bin/emcdebug.tcl:199
+msgid "Trajectory level"
+msgstr "Bewegungsstatus"
+
+#: bin/emcdebug.tcl:200
+msgid "Interpreter list"
+msgstr "Interpreter-Liste"
+
+#: bin/emclog.tcl:55
+msgid "Open"
+msgstr ""
+
+#: bin/emclog.tcl:57
+msgid "Closed"
+msgstr ""
+
+#: bin/emclog.tcl:61
+msgid "Logging"
+msgstr ""
+
+#: bin/emclog.tcl:63
+msgid "Not Logging"
+msgstr ""
+
+#: bin/emclog.tcl:174 bin/emclog.tcl:184
 msgid "EMC Logging"
-msgstr "EMC2 Protokollierung"
+msgstr ""
 
+#: bin/emclog.tcl:200
+msgid "Type:"
+msgstr ""
+
+#: bin/emclog.tcl:201 bin/emclog.tcl:204
+msgid "Axis Position"
+msgstr ""
+
+#: bin/emclog.tcl:205
 msgid "All Input Positions"
-msgstr "All Input Positions"
+msgstr ""
 
+#: bin/emclog.tcl:206
+msgid "All Output Positions"
+msgstr ""
+
+#: bin/emclog.tcl:207
+msgid "Axis Velocity"
+msgstr ""
+
+#: bin/emclog.tcl:208
+msgid "All Following Errors"
+msgstr ""
+
+#: bin/emclog.tcl:209
+msgid "Trajectory Points"
+msgstr ""
+
+#: bin/emclog.tcl:210
+msgid "Trajectory Vels"
+msgstr ""
+
+#: bin/emclog.tcl:211
+msgid "Trajectory Accs"
+msgstr ""
+
+#: bin/emclog.tcl:212
+msgid "Pos and Voltage"
+msgstr ""
+
+#: bin/emclog.tcl:218
 msgid "File:"
-msgstr "Datei:"
+msgstr ""
 
+#: bin/emclog.tcl:225
 msgid "Size:"
-msgstr "Größe:"
+msgstr ""
 
+#: bin/emclog.tcl:232
+msgid "Skip:"
+msgstr ""
+
+#: bin/emclog.tcl:239
+msgid "Which:"
+msgstr ""
+
+#: bin/emclog.tcl:247
+msgid "Trigger Type:"
+msgstr ""
+
+#: bin/emclog.tcl:252
+msgid "Delta"
+msgstr ""
+
+#: bin/emclog.tcl:253
+msgid "Over"
+msgstr ""
+
+#: bin/emclog.tcl:254
+msgid "Under"
+msgstr ""
+
+#: bin/emclog.tcl:261
+msgid "Trigger Var:"
+msgstr ""
+
+#: bin/emclog.tcl:262 bin/emclog.tcl:265
+msgid "Position"
+msgstr ""
+
+#: bin/emclog.tcl:266
+msgid "Volt"
+msgstr ""
+
+#: bin/emclog.tcl:267
+msgid "Following Error"
+msgstr ""
+
+#: bin/emclog.tcl:268
+msgid "Velocity"
+msgstr ""
+
+#: bin/emclog.tcl:274
+msgid "Trigger Threshold:"
+msgstr ""
+
+#: bin/emclog.tcl:288
 msgid "Start"
-msgstr "Start"
+msgstr ""
 
+#: bin/emclog.tcl:289
 msgid "Stop"
-msgstr "Stopp"
+msgstr ""
 
+#: bin/emclog.tcl:291
 msgid "Plot"
 msgstr "P"
 
+#: bin/emclog.tcl:302
+msgid "Done"
+msgstr ""
+
+#: bin/genedit.tcl:136
 msgid "Save and Reload"
 msgstr "Speichern und Aktualisieren"
 
+#: bin/genedit.tcl:183
 msgid "About TkEditor"
 msgstr "Über TkEditor"
 
-msgid "TkEditor\n\nSimple Tcl/Tk Text Editor\n\nPublic Domain (1999)"
-msgstr "TkEditor\n\nEinfacher Tcl/Tk Text Editor\n\nPublic Domain (1999)"
+#: bin/genedit.tcl:185
+msgid ""
+"TkEditor\n"
+"\n"
+"Simple Tcl/Tk Text Editor\n"
+"\n"
+"Public Domain (1999)"
+msgstr ""
+"TkEditor\n"
+"\n"
+"Einfacher Tcl/Tk Text Editor\n"
+"\n"
+"Public Domain (1999)"
 
+#: bin/genedit.tcl:276
 msgid "Find:"
 msgstr "Suchen:"
 
+#: bin/genedit.tcl:282
 msgid "Replace:"
 msgstr "Ersetzen:"
 
+#: bin/genedit.tcl:288
 msgid "Find All"
 msgstr "Alle finden"
 
+#: bin/genedit.tcl:294
 msgid "Skip This"
 msgstr "Überspringen"
 
+#: bin/genedit.tcl:297
 msgid "Replace This"
 msgstr "Ersetzen"
 
+#: bin/genedit.tcl:303
 msgid "Clear"
 msgstr "Zurücksetzen"
 
+#: bin/genedit.tcl:459
 msgid "Next Number:"
 msgstr "Startnummer:"
 
-msgid "Can't find the bwidget 1.7 package.  There is a debian bwidget package; install \nit with sudo apt-get install bwidget."
-msgstr "Das Paket 'bwidget 1.7' konnte nicht gefunden werden.\nEs existiert ein 'bwidget' Paket für Debian.\nDieses kann mit 'sudo apt-get install bwidget' installiert werden."
+#: bin/pickconfig.tcl:51
+msgid ""
+"Can't find the bwidget 1.7 package.  There is a debian bwidget package; "
+"install \n"
+"it with sudo apt-get install bwidget."
+msgstr ""
+"Das Paket »bwidget 1.7« konnte nicht gefunden werden.\n"
+"Es existiert ein »bwidget« Paket für Debian basierende Systeme.\n"
+"Dieses kann mit »sudo apt-get install bwidget« installiert werden."
 
+#: bin/pickconfig.tcl:129
 msgid "No details available."
-msgstr "Es sind keine Details verfügbar."
+msgstr "Es ist keine Beschreibung verfügbar."
 
+#: bin/pickconfig.tcl:160
 msgid "ERROR: must specify a path to search for configurations"
-msgstr "FEHLER: Es muss ein Pfad zu den Konfigurationen angegeben sein."
+msgstr "FEHLER: Es muss ein Pfad zu den Konfigurationen angegeben werden."
 
+#: bin/pickconfig.tcl:172
 msgid "EMC2 Configuration Selector"
 msgstr "EMC2 Konfigurationsassistent"
 
-msgid "Welcome to EMC2.\n\nSelect a machine configuration from the list on the left.\nDetails about the selected configuration will appear in the display on the right.\nClick 'OK' to run the selected configuration"
-msgstr "Willkommen zu EMC2.\n\nWählen Sie eine Maschinenkonfiguration aus der linken Liste.\nDetails über de gewählte Konfiguration werden auf der rechten Seite angezeigt.\nBestätigen Sie mit 'OK', um die gewählte Konfiguration zu laden."
+#: bin/pickconfig.tcl:193
+msgid ""
+"Welcome to EMC2.\n"
+"\n"
+"Select a machine configuration from the list on the left.\n"
+"Details about the selected configuration will appear in the display on the "
+"right.\n"
+"Click 'OK' to run the selected configuration"
+msgstr ""
+"Willkommen zu EMC2.\n"
+"\n"
+"Wählen Sie eine Maschinenkonfiguration aus der Liste.\n"
+"Eine Beschreibung der gewählte Konfiguration wird auf der rechten Seite "
+"angezeigt.\n"
+"Bestätigen Sie mit »OK«, um die gewählte Konfiguration zu laden."
 
+#: bin/pickconfig.tcl:250
+msgid "My Configurations"
+msgstr "Eigene Konfigurationen"
+
+#: bin/pickconfig.tcl:253
+msgid "Sample Configurations"
+msgstr "Beispielkonfigurationen"
+
+#: bin/pickconfig.tcl:310
+#, tcl-format
 msgid "ERROR: no configurations found in path '%s'"
-msgstr "FEHLER: Es wurde keine Konfiguration im Verzeichnis '%s' gefunden."
+msgstr "FEHLER: Es wurden keine Konfigurationen im Verzeichnis »%s« gefunden."
 
+#: bin/pickconfig.tcl:332
 msgid "Copy Configuration?"
 msgstr "Konfiguration kopieren?"
 
-msgid "The configuration you selected, %s, is in a directory you cannot write to.\n\nThis will cause certain features not to function properly, and you will be unable to modify the .ini and .hal files.\n\nIt is recommended that you make a copy of this configuration to your home directory.  Do you wish to copy the configuration?"
-msgstr "Die gewählte Konfiguration '%s' befindet sich in einem Verzeichnis, für dass Sie keine Schreibrechte besitzen.\n\nDies kann dazu führen, dass verschiedene Funktionen nicht richtig funktioneren. Weiterhin können Sie die '.ini' und '.hal' Dateien nicht ändern.\n\nEs wird empfohlen, die Konfiguration in Ihr 'home' Verzeichis zu kopieren. Wollen Sie die Konfiguration kopieren?"
+#: bin/pickconfig.tcl:332
+#, tcl-format
+msgid ""
+"Would you like to copy the %s configuration to your home directory so you "
+"can customize it?"
+msgstr ""
+"Soll die Konfiguration »%s« in Ihr home-Verzeichnis kopiert werden? \n"
+"Dies ist nötig, damit benutzerspezifische Änderungen duchgeführt werden "
+"können."
 
+#: bin/pickconfig.tcl:332
 msgid "Yes"
 msgstr "Ja"
 
+#: bin/pickconfig.tcl:332
 msgid "No"
 msgstr "Nein"
 
+#: bin/pickconfig.tcl:357
 msgid "Configuration Copied"
 msgstr "Konfiguration kopiert"
 
-msgid "The configuration file has been copied to %s. Next time, choose this location when starting EMC2."
-msgstr "Die Konfiguration wurde in das Verzeichnis '%s' kopiert. Wählen Sie diese beim nachsten Start von EMC2 aus."
+#: bin/pickconfig.tcl:357
+#, tcl-format
+msgid ""
+"The configuration file has been copied to %s. Next time, choose this "
+"location when starting EMC2."
+msgstr ""
+"Die Konfiguration wurde erfolgreich in das Verzeichnis »%s« kopiert. Beim "
+"nächsten Start von EMC2 kann diese ausgewählt werden."
 
+#: bin/pickconfig.tcl:382
+msgid "Shortcut Created"
+msgstr "Desktop-Verknüpfung erstellt"
+
+#: bin/pickconfig.tcl:382
+msgid ""
+"A shortcut to this configuration file has been created in your desktop.  You "
+"can use it to automatically launch this configuration."
+msgstr ""
+"Die Desktop-Verknüpfung wurde erfolgreich erstellt. Über diese Verknüpfung "
+"kann EMC2 automatisch mit mit der gewählten Konfiguration gestartet werden."
+
+#: bin/pickconfig.tcl:386
+msgid "Create Desktop Shortcut"
+msgstr "Desktop-Verknüpfung erstellen"
+
+#: bin/tkbackplot.tcl:113
 msgid "TkEmc BackPlot"
 msgstr "TkEMC Backplot"
 
+#: bin/tkbackplot.tcl:128
 msgid "SETUP"
 msgstr "SETUP"
 
+#: bin/tkbackplot.tcl:130
 msgid "RESET"
 msgstr "RESET"
 
+#: bin/tkbackplot.tcl:132
 msgid "CANCEL"
 msgstr "ABBRECHEN"
 
+#: bin/tkbackplot.tcl:245
 msgid "AXIS"
 msgstr "ACHSE"
 
+#: bin/tkbackplot.tcl:246
 msgid "OFFSET"
 msgstr "OFFSET"
 
+#: bin/tkbackplot.tcl:247
 msgid "ANGLE"
 msgstr "WINKEL"
 
+#: bin/tkbackplot.tcl:248
 msgid "DIRECTION"
 msgstr "RICHTUNG"
 
+#: bin/tkbackplot.tcl:265
 msgid "SIZE :"
 msgstr "MASSSTAB"
 
+#: bin/halconfig.tcl:84 bin/halshow.tcl:84
 msgid "HAL Configuration"
-msgstr "HAL Konfiguration"
+msgstr "HAL konfigurieren"
 
+#: bin/halconfig.tcl:99
 msgid "Would you like to save your configuration before you exit?"
 msgstr "Möchten Sie Ihre Änderungen vor dem Beenden speichern? "
 
+#: bin/halconfig.tcl:99
 msgid "Save All"
 msgstr "Alles Speichern"
 
+#: bin/halconfig.tcl:99
 msgid "Save Tune"
-msgstr "Abstimmungen Speichern"
+msgstr "Änderungen speichern"
 
+#: bin/halconfig.tcl:99
 msgid "Save as Netlist"
 msgstr "Speichere als Netzliste"
 
+#: bin/halconfig.tcl:99
 msgid "Don't Save"
-msgstr "Nicht Speichern"
+msgstr "Nicht speichern"
 
+#: bin/halconfig.tcl:128
 msgid "Show"
 msgstr "Anzeigen"
 
+#: bin/halconfig.tcl:129
 msgid "Watch"
 msgstr "Beobachten"
 
+#: bin/halconfig.tcl:130
 msgid "Modify"
 msgstr "Ändern"
 
+#: bin/halconfig.tcl:153
+msgid "Save INI Tuning"
+msgstr "INI-Änderungen speichern"
+
+#: bin/halconfig.tcl:155
 msgid "Save HAL Ini"
-msgstr "Speichere HAL-INI"
+msgstr "HAL-INI speichern"
 
+#: bin/halconfig.tcl:157
 msgid "Save HAL Net"
-msgstr "Speichere HAL-NET"
+msgstr "HAL-NET speichern"
 
+#: bin/halconfig.tcl:159
 msgid "Save and Exit"
 msgstr "Speichern und Beenden"
 
+#: bin/halconfig.tcl:166 bin/halshow.tcl:138
 msgid "Expand Tree"
 msgstr "Menübaum aufklappen"
 
+#: bin/halconfig.tcl:168 bin/halshow.tcl:140
 msgid "Collapse Tree"
 msgstr "Menübaum zuklappen"
 
+#: bin/halconfig.tcl:171 bin/halshow.tcl:143
 msgid "Expand Pins"
 msgstr "Pins aufklappen"
 
+#: bin/halconfig.tcl:173 bin/halshow.tcl:145
 msgid "Expand Parameters"
 msgstr "Parameters aufklappen"
 
+#: bin/halconfig.tcl:175 bin/halshow.tcl:147
 msgid "Expand Signals"
 msgstr "Signals aufklappen"
 
+#: bin/halconfig.tcl:178 bin/halshow.tcl:150
 msgid "Erase Watch"
 msgstr "Ansicht löschen"
 
+#: bin/halconfig.tcl:192
 msgid "Main"
 msgstr "Allgemein"
 
+#: bin/halconfig.tcl:472
 msgid "Enter HAL command :"
-msgstr "HAL Befehl:"
+msgstr "HAL-Befehl:"
 
+#: bin/halconfig.tcl:475 bin/halconfig.tcl:524 bin/halshow.tcl:433
 msgid "Execute"
 msgstr "Anwenden"
 
+#: bin/halconfig.tcl:927 bin/halshow.tcl:472
+msgid "Mode went way wrong."
+msgstr ""
+
+#: bin/halconfig.tcl:939 bin/halshow.tcl:484
+msgid "Select a node to show."
+msgstr "Bitte Variable zum Anzeigen auswählen."
+
+#: bin/halconfig.tcl:964 bin/halshow.tcl:509
 msgid "<-- Select a Leaf.  Click on its name."
-msgstr "<-- Wählen Sie eine Variable aus, indem Sie auf den Namen klicken."
+msgstr "Bitte Variable zum Anzeigen auswählen."
 
-msgid "EMC Set Coordinate"
-msgstr "EMC2 Koordinaten-Setup"
+#: bin/halconfig.tcl:1081 bin/halconfig.tcl:1091 bin/halconfig.tcl:1098
+#: bin/halconfig.tcl:1105 bin/halconfig.tcl:1112
+#, tcl-format
+msgid "Click a highlighted entry where %s should go."
+msgstr ""
 
-msgid "Coordinate System Control Window"
-msgstr "Koordinatensystem Kontroll-Fenster"
+#: bin/halconfig.tcl:1088
+msgid "Nothing to be done for parameters here. Try the tuning page"
+msgstr ""
 
-msgid "Var # "
-msgstr "Variable"
+#: bin/halconfig.tcl:1120
+#, tcl-format
+msgid "%s is not a leaf, try again"
+msgstr ""
 
-msgid "Offset Value "
-msgstr "Aktueller Wert"
+#: bin/halconfig.tcl:1277
+msgid ""
+"Copyright Raymond E Henry. 2006\n"
+"License: GPL Version 2\n"
+"\n"
+"Halconfig is an EMC2 configuration tool.  It should be started from the emc2 "
+"directory and will require that you have started an instance of emc2 or work "
+"up a new configuration starting with a demo rt script.\n"
+"\n"
+"This script is not for the faint hearted and carries no warranty or "
+"liability for its use to the extent allowed by law."
+msgstr ""
 
-msgid "What to Teach"
-msgstr "Neuen Wert eingeben:"
-
-msgid "Set Old"
-msgstr "Alten Wert"
-
-msgid "Set Zero"
-msgstr "Null setzen"
-
-msgid "Close"
-msgstr "Beenden"
-
-msgid "Write"
-msgstr "Speichern"
-
+#: bin/halshow.tcl:120
 msgid " SHOW "
 msgstr "ANZEIGEN"
 
+#: bin/halshow.tcl:121
 msgid " WATCH "
 msgstr "BEOBACHTEN"
 
+#: bin/halshow.tcl:136
 msgid "Tree View"
-msgstr "Baumansicht"
+msgstr "Ansicht"
 
+#: bin/halshow.tcl:430
 msgid "Test HAL command :"
-msgstr "HAL Befehl ausprobieren:"
+msgstr "HAL-Befehl ausprobieren:"
 
+#: bin/halshow.tcl:615
 msgid "Commands may be tested here but they will NOT be saved"
-msgstr "Die Befehle können hier getestet werden, werden aber NICHT gespeichert."
+msgstr "Die Befehle können hier ausprobiert werden, werden aber NICHT gespeichert."
+
+#: scripts/Set_Coordinates.tcl:27
+msgid "EMC Set Coordinate"
+msgstr "EMC2 Koordinaten-Setup"
+
+#: scripts/Set_Coordinates.tcl:30
+msgid "Coordinate System Control Window"
+msgstr "Koordinatensystem Kontroll-Fenster"
+
+#: scripts/Set_Coordinates.tcl:83
+msgid "Var # "
+msgstr "Variable"
+
+#: scripts/Set_Coordinates.tcl:84
+msgid "Offset Value "
+msgstr "Aktueller Wert"
+
+#: scripts/Set_Coordinates.tcl:85
+msgid "What to Teach"
+msgstr "Neuen Wert eingeben:"
+
+#: scripts/Set_Coordinates.tcl:101
+msgid "Set Old"
+msgstr "Alten Wert"
+
+#: scripts/Set_Coordinates.tcl:102
+msgid "Set Zero"
+msgstr "Null setzen"
+
+#: scripts/Set_Coordinates.tcl:103 show_errors.tcl:50
+msgid "Close"
+msgstr "Beenden"
+
+#: scripts/Set_Coordinates.tcl:104
+msgid "Write"
+msgstr "Speichern"
+
+#: show_errors.tcl:24
+msgid "EMC2 Errors"
+msgstr "Fehler"
+
+#: show_errors.tcl:27
+msgid ""
+"EMC2 terminated with an error.  When reporting problems, please include the "
+"information below in your message."
+msgstr "EMC2 wurde mit einem Fehler beendet. Falls Sie den Fehler melden wollen, dann fügen Sie bitte Ihrer Mitteilung die unten stehenden Informationen bei."
 
