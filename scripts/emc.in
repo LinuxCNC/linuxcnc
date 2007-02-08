@@ -477,6 +477,7 @@ if [ ! -x $EMC2_BIN_DIR/$EMCSERVER ] ; then
     Cleanup
     exit 1
 fi
+export INI_FILE_NAME=$INIFILE
 $EMC2_BIN_DIR/$EMCSERVER -ini $INIFILE &
 sleep 1
 
