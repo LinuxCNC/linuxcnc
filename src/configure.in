@@ -770,11 +770,12 @@ if ( test "$BUILD_DOCS" = "yes" ) ; then
 	AC_MSG_WARN([no pdflatex, documentation will not be built])
     fi
 fi
+BUILD_DOCS_HTML=$BUILD_DOCS
 if ( test "$BUILD_DOCS" = "yes" ) ; then
     AC_PATH_PROG(LATEX2HTML,latex2html,"none", /bin:/usr/bin:/usr/local/bin)
     if ( test "none" = "$LATEX2HTML" ) ; then
-	BUILD_DOCS=no
-	AC_MSG_WARN([no latex2html, documentation will not be built])
+	BUILD_DOCS_HTML=no
+	AC_MSG_WARN([no latex2html, HTML documentation will not be built])
     fi
 fi
 if ( test "$BUILD_DOCS" = "yes" ) ; then
@@ -791,6 +792,7 @@ if ( test "$BUILD_DOCS" = "yes" ) ; then
     fi
 fi
 AC_SUBST(BUILD_DOCS)
+AC_SUBST(BUILD_DOCS_HTML)
 
 #############################################################################
 # Section 4 - Check for math support                                         #

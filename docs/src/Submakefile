@@ -67,7 +67,7 @@ Makefile: $(patsubst %.lyx, depends/%.d, $(DOC_SRCS))
 endif
 endif
 
-docs: htmldocs pdfdocs
+docs: pdfdocs
 pdfdocs: $(PDF_TARGETS)
 htmldocs: $(HTML_TARGETS)
 
@@ -167,6 +167,10 @@ $(MAN_DEPS): depends/%.d: $(DOC_DIR)/man/%
 	@grep '^\.so ' $< | awk '{printf " \\\n\t$(DOC_DIR)/man/%s", $$2}' >> $@.tmp
 	@echo >> $@.tmp
 	@mv -f $@.tmp $@
+
+ifeq ($(BUILD_DOCS_HTML),yes)
+docs: htmldocs
+endif
 
 ifneq ($(MAKECMDGOALS),clean)
 ifneq ($(MAKECMDGOALS),docclean)
