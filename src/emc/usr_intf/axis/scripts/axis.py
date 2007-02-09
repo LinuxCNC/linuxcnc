@@ -106,18 +106,18 @@ help1 = [
     ("   4", _("Activate fifth axis")),
     ("   5", _("Activate sixth axis")),
     ("`, 1..9, 0", _("Set Feed Override from 0% to 100%")),
-    (", and .", _("Select jog speed")),
-    ("< and >", _("Select angular jog speed")),
+    (_(", and ."), _("Select jog speed")),
+    (_("< and >"), _("Select angular jog speed")),
     ("I", _("Select jog increment")),
     ("C", _("Continuous jog")),
-    ("Home", _("Send active axis home")),
-    ("Ctrl-Home", _("Home all axes")),
-    ("Shift-Home", _("Zero G54 offset for active axis")),
-    ("End", _("Set G54 offset for active axis")),
+    (_("Home"), _("Send active axis home")),
+    (_("Ctrl-Home"), _("Home all axes")),
+    (_("Shift-Home"), _("Zero G54 offset for active axis")),
+    (_("End"), _("Set G54 offset for active axis")),
     ("-, =", _("Jog active axis")),
-    ("Left, Right", _("Jog first axis")),
-    ("Up, Down", _("Jog second axis")),
-    ("Pg Up, Pg Dn", _("Jog third axis")),
+    (_("Left, Right"), _("Jog first axis")),
+    (_("Up, Down"), _("Jog second axis")),
+    (_("Pg Up, Pg Dn"), _("Jog third axis")),
     ("[, ]", _("Jog fourth axis")),
     ("", ""),
     (_("Left Button"), _("Pan view or select line")),
@@ -133,7 +133,7 @@ help2 = [
     ("L", _("Override Limits")),
     ("", ""),
     ("O", _("Open program")),
-    ("Control-R", _("Reload program")),
+    (_("Control-R"), _("Reload program")),
     ("R", _("Run program")),
     ("T", _("Step program")),
     ("P", _("Pause program")),
@@ -145,13 +145,13 @@ help2 = [
     ("F8", _("Toggle flood")),
     ("", ""),
     ("B", _("Spindle brake off")),
-    ("Shift-B", _("Spindle brake on")),
+    (_("Shift-B"), _("Spindle brake on")),
     ("F9", _("Turn spindle clockwise")),
     ("F10", _("Turn spindle counterclockwise")),
     ("F11", _("Turn spindle more slowly")),
     ("F12", _("Turn spindle more quickly")),
     ("", ""),
-    ("Control-K", _("Clear live plot")),
+    (_("Control-K"), _("Clear live plot")),
     ("V", _("Cycle among preset views")),
 ]
 
@@ -1573,7 +1573,7 @@ def filter_program(program_filter, infilename, outfilename):
     p.stdin.close()  # No input for you
 
     progress = Progress(1, 1)
-    progress.set_text("Filtering...")
+    progress.set_text(_("Filtering..."))
     try:
         while p.poll() is None: # XXX add checking for abort
             t.update()
@@ -1984,7 +1984,7 @@ class TclCommands(nf.TclCommands):
                 b = max_extents[i]
                 if a != b:
                     props[c] = _("%f to %f = %f %s").replace("%f", fmt) % (a, b, b-a, units)
-        properties(root_window, "G-Code Properties", property_names, props)
+        properties(root_window, _("G-Code Properties"), property_names, props)
 
     def launch_website(event=None):
         import webbrowser
@@ -2151,7 +2151,7 @@ class TclCommands(nf.TclCommands):
             o.lon = 335
             glRotateScene(o, 1.0, o.xcenter, o.ycenter, o.zcenter, 0, 0, 0, 0)
         o.tkRedraw()
-        
+
     def estop_clicked(event=None):
         s.poll()
         if s.task_state == emc.STATE_ESTOP:
