@@ -31,7 +31,7 @@ import Tkinter, nf, rs274.options
 
 app = Tkinter.Tk(className="AxisToolChanger")
 app.wm_geometry("-60-60")
-app.wm_title("AXIS Manual Toolchanger")
+app.wm_title(_("AXIS Manual Toolchanger"))
 rs274.options.install(app)
 nf.start(app); nf.makecommand(app, "_", _)
 app.wm_protocol("WM_DELETE_WINDOW", app.wm_withdraw)

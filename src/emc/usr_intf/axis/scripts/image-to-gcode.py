@@ -467,7 +467,7 @@ def ui(im, nim, im_name):
         var = Tkinter.BooleanVar(f)
         var.set(v)
         g = Tkinter.Frame(f)
-        w = Tkinter.Checkbutton(g, variable=var, text="Yes")
+        w = Tkinter.Checkbutton(g, variable=var, text=_("Yes"))
         w.pack(side="left")
         return g, var 
 
@@ -558,8 +558,9 @@ def ui(im, nim, im_name):
         units=_("Units"),
         safety_height=_("Safety Height (units)"),
         pattern=_("Scan pattern"),
-        converter=("Scan direction"),
-        bounded=("Lace bounding"),
+        converter=_("Scan direction"),
+        bounded=_("Lace bounding"),
+        contact_angle=_("Contact angle"),
     )
 
     try:

@@ -114,18 +114,18 @@ help1 = [
     ("   4", _("Activate fifth axis")),
     ("   5", _("Activate sixth axis")),
     ("`, 1..9, 0", _("Set Feed Override from 0% to 100%")),
-    (", and .", _("Select jog speed")),
-    ("< and >", _("Select angular jog speed")),
-    ("I, Shift-I", _("Select jog increment")),
+    (_(", and ."), _("Select jog speed")),
+    (_("< and >"), _("Select angular jog speed")),
+    (_("I, Shift-I"), _("Select jog increment")),
     ("C", _("Continuous jog")),
-    ("Home", _("Send active axis home")),
-    ("Ctrl-Home", _("Home all axes")),
-    ("Shift-Home", _("Zero G54 offset for active axis")),
-    ("End", _("Set G54 offset for active axis")),
+    (_("Home"), _("Send active axis home")),
+    (_("Ctrl-Home"), _("Home all axes")),
+    (_("Shift-Home"), _("Zero G54 offset for active axis")),
+    (_("End"), _("Set G54 offset for active axis")),
     ("-, =", _("Jog active axis")),
-    ("Left, Right", _("Jog first axis")),
-    ("Up, Down", _("Jog second axis")),
-    ("Pg Up, Pg Dn", _("Jog third axis")),
+    (_("Left, Right"), _("Jog first axis")),
+    (_("Up, Down"), _("Jog second axis")),
+    (_("Pg Up, Pg Dn"), _("Jog third axis")),
     ("[, ]", _("Jog fourth axis")),
     ("", ""),
     (_("Left Button"), _("Pan view or select line")),
@@ -138,14 +138,14 @@ help1 = [
 help2 = [
     ("F3", _("Manual control")),
     ("F5", _("Code entry (MDI)")),
-    ("Control-M", _("Clear MDI history")),
-    ("Control-H", _("Copy selected MDI history elements")),
+    (_("Control-M"), _("Clear MDI history")),
+    (_("Control-H"), _("Copy selected MDI history elements")),
     ("",          _("to clipboard")),
-    ("Control-Shift-H", _("Paste clipboard to MDI history")),
+    (_("Control-Shift-H"), _("Paste clipboard to MDI history")),
     ("L", _("Override Limits")),
     ("", ""),
     ("O", _("Open program")),
-    ("Control-R", _("Reload program")),
+    (_("Control-R"), _("Reload program")),
     ("R", _("Run program")),
     ("T", _("Step program")),
     ("P", _("Pause program")),
@@ -157,13 +157,13 @@ help2 = [
     ("F8", _("Toggle flood")),
     ("", ""),
     ("B", _("Spindle brake off")),
-    ("Shift-B", _("Spindle brake on")),
+    (_("Shift-B"), _("Spindle brake on")),
     ("F9", _("Turn spindle clockwise")),
     ("F10", _("Turn spindle counterclockwise")),
     ("F11", _("Turn spindle more slowly")),
     ("F12", _("Turn spindle more quickly")),
     ("", ""),
-    ("Control-K", _("Clear live plot")),
+    (_("Control-K"), _("Clear live plot")),
     ("V", _("Cycle among preset views")),
 ]
 
@@ -214,7 +214,7 @@ def to_internal_linear_unit(v, unit=None):
         unit = s.linear_units
     lu = (unit or 1) * 25.4
     return v/lu
-   
+
 def from_internal_units(pos, unit=None):
     if unit is None:
         unit = s.linear_units
@@ -228,7 +228,7 @@ def from_internal_linear_unit(v, unit=None):
         unit = s.linear_units
     lu = (unit or 1) * 25.4
     return v*lu
-   
+
 
 class MyOpengl(Opengl):
     def __init__(self, *args, **kw):
@@ -600,7 +600,7 @@ class MyOpengl(Opengl):
 
                     glVertex3f(x_pos - dashwidth, g.min_extents[y], z_pos - zdashwidth)
                     glVertex3f(x_pos + dashwidth, g.min_extents[y], z_pos + zdashwidth)
-                                                                                      
+
                     glVertex3f(x_pos - dashwidth, g.max_extents[y], z_pos - zdashwidth)
                     glVertex3f(x_pos + dashwidth, g.max_extents[y], z_pos + zdashwidth)
 
@@ -699,7 +699,7 @@ class MyOpengl(Opengl):
                     color_limit(0)
                     glPushMatrix()
                     f = fmt % ((g.max_extents[y] - g.min_extents[y]) * dimscale)
-                    
+
                     glTranslatef(x_pos, (g.max_extents[y] + g.min_extents[y])/2,
                                 z_pos)
                     glRotatef(-90, 0, 0, 1)
@@ -740,7 +740,7 @@ class MyOpengl(Opengl):
                     color_limit(0)
                     glPushMatrix()
                     f = fmt % ((g.max_extents[x] - g.min_extents[x]) * dimscale)
-                    
+
                     glTranslatef((g.max_extents[x] + g.min_extents[x])/2, y_pos,
                                 z_pos)
                     if view == y:
@@ -1136,7 +1136,7 @@ def lathetool():
     glEnd()
 
     glNormal3f(0,1,0)
-    
+
     if orientation == 9:
         glBegin(GL_TRIANGLE_FAN)
         for i in range(37):
@@ -1179,7 +1179,7 @@ def lathetool():
             radius * dx + radius * math.sin(circlemaxangle) + sz * sinmax,
             0,
             radius * dy + radius * math.cos(circlemaxangle) + sz * cosmax)
-        
+
         glEnd()
     glDepthFunc(GL_LESS)
 
@@ -1585,7 +1585,7 @@ def filter_program(program_filter, infilename, outfilename):
     p.stdin.close()  # No input for you
 
     progress = Progress(1, 1)
-    progress.set_text("Filtering...")
+    progress.set_text(_("Filtering..."))
     try:
         while p.poll() is None: # XXX add checking for abort
             t.update()
@@ -1665,7 +1665,7 @@ def open_file_guts(f, filtered = False):
                     "error",0,_("OK"))
 
         t.configure(state="disabled")
- 
+
         canon.calc_extents()
         make_main_list(canon)
         make_selection_list(canon)
@@ -2003,7 +2003,7 @@ class TclCommands(nf.TclCommands):
                 b = max_extents[i]
                 if a != b:
                     props[c] = _("%f to %f = %f %s").replace("%f", fmt) % (a, b, b-a, units)
-        properties(root_window, "G-Code Properties", property_names, props)
+        properties(root_window, _("G-Code Properties"), property_names, props)
 
     def launch_website(event=None):
         import webbrowser
@@ -2096,7 +2096,7 @@ class TclCommands(nf.TclCommands):
         o.lat = -90
         o.lon = 0
         o.tkRedraw()
-        
+
     def set_view_z(event=None):
         widgets.view_z.configure(relief="sunken")
         widgets.view_z2.configure(relief="link")
@@ -2170,7 +2170,7 @@ class TclCommands(nf.TclCommands):
             o.lon = 335
             glRotateScene(o, 1.0, o.xcenter, o.ycenter, o.zcenter, 0, 0, 0, 0)
         o.tkRedraw()
-        
+
     def estop_clicked(event=None):
         s.poll()
         if s.task_state == emc.STATE_ESTOP:
@@ -2312,7 +2312,7 @@ class TclCommands(nf.TclCommands):
             if mdi_history_index != (widgets.mdi_history.size() - 1):
                 widgets.mdi_history.selection_set(mdi_history_index, mdi_history_index)
             vars.mdi_command.set(widgets.mdi_history.get(mdi_history_index))
-    
+
     def mdi_down_cmd(*event):
         global mdi_history_index
         if widgets.mdi_command.cget("state") == "disabled":
@@ -2417,14 +2417,14 @@ class TclCommands(nf.TclCommands):
             return
         except Tkinter.TclError:
             print "DBG: Sorry, but the clipboard is empty ..."
-        
+
     def mdi_history_double_butt_1(event):
         if widgets.mdi_command.cget("state") == "disabled":
             return
         cursel= widgets.mdi_history.index("active")
         if cursel < (widgets.mdi_history.size() - 1):
             commands.send_mdi(event)
-       
+
     def mdi_history_butt_1(event):
         global mdi_history_index
         if len(widgets.mdi_history.curselection()) > 1:
@@ -2441,7 +2441,7 @@ class TclCommands(nf.TclCommands):
             widgets.mdi_history.selection_clear(0, "end")
             vars.mdi_command.set("")
             mdi_history_index = widgets.mdi_history.size()
-                            
+
     def clear_mdi_history(*ignored):
         global mdi_history_index, mdi_history_save_filename
         widgets.mdi_history.delete(0, "end")
