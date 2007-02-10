@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: de_axis\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2007-02-10 01:10+0100\n"
-"PO-Revision-Date: 2007-02-10 01:15+0100\n"
+"PO-Revision-Date: 2007-02-10 01:32+0100\n"
 "Last-Translator: Frank Jungclaus <emc@fjungclaus.de>\n"
 "Language-Team: German <emc-developers@lists.sourceforge.net>\n"
 "MIME-Version: 1.0\n"
@@ -219,7 +219,7 @@ msgstr "Strg-Umsch-H"
 
 #: emc/usr_intf/axis/scripts/axis.py:144
 msgid "Paste clipboard to MDI history"
-msgstr "Kopieren der Zwischenablage in den MDI Verlauf-Speicher"
+msgstr "Kopieren der Zwischenablage in den MDI Verlauf"
 
 #: emc/usr_intf/axis/scripts/axis.py:145 ../share/axis/tcl/axis.tcl:740
 msgid "Override Limits"
@@ -479,7 +479,7 @@ msgstr "Offset vorgeben"
 #: emc/usr_intf/axis/scripts/axis.py:2508
 #, python-format
 msgid "Enter %s coordinate relative to workpiece:"
-msgstr "Eingabe einer %s-Koordinate relativ zum Werkstück:"
+msgstr "%s-Koordinate relativ zum Werkstück:"
 
 #: emc/usr_intf/axis/scripts/axis.py:2823 ../share/axis/tcl/axis.tcl:719
 #: ../share/axis/tcl/axis.tcl:721 ../share/axis/tcl/axis.tcl:1687
@@ -488,7 +488,7 @@ msgstr "Durchgehend"
 
 #: emc/usr_intf/axis/scripts/axis.py:2952
 msgid "Home All"
-msgstr "Referenzfahrt mit allen Achsen"
+msgstr "Ref. alle Achsen"
 
 #: emc/usr_intf/axis/scripts/axis.py:2954
 msgid "Home all axes [Ctrl-Home]"
@@ -1082,7 +1082,7 @@ msgstr ""
 
 #: ../share/axis/tcl/axis.tcl:1269
 msgid "Feed Override:"
-msgstr "Vorschu-Übersteuerung (%):"
+msgstr "Vorschub-Übersteuerung (%):"
 
 #: ../share/axis/tcl/axis.tcl:1312
 msgid ""
