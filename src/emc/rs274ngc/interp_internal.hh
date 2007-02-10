@@ -397,6 +397,8 @@ typedef struct setup_struct
   offset oword_offset[INTERP_OWORD_LABELS];
   ON_OFF adaptive_feed;              // adaptive feed is enabled
   ON_OFF feed_hold;                  // feed hold is enabled
+  int loggingLevel;                  // 0 means logging is off
+  char log_file[PATH_MAX];
   char program_prefix[PATH_MAX];
 }
 setup;

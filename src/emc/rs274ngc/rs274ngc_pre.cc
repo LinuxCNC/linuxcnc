@@ -93,7 +93,7 @@ extern char * _rs274ngc_errors[];
 
 #undef LOG_FILE
 
-//#define LOG_FILE "emc_log"
+#define LOG_FILE &_setup.log_file[0]
 
 void Interp::doLog(char *fmt, ...)
 {
@@ -340,6 +340,10 @@ int Interp::init()
 
   iniFileName = getenv("INI_FILE_NAME");
 
+  // the default log file
+  strcpy(&_setup.log_file[0], "emc_log");
+  _setup.loggingLevel = 0;
+
   // not clear -- but this is fn is called a second time without an INI.
   if(NULL == iniFileName)
   {
@@ -357,16 +361,31 @@ int Interp::init()
       else
       {
           const char *inistring;
-          if (NULL != (inistring = inifile.find("PROGRAM_PREFIX", "DISPLAY")))
+
+
+          if(NULL != (inistring = inifile.find("LOG_LEVEL", "RS274NGC")))
+          {
+              _setup.loggingLevel = atol(inistring);
+          }
+
+          if(NULL != (inistring = inifile.find("LOG_FILE", "RS274NGC")))
           {
 	    // found it
-             realpath(inistring, _setup.program_prefix);
-            logDebug("inistring:%s: prefix:%s:", inistring, _setup.program_prefix);
+            realpath(inistring, &_setup.log_file[0]);
+          }
+
+          if(NULL != (inistring = inifile.find("PROGRAM_PREFIX", "DISPLAY")))
+          {
+	    // found it
+            realpath(inistring, _setup.program_prefix);
+            logDebug("program prefix:%s: prefix:%s:", inistring, _setup.program_prefix);
           }
           else
           {
-	      logDebug("inistring not found");
+	      logDebug("PROGRAM_PREFIX not found");
           }
+
+
           // close it
           inifile.close();
       }
