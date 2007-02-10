@@ -49,7 +49,11 @@ int Interp::control_save_offset( /* ARGUMENTS                   */
   if(control_find_oword(line, settings, &index) == INTERP_OK)
   {
       // already exists
-      return INTERP_OK;
+      setError("File:%s line:%d redefining sub: o%d already defined in file:%s",
+               settings->filename, settings->sequence_number, line,
+               settings->oword_offset[index].filename);
+      ERM(NCE_VARIABLE);
+      //return INTERP_OK;
   }
 
   CHK((settings->oword_labels >= INTERP_OWORD_LABELS),
@@ -62,6 +66,7 @@ int Interp::control_save_offset( /* ARGUMENTS                   */
   settings->oword_offset[index].o_word = line;
   settings->oword_offset[index].type = block->o_type;
   settings->oword_offset[index].offset = block->offset;
+  settings->oword_offset[index].filename = strdup(settings->filename);
 
   // the sequence number has already been bumped, so save
   // the proper value
@@ -100,12 +105,25 @@ int Interp::control_find_oword( /* ARGUMENTS                       */
   ERP(NCE_UNKNOWN_OWORD_NUMBER);
 }
 
+//
+// TESTME!!! !!!KL
+//
+// In the past, calls had to be to predefined subs
+//
+// Now they don't. Do things in the following sequence:
+// 1 -- if o_word is already defined, just go back to it, else
+// 2 -- if there is a file with the name of the o_word,
+//             open it and start skipping (as in 3, below)
+// 3 -- skip to the o_word (will be an error if not found)
+//
 int Interp::control_back_to( /* ARGUMENTS                       */
  int line,                 /* (o-word) line number             */
  setup_pointer settings)   /* pointer to machine settings      */
 {
   static char name[] = "control_back_to";
   int i;
+  char newFileName[LINELEN+1];
+  FILE *newFP;
 
   //logDebug("Entered:%s", name);
   for(i=0; i<settings->oword_labels; i++)
@@ -116,6 +134,30 @@ int Interp::control_back_to( /* ARGUMENTS                       */
           {
             ERP(NCE_FILE_NOT_OPEN);
           }
+          if(0 != strcmp(settings->filename,
+                         settings->oword_offset[i].filename))
+          {
+              // open the new file...
+
+              newFP = fopen(settings->oword_offset[i].filename, "r");
+
+              // set the line number
+              settings->sequence_number = 0;
+
+              strcpy(settings->filename, settings->oword_offset[i].filename);
+
+              if(newFP)
+              {
+                  // close the old file...
+                  fclose(settings->file_pointer);
+                  settings->file_pointer = newFP;
+              }
+              else
+              {
+                  logDebug("Unable to open file: %s", settings->filename);
+                  ERP(NCE_UNABLE_TO_OPEN_FILE);
+              }
+          }
 	  fseek(settings->file_pointer,
 		settings->oword_offset[i].offset, SEEK_SET);
 
@@ -125,7 +167,37 @@ int Interp::control_back_to( /* ARGUMENTS                       */
 	  return INTERP_OK;
 	}
     }
-  ERP(NCE_UNKNOWN_OWORD_NUMBER);
+
+  // NO o_word found
+
+  // look for a new file
+  logDebug("settings->program_prefix:%s:", settings->program_prefix);
+  sprintf(newFileName, "%s/o%d.ngc", settings->program_prefix, line);
+
+  newFP = fopen(newFileName, "r");
+  logDebug("fopen: |%s|", newFileName);
+
+  if(newFP)
+  {
+      logDebug("fopen: |%s| OK", newFileName);
+
+      // close the old file...
+      fclose(settings->file_pointer);
+      settings->file_pointer = newFP;
+
+      strcpy(settings->filename, newFileName);
+  }
+  else
+  {
+     logDebug("fopen: |%s| failed CWD:|%s|", newFileName,
+              get_current_dir_name());
+  }
+  
+  settings->skipping_o = line; // start skipping
+  settings->skipping_to_sub = line; // start skipping
+  settings->skipping_start = settings->sequence_number;
+  //ERP(NCE_UNKNOWN_OWORD_NUMBER);
+  return INTERP_OK;
 }
 
 /************************************************************************/
@@ -153,10 +225,15 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 
   // must skip if skipping
   if(settings->skipping_o && (settings->skipping_o != block->o_number))
-    {
+  {
       logDebug("skipping to line: %d", settings->skipping_o);
       return INTERP_OK;
-    }
+  }
+
+  if(settings->skipping_to_sub && (block->o_type != O_sub))
+  {
+      return INTERP_OK;
+  }
 
   logDebug("o_type:%d", block->o_type);
   switch(block->o_type)
@@ -170,7 +247,16 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
       // if the level is not zero, this is a call
       // not the definition
       // if we were skipping, no longer
-      settings->skipping_o = 0;
+      if(settings->skipping_o)
+      {
+          logDebug("sub(o_%d) was skipping to here", settings->skipping_o);
+
+          // skipping to a sub means that we must define this now
+	  CHP(control_save_offset(block->o_number, block, settings));
+      }
+            
+      settings->skipping_o = 0; // this IS our block number
+      settings->skipping_to_sub = 0; // this IS our block number
       if(settings->call_level != 0)
 	{
 	  logDebug("call:%f:%f:%f",
@@ -185,6 +271,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	  CHK((settings->defining_sub == 1), NCE_NESTED_SUBROUTINE_DEFN);
 	  CHP(control_save_offset(block->o_number, block, settings));
 	  settings->skipping_o = block->o_number;
+          settings->skipping_start = settings->sequence_number;
 	  logDebug("will now skip to: %d", block->o_number);
 	  settings->defining_sub = 1;
 	}
@@ -217,6 +304,19 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
             ERP(NCE_FILE_NOT_OPEN);
           }
 
+          //!!!KL must open the new file, if changed
+
+          if(0 != strcmp(settings->filename,
+                         settings->sub_context[settings->call_level].filename))
+          {
+              fclose(settings->file_pointer);
+              settings->file_pointer = 
+              fopen(settings->sub_context[settings->call_level].filename, "r");
+
+              strcpy(settings->filename,
+                     settings->sub_context[settings->call_level].filename);
+          }
+          
 	  fseek(settings->file_pointer,
 		settings->sub_context[settings->call_level].position,
 		SEEK_SET);
@@ -259,13 +359,21 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
           }
 	  settings->sub_context[settings->call_level].position =
 	    ftell(settings->file_pointer);
+          if(settings->sub_context[settings->call_level].filename)
+          {
+              // if there is a string here, free it
+              free(settings->sub_context[settings->call_level].filename);
+          }
+          // save the previous filename
+          settings->sub_context[settings->call_level].filename =
+              strdup(settings->filename);
 
 	  settings->sub_context[settings->call_level].sequence_number
 	    = settings->sequence_number;
-
 	}
-      logDebug("(in call)set params[%d] return offset:%ld",
+      logDebug("(in call)set params[%d] return file:%s offset:%ld",
 	       settings->call_level,
+	       settings->sub_context[settings->call_level].filename,
 	       settings->sub_context[settings->call_level].position);
 
       settings->call_level++;
@@ -313,6 +421,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	      logDebug("skipping forward: [o%d] in 'while'",
 		       block->o_number);
 	      settings->skipping_o = block->o_number;
+              settings->skipping_start = settings->sequence_number;
 	    }
 	}
       else
@@ -352,6 +461,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
           logDebug("skipping forward: [o%d] in 'if'",
 	      block->o_number);
           settings->skipping_o = block->o_number;
+          settings->skipping_start = settings->sequence_number;
 	  settings->executed_if = 0;
 	}
       break;
@@ -363,6 +473,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
           logDebug("start skipping forward: [o%d] in 'elseif'",
 	      block->o_number);
 	  settings->skipping_o = block->o_number;
+          settings->skipping_start = settings->sequence_number;
           return INTERP_OK;
 	}
 
@@ -403,6 +514,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 		   "skipping forward: [o%d] in 'else'",
 	      block->o_number);
 	  settings->skipping_o = block->o_number;
+          settings->skipping_start = settings->sequence_number;
           return INTERP_OK;
 	}
 
@@ -435,6 +547,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
     case O_break:
       // start skipping
       settings->skipping_o = block->o_number;
+      settings->skipping_start = settings->sequence_number;
       //settings->doing_break = 1;
       logDebug("start skipping forward: [o%d] in 'break'",
 	      block->o_number);
@@ -451,6 +564,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	}
       // start skipping
       settings->skipping_o = block->o_number;
+      settings->skipping_start = settings->sequence_number;
       settings->doing_continue = 1;
       logDebug("start skipping forward: [o%d] in 'continue'",
 	      block->o_number);
@@ -521,6 +635,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
         ERP(NCE_FILE_NOT_OPEN);
       }
 
+      //!!!KL must open the new file, if changed
       fseek(settings->file_pointer,
 	    settings->sub_context[settings->call_level].position, SEEK_SET);
 
@@ -530,7 +645,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
       break;
 
     default:
-      //!!!KL should probably be an error
+      // FIXME !!!KL should probably be an error
       break;
     }
     return INTERP_OK;

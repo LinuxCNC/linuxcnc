@@ -18,6 +18,7 @@
 #define INTERP_INTERNAL_HH
 
 #include "config.h"
+#include <limits.h>
 #include <stdio.h>
 #include "canon.hh"
 
@@ -262,7 +263,6 @@ typedef block *block_pointer;
 struct named_parameters_struct {
   int named_parameter_alloc_size;
   int named_parameter_used_size;
-//  char *named_parameters[];
   char **named_parameters;
   double *named_param_values;
   };
@@ -270,6 +270,7 @@ struct named_parameters_struct {
 typedef struct context_struct {
   long position;       // location (ftell) in file
   int sequence_number; // location (line number) in file
+  char *filename;      // name of file for this context
   double saved_params[INTERP_SUB_PARAMS];
   struct named_parameters_struct named_parameters;
 }context;
@@ -277,7 +278,8 @@ typedef struct context_struct {
 typedef struct offset_struct {
   int o_word;
   int type;
-  long offset;
+  char *filename;  // the name of the file
+  long offset;     // the offset in the file
   int sequence_number;
 }offset;
 
@@ -386,6 +388,8 @@ typedef struct setup_struct
   //int doing_break;                 // true if doing a break
   int executed_if;                   // true if executed in current if
   int skipping_o;                    // o_number we are skipping for (or zero)
+  int skipping_to_sub;               // o_number of sub skipping to (or zero)
+  int skipping_start;                // start of skipping (sequence)
   double test_value;                 // value for "if", "while", "elseif"
   int call_level;                    // current subroutine level
   context sub_context[INTERP_SUB_ROUTINE_LEVELS];
@@ -393,6 +397,7 @@ typedef struct setup_struct
   offset oword_offset[INTERP_OWORD_LABELS];
   ON_OFF adaptive_feed;              // adaptive feed is enabled
   ON_OFF feed_hold;                  // feed hold is enabled
+  char program_prefix[PATH_MAX];
 }
 setup;
 

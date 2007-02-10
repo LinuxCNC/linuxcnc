@@ -1441,17 +1441,28 @@ int Interp::read_o(    /* ARGUMENTS                                     */
   double value;
   int status;
   int param_cnt;
+  char oNameBuf[LINELEN+1];
+  int oNumber;
 
   CHK((line[*counter] != 'o'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
 
   // changed spec so we now read an expression
   // so... we can have a parameter contain a function pointer!
   *counter += 1;
-  CHP(read_integer_value(line, counter, &(block->line_number), parameters));
 
-  logDebug("In: %s line:%d |%s|", name, block->line_number, line);
+  if(line[*counter] == '<')
+  {
+      read_name(line, counter, oNameBuf);
+  }
+  else
+  {
+     CHP(read_integer_value(line, counter, &oNumber,
+                            parameters));
 
-  block->o_number = block->line_number;
+     logDebug("In: %s line:%d |%s|", name, block->line_number, line);
+  }
+
+  block->o_number = oNumber;
 
 #define CMP(txt) (strncmp(line+*counter, txt, strlen(txt)) == 0)
   if(CMP("sub"))
@@ -1503,6 +1514,7 @@ int Interp::read_o(    /* ARGUMENTS                                     */
     }
   else if(CMP("while"))
     {
+        // FIXME !!!KL -- should not eval expressions if skipping ???
       *counter += strlen("while");
       block->o_type = O_while;
       CHP(read_real_expression(line, counter, &value, parameters));
@@ -1510,6 +1522,7 @@ int Interp::read_o(    /* ARGUMENTS                                     */
     }
   else if(CMP("if"))
     {
+        // FIXME !!!KL -- should not eval expressions if skipping ???
       *counter += strlen("if");
       block->o_type = O_if;
       CHP(read_real_expression(line, counter, &value, parameters));
@@ -1517,6 +1530,7 @@ int Interp::read_o(    /* ARGUMENTS                                     */
     }
   else if(CMP("elseif"))
     {
+        // FIXME !!!KL -- should not eval expressions if skipping ???
       *counter += strlen("elseif");
       block->o_type = O_elseif;
       CHP(read_real_expression(line, counter, &value, parameters));
@@ -3034,10 +3048,22 @@ int Interp::read_text(
 
   if (command == NULL) {
     if (fgets(raw_line, LINELEN, inport) == NULL) {
+      if(_setup.skipping_to_sub)
+      {
+        setError("EOF in file:%s seeking o-word: o%d from line: %d",
+                 _setup.filename,
+                 _setup.skipping_to_sub,
+                 _setup.skipping_start);
+        ERM(NCE_VARIABLE);
+      }
       if (_setup.percent_flag == ON)
+      {
         ERM(NCE_FILE_ENDED_WITH_NO_PERCENT_SIGN);
+      }
       else
+      {
         ERM(NCE_FILE_ENDED_WITH_NO_PERCENT_SIGN_OR_PROGRAM_END);
+      }
     }
     _setup.sequence_number++;   /* moved from version1, was outside if */
     if (strlen(raw_line) == (LINELEN - 1)) { // line is too long. need to finish reading the line to recover
@@ -3046,7 +3072,8 @@ int Interp::read_text(
       ERM(NCE_COMMAND_TOO_LONG);
     }
     for (index = (strlen(raw_line) - 1);        // index set on last char
-         (index >= 0) && (isspace(raw_line[index])); index--) { // remove space at end of raw_line, especially CR & LF
+         (index >= 0) && (isspace(raw_line[index]));
+         index--) { // remove space at end of raw_line, especially CR & LF
       raw_line[index] = 0;
     }
     strcpy(line, raw_line);

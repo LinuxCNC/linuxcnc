@@ -93,7 +93,7 @@ extern char * _rs274ngc_errors[];
 
 #undef LOG_FILE
 
-//#define LOG_FILE "emc_log"
+#define LOG_FILE "emc_log"
 
 void Interp::doLog(char *fmt, ...)
 {
@@ -200,11 +200,27 @@ int Interp::execute(const char *command)
     }
   }
 
-
+  logDebug("Interp::execute(%s)", command);
   // process control functions -- will skip if skipping
   if (_setup.block1.o_number != 0)
     {
       CHP(convert_control_functions(&(_setup.block1), &_setup));
+#if 0
+//!!!KL -- this is test code that is wrong
+// an attempt to let MDI code call subroutines.      
+    
+      logDebug("!!!KL Open file is:%s:", _setup.filename);
+      while(_setup.file_pointer) // we have an open file, execute it to completion
+      {
+          status = read(0);  // reads from current file and calls parse
+          if (status != INTERP_OK) {
+               return status;
+          }
+          execute();
+      }
+//!!!KL -- end of test code
+#endif
+        
       return INTERP_OK;
     }
 
@@ -318,7 +334,44 @@ int Interp::init()
   char filename[LINELEN];
   double *pars;                 // short name for _setup.parameters
 
+  char *iniFileName;
+
   INIT_CANON();
+
+  iniFileName = getenv("INI_FILE_NAME");
+
+  // not clear -- but this is fn is called a second time without an INI.
+  if(NULL == iniFileName)
+  {
+      logDebug("INI_FILE_NAME not found");
+  }
+  else
+  {
+      Inifile inifile;
+
+      logDebug("iniFileName:%s:", iniFileName);
+
+      if (inifile.open(iniFileName) == false) {
+          logDebug("Unable to open inifile:%s:", iniFileName);
+      }
+      else
+      {
+          const char *inistring;
+          if (NULL != (inistring = inifile.find("PROGRAM_PREFIX", "DISPLAY")))
+          {
+	    // found it
+             realpath(inistring, _setup.program_prefix);
+            logDebug("inistring:%s: prefix:%s:", inistring, _setup.program_prefix);
+          }
+          else
+          {
+	      logDebug("inistring not found");
+          }
+          // close it
+          inifile.close();
+      }
+  }
+
   _setup.length_units = GET_EXTERNAL_LENGTH_UNIT_TYPE();
   USE_LENGTH_UNITS(_setup.length_units);
   GET_EXTERNAL_PARAMETER_FILE_NAME(filename, LINELEN);
@@ -1025,6 +1078,18 @@ void Interp::active_settings(double *settings) //!< array of settings to copy in
   }
 }
 
+static char savedError[LINELEN+1];
+void Interp::setError(char *fmt, ...)
+{
+    va_list ap;
+
+    va_start(ap, fmt);
+
+    vsnprintf(savedError, LINELEN, fmt, ap);
+
+    va_end(ap);
+}
+
 /***********************************************************************/
 
 /*! Interp::error_text
@@ -1048,6 +1113,14 @@ void Interp::error_text(int error_code,        //!< code number of error
                          char *error_text,      //!< char array to copy error text into  
                          int max_size)  //!< maximum number of characters to copy
 {
+    if(error_code == NCE_VARIABLE)
+    {
+        strncpy(error_text, savedError, max_size);
+        error_text[max_size-1] = 0;
+
+        return;
+    }
+
   if (((error_code >= INTERP_MIN_ERROR) &&
        (error_code <= RS274NGC_MAX_ERROR)) &&
       (strlen(_rs274ngc_errors[error_code]) < ((size_t) max_size))) {
@@ -1221,15 +1294,34 @@ int Interp::ini_load(const char *filename)
 
     // open it
     if (inifile.open(filename) == false) {
+        logDebug("Unable to open inifile:%s:", filename);
 	return -1;
     }
 
+    logDebug("Opened inifile:%s:", filename);
+
+#if 1
     if (NULL != (inistring = inifile.find("PARAMETER_FILE", "RS274NGC"))) {
 	// found it
 	strncpy(_parameter_file_name, inistring, LINELEN);
+        logDebug("found PARAMETER_FILE:%s:", _parameter_file_name);
     } else {
 	// not found, leave RS274NGC_PARAMETER_FILE alone
+        logDebug("did not find PARAMETER_FILE");
     }
+#endif
+
+#if 0    
+    if (NULL != (inistring = inifile.find("PROGRAM_PREFIX", "DISPLAY"))) {
+	// found it
+        realpath(inistring, _setup.program_prefix);
+        logDebug("inistring:%s: prefix:%s:", inistring, _setup.program_prefix);
+    } else {
+	// not found
+        logDebug("inistring not found");
+    }
+#endif
+
 
     // close it
     inifile.close();

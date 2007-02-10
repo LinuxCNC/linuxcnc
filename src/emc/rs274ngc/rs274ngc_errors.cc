@@ -251,6 +251,14 @@ char * _rs274ngc_errors[] = {
 /* 221 */ _("Multiple e words on one line"),
 /* 222 */ _("E word with no G76 to use it"),
 
-/* 223 */ _("Unknown error"), // dummy
+/* 223 */ _("Named parameter not terminated"),
+/* 224 */ _("Named parameter not defined"),
+/* 225 */ _("Named oword not terminated"),
+/* 226 */ _("Named oword not defined"),
+/* 227 */ _("Out of memory"),
+/* 228 */ _("Place holder for NCE_VARIABLE: should not occur"),
+
+
+/* 229 */ _("Unknown error"), // dummy
 _("The End")};
 // *INDENT-ON*
