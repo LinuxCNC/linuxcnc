@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: de_axis\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-02-10 00:49+0100\n"
-"PO-Revision-Date: 2007-02-10 00:57+0100\n"
+"POT-Creation-Date: 2007-02-10 01:10+0100\n"
+"PO-Revision-Date: 2007-02-10 01:15+0100\n"
 "Last-Translator: Frank Jungclaus <emc@fjungclaus.de>\n"
 "Language-Team: German <emc-developers@lists.sourceforge.net>\n"
 "MIME-Version: 1.0\n"
@@ -93,7 +93,6 @@ msgid "Send active axis home"
 msgstr "Referenzpunkt mit der aktiven Achse anfahren"
 
 #: emc/usr_intf/axis/scripts/axis.py:122
-
 msgid "Ctrl-Home"
 msgstr "Strg-Pos1"
 
@@ -102,7 +101,6 @@ msgid "Home all axes"
 msgstr "Referenzfahrt mit allen Achsen"
 
 #: emc/usr_intf/axis/scripts/axis.py:123
-
 msgid "Shift-Home"
 msgstr "Strg-Umsch-Pos"
 
@@ -196,7 +194,6 @@ msgid "Code entry (MDI)"
 msgstr "Befehlseingabe (MDI)"
 
 #: emc/usr_intf/axis/scripts/axis.py:141
-
 msgid "Control-M"
 msgstr "Strg-M"
 
@@ -205,7 +202,6 @@ msgid "Clear MDI history"
 msgstr "MDI Verlauf-Speicher löschen"
 
 #: emc/usr_intf/axis/scripts/axis.py:142
-
 msgid "Control-H"
 msgstr "Strg-H"
 
@@ -218,7 +214,6 @@ msgid "to clipboard"
 msgstr "in die Zwischenablage"
 
 #: emc/usr_intf/axis/scripts/axis.py:144
-
 msgid "Control-Shift-H"
 msgstr "Strg-Umsch-H"
 
@@ -235,7 +230,6 @@ msgid "Open program"
 msgstr "Programm öffnen"
 
 #: emc/usr_intf/axis/scripts/axis.py:148
-
 msgid "Control-R"
 msgstr "Strg-R"
 
@@ -280,7 +274,6 @@ msgid "Spindle brake off"
 msgstr "Spindelbremse aus"
 
 #: emc/usr_intf/axis/scripts/axis.py:160
-
 msgid "Shift-B"
 msgstr "Umsch-B"
 
@@ -305,7 +298,6 @@ msgid "Turn spindle more quickly"
 msgstr "Spindel schneller"
 
 #: emc/usr_intf/axis/scripts/axis.py:166
-
 msgid "Control-K"
 msgstr "Strg-K"
 
@@ -328,7 +320,7 @@ msgstr "AXIS Fehler"
 #: emc/usr_intf/axis/scripts/axis.py:1665
 #: emc/usr_intf/axis/scripts/axis.py:1847
 #: emc/usr_intf/axis/scripts/axis.py:3216
-#: emc/usr_intf/axis/scripts/image-to-gcode.py:599
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:600
 #: ../lib/python/propertywindow.py:34 ../share/axis/tcl/axis.tcl:1321
 #: ../share/axis/tcl/axis.tcl:1358
 msgid "OK"
@@ -356,7 +348,7 @@ msgstr "Werkzeug %d, zo %g, xo %g, Durchm. %g"
 
 #: emc/usr_intf/axis/scripts/axis.py:1588
 msgid "Filtering..."
-msgstr "Bearbeite...d"
+msgstr "Bearbeite..."
 
 #: emc/usr_intf/axis/scripts/axis.py:1614
 #, python-format
@@ -384,7 +376,7 @@ msgstr ""
 
 #: emc/usr_intf/axis/scripts/axis.py:1848
 #: emc/usr_intf/axis/scripts/axis.py:2262
-#: emc/usr_intf/axis/scripts/image-to-gcode.py:601
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:602
 msgid "Cancel"
 msgstr "Abbrechen"
 
@@ -446,7 +438,6 @@ msgid "%f to %f = %f %s"
 msgstr "%f bis %f = %f %s"
 
 #: emc/usr_intf/axis/scripts/axis.py:2006
-
 msgid "G-Code Properties"
 msgstr "G-Code Eigenschaften %s"
 
@@ -459,7 +450,7 @@ msgid "rs274ngc files"
 msgstr "rs274ngc-Dateien"
 
 #: emc/usr_intf/axis/scripts/axis.py:2198
-#: emc/usr_intf/axis/scripts/image-to-gcode.py:634
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:635
 msgid "All files"
 msgstr "Alle Dateien"
 
@@ -533,6 +524,10 @@ msgstr "Werkzeugwechsel"
 msgid "Continue"
 msgstr "Fortsetzen"
 
+#: emc/usr_intf/axis/scripts/hal_manualtoolchange.py:34
+msgid "AXIS Manual Toolchanger"
+msgstr "AXIS, Manueller Werkzeug-Wechsler"
+
 #: emc/usr_intf/axis/scripts/hal_manualtoolchange.py:38
 msgid ""
 "This window is part of the AXIS manual toolchanger.  It is safe to close or "
@@ -560,6 +555,10 @@ msgid ""
 msgstr ""
 "Bild-Größe: %d x %d Bildpunkte<br>Minimale Helligkeit: %d<br>Maximale "
 "Helligkeit: %d"
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:470
+msgid "Yes"
+msgstr "Ja"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:513
 msgid "G20 (in)"
@@ -681,7 +680,19 @@ msgstr "Sicherheitshöhe (Einheiten)"
 msgid "Scan pattern"
 msgstr "Abtastmuster"
 
-#: emc/usr_intf/axis/scripts/image-to-gcode.py:633
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:561
+msgid "Scan direction"
+msgstr "Abtastrichtung"
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:562
+msgid "Lace bounding"
+msgstr "Schneidenbegrenzung"
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:563
+msgid "Contact angle"
+msgstr "Kontaktwinkel"
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:634
 msgid "Depth images"
 msgstr "Bilddateien"
 
@@ -1074,7 +1085,6 @@ msgid "Feed Override:"
 msgstr "Vorschu-Übersteuerung (%):"
 
 #: ../share/axis/tcl/axis.tcl:1312
-
 msgid ""
 "EMC2/AXIS version $version\n"
 "\n"
