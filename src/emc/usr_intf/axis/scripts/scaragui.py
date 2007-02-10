@@ -27,6 +27,7 @@ c.newpin("joint1", hal.HAL_FLOAT, hal.HAL_IN)
 c.newpin("joint2", hal.HAL_FLOAT, hal.HAL_IN)
 c.newpin("joint3", hal.HAL_FLOAT, hal.HAL_IN)
 c.newpin("joint4", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("joint5", hal.HAL_FLOAT, hal.HAL_IN)
 c.ready()
 
 # parameters that define the geometry see scarakins.c for definitions these
@@ -172,8 +173,9 @@ table = Collection([
 	work,
 	Box(-0.35*reach,-0.5*reach, -0.1*d1, 0.35*reach, 0.5*reach, 0.0)])
 
-# for testing, make the table moveable (tilting)
+# make the table moveable (tilting)
 table = HalRotate([table],c,"joint4",1,0,1,0)
+table = HalRotate([table],c,"joint5",1,1,0,0)
 
 # put the table into its proper place
 table = Translate([table],0.5*reach,0.0,table_height)
