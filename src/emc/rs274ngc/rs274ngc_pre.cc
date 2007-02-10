@@ -93,7 +93,7 @@ extern char * _rs274ngc_errors[];
 
 #undef LOG_FILE
 
-#define LOG_FILE "emc_log"
+//#define LOG_FILE "emc_log"
 
 void Interp::doLog(char *fmt, ...)
 {
