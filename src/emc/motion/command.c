@@ -789,7 +789,11 @@ check_stuff ( "before command_handler()" );
 		SET_MOTION_ERROR_FLAG(1);
 		break;
 	    } else if (!inRange(emcmotCommand->pos)) {
-		reportError("linear move %d out of range", emcmotCommand->id);
+		if(emcmotCommand->id > 0)
+		    reportError("linear move on line %d out of range",
+			    emcmotCommand->id);
+		else
+		    reportError("linear move in MDI out of range");
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_PARAMS;
 		tpAbort(&emcmotDebug->queue);
 		SET_MOTION_ERROR_FLAG(1);
@@ -830,8 +834,11 @@ check_stuff ( "before command_handler()" );
 		SET_MOTION_ERROR_FLAG(1);
 		break;
 	    } else if (!inRange(emcmotCommand->pos)) {
-		reportError("circular move %d out of range",
-		    emcmotCommand->id);
+		if(emcmotCommand->id > 0)
+		    reportError("circular move on line %d out of range",
+			emcmotCommand->id);
+		else
+		    reportError("circular move in MDI out of range");
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_PARAMS;
 		tpAbort(&emcmotDebug->queue);
 		SET_MOTION_ERROR_FLAG(1);
@@ -1162,7 +1169,11 @@ check_stuff ( "before command_handler()" );
 		SET_MOTION_ERROR_FLAG(1);
 		break;
 	    } else if (!inRange(emcmotCommand->pos)) {
-		reportError("probe move %d out of range", emcmotCommand->id);
+		if(emcmotCommand->id > 0)
+		    reportError("probe move on line %d out of range",
+			    emcmotCommand->id);
+		else
+		    reportError("probe move in MDI out of range");
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_PARAMS;
 		tpAbort(&emcmotDebug->queue);
 		SET_MOTION_ERROR_FLAG(1);
