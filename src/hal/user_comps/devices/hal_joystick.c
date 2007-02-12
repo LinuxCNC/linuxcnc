@@ -104,7 +104,7 @@ int main(int argc, char * argv[])
 
     done = 0;
     /* parse command line */
-    device = "/dev/js0";
+    device = "/dev/input/js0";
     prefix = "joystick.0";
 
     n = 1;
