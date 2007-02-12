@@ -7,6 +7,7 @@ pin out float out;
 function _ "Update \\fBout\\fR based on \\fBin\\fR and the parameters.";
 
 ;;
+MODULE_LICENSE("GPL");
 FUNCTION(_) {
     double th2 = threshhold / 2;
     double lo = center - th2;
