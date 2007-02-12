@@ -1,5 +1,10 @@
 emc2 (2.2.0pre) testing; urgency=low
 
+  * new component: deadzone
+  * new component: tristate_float
+  * new component: random
+  * new components: clarke2 clark3 clarkeinv
+  * new hardware driver: pci_8255 
   * scara robot sample configuration with visualization
   * opengl machine visualization, starting with puma-style robots
   * new m5i20 firmwares
@@ -10,8 +15,6 @@ emc2 (2.2.0pre) testing; urgency=low
   * named parameters in the interpreter
   * puma robot kinematics
   * sample configuration for a puma robot
-  * random hal component
-  * clarke transform hal components
   * reduce quantization of the encoder module's velocity output
   * MDI history manipulation and save in AXIS
   * home to index on STG1
