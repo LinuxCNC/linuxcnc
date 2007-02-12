@@ -4,11 +4,8 @@ pin in float in_ "Input value";
 pin io float out "Output value";
 pin in bit enable "When TRUE, copy in to out";
 
-function _  "If \fBenable\\fR is TRUE, copy \\fBin\\fRout\\fR.";
+function _  "If \\fBenable\\fR is TRUE, copy \\fBin\\fR to \\fBout\\fR.";
 ;;
 MODULE_LICENSE("GPL");
 
-FUNCTION(_) {
-	if(enable) || (enable_change && (new_in != data.old_in)))
-		out = in_;
-}
+FUNCTION(_) { if(enable) out = in_; }
