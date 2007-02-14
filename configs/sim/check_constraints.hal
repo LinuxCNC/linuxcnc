@@ -1,10 +1,7 @@
-# HAL config file to simulate limit switches using window comparators
+# HAL config file to check vel/acc constraints
 #
-# first install nine comparators
 loadrt wcomp count=6
 
-# add comparators to servo thread so they will be evaluated
-# every servo period
 addf wcomp.0 servo-thread
 addf wcomp.1 servo-thread
 addf wcomp.2 servo-thread
@@ -12,8 +9,6 @@ addf wcomp.3 servo-thread
 addf wcomp.4 servo-thread
 addf wcomp.5 servo-thread
 
-# connect position feedback from step generators
-# to window comparators
 linksp Xacc => wcomp.0.in
 linksp Xvel => wcomp.1.in
 linksp Yacc => wcomp.2.in
@@ -21,7 +16,6 @@ linksp Yvel => wcomp.3.in
 linksp Zacc => wcomp.4.in
 linksp Zvel => wcomp.5.in
 
-# connect simulated switch outputs to motion controller
 newsig acc-ok-x bit
 newsig vel-ok-x bit
 newsig acc-ok-y bit
