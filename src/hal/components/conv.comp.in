@@ -6,6 +6,7 @@ pin out @OUT@ out;
 function _ @FP@ "Update 'out' based on 'in'";
 
 ;;
+MODULE_LICENSE("GPL");
 FUNCTION(_) {
     hal_@IN@_t in = in_;
 @CC@    if(clamp) {
