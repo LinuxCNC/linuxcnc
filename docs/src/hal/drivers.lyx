@@ -82,8 +82,21 @@ x
  In other parallel ports, the control group has push-pull drivers and cannot
  be used as an input.
 \begin_inset Foot
-collapsed true
+collapsed false
 
+\layout Standard
+
+HAL cannot automatically determine if the 
+\begin_inset Quotes eld
+\end_inset 
+
+x
+\begin_inset Quotes erd
+\end_inset 
+
+ mode bidirectional pins are actually open collectors (OC).
+ If they are not, they cannot be used as inputs, and attempting to drive
+ them LOW from an external source can damage the hardware.
 \layout Standard
 
 To determine whether your port has 
@@ -104,8 +117,8 @@ x
 
  mode, output a HIGH value on the pin.
  HAL should read the pin as TRUE.
- Next, insert a 
-\begin_inset Formula $220\Omega$
+ Next, insert a 470
+\begin_inset Formula $\Omega$
 \end_inset 
 
  resistor from one of the control pins to GND.
@@ -276,24 +289,26 @@ well known
 \begin_inset Quotes erd
 \end_inset 
 
- address, like 0278 or 0378.
- However PCI ports may at nearly any address, and finding the address can
- be tricky
-\begin_inset Foot
-collapsed true
-
-\layout Standard
-
-Perhaps a future version of this driver will attempt to auto-identify PCI
- port addresses - however, it is very important that the user (or system
- integrator) makes sure the ports are configured correctly.
- Sending step and direction pulses to a LaserJet by accident simply wastes
- paper, but spooling a print job to stepper or servo motors could cause
- unexpected machine movement and possibly serious or fatal injuries.
+ address, like 0278 or 0378 which is typically configured in the system
+ BIOS.
+ The address for a PCI card is usally shown in 
+\begin_inset Quotes eld
 \end_inset 
 
-.
- There is no default address - if 
+lspci -v
+\begin_inset Quotes erd
+\end_inset 
+
+ in an 
+\begin_inset Quotes eld
+\end_inset 
+
+I/O ports
+\begin_inset Quotes erd
+\end_inset 
+
+ line.
+ There is no default address; if 
 \family typewriter 
 <config-string>
 \family default 
