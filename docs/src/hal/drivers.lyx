@@ -182,43 +182,8 @@ t.c).
 \layout Subsection
 
 Installing
-\layout Standard
-
-From command line:
 \layout LyX-Code
 
-emc2$ 
-\series bold 
-halcmd loadrt hal_parport cfg="<config-string>"
-\begin_inset Foot
-collapsed true
-
-\layout Standard
-
-The single quotes around the entire 
-\family typewriter 
-\series bold 
-cfg=
-\family default 
-\series default 
- argument are needed to prevent the shell from misinterpreting the double
- quotes around the string, and any spaces or special characters in the string.
- Single quotes should not be used in a file or from the halcmd prompt.
- 
-\end_inset 
-
-
-\layout Standard
-
-From a file or at the 
-\family typewriter 
-halcmd:
-\family default 
- prompt:
-\layout LyX-Code
-
-
-\series bold 
 loadrt hal_parport cfg="<config-string>"
 \layout Standard
 
@@ -254,8 +219,6 @@ x
  For example:
 \layout LyX-Code
 
-
-\series bold 
 loadrt hal_parport cfg="0x278 0x378 in 0x20A0 out"
 \layout Standard
 
@@ -307,20 +270,24 @@ I/O ports
 \begin_inset Quotes erd
 \end_inset 
 
- line.
+ line, or in the kernel message log after executing 
+\family typewriter 
+
+\begin_inset Quotes eld
+\end_inset 
+
+sudo modprobe -a parport_pc
+\family default 
+
+\begin_inset Quotes erd
+\end_inset 
+
+.
  There is no default address; if 
 \family typewriter 
 <config-string>
 \family default 
  does not contain at least one address, it is an error.
-\layout Subsection
-
-Removing
-\layout LyX-Code
-
-emc2$ 
-\series bold 
-halcmd unloadrt hal_parport
 \layout Standard
 
 
@@ -405,11 +372,10 @@ For each physical output pin, the driver creates a single HAL pin, for example
 parport.0.pin-14-out
 \family default 
 .
- Pins 1, 14, 16, and 17 are always outputs.
  Pins 2 through 9 are part of the data group and are output pins if the
  port is defined as an output port.
- (Output is the default.) These HAL pins control the state of the corresponding
- physical pins.
+ (Output is the default.) Pins 1, 14, 16, and 17 are outputs in all modes.
+ These HAL pins control the state of the corresponding physical pins.
 \layout Standard
 
 For each physical input pin, the driver creates two HAL pins, for example
@@ -438,6 +404,15 @@ parport.0.pin-12-in-not
  HAL pin is inverted -- it is FALSE if the physical pin is high.
  By connecting a signal to one or the other, the user can determine the
  state of the input.
+ In 
+\begin_inset Quotes eld
+\end_inset 
+
+x
+\begin_inset Quotes erd
+\end_inset 
+
+ mode, pins 1, 14, 16, and 17 are also input pins.
 \layout Subsection
 
 Parameters
@@ -579,8 +554,21 @@ then ensure that the standard kernel module
 \family typewriter 
 parport_pc
 \family default 
- is not loaded and that no other device in the system has claimed the I/O
- ports.
+ is not loaded
+\begin_inset Foot
+collapsed false
+
+\layout Standard
+
+In the emc packages for Ubuntu, the file /etc/modprobe.d/emc2 generally prevents
+ 
+\family typewriter 
+parport_pc
+\family default 
+ from being automatically loaded.
+\end_inset 
+
+ and that no other device in the system has claimed the I/O ports.
 \layout Standard
 
 If the module loads but does not appear to function, then the port address
@@ -659,39 +647,8 @@ In fact it may be a pair of 8255 chips, but I'm not sure.
 \layout Subsection
 
 Installing
-\layout Standard
-
-From command line:
 \layout LyX-Code
 
-emc2$ 
-\series bold 
-halcmd loadrt hal_ax5214h 'cfg="<config-string>"'
-\begin_inset Foot
-collapsed true
-
-\layout Standard
-
-The single quotes around the entire 
-\family typewriter 
-\series bold 
-cfg=
-\family default 
-\series default 
- argument are needed to prevent the shell from misinterpreting the double
- quotes around the string, and any spaces or special characters in the string.
- Single quotes should not be used in a file or from the halcmd prompt.
- 
-\end_inset 
-
-
-\layout Standard
-
-From a file:
-\layout LyX-Code
-
-
-\series bold 
 loadrt hal_ax5214h cfg="<config-string>"
 \layout Standard
 
@@ -732,14 +689,6 @@ O
  The second board is at address 0x300, and has 20 inputs (8-15, 24-31, and
  40-43) and 28 outputs (0-7.
  16-23, 32-39, and 44-47).
-\layout Subsection
-
-Removing
-\layout LyX-Code
-
-emc2$ 
-\series bold 
-halcmd unloadrt hal_ax5214
 \layout Subsection
 
 Pins
@@ -902,16 +851,8 @@ a motion control card usually is a board containing devices to control one
 Installing:
 \layout LyX-Code
 
-emc2$ 
-\series bold 
-halcmd loadrt hal_stg [base=<address>] [num_chan=<nr>] 
-\backslash 
-
-\layout LyX-Code
-
-
-\series bold 
-[dio="<dio-string>"] [model=<model>]
+loadrt hal_stg [base=<address>] [num_chan=<nr>] [dio="<dio-string>"] [model=<mod
+el>]
 \layout Standard
 
 The base address field is optional; if it's not provided the driver attempts
@@ -942,9 +883,7 @@ hint: after starting up the driver, 'dmesg' can be consulted for messages
  For example:
 \layout LyX-Code
 
-emc2$ 
-\series bold 
-halcmd loadrt hal_stg base=0x300 num_chan=4 dio="IOIO"
+loadrt hal_stg base=0x300 num_chan=4 dio="IOIO"
 \layout Standard
 
 This example installs the stg driver for a card found at the base address
@@ -954,22 +893,12 @@ This example installs the stg driver for a card found at the base address
  as Input, and the last 8 (Port D) configured as Output
 \layout LyX-Code
 
-emc2$ 
-\series bold 
-halcmd loadrt hal_stg
+loadrt hal_stg
 \layout Standard
 
 This example installs the driver and attempts to autodetect the board address
  and board model, it installs 8 axes by default along with a standard I/O
  setup: Port A & B configured as Input, Port C & D configured as Output.
-\layout Subsection
-
-Removing
-\layout LyX-Code
-
-emc2$ 
-\series bold 
-halcmd unloadrt hal_stg
 \layout Subsection
 
 Pins
@@ -1301,9 +1230,7 @@ DACs
 Installing:
 \layout LyX-Code
 
-emc2$ 
-\series bold 
-halcmd loadrt hal_m5i20 [loadFpga=1|0] [dacRate=<rate>]
+loadrt hal_m5i20 [loadFpga=1|0] [dacRate=<rate>]
 \layout Standard
 
 If 
@@ -1343,14 +1270,6 @@ dmesg
 \family default 
 \series default 
 .
-\layout Subsection
-
-Removing
-\layout LyX-Code
-
-emc2$ 
-\series bold 
-halcmd unloadrt hal_m5i20
 \layout Subsection
 
 Pins
@@ -4002,9 +3921,7 @@ Ideally the encoders, DACs, ADCs, and digital I/O would comply with the
 Installing:
 \layout LyX-Code
 
-emc2$ 
-\series bold 
-halcmd loadrt hal_motenc
+loadrt hal_motenc
 \layout Standard
 
 During loading (or attempted loading) the driver prints some usefull debugging
@@ -4015,14 +3932,6 @@ dmesg
 \family default 
 \series default 
 .
-\layout Subsection
-
-Removing
-\layout LyX-Code
-
-emc2$ 
-\series bold 
-halcmd unloadrt hal_motenc
 \layout Subsection
 
 Pins
@@ -4500,9 +4409,7 @@ Pico Systems has a family of boards for doing servo, stepper, and pwm control.
 Installing:
 \layout LyX-Code
 
-emc2$ 
-\series bold 
-halcmd loadrt hal_ppmc port_addr=<addr1>[,<addr2>[,<addr3>]]
+loadrt hal_ppmc port_addr=<addr1>[,<addr2>[,<addr3>...]]
 \layout Standard
 
 The 
@@ -4524,14 +4431,9 @@ port_addr
 <addr2>
 \family default 
 \series default 
- and 
-\family typewriter 
-\series bold 
-<addr3>
-\family default 
-\series default 
- are not used.The driver searches the entire address space of the enhanced
- parallel port(s) at 
+ and following are not used.
+ The driver searches the entire address space of the enhanced parallel port(s)
+ at 
 \family typewriter 
 \series bold 
 port_addr
@@ -4547,14 +4449,6 @@ dmesg
 \family default 
 \series default 
 .
-\layout Subsection
-
-Removing
-\layout LyX-Code
-
-emc2$ 
-\series bold 
-halcmd unloadrt hal_ppmc
 \layout Subsection
 
 Pins
@@ -6068,8 +5962,8 @@ The gratis version of Quartus II runs only on Microsoft Windows, although
 HAL Functions, Pins and Parameters
 \layout Standard
 
-A list of all HAL function names, pin names and parameter names is in the
- manual page, 
+A list of all 'loadrt' arguments, HAL function names, pin names and parameter
+ names is in the manual page, 
 \emph on 
 pluto_servo.9
 \emph default 
