@@ -312,7 +312,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS AUTODIRS PACKAGE EMC2VERSION SIMULATOR PTH_CONFIG RTNAME RTAI RTLINUX RTLINUXPRO RTPREFIX KERNELDIR RTFLAGS RTDIR EMC2_HOME CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CPP DEPSTYLE ASM_BITOPS_DEFINE EGREP KERNEL_VERS BUILD_SYS EXT_RTFLAGS MODEXT MODULE_DIR RIP_MODULE_DIR RUN_IN_PLACE EMC2_BIN_DIR EMC2_TCL_DIR EMC2_HELP_DIR EMC2_RTLIB_DIR EMC2_LANG_DIR EMC2_CONFIG_PATH EMC2_NCFILES_DIR REALTIME EMC2_IMAGE_DIR HAVE_GNOMEPRINT GTK_VER GTK_LIBS GTK_CFLAGS CXX CXXFLAGS ac_ct_CXX SET_MAKE RANLIB ac_ct_RANLIB AR GREP INSTALL SED PS KILL WHOAMI AWK INSMOD RMMOD LSMOD PIDOF IPCS FUSER MANDB PYTHON LYX PDFLATEX LATEX2HTML EPSTOPDF BUILD_DOCS USE_LIBM USE_STUBS USE_RTLIBM MATHINC MATHLIB RTAI3_MOD RTAI_MOD RTL_MOD MODPATH_adeos MODPATH_rtai_hal MODPATH_rtai_ksched MODPATH_rtai_fifos MODPATH_rtai_shm MODPATH_rtai_sem MODPATH_rtai_math MODPATH_rtai MODPATH_rt_mem_mgr MODPATH_rtai_sched MODPATH_rtai_libm MODPATH_rtl MODPATH_mbuff MODPATH_rtl_time MODPATH_rtl_sched MODPATH_rtl_posixio MODPATH_rtl_fifo TCL_DBGX TK_DBGX TCL_CFLAGS TK_CFLAGS TCL_LIBS TK_LIBS WISH DATE X_CFLAGS X_PRE_LIBS X_LIBS X_EXTRA_LIBS HAVE_XAW XAW_LIBS HAVE_READLINE READLINE_LIBS HAVE_NCURSES NCURSES_LIBS USE_NLS HAVE_LOCALE_H LANGUAGES HAVE_LIBINTL_H HAVE_LIBINTL LOCALEDIR XGETTEXT XGETTEXT_TCL_WORKS MSGFMT MSGFMT_TCL_WORKS BUILD_AXIS BUILD_PYTHON INCLUDEPY SITEPY LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS AUTODIRS PACKAGE EMC2VERSION SIMULATOR PTH_CONFIG RTNAME RTAI RTLINUX RTLINUXPRO RTPREFIX KERNELDIR RTFLAGS RTDIR EMC2_HOME CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CPP ASM_BITOPS_DEFINE EGREP KERNEL_VERS MODEXT BUILD_SYS EXT_RTFLAGS MODULE_DIR RIP_MODULE_DIR RUN_IN_PLACE EMC2_BIN_DIR EMC2_TCL_DIR EMC2_HELP_DIR EMC2_RTLIB_DIR EMC2_LANG_DIR EMC2_CONFIG_PATH EMC2_NCFILES_DIR REALTIME EMC2_IMAGE_DIR HAVE_GNOMEPRINT GTK_VER GTK_LIBS GTK_CFLAGS CXX CXXFLAGS ac_ct_CXX SET_MAKE RANLIB ac_ct_RANLIB AR GREP INSTALL SED PS KILL WHOAMI AWK INSMOD RMMOD LSMOD PIDOF IPCS FUSER MANDB PYTHON LYX PDFLATEX EPSTOPDF LATEX2HTML BUILD_DOCS BUILD_DOCS_PDF BUILD_DOCS_HTML USE_LIBM USE_STUBS USE_RTLIBM MATHINC MATHLIB RTAI3_MOD RTAI_MOD RTL_MOD MODPATH_adeos MODPATH_rtai_hal MODPATH_rtai_ksched MODPATH_rtai_fifos MODPATH_rtai_shm MODPATH_rtai_sem MODPATH_rtai_math MODPATH_rtai MODPATH_rt_mem_mgr MODPATH_rtai_sched MODPATH_rtai_libm MODPATH_rtl MODPATH_mbuff MODPATH_rtl_time MODPATH_rtl_sched MODPATH_rtl_posixio MODPATH_rtl_fifo TCL_DBGX TK_DBGX TCL_CFLAGS TK_CFLAGS TCL_LIBS TK_LIBS WISH DATE X_CFLAGS X_PRE_LIBS X_LIBS X_EXTRA_LIBS HAVE_XAW XAW_LIBS HAVE_READLINE READLINE_LIBS HAVE_NCURSES NCURSES_LIBS USE_NLS HAVE_LOCALE_H LANGUAGES HAVE_LIBINTL_H HAVE_LIBINTL LOCALEDIR XGETTEXT XGETTEXT_TCL_WORKS MSGFMT MSGFMT_TCL_WORKS BUILD_PYTHON INCLUDEPY SITEPY LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -859,7 +859,8 @@ Optional Features:
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
   --enable-simulator      Run as a pure userspace program
   --enable-run-in-place   Configure EMC to run without make install
-  --enable-build-documentation   Build documentation
+  --enable-build-documentation=format   Build documentation.
+              Format may be "pdf" or "html" if only one format is desired.
   --disable-nls           don't use NLS
   --disable-python        Disable the parts of emc2 that depend on Python
 
@@ -1580,65 +1581,18 @@ case $RTS in
     RTPREFIX=rtai
     RTAI=1
 
-    # on BDI-TNG there seems to be the problem,
-    # that the /usr/src/linux/.config file is missing
-    # this file states that the kernel has been configured,
-    # however it gets deleted when a make mrproper is run
-    # on BDI-TNG only the patched kernel source is included in order
-    # to save space, so realtime-config is failing.
-    # the following is a workaround only for BDI-TNG
-    BDITNG=`cat /proc/version 2>/dev/null | grep Gariboldi`
-    if test -n "$BDITNG"; then
-	# we are certain to have BDI-TNG
-	# now we default some values
-	CC="egcs"
-	RTFILE=/usr/src/rtai-24.1.10/.buildvars
-	RTDIR=/usr/src/rtai-24.1.10
-	KERNEL=$(cat $RTFILE | grep LINUXDIR | awk '{split($1, A, "="); print A[2]}') 2>/dev/null #'
-	KERNELDIR=$(cd $KERNEL ; pwd -P )
-	RTFLAGS=$(cat $RTFILE | grep CFLAGS | sed s/CFLAGS=//) 2>/dev/null #'
-	RTFLAGS="$RTFLAGS -DRTAI=1"
-	# the TNG disk is also missing "linux/modversions.h"
-	# we need to check for it, it may have already been replaced
-	echo "$as_me:$LINENO: checking for linux/modversions.h" >&5
-echo $ECHO_N "checking for linux/modversions.h... $ECHO_C" >&6
-	if ! test -r $KERNELDIR/include/linux/modversions.h ; then
-	    # file is missing, fortunately on BDI-TNG it is a one line file, create it
-            ( echo "#include <linux/modsetver.h>" >$KERNELDIR/include/linux/modversions.h ) 2>/dev/null
-	    # but the user is probably not root, so that didn't work
-	    if ! test -r $KERNELDIR/include/linux/modversions.h ; then
-	        echo "$as_me:$LINENO: result: missing" >&5
-echo "${ECHO_T}missing" >&6
-	        { { echo "$as_me:$LINENO: error: modversions.h is missing.  This is a known problem on
-		  the BDI-TNG distro.  Please re-run ./configure as root
-		  to replace it.  You will only have to do this once." >&5
-echo "$as_me: error: modversions.h is missing.  This is a known problem on
-		  the BDI-TNG distro.  Please re-run ./configure as root
-		  to replace it.  You will only have to do this once." >&2;}
-   { (exit 1); exit 1; }; }
-	    else
-	        echo "$as_me:$LINENO: result: missing... replaced" >&5
-echo "${ECHO_T}missing... replaced" >&6
-	    fi
-	else
-	    echo "$as_me:$LINENO: result: ok" >&5
-echo "${ECHO_T}ok" >&6
-	fi
+    # any other rtai-24.1.x system
+    TEMP=`$RTS --prefix`
+    if (test -d $TEMP) ; then
+        RTDIR=$(cd $TEMP ; pwd -P )
     else
-	# any other rtai-24.1.x system
-	TEMP=`$RTS --prefix`
-	if (test -d $TEMP) ; then
-	    RTDIR=$(cd $TEMP ; pwd -P )
-	else
-	    RTDIR=${RTS%%/scripts/realtime-config}
-	fi
-        RTFLAGS=`$RTS --cflags-fp | head -n 1`
-	RTFLAGS="$RTFLAGS -DRTAI=1"
-	KERNELDIR=$($RTS --dump | grep -i linuxdir | awk -F'[ ="]+' '{print $2}')
-#"
-	KERNELDIR=$(cd $KERNELDIR ; pwd -P )
+        RTDIR=${RTS%%/scripts/realtime-config}
     fi
-
+    RTFLAGS=`$RTS --cflags-fp | head -n 1`
+    RTFLAGS="$RTFLAGS -DRTAI=1"
+    KERNELDIR=$($RTS --dump | grep -i linuxdir | awk -F'[ ="]+' '{print $2}')
+#"
+    KERNELDIR=$(cd $KERNELDIR ; pwd -P )
 ;;
 */rtl-config)
 # For RTLinux-3.? $RTS = rtl-config
@@ -1713,13 +1667,6 @@ _ACEOF
 fi
 
 
-# Check for emc2 dir
-# FIXME
-# right now... not done
-# just assume we're running in the src/ directory, so output the name
-# of the next directory up as emc2 home
-# needs some discussions & adjustments
-
 EMC2_HOME=`(cd .. ; pwd)`
 
 
@@ -1762,16 +1709,13 @@ else
 echo "${ECHO_T}not specified" >&6
 fi
 
-# seems there's a problem with autoconf if there are multiple
-# AC_PROG_CC's in this file
-# modified to test only once
 ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
 ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 if test -n "$ac_tool_prefix"; then
-  for ac_prog in $RTSCC gcc egcs
+  for ac_prog in $RTSCC gcc
   do
     # Extract the first word of "$ac_tool_prefix$ac_prog", so it can be a program name with args.
 set dummy $ac_tool_prefix$ac_prog; ac_word=$2
@@ -1813,7 +1757,7 @@ fi
 fi
 if test -z "$CC"; then
   ac_ct_CC=$CC
-  for ac_prog in $RTSCC gcc egcs
+  for ac_prog in $RTSCC gcc
 do
   # Extract the first word of "$ac_prog", so it can be a program name with args.
 set dummy $ac_prog; ac_word=$2
@@ -2711,27 +2655,14 @@ if test -z "$CC"; then
   { { echo "$as_me:$LINENO: error: no acceptable cc found" >&5
 echo "$as_me: error: no acceptable cc found" >&2;}
    { (exit 1); exit 1; }; }
-else
-  if test "$CC" = "gcc"; then
-    if test `$CC -dumpversion` = "2.96"; then
-      { { echo "$as_me:$LINENO: error: gcc version 2.96 found, but not supported.
-		If there is another compiler available, set the envar CC." >&5
-echo "$as_me: error: gcc version 2.96 found, but not supported.
-		If there is another compiler available, set the envar CC." >&2;}
+elif ! test `$CC -dumpversion | cut -d '.' -f 1` -gt 2 ; then
+  { { echo "$as_me:$LINENO: error: Compilers older than gcc 3.x are no longer supported" >&5
+echo "$as_me: error: Compilers older than gcc 3.x are no longer supported" >&2;}
    { (exit 1); exit 1; }; }
-    fi
-  fi
 fi
 
-if test `$CC -dumpversion | cut -d '.' -f 1` -gt 2 ; then
-  DEPSTYLE=gcc3
-else
-  DEPSTYLE=gcc2
-fi
-
-
-echo "$as_me:$LINENO: checking if asm/bitops.h is usable" >&5
-echo $ECHO_N "checking if asm/bitops.h is usable... $ECHO_C" >&6
+echo "$as_me:$LINENO: checking if asm/bitops.h is usable in userspace" >&5
+echo $ECHO_N "checking if asm/bitops.h is usable in userspace... $ECHO_C" >&6
 OLD_CC=$CC
 CC="$CC -Werror"
 
@@ -3232,6 +3163,12 @@ fi
 echo "$as_me:$LINENO: result: $MODEXT" >&5
 echo "${ECHO_T}$MODEXT" >&6
 
+
+cat >>confdefs.h <<_ACEOF
+#define MODULE_EXT "$MODEXT"
+_ACEOF
+
+
 # This check should see if kbuild is or isn't used
 echo "$as_me:$LINENO: checking kernel build system" >&5
 echo $ECHO_N "checking kernel build system... $ECHO_C" >&6
@@ -3261,6 +3198,7 @@ if test "${with_kbuild+set}" = set; then
         esac
 
 fi;
+fi
 echo "$as_me:$LINENO: result: $BUILD_SYS" >&5
 echo "${ECHO_T}$BUILD_SYS" >&6
 
@@ -3299,29 +3237,13 @@ fi;
 # if not specified, ask the realtime config script where the directory is
 # if the config script returns an error, set MODULE_DIR to nothing
 if test "x" = "x$MODULE_DIR" ; then
-  MODULE_DIR=`$RTS --module-dir 2>/dev/null` || MODULE_DIR=
+  MODULE_DIR=`$RTS --module-dir 2>/dev/null`
+  if ! test -d $MODULE_DIR ; then
+    { { echo "$as_me:$LINENO: error: $RTS --module-dir did not specify an existing directory.  You must use specify it using --with-module-dir=..." >&5
+echo "$as_me: error: $RTS --module-dir did not specify an existing directory.  You must use specify it using --with-module-dir=..." >&2;}
+   { (exit 1); exit 1; }; }
+  fi
 fi
-
-# if still unknown, check a couple default dirs for RT modules
-if test "x" = "x$MODULE_DIR" ; then
-   # (P.C.) Only works if the kernel modules are installed - If we are compiling for a target
-   # system, this test may fail...
-   if test -d /lib/modules/${KERNEL_VERS} ; then
-       MODULE_DIR=`(find /lib/modules/${KERNEL_VERS} \( -name "mbuff${MODEXT}" -o -name "rtai_shm${MODEXT}" \) -printf "%h")`
-   fi
-fi
-if test "x" = "x$MODULE_DIR"; then
-   if test -d /usr/realtime/ ; then
-       MODULE_DIR=`(find /usr/realtime/ \( -name "mbuff${MODEXT}" -o -name "rtai_shm${MODEXT}" \) -printf "%h")`
-   fi
-fi
-fi
-
-
-cat >>confdefs.h <<_ACEOF
-#define MODULE_EXT "$MODEXT"
-_ACEOF
-
 
 # Check whether --enable-run-in-place or --disable-run-in-place was given.
 if test "${enable_run_in_place+set}" = set; then
@@ -3350,19 +3272,6 @@ echo $ECHO_N "checking for realtime module directory... $ECHO_C" >&6
 echo "${ECHO_T}$MODULE_DIR" >&6
 
 fi;
-
-# uncomment this if we decide to use the extra/ directory (if present) for
-# our realtime modules
-#if ! test "x" = "x$MODULE_DIR" ; then
-#   if test -d $MODULE_DIR/../extra ; then
-#       MODULE_DIR=`(cd $MODULE_DIR/../extra ; pwd )`
-#   fi
-#fi
-
-# still haven't found the right directory, use a default
-if test "x" = "x$MODULE_DIR"; then
-    MODULE_DIR='${exec_prefix}/modules'
-fi
 
 
 
@@ -4689,23 +4598,50 @@ if test "${enable_build_documentation+set}" = set; then
   enableval="$enable_build_documentation"
 
         case "$enableval" in
-        Y*|y*)
+        Y*|y*|html,pdf|pdf,html)
             BUILD_DOCS=yes
+            BUILD_DOCS_PDF=yes
+            BUILD_DOCS_HTML=yes
+            echo "$as_me:$LINENO: result: PDF and HTML requested" >&5
+echo "${ECHO_T}PDF and HTML requested" >&6
         ;;
+        html)
+            BUILD_DOCS=yes
+            BUILD_DOCS_PDF=no
+            BUILD_DOCS_HTML=yes
+            echo "$as_me:$LINENO: result: HTML requested" >&5
+echo "${ECHO_T}HTML requested" >&6
+	;;
+        pdf)
+            BUILD_DOCS=yes
+            BUILD_DOCS_PDF=yes
+            BUILD_DOCS_HTML=no
+            echo "$as_me:$LINENO: result: PDF requested" >&5
+echo "${ECHO_T}PDF requested" >&6
+	;;
         *)
             BUILD_DOCS=no
+            echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
         ;;
     esac
 
 else
 
         BUILD_DOCS=no
+        echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
 
 fi;
 
-echo "$as_me:$LINENO: result: $BUILD_DOCS" >&5
-echo "${ECHO_T}$BUILD_DOCS" >&6
+# Programs required for building all documentation
 if ( test "$BUILD_DOCS" = "yes" ) ; then
+    if ( test "none" = "$PYTHON" ) ; then
+        { { echo "$as_me:$LINENO: error: no python, documentation cannot be built" >&5
+echo "$as_me: error: no python, documentation cannot be built" >&2;}
+   { (exit 1); exit 1; }; }
+    fi
+
     # Extract the first word of "lyx-qt", so it can be a program name with args.
 set dummy lyx-qt; ac_word=$2
 echo "$as_me:$LINENO: checking for $ac_word" >&5
@@ -4748,12 +4684,11 @@ echo "${ECHO_T}no" >&6
 fi
 
     if ( test "none" = "$LYX" ) ; then
-	BUILD_DOCS=no
-	{ echo "$as_me:$LINENO: WARNING: no LyX, documentation will not be built" >&5
-echo "$as_me: WARNING: no LyX, documentation will not be built" >&2;}
+	{ { echo "$as_me:$LINENO: error: no LyX, documentation cannot be built" >&5
+echo "$as_me: error: no LyX, documentation cannot be built" >&2;}
+   { (exit 1); exit 1; }; }
     fi
-fi
-if ( test "$BUILD_DOCS" = "yes" ) ; then
+
     echo "$as_me:$LINENO: checking for LyX version" >&5
 echo $ECHO_N "checking for LyX version... $ECHO_C" >&6
     set -- `$LYX --version 2>&1 | grep ^LyX` ; LYX_VER=$2
@@ -4761,17 +4696,18 @@ echo $ECHO_N "checking for LyX version... $ECHO_C" >&6
 echo "${ECHO_T}$LYX_VER" >&6
     set -- `echo $LYX_VER | sed 's/\./ /g'`
     if test $1 -lt 1 -o \( $1 -eq 1 -a $2 -lt 3 \) -o \( $1 -eq 1 -a $2 -eq 3 -a $3 -lt 6 \); then
-	BUILD_DOCS=no
-	{ echo "$as_me:$LINENO: WARNING: LyX version less than 1.3.6, documentation will not be built" >&5
-echo "$as_me: WARNING: LyX version less than 1.3.6, documentation will not be built" >&2;}
-    else
-	if test $1 -gt 1 -o \( $1 -eq 1 -a $2 -gt 3 \); then
+	{ { echo "$as_me:$LINENO: error: LyX version less than 1.3.6, documentation cannot be built" >&5
+echo "$as_me: error: LyX version less than 1.3.6, documentation cannot be built" >&2;}
+   { (exit 1); exit 1; }; }
+    fi
+    if test $1 -gt 1 -o \( $1 -eq 1 -a $2 -gt 3 \); then
 	    { echo "$as_me:$LINENO: WARNING: LyX documentation should only be edited with LyX version 1.3.x" >&5
 echo "$as_me: WARNING: LyX documentation should only be edited with LyX version 1.3.x" >&2;}
-	fi
     fi
 fi
-if ( test "$BUILD_DOCS" = "yes" ) ; then
+
+# Programs required only for building the PDF documentation
+if ( test "$BUILD_DOCS_PDF" = "yes" ) ; then
     # Extract the first word of "pdflatex", so it can be a program name with args.
 set dummy pdflatex; ac_word=$2
 echo "$as_me:$LINENO: checking for $ac_word" >&5
@@ -4814,60 +4750,11 @@ echo "${ECHO_T}no" >&6
 fi
 
     if ( test "none" = "$PDFLATEX" ) ; then
-	BUILD_DOCS=no
-	{ echo "$as_me:$LINENO: WARNING: no pdflatex, documentation will not be built" >&5
-echo "$as_me: WARNING: no pdflatex, documentation will not be built" >&2;}
+	{ { echo "$as_me:$LINENO: error: no pdflatex, PDF documentation cannot be built" >&5
+echo "$as_me: error: no pdflatex, PDF documentation cannot be built" >&2;}
+   { (exit 1); exit 1; }; }
     fi
-fi
-if ( test "$BUILD_DOCS" = "yes" ) ; then
-    # Extract the first word of "latex2html", so it can be a program name with args.
-set dummy latex2html; ac_word=$2
-echo "$as_me:$LINENO: checking for $ac_word" >&5
-echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
-if test "${ac_cv_path_LATEX2HTML+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  case $LATEX2HTML in
-  [\\/]* | ?:[\\/]*)
-  ac_cv_path_LATEX2HTML="$LATEX2HTML" # Let the user override the test with a path.
-  ;;
-  *)
-  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-as_dummy="/bin:/usr/bin:/usr/local/bin"
-for as_dir in $as_dummy
-do
-  IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-  for ac_exec_ext in '' $ac_executable_extensions; do
-  if $as_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
-    ac_cv_path_LATEX2HTML="$as_dir/$ac_word$ac_exec_ext"
-    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-done
 
-  test -z "$ac_cv_path_LATEX2HTML" && ac_cv_path_LATEX2HTML=""none""
-  ;;
-esac
-fi
-LATEX2HTML=$ac_cv_path_LATEX2HTML
-
-if test -n "$LATEX2HTML"; then
-  echo "$as_me:$LINENO: result: $LATEX2HTML" >&5
-echo "${ECHO_T}$LATEX2HTML" >&6
-else
-  echo "$as_me:$LINENO: result: no" >&5
-echo "${ECHO_T}no" >&6
-fi
-
-    if ( test "none" = "$LATEX2HTML" ) ; then
-	BUILD_DOCS=no
-	{ echo "$as_me:$LINENO: WARNING: no latex2html, documentation will not be built" >&5
-echo "$as_me: WARNING: no latex2html, documentation will not be built" >&2;}
-    fi
-fi
-if ( test "$BUILD_DOCS" = "yes" ) ; then
     # Extract the first word of "epstopdf", so it can be a program name with args.
 set dummy epstopdf; ac_word=$2
 echo "$as_me:$LINENO: checking for $ac_word" >&5
@@ -4910,28 +4797,74 @@ echo "${ECHO_T}no" >&6
 fi
 
     if ( test "none" = "$EPSTOPDF" ) ; then
-	BUILD_DOCS=no
-	{ echo "$as_me:$LINENO: WARNING: no epstopdf, documentation will not be built" >&5
-echo "$as_me: WARNING: no epstopdf, documentation will not be built" >&2;}
+	{ { echo "$as_me:$LINENO: error: no epstopdf, PDF documentation cannot be built" >&5
+echo "$as_me: error: no epstopdf, PDF documentation cannot be built" >&2;}
+   { (exit 1); exit 1; }; }
     fi
 fi
-if ( test "$BUILD_DOCS" = "yes" ) ; then
-    if ( test "none" = "$PYTHON" ) ; then
-        BUILD_DOCS=no
-        { echo "$as_me:$LINENO: WARNING: no python, documentation will not be built" >&5
-echo "$as_me: WARNING: no python, documentation will not be built" >&2;}
-    fi
-fi
-echo "$as_me:$LINENO: checking for HTML support in groff" >&5
-echo $ECHO_N "checking for HTML support in groff... $ECHO_C" >&6
-if ! groff -Thtml < /dev/null > /dev/null 2>&1 ; then
-    echo "$as_me:$LINENO: result: no groff -Thtml, documentation will not be built" >&5
-echo "${ECHO_T}no groff -Thtml, documentation will not be built" >&6
-    BUILD_DOCS=no
+
+# Programs required only for building the HTML documentation
+if ( test "$BUILD_DOCS_HTML" = "yes" ) ; then
+    # Extract the first word of "latex2html", so it can be a program name with args.
+set dummy latex2html; ac_word=$2
+echo "$as_me:$LINENO: checking for $ac_word" >&5
+echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
+if test "${ac_cv_path_LATEX2HTML+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
 else
-    echo "$as_me:$LINENO: result: yes" >&5
-echo "${ECHO_T}yes" >&6
+  case $LATEX2HTML in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_LATEX2HTML="$LATEX2HTML" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+as_dummy="/bin:/usr/bin:/usr/local/bin"
+for as_dir in $as_dummy
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+  for ac_exec_ext in '' $ac_executable_extensions; do
+  if $as_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path_LATEX2HTML="$as_dir/$ac_word$ac_exec_ext"
+    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+done
+
+  test -z "$ac_cv_path_LATEX2HTML" && ac_cv_path_LATEX2HTML=""none""
+  ;;
+esac
 fi
+LATEX2HTML=$ac_cv_path_LATEX2HTML
+
+if test -n "$LATEX2HTML"; then
+  echo "$as_me:$LINENO: result: $LATEX2HTML" >&5
+echo "${ECHO_T}$LATEX2HTML" >&6
+else
+  echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+fi
+
+    if ( test "none" = "$LATEX2HTML" ) ; then
+	{ { echo "$as_me:$LINENO: error: no latex2html, HTML documentation cannot be built" >&5
+echo "$as_me: error: no latex2html, HTML documentation cannot be built" >&2;}
+   { (exit 1); exit 1; }; }
+    fi
+
+    echo "$as_me:$LINENO: checking for HTML support in groff" >&5
+echo $ECHO_N "checking for HTML support in groff... $ECHO_C" >&6
+    if ! groff -Thtml < /dev/null > /dev/null 2>&1 ; then
+        { { echo "$as_me:$LINENO: error: no groff -Thtml, HTML documentation cannot be built" >&5
+echo "$as_me: error: no groff -Thtml, HTML documentation cannot be built" >&2;}
+   { (exit 1); exit 1; }; }
+    else
+        echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6
+    fi
+fi
+
+
 
 
 #############################################################################
@@ -6424,7 +6357,7 @@ _ACEOF
 cat confdefs.h >>conftest.$ac_ext
 cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
-#include <X11/Xlib.h>
+#include <X11/Intrinsic.h>
 _ACEOF
 if { (eval echo "$as_me:$LINENO: \"$ac_cpp conftest.$ac_ext\"") >&5
   (eval $ac_cpp conftest.$ac_ext) 2>conftest.er1
@@ -6451,7 +6384,7 @@ else
 sed 's/^/| /' conftest.$ac_ext >&5
 
   for ac_dir in $ac_x_header_dirs; do
-  if test -r "$ac_dir/X11/Xlib.h"; then
+  if test -r "$ac_dir/X11/Intrinsic.h"; then
     ac_x_includes=$ac_dir
     break
   fi
@@ -6465,18 +6398,18 @@ if test "$ac_x_libraries" = no; then
   # See if we find them without any special options.
   # Don't add to $LIBS permanently.
   ac_save_LIBS=$LIBS
-  LIBS="-lX11 $LIBS"
+  LIBS="-lXt $LIBS"
   cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
 _ACEOF
 cat confdefs.h >>conftest.$ac_ext
 cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
-#include <X11/Xlib.h>
+#include <X11/Intrinsic.h>
 int
 main ()
 {
-XrmInitialize ()
+XtMalloc (0)
   ;
   return 0;
 }
@@ -6514,7 +6447,7 @@ for ac_dir in `echo "$ac_x_includes $ac_x_header_dirs" | sed s/include/lib/g`
 do
   # Don't even attempt the hair of trying to link an X program!
   for ac_extension in a so sl; do
-    if test -r $ac_dir/libX11.$ac_extension; then
+    if test -r $ac_dir/libXt.$ac_extension; then
       ac_x_libraries=$ac_dir
       break 2
     fi
@@ -9213,8 +9146,8 @@ fi
 
 
 
-echo "$as_me:$LINENO: checking --enable-python" >&5
-echo $ECHO_N "checking --enable-python... $ECHO_C" >&6
+echo "$as_me:$LINENO: checking for Python support" >&5
+echo $ECHO_N "checking for Python support... $ECHO_C" >&6
 # Check whether --enable-python or --disable-python was given.
 if test "${enable_python+set}" = set; then
   enableval="$enable_python"
@@ -9235,26 +9168,24 @@ echo "${ECHO_T}$BUILD_PYTHON" >&6
 
 if test "$BUILD_PYTHON" = "yes"; then
     if test "$PYTHON" = "none"; then
-        BUILD_PYTHON=no
-    else
-        echo "$as_me:$LINENO: checking python version" >&5
-echo $ECHO_N "checking python version... $ECHO_C" >&6
-        if ! $PYTHON -c 'import sys;raise SystemExit,sys.hexversion<0x2040000'
-        then
-            echo "$as_me:$LINENO: result: Python version too old (2.4 or newer required)" >&5
-echo "${ECHO_T}Python version too old (2.4 or newer required)" >&6
-            BUILD_PYTHON=no
-        fi
+	{ { echo "$as_me:$LINENO: error: Python missing.  Install it or specify --disable-python to skip the parts of emc2 that depend on Python" >&5
+echo "$as_me: error: Python missing.  Install it or specify --disable-python to skip the parts of emc2 that depend on Python" >&2;}
+   { (exit 1); exit 1; }; }
     fi
-fi
 
-echo "$as_me:$LINENO: result: $BUILD_PYTHON" >&5
-echo "${ECHO_T}$BUILD_PYTHON" >&6
-BUILD_AXIS=$BUILD_PYTHON
+    echo "$as_me:$LINENO: checking python version" >&5
+echo $ECHO_N "checking python version... $ECHO_C" >&6
+    if ! $PYTHON -c 'import sys;raise SystemExit,sys.hexversion<0x2040000'
+    then
+	{ { echo "$as_me:$LINENO: error: Python version too old (2.4 or newer required)" >&5
+echo "$as_me: error: Python version too old (2.4 or newer required)" >&2;}
+   { (exit 1); exit 1; }; }
+    fi
+    echo "$as_me:$LINENO: result: OK" >&5
+echo "${ECHO_T}OK" >&6
 
-if test "$BUILD_PYTHON" = "yes"; then
-    echo "$as_me:$LINENO: checking for location of Python header files" >&5
-echo $ECHO_N "checking for location of Python header files... $ECHO_C" >&6
+    echo "$as_me:$LINENO: checking location of Python header files" >&5
+echo $ECHO_N "checking location of Python header files... $ECHO_C" >&6
     INCLUDEPY=`$PYTHON -c 'import distutils.sysconfig; print distutils.sysconfig.get_config_vars().get("INCLUDEPY")'`
     echo "$as_me:$LINENO: result: $INCLUDEPY" >&5
 echo "${ECHO_T}$INCLUDEPY" >&6
@@ -9399,20 +9330,19 @@ fi
 if test `eval echo '${'$as_ac_Header'}'` = yes; then
   :
 else
-  BUILD_PYTHON=no
+  { { echo "$as_me:$LINENO: error: Required header Python.h missing.  Install it, or specify --disable-python to skip the parts of emc2 that depend on Python" >&5
+echo "$as_me: error: Required header Python.h missing.  Install it, or specify --disable-python to skip the parts of emc2 that depend on Python" >&2;}
+   { (exit 1); exit 1; }; }
 fi
 
 
 
-    echo "$as_me:$LINENO: checking for location to install Python modules" >&5
-echo $ECHO_N "checking for location to install Python modules... $ECHO_C" >&6
+    echo "$as_me:$LINENO: checking for site-package location" >&5
+echo $ECHO_N "checking for site-package location... $ECHO_C" >&6
     SITEPY=`$PYTHON -c 'import distutils.sysconfig; print distutils.sysconfig.get_python_lib()'`
     echo "$as_me:$LINENO: result: $SITEPY" >&5
 echo "${ECHO_T}$SITEPY" >&6
-fi
 
-BUILD_AXIS=$BUILD_PYTHON
-if test "$BUILD_AXIS" = "yes"; then
 
 
 for ac_header in GL/gl.h GL/glu.h
@@ -9560,13 +9490,14 @@ if test `eval echo '${'$as_ac_Header'}'` = yes; then
 _ACEOF
 
 else
-  BUILD_AXIS=no
+  { { echo "$as_me:$LINENO: error: Required OpenGL header missing.  Install it, or specify --disable-python to skip the parts of emc2 that depend on Python" >&5
+echo "$as_me: error: Required OpenGL header missing.  Install it, or specify --disable-python to skip the parts of emc2 that depend on Python" >&2;}
+   { (exit 1); exit 1; }; }
 fi
 
 done
 
-fi
-if test "$BUILD_AXIS" = "yes"; then
+
 
 echo "$as_me:$LINENO: checking for glBegin in -lGL" >&5
 echo $ECHO_N "checking for glBegin in -lGL... $ECHO_C" >&6
@@ -9639,11 +9570,12 @@ _ACEOF
   LIBS="-lGL $LIBS"
 
 else
-  BUILD_AXIS=no
+  { { echo "$as_me:$LINENO: error: Required GL library missing.  Install it, or specify --disable-python to skip the parts of emc2 that depend on Python" >&5
+echo "$as_me: error: Required GL library missing.  Install it, or specify --disable-python to skip the parts of emc2 that depend on Python" >&2;}
+   { (exit 1); exit 1; }; }
 fi
 
-fi
-if test "$BUILD_AXIS" = "yes"; then
+
     echo "$as_me:$LINENO: checking for working GLU quadrics" >&5
 echo $ECHO_N "checking for working GLU quadrics... $ECHO_C" >&6
     cat >conftest.$ac_ext <<_ACEOF
@@ -9692,24 +9624,14 @@ else
 sed 's/^/| /' conftest.$ac_ext >&5
 
 
-		echo "$as_me:$LINENO: result: no" >&5
-echo "${ECHO_T}no" >&6
-		BUILD_AXIS=no
+		{ { echo "$as_me:$LINENO: error: Required GLU library missing.  Install it or specify --disable-python to skip the parts of emc2 that depend on Python" >&5
+echo "$as_me: error: Required GLU library missing.  Install it or specify --disable-python to skip the parts of emc2 that depend on Python" >&2;}
+   { (exit 1); exit 1; }; }
 
 
 fi
 rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
 fi
-
-echo "$as_me:$LINENO: checking whether to build axis" >&5
-echo $ECHO_N "checking whether to build axis... $ECHO_C" >&6
-case $BUILD_AXIS in
-    yes) echo "$as_me:$LINENO: result: yes" >&5
-echo "${ECHO_T}yes" >&6 ;;
-    *) echo "$as_me:$LINENO: result: no" >&5
-echo "${ECHO_T}no" >&6
-esac
-
 
 
 
@@ -10387,13 +10309,12 @@ s,@ac_ct_CC@,$ac_ct_CC,;t t
 s,@EXEEXT@,$EXEEXT,;t t
 s,@OBJEXT@,$OBJEXT,;t t
 s,@CPP@,$CPP,;t t
-s,@DEPSTYLE@,$DEPSTYLE,;t t
 s,@ASM_BITOPS_DEFINE@,$ASM_BITOPS_DEFINE,;t t
 s,@EGREP@,$EGREP,;t t
 s,@KERNEL_VERS@,$KERNEL_VERS,;t t
+s,@MODEXT@,$MODEXT,;t t
 s,@BUILD_SYS@,$BUILD_SYS,;t t
 s,@EXT_RTFLAGS@,$EXT_RTFLAGS,;t t
-s,@MODEXT@,$MODEXT,;t t
 s,@MODULE_DIR@,$MODULE_DIR,;t t
 s,@RIP_MODULE_DIR@,$RIP_MODULE_DIR,;t t
 s,@RUN_IN_PLACE@,$RUN_IN_PLACE,;t t
@@ -10434,9 +10355,11 @@ s,@MANDB@,$MANDB,;t t
 s,@PYTHON@,$PYTHON,;t t
 s,@LYX@,$LYX,;t t
 s,@PDFLATEX@,$PDFLATEX,;t t
-s,@LATEX2HTML@,$LATEX2HTML,;t t
 s,@EPSTOPDF@,$EPSTOPDF,;t t
+s,@LATEX2HTML@,$LATEX2HTML,;t t
 s,@BUILD_DOCS@,$BUILD_DOCS,;t t
+s,@BUILD_DOCS_PDF@,$BUILD_DOCS_PDF,;t t
+s,@BUILD_DOCS_HTML@,$BUILD_DOCS_HTML,;t t
 s,@USE_LIBM@,$USE_LIBM,;t t
 s,@USE_STUBS@,$USE_STUBS,;t t
 s,@USE_RTLIBM@,$USE_RTLIBM,;t t
@@ -10490,7 +10413,6 @@ s,@XGETTEXT@,$XGETTEXT,;t t
 s,@XGETTEXT_TCL_WORKS@,$XGETTEXT_TCL_WORKS,;t t
 s,@MSGFMT@,$MSGFMT,;t t
 s,@MSGFMT_TCL_WORKS@,$MSGFMT_TCL_WORKS,;t t
-s,@BUILD_AXIS@,$BUILD_AXIS,;t t
 s,@BUILD_PYTHON@,$BUILD_PYTHON,;t t
 s,@INCLUDEPY@,$INCLUDEPY,;t t
 s,@SITEPY@,$SITEPY,;t t

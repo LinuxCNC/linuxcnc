@@ -1,4 +1,5 @@
 .PHONY: docs docsclean
+.PHONY: pdfdocs htmldocs install-doc install-doc-pdf install-doc-html
 
 DOC_DIR=../docs
 DOC_SRCDIR=../docs/src
@@ -66,7 +67,14 @@ Makefile: $(patsubst %.lyx, depends/%.d, $(DOC_SRCS))
 endif
 endif
 
-docs: htmldocs pdfdocs
+ifeq ($(BUILD_DOCS_PDF),yes)
+docs: pdfdocs
+install-doc: install-doc-pdf
+endif
+ifeq ($(BUILD_DOCS_PDF),yes)
+docs: htmldocs
+install-doc: install-doc-html
+endif
 pdfdocs: $(PDF_TARGETS)
 htmldocs: $(HTML_TARGETS)
 
@@ -129,9 +137,12 @@ $(DOC_DIR)/html/%/index.html: $(DOC_SRCDIR)/%.tex
 
 default: docs
 
-install-doc:
+install-doc-pdf:
 	$(DIR) $(DESTDIR)$(docsdir)
 	$(FILE) $(PDF_TARGETS) $(DESTDIR)$(docsdir)
+
+install-doc-html:
+	$(DIR) $(DESTDIR)$(docsdir)
 	cp -a $(DOC_DIR)/html $(DESTDIR)$(docsdir)
 install-kernel-indep: install-doc
 else

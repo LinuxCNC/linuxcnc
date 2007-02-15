@@ -36,10 +36,7 @@ $(TOGLMODULE): $(call TOOBJS, $(TOGLMODULESRCS))
 	$(ECHO) Linking python module $(notdir $@)
 	@$(CC) $(LDFLAGS) -shared -o $@ $(TCL_CFLAGS) $^ -L/usr/X11R6/lib -lX11 -lGL -lGLU -lXmu $(TCL_LIBS)
 
-PYTARGETS += $(EMCMODULE)
-ifeq "$(BUILD_AXIS)" "yes"
-PYTARGETS += $(MINIGLMODULE) $(SETICONMODULE) $(TOGLMODULE)
-endif
+PYTARGETS += $(EMCMODULE) $(MINIGLMODULE) $(SETICONMODULE) $(TOGLMODULE)
 
 PYSCRIPTS := axis.py axis-remote.py emctop.py hal_manualtoolchange.py \
 	mdi.py image-to-gcode.py lintini.py debuglevel.py pumagui.py scaragui.py
