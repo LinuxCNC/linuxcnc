@@ -3163,12 +3163,6 @@ fi
 echo "$as_me:$LINENO: result: $MODEXT" >&5
 echo "${ECHO_T}$MODEXT" >&6
 
-
-cat >>confdefs.h <<_ACEOF
-#define MODULE_EXT "$MODEXT"
-_ACEOF
-
-
 # This check should see if kbuild is or isn't used
 echo "$as_me:$LINENO: checking kernel build system" >&5
 echo $ECHO_N "checking kernel build system... $ECHO_C" >&6
@@ -3199,6 +3193,12 @@ if test "${with_kbuild+set}" = set; then
 
 fi;
 fi
+
+
+cat >>confdefs.h <<_ACEOF
+#define MODULE_EXT "$MODEXT"
+_ACEOF
+
 echo "$as_me:$LINENO: result: $BUILD_SYS" >&5
 echo "${ECHO_T}$BUILD_SYS" >&6
 

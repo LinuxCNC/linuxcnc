@@ -367,8 +367,6 @@ if test "x" = "x$MODEXT"; then
     MODEXT=".o"
 fi
 AC_MSG_RESULT([$MODEXT])
-AC_SUBST([MODEXT])
-AC_DEFINE_UNQUOTED([MODULE_EXT], "$MODEXT", [Extension for realtime modules])
 
 # This check should see if kbuild is or isn't used
 AC_MSG_CHECKING([kernel build system])
@@ -396,6 +394,8 @@ AC_ARG_WITH(kbuild,
         esac
     ])
 fi
+AC_SUBST([MODEXT])
+AC_DEFINE_UNQUOTED([MODULE_EXT], "$MODEXT", [Extension for realtime modules])
 AC_MSG_RESULT([$BUILD_SYS])
 AC_SUBST([BUILD_SYS])
 AC_SUBST([EXT_RTFLAGS])
