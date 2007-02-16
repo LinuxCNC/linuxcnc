@@ -19,7 +19,7 @@ Description: PC based motion controller for real-time Linux.
 
 Package: emc2-dev
 Architecture: any
-Depends: g++, @KERNEL_HEADERS@, python (>= 2.4), python (<< 2.5)
+Depends: g++, @KERNEL_HEADERS@, python (>= 2.4), python (<< 2.5), @EMC2_PACKAGE_NAME@ (= ${Source-Version})
 Section: libs
 Description: PC based motion controller for real-time Linux.
  EMC2 is the next-generation Enhanced Machine Controller which
