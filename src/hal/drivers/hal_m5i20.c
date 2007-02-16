@@ -1003,7 +1003,8 @@ Device_DigitalOutWrite(void *arg, long period)
 	for(j = 0; j < 8; j++, pDigitalOut++){
 
 	    // Build hardware register value.
-	    if(*(pDigitalOut->pValue) != pDigitalOut->invert){
+	    if(( *(pDigitalOut->pValue) && !*(pDigitalOut->invert) ) ||
+	       (!*(pDigitalOut->pValue) &&  *(pDigitalOut->invert) )) {
 		pins |= mask;
 	    }
 
