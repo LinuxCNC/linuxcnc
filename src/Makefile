@@ -730,6 +730,11 @@ tags:
 		-I RTAPI_MP_ARRAY_INT+,RTAPI_MP_ARRAY_LONG+,RTAPI_MP_ARRAY_STRING+ \
                 -I MODULE_AUTHOR+,MODULE_DESCRIPTION+,MODULE_LICENSE+ \
 		-R . ../tcl ../scripts ../share/axis/tcl
+	rm -f TAGS
+	find . -type f -name '*.[ch]' |xargs etags -l c --append
+	find . -type f -name '*.cc' |xargs etags -l c++ --append
+	find . -type f -name '*.hh' |xargs etags -l c++ --append
+
 .PHONY: swish
 swish:
 	swish-e -c .swish_config -v 0 -i $(BASEPWD) \
