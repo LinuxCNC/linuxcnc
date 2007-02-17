@@ -2244,6 +2244,11 @@ userDefault
 ) can override them.
 \layout Subsection
 
+
+\begin_inset LatexCommand \label{sub:Physical-jog-wheels}
+
+\end_inset 
+
 Physical jog wheels
 \layout Standard
 

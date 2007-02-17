@@ -46,7 +46,7 @@ The EMC is configured with human readable text files.
  All of these files can be read and edited in any of the common text file
  editors available with most any Linux distribution.
 \begin_inset Foot
-collapsed false
+collapsed true
 
 \layout Standard
 
@@ -147,6 +147,17 @@ Complete reference to these files are left to the Integrator and Developer
 \end_inset 
 
  
+\layout Standard
+
+Items marked 
+\series bold 
+\noun on 
+(hal)
+\series default 
+\noun default 
+ are used only by the sample HAL files and are suggested as a good convention.
+ Other items are used by EMC directly, and must always have the section
+ and item names given.
 \layout Section
 
 The INI File Layout
@@ -487,6 +498,9 @@ G90
 \series default 
  A string of NC codes that the interpreter is initialized with.
  These are the codes that an interpreter will be reset to.
+ This is not a substitute for specifying modal g-codes at the top of each
+ ngc file, beacause the modal codes of machines differ, and may be changed
+ by g-code interpreted earlier in the session.
 \layout Subsection
 
 
@@ -548,27 +562,44 @@ BASE_PERIOD
 
 \SpecialChar ~
 =\SpecialChar ~
-50000 Base task period, in nanoseconds - this is the fastest thread in
- the machine.
+50000 
+\series bold 
+\noun on 
+(hal)
+\series default 
+\noun default 
+ Base task period, in nanoseconds - this is the fastest thread in the machine.
  It's units are nanoseconds.
  This is a fairly conservative value but if you are installing on a very
  old, slow processor you may have to make this a larger number or the machine
  may lock up or reboot.
  
 \newline 
-You might want to make this value smaller if you have a fast computer because
- this value sets the maximum number of stepper pulses you can get from your
- machine.
- It has little effect on servo systems so leave it large.
+On servo-based systems, there is generally no reason for 
+\series bold 
+BASE_PERIOD
+\series default 
+ to be smaller than 
+\series bold 
+SERVO_PERIOD
+\series default 
+.
+ On machines with software step generation, the 
+\series bold 
+BASE_PERIOD
+\series default 
+ determines the maximum number of steps per second.
  In the absence of long setup or hold times, the absolute maximum step rate
- for a step+direction motor is one step per two BASE_PERIOD, so
-\begin_inset Formula \begin{eqnarray*}
-max\_ step\_ rate & [\frac{steps}{second}]= & \frac{10^{9}}{2*base\_ period}\end{eqnarray*}
-
-\end_inset 
-
-Thus, the BASE_PERIOD shown above gives an absolute maximum step rate of
- 10000 steps per second.
+ is one step per two 
+\series bold 
+BASE_PERIOD
+\series default 
+s.
+ Thus, the 
+\series bold 
+BASE_PERIOD
+\series default 
+ shown above gives an absolute maximum step rate of 10000 steps per second.
 \layout Description
 
 SERVO_PERIOD
@@ -578,8 +609,18 @@ SERVO_PERIOD
 
 \SpecialChar ~
 =\SpecialChar ~
-1000000 Servo task period is also in nanoseconds.
- This value will be rounded to an integer multiple of BASE_PERIOD.
+1000000 
+\series bold 
+\noun on 
+(hal)
+\series default 
+\noun default 
+ Servo task period is also in nanoseconds.
+ This value will be rounded to an integer multiple of 
+\series bold 
+BASE_PERIOD
+\series default 
+.
  
 \newline 
 Most systems will not need to change this value.
@@ -598,9 +639,16 @@ TRAJ_PERIOD
 
 \series bold 
 10000000 
+\noun on 
+(hal)
 \series default 
-Trajectory Planner task period in nanoseconds This value will be rounded
- to an integer multiple of SERVO_PERIOD.
+\noun default 
+ Trajectory Planner task period in nanoseconds This value will be rounded
+ to an integer multiple of 
+\series bold 
+SERVO_PERIOD
+\series default 
+.
 \newline 
 Folk with fast computers have found that reducing this value by half will
  give them smother motion blending during contour cutting .
@@ -635,6 +683,7 @@ CYCLE_TIME\SpecialChar ~
  It no longer affects the throughput when transferring segments to the real-time
  layer.
  Making it 0.0 or a negative number will tell EMCTASK not to sleep at all.
+ There is usually no need to change this number.
 \layout Subsection
 
 [HAL] section
@@ -643,50 +692,80 @@ CYCLE_TIME\SpecialChar ~
 \end_inset 
 
 
-\layout Standard
+\layout Description
 
-The [HAL] section lists files and commands to setup the Hardware Abstraction
- Layer.
- If this is a stepper system you might see several files here.
- The exact set would depend upon the configuration of signals at the parallel
- port.
- At a minimum you would see the following.
- Sherline mills use the 
-\begin_inset Quotes eld
+HALFILE\SpecialChar ~
+=\SpecialChar ~
+example.hal Execute the file 'example.hal' at startup.
+ If 
+\series bold 
+HALFILE
+\series default 
+ is specified multiple times, the files are executed in the order they appear
+ in the inifile.
+ Almost all configurations will have at least one 
+\series bold 
+HALFILE
+\series default 
+, and stepper systems typically have two such files, one which specifies
+ the generic stepper configuration (
+\family typewriter 
+core_stepper.hal
+\family default 
+) and one which specifies the machine pinout (
+\family typewriter 
+xxx_pinout.hal
+\family default 
+)
+\layout Description
+
+HAL\SpecialChar ~
+=\SpecialChar ~
+command
+\emph on 
+ 
+\emph default 
+Execute 'command' as a single hal command.
+ If 
+\series bold 
+HAL
+\series default 
+ is specified multiple times, the commands are executed in the order they
+ appear in the inifile.
+ 
+\series bold 
+HAL
+\series default 
+ lines are executed after all 
+\series bold 
+HALFILE
+\series default 
+ lines.
+\layout Description
+
+SHUTDOWN\SpecialChar ~
+=\SpecialChar ~
+shutdown.hal Execute the file 'shutdown.hal' when emc is exiting.
+ Depending on the hardware drivers used, this may make it possible to set
+ outputs to defined values when emc is exited normally.
+ However, because there is no guarantee this file will be executed (for
+ instance, in the case of a computer crash) it is not a replacement for
+ a proper physical estop chain or other protections against software failure.
+\layout Description
+
+POSTGUI_HALFILE\SpecialChar ~
+=\SpecialChar ~
+example2.hal 
+\emph on 
+(Only with the AXIS GUI)
+\emph default 
+ Execute 'example2.hal' after the GUI has created its HAL pins.
+ See section 
+\begin_inset LatexCommand \ref{sub:Physical-jog-wheels}
+
 \end_inset 
 
-standard_pinout
-\begin_inset Quotes erd
-\end_inset 
-
-, and 
-\begin_inset Quotes eld
-\end_inset 
-
-xylotex_pinout
-\begin_inset Quotes erd
-\end_inset 
-
- matches the setup for those brand of cards.
-\layout LyX-Code
-
-HALFILE = core_stepper.hal
-\newline 
-HALFILE = standard_pinout.hal
-\newline 
-# HALFILE = xylotex_pinout.hal
-\layout Standard
-
-You can also add variables (commands really) here.
-\begin_inset Foot
-collapsed true
-
-\layout Standard
-
-See the Integrator Handbook for details.
-\end_inset 
-
-
+ for more information.
 \layout Subsection
 
 
@@ -1024,77 +1103,33 @@ INPUT_SCALE
 40000
 \series default 
 \color default
- 
-\layout Description
-
-INPUT_SCALE\SpecialChar ~
-=\SpecialChar ~
-40000\SpecialChar ~
-05 This variable has slightly different meaning for stepper
- and for servo systems.
- For steppers, the only number it is the number of pulses required to move
- the axis one UNIT.
- The second number, if it is specified, is ignored.
-\newline 
-For servos
+ Specifies the number of pulses that corresponds to a move of one UNIT.
+ For stepper systems, this is the number of step pulses issued per UNIT.
+ For servo systems, this is the number of feedback pulses per UNIT.
+ A second number, if specified, is ignored.
 \color black
- these two values are the scale and offset factors for the axis input from
- the raw feedback device, e.g., an incremental encoder
-\begin_inset LatexCommand \index{encoder}
 
-\end_inset 
-
-.
- The second value (offset) is subtracted from raw input (e.g., encoder counts),
- and divided by the first value (scale factor), before being used as feedback.
- The units on the scale value are in raw units (e.g., counts) per user units
- (e.g., inch).
- The units on the offset value are in raw units (e.g., counts).
- 
 \newline 
-Specifically, when reading inputs, the EMC first reads the raw sensor values.
- The units on these values are the sensor units, typically A/D counts, or
- encoder ticks.
- These units, and the location of their 0 value, will not in general correspond
- to the quasi-SI units used in the EMC.
- Hence a scaling is done immediately upon sampling: 
-\begin_inset Formula \[
-input=\frac{{raw-offset}}{scale}\]
-
-\end_inset 
-
- The value for scale can be obtained by doing a unit analysis, i.e., units
+The value for scale can be obtained by doing a unit analysis, i.e., units
  are
 \begin_inset Formula \[
 \frac{sensor\, units}{desired\, input\, SI\, units}\]
 
 \end_inset 
 
-.
- For example, on a 2000 counts per rev encoder
+For example, on a 2000 counts per rev encoder
 \begin_inset LatexCommand \index{encoder}
 
 \end_inset 
 
 , and 10 revs/inch gearing, and desired units of mm, we have
 \begin_inset Formula \begin{eqnarray*}
-[scaleunits] & = & 2000\frac{counts}{rev}*10\frac{rev}{inch}*1/25.4\frac{inch}{mm}\\
- & = & 787.4\frac{{counts}}{mm}\end{eqnarray*}
+input\_ scale & = & 2000\frac{counts}{rev}*10\frac{rev}{inch}*\frac{1\, inch}{25.4\, mm}\\
+ & = & 787.4\frac{counts}{mm}\end{eqnarray*}
 
 \end_inset 
 
-and, as a result, 
-\begin_inset Formula \[
-input[mm]=(encoder[counts]-offset[counts])/787.4\]
 
-\end_inset 
-
- Note that the units of the offset are in sensor units, e.g., counts, and
- they are pre-subtracted from the sensor readings.
- The value for this offset is obtained by finding the value of counts for
- which you want your user units to read 0.0.
- This is normally accomplished automatically during a homing procedure.
- 
 \layout Description
 
 
@@ -1327,7 +1362,16 @@ P\SpecialChar ~
 \series bold 
 50
 \series default 
- The proportional gain for the axis servo.
+ 
+\series bold 
+\noun on 
+\color default
+(hal)
+\series default 
+\noun default 
+ 
+\color black
+The proportional gain for the axis servo.
  This value multiplies the error between commanded and actual position in
  user units, resulting in a contribution to the computed voltage for the
  motor amplifier.
@@ -1343,7 +1387,16 @@ I\SpecialChar ~
 =\SpecialChar ~
 0
 \series default 
- The integral gain for the axis servo.
+ 
+\series bold 
+\noun on 
+\color default
+(hal)
+\series default 
+\noun default 
+ 
+\color black
+The integral gain for the axis servo.
  The value multiplies the cumulative error between commanded and actual
  position in user units, resulting in a contribution to the computed voltage
  for the motor amplifier.
@@ -1359,7 +1412,16 @@ D\SpecialChar ~
 =\SpecialChar ~
 0
 \series default 
- The derivative gain for the axis servo.
+ 
+\series bold 
+\noun on 
+\color default
+(hal)
+\series default 
+\noun default 
+ 
+\color black
+The derivative gain for the axis servo.
  The value multiplies the difference between the current and previous errors,
  resulting in a contribution to the computed voltage for the motor amplifier.
  The units on the D gain are volts per user unit per second.
@@ -1374,7 +1436,16 @@ FF0\SpecialChar ~
 =\SpecialChar ~
 0
 \series default 
- The 0-th order feedforward gain.
+ 
+\series bold 
+\noun on 
+\color default
+(hal)
+\series default 
+\noun default 
+ 
+\color black
+The 0-th order feedforward gain.
  This number is multiplied by the commanded position, resulting in a contributio
 n to the computed voltage for the motor amplifier.
  The units on the FF0 gain are volts per user unit.
@@ -1389,7 +1460,16 @@ FF1\SpecialChar ~
 =\SpecialChar ~
 0
 \series default 
- The 1st order feedforward gain.
+ 
+\series bold 
+\noun on 
+\color default
+(hal)
+\series default 
+\noun default 
+ 
+\color black
+The 1st order feedforward gain.
  This number is multiplied by the change in commanded position per second,
  resulting in a contribution to the computed voltage for the motor amplifier.
  The units on the FF1 gain are volts per user unit per second.
@@ -1404,7 +1484,16 @@ FF2\SpecialChar ~
 =\SpecialChar ~
 0
 \series default 
- The 2nd order feedforward gain.
+ 
+\series bold 
+\noun on 
+\color default
+(hal)
+\series default 
+\noun default 
+ 
+\color black
+The 2nd order feedforward gain.
  This number is multiplied by the change in commanded position per second
  per second, resulting in a contribution to the computed voltage for the
  motor amplifier.
@@ -1430,7 +1519,16 @@ OUTPUT_OFFSET\SpecialChar ~
 0.000
 \series default 
 \color black
- These two values are the scale and offset factors for the axis output to
+ 
+\series bold 
+\noun on 
+\color default
+(hal)
+\series default 
+\noun default 
+ 
+\color black
+These two values are the scale and offset factors for the axis output to
  the motor amplifiers.
  The second value (offset) is subtracted from the computed output (in volts),
  and divided by the first value (scale factor), before being written to
@@ -1537,7 +1635,13 @@ MAX_OUTPUT\SpecialChar ~
 \series bold 
 =\SpecialChar ~
 10 
+\noun on 
+\color default
+(hal)
 \series default 
+\noun default 
+ 
+\color black
 The maximum value for the output of the PID compensation that is written
  to the motor amplifier, in volts.
  The computed output value is clamped to this limit.
@@ -1549,8 +1653,17 @@ The maximum value for the output of the PID compensation that is written
 \color black
 MIN_OUTPUT\SpecialChar ~
 =\SpecialChar ~
--10 The minimum value for the output of the PID compensation
- that is written to the motor amplifier, in volts.
+-10 
+\series bold 
+\noun on 
+\color default
+(hal)
+\series default 
+\noun default 
+ 
+\color black
+The minimum value for the output of the PID compensation that is written
+ to the motor amplifier, in volts.
  The computed output value is clamped to this limit.
  The limit is applied before scaling to raw output units.
  
@@ -1866,6 +1979,12 @@ STEPGEN_MAXVEL\SpecialChar ~
 \series bold 
 1.4
 \series default 
+ 
+\series bold 
+\noun on 
+(hal)
+\series default 
+\noun default 
  A value applied to the stepper pulse generator to provide some overhead
  for following error catch up.
 \series bold 
@@ -1897,6 +2016,12 @@ STEPGEN_MAXACCEL\SpecialChar ~
 =\SpecialChar ~
 21.0
 \series default 
+ 
+\series bold 
+\noun on 
+(hal)
+\series default 
+\noun default 
  Overhead for the stepper pulse generator when it needs to catch up.
  
 \layout Subsection
@@ -1920,10 +2045,8 @@ CYCLE_TIME\SpecialChar ~
 0.100
 \series default 
  The period, in seconds, at which EMCIO will run.
- You can make this as small as you want to increase the throughput.
  Making it 0.0 or a negative number will tell EMCIO not to sleep at all.
- Ultimately the system loading will limit the effective throughput.
- 
+ There is usually no need to change this number.
 \layout Description
 
 TOOL_TABLE\SpecialChar ~
