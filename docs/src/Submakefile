@@ -71,7 +71,7 @@ ifeq ($(BUILD_DOCS_PDF),yes)
 docs: pdfdocs
 install-doc: install-doc-pdf
 endif
-ifeq ($(BUILD_DOCS_PDF),yes)
+ifeq ($(BUILD_DOCS_HTML),yes)
 docs: htmldocs
 install-doc: install-doc-html
 endif
