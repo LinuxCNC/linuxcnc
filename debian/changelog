@@ -1,10 +1,11 @@
 emc2 (2.2.0pre) testing; urgency=low
 
+  * new inifile item: [HAL]SHUTDOWN, a .hal file run at a clean shutdown of emc
   * new component: deadzone
   * new component: tristate_float
   * new component: random
   * new components: clarke2 clark3 clarkeinv
-  * new hardware driver: pci_8255 
+  * new hardware driver: pci_8255
   * scara robot sample configuration with visualization
   * opengl machine visualization, starting with puma-style robots
   * new m5i20 firmwares
@@ -20,7 +21,8 @@ emc2 (2.2.0pre) testing; urgency=low
   * home to index on STG1
   * number of samples in halscope can be specified at runtime
 
- -- Chris Radek <chris@timeguy.com>  Mon,  5 Feb 2007 11:08:38 -0600
+
+ -- jepler <jepler@sofa>  Sat, 17 Feb 2007 17:24:14 -0600
 
 *** here, insert 2.1.x changes before releasing 2.2.0 ***
 
