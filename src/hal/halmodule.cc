@@ -21,14 +21,13 @@
 #include <map>
 using namespace std;
 
+#include "rtapi.h"
 #include "hal.h"
 #include "hal_priv.h"
 
 #include "emc.hh"
 
-#ifndef Py_RETURN_NONE
-#define Py_RETURN_NONE return Py_INCREF(Py_None), Py_None
-#endif
+typedef unsigned long Py_ssize_t;
 
 union paramunion {
     hal_bit_t b;
@@ -65,7 +64,7 @@ struct halitem {
 typedef std::map<std::string, struct halitem> itemmap;
 
 typedef struct halobject {
-    PyObject_HEAD
+        PyObject_HEAD
     int hal_id;
     char *name;
     char *prefix;
@@ -73,6 +72,32 @@ typedef struct halobject {
 } halobject;
 
 PyObject *pyhal_error_type = NULL;
+
+static PyObject *pyrtapi_error(int code) {
+    switch(code) {
+	case RTAPI_SUCCESS:
+            PyErr_SetString(pyhal_error_type, "Call Successful"); break;
+        case RTAPI_UNSUP:
+            PyErr_SetString(pyhal_error_type, "Function not supported"); break;
+        case RTAPI_BADID:
+            PyErr_SetString(pyhal_error_type, "Bad Identifier"); break;
+        case RTAPI_INVAL:
+            PyErr_SetString(pyhal_error_type, "Invalid argument"); break;
+        case RTAPI_NOMEM:
+            PyErr_SetString(pyhal_error_type, "Not enough memory"); break;
+        case RTAPI_LIMIT:
+            PyErr_SetString(pyhal_error_type, "Resource limit reached"); break;
+        case RTAPI_PERM:
+            PyErr_SetString(pyhal_error_type, "Permission denied"); break;
+        case RTAPI_BUSY:
+            PyErr_SetString(pyhal_error_type, "Resource is busy or locked"); break;
+        case RTAPI_FAIL:
+            PyErr_SetString(pyhal_error_type, "Operation failed"); break;
+        default:
+            PyErr_Format(pyhal_error_type, "Unknown RTAPI error code %d", code);
+    }
+    return NULL;
+}
 
 static PyObject *pyhal_error(int code) {
     switch(code) {
@@ -98,7 +123,7 @@ static PyObject *pyhal_error(int code) {
         case HAL_FAIL:
             PyErr_SetString(pyhal_error_type, "Operation failed"); break;
         default:
-            PyErr_Format(pyhal_error_type, "Unknown error code %d", code);
+            PyErr_Format(pyhal_error_type, "Unknown HAL error code %d", code);
             break;
     }
     return NULL;
@@ -363,11 +388,9 @@ static PyObject *pyhal_new_pin(halobject *self, PyObject *o) {
 }
 
 static PyObject *pyhal_ready(halobject *self, PyObject *o) {
-#if EMC_VERSION_CHECK(2,1,0)
     // hal_ready did not exist in EMC 2.0.x, make it a no-op
     int res = hal_ready(self->hal_id);
     if(res) return pyhal_error(res);
-#endif
     Py_RETURN_NONE;
 }
 
@@ -402,7 +425,6 @@ static int pyhal_len(halobject *self) {
 }
 
 static PyObject *pyhal_get_prefix(halobject *self, PyObject *args) {
-    char *newprefix;
     if(!PyArg_ParseTuple(args, "")) return NULL;
 
     if(!self->prefix)
@@ -517,6 +539,128 @@ PyObject *pin_has_writer(PyObject *self, PyObject *args) {
     return Py_False;
 }
 
+typedef struct shmobject {
+    PyObject_HEAD
+    halobject *comp;
+    int key;
+    int shm_id;
+    unsigned long size;
+    void *buf;
+};
+
+static int pyshm_init(shmobject *self, PyObject *args, PyObject *kw) {
+    self->comp = 0;
+    self->shm_id = -1;
+
+    if(!PyArg_ParseTuple(args, "O!ik",
+		&halobject_type, &self->comp, &self->key, &self->size))
+	return -1;
+
+    self->shm_id = rtapi_shmem_new(self->key, self->comp->hal_id, self->size);
+    if(self->shm_id < 0) {
+	self->comp = 0;
+	self->size = 0;
+	pyrtapi_error(self->shm_id);
+	return -1;
+    }
+
+    rtapi_shmem_getptr(self->shm_id, &self->buf);
+    Py_INCREF(self->comp);
+
+    return 0;
+}
+
+static void pyshm_delete(shmobject *self) {
+    if(self->comp && self->shm_id > 0)
+	rtapi_shmem_delete(self->shm_id, self->comp->hal_id);
+    Py_XDECREF(self->comp);
+}
+
+static int shm_buffer(shmobject *self, Py_ssize_t segment, void **ptrptr){
+    if(ptrptr) *ptrptr = self->buf;
+    return self->size;
+}
+static int shm_segcount(shmobject *self, Py_ssize_t *lenp) {
+    if(lenp) *lenp = self->size;
+    return 1;
+}
+
+static PyObject *pyshm_repr(shmobject *self) {
+    return PyString_FromFormat("<shared memory buffer key=%08x id=%d size=%ld>",
+	    self->key, self->shm_id, (unsigned long)self->size);
+}
+
+static PyObject *shm_setsize(shmobject *self, PyObject *args) {
+    if(!PyArg_ParseTuple(args, "k", &self->size)) return NULL;
+    Py_RETURN_NONE;
+}
+
+static PyObject *shm_getbuffer(shmobject *self) {
+    return (PyObject*)PyBuffer_FromReadWriteObject((PyObject*)self, 0, self->size);
+}
+
+static
+PyBufferProcs shmbuffer_procs = {
+    (getreadbufferproc)shm_buffer,
+    (getwritebufferproc)shm_buffer,
+    (getsegcountproc)shm_segcount,
+    (getcharbufferproc)NULL
+};
+
+static PyMethodDef shm_methods[] = {
+    {"getbuffer", (PyCFunction) shm_getbuffer, METH_NOARGS, 
+	"Get a writable buffer object for the shared memory segment"},
+    {"setsize", (PyCFunction) shm_setsize, METH_VARARGS, 
+	"Set the size of the shared memory segment"},
+    {NULL},
+};
+
+static 
+PyTypeObject shm_type = {
+    PyObject_HEAD_INIT(NULL)
+    0,                         /*ob_size*/
+    "hal.shm",                 /*tp_name*/
+    sizeof(shmobject),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor) pyshm_delete, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_compare*/
+    (reprfunc) pyshm_repr,     /*tp_repr*/
+    0,                         /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    &shmbuffer_procs,          /*tp_as_buffer*/
+    // Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GETCHARBUFFER,        /*tp_flags*/
+    Py_TPFLAGS_DEFAULT,        /*tp_flags*/
+    "HAL Shared Memory",       /*tp_doc*/
+    0,                         /*tp_traverse*/
+    0,                         /*tp_clear*/
+    0,                         /*tp_richcompare*/
+    0,                         /*tp_weaklistoffset*/
+    0,                         /*tp_iter*/
+    0,                         /*tp_iternext*/
+    shm_methods,               /*tp_methods*/
+    0,                         /*tp_members*/
+    0,                         /*tp_getset*/
+    0,                         /*tp_base*/
+    0,                         /*tp_dict*/
+    0,                         /*tp_descr_get*/
+    0,                         /*tp_descr_set*/
+    0,                         /*tp_dictoffset*/
+    (initproc)pyshm_init,      /*tp_init*/
+    0,                         /*tp_alloc*/
+    PyType_GenericNew,         /*tp_new*/
+    0,                         /*tp_free*/
+    0,                         /*tp_is_gc*/
+};
+
 
 PyMethodDef module_methods[] = {
     {"pin_has_writer", (PyCFunction)pin_has_writer, METH_VARARGS,
@@ -559,7 +703,9 @@ void inithal(void) {
     PyModule_AddObject(m, "error", pyhal_error_type);
 
     PyType_Ready(&halobject_type);
+    PyType_Ready(&shm_type);
     PyModule_AddObject(m, "component", (PyObject*)&halobject_type);
+    PyModule_AddObject(m, "shm", (PyObject*)&shm_type);
 
     PyModule_AddIntConstant(m, "HAL_BIT", HAL_BIT);
     PyModule_AddIntConstant(m, "HAL_FLOAT", HAL_FLOAT);
