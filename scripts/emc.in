@@ -382,6 +382,12 @@ function Cleanup() {
         echo "lockfile still not removed"
     fi
 
+    SHUTDOWN=`$INIVAR -ini $INIFILE -var SHUTDOWN -sec HAL 2> /dev/null`
+    if [ -n "$SHUTDOWN" ]; then
+	echo "Running HAL shutdown script"
+	$HALCMD -f $SHUTDOWN
+    fi
+
     echo "Stopping realtime threads" >> $DEBUG_FILE
     $HALCMD stop
     echo "Unloading hal components" >> $DEBUG_FILE
