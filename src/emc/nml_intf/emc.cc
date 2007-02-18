@@ -429,6 +429,9 @@ int emcFormat(NMLTYPE type, void *buffer, CMS * cms)
     case EMC_TRAJ_LINEAR_MOVE_TYPE:
 	((EMC_TRAJ_LINEAR_MOVE *) buffer)->update(cms);
 	break;
+    case EMC_TRAJ_CIRCULAR_MOVE_TYPE:
+	((EMC_TRAJ_CIRCULAR_MOVE *) buffer)->update(cms);
+	break;
     case EMC_TRAJ_PAUSE_TYPE:
 	((EMC_TRAJ_PAUSE *) buffer)->update(cms);
 	break;
