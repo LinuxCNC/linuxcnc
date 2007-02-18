@@ -129,7 +129,7 @@ void refresh_trigger(void)
     chan = &(ctrl_usr->chan[ctrl_shm->trig_chan - 1]);
     /* calculate a preliminary value for trigger level */
     fp_level =
-	chan->scale * ((chan->position - trig->level) * 10) -
+	chan->scale * ((chan->position - trig->level) * 10) +
 	chan->vert_offset;
     /* apply type specific tweaks to trigger level */
     switch (chan->data_type) {
