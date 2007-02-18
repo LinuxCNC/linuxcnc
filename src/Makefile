@@ -364,7 +364,7 @@ TCL_BIN=$(call GLOB,../tcl/bin/*.tcl) ../tcl/bin/popimage
 install: install-kernel-dep install-kernel-indep
 	$(ECHO) "Installed in $(DESTDIR) with prefix $(prefix)"
 
-install-kernel-indep:
+install-dirs:
 	$(DIR) $(DESTDIR)$(initd_dir) $(DESTDIR)$(EMC2_RTLIB_DIR) \
 		$(DESTDIR)$(sysconfdir)/emc2 $(DESTDIR)$(bindir) \
 		$(DESTDIR)/usr/local/etc/emc2/configs \
@@ -377,10 +377,9 @@ install-kernel-indep:
 		$(DESTDIR)$(mandir)/man9 \
 		$(DESTDIR)$(tcldir)/msgs \
 		$(DESTDIR)$(localedir)/de/LC_MESSAGES \
-		$(DESTDIR)$(SITEPY) \
-		$(DESTDIR)$(SITEPY)/rs274 \
 		$(DESTDIR)$(datadir)/axis/images \
 		$(DESTDIR)$(datadir)/axis/tcl		
+install-kernel-indep: install-dirs
 	$(FILE) ../docs/man/man1/*.1 $(DESTDIR)$(mandir)/man1
 	$(FILE) $(filter-out %/skeleton.3hal, $(wildcard ../docs/man/man3/*.3hal)) $(DESTDIR)$(mandir)/man3
 	$(FILE) $(filter-out %/skeleton.3rtapi, $(wildcard ../docs/man/man3/*.3rtapi)) $(DESTDIR)$(mandir)/man3
@@ -410,7 +409,8 @@ install-kernel-indep:
 
 ifeq ($(BUILD_PYTHON),yes)
 install-kernel-indep: install-python
-install-python:
+install-python: install-dirs
+	$(DIR) $(DESTDIR)$(SITEPY) $(DESTDIR)$(SITEPY)/rs274
 	$(FILE) ../lib/python/*.py ../lib/python/*.so $(DESTDIR)$(SITEPY)
 	$(FILE) ../lib/python/rs274/*.py $(DESTDIR)$(SITEPY)/rs274
 	$(EXE) ../bin/pyvcp ../bin/axis ../bin/axis-remote ../bin/debuglevel ../bin/emctop ../bin/mdi ../bin/hal_manualtoolchange ../bin/image-to-gcode $(DESTDIR)$(bindir)
