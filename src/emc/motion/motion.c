@@ -374,6 +374,21 @@ static int init_hal_io(void)
 	return retval;
     }
 
+    rtapi_snprintf(buf, HAL_NAME_LEN, "motion.debug-s32-0");
+    retval =
+	hal_param_s32_new(buf, HAL_RO, &(emcmot_hal_data->debug_s32_0),
+	mot_comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "motion.debug-s32-1");
+    retval =
+	hal_param_s32_new(buf, HAL_RO, &(emcmot_hal_data->debug_s32_1),
+	mot_comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+
     // FIXME - debug only, remove later
     // export HAL parameters for some trajectory planner internal variables
     // so they can be scoped

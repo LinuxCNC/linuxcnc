@@ -98,6 +98,8 @@ typedef struct {
     hal_bit_t debug_bit_1;	/* RPA: generic param, for debugging */
     hal_float_t debug_float_0;	/* RPA: generic param, for debugging */
     hal_float_t debug_float_1;	/* RPA: generic param, for debugging */
+    hal_s32_t debug_s32_0;	/* RPA: generic param, for debugging */
+    hal_s32_t debug_s32_1;	/* RPA: generic param, for debugging */
     
     hal_bit_t *synch_do[EMCMOT_MAX_DIO]; /* WPI array: output pins for motion synched IO */
 
