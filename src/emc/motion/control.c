@@ -2378,8 +2378,8 @@ static void output_to_hal(void)
     emcmot_hal_data->debug_bit_1 = emcmotStatus->enables_new & AF_ENABLED;
     emcmot_hal_data->debug_float_0 = emcmotStatus->net_feed_scale;
     emcmot_hal_data->debug_float_1 = 0.0;
-    emcmot_hal_data->debug_s32_0 = 0;
-    emcmot_hal_data->debug_s32_1 = joints[0].home_state;
+    emcmot_hal_data->debug_s32_0 = emcmotStatus->id;
+    emcmot_hal_data->debug_s32_1 = 0;
 
     /* two way handshaking for the spindle encoder */
     if(emcmotStatus->spindle_index_enable && !old_motion_index) {
