@@ -1218,6 +1218,7 @@ int emcMotionAbort()
 {
     int r1;
     int r2;
+    int r3;
     int t;
 
     r1 = -1;
@@ -1228,11 +1229,12 @@ int emcMotionAbort()
     }
 
     r2 = emcTrajAbort();
+    r3 = emcSpindleAbort();
 
     // reset optimization flag which suppresses duplicate speed requests
     lastVel = -1.0;
 
-    return (r1 == 0 && r2 == 0) ? 0 : -1;
+    return (r1 == 0 && r2 == 0 && r3 == 0) ? 0 : -1;
 }
 
 int emcMotionSetDebug(int debug)
