@@ -38,6 +38,7 @@ conv_u8_s32.9
 conv_u8_s8.9
 conv_u8_u32.9
 ddt.9
+deadzone.9
 edge.9
 estop_latch.9
 flipflop.9
@@ -63,4 +64,5 @@ scale.9
 serport.9
 sum2.9
 threadtest.9
+tristate_float.9
 wcomp.9
