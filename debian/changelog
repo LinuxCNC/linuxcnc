@@ -10,8 +10,10 @@ emc2 (1:2.1.1~alpha0) testing; urgency=low
   [ jepler ]
   * fix problem running comp: ImportError: No module named yapps
 
+  [ Chris Radek ]
+  * fix bug that left the spindle on after abort
 
- -- jepler <jepler@sofa>  Sat, 17 Feb 2007 18:33:59 -0600
+ -- Chris Radek <chris@timeguy.com>  Sat, 17 Feb 2007 22:01:56 -0600
 
 emc2 (1:2.1.0) testing; urgency=low
 
