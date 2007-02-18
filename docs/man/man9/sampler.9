@@ -101,6 +101,10 @@ will be lost.
 TRUE when the FIFO
 .I N
 is full, FALSE when there is room for another sample.
+.TP
+\fBsampler.\fIN\fB.enable\fR bit input
+When TRUE, samples are captured and placed in FIFO \fIN\fR,
+when FALSE, no samples are acquired.  Defaults to TRUE.
 
 .SH PARAMETERS
 .TP

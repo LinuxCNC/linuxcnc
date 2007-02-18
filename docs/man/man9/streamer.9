@@ -98,7 +98,11 @@ Current number of samples in the FIFO.  When this reaches zero, new data will no
 \fBstreamer.\fIN\fB.empty\fR bit output
 TRUE when the FIFO
 .I N
-is empty, FALSE when valid data is being written to the HAL pins.
+is empty, FALSE when valid data is available.
+.TP
+\fBstreamer.\fIN\fB.enable\fR bit input
+When TRUE, data from FIFO \fIN\fR is written to the HAL pins.
+When false, no data is transferred.  Defaults to TRUE.
 
 .SH PARAMETERS
 .TP

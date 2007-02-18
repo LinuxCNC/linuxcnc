@@ -83,6 +83,7 @@ typedef struct {
     fifo_t *fifo;		/* pointer to user/RT fifo */
     hal_s32_t *curr_depth;	/* pin: current fifo depth */
     hal_bit_t *empty;		/* pin: underrun flag */
+    hal_bit_t *enable;		/* pin: enable streaming */
     hal_s32_t underruns;	/* param: number of underruns */
 } streamer_t;
 
@@ -187,6 +188,11 @@ static void update(void *arg, long period)
 
     /* point at streamer struct in HAL shmem */
     str = arg;
+    /* are we enabled? */
+    if ( ! *(str->enable) ) {
+	/* no, done */
+	return;
+    }
     /* HAL pins are right after the streamer_t struct in HAL shmem */
     pptr = (pin_data_t *)(str+1);
     /* point at user/RT fifo in other shmem */
@@ -320,6 +326,13 @@ static int init_streamer(int num, fifo_t *tmp_fifo)
 	    "STREAMER: ERROR: 'empty' pin export failed\n");
 	return -EIO;
     }
+    retval = hal_pin_bit_newf(HAL_IN, &(str->enable), comp_id,
+	"streamer.%d.enable", num);
+    if (retval != 0 ) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "STREAMER: ERROR: 'enable' pin export failed\n");
+	return -EIO;
+    }
     retval = hal_pin_s32_newf(HAL_OUT, &(str->curr_depth), comp_id,
 	"streamer.%d.curr-depth", num);
     if (retval != 0 ) {
@@ -336,6 +349,7 @@ static int init_streamer(int num, fifo_t *tmp_fifo)
     }
     /* init the standard pins and params */
     *(str->empty) = 1;
+    *(str->enable) = 1;
     *(str->curr_depth) = 0;
     str->underruns = 0;
     /* HAL pins are right after the streamer_t struct in HAL shmem */

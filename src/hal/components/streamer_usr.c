@@ -62,12 +62,8 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
-//#include <sys/stat.h>
-//#include <sys/wait.h>
 #include <unistd.h>
-//#include <fcntl.h>
 #include <signal.h>
-//#include <errno.h>
 #include <time.h>
 
 #include "rtapi.h"		/* RTAPI realtime OS API */

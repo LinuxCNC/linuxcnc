@@ -83,6 +83,7 @@ typedef struct {
     fifo_t *fifo;		/* pointer to user/RT fifo */
     hal_s32_t *curr_depth;	/* pin: current fifo depth */
     hal_bit_t *full;		/* pin: overrun flag */
+    hal_bit_t *enable;		/* pin: enable sampling */
     hal_s32_t overruns;		/* param: number of overruns */
     hal_s32_t sample_num;	/* param: sample ID / timestamp */
 } sampler_t;
@@ -189,6 +190,11 @@ static void sample(void *arg, long period)
 
     /* point at sampler struct in HAL shmem */
     samp = arg;
+    /* are we enabled? */
+    if ( ! *(samp->enable) ) {
+	/* no, done */
+	return;
+    }
     /* HAL pins are right after the sampler_t struct in HAL shmem */
     pptr = (pin_data_t *)(samp+1);
     /* point at user/RT fifo in other shmem */
@@ -327,6 +333,13 @@ static int init_sampler(int num, fifo_t *tmp_fifo)
 	    "SAMPLER: ERROR: 'full' pin export failed\n");
 	return -EIO;
     }
+    retval = hal_pin_bit_newf(HAL_IN, &(str->enable), comp_id,
+	"sampler.%d.enable", num);
+    if (retval != 0 ) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "SAMPLER: ERROR: 'enable' pin export failed\n");
+	return -EIO;
+    }
     retval = hal_pin_s32_newf(HAL_OUT, &(str->curr_depth), comp_id,
 	"sampler.%d.curr-depth", num);
     if (retval != 0 ) {
@@ -350,6 +363,7 @@ static int init_sampler(int num, fifo_t *tmp_fifo)
     }
     /* init the standard pins and params */
     *(str->full) = 0;
+    *(str->enable) = 1;
     *(str->curr_depth) = 0;
     str->overruns = 0;
     str->sample_num = 0;
