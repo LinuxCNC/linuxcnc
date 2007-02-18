@@ -738,7 +738,7 @@ void draw_triggerline(int chan_num, int highlight) {
     double ypoffset = chan->position * disp->height;
     double yscale = disp->height / (-10.0 * chan->scale);
     double fp_level =
-        chan->scale * ((chan->position - trig->level) * 10) -
+        chan->scale * ((chan->position - trig->level) * 10) +
 	chan->vert_offset;
 
     int y1 = (fp_level-yfoffset) * yscale + ypoffset;
