@@ -1,12 +1,17 @@
 emc2 (1:2.1.1~alpha0) testing; urgency=low
 
+  [ Chris Radek ]
   * fix behavior of certain keys in the AXIS MDI entry field, particularly the
     numeric keypad arrows
   * improve unclear error messages about exceeding limits
   * change hal_joystick device to /dev/input/js0 which is standard on ubuntu
   * internationalization/translation fixes
 
- -- Chris Radek <chris@timeguy.com>  Mon, 12 Feb 2007 11:02:52 -0600
+  [ jepler ]
+  * fix problem running comp: ImportError: No module named yapps
+
+
+ -- jepler <jepler@sofa>  Sat, 17 Feb 2007 18:33:59 -0600
 
 emc2 (1:2.1.0) testing; urgency=low
 
