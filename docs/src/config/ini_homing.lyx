@@ -146,7 +146,10 @@ HOME_OFFSET
 
 If 'HOME_SEARCH_VEL' is non-zero, then EMC assumes that there is a home
  switch.
- It begins searching for the home switch by moving in the direction specified
+ It begins by checking whether the home switch is already tripped.
+ If so, it backs off the switch at HOME_SEARCH_VEL (the direction of the
+ back-off is opposite the sign of HOME_SEARCH_VEL).
+ Then it searches for the home switch by moving in the direction specified
  by the sign of 'HOME_SEARCH_VEL', at a speed determined by its absolute
  value.
  When the home switch is detected, the joint will stop as fast as possible,
