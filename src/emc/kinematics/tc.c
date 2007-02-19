@@ -52,11 +52,11 @@ PmCartesian tcGetEndingUnitVector(TC_STRUCT *tc) {
     if(tc->motion_type == TC_LINEAR) {
         pmCartCartSub(tc->coords.line.xyz.end.tran, tc->coords.line.xyz.start.tran, &v);
     } else {
-        PmPose startpoint;
+        PmPose endpoint;
         PmCartesian radius;
 
-        pmCirclePoint(&tc->coords.circle.xyz, tc->coords.circle.xyz.angle, &startpoint);
-        pmCartCartSub(startpoint.tran, tc->coords.circle.xyz.center, &radius);
+        pmCirclePoint(&tc->coords.circle.xyz, tc->coords.circle.xyz.angle, &endpoint);
+        pmCartCartSub(endpoint.tran, tc->coords.circle.xyz.center, &radius);
         pmCartCartCross(tc->coords.circle.xyz.normal, radius, &v);
     }
     pmCartUnit(v, &v);

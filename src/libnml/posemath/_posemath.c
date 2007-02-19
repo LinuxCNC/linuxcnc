@@ -1689,7 +1689,7 @@ int pmCircleInit(PmCircle * circle,
 }
 
 /*
-  pmCirclePoint() returns the vector to the point at the given angle along
+  pmCirclePoint() returns the point at the given angle along
   the circle. If the circle is a helix or spiral or combination, the
   point will include interpolation off the actual circle.
   */
