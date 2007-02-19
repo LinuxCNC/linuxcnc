@@ -42,6 +42,7 @@ DOC_SRCS := \
 	hal/drivers.lyx \
 	hal/general_ref.lyx \
 	hal/halshow.lyx \
+	hal/halmodule.lyx \
 	hal/intro.lyx \
 	hal/rtcomps.lyx \
 	hal/tools.lyx \

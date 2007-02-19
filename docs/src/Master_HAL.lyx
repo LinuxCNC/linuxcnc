@@ -147,6 +147,15 @@ preview false
 \end_inset 
 
 
+\layout Standard
+
+
+\begin_inset Include \include{hal/halmodule.lyx}
+preview false
+
+\end_inset 
+
+
 \layout Chapter
 \start_of_appendix 
 Legal Section

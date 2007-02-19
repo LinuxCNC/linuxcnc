@@ -480,6 +480,7 @@ In the upper-left corner of the program display is the coordinate display.
  To the right of the axis name, a limit symbol (
 \begin_inset Graphics
 	filename axis-limit.png
+	width 2ex
 
 \end_inset 
 
