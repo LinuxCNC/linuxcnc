@@ -1073,7 +1073,7 @@ else
 fi
 
 if test "x$HAVE_READLINE" = "xyes"; then
-    AC_DEFINE([HAVE_READLINE], [], [Define to 1 if you have the `readline' library (-lreadline) and required headers])
+    AC_DEFINE([HAVE_READLINE], [], [Define to 1 if you have the 'readline' library (-lreadline) and required headers])
 fi
 AC_SUBST([HAVE_READLINE])
 AC_SUBST([READLINE_LIBS])

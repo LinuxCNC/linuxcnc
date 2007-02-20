@@ -67,6 +67,9 @@
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
 
+/* Define to 1 if you have the `GL' library (-lGL). */
+#undef HAVE_LIBGL
+
 /* Define to 1 if you have the `intl' library (-lintl). */
 #undef HAVE_LIBINTL
 
@@ -75,9 +78,6 @@
 
 /* Define to 1 if you have the `ncurses' library (-lncurses). */
 #undef HAVE_LIBNCURSES
-
-/* Define to 1 if you have the `readline' library (-lreadline). */
-#undef HAVE_LIBREADLINE
 
 /* Define to 1 if you have the `Xaw' library (-lXaw). */
 #undef HAVE_LIBXAW
@@ -91,7 +91,7 @@
 /* Define to 1 if you have the <ncurses.h> header file. */
 #undef HAVE_NCURSES_H
 
-/* Define to 1 if you have the `readline' library (-lreadline) and required
+/* Define to 1 if you have the 'readline' library (-lreadline) and required
    headers */
 #undef HAVE_READLINE
 
