@@ -104,7 +104,7 @@ public:
  void error_text(int error_code, char *error_text,
                                 int max_size);
 
-    void Interp::setError(char *fmt, ...);
+ void setError(char *fmt, ...);
 
 // copy the name of the currently open file into the file_name array,
 // but stop at max_size if the name is longer
