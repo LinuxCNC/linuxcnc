@@ -36,6 +36,9 @@ halcmd \- manipulate the Enhanced Machine Controller HAL from the command line
 .PP
 .B halrun 
 [\fI-I\fR] [\fIHALCMD OPTIONS\fR]
+.PP
+.B halrun 
+[\fI-U\fR]
 .SH DESCRIPTION
 \fBhalcmd\fR is used to manipulate the HAL (Hardware Abstraction
 Layer) from the command line.  \fBhalcmd\fR can optionally read
@@ -80,6 +83,15 @@ name first, followed by all of the functions in the thread, in execution order. 
 are printed on a single line, with the type, value, and signal name first, followed by
 a list of pins connected to the signal, showing both the direction and the pin name.
 No prompt will be printed if both \fB-s\fR and \fB-f\fR are specified.
+.TP
+\fB-R\fR
+Release the HAL mutex.  This is useful for recovering when a HAL component has crashed
+while holding the HAL mutex.
+.TP
+\fB-U\fR
+Forcibly cause the realtime environment to exit.  It releases the HAL mutex,
+requests that all HAL components unload, and stops the realtime system.
+\fBhalrun\fR only.  \fB-U\fR must be the only commandline argument.
 .TP
 \fB\-v\fR
 display results of each command
