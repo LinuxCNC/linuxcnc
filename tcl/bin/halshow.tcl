@@ -25,43 +25,10 @@ exec $EMC2_EMCSH "$0" "$@"
 
 # Load the emc.tcl file, which defines variables for various useful paths
 source [file join [file dirname [info script]] .. emc.tcl]
+load [file join [file dirname [info script]] .. hal.so]
 
 package require BWidget
 
-#----------open channel to halcmd ----------
-
-proc openHALCMD {} {
-    global fid
-    set fid [open "|halcmd -skf" "r+"]
-    fconfigure $fid -buffering line -blocking on
-    gets $fid
-    fileevent $fid readable {getsHAL}
-}
-
-proc exHAL {argv} {
-    global fid chanflag returnstring
-    set chanflag rd
-    puts $fid "${argv}"
-    vwait chanflag
-    set tmp $returnstring
-    set returnstring ""
-    return $tmp
-}
-
-# getsHAL appends lines to returnstring until it receives a line with just 
-# a percent sign "%" on it 
-# Once the % is received, the global var chanflag is set to "wr"
-set returnstring ""
-proc getsHAL {} {
-    global fid chanflag returnstring
-    gets $fid tmp
-    if {$tmp != "\%"} {
-        append returnstring $tmp
-    } else {
-        set chanflag wr
-    }
-}
-openHALCMD
 #
 #----------end of open halcmd----------
 
@@ -200,7 +167,7 @@ proc listHAL {} {
     set i 0
     foreach node $searchnames {
         writeNode "$i root $node [lindex $nodenames $i] 1"
-        set ${node}str [exHAL "list $node" ]
+        set ${node}str [hal list $node]
         switch -- $node {
             pin {-}
             param {
@@ -497,7 +464,7 @@ proc showHAL {which} {
 
 proc showEx {what} {
     global showtext
-    set str [exHAL $what]
+    set str [eval hal $what]
     $showtext delete 1.0 end
     $showtext insert end $str
     refreshHAL
@@ -526,7 +493,7 @@ proc watchHAL {which} {
     set tmplist [split $which +]
     set vartype [lindex $tmplist 0]
     set varname [lindex $tmplist end]
-    set ret [exHAL "show $vartype $varname"]
+    set ret [hal show $vartype $varname]
     if {[lsearch $ret "bit"] != -1 } {
         $cisp create oval 20 [expr $i * 20 + 5] 35 [expr $i * 20 + 20] \
             -fill firebrick4 -tag oval$i
@@ -557,9 +524,9 @@ proc watchLoop {} {
     foreach var $which {
         scan $var {%i %s %s} cnum vartype varname
         if {$vartype == "sig" } {
-            set ret [lindex [exHAL "show $vartype $varname"] 1]
+            set ret [string trim [hal gets $varname]]
         } else {
-            set ret [lindex [exHAL "show $vartype $varname"] 3]
+            set ret [string trim [hal getp $varname]]
         }
         if {$ret == "TRUE"} {
             $cisp itemconfigure oval$cnum -fill yellow
@@ -571,7 +538,7 @@ proc watchLoop {} {
         }
     }
     if {$workmode == "watchhal"} {
-        after 1000 watchLoop
+        after 250 watchLoop
     } else {
         set watching 0
     }
