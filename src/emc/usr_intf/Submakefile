@@ -1,5 +1,10 @@
-EMCSHSRCS := emc/usr_intf/emcsh.cc
-EMCRSHSRCS := emc/usr_intf/emcrsh.cc
+EMCSHSRCS := emc/usr_intf/emcsh.cc \
+             emc/usr_intf/shcom.cc
+EMCRSHSRCS := emc/usr_intf/emcrsh.cc \
+              emc/usr_intf/shcom.cc
+EMCLCDSRCS := emc/usr_intf/emclcd.cc \
+              emc/usr_intf/shcom.cc \
+              emc/usr_intf/sockets.c
 IOSHSRCS := emc/usr_intf/iosh.cc \
 	emc/motion/usrmotintf.cc \
 	emc/motion/emcmotglb.c \
@@ -20,7 +25,7 @@ XEMCSRCS := emc/usr_intf/xemc.cc
 endif
 
 TCLSRCS := emc/usr_intf/emcsh.cc emc/usr_intf/iosh.cc
-USERSRCS += $(EMCSHSRCS) $(EMCRSHSRCS) $(IOSHSRCS) $(USRMOTSRCS) $(HALUISRCS) $(KEYSTICKSRCS)
+USERSRCS += $(EMCSHSRCS) $(EMCRSHSRCS) $(EMCLCDSRCS) $(IOSHSRCS) $(USRMOTSRCS) $(HALUISRCS) $(KEYSTICKSRCS)
 
 ifeq "$(HAVE_NCURSES)" "yes"
 USERSRCS += $(KEYSTICKSRCS)
@@ -41,6 +46,12 @@ TARGETS += ../bin/emcsh
 	$(ECHO) Linking $(notdir $@)
 	@$(CXX) $(LDFLAGS) -o $@ $(ULFLAGS) $^ -lpthread
 TARGETS += ../bin/emcrsh
+
+../bin/emclcd: $(call TOOBJS, $(EMCLCDSRCS)) ../lib/libemc.a ../lib/libnml.so
+	$(ECHO) Linking $(notdir $@)
+	@$(CXX) $(LDFLAGS) -o $@ $(ULFLAGS) $^
+TARGETS += ../bin/emclcd
+
 
 ../bin/iosh: $(call TOOBJS, $(IOSHSRCS)) ../lib/libemc.a ../lib/libnml.so ../lib/libemchal.so
 	$(ECHO) Linking $(notdir $@)
