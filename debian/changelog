@@ -20,9 +20,10 @@ emc2 (2.2.0pre) testing; urgency=low
   * MDI history manipulation and save in AXIS
   * home to index on STG1
   * number of samples in halscope can be specified at runtime
+  * add 'source' command to halcmd
+  * add tcl interface to halcmd commands (tcl/hal.so)
 
-
- -- jepler <jepler@sofa>  Sat, 17 Feb 2007 17:24:14 -0600
+ -- jepler <jepler@unpythonic.net>  Tue, 20 Feb 2007 14:18:55 -0600
 
 *** here, insert 2.1.x changes before releasing 2.2.0 ***
 

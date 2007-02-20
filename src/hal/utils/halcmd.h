@@ -39,14 +39,20 @@
 
 #ifndef HALCMD_H
 #define HALCMD_H
+#include <stdio.h>
 #include "hal.h"
 extern int halcmd_startup();
 extern void halcmd_shutdown();
-extern int parse_cmd(char * tokens[]);
+extern int halcmd_parse_cmd(char * tokens[]);
+extern int halcmd_parse_line(char * line);
 extern int halcmd_startup(void);
 extern void halcmd_shutdown(void);
-
 extern int prompt_mode, errorcount, halcmd_done;
+extern int halcmd_preprocess_line ( char *line, char **tokens);
+
+void halcmd_output(const char *format, ...);
+
+extern FILE *halcmd_inifile;
 
 #define MAX_TOK 20
 #define MAX_CMD_LEN 1024

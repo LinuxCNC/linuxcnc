@@ -48,6 +48,11 @@
 
 #include "config.h"
 
+#ifndef NO_INI
+#include "inifile.hh"		/* iniFind() from libnml */
+FILE *halcmd_inifile = NULL;
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
@@ -167,6 +172,7 @@ struct command commands[] = {
     {"setp",    FUNCT(do_setp_cmd),    A_TWO },
     {"sets",    FUNCT(do_sets_cmd),    A_TWO },
     {"show",    FUNCT(do_show_cmd),    A_ONE | A_OPTIONAL | A_PLUS},
+    {"source",  FUNCT(do_source_cmd),  A_ONE},
     {"start",   FUNCT(do_start_cmd),   A_ZERO},
     {"status",  FUNCT(do_status_cmd),  A_ONE},
     {"stop",    FUNCT(do_stop_cmd),    A_ZERO},
@@ -400,7 +406,7 @@ static int parse_cmd1(char **argv) {
     }
 }
 
-int parse_cmd(char *tokens[])
+int halcmd_parse_cmd(char *tokens[])
 {
     int retval;
     static int first_time = 1;
@@ -416,6 +422,388 @@ int parse_cmd(char *tokens[])
     hal_flag = 0;
     return retval;
 }
+
+/* tokenize() sets an array of pointers to each non-whitespace
+   token in the input line.  It expects that variable substitution
+   and comment removal have already been done, and that any
+   trailing newline has been removed.
+*/
+static int tokenize(char *cmd_buf, char **tokens)
+{
+    enum { BETWEEN_TOKENS,
+           IN_TOKEN,
+	   SINGLE_QUOTE,
+	   DOUBLE_QUOTE,
+	   END_OF_LINE } state;
+    char *cp1;
+    int m;
+    /* convert a line of text into individual tokens */
+    m = 0;
+    cp1 = cmd_buf;
+    state = BETWEEN_TOKENS;
+    while ( m < MAX_TOK ) {
+	switch ( state ) {
+	case BETWEEN_TOKENS:
+	    if ( *cp1 == '\0' ) {
+		/* end of the line */
+		state = END_OF_LINE;
+	    } else if ( isspace(*cp1) ) {
+		/* whitespace, skip it */
+		cp1++;
+	    } else if ( *cp1 == '\'' ) {
+		/* start of a quoted string and a new token */
+		tokens[m] = cp1++;
+		state = SINGLE_QUOTE;
+	    } else if ( *cp1 == '\"' ) {
+		/* start of a quoted string and a new token */
+		tokens[m] = cp1++;
+		state = DOUBLE_QUOTE;
+	    } else {
+		/* first char of a token */
+		tokens[m] = cp1++;
+		state = IN_TOKEN;
+	    }
+	    break;
+	case IN_TOKEN:
+	    if ( *cp1 == '\0' ) {
+		/* end of the line */
+		m++;
+		state = END_OF_LINE;
+	    } else if ( *cp1 == '\'' ) {
+		/* start of a quoted string */
+		cp1++;
+		state = SINGLE_QUOTE;
+	    } else if ( *cp1 == '\"' ) {
+		/* start of a quoted string */
+		cp1++;
+		state = DOUBLE_QUOTE;
+	    } else if ( isspace(*cp1) ) {
+		/* end of the current token */
+		*cp1++ = '\0';
+		m++;
+		state = BETWEEN_TOKENS;
+	    } else {
+		/* ordinary character */
+		cp1++;
+	    }
+	    break;
+	case SINGLE_QUOTE:
+	    if ( *cp1 == '\0' ) {
+		/* end of the line */
+		m++;
+		state = END_OF_LINE;
+	    } else if ( *cp1 == '\'' ) {
+		/* end of quoted string */
+		cp1++;
+		state = IN_TOKEN;
+	    } else {
+		/* ordinary character */
+		cp1++;
+	    }
+	    break;
+	case DOUBLE_QUOTE:
+	    if ( *cp1 == '\0' ) {
+		/* end of the line */
+		m++;
+		state = END_OF_LINE;
+	    } else if ( *cp1 == '\"' ) {
+		/* end of quoted string */
+		cp1++;
+		state = IN_TOKEN;
+	    } else {
+		/* ordinary character, copy to buffer */
+		cp1++;
+	    }
+	    break;
+	case END_OF_LINE:
+	    tokens[m++] = cp1;
+	    break;
+	default:
+	    /* should never get here */
+	    state = BETWEEN_TOKENS;
+	}
+    }
+    if ( state != END_OF_LINE ) {
+	return -1;
+    }
+    return 0;
+}
+
+/* strip_comments() removes any comment in the string.  It also
+   removes any trailing newline.  Single- or double-quoted strings
+   are respected - a '#' inside a quoted string does not indicate
+   a comment.
+*/
+static int strip_comments ( char *buf )
+{
+    enum { NORMAL,
+	   SINGLE_QUOTE,
+	   DOUBLE_QUOTE
+	 } state;
+    char *cp1;
+
+    cp1 = buf;
+    state = NORMAL;
+    while ( 1 ) {
+	switch ( state ) {
+	case NORMAL:
+	    if (( *cp1 == '#' ) || ( *cp1 == '\n' ) || ( *cp1 == '\0' )) {
+		/* end of the line */
+		*cp1 = '\0';
+		return 0;
+	    } else if ( *cp1 == '\'' ) {
+		/* start of a quoted string */
+		cp1++;
+		state = SINGLE_QUOTE;
+	    } else if ( *cp1 == '\"' ) {
+		/* start of a quoted string */
+		cp1++;
+		state = DOUBLE_QUOTE;
+	    } else {
+		/* normal character */
+		cp1++;
+	    }
+	    break;
+	case SINGLE_QUOTE:
+	    if (( *cp1 == '\n' ) || ( *cp1 == '\0' )) {
+		/* end of the line, unterminated quoted string */
+		*cp1 = '\0';
+		return -1;
+	    } else if ( *cp1 == '\'' ) {
+		/* end of quoted string */
+		cp1++;
+		state = NORMAL;
+	    } else {
+		/* ordinary character */
+		cp1++;
+	    }
+	    break;
+	case DOUBLE_QUOTE:
+	    if (( *cp1 == '\n' ) || ( *cp1 == '\0' )) {
+		/* end of the line, unterminated quoted string */
+		*cp1 = '\0';
+		return -1;
+	    } else if ( *cp1 == '\"' ) {
+		/* end of quoted string */
+		cp1++;
+		state = NORMAL;
+	    } else {
+		/* ordinary character */
+		cp1++;
+	    }
+	    break;
+	default:
+	    /* should never get here */
+	    state = NORMAL;
+	}
+    }
+}
+
+/* strlimcpy:
+   a wrapper for strncpy which has two improvements:
+   1) takes two variables for limits, and uses the lower of the two for the limit
+   2) subtracts the number of characters copied from the second limit
+
+   This allows one to keep track of remaining buffer size and use the correct limits
+   simply
+
+   Parameters are:
+   pointer to destination string pointer
+   source string pointer
+   source length to copy
+   pointer to remaining destination space
+
+   return value:
+   -1 if the copy was limited by destination space remaining
+   0 otherwise
+   Side Effects:
+	the value of *destspace will be reduced by the copied length
+	The value of *dest will will be advanced by the copied length
+
+*/
+static int strlimcpy(char **dest, char *src, int srclen, int *destspace) {
+    if (*destspace < srclen) {
+	return -1;
+    } else {
+	strncpy(*dest, src, srclen);
+	(*dest)[srclen] = '\0';
+	srclen = strlen(*dest);		/* use the actual number of bytes copied */
+	*destspace -= srclen;
+	*dest += srclen;
+    }
+    return 0;
+}
+
+/* replace_vars:
+   replaces environment and ini var references in source_str.
+   This routine does string replacement only
+   return value is 0 on success (ie, no variable lookups failed)
+   The source string is not modified
+
+   In case of an error, dest_str will contain everything that was
+   successfully replaced, but will not contain anything past the
+   var that caused the error.
+
+   environment vars are in the following formats:
+   $envvar<whitespace>
+   $(envvar)<any char>
+
+   ini vars are in the following formats:
+   [SECTION]VAR<whitespace>
+   [SECTION](VAR)<any char>
+   
+   return values:
+   0	success
+   -1	missing close parenthesis
+   -2	null variable name (either environment or ini varname)
+   -3	missing close square bracket
+   -4	environment variable not found
+   -5	ini variable not found
+   -6	replacement would overflow output buffer
+   -7	var name exceeds limit
+*/
+static int replace_vars(char *source_str, char *dest_str, int max_chars)
+{
+    int retval = 0, loopcount=0;
+    int next_delim, remaining, buf_space;
+    char *replacement, sec[128], var[128];
+    char *sp=source_str, *dp=dest_str, *secP, *varP;
+    const char 
+	* words = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.-_";
+
+    dest_str[max_chars-1] = '\0';	/* make sure there's a terminator */
+    *dest_str='\0';			/* return null string if input is null string */
+    buf_space = max_chars-1;		/* leave space for terminating null */
+    while ((remaining = strlen(sp)) > 0) {
+	loopcount++;
+	next_delim=strcspn(sp, "$[");
+	if (strlimcpy(&dp, sp, next_delim, &buf_space) < 0)
+	    return -6;
+	sp += next_delim;
+	if (next_delim < remaining) {		/* a new delimiter was found */
+	    switch (*sp++) {	/* this is the found delimiter, since sp was incremented */
+	    case '$':
+		varP = sp;
+		if (*sp=='(') {		/* look for a parenthesized var */
+		    varP=++sp;
+		    next_delim=strcspn(varP, ")");
+		    if (next_delim >= strlen(varP))	/* error - no matching parens */
+			return -1;
+		    sp++;
+		} else next_delim = strspn(varP, words);
+		if (next_delim == 0)		/* null var name */
+		    return -2;
+		if (next_delim > 127)		/* var name too long */
+		    return -7;
+		strncpy(var, varP, next_delim);
+		var[next_delim]='\0';
+		replacement = getenv(var);
+		if (replacement == NULL)
+		    return -4;
+		if (strlimcpy(&dp, replacement, strlen(replacement), &buf_space) <0)
+		    return -6;
+		sp += next_delim;
+		break;
+	    case '[':
+		secP = sp;
+		next_delim = strcspn(secP, "]");
+		if (next_delim >= strlen(secP))	/* error - no matching square bracket */
+		    return -3;
+		if (next_delim > 127)		/* section name too long */
+		    return -7;
+		strncpy(sec, secP, next_delim);
+		sec[next_delim]='\0';
+		sp += next_delim+1;
+		varP = sp;		/* should point past the ']' now */
+		if (*sp=='(') {		/* look for a parenthesized var */
+		    varP=++sp;
+		    next_delim=strcspn(varP, ")");
+		    if (next_delim > strlen(varP))	/* error - no matching parens */
+			return -1;
+		    sp++;
+		} else next_delim = strspn(varP, words);
+		if (next_delim == 0)
+		    return -2;
+		if (next_delim > 127)		/* var name too long */
+		    return -7;
+		strncpy(var, varP, next_delim);
+		var[next_delim]='\0';
+		if ( strlen(sec) > 0 ) {
+		/* get value from ini file */
+		/* cast to char ptr, we are discarding the 'const' */
+		    replacement = (char *) iniFind(halcmd_inifile, var, sec);
+		} else {
+		/* no section specified */
+		    replacement = (char *) iniFind(halcmd_inifile, var, NULL);
+		}
+		if (replacement==NULL)
+		    return -5;
+		if (strlimcpy(&dp, replacement, strlen(replacement), &buf_space) < 0)
+		    return -6;
+		sp += next_delim;
+		break;
+	    }
+	}
+    }
+    return retval;
+}
+
+
+static char *replace_errors[] = {
+	"Missing close parenthesis",
+	"Zero length variable name",
+	"Missing close square bracket",
+	"Environment variable not found",
+	"Ini variable not found",
+	"Replacement would overflow output buffer",
+	"Variable name too long",
+};
+
+
+int halcmd_preprocess_line ( char *line, char **tokens )
+{
+    int retval;
+    static char cmd_buf[2*MAX_CMD_LEN];
+
+    /* strip comments and trailing newline (if any) */
+    retval = strip_comments(line);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL:%d: unterminated quoted string\n", linenumber);
+	return -1;
+    }
+    /* copy to cmd_buf while doing variable replacements */
+    retval = replace_vars(line, cmd_buf, sizeof(cmd_buf)-2);
+    if (retval != 0) {
+	if ((retval < 0) && (retval >= -7)) {  /* print better replacement errors */
+		rtapi_print_msg(RTAPI_MSG_ERR,
+		    "HAL:%d: %s.\n", linenumber, replace_errors[(-retval) -1]);
+	} else {
+		rtapi_print_msg(RTAPI_MSG_ERR,
+		    "HAL:%d: unknown variable replacement error\n", linenumber);
+	}
+	return -2;
+    }
+    /* split cmd_buff into tokens */
+    retval = tokenize(cmd_buf, tokens);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL:%d: too many tokens on line\n", linenumber);
+	return -3;
+    }
+    /* tokens[] contains MAX_TOK+1 elements so there is always
+       at least one empty one at the end... make it empty now */
+    tokens[MAX_TOK] = "";
+    return 0;
+}
+
+int halcmd_parse_line(char *line) {
+    char *tokens[MAX_TOK+1];
+    int result = halcmd_preprocess_line(line, tokens);
+    if(result < 0) return result;
+    return halcmd_parse_cmd(tokens);
+}
+
 
 /* vim:sts=4:sw=4:et
  */
