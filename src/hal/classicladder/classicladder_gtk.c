@@ -1092,7 +1092,6 @@ void UpdateAllLabelsBoolsVars( )
 
 void quit_appli()
 {
-	InfosGene->LadderState = STATE_LOADING;
 #ifdef HAL_SUPPORT
         hal_exit(compId);
 #else
