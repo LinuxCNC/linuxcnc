@@ -308,6 +308,7 @@ int main( int   argc, char *argv[] )
                     InitAllLadderDatas( TRUE );
                     InitTempDir( );
                     LoadProjectFiles( LadderDirectory );
+		    InfosGene->LadderState = STATE_RUN;
 		    ClassicLadderFreeAll();
                     hal_exit(compId);
                     return 0;
