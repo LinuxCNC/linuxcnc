@@ -78,7 +78,6 @@ int CyclicThreadRunning = 0;
 void HandlerSignalInterrupt( int signal_id )
 {
 	printf("End of application asked\n");
-	InfosGene->LadderState = STATE_LOADING;
 #ifdef HAL_SUPPORT
 	hal_exit(compId);
 #else
