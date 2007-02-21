@@ -32,6 +32,12 @@ proc emc::image_search i {
     error "image $i is not available"
 }
 
+# Arrange to load hal.so when the 'hal' command is requested
+proc hal {args} {
+    load $::emc::TCL_DIR/hal.so
+    eval hal $args
+}
+
 # Internationalisation (i18n)
 # in order to use i18n, all the strings will be called [msgcat::mc "string-foo"]
 # instead of "string-foo".

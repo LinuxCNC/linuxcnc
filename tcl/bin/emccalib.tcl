@@ -156,28 +156,24 @@ for {set i $startline} {$i < $endline} {incr i} {
     }
 }
 
-proc halcmd_getp {name} {
-    exec halcmd -s getp $name
-}
-
 proc makeIniTune {} {
     global axisentry top initext sectionarray thisconfigdir haltext
     global numaxes ininamearray commandarray thisinifile halfilelist
+    global af
 
     for {set j 0} {$j<$numaxes} {incr j} {
-        global af$j
-        set af$j [$top insert [expr $j+3] page$j \
-        -text [msgcat::mc "Tune %d" $j]  -raisecmd "selectAxis $j" ]
-    }
- 
-    # label display columns       
-    for {set j 0} {$j < $numaxes} {incr j} {
-        set col0 [label [set af$j].collabel0 -text [msgcat::mc "INI Name"]]
-        set col1 [label [set af$j].collabel1 -text [msgcat::mc "HAL's Value"]]
-        set col2 [label [set af$j].space -text "   "]
-        set col3 [label [set af$j].collabel3 -text [msgcat::mc "Next Value"]]
+        set af($j) [$top insert [expr $j+3] page$j \
+            -text [msgcat::mc "Tune %d" $j]  -raisecmd "selectAxis $j" ]
+        puts "af: [array get af]"
+        set col0 [label $af($j).collabel0 -text [msgcat::mc "INI Name"]]
+        set col1 [label $af($j).collabel1 -text [msgcat::mc "HAL's Value"]]
+        set col2 [label $af($j).space -text "   "]
+        set col3 [label $af($j).collabel3 -text [msgcat::mc "Next Value"]]
         grid $col0 $col1 $col2 $col3 -ipady 5
+        grid rowconfigure $af($j) 9999 -weight 1
     }
+
+    puts "af: [array get af]"
 
     foreach fname $halfilelist {
         $haltext config -state normal
@@ -205,16 +201,16 @@ proc makeIniTune {} {
                         set thisininame [string trimright [lindex [split $tmpstring "\]" ] end ]]
                         set lowername "[string tolower $thisininame]"
                         set thishalcommand [lindex $tmpstring 1]
-			set tmpval [halcmd_getp $thishalcommand]
+			set tmpval [string trim [hal getp $thishalcommand]]
                         global axis$j-$lowername axis$j-$lowername-next
                         set axis$j-$lowername $tmpval
                         set axis$j-$lowername-next $tmpval
-                        if { [catch { set thisname [label [set af$j].label-$j-$lowername \
+                        if { [catch { set thisname [label $af($j).label-$j-$lowername \
                             -text "$thisininame:  " -width 20 -anchor e] } ] } {
                         } else {
-                            set thisval [label [set af$j].entry-$lowername -width 8 \
+                            set thisval [label $af($j).entry-$lowername -width 8 \
                               -textvariable axis$j-$lowername -anchor e -foreg firebrick4 ]
-                            set thisentry [entry [set af$j].next-$lowername -width 8 \
+                            set thisentry [entry $af($j).next-$lowername -width 8 \
                               -width 12 -textvariable axis$j-$lowername-next ]
                             grid $thisname $thisval x $thisentry
                         }
@@ -230,7 +226,7 @@ proc makeIniTune {} {
 
     # build the buttons to control axis variables.
     for {set j 0} {$j<$numaxes } {incr j} {
-        set bframe [frame [set af$j].buttons]
+        set bframe [frame $af($j).buttons]
         grid configure $bframe -columnspan 4 -sticky nsew 
         set tmptest [button $bframe.test -text [msgcat::mc "Test"] \
             -command {iniTuneButtonpress test}]
@@ -283,8 +279,8 @@ proc iniTuneButtonpress {which} {
 proc changeIni {how } {
     global axisentry sectionarray ininamearray commandarray
     global numaxes main initext
+    global af
     for {set i 0} {$i<$numaxes} {incr i} {
-        global af$i
     }
     switch -- $how {
         cancel {-}
@@ -303,10 +299,10 @@ proc changeIni {how } {
                 # get the values
                 set oldval [set $var]
                 set newval [set $var-next]
-                # get the halcmd string
+                # get the parameter name string
                 set tmpcmd [lindex $varcommands $listnum]
-                # use halcmd to set new parameter value in hal
-                set thisret [exec halcmd setp $tmpcmd $newval]
+                # set new parameter value in hal
+                set thisret [hal setp $tmpcmd $newval]
                 # see if we need to swap the new and old control values
                 if {[lsearch -exact $swapvars $thisvar] < 0} {
                     # set the current value for display
@@ -337,8 +333,7 @@ proc changeIni {how } {
                 set cmds [lindex [array get commandarray $j] 1]
                 set k 0
                 foreach cmd $cmds {
-                    set tmpval [expr [lindex [split \
-                        [exec halcmd -s show param $cmd] " "] 3]]
+                    set tmpval [string trim [exec hal getp $cmd]]
                     set oldval [lindex $oldvals $k]
                     if {$tmpval != $oldval} {
                         set answer [tk_messageBox \
@@ -364,6 +359,7 @@ proc saveIni {which} {
     global HALCMD thisconfigdir thisinifile
     global sectionarray ininamearray commandarray HALCMD
     global numaxes initext sectionlist
+    global af
     
     if {![file writable $thisinifile]} {
         tk_messageBox -type ok -message [msgcat::mc "Not permitted to save here.\n\n \
@@ -372,9 +368,6 @@ proc saveIni {which} {
     }
     switch -- $which {
         tune {
-            for {set i 0} {$i<$numaxes} {incr i} {
-                global af$i
-            }
             for {set i 0} {$i<$numaxes} {incr i} {
             set varnames [lindex [array get ininamearray $i] end]
                 set upvarnames [string toupper $varnames]
@@ -396,8 +389,7 @@ proc saveIni {which} {
                             if {$tmpindx != -1} {
                                 set cmd [lindex $varcommands $tmpindx]
                                 $initext mark set insert $ind.0
-                                set newval [expr [lindex [split \
-                                    [exec halcmd -s show param $cmd] " "] 3]]
+                                set newval [string trim [hal getp $cmd]]
                                 set tmptest [string first "e" $newval]
                                 if {[string first "e" $newval] > 1} {
                                     set newval [format %f $newval]
