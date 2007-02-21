@@ -18,6 +18,14 @@ TARGETS += ../tcl/hal.so
 	$(CXX) $(LDFLAGS) -o $@ $^ $(READLINE_LIBS)
 TARGETS += ../bin/halcmd
 
+HALRMTSRCS := hal/utils/halrmt.c
+USERSRCS += $(HALRMTSRCS)
+
+../bin/halrmt: $(call TOOBJS, $(HALRMTSRCS)) ../lib/libemc.a ../lib/libnml.so ../lib/libemchal.so $(READLINE_LIBS)
+	$(ECHO) Linking $(notdir $@)
+	@$(CXX) $(LDFLAGS) -o $@ $^ -lpthread
+TARGETS += ../bin/halrmt
+
 ifneq ($(GTK_VERSION),)
 HALMETERSRCS := \
     hal/utils/meter.c \
