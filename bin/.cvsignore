@@ -4,6 +4,7 @@ classicladder
 comp
 debuglevel
 emc_module_helper
+emclcd
 emcrsh
 emcsh
 emcsvr
