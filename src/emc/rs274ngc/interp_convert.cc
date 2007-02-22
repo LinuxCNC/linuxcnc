@@ -2649,8 +2649,59 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
   return INTERP_OK;
 }
 
-int Interp::convert_threading_cycle(block_pointer block, setup_pointer settings,
-        double end_x, double end_y, double end_z) {
+#define AABBCC settings->AA_current, settings->BB_current, settings->CC_current
+
+// make one threading pass.  only called from convert_threading_cycle.
+static void 
+threading_pass(setup_pointer settings,
+	       int boring, double safe_x, double depth, double end_depth, 
+	       double start_y, double start_z, double zoff, double taper_dist,
+	       int entry_taper, int exit_taper, double taper_pitch, 
+	       double pitch, double full_threadheight, double target_z) {
+    STRAIGHT_TRAVERSE(boring?
+		      safe_x + depth - end_depth:
+		      safe_x - depth + end_depth,
+		      start_y, start_z - zoff, AABBCC); //back
+    if(taper_dist && entry_taper) {
+	DISABLE_FEED_OVERRIDE();
+	START_SPEED_FEED_SYNCH(taper_pitch);
+	STRAIGHT_FEED(boring? 
+		      safe_x + depth - full_threadheight: 
+		      safe_x - depth + full_threadheight,
+		      start_y, start_z - zoff, AABBCC); //in
+	STRAIGHT_FEED(boring? safe_x + depth: safe_x - depth, //angled in
+		      start_y, start_z - zoff - taper_dist, AABBCC);
+	START_SPEED_FEED_SYNCH(pitch);
+    } else {
+	STRAIGHT_TRAVERSE(boring? safe_x + depth: safe_x - depth, 
+			  start_y, start_z - zoff, AABBCC); //in
+	DISABLE_FEED_OVERRIDE();
+	START_SPEED_FEED_SYNCH(pitch);
+    }
+        
+    if(taper_dist && exit_taper) {
+	STRAIGHT_FEED(boring? safe_x + depth: safe_x - depth,  //over
+		      start_y, target_z - zoff + taper_dist, AABBCC);
+	START_SPEED_FEED_SYNCH(taper_pitch);
+	STRAIGHT_FEED(boring? 
+		      safe_x + depth - full_threadheight: 
+		      safe_x - depth + full_threadheight, 
+		      start_y, target_z - zoff, AABBCC); //angled out
+    } else {
+	STRAIGHT_FEED(boring? safe_x + depth: safe_x - depth, 
+		      start_y, target_z - zoff, AABBCC); //over
+    }
+    STOP_SPEED_FEED_SYNCH();
+    STRAIGHT_TRAVERSE(boring? 
+		      safe_x + depth - end_depth:
+		      safe_x - depth + end_depth,
+		      start_y, target_z - zoff, AABBCC); //out
+    ENABLE_FEED_OVERRIDE();
+}
+
+int Interp::convert_threading_cycle(block_pointer block, 
+				    setup_pointer settings,
+				    double end_x, double end_y, double end_z) {
     double start_x = settings->current_x;
     double start_y = settings->current_y;
     double start_z = settings->current_z;
@@ -2681,7 +2732,8 @@ int Interp::convert_threading_cycle(block_pointer block, setup_pointer settings,
 
     double taper_dist = block->e_flag? block->e_number: 0.0;
     if(taper_dist < 0.0) taper_dist = 0.0;
-    double taper_pitch = taper_dist > 0.0? pitch * hypot(taper_dist, full_threadheight)/taper_dist: pitch;
+    double taper_pitch = taper_dist > 0.0? 
+	pitch * hypot(taper_dist, full_threadheight)/taper_dist: pitch;
 
     if(end_z > start_z) taper_dist = -taper_dist;
 
@@ -2696,46 +2748,12 @@ int Interp::convert_threading_cycle(block_pointer block, setup_pointer settings,
 
     double target_z = end_z + fabs(block->k_number) * tan(compound_angle);
 
-#define AABBCC settings->AA_current, settings->BB_current, settings->CC_current
-
     depth = start_depth;
     zoff = (depth - full_dia_depth) * tan(compound_angle);
     while (depth < end_depth) {
-	STRAIGHT_TRAVERSE(boring?
-			  safe_x + depth - end_depth:
-			  safe_x - depth + end_depth,
-			  start_y, start_z - zoff, AABBCC); //back
-        if(taper_dist && entry_taper) {
-            DISABLE_FEED_OVERRIDE();
-            START_SPEED_FEED_SYNCH(taper_pitch);
-            STRAIGHT_FEED(boring? safe_x + depth - full_threadheight: safe_x - depth + full_threadheight,
-                          start_y, start_z - zoff, AABBCC); //in
-            STRAIGHT_FEED(boring? safe_x + depth: safe_x - depth, 
-                          start_y, start_z - zoff - taper_dist, AABBCC); //angled in
-            START_SPEED_FEED_SYNCH(pitch);
-        } else {
-            STRAIGHT_TRAVERSE(boring? safe_x + depth: safe_x - depth, 
-                              start_y, start_z - zoff, AABBCC); //in
-            DISABLE_FEED_OVERRIDE();
-            START_SPEED_FEED_SYNCH(pitch);
-        }
-        
-        if(taper_dist && exit_taper) { 
-            STRAIGHT_FEED(boring? safe_x + depth: safe_x - depth, 
-                          start_y, target_z - zoff + taper_dist, AABBCC); //over most of the way
-            START_SPEED_FEED_SYNCH(taper_pitch);
-            STRAIGHT_FEED(boring? safe_x + depth - full_threadheight: safe_x - depth + full_threadheight, 
-                          start_y, target_z - zoff, AABBCC); //angled out
-        } else {
-            STRAIGHT_FEED(boring? safe_x + depth: safe_x - depth, 
-                          start_y, target_z - zoff, AABBCC); //over
-        }
-        STOP_SPEED_FEED_SYNCH();
-        STRAIGHT_TRAVERSE(boring? 
-			  safe_x + depth - end_depth:
-			  safe_x - depth + end_depth,
-			  start_y, target_z - zoff, AABBCC); //out
-        ENABLE_FEED_OVERRIDE();
+	threading_pass(settings, boring, safe_x, depth, end_depth, start_y, 
+		       start_z, zoff, taper_dist, entry_taper, exit_taper, 
+		       taper_pitch, pitch, full_threadheight, target_z);
         depth = full_dia_depth + cut_increment * pow(++pass, 1.0/degression);
         zoff = (depth - full_dia_depth) * tan(compound_angle);
     } 
@@ -2744,41 +2762,9 @@ int Interp::convert_threading_cycle(block_pointer block, setup_pointer settings,
     zoff = (depth - full_dia_depth) * tan(compound_angle);
     // cut at least once -- more if spring cuts.
     for(int i = 0; i<spring_cuts+1; i++) {
-	STRAIGHT_TRAVERSE(boring? 
-			  safe_x + depth - end_depth:
-			  safe_x - depth + end_depth,
-			  start_y, start_z - zoff, AABBCC); //back
-        if(taper_dist && entry_taper) { 
-            DISABLE_FEED_OVERRIDE();
-            START_SPEED_FEED_SYNCH(taper_pitch);
-            STRAIGHT_FEED(boring? safe_x + depth - full_threadheight: safe_x - depth + full_threadheight, 
-                          start_y, start_z - zoff, AABBCC); //in
-            STRAIGHT_FEED(boring? safe_x + depth: safe_x - depth, 
-                          start_y, start_z - zoff - taper_dist, AABBCC); //angled in
-            START_SPEED_FEED_SYNCH(pitch);
-        } else {
-            STRAIGHT_TRAVERSE(boring? safe_x + depth: safe_x - depth, 
-                              start_y, start_z - zoff, AABBCC); //in
-            DISABLE_FEED_OVERRIDE();
-            START_SPEED_FEED_SYNCH(pitch);
-        }
-        
-        if(taper_dist && exit_taper) {
-            STRAIGHT_FEED(boring? safe_x + depth: safe_x - depth, 
-                          start_y, target_z - zoff + taper_dist, AABBCC); //over most of the way
-            START_SPEED_FEED_SYNCH(taper_pitch);
-            STRAIGHT_FEED(boring? safe_x + depth - full_threadheight: safe_x - depth + full_threadheight, 
-                          start_y, target_z - zoff, AABBCC); //angled out
-        } else {
-            STRAIGHT_FEED(boring? safe_x + depth: safe_x - depth, 
-                          start_y, target_z - zoff, AABBCC); //over
-        }
-        STOP_SPEED_FEED_SYNCH();
-        STRAIGHT_TRAVERSE(boring? 
-			  safe_x + depth - end_depth:
-			  safe_x - depth + end_depth,
-			  start_y, target_z - zoff, AABBCC); //out
-        ENABLE_FEED_OVERRIDE();
+	threading_pass(settings, boring, safe_x, depth, end_depth, start_y, 
+		       start_z, zoff, taper_dist, entry_taper, exit_taper, 
+		       taper_pitch, pitch, full_threadheight, target_z);
     } 
     STRAIGHT_TRAVERSE(end_x, end_y, end_z, AABBCC);
     settings->current_x = end_x;
