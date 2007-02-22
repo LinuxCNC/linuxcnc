@@ -884,10 +884,11 @@ static void signon(void)
 */
 
 static const char FileNameInfo[] = "\n"
-"filename.ext specifies the name of the configuration file to be loaded." ;
+"'filename.ext' specifies the name of the configuration file to be loaded." ;
 
 static const char CardInfo[] = "\n"
-"card is the number of the PCI card.  (For use with multiple 5I20 cards.)" ;
+"'card' is the number of the PCI card.  (For use with multiple cards.\n"
+"    If not given, prints the config to stdout in .h file format.)" ;
 
 static const char PurposeInfo[] = "\n"
 "Purpose: 5I20 configuration upload." ;
