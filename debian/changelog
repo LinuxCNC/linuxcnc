@@ -1,23 +1,18 @@
 emc2 (1:2.1.1~alpha0) testing; urgency=low
 
-  [ Chris Radek ]
   * fix behavior of certain keys in the AXIS MDI entry field, particularly the
     numeric keypad arrows
   * improve unclear error messages about exceeding limits
   * change hal_joystick device to /dev/input/js0 which is standard on ubuntu
   * internationalization/translation fixes
-
-  [ jepler ]
   * fix problem running comp: ImportError: No module named yapps
-
-  [ Chris Radek ]
   * fix bug that left the spindle on after abort
   * angled entry and exit for the canned threading cycle: see g76.ngc
   * fix halscope's trigger level when using an offset
   * m5i20 driver fix: hal bits should be on for any nonzero value, not just 1
   * remove outdated comments from several of the sample configurations
 
- -- Chris Radek <chris@timeguy.com>  Thu, 22 Feb 2007 14:46:55 -0600
+ -- Chris Radek <chris@timeguy.com>  Thu, 22 Feb 2007 14:58:37 -0600
 
 emc2 (1:2.1.0) testing; urgency=low
 
