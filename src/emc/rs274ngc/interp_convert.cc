@@ -2700,8 +2700,11 @@ int Interp::convert_threading_cycle(block_pointer block, setup_pointer settings,
 
     depth = start_depth;
     zoff = (depth - full_dia_depth) * tan(compound_angle);
-    STRAIGHT_TRAVERSE(safe_x, start_y, start_z - zoff, AABBCC);
     while (depth < end_depth) {
+	STRAIGHT_TRAVERSE(boring?
+			  safe_x + depth - end_depth:
+			  safe_x - depth + end_depth,
+			  start_y, start_z - zoff, AABBCC); //back
         if(taper_dist && entry_taper) {
             DISABLE_FEED_OVERRIDE();
             START_SPEED_FEED_SYNCH(taper_pitch);
@@ -2728,18 +2731,23 @@ int Interp::convert_threading_cycle(block_pointer block, setup_pointer settings,
                           start_y, target_z - zoff, AABBCC); //over
         }
         STOP_SPEED_FEED_SYNCH();
-        STRAIGHT_TRAVERSE(safe_x, start_y, target_z - zoff, AABBCC); //out
+        STRAIGHT_TRAVERSE(boring? 
+			  safe_x + depth - end_depth:
+			  safe_x - depth + end_depth,
+			  start_y, target_z - zoff, AABBCC); //out
         ENABLE_FEED_OVERRIDE();
         depth = full_dia_depth + cut_increment * pow(++pass, 1.0/degression);
         zoff = (depth - full_dia_depth) * tan(compound_angle);
-        STRAIGHT_TRAVERSE(safe_x, start_y, start_z - zoff, AABBCC); //back
     } 
     // full specified depth now
     depth = end_depth;
     zoff = (depth - full_dia_depth) * tan(compound_angle);
     // cut at least once -- more if spring cuts.
     for(int i = 0; i<spring_cuts+1; i++) {
-        STRAIGHT_TRAVERSE(safe_x, start_y, start_z - zoff, AABBCC); //back
+	STRAIGHT_TRAVERSE(boring? 
+			  safe_x + depth - end_depth:
+			  safe_x - depth + end_depth,
+			  start_y, start_z - zoff, AABBCC); //back
         if(taper_dist && entry_taper) { 
             DISABLE_FEED_OVERRIDE();
             START_SPEED_FEED_SYNCH(taper_pitch);
@@ -2766,7 +2774,10 @@ int Interp::convert_threading_cycle(block_pointer block, setup_pointer settings,
                           start_y, target_z - zoff, AABBCC); //over
         }
         STOP_SPEED_FEED_SYNCH();
-        STRAIGHT_TRAVERSE(safe_x, start_y, target_z - zoff, AABBCC); //out
+        STRAIGHT_TRAVERSE(boring? 
+			  safe_x + depth - end_depth:
+			  safe_x - depth + end_depth,
+			  start_y, target_z - zoff, AABBCC); //out
         ENABLE_FEED_OVERRIDE();
     } 
     STRAIGHT_TRAVERSE(end_x, end_y, end_z, AABBCC);
