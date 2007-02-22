@@ -15,6 +15,7 @@ hal_joystick
 hal_manualtoolchange
 halmeter
 hal_parport
+halrmt
 halsampler
 halscope
 hal_skeleton
