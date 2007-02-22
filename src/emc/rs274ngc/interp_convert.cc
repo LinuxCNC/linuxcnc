@@ -2677,7 +2677,7 @@ int Interp::convert_threading_cycle(block_pointer block, setup_pointer settings,
     if(spring_cuts == -1) spring_cuts = 0;
 
     double degression = block->r_number;
-    if(degression < 1.0) degression = 1.0;
+    if(degression < 1.0 || !block->r_flag) degression = 1.0;
 
     double taper_dist = block->e_flag? block->e_number: 0.0;
     if(taper_dist < 0.0) taper_dist = 0.0;
