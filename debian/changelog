@@ -14,7 +14,7 @@ emc2 (1:2.1.1~alpha0) testing; urgency=low
   * fix bug that left the spindle on after abort
   * angled entry and exit for the canned threading cycle: see g76.ngc
 
- -- Chris Radek <chris@buster>  Wed, 21 Feb 2007 21:32:09 -0600
+ -- Chris Radek <chris@timeguy.com>  Wed, 21 Feb 2007 21:32:09 -0600
 
 emc2 (1:2.1.0) testing; urgency=low
 
