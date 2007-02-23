@@ -69,7 +69,7 @@
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "hal.h"		/* HAL public API decls */
 
-#define MAX_AXIS 4
+#define MAX_AXIS 6
 #define MAX_BUTTON 16
 
 typedef struct {
