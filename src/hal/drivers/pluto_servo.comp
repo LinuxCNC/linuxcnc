@@ -460,7 +460,7 @@ FUNCTION(read) {
 	encoder_0_index_enable = 0;
 	data.reset_count[0] = index;
     }
-    encoder_0_velocity = (count - data.last_count[0]) / encoder_0_scale;
+    encoder_0_velocity = (count - data.last_count[0]) / encoder_0_scale / fperiod;
     data.last_index[0] = index;
     data.last_count[0] = count;
     if(encoder_0_reset) data.reset_count[0] = count;
@@ -474,7 +474,7 @@ FUNCTION(read) {
 	encoder_1_index_enable = 0;
 	data.reset_count[1] = index;
     }
-    encoder_1_velocity = (count - data.last_count[1]) / encoder_1_scale;
+    encoder_1_velocity = (count - data.last_count[1]) / encoder_1_scale / fperiod;
     data.last_index[1] = index;
     data.last_count[1] = count;
     if(encoder_1_reset) data.reset_count[1] = count;
@@ -488,7 +488,7 @@ FUNCTION(read) {
 	encoder_2_index_enable = 0;
 	data.reset_count[2] = index;
     }
-    encoder_2_velocity = (count - data.last_count[2]) / encoder_2_scale;
+    encoder_2_velocity = (count - data.last_count[2]) / encoder_2_scale / fperiod;
     debug_0 = count; debug_1 = index;
 
     data.last_index[2] = index;
@@ -504,7 +504,7 @@ FUNCTION(read) {
 	encoder_3_index_enable = 0;
 	data.reset_count[3] = index;
     }
-    encoder_3_velocity = (count - data.last_count[3]) / encoder_3_scale;
+    encoder_3_velocity = (count - data.last_count[3]) / encoder_3_scale / fperiod;
     data.last_index[3] = index;
     data.last_count[3] = count;
     if(encoder_3_reset) data.reset_count[3] = count;
