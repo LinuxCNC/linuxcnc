@@ -94,7 +94,7 @@ int checkAllHomed(void) {
 	if (emcmotDebug->allHomed) return 1;
     }
 
-    for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
+    for (joint_num = 0; joint_num < EMCMOT_MAX_JOINTS; joint_num++) {
 	/* point to joint data */
 	joint = &joints[joint_num];
 	if (!GET_JOINT_ACTIVE_FLAG(joint)) {
@@ -122,7 +122,7 @@ static int checkLimits(void)
     int joint_num;
     emcmot_joint_t *joint;
 
-    for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
+    for (joint_num = 0; joint_num < EMCMOT_MAX_JOINTS; joint_num++) {
 	/* point to joint data */
 	joint = &joints[joint_num];
 	if (!GET_JOINT_ACTIVE_FLAG(joint)) {
@@ -154,7 +154,7 @@ static int checkJog(int joint_num, double vel)
 	return 1;		/* okay to jog when limits overridden */
     }
 
-    if (joint_num < 0 || joint_num >= EMCMOT_MAX_AXIS) {
+    if (joint_num < 0 || joint_num >= EMCMOT_MAX_JOINTS) {
 	reportError("Can't jog invalid axis number %d.", joint_num);
 	return 0;
     }
@@ -220,14 +220,14 @@ static int inRange(EmcPose pos)
     emcmot_joint_t *joint;
 
     /* fill in all joints with 0 */
-    for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
+    for (joint_num = 0; joint_num < EMCMOT_MAX_JOINTS; joint_num++) {
 	joint_pos[joint_num] = 0.0;
     }
 
     /* now fill in with real values, for joints that are used */
     kinematicsInverse(&pos, joint_pos, &iflags, &fflags);
 
-    for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
+    for (joint_num = 0; joint_num < EMCMOT_MAX_JOINTS; joint_num++) {
 	/* point to joint data */
 	joint = &joints[joint_num];
 
@@ -259,7 +259,7 @@ void clearHomes(int joint_num)
 
     if (kinType == KINEMATICS_INVERSE_ONLY) {
 	if (rehomeAll) {
-	    for (n = 0; n < EMCMOT_MAX_AXIS; n++) {
+	    for (n = 0; n < EMCMOT_MAX_JOINTS; n++) {
 		/* point at joint data */
 		joint = &(joints[n]);
 		/* clear flag */
@@ -351,7 +351,7 @@ check_stuff ( "before command_handler()" );
 	   to point to the joint data.  All the individual commands need to do
 	   is verify that "joint" is non-zero. */
 	joint_num = emcmotCommand->axis;
-	if (joint_num >= 0 && joint_num < EMCMOT_MAX_AXIS) {
+	if (joint_num >= 0 && joint_num < EMCMOT_MAX_JOINTS) {
 	    /* valid joint, point to it's data */
 	    joint = &joints[joint_num];
 	} else {
@@ -387,7 +387,7 @@ check_stuff ( "before command_handler()" );
 		tpAbort(&emcmotDebug->queue);
 		SET_MOTION_ERROR_FLAG(0);
 	    } else {
-		for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
+		for (joint_num = 0; joint_num < EMCMOT_MAX_JOINTS; joint_num++) {
 		    /* point to joint struct */
 		    joint = &joints[joint_num];
 		    /* tell joint planner to stop */
@@ -399,7 +399,7 @@ check_stuff ( "before command_handler()" );
 		}
 	    }
 	    /* clear axis errors (regardless of mode */	    
-	    for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
+	    for (joint_num = 0; joint_num < EMCMOT_MAX_JOINTS; joint_num++) {
 		/* point to joint struct */
 		joint = &joints[joint_num];
 		/* update status flags */
@@ -504,7 +504,7 @@ check_stuff ( "before command_handler()" );
 	       for a value to be used as an index and here it's a value to be 
 	       used as a counting number. The indenting is different here so
 	       as not to match macro editing on that other bunch. */
-	    if (joint_num <= 0 || joint_num > EMCMOT_MAX_AXIS) {
+	    if (joint_num <= 0 || joint_num > EMCMOT_MAX_JOINTS) {
 		break;
 	    }
 	    num_axes = joint_num;
@@ -546,7 +546,7 @@ check_stuff ( "before command_handler()" );
 		emcmotStatus->overrideLimits = 1;
 	    }
 	    emcmotDebug->overriding = 0;
-	    for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
+	    for (joint_num = 0; joint_num < EMCMOT_MAX_JOINTS; joint_num++) {
 		/* point at joint data */
 		joint = &joints[joint_num];
 		/* clear joint errors */

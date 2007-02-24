@@ -64,6 +64,8 @@ static long servo_period_nsec = 0;	/* servo thread period */
 RTAPI_MP_LONG(servo_period_nsec, "servo thread period (nsecs)");
 static long traj_period_nsec = 0;	/* trajectory planner period */
 RTAPI_MP_LONG(traj_period_nsec, "trajectory planner period (nsecs)");
+static int max_joints = EMCMOT_MAX_AXIS;	/* default number of joints present */
+RTAPI_MP_INT(max_joints, "number of available joints");
 #endif
 
 /***********************************************************************
@@ -83,6 +85,7 @@ emcmot_joint_t joint_array[EMCMOT_MAX_AXIS];
 
 int mot_comp_id;	/* component ID for motion module */
 int first_pass = 1;	/* used to set initial conditions */
+int EMCMOT_MAX_JOINTS = EMCMOT_MAX_AXIS; /* used to limit the number of exported joints */
 
 int kinType = 0;
 
@@ -194,6 +197,8 @@ int rtapi_app_main(void)
 	rtapi_print_msg(RTAPI_MSG_ERR, "MOTION: hal_init() failed\n");
 	return -1;
     }
+
+    EMCMOT_MAX_JOINTS = max_joints;
 
     /* initialize/export HAL pins and parameters */
     retval = init_hal_io();
@@ -484,11 +489,11 @@ static int init_hal_io(void)
     emcmot_hal_data->last_period = 0;
 
     /* export axis pins and parameters */
-    for (n = 0; n < EMCMOT_MAX_AXIS; n++) {
+    for (n = 0; n < EMCMOT_MAX_JOINTS; n++) {
 	/* point to axis data */
 	axis_data = &(emcmot_hal_data->axis[n]);
 	/* export all vars */
-	retval = export_axis(n, axis_data);
+        retval = export_axis(n, axis_data);
 	if (retval != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"MOTION: axis %d pin/param export failed\n", n);
@@ -504,7 +509,7 @@ static int init_hal_io(void)
     }
     /* Done! */
     rtapi_print_msg(RTAPI_MSG_INFO,
-	"MOTION: init_hal_io() complete, %d axes.\n", EMCMOT_MAX_AXIS);
+	"MOTION: init_hal_io() complete, %d axes.\n", n);
     return 0;
 
     error:
@@ -797,7 +802,7 @@ static int init_comm_buffers(void)
     emcmotDebug->split = 0;
     emcmotStatus->heartbeat = 0;
     emcmotStatus->computeTime = 0.0;
-    emcmotConfig->numAxes = EMCMOT_MAX_AXIS;
+    emcmotConfig->numAxes = EMCMOT_MAX_JOINTS;
 
     emcmotStatus->carte_pos_cmd.tran.x = 0.0;
     emcmotStatus->carte_pos_cmd.tran.y = 0.0;
@@ -840,7 +845,7 @@ static int init_comm_buffers(void)
 #endif
 
     /* init per-axis stuff */
-    for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
+    for (joint_num = 0; joint_num < EMCMOT_MAX_JOINTS; joint_num++) {
 	/* point to structure for this joint */
 	joint = &joints[joint_num];
 
@@ -1082,7 +1087,7 @@ static int setTrajCycleTime(double secs)
     tpSetCycleTime(&emcmotDebug->queue, secs);
 
     /* set the free planners, cubic interpolation rate and segment time */
-    for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
+    for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
 	cubicSetInterpolationRate(&(joints[t].cubic),
 	    emcmotConfig->interpolationRate);
     }
@@ -1113,7 +1118,7 @@ static int setServoCycleTime(double secs)
 	(int) (emcmotConfig->trajCycleTime / secs + 0.5);
 
     /* set the cubic interpolation rate and PID cycle time */
-    for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
+    for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
 	cubicSetInterpolationRate(&(joints[t].cubic),
 	    emcmotConfig->interpolationRate);
 	cubicSetSegmentTime(&(joints[t].cubic), secs);

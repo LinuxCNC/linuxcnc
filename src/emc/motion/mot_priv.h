@@ -150,6 +150,10 @@ typedef struct {
 /* HAL component ID for motion module */
 extern int mot_comp_id;
 
+/* userdefined number of max joints. default is EMCMOT_MAX_AXIS(=8), 
+   but can be altered at motmod insmod time */
+extern int EMCMOT_MAX_JOINTS;
+
 /* pointer to emcmot_hal_data_t struct in HAL shmem, with all HAL data */
 extern emcmot_hal_data_t *emcmot_hal_data;
 
