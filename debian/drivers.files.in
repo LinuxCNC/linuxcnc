@@ -8,4 +8,6 @@
 @MODULE_PATH@/hal_ax5214h@MODULE_EXT@
 @MODULE_PATH@/hal_ppmc@MODULE_EXT@
 @MODULE_PATH@/hal_speaker@MODULE_EXT@
+@MODULE_PATH@/pluto_servo@MODULE_EXT@
+@MODULE_PATH@/serport@MODULE_EXT@
 @MODULE_PATH@/probe_parport@MODULE_EXT@
