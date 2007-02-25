@@ -39,7 +39,6 @@ class InputId:
     format = "HHHH"
     size = struct.calcsize(format)
     def __init__(self, buf):
-	print repr(buf)
 	self.bustype, self.vendor, self.product, self.version = \
 	    struct.unpack(self.format, buf)
 	self.bustype = BUS_invert.get(self.bustype, self.bustype)
@@ -108,21 +107,18 @@ class Event:
     def write(cls, f, *args):
 	if len(args) == 3:
 	    event_time = time.time()
-	    event_time_seconds = int(event_time)
-	    event_time_ns = int((event_time - event_time_seconds) * 1e9)
-	    event_type, code, value = args
+	    time_seconds = int(event_time)
+	    time_ns = int((event_time - time_seconds) * 1e9)
+	    type, code, value = args
 	elif len(args) == 4:
-	    event_time, event_type, code, value = args
-	    event_time_seconds = int(event_time)
-	    event_time_ns = int((event_time - event_time_seconds) * 1e9)
+	    event_time, type, code, value = args
+	    time_seconds = int(event_time)
+	    time_ns = int((event_time - time_seconds) * 1e9)
 	else:
-	    event_time_seconds, event_time_ns, event_type, code, value = args
-	print repr(event_type), event_type == 'EV_LED'
-	if event_type == 'EV_LED' and isinstance(code, str): code = LED[code]
-	event_type = EV.get(event_type, event_type)
-	print (event_time_seconds, event_time_ns, event_type, code, value)
-	print map(type, (event_time_seconds, event_time_ns, event_type, code, value))
-	buf = struct.pack(cls.format, event_time_seconds, event_time_ns, event_type, code, value)
+	    time_seconds, time_ns, type, code, value = args
+	if type == 'EV_LED' and isinstance(code, str): code = LED[code]
+	type = EV.get(type, type)
+	buf = struct.pack(cls.format, time_seconds, time_ns, type, code, value)
 	os.write(f, buf)
 
     def __repr__(self):
