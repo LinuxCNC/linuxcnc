@@ -1,5 +1,7 @@
 import linux_event, sys, os, fcntl, hal, select, time, glob, fnmatch
 
+def tohalname(s): return str(s).lower().replace("_", "-")
+
 class HalInputDevice:
     def __init__(self, comp, idx, name):
 	self.device = linux_event.InputDevice(name)
@@ -12,25 +14,25 @@ class HalInputDevice:
 	self.comp = comp
 
 	for key in self.device.get_bits('EV_KEY'):
-	    key = str(key).lower()
+	    key = tohalname(key)
 	    comp.newpin("%s.%s" % (idx, key), hal.HAL_BIT, hal.HAL_OUT)
 	    self.drive[key] = 0
 
 	for axis in self.device.get_bits('EV_REL'):
-	    name = str(axis).lower()
+	    name = tohalname(axis)
 	    comp.newpin("%s.%s" % (idx, name), hal.HAL_FLOAT, hal.HAL_OUT)
 	    comp.newpin("%s.%s-reset" % (idx, name), hal.HAL_BIT, hal.HAL_IN)
 	    self.rel_items.append(name)
 	    self.drive[name] = 0
 
 	for axis in self.device.get_bits('EV_ABS'):
-	    name = str(axis).lower()
+	    name = tohalname(axis)
 	    self.abs[name] = self.device.get_absinfo(axis)
 	    comp.newpin("%s.%s" % (idx, name), hal.HAL_FLOAT, hal.HAL_OUT)
 	    self.drive[name] = 0
 
 	for led in self.device.get_bits('EV_LED'):
-	    name = str(led).lower()
+	    name = tohalname(led)
 	    comp.newpin("%s.%s" % (idx, name), hal.HAL_BIT, hal.HAL_IN)
 	    self.last[name] = 0
 	    self.device.write_event('EV_LED', led, 0)
@@ -38,8 +40,8 @@ class HalInputDevice:
     def update(self):
 	while self.device.readable():
 	    ev = self.device.read_event()
+	    code = tohalname(ev.code)
 	    if ev.type == 'EV_KEY':
-		code = str(ev.code).lower()
 		if code not in self.drive:
 		    print >>sys.stderr, "Unexpcted event EV_KEY", code, ev.code
 		    continue
@@ -48,13 +50,11 @@ class HalInputDevice:
 		else:
 		    self.drive[code] = 0
 	    elif ev.type == 'EV_REL':
-		code = str(ev.code).lower()
 		if code not in self.drive:
 		    print >>sys.stderr, "Unexpcted event EV_REL", code, ev.code
 		    continue
 		self.drive[code] += ev.value
 	    elif ev.type == 'EV_ABS':
-		code = str(ev.code).lower()
 		if code not in self.drive:
 		    print >>sys.stderr, "Unexpcted event EV_ABS", code, ev.code
 		    continue
