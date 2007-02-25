@@ -76,7 +76,8 @@ class HalInputDevice:
 		self.device.write_event('EV_LED', k.upper(), u)
 		self.last[k] = u
 
-h = hal.component("input")
+h = hal.component("hal_input")
+h.setprefix("input")
 d = []
 for i, f in enumerate(sys.argv[1:]):
     d.append(HalInputDevice(h, i, f))
