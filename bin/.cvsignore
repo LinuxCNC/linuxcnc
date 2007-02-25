@@ -11,6 +11,7 @@ emcsvr
 emctop
 fifousr
 halcmd
+hal_input
 hal_joystick
 hal_manualtoolchange
 halmeter

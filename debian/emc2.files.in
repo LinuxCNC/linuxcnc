@@ -268,6 +268,7 @@ usr/bin/emcrsh
 usr/bin/emcsh
 usr/bin/emcsvr
 usr/bin/hal_joystick
+usr/bin/hal_input
 usr/bin/halmeter
 usr/bin/halsampler
 usr/bin/halscope
@@ -337,6 +338,7 @@ etc/X11/app-defaults/XEmc
 usr/share/man/man1/emc.1
 usr/share/man/man1/halcmd.1
 usr/share/man/man1/hal_joystick.1
+usr/share/man/man1/hal_input.1
 usr/share/man/man1/halmeter.1
 usr/share/man/man1/halrun.1
 usr/share/man/man1/halsampler.1

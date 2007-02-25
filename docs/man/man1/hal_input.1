@@ -1,0 +1,64 @@
+.TH HAL_INPUT "1" "2007-02-25" "EMC Documentation" "HAL User's Manual"
+.SH NAME
+hal_input \- control HAL pins with any Linux input device, including USB HID devices
+.SH SYNOPSIS
+\fIloadusr\fR \fBhal_input\fR \fIinputspec ...\fR
+.SH DESCRIPTION
+hal_input is an interface between HAL and any Linux input device, including USB
+HID devices.  For each device named, \fBhal_input\fR creates pins corresponding
+to its keys, absolute axes, and LEDs.  At a fixed rate of approximately 10ms,
+it synchronizes the device and the HAL pins.
+.SH INPUT SPECIFICATION
+The \fIinputspec\fR may be in one of several forms:
+.TP
+A string \fIS\fR
+A substring or shell-style pattern match will be tested against the "name"
+of the device, the "phys" (which gives information about how it is connected),
+and the "id", which is a string of the form "Bus=... Vendor=... Product=...
+Version=...".  You can view the name, phys, and id of attached devices by executing \fBless /proc/bus/input/devices\fR.  Examples:
+.RS 12
+.PD 0
+SpaceBall
+.PP
+"Vendor=001f Product=0001"
+.PP
+serio*/input0
+.RE
+.PD
+.TP  
+A number \fIN\FR
+This opens \fB/dev/input/event\fIN\fR.  Except for devices that are always
+attached to the system, this number may change over reboots or when the device
+is removed.  For this reason, using an integer is not recommended.
+.PP
+If the first character of the \fIinputspec\fR is a "+", then \fBhal_input\fR
+requests exclusive access to the device.  The first device matching an
+\fIinputspec\fR is used.  Any number of \fIinputspec\fRs may be used.
+.SH DEVICE FEATURES SUPPORTED
+.IP \(bu 4
+EV_BTN (buttons and keys), exported as HAL bits.  TRUE when the button is pressed, FALSE when it is not pressed.
+.IP \(bu 4
+EV_ABS (absolute analog inputs), exported as HAL floats.
+.IP \(bu 4
+EV_LED (LED outputs), exported as HAL bits.  TRUE turns the LED on, FALSE turns the LED off.
+.SH PERMISSIONS AND UDEV
+By default, the input devices may not be accessible to regular users.  To change
+the default permission of a device, add a new file to /etc/udev/rules.d to
+set the device's GROUP to "plugdev".  For instance, a SpaceBall input device
+uses the 'spaceball' kernel module, so a udev entry for it would read:
+.RS
+DRIVER="spaceball", MODE="660", GROUP="plugdev"
+.RE
+the next time the device is attached to the system, it will be accessible
+to the "plugdev" group.
+
+For USB devices, the udev line would refer to the device's Vendor and Product
+values, such as 
+.RS
+SYSFS{idProduct}=="c00e", SYSFS{idVendor}=="046d", MODE="660", GROUP="plugdev"
+.RE
+for a particular logictech-brand mouse.
+
+For more information on writing udev fules, see \fBudev(8)\fR.
+.SH SEE ALSO
+\fBhal_joystick(1)\fR, \fBudev(8)\fR
