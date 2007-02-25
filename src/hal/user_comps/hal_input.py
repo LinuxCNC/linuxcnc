@@ -8,12 +8,20 @@ class HalInputDevice:
 	self.drive = {}
 	self.abs = {}
 	self.last = {}
+	self.rel_items = []
 	self.comp = comp
 
 	for key in self.device.get_bits('EV_KEY'):
 	    key = str(key).lower()
 	    comp.newpin("%s.%s" % (idx, key), hal.HAL_BIT, hal.HAL_OUT)
 	    self.drive[key] = 0
+
+	for axis in self.device.get_bits('EV_REL'):
+	    name = str(axis).lower()
+	    comp.newpin("%s.%s" % (idx, name), hal.HAL_FLOAT, hal.HAL_OUT)
+	    comp.newpin("%s.%s-reset" % (idx, name), hal.HAL_BIT, hal.HAL_IN)
+	    self.rel_items.append(name)
+	    self.drive[name] = 0
 
 	for axis in self.device.get_bits('EV_ABS'):
 	    name = str(axis).lower()
@@ -26,7 +34,7 @@ class HalInputDevice:
 	    comp.newpin("%s.%s" % (idx, name), hal.HAL_BIT, hal.HAL_IN)
 	    self.last[name] = 0
 	    self.device.write_event('EV_LED', led, 0)
-
+	
     def update(self):
 	while self.device.readable():
 	    ev = self.device.read_event()
@@ -39,15 +47,25 @@ class HalInputDevice:
 		    self.drive[code] = 1
 		else:
 		    self.drive[code] = 0
-	    if ev.type == 'EV_ABS':
+	    elif ev.type == 'EV_REL':
 		code = str(ev.code).lower()
 		if code not in self.drive:
-		    print >>sys.stderr, "Unexpcted event EV_KEY", code, ev.code
+		    print >>sys.stderr, "Unexpcted event EV_REL", code, ev.code
+		    continue
+		self.drive[code] += ev.value
+	    elif ev.type == 'EV_ABS':
+		code = str(ev.code).lower()
+		if code not in self.drive:
+		    print >>sys.stderr, "Unexpcted event EV_ABS", code, ev.code
 		    continue
 		absinfo = self.abs[code]
 		if abs(ev.value) < absinfo.flat: ev.value = 0
 		scale = max(-absinfo.minimum, absinfo.maximum)
 		self.drive[code] = ev.value * 1. / scale
+
+	for r in self.rel_items:
+	    reset = self.comp["%s.%s-reset" % (self.idx, r)]
+	    if reset: self.drive[r] = 0
 
 	for k, v in self.drive.items():
 	    self.comp["%s.%s" % (self.idx, k)] = v
@@ -62,6 +80,7 @@ h = hal.component("input")
 d = []
 for i, f in enumerate(sys.argv[1:]):
     d.append(HalInputDevice(h, i, f))
+h.ready()
 
 try:
     while 1:

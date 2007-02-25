@@ -19,6 +19,7 @@ def get_bits(f, o=0):
     elif o == 'EV_KEY': map = KEYBTN_invert
     elif o == 'EV_LED': map = LED_invert    
     elif o == 'EV_ABS': map = ABS_invert    
+    elif o == 'EV_REL': map = REL_invert    
     else: map = {}
 
     sz = max(map) + 1
@@ -125,7 +126,9 @@ class Event:
 	os.write(f, buf)
 
     def __repr__(self):
-	return "<Event %s %04x %8d>" % (self.type, self.code, self.value)
+	code = self.code
+	if isinstance(code, int): code = "%04x" % code
+	return "<Event %s %s %8d>" % (self.type, code, self.value)
 
 EV = {
 	'EV_SYN': 0x00,
@@ -660,6 +663,7 @@ class InputDevice:
 	e = Event.read(self.f)
 	if e.type == 'EV_KEY': e.code = decode(KEYBTN_invert, 'KEY', e.code)
 	elif e.type == 'EV_ABS': e.code = decode(ABS_invert, 'ABS', e.code)
+	elif e.type == 'EV_REL': e.code = decode(REL_invert, 'REL', e.code)
 	elif e.type == 'EV_LED': e.code = decode(LED_invert, 'LED', e.code)
 	return e
 
