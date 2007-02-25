@@ -1849,6 +1849,7 @@ class _prompt_float:
         v.trace("w", self.check_valid)
         t.wm_protocol("WM_DELETE_WINDOW", self.cancel.invoke)
         t.bind("<Return>", lambda event: (self.ok.flash(), self.ok.invoke()))
+        t.bind("<KP_Enter>", lambda event: (self.ok.flash(), self.ok.invoke()))
         t.bind("<Escape>", lambda event: (self.cancel.flash(), self.cancel.invoke()))
 
         m.pack(side="top", anchor="w")
