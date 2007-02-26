@@ -1,4 +1,4 @@
-emc2 (1:2.1.1~alpha0) testing; urgency=low
+emc2 (1:2.1.1) testing; urgency=low
 
   * fix behavior of certain keys in the AXIS MDI entry field, particularly the
     numeric keypad arrows
@@ -14,7 +14,7 @@ emc2 (1:2.1.1~alpha0) testing; urgency=low
   * pluto_servo and serport hal drivers
   * in the AXIS touch-off window, accept the keypad's Enter key for OK
 
- -- Chris Radek <chris@timeguy.com>  Sun, 25 Feb 2007 10:47:27 -0600
+ -- Chris Radek <chris@timeguy.com>  Sun, 25 Feb 2007 19:28:58 -0600
 
 emc2 (1:2.1.0) testing; urgency=low
 
