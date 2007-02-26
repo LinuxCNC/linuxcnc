@@ -294,6 +294,7 @@ modclean:
 	-rm -rf .tmp_versions
 	find . -name .tmp_versions |xargs rm -rf
 	-rm -f ../rtlib/*.ko
+	-rm -f ../rtlib/*.so
 
 depclean:
 	-rm -rf depends
