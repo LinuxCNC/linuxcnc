@@ -1,3 +1,10 @@
+emc2 (1:2.1.2) testing; urgency=low
+
+  * change axis.N.homing from HAL parameter to pin, to allow external
+    logic
+
+ -- John Kasunich <jmkasunich@fastmail.fm>  Mon, 26 Feb 2007 20:31:57 -0500
+
 emc2 (1:2.1.1) testing; urgency=low
 
   * fix behavior of certain keys in the AXIS MDI entry field, particularly the
