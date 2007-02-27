@@ -56,7 +56,7 @@ SUBDIRS := \
     \
     emc/usr_intf/axis \
     emc/usr_intf emc/nml_intf emc/task emc/iotask emc/kinematics emc/canterp \
-    emc/motion emc/ini emc/rs274ngc emc \
+    emc/motion emc/ini emc/rs274ngc emc/sai emc \
     \
     module_helper \
     \

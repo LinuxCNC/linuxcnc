@@ -1,0 +1,10 @@
+POCKET  FMS     TLO     DIAM    HOLDER  TOOL DESCRIPTION
+
+1       1       2.0     1.0     0
+2       2       1.0     0.2     0
+5       5       1.5     0.25    0       0.25" end mill
+10      10      2.4    -0.03    0       for tool radius comp testing
+20      20      173.740 0       0       1" carbide end mill (0.060 radius)
+21      21      247.615 0       0       1/2" spot drill short
+32      32      296.515 0       0       8.5mm drill
+41      41      228.360 0       0       10mm x 1.25 tap
