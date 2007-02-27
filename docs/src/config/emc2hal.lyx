@@ -287,6 +287,11 @@ bit Should be driven TRUE if the home switch for this joint
  is closed
 \layout Description
 
+axis.N.homing\SpecialChar ~
+OUT\SpecialChar ~
+bit TRUE if the joint is currently homing
+\layout Description
+
 axis.N.pos-lim-sw-in\SpecialChar ~
 IN\SpecialChar ~
 bit Should be driven TRUE if the positive limit switch
@@ -436,9 +441,6 @@ axis.N.home-state Reflects the step of homing currently taking place
 \layout Description
 
 axis.N.homed TRUE if the joint has been homed
-\layout Description
-
-axis.N.homing TRUE if the joint is currently homing
 \layout Description
 
 axis.N.in-position TRUE if the joint is using the 
