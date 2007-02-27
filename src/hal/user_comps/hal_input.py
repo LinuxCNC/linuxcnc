@@ -82,7 +82,7 @@ class HalInputDevice:
 	    comp.newparam("%s.%s-position-scale" % (idx, name), hal.HAL_FLOAT, hal.HAL_RW)
 	    comp.newparam("%s.%s-fuzz" % (idx, name), hal.HAL_FLOAT, hal.HAL_RW)
 	    comp.newparam("%s.%s-flat" % (idx, name), hal.HAL_FLOAT, hal.HAL_RW)
-	    self.set(name + "-position-scale", float(max(-absinfo.minimum, absinfo.maximum)))
+	    self.set(name + "-position-scale", float(max(-absinfo.minimum, absinfo.maximum) or 1))
 	    self.set(name + "-fuzz", absinfo.fuzz)
 	    self.set(name + "-flat", absinfo.flat)
 
@@ -107,8 +107,8 @@ class HalInputDevice:
 	while self.device.readable():
 	    ev = self.device.read_event()
 	    if ev.type == 'EV_SYN': continue
+	    if ev.type == 'EV_MSC': continue
 	    code = tohalname(ev.code)
-	    print "event", ev.type, ev.code, code
 	    if code not in self.codes:
 		print >>sys.stderr, "Unexpected event", ev.type, ev.code
 		continue
@@ -129,12 +129,12 @@ class HalInputDevice:
 		else: value = 0
 		if abs(value - self.get(code + "-counts")) > fuzz:
 		    self.set(code + "-counts", ev.value)
-		    self.set(code + "-position", ev.value / self.get(code + "-position-scale"))
+		    self.set(code + "-position", ev.value / (self.get(code + "-position-scale") or 1))
 
 	for r in self.rel_items:
 	    reset = self.get(r + "-reset")
 	    if reset: self.set(r + "-counts", 0)
-	    self.set(r + "-position", self.get(r + "-counts") / self.get(r + "-position-scale"))
+	    self.set(r + "-position", self.get(r + "-counts") / (self.get(r + "-position-scale") or 1))
 
 	for k, v in self.last.items():
 	    # Note: this is OK because the hal module always returns True or False for HAL_BIT values
