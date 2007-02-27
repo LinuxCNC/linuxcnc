@@ -1,4 +1,9 @@
 .TH HAL_INPUT "1" "2007-02-25" "EMC Documentation" "HAL User's Manual"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
 .SH NAME
 hal_input \- control HAL pins with any Linux input device, including USB HID devices
 .SH SYNOPSIS
@@ -36,13 +41,64 @@ requests exclusive access to the device.  The first device matching an
 \fIinputspec\fR is used.  Any number of \fIinputspec\fRs may be used.
 .SH DEVICE FEATURES SUPPORTED
 .IP \(bu 4
-EV_BTN (buttons and keys), exported as HAL bits.  TRUE when the button is pressed, FALSE when it is not pressed.
+EV_BTN (buttons and keys)
 .IP \(bu 4
-EV_ABS (absolute analog inputs), exported as HAL floats.
+EV_ABS (absolute analog inputs)
 .IP \(bu 4
-EV_REL (relative analog inputs), exported as HAL floats with -reset input.
+EV_REL (relative analog inputs)
 .IP \(bu 4
-EV_LED (LED outputs), exported as HAL bits.  TRUE turns the LED on, FALSE turns the LED off.
+EV_LED (LED outputs)
+.SH HAL PINS AND PARAMETERS
+.SS For buttons
+.TP
+.B input.\fIN\fB.btn-\fIname\fR bit out
+.TQ
+.B input.\fIN\fB.btn-\fIname\fB-not\fR bit out
+Created for each button on the device.
+.SS For keys
+.TP
+.B input.\fIN\fB.key-\fIname\fB
+.TQ
+.B input.\fIN\fB.key-\fIname\fB-not
+Created for each key on the device.
+.SS For absolute axes
+.TP
+.B input.\fIN\fB.abs-\fIname\fB-counts\fR s32 out
+.TQ
+.B input.\fIN\fB.abs-\fIname\fB-position\fR float out
+.TQ
+.B input.\fIN\fB.abs-\fIname\fB-position-scale\fR parameter float rw
+.TQ
+.B input.\fIN\fB.abs-\fIname\fB-fuzz\fR parameter s32 rw
+.TQ
+.B input.\fIN\fB.abs-\fIname\fB-flat\fR parameter s32 rw
+Created for each absolute axis on the device.  Device positions closer than
+\fBflat\fR to 0 are reported as 0 in \fBcounts\fR, and \fBcounts\fR does not
+change until the device position changes by at least \fBfuzz\fR.
+\fBcounts\fR is divided by \fBposition-scale\fR to give \fBposition\fR.  The
+default value of \fBposition-scale\fR maps the range of the axis reported by
+the operating system to [-1,1].  The default value of \fBfuzz\fR and \fBflat\fR
+are those reported by the operating system.
+.SS For relative axes
+.TP
+.B input.\fIN\fB.rel-\fIname\fB-counts\fR s32 out
+.TQ
+.B input.\fIN\fB.rel-\fIname\fB-position\fR float out
+.TQ
+.B input.\fIN\fB.rel-\fIname\fB-reset\fR bit in
+.TQ
+.B input.\fIN\fB.rel-\fIname\fB-position-scale\fR parameter float rw
+Created for each relative axis on the device.  As long as \fBreset\fR is true,
+\fBcounts\fR is reset to zero regardless of any past or current axis movement.
+Otherwise, \fBcounts\fR increases or decreases according to the motion of the
+axis.  \fBcounts\fR is divided by \fRposition-scale\fR to give \fBposition\fR.
+The default value of \fBposition\fR is 1.
+.SS For LEDs
+.TP
+.B input.\fIN\fB.led-\fIname\fR bit out
+.TQ
+.B input.\fIN\fB.led-\fIname\fB-invert\fR parameter bit rw
+Created for each LED on the device.
 .SH PERMISSIONS AND UDEV
 By default, the input devices may not be accessible to regular users.  To change
 the default permission of a device, add a new file to /etc/udev/rules.d to
@@ -62,5 +118,8 @@ SYSFS{idProduct}=="c00e", SYSFS{idVendor}=="046d", MODE="660", GROUP="plugdev"
 for a particular logictech-brand mouse.
 
 For more information on writing udev rules, see \fBudev(8)\fR.
+.SH BUGS
+The initial state of keys, buttons, and absolute axes are erroneously reported
+as FALSE or 0 until an event is received for that key, button, or axis.
 .SH SEE ALSO
 \fBhal_joystick(1)\fR, \fBudev(8)\fR
