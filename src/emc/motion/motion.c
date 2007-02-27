@@ -599,6 +599,11 @@ rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.motor-pos-cmd", num);
     if (retval != 0) {
 	return retval;
     }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.homing", num);
+    retval = hal_pin_bit_new(buf, HAL_OUT, &(addr->homing), mot_comp_id);
+    if (retval != 0) {
+	return retval;
+    }
     /* export axis parameters */
     rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.coarse-pos-cmd", num);
     retval =
@@ -693,11 +698,6 @@ rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.motor-pos-cmd", num);
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.neg-hard-limit", num);
     retval = hal_param_bit_new(buf, HAL_RO, &(addr->nhl), mot_comp_id);
-    if (retval != 0) {
-	return retval;
-    }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.homing", num);
-    retval = hal_param_bit_new(buf, HAL_RO, &(addr->homing), mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
