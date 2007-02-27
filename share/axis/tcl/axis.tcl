@@ -1520,7 +1520,7 @@ proc update_state {args} {
 
     state  {$interp_state == $INTERP_IDLE} .toolbar.file_open {.menu.file 0}
     state  {$interp_state == $INTERP_IDLE && $taskfile != ""} \
-                .toolbar.reload {.menu.file 1} {.menu.file 2}
+                .toolbar.reload {.menu.file 1} {.menu.file 3}
 
     state  {$task_state == $STATE_ON && $interp_state == $INTERP_IDLE} \
                 {.menu.machine 25}
