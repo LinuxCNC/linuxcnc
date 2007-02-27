@@ -59,7 +59,7 @@ typedef struct {
     hal_bit_t nsl;		/* RPA: axis is at negative soft limit */
     hal_bit_t phl;		/* RPA: axis is at positive hard limit */
     hal_bit_t nhl;		/* RPA: axis is at negative hard limit */
-    hal_bit_t homing;		/* RPA: axis is homing */
+    hal_bit_t *homing;		/* RPI: axis is homing */
     hal_bit_t homed;		/* RPA: axis was homed */
     hal_bit_t f_errored;	/* RPA: axis had too much following error */
     hal_bit_t faulted;		/* RPA: axis amp faulted */

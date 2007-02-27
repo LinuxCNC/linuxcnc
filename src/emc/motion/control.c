@@ -2399,6 +2399,7 @@ static void output_to_hal(void)
 	*(axis_data->motor_pos_cmd) = joint->motor_pos_cmd;
 	*(axis_data->amp_enable) = GET_JOINT_ENABLE_FLAG(joint);
 	*(axis_data->index_enable) = joint->index_enable;
+	*(axis_data->homing) = GET_JOINT_HOMING_FLAG(joint);
 	/* output to parameters (for scoping, etc.) */
 	axis_data->coarse_pos_cmd = joint->coarse_pos;
 	axis_data->joint_pos_cmd = joint->pos_cmd;
@@ -2421,7 +2422,6 @@ static void output_to_hal(void)
 	axis_data->nsl = GET_JOINT_NSL_FLAG(joint);
 	axis_data->phl = GET_JOINT_PHL_FLAG(joint);
 	axis_data->nhl = GET_JOINT_NHL_FLAG(joint);
-	axis_data->homing = GET_JOINT_HOMING_FLAG(joint);
 	axis_data->homed = GET_JOINT_HOMED_FLAG(joint);
 	axis_data->f_errored = GET_JOINT_FERROR_FLAG(joint);
 	axis_data->faulted = GET_JOINT_FAULT_FLAG(joint);
