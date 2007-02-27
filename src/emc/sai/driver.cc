@@ -321,7 +321,6 @@ int read_tool_file(  /* ARGUMENTS         */
         break;
     }
 
-  printf("%s:%d: about to fill slots\n", __FILE__, __LINE__);
   for (slot = 0; slot < _tool_max; slot++) /* initialize */
     {
 	fprintf(stderr, "%d\n", slot);
@@ -329,10 +328,8 @@ int read_tool_file(  /* ARGUMENTS         */
       _tools[slot].zoffset = 0;
       _tools[slot].diameter = 0;
     }
-  printf("%s:%d: about to read tool table\n", __FILE__, __LINE__);
   for (; (fgets(buffer, 1000, tool_file_port) != NULL); )
     {
-	printf("%s:%d: buffer=%p %s\n", __FILE__, __LINE__, buffer, buffer);
       if (sscanf(buffer, "%d %d %lf %lf", &slot,
                  &tool_id, &offset, &diameter) < 4)
         {
