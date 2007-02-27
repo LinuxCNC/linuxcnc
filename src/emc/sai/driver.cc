@@ -323,7 +323,6 @@ int read_tool_file(  /* ARGUMENTS         */
 
   for (slot = 0; slot < _tool_max; slot++) /* initialize */
     {
-	fprintf(stderr, "%d\n", slot);
       _tools[slot].id = -1;
       _tools[slot].zoffset = 0;
       _tools[slot].diameter = 0;
