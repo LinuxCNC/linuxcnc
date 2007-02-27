@@ -1187,9 +1187,9 @@ void CHANGE_TOOL(int slot)
         x = FROM_EXT_LEN(TOOL_CHANGE_POSITION.tran.x);
         y = FROM_EXT_LEN(TOOL_CHANGE_POSITION.tran.y);
         z = FROM_EXT_LEN(TOOL_CHANGE_POSITION.tran.z);
-        a = FROM_EXT_ANG(0.0);
-        b = FROM_EXT_ANG(0.0);
-        c = FROM_EXT_ANG(0.0);
+        a = FROM_EXT_ANG(TOOL_CHANGE_POSITION.a);
+        b = FROM_EXT_ANG(TOOL_CHANGE_POSITION.b);
+        c = FROM_EXT_ANG(TOOL_CHANGE_POSITION.c);
 
         vel = getStraightVelocity(x, y, z, a, b, c);
         acc = getStraightAcceleration(x, y, z, a, b, c);

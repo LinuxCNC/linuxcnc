@@ -79,6 +79,15 @@ static int readToolChange(void)
 	    TOOL_CHANGE_POSITION.c = 0.0;
 	    HAVE_TOOL_CHANGE_POSITION = 1;
 	    retval = 0;
+    } else if (6 == sscanf(inistring, "%lf %lf %lf %lf %lf %lf",
+                           &TOOL_CHANGE_POSITION.tran.x,
+                           &TOOL_CHANGE_POSITION.tran.y,
+                           &TOOL_CHANGE_POSITION.tran.z,
+                           &TOOL_CHANGE_POSITION.a,
+                           &TOOL_CHANGE_POSITION.b,
+                           &TOOL_CHANGE_POSITION.c)) {
+            HAVE_TOOL_CHANGE_POSITION = 1;
+            retval = 0;
 	} else {
 	    /* bad format */
 	    rcs_print("bad format for TOOL_CHANGE_POSITION\n");
