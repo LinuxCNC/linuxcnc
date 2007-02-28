@@ -131,5 +131,5 @@ FUNCTION(_) {
     if(in_3) shift += 8;
     if(in_4) shift += 16;
 
-    out = (function & (1<<shift));
+    out = (function & (1<<shift)) != 0;
 }
