@@ -29,7 +29,7 @@ TRUE whenever exactly one of the inputs is true, so the correct value for
 \\fBfunction\\fR is \\fB0x6\\fR.  Only \\fBin-0\\fR and \\fBin-1\\fR should be
 connected to signals, because if any other bit is \\fBTRUE\\fR then the output
 will be \\fBFALSE\\fR.
-.ie dHTML \\{\\
+.ie '\*[.T]'html' \\{\\
 .HTML \\
 <STYLE> \\
 #weight TD { text-align: center; padding-left: .5ex; padding-right: .5ex } \\
