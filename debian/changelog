@@ -24,8 +24,7 @@ emc2 (2.2.0pre) testing; urgency=low
   * add 'source' command to halcmd
   * add tcl interface to halcmd commands (tcl/hal.so)
   * add "-U" (force unload) to halrun script
-
- -- jepler <jepler@unpythonic.net>  Sun, 25 Feb 2007 10:51:52 -0600
+  * new component: lut5
 
 *** here, insert 2.1.x changes before releasing 2.2.0 ***
 
