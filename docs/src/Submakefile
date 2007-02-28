@@ -55,7 +55,7 @@ DOC_SRCS := \
 	Master_HAL.lyx
 
 MAN_HTML_TARGETS := $(patsubst $(DOC_DIR)/man/%, $(DOC_DIR)/html/man/%.html, $(MAN_SRCS))
-PDF_TARGETS := $(addprefix $(DOC_DIR)/,HAL_User_Manual.pdf EMC2_User_Manual.pdf EMC2_Developer_Manual.pdf EMC2_Integrator_Manual.pdf)
+PDF_TARGETS := $(addprefix $(DOC_DIR)/,HAL_User_Manual.pdf EMC2_User_Manual.pdf EMC2_Developer_Manual.pdf EMC2_Integrator_Manual.pdf EMC2_Manual_Pages.pdf)
 HTML_TARGETS := $(patsubst %.lyx,$(DOC_DIR)/html/%/index.html, $(filter-out Master_%, $(DOC_SRCS))) $(MAN_HTML_TARGETS) $(DOC_DIR)/html/index.html
 
 L2HFLAGS := -init_file src/.latex2html-init -local_icons \
@@ -78,6 +78,12 @@ install-doc: install-doc-html
 endif
 pdfdocs: $(PDF_TARGETS)
 htmldocs: $(HTML_TARGETS)
+
+$(DOC_DIR)/EMC2_Manual_Pages.pdf: $(MAN_SRCS) objects/var-MAN_SRCS
+	@echo Formatting manual pages as PDF
+	(cd $(DOC_DIR)/man; groff -t -rC1 -rD1 -Tps -man \
+		`grep -L '^\.so ' $(sort $(patsubst $(DOC_DIR)/man/%,%,$(filter-out objects/var-MAN_SRCS,$^)`)))\
+		| ps2pdf - > $@
 
 $(DOC_DIR)/HAL_User_Manual.pdf: $(DOC_SRCDIR)/Master_HAL.pdf
 	@ln -f $< $@
