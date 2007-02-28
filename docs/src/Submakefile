@@ -77,7 +77,7 @@ docs: htmldocs
 install-doc: install-doc-html
 endif
 pdfdocs: $(PDF_TARGETS)
-htmldocs: $(HTML_TARGETS)
+htmldocs: $(HTML_TARGETS) $(MAN_HTML_TARGETS)
 
 $(DOC_DIR)/EMC2_Manual_Pages.pdf: $(MAN_SRCS) objects/var-MAN_SRCS
 	@echo Formatting manual pages as PDF
