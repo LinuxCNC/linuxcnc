@@ -79,11 +79,25 @@ endif
 pdfdocs: $(PDF_TARGETS)
 htmldocs: $(HTML_TARGETS) $(MAN_HTML_TARGETS)
 
-$(DOC_DIR)/EMC2_Manual_Pages.pdf: $(MAN_SRCS) objects/var-MAN_SRCS
+MAN_SRCS_NOSO := $(patsubst $(DOC_DIR)/man/%,%, \
+			$(shell grep -L '^\.so ' $(sort $(MAN_SRCS))))
+PDF_MAN_ORDER := man1/emc.1 \
+	$(filter-out %/emc.1, \
+			$(filter man1/%, $(MAN_SRCS_NOSO))) \
+	man3/intro.3hal \
+	$(filter-out %/undocumented.3hal %/intro.3hal, \
+			$(filter man3/%.3hal, $(MAN_SRCS_NOSO))) \
+	man3/undocumented.3hal \
+	man3/intro.3rtapi \
+	$(filter-out %/undocumented.3rtapi %/intro.3rtapi, \
+			$(filter man3/%.3rtapi, $(MAN_SRCS_NOSO))) \
+	man3/undocumented.3rtapi \
+	$(filter man9/%, $(MAN_SRCS_NOSO)) \
+
+$(DOC_DIR)/EMC2_Manual_Pages.pdf: $(MAN_SRCS) objects/var-PDF_MAN_ORDER
 	@echo Formatting manual pages as PDF
-	(cd $(DOC_DIR)/man; groff -t -rC1 -rD1 -Tps -man \
-		`grep -L '^\.so ' $(sort $(patsubst $(DOC_DIR)/man/%,%,$(filter-out objects/var-MAN_SRCS,$^)`)))\
-		| ps2pdf - > $@
+	(cd $(DOC_DIR)/man; groff -t -rC1 -rD1 -Tps -man $(PDF_MAN_ORDER)) \
+		| ps2pdf - $@
 
 $(DOC_DIR)/HAL_User_Manual.pdf: $(DOC_SRCDIR)/Master_HAL.pdf
 	@ln -f $< $@
