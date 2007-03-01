@@ -1754,7 +1754,7 @@ def jogspeed_listbox_change(dummy, value):
     idx = 0
     cursel = -1
     for i in iterator:
-        if str(i) == value:
+        if i == unicode(value, 'utf-8'):
             cursel= idx
             break
         idx += 1
