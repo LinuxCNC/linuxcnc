@@ -1,0 +1,747 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: AXIS 1.4_ru\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2007-02-26 19:04+0200\n"
+"PO-Revision-Date: 2007-02-28 11:54\n"
+"Last-Translator: Yuri Tereschenko <freetu@ukr.net> \n"
+"Language-Team: Russian <freetu@ukr.net>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../scripts/axis.py:99
+msgid "Emergency stop"
+msgstr "Аварийная остановка"
+
+#: ../scripts/axis.py:100
+msgid "Turn machine on"
+msgstr "Включить станок"
+
+#: ../scripts/axis.py:102
+msgid "Activate first axis"
+msgstr "Активация первой оси"
+
+#: ../scripts/axis.py:103
+msgid "Activate second axis"
+msgstr "Активация второй оси"
+
+#: ../scripts/axis.py:104
+msgid "Activate third axis"
+msgstr "Активация третей оси"
+
+#: ../scripts/axis.py:105
+msgid "Activate fourth axis"
+msgstr "Активация четвертой оси"
+
+#: ../scripts/axis.py:106
+msgid "Activate fifth axis"
+msgstr "Активация пятой оси"
+
+#: ../scripts/axis.py:107
+msgid "Activate sixth axis"
+msgstr "Активация шестой оси"
+
+#: ../scripts/axis.py:108
+msgid "Set Feed Override from 0% to 100%"
+msgstr "Настройка лимита скорости от 0% до 100%"
+
+#: ../scripts/axis.py:109
+msgid "Increase jog speed"
+msgstr "Увеличение скорости"
+
+#: ../scripts/axis.py:110
+msgid "Decrease jog speed"
+msgstr "Уменьшение скорости"
+
+#: ../scripts/axis.py:111
+msgid "Select jog increment"
+msgstr "Выбор ускорения"
+
+#: ../scripts/axis.py:112
+msgid "Continuous jog"
+msgstr "Продолжить движение"
+
+#: ../scripts/axis.py:113
+msgid "Send active axis home"
+msgstr "Отправить активной оси на базу"
+
+#: ../scripts/axis.py:114
+msgid "Zero G54 offset for active axis"
+msgstr "Нулевой G54 компенсатор активной оси"
+
+#: ../scripts/axis.py:115
+msgid "Touch-off G54 offset for active axis"
+msgstr "Выключение G54 компенсатора активной оси"
+
+#: ../scripts/axis.py:116
+msgid "Jog first axis"
+msgstr "Движение первой оси"
+
+#: ../scripts/axis.py:117
+msgid "Jog second axis"
+msgstr "Движение второй оси"
+
+#: ../scripts/axis.py:118
+msgid "Jog third axis"
+msgstr "Движение третей оси"
+
+#: ../scripts/axis.py:119
+msgid "Jog fourth axis"
+msgstr "Движение четвертой оси"
+
+#: ../scripts/axis.py:121
+msgid "Left Button"
+msgstr "Левая кнопка мыши"
+
+#: ../scripts/axis.py:121
+msgid "Pan view or select line"
+msgstr "Просмотра или выбора линии"
+
+#: ../scripts/axis.py:122
+msgid "Shift+Left Button"
+msgstr "Shift+Левая кнопка мыши"
+
+#: ../scripts/axis.py:122 ../scripts/axis.py:124
+msgid "Rotate view"
+msgstr "Вращение вида"
+
+#: ../scripts/axis.py:123
+msgid "Right Button"
+msgstr "Правая кнопка мыши"
+
+#: ../scripts/axis.py:123 ../scripts/axis.py:125
+msgid "Zoom view"
+msgstr "Масштабирование вида"
+
+#: ../scripts/axis.py:124
+msgid "Wheel Button"
+msgstr "Третья кнопка мыши"
+
+#: ../scripts/axis.py:125
+msgid "Rotate Wheel"
+msgstr "Колёсико мыши"
+
+#: ../scripts/axis.py:128
+msgid "Manual control"
+msgstr "Ручное управление"
+
+#: ../scripts/axis.py:129
+msgid "Code entry (MDI)"
+msgstr "Код (MDI)"
+
+#: ../scripts/axis.py:130 ../tcl/axis.tcl:662
+msgid "Override Limits"
+msgstr "Выход за пределы"
+
+#: ../scripts/axis.py:132
+msgid "Open program"
+msgstr "Открыть программу"
+
+#: ../scripts/axis.py:133
+msgid "Reload program"
+msgstr "Перегрузить программу"
+
+#: ../scripts/axis.py:134
+msgid "Run program"
+msgstr "Пуск программы"
+
+#: ../scripts/axis.py:135
+msgid "Step program"
+msgstr "Пошагово"
+
+#: ../scripts/axis.py:136
+msgid "Pause program"
+msgstr "Пауза"
+
+#: ../scripts/axis.py:137
+msgid "Resume program"
+msgstr "Возобновить программу"
+
+#: ../scripts/axis.py:138
+msgid "Stop program"
+msgstr "Стоп программы"
+
+#: ../scripts/axis.py:140
+msgid "Toggle mist"
+msgstr "Включение вентиляции"
+
+#: ../scripts/axis.py:141
+msgid "Toggle flood"
+msgstr "Включение охлаждения"
+
+#: ../scripts/axis.py:143
+msgid "Spindle brake off"
+msgstr "Остановить шпиндель"
+
+#: ../scripts/axis.py:144
+msgid "Spindle brake on"
+msgstr "Запустить шпиндель"
+
+#: ../scripts/axis.py:145
+msgid "Turn spindle clockwise"
+msgstr "Вращение шпинделя почасовой стрелки"
+
+#: ../scripts/axis.py:146
+msgid "Turn spindle counterclockwise"
+msgstr "Вращение шпинделя против часовой стрелки"
+
+#: ../scripts/axis.py:147
+msgid "Turn spindle more slowly"
+msgstr "Понизить скорость вращение шпинделя"
+
+#: ../scripts/axis.py:148
+msgid "Turn spindle more quickly"
+msgstr "Повысить скорости вращения шпинделя"
+
+#: ../scripts/axis.py:150
+msgid "Clear live plot"
+msgstr "Очистить пройденный путь"
+
+#: ../scripts/axis.py:151
+msgid "Cycle among preset views"
+msgstr "Цикл предыдущий вид"
+
+#: ../scripts/axis.py:1078 ../scripts/axis.py:1086
+msgid "AXIS error"
+msgstr "Ошибка"
+
+#: ../scripts/axis.py:1078 ../scripts/axis.py:1086 ../scripts/axis.py:1385
+#: ../scripts/axis.py:1429 ../scripts/axis.py:1599 ../tcl/axis.tcl:1178
+#: ../tcl/axis.tcl:1215
+msgid "OK"
+msgstr "OK"
+
+#: ../scripts/axis.py:1135
+msgid "No tool"
+msgstr "Нет инструмента"
+
+#: ../scripts/axis.py:1137
+#, python-format
+msgid "Unknown tool %d"
+msgstr "Не известный инструмент %d"
+
+#: ../scripts/axis.py:1140
+#, python-format
+msgid "Tool %d, offset %g, diameter %g"
+msgstr "Инструмент %d, отступ %g, диаметр %g"
+
+#: ../scripts/axis.py:1383
+#, python-format
+msgid "Program_filter %r failed"
+msgstr "Program_filter %r отсутствует"
+
+#: ../scripts/axis.py:1384
+#, python-format
+msgid "Exit code %d"
+msgstr "Код выхода %d"
+
+#: ../scripts/axis.py:1427
+#, python-format
+msgid "G-Code error in %s"
+msgstr "G-Код ошибка в %s"
+
+#: ../scripts/axis.py:1428
+#, python-format
+msgid ""
+"Near line %d of %s:\n"
+"%s"
+msgstr "Соответствие лини  %d от %s:\n"
+"%s"
+#: ../scripts/axis.py:1554 ../scripts/axis.py:1559 ../scripts/axis.py:2138
+#: ../tcl/axis.tcl:641 ../tcl/axis.tcl:643 ../tcl/axis.tcl:1463
+msgid "Continuous"
+msgstr "Продолжить"
+
+#: ../scripts/axis.py:1600 ../scripts/axis.py:1872
+msgid "Cancel"
+msgstr "Отменена"
+
+#: ../scripts/axis.py:1821
+msgid "All machinable files"
+msgstr "Все поддерживаемые файлы"
+
+#: ../scripts/axis.py:1822
+msgid "rs274ngc files"
+msgstr "rs274ngc файлы"
+
+#: ../scripts/axis.py:1823
+msgid "All files"
+msgstr "Все файлы"
+
+#: ../scripts/axis.py:1863
+#, python-format
+msgid "Program exceeds machine minimum on axis %s"
+msgstr "Программа выходит за пределы минимума машины, по оси %s"
+
+#: ../scripts/axis.py:1865
+#, python-format
+msgid "Program exceeds machine maximum on axis %s"
+msgstr "Программа выходит за пределы максимума машины, по оси %s"
+
+#: ../scripts/axis.py:1869
+msgid "Program exceeds machine limits"
+msgstr "Программа выходит за пределы машины"
+
+#: ../scripts/axis.py:1872
+msgid "Run Anyway"
+msgstr "Выполнить еще раз"
+
+#: ../scripts/axis.py:1937
+msgid "Touch Off"
+msgstr "Нажмите откл."
+
+#: ../scripts/axis.py:1937
+#, python-format
+msgid "Touch off: Enter %s coordinate relative to workpiece"
+msgstr "Нажмите откл.: Введите %s относительные координаты изделия"
+
+#: ../scripts/axis.py:2236
+msgid "Show EMC Status"
+msgstr "Показать EMC Статус"
+
+#: ../tcl/axis.tcl:37
+msgid "_Open"
+msgstr "_Открыть"
+
+#: ../tcl/axis.tcl:40
+msgid "Ctrl-R"
+msgstr "Ctrl-R"
+
+#: ../tcl/axis.tcl:42
+msgid "_Reload"
+msgstr "_Перегрузить"
+
+#: ../tcl/axis.tcl:46
+msgid "_Quit"
+msgstr "_Выход"
+
+#: ../tcl/axis.tcl:52
+msgid "Toggle _Emergency Stop"
+msgstr "_Аварийная остановка"
+
+#: ../tcl/axis.tcl:57
+msgid "Toggle _Machine Power"
+msgstr "П_итание"
+
+#: ../tcl/axis.tcl:63
+msgid "Set _next line"
+msgstr "Установить _следующую строку"
+
+#: ../tcl/axis.tcl:68
+msgid "_Run program"
+msgstr "П_уск программы"
+
+#: ../tcl/axis.tcl:73
+msgid "_Step"
+msgstr "_Шаг"
+
+#: ../tcl/axis.tcl:78
+msgid "_Pause"
+msgstr "_Пауза"
+
+#: ../tcl/axis.tcl:83
+msgid "_Resume"
+msgstr "_Возобновить"
+
+#: ../tcl/axis.tcl:88
+msgid "S_top"
+msgstr "С_топ"
+
+#: ../tcl/axis.tcl:94
+msgid "_Calibration"
+msgstr "_Калибровка"
+
+#: ../tcl/axis.tcl:98
+msgid "Show _Hal Configuration"
+msgstr "Показать _Hal конфигурацию"
+
+#: ../tcl/axis.tcl:102
+msgid "Ha_l Scope"
+msgstr "Ha_l скоп"
+
+#: ../tcl/axis.tcl:106
+msgid "Sho_w EMC Status"
+msgstr "_Показать EMC Статус"
+
+#: ../tcl/axis.tcl:116
+msgid "_Top view"
+msgstr "Вид _сверху"
+
+#: ../tcl/axis.tcl:123
+msgid "_Rotated Top view"
+msgstr "Перевернутый вид с_верху"
+
+#: ../tcl/axis.tcl:130
+msgid "_Side view"
+msgstr "Вид с_боку"
+
+#: ../tcl/axis.tcl:137
+msgid "_Front view"
+msgstr "Вид с_переди"
+
+#: ../tcl/axis.tcl:144
+msgid "_Perspective view"
+msgstr "П_ерспектива"
+
+#: ../tcl/axis.tcl:152
+msgid "Display _Inches"
+msgstr "_Дюймы"
+
+#: ../tcl/axis.tcl:158
+msgid "Display _MM"
+msgstr "Ми_ллиметры"
+
+#: ../tcl/axis.tcl:165
+msgid "S_how program"
+msgstr "Показать п_рограмму"
+
+#: ../tcl/axis.tcl:170
+msgid "Sho_w live plot"
+msgstr "Показать текущую _операцию"
+
+#: ../tcl/axis.tcl:175
+msgid "Show too_l"
+msgstr "Показать _инструмент"
+
+#: ../tcl/axis.tcl:180
+msgid "Show e_xtents"
+msgstr "Показать р_азмеры"
+
+#: ../tcl/axis.tcl:185
+msgid "Show machine sp_eed"
+msgstr "Показать с_корость машины"
+
+#: ../tcl/axis.tcl:188
+msgid "Ctrl-K"
+msgstr "Ctrl-K"
+
+#: ../tcl/axis.tcl:190
+msgid "_Clear live plot"
+msgstr "О_чистить пройденый путь"
+
+#: ../tcl/axis.tcl:199
+msgid "Show commanded position"
+msgstr "Показать позицию программы"
+
+#: ../tcl/axis.tcl:206
+msgid "Show actual position"
+msgstr "Показать фактическую позицию"
+
+#: ../tcl/axis.tcl:215
+msgid "Show machine position"
+msgstr "Показать позицию машины"
+
+#: ../tcl/axis.tcl:222
+msgid "Show relative position"
+msgstr "Показать относительную позицию"
+
+#: ../tcl/axis.tcl:232
+msgid "_About AXIS"
+msgstr "_О Axis"
+
+#: ../tcl/axis.tcl:236
+msgid "Quick _Reference"
+msgstr "Краткая _справка"
+
+#: ../tcl/axis.tcl:242
+msgid "_File"
+msgstr "_Файл"
+
+#: ../tcl/axis.tcl:246
+msgid "_Machine"
+msgstr "_Машина"
+
+#: ../tcl/axis.tcl:250
+msgid "_View"
+msgstr "_Вид"
+
+#: ../tcl/axis.tcl:254
+msgid "_Help"
+msgstr "_Справка"
+
+#: ../tcl/axis.tcl:263
+msgid "Toggle Emergency Stop [F1]"
+msgstr "Аварийная остановка [F1]"
+
+#: ../tcl/axis.tcl:272
+msgid "Toggle Machine power [F2]"
+msgstr "Питание [F2]"
+
+#: ../tcl/axis.tcl:283
+msgid "Open G-Code file [O]"
+msgstr "Открыть файл [0]"
+
+#: ../tcl/axis.tcl:291
+msgid "Reopen current file [Control-R]"
+msgstr "Перегрузить текущий файл [Control-R]"
+
+#: ../tcl/axis.tcl:301
+msgid "Begin executing current file [R]"
+msgstr "Начать исполнение текущего файла [R]"
+
+#: ../tcl/axis.tcl:309
+msgid "Execute next line [T]"
+msgstr "Выполнить следующую команду [T]"
+
+#: ../tcl/axis.tcl:317
+msgid "Pause [P] / resume [S] execution"
+msgstr "Пауза [P] / продолжить [S] исполнение"
+
+#: ../tcl/axis.tcl:325
+msgid "Stop program execution [ESC]"
+msgstr "Остановка исполнения программы [ESC]"
+
+#: ../tcl/axis.tcl:335
+msgid "Zoom in [+]"
+msgstr "Увеличить [+]"
+
+#: ../tcl/axis.tcl:343
+msgid "Zoom out [-]"
+msgstr "Уменьшить [-]"
+
+#: ../tcl/axis.tcl:351
+msgid "Top view"
+msgstr "Вид сверху"
+
+#: ../tcl/axis.tcl:359
+msgid "Rotated top view"
+msgstr "Перевернутый вид сверху"
+
+#: ../tcl/axis.tcl:367
+msgid "Side view"
+msgstr "Вид сбоку"
+
+#: ../tcl/axis.tcl:375
+msgid "Front view"
+msgstr "Вид спереди"
+
+#: ../tcl/axis.tcl:383
+msgid "Perspective view"
+msgstr "Перспектива"
+
+#: ../tcl/axis.tcl:393
+msgid "Clear live plot [Ctrl-K]"
+msgstr "Очистить пройденный путь [Ctrl-K]"
+
+#: ../tcl/axis.tcl:505
+msgid "Manual Control [F3]"
+msgstr "Ручное управление [F3]"
+
+#: ../tcl/axis.tcl:506
+msgid "Code Entry [F5]"
+msgstr "Добавить код [F5]"
+
+#: ../tcl/axis.tcl:515
+msgid "Axis:"
+msgstr "Ось:"
+
+#: ../tcl/axis.tcl:651
+msgid "Home"
+msgstr "База"
+
+#: ../tcl/axis.tcl:657
+msgid "Offset"
+msgstr "Отступ"
+
+#: ../tcl/axis.tcl:725
+msgid "Spindle:"
+msgstr "Шпиндель:"
+
+#: ../tcl/axis.tcl:746
+msgid "Stop"
+msgstr "Стоп"
+
+#: ../tcl/axis.tcl:770
+msgid "-"
+msgstr "-"
+
+#: ../tcl/axis.tcl:784
+msgid "+"
+msgstr "+"
+
+#: ../tcl/axis.tcl:789
+msgid "Brake"
+msgstr "Остановка"
+
+#: ../tcl/axis.tcl:836
+msgid "Coolant:"
+msgstr "Охлаждение:"
+
+#: ../tcl/axis.tcl:841
+msgid "Mist"
+msgstr "Вентиляция"
+
+#: ../tcl/axis.tcl:846
+msgid "Flood"
+msgstr "Охлаждение"
+
+#: ../tcl/axis.tcl:918
+msgid "History:"
+msgstr "История:"
+
+#: ../tcl/axis.tcl:932
+msgid "MDI Command:"
+msgstr "MDI Команда:"
+
+#: ../tcl/axis.tcl:942
+msgid "Go"
+msgstr "Выполнить"
+
+#: ../tcl/axis.tcl:948
+msgid "Active G-Codes:"
+msgstr "Активный G-Код:"
+
+#: ../tcl/axis.tcl:1099
+msgid "Jog Speed:"
+msgstr "Скорость перемещения:"
+
+#: ../tcl/axis.tcl:1115
+msgid "0"
+msgstr "0"
+
+#: ../tcl/axis.tcl:1127
+msgid "Feed Override:"
+msgstr "Лимит скорости:"
+
+#: ../tcl/axis.tcl:1129
+msgid "%"
+msgstr "%"
+
+#: ../tcl/axis.tcl:1169
+msgid ""
+"AXIS version $version\n"
+"\n"
+"Copyright (C) 2004, 2005, 2006 Jeff Epler and Chris Radek.\n"
+"\n"
+"This is free software, and you are welcome to redistribute it under certain "
+"conditions.  See the file COPYING, included with AXIS.\n"
+"\n"
+"Visit the AXIS web site: "
+msgstr ""
+
+#: ../tcl/axis.tcl:1197
+msgid "About AXIS"
+msgstr "О AXIS"
+
+#: ../tcl/axis.tcl:1226
+msgid "AXIS Quick Reference"
+msgstr "AXIS Быстрая справка"
+
+#: ../tcl/axis.tcl:1346
+msgid "AXIS (No file)"
+msgstr "AXIS (Нет файла)"
+
+#: ../tcl/axis.tcl:1357
+msgid "ESTOP"
+msgstr "Стоп"
+
+#: ../tcl/axis.tcl:1358
+msgid "ESTOP RESET"
+msgstr "Готов"
+
+#: ../tcl/axis.tcl:1359
+msgid "ON"
+msgstr "Вкл."
+
+#: ../tcl/axis.tcl:1398
+msgid "Machine"
+msgstr "Машина"
+
+#: ../tcl/axis.tcl:1398
+msgid "Relative"
+msgstr "Случайный"
+
+#: ../tcl/axis.tcl:1399
+msgid "Actual"
+msgstr "Текущий"
+
+#: ../tcl/axis.tcl:1399
+msgid "Commanded"
+msgstr "Команда"
+
+#: ../tcl/axis.tcl:1400
+msgid "Position:"
+msgstr "Позиция"
+
+#: ../tcl/axis.tcl:1563
+msgid "Turn spindle counterclockwise [F10]"
+msgstr "Вращение шпинделя против часовой стрелке [F10]"
+
+#: ../tcl/axis.tcl:1564
+msgid "Turn spindle clockwise [F9]"
+msgstr "Вращение шпинделя по часовой стрелке [F9]"
+
+#: ../tcl/axis.tcl:1565
+msgid "Stop spindle [F9/F10]"
+msgstr "Стоп шпиндель [F9/F10]"
+
+#: ../tcl/axis.tcl:1566
+msgid "Turn spindle Faster [F12]"
+msgstr "Вращение шпинделя быстрее [F12]"
+
+#: ../tcl/axis.tcl:1567
+msgid "Turn spindle Slower [F11]"
+msgstr "Вращение шпинделя медленнее [F11]"
+
+#: ../tcl/axis.tcl:1568
+msgid "Turn spindle brake on [Shift-B] or off [B]"
+msgstr "Вращение шпинделя вкл. [Shift-B] или откл.[B]"
+
+#: ../tcl/axis.tcl:1569
+msgid "Turn flood on or off [F8]"
+msgstr "Охлаждение вкл. или откл.[F8]"
+
+#: ../tcl/axis.tcl:1570
+msgid "Turn mist on or off [F7]"
+msgstr "Вентиляция вкл. или откл. [F7]"
+
+#: ../tcl/axis.tcl:1571
+msgid "Send active axis home [Home]"
+msgstr "Отослать активную ось на базу [Home]"
+
+#: ../tcl/axis.tcl:1572
+msgid "Set G54 offset for active axis [Shift-Home]"
+msgstr "Установить G54 отступ для активной оси [Shift-Home]"
+
+#: ../tcl/axis.tcl:1573
+msgid "Activate axis [X]"
+msgstr "Активировать ось [X]"
+
+#: ../tcl/axis.tcl:1574
+msgid "Activate axis [Y]"
+msgstr "Активировать ось [Y]"
+
+#: ../tcl/axis.tcl:1575
+msgid "Activate axis [Z]"
+msgstr "Активировать ось [Z]"
+
+#: ../tcl/axis.tcl:1576
+msgid "Activate axis [A]"
+msgstr "Активировать ось [A]"
+
+#: ../tcl/axis.tcl:1577
+msgid "Activate axis [4]"
+msgstr "Активировать ось [4]"
+
+#: ../tcl/axis.tcl:1578
+msgid "Activate axis [5]"
+msgstr "Активировать ось [5]"
+
+#: ../tcl/axis.tcl:1579 ../tcl/axis.tcl:1580
+msgid "Jog selected axis"
+msgstr "Движение выбранной оси"
+
+#: ../tcl/axis.tcl:1581
+msgid "Select jog ingrement"
+msgstr "Выбор движения"
+
+#: ../tcl/axis.tcl:1582
+msgid "Temporarily allow jogging outside machine limits [L]"
+msgstr "Временно разрешить движение вне пределов машины [L]"
