@@ -1340,6 +1340,9 @@ static int sendJogStop(int axis)
     // (hint TELEOP mode is for nontrivial kinematics)
     EMC_TRAJ_SET_TELEOP_VECTOR emc_set_teleop_vector;
 
+    if ((emcStatus->task.state != EMC_TASK_STATE_ON) || (emcStatus->task.mode != EMC_TASK_MODE_MANUAL))
+	return -1;
+
     if (axis < 0 || axis >= EMC_AXIS_MAX) {
 	return -1;
     }
@@ -1381,7 +1384,8 @@ static int sendJogCont(int axis, double speed)
     EMC_AXIS_JOG emc_axis_jog_msg;
     EMC_TRAJ_SET_TELEOP_VECTOR emc_set_teleop_vector;
 
-    printf("sendJogCont %d %f\n", axis, speed);
+    if ((emcStatus->task.state != EMC_TASK_STATE_ON) || (emcStatus->task.mode != EMC_TASK_MODE_MANUAL))
+	return -1;
 
     if (axis < 0 || axis >= EMC_AXIS_MAX) {
 	return -1;
@@ -1687,7 +1691,8 @@ static void hal_init_pins()
     *(halui_data->joint_home[num_axes]) = old_halui_data.joint_home[num_axes] = 0;
     *(halui_data->jog_minus[num_axes]) = old_halui_data.jog_minus[num_axes] = 0;
     *(halui_data->jog_plus[num_axes]) = old_halui_data.jog_plus[num_axes] = 0;
-    *(halui_data->jog_deadband) = 0.1;
+    *(halui_data->jog_deadband) = 0.2;
+    *(halui_data->jog_speed) = 0;
 
     *(halui_data->joint_selected) = 0; // select joint 0 by default
     
@@ -1873,7 +1878,7 @@ static void check_hal_changes()
 
 	floatt = *(halui_data->jog_analog[joint]);
 	if (floatt != old_halui_data.jog_analog[joint]) {
-	    if (fabs(floatt) >= *(halui_data->jog_deadband))
+	    if (fabs(floatt) > *(halui_data->jog_deadband))
 		sendJogCont(joint,*(halui_data->jog_speed) * *(halui_data->jog_analog[joint]));
 	    else
 		sendJogStop(joint);
