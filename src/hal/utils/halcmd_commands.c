@@ -2467,8 +2467,10 @@ int do_help_cmd(char *command)
 	printf("  deletes all signals\n");
     } else if (strcmp(command, "setp") == 0) {
 	printf("setp paramname value\n");
+	printf("setp pinname value\n");
 	printf("paramname = value\n");
 	printf("  Sets parameter 'paramname' to 'value' (if writable).\n");
+	printf("  Sets pin 'pinname' to 'value' (if an unconnected input).\n");
 	printf("  'setp' and '=' work the same, don't use '=' on the\n");
 	printf("  command line.  'value' may be a constant such as 1.234\n");
 	printf("  or TRUE, or a reference to an environment variable,\n");
@@ -2481,7 +2483,7 @@ int do_help_cmd(char *command)
 #endif
     } else if (strcmp(command, "sets") == 0) {
 	printf("sets signame value\n");
-	printf("  Sets signal 'signame' to 'value' (if sig has no writers).\n");
+	printf("  Sets signal 'signame' to 'value' (if signal has no writers).\n");
     } else if (strcmp(command, "getp") == 0) {
 	printf("getp paramname\n");
 	printf("  Gets the value of parameter 'paramname'.\n");
