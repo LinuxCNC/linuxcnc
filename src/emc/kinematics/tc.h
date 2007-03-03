@@ -27,6 +27,7 @@
 
 #define TC_LINEAR 1
 #define TC_CIRCULAR 2
+#define TC_RIGIDTAP 3
 
 /* structure for individual trajectory elements */
 
@@ -39,6 +40,20 @@ typedef struct {
     PmCircle xyz;
     PmLine abc;
 } PmCircle6;
+
+typedef enum {
+    TAPPING, RETRACTION, FINAL_PLACEMENT
+} RIGIDTAP_STATE;
+
+typedef struct {
+    PmLine xyz;             // original, but elongated, move down
+    PmLine aux_xyz;         // this will be generated on the fly, for the other
+                            // two moves: retraction, final placement
+    PmCartesian abc;
+    double reversal_target;
+    double spindlerevs_at_reversal;
+    RIGIDTAP_STATE state;
+} PmRigidTap;
 
 typedef struct {
     double cycle_time;
@@ -55,10 +70,12 @@ typedef struct {
     union {                 // describes the segment's start and end positions
         PmLine6 line;
         PmCircle6 circle;
+        PmRigidTap rigidtap;
     } coords;
 
     char motion_type;       // TC_LINEAR (coords.line) or 
-                            // TC_CIRCULAR (coords.circle)
+                            // TC_CIRCULAR (coords.circle) or
+                            // TC_RIGIDTAP (coords.rigidtap)
     char active;            // this motion is being executed
     int canon_motion_type;  // this motion is due to which canon function?
     int blend_with_next;    // gcode requests continuous feed at the end of 

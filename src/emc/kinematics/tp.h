@@ -68,6 +68,8 @@ extern int tpSetId(TP_STRUCT * tp, int id);
 extern int tpGetExecId(TP_STRUCT * tp);
 extern int tpSetTermCond(TP_STRUCT * tp, int cond, double tolerance);
 extern int tpSetPos(TP_STRUCT * tp, EmcPose pos);
+extern int tpAddRigidTap(TP_STRUCT * tp, EmcPose end, double vel, double
+        ini_maxvel, double acc, unsigned char enables);
 extern int tpAddLine(TP_STRUCT * tp, EmcPose end, int type, double vel, double
         ini_maxvel, double acc, unsigned char enables);
 extern int tpAddCircle(TP_STRUCT * tp, EmcPose end, PmCartesian center,

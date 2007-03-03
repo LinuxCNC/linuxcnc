@@ -32,7 +32,7 @@
 PmCartesian tcGetStartingUnitVector(TC_STRUCT *tc) {
     PmCartesian v;
 
-    if(tc->motion_type == TC_LINEAR) {
+    if(tc->motion_type == TC_LINEAR || tc->motion_type == TC_RIGIDTAP) {
         pmCartCartSub(tc->coords.line.xyz.end.tran, tc->coords.line.xyz.start.tran, &v);
     } else {
         PmPose startpoint;
@@ -51,6 +51,9 @@ PmCartesian tcGetEndingUnitVector(TC_STRUCT *tc) {
 
     if(tc->motion_type == TC_LINEAR) {
         pmCartCartSub(tc->coords.line.xyz.end.tran, tc->coords.line.xyz.start.tran, &v);
+    } else if(tc->motion_type == TC_RIGIDTAP) {
+        // comes out the other way
+        pmCartCartSub(tc->coords.line.xyz.start.tran, tc->coords.line.xyz.end.tran, &v);
     } else {
         PmPose endpoint;
         PmCartesian radius;
@@ -73,7 +76,7 @@ PmCartesian tcGetEndingUnitVector(TC_STRUCT *tc) {
  * corresponding to the current progress.
  * It gets called at the end of tpRunCycle()
  * 
- * @param    tc    the current TC that is beeing planned
+ * @param    tc    the current TC that is being planned
  *
  * @return	 EmcPose   returns a position (\ref EmcPose = datatype carrying XYZABC information
  */   
@@ -83,7 +86,15 @@ EmcPose tcGetPos(TC_STRUCT * tc)
     PmPose xyz;
     PmPose abc;
 
-    if (tc->motion_type == TC_LINEAR) {
+    if (tc->motion_type == TC_RIGIDTAP) {
+        if(tc->coords.rigidtap.state != TAPPING) {
+            pmLinePoint(&tc->coords.rigidtap.aux_xyz, tc->progress, &xyz);
+        } else {
+            pmLinePoint(&tc->coords.rigidtap.xyz, tc->progress, &xyz);
+        }
+        // no rotary move allowed while tapping
+        abc.tran = tc->coords.rigidtap.abc;
+    } else if (tc->motion_type == TC_LINEAR) {
         if (tc->coords.line.xyz.tmag < 1e-6) {
             // no xyz move, so progress is along the abc line
             pmLinePoint(&tc->coords.line.xyz, 0.0, &xyz);

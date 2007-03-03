@@ -238,6 +238,81 @@ int tpSetPos(TP_STRUCT * tp, EmcPose pos)
     return 0;
 }
 
+int tpAddRigidTap(TP_STRUCT *tp, EmcPose end, double vel, double ini_maxvel, 
+                  double acc, unsigned char enables) {
+    TC_STRUCT tc;
+    PmLine line_xyz;
+    PmPose start_xyz, end_xyz;
+    PmCartesian abc;
+    PmQuaternion identity_quat = { 1.0, 0.0, 0.0, 0.0 };
+
+    if (!tp) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "TP is null\n");
+        return -1;
+    }
+    if (tp->aborting) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "TP is aborting\n");
+	return -1;
+    }
+
+    start_xyz.tran = tp->goalPos.tran;
+    end_xyz.tran = end.tran;
+
+    start_xyz.rot = identity_quat;
+    end_xyz.rot = identity_quat;
+    
+    // abc cannot move
+    abc.x = tp->goalPos.a;
+    abc.y = tp->goalPos.b;
+    abc.z = tp->goalPos.c;
+
+    pmLineInit(&line_xyz, start_xyz, end_xyz);
+
+    tc.cycle_time = tp->cycleTime;
+    tc.coords.rigidtap.reversal_target = line_xyz.tmag;
+
+    // allow 10 turns of the spindle to stop - we don't want to just go on forever
+    tc.target = line_xyz.tmag + 10. * tp->uu_per_rev;
+
+    tc.progress = 0.0;
+    tc.reqvel = vel;
+    tc.maxaccel = acc * ACCEL_USAGE;
+    tc.feed_override = 0.0;
+    tc.maxvel = ini_maxvel * ACCEL_USAGE;
+    tc.id = tp->nextId;
+    tc.active = 0;
+
+    tc.coords.rigidtap.xyz = line_xyz;
+    tc.coords.rigidtap.abc = abc;
+    tc.motion_type = TC_RIGIDTAP;
+    tc.canon_motion_type = 0;
+    tc.blend_with_next = 0;
+    tc.tolerance = tp->tolerance;
+
+    if(!tp->synchronized) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "Cannot add unsychronized rigid tap move.\n");
+        return -1;
+    }
+    tc.synchronized = tp->synchronized;
+    
+    tc.uu_per_rev = tp->uu_per_rev;
+    tc.enables = enables;
+
+    if (tcqPut(&tp->queue, tc) == -1) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "tcqPut failed.\n");
+	return -1;
+    }
+    
+    // do not change tp->goalPos here,
+    // since this move will end just where it started
+
+    tp->done = 0;
+    tp->depth = tcqLen(&tp->queue);
+    tp->nextId++;
+
+    return 0;
+}
+
 // Add a straight line to the tc queue.  This is a coordinated
 // move in any or all of the six axes.  it goes from the end
 // of the previous move to the new end specified here at the
@@ -637,8 +712,14 @@ int tpRunCycle(TP_STRUCT * tp, long period)
 
 
     if(tc->synchronized) {
+        double revs;
         double pos_error;
-        double revs = emcmotStatus->spindleRevs;
+
+        if(tc->motion_type == TC_RIGIDTAP && tc->coords.rigidtap.state == RETRACTION)
+            revs = tc->coords.rigidtap.spindlerevs_at_reversal - 
+                emcmotStatus->spindleRevs;
+        else
+            revs = emcmotStatus->spindleRevs;
 
         pos_error = (revs - spindleoffset) * tc->uu_per_rev - tc->progress;
         if(nexttc) pos_error -= nexttc->progress;
