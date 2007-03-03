@@ -32,7 +32,6 @@ class HalWrapper:
 	self._pins.add(args[0])
 	return self._comp.newpin(*args)
     def newparam(self, *args):
-	print args[0]
 	self._params.add(args[0])
  	return self._comp.newparam(*args)
 
