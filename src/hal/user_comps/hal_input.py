@@ -53,6 +53,7 @@ class HalInputDevice:
 	self.codes = set()
 	self.last = {}
 	self.rel_items = []
+	self.abs_items = []
 	self.comp = comp
 
 	for key in self.device.get_bits('EV_KEY'):
@@ -68,8 +69,8 @@ class HalInputDevice:
 	    comp.newpin("%s.%s-position" % (idx, name), hal.HAL_FLOAT, hal.HAL_OUT)
 	    comp.newpin("%s.%s-counts" % (idx, name), hal.HAL_S32, hal.HAL_OUT)
 	    comp.newpin("%s.%s-reset" % (idx, name), hal.HAL_BIT, hal.HAL_IN)
-	    comp.newparam("%s.%s-position-scale" % (idx, name), hal.HAL_FLOAT, hal.HAL_RW)
-	    self.set(name + '-position-scale', 1.)
+	    comp.newparam("%s.%s-scale" % (idx, name), hal.HAL_FLOAT, hal.HAL_RW)
+	    self.set(name + '-scale', 1.)
 	    self.rel_items.append(name)
 
 	for axis in self.device.get_bits('EV_ABS'):
@@ -78,12 +79,22 @@ class HalInputDevice:
 	    absinfo = self.device.get_absinfo(axis)
 	    comp.newpin("%s.%s-position" % (idx, name), hal.HAL_FLOAT, hal.HAL_OUT)
 	    comp.newpin("%s.%s-counts" % (idx, name), hal.HAL_S32, hal.HAL_OUT)
-	    comp.newparam("%s.%s-position-scale" % (idx, name), hal.HAL_FLOAT, hal.HAL_RW)
-	    comp.newparam("%s.%s-fuzz" % (idx, name), hal.HAL_FLOAT, hal.HAL_RW)
-	    comp.newparam("%s.%s-flat" % (idx, name), hal.HAL_FLOAT, hal.HAL_RW)
-	    self.set(name + "-position-scale", float(max(-absinfo.minimum, absinfo.maximum) or 1))
+	    comp.newparam("%s.%s-scale" % (idx, name), hal.HAL_FLOAT, hal.HAL_RW)
+	    comp.newparam("%s.%s-offset" % (idx, name), hal.HAL_FLOAT, hal.HAL_RW)
+	    comp.newparam("%s.%s-fuzz" % (idx, name), hal.HAL_S32, hal.HAL_RW)
+	    comp.newparam("%s.%s-flat" % (idx, name), hal.HAL_S32, hal.HAL_RW)
+	    comp.newparam("%s.%s-min" % (idx, name), hal.HAL_S32, hal.HAL_RO)
+	    comp.newparam("%s.%s-max" % (idx, name), hal.HAL_S32, hal.HAL_RO)
+	    center = (absinfo.minimum + absinfo.maximum)/2.
+	    halfrange = (absinfo.maximum - absinfo.minimum)/2.
+	    self.set(name + "-counts", int(halfrange))
+	    self.set(name + "-scale", halfrange)
+	    self.set(name + "-offset", center)
 	    self.set(name + "-fuzz", absinfo.fuzz)
 	    self.set(name + "-flat", absinfo.flat)
+	    self.set(name + "-min", absinfo.minimum)
+	    self.set(name + "-max", absinfo.maximum)
+	    self.abs_items.append(name)
 
 	self.ledmap = {}
 	for led in self.device.get_bits('EV_LED'):
@@ -123,17 +134,24 @@ class HalInputDevice:
 	    elif ev.type == 'EV_ABS':
 		flat = self.get(code + "-flat")
 		fuzz = self.get(code + "-fuzz")
-		if ev.value < -flat: value = ev.value + flat
-		elif ev.value > flat: value = ev.value - flat
-		else: value = 0
+		center = int(self.get(code + "-offset"))
+		if ev.value < center-flat or ev.value > center+flat:
+		    value = ev.value
+		else: value = center
 		if abs(value - self.get(code + "-counts")) > fuzz:
-		    self.set(code + "-counts", ev.value)
-		    self.set(code + "-position", ev.value / (self.get(code + "-position-scale") or 1))
+		    self.set(code + "-counts", value)
+
+	for a in self.abs_items:
+	    value = self.get(a + "-counts")
+	    scale = self.get(a + "-scale") or 1
+	    offset = self.get(a + "-offset")
+	    self.set(a + "-position", (value - offset) / scale)
 
 	for r in self.rel_items:
 	    reset = self.get(r + "-reset")
+	    scale = self.get(r + "-scale") or 1
 	    if reset: self.set(r + "-counts", 0)
-	    self.set(r + "-position", self.get(r + "-counts") / (self.get(r + "-position-scale") or 1))
+	    self.set(r + "-position", self.get(r + "-counts") / scale)
 
 	for k, v in self.last.items():
 	    # Note: this is OK because the hal module always returns True or False for HAL_BIT values

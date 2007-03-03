@@ -67,18 +67,26 @@ Created for each key on the device.
 .TQ
 .B input.\fIN\fB.abs-\fIname\fB-position\fR float out
 .TQ
-.B input.\fIN\fB.abs-\fIname\fB-position-scale\fR parameter float rw
+.B input.\fIN\fB.abs-\fIname\fB-scale\fR parameter float rw
+.TQ
+.B input.\fIN\fB.abs-\fIname\fB-offset\fR parameter float rw
 .TQ
 .B input.\fIN\fB.abs-\fIname\fB-fuzz\fR parameter s32 rw
 .TQ
 .B input.\fIN\fB.abs-\fIname\fB-flat\fR parameter s32 rw
+.TQ
+.B input.\fIN\fB.abs-\fIname\fB-min\fR parameter s32 r
+.TQ
+.B input.\fIN\fB.abs-\fIname\fB-max\fR parameter s32 r
 Created for each absolute axis on the device.  Device positions closer than
-\fBflat\fR to 0 are reported as 0 in \fBcounts\fR, and \fBcounts\fR does not
-change until the device position changes by at least \fBfuzz\fR.
-\fBcounts\fR is divided by \fBposition-scale\fR to give \fBposition\fR.  The
-default value of \fBposition-scale\fR maps the range of the axis reported by
-the operating system to [-1,1].  The default value of \fBfuzz\fR and \fBflat\fR
-are those reported by the operating system.
+\fBflat\fR to \fBoffset\fR are reported as \fBoffset\fR in \fBcounts\fR, and
+\fBcounts\fR does not change until the device position changes by at least
+\fBfuzz\fR.  The position is computed as \fBposition\fR = (\fBcounts\fR -
+\fBoffset\fR) / \fBscale\fR.  The default value of \fBscale\fR and \fBoffset\fR
+map the range of the axis reported by the operating system to [-1,1].  The
+default values of \fBfuzz\fR and \fBflat\fR are those reported by the operating
+system.  The values of \fBmin\fR and \fBmax\fR are those reported by the
+operating system.
 .SS For relative axes
 .TP
 .B input.\fIN\fB.rel-\fIname\fB-counts\fR s32 out
@@ -87,7 +95,7 @@ are those reported by the operating system.
 .TQ
 .B input.\fIN\fB.rel-\fIname\fB-reset\fR bit in
 .TQ
-.B input.\fIN\fB.rel-\fIname\fB-position-scale\fR parameter float rw
+.B input.\fIN\fB.rel-\fIname\fB-scale\fR parameter float rw
 Created for each relative axis on the device.  As long as \fBreset\fR is true,
 \fBcounts\fR is reset to zero regardless of any past or current axis movement.
 Otherwise, \fBcounts\fR increases or decreases according to the motion of the
