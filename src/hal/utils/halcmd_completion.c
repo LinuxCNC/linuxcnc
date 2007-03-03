@@ -221,6 +221,36 @@ static char *signal_generator(const char *text, int state) {
     return NULL;
 }
 
+static char *getp_generator(const char *text, int state) {
+    static int len;
+    static int next;
+    static int what;
+    if(!state) {
+        what = 0;
+        next = hal_data->param_list_ptr;
+        len = strlen(text);
+    }
+
+    if(what == 0) {
+        while(next) {
+            hal_param_t *param = SHMPTR(next);
+            next = param->next_ptr;
+            if ( strncmp(text, param->name, len) == 0 )
+                return strdup(param->name);
+        }
+        what = 1;
+        next = hal_data->pin_list_ptr;
+    }
+    while(next) {
+        hal_pin_t *pin = SHMPTR(next);
+        next = pin->next_ptr;
+        if ( strncmp(text, pin->name, len) == 0 )
+            return strdup(pin->name);
+    }
+
+    return NULL;
+}
+
 static char *setp_generator(const char *text, int state) {
     static int len;
     static int next;
@@ -486,7 +516,7 @@ char **completer(const char *text, int start, int end) {
     } else if(startswith(rl_line_buffer, "sets ") && argno == 1) {
         result = rl_completion_matches(text, signal_generator);
     } else if(startswith(rl_line_buffer, "getp ") && argno == 1) {
-        result = rl_completion_matches(text, param_generator);
+        result = rl_completion_matches(text, getp_generator);
     } else if(startswith(rl_line_buffer, "gets ") && argno == 1) {
         result = rl_completion_matches(text, signal_generator);
     } else if(startswith(rl_line_buffer, "show ") && argno == 1) {
