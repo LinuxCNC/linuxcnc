@@ -131,14 +131,14 @@ int kinematicsForward(const double * joint,
    *iflags = 0;
 
    /* Set shoulder-up flag if necessary */
-   if (fabs(joint[0] - atan2(hom.tran.y, hom.tran.x) +
+   if (fabs(joint[0]*PM_PI/180 - atan2(hom.tran.y, hom.tran.x) +
        atan2(PUMA_D3, -sqrt(sumSq))) < FLAG_FUZZ)
    {
      *iflags |= PUMA_SHOULDER_RIGHT;
    }
 
    /* Set elbow down flag if necessary */
-   if (fabs(joint[2] - atan2(PUMA_A3, PUMA_D4) +
+   if (fabs(joint[2]*PM_PI/180 - atan2(PUMA_A3, PUMA_D4) +
        atan2(k, -sqrt(PUMA_A3 * PUMA_A3 +
        PUMA_D4 * PUMA_D4 - k * k))) < FLAG_FUZZ)
    {
@@ -156,7 +156,7 @@ int kinematicsForward(const double * joint,
 
    /* if not singular set wrist flip flag if necessary */
    else{
-     if (! (fabs(joint[3] - atan2(t1, t2)) < FLAG_FUZZ))
+     if (! (fabs(joint[3]*PM_PI/180 - atan2(t1, t2)) < FLAG_FUZZ))
      {
        *iflags |= PUMA_WRIST_FLIP;
      }
@@ -274,7 +274,7 @@ int kinematicsInverse(const EmcPose * world,
    if (fabs(t1) < SINGULAR_FUZZ && fabs(t2) < SINGULAR_FUZZ){
      singular = 1;
      *fflags |= PUMA_REACH;
-     th4 = joint[3];            /* use current value */
+     th4 = joint[3]*PM_PI/180;            /* use current value */
    }
    else{
      singular = 0;
@@ -313,12 +313,12 @@ int kinematicsInverse(const EmcPose * world,
    }
 
    /* copy out */
-   joint[0] = th1*PM_PI/180;
-   joint[1] = th2*PM_PI/180;
-   joint[2] = th3*PM_PI/180;
-   joint[3] = th4*PM_PI/180;
-   joint[4] = th5*PM_PI/180;
-   joint[5] = th6*PM_PI/180;
+   joint[0] = th1*180/PM_PI;
+   joint[1] = th2*180/PM_PI;
+   joint[2] = th3*180/PM_PI;
+   joint[3] = th4*180/PM_PI;
+   joint[4] = th5*180/PM_PI;
+   joint[5] = th6*180/PM_PI;
 
    return singular == 0 ? 0 : -1;
 }
