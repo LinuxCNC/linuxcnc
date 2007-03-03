@@ -183,6 +183,7 @@ DONE: - spindle-override
 
 */
 
+
 struct halui_str {
     hal_bit_t *machine_on;         //pin for setting machine On
     hal_bit_t *machine_off;        //pin for setting machine Off
@@ -255,6 +256,8 @@ struct halui_str {
     hal_float_t *jog_speed;	//pin for setting the jog speed (halui internal)
     hal_bit_t *jog_minus[EMCMOT_MAX_AXIS+1];	//pin to jog in positive direction
     hal_bit_t *jog_plus[EMCMOT_MAX_AXIS+1];	//pin to jog in negative direction
+    hal_float_t *jog_analog[EMCMOT_MAX_AXIS+1];	//pin for analog jogging (-1..0..1)
+    hal_float_t *jog_deadband;	//pin for setting the jog analog deadband (where not to move)
 
     hal_s32_t *fo_counts;	//pin for the Feed Override counting
     hal_float_t *fo_scale;	//scale for the Feed Override counting
@@ -315,6 +318,7 @@ struct local_halui_str {
 
     hal_bit_t jog_minus[EMCMOT_MAX_AXIS+1];	//pin to jog in positive direction
     hal_bit_t jog_plus[EMCMOT_MAX_AXIS+1];	//pin to jog in negative direction
+    hal_float_t jog_analog[EMCMOT_MAX_AXIS+1];	//pin for analog jogging (-1..0..1)
         
     hal_s32_t fo_counts;	//pin for the Feed Override counting
     hal_float_t fo_scale;	//scale for the Feed Override counting
@@ -839,7 +843,8 @@ int halui_hal_init(void)
 	if (retval != HAL_SUCCESS) return retval;
 	retval =  hal_pin_bit_newf(HAL_IN, &(halui_data->jog_minus[joint]), comp_id, "halui.jog.%d.minus", joint); 
 	if (retval != HAL_SUCCESS) return retval;
-
+	retval =  hal_pin_float_newf(HAL_IN, &(halui_data->jog_analog[joint]), comp_id, "halui.jog.%d.analog", joint); 
+	if (retval != HAL_SUCCESS) return retval;
     }
 
     retval =  hal_pin_bit_newf(HAL_IN, &(halui_data->joint_home[num_axes]), comp_id, "halui.joint.selected.home"); 
@@ -849,6 +854,8 @@ int halui_hal_init(void)
     retval =  hal_pin_bit_newf(HAL_IN, &(halui_data->jog_minus[num_axes]), comp_id, "halui.jog.selected.minus"); 
     if (retval != HAL_SUCCESS) return retval;
     retval = halui_export_pin_IN_float(&(halui_data->jog_speed), "halui.jog-speed");
+    if (retval != HAL_SUCCESS) return retval;
+    retval = halui_export_pin_IN_float(&(halui_data->jog_deadband), "halui.jog-deadband");
     if (retval != HAL_SUCCESS) return retval;
 
     hal_ready(comp_id);
@@ -1374,6 +1381,8 @@ static int sendJogCont(int axis, double speed)
     EMC_AXIS_JOG emc_axis_jog_msg;
     EMC_TRAJ_SET_TELEOP_VECTOR emc_set_teleop_vector;
 
+    printf("sendJogCont %d %f\n", axis, speed);
+
     if (axis < 0 || axis >= EMC_AXIS_MAX) {
 	return -1;
     }
@@ -1672,11 +1681,13 @@ static void hal_init_pins()
 	*(halui_data->joint_nr_select[joint]) = old_halui_data.joint_nr_select[joint] = 0;
 	*(halui_data->jog_minus[joint]) = old_halui_data.jog_minus[joint] = 0;
 	*(halui_data->jog_plus[joint]) = old_halui_data.jog_plus[joint] = 0;
+	*(halui_data->jog_analog[joint]) = old_halui_data.jog_analog[joint] = 0;
     }
 
     *(halui_data->joint_home[num_axes]) = old_halui_data.joint_home[num_axes] = 0;
     *(halui_data->jog_minus[num_axes]) = old_halui_data.jog_minus[num_axes] = 0;
     *(halui_data->jog_plus[num_axes]) = old_halui_data.jog_plus[num_axes] = 0;
+    *(halui_data->jog_deadband) = 0.1;
 
     *(halui_data->joint_selected) = 0; // select joint 0 by default
     
@@ -1703,6 +1714,7 @@ static void check_hal_changes()
     hal_s32_t counts;
     int select_changed, joint;
     hal_bit_t bit, js;
+    hal_float_t floatt;
     
     //check if machine_on pin has changed (the rest work exactly the same)
     if (check_bit_changed(halui_data->machine_on, &(old_halui_data.machine_on)) != 0)
@@ -1857,6 +1869,15 @@ static void check_hal_changes()
 	    else
 		sendJogStop(joint);
 	    old_halui_data.jog_plus[joint] = bit;
+	}
+
+	floatt = *(halui_data->jog_analog[joint]);
+	if (floatt != old_halui_data.jog_analog[joint]) {
+	    if (fabs(floatt) >= *(halui_data->jog_deadband))
+		sendJogCont(joint,*(halui_data->jog_speed) * *(halui_data->jog_analog[joint]));
+	    else
+		sendJogStop(joint);
+	    old_halui_data.jog_analog[joint] = floatt;
 	}
 	
 	// check to see if another joint has been selected
