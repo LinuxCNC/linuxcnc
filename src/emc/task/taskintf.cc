@@ -1024,6 +1024,21 @@ int emcTrajProbe(EmcPose pos, int type, double vel, double ini_maxvel, double ac
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
+int emcTrajRigidTap(EmcPose pos, double vel, double ini_maxvel, double acc)
+{
+    emcmotCommand.command = EMCMOT_RIGID_TAP;
+    emcmotCommand.pos.tran.x = pos.tran.x;
+    emcmotCommand.pos.tran.y = pos.tran.y;
+    emcmotCommand.pos.tran.z = pos.tran.z;
+    emcmotCommand.id = localEmcTrajMotionId;
+    emcmotCommand.vel = vel;
+    emcmotCommand.ini_maxvel = ini_maxvel;
+    emcmotCommand.acc = acc;
+
+    return usrmotWriteEmcmotCommand(&emcmotCommand);
+}
+
+
 static int last_id = 0;
 static int last_id_printed = 0;
 static int last_status = 0;

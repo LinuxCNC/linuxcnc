@@ -123,9 +123,10 @@
 #define EMC_TRAJ_SET_TELEOP_VECTOR_TYPE              ((NMLTYPE) 231)
 #define EMC_TRAJ_SET_SPINDLESYNC_TYPE                ((NMLTYPE) 232)
 #define EMC_TRAJ_SET_SPINDLE_SCALE_TYPE              ((NMLTYPE) 233)
-#define EMC_TRAJ_SET_FO_ENABLE_TYPE              ((NMLTYPE) 234)
-#define EMC_TRAJ_SET_SO_ENABLE_TYPE           ((NMLTYPE) 235)
-#define EMC_TRAJ_SET_FH_ENABLE_TYPE         ((NMLTYPE) 236)
+#define EMC_TRAJ_SET_FO_ENABLE_TYPE                  ((NMLTYPE) 234)
+#define EMC_TRAJ_SET_SO_ENABLE_TYPE                  ((NMLTYPE) 235)
+#define EMC_TRAJ_SET_FH_ENABLE_TYPE                  ((NMLTYPE) 236)
+#define EMC_TRAJ_RIGID_TAP_TYPE                      ((NMLTYPE) 237)
 
 #define EMC_TRAJ_STAT_TYPE                           ((NMLTYPE) 299)
 
@@ -446,6 +447,7 @@ extern int emcTrajSetHome(EmcPose home);
 extern int emcTrajClearProbeTrippedFlag();
 extern int emcTrajProbe(EmcPose pos, int type, double vel, 
 	double ini_maxvel, double acc);
+extern int emcTrajRigidTap(EmcPose pos, double vel, double ini_maxvel, double acc);
 
 class EMC_TRAJ_STAT;		// forward decl
 extern int emcTrajUpdate(EMC_TRAJ_STAT * stat);
@@ -1559,6 +1561,20 @@ class EMC_TRAJ_PROBE:public EMC_TRAJ_CMD_MSG {
     int type;
     double vel, ini_maxvel, acc;
 };
+
+class EMC_TRAJ_RIGID_TAP:public EMC_TRAJ_CMD_MSG {
+  public:
+    EMC_TRAJ_RIGID_TAP():EMC_TRAJ_CMD_MSG(EMC_TRAJ_RIGID_TAP_TYPE,
+				      sizeof(EMC_TRAJ_RIGID_TAP)) {
+    };
+
+    // For internal NML/CMS use only.
+    void update(CMS * cms);
+
+    EmcPose pos;
+    double vel, ini_maxvel, acc;
+};
+
 
 // EMC_TRAJ status base class
 class EMC_TRAJ_STAT_MSG:public RCS_STAT_MSG {

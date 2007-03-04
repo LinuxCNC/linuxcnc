@@ -396,6 +396,12 @@ extern void STRAIGHT_FEED(double x, double y, double z,
 all axes have covered the same proportion of their required motion.
 The meanings of the parameters is the same as for STRAIGHT_TRAVERSE.*/
 
+extern void RIGID_TAP(double x, double y, double z);
+
+/* Move linear and synced with the previously set pitch.
+Only linear moves are allowed, axes A,B,C are not allowed to move.*/
+
+
 extern void STRAIGHT_PROBE(double x, double y, double z,
 			   double a_position, double b_position,
 			   double c_position);

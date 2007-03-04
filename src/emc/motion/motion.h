@@ -137,6 +137,8 @@ extern "C" {
 	EMCMOT_CLEAR_PROBE_FLAGS,	/* clears probeTripped flag */
 	EMCMOT_PROBE,		/* go to pos, stop if probe trips, record
 				   trip pos */
+	EMCMOT_RIGID_TAP,	/* go to pos, with sync to spindle speed, 
+				   then return to initial pos */
 
 	EMCMOT_SET_POSITION_LIMITS,	/* set the axis position +/- limits */
 	EMCMOT_SET_BACKLASH,	/* set the axis backlash */

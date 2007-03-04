@@ -1574,7 +1574,7 @@ G codes are are executed in the following order.
 10. mode 0, one of (G10, G28, G30, G92, G92.1, G92.2, G92.3) -
     setting coordinate system locations, return to reference point 1,
     return to reference point 2, setting or cancelling axis offsets.
-11. mode 1, one of (G0, G1, G2, G3, G38.2, G80, G81 to G89, G33, G76) - motion or cancel.
+11. mode 1, one of (G0, G1, G2, G3, G38.2, G80, G81 to G89, G33, G33.1, G76) - motion or cancel.
     G53 from mode 0 is also handled here, if present.
 
 Some mode 0 and most mode 1 G codes must be executed after the length units
@@ -2018,7 +2018,7 @@ int Interp::convert_motion(int motion,   //!< g_code for a line, arc, canned cyc
   static char name[] = "convert_motion";
   int status;
 
-  if ((motion == G_0) || (motion == G_1) || (motion == G_33) || (motion == G_76)) {
+  if ((motion == G_0) || (motion == G_1) || (motion == G_33) || (motion == G_33_1) || (motion == G_76)) {
     CHP(convert_straight(motion, block, settings));
   } else if ((motion == G_3) || (motion == G_2)) {
     CHP(convert_arc(motion, block, settings));
@@ -2635,6 +2635,11 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
     settings->current_x = end_x;
     settings->current_y = end_y;
     settings->current_z = end_z;
+  } else if (move == G_33_1) {
+    START_SPEED_FEED_SYNCH(block->k_number);
+    RIGID_TAP(end_x, end_y, end_z);
+    STOP_SPEED_FEED_SYNCH();
+    // after the RIGID_TAP cycle we'll be in the same spot
   } else if (move == G_76) {
     CHK((settings->AA_current != AA_end || 
          settings->BB_current != BB_end || 

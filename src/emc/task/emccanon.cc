@@ -622,6 +622,46 @@ void STRAIGHT_FEED(double x, double y, double z, double a, double b,
     see_segment(x, y, z, a, b, c);
 }
 
+
+void RIGID_TAP(double x, double y, double z)
+{
+    double ini_maxvel, vel, acc;
+    EMC_TRAJ_RIGID_TAP rigidTapMsg;
+
+    // convert to mm units
+    x = FROM_PROG_LEN(x);
+    y = FROM_PROG_LEN(y);
+    z = FROM_PROG_LEN(z);
+    
+    x += programOrigin.x;
+    y += programOrigin.y;
+    z += programOrigin.z;
+
+    x += currentXToolOffset;
+    z += currentZToolOffset;
+
+    rigidTapMsg.pos.tran.x = TO_EXT_LEN(x);
+    rigidTapMsg.pos.tran.y = TO_EXT_LEN(y);
+    rigidTapMsg.pos.tran.z = TO_EXT_LEN(z);
+
+    ini_maxvel = vel = getStraightVelocity(x, y, z, canonEndPoint.a, canonEndPoint.b, canonEndPoint.c);
+    if (vel > currentLinearFeedRate) {
+        vel = currentLinearFeedRate;
+    }
+    acc = getStraightAcceleration(x, y, z, canonEndPoint.a, canonEndPoint.b, canonEndPoint.c);
+
+    rigidTapMsg.vel = toExtVel(vel);
+    rigidTapMsg.ini_maxvel = toExtVel(ini_maxvel);
+    rigidTapMsg.acc = toExtAcc(acc);
+
+    flush_segments();
+
+    interp_list.append(rigidTapMsg);
+    canonUpdateEndPoint(canonEndPoint.x, canonEndPoint.y, canonEndPoint.z, 
+			canonEndPoint.a, canonEndPoint.b, canonEndPoint.c);
+}
+
+
 /*
   STRAIGHT_PROBE is exactly the same as STRAIGHT_FEED, except that it
   uses a probe message instead of a linear move message.

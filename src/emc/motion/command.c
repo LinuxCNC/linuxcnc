@@ -1205,6 +1205,48 @@ check_stuff ( "before command_handler()" );
 	    }
 	    break;
 
+	case EMCMOT_RIGID_TAP:
+	    /* most of this is taken from EMCMOT_SET_LINE */
+	    /* emcmotDebug->queue up a linear move */
+	    /* requires coordinated mode, enable off, not on limits */
+	    rtapi_print_msg(RTAPI_MSG_DBG, "RIGID_TAP");
+	    if (!GET_MOTION_COORD_FLAG() || !GET_MOTION_ENABLE_FLAG()) {
+		reportError
+		    ("need to be enabled, in coord mode for rigid tap move");
+		emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_COMMAND;
+		SET_MOTION_ERROR_FLAG(1);
+		break;
+	    } else if (!inRange(emcmotCommand->pos)) {
+		if(emcmotCommand->id > 0)
+		    reportError("rigid tap move on line %d would exceed limits",
+			    emcmotCommand->id);
+		else
+		    reportError("rigid tap move in MDI would exceed limits");
+		emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_PARAMS;
+		tpAbort(&emcmotDebug->queue);
+		SET_MOTION_ERROR_FLAG(1);
+		break;
+	    } else if (!checkLimits()) {
+		reportError("can't do rigid tap move with limits exceeded");
+		emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_PARAMS;
+		tpAbort(&emcmotDebug->queue);
+		SET_MOTION_ERROR_FLAG(1);
+		break;
+	    }
+
+	    /* append it to the emcmotDebug->queue */
+	    tpSetId(&emcmotDebug->queue, emcmotCommand->id);
+	    if (-1 == tpAddRigidTap(&emcmotDebug->queue, emcmotCommand->pos, emcmotCommand->vel, emcmotCommand->ini_maxvel, emcmotCommand->acc, emcmotStatus->enables_new)) {
+		reportError("can't add rigid tap move");
+		emcmotStatus->commandStatus = EMCMOT_COMMAND_BAD_EXEC;
+		tpAbort(&emcmotDebug->queue);
+		SET_MOTION_ERROR_FLAG(1);
+		break;
+	    } else {
+		SET_MOTION_ERROR_FLAG(0);
+	    }
+	    break;
+
 	case EMCMOT_SET_TELEOP_VECTOR:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_TELEOP_VECTOR");
 	    if (!GET_MOTION_TELEOP_FLAG() || !GET_MOTION_ENABLE_FLAG()) {

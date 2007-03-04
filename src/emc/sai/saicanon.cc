@@ -626,6 +626,18 @@ void PARAMETRIC_3D_CURVE_FEED(FunctionPtr xfcn, FunctionPtr yfcn,
                               double end_parameter_value) {}
 */
 
+
+void RIGID_TAP(double x, double y, double z)
+{
+
+
+    fprintf(_outfile, "%5d ", _line_number++);
+    print_nc_line_number();
+    fprintf(_outfile, "STRAIGHT_PROBE(%.4f, %.4f, %.4f)\n", x, y, z);
+
+}
+
+
 void DWELL(double seconds)
 {PRINT1("DWELL(%.4f)\n", seconds);}
 
