@@ -633,7 +633,7 @@ void RIGID_TAP(double x, double y, double z)
 
     fprintf(_outfile, "%5d ", _line_number++);
     print_nc_line_number();
-    fprintf(_outfile, "STRAIGHT_PROBE(%.4f, %.4f, %.4f)\n", x, y, z);
+    fprintf(_outfile, "RIGID_TAP(%.4f, %.4f, %.4f)\n", x, y, z);
 
 }
 
