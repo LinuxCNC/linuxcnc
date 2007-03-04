@@ -270,11 +270,11 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
   }
 
   if (block->k_flag == ON) {    /* could still be useless if xy_plane arc */
-    CHK(((motion != G_2) && (motion != G_3) && (motion != G_33) && (motion != G_76) && (motion != G_87)),
+      CHK(((motion != G_2) && (motion != G_3) && (motion != G_33) && (motion != G_33_1) && (motion != G_76) && (motion != G_87)),
         NCE_K_WORD_WITH_NO_G2_OR_G3_G76_OR_G87_TO_USE_IT);
   }
 
-  if (motion == G_33) {
+  if (motion == G_33 || motion == G_33_1) {
     CHK((block->k_flag == OFF),	NCE_K_WORD_MISSING_WITH_G33);
     CHK((block->f_number != -1), NCE_F_WORD_USED_WITH_G33);
   }
