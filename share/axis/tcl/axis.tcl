@@ -1493,9 +1493,11 @@ proc update_state {args} {
     state  {$task_state != $STATE_ESTOP} .toolbar.machine_power 
     relief {$task_state == $STATE_ON}    .toolbar.machine_power 
 
-    state  {$interp_state == $INTERP_IDLE} .toolbar.file_open {.menu.file 0}
+    state  {$interp_state == $INTERP_IDLE} .toolbar.file_open \
+        {.menu.file 0} {.menu.file 3}
     state  {$interp_state == $INTERP_IDLE && $taskfile != ""} \
-                .toolbar.reload {.menu.file 1} {.menu.file 3}
+                .toolbar.reload {.menu.file 1}
+    state  {$taskfile != ""} {.menu.file 2}
 
     state  {$task_state == $STATE_ON && $interp_state == $INTERP_IDLE} \
                 {.menu.machine 21}
