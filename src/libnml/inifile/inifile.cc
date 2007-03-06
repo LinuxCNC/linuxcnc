@@ -16,22 +16,32 @@
 * $Date$
 ********************************************************************/
 
-extern "C" {
 #include <stdio.h>		/* FILE *, fopen(), fclose(), NULL */
 #include <string.h>		/* strstr() */
 #include <ctype.h>		/* isspace() */
 #include <stdlib.h>		/* exit() */
 #include <stdarg.h>		/* va_list */
 #include <fcntl.h>
-}
 #include "inifile.hh"
 #include "rcs_print.hh"
+
+extern "C"
+const char *iniFind(FILE *fp, const char *tag, const char *section)
+{
+    Inifile f(fp);
+    return f.find(tag, section);
+}
+
+/*##########################################################################*/
+
 /*! File descriptor is set to NULL, so open("file.name") must be used
    before any search.
 
-   @return None. */ Inifile::Inifile()
+   @return None. */
+Inifile::Inifile()
 {
     fp = NULL;
+    close_fp = 0;
 }
 
 /*! Constructor with a file name.
@@ -43,6 +53,20 @@ Inifile::Inifile(const char *file)
 {
     if (open(file) == false) {
 	fprintf(stderr, "can't open %s\n", file);
+    }
+}
+
+Inifile::Inifile(FILE *fp_, bool owner) {
+    fp = fp_;
+    close_fp = owner;
+    lock.l_type = F_RDLCK;
+    lock.l_whence = SEEK_SET;
+    lock.l_start = 0;
+    lock.l_len = 0;
+    if (fcntl(fileno(fp), F_SETLK, &lock) == -1) {
+	fprintf(stderr, "Unable to lock file %p\n", fp);
+	if(owner) fclose(fp);
+        fp = NULL;
     }
 }
 
@@ -60,12 +84,15 @@ Inifile::~Inifile()
    @return true on success, false on failure */
 bool Inifile::open(const char *file)
 {
+    if(close_fp) close();
+
     char path[LINELEN] = "";
     tilde(file, path);
 
     if ((fp = fopen(path, "r")) == NULL) {
 	return false;
     }
+    close_fp = 1;
     lock.l_type = F_RDLCK;
     lock.l_whence = SEEK_SET;
     lock.l_start = 0;
@@ -88,7 +115,8 @@ bool Inifile::close()
     if (fp != NULL) {
 	lock.l_type = F_UNLCK;
 	fcntl(fileno(fp), F_SETLKW, &lock);
-	tmp = fclose(fp);
+        if(close_fp)
+            tmp = fclose(fp);
 	fp = NULL;
     }
     return ((tmp == 0) ? true : false);
@@ -412,189 +440,6 @@ void Inifile::tilde(const char *file, char *path)
     strcpy(path, home);
     strcat(path, file + 1);
     return;
-}
-
-/*##########################################################################*/
-
-extern "C" {
-
-static const char *afterequal(const char *string)
-{
-    const char *spot = string;	/* non-reentrant */
-
-    for (;;) {
-	if (*spot == '=') {
-	    /* = is there-- return next non-white, or NULL if not there */
-	    for (;;) {
-		spot++;
-		if (0 == *spot) {
-		    /* ran out */
-		    return NULL;
-		} else if (*spot != ' ' && *spot != '\t'
-			   && *spot != '\r' && *spot != '\n') {
-		    /* matched! */
-		    return spot;
-		} else {
-		    /* keep going for the text */
-		    continue;
-		}
-	    }
-	} else if (*spot == 0) {
-	    /* end of string */
-	    return NULL;
-	} else {
-	    /* haven't seen '=' yet-- keep going */
-	    spot++;
-	    continue;
-	}
-    }
-}
-
-static char *skipwhite(char *string)
-{
-    for (;;) {
-	if (*string == 0) {
-	    return NULL;
-	}
-
-	if ((*string == ';') || (*string == '#')) {
-	    return NULL;
-	}
-
-	if (*string != ' ' && *string != '\t' && *string != '\r'
-	    && *string != '\n') {
-	    return string;
-	}
-
-	string++;
-    }
-}
-
-
-const char *iniFind(void *fp, const char *tag, const char *section)
-{
-    static char line[LINELEN + 2];	/* 1 for newline, 1 for NULL */
-    static char bracketsection[LINELEN + 2];
-    char *nonwhite;
-    int newlinepos;		/* position of newline to strip */
-    int len;
-    char tagend;
-    char *value_string;
-    char *end_value_string;
-
-    /* check valid file */
-    if (NULL == fp)
-	return NULL;
-
-    /* start from beginning */
-    rewind((FILE *) fp);
-
-    /* check for section first-- if it's non-NULL, then position file at line
-       after [section] */
-    if (NULL != section) {
-	sprintf(bracketsection, "[%s]", section);
-
-	/* find [section], and position fp just after it */
-
-	while (!feof((FILE *) fp)) {
-
-	    if (NULL == fgets(line, LINELEN + 1, (FILE *) fp)) {
-		/* got to end of file without finding it */
-		return NULL;
-	    }
-	    /* got a line */
-
-	    /* strip off newline */
-	    newlinepos = strlen(line) - 1;	/* newline is on back from 0 */
-	    if (newlinepos < 0) {
-		newlinepos = 0;
-	    }
-	    if (line[newlinepos] == '\n') {
-		line[newlinepos] = 0;	/* make the newline 0 */
-	    }
-
-	    if (NULL == (nonwhite = skipwhite(line))) {
-		/* blank line-- skip */
-		continue;
-	    }
-
-	    /* not a blank line, and nonwhite is first char */
-	    if (0 !=
-		strncmp(bracketsection, nonwhite,
-			strlen(bracketsection))) {
-		/* not on this line */
-		continue;
-	    }
-
-	    /* it matches-- fp is now set up for search on tag */
-	    break;
-	}
-    }
-    while (!feof((FILE *) fp)) {
-	/* check for end of file */
-	if (NULL == fgets(line, LINELEN + 1, (FILE *) fp)) {
-	    /* got to end of file without finding it */
-	    return NULL;
-	}
-
-	/* got a line */
-
-	/* strip off newline */
-	newlinepos = strlen(line) - 1;	/* newline is on back from 0 */
-	if (newlinepos < 0) {
-	    newlinepos = 0;
-	}
-	if (line[newlinepos] == '\n') {
-	    line[newlinepos] = 0;	/* make the newline 0 */
-	}
-
-	/* skip leading whitespace */
-	if (NULL == (nonwhite = skipwhite(line))) {
-	    /* blank line-- skip */
-	    continue;
-	}
-
-	/* check for '[' char-- if so, it's a section tag, and we're out of
-	   our section */
-	if (NULL != section && nonwhite[0] == '[') {
-	    return NULL;
-	}
-
-	len = strlen(tag);
-
-	if (0 != strncmp(tag, nonwhite, len)) {
-	    /* not on this line */
-	    continue;
-	}
-
-	/* it matches the first part of the string-- if whitespace or = is
-	   next char then call it a match */
-	tagend = nonwhite[len];
-	if (tagend == ' ' || tagend == '\r' || tagend == '\t'
-	    || tagend == '\n' || tagend == '=') {
-	    /* it matches-- return string after =, or NULL */
-	    nonwhite += len;
-	    /* Cast is needed  because we are discarding the const. */
-	    value_string = (char *) afterequal(nonwhite);
-	    /* Eliminate white space at the end of a line also. */
-	    if (NULL == value_string) {
-		return NULL;
-	    }
-	    end_value_string = value_string + strlen(value_string) - 1;
-	    while (*end_value_string == ' '
-		   || *end_value_string == '\t'
-		   || *end_value_string == '\r') {
-		*end_value_string = 0;
-		end_value_string--;
-	    }
-	    return value_string;
-	}
-	/* else continue */
-    }
-
-    return NULL;
-}
-
 }
 
 /*##########################################################################*/

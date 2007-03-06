@@ -33,6 +33,7 @@ class Inifile {
   public:
     Inifile();
     Inifile(const char *file);
+    Inifile(FILE *file, bool owner=false);
     ~Inifile();
 
     bool open(const char *file);
@@ -45,16 +46,16 @@ class Inifile {
 
   private:
     FILE * fp;
+    bool close_fp;
     char *after_equal(const char *string);
     char *skip_white(char *string);
     struct flock lock;
 };
 
-extern "C" {
+extern "C" 
+const char *iniFind(FILE *fp, const char *tag, const char *section);
+
 #else
-extern const char *iniFind(void *fp, const char *tag, const char *section);
-#endif
-#ifdef __cplusplus
-}
+extern const char *iniFind(FILE *fp, const char *tag, const char *section);
 #endif
 #endif /* INIFILE_HH */
