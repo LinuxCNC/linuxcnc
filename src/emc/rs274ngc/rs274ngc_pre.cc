@@ -351,11 +351,11 @@ int Interp::init()
   }
   else
   {
-      Inifile inifile;
+      IniFile inifile;
 
       logDebug("iniFileName:%s:", iniFileName);
 
-      if (inifile.open(iniFileName) == false) {
+      if (inifile.Open(iniFileName) == false) {
           logDebug("Unable to open inifile:%s:", iniFileName);
       }
       else
@@ -363,18 +363,18 @@ int Interp::init()
           const char *inistring;
 
 
-          if(NULL != (inistring = inifile.find("LOG_LEVEL", "RS274NGC")))
+          if(NULL != (inistring = inifile.Find("LOG_LEVEL", "RS274NGC")))
           {
               _setup.loggingLevel = atol(inistring);
           }
 
-          if(NULL != (inistring = inifile.find("LOG_FILE", "RS274NGC")))
+          if(NULL != (inistring = inifile.Find("LOG_FILE", "RS274NGC")))
           {
 	    // found it
             realpath(inistring, &_setup.log_file[0]);
           }
 
-          if(NULL != (inistring = inifile.find("PROGRAM_PREFIX", "DISPLAY")))
+          if(NULL != (inistring = inifile.Find("PROGRAM_PREFIX", "DISPLAY")))
           {
 	    // found it
             realpath(inistring, _setup.program_prefix);
@@ -387,7 +387,7 @@ int Interp::init()
 
 
           // close it
-          inifile.close();
+          inifile.Close();
       }
   }
 
@@ -1308,11 +1308,11 @@ VARIABLE_FILE = rs274ngc.var
 
 int Interp::ini_load(const char *filename)
 {
-    Inifile inifile;
+    IniFile inifile;
     const char *inistring;
 
     // open it
-    if (inifile.open(filename) == false) {
+    if (inifile.Open(filename) == false) {
         logDebug("Unable to open inifile:%s:", filename);
 	return -1;
     }
@@ -1320,7 +1320,7 @@ int Interp::ini_load(const char *filename)
     logDebug("Opened inifile:%s:", filename);
 
 #if 1
-    if (NULL != (inistring = inifile.find("PARAMETER_FILE", "RS274NGC"))) {
+    if (NULL != (inistring = inifile.Find("PARAMETER_FILE", "RS274NGC"))) {
 	// found it
 	strncpy(_parameter_file_name, inistring, LINELEN);
         logDebug("found PARAMETER_FILE:%s:", _parameter_file_name);
@@ -1331,7 +1331,7 @@ int Interp::ini_load(const char *filename)
 #endif
 
 #if 0    
-    if (NULL != (inistring = inifile.find("PROGRAM_PREFIX", "DISPLAY"))) {
+    if (NULL != (inistring = inifile.Find("PROGRAM_PREFIX", "DISPLAY"))) {
 	// found it
         realpath(inistring, _setup.program_prefix);
         logDebug("inistring:%s: prefix:%s:", inistring, _setup.program_prefix);
@@ -1343,7 +1343,7 @@ int Interp::ini_load(const char *filename)
 
 
     // close it
-    inifile.close();
+    inifile.Close();
 
     return 0;
 }

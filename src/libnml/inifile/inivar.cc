@@ -24,12 +24,14 @@
 * $Date$
 ********************************************************************/
 
-extern "C" {
 #include <stdio.h>		/* printf(), fprintf(), FILE, fopen(),*/
 #include <stdlib.h>		/* exit() */
 #include <string.h>		/* strcmp(), strcpy() */
-}
+
+#include "config.h"
 #include "inifile.hh"
+
+
 int main(int argc, char *argv[])
 {
     int t;
@@ -105,16 +107,15 @@ int main(int argc, char *argv[])
 	exit(1);
     }
 
-    Inifile *inifile;
+    IniFile inifile;
     /* open the inifile */
-    inifile = new Inifile(path);
-    if (inifile->valid() == false) {
+    inifile.Open(path);
+    if (inifile.IsOpen() == false) {
 	fprintf(stderr, "%s: can't open %s\n", argv[0], path);
-	delete inifile;
 	exit(-1);
     }
 
-    inistring = inifile->find(variable, section, num);
+    inistring = inifile.Find(variable, section, num);
     if (inistring != NULL) {
 	printf("%s\n", inistring);
 	retval = 0;
@@ -122,8 +123,6 @@ int main(int argc, char *argv[])
 	fprintf(stderr, "Can not find -sec %s -var %s -num %i \n", section, variable, num);
 	retval = 1;
     }
-
-    delete inifile;
 
     exit(retval);
 }

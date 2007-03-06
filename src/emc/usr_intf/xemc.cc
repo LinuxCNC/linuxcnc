@@ -4684,7 +4684,7 @@ static char *upcase(char *string)
 
 static int iniLoad(const char *filename)
 {
-  Inifile inifile;
+  IniFile inifile;
   const char *inistring;
   char machine[LINELEN] = "";
   char version[LINELEN] = "";
@@ -4694,21 +4694,21 @@ static int iniLoad(const char *filename)
   double d;
 
   // open it
-  if (-1 == inifile.open(filename)) {
+  if (-1 == inifile.Open(filename)) {
     return -1;
   }
 
-  if (NULL != (inistring = inifile.find("MACHINE", "EMC"))) {
+  if (NULL != (inistring = inifile.Find("MACHINE", "EMC"))) {
     strcpy(machine, inistring);
 
-    if (NULL != (inistring = inifile.find("VERSION", "EMC"))) {
+    if (NULL != (inistring = inifile.Find("VERSION", "EMC"))) {
       sscanf(inistring, "$Revision: %s", version);
 
       sprintf(version_string, "%s EMC Version %s", machine, version);
     }
   }
 
-  if (NULL != (inistring = inifile.find("DEBUG", "EMC"))) {
+  if (NULL != (inistring = inifile.Find("DEBUG", "EMC"))) {
     // copy to global
     if (1 != sscanf(inistring, "%i", &EMC_DEBUG)) {
       EMC_DEBUG = 0;
@@ -4719,7 +4719,7 @@ static int iniLoad(const char *filename)
     EMC_DEBUG = 0;
   }
 
-  if (NULL != (inistring = inifile.find("NML_FILE", "EMC"))) {
+  if (NULL != (inistring = inifile.Find("NML_FILE", "EMC"))) {
     // copy to global
     strcpy(EMC_NMLFILE, inistring);
   }
@@ -4727,21 +4727,21 @@ static int iniLoad(const char *filename)
     // not found, use default
   }
 
-  if (NULL != (inistring = inifile.find("TOOL_TABLE", "EMCIO"))) {
+  if (NULL != (inistring = inifile.Find("TOOL_TABLE", "EMCIO"))) {
     strcpy(TOOL_TABLE_FILE, inistring);
   }
   else {
     strcpy(TOOL_TABLE_FILE, "tool.tbl"); // FIXME-- hardcoded
   }
 
-  if (NULL != (inistring = inifile.find("PARAMETER_FILE", "RS274NGC"))) {
+  if (NULL != (inistring = inifile.Find("PARAMETER_FILE", "RS274NGC"))) {
     strcpy(PARAMETER_FILE, inistring);
   }
   else {
     strcpy(PARAMETER_FILE, "rs274ngc.var"); // FIXME-- hardcoded
   }
 
-  if (NULL != (inistring = inifile.find("DEFAULT_VELOCITY", "TRAJ"))) {
+  if (NULL != (inistring = inifile.Find("DEFAULT_VELOCITY", "TRAJ"))) {
     if (1 != sscanf(inistring, "%lf", &TRAJ_DEFAULT_VELOCITY)) {
       TRAJ_DEFAULT_VELOCITY = DEFAULT_TRAJ_DEFAULT_VELOCITY;
     }
@@ -4752,7 +4752,7 @@ static int iniLoad(const char *filename)
   // round jogSpeed in display to integer, per-minute
   jogSpeed = (int) (TRAJ_DEFAULT_VELOCITY * 60.0 + 0.5);
 
-  if (NULL != (inistring = inifile.find("MAX_VELOCITY", "TRAJ"))) {
+  if (NULL != (inistring = inifile.Find("MAX_VELOCITY", "TRAJ"))) {
     if (1 != sscanf(inistring, "%lf", &TRAJ_MAX_VELOCITY)) {
       TRAJ_MAX_VELOCITY = DEFAULT_TRAJ_MAX_VELOCITY;
     }
@@ -4763,16 +4763,16 @@ static int iniLoad(const char *filename)
   // round maxJogSpeed in display to integer, per-minute
   maxJogSpeed = (int) (TRAJ_MAX_VELOCITY * 60.0 + 0.5);
 
-  if (NULL != (inistring = inifile.find("HELP_FILE", "DISPLAY"))) {
+  if (NULL != (inistring = inifile.Find("HELP_FILE", "DISPLAY"))) {
     strcpy(HELP_FILE, inistring);
   }
 
-  if (NULL != (inistring = inifile.find("PROGRAM_PREFIX", "DISPLAY"))) {
+  if (NULL != (inistring = inifile.Find("PROGRAM_PREFIX", "DISPLAY"))) {
     if (1 != sscanf(inistring, "%s", programPrefix)) {
       programPrefix[0] = 0;
     }
   }
-  else if (NULL != (inistring = inifile.find("PROGRAM_PREFIX", "TASK"))) {
+  else if (NULL != (inistring = inifile.Find("PROGRAM_PREFIX", "TASK"))) {
     if (1 != sscanf(inistring, "%s", programPrefix)) {
       programPrefix[0] = 0;
     }
@@ -4781,7 +4781,7 @@ static int iniLoad(const char *filename)
     programPrefix[0] = 0;
   }
 
-  if (NULL != (inistring = inifile.find("POSITION_OFFSET", "DISPLAY"))) {
+  if (NULL != (inistring = inifile.Find("POSITION_OFFSET", "DISPLAY"))) {
     if (1 == sscanf(inistring, "%s", displayString)) {
       if (! strcmp(upcase(displayString), "MACHINE")) {
         coords = COORD_MACHINE;
@@ -4806,7 +4806,7 @@ static int iniLoad(const char *filename)
     // ignore
   }
 
-  if (NULL != (inistring = inifile.find("POSITION_FEEDBACK", "DISPLAY"))) {
+  if (NULL != (inistring = inifile.Find("POSITION_FEEDBACK", "DISPLAY"))) {
     if (1 == sscanf(inistring, "%s", displayString)) {
       if (! strcmp(upcase(displayString), "ACTUAL")) {
         posDisplay = POS_DISPLAY_ACT;
@@ -4834,7 +4834,7 @@ static int iniLoad(const char *filename)
   for (t = 0; t < XEMC_NUM_AXES; t++) {
     jogPol[t] = 1;              // set to default
     sprintf(displayString, "AXIS_%d", t);
-    if (NULL != (inistring = inifile.find("JOGGING_POLARITY", displayString)) &&
+    if (NULL != (inistring = inifile.Find("JOGGING_POLARITY", displayString)) &&
         1 == sscanf(inistring, "%d", &i) &&
         i == 0) {
       // it read as 0, so override default
@@ -4842,7 +4842,7 @@ static int iniLoad(const char *filename)
     }
   }
 
-  if (NULL != (inistring = inifile.find("MAX_FEED_OVERRIDE", "DISPLAY"))) {
+  if (NULL != (inistring = inifile.Find("MAX_FEED_OVERRIDE", "DISPLAY"))) {
     if (1 == sscanf(inistring, "%lf", &d) &&
         d > 0.0) {
       maxFeedOverride = (int) (d * 100.0 + 0.5);
@@ -4860,7 +4860,7 @@ static int iniLoad(const char *filename)
   // FIXME-- we're using the first axis scale to set the jog increment.
   // Note that stepIncrement is inited to a reasonable value above, and
   // will only be reset on a good ini file match
-  if (NULL != (inistring = inifile.find("INPUT_SCALE", "AXIS_0"))) {
+  if (NULL != (inistring = inifile.Find("INPUT_SCALE", "AXIS_0"))) {
     if (1 == sscanf(inistring, "%lf", &d)) {
       if (d < 0.0) {
         stepIncrement = -1.0/d; // posify it
@@ -4880,7 +4880,7 @@ static int iniLoad(const char *filename)
   sprintf(jogIncrementMenuEntryNames[3], "%.6f", stepIncrement);
 
   // close it
-  inifile.close();
+  inifile.Close();
 
   return 0;
 }

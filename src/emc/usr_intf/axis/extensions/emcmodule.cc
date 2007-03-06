@@ -87,7 +87,7 @@ static bool feq(double a, double b) { return fabs(a-b) < 1e-5; }
 
 struct pyIniFile {
     PyObject_HEAD
-    Inifile i;
+    IniFile i;
 };
 
 struct pyStatChannel {
@@ -114,7 +114,7 @@ static int Ini_init(pyIniFile *self, PyObject *a, PyObject *k) {
     char *inifile;
     if(!PyArg_ParseTuple(a, "s", &inifile)) return -1;
 
-    if (INIFILE_CHECK_FAILURE(self->i.open(inifile))) {
+    if (INIFILE_CHECK_FAILURE(self->i.Open(inifile))) {
         PyErr_Format( error, "inifile.open() failed");
         return -1;
     }
@@ -126,7 +126,7 @@ static PyObject *Ini_find(pyIniFile *self, PyObject *args) {
     int num = 1; 
     if(!PyArg_ParseTuple(args, "ss|i:find", &s1, &s2, &num)) return NULL;
     
-    out = self->i.find(s2, s1, num);
+    out = self->i.Find(s2, s1, num);
     if(out == NULL) {
         Py_INCREF(Py_None);
         return Py_None;
@@ -141,7 +141,7 @@ static PyObject *Ini_findall(pyIniFile *self, PyObject *args) {
     
     PyObject *result = PyList_New(0);
     while(1) {
-        out = self->i.find(s2, s1, num);
+        out = self->i.Find(s2, s1, num);
         if(out == NULL) {
             break;
         }
@@ -152,7 +152,7 @@ static PyObject *Ini_findall(pyIniFile *self, PyObject *args) {
 }
 
 static void Ini_dealloc(pyIniFile *self) {
-    self->i.close();
+    self->i.Close();
     PyObject_Del(self);
 }
 

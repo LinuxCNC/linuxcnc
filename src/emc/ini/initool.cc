@@ -26,9 +26,6 @@ extern "C" {
 #include "initool.hh"		// these decls
 #include "emcglb.h"		// TOOL_TABLE_FILE
 
-// inifile ref'ed by iniTool(), loadTool() 
-static Inifile *toolInifile = 0;
-
 /*
   loadTool()
 
@@ -41,12 +38,12 @@ static Inifile *toolInifile = 0;
   emcToolSetToolTableFile(const char filename);
   */
 
-static int loadTool(void)
+static int loadTool(IniFile *toolInifile)
 {
     int retval = 0;
     const char *inistring;
 
-    if (NULL != (inistring = toolInifile->find("TOOL_TABLE", "EMCIO"))) {
+    if (NULL != (inistring = toolInifile->Find("TOOL_TABLE", "EMCIO"))) {
 	if (0 != emcToolSetToolTableFile(inistring)) {
 	    rcs_print("bad return value from emcToolSetToolTableFile\n");
 	    retval = -1;
@@ -61,13 +58,13 @@ static int loadTool(void)
   readToolChange() reads the values of [EMCIO] TOOL_CHANGE_POSITION and
   TOOL_HOLDER_CLEAR, and loads them into their associated globals 
 */
-static int readToolChange(void)
+static int readToolChange(IniFile *toolInifile)
 {
     int retval = 0;
     const char *inistring;
 
     if (NULL !=
-	(inistring = toolInifile->find("TOOL_CHANGE_POSITION", "EMCIO"))) {
+	(inistring = toolInifile->Find("TOOL_CHANGE_POSITION", "EMCIO"))) {
 	/* found an entry */
         if (6 == sscanf(inistring, "%lf %lf %lf %lf %lf %lf",
                         &TOOL_CHANGE_POSITION.tran.x,
@@ -100,7 +97,7 @@ static int readToolChange(void)
     }
 
     if (NULL !=
-	(inistring = toolInifile->find("TOOL_HOLDER_CLEAR", "EMCIO"))) {
+	(inistring = toolInifile->Find("TOOL_HOLDER_CLEAR", "EMCIO"))) {
 	/* found an entry */
 	if (3 == sscanf(inistring, "%lf %lf %lf",
 			&TOOL_HOLDER_CLEAR.tran.x,
@@ -134,23 +131,21 @@ static int readToolChange(void)
 int iniTool(const char *filename)
 {
     int retval = 0;
+    IniFile toolInifile;
 
-    toolInifile = new Inifile;
-
-    if (toolInifile->open(filename) == false) {
+    if (toolInifile.Open(filename) == false) {
 	return -1;
     }
     // load tool values
-    if (0 != loadTool()) {
+    if (0 != loadTool(&toolInifile)) {
 	retval = -1;
     }
     // read the tool change positions
-    if (0 != readToolChange()) {
+    if (0 != readToolChange(&toolInifile)) {
 	retval = -1;
     }
     // close the inifile
-    toolInifile->close();
-    delete toolInifile;
+    toolInifile.Close();
 
     return retval;
 }

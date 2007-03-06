@@ -1130,10 +1130,10 @@ int emcTrajUpdate(EMC_TRAJ_STAT * stat)
 
 int emcPositionLoad() {
     double positions[EMCMOT_MAX_AXIS];
-    Inifile ini;
-    ini.open(EMC_INIFILE);
-    const char *posfile = ini.find("POSITION_FILE", "TRAJ");
-    ini.close();
+    IniFile ini;
+    ini.Open(EMC_INIFILE);
+    const char *posfile = ini.Find("POSITION_FILE", "TRAJ");
+    ini.Close();
     if(!posfile || !posfile[0]) return 0;
     FILE *f = fopen(posfile, "r");
     if(!f) return 0;
@@ -1151,10 +1151,10 @@ int emcPositionLoad() {
 
 
 int emcPositionSave() {
-    Inifile ini;
-    ini.open(EMC_INIFILE);
-    const char *posfile = ini.find("POSITION_FILE", "TRAJ");
-    ini.close();
+    IniFile ini;
+    ini.Open(EMC_INIFILE);
+    const char *posfile = ini.Find("POSITION_FILE", "TRAJ");
+    ini.Close();
     if(!posfile || !posfile[0]) return 0;
     // like the var file, make sure the posfile is recreated according to umask
     unlink(posfile);

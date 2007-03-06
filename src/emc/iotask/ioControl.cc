@@ -170,16 +170,16 @@ static int emcIoNmlGet()
 
 static int iniLoad(const char *filename)
 {
-    Inifile inifile;
+    IniFile inifile;
     const char *inistring;
     char version[LINELEN], machine[LINELEN];
 
     /* Open the ini file */
-    if (inifile.open(filename) == false) {
+    if (inifile.Open(filename) == false) {
 	return -1;
     }
 
-    if (NULL != (inistring = inifile.find("DEBUG", "EMC"))) {
+    if (NULL != (inistring = inifile.Find("DEBUG", "EMC"))) {
 	/* copy to global */
 	if (1 != sscanf(inistring, "%i", &EMC_DEBUG)) {
 	    EMC_DEBUG = 0;
@@ -190,7 +190,7 @@ static int iniLoad(const char *filename)
     }
 
     if (EMC_DEBUG & EMC_DEBUG_VERSIONS) {
-	if (NULL != (inistring = inifile.find("VERSION", "EMC"))) {
+	if (NULL != (inistring = inifile.Find("VERSION", "EMC"))) {
 	    if(sscanf(inistring, "$Revision: %s", version) != 1) {
 		strncpy(version, "unknown", LINELEN-1);
 	    }
@@ -198,7 +198,7 @@ static int iniLoad(const char *filename)
 	    strncpy(version, "unknown", LINELEN-1);
 	}
 
-	if (NULL != (inistring = inifile.find("MACHINE", "EMC"))) {
+	if (NULL != (inistring = inifile.Find("MACHINE", "EMC"))) {
 	    strncpy(machine, inistring, LINELEN-1);
 	} else {
 	    strncpy(machine, "unknown", LINELEN-1);
@@ -206,7 +206,7 @@ static int iniLoad(const char *filename)
 	rtapi_print("iocontrol: machine: '%s'  version '%s'\n", machine, version);
     }
 
-    if (NULL != (inistring = inifile.find("NML_FILE", "EMC"))) {
+    if (NULL != (inistring = inifile.Find("NML_FILE", "EMC"))) {
 	strcpy(EMC_NMLFILE, inistring);
     } else {
 	// not found, use default
@@ -214,7 +214,7 @@ static int iniLoad(const char *filename)
 
     double temp;
     temp = EMC_IO_CYCLE_TIME;
-    if (NULL != (inistring = inifile.find("CYCLE_TIME", "EMCIO"))) {
+    if (NULL != (inistring = inifile.Find("CYCLE_TIME", "EMCIO"))) {
 	if (1 == sscanf(inistring, "%lf", &EMC_IO_CYCLE_TIME)) {
 	    // found it
 	} else {
@@ -232,7 +232,7 @@ static int iniLoad(const char *filename)
     }
 
     // close it
-    inifile.close();
+    inifile.Close();
 
     return 0;
 }

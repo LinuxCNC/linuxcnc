@@ -1552,17 +1552,17 @@ static int sendProbe(double x, double y, double z)
 
 static int iniLoad(const char *filename)
 {
-    Inifile inifile;
+    IniFile inifile;
     const char *inistring;
     double d;
     int i;
 
     // open it
-    if (inifile.open(filename) == false) {
+    if (inifile.Open(filename) == false) {
 	return -1;
     }
 
-    if (NULL != (inistring = inifile.find("DEBUG", "EMC"))) {
+    if (NULL != (inistring = inifile.Find("DEBUG", "EMC"))) {
 	// copy to global
 	if (1 != sscanf(inistring, "%i", &EMC_DEBUG)) {
 	    EMC_DEBUG = 0;
@@ -1572,14 +1572,14 @@ static int iniLoad(const char *filename)
 	EMC_DEBUG = 0;
     }
 
-    if (NULL != (inistring = inifile.find("NML_FILE", "EMC"))) {
+    if (NULL != (inistring = inifile.Find("NML_FILE", "EMC"))) {
 	// copy to global
 	strcpy(EMC_NMLFILE, inistring);
     } else {
 	// not found, use default
     }
 
-    if (NULL != (inistring = inifile.find("MAX_FEED_OVERRIDE", "DISPLAY"))) {
+    if (NULL != (inistring = inifile.Find("MAX_FEED_OVERRIDE", "DISPLAY"))) {
 	if (1 == sscanf(inistring, "%lf", &d) && d > 0.0) {
 	    maxFeedOverride =  d;
 	}
@@ -1593,7 +1593,7 @@ static int iniLoad(const char *filename)
         maxFeedOverride =  1.0;
     }
 
-    if (NULL != (inistring = inifile.find("MIN_SPINDLE_OVERRIDE", "DISPLAY"))) {
+    if (NULL != (inistring = inifile.Find("MIN_SPINDLE_OVERRIDE", "DISPLAY"))) {
 	if (1 == sscanf(inistring, "%lf", &d) && d > 0.0) {
 	    minSpindleOverride =  d;
 	}
@@ -1607,7 +1607,7 @@ static int iniLoad(const char *filename)
         minSpindleOverride =  1.0;
     }
     
-    if (NULL != (inistring = inifile.find("MAX_SPINDLE_OVERRIDE", "DISPLAY"))) {
+    if (NULL != (inistring = inifile.Find("MAX_SPINDLE_OVERRIDE", "DISPLAY"))) {
 	if (1 == sscanf(inistring, "%lf", &d) && d > 0.0) {
 	    maxSpindleOverride =  d;
 	}
@@ -1621,7 +1621,7 @@ static int iniLoad(const char *filename)
         maxSpindleOverride =  1.0;
     }
     
-    if (NULL != (inistring = inifile.find("AXES", "TRAJ"))) {
+    if (NULL != (inistring = inifile.Find("AXES", "TRAJ"))) {
 	if (1 == sscanf(inistring, "%d", &i) && i > 0) {
 	    num_axes =  i;
 	}
@@ -1635,7 +1635,7 @@ static int iniLoad(const char *filename)
         num_axes =  0;
     }
 
-    if (NULL != (inistring = inifile.find("LINEAR_UNITS", "DISPLAY"))) {
+    if (NULL != (inistring = inifile.Find("LINEAR_UNITS", "DISPLAY"))) {
 	if (!strcmp(inistring, "AUTO")) {
 	    linearUnitConversion = LINEAR_UNITS_AUTO;
 	} else if (!strcmp(inistring, "INCH")) {
@@ -1649,7 +1649,7 @@ static int iniLoad(const char *filename)
 	// not found, leave default alone
     }
 
-    if (NULL != (inistring = inifile.find("ANGULAR_UNITS", "DISPLAY"))) {
+    if (NULL != (inistring = inifile.Find("ANGULAR_UNITS", "DISPLAY"))) {
 	if (!strcmp(inistring, "AUTO")) {
 	    angularUnitConversion = ANGULAR_UNITS_AUTO;
 	} else if (!strcmp(inistring, "DEG")) {
@@ -1664,7 +1664,7 @@ static int iniLoad(const char *filename)
     }
 
     // close it
-    inifile.close();
+    inifile.Close();
 
     return 0;
 }

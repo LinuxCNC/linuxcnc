@@ -1438,7 +1438,7 @@ static char *upcase(char *string)
 
 static int iniLoad(const char *filename)
 {
-  Inifile inifile;
+  IniFile inifile;
   const char *inistring;
   char machine[LINELEN] = "";
   char version[LINELEN] = "";
@@ -1446,16 +1446,16 @@ static int iniLoad(const char *filename)
   int jogPol;
 
   // open it
-  if (-1 == inifile.open(filename))
+  if (-1 == inifile.Open(filename))
     {
       return -1;
     }
 
-  if ((inistring = inifile.find("MACHINE", "EMC")))
+  if ((inistring = inifile.Find("MACHINE", "EMC")))
     {
       strcpy(machine, inistring);
 
-      if ((inistring = inifile.find("VERSION", "EMC")))
+      if ((inistring = inifile.Find("VERSION", "EMC")))
         {
           sscanf(inistring, "$Revision: %s", version);
 
@@ -1463,7 +1463,7 @@ static int iniLoad(const char *filename)
         }
     }
 
-  if ((inistring = inifile.find("MAX_VELOCITY", "TRAJ")))
+  if ((inistring = inifile.Find("MAX_VELOCITY", "TRAJ")))
     {
       if (1 != sscanf(inistring, "%lf", &TRAJ_MAX_VELOCITY))
         {
@@ -1475,7 +1475,7 @@ static int iniLoad(const char *filename)
       TRAJ_MAX_VELOCITY = DEFAULT_TRAJ_MAX_VELOCITY;
     }
 
-  if ((inistring = inifile.find("PROGRAM_PREFIX", "DISPLAY")))
+  if ((inistring = inifile.Find("PROGRAM_PREFIX", "DISPLAY")))
     {
       if (1 != sscanf(inistring, "%s", programPrefix))
         {
@@ -1487,7 +1487,7 @@ static int iniLoad(const char *filename)
       programPrefix[0] = 0;
     }
 
-  if ((inistring = inifile.find("POSITION_OFFSET", "DISPLAY")))
+  if ((inistring = inifile.Find("POSITION_OFFSET", "DISPLAY")))
     {
       if (1 == sscanf(inistring, "%s", displayString))
         {
@@ -1518,7 +1518,7 @@ static int iniLoad(const char *filename)
       // ignore
     }
 
-  if ((inistring = inifile.find("POSITION_FEEDBACK", "DISPLAY")))
+  if ((inistring = inifile.Find("POSITION_FEEDBACK", "DISPLAY")))
     {
       if (1 == sscanf(inistring, "%s", displayString))
         {
@@ -1550,7 +1550,7 @@ static int iniLoad(const char *filename)
     }
 
   xJogPol = 1;                  // set to default
-  if ((inistring = inifile.find("JOGGING_POLARITY", "AXIS_0")) &&
+  if ((inistring = inifile.Find("JOGGING_POLARITY", "AXIS_0")) &&
       1 == sscanf(inistring, "%d", &jogPol) &&
       jogPol == 0)
     {
@@ -1559,7 +1559,7 @@ static int iniLoad(const char *filename)
     }
 
   yJogPol = 1;                  // set to default
-  if ((inistring = inifile.find("JOGGING_POLARITY", "AXIS_1")) &&
+  if ((inistring = inifile.Find("JOGGING_POLARITY", "AXIS_1")) &&
       1 == sscanf(inistring, "%d", &jogPol) &&
       jogPol == 0)
     {
@@ -1568,7 +1568,7 @@ static int iniLoad(const char *filename)
     }
 
   zJogPol = 1;                  // set to default
-  if ((inistring = inifile.find("JOGGING_POLARITY", "AXIS_2")) &&
+  if ((inistring = inifile.Find("JOGGING_POLARITY", "AXIS_2")) &&
       1 == sscanf(inistring, "%d", &jogPol) &&
       jogPol == 0)
     {
@@ -1577,7 +1577,7 @@ static int iniLoad(const char *filename)
     }
 
   // close it
-  inifile.close();
+  inifile.Close();
 
   return 0;;
 }

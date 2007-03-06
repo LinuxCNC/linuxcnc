@@ -53,17 +53,17 @@ int usrmotIniLoad(const char *filename)
     const char *inistring;
     int saveInt;
     double saveDouble;
-    Inifile *inifile;
+    IniFile inifile;
 
-    inifile = new Inifile(filename);
+    
     /* open it */
-    if (inifile->valid() == false) {
+    if (!inifile.Open(filename)) {
 	rtapi_print("can't find emcmot ini file %s\n", filename);
 	return -1;
     }
 
     saveInt = SHMEM_KEY;
-    if (NULL != (inistring = inifile->find("SHMEM_KEY", "EMCMOT"))) {
+    if (NULL != (inistring = inifile.Find("SHMEM_KEY", "EMCMOT"))) {
 	if (1 == sscanf(inistring, "%i", &SHMEM_KEY)) {
 	    /* found it */
 	} else {
@@ -79,7 +79,7 @@ int usrmotIniLoad(const char *filename)
 	    filename, SHMEM_KEY);
     }
     saveDouble = EMCMOT_COMM_TIMEOUT;
-    if (NULL != (inistring = inifile->find("COMM_TIMEOUT", "EMCMOT"))) {
+    if (NULL != (inistring = inifile.Find("COMM_TIMEOUT", "EMCMOT"))) {
 	if (1 == sscanf(inistring, "%lf", &EMCMOT_COMM_TIMEOUT)) {
 	    /* found it */
 	} else {
@@ -97,7 +97,7 @@ int usrmotIniLoad(const char *filename)
     }
 
     saveDouble = EMCMOT_COMM_WAIT;
-    if (NULL != (inistring = inifile->find("COMM_WAIT", "EMCMOT"))) {
+    if (NULL != (inistring = inifile.Find("COMM_WAIT", "EMCMOT"))) {
 	if (1 == sscanf(inistring, "%lf", &EMCMOT_COMM_WAIT)) {
 	    /* found it */
 	} else {
@@ -112,8 +112,6 @@ int usrmotIniLoad(const char *filename)
 	rtapi_print("[EMCMOT] COMM_WAIT not found in %s; using default %f\n",
 	    filename, EMCMOT_COMM_WAIT);
     }
-
-    delete inifile;
 
     return 0;
 }

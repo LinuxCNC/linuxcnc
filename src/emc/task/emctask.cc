@@ -60,13 +60,13 @@ int emcTaskInit()
     int index;
     char path[EMC_SYSTEM_CMD_LEN];
     struct stat buf;
-    Inifile inifile;
+    IniFile inifile;
     const char *inistring;
 
     // read out directory where programs are located
-    inifile.open(EMC_INIFILE);
-    inistring = inifile.find("PROGRAM_PREFIX", "DISPLAY");
-    inifile.close();
+    inifile.Open(EMC_INIFILE);
+    inistring = inifile.Find("PROGRAM_PREFIX", "DISPLAY");
+    inifile.Close();
 
     // if we have a program prefix, override the default user_defined_fmt
     // string with program prefix, then "M1%02d", e.g.

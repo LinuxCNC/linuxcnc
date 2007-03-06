@@ -383,7 +383,7 @@ static int emc_plat(ClientData clientdata,
 static int emc_ini(ClientData clientdata,
 		   Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
 {
-    Inifile inifile;
+    IniFile inifile;
     const char *inistring;
     const char *varstr, *secstr, *defaultstr;
     defaultstr = 0;
@@ -394,7 +394,7 @@ static int emc_ini(ClientData clientdata,
 	return TCL_ERROR;
     }
     // open it
-    if (inifile.open(EMC_INIFILE) == false) {
+    if (inifile.Open(EMC_INIFILE) == false) {
 	return TCL_OK;
     }
 
@@ -405,7 +405,7 @@ static int emc_ini(ClientData clientdata,
 	defaultstr = Tcl_GetStringFromObj(objv[3], 0);
     }
 
-    if (NULL == (inistring = inifile.find(varstr, secstr))) {
+    if (NULL == (inistring = inifile.Find(varstr, secstr))) {
 	if (defaultstr != 0) {
 	    Tcl_SetResult(interp, (char *) defaultstr, TCL_VOLATILE);
 	}
@@ -415,7 +415,7 @@ static int emc_ini(ClientData clientdata,
     Tcl_SetResult(interp, (char *) inistring, TCL_VOLATILE);
 
     // close it
-    inifile.close();
+    inifile.Close();
 
     return TCL_OK;
 }

@@ -221,7 +221,7 @@ static int emcErrorNmlGet()
 static int emc_ini(ClientData clientdata,
 		   Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
 {
-    Inifile inifile;
+    IniFile inifile;
     const char *inistring;
     const char *varstr, *secstr;
 
@@ -231,21 +231,21 @@ static int emc_ini(ClientData clientdata,
 	return TCL_ERROR;
     }
     // open it
-    if (inifile.open(EMC_INIFILE) == false) {
+    if (inifile.Open(EMC_INIFILE) == false) {
 	return -1;
     }
 
     varstr = Tcl_GetStringFromObj(objv[1], 0);
     secstr = Tcl_GetStringFromObj(objv[2], 0);
 
-    if (NULL == (inistring = inifile.find(varstr, secstr))) {
+    if (NULL == (inistring = inifile.Find(varstr, secstr))) {
 	return TCL_OK;
     }
 
     Tcl_SetResult(interp, (char *) inistring, TCL_VOLATILE);
 
     // close it
-    inifile.close();
+    inifile.Close();
 
     return TCL_OK;
 }
@@ -1705,16 +1705,16 @@ static void thisQuit(ClientData clientData)
 
 static int iniLoad(const char *filename)
 {
-    Inifile inifile;
+    IniFile inifile;
     const char *inistring;
     char version[LINELEN];
 
     // open it
-    if (inifile.open(filename) == false) {
+    if (inifile.Open(filename) == false) {
 	return -1;
     }
 
-    if (NULL != (inistring = inifile.find("DEBUG", "EMC"))) {
+    if (NULL != (inistring = inifile.Find("DEBUG", "EMC"))) {
 	// copy to global
 	if (1 != sscanf(inistring, "%i", &EMC_DEBUG)) {
 	    EMC_DEBUG = 0;
@@ -1725,7 +1725,7 @@ static int iniLoad(const char *filename)
     }
 
     if (EMC_DEBUG & EMC_DEBUG_VERSIONS) {
-	if (NULL != (inistring = inifile.find("VERSION", "EMC"))) {
+	if (NULL != (inistring = inifile.Find("VERSION", "EMC"))) {
 	    // print version
 	    if(sscanf(inistring, "$Revision: %s", version) == 1)
 		    rcs_print("Version:  %s\n", version);
@@ -1734,7 +1734,7 @@ static int iniLoad(const char *filename)
 	    rcs_print("Version:  (not found)\n");
 	}
 
-	if (NULL != (inistring = inifile.find("MACHINE", "EMC"))) {
+	if (NULL != (inistring = inifile.Find("MACHINE", "EMC"))) {
 	    // print machine
 	    rcs_print("Machine:  %s\n", inistring);
 	} else {
@@ -1743,13 +1743,13 @@ static int iniLoad(const char *filename)
 	}
     }
 
-    if (NULL != (inistring = inifile.find("NML_FILE", "EMC"))) {
+    if (NULL != (inistring = inifile.Find("NML_FILE", "EMC"))) {
 	// copy to global
 	strcpy(EMC_NMLFILE, inistring);
     } else {
 	// not found, use default
     }
-    if (NULL != (inistring = inifile.find("TOOL_TABLE", "EMCIO"))) {
+    if (NULL != (inistring = inifile.Find("TOOL_TABLE", "EMCIO"))) {
 	// copy to global
 	strcpy(TOOL_TABLE_FILE, inistring);
     } else {
@@ -1757,7 +1757,7 @@ static int iniLoad(const char *filename)
     }
 
     // close it
-    inifile.close();
+    inifile.Close();
 
     return 0;
 }

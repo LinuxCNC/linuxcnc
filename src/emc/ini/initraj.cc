@@ -28,9 +28,6 @@ extern "C" {
 #include "initraj.hh"		// these decls
 #include "emcglb.h"		/*! \todo TRAVERSE_RATE (FIXME) */
 
-// inifile ref'ed by iniTraj(), loadTraj() 
-static Inifile *trajInifile = 0;
-
 /*
   loadTraj()
 
@@ -69,7 +66,7 @@ static int getValueFromTable(double *value, const char *inistring, const struct 
     return 0;
 }
 
-static int loadTraj()
+static int loadTraj(IniFile *trajInifile)
 {
     const char *inistring;
     int axes;
@@ -85,7 +82,7 @@ static int loadTraj()
     EmcPose homePose = { {0.0, 0.0, 0.0}, 0.0, 0.0, 0.0 };
     double d;
 
-    if (NULL != (inistring = trajInifile->find("AXES", "TRAJ"))) {
+    if (NULL != (inistring = trajInifile->Find("AXES", "TRAJ"))) {
 	if (1 == sscanf(inistring, "%d", &axes)) {
 	    // found, and valid
 	} else {
@@ -110,7 +107,7 @@ static int loadTraj()
 	return -1;
     }
 
-    if (NULL != (inistring = trajInifile->find("LINEAR_UNITS", "TRAJ"))) {
+    if (NULL != (inistring = trajInifile->Find("LINEAR_UNITS", "TRAJ"))) {
         if (1 == getValueFromTable(&linearUnits, inistring, linear_nv_pairs)) {
             if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
                 rcs_print("got LINEAR_UNITS '%s' : %lf\n", inistring, linearUnits);
@@ -122,7 +119,7 @@ static int loadTraj()
              linearUnits = 0;
         }
     }
-    if (NULL != (inistring = trajInifile->find("ANGULAR_UNITS", "TRAJ"))) {
+    if (NULL != (inistring = trajInifile->Find("ANGULAR_UNITS", "TRAJ"))) {
         if (1 == getValueFromTable(&angularUnits, inistring, angular_nv_pairs)) {
             if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
                 rcs_print("got ANGULAR_UNITS '%s' : %lf\n", inistring, angularUnits);
@@ -144,7 +141,7 @@ static int loadTraj()
     }
 
     if (NULL !=
-	(inistring = trajInifile->find("DEFAULT_VELOCITY", "TRAJ"))) {
+	(inistring = trajInifile->Find("DEFAULT_VELOCITY", "TRAJ"))) {
 	if (1 == sscanf(inistring, "%lf", &vel)) {
 	    // found, and valid
 	} else {
@@ -176,7 +173,7 @@ static int loadTraj()
 	return -1;
     }
 
-    if (NULL != (inistring = trajInifile->find("MAX_VELOCITY", "TRAJ"))) {
+    if (NULL != (inistring = trajInifile->Find("MAX_VELOCITY", "TRAJ"))) {
 	if (1 == sscanf(inistring, "%lf", &vel)) {
 	    // found, and valid
 	} else {
@@ -211,7 +208,7 @@ static int loadTraj()
     TRAJ_MAX_VELOCITY = vel;
 
     if (NULL !=
-	(inistring = trajInifile->find("MAX_ACCELERATION", "TRAJ"))) {
+	(inistring = trajInifile->Find("MAX_ACCELERATION", "TRAJ"))) {
 	if (1 == sscanf(inistring, "%lf", &acc)) {
 	    // found, and valid
 	} else {
@@ -239,7 +236,7 @@ static int loadTraj()
     }
 
     if (NULL !=
-	(inistring = trajInifile->find("DEFAULT_ACCELERATION", "TRAJ"))) {
+	(inistring = trajInifile->Find("DEFAULT_ACCELERATION", "TRAJ"))) {
 	if (1 == sscanf(inistring, "%lf", &acc)) {
 	    // found, and valid
 	} else {
@@ -268,7 +265,7 @@ static int loadTraj()
 
     // set coordinateMark[] to hold 1's for each coordinate present,
     // so that home position can be interpreted properly
-    if (NULL != (inistring = trajInifile->find("COORDINATES", "TRAJ"))) {
+    if (NULL != (inistring = trajInifile->Find("COORDINATES", "TRAJ"))) {
 	len = strlen(inistring);
 	// there's an entry in ini file, so clear all the marks out first
 	// so that defaults don't apply at all
@@ -295,7 +292,7 @@ static int loadTraj()
 	// by leaving coordinateMark[] alone, default is X Y Z
     }
 
-    if (NULL != (inistring = trajInifile->find("HOME", "TRAJ"))) {
+    if (NULL != (inistring = trajInifile->Find("HOME", "TRAJ"))) {
 	// found it, now interpret it according to coordinateMark[]
 	strcpy(homes, inistring);
 	len = 0;
@@ -362,19 +359,17 @@ static int loadTraj()
 int iniTraj(const char *filename)
 {
     int retval = 0;
+    IniFile trajInifile;
 
-    trajInifile = new Inifile;
-
-    if (trajInifile->open(filename) == false) {
+    if (trajInifile.Open(filename) == false) {
 	return -1;
     }
     // load trajectory values
-    if (0 != loadTraj()) {
+    if (0 != loadTraj(&trajInifile)) {
 	retval = -1;
     }
     // close the inifile
-    trajInifile->close();
-    delete trajInifile;
+    trajInifile.Close();
 
     return retval;
 }

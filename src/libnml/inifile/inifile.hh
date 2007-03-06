@@ -19,43 +19,72 @@
 #ifndef INIFILE_HH
 #define INIFILE_HH
 
-#include "config.h"
 #include <stdio.h>
 #include <fcntl.h>
 
-typedef struct {
-    char tag[LINELEN];
-    char rest[LINELEN];
-} inifile_entry;
 
 #ifdef __cplusplus
-class Inifile {
-  public:
-    Inifile();
-    Inifile(const char *file);
-    Inifile(FILE *file, bool owner=false);
-    ~Inifile();
+class IniFile {
+public:
+    typedef enum {
+        ERR_NONE,
+        ERR_NOT_OPEN,
+        ERR_SECTION_NOT_FOUND,
+        ERR_TAG_NOT_FOUND,
+        ERR_CONVERSION,
+        ERR_LIMITS,
+    } ErrorCode;
 
-    bool open(const char *file);
-    bool close();
-    bool valid();
-    int write();
-    const char *find(const char *tag, const char *section = NULL, int num = 1);
-    int section(const char *section, inifile_entry array[], int max);
-    void tilde(const char *file, char *path);
+    class Exception {
+    public:
+        ErrorCode               errCode;
+        const char *            tag;
+        const char *            section;
+        int                     num;
+        unsigned int            lineNo;
 
-  private:
-    FILE * fp;
-    bool close_fp;
-    char *after_equal(const char *string);
-    char *skip_white(char *string);
-    struct flock lock;
+        void                    Print(FILE *fp);
+    };
+
+
+                                IniFile(void){ Init(NULL); }
+                                IniFile(FILE *fp){ Init(fp); }
+                                ~IniFile(void){ Close(); }
+
+    bool                        Open(const char *file);
+    bool                        Close(void);
+    bool                        IsOpen(void){ return(fp != NULL); }
+    const char *                Find(const char *tag, const char *section=NULL,
+                                     int num = 1);
+    void                        EnableExceptions(bool enable){
+                                    throwException = enable;
+                                }
+
+
+private:
+    FILE                        *fp;
+    struct flock                lock;
+    bool                        owned;
+
+    Exception                   exception;
+    bool                        throwException;
+
+    unsigned int                lineNo;
+    const char *                tag;
+    const char *                section;
+    int                         num;
+
+    void                        Init(FILE *fp);
+    bool                        CheckIfOpen(void);
+    bool                        LockFile(void);
+    void                        TildeExpansion(const char *file, char *path);
+    void                        ThrowException(ErrorCode);
+    char                        *AfterEqual(const char *string);
+    char                        *SkipWhite(const char *string);
 };
-
-extern "C" 
-const char *iniFind(FILE *fp, const char *tag, const char *section);
-
 #else
 extern const char *iniFind(FILE *fp, const char *tag, const char *section);
 #endif
-#endif /* INIFILE_HH */
+
+
+#endif

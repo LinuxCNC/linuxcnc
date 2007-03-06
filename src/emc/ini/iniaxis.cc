@@ -31,9 +31,6 @@ extern "C" {
 #include "emcglb.h"		// EMC_DEBUG
 #include "emccfg.h"		// default values for globals
 
-// inifile ref'ed by iniAxes(), loadAxis() 
-static Inifile *axisInifile = 0;
-
 /* a function that checks a string to see if it is one of:
    "TRUE", "FALSE", "YES", "NO", "1", or "0" (case insensitive)
    if it is, sets '*result' accordingly, and returns 1, else
@@ -113,7 +110,7 @@ static int strbool(const char *str, int *result)
   emcAxisLoadComp(int axis, const char * file);
   */
 
-static int loadAxis(int axis)
+static int loadAxis(int axis, IniFile *axisInifile)
 {
 #define AXIS_STRING_LEN 16
     char axisString[AXIS_STRING_LEN];
@@ -140,7 +137,7 @@ static int loadAxis(int axis)
 
     // set axis type
 
-    if (NULL != (inistring = axisInifile->find("TYPE", axisString))) {
+    if (NULL != (inistring = axisInifile->Find("TYPE", axisString))) {
 	if (!strcmp(inistring, "LINEAR")) {
 	    // found, and valid
 	    axisType = EMC_AXIS_LINEAR;
@@ -172,7 +169,7 @@ static int loadAxis(int axis)
     }
     // set units
 
-    if (NULL != (inistring = axisInifile->find("UNITS", axisString))) {
+    if (NULL != (inistring = axisInifile->Find("UNITS", axisString))) {
 	if (1 == sscanf(inistring, "%lf", &units)) {
 	    // found, and valid
 	} else {
@@ -227,7 +224,7 @@ static int loadAxis(int axis)
     }
     // set backlash
 
-    if (NULL != (inistring = axisInifile->find("BACKLASH", axisString))) {
+    if (NULL != (inistring = axisInifile->Find("BACKLASH", axisString))) {
 	if (1 == sscanf(inistring, "%lf", &backlash)) {
 	    // found, and valid
 	} else {
@@ -256,7 +253,7 @@ static int loadAxis(int axis)
 
     // set min position limit
 
-    if (NULL != (inistring = axisInifile->find("MIN_LIMIT", axisString))) {
+    if (NULL != (inistring = axisInifile->Find("MIN_LIMIT", axisString))) {
 	if (1 == sscanf(inistring, "%lf", &limit)) {
 	    // found, and valid
 	} else {
@@ -286,7 +283,7 @@ static int loadAxis(int axis)
     }
     // set max position limit
 
-    if (NULL != (inistring = axisInifile->find("MAX_LIMIT", axisString))) {
+    if (NULL != (inistring = axisInifile->Find("MAX_LIMIT", axisString))) {
 	if (1 == sscanf(inistring, "%lf", &limit)) {
 	    // found, and valid
 	} else {
@@ -315,7 +312,7 @@ static int loadAxis(int axis)
     }
     // set following error limit (at max speed)
 
-    if (NULL != (inistring = axisInifile->find("FERROR", axisString))) {
+    if (NULL != (inistring = axisInifile->Find("FERROR", axisString))) {
 	if (1 == sscanf(inistring, "%lf", &maxFerror)) {
 	    // found, and valid
 	} else {
@@ -343,7 +340,7 @@ static int loadAxis(int axis)
     }
     // do MIN_FERROR, if it's there. If not, use value of maxFerror above
 
-    if (NULL != (inistring = axisInifile->find("MIN_FERROR", axisString))) {
+    if (NULL != (inistring = axisInifile->Find("MIN_FERROR", axisString))) {
 	if (1 == sscanf(inistring, "%lf", &limit)) {
 	    // found, and valid
 	} else {
@@ -372,7 +369,7 @@ static int loadAxis(int axis)
     }
     // set homing paramsters (total of 6)
 
-    if (NULL != (inistring = axisInifile->find("HOME", axisString))) {
+    if (NULL != (inistring = axisInifile->Find("HOME", axisString))) {
 	if (1 == sscanf(inistring, "%lf", &home)) {
 	    // found, and valid
 	} else {
@@ -393,7 +390,7 @@ static int loadAxis(int axis)
 	}
     }
 
-    if (NULL != (inistring = axisInifile->find("HOME_OFFSET", axisString))) {
+    if (NULL != (inistring = axisInifile->Find("HOME_OFFSET", axisString))) {
 	if (1 == sscanf(inistring, "%lf", &offset)) {
 	    // found, and valid
 	} else {
@@ -415,7 +412,7 @@ static int loadAxis(int axis)
     }
 
     if (NULL !=
-	(inistring = axisInifile->find("HOME_SEARCH_VEL", axisString))) {
+	(inistring = axisInifile->Find("HOME_SEARCH_VEL", axisString))) {
 	if (1 == sscanf(inistring, "%lf", &search_vel)) {
 	    // found, and valid
 	} else {
@@ -438,7 +435,7 @@ static int loadAxis(int axis)
     }
 
     if (NULL !=
-	(inistring = axisInifile->find("HOME_LATCH_VEL", axisString))) {
+	(inistring = axisInifile->Find("HOME_LATCH_VEL", axisString))) {
 	if (1 == sscanf(inistring, "%lf", &latch_vel)) {
 	    // found, and valid
 	} else {
@@ -461,7 +458,7 @@ static int loadAxis(int axis)
     }
 
     if (NULL !=
-	(inistring = axisInifile->find("HOME_IS_SHARED", axisString))) {
+	(inistring = axisInifile->Find("HOME_IS_SHARED", axisString))) {
 	if (1 == strbool(inistring, &is_shared)) {
 	    // found, and valid
 	} else {
@@ -485,7 +482,7 @@ static int loadAxis(int axis)
 
 
     if (NULL !=
-	(inistring = axisInifile->find("HOME_USE_INDEX", axisString))) {
+	(inistring = axisInifile->Find("HOME_USE_INDEX", axisString))) {
 	if (1 == strbool(inistring, &use_index)) {
 	    // found, and valid
 	} else {
@@ -509,7 +506,7 @@ static int loadAxis(int axis)
 
     if (NULL !=
 	(inistring =
-	 axisInifile->find("HOME_IGNORE_LIMITS", axisString))) {
+	 axisInifile->Find("HOME_IGNORE_LIMITS", axisString))) {
 	if (1 == strbool(inistring, &ignore_limits)) {
 	    // found, and valid
 	} else {
@@ -532,7 +529,7 @@ static int loadAxis(int axis)
     }
 
     if (NULL !=
-	(inistring = axisInifile->find("HOME_SEQUENCE", axisString))) {
+	(inistring = axisInifile->Find("HOME_SEQUENCE", axisString))) {
 	if (1 == sscanf(inistring, "%d", &sequence)) {
 	    // found, and valid
 	} else {
@@ -567,7 +564,7 @@ static int loadAxis(int axis)
     // set maximum velocity
 
     if (NULL !=
-	(inistring = axisInifile->find("MAX_VELOCITY", axisString))) {
+	(inistring = axisInifile->Find("MAX_VELOCITY", axisString))) {
 	if (1 == sscanf(inistring, "%lf", &maxVelocity)) {
 	    // found, and valid
 	} else {
@@ -596,7 +593,7 @@ static int loadAxis(int axis)
     }
 
     if (NULL !=
-	(inistring = axisInifile->find("MAX_ACCELERATION", axisString))) {
+	(inistring = axisInifile->Find("MAX_ACCELERATION", axisString))) {
 	if (1 == sscanf(inistring, "%lf", &maxAcceleration)) {
 	    // found, and valid
 	} else {
@@ -624,7 +621,7 @@ static int loadAxis(int axis)
 	return -1;
     }
 
-    if (NULL != (inistring = axisInifile->find("COMP_FILE_TYPE", axisString))) {
+    if (NULL != (inistring = axisInifile->Find("COMP_FILE_TYPE", axisString))) {
 	if (1 == sscanf(inistring, "%d", &comp_file_type)) {
 	    // found, and valid
 	} else {
@@ -641,7 +638,7 @@ static int loadAxis(int axis)
 	comp_file_type = 0; 
     }
 
-    if (NULL != (inistring = axisInifile->find("COMP_FILE", axisString))) {
+    if (NULL != (inistring = axisInifile->Find("COMP_FILE", axisString))) {
 	if (0 != emcAxisLoadComp(axis, inistring, comp_file_type)) {
 	    if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
 		rcs_print_error("bad return from emcAxisLoadComp\n");
@@ -671,13 +668,13 @@ int iniAxis(int axis, const char *filename)
     int retval = 0;
     const char *inistring;
     int axes;
+    IniFile axisInifile;
 
-    axisInifile = new Inifile;
-    if (axisInifile->open(filename) == false) {
+    if (axisInifile.Open(filename) == false) {
 	return -1;
     }
 
-    if (NULL != (inistring = axisInifile->find("AXES", "TRAJ"))) {
+    if (NULL != (inistring = axisInifile.Find("AXES", "TRAJ"))) {
 	if (1 == sscanf(inistring, "%d", &axes)) {
 	    // found, and valid
 	} else {
@@ -700,17 +697,15 @@ int iniAxis(int axis, const char *filename)
 
     if (axis < 0 || axis >= axes) {
 	// requested axis exceeds machine axes
-	axisInifile->close();
-	delete axisInifile;
+	axisInifile.Close();
 	return -1;
     }
     // load its values
-    if (0 != loadAxis(axis)) {
+    if (0 != loadAxis(axis, &axisInifile)) {
 	retval = -1;
     }
     // close the inifile
-    axisInifile->close();
-    delete axisInifile;
+    axisInifile.Close();
 
     return retval;
 }

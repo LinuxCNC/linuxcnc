@@ -29,15 +29,15 @@
 
 static int iniLoad(const char *filename)
 {
-    Inifile inifile;
+    IniFile inifile;
     const char *inistring;
 
     // open it
-    if (inifile.open(filename) == false) {
+    if (inifile.Open(filename) == false) {
 	return -1;
     }
 
-    if (NULL != (inistring = inifile.find("DEBUG", "EMC"))) {
+    if (NULL != (inistring = inifile.Find("DEBUG", "EMC"))) {
 	// copy to global
 	if (1 != sscanf(inistring, "%x", &EMC_DEBUG)) {
 	    EMC_DEBUG = 0;
@@ -51,7 +51,7 @@ static int iniLoad(const char *filename)
 	max_rcs_errors_to_print = -1;
     }
 
-    if (NULL != (inistring = inifile.find("NML_FILE", "EMC"))) {
+    if (NULL != (inistring = inifile.Find("NML_FILE", "EMC"))) {
 	// copy to global
 	strcpy(EMC_NMLFILE, inistring);
     } else {
@@ -59,7 +59,7 @@ static int iniLoad(const char *filename)
     }
 
     // close it
-    inifile.close();
+    inifile.Close();
 
     return 0;
 }
