@@ -557,6 +557,8 @@ obj-$(CONFIG_HAL_MOTENC) += hal_motenc.o
 hal_motenc-objs := hal/drivers/hal_motenc.o $(MATHSTUB)
 obj-$(CONFIG_HAL_M5I20) += hal_m5i20.o
 hal_m5i20-objs := hal/drivers/hal_m5i20.o $(MATHSTUB)
+obj-$(CONFIG_HAL_M5I20) += hal_5i2x.o
+hal_5i2x-objs := hal/drivers/mesa_5i2x/hal_5i2x.o $(MATHSTUB)
 obj-$(CONFIG_HAL_AX521H) += hal_ax5214h.o
 hal_ax5214h-objs := hal/drivers/hal_ax5214h.o $(MATHSTUB)
 obj-$(CONFIG_HAL_PPMC) += hal_ppmc.o
@@ -704,6 +706,7 @@ endif
 ../rtlib/hal_evoreg$(MODULE_EXT): $(addprefix objects/rt,$(hal_evoreg-objs))
 ../rtlib/hal_motenc$(MODULE_EXT): $(addprefix objects/rt,$(hal_motenc-objs))
 ../rtlib/hal_m5i20$(MODULE_EXT): $(addprefix objects/rt,$(hal_m5i20-objs))
+../rtlib/hal_5i2x$(MODULE_EXT): $(addprefix objects/rt,$(hal_5i2x-objs))
 ../rtlib/hal_ax5214h$(MODULE_EXT): $(addprefix objects/rt,$(hal_ax5214h-objs))
 ../rtlib/hal_ppmc$(MODULE_EXT): $(addprefix objects/rt,$(hal_ppmc-objs))
 ../rtlib/hal_skeleton$(MODULE_EXT): $(addprefix objects/rt,$(hal_skeleton-objs))
