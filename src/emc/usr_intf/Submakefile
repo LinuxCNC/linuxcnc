@@ -37,52 +37,47 @@ endif
 
 $(call TOOBJSDEPS, $(TCLSRCS)) : EXTRAFLAGS = $(ULFLAGS) $(TCL_CFLAGS)
 
-../bin/emcsh: $(call TOOBJS, $(EMCSHSRCS)) ../lib/libemc.a ../lib/libnml.so 
+../bin/emcsh: $(call TOOBJS, $(EMCSHSRCS)) ../lib/libemc.a ../lib/libemcini.so ../lib/libnml.so
 	$(ECHO) Linking $(notdir $@)
-	@$(CXX) $(LDFLAGS) -o $@ $(ULFLAGS) $(TCL_CFLAGS) $^ $(TCL_LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(ULFLAGS) $(TCL_CFLAGS) $^ $(TCL_LIBS)
 TARGETS += ../bin/emcsh
 
-../bin/emcrsh: $(call TOOBJS, $(EMCRSHSRCS)) ../lib/libemc.a ../lib/libnml.so
+../bin/emcrsh: $(call TOOBJS, $(EMCRSHSRCS)) ../lib/libemc.a ../lib/libnml.so ../lib/libemcini.so
 	$(ECHO) Linking $(notdir $@)
-	@$(CXX) $(LDFLAGS) -o $@ $(ULFLAGS) $^ -lpthread
+	$(CXX) $(LDFLAGS) -o $@ $(ULFLAGS) $^ -lpthread
 TARGETS += ../bin/emcrsh
 
-../bin/emclcd: $(call TOOBJS, $(EMCLCDSRCS)) ../lib/libemc.a ../lib/libnml.so
+../bin/emclcd: $(call TOOBJS, $(EMCLCDSRCS)) ../lib/libemc.a ../lib/libnml.so ../lib/libemcini.so
 	$(ECHO) Linking $(notdir $@)
-	@$(CXX) $(LDFLAGS) -o $@ $(ULFLAGS) $^
+	$(CXX) $(LDFLAGS) -o $@ $(ULFLAGS) $^
 TARGETS += ../bin/emclcd
 
 
-../bin/iosh: $(call TOOBJS, $(IOSHSRCS)) ../lib/libemc.a ../lib/libnml.so ../lib/libemchal.so
+../bin/iosh: $(call TOOBJS, $(IOSHSRCS)) ../lib/libemc.a ../lib/libnml.so ../lib/libemchal.so ../lib/libemcini.so
 	$(ECHO) Linking $(notdir $@)
-	@$(CXX) $(LDFLAGS) -o $@ $(ULFLAGS) $(TCL_CFLAGS) $^ $(TCL_LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(ULFLAGS) $(TCL_CFLAGS) $^ $(TCL_LIBS)
 TARGETS += ../bin/iosh
 
-../bin/usrmot: $(call TOOBJS, $(USRMOTSRCS)) ../lib/libemc.a ../lib/libnml.so ../lib/libemchal.so
+../bin/usrmot: $(call TOOBJS, $(USRMOTSRCS)) ../lib/libemc.a ../lib/libnml.so ../lib/libemchal.so ../lib/libemcini.so
 	$(ECHO) Linking $(notdir $@)
-	@$(CXX) $(LDFLAGS) -o $@ $(ULFLAGS) $^
+	$(CXX) $(LDFLAGS) -o $@ $(ULFLAGS) $^
 TARGETS += ../bin/usrmot
 
-../bin/halui: $(call TOOBJS, $(HALUISRCS)) ../lib/libemc.a ../lib/libnml.so ../lib/libemchal.so
+../bin/halui: $(call TOOBJS, $(HALUISRCS)) ../lib/libemc.a ../lib/libemcini.so ../lib/libnml.so ../lib/libemchal.so
 	$(ECHO) Linking $(notdir $@)
-	@$(CXX) $(LDFLAGS) -o $@ $(ULFLAGS) $^ 
+	$(CXX) $(LDFLAGS) -o $@ $(ULFLAGS) $^ 
 TARGETS += ../bin/halui
 
-# bdi2 gets an ICE with this code unless -O0 is given
-ifeq "$(shell gcc --version)" "egcs-2.91.66"
-$(call TOOBJSDEPS, $(KEYSTICKSRCS)) : EXTRAFLAGS = -O0
-endif
-
 ifeq "$(HAVE_NCURSES)" "yes"
-../bin/keystick: $(call TOOBJS, $(KEYSTICKSRCS)) ../lib/libemc.a ../lib/libnml.so
+../bin/keystick: $(call TOOBJS, $(KEYSTICKSRCS)) ../lib/libemc.a ../lib/libnml.so ../lib/libemcini.so
 	$(ECHO) Linking $(notdir $@)
-	@$(CXX) $(LDFLAGS) -o $@ $(ULFLAGS) $^ $(KEYSTICKLIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(ULFLAGS) $^ $(KEYSTICKLIBS)
 TARGETS += ../bin/keystick
 endif
 
 ifeq "$(HAVE_XAW)" "yes"
 $(call TOOBJSDEPS,$(XEMCSRCS)): EXTRAFLAGS = $(CFLAGS_X)
-../bin/xemc: $(call TOOBJS, $(XEMCSRCS)) ../lib/libemc.a ../lib/libnml.so
+../bin/xemc: $(call TOOBJS, $(XEMCSRCS)) ../lib/libemc.a ../lib/libnml.so ../lib/libemcini.so
 	$(ECHO) Linking $(notdir $@)
 	@$(CXX) $(LDFLAGS) -o $@ $(ULFLAGS) $^ $(XLIBS)
 TARGETS += ../bin/xemc

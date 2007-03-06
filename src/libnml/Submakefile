@@ -1,8 +1,6 @@
 LIBNMLSRCS := $(addprefix libnml/, \
 	rcs/rcs_print.cc rcs/rcs_exit.cc \
 \
-	posemath/_posemath.c posemath/posemath.cc posemath/sincos.c \
-\
 	os_intf/_sem.c os_intf/_shm.c os_intf/_timer.c os_intf/sem.cc \
 	os_intf/shm.cc os_intf/timer.cc \
 \
@@ -16,8 +14,6 @@ LIBNMLSRCS := $(addprefix libnml/, \
 	nml/cmd_msg.cc nml/nml_mod.cc nml/nml_oi.cc nml/nml_srv.cc nml/nml.cc \
 	nml/nmldiag.cc nml/nmlmsg.cc nml/stat_msg.cc \
 \
-	inifile/inifile.cc \
-\
 	linklist/linklist.cc)
 
 $(call TOOBJSDEPS, $(LIBNMLSRCS)) : EXTRAFLAGS=-fPIC
@@ -30,4 +26,4 @@ TARGETS += ../lib/libnml.so
 	$(ECHO) Creating shared library $(notdir $@)
 	@mkdir -p ../lib
 	@rm -f $@
-	@$(CXX) $(LDFLAGS) -Wl,-soname,libnml.so -shared -o $@ $^
+	@$(CXX) $(LDFLAGS) -Wl,-soname,$(notdir $@) -shared -o $@ $^

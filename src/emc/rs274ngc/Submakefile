@@ -36,7 +36,7 @@ GCODEMODULESRCS := emc/rs274ngc/gcodemodule.cc
 PYSRCS += $(GCODEMODULESRCS)
 
 GCODEMODULE := ../lib/python/gcode.so
-$(GCODEMODULE): $(call TOOBJS, $(GCODEMODULESRCS)) ../lib/librs274.so ../lib/libnml.so
+$(GCODEMODULE): $(call TOOBJS, $(GCODEMODULESRCS)) ../lib/librs274.so ../lib/libemcini.so
 	$(ECHO) Linking python module $(notdir $@)
 	@$(CXX) $(LDFLAGS) -shared -o $@ $^
 

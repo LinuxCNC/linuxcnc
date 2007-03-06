@@ -1,4 +1,14 @@
 INCLUDES += libnml/posemath
+POSEMATHSRCS := $(addprefix libnml/posemath/, _posemath.c posemath.cc sincos.c)
+$(call TOOBJSDEPS, $(POSEMATHSRCS)) : EXTRAFLAGS=-fPIC
+USERSRCS += $(POSEMATHSRCS)
+TARGETS += ../lib/libposemath.so
+
+../lib/libposemath.so: $(call TOOBJS,$(POSEMATHSRCS))
+	$(ECHO) Creating shared library $(notdir $@)
+	@mkdir -p ../lib
+	@rm -f $@
+	@$(CXX) $(LDFLAGS) -Wl,-soname,$(notdir $@) -shared -o $@ $^
 
 ../include/%.h: ./libnml/posemath/%.h
 	cp $^ $@

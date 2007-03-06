@@ -1,5 +1,6 @@
 emc2 (2.2.0pre) testing; urgency=low
 
+  * split libposemath and libemcini from libnml
   * new userspace driver: input
   * new inifile item: [HAL]SHUTDOWN, a .hal file run at a clean shutdown of emc
   * new component: deadzone

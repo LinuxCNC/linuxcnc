@@ -5,7 +5,6 @@ usr/bin/emc
 usr/bin/emcmkdesktop
 usr/bin/halcmd
 usr/bin/halrun
-usr/lib/libemchal.so
 @MODULE_PATH@/abs@MODULE_EXT@
 @MODULE_PATH@/and2@MODULE_EXT@
 @MODULE_PATH@/blend@MODULE_EXT@
@@ -285,7 +284,10 @@ usr/bin/milltask
 usr/bin/milltaskcanon
 usr/bin/usrmot
 usr/bin/xemc
+usr/lib/libemchal.so
+usr/lib/libemcini.so
 usr/lib/libnml.so
+usr/lib/libposemath.so
 usr/lib/librs274.so
 usr/share/doc/emc2/AUTHORS
 usr/share/doc/emc2/INSTALL
