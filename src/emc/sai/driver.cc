@@ -1,10 +1,25 @@
-/*
-   File : driver.cc
-
-Modifications:
-13-Oct-2000 WPS changed gets to fgets and moved external canon variable
-definitions to canon.hh. (This may be temporary.)
-*/
+/********************************************************************
+* Description: driver.cc
+*   Drives the interpreter from a menu based user interface.
+*
+* 13-Oct-2000 WPS changed gets to fgets and moved external canon variable
+* definitions to canon.hh. (This may be temporary.)
+* Early March 2007 MGS adapted this to emc2
+*
+*   Derived from a work by Tom Kramer
+*
+* Author:
+* License: GPL Version 2
+* System: Linux
+*
+* Copyright (c) 2007 All rights reserved.
+*
+* Last change:
+* $Revision$
+* $Author$
+* $Date$
+*
+********************************************************************/
 
 #include "rs274ngc.hh"
 #include "rs274ngc_return.hh"
@@ -480,20 +495,20 @@ below) or 1 (under the following conditions):
 
 ***********************************************************************
 
-Here are three ways in which the rs274abc executable may be called.
+Here are three ways in which the rs274 executable may be called.
 Any other sort of call to the executable will cause an error message
 to be printed and the interpreter will not run. Other executables
 may be called similarly.
 
-1. If the rs274abc stand-alone executable is called with no arguments,
+1. If the rs274 stand-alone executable is called with no arguments,
 input is taken from the keyboard, and an error in the input does not
-cause the rs274abc executable to exit.
+cause the rs274 executable to exit.
 
 EXAMPLE:
 
 1A. To interpret from the keyboard, enter:
 
-rs274abc
+rs274
 
 ***********************************************************************
 
@@ -507,12 +522,12 @@ EXAMPLES:
 2A. To interpret the file "cds.abc" and read the results on the
 screen, enter:
 
-rs274abc cds.abc
+rs274 cds.abc
 
 2B. To interpret the file "cds.abc" and print the results in the file
 "cds.prim", enter:
 
-rs274abc cds.abc > cds.prim
+rs274 cds.abc > cds.prim
 
 ***********************************************************************
 
@@ -549,9 +564,8 @@ int main (int argc, char ** argv)
   int gees[ACTIVE_G_CODES];
   int ems[ACTIVE_M_CODES];
   double sets[ACTIVE_SETTINGS];
-  char default_name[] = "rs274ngc.var";
+  char default_name[] = "sim.var";
   int print_stack;
-  fprintf(stderr, "argc = \"%d\"\n", argc);
   if (argc > 3)
     {
       fprintf(stderr, "Usage \"%s\"\n", argv[0]);
@@ -601,7 +615,7 @@ int main (int argc, char ** argv)
   fprintf(stderr, "executing\n");
   if (tool_flag == 0)
     {
-      if (read_tool_file("rs274ngc.tool_default") != 0)
+      if (read_tool_file("sim.tbl") != 0)
         exit(1);
     }
 
@@ -614,7 +628,6 @@ int main (int argc, char ** argv)
           exit(1);
         }
     }
-  fprintf(stderr, "interp_init\n");
   if ((status = interp_init()) != INTERP_OK)
     {
       report_error(status, print_stack);
@@ -625,23 +638,16 @@ int main (int argc, char ** argv)
     status = interpret_from_keyboard(block_delete, print_stack);
   else /* if (argc == 2 or argc == 3) */
     {
-      fprintf(stderr, "label open\n"); //MGS
       status = interp_open(argv[1]);
       if (status != INTERP_OK) /* do not need to close since not open */
         {
-          fprintf(stderr, "status != INTERP_OK\n");
           report_error(status, print_stack);
           exit(1);
         }
-      fprintf(stderr, "do_next=%d, block_delete=%d, print_stack=%d\n", do_next, block_delete, print_stack); //MGS
       status = interpret_from_file(do_next, block_delete, print_stack);
-      fprintf(stderr, "label 1\n"); //MGS
       file_name(buffer, 5);  /* called to exercise the function */
-      fprintf(stderr, "label 2\n"); //MGS
       file_name(buffer, 79); /* called to exercise the function */
-      fprintf(stderr, "label 3\n"); //MGS
       interp_close();
-      fprintf(stderr, "label 4\n"); //MGS
     }
   line_length();         /* called to exercise the function */
   sequence_number();     /* called to exercise the function */

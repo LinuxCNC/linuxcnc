@@ -1,26 +1,39 @@
-/*
-  canon.cc
-
-  This file contains two sets of functions:
-  1. functions for the interpreter to call to tell the rest of the world to
-  do something. These all return nothing.
-  2. functions for the interpreter to call to get information from the rest
-  of the world. These all return some type of information.
-  These functions implement the interface between the RS274NGC interpreter
-  and some external environment.
-
-  This version of canon.cc also includes a third set of stuff: a dummy
-  model of the external world. The dummy model is used by the second set
-  of interface functions.
-
-  Modification history:
-
-  22-Mar-2004  FMP added USER_DEFINED_FUNCTION(), SET_MOTION_OUTPUT_BIT()
-  and related
-  16-Mar-2004  FMP added SYSTEM()
-*/
-
-/************************************************************************/
+/********************************************************************
+* Description: saicanon.cc
+*
+* This file contains two sets of functions:
+* 1. functions for the interpreter to call to tell the rest of the world to
+* do something. These all return nothing.
+* 2. functions for the interpreter to call to get information from the rest
+* of the world. These all return some type of information.
+* These functions implement the interface between the RS274NGC interpreter
+* and some external environment.
+*
+* This version of canon.cc also includes a third set of stuff: a dummy
+* model of the external world. The dummy model is used by the second set
+* of interface functions.
+*
+* Modification history:
+*
+* 22-Mar-2004  FMP added USER_DEFINED_FUNCTION(), SET_MOTION_OUTPUT_BIT()
+* and related
+* 16-Mar-2004  FMP added SYSTEM()
+* Early March 2007 MGS adapted this to emc2
+*
+*   Derived from a work by Tom Kramer
+*
+* Author:
+* License: GPL Version 2
+* System: Linux
+*
+* Copyright (c) 2007 All rights reserved.
+*
+* Last change:
+* $Revision$
+* $Author$
+* $Date$
+*
+********************************************************************/
 
 #include "canon.hh"
 #include "rs274ngc.hh"
