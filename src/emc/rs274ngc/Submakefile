@@ -19,13 +19,13 @@ USERSRCS += $(LIBRS274SRCS)
 
 $(call TOOBJSDEPS, $(LIBRS274SRCS)) : EXTRAFLAGS=-fPIC
 
-TARGETS += ../lib/librs274.so
+TARGETS += ../lib/librs274.so ../lib/librs274.so.0
 
-../lib/librs274.so: $(patsubst %.cc,objects/%.o,$(LIBRS274SRCS))
+../lib/librs274.so.0: $(patsubst %.cc,objects/%.o,$(LIBRS274SRCS))
 	$(ECHO) Linking $(notdir $@)
 	@mkdir -p ../lib
 	@rm -f $@
-	@$(CXX) -shared -Wl,-soname,librs274.so -o $@ $^
+	@$(CXX) $(LDFLAGS) -Wl,-soname,$(notdir $@) -shared -o $@ $^
 
 ../include/%.h: ./emc/rs274ngc/%.h
 	cp $^ $@
@@ -36,7 +36,7 @@ GCODEMODULESRCS := emc/rs274ngc/gcodemodule.cc
 PYSRCS += $(GCODEMODULESRCS)
 
 GCODEMODULE := ../lib/python/gcode.so
-$(GCODEMODULE): $(call TOOBJS, $(GCODEMODULESRCS)) ../lib/librs274.so ../lib/libemcini.so
+$(GCODEMODULE): $(call TOOBJS, $(GCODEMODULESRCS)) ../lib/librs274.so.0 ../lib/libemcini.so.0
 	$(ECHO) Linking python module $(notdir $@)
 	@$(CXX) $(LDFLAGS) -shared -o $@ $^
 

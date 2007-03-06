@@ -2,7 +2,7 @@ EMCSVRSRCS := \
 	emc/task/emcsvr.cc
 USERSRCS += $(EMCSVRSRCS)
 
-../bin/emcsvr: $(call TOOBJS, $(EMCSVRSRCS)) ../lib/libemc.a ../lib/libnml.so ../lib/libemcini.so
+../bin/emcsvr: $(call TOOBJS, $(EMCSVRSRCS)) ../lib/libemc.a ../lib/libnml.so.0 ../lib/libemcini.so.0
 	$(ECHO) Linking $(notdir $@)
 	@$(CXX) $(LDFLAGS) -o $@ $^ 
 TARGETS += ../bin/emcsvr
@@ -19,7 +19,7 @@ MILLTASKSRCS := \
 	$(ULAPISRCS)
 USERSRCS += $(MILLTASKSRCS)
 
-../bin/milltask: $(call TOOBJS, $(MILLTASKSRCS)) ../lib/librs274.so ../lib/libemc.a ../lib/libnml.so ../lib/libemcini.so ../lib/libposemath.so
+../bin/milltask: $(call TOOBJS, $(MILLTASKSRCS)) ../lib/librs274.so.0 ../lib/libemc.a ../lib/libnml.so.0 ../lib/libemcini.so.0 ../lib/libposemath.so.0
 	$(ECHO) Linking $(notdir $@)
 	@$(CXX) $(LDFLAGS) -o $@ $^ 
 TARGETS += ../bin/milltask
@@ -37,7 +37,7 @@ MILLTASKCANONSRCS := \
 	$(ULAPISRCS)
 USERSRCS += $(MILLTASKCANONSRCS)
 
-../bin/milltaskcanon: $(call TOOBJS, $(MILLTASKCANONSRCS)) ../lib/librs274.so ../lib/libemc.a ../lib/libnml.so ../lib/libemcini.so ../lib/libposemath.so
+../bin/milltaskcanon: $(call TOOBJS, $(MILLTASKCANONSRCS)) ../lib/librs274.so.0 ../lib/libemc.a ../lib/libnml.so.0 ../lib/libemcini.so.0 ../lib/libposemath.so.0
 	$(ECHO) Linking $(notdir $@)
 	@$(CXX) $(LDFLAGS) -o $@ $^ 
 TARGETS += ../bin/milltaskcanon

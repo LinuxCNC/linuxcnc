@@ -393,12 +393,13 @@ install-kernel-indep: install-dirs
 	$(FILE) po/*.msg $(DESTDIR)$(tcldir)/msgs
 	$(EXE) ../scripts/realtime $(DESTDIR)$(initd_dir)
 	$(EXE) ../scripts/halrun $(DESTDIR)$(bindir)
+	$(FILE) ../docs/UPDATING $(DESTDIR)$(docsdir)/UPDATING
 	$(FILE) ../*.png ../*.gif $(DESTDIR)$(sysconfdir)/emc2
 	$(INSTALL_CONFIGS)
 	$(EXE) $(filter-out ../bin/emc_module_helper, $(filter ../bin/%,$(TARGETS))) $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/emc $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/emcmkdesktop $(DESTDIR)$(bindir)
-	$(FILE) $(filter ../lib/%.a ../lib/%.so,$(TARGETS)) $(DESTDIR)$(libdir)
+	$(FILE) $(filter ../lib/%.a ../lib/%.so ../lib/%.so.0,$(TARGETS)) $(DESTDIR)$(libdir)
 	-ldconfig $(DESTDIR)$(libdir)
 	$(FILE) $(filter %.h %.hh,$(TARGETS)) $(DESTDIR)$(includedir)/emc2/
 	$(FILE) $(addprefix ../docs/,$(DOCS)) $(DESTDIR)$(docsdir)
@@ -419,7 +420,7 @@ install-python: install-dirs
 	$(DIR) $(DESTDIR)$(SITEPY) $(DESTDIR)$(SITEPY)/rs274
 	$(FILE) ../lib/python/*.py ../lib/python/*.so $(DESTDIR)$(SITEPY)
 	$(FILE) ../lib/python/rs274/*.py $(DESTDIR)$(SITEPY)/rs274
-	$(EXE) ../bin/pyvcp ../bin/axis ../bin/axis-remote ../bin/debuglevel ../bin/emctop ../bin/mdi ../bin/hal_manualtoolchange ../bin/image-to-gcode $(DESTDIR)$(bindir)
+	$(EXE) ../bin/hal_input ../bin/pyvcp ../bin/axis ../bin/axis-remote ../bin/debuglevel ../bin/emctop ../bin/mdi ../bin/hal_manualtoolchange ../bin/image-to-gcode $(DESTDIR)$(bindir)
 	$(FILE) emc/usr_intf/axis/etc/axis_light_background $(DESTDIR)$(docsdir)
 	$(FILE) emc/usr_intf/axis/README $(DESTDIR)$(docsdir)/README.axis
 	$(FILE) ../share/axis/images/*.gif ../share/axis/images/*.xbm ../share/axis/images/*.ngc $(DESTDIR)$(datadir)/axis/images
@@ -753,3 +754,6 @@ objects/var-%: Makefile $(wildcard $(SUBMAKEFILES)) Makefile.inc
 	@mkdir -p $(dir $@)
 	@echo $($*) > $@.tmp
 	@sh move-if-change $@.tmp $@
+
+../lib/%.so: ../lib/%.so.0
+	ln -sf $< $@

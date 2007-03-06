@@ -13,7 +13,7 @@ USERSRCS += $(FOOSRCS)
 $(call TOOBJSDEPS, $(FOOSRCS)) : EXTRAFLAGS = -Dfoo
 
 # This is how the binary 'foo' is linked.
-../bin/foo: $(call TOOBJS, $(FOOSRCS)) ../lib/libemc.a ../lib/libnml.so
+../bin/foo: $(call TOOBJS, $(FOOSRCS)) ../lib/libemc.a ../lib/libnml.so.0
 	$(CXX) -o $@ $^ 
 userspace: ../bin/foo
 

@@ -3,7 +3,7 @@ HALJSSRCS := hal/user_comps/devices/hal_joystick.c
 
 USERSRCS += $(HALJSSRCS)
 
-../bin/hal_joystick: $(call TOOBJS, $(HALJSSRCS)) ../lib/libemchal.so
+../bin/hal_joystick: $(call TOOBJS, $(HALJSSRCS)) ../lib/libemchal.so.0
 	$(ECHO) Linking $(notdir $@)
 	@$(CXX) $(LDFLAGS) -o $@ $^
 

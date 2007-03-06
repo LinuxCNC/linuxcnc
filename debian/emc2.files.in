@@ -284,6 +284,11 @@ usr/bin/milltask
 usr/bin/milltaskcanon
 usr/bin/usrmot
 usr/bin/xemc
+usr/lib/libemchal.so.0
+usr/lib/libemcini.so.0
+usr/lib/libnml.so.0
+usr/lib/libposemath.so.0
+usr/lib/librs274.so.0
 usr/lib/libemchal.so
 usr/lib/libemcini.so
 usr/lib/libnml.so
@@ -496,5 +501,4 @@ usr/share/locale/ru/LC_MESSAGES/axis.mo
 usr/share/locale/se/LC_MESSAGES/axis.mo
 usr/share/doc/emc2/EMC2_User_Manual.pdf
 usr/share/doc/emc2/EMC2_Integrator_Manual.pdf
-usr/share/doc/emc2/pluto_servo.html
 usr/share/doc/emc2/gcode.html

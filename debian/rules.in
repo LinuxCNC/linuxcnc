@@ -68,7 +68,6 @@ install: build
 	mkdir -p debian/tmp/usr/share/doc/emc2-dev
 	mv debian/tmp/usr/share/doc/emc2/EMC2_Developer_Manual.pdf \
 		debian/tmp/usr/share/doc/emc2-dev/
-	cp docs/html/hal/pluto_servo.html debian/tmp/usr/share/doc/emc2/
 	cp docs/html/gcode.html debian/tmp/usr/share/doc/emc2/
 	dh_movefiles
 
@@ -91,7 +90,9 @@ ifneq "$(kernel_version)" "sim"
 	dh_fixperms -X/emc_module_helper
 endif
 	dh_installdeb
-	dh_shlibdeps
+	dh_makeshlibs
+	cat debian/@EMC2_PACKAGE_NAME@/DEBIAN/shlibs debian/shlibs.pre > debian/shlibs.local
+	dh_shlibdeps -l debian/@EMC2_PACKAGE_NAME@/usr/lib
 	dh_python
 	dh_gencontrol
 	dh_md5sums
