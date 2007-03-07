@@ -2,7 +2,7 @@ Source: emc2
 Section: misc
 Priority: extra
 Maintainer: Chris Radek <chris@timeguy.com>
-Build-Depends: debhelper (>> 4.0.0),@KERNEL_DEPENDS@,@KERNEL_HEADERS@,g++,make,libc6-dev,tcl8.4-dev,tk8.4-dev,libgtk2.0-dev,libncurses-dev,gettext,libxaw7-dev,libreadline5-dev,lyx-qt,python,tetex-bin,python2.4-dev,libglu1-mesa-dev,libgl1-mesa-dev,libgnomeprintui2.2-dev,groff,bwidget,tetex-extra
+Build-Depends: debhelper (>> 4.0.0),@KERNEL_DEPENDS@,@KERNEL_HEADERS@,g++,make,libc6-dev,tcl8.4-dev,tk8.4-dev,libgtk2.0-dev,libncurses-dev,gettext,libxaw7-dev,libreadline5-dev,lyx-qt,python,tetex-bin,python2.4-dev,libglu1-mesa-dev,libgl1-mesa-dev,libgnomeprintui2.2-dev,bwidget,tetex-extra
 Standards-Version: 2.0.0-rc
 
 Package: @EMC2_PACKAGE_NAME@
@@ -11,7 +11,7 @@ Conflicts: emc2, emc2-axis
 Provides: emc2, emc2-axis
 Architecture: any
 Suggests: pdf-viewer
-Depends: ${shlibs:Depends},@KERNEL_DEPENDS@,tcl8.4,tk8.4,libreadline5, python2.4-numarray, python2.4-imaging, python2.4-imaging-tk, python (>= 2.4), python (<< 2.5), emc2, ${python:Depends}, bwidget (>= 1.7), bwidget (<<1.8), python2.4-tk,python2.4-xml
+Depends: ${shlibs:Depends},@KERNEL_DEPENDS@,tcl8.4,tk8.4,libreadline5, python2.4-numarray | python-numarray , python2.4-imaging, python2.4-imaging-tk | python-imaging-tk, python (>= 2.4), python (<< 2.5), emc2, ${python:Depends}, bwidget (>= 1.7), bwidget (<<1.8), python2.4-tk,python2.4-xml
 Description: PC based motion controller for real-time Linux.
  EMC2 is the next-generation Enhanced Machine Controller which
  provides motion control for CNC machine tools and robotic 

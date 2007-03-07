@@ -1154,13 +1154,14 @@ XGETTEXT_TCL_WORKS=no
 if test "$XGETTEXT" != "none"; then
    AC_MSG_CHECKING(for xgettext tcl bug)
    set -- $(xgettext --version | head -1)
+   version=$4
    set -- $(echo $4 | tr . " ")
-   if test $1 -gt 0 -o \( $1 -eq 0 -a \( $2 -gt 14 -o \( $2 -eq 14 -a $3 -ge 5 \) \) \)
+   if test ${1-0} -gt 0 -o \( ${1-0} -eq 0 -a \( ${2-0} -gt 14 -o \( ${2-0} -eq 14 -a ${3-0} -ge 5 \) \) \)
    then
 	XGETTEXT_TCL_WORKS=yes
-	AC_MSG_RESULT(xgettext version $1.$2.$3 OK)
+	AC_MSG_RESULT(xgettext version $version OK)
     else
-	AC_MSG_RESULT(xgettext version $1.$2.$3 buggy -- need at least 0.14.5)
+	AC_MSG_RESULT(xgettext version $version buggy -- need at least 0.14.5)
    fi
 fi
 AC_SUBST(XGETTEXT_TCL_WORKS)

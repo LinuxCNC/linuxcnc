@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # dpkg configuration script for emc2
 # Copyright (C) 2006 Jeff Epler
 #

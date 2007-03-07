@@ -6357,7 +6357,7 @@ _ACEOF
 cat confdefs.h >>conftest.$ac_ext
 cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
-#include <X11/Intrinsic.h>
+#include <X11/Xlib.h>
 _ACEOF
 if { (eval echo "$as_me:$LINENO: \"$ac_cpp conftest.$ac_ext\"") >&5
   (eval $ac_cpp conftest.$ac_ext) 2>conftest.er1
@@ -6384,7 +6384,7 @@ else
 sed 's/^/| /' conftest.$ac_ext >&5
 
   for ac_dir in $ac_x_header_dirs; do
-  if test -r "$ac_dir/X11/Intrinsic.h"; then
+  if test -r "$ac_dir/X11/Xlib.h"; then
     ac_x_includes=$ac_dir
     break
   fi
@@ -6398,18 +6398,18 @@ if test "$ac_x_libraries" = no; then
   # See if we find them without any special options.
   # Don't add to $LIBS permanently.
   ac_save_LIBS=$LIBS
-  LIBS="-lXt $LIBS"
+  LIBS="-lX11 $LIBS"
   cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
 _ACEOF
 cat confdefs.h >>conftest.$ac_ext
 cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
-#include <X11/Intrinsic.h>
+#include <X11/Xlib.h>
 int
 main ()
 {
-XtMalloc (0)
+XrmInitialize ()
   ;
   return 0;
 }
@@ -6447,7 +6447,7 @@ for ac_dir in `echo "$ac_x_includes $ac_x_header_dirs" | sed s/include/lib/g`
 do
   # Don't even attempt the hair of trying to link an X program!
   for ac_extension in a so sl; do
-    if test -r $ac_dir/libXt.$ac_extension; then
+    if test -r $ac_dir/libX11.$ac_extension; then
       ac_x_libraries=$ac_dir
       break 2
     fi
@@ -9078,15 +9078,16 @@ if test "$XGETTEXT" != "none"; then
    echo "$as_me:$LINENO: checking for xgettext tcl bug" >&5
 echo $ECHO_N "checking for xgettext tcl bug... $ECHO_C" >&6
    set -- $(xgettext --version | head -1)
+   version=$4
    set -- $(echo $4 | tr . " ")
-   if test $1 -gt 0 -o \( $1 -eq 0 -a \( $2 -gt 14 -o \( $2 -eq 14 -a $3 -ge 5 \) \) \)
+   if test ${1-0} -gt 0 -o \( ${1-0} -eq 0 -a \( ${2-0} -gt 14 -o \( ${2-0} -eq 14 -a ${3-0} -ge 5 \) \) \)
    then
 	XGETTEXT_TCL_WORKS=yes
-	echo "$as_me:$LINENO: result: xgettext version $1.$2.$3 OK" >&5
-echo "${ECHO_T}xgettext version $1.$2.$3 OK" >&6
+	echo "$as_me:$LINENO: result: xgettext version $version OK" >&5
+echo "${ECHO_T}xgettext version $version OK" >&6
     else
-	echo "$as_me:$LINENO: result: xgettext version $1.$2.$3 buggy -- need at least 0.14.5" >&5
-echo "${ECHO_T}xgettext version $1.$2.$3 buggy -- need at least 0.14.5" >&6
+	echo "$as_me:$LINENO: result: xgettext version $version buggy -- need at least 0.14.5" >&5
+echo "${ECHO_T}xgettext version $version buggy -- need at least 0.14.5" >&6
    fi
 fi
 
