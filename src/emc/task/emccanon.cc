@@ -532,11 +532,18 @@ linkable(double x, double y, double z, double a, double b, double c) {
 
 static void
 see_segment(double x, double y, double z, double a, double b, double c) {
+    bool changed_abc = (a != canonEndPoint.a)
+        || (b != canonEndPoint.b)
+        || (c != canonEndPoint.c);
+
     if(!chained_points().empty() && !linkable(x, y, z, a, b, c)) {
         flush_segments();
     }
     pt pos = {x, y, z, a, b, c, interp_list.get_next_line_number()};
     chained_points().push_back(pos);
+    if(changed_abc) {
+        flush_segments();
+    }
 }
 
 void FINISH() {
