@@ -1384,8 +1384,8 @@ struct logger_point {
     struct color c;
 };
 
-#define NUMCOLORS 6
-
+#define NUMCOLORS (6)
+#define MAX_POINTS (100000)
 typedef struct {
     PyObject_HEAD
     int npts, mpts, lpts;
@@ -1514,11 +1514,19 @@ static PyObject *Logger_start(pyPositionLogger *s, PyObject *o) {
                 // fewer than 2 are left
                 bool changed_color = s->npts && c != op.c;
                 if(s->npts+2 > s->mpts) {
-                    s->mpts = 2 * s->mpts + 2;
                     LOCK();
-                    s->changed = 1;
-                    s->p = (struct logger_point*)
-                        realloc(s->p, sizeof(struct logger_point) * s->mpts);
+                    if(s->mpts >= MAX_POINTS) {
+                        int adjust = MAX_POINTS / 10;
+                        if(adjust < 2) adjust = 2;
+                        s->npts -= adjust;
+                        memmove(s->p, s->p + adjust, 
+                                sizeof(struct logger_point) * s->npts);
+                    } else {
+                        s->mpts = 2 * s->mpts + 2;
+                        s->changed = 1;
+                        s->p = (struct logger_point*) realloc(s->p,
+                                    sizeof(struct logger_point) * s->mpts);
+                    }
                     UNLOCK();
                 }
                 if(changed_color) {
