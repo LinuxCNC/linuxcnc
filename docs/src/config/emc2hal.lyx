@@ -55,7 +55,12 @@ P1
 \end_inset 
 
 ), the commanded velocity is multiplied by this value.
- This effect is multiplicative with the NML-level feed override value
+ This effect is multiplicative with the NML-level feed override value and
+ 
+\series bold 
+motion.feed-hold
+\series default 
+.
 \layout Description
 
 motion.digital-out-NN\SpecialChar ~
@@ -88,8 +93,17 @@ machine off
 
 motion.feed-hold\SpecialChar ~
 IN\SpecialChar ~
-bit If this bit is set to false, the feed rate is set to
- 0.
+bit When Feed Stop Control is enabled with 
+\family typewriter 
+M53\SpecialChar ~
+P1
+\family default 
+ (See section 
+\begin_inset LatexCommand \ref{sec:M53:-Feed-Stop-Control}
+
+\end_inset 
+
+), and this bit is TRUE, the feed rate is set to 0.
 \layout Description
 
 motion.motion-inpos\SpecialChar ~
