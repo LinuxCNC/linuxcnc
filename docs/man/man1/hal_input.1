@@ -7,7 +7,7 @@
 .SH NAME
 hal_input \- control HAL pins with any Linux input device, including USB HID devices
 .SH SYNOPSIS
-\fIloadusr\fR \fBhal_input\fR \fIinputspec ...\fR
+\fIloadusr\fR \fBhal_input\fR \fI[-KRAL] inputspec ...\fR
 .SH DESCRIPTION
 hal_input is an interface between HAL and any Linux input device, including USB
 HID devices.  For each device named, \fBhal_input\fR creates pins corresponding
@@ -39,15 +39,24 @@ is removed.  For this reason, using an integer is not recommended.
 If the first character of the \fIinputspec\fR is a "+", then \fBhal_input\fR
 requests exclusive access to the device.  The first device matching an
 \fIinputspec\fR is used.  Any number of \fIinputspec\fRs may be used.
+.PP
+A \fIsubset option\fI may preceed each \fIinputspec\fR.  The subset option
+begins with a dash.  Each letter in the subset option specifies a device
+feature to \fBinclude\fR.  Features that are not specified are excluded.
+For instance, to export keyboard LEDs to HAL without exporting keys, use
+.RS 12
+hal_input -L \fIkeyboard\fR ...
+.RE
+
 .SH DEVICE FEATURES SUPPORTED
 .IP \(bu 4
-EV_BTN (buttons and keys)
+EV_BTN (buttons and keys).  Subset -B
 .IP \(bu 4
-EV_ABS (absolute analog inputs)
+EV_ABS (absolute analog inputs).  Subset -A
 .IP \(bu 4
-EV_REL (relative analog inputs)
+EV_REL (relative analog inputs).  Subset -R
 .IP \(bu 4
-EV_LED (LED outputs)
+EV_LED (LED outputs).  Subset -L
 .SH HAL PINS AND PARAMETERS
 .SS For buttons
 .TP

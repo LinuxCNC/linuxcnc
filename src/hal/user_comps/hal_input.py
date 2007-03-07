@@ -15,6 +15,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 import linux_event, sys, os, fcntl, hal, select, time, glob, fnmatch
+from hal import *
 
 def tohalname(s): return str(s).lower().replace("_", "-")
 
@@ -46,7 +47,7 @@ class HalWrapper:
 	self._drive[k] = v
 
 class HalInputDevice:
-    def __init__(self, comp, idx, name):
+    def __init__(self, comp, idx, name, parts='KRAL'):
 	self.device = linux_event.InputDevice(name)
 
 	self.idx = idx
@@ -55,55 +56,60 @@ class HalInputDevice:
 	self.rel_items = []
 	self.abs_items = []
 	self.comp = comp
+        self.parts = parts
 
-	for key in self.device.get_bits('EV_KEY'):
-	    key = tohalname(key)
-	    self.codes.add(key)
-	    comp.newpin("%s.%s" % (idx, key), hal.HAL_BIT, hal.HAL_OUT)
-	    comp.newpin("%s.%s-not" % (idx, key), hal.HAL_BIT, hal.HAL_OUT)
-	    self.set(key + "-not", 1)
+        if 'K' in parts:
+            for key in self.device.get_bits('EV_KEY'):
+                key = tohalname(key)
+                self.codes.add(key)
+                comp.newpin("%s.%s" % (idx, key), HAL_BIT, HAL_OUT)
+                comp.newpin("%s.%s-not" % (idx, key), HAL_BIT, HAL_OUT)
+                self.set(key + "-not", 1)
 
-	for axis in self.device.get_bits('EV_REL'):
-	    name = tohalname(axis)
-	    self.codes.add(name)
-	    comp.newpin("%s.%s-position" % (idx, name), hal.HAL_FLOAT, hal.HAL_OUT)
-	    comp.newpin("%s.%s-counts" % (idx, name), hal.HAL_S32, hal.HAL_OUT)
-	    comp.newpin("%s.%s-reset" % (idx, name), hal.HAL_BIT, hal.HAL_IN)
-	    comp.newparam("%s.%s-scale" % (idx, name), hal.HAL_FLOAT, hal.HAL_RW)
-	    self.set(name + '-scale', 1.)
-	    self.rel_items.append(name)
+        if 'R' in parts:
+            for axis in self.device.get_bits('EV_REL'):
+                name = tohalname(axis)
+                self.codes.add(name)
+                comp.newpin("%s.%s-position" % (idx, name), HAL_FLOAT, HAL_OUT)
+                comp.newpin("%s.%s-counts" % (idx, name), HAL_S32, HAL_OUT)
+                comp.newpin("%s.%s-reset" % (idx, name), HAL_BIT, HAL_IN)
+                comp.newparam("%s.%s-scale" % (idx, name), HAL_FLOAT, HAL_RW)
+                self.set(name + '-scale', 1.)
+                self.rel_items.append(name)
 
-	for axis in self.device.get_bits('EV_ABS'):
-	    name = tohalname(axis)
-	    self.codes.add(name)
-	    absinfo = self.device.get_absinfo(axis)
-	    comp.newpin("%s.%s-position" % (idx, name), hal.HAL_FLOAT, hal.HAL_OUT)
-	    comp.newpin("%s.%s-counts" % (idx, name), hal.HAL_S32, hal.HAL_OUT)
-	    comp.newparam("%s.%s-scale" % (idx, name), hal.HAL_FLOAT, hal.HAL_RW)
-	    comp.newparam("%s.%s-offset" % (idx, name), hal.HAL_FLOAT, hal.HAL_RW)
-	    comp.newparam("%s.%s-fuzz" % (idx, name), hal.HAL_S32, hal.HAL_RW)
-	    comp.newparam("%s.%s-flat" % (idx, name), hal.HAL_S32, hal.HAL_RW)
-	    comp.newparam("%s.%s-min" % (idx, name), hal.HAL_S32, hal.HAL_RO)
-	    comp.newparam("%s.%s-max" % (idx, name), hal.HAL_S32, hal.HAL_RO)
-	    center = (absinfo.minimum + absinfo.maximum)/2.
-	    halfrange = (absinfo.maximum - absinfo.minimum)/2.
-	    self.set(name + "-counts", int(halfrange))
-	    self.set(name + "-scale", halfrange)
-	    self.set(name + "-offset", center)
-	    self.set(name + "-fuzz", absinfo.fuzz)
-	    self.set(name + "-flat", absinfo.flat)
-	    self.set(name + "-min", absinfo.minimum)
-	    self.set(name + "-max", absinfo.maximum)
-	    self.abs_items.append(name)
+        if 'A' in parts:
+            for axis in self.device.get_bits('EV_ABS'):
+                name = tohalname(axis)
+                self.codes.add(name)
+                absinfo = self.device.get_absinfo(axis)
+                comp.newpin("%s.%s-position" % (idx, name), HAL_FLOAT, HAL_OUT)
+                comp.newpin("%s.%s-counts" % (idx, name), HAL_S32, HAL_OUT)
+                comp.newparam("%s.%s-scale" % (idx, name), HAL_FLOAT, HAL_RW)
+                comp.newparam("%s.%s-offset" % (idx, name), HAL_FLOAT, HAL_RW)
+                comp.newparam("%s.%s-fuzz" % (idx, name), HAL_S32, HAL_RW)
+                comp.newparam("%s.%s-flat" % (idx, name), HAL_S32, HAL_RW)
+                comp.newparam("%s.%s-min" % (idx, name), HAL_S32, HAL_RO)
+                comp.newparam("%s.%s-max" % (idx, name), HAL_S32, HAL_RO)
+                center = (absinfo.minimum + absinfo.maximum)/2.
+                halfrange = (absinfo.maximum - absinfo.minimum)/2.
+                self.set(name + "-counts", int(halfrange))
+                self.set(name + "-scale", halfrange)
+                self.set(name + "-offset", center)
+                self.set(name + "-fuzz", absinfo.fuzz)
+                self.set(name + "-flat", absinfo.flat)
+                self.set(name + "-min", absinfo.minimum)
+                self.set(name + "-max", absinfo.maximum)
+                self.abs_items.append(name)
 
 	self.ledmap = {}
-	for led in self.device.get_bits('EV_LED'):
-	    name = tohalname(led)
-	    self.ledmap[name] = led
-	    comp.newpin("%s.%s" % (idx, name), hal.HAL_BIT, hal.HAL_IN)
-	    comp.newparam("%s.%s-invert" % (idx, name), hal.HAL_BIT, hal.HAL_RW)
-	    self.last[name] = 0
-	    self.device.write_event('EV_LED', led, 0)
+        if 'L' in parts:
+            for led in self.device.get_bits('EV_LED'):
+                name = tohalname(led)
+                self.ledmap[name] = led
+                comp.newpin("%s.%s" % (idx, name), HAL_BIT, HAL_IN)
+                comp.newparam("%s.%s-invert" % (idx, name), HAL_BIT, HAL_RW)
+                self.last[name] = 0
+                self.device.write_event('EV_LED', led, 0)
 	
     def get(self, name):
 	name = "%s.%s" % (self.idx, name)
@@ -117,7 +123,12 @@ class HalInputDevice:
 	while self.device.readable():
 	    ev = self.device.read_event()
 	    if ev.type == 'EV_SYN': continue
-	    if ev.type == 'EV_MSC': continue
+	    elif ev.type == 'EV_SND': continue
+	    elif ev.type == 'EV_MSC': continue
+            elif ev.type == 'EV_LED': continue
+            elif ev.type == 'EV_KEY' and 'K' not in self.parts: continue
+            elif ev.type == 'EV_REL' and 'R' not in self.parts: continue
+            elif ev.type == 'EV_ABS' and 'A' not in self.parts: continue
 	    code = tohalname(ev.code)
 	    if code not in self.codes:
 		print >>sys.stderr, "Unexpected event", ev.type, ev.code
@@ -141,6 +152,7 @@ class HalInputDevice:
 		if abs(value - self.get(code + "-counts")) > fuzz:
 		    self.set(code + "-counts", value)
 
+                
 	for a in self.abs_items:
 	    value = self.get(a + "-counts")
 	    scale = self.get(a + "-scale") or 1
@@ -161,12 +173,18 @@ class HalInputDevice:
 		self.device.write_event('EV_LED', led, u)
 		self.last[k] = u
 
-h = hal.component("hal_input")
+h = component("hal_input")
 w = HalWrapper(h)
 h.setprefix("input")
 d = []
-for i, f in enumerate(sys.argv[1:]):
-    d.append(HalInputDevice(w, i, f))
+i = 0
+for f in sys.argv[1:]:
+    if f.startswith("-"):
+        parts = f[1:]
+    else:
+        d.append(HalInputDevice(w, i, f, parts))
+        parts = 'KRAL'
+        i += 1
 h.ready()
 
 try:
