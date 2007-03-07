@@ -3,8 +3,9 @@ emc2 (1:2.1.2) testing; urgency=low
   * change axis.N.homing from HAL parameter to pin, to allow external
     logic
   * add russian translation of AXIS
+  * fix problem with tolerance mode and angular moves 
 
- -- jepler <jepler@unpythonic.net>  Wed, 28 Feb 2007 20:51:00 -0600
+ -- jepler <jepler@unpythonic.net>  Wed,  7 Mar 2007 14:24:41 -0600
 
 emc2 (1:2.1.1) testing; urgency=low
 
