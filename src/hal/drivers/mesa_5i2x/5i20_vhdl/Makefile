@@ -1,3 +1,8 @@
+ifeq ($(XILINX),)
+    $(error "source ~/xilinx/settings.sh" to set env vars)
+endif
+
+vpath %.vhd ../5i2x_vhdl
 
 help :
 	@echo "This Makefile is NOT part of the EMC2 build system."
@@ -9,8 +14,8 @@ help :
 
 %.prj : %.vhd
 	@echo "making project file $@ from top level file $<"
-	@echo "vhdl work $<" >$@
-	@grep -e "---[[:space:]][[:space:]]*include" $< | while read i ; do set -- $$i ; echo "vhdl work $$3" ; done >>$@
+	@rm -f $@
+	@for FILE in $^ ; do echo "vhdl work $$FILE" ; done >>$@
 
 %.scr : %.vhd
 	@echo "making synthesis script file $@ from top level file $<"
@@ -54,10 +59,13 @@ help :
 
 makefile.depends : *.vhd
 	@echo "updating dependency file $@"
-	@echo " " >$@
-	@for FILE in `grep -l -e "---[[:space:]][[:space:]]*include" $^` ; do \
-	    echo -n "$$FILE :" | sed s/\.vhd/\.ngc/ >>$@ ;\
-	    grep -e "---[[:space:]][[:space:]]*include" $$FILE | while read i ; do set -- $$i ; echo -n " $$3" ; done >>$@ ;\
+	@rm -rf >$@
+	@for FILE in `grep -l "use  *work\.[[:alnum:]_-]*_pkg" $^` ; do \
+	    echo -n "$$FILE " | sed s/\.vhd/\.ngc/ >>$@ ;\
+	    echo -n "$$FILE :" | sed s/\.vhd/\.prj/ >>$@ ;\
+	    grep -o "use  *work\.[[:alnum:]_-]*_pkg" $$FILE | while read i ; do \
+	        echo -n $$i | sed "s/use  *work\./ /" | sed "s/_pkg/.vhd/" ;\
+	    done >>$@ ;\
 	    echo " " >>$@ ;\
 	done
 	@for FILE in `grep -l -e "---[[:space:]][[:space:]]*constraints" $^` ; do \
@@ -65,9 +73,6 @@ makefile.depends : *.vhd
 	    set -- `grep -m 1 -e "---[[:space:]][[:space:]]*constraints" $$FILE` ; echo " $$3" >>$@ ;\
 	done
 
-ifeq ($(XILINX),)
-    $(error "source ~/xilinx/settings.sh" to set env vars)
-endif
 
 include makefile.depends
 
