@@ -35,6 +35,6 @@ newsig spindle_on bit
 # connect it to the iocontroller
 linksp spindle_on motion.spindle-on
 # connect it to a physical pin
-linksp spindle_on parport.0.pin-09-out
+linksp spindle_on parport.0.pin-01-out
 
 
