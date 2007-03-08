@@ -6,8 +6,10 @@ emc2 (1:2.1.2) testing; urgency=low
   * fix g28 and g30 to go to the saved position (which is saved in native
     machine units) regardless of the currently-active gcode units
   * fix unreliable reading of encoders and digital inputs on pluto-servo board
+  * fix intermittent error "IOError: [Errno 2] No such file or directory:
+    'sim.var'" 
 
- -- jepler <jepler@unpythonic.net>  Wed,  7 Mar 2007 22:14:12 -0600
+ -- jepler <jepler@unpythonic.net>  Thu,  8 Mar 2007 15:43:26 -0600
 
 emc2 (1:2.1.1) testing; urgency=low
 
