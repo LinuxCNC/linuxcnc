@@ -945,9 +945,9 @@ void GET_EXTERNAL_PARAMETER_FILE_NAME(
 	return;
 
   fprintf(stderr, "_parameter_file_name = %s\n", _parameter_file_name);
-//  if (strlen(_parameter_file_name) < max_size)
-//    strcpy(file_name, _parameter_file_name);
-//  else
+  if (strlen(_parameter_file_name) < max_size)
+    strcpy(file_name, _parameter_file_name);
+  else
     file_name[0] = 0;
 }
 
