@@ -76,12 +76,9 @@ int Interp::arc_data_comp_ijk(int move,  //!<either G_2 (cw arc) or G_3 (ccw arc
   *center_y = (current_y + j_number);
   arc_radius = hypot(i_number, j_number);
   radius2 = hypot((*center_x - end_x), (*center_y - end_y));
-  radius2 =
-    (((side == LEFT) && (move == 30)) ||
-     ((side == RIGHT) && (move == 20))) ?
-    (radius2 - tool_radius) : (radius2 + tool_radius);
   CHK((fabs(arc_radius - radius2) > tolerance),
       NCE_RADIUS_TO_END_OF_ARC_DIFFERS_FROM_RADIUS_TO_START);
+
   /* This catches an arc too small for the tool, also */
   if (move == G_2)
     *turn = -1;
