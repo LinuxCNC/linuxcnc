@@ -382,7 +382,7 @@ int Interp::convert_arc_comp1(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
   gamma =
     (((side == LEFT) && (move == G_3)) ||
      ((side == RIGHT) && (move == G_2))) ?
-    atan2((center[1] - end[1]), (center[0] - end[1])) :
+    atan2((center[1] - end[1]), (center[0] - end[0])) :
     atan2((end[1] - center[1]), (end[0] - center[0]));
 
   if(settings->plane == CANON_PLANE_XZ) {
@@ -396,6 +396,30 @@ int Interp::convert_arc_comp1(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
   }
   end[0] = (end[0] + (tool_radius * cos(gamma))); /* end_x reset actual */
   end[1] = (end[1] + (tool_radius * sin(gamma))); /* end_y reset actual */
+
+  /* imagine a right triangle ABC with A being the endpoint of the
+     compensated arc, B being the center of the compensated arc, C being
+     the midpoint between start and end of the compensated arc. AB_ang
+     is the direction of A->B.  A_ang is the angle of the triangle
+     itself.  We need to find a new center for the compensated arc
+     (point B). */
+
+  double b_len = hypot(current[1] - end[1], current[0] - end[0]) / 2.0;
+  double AB_ang = atan2(center[1] - end[1], center[0] - end[0]);
+  double A_ang = atan2(current[1] - end[1], current[0] - end[0]) - AB_ang;
+
+  CHK((fabs(cos(A_ang)) < TOLERANCE_EQUAL), NCE_CUTTER_GOUGING_WITH_CUTTER_RADIUS_COMP);
+  
+  double c_len = b_len/cos(A_ang);
+
+  center[0] = end[0] + c_len * cos(AB_ang);
+  center[1] = end[1] + c_len * sin(AB_ang);
+
+  /* center to endpoint distances matched before - they still should. */
+
+  CHK((fabs(hypot(center[0]-end[0],center[1]-end[1]) - 
+            hypot(center[0]-current[0],center[1]-current[1])) > tolerance),
+      NCE_BUG_IN_TOOL_RADIUS_COMP);
 
   if(settings->plane == CANON_PLANE_XZ) {
       if (settings->feed_mode == INVERSE_TIME)
