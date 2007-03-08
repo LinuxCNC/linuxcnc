@@ -47,13 +47,16 @@ public:
     };
 
 
-                                IniFile(void){ Init(NULL); }
-                                IniFile(FILE *fp){ Init(fp); }
+                                IniFile(bool throwExcp=false, FILE *fp=NULL);
                                 ~IniFile(void){ Close(); }
 
     bool                        Open(const char *file);
     bool                        Close(void);
     bool                        IsOpen(void){ return(fp != NULL); }
+    ErrorCode                   Find(int *result, const char *tag,
+                                     const char *section=NULL, int num = 1);
+    ErrorCode                   Find(double *result, const char *tag,
+                                     const char *section=NULL, int num = 1);
     const char *                Find(const char *tag, const char *section=NULL,
                                      int num = 1);
     void                        EnableExceptions(bool enable){
@@ -74,7 +77,6 @@ private:
     const char *                section;
     int                         num;
 
-    void                        Init(FILE *fp);
     bool                        CheckIfOpen(void);
     bool                        LockFile(void);
     void                        TildeExpansion(const char *file, char *path);

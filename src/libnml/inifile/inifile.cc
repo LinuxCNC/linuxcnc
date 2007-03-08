@@ -27,6 +27,17 @@
 #include "inifile.hh"
 
 
+IniFile::IniFile(bool _throwException, FILE *_fp)
+{
+    fp = _fp;
+    throwException = _throwException;
+    owned = false;
+
+    if(fp != NULL)
+        LockFile();
+}
+
+
 /*! Opens the file for reading. If a file was already open, it is closed
    and the new one opened.
 
@@ -62,6 +73,46 @@ IniFile::ThrowException(ErrorCode errCode)
         exception.num = num;
         throw(exception);
     }
+}
+
+
+IniFile::ErrorCode                   
+IniFile::Find(int *result, const char *tag, const char *section, int num)
+{
+    const char                  *pStr;
+
+    if((pStr = Find(tag, section, num)) == NULL){
+        // We really need an ErrorCode return from Find() and should be passing
+        // in a buffer. Just pick a suitable ErrorCode for now.
+        return(ERR_TAG_NOT_FOUND);
+    }
+
+    if(sscanf(pStr, "%i", result) != 1){
+        ThrowException(ERR_CONVERSION);
+        return(ERR_CONVERSION);
+    }
+
+    return(ERR_NONE);
+}
+
+
+IniFile::ErrorCode                   
+IniFile::Find(double *result, const char *tag, const char *section, int num)
+{
+    const char                  *pStr;
+
+    if((pStr = Find(tag, section, num)) == NULL){
+        // We really need an ErrorCode return from Find() and should be passing
+        // in a buffer. Just pick a suitable ErrorCode for now.
+        return(ERR_TAG_NOT_FOUND);
+    }
+
+    if(sscanf(pStr, "%lf", result) != 1){
+        ThrowException(ERR_CONVERSION);
+        return(ERR_CONVERSION);
+    }
+
+    return(ERR_NONE);
 }
 
 
@@ -234,18 +285,6 @@ IniFile::Close()
     }
 
     return(rVal == 0);
-}
-
-
-void
-IniFile::Init(FILE *_fp)
-{
-    fp = _fp;
-    throwException = false;
-    owned = false;
-
-    if(fp != NULL)
-        LockFile();
 }
 
 
@@ -427,7 +466,7 @@ IniFile::Exception::Print(FILE *fp)
 extern "C" const char *
 iniFind(FILE *fp, const char *tag, const char *section)
 {
-    IniFile                     f(fp);
+    IniFile                     f(false, fp);
 
     return(f.Find(tag, section));
 }
