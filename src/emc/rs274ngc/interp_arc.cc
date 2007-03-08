@@ -79,6 +79,10 @@ int Interp::arc_data_comp_ijk(int move,  //!<either G_2 (cw arc) or G_3 (ccw arc
   CHK((fabs(arc_radius - radius2) > tolerance),
       NCE_RADIUS_TO_END_OF_ARC_DIFFERS_FROM_RADIUS_TO_START);
 
+  CHK(((arc_radius <= tool_radius) && (((side == LEFT) && (move == G_3)) ||
+                                       ((side == RIGHT) && (move == G_2)))),
+      NCE_TOOL_RADIUS_NOT_LESS_THAN_ARC_RADIUS_WITH_COMP);
+
   /* This catches an arc too small for the tool, also */
   if (move == G_2)
     *turn = -1;
