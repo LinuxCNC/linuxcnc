@@ -1681,15 +1681,23 @@ int Interp::convert_home(int move,       //!< G code, must be G_28 or G_30
   STRAIGHT_TRAVERSE(end_x, end_y, end_z,
                     AA_end, BB_end, CC_end);
   if (move == G_28) {
-    find_relative(parameters[5161], parameters[5162], parameters[5163],
-                  parameters[5164], parameters[5165], parameters[5166],
-                  &end_x, &end_y, &end_z,
-                  &AA_end, &BB_end, &CC_end, settings);
+      find_relative(USER_TO_PROGRAM_LEN(parameters[5161]),
+                    USER_TO_PROGRAM_LEN(parameters[5162]),
+                    USER_TO_PROGRAM_LEN(parameters[5163]),
+                    USER_TO_PROGRAM_ANG(parameters[5164]),
+                    USER_TO_PROGRAM_ANG(parameters[5165]),
+                    USER_TO_PROGRAM_ANG(parameters[5166]),
+                    &end_x, &end_y, &end_z,
+                    &AA_end, &BB_end, &CC_end, settings);
   } else if (move == G_30) {
-    find_relative(parameters[5181], parameters[5182], parameters[5183],
-                  parameters[5184], parameters[5185], parameters[5186],
-                  &end_x, &end_y, &end_z,
-                  &AA_end, &BB_end, &CC_end, settings);
+      find_relative(USER_TO_PROGRAM_LEN(parameters[5181]),
+                    USER_TO_PROGRAM_LEN(parameters[5182]),
+                    USER_TO_PROGRAM_LEN(parameters[5183]),
+                    USER_TO_PROGRAM_ANG(parameters[5184]),
+                    USER_TO_PROGRAM_ANG(parameters[5185]),
+                    USER_TO_PROGRAM_ANG(parameters[5186]),
+                    &end_x, &end_y, &end_z,
+                    &AA_end, &BB_end, &CC_end, settings);
   } else
     ERM(NCE_BUG_CODE_NOT_G28_OR_G30);
   STRAIGHT_TRAVERSE(end_x, end_y, end_z,
