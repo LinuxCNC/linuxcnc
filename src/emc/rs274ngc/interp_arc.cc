@@ -183,9 +183,7 @@ int Interp::arc_data_comp_r(int move,    //!< either G_2 (cw arc) or G_3 (ccw ar
   theta = (((move == G_3) && (big_radius > 0)) ||
            ((move == G_2) && (big_radius < 0))) ?
     (alpha + M_PI_2l) : (alpha - M_PI_2l);
-  radius2 = (((side == LEFT) && (move == G_3)) ||
-             ((side == RIGHT) && (move == G_2))) ?
-    (abs_radius - tool_radius) : (abs_radius + tool_radius);
+  radius2 = abs_radius;
   CHK((distance > (radius2 + abs_radius)),
       NCE_RADIUS_TOO_SMALL_TO_REACH_END_POINT);
   mid_length = (((radius2 * radius2) + (distance * distance) -
