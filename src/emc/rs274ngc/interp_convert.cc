@@ -386,7 +386,7 @@ int Interp::convert_arc_comp1(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
   gamma =
     (((side == LEFT) && (move == G_3)) ||
      ((side == RIGHT) && (move == G_2))) ?
-    atan2((center[1] - end[1]), (center[0] - end[1])) :
+    atan2((center[1] - end[1]), (center[0] - end[0])) :
     atan2((end[1] - center[1]), (end[0] - center[0]));
 
   if(settings->plane == CANON_PLANE_XZ) {
