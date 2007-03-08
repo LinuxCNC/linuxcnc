@@ -1623,7 +1623,7 @@ def open_file_guts(f, filtered = False):
     canon = None
     try:
         ensure_mode(emc.MODE_AUTO)
-        c.reset_interpreter()
+        c.reset_interpreter(); c.wait_complete()
         c.program_open(f)
         lines = open(f).readlines()
         progress = Progress(4, len(lines)) 
