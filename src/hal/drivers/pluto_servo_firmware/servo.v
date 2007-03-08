@@ -78,13 +78,13 @@ wire EPP_wait; assign nWait = ~EPP_wait;
 wire [7:0] EPP_datain = pport_data;
 wire [7:0] EPP_dataout; assign pport_data = EPP_dataout;
 
-reg [2:0] EPP_strobe_reg;
-always @(posedge clk) EPP_strobe_reg <= {EPP_strobe_reg[1:0], EPP_strobe};
+reg [4:0] EPP_strobe_reg;
+always @(posedge clk) EPP_strobe_reg <= {EPP_strobe_reg[3:0], EPP_strobe};
 wire EPP_strobe_edge1 = (EPP_strobe_reg[2:1]==2'b01);
 
 // reg led;
 
-assign EPP_wait = EPP_strobe_reg[1];
+assign EPP_wait = EPP_strobe_reg[4];
 reg[4:0] addr_reg;
 reg[7:0] lowbyte;
 
