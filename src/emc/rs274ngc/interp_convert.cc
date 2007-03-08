@@ -388,9 +388,11 @@ int Interp::convert_arc_comp1(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
   if(settings->plane == CANON_PLANE_XZ) {
     settings->program_x = end[0];
     settings->program_z = end[1];
+    settings->program_y = end[2];
   } else if (settings->plane == CANON_PLANE_XY) {
     settings->program_x = end[0];
     settings->program_y = end[1];
+    settings->program_z = end[2];
   }
   end[0] = (end[0] + (tool_radius * cos(gamma))); /* end_x reset actual */
   end[1] = (end[1] + (tool_radius * sin(gamma))); /* end_y reset actual */
@@ -561,9 +563,11 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
   if(settings->plane == CANON_PLANE_XZ) {
     settings->program_x = end[0];
     settings->program_z = end[1];
+    settings->program_y = end[2];
   } else if (settings->plane == CANON_PLANE_XY) {
     settings->program_x = end[0];
     settings->program_y = end[1];
+    settings->program_z = end[2];
   }
   end[0] = (end[0] + (tool_radius * cos(gamma))); /* end_x reset actual */
   end[1] = (end[1] + (tool_radius * sin(gamma))); /* end_y reset actual */
@@ -2750,11 +2754,13 @@ int Interp::convert_straight_comp1(int move,     //!< either G_0 or G_1
       settings->current_z = c[1];
       settings->program_x = p[0];
       settings->program_z = p[1];
+      settings->program_y = p[2];
   } else if(settings->plane == CANON_PLANE_XY) {
       settings->current_x = c[0];
       settings->current_y = c[1];
       settings->program_x = p[0];
       settings->program_y = p[1];
+      settings->program_z = p[2];
   }
   return INTERP_OK;
 }
@@ -2996,12 +3002,14 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
       settings->current_y = p[2];
       settings->program_x = p[0];
       settings->program_z = p[1];
+      settings->program_y = p[2];
   } else if(settings->plane == CANON_PLANE_XY) {
       settings->current_x = end[0];
       settings->current_y = end[1];
       settings->current_z = p[2];
       settings->program_x = p[0];
       settings->program_y = p[1];
+      settings->program_z = p[2];
   }
   return INTERP_OK;
 }
