@@ -147,7 +147,7 @@ private:
  int arc_data_comp_r(int move, int side, double tool_radius,
                            double current_x, double current_y, double end_x,
                            double end_y, double big_radius, double *center_x,
-                           double *center_y, int *turn);
+                           double *center_y, int *turn, double tolerance);
  int arc_data_ijk(int move, double current_x, double current_y,
                         double end_x, double end_y, double i_number,
                         double j_number, double *center_x, double *center_y,
