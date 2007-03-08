@@ -203,7 +203,7 @@ int interpret_from_file( /* ARGUMENTS                  */
  int block_delete,       /* switch which is ON or OFF  */
  int print_stack)        /* option which is ON or OFF  */
 {
-  int status;
+  int status=0;
   char line[LINELEN];
 
   for(; ;)
@@ -260,7 +260,7 @@ int interpret_from_file( /* ARGUMENTS                  */
             break;
         }
       else if (status == INTERP_EXIT)
-        break;
+        return 0;
     }
   return ((status == 1) ? 1 : 0);
 }
