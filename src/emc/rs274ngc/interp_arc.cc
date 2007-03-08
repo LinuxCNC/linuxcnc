@@ -76,12 +76,13 @@ int Interp::arc_data_comp_ijk(int move,  //!<either G_2 (cw arc) or G_3 (ccw arc
   *center_y = (current_y + j_number);
   arc_radius = hypot(i_number, j_number);
   radius2 = hypot((*center_x - end_x), (*center_y - end_y));
-  radius2 =
-    (((side == LEFT) && (move == 30)) ||
-     ((side == RIGHT) && (move == 20))) ?
-    (radius2 - tool_radius) : (radius2 + tool_radius);
   CHK((fabs(arc_radius - radius2) > tolerance),
       NCE_RADIUS_TO_END_OF_ARC_DIFFERS_FROM_RADIUS_TO_START);
+
+  CHK(((arc_radius <= tool_radius) && (((side == LEFT) && (move == G_3)) ||
+                                       ((side == RIGHT) && (move == G_2)))),
+      NCE_TOOL_RADIUS_NOT_LESS_THAN_ARC_RADIUS_WITH_COMP);
+
   /* This catches an arc too small for the tool, also */
   if (move == G_2)
     *turn = -1;
@@ -182,9 +183,7 @@ int Interp::arc_data_comp_r(int move,    //!< either G_2 (cw arc) or G_3 (ccw ar
   theta = (((move == G_3) && (big_radius > 0)) ||
            ((move == G_2) && (big_radius < 0))) ?
     (alpha + M_PI_2l) : (alpha - M_PI_2l);
-  radius2 = (((side == LEFT) && (move == G_3)) ||
-             ((side == RIGHT) && (move == G_2))) ?
-    (abs_radius - tool_radius) : (abs_radius + tool_radius);
+  radius2 = abs_radius;
   CHK((distance > (radius2 + abs_radius)),
       NCE_RADIUS_TOO_SMALL_TO_REACH_END_POINT);
   mid_length = (((radius2 * radius2) + (distance * distance) -
