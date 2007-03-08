@@ -37,7 +37,7 @@
 
 \layout Chapter
 
-Machining Center Overview
+return Machining Center Overview
 \layout Standard
 
 This section gives a brief description of how a machining center is viewed
@@ -4887,7 +4887,7 @@ G28
 
 \end_inset 
 
-: Return to Home
+: Return to Predefined Absolute Position
 \begin_inset LatexCommand \label{sub:G28,-G30:-Return}
 
 \end_inset 
@@ -4895,7 +4895,7 @@ G28
 
 \layout Standard
 
-Two home positions are defined (by parameters 5161-5166 for 
+Two positions are defined (by parameters 5161-5166 for 
 \family typewriter 
 G28
 \family default 
@@ -4904,25 +4904,33 @@ G28
 G30
 \family default 
 ).
- The parameter values are in terms of the absolute coordinate system, but
- are in unspecified length units.
+ The parameter values are in terms of the absolute coordinate system and
+ the machine's native coordinate system.
 \layout Standard
 
-To return to home position by way of the programmed position, program 
+To return to the predefined position by way of the programmed position,
+ program 
 \family typewriter 
 G28 X- Y- Z- A- B- C-
 \family default 
  (or use 
 \family typewriter 
-G30
+G30\SpecialChar ~
+\SpecialChar \ldots{}
+
 \family default 
 ).
  All axis words are optional.
  The path is made by a traverse move from the current position to the programmed
- position, followed by a traverse move to the home position.
+ position, followed by a traverse move to the predefined position.
  If no axis words are programmed, the intermediate point is the current
  point, so only one move is made.
  
+\layout Standard
+
+G28 and G30 do not use home switches to find the predefined position.
+ They merely command a rapid motion to the position defined by the parameters,
+ assuming that the machine has already been homed.
 \layout Section
 
 G38.2
