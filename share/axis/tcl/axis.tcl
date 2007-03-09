@@ -1729,9 +1729,8 @@ proc setval {vel max_speed} {
 
 proc val2vel {val max_speed} {
     if {$val == 0} { return 0 }
-    if {$val == 1} { return [expr {$max_speed * 60.}] }
-    format "%32.16f" [expr {60 * $max_speed * exp(-1/$val) * exp(1)}]
-    format "%32.16f" [expr {60 * $max_speed * exp(-1/$val + 1)}]
+    if {$val == 1} { format "%32.5f" [expr {$max_speed * 60.}]
+    } else { format "%32.5f" [expr {60 * $max_speed * exp(-1/$val + 1)}] }
 }
 
 proc places {s1 s2} {
