@@ -1758,6 +1758,34 @@ def set_first_line(lineno):
     global program_start_line
     program_start_line = lineno
 
+def parse_increment(jogincr):
+    if jogincr.endswith("mm"):
+        scale = from_internal_linear_unit(1/25.4)
+    elif jogincr.endswith("cm"):
+        scale = from_internal_linear_unit(10/25.4)
+    elif jogincr.endswith("um"):
+        scale = from_internal_linear_unit(.001/25.4)
+    elif jogincr.endswith("in") or jogincr.endswith("inch"):
+        scale = from_internal_linear_unit(1.)
+    elif jogincr.endswith("mil"):
+        scale = from_internal_linear_unit(.001)
+    else:
+        scale = 1
+    jogincr = jogincr.rstrip(" inchmuil")
+    if "/" in jogincr:
+        p, q = jogincr.split("/")
+        jogincr = float(p) / float(q)
+    else:
+        jogincr = float(jogincr)
+    return jogincr * scale
+
+
+def set_hal_jogincrement():
+    if not 'comp' in globals(): return # this is called once during startup before comp exists
+    distances = root_window.call(widgets.jogincr._w, "list", "get", "0", "end")
+    distance = parse_increment(distances[jogincr_index_last])
+    comp['jog.increment'] = distance
+
 def jogspeed_listbox_change(dummy, value):
     global jogincr_index_last
     # pdb.set_trace()
@@ -1773,6 +1801,7 @@ def jogspeed_listbox_change(dummy, value):
         idx += 1
     if cursel > 0:
         jogincr_index_last= cursel
+    set_hal_jogincrement()
 
 def jogspeed_continuous():
     root_window.call(widgets.jogincr._w, "select", 0)
@@ -1798,6 +1827,7 @@ def jogspeed_incremental(dir=1):
         if jogincr_index_last < 1:
             jogincr_index_last = int(jogincr_size) - 1
     root_window.call(widgets.jogincr._w, "select", jogincr_index_last)   
+    set_hal_jogincrement()
 
 
 class SelectionHandler:
@@ -2824,32 +2854,8 @@ def jog_on(a, b):
         if jogincr != _("Continuous"):
             s.poll()
             if s.state != 1: return
-            print jogincr, 
-            if jogincr.endswith("mm"):
-                print "mm",
-                scale = from_internal_linear_unit(1/25.4)
-            elif jogincr.endswith("cm"):
-                print "cm",
-                scale = from_internal_linear_unit(10/25.4)
-            elif jogincr.endswith("um"):
-                print "um",
-                scale = from_internal_linear_unit(.001/25.4)
-            elif jogincr.endswith("in") or jogincr.endswith("inch"):
-                print "in",
-                scale = from_internal_linear_unit(1.)
-            elif jogincr.endswith("mil"):
-                print "mil",
-                scale = from_internal_linear_unit(.001)
-            else:
-                scale = 1
-            jogincr = jogincr.rstrip(" inchmuil")
-            if "/" in jogincr:
-                p, q = jogincr.split("/")
-                jogincr = float(p) / float(q)
-            else:
-                jogincr = float(jogincr)
-            print jogincr, scale
-            jog(emc.JOG_INCREMENT, a, b, jogincr * scale)
+            distance = parse_increment(jogincr)
+            jog(emc.JOG_INCREMENT, a, b, distance)
             jog_cont[a] = False
         else:
             jog(emc.JOG_CONTINUOUS, a, b)
@@ -3063,6 +3069,7 @@ comp.newpin("jog.z", hal.HAL_BIT, hal.HAL_OUT)
 comp.newpin("jog.a", hal.HAL_BIT, hal.HAL_OUT)
 comp.newpin("jog.b", hal.HAL_BIT, hal.HAL_OUT)
 comp.newpin("jog.c", hal.HAL_BIT, hal.HAL_OUT)
+comp.newpin("jog.increment", hal.HAL_FLOAT, hal.HAL_OUT)
 
 if vcp:
     import vcpparse
@@ -3075,7 +3082,7 @@ if vcp:
 comp.ready()
 
 activate_axis(0, True)
-
+set_hal_jogincrement()
 make_cone()
 
 # Find font for coordinate readout and get metrics
