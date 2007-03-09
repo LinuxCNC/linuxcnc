@@ -357,6 +357,7 @@ int Interp::convert_arc_comp1(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
       current[0] = settings->current_x;
       current[1] = settings->current_z;
       current[2] = settings->current_y;
+      if(move == G_2) move = G_3; else move = G_2;
   } else if (settings->plane == CANON_PLANE_XY) {
       end[0] = end_x;
       end[1] = end_y;
@@ -436,9 +437,9 @@ int Interp::convert_arc_comp1(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
         inverse_time_rate_arc(current[0], current[1],
                               current[2], center[0], center[1], turn,
                               end[0], end[1], end[2], block, settings);
-      ARC_FEED(xtrans(settings, end[1]), ztrans(settings, end[0]), 
-               xtrans(settings, center[0]), ztrans(settings, center[1]), 
-               turn, end[2], AA_end, BB_end, CC_end);
+      ARC_FEED(ztrans(settings, end[1]), xtrans(settings, end[0]), 
+               ztrans(settings, center[1]), xtrans(settings, center[0]), 
+               -turn, end[2], AA_end, BB_end, CC_end);
       settings->current_x = end[0];
       settings->current_z = end[1];
       settings->current_y = end[2];
