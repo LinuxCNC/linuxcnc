@@ -1250,7 +1250,6 @@ AC_CONFIG_FILES([../scripts/emc-environment], [chmod +x ../scripts/emc-environme
 AC_CONFIG_FILES([../scripts/realtime], [chmod +x ../scripts/realtime])
 AC_CONFIG_FILES(Makefile.inc)
 AC_CONFIG_FILES(Makefile.modinc)
-AC_CONFIG_FILES(depend.sh)
 AC_CONFIG_FILES(../tcl/emc.tcl)
 AC_CONFIG_FILES(../lib/python/nf.py)
 AC_CONFIG_FILES([../scripts/emcmkdesktop], [chmod +x ../scripts/emcmkdesktop])

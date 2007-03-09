@@ -19,11 +19,7 @@ ifeq ($(RTPREFIX),)
 $(error Makefile.inc must specify RTPREFIX and other variables)
 endif
 
-ifeq ($(DEPSTYLE),gcc3)
 DEP = $(1) -MM -MG -MT "$(2)" $(4) -o $(3).tmp && mv -f "$(3)".tmp "$(3)"
-else
-DEP = bash depend.sh "$(1)" "$(2)" "$(3)" $(4)
-endif
 
 cc-option = $(shell if $(CC) $(CFLAGS) $(1) -S -o /dev/null -xc /dev/null \
              > /dev/null 2>&1; then echo "$(1)"; else echo "$(2)"; fi ;)
@@ -170,7 +166,7 @@ config.h: config.h.in config.status
 
 INFILES = \
 	../docs/man/man1/emc.1 ../scripts/emc ../scripts/realtime \
-	../scripts/rtapi.conf Makefile.inc depend.sh Makefile.modinc \
+	../scripts/rtapi.conf Makefile.inc Makefile.modinc \
 	../tcl/emc.tcl ../scripts/halrun ../scripts/emc-environment \
 	../scripts/emcmkdesktop ../lib/python/nf.py
 $(INFILES): %: %.in config.status

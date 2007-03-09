@@ -9659,8 +9659,6 @@ fi
 
           ac_config_files="$ac_config_files Makefile.modinc"
 
-          ac_config_files="$ac_config_files depend.sh"
-
           ac_config_files="$ac_config_files ../tcl/emc.tcl"
 
           ac_config_files="$ac_config_files ../lib/python/nf.py"
@@ -10199,7 +10197,6 @@ do
   "../scripts/realtime" ) CONFIG_FILES="$CONFIG_FILES ../scripts/realtime" ;;
   "Makefile.inc" ) CONFIG_FILES="$CONFIG_FILES Makefile.inc" ;;
   "Makefile.modinc" ) CONFIG_FILES="$CONFIG_FILES Makefile.modinc" ;;
-  "depend.sh" ) CONFIG_FILES="$CONFIG_FILES depend.sh" ;;
   "../tcl/emc.tcl" ) CONFIG_FILES="$CONFIG_FILES ../tcl/emc.tcl" ;;
   "../lib/python/nf.py" ) CONFIG_FILES="$CONFIG_FILES ../lib/python/nf.py" ;;
   "../scripts/emcmkdesktop" ) CONFIG_FILES="$CONFIG_FILES ../scripts/emcmkdesktop" ;;
