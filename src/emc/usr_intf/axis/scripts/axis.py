@@ -1782,8 +1782,11 @@ def parse_increment(jogincr):
 
 def set_hal_jogincrement():
     if not 'comp' in globals(): return # this is called once during startup before comp exists
-    distances = root_window.call(widgets.jogincr._w, "list", "get", "0", "end")
-    distance = parse_increment(distances[jogincr_index_last])
+    jogincr = widgets.jogincr.get()
+    if jogincr == _("Continuous"):
+        distance = 0
+    else:
+        distance = parse_increment(jogincr)
     comp['jog.increment'] = distance
 
 def jogspeed_listbox_change(dummy, value):
