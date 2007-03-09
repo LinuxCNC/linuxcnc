@@ -1,3 +1,4 @@
+#!/usr/bin/python
 #    Copyright 2007 Jeff Epler <jepler@unpythonic.net>
 #
 #    This program is free software; you can redistribute it and/or modify
