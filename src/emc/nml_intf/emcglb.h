@@ -18,13 +18,13 @@
 #ifndef EMCGLB_H
 #define EMCGLB_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "config.h"
 #include "emcpos.h"		/* EmcPose */
 #include "math.h"		/* M_PI */
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #define EMC_AXIS_MAX 8
 

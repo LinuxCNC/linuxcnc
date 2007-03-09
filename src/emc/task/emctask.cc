@@ -28,6 +28,8 @@
 #include "canon.hh"		// CANON_VECTOR, GET_PROGRAM_ORIGIN()
 #include "rs274ngc.hh"		// the interpreter
 #include "interp_return.hh"	// INTERP_FILE_NOT_OPEN
+#include "inifile.hh"
+#include "rcs_print.hh"
 
 /* flag for how we want to interpret traj coord mode, as mdi or auto */
 static int mdiOrAuto = EMC_TASK_MODE_AUTO;

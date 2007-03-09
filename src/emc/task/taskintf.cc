@@ -15,12 +15,15 @@
 #include <math.h>		// isnan()
 #include <float.h>		// DBL_MAX
 #include <string.h>		// memcpy() strncpy()
+#include <unistd.h>             // unlink()
 
 #include "usrmotintf.h"		// usrmotInit(), usrmotReadEmcmotStatus(),
 				// etc.
 #include "motion.h"		// emcmot_command_t,STATUS, etc.
 #include "emcglb.h"		// EMC_INIFILE
-
+#include "rcs_print.hh"
+#include "timer.hh"
+#include "inifile.hh"
 #include "iniaxis.hh"
 #include "initraj.hh"
 

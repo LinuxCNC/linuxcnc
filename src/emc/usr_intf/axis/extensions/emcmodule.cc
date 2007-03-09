@@ -25,6 +25,10 @@
 #include "kinematics.h"
 #include "config.h"
 #include "inifile.hh"
+#include "timer.hh"
+#include "nml_oi.hh"
+#include "rcs_print.hh"
+
 #define INIFILE_CHECK_FAILURE(x) (!(x))
 #include <cmath>
 
@@ -212,7 +216,7 @@ PyTypeObject Ini_Type = {
 };
 
 
-#define EMC_COMMAND_TIMEOUT 1.0  // how long to wait until timeout
+#define EMC_COMMAND_TIMEOUT 2.0  // how long to wait until timeout
 #define EMC_COMMAND_DELAY   0.01 // how long to sleep between checks
 
 static int emcWaitCommandComplete(int serial_number, RCS_STAT_CHANNEL *s) {

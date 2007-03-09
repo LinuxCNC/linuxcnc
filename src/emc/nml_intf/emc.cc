@@ -28,6 +28,7 @@
 #include "emc.hh"
 #include "emcglb.h"
 #include "emcpos.h"
+#include "cms.hh"
 
 // Forward Function Prototypes
 void EmcPose_update(CMS * cms, EmcPose * x);

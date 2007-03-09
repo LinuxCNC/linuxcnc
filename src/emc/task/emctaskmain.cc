@@ -46,7 +46,7 @@
   issued.
   */
 
-extern "C" {
+
 #include <stdio.h>		// vsprintf()
 #include <string.h>		// strcpy()
 #include <stdarg.h>		// va_start()
@@ -58,7 +58,7 @@ extern "C" {
 #include <sys/wait.h>		// waitpid(), WNOHANG, WIFEXITED
 #include <ctype.h>		// isspace()
 #include <libintl.h>
-}
+
 #include "rcs.hh"		// NML classes, nmlErrorFormat()
 #include "emc.hh"		// EMC NML
 #include "canon.hh"		// CANON_TOOL_TABLE stuff
@@ -66,6 +66,11 @@ extern "C" {
 #include "interpl.hh"		// NML_INTERP_LIST, interp_list
 #include "emcglb.h"		// EMC_INIFILE,NMLFILE, EMC_TASK_CYCLE_TIME
 #include "interp_return.hh"	// public interpreter return values
+#include "inifile.hh"
+#include "rcs_print.hh"
+#include "timer.hh"
+#include "nml_oi.hh"
+
 #ifdef USE_NLS
 #define _(string) gettext(string)
 #else

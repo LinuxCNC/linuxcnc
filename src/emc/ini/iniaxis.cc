@@ -16,7 +16,6 @@
 * $Date$
 ********************************************************************/
 
-extern "C" {
 #include <unistd.h>
 #include <stdio.h>		// NULL
 #include <stdlib.h>		// atol(), _itoa()
@@ -24,8 +23,9 @@ extern "C" {
 #include <ctype.h>		// isdigit()
 #include <sys/types.h>
 #include <sys/stat.h>
-}
+
 #include "emc.hh"
+#include "rcs_print.hh"
 #include "inifile.hh"
 #include "iniaxis.hh"		// these decls
 #include "emcglb.h"		// EMC_DEBUG

@@ -31,10 +31,7 @@ extern "C" {
 #include "cms_user.hh"		/* class CMS_USER */
 #include "linklist.hh"		/* class LinkedList */
 /* Generic NML Stuff */
-#ifndef NMLTYPE_TYPEDEFED
-#define NMLTYPE_TYPEDEFED
-typedef long NMLTYPE;		/* Also defined in nmlmsg.hh */
-#endif
+#include "nml_type.hh"
 
 class NMLmsg;			/* Use only partial definition to avoid */
 				/* depending on nmlmsg.hh. */

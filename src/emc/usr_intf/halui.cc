@@ -35,6 +35,9 @@
 #include "emccfg.h"		// DEFAULT_TRAJ_MAX_VELOCITY
 #include "inifile.hh"		// INIFILE
 #include "emcmotcfg.h"          // EMCMOT_MAX_AXIS
+#include "rcs_print.hh"
+#include "nml_oi.hh"
+#include "timer.hh"
 
 /*
   Using halui:

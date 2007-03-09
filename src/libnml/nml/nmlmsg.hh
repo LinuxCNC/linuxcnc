@@ -33,10 +33,7 @@ extern "C" {
 class CMS;			/* Use only partial definition to avoid */
 				/* depending on cms.hh */
 
-#ifndef NMLTYPE_TYPEDEFED
-#define NMLTYPE_TYPEDEFED
-typedef long NMLTYPE;		/* Also defined in nml.hh */
-#endif
+#include "nml_type.hh"
 
 /* Class NMLmsg */
 /* Base class for all types that can be written to NML. */

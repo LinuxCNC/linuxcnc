@@ -16,12 +16,12 @@
 * $Date$
 ********************************************************************/
 
-extern "C" {
 #include <stdio.h>		// NULL
 #include <stdlib.h>		// atol()
 #include <string.h>		// strcpy()
-}
+
 #include "emc.hh"
+#include "rcs_print.hh"
 #include "inifile.hh"
 #include "initool.hh"		// these decls
 #include "emcglb.h"		// TOOL_TABLE_FILE

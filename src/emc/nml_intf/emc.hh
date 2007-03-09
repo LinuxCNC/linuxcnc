@@ -20,6 +20,8 @@
 
 #include "config.h"
 #include "rcs.hh"
+#include "cmd_msg.hh"
+#include "stat_msg.hh"
 #include "posemath.h"		// PM_POSE, etc.
 #include "canon.hh"		// CANON_TOOL_TABLE, CANON_UNITS
 #include "emcglb.h"		// EMC_AXIS_MAX

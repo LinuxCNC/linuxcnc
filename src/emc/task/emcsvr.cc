@@ -20,12 +20,17 @@
 #include <math.h>		// fabs()
 #include <stdlib.h>		// exit()
 #include <string.h>		// strncpy()
-
+#include <unistd.h>             // _exit()
 #include <signal.h>
 
 #include "rcs.hh"		// EMC NML
 #include "emc.hh"		// EMC NML
 #include "emcglb.h"		// emcGetArgs(), EMC_NMLFILE
+#include "inifile.hh"
+#include "rcs_print.hh"
+#include "nml_oi.hh"
+#include "timer.hh"
+#include "nml_srv.hh"           // run_nml_servers()
 
 static int iniLoad(const char *filename)
 {

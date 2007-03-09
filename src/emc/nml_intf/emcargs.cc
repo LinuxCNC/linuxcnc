@@ -18,9 +18,10 @@
 
 #include <string.h>		/* strcpy() */
 #include <stdio.h>		/* fgets() */
-#include "rcs.hh"		/* nmlSetHostAlias() */
+#include "nml.hh"               /* nmlSetHostAlias */
 #include "emcglb.h"		/* these decls */
 #include "emccfg.h"		/* their initial values */
+#include "rcs_print.hh"
 
 int emcGetArgs(int argc, char *argv[])
 {

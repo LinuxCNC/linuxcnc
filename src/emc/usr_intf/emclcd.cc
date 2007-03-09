@@ -50,7 +50,7 @@
 #include "emccfg.h"		// DEFAULT_TRAJ_MAX_VELOCITY
 #include "inifile.hh"		// INIFILE
 #include "config.h"		// Standard path definitions
-
+#include "rcs_print.hh"
 #include "sockets.h"		// TCP/IP common socket functions
 #include "shcom.hh"		// Common NML messaging routines
 

@@ -66,6 +66,9 @@
 #include "emcglb.h"		/* EMC_NMLFILE, EMC_INIFILE, TOOL_TABLE_FILE */
 #include "inifile.hh"		/* INIFILE */
 #include "initool.hh"		/* iniTool() */
+#include "nml_oi.hh"
+#include "timer.hh"
+#include "rcs_print.hh"
 
 static RCS_CMD_CHANNEL *emcioCommandBuffer = 0;
 static RCS_CMD_MSG *emcioCommand = 0;

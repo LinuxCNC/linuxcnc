@@ -18,13 +18,17 @@
 * $Date$
 ********************************************************************/
 
-extern "C" {
+
 #include <string.h>		/* memcpy() */
 #include <libintl.h>
-}
+
 #include "rcs.hh"		// LinkedList
 #include "interpl.hh"		// these decls
 #include "emcglb.h"
+#include "linklist.hh"
+#include "nmlmsg.hh"            /* class NMLmsg */
+#include "rcs_print.hh"
+
 NML_INTERP_LIST interp_list;	/* NML Union, for interpreter */
 
 NML_INTERP_LIST::NML_INTERP_LIST()

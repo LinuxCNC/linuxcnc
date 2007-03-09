@@ -22,7 +22,6 @@
 /**********************/
 
 #include <stdio.h>
-#include "emc.hh"
 #include "canon.hh"
 #include "interp_internal.hh"
 

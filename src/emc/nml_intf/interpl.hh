@@ -62,7 +62,7 @@ class NML_INTERP_LIST {
     int len();
 
   private:
-     LinkedList * linked_list_ptr;
+    class LinkedList * linked_list_ptr;
     NML_INTERP_LIST_NODE temp_node;	// filled in and put on the list
     int next_line_number;	// line number used to fill temp_node
     int line_number;		// line number of node from get()

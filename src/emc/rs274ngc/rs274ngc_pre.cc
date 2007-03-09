@@ -77,7 +77,7 @@ include an option for suppressing superfluous commands.
 #include <ctype.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-
+#include <stdarg.h>
 #include <sys/time.h>
 #include <time.h>
 #include <unistd.h>

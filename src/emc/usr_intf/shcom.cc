@@ -33,7 +33,9 @@
 #include "emcglb.h"		// EMC_NMLFILE, TRAJ_MAX_VELOCITY, etc.
 #include "emccfg.h"		// DEFAULT_TRAJ_MAX_VELOCITY
 #include "inifile.hh"		// INIFILE
-
+#include "nml_oi.hh"            // nmlErrorFormat, NML_ERROR, etc
+#include "rcs_print.hh"
+#include "timer.hh"             // esleep
 #include "shcom.hh"             // Common NML communications functions
 
 LINEAR_UNIT_CONVERSION linearUnitConversion;

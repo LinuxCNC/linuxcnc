@@ -19,11 +19,10 @@
 #include <Python.h>
 #include <structmember.h>
 
-#include "rcs.hh"
-#include "emc.hh"
 #include "rs274ngc.hh"
-
 #include "interp_return.hh"
+#include "canon.hh"
+
 #define active_settings  interp_new.active_settings
 #define active_g_codes   interp_new.active_g_codes
 #define active_m_codes   interp_new.active_m_codes
@@ -33,8 +32,6 @@
 #define interp_execute	 interp_new.execute
 char _parameter_file_name[LINELEN];
 
-#include "canon.hh"
-#include "interpl.hh"
 
 /* This definition of offsetof avoids the g++ warning
  * 'invalid offsetof from non-POD type'.

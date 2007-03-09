@@ -16,13 +16,13 @@
 * $Date$
 ********************************************************************/
 
-extern "C" {
 #include <stdio.h>		// NULL
 #include <stdlib.h>		// atol()
 #include <string.h>		// strlen()
 #include <ctype.h>		// isspace()
-}
+
 #include "emc.hh"
+#include "rcs_print.hh"
 #include "posemath.h"		// PM_POSE, PM_RPY
 #include "inifile.hh"
 #include "initraj.hh"		// these decls

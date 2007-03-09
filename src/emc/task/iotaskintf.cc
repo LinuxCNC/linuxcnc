@@ -22,7 +22,8 @@
 #include <stdlib.h>		// malloc()
 
 #include "rcs.hh"		// RCS_CMD_CHANNEL, etc.
-
+#include "rcs_print.hh"
+#include "timer.hh"             // esleep, etc.
 #include "emc.hh"		// EMC NML
 #include "emcglb.h"		// EMC_INIFILE
 
