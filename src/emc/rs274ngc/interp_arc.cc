@@ -9,10 +9,6 @@
 *    
 * Copyright (c) 2004 All rights reserved.
 *
-* Last change:
-* $Revision$
-* $Author$
-* $Date$
 ********************************************************************/
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -160,44 +156,20 @@ int Interp::arc_data_comp_r(int move,    //!< either G_2 (cw arc) or G_3 (ccw ar
                            double big_radius,   //!< radius of arc
                            double *center_x,    //!< pointer to first coordinate of center of arc
                            double *center_y,    //!< pointer to second coordinate of center of arc
-                           int *turn)   //!< pointer to number of full or partial circles CCW
+                           int *turn,           //!< pointer to number of full or partial circles CCW
+                           double tolerance)    //!< tolerance of differing radii
 {
   static char name[] = "arc_data_comp_r";
   double abs_radius;            // absolute value of big_radius
-  double alpha;                 // direction of line from current to end
-  double distance;              // length of line L from current to end
-  double mid_length;            // length from current point to point P
-  double offset;                // length of line from P to center
-  double radius2;               // distance from center to current point
-  double mid_x;                 // x-value of point P
-  double mid_y;                 // y-value of point P
-  double theta;                 // direction of line from P to center
 
   abs_radius = fabs(big_radius);
   CHK(((abs_radius <= tool_radius) && (((side == LEFT) && (move == G_3)) ||
                                        ((side == RIGHT) && (move == G_2)))),
       NCE_TOOL_RADIUS_NOT_LESS_THAN_ARC_RADIUS_WITH_COMP);
 
-  distance = hypot((end_x - current_x), (end_y - current_y));
-  alpha = atan2((end_y - current_y), (end_x - current_x));
-  theta = (((move == G_3) && (big_radius > 0)) ||
-           ((move == G_2) && (big_radius < 0))) ?
-    (alpha + M_PI_2l) : (alpha - M_PI_2l);
-  radius2 = abs_radius;
-  CHK((distance > (radius2 + abs_radius)),
-      NCE_RADIUS_TOO_SMALL_TO_REACH_END_POINT);
-  mid_length = (((radius2 * radius2) + (distance * distance) -
-                 (abs_radius * abs_radius)) / (2.0 * distance));
-  mid_x = (current_x + (mid_length * cos(alpha)));
-  mid_y = (current_y + (mid_length * sin(alpha)));
-  CHK(((radius2 * radius2) <= (mid_length * mid_length)),
-      NCE_BUG_IN_TOOL_RADIUS_COMP);
-  offset = sqrt((radius2 * radius2) - (mid_length * mid_length));
-  *center_x = mid_x + (offset * cos(theta));
-  *center_y = mid_y + (offset * sin(theta));
-  *turn = (move == G_2) ? -1 : 1;
+  return arc_data_r(move, current_x, current_y, end_x, end_y, big_radius, 
+             center_x, center_y, turn, tolerance);
 
-  return INTERP_OK;
 }
 
 /****************************************************************************/

@@ -370,7 +370,7 @@ int Interp::convert_arc_comp1(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
   if (block->r_flag) {
     CHP(arc_data_comp_r(move, side, tool_radius, current[0],
                         current[1], end[0], end[1], block->r_number,
-                        &center[0], &center[1], &turn));
+                        &center[0], &center[1], &turn, tolerance));
   } else {
     CHP(arc_data_comp_ijk(move, side, tool_radius, current[0],
                           current[1], end[0], end[1],
