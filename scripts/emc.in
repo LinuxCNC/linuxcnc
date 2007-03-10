@@ -365,17 +365,17 @@ function Cleanup() {
         echo "lockfile still not removed"
     fi
 
-    echo "Stopping realtime threads" >> $DEBUG_FILE
-    $HALCMD stop
-    echo "Unloading hal components" >> $DEBUG_FILE
-    $HALCMD unload all
-
     # now kill all the other user space components of emc
     for KILL_TASK in emcsvr milltask simmot ; do
 	if $PIDOF $KILL_TASK >>$DEBUG_FILE ; then
 	    KillTaskWithTimeout
 	fi
     done
+
+    echo "Stopping realtime threads" >> $DEBUG_FILE
+    $HALCMD stop
+    echo "Unloading hal components" >> $DEBUG_FILE
+    $HALCMD unload all
 
     echo "Removing HAL_LIB, RTAPI, and Real Time OS modules" >>$PRINT_FILE
     $REALTIME stop
