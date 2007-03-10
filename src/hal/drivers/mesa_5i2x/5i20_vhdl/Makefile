@@ -55,7 +55,7 @@ help :
 	@bitgen -w $*-rt.ncd $*.bit $*.pcf
 
 
-.PRECIOUS : %.prj %.scr %.ngc %.ngd %.ncd %-placed.ncd %-routed.ncd %.bit
+.PRECIOUS : %.prj %.scr %.ngc %.ngd %.ncd %-pl.ncd %-rt.ncd %.bit
 
 makefile.depends : *.vhd
 	@echo "updating dependency file $@"

@@ -283,23 +283,6 @@ static char *setp_generator(const char *text, int state) {
 }
 
 
-static char *param_generator(const char *text, int state) {
-    static int len;
-    static int next;
-    if(!state) {
-        next = hal_data->param_list_ptr;
-        len = strlen(text);
-    }
-
-    while(next) {
-        hal_param_t *param = SHMPTR(next);
-        next = param->next_ptr;
-	if ( strncmp(text, param->name, len) == 0 )
-            return strdup(param->name);
-    }
-    return NULL;
-}
-
 static char *usrcomp_generator(const char *text, int state) {
     static int len;
     static int next;
