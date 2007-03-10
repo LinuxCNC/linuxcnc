@@ -635,7 +635,10 @@ RTDEPS := $(sort $(patsubst objects/%.o,depends/%.d, $(RTOBJS)))
 modules: $(patsubst %.o,../rtlib/%.so,$(obj-m))
 ../rtlib/%.so:
 	$(ECHO) Linking $@
-	@$(CC) -shared -o $@ $^ -lm
+	@ld -r -o objects/$*.tmp $^
+	@objcopy -j .rtapi_export -O binary objects/$*.tmp objects/$*.exp
+	@objcopy -G __i686.get_pc_thunk.bx `xargs -r0n1 echo -G < objects/$*.exp | grep -ve '^-G $$' | sort -u` objects/$*.tmp
+	@ld -shared -o $@ objects/$*.tmp -lm
 
 $(sort $(RTDEPS)): depends/rt%.d: %.c
 	@mkdir -p $(dir $@)
@@ -756,3 +759,5 @@ objects/var-%: Makefile $(wildcard $(SUBMAKEFILES)) Makefile.inc
 
 ../lib/%.so: ../lib/%.so.0
 	ln -sf $< $@
+
+# vim:ts=8:sts=8:sw=8:noet:
