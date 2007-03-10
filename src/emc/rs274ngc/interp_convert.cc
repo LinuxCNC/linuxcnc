@@ -126,7 +126,7 @@ int Interp::convert_arc(int move,        //!< either G_2 (cw arc) or G_3 (ccw ar
   double CC_end;
 
   ijk_flag = ((block->i_flag || block->j_flag) || block->k_flag) ? ON : OFF;
-  first = (settings->program_x == UNKNOWN);
+  first = settings->cutter_comp_firstmove == ON;
 
   CHK(((block->r_flag != ON) && (ijk_flag != ON)),
       NCE_R_I_J_K_WORDS_ALL_MISSING_FOR_ARC);
@@ -390,6 +390,7 @@ int Interp::convert_arc_comp1(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
     atan2((center[1] - end[1]), (center[0] - end[0])) :
     atan2((end[1] - center[1]), (end[0] - center[0]));
 
+  settings->cutter_comp_firstmove = OFF;
   if(settings->plane == CANON_PLANE_XZ) {
     settings->program_x = end[0];
     settings->program_z = end[1];
@@ -1317,7 +1318,7 @@ Returned Value: int (INTERP_OK)
 Side effects:
    A comment is made that cutter radius compensation is turned off.
    The machine model of the cutter radius compensation mode is set to OFF.
-   The value of program_x in the machine model is set to UNKNOWN.
+   The value of cutter_comp_firstmove in the machine model is set to ON.
      This serves as a flag when cutter radius compensation is
      turned on again.
 
@@ -1335,7 +1336,7 @@ int Interp::convert_cutter_compensation_off(setup_pointer settings)      //!< po
       settings->current_z = ztrans(settings, settings->current_z);
   }
   settings->cutter_comp_side = OFF;
-  settings->program_x = UNKNOWN;
+  settings->cutter_comp_firstmove = ON;
   return INTERP_OK;
 }
 
@@ -2516,7 +2517,7 @@ int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS27
 
 /*6*/
     settings->cutter_comp_side = OFF;
-    settings->program_x = UNKNOWN;
+    settings->cutter_comp_firstmove = ON;
 
 /*7*/ STOP_SPINDLE_TURNING();
     settings->spindle_turning = CANON_STOPPED;
@@ -2637,7 +2638,7 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
       (settings->cutter_comp_radius > 0.0)) {   /* radius always is >= 0 */
     CHK((block->g_modes[0] == G_53),
         NCE_CANNOT_USE_G53_WITH_CUTTER_RADIUS_COMP);
-    if (settings->program_x == UNKNOWN) {
+    if (settings->cutter_comp_firstmove == ON) {
       status =
         convert_straight_comp1(move, block, settings, end_x, end_y, end_z,
                                AA_end, BB_end, CC_end);
@@ -2835,9 +2836,9 @@ Side effects:
 
 Called by: convert_straight.
 
-This is called if cutter radius compensation is on and settings->program_x
-is UNKNOWN, indicating that this is the first move after cutter radius
-compensation is turned on.
+This is called if cutter radius compensation is on and
+settings->cutter_comp_firstmove is ON, indicating that this is the
+first move after cutter radius compensation is turned on.
 
 The algorithm used here for determining the path is to draw a straight
 line from the destination point which is tangent to a circle whose
@@ -2924,6 +2925,7 @@ int Interp::convert_straight_comp1(int move,     //!< either G_0 or G_1
   } else
     ERM(NCE_BUG_CODE_NOT_G0_OR_G1);
 
+  settings->cutter_comp_firstmove = OFF;
   if(settings->plane == CANON_PLANE_XZ) {
       settings->current_x = c[0];
       settings->current_z = c[1];
@@ -2964,8 +2966,8 @@ Side effects:
 Called by: convert_straight.
 
 This is called if cutter radius compensation is on and
-settings->program_x is not UNKNOWN, indicating that this is not the
-first move after cutter radius compensation is turned on.
+settings->cutter_comp_firstmove is not ON, indicating that this is not
+the first move after cutter radius compensation is turned on.
 
 The algorithm used here is:
 1. Determine the direction of the last motion. This is done by finding

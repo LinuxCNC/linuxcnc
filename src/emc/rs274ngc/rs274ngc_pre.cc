@@ -456,9 +456,10 @@ int Interp::init()
 //_setup.percent_flag does not need initialization
 //_setup.plane set in Interp::synch
   _setup.probe_flag = OFF;
-  _setup.program_x = UNKNOWN;   /* for cutter comp */
-  _setup.program_y = UNKNOWN;   /* for cutter comp */
-  _setup.program_z = UNKNOWN;   /* for cutter comp */
+  _setup.program_x = 0.;   /* for cutter comp */
+  _setup.program_y = 0.;   /* for cutter comp */
+  _setup.program_z = 0.;   /* for cutter comp */
+  _setup.cutter_comp_firstmove = ON;
 //_setup.retract_mode does not need initialization
 //_setup.selected_tool_slot set in Interp::synch
   _setup.sequence_number = 0;   /*DOES THIS NEED TO BE AT TOP? */

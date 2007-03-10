@@ -139,7 +139,7 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
   int comp;
 
   mode = settings->distance_mode;
-  middle = (settings->program_x != UNKNOWN);
+  middle = settings->cutter_comp_firstmove == OFF;
   comp = (settings->cutter_comp_side != OFF);
 
   if (block->g_modes[0] == G_53) {      /* distance mode is absolute in this case */

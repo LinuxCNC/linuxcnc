@@ -42,7 +42,6 @@
 				  difference is less than this */
 
 #define TINY 1e-12              /* for arc_data_r */
-#define UNKNOWN 1e-20
 
 // max number of m codes on one line
 #define MAX_EMS  4
@@ -363,6 +362,7 @@ typedef struct setup_struct
   ON_OFF percent_flag;          // ON means first line was percent sign
   CANON_PLANE plane;            // active plane, XY-, YZ-, or XZ-plane
   ON_OFF probe_flag;            // flag indicating probing done
+  ON_OFF cutter_comp_firstmove; // this is the first comp move
   double program_x;             // program x, used when cutter comp on
   double program_y;             // program y, used when cutter comp on
   double program_z;             // program y, used when cutter comp on
