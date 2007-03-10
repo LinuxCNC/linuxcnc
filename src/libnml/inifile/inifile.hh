@@ -27,12 +27,12 @@
 class IniFile {
 public:
     typedef enum {
-        ERR_NONE,
-        ERR_NOT_OPEN,
-        ERR_SECTION_NOT_FOUND,
-        ERR_TAG_NOT_FOUND,
-        ERR_CONVERSION,
-        ERR_LIMITS,
+        ERR_NONE                = 0x00,
+        ERR_NOT_OPEN            = 0x01,
+        ERR_SECTION_NOT_FOUND   = 0x02,
+        ERR_TAG_NOT_FOUND       = 0x04,
+        ERR_CONVERSION          = 0x08,
+        ERR_LIMITS              = 0x10,
     } ErrorCode;
 
     class Exception {
@@ -43,26 +43,30 @@ public:
         int                     num;
         unsigned int            lineNo;
 
-        void                    Print(FILE *fp);
+        void                    Print(FILE *fp=stderr);
     };
 
 
-                                IniFile(bool throwExcp=false, FILE *fp=NULL);
+                                IniFile(int errMask=0, FILE *fp=NULL);
                                 ~IniFile(void){ Close(); }
 
     bool                        Open(const char *file);
     bool                        Close(void);
     bool                        IsOpen(void){ return(fp != NULL); }
+    ErrorCode                   Find(int *result, int min, int max,
+                                     const char *tag,const char *section,int num);
     ErrorCode                   Find(int *result, const char *tag,
                                      const char *section=NULL, int num = 1);
+    ErrorCode                   Find(double *result, double min, double max,
+                                     const char *tag,const char *section,int num);
     ErrorCode                   Find(double *result, const char *tag,
                                      const char *section=NULL, int num = 1);
     ErrorCode                   Find(bool *result, const char *tag,
                                      const char *section=NULL, int num = 1);
     const char *                Find(const char *tag, const char *section=NULL,
                                      int num = 1);
-    void                        EnableExceptions(bool enable){
-                                    throwException = enable;
+    void                        EnableExceptions(int _errMask){
+                                    errMask = _errMask;
                                 }
 
 
@@ -72,7 +76,7 @@ private:
     bool                        owned;
 
     Exception                   exception;
-    bool                        throwException;
+    int                         errMask;
 
     unsigned int                lineNo;
     const char *                tag;

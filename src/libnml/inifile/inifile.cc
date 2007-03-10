@@ -27,10 +27,10 @@
 #include "inifile.hh"
 
 
-IniFile::IniFile(bool _throwException, FILE *_fp)
+IniFile::IniFile(int _errMask, FILE *_fp)
 {
     fp = _fp;
-    throwException = _throwException;
+    errMask = _errMask;
     owned = false;
 
     if(fp != NULL)
@@ -63,16 +63,44 @@ IniFile::Open(const char *file)
 }
 
 
-void
-IniFile::ThrowException(ErrorCode errCode)
+/*! Closes the file descriptor..
+
+   @return true on success, false on failure */
+bool
+IniFile::Close()
 {
-    if(throwException){
-        exception.errCode = errCode;
-        exception.tag = tag;
-        exception.section = section;
-        exception.num = num;
-        throw(exception);
+    int                         rVal = 0;
+
+    if(fp != NULL){
+        lock.l_type = F_UNLCK;
+        fcntl(fileno(fp), F_SETLKW, &lock);
+
+        if(owned)
+            rVal = fclose(fp);
+
+        fp = NULL;
     }
+
+    return(rVal == 0);
+}
+
+
+IniFile::ErrorCode                   
+IniFile::Find(int *result, int min, int max,
+              const char *tag, const char *section, int num)
+{
+    ErrorCode                   errCode;
+    int                         tmp;
+
+    if((errCode = Find(&tmp, tag, section, num)) != ERR_NONE)
+        return(errCode);
+
+    if((tmp > max) || (tmp < min))
+        return(ERR_LIMITS);
+
+    *result = tmp;
+
+    return(ERR_NONE);
 }
 
 
@@ -80,6 +108,7 @@ IniFile::ErrorCode
 IniFile::Find(int *result, const char *tag, const char *section, int num)
 {
     const char                  *pStr;
+    int                         tmp;
 
     if((pStr = Find(tag, section, num)) == NULL){
         // We really need an ErrorCode return from Find() and should be passing
@@ -87,10 +116,31 @@ IniFile::Find(int *result, const char *tag, const char *section, int num)
         return(ERR_TAG_NOT_FOUND);
     }
 
-    if(sscanf(pStr, "%i", result) != 1){
+    if(sscanf(pStr, "%i", &tmp) != 1){
         ThrowException(ERR_CONVERSION);
         return(ERR_CONVERSION);
     }
+
+    *result = tmp;
+
+    return(ERR_NONE);
+}
+
+
+IniFile::ErrorCode                   
+IniFile::Find(double *result, double min, double max,
+              const char *tag, const char *section, int num)
+{
+    ErrorCode                   errCode;
+    double                      tmp;
+
+    if((errCode = Find(&tmp, tag, section, num)) != ERR_NONE)
+        return(errCode);
+
+    if((tmp > max) || (tmp < min))
+        return(ERR_LIMITS);
+
+    *result = tmp;
 
     return(ERR_NONE);
 }
@@ -100,6 +150,7 @@ IniFile::ErrorCode
 IniFile::Find(double *result, const char *tag, const char *section, int num)
 {
     const char                  *pStr;
+    double                      tmp;
 
     if((pStr = Find(tag, section, num)) == NULL){
         // We really need an ErrorCode return from Find() and should be passing
@@ -107,10 +158,12 @@ IniFile::Find(double *result, const char *tag, const char *section, int num)
         return(ERR_TAG_NOT_FOUND);
     }
 
-    if(sscanf(pStr, "%lf", result) != 1){
+    if(sscanf(pStr, "%lf", &tmp) != 1){
         ThrowException(ERR_CONVERSION);
         return(ERR_CONVERSION);
     }
+
+    *result = tmp;
 
     return(ERR_NONE);
 }
@@ -297,28 +350,6 @@ IniFile::Find(const char *_tag, const char *_section, int _num)
 }
 
 
-/*! Closes the file descriptor..
-
-   @return true on success, false on failure */
-bool
-IniFile::Close()
-{
-    int                         rVal = 0;
-
-    if(fp != NULL){
-        lock.l_type = F_UNLCK;
-        fcntl(fileno(fp), F_SETLKW, &lock);
-
-        if(owned)
-            rVal = fclose(fp);
-
-        fp = NULL;
-    }
-
-    return(rVal == 0);
-}
-
-
 bool
 IniFile::CheckIfOpen(void)
 {
@@ -381,6 +412,20 @@ IniFile::TildeExpansion(const char *file, char *path)
     strcpy(path, home);
     strcat(path, file + 1);
     return;
+}
+
+
+void
+IniFile::ThrowException(ErrorCode errCode)
+{
+    if(errCode & errMask){
+        exception.errCode = errCode;
+        exception.tag = tag;
+        exception.section = section;
+        exception.num = num;
+        exception.lineNo = lineNo;
+        throw(exception);
+    }
 }
 
 
@@ -489,7 +534,7 @@ IniFile::Exception::Print(FILE *fp)
         msg = "UNKNOWN";
     }
 
-    fprintf(fp, "ERROR: %s, section=%s, tag=%s, num=%d, lineNo=%d",
+    fprintf(fp, "INIFILE: %s, section=%s, tag=%s, num=%d, lineNo=%d\n",
             msg, section, tag, num, lineNo);
 }
 
