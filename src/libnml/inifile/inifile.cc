@@ -116,6 +116,37 @@ IniFile::Find(double *result, const char *tag, const char *section, int num)
 }
 
 
+IniFile::ErrorCode                   
+IniFile::Find(bool *result, const char *tag, const char *section, int num)
+{
+    const char                  *pStr;
+
+    if((pStr = Find(tag, section, num)) == NULL){
+        // We really need an ErrorCode return from Find() and should be passing
+        // in a buffer. Just pick a suitable ErrorCode for now.
+        return(ERR_TAG_NOT_FOUND);
+    }
+
+    if(strcasecmp(pStr, "TRUE") == 0){
+	*result = 1;
+    }else if (strcasecmp(pStr, "YES") == 0) {
+	*result = 1;
+    }else if (strcasecmp(pStr, "1") == 0) {
+	*result = 1;
+    }else if (strcasecmp(pStr, "FALSE") == 0) {
+	*result = 0;
+    }else if (strcasecmp(pStr, "NO") == 0) {
+	*result = 0;
+    }else if (strcasecmp(pStr, "0") == 0) {
+	*result = 0;
+    }else{
+        return(ERR_CONVERSION);
+    }
+
+    return(ERR_NONE);
+}
+
+
 /*! Finds the nth tag in section.
 
    @param tag Entry in the ini file to find.

@@ -57,6 +57,8 @@ public:
                                      const char *section=NULL, int num = 1);
     ErrorCode                   Find(double *result, const char *tag,
                                      const char *section=NULL, int num = 1);
+    ErrorCode                   Find(bool *result, const char *tag,
+                                     const char *section=NULL, int num = 1);
     const char *                Find(const char *tag, const char *section=NULL,
                                      int num = 1);
     void                        EnableExceptions(bool enable){
