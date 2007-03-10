@@ -3961,6 +3961,7 @@ proc updatePlot {} {
     global a_plot b_plot c_plot 3d_plot Gmode Glast
     global delta_Alast delta_Blast delta_Clast
     global unitsetting
+    global worldlabellist
 
     # hack to divide scale for mm plotting
     if {$unitsetting == "(mm)" } {
@@ -3988,12 +3989,37 @@ proc updatePlot {} {
     set delta_B 0
     set delta_C 0
 
+
+if { [ string first X $worldlabellist ] >= 0 } {
     set X [emc_abs_act_pos 0]
+} else {
+    set X 0
+}
+if { [ string first Y $worldlabellist ] >= 0 } {
     set Y [emc_abs_act_pos 1]
+} else {
+    set Y 0
+}
+if { [ string first Z $worldlabellist ] >= 0 } {
     set Z [emc_abs_act_pos 2]
+} else {
+    set Z 0
+}
+if { [ string first A $worldlabellist ] >= 0 } {
     set A [emc_abs_act_pos 3]
+} else {
+    set A 0
+}
+if { [ string first B $worldlabellist ] >= 0 } {
     set B [emc_abs_act_pos 4]
+} else {
+    set B 0
+}
+if { [ string first C $worldlabellist ] >= 0 } {
     set C [emc_abs_act_pos 5]
+} else {
+    set C 0
+}
 
     set X [expr "$X * $size * $xdir" / $scaler]
     set Y [expr "$Y * $size * $ydir" / $scaler]
