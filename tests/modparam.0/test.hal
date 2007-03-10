@@ -1,0 +1,3 @@
+loadrt stepgen step_type="2,2,2"
+loadrt freqgen step_type=1
+list param *maxaccel
