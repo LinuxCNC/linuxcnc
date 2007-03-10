@@ -10,12 +10,12 @@ emc2 (1:2.1.2) testing; urgency=low
     'sim.var'"
   * fix a pinout problem in the stepper-xyza sample configuration
   * a few minor documentation updates
-  * in AXIS, entries on the File menu were enabled/disabled incorrectly.   
+  * in AXIS, entries on the File menu were enabled/disabled incorrectly.
     Now when a program is running, Exit is disabled but Properties is enabled.
   * several fixes to tool compensation related to single-arc entry moves,
-    relative (G91) mode, and use of sticky words from previous lines
+    relative (G91) mode, exit moves, use of sticky words from previous lines
 
- -- Chris Radek <chris@timeguy.com>  Fri,  9 Mar 2007 09:24:01 -0600
+ -- Chris Radek <chris@timeguy.com>  Sat, 10 Mar 2007 00:15:48 -0600
 
 emc2 (1:2.1.1) testing; urgency=low
 
