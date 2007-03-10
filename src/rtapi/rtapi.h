@@ -794,15 +794,16 @@ extern "C" {			/* Need this when the header is included in a
 
 #ifdef SIM
 #define MODULE_INFO1(t, a, c) __attribute__((section(".modinfo"))) \
-    t rtapi_info_##a = c;
+    t rtapi_info_##a = c; EXPORT_SYMBOL(rtapi_info_##a);
 #define MODULE_INFO2(t, a, b, c) __attribute__((section(".modinfo"))) \
-    t rtapi_info_##a##_##b = c;
+    t rtapi_info_##a##_##b = c; EXPORT_SYMBOL(rtapi_info_##a##_##b);
 #define MODULE_PARM(v,t) MODULE_INFO2(char*, type, v, t) MODULE_INFO2(void*, address, v, &v)
 #define MODULE_PARM_DESC(v,t) MODULE_INFO2(char*, description, v, t)
 #define MODULE_LICENSE(s) MODULE_INFO1(char*, license, s)
 #define MODULE_AUTHOR(s) MODULE_INFO1(char*, author, s)
 #define MODULE_DESCRIPTION(s) MODULE_INFO1(char*, description, s)
-#define EXPORT_SYMBOL(x)
+#define EXPORT_SYMBOL(x) __attribute__((section(".rtapi_export"))) \
+    char rtapi_exported_##x[] = #x;
 #endif
 
 #if !defined(RTAPI_SIM)

@@ -8,12 +8,14 @@
   get full of ifdefs.
 */
 
-#ifndef SIM
+#ifdef SIM
+EXPORT_SYMBOL(rtapi_app_main);
+EXPORT_SYMBOL(rtapi_app_exit);
+#else
 #include <linux/module.h>
 
 #define rtapi_app_main(a) init_module(a)
 #define rtapi_app_exit(a) cleanup_module(a)
-
 #endif
 
 #endif /* RTAPI_APP_H */
