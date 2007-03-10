@@ -1,5 +1,6 @@
 emc2 (1:2.1.2) testing; urgency=low
 
+  [ Chris Radek ]
   * change axis.N.homing from HAL parameter to pin, to allow external logic
   * add russian translation of AXIS
   * fix problem with tolerance mode and angular moves
@@ -14,8 +15,9 @@ emc2 (1:2.1.2) testing; urgency=low
     Now when a program is running, Exit is disabled but Properties is enabled.
   * several fixes to tool compensation related to single-arc entry moves,
     relative (G91) mode, exit moves, use of sticky words from previous lines
+  * fix problem with MACHINE ON which was left active on shutdown
 
- -- Chris Radek <chris@timeguy.com>  Sat, 10 Mar 2007 00:15:48 -0600
+ -- Chris Radek <chris@timeguy.com>  Sat, 10 Mar 2007 19:07:18 +0200
 
 emc2 (1:2.1.1) testing; urgency=low
 
