@@ -492,8 +492,10 @@ endif
 # find a way around it.
 
 # Subdirectory:  rtapi
+ifneq ($(BUILD_SYS),sim)
 obj-$(CONFIG_RTAPI) += rtapi.o
 rtapi-objs := rtapi/$(RTPREFIX)_rtapi.o
+endif
 
 # Subdirectory: rtapi/examples (unneeded?)
 
