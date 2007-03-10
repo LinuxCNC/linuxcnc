@@ -106,9 +106,14 @@ static int do_one_item(char item_type_char, const string &param_name, const stri
     return 0;
 }
 
+void remove_quotes(string &s) {
+    s.erase(remove_copy(s.begin(), s.end(), s.begin(), '"'), s.end());
+}
+
 static int do_comp_args(void *module, vector<string> args) {
     for(unsigned i=1; i < args.size(); i++) {
         string &s = args[i];
+	remove_quotes(s);
         size_t idx = s.find('=');
         if(idx == string::npos) {
             rtapi_print_msg(RTAPI_MSG_ERR, "Invalid paramter `%s'\n",
