@@ -50,11 +50,7 @@ emcmot_struct_t *emcmotshmem = NULL;	// Shared memory base address.
    from named ini file */
 int usrmotIniLoad(const char *filename)
 {
-    const char *inistring;
-    int saveInt;
-    double saveDouble;
-    IniFile inifile;
-
+    IniFile inifile(IniFile::ERR_CONVERSION);   // Enable exception.
     
     /* open it */
     if (!inifile.Open(filename)) {
@@ -62,55 +58,15 @@ int usrmotIniLoad(const char *filename)
 	return -1;
     }
 
-    saveInt = SHMEM_KEY;
-    if (NULL != (inistring = inifile.Find("SHMEM_KEY", "EMCMOT"))) {
-	if (1 == sscanf(inistring, "%i", &SHMEM_KEY)) {
-	    /* found it */
-	} else {
-	    /* found, but invalid */
-	    SHMEM_KEY = saveInt;
-	    rtapi_print
-		("invalid [EMCMOT] SHMEM_KEY in %s (%s); using default %d\n",
-		filename, inistring, SHMEM_KEY);
-	}
-    } else {
-	/* not found, using default */
-	rtapi_print("[EMCMOT] SHMEM_KEY not found in %s; using default %d\n",
-	    filename, SHMEM_KEY);
-    }
-    saveDouble = EMCMOT_COMM_TIMEOUT;
-    if (NULL != (inistring = inifile.Find("COMM_TIMEOUT", "EMCMOT"))) {
-	if (1 == sscanf(inistring, "%lf", &EMCMOT_COMM_TIMEOUT)) {
-	    /* found it */
-	} else {
-	    /* found, but invalid */
-	    EMCMOT_COMM_TIMEOUT = saveDouble;
-	    rtapi_print
-		("invalid [EMCMOT] COMM_TIMEOUT in %s (%s); using default %f\n",
-		filename, inistring, EMCMOT_COMM_TIMEOUT);
-	}
-    } else {
-	/* not found, using default */
-	rtapi_print
-	    ("[EMCMOT] COMM_TIMEOUT not found in %s; using default %f\n",
-	    filename, EMCMOT_COMM_TIMEOUT);
+    try {
+        inifile.Find((int *)&SHMEM_KEY, "SHMEM_KEY", "EMCMOT");
+        inifile.Find(&EMCMOT_COMM_TIMEOUT, "COMM_TIMEOUT", "EMCMOT");
+        inifile.Find(&EMCMOT_COMM_WAIT, "COMM_WAIT", "EMCMOT");
     }
 
-    saveDouble = EMCMOT_COMM_WAIT;
-    if (NULL != (inistring = inifile.Find("COMM_WAIT", "EMCMOT"))) {
-	if (1 == sscanf(inistring, "%lf", &EMCMOT_COMM_WAIT)) {
-	    /* found it */
-	} else {
-	    /* found, but invalid */
-	    EMCMOT_COMM_WAIT = saveDouble;
-	    rtapi_print
-		("invalid [EMCMOT] COMM_WAIT in %s (%s); using default %f\n",
-		filename, inistring, EMCMOT_COMM_WAIT);
-	}
-    } else {
-	/* not found, using default */
-	rtapi_print("[EMCMOT] COMM_WAIT not found in %s; using default %f\n",
-	    filename, EMCMOT_COMM_WAIT);
+    catch(IniFile::Exception &e){
+        e.Print();
+	return -1;
     }
 
     return 0;
