@@ -641,6 +641,12 @@ static int export_axis(int num, axis_hal_t * addr)
     if (retval != 0) {
 	return retval;
     }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.free-tp-source", num);
+    retval =
+	hal_param_s32_new(buf, HAL_RO, &(addr->free_tp_source), mot_comp_id);
+    if (retval != 0) {
+	return retval;
+    }
     rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.active", num);
     retval = hal_param_bit_new(buf, HAL_RO, &(addr->active), mot_comp_id);
     if (retval != 0) {

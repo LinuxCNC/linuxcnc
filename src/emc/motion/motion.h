@@ -8,10 +8,6 @@
 *
 * Copyright (c) 2004 All rights reserved
 *
-* Last change:
-* $Revision$
-* $Author$
-* $Date$
 ********************************************************************/
 
 /* jmk says: This file is a mess! */
@@ -419,6 +415,13 @@ Suggestion: Split this in to an Error and a Status flag register..
 #define HOME_USE_INDEX		2
 #define HOME_IS_SHARED		4
 
+    typedef enum {
+	FREE_TP_SOURCE_NONE = 0,
+	FREE_TP_SOURCE_JOG,
+	FREE_TP_SOURCE_JOGWHEEL,
+	FREE_TP_SOURCE_HOME,
+    } FREE_TP_SOURCE;
+    
 
 /* flags for enabling spindle scaling, feed scaling,
    adaptive feed, and feed hold */
@@ -477,6 +480,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 	double ferror_high_mark;	/* max following error */
 	double free_pos_cmd;	/* position command for free mode TP */
 	double free_vel_lim;	/* velocity limit for free mode TP */
+	FREE_TP_SOURCE free_tp_source;	/* the source of the last  */
 	int free_tp_enable;	/* if zero, joint stops ASAP */
 	int free_tp_active;	/* if non-zero, move in progress */
 
