@@ -1127,11 +1127,12 @@ static void do_homing_sequence(void)
 	    joint = &joints[i];
 	    if(joint->home_state != HOME_IDLE) {
 		/* a home is already in progress, abort the home-all */
-		emcmotStatus->homingSequenceState = HOME_SEQUENCE_IDLE; return;
+		emcmotStatus->homingSequenceState = HOME_SEQUENCE_IDLE;
+		return;
 	    }
 	    home_sequence = 0;
 	}
-	/* ok to start the sequence, drop into.... */
+	/* ok to start the sequence, drop into next state */
 
     case HOME_SEQUENCE_START_JOINTS:
 	/* start all joints whose sequence number matches home_sequence */
@@ -1168,7 +1169,8 @@ static void do_homing_sequence(void)
 	    if(!GET_JOINT_AT_HOME_FLAG(joint)) {
 		/* joint should have been homed at this step, it is no longer
 		   homing, but its not at home - must have failed.  bail out */
-		emcmotStatus->homingSequenceState = HOME_SEQUENCE_IDLE; return;
+		emcmotStatus->homingSequenceState = HOME_SEQUENCE_IDLE;
+		return;
 	    }
 	}
 	if(!seen) {
