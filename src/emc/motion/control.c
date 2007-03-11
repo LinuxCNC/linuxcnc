@@ -704,6 +704,8 @@ static void check_soft_limits(void)
 		joint = &joints[joint_num];
 		/* shut off free mode planner */
 		joint->free_tp_enable = 0;
+		/* clear out the source */
+		joint->free_tp_source = FREE_TP_SOURCE_NONE;
 	    }
 	}
     } else {
@@ -792,6 +794,8 @@ static void set_operating_mode(void)
 	    joint = &joints[joint_num];
 	    /* disable free mode planner */
 	    joint->free_tp_enable = 0;
+	    /* clear out the source */
+	    joint->free_tp_source = FREE_TP_SOURCE_NONE;
 	    /* drain coord mode interpolators */
 	    cubicDrain(&(joint->cubic));
 	    if (GET_JOINT_ACTIVE_FLAG(joint)) {
@@ -931,6 +935,8 @@ static void set_operating_mode(void)
 		    joint->free_pos_cmd = joint->pos_cmd;
 		    /* but it can stay disabled until a move is required */
 		    joint->free_tp_enable = 0;
+		    /* clear out the source */
+		    joint->free_tp_source = FREE_TP_SOURCE_NONE;
 		}
 		SET_MOTION_COORD_FLAG(0);
 		SET_MOTION_TELEOP_FLAG(0);
@@ -978,7 +984,9 @@ static void handle_jogwheels(void)
 	joint->old_jog_counts = new_jog_counts;
 	/* did the wheel move? */
 	if ( delta == 0 ) {
-	    /* no, nothing to do */
+	    /* no, nothing to do, except clear the JOGWHEEL souce flag */
+	    if (joint->free_tp_source == FREE_TP_SOURCE_JOGWHEEL)
+		joint->free_tp_source = FREE_TP_SOURCE_NONE;
 	    continue;
 	}
 	/* must be in free mode and enabled */
@@ -1025,10 +1033,11 @@ static void handle_jogwheels(void)
 	joint->free_pos_cmd = pos;
 	/* set velocity of jog, but only if there's not already
            a (possibly slower) jog happening. */
-        if(!joint->free_tp_active) {
+        if ((!joint->free_tp_active) || ((joint->free_tp_active) && (joint->free_tp_source == FREE_TP_SOURCE_JOGWHEEL)) ) {
             joint->free_vel_lim = joint->vel_limit;
             /* and let it go */
             joint->free_tp_enable = 1;
+	    joint->free_tp_source = FREE_TP_SOURCE_JOGWHEEL;
         }
 	SET_JOINT_ERROR_FLAG(joint, 0);
 	/* clear axis homed flag(s) if we don't have forward kins.
@@ -1195,6 +1204,10 @@ static void do_homing(void)
     emcmot_joint_t *joint;
     double offset, tmp;
     int home_sw_new, home_sw_rise, home_sw_fall;
+    int homing_flag = 0; /* any value != 0 means some homing is taking place */
+    
+    if (emcmotStatus->homingSequenceState != HOME_SEQUENCE_IDLE)
+	homing_flag = 1;
 
     if (emcmotStatus->motion_state != EMCMOT_MOTION_FREE) {
 	/* can't home unless in free mode */
@@ -1223,6 +1236,9 @@ static void do_homing(void)
 	}
 	joint->home_sw_old = home_sw_new;
 
+	if (joint->home_state != HOME_IDLE)
+	    homing_flag = 1;
+	
 	/* when an axis is homing, 'check_for_faults()' ignores its limit
 	   switches, so that this code can do the right thing with them. Once
 	   the homing process is finished, the 'check_for_faults()' resumes
@@ -1693,6 +1709,21 @@ static void do_homing(void)
 		break;
 	    }			/* end of switch(joint->home_state) */
 	} while (immediate_state);
+    }
+    
+    /* set the source for all the joints to homing, no other moves are allowed */
+    for (joint_num = 0; joint_num < EMCMOT_MAX_JOINTS; joint_num++) {
+	/* point to joint data */
+	joint = &joints[joint_num];
+	if (!GET_JOINT_ACTIVE_FLAG(joint)) {
+        /* if joint is not active, we don't need to lock it out */
+	    continue;
+	}
+	// we need to set the active joints to source HOME to prevent any other moves (jogs)
+	if (homing_flag) joint->free_tp_source = FREE_TP_SOURCE_HOME;
+	// if we're not homing anymore, but the flag was HOME, we need to clear it
+	else if (joint->free_tp_source == FREE_TP_SOURCE_HOME)
+	    joint->free_tp_source = FREE_TP_SOURCE_NONE;
     }
 }
 
@@ -2402,7 +2433,7 @@ static void output_to_hal(void)
     emcmot_hal_data->debug_float_0 = emcmotStatus->net_feed_scale;
     emcmot_hal_data->debug_float_1 = 0.0;
     emcmot_hal_data->debug_s32_0 = emcmotStatus->id;
-    emcmot_hal_data->debug_s32_1 = 0;
+    emcmot_hal_data->debug_s32_1 = emcmotStatus->homingSequenceState;
 
     /* two way handshaking for the spindle encoder */
     if(emcmotStatus->spindle_index_enable && !old_motion_index) {
@@ -2444,6 +2475,7 @@ static void output_to_hal(void)
 	axis_data->free_pos_cmd = joint->free_pos_cmd;
 	axis_data->free_vel_lim = joint->free_vel_lim;
 	axis_data->free_tp_enable = joint->free_tp_enable;
+	axis_data->free_tp_source = joint->free_tp_source;
 
 	axis_data->active = GET_JOINT_ACTIVE_FLAG(joint);
 	axis_data->in_position = GET_JOINT_INPOS_FLAG(joint);
