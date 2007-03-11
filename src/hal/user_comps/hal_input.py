@@ -179,6 +179,7 @@ w = HalWrapper(h)
 h.setprefix("input")
 d = []
 i = 0
+parts = 'KRAL'
 for f in sys.argv[1:]:
     if f.startswith("-"):
         parts = f[1:]
