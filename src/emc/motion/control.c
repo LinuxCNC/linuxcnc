@@ -980,8 +980,10 @@ static void handle_jogwheels(void)
 	/* did the wheel move? */
 	if ( delta == 0 ) {
 	    /* no, nothing to do, except clear the JOGWHEEL souce flag */
-	    if (joint->free_tp_source == FREE_TP_SOURCE_JOGWHEEL)
+	    if (joint->free_tp_source == FREE_TP_SOURCE_JOGWHEEL) {
+                joint->free_tp_enable = 0;
 		joint->free_tp_source = FREE_TP_SOURCE_NONE;
+            }
 	    continue;
 	}
 	/* must be in free mode and enabled */
@@ -1028,7 +1030,8 @@ static void handle_jogwheels(void)
         if (joint->free_tp_source == FREE_TP_SOURCE_HOME) {
             continue;
         }
-        if (joint->free_tp_active && joint->free_tp_source != FREE_TP_SOURCE_JOGWHEEL) {
+        if ((joint->free_tp_enable || joint->free_tp_active) && 
+             joint->free_tp_source != FREE_TP_SOURCE_JOGWHEEL) {
             continue;
         }
         /* set target position and use full velocity */
