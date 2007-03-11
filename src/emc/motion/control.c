@@ -1029,15 +1029,20 @@ static void handle_jogwheels(void)
 	if (pos < joint->min_jog_limit) {
 	    continue;
 	}
-	/* if it's safe for us to take control of the free planner... */
-        if ((!joint->free_tp_active) || ((joint->free_tp_active) && (joint->free_tp_source == FREE_TP_SOURCE_JOGWHEEL)) ) {
-            /* set target position and use full velocity */
-            joint->free_pos_cmd = pos;
-            joint->free_vel_lim = joint->vel_limit;
-            /* and let it go */
-            joint->free_tp_enable = 1;
-	    joint->free_tp_source = FREE_TP_SOURCE_JOGWHEEL;
+	/* see if it's safe for us to take control of the free planner... */
+        if (joint->free_tp_source == FREE_TP_SOURCE_HOME) {
+            continue;
         }
+        if (joint->free_tp_active && joint->free_tp_source != FREE_TP_SOURCE_JOGWHEEL) {
+            continue;
+        }
+        /* set target position and use full velocity */
+        joint->free_pos_cmd = pos;
+        joint->free_vel_lim = joint->vel_limit;
+        /* and let it go */
+        joint->free_tp_enable = 1;
+        joint->free_tp_source = FREE_TP_SOURCE_JOGWHEEL;
+        
 	SET_JOINT_ERROR_FLAG(joint, 0);
 	/* clear axis homed flag(s) if we don't have forward kins.
 	   Otherwise, a transition into coordinated mode will incorrectly
