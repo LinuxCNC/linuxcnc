@@ -2703,7 +2703,11 @@ max_feed_override = int(max_feed_override * 100 + 0.5)
 max_spindle_override = int(max_spindle_override * 100 + 0.5)
 vars.jog_speed.set(float(inifile.find("TRAJ", "DEFAULT_VELOCITY"))*60)
 vars.jog_aspeed.set(float(inifile.find("TRAJ", "DEFAULT_ANGULAR_VELOCITY") or vars.jog_speed.get())*60)
-vars.max_speed.set(float(inifile.find("TRAJ", "MAX_VELOCITY")))
+mlv = inifile.find("TRAJ","MAX_LINEAR_VELOCITY")
+if mlv is not None:
+    vars.max_speed.set(float(mlv))
+else:
+    vars.max_speed.set(float(inifile.find("TRAJ", "MAX_VELOCITY")))
 vars.max_aspeed.set(float(inifile.find("TRAJ", "MAX_ANGULAR_VELOCITY") or vars.max_speed.get()))
 root_window.tk.eval("${pane_top}.jogspeed.s set [setval $jog_speed $max_speed]")
 root_window.tk.eval("${pane_top}.ajogspeed.s set [setval $jog_aspeed $max_aspeed]")
