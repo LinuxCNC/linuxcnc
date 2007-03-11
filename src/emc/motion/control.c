@@ -1103,58 +1103,76 @@ static void home_do_moving_checks(emcmot_joint_t * joint)
     }
 }
 
-static void do_homing_sequence(void) {
+static void do_homing_sequence(void)
+{
     static int home_sequence = -1;
     int i;
     int seen = 0;
+    emcmot_joint_t *joint;
+
+    /* first pass init */
     if(home_sequence == -1) {
         emcmotStatus->homingSequenceState = HOME_SEQUENCE_IDLE;
 	home_sequence = 0;
     }
+
     switch(emcmotStatus->homingSequenceState) {
     case HOME_SEQUENCE_IDLE:
 	/* nothing to do */
 	break;
 
     case HOME_SEQUENCE_START:
+	/* a request to home all joints */
 	for(i=0; i < EMCMOT_MAX_JOINTS; i++) {
-	    emcmot_joint_t *joint = &joints[i];
+	    joint = &joints[i];
 	    if(joint->home_state != HOME_IDLE) {
+		/* a home is already in progress, abort the home-all */
 		emcmotStatus->homingSequenceState = HOME_SEQUENCE_IDLE; return;
 	    }
 	    home_sequence = 0;
 	}
-    
+	/* ok to start the sequence, drop into.... */
+
     case HOME_SEQUENCE_START_JOINTS:
+	/* start all joints whose sequence number matches home_sequence */
 	for(i=0; i < EMCMOT_MAX_JOINTS; i++) {
-	    emcmot_joint_t *joint = &joints[i];
-	    int j = joint->home_sequence;
-	    if(j == home_sequence) {
+	    joint = &joints[i];
+	    if(joint->home_sequence == home_sequence) {
+		/* start this joint */
 	        joint->free_tp_enable = 0;
 		joint->home_state = HOME_START;
 		seen++;
 	    }
 	}
-	if(seen) 
+	if(seen) {
+	    /* at least one joint is homing, wait for it */
 	    emcmotStatus->homingSequenceState = HOME_SEQUENCE_WAIT_JOINTS;
-	else
+	} else {
+	    /* no joints have this sequence number, we're done */
 	    emcmotStatus->homingSequenceState = HOME_IDLE;
+	}
 	break;
 
     case HOME_SEQUENCE_WAIT_JOINTS:
 	for(i=0; i < EMCMOT_MAX_JOINTS; i++) {
-	    emcmot_joint_t *joint = &joints[i];
-	    int j = joint->home_sequence;
-	    if(j != home_sequence) continue;
+	    joint = &joints[i];
+	    if(joint->home_sequence != home_sequence) {
+		/* this joint is not at the current sequence number, ignore it */
+		continue;
+	    }
 	    if(joint->home_state != HOME_IDLE) {
+		/* still busy homing, keep waiting */
 		seen = 1;
 		continue;
 	    }
 	    if(!GET_JOINT_AT_HOME_FLAG(joint)) {
+		/* joint should have been homed at this step, it is no longer
+		   homing, but its not at home - must have failed.  bail out */
 		emcmotStatus->homingSequenceState = HOME_SEQUENCE_IDLE; return;
 	    }
 	}
 	if(!seen) {
+	    /* all joints at this step have finished homing, move on to next step */
 	    home_sequence ++;
 	    emcmotStatus->homingSequenceState = HOME_SEQUENCE_START_JOINTS;
 	}
