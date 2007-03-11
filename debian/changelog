@@ -18,9 +18,9 @@ emc2 (1:2.1.2) testing; urgency=low
   * fix circular move "task issue" debug output
   * allow configuration of the max linear jog speed in AXIS with
     [TRAJ]MAX_LINEAR_JOG_SPEED - especially useful for mixed linear+rotary
-  * fix interactions between jogwheel and keyboard jogging
+  * fix interactions between jogwheel, keyboard jogging, and homing
 
- -- Chris Radek <chris@timeguy.com>  Sat, 10 Mar 2007 22:44:18 -0600
+ -- Chris Radek <chris@timeguy.com>  Sun, 11 Mar 2007 17:15:43 -0500
 
 emc2 (1:2.1.1) testing; urgency=low
 
