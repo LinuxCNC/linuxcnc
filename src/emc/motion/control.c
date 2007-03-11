@@ -1025,10 +1025,11 @@ static void handle_jogwheels(void)
 	joint->free_pos_cmd = pos;
 	/* set velocity of jog, but only if there's not already
            a (possibly slower) jog happening. */
-        if(!joint->free_tp_enable)
+        if(!joint->free_tp_active) {
             joint->free_vel_lim = joint->vel_limit;
-	/* and let it go */
-	joint->free_tp_enable = 1;
+            /* and let it go */
+            joint->free_tp_enable = 1;
+        }
 	SET_JOINT_ERROR_FLAG(joint, 0);
 	/* clear axis homed flag(s) if we don't have forward kins.
 	   Otherwise, a transition into coordinated mode will incorrectly
