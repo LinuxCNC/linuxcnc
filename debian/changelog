@@ -16,8 +16,10 @@ emc2 (1:2.1.2) testing; urgency=low
     relative (G91) mode, exit moves, use of sticky words from previous lines
   * fix problem with MACHINE ON which was left active on shutdown
   * fix circular move "task issue" debug output
+  * allow configuration of the max linear jog speed in AXIS with
+    [TRAJ]MAX_LINEAR_JOG_SPEED - especially useful for mixed linear+rotary
 
- -- Chris Radek <chris@timeguy.com>  Sat, 10 Mar 2007 17:06:22 -0600
+ -- Chris Radek <chris@timeguy.com>  Sat, 10 Mar 2007 20:15:09 -0600
 
 emc2 (1:2.1.1) testing; urgency=low
 
