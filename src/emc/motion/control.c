@@ -1029,11 +1029,10 @@ static void handle_jogwheels(void)
 	if (pos < joint->min_jog_limit) {
 	    continue;
 	}
-	/* set target position */
-	joint->free_pos_cmd = pos;
-	/* set velocity of jog, but only if there's not already
-           a (possibly slower) jog happening. */
+	/* if it's safe for us to take control of the free planner... */
         if ((!joint->free_tp_active) || ((joint->free_tp_active) && (joint->free_tp_source == FREE_TP_SOURCE_JOGWHEEL)) ) {
+            /* set target position and use full velocity */
+            joint->free_pos_cmd = pos;
             joint->free_vel_lim = joint->vel_limit;
             /* and let it go */
             joint->free_tp_enable = 1;
