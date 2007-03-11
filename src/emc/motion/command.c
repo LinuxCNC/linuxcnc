@@ -53,11 +53,6 @@
 *
 * Copyright (c) 2004 All rights reserved.
 *
-* Last change:
-* $Revision$
-* $Author$
-* $Date$
-*
 ********************************************************************/
 
 #include <linux/types.h>
@@ -644,6 +639,13 @@ check_stuff ( "before command_handler()" );
 		SET_JOINT_ERROR_FLAG(joint, 1);
 		break;
 	    }
+
+            /* if we're already moving, say with the jogwheel, don't
+               suddenly replace the target with the limit and hope the
+               user can figure out how to send an abort message in
+               time. */
+            if (joint->free_tp_active) break;
+
 	    /* set destination of jog */
 	    refresh_jog_limits(joint);
 	    if (emcmotCommand->vel > 0.0) {
