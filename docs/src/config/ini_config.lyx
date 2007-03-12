@@ -497,7 +497,6 @@ G21
 G90
 \series default 
  A string of NC codes that the interpreter is initialized with.
- These are the codes that an interpreter will be reset to.
  This is not a substitute for specifying modal g-codes at the top of each
  ngc file, beacause the modal codes of machines differ, and may be changed
  by g-code interpreted earlier in the session.
@@ -511,6 +510,10 @@ G90
 \end_inset 
 
 
+\layout Standard
+
+Different user interface programs use different options, and not every option
+ is supported by every user interface.
 \layout Standard
 
 
@@ -543,6 +546,67 @@ tkemc
 
 \color black
 xemc
+\layout Description
+
+POSITION_OFFSET\SpecialChar ~
+=\SpecialChar ~
+RELATIVE The coordinate system (RELATIVE or MACHINE) to
+ show when the user interface starts.
+ The RELATIVE coordinate system reflects the G92 and G5x coordinate offsets
+ currently in effect.
+\layout Description
+
+POSITION_FEEDBACK\SpecialChar ~
+=\SpecialChar ~
+ACTUAL The coordinate value (COMMANDED or ACTUAL) to show
+ when the user interface starts.
+ The COMMANDED position is the ideal position requested by emc.
+ The ACTUAL position is the feedback position of the motors.
+\layout Description
+
+MAX_FEED_OVERRIDE\SpecialChar ~
+=\SpecialChar ~
+1.2 The maximum feed override the user may select.
+ 1.2 means 120% of the programmed feed rate
+\layout Description
+
+MAX_SPINDLE_OVERRIDE\SpecialChar ~
+=\SpecialChar ~
+1.0 The maximum spindle override the user may select.
+ 1.0 means 100% of the programmed spindle speed
+\layout Description
+
+PROGRAM_PREFIX\SpecialChar ~
+=\SpecialChar ~
+~/emc2/nc_files The default location for g-code files and
+ the location for user-defined M-codes
+\layout Description
+
+INCREMENTS\SpecialChar ~
+=\SpecialChar ~
+1\SpecialChar ~
+mm,\SpecialChar ~
+.5\SpecialChar ~
+mm,\SpecialChar ~
+\SpecialChar \ldots{}
+ Defines the increments available for incremental jogs.
+ See section 
+\begin_inset LatexCommand \ref{DISPLAY-INCREMENTS}
+
+\end_inset 
+
+ for more information.
+ Only in the AXIS user interface
+\layout Description
+
+INTRO_GRAPHIC\SpecialChar ~
+=\SpecialChar ~
+emc2.gif The image shown on the splash screen
+\layout Description
+
+INTRO_TIME\SpecialChar ~
+=\SpecialChar ~
+5 The maximum time to show the splash screen
 \layout Subsection
 
 
