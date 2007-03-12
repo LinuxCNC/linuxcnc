@@ -19,8 +19,9 @@ emc2 (1:2.1.2) testing; urgency=low
   * allow configuration of the max linear jog speed in AXIS with
     [TRAJ]MAX_LINEAR_JOG_SPEED - especially useful for mixed linear+rotary
   * fix interactions between jogwheel, keyboard jogging, and homing
+  * add jogwheel support to 'max' 4-axis sample configuration
 
- -- Chris Radek <chris@timeguy.com>  Sun, 11 Mar 2007 17:15:43 -0500
+ -- Chris Radek <chris@timeguy.com>  Sun, 11 Mar 2007 19:43:03 -0500
 
 emc2 (1:2.1.1) testing; urgency=low
 
