@@ -61,13 +61,24 @@ public:
                                      const char *tag,const char *section,int num);
     ErrorCode                   Find(double *result, const char *tag,
                                      const char *section=NULL, int num = 1);
-    ErrorCode                   Find(bool *result, const char *tag,
-                                     const char *section=NULL, int num = 1);
     const char *                Find(const char *tag, const char *section=NULL,
                                      int num = 1);
     void                        EnableExceptions(int _errMask){
                                     errMask = _errMask;
                                 }
+
+
+protected:
+    struct ConversionEntry {
+        char                    *pStr;
+        int                     value;
+    };
+
+
+    ErrorCode                   Find(int *result,
+                                     ConversionEntry *, int numConvEntry,
+                                     const char *tag, const char *section=NULL,
+                                     int num = 1);
 
 
 private:

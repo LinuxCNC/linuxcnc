@@ -169,8 +169,9 @@ IniFile::Find(double *result, const char *tag, const char *section, int num)
 }
 
 
-IniFile::ErrorCode                   
-IniFile::Find(bool *result, const char *tag, const char *section, int num)
+IniFile::ErrorCode
+IniFile::Find(int *result, ConversionEntry *pConvEntry, int numConvEntry,
+     const char *tag, const char *section, int num)
 {
     const char                  *pStr;
 
@@ -180,23 +181,16 @@ IniFile::Find(bool *result, const char *tag, const char *section, int num)
         return(ERR_TAG_NOT_FOUND);
     }
 
-    if(strcasecmp(pStr, "TRUE") == 0){
-	*result = 1;
-    }else if (strcasecmp(pStr, "YES") == 0) {
-	*result = 1;
-    }else if (strcasecmp(pStr, "1") == 0) {
-	*result = 1;
-    }else if (strcasecmp(pStr, "FALSE") == 0) {
-	*result = 0;
-    }else if (strcasecmp(pStr, "NO") == 0) {
-	*result = 0;
-    }else if (strcasecmp(pStr, "0") == 0) {
-	*result = 0;
-    }else{
-        return(ERR_CONVERSION);
+    while(numConvEntry--){
+        if(strcasecmp(pStr, pConvEntry->pStr) == 0){
+            *result = pConvEntry->value;
+            return(ERR_NONE);
+        }
+        pConvEntry++;
     }
 
-    return(ERR_NONE);
+    ThrowException(ERR_CONVERSION);
+    return(ERR_CONVERSION);
 }
 
 
