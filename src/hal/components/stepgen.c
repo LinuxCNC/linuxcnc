@@ -352,10 +352,10 @@ typedef struct {
     hal_float_t freq;		/* param: frequency command */
     hal_float_t maxvel;		/* param: max velocity, (pos units/sec) */
     hal_float_t maxaccel;	/* param: max accel (pos units/sec^2) */
-    u32 old_step_len;		/* used to detect parameter changes */
-    u32 old_step_space;
-    u32 old_dir_hold_dly;
-    u32 old_dir_setup;
+    hal_u32_t old_step_len;	/* used to detect parameter changes */
+    hal_u32_t old_step_space;
+    hal_u32_t old_dir_hold_dly;
+    hal_u32_t old_dir_setup;
     int printed_error;		/* flag to avoid repeated printing */
 } stepgen_t;
 
