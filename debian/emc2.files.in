@@ -163,6 +163,7 @@ etc/emc2/sample-configs/max/max.hal
 etc/emc2/sample-configs/max/max.ini
 etc/emc2/sample-configs/max/max.tbl
 etc/emc2/sample-configs/max/max.var
+etc/emc2/sample-configs/max/jogwheel.hal
 etc/emc2/sample-configs/max/README
 etc/emc2/sample-configs/motenc/core_servo.hal
 etc/emc2/sample-configs/motenc/emc.nml
