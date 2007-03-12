@@ -890,6 +890,11 @@ Continuous
 The .ini file setting 
 \family typewriter 
 [DISPLAY]INCREMENTS
+\begin_inset LatexCommand \label{DISPLAY-INCREMENTS}
+
+\end_inset 
+
+
 \family default 
  can be used to override the default.
  Its value can contain decimal numbers (e.g., 0.1000) or fractional numbers
