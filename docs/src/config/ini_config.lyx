@@ -570,6 +570,14 @@ MAX_FEED_OVERRIDE\SpecialChar ~
  1.2 means 120% of the programmed feed rate
 \layout Description
 
+MIN_SPINDLE_OVERRIDE\SpecialChar ~
+=\SpecialChar ~
+0.5 The minimum spindle override the user may select.
+ 0.5 means 50% of the programmed spindle speed.
+ (This is usefull as it's dangerous to run a program with a too low spindle
+ speed).
+\layout Description
+
 MAX_SPINDLE_OVERRIDE\SpecialChar ~
 =\SpecialChar ~
 1.0 The maximum spindle override the user may select.
