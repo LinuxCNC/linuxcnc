@@ -6,7 +6,7 @@
 * Author: John Kasunich
 * License: GPL Version 2
 *    
-* Copyright (c) 2003 All rights reserved.
+* Copyright (c) 2003-2007 All rights reserved.
 *
 * Last change: 
 # $Revision$
@@ -49,52 +49,77 @@
     the signals can be inverted using parameters exported by the
     hardware driver(s) such as ParPort.
 
+    Timing parameters:
+
+    The are five timing parameters which control the output waveform.
+    No step type uses all five, and only those which will be used are
+    exported to HAL.  The values of these parameters are in nano-seconds,
+    so no recalculation is needed when changing thread periods.  In
+    the timing diagrams that follow, they are identfied by the
+    following numbers:
+
+    (1): 'stepgen.n.steplen' = length of the step pulse
+    (2): 'stepgen.n.stepspace' = minimum space between step pulses
+	  (actual space depends on frequency command, and is infinite
+	  if the frequency command is zero)
+    (3): 'stepgen.n.dirhold' = minimum delay after a step pulse before
+	  a direction change - may be longer
+    (4): 'stepgen.n.dirsetup' = minimum delay after a direction change
+	  and before the next step - may be longer
+    (5): 'stepgen.n.dirdelay' = minimum delay after a step before a
+	 step in the opposite direction - may be longer
+
     Stepping Types:
 
     This module supports a number of stepping types, as follows:
 
     Type 0:  Step and Direction
-                       _____         _____              _____
-    STEP  ____________/     \_______/     \____________/     \___
-                      |     |       |     |
-              |--(1)--|-(2)-|--(3)--|     |--(4)--|
-          ____|___________________________________|_____________
-    DIR   ____X___________________________________X_____________
+               _____         _____               _____
+    STEP  ____/     \_______/     \_____________/     \______
+              |     |       |     |             |     |
+    Time      |-(1)-|--(2)--|-(1)-|--(3)--|-(4)-|-(1)-|
+                                          |__________________
+    DIR   ________________________________/
 
-    There are two output pins, STEP and DIR.  Timing is controlled
-    by HAL parameters.  The parameters are (1): 'stepgen.n.dirsetup'
-    minimum delay from a change on the DIR line to the beginning of
-    a step pulse, (2): 'stepgen.n.steplen' length of the step pulse,
-    (3): 'stepgen.n.stepspace', space between step pulses, and
-    (4): 'stepgen.n.dirhold', minimum delay after step pulse before
-    DIR may change.  The default values for all four parameters are
-    1, which means 1 period of the thread.  A positive frequency
-    command results in DIR low, negative frequency command means
-    DIR high.  The minimum time between step pulses is 'steplen' +
-    'stepspace' periods, and the frequency command is clamped to
-    avoid exceeding these limits.
+    There are two output pins, STEP and DIR.  Step pulses appear on
+    STEP.  A positive frequency command results in DIR low, negative
+    frequency command means DIR high.  The minimum period of the
+    step pulses is 'steplen' + 'stepspace', and the frequency
+    command is clamped to avoid exceeding these limits.  'steplen'
+    and 'stepspace' must both be non-zero.  'dirsetup' or 'dirhold'
+    may be zero, but their sum must be non-zero, to ensure non-zero
+    low time between the last up step and the first down step.
 
-    Type 1:  Up/Down (aka Pseudo-PWM)
+    Type 1:  Up/Down
+             _____       _____
+    UP    __/     \_____/     \________________________________
+            |     |     |     |         |
+    Time    |-(1)-|-(2)-|-(1)-|---(5)---|-(1)-|-(2)-|-(1)-|
+                                        |_____|     |_____|
+    DOWN  ______________________________/     \_____/     \____
 
-    There are two output pins, UP and DOWN.  Whenever a step is
-    required, either UP or DOWN is asserted for a single period.
-    The frequency command is not clamped, so a step may be
-    required every period, and the UP or DOWN line may be asserted
-    for several periods in a row.  (At the maximum freqency
-    command, UP or DOWN will be constantly asserted.)  This type
-    of signal may be usefull with some stepper drives, but is
-    primarily intended as a simple and cheap DAC.  A filter
-    and differential amp connected between UP and DOWN can
-    produce a +/-10V signal, with bandwidth and resolution
-    determined by the filter (in general, faster bandwidth
-    gives lower resolution, and vice-versa.)
 
-    All the remaining stepping types are simply different patterns
-    of output states.  For all of these types, a step can occur
-    in every period.  When a step occurs, the output state changes
-    to the next (or previous) state in the state listings that
-    follow.  There are from two to five output pins, called
-    'PhaseA' thru 'PhaseE'.
+    There are two output pins, UP and DOWN.  A positive frequency
+    command results in pulses on UP, negative frequency command
+    results in pulses on DOWN.  The minimum period of the step
+    pulses is 'steplen' + 'stepspace', and the frequency command
+    is clamped to avoid exceeding these limits.  'steplen',
+    'stepspace', and 'dirdelay' must all be non-zero.
+
+    Types 2 and higher:  State Patterns
+
+    STATE   |---1---|---2---|---3---|----4----|---3---|---2---|
+            |       |       |       |         |       |       |
+    Time    |--(1)--|--(1)--|--(1)--|--(1+5)--|--(1)--|--(1)--|
+
+    All the remaining stepping types are simply different repeating
+    patterns on two to five output pins.  When a step occurs, the
+    output pins change to the next (or previous) pattern in the
+    state listings that follow.  The output pins are called 'PhaseA'
+    thru 'PhaseE'.  Timing constraints are obeyed as indicated
+    in the drawing above.  'steplen' must be non-zero.  'dirdelay'
+    may be zero.  Because stepspace is not used, state based
+    stepping types can run faster than types 0 and 1.
 
     Type 2:  Quadrature (aka Gray/Grey code)
 
@@ -238,10 +263,6 @@
 
 */
 
-/** Copyright (C) 2003 John Kasunich
-                       <jmkasunich AT users DOT sourceforge DOT net>
-*/
-
 /** This program is free software; you can redistribute it and/or
     modify it under the terms of version 2 of the GNU General
     Public License as published by the Free Software Foundation.
@@ -291,51 +312,37 @@ RTAPI_MP_ARRAY_INT(step_type,MAX_CHAN,"stepping types for up to 8 channels");
 *                STRUCTURES AND GLOBAL VARIABLES                       *
 ************************************************************************/
 
-/** These structures contains the runtime data for a single generator.
-    The 'st0_t' struct has data needed for stepping type 0 only, and
-    'st2_t' has data needed for stepping types 2 and higher only.  A
-    union is used so the two structs can share space in the main
-    'stepgen_t' structure.  This keeps the frequently accessed parts
-    of the main structure smaller, allowing them to occupy fewer cache
-    lines.  This improves speed as well as conserving shared memory.
-    Data is arranged in the structs in the order in which it will be
-    accessed, so fetching one item will load the next item(s) into cache.
-*/
+/** This structure contains the runtime data for a single generator. */
+
+/* structure members are ordered to optimize caching for makepulses,
+   which runs in the fastest thread */
 
 typedef struct {
-    unsigned char step_type;	/* stepping type - see list above */
-    unsigned char need_step;	/* non-zero if we need to step */
-    unsigned int setup_timer;	/* timer for dir setup time */
-    unsigned int hold_timer;	/* timer for dir hold time */
-    unsigned int space_timer;	/* timer for pulse spacing */
-    unsigned int len_timer;	/* timer for pulse length */
-    hal_u32_t dir_setup;		/* parameter: direction setup time */
-    hal_u32_t dir_hold;		/* parameter: direction hold time */
-    hal_u32_t step_len;		/* parameter: step pulse length */
-    hal_u32_t step_space;	/* parameter: min step pulse spacing */
-} st0_t;
-
-typedef struct {
-    unsigned char step_type;	/* stepping type - see list above */
-    unsigned char state;	/* current position in state table */
-    unsigned char cycle_max;	/* cycle length for step types 2 and up */
-    unsigned char num_phases;	/* number of phases for types 2 and up */
-    const unsigned char *lut;	/* pointer to lookup table */
-} st2_t;
-
-typedef struct {
-    signed long deltalim;	/* max allowed change per period */
-    signed long newaddval;	/* desired freq generator add value */
-    signed long addval;		/* actual frequency generator add value */
-    unsigned long accum;	/* frequency generator accumulator */
-    double old_pos_cmd;		/* previous position command (counts) */
-    union {
-	st0_t st0;		/* working data for step type 0 */
-	st2_t st2;		/* working data for step types 2 and up */
-    } wd;
-    hal_bit_t *phase[5];	/* pins for output signals */
-    hal_bit_t *enable;		/* pin for enable stepgen */
+    /* stuff that is both read and written by makepulses */
+    unsigned int timer1;	/* times out when step pulse should end */
+    unsigned int timer2;	/* times out when safe to change dir */
+    unsigned int timer3;	/* times out when safe to step in new dir */
+    int hold_dds;		/* prevents accumulator from updating */
+    long addval;		/* actual frequency generator add value */
+    volatile long long accum;	/* frequency generator accumulator */
     hal_s32_t rawcount;		/* param: position feedback in counts */
+    int curr_dir;		/* current direction */
+    int state;			/* current position in state table */
+    /* stuff that is read but not written by makepulses */
+    hal_bit_t *enable;		/* pin for enable stepgen */
+    long target_addval;		/* desired freq generator add value */
+    long deltalim;		/* max allowed change per period */
+    hal_u32_t step_len;		/* parameter: step pulse length */
+    hal_u32_t dir_hold_dly;	/* param: direction hold time or delay */
+    hal_u32_t dir_setup;	/* param: direction setup time */
+    int step_type;		/* stepping type - see list above */
+    int cycle_max;		/* cycle length for step types 2 and up */
+    int num_phases;		/* number of phases for types 2 and up */
+    hal_bit_t *phase[5];	/* pins for output signals */
+    const unsigned char *lut;	/* pointer to state lookup table */
+    /* stuff that is not accessed by makepulses */
+    hal_u32_t step_space;	/* parameter: min step pulse spacing */
+    double old_pos_cmd;		/* previous position command (counts) */
     hal_s32_t *count;		/* pin: captured feedback in counts */
     hal_float_t pos_scale;	/* param: steps per position unit */
     float old_scale;		/* stored scale value */
@@ -345,6 +352,11 @@ typedef struct {
     hal_float_t freq;		/* param: frequency command */
     hal_float_t maxvel;		/* param: max velocity, (pos units/sec) */
     hal_float_t maxaccel;	/* param: max accel (pos units/sec^2) */
+    u32 old_step_len;		/* used to detect parameter changes */
+    u32 old_step_space;
+    u32 old_dir_hold_dly;
+    u32 old_dir_setup;
+    int printed_error;		/* flag to avoid repeated printing */
 } stepgen_t;
 
 /* ptr to array of stepgen_t structs in shared memory, 1 per channel */
@@ -381,13 +393,16 @@ static const unsigned char num_phases_lut[] =
 #define UP_PIN		0	/* output phase used for UP signal */
 #define DOWN_PIN	1	/* output phase used for DOWN signal */
 
+#define PICKOFF		28	/* bit location in DDS accum */
+
+
+
 /* other globals */
 static int comp_id;		/* component ID */
 static int num_chan = 0;	/* number of step generators configured */
 static long periodns;		/* makepulses function period in nanosec */
 static long old_periodns;	/* used to detect changes in periodns */
 static float periodfp;		/* makepulses function period in seconds */
-static float maxf;		/* maximum frequency, step types 1 & up */
 static float freqscale;		/* conv. factor from Hz to addval counts */
 static float accelscale;	/* conv. Hz/sec to addval cnts/period */
 static long old_dtns;		/* update_freq funct period in nsec */
@@ -434,8 +449,7 @@ int rtapi_app_main(void)
     old_dtns = 1000000;
     /* precompute some constants */
     periodfp = periodns * 0.000000001;
-    maxf = 1.0 / periodfp;
-    freqscale = ((1L << 30) * 2.0) / maxf;
+    freqscale = (1L << PICKOFF) * periodfp;
     accelscale = freqscale * periodfp;
     dt = old_dtns * 0.000000001;
     recip_dt = 1.0 / dt;
@@ -460,40 +474,38 @@ int rtapi_app_main(void)
 	retval = export_stepgen(n, &(stepgen_array[n]), step_type[n]);
 	if (retval != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-			    "STEPGEN: ERROR: stepgen %d var export failed\n",
-			    n);
+		"STEPGEN: ERROR: stepgen %d var export failed\n", n);
 	    hal_exit(comp_id);
 	    return -1;
 	}
     }
     /* export functions */
     retval = hal_export_funct("stepgen.make-pulses", make_pulses,
-			      stepgen_array, 0, 0, comp_id);
+	stepgen_array, 0, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-			"STEPGEN: ERROR: makepulses funct export failed\n");
+	    "STEPGEN: ERROR: makepulses funct export failed\n");
 	hal_exit(comp_id);
 	return -1;
     }
     retval = hal_export_funct("stepgen.update-freq", update_freq,
-			      stepgen_array, 1, 0, comp_id);
+	stepgen_array, 1, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-			"STEPGEN: ERROR: freq update funct export failed\n");
+	    "STEPGEN: ERROR: freq update funct export failed\n");
 	hal_exit(comp_id);
 	return -1;
     }
     retval = hal_export_funct("stepgen.capture-position", update_pos,
-			      stepgen_array, 1, 0, comp_id);
+	stepgen_array, 1, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-			"STEPGEN: ERROR: pos update funct export failed\n");
+	 "STEPGEN: ERROR: pos update funct export failed\n");
 	hal_exit(comp_id);
 	return -1;
     }
     rtapi_print_msg(RTAPI_MSG_INFO,
-		    "STEPGEN: installed %d step pulse generators\n",
-		    num_chan);
+	"STEPGEN: installed %d step pulse generators\n", num_chan);
     hal_ready(comp_id);
     return 0;
 }
@@ -508,24 +520,16 @@ void rtapi_app_exit(void)
 ************************************************************************/
 
 /** The frequency generator works by adding a signed value proportional
-    to frequency to an accumulator.  When the accumulator overflows (or
-    underflows), it is time to generate an up (or down) output pulse.
-    The add value is limited to +/-2^30, and overflows are detected
-    at bit 30, not bit 31.  This means that with add_val at it's max
-    (or min) value, an overflow (or underflow) occurs on every cycle.
-    NOTE:  step/dir outputs cannot generate a step every cycle.  The
-    maximum steprate is determined by the timing parameters.  The
-    time between pulses must be at least (StepLen + StepSpace) cycles,
-    and the time between direction changes must be at least (DirSetup +
-    StepLen + DirHold) cycles.
-
+    to frequency to an accumulator.  When bit PICKOFF of the accumulator
+    toggles, a step is generated.
 */
 
 static void make_pulses(void *arg, long period)
 {
     stepgen_t *stepgen;
+    long old_addval, target_addval, new_addval, step_now;
     int n, p;
-    unsigned char tmp_step, tmp_dir, state;
+    unsigned char outbits;
 
     /* store period so scaling constants can be (re)calculated */
     periodns = period;
@@ -533,136 +537,141 @@ static void make_pulses(void *arg, long period)
     stepgen = arg;
 
     for (n = 0; n < num_chan; n++) {
-
-	/* bail out if not enabled */
-	if (*stepgen->enable == 0) {
-	    stepgen++;
-	    continue;
-	}
-
-	if (stepgen->deltalim != 0) {
-	    /* implement accel/decel limit */
-	    if (stepgen->newaddval > (stepgen->addval + stepgen->deltalim)) {
-		/* new value is too high, increase addval as far as possible */
-		stepgen->addval += stepgen->deltalim;
-	    } else if (stepgen->newaddval <
-		       (stepgen->addval - stepgen->deltalim)) {
-		/* new value is too low, decrease addval as far as possible */
-		stepgen->addval -= stepgen->deltalim;
+	/* decrement "timing constraint" timers */
+	if ( stepgen->timer1 > 0 ) {
+	    if ( stepgen->timer1 > periodns ) {
+		stepgen->timer1 -= periodns;
 	    } else {
-		/* new value can be reached in one step - do it */
-		stepgen->addval = stepgen->newaddval;
+		stepgen->timer1 = 0;
 	    }
-	} else {
-	    /* go to new freq without any ramping */
-	    stepgen->addval = stepgen->newaddval;
 	}
-	/* get current value of bit 31 */
-	tmp_step = stepgen->accum >> 31;
-	/* update the accumulator */
-	stepgen->accum += stepgen->addval;
-	/* test for overflow/underflow (change in bit 31) */
-	tmp_step ^= stepgen->accum >> 31;
-	/* get direction bit, 1 if negative, 0 if positive */
-	tmp_dir = stepgen->addval >> 31;
-
-	/* generate output, based on stepping type */
-	if (stepgen->wd.st0.step_type == 0) {
-	    /* step/dir output, using working data in stepgen->wd.st0.xxx */
-	    stepgen->wd.st0.need_step |= tmp_step;
-	    /* update timers */
-	    if (stepgen->wd.st0.setup_timer) {
-		stepgen->wd.st0.setup_timer--;
+	if ( stepgen->timer2 > 0 ) {
+	    if ( stepgen->timer2 > periodns ) {
+		stepgen->timer2 -= periodns;
+	    } else {
+		stepgen->timer2 = 0;
 	    }
-	    if (stepgen->wd.st0.hold_timer) {
-		stepgen->wd.st0.hold_timer--;
+	}
+	if ( stepgen->timer3 > 0 ) {
+	    if ( stepgen->timer3 > periodns ) {
+		stepgen->timer3 -= periodns;
+	    } else {
+		stepgen->timer3 = 0;
+		/* last timer timed out, cancel hold */
+		stepgen->hold_dds = 0;
 	    }
-	    if (stepgen->wd.st0.space_timer) {
-		stepgen->wd.st0.space_timer--;
-	    }
-	    if (stepgen->wd.st0.len_timer) {
-		if (--stepgen->wd.st0.len_timer == 0) {
-		    /* terminate step pulse */
-		    *(stepgen->phase[STEP_PIN]) = 0;
-		    /* begin timing pulse space */
-		    stepgen->wd.st0.space_timer =
-			stepgen->wd.st0.step_space;
-		}
-	    }
-	    /* is direction OK? */
-	    if (tmp_dir != *(stepgen->phase[DIR_PIN])) {
-		/* need to change direction bit, can we? */
-		if ((stepgen->wd.st0.hold_timer == 0) &&
-		    (stepgen->wd.st0.setup_timer == 0)) {
-		    /* set direction output */
-		    *(stepgen->phase[DIR_PIN]) = tmp_dir;
-		    /* start setup timer */
-		    stepgen->wd.st0.setup_timer =
-			stepgen->wd.st0.dir_setup;
-		}
-	    }
-	    /* do we need to step? */
-	    if (stepgen->wd.st0.need_step) {
-		/* yes, can we? */
-		if ((stepgen->wd.st0.space_timer == 0) &&
-		    (stepgen->wd.st0.setup_timer == 0) &&
-		    (*(stepgen->phase[DIR_PIN]) == tmp_dir)) {
-		    /* yes, start step pulse */
-		    *(stepgen->phase[STEP_PIN]) = 1;
-		    /* start pulse length and dir hold timers */
-		    stepgen->wd.st0.len_timer = stepgen->wd.st0.step_len;
-		    stepgen->wd.st0.hold_timer =
-			stepgen->wd.st0.step_len +
-			stepgen->wd.st0.dir_hold;
-		    /* don't need a step any more */
-		    stepgen->wd.st0.need_step = 0;
-		    /* count the step */
-		    if (tmp_dir) {
-			stepgen->rawcount--;
-		    } else {
-			stepgen->rawcount++;
-		    }
-		}
-	    }
-	} else if (stepgen->wd.st0.step_type == 1) {
-	    /* pesudo-PWM */
-	    *(stepgen->phase[UP_PIN]) = tmp_step & ~tmp_dir;
-	    *(stepgen->phase[DOWN_PIN]) = tmp_step & tmp_dir;
-	    /* count the step for feedback */
-	    if (tmp_step) {
-		if (tmp_dir) {
-		    stepgen->rawcount--;
+	}
+	if ( !stepgen->hold_dds && *(stepgen->enable) ) {
+	    /* update addval (ramping) */
+	    old_addval = stepgen->addval;
+	    target_addval = stepgen->target_addval;
+	    if (stepgen->deltalim != 0) {
+		/* implement accel/decel limit */
+		if (target_addval > (old_addval + stepgen->deltalim)) {
+		    /* new value is too high, increase addval as far as possible */
+		    new_addval = old_addval + stepgen->deltalim;
+		} else if (target_addval < (old_addval - stepgen->deltalim)) {
+		    /* new value is too low, decrease addval as far as possible */
+		    new_addval = old_addval - stepgen->deltalim;
 		} else {
-		    stepgen->rawcount++;
+		    /* new value can be reached in one step - do it */
+		    new_addval = target_addval;
 		}
+	    } else {
+		/* go to new freq without any ramping */
+		new_addval = target_addval;
+	    }
+	    /* save result */
+	    stepgen->addval = new_addval;
+	    /* check for direction reversal */
+	    if (((new_addval >= 0) && (old_addval < 0)) ||
+		((new_addval < 0) && (old_addval >= 0))) {
+		/* reversal required, can we do so now? */
+		if ( stepgen->timer3 != 0 ) {
+		    /* no - hold everything until delays time out */
+		    stepgen->hold_dds = 1;
+		}
+	    }
+	}
+	/* update DDS */
+	if ( !stepgen->hold_dds && *(stepgen->enable) ) {
+	    /* save current value of low half of accum */
+	    step_now = stepgen->accum;
+	    /* update the accumulator */
+	    stepgen->accum += stepgen->addval;
+	    /* test for changes in low half of accum */
+	    step_now ^= stepgen->accum;
+	    /* we only care about the pickoff bit */
+	    step_now &= (1L << PICKOFF);
+	    /* update rawcounts parameter */
+	    stepgen->rawcount = stepgen->accum >> PICKOFF;
+	} else {
+	    /* DDS is in hold, no steps */
+	    step_now = 0;
+	}
+	if ( stepgen->timer2 == 0 ) {
+	    /* update direction - do not change if addval = 0 */
+	    if ( stepgen->addval > 0 ) {
+		stepgen->curr_dir = 1;
+	    } else if ( stepgen->addval < 0 ) {
+		stepgen->curr_dir = -1;
+	    }
+	}
+	if ( step_now ) {
+	    /* (re)start various timers */
+	    /* timer 1 = time till end of step pulse */
+	    stepgen->timer1 = stepgen->step_len;
+	    /* timer 2 = time till allowed to change dir pin */
+	    stepgen->timer2 = stepgen->timer1 + stepgen->dir_hold_dly;
+	    /* timer 3 = time till allowed to step the other way */
+	    stepgen->timer3 = stepgen->timer2 + stepgen->dir_setup;
+	    if ( stepgen->step_type >= 2 ) {
+		/* update state */
+		stepgen->state += stepgen->curr_dir;
+		if ( stepgen->state < 0 ) {
+		    stepgen->state = stepgen->cycle_max;
+		} else if ( stepgen->state > stepgen->cycle_max ) {
+		    stepgen->state = 0;
+		}
+	    }
+	}
+	/* generate output, based on stepping type */
+	if (stepgen->step_type == 0) {
+	    /* step/dir output */
+	    if ( stepgen->timer1 != 0 ) {
+		 *(stepgen->phase[STEP_PIN]) = 1;
+	    } else {
+		 *(stepgen->phase[STEP_PIN]) = 0;
+	    }
+	    if ( stepgen->curr_dir < 0 ) {
+		 *(stepgen->phase[DIR_PIN]) = 1;
+	    } else {
+		 *(stepgen->phase[DIR_PIN]) = 0;
+	    }
+	} else if (stepgen->step_type == 1) {
+	    /* up/down */
+	    if ( stepgen->timer1 != 0 ) {
+		if ( stepgen->curr_dir < 0 ) {
+		    *(stepgen->phase[DOWN_PIN]) = 1;
+		    *(stepgen->phase[UP_PIN]) = 0;
+		} else {
+		    *(stepgen->phase[UP_PIN]) = 0;
+		    *(stepgen->phase[DOWN_PIN]) = 1;
+		}
+	    } else {
+		*(stepgen->phase[UP_PIN]) = 0;
+		*(stepgen->phase[DOWN_PIN]) = 0;
 	    }
 	} else {
 	    /* step type 2 or greater */
-	    /* update step cycle counter */
-	    if (tmp_step) {
-		if (tmp_dir) {
-		    if (stepgen->wd.st2.state-- == 0) {
-			stepgen->wd.st2.state = stepgen->wd.st2.cycle_max;
-		    }
-		    /* count the step for feedback */
-		    stepgen->rawcount--;
-		} else {
-		    if (++stepgen->wd.st2.state >
-			stepgen->wd.st2.cycle_max) {
-			stepgen->wd.st2.state = 0;
-		    }
-		    /* count the step for feedback */
-		    stepgen->rawcount++;
-		}
-		/* look up correct output pattern */
-		state = (stepgen->wd.st2.lut)[stepgen->wd.st2.state];
-		/* now output the phase bits */
-		for (p = 0; p < stepgen->wd.st2.num_phases; p++) {
-		    /* output one phase */
-		    *(stepgen->phase[p]) = state & 1;
-		    /* move to the next phase */
-		    state >>= 1;
-		}
+	    /* look up correct output pattern */
+	    outbits = (stepgen->lut)[stepgen->state];
+	    /* now output the phase bits */
+	    for (p = 0; p < stepgen->num_phases; p++) {
+		/* output one phase */
+		*(stepgen->phase[p]) = outbits & 1;
+		/* move to the next phase */
+		outbits >>= 1;
 	    }
 	}
 	/* move on to next step generator */
@@ -671,13 +680,65 @@ static void make_pulses(void *arg, long period)
     /* done */
 }
 
+static void update_pos(void *arg, long period)
+{
+    long long int accum_a, accum_b;
+    stepgen_t *stepgen;
+    int n;
+
+    stepgen = arg;
+
+    for (n = 0; n < num_chan; n++) {
+	/* 'accum' is a long long, and its remotely possible that
+	   make_pulses could change it half-way through a read.
+	   So we have a crude atomic read routine */
+	do {
+	    accum_a = stepgen->accum;
+	    accum_b = stepgen->accum;
+	} while ( accum_a != accum_b );
+	/* compute integer counts */
+	*(stepgen->count) = accum_a >> PICKOFF;
+	/* check for change in scale value */
+	if (stepgen->pos_scale != stepgen->old_scale) {
+	    /* get ready to detect future scale changes */
+	    stepgen->old_scale = stepgen->pos_scale;
+	    /* validate the new scale value */
+	    if ((stepgen->pos_scale < 1e-20)
+		&& (stepgen->pos_scale > -1e-20)) {
+		/* value too small, divide by zero is a bad thing */
+		stepgen->pos_scale = 1.0;
+	    }
+	    /* we will need the reciprocal, and the accum is fixed point with
+	       fractional bits, so we precalc some stuff */
+	    stepgen->scale_recip = (1.0 / (1L << PICKOFF)) / stepgen->pos_scale;
+	}
+	/* scale accumulator to make floating point position */
+	*(stepgen->pos_fb) = (double)accum_a * stepgen->scale_recip;
+	/* move on to next channel */
+	stepgen++;
+    }
+    /* done */
+}
+
+/* helper function - computes integeral multiple of increment that is greater
+   or equal to value */
+static unsigned long ulceil(unsigned long value, unsigned long increment)
+{
+    if ( value == 0 ) {
+	return 0;
+    }
+    return increment*(((value-1)/increment)+1);
+}
+
 static void update_freq(void *arg, long period)
 {
     stepgen_t *stepgen;
     int n;
+    long min_step_period;
+    long long int accum_a, accum_b;
     double pos_cmd, vel_cmd, curr_pos, curr_vel, avg_v, max_freq, max_ac;
-    double match_ac, match_time, est_out, est_cmd, est_err, dp, dv,
-	new_vel;
+    double match_ac, match_time, est_out, est_cmd, est_err, dp, dv, new_vel;
+    double desired_freq;
 
     /*! \todo FIXME - while this code works just fine, there are a bunch of
        internal variables, many of which hold intermediate results that
@@ -694,8 +755,7 @@ static void update_freq(void *arg, long period)
 	old_periodns = periodns;
 	/* recompute various constants that depend on periodns */
 	periodfp = periodns * 0.000000001;
-	maxf = 1.0 / periodfp;
-	freqscale = ((1L << 30) * 2.0) / maxf;
+	freqscale = (1L << PICKOFF) * periodfp;
 	accelscale = freqscale * periodfp;
     }
     /* now recalc constants related to the period of this funct */
@@ -708,7 +768,7 @@ static void update_freq(void *arg, long period)
 	/* calc the reciprocal once here, to avoid multiple divides later */
 	recip_dt = 1.0 / dt;
     }
-    
+
     /* point at stepgen data */
     stepgen = arg;
 
@@ -724,8 +784,45 @@ static void update_freq(void *arg, long period)
 		/* value too small, divide by zero is a bad thing */
 		stepgen->pos_scale = 1.0;
 	    }
-	    /* we will need the reciprocal */
-	    stepgen->scale_recip = 1.0 / stepgen->pos_scale;
+	    /* we will need the reciprocal, and the accum is fixed point with
+	       fractional bits, so we precalc some stuff */
+	    stepgen->scale_recip = (1.0 / (1L << PICKOFF)) / stepgen->pos_scale;
+	}
+	/* process timing parameters */
+	if ( stepgen->step_len != stepgen->old_step_len ) {
+	    /* must be non-zero */
+	    if ( stepgen->step_len == 0 ) {
+		stepgen->step_len = 1;
+	    }
+	    /* make integer multiple of periodns */
+	    stepgen->old_step_len = ulceil(stepgen->step_len, periodns);
+	    stepgen->step_len = stepgen->old_step_len;
+	}
+	if ( stepgen->step_space != stepgen->old_step_space ) {
+	    if ( stepgen->step_space == 0 ) {
+		/* stepspace can only be zero for step types 2 and higher */
+		if ( stepgen->step_type < 2 ) {
+		    stepgen->step_len = 1;
+		}
+	    }
+	    /* make integer multiple of periodns */
+	    stepgen->old_step_space = ulceil(stepgen->step_space, periodns);
+	    stepgen->step_space = stepgen->old_step_space;
+	}
+	if ( stepgen->dir_setup != stepgen->old_dir_setup ) {
+	    /* make integer multiple of periodns */
+	    stepgen->old_dir_setup = ulceil(stepgen->dir_setup, periodns);
+	    stepgen->dir_setup = stepgen->old_dir_setup;
+	}
+	if ( stepgen->dir_hold_dly != stepgen->old_dir_hold_dly ) {
+	    if ( (stepgen->dir_hold_dly + stepgen->dir_setup) == 0 ) {
+		/* dirdelay can only be zero for step types 2 and higher */
+		if ( stepgen->step_type < 2 ) {
+		    stepgen->dir_hold_dly = 1;
+		}
+	    }
+	    stepgen->old_dir_hold_dly = ulceil(stepgen->dir_hold_dly, periodns);
+	    stepgen->dir_hold_dly = stepgen->old_dir_hold_dly;
 	}
 	/* test for disabled stepgen */
 	if (*stepgen->enable == 0) {
@@ -734,33 +831,34 @@ static void update_freq(void *arg, long period)
 	    /* set velocity to zero */
 	    stepgen->freq = 0;
 	    stepgen->addval = 0;
-	    stepgen->newaddval = 0;
+	    stepgen->target_addval = 0;
 	    /* and skip to next one */
 	    stepgen++;
 	    continue;
 	}
 	/* calculate frequency limit */
-	if (stepgen->wd.st0.step_type == 0) {
-	    /* stepping type 0 limit depends on timing params */
-	    max_freq =
-		maxf / (stepgen->wd.st0.step_len +
-			stepgen->wd.st0.step_space);
-	} else if (stepgen->wd.st0.step_type == 1) {
-	    /* stepping type 1 limit is thread freq / 2 */
-	    max_freq = maxf * 0.5;
-	} else {
-	    /* all other step types can step at the thread frequency */
-	    max_freq = maxf;
-	}
+	min_step_period = stepgen->step_len + stepgen->step_space;
+	max_freq = 1.0 / (min_step_period * 0.000000001);
 	/* check for user specified frequency limit parameter */
 	if (stepgen->maxvel <= 0.0) {
 	    /* set to zero if negative */
 	    stepgen->maxvel = 0.0;
 	} else {
 	    /* parameter is non-zero, compare to max_freq */
-	    if ((stepgen->maxvel * fabs(stepgen->pos_scale)) > max_freq) {
-		/* parameter is too high, lower it */
-		stepgen->maxvel = max_freq * fabs(stepgen->scale_recip);
+	    desired_freq = stepgen->maxvel * fabs(stepgen->pos_scale);
+	    if (desired_freq > max_freq) {
+		/* parameter is too high, complain about it */
+		if(!stepgen->printed_error) {
+		    rtapi_print_msg(RTAPI_MSG_ERR,
+			"STEPGEN: Channel %d: The requested maximum velocity of %d steps/sec is too high.\n",
+			n, (int)desired_freq);
+		    rtapi_print_msg(RTAPI_MSG_ERR,
+			"STEPGEN: The maximum possible frequency is %d steps/second\n",
+			(int)max_freq);
+		    stepgen->printed_error = 1;
+		}
+		/* parameter is too high, limit it */
+		stepgen->maxvel = max_freq / fabs(stepgen->pos_scale);
 	    } else {
 		/* lower max_freq to match parameter */
 		max_freq = stepgen->maxvel * fabs(stepgen->pos_scale);
@@ -777,7 +875,7 @@ static void update_freq(void *arg, long period)
 	    /* parameter is non-zero, compare to max_ac */
 	    if ((stepgen->maxaccel * fabs(stepgen->pos_scale)) > max_ac) {
 		/* parameter is too high, lower it */
-		stepgen->maxaccel = max_ac * fabs(stepgen->scale_recip);
+		stepgen->maxaccel = max_ac / fabs(stepgen->pos_scale);
 	    } else {
 		/* lower limit to match parameter */
 		max_ac = stepgen->maxaccel * fabs(stepgen->pos_scale);
@@ -788,8 +886,16 @@ static void update_freq(void *arg, long period)
 	/* calculate velocity command in counts/sec */
 	vel_cmd = (pos_cmd - stepgen->old_pos_cmd) * recip_dt;
 	stepgen->old_pos_cmd = pos_cmd;
-	/* get current position and velocity in counts and counts/sec */
-	curr_pos = stepgen->rawcount;
+	/* 'accum' is a long long, and its remotely possible that
+	   make_pulses could change it half-way through a read.
+	   So we have a crude atomic read routine */
+	do {
+	    accum_a = stepgen->accum;
+	    accum_b = stepgen->accum;
+	} while ( accum_a != accum_b );
+	/* convert from fixed point to double */
+	curr_pos = accum_a * (1.0 / (1L << PICKOFF));
+	/* get velocity in counts/sec */
 	curr_vel = stepgen->freq;
 	/* At this point we have good values for pos_cmd, curr_pos, 
 	   vel_cmd, curr_vel, max_freq and max_ac, all in counts, 
@@ -812,7 +918,7 @@ static void update_freq(void *arg, long period)
 	est_err = est_out - est_cmd;
 	if (match_time < dt) {
 	    /* we can match velocity in one period */
-	    if (fabs(est_err) < 1.0) {
+	    if (fabs(est_err) < 0.0001) {
 		/* after match the position error will be acceptable */
 		/* so we just do the velocity match */
 		new_vel = vel_cmd;
@@ -847,40 +953,9 @@ static void update_freq(void *arg, long period)
 
 	stepgen->freq = new_vel;
 	/* calculate new addval */
-	stepgen->newaddval = stepgen->freq * freqscale;
+	stepgen->target_addval = stepgen->freq * freqscale;
 	/* calculate new deltalim */
 	stepgen->deltalim = max_ac * accelscale;
-	/* move on to next channel */
-	stepgen++;
-    }
-    /* done */
-}
-
-static void update_pos(void *arg, long period)
-{
-    stepgen_t *stepgen;
-    int n;
-
-    stepgen = arg;
-
-    for (n = 0; n < num_chan; n++) {
-	/* capture raw counts to latches */
-	*(stepgen->count) = stepgen->rawcount;
-	/* check for change in scale value */
-	if (stepgen->pos_scale != stepgen->old_scale) {
-	    /* get ready to detect future scale changes */
-	    stepgen->old_scale = stepgen->pos_scale;
-	    /* validate the new scale value */
-	    if ((stepgen->pos_scale < 1e-20)
-		&& (stepgen->pos_scale > -1e-20)) {
-		/* value too small, divide by zero is a bad thing */
-		stepgen->pos_scale = 1.0;
-	    }
-	    /* we will need the reciprocal */
-	    stepgen->scale_recip = 1.0 / stepgen->pos_scale;
-	}
-	/* scale count to make floating point position */
-	*(stepgen->pos_fb) = *(stepgen->count) * stepgen->scale_recip;
 	/* move on to next channel */
 	stepgen++;
     }
@@ -894,7 +969,6 @@ static void update_pos(void *arg, long period)
 static int export_stepgen(int num, stepgen_t * addr, int step_type)
 {
     int n, retval, msg;
-    char buf[HAL_NAME_LEN + 2];
 
     /* This function exports a lot of stuff, which results in a lot of
        logging if msg_level is at INFO or ALL. So we save the current value
@@ -904,170 +978,142 @@ static int export_stepgen(int num, stepgen_t * addr, int step_type)
     rtapi_set_msg_level(RTAPI_MSG_WARN);
 
     /* export param variable for raw counts */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "stepgen.%d.rawcounts", num);
-    retval = hal_param_s32_new(buf, HAL_RO, &(addr->rawcount), comp_id);
-    if (retval != 0) {
-	return retval;
-    }
+    retval = hal_param_s32_newf(HAL_RO, &(addr->rawcount), comp_id,
+	"stepgen.%d.rawcounts", num);
+    if (retval != 0) { return retval; }
     /* export pin for counts captured by update() */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "stepgen.%d.counts", num);
-    retval = hal_pin_s32_new(buf, HAL_OUT, &(addr->count), comp_id);
-    if (retval != 0) {
-	return retval;
-    }
+    retval = hal_pin_s32_newf(HAL_OUT, &(addr->count), comp_id,
+	"stepgen.%d.counts", num);
+    if (retval != 0) { return retval; }
     /* export parameter for position scaling */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "stepgen.%d.position-scale", num);
-    retval = hal_param_float_new(buf, HAL_RW, &(addr->pos_scale), comp_id);
-    if (retval != 0) {
-	return retval;
-    }
+    retval = hal_param_float_newf(HAL_RW, &(addr->pos_scale), comp_id,
+	"stepgen.%d.position-scale", num);
+    if (retval != 0) { return retval; }
     /* export pin for position command command */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "stepgen.%d.position-cmd", num);
-    retval = hal_pin_float_new(buf, HAL_IN, &(addr->pos_cmd), comp_id);
-    if (retval != 0) {
-	return retval;
-    }
+    retval = hal_pin_float_newf(HAL_IN, &(addr->pos_cmd), comp_id,
+	"stepgen.%d.position-cmd", num);
+    if (retval != 0) { return retval; }
     /* export pin for enable command */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "stepgen.%d.enable", num);
-    retval = hal_pin_bit_new(buf, HAL_IN, &(addr->enable), comp_id);
-    if (retval != 0) {
-	return retval;
-    }
+    retval = hal_pin_bit_newf(HAL_IN, &(addr->enable), comp_id,
+	"stepgen.%d.enable", num);
+    if (retval != 0) { return retval; }
     /* export pin for scaled position captured by update() */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "stepgen.%d.position-fb", num);
-    retval = hal_pin_float_new(buf, HAL_OUT, &(addr->pos_fb), comp_id);
-    if (retval != 0) {
-	return retval;
-    }
+    retval = hal_pin_float_newf(HAL_OUT, &(addr->pos_fb), comp_id,
+	"stepgen.%d.position-fb", num);
+    if (retval != 0) { return retval; }
     /* export param for scaled velocity (frequency in Hz) */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "stepgen.%d.frequency", num);
-    retval = hal_param_float_new(buf, HAL_RO, &(addr->freq), comp_id);
-    if (retval != 0) {
-	return retval;
-    }
+    retval = hal_param_float_newf(HAL_RO, &(addr->freq), comp_id,
+	"stepgen.%d.frequency", num);
+    if (retval != 0) { return retval; }
     /* export parameter for max frequency */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "stepgen.%d.maxvel", num);
-    retval = hal_param_float_new(buf, HAL_RW, &(addr->maxvel), comp_id);
-    if (retval != 0) {
-	return retval;
-    }
+    retval = hal_param_float_newf(HAL_RW, &(addr->maxvel), comp_id,
+	"stepgen.%d.maxvel", num);
+    if (retval != 0) { return retval; }
     /* export parameter for max accel/decel */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "stepgen.%d.maxaccel", num);
-    retval = hal_param_float_new(buf, HAL_RW, &(addr->maxaccel), comp_id);
-    if (retval != 0) {
-	return retval;
+    retval = hal_param_float_newf(HAL_RW, &(addr->maxaccel), comp_id,
+	"stepgen.%d.maxaccel", num);
+    if (retval != 0) { return retval; }
+    /* every step type uses steplen */
+    retval = hal_param_u32_newf(HAL_RW, &(addr->step_len), comp_id,
+	"stepgen.%d.steplen");
+    if (retval != 0) { return retval; }
+    if (step_type < 2) {
+	/* step/dir and up/down use 'stepspace' */
+	retval = hal_param_u32_newf(HAL_RW, &(addr->step_space),
+	    comp_id, "stepgen.%d.stepspace", num);
+	if (retval != 0) { return retval; }
     }
-    /* set default parameter values */
-    addr->pos_scale = 1.0;
-    addr->old_scale = 1.0;
-    addr->scale_recip = 1.0;
-    addr->freq = 0.0;
-    addr->old_pos_cmd = 0.0;
-    addr->maxvel = 0.0;
-    addr->maxaccel = 0.0;
-    addr->wd.st0.step_type = step_type;
-    /* init the step generator core to zero output */
-    addr->accum = 0;
-    addr->addval = 0;
-    addr->newaddval = 0;
-    addr->deltalim = 0;
-    addr->rawcount = 0;
-
-    /* init the position controller */
-
-    if (step_type == 0) {
-	/* setup for stepping type 0 - step/dir */
-	addr->wd.st0.need_step = 0;
-	addr->wd.st0.setup_timer = 0;
-	addr->wd.st0.hold_timer = 0;
-	addr->wd.st0.space_timer = 0;
-	addr->wd.st0.len_timer = 0;
-	/* export parameters for step/dir pulse timing */
-	rtapi_snprintf(buf, HAL_NAME_LEN, "stepgen.%d.dirsetup", num);
-	retval =
-	    hal_param_u32_new(buf, HAL_RW, &(addr->wd.st0.dir_setup),
-			     comp_id);
-	if (retval != 0) {
-	    return retval;
-	}
-	rtapi_snprintf(buf, HAL_NAME_LEN, "stepgen.%d.dirhold", num);
-	retval =
-	    hal_param_u32_new(buf, HAL_RW, &(addr->wd.st0.dir_hold),
-			     comp_id);
-	if (retval != 0) {
-	    return retval;
-	}
-	rtapi_snprintf(buf, HAL_NAME_LEN, "stepgen.%d.steplen", num);
-	retval =
-	    hal_param_u32_new(buf, HAL_RW, &(addr->wd.st0.step_len),
-			     comp_id);
-	if (retval != 0) {
-	    return retval;
-	}
-	rtapi_snprintf(buf, HAL_NAME_LEN, "stepgen.%d.stepspace", num);
-	retval =
-	    hal_param_u32_new(buf, HAL_RW, &(addr->wd.st0.step_space),
-			     comp_id);
-	if (retval != 0) {
-	    return retval;
-	}
-	/* init the parameters */
-	addr->wd.st0.dir_setup = 1;
-	addr->wd.st0.dir_hold = 1;
-	addr->wd.st0.step_len = 1;
-	addr->wd.st0.step_space = 1;
-	/* export pins for step and direction */
-	rtapi_snprintf(buf, HAL_NAME_LEN, "stepgen.%d.step", num);
-	retval =
-	    hal_pin_bit_new(buf, HAL_OUT, &(addr->phase[STEP_PIN]),
-			    comp_id);
-	if (retval != 0) {
-	    return retval;
-	}
+    if ( step_type == 0 ) {
+	/* step/dir is the only one that uses dirsetup and dirhold */
+	retval = hal_param_u32_newf(HAL_RW, &(addr->dir_setup),
+	    comp_id, "stepgen.%d.dirsetup", num);
+	if (retval != 0) { return retval; }
+	retval = hal_param_u32_newf(HAL_RW, &(addr->dir_hold_dly),
+	    comp_id, "stepgen.%d.dirhold", num);
+	if (retval != 0) { return retval; }
+    } else {
+	/* the others use dirdelay */
+	retval = hal_param_u32_newf(HAL_RW, &(addr->dir_hold_dly),
+	    comp_id, "stepgen.%d.dirdelay", num);
+	if (retval != 0) { return retval; }
+    }
+   if ( step_type == 0 ) {
+	/* step and direction */
+	retval = hal_pin_bit_newf(HAL_OUT, &(addr->phase[STEP_PIN]),
+	    comp_id, "stepgen.%d.step", num);
+	if (retval != 0) { return retval; }
 	*(addr->phase[STEP_PIN]) = 0;
-	rtapi_snprintf(buf, HAL_NAME_LEN, "stepgen.%d.dir", num);
-	retval =
-	    hal_pin_bit_new(buf, HAL_OUT, &(addr->phase[DIR_PIN]), comp_id);
-	if (retval != 0) {
-	    return retval;
-	}
+	retval = hal_pin_bit_newf(HAL_OUT, &(addr->phase[DIR_PIN]),
+	    comp_id, "stepgen.%d.dir", num);
+	if (retval != 0) { return retval; }
 	*(addr->phase[DIR_PIN]) = 0;
     } else if (step_type == 1) {
-	/* setup for stepping type 1 - pseudo-PWM */
-	/* export pins for up and down */
-	rtapi_snprintf(buf, HAL_NAME_LEN, "stepgen.%d.up", num);
-	retval =
-	    hal_pin_bit_new(buf, HAL_OUT, &(addr->phase[UP_PIN]), comp_id);
-	if (retval != 0) {
-	    return retval;
-	}
+	/* up and down */
+	retval = hal_pin_bit_newf(HAL_OUT, &(addr->phase[UP_PIN]),
+	    comp_id, "stepgen.%d.up", num);
+	if (retval != 0) { return retval; }
 	*(addr->phase[UP_PIN]) = 0;
-	rtapi_snprintf(buf, HAL_NAME_LEN, "stepgen.%d.down", num);
-	retval =
-	    hal_pin_bit_new(buf, HAL_OUT, &(addr->phase[DOWN_PIN]),
-			    comp_id);
-	if (retval != 0) {
-	    return retval;
-	}
+	retval = hal_pin_bit_newf(HAL_OUT, &(addr->phase[DOWN_PIN]),
+	    comp_id, "stepgen.%d.down", num);
+	if (retval != 0) { return retval; }
 	*(addr->phase[DOWN_PIN]) = 0;
     } else {
-	/* setup for stepping types 2 and higher */
-	addr->wd.st2.state = 0;
-	addr->wd.st2.cycle_max = cycle_len_lut[step_type - 2] - 1;
-	addr->wd.st2.num_phases = num_phases_lut[step_type - 2];
-	addr->wd.st2.lut = &(master_lut[step_type - 2][0]);
-	/* export pins for output phases */
-	for (n = 0; n < addr->wd.st2.num_phases; n++) {
-	    rtapi_snprintf(buf, HAL_NAME_LEN, "stepgen.%d.phase-%c",
-			   num, n + 'A');
-	    retval =
-		hal_pin_bit_new(buf, HAL_OUT, &(addr->phase[n]), comp_id);
-	    if (retval != 0) {
-		return retval;
-	    }
+	/* stepping types 2 and higher use a varying number of phase pins */
+	for (n = 0; n < addr->num_phases; n++) {
+	    retval = hal_pin_bit_newf(HAL_OUT, &(addr->phase[n]),
+		comp_id, "stepgen.%d.phase-%c", num, n + 'A');
+	    if (retval != 0) { return retval; }
 	    *(addr->phase[n]) = 0;
 	}
     }
+    /* set default parameter values */
+    addr->pos_scale = 1.0;
+    addr->old_scale = 0.0;
+    addr->scale_recip = 0.0;
+    addr->freq = 0.0;
+    addr->maxvel = 0.0;
+    addr->maxaccel = 0.0;
+    addr->step_type = step_type;
+    /* timing parameter defaults depend on step type */
+    addr->old_step_len = 0;
+    addr->old_step_space = 0;
+    addr->old_dir_hold_dly = 0;
+    addr->old_dir_setup = 0;
+    addr->step_len = 1;
+    if ( step_type < 2 ) {
+	addr->step_space = 1;
+    } else {
+	addr->step_space = 0;
+    }
+    if ( step_type == 0 ) {
+	addr->dir_hold_dly = 1;
+	addr->dir_setup = 1;
+    } else {
+	addr->dir_hold_dly = 1;
+	addr->dir_setup = 0;
+    }
+    if ( step_type >= 2 ) {
+	/* init output stuff */
+	addr->cycle_max = cycle_len_lut[step_type - 2] - 1;
+	addr->num_phases = num_phases_lut[step_type - 2];
+	addr->lut = &(master_lut[step_type - 2][0]);
+    }
+    /* init the step generator core to zero output */
+    addr->timer1 = 0;
+    addr->timer2 = 0;
+    addr->timer3 = 0;
+    addr->hold_dds = 0;
+    addr->addval = 0;
+    addr->accum = 0;
+    addr->rawcount = 0;
+    addr->curr_dir = 0;
+    addr->state = 0;
+    *(addr->enable) = 0;
+    addr->target_addval = 0;
+    addr->deltalim = 0;
+    /* other init */
+    addr->printed_error = 0;
+    addr->old_pos_cmd = 0.0;
     /* set initial pin values */
     *(addr->count) = 0;
     *(addr->pos_fb) = 0.0;
