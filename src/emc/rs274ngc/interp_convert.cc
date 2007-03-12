@@ -2777,6 +2777,7 @@ int Interp::convert_straight_comp1(int move,     //!< either G_0 or G_1
 
   if(settings->plane == CANON_PLANE_XZ) {
       settings->current_x = c[0];
+      settings->current_y = p[2];
       settings->current_z = c[1];
       settings->program_x = p[0];
       settings->program_z = p[1];
@@ -2784,6 +2785,7 @@ int Interp::convert_straight_comp1(int move,     //!< either G_0 or G_1
   } else if(settings->plane == CANON_PLANE_XY) {
       settings->current_x = c[0];
       settings->current_y = c[1];
+      settings->current_z = p[2];
       settings->program_x = p[0];
       settings->program_y = p[1];
       settings->program_z = p[2];
