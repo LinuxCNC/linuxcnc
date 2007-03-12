@@ -729,8 +729,10 @@ class EMC_AXIS_CMD_MSG:public RCS_CMD_MSG {
 };
 
 // values for EMC_AXIS_SET_AXIS, axisType
-#define EMC_AXIS_LINEAR 1
-#define EMC_AXIS_ANGULAR 2
+enum EmcAxisType {
+    EMC_AXIS_LINEAR             = 1,
+    EMC_AXIS_ANGULAR            = 2,
+};
 
 /**
  * Set the axis type to linear or angular.
