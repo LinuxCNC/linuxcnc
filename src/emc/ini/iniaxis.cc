@@ -26,43 +26,11 @@
 
 #include "emc.hh"
 #include "rcs_print.hh"
-#include "inifile.hh"
+#include "emcIniFile.hh"
 #include "iniaxis.hh"		// these decls
 #include "emcglb.h"		// EMC_DEBUG
 #include "emccfg.h"		// default values for globals
 
-/* a function that checks a string to see if it is one of:
-   "TRUE", "FALSE", "YES", "NO", "1", or "0" (case insensitive)
-   if it is, sets '*result' accordingly, and returns 1, else
-   returns 0 and leaves '*result' unchanged */
-static int strbool(const char *str, int *result)
-{
-    if (strcasecmp(str, "TRUE") == 0) {
-	*result = 1;
-	return 1;
-    }
-    if (strcasecmp(str, "YES") == 0) {
-	*result = 1;
-	return 1;
-    }
-    if (strcasecmp(str, "1") == 0) {
-	*result = 1;
-	return 1;
-    }
-    if (strcasecmp(str, "FALSE") == 0) {
-	*result = 0;
-	return 1;
-    }
-    if (strcasecmp(str, "NO") == 0) {
-	*result = 0;
-	return 1;
-    }
-    if (strcasecmp(str, "0") == 0) {
-	*result = 0;
-	return 1;
-    }
-    return 0;
-}
 
 /*
   loadAxis(int axis)
@@ -110,12 +78,11 @@ static int strbool(const char *str, int *result)
   emcAxisLoadComp(int axis, const char * file);
   */
 
-static int loadAxis(int axis, IniFile *axisInifile)
+static int loadAxis(int axis, EmcIniFile *axisIniFile)
 {
-#define AXIS_STRING_LEN 16
-    char axisString[AXIS_STRING_LEN];
+    char axisString[16];
     const char *inistring;
-    unsigned char axisType;
+    EmcAxisType axisType;
     double units;
     double backlash;
     double offset;
@@ -123,530 +90,164 @@ static int loadAxis(int axis, IniFile *axisInifile)
     double home;
     double search_vel;
     double latch_vel;
-    int use_index;
-    int ignore_limits;
-    int is_shared;
+    bool use_index;
+    bool ignore_limits;
+    bool is_shared;
     int sequence;
     int comp_file_type; //type for the compensation file. type==0 means nom, forw, rev. 
     double maxVelocity;
     double maxAcceleration;
-    double maxFerror;
+    double ferror;
 
     // compose string to match, axis = 0 -> AXIS_0, etc.
     sprintf(axisString, "AXIS_%d", axis);
 
-    // set axis type
+    axisIniFile->EnableExceptions(EmcIniFile::ERR_CONVERSION);
+    
+    try {
+        // set axis type
+        axisType = EMC_AXIS_LINEAR;	// default
+        axisIniFile->Find(&axisType, "TYPE", axisString);
 
-    if (NULL != (inistring = axisInifile->Find("TYPE", axisString))) {
-	if (!strcmp(inistring, "LINEAR")) {
-	    // found, and valid
-	    axisType = EMC_AXIS_LINEAR;
-	} else if (!strcmp(inistring, "ANGULAR")) {
-	    // found, and valid
-	    axisType = EMC_AXIS_ANGULAR;
-	} else {
-	    // found, but invalid
-	    if (EMC_DEBUG & EMC_DEBUG_INVALID) {
-		rcs_print_error
-		    ("invalid inifile value for [%s] TYPE: %s\n",
-		     axisString, inistring);
-	    }
-	    axisType = EMC_AXIS_LINEAR;	// default is linear
-	}
-    } else {
-	// not found at all
-	axisType = EMC_AXIS_LINEAR;	// default is linear
-	if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
-	    rcs_print_error("can't find [%s] TYPE, using default\n",
-			    axisString);
-	}
-    }
-    if (0 != emcAxisSetAxis(axis, axisType)) {
-	if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-	    rcs_print_error("bad return from emcAxisSetAxis\n");
-	}
-	return -1;
-    }
-    // set units
+        if (0 != emcAxisSetAxis(axis, axisType)) {
+            if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+                rcs_print_error("bad return from emcAxisSetAxis\n");
+            }
+            return -1;
+        }
 
-    if (NULL != (inistring = axisInifile->Find("UNITS", axisString))) {
-	if (1 == sscanf(inistring, "%lf", &units)) {
-	    // found, and valid
-	} else {
-	    // found, but invalid
-	    if (EMC_DEBUG & EMC_DEBUG_INVALID) {
-		rcs_print_error
-		    ("invalid inifile value for [%s] UNITS: %s\n",
-		     axisString, inistring);
-	    }
-	    if (axisType == EMC_AXIS_LINEAR) {
-		units = emcTrajGetLinearUnits(); // get the default UNITS read in the TRAJ section
-		if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-		    rcs_print("using LINEAR_UNITS from TRAJ %d\n", units);
-		}
-	    } else if (axisType == EMC_AXIS_ANGULAR) {
-		units = emcTrajGetAngularUnits();
-		if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-		    rcs_print("using ANGULAR_UNITS from TRAJ %d\n", units);
-		}
-	    } else {
-		units = 1.0;	// default
-		if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-		    rcs_print_error("bad axisType=%d , no known UNITS from TRAJ, using 1.0\n", axisType);
-		}
-	    }
-	}
-    } else {
-	// not found at all
-	if (axisType == EMC_AXIS_LINEAR) {
-	    units = emcTrajGetLinearUnits(); // get the default UNITS read in the TRAJ section
-	    if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-	        rcs_print_error("can't find [%s] UNITS, using LINEAR_UNITS from TRAJ %lf\n", axisString, units);
-	    }
-	} else if (axisType == EMC_AXIS_ANGULAR) {
-	    units = emcTrajGetAngularUnits();
-	    if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-	        rcs_print_error("can't find [%s] UNITS, using ANGULAR_UNITS from TRAJ %lf\n", axisString, units);
-	    }
-	} else {
-	    units = 1.0;		// default
-	    if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
-		rcs_print_error("can't find [%s] UNITS, don't know the axisType (%d) using default %lf\n",
-			    axisString, axisType, units);
-	    }
-	}
-    }
-    if (0 != emcAxisSetUnits(axis, units)) {
-	if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-	    rcs_print_error("bad return from emcAxisSetUnits\n");
-	}
-	return -1;
-    }
-    // set backlash
+        // set units
+        units = (axisType == EMC_AXIS_LINEAR)? emcTrajGetLinearUnits()
+                                            :emcTrajGetAngularUnits();
+        axisIniFile->Find(&units, "UNITS", axisString);
 
-    if (NULL != (inistring = axisInifile->Find("BACKLASH", axisString))) {
-	if (1 == sscanf(inistring, "%lf", &backlash)) {
-	    // found, and valid
-	} else {
-	    // found, but invalid
-	    if (EMC_DEBUG & EMC_DEBUG_INVALID) {
-		rcs_print_error
-		    ("invalid inifile value for [%s] BACKLASH: %s\n",
-		     axisString, inistring);
-	    }
-	    backlash = 0;	// default
-	}
-    } else {
-	// not found at all
-	backlash = 0;		// default
-	if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
-	    rcs_print_error("can't find [%s] BACKLASH, using default\n",
-			    axisString);
-	}
-    }
-    if (0 != emcAxisSetBacklash(axis, backlash)) {
-	if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-	    rcs_print_error("bad return from emcAxisSetBacklash\n");
-	}
-	return -1;
-    }
+        if (0 != emcAxisSetUnits(axis, units)) {
+            if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+                rcs_print_error("bad return from emcAxisSetUnits\n");
+            }
+            return -1;
+        }
 
-    // set min position limit
+        // set backlash
+        backlash = 0;	                // default
+        axisIniFile->Find(&backlash, "BACKLASH", axisString);
 
-    if (NULL != (inistring = axisInifile->Find("MIN_LIMIT", axisString))) {
-	if (1 == sscanf(inistring, "%lf", &limit)) {
-	    // found, and valid
-	} else {
-	    // found, but invalid
-	    if (EMC_DEBUG & EMC_DEBUG_INVALID) {
-		rcs_print_error
-		    ("invalid inifile value for [%s] MIN_LIMIT: %s\n",
-		     axisString, inistring);
-	    }
-	    limit = -1;		// default for min limit
-	}
-    } else {
-	// not found at all
-	limit = -1;		// default for min limit
-	if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
-	    rcs_print_error("can't find [%s] MIN_LIMIT, using default\n",
-			    axisString);
-	}
-    }
+        if (0 != emcAxisSetBacklash(axis, backlash)) {
+            if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+                rcs_print_error("bad return from emcAxisSetBacklash\n");
+            }
+            return -1;
+        }
 
-    if (0 != emcAxisSetMinPositionLimit(axis, limit)) {
-	if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-	    rcs_print_error
-		("bad return from emcAxisSetMinPositionLimit\n");
-	}
-	return -1;
-    }
-    // set max position limit
+        // set min position limit
+        limit = -1;	                // default
+        axisIniFile->Find(&limit, "MIN_LIMIT", axisString);
 
-    if (NULL != (inistring = axisInifile->Find("MAX_LIMIT", axisString))) {
-	if (1 == sscanf(inistring, "%lf", &limit)) {
-	    // found, and valid
-	} else {
-	    // found, but invalid
-	    if (EMC_DEBUG & EMC_DEBUG_INVALID) {
-		rcs_print_error
-		    ("invalid inifile value for [%s] MAX_LIMIT: %s\n",
-		     axisString, inistring);
-	    }
-	    limit = 1;		// default for max limit
-	}
-    } else {
-	// not found at all
-	limit = 1;		// default for max limit
-	if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
-	    rcs_print_error("can't find [%s] MAX_LIMIT, using default\n",
-			    axisString);
-	}
-    }
-    if (0 != emcAxisSetMaxPositionLimit(axis, limit)) {
-	if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-	    rcs_print_error
-		("bad return from emcAxisSetMaxPositionLimit\n");
-	}
-	return -1;
-    }
-    // set following error limit (at max speed)
+        if (0 != emcAxisSetMinPositionLimit(axis, limit)) {
+            if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+                rcs_print_error("bad return from emcAxisSetMinPositionLimit\n");
+            }
+            return -1;
+        }
 
-    if (NULL != (inistring = axisInifile->Find("FERROR", axisString))) {
-	if (1 == sscanf(inistring, "%lf", &maxFerror)) {
-	    // found, and valid
-	} else {
-	    // found, but invalid
-	    if (EMC_DEBUG & EMC_DEBUG_INVALID) {
-		rcs_print_error
-		    ("invalid inifile value for [%s] FERROR: %s\n",
-		     axisString, inistring);
-	    }
-	    maxFerror = 1;	// default for max ferror
-	}
-    } else {
-	// not found at all
-	maxFerror = 1;		// default for max ferror
-	if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
-	    rcs_print_error("can't find [%s] FERROR, using default\n",
-			    axisString);
-	}
-    }
-    if (0 != emcAxisSetFerror(axis, maxFerror)) {
-	if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-	    rcs_print_error("bad return from emcAxisSetFerror\n");
-	}
-	return -1;
-    }
-    // do MIN_FERROR, if it's there. If not, use value of maxFerror above
+        // set max position limit
+        limit = 1;	                // default
+        axisIniFile->Find(&limit, "MAX_LIMIT", axisString);
 
-    if (NULL != (inistring = axisInifile->Find("MIN_FERROR", axisString))) {
-	if (1 == sscanf(inistring, "%lf", &limit)) {
-	    // found, and valid
-	} else {
-	    // found, but invalid
-	    limit = maxFerror;	// use prev value of max ferror
-	    if (EMC_DEBUG & EMC_DEBUG_INVALID) {
-		rcs_print_error
-		    ("invalid inifile value for [%s] MIN_FERROR: %s, using default %f\n",
-		     axisString, inistring, limit);
-	    }
-	}
-    } else {
-	// not found at all
-	limit = maxFerror;	// use prev value of max ferror
-	if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
-	    rcs_print_error
-		("can't find [%s] MIN_FERROR, using default %f\n",
-		 axisString, limit);
-	}
-    }
-    if (0 != emcAxisSetMinFerror(axis, limit)) {
-	if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-	    rcs_print_error("bad return from emcAxisSetMinFerror\n");
-	}
-	return -1;
-    }
-    // set homing paramsters (total of 6)
+        if (0 != emcAxisSetMaxPositionLimit(axis, limit)) {
+            if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+                rcs_print_error("bad return from emcAxisSetMaxPositionLimit\n");
+            }
+            return -1;
+        }
 
-    if (NULL != (inistring = axisInifile->Find("HOME", axisString))) {
-	if (1 == sscanf(inistring, "%lf", &home)) {
-	    // found, and valid
-	} else {
-	    // found, but invalid
-	    if (EMC_DEBUG & EMC_DEBUG_INVALID) {
-		rcs_print_error
-		    ("invalid inifile value for [%s] HOME: %s\n",
-		     axisString, inistring);
-	    }
-	    home = 0.0;		// default
-	}
-    } else {
-	// not found at all
-	home = 0.0;
-	if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
-	    rcs_print_error("can't find [%s] HOME, using default\n",
-			    axisString);
-	}
+        // set following error limit (at max speed)
+        ferror = 1;	                // default
+        axisIniFile->Find(&ferror, "FERROR", axisString);
+
+        if (0 != emcAxisSetFerror(axis, ferror)) {
+            if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+                rcs_print_error("bad return from emcAxisSetFerror\n");
+            }
+            return -1;
+        }
+
+        // do MIN_FERROR, if it's there. If not, use value of maxFerror above
+        axisIniFile->Find(&ferror, "MIN_FERROR", axisString);
+
+        if (0 != emcAxisSetMinFerror(axis, ferror)) {
+            if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+                rcs_print_error("bad return from emcAxisSetMinFerror\n");
+            }
+            return -1;
+        }
+
+        // set homing paramsters (total of 6)
+        home = 0;	                // default
+        axisIniFile->Find(&home, "HOME", axisString);
+        offset = 0;	                // default
+        axisIniFile->Find(&home, "HOME_OFFSET", axisString);
+        search_vel = 0;	                // default
+        axisIniFile->Find(&search_vel, "HOME_SEARCH_VEL", axisString);
+        latch_vel = 0;	                // default
+        axisIniFile->Find(&latch_vel, "HOME_LATCH_VEL", axisString);
+        is_shared = false;	        // default
+        axisIniFile->Find(&is_shared, "HOME_IS_SHARED", axisString);
+        use_index = false;	        // default
+        axisIniFile->Find(&use_index, "HOME_USE_INDEX", axisString);
+        ignore_limits = false;	        // default
+        axisIniFile->Find(&ignore_limits, "HOME_IGNORE_LIMITS", axisString);
+        sequence = -1;	                // default
+        axisIniFile->Find(&sequence, "HOME_SEQUENCE", axisString);
+
+        // issue NML message to set all params
+        if (0 != emcAxisSetHomingParams(axis, home, offset, search_vel,
+                                        latch_vel, (int)use_index, (int)ignore_limits,
+                                        (int)is_shared, sequence)) {
+            if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+                rcs_print_error("bad return from emcAxisSetHomingParams\n");
+            }
+            return -1;
+        }
+
+        // set maximum velocity
+        maxVelocity = DEFAULT_AXIS_MAX_VELOCITY;
+        axisIniFile->Find(&maxVelocity, "MAX_VELOCITY", axisString);
+
+        if (0 != emcAxisSetMaxVelocity(axis, maxVelocity)) {
+            if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+                rcs_print_error("bad return from emcAxisSetMaxVelocity\n");
+            }
+            return -1;
+        }
+
+        maxAcceleration = DEFAULT_AXIS_MAX_ACCELERATION;
+        axisIniFile->Find(&maxAcceleration, "MAX_ACCELERATION", axisString);
+
+        if (0 != emcAxisSetMaxAcceleration(axis, maxAcceleration)) {
+            if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+                rcs_print_error("bad return from emcAxisSetMaxAcceleration\n");
+            }
+            return -1;
+        }
+
+        comp_file_type = 0;             // default
+        axisIniFile->Find(&comp_file_type, "COMP_FILE_TYPE", axisString);
+
+        if (NULL != (inistring = axisIniFile->Find("COMP_FILE", axisString))) {
+            if (0 != emcAxisLoadComp(axis, inistring, comp_file_type)) {
+                if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+                    rcs_print_error("bad return from emcAxisLoadComp\n");
+                }
+                return -1;
+            }
+        }
     }
 
-    if (NULL != (inistring = axisInifile->Find("HOME_OFFSET", axisString))) {
-	if (1 == sscanf(inistring, "%lf", &offset)) {
-	    // found, and valid
-	} else {
-	    // found, but invalid
-	    if (EMC_DEBUG & EMC_DEBUG_INVALID) {
-		rcs_print_error
-		    ("invalid inifile value for [%s] HOME_OFFSET: %s\n",
-		     axisString, inistring);
-	    }
-	    offset = 0.0;	// default
-	}
-    } else {
-	// not found at all
-	offset = 0.0;
-	if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
-	    rcs_print_error("can't find [%s] HOME_OFFSET, using default\n",
-			    axisString);
-	}
+    catch(EmcIniFile::Exception &e){
+        e.Print();
+        return -1;
     }
-
-    if (NULL !=
-	(inistring = axisInifile->Find("HOME_SEARCH_VEL", axisString))) {
-	if (1 == sscanf(inistring, "%lf", &search_vel)) {
-	    // found, and valid
-	} else {
-	    // found, but invalid
-	    if (EMC_DEBUG & EMC_DEBUG_INVALID) {
-		rcs_print_error
-		    ("invalid inifile value for [%s] HOME_SEARCH_VEL: %s\n",
-		     axisString, inistring);
-	    }
-	    search_vel = 0.0;	// default - skips entire homing process
-	}
-    } else {
-	// not found at all
-	search_vel = 0.0;
-	if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
-	    rcs_print_error
-		("can't find [%s] HOME_SEARCH_VEL, using default\n",
-		 axisString);
-	}
-    }
-
-    if (NULL !=
-	(inistring = axisInifile->Find("HOME_LATCH_VEL", axisString))) {
-	if (1 == sscanf(inistring, "%lf", &latch_vel)) {
-	    // found, and valid
-	} else {
-	    // found, but invalid
-	    if (EMC_DEBUG & EMC_DEBUG_INVALID) {
-		rcs_print_error
-		    ("invalid inifile value for [%s] HOME_LATCH_VEL: %s\n",
-		     axisString, inistring);
-	    }
-	    latch_vel = 0.0;	// default
-	}
-    } else {
-	// not found at all
-	latch_vel = 0.0;
-	if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
-	    rcs_print_error
-		("can't find [%s] HOME_LATCH_VEL, using default\n",
-		 axisString);
-	}
-    }
-
-    if (NULL !=
-	(inistring = axisInifile->Find("HOME_IS_SHARED", axisString))) {
-	if (1 == strbool(inistring, &is_shared)) {
-	    // found, and valid
-	} else {
-	    // found, but invalid
-	    if (EMC_DEBUG & EMC_DEBUG_INVALID) {
-		rcs_print_error
-		    ("invalid inifile value for [%s] HOME_IS_SHARED: %s\n",
-		     axisString, inistring);
-	    }
-	    is_shared = 0;	// default
-	}
-    } else {
-	// not found at all
-	is_shared = 0;
-	if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
-	    rcs_print_error
-		("can't find [%s] HOME_IS_SHARED, using default\n",
-		 axisString);
-	}
-    }
-
-
-    if (NULL !=
-	(inistring = axisInifile->Find("HOME_USE_INDEX", axisString))) {
-	if (1 == strbool(inistring, &use_index)) {
-	    // found, and valid
-	} else {
-	    // found, but invalid
-	    if (EMC_DEBUG & EMC_DEBUG_INVALID) {
-		rcs_print_error
-		    ("invalid inifile value for [%s] HOME_USE_INDEX: %s\n",
-		     axisString, inistring);
-	    }
-	    use_index = 0;	// default
-	}
-    } else {
-	// not found at all
-	use_index = 0;
-	if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
-	    rcs_print_error
-		("can't find [%s] HOME_USE_INDEX, using default\n",
-		 axisString);
-	}
-    }
-
-    if (NULL !=
-	(inistring =
-	 axisInifile->Find("HOME_IGNORE_LIMITS", axisString))) {
-	if (1 == strbool(inistring, &ignore_limits)) {
-	    // found, and valid
-	} else {
-	    // found, but invalid
-	    if (EMC_DEBUG & EMC_DEBUG_INVALID) {
-		rcs_print_error
-		    ("invalid inifile value for [%s] HOME_IGNORE_LIMITS: %s\n",
-		     axisString, inistring);
-	    }
-	    ignore_limits = 0;	// default
-	}
-    } else {
-	// not found at all
-	ignore_limits = 0;
-	if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
-	    rcs_print_error
-		("can't find [%s] HOME_IGNORE_LIMITS, using default\n",
-		 axisString);
-	}
-    }
-
-    if (NULL !=
-	(inistring = axisInifile->Find("HOME_SEQUENCE", axisString))) {
-	if (1 == sscanf(inistring, "%d", &sequence)) {
-	    // found, and valid
-	} else {
-	    // found, but invalid
-	    if (EMC_DEBUG & EMC_DEBUG_INVALID) {
-		rcs_print_error
-		    ("invalid inifile value for [%s] HOME_SEQUENCE: %s\n",
-		     axisString, inistring);
-	    }
-	    sequence = -1;	// default
-	}
-    } else {
-	// not found at all
-	sequence = -1;
-	if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
-	    rcs_print_error
-		("can't find [%s] HOME_SEQUENCE, using default\n",
-		 axisString);
-	}
-    }
-
-    // issue NML message to set all params
-    if (0 != emcAxisSetHomingParams(axis, home, offset, search_vel,
-				    latch_vel, use_index, ignore_limits,
-				    is_shared, sequence)) {
-	if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-	    rcs_print_error("bad return from emcAxisSetHomingParams\n");
-	}
-	return -1;
-    }
-
-    // set maximum velocity
-
-    if (NULL !=
-	(inistring = axisInifile->Find("MAX_VELOCITY", axisString))) {
-	if (1 == sscanf(inistring, "%lf", &maxVelocity)) {
-	    // found, and valid
-	} else {
-	    // found, but invalid
-	    if (EMC_DEBUG & EMC_DEBUG_INVALID) {
-		rcs_print_error
-		    ("invalid inifile value for [%s] MAX_VELOCITY: %s\n",
-		     axisString, inistring);
-	    }
-	    maxVelocity = DEFAULT_AXIS_MAX_VELOCITY;	// default
-	}
-    } else {
-	// not found at all
-	maxVelocity = DEFAULT_AXIS_MAX_VELOCITY;
-	if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
-	    rcs_print_error
-		("can't find [%s] MAX_VELOCITY, using default\n",
-		 axisString);
-	}
-    }
-    if (0 != emcAxisSetMaxVelocity(axis, maxVelocity)) {
-	if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-	    rcs_print_error("bad return from emcAxisSetMaxVelocity\n");
-	}
-	return -1;
-    }
-
-    if (NULL !=
-	(inistring = axisInifile->Find("MAX_ACCELERATION", axisString))) {
-	if (1 == sscanf(inistring, "%lf", &maxAcceleration)) {
-	    // found, and valid
-	} else {
-	    // found, but invalid
-	    if (EMC_DEBUG & EMC_DEBUG_INVALID) {
-		rcs_print_error
-		    ("invalid inifile value for [%s] MAX_ACCELERATION: %s\n",
-		     axisString, inistring);
-	    }
-	    maxAcceleration = DEFAULT_AXIS_MAX_ACCELERATION;	// default
-	}
-    } else {
-	// not found at all
-	maxAcceleration = DEFAULT_AXIS_MAX_ACCELERATION;
-	if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
-	    rcs_print_error
-		("can't find [%s] MAX_ACCELERATION, using default\n",
-		 axisString);
-	}
-    }
-    if (0 != emcAxisSetMaxAcceleration(axis, maxAcceleration)) {
-	if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-	    rcs_print_error("bad return from emcAxisSetMaxAcceleration\n");
-	}
-	return -1;
-    }
-
-    if (NULL != (inistring = axisInifile->Find("COMP_FILE_TYPE", axisString))) {
-	if (1 == sscanf(inistring, "%d", &comp_file_type)) {
-	    // found, and valid
-	} else {
-	    // found, but invalid
-	    if (EMC_DEBUG & EMC_DEBUG_INVALID) {
-		rcs_print_error
-		    ("invalid inifile value for [%s] COMP_FILE_TYPE: %s\n",
-		     axisString, inistring);
-	    }
-	    comp_file_type = 0;	// default
-	}
-    } else {
-	//not found at all, use old style of comp_file
-	comp_file_type = 0; 
-    }
-
-    if (NULL != (inistring = axisInifile->Find("COMP_FILE", axisString))) {
-	if (0 != emcAxisLoadComp(axis, inistring, comp_file_type)) {
-	    if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-		rcs_print_error("bad return from emcAxisLoadComp\n");
-	    }
-	    return -1;
-	}
-    }
-    // else not found, so ignore
 
     // lastly, activate axis. Do this last so that the motion controller
     // won't flag errors midway during configuration
@@ -654,6 +255,7 @@ static int loadAxis(int axis, IniFile *axisInifile)
 
     return 0;
 }
+
 
 /*
   iniAxis(int axis, const char *filename)
@@ -665,49 +267,35 @@ static int loadAxis(int axis, IniFile *axisInifile)
  */
 int iniAxis(int axis, const char *filename)
 {
-    int retval = 0;
-    const char *inistring;
     int axes;
-    IniFile axisInifile;
+    EmcIniFile axisIniFile(EmcIniFile::ERR_TAG_NOT_FOUND |
+                           EmcIniFile::ERR_SECTION_NOT_FOUND |
+                           EmcIniFile::ERR_CONVERSION);
 
-    if (axisInifile.Open(filename) == false) {
+    if (axisIniFile.Open(filename) == false) {
 	return -1;
     }
 
-    if (NULL != (inistring = axisInifile.Find("AXES", "TRAJ"))) {
-	if (1 == sscanf(inistring, "%d", &axes)) {
-	    // found, and valid
-	} else {
-	    // found, but invalid
-	    if (EMC_DEBUG & EMC_DEBUG_INVALID) {
-		rcs_print_error
-		    ("invalid inifile value for [TRAJ] AXES: %s\n",
-		     inistring);
-	    }
-	    axes = 0;
-	}
-    } else {
-	// not found at all
-	axes = 1;
-	if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
-	    rcs_print_error("can't find [TRAJ] AXES, using default %d\n",
-			    axes);
-	}
+    try {
+        axisIniFile.Find(&axes, "AXES", "TRAJ");
+    }
+
+    catch(EmcIniFile::Exception &e){
+        e.Print();
+        return -1;
     }
 
     if (axis < 0 || axis >= axes) {
 	// requested axis exceeds machine axes
-	axisInifile.Close();
 	return -1;
     }
-    // load its values
-    if (0 != loadAxis(axis, &axisInifile)) {
-	retval = -1;
-    }
-    // close the inifile
-    axisInifile.Close();
 
-    return retval;
+    // load its values
+    if (0 != loadAxis(axis, &axisIniFile)) {
+        return -1;
+    }
+
+    return 0;
 }
 
 /*! \todo FIXME-- begin temporary insert of ini file stuff */
