@@ -1,0 +1,16 @@
+
+net jogA parport.0.pin-10-in => encoder.1.phase-A
+net jogB parport.0.pin-11-in => encoder.1.phase-B
+
+net jogX axisui.jog.x => axis.0.jog-enable
+net jogY axisui.jog.y => axis.1.jog-enable
+net jogZ axisui.jog.z => axis.2.jog-enable
+
+net jogcounts encoder.1.counts => axis.0.jog-counts axis.1.jog-counts axis.2.jog-counts
+
+newsig jogscale float
+sets jogscale .00002
+linksp jogscale axis.0.jog-scale 
+linksp jogscale axis.1.jog-scale 
+linksp jogscale axis.2.jog-scale
+

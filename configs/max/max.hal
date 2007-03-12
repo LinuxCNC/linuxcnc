@@ -11,7 +11,7 @@ loadrt stepgen step_type=0,0,0,0
 # I/O thru the parport
 loadrt hal_parport cfg="0x0378"
 # counting the spindle encoder in software
-loadrt encoder num_chan=1
+loadrt encoder num_chan=2
 # simulate the encoder
 loadrt sim_encoder num_chan=1
 # misc blocks needed to do fun things
