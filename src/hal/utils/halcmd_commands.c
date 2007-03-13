@@ -2486,7 +2486,8 @@ int do_help_cmd(char *command)
 	printf("  Sets signal 'signame' to 'value' (if signal has no writers).\n");
     } else if (strcmp(command, "getp") == 0) {
 	printf("getp paramname\n");
-	printf("  Gets the value of parameter 'paramname'.\n");
+	printf("getp pinname\n");
+	printf("  Gets the value of parameter 'paramname' or pin 'pinname'.\n");
     } else if (strcmp(command, "gets") == 0) {
 	printf("gets signame\n");
 	printf("  Gets the value of signal 'signame'.\n");
