@@ -189,6 +189,10 @@ to \fIvalue\fR.  Fails if \fIsigname\fR does not exist, if it
 already has a writer, or if \fIvalue\fR is not a legal value.
 Legal values depend on the signals's type.
 .TP
+\fBgets\fR \fIsigname\fR
+(\fIget\fR \fIs\fRignal)  Gets the value of signal \fIsigname\fR.  Fails
+if \fIsigname\fR does not exist.
+.TP
 \fBlinkps\fR \fIpinname\fR [\fIarrow\fR] \fIsigname\fR
 (\fIlink\fR \fIp\fRin to \fIs\fRignal)  Establishs a link
 between a HAL component pin \fIpinname\fR and a HAL signal
@@ -238,6 +242,12 @@ on.
 \fIpinname\fR \fB=\fR \fIvalue\fR
 Identical to \fBsetp\fR.  This alternate form of the command may
 be more convenient and readable when used in a file.
+.TP
+\fBgetp\fR \fIname\fR
+(\fIget\fR \fIp\fRarameter or \fIp\fRin)  Gets the value of parameter or
+pin \fIname\fR.  Fails if \fIname\fR does not exist as a pin or
+parameter.  If a pin and a parameter both exist with the given name, the
+parameter is acted on.
 .TP
 \fBaddf\fR \fIfunctname\fR \fIthreadname\fR
 (\fIadd\fR \fIf\fRunction)  Adds function \fIfunctname\fR to realtime
