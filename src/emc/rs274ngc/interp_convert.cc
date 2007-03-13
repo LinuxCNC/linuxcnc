@@ -868,6 +868,7 @@ int Interp::convert_param_comment(char *comment, char *expanded, int len)
                 {
                     param[i] = *comment++;
                 }
+                param[i] = 0;
                 paramNumber = atoi(param);
                 if((paramNumber >= 0) &&
                    (paramNumber < RS274NGC_MAX_PARAMETERS))
