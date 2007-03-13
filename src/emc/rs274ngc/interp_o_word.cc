@@ -385,7 +385,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
       settings->skipping_o = 0;
       // save the loop point
       // we hit this again on loop back -- so test first
-      if(0 == control_find_oword(block->o_number, settings, &index))
+      if(INTERP_OK != control_find_oword(block->o_number, settings, &index))
       {
           CHP(control_save_offset(block->o_number, block, settings));
       }
