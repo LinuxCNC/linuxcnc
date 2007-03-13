@@ -733,7 +733,7 @@ static unsigned long ulceil(unsigned long value, unsigned long increment)
 static void update_freq(void *arg, long period)
 {
     stepgen_t *stepgen;
-    int n;
+    int n, newperiod;
     long min_step_period;
     long long int accum_a, accum_b;
     double pos_cmd, vel_cmd, curr_pos, curr_vel, avg_v, max_freq, max_ac;
@@ -750,6 +750,7 @@ static void update_freq(void *arg, long period)
        constants are based on the period of the much faster 'make_pulses()'
        thread. */
     /* only recalc constants if period changes */
+    newperiod = 0;
     if (periodns != old_periodns) {
 	/* get ready to detect future period changes */
 	old_periodns = periodns;
@@ -757,6 +758,8 @@ static void update_freq(void *arg, long period)
 	periodfp = periodns * 0.000000001;
 	freqscale = (1L << PICKOFF) * periodfp;
 	accelscale = freqscale * periodfp;
+	/* force re-evaluation of the timing parameters */
+	newperiod = 1;
     }
     /* now recalc constants related to the period of this funct */
     /* only recalc constants if period changes */
@@ -788,6 +791,13 @@ static void update_freq(void *arg, long period)
 	       fractional bits, so we precalc some stuff */
 	    stepgen->scale_recip = (1.0 / (1L << PICKOFF)) / stepgen->pos_scale;
 	}
+	if ( newperiod ) {
+	    /* period changed, force recalc of timing parameters */
+	    stepgen->old_step_len = ~0;
+	    stepgen->old_step_space = ~0;
+	    stepgen->old_dir_hold_dly = ~0;
+	    stepgen->old_dir_setup = ~0;
+	}
 	/* process timing parameters */
 	if ( stepgen->step_len != stepgen->old_step_len ) {
 	    /* must be non-zero */
@@ -800,9 +810,9 @@ static void update_freq(void *arg, long period)
 	}
 	if ( stepgen->step_space != stepgen->old_step_space ) {
 	    if ( stepgen->step_space == 0 ) {
-		/* stepspace can only be zero for step types 2 and higher */
+		/* stepspace must be non-zero for step types 0 and 1 */
 		if ( stepgen->step_type < 2 ) {
-		    stepgen->step_len = 1;
+		    stepgen->step_space = 1;
 		}
 	    }
 	    /* make integer multiple of periodns */
@@ -816,7 +826,7 @@ static void update_freq(void *arg, long period)
 	}
 	if ( stepgen->dir_hold_dly != stepgen->old_dir_hold_dly ) {
 	    if ( (stepgen->dir_hold_dly + stepgen->dir_setup) == 0 ) {
-		/* dirdelay can only be zero for step types 2 and higher */
+		/* dirdelay must be non-zero step types 0 and 1 */
 		if ( stepgen->step_type < 2 ) {
 		    stepgen->dir_hold_dly = 1;
 		}
@@ -1075,10 +1085,6 @@ static int export_stepgen(int num, stepgen_t * addr, int step_type)
     addr->maxaccel = 0.0;
     addr->step_type = step_type;
     /* timing parameter defaults depend on step type */
-    addr->old_step_len = 0;
-    addr->old_step_space = 0;
-    addr->old_dir_hold_dly = 0;
-    addr->old_dir_setup = 0;
     addr->step_len = 1;
     if ( step_type < 2 ) {
 	addr->step_space = 1;
@@ -1092,6 +1098,11 @@ static int export_stepgen(int num, stepgen_t * addr, int step_type)
 	addr->dir_hold_dly = 1;
 	addr->dir_setup = 0;
     }
+    /* set 'old' values to make update_freq validate the timing params */
+    addr->old_step_len = ~0;
+    addr->old_step_space = ~0;
+    addr->old_dir_hold_dly = ~0;
+    addr->old_dir_setup = ~0;
     if ( step_type >= 2 ) {
 	/* init output stuff */
 	addr->cycle_max = cycle_len_lut[step_type - 2] - 1;
