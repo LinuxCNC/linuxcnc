@@ -1970,6 +1970,30 @@ property_names = [
 def dist((x,y,z),(p,q,r)):
     return ((x-p)**2 + (y-q)**2 + (z-r)**2) ** .5
 
+def get_jog_speed(a):
+    if vars.joint_mode.get() or a < 3:
+        return vars.jog_speed.get()
+    else: return vars.jog_aspeed.get()
+
+def run_warn():
+    warnings = []
+    if o.g:
+        for i in range(min(axiscount, 3)): # Does not enforce angle limits
+            if o.g.min_extents[i] < machine_limit_min[i]:
+                warnings.append(_("Program exceeds machine minimum on axis %s")
+                    % axisnames[i])
+            if o.g.max_extents[i] > machine_limit_max[i]:
+                warnings.append(_("Program exceeds machine maximum on axis %s")
+                    % axisnames[i])
+    if warnings:
+        text = "\n".join(warnings)
+        return int(root_window.tk.call("nf_dialog", ".error",
+            _("Program exceeds machine limits"),
+            text,
+            "warning",
+            1, _("Run Anyway"), _("Cancel")))
+    return 0
+ 
 class TclCommands(nf.TclCommands):
     def to_internal_linear_unit(a, b=None):
         if b is not None: b = float(b)
@@ -2280,21 +2304,8 @@ class TclCommands(nf.TclCommands):
             o.set_highlight_line(line)
 
     def task_run(*event):
-        warnings = []
-        if o.g:
-            for i in range(min(axiscount, 3)): # Does not enforce angle limits
-                if o.g.min_extents[i] < machine_limit_min[i]:
-                    warnings.append(_("Program exceeds machine minimum on axis %s") % axisnames[i])
-                if o.g.max_extents[i] > machine_limit_max[i]:
-                    warnings.append(_("Program exceeds machine maximum on axis %s") % axisnames[i])
-        if warnings:
-            text = "\n".join(warnings)
-            r = int(root_window.tk.call("nf_dialog", ".error",
-                _("Program exceeds machine limits"),
-                text,
-                "warning",
-                1, _("Run Anyway"), _("Cancel")))
-            if r: return
+        if run_warn(): return
+
         global program_start_line, program_start_line_last
         program_start_line_last = program_start_line;
         ensure_mode(emc.MODE_AUTO)
@@ -2302,8 +2313,8 @@ class TclCommands(nf.TclCommands):
         program_start_line = 0
 
     def task_step(*event):
-        if s.task_mode != emc.MODE_AUTO or s.interp_state != emc.INTERP_PAUSED:
-            return
+        if s.task_mode != emc.MODE_AUTO or s.interp_state != emc.INTERP_IDLE:
+            if run_warn(): return
         ensure_mode(emc.MODE_AUTO)
         c.auto(emc.AUTO_STEP)
 
@@ -2506,15 +2517,13 @@ class TclCommands(nf.TclCommands):
         a = vars.current_axis.get()
         if isinstance(a, (str, unicode)):
             a = "xyzabc".index(a)
-        if a < 3: speed = vars.jog_speed.get()
-        else: speed = vars.jog_aspeed.get()
+        speed = get_jog_speed(a)
         jog_on(a, speed/60.)
     def jog_minus(event=None):
         a = vars.current_axis.get()
         if isinstance(a, (str, unicode)):
             a = "xyzabc".index(a)
-        if a < 3: speed = vars.jog_speed.get()
-        else: speed = vars.jog_aspeed.get()
+        speed = get_jog_speed(a)
         jog_on(a, -speed/60.)
     def jog_stop(event=None):
         jog_off(vars.current_axis.get())
@@ -2888,8 +2897,8 @@ def jog_off_all():
             jog_off_actual(i)
 
 def bind_axis(a, b, d):
-    root_window.bind("<KeyPress-%s>" % a, lambda e: jog_on(d,-vars.jog_speed.get()/60.))
-    root_window.bind("<KeyPress-%s>" % b, lambda e: jog_on(d, vars.jog_speed.get()/60.))
+    root_window.bind("<KeyPress-%s>" % a, lambda e: jog_on(d, -get_jog_speed(d)))
+    root_window.bind("<KeyPress-%s>" % b, lambda e: jog_on(d, get_jog_speed(d)))
     root_window.bind("<KeyRelease-%s>" % a, lambda e: jog_off(d))
     root_window.bind("<KeyRelease-%s>" % b, lambda e: jog_off(d))
 
@@ -3021,12 +3030,7 @@ else:
     bind_axis("KP_Left", "KP_Right", 0)
     bind_axis("KP_Down", "KP_Up", 1)
     bind_axis("KP_Next", "KP_Prior", 2)
-    root_window.bind("<KeyPress-bracketleft>",
-        lambda e: jog_on(3,-vars.jog_aspeed.get()/60.))
-    root_window.bind("<KeyPress-bracketright>",
-        lambda e: jog_on(3, vars.jog_aspeed.get()/60.))
-    root_window.bind("<KeyRelease-bracketleft>", lambda e: jog_off(3))
-    root_window.bind("<KeyRelease-bracketright>", lambda e: jog_off(3))
+    bind_axis("bracketleft", "bracketright", 2)
 root_window.bind("<KeyPress-minus>", commands.jog_minus)
 root_window.bind("<KeyPress-equal>", commands.jog_plus)
 root_window.bind("<KeyRelease-minus>", commands.jog_stop)
