@@ -1047,7 +1047,8 @@ static int export_stepgen(int num, stepgen_t * addr, int step_type)
 	    comp_id, "stepgen.%d.dirdelay", num);
 	if (retval != 0) { return retval; }
     }
-   if ( step_type == 0 ) {
+    /* export output pins */
+    if ( step_type == 0 ) {
 	/* step and direction */
 	retval = hal_pin_bit_newf(HAL_OUT, &(addr->phase[STEP_PIN]),
 	    comp_id, "stepgen.%d.step", num);
