@@ -2104,6 +2104,10 @@ hal_pin_t *halpr_find_pin_by_sig(hal_sig_t * sig, hal_pin_t * start)
    or rmmod'ed.
 */
 
+#ifdef SIM
+#undef CONFIG_PROC_FS
+#endif
+
 #ifdef CONFIG_PROC_FS
 #include <linux/proc_fs.h>
 extern struct proc_dir_entry *rtapi_dir;
