@@ -34,7 +34,7 @@
  *	float	motenc.<boardId>.enc-<channel>-position
  *	bit	motenc.<boardId>.enc-<channel>-index
  *	bit	motenc.<boardId>.enc-<channel>-index-enable
- *	bit	motenc.<boardId>.enc-<channel>-reset-count
+ *	bit	motenc.<boardId>.enc-<channel>-reset
  *
  *   Functions:
  *	void    motenc.<boardId>.encoder-read
@@ -172,8 +172,7 @@ typedef struct {
 							// to be cleared on the next index pulse.
 							// Use this feature at your own risk as the PID loop
 							// may get upset. This pin is self clearing.
-    hal_bit_t				*pResetCount;	// Setting this pin causes Count to be reset.
-							// This pin is self clearing.
+    hal_bit_t				*pReset;	// Setting this pin causes Count to be reset.
 
     // Parameters.
     hal_float_t				scale;		// Scaling factor for position.
@@ -527,8 +526,8 @@ Device_ExportEncoderPinsParametersFunctions(Device *this, int componentId, int b
 	if((halError = hal_pin_bit_new(name, HAL_IO, &(this->encoder[channel].pIndexEnable), componentId)) != 0)
 	    break;
 
-	rtapi_snprintf(name, HAL_NAME_LEN, "motenc.%d.enc-%02d-reset-count", boardId, channel);
-	if((halError = hal_pin_bit_new(name, HAL_IO, &(this->encoder[channel].pResetCount), componentId)) != 0)
+	rtapi_snprintf(name, HAL_NAME_LEN, "motenc.%d.enc-%02d-reset", boardId, channel);
+	if((halError = hal_pin_bit_new(name, HAL_IN, &(this->encoder[channel].pReset), componentId)) != 0)
 	    break;
 
 	// Parameters.
@@ -541,7 +540,7 @@ Device_ExportEncoderPinsParametersFunctions(Device *this, int componentId, int b
 	*(this->encoder[channel].pPosition) = 0.0;
 	*(this->encoder[channel].pIndex) = 0;
 	*(this->encoder[channel].pIndexEnable) = 0;
-	*(this->encoder[channel].pResetCount) = 0;
+	*(this->encoder[channel].pReset) = 0;
 	this->encoder[channel].scale = 1.0;
 	this->encoder[channel].oldScale = 1.0;
 	this->encoder[channel].scaleRecip = 1.0 / this->encoder[channel].scale;
@@ -799,10 +798,7 @@ Device_EncoderRead(void *arg, long period)
 	for(j = 0; j < MOTENC_FPGA_NUM_ENCODER_CHANNELS; j++, pEncoder++){
 
 	    // Check reset pin.
-	    if(*(pEncoder->pResetCount)){
-		// Clear pin.
-		*(pEncoder->pResetCount) = 0;
-
+	    if(*(pEncoder->pReset)){
 		// Reset encoder.
 		pCard->fpga[i].statusControl = 1 << (MOTENC_CONTROL_ENCODER_RESET_SHFT + j);
 	    }

@@ -32,8 +32,8 @@
  *	s32	m5i20.<boardId>.enc-<channel>-count
  *	float	m5i20.<boardId>.enc-<channel>-position
  *	bit	m5i20.<boardId>.enc-<channel>-index
- *	bit	m5i20.<boardId>.enc-<channel>-enable-index
- *	bit	m5i20.<boardId>.enc-<channel>-reset-count
+ *	bit	m5i20.<boardId>.enc-<channel>-index-enable
+ *	bit	m5i20.<boardId>.enc-<channel>-reset
  *
  *   Functions:
  *	void    m5i20.<boardId>.encoder-read
@@ -165,8 +165,7 @@ typedef struct {
 							// clear. When the next index pulse
 							// is seen, count is cleared
 							// and IndexEnable is reset.
-    hal_bit_t				*pResetCount;	// Setting this pin causes Count to be reset.
-							// This pin is self clearing.
+    hal_bit_t				*pReset;	// Setting this pin causes Count to be reset.
 
     // Parameters.
     hal_float_t				scale;		// Scaling factor for position.
@@ -591,8 +590,8 @@ Device_ExportEncoderPinsParametersFunctions(Device *this, int componentId, int b
 	if((halError = hal_pin_bit_new(name, HAL_IO, &(this->encoder[channel].pIndexEnable), componentId)) != 0)
 	    break;
 
-	rtapi_snprintf(name, HAL_NAME_LEN, "m5i20.%d.enc-%02d-reset-count", boardId, channel);
-	if((halError = hal_pin_bit_new(name, HAL_IO, &(this->encoder[channel].pResetCount), componentId)) != 0)
+	rtapi_snprintf(name, HAL_NAME_LEN, "m5i20.%d.enc-%02d-reset", boardId, channel);
+	if((halError = hal_pin_bit_new(name, HAL_IN, &(this->encoder[channel].pReset), componentId)) != 0)
 	    break;
 
 	// Parameters.
@@ -605,7 +604,7 @@ Device_ExportEncoderPinsParametersFunctions(Device *this, int componentId, int b
 	*(this->encoder[channel].pPosition) = 0.0;
 	*(this->encoder[channel].pIndex) = 0;
 	*(this->encoder[channel].pIndexEnable) = 0;
-	*(this->encoder[channel].pResetCount) = 0;
+	*(this->encoder[channel].pReset) = 0;
 	this->encoder[channel].scale = 1.0;
 	this->encoder[channel].indexEnabled = 0;
     }
@@ -834,10 +833,7 @@ Device_EncoderRead(void *arg, long period)
     for(i = 0, j = 0; j < M5I20_NUM_ENCODER_CHANNELS; j++, pEncoder++){
 
 	// Check reset pin.
-	if(*(pEncoder->pResetCount)){
-	    // Clear pin.
-	    *(pEncoder->pResetCount) = 0;
-
+	if(*(pEncoder->pReset)){
 	    // Reset encoder.
 	    pCard16->encoderControl[i] |= M5I20_ENC_CTL_LOCAL_CLEAR;
 	}
