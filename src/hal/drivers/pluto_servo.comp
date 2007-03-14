@@ -27,12 +27,6 @@ The secondary address of the parallel port, used to set EPP
 mode.  0 means to use ioaddr + 0x400.  -1 means there is no
 secondary address.
 
-.\\" .TP
-.\\" \\fBepp_soft\\fR [default: 0]
-.\\" Enables "soft EPP mode".  This emulates the EPP communication
-.\\" protocol using a bidirectional parallel port.  This mode is slower, and
-.\\" cannot detect communication errors.
-.\\"
 .TP
 \\fBepp_wide\\fR [default: 1]
 Set to zero to disable "wide EPP mode".  "Wide" mode allows 16- and 32-bit EPP
@@ -176,7 +170,6 @@ MODULE_LICENSE("GPL");
 int ioaddr = 0x378;
 int ioaddr_hi = 0;
 int epp_wide = 1;
-int epp_soft = 0;
 
 typedef struct {
     long last_index[4];
@@ -197,70 +190,25 @@ long extend(long oldval, int newbits) {
     return newval;
 }
 
-void EPP_DIR_WRITE(void) {
-    if(epp_soft) {
-	// set write LOW to indicate write
-	outb(4 | 1, ioaddr+2);
-    }
-}
-void EPP_DIR_READ(void) {
-    if(epp_soft) {
-	// set write HIGH to indicate read
-	// set port direction to input
-	outb(32 | 4, ioaddr+2);
-	
-    }
-}
+void EPP_DIR_WRITE(void) { }
+void EPP_DIR_READ(void) { }
 void ADDR(int w) {
-    if(epp_soft) {
-	// Write address
-	outb(w, ioaddr);
-	// set address strobe low
-	outb(4 | 8 | 1, ioaddr + 2);
-	// (port would be polled here for WAIT/ if we didn't know the device
-	// was faster than us)
-	// set address strobe high
-	outb(4 | 1, ioaddr + 2);
-    } else {
-	outb(w, ioaddr+3);
-    }
+    outb(w, ioaddr+3);
 }
 
 void WRITE(int w) {
-    if(epp_soft) {
-	// Write data
-	outb(w, ioaddr);
-	// set data strobe low
-	outb(4 | 2 | 1, ioaddr+2);
-	// (port would be polled here for WAIT/ if we didn't know the device
-	// was faster than us)
-	// set data strobe high
-	outb(4 | 1, ioaddr+2);
-    } else
-	outb(w, ioaddr+4);
+    outb(w, ioaddr+4);
 }
 
 int READ(void) {
-    if(epp_soft) {
-	int result;
-	// set data strobe low
-	outb(32 | 4 | 1, ioaddr+2);
-	// (port would be polled here for WAIT/ if we didn't know the device
-	// was faster than us)
-	// read data
-	result = inb(ioaddr);
-	// set data strobe high
-	outb(32 | 4, ioaddr+2);
-	return result;
-    } else
-	return inb(ioaddr+4);
+    return inb(ioaddr+4);
 }
 
 
 unsigned long read32(void) {
     unsigned char a, b, c, d;
 
-    if(epp_wide && !epp_soft)
+    if(epp_wide)
 	return inl(ioaddr+4);
 
     a = READ();
@@ -272,7 +220,7 @@ unsigned long read32(void) {
 }
 
 void write32(long w) {
-    if(epp_wide && !epp_soft) {
+    if(epp_wide) {
 	outl(w, ioaddr+4);
 	return;
     }
@@ -284,7 +232,7 @@ void write32(long w) {
 }
 
 void write16(int w) {
-    if(epp_wide && !epp_soft) {
+    if(epp_wide) {
 	outw(w, ioaddr+4);
 	return;
     }
@@ -429,14 +377,11 @@ EXTRA_SETUP() {
 
     outb(4, ioaddr + 2);        // set control lines and input mode
     if(ioaddr_hi != -1)
-	outb(0, ioaddr_hi + 0x2);    // select SPP mode in ECR
+    outb(0, ioaddr_hi + 0x2);    // select SPP mode in ECR
     program(ioaddr, firmware);
 
     if(ioaddr_hi != -1) {
-	if(epp_soft)
-	    outb(0x20, ioaddr_hi + 0x2); // select EPP mode in ECR
-	else
-	    outb(0x80, ioaddr_hi + 0x2); // select EPP mode in ECR
+        outb(0x80, ioaddr_hi + 0x2); // select EPP mode in ECR
     }
 
     return 0;
@@ -451,5 +396,4 @@ EXTRA_CLEANUP() {
 
 RTAPI_MP_INT(ioaddr, "Address of parallel port where pluto-p is attached");
 RTAPI_MP_INT(ioaddr_hi, "Secondary address of parallel port (0 to use ioaddr+0x400)");
-RTAPI_MP_INT(epp_soft, "Emulate EPP mode on bidirectional port");
 RTAPI_MP_INT(epp_wide, "Use 16- and 32-bit EPP transfers with hardware EPP");
