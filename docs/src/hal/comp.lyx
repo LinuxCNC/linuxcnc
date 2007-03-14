@@ -206,11 +206,11 @@ component
 \emph on 
 NAME
 \emph default 
- [
+ 
 \emph on 
-DOC
+(DOC
 \emph default 
-];
+);
 \newline 
 pin 
 \emph on 
@@ -222,17 +222,21 @@ TYPE
 \emph default 
  
 \emph on 
-NAME
+HALNAME
 \emph default 
- [= 
+ ([
+\emph on 
+SIZE
+\emph default 
+]) (= 
 \emph on 
 STARTVALUE
 \emph default 
-] [
+) (
 \emph on 
 DOC
 \emph default 
-];
+);
 \newline 
 param 
 \emph on 
@@ -244,44 +248,44 @@ TYPE
 \emph default 
  
 \emph on 
-NAME
+HALNAME
 \emph default 
- [= 
+ (= 
 \emph on 
 STARTVALUE
 \emph default 
-] [
+) (
 \emph on 
 DOC
 \emph default 
-] ;
+) ;
 \newline 
 function 
 \emph on 
-NAME
+HALNAME
 \emph default 
- [fp | nofp] [
+ (fp | nofp) (
 \emph on 
 DOC
 \emph default 
-];
+);
 \newline 
 option 
 \emph on 
 NAME
 \emph default 
- [
+ (
 \emph on 
 VALUE
 \emph default 
-];
+);
 \newline 
 description DOC;
 \newline 
 see_also DOC;
 \layout Standard
 
-Brackets indicate optional items.
+Parentheses indicate optional items.
  A vertical bar indicates alternatives.
  Words in 
 \emph on 
@@ -290,11 +294,11 @@ CAPITALS
  indicate variable text, as follows:
 \layout Description
 
-NAME A C identifier.
+HALNAME An identifier.
  
 \newline 
 When used to create a HAL identifier, any underscores are replaced with
- dashes, and any trailing dash is removed, so that 
+ dashes, and any trailing dash or period is removed, so that 
 \begin_inset Quotes eld
 \end_inset 
 
@@ -310,8 +314,7 @@ this-name
 \begin_inset Quotes erd
 \end_inset 
 
-.
- If the name is 
+, and if the name is 
 \begin_inset Quotes eld
 \end_inset 
 
@@ -351,6 +354,22 @@ hal_
 \family default 
  is removed from the beginning of the component name when creating pins,
  parameters and functions.
+\newline 
+In the HAL identifier for a pin, ## is replaced with a 0-padded number with
+ the same length as the number of # characters.
+\newline 
+When used to create a C identifier, any # characters are removed, any dash
+ or period is replaced with _, and multiple _ are squeezed.
+ A trailing _ is retained, so that HAL identifiers which would otherwise
+ collide with reserved names or keywords (e.g., 'min') can be used.
+\layout Description
+
+SIZE A number that gives the size of a pin array.
+ The array items are numbered from 0 to 
+\emph on 
+SIZE
+\emph default 
+-1.
 \layout Description
 
 DOC A string that documents the item.
@@ -857,6 +876,20 @@ parameter_name
 \family default 
  there is a macro which allows the name to be used on its own to refer to
  the pin or parameter.
+\newline 
+When 
+\family typewriter 
+pin_name
+\family default 
+ is an array, the macro is of the form 
+\emph on 
+pin_name(i)
+\emph default 
+ where 
+\emph on 
+i
+\emph default 
+ is the index into the pin array.
 \layout Description
 
 data If 'option data' is specified, this macro allows access to the instance
@@ -1236,6 +1269,30 @@ loop.0.example
 hal-loop.0.example
 \family default 
 .
+\layout Subsection
+
+arraydemo
+\layout LyX-Code
+
+component arraydemo "4-bit Shift register";
+\newline 
+pin in bit in;
+\newline 
+pin out bit out-# [4];
+\newline 
+function _;
+\newline 
+;;
+\newline 
+FUNCTION(_) { 
+\newline 
+    int i; 
+\newline 
+    for(i=1; i<3; i++) out(i) = out(i-1); 
+\newline 
+    out(0) = in;
+\newline 
+}
 \layout Subsection
 
 rand
