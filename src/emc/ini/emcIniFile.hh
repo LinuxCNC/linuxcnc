@@ -50,6 +50,14 @@ public:
                                      const char *section=NULL, int num = 1);
     ErrorCode                   Find(bool *result, const char *tag,
                                      const char *section, int num=1);
+    ErrorCode                   FindLinearUnits(EmcLinearUnits *result,
+                                                const char *tag,
+                                                const char *section=NULL,
+                                                int num=1);
+    ErrorCode                   FindAngularUnits(EmcAngularUnits *result,
+                                                 const char *tag,
+                                                 const char *section=NULL,
+                                                 int num=1);
 
     // From base class.
     ErrorCode                   Find(int *result, int min, int max,
@@ -78,8 +86,10 @@ public:
                                 }
 
 private:
-    static ConversionEntry      axisTypeMap[];
-    static ConversionEntry      boolMap[];
+    static StrIntPair           axisTypeMap[];
+    static StrIntPair           boolMap[];
+    static StrDoublePair        linearUnitsMap[];
+    static StrDoublePair        angularUnitsMap[];
 };
 
 
