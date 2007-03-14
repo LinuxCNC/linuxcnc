@@ -1,3 +1,9 @@
+emc2 (1:2.1.3) unstable; urgency=low
+
+  * make 'load' button work in classicladder 
+
+ -- jepler <jepler@unpythonic.net>  Wed, 14 Mar 2007 18:47:55 -0500
+
 emc2 (1:2.1.2) testing; urgency=low
 
   * change axis.N.homing from HAL parameter to pin, to allow external logic
