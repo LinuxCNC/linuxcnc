@@ -377,7 +377,7 @@ EXTRA_SETUP() {
 
     outb(4, ioaddr + 2);        // set control lines and input mode
     if(ioaddr_hi != -1)
-    outb(0, ioaddr_hi + 0x2);    // select SPP mode in ECR
+        outb(0, ioaddr_hi + 0x2);    // select SPP mode in ECR
     program(ioaddr, firmware);
 
     if(ioaddr_hi != -1) {
