@@ -1295,33 +1295,11 @@ In the following pins, parameters, and functions, <board> is the board ID.
 \family typewriter 
 (
 \noun on 
-s32
-\noun default 
-) m5i20.<board>.enc-<channel>-cnt-latch
-\family default 
- -- Position in counts when index pulse arrived.
-\layout Itemize
-
-
-\family typewriter 
-(
-\noun on 
 float
 \noun default 
 ) m5i20.<board>.enc-<channel>-position 
 \family default 
 -- Encoder position, in user units.
-\layout Itemize
-
-
-\family typewriter 
-(
-\noun on 
-float
-\noun default 
-) m5i20.<board>.enc-<channel>-pos-latch
-\family default 
- -- Position in user units when index pulse arrived.
 \layout Itemize
 
 
@@ -1337,21 +1315,23 @@ m5i20.<board>.enc-<channel>-index
 
 \family typewriter 
 \noun on 
-(bit) 
+(bit)
 \noun default 
-m5i20.<board>.enc-<channel>-idx-latch
+ m5i20.<board>.enc-<channel>-index-enable 
 \family default 
- -- Goes true when an index pulse arrives?
-\layout Itemize
-
-
-\family typewriter 
+-- when 
 \noun on 
-(bit) 
+true
 \noun default 
-m5i20.<board>.enc-<channel>-latch-index
+, and an index pulse appears on the encoder input, reset 
+\family typewriter 
+count
 \family default 
- -- Bidirectional - used to control/report index latching?
+ to zero and clear 
+\family typewriter 
+index-enable
+\family default 
+.
 \layout Itemize
 
 
