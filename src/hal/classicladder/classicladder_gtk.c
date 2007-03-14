@@ -502,7 +502,7 @@ on_filechooserdialog_load_response(GtkDialog  *dialog,gint response_id,gpointer 
 {
 printf("LOAD %s %d\n",gtk_file_chooser_get_filename (GTK_FILE_CHOOSER(FileSelector)),response_id);	
 
-if(response_id==-5)LoadNewLadder();
+if(response_id==GTK_RESPONSE_ACCEPT || response_id==GTK_RESPONSE_OK)LoadNewLadder();
 gtk_widget_destroy(GTK_WIDGET(dialog));
 }
 #endif
