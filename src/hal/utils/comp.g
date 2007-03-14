@@ -160,7 +160,7 @@ def to_hal(name):
     name = re.sub("#+", lambda m: "%%0%dd" % len(m.group(0)), name)
     return name.replace("_", "-").rstrip("-").rstrip(".")
 def to_c(name):
-    name = re.sub("[.-_]*#+", "", name)
+    name = re.sub("[-._]*#+", "", name)
     name = name.replace("#", "").replace(".", "_").replace("-", "_")
     return re.sub("_+", "_", name)
 
