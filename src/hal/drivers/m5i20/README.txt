@@ -8,16 +8,16 @@ It has a bug in the secondary encoder pinout(see the manual)
 When the new configs (below) are sufficiently tested and working, I expect this config can be 
 deleted. The HAL driver should also be updated to allow different configs.
 
-/src/hal/drivers/m5i20/hostmot5_4
+/src/hal/drivers/m5i20/bit/hostmot5_4.bit
 this is a bugfixed hostmot-4 with a 33 MHz PWM clock.
 
-/src/hal/drivers/m5i20/hostmot5_4eh
+/src/hal/drivers/m5i20/bit/hostmot5_4eh.bit
 A hostmot-4 with 100 MHz PWM clock which enables up to 97 kHz PWM rate.
 
-/src/hal/drivers/m5i20/hostmot5_8
+/src/hal/drivers/m5i20/bit/hostmot5_8.bit
 A hostmot-8 with 33 MHz PWM clock.
 
-/src/hal/drivers/m5i20/hostmot5_8eh
+/src/hal/drivers/m5i20/bit/hostmot5_8eh.bit
 A hostmot-8 with 100 MHz PWM clock.
 
 /src/hal/drivers/m5i20/hostmot5_src
