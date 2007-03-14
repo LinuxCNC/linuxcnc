@@ -33,15 +33,16 @@ parser Hal:
     token NAME: "[a-zA-Z_][a-zA-Z0-9_]*"
     token HALNAME: "[#a-zA-Z_][-#a-zA-Z0-9_.]*"
     token FPNUMBER: "-?([0-9]*\.[0-9]+|[0-9]+\.?)([Ee][+-]?[0-9]+)?f?"
-    token NUMBER: "-?[0-9]+|0x[0-9a-fA-F]+"
-    token STRING: '"(\\.|[^\\"])*"'
-    token TSTRING: '"""(\\.|\\\n|[^\\"]|"(?!"")|\n)*"""'
+    token NUMBER: "0x[0-9a-fA-F]+|[+-]?[0-9]+"
+    token STRING: "\"(\\.|[^\\\"])*\""
+    token POP: "[-()+*/]|&&|\\|\\||personality|==|&|!=|<|<=|>|>="
+    token TSTRING: "\"\"\"(\\.|\\\n|[^\\\"]|\"(?!\"\")|\n)*\"\"\""
 
     rule File: Declaration* "$" {{ return True }}
     rule Declaration:
         "component" NAME OptString";" {{ comp(NAME, OptString); }}
-      | "pin" PINDIRECTION TYPE HALNAME OptArray OptAssign OptString ";"  {{ pin(HALNAME, TYPE, OptArray, PINDIRECTION, OptString, OptAssign) }}
-      | "param" PARAMDIRECTION TYPE HALNAME OptArray OptAssign OptString ";" {{ param(HALNAME, TYPE, OptArray, PARAMDIRECTION, OptString, OptAssign) }}
+      | "pin" PINDIRECTION TYPE HALNAME OptArray OptAssign OptPersonality OptString ";"  {{ pin(HALNAME, TYPE, OptArray, PINDIRECTION, OptString, OptAssign, OptPersonality) }}
+      | "param" PARAMDIRECTION TYPE HALNAME OptArray OptAssign OptPersonality OptString ";" {{ param(HALNAME, TYPE, OptArray, PARAMDIRECTION, OptString, OptAssign, OptPersonality) }}
       | "function" NAME OptFP OptString ";"       {{ function(NAME, OptFP, OptString) }}
       | "option" NAME OptValue ";"   {{ option(NAME, OptValue) }}
       | "see_also" String ";"   {{ see_also(String) }}
@@ -50,8 +51,15 @@ parser Hal:
     rule String: TSTRING {{ return eval(TSTRING) }} 
             | STRING {{ return eval(STRING) }}
  
-    rule OptArray: '\[' NUMBER '\]' {{ return int(NUMBER) }}
-            | {{ return 0 }} 
+    rule OptPersonality: "if" Personality {{ return Personality }}
+            | {{ return None }}
+    rule Personality: {{ pp = [] }} (PersonalityPart {{ pp.append(PersonalityPart) }} )* {{ return " ".join(pp) }}
+    rule PersonalityPart: NUMBER {{ return NUMBER }}
+            | POP {{ return POP }}
+    rule OptArray: "\[" NUMBER OptArrayPersonality "\]" {{ return OptArrayPersonality and (int(NUMBER), OptArrayPersonality) or int(NUMBER) }}
+            | {{ return 0 }}
+    rule OptArrayPersonality: ":" Personality {{ return Personality }}
+            | {{ return None }} 
     rule OptString: TSTRING {{ return eval(TSTRING) }} 
             | STRING {{ return eval(STRING) }}
             | {{ return '' }}
@@ -118,27 +126,28 @@ def type2type(type):
 def checkarray(name, array):
     hashes = len(re.findall("#+", name))
     if array:
-        if hashes != 1: Error("Array name contains more than one block of #: %r" % name)
+        if hashes == 0: Error("Array name contains no #: %r" % name)
+        if hashes > 1: Error("Array name contains more than one block of #: %r" % name)
     else:
         if hashes > 0: Error("Non-array name contains #: %r" % name)
 
-def pin(name, type, array, dir, doc, value):
+def pin(name, type, array, dir, doc, value, personality):
     checkarray(name, array)
     type = type2type(type)
     if name in names:
         Error("Duplicate item name %s" % name)
-    docs.append(('pin', name, type, array, dir, doc, value))
+    docs.append(('pin', name, type, array, dir, doc, value, personality))
     names[name] = None
-    pins.append((name, type, array, dir, value))
+    pins.append((name, type, array, dir, value, personality))
 
-def param(name, type, array, dir, doc, value):
+def param(name, type, array, dir, doc, value, personality):
     checkarray(name, array)
     type = type2type(type)
     if name in names:
         Error("Duplicate item name %s" % name)
-    docs.append(('param', name, type, array, dir, doc, value))
+    docs.append(('param', name, type, array, dir, doc, value, personality))
     names[name] = None
-    params.append((name, type, array, dir, value))
+    params.append((name, type, array, dir, value, personality))
 
 def function(name, fp, doc):
     if name in names:
@@ -196,22 +205,35 @@ static int comp_id;
 
     has_data = options.get("data")
 
+    has_array = False
+    has_personality = False
+    for name, type, array, dir, value, personality in pins:
+        if array: has_array = True
+        if isinstance(array, tuple): has_personality = True
+        if personality: has_personality = True
+    for name, type, array, dir, value, personality in params:
+        if array: has_array = True
+        if isinstance(array, tuple): has_personality = True
+        if personality: has_personality = True
+
+
     print >>f
     print >>f, "struct state {"
     print >>f, "    struct state *_next;"
-    for name, type, array, dir, value in pins:
-        if names.has_key(name):
-            raise RuntimeError, "Duplicate item name: %s" % name
+    if has_personality:
+        print >>f, "    int _personality;"
+
+    for name, type, array, dir, value, personality in pins:
         if array:
+            if isinstance(array, tuple): array = array[0]
             print >>f, "    hal_%s_t *%s[%s];" % (type, to_c(name), array)
         else:
             print >>f, "    hal_%s_t *%s;" % (type, to_c(name))
         names[name] = 1
 
-    for name, type, array, dir, value in params:
-        if names.has_key(name):
-            raise RuntimeError, "Duplicate item name: %s" % name
+    for name, type, array, dir, value, personality in params:
         if array:
+            if isinstance(array, tuple): array = array[0]
             print >>f, "    hal_%s_t %s[%s];" % (type, to_c(name), array)
         else:
             print >>f, "    hal_%s_t %s;" % (type, to_c(name))
@@ -241,14 +263,11 @@ static int comp_id;
     if options.get("extra_cleanup"):
         print >>f, "static void extra_cleanup(void);"
 
-    has_array = False
-    for name, type, array, dir, value in pins:
-        if array: has_array = True
-    for name, type, array, dir, value in params:
-        if array: has_array = True
-
     print >>f
-    print >>f, "static int export(char *prefix, long extra_arg) {"
+    if has_personality:
+        print >>f, "static int export(char *prefix, long extra_arg, long personality) {"
+    else:
+        print >>f, "static int export(char *prefix, long extra_arg) {"
     print >>f, "    char buf[HAL_NAME_LEN + 2];"
     print >>f, "    int r = 0;"
     if has_array:
@@ -257,12 +276,19 @@ static int comp_id;
     print >>f, "    struct state *inst = hal_malloc(sz);"
     print >>f, "    memset(inst, 0, sz);"
     if options.get("extra_setup"):
-	print >>f, "    r = extra_setup(inst, extra_arg);"
+        if has_personality:
+            print >>f, "    r = extra_setup(inst, extra_arg, &personality);"
+        else:
+            print >>f, "    r = extra_setup(inst, extra_arg);"
 	print >>f, "    if(r != 0) return r;"
-
-    for name, type, array, dir, value in pins:
+    if has_personality:
+        print >>f, "    inst->_personality = personality;"
+    for name, type, array, dir, value, personality in pins:
+        if personality:
+            print >>f, "if(%s) {" % personality
         if array:
-            print >>f, "    for(j=0; j < %s; j++) {" % array
+            if isinstance(array, tuple): array = array[1]
+            print >>f, "    for(j=0; j < (%s); j++) {" % array
             print >>f, "        r = hal_pin_%s_newf(%s, &(inst->%s[j]), comp_id," % (
                 type, dirmap[dir], to_c(name))
             print >>f, "            \"%%s%s\", prefix, j);" % to_hal("." + name)
@@ -277,9 +303,14 @@ static int comp_id;
             print >>f, "    if(r != 0) return r;"
             if value is not None:
                 print >>f, "    *(inst->%s) = %s;" % (to_c(name), value)
+        if personality:
+            print >>f, "}"
 
-    for name, type, array, dir, value in params:
+    for name, type, array, dir, value, personality in params:
+        if personality:
+            print >>f, "if(%s) {" % personality
         if array:
+            if isinstance(array, tuple): array = array[1]
             print >>f, "    for(j=0; j < %s; j++) {" % array
             print >>f, "        r = hal_param_%s_newf(%s, &(inst->%s[j]), comp_id," % (
                 type, dirmap[dir], to_c(name))
@@ -295,6 +326,8 @@ static int comp_id;
             if value is not None:
                 print >>f, "    inst->%s = %s;" % (to_c(name), value)
             print >>f, "    if(r != 0) return r;"
+        if personality:
+            print >>f, "}"
 
     for name, fp in functions:
         print >>f, "    rtapi_snprintf(buf, HAL_NAME_LEN, \"%%s%s\", prefix);"\
@@ -322,6 +355,9 @@ static int comp_id;
             if not options.get("userspace"):
                 print >>f, "RTAPI_MP_INT(count, \"number of %s\");" % comp_name
 
+        if has_personality:
+            print >>f, "static int personality[16] = {0,};"
+            print >>f, "RTAPI_MP_ARRAY_INT(personality, 16, \"personality of each %s\");" % comp_name
         print >>f, "int rtapi_app_main(void) {"
         print >>f, "    int r = 0;"
         if not options.get("singleton"):
@@ -333,15 +369,22 @@ static int comp_id;
         print >>f, "    if(comp_id < 0) return comp_id;"
 
         if options.get("singleton"):
-            print >>f, "    r = export(\"%s\", 0);" % \
-                    to_hal(removeprefix(comp_name, "hal_"))
+            if has_personality:
+                print >>f, "    r = export(\"%s\", 0, personality[0]);" % \
+                        to_hal(removeprefix(comp_name, "hal_"))
+            else:
+                print >>f, "    r = export(\"%s\", 0);" % \
+                        to_hal(removeprefix(comp_name, "hal_"))
         else:
             print >>f, "    for(i=0; i<count; i++) {"
             print >>f, "        char buf[HAL_NAME_LEN + 2];"
             print >>f, "        rtapi_snprintf(buf, HAL_NAME_LEN, " \
                                         "\"%s.%%d\", i);" % \
                     to_hal(removeprefix(comp_name, "hal_"))
-            print >>f, "        r = export(buf, i);"
+            if has_personality:
+                print >>f, "        r = export(buf, i, personality[i%16]);"
+            else:
+                print >>f, "        r = export(buf, i);"
             print >>f, "        if(r != 0) break;"
             print >>f, "    }"
         if options.get("constructable") and not options.get("singleton"):
@@ -386,7 +429,7 @@ static int comp_id;
         print >>f, "#define EXTRA_SETUP() static int extra_setup(struct state *inst, long extra_arg)"
         print >>f, "#define EXTRA_CLEANUP() static void extra_cleanup(void)"
         print >>f, "#define fperiod (period * 1e-9)"
-        for name, type, array, dir, value in pins:
+        for name, type, array, dir, value, personality in pins:
             if array:
                 if dir == 'in':
                     print >>f, "#define %s(i) (0+*(inst->%s[i]))" % (to_c(name), to_c(name))
@@ -397,7 +440,7 @@ static int comp_id;
                     print >>f, "#define %s (0+*inst->%s)" % (to_c(name), to_c(name))
                 else:
                     print >>f, "#define %s (*inst->%s)" % (to_c(name), to_c(name))
-        for name, type, array, dir, value in params:
+        for name, type, array, dir, value, personality in params:
             if array:
                 print >>f, "#define %s(i) (inst->%s[i])" % (to_c(name), to_c(name))
             else:
@@ -405,6 +448,8 @@ static int comp_id;
         
         if has_data:
             print >>f, "#define data (*(%s*)&(inst->_data))" % options['data']
+        if has_personality:
+            print >>f, "#define personality (inst->_personality)"
 
         if options.get("userspace"):
             print >>f, "#define FOR_ALL_INSTS() for(inst = first_inst; inst; inst = inst->_next)"    
@@ -514,6 +559,12 @@ def document(filename, outfilename):
 
     f = open(outfilename, "w")
 
+    has_personality = False
+    for name, type, array, dir, value, personality in pins:
+        if personality: has_personality = True
+    for name, type, array, dir, value, personality in params:
+        if personality: has_personality = True
+
     print >>f, ".TH %s \"9\" \"%s\" \"EMC Documentation\" \"HAL Component\"" % (
         comp_name.upper(), time.strftime("%F"))
     print >>f, ".de TQ\n.br\n.ns\n.TP \\\\$1\n..\n"
@@ -539,9 +590,15 @@ def document(filename, outfilename):
         if rest:
             print >>f, rest
         elif options.get("singleton") or options.get("count_function"):
-            print >>f, ".B loadrt %s" % comp_name
+            if has_personality:
+                print >>f, ".B loadrt %s personality=\\fIP\\fB" % comp_name
+            else:
+                print >>f, ".B loadrt %s" % comp_name
         else:
-            print >>f, ".B loadrt %s [count=\\fIN\\fB]" % comp_name
+            if has_personality:
+                print >>f, ".B loadrt %s [count=\\fIN\\fB] [personality=\\fIP,P,...\\fB]" % comp_name
+            else:
+                print >>f, ".B loadrt %s [count=\\fIN\\fB]" % comp_name
         if options.get("constructable") and not options.get("singleton"):
             print >>f, ".PP\n.B newinst %s \\fIname\\fB" % comp_name
 
@@ -563,13 +620,18 @@ def document(filename, outfilename):
 
     lead = ".TP"
     print >>f, ".SH PINS"
-    for _, name, type, array, dir, doc, value in finddocs('pin'):
+    for _, name, type, array, dir, doc, value, personality in finddocs('pin'):
         print >>f, lead
         print >>f, ".B %s\\fR" % to_hal_man(name),
         print >>f, type, dir,
         if array:
             sz = name.count("#")
-            print >>f, " (%s=%0*d..%0*d)" % ("M" * sz, sz, 0, sz, array-1),
+            if isinstance(array, tuple):
+                print >>f, " (%s=%0*d..%s)" % ("M" * sz, sz, 0, array[1]),
+            else:
+                print >>f, " (%s=%0*d..%0*d)" % ("M" * sz, sz, 0, sz, array-1),
+        if personality:
+            print >>f, " [if %s]" % personality
         if value:
             print >>f, "\\fR(default: \\fI%s\\fR)" % value
         else:
@@ -583,13 +645,15 @@ def document(filename, outfilename):
     lead = ".TP"
     if params:
         print >>f, ".SH PARAMETERS"
-        for _, name, type, array, dir, doc, value in finddocs('param'):
+        for _, name, type, array, dir, doc, value, personality in finddocs('param'):
             print >>f, lead
             print >>f, ".B %s\\fR" % to_hal_man(name),
             print >>f, type, dir,
             if array:
                 sz = name.count("#")
                 print >>f, " (%s=%0*d..%0*d)" % ("M" * sz, sz, 0, sz, array-1),
+            if personality:
+                print >>f, " [if %s]" % personality
             if value:
                 print >>f, "\\fR(default: \\fI%s\\fR)" % value
             else:
