@@ -611,6 +611,17 @@ case $EMCDISPLAY in
     xterm -xrm 'XTerm*metaSendsEscape:false' -ls -e $EMC2_BIN_DIR/keystick -ini $INIFILE
     result=$?
   ;;
+  axis)
+    if [ ! -x $EMC2_BIN_DIR/$EMCDISPLAY ] ; then
+	echo "Can't execute DISPLAY program $EMC2_BIN_DIR/$EMCDISPLAY $EMCDISPLAYARGS $EXTRA_ARGS"
+	Cleanup
+	exit 1
+    fi
+    # this nice here makes a huge difference in segment throughput on my very
+    # slow machine, by letting milltask run.
+    nice $EMC2_BIN_DIR/$EMCDISPLAY -ini $INIFILE $EMCDISPLAYARGS $EXTRA_ARGS
+    result=$?
+  ;;
   *)
     # all other displays are assumed to be in the bin directory
     if [ ! -x $EMC2_BIN_DIR/$EMCDISPLAY ] ; then
