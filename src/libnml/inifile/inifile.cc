@@ -170,7 +170,7 @@ IniFile::Find(double *result, const char *tag, const char *section, int num)
 
 
 IniFile::ErrorCode
-IniFile::Find(int *result, ConversionEntry *pConvEntry, int numConvEntry,
+IniFile::Find(int *result, StrIntPair *pPair,
      const char *tag, const char *section, int num)
 {
     const char                  *pStr;
@@ -181,12 +181,37 @@ IniFile::Find(int *result, ConversionEntry *pConvEntry, int numConvEntry,
         return(ERR_TAG_NOT_FOUND);
     }
 
-    while(numConvEntry--){
-        if(strcasecmp(pStr, pConvEntry->pStr) == 0){
-            *result = pConvEntry->value;
+    while(pPair->pStr != NULL){
+        if(strcasecmp(pStr, pPair->pStr) == 0){
+            *result = pPair->value;
             return(ERR_NONE);
         }
-        pConvEntry++;
+        pPair++;
+    }
+
+    ThrowException(ERR_CONVERSION);
+    return(ERR_CONVERSION);
+}
+
+
+IniFile::ErrorCode
+IniFile::Find(double *result, StrDoublePair *pPair,
+     const char *tag, const char *section, int num)
+{
+    const char                  *pStr;
+
+    if((pStr = Find(tag, section, num)) == NULL){
+        // We really need an ErrorCode return from Find() and should be passing
+        // in a buffer. Just pick a suitable ErrorCode for now.
+        return(ERR_TAG_NOT_FOUND);
+    }
+
+    while(pPair->pStr != NULL){
+        if(strcasecmp(pStr, pPair->pStr) == 0){
+            *result = pPair->value;
+            return(ERR_NONE);
+        }
+        pPair++;
     }
 
     ThrowException(ERR_CONVERSION);

@@ -69,14 +69,21 @@ public:
 
 
 protected:
-    struct ConversionEntry {
+    struct StrIntPair {
         char                    *pStr;
         int                     value;
     };
 
+    struct StrDoublePair {
+        char                    *pStr;
+        double                   value;
+    };
 
-    ErrorCode                   Find(int *result,
-                                     ConversionEntry *, int numConvEntry,
+
+    ErrorCode                   Find(double *result, StrDoublePair *,
+                                     const char *tag, const char *section=NULL,
+                                     int num = 1);
+    ErrorCode                   Find(int *result, StrIntPair *,
                                      const char *tag, const char *section=NULL,
                                      int num = 1);
 
