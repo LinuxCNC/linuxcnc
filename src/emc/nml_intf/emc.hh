@@ -755,6 +755,9 @@ class EMC_AXIS_SET_AXIS:public EMC_AXIS_CMD_MSG {
  * Set the units conversion factor.
  * @see EMC_AXIS_SET_INPUT_SCALE
  */
+typedef double                  EmcLinearUnits;
+typedef double                  EmcAngularUnits;
+
 class EMC_AXIS_SET_UNITS:public EMC_AXIS_CMD_MSG {
   public:
     EMC_AXIS_SET_UNITS():EMC_AXIS_CMD_MSG(EMC_AXIS_SET_UNITS_TYPE,
