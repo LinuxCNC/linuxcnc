@@ -16,10 +16,6 @@
 #    
 # Copyright (c) 2004 All rights reserved.
 #
-# Last change:
-# $Revision$
-# $Author$
-# $Date$
 ################################################################################
 
 ################################################################################
@@ -591,6 +587,17 @@ case $EMCDISPLAY in
 #    xterm -xrm 'XTerm*metaSendsEscape:false' -xrm 'XTerm*VT100.Translations: #override <Key>Home: string("\033[1~")\n <Key>End: string("\033[4~")' -ls -e $EMC2_BIN_DIR/keystick -ini $INIFILE
     sleep 1
     xterm -xrm 'XTerm*metaSendsEscape:false' -ls -e $EMC2_BIN_DIR/keystick -ini $INIFILE
+    result=$?
+  ;;
+  axis)
+    if [ ! -x $EMC2_BIN_DIR/$EMCDISPLAY ] ; then
+	echo "Can't execute DISPLAY program $EMC2_BIN_DIR/$EMCDISPLAY $EMCDISPLAYARGS $EXTRA_ARGS"
+	Cleanup
+	exit 1
+    fi
+    # this nice here makes a huge difference in segment throughput on my very
+    # slow machine, by letting milltask run.
+    nice $EMC2_BIN_DIR/$EMCDISPLAY -ini $INIFILE $EMCDISPLAYARGS $EXTRA_ARGS
     result=$?
   ;;
   *)
