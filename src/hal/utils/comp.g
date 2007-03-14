@@ -41,7 +41,7 @@ parser Hal:
     rule Declaration:
         "component" NAME OptString";" {{ comp(NAME, OptString); }}
       | "pin" PINDIRECTION TYPE HALNAME OptArray OptAssign OptString ";"  {{ pin(HALNAME, TYPE, OptArray, PINDIRECTION, OptString, OptAssign) }}
-      | "param" PARAMDIRECTION TYPE HALNAME OptAssign OptString ";" {{ param(HALNAME, TYPE, PARAMDIRECTION, OptString, OptAssign) }}
+      | "param" PARAMDIRECTION TYPE HALNAME OptArray OptAssign OptString ";" {{ param(HALNAME, TYPE, OptArray, PARAMDIRECTION, OptString, OptAssign) }}
       | "function" NAME OptFP OptString ";"       {{ function(NAME, OptFP, OptString) }}
       | "option" NAME OptValue ";"   {{ option(NAME, OptValue) }}
       | "see_also" String ";"   {{ see_also(String) }}
@@ -51,7 +51,7 @@ parser Hal:
             | STRING {{ return eval(STRING) }}
  
     rule OptArray: '\[' NUMBER '\]' {{ return int(NUMBER) }}
-            | {{ return None }} 
+            | {{ return 0 }} 
     rule OptString: TSTRING {{ return eval(TSTRING) }} 
             | STRING {{ return eval(STRING) }}
             | {{ return '' }}
@@ -115,12 +115,15 @@ def type2type(type):
     # When we start warning about s32/u32 this is where the warning goes
     return typemap.get(type, type)
     
-def pin(name, type, array, dir, doc, value):
+def checkarray(name, array):
     hashes = len(re.findall("#+", name))
     if array:
         if hashes != 1: Error("Array name contains more than one block of #: %r" % name)
     else:
         if hashes > 0: Error("Non-array name contains #: %r" % name)
+
+def pin(name, type, array, dir, doc, value):
+    checkarray(name, array)
     type = type2type(type)
     if name in names:
         Error("Duplicate item name %s" % name)
@@ -128,13 +131,14 @@ def pin(name, type, array, dir, doc, value):
     names[name] = None
     pins.append((name, type, array, dir, value))
 
-def param(name, type, dir, doc, value):
+def param(name, type, array, dir, doc, value):
+    checkarray(name, array)
     type = type2type(type)
     if name in names:
         Error("Duplicate item name %s" % name)
-    docs.append(('param', name, type, dir, doc, value))
+    docs.append(('param', name, type, array, dir, doc, value))
     names[name] = None
-    params.append((name, type, dir, value))
+    params.append((name, type, array, dir, value))
 
 def function(name, fp, doc):
     if name in names:
@@ -156,6 +160,7 @@ def to_hal(name):
     name = re.sub("#+", lambda m: "%%0%dd" % len(m.group(0)), name)
     return name.replace("_", "-").rstrip("-").rstrip(".")
 def to_c(name):
+    name = re.sub("[.-_]*#+", "", name)
     name = name.replace("#", "").replace(".", "_").replace("-", "_")
     return re.sub("_+", "_", name)
 
@@ -203,10 +208,13 @@ static int comp_id;
             print >>f, "    hal_%s_t *%s;" % (type, to_c(name))
         names[name] = 1
 
-    for name, type, dir, value in params:
+    for name, type, array, dir, value in params:
         if names.has_key(name):
             raise RuntimeError, "Duplicate item name: %s" % name
-        print >>f, "    hal_%s_t %s;" % (type, to_c(name))
+        if array:
+            print >>f, "    hal_%s_t %s[%s];" % (type, to_c(name), array)
+        else:
+            print >>f, "    hal_%s_t %s;" % (type, to_c(name))
         names[name] = 1
 
     if has_data:
@@ -236,6 +244,8 @@ static int comp_id;
     has_array = False
     for name, type, array, dir, value in pins:
         if array: has_array = True
+    for name, type, array, dir, value in params:
+        if array: has_array = True
 
     print >>f
     print >>f, "static int export(char *prefix, long extra_arg) {"
@@ -253,10 +263,10 @@ static int comp_id;
     for name, type, array, dir, value in pins:
         if array:
             print >>f, "    for(j=0; j < %s; j++) {" % array
-            print >>f, "    r = hal_pin_%s_newf(%s, &(inst->%s[j]), comp_id," % (
+            print >>f, "        r = hal_pin_%s_newf(%s, &(inst->%s[j]), comp_id," % (
                 type, dirmap[dir], to_c(name))
-            print >>f, "        \"%%s%s\", prefix, j);" % to_hal("." + name)
-            print >>f, "    if(r != 0) return r;"
+            print >>f, "            \"%%s%s\", prefix, j);" % to_hal("." + name)
+            print >>f, "        if(r != 0) return r;"
             if value is not None:
                 print >>f, "    *(inst->%s[j]) = %s;" % (to_c(name), value)
             print >>f, "    }"
@@ -268,13 +278,23 @@ static int comp_id;
             if value is not None:
                 print >>f, "    *(inst->%s) = %s;" % (to_c(name), value)
 
-    for name, type, dir, value in params:
-        print >>f, "    r = hal_param_%s_newf(%s, &(inst->%s), comp_id," % (
-            type, dirmap[dir], to_c(name))
-        print >>f, "        \"%%s%s\", prefix);" % to_hal("." + name)
-        if value is not None:
-            print >>f, "    inst->%s = %s;" % (to_c(name), value)
-        print >>f, "    if(r != 0) return r;"
+    for name, type, array, dir, value in params:
+        if array:
+            print >>f, "    for(j=0; j < %s; j++) {" % array
+            print >>f, "        r = hal_param_%s_newf(%s, &(inst->%s[j]), comp_id," % (
+                type, dirmap[dir], to_c(name))
+            print >>f, "            \"%%s%s\", prefix, j);" % to_hal("." + name)
+            print >>f, "        if(r != 0) return r;"
+            if value is not None:
+                print >>f, "    inst->%s[j] = %s;" % (to_c(name), value)
+            print >>f, "    }"
+        else:
+            print >>f, "    r = hal_param_%s_newf(%s, &(inst->%s), comp_id," % (
+                type, dirmap[dir], to_c(name))
+            print >>f, "        \"%%s%s\", prefix);" % to_hal("." + name)
+            if value is not None:
+                print >>f, "    inst->%s = %s;" % (to_c(name), value)
+            print >>f, "    if(r != 0) return r;"
 
     for name, fp in functions:
         print >>f, "    rtapi_snprintf(buf, HAL_NAME_LEN, \"%%s%s\", prefix);"\
@@ -377,8 +397,11 @@ static int comp_id;
                     print >>f, "#define %s (0+*inst->%s)" % (to_c(name), to_c(name))
                 else:
                     print >>f, "#define %s (*inst->%s)" % (to_c(name), to_c(name))
-        for name, type, dir, value in params:
-            print >>f, "#define %s (inst->%s)" % (to_c(name), to_c(name))
+        for name, type, array, dir, value in params:
+            if array:
+                print >>f, "#define %s(i) (inst->%s[i])" % (to_c(name), to_c(name))
+            else:
+                print >>f, "#define %s (inst->%s)" % (to_c(name), to_c(name))
         
         if has_data:
             print >>f, "#define data (*(%s*)&(inst->_data))" % options['data']
@@ -546,7 +569,7 @@ def document(filename, outfilename):
         print >>f, type, dir,
         if array:
             sz = name.count("#")
-            print >>f, " (M=%0*d..%0*d)" % (sz, 0, sz, array),
+            print >>f, " (%s=%0*d..%0*d)" % ("M" * sz, sz, 0, sz, array-1),
         if value:
             print >>f, "\\fR(default: \\fI%s\\fR)" % value
         else:
@@ -560,10 +583,13 @@ def document(filename, outfilename):
     lead = ".TP"
     if params:
         print >>f, ".SH PARAMETERS"
-        for _, name, type, dir, doc, value in finddocs('param'):
+        for _, name, type, array, dir, doc, value in finddocs('param'):
             print >>f, lead
             print >>f, ".B %s\\fR" % to_hal_man(name),
             print >>f, type, dir,
+            if array:
+                sz = name.count("#")
+                print >>f, " (%s=%0*d..%0*d)" % ("M" * sz, sz, 0, sz, array-1),
             if value:
                 print >>f, "\\fR(default: \\fI%s\\fR)" % value
             else:
@@ -609,7 +635,7 @@ def process(filename, mode, outfilename):
             raise SystemExit, "Component must have at least one pin"
         prologue(f)
         lineno = a.count("\n") + 3
-        #f.write("#line %d \"%s\"\n" % (lineno, filename))
+        f.write("#line %d \"%s\"\n" % (lineno, filename))
         f.write(b)
         epilogue(f)
         f.close()
