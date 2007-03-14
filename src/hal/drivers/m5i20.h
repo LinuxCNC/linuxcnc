@@ -92,6 +92,8 @@ typedef struct {
     volatile __u16			wdTimer;
     volatile __u16			ledView;
     volatile __u16			reserved1;
+    volatile __u32			id;	 	// 0xAARR00NN, RR=rev, NN=axes.
+    volatile __u32			masterClock;
     volatile __u8			fpgaCfgData;	// This can be anywhere in map on bits 0..7.
 } volatile M5i20HostMotRegMap;
 
