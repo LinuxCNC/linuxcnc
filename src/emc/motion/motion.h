@@ -635,7 +635,8 @@ Suggestion: Split this in to an Error and a Status flag register..
         double distance_to_go;  /* in this move */
 
 	home_sequence_state_t homingSequenceState;
-		
+
+        unsigned int tcqlen;
 	unsigned char tail;	/* flag count for mutex detect */
         
     } emcmot_status_t;

@@ -2440,7 +2440,7 @@ static void output_to_hal(void)
     emcmot_hal_data->debug_float_0 = emcmotStatus->net_feed_scale;
     emcmot_hal_data->debug_float_1 = 0.0;
     emcmot_hal_data->debug_s32_0 = emcmotStatus->id;
-    emcmot_hal_data->debug_s32_1 = emcmotStatus->homingSequenceState;
+    emcmot_hal_data->debug_s32_1 = emcmotStatus->tcqlen;
 
     /* two way handshaking for the spindle encoder */
     if(emcmotStatus->spindle_index_enable && !old_motion_index) {

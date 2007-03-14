@@ -497,6 +497,7 @@ int tpRunCycle(TP_STRUCT * tp, long period)
     static int waiting = 0;
     double save_vel;
 
+    emcmotStatus->tcqlen = tcqLen(&tp->queue);
     tc = tcqItem(&tp->queue, 0, period);
     if(!tc) {
         // this means the motion queue is empty.  This can represent
