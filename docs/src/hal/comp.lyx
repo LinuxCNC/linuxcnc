@@ -88,15 +88,7 @@ comp
  preprocessor:
 \layout LyX-Code
 
-component ddt 
-\begin_inset Quotes eld
-\end_inset 
-
-Compute the derivative of the input function
-\begin_inset Quotes erd
-\end_inset 
-
-;
+component ddt "Compute the derivative of the input function";
 \newline 
 pin in float in;
 \newline 
@@ -204,7 +196,7 @@ Declarations include:
 
 component 
 \emph on 
-NAME
+HALNAME
 \emph default 
  
 \emph on 
@@ -250,7 +242,11 @@ TYPE
 \emph on 
 HALNAME
 \emph default 
- (= 
+ ([
+\emph on 
+SIZE
+\emph default 
+]) (= 
 \emph on 
 STARTVALUE
 \emph default 
@@ -272,7 +268,7 @@ DOC
 \newline 
 option 
 \emph on 
-NAME
+OPT
 \emph default 
  (
 \emph on 
@@ -295,8 +291,9 @@ CAPITALS
 \layout Description
 
 HALNAME An identifier.
- 
-\newline 
+\begin_deeper 
+\layout Standard
+
 When used to create a HAL identifier, any underscores are replaced with
  dashes, and any trailing dash or period is removed, so that 
 \begin_inset Quotes eld
@@ -345,26 +342,279 @@ component.<num>
  instead of 
 \family typewriter 
 component.<num>.
-\family default 
+\layout Standard
 
-\newline 
 If present, the prefix 
 \family typewriter 
 hal_
 \family default 
  is removed from the beginning of the component name when creating pins,
  parameters and functions.
-\newline 
-In the HAL identifier for a pin, ## is replaced with a 0-padded number with
- the same length as the number of # characters.
-\newline 
-When used to create a C identifier, any # characters are removed, any dash
- or period is replaced with _, and multiple _ are squeezed.
- A trailing _ is retained, so that HAL identifiers which would otherwise
+\layout Standard
+
+In the HAL identifier for a pin or parameter, # denotes an array item, and
+ must be used in conjunction with a 
+\family typewriter 
+[SIZE]
+\family default 
+ declaration.
+ The hash marks are replaced with a 0-padded number with the same length
+ as the number of # characters.
+\layout Standard
+
+When used to create a C identifier, the following changes are applied to
+ the HALNAME:
+\layout Enumerate
+
+Any # characters, and any 
+\begin_inset Quotes eld
+\end_inset 
+
+.
+\begin_inset Quotes erd
+\end_inset 
+
+, 
+\begin_inset Quotes eld
+\end_inset 
+
+_
+\begin_inset Quotes erd
+\end_inset 
+
+ or 
+\begin_inset Quotes eld
+\end_inset 
+
+-
+\begin_inset Quotes erd
+\end_inset 
+
+ characters immediately before them, are removed.
+\layout Enumerate
+
+Any remaining 
+\begin_inset Quotes eld
+\end_inset 
+
+.
+\begin_inset Quotes erd
+\end_inset 
+
+ and 
+\begin_inset Quotes eld
+\end_inset 
+
+-
+\begin_inset Quotes erd
+\end_inset 
+
+ characters are replaced with 
+\begin_inset Quotes eld
+\end_inset 
+
+_
+\begin_inset Quotes erd
+\end_inset 
+
+
+\layout Enumerate
+
+Repeated 
+\begin_inset Quotes eld
+\end_inset 
+
+_
+\begin_inset Quotes erd
+\end_inset 
+
+ characters are changed to a single 
+\begin_inset Quotes eld
+\end_inset 
+
+_
+\begin_inset Quotes erd
+\end_inset 
+
+ character.
+\layout Standard
+
+A trailing _ is retained, so that HAL identifiers which would otherwise
  collide with reserved names or keywords (e.g., 'min') can be used.
+\layout Standard
+
+
+\begin_inset  Tabular
+<lyxtabular version="3" rows="6" columns="3">
+<features>
+<column alignment="center" valignment="top" leftline="true" width="0">
+<column alignment="center" valignment="top" leftline="true" width="0">
+<column alignment="center" valignment="top" leftline="true" rightline="true" width="0">
+<row topline="true" bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+HALNAME
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+C Identifier
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+HAL Identifier
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+x_y_z
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+x_y_z
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+x-y-z
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+x-y.z
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+x_y_z
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+x-y.z
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+x_y_z_
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+x_y_z
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+x-y-z
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+x.##.y
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+x_y(i)
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+x.MM.z
+\end_inset 
+</cell>
+</row>
+<row topline="true" bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+x.##
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+x(i)
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+x.MM
+\end_inset 
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset 
+
+
+\end_deeper 
 \layout Description
 
-SIZE A number that gives the size of a pin array.
+SIZE A number that gives the size of an array.
  The array items are numbered from 0 to 
 \emph on 
 SIZE
@@ -409,6 +659,40 @@ will require at least two paragraphs to explain.
 Hopefully these paragraphs have allowed you to understand "zot" 
 \newline 
 better.""";
+\layout Standard
+
+The documentation string is in 
+\begin_inset Quotes eld
+\end_inset 
+
+groff -man
+\begin_inset Quotes erd
+\end_inset 
+
+ format.
+ For more information on this markup format, see 
+\family typewriter 
+groff_man(7)
+\family default 
+.
+ Remember that comp interprets backslash escapes in strings, so for instance
+ to set the italic font for the word 
+\emph on 
+example
+\emph default 
+, write 
+\family typewriter 
+"
+\backslash 
+
+\backslash 
+fIexample
+\backslash 
+
+\backslash 
+fB"
+\family default 
+.
 \end_deeper 
 \layout Description
 
@@ -525,7 +809,8 @@ nofp
 .
 \layout Description
 
-VALUE Depending on the option name, the valid VALUEs vary.
+OPT,\SpecialChar ~
+VALUE Depending on the option name OPT, the valid VALUEs vary.
  The currently defined options are:
 \begin_deeper 
 \layout Description
@@ -533,7 +818,9 @@ VALUE Depending on the option name, the valid VALUEs vary.
 option\SpecialChar ~
 singleton\SpecialChar ~
 yes (default: no)
-\newline 
+\begin_deeper 
+\layout Standard
+
 Do not create a 
 \family typewriter 
 count
@@ -556,6 +843,7 @@ singleton
 component-name.<num>.item-name
 \family default 
 .
+\end_deeper 
 \layout Description
 
 option\SpecialChar ~
@@ -565,7 +853,9 @@ default_count\SpecialChar ~
 number
 \emph default 
  (default: 1)
-\newline 
+\begin_deeper 
+\layout Standard
+
 Normally, the module parameter 
 \family typewriter 
 count
@@ -576,12 +866,15 @@ count
 count
 \family default 
  will default to this value instead.
+\end_deeper 
 \layout Description
 
 option\SpecialChar ~
 count_function\SpecialChar ~
 yes (default: no)
-\newline 
+\begin_deeper 
+\layout Standard
+
 Normally, the number of instances to create is specified in the module parameter
  
 \family typewriter 
@@ -600,12 +893,15 @@ int get_count(void)
 count
 \family default 
  module parameter is not defined.
+\end_deeper 
 \layout Description
 
 option\SpecialChar ~
 rtapi_app\SpecialChar ~
 no (default: yes)
-\newline 
+\begin_deeper 
+\layout Standard
+
 Normally, the functions 
 \family typewriter 
 rtapi_app_main
@@ -620,7 +916,8 @@ rtapi_app_exit
 option rtapi_app no
 \family default 
 , they are not, and must be provided in the C code.
-\newline 
+\layout Standard
+
 When implementing your own 
 \family typewriter 
 rtapi_app_main
@@ -634,6 +931,7 @@ int export(char *prefix, long extra_arg)
 prefix
 \family default 
 .
+\end_deeper 
 \layout Description
 
 option\SpecialChar ~
@@ -643,7 +941,9 @@ data\SpecialChar ~
 type
 \emph default 
  (default: none)
-\newline 
+\begin_deeper 
+\layout Standard
+
 If specified, each instance of the component will have an associated data
  block of 
 \emph on 
@@ -658,12 +958,15 @@ float
 typedef
 \family default 
 ).
+\end_deeper 
 \layout Description
 
 option\SpecialChar ~
 extra_setup\SpecialChar ~
 yes (default: no)
-\newline 
+\begin_deeper 
+\layout Standard
+
 If specified, call the function defined by 
 \family typewriter 
 EXTRA_SETUP
@@ -679,12 +982,15 @@ extra_arg
 \family default 
  is the number of this instance.
  
+\end_deeper 
 \layout Description
 
 option\SpecialChar ~
 extra_cleanup\SpecialChar ~
 yes (default: no)
-\newline 
+\begin_deeper 
+\layout Standard
+
 If specified, call the function defined by 
 \family typewriter 
 EXTRA_CLEANUP
@@ -698,12 +1004,15 @@ rtapi_app_exit
 rtapi_app_main
 \family default 
 .
+\end_deeper 
 \layout Description
 
 option\SpecialChar ~
 userspace\SpecialChar ~
 yes (default: no)
-\newline 
+\begin_deeper 
+\layout Standard
+
 If specified, this file describes a userspace component, rather than a real
  one.
  A userspace component may not have functions defined by the 
@@ -732,12 +1041,15 @@ FOR_ALL_INSTS()
 user_mainloop()
 \family default 
  may be to call the event handler loop of a GUI toolkit.
+\end_deeper 
 \layout Description
 
 option\SpecialChar ~
 userinit\SpecialChar ~
 yes (default: no)
-\newline 
+\begin_deeper 
+\layout Standard
+
 If specified, the function 
 \family typewriter 
 userinit(argc,argv)
@@ -762,6 +1074,7 @@ exit()
 \family default 
  if it wishes to terminate rather than create a hal component (for instance,
  because the commandline arguments were invalid).
+\end_deeper 
 \end_deeper 
 \layout Standard
 
@@ -876,20 +1189,31 @@ parameter_name
 \family default 
  there is a macro which allows the name to be used on its own to refer to
  the pin or parameter.
-\newline 
+\begin_deeper 
+\layout Standard
+
 When 
 \family typewriter 
 pin_name
+\family default 
+ or 
+\family typewriter 
+parameter_name
 \family default 
  is an array, the macro is of the form 
 \emph on 
 pin_name(i)
 \emph default 
- where 
+ or 
+\emph on 
+param_name(i) 
+\emph default 
+where 
 \emph on 
 i
 \emph default 
  is the index into the pin array.
+\end_deeper 
 \layout Description
 
 data If 'option data' is specified, this macro allows access to the instance
@@ -1280,7 +1604,7 @@ pin in bit in;
 \newline 
 pin out bit out-# [4];
 \newline 
-function _;
+function _ nofp;
 \newline 
 ;;
 \newline 
@@ -1288,7 +1612,7 @@ FUNCTION(_) {
 \newline 
     int i; 
 \newline 
-    for(i=1; i<3; i++) out(i) = out(i-1); 
+    for(i=3; i>0; i--) out(i) = out(i-1); 
 \newline 
     out(0) = in;
 \newline 
