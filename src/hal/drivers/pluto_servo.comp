@@ -98,13 +98,13 @@ function, as follows:
 \\fBPin\tShared\tPin\tShared
 \twith\t\twith\\fR
 .PP
-dout.10\tUP0\tdout.11\tDOWN1
+dout.10\tUP0\tdout.11\tDOWN0
 .PP
-dout.12\tUP2\tdout.13\tDOWN2
+dout.12\tUP1\tdout.13\tDOWN1
 .PP
-dout.14\tUP3\tdout.15\tDOWN3
+dout.14\tUP2\tdout.15\tDOWN2
 .PP
-dout.18\tUP4\tdout.19\tDOWN4
+dout.18\tUP3\tdout.19\tDOWN3
 .RE
 .PD
 .DT""";
