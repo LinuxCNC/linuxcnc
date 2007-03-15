@@ -329,10 +329,10 @@ usr/share/emc/tcl/emc.tcl
 usr/share/emc/tcl/mini.tcl
 usr/share/emc/tcl/tkemc.tcl
 usr/share/emc/tcl/msgs/de.msg
+usr/share/emc/tcl/msgs/it.msg
 usr/share/emc/tcl/msgs/ja.msg
 usr/share/emc/tcl/msgs/ro.msg
 usr/share/emc/tcl/show_errors.tcl
-usr/share/locale/de/LC_MESSAGES/rs274_err.mo
 etc/X11/app-defaults/TkEmc
 etc/X11/app-defaults/XEmc
 usr/share/man/man1/emc.1
@@ -485,8 +485,10 @@ usr/share/doc/emc2/axis_light_background
 usr/share/doc/emc2/README.axis
 usr/share/locale/fr/LC_MESSAGES/axis.mo
 usr/share/locale/de/LC_MESSAGES/axis.mo
+usr/share/locale/de/LC_MESSAGES/rs274_err.mo
 usr/share/locale/hu/LC_MESSAGES/axis.mo
 usr/share/locale/it/LC_MESSAGES/axis.mo
+usr/share/locale/de/LC_MESSAGES/rs274_err.mo
 usr/share/locale/pt_BR/LC_MESSAGES/axis.mo
 usr/share/locale/ro/LC_MESSAGES/axis.mo
 usr/share/locale/ru/LC_MESSAGES/axis.mo
