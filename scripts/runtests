@@ -140,7 +140,7 @@ done
 shift $((OPTIND-1))
 
 if [ $# -eq 0 ]; then
-    if [ -f test.hal ]; then
+    if [ -f test.hal -o -f test.sh ]; then
         set -- .
     else
         set -- $TOPDIR/tests
