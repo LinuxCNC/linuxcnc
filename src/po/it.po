@@ -1,0 +1,580 @@
+# translation of it.po to Italian
+#
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: it\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: (null)\n"
+"PO-Revision-Date: 2007-03-14 22:42+0100\n"
+"Last-Translator: Ernesto Lo Valvo <elovalvo@unipa.it>\n"
+"Language-Team: Italian\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: KBabel 1.11.2\n"
+
+msgid "Set Run Mark"
+msgstr "Imposta punto avvio"
+
+msgid "Set run mark at line"
+msgstr "Imposta punto avvio alla linea"
+
+msgid "Load Tool Table"
+msgstr "Carica tabella utensile"
+
+msgid "Load Parameter File"
+msgstr "Carica file parametri"
+
+msgid "Cancel"
+msgstr "Annullare"
+
+msgid "OK"
+msgstr "OK"
+
+msgid "EMC Diagnostics"
+msgstr "Diagnostica EMC"
+
+msgid "Task"
+msgstr "Task"
+
+msgid "Heartbeat:"
+msgstr "Frequenza:"
+
+msgid "Command:"
+msgstr "Comando:"
+
+msgid "Command #:"
+msgstr "Nr. Comando:"
+
+msgid "Status:"
+msgstr "Stato:"
+
+msgid "Io"
+msgstr "Io"
+
+msgid "Motion"
+msgstr "Movimento"
+
+msgid "About TkEmc"
+msgstr "Informazioni su TkEmc"
+
+msgid "TkEmc\n\nTcl/Tk GUI for Enhanced Machine Controller\n\nPublic Domain (1999)"
+msgstr "TkEmc\n\nInterfaccia grafica Tcl/Tk per Enhanced Machine Controller\n\nPubblico Dominio (1999)/n Traduzione italiana E. Lo Valvo, M. Leto."
+
+msgid "Set Tool Offset"
+msgstr "Imposta Offset Utensili"
+
+msgid "Tool:"
+msgstr "Utensile:"
+
+msgid "Length:"
+msgstr "Lunghezza:"
+
+msgid "Diameter"
+msgstr "Diametro"
+
+msgid "can't open"
+msgstr "impossibile aprire"
+
+msgid "All files"
+msgstr "Tutti i file"
+
+msgid "Text files"
+msgstr "File testo"
+
+msgid "NC files"
+msgstr "File NC"
+
+msgid "File"
+msgstr "File"
+
+msgid "Open..."
+msgstr "Apri..."
+
+msgid "Edit..."
+msgstr "Modifica..."
+
+msgid "Reset"
+msgstr "Reset"
+
+msgid "Exit"
+msgstr "Esci"
+
+msgid "View"
+msgstr "Visualizzare"
+
+msgid "Tools..."
+msgstr "Utensili..."
+
+msgid "Offsets and Variables..."
+msgstr "Offset e variabili.."
+
+msgid "Diagnostics..."
+msgstr "Diagnostica..."
+
+msgid "Backplot..."
+msgstr "Disegna..."
+
+msgid "Settings"
+msgstr "Settaggi"
+
+msgid "Calibration..."
+msgstr "Calibrazione..."
+
+msgid "Logging..."
+msgstr "Logging..."
+
+msgid "Testing..."
+msgstr "Testing..."
+
+msgid "Debug..."
+msgstr "Debug..."
+
+msgid "Font..."
+msgstr "Font..."
+
+msgid "Units"
+msgstr "Unità"
+
+msgid "auto"
+msgstr "auto"
+
+msgid "inches"
+msgstr "pollici"
+
+msgid "mm"
+msgstr "mm"
+
+msgid "cm"
+msgstr "cm"
+
+msgid "Scripts"
+msgstr "Scripts"
+
+msgid "Help"
+msgstr "Aiuto"
+
+msgid "Help..."
+msgstr "Aiuto..."
+
+msgid "Balloon help"
+msgstr "Finestra Aiuto"
+
+msgid "Info..."
+msgstr "Info..."
+
+msgid "About..."
+msgstr "Informazioni.."
+
+msgid "Estop on"
+msgstr "Estop on"
+
+msgid "Estop off"
+msgstr "Estop off"
+
+msgid "Machine on"
+msgstr "Macchina on"
+
+msgid "Machine off"
+msgstr "Macchina off"
+
+msgid "Manual"
+msgstr "Manuale"
+
+msgid "Auto"
+msgstr "Auto"
+
+msgid "MDI"
+msgstr "MDI"
+
+msgid "Mist on"
+msgstr "Aria on"
+
+msgid "Mist off"
+msgstr "Aria off"
+
+msgid "Flood on"
+msgstr "Refrigerante on"
+
+msgid "Flood off"
+msgstr "Refrigerante off"
+
+msgid "Lube on"
+msgstr "Lubrificante on"
+
+msgid "Lube off"
+msgstr "Lubrificante off"
+
+msgid "Spindle forward"
+msgstr "Mandrino avanti"
+
+msgid "Spindle reverse"
+msgstr "Mandrino indietro"
+
+msgid "Spindle off"
+msgstr "Mandrino off"
+
+msgid "Break on"
+msgstr "Freno on"
+
+msgid "Break off"
+msgstr "Freno off"
+
+msgid "Brake on"
+msgstr "Freno on"
+
+msgid "Brake off"
+msgstr "Freno off"
+
+msgid "ABORT"
+msgstr "ABORTIRE"
+
+msgid "Offset:"
+msgstr "Offset:"
+
+msgid "Work Offsets:"
+msgstr "Offset di lavoro:"
+
+msgid "override limits"
+msgstr "superamento limiti"
+
+msgid "relative"
+msgstr "relativo"
+
+msgid "machine"
+msgstr "macchina"
+
+msgid "actual"
+msgstr "attuale"
+
+msgid "commanded"
+msgstr "comandato"
+
+msgid "joint"
+msgstr "articolazione"
+
+msgid "world"
+msgstr "globale"
+
+msgid "continuous"
+msgstr "continuo"
+
+msgid "home"
+msgstr "origine"
+
+msgid "Axis Offset"
+msgstr "Offset asse"
+
+msgid "Set axis value:"
+msgstr "Imposta valore asse:"
+
+msgid "Set Jog Speed"
+msgstr "Imposta Velocità jog"
+
+msgid "Set jog speed:"
+msgstr "Imposta velocità jog:"
+
+msgid "Set Feed Override"
+msgstr "Imposta Incr. Avanzamento"
+
+msgid "Set feed override:"
+msgstr "Imposta incr. avanzamento:"
+
+msgid "Axis Speed:"
+msgstr "Velocità asse:"
+
+msgid "Feed Override:"
+msgstr "Incr. avanzamento:"
+
+msgid "MDI:"
+msgstr "MDI:"
+
+msgid "AUTO"
+msgstr "AUTO"
+
+msgid "MANUAL"
+msgstr "MANUALE"
+
+msgid "Program: "
+msgstr "Programma: "
+
+msgid " - Status: "
+msgstr " - Stato: "
+
+msgid "Run"
+msgstr "Avvio"
+
+msgid "Pause"
+msgstr "Pausa"
+
+msgid "Resume"
+msgstr "Riprende"
+
+msgid "Step"
+msgstr "Passo"
+
+msgid "Verify"
+msgstr "Verifica"
+
+msgid "Error: "
+msgstr "Errore: "
+
+msgid "Error"
+msgstr "Errore"
+
+msgid "Set Font"
+msgstr "Imposta font"
+
+msgid "ESTOP"
+msgstr "ESTOP"
+
+msgid "ON"
+msgstr "ON"
+
+msgid "ESTOP RESET"
+msgstr "ESTOP RESET"
+
+msgid "MIST ON"
+msgstr "ARIA ATTIVA"
+
+msgid "MIST OFF"
+msgstr "ARIA DISATTIVA"
+
+msgid "MIST ?"
+msgstr "ARIA ?"
+
+msgid "FLOOD ON"
+msgstr "REFRIGERANTE ON"
+
+msgid "FLOOD OFF"
+msgstr "REFRIGERANTE OFF"
+
+msgid "FLOOD ?"
+msgstr "REFRIGERANTE ?"
+
+msgid "LUBE ON"
+msgstr "LUBRIFICANTE ON"
+
+msgid "LUBE OFF"
+msgstr "LUBRIFICANTE OFF"
+
+msgid "SPINDLE FORWARD"
+msgstr "MANDRINO AVANTI"
+
+msgid "SPINDLE REVERSE"
+msgstr "MANDRINO INDIETRO"
+
+msgid "SPINDLE OFF"
+msgstr "MANDRINO OFF"
+
+msgid "SPINDLE INCREASE"
+msgstr "ACCELERARE MANDRINO"
+
+msgid "SPINDLE DECREASE"
+msgstr "DECELERARE MANDRINO"
+
+msgid "SPINDLE ?"
+msgstr "MANDRINO ?"
+
+msgid "BRAKE ON"
+msgstr "FRENO ON"
+
+msgid "BRAKE OFF"
+msgstr "FRENO OFF"
+
+msgid "BRAKE ?"
+msgstr "FRENO ?"
+
+msgid "No details available."
+msgstr "Nessun dettaglio disponibile."
+
+msgid "Welcome to EMC2!\n"
+msgstr "Benvenuto in EMC2!\n"
+
+msgid "To run EMC2 with an existing configuration,"
+msgstr "Per avviare EMC2 con una configurazione esistente."
+
+msgid "click the RUN button.\n"
+msgstr "cliccare il  bottone RUN.\n"
+
+msgid "To create a new configuration, edit a configuration, backup or"
+msgstr "Per creare una nuova configurazione, modificare una configurazione, backup oppure"
+
+msgid "restore a configuration, or do other configuration related tasks,"
+msgstr "richiamare una configurazione o fare altre attività relative alla configurazione."
+
+msgid "click the CONFIG button.\n"
+msgstr "cliccare il bottone CONFIG.\n"
+
+msgid "Please select an EMC2 configuration from the list below and click 'RUN'."
+msgstr "Si prega selezionare una configurazione di EMC2 dalla lista sottostante e cliccare RUN."
+
+msgid "\nDetails about the selected configuration:"
+msgstr "\nDettagli sulla configurazione selezionata :"
+
+msgid "You must choose a config if you want to run EMC2!"
+msgstr "Bisogna scegliere almeno un file config per avviare EMC2!"
+
+msgid "ERROR: no ini file(s) found in config directory"
+msgstr "ERRORE: nessun file ini file(trovato nella directory config "
+
+msgid "Click OK to continue."
+msgstr "Cliccare OK per continuare."
+
+msgid "The config contains multiple ini files.\nPick one from the list below and click NEXT."
+msgstr "La config contiene numerosi file ini.\nSelezionarne uno dalla lista sottostante e poi cliccare NEXT."
+
+msgid "You must select one ini file!"
+msgstr "Bisogna selezionare almeno un file ini!"
+
+msgid "The next step is to invoke the run script to run"
+msgstr "Il prossimo passo è quello di invocare lo script di esecuzione"
+
+msgid "But thats not coded yet, so just click OK to quit."
+msgstr "Ma non è stata ancora codificata, quindi clicca OK per uscire."
+
+msgid "This page is used to manage EMC2 machine configurations.\n"
+msgstr "Questa pagina viene usata per gestire le configurazioni macchina di EMC2.\n"
+
+msgid "The list below shows all of the existing EMC2\nconfigurations on this computer.\n\nSelect a config, then click one of the buttons below.\n"
+msgstr "La lista sottostante mostra tutte le confirurazioni di EMC2\n esistenti su questo computer.\n\nScegliere una configurazione, quindi cliccare su uno dei bottoni sottostanti.\n"
+
+msgid "Sorry, this function is not implemented yet.\n\nClick OK to return to the menu"
+msgstr "Spiacente, questa funzione non è stata ancora implementata.\n\nClicca OK per ritornare al menù."
+
+msgid "You have chosen to create a new EMC2 configuration.\n\nThe next few screens will walk you through the process."
+msgstr "E' stato scelto di creare una nuova configurazione di EMC2.\n\nLe prossime schermate ti guideranno lungo il  processo."
+
+msgid "Please select a name for your new configuration."
+msgstr "Si prega di scegliere un nome per la nuova configurazione."
+
+msgid "(This will become a directory name, so please use only letters,\ndigits, period, dash, or underscore.)"
+msgstr "(questo diventerà il nome di una directory, pertanto si prega di usare solo lettere,\ncifre, punti, trattini o sottolineature.)"
+
+msgid "contains illegal characters!\nPlease choose a new name."
+msgstr "contiene caratteri illegali!\nSi prega di scegliere un nuovo nome."
+
+msgid "A directory or file called"
+msgstr "Una directory o file chiamato"
+
+msgid "already exists!\nPlease choose a new name."
+msgstr "già esistente!\nSi prega di scegliere un nuovo nome."
+
+msgid "Please select one of these existing configurations as the template\nfor your new configuration.\n\nAll the files associated with the template will be copied into your new\nconfig, so you can make whatever modifications are needed."
+msgstr "Si prega di selezionare una di queste configurazioni esistenti come schema\nper una nuova configurazione.\n\nTutti i file associati allo schema saranno copiati nella nuova\nconfig, così da permettere qualunque modifica necessaria."
+
+msgid "Creating new EMC2 configuration"
+msgstr "Una nuova configurazione di EMC2 è stata creata"
+
+msgid "A internal error has occurred, or the template directory was deleted.\nClick OK to quit"
+msgstr "E' avvenuto un errore interno oppure la directory degli schermi è stata cancellata.\n Clicca OK per uscire."
+
+msgid "Enter a description here"
+msgstr "Inserire una descrizione"
+
+msgid "based on template"
+msgstr "basata sullo schema"
+
+msgid "Please enter a description of your configuration.\n\nThe box below has been preloaded with the description of the template, but\nit is strongly recommended that you revise it.  At a minimum,\nput your name and some specifics about your machine here."
+msgstr "Si prega di inserire una descrizione della configurazione\n\nLa finestra sotto è stata precaricata con la descrizione dello schema ma\nè fortemente raccomandato che venga rivista. Come minimo\ninserire il proprio nome ed alcune notizie sulla macchina."
+
+msgid "(If you ever need help, someone may ask you to send them your\nconfiguration, and this information could be very usefull.)"
+msgstr "(Se hai bisogno di aiuto, qualcuno può chiedere di mandargli la tua\nconfigurazione, e questa informazione può essere molto utile.)"
+
+msgid "You must enter at least one word!"
+msgstr "Bisogna inserire almeno un parametro:"
+
+msgid "You are about to create a new EMC2 configuration.\n\nPlease verify that this is what you want:"
+msgstr "Si sta per creare una nuova configurazione.EMC2 \n\nControllare se è ciò che si vuole:"
+
+msgid "Name"
+msgstr "Nome"
+
+msgid "Template"
+msgstr "Schema"
+
+msgid "Description"
+msgstr "Descrizione"
+
+msgid "If this information is correct, click NEXT to create\nthe configuration directory and begin copying files."
+msgstr "Se questa informazione è corretta, clicca NEXT per creare\nla directory configurazione ed iniziare la copia dei files."
+
+msgid "Creating new config directory"
+msgstr "Creazione nuova directory config"
+
+msgid "ERROR: Config directory could not be created."
+msgstr "ERRORE: La directory Config non può essere creata"
+
+msgid "Done"
+msgstr "Fatto"
+
+msgid "Checking for ini file(s)..."
+msgstr "Verifica presenza file ini"
+
+msgid "Transferring ini file"
+msgstr "Trasferimento file ini"
+
+msgid "Writing description file 'README'..."
+msgstr "Scrittura file descrizione  'README'..."
+
+msgid "Checking for other template file(s)..."
+msgstr "Verifica per altri file schema"
+
+msgid "Copying template file"
+msgstr "Copia file schema"
+
+msgid "Checking for common file(s)..."
+msgstr "Verifica per file comuni"
+
+msgid "Copying common file"
+msgstr "Copia file comuni"
+
+msgid "Your new configuration"
+msgstr "Una nuova configurazione"
+
+msgid "has been created.\nClick OK to return to the main menu."
+msgstr "è stato creata\nClick OK per tornare al menu principale."
+
+msgid "An error happened while creating the new configuration.\nIdeally this code would clean everything up and\nthen return to the main menu, but the cleanup isn't done yet.\nClick OK to return to the main menu."
+msgstr "Si è verificato un errore nel creare una nuova configurazione\nIn teoria questo codice dovrebbe pulire tutto e\nritornare al menu principale, ma la pulizia non si è completata.\nClick OK per tornare al menu principale."
+
+msgid "ERROR: Not a valid config directory (contains no .ini files)"
+msgstr "ERRORE: Nessuna directory config valida (non contiene file .ini)"
+
+msgid "ERROR: Not a valid ini file (must end in .ini)"
+msgstr "ERRORE: Nessun file ini valido (deve finire con .ini)"
+
+msgid "ERROR: Config not found"
+msgstr "ERRORE: Config non trovato"
+
+msgid "ERROR: Not a valid config name\n(must be either <config-name> or <config-name>/<ini-name>)"
+msgstr "ERRORE: Nome config non valido\n(deve essere una tra <config-name> or<config-name>/<ini-name>)"
+
+msgid "EMC2 Configuration Manager"
+msgstr "Manager Configurazioni EMC2 "
+
+msgid "ERROR: option '--configs-dir' must be followed by a directory name."
+msgstr "ERRORE: opzione '--configs-dir' deve essere seguita dal nome di una directory."
+
+msgid "Click OK to exit."
+msgstr "Clicca OK per uscire."
+
+msgid "ERROR: '--configs-dir' argument is"
+msgstr "ERRORE: argoment  '--configs-dir' è"
+
+msgid "which is not a directory."
+msgstr "che non è una directory."
+
+msgid "ERROR: environment variable EMC2_CONFIG_DIR is"
+msgstr "ERRORE: la variable d''ambiente EMC2_CONFIG_DIR è"
+
+msgid "ERROR: Cannot find the EMC2 configurations directory.\nYou can specify the directory with the '--configs-dir <dir>' option."
+msgstr "ERRORE: Impossibile trovare la directory.configurazione di EMC2 \nE'' possibile specificare la directory con l''opzione '--configs-dir <dir>."
+
+msgid "ERROR: options '--run', '--new', and '--get-config' are\nmutually exclusive, please specify only one."
+msgstr "ERRORE: le opzioni '--run', '--new', e '--get-config' sono\nmutuamente escludenti, si prega di specificarne solo una."
+
+msgid "ERROR: unknown command line option:"
+msgstr "ERRORE: opzione linea comando sconosciuta: "
+
