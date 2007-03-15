@@ -1067,6 +1067,7 @@ static int export_stepgen(int num, stepgen_t * addr, int step_type)
 	*(addr->phase[DOWN_PIN]) = 0;
     } else {
 	/* stepping types 2 and higher use a varying number of phase pins */
+	addr->num_phases = num_phases_lut[step_type - 2];
 	for (n = 0; n < addr->num_phases; n++) {
 	    retval = hal_pin_bit_newf(HAL_OUT, &(addr->phase[n]),
 		comp_id, "stepgen.%d.phase-%c", num, n + 'A');
@@ -1109,7 +1110,6 @@ static int export_stepgen(int num, stepgen_t * addr, int step_type)
     if ( step_type >= 2 ) {
 	/* init output stuff */
 	addr->cycle_max = cycle_len_lut[step_type - 2] - 1;
-	addr->num_phases = num_phases_lut[step_type - 2];
 	addr->lut = &(master_lut[step_type - 2][0]);
     }
     /* init the step generator core to zero output */
