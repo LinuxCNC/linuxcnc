@@ -1333,9 +1333,9 @@ int Interp::convert_cutter_compensation_off(setup_pointer settings)      //!< po
   COMMENT("interpreter: cutter radius compensation off");
 #endif
   if(settings->cutter_comp_side != OFF && settings->cutter_comp_radius > 0.0) {
-      settings->current_x = xtrans(settings, settings->program_x);
+      settings->current_x = settings->program_x;
       settings->current_y = settings->program_y;
-      settings->current_z = ztrans(settings, settings->program_z);
+      settings->current_z = settings->program_z;
   }
   settings->cutter_comp_side = OFF;
   settings->cutter_comp_firstmove = ON;
