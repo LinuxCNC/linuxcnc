@@ -2933,10 +2933,8 @@ int main(int argc, char *argv[])
 	// interval if ini file says to run full out via
 	// [TASK] CYCLE_TIME <= 0.0
 	// emcTaskEager = 0;
-	if ((emcTaskNoDelay) || (emcTaskEager)
-	    || (emcStatus->task.readLine < programStartLine)
-            || (programStartLine < 0)) {
-		    emcTaskEager = 0;
+	if ((emcTaskNoDelay) || (emcTaskEager)) {
+	    emcTaskEager = 0;
 	} else {
 	    timer->wait();
 	}
