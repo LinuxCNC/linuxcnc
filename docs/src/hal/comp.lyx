@@ -192,8 +192,10 @@ A
 \layout Standard
 
 Declarations include:
-\layout LyX-Code
+\layout Itemize
 
+
+\family typewriter 
 component 
 \emph on 
 HALNAME
@@ -203,7 +205,10 @@ HALNAME
 (DOC
 \emph default 
 );
-\newline 
+\layout Itemize
+
+
+\family typewriter 
 pin 
 \emph on 
 PINDIRECTION
@@ -220,7 +225,19 @@ HALNAME
 \emph on 
 SIZE
 \emph default 
-]) (= 
+]|[
+\emph on 
+MAXSIZE 
+\emph default 
+: 
+\emph on 
+CONDSIZE]
+\emph default 
+) (if 
+\emph on 
+CONDITION
+\emph default 
+) (= 
 \emph on 
 STARTVALUE
 \emph default 
@@ -229,7 +246,10 @@ STARTVALUE
 DOC
 \emph default 
 );
-\newline 
+\layout Itemize
+
+
+\family typewriter 
 param 
 \emph on 
 PARAMDIRECTION
@@ -246,7 +266,19 @@ HALNAME
 \emph on 
 SIZE
 \emph default 
-]) (= 
+]|[
+\emph on 
+MAXSIZE 
+\emph default 
+: 
+\emph on 
+CONDSIZE]
+\emph default 
+) (if 
+\emph on 
+CONDITION) 
+\emph default 
+(= 
 \emph on 
 STARTVALUE
 \emph default 
@@ -255,7 +287,10 @@ STARTVALUE
 DOC
 \emph default 
 ) ;
-\newline 
+\layout Itemize
+
+
+\family typewriter 
 function 
 \emph on 
 HALNAME
@@ -265,7 +300,10 @@ HALNAME
 DOC
 \emph default 
 );
-\newline 
+\layout Itemize
+
+
+\family typewriter 
 option 
 \emph on 
 OPT
@@ -275,9 +313,15 @@ OPT
 VALUE
 \emph default 
 );
-\newline 
+\layout Itemize
+
+
+\family typewriter 
 description DOC;
-\newline 
+\layout Itemize
+
+
+\family typewriter 
 see_also DOC;
 \layout Standard
 
@@ -614,12 +658,39 @@ x.MM
 \end_deeper 
 \layout Description
 
+if\SpecialChar ~
+CONDITION An expression involving the variable 
+\emph on 
+personality
+\emph default 
+ which is nonzero when the pin or parameter should be created
+\layout Description
+
 SIZE A number that gives the size of an array.
  The array items are numbered from 0 to 
 \emph on 
 SIZE
 \emph default 
 -1.
+\layout Description
+
+MAXSIZE\SpecialChar ~
+:\SpecialChar ~
+CONDSIZE A number that gives the maximum size of the array followed
+ by an expression involving the variable 
+\emph on 
+personality
+\emph default 
+ and which always evaluates to less than 
+\emph on 
+MAXSIZE
+\emph default 
+.
+ When the array is created its size will be 
+\emph on 
+CONDSIZE
+\emph default 
+.
 \layout Description
 
 DOC A string that documents the item.
@@ -1213,6 +1284,20 @@ where
 i
 \emph default 
  is the index into the pin array.
+ When the array is a variable-sized array, it is only legal to refer to
+ items up to its 
+\emph on 
+condsize
+\emph default 
+.
+\layout Standard
+
+When the item is a conditional item, it is only legal to refer to it when
+ its 
+\emph on 
+condition
+\emph default 
+ evalued to a nonzero value.
 \end_deeper 
 \layout Description
 
@@ -1253,6 +1338,93 @@ parameter_name
 data
 \series default 
  macros work as they do in realtime functions.
+\layout Section
+
+Component 
+\begin_inset Quotes eld
+\end_inset 
+
+Personality
+\begin_inset Quotes erd
+\end_inset 
+
+
+\layout Standard
+
+If a component has any pins or parameters with an 
+\begin_inset Quotes eld
+\end_inset 
+
+if 
+\emph on 
+condition
+\emph default 
+
+\begin_inset Quotes erd
+\end_inset 
+
+ or 
+\begin_inset Quotes eld
+\end_inset 
+
+[
+\emph on 
+maxsize : condsize
+\emph default 
+]
+\begin_inset Quotes erd
+\end_inset 
+
+, it is called a component with 
+\begin_inset Quotes eld
+\end_inset 
+
+
+\emph on 
+personality
+\emph default 
+
+\begin_inset Quotes erd
+\end_inset 
+
+.
+ The 
+\begin_inset Quotes eld
+\end_inset 
+
+personality
+\begin_inset Quotes erd
+\end_inset 
+
+ of each instance is specified when the module is loaded.
+ 
+\begin_inset Quotes eld
+\end_inset 
+
+Personality
+\begin_inset Quotes erd
+\end_inset 
+
+ can be used to create pins only when needed.
+ For instance, personality is used in the 
+\family typewriter 
+logic
+\family default 
+ component, to allow for a variable number of input pins to each logic gate
+ and to allow for a selection of any of the basic boolean logic functions
+ 
+\series bold 
+and
+\series default 
+, 
+\series bold 
+or
+\series default 
+, and 
+\series bold 
+xor
+\series default 
+.
 \layout Section
 
 Compiling 
@@ -1596,6 +1768,9 @@ hal-loop.0.example
 \layout Subsection
 
 arraydemo
+\layout Standard
+
+This realtime component illustrates use of fixed-size arrays:
 \layout LyX-Code
 
 component arraydemo "4-bit Shift register";
@@ -1637,4 +1812,47 @@ preview false
 \end_inset 
 
 
+\layout Subsubsection
+
+logic
+\layout Standard
+
+This realtime component shows how to use 
+\begin_inset Quotes eld
+\end_inset 
+
+personality
+\begin_inset Quotes erd
+\end_inset 
+
+ to create variable-size arrays and optional pins.
+\layout LyX-Code
+
+
+\begin_inset Include \verbatiminput{../../../src/hal/components/logic.comp}
+preview false
+
+\end_inset 
+
+
+\layout Standard
+
+A typical load line for this component might be
+\layout LyX-Code
+
+loadrt logic count=3 personality=0x102,0x305,0x503
+\layout Standard
+
+which creates the following pins:
+\layout Itemize
+
+A 2-input AND gate: logic.0.and, logic.0.in-00, logic.0.in-01
+\layout Itemize
+
+5-input AND and OR gates: logic.1.and, logic.1.or, logic.1.in-00, logic.1.in-01,
+ logic.1.in-02, logic.1.in-03, logic.1.in-04, 
+\layout Itemize
+
+3-input AND and XOR gates: logic.2.and, logic.2.xor, logic.2.in-00, logic.2.in-01,
+ logic.2.in-02
 \the_end
