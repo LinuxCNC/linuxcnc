@@ -483,6 +483,7 @@ usr/share/axis/tcl/sb.tcl
 usr/share/axis/tcl/support.tcl
 usr/share/doc/emc2/axis_light_background
 usr/share/doc/emc2/README.axis
+usr/share/locale/fr/LC_MESSAGES/axis.mo
 usr/share/locale/de/LC_MESSAGES/axis.mo
 usr/share/locale/hu/LC_MESSAGES/axis.mo
 usr/share/locale/it/LC_MESSAGES/axis.mo
