@@ -28,6 +28,7 @@
 #include <stdio.h>    /* gets, etc. */
 #include <stdlib.h>   /* exit       */
 #include <string.h>   /* strcpy     */
+#include <getopt.h>
 
 Interp interp_new;
 //Inifile inifile;
@@ -587,22 +588,51 @@ int main (int argc, char ** argv)
   double sets[ACTIVE_SETTINGS];
   char default_name[] = "sim.var";
   int print_stack;
-  if (argc > 3)
-    {
-      fprintf(stderr, "Usage \"%s\"\n", argv[0]);
-      fprintf(stderr, "   or \"%s <input file>\"\n", argv[0]);
-      fprintf(stderr, "   or \"%s <input file> <output file>\"\n", argv[0]);
-      exit(1);
-    }
-
+  int go_flag;
   do_next = 2;  /* 2=stop */
   block_delete = OFF;
   print_stack = OFF;
   tool_flag = 0;
   strcpy(_parameter_file_name, default_name);
   _outfile = stdout; /* may be reset below */
+  go_flag = 0;
 
-  for(; ;)
+  while(1) {
+      int c = getopt(argc, argv, "t:v:bsn:g");
+      if(c == -1) break;
+
+      switch(c) {
+          case 't': read_tool_file(optarg); tool_flag=1; break;
+          case 'v': strcpy(_parameter_file_name, optarg); break;
+          case 'b': block_delete = (block_delete == OFF) ? ON : OFF; break;
+          case 's': print_stack = (print_stack == OFF) ? ON : OFF; break;
+          case 'n': do_next = atoi(optarg); break;
+          case 'g': go_flag = !go_flag; break;
+          case '?': default: goto usage;
+      }
+  }
+
+  if (argc - optind > 3)
+    {
+usage:
+      fprintf(stderr,
+            "Usage: %s [-t tool.tbl] [-v var-file.var] [-n 0|1|2]\n"
+            "          [-b] [-s] [-g] [input file [output file]]\n"
+            "\n"
+            "    -t: Specify the .tbl (tool table) file to use\n"
+            "    -v: Specify the .var (parameter) file to use\n"
+            "    -n: Specify the continue mode:\n"
+            "           0: continue\n"
+            "           1: enter MDI mode\n"
+            "           2: stop (default)\n"
+            "    -b: Toggle the 'block delete' flag (default: ON)\n"
+            "    -s: Toggle the 'print stack' flag (default: ON)\n"
+            "    -g: Toggle the 'go (batch mode)' flag (default: OFF)\n"
+            , argv[0]);
+      exit(1);
+    }
+
+  for(; !go_flag ;)
     {
       fprintf(stderr, "enter a number:\n");
       fprintf(stderr, "1 = start interpreting\n");
@@ -639,6 +669,10 @@ int main (int argc, char ** argv)
       if (read_tool_file("sim.tbl") != 0)
         exit(1);
     }
+
+  // Skip past arguments used up by getopt() */
+  argc = argc - optind + 1;
+  argv = argv + optind - 1;
 
   if (argc == 3)
     {
