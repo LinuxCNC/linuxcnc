@@ -307,8 +307,9 @@ int read_tool_file(  /* ARGUMENTS         */
   char buffer[1000];
   int slot;
   int tool_id;
-  double offset;
+  double zoffset, xoffset, frontangle, backangle;
   double diameter;
+  int orientation;
 
   if (tool_file_name[0] == 0) /* ask for name if given name is empty string */
     {
@@ -339,25 +340,45 @@ int read_tool_file(  /* ARGUMENTS         */
   for (slot = 0; slot < _tool_max; slot++) /* initialize */
     {
       _tools[slot].id = -1;
-      _tools[slot].zoffset = 0;
-      _tools[slot].diameter = 0;
+      _tools[slot].zoffset = 0.;
+      _tools[slot].diameter = 0.;
+      _tools[slot].xoffset = 0.;
+      _tools[slot].frontangle = 0.;
+      _tools[slot].backangle = 0.;
+      _tools[slot].orientation = 0;
     }
   for (; (fgets(buffer, 1000, tool_file_port) != NULL); )
     {
-      if (sscanf(buffer, "%d %d %lf %lf", &slot,
-                 &tool_id, &offset, &diameter) < 4)
+      if (sscanf(buffer, "%d %d %lf %lf %lf %lf %lf %d",
+                 &slot, &tool_id, &zoffset, &xoffset, &diameter,
+                 &frontangle, &backangle, &orientation) == 8 &&
+          slot >= 0 && slot < _tool_max)
         {
-          fprintf(stderr, "Bad input line \"%s\" in tool file\n", buffer);
+          _tools[slot].id = tool_id;
+          _tools[slot].zoffset = zoffset;
+          _tools[slot].diameter = diameter;
+          _tools[slot].xoffset = xoffset;
+          _tools[slot].frontangle = frontangle;
+          _tools[slot].backangle = backangle;
+          _tools[slot].orientation = orientation;
+        } 
+      else if (sscanf(buffer, "%d %d %lf %lf", &slot,
+                      &tool_id, &zoffset, &diameter) == 4 
+               && slot >= 0 && slot < _tool_max)
+        {
+          _tools[slot].id = tool_id;
+          _tools[slot].zoffset = zoffset;
+          _tools[slot].diameter = diameter;
+          _tools[slot].orientation = 0;  //mill tool
+        }
+      else 
+        {
+          if (slot < 0 || slot >= _tool_max) 
+            fprintf(stderr, "Out of range tool slot number %d\n", slot);  
+          else
+            fprintf(stderr, "Bad input line \"%s\" in tool file\n", buffer);
           return 1;
         }
-      if ((slot < 0) || (slot > _tool_max)) /* zero and max both OK */
-        {
-          fprintf(stderr, "Out of range tool slot number %d\n", slot);
-          return 1;
-        }
-      _tools[slot].id = tool_id;
-      _tools[slot].zoffset = offset;
-      _tools[slot].diameter = diameter;
     }
   fclose(tool_file_port);
   return 0;
