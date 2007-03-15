@@ -516,18 +516,21 @@ static int export_pid(int num, hal_pid_t * addr)
     addr->maxerror_i = 0.0;
     addr->maxerror_d = 0.0;
     addr->maxcmd_d = 0.0;
+    addr->maxcmd_dd = 0.0;
     addr->error_i = 0.0;
     addr->prev_error = 0.0;
     addr->error_d = 0.0;
     addr->prev_cmd = 0.0;
     addr->limit_state = 0.0;
     addr->cmd_d = 0.0;
+    addr->cmd_dd = 0.0;
     addr->bias = 0.0;
     addr->pgain = 1.0;
     addr->igain = 0.0;
     addr->dgain = 0.0;
     addr->ff0gain = 0.0;
     addr->ff1gain = 0.0;
+    addr->ff2gain = 0.0;
     addr->maxoutput = 0.0;
     /* export function for this loop */
     rtapi_snprintf(buf, HAL_NAME_LEN, "pid.%d.do-pid-calcs", num);
