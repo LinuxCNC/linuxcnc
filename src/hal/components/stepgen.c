@@ -712,8 +712,9 @@ static void update_pos(void *arg, long period)
 	       fractional bits, so we precalc some stuff */
 	    stepgen->scale_recip = (1.0 / (1L << PICKOFF)) / stepgen->pos_scale;
 	}
-	/* scale accumulator to make floating point position */
-	*(stepgen->pos_fb) = (double)accum_a * stepgen->scale_recip;
+	/* scale accumulator to make floating point position, after
+	   removing the one-half count offset */
+	*(stepgen->pos_fb) = (double)(accum_a-(1<< (PICKOFF-1))) * stepgen->scale_recip;
 	/* move on to next channel */
 	stepgen++;
     }
@@ -903,8 +904,9 @@ static void update_freq(void *arg, long period)
 	    accum_a = stepgen->accum;
 	    accum_b = stepgen->accum;
 	} while ( accum_a != accum_b );
-	/* convert from fixed point to double */
-	curr_pos = accum_a * (1.0 / (1L << PICKOFF));
+	/* convert from fixed point to double, after subtracting
+	   the one-half step offset */
+	curr_pos = (accum_a-(1<< (PICKOFF-1))) * (1.0 / (1L << PICKOFF));
 	/* get velocity in counts/sec */
 	curr_vel = stepgen->freq;
 	/* At this point we have good values for pos_cmd, curr_pos, 
@@ -1116,7 +1118,9 @@ static int export_stepgen(int num, stepgen_t * addr, int step_type)
     addr->timer3 = 0;
     addr->hold_dds = 0;
     addr->addval = 0;
-    addr->accum = 0;
+    /* accumulator gets a half step offset, so it will step half
+       way between integer positions, not at the integer positions */
+    addr->accum = 1 << (PICKOFF-1);
     addr->rawcount = 0;
     addr->curr_dir = 0;
     addr->state = 0;
