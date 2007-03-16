@@ -2311,6 +2311,7 @@ class TclCommands(nf.TclCommands):
         ensure_mode(emc.MODE_AUTO)
         c.auto(emc.AUTO_RUN, program_start_line)
         program_start_line = 0
+        o.set_highlight_line(None)
 
     def task_step(*event):
         if s.task_mode != emc.MODE_AUTO or s.interp_state != emc.INTERP_IDLE:
