@@ -1,0 +1,19 @@
+#!/bin/sh
+oi=0
+oj=0
+while read i j; do
+    case "$oi$oj$i$j" in
+    0000) ;;
+    0010) ;;
+    1010) ;;
+    1011) ;;
+    1111) ;;
+    1101) ;;
+    0101) ;;
+    0100) ;;
+    *) exit 1
+    esac
+    oi=$i; oj=$j
+done < $1
+
+exit 0    
