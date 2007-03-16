@@ -3,7 +3,7 @@ emc2 (1:2.1.3) unstable; urgency=low
   * make 'load' button work in classicladder 
   * add french translation of axis
   * improve italian translation of axis
-
+  * make 'milltask' not consume all CPU after 'run from line' has been used
  -- jepler <jepler@unpythonic.net>  Wed, 14 Mar 2007 18:47:55 -0500
 
 emc2 (1:2.1.2) testing; urgency=low
