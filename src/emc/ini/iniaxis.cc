@@ -186,7 +186,7 @@ static int loadAxis(int axis, EmcIniFile *axisIniFile)
         home = 0;	                // default
         axisIniFile->Find(&home, "HOME", axisString);
         offset = 0;	                // default
-        axisIniFile->Find(&home, "HOME_OFFSET", axisString);
+        axisIniFile->Find(&offset, "HOME_OFFSET", axisString);
         search_vel = 0;	                // default
         axisIniFile->Find(&search_vel, "HOME_SEARCH_VEL", axisString);
         latch_vel = 0;	                // default
