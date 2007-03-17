@@ -32,19 +32,38 @@ import rs274.options
 from math import *
 import operator
 
-def ball_tool(r):
-    return 1-sqrt(1-r**2)
+def ball_tool(r,rad):
+    s = -sqrt(rad**2-r**2)
+    return s
 
-def endmill(r):
+def endmill(r,dia):
     return 0
 
 def vee_common(angle):
     slope = tan(angle * pi / 180)
-    def f(r):
+    def f(r, dia):
         return r * slope
     return f
-    
+
 tool_makers = [ ball_tool, endmill, vee_common(45), vee_common(60)]
+
+def make_tool_shape(f, wdia, resp):
+    res = 1. / resp
+    dia = int(wdia*res+.5)
+    wrad = wdia/2.
+    if dia < 2: dia = 2
+    n = numarray.array([[ieee.plus_inf] * dia] * dia, type="Float32")
+    hdia = dia / 2.
+    l = []
+    for x in range(dia):
+        for y in range(dia):
+            r = hypot(x-hdia, y-hdia) * resp
+            if r < wrad:
+                z = f(r, wrad)
+                l.append(z)
+                n[x,y] = z
+    n = n - n.min()
+    return n
 
 def amax(seq):
     res = 0
@@ -68,17 +87,6 @@ def group_by_sign(seq, slop=sin(pi/18), key=lambda x:x):
                 yield subseq
                 subseq = [i]
     if subseq: yield subseq
-
-def make_tool_shape(f, dia):
-    dia = int(dia+.5)
-    n = numarray.array([[ieee.plus_inf] * dia] * dia, type="Float32")
-    hdia = dia / 2.
-    for x in range(dia):
-        for y in range(dia):
-            r = hypot(x-hdia, y-hdia) / hdia
-            if r < 1:
-                n[x,y] = f(r)
-    return n
 
 class Convert_Scan_Alternating:
     def __init__(self):
@@ -673,7 +681,7 @@ def main():
     maker = tool_makers[options['tool_type']]
     tool_diameter = options['tool_diameter']
     pixel_size = options['pixel_size']
-    tool = make_tool_shape(maker, tool_diameter / pixel_size)
+    tool = make_tool_shape(maker, tool_diameter, pixel_size)
 
     rows = options['pattern'] != 1
     columns = options['pattern'] != 0
