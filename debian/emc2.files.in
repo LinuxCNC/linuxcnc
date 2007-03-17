@@ -269,6 +269,7 @@ usr/bin/emcrsh
 usr/bin/emcsh
 usr/bin/emcsvr
 usr/bin/hal_joystick
+usr/bin/hal_input
 usr/bin/halmeter
 usr/bin/halsampler
 usr/bin/halscope
@@ -338,6 +339,7 @@ etc/X11/app-defaults/XEmc
 usr/share/man/man1/emc.1
 usr/share/man/man1/halcmd.1
 usr/share/man/man1/hal_joystick.1
+usr/share/man/man1/hal_input.1
 usr/share/man/man1/halmeter.1
 usr/share/man/man1/halrun.1
 usr/share/man/man1/halsampler.1
@@ -419,6 +421,7 @@ usr/lib/python2.4/site-packages/emc.so
 usr/lib/python2.4/site-packages/gcode.so
 usr/lib/python2.4/site-packages/hal.so
 usr/lib/python2.4/site-packages/hershey.pyc
+usr/lib/python2.4/site-packages/linux_event.pyc
 usr/lib/python2.4/site-packages/minigl.so
 usr/lib/python2.4/site-packages/nf.pyc
 usr/lib/python2.4/site-packages/vcpparse.pyc

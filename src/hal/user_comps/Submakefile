@@ -1,7 +1,9 @@
-../bin/pyvcp: hal/user_comps/pyvcp.py
+USER_COMP_PY = pyvcp hal_input
+
+$(patsubst %, ../bin/%, $(USER_COMP_PY)) : ../bin/%: hal/user_comps/%.py
 	@$(ECHO) Syntax checking python script $(notdir $@)
 	@$(PYTHON) -c 'import sys; compile(open(sys.argv[1]).read(), sys.argv[1], "exec")' $<
 	$(ECHO) Copying python script $(notdir $@)
 	@(echo '#!$(PYTHON)'; sed '1 { /^#!/d; }' $<) > $@.tmp && chmod +x $@.tmp && mv -f $@.tmp $@
 
-PYTARGETS += ../bin/pyvcp
+PYTARGETS += $(patsubst %, ../bin/%, $(USER_COMP_PY))
