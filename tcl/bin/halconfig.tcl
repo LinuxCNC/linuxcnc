@@ -355,7 +355,7 @@ proc makeNodeSig {sigstring} {
         }
    
         foreach nodename $signodes {
-            if {[string match *$nodename* $tmp]} {
+	    if {$i == 0 && [string match *$nodename* $tmp]} {
                 lappend nodesig$nodename $tmp
                 set i 1
             }
