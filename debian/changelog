@@ -7,6 +7,7 @@ emc2 (1:2.1.3) unstable; urgency=low
   * new userspace component: hal_input for all Linux-recognized input devices
   * image-to-gcode: spindle speed and plunge feed rate can now be selected
   * image-to-gcode: tool shape compensation bugfixes
+  * image-to-gcode: add documentation
 
  -- jepler <jepler@unpythonic.net>  Sat, 17 Mar 2007 16:35:47 -0500
 
