@@ -1,0 +1,361 @@
+#LyX 1.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 221
+\textclass book
+\begin_preamble
+\usepackage[plainpages=false,pdfpagelabels,colorlinks=true,linkcolor=blue]{hyperref}
+\end_preamble
+\language english
+\inputencoding default
+\fontscheme bookman
+\graphics default
+\float_placement !!h
+\paperfontsize 10
+\spacing single 
+\papersize Custom
+\paperpackage a4
+\use_geometry 1
+\use_amsmath 0
+\use_natbib 0
+\use_numerical_citations 0
+\paperorientation portrait
+\paperwidth 8.5in
+\paperheight 11in
+\leftmargin 1.2in
+\topmargin 1in
+\rightmargin 0.6in
+\bottommargin 0.6in
+\secnumdepth 5
+\tocdepth 5
+\paragraph_separation skip
+\defskip smallskip
+\quotes_language english
+\quotes_times 2
+\papercolumns 1
+\papersides 2
+\paperpagestyle default
+
+\layout Chapter
+
+Image-to-gcode: Milling 
+\begin_inset Quotes eld
+\end_inset 
+
+depth maps
+\begin_inset Quotes erd
+\end_inset 
+
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename image-to-gcode.png
+	lyxscale 50
+	width 100text%
+
+\end_inset 
+
+
+\layout Section
+
+What is a depth map?
+\layout Standard
+
+A depth map is a greyscale image where the brightness of each pixel corresponds
+ to the depth (or height) of the object at each point.
+\layout Section
+
+Integrating image-to-gcode with the AXIS user interface
+\layout Standard
+
+Add the following lines to your .ini file to make AXIS automatically invoke
+ image-to-gcode when you open a .png, .gif, or .jpg image:
+\layout LyX-Code
+
+PROGRAM_EXTENSION = .png,.gif,.jpg Grayscale Depth Image
+\newline 
+png = image-to-gcode
+\newline 
+gif = image-to-gcode
+\newline 
+jpg = image-to-gcode
+\layout Section
+
+Using image-to-gcode
+\layout Standard
+
+Start image-to-gcode either by opening an image file in AXIS, or by invoking
+ image-to-gcode from the terminal, as follows:
+\layout LyX-Code
+
+image-to-gcode torus.png > torus.ngc
+\layout Standard
+
+Verify all the settings in the right-hand column, then press OK to create
+ the gcode.
+ Depending on the image size and options chosen, this may take from a few
+ seconds to a few minutes.
+ If you are loading the image in AXIS, the gcode will automatically be loaded
+ and previewed once image-to-gcode completes.
+ In AXIS, hitting reload will show the image-to-gcode option screen again,
+ allowing you to tweak them.
+\layout Section
+
+Option Reference
+\layout Subsection
+
+Units
+\layout Standard
+
+Specifies whether to use G20 (inches) or G21 (mm) in the generated g-code
+ and as the units for each option labeled 
+\series bold 
+(units)
+\series default 
+.
+\layout Subsection
+
+Invert Image
+\layout Standard
+
+If 
+\begin_inset Quotes eld
+\end_inset 
+
+no
+\begin_inset Quotes erd
+\end_inset 
+
+, the black pixel is the lowest point and the white pixel is the highest
+ point.
+ If 
+\begin_inset Quotes eld
+\end_inset 
+
+yes
+\begin_inset Quotes erd
+\end_inset 
+
+, the black pixel is the highest point and the white pixel is the lowest
+ point.
+\layout Subsection
+
+Normalize Image
+\layout Standard
+
+If 
+\begin_inset Quotes eld
+\end_inset 
+
+yes
+\begin_inset Quotes erd
+\end_inset 
+
+, the darkest pixel is remapped to black, the lightest pixel is remapped
+ to white.
+\layout Subsection
+
+Tolerance (units)
+\layout Standard
+
+When a series of points are within 
+\series bold 
+tolerance
+\series default 
+ of being a straight line, they are output as a straight line.
+ Increasing tolerance can lead to better contouring performance in emc,
+ but can also remove or blur small details in the image.
+\layout Subsection
+
+Pixel Size (units)
+\layout Standard
+
+One pixel in the input image will be this many units--usually this number
+ is much smaller than 1.0.
+ For instance, to mill a 2.5x2.5-inch object from a 400x400 image file, use
+ a pixel size of 00625, because 2.5 / 400 = .00625.
+\layout Subsection
+
+Feed Rate (units per minute)
+\layout Subsection
+
+Spindle Speed (RPM)
+\layout Subsection
+
+Scan Pattern
+\layout Standard
+
+Possible scan patterns are:
+\layout Itemize
+
+Rows
+\layout Itemize
+
+Columns
+\layout Itemize
+
+Rows, then Columns
+\layout Itemize
+
+Columns, then Rows
+\layout Subsection
+
+Scan Direction
+\layout Standard
+
+Possible scan directions are:
+\layout Itemize
+
+Positive: Start milling at a low X or Y axis value, and move towards a high
+ X or Y axis value
+\layout Itemize
+
+Negative: Start milling at a high X or Y axis value, and move towards a
+ low X or Y axis value
+\layout Itemize
+
+Alternating: Start on the same end of the X or Y axis travel that the last
+ move ended on.
+ This reduces the amount of traverse movements
+\layout Itemize
+
+Up Milling: Start milling at low points, moving towards high points
+\layout Itemize
+
+Down Milling: Start milling at high points, moving towards low points
+\layout Subsection
+
+Depth (units)
+\layout Standard
+
+The top of material is always at 
+\series bold 
+Z=0
+\series default 
+.
+ The deepest cut into the material is 
+\series bold 
+Z=-depth.
+\layout Subsection
+
+Step Over (pixels)
+\layout Standard
+
+The distance between adjacent rows or columns.
+ To find the number of pixels for a given units distance, compute 
+\series bold 
+distance/pixel size
+\series default 
+ and round to the nearest whole number
+\series bold 
+\emph on 
+.
+ 
+\series default 
+\emph default 
+For example, if 
+\series bold 
+pixel size=.006 
+\series default 
+and the desired step over 
+\series bold 
+distance=.015
+\series default 
+, then use a Step Over of 2 or 3 pixels, because 
+\series bold 
+.015/.006=2.5
+\emph on 
+.
+\layout Subsection
+
+Tool Diameter
+\layout Standard
+
+The diameter of the cutting part of the tool.
+\layout Subsection
+
+Safety Height
+\layout Standard
+
+The height to move to for traverse movements.
+ image-to-gcode always assumes the top of material is at 
+\series bold 
+Z=0
+\series default 
+.
+\layout Subsection
+
+Tool Type
+\layout Standard
+
+The shape of the cutting part of the tool.
+ Possible tool shapes are:
+\layout Itemize
+
+Ball End
+\layout Itemize
+
+Flat End
+\layout Itemize
+
+45 degree 
+\begin_inset Quotes eld
+\end_inset 
+
+vee
+\begin_inset Quotes erd
+\end_inset 
+
+
+\layout Itemize
+
+60 degree 
+\begin_inset Quotes eld
+\end_inset 
+
+vee
+\begin_inset Quotes erd
+\end_inset 
+
+
+\layout Subsection
+
+Lace bounding
+\layout Standard
+
+This controls whether areas that are relatively flat along a row or column
+ are skipped.
+ This option only makes sense when both rows and columns are being milled.
+ Possible bounding options are:
+\layout Itemize
+
+None: Rows and columns are both fully milled.
+\layout Itemize
+
+Secondary: When milling in the second direction, areas that do not strongly
+ slope in that direction are skipped.
+\layout Itemize
+
+Full: When milling in the first direction, areas that strongly slope in
+ the second direction are skipped.
+ When milling in the second direction, areas that do not strongly slope
+ in that direction are skipped.
+\layout Subsection
+
+Contact angle
+\layout Standard
+
+When Lace bounding is not None, slopes greater than 
+\series bold 
+Contact angle
+\series default 
+ are considered to be 
+\begin_inset Quotes eld
+\end_inset 
+
+strong
+\begin_inset Quotes erd
+\end_inset 
+
+ slopes, and slopes less than that angle are considered to be weak slopes.
+\the_end
