@@ -240,6 +240,15 @@ preview false
 \end_inset 
 
 
+\layout Standard
+
+
+\begin_inset Include \include{gui/image-to-gcode.lyx}
+preview false
+
+\end_inset 
+
+
 \layout Chapter
 \start_of_appendix 
 Glossary of Common Terms Used in the EMC Documents 

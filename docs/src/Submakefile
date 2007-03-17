@@ -24,6 +24,7 @@ DOC_SRCS := \
 	gui/halui.lyx \
 	gui/mini.lyx \
 	gui/tkemc.lyx \
+	gui/image-to-gcode.lyx \
 	Master_Developer.lyx \
 	Master_Integrator.lyx \
 	Master_User.lyx \
