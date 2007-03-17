@@ -4,9 +4,11 @@ emc2 (1:2.1.3) unstable; urgency=low
   * add french translation of axis
   * improve italian translation of axis
   * make 'milltask' not consume all CPU after 'run from line' has been used
-  * new userspace component: hal_input for all Linux-recognized input devices 
+  * new userspace component: hal_input for all Linux-recognized input devices
+  * image-to-gcode: spindle speed and plunge feed rate can now be selected
+  * image-to-gcode: tool shape compensation bugfixes
 
- -- jepler <jepler@unpythonic.net>  Sat, 17 Mar 2007 15:59:12 -0500
+ -- jepler <jepler@unpythonic.net>  Sat, 17 Mar 2007 16:35:47 -0500
 
 emc2 (1:2.1.2) testing; urgency=low
 
