@@ -32,19 +32,38 @@ import rs274.options
 from math import *
 import operator
 
-def ball_tool(r):
-    return 1-sqrt(1-r**2)
+def ball_tool(r,rad):
+    s = -sqrt(rad**2-r**2)
+    return s
 
-def endmill(r):
+def endmill(r,dia):
     return 0
 
 def vee_common(angle):
     slope = tan(angle * pi / 180)
-    def f(r):
+    def f(r, dia):
         return r * slope
     return f
-    
+
 tool_makers = [ ball_tool, endmill, vee_common(45), vee_common(60)]
+
+def make_tool_shape(f, wdia, resp):
+    res = 1. / resp
+    dia = int(wdia*res+.5)
+    wrad = wdia/2.
+    if dia < 2: dia = 2
+    n = numarray.array([[ieee.plus_inf] * dia] * dia, type="Float32")
+    hdia = dia / 2.
+    l = []
+    for x in range(dia):
+        for y in range(dia):
+            r = hypot(x-hdia, y-hdia) * resp
+            if r < wrad:
+                z = f(r, wrad)
+                l.append(z)
+                n[x,y] = z
+    n = n - n.min()
+    return n
 
 def amax(seq):
     res = 0
@@ -68,17 +87,6 @@ def group_by_sign(seq, slop=sin(pi/18), key=lambda x:x):
                 yield subseq
                 subseq = [i]
     if subseq: yield subseq
-
-def make_tool_shape(f, dia):
-    dia = int(dia+.5)
-    n = numarray.array([[ieee.plus_inf] * dia] * dia, type="Float32")
-    hdia = dia / 2.
-    for x in range(dia):
-        for y in range(dia):
-            r = hypot(x-hdia, y-hdia) / hdia
-            if r < 1:
-                n[x,y] = f(r)
-    return n
 
 class Convert_Scan_Alternating:
     def __init__(self):
@@ -167,7 +175,7 @@ class Converter:
     def __init__(self,
             image, units, tool_shape, pixelsize, pixelstep, safetyheight, \
             tolerance, feed, convert_rows, convert_cols, cols_first_flag,
-            entry_cut):
+            entry_cut, spindle_speed):
         self.image = image
         self.units = units
         self.tool = tool_shape
@@ -180,6 +188,7 @@ class Converter:
         self.convert_cols = convert_cols
         self.cols_first_flag = cols_first_flag
         self.entry_cut = entry_cut
+        self.spindle_speed = spindle_speed
 
         self.cache = {}
 
@@ -193,7 +202,8 @@ class Converter:
     
     def convert(self):
         self.g = g = Gcode(safetyheight=self.safetyheight,
-                           tolerance=self.tolerance)
+                           tolerance=self.tolerance,
+                           spindle_speed=self.spindle_speed)
         g.begin()
         g.continuous()
         g.write(self.units)
@@ -516,6 +526,8 @@ def ui(im, nim, im_name):
         ("tolerance", floatentry),
         ("pixel_size", floatentry),
         ("feed_rate", floatentry),
+        ("plunge_feed_rate", floatentry),
+        ("spindle_speed", floatentry),
         ("pattern", lambda f, v: optionmenu(f, v, _("Rows"), _("Columns"), _("Rows then Columns"), _("Columns then Rows"))),
         ("converter", lambda f, v: optionmenu(f, v, _("Positive"), _("Negative"), _("Alternating"), _("Up Milling"), _("Down Milling"))),
         ("depth", floatentry),
@@ -538,29 +550,33 @@ def ui(im, nim, im_name):
         tool_type = 0,
         tolerance = .001,
         feed_rate = 12,
+        plunge_feed_rate = 12,
         units = 0,
         pattern = 0,
         converter = 0,
         bounded = 0,
         contact_angle = 45,
+        spindle_speed = 1000,
     )
 
     texts = dict(
         invert=_("Invert Image"),
         normalize=_("Normalize Image"),
-        pixel_size=_("Pixel Size"),
+        pixel_size=_("Pixel Size (Units)"),
         depth=_("Depth (units)"),
         tolerance=_("Tolerance (units)"),
-        pixelstep=_("Y step (pixels)"),
+        pixelstep=_("Stepover (pixels)"),
         tool_diameter=_("Tool Diameter (units)"),
         tool_type=_("Tool Type"),
         feed_rate=_("Feed Rate (units per minute)"),
+        plunge_feed_rate=_("Plunge Feed Rate (units per minute)"),
         units=_("Units"),
         safety_height=_("Safety Height (units)"),
-        pattern=_("Scan pattern"),
-        converter=_("Scan direction"),
-        bounded=_("Lace bounding"),
-        contact_angle=_("Contact angle"),
+        pattern=_("Scan Pattern"),
+        converter=_("Scan Direction"),
+        bounded=_("Lace Bounding"),
+        contact_angle=_("Contact Angle (degrees)"),
+        spindle_speed=_("Spindle Speed (RPM)"),
     )
 
     try:
@@ -665,11 +681,12 @@ def main():
     maker = tool_makers[options['tool_type']]
     tool_diameter = options['tool_diameter']
     pixel_size = options['pixel_size']
-    tool = make_tool_shape(maker, tool_diameter / pixel_size)
+    tool = make_tool_shape(maker, tool_diameter, pixel_size)
 
     rows = options['pattern'] != 1
     columns = options['pattern'] != 0
     columns_first = options['pattern'] == 3
+    spindle_speed = options['spindle_speed']
     if rows: convert_rows = convert_makers[options['converter']]()
     else: convert_rows = None
     if columns: convert_cols = convert_makers[options['converter']]()
@@ -690,7 +707,8 @@ def main():
     units = unitcodes[options['units']]
     convert(nim, units, tool, pixel_size, step,
         options['safety_height'], options['tolerance'], options['feed_rate'],
-        convert_rows, convert_cols, columns_first, ArcEntryCut(6, .125))
+        convert_rows, convert_cols, columns_first, ArcEntryCut(options['plunge_feed_rate'], .125),
+        spindle_speed)
 
 if __name__ == '__main__':
     main()
