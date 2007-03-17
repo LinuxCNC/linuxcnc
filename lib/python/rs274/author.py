@@ -75,7 +75,7 @@ input path.
 
 class Gcode:
     "For creating rs274ngc files"
-    def __init__(self, homeheight = 1.5, safetyheight = 0.04, tolerance=0.001,
+    def __init__(self, homeheight = 1.5, safetyheight = 0.04, tolerance=0.001, spindle_speed=1000,
             target=lambda s: sys.stdout.write(s + "\n")):
         self.lastx = self.lasty = self.lastz = self.lasta = None
         self.lastgcode = self.lastfeed = None
@@ -85,6 +85,7 @@ class Gcode:
         self.cuts = []
         self.write = target
         self.time = 0
+        self.spindle_speed = spindle_speed
 
     def begin(self):
 	"""\
@@ -95,7 +96,7 @@ speed."""
         self.write("G0 Z%.4f" % (self.safetyheight))
 	self.write("G17 G40 G49")
 	self.write("G54 G80 G90 G94")
-        self.write("S1000 M3")
+        self.write("S%d M3" % (self.spindle_speed))
 	self.write("G04 P3")
 
     def flush(self):

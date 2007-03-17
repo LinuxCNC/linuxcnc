@@ -167,7 +167,7 @@ class Converter:
     def __init__(self,
             image, units, tool_shape, pixelsize, pixelstep, safetyheight, \
             tolerance, feed, convert_rows, convert_cols, cols_first_flag,
-            entry_cut):
+            entry_cut, spindle_speed):
         self.image = image
         self.units = units
         self.tool = tool_shape
@@ -180,6 +180,7 @@ class Converter:
         self.convert_cols = convert_cols
         self.cols_first_flag = cols_first_flag
         self.entry_cut = entry_cut
+        self.spindle_speed = spindle_speed
 
         self.cache = {}
 
@@ -193,7 +194,8 @@ class Converter:
     
     def convert(self):
         self.g = g = Gcode(safetyheight=self.safetyheight,
-                           tolerance=self.tolerance)
+                           tolerance=self.tolerance,
+                           spindle_speed=self.spindle_speed)
         g.begin()
         g.continuous()
         g.write(self.units)
@@ -525,6 +527,7 @@ def ui(im, nim, im_name):
         ("tool_type", lambda f, v: optionmenu(f, v, _("Ball End"), _("Flat End"), _("45 Degree"), _("60 Degree"))),
         ("bounded", lambda f, v: optionmenu(f, v, _("None"), _("Secondary"), _("Full"))),
         ("contact_angle", floatentry),
+        ("spindle_speed", floatentry),
     ]
 
     defaults = dict(
@@ -543,6 +546,7 @@ def ui(im, nim, im_name):
         converter = 0,
         bounded = 0,
         contact_angle = 45,
+        spindle_speed = 1000,
     )
 
     texts = dict(
@@ -561,6 +565,7 @@ def ui(im, nim, im_name):
         converter=_("Scan direction"),
         bounded=_("Lace bounding"),
         contact_angle=_("Contact angle"),
+        spindle_speed=_("Spindle speed"),
     )
 
     try:
@@ -670,6 +675,7 @@ def main():
     rows = options['pattern'] != 1
     columns = options['pattern'] != 0
     columns_first = options['pattern'] == 3
+    spindle_speed = options['spindle_speed']
     if rows: convert_rows = convert_makers[options['converter']]()
     else: convert_rows = None
     if columns: convert_cols = convert_makers[options['converter']]()
@@ -690,7 +696,7 @@ def main():
     units = unitcodes[options['units']]
     convert(nim, units, tool, pixel_size, step,
         options['safety_height'], options['tolerance'], options['feed_rate'],
-        convert_rows, convert_cols, columns_first, ArcEntryCut(6, .125))
+        convert_rows, convert_cols, columns_first, ArcEntryCut(6, .125), spindle_speed)
 
 if __name__ == '__main__':
     main()
