@@ -518,6 +518,8 @@ def ui(im, nim, im_name):
         ("tolerance", floatentry),
         ("pixel_size", floatentry),
         ("feed_rate", floatentry),
+        ("plunge_feed_rate", floatentry),
+        ("spindle_speed", floatentry),
         ("pattern", lambda f, v: optionmenu(f, v, _("Rows"), _("Columns"), _("Rows then Columns"), _("Columns then Rows"))),
         ("converter", lambda f, v: optionmenu(f, v, _("Positive"), _("Negative"), _("Alternating"), _("Up Milling"), _("Down Milling"))),
         ("depth", floatentry),
@@ -527,7 +529,6 @@ def ui(im, nim, im_name):
         ("tool_type", lambda f, v: optionmenu(f, v, _("Ball End"), _("Flat End"), _("45 Degree"), _("60 Degree"))),
         ("bounded", lambda f, v: optionmenu(f, v, _("None"), _("Secondary"), _("Full"))),
         ("contact_angle", floatentry),
-        ("spindle_speed", floatentry),
     ]
 
     defaults = dict(
@@ -541,6 +542,7 @@ def ui(im, nim, im_name):
         tool_type = 0,
         tolerance = .001,
         feed_rate = 12,
+        plunge_feed_rate = 12,
         units = 0,
         pattern = 0,
         converter = 0,
@@ -552,20 +554,21 @@ def ui(im, nim, im_name):
     texts = dict(
         invert=_("Invert Image"),
         normalize=_("Normalize Image"),
-        pixel_size=_("Pixel Size"),
+        pixel_size=_("Pixel Size (Units)"),
         depth=_("Depth (units)"),
         tolerance=_("Tolerance (units)"),
-        pixelstep=_("Y step (pixels)"),
+        pixelstep=_("Stepover (pixels)"),
         tool_diameter=_("Tool Diameter (units)"),
         tool_type=_("Tool Type"),
         feed_rate=_("Feed Rate (units per minute)"),
+        plunge_feed_rate=_("Plunge Feed Rate (units per minute)"),
         units=_("Units"),
         safety_height=_("Safety Height (units)"),
-        pattern=_("Scan pattern"),
-        converter=_("Scan direction"),
-        bounded=_("Lace bounding"),
-        contact_angle=_("Contact angle"),
-        spindle_speed=_("Spindle speed"),
+        pattern=_("Scan Pattern"),
+        converter=_("Scan Direction"),
+        bounded=_("Lace Bounding"),
+        contact_angle=_("Contact Angle (degrees)"),
+        spindle_speed=_("Spindle Speed (RPM)"),
     )
 
     try:
@@ -696,7 +699,8 @@ def main():
     units = unitcodes[options['units']]
     convert(nim, units, tool, pixel_size, step,
         options['safety_height'], options['tolerance'], options['feed_rate'],
-        convert_rows, convert_cols, columns_first, ArcEntryCut(6, .125), spindle_speed)
+        convert_rows, convert_cols, columns_first, ArcEntryCut(options['plunge_feed_rate'], .125),
+        spindle_speed)
 
 if __name__ == '__main__':
     main()
