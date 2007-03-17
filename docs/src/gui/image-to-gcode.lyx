@@ -173,10 +173,19 @@ Pixel Size (units)
 One pixel in the input image will be this many units--usually this number
  is much smaller than 1.0.
  For instance, to mill a 2.5x2.5-inch object from a 400x400 image file, use
- a pixel size of 00625, because 2.5 / 400 = .00625.
+ a pixel size of .00625, because 2.5 / 400 = .00625.
+\layout Subsection
+
+Plunge Feed Rate (units per minute)
+\layout Standard
+
+The feed rate for the initial plunge movement
 \layout Subsection
 
 Feed Rate (units per minute)
+\layout Standard
+
+The feed rate for other parts of the path
 \layout Subsection
 
 Spindle Speed (RPM)
@@ -345,7 +354,11 @@ Full: When milling in the first direction, areas that strongly slope in
 Contact angle
 \layout Standard
 
-When Lace bounding is not None, slopes greater than 
+When 
+\series bold 
+Lace bounding
+\series default 
+ is not None, slopes greater than 
 \series bold 
 Contact angle
 \series default 
