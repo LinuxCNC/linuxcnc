@@ -9,8 +9,14 @@ emc2 (1:2.1.3) unstable; urgency=low
   * image-to-gcode: tool shape compensation bugfixes
   * image-to-gcode: add documentation
   * stepgen: revise core to eliminate 1 count deadband and resulting "bobbles"
+  * improve segment throughput for slow machines when using AXIS
+  * fix cutter compensation sticky words when using zero radius tool
+  * fix incorrect path in some circumstances after G40 in lathe mode
+  * in AXIS, unhighlight a program line that was chosen interactively when
+    starting a program.  this way, the highlight follows the running program.
+  * fix some misformatted/truncated error messages
 
- -- jepler <jepler@unpythonic.net>  Sat, 17 Mar 2007 16:35:47 -0500
+ -- Chris Radek <chris@timeguy.com>  Sun, 18 Mar 2007 01:38:52 -0500
 
 emc2 (1:2.1.2) testing; urgency=low
 
