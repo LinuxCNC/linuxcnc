@@ -1027,7 +1027,7 @@ static int export_stepgen(int num, stepgen_t * addr, int step_type)
     if (retval != 0) { return retval; }
     /* every step type uses steplen */
     retval = hal_param_u32_newf(HAL_RW, &(addr->step_len), comp_id,
-	"stepgen.%d.steplen");
+	"stepgen.%d.steplen", num);
     if (retval != 0) { return retval; }
     if (step_type < 2) {
 	/* step/dir and up/down use 'stepspace' */
