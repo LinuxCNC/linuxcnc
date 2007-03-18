@@ -1,4 +1,4 @@
-.TH STEPGEN/FREQGEN "9" "2007-01-16" "EMC Documentation" "HAL Component"
+.TH STEPGEN "9" "2007-01-16" "EMC Documentation" "HAL Component"
 .de TQ
 .br
 .ns
@@ -6,24 +6,40 @@
 ..
 
 .SH NAME
-freqgen, stepgen \- software step pulse generation
+stepgen \- software step pulse generation
 .SH SYNOPSIS
-\fBloadrt freqgen step_type=\fItype0\fR[,\fItype1\fR...]
-.br
-\fBloadrt stepgen step_type=\fItype0\fR[,\fItype1\fR...]
+\fBloadrt stepgen step_type=\fItype0\fR[,\fItype1\fR...] [\fBctrl_type=\fItype0\fR[,\fItype1\fR...]]
 
 .SH DESCRIPTION
-\fBfreqgen\fR and \fBstepgen\fR are used to control stepper motors.  The maximum
-step rate depends on the CPU and other factors, and is usually in the range of 10KHz to 50KHz.  If higher rates are needed, a hardware step generator is a better choice.
+\fBstepgen\fR is used to control stepper motors.  The maximum
+step rate depends on the CPU and other factors, and is usually in the range
+of 5KHz to 25KHz.  If higher rates are needed, a hardware step generator
+is a better choice.
 .P
-\fBfreqgen\fR runs the motor at a commanded velocity, subject to acceleration and velocity limits.  \fBstepgen\fR drives the motor to a commanded position, again subject to accel and velocity limits.  Usually, \fBstepgen\fR is used for machine axes.  \fBfreqgen\fR is reserved for unusual applications where continuous movement at some speed is desired, instead of movement to a specific position.
+\fBstepgen\fR has two control modes, which can be selected on a channel
+by channel basis using \fBctrl_type\fR.  Possible values are "\fBp\fR"
+for position control, and "\fBv\fR" for velocity control. The default
+is position control, which drives the motor to a commanded position,
+subject to acceleration and velocity limits.  Velocity control drives
+the motor at a commanded speed, again subject to accel and velocity
+limits.  Usually, position mode is used for machine axes.  Velocity mode
+is reserved for unusual applications where continuous movement at some
+speed is desired, instead of movement to a specific position.  (Note that
+velocity mode replaces the former component \fBfreqgen\fR.)
 .P
-Either component can control a maximum of eight motors.  The number of motors/channels actually loaded depends on the number of \fItype\fR values given.
-The value of each \fItype\fR determines the outputs for that channel.  Both components support the same 15 possible step types.
+\fBstepgen\fR can control a maximum of eight motors.  The number of
+motors/channels actually loaded depends on the number of \fItype\fR values
+given.  The value of each \fItype\fR determines the outputs for that channel.
+Position or velocity mode can be individually selected for each channel.
+Both control modes support the same 15 possible step types.
 .P
-By far the most common step type is '0', standard step and direction.  Others include up/down, quadrature, and a wide variety of three, four, and five phase patterns that can be used to directly control some types of motor windings.  (When used with appropriate buffers of course.)
+By far the most common step type is '0', standard step and direction.  Others
+include up/down, quadrature, and a wide variety of three, four, and five phase
+patterns that can be used to directly control some types of motor windings.
+(When used with appropriate buffers of course.)
 .P
-Some of the stepping types are described below, but for more details (including timing diagrams) see the \fBstepgen\fR section of the HAL reference manual.
+Some of the stepping types are described below, but for more details (including
+timing diagrams) see the \fBstepgen\fR section of the HAL reference manual.
 .TP
 type 0: step/dir
 Two pins, one for step and one for direction.  \fBmake-pulses\fR must run at least twice for each step (once to set the step pin true, once to clear it).  This limits the maximum step rate to half (or less) of the rate that can be reached by types 2-14.  The parameters \fBsteplen\fR and \fBstepspace\fR can further lower the maximum step rate.  Parameters \fBdirsetup\fR and \fBdirhold\fR also apply to this step type.
@@ -53,112 +69,145 @@ types 13 and 14: five phase, half step
 Five pins, phases A through E.  Ten steps per full cycle.  See HAL reference manual for the patterns.
 
 .SH FUNCTIONS
-.P
-Note: \fImodule\fR can be either \fBfreqgen\fR or \fBstepgen\fR in the following
-function names.
 .TP 
-\fB\fImodule\fB.make-pulses \fR(no floating-point)
+\fBstepgen.make-pulses \fR(no floating-point)
 Generates the step pulses, using information computed by \fBupdate-freq\fR.  Must be called as frequently as possible, to maximize the attainable step rate and minimize jitter.  Operates on all channels at once.
 .TP
-\fB\fImodule\fB.capture-position \fR(uses floating point)
+\fBstepgen.capture-position \fR(uses floating point)
 Captures position feedback value from the high speed code and makes it available on a pin for use elsewhere in the system.  Operates on all channels at once.
 .TP
-\fB\fImodule\fB.update-freq \fR(uses floating point)
-Accepts a velocity (\fBfreqgen\fR) or position (\fBstepgen\fR) command and converts it into a form usable by \fBmake-pulses\fR for step generation.  Operates on all
+\fBstepgen.update-freq \fR(uses floating point)
+Accepts a velocity or position command and converts it into a form usable by \fBmake-pulses\fR for step generation.  Operates on all
 channels at once.
 
 .SH PINS
-.P
-Note: \fImodule\fR can be either \fBfreqgen\fR or \fBstepgen\fR in the following
-pin names.
 .TP
-\fB\fImodule\fB.\fIN\fB.counts\fR s32 out
+\fBstepgen.\fIN\fB.counts\fR s32 out
 The current position, in counts, for channel \fIN\fR.  Updated by
 \fBcapture-position\fR.
 .TP
-\fB\fImodule\fB.\fIN\fB.position-fb\fR float out
-The current position, in length units (see parameter \fBposition-scale\fR).  Updated by \fBcapture-position\fR.
+\fBstepgen.\fIN\fB.position-fb\fR float out
+The current position, in length units (see parameter \fBposition-scale\fR).  Updated by \fBcapture-position\fR. The resolution of \fBposition-fb\fR is much finer than a single step.  If you need to see individual steps, use \fBcounts\fR.
 .TP
-\fBstepgen.\fIN\fB.enable\fR bit in (\fBstepgen\fR only)
+\fBstepgen.\fIN\fB.enable\fR bit in
 Enables output steps - when false, no steps are generated.
 .TP
-\fBfreqgen.\fIN\fB.velocity\fR float in (\fBfreqgen\fR only)
-Commanded velocity, in length units per second (see parameter \fBvelocity-scale\fR).
+\fBstepgen.\fIN\fB.velocity-cmd\fR float in (velocity mode only)
+Commanded velocity, in length units per second (see parameter \fBposition-scale\fR).
 .TP
-\fBstepgen.\fIN\fB.position-cmd\fR float in (\fBstepgen\fR only)
+\fBstepgen.\fIN\fB.position-cmd\fR float in (position mode only)
 Commanded position, in length units (see parameter \fBposition-scale\fB).
 .TP
-\fB\fImodule\fB.\fIN\fB.step\fR bit out (step type 0 only)
+\fBstepgen.\fIN\fB.step\fR bit out (step type 0 only)
 Step pulse output.
 .TP
-\fB\fImodule\fB.\fIN\fB.dir\fR bit out (step type 0 only)
+\fBstepgen.\fIN\fB.dir\fR bit out (step type 0 only)
 Direction output: low for forward, high for reverse.
 .TP
-\fB\fImodule\fB.\fIN\fB.up\fR bit out (step type 1 only)
+\fBstepgen.\fIN\fB.up\fR bit out (step type 1 only)
 Count up output, pulses for forward steps.
 .TP
-\fB\fImodule\fB.\fIN\fB.down\fR bit out (step type 1 only)
+\fBstepgen.\fIN\fB.down\fR bit out (step type 1 only)
 Count down output, pulses for reverse steps.
 .TP
-\fB\fImodule\fB.\fIN\fB.phase-A\fR thru \fBphase-E\fR bit out (step types 2-14 only)
+\fBstepgen.\fIN\fB.phase-A\fR thru \fBphase-E\fR bit out (step types 2-14 only)
 Output bits.  \fBphase-A\fR and \fBphase-B\fR are present for step types 2-14, \fBphase-C\fR for types 3-14, \fBphase-D\fR for types 5-14, and \fBphase-E\fR for types 11-14.  Behavior depends on selected stepping type.
 
 .SH PARAMETERS
-.P
-Note: \fImodule\fR can be either \fBfreqgen\fR or \fBstepgen\fR in the following
-parameter names.
 .TP
-\fB\fImodule\fB.\fIN\fB.frequency\fR float ro
+\fBstepgen.\fIN\fB.frequency\fR float ro
 The current step rate, in steps per second, for channel \fIN\fR.
 .TP
-\fB\fImodule\fB.\fIN\fB.maxaccel\fR float rw
-The acceleration/deceleration limit.  For \fBfreqgen\fR it is in steps per second squared, for \fBstepgen\fR it is in length units per second squared.
+\fBstepgen.\fIN\fB.maxaccel\fR float rw
+The acceleration/deceleration limit, in length units per second squared.
 .TP
-\fBfreqgen.\fIN\fB.maxfreq\fR float rw (\fBfreqgen\fR only)
-The maximum allowable velocity, in steps per second.  If the requested maximum velocity cannot be reached with the current \fBmake-pulses\fR thread period, it will be reset to the highest attainable value.
-.TP
-\fBstepgen.\fIN\fB.maxvel\fR float rw (\fBstepgen\fR only)
+\fBstepgen.\fIN\fB.maxvel\fR float rw
 The maximum allowable velocity, in length units per second.  If the requested maximum velocity cannot be reached with the current combination of scaling and \fBmake-pulses\fR thread period, it will be reset to the highest attainable value.
 .TP
-\fB\fImodule\fB.\fIN\fB.position-scale\fR float rw
-The scaling for position feedback (and \fBstepgen\fR position command), in steps per length unit.
+\fBstepgen.\fIN\fB.position-scale\fR float rw
+The scaling for position feedback, position command, and velocity command, in steps per length unit.
 .TP
-\fBfreqgen.\fIN\fB.velocity-scale\fR float rw (\fBfreqgen\fR only)
-The scaling for the velocity command, in steps per length unit.
-.TP
-\fB\fImodule\fB.\fIN\fB.rawcounts\fR s32 ro
+\fBstepgen.\fIN\fB.rawcounts\fR s32 ro
 The position in counts, as updated by \fBmake-pulses\fR.  (Note: this is updated more frequently than the \fBcounts\fR pin.)
 .TP
-\fB\fImodule\fB.\fIN\fB.steplen\fR u32 rw (step type 0 only)
-The length of the step pulses, in \fBmake-pulses\fR periods.  Measured from rising edge to falling edge.
+\fBstepgen.\fIN\fB.steplen\fR u32 rw
+The length of the step pulses, in nanoseconds.  Measured from rising edge to falling edge.
 .TP
-\fB\fImodule\fB.\fIN\fB.stepspace\fR u32 rw (step type 0 only)
-The minimum space between step pulses, in \fBmake-pulses\fR periods.  Measured from falling edge to rising edge.  The actual time depends on the step rate and can be much longer.
+\fBstepgen.\fIN\fB.stepspace\fR u32 rw (step types 0 and 1 only)
+The minimum space between step pulses, in nanoseconds.  Measured from falling edge to rising edge.  The actual time depends on the step rate and can be much longer.
 .TP
-\fB\fImodule\fB.\fIN\fB.dirsetup\fR u32 rw (step type 0 only)
-The minimum setup time from direction to step, in \fBmake-pulses\fR periods.  Measured from change of direction to rising edge of step.
+\fBstepgen.\fIN\fB.dirsetup\fR u32 rw (step type 0 only)
+The minimum setup time from direction to step, in nanoseconds periods.  Measured from change of direction to rising edge of step.
 .TP
-\fB\fImodule\fB.\fIN\fB.dirhold\fR u32 rw (step type 0 only)
-The minimum hold time of direction after step, in \fBmake-pulses\fR periods.  Measured from falling edge of step to change of direction.
+\fBstepgen.\fIN\fB.dirhold\fR u32 rw (step type 0 only)
+The minimum hold time of direction after step, in nanoseconds.  Measured from falling edge of step to change of direction.
+.TP
+\fBstepgen.\fIN\fB.dirdelay\fR u32 rw (step types 1 and higher only)
+The minimum time between a forward step and a reverse step, in nanoseconds.
 
-.SH BUGS
-\fBfreqgen\fR should have an \fBenable\fR pin.
+.SH TIMING
 .P
-\fBfreqgen\fR's command pin should be called \fBvelocity-cmd\fR, not \fBvelocity\fR, for clarity and consistency with \fBstepgen\fR.
+There are five timing parameters which control the output waveform.  No step type
+uses all five, and only those which will be used are exported to HAL.  The values
+of these parameters are in nano-seconds, so no recalculation is needed when
+changing thread periods.  In the timing diagrams that follow, they are identfied
+by the following numbers:
 .P
-\fBfreqgen\fR should use \fBmaxvel\fR, not \fBmaxfreq\fR. (In other words, the velocity limit should be scaled in length units per second, not steps per second.  The scale parameter can be set to 1.0 if it is desired to work in steps instead of length units.)
+(1) \fBstepgen.n.steplen\fR
 .P
-\fBfreqgen\fR's maxaccel parameter should be in length units per second squared, not steps per second squared, for consistency with \fBstepgen\fR.
+(2) \fBstepgen.n.stepspace\fR
 .P
-\fBfreqgen\fR should use \fBposition-scale\fR for scaling both command and feedback, \fBvelocity-scale\fR is redundant and should be eliminated.
+(3) \fBstepgen.n.dirhold\fR
 .P
-Step type 1 (up/down) should respect the \fBsteplen\fR and \fBstepspace\fR limits.
+(4) \fBstepgen.n.dirsetup\fR
 .P
-Timing parameters \fBsteplen\fR, \fBstepspace\fR, \fBdirsetup\fR, and \fBdirhold\fR should be in nano-seconds, not \fBmake-pulses\fR periods.  That would allow the period to be changed without requiring the parameters to be recalculated.
+(5) \fBstepgen.n.dirdelay\fR
 .P
-Most of these will be fixed in version 2.2, rather than 2.1.x, because they
-represent changes in the public interface (different pin names or behaviors).
-
+For step type 0, timing parameters 1 thru 4 are used.  The following timing diagram
+shows the output waveforms, and what each parameter adjusts.
+.P
+.ie '\*[.T]'html' .HTML <PRE> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; _____ &nbsp; &nbsp; &nbsp; &nbsp; _____ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; _____<BR> &nbsp; &nbsp;STEP &nbsp;____/ &nbsp; &nbsp; &#92;_______/ &nbsp; &nbsp; &#92;_____________/ &nbsp; &nbsp; &#92;______<BR> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;| &nbsp; &nbsp; | &nbsp; &nbsp; &nbsp; | &nbsp; &nbsp; | &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; | &nbsp; &nbsp; |<BR> &nbsp; &nbsp;Time &nbsp; &nbsp; &nbsp;|-(1)-|--(2)--|-(1)-|--(3)--|-(4)-|-(1)-|<BR> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;|__________________<BR> &nbsp; &nbsp;DIR &nbsp; ________________________________/<BR></PRE>
+.el \{\
+.ft CR
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ _____\ \ \ \ \ \ \ \ \ _____\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ _____
+.BR
+\ \ \ \ STEP\ \ ____/\ \ \ \ \ \\_______/\ \ \ \ \ \\_____________/\ \ \ \ \ \\______
+.BR
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ |\ \ \ \ \ |\ \ \ \ \ \ \ |\ \ \ \ \ |\ \ \ \ \ \ \ \ \ \ \ \ \ |\ \ \ \ \ |
+.BR
+\ \ \ \ Time\ \ \ \ \ \ |-(1)-|--(2)--|-(1)-|--(3)--|-(4)-|-(1)-|
+.BR
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ |__________________
+.BR
+\ \ \ \ DIR\ \ \ ________________________________/
+.ft R
+\}
+.P
+For step type 1, timing parameters 1, 2, and 5 are used.  The following timing diagram
+shows the output waveforms, and what each parameter adjusts.
+.P
+.ie '\*[.T]'html' .HTML <PRE> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; _____ &nbsp; &nbsp; &nbsp; _____<BR> &nbsp; &nbsp;UP &nbsp; &nbsp;__/ &nbsp; &nbsp; &#92;_____/ &nbsp; &nbsp; &#92;________________________________<BR> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;| &nbsp; &nbsp; | &nbsp; &nbsp; | &nbsp; &nbsp; | &nbsp; &nbsp; &nbsp; &nbsp; |<BR> &nbsp; &nbsp;Time &nbsp; &nbsp;|-(1)-|-(2)-|-(1)-|---(5)---|-(1)-|-(2)-|-(1)-|<BR> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;|_____| &nbsp; &nbsp; |_____|<BR> &nbsp; &nbsp;DOWN &nbsp;______________________________/ &nbsp; &nbsp; &#92;_____/ &nbsp; &nbsp; &#92;____<BR></PRE>
+.el \{\
+.ft CR
+\ \ \ \ \ \ \ \ \ \ \ \ \ _____\ \ \ \ \ \ \ _____
+.BR
+\ \ \ \ UP\ \ \ \ __/\ \ \ \ \ \\_____/\ \ \ \ \ \\________________________________
+.BR
+\ \ \ \ \ \ \ \ \ \ \ \ |\ \ \ \ \ |\ \ \ \ \ |\ \ \ \ \ |\ \ \ \ \ \ \ \ \ |
+.BR
+\ \ \ \ Time\ \ \ \ |-(1)-|-(2)-|-(1)-|---(5)---|-(1)-|-(2)-|-(1)-|
+.BR
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ |_____|\ \ \ \ \ |_____|
+.BR
+\ \ \ \ DOWN\ \ ______________________________/\ \ \ \ \ \\_____/\ \ \ \ \ \\____
+.ft R
+\}
+.P
+For step types 2 and higher, the exact pattern of the outputs depends on the step
+type (see the HAL manual for a full listing).  The outputs change from one state to
+another at a minimum interval of \fBsteplen\fR.  When a direction change occurs, the
+minimum time between the last step in one direction and the first in the other
+direction is the sum of \fBsteplen\fR and \fBdirdelay\fR.
 .SH SEE ALSO
-\fBstepgen(9) freqgen(9)\fR
+The HAL User Manual.
 

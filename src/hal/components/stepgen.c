@@ -63,7 +63,7 @@
 
     Timing parameters:
 
-    The are five timing parameters which control the output waveform.
+    There are five timing parameters which control the output waveform.
     No step type uses all five, and only those which will be used are
     exported to HAL.  The values of these parameters are in nano-seconds,
     so no recalculation is needed when changing thread periods.  In

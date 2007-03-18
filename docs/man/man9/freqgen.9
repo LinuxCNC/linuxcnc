@@ -1,1 +1,148 @@
-.so man9/stepgen.9
+.TH FREQGEN "9" "2007-01-16" "EMC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+freqgen \- software step pulse generation
+.P
+\fBOBSOLETE\fR - see \fBstepgen\fR's 'ctrl_type=v' option.
+.SH SYNOPSIS
+\fBloadrt freqgen step_type=\fItype0\fR[,\fItype1\fR...]
+
+.SH DESCRIPTION
+\fBfreqgen\fR is used to control stepper motors.  The maximum
+step rate depends on the CPU and other factors, and is usually in the range of 10KHz to 50KHz.  If higher rates are needed, a hardware step generator is a better choice.
+.P
+\fBfreqgen\fR runs the motor at a commanded velocity, subject to acceleration and velocity limits.  It does not directly control position.
+.P
+\fBfreqgen\fR can control a maximum of eight motors.  The number of motors/channels actually loaded depends on the number of \fItype\fR values given.
+The value of each \fItype\fR determines the outputs for that channel.  \fBfreqgen\fR supports 15 possible step types.
+.P
+By far the most common step type is '0', standard step and direction.  Others include up/down, quadrature, and a wide variety of three, four, and five phase patterns that can be used to directly control some types of motor windings.  (When used with appropriate buffers of course.)
+.P
+Some of the stepping types are described below, but for more details (including timing diagrams) see the \fBstepgen\fR section of the HAL reference manual.
+.TP
+type 0: step/dir
+Two pins, one for step and one for direction.  \fBmake-pulses\fR must run at least twice for each step (once to set the step pin true, once to clear it).  This limits the maximum step rate to half (or less) of the rate that can be reached by types 2-14.  The parameters \fBsteplen\fR and \fBstepspace\fR can further lower the maximum step rate.  Parameters \fBdirsetup\fR and \fBdirhold\fR also apply to this step type.
+.TP
+type 1: up/down
+Two pins, one for 'step up' and one for 'step down'.  Like type 0, \fBmake-pulses\fR must run twice per step, which limits the maximum speed.
+.TP
+type 2: quadrature
+Two pins, phase-A and phase-B.  For forward motion, A leads B.  Can advance by one step every time \fBmake-pulses\fR runs.
+.TP
+type 3: three phase, full step
+Three pins, phase-A, phase-B, and phase-C.  Three steps per full cycle, then repeats.  Only one phase is high at a time - for forward motion the pattern is A, then B, then C, then A again.
+.TP
+type 4: three phase, half step
+Three pins, phases A through C.  Six steps per full cycle.  First A is high alone, then A and B together, then B alone, then B and C together, etc.
+.TP
+types 5 through 8: four phase, full step
+Four pins, phases A through D.  Four steps per full cycle.  Types 5 and 6 are suitable for use with unipolar steppers, where power is applied to the center tap of each winding, and four open-collector transistors drive the ends.  Types 7 and 8 are suitable for bipolar steppers, driven by two H-bridges.
+.TP
+types 9 and 10: four phase, half step
+Four pins, phases A through D.  Eight steps per full cycle.  Type 9 is suitable for unipolar drive, and type 10 for bipolar drive.
+.TP
+types 11 and 12: five phase, full step
+Five pins, phases A through E.  Five steps per full cycle.  See HAL reference manual for the patterns.
+.TP
+types 13 and 14: five phase, half step
+Five pins, phases A through E.  Ten steps per full cycle.  See HAL reference manual for the patterns.
+
+.SH FUNCTIONS
+.TP 
+\fBfreqgen.make-pulses \fR(no floating-point)
+Generates the step pulses, using information computed by \fBupdate-freq\fR.  Must be called as frequently as possible, to maximize the attainable step rate and minimize jitter.  Operates on all channels at once.
+.TP
+\fBfreqgen.capture-position \fR(uses floating point)
+Captures position feedback value from the high speed code and makes it available on a pin for use elsewhere in the system.  Operates on all channels at once.
+.TP
+\fBfreqgen.update-freq \fR(uses floating point)
+Accepts a velocity command and converts it into a form usable by \fBmake-pulses\fR for step generation.  Operates on all
+channels at once.
+
+.SH PINS
+.TP
+\fBfreqgen.\fIN\fB.counts\fR s32 out
+The current position, in counts, for channel \fIN\fR.  Updated by
+\fBcapture-position\fR.
+.TP
+\fBfreqgen.\fIN\fB.position-fb\fR float out
+The current position, in length units (see parameter \fBposition-scale\fR).  Updated by \fBcapture-position\fR.
+.TP
+\fBfreqgen.\fIN\fB.velocity\fR float in (\fBfreqgen\fR only)
+Commanded velocity, in length units per second (see parameter \fBvelocity-scale\fR).
+.TP
+\fBfreqgen.\fIN\fB.step\fR bit out (step type 0 only)
+Step pulse output.
+.TP
+\fBfreqgen.\fIN\fB.dir\fR bit out (step type 0 only)
+Direction output: low for forward, high for reverse.
+.TP
+\fBfreqgen.\fIN\fB.up\fR bit out (step type 1 only)
+Count up output, pulses for forward steps.
+.TP
+\fBfreqgen.\fIN\fB.down\fR bit out (step type 1 only)
+Count down output, pulses for reverse steps.
+.TP
+\fBfreqgen.\fIN\fB.phase-A\fR thru \fBphase-E\fR bit out (step types 2-14 only)
+Output bits.  \fBphase-A\fR and \fBphase-B\fR are present for step types 2-14, \fBphase-C\fR for types 3-14, \fBphase-D\fR for types 5-14, and \fBphase-E\fR for types 11-14.  Behavior depends on selected stepping type.
+
+.SH PARAMETERS
+.TP
+\fBfreqgen.\fIN\fB.frequency\fR float ro
+The current step rate, in steps per second, for channel \fIN\fR.
+.TP
+\fBfreqgen.\fIN\fB.maxaccel\fR float rw
+The acceleration/deceleration limit, in steps per second squared.
+.TP
+\fBfreqgen.\fIN\fB.maxfreq\fR float rw (\fBfreqgen\fR only)
+The maximum allowable velocity, in steps per second.  If the requested maximum velocity cannot be reached with the current \fBmake-pulses\fR thread period, it will be reset to the highest attainable value.
+.TP
+\fBfreqgen.\fIN\fB.position-scale\fR float rw
+The scaling for position feedback, in steps per length unit.
+.TP
+\fBfreqgen.\fIN\fB.velocity-scale\fR float rw
+The scaling for the velocity command, in steps per length unit.
+.TP
+\fBfreqgen.\fIN\fB.rawcounts\fR s32 ro
+The position in counts, as updated by \fBmake-pulses\fR.  (Note: this is updated more frequently than the \fBcounts\fR pin.)
+.TP
+\fBfreqgen.\fIN\fB.steplen\fR u32 rw (step type 0 only)
+The length of the step pulses, in \fBmake-pulses\fR periods.  Measured from rising edge to falling edge.
+.TP
+\fBfreqgen.\fIN\fB.stepspace\fR u32 rw (step type 0 only)
+The minimum space between step pulses, in \fBmake-pulses\fR periods.  Measured from falling edge to rising edge.  The actual time depends on the step rate and can be much longer.
+.TP
+\fBfreqgen.\fIN\fB.dirsetup\fR u32 rw (step type 0 only)
+The minimum setup time from direction to step, in \fBmake-pulses\fR periods.  Measured from change of direction to rising edge of step.
+.TP
+\fBfreqgen.\fIN\fB.dirhold\fR u32 rw (step type 0 only)
+The minimum hold time of direction after step, in \fBmake-pulses\fR periods.  Measured from falling edge of step to change of direction.
+
+.SH BUGS
+\fBfreqgen\fR should have an \fBenable\fR pin.
+.P
+\fBfreqgen\fR's command pin should be called \fBvelocity-cmd\fR, not \fBvelocity\fR, for clarity and consistency with \fBstepgen\fR.
+.P
+\fBfreqgen\fR should use \fBmaxvel\fR, not \fBmaxfreq\fR. (In other words, the velocity limit should be scaled in length units per second, not steps per second.  The scale parameter can be set to 1.0 if it is desired to work in steps instead of length units.)
+.P
+\fBfreqgen\fR's maxaccel parameter should be in length units per second squared, not steps per second squared, for consistency with \fBstepgen\fR.
+.P
+\fBfreqgen\fR should use \fBposition-scale\fR for scaling both command and feedback, \fBvelocity-scale\fR is redundant and should be eliminated.
+.P
+Step type 1 (up/down) should respect the \fBsteplen\fR and \fBstepspace\fR limits.
+.P
+Timing parameters \fBsteplen\fR, \fBstepspace\fR, \fBdirsetup\fR, and \fBdirhold\fR should be in nano-seconds, not \fBmake-pulses\fR periods.  That would allow the period to be changed without requiring the parameters to be recalculated.
+.P
+All of these bugs have been fixed in \fBstepgen\fR.  Only \fBstepgen\fR will continue to be maintained, since
+\fBfreqgen\fR contains large amounts of code that duplicates code in \fBstepgen\fR.  Since \fBstepgen\fR
+can provide the same functionality, there is no reason to maintain the duplicate code.  \fBfreqgen\fR may be
+eliminated at any time, and almost certainly \fBwill\fR be eliminated for the version 2.2 release of EMC.
+
+.SH SEE ALSO
+\fBstepgen(9)\fR
+
