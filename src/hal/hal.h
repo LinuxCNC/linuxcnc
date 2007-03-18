@@ -374,13 +374,17 @@ extern int hal_pin_s32_new(char *name, hal_pin_dir_t dir,
     On failure they return a negative error code.
 */
 extern int hal_pin_bit_newf(hal_pin_dir_t dir,
-    hal_bit_t ** data_ptr_addr, int comp_id, char *fmt, ...);
+    hal_bit_t ** data_ptr_addr, int comp_id, char *fmt, ...)
+	__attribute__((format(printf,4,5)));
 extern int hal_pin_float_newf(hal_pin_dir_t dir,
-    hal_float_t ** data_ptr_addr, int comp_id, char *fmt, ...);
+    hal_float_t ** data_ptr_addr, int comp_id, char *fmt, ...)
+	__attribute__((format(printf,4,5)));
 extern int hal_pin_u32_newf(hal_pin_dir_t dir,
-    hal_u32_t ** data_ptr_addr, int comp_id, char *fmt, ...);
+    hal_u32_t ** data_ptr_addr, int comp_id, char *fmt, ...)
+	__attribute__((format(printf,4,5)));
 extern int hal_pin_s32_newf(hal_pin_dir_t dir,
-    hal_s32_t ** data_ptr_addr, int comp_id, char *fmt, ...);
+    hal_s32_t ** data_ptr_addr, int comp_id, char *fmt, ...)
+	__attribute__((format(printf,4,5)));
 
 
 /** 'hal_pin_new()' creates a new 'pin' object.  It is a generic
@@ -495,15 +499,19 @@ extern int hal_param_u32_new(char *name, hal_param_dir_t dir,
 extern int hal_param_s32_new(char *name, hal_param_dir_t dir,
     hal_s32_t * data_addr, int comp_id);
 
-/** printf-style versions of hal_param_XXX_new */
+/** printf_style-style versions of hal_param_XXX_new */
 extern int hal_param_bit_newf(hal_param_dir_t dir, 
-    hal_bit_t * data_addr, int comp_id, char *fmt, ...);
+    hal_bit_t * data_addr, int comp_id, char *fmt, ...)
+	__attribute__((format(printf,4,5)));
 extern int hal_param_float_newf(hal_param_dir_t dir,
-    hal_float_t * data_addr, int comp_id, char *fmt, ...);
+    hal_float_t * data_addr, int comp_id, char *fmt, ...)
+	__attribute__((format(printf,4,5)));
 extern int hal_param_u32_newf(hal_param_dir_t dir,
-    hal_u32_t * data_addr, int comp_id, char *fmt, ...);
+    hal_u32_t * data_addr, int comp_id, char *fmt, ...)
+	__attribute__((format(printf,4,5)));
 extern int hal_param_s32_newf(hal_param_dir_t dir,
-    hal_s32_t * data_addr, int comp_id, char *fmt, ...);
+    hal_s32_t * data_addr, int comp_id, char *fmt, ...)
+	__attribute__((format(printf,4,5)));
 
 
 /** 'hal_param_new()' creates a new 'parameter' object.  It is a generic
