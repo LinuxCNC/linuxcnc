@@ -662,11 +662,11 @@ static void make_pulses(void *arg, long period)
 	    /* up/down */
 	    if ( stepgen->timer1 != 0 ) {
 		if ( stepgen->curr_dir < 0 ) {
-		    *(stepgen->phase[DOWN_PIN]) = 1;
 		    *(stepgen->phase[UP_PIN]) = 0;
+		    *(stepgen->phase[DOWN_PIN]) = 1;
 		} else {
-		    *(stepgen->phase[UP_PIN]) = 0;
-		    *(stepgen->phase[DOWN_PIN]) = 1;
+		    *(stepgen->phase[UP_PIN]) = 1;
+		    *(stepgen->phase[DOWN_PIN]) = 0;
 		}
 	    } else {
 		*(stepgen->phase[UP_PIN]) = 0;
