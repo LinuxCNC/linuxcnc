@@ -15,29 +15,41 @@
 ********************************************************************/
 /** This file, 'stepgen.c', is a HAL component that provides software
     based step pulse generation.  The maximum step rate will depend
-    on the speed of the PC, but is expected to exceed 1KHz for even
-    the slowest computers, and may reach 10KHz on fast ones.  It is
+    on the speed of the PC, but is expected to exceed 5KHz for even
+    the slowest computers, and may reach 25KHz on fast ones.  It is
     a realtime component.
 
     It supports up to 8 pulse generators.  Each generator can produce
     several types of outputs in addition to step/dir, including
     quadrature, half- and full-step unipolar and bipolar, three phase,
     and five phase.  A 32 bit feedback value is provided indicating
-    the current position of the motor (assuming no lost steps).
+    the current position of the motor in counts (assuming no lost
+    steps), and a floating point feedback in user specified position
+    units is also provided.
+
     The number of step generators and type of outputs is determined
     by the insmod command line parameter 'step_type'.  It accepts
     a comma separated (no spaces) list of up to 8 stepping types
-    to configure up to 8 channels.  So a command line like this:
-          insmod stepgen step_type=0,0,1,2
+    to configure up to 8 channels.  A second command line parameter
+    "ctrl_type", selects between position and velocity control modes
+    for each step generator.  (ctrl_type is optional, the default
+    control type is position.)
+
+    So a command line like this:
+
+	insmod stepgen step_type=0,0,1,2  ctrl_type=p,p,v,p
+
     will install four step generators, two using stepping type 0,
-    one using type 1, and one using type 2.
+    one using type 1, and one using type 2.  The first two and 
+    the last one will be running in position mode, and the third
+    one will be running in velocity mode.
 
     The driver exports three functions.  'stepgen.make-pulses', is
     responsible for actually generating the step pulses.  It must
     be executed in a fast thread to reduce pulse jitter.  The other
     two functions are normally called from a much slower thread.
-    'stepgen.update-freq' reads the frequency command and sets
-    internal variables used by 'stepgen.make-pulses'.
+    'stepgen.update-freq' reads the position or frequency command
+    and sets internal variables used by 'stepgen.make-pulses'.
     'stepgen.capture-position' captures and scales the current
     values of the position feedback counters.  Both 'update-freq' and
     'capture-position' use floating point, 'make-pulses' does not.
@@ -307,6 +319,8 @@ MODULE_DESCRIPTION("Step Pulse Generator for EMC HAL");
 MODULE_LICENSE("GPL");
 int step_type[MAX_CHAN] = { -1, -1, -1, -1, -1, -1, -1, -1 };
 RTAPI_MP_ARRAY_INT(step_type,MAX_CHAN,"stepping types for up to 8 channels");
+char *ctrl_type[MAX_CHAN] = { "p", "p", "p", "p", "p", "p", "p", "p" };
+RTAPI_MP_ARRAY_STRING(ctrl_type,MAX_CHAN,"control type (pos or vel) for up to 8 channels");
 
 /***********************************************************************
 *                STRUCTURES AND GLOBAL VARIABLES                       *
@@ -341,12 +355,14 @@ typedef struct {
     hal_bit_t *phase[5];	/* pins for output signals */
     const unsigned char *lut;	/* pointer to state lookup table */
     /* stuff that is not accessed by makepulses */
+    int pos_mode;		/* 1 = position mode, 0 = velocity mode */
     hal_u32_t step_space;	/* parameter: min step pulse spacing */
     double old_pos_cmd;		/* previous position command (counts) */
     hal_s32_t *count;		/* pin: captured feedback in counts */
     hal_float_t pos_scale;	/* param: steps per position unit */
     float old_scale;		/* stored scale value */
     double scale_recip;		/* reciprocal value used for scaling */
+    hal_float_t *vel_cmd;	/* pin: velocity command (pos units/sec) */
     hal_float_t *pos_cmd;	/* pin: position command (position units) */
     hal_float_t *pos_fb;	/* pin: position feedback (position units) */
     hal_float_t freq;		/* param: frequency command */
@@ -413,7 +429,7 @@ static float recip_dt;		/* recprocal of period, avoids divides */
 *                  LOCAL FUNCTION DECLARATIONS                         *
 ************************************************************************/
 
-static int export_stepgen(int num, stepgen_t * addr, int steptype);
+static int export_stepgen(int num, stepgen_t * addr, int step_type, int pos_mode);
 static void make_pulses(void *arg, long period);
 static void update_freq(void *arg, long period);
 static void update_pos(void *arg, long period);
@@ -432,9 +448,18 @@ int rtapi_app_main(void)
 			    "STEPGEN: ERROR: bad stepping type '%i', axis %i\n",
 			    step_type[n], n);
 	    return -1;
-	} else {
-	    num_chan++;
 	}
+	if ((ctrl_type[n][0] == 'p' ) || (ctrl_type[n][0] == 'P')) {
+	    ctrl_type[n][0] = 'p';
+	} else if ((ctrl_type[n][0] == 'v' ) || (ctrl_type[n][0] == 'V')) {
+	    ctrl_type[n][0] = 'v';
+	} else {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+			    "STEPGEN: ERROR: bad control type '%s' for axis %i (must be 'p' or 'v')\n",
+			    ctrl_type[n], n);
+	    return -1;
+	}
+	num_chan++;
     }
     if (num_chan == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -471,7 +496,8 @@ int rtapi_app_main(void)
     /* export all the variables for each pulse generator */
     for (n = 0; n < num_chan; n++) {
 	/* export all vars */
-	retval = export_stepgen(n, &(stepgen_array[n]), step_type[n]);
+	retval = export_stepgen(n, &(stepgen_array[n]),
+	    step_type[n], (ctrl_type[n][0] == 'p'));
 	if (retval != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"STEPGEN: ERROR: stepgen %d var export failed\n", n);
@@ -652,11 +678,11 @@ static void make_pulses(void *arg, long period)
 	    /* up/down */
 	    if ( stepgen->timer1 != 0 ) {
 		if ( stepgen->curr_dir < 0 ) {
-		    *(stepgen->phase[DOWN_PIN]) = 1;
 		    *(stepgen->phase[UP_PIN]) = 0;
+		    *(stepgen->phase[DOWN_PIN]) = 1;
 		} else {
-		    *(stepgen->phase[UP_PIN]) = 0;
-		    *(stepgen->phase[DOWN_PIN]) = 1;
+		    *(stepgen->phase[UP_PIN]) = 1;
+		    *(stepgen->phase[DOWN_PIN]) = 0;
 		}
 	    } else {
 		*(stepgen->phase[UP_PIN]) = 0;
@@ -740,7 +766,6 @@ static void update_freq(void *arg, long period)
     double pos_cmd, vel_cmd, curr_pos, curr_vel, avg_v, max_freq, max_ac;
     double match_ac, match_time, est_out, est_cmd, est_err, dp, dv, new_vel;
     double desired_freq;
-
     /*! \todo FIXME - while this code works just fine, there are a bunch of
        internal variables, many of which hold intermediate results that
        don't really need their own variables.  They are used either for
@@ -837,8 +862,10 @@ static void update_freq(void *arg, long period)
 	}
 	/* test for disabled stepgen */
 	if (*stepgen->enable == 0) {
-	    /* disabled: keep updating old_pos_cmd */
-	    stepgen->old_pos_cmd = *stepgen->pos_cmd * stepgen->pos_scale;
+	    /* disabled: keep updating old_pos_cmd (if in pos ctrl mode) */
+	    if ( stepgen->pos_mode ) {
+		stepgen->old_pos_cmd = *stepgen->pos_cmd * stepgen->pos_scale;
+	    }
 	    /* set velocity to zero */
 	    stepgen->freq = 0;
 	    stepgen->addval = 0;
@@ -892,77 +919,102 @@ static void update_freq(void *arg, long period)
 		max_ac = stepgen->maxaccel * fabs(stepgen->pos_scale);
 	    }
 	}
-	/* calculate position command in counts */
-	pos_cmd = *stepgen->pos_cmd * stepgen->pos_scale;
-	/* calculate velocity command in counts/sec */
-	vel_cmd = (pos_cmd - stepgen->old_pos_cmd) * recip_dt;
-	stepgen->old_pos_cmd = pos_cmd;
-	/* 'accum' is a long long, and its remotely possible that
-	   make_pulses could change it half-way through a read.
-	   So we have a crude atomic read routine */
-	do {
-	    accum_a = stepgen->accum;
-	    accum_b = stepgen->accum;
-	} while ( accum_a != accum_b );
-	/* convert from fixed point to double, after subtracting
-	   the one-half step offset */
-	curr_pos = (accum_a-(1<< (PICKOFF-1))) * (1.0 / (1L << PICKOFF));
-	/* get velocity in counts/sec */
-	curr_vel = stepgen->freq;
-	/* At this point we have good values for pos_cmd, curr_pos, 
-	   vel_cmd, curr_vel, max_freq and max_ac, all in counts, 
-	   counts/sec, or counts/sec^2.  Now we just have to do 
-	   something useful with them. */
-	/* determine which way we need to ramp to match velocity */
-	if (vel_cmd > curr_vel) {
-	    match_ac = max_ac;
-	} else {
-	    match_ac = -max_ac;
-	}
-	/* determine how long the match would take */
-	match_time = (vel_cmd - curr_vel) / match_ac;
-	/* calc output position at the end of the match */
-	avg_v = (vel_cmd + curr_vel) * 0.5;
-	est_out = curr_pos + avg_v * match_time;
-	/* calculate the expected command position at that time */
-	est_cmd = pos_cmd + vel_cmd * (match_time - 1.5 * dt);
-	/* calculate error at that time */
-	est_err = est_out - est_cmd;
-	if (match_time < dt) {
-	    /* we can match velocity in one period */
-	    if (fabs(est_err) < 0.0001) {
-		/* after match the position error will be acceptable */
-		/* so we just do the velocity match */
-		new_vel = vel_cmd;
+	/* at this point, all scaling, limits, and other parameter
+	   changes have been handled - time for the main control */
+	if ( stepgen->pos_mode ) {
+	    /* calculate position command in counts */
+	    pos_cmd = *stepgen->pos_cmd * stepgen->pos_scale;
+	    /* calculate velocity command in counts/sec */
+	    vel_cmd = (pos_cmd - stepgen->old_pos_cmd) * recip_dt;
+	    stepgen->old_pos_cmd = pos_cmd;
+	    /* 'accum' is a long long, and its remotely possible that
+	       make_pulses could change it half-way through a read.
+	       So we have a crude atomic read routine */
+	    do {
+		accum_a = stepgen->accum;
+		accum_b = stepgen->accum;
+	    } while ( accum_a != accum_b );
+	    /* convert from fixed point to double, after subtracting
+	       the one-half step offset */
+	    curr_pos = (accum_a-(1<< (PICKOFF-1))) * (1.0 / (1L << PICKOFF));
+	    /* get velocity in counts/sec */
+	    curr_vel = stepgen->freq;
+	    /* At this point we have good values for pos_cmd, curr_pos,
+	       vel_cmd, curr_vel, max_freq and max_ac, all in counts,
+	       counts/sec, or counts/sec^2.  Now we just have to do
+	       something useful with them. */
+	    /* determine which way we need to ramp to match velocity */
+	    if (vel_cmd > curr_vel) {
+		match_ac = max_ac;
 	    } else {
-		/* try to correct position error */
-		new_vel = vel_cmd - 0.5 * est_err * recip_dt;
-		/* apply accel limits */
-		if (new_vel > (curr_vel + max_ac * dt)) {
-		    new_vel = curr_vel + max_ac * dt;
-		} else if (new_vel < (curr_vel - max_ac * dt)) {
-		    new_vel = curr_vel - max_ac * dt;
+		match_ac = -max_ac;
+	    }
+	    /* determine how long the match would take */
+	    match_time = (vel_cmd - curr_vel) / match_ac;
+	    /* calc output position at the end of the match */
+	    avg_v = (vel_cmd + curr_vel) * 0.5;
+	    est_out = curr_pos + avg_v * match_time;
+	    /* calculate the expected command position at that time */
+	    est_cmd = pos_cmd + vel_cmd * (match_time - 1.5 * dt);
+	    /* calculate error at that time */
+	    est_err = est_out - est_cmd;
+	    if (match_time < dt) {
+		/* we can match velocity in one period */
+		if (fabs(est_err) < 0.0001) {
+		    /* after match the position error will be acceptable */
+		    /* so we just do the velocity match */
+		    new_vel = vel_cmd;
+		} else {
+		    /* try to correct position error */
+		    new_vel = vel_cmd - 0.5 * est_err * recip_dt;
+		    /* apply accel limits */
+		    if (new_vel > (curr_vel + max_ac * dt)) {
+			new_vel = curr_vel + max_ac * dt;
+		    } else if (new_vel < (curr_vel - max_ac * dt)) {
+			new_vel = curr_vel - max_ac * dt;
+		    }
 		}
+	    } else {
+		/* calculate change in final position if we ramp in the
+		   opposite direction for one period */
+		dv = -2.0 * match_ac * dt;
+		dp = dv * match_time;
+		/* decide which way to ramp */
+		if (fabs(est_err + dp * 2.0) < fabs(est_err)) {
+		    match_ac = -match_ac;
+		}
+		/* and do it */
+		new_vel = curr_vel + match_ac * dt;
 	    }
+	    /* apply frequency limit */
+	    if (new_vel > max_freq) {
+		new_vel = max_freq;
+	    } else if (new_vel < -max_freq) {
+		new_vel = -max_freq;
+	    }
+	    /* end of position mode */
 	} else {
-	    /* calculate change in final position if we ramp in the
-	       opposite direction for one period */
-	    dv = -2.0 * match_ac * dt;
-	    dp = dv * match_time;
-	    /* decide which way to ramp */
-	    if (fabs(est_err + dp * 2.0) < fabs(est_err)) {
-		match_ac = -match_ac;
+	    /* velocity mode is simpler */
+	    /* calculate velocity command in counts/sec */
+	    vel_cmd = *(stepgen->vel_cmd) * stepgen->pos_scale;
+	    /* apply frequency limit */
+	    if (vel_cmd > max_freq) {
+		vel_cmd = max_freq;
+	    } else if (vel_cmd < -max_freq) {
+		vel_cmd = -max_freq;
 	    }
-	    /* and do it */
-	    new_vel = curr_vel + match_ac * dt;
+	    /* calc max change in frequency in one period */
+	    dv = max_ac * dt;
+	    /* apply accel limit */
+	    if ( vel_cmd > (stepgen->freq + dv) ) {
+		new_vel = stepgen->freq + dv;
+	    } else if ( vel_cmd < (stepgen->freq - dv) ) {
+		new_vel = stepgen->freq - dv;
+	    } else {
+		new_vel = vel_cmd;
+	    }
+	    /* end of velocity mode */
 	}
-	/* apply frequency limit */
-	if (new_vel > max_freq) {
-	    new_vel = max_freq;
-	} else if (new_vel < -max_freq) {
-	    new_vel = -max_freq;
-	}
-
 	stepgen->freq = new_vel;
 	/* calculate new addval */
 	stepgen->target_addval = stepgen->freq * freqscale;
@@ -978,7 +1030,7 @@ static void update_freq(void *arg, long period)
 *                   LOCAL FUNCTION DEFINITIONS                         *
 ************************************************************************/
 
-static int export_stepgen(int num, stepgen_t * addr, int step_type)
+static int export_stepgen(int num, stepgen_t * addr, int step_type, int pos_mode)
 {
     int n, retval, msg;
 
@@ -1001,9 +1053,14 @@ static int export_stepgen(int num, stepgen_t * addr, int step_type)
     retval = hal_param_float_newf(HAL_RW, &(addr->pos_scale), comp_id,
 	"stepgen.%d.position-scale", num);
     if (retval != 0) { return retval; }
-    /* export pin for position command command */
-    retval = hal_pin_float_newf(HAL_IN, &(addr->pos_cmd), comp_id,
-	"stepgen.%d.position-cmd", num);
+    /* export pin for command */
+    if ( pos_mode ) {
+	retval = hal_pin_float_newf(HAL_IN, &(addr->pos_cmd), comp_id,
+	    "stepgen.%d.position-cmd", num);
+    } else {
+	retval = hal_pin_float_newf(HAL_IN, &(addr->vel_cmd), comp_id,
+	    "stepgen.%d.velocity-cmd", num);
+    }
     if (retval != 0) { return retval; }
     /* export pin for enable command */
     retval = hal_pin_bit_newf(HAL_IN, &(addr->enable), comp_id,
@@ -1088,6 +1145,7 @@ static int export_stepgen(int num, stepgen_t * addr, int step_type)
     addr->maxvel = 0.0;
     addr->maxaccel = 0.0;
     addr->step_type = step_type;
+    addr->pos_mode = pos_mode;
     /* timing parameter defaults depend on step type */
     addr->step_len = 1;
     if ( step_type < 2 ) {
@@ -1133,7 +1191,11 @@ static int export_stepgen(int num, stepgen_t * addr, int step_type)
     /* set initial pin values */
     *(addr->count) = 0;
     *(addr->pos_fb) = 0.0;
-    *(addr->pos_cmd) = 0.0;
+    if ( pos_mode ) {
+	*(addr->pos_cmd) = 0.0;
+    } else {
+	*(addr->vel_cmd) = 0.0;
+    }
     /* restore saved message level */
     rtapi_set_msg_level(msg);
     return 0;
