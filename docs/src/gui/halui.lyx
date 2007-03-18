@@ -130,7 +130,7 @@ bit
 bit
 \family default 
 \noun default 
-) halui.estop.is-reset - indicates E-stop reset
+) halui.estop.is-activated - indicates E-stop reset
 \layout Subsection
 
 Mode
