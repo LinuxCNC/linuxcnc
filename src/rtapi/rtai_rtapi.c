@@ -447,7 +447,7 @@ int rtapi_snprintf(char *buf, unsigned long int size, const char *fmt, ...)
     return i;
 }
 
-#define BUFFERLEN 80
+#define BUFFERLEN 1024
 
 void default_rtapi_msg_handler(msg_level_t level, char *buffer) {
     rt_printk(buffer);
