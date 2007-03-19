@@ -176,7 +176,7 @@ if { $windows == 0 } {
 #    source $emc::TCL_BIN_DIR/emccalib.tcl
 
     # load the EMC data logger
-    source $emc::TCL_BIN_DIR/emclog.tcl
+#    source $emc::TCL_BIN_DIR/emclog.tcl
 
     # load the EMC performance tester
     source $emc::TCL_BIN_DIR/emctesting.tcl
@@ -773,7 +773,6 @@ $viewmenu add command -label [msgcat::mc "Backplot..."] -command {popupPlot} -un
 set settingsmenu [menu $menubar.settings -tearoff 0]
 $menubar add cascade -label [msgcat::mc "Settings"] -menu $settingsmenu -underline 0
 $settingsmenu add command -label [msgcat::mc "Calibration..."] -command "exec $emc::TCL_BIN_DIR/emccalib.tcl -- -ini $EMC_INIFILE &"
-$settingsmenu add command -label [msgcat::mc "Logging..."] -command {popupLog} -underline 0
 $settingsmenu add command -label [msgcat::mc "Testing..."] -command {popupTesting} -underline 0 -state disabled
 $settingsmenu add command -label [msgcat::mc "Debug..."] -command {popupDebug} -underline 0
 $settingsmenu add command -label [msgcat::mc "Font..."] -command {popupFont} -underline 0
