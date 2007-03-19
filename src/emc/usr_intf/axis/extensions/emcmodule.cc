@@ -20,6 +20,7 @@
 #include <structseq.h>
 #include <pthread.h>
 #include <structmember.h>
+#include "config.h"
 #include "rcs.hh"
 #include "emc.hh"
 #include "kinematics.h"
@@ -29,7 +30,6 @@
 #include "nml_oi.hh"
 #include "rcs_print.hh"
 
-#define INIFILE_CHECK_FAILURE(x) (!(x))
 #include <cmath>
 
 // The C++ standard probably doesn't specify the amount of storage for a 'bool',
@@ -38,23 +38,7 @@
 // replaced with the result of a configure test.
 #define T_BOOL T_UBYTE
 
-#ifndef PyMODINIT_FUNC
-#if defined(__cplusplus)
-#define PyMODINIT_FUNC extern "C" void
-#else /* __cplusplus */
-#define PyMODINIT_FUNC void
-#endif /* __cplusplus */
-#endif
-
-#ifndef DEFAULT_NMLFILE
-#define DEFAULT_NMLFILE EMC_NMLFILE
-#endif
-
 #define NUM_AXES (6)
-
-#define EMC_OPERATOR_ERROR_LEN LINELEN
-#define EMC_OPERATOR_TEXT_LEN LINELEN
-#define EMC_OPERATOR_DISPLAY_LEN LINELEN
 
 #define LOCAL_SPINDLE_FORWARD (1)
 #define LOCAL_SPINDLE_REVERSE (-1)
@@ -91,7 +75,7 @@ static bool feq(double a, double b) { return fabs(a-b) < 1e-5; }
 
 struct pyIniFile {
     PyObject_HEAD
-    IniFile i;
+    IniFile *i;
 };
 
 struct pyStatChannel {
@@ -118,7 +102,9 @@ static int Ini_init(pyIniFile *self, PyObject *a, PyObject *k) {
     char *inifile;
     if(!PyArg_ParseTuple(a, "s", &inifile)) return -1;
 
-    if (INIFILE_CHECK_FAILURE(self->i.Open(inifile))) {
+    self->i = new IniFile();
+
+    if (!self->i->Open(inifile)) {
         PyErr_Format( error, "inifile.open() failed");
         return -1;
     }
@@ -130,7 +116,7 @@ static PyObject *Ini_find(pyIniFile *self, PyObject *args) {
     int num = 1; 
     if(!PyArg_ParseTuple(args, "ss|i:find", &s1, &s2, &num)) return NULL;
     
-    out = self->i.Find(s2, s1, num);
+    out = self->i->Find(s2, s1, num);
     if(out == NULL) {
         Py_INCREF(Py_None);
         return Py_None;
@@ -145,7 +131,7 @@ static PyObject *Ini_findall(pyIniFile *self, PyObject *args) {
     
     PyObject *result = PyList_New(0);
     while(1) {
-        out = self->i.Find(s2, s1, num);
+        out = self->i->Find(s2, s1, num);
         if(out == NULL) {
             break;
         }
@@ -156,7 +142,8 @@ static PyObject *Ini_findall(pyIniFile *self, PyObject *args) {
 }
 
 static void Ini_dealloc(pyIniFile *self) {
-    self->i.Close();
+    self->i->Close();
+    delete self->i;
     PyObject_Del(self);
 }
 
@@ -1289,15 +1276,15 @@ static PyObject* Error_poll(pyErrorChannel *s) {
     PyObject *r = PyTuple_New(2);
     PyTuple_SET_ITEM(r, 0, PyInt_FromLong(type));
 #define PASTE(a,b) a ## b
-#define _TYPECASE(tag, type, maxlen, f) \
+#define _TYPECASE(tag, type, f) \
     case tag: { \
-        char error_string[maxlen]; \
-        strncpy(error_string, ((type*)s->c->get_address())->f, maxlen-1); \
-        error_string[maxlen-1] = 0; \
+        char error_string[LINELEN]; \
+        strncpy(error_string, ((type*)s->c->get_address())->f, LINELEN-1); \
+        error_string[LINELEN-1] = 0; \
         PyTuple_SET_ITEM(r, 1, PyString_FromString(error_string)); \
         break; \
     }
-#define TYPECASE(x, f) _TYPECASE(PASTE(x, _TYPE), x, PASTE(x, _LEN), f)
+#define TYPECASE(x, f) _TYPECASE(PASTE(x, _TYPE), x, f)
     switch(type) {
         TYPECASE(EMC_OPERATOR_ERROR, error)
         TYPECASE(EMC_OPERATOR_TEXT, text)
@@ -1371,7 +1358,6 @@ static PyTypeObject Error_Type = {
     0,                      /*tp_is_gc*/
 };
 
-#ifdef HAVE_GL_GL_H
 #include <GL/gl.h>
 struct color {
     unsigned char r, g, b, a;
@@ -1677,7 +1663,6 @@ static PyTypeObject PositionLoggerType = {
     0,                      /*tp_free*/
     0,                      /*tp_is_gc*/
 };
-#endif
 
 static PyMethodDef emc_methods[] = {
     {NULL}
@@ -1711,11 +1696,10 @@ initemc(void) {
     PyModule_AddObject(m, "ini", (PyObject*)&Ini_Type);
     PyModule_AddObject(m, "error", error);
 
-#ifdef HAVE_GL_GL_H
     PyType_Ready(&PositionLoggerType);
     PyModule_AddObject(m, "positionlogger", (PyObject*)&PositionLoggerType);
     pthread_mutex_init(&mutex, NULL);
-#endif
+
     PyModule_AddStringConstant(m, "nmlfile", DEFAULT_NMLFILE);
 
     PyModule_AddIntConstant(m, "OPERATOR_ERROR", EMC_OPERATOR_ERROR_TYPE);
@@ -1727,6 +1711,7 @@ initemc(void) {
 
     PyStructSequence_InitType(&ToolResultType, &tool_result_desc);
     PyModule_AddObject(m, "tool", (PyObject*)&ToolResultType);
+    PyModule_AddObject(m, "version", PyString_FromString(PACKAGE_VERSION));
 
     ENUMX(4, EMC_AXIS_LINEAR);
     ENUMX(4, EMC_AXIS_ANGULAR);
@@ -1791,7 +1776,6 @@ initemc(void) {
     ENUMX(4, EMC_DEBUG_RCS);
     ENUMX(4, EMC_DEBUG_TRAJ);
     ENUMX(4, EMC_DEBUG_INTERP_LIST);
-
 }
 
 
