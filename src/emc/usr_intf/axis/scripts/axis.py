@@ -30,8 +30,6 @@ r_ = gettext.translation("rs274_err", localedir=os.path.join(BASE, "share", "loc
 
 import array, time, atexit, tempfile, shutil, errno, thread
 
-version = os.environ['EMC2VERSION']
-
 # Print Tk errors to stdout. python.org/sf/639266
 import Tkinter 
 OldTk = Tkinter.Tk
@@ -53,13 +51,19 @@ from rs274.glcanon import GLCanon
 from hershey import Hershey
 from propertywindow import properties
 import rs274.options
-root_window = Tkinter.Tk(className="Axis")
-rs274.options.install(root_window)
-import nf; nf.start(root_window); nf.makecommand(root_window, "_", _)
+import nf
 import gcode
 import locale
+from math import hypot, atan2, sin, cos, pi, sqrt
+from rs274 import ArcsToSegmentsMixin
+import emc
+import hal
 
-root_window.tk.call("set", "version", version)
+root_window = Tkinter.Tk(className="Axis")
+nf.start(root_window)
+nf.makecommand(root_window, "_", _)
+rs274.options.install(root_window)
+root_window.tk.call("set", "version", emc.version)
 
 try:
     nf.source_lib_tcl(root_window,"axis.tcl")
@@ -80,11 +84,6 @@ spindlerate_blackout = 0
 jogincr_index_last = 1
 mdi_history_index= -1
 
-from math import hypot, atan2, sin, cos, pi, sqrt
-from rs274 import ArcsToSegmentsMixin
-import emc
-import hal
-
 homeicon = array.array('B', 
         [0x2, 0x00,   0x02, 0x00,   0x02, 0x00,   0x0f, 0x80,
         0x1e, 0x40,   0x3e, 0x20,   0x3e, 0x20,   0x3e, 0x20,
@@ -95,13 +94,6 @@ limiticon = array.array('B',
         [  0,   0,  128, 0,  134, 0,  140, 0,  152, 0,  176, 0,  255, 255,
          255, 255,  176, 0,  152, 0,  140, 0,  134, 0,  128, 0,    0,   0,
            0,   0,    0, 0])
-
-if sys.version_info <= (2,3):
-    def enumerate(sequence):
-        index = 0
-        for item in sequence:
-            yield index, item
-            index += 1
 
 help1 = [
     ("F1", _("Emergency stop")),
@@ -889,7 +881,7 @@ class MyOpengl(Opengl):
                     spd = spd * 60
                 positions.append(format % ("Vel", spd))
 
-            if hasattr(s, "distance_to_go") and vars.show_distance_to_go.get():
+            if vars.show_distance_to_go.get():
                 dtg = to_internal_linear_unit(s.distance_to_go)
                 if vars.metric.get():
                     dtg *= 25.4
@@ -3115,22 +3107,9 @@ def color_limit(cond):
         glColor3f(*o.colors['label_ok'])
     return cond
 
-def mkdtemp():
-    try:
-        return tempfile.mkdtemp()
-    except AttributeError:
-        while 1:
-            t = tempfile.mktemp()
-            try:
-                os.mkdir(t)
-                return t
-            except os.error, detail:
-                if detail.errno != errno.EEXIST: raise
-                pass
-
 def remove_tempdir(t):
     shutil.rmtree(t)
-tempdir = mkdtemp()
+tempdir = tempfile.mkdtemp()
 atexit.register(remove_tempdir, tempdir)
 
 if postgui_halfile:
@@ -3149,7 +3128,7 @@ elif not lathe:
 if lathe:
     commands.set_view_y()
 else:
-    commands.set_view_z()
+    commands.set_view_p()
 if o.g:
     x = (o.g.min_extents[0] + o.g.max_extents[0])/2
     y = (o.g.min_extents[1] + o.g.max_extents[1])/2
@@ -3178,9 +3157,6 @@ else:
     widgets.menu_view.delete("end")
     widgets.menu_view.delete("end")
     root_window.bind("$", "")
-
-if not hasattr(s, "distance_to_go"):
-    widgets.menu_view.delete(14)  # argh hard-coded numbers suck
 
 if lathe:
     root_window.after_idle(commands.set_view_y)
