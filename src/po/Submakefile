@@ -32,7 +32,6 @@ TARGETS += $(patsubst po/%_rs274_err.po, \
 TCLSRCS := \
 	../tcl/bin/emccalib.tcl \
 	../tcl/bin/emcdebug.tcl \
-	../tcl/bin/emclog.tcl \
 	../tcl/bin/emctesting.tcl \
 	../tcl/bin/emctuning.tcl \
 	../tcl/bin/genedit.tcl \
