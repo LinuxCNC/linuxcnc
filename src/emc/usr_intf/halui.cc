@@ -146,12 +146,15 @@ DONE: - joint:
 
 DONE - jogging:
    halui.jog.speed                     float //set jog speed
+   halui.jog-deadband                  float //pin for setting the jog analog deadband (where not to move)
 
    halui.jog.0.minus                   bit
    halui.jog.0.plus                    bit
+   halui.jog.7.analog                  float //pin for jogging the axis 0
    ..
    halui.jog.7.minus                   bit
    halui.jog.7.plus                    bit
+   halui.jog.7.analog                  float //pin for jogging the axis 7
    halui.jog.selected.minus            bit
    halui.jog.selected.plus             bit
 
