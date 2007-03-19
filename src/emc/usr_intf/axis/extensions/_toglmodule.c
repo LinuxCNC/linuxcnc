@@ -44,10 +44,6 @@ PyMethodDef togl_methods[] = {
     {NULL}
 };
 
-#ifndef PyMODINIT_FUNC
-#define PyMODINIT_FUNC void
-#endif
-
 PyMODINIT_FUNC
 init_togl(void) {
     Py_InitModule3("_togl", togl_methods, "togl extension for Tkinter");

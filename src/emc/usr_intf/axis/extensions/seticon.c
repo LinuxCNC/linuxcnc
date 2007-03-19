@@ -143,11 +143,7 @@ PyMethodDef methods[] = {
     {NULL}
 };
 
-#ifdef PyMODINIT_FUNC
 PyMODINIT_FUNC
-#else
-void
-#endif
 init_tk_seticon(void) {
     Py_InitModule3("_tk_seticon", methods, "Set the NET_WM_ICON");
 }
