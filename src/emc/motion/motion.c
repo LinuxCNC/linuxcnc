@@ -665,9 +665,15 @@ rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.motor-pos-cmd", num);
     if (retval != 0) {
 	return retval;
     }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.free-tp-source", num);
+    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.kb-jog-active", num);
     retval =
-	hal_param_s32_new(buf, HAL_RO, &(addr->free_tp_source), mot_comp_id);
+	hal_param_bit_new(buf, HAL_RO, &(addr->kb_jog_active), mot_comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.wheel-jog-active", num);
+    retval =
+	hal_param_bit_new(buf, HAL_RO, &(addr->wheel_jog_active), mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
