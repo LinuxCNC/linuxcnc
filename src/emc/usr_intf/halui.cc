@@ -87,7 +87,7 @@ DONE: - machine:
 DONE: - estop:   
    halui.estop.activate                bit  //pin for setting Estop (emc internal) On
    halui.estop.reset                   bit  //pin for resetting Estop (emc internal) Off
-   halui.estop.is-reset                bit  //pin for displaying Estop state (emc internal) On/Off
+   halui.estop.is-activated            bit  //pin for displaying Estop state (emc internal) On/Off
    
 DONE: - mode:
    halui.mode.manual                   bit  //pin for requesting manual mode
@@ -167,6 +167,7 @@ DONE: - program:
    halui.program.is-running            bit
    halui.program.is-paused             bit
    halui.program.run                   bit
+   halui.program.pause                 bit
    halui.program.resume                bit
    halui.program.step                  bit
 
@@ -176,7 +177,7 @@ DONE: - general:
 DONE: - feed-override
    halui.feed-override.value           float //current FO value
    halui.feed-override.scale           float // pin for setting the scale on changing the FO
-   halui.feed-override.counts          s43   //counts from an encoder for example to change FO
+   halui.feed-override.counts          s32   //counts from an encoder for example to change FO
    halui.feed-override.increase        bit   // pin for increasing the FO (+=scale)
    halui.feed-override.decrease        bit   // pin for decreasing the FO (-=scale)
 
