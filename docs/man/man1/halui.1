@@ -67,7 +67,7 @@ pin for setting Estop (emc internal) On
 \fIhalui.estop.reset\fR
 pin for resetting Estop (emc internal) Off
 .TP
-\fIhalui.estop.is-reset\fR
+\fIhalui.estop.is-activated\fR
 pin for displaying Estop state (emc internal) On/Off
 .TP
 \fBmode\fR
@@ -133,6 +133,12 @@ pin for making the spindle go forward
 \fIhalui.spindle.reverse\fR
 pin for making the spindle go reverse
 .TP
+\fIhalui.spindle.increase\fR
+pin for making the spindle go faster
+.TP
+\fIhalui.spindle.decrease\fR
+pin for making the spindle go slower
+.TP
 \fIhalui.spindle.brake-on\fR
 pin for activating the spindle brake
 .TP
@@ -183,6 +189,37 @@ pins for selecting a joint (x = 0..7)
 \fIhalui.joint.x.is-selected\fR
 status pin that a joint is selected (x = 0..7)
 .TP
+\fBjogging\fR
+.TP
+\fIhalui.jog.speed\fR
+pin for setting jog speed. will be used for minus/plus jogging.
+.TP
+\fIhalui.jog.deadband\fR
+pin for setting jog analog deadband (where not to move)
+.TP
+\fIhalui.jog.N.minus\fR
+pin for jogging axis N in negative direction at the halui.jog.speed velocity
+.TP
+\fIhalui.jog.N.plus\fR
+pin for jogging axis N in positive direction at the halui.jog.speed velocity
+.TP
+\fIhalui.jog.N.analog\fR
+pin for jogging the axis X using an float value (e.g. joystick)
+.TP
+\fIhalui.jog.selected.minus\fR
+pin for jogging the selected axis in negative direction at the halui.jog.speed velocity
+.TP
+\fIhalui.jog.selected.plus\fR
+pin for jogging the selected axis in positive direction at the halui.jog.speed velocity
+.TP
+\fBtool\fR
+.TP
+\fIhalui.tool.number\fR
+current selected tool
+.TP
+\fIhalui.tool.length-offset\fR
+current applied tool-length-offset
+.TP
 \fBprogram\fR
 .TP
 \fIhalui.program.is-idle\fR
@@ -210,6 +247,40 @@ pin for stepping in a program
 .TP
 \fIhalui.abort\fR
 pin to send an abort message (clears out most errors)
+.TP
+\fBfeed-override\fR
+.TP
+\fIhalui.feed-override.value\fR
+current Feed Override value
+.TP
+\fIhalui.feed-override.scale\fR
+pin for setting the scale on changing the FO
+.TP
+\fIhalui.feed-override.counts\fR
+counts from an encoder to change FO
+.TP
+\fIhalui.feed-override.increase\fR
+pin for increasing the FO (+=scale)
+.TP
+\fIhalui.feed-override.decrease\fR
+pin for decreasing the FO (-=scale)
+.TP
+\fBspindle-override\fR
+.TP
+\fIhalui.spindle-override.value\fR
+current FO value
+.TP
+\fIhalui.spindle-override.scale\fR
+pin for setting the scale on changing the SO
+.TP
+\fIhalui.spindle-override.counts\fR
+counts from an encoder for example to change SO
+.TP
+\fIhalui.spindle-override.increase\fR
+pin for increasing the SO (+=scale)
+.TP
+\fIhalui.spindle-override.decrease\fR
+pin for decreasing the SO (-=scale)
 
 .SH "SEE ALSO"
 
