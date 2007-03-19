@@ -529,57 +529,6 @@ static PyObject *pygluUnProject(PyObject *s, PyObject *o) {
     return Py_BuildValue("ddd", wx, wy, wz);
 }
 
-
-#if 0
-static PyObject *pygluProject(PyObject *s, PyObject *o) {
-    double x, y, z, model[16], proj[16], wx, wy, wz;
-    int viewport[4];
-
-    if(!PyArg_ParseTuple(o,
-		"ddd(dddddddddddddddd)(dddddddddddddddd)(iiii):gluProject",
-                &x, &y, &z,
-                model, model+1, model+2, model+3,
-                model+4, model+5, model+6, model+7,
-                model+8, model+9, model+10, model+11,
-                model+12, model+13, model+14, model+15,
-                proj, proj+1, proj+2, proj+3,
-                proj+4, proj+5, proj+6, proj+7,
-                proj+8, proj+9, proj+10, proj+11,
-                proj+12, proj+13, proj+14, proj+15,
-                viewport, viewport+1, viewport+2, viewport+3))
-        return NULL;
-    gluProject(x, y, z, model, proj, viewport, &wx, &wy, &wz);
-
-    CHECK_ERROR;
-
-    return Py_BuildValue("ddd", wx, wy, wz);
-}
-
-
-static PyObject *pygluUnProject(PyObject *s, PyObject *o) {
-    double x, y, z, model[16], proj[16], ox, oy, oz;
-    int viewport[4];
-
-    if(!PyArg_ParseTuple(o,
-		"ddd(dddddddddddddddd)(dddddddddddddddd)(iiii):gluUnProject",
-                &x, &y, &z,
-                model, model+1, model+2, model+3,
-                model+4, model+5, model+6, model+7,
-                model+8, model+9, model+10, model+11,
-                model+12, model+13, model+14, model+15,
-                proj, proj+1, proj+2, proj+3,
-                proj+4, proj+5, proj+6, proj+7,
-                proj+8, proj+9, proj+10, proj+11,
-                proj+12, proj+13, proj+14, proj+15,
-                viewport, viewport+1, viewport+2, viewport+3))
-        return NULL;
-    gluUnProject(x, y, z, model, proj, viewport, &ox, &oy, &oz);
-
-    CHECK_ERROR;
-
-    return Py_BuildValue("ddd", ox, oy, oz);
-}
-#endif
 static GLuint *select_buffer = NULL;
 static PyObject *pyglSelectBuffer( PyObject *s, PyObject *o) {
     int sz;
