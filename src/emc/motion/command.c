@@ -387,8 +387,6 @@ check_stuff ( "before command_handler()" );
 		    joint = &joints[joint_num];
 		    /* tell joint planner to stop */
 		    joint->free_tp_enable = 0;
-		    /* discard any active source */
-		    joint->free_tp_source = FREE_TP_SOURCE_NONE;
 		    /* stop homing if in progress */
 		    if ( joint->home_state != HOME_IDLE ) {
 			joint->home_state = HOME_ABORT;
@@ -422,12 +420,11 @@ check_stuff ( "before command_handler()" );
 		if (joint == 0) {
 		    break;
 		}
-		/* discard the jog source */
-		if (joint->free_tp_source == FREE_TP_SOURCE_JOG) {
-		    /* tell joint planner to stop */
-		    joint->free_tp_enable = 0;
-		    /* discard jog as the source of control */
-		    joint->free_tp_source = FREE_TP_SOURCE_NONE;
+		/* tell joint planner to stop */
+		joint->free_tp_enable = 0;
+		/* stop homing if in progress */
+		if ( joint->home_state != HOME_IDLE ) {
+		    joint->home_state = HOME_ABORT;
 		}
 		/* update status flags */
 		SET_JOINT_ERROR_FLAG(joint, 0);
@@ -636,22 +633,16 @@ check_stuff ( "before command_handler()" );
 		SET_JOINT_ERROR_FLAG(joint, 1);
 		break;
 	    }
-
+	    if ((emcmotStatus->homing_active) || (joint->wheel_jog_active)) {
+		/* can't do two things at once */
+		SET_JOINT_ERROR_FLAG(joint, 1);
+		break;
+	    }
 	    /* don't jog further onto limits */
 	    if (!checkJog(joint_num, emcmotCommand->vel)) {
 		SET_JOINT_ERROR_FLAG(joint, 1);
 		break;
 	    }
-
-            /* if we're already moving from another source, say with the jogwheel, don't
-               suddenly replace the target with the limit and hope the
-               user can figure out how to send an abort message in
-               time. */
-            if ((joint->free_tp_active) && (joint->free_tp_source != FREE_TP_SOURCE_JOG)) break;
-	    
-	    /* if any joint is homing then we're not allowed to jog */
-	    if (joint->free_tp_source == FREE_TP_SOURCE_HOME) break;
-
 	    /* set destination of jog */
 	    refresh_jog_limits(joint);
 	    if (emcmotCommand->vel > 0.0) {
@@ -661,10 +652,10 @@ check_stuff ( "before command_handler()" );
 	    }
 	    /* set velocity of jog */
 	    joint->free_vel_lim = fabs(emcmotCommand->vel);
+	    /* lock out other jog sources */
+	    joint->kb_jog_active = 1;
 	    /* and let it go */
 	    joint->free_tp_enable = 1;
-	    /* set the source for jogging */
-	    joint->free_tp_source = FREE_TP_SOURCE_JOG;
 	    /*! \todo FIXME - should we really be clearing errors here? */
 	    SET_JOINT_ERROR_FLAG(joint, 0);
 	    /* clear axis homed flag(s) if we don't have forward kins.
@@ -695,16 +686,11 @@ check_stuff ( "before command_handler()" );
 		SET_JOINT_ERROR_FLAG(joint, 1);
 		break;
 	    }
-
-            /* if we're already moving from another source, say with the jogwheel, don't
-               suddenly replace the target with the limit and hope the
-               user can figure out how to send an abort message in
-               time. */
-            if ((joint->free_tp_active) && (joint->free_tp_source != FREE_TP_SOURCE_JOG)) break;
-	    
-	    /* if any joint is homing then we're not allowed to jog */
-	    if (joint->free_tp_source == FREE_TP_SOURCE_HOME) break;
-
+	    if ((emcmotStatus->homing_active) || (joint->wheel_jog_active)) {
+		/* can't do two things at once */
+		SET_JOINT_ERROR_FLAG(joint, 1);
+		break;
+	    }
 	    /* don't jog further onto limits */
 	    if (!checkJog(joint_num, emcmotCommand->vel)) {
 		SET_JOINT_ERROR_FLAG(joint, 1);
@@ -728,10 +714,10 @@ check_stuff ( "before command_handler()" );
 	    joint->free_pos_cmd = tmp1;
 	    /* set velocity of jog */
 	    joint->free_vel_lim = fabs(emcmotCommand->vel);
+	    /* lock out other jog sources */
+	    joint->kb_jog_active = 1;
 	    /* and let it go */
 	    joint->free_tp_enable = 1;
-	    /* set the source for jogging */
-	    joint->free_tp_source = FREE_TP_SOURCE_JOG;
 	    SET_JOINT_ERROR_FLAG(joint, 0);
 	    /* clear axis homed flag(s) if we don't have forward kins.
 	       Otherwise, a transition into coordinated mode will incorrectly
@@ -760,16 +746,11 @@ check_stuff ( "before command_handler()" );
 		SET_JOINT_ERROR_FLAG(joint, 1);
 		break;
 	    }
-
-            /* if we're already moving from another source, say with the jogwheel, don't
-               suddenly replace the target with the limit and hope the
-               user can figure out how to send an abort message in
-               time. */
-            if ((joint->free_tp_active) && (joint->free_tp_source != FREE_TP_SOURCE_JOG)) break;
-	    
-	    /* if any joint is homing then we're not allowed to jog */
-	    if (joint->free_tp_source == FREE_TP_SOURCE_HOME) break;
-
+	    if ((emcmotStatus->homing_active) || (joint->wheel_jog_active)) {
+		/* can't do two things at once */
+		SET_JOINT_ERROR_FLAG(joint, 1);
+		break;
+	    }
 	    /* don't jog further onto limits */
 	    if (!checkJog(joint_num, emcmotCommand->vel)) {
 		SET_JOINT_ERROR_FLAG(joint, 1);
@@ -787,10 +768,10 @@ check_stuff ( "before command_handler()" );
 	    }
 	    /* set velocity of jog */
 	    joint->free_vel_lim = fabs(emcmotCommand->vel);
+	    /* lock out other jog sources */
+	    joint->kb_jog_active = 1;
 	    /* and let it go */
 	    joint->free_tp_enable = 1;
-	    /* set the source for jogging */
-	    joint->free_tp_source = FREE_TP_SOURCE_JOG;
 	    SET_JOINT_ERROR_FLAG(joint, 0);
 	    /* clear axis homed flag(s) if we don't have forward kins.
 	       Otherwise, a transition into coordinated mode will incorrectly
@@ -1093,7 +1074,6 @@ check_stuff ( "before command_handler()" );
 		break;
 	    }
 	    SET_JOINT_ACTIVE_FLAG(joint, 1);
-	    joint->free_tp_source = FREE_TP_SOURCE_NONE;
 	    break;
 
 	case EMCMOT_DEACTIVATE_JOINT:
@@ -1106,7 +1086,6 @@ check_stuff ( "before command_handler()" );
 		break;
 	    }
 	    SET_JOINT_ACTIVE_FLAG(joint, 0);
-	    joint->free_tp_source = FREE_TP_SOURCE_NONE;
 	    break;
 /*! \todo FIXME - need to replace the ext function */
 	case EMCMOT_ENABLE_AMPLIFIER:

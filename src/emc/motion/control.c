@@ -699,8 +699,6 @@ static void check_soft_limits(void)
 		joint = &joints[joint_num];
 		/* shut off free mode planner */
 		joint->free_tp_enable = 0;
-		/* clear out the source */
-		joint->free_tp_source = FREE_TP_SOURCE_NONE;
 	    }
 	}
     } else {
@@ -789,8 +787,6 @@ static void set_operating_mode(void)
 	    joint = &joints[joint_num];
 	    /* disable free mode planner */
 	    joint->free_tp_enable = 0;
-	    /* clear out the source */
-	    joint->free_tp_source = FREE_TP_SOURCE_NONE;
 	    /* drain coord mode interpolators */
 	    cubicDrain(&(joint->cubic));
 	    if (GET_JOINT_ACTIVE_FLAG(joint)) {
@@ -930,8 +926,6 @@ static void set_operating_mode(void)
 		    joint->free_pos_cmd = joint->pos_cmd;
 		    /* but it can stay disabled until a move is required */
 		    joint->free_tp_enable = 0;
-		    /* clear out the source */
-		    joint->free_tp_source = FREE_TP_SOURCE_NONE;
 		}
 		SET_MOTION_COORD_FLAG(0);
 		SET_MOTION_TELEOP_FLAG(0);
@@ -977,13 +971,13 @@ static void handle_jogwheels(void)
 	delta = new_jog_counts - joint->old_jog_counts;
 	/* save value for next time */
 	joint->old_jog_counts = new_jog_counts;
+	/* initialization complete */
+	if ( first_pass ) {
+	    continue;
+	}
 	/* did the wheel move? */
 	if ( delta == 0 ) {
-	    /* no, nothing to do, except clear the JOGWHEEL souce flag */
-	    if (joint->free_tp_source == FREE_TP_SOURCE_JOGWHEEL) {
-                joint->free_tp_enable = 0;
-		joint->free_tp_source = FREE_TP_SOURCE_NONE;
-            }
+	    /* no, nothing to do */
 	    continue;
 	}
 	/* must be in free mode and enabled */
@@ -993,11 +987,16 @@ static void handle_jogwheels(void)
 	if (!GET_MOTION_ENABLE_FLAG()) {
 	    continue;
 	}
-	if ( first_pass ) {
-	    continue;
-	}
 	/* the jogwheel input for this axis must be enabled */
 	if ( *(axis_data->jog_enable) == 0 ) {
+	    continue;
+	}
+	/* must not be homing */
+	if (emcmotStatus->homing_active) {
+	    continue;
+	}
+	/* must not be doing a keyboard jog */
+	if (joint->kb_jog_active) {
 	    continue;
 	}
 	/* calculate distance to jog */
@@ -1026,21 +1025,13 @@ static void handle_jogwheels(void)
 	if (pos < joint->min_jog_limit) {
 	    continue;
 	}
-	/* see if it's safe for us to take control of the free planner... */
-        if (joint->free_tp_source == FREE_TP_SOURCE_HOME) {
-            continue;
-        }
-        if ((joint->free_tp_enable || joint->free_tp_active) && 
-             joint->free_tp_source != FREE_TP_SOURCE_JOGWHEEL) {
-            continue;
-        }
         /* set target position and use full velocity */
         joint->free_pos_cmd = pos;
         joint->free_vel_lim = joint->vel_limit;
+	/* lock out other jog sources */
+	joint->wheel_jog_active = 1;
         /* and let it go */
         joint->free_tp_enable = 1;
-        joint->free_tp_source = FREE_TP_SOURCE_JOGWHEEL;
-        
 	SET_JOINT_ERROR_FLAG(joint, 0);
 	/* clear axis homed flag(s) if we don't have forward kins.
 	   Otherwise, a transition into coordinated mode will incorrectly
@@ -1135,7 +1126,10 @@ static void do_homing_sequence(void) {
 	    }
 	    home_sequence = 0;
 	}
-    
+	/* tell the world we're on the job */
+	emcmotStatus->homing_active = 1;
+	/* and drop into next state */
+ 
     case HOME_SEQUENCE_START_JOINTS:
 	for(i=0; i < EMCMOT_MAX_AXIS; i++) {
 	    emcmot_joint_t *joint = &joints[i];
@@ -1146,10 +1140,13 @@ static void do_homing_sequence(void) {
 		seen++;
 	    }
 	}
-	if(seen) 
+	if(seen) {
 	    emcmotStatus->homingSequenceState = HOME_SEQUENCE_WAIT_JOINTS;
-	else
+	} else {
+	    /* no joints have this sequence number, we're done */
 	    emcmotStatus->homingSequenceState = HOME_IDLE;
+	    emcmotStatus->homing_active = 0;
+	}
 	break;
 
     case HOME_SEQUENCE_WAIT_JOINTS:
@@ -1162,7 +1159,9 @@ static void do_homing_sequence(void) {
 		continue;
 	    }
 	    if(!GET_JOINT_AT_HOME_FLAG(joint)) {
-		emcmotStatus->homingSequenceState = HOME_SEQUENCE_IDLE; return;
+		emcmotStatus->homingSequenceState = HOME_SEQUENCE_IDLE;
+		emcmotStatus->homing_active = 0;
+		return;
 	    }
 	}
 	if(!seen) {
@@ -1175,6 +1174,7 @@ static void do_homing_sequence(void) {
 	reportError("unknown state '%d' during homing sequence",
 	    emcmotStatus->homingSequenceState);
 	emcmotStatus->homingSequenceState = HOME_SEQUENCE_IDLE;
+	emcmotStatus->homing_active = 0;
 	break;
     }
 }
@@ -1185,12 +1185,9 @@ static void do_homing(void)
     int joint_num;
     emcmot_joint_t *joint;
     double offset, tmp;
-    int home_sw_new, home_sw_rise, home_sw_fall;
-    int homing_flag = 0; /* any value != 0 means some homing is taking place */
-    
-    if (emcmotStatus->homingSequenceState != HOME_SEQUENCE_IDLE)
-	homing_flag = 1;
+    int home_sw_new, home_sw_rise, home_sw_fall, homing_flag;
 
+    homing_flag = 0;
     if (emcmotStatus->motion_state != EMCMOT_MOTION_FREE) {
 	/* can't home unless in free mode */
 	return;
@@ -1691,21 +1688,17 @@ static void do_homing(void)
 		break;
 	    }			/* end of switch(joint->home_state) */
 	} while (immediate_state);
-    }
-    
-    /* set the source for all the joints to homing, no other moves are allowed */
-    for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
-	/* point to joint data */
-	joint = &joints[joint_num];
-	if (!GET_JOINT_ACTIVE_FLAG(joint)) {
-        /* if joint is not active, we don't need to lock it out */
-	    continue;
+    }	/* end of loop through all joints */
+
+    if ( homing_flag ) {
+	/* at least one axis is homing, set global flag */
+	emcmotStatus->homing_active = 1;
+    } else {
+	/* is a homing sequence in progress? */
+	if (emcmotStatus->homingSequenceState == HOME_SEQUENCE_IDLE) {
+	    /* no, single axis only, we're done */
+	    emcmotStatus->homing_active = 0;
 	}
-	// we need to set the active joints to source HOME to prevent any other moves (jogs)
-	if (homing_flag) joint->free_tp_source = FREE_TP_SOURCE_HOME;
-	// if we're not homing anymore, but the flag was HOME, we need to clear it
-	else if (joint->free_tp_source == FREE_TP_SOURCE_HOME)
-	    joint->free_tp_source = FREE_TP_SOURCE_NONE;
     }
 }
 
@@ -1829,6 +1822,9 @@ static void get_pos_cmds(long period)
 		    }
 		} else {
 		    SET_JOINT_INPOS_FLAG(joint, 1);
+		    /* joint has stopped, so any outstanding jogs are done */
+		    joint->kb_jog_active = 0;
+		    joint->wheel_jog_active = 0;
 		}
 	    }//if (GET_JOINT_ACTIVE_FLAG(join))
 	}//for loop for joints
@@ -2455,7 +2451,8 @@ static void output_to_hal(void)
 	axis_data->free_pos_cmd = joint->free_pos_cmd;
 	axis_data->free_vel_lim = joint->free_vel_lim;
 	axis_data->free_tp_enable = joint->free_tp_enable;
-	axis_data->free_tp_source = joint->free_tp_source;
+	axis_data->kb_jog_active = joint->kb_jog_active;
+	axis_data->wheel_jog_active = joint->wheel_jog_active;
 
 	axis_data->active = GET_JOINT_ACTIVE_FLAG(joint);
 	axis_data->in_position = GET_JOINT_INPOS_FLAG(joint);

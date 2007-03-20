@@ -46,7 +46,8 @@ typedef struct {
     hal_float_t free_pos_cmd;	/* RPA: free traj planner pos cmd */
     hal_float_t free_vel_lim;	/* RPA: free traj planner vel limit */
     hal_bit_t free_tp_enable;	/* RPA: free traj planner is running */
-    hal_s32_t free_tp_source;   /* RPA: free traj planner source of command */
+    hal_bit_t kb_jog_active;    /* RPA: executing keyboard jog */
+    hal_bit_t wheel_jog_active; /* RPA: executing handwheel jog */
 
     hal_bit_t active;		/* RPA: axis is active, whatever that means */
     hal_bit_t in_position;	/* RPA: axis is in position */
