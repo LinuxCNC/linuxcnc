@@ -94,7 +94,7 @@ pin in float in;
 \newline 
 pin out float out;
 \newline 
-option data float;
+variable float old;
 \newline 
 function _;
 \newline 
@@ -106,9 +106,9 @@ FUNCTION(_) {
 \newline 
     float tmp = in;
 \newline 
-    out = (tmp - data) / fperiod;
+    out = (tmp - old) / fperiod;
 \newline 
-    data = tmp;
+    old = tmp;
 \newline 
 }
 \layout Standard
@@ -313,6 +313,19 @@ OPT
 VALUE
 \emph default 
 );
+\layout Itemize
+
+
+\family typewriter 
+data 
+\emph on 
+CTYPE NAME 
+\emph default 
+([
+\emph on 
+SIZE
+\emph default 
+]);
 \layout Itemize
 
 
@@ -612,7 +625,7 @@ x.##.y
 
 \layout Standard
 
-x_y(i)
+x_y(MM)
 \end_inset 
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
@@ -638,7 +651,7 @@ x.##
 
 \layout Standard
 
-x(i)
+x(MM)
 \end_inset 
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
@@ -1011,7 +1024,10 @@ data\SpecialChar ~
 \emph on 
 type
 \emph default 
- (default: none)
+ (default: none) 
+\series bold 
+\noun on 
+deprecated
 \begin_deeper 
 \layout Standard
 
@@ -1029,12 +1045,21 @@ float
 typedef
 \family default 
 ).
+\layout Standard
+
+In new components, 
+\emph on 
+variable
+\emph default 
+ should be used instead.
+\end_deeper 
 \end_deeper 
 \layout Description
 
 option\SpecialChar ~
 extra_setup\SpecialChar ~
 yes (default: no)
+\begin_deeper 
 \begin_deeper 
 \layout Standard
 
@@ -1146,7 +1171,6 @@ exit()
  if it wishes to terminate rather than create a hal component (for instance,
  because the commandline arguments were invalid).
 \end_deeper 
-\end_deeper 
 \layout Standard
 
 If an option's VALUE is not specified, then it is equivalent to specifying
@@ -1158,6 +1182,106 @@ option \SpecialChar \ldots{}
 .
  The result of assigning an inappropriate value to an option is undefined.
  The result of using any other option is undefined.
+\end_deeper 
+\layout Description
+
+variable\SpecialChar ~
+
+\emph on 
+CTYPE\SpecialChar ~
+NAME
+\emph default 
+;
+\layout Description
+
+variable\SpecialChar ~
+
+\emph on 
+CTYPE\SpecialChar ~
+NAME
+\emph default 
+[
+\emph on 
+SIZE
+\emph default 
+];
+\layout Description
+
+variable\SpecialChar ~
+
+\emph on 
+CTYPE\SpecialChar ~
+NAME
+\emph default 
+\SpecialChar ~
+=\SpecialChar ~
+
+\emph on 
+DEFAULT
+\emph default 
+;
+\layout Description
+
+variable\SpecialChar ~
+
+\emph on 
+CTYPE\SpecialChar ~
+NAME
+\emph default 
+[
+\emph on 
+SIZE
+\emph default 
+]\SpecialChar ~
+=\SpecialChar ~
+
+\emph on 
+DEFAULT
+\emph default 
+;
+\begin_deeper 
+\layout Standard
+
+Declare a per-instance variable 
+\emph on 
+NAME
+\emph default 
+ of type 
+\emph on 
+CTYPE
+\emph default 
+, optionally as an array of 
+\emph on 
+SIZE
+\emph default 
+ items, and optionally with a default value 
+\emph on 
+DEFAULT
+\emph default 
+.
+ Items with no 
+\emph on 
+DEFAULT
+\emph default 
+ are initialized to all-bits-zero.
+ 
+\emph on 
+CTYPE
+\emph default 
+ is a simple one-word C type, such as 
+\family typewriter 
+float
+\family default 
+, 
+\family typewriter 
+u32
+\family default 
+, 
+\family typewriter 
+s32
+\family default 
+, etc.
+\end_deeper 
 \layout Standard
 
 C++-style one-line comments (
@@ -1273,15 +1397,15 @@ parameter_name
 \family default 
  is an array, the macro is of the form 
 \emph on 
-pin_name(i)
+pin_name(idx)
 \emph default 
  or 
 \emph on 
-param_name(i) 
+param_name(idx) 
 \emph default 
 where 
 \emph on 
-i
+idx
 \emph default 
  is the index into the pin array.
  When the array is a variable-sized array, it is only legal to refer to
@@ -1299,6 +1423,25 @@ condition
 \emph default 
  evalued to a nonzero value.
 \end_deeper 
+\layout Description
+
+
+\emph on 
+variable_name 
+\emph default 
+For each variable 
+\family typewriter 
+variable_name
+\family default 
+ there is a macro which allows the name to be used on its own to refer to
+ the variable.
+ When 
+\family typewriter 
+variable_name
+\family default 
+ is an array, the normal C-style subscript is used: 
+\emph on 
+variable_name[idx]
 \layout Description
 
 data If 'option data' is specified, this macro allows access to the instance
