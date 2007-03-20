@@ -83,10 +83,10 @@ RTAPI_MP_INT(num_chan, "number of channels");
 
 typedef struct {
     char count_detected;
-    __s32 raw_count;
-    __u32 timestamp;
+    s32 raw_count;
+    u32 timestamp;
     char index_detected;
-    __s32 index_count;
+    s32 index_count;
 } atomic;
 
 /* this structure contains the runtime data for a single counter
@@ -108,9 +108,9 @@ typedef struct {
     hal_bit_t *phaseZ;		/* u:r index pulse input */
     hal_bit_t *index_ena;	/* c:rw index enable input */
     hal_bit_t *reset;		/* c:r counter reset input */
-    __s32 raw_count;		/* c:rw captured raw_count */
-    __u32 timestamp;		/* c:rw captured timestamp */
-    __s32 index_count;		/* c:rw captured index count */
+    s32 raw_count;		/* c:rw captured raw_count */
+    u32 timestamp;		/* c:rw captured timestamp */
+    s32 index_count;		/* c:rw captured index count */
     hal_s32_t *count;		/* c:w captured binary count value */
     hal_float_t *pos;		/* c:w scaled position (floating point) */
     hal_float_t *vel;		/* c:w scaled velocity (floating point) */
@@ -120,7 +120,7 @@ typedef struct {
     int counts_since_timeout;	/* c:rw used for velocity calcs */
 } counter_t;
 
-static __u32 timebase;		/* master timestamp for all counters */
+static u32 timebase;		/* master timestamp for all counters */
 
 /* pointer to array of counter_t structs in shmem, 1 per counter */
 static counter_t *counter_array;
@@ -332,8 +332,8 @@ static void capture(void *arg, long period)
     counter_t *cntr;
     atomic *buf;
     int n;
-    __s32 delta_counts;
-    __u32 delta_time;
+    s32 delta_counts;
+    u32 delta_time;
     double vel;
 
     cntr = arg;
