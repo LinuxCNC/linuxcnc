@@ -992,16 +992,16 @@ static void handle_jogwheels(void)
 	if (!GET_MOTION_ENABLE_FLAG()) {
 	    continue;
 	}
+	/* the jogwheel input for this axis must be enabled */
+	if ( *(axis_data->jog_enable) == 0 ) {
+	    continue;
+	}
 	/* must not be homing */
 	if (emcmotStatus->homing_active) {
 	    continue;
 	}
 	/* must not be doing a keyboard jog */
 	if (joint->kb_jog_active) {
-	    continue;
-	}
-	/* the jogwheel input for this axis must be enabled */
-	if ( *(axis_data->jog_enable) == 0 ) {
 	    continue;
 	}
 	/* calculate distance to jog */
@@ -1238,8 +1238,9 @@ static void do_homing(void)
 	}
 	joint->home_sw_old = home_sw_new;
 
-	if (joint->home_state != HOME_IDLE)
+	if (joint->home_state != HOME_IDLE) {
 	    homing_flag = 1; /* at least one axis is homing */
+	}
 	
 	/* when an axis is homing, 'check_for_faults()' ignores its limit
 	   switches, so that this code can do the right thing with them. Once

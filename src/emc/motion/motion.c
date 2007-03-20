@@ -542,7 +542,7 @@ static int export_axis(int num, axis_hal_t * addr)
     if (retval != 0) {
 	return retval;
     }
-rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.motor-pos-cmd", num);
+    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.motor-pos-cmd", num);
     retval =
 	hal_pin_float_new(buf, HAL_OUT, &(addr->motor_pos_cmd), mot_comp_id);
     if (retval != 0) {
