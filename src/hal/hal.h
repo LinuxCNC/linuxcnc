@@ -287,23 +287,14 @@ typedef enum {
     HAL_RW = 192,
 } hal_param_dir_t;
 
-#include <asm/types.h>
+#include <rtapi_types.h>
 
-#if 1  /* right now we assume x86 */
 /* Use these for x86 machines, and anything else that can write to
    individual bytes in a machine word. */
 typedef volatile unsigned char hal_bit_t;
-typedef volatile __u32 hal_u32_t;
-typedef volatile __s32 hal_s32_t;
+typedef volatile u32 hal_u32_t;
+typedef volatile s32 hal_s32_t;
 typedef volatile float hal_float_t;
-#else
-/* Use these for weird machines that can't access bytes individually.
-   It wastes memory and may be slower, but it can't be helped. */
-typedef volatile unsigned int hal_bit_t;
-typedef volatile unsigned long hal_u32_t;
-typedef volatile signed long hal_s32_t;
-typedef volatile float hal_float_t;
-#endif
 
 /***********************************************************************
 *                      "LOCKING" FUNCTIONS                             *
