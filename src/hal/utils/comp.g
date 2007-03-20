@@ -44,6 +44,7 @@ parser Hal:
       | "pin" PINDIRECTION TYPE HALNAME OptArray OptAssign OptPersonality OptString ";"  {{ pin(HALNAME, TYPE, OptArray, PINDIRECTION, OptString, OptAssign, OptPersonality) }}
       | "param" PARAMDIRECTION TYPE HALNAME OptArray OptAssign OptPersonality OptString ";" {{ param(HALNAME, TYPE, OptArray, PARAMDIRECTION, OptString, OptAssign, OptPersonality) }}
       | "function" NAME OptFP OptString ";"       {{ function(NAME, OptFP, OptString) }}
+      | "variable" NAME {{ NAME1=NAME; }} NAME OptSimpleArray OptAssign ";" {{ variable(NAME1, NAME, OptSimpleArray, OptAssign) }}
       | "option" NAME OptValue ";"   {{ option(NAME, OptValue) }}
       | "see_also" String ";"   {{ see_also(String) }}
       | "description" String ";"   {{ description(String) }}
@@ -56,6 +57,8 @@ parser Hal:
     rule Personality: {{ pp = [] }} (PersonalityPart {{ pp.append(PersonalityPart) }} )* {{ return " ".join(pp) }}
     rule PersonalityPart: NUMBER {{ return NUMBER }}
             | POP {{ return POP }}
+    rule OptSimpleArray: "\[" NUMBER "\]" {{ return int(NUMBER) }}
+            | {{ return 0 }}
     rule OptArray: "\[" NUMBER OptArrayPersonality "\]" {{ return OptArrayPersonality and (int(NUMBER), OptArrayPersonality) or int(NUMBER) }}
             | {{ return 0 }}
     rule OptArrayPersonality: ":" Personality {{ return Personality }}
@@ -88,9 +91,9 @@ deprmap = {'s32': 'signed', 'u32': 'unsigned'}
 deprecated = ['s32', 'u32']
 
 def initialize():
-    global functions, params, pins, options, comp_name, names, docs
+    global functions, params, pins, options, comp_name, names, docs, variables
 
-    functions = []; params = []; pins = []; options = {}
+    functions = []; params = []; pins = []; options = {}; variables = []
     docs = []
     comp_name = None
 
@@ -161,6 +164,12 @@ def option(name, value):
         raise runtime.SyntaxError, "Duplicate option name %s" % name
     options[name] = value
 
+def variable(type, name, array, default):
+    if name in names:
+        Error("Duplicate item name %s" % name)
+    names[name] = None
+    variables.append((type, name, array, default))
+
 def removeprefix(s,p):
     if s.startswith(p): return s[len(p):]
     return s
@@ -215,7 +224,8 @@ static int comp_id;
         if array: has_array = True
         if isinstance(array, tuple): has_personality = True
         if personality: has_personality = True
-
+    for type, name, array, value in variables:
+        if array: has_array = True
 
     print >>f
     print >>f, "struct state {"
@@ -239,6 +249,11 @@ static int comp_id;
             print >>f, "    hal_%s_t %s;" % (type, to_c(name))
         names[name] = 1
 
+    for type, name, array, value in variables:
+        if array:
+            print >>f, "    %s %s[%d]\n" % (type, name, array)
+        else:
+            print >>f, "    %s %s;\n" % (type, name)
     if has_data:
         print >>f, "    void *_data;"
 
@@ -328,6 +343,15 @@ static int comp_id;
             print >>f, "    if(r != 0) return r;"
         if personality:
             print >>f, "}"
+
+    for type, name, array, value in variables:
+        if value is None: continue
+        if array:
+            print >>f, "    for(j=0; j < %s; j++) {" % array
+            print >>f, "        inst->%s[j] = %s;" % (name, value)
+            print >>f, "    }"
+        else:
+            print >>f, "    inst->%s = %s;" % (name, value)
 
     for name, fp in functions:
         print >>f, "    rtapi_snprintf(buf, HAL_NAME_LEN, \"%%s%s\", prefix);"\
@@ -445,7 +469,10 @@ static int comp_id;
                 print >>f, "#define %s(i) (inst->%s[i])" % (to_c(name), to_c(name))
             else:
                 print >>f, "#define %s (inst->%s)" % (to_c(name), to_c(name))
-        
+
+        for type, name, array, value in variables:
+            print >>f, "#define %s (inst->%s)" % (name, name)
+
         if has_data:
             print >>f, "#define data (*(%s*)&(inst->_data))" % options['data']
         if has_personality:
@@ -631,7 +658,7 @@ def document(filename, outfilename):
             else:
                 print >>f, " (%s=%0*d..%0*d)" % ("M" * sz, sz, 0, sz, array-1),
         if personality:
-            print >>f, " [if %s]" % personality
+            print >>f, " [if %s]" % personality,
         if value:
             print >>f, "\\fR(default: \\fI%s\\fR)" % value
         else:
@@ -653,7 +680,7 @@ def document(filename, outfilename):
                 sz = name.count("#")
                 print >>f, " (%s=%0*d..%0*d)" % ("M" * sz, sz, 0, sz, array-1),
             if personality:
-                print >>f, " [if %s]" % personality
+                print >>f, " [if %s]" % personality,
             if value:
                 print >>f, "\\fR(default: \\fI%s\\fR)" % value
             else:
