@@ -1481,7 +1481,7 @@ static void print_comp_info(char **patterns)
 
     if (scriptmode == 0) {
 	halcmd_output("Loaded HAL Components:\n");
-	halcmd_output("ID  Type  %-*s PID   State\n", HAL_NAME_LEN, "Name");
+	halcmd_output("ID      Type  %-*s PID   State\n", HAL_NAME_LEN, "Name");
     }
     rtapi_mutex_get(&(hal_data->mutex));
     next = hal_data->comp_list_ptr;
@@ -1494,8 +1494,8 @@ static void print_comp_info(char **patterns)
                         comp1 ? comp1->name : "(unknown)", 
                         comp->name);
             } else {
-                halcmd_output("%05d  %s  %-*s",
-                    comp->comp_id, (comp->type ? "RT  " : "User"),
+                halcmd_output(" %5d  %-4s  %-*s",
+                    comp->comp_id, (comp->type ? "RT" : "User"),
                     HAL_NAME_LEN, comp->name);
                 if(comp->type == 0) {
                         halcmd_output(" %5d %s", comp->pid, comp->ready > 0 ?
@@ -1523,7 +1523,7 @@ static void print_pin_info(char **patterns)
 
     if (scriptmode == 0) {
 	halcmd_output("Component Pins:\n");
-	halcmd_output("Owner  Type  Dir     Value      Name\n");
+	halcmd_output("Owner   Type  Dir         Value  Name\n");
     }
     rtapi_mutex_get(&(hal_data->mutex));
     next = hal_data->pin_list_ptr;
@@ -1539,7 +1539,7 @@ static void print_pin_info(char **patterns)
 		dptr = &(pin->dummysig);
 	    }
 	    if (scriptmode == 0) {
-		halcmd_output(" %02d    %s %s  %s  %s",
+		halcmd_output(" %5d  %5s %-3s  %9s  %s",
 		    comp->comp_id,
 		    data_type((int) pin->type),
 		    pin_data_dir((int) pin->dir),
@@ -1577,7 +1577,7 @@ static void print_sig_info(char **patterns)
 	return;
     }
     halcmd_output("Signals:\n");
-    halcmd_output("Type      Value      Name\n");
+    halcmd_output("Type          Value  Name     (linked to)\n");
     rtapi_mutex_get(&(hal_data->mutex));
     next = hal_data->sig_list_ptr;
     while (next != 0) {
@@ -1641,7 +1641,7 @@ static void print_param_info(char **patterns)
 
     if (scriptmode == 0) {
 	halcmd_output("Parameters:\n");
-	halcmd_output("Owner  Type  Dir    Value      Name\n");
+	halcmd_output("Owner   Type  Dir         Value  Name\n");
     }
     rtapi_mutex_get(&(hal_data->mutex));
     next = hal_data->param_list_ptr;
@@ -1650,7 +1650,7 @@ static void print_param_info(char **patterns)
 	if ( match(patterns, param->name) ) {
 	    comp = SHMPTR(param->owner_ptr);
 	    if (scriptmode == 0) {
-		halcmd_output(" %02d    %s  %s  %s  %s\n",
+		halcmd_output(" %5d  %5s %-3s  %9s  %s\n",
 		    comp->comp_id, data_type((int) param->type),
 		    param_data_dir((int) param->dir),
 		    data_value((int) param->type, SHMPTR(param->data_ptr)),
@@ -1677,7 +1677,7 @@ static void print_funct_info(char **patterns)
 
     if (scriptmode == 0) {
 	halcmd_output("Exported Functions:\n");
-	halcmd_output("Owner CodeAddr   Arg    FP  Users  Name\n");
+	halcmd_output("Owner   CodeAddr  Arg       FP   Users  Name\n");
     }
     rtapi_mutex_get(&(hal_data->mutex));
     next = hal_data->funct_list_ptr;
@@ -1686,16 +1686,16 @@ static void print_funct_info(char **patterns)
 	if ( match(patterns, fptr->name) ) {
 	    comp = SHMPTR(fptr->owner_ptr);
 	    if (scriptmode == 0) {
-		halcmd_output(" %02d   %08lx %08lx %s  %3d   %s\n",
+		halcmd_output(" %05d  %08lx  %08lx  %-3s  %5d   %s\n",
 		    comp->comp_id,
 		    (long)fptr->funct,
-		    (long)fptr->arg, (fptr->uses_fp ? "YES" : "NO "),
+		    (long)fptr->arg, (fptr->uses_fp ? "YES" : "NO"),
 		    fptr->users, fptr->name);
 	    } else {
 		halcmd_output("%s %08lx %08lx %s %3d %s\n",
 		    comp->name,
 		    (long)fptr->funct,
-		    (long)fptr->arg, (fptr->uses_fp ? "YES" : "NO "),
+		    (long)fptr->arg, (fptr->uses_fp ? "YES" : "NO"),
 		    fptr->users, fptr->name);
 	    } 
 	}
@@ -1715,7 +1715,7 @@ static void print_thread_info(char **patterns)
 
     if (scriptmode == 0) {
 	halcmd_output("Realtime Threads:\n");
-	halcmd_output("   Period   FP   Name    (Time, Max-Time)\n");
+	halcmd_output("     Period  FP     Name               (     Time, Max-Time )\n");
     }
     rtapi_mutex_get(&(hal_data->mutex));
     next_thread = hal_data->thread_list_ptr;
@@ -1724,8 +1724,8 @@ static void print_thread_info(char **patterns)
 	if ( match(patterns, tptr->name) ) {
 		/* note that the scriptmode format string has no \n */
 		// TODO FIXME add thread runtime and max runtime to this print
-	    halcmd_output(((scriptmode == 0) ? "%11ld %s  %s    ( %ld, %ld )\n" : "%ld %s %s %ld %ld"),
-		tptr->period, (tptr->uses_fp ? "YES" : "NO "), tptr->name, (long)tptr->runtime, (long)tptr->maxtime);
+	    halcmd_output(((scriptmode == 0) ? "%11ld  %s  %20s ( %8ld, %8ld )\n" : "%ld %s %s %ld %ld"),
+		tptr->period, (tptr->uses_fp ? "YES" : "NO"), tptr->name, (long)tptr->runtime, (long)tptr->maxtime);
 	    list_root = &(tptr->funct_list);
 	    list_entry = list_next(list_root);
 	    n = 1;
@@ -1961,7 +1961,7 @@ static char *pin_data_dir(int dir)
 
     switch (dir) {
     case HAL_IN:
-	pin_dir = "IN ";
+	pin_dir = "IN";
 	break;
     case HAL_OUT:
 	pin_dir = "OUT";
