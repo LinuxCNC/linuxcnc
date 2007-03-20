@@ -104,9 +104,6 @@ sb.pack(side="left", expand=0, fill="y")
 changetime = {}
 oldvalues = {}
 def timer():
-    if button_pressed:
-        t.after(100, timer)
-        return
     try:
         s.poll()
     except emc.error:
