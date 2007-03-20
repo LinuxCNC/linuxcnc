@@ -15,7 +15,7 @@ PTH_CONFIG ?= pth-config
 PTH_CFLAGS := $(shell $(PTH_CONFIG) --cflags 2>/dev/null)
 PTH_LINK := $(shell $(PTH_CONFIG) --ldflags --libs 2>/dev/null)
 
-$(call TOOBJSDEPS, $(RTAPI_APP_SRCS)): EXTRAFLAGS += $(PTH_CFLAGS)
+$(call TOOBJSDEPS, $(RTAPI_APP_SRCS)): EXTRAFLAGS += $(PTH_CFLAGS) -DSIM
 ../bin/rtapi_app: $(call TOOBJS, $(RTAPI_APP_SRCS))
 	$(ECHO) Linking $(notdir $@)
 	@$(CXX) -rdynamic $(LDFLAGS) -o $@ $^ -ldl $(PTH_LINK)
