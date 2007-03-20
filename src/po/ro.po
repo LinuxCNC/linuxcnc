@@ -1,567 +1,1775 @@
 msgid ""
-msgstr "Content-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit"
+msgstr ""
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2007-03-20 23:14+0200\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
 
-msgid "Set Run Mark"
-msgstr "Seteaza punct pornire"
+#: ../tcl/bin/emccalib.tcl:84
+msgid "EMC2 Axis Calibration"
+msgstr "EMC@ Calibrare axe"
 
-msgid "Set run mark at line"
-msgstr "Seteaza punct pornire la linia"
+#: ../tcl/bin/emccalib.tcl:94
+msgid "Save To File"
+msgstr "Salveaza in fisier"
 
-msgid "Load Tool Table"
-msgstr "Incarca tabela scule"
+#: ../tcl/bin/emccalib.tcl:95 ../tcl/bin/halconfig.tcl:99
+msgid "Quit"
+msgstr "Terminare"
 
-msgid "Load Parameter File"
-msgstr "Incarca fisier parametri"
-
-msgid "Cancel"
-msgstr "Anulare"
-
-msgid "OK"
-msgstr "OK"
-
-msgid "EMC Diagnostics"
-msgstr "EMC-Diagnostic"
-
-msgid "Task"
-msgstr "Task"
-
-msgid "Heartbeat:"
-msgstr "Bataie:"
-
-msgid "Command:"
-msgstr "Comanda:"
-
-msgid "Command #:"
-msgstr "Nr. Comanda:"
-
-msgid "Status:"
-msgstr "Stare:"
-
-msgid "Io"
-msgstr "Io"
-
-msgid "Motion"
-msgstr "Miscare"
-
-msgid "About TkEmc"
-msgstr "Despre TkEmc"
-
-msgid "TkEmc\n\nTcl/Tk GUI for Enhanced Machine Controller\n\nPublic Domain (1999)"
-msgstr "TkEmc\n\nInterfata grafica Tcl/Tk pentru Enhanced Machine Controller\n\nPublic Domain (1999)"
-
-msgid "Set Tool Offset"
-msgstr "Seteaza offset scula"
-
-msgid "Tool:"
-msgstr "Scula:"
-
-msgid "Length:"
-msgstr "Lungime:"
-
-msgid "Diameter"
-msgstr "Diametru:"
-
-msgid "can't open"
-msgstr "nu pot deschide"
-
-msgid "All files"
-msgstr "Toate fisierele"
-
-msgid "Text files"
-msgstr "Fisiere text"
-
-msgid "NC files"
-msgstr "Fisiere NC"
-
+#: ../tcl/bin/emccalib.tcl:109 ../tcl/bin/genedit.tcl:83
+#: ../tcl/bin/halconfig.tcl:147 ../tcl/mini.tcl:2466 ../tcl/tkemc.tcl:755
 msgid "File"
 msgstr "Fisier"
 
+#: ../tcl/bin/emccalib.tcl:111 ../tcl/bin/halconfig.tcl:149
+#: ../tcl/mini.tcl:3508
+msgid "Refresh"
+msgstr "Reactualizeaza"
+
+#: ../tcl/bin/emccalib.tcl:113 ../tcl/bin/genedit.tcl:88
+#: ../tcl/bin/halconfig.tcl:151 ../tcl/mini.tcl:2485
+msgid "Save"
+msgstr "Salveaza"
+
+#: ../tcl/bin/emccalib.tcl:166 ../tcl/bin/halconfig.tcl:619
+#, tcl-format
+msgid "Tune %d"
+msgstr "Seteaza %d"
+
+#: ../tcl/bin/emccalib.tcl:168 ../tcl/bin/halconfig.tcl:624
+msgid "INI Name"
+msgstr "Nume INI"
+
+#: ../tcl/bin/emccalib.tcl:169 ../tcl/bin/halconfig.tcl:625
+msgid "HAL's Value"
+msgstr "Valoare HAL"
+
+#: ../tcl/bin/emccalib.tcl:171 ../tcl/bin/halconfig.tcl:627
+msgid "Next Value"
+msgstr "Urmatoarea valoare"
+
+#: ../tcl/bin/emccalib.tcl:231 ../tcl/bin/halconfig.tcl:676
+#: ../tcl/bin/halconfig.tcl:727
+msgid "Test"
+msgstr "Testeaza"
+
+#: ../tcl/bin/emccalib.tcl:233 ../tcl/bin/genedit.tcl:186
+#: ../tcl/bin/genedit.tcl:456 ../tcl/bin/halconfig.tcl:678
+#: ../tcl/bin/halconfig.tcl:729 ../tcl/bin/pickconfig.tcl:235
+#: ../tcl/bin/pickconfig.tcl:380 ../tcl/bin/pickconfig.tcl:405
+#: ../tcl/mini.tcl:2887 ../tcl/tkemc.tcl:211 ../tcl/tkemc.tcl:314
+#: ../tcl/tkemc.tcl:460 ../tcl/tkemc.tcl:1242 ../tcl/tkemc.tcl:1290
+#: ../tcl/tkemc.tcl:1321 ../tcl/tkemc.tcl:1352 ../tcl/tkemc.tcl:1845
+#: ../tcl/tkemc.tcl:1864 ../tcl/tkemc.tcl:1883 ../tcl/tkemc.tcl:1930
+msgid "OK"
+msgstr "OK"
+
+#: ../tcl/bin/emccalib.tcl:235 ../tcl/bin/genedit.tcl:300
+#: ../tcl/bin/halconfig.tcl:99 ../tcl/bin/halconfig.tcl:680
+#: ../tcl/bin/halconfig.tcl:731 ../tcl/bin/pickconfig.tcl:238
+#: ../tcl/bin/pickconfig.tcl:345 ../tcl/mini.tcl:2888 ../tcl/mini.tcl:3060
+#: ../tcl/tkemc.tcl:213 ../tcl/tkemc.tcl:256 ../tcl/tkemc.tcl:282
+#: ../tcl/tkemc.tcl:461 ../tcl/tkemc.tcl:1243 ../tcl/tkemc.tcl:1291
+#: ../tcl/tkemc.tcl:1322 ../tcl/tkemc.tcl:1353 ../tcl/tkemc.tcl:1931
+msgid "Cancel"
+msgstr "Anulare"
+
+#: ../tcl/bin/emccalib.tcl:340 ../tcl/bin/halconfig.tcl:879
+#, tcl-format
+msgid ""
+"The HAL parameter \n"
+"  %s \n"
+" has changed. \n"
+" Really quit?"
+msgstr ""
+"Parametrul HAL \n"
+"  %s \n"
+" a fost modificat. \n"
+" Sigur iesiti?"
+
+#: ../tcl/bin/emccalib.tcl:365 ../tcl/bin/halconfig.tcl:1166
+msgid ""
+"Not permitted to save here.\n"
+"\n"
+"  You need to copy a configuration to your home directory and work there."
+msgstr ""
+"Nu este permisa salvarea aici.\n"
+"\n"
+"  Trebuie sa copiati o configuratie in directorul Dvs. si sa lucrati acolo."
+
+#: ../tcl/bin/emccalib.tcl:417 ../tcl/bin/genedit.tcl:217
+#: ../tcl/bin/halconfig.tcl:1238 ../tcl/bin/pickconfig.tcl:443
+#: ../tcl/bin/pickconfig.tcl:454 ../tcl/scripts/Set_Coordinates.tcl:205
+#: ../tcl/scripts/Set_Coordinates.tcl:228
+msgid "can't save %s"
+msgstr "nu pot salva %s"
+
+#: ../tcl/bin/emcdebug.tcl:170 ../tcl/bin/emcdebug.tcl:181
+msgid "EMC Debug"
+msgstr "EMC Diagnostic"
+
+#: ../tcl/bin/emcdebug.tcl:189
+msgid "Invalid INI file entries"
+msgstr ""
+
+#: ../tcl/bin/emcdebug.tcl:190
+msgid "Configuration information"
+msgstr ""
+
+#: ../tcl/bin/emcdebug.tcl:191
+msgid "Use of defaults"
+msgstr ""
+
+#: ../tcl/bin/emcdebug.tcl:192
+msgid "Version information"
+msgstr ""
+
+#: ../tcl/bin/emcdebug.tcl:193
+msgid "Command issuing"
+msgstr "Comanda activa"
+
+#: ../tcl/bin/emcdebug.tcl:194
+msgid "IO points"
+msgstr ""
+
+#: ../tcl/bin/emcdebug.tcl:195
+msgid "NML"
+msgstr ""
+
+#: ../tcl/bin/emcdebug.tcl:196
+msgid "Motion time"
+msgstr "Timp miscare"
+
+#: ../tcl/bin/emcdebug.tcl:197
+msgid "Interpreter"
+msgstr ""
+
+#: ../tcl/bin/emcdebug.tcl:198
+msgid "RCS"
+msgstr ""
+
+#: ../tcl/bin/emcdebug.tcl:199
+msgid "Trajectory level"
+msgstr ""
+
+#: ../tcl/bin/emcdebug.tcl:200
+msgid "Interpreter list"
+msgstr ""
+
+#: ../tcl/bin/genedit.tcl:84 ../tcl/mini.tcl:2483
+msgid "New"
+msgstr ""
+
+#: ../tcl/bin/genedit.tcl:86 ../tcl/mini.tcl:1619 ../tcl/mini.tcl:2484
+#: ../tcl/tkemc.tcl:756 ../tcl/tkemc.tcl:1495
 msgid "Open..."
 msgstr "Deschide"
 
-msgid "Edit..."
-msgstr "Editeaza"
+#: ../tcl/bin/genedit.tcl:90 ../tcl/mini.tcl:2486
+msgid "Save As..."
+msgstr ""
 
-msgid "Reset"
-msgstr "Reseteaza"
-
+#: ../tcl/bin/genedit.tcl:93 ../tcl/bin/halconfig.tcl:161 ../tcl/mini.tcl:945
+#: ../tcl/tkemc.tcl:761
 msgid "Exit"
 msgstr "Iesire"
 
-msgid "View"
-msgstr "Vizualizare"
+#: ../tcl/bin/genedit.tcl:97 ../tcl/mini.tcl:2467
+msgid "Edit"
+msgstr "Editare"
 
-msgid "Tools..."
-msgstr "Scule..."
+#: ../tcl/bin/genedit.tcl:98 ../tcl/mini.tcl:2493
+msgid "Cut"
+msgstr ""
 
-msgid "Offsets and Variables..."
-msgstr "Offseturi si variabile..."
+#: ../tcl/bin/genedit.tcl:100 ../tcl/mini.tcl:2494
+msgid "Copy"
+msgstr ""
 
-msgid "Diagnostics..."
-msgstr "Diagnostic"
+#: ../tcl/bin/genedit.tcl:102 ../tcl/mini.tcl:2495
+msgid "Paste"
+msgstr "Lipire"
 
-msgid "Backplot..."
-msgstr "Desenare"
+#: ../tcl/bin/genedit.tcl:105 ../tcl/mini.tcl:2498 ../tcl/show_errors.tcl:51
+msgid "Select All"
+msgstr ""
 
-msgid "Settings"
-msgstr "Setari"
-
-msgid "Calibration..."
-msgstr "Calibrare..."
-
-msgid "Logging..."
-msgstr "Log-uri..."
-
-msgid "Testing..."
-msgstr "Testare..."
-
-msgid "Debug..."
-msgstr "Depanare..."
-
-msgid "Font..."
-msgstr "Font..."
-
-msgid "Units"
-msgstr "Unitati"
-
-msgid "auto"
-msgstr "auto"
-
-msgid "inches"
-msgstr "inch"
-
-msgid "mm"
-msgstr "mm"
-
-msgid "cm"
-msgstr "cm"
-
-msgid "Scripts"
-msgstr "Scripturi"
-
+#: ../tcl/bin/genedit.tcl:110 ../tcl/bin/halconfig.tcl:188 ../tcl/mini.tcl:910
+#: ../tcl/mini.tcl:2469 ../tcl/tkemc.tcl:818
 msgid "Help"
 msgstr "Ajutor"
 
-msgid "Help..."
-msgstr "Ajutor..."
-
-msgid "Balloon help"
-msgstr "Caseta info"
-
-msgid "Info..."
-msgstr "Info..."
-
+#: ../tcl/bin/genedit.tcl:111 ../tcl/mini.tcl:1002 ../tcl/mini.tcl:2509
+#: ../tcl/tkemc.tcl:824
 msgid "About..."
 msgstr "Despre..."
 
-msgid "Estop on"
-msgstr "Estop pornit"
+#: ../tcl/bin/genedit.tcl:136
+msgid "Save and Reload"
+msgstr ""
 
-msgid "Estop off"
-msgstr "Estop oprit"
+#: ../tcl/bin/genedit.tcl:139 ../tcl/mini.tcl:2500
+msgid "Find..."
+msgstr "Cauta..."
 
-msgid "Machine on"
-msgstr "Masina pornita"
+#: ../tcl/bin/genedit.tcl:141 ../tcl/mini.tcl:2502
+msgid "Renumber File..."
+msgstr ""
 
-msgid "Machine off"
-msgstr "Masina oprita"
+#: ../tcl/bin/genedit.tcl:146 ../tcl/mini.tcl:908 ../tcl/mini.tcl:2468
+#: ../tcl/tkemc.tcl:774
+msgid "Settings"
+msgstr "Setari"
 
-msgid "Manual"
-msgstr "Manual"
+#: ../tcl/bin/genedit.tcl:147 ../tcl/mini.tcl:2504
+msgid "No Numbering"
+msgstr ""
 
-msgid "Auto"
-msgstr "Auto"
+#: ../tcl/bin/genedit.tcl:150 ../tcl/mini.tcl:2506
+msgid "Line Numbering..."
+msgstr ""
 
-msgid "MDI"
-msgstr "MDI"
+#: ../tcl/bin/genedit.tcl:156 ../tcl/tkemc.tcl:796
+msgid "Scripts"
+msgstr "Scripturi"
 
-msgid "Mist on"
-msgstr "Vapori porniti"
+#: ../tcl/bin/genedit.tcl:183
+msgid "About TkEditor"
+msgstr "Despre TkEditor"
 
-msgid "Mist off"
-msgstr "Vapori opriti"
+#: ../tcl/bin/genedit.tcl:185
+msgid ""
+"TkEditor\n"
+"\n"
+"Simple Tcl/Tk Text Editor\n"
+"\n"
+"Public Domain (1999)"
+msgstr ""
+"TkEditor\n"
+"\n"
+"Editor text Tcl/Tk\n"
+"\n"
+"Public Domain (1999)"
 
-msgid "Flood on"
-msgstr "Lichid pornit"
+#: ../tcl/bin/genedit.tcl:203 ../tcl/mini.tcl:1358 ../tcl/mini.tcl:1727
+#: ../tcl/tkemc.tcl:501
+msgid "can't open %s"
+msgstr "nu pot deschide %s"
 
-msgid "Flood off"
-msgstr "Lichid oprit"
+#: ../tcl/bin/genedit.tcl:273 ../tcl/mini.tcl:3040
+msgid "Find"
+msgstr "Cauta"
 
-msgid "Lube on"
-msgstr "Lubrifiant pornit"
+#: ../tcl/bin/genedit.tcl:276
+msgid "Find:"
+msgstr "Cauta:"
 
-msgid "Lube off"
-msgstr "Lubrifiant oprit"
+#: ../tcl/bin/genedit.tcl:282
+msgid "Replace:"
+msgstr "Inlocuieste:"
 
-msgid "Spindle forward"
-msgstr "Freza pornita"
+#: ../tcl/bin/genedit.tcl:288
+msgid "Find All"
+msgstr "Cauta toate"
 
-msgid "Spindle reverse"
-msgstr "Freza sens invers"
+#: ../tcl/bin/genedit.tcl:291 ../tcl/mini.tcl:3063
+msgid "Replace All"
+msgstr "Inlocuieste toate"
 
-msgid "Spindle off"
-msgstr "Freza oprita"
+#: ../tcl/bin/genedit.tcl:294
+msgid "Skip This"
+msgstr ""
 
-msgid "Break on"
-msgstr "Frana pornita"
+#: ../tcl/bin/genedit.tcl:297
+msgid "Replace This"
+msgstr ""
 
-msgid "Break off"
-msgstr "Frana oprita"
+#: ../tcl/bin/genedit.tcl:303
+msgid "Clear"
+msgstr "Sterge"
 
-msgid "Brake on"
-msgstr "Frana pornita"
+#: ../tcl/bin/genedit.tcl:428 ../tcl/mini.tcl:2590
+msgid "Set Line Numbering"
+msgstr ""
 
-msgid "Brake off"
-msgstr "Frana oprita"
+#: ../tcl/bin/genedit.tcl:430 ../tcl/mini.tcl:2594
+msgid "Increment"
+msgstr ""
 
+#: ../tcl/bin/genedit.tcl:432 ../tcl/mini.tcl:2596
+msgid "One"
+msgstr "Unu"
+
+#: ../tcl/bin/genedit.tcl:435 ../tcl/mini.tcl:2598
+msgid "Two"
+msgstr "Doi"
+
+#: ../tcl/bin/genedit.tcl:438 ../tcl/mini.tcl:2600
+msgid "Five"
+msgstr "Cinci"
+
+#: ../tcl/bin/genedit.tcl:441 ../tcl/mini.tcl:2602
+msgid "Ten"
+msgstr "Zece"
+
+#: ../tcl/bin/genedit.tcl:445 ../tcl/mini.tcl:2604
+msgid "Space"
+msgstr "Spatiu"
+
+#: ../tcl/bin/genedit.tcl:447 ../tcl/mini.tcl:2606
+msgid "Single Space"
+msgstr "Spatiu simplu"
+
+#: ../tcl/bin/genedit.tcl:450 ../tcl/mini.tcl:2608
+msgid "Double Space"
+msgstr ""
+
+#: ../tcl/bin/genedit.tcl:453 ../tcl/mini.tcl:2610
+msgid "Tab Space"
+msgstr ""
+
+#: ../tcl/bin/genedit.tcl:459
+msgid "Next Number:"
+msgstr ""
+
+#: ../tcl/bin/genedit.tcl:480 ../tcl/mini.tcl:2618
+msgid "Renumber"
+msgstr "Renumeroteaza"
+
+#: ../tcl/bin/halconfig.tcl:84 ../tcl/bin/halshow.tcl:50
+msgid "HAL Configuration"
+msgstr ""
+
+#: ../tcl/bin/halconfig.tcl:99
+msgid "Would you like to save your configuration before you exit?"
+msgstr ""
+
+#: ../tcl/bin/halconfig.tcl:99
+msgid "Save All"
+msgstr ""
+
+#: ../tcl/bin/halconfig.tcl:99
+msgid "Save Tune"
+msgstr ""
+
+#: ../tcl/bin/halconfig.tcl:99
+msgid "Save as Netlist"
+msgstr ""
+
+#: ../tcl/bin/halconfig.tcl:99
+msgid "Don't Save"
+msgstr ""
+
+#: ../tcl/bin/halconfig.tcl:128
+msgid "Show"
+msgstr ""
+
+#: ../tcl/bin/halconfig.tcl:129
+msgid "Watch"
+msgstr ""
+
+#: ../tcl/bin/halconfig.tcl:130
+msgid "Modify"
+msgstr ""
+
+#: ../tcl/bin/halconfig.tcl:153
+msgid "Save INI Tuning"
+msgstr ""
+
+#: ../tcl/bin/halconfig.tcl:155
+msgid "Save HAL Ini"
+msgstr ""
+
+#: ../tcl/bin/halconfig.tcl:157
+msgid "Save HAL Net"
+msgstr ""
+
+#: ../tcl/bin/halconfig.tcl:159
+msgid "Save and Exit"
+msgstr ""
+
+#: ../tcl/bin/halconfig.tcl:164 ../tcl/mini.tcl:907 ../tcl/tkemc.tcl:766
+msgid "View"
+msgstr "Vizualizare"
+
+#: ../tcl/bin/halconfig.tcl:166 ../tcl/bin/halshow.tcl:104
+msgid "Expand Tree"
+msgstr ""
+
+#: ../tcl/bin/halconfig.tcl:168 ../tcl/bin/halshow.tcl:106
+msgid "Collapse Tree"
+msgstr ""
+
+#: ../tcl/bin/halconfig.tcl:171 ../tcl/bin/halshow.tcl:109
+msgid "Expand Pins"
+msgstr ""
+
+#: ../tcl/bin/halconfig.tcl:173 ../tcl/bin/halshow.tcl:111
+msgid "Expand Parameters"
+msgstr "Extinde parametri"
+
+#: ../tcl/bin/halconfig.tcl:175 ../tcl/bin/halshow.tcl:113
+msgid "Expand Signals"
+msgstr ""
+
+#: ../tcl/bin/halconfig.tcl:178 ../tcl/bin/halshow.tcl:116
+msgid "Erase Watch"
+msgstr ""
+
+#: ../tcl/bin/halconfig.tcl:190 ../tcl/mini.tcl:831 ../tcl/mini.tcl:2735
+msgid "About"
+msgstr "Despre"
+
+#: ../tcl/bin/halconfig.tcl:192
+msgid "Main"
+msgstr "Principal"
+
+#: ../tcl/bin/halconfig.tcl:472
+msgid "Enter HAL command :"
+msgstr ""
+
+#: ../tcl/bin/halconfig.tcl:475 ../tcl/bin/halconfig.tcl:524
+#: ../tcl/bin/halshow.tcl:399
+msgid "Execute"
+msgstr ""
+
+#: ../tcl/bin/halconfig.tcl:927 ../tcl/bin/halshow.tcl:441
+msgid "Mode went way wrong."
+msgstr ""
+
+#: ../tcl/bin/halconfig.tcl:939 ../tcl/bin/halshow.tcl:453
+msgid "Select a node to show."
+msgstr ""
+
+#: ../tcl/bin/halconfig.tcl:964 ../tcl/bin/halshow.tcl:478
+msgid "<-- Select a Leaf.  Click on its name."
+msgstr ""
+
+#: ../tcl/bin/halconfig.tcl:1081 ../tcl/bin/halconfig.tcl:1091
+#: ../tcl/bin/halconfig.tcl:1098 ../tcl/bin/halconfig.tcl:1105
+#: ../tcl/bin/halconfig.tcl:1112
+#, tcl-format
+msgid "Click a highlighted entry where %s should go."
+msgstr ""
+
+#: ../tcl/bin/halconfig.tcl:1088
+msgid "Nothing to be done for parameters here. Try the tuning page"
+msgstr ""
+
+#: ../tcl/bin/halconfig.tcl:1120
+#, tcl-format
+msgid "%s is not a leaf, try again"
+msgstr ""
+
+#: ../tcl/bin/halconfig.tcl:1277
+msgid ""
+"Copyright Raymond E Henry. 2006\n"
+"License: GPL Version 2\n"
+"\n"
+"Halconfig is an EMC2 configuration tool.  It should be started from the emc2 "
+"directory and will require that you have started an instance of emc2 or work "
+"up a new configuration starting with a demo rt script.\n"
+"\n"
+"This script is not for the faint hearted and carries no warranty or "
+"liability for its use to the extent allowed by law."
+msgstr ""
+
+#: ../tcl/bin/halshow.tcl:86
+msgid " SHOW "
+msgstr ""
+
+#: ../tcl/bin/halshow.tcl:87
+msgid " WATCH "
+msgstr ""
+
+#: ../tcl/bin/halshow.tcl:102
+msgid "Tree View"
+msgstr "Vedere arbore"
+
+#: ../tcl/bin/halshow.tcl:396
+msgid "Test HAL command :"
+msgstr ""
+
+#: ../tcl/bin/halshow.tcl:584
+msgid "Commands may be tested here but they will NOT be saved"
+msgstr ""
+
+#: ../tcl/bin/pickconfig.tcl:51
+msgid ""
+"Can't find the bwidget 1.7 package.  There is a debian bwidget package; "
+"install \n"
+"it with sudo apt-get install bwidget."
+msgstr ""
+
+#: ../tcl/bin/pickconfig.tcl:129
+msgid "No details available."
+msgstr "Nu exista detalii."
+
+#: ../tcl/bin/pickconfig.tcl:160
+msgid "ERROR: must specify a path to search for configurations"
+msgstr ""
+
+#: ../tcl/bin/pickconfig.tcl:172
+msgid "EMC2 Configuration Selector"
+msgstr ""
+
+#: ../tcl/bin/pickconfig.tcl:193
+msgid ""
+"Welcome to EMC2.\n"
+"\n"
+"Select a machine configuration from the list on the left.\n"
+"Details about the selected configuration will appear in the display on the "
+"right.\n"
+"Click 'OK' to run the selected configuration"
+msgstr ""
+"Bine ati venit la EMC2.\n"
+"\n"
+"Alegeti o configuratie din lista din stanga.\n"
+"Detalii despre aceasta vor fi afisata in partea din dreapta "
+"\n"
+"Apasati 'OK' pentru a executa configuratia selectata"
+
+#: ../tcl/bin/pickconfig.tcl:250
+msgid "My Configurations"
+msgstr "Configuratiile mele"
+
+#: ../tcl/bin/pickconfig.tcl:253
+msgid "Sample Configurations"
+msgstr "Configuratii model"
+
+#: ../tcl/bin/pickconfig.tcl:310
+#, tcl-format
+msgid "ERROR: no configurations found in path '%s'"
+msgstr ""
+
+#: ../tcl/bin/pickconfig.tcl:345
+msgid "Copy Configuration?"
+msgstr ""
+
+#: ../tcl/bin/pickconfig.tcl:345
+#, tcl-format
+msgid ""
+"Would you like to copy the %s configuration to your home directory so you "
+"can customize it?"
+msgstr ""
+
+#: ../tcl/bin/pickconfig.tcl:345
+msgid "Yes"
+msgstr ""
+
+#: ../tcl/bin/pickconfig.tcl:345
+msgid "No"
+msgstr ""
+
+#: ../tcl/bin/pickconfig.tcl:380
+msgid "Configuration Copied"
+msgstr ""
+
+#: ../tcl/bin/pickconfig.tcl:380
+#, tcl-format
+msgid ""
+"The configuration file has been copied to %s. Next time, choose this "
+"location when starting EMC2."
+msgstr ""
+
+#: ../tcl/bin/pickconfig.tcl:405
+msgid "Shortcut Created"
+msgstr ""
+
+#: ../tcl/bin/pickconfig.tcl:405
+msgid ""
+"A shortcut to this configuration file has been created on your desktop.  You "
+"can use it to automatically launch this configuration."
+msgstr ""
+
+#: ../tcl/bin/pickconfig.tcl:410
+msgid "Create Desktop Shortcut"
+msgstr ""
+
+#: ../tcl/bin/tkbackplot.tcl:113
+msgid "TkEmc BackPlot"
+msgstr ""
+
+#: ../tcl/bin/tkbackplot.tcl:128
+msgid "SETUP"
+msgstr "SETARE"
+
+#: ../tcl/bin/tkbackplot.tcl:130
+msgid "RESET"
+msgstr "RESET"
+
+#: ../tcl/bin/tkbackplot.tcl:132
+msgid "CANCEL"
+msgstr ""
+
+#: ../tcl/bin/tkbackplot.tcl:253
+msgid "AXIS"
+msgstr ""
+
+#: ../tcl/bin/tkbackplot.tcl:254
+msgid "OFFSET"
+msgstr ""
+
+#: ../tcl/bin/tkbackplot.tcl:255
+msgid "ANGLE"
+msgstr ""
+
+#: ../tcl/bin/tkbackplot.tcl:256
+msgid "DIRECTION"
+msgstr ""
+
+#: ../tcl/bin/tkbackplot.tcl:273
+msgid "SIZE :"
+msgstr ""
+
+#: ../tcl/mini.tcl:481
+#, tcl-format
+msgid "JOG %s +"
+msgstr ""
+
+#: ../tcl/mini.tcl:482
+#, tcl-format
+msgid "JOG %s -"
+msgstr ""
+
+#: ../tcl/mini.tcl:483
+#, tcl-format
+msgid ""
+"%s\n"
+"\n"
+"Z\n"
+"E\n"
+"R\n"
+"O"
+msgstr ""
+
+#: ../tcl/mini.tcl:831
+msgid ""
+"TkMini  \n"
+"\n"
+"Tcl/Tk GUI for Enhanced Machine Controller\n"
+"\n"
+"GPL Copyright 2003  \n"
+"Ray Henry <rehenry@up.net>\n"
+"\n"
+" 3D backplotter by Paul Corner <paul_c@users.sourceforge.net>\n"
+" \n"
+"This software comes with ABSOLUTELY NO GUARANTEE!   \n"
+"For details see the copyright.html file in this directory."
+msgstr ""
+
+#: ../tcl/mini.tcl:906
+msgid "Program"
+msgstr "Program"
+
+#: ../tcl/mini.tcl:909
+msgid "Info"
+msgstr "Info"
+
+#: ../tcl/mini.tcl:914
+msgid "Backplot"
+msgstr "Desenare"
+
+#: ../tcl/mini.tcl:916
+msgid "Editor"
+msgstr "Editor"
+
+#: ../tcl/mini.tcl:918
+msgid "Offsets"
+msgstr "Ofseturi"
+
+#: ../tcl/mini.tcl:920
+msgid "Tools"
+msgstr "Scule"
+
+#: ../tcl/mini.tcl:942 ../tcl/mini.tcl:3515 ../tcl/tkemc.tcl:759
+msgid "Reset"
+msgstr "Reseteaza"
+
+#: ../tcl/mini.tcl:951
+msgid "Position Type"
+msgstr ""
+
+#: ../tcl/mini.tcl:953
+msgid "Tool Info"
+msgstr ""
+
+#: ../tcl/mini.tcl:955
+msgid "Offset Info"
+msgstr "Informatii Ofset"
+
+#: ../tcl/mini.tcl:958
+msgid "Show Restart"
+msgstr ""
+
+#: ../tcl/mini.tcl:959
+msgid "Hide Restart"
+msgstr ""
+
+#: ../tcl/mini.tcl:961
+msgid "Show Split Right"
+msgstr ""
+
+#: ../tcl/mini.tcl:963
+msgid "Show Mode Full"
+msgstr ""
+
+#: ../tcl/mini.tcl:965
+msgid "Show Popin Full"
+msgstr ""
+
+#: ../tcl/mini.tcl:969
+msgid "Actual Position"
+msgstr ""
+
+#: ../tcl/mini.tcl:971
+msgid "Commanded Position"
+msgstr ""
+
+#: ../tcl/mini.tcl:974
+msgid "Machine Position"
+msgstr "Pozitie Masina"
+
+#: ../tcl/mini.tcl:976
+msgid "Relative Position"
+msgstr ""
+
+#: ../tcl/mini.tcl:979 ../tcl/tkemc.tcl:775
+msgid "Calibration..."
+msgstr "Calibrare..."
+
+#: ../tcl/mini.tcl:981
+msgid "HAL Show..."
+msgstr ""
+
+#: ../tcl/mini.tcl:983
+msgid "HAL Config..."
+msgstr "Config HAL..."
+
+#: ../tcl/mini.tcl:988
+msgid "Program File"
+msgstr "Fisier Program"
+
+#: ../tcl/mini.tcl:989
+#, tcl-format
+msgid "Program file is %s"
+msgstr ""
+
+#: ../tcl/mini.tcl:990
+msgid "Editor File"
+msgstr ""
+
+#: ../tcl/mini.tcl:991
+#, tcl-format
+msgid "Editor file is %s"
+msgstr ""
+
+#: ../tcl/mini.tcl:992
+msgid "Parameter File"
+msgstr "Fisier parametri"
+
+#: ../tcl/mini.tcl:993
+msgid "Parameter file is %s"
+msgstr "Fisier parametri este %s"
+
+#: ../tcl/mini.tcl:994
+msgid "Tool File"
+msgstr "Fisier scule"
+
+#: ../tcl/mini.tcl:995
+#, tcl-format
+msgid "Tool file is %s"
+msgstr ""
+
+#: ../tcl/mini.tcl:997
+msgid "Active G Codes"
+msgstr ""
+
+#: ../tcl/mini.tcl:998
+#, tcl-format
+msgid ""
+"Active codes include; \n"
+"%s"
+msgstr ""
+
+#: ../tcl/mini.tcl:1001 ../tcl/mini.tcl:2508 ../tcl/tkemc.tcl:819
+msgid "Help..."
+msgstr "Ajutor..."
+
+#: ../tcl/mini.tcl:1018 ../tcl/tkemc.tcl:918
 msgid "ABORT"
 msgstr "ABORTARE"
 
-msgid "Offset:"
-msgstr "Ofset:"
+#: ../tcl/mini.tcl:1029 ../tcl/mini.tcl:1998
+msgid "CONTINUE"
+msgstr ""
 
-msgid "Work Offsets:"
-msgstr "Ofseturi de lucru:"
+#: ../tcl/mini.tcl:1035 ../tcl/tkemc.tcl:856 ../tcl/tkemc.tcl:2069
+msgid "MDI"
+msgstr "MDI"
 
-msgid "override limits"
-msgstr "depaseste limite"
-
-msgid "relative"
-msgstr "relativ"
-
-msgid "machine"
-msgstr "masina"
-
-msgid "actual"
-msgstr "actual"
-
-msgid "commanded"
-msgstr "comandat"
-
-msgid "joint"
-msgstr "articulatie"
-
-msgid "world"
-msgstr "global"
-
-msgid "continuous"
-msgstr "continuu"
-
-msgid "home"
-msgstr "poz.0"
-
-msgid "Axis Offset"
-msgstr "Ofset axa"
-
-msgid "Set axis value:"
-msgstr "Seteaza valoara axa:"
-
-msgid "Set Jog Speed"
-msgstr "Seteaza viteza jog"
-
-msgid "Set jog speed:"
-msgstr "Viteza jog:"
-
-msgid "Set Feed Override"
-msgstr "Seteaza depasire viteza"
-
-msgid "Set feed override:"
-msgstr "Seteaza depasire viteza:"
-
-msgid "Axis Speed:"
-msgstr "Viteza axa:"
-
-msgid "Feed Override:"
-msgstr "Depasire viteza:"
-
-msgid "MDI:"
-msgstr "MDI:"
-
+#: ../tcl/mini.tcl:1039 ../tcl/tkemc.tcl:2060
 msgid "AUTO"
 msgstr "AUTO"
 
+#: ../tcl/mini.tcl:1043 ../tcl/mini.tcl:1762 ../tcl/tkemc.tcl:1969
+#: ../tcl/tkemc.tcl:2082
 msgid "MANUAL"
 msgstr "MANUAL"
 
-msgid "Program: "
-msgstr "Program: "
+#: ../tcl/mini.tcl:1097
+msgid "Tool #:"
+msgstr "Scula #:"
 
-msgid " - Status: "
-msgstr " - Stare: "
+#: ../tcl/mini.tcl:1099
+msgid "Length :"
+msgstr "Lungime :"
 
+#: ../tcl/mini.tcl:1110
+msgid "Work Offsets: "
+msgstr "Ofseturi de lucru:"
+
+#: ../tcl/mini.tcl:1112
+msgid "start offsets popup here"
+msgstr ""
+
+#: ../tcl/mini.tcl:1156
+msgid "start override popup here"
+msgstr ""
+
+#: ../tcl/mini.tcl:1159 ../tcl/tkemc.tcl:1416
+msgid "Feed Override:"
+msgstr "Depasire viteza:"
+
+#: ../tcl/mini.tcl:1171
+msgid "-- MESSAGES --"
+msgstr ""
+
+#: ../tcl/mini.tcl:1221
+msgid "toggleView's not doin nothin yet"
+msgstr ""
+
+#: ../tcl/mini.tcl:1273
+msgid "Can't set zero with a tool offset active so I issued G49 to cancel it."
+msgstr ""
+
+#: ../tcl/mini.tcl:1331
+#, tcl-format
+msgid "Can't update the var file while machine is in auto and %s."
+msgstr ""
+
+#: ../tcl/mini.tcl:1385 ../tcl/tkemc.tcl:1140
+msgid "override limits"
+msgstr "depaseste limite"
+
+#: ../tcl/mini.tcl:1390 ../tcl/tkemc.tcl:1176
+msgid "home"
+msgstr "poz.0"
+
+#: ../tcl/mini.tcl:1411
+msgid "DEFAULT"
+msgstr ""
+
+#: ../tcl/mini.tcl:1412
+msgid "Speed:"
+msgstr "Viteza:"
+
+#: ../tcl/mini.tcl:1415
+msgid "RAPID"
+msgstr ""
+
+#: ../tcl/mini.tcl:1466
+msgid "JOG X +"
+msgstr ""
+
+#: ../tcl/mini.tcl:1467
+msgid "JOG X -"
+msgstr ""
+
+#: ../tcl/mini.tcl:1471
+msgid "increment"
+msgstr ""
+
+#: ../tcl/mini.tcl:1473 ../tcl/tkemc.tcl:1162 ../tcl/tkemc.tcl:1166
+msgid "continuous"
+msgstr "continuu"
+
+#: ../tcl/mini.tcl:1475
+msgid ""
+"A\n"
+"L\n"
+"L\n"
+"\n"
+"Z\n"
+"E\n"
+"R\n"
+"O"
+msgstr ""
+
+#: ../tcl/mini.tcl:1540
+msgid "Spindle Forward"
+msgstr "Freza inainte"
+
+#: ../tcl/mini.tcl:1541
+msgid "Spindle Reverse"
+msgstr "Freza sens invers"
+
+#: ../tcl/mini.tcl:1542 ../tcl/tkemc.tcl:899
+msgid "Spindle off"
+msgstr "Freza oprita"
+
+#: ../tcl/mini.tcl:1544
+msgid "Spindle Slower"
+msgstr "Freza mai incet"
+
+#: ../tcl/mini.tcl:1548
+msgid "Spindle Faster"
+msgstr "Freza mai repede"
+
+#: ../tcl/mini.tcl:1584 ../tcl/tkemc.tcl:1458
+msgid "MDI:"
+msgstr "MDI:"
+
+#: ../tcl/mini.tcl:1621 ../tcl/tkemc.tcl:1496
 msgid "Run"
 msgstr "Ruleaza"
 
+#: ../tcl/mini.tcl:1623 ../tcl/tkemc.tcl:1497
 msgid "Pause"
 msgstr "Pauza"
 
+#: ../tcl/mini.tcl:1625 ../tcl/tkemc.tcl:1498
 msgid "Resume"
 msgstr "Rezuma"
 
+#: ../tcl/mini.tcl:1627 ../tcl/tkemc.tcl:1499
 msgid "Step"
 msgstr "Pas"
 
+#: ../tcl/mini.tcl:1629 ../tcl/tkemc.tcl:1500
 msgid "Verify"
 msgstr "Verifica"
 
-msgid "Error: "
-msgstr "Eroare: "
+#: ../tcl/mini.tcl:1650
+msgid "RESTART LINE"
+msgstr ""
 
-msgid "Error"
-msgstr "Eroare"
+#: ../tcl/mini.tcl:1651
+msgid "Back"
+msgstr ""
 
-msgid "Set Font"
-msgstr "Seteaza font"
+#: ../tcl/mini.tcl:1652
+msgid "Ahead"
+msgstr ""
 
-msgid "ESTOP"
+#: ../tcl/mini.tcl:1653
+msgid "Restart"
+msgstr "Restart"
+
+#: ../tcl/mini.tcl:1663 ../tcl/mini.tcl:2773 ../tcl/mini.tcl:2832
+#: ../tcl/tkemc.tcl:515
+msgid "All files"
+msgstr "Toate fisierele"
+
+#: ../tcl/mini.tcl:1664 ../tcl/mini.tcl:2774 ../tcl/mini.tcl:2833
+#: ../tcl/tkemc.tcl:516
+msgid "Text files"
+msgstr "Fisiere text"
+
+#: ../tcl/mini.tcl:1665 ../tcl/mini.tcl:2775 ../tcl/mini.tcl:2834
+#: ../tcl/tkemc.tcl:517
+msgid "NC files"
+msgstr "Fisiere NC"
+
+#: ../tcl/mini.tcl:1705
+msgid ""
+"The interpreter is running. \n"
+" Pressing OK will abort and load the new program"
+msgstr ""
+
+#: ../tcl/mini.tcl:1836
+msgid "ESTOPPED"
 msgstr "ESTOP"
 
-msgid "ON"
-msgstr "PORNIT"
+#: ../tcl/mini.tcl:1839
+msgid "ESTOP PUSH"
+msgstr "ESTOP APASAT"
 
+#: ../tcl/mini.tcl:1842 ../tcl/tkemc.tcl:2054
 msgid "ESTOP RESET"
 msgstr "ESTOP RESETAT"
 
-msgid "MIST ON"
-msgstr "VAPORI PORNITI"
-
-msgid "MIST OFF"
-msgstr "VAPORI OPRITI"
-
-msgid "MIST ?"
-msgstr "VAPORI ?"
-
-msgid "FLOOD ON"
-msgstr "LICHID PORNIT"
-
-msgid "FLOOD OFF"
-msgstr "LICHID OPRIT"
-
-msgid "FLOOD ?"
-msgstr "LICHID ?"
-
-msgid "LUBE ON"
-msgstr "LUBRIFIANT PORNIT"
-
-msgid "LUBE OFF"
-msgstr "LUBRIFIANT OPRIT"
-
+#: ../tcl/mini.tcl:1847 ../tcl/tkemc.tcl:2119
 msgid "SPINDLE FORWARD"
 msgstr "FREZA PORNITA"
 
+#: ../tcl/mini.tcl:1849 ../tcl/tkemc.tcl:2121
 msgid "SPINDLE REVERSE"
 msgstr "FREZA SENS INVERS"
 
+#: ../tcl/mini.tcl:1851 ../tcl/tkemc.tcl:2123
 msgid "SPINDLE OFF"
 msgstr "FREZA OPRITA"
 
+#: ../tcl/mini.tcl:1853 ../tcl/tkemc.tcl:2125
 msgid "SPINDLE INCREASE"
 msgstr "FREZA ACCELERARE"
 
+#: ../tcl/mini.tcl:1855 ../tcl/tkemc.tcl:2127
 msgid "SPINDLE DECREASE"
 msgstr "FREZA DECELERARE"
 
+#: ../tcl/mini.tcl:1857 ../tcl/tkemc.tcl:2129
 msgid "SPINDLE ?"
 msgstr "SPINDLE ?"
 
+#: ../tcl/mini.tcl:1861 ../tcl/tkemc.tcl:2133
 msgid "BRAKE ON"
 msgstr "FRANA PORNITA"
 
+#: ../tcl/mini.tcl:1863 ../tcl/tkemc.tcl:2135
 msgid "BRAKE OFF"
 msgstr "FRANA OPRITA"
 
+#: ../tcl/mini.tcl:1865 ../tcl/tkemc.tcl:2137
 msgid "BRAKE ?"
 msgstr "FRANA ?"
 
-msgid "No details available."
-msgstr ""
+#: ../tcl/mini.tcl:1869 ../tcl/tkemc.tcl:2095
+msgid "MIST ON"
+msgstr "VAPORI PORNITI"
 
-msgid "Welcome to EMC2!\n"
-msgstr ""
+#: ../tcl/mini.tcl:1871 ../tcl/tkemc.tcl:2097
+msgid "MIST OFF"
+msgstr "VAPORI OPRITI"
 
-msgid "To run EMC2 with an existing configuration,"
-msgstr ""
+#: ../tcl/mini.tcl:1873 ../tcl/tkemc.tcl:2099
+msgid "MIST ?"
+msgstr "VAPORI ?"
 
-msgid "click the RUN button.\n"
-msgstr ""
+#: ../tcl/mini.tcl:1877 ../tcl/tkemc.tcl:2103
+msgid "FLOOD ON"
+msgstr "LICHID PORNIT"
 
-msgid "To create a new configuration, edit a configuration, backup or"
-msgstr ""
+#: ../tcl/mini.tcl:1879 ../tcl/tkemc.tcl:2105
+msgid "FLOOD OFF"
+msgstr "LICHID OPRIT"
 
-msgid "restore a configuration, or do other configuration related tasks,"
-msgstr ""
+#: ../tcl/mini.tcl:1881 ../tcl/tkemc.tcl:2107
+msgid "FLOOD ?"
+msgstr "LICHID ?"
 
-msgid "click the CONFIG button.\n"
+#: ../tcl/mini.tcl:2002
+msgid "FEEDHOLD"
 msgstr ""
 
-msgid "Please select an EMC2 configuration from the list below and click 'RUN'."
+#: ../tcl/mini.tcl:2074
+msgid ""
+"TOOL SETUP \n"
+" Click or tab to edit.   Press enter to return to keyboard machine control."
 msgstr ""
 
-msgid "\nDetails about the selected configuration:"
+#: ../tcl/mini.tcl:2080
+msgid "  TOOL NUMBER  "
 msgstr ""
 
-msgid "You must choose a config if you want to run EMC2!"
+#: ../tcl/mini.tcl:2081
+msgid "  LENGTH  "
 msgstr ""
 
-msgid "ERROR: no ini file(s) found in config directory"
+#: ../tcl/mini.tcl:2082
+msgid "  DIAMETER  "
 msgstr ""
 
-msgid "Click OK to continue."
+#: ../tcl/mini.tcl:2083
+msgid "  COMMENT  "
 msgstr ""
 
-msgid "The config contains multiple ini files.\nPick one from the list below and click NEXT."
+#: ../tcl/mini.tcl:2138
+msgid "Add Extra Tool"
 msgstr ""
 
-msgid "You must select one ini file!"
+#: ../tcl/mini.tcl:2139
+msgid "Remove Last Tool"
 msgstr ""
 
-msgid "The next step is to invoke the run script to run"
+#: ../tcl/mini.tcl:2167 ../tcl/mini.tcl:2203
+#, tcl-format
+msgid "Can't update the tool file while machine is in auto and %s."
 msgstr ""
 
-msgid "But thats not coded yet, so just click OK to quit."
+#: ../tcl/mini.tcl:2179
+msgid "This is not a good number."
 msgstr ""
 
-msgid "This page is used to manage EMC2 machine configurations.\n"
+#: ../tcl/mini.tcl:2243
+msgid ""
+"COORDINATE SYSTEM SETUP \n"
+"\n"
+"  Click value to edit with keyboard.  Press enter to return to keyboard "
+"control of machine. \n"
+" "
 msgstr ""
 
-msgid "The list below shows all of the existing EMC2\nconfigurations on this computer.\n\nSelect a config, then click one of the buttons below.\n"
-msgstr ""
+#: ../tcl/mini.tcl:2270 ../tcl/scripts/Set_Coordinates.tcl:82
+msgid "Axis "
+msgstr "Axa"
 
-msgid "Sorry, this function is not implemented yet.\n\nClick OK to return to the menu"
+#: ../tcl/mini.tcl:2271
+msgid "Value "
 msgstr ""
 
-msgid "You have chosen to create a new EMC2 configuration.\n\nThe next few screens will walk you through the process."
+#: ../tcl/mini.tcl:2276 ../tcl/scripts/Set_Coordinates.tcl:92
+msgid "Teach"
 msgstr ""
 
-msgid "Please select a name for your new configuration."
+#: ../tcl/mini.tcl:2284
+msgid "Write And Load File "
 msgstr ""
 
-msgid "(This will become a directory name, so please use only letters,\ndigits, period, dash, or underscore.)"
+#: ../tcl/mini.tcl:2286
+msgid "Offset By Radius"
 msgstr ""
 
-msgid "contains illegal characters!\nPlease choose a new name."
+#: ../tcl/mini.tcl:2287
+msgid "Offset By Length"
 msgstr ""
 
-msgid "A directory or file called"
+#: ../tcl/mini.tcl:2292
+msgid "Subtract"
 msgstr ""
 
-msgid "already exists!\nPlease choose a new name."
+#: ../tcl/mini.tcl:2294
+msgid "Add"
 msgstr ""
 
-msgid "Please select one of these existing configurations as the template\nfor your new configuration.\n\nAll the files associated with the template will be copied into your new\nconfig, so you can make whatever modifications are needed."
+#: ../tcl/mini.tcl:2316
+msgid "Zero All G54"
 msgstr ""
 
-msgid "Creating new EMC2 configuration"
+#: ../tcl/mini.tcl:2317
+msgid "Zero All G55"
 msgstr ""
 
-msgid "A internal error has occurred, or the template directory was deleted.\nClick OK to quit"
+#: ../tcl/mini.tcl:2318
+msgid "Zero All G56"
 msgstr ""
 
-msgid "Enter a description here"
+#: ../tcl/mini.tcl:2319
+msgid "Zero All G57"
 msgstr ""
 
-msgid "based on template"
+#: ../tcl/mini.tcl:2320
+msgid "Zero All G58"
 msgstr ""
 
-msgid "Please enter a description of your configuration.\n\nThe box below has been preloaded with the description of the template, but\nit is strongly recommended that you revise it.  At a minimum,\nput your name and some specifics about your machine here."
+#: ../tcl/mini.tcl:2321
+msgid "Zero All G59"
 msgstr ""
 
-msgid "(If you ever need help, someone may ask you to send them your\nconfiguration, and this information could be very usefull.)"
+#: ../tcl/mini.tcl:2322
+msgid "Zero All G59.1"
 msgstr ""
 
-msgid "You must enter at least one word!"
+#: ../tcl/mini.tcl:2323
+msgid "Zero All G59.2"
 msgstr ""
 
-msgid "You are about to create a new EMC2 configuration.\n\nPlease verify that this is what you want:"
+#: ../tcl/mini.tcl:2324
+msgid "Zero All G59.3"
 msgstr ""
 
-msgid "Name"
+#: ../tcl/mini.tcl:2325
+msgid "Zero All ????"
 msgstr ""
 
-msgid "Template"
+#: ../tcl/mini.tcl:2443
+msgid "Modified..."
 msgstr ""
 
-msgid "Description"
+#: ../tcl/mini.tcl:2488
+msgid "Save and Load"
 msgstr ""
 
-msgid "If this information is correct, click NEXT to create\nthe configuration directory and begin copying files."
+#: ../tcl/mini.tcl:2490
+msgid "Undo"
 msgstr ""
 
-msgid "Creating new config directory"
+#: ../tcl/mini.tcl:2491
+msgid "Redo"
 msgstr ""
 
-msgid "ERROR: Config directory could not be created."
+#: ../tcl/mini.tcl:2496
+msgid "Delete"
 msgstr ""
 
-msgid "Done"
+#: ../tcl/mini.tcl:2501
+msgid "Replace..."
 msgstr ""
 
-msgid "Checking for ini file(s)..."
+#: ../tcl/mini.tcl:2614
+msgid "Next Number: "
 msgstr ""
 
-msgid "Transferring ini file"
+#: ../tcl/mini.tcl:2715
+msgid "Basic Help"
 msgstr ""
 
-msgid "Writing description file 'README'..."
+#: ../tcl/mini.tcl:2715
+msgid ""
+"This is a simple ASCII editor like many others.\n"
+"\n"
+"Ctrl+O  Open\n"
+"Ctrl+S  Save\n"
+"Ctrl+Z  Undo\n"
+"Ctrl+Y  Redo\n"
+"Ctrl+X  Cut\n"
+"Ctrl+C  Copy\n"
+"Ctrl+V  Paste\n"
+"Del     Delete\n"
+"Ctrl+A  Select All\n"
+"\n"
+"Ctrl+F  Find\n"
+"Ctrl+R  Replace "
 msgstr ""
 
-msgid "Checking for other template file(s)..."
+#: ../tcl/mini.tcl:2735
+msgid ""
+"tknotepad by Joseph Acosta. <joeja@mindspring.com>\n"
+"\n"
+" Modified for EMC by: Paul Corner <paul_c@users.sourceforge.net>"
 msgstr ""
 
-msgid "Copying template file"
+#: ../tcl/mini.tcl:2743
+msgid ""
+"The contents of this file may have changed, do you wish to to save your "
+"changes?"
 msgstr ""
 
-msgid "Checking for common file(s)..."
+#: ../tcl/mini.tcl:2744
+msgid "New Confirm?"
 msgstr ""
 
-msgid "Copying common file"
+#: ../tcl/mini.tcl:2878
+msgid "Print Setup"
 msgstr ""
 
-msgid "Your new configuration"
+#: ../tcl/mini.tcl:2882
+msgid "Print Command: "
+msgstr "Comanda:"
+
+#: ../tcl/mini.tcl:3045
+msgid "Find what:"
 msgstr ""
 
-msgid "has been created.\nClick OK to return to the main menu."
+#: ../tcl/mini.tcl:3051
+msgid "Replace with:"
 msgstr ""
 
-msgid "An error happened while creating the new configuration.\nIdeally this code would clean everything up and\nthen return to the main menu, but the cleanup isn't done yet.\nClick OK to return to the main menu."
+#: ../tcl/mini.tcl:3059
+msgid "Find Next"
 msgstr ""
 
-msgid "ERROR: Not a valid config directory (contains no .ini files)"
+#: ../tcl/mini.tcl:3062
+msgid "Replace"
 msgstr ""
 
-msgid "ERROR: Not a valid ini file (must end in .ini)"
+#: ../tcl/mini.tcl:3070
+msgid "Up"
 msgstr ""
 
-msgid "ERROR: Config not found"
+#: ../tcl/mini.tcl:3071
+msgid "Down"
 msgstr ""
 
-msgid "ERROR: Not a valid config name\n(must be either <config-name> or <config-name>/<ini-name>)"
+#: ../tcl/mini.tcl:3074
+msgid "Match case"
 msgstr ""
 
-msgid "EMC2 Configuration Manager"
+#: ../tcl/mini.tcl:3519
+msgid "rot-x"
 msgstr ""
 
-msgid "ERROR: option '--configs-dir' must be followed by a directory name."
+#: ../tcl/mini.tcl:3529
+msgid "rot-y"
 msgstr ""
 
-msgid "Click OK to exit."
+#: ../tcl/mini.tcl:3539
+msgid "rot-z"
 msgstr ""
 
-msgid "ERROR: '--configs-dir' argument is"
+#: ../tcl/mini.tcl:3549
+msgid "zoom"
 msgstr ""
+
+#: ../tcl/mini.tcl:3605
+msgid "TEST"
+msgstr "TEST"
+
+#: ../tcl/mini.tcl:3649
+msgid "Hide Setup"
+msgstr "Ascunde setati"
 
-msgid "which is not a directory."
+#: ../tcl/mini.tcl:3653
+msgid "Show Setup"
+msgstr "Arata setari"
+
+#: ../tcl/show_errors.tcl:24
+msgid "EMC2 Errors"
+msgstr "Erori EMC2"
+
+#: ../tcl/show_errors.tcl:27
+msgid ""
+"EMC2 terminated with an error.  When reporting problems, please include all "
+"the information below in your message."
 msgstr ""
+"EMC2 s-a terminat cu eroare. Cand raportati va rugam includeti toata informatia"
+"de mai jos in mesajul Dvs."
+
+#: ../tcl/show_errors.tcl:52 ../tcl/scripts/Set_Coordinates.tcl:103
+msgid "Close"
+msgstr "Inchide"
+
+#: ../tcl/tkemc.tcl:205 ../tcl/tkemc.tcl:232
+msgid "Set Run Mark"
+msgstr "Seteaza punct pornire"
 
-msgid "ERROR: environment variable EMC2_CONFIG_DIR is"
+#: ../tcl/tkemc.tcl:207
+msgid "Set run mark at line %s?"
+msgstr "Seteaza punct pornire la linia %s?"
+
+#: ../tcl/tkemc.tcl:227 ../tcl/tkemc.tcl:250 ../tcl/tkemc.tcl:273
+msgid "untitled"
+msgstr "fara nume"
+
+#: ../tcl/tkemc.tcl:255
+msgid "Load Tool Table"
+msgstr "Incarca tabela scule"
+
+#: ../tcl/tkemc.tcl:281
+msgid "Load Parameter File"
+msgstr "Incarca fisier parametri"
+
+#: ../tcl/tkemc.tcl:330
+msgid "EMC Diagnostics"
+msgstr "EMC-Diagnostic"
+
+#: ../tcl/tkemc.tcl:332
+msgid "Task"
+msgstr "Task"
+
+#: ../tcl/tkemc.tcl:334 ../tcl/tkemc.tcl:357 ../tcl/tkemc.tcl:380
+msgid "Heartbeat:"
+msgstr "Bataie:"
+
+#: ../tcl/tkemc.tcl:337 ../tcl/tkemc.tcl:360 ../tcl/tkemc.tcl:383
+msgid "Command:"
+msgstr "Comanda:"
+
+#: ../tcl/tkemc.tcl:340 ../tcl/tkemc.tcl:363 ../tcl/tkemc.tcl:386
+msgid "Command #:"
+msgstr "Nr. Comanda:"
+
+#: ../tcl/tkemc.tcl:343 ../tcl/tkemc.tcl:366 ../tcl/tkemc.tcl:389
+msgid "Status:"
+msgstr "Stare:"
+
+#: ../tcl/tkemc.tcl:355
+msgid "Io"
+msgstr "Io"
+
+#: ../tcl/tkemc.tcl:378
+msgid "Motion"
+msgstr "Miscare"
+
+#: ../tcl/tkemc.tcl:419
+msgid "About TkEmc"
+msgstr "Despre TkEmc"
+
+#: ../tcl/tkemc.tcl:420
+msgid ""
+"TkEmc\n"
+"\n"
+"Tcl/Tk GUI for Enhanced Machine Controller version 2 (EMC2)\n"
+"\n"
+"GPL Version 2 (2006)"
 msgstr ""
+"TkEmc\n"
+"\n"
+"Interfata grafica Tcl/Tk pentru Enhanced Machine Controller\n"
+"\n"
+"GPL Versiunea 2 (2006)"
+
+#: ../tcl/tkemc.tcl:440
+msgid "Set Tool Offset"
+msgstr "Seteaza offset scula"
+
+#: ../tcl/tkemc.tcl:448 ../tcl/tkemc.tcl:933
+msgid "Tool:"
+msgstr "Scula:"
+
+#: ../tcl/tkemc.tcl:452
+msgid "Length:"
+msgstr "Lungime:"
+
+#: ../tcl/tkemc.tcl:456
+msgid "Diameter:"
+msgstr "Diametru:"
+
+#: ../tcl/tkemc.tcl:758
+msgid "Edit..."
+msgstr "Editeaza"
+
+#: ../tcl/tkemc.tcl:767
+msgid "Tools..."
+msgstr "Scule..."
+
+#: ../tcl/tkemc.tcl:768
+msgid "Offsets and Variables..."
+msgstr "Offseturi si variabile..."
+
+#: ../tcl/tkemc.tcl:769
+msgid "Diagnostics..."
+msgstr "Diagnostic"
+
+#: ../tcl/tkemc.tcl:770
+msgid "Backplot..."
+msgstr "Desenare"
+
+#: ../tcl/tkemc.tcl:776
+msgid "Testing..."
+msgstr "Testare..."
+
+#: ../tcl/tkemc.tcl:777
+msgid "Debug..."
+msgstr "Depanare..."
+
+#: ../tcl/tkemc.tcl:778
+msgid "Font..."
+msgstr "Font..."
+
+#: ../tcl/tkemc.tcl:782
+msgid "Units"
+msgstr "Unitati"
+
+#: ../tcl/tkemc.tcl:783
+msgid "auto"
+msgstr "auto"
+
+#: ../tcl/tkemc.tcl:784
+msgid "inches"
+msgstr "inch"
+
+#: ../tcl/tkemc.tcl:785
+msgid "mm"
+msgstr "mm"
+
+#: ../tcl/tkemc.tcl:786
+msgid "cm"
+msgstr "cm"
+
+#: ../tcl/tkemc.tcl:790
+msgid "Utilities"
+msgstr "Utilitati"
+
+#: ../tcl/tkemc.tcl:791
+msgid "Hal Scope"
+msgstr "Hal Scope"
+
+#: ../tcl/tkemc.tcl:792
+msgid "Hal Meter"
+msgstr "Hal Meter"
+
+#: ../tcl/tkemc.tcl:813
+msgid "HAL Show"
+msgstr "HAL Show"
+
+#: ../tcl/tkemc.tcl:814
+msgid "HAL Config"
+msgstr "HAL Config"
+
+#: ../tcl/tkemc.tcl:820
+msgid "Balloon help"
+msgstr "Caseta info"
+
+#: ../tcl/tkemc.tcl:843
+msgid "Estop on"
+msgstr "Estop pornit"
+
+#: ../tcl/tkemc.tcl:844
+msgid "Estop off"
+msgstr "Estop oprit"
+
+#: ../tcl/tkemc.tcl:846
+msgid "Machine on"
+msgstr "Masina pornita"
+
+#: ../tcl/tkemc.tcl:847
+msgid "Machine off"
+msgstr "Masina oprita"
+
+#: ../tcl/tkemc.tcl:854
+msgid "Manual"
+msgstr "Manual"
+
+#: ../tcl/tkemc.tcl:855
+msgid "Auto"
+msgstr "Auto"
+
+#: ../tcl/tkemc.tcl:863
+msgid "Mist on"
+msgstr "Vapori porniti"
+
+#: ../tcl/tkemc.tcl:864
+msgid "Mist off"
+msgstr "Vapori opriti"
+
+#: ../tcl/tkemc.tcl:871
+msgid "Flood on"
+msgstr "Lichid pornit"
 
-msgid "ERROR: Cannot find the EMC2 configurations directory.\nYou can specify the directory with the '--configs-dir <dir>' option."
+#: ../tcl/tkemc.tcl:872
+msgid "Flood off"
+msgstr "Lichid oprit"
+
+#: ../tcl/tkemc.tcl:879
+msgid "Lube on"
+msgstr "Lubrifiant pornit"
+
+#: ../tcl/tkemc.tcl:880
+msgid "Lube off"
+msgstr "Lubrifiant oprit"
+
+#: ../tcl/tkemc.tcl:897
+msgid "Spindle forward"
+msgstr "Freza pornita"
+
+#: ../tcl/tkemc.tcl:898
+msgid "Spindle reverse"
+msgstr "Freza sens invers"
+
+#: ../tcl/tkemc.tcl:913
+msgid "Brake on"
+msgstr "Frana pornita"
+
+#: ../tcl/tkemc.tcl:914
+msgid "Brake off"
+msgstr "Frana oprita"
+
+#: ../tcl/tkemc.tcl:935
+msgid "Offset:"
+msgstr "Ofset:"
+
+#: ../tcl/tkemc.tcl:937
+msgid "Work Offsets:"
+msgstr "Ofseturi de lucru:"
+
+#: ../tcl/tkemc.tcl:1146
+msgid "relative"
+msgstr "relativ"
+
+#: ../tcl/tkemc.tcl:1147
+msgid "machine"
+msgstr "masina"
+
+#: ../tcl/tkemc.tcl:1149
+msgid "actual"
+msgstr "actual"
+
+#: ../tcl/tkemc.tcl:1150
+msgid "commanded"
+msgstr "comandat"
+
+#: ../tcl/tkemc.tcl:1152
+msgid "joint"
+msgstr "articulatie"
+
+#: ../tcl/tkemc.tcl:1153
+msgid "world"
+msgstr "global"
+
+#: ../tcl/tkemc.tcl:1237
+msgid "Axis Offset"
+msgstr "Ofset axa"
+
+#: ../tcl/tkemc.tcl:1239
+msgid "Set axis value:"
+msgstr "Seteaza valoara axa:"
+
+#: ../tcl/tkemc.tcl:1281
+msgid "Set Jog Speed"
+msgstr "Seteaza viteza jog"
+
+#: ../tcl/tkemc.tcl:1287
+msgid "Set jog speed:"
+msgstr "Viteza jog:"
+
+#: ../tcl/tkemc.tcl:1312
+msgid "Set Feed Override"
+msgstr "Seteaza depasire viteza"
+
+#: ../tcl/tkemc.tcl:1318
+msgid "Set feed override:"
+msgstr "Seteaza depasire viteza:"
+
+#: ../tcl/tkemc.tcl:1343
+msgid "Set Spindle Override"
+msgstr "Seteaza depasire freza"
+
+#: ../tcl/tkemc.tcl:1349
+msgid "Set spindle speed override:"
+msgstr "Seteaza depasire viteza freza:"
+
+#: ../tcl/tkemc.tcl:1397
+msgid "Axis Speed:"
+msgstr "Viteza axa:"
+
+#: ../tcl/tkemc.tcl:1435
+msgid "Spindle speed Override:"
+msgstr "Seteaza depasire viteza"
+
+#: ../tcl/tkemc.tcl:1480
+msgid "Program: "
+msgstr "Program: "
+
+#: ../tcl/tkemc.tcl:1485
+msgid "  -  Status: "
+msgstr "  -  Stare: "
+
+#: ../tcl/tkemc.tcl:1501
+msgid "Optional Stop"
+msgstr "Stop optional"
+
+#: ../tcl/tkemc.tcl:1838
+msgid "Error"
+msgstr "Eroare"
+
+#: ../tcl/tkemc.tcl:1898
+msgid "Set Font"
+msgstr "Seteaza font"
+
+#: ../tcl/tkemc.tcl:1907
+msgid "Font"
+msgstr "Font"
+
+#: ../tcl/tkemc.tcl:1914
+msgid "Size"
+msgstr "Dimensiune"
+
+#: ../tcl/tkemc.tcl:1921
+msgid "Style"
+msgstr "Tip"
+
+#: ../tcl/tkemc.tcl:2050
+msgid "ESTOP"
+msgstr "ESTOP"
+
+#: ../tcl/tkemc.tcl:2052
+msgid "ON"
+msgstr "PORNIT"
+
+#: ../tcl/tkemc.tcl:2111
+msgid "LUBE ON"
+msgstr "LUBRIFIANT PORNIT"
+
+#: ../tcl/tkemc.tcl:2113
+msgid "LUBE OFF"
+msgstr "LUBRIFIANT OPRIT"
+
+#: ../tcl/tkemc.tcl:2115
+msgid "LUBE ?"
+msgstr "LUBRIFIANT ?"
+
+#: ../tcl/scripts/Set_Coordinates.tcl:27
+msgid "EMC Set Coordinate"
 msgstr ""
 
-msgid "ERROR: options '--run', '--new', and '--get-config' are\nmutually exclusive, please specify only one."
+#: ../tcl/scripts/Set_Coordinates.tcl:30
+msgid "Coordinate System Control Window"
 msgstr ""
+
+#: ../tcl/scripts/Set_Coordinates.tcl:83
+msgid "Var # "
+msgstr "Var # "
+
+#: ../tcl/scripts/Set_Coordinates.tcl:84
+msgid "Offset Value "
+msgstr "Valoare Ofset"
 
-msgid "ERROR: unknown command line option:"
+#: ../tcl/scripts/Set_Coordinates.tcl:85
+msgid "What to Teach"
 msgstr ""
+
+#: ../tcl/scripts/Set_Coordinates.tcl:101
+msgid "Set Old"
+msgstr "Seteaza vechi"
+
+#: ../tcl/scripts/Set_Coordinates.tcl:102
+msgid "Set Zero"
+msgstr "Seteaza zero"
+
+#: ../tcl/scripts/Set_Coordinates.tcl:104
+msgid "Write"
+msgstr "Scrie"
+
+#~ msgid "Break on"
+#~ msgstr "Frana pornita"
+
+#~ msgid "Break off"
+#~ msgstr "Frana oprita"
+
+#~ msgid "Error: "
+#~ msgstr "Eroare: "
+
+#~ msgid "Welcome to EMC2!\n"
+#~ msgstr "Bine ati venit la EMC2!\n"
+
+#~ msgid "To run EMC2 with an existing configuration,"
+#~ msgstr "Pentru a executa EMC2 cu o configuratie existenta,"
+
+#~ msgid "click the RUN button.\n"
+#~ msgstr "apasati butonul EXECUTA"
+
+#~ msgid "To create a new configuration, edit a configuration, backup or"
+#~ msgstr "Pentru a crea, edita, arhiva sau reincarca o configuratie"
+
+#~ msgid "restore a configuration, or do other configuration related tasks,"
+#~ msgstr "precum si pentru alte activitati legate de configurare"
+
+#~ msgid "click the CONFIG button.\n"
+#~ msgstr "apasati butonul CONFIGURARE.\n"
+
+#~ msgid ""
+#~ "Please select an EMC2 configuration from the list below and click 'RUN'."
+#~ msgstr ""
+#~ "Selectati o configuratie din lista de mai jos si activati 'EXECUTA'."
+
+#~ msgid ""
+#~ "\n"
+#~ "Details about the selected configuration:"
+#~ msgstr ""
+#~ "\n"
+#~ "Detalii despre configuratia selectata:"
+
+#~ msgid "You must choose a config if you want to run EMC2!"
+#~ msgstr "Trebuie sa alegeti o configuratie pentru a executa EMC2!"
+
+#~ msgid "ERROR: no ini file(s) found in config directory"
+#~ msgstr "EROARE: nu s-a gasit fisier(e) ini in directorul de configuratie"
+
+#~ msgid "Click OK to continue."
+#~ msgstr "Apasati OK pentru a continua."
+
+#~ msgid ""
+#~ "The config contains multiple ini files.\n"
+#~ "Pick one from the list below and click NEXT."
+#~ msgstr ""
+#~ "Configuratie contine mai multe fisiere ini.\n"
+#~ "Alegeti unul din lista si apasati pe URMATOR pentru a continua."
+
+#~ msgid "You must select one ini file!"
+#~ msgstr "Trebuie sa selectati un fisier ini!"
 
+#~ msgid "The next step is to invoke the run script to run"
+#~ msgstr "Urmatorul pas invoca scriptul de executare"
