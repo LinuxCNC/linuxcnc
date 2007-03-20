@@ -182,7 +182,7 @@ proc geneditShowAbout {name} {
     toplevel $ed.about
     wm title $ed.about [msgcat::mc "About TkEditor"]
     message $ed.about.msg -aspect 1000 -justify center -font {Helvetica 12 bold} \
-            -text [msgcat::mc "TkEditor\n\nSimple Tcl/Tk Text Editor\n\nPublic Domain (1999)"]
+            -text [msgcat::mc "TkEditor\n\nSimple Tcl/Tk Text Editor\n\nGPL Version 2"]
     button $ed.about.ok -text [msgcat::mc "OK"] -command "destroy $ed.about"
     pack $ed.about.msg $ed.about.ok -side top
     bind $ed.about <Return> "destroy $ed.about"
