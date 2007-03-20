@@ -25,8 +25,6 @@ using namespace std;
 #include "hal.h"
 #include "hal_priv.h"
 
-#include "emc.hh"
-
 typedef unsigned long Py_ssize_t;
 
 union paramunion {
@@ -320,7 +318,8 @@ static PyObject * pyhal_create_param(halobject *self, char *name, hal_type_t typ
         return NULL;
     }
 
-    snprintf(param_name, HAL_NAME_LEN, "%s.%s", self->prefix, name);
+    res = snprintf(param_name, HAL_NAME_LEN, "%s.%s", self->prefix, name);
+    if(res >= HAL_NAME_LEN || res < 0) { return pyhal_error(HAL_INVAL); }
     res = hal_param_new(param_name, type, dir, (void*)param.u, self->hal_id);
     if(res) return pyhal_error(res);
 
@@ -349,7 +348,8 @@ static PyObject * pyhal_create_pin(halobject *self, char *name, hal_type_t type,
         return NULL;
     }
 
-    snprintf(pin_name, HAL_NAME_LEN, "%s.%s", self->prefix, name);
+    res = snprintf(pin_name, HAL_NAME_LEN, "%s.%s", self->prefix, name);
+    if(res >= HAL_NAME_LEN || res < 0) { return pyhal_error(HAL_INVAL); }
     res = hal_pin_new(pin_name, type, dir, (void**)pin.u, self->hal_id);
     if(res) return pyhal_error(res);
 
