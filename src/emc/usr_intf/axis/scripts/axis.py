@@ -1741,6 +1741,7 @@ widgets = nf.Widgets(root_window,
     ("view_x", Button, ".toolbar.view_x"),
     ("view_y", Button, ".toolbar.view_y"),
     ("view_p", Button, ".toolbar.view_p"),
+    ("rotate", Button, ".toolbar.rotate"),
 
     ("feedoverride", Scale, pane_top + ".feedoverride.foscale"),
     ("spinoverride", Scale, pane_top + ".spinoverride.foscale"),
@@ -3181,6 +3182,7 @@ if lathe:
     widgets.view_x.pack_forget()
     widgets.view_y.pack_forget()
     widgets.view_p.pack_forget()
+    widgets.rotate.pack_forget()
     widgets.axis_y.grid_forget()
     widgets.menu_view.delete(0, 5)
 
