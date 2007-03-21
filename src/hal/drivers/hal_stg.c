@@ -575,7 +575,7 @@ static void stg_adcs_read(void *arg, long period)
     if ((i >= 0) && (i < num_chan)) { 
 	/* we should have the conversion done for adc_num_chan */
 	ncounts = stg_adc_read(stg,i);
-	volts = (ncounts * 10.0) / 4096);
+	volts = ncounts * 10.0 / 4096;
 	*(stg->adc_value[i]) = volts * stg->adc_gain[i] - stg->adc_offset[i];
     }
     /* if adc_num_chan < 0, it's the first time this routine runs
