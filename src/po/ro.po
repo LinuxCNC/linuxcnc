@@ -111,19 +111,19 @@ msgstr "EMC Diagnostic"
 
 #: ../tcl/bin/emcdebug.tcl:189
 msgid "Invalid INI file entries"
-msgstr ""
+msgstr "Inregistrare INI invalida"
 
 #: ../tcl/bin/emcdebug.tcl:190
 msgid "Configuration information"
-msgstr ""
+msgstr "Informatii de configurare"
 
 #: ../tcl/bin/emcdebug.tcl:191
 msgid "Use of defaults"
-msgstr ""
+msgstr "Foloseste implicit"
 
 #: ../tcl/bin/emcdebug.tcl:192
 msgid "Version information"
-msgstr ""
+msgstr "Informatii versiune"
 
 #: ../tcl/bin/emcdebug.tcl:193
 msgid "Command issuing"
@@ -131,11 +131,11 @@ msgstr "Comanda activa"
 
 #: ../tcl/bin/emcdebug.tcl:194
 msgid "IO points"
-msgstr ""
+msgstr "Puncte IO"
 
 #: ../tcl/bin/emcdebug.tcl:195
 msgid "NML"
-msgstr ""
+msgstr "NML"
 
 #: ../tcl/bin/emcdebug.tcl:196
 msgid "Motion time"
@@ -143,32 +143,32 @@ msgstr "Timp miscare"
 
 #: ../tcl/bin/emcdebug.tcl:197
 msgid "Interpreter"
-msgstr ""
+msgstr "Interpretor"
 
 #: ../tcl/bin/emcdebug.tcl:198
 msgid "RCS"
-msgstr ""
+msgstr "RCS"
 
 #: ../tcl/bin/emcdebug.tcl:199
 msgid "Trajectory level"
-msgstr ""
+msgstr "Nivel traiectorie"
 
 #: ../tcl/bin/emcdebug.tcl:200
 msgid "Interpreter list"
-msgstr ""
+msgstr "Lista interpretor"
 
 #: ../tcl/bin/genedit.tcl:84 ../tcl/mini.tcl:2483
 msgid "New"
-msgstr ""
+msgstr "Nou"
 
 #: ../tcl/bin/genedit.tcl:86 ../tcl/mini.tcl:1619 ../tcl/mini.tcl:2484
 #: ../tcl/tkemc.tcl:756 ../tcl/tkemc.tcl:1495
 msgid "Open..."
-msgstr "Deschide"
+msgstr "Deschide..."
 
 #: ../tcl/bin/genedit.tcl:90 ../tcl/mini.tcl:2486
 msgid "Save As..."
-msgstr ""
+msgstr "Salveaza ca..."
 
 #: ../tcl/bin/genedit.tcl:93 ../tcl/bin/halconfig.tcl:161 ../tcl/mini.tcl:945
 #: ../tcl/tkemc.tcl:761
@@ -181,11 +181,11 @@ msgstr "Editare"
 
 #: ../tcl/bin/genedit.tcl:98 ../tcl/mini.tcl:2493
 msgid "Cut"
-msgstr ""
+msgstr "Decupare"
 
 #: ../tcl/bin/genedit.tcl:100 ../tcl/mini.tcl:2494
 msgid "Copy"
-msgstr ""
+msgstr "Copiere"
 
 #: ../tcl/bin/genedit.tcl:102 ../tcl/mini.tcl:2495
 msgid "Paste"
@@ -193,7 +193,7 @@ msgstr "Lipire"
 
 #: ../tcl/bin/genedit.tcl:105 ../tcl/mini.tcl:2498 ../tcl/show_errors.tcl:51
 msgid "Select All"
-msgstr ""
+msgstr "Selectare totala"
 
 #: ../tcl/bin/genedit.tcl:110 ../tcl/bin/halconfig.tcl:188 ../tcl/mini.tcl:910
 #: ../tcl/mini.tcl:2469 ../tcl/tkemc.tcl:818
@@ -207,7 +207,7 @@ msgstr "Despre..."
 
 #: ../tcl/bin/genedit.tcl:136
 msgid "Save and Reload"
-msgstr ""
+msgstr "Salveaza si reincarca"
 
 #: ../tcl/bin/genedit.tcl:139 ../tcl/mini.tcl:2500
 msgid "Find..."
@@ -215,7 +215,7 @@ msgstr "Cauta..."
 
 #: ../tcl/bin/genedit.tcl:141 ../tcl/mini.tcl:2502
 msgid "Renumber File..."
-msgstr ""
+msgstr "Renumeroteaza fisier..."
 
 #: ../tcl/bin/genedit.tcl:146 ../tcl/mini.tcl:908 ../tcl/mini.tcl:2468
 #: ../tcl/tkemc.tcl:774
@@ -224,11 +224,11 @@ msgstr "Setari"
 
 #: ../tcl/bin/genedit.tcl:147 ../tcl/mini.tcl:2504
 msgid "No Numbering"
-msgstr ""
+msgstr "Fara numerotare"
 
 #: ../tcl/bin/genedit.tcl:150 ../tcl/mini.tcl:2506
 msgid "Line Numbering..."
-msgstr ""
+msgstr "Numerotare linii..."
 
 #: ../tcl/bin/genedit.tcl:156 ../tcl/tkemc.tcl:796
 msgid "Scripts"
@@ -279,11 +279,11 @@ msgstr "Inlocuieste toate"
 
 #: ../tcl/bin/genedit.tcl:294
 msgid "Skip This"
-msgstr ""
+msgstr "Sari peste"
 
 #: ../tcl/bin/genedit.tcl:297
 msgid "Replace This"
-msgstr ""
+msgstr "Inlocuieste asta"
 
 #: ../tcl/bin/genedit.tcl:303
 msgid "Clear"
@@ -291,11 +291,11 @@ msgstr "Sterge"
 
 #: ../tcl/bin/genedit.tcl:428 ../tcl/mini.tcl:2590
 msgid "Set Line Numbering"
-msgstr ""
+msgstr "Seteaza numerotare linii"
 
 #: ../tcl/bin/genedit.tcl:430 ../tcl/mini.tcl:2594
 msgid "Increment"
-msgstr ""
+msgstr "Increment"
 
 #: ../tcl/bin/genedit.tcl:432 ../tcl/mini.tcl:2596
 msgid "One"
@@ -323,7 +323,7 @@ msgstr "Spatiu simplu"
 
 #: ../tcl/bin/genedit.tcl:450 ../tcl/mini.tcl:2608
 msgid "Double Space"
-msgstr ""
+msgstr "Spatiu dublu"
 
 #: ../tcl/bin/genedit.tcl:453 ../tcl/mini.tcl:2610
 msgid "Tab Space"
@@ -339,55 +339,55 @@ msgstr "Renumeroteaza"
 
 #: ../tcl/bin/halconfig.tcl:84 ../tcl/bin/halshow.tcl:50
 msgid "HAL Configuration"
-msgstr ""
+msgstr "Configurare HAL"
 
 #: ../tcl/bin/halconfig.tcl:99
 msgid "Would you like to save your configuration before you exit?"
-msgstr ""
+msgstr "Vreti sa salvati configurarea inainte de a iesi?"
 
 #: ../tcl/bin/halconfig.tcl:99
 msgid "Save All"
-msgstr ""
+msgstr "Salveaza tot"
 
 #: ../tcl/bin/halconfig.tcl:99
 msgid "Save Tune"
-msgstr ""
+msgstr "Salveaza ajustari"
 
 #: ../tcl/bin/halconfig.tcl:99
 msgid "Save as Netlist"
-msgstr ""
+msgstr "Salveaza ca netlist"
 
 #: ../tcl/bin/halconfig.tcl:99
 msgid "Don't Save"
-msgstr ""
+msgstr "Nu salva"
 
 #: ../tcl/bin/halconfig.tcl:128
 msgid "Show"
-msgstr ""
+msgstr "Arata"
 
 #: ../tcl/bin/halconfig.tcl:129
 msgid "Watch"
-msgstr ""
+msgstr "Urmareste"
 
 #: ../tcl/bin/halconfig.tcl:130
 msgid "Modify"
-msgstr ""
+msgstr "Modifica"
 
 #: ../tcl/bin/halconfig.tcl:153
 msgid "Save INI Tuning"
-msgstr ""
+msgstr "Salveaza modificari INI"
 
 #: ../tcl/bin/halconfig.tcl:155
 msgid "Save HAL Ini"
-msgstr ""
+msgstr "Salveaza HAL ini"
 
 #: ../tcl/bin/halconfig.tcl:157
 msgid "Save HAL Net"
-msgstr ""
+msgstr "Salveaza HAL net"
 
 #: ../tcl/bin/halconfig.tcl:159
 msgid "Save and Exit"
-msgstr ""
+msgstr "Salveaza si incheie"
 
 #: ../tcl/bin/halconfig.tcl:164 ../tcl/mini.tcl:907 ../tcl/tkemc.tcl:766
 msgid "View"
@@ -395,15 +395,15 @@ msgstr "Vizualizare"
 
 #: ../tcl/bin/halconfig.tcl:166 ../tcl/bin/halshow.tcl:104
 msgid "Expand Tree"
-msgstr ""
+msgstr "Extinde arbore"
 
 #: ../tcl/bin/halconfig.tcl:168 ../tcl/bin/halshow.tcl:106
 msgid "Collapse Tree"
-msgstr ""
+msgstr "Micsoreaza arbore"
 
 #: ../tcl/bin/halconfig.tcl:171 ../tcl/bin/halshow.tcl:109
 msgid "Expand Pins"
-msgstr ""
+msgstr "Extinde pini"
 
 #: ../tcl/bin/halconfig.tcl:173 ../tcl/bin/halshow.tcl:111
 msgid "Expand Parameters"
@@ -411,11 +411,11 @@ msgstr "Extinde parametri"
 
 #: ../tcl/bin/halconfig.tcl:175 ../tcl/bin/halshow.tcl:113
 msgid "Expand Signals"
-msgstr ""
+msgstr "Extinde semnale"
 
 #: ../tcl/bin/halconfig.tcl:178 ../tcl/bin/halshow.tcl:116
 msgid "Erase Watch"
-msgstr ""
+msgstr "Sterge urmarire"
 
 #: ../tcl/bin/halconfig.tcl:190 ../tcl/mini.tcl:831 ../tcl/mini.tcl:2735
 msgid "About"
@@ -427,12 +427,12 @@ msgstr "Principal"
 
 #: ../tcl/bin/halconfig.tcl:472
 msgid "Enter HAL command :"
-msgstr ""
+msgstr "Introdu comanda HAL :"
 
 #: ../tcl/bin/halconfig.tcl:475 ../tcl/bin/halconfig.tcl:524
 #: ../tcl/bin/halshow.tcl:399
 msgid "Execute"
-msgstr ""
+msgstr "Executa"
 
 #: ../tcl/bin/halconfig.tcl:927 ../tcl/bin/halshow.tcl:441
 msgid "Mode went way wrong."
@@ -440,11 +440,11 @@ msgstr ""
 
 #: ../tcl/bin/halconfig.tcl:939 ../tcl/bin/halshow.tcl:453
 msgid "Select a node to show."
-msgstr ""
+msgstr "Selecteaza un nod pentru afisare"
 
 #: ../tcl/bin/halconfig.tcl:964 ../tcl/bin/halshow.tcl:478
 msgid "<-- Select a Leaf.  Click on its name."
-msgstr ""
+msgstr "<-- Selecteaza o frunza (apasa pe numele ei)."
 
 #: ../tcl/bin/halconfig.tcl:1081 ../tcl/bin/halconfig.tcl:1091
 #: ../tcl/bin/halconfig.tcl:1098 ../tcl/bin/halconfig.tcl:1105
@@ -477,11 +477,11 @@ msgstr ""
 
 #: ../tcl/bin/halshow.tcl:86
 msgid " SHOW "
-msgstr ""
+msgstr " ARATA "
 
 #: ../tcl/bin/halshow.tcl:87
 msgid " WATCH "
-msgstr ""
+msgstr " URMARESTE "
 
 #: ../tcl/bin/halshow.tcl:102
 msgid "Tree View"
@@ -489,11 +489,11 @@ msgstr "Vedere arbore"
 
 #: ../tcl/bin/halshow.tcl:396
 msgid "Test HAL command :"
-msgstr ""
+msgstr "Testeaza comanda HAL :"
 
 #: ../tcl/bin/halshow.tcl:584
 msgid "Commands may be tested here but they will NOT be saved"
-msgstr ""
+msgstr "Comenzi pot fi testate aici, dar nu vor fi salvate"
 
 #: ../tcl/bin/pickconfig.tcl:51
 msgid ""
@@ -508,11 +508,11 @@ msgstr "Nu exista detalii."
 
 #: ../tcl/bin/pickconfig.tcl:160
 msgid "ERROR: must specify a path to search for configurations"
-msgstr ""
+msgstr "EROARE: trebuie specificata o cale pentru configuratii"
 
 #: ../tcl/bin/pickconfig.tcl:172
 msgid "EMC2 Configuration Selector"
-msgstr ""
+msgstr "Selector configuratii EMC2"
 
 #: ../tcl/bin/pickconfig.tcl:193
 msgid ""
@@ -541,11 +541,11 @@ msgstr "Configuratii model"
 #: ../tcl/bin/pickconfig.tcl:310
 #, tcl-format
 msgid "ERROR: no configurations found in path '%s'"
-msgstr ""
+msgstr "EROARE: nu au fost gasite configuratii in '%s'"
 
 #: ../tcl/bin/pickconfig.tcl:345
 msgid "Copy Configuration?"
-msgstr ""
+msgstr "Copiaza configuratie?"
 
 #: ../tcl/bin/pickconfig.tcl:345
 #, tcl-format
@@ -556,15 +556,15 @@ msgstr ""
 
 #: ../tcl/bin/pickconfig.tcl:345
 msgid "Yes"
-msgstr ""
+msgstr "Da"
 
 #: ../tcl/bin/pickconfig.tcl:345
 msgid "No"
-msgstr ""
+msgstr "Nu"
 
 #: ../tcl/bin/pickconfig.tcl:380
 msgid "Configuration Copied"
-msgstr ""
+msgstr "Configuratie copiata"
 
 #: ../tcl/bin/pickconfig.tcl:380
 #, tcl-format
