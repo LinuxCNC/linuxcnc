@@ -233,13 +233,15 @@ class MyOpengl(Opengl):
         self.bind('<MouseWheel>', self.zoomwheel)
         self.bind('<Button-1>', self.select_prime, add=True)
         self.bind('<ButtonRelease-1>', self.select_fire, add=True)
+        self.bind('<Button1-Motion>', self.translate_or_rotate)
         self.bind('<Button1-Motion>', self.select_cancel, add=True)
         self.bind("<Control-Button-1>", self.start_zoom)
         self.bind("<Control-B1-Motion>", self.continue_zoom)
         self.bind("<Button-3>", self.start_zoom)
         self.bind("<B3-Motion>", self.continue_zoom)
         self.bind("<Shift-Button-1>", self.StartRotate)
-        self.bind("<Shift-B1-Motion>", self.tkRotate)
+        self.bind("<Shift-B1-Motion>", self.rotate_or_translate)
+        self.bind("<B2-Motion>", self.rotate_or_translate)
         self.highlight_line = None
         self.select_event = None
         self.select_buffer_size = 100
@@ -251,6 +253,18 @@ class MyOpengl(Opengl):
         self.g = None
         self.set_eyepoint(5.)
         self.get_resources()
+
+    def translate_or_rotate(self, event):
+        if vars.rotate_mode.get():
+            self.tkRotate(event)
+        else:
+            self.tkTranslate(event)
+
+    def rotate_or_translate(self, event):
+        if not vars.rotate_mode.get():
+            self.tkRotate(event)
+        else:
+            self.tkTranslate(event)
 
     def basic_lighting(self):
         self.activate()
@@ -2721,6 +2735,7 @@ vars = nf.Variables(root_window,
     ("kinematics_type", IntVar),
     ("optional_stop", BooleanVar),
     ("block_delete", BooleanVar),
+    ("rotate_mode", BooleanVar),
 )
 vars.emctop_command.set(os.path.join(os.path.dirname(sys.argv[0]), "emctop"))
 vars.highlight_line.set(-1)

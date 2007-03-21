@@ -455,6 +455,19 @@ Button .toolbar.view_p \
 	-takefocus 0
 setup_widget_accel .toolbar.view_p {}
 
+Button .toolbar.rotate \
+        -image [load_image tool_rotate] \
+        -relief link \
+        -command {
+            set rotate_mode [expr {!$rotate_mode}]
+            puts "change rotate_mode -> $rotate_mode"
+            if {$rotate_mode} {
+                .toolbar.rotate configure -relief sunken
+            } else {
+                .toolbar.rotate configure -relief link
+            }
+        }
+
 vrule .toolbar.rule12
 
 Button .toolbar.clear_plot \
@@ -544,6 +557,10 @@ pack .toolbar.view_y \
 
 # Pack widget .toolbar.view_p
 pack .toolbar.view_p \
+	-side left
+
+# Pack widget .toolbar.rotate
+pack .toolbar.rotate \
 	-side left
 
 # Pack widget .toolbar.rule12
@@ -1293,7 +1310,6 @@ bind .about <Key-Escape> { wm wi .about }
 text .about.message \
 	-background [systembuttonface] \
 	-borderwidth 0 \
-	-font {Helvetica -12} \
 	-relief flat \
 	-width 40 \
 	-height 11 \
@@ -1626,6 +1642,7 @@ proc queue_update_state {args} {
     after idle update_state
 }
 
+set rotate_mode 0
 set taskfile ""
 set task_state -1
 set last_task_state 0
