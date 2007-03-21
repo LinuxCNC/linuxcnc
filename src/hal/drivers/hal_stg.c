@@ -69,14 +69,14 @@
    
     ADC:
       Parameters:
-/totest	float	stg.<channel>.adc-offset
-/totest	float	stg.<channel>.adc-gain
+	float	stg.<channel>.adc-offset
+	float	stg.<channel>.adc-gain
    
       Pins:
-/totest	float	stg.<channel>.adc-value
+	float	stg.<channel>.adc-value
    
       Functions:
-/totest	void    stg.<channel>.adc-read
+	void    stg.<channel>.adc-read
    
    
     Digital In:
@@ -575,7 +575,7 @@ static void stg_adcs_read(void *arg, long period)
     if ((i >= 0) && (i < num_chan)) { 
 	/* we should have the conversion done for adc_num_chan */
 	ncounts = stg_adc_read(stg,i);
-	volts = 10.0 - (ncounts * 20.0 / 0x1FFF);
+	volts = (ncounts * 10.0) / 4096);
 	*(stg->adc_value[i]) = volts * stg->adc_gain[i] - stg->adc_offset[i];
     }
     /* if adc_num_chan < 0, it's the first time this routine runs
