@@ -460,7 +460,6 @@ Button .toolbar.rotate \
         -relief link \
         -command {
             set rotate_mode [expr {!$rotate_mode}]
-            puts "change rotate_mode -> $rotate_mode"
             if {$rotate_mode} {
                 .toolbar.rotate configure -relief sunken
             } else {
