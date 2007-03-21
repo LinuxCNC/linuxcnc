@@ -1582,16 +1582,19 @@ def filter_program(program_filter, infilename, outfilename):
     finally:
         progress.done()
 
+def get_filter(filename):
+    ext = os.path.splitext(filename)[1]
+    if ext:
+        return inifile.find("FILTER", ext[1:])
+    else:
+        return None
+
 loaded_file = None
 def open_file_guts(f, filtered = False):
     if not filtered:
         global loaded_file
         loaded_file = f
-        ext = os.path.splitext(f)[1]
-        if ext:
-            program_filter = inifile.find("FILTER", ext[1:])
-        else:
-            program_filter = none
+        program_filter = get_filter(f)
         if program_filter:
             tempfile = os.path.join(tempdir, os.path.basename(f))
             result = filter_program(program_filter, f, tempfile)
@@ -1918,6 +1921,23 @@ property_names = [
 def dist((x,y,z),(p,q,r)):
     return ((x-p)**2 + (y-q)**2 + (z-r)**2) ** .5
 
+def reload_file(refilter=True):
+    if running(): return
+    s.poll()
+    if not loaded_file:
+        root_window.tk.call("set_mode_from_tab")
+        return
+    line = vars.highlight_line.get()
+    o.set_highlight_line(None)
+
+    if refilter or not get_filter(loaded_file):
+        open_file_guts(loaded_file)
+    else:
+        tempfile = os.path.join(tempdir, os.path.basename(loaded_file))
+        open_file_guts(tempfile, True)
+    if line:
+        o.set_highlight_line(line)
+
 class TclCommands(nf.TclCommands):
     def to_internal_linear_unit(a, b=None):
         if b is not None: b = float(b)
@@ -2216,16 +2236,7 @@ class TclCommands(nf.TclCommands):
         commands.open_file_name(f)
 
     def reload_file(*event):
-        if running(): return
-        s.poll()
-        if not loaded_file:
-            root_window.tk.call("set_mode_from_tab")
-            return
-        line = vars.highlight_line.get()
-        o.set_highlight_line(None)
-        open_file_guts(loaded_file)
-        if line:
-            o.set_highlight_line(line)
+        reload_file()
 
     def task_run(*event):
         warnings = []
@@ -2368,7 +2379,7 @@ class TclCommands(nf.TclCommands):
         ensure_mode(emc.MODE_MANUAL)
         s.poll()
         o.tkRedraw()
-        commands.reload_file()
+        reload_file(False)
 
     def set_axis_offset(event=None):
         commands.touch_off(new_axis_value=0.)
