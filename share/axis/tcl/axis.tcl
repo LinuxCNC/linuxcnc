@@ -401,7 +401,7 @@ vrule .toolbar.rule8
 
 Button .toolbar.view_zoomin \
 	-command zoomin \
-	-helptext [_ "Zoom in \[+\]"] \
+	-helptext [_ "Zoom in"] \
 	-image [load_image tool_zoomin] \
 	-relief link \
 	-takefocus 0
@@ -409,7 +409,7 @@ setup_widget_accel .toolbar.view_zoomin {}
 
 Button .toolbar.view_zoomout \
 	-command zoomout \
-	-helptext [_ "Zoom out \[-\]"] \
+	-helptext [_ "Zoom out"] \
 	-image [load_image tool_zoomout] \
 	-relief link \
 	-takefocus 0
@@ -457,6 +457,7 @@ setup_widget_accel .toolbar.view_p {}
 
 Button .toolbar.rotate \
         -image [load_image tool_rotate] \
+	-helptext [_ "Toggle between Drag and Rotate Mode \[D\]"] \
         -relief link \
         -command {
             set rotate_mode [expr {!$rotate_mode}]

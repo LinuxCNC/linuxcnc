@@ -120,8 +120,9 @@ help1 = [
     (_("Pg Up, Pg Dn"), _("Jog third axis")),
     ("[, ]", _("Jog fourth axis")),
     ("", ""),
-    (_("Left Button"), _("Pan view or select line")),
-    (_("Shift+Left Button"), _("Rotate view")),
+    ("D", _("Toggle between Drag and Rotate mode")),
+    (_("Left Button"), _("Pan, rotate or select line")),
+    (_("Shift+Left Button"), _("Rotate or pan")),
     (_("Right Button"), _("Zoom view")),
     (_("Wheel Button"), _("Rotate view")),
     (_("Rotate Wheel"), _("Zoom view")),
@@ -2795,6 +2796,7 @@ root_window.bind("8", lambda event: set_feedrate(80))
 root_window.bind("9", lambda event: set_feedrate(90))
 root_window.bind("0", lambda event: set_feedrate(100))
 root_window.bind("c", lambda event: jogspeed_continuous())
+root_window.bind("d", lambda event: widgets.rotate.invoke())
 root_window.bind("i", lambda event: jogspeed_incremental())
 root_window.bind("I", lambda event: jogspeed_incremental(-1))
 root_window.bind("@", commands.toggle_display_type)
@@ -3177,6 +3179,7 @@ else:
 if lathe:
     root_window.after_idle(commands.set_view_y)
     root_window.bind("v", commands.set_view_y)
+    root_window.bind("d", "")
     widgets.view_z.pack_forget()
     widgets.view_z2.pack_forget()
     widgets.view_x.pack_forget()
