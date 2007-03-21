@@ -35,7 +35,7 @@ source [file join [file dirname [info script]] .. emc.tcl]
 
 set logo [emc::image_search emc2-wizard]
 
-option add *font {Helvetica -12}
+option add *font [emc::standard_font]
 option add *Entry*background white
 option add *Listbox*background white
 option add *Tree*background white

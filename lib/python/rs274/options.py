@@ -16,30 +16,31 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+import nf, os
+
+for candidate in 'share/emc/tcl', 'tcl':
+    EMC_TCL = os.path.join(nf.PREFIX, candidate, 'emc.tcl')
+    if os.path.exists(EMC_TCL): break
+
 options = '''
 . configure -bg #d9d9d9
 
-set BASE_FONT {Helvetica -12}
-
-proc option_nont {args} {
-    global tcl_platform
-    if {$tcl_platform(platform) != "unix"} { return }
-    eval [concat option $args]
-}
+set BASE_FONT [emc::standard_font]
+set FIXED_FONT [emc::standard_fixed_font]
 
 option add *highlightBackground #d9d9d9 $OPTIONLEVEL
 option add *background #d9d9d9 $OPTIONLEVEL
 option add *foreground black $OPTIONLEVEL
 
 option add *Button.borderWidth 2 $OPTIONLEVEL
-option_nont add *Button.font $BASE_FONT $OPTIONLEVEL
+option add *Button.font $BASE_FONT $OPTIONLEVEL
 
 option add *Checkbutton.borderWidth 1 $OPTIONLEVEL
-option_nont add *Checkbutton.font $BASE_FONT $OPTIONLEVEL
+option add *Checkbutton.font $BASE_FONT $OPTIONLEVEL
 
 option add *Entry.background white $OPTIONLEVEL
 option add *Entry.borderWidth 2 $OPTIONLEVEL
-option_nont add *Entry.font $BASE_FONT $OPTIONLEVEL
+option add *Entry.font $BASE_FONT $OPTIONLEVEL
 option add *Entry.selectBackground #08246b $OPTIONLEVEL
 option add *Entry.selectForeground white $OPTIONLEVEL
 
@@ -49,31 +50,31 @@ option add *Hierbox.borderWidth 2 $OPTIONLEVEL
 option add *Hierbox.selectBackground #08246b $OPTIONLEVEL
 option add *Hierbox.selectForeground white $OPTIONLEVEL
 
-option_nont add *Label.font $BASE_FONT $OPTIONLEVEL
+option add *Label.font $BASE_FONT $OPTIONLEVEL
 option add *Label.borderWidth 1 $OPTIONLEVEL
 
 option add *Listbox.background white $OPTIONLEVEL
-option_nont add *Listbox.font $BASE_FONT $OPTIONLEVEL
+option add *Listbox.font $BASE_FONT $OPTIONLEVEL
 option add *Listbox.borderWidth 2 $OPTIONLEVEL
 option add *Listbox.selectBackground #08246b $OPTIONLEVEL
 option add *Listbox.selectForeground white $OPTIONLEVEL
 
 option add *Menu.activeBorderWidth 0 $OPTIONLEVEL
 option add *Menu.borderWidth 1 $OPTIONLEVEL
-option_nont add *Menu.font $BASE_FONT $OPTIONLEVEL
+option add *Menu.font $BASE_FONT $OPTIONLEVEL
 option add *Menu.activeBackground #08246b $OPTIONLEVEL
 option add *Menu.activeForeground white $OPTIONLEVEL
 
 option add *Menubutton.borderWidth 1 $OPTIONLEVEL
-option_nont add *Menubutton.font $BASE_FONT $OPTIONLEVEL
+option add *Menubutton.font $BASE_FONT $OPTIONLEVEL
 option add *Menubutton.indicatorOn 1 $OPTIONLEVEL
 option add *Menubutton.relief raised $OPTIONLEVEL
 
 option add *Message.borderWidth 1 $OPTIONLEVEL
-option_nont add *Message.font $BASE_FONT $OPTIONLEVEL
+option add *Message.font $BASE_FONT $OPTIONLEVEL
 
 option add *Radiobutton.borderWidth 1 $OPTIONLEVEL
-option_nont add *Radiobutton.font $BASE_FONT $OPTIONLEVEL
+option add *Radiobutton.font $BASE_FONT $OPTIONLEVEL
 
 option add *Scrollbar.borderWidth 2 $OPTIONLEVEL
 option add *Scrollbar.takeFocus 0 $OPTIONLEVEL
@@ -82,13 +83,13 @@ option add *Scrollbar.elementBorderWidth 2 $OPTIONLEVEL
 
 option add *Text.background white $OPTIONLEVEL
 option add *Text.borderWidth 2 $OPTIONLEVEL
-option_nont add *Text.font fixed $OPTIONLEVEL
+option add *Text.font $FIXED_FONT $OPTIONLEVEL
 option add *Text.selectBackground #08246b $OPTIONLEVEL
 option add *Text.selectForeground white $OPTIONLEVEL
 
 option add *Labelframe.borderWidth 2 $OPTIONLEVEL
 option add *Labelframe.relief groove $OPTIONLEVEL
-option_nont add *Labelframe.font $BASE_FONT $OPTIONLEVEL
+option add *Labelframe.font $BASE_FONT $OPTIONLEVEL
 
 option add *work.borderWidth 3 $OPTIONLEVEL
 
@@ -152,10 +153,13 @@ option add *Togl.lathetool #cccccc startupFile
 option add *Togl.lathetool_alpha .1 startupFile
 '''
 
+import commands, sys
+
 def install(root = None):
     if root is None: root = Tkinter._default_root
     o = root.option_get("optionLevel", "Level") or "interactive"
     if hasattr(root, 'tk'): root = root.tk
+    root.call('source', EMC_TCL)
     root.call('set', 'OPTIONLEVEL', o)
     root.call('eval', options)
 # vim:sw=4:sts=4:et:ts=8:
