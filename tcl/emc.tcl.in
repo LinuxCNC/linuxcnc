@@ -85,11 +85,7 @@ proc emc::standard_font {} {
 }
 
 proc emc::standard_fixed_font_family {} {
-    if {[lsearch [font families] {courier 10 pitch}] != -1} {
-        return {courier 10 pitch}
-    } else {
-        return courier
-    }
+    return courier
 }
 
 proc emc::standard_fixed_font {} {
