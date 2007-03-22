@@ -450,9 +450,9 @@ int rtapi_app_main(void)
 	    return -1;
 	}
 	if ((ctrl_type[n][0] == 'p' ) || (ctrl_type[n][0] == 'P')) {
-	    ctrl_type[n][0] = 'p';
+	    ctrl_type[n] = "p";
 	} else if ((ctrl_type[n][0] == 'v' ) || (ctrl_type[n][0] == 'V')) {
-	    ctrl_type[n][0] = 'v';
+	    ctrl_type[n] = "v";
 	} else {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 			    "STEPGEN: ERROR: bad control type '%s' for axis %i (must be 'p' or 'v')\n",
