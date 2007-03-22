@@ -20,7 +20,11 @@
 #ifndef USRMOTINTF_H
 #define USRMOTINTF_H
 
-#include "motion.h"		/* emcmot_status_t,CMD */
+struct emcmot_status_t;
+struct emcmot_command_t;
+struct emcmot_config_t;
+struct emcmot_debug_t;
+struct emcmot_error_t;
 
 #ifdef __cplusplus
 extern "C" {

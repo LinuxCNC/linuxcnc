@@ -74,7 +74,7 @@
 #ifndef POSEMATH_H
 #define POSEMATH_H
 
-#include "config.h"
+// #include "config.h"
 
 #ifdef __cplusplus
 

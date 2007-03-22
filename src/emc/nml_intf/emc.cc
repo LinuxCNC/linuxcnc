@@ -26,6 +26,7 @@
 // Include command and status message definitions
 #include "canon.hh"
 #include "emc.hh"
+#include "emc_nml.hh"
 #include "emcglb.h"
 #include "emcpos.h"
 #include "cms.hh"

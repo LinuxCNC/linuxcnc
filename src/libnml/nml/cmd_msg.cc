@@ -28,6 +28,7 @@ extern "C" {
 NMLTYPE nmltype;
 
 #include "cmd_msg.hh"
+#include "linklist.hh"
 
 RCS_CMD_MSG::RCS_CMD_MSG(NMLTYPE t, long sz):NMLmsg(t, sz)
 {

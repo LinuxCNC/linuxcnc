@@ -30,6 +30,7 @@ extern "C" {
 #include <errno.h>		// errno
 #include <string.h>		/* strchr(), memcpy(), memset() */
 #include <stdlib.h>		/* strtod */
+#include <physmem.hh>           /* PHYSMEM_HANDLE */
 
 #ifdef __cplusplus
 }

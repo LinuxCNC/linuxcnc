@@ -25,6 +25,8 @@
 #include "hal.h"		/* decls for HAL implementation */
 #include "emcmotglb.h"
 #include "motion.h"
+#include "motion_debug.h"
+#include "motion_struct.h"
 #include "mot_priv.h"
 #include "rtapi_math.h"
 
@@ -104,12 +106,12 @@ int kinType = 0;
 emcmot_struct_t *emcmotStruct = 0;
 /* ptrs to either buffered copies or direct memory for
    command and status */
-emcmot_command_t *emcmotCommand = 0;
-emcmot_status_t *emcmotStatus = 0;
-emcmot_config_t *emcmotConfig = 0;
-emcmot_debug_t *emcmotDebug = 0;
-emcmot_internal_t *emcmotInternal = 0;
-emcmot_error_t *emcmotError = 0;	/* unused for RT_FIFO */
+struct emcmot_command_t *emcmotCommand = 0;
+struct emcmot_status_t *emcmotStatus = 0;
+struct emcmot_config_t *emcmotConfig = 0;
+struct emcmot_debug_t *emcmotDebug = 0;
+struct emcmot_internal_t *emcmotInternal = 0;
+struct emcmot_error_t *emcmotError = 0;	/* unused for RT_FIFO */
 
 /***********************************************************************
 *                  LOCAL VARIABLE DECLARATIONS                         *

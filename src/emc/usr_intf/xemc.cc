@@ -30,6 +30,7 @@
 
 #include "rcs.hh"               // etime()
 #include "emc.hh"               // EMC NML
+#include "emc_nml.hh"
 #include "emcglb.h"             // EMC_NMLFILE, TRAJ_MAX_VELOCITY, TOOL_TABLE_FILE
 #include "emccfg.h"             // DEFAULT_TRAJ_MAX_VELOCITY
 #include "inifile.hh"           // INIFILE

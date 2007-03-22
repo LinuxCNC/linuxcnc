@@ -19,7 +19,7 @@
 
 #include "posemath.h"		/* PmCartesian */
 
-typedef struct _EmcPose {
+typedef struct EmcPose {
     PmCartesian tran;
     double a, b, c;
 } EmcPose;

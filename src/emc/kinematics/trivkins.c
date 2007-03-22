@@ -16,7 +16,7 @@
 * $Date$
 ********************************************************************/
 
-#include "motion.h"		/* these decls */
+#include "kinematics.h"		/* these decls */
 
 
 int kinematicsForward(const double *joints,

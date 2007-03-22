@@ -39,6 +39,7 @@ extern "C" {
 #include "cms_cfg.hh"		/* cms_config(), cms_copy() */
 #include "linklist.hh"		/* class LinkedList */
 #include "rcs_print.hh"		/* rcs_print_error() */
+#include "physmem.hh"
 #ifndef MAXHOSTNAMELEN
 #define MAXHOSTNAMELEN 64
 #endif

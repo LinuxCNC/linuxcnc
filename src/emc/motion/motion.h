@@ -80,8 +80,6 @@ to another.
 #include "emcpos.h"		/* EmcPose */
 #include "cubic.h"		/* CUBIC_STRUCT, CUBIC_COEFF */
 #include "emcmotcfg.h"		/* EMCMOT_MAX_AXIS */
-#include "tp.h"			/* TP_STRUCT */
-#include "tc.h"			/* TC_STRUCT, TC_QUEUE_STRUCT */
 #include "kinematics.h"
 
 #ifdef __cplusplus
@@ -188,7 +186,7 @@ extern "C" {
 /* This is the command structure.  There is one of these in shared
    memory, and all commands from higher level code come thru it.
 */
-    typedef struct {
+    typedef struct emcmot_command_t {
 	unsigned char head;	/* flag count for mutex detect */
 	cmd_code_t command;	/* command code (enum) */
 	int commandNum;		/* increment this for new command */
@@ -560,7 +558,7 @@ Suggestion: Split this in to an Error and a Status flag register..
    evaluated - either they move up, or they go away.
 */
 
-    typedef struct {
+    typedef struct emcmot_status_t {
 	unsigned char head;	/* flag count for mutex detect */
 	/* these three are updated only when a new command is handled */
 	cmd_code_t commandEcho;	/* echo of input command */
@@ -657,7 +655,7 @@ Suggestion: Split this in to an Error and a Status flag register..
    Other structure members follow.  All the later ones need to be
    evaluated - either they move up, or they go away.
 */
-    typedef struct {
+    typedef struct emcmot_config_t {
 	unsigned char head;	/* flag count for mutex detect */
 
 /*! \todo FIXME - all structure members beyond this point are in limbo */
@@ -697,105 +695,15 @@ Suggestion: Split this in to an Error and a Status flag register..
    moved back out, maybe don't need it after all?
 */
 
-    typedef struct {
+    typedef struct emcmot_internal_t {
 	unsigned char head;	/* flag count for mutex detect */
 
 	int probe_debounce_cntr;
 	unsigned char tail;	/* flag count for mutex detect */
     } emcmot_internal_t;
 
-/*********************************
-        DEBUG STRUCTURE
-*********************************/
-
-/* This is the debug structure.  I guess it was intended to make some
-   of the motion controller's internal variables visible from user
-   space for debugging, but it has evolved into a monster.
-   180K last time I checked - most of it (174K or so) is the traj
-   planner queues... each entry is 720 bytes, and there are 210
-   entries in the main queue.
-   I'll figure it out eventually though.
-   Low level things will be exported thru the HAL so they can be
-   monitored with halscope.  High level things will remain here,
-   and things that are internal will be moved to a private structure.
-*/
-
-/*! \todo FIXME - this struct is broken into two parts... at the top are
-   structure members that I understand, and that are needed for emc2.
-   Other structure members follow.  All the later ones need to be
-   evaluated - either they move up, or they go away.
-*/
-
-/*! \todo FIXME - this has become a dumping ground for all kinds of stuff */
-
-    typedef struct {
-	unsigned char head;	/* flag count for mutex detect */
-
-/*! \todo FIXME - all structure members beyond this point are in limbo */
-
-	double tMin, tMax, tAvg;	/* trajectory min, max, avg times */
-	double sMin, sMax, sAvg;	/* servo min, max, avg times */
-	double nMin, nMax, nAvg;	/* min, max, avg times in DISABLED
-					   mode */
-	double yMin, yMax, yAvg;	/* min, max, avg times cycle times
-					   rather than compute */
-	double fMin, fMax, fAvg;	/* min, max, avg times frequency */
-	double fyMin, fyMax, fyAvg;	/* min, max, avg times frequency
-					   cycle times rather than compute */
-
-	EMC_TELEOP_DATA teleop_data;
-	int split;		/* number of split command reads */
-	/* flag for enabling, disabling watchdog; multiple for down-stepping */
-	int wdEnabling;
-	int wdEnabled;
-	int wdWait;
-	int wdCount;
-	unsigned char wdToggle;
-
-	/* flag that all active axes are homed */
-	unsigned char allHomed;
-
-	TP_STRUCT queue;	/* coordinated mode planner */
-
-/* space for trajectory planner queues, plus 10 more for safety */
-/*! \todo FIXME-- default is used; dynamic is not honored */
-	TC_STRUCT queueTcSpace[DEFAULT_TC_QUEUE_SIZE + 10];
-
-	EmcPose oldPos;		/* last position, used for vel differencing */
-	EmcPose oldVel, newVel;	/* velocities, used for acc differencing */
-	EmcPose newAcc;		/* differenced acc */
-
-	int enabling;		/* starts up disabled */
-	int coordinating;	/* starts up in free mode */
-	int teleoperating;	/* starts up in free mode */
-#if 0
-	int wasOnLimit;		/* non-zero means we already aborted
-				   everything due to a soft limit, and need
-				   not re-abort. It's cleared only when all
-				   limits are cleared. */
-	int onLimit;		/* non-zero means at least one axis is on a
-				   soft limit */
-#endif
-
-	int overriding;		/* non-zero means we've initiated an axis
-				   move while overriding limits */
-
-	int stepping;
-	int idForStep;
-
-#ifdef STRUCTS_IN_SHMEM
-	emcmot_joint_t joints[EMCMOT_MAX_AXIS];	/* joint data */
-#endif
-
-	double start_time;
-	double running_time;
-	double cur_time;
-	double last_time;
-	unsigned char tail;	/* flag count for mutex detect */
-    } emcmot_debug_t;
-
 /* error structure - A ring buffer used to pass formatted printf stings to usr space */
-    typedef struct {
+    typedef struct emcmot_error_t {
 	unsigned char head;	/* flag count for mutex detect */
 	char error[EMCMOT_ERROR_NUM][EMCMOT_ERROR_LEN];
 	int start;		/* index of oldest error */
@@ -803,19 +711,6 @@ Suggestion: Split this in to an Error and a Status flag register..
 	int num;		/* number of items */
 	unsigned char tail;	/* flag count for mutex detect */
     } emcmot_error_t;
-
-/* big comm structure, for upper memory */
-    typedef struct {
-	emcmot_command_t command;	/* struct used to pass commands/data
-					   to the RT module from usr space */
-	emcmot_status_t status;	/* Struct used to store RT status */
-	emcmot_config_t config;	/* Struct used to store RT config */
-	emcmot_debug_t debug;	/* Struct used to store RT status and debug
-				   data - 2nd largest block */
-	emcmot_internal_t internal;	/*! \todo FIXME - doesn't need to be in
-					   shared memory */
-	emcmot_error_t error;	/* ring buffer for error messages */
-    } emcmot_struct_t;
 
 /*
   function prototypes for emcmot code

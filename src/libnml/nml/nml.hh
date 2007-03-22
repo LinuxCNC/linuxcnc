@@ -29,7 +29,7 @@ extern "C" {
 }
 #endif
 #include "cms_user.hh"		/* class CMS_USER */
-#include "linklist.hh"		/* class LinkedList */
+class LinkedList;
 /* Generic NML Stuff */
 #include "nml_type.hh"
 

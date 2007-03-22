@@ -37,6 +37,7 @@
 #include <string.h>		// strncpy()
 #include <ctype.h>		// isspace()
 #include "emc.hh"		// EMC NML
+#include "emc_nml.hh"
 #include "canon.hh"		// these decls
 #include "interpl.hh"		// interp_list
 #include "emcglb.h"		// TRAJ_MAX_VELOCITY

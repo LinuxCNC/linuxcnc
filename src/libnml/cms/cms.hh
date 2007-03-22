@@ -29,9 +29,21 @@ extern "C" {
 }
 #endif
 #include "cms_cfg.hh"		/* CMS_CONFIG_LINELEN */
-#include "linklist.hh"		// LinkedList
-#include "physmem.hh"		/* PHYSMEM_HANDLE */
-#include "posemath.h"		// PM_CARTESIAN, etc ...
+
+class PHYSMEM_HANDLE;
+class PM_CARTESIAN;
+class PM_CYLINDRICAL;
+class PM_EULER_ZYX;
+class PM_EULER_ZYZ;
+class PM_HOMOGENEOUS;
+class PM_POSE;
+class PM_QUATERNION;
+class PM_ROTATION_MATRIX;
+class PM_ROTATION_VECTOR;
+class PM_RPY;
+class PM_SPHERICAL;
+class LinkedList;
+
 enum CMS_STATUS {
 /* ERROR conditions */
     CMS_MISC_ERROR = -1,	/* A miscellaneous error occured. */

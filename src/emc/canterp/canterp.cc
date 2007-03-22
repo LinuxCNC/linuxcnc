@@ -56,6 +56,7 @@
 #include <string.h>		// strcpy()
 #include <ctype.h>		// isspace()
 #include "emc.hh"		// emcStatus
+#include "emc_nml.hh"
 #include "canon.hh"		// CANON_VECTOR, GET_PROGRAM_ORIGIN()
 
 static FILE *the_file = NULL;	// our file pointer

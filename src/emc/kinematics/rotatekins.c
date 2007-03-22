@@ -17,7 +17,7 @@
 #ifndef M_PI_4l
 #define M_PI_4l (M_PIl/4.0)
 #endif
-#include "motion.h"		/* these decls */
+#include "kinematics.h"		/* these decls */
 
 int kinematicsForward(const double *joints,
 		      EmcPose * pos,

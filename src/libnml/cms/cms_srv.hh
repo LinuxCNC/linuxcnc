@@ -30,12 +30,12 @@
 
 #include "cms_user.hh"		/* class CMS, CMS_STATUS */
 #include "cms_cfg.hh"		/* CMS_CONFIG_LINELEN */
-#include "linklist.hh"		/* class LinkedList */
 #include "rem_msg.hh"		/* struct REMOTE_READ_REQUEST, */
 				/* struct REMOTE_WRITE_REQUEST, */
 extern int cms_server_count;
 extern void wait_for_servers(int);
 
+class LinkedList;
 extern LinkedList *cms_server_list;
 
 class CMS_SERVER;

@@ -19,7 +19,7 @@
 #define CMSDIAG_HH
 
 #include "cms.hh"
-#include "linklist.hh"
+class LinkedList;
 
 class CMS_DIAG_STATIC_PROC_INFO {
   public:

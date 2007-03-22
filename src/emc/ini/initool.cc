@@ -21,6 +21,7 @@
 #include <string.h>		// strcpy()
 
 #include "emc.hh"
+#include "emcpos.h"             // EmcPose
 #include "rcs_print.hh"
 #include "inifile.hh"
 #include "initool.hh"		// these decls

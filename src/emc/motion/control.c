@@ -26,6 +26,10 @@
 #include "motion.h"
 #include "mot_priv.h"
 #include "rtapi_math.h"
+#include "tp.h"
+#include "tc.h"
+#include "motion_debug.h"
+#include "config.h"
 
 /***********************************************************************
 *                  LOCAL VARIABLE DECLARATIONS                         *

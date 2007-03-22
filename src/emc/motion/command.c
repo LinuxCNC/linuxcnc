@@ -66,6 +66,8 @@
 #include "rtapi.h"
 #include "hal.h"
 #include "motion.h"
+#include "motion_debug.h"
+#include "motion_struct.h"
 #include "emcmotglb.h"
 #include "mot_priv.h"
 #include "rtapi_math.h"

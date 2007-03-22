@@ -36,9 +36,8 @@ extern "C" {
        resolution of the system clock or the most precise sleep or delay
        function available for the given platform. */
 }
-#if USE_SEMS_FOR_TIMER
-#include "sem.hh"		// RCS_SEMAPHORE
-#endif
+class RCS_SEMAPHORE;
+
 /* prototype for user-defined timing function */
 typedef int (*RCS_TIMERFUNC) (void *_arg);
 

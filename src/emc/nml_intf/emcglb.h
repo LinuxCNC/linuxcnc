@@ -18,8 +18,7 @@
 #ifndef EMCGLB_H
 #define EMCGLB_H
 
-#include "config.h"
-#include "emcpos.h"		/* EmcPose */
+#include "config.h"             /* LINELEN */
 #include "math.h"		/* M_PI */
 
 #ifdef __cplusplus
@@ -51,7 +50,7 @@ const struct nameval linear_nv_pairs[] = {
 	{ "in", 	1/25.4 },
 	{ "inch", 	1/25.4 },
 	{ "imperial", 	1/25.4 },
-	{ NULL, 0 },
+	{ 0, 0 },
     };
     
 /* The next const struct holds pairs for angular units which are 
@@ -64,7 +63,7 @@ const struct nameval angular_nv_pairs[] = {
 	{ "gon", 	0.9 },
 	{ "rad", 	M_PI / 180 },
 	{ "radian", 	M_PI / 180 },
-	{ NULL, 0 },
+	{ 0, 0 },
     };
 
 /* debug bitflags */
@@ -107,9 +106,9 @@ const struct nameval angular_nv_pairs[] = {
     extern double MIN_VOLTS_PER_RPM;
     extern double MAX_VOLTS_PER_RPM;
 
-    extern EmcPose TOOL_CHANGE_POSITION;
+    extern struct EmcPose TOOL_CHANGE_POSITION;
     extern unsigned char HAVE_TOOL_CHANGE_POSITION;
-    extern EmcPose TOOL_HOLDER_CLEAR;
+    extern struct EmcPose TOOL_HOLDER_CLEAR;
     extern unsigned char HAVE_TOOL_HOLDER_CLEAR;
 
 #define DEFAULT_EMCLOG_INCLUDE_HEADER (1)

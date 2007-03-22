@@ -42,6 +42,7 @@ extern "C" {
 #include "recvn.h"		/* recvn() */
 #include "sendn.h"		/* sendn() */
 #include "tcp_opts.hh"		/* SET_TCP_NODELAY */
+#include "linklist.hh"          /* LinkedList */
 
 int tcpmem_sigpipe_count = 0;
 int last_sig = 0;

@@ -28,6 +28,7 @@
 
 #include "rcs.hh"               // rcs_print_error(), esleep()
 #include "emc.hh"               // EMC NML
+#include "emc_nml.hh"
 #include "emcglb.h"             // EMC_NMLFILE, TRAJ_MAX_VELOCITY
 #include "emccfg.h"             // DEFAULT_TRAJ_MAX_VELOCITY
 #include "inifile.hh"           // INIFILE

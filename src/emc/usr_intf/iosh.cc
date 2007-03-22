@@ -33,6 +33,7 @@
 #include "rcs.hh"		// etime()
 #include "posemath.h"		// PM_POSE
 #include "emc.hh"		// EMC NML
+#include "emc_nml.hh"
 #include "emcglb.h"		// EMC_NMLFILE, TRAJ_MAX_VELOCITY, etc.
 #include "emccfg.h"		// DEFAULT_TRAJ_MAX_VELOCITY
 #include "inifile.hh"		// INIFILE
@@ -40,6 +41,8 @@
 #include "nml_oi.hh"            // nmlErrorFormat
 #include "timer.hh"             // esleep
 #include "motion.h"		// emc struct and commands
+#include "motion_debug.h"
+#include "motion_struct.h"
 #include "usrmotintf.h"		// usrmot interface
 
 #include <unistd.h>		/* iopl() */

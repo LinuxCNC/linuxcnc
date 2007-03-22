@@ -25,6 +25,7 @@
 #include "rcs_print.hh"
 #include "timer.hh"             // esleep, etc.
 #include "emc.hh"		// EMC NML
+#include "emc_nml.hh"
 #include "emcglb.h"		// EMC_INIFILE
 
 #include "initool.hh"

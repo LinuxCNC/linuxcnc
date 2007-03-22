@@ -78,7 +78,7 @@ typedef unsigned long int KINEMATICS_INVERSE_FLAGS;
    flags are set to indicate their value appropriate to the joint values
    passed in. */
 extern int kinematicsForward(const double *joint,
-			     EmcPose * world,
+			     struct EmcPose * world,
 			     const KINEMATICS_FORWARD_FLAGS * fflags,
 			     KINEMATICS_INVERSE_FLAGS * iflags);
 
@@ -86,7 +86,7 @@ extern int kinematicsForward(const double *joint,
    given the inverse kinematics flags to resolve any ambiguities. The forward
    flags are set to indicate their value appropriate to the world coordinates
    passed in. */
-extern int kinematicsInverse(const EmcPose * world,
+extern int kinematicsInverse(const struct EmcPose * world,
 			     double *joint,
 			     const KINEMATICS_INVERSE_FLAGS * iflags,
 			     KINEMATICS_FORWARD_FLAGS * fflags);
@@ -97,7 +97,7 @@ extern int kinematicsInverse(const EmcPose * world,
    kinematics can accept arbitrary starting points, these initial values
    should be used.
 */
-extern int kinematicsHome(EmcPose * world,
+extern int kinematicsHome(struct EmcPose * world,
 			  double *joint,
 			  KINEMATICS_FORWARD_FLAGS * fflags,
 			  KINEMATICS_INVERSE_FLAGS * iflags);

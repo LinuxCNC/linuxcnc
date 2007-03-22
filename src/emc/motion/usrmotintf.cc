@@ -24,6 +24,8 @@
 #include <string.h>		/* memcpy() */
 #include <float.h>		/* DBL_MIN */
 #include "motion.h"		/* emcmot_status_t,CMD */
+#include "motion_debug.h"       /* emcmot_debug_t */
+#include "motion_struct.h"      /* emcmot_struct_t */
 #include "emcmotcfg.h"		/* EMCMOT_ERROR_NUM,LEN */
 #include "emcmotglb.h"		/* SHMEM_KEY */
 #include "usrmotintf.h"		/* these decls */

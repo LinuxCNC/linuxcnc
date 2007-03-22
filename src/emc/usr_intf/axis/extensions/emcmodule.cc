@@ -23,6 +23,7 @@
 #include "config.h"
 #include "rcs.hh"
 #include "emc.hh"
+#include "emc_nml.hh"
 #include "kinematics.h"
 #include "config.h"
 #include "inifile.hh"

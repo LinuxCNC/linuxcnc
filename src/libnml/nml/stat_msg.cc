@@ -18,6 +18,8 @@
 #include "nml.hh"
 #include "nmlmsg.hh"
 #include "cms.hh"
+#include "physmem.hh"
+#include "linklist.hh"
 
 #include "stat_msg.hh"
 

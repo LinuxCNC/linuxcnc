@@ -38,6 +38,8 @@ extern "C" {
 #include "rcs_print.hh"		/* rcs_print_error() */
 #include "timer.hh"		// esleep()
 #include "rcs_exit.hh"		// rcs_exit
+#include "linklist.hh"
+#include "physmem.hh"
 #include "cmsdiag.hh"
 NML_SERVER::NML_SERVER(NML * _nml, int _set_to_master):CMS_SERVER()
 {

@@ -20,6 +20,8 @@
 #ifndef SHCOM_HH
 #define SHCOM_HH
 
+#include "emc_nml.hh"
+
 #define CLOSE(a,b,eps) ((a)-(b) < +(eps) && (a)-(b) > -(eps))
 #define LINEAR_CLOSENESS 0.0001
 #define ANGULAR_CLOSENESS 0.0001

@@ -22,6 +22,7 @@
 #include <ctype.h>		// isspace()
 
 #include "emc.hh"
+#include "emcpos.h"             // EmcPose
 #include "rcs_print.hh"
 #include "posemath.h"		// PM_POSE, PM_RPY
 #include "emcIniFile.hh"

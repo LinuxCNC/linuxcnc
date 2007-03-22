@@ -24,6 +24,8 @@
 #include <string.h>		// strncpy()
 #include <time.h>		// time_t, time()
 #include <math.h>		// floor()
+#include "linklist.hh"          // LinkedList
+#include "physmem.hh"           // PHYSMEM_HANDLE
 
 CMS_DIAGNOSTICS_INFO::CMS_DIAGNOSTICS_INFO()
 {

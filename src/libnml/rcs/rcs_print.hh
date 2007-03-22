@@ -28,18 +28,11 @@ extern "C" {
 }
 #endif
 #ifdef __cplusplus
-#include "linklist.hh"		/* LinkedList */
+class LinkedList;
+
 extern LinkedList *get_rcs_print_list();
   /* Returns the address of the linked list where messages may have been
      stored. */
-
-extern void set_rcs_print_list_sizing_mode(int, LIST_SIZING_MODE);
-  /* The print list will have a default maximum size of 256 and it will
-     delete nodes from the head of the list to make room for new nodes. To
-     change these settings it is preferable to use this function rather than
-     getting the print list and using RCS_LINKED_LIST::set_list_sizing_mode() 
-     since it works regardless of whether the print list has been initialized 
-     yet. */
 #endif
 
 #ifdef __cplusplus

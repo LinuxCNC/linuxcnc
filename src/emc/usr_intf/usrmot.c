@@ -26,6 +26,8 @@
 #include <signal.h>		/* signal(), SIGINT */
 #include "_timer.h"		/* esleep() */
 #include "motion.h"
+#include "motion_debug.h"
+#include "motion_struct.h"
 #include "usrmotintf.h"		/* usrmotInit(), etc */
 #include "posemath.h"
 #include "emcmotcfg.h"		/* EMCMOT_ERROR_LEN,NUM */

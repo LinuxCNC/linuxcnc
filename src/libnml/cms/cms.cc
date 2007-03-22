@@ -43,6 +43,9 @@ extern "C" {
 #include "rcs_print.hh"		/* rcs_print_error(), separate_words() */
 				/* rcs_print_debug() */
 #include "cmsdiag.hh"
+#include "linklist.hh"          /* LinkedList */
+#include "physmem.hh"
+
 LinkedList *cmsHostAliases = NULL;
 CMS_CONNECTION_MODE cms_connection_mode = CMS_NORMAL_CONNECTION_MODE;
 

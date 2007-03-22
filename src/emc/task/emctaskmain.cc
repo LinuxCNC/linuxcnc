@@ -61,12 +61,12 @@
 
 #include "rcs.hh"		// NML classes, nmlErrorFormat()
 #include "emc.hh"		// EMC NML
+#include "emc_nml.hh"
 #include "canon.hh"		// CANON_TOOL_TABLE stuff
 #include "inifile.hh"		// INIFILE
 #include "interpl.hh"		// NML_INTERP_LIST, interp_list
 #include "emcglb.h"		// EMC_INIFILE,NMLFILE, EMC_TASK_CYCLE_TIME
 #include "interp_return.hh"	// public interpreter return values
-#include "inifile.hh"
 #include "rcs_print.hh"
 #include "timer.hh"
 #include "nml_oi.hh"

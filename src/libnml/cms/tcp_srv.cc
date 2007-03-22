@@ -54,6 +54,7 @@ extern "C" {
 #include "recvn.h"		/* recvn() */
 #include "sendn.h"		/* sendn() */
 }
+#include "physmem.hh"           // PHYSMEM_HANDLE
 
 int tcpsvr_threads_created = 0;
 int tcpsvr_threads_killed = 0;

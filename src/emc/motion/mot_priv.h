@@ -180,13 +180,13 @@ extern KINEMATICS_FORWARD_FLAGS fflags;
 extern KINEMATICS_INVERSE_FLAGS iflags;
 
 /* Struct pointers */
-extern emcmot_struct_t *emcmotStruct;
-extern emcmot_command_t *emcmotCommand;
-extern emcmot_status_t *emcmotStatus;
-extern emcmot_config_t *emcmotConfig;
-extern emcmot_debug_t *emcmotDebug;
-extern emcmot_internal_t *emcmotInternal;
-extern emcmot_error_t *emcmotError;
+extern struct emcmot_struct_t *emcmotStruct;
+extern struct emcmot_command_t *emcmotCommand;
+extern struct emcmot_status_t *emcmotStatus;
+extern struct emcmot_config_t *emcmotConfig;
+extern struct emcmot_debug_t *emcmotDebug;
+extern struct emcmot_internal_t *emcmotInternal;
+extern struct emcmot_error_t *emcmotError;
 
 /***********************************************************************
 *                    PUBLIC FUNCTION PROTOTYPES                        *
@@ -299,7 +299,7 @@ extern void reportError(const char *fmt, ...);	/* Use the rtapi_print call */
 
 #define SET_JOINT_FAULT_FLAG(joint,fl) if (fl) (joint)->flag |= EMCMOT_AXIS_FAULT_BIT; else (joint)->flag &= ~EMCMOT_AXIS_FAULT_BIT;
 
-#ifdef LINUX_VERSION_CODE
+#if defined(LINUX_VERSION_CODE) && !defined(SIM)
 #if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,0)
 #define HAVE_CPU_KHZ
 #endif

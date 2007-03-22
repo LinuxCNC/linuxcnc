@@ -65,7 +65,7 @@
   completely. So, the inverse flags are ignored.
  */
 
-#include "motion.h"             /* these decls */
+#include "kinematics.h"             /* these decls */
 #include "rtapi_math.h"
 
 /* ident tag */
