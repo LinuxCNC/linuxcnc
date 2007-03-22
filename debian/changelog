@@ -1,3 +1,9 @@
+emc2 (1:2.1.4) testing; urgency=low
+
+  * fix bug for the Mini GUI. Simultanous jogging multiple axes caused runaways.
+
+ -- Alex Joni <juve@taurus>  Thu, 22 Mar 2007 20:52:58 +0200
+
 emc2 (1:2.1.3) unstable; urgency=low
 
   * make 'load' button work in classicladder
