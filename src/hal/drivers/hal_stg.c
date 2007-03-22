@@ -987,7 +987,7 @@ int stg_adc_start(void *arg, unsigned short wAxis)
 
 	tempCtrl0 = inb(base+CNTRL0) & 0x07; // save IRQ
 	tempCtrl0 |= (wAxis << 4) | 0x88; //autozero & cal cycle
-	outb(tempCtrl0, CNTRL0); // select channel
+	outb(tempCtrl0, base + CNTRL0); // select channel
 
 	/* wait 4 uS for settling time on the multiplexer and ADC. You probably
 	 shouldn't really have a delay in a driver */
@@ -1032,7 +1032,7 @@ static short stg_adc_read(void *arg, int axis)
 
 	for (j = 0; (inb(base + BRDTST) & 0x08) && (j < 1000); j++);
 	
-	j = inw(base + ADC_0);	
+	j = inw(base + ADC_0 + (axis << 1));	
     
     }
 
