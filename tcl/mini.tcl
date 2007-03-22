@@ -298,8 +298,8 @@ proc minusDone {} {
 proc minusDown {} {
     global activeAxis minusAxis
     
-    if ($minusAxis < 0) {
-	set minusAxis $acitveAxis
+    if {$minusAxis < 0} {
+	set minusAxis $activeAxis
     }
     bind ManualBindings <KeyPress-minus> {}
     after cancel minusDone
@@ -322,8 +322,8 @@ proc equalDone {} {
 proc equalDown {} {
     global activeAxis equalAxis
 
-    if ($equalAxis < 0) {
-	set minusAxis $equalAxis
+    if {$equalAxis < 0} {
+	set equalAxis $activeAxis
     }
     bind ManualBindings <KeyPress-equal> {}
     after cancel equalDone
