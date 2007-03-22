@@ -1,4 +1,4 @@
-( AXIS 1.4a0 "splash g-code"      )
+( AXIS "splash g-code" )
 ( Not intended for actual milling )
 #1=.1 (SH)
 #2=.01 (CUT)
