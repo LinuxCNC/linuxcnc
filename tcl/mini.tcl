@@ -289,12 +289,18 @@ proc decrJogSpeed {} {
 }
 
 proc minusDone {} {
-    jogStop
+    global minusAxis
+    jogStop $minusAxis
     bind ManualBindings <KeyPress-minus> minusDown
+    set $minusAxis -1
 }
 
 proc minusDown {} {
-    global activeAxis
+    global activeAxis minusAxis
+    
+    if ($minusAxis < 0) {
+	set minusAxis $acitveAxis
+    }
     bind ManualBindings <KeyPress-minus> {}
     after cancel minusDone
     jogNeg $activeAxis
@@ -307,12 +313,18 @@ proc minusUp {} {
 }
 
 proc equalDone {} {
-    jogStop
+    global equalAxis
+    jogStop $equalAxis
     bind ManualBindings <KeyPress-equal> equalDown
+    set $equalAxis -1
 }
 
 proc equalDown {} {
-    global activeAxis
+    global activeAxis equalAxis
+
+    if ($equalAxis < 0) {
+	set minusAxis $equalAxis
+    }
     bind ManualBindings <KeyPress-equal> {}
     after cancel equalDone
     jogPos $activeAxis
@@ -324,7 +336,7 @@ proc equalUp {} {
     after $debounceTime equalDone
 }
 proc leftDone {} {
-    jogStop
+    jogStop 0
     bind ManualBindings <KeyPress-Left> leftDown
 }
 
@@ -341,7 +353,7 @@ proc leftUp {} {
     after $debounceTime leftDone
 }
 proc rightDone {} {
-    jogStop
+    jogStop 0
     bind ManualBindings <KeyPress-Right> rightDown
 }
 
@@ -358,7 +370,7 @@ proc rightUp {} {
     after $debounceTime rightDone
 }
 proc downDone {} {
-    jogStop
+    jogStop 1
     bind ManualBindings <KeyPress-Down> downDown
 }
 
@@ -375,7 +387,7 @@ proc downUp {} {
     after $debounceTime downDone
 }
 proc upDone {} {
-    jogStop
+    jogStop 1
     bind ManualBindings <KeyPress-Up> upDown
 }
 
@@ -393,7 +405,7 @@ proc upUp {} {
 }
 
 proc priorDone {} {
-    jogStop
+    jogStop 2
     bind ManualBindings <KeyPress-Prior> priorDown
 }
 
@@ -411,7 +423,7 @@ proc priorUp {} {
 }
 
 proc nextDone {} {
-    jogStop
+    jogStop 2
     bind ManualBindings <KeyPress-Next> nextDown
 }
 
@@ -1750,6 +1762,8 @@ toggleEstop
 
 setKeyBindingsx
 set syncingFeedOverride 0
+set minusAxis -1
+set equalAxis -1
 
 # force explicit updates, so calls to emc_estop, for example, don't
 # always cause an NML read; they just return last latched status
