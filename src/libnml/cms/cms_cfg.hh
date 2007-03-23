@@ -19,7 +19,7 @@
 #ifndef CMS_CFG_HH
 #define CMS_CFG_HH
 
-#include "cms_user.hh"
+class CMS;
 
 /* Config File Definitions. */
 #ifndef CMS_CONFIG_LINELEN
