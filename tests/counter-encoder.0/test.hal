@@ -15,7 +15,7 @@ linksp stepgen.0.phase-B encoder.1.phase-B
 linkpp encoder.1.counts sampler.0.pin.1
 
 linksp stepgen.0.phase-A counter.0.phase-A
-linksp encoder.1.counts sampler.0.pin.2
+linkpp counter.0.counts sampler.0.pin.2
 
 addf stepgen.update-freq fast
 addf stepgen.make-pulses fast
