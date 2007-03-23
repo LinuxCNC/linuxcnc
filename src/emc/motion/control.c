@@ -965,7 +965,7 @@ static void handle_jogwheels(void)
     emcmot_joint_t *joint;
     axis_hal_t *axis_data;
     int new_jog_counts, delta;
-    double distance, pos;
+    double distance, pos, stop_dist;
 
     for (joint_num = 0; joint_num < EMCMOT_MAX_JOINTS; joint_num++) {
 	/* point to joint data */
@@ -1033,6 +1033,24 @@ static void handle_jogwheels(void)
 	}
 	if (pos < joint->min_jog_limit) {
 	    continue;
+	}
+	/* The default is to move exactly as far as the wheel commands,
+	   even if that move takes much longer than the wheel movement
+	   that commanded it.  Some folks prefer that the move stop as
+	   soon as the wheel does, even if that means not moving the
+	   commanded distance.  Velocity mode is for those folks.  If
+	   the command is faster than the machine can track, excess
+	   command is simply dropped. */
+	if ( axis_data->jog_vel_mode ) {
+	    /* compute stopping distance at max speed */
+	    stop_dist = joint->vel_limit * joint->vel_limit / ( 2 * joint->acc_limit);
+	    /* if commanded position leads the actual position by more
+	       than stopping distance, discard excess command */
+	    if ( pos > joint->pos_cmd + stop_dist ) {
+		pos = joint->pos_cmd + stop_dist;
+	    } else if ( pos < joint->pos_cmd - stop_dist ) {
+		pos = joint->pos_cmd - stop_dist;
+	    }
 	}
         /* set target position and use full velocity */
         joint->free_pos_cmd = pos;

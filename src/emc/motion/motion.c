@@ -601,6 +601,11 @@ static int export_axis(int num, axis_hal_t * addr)
     if (retval != 0) {
 	return retval;
     }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.jog-vel-mode", num);
+    retval = hal_pin_bit_new(buf, HAL_IN, &(addr->jog_vel_mode), mot_comp_id);
+    if (retval != 0) {
+	return retval;
+    }
     rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.homing", num);
     retval = hal_pin_bit_new(buf, HAL_OUT, &(addr->homing), mot_comp_id);
     if (retval != 0) {
