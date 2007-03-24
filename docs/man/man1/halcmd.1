@@ -189,6 +189,10 @@ to \fIvalue\fR.  Fails if \fIsigname\fR does not exist, if it
 already has a writer, or if \fIvalue\fR is not a legal value.
 Legal values depend on the signals's type.
 .TP
+\fBstype\fR \fIname\fR
+(\fIs\fRignal type\fR)  Gets the type of signal
+\fIname\fR.  Fails if \fIname\fR does not exist as a signal.
+.TP
 \fBgets\fR \fIsigname\fR
 (\fIget\fR \fIs\fRignal)  Gets the value of signal \fIsigname\fR.  Fails
 if \fIsigname\fR does not exist.
@@ -242,6 +246,12 @@ on.
 \fIpinname\fR \fB=\fR \fIvalue\fR
 Identical to \fBsetp\fR.  This alternate form of the command may
 be more convenient and readable when used in a file.
+.TP
+\fBptype\fR \fIname\fR
+(\fIp\fRarameter or \fIp\fRin \fItype\fR)  Gets the type of parameter or
+pin \fIname\fR.  Fails if \fIname\fR does not exist as a pin or
+parameter.  If a pin and a parameter both exist with the given name, the
+parameter is acted on.
 .TP
 \fBgetp\fR \fIname\fR
 (\fIget\fR \fIp\fRarameter or \fIp\fRin)  Gets the value of parameter or
