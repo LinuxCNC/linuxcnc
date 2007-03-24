@@ -1,9 +1,11 @@
+#include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <tcl.h>
 #include "halcmd.h"
 
 Tcl_Interp *target_interp = NULL;
+static int pending_cr = 0;
 
 static void halError(Tcl_Interp *interp, int result) {
     switch(result) {
@@ -71,6 +73,7 @@ static int halCmd(ClientData cd, Tcl_Interp *interp, int argc, const char **argv
         return TCL_ERROR;
     }
     target_interp = interp;
+    pending_cr = 0;
     result = halcmd_parse_cmd((char **)argv+1);
     target_interp = NULL;
 
@@ -99,11 +102,21 @@ int Hal_Init(Tcl_Interp *interp) {
 void halcmd_output(const char *format, ...) {
     char buf[BUFFERLEN + 1];
     va_list ap;
+    int len;
 
     va_start(ap, format);
     vsnprintf(buf, BUFFERLEN, format, ap);
     va_end(ap);
 
+    if(pending_cr) 
+	Tcl_AppendResult(target_interp, "\n", NULL);
+    len = strlen(buf);
+    if(buf[len-1] == '\n') {
+	buf[len-1] = 0;
+	pending_cr = 1;
+    } else {
+	pending_cr = 0;
+    }
     Tcl_AppendResult(target_interp, buf, NULL);
 }
 
