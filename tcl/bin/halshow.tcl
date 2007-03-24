@@ -17,8 +17,6 @@ exec $EMC2_EMCSH "$0" "$@"
 # $Author$
 # $Date$
 ###############################################################
-# Script accesses HAL through two modes halcmd show xxx for show
-# and open halcmd -skf for building tree, watch, edit, and such
 # FIXME -- empty mod entry widgets after execute
 # FIXME -- please hal param naming conventions aren't
 ###############################################################
@@ -28,21 +26,11 @@ source [file join [file dirname [info script]] .. emc.tcl]
 
 package require BWidget
 
-#
-#----------end of open halcmd----------
-
 # add a few default characteristics to the display
 foreach class { Button Checkbutton Entry Label Listbox Menu Menubutton \
     Message Radiobutton Scale } {
     option add *$class.borderWidth 1  100
 }
-
-set numaxes [emc_ini "AXES" "TRAJ"]
-
-# Find the name of the ini file used for this run.
-set thisinifile "$EMC_INIFILE"
-set thisconfigdir [file dirname $thisinifile]
-
 
 #----------start toplevel----------
 #
@@ -457,7 +445,7 @@ proc showHAL {which} {
     set thislist [split $which "+"]
     set searchbase [lindex $thislist 0]
     set searchstring [lindex $thislist 1]
-    set thisret [exec halcmd show $searchbase $searchstring]
+    set thisret [hal show $searchbase $searchstring]
     displayThis $thisret
 }
 
@@ -491,16 +479,28 @@ proc watchHAL {which} {
     set label [lindex [split $which +] end]
     set tmplist [split $which +]
     set vartype [lindex $tmplist 0]
+    if {$vartype != "pin" && $vartype != "param" && $vartype != "sig"} {
+	# cannot watch components, functions, or threads
+	return
+    }
     set varname [lindex $tmplist end]
-    set ret [hal show $vartype $varname]
-    if {[lsearch $ret "bit"] != -1 } {
+    if {$vartype == "sig"} {
+	# stype (and gets) fail when the item clicked is not a leaf
+	# e.g., clicking "Signals / X"
+	if {[catch {hal stype $varname} type]} { return }
+    } else {
+	# ptype (and getp) fail when the item clicked is not a leaf
+	# e.g., clicking "Pins / axis / 0"
+	if {[catch {hal ptype $varname} type]} { return }
+    }
+    if {$type == "bit"} {
         $cisp create oval 20 [expr $i * 20 + 5] 35 [expr $i * 20 + 20] \
             -fill firebrick4 -tag oval$i
         $cisp create text 80 [expr $i * 20 + 12] -text $label \
             -anchor w -tag $label
     } else {
         # other gets a text display for value
-        $cisp create text 10 [expr $i * 20 + 12] -text "xxxx" \
+        $cisp create text 10 [expr $i * 20 + 12] -text "" \
             -anchor w -tag text$i
         $cisp create text 80 [expr $i * 20 + 12] -text $label \
             -anchor w -tag $label
