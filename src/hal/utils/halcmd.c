@@ -157,6 +157,8 @@ struct command commands[] = {
     {"delsig",  FUNCT(do_delsig_cmd),  A_ONE },
     {"getp",    FUNCT(do_getp_cmd),    A_ONE },
     {"gets",    FUNCT(do_gets_cmd),    A_ONE },
+    {"ptype",   FUNCT(do_ptype_cmd),   A_ONE },
+    {"stype",   FUNCT(do_stype_cmd),   A_ONE },
     {"help",    FUNCT(do_help_cmd),    A_ONE | A_OPTIONAL },
     {"linkpp",  FUNCT(do_linkpp_cmd),  A_TWO | A_REMOVE_ARROWS },
     {"linkps",  FUNCT(do_linkps_cmd),  A_TWO | A_REMOVE_ARROWS },

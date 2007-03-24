@@ -75,6 +75,7 @@ static void print_lock_status();
 static int count_list(int list_root);
 static void print_mem_status();
 static char *data_type(int type);
+static char *data_type2(int type);
 static char *pin_data_dir(int dir);
 static char *param_data_dir(int dir);
 static char *data_arrow1(int dir);
@@ -678,6 +679,42 @@ int do_setp_cmd(char *name, char *value)
 
 }
 
+int do_ptype_cmd(char *name)
+{
+    hal_param_t *param;
+    hal_pin_t *pin;
+    hal_type_t type;
+    
+    rtapi_print_msg(RTAPI_MSG_DBG, "HAL: getting parameter '%s'\n", name);
+    /* get mutex before accessing shared data */
+    rtapi_mutex_get(&(hal_data->mutex));
+    /* search param list for name */
+    param = halpr_find_param_by_name(name);
+    if (param) {
+        /* found it */
+        type = param->type;
+        halcmd_output("%s\n", data_type2(type));
+        rtapi_mutex_give(&(hal_data->mutex));
+        return HAL_SUCCESS;
+    }
+        
+    /* not found, search pin list for name */
+    pin = halpr_find_pin_by_name(name);
+    if(pin) {
+        /* found it */
+        type = pin->type;
+        halcmd_output("%s\n", data_type2(type));
+        rtapi_mutex_give(&(hal_data->mutex));
+        return HAL_SUCCESS;
+    }   
+    
+    rtapi_mutex_give(&(hal_data->mutex));
+    rtapi_print_msg(RTAPI_MSG_ERR,
+        "HAL:%d: ERROR: parameter '%s' not found\n", linenumber, name);
+    return HAL_INVAL;
+}
+
+
 int do_getp_cmd(char *name)
 {
     hal_param_t *param;
@@ -762,6 +799,29 @@ int do_sets_cmd(char *name, char *value)
     }
     return retval;
 
+}
+
+int do_stype_cmd(char *name)
+{
+    hal_sig_t *sig;
+    hal_type_t type;
+
+    rtapi_print_msg(RTAPI_MSG_DBG, "HAL: getting signal '%s'\n", name);
+    /* get mutex before accessing shared data */
+    rtapi_mutex_get(&(hal_data->mutex));
+    /* search signal list for name */
+    sig = halpr_find_sig_by_name(name);
+    if (sig == 0) {
+	rtapi_mutex_give(&(hal_data->mutex));
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL:%d: ERROR: signal '%s' not found\n", linenumber, name);
+	return HAL_INVAL;
+    }
+    /* found it */
+    type = sig->type;
+    halcmd_output("%s\n", data_type2(type));
+    rtapi_mutex_give(&(hal_data->mutex));
+    return HAL_SUCCESS;
 }
 
 int do_gets_cmd(char *name)
@@ -1954,6 +2014,30 @@ static char *data_type(int type)
     return type_str;
 }
 
+static char *data_type2(int type)
+{
+    char *type_str;
+
+    switch (type) {
+    case HAL_BIT:
+	type_str = "bit";
+	break;
+    case HAL_FLOAT:
+	type_str = "float";
+	break;
+    case HAL_S32:
+	type_str = "s32";
+	break;
+    case HAL_U32:
+	type_str = "u32";
+	break;
+    default:
+	/* Shouldn't get here, but just in case... */
+	type_str = "undef";
+    }
+    return type_str;
+}
+
 /* Switch function for pin direction for the print_*_list functions  */
 static char *pin_data_dir(int dir)
 {
@@ -2488,9 +2572,16 @@ int do_help_cmd(char *command)
 	printf("getp paramname\n");
 	printf("getp pinname\n");
 	printf("  Gets the value of parameter 'paramname' or pin 'pinname'.\n");
+    } else if (strcmp(command, "ptype") == 0) {
+	printf("ptype paramname\n");
+	printf("ptype pinname\n");
+	printf("  Gets the type of parameter 'paramname' or pin 'pinname'.\n");
     } else if (strcmp(command, "gets") == 0) {
 	printf("gets signame\n");
 	printf("  Gets the value of signal 'signame'.\n");
+    } else if (strcmp(command, "stype") == 0) {
+	printf("stype signame\n");
+	printf("  Gets the type of signal 'signame'\n");
     } else if (strcmp(command, "addf") == 0) {
 	printf("addf functname threadname [position]\n");
 	printf("  Adds function 'functname' to thread 'threadname'.  If\n");
