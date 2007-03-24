@@ -399,8 +399,10 @@ proc makeShow {} {
 
 proc makeWatch {} {
     global cisp watchhal
-    set cisp [canvas $watchhal.c ]
-    pack $cisp -side right -fill both -expand yes
+    set cisp [canvas $watchhal.c -yscrollcommand [list $watchhal.s set]]
+    scrollbar $watchhal.s -command [list $cisp yview] -orient v
+    pack $cisp -side left -fill both -expand yes
+    pack $watchhal.s -side left -fill y -expand no
 }
 
 # showmode handles the tab selection of mode
@@ -504,7 +506,9 @@ proc watchHAL {which} {
             -anchor w -tag text$i
         $cisp create text 80 [expr $i * 20 + 12] -text $label \
             -anchor w -tag $label
-        }
+    }
+    $cisp configure -scrollregion [$cisp bbox all]
+    $cisp yview moveto 1.0
     set tmplist [split $which +]
     set vartype [lindex $tmplist 0]
     set varname [lindex $tmplist end]
