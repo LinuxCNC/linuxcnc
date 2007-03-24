@@ -2854,8 +2854,7 @@ try:
     finally:    
         f.close()
 except IOError:
-    print >>sys.stderr, "Can't open MDI history file [%s] for reading" % mdi_hist_file
-
+    pass
 
 
 
