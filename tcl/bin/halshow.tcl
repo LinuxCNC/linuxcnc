@@ -425,7 +425,7 @@ proc workMode {which} {
             watchHAL $which
         }
         default {
-            swapDisplay display showhal
+            showMode showhal
             displayThis "Mode went way wrong."
         }
     }
@@ -523,9 +523,9 @@ proc watchLoop {} {
     foreach var $which {
         scan $var {%i %s %s} cnum vartype varname
         if {$vartype == "sig" } {
-            set ret [string trim [hal gets $varname]]
+            set ret [hal gets $varname]
         } else {
-            set ret [string trim [hal getp $varname]]
+            set ret [hal getp $varname]
         }
         if {$ret == "TRUE"} {
             $cisp itemconfigure oval$cnum -fill yellow
