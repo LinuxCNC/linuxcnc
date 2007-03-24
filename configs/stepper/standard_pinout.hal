@@ -87,7 +87,7 @@ linksp spindle-on => parport.0.pin-09-out
 ###
 
 # newsig Xlimits bit
-# linkps parport.pin-13-in => Xlimits
+# linkps parport.0.pin-13-in => Xlimits
 # linksp Xlimits => axis.0.neg-lim-sw-in
 # linksp Xlimits => axis.0.pos-lim-sw-in
 
@@ -97,5 +97,5 @@ linksp spindle-on => parport.0.pin-09-out
 ### block.
 ###
 
-# net Xlimits parport.pin-13-in => axis.0.neg-lim-sw-in axis.0.pos-lim-sw-in
+# net Xlimits parport.0.pin-13-in => axis.0.neg-lim-sw-in axis.0.pos-lim-sw-in
 
