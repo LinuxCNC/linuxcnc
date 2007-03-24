@@ -1,13 +1,13 @@
 msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-03-20 23:14+0200\n"
+"POT-Creation-Date: 2007-03-24 14:32+0200\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
 #: ../tcl/bin/emccalib.tcl:84
 msgid "EMC2 Axis Calibration"
-msgstr "EMC@ Calibrare axe"
+msgstr "EMC2 Calibrare axe"
 
 #: ../tcl/bin/emccalib.tcl:94
 msgid "Save To File"
@@ -18,17 +18,17 @@ msgid "Quit"
 msgstr "Terminare"
 
 #: ../tcl/bin/emccalib.tcl:109 ../tcl/bin/genedit.tcl:83
-#: ../tcl/bin/halconfig.tcl:147 ../tcl/mini.tcl:2466 ../tcl/tkemc.tcl:755
+#: ../tcl/bin/halconfig.tcl:147 ../tcl/mini.tcl:2480 ../tcl/tkemc.tcl:755
 msgid "File"
 msgstr "Fisier"
 
 #: ../tcl/bin/emccalib.tcl:111 ../tcl/bin/halconfig.tcl:149
-#: ../tcl/mini.tcl:3508
+#: ../tcl/mini.tcl:3522
 msgid "Refresh"
 msgstr "Reactualizeaza"
 
 #: ../tcl/bin/emccalib.tcl:113 ../tcl/bin/genedit.tcl:88
-#: ../tcl/bin/halconfig.tcl:151 ../tcl/mini.tcl:2485
+#: ../tcl/bin/halconfig.tcl:151 ../tcl/mini.tcl:2499
 msgid "Save"
 msgstr "Salveaza"
 
@@ -58,7 +58,7 @@ msgstr "Testeaza"
 #: ../tcl/bin/genedit.tcl:456 ../tcl/bin/halconfig.tcl:678
 #: ../tcl/bin/halconfig.tcl:729 ../tcl/bin/pickconfig.tcl:235
 #: ../tcl/bin/pickconfig.tcl:380 ../tcl/bin/pickconfig.tcl:405
-#: ../tcl/mini.tcl:2887 ../tcl/tkemc.tcl:211 ../tcl/tkemc.tcl:314
+#: ../tcl/mini.tcl:2901 ../tcl/tkemc.tcl:211 ../tcl/tkemc.tcl:314
 #: ../tcl/tkemc.tcl:460 ../tcl/tkemc.tcl:1242 ../tcl/tkemc.tcl:1290
 #: ../tcl/tkemc.tcl:1321 ../tcl/tkemc.tcl:1352 ../tcl/tkemc.tcl:1845
 #: ../tcl/tkemc.tcl:1864 ../tcl/tkemc.tcl:1883 ../tcl/tkemc.tcl:1930
@@ -68,7 +68,7 @@ msgstr "OK"
 #: ../tcl/bin/emccalib.tcl:235 ../tcl/bin/genedit.tcl:300
 #: ../tcl/bin/halconfig.tcl:99 ../tcl/bin/halconfig.tcl:680
 #: ../tcl/bin/halconfig.tcl:731 ../tcl/bin/pickconfig.tcl:238
-#: ../tcl/bin/pickconfig.tcl:345 ../tcl/mini.tcl:2888 ../tcl/mini.tcl:3060
+#: ../tcl/bin/pickconfig.tcl:345 ../tcl/mini.tcl:2902 ../tcl/mini.tcl:3074
 #: ../tcl/tkemc.tcl:213 ../tcl/tkemc.tcl:256 ../tcl/tkemc.tcl:282
 #: ../tcl/tkemc.tcl:461 ../tcl/tkemc.tcl:1243 ../tcl/tkemc.tcl:1291
 #: ../tcl/tkemc.tcl:1322 ../tcl/tkemc.tcl:1353 ../tcl/tkemc.tcl:1931
@@ -102,6 +102,7 @@ msgstr ""
 #: ../tcl/bin/halconfig.tcl:1238 ../tcl/bin/pickconfig.tcl:443
 #: ../tcl/bin/pickconfig.tcl:454 ../tcl/scripts/Set_Coordinates.tcl:205
 #: ../tcl/scripts/Set_Coordinates.tcl:228
+#, tcl-format
 msgid "can't save %s"
 msgstr "nu pot salva %s"
 
@@ -157,50 +158,50 @@ msgstr "Nivel traiectorie"
 msgid "Interpreter list"
 msgstr "Lista interpretor"
 
-#: ../tcl/bin/genedit.tcl:84 ../tcl/mini.tcl:2483
+#: ../tcl/bin/genedit.tcl:84 ../tcl/mini.tcl:2497
 msgid "New"
 msgstr "Nou"
 
-#: ../tcl/bin/genedit.tcl:86 ../tcl/mini.tcl:1619 ../tcl/mini.tcl:2484
+#: ../tcl/bin/genedit.tcl:86 ../tcl/mini.tcl:1631 ../tcl/mini.tcl:2498
 #: ../tcl/tkemc.tcl:756 ../tcl/tkemc.tcl:1495
 msgid "Open..."
 msgstr "Deschide..."
 
-#: ../tcl/bin/genedit.tcl:90 ../tcl/mini.tcl:2486
+#: ../tcl/bin/genedit.tcl:90 ../tcl/mini.tcl:2500
 msgid "Save As..."
 msgstr "Salveaza ca..."
 
-#: ../tcl/bin/genedit.tcl:93 ../tcl/bin/halconfig.tcl:161 ../tcl/mini.tcl:945
+#: ../tcl/bin/genedit.tcl:93 ../tcl/bin/halconfig.tcl:161 ../tcl/mini.tcl:957
 #: ../tcl/tkemc.tcl:761
 msgid "Exit"
 msgstr "Iesire"
 
-#: ../tcl/bin/genedit.tcl:97 ../tcl/mini.tcl:2467
+#: ../tcl/bin/genedit.tcl:97 ../tcl/mini.tcl:2481
 msgid "Edit"
 msgstr "Editare"
 
-#: ../tcl/bin/genedit.tcl:98 ../tcl/mini.tcl:2493
+#: ../tcl/bin/genedit.tcl:98 ../tcl/mini.tcl:2507
 msgid "Cut"
 msgstr "Decupare"
 
-#: ../tcl/bin/genedit.tcl:100 ../tcl/mini.tcl:2494
+#: ../tcl/bin/genedit.tcl:100 ../tcl/mini.tcl:2508
 msgid "Copy"
 msgstr "Copiere"
 
-#: ../tcl/bin/genedit.tcl:102 ../tcl/mini.tcl:2495
+#: ../tcl/bin/genedit.tcl:102 ../tcl/mini.tcl:2509
 msgid "Paste"
 msgstr "Lipire"
 
-#: ../tcl/bin/genedit.tcl:105 ../tcl/mini.tcl:2498 ../tcl/show_errors.tcl:51
+#: ../tcl/bin/genedit.tcl:105 ../tcl/mini.tcl:2512 ../tcl/show_errors.tcl:51
 msgid "Select All"
 msgstr "Selectare totala"
 
-#: ../tcl/bin/genedit.tcl:110 ../tcl/bin/halconfig.tcl:188 ../tcl/mini.tcl:910
-#: ../tcl/mini.tcl:2469 ../tcl/tkemc.tcl:818
+#: ../tcl/bin/genedit.tcl:110 ../tcl/bin/halconfig.tcl:188 ../tcl/mini.tcl:922
+#: ../tcl/mini.tcl:2483 ../tcl/tkemc.tcl:818
 msgid "Help"
 msgstr "Ajutor"
 
-#: ../tcl/bin/genedit.tcl:111 ../tcl/mini.tcl:1002 ../tcl/mini.tcl:2509
+#: ../tcl/bin/genedit.tcl:111 ../tcl/mini.tcl:1014 ../tcl/mini.tcl:2523
 #: ../tcl/tkemc.tcl:824
 msgid "About..."
 msgstr "Despre..."
@@ -209,24 +210,24 @@ msgstr "Despre..."
 msgid "Save and Reload"
 msgstr "Salveaza si reincarca"
 
-#: ../tcl/bin/genedit.tcl:139 ../tcl/mini.tcl:2500
+#: ../tcl/bin/genedit.tcl:139 ../tcl/mini.tcl:2514
 msgid "Find..."
 msgstr "Cauta..."
 
-#: ../tcl/bin/genedit.tcl:141 ../tcl/mini.tcl:2502
+#: ../tcl/bin/genedit.tcl:141 ../tcl/mini.tcl:2516
 msgid "Renumber File..."
 msgstr "Renumeroteaza fisier..."
 
-#: ../tcl/bin/genedit.tcl:146 ../tcl/mini.tcl:908 ../tcl/mini.tcl:2468
+#: ../tcl/bin/genedit.tcl:146 ../tcl/mini.tcl:920 ../tcl/mini.tcl:2482
 #: ../tcl/tkemc.tcl:774
 msgid "Settings"
 msgstr "Setari"
 
-#: ../tcl/bin/genedit.tcl:147 ../tcl/mini.tcl:2504
+#: ../tcl/bin/genedit.tcl:147 ../tcl/mini.tcl:2518
 msgid "No Numbering"
 msgstr "Fara numerotare"
 
-#: ../tcl/bin/genedit.tcl:150 ../tcl/mini.tcl:2506
+#: ../tcl/bin/genedit.tcl:150 ../tcl/mini.tcl:2520
 msgid "Line Numbering..."
 msgstr "Numerotare linii..."
 
@@ -244,20 +245,21 @@ msgid ""
 "\n"
 "Simple Tcl/Tk Text Editor\n"
 "\n"
-"Public Domain (1999)"
+"GPL Version 2"
 msgstr ""
 "TkEditor\n"
 "\n"
 "Editor text Tcl/Tk\n"
 "\n"
-"Public Domain (1999)"
+"GPL Versiunea 2"
 
-#: ../tcl/bin/genedit.tcl:203 ../tcl/mini.tcl:1358 ../tcl/mini.tcl:1727
+#: ../tcl/bin/genedit.tcl:203 ../tcl/mini.tcl:1370 ../tcl/mini.tcl:1739
 #: ../tcl/tkemc.tcl:501
+#, tcl-format
 msgid "can't open %s"
 msgstr "nu pot deschide %s"
 
-#: ../tcl/bin/genedit.tcl:273 ../tcl/mini.tcl:3040
+#: ../tcl/bin/genedit.tcl:273 ../tcl/mini.tcl:3054
 msgid "Find"
 msgstr "Cauta"
 
@@ -273,7 +275,7 @@ msgstr "Inlocuieste:"
 msgid "Find All"
 msgstr "Cauta toate"
 
-#: ../tcl/bin/genedit.tcl:291 ../tcl/mini.tcl:3063
+#: ../tcl/bin/genedit.tcl:291 ../tcl/mini.tcl:3077
 msgid "Replace All"
 msgstr "Inlocuieste toate"
 
@@ -289,51 +291,51 @@ msgstr "Inlocuieste asta"
 msgid "Clear"
 msgstr "Sterge"
 
-#: ../tcl/bin/genedit.tcl:428 ../tcl/mini.tcl:2590
+#: ../tcl/bin/genedit.tcl:428 ../tcl/mini.tcl:2604
 msgid "Set Line Numbering"
 msgstr "Seteaza numerotare linii"
 
-#: ../tcl/bin/genedit.tcl:430 ../tcl/mini.tcl:2594
+#: ../tcl/bin/genedit.tcl:430 ../tcl/mini.tcl:2608
 msgid "Increment"
 msgstr "Increment"
 
-#: ../tcl/bin/genedit.tcl:432 ../tcl/mini.tcl:2596
+#: ../tcl/bin/genedit.tcl:432 ../tcl/mini.tcl:2610
 msgid "One"
 msgstr "Unu"
 
-#: ../tcl/bin/genedit.tcl:435 ../tcl/mini.tcl:2598
+#: ../tcl/bin/genedit.tcl:435 ../tcl/mini.tcl:2612
 msgid "Two"
 msgstr "Doi"
 
-#: ../tcl/bin/genedit.tcl:438 ../tcl/mini.tcl:2600
+#: ../tcl/bin/genedit.tcl:438 ../tcl/mini.tcl:2614
 msgid "Five"
 msgstr "Cinci"
 
-#: ../tcl/bin/genedit.tcl:441 ../tcl/mini.tcl:2602
+#: ../tcl/bin/genedit.tcl:441 ../tcl/mini.tcl:2616
 msgid "Ten"
 msgstr "Zece"
 
-#: ../tcl/bin/genedit.tcl:445 ../tcl/mini.tcl:2604
+#: ../tcl/bin/genedit.tcl:445 ../tcl/mini.tcl:2618
 msgid "Space"
 msgstr "Spatiu"
 
-#: ../tcl/bin/genedit.tcl:447 ../tcl/mini.tcl:2606
+#: ../tcl/bin/genedit.tcl:447 ../tcl/mini.tcl:2620
 msgid "Single Space"
 msgstr "Spatiu simplu"
 
-#: ../tcl/bin/genedit.tcl:450 ../tcl/mini.tcl:2608
+#: ../tcl/bin/genedit.tcl:450 ../tcl/mini.tcl:2622
 msgid "Double Space"
 msgstr "Spatiu dublu"
 
-#: ../tcl/bin/genedit.tcl:453 ../tcl/mini.tcl:2610
+#: ../tcl/bin/genedit.tcl:453 ../tcl/mini.tcl:2624
 msgid "Tab Space"
-msgstr ""
+msgstr "Spatiu tab"
 
 #: ../tcl/bin/genedit.tcl:459
 msgid "Next Number:"
-msgstr ""
+msgstr "Uramtorul numar:"
 
-#: ../tcl/bin/genedit.tcl:480 ../tcl/mini.tcl:2618
+#: ../tcl/bin/genedit.tcl:480 ../tcl/mini.tcl:2632
 msgid "Renumber"
 msgstr "Renumeroteaza"
 
@@ -389,7 +391,7 @@ msgstr "Salveaza HAL net"
 msgid "Save and Exit"
 msgstr "Salveaza si incheie"
 
-#: ../tcl/bin/halconfig.tcl:164 ../tcl/mini.tcl:907 ../tcl/tkemc.tcl:766
+#: ../tcl/bin/halconfig.tcl:164 ../tcl/mini.tcl:919 ../tcl/tkemc.tcl:766
 msgid "View"
 msgstr "Vizualizare"
 
@@ -417,7 +419,7 @@ msgstr "Extinde semnale"
 msgid "Erase Watch"
 msgstr "Sterge urmarire"
 
-#: ../tcl/bin/halconfig.tcl:190 ../tcl/mini.tcl:831 ../tcl/mini.tcl:2735
+#: ../tcl/bin/halconfig.tcl:190 ../tcl/mini.tcl:843 ../tcl/mini.tcl:2749
 msgid "About"
 msgstr "Despre"
 
@@ -434,10 +436,6 @@ msgstr "Introdu comanda HAL :"
 msgid "Execute"
 msgstr "Executa"
 
-#: ../tcl/bin/halconfig.tcl:927 ../tcl/bin/halshow.tcl:441
-msgid "Mode went way wrong."
-msgstr ""
-
 #: ../tcl/bin/halconfig.tcl:939 ../tcl/bin/halshow.tcl:453
 msgid "Select a node to show."
 msgstr "Selecteaza un nod pentru afisare"
@@ -451,16 +449,16 @@ msgstr "<-- Selecteaza o frunza (apasa pe numele ei)."
 #: ../tcl/bin/halconfig.tcl:1112
 #, tcl-format
 msgid "Click a highlighted entry where %s should go."
-msgstr ""
+msgstr "Selecteaza o linie destinatie pentru %s."
 
 #: ../tcl/bin/halconfig.tcl:1088
 msgid "Nothing to be done for parameters here. Try the tuning page"
-msgstr ""
+msgstr "Nu se poate opera asupra parametrilor aici. Incercati pagina de tuning"
 
 #: ../tcl/bin/halconfig.tcl:1120
 #, tcl-format
 msgid "%s is not a leaf, try again"
-msgstr ""
+msgstr "%s nu este o frunza, incercati din nou"
 
 #: ../tcl/bin/halconfig.tcl:1277
 msgid ""
@@ -474,6 +472,13 @@ msgid ""
 "This script is not for the faint hearted and carries no warranty or "
 "liability for its use to the extent allowed by law."
 msgstr ""
+"Copyright Raymond E Henry. 2006\n"
+"Licenta: GPL Version 2\n"
+"\n"
+"Halconfig este un utilitar pentru configurarea EMC2. Trebuie executat din "
+"emc2 si necesita o instanta pornita a emc2. \n"
+"Acest utilitar nu este pentru cei slabi de inima, si nu poarta nici un fel "
+"de raspundere sau garantie pentru folosirea sa, in limitele permise de lege."
 
 #: ../tcl/bin/halshow.tcl:86
 msgid " SHOW "
@@ -501,6 +506,9 @@ msgid ""
 "install \n"
 "it with sudo apt-get install bwidget."
 msgstr ""
+"Nu gasesc pachetul bwidget 1.7. Daca acesta este un sistem debian, il puteti "
+"instala cu \n"
+"sudo apt-get install bwidget."
 
 #: ../tcl/bin/pickconfig.tcl:129
 msgid "No details available."
@@ -526,8 +534,7 @@ msgstr ""
 "Bine ati venit la EMC2.\n"
 "\n"
 "Alegeti o configuratie din lista din stanga.\n"
-"Detalii despre aceasta vor fi afisata in partea din dreapta "
-"\n"
+"Detalii despre aceasta vor fi afisata in partea din dreapta \n"
 "Apasati 'OK' pentru a executa configuratia selectata"
 
 #: ../tcl/bin/pickconfig.tcl:250
@@ -553,6 +560,8 @@ msgid ""
 "Would you like to copy the %s configuration to your home directory so you "
 "can customize it?"
 msgstr ""
+"Doriti sa copiati configuratia %s in directorul Dvs. pentru a putea sa o "
+"modificati?"
 
 #: ../tcl/bin/pickconfig.tcl:345
 msgid "Yes"
@@ -572,24 +581,29 @@ msgid ""
 "The configuration file has been copied to %s. Next time, choose this "
 "location when starting EMC2."
 msgstr ""
+"Configuratia a fost copiata in %s. Data viitoare cand porniti emc2 folositi "
+"aceasta locatie."
 
 #: ../tcl/bin/pickconfig.tcl:405
 msgid "Shortcut Created"
-msgstr ""
+msgstr "Shortcut creat"
 
 #: ../tcl/bin/pickconfig.tcl:405
 msgid ""
 "A shortcut to this configuration file has been created on your desktop.  You "
 "can use it to automatically launch this configuration."
 msgstr ""
+"Un shortcut catre aceasta configuratie a fost creat pe desktop. De acum "
+"inainte puteti sa folositi acest shortcut pentru a porni emc2 cu "
+"configuratia Dvs."
 
 #: ../tcl/bin/pickconfig.tcl:410
 msgid "Create Desktop Shortcut"
-msgstr ""
+msgstr "Creaza shortcut pe Desktop"
 
 #: ../tcl/bin/tkbackplot.tcl:113
 msgid "TkEmc BackPlot"
-msgstr ""
+msgstr "Backplot TkEmc"
 
 #: ../tcl/bin/tkbackplot.tcl:128
 msgid "SETUP"
@@ -601,39 +615,39 @@ msgstr "RESET"
 
 #: ../tcl/bin/tkbackplot.tcl:132
 msgid "CANCEL"
-msgstr ""
+msgstr "REVOCARE"
 
 #: ../tcl/bin/tkbackplot.tcl:253
 msgid "AXIS"
-msgstr ""
+msgstr "AXA"
 
 #: ../tcl/bin/tkbackplot.tcl:254
 msgid "OFFSET"
-msgstr ""
+msgstr "OFSET"
 
 #: ../tcl/bin/tkbackplot.tcl:255
 msgid "ANGLE"
-msgstr ""
+msgstr "UNGHI"
 
 #: ../tcl/bin/tkbackplot.tcl:256
 msgid "DIRECTION"
-msgstr ""
+msgstr "DIRECTIE"
 
 #: ../tcl/bin/tkbackplot.tcl:273
 msgid "SIZE :"
-msgstr ""
+msgstr "DIMENSIUNE :"
 
-#: ../tcl/mini.tcl:481
+#: ../tcl/mini.tcl:493
 #, tcl-format
 msgid "JOG %s +"
-msgstr ""
+msgstr "JOG %s +"
 
-#: ../tcl/mini.tcl:482
+#: ../tcl/mini.tcl:494
 #, tcl-format
 msgid "JOG %s -"
-msgstr ""
+msgstr "JOG %s -"
 
-#: ../tcl/mini.tcl:483
+#: ../tcl/mini.tcl:495
 #, tcl-format
 msgid ""
 "%s\n"
@@ -643,8 +657,14 @@ msgid ""
 "R\n"
 "O"
 msgstr ""
+"Z\n"
+"E\n"
+"R\n"
+"O\n"
+"\n"
+"%s"
 
-#: ../tcl/mini.tcl:831
+#: ../tcl/mini.tcl:843
 msgid ""
 "TkMini  \n"
 "\n"
@@ -658,244 +678,260 @@ msgid ""
 "This software comes with ABSOLUTELY NO GUARANTEE!   \n"
 "For details see the copyright.html file in this directory."
 msgstr ""
+"TkMini  \n"
+"\n"
+"Tcl/Tk GUI pentru Enhanced Machine Controller\n"
+"\n"
+"GPL Copyright 2003  \n"
+"Ray Henry <rehenry@up.net>\n"
+"\n"
+" Backplot 3D de Paul Corner <paul_c@users.sourceforge.net>\n"
+" \n"
+"Acest software vine fara ABSOLUT NICI O GARANTIE!   \n"
+"Pentru detalii vezi informatiile de copyright."
 
-#: ../tcl/mini.tcl:906
+#: ../tcl/mini.tcl:918
 msgid "Program"
 msgstr "Program"
 
-#: ../tcl/mini.tcl:909
+#: ../tcl/mini.tcl:921
 msgid "Info"
 msgstr "Info"
 
-#: ../tcl/mini.tcl:914
+#: ../tcl/mini.tcl:926
 msgid "Backplot"
 msgstr "Desenare"
 
-#: ../tcl/mini.tcl:916
+#: ../tcl/mini.tcl:928
 msgid "Editor"
 msgstr "Editor"
 
-#: ../tcl/mini.tcl:918
+#: ../tcl/mini.tcl:930
 msgid "Offsets"
 msgstr "Ofseturi"
 
-#: ../tcl/mini.tcl:920
+#: ../tcl/mini.tcl:932
 msgid "Tools"
 msgstr "Scule"
 
-#: ../tcl/mini.tcl:942 ../tcl/mini.tcl:3515 ../tcl/tkemc.tcl:759
+#: ../tcl/mini.tcl:954 ../tcl/mini.tcl:3529 ../tcl/tkemc.tcl:759
 msgid "Reset"
 msgstr "Reseteaza"
 
-#: ../tcl/mini.tcl:951
+#: ../tcl/mini.tcl:963
 msgid "Position Type"
-msgstr ""
+msgstr "Tip pozitie"
 
-#: ../tcl/mini.tcl:953
+#: ../tcl/mini.tcl:965
 msgid "Tool Info"
-msgstr ""
+msgstr "Informatii scula"
 
-#: ../tcl/mini.tcl:955
+#: ../tcl/mini.tcl:967
 msgid "Offset Info"
 msgstr "Informatii Ofset"
 
-#: ../tcl/mini.tcl:958
+#: ../tcl/mini.tcl:970
 msgid "Show Restart"
-msgstr ""
-
-#: ../tcl/mini.tcl:959
-msgid "Hide Restart"
-msgstr ""
-
-#: ../tcl/mini.tcl:961
-msgid "Show Split Right"
-msgstr ""
-
-#: ../tcl/mini.tcl:963
-msgid "Show Mode Full"
-msgstr ""
-
-#: ../tcl/mini.tcl:965
-msgid "Show Popin Full"
-msgstr ""
-
-#: ../tcl/mini.tcl:969
-msgid "Actual Position"
-msgstr ""
+msgstr "Arata restart"
 
 #: ../tcl/mini.tcl:971
-msgid "Commanded Position"
-msgstr ""
+msgid "Hide Restart"
+msgstr "Ascunde restart"
 
-#: ../tcl/mini.tcl:974
+#: ../tcl/mini.tcl:973
+msgid "Show Split Right"
+msgstr "Arata scindare dreapta"
+
+#: ../tcl/mini.tcl:975
+msgid "Show Mode Full"
+msgstr "Arata mod plin"
+
+#: ../tcl/mini.tcl:977
+msgid "Show Popin Full"
+msgstr "Arata popin complet"
+
+#: ../tcl/mini.tcl:981
+msgid "Actual Position"
+msgstr "Pozitia actuala"
+
+#: ../tcl/mini.tcl:983
+msgid "Commanded Position"
+msgstr "Pozitie comandata"
+
+#: ../tcl/mini.tcl:986
 msgid "Machine Position"
 msgstr "Pozitie Masina"
 
-#: ../tcl/mini.tcl:976
+#: ../tcl/mini.tcl:988
 msgid "Relative Position"
-msgstr ""
+msgstr "Pozitie relativa"
 
-#: ../tcl/mini.tcl:979 ../tcl/tkemc.tcl:775
+#: ../tcl/mini.tcl:991 ../tcl/tkemc.tcl:775
 msgid "Calibration..."
 msgstr "Calibrare..."
 
-#: ../tcl/mini.tcl:981
+#: ../tcl/mini.tcl:993
 msgid "HAL Show..."
-msgstr ""
+msgstr "HAL Show..."
 
-#: ../tcl/mini.tcl:983
+#: ../tcl/mini.tcl:995
 msgid "HAL Config..."
 msgstr "Config HAL..."
 
-#: ../tcl/mini.tcl:988
+#: ../tcl/mini.tcl:1000
 msgid "Program File"
 msgstr "Fisier Program"
 
-#: ../tcl/mini.tcl:989
+#: ../tcl/mini.tcl:1001
 #, tcl-format
 msgid "Program file is %s"
-msgstr ""
+msgstr "Fisier program este %s"
 
-#: ../tcl/mini.tcl:990
+#: ../tcl/mini.tcl:1002
 msgid "Editor File"
-msgstr ""
+msgstr "Fisier editor"
 
-#: ../tcl/mini.tcl:991
+#: ../tcl/mini.tcl:1003
 #, tcl-format
 msgid "Editor file is %s"
-msgstr ""
+msgstr "Fisier editor este %s"
 
-#: ../tcl/mini.tcl:992
+#: ../tcl/mini.tcl:1004
 msgid "Parameter File"
 msgstr "Fisier parametri"
 
-#: ../tcl/mini.tcl:993
+#: ../tcl/mini.tcl:1005
+#, tcl-format
 msgid "Parameter file is %s"
 msgstr "Fisier parametri este %s"
 
-#: ../tcl/mini.tcl:994
+#: ../tcl/mini.tcl:1006
 msgid "Tool File"
 msgstr "Fisier scule"
 
-#: ../tcl/mini.tcl:995
+#: ../tcl/mini.tcl:1007
 #, tcl-format
 msgid "Tool file is %s"
-msgstr ""
+msgstr "Fisier scula este %s"
 
-#: ../tcl/mini.tcl:997
+#: ../tcl/mini.tcl:1009
 msgid "Active G Codes"
-msgstr ""
+msgstr "Coduri G active"
 
-#: ../tcl/mini.tcl:998
+#: ../tcl/mini.tcl:1010
 #, tcl-format
 msgid ""
 "Active codes include; \n"
 "%s"
 msgstr ""
+"Coduri active includ; \n"
+"%s"
 
-#: ../tcl/mini.tcl:1001 ../tcl/mini.tcl:2508 ../tcl/tkemc.tcl:819
+#: ../tcl/mini.tcl:1013 ../tcl/mini.tcl:2522 ../tcl/tkemc.tcl:819
 msgid "Help..."
 msgstr "Ajutor..."
 
-#: ../tcl/mini.tcl:1018 ../tcl/tkemc.tcl:918
+#: ../tcl/mini.tcl:1030 ../tcl/tkemc.tcl:918
 msgid "ABORT"
 msgstr "ABORTARE"
 
-#: ../tcl/mini.tcl:1029 ../tcl/mini.tcl:1998
+#: ../tcl/mini.tcl:1041 ../tcl/mini.tcl:2012
 msgid "CONTINUE"
-msgstr ""
+msgstr "CONTINUA"
 
-#: ../tcl/mini.tcl:1035 ../tcl/tkemc.tcl:856 ../tcl/tkemc.tcl:2069
+#: ../tcl/mini.tcl:1047 ../tcl/tkemc.tcl:856 ../tcl/tkemc.tcl:2069
 msgid "MDI"
 msgstr "MDI"
 
-#: ../tcl/mini.tcl:1039 ../tcl/tkemc.tcl:2060
+#: ../tcl/mini.tcl:1051 ../tcl/tkemc.tcl:2060
 msgid "AUTO"
 msgstr "AUTO"
 
-#: ../tcl/mini.tcl:1043 ../tcl/mini.tcl:1762 ../tcl/tkemc.tcl:1969
+#: ../tcl/mini.tcl:1055 ../tcl/mini.tcl:1776 ../tcl/tkemc.tcl:1969
 #: ../tcl/tkemc.tcl:2082
 msgid "MANUAL"
 msgstr "MANUAL"
 
-#: ../tcl/mini.tcl:1097
+#: ../tcl/mini.tcl:1109
 msgid "Tool #:"
 msgstr "Scula #:"
 
-#: ../tcl/mini.tcl:1099
+#: ../tcl/mini.tcl:1111
 msgid "Length :"
 msgstr "Lungime :"
 
-#: ../tcl/mini.tcl:1110
+#: ../tcl/mini.tcl:1122
 msgid "Work Offsets: "
 msgstr "Ofseturi de lucru:"
 
-#: ../tcl/mini.tcl:1112
+#: ../tcl/mini.tcl:1124
 msgid "start offsets popup here"
-msgstr ""
+msgstr "ofseturi initiale sunt afisate aici"
 
-#: ../tcl/mini.tcl:1156
+#: ../tcl/mini.tcl:1168
 msgid "start override popup here"
-msgstr ""
+msgstr "depasiri initiale sunt afisate aici"
 
-#: ../tcl/mini.tcl:1159 ../tcl/tkemc.tcl:1416
+#: ../tcl/mini.tcl:1171 ../tcl/tkemc.tcl:1416
 msgid "Feed Override:"
 msgstr "Depasire viteza:"
 
-#: ../tcl/mini.tcl:1171
+#: ../tcl/mini.tcl:1183
 msgid "-- MESSAGES --"
-msgstr ""
+msgstr "-- MESAJE --"
 
-#: ../tcl/mini.tcl:1221
+#: ../tcl/mini.tcl:1233
 msgid "toggleView's not doin nothin yet"
-msgstr ""
+msgstr "toggleView nu face nimic inca"
 
-#: ../tcl/mini.tcl:1273
+#: ../tcl/mini.tcl:1285
 msgid "Can't set zero with a tool offset active so I issued G49 to cancel it."
 msgstr ""
+"Nu se poate initializa cu ofset scula activ, asa ca a fost executat G49 "
+"pentru resetare"
 
-#: ../tcl/mini.tcl:1331
+#: ../tcl/mini.tcl:1343
 #, tcl-format
 msgid "Can't update the var file while machine is in auto and %s."
-msgstr ""
+msgstr "Nu se poate actualiza fisierul var cat timp masina este in auto si %s."
 
-#: ../tcl/mini.tcl:1385 ../tcl/tkemc.tcl:1140
+#: ../tcl/mini.tcl:1397 ../tcl/tkemc.tcl:1140
 msgid "override limits"
 msgstr "depaseste limite"
 
-#: ../tcl/mini.tcl:1390 ../tcl/tkemc.tcl:1176
+#: ../tcl/mini.tcl:1402 ../tcl/tkemc.tcl:1176
 msgid "home"
 msgstr "poz.0"
 
-#: ../tcl/mini.tcl:1411
+#: ../tcl/mini.tcl:1423
 msgid "DEFAULT"
-msgstr ""
+msgstr "IMPLICIT"
 
-#: ../tcl/mini.tcl:1412
+#: ../tcl/mini.tcl:1424
 msgid "Speed:"
 msgstr "Viteza:"
 
-#: ../tcl/mini.tcl:1415
+#: ../tcl/mini.tcl:1427
 msgid "RAPID"
-msgstr ""
+msgstr "RAPID"
 
-#: ../tcl/mini.tcl:1466
+#: ../tcl/mini.tcl:1478
 msgid "JOG X +"
-msgstr ""
+msgstr "JOG X +"
 
-#: ../tcl/mini.tcl:1467
+#: ../tcl/mini.tcl:1479
 msgid "JOG X -"
-msgstr ""
+msgstr "JOG X -"
 
-#: ../tcl/mini.tcl:1471
+#: ../tcl/mini.tcl:1483
 msgid "increment"
-msgstr ""
+msgstr "increment"
 
-#: ../tcl/mini.tcl:1473 ../tcl/tkemc.tcl:1162 ../tcl/tkemc.tcl:1166
+#: ../tcl/mini.tcl:1485 ../tcl/tkemc.tcl:1162 ../tcl/tkemc.tcl:1166
 msgid "continuous"
 msgstr "continuu"
 
-#: ../tcl/mini.tcl:1475
+#: ../tcl/mini.tcl:1487
 msgid ""
 "A\n"
 "L\n"
@@ -906,204 +942,220 @@ msgid ""
 "R\n"
 "O"
 msgstr ""
+"Z\n"
+"E\n"
+"R\n"
+"O\n"
+"\n"
+"T\n"
+"O\n"
+"A\n"
+"T\n"
+"E"
 
-#: ../tcl/mini.tcl:1540
+#: ../tcl/mini.tcl:1552
 msgid "Spindle Forward"
 msgstr "Freza inainte"
 
-#: ../tcl/mini.tcl:1541
+#: ../tcl/mini.tcl:1553
 msgid "Spindle Reverse"
 msgstr "Freza sens invers"
 
-#: ../tcl/mini.tcl:1542 ../tcl/tkemc.tcl:899
+#: ../tcl/mini.tcl:1554 ../tcl/tkemc.tcl:899
 msgid "Spindle off"
 msgstr "Freza oprita"
 
-#: ../tcl/mini.tcl:1544
+#: ../tcl/mini.tcl:1556
 msgid "Spindle Slower"
 msgstr "Freza mai incet"
 
-#: ../tcl/mini.tcl:1548
+#: ../tcl/mini.tcl:1560
 msgid "Spindle Faster"
 msgstr "Freza mai repede"
 
-#: ../tcl/mini.tcl:1584 ../tcl/tkemc.tcl:1458
+#: ../tcl/mini.tcl:1596 ../tcl/tkemc.tcl:1458
 msgid "MDI:"
 msgstr "MDI:"
 
-#: ../tcl/mini.tcl:1621 ../tcl/tkemc.tcl:1496
+#: ../tcl/mini.tcl:1633 ../tcl/tkemc.tcl:1496
 msgid "Run"
 msgstr "Ruleaza"
 
-#: ../tcl/mini.tcl:1623 ../tcl/tkemc.tcl:1497
+#: ../tcl/mini.tcl:1635 ../tcl/tkemc.tcl:1497
 msgid "Pause"
 msgstr "Pauza"
 
-#: ../tcl/mini.tcl:1625 ../tcl/tkemc.tcl:1498
+#: ../tcl/mini.tcl:1637 ../tcl/tkemc.tcl:1498
 msgid "Resume"
 msgstr "Rezuma"
 
-#: ../tcl/mini.tcl:1627 ../tcl/tkemc.tcl:1499
+#: ../tcl/mini.tcl:1639 ../tcl/tkemc.tcl:1499
 msgid "Step"
 msgstr "Pas"
 
-#: ../tcl/mini.tcl:1629 ../tcl/tkemc.tcl:1500
+#: ../tcl/mini.tcl:1641 ../tcl/tkemc.tcl:1500
 msgid "Verify"
 msgstr "Verifica"
 
-#: ../tcl/mini.tcl:1650
+#: ../tcl/mini.tcl:1662
 msgid "RESTART LINE"
-msgstr ""
+msgstr "Restart linie"
 
-#: ../tcl/mini.tcl:1651
+#: ../tcl/mini.tcl:1663
 msgid "Back"
-msgstr ""
+msgstr "Inapoi"
 
-#: ../tcl/mini.tcl:1652
+#: ../tcl/mini.tcl:1664
 msgid "Ahead"
-msgstr ""
+msgstr "Inainte"
 
-#: ../tcl/mini.tcl:1653
+#: ../tcl/mini.tcl:1665
 msgid "Restart"
 msgstr "Restart"
 
-#: ../tcl/mini.tcl:1663 ../tcl/mini.tcl:2773 ../tcl/mini.tcl:2832
+#: ../tcl/mini.tcl:1675 ../tcl/mini.tcl:2787 ../tcl/mini.tcl:2846
 #: ../tcl/tkemc.tcl:515
 msgid "All files"
 msgstr "Toate fisierele"
 
-#: ../tcl/mini.tcl:1664 ../tcl/mini.tcl:2774 ../tcl/mini.tcl:2833
+#: ../tcl/mini.tcl:1676 ../tcl/mini.tcl:2788 ../tcl/mini.tcl:2847
 #: ../tcl/tkemc.tcl:516
 msgid "Text files"
 msgstr "Fisiere text"
 
-#: ../tcl/mini.tcl:1665 ../tcl/mini.tcl:2775 ../tcl/mini.tcl:2834
+#: ../tcl/mini.tcl:1677 ../tcl/mini.tcl:2789 ../tcl/mini.tcl:2848
 #: ../tcl/tkemc.tcl:517
 msgid "NC files"
 msgstr "Fisiere NC"
 
-#: ../tcl/mini.tcl:1705
+#: ../tcl/mini.tcl:1717
 msgid ""
 "The interpreter is running. \n"
 " Pressing OK will abort and load the new program"
 msgstr ""
+"Interpretorul este activ. \n"
+"Apasati OK pentru a abandona si a incarca noul program"
 
-#: ../tcl/mini.tcl:1836
+#: ../tcl/mini.tcl:1850
 msgid "ESTOPPED"
 msgstr "ESTOP"
 
-#: ../tcl/mini.tcl:1839
+#: ../tcl/mini.tcl:1853
 msgid "ESTOP PUSH"
 msgstr "ESTOP APASAT"
 
-#: ../tcl/mini.tcl:1842 ../tcl/tkemc.tcl:2054
+#: ../tcl/mini.tcl:1856 ../tcl/tkemc.tcl:2054
 msgid "ESTOP RESET"
 msgstr "ESTOP RESETAT"
 
-#: ../tcl/mini.tcl:1847 ../tcl/tkemc.tcl:2119
+#: ../tcl/mini.tcl:1861 ../tcl/tkemc.tcl:2119
 msgid "SPINDLE FORWARD"
 msgstr "FREZA PORNITA"
 
-#: ../tcl/mini.tcl:1849 ../tcl/tkemc.tcl:2121
+#: ../tcl/mini.tcl:1863 ../tcl/tkemc.tcl:2121
 msgid "SPINDLE REVERSE"
 msgstr "FREZA SENS INVERS"
 
-#: ../tcl/mini.tcl:1851 ../tcl/tkemc.tcl:2123
+#: ../tcl/mini.tcl:1865 ../tcl/tkemc.tcl:2123
 msgid "SPINDLE OFF"
 msgstr "FREZA OPRITA"
 
-#: ../tcl/mini.tcl:1853 ../tcl/tkemc.tcl:2125
+#: ../tcl/mini.tcl:1867 ../tcl/tkemc.tcl:2125
 msgid "SPINDLE INCREASE"
 msgstr "FREZA ACCELERARE"
 
-#: ../tcl/mini.tcl:1855 ../tcl/tkemc.tcl:2127
+#: ../tcl/mini.tcl:1869 ../tcl/tkemc.tcl:2127
 msgid "SPINDLE DECREASE"
 msgstr "FREZA DECELERARE"
 
-#: ../tcl/mini.tcl:1857 ../tcl/tkemc.tcl:2129
+#: ../tcl/mini.tcl:1871 ../tcl/tkemc.tcl:2129
 msgid "SPINDLE ?"
 msgstr "SPINDLE ?"
 
-#: ../tcl/mini.tcl:1861 ../tcl/tkemc.tcl:2133
+#: ../tcl/mini.tcl:1875 ../tcl/tkemc.tcl:2133
 msgid "BRAKE ON"
 msgstr "FRANA PORNITA"
 
-#: ../tcl/mini.tcl:1863 ../tcl/tkemc.tcl:2135
+#: ../tcl/mini.tcl:1877 ../tcl/tkemc.tcl:2135
 msgid "BRAKE OFF"
 msgstr "FRANA OPRITA"
 
-#: ../tcl/mini.tcl:1865 ../tcl/tkemc.tcl:2137
+#: ../tcl/mini.tcl:1879 ../tcl/tkemc.tcl:2137
 msgid "BRAKE ?"
 msgstr "FRANA ?"
 
-#: ../tcl/mini.tcl:1869 ../tcl/tkemc.tcl:2095
+#: ../tcl/mini.tcl:1883 ../tcl/tkemc.tcl:2095
 msgid "MIST ON"
 msgstr "VAPORI PORNITI"
 
-#: ../tcl/mini.tcl:1871 ../tcl/tkemc.tcl:2097
+#: ../tcl/mini.tcl:1885 ../tcl/tkemc.tcl:2097
 msgid "MIST OFF"
 msgstr "VAPORI OPRITI"
 
-#: ../tcl/mini.tcl:1873 ../tcl/tkemc.tcl:2099
+#: ../tcl/mini.tcl:1887 ../tcl/tkemc.tcl:2099
 msgid "MIST ?"
 msgstr "VAPORI ?"
 
-#: ../tcl/mini.tcl:1877 ../tcl/tkemc.tcl:2103
+#: ../tcl/mini.tcl:1891 ../tcl/tkemc.tcl:2103
 msgid "FLOOD ON"
 msgstr "LICHID PORNIT"
 
-#: ../tcl/mini.tcl:1879 ../tcl/tkemc.tcl:2105
+#: ../tcl/mini.tcl:1893 ../tcl/tkemc.tcl:2105
 msgid "FLOOD OFF"
 msgstr "LICHID OPRIT"
 
-#: ../tcl/mini.tcl:1881 ../tcl/tkemc.tcl:2107
+#: ../tcl/mini.tcl:1895 ../tcl/tkemc.tcl:2107
 msgid "FLOOD ?"
 msgstr "LICHID ?"
 
-#: ../tcl/mini.tcl:2002
+#: ../tcl/mini.tcl:2016
 msgid "FEEDHOLD"
-msgstr ""
+msgstr "OPRIRE AVANS"
 
-#: ../tcl/mini.tcl:2074
+#: ../tcl/mini.tcl:2088
 msgid ""
 "TOOL SETUP \n"
 " Click or tab to edit.   Press enter to return to keyboard machine control."
 msgstr ""
+"SETARE SCULE \n"
+" Click sau tab pentru editare.   Apasati enter pentru a va reintoarce la "
+"controlul normal."
 
-#: ../tcl/mini.tcl:2080
+#: ../tcl/mini.tcl:2094
 msgid "  TOOL NUMBER  "
-msgstr ""
+msgstr "  NUMAR SCULA  "
 
-#: ../tcl/mini.tcl:2081
+#: ../tcl/mini.tcl:2095
 msgid "  LENGTH  "
-msgstr ""
+msgstr "  LUNGIME  "
 
-#: ../tcl/mini.tcl:2082
+#: ../tcl/mini.tcl:2096
 msgid "  DIAMETER  "
-msgstr ""
+msgstr "  DIAMETRU  "
 
-#: ../tcl/mini.tcl:2083
+#: ../tcl/mini.tcl:2097
 msgid "  COMMENT  "
-msgstr ""
+msgstr "  COMENTARIU  "
 
-#: ../tcl/mini.tcl:2138
+#: ../tcl/mini.tcl:2152
 msgid "Add Extra Tool"
-msgstr ""
+msgstr "Adauga scula suplimentara"
 
-#: ../tcl/mini.tcl:2139
+#: ../tcl/mini.tcl:2153
 msgid "Remove Last Tool"
-msgstr ""
+msgstr "Sterge ultima scula"
 
-#: ../tcl/mini.tcl:2167 ../tcl/mini.tcl:2203
+#: ../tcl/mini.tcl:2181 ../tcl/mini.tcl:2217
 #, tcl-format
 msgid "Can't update the tool file while machine is in auto and %s."
 msgstr ""
+"Nu se poate actualiza fisierul scule cat timp masina este in auto si %s."
 
-#: ../tcl/mini.tcl:2179
+#: ../tcl/mini.tcl:2193
 msgid "This is not a good number."
-msgstr ""
+msgstr "Acesta nu este un numar valid."
 
-#: ../tcl/mini.tcl:2243
+#: ../tcl/mini.tcl:2257
 msgid ""
 "COORDINATE SYSTEM SETUP \n"
 "\n"
@@ -1111,112 +1163,117 @@ msgid ""
 "control of machine. \n"
 " "
 msgstr ""
+"SETARE SISTEME COORDINATE \n"
+"\n"
+"  Click pe o valoare pentru a putea edita. Apasati enter pentru a reveni la "
+"controlul normal al masinii. \n"
+" "
 
-#: ../tcl/mini.tcl:2270 ../tcl/scripts/Set_Coordinates.tcl:82
+#: ../tcl/mini.tcl:2284 ../tcl/scripts/Set_Coordinates.tcl:82
 msgid "Axis "
 msgstr "Axa"
 
-#: ../tcl/mini.tcl:2271
+#: ../tcl/mini.tcl:2285
 msgid "Value "
-msgstr ""
+msgstr "Valoare "
 
-#: ../tcl/mini.tcl:2276 ../tcl/scripts/Set_Coordinates.tcl:92
+#: ../tcl/mini.tcl:2290 ../tcl/scripts/Set_Coordinates.tcl:92
 msgid "Teach"
-msgstr ""
+msgstr "Invata"
 
-#: ../tcl/mini.tcl:2284
+#: ../tcl/mini.tcl:2298
 msgid "Write And Load File "
-msgstr ""
+msgstr "Scrie si incarca fisier"
 
-#: ../tcl/mini.tcl:2286
+#: ../tcl/mini.tcl:2300
 msgid "Offset By Radius"
-msgstr ""
+msgstr "Ofset - raza"
 
-#: ../tcl/mini.tcl:2287
+#: ../tcl/mini.tcl:2301
 msgid "Offset By Length"
-msgstr ""
+msgstr "Ofset - lungime"
 
-#: ../tcl/mini.tcl:2292
+#: ../tcl/mini.tcl:2306
 msgid "Subtract"
-msgstr ""
+msgstr "Scade"
 
-#: ../tcl/mini.tcl:2294
+#: ../tcl/mini.tcl:2308
 msgid "Add"
-msgstr ""
+msgstr "Aduna"
 
-#: ../tcl/mini.tcl:2316
+#: ../tcl/mini.tcl:2330
 msgid "Zero All G54"
-msgstr ""
+msgstr "Zero toate G54"
 
-#: ../tcl/mini.tcl:2317
+#: ../tcl/mini.tcl:2331
 msgid "Zero All G55"
-msgstr ""
+msgstr "Zero toate G55"
 
-#: ../tcl/mini.tcl:2318
+#: ../tcl/mini.tcl:2332
 msgid "Zero All G56"
-msgstr ""
+msgstr "Zero toate G56"
 
-#: ../tcl/mini.tcl:2319
+#: ../tcl/mini.tcl:2333
 msgid "Zero All G57"
-msgstr ""
+msgstr "Zero toate G57"
 
-#: ../tcl/mini.tcl:2320
+#: ../tcl/mini.tcl:2334
 msgid "Zero All G58"
-msgstr ""
+msgstr "Zero toate G58"
 
-#: ../tcl/mini.tcl:2321
+#: ../tcl/mini.tcl:2335
 msgid "Zero All G59"
-msgstr ""
+msgstr "Zero toate G59"
 
-#: ../tcl/mini.tcl:2322
+#: ../tcl/mini.tcl:2336
 msgid "Zero All G59.1"
-msgstr ""
+msgstr "Zero toate G59.1"
 
-#: ../tcl/mini.tcl:2323
+#: ../tcl/mini.tcl:2337
 msgid "Zero All G59.2"
-msgstr ""
+msgstr "Zero toate G59.2"
 
-#: ../tcl/mini.tcl:2324
+#: ../tcl/mini.tcl:2338
 msgid "Zero All G59.3"
-msgstr ""
+msgstr "Zero toate G59.3"
 
-#: ../tcl/mini.tcl:2325
+#: ../tcl/mini.tcl:2339
 msgid "Zero All ????"
-msgstr ""
+msgstr "Zero toate ????"
 
-#: ../tcl/mini.tcl:2443
+#: ../tcl/mini.tcl:2457
 msgid "Modified..."
-msgstr ""
+msgstr "Modificat..."
 
-#: ../tcl/mini.tcl:2488
+#: ../tcl/mini.tcl:2502
 msgid "Save and Load"
-msgstr ""
+msgstr "Salveaza si incarca"
 
-#: ../tcl/mini.tcl:2490
+#: ../tcl/mini.tcl:2504
 msgid "Undo"
-msgstr ""
+msgstr "Anulare"
 
-#: ../tcl/mini.tcl:2491
+#: ../tcl/mini.tcl:2505
 msgid "Redo"
-msgstr ""
+msgstr "Repetare"
 
-#: ../tcl/mini.tcl:2496
+#: ../tcl/mini.tcl:2510
 msgid "Delete"
-msgstr ""
+msgstr "Sterge"
 
-#: ../tcl/mini.tcl:2501
+#: ../tcl/mini.tcl:2515
 msgid "Replace..."
-msgstr ""
+msgstr "Inlocuieste..."
 
-#: ../tcl/mini.tcl:2614
+#: ../tcl/mini.tcl:2628
 msgid "Next Number: "
-msgstr ""
+msgstr "Urmatorul numar: "
 
-#: ../tcl/mini.tcl:2715
+#: ../tcl/mini.tcl:2729
 msgid "Basic Help"
-msgstr ""
+msgstr "Ajutor de baza"
 
-#: ../tcl/mini.tcl:2715
+#: ../tcl/mini.tcl:2729
 msgid ""
 "This is a simple ASCII editor like many others.\n"
 "\n"
@@ -1233,85 +1290,103 @@ msgid ""
 "Ctrl+F  Find\n"
 "Ctrl+R  Replace "
 msgstr ""
+"Acesta este un editor ASCII simplu ca multe altele.\n"
+"\n"
+"Ctrl+O  Deschide\n"
+"Ctrl+S  Salveaza\n"
+"Ctrl+Z  Anulare\n"
+"Ctrl+Y  Repetare\n"
+"Ctrl+X  Decupare\n"
+"Ctrl+C  Copiere\n"
+"Ctrl+V  Lipire\n"
+"Del     Stergere\n"
+"Ctrl+A  Selecteaza tot\n"
+"\n"
+"Ctrl+F  Cauta\n"
+"Ctrl+R  Inlocuieste "
 
-#: ../tcl/mini.tcl:2735
+#: ../tcl/mini.tcl:2749
 msgid ""
 "tknotepad by Joseph Acosta. <joeja@mindspring.com>\n"
 "\n"
 " Modified for EMC by: Paul Corner <paul_c@users.sourceforge.net>"
 msgstr ""
+"tknotepad de Joseph Acosta. <joeja@mindspring.com>\n"
+"\n"
+" Modificat pentru EMC de: Paul Corner <paul_c@users.sourceforge.net>"
 
-#: ../tcl/mini.tcl:2743
+#: ../tcl/mini.tcl:2757
 msgid ""
 "The contents of this file may have changed, do you wish to to save your "
 "changes?"
 msgstr ""
+"Continutul acestui fisier a fost modificat, vreti sa salvatimodificarile?"
 
-#: ../tcl/mini.tcl:2744
+#: ../tcl/mini.tcl:2758
 msgid "New Confirm?"
-msgstr ""
+msgstr "Confirmati nou?"
 
-#: ../tcl/mini.tcl:2878
+#: ../tcl/mini.tcl:2892
 msgid "Print Setup"
-msgstr ""
+msgstr "Initializare imprimare"
 
-#: ../tcl/mini.tcl:2882
+#: ../tcl/mini.tcl:2896
 msgid "Print Command: "
 msgstr "Comanda:"
 
-#: ../tcl/mini.tcl:3045
-msgid "Find what:"
-msgstr ""
-
-#: ../tcl/mini.tcl:3051
-msgid "Replace with:"
-msgstr ""
-
 #: ../tcl/mini.tcl:3059
+msgid "Find what:"
+msgstr "Cauta:"
+
+#: ../tcl/mini.tcl:3065
+msgid "Replace with:"
+msgstr "Inlocuieste cu:"
+
+#: ../tcl/mini.tcl:3073
 msgid "Find Next"
-msgstr ""
+msgstr "Cauta urmatorul"
 
-#: ../tcl/mini.tcl:3062
+#: ../tcl/mini.tcl:3076
 msgid "Replace"
-msgstr ""
+msgstr "Inlocuieste"
 
-#: ../tcl/mini.tcl:3070
+#: ../tcl/mini.tcl:3084
 msgid "Up"
-msgstr ""
+msgstr "Sus"
 
-#: ../tcl/mini.tcl:3071
+#: ../tcl/mini.tcl:3085
 msgid "Down"
-msgstr ""
+msgstr "Jos"
 
-#: ../tcl/mini.tcl:3074
+#: ../tcl/mini.tcl:3088
 msgid "Match case"
-msgstr ""
+msgstr "Potrivire litere mari si mici"
 
-#: ../tcl/mini.tcl:3519
+#: ../tcl/mini.tcl:3533
 msgid "rot-x"
-msgstr ""
+msgstr "rot-x"
 
-#: ../tcl/mini.tcl:3529
+#: ../tcl/mini.tcl:3543
 msgid "rot-y"
-msgstr ""
+msgstr "rot-y"
 
-#: ../tcl/mini.tcl:3539
+#: ../tcl/mini.tcl:3553
 msgid "rot-z"
-msgstr ""
+msgstr "rot-z"
 
-#: ../tcl/mini.tcl:3549
+#: ../tcl/mini.tcl:3563
 msgid "zoom"
-msgstr ""
+msgstr "zoom"
 
-#: ../tcl/mini.tcl:3605
+#: ../tcl/mini.tcl:3619
 msgid "TEST"
 msgstr "TEST"
 
-#: ../tcl/mini.tcl:3649
+#: ../tcl/mini.tcl:3663
 msgid "Hide Setup"
-msgstr "Ascunde setati"
+msgstr "Ascunde setari"
 
-#: ../tcl/mini.tcl:3653
+#: ../tcl/mini.tcl:3667
 msgid "Show Setup"
 msgstr "Arata setari"
 
@@ -1324,8 +1399,8 @@ msgid ""
 "EMC2 terminated with an error.  When reporting problems, please include all "
 "the information below in your message."
 msgstr ""
-"EMC2 s-a terminat cu eroare. Cand raportati va rugam includeti toata informatia"
-"de mai jos in mesajul Dvs."
+"EMC2 s-a terminat cu eroare. Cand raportati va rugam includeti toata "
+"informatiade mai jos in mesajul Dvs."
 
 #: ../tcl/show_errors.tcl:52 ../tcl/scripts/Set_Coordinates.tcl:103
 msgid "Close"
@@ -1336,6 +1411,7 @@ msgid "Set Run Mark"
 msgstr "Seteaza punct pornire"
 
 #: ../tcl/tkemc.tcl:207
+#, tcl-format
 msgid "Set run mark at line %s?"
 msgstr "Seteaza punct pornire la linia %s?"
 
@@ -1683,11 +1759,11 @@ msgstr "LUBRIFIANT ?"
 
 #: ../tcl/scripts/Set_Coordinates.tcl:27
 msgid "EMC Set Coordinate"
-msgstr ""
+msgstr "EMC seteaza coordinate"
 
 #: ../tcl/scripts/Set_Coordinates.tcl:30
 msgid "Coordinate System Control Window"
-msgstr ""
+msgstr "Fereastra sistem control coordinate"
 
 #: ../tcl/scripts/Set_Coordinates.tcl:83
 msgid "Var # "
@@ -1699,7 +1775,7 @@ msgstr "Valoare Ofset"
 
 #: ../tcl/scripts/Set_Coordinates.tcl:85
 msgid "What to Teach"
-msgstr ""
+msgstr "Valoare setare"
 
 #: ../tcl/scripts/Set_Coordinates.tcl:101
 msgid "Set Old"
