@@ -34,38 +34,6 @@ extern "C" {
 #define DEFAULT_RS274NGC_STARTUP_CODE ""
     extern char RS274NGC_STARTUP_CODE[LINELEN];
 
-
-struct nameval {
-    char *name;
-    double value;
-};
-
-
-/* The next const struct holds pairs for linear units which are 
-   valid under the [TRAJ] section. These are of the form {"name", value}.
-   If the name "name" is encountered in the ini, the value will be used */
-const struct nameval linear_nv_pairs[] = {
-	{ "mm", 	1.0 },
-	{ "metric", 	1.0 },
-	{ "in", 	1/25.4 },
-	{ "inch", 	1/25.4 },
-	{ "imperial", 	1/25.4 },
-	{ 0, 0 },
-    };
-    
-/* The next const struct holds pairs for angular units which are 
-   valid under the [TRAJ] section. These are of the form {"name", value}.
-   If the name "name" is encountered in the ini, the value will be used */
-const struct nameval angular_nv_pairs[] = {
-	{ "deg", 	1.0 },
-	{ "degree", 	1.0 },
-	{ "grad", 	0.9 },
-	{ "gon", 	0.9 },
-	{ "rad", 	M_PI / 180 },
-	{ "radian", 	M_PI / 180 },
-	{ 0, 0 },
-    };
-
 /* debug bitflags */
 /* Note: these may be hard-code referenced by the GUI (e.g., emcdebug.tcl).
    If you change the assignments here, make sure and reflect that in
