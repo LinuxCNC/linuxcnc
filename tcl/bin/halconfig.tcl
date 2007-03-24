@@ -924,7 +924,7 @@ proc workMode {which} {
         }
         default {
             swapDisplay display showhal
-            displayThis [msgcat::mc "Mode went way wrong."]
+            displayThis "Mode went way wrong."
         }
     }
     set oldvar $which
