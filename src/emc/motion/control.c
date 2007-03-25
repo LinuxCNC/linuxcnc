@@ -2413,7 +2413,7 @@ static void output_to_hal(void)
     emcmot_hal_data->coord_mode = GET_MOTION_COORD_FLAG();
     emcmot_hal_data->teleop_mode = GET_MOTION_TELEOP_FLAG();
     emcmot_hal_data->coord_error = GET_MOTION_ERROR_FLAG();
-    *(emcmot_hal_data->spindle_speed_out) = emcmotStatus->spindle.speed * emcmotStatus->spindle_scale;
+    *(emcmot_hal_data->spindle_speed_out) = emcmotStatus->spindle.speed * emcmotStatus->net_spindle_scale;
     *(emcmot_hal_data->spindle_on) = ((emcmotStatus->spindle.speed * emcmotStatus->net_spindle_scale) != 0) ? 1 : 0;
     *(emcmot_hal_data->spindle_forward) = (emcmotStatus->spindle.speed > 0) ? 1 : 0;
     *(emcmot_hal_data->spindle_reverse) = (emcmotStatus->spindle.speed < 0) ? 1 : 0;
