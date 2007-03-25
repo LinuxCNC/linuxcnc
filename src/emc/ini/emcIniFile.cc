@@ -93,7 +93,9 @@ EmcIniFile::ErrorCode
 EmcIniFile::FindLinearUnits(EmcLinearUnits *result,
                  const char *tag, const char *section, int num)
 {
-    return(IniFile::Find((double *)result, linearUnitsMap, tag, section, num));
+    if (IniFile::Find((double *)result, tag, section, num)  == ERR_NONE)
+	return ERR_NONE;
+    return IniFile::Find((double *)result, linearUnitsMap, tag, section, num);
 }
 
 
@@ -114,5 +116,7 @@ EmcIniFile::ErrorCode
 EmcIniFile::FindAngularUnits(EmcAngularUnits *result,
                  const char *tag, const char *section, int num)
 {
+    if (IniFile::Find((double *)result, tag, section, num)  == ERR_NONE)
+	return ERR_NONE;
     return(IniFile::Find((double *)result, angularUnitsMap, tag, section, num));
 }
