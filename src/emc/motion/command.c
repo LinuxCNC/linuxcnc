@@ -633,9 +633,13 @@ check_stuff ( "before command_handler()" );
 		SET_JOINT_ERROR_FLAG(joint, 1);
 		break;
 	    }
-	    if ((emcmotStatus->homing_active) || (joint->wheel_jog_active)) {
-		/* can't do two things at once */
+	    if (emcmotStatus->homing_active) {
+		reportError("Can't jog any axis while homing.");
 		SET_JOINT_ERROR_FLAG(joint, 1);
+		break;
+	    }
+	    if (joint->wheel_jog_active) {
+		/* can't do two kinds of jog at once */
 		break;
 	    }
 	    /* don't jog further onto limits */
@@ -686,9 +690,13 @@ check_stuff ( "before command_handler()" );
 		SET_JOINT_ERROR_FLAG(joint, 1);
 		break;
 	    }
-	    if ((emcmotStatus->homing_active) || (joint->wheel_jog_active)) {
-		/* can't do two things at once */
+	    if (emcmotStatus->homing_active) {
+		reportError("Can't jog any axis while homing.");
 		SET_JOINT_ERROR_FLAG(joint, 1);
+		break;
+	    }
+	    if (joint->wheel_jog_active) {
+		/* can't do two kinds of jog at once */
 		break;
 	    }
 	    /* don't jog further onto limits */
@@ -746,9 +754,13 @@ check_stuff ( "before command_handler()" );
 		SET_JOINT_ERROR_FLAG(joint, 1);
 		break;
 	    }
-	    if ((emcmotStatus->homing_active) || (joint->wheel_jog_active)) {
-		/* can't do two things at once */
+	    if (emcmotStatus->homing_active) {
+		reportError("Can't jog any axis while homing.");
 		SET_JOINT_ERROR_FLAG(joint, 1);
+		break;
+	    }
+	    if (joint->wheel_jog_active) {
+		/* can't do two kinds of jog at once */
 		break;
 	    }
 	    /* don't jog further onto limits */
