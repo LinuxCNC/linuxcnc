@@ -7,6 +7,8 @@ emc2 (1:2.1.4) unstable; urgency=low
   * give the axisui hal pins correct initial values so the jogwheel axis
     matches the screen initially
   * fix M51 (spindle speed override enable/disable)
+  * add "velocity mode" for jogwheels - axis stops immediately when wheel stops,
+    even though that loses position sync between the wheel and axis
 
  -- Chris Radek <chris@timeguy.com>  Sun, 25 Mar 2007 17:45:52 -0500
 
