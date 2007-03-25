@@ -2865,8 +2865,6 @@ if vcp:
 
 comp.ready()
 
-activate_axis(0, True)
-
 make_cone()
 
 # Find font for coordinate readout and get metrics
@@ -2908,6 +2906,8 @@ atexit.register(remove_tempdir, tempdir)
 if postgui_halfile:
     res = os.spawnvp(os.P_WAIT, "halcmd", ["halcmd", "-f", postgui_halfile])
     if res: raise SystemExit, res
+
+activate_axis(0, True)
 
 code = []
 if args:
