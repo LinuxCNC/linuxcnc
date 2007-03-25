@@ -1981,10 +1981,11 @@ property_names = [
 def dist((x,y,z),(p,q,r)):
     return ((x-p)**2 + (y-q)**2 + (z-r)**2) ** .5
 
+# returns units/sec
 def get_jog_speed(a):
     if vars.joint_mode.get() or a < 3:
-        return vars.jog_speed.get()
-    else: return vars.jog_aspeed.get()
+        return vars.jog_speed.get()/60.
+    else: return vars.jog_aspeed.get()/60.
 
 def run_warn():
     warnings = []
@@ -2538,13 +2539,13 @@ class TclCommands(nf.TclCommands):
         if isinstance(a, (str, unicode)):
             a = "xyzabc".index(a)
         speed = get_jog_speed(a)
-        jog_on(a, speed/60.)
+        jog_on(a, speed)
     def jog_minus(event=None):
         a = vars.current_axis.get()
         if isinstance(a, (str, unicode)):
             a = "xyzabc".index(a)
         speed = get_jog_speed(a)
-        jog_on(a, -speed/60.)
+        jog_on(a, -speed)
     def jog_stop(event=None):
         jog_off(vars.current_axis.get())
 
