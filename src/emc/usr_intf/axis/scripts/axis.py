@@ -1952,15 +1952,18 @@ class _prompt_float:
 
     def do_focus(self):
         if not self.e.winfo_viewable():
-            self.t.after(10, self.do_focus)
+            self._after = self.t.after(10, self.do_focus)
         else:
             self.e.focus()
             self.e.selection_range(0, "end")
+            self._after = None
 
     def run(self):
         self.t.grab_set()
-        self.t.after_idle(self.do_focus)
+        self._after = self.t.after_idle(self.do_focus)
         self.t.wait_variable(self.u)
+        if self._after is not None:
+            self.t.after_cancel(self._after)
         self.t.destroy()
         if self.u.get(): return self.v.get()
         return None
