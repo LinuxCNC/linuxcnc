@@ -72,10 +72,13 @@ lathe = 0
 feedrate_blackout = 0
 spindlerate_blackout = 0
 jogincr_index_last = 1
+
 from math import hypot, atan2, sin, cos, pi, sqrt
 from rs274 import ArcsToSegmentsMixin
 import emc
 import hal
+
+button_jog_axis = None
 
 homeicon = array.array('B', 
         [0x2, 0x00,   0x02, 0x00,   0x02, 0x00,   0x0f, 0x80,
@@ -1891,15 +1894,18 @@ class _prompt_float:
 
     def do_focus(self):
         if not self.e.winfo_viewable():
-            self.t.after(10, self.do_focus)
+            self._after = self.t.after(10, self.do_focus)
         else:
             self.e.focus()
             self.e.selection_range(0, "end")
+            self._after = None
 
     def run(self):
         self.t.grab_set()
-        self.t.after_idle(self.do_focus)
+        self._after = self.t.after_idle(self.do_focus)
         self.t.wait_variable(self.u)
+        if self._after is not None:
+            self.t.after_cancel(self._after)
         self.t.destroy()
         if self.u.get(): return self.v.get()
         return None
@@ -2321,21 +2327,29 @@ class TclCommands(nf.TclCommands):
     # The next three don't have 'manual_ok' because that's done in jog_on /
     # jog_off
     def jog_plus(event=None):
+        global button_jog_axis
+        if button_jog_axis is not None: commands.jog_stop()
         a = vars.current_axis.get()
+        button_jog_axis = a
         if isinstance(a, (str, unicode)):
             a = "xyzabc".index(a)
         if a < 3: speed = vars.jog_speed.get()
         else: speed = vars.jog_aspeed.get()
         jog_on(a, speed/60.)
     def jog_minus(event=None):
+        global button_jog_axis
+        if button_jog_axis is not None: commands.jog_stop()
         a = vars.current_axis.get()
+        button_jog_axis = a
         if isinstance(a, (str, unicode)):
             a = "xyzabc".index(a)
         if a < 3: speed = vars.jog_speed.get()
         else: speed = vars.jog_aspeed.get()
         jog_on(a, -speed/60.)
     def jog_stop(event=None):
-        jog_off(vars.current_axis.get())
+        global button_jog_axis
+        jog_off(button_jog_axis)
+        button_jog_axis = None
 
     def home_all_axes(event=None):
         if not manual_ok(): return
