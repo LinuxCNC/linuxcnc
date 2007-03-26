@@ -1986,7 +1986,6 @@ class TclCommands(nf.TclCommands):
                 fmt = "%.4f"
 
             mf = vars.max_speed.get()
-            print mf
             #print o.g.traverse[0]
             g0 = sum(dist(l[1], l[2]) for l in o.g.traverse)
             g1 = (sum(dist(l[1], l[2]) for l in o.g.feed) +
