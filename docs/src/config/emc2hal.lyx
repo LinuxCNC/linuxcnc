@@ -372,9 +372,19 @@ jog-counts
 , in machine units.
 \layout Description
 
+axis.N.jog-vel-mode\SpecialChar ~
+IN\SpecialChar ~
+bit When FALSE (the default), the jogwheel operates in
+ position mode.
+ The axis will move exactly jog-scale units for each count, regardless of
+ how long that might take.
+ When TRUE, the wheel operates in velocity mode - motion stops when the
+ wheel stops, even if that means the commanded motion is not completed.
+\layout Description
+
 axis.N.motor-pos-cmd\SpecialChar ~
 OUT\SpecialChar ~
-float The commanded position for thisr joint.
+float The commanded position for this joint.
 \layout Description
 
 axis.N.motor-pos-fb\SpecialChar ~
