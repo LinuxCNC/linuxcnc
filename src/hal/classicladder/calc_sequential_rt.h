@@ -1,1 +1,0 @@
-void RefreshSequentialPage(int PageNbr);
