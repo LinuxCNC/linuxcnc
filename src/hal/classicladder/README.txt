@@ -152,6 +152,7 @@ version.
 
 MODBUS SERVER INCLUDED (SLAVE)...
 ---------------------------------
+** NOTE: EMC2's port of classicladder does not have modbus support **
 ClassicLadder has a Modbus/TCP server integrated. Default port is 9502, standard
 502 requires that application is launched with root privileges.
 List of functions code supported are: 1, 2, 3, 4, 5, 6, 15 and 16.
@@ -223,6 +224,7 @@ on a Debian (Sid) system.
 
 HARDWARE (LOCAL INPUTS/OUTPUTS)...
 ----------------------------------
+** NOTE: In EMC2, all classicladder input/output takes place through HAL **
 Since v0.6.5, hardware interface has been completly rewritten (before limited
 to the parallels ports only).
 First, if you use ClassicLadder to drive real things, it can crash, and I
@@ -285,6 +287,7 @@ The DELs are linked in serial with a resistance of 330 ohms to ground (pin 25) :
 
 HARDWARE (DISTRIBUTED INPUTS/OUTPUTS)...
 ----------------------------------------
+** NOTE: In EMC2, all classicladder input/output takes place through HAL **
 ClassicLadder can use distributed inputs/outputs on modules using the modbus
 protocol ("master": pooling slaves).
 The slaves and theirs I/O can be configured in the config window.
