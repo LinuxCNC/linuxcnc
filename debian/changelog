@@ -1,3 +1,10 @@
+emc2 (1:2.1.5~alpha0) unstable; urgency=low
+
+  * revert "AXIS: fix changing axes with keyboard while jogging with the jog
+    button", it caused more problems than it solved
+
+ -- Jeff Epler <jepler@sds2.com>  Thu, 29 Mar 2007 12:59:49 -0500
+
 emc2 (1:2.1.4) unstable; urgency=low
 
   * fix image-to-gcode
@@ -9,8 +16,8 @@ emc2 (1:2.1.4) unstable; urgency=low
   * fix M51 (spindle speed override enable/disable)
   * add "velocity mode" for jogwheels - axis stops immediately when wheel stops,
     even though that loses position sync between the wheel and axis
-  * fix occasional warning 'invalid command name "-1211088452callit"'
-  * fix changing axes with keyboard while jogging with the jog button
+  * AXIS: fix occasional warning 'invalid command name "-1211088452callit"'
+  * AXIS: fix changing axes with keyboard while jogging with the jog button
 
  -- Chris Radek <chris@timeguy.com>  Sun, 25 Mar 2007 21:50:59 -0500
 
