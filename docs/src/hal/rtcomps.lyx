@@ -51,10 +51,11 @@ Stepgen
 \layout Standard
 
 This component provides software based generation of step pulses in response
- to position commands.
- It has a built in pre-tuned position loop, so PID tuning is not required.
- This component is strongly recommended for stepper based EMC machines,
- since it eliminates the need to use (and tune) a separate PID loop.
+ to position or velocity commands.
+ In position mode, it has a built in pre-tuned position loop, so PID tuning
+ is not required.
+ In velocity mode, it drives a motor at the commanded speed, while obeying
+ velocity and acceleration limits.
  It is a realtime component only, and depending on CPU speed, etc, is capable
  of maximum step rates of 10kHz to perhaps 50kHz.
  Figure 
@@ -66,6 +67,10 @@ This component provides software based generation of step pulses in response
  The first diagram is for step type '0', (step and direction).
  The second is for step type '1' (up/down, or pseudo-PWM), and the third
  is for step types 2 through 14 (various stepping patterns).
+ The first two diagrams show position mode control, and the third one shows
+ velocity mode.
+ Control mode and step type are set independently, and any combination can
+ be selected.
 \layout Standard
 
 
@@ -104,26 +109,68 @@ Installing
 
 emc2$ 
 \series bold 
-halcmd loadrt stepgen step_type=<config-array>
+halcmd loadrt stepgen step_type=<type-array> [ctrl_type=<ctrl_array>]
 \layout Standard
 
 
 \family typewriter 
-<config-array>
+<type-array>
 \family default 
  is a series of comma separated decimal integers.
  Each number causes a single step pulse generator to be loaded, the value
  of the number determines the stepping type.
+ 
+\family typewriter 
+<ctrl_array>
+\family default 
+ is a comma separated series of 
+\begin_inset Quotes eld
+\end_inset 
+
+
+\family typewriter 
+\series bold 
+p
+\family default 
+\series default 
+
+\begin_inset Quotes erd
+\end_inset 
+
+ or 
+\begin_inset Quotes eld
+\end_inset 
+
+
+\family typewriter 
+\series bold 
+v
+\family default 
+\series default 
+
+\begin_inset Quotes erd
+\end_inset 
+
+ characters, to specify position or velocity mode.
+ 
+\family typewriter 
+\series bold 
+ctrl_type
+\family default 
+\series default 
+ is optional, if ommitted, all of the step generators will be position mode.
  For example:
 \layout LyX-Code
 
 emc2# 
 \series bold 
-halcmd loadrt stepgen.o step_type=0,0,2
+halcmd loadrt stepgen.o step_type=0,0,2 ctrl_type=p,p,v
 \layout Standard
 
-will install three step generators, two with step type '0' (step and direction)
- and one with step type '2' (quadrature).
+will install three step generators.
+ The first two use step type '0' (step and direction) and run in position
+ mode.
+ The last one uses step type '2' (quadrature) and runs in velocity mode.
  The default value for 
 \family typewriter 
 <config-array>
@@ -164,7 +211,7 @@ Pins
 \layout Standard
 
 Each step pulse generator will have only some of these pins, depending on
- the step type selected.
+ the step type and control type selected.
 \layout Itemize
 
 
@@ -174,7 +221,18 @@ Each step pulse generator will have only some of these pins, depending on
 \noun default 
  stepgen.<chan>.position-cmd
 \family default 
- -- Desired motor position, in position units (inches, mm, etc).
+ -- Desired motor position, in position units (position mode only).
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(float)
+\noun default 
+ stepgen.<chan>.velocity-cmd
+\family default 
+ -- Desired motor velocity, in position units per second (velocity mode
+ only).
 \layout Itemize
 
 
@@ -182,7 +240,7 @@ Each step pulse generator will have only some of these pins, depending on
 \noun on 
 (s32) 
 \noun default 
-stepgen.<chan>.count
+stepgen.<chan>.counts
 \family default 
  -- Feedback position in counts, updated by 
 \family typewriter 
@@ -314,9 +372,9 @@ Parameters
 \noun on 
 (float)
 \noun default 
- stepgen.<chan>.maxfreq
+ stepgen.<chan>.maxvel
 \family default 
- -- Maximum step rate, in steps per second.
+ -- Maximum velocity, in position units per second.
  If 0.0, has no effect.
 \layout Itemize
 
@@ -327,29 +385,8 @@ Parameters
 \noun default 
  stepgen.<chan>.maxaccel
 \family default 
- -- Maximum accel/decel rate, in steps per second squared.
+ -- Maximum accel/decel rate, in positions units per second squared.
  If 0.0, has no effect.
-\layout Itemize
-
-
-\family typewriter 
-\noun on 
-(float)
-\noun default 
- stepgen.<chan>.pos-err
-\family default 
- -- The position error - difference between commanded and actual position,
- in steps.
-\layout Itemize
-
-
-\family typewriter 
-\noun on 
-(float)
-\noun default 
- stepgen.<chan>.vel-err
-\family default 
- -- The velocity error - in steps per second.
 \layout Itemize
 
 
@@ -360,7 +397,6 @@ Parameters
  stepgen.<chan>.frequency
 \family default 
  -- The current step rate, in steps per second.
- This is the output of the position loop.
 \layout Itemize
 
 
@@ -370,7 +406,8 @@ Parameters
 \noun default 
  stepgen.<chan>.steplen
 \family default 
- -- Length of a step pulse (step type 0 only).
+ -- Length of a step pulse (step type 0 and 1) or minimum time in a given
+ state (step types 2-14), in nano-seconds.
 \layout Itemize
 
 
@@ -380,7 +417,8 @@ Parameters
 \noun default 
  stepgen.<chan>.stepspace
 \family default 
- -- Minimum spacing between two step pulses (step type 0 only).
+ -- Minimum spacing between two step pulses (step types 0 and 1 only), in
+ nano-seconds.
 \layout Itemize
 
 
@@ -391,7 +429,7 @@ Parameters
  stepgen.<chan>.dirsetup
 \family default 
  -- Minimum time from a direction change to the beginning of the next step
- pulse (step type 0 only).
+ pulse (step type 0 only), in nanoseconds.
 \layout Itemize
 
 
@@ -402,7 +440,18 @@ Parameters
  stepgen.<chan>.dirhold
 \family default 
  -- Minmum time from the end of a step pulse to a direction change (step
- type 0 only).
+ type 0 only), in nanoseconds.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(float)
+\noun default 
+ stepgen.<chan>.dirdelay
+\family default 
+ -- Minmum time any step to a step in the opposite direction (step types
+ 1-14 only), in nano-seconds.
 \layout Itemize
 
 
@@ -420,8 +469,9 @@ make_pulses()
  
 \layout Standard
 
-The values of maxfreq and maxaccel are used by the internal position loop
- to avoid generating step pulse trains that the motor cannot follow.
+In position mode, the values of maxvel and maxaccel are used by the internal
+ position loop to avoid generating step pulse trains that the motor cannot
+ follow.
  When set to values that are appropriate for the motor, even a large instantaneo
 us change in commanded position will result in a smooth trapezoidal move
  to the new location.
@@ -437,6 +487,13 @@ control equation
 \end_inset 
 
  box, consult the code.
+\layout Standard
+
+In velocity mode, maxvel is a simple limit that is applied to the commanded
+ velocity, and maxaccel is used to ramp the actual frequency if the commanded
+ velocity changes abruptly.
+ As in position mode, proper values for these parameters ensure that the
+ motor can follow the generated pulse train.
 \layout Subsection
 
 
@@ -465,7 +522,8 @@ step types
 \end_inset 
 
  for the meaning of these parameters.
- The parameters are integers, and represent a number of calls to 
+ The parameters are in nanoseconds, but will be rounded up to an integer
+ multiple of the thread period for the threaed that calls 
 \family typewriter 
 make_pulses()
 \family default 
@@ -474,18 +532,19 @@ make_pulses()
 \family typewriter 
 make_pulses()
 \family default 
- is called every 16uS, and steplen is 2, then the step pulses will be 2
- x 16 = 32uS long.
- The default value for all four of the parameters is 1.
+ is called every 16uS, and steplen is 20000, then the step pulses will be
+ 2 x 16 = 32uS long.
+ The default value for all four of the parameters is 1nS, but the automatic
+ rounding takes effect the first time the code runs.
  Since one step requires 
 \family typewriter 
 steplen
 \family default 
- periods high and 
+ nS high and 
 \family typewriter 
 stepspace
 \family default 
- periods low, the maximum frequency is the thread frequency divided by 
+ nS low, the maximum frequency is the 1,000,000,000 divided by 
 \family typewriter 
 (steplen+stepspace)
 \family default 
@@ -531,9 +590,16 @@ Step and Direction Timing
 
 Step type 1 has two outputs, up and down.
  Pulses appear on one or the other, depending on the direction of travel.
- Each pulse is one thread period long, and the pulses are separated by at
- least one thread period.
- As a result, the maximum step frequency is half of the thread rate.
+ Each pulse is 
+\family typewriter 
+steplen
+\family default 
+ nS long, and the pulses are separated by at least 
+\family typewriter 
+stepspace
+\family default 
+ nS.
+ The maximum frequency is the same as for step type 0.
  If 
 \family typewriter 
 maxfreq
@@ -565,42 +631,15 @@ Step types 2 through 14 are state based, and have from two to five outputs.
 \end_inset 
 
  show the output patterns as a function of the state counter.
- The maximum frequency is the same as the thread rate, and as in the other
- modes, 
+ The maximum frequency is 1,000,000,000 divided by 
+\family typewriter 
+steplen
+\family default 
+, and as in the other modes, 
 \family typewriter 
 maxfreq
 \family default 
  will be lowered if it is above the limit.
-\layout Standard
-
-
-\begin_inset Float figure
-wide false
-collapsed false
-
-\layout Standard
-\align center 
-
-\begin_inset Graphics
-	filename stepgen-type2-4.eps
-	width 6in
-	height 4in
-	keepAspectRatio
-
-\end_inset 
-
-
-\layout Caption
-
-
-\begin_inset LatexCommand \label{fig:Quad-Three-Phase}
-
-\end_inset 
-
-Quadrature and Three Phase Step Types
-\end_inset 
-
-
 \layout Standard
 
 
@@ -710,9 +749,27 @@ stepgen.make-pulses
 \family default 
  should be run in a very fast thread, from 10 to 50uS depending on the capabilit
 ies of the computer.
- That thread's period determines the maximum step frequency, and is also
- the time unit used by the length, space, setup, and hold parameters (step
- type 0).
+ That thread's period determines the maximum step frequency, since 
+\family typewriter 
+steplen
+\family default 
+, 
+\family typewriter 
+stepspace
+\family default 
+, 
+\family typewriter 
+dirsetup
+\family default 
+, 
+\family typewriter 
+dirhold
+\family default 
+, and 
+\family typewriter 
+dirdelay
+\family default 
+ are all rounded up to a integer multiple of the thread periond in nanoseconds.
  The other two functions can be called at a much lower rate.
 \layout Standard
 
@@ -735,6 +792,13 @@ clearpage
 \end_inset 
 
 Freqgen
+\layout Standard
+
+
+\series bold 
+FREQGEN IS DEPRECATED! Use stepgen's velocity mode for stepper control,
+ and use pwmgen for Pulse Width Modulation.
+ Freqgen may be removed in future releases.
 \layout Standard
 
 This component provides software based generation of step pulses from a
