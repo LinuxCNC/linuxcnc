@@ -117,12 +117,18 @@ The default value of \fBposition\fR is 1.
 .B input.\fIN\fB.led-\fIname\fB-invert\fR parameter bit rw
 Created for each LED on the device.
 .SH PERMISSIONS AND UDEV
-By default, the input devices may not be accessible to regular users.  To change
-the default permission of a device, add a new file to /etc/udev/rules.d to
-set the device's GROUP to "plugdev".  For instance, a SpaceBall input device
-uses the 'spaceball' kernel module, so a udev entry for it would read:
+By default, the input devices may not be accessible to regular users.  To
+change the default permission of a device, add a new file to /etc/udev/rules.d
+to set the device's GROUP to "plugdev".  You can do this for all input devices
+with this rule:
 .RS
-DRIVER="spaceball", MODE="660", GROUP="plugdev"
+SUBSYSTEM="input", mode="0660", group="plugdev"
+.RE
+You can also make more specific rules for particular devices.  For instance, a
+SpaceBall input device uses the 'spaceball' kernel module, so a udev entry for
+it would read:
+.RS
+DRIVER="spaceball", MODE="0660", GROUP="plugdev"
 .RE
 the next time the device is attached to the system, it will be accessible
 to the "plugdev" group.
@@ -130,7 +136,7 @@ to the "plugdev" group.
 For USB devices, the udev line would refer to the device's Vendor and Product
 values, such as 
 .RS
-SYSFS{idProduct}=="c00e", SYSFS{idVendor}=="046d", MODE="660", GROUP="plugdev"
+SYSFS{idProduct}=="c00e", SYSFS{idVendor}=="046d", MODE="0660", GROUP="plugdev"
 .RE
 for a particular logictech-brand mouse.
 
