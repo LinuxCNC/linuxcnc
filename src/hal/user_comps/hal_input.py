@@ -15,7 +15,7 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-import linux_event, sys, os, fcntl, hal, select, time, glob, fnmatch
+import linux_event, sys, os, fcntl, hal, select, time, glob, fnmatch, select
 from hal import *
 
 def tohalname(s): return str(s).lower().replace("_", "-")
@@ -189,9 +189,10 @@ for f in sys.argv[1:]:
         i += 1
 h.ready()
 
+fds = [dev.device.fileno() for dev in d]
 try:
     while 1:
-	time.sleep(.01)
+	select.select(fds, [], [], .01)
 	for i in d: i.update()
 	w.drive()
 except KeyboardInterrupt:
