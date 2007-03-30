@@ -88,7 +88,7 @@ machine off
 
 motion.feed-hold\SpecialChar ~
 IN\SpecialChar ~
-bit If this bit is set to false, the feed rate is set to
+bit If this bit is set to TRUE, the feed rate is set to
  0.
 \layout Description
 
