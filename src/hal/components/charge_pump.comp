@@ -17,8 +17,15 @@
 
 component charge_pump "Create a square-wave for the 'charge pump' input of some controller boards";
 option singleton yes;
-pin out bit out;
-function _ nofp "Toggle the output bit";
+pin out bit out "Square wave if 'enable' is TRUE or unconnected, low if 'enable' is FALSE";
+pin in bit enable = TRUE "If FALSE, forces 'out' to be low";
+function _ nofp "Toggle the output bit (if enabled)";
 ;;
 MODULE_LICENSE("GPL");
-FUNCTION(_) { out = !out; }
+FUNCTION(_) {
+    if ( enable ) {
+	out = !out;
+    } else {
+	out = 0;
+    }
+}
