@@ -56,7 +56,7 @@ typedef struct StrStep
 	/* step number */
 	int StepNumber;
 	/* positions on the page and on which page */
-	char NumPage; /* -1 if do not exist */
+	signed char NumPage; /* -1 if do not exist */
 	char PosiX;
 	char PosiY;
 
@@ -85,7 +85,7 @@ typedef struct StrTransition
 	/* if end of 'OR' */
 	short int NumTransLinkedForEnd[ NBR_SWITCHS_MAX ];
 	/* Positions on the page and on which page */
-	char NumPage; /* -1 if do not exist */
+	signed char NumPage; /* -1 if do not exist */
 	char PosiX;
 	char PosiY;
 
@@ -101,7 +101,7 @@ typedef struct StrReturn
 typedef struct StrSeqComment
 {
 	/* positions on the page and on which page */
-	char NumPage; /* -1 if do not exist */
+	signed char NumPage; /* -1 if do not exist */
 	char PosiX;
 	char PosiY;
 	/* comment string */
