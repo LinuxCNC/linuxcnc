@@ -639,8 +639,8 @@ modules: $(patsubst %.o,../rtlib/%.so,$(obj-m))
 ../rtlib/%.so:
 	$(ECHO) Linking $@
 	@ld -r -o objects/$*.tmp $^
-	@objcopy -j .rtapi_export -O binary objects/$*.tmp objects/$*.exp
-	@objcopy -G __i686.get_pc_thunk.bx `xargs -r0n1 echo -G < objects/$*.exp | grep -ve '^-G $$' | sort -u` objects/$*.tmp
+	@if test `uname -m` != ppc; then objcopy -j .rtapi_export -O binary objects/$*.tmp objects/$*.exp; fi
+	@if test `uname -m` != ppc; then objcopy -G __i686.get_pc_thunk.bx `xargs -r0n1 echo -G < objects/$*.exp | grep -ve '^-G $$' | sort -u` objects/$*.tmp; fi
 	@ld -shared -o $@ objects/$*.tmp -lm
 
 $(sort $(RTDEPS)): depends/rt%.d: %.c
@@ -674,7 +674,7 @@ $(sort $(RTOBJS)) : objects/rt%.o : %.c
 
 ../rtlib/%.o:
 	$(ECHO) Linking $@
-	@ld -r -static -S -O2 -o $@ $^ $(EXTRALINK) $(MATHLIB)
+	ld -r -static -S -O2 -o $@ $^ $(EXTRALINK) $(MATHLIB)
 endif
 
 ifneq "$(filter normal sim,$(BUILD_SYS))" ""
