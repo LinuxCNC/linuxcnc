@@ -2,6 +2,7 @@ emc2 (1:2.1.5~alpha0) unstable; urgency=low
 
   * revert "AXIS: fix changing axes with keyboard while jogging with the jog
     button", it caused more problems than it solved
+  * add 'enable' pin to charge-pump component
 
  -- Jeff Epler <jepler@sds2.com>  Thu, 29 Mar 2007 12:59:49 -0500
 
