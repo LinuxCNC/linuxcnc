@@ -1121,7 +1121,7 @@ int Interp::read_one_item(
   char letter;
 
   letter = line[*counter];      /* check if in array range */
-  CHK(((letter < 0) || (letter > 'z')), NCE_BAD_CHARACTER_USED);
+  CHK(((letter < ' ') || (letter > 'z')), NCE_BAD_CHARACTER_USED);
   function_pointer = _readers[(int) letter]; /* Find the function pointer in the array */
   CHK((function_pointer == 0), NCE_BAD_CHARACTER_USED);
   CHP((*this.*function_pointer)(line, counter, block, parameters)); /* Call the function */ 
