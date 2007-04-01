@@ -30,4 +30,6 @@ pluto_clean:
 
 # The kernel's build system won't know how to rebuild generated files
 # so modules must depend on them explicitly
+ifneq ($(BUILD_SYS),sim)
 modules: hal/drivers/pluto_servo_rbf.h hal/drivers/m5i20_HM5-4E.h
+endif
