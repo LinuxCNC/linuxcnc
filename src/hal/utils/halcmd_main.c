@@ -69,10 +69,10 @@ static int release_HAL_mutex(void);
 
 int main(int argc, char **argv)
 {
-    int n, fd;
+    int n, c, fd;
     int keep_going, retval, errorcount;
     int filemode = 0;
-    char cp1, *filename = NULL;
+    char *filename = NULL;
     FILE *srcfile = NULL;
     char raw_buf[MAX_CMD_LEN+1];
 
@@ -88,10 +88,9 @@ int main(int argc, char **argv)
     /* start parsing the command line, options first */
     n = 1;
     while(1) {
-        cp1 = getopt(argc, argv, "+Rfi:kqQsvVh");
-        if(cp1 == -1) break;
-
-        switch(cp1) {
+        c = getopt(argc, argv, "+Rfi:kqQsvVh");
+        if(c == -1) break;
+        switch(c) {
             case 'R':
        		/* force an unlock of the HAL mutex - to be used after a segfault in a hal program */
 		if (release_HAL_mutex() != HAL_SUCCESS) {
@@ -156,9 +155,15 @@ int main(int argc, char **argv)
 		}
 		break;
 #endif /* NO_INI */
+	    case '?':
+		/* option not in getopt() list
+		   getopt already printed an error message */
+		exit(-1);
+		break;
 	    default:
-		/* unknown option */
-		printf("Unknown option '-%c'\n", cp1);
+		/* option in getopt list but not in switch statement - bug */
+		printf("Unimplemented option '-%c'\n", c);
+		exit(-1);
 		break;
         }
     }
