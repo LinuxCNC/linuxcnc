@@ -1,4 +1,4 @@
-.TH rtapi_get_time "3hal" "2006-10-12" "EMC Documentation" "HAL"
+.TH rtapi_get_time "3rtapi" "2006-10-12" "EMC Documentation" "HAL"
 .SH NAME
 
 rtapi_get_time \- get the current time

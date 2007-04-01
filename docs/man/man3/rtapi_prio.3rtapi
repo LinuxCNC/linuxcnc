@@ -1,4 +1,4 @@
-.TH rtapi_prio "3hal" "2006-10-12" "EMC Documentation" "RTAPI"
+.TH rtapi_prio "3rtapi" "2006-10-12" "EMC Documentation" "RTAPI"
 .SH NAME
 
 rtapi_prio \- thread priority functions

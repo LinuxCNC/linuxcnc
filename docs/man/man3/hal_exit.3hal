@@ -1,4 +1,4 @@
-.TH hal_exit "3rtapi" "2006-10-12" "EMC Documentation" "HAL"
+.TH hal_exit "3hal" "2006-10-12" "EMC Documentation" "HAL"
 .SH NAME
 
 hal_exit \- Shut down HAL
