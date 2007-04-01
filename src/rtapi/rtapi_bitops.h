@@ -95,6 +95,62 @@ static __inline__ int test_and_clear_bit(int nr, volatile void * addr)
 		:"dIr" (nr) : "memory");
 	return oldbit;
 }
+#elif defined(__powerpc__)
+
+#define BITS_PER_LONG 32
+#define BITOP_MASK(nr)          (1UL << ((nr) % BITS_PER_LONG))
+#define BITOP_WORD(nr)          ((nr) / BITS_PER_LONG)
+
+#ifdef CONFIG_SMP
+#define ISYNC_ON_SMP    "\n\tisync\n"
+#define LWSYNC_ON_SMP   __stringify(LWSYNC) "\n"
+#else
+#define ISYNC_ON_SMP
+#define LWSYNC_ON_SMP
+#endif
+
+static __inline__ int test_and_set_bit(unsigned long nr,
+                                       volatile unsigned long *addr)
+{
+        unsigned long old, t;
+        unsigned long mask = BITOP_MASK(nr);
+        unsigned long *p = ((unsigned long *)addr) + BITOP_WORD(nr);
+
+        __asm__ __volatile__(
+        LWSYNC_ON_SMP
+"1:"    "lwarx  %0,0,%3              # test_and_set_bit\n"
+        "or     %1,%0,%2 \n"
+        "stwcx. %1,0,%3 \n"
+        "bne-   1b"
+        ISYNC_ON_SMP
+        : "=&r" (old), "=&r" (t)
+        : "r" (mask), "r" (p)
+        : "cc", "memory");
+
+        return (old & mask) != 0;
+}
+
+static __inline__ int test_and_clear_bit(unsigned long nr,
+                                         volatile unsigned long *addr)
+{
+        unsigned long old, t;
+        unsigned long mask = BITOP_MASK(nr);
+        unsigned long *p = ((unsigned long *)addr) + BITOP_WORD(nr);
+
+        __asm__ __volatile__(
+        LWSYNC_ON_SMP
+"1:"    "lwarx  %0,0,%3              # test_and_clear_bit\n"
+        "andc   %1,%0,%2 \n"
+        "stwcx. %1,0,%3 \n"
+        "bne-   1b"
+        ISYNC_ON_SMP
+        : "=&r" (old), "=&r" (t)
+        : "r" (mask), "r" (p)
+        : "cc", "memory");
+
+        return (old & mask) != 0;
+}
+
 #else
 #error The header file <asm/bitops.h> is not usable and rtapi does not yet have support for your CPU
 #endif
