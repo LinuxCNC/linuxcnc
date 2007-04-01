@@ -317,14 +317,7 @@ elif ! test `$CC -dumpversion | cut -d '.' -f 1` -gt 2 ; then
   AC_MSG_ERROR([Compilers older than gcc 3.x are no longer supported])
 fi
 
-AC_MSG_CHECKING([if asm/bitops.h is usable in userspace])
-OLD_CC=$CC
-CC="$CC -Werror"
-AC_TRY_COMPILE([#include <asm/bitops.h>],
-    [],
-    [ASM_BITOPS_H_USABLE=yes],
-    [ASM_BITOPS_H_USABLE=no])
-CC=$OLD_CC
+AC_CHECK_FUNC(test_and_set_bit,[ASM_BITOPS_H_USABLE=yes],[ASM_BITOPS_H_USEABLE=no])
 AC_MSG_RESULT($ASM_BITOPS_H_USABLE)
  
 if test "$ASM_BITOPS_H_USABLE" = yes; then
