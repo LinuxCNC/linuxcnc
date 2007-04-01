@@ -318,13 +318,13 @@ elif ! test `$CC -dumpversion | cut -d '.' -f 1` -gt 2 ; then
 fi
 
 AC_MSG_CHECKING([for usability of asm/bitops.h])
-AC_TRY_COMPILE(
+AC_TRY_LINK(
     [
 #include <asm/bitops.h>
     ],
     [test_and_set_bit(0,0)],
     [ASM_BITOPS_H_USABLE=yes],
-    [ASM_BITOPS_H_USEABLE=no])
+    [ASM_BITOPS_H_USABLE=no])
 AC_MSG_RESULT($ASM_BITOPS_H_USABLE)
  
 if test "$ASM_BITOPS_H_USABLE" = yes; then
