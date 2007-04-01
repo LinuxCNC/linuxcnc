@@ -2661,66 +2661,29 @@ echo "$as_me: error: Compilers older than gcc 3.x are no longer supported" >&2;}
    { (exit 1); exit 1; }; }
 fi
 
+echo "$as_me:$LINENO: checking for usability of asm/bitops.h" >&5
+echo $ECHO_N "checking for usability of asm/bitops.h... $ECHO_C" >&6
 
-echo "$as_me:$LINENO: checking for test_and_set_bit" >&5
-echo $ECHO_N "checking for test_and_set_bit... $ECHO_C" >&6
-if test "${ac_cv_func_test_and_set_bit+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  cat >conftest.$ac_ext <<_ACEOF
+cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
 _ACEOF
 cat confdefs.h >>conftest.$ac_ext
 cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
-/* Define test_and_set_bit to an innocuous variant, in case <limits.h> declares test_and_set_bit.
-   For example, HP-UX 11i <limits.h> declares gettimeofday.  */
-#define test_and_set_bit innocuous_test_and_set_bit
 
-/* System header to define __stub macros and hopefully few prototypes,
-    which can conflict with char test_and_set_bit (); below.
-    Prefer <limits.h> to <assert.h> if __STDC__ is defined, since
-    <limits.h> exists even on freestanding compilers.  */
-
-#ifdef __STDC__
-# include <limits.h>
-#else
-# include <assert.h>
-#endif
-
-#undef test_and_set_bit
-
-/* Override any gcc2 internal prototype to avoid an error.  */
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-/* We use char because int might match the return type of a gcc2
-   builtin and then its argument prototype would still apply.  */
-char test_and_set_bit ();
-/* The GNU C library defines this for functions which it implements
-    to always fail with ENOSYS.  Some functions are actually named
-    something starting with __ and the normal name is an alias.  */
-#if defined (__stub_test_and_set_bit) || defined (__stub___test_and_set_bit)
-choke me
-#else
-char (*f) () = test_and_set_bit;
-#endif
-#ifdef __cplusplus
-}
-#endif
+#include <asm/bitops.h>
 
 int
 main ()
 {
-return f != test_and_set_bit;
+test_and_set_bit(0,0)
   ;
   return 0;
 }
 _ACEOF
-rm -f conftest.$ac_objext conftest$ac_exeext
-if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
-  (eval $ac_link) 2>conftest.er1
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>conftest.er1
   ac_status=$?
   grep -v '^ *+' conftest.er1 >conftest.err
   rm -f conftest.er1
@@ -2733,30 +2696,20 @@ if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
   ac_status=$?
   echo "$as_me:$LINENO: \$? = $ac_status" >&5
   (exit $ac_status); }; } &&
-	 { ac_try='test -s conftest$ac_exeext'
+	 { ac_try='test -s conftest.$ac_objext'
   { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
   (eval $ac_try) 2>&5
   ac_status=$?
   echo "$as_me:$LINENO: \$? = $ac_status" >&5
   (exit $ac_status); }; }; then
-  ac_cv_func_test_and_set_bit=yes
+  ASM_BITOPS_H_USABLE=yes
 else
   echo "$as_me: failed program was:" >&5
 sed 's/^/| /' conftest.$ac_ext >&5
 
-ac_cv_func_test_and_set_bit=no
+ASM_BITOPS_H_USEABLE=no
 fi
-rm -f conftest.err conftest.$ac_objext \
-      conftest$ac_exeext conftest.$ac_ext
-fi
-echo "$as_me:$LINENO: result: $ac_cv_func_test_and_set_bit" >&5
-echo "${ECHO_T}$ac_cv_func_test_and_set_bit" >&6
-if test $ac_cv_func_test_and_set_bit = yes; then
-  ASM_BITOPS_H_USABLE=yes
-else
-  ASM_BITOPS_H_USEABLE=no
-fi
-
+rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
 echo "$as_me:$LINENO: result: $ASM_BITOPS_H_USABLE" >&5
 echo "${ECHO_T}$ASM_BITOPS_H_USABLE" >&6
 
