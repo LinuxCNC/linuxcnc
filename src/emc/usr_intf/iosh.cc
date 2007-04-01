@@ -25,7 +25,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include <signal.h>
-#include <sys/io.h>
 
 #include "tcl.h"
 #include "tk.h"
@@ -44,8 +43,6 @@
 #include "motion_debug.h"
 #include "motion_struct.h"
 #include "usrmotintf.h"		// usrmot interface
-
-#include <unistd.h>		/* iopl() */
 
 /*
   Using iosh:
@@ -1259,154 +1256,14 @@ static int emc_io_load_tool_table(ClientData clientdata,
     return TCL_ERROR;
 }
 
-
-/*#####################################################################################*/
-/* IO commands*/
-/*#####################################################################################*/
-
-static int unpriv = 0;		// non-zero means can't read IO
-
-// note the leading f_ so we don't conflict with real inb
-static int f_inb(ClientData clientdata,
-		 Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
-{
-    long address;
-
-    if (objc == 2) {
-	if (TCL_OK == Tcl_GetLongFromObj(0, objv[1], &address)) {
-	    if (unpriv) {
-		Tcl_SetObjResult(interp, Tcl_NewIntObj(0xFF));
-		return TCL_OK;
-	    }
-	    Tcl_SetObjResult(interp, Tcl_NewIntObj((int) inb(address)));
-	    return TCL_OK;
-	}
-    }
-
-    Tcl_SetResult(interp, "syntax: inb <address>", TCL_VOLATILE);
-    return TCL_ERROR;
-}
-
-// note the leading f_ so we don't conflict with real outb
-static int f_outb(ClientData clientdata,
-		  Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
-{
-    long address;
-    int value;
-
-    if (objc == 3) {
-	if (TCL_OK == Tcl_GetLongFromObj(0, objv[1], &address) &&
-	    TCL_OK == Tcl_GetIntFromObj(0, objv[2], &value)) {
-	    if (unpriv) {
-		return TCL_OK;
-	    }
-	    outb((char) value, address);
-	    return TCL_OK;
-	}
-    }
-
-    Tcl_SetResult(interp, "syntax: outb <address> <value>", TCL_VOLATILE);
-    return TCL_ERROR;
-}
-
-// note the leading f_ so we don't conflict with real inw
-static int f_inw(ClientData clientdata,
-		 Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
-{
-    long address;
-
-    if (objc == 2) {
-	if (TCL_OK == Tcl_GetLongFromObj(0, objv[1], &address)) {
-	    if (unpriv) {
-		Tcl_SetObjResult(interp, Tcl_NewIntObj(0xFFFF));
-		return TCL_OK;
-	    }
-	    Tcl_SetObjResult(interp, Tcl_NewIntObj((int) inw(address)));
-	    return TCL_OK;
-	}
-    }
-
-    Tcl_SetResult(interp, "syntax: inw <address>", TCL_VOLATILE);
-    return TCL_ERROR;
-}
-
-// note the leading f_ so we don't conflict with real outw
-static int f_outw(ClientData clientdata,
-		  Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
-{
-    long address;
-    int value;
-
-    if (objc == 3) {
-	if (TCL_OK == Tcl_GetLongFromObj(0, objv[1], &address) &&
-	    TCL_OK == Tcl_GetIntFromObj(0, objv[2], &value)) {
-	    if (unpriv) {
-		return TCL_OK;
-	    }
-	    outw((short) value, address);
-	    return TCL_OK;
-	}
-    }
-
-    Tcl_SetResult(interp, "syntax: outw <address> <value>", TCL_VOLATILE);
-    return TCL_ERROR;
-}
-
-// note the leading f_ so we don't conflict with real inl
-static int f_inl(ClientData clientdata,
-		 Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
-{
-    long address;
-
-    if (objc == 2) {
-	if (TCL_OK == Tcl_GetLongFromObj(0, objv[1], &address)) {
-	    if (unpriv) {
-		Tcl_SetObjResult(interp, Tcl_NewLongObj(0xFFFFFFFF));
-		return TCL_OK;
-	    }
-	    Tcl_SetObjResult(interp, Tcl_NewLongObj(inl(address)));
-	    return TCL_OK;
-	}
-    }
-
-    Tcl_SetResult(interp, "syntax: inl <address>", TCL_VOLATILE);
-    return TCL_ERROR;
-}
-
-// note the leading f_ so we don't conflict with real outl
-static int f_outl(ClientData clientdata,
-		  Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
-{
-    long address;
-    long value;
-
-    if (objc == 3) {
-	if (TCL_OK == Tcl_GetLongFromObj(0, objv[1], &address) &&
-	    TCL_OK == Tcl_GetLongFromObj(0, objv[2], &value)) {
-	    if (unpriv) {
-		return TCL_OK;
-	    }
-	    outl(value, address);
-	    return TCL_OK;
-	}
-    }
-
-    Tcl_SetResult(interp, "syntax: outl <address> <value>", TCL_VOLATILE);
-    return TCL_ERROR;
-}
-
 static int emc_mot_shmem(ClientData clientdata,
 			 Tcl_Interp * interp, int objc,
 			 Tcl_Obj * CONST objv[])
 {
 
     if (objc == 1) {
-	if (unpriv) {
-	    Tcl_SetObjResult(interp, Tcl_NewLongObj(0xFFFFFFFF));
-	    return TCL_OK;
-	}
-	Tcl_SetObjResult(interp, Tcl_NewLongObj(shmem));
-	return TCL_OK;
+        Tcl_SetObjResult(interp, Tcl_NewLongObj(0xFFFFFFFF));
+        return TCL_OK;
     }
 
     Tcl_SetResult(interp, "emc_mot_shmem: need no args", TCL_VOLATILE);
@@ -1615,24 +1472,6 @@ int Tcl_AppInit(Tcl_Interp * interp)
 			 emc_io_load_tool_table, (ClientData) NULL,
 			 (Tcl_CmdDeleteProc *) NULL);
 
-    Tcl_CreateObjCommand(interp, "inb", f_inb, (ClientData) NULL,
-			 (Tcl_CmdDeleteProc *) NULL);
-
-    Tcl_CreateObjCommand(interp, "outb", f_outb, (ClientData) NULL,
-			 (Tcl_CmdDeleteProc *) NULL);
-
-    Tcl_CreateObjCommand(interp, "inw", f_inw, (ClientData) NULL,
-			 (Tcl_CmdDeleteProc *) NULL);
-
-    Tcl_CreateObjCommand(interp, "outw", f_outw, (ClientData) NULL,
-			 (Tcl_CmdDeleteProc *) NULL);
-
-    Tcl_CreateObjCommand(interp, "inl", f_inl, (ClientData) NULL,
-			 (Tcl_CmdDeleteProc *) NULL);
-
-    Tcl_CreateObjCommand(interp, "outl", f_outl, (ClientData) NULL,
-			 (Tcl_CmdDeleteProc *) NULL);
-
     Tcl_CreateObjCommand(interp, "emc_mot_shmem", emc_mot_shmem,
 			 (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
 
@@ -1680,10 +1519,6 @@ static void thisQuit(ClientData clientData)
 	emcioCommandBuffer = 0;
 	emcioCommand = 0;
     }
-    // turn off port access
-    iopl(0);
-    // Clean up shared memory
-//  usrmotExit();
     Tcl_Exit(0);
     exit(0);
 }
@@ -1787,12 +1622,6 @@ int main(int argc, char *argv[])
     usrmotIniLoad(EMC_INIFILE);
     if (-1 != (shmem = usrmotInit("iosh"))) {
 	shmem = (long) emcmotshmem;
-    }
-    // turn on port access
-    unpriv = 0;
-    if (0 != iopl(3)) {
-	fprintf(stderr, "not privileged to access IO-- disabling IO\n");
-	unpriv = 1;
     }
     // attach our quit function to exit
     Tcl_CreateExitHandler(thisQuit, (ClientData) 0);
