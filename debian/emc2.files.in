@@ -320,7 +320,6 @@ usr/share/emc/ncfiles/torus.png
 usr/share/emc/ncfiles/useful-subroutines.ngc
 usr/share/emc/tcl/bin/emccalib.tcl
 usr/share/emc/tcl/bin/emcdebug.tcl
-usr/share/emc/tcl/bin/emclog.tcl
 usr/share/emc/tcl/bin/emctesting.tcl
 usr/share/emc/tcl/bin/emctuning.tcl
 usr/share/emc/tcl/bin/genedit.tcl
