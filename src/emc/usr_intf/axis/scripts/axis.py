@@ -21,6 +21,7 @@
 # import pdb
 
 import sys, os
+import string
 BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
 sys.path.insert(0, os.path.join(BASE, "lib", "python"))
 
@@ -1754,6 +1755,7 @@ widgets = nf.Widgets(root_window,
 
     ("menu_view", Menu, ".menu.view"),
     ("menu_machine", Menu, ".menu.machine"),
+    ("menu_touchoff", Menu, ".menu.machine.touchoff"),
 
     ("homebutton", Button, tabs_manual + ".jogf.zerohome.home"),
     ("homemenu", Menu, ".menu.machine.home")
@@ -2573,8 +2575,11 @@ class TclCommands(nf.TclCommands):
     def home_axis_number(num):
         ensure_mode(emc.MODE_MANUAL)
         c.home(num)
-
-    def touch_off(event=None, new_axis_value = None):
+        
+    def touch_off_system(num):
+        commands.touch_off(system=num)
+        
+    def touch_off(event=None, new_axis_value = None, system = "1"):
         if not manual_ok(): return
         if s.motion_mode == emc.TRAJ_MODE_FREE and s.kinematics_type != emc.KINEMATICS_IDENTITY: return
         offset_axis = "xyzabc".index(vars.current_axis.get())
@@ -2597,7 +2602,7 @@ class TclCommands(nf.TclCommands):
             scale *= 25.4
             p0 *= 25.4
 
-        offset_command = "G10 L2 P1 %c[%.12f-[%f*[%s]]]\n" % (vars.current_axis.get(), p0, scale, new_axis_value)
+        offset_command = "G10 L2 P%c %c[%.12f-[%f*[%s]]]\n" % (system, vars.current_axis.get(), p0, scale, new_axis_value)
         c.mdi(offset_command)
         ensure_mode(emc.MODE_MANUAL)
         s.poll()
@@ -2713,6 +2718,9 @@ class TclCommands(nf.TclCommands):
         comp['jog.a'] = vars.current_axis.get() == "a"
         comp['jog.b'] = vars.current_axis.get() == "b"
         comp['jog.c'] = vars.current_axis.get() == "c"
+        root_window.tk.call("setup_menu_accel", widgets.menu_machine, "25",
+                            _("Touch-O_ff %s axis in system...") %
+                            vars.current_axis.get().upper())
 
     def set_joint_mode(*args):
         c.teleop_enable(vars.joint_mode.get())
