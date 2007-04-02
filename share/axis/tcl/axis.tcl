@@ -162,39 +162,39 @@ setup_menu_accel .menu.machine end [_ "Touch-O_ff X axis in system..."]
 
 .menu.machine.touchoff add command \
     -command [list touch_off_system 1]
-setup_menu_accel .menu.machine.touchoff end [_ "G5_4"]
+setup_menu_accel .menu.machine.touchoff end [_ "P1  G5_4"]
 
 .menu.machine.touchoff add command \
     -command [list touch_off_system 2]
-setup_menu_accel .menu.machine.touchoff end [_ "G5_5"]
+setup_menu_accel .menu.machine.touchoff end [_ "P2  G5_5"]
 
 .menu.machine.touchoff add command \
     -command [list touch_off_system 3]
-setup_menu_accel .menu.machine.touchoff end [_ "G5_6"]
+setup_menu_accel .menu.machine.touchoff end [_ "P3  G5_6"]
 
 .menu.machine.touchoff add command \
     -command [list touch_off_system 4]
-setup_menu_accel .menu.machine.touchoff end [_ "G5_7"]
+setup_menu_accel .menu.machine.touchoff end [_ "P4  G5_7"]
 
 .menu.machine.touchoff add command \
     -command [list touch_off_system 5]
-setup_menu_accel .menu.machine.touchoff end [_ "G5_8"]
+setup_menu_accel .menu.machine.touchoff end [_ "P5  G5_8"]
 
 .menu.machine.touchoff add command \
     -command [list touch_off_system 6]
-setup_menu_accel .menu.machine.touchoff end [_ "G5_9"]
+setup_menu_accel .menu.machine.touchoff end [_ "P6  G5_9"]
 
 .menu.machine.touchoff add command \
     -command [list touch_off_system 7]
-setup_menu_accel .menu.machine.touchoff end [_ "G59._1"]
+setup_menu_accel .menu.machine.touchoff end [_ "P7  G59._1"]
 
 .menu.machine.touchoff add command \
     -command [list touch_off_system 8]
-setup_menu_accel .menu.machine.touchoff end [_ "G59._2"]
+setup_menu_accel .menu.machine.touchoff end [_ "P8  G59._2"]
 
 .menu.machine.touchoff add command \
     -command [list touch_off_system 9]
-setup_menu_accel .menu.machine.touchoff end [_ "G59._3"]
+setup_menu_accel .menu.machine.touchoff end [_ "P9  G59._3"]
 
 # ----------------------------------------------------------------------
 .menu.view add radiobutton \
