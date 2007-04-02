@@ -34,6 +34,8 @@ menu .menu.help \
 	-tearoff 0
 menu .menu.machine.touchoff \
     -tearoff 0
+menu .menu.machine.clearoffset \
+    -tearoff 0
 
 .menu.file add command \
 	-accelerator O \
@@ -195,6 +197,49 @@ setup_menu_accel .menu.machine.touchoff end [_ "P8  G59._2"]
 .menu.machine.touchoff add command \
     -command [list touch_off_system 9]
 setup_menu_accel .menu.machine.touchoff end [_ "P9  G59._3"]
+
+
+
+.menu.machine add cascade \
+    -menu .menu.machine.clearoffset
+setup_menu_accel .menu.machine end [_ "Clear c_oordinate system"]
+
+.menu.machine.clearoffset add command \
+    -command [list clear_offset 1]
+setup_menu_accel .menu.machine.clearoffset end [_ "P1  G5_4"]
+
+.menu.machine.clearoffset add command \
+    -command [list clear_offset 2]
+setup_menu_accel .menu.machine.clearoffset end [_ "P2  G5_5"]
+
+.menu.machine.clearoffset add command \
+    -command [list clear_offset 3]
+setup_menu_accel .menu.machine.clearoffset end [_ "P3  G5_6"]
+
+.menu.machine.clearoffset add command \
+    -command [list clear_offset 4]
+setup_menu_accel .menu.machine.clearoffset end [_ "P4  G5_7"]
+
+.menu.machine.clearoffset add command \
+    -command [list clear_offset 5]
+setup_menu_accel .menu.machine.clearoffset end [_ "P5  G5_8"]
+
+.menu.machine.clearoffset add command \
+    -command [list clear_offset 6]
+setup_menu_accel .menu.machine.clearoffset end [_ "P6  G5_9"]
+
+.menu.machine.clearoffset add command \
+    -command [list clear_offset 7]
+setup_menu_accel .menu.machine.clearoffset end [_ "P7  G59._1"]
+
+.menu.machine.clearoffset add command \
+    -command [list clear_offset 8]
+setup_menu_accel .menu.machine.clearoffset end [_ "P8  G59._2"]
+
+.menu.machine.clearoffset add command \
+    -command [list clear_offset 9]
+setup_menu_accel .menu.machine.clearoffset end [_ "P9  G59._3"]
+
 
 # ----------------------------------------------------------------------
 .menu.view add radiobutton \
@@ -1581,7 +1626,7 @@ proc update_state {args} {
     state  {$taskfile != ""} {.menu.file 2}
 
     state  {$task_state == $STATE_ON && $interp_state == $INTERP_IDLE} \
-        {.menu.machine 25} {.menu.machine 24}
+        {.menu.machine 25} {.menu.machine 24} {.menu.machine 26}
 
     state  {$task_state == $STATE_ON && $interp_state == $INTERP_IDLE \
             && $taskfile != ""} \

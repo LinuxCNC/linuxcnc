@@ -2575,6 +2575,16 @@ class TclCommands(nf.TclCommands):
     def home_axis_number(num):
         ensure_mode(emc.MODE_MANUAL)
         c.home(num)
+
+    def clear_offset(num):
+        ensure_mode(emc.MODE_MDI)
+        s.poll()
+        clear_command = "G10 L2 P%c X0 Y0 Z0 A0 B0 C0\n" % num
+        c.mdi(clear_command)
+        ensure_mode(emc.MODE_MANUAL)
+        s.poll()
+        o.tkRedraw()
+        reload_file(False)
         
     def touch_off_system(num):
         commands.touch_off(system=num)
