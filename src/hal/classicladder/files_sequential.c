@@ -194,7 +194,7 @@ char SaveSequential(char * FileName)
 		for (NumStep=0; NumStep<NBR_STEPS; NumStep++)
 		{
 			StrStep * pStep = &Sequential->Step[ NumStep ];
-			if ( pStep->NumPage!=(char)-1 )
+			if ( pStep->NumPage!=-1 )
 			{
 				fprintf( File, "S%d,%d,%d,%d,%d,%d", NumStep, pStep->InitStep, pStep->StepNumber,
 					pStep->NumPage, pStep->PosiX, pStep->PosiY );
@@ -204,7 +204,7 @@ char SaveSequential(char * FileName)
 		for (NumTransi=0; NumTransi<NBR_TRANSITIONS; NumTransi++ )
 		{
 			StrTransition * pTransi = &Sequential->Transition[ NumTransi ];
-			if ( pTransi->NumPage!=(char)-1 )
+			if ( pTransi->NumPage!=-1 )
 			{
 				fprintf( File, "T%d,", NumTransi );
 				SaveArray( File, pTransi->NumStepToActiv );
@@ -218,7 +218,7 @@ char SaveSequential(char * FileName)
 		for (NumTransi=0; NumTransi<NBR_TRANSITIONS; NumTransi++ )
 		{
 			StrTransition * pTransi = &Sequential->Transition[ NumTransi ];
-			if ( pTransi->NumPage!=(char)-1 )
+			if ( pTransi->NumPage!=-1 )
 			{
 				fprintf( File, "C%d,0,%d/%d", NumTransi, pTransi->VarTypeCondi, pTransi->VarNumCondi );
 				fprintf( File,"\n" );
@@ -227,7 +227,7 @@ char SaveSequential(char * FileName)
 		for( NumSeqComment=0; NumSeqComment<NBR_SEQ_COMMENTS; NumSeqComment++ )
 		{
 			StrSeqComment * pSeqComment = &Sequential->SeqComment[ NumSeqComment ];
-			if ( pSeqComment->NumPage!=(char)-1 )
+			if ( pSeqComment->NumPage!=-1 )
 			{
 				fprintf( File, "N%d,", NumSeqComment );
 				fprintf( File, "%d,%d,%d,", pSeqComment->NumPage, pSeqComment->PosiX, pSeqComment->PosiY );
