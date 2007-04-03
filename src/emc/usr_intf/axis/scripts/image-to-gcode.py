@@ -205,7 +205,7 @@ class Converter:
                            tolerance=self.tolerance,
                            spindle_speed=self.spindle_speed)
         g.begin()
-        g.continuous()
+        g.continuous(self.tolerance)
         g.write(self.units)
         g.safety()
         g.set_feed(self.feed)

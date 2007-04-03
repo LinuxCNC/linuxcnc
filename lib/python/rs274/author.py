@@ -127,9 +127,12 @@ Set exact path mode.  Note that unless self.tolerance is set to zero,
 the simplification algorithm may still skip over specified points."""
         self.write("G61")
 
-    def continuous(self):
+    def continuous(self, tolerance=0.0):
 	"Set continuous mode."
-        self.write("G64")
+        if tolerance > 0.0:
+            self.write("G64 P%.4f" % tolerance)
+        else:
+            self.write("G64")
 
     def rapid(self, x=None, y=None, z=None, a=None):
 	"Perform a rapid move to the specified coordinates"
