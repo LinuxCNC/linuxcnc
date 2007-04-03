@@ -43,6 +43,10 @@ menu .menu.machine.clearoffset \
 setup_menu_accel .menu.file end [_ "_Open..."]
 
 .menu.file add command \
+    -command edit_program
+setup_menu_accel .menu.file end [_ "_Edit..."]
+
+.menu.file add command \
 	-accelerator [_ "Ctrl-R"] \
 	-command reload_file
 setup_menu_accel .menu.file end [_ "_Reload"]
@@ -50,6 +54,18 @@ setup_menu_accel .menu.file end [_ "_Reload"]
 .menu.file add command \
         -command gcode_properties
 setup_menu_accel .menu.file end [_ "_Properties..."]
+
+.menu.file add separator
+
+.menu.file add command \
+    -command edit_tooltable
+setup_menu_accel .menu.file end [_ "Edit _tool table..."]
+
+.menu.file add command \
+	-command reload_tool_table
+setup_menu_accel .menu.file end [_ "Reload tool ta_ble"]
+
+.menu.file add separator
 
 .menu.file add command \
 	-command {destroy .}
@@ -96,10 +112,6 @@ setup_menu_accel .menu.machine end [_ "Re_sume"]
 	-accelerator ESC \
 	-command task_stop
 setup_menu_accel .menu.machine end [_ "Stop"]
-
-.menu.machine add command \
-	-command reload_tool_table
-setup_menu_accel .menu.machine end [_ "Reload tool ta_ble"]
 
 .menu.machine add checkbutton \
         -command toggle_optional_stop \
@@ -1619,18 +1631,35 @@ proc update_state {args} {
     state  {$task_state != $STATE_ESTOP} .toolbar.machine_power 
     relief {$task_state == $STATE_ON}    .toolbar.machine_power 
 
-    state  {$interp_state == $INTERP_IDLE} .toolbar.file_open \
-        {.menu.file 0} {.menu.file 3}
-    state  {$interp_state == $INTERP_IDLE && $taskfile != ""} \
-                .toolbar.reload {.menu.file 1}
-    state  {$taskfile != ""} {.menu.file 2}
+    if { $::has_editor == 1 } {
+        state  {$interp_state == $INTERP_IDLE && $taskfile != ""} \
+            .toolbar.reload {.menu.file 1} {.menu.file 2} {.menu.file 5}
+        state  {$taskfile != ""} {.menu.file 3}
+        state  {$interp_state == $INTERP_IDLE} .toolbar.file_open \
+            {.menu.file 0} {.menu.file 8}
+        state  {$task_state == $STATE_ON && $interp_state == $INTERP_IDLE } \
+            {.menu.file 6}
+    } else {
+        if { $::editor_deleted == 0 } {
+            .menu.file delete 1
+            .menu.file delete 4
+            set ::editor_deleted 1
+        }
+        state  {$interp_state == $INTERP_IDLE && $taskfile != ""} \
+            .toolbar.reload {.menu.file 1}
+        state  {$taskfile != ""} {.menu.file 2}
+        state  {$interp_state == $INTERP_IDLE} .toolbar.file_open \
+            {.menu.file 0} {.menu.file 6}
+        state  {$task_state == $STATE_ON && $interp_state == $INTERP_IDLE } \
+            {.menu.file 4}
+    }        
 
     state  {$task_state == $STATE_ON && $interp_state == $INTERP_IDLE} \
-        {.menu.machine 25} {.menu.machine 24} {.menu.machine 26}
+        {.menu.machine 23} {.menu.machine 24} {.menu.machine 25}
 
     state  {$task_state == $STATE_ON && $interp_state == $INTERP_IDLE \
             && $taskfile != ""} \
-                .toolbar.program_run {.menu.machine 4} {.menu.machine 9}
+                .toolbar.program_run {.menu.machine 4}
     relief {$interp_state != $INTERP_IDLE} .toolbar.program_run
     state  {$task_state == $STATE_ON && $taskfile != "" && \
       ($interp_state == $INTERP_PAUSED)} \
@@ -1730,6 +1759,7 @@ proc queue_update_state {args} {
 set rotate_mode 0
 set taskfile ""
 set task_state -1
+set has_editor 1
 set last_task_state 0
 set task_mode -1
 set interp_pause 0
@@ -1758,6 +1788,8 @@ trace variable display_type w queue_update_state
 trace variable motion_mode w queue_update_state
 trace variable kinematics_type w queue_update_state
 trace variable motion_mode w joint_mode_switch
+
+set editor_deleted 0
 
 bind . <Control-Tab> {
     set page [${pane_top}.tabs raise]

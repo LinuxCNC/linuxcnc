@@ -1754,6 +1754,7 @@ widgets = nf.Widgets(root_window,
     ("spinoverridef", Scale, pane_top + ".spinoverride"),
 
     ("menu_view", Menu, ".menu.view"),
+    ("menu_file", Menu, ".menu.file"),
     ("menu_machine", Menu, ".menu.machine"),
     ("menu_touchoff", Menu, ".menu.machine.touchoff"),
 
@@ -2328,6 +2329,22 @@ class TclCommands(nf.TclCommands):
     def reload_file(*event):
         reload_file()
 
+    def edit_program(*event):
+        if loaded_file is None:
+            pass
+        else:
+            e = string.split(editor)
+            e.append(loaded_file)
+            os.spawnvp(os.P_NOWAIT, e[0], e)
+
+    def edit_tooltable(*event):
+        if tooltable is None:
+            pass
+        else:
+            e = string.split(editor)
+            e.append(tooltable)
+            os.spawnvp(os.P_NOWAIT, e[0], e)
+
     def task_run(*event):
         if run_warn(): return
 
@@ -2747,6 +2764,7 @@ vars = nf.Variables(root_window,
     ("task_state", IntVar),
     ("interp_state", IntVar),
     ("task_mode", IntVar),
+    ("has_editor", IntVar),
     ("current_axis", StringVar),
     ("mist", BooleanVar),
     ("flood", BooleanVar),
@@ -3008,6 +3026,9 @@ vars.coord_type.set(inifile.find("DISPLAY", "POSITION_OFFSET") == "RELATIVE")
 vars.display_type.set(inifile.find("DISPLAY", "POSITION_FEEDBACK") == "COMMANDED")
 coordinate_display = inifile.find("DISPLAY", "POSITION_UNITS")
 lathe = bool(inifile.find("DISPLAY", "LATHE"))
+editor = inifile.find("DISPLAY", "EDITOR")
+vars.has_editor.set(editor is not None)
+tooltable = inifile.find("EMCIO", "TOOL_TABLE")
 lu = units(inifile.find("TRAJ", "LINEAR_UNITS"))
 if coordinate_display:
     if coordinate_display.lower() in ("mm", "metric"): vars.metric.set(1)
