@@ -1,5 +1,6 @@
 (font: /usr/share/fonts/truetype/ttf-bitstream-vera/VeraBI.ttf)
 (text: G54)
+G54
 #1=0.1   (SafeHeight)
 #2=0.01  (Depth of CUT)
 #3=0.00015 (Scale)
@@ -1927,4 +1928,5 @@ G01 X [8168*#3] Y [2432*#3]
 G01 X [6784*#3] Y [2432*#3]
 G01 X [6888*#3] Y [3008*#3]
 G00 Z #1
+G54
 M02
