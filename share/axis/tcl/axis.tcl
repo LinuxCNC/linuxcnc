@@ -214,7 +214,7 @@ setup_menu_accel .menu.machine.touchoff end [_ "P9  G59._3"]
 
 .menu.machine add cascade \
     -menu .menu.machine.clearoffset
-setup_menu_accel .menu.machine end [_ "Clear coordinate system"]
+setup_menu_accel .menu.machine end [_ "_Zero coordinate system"]
 
 .menu.machine.clearoffset add command \
     -command [list clear_offset 1]
