@@ -1,4 +1,4 @@
-
+        
 Version: $Id$
 
 
@@ -71,16 +71,6 @@ Also, note that this brace-placement also minimizes the number of empty
 supply of new-lines on your screen is not a renewable resource (think
 25-line terminal screens here), you have more empty lines to put
 comments on. 
-
-A rule has been defined in the top level Make.rules (which should be included
-in all sub-makes) to assist in indenting and bracing. Invoke it by:
-
- make indent foo.c bar.h
-
-The rule will also format C++ sources and headers in the same manner. By
-default, blank lines will be removed except for one separating functions and
-those within comment blocks.
-
 
 			Naming
 
@@ -310,7 +300,7 @@ Only loop control statements must be included in a for() construct.
       }
 
 NOT
-      for (i = 0; sum =0; i < 10; i++) sum += value[i];
+      for (i = 0, sum = 0; i < 10; i++) sum += value[i];
 
 Likewise, executable statements in conditionals must be avoided.
  e.g. if (fd = open(file_name) is bad.
