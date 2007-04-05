@@ -307,32 +307,32 @@ setup_menu_accel .menu.view end [_ "Display _MM"]
 
 .menu.view add checkbutton \
 	-variable show_program \
-	-command redraw
+	-command toggle_show_program
 setup_menu_accel .menu.view end [_ "S_how program"]
 
 .menu.view add checkbutton \
 	-variable show_live_plot \
-	-command redraw
+	-command toggle_show_live_plot
 setup_menu_accel .menu.view end [_ "Sho_w live plot"]
 
 .menu.view add checkbutton \
 	-variable show_tool \
-	-command redraw
+	-command toggle_show_tool
 setup_menu_accel .menu.view end [_ "Show too_l"]
 
 .menu.view add checkbutton \
 	-variable show_extents \
-	-command redraw
+	-command toggle_show_extents
 setup_menu_accel .menu.view end [_ "Show e_xtents"]
 
 .menu.view add checkbutton \
 	-variable show_machine_speed \
-	-command redraw
+	-command toggle_show_machine_speed
 setup_menu_accel .menu.view end [_ "Show machine sp_eed"]
 
 .menu.view add checkbutton \
 	-variable show_distance_to_go \
-	-command redraw
+	-command toggle_show_distance_to_go
 setup_menu_accel .menu.view end [_ "Show _distance to go"]
 
 .menu.view add command \

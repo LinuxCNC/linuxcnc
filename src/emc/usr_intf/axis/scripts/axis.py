@@ -60,6 +60,29 @@ from rs274 import ArcsToSegmentsMixin
 import emc
 import hal
 
+import ConfigParser
+cp = ConfigParser.ConfigParser
+class AxisPreferences(cp):
+    def __init__(self):
+        cp.__init__(self)
+        self.fn = os.path.expanduser("~/.axis_preferences")
+        self.read(self.fn)
+
+    def getpref(self, option, default=False):
+        try:
+            o = self.getboolean("DEFAULT", option)
+        except:
+            self.set("DEFAULT", option, default)
+            self.write(open(self.fn, "w"))
+            o = default
+        return o
+
+    def putpref(self, option, value):
+        self.set("DEFAULT", option, bool(value))
+        self.write(open(self.fn, "w"))
+
+ap = AxisPreferences()
+
 root_window = Tkinter.Tk(className="Axis")
 nf.start(root_window)
 nf.makecommand(root_window, "_", _)
@@ -2551,6 +2574,30 @@ class TclCommands(nf.TclCommands):
     def redraw(*ignored):
         o.tkRedraw()
 
+    def toggle_show_program(*event):
+        ap.putpref("show_program", vars.show_program.get())
+        o.tkRedraw()
+
+    def toggle_show_live_plot(*event):
+        ap.putpref("show_live_plot", vars.show_live_plot.get())
+        o.tkRedraw()
+
+    def toggle_show_tool(*event):
+        ap.putpref("show_tool", vars.show_tool.get())
+        o.tkRedraw()
+
+    def toggle_show_extents(*event):
+        ap.putpref("show_extents", vars.show_extents.get())
+        o.tkRedraw()
+
+    def toggle_show_machine_speed(*event):
+        ap.putpref("show_machine_speed", vars.show_machine_speed.get())
+        o.tkRedraw()
+
+    def toggle_show_distance_to_go(*event):
+        ap.putpref("show_distance_to_go", vars.show_distance_to_go.get())
+        o.tkRedraw()
+
     def clear_live_plot(*ignored):
         live_plotter.clear()
 
@@ -2801,12 +2848,12 @@ vars = nf.Variables(root_window,
 vars.emctop_command.set(os.path.join(os.path.dirname(sys.argv[0]), "emctop"))
 vars.highlight_line.set(-1)
 vars.running_line.set(-1)
-vars.show_program.set(1)
-vars.show_live_plot.set(1)
-vars.show_tool.set(1)
-vars.show_extents.set(1)
-vars.show_machine_speed.set(1)
-vars.show_distance_to_go.set(0)
+vars.show_program.set(ap.getpref("show_program", True))
+vars.show_live_plot.set(ap.getpref("show_live_plot", True))
+vars.show_tool.set(ap.getpref("show_tool", True))
+vars.show_extents.set(ap.getpref("show_extents", True))
+vars.show_machine_speed.set(ap.getpref("show_machine_speed", True))
+vars.show_distance_to_go.set(ap.getpref("show_distance_to_go", False))
 
 
 def set_feedrate(n):
@@ -2994,7 +3041,6 @@ def units(s, d=1.0):
 if sys.argv[1] != "-ini":
     raise SystemExit, "-ini must be first argument"
 
-import ConfigParser
 inifile = emc.ini(sys.argv[2])
 vars.emcini.set(sys.argv[2])
 axiscount = int(inifile.find("TRAJ", "AXES"))
