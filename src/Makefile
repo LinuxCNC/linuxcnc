@@ -448,8 +448,9 @@ COPY_CONFIGS := \
 	$(patsubst %,../configs/%/core_servo.hal, motenc m5i20 stg vti) \
 	$(patsubst %,../configs/%/core_sim.hal, halui_halvcp sim) \
 	../configs/sim/axis_manualtoolchange.hal
+
 configs: $(COPY_CONFIGS)
-	
+
 $(call CONFILES,axis_manualtoolchange.hal): %/axis_manualtoolchange.hal: ../configs/common/axis_manualtoolchange.hal
 	-cp $< $@
 $(call CONFILES,emc.nml): %/emc.nml: ../configs/common/emc.nml
@@ -674,7 +675,7 @@ $(sort $(RTOBJS)) : objects/rt%.o : %.c
 
 ../rtlib/%.o:
 	$(ECHO) Linking $@
-	ld -r -static -S -O2 -o $@ $^ $(EXTRALINK) $(MATHLIB)
+	@ld -r -static -S -O2 -o $@ $^ $(EXTRALINK) $(MATHLIB)
 endif
 
 ifneq "$(filter normal sim,$(BUILD_SYS))" ""
