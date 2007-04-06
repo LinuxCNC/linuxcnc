@@ -952,8 +952,9 @@ void ARC_FEED(double first_end, double second_end,
         vel = MIN(vel, ini_maxvel);
     }
 
-    // for arcs we always user linear move, as the ABC axes can't move (currently)
-    // linear move is actually a move involving axes X Y Z, not the type of the movement
+    // for arcs we always user linear move since there is no
+    // arc possible with only ABC motion
+
     linear_move = 1;
 
     thelix = (helical_length / acc);
@@ -969,7 +970,13 @@ void ARC_FEED(double first_end, double second_end,
     /* 
        mapping of rotation to turns:
 
-       rotation turns -------- ----- 0 none (linear move) 1 0 2 1 -1 -1 -2 -2 */
+       rotation turns 
+       -------- ----- 
+              0 none (linear move) 
+              1 0 
+              2 1 
+             -1 -1 
+             -2 -2 */
 
     if (rotation == 0) {
 	// linear move
@@ -1038,6 +1045,14 @@ void ARC_FEED(double first_end, double second_end,
 	circularMoveMsg.end.c = TO_EXT_ANG(c);
 
         circularMoveMsg.type = EMC_MOTION_TYPE_ARC;
+
+        // These are suboptimal but safe values.  The actual maximums
+        // are hard to calculate but may be somewhat larger than
+        // these.  Imagine an arc with very large radius going from
+        // 0,0,0 to 1,1,1 on a machine with maxvel=1 and maxaccel=1 on
+        // all axes.  The actual maximums will be near sqrt(3) but
+        // we'll be using 1 instead.
+
         circularMoveMsg.vel = toExtVel(vel);
         circularMoveMsg.ini_maxvel = toExtVel(ini_maxvel);
         circularMoveMsg.acc = toExtAcc(acc);
