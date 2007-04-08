@@ -4,6 +4,8 @@ endif
 
 vpath %.vhd ../5i2x_vhdl
 
+vpath %.o work_sim
+
 help :
 	@echo "This Makefile is NOT part of the EMC2 build system."
 	@echo "It uses the zero-cost (non-free) Xilinx Webpack tools"
@@ -12,31 +14,74 @@ help :
 	@echo "do not need to be recreated except to fix bugs or to"
 	@echo "make a custom FPGA configuration."
 
-%.prj : %.vhd
-	@echo "making project file $@ from top level file $<"
+%.o : %.vhd
+	@echo "analysis: making $@"
+	@if [ ! -d ./work_sim ] ; then mkdir work_sim; fi
 	@rm -f $@
-	@for FILE in $^ ; do echo "vhdl work $$FILE" ; done >>$@
+	@ghdl -a --ieee=synopsys -fexplicit --workdir=./work_sim $<
+
+%.bin : %.vhd %.o
+	@echo "elaboration: making $@"
+	@if [ ! -d ./work_sim ] ; then mkdir work_sim; fi
+	@rm -f $@
+	@ghdl -e --ieee=synopsys -fexplicit --workdir=./work_sim -o $@\
+	    `grep -m 1 "entity .* is" $< | \
+	     sed -e 's/^.*entity  *//' -e 's/  *is.*$$//'`
+
+%.ghw : %.bin
+	@echo "simulating: running $<"
+	@if [ ! -d ./work_sim ] ; then mkdir work_sim; fi
+	@rm -f $@
+	./$< --wave=$@
+
+%.wave : %.ghw
+	@gtkwave $< $*.sav &>/dev/null
+
+
+%.t : %.vhd
+	@echo "making $@"
+	@rm -f $@
+	@for FILE in $^ ; do \
+	    if [ ! $$FILE = $< ] ; then \
+		cat $$FILE >>$@ ;\
+	    fi ;\
+	done
+	@echo $< >>$@
+
+%.prj : %.t
+	@echo "making $@"
+	@rm -f $@
+	@touch $@
+	@for F in `cat $<` ; do if ! grep -q $$F $@ ; then echo "vhdl work $$F" >>$@ ; fi ; done
+	@echo "nosort" >>$@
 
 %.scr : %.vhd
-	@echo "making synthesis script file $@ from top level file $<"
-	@echo "set -tmpdir ./tmp" >$@
-	@echo "set -xsthdpdir ./work" >>$@
+	@echo "making $@"
+	@if [ ! -d ./tmp_syn ] ; then mkdir tmp_syn; fi
+	@echo "set -tmpdir ./tmp_syn" >$@
+	@if [ ! -d ./work_syn ] ; then mkdir work_syn; fi
+	@echo "set -xsthdpdir ./work_syn" >>$@
 	@echo "run" >>$@
 	@echo "-ifmt VHDL -ifn $*.prj" >>$@
-	@set -- `grep -m 1 -e "---[[:space:]][[:space:]]*topentity" $<` ; echo "-top $$3" >>$@
+	@echo "-top `grep -m 1 "entity .* is" $< | sed -e 's/^.*entity  *//' -e 's/  *is.*$$//'`" >>$@
 	@echo "-ofmt NGC -ofn $*.ngc" >>$@
 	@set -- `grep -m 1 -e "---[[:space:]][[:space:]]*device" $<` ; echo "-p $$3" >>$@
 
-%.ngc : %.prj %.scr
+%.ngc %.log.syn : %.prj %.scr
 	@echo "Synthesis: making $@"
-	@xst -ifn $*.scr -ofn $*.log.synthesis
+	@xst -ifn $*.scr -ofn $*.log.syn
 
-%.ngd : %.ngc
+%.usage : %.log.syn
+	@echo "Usage report:"
+	@cat $< | awk '/Device utilization summary:/,/TIMING REPORT/' | head -n-3 | tail >$@
+	@cat $@
+
+%.ngd %.log.ngd : %.ngc
 	@echo "NGDbuild: making $@ from $< with constraints from $(word 2,$^)"
 	@ngdbuild -uc $(word 2,$^) $< $@
-	@mv $*.bld $*.log.ngdbuild
+	@mv $*.bld $*.log.ngd
 
-%.ncd : %.ngd
+%.ncd %.log.map : %.ngd
 	@echo "Mapping: making $@ from $^"
 	@map $<
 	@mv $*.mrp $*.log.map
@@ -55,24 +100,29 @@ help :
 	@bitgen -w $*-rt.ncd $*.bit $*.pcf
 
 
-.PRECIOUS : %.prj %.scr %.ngc %.ngd %.ncd %-pl.ncd %-rt.ncd %.bit
+.PRECIOUS : %.prj %.scr %.ngc %.ngd %.ncd %-pl.ncd %-rt.ncd %.bit %.0 %.bin %.ghw
 
 makefile.depends : *.vhd
-	@echo "updating dependency file $@"
-	@rm -rf >$@
-	@for FILE in `grep -l "use  *work\.[[:alnum:]_-]*_pkg" $^` ; do \
-	    echo -n "$$FILE " | sed s/\.vhd/\.ngc/ >>$@ ;\
-	    echo -n "$$FILE :" | sed s/\.vhd/\.prj/ >>$@ ;\
-	    grep -o "use  *work\.[[:alnum:]_-]*_pkg" $$FILE | while read i ; do \
-	        echo -n $$i | sed "s/use  *work\./ /" | sed "s/_pkg/.vhd/" ;\
-	    done >>$@ ;\
+	@echo "Making $@"
+	@touch $@
+	@for FILE in $? ; do BASE=$${FILE/\.vhd/} ;\
+	    grep -v "^$$BASE.o" $@ >$@.tmp ;\
+	    echo -n "$$BASE.o :" >>$@.tmp ;\
+	    grep -o "use  *work\..*_pkg" $$FILE | while read i ; do \
+	        echo -n $$i | sed "s/use  *work\./ /" | sed "s/_pkg/.o/" >>$@.tmp ;\
+	    done ;\
+	    echo " " >>$@.tmp ;\
+	    grep -v "^$$BASE.t" $@.tmp >$@ ;\
+	    echo -n "$$BASE.t :" >>$@ ;\
+	    grep -o "use  *work\..*_pkg" $$FILE | while read i ; do \
+	        echo -n $$i | sed "s/use  *work\./ /" | sed "s/_pkg/.t/" >>$@ ;\
+	    done ;\
 	    echo " " >>$@ ;\
+	    if grep -q -e "--- *constraints" $$FILE ; then \
+	        echo -n "$$BASE.ngd :" >>$@ ;\
+	        set -- `grep -e "--- *constraints" $$FILE` ; echo " $$3" >>$@ ;\
+	    fi ;\
 	done
-	@for FILE in `grep -l -e "---[[:space:]][[:space:]]*constraints" $^` ; do \
-	    echo -n "$$FILE :" | sed s/\.vhd/\.ngd/ >>$@ ;\
-	    set -- `grep -m 1 -e "---[[:space:]][[:space:]]*constraints" $$FILE` ; echo " $$3" >>$@ ;\
-	done
-
 
 include makefile.depends
 
