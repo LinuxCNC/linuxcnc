@@ -100,7 +100,7 @@ help :
 	@bitgen -w $*-rt.ncd $*.bit $*.pcf
 
 
-.PRECIOUS : %.prj %.scr %.ngc %.ngd %.ncd %-pl.ncd %-rt.ncd %.bit %.0 %.bin %.ghw
+.PRECIOUS : %.prj %.scr %.ngc %.ngd %.ncd %-pl.ncd %-rt.ncd %.bit %.0 %.bin %.ghw %.log.syn %.log.ngd %.log.map
 
 makefile.depends : *.vhd
 	@echo "Making $@"
@@ -109,13 +109,13 @@ makefile.depends : *.vhd
 	    grep -v "^$$BASE.o" $@ >$@.tmp ;\
 	    echo -n "$$BASE.o :" >>$@.tmp ;\
 	    grep -o "use  *work\..*_pkg" $$FILE | while read i ; do \
-	        echo -n $$i | sed "s/use  *work\./ /" | sed "s/_pkg/.o/" >>$@.tmp ;\
+	        echo -n $$i | sed "s/use  *work\./ /" | sed "s/_pkg/.o/" | sed "s/$$BASE.o//" >>$@.tmp ;\
 	    done ;\
 	    echo " " >>$@.tmp ;\
 	    grep -v "^$$BASE.t" $@.tmp >$@ ;\
 	    echo -n "$$BASE.t :" >>$@ ;\
 	    grep -o "use  *work\..*_pkg" $$FILE | while read i ; do \
-	        echo -n $$i | sed "s/use  *work\./ /" | sed "s/_pkg/.t/" >>$@ ;\
+	        echo -n $$i | sed "s/use  *work\./ /" | sed "s/_pkg/.t/" | sed "s/$$BASE.t//" >>$@ ;\
 	    done ;\
 	    echo " " >>$@ ;\
 	    if grep -q -e "--- *constraints" $$FILE ; then \
