@@ -1144,7 +1144,12 @@ check_stuff ( "before command_handler()" );
 	    rtapi_print_msg(RTAPI_MSG_DBG, "HOME");
 	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
 
-	    if (GET_MOTION_COORD_FLAG() || !GET_MOTION_ENABLE_FLAG()) {
+	    if (emcmotStatus->motion_state != EMCMOT_MOTION_FREE) {
+		/* can't home unless in free mode */
+		reportError("must be in joint mode to home");
+		return;
+	    }
+	    if (!GET_MOTION_ENABLE_FLAG()) {
 		break;
 	    }
 
