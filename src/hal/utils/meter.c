@@ -361,6 +361,7 @@ void popup_probe_window(GtkWidget * widget, gpointer data)
     rtapi_mutex_get(&(hal_data->mutex));
     next = hal_data->pin_list_ptr;
     row = 0; match = 0;
+    gtk_clist_freeze(GTK_CLIST(probe->lists[0]));
     while (next != 0) {
 	pin = SHMPTR(next);
 	name = pin->name;
@@ -379,6 +380,7 @@ void popup_probe_window(GtkWidget * widget, gpointer data)
 	next = pin->next_ptr;
 	row++;
     }
+    gtk_clist_thaw(GTK_CLIST(probe->lists[0]));
     // if no match, unselect the first row, otherwise it will stay selected
     // and confuse the user
     if (!match)
@@ -386,6 +388,7 @@ void popup_probe_window(GtkWidget * widget, gpointer data)
     
     next = hal_data->sig_list_ptr;
     row = 0; match = 0;
+    gtk_clist_freeze(GTK_CLIST(probe->lists[1]));
     while (next != 0) {
 	sig = SHMPTR(next);
 	name = sig->name;
@@ -404,6 +407,7 @@ void popup_probe_window(GtkWidget * widget, gpointer data)
 	next = sig->next_ptr;
 	row++;
     }
+    gtk_clist_thaw(GTK_CLIST(probe->lists[1]));
     // if no match, unselect the first row, otherwise it will stay selected
     // and confuse the user
     if (!match)
@@ -411,6 +415,7 @@ void popup_probe_window(GtkWidget * widget, gpointer data)
 
     next = hal_data->param_list_ptr;
     row = 0; match = 0;
+    gtk_clist_freeze(GTK_CLIST(probe->lists[2]));
     while (next != 0) {
 	param = SHMPTR(next);
 	name = param->name;
@@ -429,6 +434,7 @@ void popup_probe_window(GtkWidget * widget, gpointer data)
 	next = param->next_ptr;
 	row++;
     }
+    gtk_clist_thaw(GTK_CLIST(probe->lists[2]));
     // if no match, unselect the first row, otherwise it will stay selected
     // and confuse the user
     if (!match)
