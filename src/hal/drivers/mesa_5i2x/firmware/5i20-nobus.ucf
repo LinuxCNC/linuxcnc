@@ -1,0 +1,132 @@
+############################################################
+#     Location Constraints for the 5i20 board              #
+############################################################
+#
+# This is a version that has only the clock(s) the I/O pins,
+# and the LEDs.  It is appropriate for entities that don't
+# interact with the PC in any way.  None of the bus interface
+# pins are listed, to avoid errors in synthesis.  (It is an
+# error to have a constraint for a signal that isn't used in
+#
+# For info about constraint file syntax, see constraints.txt
+#
+# CLOCKS
+# 33MHz Clock (PCI clock)
+NET "CLK33"       LOC = "p182" | IOSTANDARD = LVTTL ;
+# 50MHz Clock (Crystal Oscillator)
+NET "CLK50"       LOC = "p185" | IOSTANDARD = LVTTL ;
+#
+# I/O pins (from connectors)
+# IO0 is P2 pin 1, IO1 is P2 pin 3, etc
+NET "IOBits<0>"   LOC = "p96"  | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+NET "IOBits<1>"   LOC = "p94"  | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+NET "IOBits<2>"   LOC = "p89"  | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+NET "IOBits<3>"   LOC = "p87"  | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+NET "IOBits<4>"   LOC = "p84"  | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+NET "IOBits<5>"   LOC = "p82"  | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+NET "IOBits<6>"   LOC = "p75"  | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+NET "IOBits<7>"   LOC = "p73"  | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+NET "IOBits<8>"   LOC = "p70"  | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+NET "IOBits<9>"   LOC = "p68"  | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+NET "IOBits<10>"  LOC = "p63"  | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+NET "IOBits<11>"  LOC = "p61"  | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+NET "IOBits<12>"  LOC = "p59"  | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+NET "IOBits<13>"  LOC = "p57"  | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+NET "IOBits<14>"  LOC = "p48"  | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+NET "IOBits<15>"  LOC = "p46"  | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+NET "IOBits<16>"  LOC = "p44"  | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+NET "IOBits<17>"  LOC = "p42"  | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+NET "IOBits<18>"  LOC = "p37"  | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+NET "IOBits<19>"  LOC = "p35"  | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+NET "IOBits<20>"  LOC = "p33"  | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+NET "IOBits<21>"  LOC = "p30"  | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+NET "IOBits<22>"  LOC = "p27"  | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+NET "IOBits<23>"  LOC = "p23"  | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+#
+# IO24 is P3 pin 1, IO25 is P3 pin 3, etc
+NET "IOBits<24>"  LOC = "p95"  | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+NET "IOBits<25>"  LOC = "p90"  | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+NET "IOBits<26>"  LOC = "p88"  | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+NET "IOBits<27>"  LOC = "p86"  | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+NET "IOBits<28>"  LOC = "p83"  | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+NET "IOBits<29>"  LOC = "p81"  | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+NET "IOBits<30>"  LOC = "p74"  | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+NET "IOBits<31>"  LOC = "p71"  | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+NET "IOBits<32>"  LOC = "p69"  | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+NET "IOBits<33>"  LOC = "p67"  | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+NET "IOBits<34>"  LOC = "p62"  | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+NET "IOBits<35>"  LOC = "p60"  | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+NET "IOBits<36>"  LOC = "p58"  | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+NET "IOBits<37>"  LOC = "p49"  | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+NET "IOBits<38>"  LOC = "p47"  | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+NET "IOBits<39>"  LOC = "p45"  | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+NET "IOBits<40>"  LOC = "p43"  | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+NET "IOBits<41>"  LOC = "p41"  | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+NET "IOBits<42>"  LOC = "p36"  | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+NET "IOBits<43>"  LOC = "p34"  | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+NET "IOBits<44>"  LOC = "p31"  | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+NET "IOBits<45>"  LOC = "p29"  | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+NET "IOBits<46>"  LOC = "p24"  | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+NET "IOBits<47>"  LOC = "p22"  | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+#
+# IO48 is P4 pin 1, IO49 is P4 pin 3, etc
+NET "IOBits<48>"  LOC = "p181" | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+NET "IOBits<49>"  LOC = "p187" | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+NET "IOBits<50>"  LOC = "p188" | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+NET "IOBits<51>"  LOC = "p189" | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+NET "IOBits<52>"  LOC = "p191" | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+NET "IOBits<53>"  LOC = "p192" | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+NET "IOBits<54>"  LOC = "p193" | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+NET "IOBits<55>"  LOC = "p194" | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+NET "IOBits<56>"  LOC = "p195" | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+NET "IOBits<57>"  LOC = "p199" | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+NET "IOBits<58>"  LOC = "p200" | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+NET "IOBits<59>"  LOC = "p201" | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+NET "IOBits<60>"  LOC = "p202" | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+NET "IOBits<61>"  LOC = "p203" | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+NET "IOBits<62>"  LOC = "p204" | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+NET "IOBits<63>"  LOC = "p205" | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+NET "IOBits<64>"  LOC = "p206" | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+NET "IOBits<65>"  LOC = "p3"   | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+NET "IOBits<66>"  LOC = "p4"   | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+NET "IOBits<67>"  LOC = "p5"   | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+NET "IOBits<68>"  LOC = "p6"   | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+NET "IOBits<69>"  LOC = "p7"   | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+NET "IOBits<70>"  LOC = "p8"   | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+NET "IOBits<71>"  LOC = "p9"   | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+#
+# LEDs: LEDS0 is CR8, LEDS7 is CR1
+NET "LEDS<0>"     LOC = "p10"  | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+NET "LEDS<1>"     LOC = "p14"  | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+NET "LEDS<2>"     LOC = "p15"  | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+NET "LEDS<3>"     LOC = "p16"  | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+NET "LEDS<4>"     LOC = "p17"  | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+NET "LEDS<5>"     LOC = "p18"  | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+NET "LEDS<6>"     LOC = "p20"  | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+NET "LEDS<7>"     LOC = "p21"  | DRIVE = 24 | IOSTANDARD = LVTTL | SLEW = SLOW ;
+#
+#
+############################################################
+#     Timing Constraints for the 5i20 board                #
+############################################################
+#
+# 33MHz clock
+NET "CLK33" TNM_NET = "CLK33";
+TIMESPEC "TS_CLK33" = PERIOD "CLK33" 29.5 ns HIGH 50 %;
+#
+# most I/O pin stuff is asynchronous, so these constraints
+# might not make sense
+#
+# clock to pad
+OFFSET = OUT 25 ns AFTER "LCLK";
+#
+# pad to clock
+OFFSET = IN 25 BEFORE "LCLK";
+#
+# pad to pad
+TIMESPEC "TS_P2P" = FROM "PADS" TO "PADS" 50 ns;
+#
+# 50MHz clock
+#NET "CLK50" TNM_NET = "CLK50";
+#TIMESPEC "TS_CLK50" = PERIOD "CLK50" 20 ns HIGH 50 %;
+#

@@ -1,0 +1,295 @@
+##############################################
+#      BASIC UCF SYNTAX EXAMPLES V2.1.5      #
+##############################################
+#
+#              TIMING SPECIFICATIONS
+#
+# Timing specifications can be applied to the entire device (global) or to
+# specific groups of logic in your PLD design (called "time groups').
+# The time groups are declared in two basic ways.
+#
+# Method 1: Based on a net name, where 'my_net' is a net that touchs all the
+#           logic to be grouped in to 'logic_grp'. Example:
+#NET my_net TNM_NET = logic_grp
+#
+# Method 2: Group uing the key word 'TIMEGRP' and declare using the names of
+#           logic in your design. Example:
+#TIMEGRP group_name = FFS ("U1/*")
+#           creates a group called 'group_name' for all flip-flops with in
+#           the hierarchical block called U1. Wildcards are valid.
+#
+# Grouping is very important because it lets you tell the software which parts
+# of a design run at which speeds.  For the majority of the designs with only
+# one clock the very simple global constraints.
+#
+# The type of grouping constraint you use can vary depending on the synthesis
+# tools you are using.  For example, Synplicity does well with Method 1, while
+# FPGA Express does beter with Method 2.
+#
+#
+############################################################
+# Internal to the device clock speed specifications - Tsys #
+############################################################
+#
+# data      _________      /^^^^^\       _________   out
+# ----------| D   Q |-----{ LOGIC } -----| D   Q |------
+#           |       |      \vvvvv/       |       |
+#        ---|> CLK  |                 ---|> CLK  |
+# clock  |  ---------                 |  ---------
+# ------------------------------------
+#
+# ---------------
+# Single Clock
+# ---------------
+#
+# ----------------
+# PERIOD TIME-SPEC
+# ----------------
+# The PERIOD spec. covers all timing paths that start or end at a
+# register, latch, or synchronous RAM which are clocked by the reference
+# net (excluding pad destinations).  Also covered is the setup
+# requirement of the synchronous element relative to other elements
+# (ex. flip flops, pads, etc...).
+# NOTE:  The default unit for time is nanoseconds.
+#
+#NET clock PERIOD = 50ns
+#
+#       -OR-
+#
+# ------------------
+# FROM:TO TIME-SPECs
+# ------------------
+# FROM:TO style timespecs can be used to constrain paths between time
+# groups.  NOTE:  Keywords:  RAMS, FFS, PADS, and LATCHES are predefined
+# time groups used to specify all elements of each type in a design.
+#TIMEGRP RFFS = RISING FFS ("*");  // creates a rising group called RFFS
+#TIMEGRP FFFS = FALLING FFS ("*");  // creates a falling group called FFFS
+#TIMESPEC TSF2F  = FROM : FFS   : TO : FFS   : 50 ns; // Flip-flips with the same edge
+#TIMESPEC TSR2F  = FROM : RFFS  : TO : FFFS  : 25 ns; // rising edge to falling edge
+#TIMESPEC TSF2R  = FROM : FFFS  : TO : RFFS  : 25 ns; // falling edge to rising edge
+#
+# ---------------
+# Multiple Clocks
+# ---------------
+# Requires a combination of the 'Period' and 'FROM:TO' type time specifications
+#NET clock1 TNM_NET = clk1_grp
+#NET clock2 TNM_NET = clk2_grp
+#
+#TIMESPEC TS_clk1 = PERIOD : clk1_grp : 50
+#TIMESPEC TS_clk2 = PERIOD : clk2_grp : 30
+#TIMESPEC TS_ck1_2_ck2 = FROM : clk1_grp : TO : clk2_grp : 50
+#TIMESPEC TS_ck2_2_ck1 = FROM : clk2_grp : TO : clk1_grp : 30
+#
+#
+############################################################
+# CLOCK TO OUT specifications - Tco                        #
+############################################################
+#
+# from      _________      /^^^^^\       --------\
+# ----------| D   Q |-----{ LOGIC } -----| Pad    >
+# PLD       |       |      \vvvvv/       --------/
+#        ---|> CLK  |
+# clock  |  ---------
+# --------
+#
+# ----------------
+# OFFSET TIME-SPEC
+# ----------------
+# To automatically include clock buffer/routing delay in your
+# clock-to-out timing specifications, use OFFSET constraints .
+# For an output where the maximum clock-to-out (Tco) is 25 ns:
+#NET out_net_name OFFSET = OUT 25 AFTER clock_net_name
+#
+#      -OR-
+#
+# ------------------
+# FROM:TO TIME-SPECs
+# ------------------
+#TIMESPEC TSF2P  = FROM : FFS   : TO : PADS  : 25 ns
+# Note that FROM: FFS : TO: PADS constraints start the delay analysis
+# at the flip flop itself, and not the clock input pin.  The recommended
+# method to create a clock-to-out constraint is to use an OFFSET constraint.
+#
+#
+############################################################
+# Pad to Flip-Flop speed specifications - Tsu              #
+############################################################
+#
+# ------\         /^^^^^\       _________   into PLD
+# |pad   >-------{ LOGIC } -----| D   Q |------
+# ------/         \vvvvv/       |       |
+#                            ---|> CLK  |
+# clock                      |  ---------
+# ----------------------------
+#
+# ----------------
+# OFFSET TIME-SPEC
+# ----------------
+# To automatically account for clock delay in your input setup timing
+# specifications, use OFFSET constraints.
+# For an input where the maximum setup time is 25 ns:
+#NET in_net_name OFFSET = IN 25 BEFORE clock_net_name
+#
+#      -OR-
+#
+# ------------------
+# FROM:TO TIME-SPECs
+# ------------------
+#TIMESPEC TSP2F  = FROM : PADS  : TO : FFS   : 25 ns
+# Note that FROM: PADS : TO: FFS constraints do not take into account any
+# delay for the clock path.  The recommended method to create an input
+# setup time constraint is to use an OFFSET constraint.
+#
+#
+############################################################
+# Pad to Pad speed specifications - Tpd                    #
+############################################################
+#
+# ------\         /^^^^^\       -------\
+# |pad   >-------{ LOGIC } -----| pad   >
+# ------/         \vvvvv/       -------/
+#
+# ------------------
+# FROM:TO TIME-SPECs
+# ------------------
+#TIMESPEC TSP2P  = FROM : PADS  : TO : PADS  : 125 ns
+#
+#
+############################################################
+# Other timing specifications                              #
+############################################################
+#
+# -------------
+# TIMING IGNORE
+# -------------
+# If you can ignore timing of paths, use Timing Ignore (TIG). NOTE: The
+# "*" character is a wild-card which can be used for bus names.  A "?"
+# character can be used to wild-card one character.
+# Ignore timing of net reset_n:
+#NET : reset_n : TIG
+#
+# Ignore data_reg(7:0) net in instance mux_mem:
+#NET : mux_mem/data_reg* : TIG
+#
+# Ignore data_reg(7:0) net in instance mux_mem as related to a TIMESPEC
+# named TS01 only:
+#NET : mux_mem/data_reg* : TIG = TS01
+#
+# Ignore data1_sig and data2_sig nets:
+#NET : data?_sig : TIG
+#
+# ---------------
+# PATH EXCEPTIONS
+# ---------------
+# If your design has outputs that can be slower than others, you can
+# create specific timespecs similar to this example for output nets
+# named out_data(7:0) and irq_n:
+#TIMEGRP slow_outs = PADS(out_data* : irq_n)
+#TIMEGRP fast_outs = PADS : EXCEPT : slow_outs
+#TIMESPEC TS08 = FROM : FFS : TO : fast_outs : 22
+#TIMESPEC TS09 = FROM : FFS : TO : slow_outs : 75
+#
+# If you have multi-cycle FF to FF paths, you can create a time group
+# using either the TIMEGRP or TNM statements.
+#
+# WARNING:  Many VHDL/verilog synthesizers do not predictably name flip
+# flop Q output nets.  Most synthesizers do assign predictable instance
+# names to flip flops, however.
+#
+# TIMEGRP example:
+#TIMEGRP slowffs = FFS(inst_path/ff_q_output_net1* :
+#inst_path/ff_q_output_net2*)
+#
+# TNM attached to instance example:
+#INST inst_path/ff_instance_name1_reg* TNM = slowffs
+#INST inst_path/ff_instance_name2_reg* TNM = slowffs
+#
+# If a FF clock-enable is used on all flip flops of a multi-cycle path,
+# you can attach TNM to the clock enable net.  NOTE:  TNM attached to a
+# net "forward traces" to any FF, LATCH, RAM, or PAD attached to the
+# net.
+#NET ff_clock_enable_net TNM = slowffs
+#
+# Example of using "slowffs" timegroup, in a FROM:TO timespec, with
+# either of the three timegroup methods shown above:
+#TIMESPEC TS10 = FROM : slowffs : TO : FFS : 100
+#
+# Constrain the skew or delay associate with a net.
+#NET any_net_name MAXSKEW = 7
+#NET any_net_name MAXDELAY = 20 ns
+#
+#
+# Constraint priority in your .ucf file is as follows:
+#
+#    highest 1.  Timing Ignore (TIG)
+#                 2.  FROM : THRU : TO specs
+#             3.  FROM : TO specs
+#    lowest  4.  PERIOD specs
+#
+# See the on-line "Library Reference Guide" document for
+# additional timespec features and more information.
+#
+#
+############################################################
+#                                                          #
+#         LOCATION and ATTRIBUTE SPECIFICATIONS            #
+#                                                          #
+############################################################
+# Pin and CLB location locking constraints                 #
+############################################################
+#
+# -----------------------
+# Assign an IO pin number
+# -----------------------
+#INST io_buf_instance_name  LOC = P110
+#NET io_net_name  LOC = P111
+#
+# -----------------------
+# Assign a signal to a range of I/O pins
+# -----------------------
+#NET "signal_name" LOC=P32, P33, P34
+#
+# -----------------------
+# Place a logic element(called a BEL) in a specific CLB location.  BEL = FF, LUT, RAM, etc...
+# -----------------------
+#INST instance_path/BEL_inst_name  LOC = CLB_R17C36
+#
+# -----------------------
+# Place CLB in rectangular area from CLB R1C1 to CLB R5C7
+# -----------------------
+#INST /U1/U2/reg<0> LOC=clb_r1c1:clb_r5c7
+#
+# -----------------------
+# Place Heirarchial logic block in rectangular area from CLB R1C1 to CLB R5C7
+# -----------------------
+#INST /U1* LOC=clb_r1c1:clb_r5c7
+#
+# -----------------------
+# Prohibit IO pin P26 or CLBR5C3 from being used:
+# -----------------------
+#CONFIG PROHIBIT = P26
+#CONFIG PROHIBIT = CLB_R5C3
+# Config Prohibit is very important for frocing the software to not use critical
+# configuration pins like INIT or DOUT on the FPGA.  The Mode pins and JTAG
+# Pins require a special pad so they will not be availabe to this constraint
+#
+# -----------------------
+# Assign an OBUF to be FAST or SLOW:
+# -----------------------
+#INST obuf_instance_name FAST
+#INST obuf_instance_name SLOW
+#
+# -----------------------
+# FPGAs only:  IOB input Flip-flop delay specifcation
+# -----------------------
+# Declare an IOB input FF delay (default = MAXDELAY).
+# NOTE:  MEDDELAY/NODELAY can be attached to a CLB FF that is pushed
+# into an IOB by the "map -pr i" option.
+#INST input_ff_instance_name MEDDELAY
+#INST input_ff_instance_name NODELAY
+#
+# -----------------------
+# Assign Global Clock Buffers Lower Left Right Side
+# -----------------------
+# INST gbuf1 LOC=SSW
+#
