@@ -1,6 +1,6 @@
-ifeq ($(XILINX),)
-    $(error "source ~/xilinx/settings.sh" to set env vars)
-endif
+#ifeq ($(XILINX),)
+#    $(error "source ~/xilinx/settings.sh" to set env vars)
+#endif
 
 vpath %.vhd ../5i2x_vhdl
 
@@ -106,13 +106,13 @@ makefile.depends : *.vhd
 	@echo "Making $@"
 	@touch $@
 	@for FILE in $? ; do BASE=$${FILE/\.vhd/} ;\
-	    grep -v "^$$BASE.o" $@ >$@.tmp ;\
-	    echo -n "$$BASE.o :" >>$@.tmp ;\
+	    grep -v "^$$BASE.o" $@ | grep -v "^$$BASE.t" | grep -v "^$$BASE.ngd" >$@.tmp ;\
+	    mv $@.tmp $@ ;\
+	    echo -n "$$BASE.o :" >>$@ ;\
 	    grep -o "use  *work\..*_pkg" $$FILE | while read i ; do \
-	        echo -n $$i | sed "s/use  *work\./ /" | sed "s/_pkg/.o/" | sed "s/$$BASE.o//" >>$@.tmp ;\
+	        echo -n $$i | sed "s/use  *work\./ /" | sed "s/_pkg/.o/" | sed "s/$$BASE.o//" >>$@ ;\
 	    done ;\
-	    echo " " >>$@.tmp ;\
-	    grep -v "^$$BASE.t" $@.tmp >$@ ;\
+	    echo " " >>$@ ;\
 	    echo -n "$$BASE.t :" >>$@ ;\
 	    grep -o "use  *work\..*_pkg" $$FILE | while read i ; do \
 	        echo -n $$i | sed "s/use  *work\./ /" | sed "s/_pkg/.t/" | sed "s/$$BASE.t//" >>$@ ;\
