@@ -83,26 +83,40 @@ help :
 	@ngdbuild -uc $(word 2,$^) $< $@
 	@mv $*.bld $*.log.ngd
 
-%.ncd %.log.map : %.ngd
-	@echo "Mapping: making $@ from $^"
+# The extensions .nad and .nbd are actually .ncd files - the toolchain
+# uses .ncd for unplaced, placed-but-not-routed, and placed-and-routed files
+# The makefile uses distinct extensions to keep the dependencies straight,
+# and to preserve the intermediate files.
+
+%.nad %.log.map : %.ngd
+	@echo "Mapping: making $@ (unplaced) from $^"
 	@map $<
+	@mv $*.ncd $*.nad
 	@mv $*.mrp $*.log.map
 
-%-pl.ncd : %.ncd
-	@echo "Placing: making $@ from $^"
-	@par -nopad -r $*.ncd -w $*-pl.ncd $*.pcf
+%.nbd : %.nad
+	@echo "Placing: making $@ (unrouted) from $^"
+	@cp $*.nad raw.ncd
+	@par -nopad -r raw.ncd -w placed.ncd $*.pcf
+	@rm raw.ncd
+	@mv placed.ncd $*.nbd
+	@rm placed.unroutes
+	@rm placed.par
+	@rm placed.xpi
 
-%-rt.ncd : %-pl.ncd
+%.ncd : %.nbd
 	@rm -f $@
-	@echo "Routing: making $@ from $^"
-	@par -p $*-pl.ncd -w $*-rt.ncd $*.pcf
+	@cp $*.nbd placed.ncd
+	@echo "Routing: making $@ (finished) from $^"
+	@par -p placed.ncd -w $*.ncd $*.pcf
+	@rm placed.ncd
 
-%.bit : %-rt.ncd
+%.bit : %.ncd
 	@echo "Bitgen: making $@ from $^"
-	@bitgen -w $*-rt.ncd $*.bit $*.pcf
+	@bitgen -w $*.ncd $*.bit $*.pcf
 
 
-.PRECIOUS : %.prj %.scr %.ngc %.ngd %.ncd %-pl.ncd %-rt.ncd %.bit %.0 %.bin %.ghw %.log.syn %.log.ngd %.log.map
+.PRECIOUS : %.prj %.scr %.ngc %.ngd %.nad %.nbd %.ncd %.ncdup %.ncdur %.bit %.0 %.bin %.ghw %.log.syn %.log.ngd %.log.map
 
 makefile.depends : *.vhd
 	@echo "Making $@"
