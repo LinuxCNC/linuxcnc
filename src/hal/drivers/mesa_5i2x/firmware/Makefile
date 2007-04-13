@@ -13,6 +13,8 @@ help :
 	@echo "The completed bitfiles are distributed with EMC2, and"
 	@echo "do not need to be recreated except to fix bugs or to"
 	@echo "make a custom FPGA configuration."
+	@echo "It also uses the Free Software programs GHDL and GtkWave"
+	@echo "to allow simulation of the FPGA logic."
 
 %.o : %.vhd
 	@echo "analysis: making $@"
@@ -106,7 +108,7 @@ makefile.depends : *.vhd
 	@echo "Making $@"
 	@touch $@
 	@for FILE in $? ; do BASE=$${FILE/\.vhd/} ;\
-	    grep -v "^$$BASE.o" $@ | grep -v "^$$BASE.t" | grep -v "^$$BASE.ngd" >$@.tmp ;\
+	    grep -v "^$$BASE.o :" $@ | grep -v "^$$BASE.t :" | grep -v "^$$BASE.ngd :" >$@.tmp ;\
 	    mv $@.tmp $@ ;\
 	    echo -n "$$BASE.o :" >>$@ ;\
 	    grep -o "use  *work\..*_pkg" $$FILE | while read i ; do \

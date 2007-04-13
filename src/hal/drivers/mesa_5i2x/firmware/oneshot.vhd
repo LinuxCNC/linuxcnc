@@ -6,7 +6,7 @@
 --   'size' is the length of 'duration' in bits, minimum
 --   value for 'size' is 2.
 
--- Notes
+-- Notes (specific to the 5i20 FPGA)
 --   For size >= 12, it uses (size + 1) FFs and (size + 1) LUTs
 --   For size < 12, it uses (size + 1) FFs and significantly
 --    more LUTs (up to 42 for 11 bits), apparently in an attempt
@@ -65,7 +65,7 @@ begin
     OneShot:
 	process (clock, input, duration, count, muxout, nextcount)
 	begin
-	    -- clocked
+	    -- combinatorial
 		if input = '1'  then
 		    muxout_lo <= duration;
 		else
