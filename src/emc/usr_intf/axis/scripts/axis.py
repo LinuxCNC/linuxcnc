@@ -2906,7 +2906,7 @@ tempdir = mkdtemp()
 atexit.register(remove_tempdir, tempdir)
 
 if postgui_halfile:
-    res = os.spawnvp(os.P_WAIT, "halcmd", ["halcmd", "-f", postgui_halfile])
+    res = os.spawnvp(os.P_WAIT, "halcmd", ["halcmd", "-i", vars.emcini.get(), "-f", postgui_halfile])
     if res: raise SystemExit, res
 
 activate_axis(0, True)
