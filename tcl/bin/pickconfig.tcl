@@ -135,6 +135,7 @@ proc node_clicked {} {
         # enable the OK button
 	$button_ok configure -state normal
 	bind . <Return> {button_pushed OK}
+	bind . <KP_Enter> {button_pushed OK}
     } else {
 	# not an ini node, can't use it
 	# enable changes to the details widget
@@ -148,7 +149,7 @@ proc node_clicked {} {
 	# disable the OK button
 	$button_ok configure -state disabled
 	bind . <Return> ""
-
+	bind . <KP_Enter> ""
     }
 }
 
@@ -313,6 +314,8 @@ if { $config_count == 0 } {
 
 bind . <Escape> {button_pushed Cancel}
 bind . <Return> ""
+bind . <KP_Enter> ""
+
 wm protocol . WM_DELETE_WINDOW {button_pushed Cancel}
 
 proc wait_and_see {node {wait 10}} {
