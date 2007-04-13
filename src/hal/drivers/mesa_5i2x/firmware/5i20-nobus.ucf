@@ -118,10 +118,10 @@ TIMESPEC "TS_CLK33" = PERIOD "CLK33" 29.5 ns HIGH 50 %;
 # might not make sense
 #
 # clock to pad
-OFFSET = OUT 25 ns AFTER "LCLK";
+OFFSET = OUT 25 ns AFTER "CLK33";
 #
 # pad to clock
-OFFSET = IN 25 BEFORE "LCLK";
+OFFSET = IN 25 BEFORE "CLK33";
 #
 # pad to pad
 TIMESPEC "TS_P2P" = FROM "PADS" TO "PADS" 50 ns;
