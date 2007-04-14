@@ -1,4 +1,4 @@
-emc2 (1:2.1.5~alpha0) unstable; urgency=low
+emc2 (1:2.1.5) unstable; urgency=low
 
   * set default gains in sum2 component to one instead of zero, so by default
     it sums its inputs
@@ -9,8 +9,9 @@ emc2 (1:2.1.5~alpha0) unstable; urgency=low
   * revert "AXIS: fix changing axes with keyboard while jogging with the jog
     button", it caused more problems than it solved
   * add 'enable' pin to charge-pump component
+  * fix holecircle
 
- -- Jeff Epler <jepler@sds2.com>  Thu, 29 Mar 2007 12:59:49 -0500
+ -- Chris Radek <chris@timeguy.com>  Sat, 14 Apr 2007 12:31:33 -0500
 
 emc2 (1:2.1.4) unstable; urgency=low
 
