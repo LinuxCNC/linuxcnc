@@ -1,5 +1,11 @@
 emc2 (1:2.1.5~alpha0) unstable; urgency=low
 
+  * set default gains in sum2 component to one instead of zero, so by default
+    it sums its inputs
+  * AXIS: pass ini file name along to POSTGUI_HALFILE
+  * pickconfig: make keypad enter key work like main enter key - issue "OK"
+  * halmeter: fix bug that caused slowdown or freeze if "select" is clicked
+    while the selection dialog is already on-screen
   * revert "AXIS: fix changing axes with keyboard while jogging with the jog
     button", it caused more problems than it solved
   * add 'enable' pin to charge-pump component
