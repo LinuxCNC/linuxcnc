@@ -539,11 +539,13 @@ AC_ARG_ENABLE(run-in-place,
         ;;
         *)
             RUN_IN_PLACE=no
+            EMC2_HOME=$prefix
         ;;
     esac
     ],
     [
         RUN_IN_PLACE=no
+        EMC2_HOME=$prefix
 	AC_MSG_CHECKING(for realtime module directory)
         AC_MSG_RESULT([$MODULE_DIR])
     ])
