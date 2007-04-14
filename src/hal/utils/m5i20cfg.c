@@ -442,7 +442,7 @@ static void findpcicard(unsigned cardnum)
 	lineptr = 0 ;
 	linelen = 0 ;
 	numlines = 0 ;
-	i = cardnum ;
+	i = 0 ;
 	for( ; ; )
 	{
 		if(getline(&lineptr, &linelen, f) < 0)
