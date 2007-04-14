@@ -27,7 +27,7 @@ def ui():
     f.grid(row=0, column=1, sticky="nw")
     b.grid(row=1, column=0, columnspan=2, sticky="ne")
 
-    validate_float    = "puts stderr {validate float}; expr {[regexp {^-?([0-9]+(\.[0-9]*)?|\.[0-9]+|)$} %P]}"
+    validate_float    = "expr {[regexp {^-?([0-9]+(\.[0-9]*)?|\.[0-9]+|)$} %P]}"
     validate_int      = "expr {[regexp {^-?([0-9]+|)$} %P]}"
     validate_posfloat = "expr {[regexp {^?([0-9]+(\.[0-9]*)?|\.[0-9]+|)$} %P]}"
     validate_posint   = "expr {[regexp {^([0-9]+|)$} %P]}"
