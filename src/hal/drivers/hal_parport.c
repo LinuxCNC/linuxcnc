@@ -502,6 +502,7 @@ static void read_port(void *arg, long period)
 	    mask <<= 1;
 	}
     }
+    /* are we using the control port for input? */
     if(port->use_control_in) {
         mask = 0x01;
         /* correct for hardware inverters on pins 1, 14, & 17 */
@@ -545,17 +546,23 @@ static void write_port(void *arg, long period)
 	/* prepare to build control port byte, with direction bit set */
 	outdata = 0x20;
     }
-    mask = 0x01;
-    /* assemble output byte for control port from 4 source variables */
-    for (b = 0; b < 4; b++) {
-	/* get the data, add to output byte */
-	if ((*(port->control_out[b])) && (!port->control_inv[b])) {
-	    outdata |= mask;
+    /* are we using the control port for input? */
+    if (port->use_control_in) {
+	/* yes, force those pins high */
+	outdata |= 0x0F;
+    } else {
+	/* no, assemble output byte from 4 source variables */
+	mask = 0x01;
+	for (b = 0; b < 4; b++) {
+	    /* get the data, add to output byte */
+	    if ((*(port->control_out[b])) && (!port->control_inv[b])) {
+		outdata |= mask;
+	    }
+	    if ((!*(port->control_out[b])) && (port->control_inv[b])) {
+		outdata |= mask;
+	    }
+	    mask <<= 1;
 	}
-	if ((!*(port->control_out[b])) && (port->control_inv[b])) {
-	    outdata |= mask;
-	}
-	mask <<= 1;
     }
     /* correct for hardware inverters on pins 1, 14, & 17 */
     outdata ^= 0x0B;
@@ -759,16 +766,18 @@ static int export_port(int portnum, parport_t * port)
 	retval += export_output_pin(portnum, 9,
 	    port->data_out, port->data_inv, 7);
     }
-    /* declare output variables (control port) */
-    retval += export_output_pin(portnum, 1,
-	port->control_out, port->control_inv, 0);
-    retval += export_output_pin(portnum, 14,
-	port->control_out, port->control_inv, 1);
-    retval += export_output_pin(portnum, 16,
-	port->control_out, port->control_inv, 2);
-    retval += export_output_pin(portnum, 17,
-	port->control_out, port->control_inv, 3);
-    if(port->use_control_in) {
+    if(port->use_control_in == 0) {
+	/* declare output variables (control port) */
+	retval += export_output_pin(portnum, 1,
+	    port->control_out, port->control_inv, 0);
+	retval += export_output_pin(portnum, 14,
+	    port->control_out, port->control_inv, 1);
+	retval += export_output_pin(portnum, 16,
+	    port->control_out, port->control_inv, 2);
+	retval += export_output_pin(portnum, 17,
+	    port->control_out, port->control_inv, 3);
+    } else {
+	/* declare input variables (control port) */
         retval += export_input_pin(portnum, 1, port->control_in, 0);
         retval += export_input_pin(portnum, 14, port->control_in, 1);
         retval += export_input_pin(portnum, 16, port->control_in, 2);
