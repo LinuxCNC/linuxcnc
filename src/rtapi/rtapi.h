@@ -69,6 +69,14 @@
 #error "Can't define both RTAPI and ULAPI!"
 #endif
 
+/** Provide fixed length types of the form __u8, __s32, etc.  These
+    can be used in both kernel and user space.  There are also types
+    without the leading underscores, but they work in kernel space
+    only.  Since we have a simulator that runs everything in user
+    space, the non-underscore types should NEVER be used.
+*/
+#include <linux/types.h>
+
 /** These status codes are returned by many RTAPI functions. */
 
 #define RTAPI_SUCCESS     0	/* call successfull */

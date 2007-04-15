@@ -287,13 +287,12 @@ typedef enum {
     HAL_RW = 192,
 } hal_param_dir_t;
 
-#include <rtapi_types.h>
-
 /* Use these for x86 machines, and anything else that can write to
    individual bytes in a machine word. */
+#include <linux/types.h>
 typedef volatile unsigned char hal_bit_t;
-typedef volatile u32 hal_u32_t;
-typedef volatile s32 hal_s32_t;
+typedef volatile __u32 hal_u32_t;
+typedef volatile __s32 hal_s32_t;
 typedef volatile float hal_float_t;
 
 /***********************************************************************

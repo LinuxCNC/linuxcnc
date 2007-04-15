@@ -168,7 +168,7 @@ MODULE_LICENSE("GPL");
 /* config ROM */
 #define ROM	0x0000
 /* default contents */
-const u32 rom[] = { 0x00000000, 0x11111111, 0xabcd1234 };
+const __u32 rom[] = { 0x00000000, 0x11111111, 0xabcd1234 };
 
 /* general I/O */
 /* add 4 for each group of 24 pins (one connector) */
@@ -194,9 +194,9 @@ typedef struct dig_io_t {
 
 /* one connector worth of digital I/O */
 typedef struct dig_port_t {
-    u32 ins;		/* bitmap marking all inputs */
-    u32 outs;		/* bitmap marking all outputs */
-    u32 ocs;		/* bitmap marking open collector outputs */
+    __u32 ins;		/* bitmap marking all inputs */
+    __u32 outs;		/* bitmap marking all outputs */
+    __u32 ocs;		/* bitmap marking open collector outputs */
     void __iomem *data_addr;
     void __iomem *dir_addr;
     dig_io_t pins[24];
@@ -220,15 +220,15 @@ typedef struct stepgen_t {
     hal_float_t old_maxaccel;
     hal_float_t old_maxvel;
     hal_float_t old_scale;
-    u32 old_steplen;
-    u32 old_stepspace;
-    u32 old_dirsetup;
-    u32 old_dirhold;
+    __u32 old_steplen;
+    __u32 old_stepspace;
+    __u32 old_dirsetup;
+    __u32 old_dirhold;
     double internal_maxvel;
     double max_deltav;
     double current_vel;
     int update_max;
-    s32 old_accum;
+    __s32 old_accum;
     long long int counts_hires;
 } stepgen_t;
 
@@ -261,7 +261,7 @@ static void read_gpio(void *arg, long period)
     board_data_t *b;
     dig_port_t *p;
     int n, i;
-    u32 ins, data;
+    __u32 ins, data;
 
     b = arg;
     for ( n = 0 ; n < PORTS_PER_BOARD; n++ ) {
@@ -293,7 +293,7 @@ static void write_gpio(void *arg, long period)
     board_data_t *b;
     dig_port_t *p;
     int n, i;
-    u32 outs, dirs, mask, data;
+    __u32 outs, dirs, mask, data;
 
     b = arg;
     for ( n = 0 ; n < PORTS_PER_BOARD; n++ ) {
@@ -328,7 +328,7 @@ static void write_gpio(void *arg, long period)
 static void read_stepgen(void *arg, long period)
 {
     stepgen_t *s;
-    s32 accum, delta;
+    __s32 accum, delta;
 
     s = arg;
     if ( s->scale != s->old_scale ) {
@@ -357,10 +357,10 @@ static void write_stepgen(void *arg, long period)
 {
     stepgen_t *s;
     int clocks;
-    s32 addval;
-    u32 min_period_ns;
+    __s32 addval;
+    __u32 min_period_ns;
     double max_freq, vel_cmd, vel_diff;
-    u32 mode;
+    __u32 mode;
 
     s = arg;
     /* lots of parameter processing, do only if something has changed */
@@ -493,7 +493,7 @@ static int export_gpio(int boardnum, board_data_t *board )
 {
     dig_port_t *port;
     int portnum, pin, retval;
-    u32 mask;
+    __u32 mask;
     char name[HAL_NAME_LEN + 2];
 
     for ( portnum = 0 ; portnum < PORTS_PER_BOARD ; portnum++ ) {
@@ -664,7 +664,7 @@ static int export_stepgen(int boardnum, int gennum, board_data_t *board )
 int rtapi_app_main(void)
 {
     int n, i, retval;
-    u32 foo[256];
+    __u32 foo[256];
     board_data_t *board;
     struct pci_dev *pDev;
 
