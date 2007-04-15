@@ -632,7 +632,7 @@ AX5214H
 \layout Standard
 
 The Axiom Measurement & Control AX5214H is a 48 channel digital I/O board.
- It plugs into a PCI bus, and resembles a pair of 8255 chips.
+ It plugs into an ISA bus, and resembles a pair of 8255 chips.
 \begin_inset Foot
 collapsed true
 
