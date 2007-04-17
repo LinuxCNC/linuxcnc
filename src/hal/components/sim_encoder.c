@@ -88,7 +88,7 @@ RTAPI_MP_INT(num_chan, "number of 'encoders'");
 typedef struct {
     signed long addval;		/* frequency generator add value */
     unsigned long accum;	/* frequency generator accumulator */
-    char state;			/* current quadrature state */
+    signed char state;		/* current quadrature state */
     long cycle;			/* current cycle */
     hal_bit_t *phaseA;		/* pins for output signals */
     hal_bit_t *phaseB;		/* pins for output signals */
