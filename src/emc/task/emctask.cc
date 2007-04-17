@@ -10,10 +10,6 @@
 *    
 * Copyright (c) 2004 All rights reserved.
 *
-* Last change:
-* $Revision$
-* $Author$
-* $Date$
 ********************************************************************/
 
 #include <stdlib.h>
@@ -154,6 +150,7 @@ int emcTaskSetState(int state)
 
     switch (state) {
     case EMC_TASK_STATE_OFF:
+        emcMotionAbort();
 	// turn the machine servos off-- go into READY state
 	for (t = 0; t < emcStatus->motion.traj.axes; t++) {
 	    emcAxisDisable(t);
@@ -178,6 +175,7 @@ int emcTaskSetState(int state)
 	break;
 
     case EMC_TASK_STATE_ESTOP:
+        emcMotionAbort();
 	// go into estop-- do both IO estop and machine servos off
 	emcAuxEstopOn();
 	for (t = 0; t < emcStatus->motion.traj.axes; t++) {
