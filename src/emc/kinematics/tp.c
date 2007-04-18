@@ -441,37 +441,6 @@ void tcRunCycle(TC_STRUCT *tc, double *v, int *on_final_decel) {
     if(on_final_decel) *on_final_decel = fabs(maxnewvel - newvel) < 0.001;
 }
 
-// Return 1 if the "angle" between the TC elements is acute.  It also returns 1
-// in some "hard to tell" cases, which is the safe thing to do because
-// acceleration is cut in half whenever acute() is true.
-int acute(TC_STRUCT *a, TC_STRUCT *b) {
-    PmCartesian v1, v2;
-    PmPose p1, p2;
-    double dot;
-
-    if(!a || !b)
-        return 1;
-
-    if(a->motion_type == TC_CIRCULAR) 
-        p1 = a->coords.circle.abc.end;
-    else
-        p1 = a->coords.line.abc.end;
-
-    if(b->motion_type == TC_CIRCULAR) 
-        p2 = b->coords.circle.abc.start;
-    else
-        p2 = b->coords.line.abc.start;
-
-    if(!pmPosePoseCompare(p1, p2))
-        return 1;
-
-    v1 = tcGetEndingUnitVector(a);
-    v2 = tcGetStartingUnitVector(b);
-    pmCartCartDot(v1, v2, &dot);
-
-    return dot < 0.5;
-}
-
 // This is the brains of the operation.  It's called every TRAJ period
 // and is expected to set tp->currentPos to the new machine position.
 // Lots of other tp fields (depth, done, etc) have to be twiddled to
@@ -598,8 +567,6 @@ int tpRunCycle(TP_STRUCT * tp, long period)
     if(nexttc && nexttc->active == 0) {
         // this means this tc is being read for the first time.
 
-	TC_STRUCT *thirdtc = tcqItem(&tp->queue, 2, period);
-
         nexttc->currentvel = 0;
         tp->depth = tp->activeDepth = 1;
         nexttc->active = 1;
@@ -610,9 +577,8 @@ int tpRunCycle(TP_STRUCT * tp, long period)
             nexttc->maxvel = tp->vLimit;
 
         // honor accel constraint if we happen to make an acute angle with the
-        // above segment or the following one, or we can't be sure
-        if((tc->blend_with_next && acute(tc, nexttc)) ||
-                (nexttc->blend_with_next && acute(nexttc, thirdtc)))
+        // above segment or the following one
+        if(tc->blend_with_next || nexttc->blend_with_next)
             nexttc->maxaccel /= 2.0;
     }
 
