@@ -22,18 +22,19 @@
  *  Parameters:
  *        u32       boss_plc.<id>.brake-on-delay;
  *        u32       boss_plc.<id>.brake-off-delay;
+ *        float     boss_plc.<id>.jog-scale-0
+ *        float     boss_plc.<id>.jog-scale-1
+ *        float     boss_plc.<id>.jog-scale-2
  *
  *  Pins:
  *        bit       boss_plc.<id>.cycle-start-in;
  *        bit       boss_plc.<id>.cycle-hold-in;
  *        bit       boss_plc.<id>.feed-hold-out;
- *
- *        float     boss_plc.<id>.rapid-override-in;
- *        float     boss_plc.<id>.feed-override-in;
- *        u32       boss_plc.<id>.motion-type-in;
+ *        float     boss_plc.<id>.adaptive-feed-in;
  *        float     boss_plc.<id>.adaptive-feed-out;
  *
- *        bit       boss_plc.<id>.limit-overridein;
+ *        bit       boss_plc.<id>.limit-override-in;
+ *        bit       boss_plc.<id>.limit-active-out;
  *        float     boss_plc.<id>.xposition-in;
  *        bit       boss_plc.<id>.xjog-en-in;
  *        bit       boss_plc.<id>.xlimit-in;
@@ -61,6 +62,11 @@
  *        bit       boss_plc.<id>.spindle-dec-out;
  *        bit       boss_plc.<id>.brake-en-in;
  *        bit       boss_plc.<id>.brake-en-out;
+ *
+ *        bit       boss_plc.<id>.jog-sel-in-0;
+ *        bit       boss_plc.<id>.jog-sel-in-1;
+ *        bit       boss_plc.<id>.jog-sel-in-2;
+ *        bit       boss_plc.<id>.jog-scale-out;
  *
  *   Functions:
  *        void      boss_plc.<id>.read
@@ -184,6 +190,7 @@ typedef struct {
 } Limit;
 
 static void Limit_Init(Limit *this);
+static BOOL Limit_IsActive(Limit *this);
 static void Limit_Refresh(Limit *this, hal_bit_t override);
 
 
@@ -195,21 +202,23 @@ static void Limit_Refresh(Limit *this, hal_bit_t override);
  *
  ******************************************************************************/
 
+#define NUM_JOG_SEL                     3
+
 typedef struct {
     // Parameters.
     hal_u32_t                           brakeOnDelay;
     hal_u32_t                           brakeOffDelay;
+    hal_float_t                         jogScale[NUM_JOG_SEL];
 
     // Pins.
     hal_bit_t                           *pCycleStartIn;
     hal_bit_t                           *pCycleHoldIn;
     hal_bit_t                           *pFeedHoldOut;
-    hal_float_t                         *pRapidOverrideIn;
-    hal_float_t                         *pFeedOverrideIn;
-    hal_u32_t                           *pMotionTypeIn;
+    hal_float_t                         *pAdaptiveFeedIn;
     hal_float_t                         *pAdaptiveFeedOut;
 
     hal_bit_t                           *pLimitOverrideIn;
+    hal_bit_t                           *pLimitActiveOut;
     Limit                               xLimit;
     Limit                               yLimit;
     hal_bit_t                           *pZJogEnIn;
@@ -229,6 +238,9 @@ typedef struct {
     hal_bit_t                           *pSpindleDecOut;
     hal_bit_t                           *pBrakeEnIn;
     hal_bit_t                           *pBrakeEnOut;
+
+    hal_bit_t                           *pJogSelIn[NUM_JOG_SEL];
+    hal_bit_t                           *pJogScaleOut;
 
     // Private data.
     Timer                               brakeOnTimer;
@@ -353,13 +365,22 @@ rtapi_app_exit(void)
 static int
 Device_Init(Device *this)
 {
+    int                                 i;
+
+    this->brakeOffDelay = 500;
+    this->brakeOnDelay = 300;
+
+    this->jogScale[0] = 0.0001;
+
+    for(i = 1; i < NUM_JOG_SEL; i++){
+        this->jogScale[i] = this->jogScale[i-1] * 10;
+    }
+
     Timer_Init(&this->brakeOnTimer);
     Timer_SetCallback(&this->brakeOnTimer, Device_BrakeOnTimeout, this);
-    Timer_SetTimeout(&this->brakeOnTimer, this->brakeOnDelay);
 
     Timer_Init(&this->brakeOffTimer);
     Timer_SetCallback(&this->brakeOffTimer, Device_BrakeOffTimeout, this);
-    Timer_SetTimeout(&this->brakeOffTimer, this->brakeOffDelay);
 
     Limit_Init(&this->xLimit);
     Limit_Init(&this->yLimit);
@@ -371,7 +392,7 @@ Device_Init(Device *this)
 static int
 Device_ExportPinsParametersFunctions(Device *this, int componentId, int id)
 {
-    int                                 msgLevel, error;
+    int                                 msgLevel, error, i;
     char                                name[HAL_NAME_LEN + 2];
 
     // This function exports a lot of stuff, which results in a lot of
@@ -391,6 +412,12 @@ Device_ExportPinsParametersFunctions(Device *this, int componentId, int id)
     }
 
     if(!error){
+        for(i = 0; i < NUM_JOG_SEL && !error; i++){
+            rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.jog-scale-%d-in", id, i);
+            error = hal_param_bit_new(name, HAL_RW, &(this->jogScale[i]), componentId);
+        }
+    }
+    if(!error){
         rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.cycle-start-in", id);
         error = hal_pin_bit_new(name, HAL_IN, &(this->pCycleStartIn), componentId);
     }
@@ -406,21 +433,12 @@ Device_ExportPinsParametersFunctions(Device *this, int componentId, int id)
     }
 
     if(!error){
-        rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.rapid-override-in", id);
-        error = hal_pin_float_new(name, HAL_IN, &(this->pRapidOverrideIn), componentId);
+        rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.adaptive-feed-in", id);
+        error = hal_pin_float_new(name, HAL_IN, &(this->pAdaptiveFeedIn), componentId);
     }
 
     if(!error){
-        rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.feed-override-in", id);
-        error = hal_pin_float_new(name, HAL_IN, &(this->pFeedOverrideIn), componentId);
-    }
-
-    if(!error){
-        rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.motion-type-in", id);
-        error = hal_pin_u32_new(name, HAL_IN, &(this->pMotionTypeIn), componentId);
-    }
-
-    if(!error){
+        *this->pAdaptiveFeedIn = 1.0;
         rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.adaptive-feed-out", id);
         error = hal_pin_float_new(name, HAL_OUT, &(this->pAdaptiveFeedOut), componentId);
     }
@@ -428,6 +446,11 @@ Device_ExportPinsParametersFunctions(Device *this, int componentId, int id)
     if(!error){
         rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.limit-override-in", id);
         error = hal_pin_bit_new(name, HAL_IN, &(this->pLimitOverrideIn), componentId);
+    }
+
+    if(!error){
+        rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.limit-active-out", id);
+        error = hal_pin_bit_new(name, HAL_OUT, &(this->pLimitActiveOut), componentId);
     }
 
     if(!error){
@@ -560,6 +583,18 @@ Device_ExportPinsParametersFunctions(Device *this, int componentId, int id)
         error = hal_pin_bit_new(name, HAL_OUT, &(this->pBrakeEnOut), componentId);
     }
 
+    if(!error){
+        for(i = 0; i < NUM_JOG_SEL && !error; i++){
+            rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.jog-sel-in-%d", id, i);
+            error = hal_pin_bit_new(name, HAL_IN, &(this->pJogSelIn[i]), componentId);
+        }
+    }
+
+    if(!error){
+        rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.jog-scale-out", id);
+        error = hal_pin_float_new(name, HAL_OUT, &(this->pJogScaleOut), componentId);
+    }
+
     // Export functions.
     if(!error){
         rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.refresh", id);
@@ -581,10 +616,18 @@ static void
 Device_Refresh(void *arg, long period)
 {
     Device                              *this = (Device *)arg;
+    int                                 i;
 
     Device_RefreshSpindle(this, period);
     Device_RefreshFeed(this, period);
     Device_RefreshLimits(this, period);
+
+    for(i = 0; i < NUM_JOG_SEL; i++){
+        if(*this->pJogSelIn[i]){
+            *this->pJogScaleOut = this->jogScale[i];
+            break;
+        }
+    }
 }
 
 
@@ -599,9 +642,15 @@ Device_RefreshSpindle(Device *this, long period)
     if(*this->pBrakeEnIn != *this->pBrakeEnOut){
         // Start the on or off timer.
         if(*this->pBrakeEnIn){
-            Timer_Enable(&this->brakeOnTimer);
+            if(!Timer_IsEnabled(&this->brakeOnTimer)){
+                Timer_SetTimeout(&this->brakeOnTimer, this->brakeOnDelay);
+                Timer_Enable(&this->brakeOnTimer);
+            }
         }else{
-            Timer_Enable(&this->brakeOffTimer);
+            if(!Timer_IsEnabled(&this->brakeOffTimer)){
+                Timer_SetTimeout(&this->brakeOffTimer, this->brakeOffDelay);
+                Timer_Enable(&this->brakeOffTimer);
+            }
         }
     }else{
         // If brake enable glitched on/off, ignore it as far as the brake is
@@ -650,14 +699,11 @@ Device_RefreshFeed(Device *this, long period)
                                 && !*this->pSpindleIsOnIn)
                             || (*this->pFeedHoldOut && !*this->pCycleStartIn);
 
-    // Rapid/feed override. Need motion type indicator to have
-    // separate overrides.
-    *this->pAdaptiveFeedOut = (*this->pMotionTypeIn)? *this->pFeedOverrideIn
-                                : *this->pRapidOverrideIn;
-
     // Limit rapid/feed to 1% when limits are being overriden.
-    if(*this->pLimitOverrideIn && (*this->pAdaptiveFeedOut > 0.01))
+    if(*this->pLimitOverrideIn && (*this->pAdaptiveFeedIn > 0.01))
         *this->pAdaptiveFeedOut = 0.01;
+    else
+        *this->pAdaptiveFeedOut = *this->pAdaptiveFeedIn;
 }
 
 
@@ -672,6 +718,11 @@ Device_RefreshLimits(Device *this, long period)
                             && !(*this->pZJogEnIn && *this->pLimitOverrideIn);
     *this->pZLimitNegOut = *this->pZLimitNegIn
                             && !(*this->pZJogEnIn && *this->pLimitOverrideIn);
+
+    // Generate limit active signal for pilot lamp.
+    *this->pLimitActiveOut = Limit_IsActive(&this->xLimit)
+                            || Limit_IsActive(&this->yLimit)
+                            || *this->pZLimitPosIn || *this->pZLimitNegIn;
 }
 
 
@@ -705,6 +756,12 @@ Limit_Init(Limit *this)
     this->state = LS_INIT;
 }
 
+
+static BOOL
+Limit_IsActive(Limit *this)
+{
+    return(*this->pIn);
+}
 
 static void
 Limit_Refresh(Limit *this, hal_bit_t override)
@@ -786,10 +843,8 @@ Timer_Init(Timer *this)
 static void
 Timer_Enable(Timer *this)
 {
-    if(!this->enabled){
-        this->enabled = TRUE;
-        this->count = 0;
-    }
+    this->enabled = TRUE;
+    this->count = 0;
 }
 
 
