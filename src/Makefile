@@ -503,6 +503,8 @@ endif
 # Subdirectory: hal/components
 obj-$(CONFIG_BLOCKS) += blocks.o
 blocks-objs := hal/components/blocks.o $(MATHSTUB)
+obj-$(CONFIG_BOSS_PLC) += boss_plc.o
+boss_plc-objs := hal/components/boss_plc.o $(MATHSTUB)
 obj-$(CONFIG_DEBOUNCE) += debounce.o
 debounce-objs := hal/components/debounce.o $(MATHSTUB)
 obj-$(CONFIG_ENCODER) += encoder.o
@@ -683,6 +685,7 @@ ifneq "$(BUILD_SYS)" "sim"
 endif
 ../rtlib/classicladder_rt$(MODULE_EXT): $(addprefix objects/rt,$(classicladder_rt-objs))
 ../rtlib/blocks$(MODULE_EXT): $(addprefix objects/rt,$(blocks-objs))
+../rtlib/boss_plc$(MODULE_EXT): $(addprefix objects/rt,$(boss_plc-objs))
 ../rtlib/debounce$(MODULE_EXT): $(addprefix objects/rt,$(debounce-objs))
 ../rtlib/encoder$(MODULE_EXT): $(addprefix objects/rt,$(encoder-objs))
 ../rtlib/counter$(MODULE_EXT): $(addprefix objects/rt,$(counter-objs))
