@@ -650,7 +650,7 @@ Device_RefreshFeed(Device *this, long period)
     // running if it is enabled.
     *this->pFeedHoldOut = *this->pCycleHoldIn
                             || (*this->pSpindleSpeedIn && !*this->pSpindleIsOnIn)
-                            || (*this->pFeedHoldOut && !*this->pCycleStartIn);
+                            || (*this->pFeedHoldOut && !this->riseCycleStart);
 
     // Limit rapid/feed to 1% when limits are being overriden.
     if(*this->pLimitOverrideIn && (*this->pAdaptiveFeedIn > 0.01))
