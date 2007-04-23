@@ -404,7 +404,6 @@ void tcRunCycle(TC_STRUCT *tc, double *v, int *on_final_decel) {
         newvel = maxnewvel = -0.5 * tc->maxaccel * tc->cycle_time + 
             tc->maxaccel * pmSqrt(discr);
     }
-
     if(newvel <= 0.0) {
         // also should never happen - if we already finished this tc, it was
         // caught above
@@ -692,7 +691,7 @@ int tpRunCycle(TP_STRUCT * tp, long period)
     primary_displacement.c = primary_after.c - primary_before.c;
 
     // blend criteria
-    if(tc->blending || 
+    if((tc->blending && nexttc) || 
             (nexttc && on_final_decel && primary_vel < tc->blend_vel)) {
         // make sure we continue to blend this segment even when its 
         // accel reaches 0 (at the very end)
@@ -717,7 +716,9 @@ int tpRunCycle(TP_STRUCT * tp, long period)
 
         secondary_before = tcGetPos(nexttc);
         save_vel = nexttc->reqvel;
-        nexttc->reqvel = (tc->vel_at_blend_start - primary_vel) / nexttc->feed_override;
+        nexttc->reqvel = nexttc->feed_override > 0.0 ? 
+            ((tc->vel_at_blend_start - primary_vel) / nexttc->feed_override) :
+            0.0;
         tcRunCycle(nexttc, NULL, NULL);
         nexttc->reqvel = save_vel;
 
