@@ -22,6 +22,7 @@
  *  Parameters:
  *        u32       boss_plc.<id>.brake-on-delay;
  *        u32       boss_plc.<id>.brake-off-delay;
+ *        float     boss_plc.<id>.spindle-lo-to-hi
  *        float     boss_plc.<id>.jog-scale-0
  *        float     boss_plc.<id>.jog-scale-1
  *        float     boss_plc.<id>.jog-scale-2
@@ -51,11 +52,10 @@
  *        bit       boss_plc.<id>.zlimit-pos-out;
  *        bit       boss_plc.<id>.zlimit-neg-out;
  *
- *        bit       boss_plc.<id>.spindle-fwd-in;
- *        bit       boss_plc.<id>.spindle-rev-in;
+ *        float     boss_plc.<id>.spindle-speed-in;
+ *        bit       boss_plc.<id>.spindle-is-on-in;
  *        bit       boss_plc.<id>.spindle-fwd-out;
  *        bit       boss_plc.<id>.spindle-rev-out;
- *        bit       boss_plc.<id>.spindle-stat-in;
  *        bit       boss_plc.<id>.spindle-inc-in;
  *        bit       boss_plc.<id>.spindle-dec-in;
  *        bit       boss_plc.<id>.spindle-inc-out;
@@ -208,6 +208,7 @@ typedef struct {
     // Parameters.
     hal_u32_t                           brakeOnDelay;
     hal_u32_t                           brakeOffDelay;
+    hal_u32_t                           spindleLoToHi;
     hal_float_t                         jogScale[NUM_JOG_SEL];
 
     // Pins.
@@ -227,11 +228,10 @@ typedef struct {
     hal_bit_t                           *pZLimitPosOut;
     hal_bit_t                           *pZLimitNegOut;
 
-    hal_bit_t                           *pSpindleFwdIn;
-    hal_bit_t                           *pSpindleRevIn;
+    hal_float_t                         *pSpindleSpeedIn;
+    hal_bit_t                           *pSpindleIsOnIn;
     hal_bit_t                           *pSpindleFwdOut;
     hal_bit_t                           *pSpindleRevOut;
-    hal_bit_t                           *pSpindleIsOnIn;
     hal_bit_t                           *pSpindleIncIn;
     hal_bit_t                           *pSpindleDecIn;
     hal_bit_t                           *pSpindleIncOut;
@@ -240,12 +240,14 @@ typedef struct {
     hal_bit_t                           *pBrakeEnOut;
 
     hal_bit_t                           *pJogSelIn[NUM_JOG_SEL];
-    hal_bit_t                           *pJogScaleOut;
+    hal_float_t                         *pJogScaleOut;
 
     // Private data.
     Timer                               brakeOnTimer;
     Timer                               brakeOffTimer;
     hal_bit_t                           delayedBrakeEn;
+    hal_bit_t                           lastCycleStart;
+    BOOL                                riseCycleStart;
 } Device;
 
 
@@ -257,9 +259,9 @@ static int Device_ExportPinsParametersFunctions(Device *this, int componentId, i
 static void Device_Refresh(void *this, long period);
 
 // Private helper methods.
-static void Device_RefreshSpindle(Device *this, long period);
 static void Device_RefreshFeed(Device *this, long period);
 static void Device_RefreshLimits(Device *this, long period);
+static void Device_RefreshSpindle(Device *this, long period);
 static void Device_BrakeOnTimeout(void *this);
 static void Device_BrakeOffTimeout(void *this);
 
@@ -367,21 +369,28 @@ Device_Init(Device *this)
 {
     int                                 i;
 
+    // Initialize variables.
+    this->lastCycleStart = 1;
+    this->riseCycleStart = FALSE;
+
+    // Initialize parameters.
     this->brakeOffDelay = 500;
     this->brakeOnDelay = 300;
+    this->spindleLoToHi = 500;
 
     this->jogScale[0] = 0.0001;
-
     for(i = 1; i < NUM_JOG_SEL; i++){
         this->jogScale[i] = this->jogScale[i-1] * 10;
     }
 
+    // Initialize timers.
     Timer_Init(&this->brakeOnTimer);
     Timer_SetCallback(&this->brakeOnTimer, Device_BrakeOnTimeout, this);
 
     Timer_Init(&this->brakeOffTimer);
     Timer_SetCallback(&this->brakeOffTimer, Device_BrakeOffTimeout, this);
 
+    // Initialize limits.
     Limit_Init(&this->xLimit);
     Limit_Init(&this->yLimit);
 
@@ -404,195 +413,195 @@ Device_ExportPinsParametersFunctions(Device *this, int componentId, int id)
 
     // Export pins and parameters.
     rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.brake-on-delay", id);
-    error = hal_param_u32_new(name, HAL_RW, &(this->brakeOnDelay), componentId);
+    error = hal_param_u32_new(name, HAL_RW, &this->brakeOnDelay, componentId);
+
+    if(!error){
+        rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.spindle-lo-to-hi", id);
+        error = hal_param_u32_new(name, HAL_RW, &this->spindleLoToHi, componentId);
+    }
 
     if(!error){
         rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.brake-off-delay", id);
-        error = hal_param_u32_new(name, HAL_RW, &(this->brakeOffDelay), componentId);
+        error = hal_param_u32_new(name, HAL_RW, &this->brakeOffDelay, componentId);
     }
 
     if(!error){
         for(i = 0; i < NUM_JOG_SEL && !error; i++){
             rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.jog-scale-%d-in", id, i);
-            error = hal_param_bit_new(name, HAL_RW, &(this->jogScale[i]), componentId);
+            error = hal_param_float_new(name, HAL_RW, &this->jogScale[i], componentId);
         }
     }
     if(!error){
         rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.cycle-start-in", id);
-        error = hal_pin_bit_new(name, HAL_IN, &(this->pCycleStartIn), componentId);
+        error = hal_pin_bit_new(name, HAL_IN, &this->pCycleStartIn, componentId);
     }
 
     if(!error){
         rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.cycle-hold-in", id);
-        error = hal_pin_bit_new(name, HAL_IN, &(this->pCycleHoldIn), componentId);
+        error = hal_pin_bit_new(name, HAL_IN, &this->pCycleHoldIn, componentId);
     }
 
     if(!error){
         rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.feed-hold-out", id);
-        error = hal_pin_bit_new(name, HAL_OUT, &(this->pFeedHoldOut), componentId);
+        error = hal_pin_bit_new(name, HAL_OUT, &this->pFeedHoldOut, componentId);
     }
 
     if(!error){
         rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.adaptive-feed-in", id);
-        error = hal_pin_float_new(name, HAL_IN, &(this->pAdaptiveFeedIn), componentId);
+        error = hal_pin_float_new(name, HAL_IN, &this->pAdaptiveFeedIn, componentId);
     }
 
     if(!error){
         *this->pAdaptiveFeedIn = 1.0;
         rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.adaptive-feed-out", id);
-        error = hal_pin_float_new(name, HAL_OUT, &(this->pAdaptiveFeedOut), componentId);
+        error = hal_pin_float_new(name, HAL_OUT, &this->pAdaptiveFeedOut, componentId);
     }
 
     if(!error){
         rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.limit-override-in", id);
-        error = hal_pin_bit_new(name, HAL_IN, &(this->pLimitOverrideIn), componentId);
+        error = hal_pin_bit_new(name, HAL_IN, &this->pLimitOverrideIn, componentId);
     }
 
     if(!error){
         rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.limit-active-out", id);
-        error = hal_pin_bit_new(name, HAL_OUT, &(this->pLimitActiveOut), componentId);
+        error = hal_pin_bit_new(name, HAL_OUT, &this->pLimitActiveOut, componentId);
     }
 
     if(!error){
         rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.xposition-in", id);
-        error = hal_pin_float_new(name, HAL_IN, &(this->xLimit.pPositionIn), componentId);
+        error = hal_pin_float_new(name, HAL_IN, &this->xLimit.pPositionIn, componentId);
     }
 
     if(!error){
         rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.xjog-en-in", id);
-        error = hal_pin_bit_new(name, HAL_IN, &(this->xLimit.pJogEnIn), componentId);
+        error = hal_pin_bit_new(name, HAL_IN, &this->xLimit.pJogEnIn, componentId);
     }
 
     if(!error){
         rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.xlimit-in", id);
-        error = hal_pin_bit_new(name, HAL_IN, &(this->xLimit.pIn), componentId);
+        error = hal_pin_bit_new(name, HAL_IN, &this->xLimit.pIn, componentId);
     }
 
     if(!error){
         rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.xlimit-pos-out", id);
-        error = hal_pin_bit_new(name, HAL_OUT, &(this->xLimit.pPosOut), componentId);
+        error = hal_pin_bit_new(name, HAL_OUT, &this->xLimit.pPosOut, componentId);
     }
 
     if(!error){
         rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.xlimit-neg-out", id);
-        error = hal_pin_bit_new(name, HAL_OUT, &(this->xLimit.pNegOut), componentId);
+        error = hal_pin_bit_new(name, HAL_OUT, &this->xLimit.pNegOut, componentId);
     }
 
     if(!error){
         rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.yposition-in", id);
-        error = hal_pin_float_new(name, HAL_IN, &(this->yLimit.pPositionIn), componentId);
+        error = hal_pin_float_new(name, HAL_IN, &this->yLimit.pPositionIn, componentId);
     }
 
     if(!error){
         rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.yjog-en-in", id);
-        error = hal_pin_bit_new(name, HAL_IN, &(this->yLimit.pJogEnIn), componentId);
+        error = hal_pin_bit_new(name, HAL_IN, &this->yLimit.pJogEnIn, componentId);
     }
 
     if(!error){
         rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.ylimit-in", id);
-        error = hal_pin_bit_new(name, HAL_IN, &(this->yLimit.pIn), componentId);
+        error = hal_pin_bit_new(name, HAL_IN, &this->yLimit.pIn, componentId);
     }
 
     if(!error){
         rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.ylimit-pos-out", id);
-        error = hal_pin_bit_new(name, HAL_OUT, &(this->yLimit.pPosOut), componentId);
+        error = hal_pin_bit_new(name, HAL_OUT, &this->yLimit.pPosOut, componentId);
     }
 
     if(!error){
         rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.ylimit-neg-out", id);
-        error = hal_pin_bit_new(name, HAL_OUT, &(this->yLimit.pNegOut), componentId);
+        error = hal_pin_bit_new(name, HAL_OUT, &this->yLimit.pNegOut, componentId);
     }
 
     if(!error){
         rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.zlimit-pos-in", id);
-        error = hal_pin_bit_new(name, HAL_IN, &(this->pZLimitPosIn), componentId);
+        error = hal_pin_bit_new(name, HAL_IN, &this->pZLimitPosIn, componentId);
     }
 
     if(!error){
         rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.zjog-en-in", id);
-        error = hal_pin_bit_new(name, HAL_IN, &(this->pZJogEnIn), componentId);
+        error = hal_pin_bit_new(name, HAL_IN, &this->pZJogEnIn, componentId);
     }
 
     if(!error){
         rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.zlimit-neg-in", id);
-        error = hal_pin_bit_new(name, HAL_IN, &(this->pZLimitNegIn), componentId);
+        error = hal_pin_bit_new(name, HAL_IN, &this->pZLimitNegIn, componentId);
     }
 
     if(!error){
         rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.zlimit-pos-out", id);
-        error = hal_pin_bit_new(name, HAL_OUT, &(this->pZLimitPosOut), componentId);
+        error = hal_pin_bit_new(name, HAL_OUT, &this->pZLimitPosOut, componentId);
     }
 
     if(!error){
         rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.zlimit-neg-out", id);
-        error = hal_pin_bit_new(name, HAL_OUT, &(this->pZLimitNegOut), componentId);
+        error = hal_pin_bit_new(name, HAL_OUT, &this->pZLimitNegOut, componentId);
     }
 
     if(!error){
-        rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.spindle-fwd-in", id);
-        error = hal_pin_bit_new(name, HAL_IN, &(this->pSpindleFwdIn), componentId);
-    }
-
-    if(!error){
-        rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.spindle-rev-in", id);
-        error = hal_pin_bit_new(name, HAL_IN, &(this->pSpindleRevIn), componentId);
-    }
-
-    if(!error){
-        rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.spindle-fwd-out", id);
-        error = hal_pin_bit_new(name, HAL_OUT, &(this->pSpindleFwdOut), componentId);
-    }
-
-    if(!error){
-        rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.spindle-rev-out", id);
-        error = hal_pin_bit_new(name, HAL_OUT, &(this->pSpindleRevOut), componentId);
+        rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.spindle-speed-in", id);
+        error = hal_pin_float_new(name, HAL_IN, &this->pSpindleSpeedIn, componentId);
     }
 
     if(!error){
         rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.spindle-is-on-in", id);
-        error = hal_pin_bit_new(name, HAL_IN, &(this->pSpindleIsOnIn), componentId);
+        error = hal_pin_bit_new(name, HAL_IN, &this->pSpindleIsOnIn, componentId);
+    }
+
+    if(!error){
+        rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.spindle-fwd-out", id);
+        error = hal_pin_bit_new(name, HAL_OUT, &this->pSpindleFwdOut, componentId);
+    }
+
+    if(!error){
+        rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.spindle-rev-out", id);
+        error = hal_pin_bit_new(name, HAL_OUT, &this->pSpindleRevOut, componentId);
     }
 
     if(!error){
         rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.spindle-inc-in", id);
-        error = hal_pin_bit_new(name, HAL_IN, &(this->pSpindleIncIn), componentId);
+        error = hal_pin_bit_new(name, HAL_IN, &this->pSpindleIncIn, componentId);
     }
 
     if(!error){
         rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.spindle-dec-in", id);
-        error = hal_pin_bit_new(name, HAL_IN, &(this->pSpindleDecIn), componentId);
+        error = hal_pin_bit_new(name, HAL_IN, &this->pSpindleDecIn, componentId);
     }
 
     if(!error){
         rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.spindle-inc-out", id);
-        error = hal_pin_bit_new(name, HAL_OUT, &(this->pSpindleIncOut), componentId);
+        error = hal_pin_bit_new(name, HAL_OUT, &this->pSpindleIncOut, componentId);
     }
 
     if(!error){
         rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.spindle-dec-out", id);
-        error = hal_pin_bit_new(name, HAL_OUT, &(this->pSpindleDecOut), componentId);
+        error = hal_pin_bit_new(name, HAL_OUT, &this->pSpindleDecOut, componentId);
     }
 
     if(!error){
         rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.brake-en-in", id);
-        error = hal_pin_bit_new(name, HAL_IN, &(this->pBrakeEnIn), componentId);
+        error = hal_pin_bit_new(name, HAL_IN, &this->pBrakeEnIn, componentId);
     }
 
     if(!error){
         rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.brake-en-out", id);
-        error = hal_pin_bit_new(name, HAL_OUT, &(this->pBrakeEnOut), componentId);
+        error = hal_pin_bit_new(name, HAL_OUT, &this->pBrakeEnOut, componentId);
     }
 
     if(!error){
         for(i = 0; i < NUM_JOG_SEL && !error; i++){
             rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.jog-sel-in-%d", id, i);
-            error = hal_pin_bit_new(name, HAL_IN, &(this->pJogSelIn[i]), componentId);
+            error = hal_pin_bit_new(name, HAL_IN, &this->pJogSelIn[i], componentId);
         }
     }
 
     if(!error){
         rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.jog-scale-out", id);
-        error = hal_pin_float_new(name, HAL_OUT, &(this->pJogScaleOut), componentId);
+        error = hal_pin_float_new(name, HAL_OUT, &this->pJogScaleOut, componentId);
     }
 
     // Export functions.
@@ -618,9 +627,9 @@ Device_Refresh(void *arg, long period)
     Device                              *this = (Device *)arg;
     int                                 i;
 
-    Device_RefreshSpindle(this, period);
     Device_RefreshFeed(this, period);
     Device_RefreshLimits(this, period);
+    Device_RefreshSpindle(this, period);
 
     for(i = 0; i < NUM_JOG_SEL; i++){
         if(*this->pJogSelIn[i]){
@@ -628,6 +637,45 @@ Device_Refresh(void *arg, long period)
             break;
         }
     }
+}
+
+
+static void
+Device_RefreshFeed(Device *this, long period)
+{
+    this->riseCycleStart = (this->lastCycleStart==0) && (*this->pCycleStartIn==1);
+    this->lastCycleStart = *this->pCycleStartIn;
+
+    // Condition feed hold so machine waits for cycle start and spindle to be
+    // running if it is enabled.
+    *this->pFeedHoldOut = *this->pCycleHoldIn
+                            || (*this->pSpindleSpeedIn && !*this->pSpindleIsOnIn)
+                            || (*this->pFeedHoldOut && !*this->pCycleStartIn);
+
+    // Limit rapid/feed to 1% when limits are being overriden.
+    if(*this->pLimitOverrideIn && (*this->pAdaptiveFeedIn > 0.01))
+        *this->pAdaptiveFeedOut = 0.01;
+    else
+        *this->pAdaptiveFeedOut = *this->pAdaptiveFeedIn;
+}
+
+
+static void
+Device_RefreshLimits(Device *this, long period)
+{
+    Limit_Refresh(&this->xLimit, *this->pLimitOverrideIn);
+    Limit_Refresh(&this->yLimit, *this->pLimitOverrideIn);
+
+    // Condition Z limits with override in manual mode.
+    *this->pZLimitPosOut = *this->pZLimitPosIn
+                            && !(*this->pZJogEnIn && *this->pLimitOverrideIn);
+    *this->pZLimitNegOut = *this->pZLimitNegIn
+                            && !(*this->pZJogEnIn && *this->pLimitOverrideIn);
+
+    // Generate limit active signal for pilot lamp.
+    *this->pLimitActiveOut = Limit_IsActive(&this->xLimit)
+                            || Limit_IsActive(&this->yLimit)
+                            || *this->pZLimitPosIn || *this->pZLimitNegIn;
 }
 
 
@@ -669,16 +717,23 @@ Device_RefreshSpindle(Device *this, long period)
     // Condition spindle control so spindle won't start until cycle start
     // is pressed, brake on timer is not active, and brake off timer has
     // expired. Spindle will stop immediately if the brake is enabled.
-    *this->pSpindleFwdOut = (*this->pSpindleFwdIn && !*this->pSpindleRevIn
+    *this->pSpindleFwdOut = ((*this->pSpindleSpeedIn > this->spindleLoToHi
+                            || (*this->pSpindleSpeedIn < 0.0
+                              && *this->pSpindleSpeedIn >= -this->spindleLoToHi))
                                 && !Timer_IsEnabled(&this->brakeOnTimer)
                                 && !this->delayedBrakeEn
-                                && *this->pCycleStartIn)
-                            || (*this->pSpindleFwdOut && !*this->pBrakeEnIn);
-    *this->pSpindleRevOut = (*this->pSpindleRevIn && !*this->pSpindleFwdIn
+                                && this->riseCycleStart)
+                            || (*this->pSpindleFwdOut && *this->pSpindleSpeedIn
+                                && !*this->pBrakeEnIn);
+
+    *this->pSpindleRevOut = ((*this->pSpindleSpeedIn < -this->spindleLoToHi
+                            || (*this->pSpindleSpeedIn > 0.0
+                              && *this->pSpindleSpeedIn <= this->spindleLoToHi))
                                 && !Timer_IsEnabled(&this->brakeOnTimer)
                                 && !this->delayedBrakeEn
-                                && *this->pCycleStartIn)
-                            || (*this->pSpindleRevOut && !*this->pBrakeEnIn);
+                                && this->riseCycleStart)
+                            || (*this->pSpindleRevOut && *this->pSpindleSpeedIn
+                                && !*this->pBrakeEnIn);
 
     // Condition spindle increase and decrease so they are disabled when
     // spindle is not running and both cannot be enabled at the same time.
@@ -686,43 +741,6 @@ Device_RefreshSpindle(Device *this, long period)
                             && *this->pSpindleIsOnIn;
     *this->pSpindleDecOut = *this->pSpindleDecIn && !*this->pSpindleIncIn
                             && *this->pSpindleIsOnIn;
-}
-
-
-static void
-Device_RefreshFeed(Device *this, long period)
-{
-    // Condition feed hold so machine waits for cycle start and spindle to be
-    // running if it is enabled.
-    *this->pFeedHoldOut = *this->pCycleHoldIn
-                            || ((*this->pSpindleFwdIn || *this->pSpindleRevIn)
-                                && !*this->pSpindleIsOnIn)
-                            || (*this->pFeedHoldOut && !*this->pCycleStartIn);
-
-    // Limit rapid/feed to 1% when limits are being overriden.
-    if(*this->pLimitOverrideIn && (*this->pAdaptiveFeedIn > 0.01))
-        *this->pAdaptiveFeedOut = 0.01;
-    else
-        *this->pAdaptiveFeedOut = *this->pAdaptiveFeedIn;
-}
-
-
-static void
-Device_RefreshLimits(Device *this, long period)
-{
-    Limit_Refresh(&this->xLimit, *this->pLimitOverrideIn);
-    Limit_Refresh(&this->yLimit, *this->pLimitOverrideIn);
-
-    // Condition Z limits with override in manual mode.
-    *this->pZLimitPosOut = *this->pZLimitPosIn
-                            && !(*this->pZJogEnIn && *this->pLimitOverrideIn);
-    *this->pZLimitNegOut = *this->pZLimitNegIn
-                            && !(*this->pZJogEnIn && *this->pLimitOverrideIn);
-
-    // Generate limit active signal for pilot lamp.
-    *this->pLimitActiveOut = Limit_IsActive(&this->xLimit)
-                            || Limit_IsActive(&this->yLimit)
-                            || *this->pZLimitPosIn || *this->pZLimitNegIn;
 }
 
 
