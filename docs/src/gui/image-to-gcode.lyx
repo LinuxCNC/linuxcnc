@@ -68,8 +68,12 @@ A depth map is a greyscale image where the brightness of each pixel corresponds
 Integrating image-to-gcode with the AXIS user interface
 \layout Standard
 
-Add the following lines to your .ini file to make AXIS automatically invoke
- image-to-gcode when you open a .png, .gif, or .jpg image:
+Add the following lines to the 
+\family typewriter 
+[FILTER] 
+\family default 
+section of your .ini file to make AXIS automatically invoke image-to-gcode
+ when you open a .png, .gif, or .jpg image:
 \layout LyX-Code
 
 PROGRAM_EXTENSION = .png,.gif,.jpg Grayscale Depth Image
@@ -79,6 +83,13 @@ png = image-to-gcode
 gif = image-to-gcode
 \newline 
 jpg = image-to-gcode
+\layout Standard
+
+The standard 
+\family typewriter 
+sim/axis.ini
+\family default 
+ configuration file is already configured this way.
 \layout Section
 
 Using image-to-gcode
