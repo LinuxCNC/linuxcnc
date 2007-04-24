@@ -1484,17 +1484,17 @@ static PyObject *Logger_start(pyPositionLogger *s, PyObject *o) {
             z = status->motion.traj.position.tran.z - status->task.toolOffset.tran.z;
 
             struct color c = s->colors[colornum];
-            struct logger_point &op = s->p[s->npts-1];
-            struct logger_point &oop = s->p[s->npts-2];
-            bool add_point = s->npts < 2 || c != op.c
-                || !colinear(x, y, z, op.x, op.y, op.z, oop.x, oop.y, oop.z);
+            struct logger_point *op = s->p[s->npts-1];
+            struct logger_point *oop = s->p[s->npts-2];
+            bool add_point = s->npts < 2 || c != op->c || !colinear(
+                        x, y, z, op->x, op->y, op->z, oop->x, oop->y, oop->z);
 
             double delta = dt();
             if(s->npts) {
-                if(feq(op.x, x) && feq(op.y, y) && feq(op.z, z)) {
+                if(feq(op->x, x) && feq(op->y, y) && feq(op->z, z)) {
                     s->ave_ddt = 0;
                 } else {
-                    double dist = hypot3(op.x - x, op.y - y, op.z - z);
+                    double dist = hypot3(op->x - x, op->y - y, op->z - z);
                     double ddt = dist / delta;
                     s->ave_ddt = s->ave_ddt*weight_factor
                         + ddt*(1-weight_factor);
@@ -1503,7 +1503,7 @@ static PyObject *Logger_start(pyPositionLogger *s, PyObject *o) {
             if(add_point) {
                 // 1 or 2 points may be added, make room whenever
                 // fewer than 2 are left
-                bool changed_color = s->npts && c != op.c;
+                bool changed_color = s->npts && c != op->c;
                 if(s->npts+2 > s->mpts) {
                     LOCK();
                     if(s->mpts >= MAX_POINTS) {
@@ -1519,11 +1519,13 @@ static PyObject *Logger_start(pyPositionLogger *s, PyObject *o) {
                                     sizeof(struct logger_point) * s->mpts);
                     }
                     UNLOCK();
+                    op = s->p[s->npts-1];
+                    op = s->p[s->npts-2];
                 }
                 if(changed_color) {
                     {
                     struct logger_point &np = s->p[s->npts];
-                    np.x = op.x; np.y = op.y; np.z = op.z;
+                    np.x = op->x; np.y = op->y; np.z = op->z;
                     np.c = c;
                     }
                     {
