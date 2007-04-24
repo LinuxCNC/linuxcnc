@@ -2925,8 +2925,8 @@ widgets.mdi_command.bind("<Control-Shift-H>", commands.mdi_history_clip2hist)
 widgets.mdi_command.bind("<Key-Return>", commands.send_mdi)
 widgets.mdi_command.bind("<Up>",  commands.mdi_up_cmd)
 widgets.mdi_command.bind("<Down>", commands.mdi_down_cmd)
-
-
+widgets.mdi_command.bind("<KeyRelease-minus>", "break")
+widgets.mdi_command.bind("<KeyRelease-equal>", "break")
 
 # try to read back previously saved mdi history data
 mdi_hist_file = os.path.expanduser(mdi_history_save_filename)
