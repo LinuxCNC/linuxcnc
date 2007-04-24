@@ -1493,8 +1493,8 @@ static PyObject *Logger_start(pyPositionLogger *s, PyObject *o) {
             z = status->motion.traj.position.tran.z - status->task.toolOffset.tran.z;
 
             struct color c = s->colors[colornum];
-            struct logger_point *op = s->p[s->npts-1];
-            struct logger_point *oop = s->p[s->npts-2];
+            struct logger_point *op = &s->p[s->npts-1];
+            struct logger_point *oop = &s->p[s->npts-2];
             bool add_point = s->npts < 2 || c != op->c || !colinear(
                         x, y, z, op->x, op->y, op->z, oop->x, oop->y, oop->z);
 
@@ -1520,8 +1520,8 @@ static PyObject *Logger_start(pyPositionLogger *s, PyObject *o) {
                     s->p = (struct logger_point*)
                         realloc(s->p, sizeof(struct logger_point) * s->mpts);
                     UNLOCK();
-                    op = s->p[s->npts-1];
-                    op = s->p[s->npts-2];
+                    op = &s->p[s->npts-1];
+                    oop = &s->p[s->npts-2];
                 }
                 if(changed_color) {
                     {
