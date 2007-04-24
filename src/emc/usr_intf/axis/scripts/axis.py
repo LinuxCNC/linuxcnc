@@ -2797,9 +2797,6 @@ class TclCommands(nf.TclCommands):
         comp['jog.a'] = vars.current_axis.get() == "a"
         comp['jog.b'] = vars.current_axis.get() == "b"
         comp['jog.c'] = vars.current_axis.get() == "c"
-        root_window.tk.call("setup_menu_accel", widgets.menu_machine, "24",
-                            _("Touch-O_ff %s axis in system...") %
-                            vars.current_axis.get().upper())
 
     def set_joint_mode(*args):
         c.teleop_enable(vars.joint_mode.get())
