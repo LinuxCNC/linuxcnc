@@ -1424,9 +1424,11 @@ def manual_ok(do_poll=True):
     if s.task_state != emc.STATE_ON: return False
     return s.interp_state == emc.INTERP_IDLE
 
-def ensure_mode(m):
+# If emc is not already in one of the modes given, switch it to the first
+# mode
+def ensure_mode(m, *p):
     s.poll()
-    if s.task_mode == m: return True
+    if s.task_mode == m or s.task_mode in p: return True
     if running(do_poll=False): return False
     c.wait_complete()
     c.mode(m)
@@ -2391,15 +2393,18 @@ class TclCommands(nf.TclCommands):
         c.auto(emc.AUTO_PAUSE)
 
     def task_resume(*event):
-        if s.task_mode != emc.MODE_AUTO or s.interp_state != emc.INTERP_PAUSED:
+        s.poll()
+        if s.interp_state != emc.INTERP_PAUSED:
             return
-        ensure_mode(emc.MODE_AUTO)
+        if s.task_mode not in (emc.MODE_AUTO, emc.MODE_MDI):
+            return
+        ensure_mode(emc.MODE_AUTO, emc.MODE_MDI)
         c.auto(emc.AUTO_RESUME)
 
     def task_pauseresume(*event):
-        if s.task_mode != emc.MODE_AUTO:
+        if s.task_mode not in (emc.MODE_AUTO, emc.MODE_MDI):
             return
-        ensure_mode(emc.MODE_AUTO)
+        ensure_mode(emc.MODE_AUTO, emc.MODE_MDI)
         s.poll()
         if s.interp_state == emc.INTERP_PAUSED:
             c.auto(emc.AUTO_RESUME)
