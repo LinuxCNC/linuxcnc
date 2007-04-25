@@ -10,8 +10,8 @@ pin out float a;
 pin out float b;
 pin out float c "three phase output vector";
 function _;
+license "GPL";
 ;;
-MODULE_LICENSE("GPL");
 
 /* for the details, google "clarke transform", or see section 3 of
    http://focus.ti.com/lit/an/bpra048/bpra048.pdf and/or appendix B of

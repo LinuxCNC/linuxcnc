@@ -120,8 +120,8 @@ _
 .TE
 \\}
 """;
+license "GPL";
 ;;
-MODULE_LICENSE("GPL");
 
 FUNCTION(_) {
     int shift = 0;

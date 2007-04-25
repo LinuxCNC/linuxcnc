@@ -7,8 +7,8 @@ param rw float maxv=1e20;
 param rw float maxa=1e20;
 option data limit3_data;
 function _;
+license "GPL";
 ;;
-MODULE_LICENSE("GPL");
 
 #include "rtapi_math.h"
 

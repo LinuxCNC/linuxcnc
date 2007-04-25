@@ -5,14 +5,13 @@ param rw u32 debounce = 2 "debounce delay in periods";
 option data toggle_data;
 
 function _ nofp;
+license "GPL";
 ;;
 
 typedef struct {
     int debounce_cntr;
     int debounced;
 } toggle_data;
-
-MODULE_LICENSE("GPL");
 
 FUNCTION(_) {
 

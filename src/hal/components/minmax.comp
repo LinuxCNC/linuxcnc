@@ -4,8 +4,8 @@ pin in bit reset "When reset is asserted, 'in' is copied to the outputs";
 pin out float max_;
 pin out float min_;
 function _;
+license "GPL";
 ;;
-MODULE_LICENSE("GPL");
 FUNCTION(_) {
     if(reset) { max_ = min_ = in; }
     else {

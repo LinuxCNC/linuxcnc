@@ -20,8 +20,8 @@ option singleton yes;
 pin out bit out "Square wave if 'enable' is TRUE or unconnected, low if 'enable' is FALSE";
 pin in bit enable = TRUE "If FALSE, forces 'out' to be low";
 function _ nofp "Toggle the output bit (if enabled)";
+license "GPL";
 ;;
-MODULE_LICENSE("GPL");
 FUNCTION(_) {
     if ( enable ) {
 	out = !out;

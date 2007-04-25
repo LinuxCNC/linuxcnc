@@ -3,8 +3,8 @@ pin in bit in0;
 pin in bit in1;
 pin out bit out;
 function _ nofp;
+license "GPL";
 ;;
-MODULE_LICENSE("GPL");
 FUNCTION(_) {
     if (( in0 && !in1 ) || ( in1 && !in0 )) {
 	out = 1;

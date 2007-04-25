@@ -20,9 +20,8 @@ pin out float out "Analog output value, always positive";
 pin out bit sign "Sign of input, false for positive, true for negative" ;
 
 function _;
+license "GPL";
 ;;
-MODULE_LICENSE("GPL");
-
 FUNCTION(_) {
     float tmp = in;
     if ( tmp >= 0.0 ) {

@@ -27,8 +27,8 @@ param r signed time_left_ns "Time left in this output pulse";
 param r bit last_in "Previous input value";
 
 function _ nofp "Produce output pulses from input edges";
+license "GPL";
 ;;
-MODULE_LICENSE("GPL");
 
 FUNCTION(_){ 
     int new_in = in;

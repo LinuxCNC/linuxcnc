@@ -2,6 +2,6 @@ component not "Inverter";
 pin in bit in;
 pin out bit out;
 function _ nofp;
+license "GPL";
 ;;
-MODULE_LICENSE("GPL");
 FUNCTION(_) { out = ! in; }

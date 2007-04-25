@@ -6,8 +6,8 @@ param rw float max_=1e20;
 param rw float maxv=1e20;
 option data limit2_data;
 function _;
+license "GPL";
 ;;
-MODULE_LICENSE("GPL");
 
 typedef struct { float old_out; } limit2_data;
 

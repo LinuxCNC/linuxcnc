@@ -16,6 +16,7 @@ The number of input pins, usually from 2 to 16
 512 (0x200)  if the `or' output is desired
 .IP \\(bu
 1024 (0x400)  if the `xor' (exclusive or) output is desired""";
+license "GPL";
 ;;
 FUNCTION(_) {
     int i, a=1, o=0, x=0;

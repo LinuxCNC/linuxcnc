@@ -10,8 +10,8 @@ hysteresis, the output switches on and off at two different values,
 separated by distance hyst around the point where in1 = in0.""";
 
 function _ fp "Update the comparator";
+license "GPL";
 ;;
-MODULE_LICENSE("GPL");
 FUNCTION(_) {
     float tmp = in1 - in0;
 

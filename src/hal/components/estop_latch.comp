@@ -7,8 +7,8 @@ pin out bit fault_out;
 pin out bit watchdog;
 function _ nofp;
 option data estop_data;
+license "GPL";
 ;;
-MODULE_LICENSE("GPL");
 
 typedef struct { int old_reset; } estop_data;
 

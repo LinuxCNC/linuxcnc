@@ -4,9 +4,9 @@ pin out @OUT@ out;
 @CC@ pin out bit out_of_range "TRUE when 'in' is not in the range of @OUT@";
 @CC@ param rw bit clamp """If TRUE, then clamp to the range of @OUT@.  If FALSE, then allow the value to "wrap around".""";
 function _ @FP@ "Update 'out' based on 'in'";
+license "GPL";
 
 ;;
-MODULE_LICENSE("GPL");
 FUNCTION(_) {
     hal_@IN@_t in = in_;
 @CC@    if(clamp) {

@@ -4,8 +4,8 @@ pin out float out;
 pin in float in1;
 pin in float in0;
 function _;
+license "GPL";
 ;;
-MODULE_LICENSE("GPL");
 FUNCTION(_) {
     if(sel) out = in1;
     else out = in0;

@@ -32,14 +32,13 @@ option data internal;
 option extra_setup yes;
 
 function _ "Produce output pulses from input edges";
+license "GPL";
 ;;
 
 typedef struct {
     double timer;
     char old_in;
 } internal;
-
-MODULE_LICENSE("GPL");
 
 EXTRA_SETUP(){
     data.timer = 0.0;

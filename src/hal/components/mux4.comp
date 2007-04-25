@@ -7,8 +7,8 @@ pin in float in1;
 pin in float in2;
 pin in float in3;
 function _;
+license "GPL";
 ;;
-MODULE_LICENSE("GPL");
 FUNCTION(_) {
     if(sel0) {
         if(sel1) out = in3;

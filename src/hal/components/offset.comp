@@ -27,8 +27,8 @@ pin out float out "The output value";
 pin in float fb_in "The feedback input value";
 pin out float fb_out "The feedback output value";
 
+license "GPL";
 ;;
-MODULE_LICENSE("GPL");
 
 FUNCTION(update_feedback) { fb_out = fb_in - offset; }
 FUNCTION(update_output)   { out = in + offset; }

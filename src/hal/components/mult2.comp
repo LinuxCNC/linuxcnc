@@ -3,8 +3,8 @@ pin in float in0;
 pin in float in1;
 pin out float out "out = in0 * in1";
 function _;
+license "GPL";
 ;;
-MODULE_LICENSE("GPL");
 FUNCTION(_) {
     out = in0 * in1;
 }

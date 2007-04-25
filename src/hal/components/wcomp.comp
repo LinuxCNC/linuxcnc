@@ -4,6 +4,6 @@ pin in float in;
 param rw float min_;
 param rw float max_;
 function _;
+license "GPL";
 ;;
-MODULE_LICENSE("GPL");
 FUNCTION(_) { float tmp = in; out = min_ < tmp && tmp < max_; }

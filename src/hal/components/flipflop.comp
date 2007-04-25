@@ -7,11 +7,10 @@ pin io bit out "output";
 option data flipflop_data;
 
 function _ nofp;
+license "GPL";
 ;;
 
 typedef struct { int oldclk; } flipflop_data;
-
-MODULE_LICENSE("GPL");
 
 FUNCTION(_) {
     int c;

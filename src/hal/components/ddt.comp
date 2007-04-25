@@ -22,11 +22,8 @@ pin out float out;
 variable float old;
 
 function _;
+license "GPL";
 ;;
-MODULE_LICENSE("GPL");
-
-FUNCTION(_) {
-    float tmp = in;
-    out = (tmp - old) / (period * 1e-9);
-    old = tmp;
-}
+float tmp = in;
+out = (tmp - old) / (period * 1e-9);
+old = tmp;

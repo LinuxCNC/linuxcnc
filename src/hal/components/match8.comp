@@ -18,8 +18,8 @@ pin in bit b6;
 pin in bit b7;
 pin out bit out "true only if in is true and a[m] matches b[m] for m = 0 thru 7";
 function _ nofp;
+license "GPL";
 ;;
-MODULE_LICENSE("GPL");
 FUNCTION(_) {
     int tmp = 0;
 

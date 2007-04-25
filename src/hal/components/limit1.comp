@@ -4,8 +4,8 @@ pin out float out;
 param rw float min_=-1e20;
 param rw float max_=1e20;
 function _;
+license "GPL";
 ;;
-MODULE_LICENSE("GPL");
 FUNCTION(_) {
     double tmp = in;
     if(tmp < min_) tmp = min_;

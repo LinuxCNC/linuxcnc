@@ -28,9 +28,8 @@ param rw float min_out=0.0 "Minimum output value, further decreases in count wil
 option data knob2float_data;
 
 function _;
-
+license "GPL";
 ;;
-MODULE_LICENSE("GPL");
 
 typedef struct {
     long old_counts;

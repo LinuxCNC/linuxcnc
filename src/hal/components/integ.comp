@@ -3,8 +3,8 @@ pin in float in;
 pin out float out "The discrete integral of 'in' since 'reset' was deasserted";
 pin in bit reset "When asserted, set out to 0";
 function _;
+license "GPL";
 ;;
-MODULE_LICENSE("GPL");
 FUNCTION(_) {
     if(reset) out = 0;
     else out = out + in * fperiod;

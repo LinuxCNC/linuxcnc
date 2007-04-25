@@ -2,6 +2,7 @@ component threadtest;
 pin out unsigned count;
 function increment nofp;
 function reset nofp;
+license "GPL";
 
 ;;
 
