@@ -102,7 +102,22 @@ CXXUSERSRCS := $(filter %.cc,$(USERSRCS))
 CUSEROBJS := $(call TOOBJS,$(CUSERSRCS))
 CXXUSEROBJS += $(call TOOBJS,$(CXXUSERSRCS))
 
-ifneq ($(MAKECMDGOALS),clean)
+# A "trivial build" is one which should not include dependency information
+# either because it should be usable before dependency information can be
+# generated or when it is invalid (clean, docclean) or when running as root
+# when the user must guarantee in advance that everything is built
+# (setuid, install)
+ifeq ($(MAKECMDGOALS),)
+TRIVIAL_BUILD=no
+else
+ifeq ($(filter-out docclean clean setuid install,$(MAKECMDGOALS)),)
+TRIVIAL_BUILD=yes
+else
+TRIVIAL_BUILD=no
+endif
+endif
+
+ifeq ($(TRIVIAL_BUILD),no)
 # Find the dependency filenames, then include them all
 DEPS := $(sort $(patsubst objects/%.o,depends/%.d,$(CUSEROBJS) $(CXXUSEROBJS)))
 -include $(DEPS)
@@ -726,7 +741,7 @@ endif
 ../rtlib/pumakins$(MODULE_EXT): $(addprefix objects/rt,$(pumakins-objs))
 ../rtlib/scarakins$(MODULE_EXT): $(addprefix objects/rt,$(scarakins-objs))
 
-ifneq ($(MAKECMDGOALS),clean)
+ifeq ($(TRIVIAL_BUILD),no)
 RTDEPS := $(sort $(patsubst objects/%.o,depends/%.d,$(RTOBJS)))
 -include $(RTDEPS)
 Makefile: $(RTDEPS)
