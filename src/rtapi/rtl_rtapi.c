@@ -502,7 +502,7 @@ rtapi_msg_handler_t rtapi_get_msg_handler(void) {
     return rtapi_msg_handler;
 }
 
-rtapi_msg_handler_t rtapi_set_msg_handler(rtapi_msg_handler_t handler) {
+void rtapi_set_msg_handler(rtapi_msg_handler_t handler) {
     if(handler == NULL) rtapi_msg_handler = default_rtapi_msg_handler;
     else rtapi_msg_handler = handler;
 }
@@ -1739,3 +1739,28 @@ unsigned char rtapi_inb(unsigned int port)
 {
     return inb(port);
 }
+
+/*export necessary function symbol*/
+EXPORT_SYMBOL(rtapi_init);
+EXPORT_SYMBOL(rtapi_exit);
+EXPORT_SYMBOL(rtapi_task_new);
+EXPORT_SYMBOL(rtapi_prio_next_lower);
+EXPORT_SYMBOL(rtapi_prio_highest);
+EXPORT_SYMBOL(rtapi_vsnprintf);
+EXPORT_SYMBOL(rtapi_wait);
+EXPORT_SYMBOL(rtapi_task_pause);
+EXPORT_SYMBOL(rtapi_clock_set_period);
+EXPORT_SYMBOL(rtapi_print_msg);
+EXPORT_SYMBOL(rtapi_shmem_getptr);
+EXPORT_SYMBOL(rtapi_get_clocks);
+EXPORT_SYMBOL(rtapi_shmem_delete);
+EXPORT_SYMBOL(rtapi_task_delete);
+EXPORT_SYMBOL(rtapi_shmem_new);
+EXPORT_SYMBOL(rtapi_snprintf);
+EXPORT_SYMBOL(rtapi_task_start);
+EXPORT_SYMBOL(rtapi_set_msg_handler);
+EXPORT_SYMBOL(rtapi_get_msg_handler);
+EXPORT_SYMBOL(rtapi_set_msg_level);
+EXPORT_SYMBOL(rtapi_get_msg_level);
+EXPORT_SYMBOL(rtapi_get_time);
+EXPORT_SYMBOL(rtapi_print);
