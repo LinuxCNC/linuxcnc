@@ -809,10 +809,7 @@ class MyOpengl(Opengl):
             glPushMatrix()
             glTranslatef(0,0,.003)
 
-            try:
-                live_plotter.logger.call()
-            except NameError:
-                pass
+            live_plotter.logger.call()
 
             glDrawArrays(GL_LINE_STRIP, 0, o.live_plot_size)
             glPopMatrix()
@@ -821,59 +818,62 @@ class MyOpengl(Opengl):
             glDisable(GL_BLEND)
             glLineWidth(1)
             glDepthFunc(GL_LESS);
-            if live_plotter.running.get() and vars.show_tool.get():
+            
+        if live_plotter.running.get() and vars.show_tool.get():
+            pos = None
+            if vars.show_live_plot.get():
                 pos = live_plotter.logger.last()
-                if pos is None:
-                    pos = live_plotter.stat.actual_position
-                if program is not None:
-                    g = self.g
-                    x,y,z = 0,1,2
-                    cone_scale = max(g.max_extents[x] - g.min_extents[x],
-                                   g.max_extents[y] - g.min_extents[y],
-                                   g.max_extents[z] - g.min_extents[z],
-                                   2 ) * .5
-                else:
-                    cone_scale = 1
-                pos = to_internal_units(pos[:3])
-                glPushMatrix()
-                glTranslatef(*pos)
-                if len(axisnames) > 3:
-                    if axisnames[3] == "A":
-                        glRotatef(s.position[3], 1, 0, 0)
-                    elif axisnames[3] == "B":
-                        glRotatef(s.position[3], 0, 1, 0)
-                    elif axisnames[3] == "C":
-                        glRotatef(s.position[3], 0, 0, 1)
+            if pos is None:
+                pos = live_plotter.stat.actual_position
+            if program is not None:
+                g = self.g
+                x,y,z = 0,1,2
+                cone_scale = max(g.max_extents[x] - g.min_extents[x],
+                               g.max_extents[y] - g.min_extents[y],
+                               g.max_extents[z] - g.min_extents[z],
+                               2 ) * .5
+            else:
+                cone_scale = 1
+            pos = to_internal_units(pos[:3])
+            glPushMatrix()
+            glTranslatef(*pos)
+            if len(axisnames) > 3:
+                if axisnames[3] == "A":
+                    glRotatef(s.position[3], 1, 0, 0)
+                elif axisnames[3] == "B":
+                    glRotatef(s.position[3], 0, 1, 0)
+                elif axisnames[3] == "C":
+                    glRotatef(s.position[3], 0, 0, 1)
 
-                glEnable(GL_BLEND)
-                glEnable(GL_CULL_FACE);
-                glBlendFunc(GL_ONE, GL_CONSTANT_ALPHA);
+            glEnable(GL_BLEND)
+            glEnable(GL_CULL_FACE);
+            glBlendFunc(GL_ONE, GL_CONSTANT_ALPHA);
 
-                if lathe and current_tool and current_tool.orientation != 0:
-                    glBlendColor(0,0,0,o.colors['lathetool_alpha'])
-                    lathetool()
-                else:
-                    glBlendColor(0,0,0,o.colors['tool_alpha'])
-                    if lathe:
-                        glRotatef(90, 0, 1, 0)
-                    if current_tool and current_tool.diameter != 0:
-                        if vars.metric.get():
-                            r = current_tool.diameter / (2. * 25.4)
-                        else:
-                            r = current_tool.diameter / 2.
-                        q = gluNewQuadric()
-                        glEnable(GL_LIGHTING)
-                        glColor3f(*o.colors['cone'])
-                        gluCylinder(q, r, r, 8*r, 32, 1)
-                        gluDisk(q, 0, -r, 32, 1)
-                        glTranslatef(0,0,8*r)
-                        gluDisk(q, 0, r, 32, 1)
-                        glDisable(GL_LIGHTING)
-                        gluDeleteQuadric(q)
-                    else:    
-                        glScalef(cone_scale, cone_scale, cone_scale)
-                        glCallList(cone_program)
-                glPopMatrix()
+            if lathe and current_tool and current_tool.orientation != 0:
+                glBlendColor(0,0,0,o.colors['lathetool_alpha'])
+                lathetool()
+            else:
+                glBlendColor(0,0,0,o.colors['tool_alpha'])
+                if lathe:
+                    glRotatef(90, 0, 1, 0)
+                if current_tool and current_tool.diameter != 0:
+                    if vars.metric.get():
+                        r = current_tool.diameter / (2. * 25.4)
+                    else:
+                        r = current_tool.diameter / 2.
+                    q = gluNewQuadric()
+                    glEnable(GL_LIGHTING)
+                    glColor3f(*o.colors['cone'])
+                    gluCylinder(q, r, r, 8*r, 32, 1)
+                    gluDisk(q, 0, -r, 32, 1)
+                    glTranslatef(0,0,8*r)
+                    gluDisk(q, 0, r, 32, 1)
+                    glDisable(GL_LIGHTING)
+                    gluDeleteQuadric(q)
+                else:    
+                    glScalef(cone_scale, cone_scale, cone_scale)
+                    glCallList(cone_program)
+            glPopMatrix()
 
         glMatrixMode(GL_PROJECTION)
         glPushMatrix()
