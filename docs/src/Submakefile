@@ -63,11 +63,9 @@ HTML_TARGETS := $(patsubst %.lyx,$(DOC_DIR)/html/%/index.html, $(filter-out Mast
 L2HFLAGS := -init_file src/.latex2html-init -local_icons \
 	-unsegment -link 4 -info 0 -split +0 -html_version 4.0,math,table 
 
-ifneq ($(MAKECMDGOALS),clean)
-ifneq ($(MAKECMDGOALS),docclean)
+ifeq ($(TRIVIAL_BUILD),no)
 -include $(patsubst %.lyx, depends/%.d, $(DOC_SRCS))
 Makefile: $(patsubst %.lyx, depends/%.d, $(DOC_SRCS))
-endif
 endif
 
 ifeq ($(BUILD_DOCS_PDF),yes)
@@ -193,10 +191,8 @@ $(MAN_DEPS): depends/%.d: $(DOC_DIR)/man/%
 	@echo >> $@.tmp
 	@mv -f $@.tmp $@
 
-ifneq ($(MAKECMDGOALS),clean)
-ifneq ($(MAKECMDGOALS),docclean)
+ifeq ($(TRIVIAL_BUILD),no)
 -include $(MAN_DEPS)
 Makefile: $(MAN_DEPS)
-endif
 endif
 
