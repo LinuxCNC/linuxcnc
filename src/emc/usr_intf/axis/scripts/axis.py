@@ -3150,7 +3150,7 @@ else:
     bind_axis("KP_Left", "KP_Right", 0)
     bind_axis("KP_Down", "KP_Up", 1)
     bind_axis("KP_Next", "KP_Prior", 2)
-    bind_axis("bracketleft", "bracketright", 2)
+    bind_axis("bracketleft", "bracketright", 3)
 root_window.bind("<KeyPress-minus>", commands.jog_minus)
 root_window.bind("<KeyPress-equal>", commands.jog_plus)
 root_window.bind("<KeyRelease-minus>", commands.jog_stop)
