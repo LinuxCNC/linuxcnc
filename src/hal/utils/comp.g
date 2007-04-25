@@ -48,6 +48,7 @@ parser Hal:
       | "option" NAME OptValue ";"   {{ option(NAME, OptValue) }}
       | "see_also" String ";"   {{ see_also(String) }}
       | "description" String ";"   {{ description(String) }}
+      | "license" String ";"   {{ license(String) }}
 
     rule String: TSTRING {{ return eval(TSTRING) }} 
             | STRING {{ return eval(STRING) }}
@@ -118,6 +119,9 @@ def comp(name, doc):
 
 def description(doc):
     docs.append(('descr', doc));
+
+def license(doc):
+    docs.append(('license', doc));
 
 def see_also(doc):
     docs.append(('see_also', doc));
@@ -209,8 +213,12 @@ static int comp_id;
         if not v: continue
         v = ":".join(map(str, v))
         print >>f, "MODULE_INFO(emc2, %s);" % q(v)
-    print >>f, "#endif // __MODULE_INFO"
+    print >>f, "#endif // MODULE_INFO"
     print >>f
+
+    license = finddoc('license')    
+    if license and license[1]:
+        print >>f, "MODULE_LICENSE(\"%s\");" % license[1].split("\n")[0]
 
     has_data = options.get("data")
 
@@ -696,6 +704,11 @@ def document(filename, outfilename):
         print >>f, ".SH SEE ALSO\n"
         print >>f, "%s" % doc[1]
 
+    doc = finddoc('license')    
+    if doc and doc[1]:
+        print >>f, ".SH LICENSE\n"
+        print >>f, "%s" % doc[1]
+
 def process(filename, mode, outfilename):
     tempdir = tempfile.mkdtemp()
     try:
@@ -726,8 +739,16 @@ def process(filename, mode, outfilename):
             raise SystemExit, "Component must have at least one pin"
         prologue(f)
         lineno = a.count("\n") + 3
-        f.write("#line %d \"%s\"\n" % (lineno, filename))
-        f.write(b)
+        if "FUNCTION" in b:
+            f.write("#line %d \"%s\"\n" % (lineno, filename))
+            f.write(b)
+        elif len(functions) == 1:
+            f.write("FUNCTION(%s) {\n" % functions[0][0])
+            f.write("#line %d \"%s\"\n" % (lineno, filename))
+            f.write(b)
+            f.write("}\n")
+        else:
+            raise SystemExit, "Must use FUNCTION() when more than one function is defined"
         epilogue(f)
         f.close()
 
@@ -745,21 +766,24 @@ def usage(exitval=0):
 
 Usage:
     %(name)s [--install|--compile|--preprocess|--document] compfile...
-    %(name)s [--install|--compile] cfile...
+    %(name)s [--install|--compile] [--userspace] cfile...
 """ % {'name': os.path.basename(sys.argv[0])}
     raise SystemExit, exitval
 
 def main():
     mode = PREPROCESS
     outfile = None
+    userspace = False
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "icpdo:h?",
+        opts, args = getopt.getopt(sys.argv[1:], "uicpdo:h?",
                            ['install', 'compile', 'preprocess', 'outfile=',
-                            'document', 'help'])
+                            'document', 'help', 'userspace'])
     except getopt.GetoptError:
         usage(1)
 
     for k, v in opts:
+        if k in ("-u", "--userspace"):
+            userspace = True
         if k in ("-i", "--install"):
             mode = INSTALL
         if k in ("-c", "--compile"):
@@ -787,7 +811,10 @@ def main():
             tempdir = tempfile.mkdtemp()
             try:
                 shutil.copy(f, tempdir)
-                build(tempdir, os.path.join(tempdir, os.path.basename(f)), mode, f)
+                if userspace:
+                    build_usr(tempdir, os.path.join(tempdir, os.path.basename(f)), mode, f)
+                else:
+                    build_rt(tempdir, os.path.join(tempdir, os.path.basename(f)), mode, f)
             finally:
                 shutil.rmtree(tempdir) 
         else:
