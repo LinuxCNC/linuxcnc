@@ -172,7 +172,7 @@ setup_menu_accel .menu.machine end [_ "Homin_g"]
 
 .menu.machine add cascade \
     -menu .menu.machine.touchoff
-setup_menu_accel .menu.machine end [_ "Touch-O_ff X axis in system..."]
+setup_menu_accel .menu.machine end [_ "Touch-O_ff current axis in system..."]
 
 .menu.machine.touchoff add command \
     -command [list touch_off_system 1]
@@ -1584,17 +1584,14 @@ proc state {e args} {
     set e [uplevel \#0 [list expr $e]]
     if {$e} { set newstate normal } else {set newstate disabled}
     foreach w $args {
-        if {[llength $w] == 2} {
-            set idx [lindex $w 1]
-            set w [lindex $w 0]
-            # The indices are made for non-tearoff menus.  It's just
-            # possible that the menus could be made to have tearoffs by
-            # the X resources database.  This next line is supposed to
-            # properly adjust the numbers for that case.
-            if {[$w cget -tearoff]} { incr $idx }
-            set oldstate [$w entrycget $idx -state]
-            if {$oldstate != $newstate} {
-                $w entryconfigure $idx -state $newstate
+        if {[llength $w] > 1} {
+            set m [lindex $w 0]
+            for {set i 1} {$i < [llength $w]} {incr i} {
+                set idx [extract_text [_ [lindex $w $i]]]
+                set oldstate [$m entrycget $idx -state]
+                if {$oldstate != $newstate} {
+                    $m entryconfigure $idx -state $newstate
+                }
             }
         } else {
             set oldstate [$w cget -state]
@@ -1628,58 +1625,46 @@ proc update_state {args} {
         $::STATE_ON { set ::task_state_string [_ "ON"] } \
 
     relief {$task_state == $STATE_ESTOP} .toolbar.machine_estop
-    state  {$task_state != $STATE_ESTOP} .toolbar.machine_power 
+    state  {$task_state != $STATE_ESTOP} \
+        .toolbar.machine_power {.menu.machine "Toggle _Machine Power"}
     relief {$task_state == $STATE_ON}    .toolbar.machine_power 
 
-    if { $::has_editor == 1 } {
-        state  {$interp_state == $INTERP_IDLE && $taskfile != ""} \
-            .toolbar.reload {.menu.file 1} {.menu.file 2} {.menu.file 5}
-        state  {$taskfile != ""} {.menu.file 3}
-        state  {$interp_state == $INTERP_IDLE} .toolbar.file_open \
-            {.menu.file 0} {.menu.file 8}
-        state  {$task_state == $STATE_ON && $interp_state == $INTERP_IDLE } \
-            {.menu.file 6}
-    } else {
-        if { $::editor_deleted == 0 } {
-            .menu.file delete 1
-            .menu.file delete 4
-            set ::editor_deleted 1
-        }
-        state  {$interp_state == $INTERP_IDLE && $taskfile != ""} \
-            .toolbar.reload {.menu.file 1}
-        state  {$taskfile != ""} {.menu.file 2}
-        state  {$interp_state == $INTERP_IDLE} .toolbar.file_open \
-            {.menu.file 0} {.menu.file 6}
-        state  {$task_state == $STATE_ON && $interp_state == $INTERP_IDLE } \
-            {.menu.file 4}
-    }        
+    state  {$interp_state == $INTERP_IDLE && $taskfile != ""} \
+        {.menu.file "_Reload"}
+    state  {$interp_state == $INTERP_IDLE && $taskfile != "" && $::has_editor} \
+        .toolbar.reload {.menu.file "_Edit..."}
+    state  {$taskfile != ""} {.menu.file "_Properties..."}
+    state  {$interp_state == $INTERP_IDLE} .toolbar.file_open \
+        {.menu.file "_Open..." "_Quit"}
+    state  {$task_state == $STATE_ON && $interp_state == $INTERP_IDLE } \
+        .toolbar.program_run {.menu.machine "_Run program"} \
+        {.menu.file "Reload tool ta_ble"}
+    state  {$interp_state == $INTERP_IDLE && $::has_editor} \
+        {.menu.file "Edit _tool table..."}
 
     state  {$task_state == $STATE_ON && $interp_state == $INTERP_IDLE} \
-        {.menu.machine 23} {.menu.machine 24} {.menu.machine 25}
+        {.menu.machine "Homin_g" "Touch-O_ff current axis in system..."
+            "_Zero coordinate system"}
 
-    state  {$task_state == $STATE_ON && $interp_state == $INTERP_IDLE \
-            && $taskfile != ""} \
-                .toolbar.program_run {.menu.machine 4}
     relief {$interp_state != $INTERP_IDLE} .toolbar.program_run
-    state  {$task_state == $STATE_ON && $taskfile != "" && \
-      ($interp_state == $INTERP_PAUSED)} \
-                .toolbar.program_step {.menu.machine 5}
+    state  {$task_state == $STATE_ON && $taskfile != ""} \
+                .toolbar.program_step {.menu.machine "_Step"}
     state  {$task_state == $STATE_ON && \
       ($interp_state == $INTERP_READING || $interp_state == $INTERP_WAITING) } \
-                {.menu.machine 6}
+                {.menu.machine "_Pause"}
     state  {$task_state == $STATE_ON && $interp_state == $INTERP_PAUSED } \
-                {.menu.machine 7}
+                {.menu.machine "_Resume"}
     state  {$task_state == $STATE_ON && $interp_state != $INTERP_IDLE} \
                 .toolbar.program_pause
     relief {$interp_state == $INTERP_PAUSED} \
                 .toolbar.program_pause
     state  {$task_state == $STATE_ON && $interp_state != $INTERP_IDLE} \
-                .toolbar.program_stop {.menu.machine 8}
+                .toolbar.program_stop {.menu.machine "S_top"}
     relief {$interp_state == $INTERP_IDLE} \
                 .toolbar.program_stop
 
     state {$interp_state == $INTERP_IDLE && $highlight_line != -1} \
-                {.menu.machine 3}
+                {.menu.machine "Set _next line"}
 
     state {$::task_state == $::STATE_ON && $::interp_state == $::INTERP_IDLE\
             && $spindledir != 0} \
