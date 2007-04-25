@@ -98,19 +98,16 @@ variable float old;
 \newline 
 function _;
 \newline 
+license "GPL";
+\layout LyX-Code
+
 ;;
 \newline 
-MODULE_LICENSE("GPL");
+float tmp = in;
 \newline 
-FUNCTION(_) {
+out = (tmp - old) / fperiod;
 \newline 
-    float tmp = in;
-\newline 
-    out = (tmp - old) / fperiod;
-\newline 
-    old = tmp;
-\newline 
-}
+old = tmp;
 \layout Standard
 
 and it can be compiled and installed very easily: by simply placing 
@@ -317,7 +314,7 @@ VALUE
 
 
 \family typewriter 
-data 
+variable 
 \emph on 
 CTYPE NAME 
 \emph default 
@@ -336,6 +333,11 @@ description DOC;
 
 \family typewriter 
 see_also DOC;
+\layout Itemize
+
+
+\family typewriter 
+license LICENSE;
 \layout Standard
 
 Parentheses indicate optional items.
@@ -1185,6 +1187,13 @@ option \SpecialChar \ldots{}
 \end_deeper 
 \layout Description
 
+LICENSE Specify the license of the module, for the documentation and for
+ the MODULE_LICENSE() module declaration.
+\layout Section
+
+Per-instance data storage
+\layout Description
+
 variable\SpecialChar ~
 
 \emph on 
@@ -1481,6 +1490,28 @@ parameter_name
 data
 \series default 
  macros work as they do in realtime functions.
+\layout Section
+
+Components with one function
+\layout Standard
+
+If a component has only one function and the string 
+\begin_inset Quotes eld
+\end_inset 
+
+FUNCTION
+\begin_inset Quotes erd
+\end_inset 
+
+ does not appear anywhere after 
+\family typewriter 
+;;
+\family default 
+, then the portion after 
+\family typewriter 
+;;
+\family default 
+ is all taken to be the body of the component's single function.
 \layout Section
 
 Component 
@@ -1926,15 +1957,11 @@ function _ nofp;
 \newline 
 ;;
 \newline 
-FUNCTION(_) { 
+int i; 
 \newline 
-    int i; 
+for(i=3; i>0; i--) out(i) = out(i-1); 
 \newline 
-    for(i=3; i>0; i--) out(i) = out(i-1); 
-\newline 
-    out(0) = in;
-\newline 
-}
+out(0) = in;
 \layout Subsection
 
 rand
