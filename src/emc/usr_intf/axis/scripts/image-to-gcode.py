@@ -491,7 +491,7 @@ def ui(im, nim, im_name):
         w.pack(side="left", fill="x", expand=1)
         return g, var
 
-    def optionmenu(k, v, *options):
+    def _optionmenu(k, v, *options):
         options = list(options)
         def trace(*args):
             try:
@@ -518,30 +518,34 @@ def ui(im, nim, im_name):
         w = nf.makewidget(f, Tkinter.Widget, wp)
         return w, var
 
+    def optionmenu(*options): return lambda f, v: _optionmenu(f, v, *options)
+
     rc = os.path.expanduser("~/.image2gcoderc")
     constructors = [
-        ("units", lambda f, v: optionmenu(f, v, _("G20 (in)"), _("G21 (mm)"))),
+        ("units", optionmenu(_("G20 (in)"), _("G21 (mm)"))),
         ("invert", checkbutton),
         ("normalize", checkbutton),
+        ("expand", optionmenu(_("None"), _("White"), _("Black"))),
         ("tolerance", floatentry),
         ("pixel_size", floatentry),
         ("feed_rate", floatentry),
         ("plunge_feed_rate", floatentry),
         ("spindle_speed", floatentry),
-        ("pattern", lambda f, v: optionmenu(f, v, _("Rows"), _("Columns"), _("Rows then Columns"), _("Columns then Rows"))),
-        ("converter", lambda f, v: optionmenu(f, v, _("Positive"), _("Negative"), _("Alternating"), _("Up Milling"), _("Down Milling"))),
+        ("pattern", optionmenu(_("Rows"), _("Columns"), _("Rows then Columns"), _("Columns then Rows"))),
+        ("converter", optionmenu(_("Positive"), _("Negative"), _("Alternating"), _("Up Milling"), _("Down Milling"))),
         ("depth", floatentry),
         ("pixelstep", intscale),
         ("tool_diameter", floatentry),
         ("safety_height", floatentry),
-        ("tool_type", lambda f, v: optionmenu(f, v, _("Ball End"), _("Flat End"), _("45 Degree"), _("60 Degree"))),
-        ("bounded", lambda f, v: optionmenu(f, v, _("None"), _("Secondary"), _("Full"))),
+        ("tool_type", optionmenu(_("Ball End"), _("Flat End"), _("45 Degree"), _("60 Degree"))),
+        ("bounded", optionmenu(_("None"), _("Secondary"), _("Full"))),
         ("contact_angle", floatentry),
     ]
 
     defaults = dict(
         invert = False,
         normalize = False,
+        expand = 0,
         pixel_size = .006,
         depth = 0.25,
         pixelstep = 8,
@@ -562,6 +566,7 @@ def ui(im, nim, im_name):
     texts = dict(
         invert=_("Invert Image"),
         normalize=_("Normalize Image"),
+        expand=_("Extend Image Border"),
         pixel_size=_("Pixel Size (Units)"),
         depth=_("Depth (units)"),
         tolerance=_("Tolerance (units)"),
@@ -671,17 +676,27 @@ def main():
     else:
         nim = nim / 255.0
 
+    maker = tool_makers[options['tool_type']]
+    tool_diameter = options['tool_diameter']
+    pixel_size = options['pixel_size']
+    tool = make_tool_shape(maker, tool_diameter, pixel_size)
+
+    if options['expand']:
+        if options['expand'] == 1: pixel = 1
+        else: pixel = 0
+        tw, th = tool.shape
+        w1 = w + 2*tw
+        h1 = h + 2*th
+        nim1 = numarray.zeros((w1, h1), 'Float32') + pixel
+        nim1[tw:tw+w, th:th+w] = nim
+        nim = nim1
+        w, h = w1, h1
     nim = nim * depth
 
     if options['invert']:
         nim = -nim
     else:
         nim = nim - depth
-
-    maker = tool_makers[options['tool_type']]
-    tool_diameter = options['tool_diameter']
-    pixel_size = options['pixel_size']
-    tool = make_tool_shape(maker, tool_diameter, pixel_size)
 
     rows = options['pattern'] != 1
     columns = options['pattern'] != 0
