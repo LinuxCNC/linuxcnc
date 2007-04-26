@@ -2,6 +2,21 @@
 .SUFFIXES:
 .PHONY: default userspace modules clean modclean depclean install python pythonclean
 
+# A "trivial build" is one which should not include dependency information
+# either because it should be usable before dependency information can be
+# generated or when it is invalid (clean, docclean) or when running as root
+# when the user must guarantee in advance that everything is built
+# (setuid, install)
+ifeq ($(MAKECMDGOALS),)
+TRIVIAL_BUILD=no
+else
+ifeq ($(filter-out docclean clean setuid install,$(MAKECMDGOALS)),)
+TRIVIAL_BUILD=yes
+else
+TRIVIAL_BUILD=no
+endif
+endif
+
 ifeq "$(findstring s,$(MAKEFLAGS))" ""
 ECHO=@echo
 VECHO=echo
@@ -101,21 +116,6 @@ CUSERSRCS := $(filter %.c,$(USERSRCS))
 CXXUSERSRCS := $(filter %.cc,$(USERSRCS))
 CUSEROBJS := $(call TOOBJS,$(CUSERSRCS))
 CXXUSEROBJS += $(call TOOBJS,$(CXXUSERSRCS))
-
-# A "trivial build" is one which should not include dependency information
-# either because it should be usable before dependency information can be
-# generated or when it is invalid (clean, docclean) or when running as root
-# when the user must guarantee in advance that everything is built
-# (setuid, install)
-ifeq ($(MAKECMDGOALS),)
-TRIVIAL_BUILD=no
-else
-ifeq ($(filter-out docclean clean setuid install,$(MAKECMDGOALS)),)
-TRIVIAL_BUILD=yes
-else
-TRIVIAL_BUILD=no
-endif
-endif
 
 ifeq ($(TRIVIAL_BUILD),no)
 # Find the dependency filenames, then include them all
