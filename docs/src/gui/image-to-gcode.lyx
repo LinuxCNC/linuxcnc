@@ -166,6 +166,39 @@ yes
  to white.
 \layout Subsection
 
+Expand Image Border
+\layout Standard
+
+If 
+\begin_inset Quotes eld
+\end_inset 
+
+None
+\begin_inset Quotes erd
+\end_inset 
+
+, the input image is used as-is, and details which are at the very edges
+ of the image may be cut off.
+ If 
+\begin_inset Quotes eld
+\end_inset 
+
+White
+\begin_inset Quotes erd
+\end_inset 
+
+ or 
+\begin_inset Quotes eld
+\end_inset 
+
+Black
+\begin_inset Quotes erd
+\end_inset 
+
+, then a border of pixels equal to the tool diameter is added on all sides,
+ and details which are at the very edges of the images will not be cut off.
+\layout Subsection
+
 Tolerance (units)
 \layout Standard
 
