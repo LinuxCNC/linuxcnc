@@ -28,8 +28,10 @@ endif
 ifeq ($(BASEPWD),)
 BASEPWD := $(shell pwd)
 export BASEPWD
-endif
+include Makefile.inc
+else
 include $(BASEPWD)/Makefile.inc
+endif
 ifeq ($(RTPREFIX),)
 $(error Makefile.inc must specify RTPREFIX and other variables)
 endif
