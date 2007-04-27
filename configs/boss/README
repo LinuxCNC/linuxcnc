@@ -1,0 +1,50 @@
+This configuration is for my (petev) Bridgeport BOSS6. It shows how I used
+the boss_plc component. It is intended for servo machines running the
+Vitalsystems (www.vsi99.com) Motenc-100 or Motenc-Lite card.
+
+You can either have a standard pinout, or you could make a new
+one which would suit your own custom cabling. The changes are
+done in HAL (the Hardware Abstraction Layer), which is very
+flexible (read more about it at http://wiki.linuxcnc.org/)
+
+The standard configuration assumes a card installed with
+the board id jumper set at 0. If you get errors, try to
+adjust the jumper.
+
+Multiple cards are supported by reading the board id jumper
+settings and using them as the <boardId> in the exported
+HAL names. There are two jumpers on J3 of the motenc-100
+board that are defined as the board id. Installing a jumper
+causes the corresponding bit to read as zero. Since there are
+two board id jumpers, up to four cards are supported. Using
+the board id allows the configuration to be independent of
+which PCI slot the card is plugged into.
+
+Detailed description:
+
+* nml files
+
+-- it uses a default nml file (found in configs/common/emc.nml)
+
+* hal files
+
+-- boss.hal - this is the main hal file for the Motenc, it loads the 
+motenc driver and sets up motion and IO links (like the pin number where the
+X limit switch is, or where the spindle start pin is connected), it is fairly
+well commented, so it should be easy to read / modify.
+This servo setup is mostly for serious machines, so the ESTOP should really be
+planned / implemented properly (that means use an external ESTOP chain, and let
+EMC know about it, and let EMC interrupt the external chain too).
+Read more about this in the wiki at http://wiki.linuxcnc.org/
+
+* additional files
+
+-- boss.tbl - this is the tool table file, and it holds definitions for the
+tools used, along with tool sizes for compensation (tool length & tool diameter)
+
+-- boss.var - the variables file. This file is used by the interpreter to save
+internal variables when EMC shuts down, and rereads them on the next startup.
+
+Further specific information can be found in the EMC wiki: 
+http://wiki.linuxcnc.org/
+
