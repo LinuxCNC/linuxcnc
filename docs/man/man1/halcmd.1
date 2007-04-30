@@ -65,6 +65,10 @@ Ignore commands on command line, take input from \fIfile\fR
 instead.  If \fIfile\fR is not specified, take input from
 \fIstdin\fR.
 .TP
+\fB-i \fIinifile\fR
+Use variables from \fIinifile\fR for substitutions.  See \fBSUBSTITUTION\fR
+below.
+.TP
 \fB\-k\fR
 Keep going after failed command(s).  The default is to stop
 and return failure if any command fails.
@@ -313,6 +317,22 @@ equivalent of \fBcomp\fR, \fBsigu\fR, \fBlink\fR, \fBparam\fR, and \fBthread\fR.
 .TP
 \fBsource\fR  \fIfilename.hal\fR
 Execute the commands from \fIfilename.hal\fR.
+.SH SUBSTITUTION
+After a command is read but before it is executed, several types of variable
+substitution take place.
+.SS Environment Variables
+Environment variables have the following formats:
+.IP
+\fB$ENVVAR\fR followed by end-of-line or whitespace
+.IP
+\fB$(ENVVAR)\fR
+.SS Inifile Variables
+Inifile variables are available only when an inifile was specified with the
+halcmd \fB-i\fR flag.  They have the following formats:
+.IP
+\fB[SECTION]VAR\fR followed by end-of-line or whitespace
+.IP
+\fB[SECTION](VAR)\fR
 .SH EXAMPLES
 
 .SH "SEE ALSO"
