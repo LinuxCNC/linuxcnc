@@ -3315,6 +3315,14 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
     CHK((block->h_flag == OFF), NCE_OFFSET_INDEX_MISSING);
     index = block->h_number;
     if(index == -1) {
+        CHK((block->x_flag == ON) ||
+            (block->y_flag == ON) ||
+            (block->z_flag == ON) ||
+            (block->a_flag == ON) ||
+            (block->b_flag == ON) ||
+            (block->c_flag == ON) ||
+            (block->j_flag == ON),
+            NCE_XYZABCJ_WORDS_NOT_ALLOWED_WITH_G43H_1);
         xoffset = settings->tool_xoffset;
         zoffset = settings->tool_zoffset;
         if(block->i_flag == ON) xoffset = block->i_number;

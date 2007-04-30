@@ -258,7 +258,7 @@ char * _rs274ngc_errors[] = {
 /* 227 */ _("Out of memory"),
 /* 228 */ _("Place holder for NCE_VARIABLE: should not occur"),
 
-
-/* 229 */ _("Unknown error"), // dummy
+/* 229 */ _("X Y Z A B C J words not allowed with G43 H-1"),
+/* 230 */ _("Unknown error"), // dummy
 _("The End")};
 // *INDENT-ON*
