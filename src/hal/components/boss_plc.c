@@ -621,8 +621,11 @@ Device_ExportAmps(Device *this, int compId, int id, char *name)
     int                                 error, i;
     Amp                                 *pAmp;
 
+    rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.amp-ready-delay", id);
+    error = hal_param_float_new(name, HAL_RW, &this->ampReadyDelay, compId);
+
     pAmp = this->amps;
-    for(i = 0, error = 0; i < NUM_AXIS && !error; i++, pAmp++){
+    for(i = 0; i < NUM_AXIS && !error; i++, pAmp++){
         error = Amp_Export(pAmp, compId, id, name, axisNames[i]);
     }
 
@@ -711,7 +714,7 @@ Device_ExportJog(Device *this, int compId, int id, char *name)
 
     // Export parameters.
     for(i = 0, error = 0; i < NUM_JOG_SEL && !error; i++){
-        rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.jog-scale-%d-in", id, i);
+        rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.jog-scale-%d", id, i);
         error = hal_param_float_new(name, HAL_RW, &this->jogScale[i], compId);
     }
 
