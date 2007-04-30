@@ -796,7 +796,55 @@ class MyOpengl(Opengl):
                 draw_axes()
             glPopMatrix()
 
+        if vars.show_machine_limits.get():
+            glLineWidth(1)
+            glColor3f(1.0,0.0,0.0)
+            glLineStipple(1, 0x1111)
+            glEnable(GL_LINE_STIPPLE)
+            glBegin(GL_LINES)
 
+            glVertex3f(machine_limit_min[0], machine_limit_min[1], machine_limit_max[2])
+            glVertex3f(machine_limit_min[0], machine_limit_min[1], machine_limit_min[2])
+
+            glVertex3f(machine_limit_min[0], machine_limit_min[1], machine_limit_min[2])
+            glVertex3f(machine_limit_min[0], machine_limit_max[1], machine_limit_min[2])
+
+            glVertex3f(machine_limit_min[0], machine_limit_max[1], machine_limit_min[2])
+            glVertex3f(machine_limit_min[0], machine_limit_max[1], machine_limit_max[2])
+
+            glVertex3f(machine_limit_min[0], machine_limit_max[1], machine_limit_max[2])
+            glVertex3f(machine_limit_min[0], machine_limit_min[1], machine_limit_max[2])
+
+            
+            glVertex3f(machine_limit_max[0], machine_limit_min[1], machine_limit_max[2])
+            glVertex3f(machine_limit_max[0], machine_limit_min[1], machine_limit_min[2])
+
+            glVertex3f(machine_limit_max[0], machine_limit_min[1], machine_limit_min[2])
+            glVertex3f(machine_limit_max[0], machine_limit_max[1], machine_limit_min[2])
+
+            glVertex3f(machine_limit_max[0], machine_limit_max[1], machine_limit_min[2])
+            glVertex3f(machine_limit_max[0], machine_limit_max[1], machine_limit_max[2])
+
+            glVertex3f(machine_limit_max[0], machine_limit_max[1], machine_limit_max[2])
+            glVertex3f(machine_limit_max[0], machine_limit_min[1], machine_limit_max[2])
+
+
+            glVertex3f(machine_limit_min[0], machine_limit_min[1], machine_limit_min[2])
+            glVertex3f(machine_limit_max[0], machine_limit_min[1], machine_limit_min[2])
+
+            glVertex3f(machine_limit_min[0], machine_limit_max[1], machine_limit_min[2])
+            glVertex3f(machine_limit_max[0], machine_limit_max[1], machine_limit_min[2])
+
+            glVertex3f(machine_limit_min[0], machine_limit_max[1], machine_limit_max[2])
+            glVertex3f(machine_limit_max[0], machine_limit_max[1], machine_limit_max[2])
+
+            glVertex3f(machine_limit_min[0], machine_limit_min[1], machine_limit_max[2])
+            glVertex3f(machine_limit_max[0], machine_limit_min[1], machine_limit_max[2])
+            
+            glEnd()
+            glDisable(GL_LINE_STIPPLE)
+            glLineStipple(2, 0xffff)
+            
         if vars.show_live_plot.get():
             glDepthFunc(GL_LEQUAL)
             glLineWidth(3)
@@ -2595,6 +2643,10 @@ class TclCommands(nf.TclCommands):
         ap.putpref("show_extents", vars.show_extents.get())
         o.tkRedraw()
 
+    def toggle_show_machine_limits(*event):
+        ap.putpref("show_machine_limits", vars.show_machine_limits.get())
+        o.tkRedraw()
+
     def toggle_show_machine_speed(*event):
         ap.putpref("show_machine_speed", vars.show_machine_speed.get())
         o.tkRedraw()
@@ -2825,6 +2877,7 @@ vars = nf.Variables(root_window,
     ("show_live_plot", IntVar),
     ("show_tool", IntVar),
     ("show_extents", IntVar),
+    ("show_machine_limits", IntVar),
     ("show_machine_speed", IntVar),
     ("show_distance_to_go", IntVar),
     ("feedrate", IntVar),
@@ -2854,6 +2907,7 @@ vars.show_program.set(ap.getpref("show_program", True))
 vars.show_live_plot.set(ap.getpref("show_live_plot", True))
 vars.show_tool.set(ap.getpref("show_tool", True))
 vars.show_extents.set(ap.getpref("show_extents", True))
+vars.show_machine_limits.set(ap.getpref("show_machine_limits", True))
 vars.show_machine_speed.set(ap.getpref("show_machine_speed", True))
 vars.show_distance_to_go.set(ap.getpref("show_distance_to_go", False))
 
