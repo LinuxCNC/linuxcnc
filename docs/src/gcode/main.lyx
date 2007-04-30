@@ -5093,9 +5093,12 @@ G43
 \end_inset 
 
 
+\layout Subsection
+
+G43 H-
 \layout Standard
 
-To use a tool length offset, program 
+To use a tool length offset from the tool table, program 
 \family typewriter 
 G43 H-
 \family default 
@@ -5111,6 +5114,36 @@ It is an error if:
 
 the H number is not an integer, is negative, or is larger than the number
  of carousel slots.
+\layout Subsection
+
+G43 H-1 I- K-
+\layout Standard
+
+To use a tool length offset from the program, use 
+\family typewriter 
+G43 H-1 I- K-
+\family default 
+, where 
+\family typewriter 
+I-
+\family default 
+ gives the X tool offset (for lathes) and 
+\family typewriter 
+K-
+\family default 
+ gives the Z tool offset (for lathes and mills).
+ 
+\layout Standard
+
+It is an error if:
+\layout Itemize
+
+motion is commanded on the same line as 
+\family typewriter 
+G43 H-1
+\layout Subsection
+
+G49
 \layout Standard
 
 To use no tool length offset, program G49.
