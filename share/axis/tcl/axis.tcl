@@ -1630,9 +1630,9 @@ proc update_state {args} {
     relief {$task_state == $STATE_ON}    .toolbar.machine_power 
 
     state  {$interp_state == $INTERP_IDLE && $taskfile != ""} \
-        {.menu.file "_Reload"}
+        .toolbar.reload {.menu.file "_Reload"}
     state  {$interp_state == $INTERP_IDLE && $taskfile != "" && $::has_editor} \
-        .toolbar.reload {.menu.file "_Edit..."}
+        {.menu.file "_Edit..."}
     state  {$taskfile != ""} {.menu.file "_Properties..."}
     state  {$interp_state == $INTERP_IDLE} .toolbar.file_open \
         {.menu.file "_Open..." "_Quit"}
