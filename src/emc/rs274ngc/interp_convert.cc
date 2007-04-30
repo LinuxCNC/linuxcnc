@@ -2764,8 +2764,7 @@ int Interp::convert_threading_cycle(block_pointer block,
     compound_angle *= M_PIl/180.0;
     if(end_z > start_z) compound_angle = -compound_angle;
 
-    int spring_cuts = block->h_number;
-    if(spring_cuts == -1) spring_cuts = 0;
+    int spring_cuts = block->h_flag == ON ? block->h_number: 0;
 
     double degression = block->r_number;
     if(degression < 1.0 || !block->r_flag) degression = 1.0;
@@ -3313,10 +3312,17 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
     settings->tool_zoffset = 0.0;
     settings->tool_offset_index = 0;
   } else if (g_code == G_43) {
+    CHK((block->h_flag == OFF), NCE_OFFSET_INDEX_MISSING);
     index = block->h_number;
-    CHK((index == -1), NCE_OFFSET_INDEX_MISSING);
-    xoffset = settings->tool_table[index].xoffset;
-    zoffset = settings->tool_table[index].zoffset;
+    if(index == -1) {
+        xoffset = settings->tool_xoffset;
+        zoffset = settings->tool_zoffset;
+        if(block->i_flag == ON) xoffset = block->i_number;
+        if(block->k_flag == ON) zoffset = block->k_number;
+    } else {
+        xoffset = settings->tool_table[index].xoffset;
+        zoffset = settings->tool_table[index].zoffset;
+    }
     USE_TOOL_LENGTH_OFFSET(xoffset, zoffset);
     settings->current_x += settings->tool_xoffset - xoffset;
     settings->current_z += settings->tool_zoffset - zoffset;

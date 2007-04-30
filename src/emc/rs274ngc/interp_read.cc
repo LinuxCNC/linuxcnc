@@ -589,11 +589,12 @@ int Interp::read_h(char *line,   //!< string: line of RS274/NGC code being proce
 
   CHK((line[*counter] != 'h'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
   *counter = (*counter + 1);
-  CHK((block->h_number > -1), NCE_MULTIPLE_H_WORDS_ON_ONE_LINE);
+  CHK((block->h_flag == ON), NCE_MULTIPLE_H_WORDS_ON_ONE_LINE);
   CHP(read_integer_value(line, counter, &value, parameters));
-  CHK((value < 0), NCE_NEGATIVE_H_WORD_USED);
+  CHK((value < -1), NCE_NEGATIVE_H_WORD_USED);
   CHK((block->g_modes[_gees[G_43]] == G_43 && value > _setup.tool_max), 
           NCE_TOOL_LENGTH_OFFSET_INDEX_TOO_BIG);
+  block->h_flag = ON;
   block->h_number = value;
   return INTERP_OK;
 }

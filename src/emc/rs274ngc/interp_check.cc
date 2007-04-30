@@ -255,12 +255,12 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
     CHK(((block->g_modes[7] != G_41) && (block->g_modes[7] != G_42)),
         NCE_D_WORD_WITH_NO_G41_OR_G42);
   }
-  if (block->h_number != -1) {
+  if (block->h_flag == ON) {
     CHK((block->g_modes[8] != G_43 && motion != G_76), NCE_H_WORD_WITH_NO_G43);
   }
 
   if (block->i_flag == ON) {    /* could still be useless if yz_plane arc */
-    CHK(((motion != G_2) && (motion != G_3) && (motion != G_76) && (motion != G_87)),
+    CHK(((motion != G_2) && (motion != G_3) && (motion != G_76) && (motion != G_87) && (block->g_modes[8] != G_43)),
         NCE_I_WORD_WITH_NO_G2_OR_G3_G76_OR_G87_TO_USE_IT);
   }
 
@@ -270,7 +270,7 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
   }
 
   if (block->k_flag == ON) {    /* could still be useless if xy_plane arc */
-    CHK(((motion != G_2) && (motion != G_3) && (motion != G_33) && (motion != G_76) && (motion != G_87)),
+      CHK(((motion != G_2) && (motion != G_3) && (motion != G_33) && (motion != G_76) && (motion != G_87) && (block->g_modes[8] != G_43)),
         NCE_K_WORD_WITH_NO_G2_OR_G3_G76_OR_G87_TO_USE_IT);
   }
 

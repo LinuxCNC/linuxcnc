@@ -112,13 +112,13 @@ char * _rs274ngc_errors[] = {
 /*  85 */ _("H word with no g43"), // check_other_codes
 /*  86 */ _("I word given for arc in yz plane"), // convert_arc
 /*  87 */ _("I word missing with g87"), // convert_cycle_xy, convert_cycle_yz, convert_cycle_zx
-/*  88 */ _("I word with no g2, g3 or g87 to use it"), // check_other_codes
+/*  88 */ _("I word with no g2, g3, g87, or g43 to use it"), // check_other_codes
 /*  89 */ _("J word given for arc in xz plane"), // convert_arc
 /*  90 */ _("J word missing with g87"), // convert_cycle_xy, convert_cycle_yz, convert_cycle_zx
 /*  91 */ _("J word with no g2, g3 or g87 to use it"), // check_other_codes
 /*  92 */ _("K word given for arc in xy plane"), // convert_arc
 /*  93 */ _("K word missing with g87"), // convert_cycle_xy, convert_cycle_yz, convert_cycle_zx
-/*  94 */ _("K word with no g2, g3, g33, or g87 to use it"), // check_other_codes
+/*  94 */ _("K word with no g2, g3, g33, g87, or g43 to use it"), // check_other_codes
 /*  95 */ _("L word with no canned cycle, g10, or g76 to use it"), // check_other_codes
 /*  96 */ _("Left bracket missing after slash with atan"), // read_atan
 /*  97 */ _("Left bracket missing after unary operation name"), // read_unary

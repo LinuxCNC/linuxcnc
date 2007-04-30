@@ -232,6 +232,7 @@ int Interp::init_block(block_pointer block)      //!< pointer to a block to be i
   for (n = 0; n < 15; n++) {
     block->g_modes[n] = -1;
   }
+  block->h_flag = OFF;
   block->h_number = -1;
   block->i_flag = OFF;
   block->j_flag = OFF;
