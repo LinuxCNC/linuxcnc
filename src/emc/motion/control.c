@@ -380,12 +380,14 @@ static void process_inputs(void)
     }
     /* check if the probe has been tripped */
     if (emcmotStatus->probing && emcmotStatus->probeTripped ) {
-	tpClear(&emcmotDebug->queue);
+	tpAbort(&emcmotDebug->queue);
 	emcmotStatus->probing=0;
     /* check if the probe hasn't tripped, but the move finished */
     } else if (emcmotStatus->probing && GET_MOTION_INPOS_FLAG() && 
 	    ( tpQueueDepth(&emcmotDebug->queue) == 0 ) ) {
 	emcmotStatus->probing=0;
+        reportError("G38.2 probe move finished without tripping probe\n");
+        SET_MOTION_ERROR_FLAG(1);
     /* check if the probe trips */
     } else if (emcmotStatus->probing) {
 	/* if the probe tripped (val == 1 ) */
