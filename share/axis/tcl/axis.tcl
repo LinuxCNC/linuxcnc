@@ -1807,6 +1807,12 @@ foreach b { <Key-Left> <Key-Right>
         <Control-Home> <Control-KP_Home> <End> <KP_End> } {
     bind Entry $b {+if {[%W cget -state] == "normal"} break}
 }
+foreach b { <KP_Left> <KP_Right> <KP_Up> <KP_Down> <KP_Prior> <KP_Next>
+            <KP_Home> <KP_End> } {
+    bind Entry $b [bind Entry <Key>]
+    bind Entry $b {+if {[%W cget -state] == "normal"} break}
+}
+
 bind Entry <Key> {+if {[%W cget -state] == "normal" && [string length %A]} break}
 
 proc is_continuous {} {

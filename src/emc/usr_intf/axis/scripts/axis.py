@@ -1940,6 +1940,7 @@ class SelectionHandler:
 selection = SelectionHandler(root_window)
 
 class DummyCanon:
+    def comment(*args): pass
     def next_line(*args): pass
     def set_origin_offsets(*args): pass
     def get_external_angular_units(self): return 1.0
@@ -2921,6 +2922,13 @@ def activate_axis_or_set_feedrate(n):
     else:
         set_feedrate(10*n)
 
+def kp_wrap(f,g):
+    def func(e):
+        if e.char: root_window.tk.call("event", "generate",
+                            e.widget, "<%s-%s>" % (g, e.char))
+        else: f(e)
+    return func
+
 root_window.bind("<Escape>", commands.task_stop)
 root_window.bind("l", commands.toggle_override_limits)
 root_window.bind("o", commands.open_file)
@@ -2966,9 +2974,13 @@ root_window.bind("#", commands.toggle_coord_type)
 root_window.bind("$", commands.toggle_joint_mode)
 
 root_window.bind("<Home>", commands.home_axis)
+root_window.bind("<KP_Home>", kp_wrap(commands.home_axis, "KeyPress"))
 root_window.bind("<Control-Home>", commands.home_all_axes)
 root_window.bind("<Shift-Home>", commands.set_axis_offset)
 root_window.bind("<End>", commands.touch_off)
+root_window.bind("<Control-KP_Home>", kp_wrap(commands.home_all_axes, "KeyPress"))
+root_window.bind("<Shift-KP_Home>", kp_wrap(commands.set_axis_offset, "KeyPress"))
+root_window.bind("<KP_End>", kp_wrap(commands.touch_off, "KeyPress"))
 widgets.mdi_history.bind("<Configure>", "%W see end" )
 widgets.mdi_history.bind("<ButtonRelease-1>", commands.mdi_history_butt_1)
 widgets.mdi_history.bind("<Double-Button-1>", commands.mdi_history_double_butt_1)
@@ -3069,10 +3081,10 @@ def jog_off_all():
             jog_off_actual(i)
 
 def bind_axis(a, b, d):
-    root_window.bind("<KeyPress-%s>" % a, lambda e: jog_on(d, -get_jog_speed(d)))
-    root_window.bind("<KeyPress-%s>" % b, lambda e: jog_on(d, get_jog_speed(d)))
-    root_window.bind("<KeyRelease-%s>" % a, lambda e: jog_off(d))
-    root_window.bind("<KeyRelease-%s>" % b, lambda e: jog_off(d))
+    root_window.bind("<KeyPress-%s>" % a, kp_wrap(lambda e: jog_on(d, -get_jog_speed(d)), "KeyPress"))
+    root_window.bind("<KeyPress-%s>" % b, kp_wrap(lambda e: jog_on(d, get_jog_speed(d)), "KeyPress"))
+    root_window.bind("<KeyRelease-%s>" % a, kp_wrap(lambda e: jog_off(d), "KeyRelease"))
+    root_window.bind("<KeyRelease-%s>" % b, kp_wrap(lambda e: jog_off(d), "KeyRelease"))
 
 root_window.bind("<FocusOut>", lambda e: str(e.widget) == "." and jog_off_all())
 def set_tabs(e):
@@ -3192,11 +3204,16 @@ vcp = inifile.find("DISPLAY", "PYVCP")
 
 del sys.argv[1:3]
 
+root_window.bind("<KeyPress-KP_Begin>", kp_wrap(lambda e: None, "KeyPress"))
+root_window.bind("<KeyPress-KP_Insert>", kp_wrap(lambda e: None, "KeyPress"))
+
 if lathe:
     bind_axis("Left", "Right", 2)
     bind_axis("Up", "Down", 0)
     bind_axis("KP_Left", "KP_Right", 2)
     bind_axis("KP_Up", "KP_Down", 0)
+    root_window.bind("<KeyPress-KP_Next>", kp_wrap(lambda e: None, "KeyPress"))
+    root_window.bind("<KeyPress-KP_Prior>", kp_wrap(lambda e: None, "KeyPress"))
 else:
     bind_axis("Left", "Right", 0)
     bind_axis("Down", "Up", 1)
