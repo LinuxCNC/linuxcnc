@@ -386,6 +386,8 @@ static void process_inputs(void)
     } else if (emcmotStatus->probing && GET_MOTION_INPOS_FLAG() && 
 	    ( tpQueueDepth(&emcmotDebug->queue) == 0 ) ) {
 	emcmotStatus->probing=0;
+        // we also need to remember the current position here, because it will still be queried
+        emcmotStatus->probedPos = emcmotStatus->carte_pos_fb;
         reportError("G38.2 probe move finished without tripping probe\n");
         SET_MOTION_ERROR_FLAG(1);
     /* check if the probe trips */
