@@ -373,45 +373,24 @@ static void process_inputs(void)
     unsigned char enables;
 
     /* read probe input */
-    if (*(emcmot_hal_data->probe_input)) {
-	emcmotStatus->probeVal = 1;
-    } else {
-	emcmotStatus->probeVal = 0;
-    }
-    /* check if the probe has been tripped */
-    if (emcmotStatus->probing && emcmotStatus->probeTripped ) {
-	tpAbort(&emcmotDebug->queue);
-	emcmotStatus->probing=0;
-    /* check if the probe hasn't tripped, but the move finished */
-    } else if (emcmotStatus->probing && GET_MOTION_INPOS_FLAG() && 
-	    ( tpQueueDepth(&emcmotDebug->queue) == 0 ) ) {
-	emcmotStatus->probing=0;
-        // we also need to remember the current position here, because it will still be queried
-        emcmotStatus->probedPos = emcmotStatus->carte_pos_fb;
-        reportError("G38.2 probe move finished without tripping probe\n");
-        SET_MOTION_ERROR_FLAG(1);
-    /* check if the probe trips */
-    } else if (emcmotStatus->probing) {
-	/* if the probe tripped (val == 1 ) */
-	if (emcmotStatus->probeVal) {
-	    emcmotStatus->probeTripped = 1; //we have tripped the probe
-	    emcmotStatus->probedPos = emcmotStatus->carte_pos_fb; //remember the current position
-	    if (GET_MOTION_COORD_FLAG()) {
-		tpAbort(&emcmotDebug->queue); //if we are in coordinated move, abort
-		SET_MOTION_ERROR_FLAG(0);     //and clear any error flag which might have been set by the abort
-	    } else { //free mode, abort any joint
-		for (joint_num = 0; joint_num < EMCMOT_MAX_JOINTS; joint_num++) {
-		    /* point to joint struct */
-		    joint = &joints[joint_num];
-		    /* tell joint planner to stop */
-		    joint->free_tp_enable = 0;
-		    /* stop homing if in progress */
-		    if ( joint->home_state != HOME_IDLE ) {
-			joint->home_state = HOME_ABORT;
-		    }
-		}
-	    }
-	}
+    emcmotStatus->probeVal = *(emcmot_hal_data->probe_input);
+    if (emcmotStatus->probing) {
+        /* check if the probe has been tripped */
+        if (emcmotStatus->probeVal) {
+            /* remember the current position */
+            emcmotStatus->probedPos = emcmotStatus->carte_pos_fb; 
+            /* stop! */
+            tpAbort(&emcmotDebug->queue);
+            emcmotStatus->probing=0;
+        /* check if the probe hasn't tripped, but the move finished */
+        } else if (GET_MOTION_INPOS_FLAG() && tpQueueDepth(&emcmotDebug->queue) == 0) {
+            /* we are already stopped, but we need to remember the current 
+               position here, because it will still be queried */
+            emcmotStatus->probedPos = emcmotStatus->carte_pos_fb;
+            emcmotStatus->probing=0;
+            reportError("G38.2 probe move finished without tripping probe\n");
+            SET_MOTION_ERROR_FLAG(1);
+        }
     }
     /* read spindle angle (for threading, etc) */
     emcmotStatus->spindleRevs = *emcmot_hal_data->spindle_revs;
