@@ -74,6 +74,14 @@ USERSRCS += $(M5I20CFGSRCS)
 	$(ECHO) Linking $(notdir $@)
 	@$(CXX) $(LDFLAGS) -o $@ $^
 TARGETS += ../bin/m5i20cfg
+
+BFLOADSRCS := hal/utils/bfload.c hal/utils/upci.c hal/utils/bitfile.c
+USERSRCS += $(BFLOADSRCS)
+../bin/bfload: $(call TOOBJS, $(BFLOADSRCS))
+	$(ECHO) Linking $(notdir $@)
+	@$(CXX) $(LDFLAGS) -o $@ $^
+TARGETS += ../bin/bfload
+
 endif
 
 ../bin/comp: ../bin/%: objects/hal/utils/%.py

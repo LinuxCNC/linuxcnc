@@ -336,6 +336,8 @@ else
 setuid:
 	chown root ../bin/emc_module_helper
 	chmod 4750 ../bin/emc_module_helper
+	chown root ../bin/bfload
+	chmod 4750 ../bin/bfload
 endif
 
 # These rules allows a header file from this directory to be installed into
