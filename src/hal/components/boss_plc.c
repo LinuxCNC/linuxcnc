@@ -622,7 +622,7 @@ Device_ExportAmps(Device *this, int compId, int id, char *name)
     Amp                                 *pAmp;
 
     rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.amp-ready-delay", id);
-    error = hal_param_float_new(name, HAL_RW, &this->ampReadyDelay, compId);
+    error = hal_param_u32_new(name, HAL_RW, &this->ampReadyDelay, compId);
 
     pAmp = this->amps;
     for(i = 0; i < NUM_AXIS && !error; i++, pAmp++){
