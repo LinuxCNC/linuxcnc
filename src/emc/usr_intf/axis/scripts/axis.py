@@ -2924,9 +2924,11 @@ def activate_axis_or_set_feedrate(n):
 
 def kp_wrap(f,g):
     def func(e):
-        if e.char: root_window.tk.call("event", "generate",
+        if e.char and e.keysym.startswith("KP_"):
+            root_window.tk.call("event", "generate",
                             e.widget, "<%s-%s>" % (g, e.char))
-        else: f(e)
+        else:
+            f(e)
     return func
 
 root_window.bind("<Escape>", commands.task_stop)
