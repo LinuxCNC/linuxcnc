@@ -1732,26 +1732,24 @@ CANON_POSITION GET_EXTERNAL_PROBE_POSITION()
     pos = emcStatus->motion.traj.probedPosition;
 
     // first update internal record of last position
-    canonEndPoint.x = FROM_EXT_LEN(pos.tran.x) - programOrigin.x;
-    canonEndPoint.y = FROM_EXT_LEN(pos.tran.y) - programOrigin.y;
-    canonEndPoint.z = FROM_EXT_LEN(pos.tran.z) - programOrigin.z;
-    canonEndPoint.x -= currentXToolOffset;
-    canonEndPoint.z -= currentZToolOffset;
+    pos.tran.x = FROM_EXT_LEN(pos.tran.x);
+    pos.tran.y = FROM_EXT_LEN(pos.tran.y);
+    pos.tran.z = FROM_EXT_LEN(pos.tran.z);
 
-    canonEndPoint.a = FROM_EXT_ANG(pos.a) - programOrigin.a;
-    canonEndPoint.b = FROM_EXT_ANG(pos.b) - programOrigin.b;
-    canonEndPoint.c = FROM_EXT_ANG(pos.c) - programOrigin.c;
+    pos.a = FROM_EXT_ANG(pos.a);
+    pos.b = FROM_EXT_ANG(pos.b);
+    pos.c = FROM_EXT_ANG(pos.c);
 
     // now calculate position in program units, for interpreter
-    position.x = TO_PROG_LEN(canonEndPoint.x);
-    position.y = TO_PROG_LEN(canonEndPoint.y);
-    position.z = TO_PROG_LEN(canonEndPoint.z);
+    position.x = TO_PROG_LEN(pos.tran.x - programOrigin.x);
+    position.y = TO_PROG_LEN(pos.tran.y - programOrigin.y);
+    position.z = TO_PROG_LEN(pos.tran.z - programOrigin.z);
     position.x -= TO_PROG_LEN(currentXToolOffset);
     position.z -= TO_PROG_LEN(currentZToolOffset);
 
-    position.a = TO_PROG_ANG(canonEndPoint.a);
-    position.b = TO_PROG_ANG(canonEndPoint.b);
-    position.c = TO_PROG_ANG(canonEndPoint.c);
+    position.a = TO_PROG_ANG(pos.a - programOrigin.a);
+    position.b = TO_PROG_ANG(pos.b - programOrigin.b);
+    position.c = TO_PROG_ANG(pos.c - programOrigin.c);
 
     /*! \todo FIXME-- back end of hot comment */
     if (probefile != NULL) {
