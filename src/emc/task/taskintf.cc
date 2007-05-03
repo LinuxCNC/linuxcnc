@@ -1073,6 +1073,7 @@ int emcTrajUpdate(EMC_TRAJ_STAT * stat)
     stat->id = emcmotStatus.id;
     stat->motion_type = emcmotStatus.motionType;
     stat->distance_to_go = emcmotStatus.distance_to_go;
+    stat->current_vel = emcmotStatus.current_vel;
     if (EMC_DEBUG_MOTION_TIME & EMC_DEBUG) {
 	if (stat->id != last_id) {
 	    if (last_id != last_id_printed) {

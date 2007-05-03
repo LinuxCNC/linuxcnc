@@ -79,6 +79,7 @@ maps = {
 'max_velocity': show_float,
 'angular_units': show_float,
 'distance_to_go': show_float,
+'current_vel': show_float,
 }
 
 if s.kinematics_type == 1:

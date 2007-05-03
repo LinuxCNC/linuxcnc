@@ -961,7 +961,7 @@ class MyOpengl(Opengl):
                 homed = s.homed[:]
 
             if vars.show_machine_speed.get():
-                spd = to_internal_linear_unit(live_plotter.logger.average_speed)
+                spd = to_internal_linear_unit(s.current_vel)
                 if vars.metric.get():
                     spd = spd * 25.4 * 60
                 else:
