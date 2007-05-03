@@ -2431,8 +2431,11 @@ static void output_to_hal(void)
     *(emcmot_hal_data->spindle_brake) = (emcmotStatus->spindle.brake != 0) ? 1 : 0;
     
     emcmot_hal_data->program_line = emcmotStatus->id;
-    if(GET_MOTION_COORD_FLAG() || GET_MOTION_TELEOP_FLAG()) {
+    if(GET_MOTION_COORD_FLAG()) {
         emcmot_hal_data->current_vel = emcmotStatus->current_vel;
+    } else if(GET_MOTION_TELEOP_FLAG()) {
+        PmCartesian t = emcmotDebug->teleop_data.currentVel.tran;
+        emcmot_hal_data->current_vel = sqrt(t.x * t.x + t.y * t.y + t.z * t.z);
     } else {
         int i;
         double v2 = 0.0;
