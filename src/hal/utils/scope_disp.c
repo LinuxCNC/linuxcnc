@@ -497,7 +497,7 @@ static int handle_click(GtkWidget *widget, GdkEventButton *event, gpointer data)
     return 1;
 }
 
-static int get_sample_info(int chan_num, int x, double *t, double *v) {
+static int get_cursor_info(double *t, double *v) {
     if(!cursor_valid) return 0;
     if(t) *t = cursor_time;
     if(v) *v = cursor_value;
@@ -581,7 +581,7 @@ static void update_readout(void) {
             vert->readout_label->allocation.height};
     if(vert->selected != -1) {
         double t=0, v=0;
-        int result = get_sample_info(vert->selected, motion_x, &t, &v);
+        int result = get_cursor_info(&t, &v);
         t = t * 1e-6;
         if(result > 0) { 
             snprintf(tip, sizeof(tip), TIPFORMAT, t, v);
