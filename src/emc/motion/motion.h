@@ -626,6 +626,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 	int level;
         int motionType;
         double distance_to_go;  /* in this move */
+        double current_vel;
 
         unsigned int tcqlen;
 	unsigned char tail;	/* flag count for mutex detect */

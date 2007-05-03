@@ -716,6 +716,8 @@ int tpRunCycle(TP_STRUCT * tp, long period)
 	    tp->execId = nexttc->id;
         }
 
+        emcmotStatus->current_vel = tc->currentvel + nexttc->currentvel;
+
         secondary_before = tcGetPos(nexttc);
         save_vel = nexttc->reqvel;
         nexttc->reqvel = nexttc->feed_override > 0.0 ? 
@@ -742,6 +744,7 @@ int tpRunCycle(TP_STRUCT * tp, long period)
         tp->motionType = tc->canon_motion_type;
 	emcmotStatus->distance_to_go = tc->target - tc->progress;
         tp->currentPos = primary_after;
+        emcmotStatus->current_vel = tc->currentvel;
 	emcmotStatus->enables_queued = tc->enables;
 	// report our line number to the guis
 	tp->execId = tc->id;
