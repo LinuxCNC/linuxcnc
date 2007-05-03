@@ -904,9 +904,11 @@ void draw_waveform(int chan_num, int highlight)
 	n++;
     }
     if(pn) {
+        PangoLayout *p;
         lines(chan_num, points, pn);
         gdk_draw_layout(disp->win, disp->context, 5, points[0].y, 
-                        gtk_widget_create_pango_layout(disp->drawing, chan->name));
+                        p=gtk_widget_create_pango_layout(disp->drawing, chan->name));
+        g_object_unref(p);
     }
 }
 
