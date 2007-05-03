@@ -78,6 +78,9 @@ static int handle_scroll(GtkWidget *widget, GdkEventScroll *event, gpointer data
 ************************************************************************/
 
 static int DRAWING = 0;
+static int cursor_valid = 0;
+static double cursor_time = 0;
+static double cursor_value = 0;
 
 void init_display(void)
 {
@@ -495,63 +498,10 @@ static int handle_click(GtkWidget *widget, GdkEventButton *event, gpointer data)
 }
 
 static int get_sample_info(int chan_num, int x, double *t, double *v) {
-    scope_horiz_t *horiz = &(ctrl_usr->horiz);
-    scope_vert_t *vert = &(ctrl_usr->vert);
-    scope_data_t *dptr;
-    int start, end, n, sample_len;
-    scope_disp_t *disp;
-    scope_chan_t *chan;
-    double xscale, xoffset;
-    double fy;
-    hal_type_t type;
-
-    disp = &(ctrl_usr->disp);
-    chan = &(ctrl_usr->chan[chan_num - 1]);
-    /* calculate a bunch of local vars */
-    sample_len = ctrl_shm->sample_len;
-    xscale = disp->pixels_per_sample;
-    xoffset = disp->horiz_offset;
-    type = chan->data_type;
-    /* point to first sample in the record for this channel */
-    dptr = ctrl_usr->disp_buf + ctrl_usr->vert.data_offset[chan_num - 1];
-    /* point to first one that gets displayed */
-    start = disp->start_sample;
-    end = disp->end_sample;
-
-    n = (x + xoffset + xscale/2) / xscale;
-    *t = (n - ctrl_shm->pre_trig) / horiz->sample_period;
-
-    if(!vert->chan_enabled[chan_num - 1]
-		    || vert->data_offset[chan_num - 1] < 0) {
-        return -1;
-    }
-    if(n < 0 || n > ctrl_shm->rec_len) { return 0; }
-    dptr += n * sample_len;
-
-    switch (type) {
-    case HAL_BIT:
-        if (dptr->d_u8) {
-            fy = 1.0;
-        } else {
-            fy = 0.0;
-        };
-        break;
-    case HAL_FLOAT:
-        fy = dptr->d_float;
-        break;
-    case HAL_S32:
-        fy = dptr->d_s32;
-        break;
-    case HAL_U32:
-        fy = dptr->d_u32;
-        break;
-    default:
-        fy = 0.0;
-        break;
-    }
-    *v = fy;
+    if(!cursor_valid) return 0;
+    if(t) *t = cursor_time;
+    if(v) *v = cursor_value;
     return 1;
-
 }
 
 static int handle_scroll(GtkWidget *widget, GdkEventScroll *event, gpointer data) {
@@ -777,7 +727,9 @@ void draw_waveform(int chan_num, int highlight)
     int x1, y1, x2, y2, miny, maxy, midx, ct, pn;
     GdkPoint *points;
     int first=1;
+    scope_horiz_t *horiz = &(ctrl_usr->horiz);
 
+    cursor_valid = 0;
     disp = &(ctrl_usr->disp);
     chan = &(ctrl_usr->chan[chan_num - 1]);
     /* calculate a bunch of local vars */
@@ -870,6 +822,9 @@ void draw_waveform(int chan_num, int highlight)
 		    first = 0;
 		    gdk_draw_arc(disp->win, disp->context, TRUE,
 				x2-3, y2-3, 7, 7, 0, 360*64);
+                    cursor_value = fy;
+                    cursor_time = (n - ctrl_shm->pre_trig)/horiz->sample_period;
+                    cursor_valid = 1;
 	    }
 	}
 	/* end of this segment is start of next one */
