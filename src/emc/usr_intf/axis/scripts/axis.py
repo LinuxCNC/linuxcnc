@@ -1370,10 +1370,7 @@ class LivePlotter:
 
         self.win.set_current_line(self.stat.id)
 
-        try:
-            speed = live_plotter.logger.average_speed
-        except NameError, detail:
-            speed = 0
+        speed = self.stat.current_vel
  
         if (self.logger.npts != self.lastpts
                 or self.stat.actual_position != o.last_position

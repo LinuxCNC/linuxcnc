@@ -72,8 +72,6 @@
 #undef offsetof
 #define offsetof(T,x) (size_t)(-1+(char*)&(((T*)1)->x))
 
-static bool feq(double a, double b) { return fabs(a-b) < 1e-5; }
-
 struct pyIniFile {
     PyObject_HEAD
     IniFile *i;
@@ -371,6 +369,7 @@ static PyMemberDef Stat_members[] = {
     {"kinematics_type", T_INT, O(motion.traj.kinematics_type), READONLY},
     {"motion_type", T_INT, O(motion.traj.motion_type), READONLY},
     {"distance_to_go", T_DOUBLE, O(motion.traj.distance_to_go), READONLY},
+    {"current_vel", T_DOUBLE, O(motion.traj.current_vel), READONLY},
 
 // io
 // EMC_TOOL_STAT io.tool
@@ -1383,7 +1382,6 @@ typedef struct {
     struct logger_point *p;
     struct color colors[NUMCOLORS];
     bool exit, clear, changed;
-    double ave_ddt;
     pyStatChannel *st;
 } pyPositionLogger;
 
@@ -1412,7 +1410,6 @@ static int Logger_init(pyPositionLogger *self, PyObject *a, PyObject *k) {
     self->npts = self->mpts = 0;
     self->exit = self->clear = 0;
     self->changed = 1;
-    self->ave_ddt = 0;
     if(!PyArg_ParseTuple(a, "O!(BBBB)(BBBB)(BBBB)(BBBB)(BBBB)(BBBB)",
             &Stat_Type, &self->st,
             &c[0].r,&c[0].g, &c[0].b, &c[0].a,
@@ -1429,26 +1426,6 @@ static int Logger_init(pyPositionLogger *self, PyObject *a, PyObject *k) {
 static void Logger_dealloc(pyPositionLogger *s) {
     free(s->p);
     PyObject_Del(s);
-}
-
-double gettime() {
-    struct timeval tv;
-    gettimeofday(&tv, NULL);
-    return tv.tv_sec + 1e-6 * tv.tv_usec;
-}
-
-double dt() {
-    static double last = gettime();
-    double now = gettime();
-    double diff = now - last;
-    last = now;
-    return diff;
-}
-
-const double weight_factor = .92;
-
-static double hypot3(double a, double b, double c) {
-    return sqrt(a*a + b*b + c*c);
 }
 
 static PyObject *Logger_start(pyPositionLogger *s, PyObject *o) {
@@ -1488,18 +1465,6 @@ static PyObject *Logger_start(pyPositionLogger *s, PyObject *o) {
             struct logger_point *oop = &s->p[s->npts-2];
             bool add_point = s->npts < 2 || c != op->c || !colinear(
                         x, y, z, op->x, op->y, op->z, oop->x, oop->y, oop->z);
-
-            double delta = dt();
-            if(s->npts) {
-                if(feq(op->x, x) && feq(op->y, y) && feq(op->z, z)) {
-                    s->ave_ddt = 0;
-                } else {
-                    double dist = hypot3(op->x - x, op->y - y, op->z - z);
-                    double ddt = dist / delta;
-                    s->ave_ddt = s->ave_ddt*weight_factor
-                        + ddt*(1-weight_factor);
-                }
-            }
             if(add_point) {
                 // 1 or 2 points may be added, make room whenever
                 // fewer than 2 are left
@@ -1603,7 +1568,6 @@ static PyObject *Logger_last(pyPositionLogger *s, PyObject *o) {
 }
 
 static PyMemberDef Logger_members[] = {
-    {"average_speed", T_DOUBLE, offsetof(pyPositionLogger, ave_ddt), READONLY},
     {"npts", T_INT, offsetof(pyPositionLogger, npts), READONLY},
     {0, 0, 0, 0},
 };
