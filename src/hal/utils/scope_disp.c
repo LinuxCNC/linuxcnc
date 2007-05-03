@@ -52,12 +52,6 @@
 
 #define BUFLEN 80		/* length for sprintf buffers */
 
-#if GTK_CHECK_VERSION(2,0,0)
-#define DOUBLE_BUFFER
-#define MARKUP
-#define SCROLL
-#endif
-
 /***********************************************************************
 *                  GLOBAL VARIABLES DECLARATIONS                       *
 ************************************************************************/
@@ -77,9 +71,7 @@ static void handle_window_expose(GtkWidget * widget, gpointer data);
 static int handle_click(GtkWidget *widget, GdkEventButton *event, gpointer data);
 static int handle_release(GtkWidget *widget, GdkEventButton *event, gpointer data);
 static int handle_motion(GtkWidget *widget, GdkEventButton *event, gpointer data);
-#ifdef SCROLL
 static int handle_scroll(GtkWidget *widget, GdkEventScroll *event, gpointer data);
-#endif
 
 /***********************************************************************
 *                       PUBLIC FUNCTIONS                               *
@@ -180,14 +172,13 @@ void refresh_display(void)
 	disp->end_sample = ctrl_shm->rec_len - 1;
     }
 
-#ifdef DOUBLE_BUFFER
     {
         GdkRectangle rect = {0, 0, disp->width, disp->height};
         GdkRegion *region = gdk_region_rectangle(&rect);
         gdk_window_begin_paint_region(disp->drawing->window, region);
         gdk_region_destroy(region);
     }
-#endif
+
     DRAWING = 1;
     clear_display_window();
     draw_grid();
@@ -223,9 +214,7 @@ void refresh_display(void)
 
     update_readout();
 
-#ifdef DOUBLE_BUFFER
     gdk_window_end_paint(disp->drawing->window);
-#endif
 }
 
 /***********************************************************************
@@ -318,16 +307,14 @@ static void init_display_window(void)
         GTK_SIGNAL_FUNC(handle_click), NULL);
     gtk_signal_connect(GTK_OBJECT(disp->drawing), "motion_notify_event",
         GTK_SIGNAL_FUNC(handle_motion), NULL);
-#if defined(SCROLL)
     gtk_signal_connect(GTK_OBJECT(disp->drawing), "scroll_event",
                 GTK_SIGNAL_FUNC(handle_scroll), NULL);
-    gtk_widget_add_events(GTK_WIDGET(disp->drawing), GDK_SCROLL_MASK);
-#endif
     gtk_widget_add_events(GTK_WIDGET(disp->drawing),
             GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK
             | GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK
             | GDK_ENTER_NOTIFY_MASK | GDK_LEAVE_NOTIFY_MASK
-            | GDK_BUTTON2_MOTION_MASK | GDK_BUTTON1_MOTION_MASK );
+            | GDK_BUTTON2_MOTION_MASK | GDK_BUTTON1_MOTION_MASK 
+            | GDK_SCROLL_MASK );
     gtk_widget_show(disp->drawing);
     /* get color map */
     disp->map = gtk_widget_get_colormap(disp->drawing);
@@ -567,12 +554,10 @@ static int get_sample_info(int chan_num, int x, double *t, double *v) {
 
 }
 
-#ifdef SCROLL
 static int handle_scroll(GtkWidget *widget, GdkEventScroll *event, gpointer data) {
     change_zoom(event->direction ? -1 : 1, event->x);
     return TRUE;
 }
-#endif
 
 static void middle_drag(int dx) {
     scope_disp_t *disp = &(ctrl_usr->disp);
@@ -636,11 +621,7 @@ static int handle_motion(GtkWidget *widget, GdkEventButton *event, gpointer data
     return TRUE;
 }
 
-#ifdef MARKUP
 #define TIPFORMAT "<tt>f(% 8.5f) = % 8.5f</tt>"
-#else
-#define TIPFORMAT "f(% 8.5f) = % 8.5f"
-#endif
 static void update_readout(void) {
     scope_vert_t *vert = &(ctrl_usr->vert);
     char tip[512];
@@ -661,11 +642,7 @@ static void update_readout(void) {
             strcpy(tip, "");
     }
 
-#ifdef MARKUP
     gtk_label_set_markup(GTK_LABEL(vert->readout_label), tip);
-#else
-    gtk_label_set_text(GTK_LABEL(vert->readout_label), tip);
-#endif
 
     gtk_widget_draw(vert->readout_label, &r);
 
