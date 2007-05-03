@@ -903,7 +903,11 @@ void draw_waveform(int chan_num, int highlight)
 	dptr += sample_len;
 	n++;
     }
-    if(pn) lines(chan_num, points, pn);
+    if(pn) {
+        lines(chan_num, points, pn);
+        gdk_draw_layout(disp->win, disp->context, 5, points[0].y, 
+                        gtk_widget_create_pango_layout(disp->drawing, chan->name));
+    }
 }
 
 // vim:sts=4:sw=4:et
