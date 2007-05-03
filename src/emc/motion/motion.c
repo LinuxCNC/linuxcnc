@@ -355,7 +355,7 @@ static int init_hal_io(void)
     if (retval != 0) {
 	return retval;
     }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "motion.program_line");
+    rtapi_snprintf(buf, HAL_NAME_LEN, "motion.program-line");
     retval =
 	hal_param_s32_new(buf, HAL_RO, &(emcmot_hal_data->program_line),
 	mot_comp_id);
