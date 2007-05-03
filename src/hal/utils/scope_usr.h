@@ -91,6 +91,7 @@ typedef struct {
     hal_type_t data_type;	/* data type */
     int data_len;		/* data length */
     float vert_offset;		/* offset to be applied */
+    int ac_offset;              /* TRUE if the signal should be AC-coupled */
     int scale_index;		/* scaling (slider setting) */
     int max_index;		/* limits of scale slider */
     int min_index;
@@ -123,6 +124,7 @@ typedef struct {
     GtkWidget *readout_label;
     /* widgets for offset dialog */
     GtkWidget *offset_entry;
+    GtkWidget *offset_ac;
     /* widgets for source selection dialog */
     GtkWidget *lists[3];	/* lists for pins, signals, and params */
     GtkWidget *windows[3];	/* scrolled windows for above lists */
@@ -285,7 +287,7 @@ int set_channel_source(int chan, int type, char *name);
 int set_channel_off(int chan_num);
 int set_vert_scale(int setting);
 int set_vert_pos(double setting);
-int set_vert_offset(double setting);
+int set_vert_offset(double setting, int ac_coupled);
 int set_trigger_source(int chan);
 int set_trigger_level(double setting);
 int set_trigger_pos(double setting);

@@ -75,6 +75,7 @@
    VSCALE <int>		vertical scaling
    VPOS <float>		0.0-1.0, vertical position setting
    VOFF <float>		vertical offset
+   VAC <float>	        vertical offset with AC coupling
    TSOURCE <int>	channel number for trigger source
    TLEVEL <float>	0.0-1.0, trigger level setting
    TPOS <float>		0.0-1.0, trigger position setting
@@ -132,6 +133,7 @@ static char *param_cmd(void * arg);
 static char *vscale_cmd(void * arg);
 static char *vpos_cmd(void * arg);
 static char *voff_cmd(void * arg);
+static char *voff_ac_cmd(void * arg);
 static char *tsource_cmd(void * arg);
 static char *tlevel_cmd(void * arg);
 static char *tpos_cmd(void * arg);
@@ -157,6 +159,7 @@ static const cmd_lut_entry_t cmd_lut[25] =
   { "param",	STRING,	param_cmd },
   { "vscale",	INT,	vscale_cmd },
   { "vpos",	FLOAT,	vpos_cmd },
+  { "vac",	FLOAT,	voff_ac_cmd },
   { "voff",	FLOAT,	voff_cmd },
   { "tsource",	INT,	tsource_cmd },
   { "tlevel",	FLOAT,	tlevel_cmd },
@@ -587,7 +590,21 @@ static char *voff_cmd(void * arg)
     int rv;
     
     argp = (double *)(arg);
-    rv = set_vert_offset(*argp);
+    rv = set_vert_offset(*argp, 0);
+    if ( rv < 0 ) {
+	return "could not set vertical offset";
+    }
+    return NULL;
+}    
+
+
+static char *voff_ac_cmd(void * arg)
+{
+    double *argp;
+    int rv;
+    
+    argp = (double *)(arg);
+    rv = set_vert_offset(*argp, 1);
     if ( rv < 0 ) {
 	return "could not set vertical offset";
     }

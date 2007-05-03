@@ -126,6 +126,48 @@ void request_display_refresh(int delay)
 
 static int motion_x = -1, motion_y = -1;
 
+static void calculate_offset(int chan_num) {
+    int n;
+    scope_chan_t *chan = &(ctrl_usr->chan[chan_num]);
+    scope_data_t *dptr =
+        ctrl_usr->disp_buf + ctrl_usr->vert.data_offset[chan_num];
+    int type = chan->data_type;
+
+    double sum=0, value;
+
+    if(!chan->ac_offset) return;
+
+    for(n=0; n < ctrl_usr->samples; n++) {
+	switch (type) {
+	case HAL_BIT:
+	    if (dptr->d_u8) {
+		value = 1.0;
+	    } else {
+		value = 0.0;
+	    };
+	    break;
+	case HAL_FLOAT:
+	    value = dptr->d_float;
+	    break;
+	case HAL_S32:
+	    value = dptr->d_s32;
+	    break;
+	case HAL_U32:
+	    value = dptr->d_u32;
+	    break;
+	default:
+	    value = 0.0;
+	    break;
+        }
+        sum = sum + value;
+    }
+    if(n == 0) {
+        chan->vert_offset = 0;
+    } else {
+        chan->vert_offset = sum / n;
+    }
+}
+
 void refresh_display(void)
 {
     int n;
@@ -185,6 +227,11 @@ void refresh_display(void)
     DRAWING = 1;
     clear_display_window();
     draw_grid();
+
+    /* calculate offsets for AC-offset channels */
+    for (n = 0; n < 16; n++) {
+        if (vert->chan_enabled[n]) calculate_offset(n);
+    }
 
     /* draw baselines first */
     for (n = 0; n < 16; n++) {

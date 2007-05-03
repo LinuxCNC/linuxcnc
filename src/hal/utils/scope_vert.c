@@ -69,6 +69,11 @@ static int ignore_click = 0;
 *                  LOCAL FUNCTION PROTOTYPES                           *
 ************************************************************************/
 
+struct offset_data {
+    char buf[BUFLEN];
+    int ac_coupled;
+};
+
 static void init_chan_sel_window(void);
 static void init_chan_info_window(void);
 static void init_vert_info_window(void);
@@ -81,7 +86,7 @@ static void channel_off_button(GtkWidget * widget, gpointer gdata);
 static void offset_button(GtkWidget * widget, gpointer gdata);
 static gboolean dialog_set_offset(int chan_num);
 static void scale_changed(GtkAdjustment * adj, gpointer gdata);
-static void offset_changed(GtkEditable * editable, gchar * buf);
+static void offset_changed(GtkEditable * editable, struct offset_data *);
 static void offset_activated(GtkEditable * editable, gchar * button);
 static void pos_changed(GtkAdjustment * adj, gpointer gdata);
 static void chan_sel_button(GtkWidget * widget, gpointer gdata);
@@ -371,7 +376,7 @@ int set_vert_pos(double setting)
     return 0;
 }
 
-int set_vert_offset(double setting)
+int set_vert_offset(double setting, int ac_coupled)
 {
     scope_vert_t *vert;
     scope_chan_t *chan;
@@ -387,11 +392,16 @@ int set_vert_offset(double setting)
     chan = &(ctrl_usr->chan[chan_num - 1]);
     /* set the new offset */ 
     chan->vert_offset = setting;
+    chan->ac_offset = ac_coupled;
     /* update the offset display */
     if (chan->data_type == HAL_BIT) {
 	snprintf(buf1, BUFLEN, "----");
     } else {
-	format_signal_value(buf1, BUFLEN, chan->vert_offset);
+        if(chan->ac_offset) {
+            snprintf(buf1, BUFLEN, "(AC)");
+        } else {
+            format_signal_value(buf1, BUFLEN, chan->vert_offset);
+        }
     }
     snprintf(buf2, BUFLEN, "Offset\n%s", buf1);
     gtk_label_set_text_if(vert->offset_label, buf2);
@@ -692,7 +702,8 @@ static gboolean dialog_set_offset(int chan_num)
     scope_vert_t *vert;
     scope_chan_t *chan;
     dialog_generic_t dialog;
-    gchar *title, msg[BUFLEN], buf[BUFLEN], *cptr;
+    gchar *title, msg[BUFLEN], *cptr;
+    struct offset_data data;
     GtkWidget *label, *button;
     float tmp;
 
@@ -704,7 +715,7 @@ static gboolean dialog_set_offset(int chan_num)
     /* create dialog window, disable resizing */
     dialog.retval = 0;
     dialog.window = gtk_dialog_new();
-    dialog.app_data = buf;
+    dialog.app_data = &data;
     /* allow user to grow but not shrink the window */
     gtk_window_set_policy(GTK_WINDOW(dialog.window), FALSE, TRUE, FALSE);
     /* window should appear in center of screen */
@@ -718,22 +729,30 @@ static gboolean dialog_set_offset(int chan_num)
 	TRUE, 0);
     /* a separator */
     gtk_hseparator_new_in_box(GTK_DIALOG(dialog.window)->vbox, 0);
+    /* a checkbox: AC coupled */
+    vert->offset_ac = gtk_check_button_new_with_label("AC Coupled");
+    gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog.window)->vbox),
+        vert->offset_ac, FALSE, TRUE, 0);
+    /* react to changes to the checkbox */
+    gtk_signal_connect(GTK_OBJECT(vert->offset_ac), "toggled",
+	GTK_SIGNAL_FUNC(offset_changed), &data);
+    /* the entry */
     vert->offset_entry = gtk_entry_new();
     gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog.window)->vbox),
 	vert->offset_entry, FALSE, TRUE, 0);
-    snprintf(buf, BUFLEN, "%f", chan->vert_offset);
-    gtk_entry_set_text(GTK_ENTRY(vert->offset_entry), buf);
+    snprintf(data.buf, BUFLEN, "%f", chan->vert_offset);
+    gtk_entry_set_text(GTK_ENTRY(vert->offset_entry), data.buf);
     gtk_entry_set_max_length(GTK_ENTRY(vert->offset_entry), BUFLEN-1);
     /* point at first char */
     gtk_entry_set_position(GTK_ENTRY(vert->offset_entry), 0);
     /* select all chars, so if the user types the original value goes away */
-    gtk_entry_select_region(GTK_ENTRY(vert->offset_entry), 0, strlen(buf));
+    gtk_entry_select_region(GTK_ENTRY(vert->offset_entry), 0, strlen(data.buf));
     /* make it active so user doesn't have to click on it */
     gtk_widget_grab_focus(GTK_WIDGET(vert->offset_entry));
     gtk_widget_show(vert->offset_entry);
     /* capture entry data to the buffer whenever the user types */
     gtk_signal_connect(GTK_OBJECT(vert->offset_entry), "changed",
-	GTK_SIGNAL_FUNC(offset_changed), buf);
+	GTK_SIGNAL_FUNC(offset_changed), data.buf);
     /* set up a callback function when the window is destroyed */
     gtk_signal_connect(GTK_OBJECT(dialog.window), "destroy",
 	GTK_SIGNAL_FUNC(dialog_generic_destroyed), &dialog);
@@ -763,21 +782,27 @@ static gboolean dialog_set_offset(int chan_num)
 	/* user either closed dialog, or hit cancel */
 	return FALSE;
     }
-    tmp = strtod(buf, &cptr);
-    if (cptr == buf) {
+    tmp = strtod(data.buf, &cptr);
+    if (cptr == data.buf) {
 	return FALSE;
     }
-    set_vert_offset(tmp);
+    set_vert_offset(tmp, data.ac_coupled);
     return TRUE;
 }
 
-static void offset_changed(GtkEditable * editable, gchar * buf)
+static void offset_changed(GtkEditable * editable, struct offset_data *data)
 {
     const char *text;
 
-    /* user typed something, save it in the buffer */
+    /* maybe user hit "ac coupled" button" */
+    data->ac_coupled =
+      gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ctrl_usr->vert.offset_ac));
+    gtk_entry_set_editable(GTK_ENTRY(ctrl_usr->vert.offset_entry),
+                !data->ac_coupled);
+
+    /* maybe user typed something, save it in the buffer */
     text = gtk_entry_get_text(GTK_ENTRY(ctrl_usr->vert.offset_entry));
-    strncpy(buf, text, BUFLEN);
+    strncpy(data->buf, text, BUFLEN);
 }
 
 static void offset_activated(GtkEditable * editable, gchar * button)
@@ -1224,7 +1249,11 @@ void channel_changed(void)
     if (chan->data_type == HAL_BIT) {
 	snprintf(buf1, BUFLEN, "----");
     } else {
-	format_signal_value(buf1, BUFLEN, chan->vert_offset);
+        if(chan->ac_offset) {
+            snprintf(buf1, BUFLEN, "(AC)");
+        } else {
+            format_signal_value(buf1, BUFLEN, chan->vert_offset);
+        }
     }
     snprintf(buf2, BUFLEN, "Offset\n%s", buf1);
     gtk_label_set_text_if(vert->offset_label, buf2);
@@ -1275,5 +1304,9 @@ static void write_chan_config(FILE *fp, scope_chan_t *chan)
     }
     fprintf(fp, "VSCALE %d\n", chan->scale_index);
     fprintf(fp, "VPOS %f\n", chan->position);
-    fprintf(fp, "VOFF %e\n", chan->vert_offset);
+    if(chan->ac_offset) {
+        fprintf(fp, "VAC %e\n", chan->vert_offset);
+    } else {
+        fprintf(fp, "VOFF %e\n", chan->vert_offset);
+    }
 }
