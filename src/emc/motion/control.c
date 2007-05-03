@@ -2430,6 +2430,9 @@ static void output_to_hal(void)
     *(emcmot_hal_data->spindle_reverse) = (emcmotStatus->spindle.speed < 0) ? 1 : 0;
     *(emcmot_hal_data->spindle_brake) = (emcmotStatus->spindle.brake != 0) ? 1 : 0;
     
+    emcmot_hal_data->program_line = emcmotStatus->id;
+    emcmot_hal_data->current_vel = emcmotStatus->current_vel;
+
     /* These params can be used to examine any internal variable. */
     /* Change the following lines to assign the variable you want to observe
        to one of the debug parameters.  You can also comment out these lines
@@ -2439,7 +2442,7 @@ static void output_to_hal(void)
     emcmot_hal_data->debug_bit_1 = emcmotStatus->enables_new & AF_ENABLED;
     emcmot_hal_data->debug_float_0 = emcmotStatus->net_feed_scale;
     emcmot_hal_data->debug_float_1 = 0.0;
-    emcmot_hal_data->debug_s32_0 = emcmotStatus->id;
+    emcmot_hal_data->debug_s32_0 = 0;
     emcmot_hal_data->debug_s32_1 = emcmotStatus->tcqlen;
 
     /* two way handshaking for the spindle encoder */

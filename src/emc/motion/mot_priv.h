@@ -97,6 +97,9 @@ typedef struct {
     hal_bit_t teleop_mode;	/* RPA: TRUE if teleop mode */
     hal_bit_t coord_error;	/* RPA: TRUE if coord mode error */
 
+    hal_s32_t program_line;     /* RPA: program line causing current motion */
+    hal_float_t current_vel;    /* RPA: velocity magnitude in machine units */
+
     hal_bit_t debug_bit_0;	/* RPA: generic param, for debugging */
     hal_bit_t debug_bit_1;	/* RPA: generic param, for debugging */
     hal_float_t debug_float_0;	/* RPA: generic param, for debugging */
