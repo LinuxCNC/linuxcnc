@@ -3,3 +3,4 @@ core_sim.hal
 axis_manualtoolchange.hal
 position.txt
 lathe-position.txt
+.scope.cfg
