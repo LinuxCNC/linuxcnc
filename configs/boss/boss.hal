@@ -108,36 +108,36 @@ net aPosCmd axis.3.motor-pos-cmd => pid.3.command
 # DACs
 #
 # Set DAC output scaling from ini file.
-setp motenc.0.dac-00-gain [AXIS_0]OUTPUT_SCALE
-setp motenc.0.dac-01-gain [AXIS_1]OUTPUT_SCALE
+setp motenc.0.dac-01-gain [AXIS_0]OUTPUT_SCALE
+setp motenc.0.dac-03-gain [AXIS_1]OUTPUT_SCALE
 setp motenc.0.dac-02-gain [AXIS_2]OUTPUT_SCALE
-setp motenc.0.dac-03-gain [AXIS_3]OUTPUT_SCALE
+setp motenc.0.dac-00-gain [AXIS_3]OUTPUT_SCALE
 
 # Set DAC offset from ini file.
-setp motenc.0.dac-00-offset [AXIS_0]OUTPUT_OFFSET
-setp motenc.0.dac-01-offset [AXIS_1]OUTPUT_OFFSET
+setp motenc.0.dac-01-offset [AXIS_0]OUTPUT_OFFSET
+setp motenc.0.dac-03-offset [AXIS_1]OUTPUT_OFFSET
 setp motenc.0.dac-02-offset [AXIS_2]OUTPUT_OFFSET
-setp motenc.0.dac-03-offset [AXIS_3]OUTPUT_OFFSET
+setp motenc.0.dac-00-offset [AXIS_3]OUTPUT_OFFSET
 
 # Connect PID output signals to DACs.
-net xOutput pid.0.output => motenc.0.dac-00-value
-net yOutput pid.1.output => motenc.0.dac-01-value
+net xOutput pid.0.output => motenc.0.dac-01-value
+net yOutput pid.1.output => motenc.0.dac-03-value
 net zOutput pid.2.output => motenc.0.dac-02-value
-net aOutput pid.3.output => motenc.0.dac-03-value
+net aOutput pid.3.output => motenc.0.dac-00-value
 
 # Encoders.
 #
 # Set feedback scaling from ini file.
-setp motenc.0.enc-00-scale [AXIS_0]INPUT_SCALE 
-setp motenc.0.enc-01-scale [AXIS_1]INPUT_SCALE 
+setp motenc.0.enc-01-scale [AXIS_0]INPUT_SCALE 
+setp motenc.0.enc-03-scale [AXIS_1]INPUT_SCALE 
 setp motenc.0.enc-02-scale [AXIS_2]INPUT_SCALE 
-setp motenc.0.enc-03-scale [AXIS_3]INPUT_SCALE 
+setp motenc.0.enc-00-scale [AXIS_3]INPUT_SCALE 
 
 # Connect position feedback to motion module.
-net xPosFb motenc.0.enc-00-position => axis.0.motor-pos-fb
-net yPosFb motenc.0.enc-01-position => axis.1.motor-pos-fb
+net xPosFb motenc.0.enc-01-position => axis.0.motor-pos-fb
+net yPosFb motenc.0.enc-03-position => axis.1.motor-pos-fb
 net zPosFb motenc.0.enc-02-position => axis.2.motor-pos-fb
-net aPosFb motenc.0.enc-03-position => axis.3.motor-pos-fb
+net aPosFb motenc.0.enc-00-position => axis.3.motor-pos-fb
 
 # Connect position feedback to PID loop.
 linksp xPosFb => pid.0.feedback
@@ -150,10 +150,10 @@ linksp xPosFb => boss_plc.0.x-position-in
 linksp yPosFb => boss_plc.0.y-position-in
 
 # Connect index pulses to motion controller.
-net xIndex motenc.0.enc-00-index-enable <=> axis.0.index-enable
-net yIndex motenc.0.enc-01-index-enable <=> axis.1.index-enable
+net xIndex motenc.0.enc-01-index-enable <=> axis.0.index-enable
+net yIndex motenc.0.enc-03-index-enable <=> axis.1.index-enable
 net zIndex motenc.0.enc-02-index-enable <=> axis.2.index-enable
-net aIndex motenc.0.enc-03-index-enable <=> axis.3.index-enable
+net aIndex motenc.0.enc-00-index-enable <=> axis.3.index-enable
 
 # Limits.
 #
@@ -290,12 +290,15 @@ linksp yJog => boss_plc.0.y-jog-en-in
 linksp zJog => boss_plc.0.z-jog-en-in
 
 # Connect jog wheel encoder.
-net jogCounts motenc.0.enc-05-count => axis.0.jog-counts axis.1.jog-counts axis.2.jog-counts
+net jogCounts motenc.0.enc-05-count => axis.0.jog-counts axis.1.jog-counts axis.2.jog-counts axis.3.jog-counts
 
 # Connect jog scale selects to PLC.
+setp boss_plc.0.jog-scale-0 0.000001
+setp boss_plc.0.jog-scale-1 0.000010
+setp boss_plc.0.jog-scale-2 0.000100
 net jogScaleSel0 motenc.0.in-36 => boss_plc.0.jog-sel-in-0
 net jogScaleSel1 motenc.0.in-37 => boss_plc.0.jog-sel-in-1
 net jogScaleSel2 motenc.0.in-38 => boss_plc.0.jog-sel-in-2
 
 # Connect PLC jog scale output.
-net jogScale boss_plc.0.jog-scale-out => axis.0.jog-scale axis.1.jog-scale axis.2.jog-scale
+net jogScale boss_plc.0.jog-scale-out => axis.0.jog-scale axis.1.jog-scale axis.2.jog-scale axis.3.jog-scale
