@@ -637,9 +637,9 @@ static int handle_motion(GtkWidget *widget, GdkEventButton *event, gpointer data
 }
 
 #ifdef MARKUP
-#define TIPFORMAT "<tt>f(% 8.5f) = % 8.3f</tt>"
+#define TIPFORMAT "<tt>f(% 8.5f) = % 8.5f</tt>"
 #else
-#define TIPFORMAT "f(% 8.5f) = % 8.3f"
+#define TIPFORMAT "f(% 8.5f) = % 8.5f"
 #endif
 static void update_readout(void) {
     scope_vert_t *vert = &(ctrl_usr->vert);
