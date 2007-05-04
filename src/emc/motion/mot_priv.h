@@ -94,6 +94,7 @@ typedef struct {
     hal_bit_t coord_mode;	/* RPA: TRUE if coord, FALSE if free */
     hal_bit_t teleop_mode;	/* RPA: TRUE if teleop mode */
     hal_bit_t coord_error;	/* RPA: TRUE if coord mode error */
+    hal_bit_t on_soft_limit;	/* RPA: TRUE if outside a limit */
 
     hal_s32_t program_line;     /* RPA: program line causing current motion */
     hal_float_t current_vel;    /* RPA: velocity magnitude in machine units */

@@ -348,6 +348,13 @@ static int init_hal_io(void)
     if (retval != 0) {
 	return retval;
     }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "motion.on-soft-limit");
+    retval =
+	hal_param_bit_new(buf, HAL_RO, &(emcmot_hal_data->on_soft_limit),
+	mot_comp_id);
+    if (retval != 0) {
+	return retval;
+    }
     rtapi_snprintf(buf, HAL_NAME_LEN, "motion.current-vel");
     retval =
 	hal_param_float_new(buf, HAL_RO, &(emcmot_hal_data->current_vel),
@@ -494,6 +501,7 @@ static int init_hal_io(void)
     emcmot_hal_data->coord_mode = 0;
     emcmot_hal_data->teleop_mode = 0;
     emcmot_hal_data->coord_error = 0;
+    emcmot_hal_data->on_soft_limit = 0;
 
     /* init debug parameters */
     emcmot_hal_data->debug_bit_0 = 0;
