@@ -1800,17 +1800,24 @@ foreach b [bind Entry] {
         }
     }
 }
-foreach b { <Key-Left> <Key-Right>
-        <Key-Up> <Key-Down> <Key-Prior> <Key-Next> <Key-Home>
-        <Left> <KP_Left> <Right> <KP_Right> <Up> <KP_Up> <Down> 
-        <KP_Down> <Prior> <KP_Prior> <Next> <KP_Next> <Home> <KP_Home>
-        <Control-Home> <Control-KP_Home> <End> <KP_End> } {
-    bind Entry $b {+if {[%W cget -state] == "normal"} break}
+foreach b { Left Right
+        Up Down Prior Next Home
+        Left Right Up Down 
+        Prior Next Home 
+        End } {
+    bind Entry <KeyPress-$b> {+if {[%W cget -state] == "normal"} break}
+    bind Entry <KeyRelease-$b> {+if {[%W cget -state] == "normal"} break}
 }
-foreach b { <KP_Left> <KP_Right> <KP_Up> <KP_Down> <KP_Prior> <KP_Next>
-            <KP_Home> <KP_End> } {
-    bind Entry $b [bind Entry <Key>]
-    bind Entry $b {+if {[%W cget -state] == "normal"} break}
+bind Entry <Control-KeyPress-Home> {+if {[%W cget -state] == "normal"} break}
+bind Entry <Control-KeyRelease-Home> {+if {[%W cget -state] == "normal"} break}
+bind Entry <Control-KeyPress-KP_Home> {+if {[%W cget -state] == "normal"} break}
+bind Entry <Control-KeyRelease-KP_Home> {+if {[%W cget -state] == "normal"} break}
+foreach k { Left Right Up Down Prior Next
+            Home End } {
+    set b [bind Entry <$k>]
+    if {$b == {}} { set b [bind Entry <Key>] }
+    bind Entry <KeyPress-KP_$k> $b
+    bind Entry <KeyRelease-KP_$k> {+if {[%W cget -state] == "normal"} break}
 }
 
 bind Entry <Key> {+if {[%W cget -state] == "normal" && [string length %A]} break}
