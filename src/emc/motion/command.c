@@ -155,20 +155,30 @@ static int jog_ok(int joint_num, double vel)
     }
 
     if (joint_num < 0 || joint_num >= EMCMOT_MAX_JOINTS) {
-	reportError("Can't jog invalid axis number %d.", joint_num);
+	reportError("Can't jog invalid joint number %d.", joint_num);
 	return 0;
     }
     if (vel > 0.0 && GET_JOINT_PHL_FLAG(joint)) {
-	reportError("Can't jog axis %d further past max hard limit.",
+	reportError("Can't jog joint %d further past max hard limit.",
 	    joint_num);
 	return 0;
     }
     if (vel < 0.0 && GET_JOINT_NHL_FLAG(joint)) {
-	reportError("Can't jog axis %d further past min hard limit.",
+	reportError("Can't jog joint %d further past min hard limit.",
 	    joint_num);
 	return 0;
     }
-
+    refresh_jog_limits(joint);
+    if ( vel > 0.0 && (joint->pos_cmd > joint->max_jog_limit) ) {
+	reportError("Can't jog joint %d further past max soft limit.",
+	    joint_num);
+	return 0;
+    }
+    if ( vel < 0.0 && (joint->pos_cmd < joint->min_jog_limit) ) {
+	reportError("Can't jog joint %d further past min soft limit.",
+	    joint_num);
+	return 0;
+    }
     /* okay to jog */
     return 1;
 }
