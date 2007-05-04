@@ -117,9 +117,9 @@ int checkAllHomed(void) {
 }
 
 
-/* checkLimits() returns 1 if none of the soft or hard limits are
-   set, 0 if any are set. Called on a linear and circular move. */
-static int checkLimits(void)
+/* limits_ok() returns 1 if none of the hard limits are set,
+   0 if any are set. Called on a linear and circular move. */
+static int limits_ok(void)
 {
     int joint_num;
     emcmot_joint_t *joint;
@@ -132,8 +132,7 @@ static int checkLimits(void)
 	    continue;
 	}
 
-	if (GET_JOINT_PSL_FLAG(joint) || GET_JOINT_NSL_FLAG(joint)
-	    || GET_JOINT_PHL_FLAG(joint) || GET_JOINT_NHL_FLAG(joint)) {
+	if (GET_JOINT_PHL_FLAG(joint) || GET_JOINT_NHL_FLAG(joint)) {
 	    return 0;
 	}
     }
@@ -143,9 +142,8 @@ static int checkLimits(void)
 
 /* check the value of the axis and velocity against current position,
    returning 1 (okay) if the request is to jog off the limit, 0 (bad)
-   if the request is to jog further past a limit. Software limits are
-   ignored if the joint hasn't been homed */
-static int checkJog(int joint_num, double vel)
+   if the request is to jog further past a limit. */
+static int jog_ok(int joint_num, double vel)
 {
     emcmot_joint_t *joint;
 
@@ -160,25 +158,11 @@ static int checkJog(int joint_num, double vel)
 	reportError("Can't jog invalid axis number %d.", joint_num);
 	return 0;
     }
-
-    if (vel > 0.0 && GET_JOINT_PSL_FLAG(joint)) {
-	reportError("Can't jog axis %d further past max soft limit.",
-	    joint_num);
-	return 0;
-    }
-
     if (vel > 0.0 && GET_JOINT_PHL_FLAG(joint)) {
 	reportError("Can't jog axis %d further past max hard limit.",
 	    joint_num);
 	return 0;
     }
-
-    if (vel < 0.0 && GET_JOINT_NSL_FLAG(joint)) {
-	reportError("Can't jog axis %d further past min soft limit.",
-	    joint_num);
-	return 0;
-    }
-
     if (vel < 0.0 && GET_JOINT_NHL_FLAG(joint)) {
 	reportError("Can't jog axis %d further past min hard limit.",
 	    joint_num);
@@ -189,25 +173,22 @@ static int checkJog(int joint_num, double vel)
     return 1;
 }
 
-/* Jogs are not allowed to go all the way to the soft limits, to
-   prevent soft limit errors.  The margin a small fraction of the
-   total axis range.  This is an attempt to make it independent
-   of units and machine size.  When the joint is not homed, the
-   limits are set to the current position +/- the full range of
-   the axis.
+/* Jogs limits change, based on whether the machine is homed or
+   or not.  If not homed, the limits are relative to the current
+   position by +/- the full range of travel.  Once homed, they
+   are absolute.
 */
 void refresh_jog_limits(emcmot_joint_t *joint)
 {
-    double range, margin;
+    double range;
 
-    range = joint->max_pos_limit - joint->min_pos_limit;
     if (GET_JOINT_HOMED_FLAG(joint)) {
-	/* if homed, set jog limits just inside soft limits */
-	margin = range * 0.001;
-	joint->max_jog_limit = joint->max_pos_limit - margin;
-	joint->min_jog_limit = joint->min_pos_limit + margin;
+	/* if homed, set jog limits using soft limits */
+	joint->max_jog_limit = joint->max_pos_limit;
+	joint->min_jog_limit = joint->min_pos_limit;
     } else {
 	/* not homed, set limits based on current position */
+	range = joint->max_pos_limit - joint->min_pos_limit;
 	joint->max_jog_limit = joint->pos_fb + range;
 	joint->min_jog_limit = joint->pos_fb - range;
     }
@@ -650,7 +631,7 @@ check_stuff ( "before command_handler()" );
 		break;
 	    }
 	    /* don't jog further onto limits */
-	    if (!checkJog(joint_num, emcmotCommand->vel)) {
+	    if (!jog_ok(joint_num, emcmotCommand->vel)) {
 		SET_JOINT_ERROR_FLAG(joint, 1);
 		break;
 	    }
@@ -707,7 +688,7 @@ check_stuff ( "before command_handler()" );
 		break;
 	    }
 	    /* don't jog further onto limits */
-	    if (!checkJog(joint_num, emcmotCommand->vel)) {
+	    if (!jog_ok(joint_num, emcmotCommand->vel)) {
 		SET_JOINT_ERROR_FLAG(joint, 1);
 		break;
 	    }
@@ -771,7 +752,7 @@ check_stuff ( "before command_handler()" );
 		break;
 	    }
 	    /* don't jog further onto limits */
-	    if (!checkJog(joint_num, emcmotCommand->vel)) {
+	    if (!jog_ok(joint_num, emcmotCommand->vel)) {
 		SET_JOINT_ERROR_FLAG(joint, 1);
 		break;
 	    }
@@ -830,7 +811,7 @@ check_stuff ( "before command_handler()" );
 		tpAbort(&emcmotDebug->queue);
 		SET_MOTION_ERROR_FLAG(1);
 		break;
-	    } else if (!checkLimits()) {
+	    } else if (!limits_ok()) {
 		reportError("can't do linear move with limits exceeded");
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_PARAMS;
 		tpAbort(&emcmotDebug->queue);
@@ -875,7 +856,7 @@ check_stuff ( "before command_handler()" );
 		tpAbort(&emcmotDebug->queue);
 		SET_MOTION_ERROR_FLAG(1);
 		break;
-	    } else if (!checkLimits()) {
+	    } else if (!limits_ok()) {
 		reportError("can't do circular move with limits exceeded");
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_PARAMS;
 		tpAbort(&emcmotDebug->queue);
@@ -1215,7 +1196,7 @@ check_stuff ( "before command_handler()" );
 		tpAbort(&emcmotDebug->queue);
 		SET_MOTION_ERROR_FLAG(1);
 		break;
-	    } else if (!checkLimits()) {
+	    } else if (!limits_ok()) {
 		reportError("can't do probe move with limits exceeded");
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_PARAMS;
 		tpAbort(&emcmotDebug->queue);

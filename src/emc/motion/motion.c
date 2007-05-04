@@ -714,16 +714,6 @@ static int export_axis(int num, axis_hal_t * addr)
     if (retval != 0) {
 	return retval;
     }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.pos-soft-limit", num);
-    retval = hal_param_bit_new(buf, HAL_RO, &(addr->psl), mot_comp_id);
-    if (retval != 0) {
-	return retval;
-    }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.neg-soft-limit", num);
-    retval = hal_param_bit_new(buf, HAL_RO, &(addr->nsl), mot_comp_id);
-    if (retval != 0) {
-	return retval;
-    }
     rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.pos-hard-limit", num);
     retval = hal_param_bit_new(buf, HAL_RO, &(addr->phl), mot_comp_id);
     if (retval != 0) {
@@ -943,8 +933,6 @@ static int init_comm_buffers(void)
 
 	SET_JOINT_ENABLE_FLAG(joint, 0);
 	SET_JOINT_ACTIVE_FLAG(joint, 0);
-	SET_JOINT_NSL_FLAG(joint, 0);
-	SET_JOINT_PSL_FLAG(joint, 0);
 	SET_JOINT_NHL_FLAG(joint, 0);
 	SET_JOINT_PHL_FLAG(joint, 0);
 	SET_JOINT_INPOS_FLAG(joint, 1);

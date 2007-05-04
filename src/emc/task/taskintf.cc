@@ -570,10 +570,10 @@ int emcAxisUpdate(EMC_AXIS_STAT stat[], int numAxes)
 	stat[axis].enabled =
 	    (joint->flag & EMCMOT_AXIS_ENABLE_BIT ? 1 : 0);
 
-	stat[axis].minSoftLimit =
-	    (joint->flag & EMCMOT_AXIS_MIN_SOFT_LIMIT_BIT ? 1 : 0);
-	stat[axis].maxSoftLimit =
-	    (joint->flag & EMCMOT_AXIS_MAX_SOFT_LIMIT_BIT ? 1 : 0);
+/* FIXME - soft limits are now applied to the command, and should never
+   happen */
+	stat[axis].minSoftLimit = 0;
+	stat[axis].maxSoftLimit = 0;
 	stat[axis].minHardLimit =
 	    (joint->flag & EMCMOT_AXIS_MIN_HARD_LIMIT_BIT ? 1 : 0);
 	stat[axis].maxHardLimit =

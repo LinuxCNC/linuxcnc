@@ -132,13 +132,6 @@ static void process_inputs(void);
 */
 static void do_forward_kins(void);
 
-/* 'check_soft_limits()' checks the position of active axes against
-   their soft limits, and sets flags accordingly.  It does not check
-   limits on axes that have not been homed, since their position is
-   unknown.  It only sets flags, it does not take any action.
-*/
-static void check_soft_limits(void);
-
 /* 'check_for_faults()' is responsible for detecting fault conditions
    such as limit switches, amp faults, following error, etc.  It only
    checks active axes.  It is also responsible for generating an error
@@ -325,8 +318,6 @@ check_stuff ( "before process_inputs()" );
 check_stuff ( "after process_inputs()" );
     do_forward_kins();
 check_stuff ( "after do_forward_kins()" );
-    check_soft_limits();
-check_stuff ( "after check_soft_limits()" );
     check_for_faults();
 check_stuff ( "after check_for_faults()" );
     set_operating_mode();
@@ -640,68 +631,6 @@ static void do_forward_kins(void)
     }
 }
 
-static void check_soft_limits(void)
-{
-    int joint_num;
-    emcmot_joint_t *joint;
-    int tmp;
-
-    /* check for limits on all active axes */
-    for (joint_num = 0; joint_num < EMCMOT_MAX_JOINTS; joint_num++) {
-	/* point to joint data */
-	joint = &joints[joint_num];
-	/* clear soft limits */
-	SET_JOINT_PSL_FLAG(joint, 0);
-	SET_JOINT_NSL_FLAG(joint, 0);
-	/* skip inactive or unhomed axes */
-	if (GET_JOINT_ACTIVE_FLAG(joint) && GET_JOINT_HOMED_FLAG(joint)) {
-	    /* check for soft limits */
-	    if (joint->pos_fb > joint->max_pos_limit) {
-		SET_JOINT_PSL_FLAG(joint, 1);
-	    }
-	    if (joint->pos_fb < joint->min_pos_limit) {
-		SET_JOINT_NSL_FLAG(joint, 1);
-	    }
-	}
-    }
-
-    /* this part takes action when the limits are hit - it may eventually be
-       moved somewhere else - if not, it can be pulled into the loop above */
-
-    /* check flags, see if any joint is in limit */
-    tmp = 0;
-    for (joint_num = 0; joint_num < EMCMOT_MAX_JOINTS; joint_num++) {
-	/* point to joint data */
-	joint = &joints[joint_num];
-	if (GET_JOINT_PSL_FLAG(joint) || GET_JOINT_NSL_FLAG(joint)) {
-	    /* yes, on limit */
-	    tmp = 1;
-	}
-    }
-    /* check for transitions */
-    if (tmp) {
-	/* on limit now, were we before? */
-	if (!emcmotStatus->onSoftLimit) {
-	    /* no, update status */
-	    emcmotStatus->onSoftLimit = 1;
-	    /* abort everything, regardless of coord or free mode */
-	    tpAbort(&emcmotDebug->queue);
-	    for (joint_num = 0; joint_num < EMCMOT_MAX_JOINTS; joint_num++) {
-		/* point to joint data */
-		joint = &joints[joint_num];
-		/* shut off free mode planner */
-		joint->free_tp_enable = 0;
-	    }
-	}
-    } else {
-	/* off limit now, were we before? */
-	if (emcmotStatus->onSoftLimit) {
-	    /* no, update status */
-	    emcmotStatus->onSoftLimit = 0;
-	}
-    }
-}
-
 static void check_for_faults(void)
 {
     int joint_num;
@@ -993,13 +922,6 @@ static void handle_jogwheels(void)
 	}
 	/* calculate distance to jog */
 	distance = delta * *(axis_data->jog_scale);
-	/* check for joint already on soft limit */
-	if (distance > 0.0 && GET_JOINT_PSL_FLAG(joint)) {
-	    continue;
-	}
-	if (distance < 0.0 && GET_JOINT_NSL_FLAG(joint)) {
-	    continue;
-	}
 	/* check for joint already on hard limit */
 	if (distance > 0.0 && GET_JOINT_PHL_FLAG(joint)) {
 	    continue;
@@ -1745,6 +1667,7 @@ static void get_pos_cmds(long period)
 
     /* used in teleop mode to compute the max accell requested */
     double accell_mag;
+    int onlimit;
 
     /* RUN MOTION CALCULATIONS: */
 
@@ -2122,6 +2045,39 @@ static void get_pos_cmds(long period)
     default:
 	break;
     }
+    /* check command against soft limits */
+    /* This is a backup check, it should be impossible to command
+	a move outside the soft limits.  However there is at least
+	one case that isn't caught upstream: if an arc has both
+	endpoints inside the limits, but the curve extends outside,
+	the upstream checks will pass it.
+    */
+    onlimit = 0;
+    for (joint_num = 0; joint_num < EMCMOT_MAX_JOINTS; joint_num++) {
+	/* point to joint data */
+	joint = &joints[joint_num];
+	/* skip inactive or unhomed axes */
+	if (GET_JOINT_ACTIVE_FLAG(joint) && GET_JOINT_HOMED_FLAG(joint)) {
+	    /* check for soft limits */
+	    if (joint->pos_cmd > joint->max_pos_limit) {
+		onlimit = 1;
+	    }
+	    if (joint->pos_cmd < joint->min_pos_limit) {
+		onlimit = 1;
+	    }
+	}
+    }
+    if ( onlimit ) {
+	if ( ! emcmotStatus->on_soft_limit ) {
+	    /* just hit the limit */
+	    reportError("Exceeded soft limit (bug?)");
+	    SET_MOTION_ERROR_FLAG(1);
+	    emcmotStatus->on_soft_limit = 1;
+	}
+    } else {
+	emcmotStatus->on_soft_limit = 0;
+    }
+}
 
 /* NOTES:  These notes are just my understanding of how things work.
 
@@ -2212,12 +2168,6 @@ Their exact contents and meaning are as follows:
    actualPos would _never_ get updated.
 
 */
-
-/* there was a large snip of old code here, 
-   removed since the new implementation works.
-   if the old code is needed it's in CVS revision <= 1.46 */
-
-}
 
 static void compute_screw_comp(void)
 {
@@ -2506,8 +2456,6 @@ static void output_to_hal(void)
 	axis_data->active = GET_JOINT_ACTIVE_FLAG(joint);
 	axis_data->in_position = GET_JOINT_INPOS_FLAG(joint);
 	axis_data->error = GET_JOINT_ERROR_FLAG(joint);
-	axis_data->psl = GET_JOINT_PSL_FLAG(joint);
-	axis_data->nsl = GET_JOINT_NSL_FLAG(joint);
 	axis_data->phl = GET_JOINT_PHL_FLAG(joint);
 	axis_data->nhl = GET_JOINT_NHL_FLAG(joint);
 	axis_data->homed = GET_JOINT_HOMED_FLAG(joint);

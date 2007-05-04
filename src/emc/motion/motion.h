@@ -263,9 +263,9 @@ extern "C" {
   axis status flag structure-- looks like:
 
   MSB                                                          LSB
-  ----------v-----------------v-----------------------v-------------------v
-  | AF | FE | AH | HD | H | HS | NHL | PHL | NSL | PSL | ER | IP | AC | EN |
-  ----------^-----------------^-----------------------^-------------------^
+  ----------v-----------------v--------------------v-------------------v
+  | AF | FE | AH | HD | H | HS | NHL | PHL | - | - | ER | IP | AC | EN |
+  ----------^-----------------^--------------------^-------------------^
                
 
   x = unused
@@ -277,8 +277,6 @@ extern "C" {
   IP  is 1 if axis is in position, 0 if not (free mode only)
   ER  is 1 if axis has an error, 0 if not
 
-  PSL is 1 if axis is on maximum software limit, 0 if not
-  NSL is 1 if axis is on minimum software limit, 0 if not
   PHL is 1 if axis is on maximum hardware limit, 0 if not
   NHL is 1 if axis is on minimum hardware limit, 0 if not
 
@@ -302,8 +300,6 @@ Suggestion: Split this in to an Error and a Status flag register..
 #define EMCMOT_AXIS_INPOS_BIT          0x0004
 #define EMCMOT_AXIS_ERROR_BIT          0x0008
 
-#define EMCMOT_AXIS_MAX_SOFT_LIMIT_BIT 0x0010
-#define EMCMOT_AXIS_MIN_SOFT_LIMIT_BIT 0x0020
 #define EMCMOT_AXIS_MAX_HARD_LIMIT_BIT 0x0040
 #define EMCMOT_AXIS_MIN_HARD_LIMIT_BIT 0x0080
 
@@ -440,7 +436,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 	int type;		/* 0 = linear, 1 = rotary */
 	double max_pos_limit;	/* upper soft limit on joint pos */
 	double min_pos_limit;	/* lower soft limit on joint pos */
-	double max_jog_limit;	/* jogs stop just short of soft limits */
+	double max_jog_limit;	/* jog limits change when not homed */
 	double min_jog_limit;
 	double vel_limit;	/* upper limit of joint speed */
 	double acc_limit;	/* upper limit of joint accel */
@@ -586,7 +582,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 	home_sequence_state_t homingSequenceState;
 	emcmot_joint_status_t joint_status[EMCMOT_MAX_AXIS];	/* all joint status data */
 
-	int onSoftLimit;	/* non-zero if any axis is on soft limit */
+	int on_soft_limit;	/* non-zero if any axis is on soft limit */
 
 	int probeVal;		/* debounced value of probe input */
 

@@ -57,8 +57,6 @@ typedef struct {
     hal_bit_t active;		/* RPA: axis is active, whatever that means */
     hal_bit_t in_position;	/* RPA: axis is in position */
     hal_bit_t error;		/* RPA: axis has an error */
-    hal_bit_t psl;		/* RPA: axis is at positive soft limit */
-    hal_bit_t nsl;		/* RPA: axis is at negative soft limit */
     hal_bit_t phl;		/* RPA: axis is at positive hard limit */
     hal_bit_t nhl;		/* RPA: axis is at negative hard limit */
     hal_bit_t *homing;		/* RPI: axis is homing */
@@ -262,14 +260,6 @@ extern void reportError(const char *fmt, ...);	/* Use the rtapi_print call */
 #define GET_JOINT_ERROR_FLAG(joint) ((joint)->flag & EMCMOT_AXIS_ERROR_BIT ? 1 : 0)
 
 #define SET_JOINT_ERROR_FLAG(joint,fl) if (fl) (joint)->flag |= EMCMOT_AXIS_ERROR_BIT; else (joint)->flag &= ~EMCMOT_AXIS_ERROR_BIT;
-
-#define GET_JOINT_PSL_FLAG(joint) ((joint)->flag & EMCMOT_AXIS_MAX_SOFT_LIMIT_BIT ? 1 : 0)
-
-#define SET_JOINT_PSL_FLAG(joint,fl) if (fl) (joint)->flag |= EMCMOT_AXIS_MAX_SOFT_LIMIT_BIT; else (joint)->flag &= ~EMCMOT_AXIS_MAX_SOFT_LIMIT_BIT;
-
-#define GET_JOINT_NSL_FLAG(joint) ((joint)->flag & EMCMOT_AXIS_MIN_SOFT_LIMIT_BIT ? 1 : 0)
-
-#define SET_JOINT_NSL_FLAG(joint,fl) if (fl) (joint)->flag |= EMCMOT_AXIS_MIN_SOFT_LIMIT_BIT; else (joint)->flag &= ~EMCMOT_AXIS_MIN_SOFT_LIMIT_BIT;
 
 #define GET_JOINT_PHL_FLAG(joint) ((joint)->flag & EMCMOT_AXIS_MAX_HARD_LIMIT_BIT ? 1 : 0)
 
