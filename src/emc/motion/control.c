@@ -1805,7 +1805,7 @@ static void get_pos_cmds(long period)
 	}
 	/* if less than a full complement of joints, zero out the rest */
 	while ( joint_num < EMCMOT_MAXJOINTS_CONSTANT ) {
-	    positions[joint_num++] - 0.0;
+	    positions[joint_num++] = 0.0;
 	}
 	switch (kinType) {
 
