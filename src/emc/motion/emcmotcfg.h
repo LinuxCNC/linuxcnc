@@ -26,6 +26,9 @@
    Note: this is not a global variable but a compile-time parameter
    since it sets array sizes, etc. */
 #define EMCMOT_MAX_AXIS 8
+/* they're joints, not axes, dammit! */
+/* phase out the above, and replace it with this */
+#define EMCMOT_MAXJOINTS_CONSTANT 8
 
 /* number of motion synched DIO's supported (increase this value to 
    suit your needs) */

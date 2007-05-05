@@ -1657,7 +1657,7 @@ static void get_pos_cmds(long period)
 {
     int joint_num, all_homed, all_at_home, result;
     emcmot_joint_t *joint;
-    double positions[EMCMOT_MAX_AXIS];
+    double positions[EMCMOT_MAXJOINTS_CONSTANT];
 /*! \todo Another #if 0 */
 #if 0
     static int interpolationCounter = 0;
@@ -1802,6 +1802,10 @@ static void get_pos_cmds(long period)
 	    } else if (!GET_JOINT_AT_HOME_FLAG(joint)) {
 		all_at_home = 0;
 	    }
+	}
+	/* if less than a full complement of joints, zero out the rest */
+	while ( joint_num < EMCMOT_MAXJOINTS_CONSTANT ) {
+	    positions[joint_num++] - 0.0;
 	}
 	switch (kinType) {
 
