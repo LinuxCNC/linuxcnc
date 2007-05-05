@@ -99,7 +99,7 @@
 	int idForStep;
 
 #ifdef STRUCTS_IN_SHMEM
-	emcmot_joint_t joints[EMCMOT_MAX_AXIS];	/* joint data */
+	emcmot_joint_t joints[EMCMOT_MAX_JOINTS];	/* joint data */
 #endif
 
 	double start_time;

@@ -79,7 +79,7 @@ to another.
 #include "posemath.h"		/* PmCartesian, PmPose, pmCartMag() */
 #include "emcpos.h"		/* EmcPose */
 #include "cubic.h"		/* CUBIC_STRUCT, CUBIC_COEFF */
-#include "emcmotcfg.h"		/* EMCMOT_MAX_AXIS */
+#include "emcmotcfg.h"		/* EMCMOT_MAX_AXIS, EMCMOT_MAX_JOINTS */
 #include "kinematics.h"
 
 #ifdef __cplusplus
@@ -580,7 +580,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 	EmcPose world_home;	/* cartesean coords of home position */
 	int homing_active;	/* non-zero if any axis is homing */
 	home_sequence_state_t homingSequenceState;
-	emcmot_joint_status_t joint_status[EMCMOT_MAX_AXIS];	/* all joint status data */
+	emcmot_joint_status_t joint_status[EMCMOT_MAX_JOINTS];	/* all joint status data */
 
 	int on_soft_limit;	/* non-zero if any axis is on soft limit */
 
@@ -612,10 +612,6 @@ Suggestion: Split this in to an Error and a Status flag register..
 	int overrideLimits;	/* non-zero means limits are ignored */
 
 	/* static status-- only changes upon input commands, e.g., config */
-#if 0
-	double axVscale[EMCMOT_MAX_AXIS];	/* axis velocity scale factor 
-						 */
-#endif
 	double vel;		/* scalar max vel */
 	double acc;		/* scalar max accel */
 
@@ -659,6 +655,8 @@ Suggestion: Split this in to an Error and a Status flag register..
 
 	int config_num;		/* Incremented everytime configuration
 				   changed, should match status.config_num */
+	/* FIXME at present, this is getting loaded with num_joints...
+	   more of the thrice-damned axis/joints confusion. */
 	int numAxes;		/* The number of axes in the system (which
 				   must be between 1 and EMCMOT_MAX_AXIS,
 				   inclusive). Allegedly, holds a copy of the

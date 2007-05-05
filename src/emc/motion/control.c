@@ -426,7 +426,7 @@ static void process_inputs(void)
     emcmotStatus->net_spindle_scale = scale;
 
     /* read and process per-joint inputs */
-    for (joint_num = 0; joint_num < EMCMOT_MAX_JOINTS; joint_num++) {
+    for (joint_num = 0; joint_num < num_joints; joint_num++) {
 	/* point to axis HAL data */
 	axis_data = &(emcmot_hal_data->axis[joint_num]);
 	/* point to joint data */
@@ -553,14 +553,14 @@ static void do_forward_kins(void)
 /*! \todo FIXME FIXME FIXME - need to put a rate divider in here, run it
    at the traj rate */
 
-    double joint_pos[EMCMOT_MAX_AXIS];
+    double joint_pos[EMCMOT_MAX_JOINTS];
     int joint_num, all_homed, all_at_home, result;
     emcmot_joint_t *joint;
 
     all_homed = 1;
     all_at_home = 1;
     /* copy joint position feedback to local array */
-    for (joint_num = 0; joint_num < EMCMOT_MAX_JOINTS; joint_num++) {
+    for (joint_num = 0; joint_num < num_joints; joint_num++) {
 	/* point to joint struct */
 	joint = &joints[joint_num];
 	/* copy feedback */
@@ -645,7 +645,7 @@ static void check_for_faults(void)
 	}
     }
     /* check for various joint fault conditions */
-    for (joint_num = 0; joint_num < EMCMOT_MAX_JOINTS; joint_num++) {
+    for (joint_num = 0; joint_num < num_joints; joint_num++) {
 	/* point to joint data */
 	joint = &joints[joint_num];
 	/* only check active, enabled axes */
@@ -702,7 +702,7 @@ static void set_operating_mode(void)
     if (!emcmotDebug->enabling && GET_MOTION_ENABLE_FLAG()) {
 	/* clear out the motion emcmotDebug->queue and interpolators */
 	tpClear(&emcmotDebug->queue);
-	for (joint_num = 0; joint_num < EMCMOT_MAX_JOINTS; joint_num++) {
+	for (joint_num = 0; joint_num < num_joints; joint_num++) {
 	    /* point to joint data */
 	    axis_data = &(emcmot_hal_data->axis[joint_num]);
 	    joint = &joints[joint_num];
@@ -735,7 +735,7 @@ static void set_operating_mode(void)
     /* check for emcmotDebug->enabling */
     if (emcmotDebug->enabling && !GET_MOTION_ENABLE_FLAG()) {
 	tpSetPos(&emcmotDebug->queue, emcmotStatus->carte_pos_cmd);
-	for (joint_num = 0; joint_num < EMCMOT_MAX_JOINTS; joint_num++) {
+	for (joint_num = 0; joint_num < num_joints; joint_num++) {
 	    /* point to joint data */
 	    axis_data = &(emcmot_hal_data->axis[joint_num]);
 	    joint = &joints[joint_num];
@@ -762,7 +762,7 @@ static void set_operating_mode(void)
 	    /* update coordinated emcmotDebug->queue position */
 	    tpSetPos(&emcmotDebug->queue, emcmotStatus->carte_pos_cmd);
 	    /* drain the cubics so they'll synch up */
-	    for (joint_num = 0; joint_num < EMCMOT_MAX_JOINTS; joint_num++) {
+	    for (joint_num = 0; joint_num < num_joints; joint_num++) {
 		/* point to joint data */
 		joint = &joints[joint_num];
 		cubicDrain(&(joint->cubic));
@@ -803,7 +803,7 @@ static void set_operating_mode(void)
 	    if (!emcmotDebug->teleoperating && GET_MOTION_TELEOP_FLAG()) {
 		SET_MOTION_TELEOP_FLAG(0);
 		if (!emcmotDebug->coordinating) {
-		    for (joint_num = 0; joint_num < EMCMOT_MAX_JOINTS;
+		    for (joint_num = 0; joint_num < num_joints;
 			joint_num++) {
 			/* point to joint data */
 			joint = &joints[joint_num];
@@ -820,7 +820,7 @@ static void set_operating_mode(void)
 		/* preset traj planner to current position */
 		tpSetPos(&emcmotDebug->queue, emcmotStatus->carte_pos_cmd);
 		/* drain the cubics so they'll synch up */
-		for (joint_num = 0; joint_num < EMCMOT_MAX_JOINTS; joint_num++) {
+		for (joint_num = 0; joint_num < num_joints; joint_num++) {
 		    /* point to joint data */
 		    joint = &joints[joint_num];
 		    cubicDrain(&(joint->cubic));
@@ -840,7 +840,7 @@ static void set_operating_mode(void)
 	/* check entering free space mode */
 	if (!emcmotDebug->coordinating && GET_MOTION_COORD_FLAG()) {
 	    if (GET_MOTION_INPOS_FLAG()) {
-		for (joint_num = 0; joint_num < EMCMOT_MAX_JOINTS; joint_num++) {
+		for (joint_num = 0; joint_num < num_joints; joint_num++) {
 		    /* point to joint data */
 		    joint = &joints[joint_num];
 		    /* set joint planner pos cmd to current location */
@@ -879,7 +879,7 @@ static void handle_jogwheels(void)
     int new_jog_counts, delta;
     double distance, pos, stop_dist;
 
-    for (joint_num = 0; joint_num < EMCMOT_MAX_JOINTS; joint_num++) {
+    for (joint_num = 0; joint_num < num_joints; joint_num++) {
 	/* point to joint data */
 	axis_data = &(emcmot_hal_data->axis[joint_num]);
 	joint = &joints[joint_num];
@@ -1057,7 +1057,7 @@ static void do_homing_sequence(void)
 
     case HOME_SEQUENCE_START:
 	/* a request to home all joints */
-	for(i=0; i < EMCMOT_MAX_JOINTS; i++) {
+	for(i=0; i < num_joints; i++) {
 	    joint = &joints[i];
 	    if(joint->home_state != HOME_IDLE) {
 		/* a home is already in progress, abort the home-all */
@@ -1073,7 +1073,7 @@ static void do_homing_sequence(void)
 
     case HOME_SEQUENCE_START_JOINTS:
 	/* start all joints whose sequence number matches home_sequence */
-	for(i=0; i < EMCMOT_MAX_JOINTS; i++) {
+	for(i=0; i < num_joints; i++) {
 	    joint = &joints[i];
 	    if(joint->home_sequence == home_sequence) {
 		/* start this joint */
@@ -1094,7 +1094,7 @@ static void do_homing_sequence(void)
 	break;
 
     case HOME_SEQUENCE_WAIT_JOINTS:
-	for(i=0; i < EMCMOT_MAX_JOINTS; i++) {
+	for(i=0; i < num_joints; i++) {
 	    joint = &joints[i];
 	    if(joint->home_sequence != home_sequence) {
 		/* this joint is not at the current sequence number, ignore it */
@@ -1143,7 +1143,7 @@ static void do_homing(void)
 	return;
     }
     /* loop thru axis, treat each one individually */
-    for (joint_num = 0; joint_num < EMCMOT_MAX_JOINTS; joint_num++) {
+    for (joint_num = 0; joint_num < num_joints; joint_num++) {
 	/* point to joint struct */
 	joint = &joints[joint_num];
 	if (!GET_JOINT_ACTIVE_FLAG(joint)) {
@@ -1657,7 +1657,7 @@ static void get_pos_cmds(long period)
 {
     int joint_num, all_homed, all_at_home, result;
     emcmot_joint_t *joint;
-    double positions[EMCMOT_MAXJOINTS_CONSTANT];
+    double positions[EMCMOT_MAX_JOINTS];
 /*! \todo Another #if 0 */
 #if 0
     static int interpolationCounter = 0;
@@ -1683,7 +1683,7 @@ static void get_pos_cmds(long period)
 	   disabled, free_pos_cmd is set to the current position. */
 	/* initial value for flag, if needed it will be cleared below */
 	SET_MOTION_INPOS_FLAG(1);
-	for (joint_num = 0; joint_num < EMCMOT_MAX_JOINTS; joint_num++) {
+	for (joint_num = 0; joint_num < num_joints; joint_num++) {
 	    /* point to joint struct */
 	    joint = &joints[joint_num];
 	    //AJ: only need to worry about free mode if joint is active
@@ -1790,7 +1790,7 @@ static void get_pos_cmds(long period)
 	all_homed = 1;
 	all_at_home = 1;
 	/* copy joint position feedback to local array */
-	for (joint_num = 0; joint_num < EMCMOT_MAX_JOINTS; joint_num++) {
+	for (joint_num = 0; joint_num < num_joints; joint_num++) {
 	    /* point to joint struct */
 	    joint = &joints[joint_num];
 	    /* copy coarse command */
@@ -1804,7 +1804,7 @@ static void get_pos_cmds(long period)
 	    }
 	}
 	/* if less than a full complement of joints, zero out the rest */
-	while ( joint_num < EMCMOT_MAXJOINTS_CONSTANT ) {
+	while ( joint_num < EMCMOT_MAX_JOINTS ) {
 	    positions[joint_num++] = 0.0;
 	}
 	switch (kinType) {
@@ -1863,7 +1863,7 @@ static void get_pos_cmds(long period)
 	    kinematicsInverse(&emcmotStatus->carte_pos_cmd, positions,
 		&iflags, &fflags);
 	    /* copy to joint structures and spline them up */
-	    for (joint_num = 0; joint_num < EMCMOT_MAX_JOINTS; joint_num++) {
+	    for (joint_num = 0; joint_num < num_joints; joint_num++) {
 		/* point to joint struct */
 		joint = &joints[joint_num];
 		joint->coarse_pos = positions[joint_num];
@@ -1876,7 +1876,7 @@ static void get_pos_cmds(long period)
 	}
 	/* there is data in the interpolators */
 	/* run interpolation */
-	for (joint_num = 0; joint_num < EMCMOT_MAX_JOINTS; joint_num++) {
+	for (joint_num = 0; joint_num < num_joints; joint_num++) {
 	    /* point to joint struct */
 	    joint = &joints[joint_num];
 	    /* save old command */
@@ -2006,7 +2006,7 @@ static void get_pos_cmds(long period)
 	kinematicsInverse(&emcmotStatus->carte_pos_cmd, positions,
 	    &iflags, &fflags);
 	/* copy to joint structures and spline them up */
-	for (joint_num = 0; joint_num < EMCMOT_MAX_JOINTS; joint_num++) {
+	for (joint_num = 0; joint_num < num_joints; joint_num++) {
 	    /* point to joint struct */
 	    joint = &joints[joint_num];
 	    joint->coarse_pos = positions[joint_num];
@@ -2019,7 +2019,7 @@ static void get_pos_cmds(long period)
 
 	/* there is data in the interpolators */
 	/* run interpolation */
-	for (joint_num = 0; joint_num < EMCMOT_MAX_JOINTS; joint_num++) {
+	for (joint_num = 0; joint_num < num_joints; joint_num++) {
 	    /* point to joint struct */
 	    joint = &joints[joint_num];
 	    /* save old command */
@@ -2036,7 +2036,7 @@ static void get_pos_cmds(long period)
 	/* set position commands to match feedbacks, this avoids
 	   disturbances and/or following errors when enabling */
 	emcmotStatus->carte_pos_cmd = emcmotStatus->carte_pos_fb;
-	for (joint_num = 0; joint_num < EMCMOT_MAX_JOINTS; joint_num++) {
+	for (joint_num = 0; joint_num < num_joints; joint_num++) {
 	    /* point to joint struct */
 	    joint = &joints[joint_num];
 	    /* save old command */
@@ -2057,7 +2057,7 @@ static void get_pos_cmds(long period)
 	the upstream checks will pass it.
     */
     onlimit = 0;
-    for (joint_num = 0; joint_num < EMCMOT_MAX_JOINTS; joint_num++) {
+    for (joint_num = 0; joint_num < num_joints; joint_num++) {
 	/* point to joint data */
 	joint = &joints[joint_num];
 	/* skip inactive or unhomed axes */
@@ -2183,7 +2183,7 @@ static void compute_screw_comp(void)
 
 
     /* compute the correction */
-    for (joint_num = 0; joint_num < EMCMOT_MAX_JOINTS; joint_num++) {
+    for (joint_num = 0; joint_num < num_joints; joint_num++) {
         /* point to joint struct */
         joint = &joints[joint_num];
 	if (!GET_JOINT_ACTIVE_FLAG(joint)) {
@@ -2394,7 +2394,7 @@ static void output_to_hal(void)
     } else {
         int i;
         double v2 = 0.0;
-        for(i=0; i<EMCMOT_MAX_JOINTS; i++)
+        for(i=0; i<num_joints; i++)
             if(GET_JOINT_ACTIVE_FLAG(&(joints[i])) && joints[i].free_tp_active)
                 v2 += joints[i].vel_cmd * joints[i].vel_cmd;
         if(v2 > 0.0)
@@ -2428,7 +2428,7 @@ static void output_to_hal(void)
     old_hal_index = *emcmot_hal_data->spindle_index_enable;
 
     /* output axis info to HAL for scoping, etc */
-    for (joint_num = 0; joint_num < EMCMOT_MAX_JOINTS; joint_num++) {
+    for (joint_num = 0; joint_num < num_joints; joint_num++) {
 	/* point to joint struct */
 	joint = &joints[joint_num];
 	/* apply backlash and motor offset to output */
@@ -2482,7 +2482,7 @@ static void update_status(void)
 
     /* copy status info from private joint structure to status
        struct in shared memory */
-    for (joint_num = 0; joint_num < EMCMOT_MAX_JOINTS; joint_num++) {
+    for (joint_num = 0; joint_num < num_joints; joint_num++) {
 	/* point to joint data */
 	joint = &joints[joint_num];
 	/* point to joint status */

@@ -54,6 +54,7 @@ static emcmot_status_t emcmotStatus;
 static emcmot_command_t emcmotCommand;
 
 static int emcmotTrajInited = 0;	// non-zero means traj called init
+/* FIXME is this supposed to be axes, or joints? */
 static int emcmotAxisInited[EMCMOT_MAX_AXIS] = { 0 };	// non-zero means axis called init
 
 __attribute__ ((unused))
@@ -72,6 +73,7 @@ static double last_ini_maxvel = -1.0;
 static unsigned long localMotionHeartbeat = 0;
 static int localMotionCommandType = 0;
 static int localMotionEchoSerialNumber = 0;
+/* FIXME axes or joints? */
 static unsigned char localEmcAxisAxisType[EMCMOT_MAX_AXIS];
 static double localEmcAxisUnits[EMCMOT_MAX_AXIS];
 static double localEmcMaxAcceleration = DBL_MAX;
@@ -82,6 +84,7 @@ static double localEmcMaxAcceleration = DBL_MAX;
   In emcmot, we need to set the cycle time for traj, and the interpolation
   rate, in any order, but both need to be done. 
  */
+/* FIXME: all of this stuff is really JOINTS not AXES!!! */
 
 int emcAxisSetAxis(int axis, unsigned char axisType)
 {

@@ -34,7 +34,7 @@
 #include "emcglb.h"		// EMC_NMLFILE, TRAJ_MAX_VELOCITY, etc.
 #include "emccfg.h"		// DEFAULT_TRAJ_MAX_VELOCITY
 #include "inifile.hh"		// INIFILE
-#include "emcmotcfg.h"          // EMCMOT_MAX_AXIS
+#include "emcmotcfg.h"          // EMCMOT_MAX_JOINTS
 #include "rcs_print.hh"
 #include "nml_oi.hh"
 #include "timer.hh"
@@ -249,21 +249,21 @@ struct halui_str {
     hal_bit_t *spindle_brake_off;  //pin for deactivating spindle/brake
     hal_bit_t *spindle_brake_is_on;//status pin that tells us if brake is on
 
-    hal_bit_t *joint_home[EMCMOT_MAX_AXIS+1];   //pin for homing one joint
-    hal_bit_t *joint_is_homed[EMCMOT_MAX_AXIS+1];   //status pin that the joint is homed
-    hal_bit_t *joint_on_soft_min_limit[EMCMOT_MAX_AXIS+1];   //status pin that the joint is on the software min limit
-    hal_bit_t *joint_on_soft_max_limit[EMCMOT_MAX_AXIS+1];   //status pin that the joint is on the software max limit
-    hal_bit_t *joint_on_hard_min_limit[EMCMOT_MAX_AXIS+1];   //status pin that the joint is on the hardware min limit
-    hal_bit_t *joint_on_hard_max_limit[EMCMOT_MAX_AXIS+1];   //status pin that the joint is on the hardware max limit
-    hal_bit_t *joint_has_fault[EMCMOT_MAX_AXIS+1];   //status pin that the joint has a fault
+    hal_bit_t *joint_home[EMCMOT_MAX_JOINTS+1];   //pin for homing one joint
+    hal_bit_t *joint_is_homed[EMCMOT_MAX_JOINTS+1];   //status pin that the joint is homed
+    hal_bit_t *joint_on_soft_min_limit[EMCMOT_MAX_JOINTS+1];   //status pin that the joint is on the software min limit
+    hal_bit_t *joint_on_soft_max_limit[EMCMOT_MAX_JOINTS+1];   //status pin that the joint is on the software max limit
+    hal_bit_t *joint_on_hard_min_limit[EMCMOT_MAX_JOINTS+1];   //status pin that the joint is on the hardware min limit
+    hal_bit_t *joint_on_hard_max_limit[EMCMOT_MAX_JOINTS+1];   //status pin that the joint is on the hardware max limit
+    hal_bit_t *joint_has_fault[EMCMOT_MAX_JOINTS+1];   //status pin that the joint has a fault
     hal_u32_t *joint_selected;                               // status pin for the joint selected
-    hal_bit_t *joint_nr_select[EMCMOT_MAX_AXIS];             // nr. of pins to select a joint
-    hal_bit_t *joint_is_selected[EMCMOT_MAX_AXIS];           // nr. of status pins for joint selected
+    hal_bit_t *joint_nr_select[EMCMOT_MAX_JOINTS];             // nr. of pins to select a joint
+    hal_bit_t *joint_is_selected[EMCMOT_MAX_JOINTS];           // nr. of status pins for joint selected
 
     hal_float_t *jog_speed;	//pin for setting the jog speed (halui internal)
-    hal_bit_t *jog_minus[EMCMOT_MAX_AXIS+1];	//pin to jog in positive direction
-    hal_bit_t *jog_plus[EMCMOT_MAX_AXIS+1];	//pin to jog in negative direction
-    hal_float_t *jog_analog[EMCMOT_MAX_AXIS+1];	//pin for analog jogging (-1..0..1)
+    hal_bit_t *jog_minus[EMCMOT_MAX_JOINTS+1];	//pin to jog in positive direction
+    hal_bit_t *jog_plus[EMCMOT_MAX_JOINTS+1];	//pin to jog in negative direction
+    hal_float_t *jog_analog[EMCMOT_MAX_JOINTS+1];	//pin for analog jogging (-1..0..1)
     hal_float_t *jog_deadband;	//pin for setting the jog analog deadband (where not to move)
 
     hal_s32_t *fo_counts;	//pin for the Feed Override counting
@@ -318,14 +318,14 @@ struct local_halui_str {
     hal_bit_t spindle_brake_on;   //pin for activating spindle-brake
     hal_bit_t spindle_brake_off;  //pin for deactivating spindle/brake
 
-    hal_bit_t joint_home[EMCMOT_MAX_AXIS+1];   //pin for homing one joint
+    hal_bit_t joint_home[EMCMOT_MAX_JOINTS+1];   //pin for homing one joint
     hal_u32_t joint_selected;
-    hal_bit_t joint_nr_select[EMCMOT_MAX_AXIS];
-    hal_bit_t joint_is_selected[EMCMOT_MAX_AXIS];
+    hal_bit_t joint_nr_select[EMCMOT_MAX_JOINTS];
+    hal_bit_t joint_is_selected[EMCMOT_MAX_JOINTS];
 
-    hal_bit_t jog_minus[EMCMOT_MAX_AXIS+1];	//pin to jog in positive direction
-    hal_bit_t jog_plus[EMCMOT_MAX_AXIS+1];	//pin to jog in negative direction
-    hal_float_t jog_analog[EMCMOT_MAX_AXIS+1];	//pin for analog jogging (-1..0..1)
+    hal_bit_t jog_minus[EMCMOT_MAX_JOINTS+1];	//pin to jog in positive direction
+    hal_bit_t jog_plus[EMCMOT_MAX_JOINTS+1];	//pin to jog in negative direction
+    hal_float_t jog_analog[EMCMOT_MAX_JOINTS+1];	//pin for analog jogging (-1..0..1)
         
     hal_s32_t fo_counts;	//pin for the Feed Override counting
     hal_float_t fo_scale;	//scale for the Feed Override counting

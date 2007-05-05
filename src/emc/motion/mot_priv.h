@@ -144,7 +144,7 @@ typedef struct {
     hal_float_t last_period_ns;	/* param: last period in clocks */
     hal_u32_t overruns;		/* param: count of RT overruns */
 
-    axis_hal_t axis[EMCMOT_MAX_AXIS];	/* data for each axis */
+    axis_hal_t axis[EMCMOT_MAX_JOINTS];	/* data for each joint */
 
 } emcmot_hal_data_t;
 
@@ -155,9 +155,9 @@ typedef struct {
 /* HAL component ID for motion module */
 extern int mot_comp_id;
 
-/* userdefined number of max joints. default is EMCMOT_MAX_AXIS(=8), 
+/* userdefined number of joints. default is EMCMOT_MAX_JOINTS(=8), 
    but can be altered at motmod insmod time */
-extern int EMCMOT_MAX_JOINTS;
+extern int num_joints;
 
 /* pointer to emcmot_hal_data_t struct in HAL shmem, with all HAL data */
 extern emcmot_hal_data_t *emcmot_hal_data;

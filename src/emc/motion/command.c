@@ -96,7 +96,7 @@ int checkAllHomed(void) {
 	if (emcmotDebug->allHomed) return 1;
     }
 
-    for (joint_num = 0; joint_num < EMCMOT_MAX_JOINTS; joint_num++) {
+    for (joint_num = 0; joint_num < num_joints; joint_num++) {
 	/* point to joint data */
 	joint = &joints[joint_num];
 	if (!GET_JOINT_ACTIVE_FLAG(joint)) {
@@ -124,7 +124,7 @@ static int limits_ok(void)
     int joint_num;
     emcmot_joint_t *joint;
 
-    for (joint_num = 0; joint_num < EMCMOT_MAX_JOINTS; joint_num++) {
+    for (joint_num = 0; joint_num < num_joints; joint_num++) {
 	/* point to joint data */
 	joint = &joints[joint_num];
 	if (!GET_JOINT_ACTIVE_FLAG(joint)) {
@@ -154,7 +154,7 @@ static int jog_ok(int joint_num, double vel)
 	return 1;		/* okay to jog when limits overridden */
     }
 
-    if (joint_num < 0 || joint_num >= EMCMOT_MAX_JOINTS) {
+    if (joint_num < 0 || joint_num >= num_joints) {
 	reportError("Can't jog invalid joint number %d.", joint_num);
 	return 0;
     }
@@ -208,19 +208,19 @@ void refresh_jog_limits(emcmot_joint_t *joint)
    limits, or 0 if not */
 static int inRange(EmcPose pos)
 {
-    double joint_pos[EMCMOT_MAX_AXIS];
+    double joint_pos[EMCMOT_MAX_JOINTS];
     int joint_num;
     emcmot_joint_t *joint;
 
     /* fill in all joints with 0 */
-    for (joint_num = 0; joint_num < EMCMOT_MAX_JOINTS; joint_num++) {
+    for (joint_num = 0; joint_num < num_joints; joint_num++) {
 	joint_pos[joint_num] = 0.0;
     }
 
     /* now fill in with real values, for joints that are used */
     kinematicsInverse(&pos, joint_pos, &iflags, &fflags);
 
-    for (joint_num = 0; joint_num < EMCMOT_MAX_JOINTS; joint_num++) {
+    for (joint_num = 0; joint_num < num_joints; joint_num++) {
 	/* point to joint data */
 	joint = &joints[joint_num];
 
@@ -252,7 +252,7 @@ void clearHomes(int joint_num)
 
     if (kinType == KINEMATICS_INVERSE_ONLY) {
 	if (rehomeAll) {
-	    for (n = 0; n < EMCMOT_MAX_JOINTS; n++) {
+	    for (n = 0; n < num_joints; n++) {
 		/* point at joint data */
 		joint = &(joints[n]);
 		/* clear flag */
@@ -344,7 +344,7 @@ check_stuff ( "before command_handler()" );
 	   to point to the joint data.  All the individual commands need to do
 	   is verify that "joint" is non-zero. */
 	joint_num = emcmotCommand->axis;
-	if (joint_num >= 0 && joint_num < EMCMOT_MAX_JOINTS) {
+	if (joint_num >= 0 && joint_num < num_joints) {
 	    /* valid joint, point to it's data */
 	    joint = &joints[joint_num];
 	} else {
@@ -380,7 +380,7 @@ check_stuff ( "before command_handler()" );
 		tpAbort(&emcmotDebug->queue);
 		SET_MOTION_ERROR_FLAG(0);
 	    } else {
-		for (joint_num = 0; joint_num < EMCMOT_MAX_JOINTS; joint_num++) {
+		for (joint_num = 0; joint_num < num_joints; joint_num++) {
 		    /* point to joint struct */
 		    joint = &joints[joint_num];
 		    /* tell joint planner to stop */
@@ -392,7 +392,7 @@ check_stuff ( "before command_handler()" );
 		}
 	    }
 	    /* clear axis errors (regardless of mode */	    
-	    for (joint_num = 0; joint_num < EMCMOT_MAX_JOINTS; joint_num++) {
+	    for (joint_num = 0; joint_num < num_joints; joint_num++) {
 		/* point to joint struct */
 		joint = &joints[joint_num];
 		/* update status flags */
@@ -490,18 +490,13 @@ check_stuff ( "before command_handler()" );
 	    /* this sets a global - I hate globals - hopefully this can be
 	       moved into the config structure, or dispensed with completely */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_NUM_AXES");
-	    joint_num = emcmotCommand->axis;
-	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
-	    /* note that this comparison differs from the check on the range
-	       of 'joint_num' in most other places, since those checks are
-	       for a value to be used as an index and here it's a value to be 
-	       used as a counting number. The indenting is different here so
-	       as not to match macro editing on that other bunch. */
-	    if (joint_num <= 0 || joint_num > EMCMOT_MAX_JOINTS) {
+	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", emcmotCommand->axis);
+	    if (( emcmotCommand->axis <= 0 ) ||
+		( emcmotCommand->axis > EMCMOT_MAX_AXIS )) {
 		break;
 	    }
-	    num_axes = joint_num;
-	    emcmotConfig->numAxes = joint_num;
+	    num_axes = emcmotCommand->axis;
+	    emcmotConfig->numAxes = num_axes;
 	    break;
 
 	case EMCMOT_SET_WORLD_HOME:
@@ -539,7 +534,7 @@ check_stuff ( "before command_handler()" );
 		emcmotStatus->overrideLimits = 1;
 	    }
 	    emcmotDebug->overriding = 0;
-	    for (joint_num = 0; joint_num < EMCMOT_MAX_JOINTS; joint_num++) {
+	    for (joint_num = 0; joint_num < num_joints; joint_num++) {
 		/* point at joint data */
 		joint = &joints[joint_num];
 		/* clear joint errors */

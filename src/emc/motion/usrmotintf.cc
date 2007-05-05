@@ -284,13 +284,13 @@ void usrmotPrintEmcmotDebug(emcmot_debug_t d, int which)
 /*! \todo Another #if 0 */
 #if 0
 	printf("\nferror:        ");
-	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
+	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
 	    printf("\t%f", d.ferrorCurrent[t]);
 	}
 	printf("\n");
 
 	printf("\nferror High:        ");
-	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
+	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
 	    printf("\t%f", d.ferrorHighMark[t]);
 	}
 	printf("\n");
@@ -338,15 +338,15 @@ void usrmotPrintEmcmotDebug(emcmot_debug_t d, int which)
 #if 0				/*! \todo FIXME - change to work with joint
 				   structures */
 	printf("\noldInput:  ");
-	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
+	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
 	    printf("\t%f", d.oldInput[t]);
 	}
 	printf("\nrawInput:  ");
-	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
+	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
 	    printf("\t%f", d.rawInput[t]);
 	}
 	printf("\ninverseInputScale:  ");
-	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
+	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
 	    printf("\t%f", d.inverseInputScale[t]);
 	}
 #endif
@@ -373,12 +373,12 @@ void usrmotPrintEmcmotConfig(emcmot_config_t c, int which)
 	printf("axis vlimit:  \t");
 /*! \todo Another #if 0 */
 #if 0				/*! \todo FIXME - waiting for new structs */
-	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
+	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
 	    printf("%f ", c.axisLimitVel[t]);
 	}
 	printf("\n");
 	printf("axis acc: \t");
-	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
+	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
 	    printf("%f ", c.axisLimitAcc[t]);
 	}
 	printf("\n");
@@ -392,7 +392,7 @@ void usrmotPrintEmcmotConfig(emcmot_config_t c, int which)
 #if 0
 	printf
 	    ("pid:\tP\tI\tD\tFF0\tFF1\tFF2\tBCKLSH\tBIAS\tMAXI\tDEADBAND\tCYCLE TIME\n");
-	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
+	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
 	    printf
 		("\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%f\t%f\n",
 		c.pid[t].p, c.pid[t].i, c.pid[t].d, c.pid[t].ff0,
@@ -407,29 +407,29 @@ void usrmotPrintEmcmotConfig(emcmot_config_t c, int which)
 /*! \todo Another #if 0 */
 #if 0				/*! \todo FIXME - waiting for new structs */
 	printf("pos limits:   ");
-	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
+	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
 	    printf("\t%f", c.maxLimit[t]);
 	}
 
 	printf("\nneg limits:   ");
-	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
+	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
 	    printf("\t%f", c.minLimit[t]);
 	}
 
 	printf("\nmax ferror:   ");
-	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
+	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
 	    printf("\t%f", c.maxFerror[t]);
 	}
 	printf("\n");
 
 	printf("\nmin ferror:   ");
-	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
+	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
 	    printf("\t%f", c.minFerror[t]);
 	}
 	printf("\n");
 
 	printf("\nhome offsets:  ");
-	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
+	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
 	    printf("\t%f", c.homeOffset[t]);
 	}
 	printf("\n");
@@ -462,7 +462,7 @@ void usrmotPrintEmcmotStatus(emcmot_status_t s, int which)
 #if 0				/*! \todo FIXME - change to work with joint
 				   structures */
 	printf("axes enabled: \t");
-	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
+	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
 	    printf("%d", s.axisFlag[t] & EMCMOT_AXIS_ENABLE_BIT ? 1 : 0);
 	}
 	printf("\n");
@@ -480,32 +480,32 @@ void usrmotPrintEmcmotStatus(emcmot_status_t s, int which)
 #if 0				/*! \todo FIXME - change to work with joint
 				   structures */
 	printf(" cmd: ");
-	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
+	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
 	    printf("\t%f", s.joint_pos_cmd[t]);
 	}
 	printf("\n");
 	printf(" fb:  ");
-	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
+	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
 	    printf("\t%f", s.joint_pos_fb[t]);
 	}
 	printf("\n");
 	printf(" vel: ");
-	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
+	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
 	    printf("\t%f", s.joint_vel_cmd[t]);
 	}
 	printf("\n");
 	printf(" ferr:");
-	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
+	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
 	    printf("\t%f", s.ferrorCurrent[t]);
 	}
 	printf("\n");
 	printf(" lim:");
-	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
+	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
 	    printf("\t%f", s.ferrorLimit[t]);
 	}
 	printf("\n");
 	printf(" max:");
-	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
+	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
 	    printf("\t%f", s.ferrorHighMark[t]);
 	}
 	printf("\n");
@@ -521,7 +521,7 @@ void usrmotPrintEmcmotStatus(emcmot_status_t s, int which)
 #if 0				/*! \todo FIXME - change to work with joint
 				   structures */
 	printf("vscales:      \tQ: %.2f", s.qVscale);
-	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
+	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
 	    printf("\t%d: %.2f", t, s.axVscale[t]);
 	}
 	printf("\n");
@@ -530,7 +530,7 @@ void usrmotPrintEmcmotStatus(emcmot_status_t s, int which)
 #if 0				/*! \todo FIXME - change to work with joint
 				   structures */
 	printf("homing:       \t");
-	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
+	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
 	    printf("%d", s.axisFlag[0] & EMCMOT_AXIS_HOMING_BIT ? 1 : 0);
 	}
 	printf("\n");
@@ -552,65 +552,65 @@ void usrmotPrintEmcmotStatus(emcmot_status_t s, int which)
 	htostr(m, s.motionFlag);
 	printf("motion:   %s\n", m);
 	printf("axes:     ");
-	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
+	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
 	    htostr(m, s.axisFlag[t]);
 	    printf("%s ", m);
 	}
 	printf("\n");
-	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
+	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
 	    printf("%d\t", ((s.axisFlag[t] & EMCMOT_AXIS_ENABLE_BIT) != 0));
 	}
 	printf("enable\n");
-	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
+	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
 	    printf("%d\t", ((s.axisFlag[t] & EMCMOT_AXIS_ACTIVE_BIT) != 0));
 	}
 	printf("active\n");
-	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
+	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
 	    printf("%d\t", ((s.axisFlag[t] & EMCMOT_AXIS_INPOS_BIT) != 0));
 	}
 	printf("inpos\n");
-	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
+	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
 	    printf("%d\t", ((s.axisFlag[t] & EMCMOT_AXIS_ERROR_BIT) != 0));
 	}
 	printf("error\n");
-	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
+	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
 	    printf("%d\t",
 		((s.axisFlag[t] & EMCMOT_AXIS_MAX_SOFT_LIMIT_BIT) != 0));
 	}
 	printf("max_soft_limit\n");
-	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
+	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
 	    printf("%d\t",
 		((s.axisFlag[t] & EMCMOT_AXIS_MIN_SOFT_LIMIT_BIT) != 0));
 	}
 	printf("min_soft_limit\n");
-	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
+	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
 	    printf("%d\t",
 		((s.axisFlag[t] & EMCMOT_AXIS_MAX_HARD_LIMIT_BIT) != 0));
 	}
 	printf("max_hard_limit\n");
-	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
+	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
 	    printf("%d\t",
 		((s.axisFlag[t] & EMCMOT_AXIS_MIN_HARD_LIMIT_BIT) != 0));
 	}
 	printf("min_hard_limit\n");
-	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
+	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
 	    printf("%d\t",
 		((s.axisFlag[t] & EMCMOT_AXIS_HOME_SWITCH_BIT) != 0));
 	}
 	printf("home_switch\n");
-	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
+	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
 	    printf("%d\t", ((s.axisFlag[t] & EMCMOT_AXIS_HOMING_BIT) != 0));
 	}
 	printf("homing\n");
-	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
+	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
 	    printf("%d\t", ((s.axisFlag[t] & EMCMOT_AXIS_HOMED_BIT) != 0));
 	}
 	printf("homed\n");
-	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
+	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
 	    printf("%d\t", ((s.axisFlag[t] & EMCMOT_AXIS_FERROR_BIT) != 0));
 	}
 	printf("ferror\n");
-	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
+	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
 	    printf("%d\t", ((s.axisFlag[t] & EMCMOT_AXIS_FAULT_BIT) != 0));
 	}
 #endif
@@ -624,22 +624,22 @@ void usrmotPrintEmcmotStatus(emcmot_status_t s, int which)
 /*! \todo Another #if 0 */
 #if 0
 	printf("output scales: ");
-	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
+	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
 	    printf("\t%f", s.outputScale[t]);
 	}
 
 	printf("\noutput offsets:");
-	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
+	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
 	    printf("\t%f", s.outputOffset[t]);
 	}
 
 	printf("\ninput scales:  ");
-	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
+	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
 	    printf("\t%f", s.inputScale[t]);
 	}
 
 	printf("\ninput offsets: ");
-	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
+	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
 	    printf("\t%f", s.inputOffset[t]);
 	}
 
@@ -709,7 +709,7 @@ int usrmotExit(void)
 /*! \todo Another #if 0 */
 #if 0
 /*! \todo FIXME - comp structs no longer in shmem */
-    for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
+    for (axis = 0; axis < EMCMOT_MAX_JOINTS; axis++) {
 	emcmotComp[axis] = 0;
     }
 #endif
@@ -734,8 +734,8 @@ int usrmotLoadComp(int axis, const char *file, int type)
     emcmot_command_t emcmotCommand;
 
     /* check axis range */
-    if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
-	fprintf(stderr, "axis out of range for compensation\n");
+    if (axis < 0 || axis >= EMCMOT_MAX_JOINTS) {
+	fprintf(stderr, "joint out of range for compensation\n");
 	return -1;
     }
 
@@ -786,7 +786,7 @@ return -1;
     int t;
 
     /* check axis range */
-    if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
+    if (axis < 0 || axis >= EMCMOT_MAX_JOINTS) {
 	fprintf(stderr, "axis out of range for compensation\n");
 	return -1;
     }
