@@ -26,8 +26,11 @@ The format of the ram file is as follows:
 Comments start with '#' (anywhere on a line) and run to the end of line.
 Addresses are specified by '@' followed by a number (hex or decimal).
 Data is specified by hex or decimal numbers, one per byte, and the address
-increments automatically after each byte.  The memory buffer is zeroed at
-startup, so large chunks of zeros don't need to be specified in the file.
+increments automatically after each byte.  Sixteen bit data values can be
+entered by preceding the number with 'w', and 32 bit by preceding it with
+'l'.  Multi-byte values are stored most significant byte first.  The
+memory buffer is zeroed at startup, so large chunks of zeros don't need
+to be specified in the file.
 
 This program automatically calculates a checksum and writes it to the
 last two bytes of the FPGA config RAM.
@@ -85,6 +88,7 @@ int main ( int argc, char *argv[] )
     struct bitfile_chunk *ch;
     char *dst;
     int n, rv;
+    __u32 temp;
     __u16 checksum1, checksum2;
     __u8 data[RAMLEN];
     __u8 *dp8;
@@ -111,6 +115,13 @@ int main ( int argc, char *argv[] )
 	linenum++;
 	cp = buf;
 	while ( 1 ) {
+	    /* check address - last 2 bytes are reserved for checksum and
+	       we allow enough room for 32 bit data, so we need 6 free */
+	    if ( addr >= RAMLEN-6 ) {
+		errmsg(__func__,"address out of range: %d (0x%x) at %s:%d",
+		    addr, addr, ramfile_name, linenum);
+		goto cleanup1;
+	    }
 	    // skip whitespace
 	    while ( isspace(*cp) ) cp++;
 	    // check for end of line, or start of comment
@@ -128,25 +139,54 @@ int main ( int argc, char *argv[] )
 		    goto cleanup1;
 		}
 		cp = cp1;
-		if ( addr >= RAMLEN ) {
-		    errmsg(__func__,"address out of range: %d (0x%x) at %s:%d",
-			addr, addr, ramfile_name, linenum);
-		    goto cleanup1;
-		}
-	    } else {
-		// read data
-		if ( addr >= RAMLEN ) {
-		    errmsg(__func__,"address out of range: %d (0x%x) at %s:%d",
-			addr, addr, ramfile_name, linenum);
-		    goto cleanup1;
-		}
-		data[addr++] = strtol(cp, &cp1, 0);
+	    } else if ( *cp == 'l' ) {
+		// read long (4 byte) data value
+		cp++;
+		while ( isspace(*cp) ) cp++;
+		temp = strtoul(cp, &cp1, 0);
 		if ( cp1 == cp ) {
-		    errmsg(__func__,"bad char '%c' in data at %s:%d",
+		    errmsg(__func__,"bad char '%c' in long data at %s:%d",
 			*cp, ramfile_name, linenum);
 		    goto cleanup1;
 		}
 		cp = cp1;
+		data[addr++] = temp >> 24;
+		data[addr++] = temp >> 16;
+		data[addr++] = temp >> 8;
+		data[addr++] = temp;
+	    } else if ( *cp == 'w' ) {
+		// read word (2 byte) data value
+		cp++;
+		while ( isspace(*cp) ) cp++;
+		temp = strtoul(cp, &cp1, 0);
+		if ( cp1 == cp ) {
+		    errmsg(__func__,"bad char '%c' in word data at %s:%d",
+			*cp, ramfile_name, linenum);
+		    goto cleanup1;
+		}
+		if (temp > 0xFFFF ) {
+		    errmsg(__func__,"word value %ud (0x%ux) out of range at %s:%d",
+			temp, temp, ramfile_name, linenum);
+		    goto cleanup1;
+		}
+		cp = cp1;
+		data[addr++] = temp >> 8;
+		data[addr++] = temp;
+	    } else {
+		// read byte data value
+		temp = strtoul(cp, &cp1, 0);
+		if ( cp1 == cp ) {
+		    errmsg(__func__,"bad char '%c' in byte data at %s:%d",
+			*cp, ramfile_name, linenum);
+		    goto cleanup1;
+		}
+		if (temp > 0xFF ) {
+		    errmsg(__func__,"byte value %ud (0x%ux) out of range at %s:%d",
+			temp, temp, ramfile_name, linenum);
+		    goto cleanup1;
+		}
+		cp = cp1;
+		data[addr++] = temp;
 	    }
 	}
     }
