@@ -43,6 +43,8 @@
 #include "emcglb.h"		// TRAJ_MAX_VELOCITY
 #include "emcpos.h"
 
+static int debug_velacc = 0;
+
 #ifndef MIN
 #define MIN(a,b) ((a)<(b)?(a):(b))
 #endif
@@ -270,6 +272,10 @@ double getStraightAcceleration(double x, double y, double z,
     if(db < tiny) db = 0.0;
     if(dc < tiny) dc = 0.0;
 
+    if(debug_velacc) 
+        printf("getStraightAcceleration dx %g dy %g dz %g da %g db %g dc %g ", 
+               dx, dy, dz, dz, db, dc);
+
     // Figure out what kind of move we're making:
     if (dx <= 0.0 && dy <= 0.0 && dz <= 0.0) {
 	linear_move = 0;
@@ -333,6 +339,8 @@ double getStraightAcceleration(double x, double y, double z,
 	    acc = dtot / tmax;
 	}
     }
+    if(debug_velacc) 
+        printf("lin %d ang %d acc %g\n", linear_move, angular_move, acc);
     return acc;
 }
 
@@ -364,6 +372,10 @@ double getStraightVelocity(double x, double y, double z,
     if(da < tiny) da = 0.0;
     if(db < tiny) db = 0.0;
     if(dc < tiny) dc = 0.0;
+
+    if(debug_velacc) 
+        printf("getStraightVelocity dx %g dy %g dz %g da %g db %g dc %g ", 
+               dx, dy, dz, dz, db, dc);
 
     // Figure out what kind of move we're making:
     if (dx <= 0.0 && dy <= 0.0 && dz <= 0.0) {
@@ -434,6 +446,8 @@ double getStraightVelocity(double x, double y, double z,
 	    vel = dtot / tmax;
 	}
     }
+    if(debug_velacc) 
+        printf("lin %d ang %d vel %g\n", linear_move, angular_move, vel);
     return vel;
 }
 
