@@ -14,8 +14,9 @@ emc2 (1:2.1.5) unstable; urgency=low
   * abort if the probe does not trip before a probing move ends
   * index handling fixes for the ppmc series
   * improve the initial viewpoint in perspective mode in AXIS preview
+  * fix mini's jog speed popup
 
- -- Chris Radek <chris@timeguy.com>  Sun,  6 May 2007 14:41:47 -0500
+ -- Chris Radek <chris@timeguy.com>  Sun,  6 May 2007 14:48:22 -0500
 
 emc2 (1:2.1.4) unstable; urgency=low
 

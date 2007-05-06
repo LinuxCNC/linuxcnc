@@ -13,10 +13,6 @@ exec ${EMC2_EMCSH-emcsh} "$0" "$@"
 #
 #  Copyright (c) 2003 All rights reserved.
 #
-#  Last change:
-# $Revision$
-# $Author$
-# $Date$
 ###############################################################
 #  INI variables include
 #  [DISPLAY]
@@ -1431,6 +1427,36 @@ bind $feedlabel <ButtonPress-3> {popupJogSpeed}
 bind $feedvalue <ButtonPress-1> {popupJogSpeed}
 bind $feedvalue <ButtonPress-3> {popupJogSpeed}
 
+proc popupJogSpeed {} {
+    global jogSpeed maxJogSpeed popupJogSpeedEntry
+
+    if {[winfo exists .jogspeedpopup]} {
+        wm deiconify .jogspeedpopup
+        raise .jogspeedpopup
+        focus .jogspeedpopup
+        return
+    }
+    toplevel .jogspeedpopup
+    wm title .jogspeedpopup [msgcat::mc "Set Jog Speed"]
+
+    # initialize value to current jog speed
+    set popupJogSpeedEntry $jogSpeed
+
+    frame .jogspeedpopup.input
+    label .jogspeedpopup.input.label -text [msgcat::mc "Set jog speed:"]
+    entry .jogspeedpopup.input.entry -textvariable popupJogSpeedEntry -width 20
+    frame .jogspeedpopup.buttons
+    button .jogspeedpopup.buttons.ok -text [msgcat::mc "OK"] -default active -command {set jogSpeed $popupJogSpeedEntry; destroy .jogspeedpopup}
+    button .jogspeedpopup.buttons.cancel -text [msgcat::mc "Cancel"] -command "destroy .jogspeedpopup"
+    pack .jogspeedpopup.input.label .jogspeedpopup.input.entry -side left
+    pack .jogspeedpopup.input -side top
+    pack .jogspeedpopup.buttons -side bottom -fill x -pady 2m
+    pack .jogspeedpopup.buttons.ok .jogspeedpopup.buttons.cancel -side left -expand 1
+    bind .jogspeedpopup <Return> {set jogSpeed $popupJogSpeedEntry; destroy .jogspeedpopup}
+
+    focus .jogspeedpopup.input.entry
+    .jogspeedpopup.input.entry select range 0 end
+}
 
 # Experimental increment button sets for linear and rotary axes
 
