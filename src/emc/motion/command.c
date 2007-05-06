@@ -1179,8 +1179,7 @@ check_stuff ( "before command_handler()" );
 
 	case EMCMOT_CLEAR_PROBE_FLAGS:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "CLEAR_PROBE_FLAGS");
-	    emcmotStatus->probeTripped = 0;
-	    emcmotStatus->probing = 1;
+	    emcmotStatus->probing = 0;
 	    break;
 
 	case EMCMOT_PROBE:
@@ -1221,7 +1220,6 @@ check_stuff ( "before command_handler()" );
 		SET_MOTION_ERROR_FLAG(1);
 		break;
 	    } else {
-		emcmotStatus->probeTripped = 0;
 		emcmotStatus->probing = 1;
 		SET_MOTION_ERROR_FLAG(0);
 		/* set flag that indicates all axes need rehoming, if any
