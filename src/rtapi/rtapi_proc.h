@@ -114,6 +114,7 @@ static int proc_read_status(char *page, char **start, off_t off,
     PROC_PRINT("   Semaphores = %i/%i\n", rtapi_data->sem_count,
 	RTAPI_MAX_SEMS);
     PROC_PRINT("   Interrupts = %i\n", rtapi_data->irq_count);
+    PROC_PRINT("  RT task CPU = %i\n", rtapi_data->rt_cpu);
     if (rtapi_data->timer_running) {
 	PROC_PRINT(" Timer status = Running\n");
 	PROC_PRINT(" Timer period = %li nSec\n", rtapi_data->timer_period);

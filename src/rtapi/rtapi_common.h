@@ -183,6 +183,7 @@ typedef struct {
     int fifo_count;		/* fifos in use */
     int irq_count;		/* interrupts hooked */
     int timer_running;		/* state of HW timer */
+    int rt_cpu;			/* CPU to use for RT tasks */
     long int timer_period;	/* HW timer period */
     module_data module_array[RTAPI_MAX_MODULES + 1];	/* data for modules */
     task_data task_array[RTAPI_MAX_TASKS + 1];	/* data for tasks */

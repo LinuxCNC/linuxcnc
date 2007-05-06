@@ -232,6 +232,8 @@ int init_module(void)
     }
     rtapi_data->timer_running = 0;
     rtapi_data->timer_period = 0;
+    /* all RT tasks run on CPU 0 - non-optimal, but works everywhere */
+    rtapi_data->rt_cpu = 0;
     max_delay = DEFAULT_MAX_DELAY;
 #ifdef CONFIG_PROC_FS
     /* set up /proc/rtapi */
@@ -743,9 +745,8 @@ int rtapi_task_new(void (*taskcode) (void *), void *arg,
     if (retval != 0) {
 	return RTAPI_FAIL;
     }
-    /* Use CPU 0 (the only CPU if uni-processor, but I want predictable
-       behavior under SMP) */
-    pthread_attr_setcpu_np(&attr, 0);
+    /* use pre-determined CPU for RT tasks */
+    pthread_attr_setcpu_np(&attr, rtapi_data->rt_cpu);
     pthread_attr_setfp_np(&attr, uses_fp);
     task->taskcode = taskcode;
     task->arg = arg;

@@ -90,6 +90,10 @@
 #include <sys/io.h>
 #endif
 
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,0)
+#include <linux/cpumask.h>	/* NR_CPUS, cpu_online() */
+#endif
+
 #if LINUX_VERSION_CODE > KERNEL_VERSION(2,4,0)
 /* Kernel is 2.4 or higher, use it's vsnprintf() implementation */
 #define vsn_printf vsnprintf
@@ -198,6 +202,19 @@ int init_module(void)
     rtapi_data->timer_period = 0;
     max_delay = DEFAULT_MAX_DELAY;
     rt_linux_use_fpu(1);
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,0)
+    /* on SMP machines, we want to put RT code on the last CPU */
+    n = NR_CPUS-1;
+    while ( ! cpu_online(n) ) {
+	n--;
+    }
+    rtapi_data->rt_cpu = n;
+#else
+    /* old kernel, the SMP hooks aren't available, so use CPU 0 */
+    rtapi_data->rt_cpu = 0;
+#endif
+
+
 #ifdef CONFIG_PROC_FS
     /* set up /proc/rtapi */
     if (proc_init() != 0) {
@@ -706,10 +723,9 @@ int rtapi_task_new(void (*taskcode) (void *), void *arg,
     }
     task->taskcode = taskcode;
     task->arg = arg;
-    /* call OS to initialize the task - use CPU 0 (the only CPU if
-       uni-processor, but I want predictable behavior under SMP) */
+    /* call OS to initialize the task - use predetermined CPU */
     retval = rt_task_init_cpuid(ostask_array[task_id], wrapper, task_id,
-	 stacksize, prio, uses_fp, 0 /* signal */, 0 /* cpu id */ );
+	 stacksize, prio, uses_fp, 0 /* signal */, rtapi_data->rt_cpu );
     if (retval != 0) {
 	/* couldn't create task, free task data memory */
 	kfree(ostask_array[task_id]);
