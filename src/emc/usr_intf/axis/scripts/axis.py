@@ -2161,7 +2161,7 @@ class TclCommands(nf.TclCommands):
             h = o.winfo_height()
             fovx = o.fovy * w / h
             fov = min(fovx, o.fovy)
-            o.set_eyepoint(size * 1.1 / 2 / sin ( fov * pi / 180 / 2))
+            o.set_eyepoint((size * 1.1 + 1.0) / 2 / sin ( fov * pi / 180 / 2))
             o.lat = -60
             o.lon = 335
             x = (o.g.min_extents[0] + o.g.max_extents[0])/2
