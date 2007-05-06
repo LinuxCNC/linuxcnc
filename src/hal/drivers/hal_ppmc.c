@@ -25,10 +25,6 @@
 *    
 * Copyright (c) 2005 All rights reserved.
 *
-* Last change: 
-# $Revision$
-* $Author$
-* $Date$
 ********************************************************************/
 
 /** The driver searches the entire address space of the enhanced
@@ -994,8 +990,6 @@ static void write_PPMC_digouts(slot_data_t *slot)
 static void read_encoders(slot_data_t *slot)
 {
     int i, byteindex;
-    unsigned char mask = 0x01, indextemp;
-
     union pos_tag {
         signed long l;
         struct byte_tag {
@@ -1005,8 +999,7 @@ static void read_encoders(slot_data_t *slot)
             signed char b3;
         } byte;
     } pos, oldpos;
-    
-    indextemp = slot->rd_buf[ENCISR];  /* see if index was seen, clears latches */
+
     byteindex = ENCCNT0;        /* first encoder count register */
     for (i = 0; i < 4; i++) {
         oldpos.l = slot->encoder[i].oldreading;
@@ -1031,48 +1024,50 @@ static void read_encoders(slot_data_t *slot)
 		slot->encoder[i].scale = 1.0;
 	}
 	*(slot->encoder[i].position) = pos.l / slot->encoder[i].scale;
-	//	*(slot->encoder[i].index) = (((indextemp & mask) == mask) ? 1 : 0);
-	*(slot->encoder[i].index) = (((indextemp & mask) == mask) ? 0 : 1);
-	mask <<= 1;
-
- 	/* check for index-enable on the 4 encoders of this board */
-	/* note it only makes sense for one channel to have this
-	   function active at a time, so the code takes a shortcut
-	   and the highest numbered channel takes precedence. */
-	if (slot->ver >= 2) {
-	  /*	  rtapi_print_msg(RTAPI_MSG_INFO, "index_enable is  %d\n",*(slot->encoder[i].index_enable));	*/
-	  if (*(slot->encoder[i].index_enable) != 0) {
-	    if (((slot->encoder[0].indres >>i) & 1)==0) {  /* detects first time .index_enable is set  */
-	      (slot->encoder[0].indres) |= (1 << i);  /* set the copy of the reg bit */
-	      /* rtapi_print_msg(RTAPI_MSG_INFO, "enabling index reset on axis  %d, indres = %x, indextemp = %x\n",i,slot->encoder[0].indres,indextemp); */
-	      /* clear encoder count load register, this will be loaded on the index pulse */
-	      SelWrt(0x00, slot->slot_base+ENCLOAD, slot->port_addr);
-	      WrtMore(0x00, slot->port_addr);
-	      WrtMore(0x00, slot->port_addr);
-	      SelWrt(slot->encoder[0].indres,slot->slot_base + ENCINDX, slot->port_addr);
+	/* index processing */
+	if ( (slot->rd_buf[ENCISR] & ( 1 << i )) == 0 ) {
+	    /* index edge occurred since last time this code ran */
+	    *(slot->encoder[i].index) = 1;
+	    /* index-enable only works on version 2 and up */
+	    if (slot->ver >= 2) {
+		/* were we looking for an index edge? */
+		if ( (slot->encoder[0].indres & ( 1 << i )) != 0 ) {
+		    /* yes, clear index-enable to announce that we found it */
+		    *(slot->encoder[i].index_enable) = 0;
+		}
 	    }
-	    
-	    
-	    /*	  rtapi_print_msg(RTAPI_MSG_INFO, "encoder %d = %d %d %d %d\n",i,pos.byte.b3,
-	      pos.byte.b2,pos.byte.b1,pos.byte.b0);  */
-	    
-	    /* if in index_enable mode and we have seen the index pulse
-	       on that axis, then turn off index-enable on that axis */
-	    if ((indextemp & (1<<i)) != 0) {
-	      *(slot->encoder[i].index_enable) = 0;  /* turn off index enable on hal IO pin */
-	      (slot->encoder[0].indres) &= ~(1 << i);  /* clear the copy of the reg bit */
-	      SelWrt(slot->encoder[0].indres,slot->slot_base + ENCINDX, slot->port_addr);
-	      /* rtapi_print_msg(RTAPI_MSG_INFO, "clearing index reset on axis  %d, indres = %x\n",i,slot->encoder[0].indres); */
-	    }
-	  } else {
-	    if (((slot->encoder[0].indres >>i) & 1) ==1) {  /* enable is set, but request has been dropped */
-	      (slot->encoder[0].indres) &= ~(1 << i);  /* clear the copy of the reg bit */
-	      SelWrt(slot->encoder[0].indres,slot->slot_base + ENCINDX, slot->port_addr);
-	      /*  rtapi_print_msg(RTAPI_MSG_INFO, "cancelling index reset on axis  %d, indres = %x\n",i,slot->encoder[0].indres); */
-	    }
-	  }
+	} else {
+	    /* no index edge since last check */
+	    *(slot->encoder[i].index) = 0;
 	}
     }
+}
+
+/* I can see the puzzled look on your face now.  Why do we need
+   a write function for encoders?  You don't write to encoders...
+   Well, you do write to the index latching hardware.
+*/
+
+static void write_encoders(slot_data_t *slot)
+{
+    int i;
+
+    if ( slot->ver < 2 ) {
+	/* no index support in old boards */
+	return;
+    }
+    for (i = 0; i < 4; i++) {
+	if ( *(slot->encoder[i].index_enable) ) {
+	    /* all 4 control bits are packed into the same register */
+	    /* set bit to force reset on index pulse */
+	    (slot->encoder[0].indres) |= (1 << i);
+	} else {
+	    /* clear bit to ignore index pulses */
+	    (slot->encoder[0].indres) &= ~(1 << i);
+	}
+    }
+    /* put the control bits in cache for write to hardware */
+    slot->wr_buf[ENCINDX] = slot->encoder[0].indres;
 }
 
 
@@ -2088,6 +2083,7 @@ static int export_encoders(slot_data_t *slot, bus_data_t *bus)
 	bus->last_encoder++;
     }
     add_rd_funct(read_encoders, slot, block(ENCCNT0, ENCISR));
+    add_wr_funct(write_encoders, slot, block(ENCINDX, ENCINDX));
     return 0;
 }
 
