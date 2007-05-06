@@ -10,8 +10,12 @@ emc2 (1:2.1.5) unstable; urgency=low
     button", it caused more problems than it solved
   * add 'enable' pin to charge-pump component
   * fix holecircle
+  * fix constraint violation right after a probing move
+  * abort if the probe does not trip before a probing move ends
+  * index handling fixes for the ppmc series
+  * improve the initial viewpoint in perspective mode in AXIS preview
 
- -- Chris Radek <chris@timeguy.com>  Sat, 14 Apr 2007 12:31:33 -0500
+ -- Chris Radek <chris@timeguy.com>  Sun,  6 May 2007 14:41:47 -0500
 
 emc2 (1:2.1.4) unstable; urgency=low
 
