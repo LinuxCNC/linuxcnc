@@ -11,7 +11,7 @@
  *
  * This module is a hard coded PLC for use on a Bridgeport Boss.
  *
- * Installation of the driver (realtime only):
+ * Installation of the component (realtime only):
  *
  * insmod boss_plc count=<1>
  *
@@ -121,29 +121,22 @@
 #endif
 
 
-#include "rtapi.h"                      // RTAPI realtime OS API.
-#include "rtapi_app.h"                  // RTAPI realtime module decls.
-#include "hal.h"                        // HAL public API decls.
+#include "rtapi.h"              // RTAPI realtime OS API.
+#include "rtapi_app.h"          // RTAPI realtime module decls.
+#include "hal.h"                // HAL public API decls.
 
 
-#define TRUE                            1
-#define FALSE                           0
-typedef int                             BOOL;
+#define TRUE                    1
+#define FALSE                   0
+typedef int                     BOOL;
 
 
-#ifndef MODULE
-#define MODULE
-#endif
-
-
-#ifdef MODULE
 // Module information.
 MODULE_AUTHOR("Pete Vavaroutsos");
 MODULE_DESCRIPTION("Bridgeport BOSS PLC for EMC HAL");
 MODULE_LICENSE("GPL");
 static unsigned long                    count = 1;
 RTAPI_MP_LONG(count, "Number of BOSS PLCs to instance");
-#endif // MODULE
 
 
 /******************************************************************************
@@ -158,17 +151,17 @@ typedef enum {
     TM_CONTINUOUS,
 } TimerMode;
 
-typedef void                            (*TIMER_ROUTINE)(void *pArgs);
+typedef void                    (*TIMER_ROUTINE)(void *pArgs);
 
 typedef struct {
     // Private data.
-    BOOL                                enabled;
-    hal_u32_t                           nSec;
-    hal_u32_t                           count;
-    hal_u32_t                           timeout;
-    TIMER_ROUTINE                       pTimeout;
-    void                                *pArgs;
-    TimerMode                           mode;
+    BOOL                        enabled;
+    hal_u32_t                   nSec;
+    hal_u32_t                   count;
+    hal_u32_t                   timeout;
+    TIMER_ROUTINE               pTimeout;
+    void                        *pArgs;
+    TimerMode                   mode;
 } Timer;
 
 static void Timer_Init(Timer *this);
@@ -199,17 +192,17 @@ typedef enum {
 
 typedef struct {
     // Exported pins.
-    hal_float_t                         *pPositionIn;
-    hal_bit_t                           *pJogEnIn;
-    hal_bit_t                           *pIn;
-    hal_bit_t                           *pPosOut;
-    hal_bit_t                           *pNegOut;
+    hal_float_t                 *pPositionIn;
+    hal_bit_t                   *pJogEnIn;
+    hal_bit_t                   *pIn;
+    hal_bit_t                   *pPosOut;
+    hal_bit_t                   *pNegOut;
 
     // Internal data.
-    LimitState                          state;
-    hal_float_t                         position;
-    hal_bit_t                           limitPos;
-    hal_bit_t                           limitNeg;
+    LimitState                  state;
+    hal_float_t                 position;
+    hal_bit_t                   limitPos;
+    hal_bit_t                   limitNeg;
 } Limit;
 
 static int Limit_Export(Limit *this, int compId, int id, char *name, char axis);
@@ -227,13 +220,13 @@ static void Limit_Refresh(Limit *this, hal_bit_t override);
 
 typedef struct {
     // Exported pins.
-    hal_bit_t                           *pEnableIn;
-    hal_bit_t                           *pReadyIn;
-    hal_bit_t                           *pFaultOut;
+    hal_bit_t                   *pEnableIn;
+    hal_bit_t                   *pReadyIn;
+    hal_bit_t                   *pFaultOut;
 
     // Internal data.
-    Timer                               timer;
-    hal_bit_t                           lastEnable;
+    Timer                       timer;
+    hal_bit_t                   lastEnable;
 } Amp;
 
 static int Amp_Export(Amp *this, int compId, int id, char *name, char axis);
@@ -242,17 +235,17 @@ static void Amp_Refresh(Amp *this, long period, hal_u32_t readyDelay);
 
 
 /******************************************************************************
- * DEVICE OBJECT
+ * PLC OBJECT
  *
- * This object contains all the data for one PLC. A device object is
+ * This object contains all the data for one PLC. A component object is
  * dynamically allocated in shmem for each PLC during initialization.
  *
  ******************************************************************************/
 
-#define NUM_JOG_SEL                     3
-#define NUM_AXIS                        4
+#define NUM_JOG_SEL             3
+#define NUM_AXIS                4
 
-static char                             axisNames[NUM_AXIS] = {
+static char                     axisNames[NUM_AXIS] = {
     'x', 'y', 'z', 'a'
 };
 
@@ -267,91 +260,91 @@ typedef enum {
 
 typedef struct {
     // Parameters.
-    hal_u32_t                           ampReadyDelay;
-    hal_u32_t                           brakeOnDelay;
-    hal_u32_t                           brakeOffDelay;
-    hal_u32_t                           spindleLoToHi;
-    hal_float_t                         jogScale[NUM_JOG_SEL];
+    hal_u32_t                   ampReadyDelay;
+    hal_u32_t                   brakeOnDelay;
+    hal_u32_t                   brakeOffDelay;
+    hal_u32_t                   spindleLoToHi;
+    hal_float_t                 jogScale[NUM_JOG_SEL];
 
     // Pins.
-    hal_bit_t                           *pCycleStartIn;
-    hal_bit_t                           *pCycleHoldIn;
-    hal_bit_t                           *pFeedHoldOut;
-    hal_float_t                         *pAdaptiveFeedIn;
-    hal_float_t                         *pAdaptiveFeedOut;
-    hal_bit_t                           *pToolChangeIn;
-    hal_bit_t                           *pToolChangedOut;
-    hal_bit_t                           *pWaitUserOut;
+    hal_bit_t                   *pCycleStartIn;
+    hal_bit_t                   *pCycleHoldIn;
+    hal_bit_t                   *pFeedHoldOut;
+    hal_float_t                 *pAdaptiveFeedIn;
+    hal_float_t                 *pAdaptiveFeedOut;
+    hal_bit_t                   *pToolChangeIn;
+    hal_bit_t                   *pToolChangedOut;
+    hal_bit_t                   *pWaitUserOut;
 
-    hal_bit_t                           *pLimitOverrideIn;
-    hal_bit_t                           *pLimitActiveOut;
-    Limit                               xLimit;
-    Limit                               yLimit;
-    hal_bit_t                           *pZJogEnIn;
-    hal_bit_t                           *pZLimitPosIn;
-    hal_bit_t                           *pZLimitNegIn;
-    hal_bit_t                           *pZLimitPosOut;
-    hal_bit_t                           *pZLimitNegOut;
+    hal_bit_t                   *pLimitOverrideIn;
+    hal_bit_t                   *pLimitActiveOut;
+    Limit                       xLimit;
+    Limit                       yLimit;
+    hal_bit_t                   *pZJogEnIn;
+    hal_bit_t                   *pZLimitPosIn;
+    hal_bit_t                   *pZLimitNegIn;
+    hal_bit_t                   *pZLimitPosOut;
+    hal_bit_t                   *pZLimitNegOut;
 
-    Amp                                 amps[NUM_AXIS];
+    Amp                         amps[NUM_AXIS];
 
-    hal_float_t                         *pSpindleSpeedIn;
-    hal_bit_t                           *pSpindleIsOnIn;
-    hal_bit_t                           *pSpindleFwdOut;
-    hal_bit_t                           *pSpindleRevOut;
-    hal_bit_t                           *pSpindleIncIn;
-    hal_bit_t                           *pSpindleDecIn;
-    hal_bit_t                           *pSpindleIncOut;
-    hal_bit_t                           *pSpindleDecOut;
-    hal_bit_t                           *pBrakeEnIn;
-    hal_bit_t                           *pBrakeEnOut;
+    hal_float_t                 *pSpindleSpeedIn;
+    hal_bit_t                   *pSpindleIsOnIn;
+    hal_bit_t                   *pSpindleFwdOut;
+    hal_bit_t                   *pSpindleRevOut;
+    hal_bit_t                   *pSpindleIncIn;
+    hal_bit_t                   *pSpindleDecIn;
+    hal_bit_t                   *pSpindleIncOut;
+    hal_bit_t                   *pSpindleDecOut;
+    hal_bit_t                   *pBrakeEnIn;
+    hal_bit_t                   *pBrakeEnOut;
 
-    hal_bit_t                           *pJogSelIn[NUM_JOG_SEL];
-    hal_float_t                         *pJogScaleOut;
+    hal_bit_t                   *pJogSelIn[NUM_JOG_SEL];
+    hal_float_t                 *pJogScaleOut;
 
     // Private data.
-    SpindleState                        spindleState;
-    Timer                               spindleTimer;
-    hal_bit_t                           lastCycleStart;
-    BOOL                                riseCycleStart;
-} Device;
+    SpindleState                spindleState;
+    Timer                       spindleTimer;
+    hal_bit_t                   lastCycleStart;
+    BOOL                        riseCycleStart;
+} Plc;
 
 
 // These methods are used for initialization.
-static int Device_Init(Device *this);
-static int Device_Export(Device *this, int compId, int id);
-static int Device_ExportFeed(Device *this, int compId, int id, char *name);
-static int Device_ExportLimits(Device *this, int compId, int id, char *name);
-static int Device_ExportAmps(Device *this, int compId, int id, char *name);
-static int Device_ExportSpindle(Device *this, int compId, int id, char *name);
-static int Device_ExportJog(Device *this, int compId, int id, char *name);
+static int Plc_Init(Plc *this);
+static int Plc_Export(Plc *this, int compId, int id);
+static int Plc_ExportFeed(Plc *this, int compId, int id, char *name);
+static int Plc_ExportLimits(Plc *this, int compId, int id, char *name);
+static int Plc_ExportAmps(Plc *this, int compId, int id, char *name);
+static int Plc_ExportSpindle(Plc *this, int compId, int id, char *name);
+static int Plc_ExportJog(Plc *this, int compId, int id, char *name);
 
 // These methods are exported to the HAL.
-static void Device_Refresh(void *this, long period);
+static void Plc_Refresh(void *this, long period);
 
 // Private helper methods.
-static void Device_RefreshFeed(Device *this, long period);
-static void Device_RefreshLimits(Device *this, long period);
-static void Device_RefreshAmps(Device *this, long period);
-static void Device_RefreshSpindle(Device *this, long period);
-static void Device_RefreshJog(Device *this, long period);
+static void Plc_RefreshFeed(Plc *this, long period);
+static void Plc_RefreshLimits(Plc *this, long period);
+static void Plc_RefreshAmps(Plc *this, long period);
+static void Plc_RefreshSpindle(Plc *this, long period);
+static void Plc_RefreshJog(Plc *this, long period);
 
 
 /******************************************************************************
- * DRIVER OBJECT
+ * COMPONENT OBJECT
  *
  * This object contains all the data for this HAL component.
  *
  ******************************************************************************/
 
-#define MAX_DEVICES                     4
+#define MAX_DEVICES             4
 
 typedef struct {
-    int                                 compId;     // HAL component ID.
-    Device                              *deviceTable[MAX_DEVICES];
-} Driver;
+    int                         id;             // HAL component ID.
+    Plc                         *plcTable[MAX_DEVICES];
+} Component;
 
-static Driver                           driver;
+static Component                component;
 
 
 /******************************************************************************
@@ -361,18 +354,18 @@ static Driver                           driver;
 int
 rtapi_app_main(void)
 {
-    int                                 i;
-    Device                              *pDevice;
+    int                         i;
+    Plc                         *pComp;
 
     // Connect to the HAL.
-    driver.compId = hal_init("boss_plc");
-    if (driver.compId < 0) {
+    component.id = hal_init("boss_plc");
+    if (component.id < 0) {
         rtapi_print_msg(RTAPI_MSG_ERR, "BOSS_PLC: ERROR: hal_init() failed\n");
         return(-1);
     }
 
     for(i = 0; i < MAX_DEVICES; i++){
-        driver.deviceTable[i] = NULL;
+        component.plcTable[i] = NULL;
     }
 
     if(count > MAX_DEVICES)
@@ -380,31 +373,31 @@ rtapi_app_main(void)
 
     for(i = 0; i < count; i++){
         // Allocate memory for device object.
-        pDevice = hal_malloc(sizeof(Device));
+        pComp = hal_malloc(sizeof(Plc));
 
-        if (pDevice == NULL) {
+        if (pComp == NULL) {
             rtapi_print_msg(RTAPI_MSG_ERR, "BOSS_PLC: ERROR: hal_malloc() failed\n");
-            hal_exit(driver.compId);
+            hal_exit(component.id);
             return(-1);
         }
 
         // Save pointer to device object.
-        driver.deviceTable[i] = pDevice;
+        component.plcTable[i] = pComp;
 
         // Initialize device.
-        if(Device_Init(pDevice)){
-            hal_exit(driver.compId);
+        if(Plc_Init(pComp)){
+            hal_exit(component.id);
             return(-1);
         }
 
         // Export pins, parameters, and functions.
-        if(Device_Export(pDevice, driver.compId, i)){
-            hal_exit(driver.compId);
+        if(Plc_Export(pComp, component.id, i)){
+            hal_exit(component.id);
             return(-1);
         }
     }
 
-    hal_ready(driver.compId);
+    hal_ready(component.id);
     return(0);
 }
 
@@ -412,22 +405,22 @@ rtapi_app_main(void)
 void
 rtapi_app_exit(void)
 {
-    int                                 i;
-    Device                              *pDevice;
+    int                         i;
+    Plc                         *pComp;
 
-    hal_exit(driver.compId);
+    hal_exit(component.id);
 
     for(i = 0; i < MAX_DEVICES; i++){
-        if((pDevice = driver.deviceTable[i]) != NULL){
+        if((pComp = component.plcTable[i]) != NULL){
             // TODO: Free device object when HAL supports free.
-//            hal_free(pDevice);
+//            hal_free(pComp);
         }
     }
 }
 
 
 /******************************************************************************
- * DEVICE OBJECT FUNCTION DEFINITIONS
+ * PLC OBJECT FUNCTION DEFINITIONS
  ******************************************************************************/
 
 /*
@@ -435,9 +428,9 @@ rtapi_app_exit(void)
  */
 
 static int
-Device_Init(Device *this)
+Plc_Init(Plc *this)
 {
-    int                                 i;
+    int                         i;
 
     // Initialize variables.
     this->spindleState = SS_OFF;
@@ -472,10 +465,10 @@ Device_Init(Device *this)
 
 
 static int
-Device_Export(Device *this, int compId, int id)
+Plc_Export(Plc *this, int compId, int id)
 {
-    int                                 msgLevel, error;
-    char                                name[HAL_NAME_LEN + 2];
+    int                         msgLevel, error;
+    char                        name[HAL_NAME_LEN + 2];
 
     // This function exports a lot of stuff, which results in a lot of
     // logging if msg_level is at INFO or ALL. So we save the current value
@@ -485,27 +478,27 @@ Device_Export(Device *this, int compId, int id)
     rtapi_set_msg_level(RTAPI_MSG_WARN);
 
     // Export pins and parameters.
-    error = Device_ExportFeed(this, compId, id, name);
+    error = Plc_ExportFeed(this, compId, id, name);
 
     if(!error){
-        error = Device_ExportLimits(this, compId, id, name);
+        error = Plc_ExportLimits(this, compId, id, name);
     }
 
     if(!error){
-        error = Device_ExportAmps(this, compId, id, name);
+        error = Plc_ExportAmps(this, compId, id, name);
     }
 
     if(!error){
-        error = Device_ExportSpindle(this, compId, id, name);
+        error = Plc_ExportSpindle(this, compId, id, name);
     }
     if(!error){
-        error = Device_ExportJog(this, compId, id, name);
+        error = Plc_ExportJog(this, compId, id, name);
     }
 
     // Export functions.
     if(!error){
         rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.refresh", id);
-        error = hal_export_funct(name, Device_Refresh, this, 1, 0, compId);
+        error = hal_export_funct(name, Plc_Refresh, this, 1, 0, compId);
     }
 
     // Restore saved message level.
@@ -516,9 +509,9 @@ Device_Export(Device *this, int compId, int id)
 
 
 static int
-Device_ExportFeed(Device *this, int compId, int id, char *name)
+Plc_ExportFeed(Plc *this, int compId, int id, char *name)
 {
-    int                                 error;
+    int                         error;
 
     // Export pins.
     rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.cycle-start-in", id);
@@ -565,9 +558,9 @@ Device_ExportFeed(Device *this, int compId, int id, char *name)
 
 
 static int
-Device_ExportLimits(Device *this, int compId, int id, char *name)
+Plc_ExportLimits(Plc *this, int compId, int id, char *name)
 {
-    int                                 error;
+    int                         error;
 
     // Export pins.
     rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.limit-override-in", id);
@@ -616,10 +609,10 @@ Device_ExportLimits(Device *this, int compId, int id, char *name)
 
 
 static int
-Device_ExportAmps(Device *this, int compId, int id, char *name)
+Plc_ExportAmps(Plc *this, int compId, int id, char *name)
 {
-    int                                 error, i;
-    Amp                                 *pAmp;
+    int                         error, i;
+    Amp                         *pAmp;
 
     rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.amp-ready-delay", id);
     error = hal_param_u32_new(name, HAL_RW, &this->ampReadyDelay, compId);
@@ -634,9 +627,9 @@ Device_ExportAmps(Device *this, int compId, int id, char *name)
 
 
 static int
-Device_ExportSpindle(Device *this, int compId, int id, char *name)
+Plc_ExportSpindle(Plc *this, int compId, int id, char *name)
 {
-    int                                 error;
+    int                         error;
 
     // Export parameters.
     rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.brake-on-delay", id);
@@ -708,9 +701,9 @@ Device_ExportSpindle(Device *this, int compId, int id, char *name)
 
 
 static int
-Device_ExportJog(Device *this, int compId, int id, char *name)
+Plc_ExportJog(Plc *this, int compId, int id, char *name)
 {
-    int                                 error, i;
+    int                         error, i;
 
     // Export parameters.
     for(i = 0, error = 0; i < NUM_JOG_SEL && !error; i++){
@@ -740,20 +733,20 @@ Device_ExportJog(Device *this, int compId, int id, char *name)
  */
 
 static void
-Device_Refresh(void *arg, long period)
+Plc_Refresh(void *arg, long period)
 {
-    Device                              *this = (Device *)arg;
+    Plc                         *this = (Plc *)arg;
 
-    Device_RefreshFeed(this, period);
-    Device_RefreshLimits(this, period);
-    Device_RefreshAmps(this, period);
-    Device_RefreshSpindle(this, period);
-    Device_RefreshJog(this, period);
+    Plc_RefreshFeed(this, period);
+    Plc_RefreshLimits(this, period);
+    Plc_RefreshAmps(this, period);
+    Plc_RefreshSpindle(this, period);
+    Plc_RefreshJog(this, period);
 }
 
 
 static void
-Device_RefreshFeed(Device *this, long period)
+Plc_RefreshFeed(Plc *this, long period)
 {
     this->riseCycleStart = (this->lastCycleStart==0) && (*this->pCycleStartIn==1);
     this->lastCycleStart = *this->pCycleStartIn;
@@ -781,7 +774,7 @@ Device_RefreshFeed(Device *this, long period)
 
 
 static void
-Device_RefreshLimits(Device *this, long period)
+Plc_RefreshLimits(Plc *this, long period)
 {
     Limit_Refresh(&this->xLimit, *this->pLimitOverrideIn);
     Limit_Refresh(&this->yLimit, *this->pLimitOverrideIn);
@@ -800,10 +793,10 @@ Device_RefreshLimits(Device *this, long period)
 
 
 static void
-Device_RefreshAmps(Device *this, long period)
+Plc_RefreshAmps(Plc *this, long period)
 {
-    int                                 i;
-    Amp                                 *pAmp;
+    int                         i;
+    Amp                         *pAmp;
 
     pAmp = this->amps;
     for(i = 0; i < NUM_AXIS; i++, pAmp++){
@@ -812,7 +805,7 @@ Device_RefreshAmps(Device *this, long period)
 }
 
 static void
-Device_RefreshSpindle(Device *this, long period)
+Plc_RefreshSpindle(Plc *this, long period)
 {
     switch(this->spindleState){
     // Spindle is off, brake is on.
@@ -904,9 +897,9 @@ Device_RefreshSpindle(Device *this, long period)
 
 
 static void
-Device_RefreshJog(Device *this, long period)
+Plc_RefreshJog(Plc *this, long period)
 {
-    int                                 i;
+    int                         i;
 
     // Jog scale.
     for(i = 0; i < NUM_JOG_SEL; i++){
@@ -925,7 +918,7 @@ Device_RefreshJog(Device *this, long period)
 static int
 Limit_Export(Limit *this, int compId, int id, char *name, char axis)
 {
-    int                                 error;
+    int                         error;
 
     rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.%c-position-in", id, axis);
     error = hal_pin_float_new(name, HAL_IN, &this->pPositionIn, compId);
@@ -1040,18 +1033,18 @@ Limit_Refresh(Limit *this, hal_bit_t override)
 static int
 Amp_Export(Amp *this, int compId, int id, char *name, char axis)
 {
-    int                                 error;
+    int                         error;
 
-    rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.%c-enable-in", id, axis);
+    rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.%c-amp-enable-in", id, axis);
     error = hal_pin_bit_new(name, HAL_IN, &this->pEnableIn, compId);
 
     if(!error){
-        rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.%c-ready-in", id, axis);
+        rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.%c-amp-ready-in", id, axis);
         error = hal_pin_bit_new(name, HAL_IN, &this->pReadyIn, compId);
     }
 
     if(!error){
-        rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.%c-fault-out", id, axis);
+        rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.%c-amp-fault-out", id, axis);
         error = hal_pin_bit_new(name, HAL_OUT, &this->pFaultOut, compId);
     }
 
