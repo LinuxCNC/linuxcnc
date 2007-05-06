@@ -6,6 +6,8 @@
 (g30 should already be set to a position safely above the switch)
 
 (start with the first tool loaded, and g54 work offsets set with it)
+(when you touch off the work with this reference tool, be sure length)
+(comp is off {use g49})
 
 g20 g90 
 g49
@@ -16,6 +18,7 @@ g30 (above switch)
 g38.2 z0 f15 (measure)
 g91 g0z.2 (off the switch)
 #1000=#5063 (save reference tool length)
+(print,reference length is #1000)
 g90 (done)
 
 (cut with first tool...)
@@ -33,6 +36,7 @@ g30 (above switch)
 g38.2 z0 f15 (measure)
 g91 g0 z.2 (off the switch)
 g43 h-1 k[#5063-#1000] (set new tool offset)
+(print,new length is #5063)
 g90 (done)
 
 (cut in the same place with this next tool...)
