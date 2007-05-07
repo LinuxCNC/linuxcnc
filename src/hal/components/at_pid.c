@@ -533,16 +533,16 @@ Pid_Export(Pid *this, int compId, int id)
  * Perform an auto-tune operation. Sets up a limit cycle using the specified
  * tune effort. Averages the amplitude and period over the specifed number of
  * cycles. This characterizes the process and determines the ultimate gain
- * and period, which are then used to calculate PID. This function should be
- * ran from a fast thread for best results.
+ * and period, which are then used to calculate PID.
  */
 static void
 Pid_AutoTune(Pid *this, long period)
 {
     hal_float_t                 error;
 
-    if(this->state == STATE_PID)
-        return;
+    // Calculate the error.
+    error = *this->pCommand - *this->pFeedback;
+    *this->pError = error;
 
     // Check if enabled and if still in tune mode.
     if(!*this->pEnable || !*this->pTuneMode){
@@ -576,17 +576,12 @@ Pid_AutoTune(Pid *this, long period)
 
     case STATE_TUNE_POS:
     case STATE_TUNE_NEG:
-        // Calculate the error.
-        error = *this->pCommand - *this->pFeedback;
-        *this->pError = error;
-
         this->cyclePeriod += period;
 
         if(error < 0.0){
             // Check amplitude.
-            if(-error > this->cycleAmplitude){
+            if(-error > this->cycleAmplitude)
                 this->cycleAmplitude = -error;
-            }
 
             // Check for end of cycle.
             if(this->state == STATE_TUNE_POS){
@@ -596,9 +591,8 @@ Pid_AutoTune(Pid *this, long period)
             }
         }else{
             // Check amplitude.
-            if(error > this->cycleAmplitude){
+            if(error > this->cycleAmplitude)
                 this->cycleAmplitude = error;
-            }
 
             // Check for end of cycle.
             if(this->state == STATE_TUNE_NEG){
@@ -608,9 +602,9 @@ Pid_AutoTune(Pid *this, long period)
             }
         }
 
-        if(this->cycleCount < this->tuneCycles){
+        // Check if the last cycle just ended.
+        if(this->cycleCount < this->tuneCycles)
             break;
-        }
 
         // Calculate PID.
         this->ultimateGain = (4.0 * this->tuneEffort)/(PI * this->avgAmplitude);
@@ -660,6 +654,12 @@ Pid_Refresh(void *arg, long periodNs)
         return;
     }
 
+    // Calculate the error.
+    error = *this->pCommand - *this->pFeedback;
+
+    // Store error to error pin.
+    *this->pError = error;
+
     // Check for tuning mode request.
     if(*this->pTuneMode){
         this->errorI = 0;
@@ -682,12 +682,6 @@ Pid_Refresh(void *arg, long periodNs)
     // Precalculate some timing constants.
     period = periodNs * 0.000000001;
     periodRecip = 1.0 / period;
-
-    // Calculate the error.
-    error = *this->pCommand - *this->pFeedback;
-
-    // Store error to error pin.
-    *this->pError = error;
 
     // Apply error limits.
     if(this->maxError != 0.0){
@@ -761,7 +755,7 @@ Pid_Refresh(void *arg, long periodNs)
 
     // If output is in limit, don't let integrator wind up.
     if(error * this->limitState <= 0.0){
-        // compute integral term.
+        // Compute integral term.
         this->errorI += error * period;
     }
 
