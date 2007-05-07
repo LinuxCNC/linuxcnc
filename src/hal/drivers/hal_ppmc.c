@@ -25,10 +25,6 @@
 *    
 * Copyright (c) 2005 All rights reserved.
 *
-* Last change: 
-# $Revision$
-* $Author$
-* $Date$
 ********************************************************************/
 
 /** The driver searches the entire address space of the enhanced
@@ -1029,7 +1025,7 @@ static void read_encoders(slot_data_t *slot)
 	}
 	*(slot->encoder[i].position) = pos.l / slot->encoder[i].scale;
 	/* index processing */
-	if ( (slot->rd_buf[ENCISR] & ( 1 << i )) == 0 ) {
+	if ( (slot->rd_buf[ENCISR] & ( 1 << i )) != 0 ) {
 	    /* index edge occurred since last time this code ran */
 	    *(slot->encoder[i].index) = 1;
 	    /* index-enable only works on version 2 and up */
