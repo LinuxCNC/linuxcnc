@@ -207,7 +207,7 @@ typedef struct {
     hal_u32_t           cycleCount;
     hal_u32_t           cyclePeriod;
     hal_float_t         cycleAmplitude;
-    hal_float_t         avgPeriod;
+    hal_float_t         totalTime;
     hal_float_t         avgAmplitude;
 } Pid;
 
@@ -534,6 +534,16 @@ Pid_Export(Pid *this, int compId, int id)
  * tune effort. Averages the amplitude and period over the specifed number of
  * cycles. This characterizes the process and determines the ultimate gain
  * and period, which are then used to calculate PID.
+ *
+ * CO(t) = P * [ e(t) + 1/Ti * (f e(t)dt) - Td * (d/dt PV(t)) ]
+ *
+ * Pu = 4/PI * tuneEffort / responseAmplitude
+ * Ti = 0.5 * responsePeriod
+ * Td = 0.125 * responsePeriod
+ *
+ * P = 0.6 * Pu
+ * I = P * 1/Ti
+ * D = P * Td
  */
 static void
 Pid_AutoTune(Pid *this, long period)
@@ -567,7 +577,7 @@ Pid_AutoTune(Pid *this, long period)
         this->cycleCount = 0;
         this->cyclePeriod = 0;
         this->cycleAmplitude = 0;
-        this->avgPeriod = 0;
+        this->totalTime = 0;
         this->avgAmplitude = 0;
         this->ultimateGain = 0;
         this->ultimatePeriod = 0;
@@ -608,10 +618,10 @@ Pid_AutoTune(Pid *this, long period)
 
         // Calculate PID.
         this->ultimateGain = (4.0 * this->tuneEffort)/(PI * this->avgAmplitude);
-        this->ultimatePeriod = this->avgPeriod;
+        this->ultimatePeriod = 2.0 * this->totalTime / this->tuneCycles;
         this->pGain = 0.6 * this->ultimateGain;
-        this->iGain = 0.5 * this->ultimatePeriod;
-        this->dGain = 0.125 * this->ultimatePeriod;
+        this->iGain = this->pGain * 1.0 / (0.5 * this->ultimatePeriod);
+        this->dGain = this->pGain * (0.125 * this->ultimatePeriod);
 
         // Fall through.
 
@@ -633,7 +643,7 @@ Pid_CycleEnd(Pid *this)
     this->cycleCount++;
     this->avgAmplitude += this->cycleAmplitude / this->tuneCycles;
     this->cycleAmplitude = 0;
-    this->avgPeriod += this->cyclePeriod * 0.000000001 / this->tuneCycles;
+    this->totalTime += this->cyclePeriod * 0.000000001;
     this->cyclePeriod = 0;
 }
 
