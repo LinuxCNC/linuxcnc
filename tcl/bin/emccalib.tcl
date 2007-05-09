@@ -105,6 +105,7 @@ proc sSlide {f a b} {
 # Build menu
 # fixme clean up the underlines so they are unique under each set
 set menubar [menu $top.menubar -tearoff 0]
+#. configure -menu $menubar
 set filemenu [menu $menubar.file -tearoff 0]
 $menubar add cascade -label [msgcat::mc "File"] \
     -menu $filemenu
@@ -112,6 +113,7 @@ $filemenu add command -label [msgcat::mc "Refresh"] \
     -command {refreshHAL}
 $filemenu add command -label [msgcat::mc "Save"] \
     -command {saveHAL save}
+
 
 
 # Make a text widget to hold the ini file
@@ -234,7 +236,9 @@ proc makeIniTune {} {
             -command {iniTuneButtonpress ok} -state disabled  ]
         set tmpcancel [button $bframe.cancel -text [msgcat::mc "Cancel"] \
             -command {iniTuneButtonpress cancel} -state disabled ]
-        pack $tmpok $tmptest $tmpcancel -side left -fill both -expand yes -pady 5
+        set tmprefresh [button $bframe.refresh -text [msgcat::mc "Refresh"] \
+            -command {iniTuneButtonpress refresh}]
+        pack $tmpok $tmptest $tmpcancel $tmprefresh -side left -fill both -expand yes -pady 5
     }
 }
 
@@ -262,6 +266,12 @@ proc iniTuneButtonpress {which} {
             set entrystate "normal"
         }
         ok {
+            $basename.test configure -state normal
+            $basename.ok configure -state disabled
+            $basename.cancel configure -state disabled
+            set entrystate "normal"
+        }
+        refresh {
             $basename.test configure -state normal
             $basename.ok configure -state disabled
             $basename.cancel configure -state disabled
@@ -325,6 +335,22 @@ proc changeIni {how } {
                 # set the tmp value as next in display
                 set $var-next $oldval
             }        
+        }
+        refresh {
+            set varnames [lindex [array get ininamearray $axisentry] end]
+            set varcommands [lindex [array get commandarray $axisentry] end]
+            set maxvarnum [llength $varnames]
+            # handle each variable and values inside loop 
+            for {set listnum 0} {$listnum < $maxvarnum} {incr listnum} {
+                set var "axis$axisentry-[lindex $varnames $listnum]"
+                global $var $var-next
+                # get the parameter name string
+                set tmpcmd [lindex $varcommands $listnum]
+                # get parameter value from hal
+                set val [string trim [hal getp $tmpcmd]]
+                set $var $val
+                set $var-next $val
+            }
         }
         quit {
             # build a check for changed values here and ask
