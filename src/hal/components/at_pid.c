@@ -581,6 +581,11 @@ Pid_AutoTune(Pid *this, long period)
         this->avgAmplitude = 0;
         this->ultimateGain = 0;
         this->ultimatePeriod = 0;
+
+        // Make sure control effort is positive.
+        if(this->tuneEffort < 0.0)
+            this->tuneEffort = -this->tuneEffort;
+
         *this->pOutput = this->bias + this->tuneEffort;
         break;
 
@@ -612,7 +617,8 @@ Pid_AutoTune(Pid *this, long period)
             }
         }
 
-        // Check if the last cycle just ended.
+        // Check if the last cycle just ended. This is really the number
+        // of half cycles.
         if(this->cycleCount < this->tuneCycles)
             break;
 
