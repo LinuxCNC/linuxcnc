@@ -161,6 +161,14 @@ typedef enum {
 } State;
 
 
+// Values for tune-mode pin.
+typedef enum {
+    MODE_PID,
+    MODE_TUNE_PID,
+    MODE_TUNE_PI_FF1,
+} Mode;
+
+
 typedef struct {
     // Parameters.
     hal_float_t         deadband;
@@ -194,7 +202,7 @@ typedef struct {
     hal_float_t         *pFeedback;     // Feedback value.
     hal_float_t         *pError;        // Command - feedback.
     hal_float_t         *pOutput;       // The output value.
-    hal_bit_t           *pTuneMode;     // 0=PID, 1=tune.
+    hal_u32_t           *pTuneMode;     // 0=PID, 1=tune.
     hal_bit_t           *pStartTune;    // Set to 1 to start an auto-tune cycle.
                                         // Clears automatically when the cycle
                                         // has finished.
@@ -385,7 +393,7 @@ Pid_Export(Pid *this, int compId, int id)
 
     if(!error){
         rtapi_snprintf(buf, HAL_NAME_LEN, "pid.%d.tune-mode", id);
-        error = hal_pin_bit_new(buf, HAL_IN, &(this->pTuneMode), compId);
+        error = hal_pin_u32_new(buf, HAL_IN, &(this->pTuneMode), compId);
     }
 
     if(!error){
@@ -519,7 +527,7 @@ Pid_Export(Pid *this, int compId, int id)
         *this->pFeedback = 0;
         *this->pError = 0;
         *this->pOutput = 0;
-        *this->pTuneMode = 0;
+        *this->pTuneMode = MODE_PID;
         *this->pStartTune = 0;
     }
 
@@ -555,14 +563,14 @@ Pid_AutoTune(Pid *this, long period)
     *this->pError = error;
 
     // Check if enabled and if still in tune mode.
-    if(!*this->pEnable || !*this->pTuneMode){
+    if(!*this->pEnable || (*this->pTuneMode == MODE_PID)){
         this->state = STATE_TUNE_ABORT;
     }
 
     switch(this->state){
     case STATE_TUNE_IDLE:
         // Check for switch to PID mode.
-        if(!*this->pTuneMode){
+        if(*this->pTuneMode == MODE_PID){
             this->state = STATE_PID;
 
         // Wait for tune start command.
@@ -625,9 +633,24 @@ Pid_AutoTune(Pid *this, long period)
         // Calculate PID.
         this->ultimateGain = (4.0 * this->tuneEffort)/(PI * this->avgAmplitude);
         this->ultimatePeriod = 2.0 * this->totalTime / this->tuneCycles;
-        this->pGain = 0.6 * this->ultimateGain;
-        this->iGain = this->pGain * 1.0 / (0.5 * this->ultimatePeriod);
-        this->dGain = this->pGain * (0.125 * this->ultimatePeriod);
+        this->ff0Gain = 0;
+        this->ff2Gain = 0;
+
+        if(*this->pTuneMode == MODE_TUNE_PID){
+            // PID.
+            this->pGain = 0.6 * this->ultimateGain;
+            this->iGain = this->pGain / (this->ultimatePeriod / 2.0);
+            this->dGain = this->pGain * (this->ultimatePeriod / 8.0);
+            this->ff1Gain = 0;
+        }else{
+            // PI FF1.
+            this->pGain = 0.45 * this->ultimateGain;
+            this->iGain = this->pGain / (this->ultimatePeriod / 1.2);
+            this->dGain = 0;
+
+            // Scaling must be set so PID output is in user units per second.
+            this->ff1Gain = 1;
+        }
 
         // Fall through.
 
@@ -638,7 +661,7 @@ Pid_AutoTune(Pid *this, long period)
 
         // Abort any tuning cycle in progress.
         *this->pStartTune = 0;
-        this->state = (*this->pTuneMode)? STATE_TUNE_IDLE: STATE_PID;
+        this->state = (*this->pTuneMode == MODE_PID)? STATE_PID: STATE_TUNE_IDLE;
     }
 }
 
@@ -677,7 +700,7 @@ Pid_Refresh(void *arg, long periodNs)
     *this->pError = error;
 
     // Check for tuning mode request.
-    if(*this->pTuneMode){
+    if(*this->pTuneMode != MODE_PID){
         this->errorI = 0;
         this->prevError = 0;
         this->errorD = 0;
