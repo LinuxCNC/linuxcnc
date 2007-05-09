@@ -33,6 +33,7 @@ m0
 
 (measure next tool)
 g30 (above switch)
+g49 (measure without the last tool's offset)
 g38.2 z0 f15 (measure)
 g91 g0 z.2 (off the switch)
 g43 h-1 k[#5063-#1000] (set new tool offset)
