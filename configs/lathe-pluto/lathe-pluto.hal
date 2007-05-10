@@ -24,18 +24,18 @@ newsig Zpos-fb float
 
 newsig spindle-index-enable bit
 linkps motion.spindle-index-enable <=> spindle-index-enable
-linksp spindle-index-enable <=> pluto-servo.encoder-2-index-enable
+linksp spindle-index-enable <=> pluto-servo.encoder.2.index-enable
 
 newsig spindle-pos float
-linkps pluto-servo.encoder-0-position => spindle-pos
+linkps pluto-servo.encoder.2.position => spindle-pos
 linksp spindle-pos => motion.spindle-revs
 
 setp pluto-servo.encoder-0-scale [AXIS_0]INPUT_SCALE
 setp pluto-servo.encoder-1-scale [AXIS_2]INPUT_SCALE
 setp pluto-servo.encoder-2-scale 4096
 
-linksp Xpos-fb <= pluto-servo.encoder-0-position
-linksp Zpos-fb <= pluto-servo.encoder-1-position
+linksp Xpos-fb <= pluto-servo.encoder.0.position
+linksp Zpos-fb <= pluto-servo.encoder.1.position
 
 newsig Xvel-cmd float
 newsig Zvel-cmd float
@@ -49,8 +49,8 @@ linksp Zpos-fb => axis.2.motor-pos-fb
 linksp Xvel-cmd <= pid.0.output
 linksp Zvel-cmd <= pid.1.output
 
-linksp Xvel-cmd => pluto-servo.pwm-0-value
-linksp Zvel-cmd => pluto-servo.pwm-1-value
+linksp Xvel-cmd => pluto-servo.pwm.0.value
+linksp Zvel-cmd => pluto-servo.pwm.1.value
 
 setp pid.0.maxoutput 1.0
 setp pid.1.maxoutput 1.0
@@ -110,6 +110,6 @@ linkpp iocontrol.0.tool-prepare iocontrol.0.tool-prepared
 linkpp iocontrol.0.tool-change iocontrol.0.tool-changed
 
 newsig Xhome bit
-linkps pluto-servo.din-00-not => Xhome
+linkps pluto-servo.din.00-not => Xhome
 linkps axis.0.home-sw-in <= Xhome
 linkps axis.0.pos-lim-sw-in <= Xhome
