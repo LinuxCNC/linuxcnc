@@ -384,11 +384,12 @@ static int doLink(char *pin, char *sig, connectionRecType *context)
 
     /* if sig is blank, want to unlink pin */
     if (*sig == '\0') {
-	/* tell hal_link() to unlink the pin */
-	sig = NULL;
+	/* unlink the pin */
+	retval = hal_unlink(pin);
+    } else {
+	/* make the link */
+	retval = hal_link(pin, sig);
     }
-    /* make the link */
-    retval = hal_link(pin, sig);
     if (retval != 0) {
       sprintf(errorStr, "HAL:%d: link failed", linenumber);
       sockWriteError(nakStr, context);

@@ -153,7 +153,13 @@ int do_linkpp_cmd(char *first_pin_name, char *second_pin_name)
 {
     int retval;
     hal_pin_t *first_pin, *second_pin;
+    static int dep_msg_printed = 0;
 
+    if ( dep_msg_printed == 0 ) {
+	rtapi_print_msg(RTAPI_MSG_WARN,
+	    "HAL:%d: Warning: linkpp command is deprecated, use 'net'\n", linenumber);
+	dep_msg_printed = 1;
+    }
     rtapi_mutex_get(&(hal_data->mutex));
     /* check if the pins are there */
     first_pin = halpr_find_pin_by_name(first_pin_name);
@@ -204,21 +210,10 @@ int do_linkps_cmd(char *pin, char *sig)
 {
     int retval;
 
-    /* if sig is blank, want to unlink pin */
-    if (*sig == '\0') {
-	/* tell hal_link() to unlink the pin */
-	sig = NULL;
-    }
-    /* make the link */
     retval = hal_link(pin, sig);
     if (retval == 0) {
 	/* print success message */
-	if (sig != NULL) {
-	    rtapi_print_msg(RTAPI_MSG_INFO,
-		"Pin '%s' linked to signal '%s'\n", pin, sig);
-	} else {
-	    rtapi_print_msg(RTAPI_MSG_INFO, "Pin '%s' unlinked\n", pin);
-	}
+	rtapi_print_msg(RTAPI_MSG_INFO, "Pin '%s' linked to signal '%s'\n", pin, sig);
     } else {
 	rtapi_print_msg(RTAPI_MSG_ERR,"HAL:%d: link failed\n", linenumber);
     }
@@ -230,8 +225,18 @@ int do_linksp_cmd(char *sig, char *pin) {
 }
 
 
-int do_unlinkp_cmd(char *pin) {
-    return do_linkps_cmd(pin, "\0");
+int do_unlinkp_cmd(char *pin)
+{
+    int retval;
+
+    retval = hal_unlink(pin);
+    if (retval == 0) {
+	/* print success message */
+	rtapi_print_msg(RTAPI_MSG_INFO, "Pin '%s' unlinked\n", pin);
+    } else {
+	rtapi_print_msg(RTAPI_MSG_ERR,"HAL:%d: unlink failed\n", linenumber);
+    }
+    return retval;
 }
 
 int do_source_cmd(char *hal_filename) {
