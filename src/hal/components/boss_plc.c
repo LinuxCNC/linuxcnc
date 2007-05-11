@@ -137,6 +137,8 @@ MODULE_DESCRIPTION("Bridgeport BOSS PLC for EMC HAL");
 MODULE_LICENSE("GPL");
 static unsigned long                    count = 1;
 RTAPI_MP_LONG(count, "Number of BOSS PLCs to instance");
+static int                              debug = 0;
+RTAPI_MP_INT(debug, "Enables optional params");
 
 
 /******************************************************************************
@@ -263,7 +265,7 @@ typedef struct {
     hal_u32_t                   ampReadyDelay;
     hal_u32_t                   brakeOnDelay;
     hal_u32_t                   brakeOffDelay;
-    hal_u32_t                   spindleLoToHi;
+    hal_float_t                 spindleLoToHi;
     hal_float_t                 jogScale[NUM_JOG_SEL];
 
     // Pins.
@@ -604,6 +606,19 @@ Plc_ExportLimits(Plc *this, int compId, int id, char *name)
         error = hal_pin_bit_new(name, HAL_OUT, &this->pZLimitNegOut, compId);
     }
 
+    // Export optional parameters.
+    if(debug > 0){
+        if(!error){
+            rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.%c-limit-state", id, axisNames[0]);
+            error = hal_param_u32_new(name, HAL_RO, &this->xLimit.state, compId);
+        }
+
+        if(!error){
+            rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.%c-limit-state", id, axisNames[1]);
+            error = hal_param_u32_new(name, HAL_RO, &this->yLimit.state, compId);
+        }
+    }
+
     return(error);
 }
 
@@ -642,7 +657,15 @@ Plc_ExportSpindle(Plc *this, int compId, int id, char *name)
 
     if(!error){
         rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.spindle-lo-to-hi", id);
-        error = hal_param_u32_new(name, HAL_RW, &this->spindleLoToHi, compId);
+        error = hal_param_float_new(name, HAL_RW, &this->spindleLoToHi, compId);
+    }
+
+    // Export optional parameters.
+    if(debug > 0){
+        if(!error){
+            rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.spindle-state", id);
+            error = hal_param_u32_new(name, HAL_RO, &this->spindleState, compId);
+        }
     }
 
     // Export pins.
@@ -807,6 +830,8 @@ Plc_RefreshAmps(Plc *this, long period)
 static void
 Plc_RefreshSpindle(Plc *this, long period)
 {
+    Timer_Update(&this->spindleTimer, period);
+
     switch(this->spindleState){
     // Spindle is off, brake is on.
     case SS_OFF:
