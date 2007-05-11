@@ -856,13 +856,14 @@ Plc_RefreshSpindle(Plc *this, long period)
 
             this->spindleState = SS_WAIT_ON;
 
-            *this->pSpindleFwdOut = *this->pSpindleSpeedIn > this->spindleLoToHi
-                                    || (*this->pSpindleSpeedIn < 0.0
-                                      && *this->pSpindleSpeedIn >= -this->spindleLoToHi);
+            if(*this->pSpindleSpeedIn > this->spindleLoToHi
+              || (*this->pSpindleSpeedIn < 0.0
+                && *this->pSpindleSpeedIn >= -this->spindleLoToHi)){
 
-            *this->pSpindleRevOut = *this->pSpindleSpeedIn < -this->spindleLoToHi
-                                    || (*this->pSpindleSpeedIn > 0.0
-                                      && *this->pSpindleSpeedIn <= this->spindleLoToHi);
+                *this->pSpindleFwdOut = 1;
+            }else{
+                *this->pSpindleRevOut = 1;
+            }
         }
         break;
 
