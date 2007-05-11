@@ -31,7 +31,7 @@ signal.  If longer than HAL_NAME_LEN it will be truncated.  If there is already
 a signal with the same name the call will fail.
 
 \fBhal_link\fR links a pin to a signal.  If the pin is already linked to a
-signal, the old link is broken.  If the signal already has other pins linked to
+signal, it is an error.  If the signal already has other pins linked to
 it, they are unaffected - one signal can be linked to many pins, but a pin can
 be linked to only one signal.  'pin_name' and 'sig_name' are strings containing
 the pin and signal names.  If 'sig_name' is NULL, then the pin will be unlinked

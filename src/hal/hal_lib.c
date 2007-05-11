@@ -876,6 +876,11 @@ int hal_link(char *pin_name, char *sig_name)
 	rtapi_print_msg(RTAPI_MSG_WARN,
 	    "HAL: Warning: pin '%s' already linked to '%s'\n", pin_name, sig_name);
 	return HAL_SUCCESS;
+    } else if(pin->signal) {
+	rtapi_mutex_give(&(hal_data->mutex));
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: pin '%s' was already linked, cannot link to '%s'\n", pin_name, sig_name);
+	return HAL_INVAL;
     }
     /* check types */
     if (pin->type != sig->type) {

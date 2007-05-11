@@ -344,6 +344,10 @@ static int preflight_net_cmd(char *signal, hal_sig_t *sig, char *pins[]) {
 	     /* Already on this signal */
 	    pincnt++;
 	    continue;
+	} else if(pin->signal != 0) {
+            rtapi_print_msg(RTAPI_MSG_ERR,"HAL:%d: pin '%s' was already linked\n",
+                    linenumber, pin->name);
+            return HAL_INVAL;
 	}
 	if (type == -1) {
 	    /* no pre-existing type, use this pin's type */

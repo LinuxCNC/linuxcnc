@@ -433,7 +433,7 @@ extern int hal_signal_new(char *name, hal_type_t type);
 extern int hal_signal_delete(char *name);
 
 /** 'hal_link()' links a pin to a signal.  If the pin is already linked
-    to a signal, the old link is broken.  If the signal already has
+    to a different signal, it is an error.  If the signal already has
     other pins linked to it, they are unaffected - one signal can be
     linked to many pins, but a pin can be linked to only one signal.
     'pin_name' and 'sig_name' are strings containing the pin and signal
