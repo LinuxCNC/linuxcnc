@@ -156,7 +156,7 @@ int do_linkpp_cmd(char *first_pin_name, char *second_pin_name)
     static int dep_msg_printed = 0;
 
     if ( dep_msg_printed == 0 ) {
-	rtapi_print_msg(RTAPI_MSG_WARN,
+	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL:%d: Warning: linkpp command is deprecated, use 'net'\n", linenumber);
 	dep_msg_printed = 1;
     }
