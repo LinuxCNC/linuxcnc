@@ -829,21 +829,23 @@ int hal_link(char *pin_name, char *sig_name)
 
     if (hal_data->lock & HAL_LOCK_CONFIG)  {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: hal_link called while HAL locked\n");
+	    "HAL: ERROR: link called while HAL locked\n");
 	return HAL_PERM;
     }
-
+    /* make sure we were given a pin name */
+    if (pin_name == 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: pin name not given\n");
+	return HAL_INVAL;
+    }
+    /* make sure we were given a signal name */
+    if (sig_name == 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: signal name not given\n");
+	return HAL_INVAL;
+    }
     rtapi_print_msg(RTAPI_MSG_DBG,
 	"HAL: linking pin '%s' to '%s'\n", pin_name, sig_name);
     /* get mutex before accessing data structures */
     rtapi_mutex_get(&(hal_data->mutex));
-    /* make sure we were given a pin name */
-    if (pin_name == 0) {
-	/* no pin name supplied */
-	rtapi_mutex_give(&(hal_data->mutex));
-	rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: pin name not given\n");
-	return HAL_INVAL;
-    }
     /* locate the pin */
     pin = halpr_find_pin_by_name(pin_name);
     if (pin == 0) {
@@ -853,15 +855,7 @@ int hal_link(char *pin_name, char *sig_name)
 	    "HAL: ERROR: pin '%s' not found\n", pin_name);
 	return HAL_INVAL;
     }
-    /* found the pin, now check the signal */
-    if (sig_name == 0) {
-	/* no signal name supplied, so we unlink pin */
-	unlink_pin(pin);
-	/* done, release the mutex and return */
-	rtapi_mutex_give(&(hal_data->mutex));
-	return HAL_SUCCESS;
-    }
-    /* we have a signal name, search for it */
+    /* locate the signal */
     sig = halpr_find_sig_by_name(sig_name);
     if (sig == 0) {
 	/* not found */
@@ -876,10 +870,14 @@ int hal_link(char *pin_name, char *sig_name)
 	rtapi_print_msg(RTAPI_MSG_WARN,
 	    "HAL: Warning: pin '%s' already linked to '%s'\n", pin_name, sig_name);
 	return HAL_SUCCESS;
-    } else if(pin->signal) {
+    }
+    /* is the pin connected to something else? */
+    if(pin->signal) {
 	rtapi_mutex_give(&(hal_data->mutex));
+	sig = SHMPTR(pin->signal);
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: pin '%s' was already linked, cannot link to '%s'\n", pin_name, sig_name);
+	    "HAL: ERROR: pin '%s' is linked to '%s', cannot link to '%s'\n",
+	    pin_name, sig->name, sig_name);
 	return HAL_INVAL;
     }
     /* check types */
@@ -905,9 +903,7 @@ int hal_link(char *pin_name, char *sig_name)
 	    "HAL: ERROR: signal '%s' already has output pin\n", sig_name);
 	return HAL_INVAL;
     }
-    /* everything is OK, break any old link */
-    unlink_pin(pin);
-    /* and make the new link */
+    /* everything is OK, make the new link */
     data_ptr_addr = SHMPTR(pin->data_ptr_addr);
     comp = SHMPTR(pin->owner_ptr);
     data_addr = comp->shmem_base + sig->data_ptr;
@@ -924,6 +920,46 @@ int hal_link(char *pin_name, char *sig_name)
     }
     /* and update the pin */
     pin->signal = SHMOFF(sig);
+    /* done, release the mutex and return */
+    rtapi_mutex_give(&(hal_data->mutex));
+    return HAL_SUCCESS;
+}
+
+int hal_unlink(char *pin_name)
+{
+    hal_pin_t *pin;
+
+    if (hal_data == 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: unlink called before init\n");
+	return HAL_INVAL;
+    }
+
+    if (hal_data->lock & HAL_LOCK_CONFIG)  {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: unlink called while HAL locked\n");
+	return HAL_PERM;
+    }
+    /* make sure we were given a pin name */
+    if (pin_name == 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: pin name not given\n");
+	return HAL_INVAL;
+    }
+    rtapi_print_msg(RTAPI_MSG_DBG,
+	"HAL: unlinking pin '%s'\n", pin_name);
+    /* get mutex before accessing data structures */
+    rtapi_mutex_get(&(hal_data->mutex));
+    /* locate the pin */
+    pin = halpr_find_pin_by_name(pin_name);
+    if (pin == 0) {
+	/* not found */
+	rtapi_mutex_give(&(hal_data->mutex));
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: pin '%s' not found\n", pin_name);
+	return HAL_INVAL;
+    }
+    /* found pin, unlink it */
+    unlink_pin(pin);
     /* done, release the mutex and return */
     rtapi_mutex_give(&(hal_data->mutex));
     return HAL_SUCCESS;
@@ -2908,6 +2944,7 @@ EXPORT_SYMBOL(hal_pin_s32_newf);
 EXPORT_SYMBOL(hal_signal_new);
 EXPORT_SYMBOL(hal_signal_delete);
 EXPORT_SYMBOL(hal_link);
+EXPORT_SYMBOL(hal_unlink);
 
 EXPORT_SYMBOL(hal_param_bit_new);
 EXPORT_SYMBOL(hal_param_float_new);

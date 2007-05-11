@@ -432,17 +432,25 @@ extern int hal_signal_new(char *name, hal_type_t type);
 */
 extern int hal_signal_delete(char *name);
 
-/** 'hal_link()' links a pin to a signal.  If the pin is already linked
-    to a different signal, it is an error.  If the signal already has
-    other pins linked to it, they are unaffected - one signal can be
-    linked to many pins, but a pin can be linked to only one signal.
-    'pin_name' and 'sig_name' are strings containing the pin and signal
-    names.  If 'sig_name' is NULL, then the pin will be unlinked
-    (linked to a dummy variable).
+/** 'hal_link()' links a pin to a signal.  'pin_name' and 'sig_name' are
+    strings containing the pin and signal names.  If the pin is already
+    linked to the desired signal, the command succeeds.  If the pin is
+    already linked to some other signal, it is an error.  In either
+    case, the existing connection is not modified.  (Use 'hal_unlink'
+    to break an existing connection.)  If the signal already has other
+    pins linked to it, they are unaffected - one signal can be linked
+    to many pins, but a pin can be linked to only one signal.
     On success, hal_link() returns HAL_SUCCESS, on failure it returns a
     negative error code.
 */
 extern int hal_link(char *pin_name, char *sig_name);
+
+/** 'hal_unlink()' unlinks any signal from the specified pin.  'pin_name'
+    is a string containing the pin name.
+    On success, hal_unlink() returns HAL_SUCCESS, on failure it
+    returns a negative error code.
+*/
+extern int hal_unlink(char *pin_name);
 
 /***********************************************************************
 *                     "PARAMETER" FUNCTIONS                            *
