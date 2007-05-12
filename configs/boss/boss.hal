@@ -218,7 +218,7 @@ net spindleBrakeOn boss_plc.0.brake-en-out => motenc.0.out-02
 # Tool change.
 #
 # Loop back tool prepare pins.
-linkpp iocontrol.0.tool-prepare iocontrol.0.tool-prepared
+net tool-prep-loop iocontrol.0.tool-prepare iocontrol.0.tool-prepared
 
 # Connect tool change pins to PLC.
 net toolChange iocontrol.0.tool-change => boss_plc.0.tool-change-in

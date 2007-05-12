@@ -56,22 +56,22 @@ linksp Zdir  parport.0.pin-08-out
 
 # Estop signals
 # This signal is the internal or gui estop command from EMC
-linkpp iocontrol.0.user-enable-out classicladder.0.in-00
+net estop-out iocontrol.0.user-enable-out classicladder.0.in-00
 # This is a one-shot on timer when signal above goes high.
-linkpp iocontrol.0.user-request-enable  classicladder.0.in-02
+net estop-in iocontrol.0.user-request-enable  classicladder.0.in-02
 # This bit is an external estop button connected to parport pin 10 
 newsig ext-estop bit
 linksp ext-estop parport.0.pin-10-in
 linkps classicladder.0.in-01 ext-estop
 # This bit signal is comand to estop from CL to EMC
-linkpp iocontrol.0.emc-enable-in classicladder.0.out-00 
+net emc-enable-in iocontrol.0.emc-enable-in classicladder.0.out-00 
 
 
 # Spindle Signal, forward drives Torch ON
 # Spindle reverse is not used (might be used for a Running Start later)
 newsig turn_torch_on bit
 linksp turn_torch_on parport.1.pin-01-out
-#linkpp motion.spindle-reverse  parport.0.pin-17-out 
+#net spindle-reverse motion.spindle-reverse  parport.0.pin-17-out 
 
 #Create a limit switch signal for each axis
 newsig limit-reached-x bit
@@ -279,7 +279,7 @@ newsig ManualVerifyBeforePierce bit
 
 linksp feed-hold and2.0.in0
 linksp ManualVerifyBeforePierce and2.0.in1
-linkpp halui.program.pause and2.0.out
+net program.pause halui.program.pause and2.0.out
 
 addf mux2.4 servo-thread
 
@@ -289,7 +289,7 @@ linksp senseZFloatSwitch => classicladder.0.in-03
 linksp moveZtoFloat classicladder.0.out-03
 linksp moveZtoSafe classicladder.0.out-04
 linksp senseArcOK classicladder.0.in-04
-linkpp classicladder.0.in-05 <= motion.spindle-forward 
+net spindle-forward classicladder.0.in-05 <= motion.spindle-forward 
 linksp feed-hold classicladder.0.out-06
 linksp turn_torch_on classicladder.0.out-05
 linksp ui_mode_is_auto halui.mode.is-auto 
@@ -327,7 +327,8 @@ linksp WorkStandOff sum2.0.out
 
 linksp Zpos-fb => sum2.1.in0
 linksp WorkStandOff => sum2.1.in1
-linkpp mux2.6.in0 <= sum2.1.out
+#FIXME add a proper name
+net mux2-sum2 mux2.6.in0 <= sum2.1.out
 
 linksp PierceHeight mux2.6.in1
 linksp PierceHeight mux2.6.out
@@ -336,7 +337,7 @@ linksp LockPierceHeight mux2.6.sel
 linksp Zpos-cmd-muxed mux2.5.in0
 linksp PierceHeight mux2.5.in1
 linksp MoveZtoPierceHeight mux2.5.sel
-linkpp mux2.5.out stepgen.2.position-cmd
+net Z-pos-cmd mux2.5.out stepgen.2.position-cmd
 
 addf mux2.5 servo-thread
 addf mux2.6 servo-thread

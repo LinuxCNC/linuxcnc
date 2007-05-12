@@ -43,19 +43,19 @@ linksp Zdir  parport.0.pin-06-out
 
 # estop signals
 # signal is the internal or gui estop command from EMC
-linkpp iocontrol.0.user-enable-out classicladder.0.in-00
+net user-enable-out iocontrol.0.user-enable-out classicladder.0.in-00
 # one-shot on  timer when signal above goes high.
-linkpp iocontrol.0.user-request-enable  classicladder.0.in-02
+net user-request-enable iocontrol.0.user-request-enable  classicladder.0.in-02
 # this bit is an external estop button connected to parport pin 11 and ground
 newsig ext-estop bit
 linksp ext-estop parport.0.pin-10-in
 linkps classicladder.0.in-01 ext-estop
 # This bit signal is comand to estop from CL to EMC
-linkpp iocontrol.0.emc-enable-in classicladder.0.out-00 
+net emc-enable-in iocontrol.0.emc-enable-in classicladder.0.out-00 
 
 # lube signals
 # lube run command from emc to CL 
-linkpp iocontrol.0.lube classicladder.0.in-03
+net lube iocontrol.0.lube classicladder.0.in-03
 # for ease of reading we will make a new signal lube-run
 newsig lube-run bit
 linkps classicladder.0.out-01  lube-run
@@ -66,26 +66,26 @@ newsig lube-up  bit
 # lube-up is the signal between the parport and cl
 linkps parport.0.pin-12-in lube-up
 linkps  classicladder.0.in-04 lube-up
-linkpp iocontrol.0.lube_level classicladder.0.out-02
+net lube-level iocontrol.0.lube_level classicladder.0.out-02
 
 # coolant signals
 # note that these do NOT represent proper IO signals from iocontrol
 # should separate command and status for production versions
 # and run these through CL to test conditions
-linkpp  iocontrol.0.coolant-flood  parport.0.pin-08-out 
-linkpp  iocontrol.0.coolant-mist  parport.0.pin-09-out 
+net flood iocontrol.0.coolant-flood  parport.0.pin-08-out 
+net mist  iocontrol.0.coolant-mist  parport.0.pin-09-out 
 
 # spindle signals
 # spindle status has not been resolved
 # a simple loop through is set here
-linkpp motion.spindle-forward  parport.0.pin-16-out 
-linkpp motion.spindle-reverse  parport.0.pin-17-out 
+net spindle-forward motion.spindle-forward  parport.0.pin-16-out 
+net spindle-reverse motion.spindle-reverse  parport.0.pin-17-out 
 
 # we will let loopbacks handle tool prepare and change commands 
 # though we could  index an external changer
 # create connections for tool loading loopback
-linkpp iocontrol.0.tool-prepare iocontrol.0.tool-prepared
-linkpp iocontrol.0.tool-change iocontrol.0.tool-changed
+net tool-prep-loop iocontrol.0.tool-prepare iocontrol.0.tool-prepared
+net tool-change-loop iocontrol.0.tool-change iocontrol.0.tool-changed
 
 # create a limit switch signal
 newsig limit-reached bit

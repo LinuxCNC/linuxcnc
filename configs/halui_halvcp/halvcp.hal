@@ -1,89 +1,89 @@
 loadusr -W halvcp halui.vcp
 
-linkpp button.estop-activate    halui.estop.activate
-linkpp button.estop-reset       halui.estop.reset
-linkpp button.machine-off       halui.machine.off
-linkpp button.machine-on        halui.machine.on
-linkpp button.abort             halui.abort
-linkpp button.program-run       halui.program.run
-linkpp button.program-pause     halui.program.pause
-linkpp button.program-resume    halui.program.resume
-linkpp button.program-step      halui.program.step
+net estop-activate       button.estop-activate    halui.estop.activate
+net estop-reset          button.estop-reset       halui.estop.reset
+net machine-off          button.machine-off       halui.machine.off
+net machine-on           button.machine-on        halui.machine.on
+net abort                button.abort             halui.abort
+net run                  button.program-run       halui.program.run
+net pause                button.program-pause     halui.program.pause
+net resume               button.program-resume    halui.program.resume
+net step                 button.program-step      halui.program.step
 
-linkpp button.mist-on           halui.mist.on
-linkpp button.mist-off          halui.mist.off
-linkpp button.lube-on           halui.lube.on
-linkpp button.lube-off          halui.lube.off
-linkpp button.flood-on          halui.flood.on
-linkpp button.flood-off         halui.flood.off
+net mist-on              button.mist-on           halui.mist.on
+net mist-off             button.mist-off          halui.mist.off
+net lube-on              button.lube-on           halui.lube.on
+net lube-off             button.lube-off          halui.lube.off
+net flood-on             button.flood-on          halui.flood.on
+net flood-off            button.flood-off         halui.flood.off
 
-linkpp led.mist-is-on           halui.mist.is-on
-linkpp led.flood-is-on          halui.flood.is-on
-linkpp led.lube-is-on           halui.lube.is-on
+net mist-is-on           led.mist-is-on           halui.mist.is-on
+net flood-is-on          led.flood-is-on          halui.flood.is-on
+net lube-is-on           led.lube-is-on           halui.lube.is-on
 
-linkpp button.mode.manual       halui.mode.manual
-linkpp button.mode.auto         halui.mode.auto  
-linkpp button.mode.mdi          halui.mode.mdi   
+net mode-manual          button.mode.manual       halui.mode.manual
+net mode-auto            button.mode.auto         halui.mode.auto  
+net mode-mdi             button.mode.mdi          halui.mode.mdi   
 
-linkpp button.spindle-start     halui.spindle.start
-linkpp button.spindle-stop      halui.spindle.stop
-linkpp button.spindle-forward   halui.spindle.forward
-linkpp button.spindle-reverse   halui.spindle.reverse
-linkpp button.spindle-increase  halui.spindle.increase
-linkpp button.spindle-decrease  halui.spindle.decrease
+net spindle-start        button.spindle-start     halui.spindle.start
+net spindle-stop         button.spindle-stop      halui.spindle.stop
+net spindle-forward      button.spindle-forward   halui.spindle.forward
+net spindle-reverse      button.spindle-reverse   halui.spindle.reverse
+net spindle-increase     button.spindle-increase  halui.spindle.increase
+net spindle-decrease     button.spindle-decrease  halui.spindle.decrease
 
-linkpp led.machine.on           halui.machine.is-on
-linkpp led.estop.is-activated   halui.estop.is-activated
+net machine-is-on        led.machine.on           halui.machine.is-on
+net estop-is-activated   led.estop.is-activated   halui.estop.is-activated
 
-linkpp led.mode.is-manual       halui.mode.is-manual
-linkpp led.mode.is-auto         halui.mode.is-auto  
-linkpp led.mode.is-mdi          halui.mode.is-mdi   
+net mode-is-manual       led.mode.is-manual       halui.mode.is-manual
+net mode-is-auto         led.mode.is-auto         halui.mode.is-auto  
+net mode-is-mdi          led.mode.is-mdi          halui.mode.is-mdi   
 
-linkpp led.spindle-is-on        halui.spindle.is-on
-linkpp led.spindle-runs-forward halui.spindle.runs-forward
-linkpp led.spindle-runs-backward halui.spindle.runs-backward
+net spindle-is-on        led.spindle-is-on        halui.spindle.is-on
+net spindle-is-forward   led.spindle-runs-forward halui.spindle.runs-forward
+net spindle-is-backward  led.spindle-runs-backward halui.spindle.runs-backward
 
-linkpp button.joint.0.home	halui.joint.0.home
-linkpp led.joint.0.is-homed	halui.joint.0.is-homed
-linkpp led.joint.0.min-hard	halui.joint.0.on-hard-min-limit
-linkpp led.joint.0.min-soft	halui.joint.0.on-soft-min-limit
-linkpp led.joint.0.max-soft	halui.joint.0.on-soft-max-limit
-linkpp led.joint.0.max-hard	halui.joint.0.on-hard-max-limit
-linkpp led.joint.0.has-fault	halui.joint.0.has-fault
-linkpp button.joint.0.minus	halui.jog.0.minus
-linkpp button.joint.0.plus	halui.jog.0.plus
+net j0-home              button.joint.0.home      halui.joint.0.home
+net j0-is-homed          led.joint.0.is-homed     halui.joint.0.is-homed
+net j0-min-hard          led.joint.0.min-hard     halui.joint.0.on-hard-min-limit
+net j0-min-soft          led.joint.0.min-soft     halui.joint.0.on-soft-min-limit
+net j0-max-soft          led.joint.0.max-soft     halui.joint.0.on-soft-max-limit
+net j0-max-hard          led.joint.0.max-hard     halui.joint.0.on-hard-max-limit
+net j0-has-fault         led.joint.0.has-fault    halui.joint.0.has-fault
+net j0-minus             button.joint.0.minus     halui.jog.0.minus
+net j0-plus              button.joint.0.plus      halui.jog.0.plus
 
-linkpp button.joint.1.home	halui.joint.1.home
-linkpp led.joint.1.is-homed	halui.joint.1.is-homed
-linkpp led.joint.1.min-hard	halui.joint.1.on-hard-min-limit
-linkpp led.joint.1.min-soft	halui.joint.1.on-soft-min-limit
-linkpp led.joint.1.max-soft	halui.joint.1.on-soft-max-limit
-linkpp led.joint.1.max-hard	halui.joint.1.on-hard-max-limit
-linkpp led.joint.1.has-fault	halui.joint.1.has-fault
-linkpp button.joint.1.minus	halui.jog.1.minus
-linkpp button.joint.1.plus	halui.jog.1.plus
+net j1-home              button.joint.1.home      halui.joint.1.home
+net j1-is-homed          led.joint.1.is-homed     halui.joint.1.is-homed
+net j1-min-hard          led.joint.1.min-hard     halui.joint.1.on-hard-min-limit
+net j1-min-soft          led.joint.1.min-soft     halui.joint.1.on-soft-min-limit
+net j1-max-soft          led.joint.1.max-soft     halui.joint.1.on-soft-max-limit
+net j1-max-hard          led.joint.1.max-hard     halui.joint.1.on-hard-max-limit
+net j1-has-fault         led.joint.1.has-fault    halui.joint.1.has-fault
+net j1-minus             button.joint.1.minus     halui.jog.1.minus
+net j1-plus              button.joint.1.plus      halui.jog.1.plus
 
-linkpp button.joint.2.home	halui.joint.2.home
-linkpp led.joint.2.is-homed	halui.joint.2.is-homed
-linkpp led.joint.2.min-hard	halui.joint.2.on-hard-min-limit
-linkpp led.joint.2.min-soft	halui.joint.2.on-soft-min-limit
-linkpp led.joint.2.max-soft	halui.joint.2.on-soft-max-limit
-linkpp led.joint.2.max-hard	halui.joint.2.on-hard-max-limit
-linkpp led.joint.2.has-fault	halui.joint.2.has-fault
-linkpp button.joint.2.minus	halui.jog.2.minus
-linkpp button.joint.2.plus	halui.jog.2.plus
+net j2-home              button.joint.2.home      halui.joint.2.home
+net j2-is-homed          led.joint.2.is-homed     halui.joint.2.is-homed
+net j2-min-hard          led.joint.2.min-hard     halui.joint.2.on-hard-min-limit
+net j2-min-soft          led.joint.2.min-soft     halui.joint.2.on-soft-min-limit
+net j2-max-soft          led.joint.2.max-soft     halui.joint.2.on-soft-max-limit
+net j2-max-hard          led.joint.2.max-hard     halui.joint.2.on-hard-max-limit
+net j2-has-fault         led.joint.2.has-fault    halui.joint.2.has-fault
+net j2-minus             button.joint.2.minus     halui.jog.2.minus
+net j2-plus              button.joint.2.plus      halui.jog.2.plus
 
-linkpp button.fo.increase	halui.feed-override.increase
-linkpp button.fo.decrease	halui.feed-override.decrease
+net fo-increase          button.fo.increase       halui.feed-override.increase
+net fo-decrease          button.fo.decrease       halui.feed-override.decrease
 
-linkpp button.so.increase	halui.spindle-override.increase
-linkpp button.so.decrease	halui.spindle-override.decrease
+net so-increase          button.so.increase       halui.spindle-override.increase
+net so-decrease          button.so.decrease       halui.spindle-override.decrease
 
-linkpp button.os.on		halui.program.optional-stop.on
-linkpp button.os.off		halui.program.optional-stop.off
-linkpp led.os.is-on		halui.program.optional-stop.is-on
+net os-on                button.os.on             halui.program.optional-stop.on
+net os-off               button.os.off            halui.program.optional-stop.off
+net os-is-on             led.os.is-on             halui.program.optional-stop.is-on
 
-linkpp button.probe		motion.probe-input
+net probe-button         button.probe             motion.probe-input
 
 #use a sets to set jog speed, until there is a halvcp slider
 newsig jogspeed float

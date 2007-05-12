@@ -101,7 +101,7 @@ addf vti.do-write servo-thread -1
 
 # ESTOP loopback, only use this for a simple machine without external ESTOP
 # you really SHOULDN'T use a servo machine without proper ESTOP
-#linkpp iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
+#net estop-loop iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
 
 # connect spindle fwd/rev to I/O controller
 #newsig SpindleFwd bit

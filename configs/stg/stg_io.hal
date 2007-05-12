@@ -101,7 +101,7 @@ linksp EstopWrite => iocontrol.0.user-enable-out
 
 # ESTOP loopback, only use this for a simple machine without external ESTOP
 # you really SHOULDN'T use a servo machine without proper ESTOP
-#linkpp iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
+#net estop-loop iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
 
 # connect spindle fwd/rev to I/O controller
 newsig SpindleFwd bit
@@ -135,6 +135,6 @@ linksp LubeLevel <= stg.in-13
 linksp LubeLevel => iocontrol.0.lube_level
 
 # create signals for tool loading loopback
-linkpp iocontrol.0.tool-prepare iocontrol.0.tool-prepared
-linkpp iocontrol.0.tool-change iocontrol.0.tool-changed
+net tool-prep-loop iocontrol.0.tool-prepare iocontrol.0.tool-prepared
+net tool-change-loop iocontrol.0.tool-change iocontrol.0.tool-changed
 
