@@ -1,10 +1,7 @@
 #!/usr/bin/env python
-
 import sys, os
-BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
-sys.path.insert(0, os.path.join(BASE, "lib", "python"))
-
 import gettext
+BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
 gettext.install("axis", localedir=os.path.join(BASE, "share", "locale"), unicode=True)
 
 import emc, hal
@@ -39,7 +36,13 @@ lab = Tkinter.Message(app, aspect=500, text = _("\
 This window is part of the AXIS manual toolchanger.  It is safe to close \
 or iconify this window, or it will close automatically after a few seconds."))
 lab.pack()
-app.after(10 * 1000, app.wm_withdraw)
+
+def withdraw():
+    print "called withdraw()"
+    app.wm_withdraw()
+    app.bind("<Expose>", lambda event: app.wm_withdraw())
+
+app.after(10 * 1000, withdraw)
 
 try:
     while 1:
