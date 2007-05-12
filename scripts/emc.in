@@ -617,9 +617,7 @@ case $EMCDISPLAY in
 	Cleanup
 	exit 1
     fi
-    # this nice here makes a huge difference in segment throughput on my very
-    # slow machine, by letting milltask run.
-    nice $EMC2_BIN_DIR/$EMCDISPLAY -ini $INIFILE $EMCDISPLAYARGS $EXTRA_ARGS
+    $EMC2_BIN_DIR/$EMCDISPLAY -ini $INIFILE $EMCDISPLAYARGS $EXTRA_ARGS
     result=$?
   ;;
   *)
