@@ -25,11 +25,11 @@ to this thread.
 \fBhal_create_thread\fR establishes a realtime thread that will
 execute one or more HAL functions periodically.
 
-All threads must run at an integer multiple of the fastest thread, and the
-fastest thread must be created first.  In general, threads should be created in
-order, from the fastest to the slowest.  HAL assigns decreasing priorities to
-threads that are created later, so creating them from fastest to slowest
-results in rate monotonic priority scheduling, usually a good thing.
+All thread periods are rounded to integer multiples of the hardware timer
+period, and the timer period is based on the first thread created.  Threads
+must be created in order, from the fastest to the slowest.  HAL assigns
+decreasing priorities to threads that are created later, so creating them
+from fastest to slowest results in rate monotonic priority scheduling.
 
 \fBhal_delete_thread\fR deletes a previously created thread.
 

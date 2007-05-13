@@ -16,8 +16,8 @@ HAL functions at specific intervals.  It is not a true HAL component, in
 that it does not export any functions, pins, or parameters of its own.
 Once it has created one or more threads, the threads stand alone, and
 the \fBthreads\fR component can be unloaded without affecting them.  In
-fact, it can be reloaded to create additional threads, as many times as
-needed.
+fact, it can be unloaded and then reloaded to create additional threads,
+as many times as needed.
 
 .P
 \fBthreads\fR can create up to three realtime threads.  Threads must be
