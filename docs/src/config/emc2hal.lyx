@@ -146,10 +146,11 @@ OUT\SpecialChar ~
 float Desired spindle speed in rotations per minute
 \layout Description
 
-motion.spindle-sync\SpecialChar ~
-OUT\SpecialChar ~
-bit For correct operation of spindle synchronized moves,
- this signal must be hooked to the index-enable pin of the spindle encoder.
+motion.spindle-index-enable\SpecialChar ~
+I/O\SpecialChar ~
+bit For correct operation of spindle synchronized
+ moves, this signal must be hooked to the index-enable pin of the spindle
+ encoder.
 \layout Description
 
 motion.spindle-revs\SpecialChar ~
