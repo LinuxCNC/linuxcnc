@@ -44,10 +44,21 @@ component biquad "Biquad IIR filter";
 description """Biquad IIR filter. Implements the following transfer function:
 H(z) = (n0 + n1z-1 + n2z-2) / (1+ d1z-1 + d2z-2)""";
 
-pin in float in;
-pin out float out;
+pin in float in "Filter input.";
+pin out float out "Filter output.";
+pin in bit enable = 0 "Filter enable. When false, the in is passed to out\
+without any filtering. A transition from false to true causes filter\
+coefficients to be calculated according to parameters";
+pin out bit valid = 0 "When false, indicates an error occured when caclulating\
+filter coefficients.";
 
-param rw float d1 = 1.0 "1st-delayed denominator coef";
+param rw u32 type = 0 "Filter type determines the type of filter\
+coefficients calculated. When 0, coefficients must be loaded directly. When 1,\
+a low pass filter is created. When 2, a notch filter is created.";
+param rw float f0 = 250.0 "The corner frequency of the filter.";
+param rw float Q = 0.7071 "The Q of the filter.";
+
+param rw float d1 = 0.0 "1st-delayed denominator coef";
 param rw float d2 = 0.0 "2nd-delayed denominator coef";
 param rw float n0 = 1.0 "non-delayed numerator coef";
 param rw float n1 = 0.0 "1st-delayed numerator coef";
@@ -55,16 +66,108 @@ param rw float n2 = 0.0 "2nd-delayed numerator coef";
 param rw float s1 = 0.0;
 param rw float s2 = 0.0;
 
+option data Internal;
+option extra_setup;
+
 function _;
 
 license "GPL";
 ;;
 
 
+#include <float.h>
+#include <rtapi_math.h>
+
+
+#define PI                      3.141592653589
+
+
+void                            Biquad_CalcCoeffs(unsigned long period);
+
+
+typedef enum {
+    TYPE_DIRECT,
+    TYPE_LOW_PASS,
+    TYPE_NOTCH,
+} Type;
+
+
+typedef struct {
+    hal_bit_t                   lastEnable;
+} Internal;
+
+
+EXTRA_SETUP()
+{
+    data.lastEnable = 0;
+
+    return(0);
+}
+
+
 FUNCTION(_)
 {
-    // Transposed direct form II.
-    out = in * n0 + s1;
-    s1 = in * n1 - out * d1 + s2;
-    s2 = in * n2 - out * d2;
+    if(data.lastEnable != enable){
+        data.lastEnable = enable;
+
+        if(enable)
+            Biquad_CalcCoeffs(period);
+    }
+
+    if(!enable || !valid){
+        out = in;
+    }else{
+        // Transposed direct form II.
+        out = in * n0 + s1;
+        s1 = in * n1 - out * d1 + s2;
+        s2 = in * n2 - out * d2;
+    }
+}
+
+
+void
+Biquad_CalcCoeffs(unsigned long period)
+{
+    double                      sampleRate, w0, alpha;
+    double                      b0, b1, b2, a0, a1, a2;
+
+    // If not direct coefficient loading.
+    if(type != TYPE_DIRECT){
+        valid = 0;
+
+        sampleRate = 1.0 / (period * 1e-9);
+
+        if((f0 > sampleRate / 2.0) || (Q > 2.0) || (Q < 0.5))
+            return;
+
+        w0 = 2.0 * PI * f0 / sampleRate;
+        alpha = sin(w0) / (2.0 * Q);
+
+        if(type == TYPE_LOW_PASS){
+            b0 = (1.0 - cos(w0)) / 2.0;
+            b1 = 1.0 - cos(w0);
+            b2 = (1.0 - cos(w0)) / 2.0;
+            a0 = 1.0 + alpha;
+            a1 = -2.0 * cos(w0);
+            a2 = 1.0 - alpha;
+        }else if(type == TYPE_NOTCH){
+            b0 = 1.0;
+            b1 = -2.0 * cos(w0);
+            b2 = 1.0;
+            a0 = 1.0 + alpha;
+            a1 = -2.0 * cos(w0);
+            a2 = 1.0 - alpha;
+        }else{
+            return;
+        }
+
+        n0 = b0 / a0;
+        n1 = b1 / a0;
+        n2 = b2 / a0;
+        d1 = a1 / a0;
+        d2 = a2 / a0;
+        s1 = s2 = 0.0;
+    }
+
+    valid = 1;
 }
