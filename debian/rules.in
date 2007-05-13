@@ -87,7 +87,7 @@ binary-arch: build install
 	dh_strip
 	dh_compress -X.pdf -X.txt
 ifneq "$(kernel_version)" "sim"
-	dh_fixperms -X/emc_module_helper
+	dh_fixperms -X/emc_module_helper -X/bfload
 endif
 	dh_installdeb
 	dh_makeshlibs
