@@ -52,7 +52,7 @@ coefficients to be calculated according to parameters";
 pin out bit valid = 0 "When false, indicates an error occured when caclulating\
 filter coefficients.";
 
-param rw u32 type = 0 "Filter type determines the type of filter\
+param rw u32 type_ = 0 "Filter type determines the type of filter\
 coefficients calculated. When 0, coefficients must be loaded directly. When 1,\
 a low pass filter is created. When 2, a notch filter is created.";
 param rw float f0 = 250.0 "The corner frequency of the filter.";
@@ -132,7 +132,7 @@ Biquad_CalcCoeffs(unsigned long period)
     double                      b0, b1, b2, a0, a1, a2;
 
     // If not direct coefficient loading.
-    if(type != TYPE_DIRECT){
+    if(type_ != TYPE_DIRECT){
         valid = 0;
 
         sampleRate = 1.0 / (period * 1e-9);
@@ -143,14 +143,14 @@ Biquad_CalcCoeffs(unsigned long period)
         w0 = 2.0 * PI * f0 / sampleRate;
         alpha = sin(w0) / (2.0 * Q);
 
-        if(type == TYPE_LOW_PASS){
+        if(type_ == TYPE_LOW_PASS){
             b0 = (1.0 - cos(w0)) / 2.0;
             b1 = 1.0 - cos(w0);
             b2 = (1.0 - cos(w0)) / 2.0;
             a0 = 1.0 + alpha;
             a1 = -2.0 * cos(w0);
             a2 = 1.0 - alpha;
-        }else if(type == TYPE_NOTCH){
+        }else if(type_ == TYPE_NOTCH){
             b0 = 1.0;
             b1 = -2.0 * cos(w0);
             b2 = 1.0;
