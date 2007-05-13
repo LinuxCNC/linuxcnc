@@ -1358,7 +1358,7 @@ int hal_create_thread(char *name, unsigned long period_nsec, int uses_fp)
     int next, cmp, prev_priority;
     int retval, n;
     hal_thread_t *new, *tptr;
-    long curr_period;
+    long prev_period, curr_period;
 /*! \todo Another #if 0 */
 #if 0
     char buf[HAL_NAME_LEN + 1];
@@ -1442,14 +1442,32 @@ int hal_create_thread(char *name, unsigned long period_nsec, int uses_fp)
 	}
 	/* reserve the highest priority (maybe for a watchdog?) */
 	prev_priority = rtapi_prio_highest();
+	/* no previous period to worry about */
+	prev_period = 0;
     } else {
-	/* there are other threads */
+	/* there are other threads, slowest (and lowest
+	   priority) is at head of list */
 	tptr = SHMPTR(hal_data->thread_list_ptr);
+	prev_period = tptr->period;
 	prev_priority = tptr->priority;
     }
     /* make period an integer multiple of the timer period */
     n = (period_nsec + hal_data->base_period / 2) / hal_data->base_period;
+    if ( n == 0 ) {
+	rtapi_mutex_give(&(hal_data->mutex));
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL_LIB: ERROR: new thread period %ld is less than clock period %ld\n",
+	     period_nsec, hal_data->base_period);
+	return HAL_FAIL;
+    }
     new->period = hal_data->base_period * n;
+    if ( new->period < prev_period ) {
+	rtapi_mutex_give(&(hal_data->mutex));
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL_LIB: ERROR: new thread period %ld is less than existing thread period %ld\n",
+	     period_nsec, prev_period);
+	return HAL_FAIL;
+    }
     /* make priority one lower than previous */
     new->priority = rtapi_prio_next_lower(prev_priority);
     /* create task - owned by library module, not caller */
