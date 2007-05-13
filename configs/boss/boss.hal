@@ -21,15 +21,18 @@ loadrt boss_plc
 # limit override, spindle increase/decrease/status).
 loadrt debounce cfg="6"
 
+# Load differentiators for debug.
+loadrt ddt count=3
+
 # Add functions to servo thread so they will be evaluated
 # every servo period.
 #
 # Inputs are read at the beginning of the thread
+addf debounce.0 servo-thread 1
 addf motenc.0.encoder-read servo-thread 1
 addf motenc.0.misc-update servo-thread 1
 #addf motenc.0.adc-read servo-thread 1
 addf motenc.0.digital-in-read servo-thread 1
-addf debounce.0 servo-thread 1
 # Do processing.
 addf boss_plc.0.refresh servo-thread -1
 addf motion-command-handler servo-thread -1
@@ -41,6 +44,9 @@ addf pid.3.do-pid-calcs servo-thread -1
 # Outputs are updated at the end of the thread
 addf motenc.0.dac-write servo-thread -1
 addf motenc.0.digital-out-write servo-thread -1
+addf ddt.0 servo-thread -1
+addf ddt.1 servo-thread -1
+addf ddt.2 servo-thread -1
 
 # PID loops.
 #
@@ -60,38 +66,58 @@ setp pid.3.maxoutput [AXIS_3]MAX_VELOCITY
 setp pid.0.Pgain [AXIS_0]P
 setp pid.0.Igain [AXIS_0]I
 setp pid.0.Dgain [AXIS_0]D
+setp pid.0.maxerrorI [AXIS_0]MAX_ERROR_I
 setp pid.0.bias [AXIS_0]BIAS
 setp pid.0.FF0 [AXIS_0]FF0
 setp pid.0.FF1 [AXIS_0]FF1
+setp pid.0.FF2 [AXIS_0]FF2
 # deadband should be just over 1 count
 setp pid.0.deadband [AXIS_0]DEADBAND
+#setp pid.0.tune-effort [AXIS_0]TUNE_EFFORT
+#setp pid.0.tune-cycles [AXIS_0]TUNE_CYCLES
+#setp pid.0.tune-type [AXIS_0]TUNE_TYPE
 
 setp pid.1.Pgain [AXIS_1]P
 setp pid.1.Igain [AXIS_1]I
 setp pid.1.Dgain [AXIS_1]D
+setp pid.1.maxerrorI [AXIS_1]MAX_ERROR_I
 setp pid.1.bias [AXIS_1]BIAS
 setp pid.1.FF0 [AXIS_1]FF0
 setp pid.1.FF1 [AXIS_1]FF1
+setp pid.1.FF2 [AXIS_1]FF2
 # deadband should be just over 1 count
 setp pid.1.deadband [AXIS_1]DEADBAND
+#setp pid.1.tune-effort [AXIS_1]TUNE_EFFORT
+#setp pid.1.tune-cycles [AXIS_1]TUNE_CYCLES
+#setp pid.1.tune-type [AXIS_1]TUNE_TYPE
 
 setp pid.2.Pgain [AXIS_2]P
 setp pid.2.Igain [AXIS_2]I
 setp pid.2.Dgain [AXIS_2]D
+setp pid.2.maxerrorI [AXIS_2]MAX_ERROR_I
 setp pid.2.bias [AXIS_2]BIAS
 setp pid.2.FF0 [AXIS_2]FF0
 setp pid.2.FF1 [AXIS_2]FF1
+setp pid.2.FF2 [AXIS_2]FF2
 # deadband should be just over 1 count
 setp pid.2.deadband [AXIS_2]DEADBAND
+#setp pid.2.tune-effort [AXIS_2]TUNE_EFFORT
+#setp pid.2.tune-cycles [AXIS_2]TUNE_CYCLES
+#setp pid.2.tune-type [AXIS_2]TUNE_TYPE
 
 setp pid.3.Pgain [AXIS_3]P
 setp pid.3.Igain [AXIS_3]I
 setp pid.3.Dgain [AXIS_3]D
+setp pid.3.maxerrorI [AXIS_3]MAX_ERROR_I
 setp pid.3.bias [AXIS_3]BIAS
 setp pid.3.FF0 [AXIS_3]FF0
 setp pid.3.FF1 [AXIS_3]FF1
+setp pid.3.FF2 [AXIS_3]FF2
 # deadband should be just over 1 count
 setp pid.3.deadband [AXIS_3]DEADBAND
+#setp pid.3.tune-effort [AXIS_3]TUNE_EFFORT
+#setp pid.3.tune-cycles [AXIS_3]TUNE_CYCLES
+#setp pid.3.tune-type [AXIS_3]TUNE_TYPE
 
 # Connect the enable signals to the PID blocks.
 net xEnable axis.0.amp-enable-out => pid.0.enable
@@ -104,6 +130,16 @@ net xPosCmd axis.0.motor-pos-cmd => pid.0.command
 net yPosCmd axis.1.motor-pos-cmd => pid.1.command
 net zPosCmd axis.2.motor-pos-cmd => pid.2.command
 net aPosCmd axis.3.motor-pos-cmd => pid.3.command
+
+# Connect signals auto-tune pins.
+#net xStartTune pid.0.start-tune
+#net xTuneMode pid.0.tune-mode
+#net yStartTune pid.1.start-tune
+#net yTuneMode pid.1.tune-mode
+#net zStartTune pid.2.start-tune
+#net zTuneMode pid.2.tune-mode
+#net aStartTune pid.3.start-tune
+#net aTuneMode pid.3.tune-mode
 
 # DACs
 #
@@ -124,6 +160,12 @@ net xOutput pid.0.output => motenc.0.dac-01-value
 net yOutput pid.1.output => motenc.0.dac-03-value
 net zOutput pid.2.output => motenc.0.dac-02-value
 net aOutput pid.3.output => motenc.0.dac-00-value
+
+linksp zPosCmd ddt.0.in
+net zVelCmd ddt.0.out => ddt.1.in
+net zAccCmd ddt.1.out
+linksp zOutput ddt.2.in
+net zPidAccCmd ddt.2.out
 
 # Encoders.
 #
@@ -157,30 +199,30 @@ net aIndex motenc.0.enc-00-index-enable <=> axis.3.index-enable
 
 # Limits.
 #
-# Connect limit/home switch outputs to PLC.
+# Connect limit/home switch inputs to PLC and motion controller.
 net xLimitSw motenc.0.in-09 => boss_plc.0.x-limit-in
+linksp xLimitSw => axis.0.home-sw-in
 net yLimitSw motenc.0.in-13 => boss_plc.0.y-limit-in
+linksp yLimitSw => axis.1.home-sw-in
 net zMinlimSw motenc.0.in-26 => boss_plc.0.z-limit-neg-in
 net zMaxlimSw motenc.0.in-25 => boss_plc.0.z-limit-pos-in
+net zHome motenc.0.in-27 => axis.2.home-sw-in
 
-# Connect PLC limit/home switch outputs to motion controller.
+# Connect PLC limit switch outputs to motion controller.
 net xMinLim boss_plc.0.x-limit-neg-out => axis.0.neg-lim-sw-in
 net xMaxLim boss_plc.0.x-limit-pos-out => axis.0.pos-lim-sw-in
-linksp xMaxLim => axis.0.home-sw-in
 net yMinLim boss_plc.0.y-limit-neg-out => axis.1.neg-lim-sw-in
 net yMaxLim boss_plc.0.y-limit-pos-out => axis.1.pos-lim-sw-in
-linksp yMaxLim => axis.1.home-sw-in
 net zMinLim boss_plc.0.z-limit-neg-out => axis.2.neg-lim-sw-in
 net zMaxLim boss_plc.0.z-limit-pos-out => axis.2.pos-lim-sw-in
-net zHome motenc.0.in-27 => axis.2.home-sw-in
 
 # Amp enables/faults.
 #
 # Connect amp ready to PLC.
-net xReady motenc.0.in-08 => boss_plc.0.x-ready-in
-net yReady motenc.0.in-12 => boss_plc.0.y-ready-in
-net zReady motenc.0.in-24 => boss_plc.0.z-ready-in
-net aReady motenc.0.in-28 => boss_plc.0.a-ready-in
+net xReady motenc.0.in-08 => boss_plc.0.x-amp-ready-in
+net yReady motenc.0.in-12 => boss_plc.0.y-amp-ready-in
+net zReady motenc.0.in-24 => boss_plc.0.z-amp-ready-in
+net aReady motenc.0.in-28 => boss_plc.0.a-amp-ready-in
 
 # Connect amp enables to I/O.
 linksp xEnable => motenc.0.out-00
@@ -189,16 +231,16 @@ linksp zEnable => motenc.0.out-08
 linksp aEnable => motenc.0.out-09
 
 # Connect amp enables to PLC.
-linksp xEnable => boss_plc.0.x-enable-in
-linksp yEnable => boss_plc.0.y-enable-in
-linksp zEnable => boss_plc.0.z-enable-in
-linksp aEnable => boss_plc.0.a-enable-in
+linksp xEnable => boss_plc.0.x-amp-enable-in
+linksp yEnable => boss_plc.0.y-amp-enable-in
+linksp zEnable => boss_plc.0.z-amp-enable-in
+linksp aEnable => boss_plc.0.a-amp-enable-in
 
 # Connect amp faults to motion controller.
-net xFault boss_plc.0.x-fault-out => axis.0.amp-fault-in
-net yFault boss_plc.0.y-fault-out => axis.1.amp-fault-in
-net zFault boss_plc.0.z-fault-out => axis.2.amp-fault-in
-net aFault boss_plc.0.a-fault-out => axis.3.amp-fault-in
+net xFault boss_plc.0.x-amp-fault-out => axis.0.amp-fault-in
+net yFault boss_plc.0.y-amp-fault-out => axis.1.amp-fault-in
+net zFault boss_plc.0.z-amp-fault-out => axis.2.amp-fault-in
+net aFault boss_plc.0.a-amp-fault-out => axis.3.amp-fault-in
 
 # Spindle.
 #
@@ -206,19 +248,19 @@ net aFault boss_plc.0.a-fault-out => axis.3.amp-fault-in
 net spindleSpeed motion.spindle-speed-out => boss_plc.0.spindle-speed-in
 net spindleFwd boss_plc.0.spindle-fwd-out => motenc.0.out-11
 net spindleRev boss_plc.0.spindle-rev-out => motenc.0.out-12
-net spindleIsOnSw motenc.0.in-30-not => debounce.0.5.in
+net spindleIsOnSw motenc.0.in-29-not => debounce.0.5.in
 net spindleIsOn debounce.0.5.out => boss_plc.0.spindle-is-on-in
 
 # Connect spindle brake to PLC and PLC brake to I/O.
-setp boss_plc.0.brake-on-delay 300
-setp boss_plc.0.brake-off-delay 500
+setp boss_plc.0.brake-on-delay 500
+setp boss_plc.0.brake-off-delay 800
 net spindleBrakeOnMot motion.spindle-brake => boss_plc.0.brake-en-in
 net spindleBrakeOn boss_plc.0.brake-en-out => motenc.0.out-02
 
 # Tool change.
 #
 # Loop back tool prepare pins.
-net tool-prep-loop iocontrol.0.tool-prepare iocontrol.0.tool-prepared
+linkpp iocontrol.0.tool-prepare iocontrol.0.tool-prepared
 
 # Connect tool change pins to PLC.
 net toolChange iocontrol.0.tool-change => boss_plc.0.tool-change-in
@@ -233,10 +275,11 @@ net floodOn iocontrol.0.coolant-flood => motenc.0.out-15
 # Lube.
 #
 # Connect lube motor run to I/O.
-net lubeOn iocontrol.0.lube => motenc.0.out-13
+#net lubeOn iocontrol.0.lube => motenc.0.out-13
+net lubeOn motion.spindle-on => motenc.0.out-13
 
 # Connect lube level to I/O.
-net lubeLevel motenc.0.in-31 => iocontrol.0.lube_level
+net lubeLevel motenc.0.in-30-not => iocontrol.0.lube_level
 
 # Operator console.
 #
@@ -256,10 +299,10 @@ net feedHold boss_plc.0.feed-hold-out => motion.feed-hold
 net waitUser boss_plc.0.wait-user-out => motenc.0.out-17
 
 # Connect speed overrides.
-net spindleIncSw motenc.0.enc-06-index => debounce.0.2.in
+net spindleIncSw motenc.0.enc-04-index => debounce.0.2.in
 net spindleIncDb debounce.0.2.out => boss_plc.0.spindle-inc-in
 net spindleInc boss_plc.0.spindle-inc-out => motenc.0.out-03
-net spindleDecSw motenc.0.enc-04-index => debounce.0.3.in
+net spindleDecSw motenc.0.enc-06-index => debounce.0.3.in
 net spindleDecDb debounce.0.3.out => boss_plc.0.spindle-dec-in
 net spindleDec boss_plc.0.spindle-dec-out => motenc.0.out-04
 
