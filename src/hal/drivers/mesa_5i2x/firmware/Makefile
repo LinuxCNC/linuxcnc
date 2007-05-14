@@ -115,10 +115,23 @@ help :
 	@echo "Bitgen: making $@ from $^"
 	@bitgen -w $*.ncd $*.bit $*.pcf
 
+# a .fpga file is a bitfile with config ram info added
 
-.PRECIOUS : %.prj %.scr %.ngc %.ngd %.nad %.nbd %.ncd %.ncdup %.ncdur %.bit %.0 %.bin %.ghw %.log.syn %.log.ngd %.log.map
+%.fpga : %.ram
+	@echo "bfmerge: Merging $< and bitfile into $@"
+	@../../../../../bin/bfmerge $^ $@
 
-makefile.depends : *.vhd
+.PRECIOUS : %.prj %.scr %.ngc %.ngd %.nad %.nbd %.ncd %.bit %.o %.bin %.ghw %.log.syn %.log.ngd %.log.map
+
+.PHONY : clean
+
+clean :
+	@rm -f *.prj *.scr *.ngc *.ngd *.nad *.nbd *.ncd *.o *.bin
+	@rm -f *.ghw *.log.syn *.log.ngd *.log.map *.bgn *.drc *.ngm 
+	@rm -f *.pcf *.t *_usage.xml *~
+
+
+makefile.vhd.dep : *.vhd
 	@echo "Making $@"
 	@touch $@
 	@for FILE in $? ; do BASE=$${FILE/\.vhd/} ;\
@@ -140,6 +153,18 @@ makefile.depends : *.vhd
 	    fi ;\
 	done
 
-include makefile.depends
+makefile.ram.dep : *.ram
+	@echo "Making $@"
+	@touch $@
+	@for FILE in $? ; do BASE=$${FILE/\.ram/} ;\
+	    grep -v "^$$BASE.fpga :" $@  >$@.tmp ;\
+	    mv $@.tmp $@ ;\
+	    if grep -q -e "## *use" $$FILE ; then \
+	        echo -n "$$BASE.fpga :" >>$@ ;\
+	        set -- `grep -e "## *use" $$FILE` ; echo " $$3" >>$@ ;\
+	    fi ;\
+	done
 
+include makefile.vhd.dep
+include makefile.ram.dep
 
