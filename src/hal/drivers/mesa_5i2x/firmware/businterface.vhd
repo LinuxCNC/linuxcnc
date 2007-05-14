@@ -4,6 +4,7 @@ use IEEE.STD_LOGIC_ARITH.ALL;
 use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
 package businterface_pkg is
+
 component businterface is
     port (
 	clock : in std_logic;
@@ -31,6 +32,52 @@ component businterface is
 	INT : out std_logic
     );
 end component businterface;
+
+component match16 is
+    generic (
+	lobit : integer := 2;
+	hibit : integer := 15
+    );
+    port (
+	ena : in std_logic;
+	value : in std_logic_vector(15 downto 0);
+	addr : in std_logic_vector(15 downto 0);
+	matched : out std_logic
+    );
+end component match16;
+
+component decode2 is
+    port (
+	ena : in std_logic;
+	addr : in std_logic;
+	sel : out std_logic_vector ( 1 downto 0 )
+    );
+end component decode2;
+
+component decode4 is
+    port (
+	ena : in std_logic;
+	addr : in std_logic_vector ( 1 downto 0 );
+	sel : out std_logic_vector ( 3 downto 0 )
+    );
+end component decode4;
+
+component decode8 is
+    port (
+	ena : in std_logic;
+	addr : in std_logic_vector ( 2 downto 0 );
+	sel : out std_logic_vector ( 7 downto 0 )
+    );
+end component decode8;
+
+component decode16 is
+    port (
+	ena : in std_logic;
+	addr : in std_logic_vector ( 3 downto 0 );
+	sel : out std_logic_vector ( 15 downto 0 )
+    );
+end component decode16;
+
 end businterface_pkg;
 
 
@@ -113,4 +160,162 @@ begin
 		wr_bus <= LAD;
 	end process;
 
- end behavioral;
+end behavioral;
+
+library IEEE;
+use IEEE.std_logic_1164.all;  -- defines std_logic types
+use IEEE.std_logic_ARITH.all;
+use IEEE.std_logic_UNSIGNED.all;
+
+entity match16 is
+    generic (
+	lobit : integer := 2;
+	hibit : integer := 15
+    );
+    port (
+	ena : in std_logic;
+	value : in std_logic_vector(15 downto 0);
+	addr : in std_logic_vector(15 downto 0);
+	matched : out std_logic
+    );
+end match16;
+
+architecture behavioral of match16 is
+begin
+    process (ena, addr, value)
+	begin
+	-- combinatorial stuff
+	    if addr(hibit downto lobit) = value(hibit downto lobit) then
+		matched <= ena;
+	    else
+		matched <= '0';
+	    end if;
+	end process;
+end behavioral;
+
+library IEEE;
+use IEEE.std_logic_1164.all;  -- defines std_logic types
+use IEEE.std_logic_ARITH.all;
+use IEEE.std_logic_UNSIGNED.all;
+
+entity decode2 is
+    port (
+	ena : in std_logic;
+	addr : in std_logic;
+	sel : out std_logic_vector ( 1 downto 0 )
+    );
+end decode2;
+
+architecture behavioral of decode2 is
+begin
+    process (ena, addr)
+	begin
+	-- combinatorial stuff
+	    sel <= (others => '0');
+	    if ena = '1' then
+		if addr = '0' then sel(0) <= '1'; end if;
+		if addr = '1' then sel(1) <= '1'; end if;
+	    end if;
+	end process;
+end behavioral;
+
+library IEEE;
+use IEEE.std_logic_1164.all;  -- defines std_logic types
+use IEEE.std_logic_ARITH.all;
+use IEEE.std_logic_UNSIGNED.all;
+
+entity decode4 is
+    port (
+	ena : in std_logic;
+	addr : in std_logic_vector ( 1 downto 0 );
+	sel : out std_logic_vector ( 3 downto 0 )
+    );
+end decode4;
+
+architecture behavioral of decode4 is
+begin
+    process (ena, addr)
+	begin
+	-- combinatorial stuff
+	    sel <= (others => '0');
+	    if ena = '1' then
+		if addr = "00" then sel(0) <= '1'; end if;
+		if addr = "01" then sel(1) <= '1'; end if;
+		if addr = "10" then sel(2) <= '1'; end if;
+		if addr = "11" then sel(3) <= '1'; end if;
+	    end if;
+	end process;
+end behavioral;
+
+library IEEE;
+use IEEE.std_logic_1164.all;  -- defines std_logic types
+use IEEE.std_logic_ARITH.all;
+use IEEE.std_logic_UNSIGNED.all;
+
+entity decode8 is
+    port (
+	ena : in std_logic;
+	addr : in std_logic_vector ( 2 downto 0 );
+	sel : out std_logic_vector ( 7 downto 0 )
+    );
+end decode8;
+
+architecture behavioral of decode8 is
+begin
+    process (ena, addr)
+	begin
+	-- combinatorial stuff
+	    sel <= (others => '0');
+	    if ena = '1' then
+		if addr = "000" then sel(0) <= '1'; end if;
+		if addr = "001" then sel(1) <= '1'; end if;
+		if addr = "010" then sel(2) <= '1'; end if;
+		if addr = "011" then sel(3) <= '1'; end if;
+		if addr = "100" then sel(4) <= '1'; end if;
+		if addr = "101" then sel(5) <= '1'; end if;
+		if addr = "110" then sel(6) <= '1'; end if;
+		if addr = "111" then sel(7) <= '1'; end if;
+	    end if;
+	end process;
+end behavioral;
+
+library IEEE;
+use IEEE.std_logic_1164.all;  -- defines std_logic types
+use IEEE.std_logic_ARITH.all;
+use IEEE.std_logic_UNSIGNED.all;
+
+entity decode16 is
+    port (
+	ena : in std_logic;
+	addr : in std_logic_vector ( 3 downto 0 );
+	sel : out std_logic_vector ( 15 downto 0 )
+    );
+end decode16;
+
+architecture behavioral of decode16 is
+begin
+    process (ena, addr)
+	begin
+	-- combinatorial stuff
+	    sel <= (others => '0');
+	    if ena = '1' then
+		if addr = "0000" then sel(0) <= '1'; end if;
+		if addr = "0001" then sel(1) <= '1'; end if;
+		if addr = "0010" then sel(2) <= '1'; end if;
+		if addr = "0011" then sel(3) <= '1'; end if;
+		if addr = "0100" then sel(4) <= '1'; end if;
+		if addr = "0101" then sel(5) <= '1'; end if;
+		if addr = "0110" then sel(6) <= '1'; end if;
+		if addr = "0111" then sel(7) <= '1'; end if;
+		if addr = "1000" then sel(8) <= '1'; end if;
+		if addr = "1001" then sel(9) <= '1'; end if;
+		if addr = "1010" then sel(10) <= '1'; end if;
+		if addr = "1011" then sel(11) <= '1'; end if;
+		if addr = "1100" then sel(12) <= '1'; end if;
+		if addr = "1101" then sel(13) <= '1'; end if;
+		if addr = "1110" then sel(14) <= '1'; end if;
+		if addr = "1111" then sel(15) <= '1'; end if;
+	    end if;
+	end process;
+end behavioral;
+
