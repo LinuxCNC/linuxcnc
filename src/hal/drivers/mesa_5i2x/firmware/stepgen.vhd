@@ -57,7 +57,7 @@ component stepgen is
 	sel : in std_logic;
 	write : in std_logic;
 	read : in std_logic;
-	addr : in std_logic_vector (2 downto 0 );
+	addr : in std_logic_vector (1 downto 0 );
 	out0 : out std_logic;
 	out1 : out std_logic
     );
@@ -121,7 +121,7 @@ architecture behavioral of stepgen_core is
 
 begin
     StepDDS:
-	process (clock, ddshold, rate, accum, nextaccum)
+	process (clock, ddshold, rate, accum, nextaccum, enable)
 	begin
 	    -- combinatorial stuff
 		nextaccum <= signed(accum) + signed(rate);
@@ -212,6 +212,7 @@ use work.stepgen_pkg.all;
 --  00: 00-23 = rate (24 bits)
 --  01: 00-13 = step length (14 bits)
 --      16-17 = mode (00-off, 01-step/dir, 02-up/down, 03-quadrature)
+--      18    = enable (0-off, 1-on)
 --  02: 00-13 = direction hold time (14 bits)
 --      16-29 = direction setup time (14 bits)
 
@@ -250,10 +251,11 @@ architecture behavioral of stepgen is
     signal stepdown : std_logic;
     signal phasea : std_logic;
     signal phaseb : std_logic;
+    signal local_enable : std_logic;
 
 begin
     BusInterface:
-	process (sel, read, write, addr, ibus, rd_reg0)
+	process (clock, sel, read, write, addr, ibus, rd_reg0, enable, wr_reg1)
 	begin
 	    -- combinatorial stuff
 		-- decoding
@@ -266,6 +268,8 @@ begin
 		if rd0 = '1' then
 		    obus <= rd_reg0;
 		end if;
+		-- enable = global enable and enable bit in mode register
+		local_enable <= enable and wr_reg1(18);
 	    -- clocked stuff
 	    if clock'event and clock = '1' then
 		-- writing
@@ -282,10 +286,10 @@ begin
 	end process;
 
     ModeLogic:
-	process (stepout, dirout, stepup, stepdown, phasea, phaseb, rd_reg0)
+	process (stepout, dirout, stepup, stepdown, phasea, phaseb, wr_reg1)
 	begin
 	    -- combinatorial stuff
-	    case rd_reg0(17 downto 16) is
+	    case wr_reg1(17 downto 16) is
 		when "00" => out0 <= '0' ; out1 <= '0';
 		when "01" => out0 <= stepout ; out1 <= dirout;
 		when "10" => out0 <= stepup ; out1 <= stepdown;
@@ -314,7 +318,7 @@ begin
 		holdtime => wr_reg2(13 downto 0),
 		setuptime => wr_reg2(29 downto 16),
 		position => rd_reg0(31 downto 0),
-		enable => enable,
+		enable => local_enable,
 		clock => clock
 	);
 
