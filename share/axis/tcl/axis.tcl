@@ -1653,18 +1653,18 @@ proc update_state {args} {
 
     relief {$interp_state != $INTERP_IDLE} .toolbar.program_run
     state  {$task_state == $STATE_ON && $taskfile != ""} \
-                .toolbar.program_step {.menu.machine "_Step"}
+                .toolbar.program_step {.menu.machine "S_tep"}
     state  {$task_state == $STATE_ON && \
       ($interp_state == $INTERP_READING || $interp_state == $INTERP_WAITING) } \
                 {.menu.machine "_Pause"}
     state  {$task_state == $STATE_ON && $interp_state == $INTERP_PAUSED } \
-                {.menu.machine "_Resume"}
+                {.menu.machine "Re_sume"}
     state  {$task_state == $STATE_ON && $interp_state != $INTERP_IDLE} \
                 .toolbar.program_pause
     relief {$interp_state == $INTERP_PAUSED} \
                 .toolbar.program_pause
     state  {$task_state == $STATE_ON && $interp_state != $INTERP_IDLE} \
-                .toolbar.program_stop {.menu.machine "S_top"}
+                .toolbar.program_stop {.menu.machine "Stop"}
     relief {$interp_state == $INTERP_IDLE} \
                 .toolbar.program_stop
 
