@@ -1,4 +1,4 @@
-/******************************************************************************
+/*************************************************************************
 
 Copyright (C) 2007 John Kasunich <jmkasunich AT sourceforge DOT net>
 
@@ -13,11 +13,44 @@ This is the driver for the Mesa Electronics 5i20 board.
 The board includes a user programable FPGA. This driver
 will ultimately handle a wide range of FPGA configurations.
 
+*************************************************************************/
+
+
+/*************************************************************************
+
+
 Installation of the driver (realtime only):
 
-(first load the FPGA config: sudo m5i20cfg <bitfile> <boardnum>
+first load the FPGA config:   bfload <bitfile> <boardnum>
+then load the actual driver:  insmod hal_5i2x
 
-insmod hal_m5i20
+using halcmd:
+
+loadusr -w bfload <bitfile> <boardnum>
+loadrt hal_5i2x
+
+
+The FPGA contains a 1024 byte RAM, and the RAM contains FPGA specific
+info that tells the driver what is in the FPGA (and thus what HAL stuff
+needs to be exported).  The RAM is treated as a stream of bytes:
+
+pre-header: 4 bytes of 00, treated as no-care
+header:
+	1 byte: protocol version (in case of future format changes
+		that make the RAM incompatible with older drivers)
+	1 byte: board ID, 1 for 5i20, 2 for 5i22
+
+blocks: each block starts with a code that identifies the type of
+	block it is and the code that parses it.  A code of zero means
+	the end of the data (no more blocks).  The main driver simply
+	calls an export function for each block, that function reads
+	the block content, and passes back a pointer to the first
+	byte of the following block.
+
+The space after the data is filled with zeros.  The last two bytes
+are a checksum, used to verify that the driver is actually talking
+to a 5i2x board with a valid configuration in it.
+
 
 Items are exported to the HAL based on the capabilities that
 the config supplies.  <boardId> is the PCI board number and
@@ -44,7 +77,7 @@ Digital Out:
 
 Stepgen:
 
-**********************************************************************
+**************************************************************************
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of version 2 of the GNU General
@@ -70,38 +103,33 @@ any responsibility for such compliance.
 This code was written as part of the EMC HAL project.  For more
 information, go to www.linuxcnc.org.
 
-**********************************************************************/
+*************************************************************************/
 
 #ifndef RTAPI
 #error This is a realtime component only!
 #endif
 
-
 #include <linux/pci.h>
-
 #include "rtapi.h"			// RTAPI realtime OS API.
 #include "rtapi_app.h"			// RTAPI realtime module decls.
 #include "hal.h"			// HAL public API decls.
-//#include "plx9030.h"			// Hardware dependent defines.
-//#include "m5i20.h"			// Hardware dependent defines.
-
+#include "hal_5i2x.h"			// Hardware dependent defines.
 
 #ifndef MODULE
 #define MODULE
 #endif
 
-
 #ifdef MODULE
 // Module information.
 MODULE_AUTHOR("John Kasunich");
-MODULE_DESCRIPTION("Driver for Mesa Electronics 5i20 for EMC HAL");
+MODULE_DESCRIPTION("Driver for Mesa Electronics 5i2x for EMC HAL");
 MODULE_LICENSE("GPL");
 #endif // MODULE
 
 /***************************************************************************
                           config ROM defines
 ***************************************************************************/
-#if 0  /* FIXME - no ROM yet */
+#if 0  /* FIXME - this stuff is still up in the air */
 
 /* input options: regular or not-an-input */
 #define IN_MASK		0x1
@@ -125,9 +153,9 @@ MODULE_LICENSE("GPL");
 
 #endif
 
-/***************************************************************************
+/*************************************************************************
                           typedefs and defines
-***************************************************************************/
+*************************************************************************/
 
 
 // Vendor and device ID.
@@ -136,125 +164,25 @@ MODULE_LICENSE("GPL");
 #define M5I20_SUBSYS_VENDOR_ID		0x10B5		// PLX.
 #define M5I20_SUBSYS_DEVICE_ID		0x3131		// Mesa 5i20.
 
-
-/* Step generator ports */
-#define STEPGEN_BASE		0x2000
-/* add the following to STEPGEN_BASE */
-/* also add channel number times 4 */
-#define STEPGEN_RATE_REG	0x0000
-#define STEPGEN_ACCUM		0x0100
-#define STEPGEN_MODE_REG	0x0200
-#define STEPGEN_MODE_STEP_POL_MASK	0x01
-#define STEPGEN_MODE_DIR_POL_MASK	0x02
-#define STEPGEN_MODE_QUAD_MODE_MASK	0x04
-#define STEPGEN_MODE_OUT_ENA_MASK	0x08
-#define STEPGEN_DIR_SETUP	0x0300
-#define STEPGEN_DIR_HOLD	0x0400
-#define STEPGEN_STEP_LEN	0x0500
-#define STEPGEN_MAX_TIMER	0x0FFF
-
-/* shared stepgen port */
-#define MASTER_DDS 0xC000
-
-/* timing stuff */
-#define STEPGEN_MASTER_CLOCK 33000000
-#define COUNTS_PER_HZ ((double)(1ll << 32)/(double)STEPGEN_MASTER_CLOCK)
-#define STEPGEN_MASTER_PERIOD (1000000000/STEPGEN_MASTER_CLOCK)
-
-/* encoder stuff */
-
-
-
-/* config ROM */
-#define ROM	0x0000
-/* default contents */
-const __u32 rom[] = { 0x00000000, 0x11111111, 0xabcd1234 };
-
 /* general I/O */
 /* add 4 for each group of 24 pins (one connector) */
 #define GPIO_DATA	0x1000
 #define GPIO_DIR	0x1100
 
-/* code assumes that PINS_PER_PORT is <= 32 */
-#define PINS_PER_PORT 24
-#define PORTS_PER_BOARD 3
 
 
-/***************************************************************************
-                         Data Structures
-***************************************************************************/
-
-/* digital I/O pin */
-typedef struct dig_io_t {
-    hal_bit_t *in;
-    hal_bit_t *in_not;
-    hal_bit_t *out;
-    hal_bit_t invert;
-} dig_io_t;
-
-/* one connector worth of digital I/O */
-typedef struct dig_port_t {
-    __u32 ins;		/* bitmap marking all inputs */
-    __u32 outs;		/* bitmap marking all outputs */
-    __u32 ocs;		/* bitmap marking open collector outputs */
-    void __iomem *data_addr;
-    void __iomem *dir_addr;
-    dig_io_t pins[24];
-} dig_port_t;
-
-/* one stepgen */
-typedef struct stepgen_t {
-    hal_s32_t *counts;
-    hal_float_t *pos_fb;
-    hal_bit_t *enable;
-    hal_float_t *vel_cmd;
-    hal_float_t frequency;
-    hal_float_t maxaccel;
-    hal_float_t maxvel;
-    hal_float_t scale;
-    hal_u32_t steplen;
-    hal_u32_t stepspace;
-    hal_u32_t dirsetup;
-    hal_u32_t dirhold;
-    void __iomem *addr;
-    hal_float_t old_maxaccel;
-    hal_float_t old_maxvel;
-    hal_float_t old_scale;
-    __u32 old_steplen;
-    __u32 old_stepspace;
-    __u32 old_dirsetup;
-    __u32 old_dirhold;
-    double internal_maxvel;
-    double max_deltav;
-    double current_vel;
-    int update_max;
-    __s32 old_accum;
-    long long int counts_hires;
-} stepgen_t;
-
-/* master board structure */
-typedef struct board_data_t {
-    struct pci_dev *pci_dev;
-    int slot;
-    int boardnum;
-    void __iomem *base;
-    int len;
-    dig_port_t gpio[PORTS_PER_BOARD];
-    stepgen_t stepgen[8];
-} board_data_t; 
-
-/**************************************************************************
+/*************************************************************************
                                    Globals
-***************************************************************************/
+*************************************************************************/
 
 #define MAX_BOARDS	4
 
-static int comp_id;	/* HAL component ID */
+int comp_id;	/* HAL component ID */
 static board_data_t *boards[MAX_BOARDS];
 
-/******************************************************************************
+/*************************************************************************
                                  Realtime Code
- ******************************************************************************/
+ ************************************************************************/
 
 static void read_gpio(void *arg, long period)
 {
@@ -325,165 +253,6 @@ static void write_gpio(void *arg, long period)
     }
 }
 
-static void read_stepgen(void *arg, long period)
-{
-    stepgen_t *s;
-    __s32 accum, delta;
-
-    s = arg;
-    if ( s->scale != s->old_scale ) {
-	s->old_scale = s->scale;
-	/* validate the new scale value */
-	if ((s->scale < 1e-20) && (s->scale > -1e-20)) {
-	    /* value too small, divide by zero is a bad thing */
-	    s->scale = 1.0;
-	}
-	/* flag the change for write_stepgen() */
-	s->update_max = 1;
-    }
-    /* read the accumulator, this is 16.16 full/fractional steps */
-    accum = ioread32(s->addr+STEPGEN_ACCUM);
-    /* compute delta */
-    delta = accum - s->old_accum;
-    s->old_accum = accum;
-    /* update integer and high resolution counts */
-    *(s->counts) += (delta >> 16);
-    s->counts_hires += delta;
-    /* convert high res counts to position */
-    *(s->pos_fb) = ((double)s->counts_hires / s->scale) * ( 1.0 / ( 1LL << 16 ));
-}
-
-static void write_stepgen(void *arg, long period)
-{
-    stepgen_t *s;
-    int clocks;
-    __s32 addval;
-    __u32 min_period_ns;
-    double max_freq, vel_cmd, vel_diff;
-    __u32 mode;
-
-    s = arg;
-    /* lots of parameter processing, do only if something has changed */
-    if ( s->dirhold != s->old_dirhold ) {
-	/* convert dirhold in ns to clock periods */
-	clocks = s->dirhold * (STEPGEN_MASTER_CLOCK / 1000000000.0);
-	if ( clocks == 0 ) { clocks = 1; }
-	if ( clocks > STEPGEN_MAX_TIMER ) { clocks = STEPGEN_MAX_TIMER; }
-	/* set parameter to actual (post rounding) value */
-	s->old_dirhold = clocks * (1000000000.0 / STEPGEN_MASTER_CLOCK);
-	s->dirhold = s->old_dirhold;
-	/* write to hardware */
-	iowrite32(clocks, s->addr + STEPGEN_DIR_HOLD);
-    }
-    if ( s->dirsetup != s->old_dirsetup ) {
-	/* convert dirsetup in ns to clock periods */
-	clocks = s->dirsetup * (STEPGEN_MASTER_CLOCK / 1000000000.0);
-	if ( clocks == 0 ) { clocks = 1; }
-	if ( clocks > STEPGEN_MAX_TIMER ) { clocks = STEPGEN_MAX_TIMER; }
-	/* set parameter to actual (post rounding) value */
-	s->old_dirsetup = clocks * (1000000000.0 / STEPGEN_MASTER_CLOCK);
-	s->dirsetup = s->old_dirsetup;
-	/* write to hardware */
-	iowrite32(clocks, s->addr + STEPGEN_DIR_SETUP);
-    }
-    if ( s->steplen != s->old_steplen ) {
-	/* convert steplen in ns to clock periods */
-	clocks = s->steplen * (STEPGEN_MASTER_CLOCK / 1000000000.0);
-	if ( clocks == 0 ) { clocks = 1; }
-	if ( clocks > STEPGEN_MAX_TIMER ) { clocks = STEPGEN_MAX_TIMER; }
-	/* set parameter to actual (post rounding) value */
-	s->old_steplen = clocks * (1000000000.0 / STEPGEN_MASTER_CLOCK);
-	s->steplen = s->old_steplen;
-	/* write to hardware */
-	iowrite32(clocks, s->addr + STEPGEN_STEP_LEN);
-	/* force recalc of max frequency */
-	s->update_max = 1;
-    }
-    if ( s->stepspace != s->old_stepspace ) {
-	/* convert stepspace in ns to clock periods */
-	clocks = s->stepspace * (STEPGEN_MASTER_CLOCK / 1000000000.0);
-	if ( clocks == 0 ) { clocks = 1; }
-	/* set parameter to actual (post rounding) value */
-	s->old_stepspace = clocks * (1000000000.0 / STEPGEN_MASTER_CLOCK);
-	s->stepspace = s->old_stepspace;
-	/* force recalc of max frequency */
-	s->update_max = 1;
-    }
-    if ( s->scale != s->old_scale ) {
-	s->old_scale = s->scale;
-	/* validate the new scale value */
-	if ((s->scale < 1e-20) && (s->scale > -1e-20)) {
-	    /* value too small, divide by zero is a bad thing */
-	    s->scale = 1.0;
-	}
-	/* force recalc of max frequency */
-	s->update_max = 1;
-    }
-    if ( s->maxvel != s->old_maxvel ) {
-	if ( s->maxvel < 0.0 ) {
-	    s->maxvel = -s->maxvel;
-	}
-	s->old_maxvel = s->maxvel;
-	/* force recalc of max frequency */
-	s->update_max = 1;
-    }
-    if ( s->maxaccel != s->old_maxaccel ) {
-	if ( s->maxaccel < 0.0 ) {
-	    s->maxaccel = -s->maxaccel;
-	}
-	s->old_maxaccel = s->maxaccel;
-	s->max_deltav = s->maxaccel * period * 0.000000001;
-    }
-    if ( s->update_max ) {
-	/* either maxvel, scale, steplen, or stepspace changed */
-	min_period_ns = s->steplen + s->stepspace;
-	max_freq = 1000000000.0 / min_period_ns;
-	s->internal_maxvel = max_freq / s->scale;
-	if ( s->maxvel > 0.0 ) {
-	    if ( s->maxvel < s->internal_maxvel ) {
-		s->internal_maxvel = s->maxvel;
-	    } else {
-		s->maxvel = s->internal_maxvel;
-		s->old_maxvel = s->maxvel;
-	    }
-	}
-    }
-    /* apply velocity limits */
-    vel_cmd = *(s->vel_cmd);
-    if ( vel_cmd > s->internal_maxvel ) {
-	vel_cmd = s->internal_maxvel;
-	*(s->vel_cmd) = vel_cmd;
-    } else if ( vel_cmd < -s->internal_maxvel ) {
-	vel_cmd = -s->internal_maxvel;
-	*(s->vel_cmd) = vel_cmd;
-    }
-    /* apply ramping */
-    if ( s->max_deltav != 0.0 ) {
-	vel_diff = vel_cmd - s->current_vel;
-	if ( vel_diff > s->max_deltav ) {
-	    s->current_vel += s->max_deltav;
-	} else if ( vel_diff < -s->max_deltav ) {
-	    s->current_vel -= s->max_deltav;
-	} else {
-	    s->current_vel = vel_cmd;
-	}
-    }
-    /* convert vel to freq */
-    s->frequency = s->current_vel * s->scale;
-    /* convert frequency to adder value and write to hardware */
-    addval = s->frequency * COUNTS_PER_HZ;
-    iowrite32(addval, s->addr + STEPGEN_RATE_REG);
-
-    mode = 0;
-    if ( *(s->enable) != 0 ) {
-	mode |= STEPGEN_MODE_OUT_ENA_MASK;
-    }
-    iowrite32(mode, s->addr + STEPGEN_MODE_REG);
-
-}
-
-
-
 /******************************************************************************
                                 HAL export code
  ******************************************************************************/
@@ -540,7 +309,7 @@ static int export_gpio(int boardnum, board_data_t *board )
     retval = hal_export_funct(name, read_gpio, board, 0, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-		"5i20: ERROR: board %d GPIO read funct export failed\n", boardnum);
+		"5i2x: ERROR: board %d GPIO read funct export failed\n", boardnum);
 	rtapi_app_exit();
 	return -1;
     }
@@ -548,108 +317,7 @@ static int export_gpio(int boardnum, board_data_t *board )
     retval = hal_export_funct(name, write_gpio, board, 0, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-		"5i20: ERROR: board %d GPIO write funct export failed\n", boardnum);
-	rtapi_app_exit();
-	return -1;
-    }
-    return 0;
-}
-
-/* exports pins and params for one stepgen */
-static int export_stepgen(int boardnum, int gennum, board_data_t *board )
-{
-    int retval;
-    stepgen_t *stepgen;
-    char name[HAL_NAME_LEN + 2];
-
-    /* point to the stepgen */
-    stepgen = &(board->stepgen[gennum]);
-    /* export output HAL pins for feedbacks */
-    retval = hal_pin_s32_newf(HAL_OUT, &(stepgen->counts),
-	comp_id, "5i20.%d.stepgen.%d.counts", boardnum, gennum);
-    if (retval != 0) return retval;
-    retval = hal_pin_float_newf(HAL_OUT, &(stepgen->pos_fb),
-	comp_id, "5i20.%d.stepgen.%d.pos-fb", boardnum, gennum);
-    if (retval != 0) return retval;
-    /* export HAL input pins for control */
-    retval = hal_pin_bit_newf(HAL_IN, &(stepgen->enable),
-	comp_id, "5i20.%d.stepgen.%d.enable", boardnum, gennum);
-    if (retval != 0) return retval;
-    retval = hal_pin_float_newf(HAL_IN, &(stepgen->vel_cmd),
-	comp_id, "5i20.%d.stepgen.%d.vel-cmd", boardnum, gennum);
-    if (retval != 0) return retval;
-    /* now the parameters */
-    retval = hal_param_float_newf(HAL_RO, &(stepgen->frequency),
-	comp_id, "5i20.%d.stepgen.%d.frequency", boardnum, gennum);
-    if (retval != 0) return retval;
-    retval = hal_param_float_newf(HAL_RW, &(stepgen->maxaccel),
-	comp_id, "5i20.%d.stepgen.%d.maxaccel", boardnum, gennum);
-    if (retval != 0) return retval;
-    retval = hal_param_float_newf(HAL_RW, &(stepgen->maxvel),
-	comp_id, "5i20.%d.stepgen.%d.maxvel", boardnum, gennum);
-    if (retval != 0) return retval;
-    retval = hal_param_float_newf(HAL_RW, &(stepgen->scale),
-	comp_id, "5i20.%d.stepgen.%d.scale", boardnum, gennum);
-    if (retval != 0) return retval;
-    retval = hal_param_u32_newf(HAL_RW, &(stepgen->steplen),
-	comp_id, "5i20.%d.stepgen.%d.steplen", boardnum, gennum);
-    if (retval != 0) return retval;
-    retval = hal_param_u32_newf(HAL_RW, &(stepgen->stepspace),
-	comp_id, "5i20.%d.stepgen.%d.stepspace", boardnum, gennum);
-    if (retval != 0) return retval;
-    retval = hal_param_u32_newf(HAL_RW, &(stepgen->dirsetup),
-	comp_id, "5i20.%d.stepgen.%d.dirsetup", boardnum, gennum);
-    if (retval != 0) return retval;
-    retval = hal_param_u32_newf(HAL_RW, &(stepgen->dirhold),
-	comp_id, "5i20.%d.stepgen.%d.dirhold", boardnum, gennum);
-    if (retval != 0) return retval;
-    /* set initial value for pin and params */
-    *(stepgen->counts) = 0;
-    *(stepgen->pos_fb) = 0.0;
-    *(stepgen->enable) = 0;
-    *(stepgen->vel_cmd) = 0.0;
-    stepgen->frequency = 0.0;
-    stepgen->maxaccel = 0.0;
-    stepgen->maxvel = 0.0;
-    stepgen->scale = 200.0;
-    stepgen->steplen = 100;
-    stepgen->stepspace = 100;
-    stepgen->dirsetup = 100;
-    stepgen->dirhold = 100;
-    /* init other stuff */
-    stepgen->addr = board->base + STEPGEN_BASE + 4*gennum;
-    stepgen->old_maxaccel = -1.0;
-    stepgen->old_maxvel = -1.0;
-    stepgen->old_scale = 0.0;
-    stepgen->counts_hires = 0;
-    stepgen->old_steplen = 0;
-    stepgen->old_stepspace = 0;
-    stepgen->old_dirsetup = 0;
-    stepgen->old_dirhold = 0;
-    stepgen->internal_maxvel = 0;
-    stepgen->max_deltav = 0;
-    stepgen->current_vel = 0;
-    stepgen->update_max = 1;
-    stepgen->old_accum = 0;
-    stepgen->counts_hires = 0;
-    /* set master DDS (FIXME this goes away) */
-    iowrite32(0xFFFFFFFF, board->base + MASTER_DDS);
-    /* export functions */
-    rtapi_snprintf(name, HAL_NAME_LEN, "5i20.%d.stepgen.%d.read", boardnum, gennum);
-    retval = hal_export_funct(name, read_stepgen, stepgen, 1, 0, comp_id);
-    if (retval != 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "5i20: ERROR: board %d stepgen %d read funct export failed\n",
-	    boardnum, gennum);
-	rtapi_app_exit();
-	return -1;
-    }
-    rtapi_snprintf(name, HAL_NAME_LEN, "5i20.%d.stepgen.%d.write", boardnum, gennum);
-    retval = hal_export_funct(name, write_stepgen, stepgen, 1, 0, comp_id);
-    if (retval != 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "5i20: ERROR: board %d stepgen %d read funct export failed\n",
-	    boardnum, gennum);
+		"5i2x: ERROR: board %d GPIO write funct export failed\n", boardnum);
 	rtapi_app_exit();
 	return -1;
     }
@@ -664,14 +332,18 @@ static int export_stepgen(int boardnum, int gennum, board_data_t *board )
 int rtapi_app_main(void)
 {
     int n, i, retval;
-    __u32 foo[256];
+    __u8 config_data[CFG_RAM_SIZE], *cfg_ptr, *end_ptr;
+    __u32 data;
+    __u16 checksum1, checksum2;
+    __u8 protocol_version;
+    __u8 board_code, block_code;
     board_data_t *board;
     struct pci_dev *pDev;
 
     // Connect to the HAL.
-    comp_id = hal_init("hal_5i20");
+    comp_id = hal_init("hal_5i2x");
     if (comp_id < 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR, "5i20: ERROR: hal_init() failed\n");
+	rtapi_print_msg(RTAPI_MSG_ERR, "5i2x: ERROR: hal_init() failed\n");
 	return(-1);
     }
 
@@ -686,105 +358,136 @@ int rtapi_app_main(void)
 	    /* no more boards */
 	    break;
 	}
+	/* FIXME: this code would probably detect ANY board using the
+	   PLX9030 bridge chip as if it was a 5i20 board.  It is also
+	   neccessary to check the subsystem ID.  Add that later... */
+
 	/* Allocate HAL memory for the board */
 	board = (board_data_t *)(hal_malloc(sizeof(board_data_t)));
 	if ( board == NULL ) {
-	    rtapi_print_msg(RTAPI_MSG_ERR, "5i20: ERROR: hal_malloc() failed\n");
+	    rtapi_print_msg(RTAPI_MSG_ERR, "5i2x: ERROR: hal_malloc() failed\n");
 	    rtapi_app_exit();
 	    return -1;
 	}
 	/* gather info about the board and save it */
 	board->pci_dev = pDev;
 	board->slot = PCI_SLOT(pDev->devfn);
+	board->num = n;
 	rtapi_print_msg(RTAPI_MSG_INFO,
-	     "5i20: Board %d detected in Slot: %2x\n", n, board->slot);
+	     "5i2x: Board %d detected in Slot: %2x\n", board->num, board->slot);
 	/* region 5 is the 32 bit memory mapped region */
 	board->len = pci_resource_len(pDev, 5);
 	board->base = ioremap_nocache(pci_resource_start(pDev, 5), board->len);
 	if ( board->base == NULL ) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"5i20: ERROR: could not map board %d FPGA data\n", n );
+		"5i2x: ERROR: could not map board %d FPGA data\n", board->num );
 	    rtapi_app_exit();
 	    return -1;
 	} else {
 	    rtapi_print_msg(RTAPI_MSG_INFO,
-		"5i20: board %d FPGA data mapped to %08lx, Len = %ld\n",
-		n, (long)board->base, (long)board->len);
+		"5i2x: board %d FPGA data mapped to %08lx, Len = %ld\n",
+		board->num, (long)board->base, (long)board->len);
 	}
-
-/* FIXME - this assumes a particular config */
-
-	for ( i = 0 ; i < 3 ; i++ ) {
-	    foo[i] = ioread32(board->base+ROM+i*4);
+	/* read the configuration RAM */
+	i = 0;
+	while ( i < CFG_RAM_SIZE ) {
+	    data = ioread32(board->base+i);
+	    config_data[i++] = data & 0xFF;
+	    data >>= 8;
+	    config_data[i++] = data & 0xFF;
+	    data >>= 8;
+	    config_data[i++] = data & 0xFF;
+	    data >>= 8;
+	    config_data[i++] = data & 0xFF;
 	}
-	if ( foo[2] != rom[2] ) {
+	/* mask out first four bytes */
+	for ( i = 0 ; i < 4 ; i++ ) {
+	    config_data[i] = 0;
+	}
+	/* calculate the checksum */
+	/* we use a 16 bit variant on Adler32, it is more robust than
+	   a simple checksum, and simpler to compute than a real CRC */
+	checksum1 = 0;
+	checksum2 = 0;
+	for ( i = 0 ; i <= DATA_END_ADDR ; i++ ) {
+	    checksum1 += config_data[i];
+	    while ( checksum1 > 251 ) checksum1 -= 251;
+	    checksum2 += checksum1;
+	    while ( checksum2 > 251 ) checksum2 -= 251;
+	}
+	/* validate the checksum */
+	if (( checksum1 != config_data[CHECKSUM1_ADDR] ) ||
+	    ( checksum2 != config_data[CHECKSUM2_ADDR] )) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"5i20: ERROR: board %d ROM check failed, is config loaded?\n", n );
+		"5i2x0: ERROR: board %d RAM checksum, is config loaded?\n",
+		board->num );
 	    rtapi_app_exit();
 	    return -1;
 	}
-#if 0
-	board->gpio[0].ins  = 0x003F0000;
-	board->gpio[0].outs = 0x00F00000;
-	board->gpio[0].ocs  = 0x00A00000;
-	board->gpio[1].ins  = 0x00FFFFFF;
-	board->gpio[1].outs = 0x00FFFFFF;
-	board->gpio[1].ocs  = 0x00000000;
-	board->gpio[2].ins  = 0x00FFFFFF;
-	board->gpio[2].outs = 0x00FF0000;
-	board->gpio[2].ocs  = 0x00000000;
-#endif
-	board->gpio[0].ins  = 0x00C00003;
-	board->gpio[0].outs = 0x00C00000;
-	board->gpio[0].ocs  = 0x00000000;
-	board->gpio[1].ins  = 0x00000000;
-	board->gpio[1].outs = 0x00000000;
-	board->gpio[1].ocs  = 0x00000000;
-	board->gpio[2].ins  = 0x00000000;
-	board->gpio[2].outs = 0x00000000;
-	board->gpio[2].ocs  = 0x00000000;
-	retval = export_gpio(n, board);
-	if ( retval != 0 ) {
+	rtapi_print_msg(RTAPI_MSG_INFO,
+	    "5i2x: board %d checksum OK\n", board->num );
+	/* get header info and validate it */
+	protocol_version = config_data[PROTOCOL_VERSION_ADDR];
+	if (( protocol_version < MIN_PROTOCOL_VERSION ) ||
+	    ( protocol_version > MAX_PROTOCOL_VERSION )) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"5i20: ERROR: GPIO pin/param/function export failed\n" );
+		"5i2x: ERROR: board %d data is version %d\n",
+		board->num, protocol_version );
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+		"5i2x: ERROR: this driver works with version %d thru %d only\n",
+		MIN_PROTOCOL_VERSION, MAX_PROTOCOL_VERSION );
 	    rtapi_app_exit();
 	    return -1;
 	}
-	for ( i = 0 ; i < 1 ; i++ ) {
-	    retval = export_stepgen(n, i, board);
+	board_code = config_data[BOARD_CODE_ADDR];
+	if ( board_code == BOARD_CODE_5I20 ) {
+	    rtapi_print_msg(RTAPI_MSG_INFO,
+		"5i2x: board %d code says 5i20\n", board->num );
+	} else {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+		"5i2x: ERROR: board %d has unknown board code '%d'\n",
+		board->num, board_code );
+	    rtapi_app_exit();
+	    return -1;
+	}
+	/* point to first block of data */
+	cfg_ptr = &(config_data[DATA_START_ADDR]);
+	end_ptr = &(config_data[DATA_END_ADDR]);
+	/* loop thru all blocks, calling the appropriate export functions */
+	while (( cfg_ptr < end_ptr ) && ( *cfg_ptr > 0 )) {
+	    /* we have a block */
+	    block_code = *cfg_ptr;
+	    retval = -1;
+	    switch ( block_code ) {
+	    case STEPGEN_VEL_MODE:
+		rtapi_print("stepgen, code is %d, at %d\n", block_code, i );
+		retval = export_stepgen(&cfg_ptr, board);
+		break;
+	    default:
+		rtapi_print_msg(RTAPI_MSG_ERR,
+		    "5i2x: ERROR: board %d: unknown block code '%d' at %d\n",
+		    board->num, block_code, i );
+		rtapi_app_exit();
+		return -1;
+	    }
 	    if ( retval != 0 ) {
 		rtapi_print_msg(RTAPI_MSG_ERR,
-		    "5i20: ERROR: stepgen %d pin/param/function export failed\n", i );
+		    "5i2x: ERROR: export failed: board %d, block code '%d' cfg RAM addr %04x\n",
+		    board->num, block_code, i );
 		rtapi_app_exit();
 		return -1;
 	    }
 	}
-
-#if 0
-	// Initialize device.
-	if(Device_Init(pDevice, pCard16, pCard32, pBridgeIc)){
-	    hal_exit(driver.componentId);
-	    return(-1);
-	}
-
-	// Export pins, parameters, and functions.
-	if(Device_ExportPinsParametersFunctions(pDevice, driver.componentId, i++)){
-	    hal_exit(driver.componentId);
-	    return(-1);
-	}
-#endif
     }
-
     if(n == 0){
 	/* No cards detected */
-	rtapi_print_msg(RTAPI_MSG_ERR, "5I20: ERROR: No 5I20 card(s) detected\n");
+	rtapi_print_msg(RTAPI_MSG_ERR, "5I2x: ERROR: No 5I20 card(s) detected\n");
 	rtapi_app_exit();
 	return(-1);
     }
     hal_ready(comp_id);
     return(0);
 }
-
 
 void rtapi_app_exit(void)
 {
