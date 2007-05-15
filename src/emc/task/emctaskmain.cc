@@ -2725,8 +2725,8 @@ int main(int argc, char *argv[])
 {
     /*! \todo FIXME-- replace path with path declared from configure/make */
     // Settings for gettext
-    bindtextdomain("rs274_err","/usr/share/locale");
     setlocale(LC_MESSAGES,"");
+    bindtextdomain("rs274_err",EMC2_HOME"/share/locale");
     textdomain("rs274_err");
 
     int taskAborted = 0;	// flag to prevent flurry of task aborts

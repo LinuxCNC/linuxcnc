@@ -81,6 +81,9 @@ include an option for suppressing superfluous commands.
 #include <sys/time.h>
 #include <time.h>
 #include <unistd.h>
+#include <libintl.h>
+
+#define _ gettext
 
 #include "inifile.hh"		// INIFILE
 #include "rs274ngc.hh"
@@ -1141,12 +1144,16 @@ void Interp::error_text(int error_code,        //!< code number of error
         return;
     }
 
-  if (((error_code >= INTERP_MIN_ERROR) &&
-       (error_code <= RS274NGC_MAX_ERROR)) &&
-      (strlen(_rs274ngc_errors[error_code]) < ((size_t) max_size))) {
-    strcpy(error_text, _rs274ngc_errors[error_code]);
-  } else
-    error_text[0] = 0;
+    if ((error_code >= INTERP_MIN_ERROR) && (error_code <= RS274NGC_MAX_ERROR))
+    {
+    	char *message = _(_rs274ngc_errors[error_code]);
+	strncpy(error_text, message, max_size-1);
+	error_text[max_size-1] = 0;
+    }
+    else
+    {
+        error_text[0] = 0;
+    }
 }
 
 /***********************************************************************/
