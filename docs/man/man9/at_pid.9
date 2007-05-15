@@ -6,7 +6,7 @@
 ..
 
 .SH NAME
-at_pid \- proportional/integral/derivative controller with auto-tune
+at_pid \- proportional/integral/derivative controller with auto tuning
 .SH SYNOPSIS
 \fBloadrt at_pid num_chan=\fInum\fR [\fBdebug=\fIdbg\fR]
 
@@ -22,10 +22,23 @@ value is three.  If \fBdebug\fR is set to 1 (the default is 0), some
 additional HAL parameters will be exported, which might be useful
 for tuning, but are otherwise unnecessary.
 .P
-\fBat_pid\fR has a built in auto-tune mode. It works by setting up a limit
+\fBat_pid\fR has a built in auto tune mode. It works by setting up a limit
 cycle to characterize the process. From this, \fBPgain/Igain/Dgain\fR or
 \fBPgain/Igain/FF1\fR can be determined using Ziegler-Nichols. When using
 \fBFF1\fR, scaling must be set so that \fBoutput\fR is in user units per second.
+.P
+During auto tuning, the \fBcommand\fR input should not change. The limit
+cycle is setup around the commanded position. No initial tuning values are
+required to start auto tuning.  Only \fBtune-cycles\fR and \fBtune-effort\fR
+need be set before starting auto tuning.  When auto tuning completes, the
+tuning parameters will be set.
+.P
+To perform auto tuning, take the following steps.  Move the axis to be tuned,
+to somewhere near the center of it's travel.  Set \fBtune-cycles\fR (the
+default value should be fine in most cases) and \fBtune-effort\fR. Set
+\fBenable\fR to true. Set \fBtune-mode\fR to true. Set \fBtune-start\fR to
+true. Auto tuning can be aborted at any time by setting \fBenable\fR or
+\fBtune-mode\fR to false.
 
 .SH FUNCTIONS
 .TP 
@@ -51,12 +64,11 @@ When true, enables the PID calculations.  When false, \fBoutput\fR is zero,
 and all internal integrators, etc, are reset.
 .TP
 \fBpid.\fIN\fB.tune-mode\fR bit in
-When true, enables auto-tune mode.  When false, normal PID calculations are
+When true, enables auto tune mode.  When false, normal PID calculations are
 performed.
 .TP
 \fBpid.\fIN\fB.start-tune\fR bit io
-When set to true, starts an auto-tune cycle.  Cleared when the auto-tune cycle
-completes.
+When set to true, starts auto tuning.  Cleared when the auto tuning completes.
 
 .SH PARAMETERS
 .TP
@@ -168,7 +180,8 @@ in a more accurate characterization as the average of all cycles is used.
 Determines the effor used in setting up the limit cycle in the process.
 \fBtune-effort\fR should be set to a positive value less than \fBmaxoutput\fR.
 Start with something small and work up to a value that results in a good
-portion of the maximum motor current being used.
+portion of the maximum motor current being used. The smaller the value, the
+smaller the amplitude of the limit cycle.
 .TP
 \fBpid.\fIN\fB.errorI\fR float ro (only if debug=1)
 Integral of error.  This is the value that is multiplied by \fBIgain\fR to produce the Integral term of the output.
