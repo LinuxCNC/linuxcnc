@@ -100,6 +100,7 @@ typedef struct {
     unsigned char oldZ;		/* u:rw previous value of phase Z */
     unsigned char Zmask;	/* u:rc c:s mask for oldZ, from index-ena */
     hal_bit_t x4_mode;		/* u:r enables x4 counting (default) */
+    hal_bit_t counter_mode;	/* u:r enables counter mode */
     atomic buf[2];		/* u:w c:r double buffer for atomic data */
     volatile atomic *bp;	/* u:r c:w ptr to in-use buffer */
     hal_s32_t raw_counts;	/* u:rw raw count value, in update() only */
@@ -150,6 +151,13 @@ static const unsigned char lut_x4[16] = {
 static const unsigned char lut_x1[16] = {
     0x00, 0x44, 0x08, 0x0C, 0x80, 0x04, 0x08, 0x0C,
     0x00, 0x04, 0x08, 0x0C, 0x00, 0x04, 0x08, 0x0C
+};
+
+/* look-up table for a one-wire counter */
+
+static const unsigned char lut_ctr[16] = {
+   0x00, 0x48, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+   0x00, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 };
 
 /* other globals */
@@ -213,6 +221,7 @@ int rtapi_app_main(void)
 	cntr->oldZ = 0;
 	cntr->Zmask = 0;
 	cntr->x4_mode = 1;
+	cntr->counter_mode = 0;
 	cntr->buf[0].count_detected = 0;
 	cntr->buf[1].count_detected = 0;
 	cntr->buf[0].index_detected = 0;
@@ -282,7 +291,9 @@ static void update(void *arg, long period)
 	    state |= SM_PHASE_B_MASK;
 	}
 	/* look up new state */
-	if ( cntr->x4_mode ) {
+	if ( cntr->counter_mode ) {
+	    state = lut_ctr[state & (SM_LOOKUP_MASK & ~SM_PHASE_B_MASK)];
+	} else if ( cntr->x4_mode ) {
 	    state = lut_x4[state & SM_LOOKUP_MASK];
 	} else {
 	    state = lut_x1[state & SM_LOOKUP_MASK];
@@ -504,6 +515,12 @@ static int export_counter(int num, counter_t * addr)
     /* export parameter for x4 mode */
     rtapi_snprintf(buf, HAL_NAME_LEN, "encoder.%d.x4-mode", num);
     retval = hal_param_bit_new(buf, HAL_RW, &(addr->x4_mode), comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    /* export parameter for counter mode */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "encoder.%d.counter-mode", num);
+    retval = hal_param_bit_new(buf, HAL_RW, &(addr->counter_mode), comp_id);
     if (retval != 0) {
 	return retval;
     }
