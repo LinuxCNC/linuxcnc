@@ -367,10 +367,10 @@ int rcs_shm_close(shm_t * shm)
     /* detach from shmem */
     shmdt((char *) shm->addr);
 
-    /* remove OS shmem if there are no attached processes */
-    if (rcs_shm_nattch(shm) == 0) {
-	shmctl(shm->id, IPC_RMID, ((struct shmid_ds *) &shared_mem_info));
-    }
+    /* remove OS shmem; warn if there are attached processes */
+rcs_print_debug(PRINT_SHARED_MEMORY_ACTIVITY,
+"rcs_shm_close(): %d still attached\n", rcs_shm_nattch(shm));
+    shmctl(shm->id, IPC_RMID, ((struct shmid_ds *) &shared_mem_info));
 
     if (shm->created && shmems_created_list_initialized) {
 	for (i = 0; i < 100; i++) {

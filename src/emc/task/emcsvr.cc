@@ -76,10 +76,6 @@ static NML *emcErrorChannel = NULL;
 static RCS_CMD_CHANNEL *toolCommandChannel = NULL;
 static RCS_STAT_CHANNEL *toolStatusChannel = NULL;
 
-void nice_exit(int ignore) {
-    _exit(0);
-}
-
 int main(int argc, char *argv[])
 {
     double start_time;
@@ -183,9 +179,9 @@ int main(int argc, char *argv[])
 				 EMC_NMLFILE);
     }
 
-    signal(SIGTERM, nice_exit);
-
     run_nml_servers();
 
     return 0;
 }
+
+// vim:sw=4:sts=4:et

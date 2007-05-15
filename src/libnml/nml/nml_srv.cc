@@ -473,6 +473,7 @@ static void catch_control_C1(int sig)
     nmlsrv_last_sig = sig;
     nml_sigint_count++;
     signal(SIGINT, SIG_DFL);
+    signal(SIGTERM, SIG_DFL);
     if (NULL != NML_Default_Super_Server) {
 	delete NML_Default_Super_Server;
 	NML_Default_Super_Server = (NML_SUPER_SERVER *) NULL;
@@ -489,6 +490,7 @@ static void catch_control_C2(int sig)
 {
     nmlsrv_last_sig = sig;
     signal(SIGINT, SIG_DFL);
+    signal(SIGTERM, SIG_DFL);
     nml_control_C_caught = 1;
 }
 
@@ -534,6 +536,7 @@ void run_nml_servers()
 		    run_nml_server_exit(-1);
 		} else {
 		    signal(SIGINT, catch_control_C1);
+		    signal(SIGTERM, catch_control_C1);
 		    sole_server->run(0);
 		    run_nml_server_exit(-1);
 		}
@@ -541,8 +544,9 @@ void run_nml_servers()
 		nml_control_C_caught = 0;
 		NML_Default_Super_Server->spawn_all_servers();
 		signal(SIGINT, catch_control_C2);
+		signal(SIGTERM, catch_control_C2);
 		while (!nml_control_C_caught)
-		    esleep(2.0);
+		    esleep(1.0);
 		NML_Default_Super_Server->kill_all_servers();
 		nml_cleanup();
 		run_nml_server_exit(0);
