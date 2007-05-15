@@ -43,6 +43,9 @@
 /* Directory for help files */
 #undef EMC2_HELP_DIR
 
+/* Prefix or RIP directory */
+#undef EMC2_HOME
+
 /* Directory for images */
 #undef EMC2_IMAGE_DIR
 
