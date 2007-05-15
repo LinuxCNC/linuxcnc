@@ -20,7 +20,6 @@
 
 
 #include <string.h>		/* memcpy() */
-#include <libintl.h>
 
 #include "rcs.hh"		// LinkedList
 #include "interpl.hh"		// these decls
