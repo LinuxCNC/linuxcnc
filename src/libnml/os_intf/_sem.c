@@ -67,7 +67,6 @@ union semun {
    since rcs_sem_close frees the storage allocated for the rcs_sem_t */
 int rcs_sem_destroy(rcs_sem_t * sem)
 {
-    rcs_print_error("rcs_sem_destroy(%p)\n", sem);
     /* remove OS semaphore */
     if (semctl(*sem, 0, IPC_RMID) == -1) {
 	rcs_print_error("semctl(%d,0,%d) failed: (errno = %d) %s\n",
