@@ -7,11 +7,15 @@
 
 .SH NAME
 
-counter \- counts input pulses
+counter \- counts input pulses \fB(DEPRECATED)\fB
 
 .SH SYNOPSIS
 .B loadrt counter [num_chan=\fIN\fB]
 .SH DESCRIPTION
+\fBcounter\fR is a deprecated HAL component and will be removed in a future
+release.  Use the \fBencoder\fR component with encoder.X.counter-mode set to
+TRUE.
+
 \fBcounter\fR is a HAL component that provides software-
 based counting that is useful for spindle position sensing and
 maybe other things.  Instead of using a real encoder that outputs

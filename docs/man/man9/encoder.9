@@ -23,7 +23,12 @@ Some hardware-based systems can count at MHz rates.
 channels actually loaded is set by the \fBnum_chan\fR argument when
 the module is loaded.  If \fBnumchan\fR is not specified, the default
 value is three.
-
+.P
+\fBencoder\fR has a one-phase, unidirectional mode called \fIcounter\fR.
+In this mode, the \fBphase-B\fR input is ignored; the counts increase whenever
+\fBphase-A\fR toggles.  This mode may be useful for counting a unidirectional
+spindle with a single input line, though the noise-resistant characteristics
+of quadrature are lost.
 .SH FUNCTIONS
 .TP 
 \fBencoder.update-counters\fR (no floating-point)
@@ -75,10 +80,15 @@ Scale factor, in counts per length unit.  For example, if \fBposition-scale\fR
 is 500, then 1000 counts of the encoder will be reported as a position of 2.0
 units.
 .TP
+\fBencoder.\fIN\fB.counter-mode\fR bit rw
+Enables counter mode.  When true, the counter counts each edge of the
+phase-A input, ignoring the value on phase-B.  When false (the default), it
+counts in quadrature mode.
+.TP
 \fBencoder.\fIN\fB.x4-mode\fR bit rw
 Enables times-4 mode.  When true (the default), the counter counts each edge
 of the quadrature waveform (four counts per full cycle).  When false, it only
-counts once per full cycle.
+counts once per full cycle.  In \fBcounter-mode\fR, this parameter is ignored.
 .TP
 \fBencoder.\fIN\fB.rawcounts\fR s32 ro
 The raw count, as determined by \fBupdate-counters\fR.  This value is updated
