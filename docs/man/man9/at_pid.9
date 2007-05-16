@@ -29,15 +29,17 @@ cycle to characterize the process. From this, \fBPgain/Igain/Dgain\fR or
 .P
 During auto tuning, the \fBcommand\fR input should not change. The limit
 cycle is setup around the commanded position. No initial tuning values are
-required to start auto tuning.  Only \fBtune-cycles\fR and \fBtune-effort\fR
-need be set before starting auto tuning.  When auto tuning completes, the
-tuning parameters will be set.
+required to start auto tuning.  Only \fBtune-cycles\fR, \fBtune-effort\fR
+and \fBtune-mode\fR need be set before starting auto tuning.  When auto tuning
+completes, the tuning parameters will be set.
 .P
 To perform auto tuning, take the following steps.  Move the axis to be tuned,
 to somewhere near the center of it's travel.  Set \fBtune-cycles\fR (the
-default value should be fine in most cases) and \fBtune-effort\fR. Set
-\fBenable\fR to true. Set \fBtune-mode\fR to true. Set \fBtune-start\fR to
-true. Auto tuning can be aborted at any time by setting \fBenable\fR or
+default value should be fine in most cases) and \fBtune-mode\fR. Set
+\fBtune-effort\fR to a small value. Set \fBenable\fR to true. Set
+\fBtune-mode\fR to true. Set \fBtune-start\fR to true. If no oscillation
+occurs, or the oscillation is too small, slowly increase \fBtune-effort\fR.
+Auto tuning can be aborted at any time by setting \fBenable\fR or
 \fBtune-mode\fR to false.
 
 .SH FUNCTIONS
@@ -67,7 +69,7 @@ and all internal integrators, etc, are reset.
 When true, enables auto tune mode.  When false, normal PID calculations are
 performed.
 .TP
-\fBpid.\fIN\fB.start-tune\fR bit io
+\fBpid.\fIN\fB.tune-start\fR bit io
 When set to true, starts auto tuning.  Cleared when the auto tuning completes.
 
 .SH PARAMETERS
