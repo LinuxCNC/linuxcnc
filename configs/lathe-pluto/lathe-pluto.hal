@@ -1,7 +1,7 @@
 # load realtime modules
 loadrt trivkins
 loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD traj_period_nsec=[EMCMOT]TRAJ_PERIOD key=[EMCMOT]SHMEM_KEY num_joints=[TRAJ]AXES
-loadrt pid num_chan=2
+loadrt at_pid num_chan=2 debug=1
 loadrt ddt count=4 
 loadrt pluto_servo
 
@@ -32,7 +32,7 @@ linksp spindle-pos => motion.spindle-revs
 
 setp pluto-servo.encoder-0-scale [AXIS_0]INPUT_SCALE
 setp pluto-servo.encoder-1-scale [AXIS_2]INPUT_SCALE
-setp pluto-servo.encoder-2-scale 4096
+setp pluto-servo.encoder-2-scale -4096
 
 linksp Xpos-fb <= pluto-servo.encoder.0.position
 linksp Zpos-fb <= pluto-servo.encoder.1.position
@@ -52,8 +52,11 @@ linksp Zvel-cmd <= pid.1.output
 linksp Xvel-cmd => pluto-servo.pwm.0.value
 linksp Zvel-cmd => pluto-servo.pwm.1.value
 
-setp pid.0.maxoutput 1.0
-setp pid.1.maxoutput 1.0
+setp pluto-servo.pwm.0.scale 26 # volts supply
+setp pluto-servo.pwm.1.scale 26
+
+setp pid.0.maxoutput 25 # volts at motor
+setp pid.1.maxoutput 25
 
 # the values below come from the ini
 setp pid.0.Pgain [AXIS_0]P
