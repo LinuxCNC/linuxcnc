@@ -21,6 +21,9 @@ loadrt boss_plc
 # limit override, spindle increase/decrease/status).
 loadrt debounce cfg="6"
 
+# Load muxes for motion feedback and PID command.
+loadrt mux2 count=8
+
 # Load differentiators for debug.
 loadrt ddt count=3
 
@@ -31,6 +34,7 @@ loadrt siggen
 # every servo period.
 #
 # Inputs are read at the beginning of the thread
+addf mux2.0 servo-thread 1
 addf debounce.0 servo-thread 1
 addf motenc.0.encoder-read servo-thread 1
 addf motenc.0.misc-update servo-thread 1
@@ -132,22 +136,37 @@ net aEnable axis.3.amp-enable-out => pid.3.enable
 # Set siggen parameters.
 setp siggen.0.frequency 0.5
 setp siggen.0.offset 0
-setp siggen.0.amplitude 0.00
+setp siggen.0.amplitude 0.01
 
-# Connect position commands to PID input.
-net xPosCmd siggen.0.cosine => pid.0.command
-net yPosCmd siggen.0.sine => pid.1.command
-net zPosCmd siggen.0.square => pid.2.command
-net aPosCmd siggen.0.sine => pid.3.command
+# Connect position commands to PID inputs.
+net xPosCmd axis.0.motor-pos-cmd =>  mux2.4.in0
+net yPosCmd axis.1.motor-pos-cmd =>  mux2.5.in0
+net zPosCmd axis.2.motor-pos-cmd =>  mux2.6.in0
+net aPosCmd axis.3.motor-pos-cmd =>  mux2.7.in0
 
-# Connect signals auto-tune pins.
-net xStartTune pid.0.start-tune
+net squareWave siggen.0.square => mux2.4.in1
+linksp squareWave => mux2.5.in1
+linksp squareWave => mux2.6.in1
+linksp squareWave => mux2.7.in1
+
+net xPidPosCmd mux2.4.out => pid.0.command
+net yPidPosCmd mux2.5.out => pid.1.command
+net zPidPosCmd mux2.6.out => pid.2.command
+net aPidPosCmd mux2.7.out => pid.3.command
+
+net xTestMode => mux2.4.sel
+net yTestMode => mux2.5.sel
+net zTestMode => mux2.6.sel
+net aTestMode => mux2.7.sel
+
+# Connect signals to auto-tune pins.
+net xStartTune pid.0.tune-start
 net xTuneMode pid.0.tune-mode
-net yStartTune pid.1.start-tune
+net yStartTune pid.1.tune-start
 net yTuneMode pid.1.tune-mode
-net zStartTune pid.2.start-tune
+net zStartTune pid.2.tune-start
 net zTuneMode pid.2.tune-mode
-net aStartTune pid.3.start-tune
+net aStartTune pid.3.tune-start
 net aTuneMode pid.3.tune-mode
 
 # DACs
@@ -184,21 +203,36 @@ setp motenc.0.enc-03-scale [AXIS_1]INPUT_SCALE
 setp motenc.0.enc-02-scale [AXIS_2]INPUT_SCALE 
 setp motenc.0.enc-00-scale [AXIS_3]INPUT_SCALE 
 
-# Connect position feedback to motion module.
-net xMotorPosCmd axis.0.motor-pos-cmd => axis.0.motor-pos-fb
-net yMotorPosCmd axis.1.motor-pos-cmd => axis.1.motor-pos-fb
-net zMotorPosCmd axis.2.motor-pos-cmd => axis.2.motor-pos-fb
-net aMotorPosCmd axis.3.motor-pos-cmd => axis.3.motor-pos-fb
-
 # Connect position feedback to PID loop.
-net xPosFb motenc.0.enc-01-position => pid.0.feedback
-net yPosFb motenc.0.enc-03-position => pid.1.feedback
-net zPosFb motenc.0.enc-02-position => pid.2.feedback
-net aPosFb motenc.0.enc-00-position => pid.3.feedback
+net xMotorPosFb motenc.0.enc-01-position => pid.0.feedback
+net yMotorPosFb motenc.0.enc-03-position => pid.1.feedback
+net zMotorPosFb motenc.0.enc-02-position => pid.2.feedback
+net aMotorPosFb motenc.0.enc-00-position => pid.3.feedback
+
+# Connect position feedback to motion module.
+linksp xMotorPosFb => mux2.0.in0
+linksp yMotorPosFb => mux2.1.in0
+linksp zMotorPosFb => mux2.2.in0
+linksp aMotorPosFb => mux2.3.in0
+
+linksp xPosCmd => mux2.0.in1
+linksp yPosCmd => mux2.1.in1
+linksp zPosCmd => mux2.2.in1
+linksp aPosCmd => mux2.3.in1
+
+net xPosFb mux2.0.out => axis.0.motor-pos-fb
+net yPosFb mux2.1.out => axis.1.motor-pos-fb
+net zPosFb mux2.2.out => axis.2.motor-pos-fb
+net aPosFb mux2.3.out => axis.3.motor-pos-fb
+
+linksp xTuneMode => mux2.0.sel
+linksp yTuneMode => mux2.1.sel
+linksp zTuneMode => mux2.2.sel
+linksp aTuneMode => mux2.3.sel
 
 # Connect position feedback to PLC.
-linksp xPosFb => boss_plc.0.x-position-in
-linksp yPosFb => boss_plc.0.y-position-in
+linksp xMotorPosFb => boss_plc.0.x-position-in
+linksp yMotorPosFb => boss_plc.0.y-position-in
 
 # Connect index pulses to motion controller.
 net xIndex motenc.0.enc-01-index-enable <=> axis.0.index-enable
@@ -269,7 +303,7 @@ net spindleBrakeOn boss_plc.0.brake-en-out => motenc.0.out-02
 # Tool change.
 #
 # Loop back tool prepare pins.
-linkpp iocontrol.0.tool-prepare iocontrol.0.tool-prepared
+net toolPrepare iocontrol.0.tool-prepare iocontrol.0.tool-prepared
 
 # Connect tool change pins to PLC.
 net toolChange iocontrol.0.tool-change => boss_plc.0.tool-change-in
@@ -284,8 +318,8 @@ net floodOn iocontrol.0.coolant-flood => motenc.0.out-15
 # Lube.
 #
 # Connect lube motor run to I/O.
-#net lubeOn iocontrol.0.lube => motenc.0.out-13
-net lubeOn motion.spindle-on => motenc.0.out-13
+net lubeOn iocontrol.0.lube => motenc.0.out-13
+#net lubeOn motion.spindle-on => motenc.0.out-13
 
 # Connect lube level to I/O.
 net lubeLevel motenc.0.in-30-not => iocontrol.0.lube_level
