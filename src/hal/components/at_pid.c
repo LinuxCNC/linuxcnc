@@ -203,7 +203,7 @@ typedef struct {
     hal_float_t         *pError;        // Command - feedback.
     hal_float_t         *pOutput;       // The output value.
     hal_bit_t           *pTuneMode;     // 0=PID, 1=tune.
-    hal_bit_t           *pStartTune;    // Set to 1 to start an auto-tune cycle.
+    hal_bit_t           *pTuneStart;    // Set to 1 to start an auto-tune cycle.
                                         // Clears automatically when the cycle
                                         // has finished.
 
@@ -398,8 +398,8 @@ Pid_Export(Pid *this, int compId, int id)
     }
 
     if(!error){
-        rtapi_snprintf(buf, HAL_NAME_LEN, "pid.%d.start-tune", id);
-        error = hal_pin_bit_new(buf, HAL_IO, &(this->pStartTune), compId);
+        rtapi_snprintf(buf, HAL_NAME_LEN, "pid.%d.tune-start", id);
+        error = hal_pin_bit_new(buf, HAL_IO, &(this->pTuneStart), compId);
     }
 
     // Export parameters.
@@ -534,7 +534,7 @@ Pid_Export(Pid *this, int compId, int id)
         *this->pError = 0;
         *this->pOutput = 0;
         *this->pTuneMode = 0;
-        *this->pStartTune = 0;
+        *this->pTuneStart = 0;
     }
 
     // Restore saved message level.
@@ -576,7 +576,7 @@ Pid_AutoTune(Pid *this, long period)
     switch(this->state){
     case STATE_TUNE_IDLE:
         // Wait for tune start command.
-        if(*this->pStartTune)
+        if(*this->pTuneStart)
             this->state = STATE_TUNE_START;
         break;
 
@@ -612,6 +612,9 @@ Pid_AutoTune(Pid *this, long period)
                 this->state = STATE_TUNE_NEG;
                 *this->pOutput = this->bias - this->tuneEffort;
                 Pid_CycleEnd(this);
+            }else{
+                // Update output so user can ramp effort until movement occurs.
+                *this->pOutput = this->bias + this->tuneEffort;
             }
         }else{
             // Check amplitude.
@@ -623,6 +626,9 @@ Pid_AutoTune(Pid *this, long period)
                 this->state = STATE_TUNE_POS;
                 *this->pOutput = this->bias + this->tuneEffort;
                 Pid_CycleEnd(this);
+            }else{
+                // Update output so user can ramp effort until movement occurs.
+                *this->pOutput = this->bias - this->tuneEffort;
             }
         }
 
@@ -661,7 +667,7 @@ Pid_AutoTune(Pid *this, long period)
         *this->pOutput = 0;
 
         // Abort any tuning cycle in progress.
-        *this->pStartTune = 0;
+        *this->pTuneStart = 0;
         this->state = (*this->pTuneMode)? STATE_TUNE_IDLE: STATE_PID;
     }
 }
