@@ -134,12 +134,10 @@ typedef struct stepgen_t {
                                  Realtime Code
  ******************************************************************************/
 
-static void read_stepgen(void *arg, long period)
+static void read_stepgen(stepgen_t *s, long period)
 {
-    stepgen_t *s;
     s32 accum, delta;
 
-    s = arg;
     if ( s->scale != s->old_scale ) {
 	s->old_scale = s->scale;
 	/* validate the new scale value */
@@ -164,16 +162,25 @@ static void read_stepgen(void *arg, long period)
 			( 1.0 / ( 1 << POS_SHIFT ));
 }
 
-static void write_stepgen(void *arg, long period)
+static void read_stepgens(void *arg, long period)
 {
     stepgen_t *s;
+
+    s = arg;
+    while ( s != NULL ) {
+	read_stepgen(s, period);
+	s = s->next;
+    }
+}
+
+static void write_stepgen(stepgen_t *s, long period)
+{
     u32 clocks, max;
     s32 addval;
     u32 min_period_ns;
     double max_freq, vel_cmd, vel_diff;
     int write;
 
-    s = arg;
     /* lots of parameter processing, do only if something has changed */
     write = 0;
     if ( s->dirhold != s->old_dirhold ) {
@@ -329,7 +336,16 @@ static void write_stepgen(void *arg, long period)
     iowrite32(addval, s->addr + RATE_REG_ADDR);
 }
 
+static void write_stepgens(void *arg, long period)
+{
+    stepgen_t *s;
 
+    s = arg;
+    while ( s != NULL ) {
+	write_stepgen(s, period);
+	s = s->next;
+    }
+}
 
 /******************************************************************************
                                 HAL export code
@@ -456,7 +472,7 @@ int export_stepgen(__u8 **ppcfg, board_data_t *board)
 	return 0;
     }
     rtapi_snprintf(name, HAL_NAME_LEN, "5i20.%d.stepgen.read", boardnum);
-    retval = hal_export_funct(name, read_stepgen, stepgen, 1, 0, comp_id);
+    retval = hal_export_funct(name, read_stepgens, stepgen, 1, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "5i20: ERROR: board %d stepgen read funct export failed\n",
@@ -464,7 +480,7 @@ int export_stepgen(__u8 **ppcfg, board_data_t *board)
 	return -1;
     }
     rtapi_snprintf(name, HAL_NAME_LEN, "5i20.%d.stepgen.write", boardnum);
-    retval = hal_export_funct(name, write_stepgen, stepgen, 1, 0, comp_id);
+    retval = hal_export_funct(name, write_stepgens, stepgen, 1, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "5i20: ERROR: board %d stepgen read funct export failed\n",
