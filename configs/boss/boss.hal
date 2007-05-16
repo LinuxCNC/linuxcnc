@@ -21,9 +21,6 @@ loadrt boss_plc
 # limit override, spindle increase/decrease/status).
 loadrt debounce cfg="6"
 
-# Load differentiators for debug.
-loadrt ddt count=3
-
 # Add functions to servo thread so they will be evaluated
 # every servo period.
 #
@@ -44,9 +41,6 @@ addf pid.3.do-pid-calcs servo-thread -1
 # Outputs are updated at the end of the thread
 addf motenc.0.dac-write servo-thread -1
 addf motenc.0.digital-out-write servo-thread -1
-addf ddt.0 servo-thread -1
-addf ddt.1 servo-thread -1
-addf ddt.2 servo-thread -1
 
 # PID loops.
 #
@@ -73,9 +67,6 @@ setp pid.0.FF1 [AXIS_0]FF1
 setp pid.0.FF2 [AXIS_0]FF2
 # deadband should be just over 1 count
 setp pid.0.deadband [AXIS_0]DEADBAND
-#setp pid.0.tune-effort [AXIS_0]TUNE_EFFORT
-#setp pid.0.tune-cycles [AXIS_0]TUNE_CYCLES
-#setp pid.0.tune-type [AXIS_0]TUNE_TYPE
 
 setp pid.1.Pgain [AXIS_1]P
 setp pid.1.Igain [AXIS_1]I
@@ -87,9 +78,6 @@ setp pid.1.FF1 [AXIS_1]FF1
 setp pid.1.FF2 [AXIS_1]FF2
 # deadband should be just over 1 count
 setp pid.1.deadband [AXIS_1]DEADBAND
-#setp pid.1.tune-effort [AXIS_1]TUNE_EFFORT
-#setp pid.1.tune-cycles [AXIS_1]TUNE_CYCLES
-#setp pid.1.tune-type [AXIS_1]TUNE_TYPE
 
 setp pid.2.Pgain [AXIS_2]P
 setp pid.2.Igain [AXIS_2]I
@@ -101,9 +89,6 @@ setp pid.2.FF1 [AXIS_2]FF1
 setp pid.2.FF2 [AXIS_2]FF2
 # deadband should be just over 1 count
 setp pid.2.deadband [AXIS_2]DEADBAND
-#setp pid.2.tune-effort [AXIS_2]TUNE_EFFORT
-#setp pid.2.tune-cycles [AXIS_2]TUNE_CYCLES
-#setp pid.2.tune-type [AXIS_2]TUNE_TYPE
 
 setp pid.3.Pgain [AXIS_3]P
 setp pid.3.Igain [AXIS_3]I
@@ -115,9 +100,6 @@ setp pid.3.FF1 [AXIS_3]FF1
 setp pid.3.FF2 [AXIS_3]FF2
 # deadband should be just over 1 count
 setp pid.3.deadband [AXIS_3]DEADBAND
-#setp pid.3.tune-effort [AXIS_3]TUNE_EFFORT
-#setp pid.3.tune-cycles [AXIS_3]TUNE_CYCLES
-#setp pid.3.tune-type [AXIS_3]TUNE_TYPE
 
 # Connect the enable signals to the PID blocks.
 net xEnable axis.0.amp-enable-out => pid.0.enable
@@ -125,21 +107,11 @@ net yEnable axis.1.amp-enable-out => pid.1.enable
 net zEnable axis.2.amp-enable-out => pid.2.enable
 net aEnable axis.3.amp-enable-out => pid.3.enable
 
-# Connect position commands to PID input.
+# Connect position commands to PID inputs.
 net xPosCmd axis.0.motor-pos-cmd => pid.0.command
 net yPosCmd axis.1.motor-pos-cmd => pid.1.command
 net zPosCmd axis.2.motor-pos-cmd => pid.2.command
 net aPosCmd axis.3.motor-pos-cmd => pid.3.command
-
-# Connect signals auto-tune pins.
-#net xStartTune pid.0.start-tune
-#net xTuneMode pid.0.tune-mode
-#net yStartTune pid.1.start-tune
-#net yTuneMode pid.1.tune-mode
-#net zStartTune pid.2.start-tune
-#net zTuneMode pid.2.tune-mode
-#net aStartTune pid.3.start-tune
-#net aTuneMode pid.3.tune-mode
 
 # DACs
 #
@@ -161,12 +133,6 @@ net yOutput pid.1.output => motenc.0.dac-03-value
 net zOutput pid.2.output => motenc.0.dac-02-value
 net aOutput pid.3.output => motenc.0.dac-00-value
 
-linksp zPosCmd ddt.0.in
-net zVelCmd ddt.0.out => ddt.1.in
-net zAccCmd ddt.1.out
-linksp zOutput ddt.2.in
-net zPidAccCmd ddt.2.out
-
 # Encoders.
 #
 # Set feedback scaling from ini file.
@@ -175,17 +141,17 @@ setp motenc.0.enc-03-scale [AXIS_1]INPUT_SCALE
 setp motenc.0.enc-02-scale [AXIS_2]INPUT_SCALE 
 setp motenc.0.enc-00-scale [AXIS_3]INPUT_SCALE 
 
-# Connect position feedback to motion module.
-net xPosFb motenc.0.enc-01-position => axis.0.motor-pos-fb
-net yPosFb motenc.0.enc-03-position => axis.1.motor-pos-fb
-net zPosFb motenc.0.enc-02-position => axis.2.motor-pos-fb
-net aPosFb motenc.0.enc-00-position => axis.3.motor-pos-fb
-
 # Connect position feedback to PID loop.
-linksp xPosFb => pid.0.feedback
-linksp yPosFb => pid.1.feedback
-linksp zPosFb => pid.2.feedback
-linksp aPosFb => pid.3.feedback
+net xPosFb motenc.0.enc-01-position => pid.0.feedback
+net yPosFb motenc.0.enc-03-position => pid.1.feedback
+net zPosFb motenc.0.enc-02-position => pid.2.feedback
+net aPosFb motenc.0.enc-00-position => pid.3.feedback
+
+# Connect position feedback to motion module.
+linksp xPosFb => axis.0.motor-pos-fb
+linksp yPosFb => axis.1.motor-pos-fb
+linksp zPosFb => axis.2.motor-pos-fb
+linksp aPosFb => axis.3.motor-pos-fb
 
 # Connect position feedback to PLC.
 linksp xPosFb => boss_plc.0.x-position-in
@@ -260,7 +226,7 @@ net spindleBrakeOn boss_plc.0.brake-en-out => motenc.0.out-02
 # Tool change.
 #
 # Loop back tool prepare pins.
-linkpp iocontrol.0.tool-prepare iocontrol.0.tool-prepared
+net toolPrepare iocontrol.0.tool-prepare iocontrol.0.tool-prepared
 
 # Connect tool change pins to PLC.
 net toolChange iocontrol.0.tool-change => boss_plc.0.tool-change-in
