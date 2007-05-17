@@ -571,6 +571,9 @@ static void thisQuit()
     //don't forget the big HAL sin ;)
     hal_exit(comp_id);
     
+    if(emcCommandBuffer) { delete emcCommandBuffer;  emcCommandBuffer = 0; }
+    if(emcStatusBuffer) { delete emcStatusBuffer;  emcStatusBuffer = 0; }
+    if(emcErrorBuffer) { delete emcErrorBuffer;  emcErrorBuffer = 0; }
     exit(0);
 }
 
