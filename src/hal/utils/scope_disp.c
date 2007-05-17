@@ -860,8 +860,9 @@ void draw_waveform(int chan_num, int highlight)
 #else
                 /* this is halfway between the two extremes */
                 midx = (x1 + x2) / 2;
-                if(midx != x2)
+                if(midx != x2) {
                     points[pn].x = midx; points[pn].y = y2; pn++;
+                }
                 points[pn].x = x2; points[pn].y = y2; pn++;
 #endif
             }
