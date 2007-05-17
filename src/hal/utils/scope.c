@@ -207,7 +207,7 @@ static int heartbeat(gpointer data)
         if(!gtk_window_is_active(GTK_WINDOW(ctrl_usr->main_win)))
             gtk_window_set_urgency_hint(GTK_WINDOW(ctrl_usr->main_win), TRUE);
 	capture_complete();
-    }
+    } else if (ctrl_usr->run_mode == ROLL) capture_cont();
     return 1;
 }
 
@@ -285,8 +285,7 @@ void start_capture(void)
     ctrl_shm->state = INIT;
 }
 
-void capture_complete(void)
-{
+void capture_copy_data(void) {
     int n, offs;
     scope_data_t *src, *dst, *src_end;
     int samp_len, samp_size;
@@ -320,11 +319,23 @@ void capture_complete(void)
 	    src = ctrl_usr->buffer;
 	}
     }
+}
+
+void capture_cont()
+{
+    capture_copy_data();
+    refresh_display();
+}
+
+void capture_complete(void)
+{
+    capture_copy_data();
     ctrl_shm->state = IDLE;
     switch (ctrl_usr->run_mode) {
     case STOP:
 	break;
     case NORMAL:
+    case ROLL:
 	start_capture();
 	break;
     case SINGLE:
@@ -497,9 +508,7 @@ static void init_run_mode_window(void)
     /* and make them visible */
     gtk_widget_show(ctrl_usr->rm_normal_button);
     gtk_widget_show(ctrl_usr->rm_single_button);
-#if 0 /* FIXME - roll mode not implemented yet */
     gtk_widget_show(ctrl_usr->rm_roll_button);
-#endif
     gtk_widget_show(ctrl_usr->rm_stop_button);
 }
 
@@ -599,10 +608,10 @@ static void rm_roll_button_clicked(GtkWidget * widget, gpointer * gdata)
 	/* not pressed, ignore it */
 	return;
     }
-    printf("Sorry, ROLL mode is not supported yet\n");
-    /* 'push' the stop button */
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ctrl_usr->rm_stop_button),
-	TRUE);
+    ctrl_usr->run_mode = ROLL;
+    if (ctrl_shm->state == IDLE) {
+	start_capture();
+    }
 }
 
 static void rm_stop_button_clicked(GtkWidget * widget, gpointer * gdata)

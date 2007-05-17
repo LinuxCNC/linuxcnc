@@ -200,7 +200,7 @@ typedef struct {
 
 /* this is the master user space control structure */
 
-typedef enum { STOP = 0, NORMAL, SINGLE } scope_run_mode_t;
+typedef enum { STOP = 0, NORMAL, SINGLE, ROLL } scope_run_mode_t;
 
 typedef struct {
     /* general data */
@@ -253,6 +253,7 @@ void init_display(void);
 void handle_watchdog_timeout(void);
 void refresh_state_info(void);
 void capture_complete(void);
+void capture_cont(void);
 void start_capture(void);
 void request_display_refresh(int delay);
 void refresh_display(void);

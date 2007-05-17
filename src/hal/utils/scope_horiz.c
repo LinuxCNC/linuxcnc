@@ -178,7 +178,11 @@ static void init_horiz_window(void)
 	gtk_hbox_new_in_box(FALSE, 0, 0, ctrl_usr->horiz_info_win, FALSE,
 	TRUE, 0);
     /* graphic horizontal display */
+#ifdef HAVE_GNOMECANVS
+    horiz->disp_area = gnome_canvas_new_aa();
+#else
     horiz->disp_area = gtk_drawing_area_new();
+#endif
     gtk_signal_connect(GTK_OBJECT(horiz->disp_area), "button_press_event", 
         GTK_SIGNAL_FUNC(horiz_press), 0);
     gtk_signal_connect(GTK_OBJECT(horiz->disp_area), "button_release_event", 
@@ -1215,7 +1219,7 @@ static gint horiz_motion(GtkWidget *widget, GdkEventMotion *event) {
 
     motion = x - horiz->x0;
 
-    gdk_window_get_geometry(horiz->disp_area->window, 0, 0, &width, 0, 0);
+    gdk_window_get_geometry(GDK_WINDOW(horiz->disp_area), 0, 0, &width, 0, 0);
 
     pre_trig = ctrl_shm->rec_len * ctrl_usr->trig.position;
     rec_start = -pre_trig * horiz->sample_period;
