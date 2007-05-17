@@ -92,7 +92,6 @@ static void pos_changed(GtkAdjustment * adj, gpointer gdata);
 static void chan_sel_button(GtkWidget * widget, gpointer gdata);
 
 /* helper functions */
-static void format_scale_value(char *buf, int buflen, float value);
 static void write_chan_config(FILE *fp, scope_chan_t *chan);
 
 /***********************************************************************
@@ -1260,7 +1259,7 @@ void channel_changed(void)
     request_display_refresh(1);
 }
 
-static void format_scale_value(char *buf, int buflen, float value)
+void format_scale_value(char *buf, int buflen, float value)
 {
     char *units;
     char symbols[] = "pnum KMGT";

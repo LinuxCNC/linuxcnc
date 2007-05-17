@@ -286,6 +286,7 @@ int set_active_channel(int chan_num);
 int set_channel_source(int chan, int type, char *name);
 int set_channel_off(int chan_num);
 int set_vert_scale(int setting);
+void format_scale_value(char *buf, int buflen, float value);
 int set_vert_pos(double setting);
 int set_vert_offset(double setting, int ac_coupled);
 int set_trigger_source(int chan);
