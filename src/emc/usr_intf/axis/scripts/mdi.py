@@ -17,9 +17,6 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 import sys, os
-BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
-sys.path.insert(0, os.path.join(BASE, "lib", "python"))
-
 import emc
 
 if len(sys.argv) > 1:

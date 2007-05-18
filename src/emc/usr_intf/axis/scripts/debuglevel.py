@@ -1,9 +1,7 @@
 #!/usr/bin/python
 import sys, os
+import gettext
 BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
-sys.path.insert(0, os.path.join(BASE, "lib", "python"))
-
-import gettext;
 gettext.install("axis", localedir=os.path.join(BASE, "share", "locale"), unicode=True)
 
 import emc
