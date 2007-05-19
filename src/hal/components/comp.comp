@@ -2,23 +2,30 @@ component comp "Two input comparator with hysteresis";
 pin in float in0 "Inverting input to the comparator";
 pin in float in1 "Non-inverting input to the comparator";
 pin out bit out "Output of the comparator.";
+pin out bit equal "Equal within hysteresis.";
 
 param rw float hyst=0.0 """Hysteresis of the comparator (default 0.0)
 
 With zero hysteresis, the output is true when in1 > in0.  With nonzero
-hysteresis, the output switches on and off at two different values, 
-separated by distance hyst around the point where in1 = in0.""";
+hysteresis, the output switches on and off at two different values,
+separated by distance hyst around the point where in1 = in0.
+Keep in mind that floating point calculations are never absalute
+and it is wise to always set hist if you intend to use equal """;
 
 function _ fp "Update the comparator";
 license "GPL";
 ;;
 FUNCTION(_) {
     float tmp = in1 - in0;
+    float halfhyst = 0.5 * hyst;
 
-    if(out) {
-	if(tmp < -hyst/2.) out = 0;
+    if(tmp < -halfhyst) {
+	out = 0;
+	equal = 0;
+    } else if(tmp > halfhyst){
+	out = 1;
+	equal = 0;
     } else {
-	if(tmp > hyst/2.) out = 1;
+	equal = 1;
     }
 }
-

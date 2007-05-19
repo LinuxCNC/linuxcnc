@@ -1,6 +1,14 @@
 #    This is a component of AXIS, a front-end for emc
 #    Copyright 2007 Anders Wallin <anders.wallin@helsinki.fi>
 #
+#   TJP 12 04 2007
+#   Rugludallur saw that spinbuttons had no initial value until after thumbs inc'd or de'c
+#   TJP saw that if xml prescribed <value>1234</value> the spinbutton locked up after the inc/dec
+#   it seems a new term in the __init__ may fix this
+#   end TJP 12 04 2007
+#
+#   Added initval to checkbutton/scale for initial values,  Dallur 15 April 2007 (jarl stefansson) (jarl stefansson)
+#
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation; either version 2 of the License, or
@@ -41,8 +49,6 @@ from Tkinter import *
 from hal import *
 import math
 import bwidget
-# from Tkinter import *
-# import math
 
 # -------------------------------------------
 
@@ -654,12 +660,13 @@ class pyvcp_spinbox(Spinbox):
             [ <halpin>"my-spinbox"</halpin> ]
             [ <min_>55</min_> ]   sets the minimum value to 55
             [ <max_>123</max_> ]  sets the maximum value to 123
+            [ <initval>100</initval> ]  sets intial value to 100  TJP 12 04 2007
         </spinbox>
     """
     # FIXME: scale resolution when shift/ctrl/alt is held down?
     n=0
     def __init__(self,master,pycomp,halpin=None,
-                    min_=0,max_=100,resolution=1,format="2.1f",**kw):
+                    min_=0,max_=100,initval=0,resolution=1,format="2.1f",**kw):
         self.v = DoubleVar()
         if 'increment' not in kw: kw['increment'] = resolution
         if 'from' not in kw: kw['from'] = min_
@@ -671,7 +678,12 @@ class pyvcp_spinbox(Spinbox):
             halpin = "spinbox."+str(pyvcp_spinbox.n)
         pyvcp_spinbox.n += 1
         self.halpin=halpin
-        self.value=min_
+        if initval < min_:
+            self.value=min_
+        elif initval > max_:
+            self.value=max_
+        else:
+            self.value=initval
         self.oldvalue=min_
         self.format = "%(b)"+format
         self.max_=max_
@@ -685,10 +697,10 @@ class pyvcp_spinbox(Spinbox):
     def command(self):
         self.value = self.v.get()
 
-    def update(self,pycomp):  
-        pycomp[self.halpin] = self.value 
+    def update(self,pycomp):
+        pycomp[self.halpin] = self.value
         if self.value != self.oldvalue:
-            self.v.set( str( self.format  % {'b':self.value} ) ) 
+            self.v.set( str( self.format  % {'b':self.value} ) )
             self.oldvalue=self.value
           
     def wheel_up(self,event):
@@ -868,14 +880,23 @@ class pyvcp_led(Canvas):
 class pyvcp_checkbutton(Checkbutton):
     """ (control) a check button 
         halpin is 1 when button checked, 0 otherwise 
+        <checkbutton>
+            [ <halpin>"my-checkbutton"</halpin> ]
+            [ <initval>1</initval> ]  sets intial value to 1, all values >=0.5 are assumed to be 1
+        </checkbutton>
     """
     n=0
-    def __init__(self,master,pycomp,halpin=None,**kw):
+    def __init__(self,master,pycomp,halpin=None,initval=0,**kw):
         self.v = BooleanVar(master)
         Checkbutton.__init__(self,master,variable=self.v,onvalue=1, offvalue=0,**kw)
         if halpin == None:
             halpin = "checkbutton."+str(pyvcp_checkbutton.n)
         self.halpin=halpin
+        if initval >= 0.5:
+            self.value=1
+        else:
+            self.value=0
+        self.v.set(self.value)
         pycomp.newpin(halpin, HAL_BIT, HAL_OUT)
         pyvcp_checkbutton.n += 1
 
@@ -932,25 +953,43 @@ class pyvcp_button(Button):
 class pyvcp_scale(Scale):
     """ (control) a slider 
         halpin-i is integer output 
-        halpin-f is float output 
+        halpin-f is float output
+
+        <scale>
+            [ <halpin>"my-scale"</halpin> ]
+            [ <resolution>0.1</resolution> ] scale value a whole number must end in '.'
+            [ <orient>HORIZONTAL</orient>  ] aligns the scale horizontal
+            [ <min_>-33</min_> ] sets the minimum value to -33
+            [ <max_>26</max_> ] sets the maximum value to 26
+            [ <initval>10</initval> ]  sets intial value to 10
+        </scale>
+
     """
     # FIXME scale resolution when ctrl/alt/shift is held down?
     # FIXME allow user to specify size
     n=0
     def __init__(self,master,pycomp,
-                    resolution=1,halpin=None,min_=0,max_=10,**kw):
+                    resolution=1,halpin=None,min_=0,max_=10,initval=0,**kw):
         self.resolution=resolution
         Scale.__init__(self,master,resolution=self.resolution,
                          from_=min_,to=max_,**kw)
         if halpin == None:
             halpin = "scale."+str(pyvcp_scale.n)
         self.halpin=halpin
-        
         pycomp.newpin(halpin+"-i", HAL_S32, HAL_OUT)
         pycomp.newpin(halpin+"-f", HAL_FLOAT, HAL_OUT)
         self.bind('<Button-4>',self.wheel_up)
         self.bind('<Button-5>',self.wheel_down)
         pyvcp_scale.n += 1
+
+        if initval < min_:
+            self.value=min_
+        elif initval > max_:
+            self.value=max_
+        else:
+            self.value=initval
+
+        self.set(self.value)
 
     def update(self,pycomp):
         pycomp[self.halpin+"-f"]=self.get()
