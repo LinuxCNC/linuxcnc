@@ -1,0 +1,193 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<pyvcp>
+	<labelframe text="Signals"> 
+		<hbox>
+			<vbox>
+				<led> 
+					<halpin>"Led-FloatSwitch"</halpin>  
+					<size>20</size>  
+					<on_color>"blue"</on_color> 
+					<off_color>"grey"</off_color> 
+				</led>
+				<led> 
+					<halpin>"Led-TorchOn"</halpin>  
+					<size>20</size>  
+					<on_color>"yellow"</on_color> 
+					<off_color>"grey"</off_color> 
+				</led>
+				<led> 
+					<halpin>"Led-ArcOK"</halpin>  
+					<size>20</size>  
+					<on_color>"green"</on_color> 
+					<off_color>"grey"</off_color> 
+				</led>
+				<led> 
+					<halpin>"Led-ExtEStop"</halpin>  
+					<size>20</size>  
+					<on_color>"red"</on_color> 
+					<off_color>"grey"</off_color> 
+				</led>
+			</vbox>
+			<vbox>
+				<label text="Float Switch"/> 
+				<label text="Torch On"/> 
+				<label text="Arc OK"/> 
+				<label text="External EStop"/> 
+			</vbox>
+		</hbox>
+	</labelframe>
+	<labelframe text="Adjustments"> 
+		<vbox>
+			<hbox>
+				<vbox>
+					<led> 
+						<halpin>"Led-MoveUp"</halpin>  
+						<size>20</size>  
+						<on_color>"green"</on_color> 
+						<off_color>"grey"</off_color> 
+					</led>
+					<led> 
+						<halpin>"Led-MoveDown"</halpin>  
+						<size>20</size>  
+						<on_color>"green"</on_color> 
+						<off_color>"grey"</off_color> 
+					</led>
+				</vbox>
+	
+				<vbox>
+					<label text="Move UP"/> 
+					<label text="Move Down"/> 
+				</vbox>
+			</hbox>
+			<hbox>
+				<relief>RIDGE</relief>
+				<bd>1</bd>
+				<label text="Step Size"/> 
+				<spinbox>
+					<halpin>"Spin-THCStepSize"</halpin>
+					<min_>0.01</min_>
+					<max_>1</max_>
+					<width>"6"</width>
+					<resolution>.01</resolution>
+					<format>"5.2f"</format>
+					<justify>RIGHT</justify>
+				</spinbox>
+			</hbox>
+			<hbox>
+				<relief>RIDGE</relief>
+				<bd>1</bd>
+				<label text="Travel Height"/> 
+				<spinbox>
+					<halpin>"Spin-TravelHeight"</halpin>
+					<min_>1</min_>
+					<max_>99</max_>
+					<initval>54</initval>
+					<width>"3"</width>
+					<resolution>1</resolution>
+					<format>"3.0f"</format>
+					<justify>RIGHT</justify>
+				</spinbox>
+			</hbox>
+			<hbox>
+				<relief>RIDGE</relief>
+				<bd>1</bd>
+				<label text="Sw. Travel"/> 
+				<spinbox>
+					<halpin>"Spin-SwitchTravel"</halpin>
+					<min_>-50</min_>
+					<max_>50</max_>
+					<initval>2</initval>
+					<width>"5"</width>
+					<resolution>.01</resolution>
+					<format>"5.2f"</format>
+					<justify>RIGHT</justify>
+				</spinbox>
+			</hbox>
+
+		</vbox>
+	</labelframe>
+	<labelframe text="Piercing"> 
+		<vbox>
+			<vbox>
+				<hbox>
+					<relief>RIDGE</relief>
+					<bd>1</bd>
+					<label text="Delay Timer"/> 
+					<number> 
+						<halpin>"Num-PierceDelayTimer"</halpin> 
+						<format>"+4.2f"</format> 
+					</number>
+				</hbox>
+				<hbox>
+					<vbox>
+						<label text="Delay"/> 
+						<label text="Gap"/>
+						<label text="AutoStart"/>
+					</vbox>
+					<vbox>
+						<spinbox>
+							<halpin>"Spin-PierceDelay"</halpin>
+							<min_>0.00</min_>
+							<max_>10</max_>
+							<initval>0.01</initval>
+							<width>"6"</width>
+							<resolution>.01</resolution>
+							<format>"5.2f"</format>
+							<justify>RIGHT</justify>
+						</spinbox>
+						<spinbox>
+							<halpin>"Spin-PierceGap"</halpin>
+							<min_>0.01</min_>
+							<max_>10</max_>
+							<initval>0.5</initval>
+							<width>"6"</width>
+							<resolution>.01</resolution>
+							<format>"5.2f"</format>
+							<justify>RIGHT</justify>
+						</spinbox>
+						<checkbutton>
+							<halpin>"Check-AutoStart"</halpin>
+							<initval>1</initval>
+							<bd>1</bd>
+						</checkbutton>
+					</vbox>
+				</hbox>
+			</vbox>
+		</vbox>
+	</labelframe>
+	<labelframe text="Corner Height Lock"> 
+		<vbox>
+			<hbox>
+				<vbox>
+					<led> 
+						<halpin>"Led-HeightLocked"</halpin>  
+						<size>20</size>  
+						<on_color>"green"</on_color> 
+						<off_color>"grey"</off_color> 
+					</led>
+					<checkbutton>
+						<halpin>"Check-CHLEnable"</halpin>
+						<bd>1</bd>
+					</checkbutton>
+				</vbox>
+				<vbox>
+					<label text="Locked"/> 
+					<label text="Enable"/> 
+				</vbox>
+			</hbox>
+			<vbox>
+			<relief>RIDGE</relief>
+			<bd>1</bd>
+			<label text="Threshold %"/>
+			<scale> 
+				<halpin>"Scale-CHLThreshold"</halpin> 
+				<min_>10</min_> 
+				<max_>99</max_> 
+				<initval>60</initval>
+				<resolution>1</resolution>
+				<orient>HORIZONTAL</orient>
+			</scale>
+			</vbox>
+		</vbox>
+	</labelframe>
+</pyvcp>
