@@ -1,0 +1,12 @@
+################################ Other ##########################################
+#Connect Estop and ChargePump
+
+loadrt estop_latch
+addf estop-latch.0 base-thread
+
+# External Estop Signal handled by THC
+#net ExtEStop parport.0.pin-10-in => estop-latch.0.fault-in
+net EstopLatchWatchDog estop-latch.0.watchdog => parport.0.pin-17-out parport.1.pin-17-out
+net EstopRequestEnable iocontrol.0.user-request-enable => estop-latch.0.reset
+net EstopEnableOut iocontrol.0.user-enable-out => estop-latch.0.ok-in
+net EstopOKOut estop-latch.0.ok-out => iocontrol.0.emc-enable-in

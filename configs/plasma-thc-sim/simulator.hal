@@ -1,0 +1,66 @@
+# A simulator to simulate all compnents of a gantry based plasma cutting table with THC
+
+# Load realtime wcomp components
+loadrt wcomp count=6
+
+# Add components to servo-thread
+addf and2.10 servo-thread
+addf and2.11 servo-thread
+addf and2.12 servo-thread
+addf not.2 servo-thread
+addf or2.7 servo-thread
+addf wcomp.0 servo-thread
+addf wcomp.1 servo-thread
+addf wcomp.2 servo-thread
+addf wcomp.3 servo-thread
+addf wcomp.4 servo-thread
+addf wcomp.5 servo-thread
+
+# Use machine position feedback for simulated limit calculations
+linksp PosX-fb => wcomp.0.in
+linksp PosY-fb => wcomp.1.in
+linksp PosZ-fb => wcomp.2.in
+linksp PosA-fb => wcomp.3.in
+linksp PosZ-fb => wcomp.4.in
+
+# Use the time left from oneshot1 to determine when to simulate ArcOK along with TorchOn
+net TimeLeft oneshot.1.time-left => wcomp.5.in
+
+# Simulate limits with wcomps
+net LimitX wcomp.0.out => axis.0.neg-lim-sw-in axis.0.pos-lim-sw-in axis.0.home-sw-in
+net LimitY wcomp.1.out => axis.1.neg-lim-sw-in axis.1.pos-lim-sw-in axis.1.home-sw-in
+net LimitZ or2.7.out => or2.2.in0
+net LimitA wcomp.3.out => axis.3.neg-lim-sw-in axis.3.pos-lim-sw-in axis.3.home-sw-in
+
+# Hook up other simulated signals
+net FloatSwitch and2.12.out => or2.1.in1 and2.4.in0 and2.5.in1 and2.6.in1
+net ArcOK and2.10.out => or2.4.in1 oneshot.0.in or2.1.in0 or2.6.in0 or2.3.in0 mux2.0.sel or2.5.in0 and2.2.in0 not.1.in and2.4.in1
+net IgnDebugTimer wcomp.5.out and2.10.in0
+net ArcOKSwitch and2.11.out and2.10.in1
+
+# Fix the problem with the float switch being triggered during homing because machine starts at pos 0
+net MachineIsHoming axis.2.homing = not.2.in
+net InvertedMachineIsHoming not.2.out => and2.12.in0
+net OriginalFloatSignal wcomp.4.out => and2.12.in1
+
+# To test what happens when ArcOK == false we can set and2.11.in1 to 1 or 0
+# To simulate the float switch triggering at other machine coordinates than it is we use or2.7.in0
+net HomeAndLimitZ wcomp.2.out => or2.7.in0
+linksp TorchOn => and2.11.in0
+# Set defaults to pass signals through as normal
+setp and2.11.in1 1
+setp or2.7.in1 0
+
+# Set windows for comparison
+setp wcomp.0.max -10
+setp wcomp.0.min -15
+setp wcomp.1.max -10
+setp wcomp.1.min -15
+setp wcomp.2.max 50 
+setp wcomp.2.min 40 
+setp wcomp.3.max -10
+setp wcomp.3.min -15
+setp wcomp.4.max 15
+setp wcomp.4.min 10
+setp wcomp.5.max 1
+setp wcomp.5.min -1
