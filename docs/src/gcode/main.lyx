@@ -4467,82 +4467,11 @@ If cutter radius compensation is active, the motion will differ from what
 .
 \layout Standard
 
-Two formats are allowed for specifying an arc.
- We will call these the center format and the radius format.
- In both formats the 
-\family typewriter 
-G2
-\family default 
- or 
-\family typewriter 
-G3
-\family default 
- is optional if it is the current motion mode.
- 
+Two formats are allowed for specifying an arc: Center Format and Radius
+ Format.
 \layout Subsection
 
-Radius format arcs
-\layout Standard
-
-In the radius format, the coordinates of the end point of the arc in the
- selected plane are specified along with the radius of the arc.
- Program 
-\family typewriter 
-G2 X- Y- Z- A- B- C- R-
-\family default 
- (or use 
-\family typewriter 
-G3
-\family default 
- instead of 
-\family typewriter 
-G2
-\family default 
-).
- R is the radius.
- The axis words are all optional except that at least one of the two words
- for the axes in the selected plane must be used.
- The R number is the radius.
- A positive radius indicates that the arc turns through 180 degrees or less,
- while a negative radius indicates a turn of 180 degrees to 359.999 degrees.
- If the arc is helical, the value of the end point of the arc on the coordinate
- axis parallel to the axis of the helix is also specified.
-\layout Standard
-
-It is an error if: 
-\layout Itemize
-
-both of the axis words for the axes of the selected plane are omitted
-\layout Itemize
-
-the end point of the arc is the same as the current point.
-\layout Standard
-
-It is not good practice to program radius format arcs that are nearly full
- circles or are semicircles (or nearly semicircles) because a small change
- in the location of the end point will produce a much larger change in the
- location of the center of the circle (and, hence, the middle of the arc).
- The magnification effect is large enough that rounding error in a number
- can produce out-of-tolerance cuts.
- Nearly full circles are outrageously bad, semicircles (and nearly so) are
- only very bad.
- Other size arcs (in the range tiny to 165 degrees or 195 to 345 degrees)
- are OK.
-\layout Standard
-
-Here is an example of a radius format command to mill an arc:
-\family typewriter 
- G17 G2 x 10 y 15 r 20 z 5.
-\layout Standard
-
-That means to make a clockwise (as viewed from the positive Z-axis) circular
- or helical arc whose axis is parallel to the Z-axis, ending where X=10,
- Y=15, and Z=5, with a radius of 20.
- If the starting value of Z is 5, this is an arc of a circle parallel to
- the XY-plane; otherwise it is a helical arc.
-\layout Subsection
-
-Center format arcs
+Center format arcs (preferred format)
 \layout Standard
 
 In the center format, the coordinates of the end point of the arc in the
@@ -4663,6 +4592,68 @@ In the center format, the radius of the arc is not specified, but it may
  be found easily as the distance from the center of the circle to either
  the current point or the end point of the arc.
  
+\layout Subsection
+
+Radius format arcs (discouraged format)
+\layout Standard
+
+In the radius format, the coordinates of the end point of the arc in the
+ selected plane are specified along with the radius of the arc.
+ Program 
+\family typewriter 
+G2 X- Y- Z- A- B- C- R-
+\family default 
+ (or use 
+\family typewriter 
+G3
+\family default 
+ instead of 
+\family typewriter 
+G2
+\family default 
+).
+ R is the radius.
+ The axis words are all optional except that at least one of the two words
+ for the axes in the selected plane must be used.
+ The R number is the radius.
+ A positive radius indicates that the arc turns through less than 180 degrees,
+ while a negative radius indicates a turn of more than 180 degrees.
+ If the arc is helical, the value of the end point of the arc on the coordinate
+ axis parallel to the axis of the helix is also specified.
+\layout Standard
+
+It is an error if: 
+\layout Itemize
+
+both of the axis words for the axes of the selected plane are omitted
+\layout Itemize
+
+the end point of the arc is the same as the current point.
+\layout Standard
+
+It is not good practice to program radius format arcs that are nearly full
+ circles or nearly semicircles because a small change in the location of
+ the end point will produce a much larger change in the location of the
+ center of the circle (and, hence, the middle of the arc).
+ The magnification effect is large enough that rounding error in a number
+ can produce out-of-tolerance cuts.
+ For instance, a 1% displacement of the endpoint of a 180 degree arc produced
+ a 7% displacement of the point 90 degrees along the arc.
+ Nearly full circles are even worse.
+ Other size arcs (in the range tiny to 165 degrees or 195 to 345 degrees)
+ are OK.
+\layout Standard
+
+Here is an example of a radius format command to mill an arc:
+\family typewriter 
+ G17 G2 x 10 y 15 r 20 z 5.
+\layout Standard
+
+That means to make a clockwise (as viewed from the positive Z-axis) circular
+ or helical arc whose axis is parallel to the Z-axis, ending where X=10,
+ Y=15, and Z=5, with a radius of 20.
+ If the starting value of Z is 5, this is an arc of a circle parallel to
+ the XY-plane; otherwise it is a helical arc.
 \layout Section
 
 G33
