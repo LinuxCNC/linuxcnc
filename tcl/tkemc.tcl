@@ -13,6 +13,10 @@ exec ${EMC2_EMCSH-emcsh} "$0" "$@"
 #
 #  Copyright (c) 2006 All rights reserved.
 #
+#  Last change:
+# $Revision$
+# $Author$
+# $Date$
 ###############################################################
 # Uses the emcsh library of tcl/tk functions.
 # Provides default display or operators for each NML message
@@ -638,20 +642,23 @@ proc toggleJointWorld {} {
 }
 
 proc toggleJogType {} {
-    global jogType jogIncrement
+    global jogLabel jogType jogIncrement
 
     if {$jogType == "continuous"} {
         set jogType $jogIncrement
+	set jogLabel $jogIncrement
     } else {
         set jogType continuous
+	set jogLabel [msgcat::mc "continuous"]
     }
 }
 
 proc toggleJogIncrement {} {
-    global jogType jogIncrement
+    global jogLabel jogType jogIncrement
 
     if {$jogType == "continuous"} {
         set jogType $jogIncrement
+	set jogLabel $jogIncrement
     } else {
         if {$jogIncrement == "0.0001"} {
             set jogIncrement 0.0010
@@ -665,6 +672,7 @@ proc toggleJogIncrement {} {
             set jogIncrement 0.0001
         }
         set jogType $jogIncrement
+	set jogLabel $jogIncrement
     }
 }
 
