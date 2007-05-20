@@ -51,6 +51,12 @@ proc patient_grab w {
 #
 # Arguments:
 # w -		Window to use for dialog top-level.
+#
+#               If it is a list, then it is of the form {w args}
+#               where args (different from the 'args' below) specify
+#               extra keyword arguments:
+#		    -ext ...: show ... in a scrolling text area below the main
+#		              text
 # title -	Title to display in dialog's decorative frame.
 # text -	Message to display in dialog.
 # image -	Image to display in dialog (empty string means none).
@@ -71,6 +77,17 @@ proc nf_dialog_default {t n i} {
 
 proc nf_dialog {w title text image default args} {
     global tkPriv tcl_platform
+
+    set pargs [lrange $w 1 end]
+    set w [lindex $w 0]
+
+    set ext {}
+    foreach {k v} $pargs {
+	switch -- $k {
+	-ext { set ext $v }
+	default { error "nf_dialog: unexpected positional argument $k $v" }
+	}
+    }
 
     if {[llength $default] != 1} {
         set accel $default
@@ -125,10 +142,19 @@ proc nf_dialog {w title text image default args} {
       if {![string compare $tcl_platform(platform) "macintosh"] && ![string compare $image "error"]} {
 	    set image "stop"
 	}
-	if {[catch { label $w.image -image [load_xpm std_$image] }]} {
-		label $w.image -bitmap $image
-	}
+	label $w.image -image [load_image std_$image]
 	pack $w.image -in $w.top -side left -padx 3m -pady 3m
+    }
+
+    if {$ext != {}} {
+	frame $w.ext
+	text $w.ext.t -yscrollcommand [list $w.ext.s set] -wrap word
+	scrollbar $w.ext.s -command [list $w.ext.t yview] -orient v
+	pack $w.ext.t -side left -fill both -expand 1
+	pack $w.ext.s -side left -fill y
+	$w.ext.t insert end $ext
+	$w.ext.t configure -state disabled
+	pack $w.ext -side top
     }
 
     # 3. Create a row of buttons at the bottom of the dialog.

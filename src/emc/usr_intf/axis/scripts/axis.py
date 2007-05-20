@@ -29,7 +29,7 @@ import gettext;
 gettext.install("axis", localedir=os.path.join(BASE, "share", "locale"), unicode=True)
 r_ = gettext.translation("rs274_err", localedir=os.path.join(BASE, "share", "locale"), fallback=True).ugettext
 
-import array, time, atexit, tempfile, shutil, errno, thread
+import array, time, atexit, tempfile, shutil, errno, thread, select, re
 
 # Print Tk errors to stdout. python.org/sf/639266
 import Tkinter 
@@ -1511,8 +1511,8 @@ class Progress:
         root_window.tk.call("focus", "-force", ".info.progress")
         root_window.tk.call("patient_grab", ".info.progress")
 
-    def update(self, count):
-        if count - self.lastcount > 400:
+    def update(self, count, force=0):
+        if force or count - self.lastcount > 400:
             fraction = (self.phase + count * 1. / self.total) / self.num_phases
             self.lastcount = count
             try:
@@ -1656,20 +1656,31 @@ class AxisCanon(GLCanon):
     def get_external_length_units(self):
         return s.linear_units or 1.0
 
+progress_re = re.compile("^FILTER_PROGRESS=(\\d*)$")
 def filter_program(program_filter, infilename, outfilename):
     import subprocess
     outfile = open(outfilename, "w")
+    env = dict(os.environ)
+    env['AXIS_PROGRESS_BAR'] = '1'
     p = subprocess.Popen([program_filter, infilename], stdin=subprocess.PIPE,
-                        stdout=outfile)
+                        stdout=outfile, stderr=subprocess.PIPE, env=env)
     p.stdin.close()  # No input for you
-
-    progress = Progress(1, 1)
+    progress = Progress(1, 100)
     progress.set_text(_("Filtering..."))
+    stderr_text = []
     try:
         while p.poll() is None: # XXX add checking for abort
             t.update()
-            t.after(100)
-        return p.returncode
+            r,w,x = select.select([p.stderr], [], [], 0.100)
+            if r:
+                stderr_line = p.stderr.readline()
+                m = progress_re.match(stderr_line)
+                if m:
+                    print m.group(1)
+                    progress.update(int(m.group(1)), 1)
+                else:
+                    stderr_text.append(stderr_line)
+        return p.returncode, "".join(stderr_text)
     finally:
         progress.done()
 
@@ -1688,13 +1699,13 @@ def open_file_guts(f, filtered = False):
         program_filter = get_filter(f)
         if program_filter:
             tempfile = os.path.join(tempdir, os.path.basename(f))
-            result = filter_program(program_filter, f, tempfile)
-            if result:
-                if result == "aborted":
-                    return
-                root_window.tk.call("nf_dialog", ".error",
-                        _("Program_filter %r failed") % program_filter,
-                        _("Exit code %d") % result,
+            exitcode, stderr = filter_program(program_filter, f, tempfile)
+            if exitcode:
+                root_window.tk.call("nf_dialog", (".error", "-ext", stderr),
+                        _("Filter failed"),
+                        _("The program %r exited with code %d.  "
+                        "Any error messages it produced are shown below:")
+                            % (program_filter, exitcode),
                         "error",0,_("OK"))
                 return
             return open_file_guts(tempfile, True)
