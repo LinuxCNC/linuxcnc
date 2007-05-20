@@ -171,11 +171,17 @@ class Reduce_Scan_Lace:
 unitcodes = ['G20', 'G21']
 convert_makers = [ Convert_Scan_Increasing, Convert_Scan_Decreasing, Convert_Scan_Alternating, Convert_Scan_Upmill, Convert_Scan_Downmill ]
 
+def progress(a, b):
+    if os.environ.has_key("AXIS_PROGRESS_BAR"):
+        print >>sys.stderr, "FILTER_PROGRESS=%d" % int(a*100./b+.5)
+        sys.stderr.flush()
+
 class Converter:
     def __init__(self,
             image, units, tool_shape, pixelsize, pixelstep, safetyheight, \
             tolerance, feed, convert_rows, convert_cols, cols_first_flag,
-            entry_cut, spindle_speed):
+            entry_cut, spindle_speed, roughing_offset, roughing_delta,
+            roughing_feed):
         self.image = image
         self.units = units
         self.tool = tool_shape
@@ -183,12 +189,15 @@ class Converter:
         self.pixelstep = pixelstep
         self.safetyheight = safetyheight
         self.tolerance = tolerance
-        self.feed = feed
+        self.base_feed = feed
         self.convert_rows = convert_rows
         self.convert_cols = convert_cols
         self.cols_first_flag = cols_first_flag
         self.entry_cut = entry_cut
         self.spindle_speed = spindle_speed
+        self.roughing_offset = roughing_offset
+        self.roughing_delta = roughing_delta
+        self.roughing_feed = roughing_feed
 
         self.cache = {}
 
@@ -200,14 +209,9 @@ class Converter:
 
         self.tool_shape = tool_shape * self.pixelsize * ts / 2;
     
-    def convert(self):
-        self.g = g = Gcode(safetyheight=self.safetyheight,
-                           tolerance=self.tolerance,
-                           spindle_speed=self.spindle_speed)
-        g.begin()
-        g.continuous(self.tolerance)
-        g.write(self.units)
-        g.safety()
+    def one_pass(self):
+        print >>sys.stderr, self.ro, self.rd
+        g = self.g
         g.set_feed(self.feed)
 
         if self.convert_cols and self.cols_first_flag:
@@ -218,15 +222,37 @@ class Converter:
         if self.convert_cols and not self.cols_first_flag:
             if self.convert_rows: g.safety()
             self.mill_cols(self.convert_cols, not self.convert_rows)
+
+    def convert(self):
+        self.g = g = Gcode(safetyheight=self.safetyheight,
+                           tolerance=self.tolerance,
+                           spindle_speed=self.spindle_speed)
+        g.begin()
+        g.continuous(self.tolerance)
+        g.write(self.units)
+        g.safety()
+        if self.roughing_delta:
+            self.feed = self.roughing_feed
+            r = self.image.max() - self.roughing_delta
+            m = self.image.min()
+            while r > m:
+                self.rd = r
+                self.ro = self.roughing_offset
+                self.one_pass()
+                r = r - self.roughing_delta
+            self.feed = self.base_feed
+            self.rd = m
+            self.ro = 0
+        self.one_pass()
         g.end()
 
     def get_z(self, x, y):
         try:
-            return self.cache[x,y]
+            return min(0, max(self.rd, self.cache[x,y]) + self.ro)
         except KeyError:
             m1 = self.image[y:y+self.ts, x:x+self.ts]
             self.cache[x,y] = d = (m1 - self.tool).max()
-            return d
+            return min(0, max(self.rd, d) + self.ro)
         
     def get_dz_dy(self, x, y):
         y1 = max(0, y-1)
@@ -248,6 +274,7 @@ class Converter:
         irange = range(h1)
 
         for j in jrange:
+            progress(jrange.index(j), len(jrange))
             y = (w1-j) * pixelsize
             scan = []
             for i in irange:
@@ -271,6 +298,7 @@ class Converter:
         jrange.reverse()
 
         for j in jrange:
+            progress(jrange.index(j), len(jrange))
             x = j * pixelsize
             scan = []
             for i in irange:
@@ -639,7 +667,8 @@ def ui(im, nim, im_name):
 
     app.destroy()
 
-    if status.get() == -1: raise SystemExit(1)
+    if status.get() == -1:
+        raise SystemExit(_("image-to-gcode: User pressed cancel"))
 
     pickle.dump(defaults, open(rc, "wb"))
 
@@ -723,7 +752,7 @@ def main():
     convert(nim, units, tool, pixel_size, step,
         options['safety_height'], options['tolerance'], options['feed_rate'],
         convert_rows, convert_cols, columns_first, ArcEntryCut(options['plunge_feed_rate'], .125),
-        spindle_speed)
+        spindle_speed, .1, 0, options['feed_rate'])
 
 if __name__ == '__main__':
     main()
