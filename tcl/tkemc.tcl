@@ -642,20 +642,23 @@ proc toggleJointWorld {} {
 }
 
 proc toggleJogType {} {
-    global jogType jogIncrement
+    global jogLabel jogType jogIncrement
 
     if {$jogType == "continuous"} {
         set jogType $jogIncrement
+	set jogLabel $jogIncrement
     } else {
         set jogType continuous
+	set jogLabel [msgcat::mc "continuous"]
     }
 }
 
 proc toggleJogIncrement {} {
-    global jogType jogIncrement
+    global jogLabel jogType jogIncrement
 
     if {$jogType == "continuous"} {
         set jogType $jogIncrement
+	set jogLabel $jogIncrement
     } else {
         if {$jogIncrement == "0.0001"} {
             set jogIncrement 0.0010
@@ -669,6 +672,7 @@ proc toggleJogIncrement {} {
             set jogIncrement 0.0001
         }
         set jogType $jogIncrement
+	set jogLabel $jogIncrement
     }
 }
 
