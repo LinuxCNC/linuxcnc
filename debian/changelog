@@ -1,3 +1,9 @@
+emc2 (1:pre-2.1.6) unstable; urgency=low
+
+  * fix TkEMC jog increment/continuous doesn't show on screen
+
+ -- Alex Joni <juve@juve-desktop>  Sun, 20 May 2007 13:15:29 +0300
+
 emc2 (1:2.1.5) unstable; urgency=low
 
   * set default gains in sum2 component to one instead of zero, so by default
