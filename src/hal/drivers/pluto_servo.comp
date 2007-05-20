@@ -385,6 +385,18 @@ EXTRA_SETUP() {
         outb(0x80, ioaddr_hi + 0x2); // select EPP mode in ECR
     }
 
+    // Check for presence of working EPP hardware
+    {
+       int status;
+       ADDR(0);
+       EPP_DIR_READ();
+       READ();
+       status = inb(ioaddr+1) & 1;
+       if(status) {
+           rtapi_print_msg(RTAPI_MSG_ERR, "Failed to communicate with pluto-servo board after programming firmware.\n");
+           return -EIO;
+       }
+    }
     return 0;
 }
 
