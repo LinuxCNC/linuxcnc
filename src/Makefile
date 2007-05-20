@@ -248,6 +248,7 @@ HEADERS := \
     libnml/nml/nml_mod.hh \
     libnml/nml/nml_oi.hh \
     libnml/nml/nml_srv.hh \
+    libnml/nml/nml_type.hh \
     libnml/nml/nmldiag.hh \
     libnml/nml/nmlmsg.hh \
     libnml/nml/stat_msg.hh \
