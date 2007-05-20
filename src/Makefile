@@ -197,6 +197,7 @@ default: $(INFILES)
 # in ../include is used when building external components of emc2.
 HEADERS := \
     config.h \
+    emc/ini/emcIniFile.hh \
     emc/ini/iniaxis.hh \
     emc/ini/initool.hh \
     emc/ini/initraj.hh \
@@ -212,6 +213,7 @@ HEADERS := \
     emc/motion/usrmotintf.h \
     emc/nml_intf/canon.hh \
     emc/nml_intf/emc.hh \
+    emc/nml_intf/emc_nml.hh \
     emc/nml_intf/emccfg.h \
     emc/nml_intf/emcglb.h \
     emc/nml_intf/emcpos.h \
