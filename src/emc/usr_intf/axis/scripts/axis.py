@@ -2363,16 +2363,14 @@ class TclCommands(nf.TclCommands):
     def open_file(*event):
         if running(): return
         global open_directory
-        all_extensions = set([".ngc"])
+        all_extensions = tuple([".ngc"])
         for e in extensions:
-            s = all_extensions.update(e[1])
-        all_extensions = tuple(sorted(all_extensions))
+            all_extensions = all_extensions + tuple(e[1])
         types = (
             (_("All machinable files"), all_extensions),
             (_("rs274ngc files"), ".ngc")) + extensions + \
             ((_("All files"), "*"),)
         f = root_window.tk.call("tk_getOpenFile", "-initialdir", open_directory,
-            "-defaultextension", ".ngc",
             "-filetypes", types)
         if not f: return
         o.set_highlight_line(None)
