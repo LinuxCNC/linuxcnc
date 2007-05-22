@@ -1489,7 +1489,7 @@ class Progress:
     def __init__(self, phases, total):
         self.num_phases = phases
         self.phase = 0
-        self.total = total
+        self.total = total or 1
         self.lastcount = 0
         self.text = None
         self.old_focus = root_window.tk.call("focus", "-lastfor", ".")
@@ -1527,7 +1527,7 @@ class Progress:
 
     def nextphase(self, total):
         self.phase += 1
-        self.total = total
+        self.total = total or 1
         self.lastcount = -100
 
     def done(self):
@@ -1723,6 +1723,7 @@ def open_file_guts(f, filtered = False):
         t.configure(state="normal")
         t.tk.call("delete_all", t)
         code = []
+        i = 0
         for i, l in enumerate(lines):
             l = l.expandtabs().replace("\r", "")
             #t.insert("end", "%6d: " % (i+1), "lineno", l)
