@@ -1676,7 +1676,6 @@ def filter_program(program_filter, infilename, outfilename):
                 stderr_line = p.stderr.readline()
                 m = progress_re.match(stderr_line)
                 if m:
-                    print m.group(1)
                     progress.update(int(m.group(1)), 1)
                 else:
                     stderr_text.append(stderr_line)
