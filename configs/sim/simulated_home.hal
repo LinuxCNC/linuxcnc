@@ -1,38 +1,38 @@
 newsig Xhomeswpos float
 newsig Yhomeswpos float
 newsig Zhomeswpos float
-newsig Ahomeswpos float
+#newsig Ahomeswpos float
 
 sets Xhomeswpos 1
 sets Yhomeswpos .5
 sets Zhomeswpos 2
-sets Ahomeswpos .6
+#sets Ahomeswpos .6
 
 linksp Xhomeswpos comp.0.in0 
 linksp Yhomeswpos comp.1.in0 
 linksp Zhomeswpos comp.2.in0 
-linksp Ahomeswpos comp.3.in0 
+#linksp Ahomeswpos comp.3.in0 
 
 linksp Xpos comp.0.in1
 linksp Ypos comp.1.in1
 linksp Zpos comp.2.in1
-linksp Apos comp.3.in1
+#linksp Apos comp.3.in1
 
 setp comp.0.hyst .02
 setp comp.1.hyst .02
 setp comp.2.hyst .02
-setp comp.3.hyst .02
+#setp comp.3.hyst .02
 
 newsig Xhomesw bit
 newsig Yhomesw bit
 newsig Zhomesw bit
-newsig Ahomesw bit
+#newsig Ahomesw bit
 newsig XZhomesw bit
 
 linksp Xhomesw comp.0.out
 linksp Yhomesw comp.1.out
 linksp Zhomesw comp.2.out
-linksp Ahomesw comp.3.out
+#linksp Ahomesw comp.3.out
 
 linksp Xhomesw or2.0.in0
 linksp Zhomesw or2.0.in1
@@ -40,12 +40,12 @@ linksp XZhomesw or2.0.out
 
 linksp XZhomesw axis.0.home-sw-in
 linksp Yhomesw axis.1.home-sw-in
-linksp Ahomesw axis.3.home-sw-in
+#linksp Ahomesw axis.3.home-sw-in
 linksp XZhomesw axis.2.home-sw-in
 
 addf comp.0 servo-thread
 addf comp.1 servo-thread
 addf comp.2 servo-thread
-addf comp.3 servo-thread
+#addf comp.3 servo-thread
 
 addf or2.0 servo-thread
