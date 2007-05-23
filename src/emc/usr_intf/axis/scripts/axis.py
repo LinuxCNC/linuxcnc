@@ -1302,6 +1302,7 @@ class LivePlotter:
         self.win = window
         window.live_plot_size = 0
         self.after = None
+        self.error_after = None
         self.running = BooleanVar(window)
         self.running.set(False)
         self.lastpts = -1
@@ -1341,8 +1342,23 @@ class LivePlotter:
         if self.after is not None:
             self.win.after_cancel(self.after)
             self.after = None
+        if self.error_after is not None:
+            self.win.after_cancel(self.error_after)
+            self.error_after = None
         self.logger.stop()
         self.running.set(True)
+
+    def error_task(self):
+        error = e.poll()
+        if error: 
+            kind, text = error
+            if kind in (emc.NML_ERROR, emc.OPERATOR_ERROR):
+                root_window.tk.call("nf_dialog", ".error",
+                                    _("AXIS error"), text, "error",0,_("OK"))
+            else: # TEXT, DISPLAY
+                result = root_window.tk.call("nf_dialog", ".error",
+                                    _("AXIS Message"), text, "info", 0, _("OK"))
+        self.error_after = self.win.after(20, self.error_task)
 
     def update(self):
         if not self.running.get():
@@ -1353,20 +1369,6 @@ class LivePlotter:
             print "error", detail
             del self.stat
             return
-        error = e.poll()
-        if error: 
-            kind, text = error
-            if kind in (emc.NML_ERROR, emc.OPERATOR_ERROR):
-                root_window.tk.call("nf_dialog", ".error",
-                                    _("AXIS error"), text, "error",0,_("OK"))
-            else: # TEXT, DISPLAY
-                # This gives time for the "interpreter is paused" state to
-                # reach us.  Typically a message is followed by a pause
-                # command, as for a manual tool change.
-                for i in range(4):
-                    self.stat.poll()
-                result = root_window.tk.call("nf_dialog", ".error",
-                                    _("AXIS error"), text, "info", 0, _("OK"))
         self.after = self.win.after(20, self.update)
 
         self.win.set_current_line(self.stat.id)
@@ -2947,7 +2949,7 @@ root_window.bind("v", commands.cycle_view)
 root_window.bind("<Alt-p>", "#nothing")
 root_window.bind("r", commands.task_run)
 root_window.bind("<Control-r>", commands.reload_file)
-root_window.bind("<Key-F1>", commands.estop_clicked)
+root_window.bind_class("all", "<Key-F1>", commands.estop_clicked)
 root_window.bind("<Key-F2>", commands.onoff_clicked)
 root_window.bind("<Key-F7>", commands.mist_toggle)
 root_window.bind("<Key-F8>", commands.flood_toggle)
@@ -3427,6 +3429,7 @@ root_window.tk.call("trace", "variable", "metric", "w", "update_units")
 install_help(root_window)
 
 live_plotter.update()
+live_plotter.error_task()
 o.mainloop()
 live_plotter.stop()
 
