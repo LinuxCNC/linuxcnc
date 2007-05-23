@@ -406,6 +406,14 @@ int do_net_cmd(char *signal, char *pins[]) {
         return retval;
     }
 
+    {
+	hal_pin_t *pin = halpr_find_pin_by_name(signal);
+	if(pin)
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+		"HAL:%d: Signal name '%s' is also the name of a pin.\n"
+		"HAL:%d: In a future release of emc, this will be an error.\n",
+		linenumber, signal, linenumber);
+    }
     if(!sig) {
         /* Create the signal with the type of the first pin */
         hal_pin_t *pin = halpr_find_pin_by_name(pins[0]);
