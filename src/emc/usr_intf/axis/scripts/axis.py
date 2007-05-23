@@ -1680,6 +1680,7 @@ def filter_program(program_filter, infilename, outfilename):
                     progress.update(int(m.group(1)), 1)
                 else:
                     stderr_text.append(stderr_line)
+                    sys.stderr.write(stderr_line)
         return p.returncode, "".join(stderr_text)
     finally:
         progress.done()
