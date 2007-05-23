@@ -32,6 +32,8 @@ import rs274.options
 from math import *
 import operator
 
+epsilon = 1e-5
+
 def ball_tool(r,rad):
     s = -sqrt(rad**2-r**2)
     return s
@@ -98,14 +100,23 @@ class Convert_Scan_Alternating:
         if st == 1: yield True, items
         else: yield False, items
 
+    def reset(self):
+        self.st = 0
+
 class Convert_Scan_Increasing:
     def __call__(self, primary, items):
         yield True, items
+
+    def reset(self):
+        pass
 
 class Convert_Scan_Decreasing:
     def __call__(self, primary, items):
         items.reverse()
         yield True, items
+
+    def reset(self):
+        pass
 
 class Convert_Scan_Upmill:
     def __init__(self, slop = sin(pi / 18)):
@@ -117,6 +128,9 @@ class Convert_Scan_Upmill:
                 span.reverse()
             yield True, span
 
+    def reset(self):
+        pass
+
 class Convert_Scan_Downmill:
     def __init__(self, slop = sin(pi / 18)):
         self.slop = slop
@@ -126,6 +140,9 @@ class Convert_Scan_Downmill:
             if amax([it[2] for it in span]) > 0:
                 span.reverse()
             yield True, span
+
+    def reset(self):
+        pass
 
 class Reduce_Scan_Lace:
     def __init__(self, converter, slope, keep):
@@ -167,6 +184,9 @@ class Reduce_Scan_Lace:
                         a = None
             if a is not None:
                 yield True, span[a:]
+
+    def reset(self):
+        self.primary.reset()
 
 unitcodes = ['G20', 'G21']
 convert_makers = [ Convert_Scan_Increasing, Convert_Scan_Decreasing, Convert_Scan_Alternating, Convert_Scan_Upmill, Convert_Scan_Downmill ]
@@ -222,6 +242,11 @@ class Converter:
         if self.convert_cols and not self.cols_first_flag:
             if self.convert_rows: g.safety()
             self.mill_cols(self.convert_cols, not self.convert_rows)
+        if self.convert_cols:
+            self.convert_cols.reset()
+        if self.convert_rows:
+            self.convert_rows.reset()
+        g.safety()
 
     def convert(self):
         self.g = g = Gcode(safetyheight=self.safetyheight,
@@ -232,17 +257,36 @@ class Converter:
         g.write(self.units)
         g.safety()
         if self.roughing_delta:
+            base_image = self.image
+            rough = make_tool_shape(ball_tool,
+                                self.roughing_offset, self.pixelsize)
+            w, h = base_image.shape
+            tw, th = rough.shape
+            w1 = w + tw
+            h1 = h + th
+            nim1 = numarray.zeros((w1, h1), 'Float32') + base_image.min()
+            nim1[tw/2:tw/2+w, th/2:th/2+h] = base_image
+            self.image = numarray.zeros((w,h), type="Float32")
+            for j in range(0, w):
+                progress(j,w)
+                for i in range(0, h):
+                    self.image[j,i] = (nim1[j:j+tw,i:i+th] - rough).max()
             self.feed = self.roughing_feed
-            r = self.image.max() - self.roughing_delta
+            r = -self.roughing_delta
             m = self.image.min()
+            self.ro = self.roughing_offset
             while r > m:
                 self.rd = r
-                self.ro = self.roughing_offset
                 self.one_pass()
                 r = r - self.roughing_delta
+            if r < m + epsilon:
+                self.rd = m
+                self.one_pass()
             self.feed = self.base_feed
             self.rd = m
             self.ro = 0
+            self.image = base_image
+            self.cache.clear()
         self.one_pass()
         g.end()
 
@@ -568,6 +612,8 @@ def ui(im, nim, im_name):
         ("tool_type", optionmenu(_("Ball End"), _("Flat End"), _("45 Degree"), _("60 Degree"))),
         ("bounded", optionmenu(_("None"), _("Secondary"), _("Full"))),
         ("contact_angle", floatentry),
+        ("roughing_offset", floatentry),
+        ("roughing_depth", floatentry),
     ]
 
     defaults = dict(
@@ -589,6 +635,8 @@ def ui(im, nim, im_name):
         bounded = 0,
         contact_angle = 45,
         spindle_speed = 1000,
+        roughing_offset = .1,
+        roughing_depth = .25,
     )
 
     texts = dict(
@@ -610,6 +658,8 @@ def ui(im, nim, im_name):
         bounded=_("Lace Bounding"),
         contact_angle=_("Contact Angle (degrees)"),
         spindle_speed=_("Spindle Speed (RPM)"),
+        roughing_offset=_("Roughing offset (units, 0=no roughing)"),
+        roughing_depth=_("Roughing depth per pass (units)"),
     )
 
     try:
@@ -639,11 +689,19 @@ def ui(im, nim, im_name):
             widgets['contact_angle'].configure(state="normal")
         else:
             widgets['contact_angle'].configure(state="disabled")
+
+    def trace_offset(*args):
+        if vars['roughing_offset'].get() > 0:
+            widgets['roughing_depth'].configure(state='normal')
+        else:
+            widgets['roughing_depth'].configure(state='disabled')
     vars['pattern'].trace('w', trace_pattern)
     vars['bounded'].trace('w', trace_bounded)
+    vars['roughing_offset'].trace('w', trace_offset)
 
     trace_pattern()
     trace_bounded()
+    trace_offset()
 
     status = Tkinter.IntVar()
     bb = Tkinter.Button(b, text=_("OK"), command=lambda:status.set(1), width=8, default="active")
@@ -752,7 +810,7 @@ def main():
     convert(nim, units, tool, pixel_size, step,
         options['safety_height'], options['tolerance'], options['feed_rate'],
         convert_rows, convert_cols, columns_first, ArcEntryCut(options['plunge_feed_rate'], .125),
-        spindle_speed, .1, 0, options['feed_rate'])
+        spindle_speed, options['roughing_offset'], options['roughing_depth'], options['feed_rate'])
 
 if __name__ == '__main__':
     main()
