@@ -259,7 +259,7 @@ class Converter:
         if self.roughing_delta:
             base_image = self.image
             rough = make_tool_shape(ball_tool,
-                                self.roughing_offset, self.pixelsize)
+                                2*self.roughing_offset, self.pixelsize)
             w, h = base_image.shape
             tw, th = rough.shape
             w1 = w + tw
