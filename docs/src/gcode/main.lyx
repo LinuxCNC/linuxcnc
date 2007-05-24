@@ -37,7 +37,7 @@
 
 \layout Chapter
 
-return Machining Center Overview
+Machining Center Overview
 \layout Standard
 
 This section gives a brief description of how a machining center is viewed
@@ -8090,4 +8090,75 @@ preview false
 \end_inset 
 
 
+\layout Chapter
+
+Differences between EMC2 gcode and RS274NGC
+\layout Section
+
+Differences that change the meaning of well-formed RS274NGC programs
+\layout Subsection
+
+Location after a tool change
+\layout Standard
+
+In EMC2, the machine does not return to its original position after a tool
+ change.
+ This change was made because the new tool might be longer than the old
+ tool, and the move to the original machine position could therefore leave
+ the tool tip too low.
+\layout Subsection
+
+Offset parameters are inifile units
+\layout Standard
+
+In EMC2, the values stored in parameters for the G28 and G30 home locations,
+ the P1\SpecialChar \ldots{}
+P9 coordinate systems, and the G92 offset are in 
+\begin_inset Quotes eld
+\end_inset 
+
+inifile units
+\begin_inset Quotes erd
+\end_inset 
+
+.
+ This change was made because otherwise the meaning of a location changed
+ depending on whether G20 or G21 was active when G28, G30, G10 L2, or G92.3
+ is programmed.
+\layout Subsection
+
+G84, G87 not implemented
+\layout Standard
+
+G84 and G87 are not currently implemented, but may be added to a future
+ release of emc2.
+\layout Section
+
+Differences that do not change the meaning of well-formed RS274NGC programs
+\layout Subsection
+
+G33, G76 threading codes
+\layout Standard
+
+These codes are not defined in RS274NGC.
+\layout Subsection
+
+G38.2
+\layout Standard
+
+The probe tip is not retracted after a G38.2 movement.
+ This retraction move may be added in a future release of emc2.
+\layout Subsection
+
+O-codes
+\layout Standard
+
+These codes are not defined in RS274NGC
+\layout Subsection
+
+M50\SpecialChar \ldots{}
+M53 overrides
+\layout Standard
+
+These codes are not defined in RS274NGC
 \the_end
