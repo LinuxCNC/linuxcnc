@@ -38,7 +38,6 @@ or iconify this window, or it will close automatically after a few seconds."))
 lab.pack()
 
 def withdraw():
-    print "called withdraw()"
     app.wm_withdraw()
     app.bind("<Expose>", lambda event: app.wm_withdraw())
 
