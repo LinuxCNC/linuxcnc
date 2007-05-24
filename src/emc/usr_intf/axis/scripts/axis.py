@@ -905,10 +905,14 @@ class MyOpengl(Opengl):
                 if lathe:
                     glRotatef(90, 0, 1, 0)
                 if current_tool and current_tool.diameter != 0:
-                    if vars.metric.get():
-                        r = current_tool.diameter / (2. * 25.4)
+                    dia = current_tool.diameter
+                    # XXX because of the bogus definition of the tool table
+                    # format in the ngc spec, current_tool can have any units.
+                    # so for now, make a wildass guess what the number means.
+                    if dia > 1.0: 
+                        r = dia / (2. * 25.4)
                     else:
-                        r = current_tool.diameter / 2.
+                        r = dia / 2.
                     q = gluNewQuadric()
                     glEnable(GL_LIGHTING)
                     glColor3f(*o.colors['cone'])
@@ -1204,7 +1208,11 @@ def lathetool():
     diameter, frontangle, backangle, orientation = current_tool[-4:]
     w = 3/8. 
 
-    radius = diameter/2.0
+    # XXX search for "wildass" above
+    if diameter > 1.0:
+        radius = diameter / (2. * 25.4)
+    else:
+        radius = diameter / 2.0
     glColor3f(*o.colors['lathetool'])
     glBegin(GL_LINES)
     glVertex3f(-radius/2.0,0.0,0.0)
