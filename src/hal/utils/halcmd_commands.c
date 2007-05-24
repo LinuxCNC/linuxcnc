@@ -410,9 +410,10 @@ int do_net_cmd(char *signal, char *pins[]) {
 	hal_pin_t *pin = halpr_find_pin_by_name(signal);
 	if(pin)
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"HAL:%d: Signal name '%s' is also the name of a pin.\n"
-		"HAL:%d: In a future release of emc, this will be an error.\n",
-		linenumber, signal, linenumber);
+		"HAL:%d: Signal name '%s' may not be the same as a pin.\n",
+		linenumber, signal);
+        rtapi_mutex_give(&(hal_data->mutex));
+        return HAL_BADVAR;
     }
     if(!sig) {
         /* Create the signal with the type of the first pin */
