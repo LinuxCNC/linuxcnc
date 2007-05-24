@@ -333,7 +333,7 @@ setup_menu_accel .menu.view end [_ "Sh_ow machine limits"]
 .menu.view add checkbutton \
 	-variable show_machine_speed \
 	-command toggle_show_machine_speed
-setup_menu_accel .menu.view end [_ "Show machine sp_eed"]
+setup_menu_accel .menu.view end [_ "Show v_elocity"]
 
 .menu.view add checkbutton \
 	-variable show_distance_to_go \
