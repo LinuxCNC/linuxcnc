@@ -951,15 +951,13 @@ class MyOpengl(Opengl):
                 format = "%3s:% 9.3f"
             else:
                 format = "%3s:% 9.4f"
-            positions = [format % i for i in zip(axisnames, positions)]
+            posstrs = [format % i for i in zip(axisnames, positions)]
 
             if lathe:
-                limit = [s.limit[0]] + list(s.limit[2:])
-                homed = [s.homed[0]] + list(s.homed[2:])
-                positions = [positions[0]] + positions[2:]
-            else:
-                limit = s.limit[:]
-                homed = s.homed[:]
+                posstrs = [posstrs[0]] + [format % ("Dia", positions[0]*2.0)] + posstrs[2:]
+
+            limit = s.limit[:]
+            homed = s.homed[:]
 
             if vars.show_machine_speed.get():
                 spd = to_internal_linear_unit(s.current_vel)
@@ -967,23 +965,23 @@ class MyOpengl(Opengl):
                     spd = spd * 25.4 * 60
                 else:
                     spd = spd * 60
-                positions.append(format % ("Vel", spd))
+                posstrs.append(format % ("Vel", spd))
 
             if vars.show_distance_to_go.get():
                 dtg = to_internal_linear_unit(s.distance_to_go)
                 if vars.metric.get():
                     dtg *= 25.4
-                positions.append(format % ("DTG", dtg))
+                posstrs.append(format % ("DTG", dtg))
         else:
             limit = s.limit[:]
             homed = s.homed[:]
             # N.B. no conversion here because joint positions are unitless
-            positions = ["  %s:% 9.4f" % i for i in
+            posstrs = ["  %s:% 9.4f" % i for i in
                 zip(jointnames, s.joint_actual_position)]
 
-        maxlen = max([len(p) for p in positions])
+        maxlen = max([len(p) for p in posstrs])
         pixel_width = max([int(o.tk.call("font", "measure", coordinate_font, p))
-                        for p in positions])
+                        for p in posstrs])
         glDepthFunc(GL_ALWAYS)
         glDepthMask(GL_FALSE)
         glEnable(GL_BLEND)
@@ -992,8 +990,8 @@ class MyOpengl(Opengl):
         glBlendColor(0,0,0,1-o.colors['overlay_alpha'])
         glBegin(GL_QUADS)
         glVertex3f(0, ypos, 1)
-        glVertex3f(0, ypos - 8 - coordinate_linespace*len(positions), 1)
-        glVertex3f(pixel_width+24, ypos - 8 - coordinate_linespace*len(positions), 1)
+        glVertex3f(0, ypos - 8 - coordinate_linespace*len(posstrs), 1)
+        glVertex3f(pixel_width+24, ypos - 8 - coordinate_linespace*len(posstrs), 1)
         glVertex3f(pixel_width+24, ypos, 1)
         glEnd()
         glDisable(GL_BLEND)
@@ -1002,7 +1000,7 @@ class MyOpengl(Opengl):
         ypos -= coordinate_linespace+5
         i=0
         glColor3f(*o.colors['overlay_foreground'])
-        for string in positions:
+        for string in posstrs:
             maxlen = max(maxlen, len(string))
             if i < len(homed) and homed[i]:
                 glRasterPos2i(6, ypos)
