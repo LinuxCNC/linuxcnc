@@ -415,4 +415,59 @@ strong
 \end_inset 
 
  slopes, and slopes less than that angle are considered to be weak slopes.
+\layout Subsection
+
+Roughing offset and depth per pass
+\layout Standard
+
+Image-to-gcode can optionally perform rouging passes.
+ The depth of successive roughing passes is given by 
+\begin_inset Quotes eld
+\end_inset 
+
+Roughing depth per pass
+\begin_inset Quotes erd
+\end_inset 
+
+.
+ For instance, entering 0.2 will perform the first roughing pass with a depth
+ of 0.2, the second roughing pass with a depth of 0.4, and so on until the
+ full Depth of the image is reached.
+ No part of any roughing pass will cut closer than Roughing Offset to the
+ final part.
+ Figure 
+\begin_inset LatexCommand \ref{cap:Roughing-passes-and}
+
+\end_inset 
+
+ shows a tall vertical feature being milled.
+ In this image, Roughing depth per pass is 0.2 inches and roughing offset
+ is 0.1 inches.
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Caption
+
+Roughing passes and final pass
+\begin_inset LatexCommand \label{cap:Roughing-passes-and}
+
+\end_inset 
+
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename i2g-roughing.png
+
+\end_inset 
+
+
+\end_inset 
+
+
 \the_end
