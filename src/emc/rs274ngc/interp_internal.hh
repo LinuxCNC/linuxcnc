@@ -436,6 +436,14 @@ macros totally crash-proof. If the function call stack is deeper than
   return error_code;                                   \
   } else return error_code
 
+#define CHKF(bad, error_args) if (bad) {             \
+  setError error_args;                               \
+  _setup.stack_index = 0;                            \
+  strcpy(_setup.stack[_setup.stack_index++], name);  \
+  _setup.stack[_setup.stack_index][0] = 0;           \
+  return NCE_VARIABLE;                               \
+  } else
+
 #define CHK(bad, error_code) if (bad) {             \
   _setup.stack_index = 0;                      \
   strcpy(_setup.stack[_setup.stack_index++], name); \
