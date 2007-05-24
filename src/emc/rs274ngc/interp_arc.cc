@@ -25,9 +25,12 @@
 #include <ctype.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <libintl.h>
 #include "rs274ngc.hh"
 #include "rs274ngc_return.hh"
 #include "interp_internal.hh"
+
+#define _(s) gettext(s)
 
 /***********************************************************************/
 
@@ -76,8 +79,10 @@ int Interp::arc_data_comp_ijk(int move,  //!<either G_2 (cw arc) or G_3 (ccw arc
   *center_y = (current_y + j_number);
   arc_radius = hypot(i_number, j_number);
   radius2 = hypot((*center_x - end_x), (*center_y - end_y));
-  CHK((fabs(arc_radius - radius2) > tolerance),
-      NCE_RADIUS_TO_END_OF_ARC_DIFFERS_FROM_RADIUS_TO_START);
+  CHKF((fabs(arc_radius - radius2) > tolerance),
+      (_("Radius to end of arc differs from radius to start: "
+       "start=(%f,%f) center=(%f,%f) end=(%f,%f) r1=%f r2=%f"),
+      current_x, current_y, *center_x, *center_y, end_x, end_y, arc_radius, radius2));
 
   CHK(((arc_radius <= tool_radius) && (((side == LEFT) && (move == G_3)) ||
                                        ((side == RIGHT) && (move == G_2)))),
@@ -225,8 +230,10 @@ int Interp::arc_data_ijk(int move,       //!< either G_2 (cw arc) or G_3 (ccw ar
   radius = hypot((*center_x - current_x), (*center_y - current_y));
   radius2 = hypot((*center_x - end_x), (*center_y - end_y));
   CHK(((radius == 0.0) || (radius2 == 0.0)), NCE_ZERO_RADIUS_ARC);
-  CHK((fabs(radius - radius2) > tolerance),
-      NCE_RADIUS_TO_END_OF_ARC_DIFFERS_FROM_RADIUS_TO_START);
+  CHKF((fabs(radius - radius2) > tolerance),
+      (_("Radius to end of arc differs from radius to start: "
+       "start=(%f,%f) center=(%f,%f) end=(%f,%f) r1=%f r2=%f"),
+      current_x, current_y, *center_x, *center_y, end_x, end_y, radius, radius2));
   if (move == G_2)
     *turn = -1;
   else if (move == G_3)
