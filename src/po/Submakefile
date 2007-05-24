@@ -53,7 +53,7 @@ po/tcl.pot: $(TCLSRCS)
 TARGETS += po/tcl.pot
 endif
 
-po/rs274_err.pot: emc/task/emctaskmain.cc emc/rs274ngc/rs274ngc_errors.cc
+po/rs274_err.pot: emc/task/emctaskmain.cc emc/rs274ngc/rs274ngc_errors.cc emc/rs274ngc/interp_arc.cc
 	$(XGETTEXT) -k_ -o $@ $^ && touch $@
 TARGETS += po/rs274_err.pot
 
