@@ -32,6 +32,25 @@
 
 #define _(s) gettext(s)
 
+char Interp::arc_axis1(int plane) {
+    switch(plane) {
+    case CANON_PLANE_XY: return 'X';
+    case CANON_PLANE_XZ: return 'Z';
+    case CANON_PLANE_YZ: return 'Y';
+    default: return '!';
+    }
+}
+
+char Interp::arc_axis2(int plane) {
+    switch(plane) {
+    case CANON_PLANE_XY: return 'Y';
+    case CANON_PLANE_XZ: return 'X';
+    case CANON_PLANE_YZ: return 'Z';
+    default: return '!';
+    }
+}
+
+
 /***********************************************************************/
 
 /*! arc_data_comp_ijk
@@ -58,6 +77,7 @@ tool radius from the arc.
 */
 
 int Interp::arc_data_comp_ijk(int move,  //!<either G_2 (cw arc) or G_3 (ccw arc)
+                              int plane, //!<active plane
                              int side,  //!<either RIGHT or LEFT
                              double tool_radius,        //!<radius of the tool
                              double current_x,  //!<first coordinate of current point
@@ -74,6 +94,7 @@ int Interp::arc_data_comp_ijk(int move,  //!<either G_2 (cw arc) or G_3 (ccw arc
   static char name[] = "arc_data_comp_ijk";
   double arc_radius;
   double radius2;
+  char a = arc_axis1(plane), b = arc_axis2(plane);
 
   *center_x = (current_x + i_number);
   *center_y = (current_y + j_number);
@@ -81,8 +102,10 @@ int Interp::arc_data_comp_ijk(int move,  //!<either G_2 (cw arc) or G_3 (ccw arc
   radius2 = hypot((*center_x - end_x), (*center_y - end_y));
   CHKF((fabs(arc_radius - radius2) > tolerance),
       (_("Radius to end of arc differs from radius to start: "
-       "start=(%f,%f) center=(%f,%f) end=(%f,%f) r1=%f r2=%f"),
-      current_x, current_y, *center_x, *center_y, end_x, end_y, arc_radius, radius2));
+       "start=(%c%.4f,%c%.4f) center=(%c%.4f,%c%.4f) end=(%c%.4f,%c%.4f) r1=%.4f r2=%.4f"),
+       a, current_x, b, current_y, 
+       a, *center_x, b, *center_y, 
+       a, end_x, b, end_y, arc_radius, radius2));
 
   CHK(((arc_radius <= tool_radius) && (((side == LEFT) && (move == G_3)) ||
                                        ((side == RIGHT) && (move == G_2)))),
@@ -156,6 +179,7 @@ the pin is inside or outside the hoop.
 */
 
 int Interp::arc_data_comp_r(int move,    //!< either G_2 (cw arc) or G_3 (ccw arc)
+                            int plane,
                            int side,    //!< either RIGHT or LEFT
                            double tool_radius,  //!< radius of the tool
                            double current_x,    //!< first coordinate of current point
@@ -176,7 +200,7 @@ int Interp::arc_data_comp_r(int move,    //!< either G_2 (cw arc) or G_3 (ccw ar
                                        ((side == RIGHT) && (move == G_2)))),
       NCE_TOOL_RADIUS_NOT_LESS_THAN_ARC_RADIUS_WITH_COMP);
 
-  return arc_data_r(move, current_x, current_y, end_x, end_y, big_radius, 
+  return arc_data_r(move, plane, current_x, current_y, end_x, end_y, big_radius, 
              center_x, center_y, turn, tolerance);
 
 }
@@ -211,6 +235,7 @@ are handled similarly.
 */
 
 int Interp::arc_data_ijk(int move,       //!< either G_2 (cw arc) or G_3 (ccw arc)
+                         int plane,
                         double current_x,       //!< first coordinate of current point
                         double current_y,       //!< second coordinate of current point
                         double end_x,   //!< first coordinate of arc end point
@@ -225,6 +250,8 @@ int Interp::arc_data_ijk(int move,       //!< either G_2 (cw arc) or G_3 (ccw ar
   static char name[] = "arc_data_ijk";
   double radius;                /* radius to current point */
   double radius2;               /* radius to end point     */
+  char a = arc_axis1(plane), b = arc_axis2(plane);
+
   *center_x = (current_x + i_number);
   *center_y = (current_y + j_number);
   radius = hypot((*center_x - current_x), (*center_y - current_y));
@@ -232,8 +259,10 @@ int Interp::arc_data_ijk(int move,       //!< either G_2 (cw arc) or G_3 (ccw ar
   CHK(((radius == 0.0) || (radius2 == 0.0)), NCE_ZERO_RADIUS_ARC);
   CHKF((fabs(radius - radius2) > tolerance),
       (_("Radius to end of arc differs from radius to start: "
-       "start=(%f,%f) center=(%f,%f) end=(%f,%f) r1=%f r2=%f"),
-      current_x, current_y, *center_x, *center_y, end_x, end_y, radius, radius2));
+       "start=(%c%.4f,%c%.4f) center=(%c%.4f,%c%.4f) end=(%c%.4f,%c%.4f) r1=%.4f r2=%.4f"),
+       a, current_x, b, current_y, 
+       a, *center_x, b, *center_y, 
+       a, end_x, b, end_y, radius, radius2));
   if (move == G_2)
     *turn = -1;
   else if (move == G_3)
@@ -280,6 +309,7 @@ of the arc lies on a line through M perpendicular to L.
 */
 
 int Interp::arc_data_r(int move, //!< either G_2 (cw arc) or G_3 (ccw arc)
+                       int plane,
                       double current_x, //!< first coordinate of current point
                       double current_y, //!< second coordinate of current point
                       double end_x,     //!< first coordinate of arc end point

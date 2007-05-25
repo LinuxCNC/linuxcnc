@@ -272,15 +272,16 @@ int Interp::convert_arc2(int move,       //!< either G_2 (cw arc) or G_3 (ccw ar
   int status;                   /* status returned from CHP function call     */
   double tolerance;             /* tolerance for difference of radii          */
   int turn;                     /* number of full or partial turns CCW in arc */
+  int plane = settings->plane;
 
   tolerance = (settings->length_units == CANON_UNITS_INCHES) ?
     TOLERANCE_INCH : TOLERANCE_MM;
 
   if (block->r_flag) {
-    CHP(arc_data_r(move, *current1, *current2, end1, end2,
+      CHP(arc_data_r(move, plane, *current1, *current2, end1, end2,
                    block->r_number, &center1, &center2, &turn, tolerance));
   } else {
-    CHP(arc_data_ijk(move, *current1, *current2, end1, end2, offset1,
+      CHP(arc_data_ijk(move, plane, *current1, *current2, end1, end2, offset1,
                      offset2, &center1, &center2, &turn, tolerance));
   }
 
@@ -344,6 +345,7 @@ int Interp::convert_arc_comp1(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
   double tool_radius;
   int turn;                     /* 1 for counterclockwise, -1 for clockwise */
   double end[3], current[3];
+  int plane = settings->plane;
 
   side = settings->cutter_comp_side;
   tool_radius = settings->cutter_comp_radius;   /* always is positive */
@@ -373,11 +375,11 @@ int Interp::convert_arc_comp1(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
       NCE_CUTTER_GOUGING_WITH_CUTTER_RADIUS_COMP);
 
   if (block->r_flag) {
-    CHP(arc_data_comp_r(move, side, tool_radius, current[0],
+      CHP(arc_data_comp_r(move, plane, side, tool_radius, current[0],
                         current[1], end[0], end[1], block->r_number,
                         &center[0], &center[1], &turn, tolerance));
   } else {
-    CHP(arc_data_comp_ijk(move, side, tool_radius, current[0],
+      CHP(arc_data_comp_ijk(move, plane, side, tool_radius, current[0],
                           current[1], end[0], end[1],
                           block->i_number, 
                           settings->plane == CANON_PLANE_XZ? block->k_number: block->j_number,
@@ -531,6 +533,7 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
   double tool_radius;
   int turn;                     /* number of full or partial circles CCW */
   double end[3], current[3];
+  int plane = settings->plane;
 
 /* find basic arc data: center_x, center_y, and turn */
 
@@ -559,10 +562,10 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
     TOLERANCE_INCH : TOLERANCE_MM;
 
   if (block->r_flag) {
-    CHP(arc_data_r(move, start[0], start[1], end[0], end[1],
+      CHP(arc_data_r(move, plane, start[0], start[1], end[0], end[1],
                    block->r_number, &center[0], &center[1], &turn, tolerance));
   } else {
-    CHP(arc_data_ijk(move,
+      CHP(arc_data_ijk(move, plane,
                      start[0], start[1], end[0], end[1],
                      block->i_number,
                      settings->plane == CANON_PLANE_XZ? block->k_number: block->j_number,
