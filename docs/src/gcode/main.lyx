@@ -5086,7 +5086,22 @@ G43
 
 \layout Subsection
 
-G43 H-
+G43
+\begin_inset LatexCommand \label{sub:G43}
+
+\end_inset 
+
+: Activate Tool length compensation
+\layout Standard
+
+G43 changes subsequent motions by offsetting the Z and/or X coordinates
+ by the length of the tool.
+ G43 does not cause any motion itself.
+ However, at the end of a subsequent movement, the tool tip will be at the
+ programmed location.
+\layout Subsubsection
+
+Offsets from tool table
 \layout Standard
 
 To use a tool length offset from the tool table, program 
@@ -5094,9 +5109,8 @@ To use a tool length offset from the tool table, program
 G43 H-
 \family default 
 , where the H number is the desired index in the tool table.
- It is expected that all entries in this table will be positive.
- The H number should be, but does not have to be, the same as the slot number
- of the tool currently in the spindle.
+ The H number will typically be, but does not have to be, the same as the
+ slot number of the tool currently in the spindle.
  It is OK for the H number to be zero; an offset value of zero will be used.
 \layout Standard
 
@@ -5105,9 +5119,9 @@ It is an error if:
 
 the H number is not an integer, is negative, or is larger than the number
  of carousel slots.
-\layout Subsection
+\layout Subsubsection
 
-G43 H-1 I- K-
+Dynamic tool compensation
 \layout Standard
 
 To use a tool length offset from the program, use 
@@ -5135,6 +5149,11 @@ G43 H-1
 \layout Subsection
 
 G49
+\begin_inset LatexCommand \label{sub:G49}
+
+\end_inset 
+
+: Cancel tool length compensation
 \layout Standard
 
 To use no tool length offset, program G49.
@@ -8161,4 +8180,39 @@ M53 overrides
 \layout Standard
 
 These codes are not defined in RS274NGC
+\layout Subsection
+
+G43
+\layout Subsubsection
+
+Negative Tool Lengths
+\layout Standard
+
+The RS274NGC spec says 
+\begin_inset Quotes eld
+\end_inset 
+
+it is expected that
+\begin_inset Quotes erd
+\end_inset 
+
+ all tool lengths will be positive.
+ However, G43 works for negative tool lengths.
+\layout Subsubsection
+
+Lathe tools
+\layout Standard
+
+G43 tool length compensation can offset the tool in both the X and Z dimensions.
+ This feature is primarily useful on lathes.
+\layout Subsubsection
+
+Dynamic tool lengths
+\layout Standard
+
+EMC2 allows specification of a computed tool length through 
+\family typewriter 
+G43 H-1 I K
+\family default 
+.
 \the_end
