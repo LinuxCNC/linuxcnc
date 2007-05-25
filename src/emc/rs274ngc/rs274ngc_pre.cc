@@ -476,7 +476,6 @@ int Interp::init()
   _setup.tool_zoffset = 0.0;
 //_setup.tool_max set in Interp::synch
 //_setup.tool_table set in Interp::synch
-  _setup.tool_table_index = 1;
 //_setup.traverse_rate set in Interp::synch
 //_setup.adaptive_feed set in Interp::synch
 //_setup.feed_hold set in Interp::synch

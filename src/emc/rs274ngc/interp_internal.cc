@@ -226,7 +226,7 @@ int Interp::init_block(block_pointer block)      //!< pointer to a block to be i
   block->b_flag = OFF;
   block->c_flag = OFF;
   block->comment[0] = 0;
-  block->d_number = -1;
+  block->d_flag = OFF;
   block->e_flag = OFF;
   block->f_number = -1.0;
   for (n = 0; n < 15; n++) {

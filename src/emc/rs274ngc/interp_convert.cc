@@ -39,8 +39,8 @@
 // those with radius 0 (a point) do not need any translation.
 
 static double xtrans(setup_pointer settings, double x) {
-    int o = settings->tool_table[settings->tool_table_index].orientation;
-    double r = settings->tool_table[settings->tool_table_index].diameter / 2.0;
+    int o = settings->cutter_comp_orientation;
+    double r = settings->cutter_comp_radius;
 
     if(o==2 || o==6 || o==1) x -= r;
     if(o==3 || o==8 || o==4) x += r;
@@ -48,8 +48,8 @@ static double xtrans(setup_pointer settings, double x) {
 }
 
 static double ztrans(setup_pointer settings, double z) {
-    int o = settings->tool_table[settings->tool_table_index].orientation;
-    double r = settings->tool_table[settings->tool_table_index].diameter / 2.0;
+    int o = settings->cutter_comp_orientation;
+    double r = settings->cutter_comp_radius;
 
     if(o==2 || o==7 || o==3) z -= r;
     if(o==1 || o==5 || o==4) z += r;
@@ -1307,8 +1307,12 @@ int Interp::convert_cutter_compensation(int g_code,      //!< must be G_40, G_41
     CHP(convert_cutter_compensation_on(LEFT, block, settings));
   } else if (g_code == G_42) {
     CHP(convert_cutter_compensation_on(RIGHT, block, settings));
+  } else if (g_code == G_41_1) {
+    CHP(convert_cutter_compensation_on(LEFT, block, settings));
+  } else if (g_code == G_42_1) {
+    CHP(convert_cutter_compensation_on(RIGHT, block, settings));
   } else
-    ERM(NCE_BUG_CODE_NOT_G40_G41_OR_G42);
+    ERS("BUG: Code not G40, G41, G41.1, G42, G42.2");
 
   return INTERP_OK;
 }
@@ -1397,22 +1401,51 @@ convex corners.
 
 */
 
+/* Set *result to the integer nearest to value; return TRUE if value is
+ * within .0001 of an integer
+ */
+static int is_near_int(int *result, double value) {
+    *result = (int)(value + .5);
+    return fabs(*result - value) < .0001;
+}
+
 int Interp::convert_cutter_compensation_on(int side,     //!< side of path cutter is on (LEFT or RIGHT)
                                           block_pointer block,  //!< pointer to a block of RS274 instructions 
                                           setup_pointer settings)       //!< pointer to machine settings              
 {
   static char name[] = "convert_cutter_compensation_on";
   double radius;
-  int index;
+  int index, orientation;
 
   CHK((settings->plane != CANON_PLANE_XY && settings->plane != CANON_PLANE_XZ),
       NCE_RADIUS_COMP_ONLY_IN_XY_OR_XZ);
   CHK((settings->cutter_comp_side != OFF),
       NCE_CANNOT_TURN_CUTTER_RADIUS_COMP_ON_WHEN_ON);
-  index = (block->d_number != -1) ? block->d_number : settings->current_slot;
-  radius = ((settings->tool_table[index].diameter) / 2.0);
-
-  if (radius < 0.0) {           /* switch side & make radius positive if radius negative */
+  if(block->g_modes[7] == G_41_1 || block->g_modes[7] == G_42_1) {
+      CHKF((block->d_flag != ON),
+              (_("G%d.1 with no D word"), block->g_modes[7]/10 ));
+      radius = block->d_number_float / 2;
+      if(block->l_number != -1) {
+          orientation = block->l_number;
+      } else {
+          orientation = 0;
+      }
+  } else {
+      if(block->d_flag == OFF) {
+          index = settings->current_slot;
+      } else {
+          int tool;
+          CHKF(!is_near_int(&tool, block->d_number_float),
+                  (_("G%d requires D word to be a whole number"),
+                   block->g_modes[7]/10));
+          CHK((tool < 0), NCE_NEGATIVE_D_WORD_TOOL_RADIUS_INDEX_USED);
+          CHK((tool > _setup.tool_max), NCE_TOOL_RADIUS_INDEX_TOO_BIG);
+          index = tool;
+      }
+      radius = ((settings->tool_table[index].diameter) / 2.0);
+      orientation = settings->tool_table[index].orientation;
+  }
+  if (radius < 0.0) { /* switch side & make radius positive if radius negative */
     radius = -radius;
     if (side == RIGHT)
       side = LEFT;
@@ -1427,7 +1460,7 @@ int Interp::convert_cutter_compensation_on(int side,     //!< side of path cutte
 #endif
 
   settings->cutter_comp_radius = radius;
-  settings->tool_table_index = index;
+  settings->cutter_comp_orientation = orientation;
   settings->cutter_comp_side = side;
   return INTERP_OK;
 }
@@ -3309,39 +3342,37 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
 
   if (g_code == G_49) {
     USE_TOOL_LENGTH_OFFSET(0.0,0.0);
-    settings->current_x += settings->tool_xoffset;
-    settings->current_z += settings->tool_zoffset;
-    settings->tool_xoffset = 0.0;
-    settings->tool_zoffset = 0.0;
-    settings->tool_offset_index = 0;
+    xoffset = 0;
+    zoffset = 0;
+    index = 0;
   } else if (g_code == G_43) {
     CHK((block->h_flag == OFF), NCE_OFFSET_INDEX_MISSING);
     index = block->h_number;
-    if(index == -1) {
-        CHK((block->x_flag == ON) ||
-            (block->y_flag == ON) ||
-            (block->z_flag == ON) ||
-            (block->a_flag == ON) ||
-            (block->b_flag == ON) ||
-            (block->c_flag == ON) ||
-            (block->j_flag == ON),
-            NCE_XYZABCJ_WORDS_NOT_ALLOWED_WITH_G43H_1);
-        xoffset = settings->tool_xoffset;
-        zoffset = settings->tool_zoffset;
-        if(block->i_flag == ON) xoffset = block->i_number;
-        if(block->k_flag == ON) zoffset = block->k_number;
-    } else {
-        xoffset = settings->tool_table[index].xoffset;
-        zoffset = settings->tool_table[index].zoffset;
-    }
-    USE_TOOL_LENGTH_OFFSET(xoffset, zoffset);
-    settings->current_x += settings->tool_xoffset - xoffset;
-    settings->current_z += settings->tool_zoffset - zoffset;
-    settings->tool_xoffset = xoffset;
-    settings->tool_zoffset = zoffset;
-    settings->tool_offset_index = index;
-  } else
-    ERM(NCE_BUG_CODE_NOT_G43_OR_G49);
+    xoffset = settings->tool_table[index].xoffset;
+    zoffset = settings->tool_table[index].zoffset;
+  } else if (g_code == G_43_1) {
+    CHK((block->x_flag == ON) ||
+        (block->y_flag == ON) ||
+        (block->z_flag == ON) ||
+        (block->a_flag == ON) ||
+        (block->b_flag == ON) ||
+        (block->c_flag == ON) ||
+        (block->j_flag == ON),
+        NCE_XYZABCJ_WORDS_NOT_ALLOWED_WITH_G43H_1_G41R_OR_G42R);
+    xoffset = settings->tool_xoffset;
+    zoffset = settings->tool_zoffset;
+    index = -1;
+    if(block->i_flag == ON) xoffset = block->i_number;
+    if(block->k_flag == ON) zoffset = block->k_number;
+  } else {
+    ERS("BUG: Code not G43, G43.1, or G49");
+  }
+  USE_TOOL_LENGTH_OFFSET(xoffset, zoffset);
+  settings->current_x += settings->tool_xoffset - xoffset;
+  settings->current_z += settings->tool_zoffset - zoffset;
+  settings->tool_xoffset = xoffset;
+  settings->tool_zoffset = zoffset;
+  settings->tool_offset_index = index;
   return INTERP_OK;
 }
 

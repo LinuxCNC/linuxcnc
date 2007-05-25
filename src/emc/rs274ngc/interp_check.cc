@@ -251,17 +251,18 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
   CHK(((block->g_modes[1] > G_80) && (block->g_modes[1] < G_90)),
 	NCE_CANNED_CYCLES_NOT_SUPPORTED);
 #endif
-  if (block->d_number != -1) {
-    CHK(((block->g_modes[7] != G_41) && (block->g_modes[7] != G_42)),
-        NCE_D_WORD_WITH_NO_G41_OR_G42);
+  if (block->d_flag == ON) {
+    CHKS(((block->g_modes[7] != G_41) && (block->g_modes[7] != G_42) &&
+        (block->g_modes[7] != G_41_1) && (block->g_modes[7] != G_42_1)),
+        "D word with no G41, G41.1, G42, or G42.2 to use it");
   }
   if (block->h_flag == ON) {
     CHK((block->g_modes[8] != G_43 && motion != G_76), NCE_H_WORD_WITH_NO_G43);
   }
 
   if (block->i_flag == ON) {    /* could still be useless if yz_plane arc */
-    CHK(((motion != G_2) && (motion != G_3) && (motion != G_76) && (motion != G_87) && (block->g_modes[8] != G_43)),
-        NCE_I_WORD_WITH_NO_G2_OR_G3_G76_OR_G87_TO_USE_IT);
+    CHKS(((motion != G_2) && (motion != G_3) && (motion != G_76) && (motion != G_87) && (block->g_modes[8] != G_43_1)),
+        "I word with no G2, G3, G76, G87, or G43.1 to use it");
   }
 
   if (block->j_flag == ON) {    /* could still be useless if xz_plane arc */
@@ -270,8 +271,8 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
   }
 
   if (block->k_flag == ON) {    /* could still be useless if xy_plane arc */
-      CHK(((motion != G_2) && (motion != G_3) && (motion != G_33) && (motion != G_76) && (motion != G_87) && (block->g_modes[8] != G_43)),
-        NCE_K_WORD_WITH_NO_G2_OR_G3_G76_OR_G87_TO_USE_IT);
+      CHKS(((motion != G_2) && (motion != G_3) && (motion != G_33) && (motion != G_76) && (motion != G_87) && (block->g_modes[8] != G_43_1)),
+        "K word with no G2, G3, G76, G87, or G43.1 to use it");
   }
 
   if (motion == G_33) {
@@ -288,10 +289,14 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
   }
 
   if (block->l_number != -1) {
-    CHK((((motion < G_81) || (motion > G_89)) &&
+    CHKS((((motion < G_81) || (motion > G_89)) &&
          (block->g_modes[0] != G_10) &&
-         (motion != G_76)),
-        NCE_L_WORD_WITH_NO_CANNED_CYCLE_OR_G10);
+         (motion != G_76) &&
+         (block->g_modes[7] != G_41) &&
+         (block->g_modes[7] != G_41_1) &&
+         (block->g_modes[7] != G_42) &&
+         (block->g_modes[7] != G_42_1)),
+        "L word with no G10, cutter compensation, or canned cycle");
   }
 
   if (block->p_number != -1.0) {
@@ -323,7 +328,8 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
 
   if (block->r_flag == ON) {
     CHK(((motion != G_2) && (motion != G_3) && (motion != G_76) &&
-         ((motion < G_81) || (motion > G_89))),
+         ((motion < G_81) || (motion > G_89)) && (block->g_modes[7] != G_41_1) &&
+         (block->g_modes[7] != G_42_1)),
         NCE_R_WORD_WITH_NO_G_CODE_THAT_USES_IT);
   }
 

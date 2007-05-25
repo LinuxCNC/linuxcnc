@@ -21,6 +21,8 @@
 #include <limits.h>
 #include <stdio.h>
 #include "canon.hh"
+#include "libintl.h"
+#define _(s) gettext(s)
 
 /**********************/
 /*   COMPILER MACROS  */
@@ -139,8 +141,11 @@
 #define G_38_2 382
 #define G_40   400
 #define G_41   410
+#define G_41_1 411
 #define G_42   420
+#define G_42_1 421
 #define G_43   430
+#define G_43_1 431
 #define G_49   490
 #define G_50   500
 #define G_51   510
@@ -217,7 +222,8 @@ typedef struct block_struct
   ON_OFF c_flag;
   double c_number;
   char comment[256];
-  int d_number;
+  double d_number_float;
+  ON_OFF d_flag;
   ON_OFF e_flag;
   double e_number;
   double f_number;
@@ -327,6 +333,7 @@ typedef struct setup_struct
   double current_y;             // current Y-axis position
   double current_z;             // current Z-axis position
   double cutter_comp_radius;    // current cutter compensation radius
+  int cutter_comp_orientation;  // current cutter compensation tool orientation
   int cutter_comp_side;         // current cutter compensation side
   double cycle_cc;              // cc-value (normal) for canned cycles
   double cycle_i;               // i-value for canned cycles
@@ -380,7 +387,6 @@ typedef struct setup_struct
   double tool_xoffset;          // current tool X offset
   int tool_max;                 // highest number tool slot in carousel
   CANON_TOOL_TABLE tool_table[CANON_TOOL_MAX + 1];      // index is slot number
-  int tool_table_index;         // tool index used with cutter comp
   double traverse_rate;         // rate for traverse motions
 
   /* stuff for subroutines and control structures */
@@ -423,6 +429,22 @@ macros totally crash-proof. If the function call stack is deeper than
 
 */
 
+#define ERS(string) if (1) {                    \
+  setError ("%s", _(string));                        \
+  _setup.stack_index = 0;                      \
+  strcpy(_setup.stack[_setup.stack_index++], name); \
+  _setup.stack[_setup.stack_index][0] = 0;     \
+  return NCE_VARIABLE;                                \
+  } else
+
+#define ERF(error_args) if (1) {                    \
+  setError error_args;                        \
+  _setup.stack_index = 0;                      \
+  strcpy(_setup.stack[_setup.stack_index++], name); \
+  _setup.stack[_setup.stack_index][0] = 0;     \
+  return NCE_VARIABLE;                                \
+  } else
+
 #define ERM(error_code) if (1) {                    \
   _setup.stack_index = 0;                      \
   strcpy(_setup.stack[_setup.stack_index++], name); \
@@ -435,6 +457,14 @@ macros totally crash-proof. If the function call stack is deeper than
   _setup.stack[_setup.stack_index][0] = 0;        \
   return error_code;                                   \
   } else return error_code
+
+#define CHKS(bad, string) if (bad) {                 \
+  setError ("%s", _(string));                        \
+  _setup.stack_index = 0;                            \
+  strcpy(_setup.stack[_setup.stack_index++], name);  \
+  _setup.stack[_setup.stack_index][0] = 0;           \
+  return NCE_VARIABLE;                               \
+  } else
 
 #define CHKF(bad, error_args) if (bad) {             \
   setError error_args;                               \

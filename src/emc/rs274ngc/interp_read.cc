@@ -319,8 +319,6 @@ Returned Value: int
       NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED
    2. A d_number has already been inserted in the block:
       NCE_MULTIPLE_D_WORDS_ON_ONE_LINE
-   3. The d_number is negative: NCE_NEGATIVE_D_WORD_TOOL_RADIUS_INDEX_USED
-   4. The d_number is more than _setup.tool_max: NCE_TOOL_RADIUS_INDEX_TOO_BIG
 
 Side effects:
    counter is reset to the character following the tool number.
@@ -346,16 +344,15 @@ int Interp::read_d(char *line,   //!< string: line of RS274 code being processed
                   double *parameters)   //!< array of system parameters                   
 {
   static char name[] = "read_d";
-  int value;
+  double value;
   int status;
 
   CHK((line[*counter] != 'd'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
   *counter = (*counter + 1);
-  CHK((block->d_number > -1), NCE_MULTIPLE_D_WORDS_ON_ONE_LINE);
-  CHP(read_integer_value(line, counter, &value, parameters));
-  CHK((value < 0), NCE_NEGATIVE_D_WORD_TOOL_RADIUS_INDEX_USED);
-  CHK((value > _setup.tool_max), NCE_TOOL_RADIUS_INDEX_TOO_BIG);
-  block->d_number = value;
+  CHK((block->d_flag != OFF), NCE_MULTIPLE_D_WORDS_ON_ONE_LINE);
+  CHP(read_real_value(line, counter, &value, parameters));
+  block->d_number_float = value;
+  block->d_flag = ON;
   return INTERP_OK;
 }
 

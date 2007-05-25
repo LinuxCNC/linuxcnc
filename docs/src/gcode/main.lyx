@@ -3669,6 +3669,16 @@ G40
 
 \end_inset 
 
+, G41.1
+\begin_inset LatexCommand \index{G41.1}
+
+\end_inset 
+
+, G42.1
+\begin_inset LatexCommand \index{G42.1}
+
+\end_inset 
+
 
 \end_inset 
 </cell>
@@ -3689,6 +3699,11 @@ Tool Length Offset
 
 G43
 \begin_inset LatexCommand \index{G43}
+
+\end_inset 
+
+, G43.1
+\begin_inset LatexCommand \index{G43.1}
 
 \end_inset 
 
@@ -5005,6 +5020,16 @@ G40
 
 \end_inset 
 
+, G41.1
+\begin_inset LatexCommand \index{G41.1}
+
+\end_inset 
+
+, G42.1
+\begin_inset LatexCommand \index{G42.1}
+
+\end_inset 
+
 : Cutter Radius Compensation.
 \begin_inset LatexCommand \label{sub:G40,-G41,-G42:}
 
@@ -5022,6 +5047,18 @@ G40
 \layout Standard
 
 Cutter radius compensation may be performed only if the XY-plane is active.
+\layout Standard
+
+The behavior of the machining center when cutter radius compensation is
+ on is described in Chapter 
+\begin_inset LatexCommand \ref{cha:Cutter-Radius-Compensation}
+
+\end_inset 
+
+
+\layout Subsection
+
+Cutter Radius Compensation from Tool Table
 \layout Standard
 
 To turn cutter radius compensation on left (i.e., the cutter stays to the
@@ -5052,24 +5089,49 @@ the D number is not an integer, is negative or is larger than the number
  of carousel slots, 
 \layout Itemize
 
-the XY-plane is not active, 
+the YZ plane is active,
 \layout Itemize
 
 or cutter radius compensation is commanded to turn on when it is already
  on.
+\layout Subsection
+
+Dynamic Cutter Radius Compensation 
 \layout Standard
 
-The behavior of the machining center when cutter radius compensation is
- on is described in Chapter 
-\begin_inset LatexCommand \ref{cha:Cutter-Radius-Compensation}
+To turn cutter radius compensation on left, program 
+\family typewriter 
+G41.1 D- L-
+\family default 
+.
+ To turn cutter compensation on right, program 
+\family typewriter 
+G42.1 D- L-
+\family default 
+.
+ The D word specifies the cutter diameter.
+ The L word specifies the cutter orientation, and defaults to 0 if unspecified.
+\layout Standard
 
-\end_inset 
+It is an error if:
+\layout Itemize
 
+the yz plane is active,
+\layout Itemize
 
+the L number is not in the range from 0 to 9 inclusive.
+\layout Itemize
+
+or cutter compensation is commanded to turn on when it is already on
 \layout Section
 
 G43
 \begin_inset LatexCommand \index{G43}
+
+\end_inset 
+
+, G43.1
+\begin_inset LatexCommand \index{G43.1}
 
 \end_inset 
 
@@ -5091,17 +5153,17 @@ G43
 
 \end_inset 
 
-: Activate Tool length compensation
+, G43.1: Activate Tool length compensation
 \layout Standard
 
-G43 changes subsequent motions by offsetting the Z and/or X coordinates
+G43 and G43.1 change subsequent motions by offsetting the Z and/or X coordinates
  by the length of the tool.
- G43 does not cause any motion itself.
+ G43 and G43.1 do not cause any motion.
  However, at the end of a subsequent movement, the tool tip will be at the
  programmed location.
 \layout Subsubsection
 
-Offsets from tool table
+G43: Offsets from tool table
 \layout Standard
 
 To use a tool length offset from the tool table, program 
@@ -5121,12 +5183,12 @@ the H number is not an integer, is negative, or is larger than the number
  of carousel slots.
 \layout Subsubsection
 
-Dynamic tool compensation
+G43.1: Dynamic tool compensation
 \layout Standard
 
 To use a tool length offset from the program, use 
 \family typewriter 
-G43 H-1 I- K-
+G43.1 I- K-
 \family default 
 , where 
 \family typewriter 
@@ -5145,7 +5207,7 @@ It is an error if:
 
 motion is commanded on the same line as 
 \family typewriter 
-G43 H-1
+G43.1
 \layout Subsection
 
 G49
