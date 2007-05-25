@@ -111,6 +111,7 @@ typedef struct {
     hal_bit_t *enable;		/* pin for enable signal */
     hal_float_t *value;		/* command value */
     hal_float_t scale;		/* param: scaling from value to duty cycle */
+    hal_float_t offset;		/* param: offset: this is subtracted from duty cycle */
     float old_scale;		/* stored scale value */
     double scale_recip;		/* reciprocal value used for scaling */
     hal_float_t pwm_freq;	/* param: (max) output frequency in Hz */
@@ -418,7 +419,7 @@ static void update(void *arg, long period)
 	    pwmgen->old_pwm_freq = pwmgen->pwm_freq;
 	}
 	/* convert value command to duty cycle */
-	tmpdc = *(pwmgen->value) * pwmgen->scale_recip;
+	tmpdc = *(pwmgen->value) * pwmgen->scale_recip - pwmgen->offset;
 	if ( pwmgen->output_type == 0 ) {
 	    /* unidirectional mode, no negative output */
 	    if ( tmpdc < 0.0 ) {
@@ -489,6 +490,11 @@ static int export_pwmgen(int num, pwmgen_t * addr, int output_type)
     /* export paramameters */
     retval = hal_param_float_newf(HAL_RW, &(addr->scale), comp_id,
 	    "pwmgen.%d.scale", num);
+    if (retval != 0) {
+	return retval;
+    }
+    retval = hal_param_float_newf(HAL_RW, &(addr->offset), comp_id,
+	    "pwmgen.%d.offset", num);
     if (retval != 0) {
 	return retval;
     }
@@ -568,6 +574,7 @@ static int export_pwmgen(int num, pwmgen_t * addr, int output_type)
     }
     /* set default parameter values */
     addr->scale = 1.0;
+    addr->offset = 0.0;
     addr->dither_pwm = 0;
     addr->pwm_freq = 0;
     addr->min_dc = 0.0;
