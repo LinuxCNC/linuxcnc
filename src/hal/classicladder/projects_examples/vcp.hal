@@ -1,3 +1,4 @@
+#VCP is depreciated and this should be replaced by pyvcp.hal 
 loadusr -W halvcp panel.vcp
 
 linkpp in-00 classicladder.0.in-00
