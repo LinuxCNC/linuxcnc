@@ -39,7 +39,8 @@ $(TOGLMODULE): $(call TOOBJS, $(TOGLMODULESRCS))
 PYTARGETS += $(EMCMODULE) $(MINIGLMODULE) $(SETICONMODULE) $(TOGLMODULE)
 
 PYSCRIPTS := axis.py axis-remote.py emctop.py hal_manualtoolchange.py \
-	mdi.py image-to-gcode.py lintini.py debuglevel.py pumagui.py scaragui.py
+	mdi.py image-to-gcode.py lintini.py debuglevel.py pumagui.py \
+	teach-in.py scaragui.py
 PYBIN := $(patsubst %.py,../bin/%,$(PYSCRIPTS))
 PYTARGETS += $(PYBIN)
 
