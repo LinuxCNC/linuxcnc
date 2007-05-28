@@ -56,7 +56,9 @@ it is a blob of binary data.  The file format doesn't care.
 
 Standard Xilinx files use 5 chunks: 'a' through 'd' are zero-terminated
 strings with information about the file.  'e' is a large binary blob
-with the actual bitstream in it.
+with the actual bitstream in it.  Xilinx uses 2 byte lengths for chunks
+'a' thru 'd', and 4 bytes for chunk 'e'.  This library allows other
+chunks, and assume that all have 4 byte lengths, except 'a' thru 'd'.
 
 This library allows additional chunks to be added to the file.
 
@@ -68,9 +70,9 @@ struct bitfile_chunk {
     unsigned char *body;
 };
 
-#define BITFILE_MAXCHUNKS 20
+#define BITFILE_MAXCHUNKS 50
 /* list of chunks that use 4 byte length values, all others are 2 byte */
-#define BITFILE_BIGCHUNKS "e"
+#define BITFILE_SMALLCHUNKS "abcd"
 #define BITFILE_HEADERLEN 13
 
 struct bitfile {

@@ -111,12 +111,12 @@ static int read_chunk(int fd, struct bitfile_chunk *ch)
 	/* end of file is not an error */
 	return 1;
     }
-    if ( strchr(BITFILE_BIGCHUNKS, ch->tag) != NULL ) {
-	/* its a big chunk, 4 byte size */
-	len_len = 4;
-    } else {
-	/* regular chunk, 2 byte size */
+    if ( strchr(BITFILE_SMALLCHUNKS, ch->tag) != NULL ) {
+	/* its a small chunk, 2 byte size */
 	len_len = 2;
+    } else {
+	/* regular chunk, 4 byte size */
+	len_len = 4;
     }
     /* read length */
     rv = read(fd, lenbuf, len_len);
@@ -218,12 +218,12 @@ static int write_chunk(int fd, struct bitfile_chunk *ch)
     __u8 hdrbuf[5];
 
     hdrbuf[0] = ch->tag;
-    if ( strchr(BITFILE_BIGCHUNKS, ch->tag) != NULL ) {
-	/* its a big chunk, 4 byte size */
-	len_len = 4;
-    } else {
-	/* regular chunk, 2 byte size */
+    if ( strchr(BITFILE_SMALLCHUNKS, ch->tag) != NULL ) {
+	/* its a small chunk, 2 byte size */
 	len_len = 2;
+    } else {
+	/* regular chunk, 4 byte size */
+	len_len = 4;
     }
     /* compute size (note - the format uses big-endian layout */
     if ( len_len == 4 ) {
@@ -305,7 +305,7 @@ int bitfile_add_chunk(struct bitfile *bf, char tag, int len, unsigned char *data
 {
     int n;
 
-    if (( strchr(BITFILE_BIGCHUNKS, tag) == NULL ) &&
+    if (( strchr(BITFILE_SMALLCHUNKS, tag) != NULL ) &&
 	( len > 0xFFFF )) {
 	errmsg(__func__,"chunk is too large (%d bytes)", len);
 	return -1;
