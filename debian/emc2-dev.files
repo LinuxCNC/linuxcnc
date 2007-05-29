@@ -42,6 +42,7 @@ usr/include/emc2/nml_srv.hh
 usr/include/emc2/phantom.hh
 usr/include/emc2/physmem.hh
 usr/include/emc2/posemath.h
+usr/include/emc2/pumakins.h
 usr/include/emc2/rcs_exit.hh
 usr/include/emc2/rcs.hh
 usr/include/emc2/rcs_print.hh
@@ -58,7 +59,6 @@ usr/include/emc2/rtapi.h
 usr/include/emc2/rtapi_math.h
 usr/include/emc2/rtapi_math_i386.h
 usr/include/emc2/rtapi_string.h
-usr/include/emc2/rtapi_types.h
 usr/include/emc2/_sem.h
 usr/include/emc2/sem.hh
 usr/include/emc2/sendn.h

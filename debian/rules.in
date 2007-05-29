@@ -58,8 +58,8 @@ install: build
 	dh_installdirs
 	#start the install
 	mkdir -p debian/tmp
-	-(cd debian/extras && find . |cpio -pdmuv ../tmp)
-	-(cd debian/extras-@DISTRIB_NAME@ && find . |cpio -pdmuv ../tmp)
+	-(cd debian/extras && find . | grep -v CVS |cpio -pdmuv ../tmp)
+	-(cd debian/extras-@DISTRIB_NAME@ && find . | grep -v CVS | cpio -pdmuv ../tmp)
 	(cd src; export DESTDIR=`pwd`/../debian/tmp; $(MAKE) $@)
 	python2.4 /usr/lib/python2.4/compileall.py debian/tmp/usr/lib/python2.4
 	find debian/tmp/usr/lib/python2.4 -name \*.py -exec rm {} \;
@@ -68,8 +68,16 @@ install: build
 	mkdir -p debian/tmp/usr/share/doc/emc2-dev
 	mv debian/tmp/usr/share/doc/emc2/EMC2_Developer_Manual.pdf \
 		debian/tmp/usr/share/doc/emc2-dev/
-	cp docs/html/gcode.html debian/tmp/usr/share/doc/emc2/
+	cp docs/html/gcode*.html debian/tmp/usr/share/doc/emc2/
+	rm debian/tmp/usr/share/doc/emc2/HAL_User_Manual.pdf 
+	rm debian/tmp/usr/share/doc/emc2/EMC2_Manual_Pages.pdf 
+	rm -rf debian/tmp/usr/share/doc/emc2/html
+	rm debian/tmp/emc2.files
 	dh_movefiles
+	if [ `find debian/tmp -type f | wc -c` != 0 ]; then \
+		echo "Files exist in debian/tmp, but should not"; \
+		exit 1; \
+	fi
 
 # Build architecture-independent files here.
 binary-indep: build install
