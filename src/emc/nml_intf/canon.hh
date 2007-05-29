@@ -720,7 +720,8 @@ extern double GET_EXTERNAL_SPEED();
 extern CANON_DIRECTION GET_EXTERNAL_SPINDLE();
 
 // returns current tool length offset
-extern double GET_EXTERNAL_TOOL_LENGTH_OFFSET();
+extern double GET_EXTERNAL_TOOL_LENGTH_XOFFSET();
+extern double GET_EXTERNAL_TOOL_LENGTH_ZOFFSET();
 
 // Returns number of slots in carousel
 extern int GET_EXTERNAL_TOOL_MAX();

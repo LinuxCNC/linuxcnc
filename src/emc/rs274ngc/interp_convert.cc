@@ -1836,6 +1836,8 @@ int Interp::convert_length_units(int g_code,     //!< g_code being executed (mus
       settings->origin_offset_x = (settings->origin_offset_x * INCH_PER_MM);
       settings->origin_offset_y = (settings->origin_offset_y * INCH_PER_MM);
       settings->origin_offset_z = (settings->origin_offset_z * INCH_PER_MM);
+      settings->tool_zoffset = GET_EXTERNAL_TOOL_LENGTH_ZOFFSET();
+      settings->tool_xoffset = GET_EXTERNAL_TOOL_LENGTH_XOFFSET();
       settings->feed_rate = GET_EXTERNAL_FEED_RATE();
     }
   } else if (g_code == G_21) {
@@ -1851,6 +1853,8 @@ int Interp::convert_length_units(int g_code,     //!< g_code being executed (mus
       settings->origin_offset_x = (settings->origin_offset_x * MM_PER_INCH);
       settings->origin_offset_y = (settings->origin_offset_y * MM_PER_INCH);
       settings->origin_offset_z = (settings->origin_offset_z * MM_PER_INCH);
+      settings->tool_zoffset = GET_EXTERNAL_TOOL_LENGTH_ZOFFSET();
+      settings->tool_xoffset = GET_EXTERNAL_TOOL_LENGTH_XOFFSET();
       settings->feed_rate = GET_EXTERNAL_FEED_RATE();
     }
   } else

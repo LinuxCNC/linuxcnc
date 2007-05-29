@@ -151,6 +151,7 @@ int last_sequence_number;
 int plane;
 bool metric;
 double _pos_x, _pos_y, _pos_z, _pos_a, _pos_b, _pos_c;
+double tool_xoffset, tool_zoffset;
 
 Interp interp_new;
 
@@ -298,6 +299,7 @@ void COMMENT(char *comment) {
 }
 
 void USE_TOOL_LENGTH_OFFSET(double xoffset, double zoffset) {
+    tool_zoffset = zoffset; tool_xoffset = xoffset;
     maybe_new_line();
     if(interp_error) return;
     PyObject *result = PyObject_CallMethod(callback, "tool_offset", "dd",
@@ -306,6 +308,7 @@ void USE_TOOL_LENGTH_OFFSET(double xoffset, double zoffset) {
     Py_XDECREF(result);
 }
 void USE_TOOL_LENGTH_OFFSET(double offset) {
+    tool_zoffset = offset;
     maybe_new_line();
     if(interp_error) return;
     PyObject *result = PyObject_CallMethod(callback, "tool_offset", "dd",
@@ -430,6 +433,12 @@ int GET_EXTERNAL_SPINDLE_OVERRIDE_ENABLE() {return 1;}
 int GET_EXTERNAL_ADAPTIVE_FEED_ENABLE() {return 0;}
 int GET_EXTERNAL_FEED_HOLD_ENABLE() {return 1;}
 
+double GET_EXTERNAL_TOOL_LENGTH_XOFFSET() {
+    return tool_xoffset;
+}
+double GET_EXTERNAL_TOOL_LENGTH_ZOFFSET() {
+    return tool_zoffset;
+}
 
 bool PyFloat_CheckAndError(const char *func, PyObject *p)  {
     if(PyFloat_Check(p)) return true;

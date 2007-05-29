@@ -105,6 +105,8 @@ static bool block_delete = ON; //set enabled by default (previous EMC behaviour)
 /* Dummy status variables */
 static double            _traverse_rate;
 
+static double _tool_xoffset, _tool_zoffset;
+
 
 /************************************************************************/
 
@@ -687,10 +689,17 @@ void USE_NO_SPINDLE_FORCE()
 /* Tool Functions */
 
 void USE_TOOL_LENGTH_OFFSET(double length)
-{PRINT1("USE_TOOL_LENGTH_OFFSET(%.4f)\n", length);}
+{
+    _tool_zoffset = length;
+    PRINT1("USE_TOOL_LENGTH_OFFSET(%.4f)\n", _tool_zoffset);
+}
 
-void USE_TOOL_LENGTH_OFFSET(double xoffset, double zoffset)
-{PRINT2("USE_TOOL_LENGTH_OFFSET(%.4f %.4f)\n", xoffset, zoffset);}
+void USE_TOOL_LENGTH_OFFSET(double xoffset, double zoffset) 
+{
+    _tool_xoffset = xoffset;
+    _tool_zoffset = zoffset;
+    PRINT2("USE_TOOL_LENGTH_OFFSET(%.4f %.4f)\n", xoffset, zoffset);
+}
 
 void CHANGE_TOOL(int slot)
 {
@@ -1140,4 +1149,14 @@ void CLEAR_AUX_OUTPUT_BIT(int index)
 void SET_AUX_OUTPUT_VALUE(int index, double value)
 {
   return;
+}
+
+double GET_EXTERNAL_TOOL_LENGTH_ZOFFSET()
+{
+    return _tool_zoffset;
+}
+
+double GET_EXTERNAL_TOOL_LENGTH_XOFFSET()
+{
+    return _tool_xoffset;
 }

@@ -27,7 +27,7 @@
   -------------------
   The interpreter does not subtract off tool length offsets. It calls
   USE_TOOL_LENGTH_OFFSETS(length), which we record here and apply to
-  all subsequent Z values.
+  all appropriate values subsequently.
   */
 
 #include "config.h"
@@ -1592,9 +1592,13 @@ CANON_PLANE GET_PLANE()
     return activePlane;
 }
 
-double GET_TOOL_LENGTH_OFFSET()
+double GET_EXTERNAL_TOOL_LENGTH_XOFFSET()
 {
-    return TO_EXT_LEN(currentZToolOffset);
+    return TO_PROG_LEN(currentXToolOffset);
+}
+double GET_EXTERNAL_TOOL_LENGTH_ZOFFSET()
+{
+    return TO_PROG_LEN(currentZToolOffset);
 }
 
 /*
