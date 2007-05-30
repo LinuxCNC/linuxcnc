@@ -173,8 +173,8 @@ int main(int argc, char *argv[])
 	errmsg(__func__, "configuration did not load");
 	return EC_HDW;
     }
-    /* do we need to write data for the HAL driver to the board? */
-    ch = bitfile_find_chunk(bf, 'w', 0);
+    /* do we need to HAL driver data to the FGPA RAM? */
+    ch = bitfile_find_chunk(bf, 'r', 0);
     if ( ch != NULL ) {
 	/* yes */
 	printf ( "Writing data to FPGA RAM\n" );
