@@ -1678,6 +1678,12 @@ def filter_program(program_filter, infilename, outfilename):
                 else:
                     stderr_text.append(stderr_line)
                     sys.stderr.write(stderr_line)
+        # .. might be something left on stderr
+        for line in p.stderr:
+            m = progress_re.match(line)
+            if not m:
+                stderr_text.append(line)
+                sys.stderr.write(line)
         return p.returncode, "".join(stderr_text)
     finally:
         progress.done()
