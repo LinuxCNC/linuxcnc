@@ -84,13 +84,6 @@ TARGETS += ../bin/bfload
 
 endif
 
-BFMERGESRCS := hal/utils/bfmerge.c hal/utils/bitfile.c
-USERSRCS += $(BFMERGESRCS)
-../bin/bfmerge: $(call TOOBJS, $(BFMERGESRCS))
-	$(ECHO) Linking $(notdir $@)
-	@$(CXX) $(LDFLAGS) -o $@ $^
-TARGETS += ../bin/bfmerge
-
 ../bin/comp: ../bin/%: objects/hal/utils/%.py
 	@$(ECHO) Syntax checking python script $(notdir $@)
 	@$(PYTHON) -c 'import sys; compile(open(sys.argv[1]).read(), sys.argv[1], "exec")' $<
