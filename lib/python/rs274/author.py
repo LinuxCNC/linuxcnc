@@ -116,6 +116,40 @@ def get_pts(plane, (x,y,z)):
     if plane == 18: return x,z
     if plane == 19: return y,z
 
+def one_quadrant(plane, c, p1, p2, p3):
+    xc, yc = c
+    x1, y1 = get_pts(plane, p1)
+    x2, y2 = get_pts(plane, p2)
+    x3, y3 = get_pts(plane, p3)
+
+    def sign(x):
+	if abs(x) < 1e-5: return 0
+	if x < 0: return -1
+	return 1
+
+    signs = set((
+	(sign(x1-xc),sign(y1-yc)),
+	(sign(x2-xc),sign(y2-yc)),
+	(sign(x3-xc),sign(y3-yc))
+    ))
+
+    if len(signs) == 1: return True
+    
+    if (1,1) in signs:
+	signs.discard((1,0))
+	signs.discard((0,1))
+    if (1,-1) in signs:
+	signs.discard((1,0))
+	signs.discard((0,-1))
+    if (-1,1) in signs:
+	signs.discard((-1,0))
+	signs.discard((0,1))
+    if (-1,-1) in signs:
+	signs.discard((-1,0))
+	signs.discard((0,-1))
+
+    if len(signs) == 1: return True
+
 def arc_dir(plane, c, p1, p2, p3):
     xc, yc = c
     x1, y1 = get_pts(plane, p1)
@@ -180,27 +214,31 @@ be specified only when there is only movement on 2 axes
 		min_rad = rad
 
     worst_arc_dist = 0
-    if 0 && min_rad != sys.maxint:  ## XXX auto-arcs are disabled, because they generated undercut on torus.png
+    if min_rad != sys.maxint:
 	c1, c2 = arc_center(plane, ps, st[max_arc], pe)
 	lx, ly, lz = st[0]
-	for i, (x,y,z) in enumerate(st):
-	    if plane == 17: dist = abs(math.hypot(c1-x, c2-y) - min_rad)
-	    elif plane == 18: dist = abs(math.hypot(c1-x, c2-z) - min_rad)
-	    elif plane == 19: dist = abs(math.hypot(c1-y, c2-z) - min_rad)
-	    else: dist = sys.maxint
-	    #print >>sys.stderr, "wad", dist, worst_arc_dist
-	    if dist > worst_arc_dist: worst_arc_dist = dist
+	if one_quadrant(plane, (c1, c2), ps, st[max_arc], pe):
+	    for i, (x,y,z) in enumerate(st):
+		if plane == 17: dist = abs(math.hypot(c1-x, c2-y) - min_rad)
+		elif plane == 18: dist = abs(math.hypot(c1-x, c2-z) - min_rad)
+		elif plane == 19: dist = abs(math.hypot(c1-y, c2-z) - min_rad)
+		else: dist = sys.maxint
+		#print >>sys.stderr, "wad", dist, worst_arc_dist
+		if dist > worst_arc_dist: worst_arc_dist = dist
 
-	    mx = (x+lx)/2
-	    my = (y+ly)/2
-	    mz = (z+lz)/2
-	    if plane == 17: dist = abs(math.hypot(c1-mx, c2-my) - min_rad)
-	    elif plane == 18: dist = abs(math.hypot(c1-mx, c2-mz) - min_rad)
-	    elif plane == 19: dist = abs(math.hypot(c1-my, c2-mz) - min_rad)
-	    else: dist = sys.maxint
-	    #if dist > worst_arc_dist: worst_arc_dist = dist
+		mx = (x+lx)/2
+		my = (y+ly)/2
+		mz = (z+lz)/2
+		if plane == 17: dist = abs(math.hypot(c1-mx, c2-my) - min_rad)
+		elif plane == 18: dist = abs(math.hypot(c1-mx, c2-mz) - min_rad)
+		elif plane == 19: dist = abs(math.hypot(c1-my, c2-mz) - min_rad)
+		else: dist = sys.maxint
+		#if dist > worst_arc_dist: worst_arc_dist = dist
 
-	    lx, ly, lz = x, y, z
+		lx, ly, lz = x, y, z
+	else:
+	    worst_arc_dist = sys.maxint
+
     else:
 	worst_arc_dist = sys.maxint
 
