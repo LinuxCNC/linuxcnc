@@ -22,6 +22,7 @@ import ConfigParser
 import string
 import re
 import datetime
+import getopt
 # this is a hack until I find out how we're really supposed to do it
 sys.path.append("../../../../../lib/python")
 import bitfile
@@ -312,29 +313,61 @@ class ChipSelect :
 	return logic
 
 
+def usage ():
+    print "\nUsage: spec2vhdl [options] <name>\n"
+    print "  Reads <name>.spec, writes <name>.rspec and <name>.vhd, where"
+    print "  <name>.spec is an FPGA spec, <name>.rspec is a config RAM data"
+    print "  spec (used later in the build process), and <name>.vhd is a top"
+    print "  level VHDL file that implements the specfied FPGA.\n"
+    print "  Options:"
+    print "    -s <spec_name>    use <spec_name> as input file"
+    print "    -r <rspec_name>   use <rspec_name> for RAM spec output"
+    print "    -v <vhdl_name>    use <vhdl_name> for VHDL output"
+    print "    -l <lib_path>     read module specs from <lib_path>"
+    print "    -h                print this help screen"
 
-# misc init
-errors = 0
 
-# source path comes from command line
-if len(sys.argv) < 2 :
-    print "ERROR: no source file specified"
+try:
+    opts, args = getopt.gnu_getopt(sys.argv[1:],"hs:r:v:l:")
+except getopt.GetoptError:
+    usage()
     sys.exit(2)
-srcpath = sys.argv[1]
-
+if len(args) > 1 :
+    usage()
+    sys.exit(2)
+libpath = "."
+if len(args) == 1 :
+    spec_fname = args[0]+".spec"
+    rspec_fname = args[0]+".rspec"
+    vhdl_fname = args[0]+".vhd"
+else :
+    spec_fname = ""
+    rspec_fname = ""
+    vhdl_fname = ""
+for opt,value in opts :
+    if opt == '-h' :
+	usage()
+	sys.exit(2)
+    if opt == "-s" :
+	spec_fname = value
+    if opt == "-r" :
+	rspec_fname = value
+    if opt == "-v" :
+	vhdl_fname = value
+    if opt == "-l" :
+	libpath = value
+for name in spec_fname, rspec_fname, vhdl_fname :
+    if len(name) == 0 :
+	usage()
+	sys.exit(2)
 # read the source file into a config file object
 src_cfgfile = ConfigParser.ConfigParser()
-src_cfgfile.read(srcpath)
+src_cfgfile.read(spec_fname)
 if len(src_cfgfile.sections()) == 0 :
-    print "ERROR: source file '"+srcpath+"' not found, empty, or misformatted"
+    print "ERROR: source file '"+spec_fname+"' not found, empty, or misformatted"
     sys.exit(2)
-
-# library path comes from the command line, or else use current dir
-if len(sys.argv) >= 3 :
-    libpath = sys.argv[2]+"/*.mspec"
-else:
-    libpath = "./*.mspec"
 # get a list of all module spec files in the library
+libpath += "/*.mspec"
 mspecs = glob.glob(libpath)
 if len(mspecs) == 0 :
     print "ERROR: no module specs found at '"+libpath+"'"
@@ -389,17 +422,12 @@ instances.sort(key=ModuleInstance.get_name)
 # more gathering of infomation and validation needs to be done here
 
 
-
-
 # start generating output, top level VHDL file first
-
-outfile = "myfile.vhd"
-
 # prepare for substitution into top-level VHDL file
 toplevel_values = {}
-toplevel_values["outfile"] = outfile
+toplevel_values["outfile"] = vhdl_fname
 toplevel_values["preprocessor"] = sys.argv[0]
-toplevel_values["infile"] = srcpath
+toplevel_values["infile"] = spec_fname
 toplevel_values["timestamp"] =  str(datetime.datetime.now()).split(".")[0]
 toplevel_values["packages"] = ""
 for p in packages :
@@ -415,7 +443,7 @@ for cs in chip_selects :
 
 # do the substitution and write output file
 toplevel_in = open("toplevel.vhd", "r")
-toplevel_out = open(outfile, "w")
+toplevel_out = open(vhdl_fname, "w")
 toplevel_out.write(string.Template(toplevel_in.read()).substitute(toplevel_values))
 
 # next we generate the data to be merged into the final .fpga file
@@ -430,5 +458,5 @@ bf = bitfile.BitFile()
 bf["t"] = repr(ram_template)
 # 'v' section - variable values
 bf["v"] = repr(variable_values)
-bf.tofilename("myfile.rspec")
+bf.tofilename(rspec_fname)
 
