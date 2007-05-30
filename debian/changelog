@@ -1,4 +1,5 @@
 emc2 (2.2.0pre) testing; urgency=low
+
   * G41.1, G42.1, G43.1 to take tool parameters from gcode instead of tool
     table
   * split libposemath and libemcini from libnml
@@ -27,7 +28,11 @@ emc2 (2.2.0pre) testing; urgency=low
   * add tcl interface to halcmd commands (tcl/hal.so)
   * add "-U" (force unload) to halrun script
   * new component: lut5
- -- jepler <jepler@unpythonic.net>  Mon,  5 Mar 2007 19:56:17 -0600
+  * image-to-gcode: roughing passes
+  * rs274.author: automatic arc recognition (used by image-to-gcode)
+  * Filters can now show progress bars in the AXIS window as they run
+
+ -- jepler <jepler@unpythonic.net>  Wed, 30 May 2007 06:22:35 -0500
 
   *** here, insert 2.1.x changes before releasing 2.2.0 ***
 
