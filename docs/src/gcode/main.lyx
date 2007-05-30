@@ -8309,4 +8309,23 @@ D
 L
 \family default 
  (if specified) is the lathe tool orientation.
+\layout Subsection
+
+G43 without H word
+\layout Standard
+
+In ngc, this is not allowed.
+ In EMC2, it sets length offsets for the currently loaded tool.
+ If no tool is currently loaded, it is an error.
+ This change was made so the user doesn't have to specify the tool number
+ in two places for each tool change, and because it's consistent with the
+ way 
+\family typewriter 
+G41/G42
+\family default 
+ work when the 
+\family typewriter 
+D
+\family default 
+ word is not specified.
 \the_end

@@ -1908,6 +1908,14 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 
   if (block->m_modes[6] != -1) {
     CHP(convert_tool_change(settings));
+#ifdef DEBATABLE
+    // I would like this, but it's a big change.  It would allow you
+    // to turn on G43 at the beginning of the program and not worry
+    // about it.  But, what to do when you load T0?  Switch to G49?
+    if(settings->active_g_codes[9] == G_43 && settings->selected_tool_slot > 0) {
+      CHP(convert_tool_length_offset(G_43, block, settings));
+    }
+#endif
   }
 
   if (block->m_modes[7] == 3) {
@@ -3344,8 +3352,9 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
     zoffset = 0;
     index = 0;
   } else if (g_code == G_43) {
-    CHK((block->h_flag == OFF), NCE_OFFSET_INDEX_MISSING);
-    index = block->h_number;
+    CHK((block->h_flag == OFF && !settings->current_slot), 
+        NCE_OFFSET_INDEX_MISSING);
+    index = block->h_flag == ON? block->h_number: settings->current_slot;
     xoffset = USER_TO_PROGRAM_LEN(settings->tool_table[index].xoffset);
     zoffset = USER_TO_PROGRAM_LEN(settings->tool_table[index].zoffset);
   } else if (g_code == G_43_1) {
