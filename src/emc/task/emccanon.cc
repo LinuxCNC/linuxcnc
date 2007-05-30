@@ -1698,9 +1698,9 @@ CANON_TOOL_TABLE GET_EXTERNAL_TOOL_TABLE(int pocket)
 	retval = emcStatus->io.tool.toolTable[pocket];
 
 	// convert from user to program units
-        retval.xoffset = TO_PROG_LEN(FROM_EXT_LEN(retval.xoffset));
-	retval.zoffset = TO_PROG_LEN(FROM_EXT_LEN(retval.zoffset));
-	retval.diameter = TO_PROG_LEN(FROM_EXT_LEN(retval.diameter));
+        retval.xoffset = retval.xoffset;
+	retval.zoffset = retval.zoffset;
+	retval.diameter = retval.diameter;
         // leave the angles alone
     }
 

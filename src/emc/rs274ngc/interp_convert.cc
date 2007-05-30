@@ -1442,7 +1442,7 @@ int Interp::convert_cutter_compensation_on(int side,     //!< side of path cutte
           CHK((tool > _setup.tool_max), NCE_TOOL_RADIUS_INDEX_TOO_BIG);
           index = tool;
       }
-      radius = ((settings->tool_table[index].diameter) / 2.0);
+      radius = USER_TO_PROGRAM_LEN(settings->tool_table[index].diameter) / 2.0;
       orientation = settings->tool_table[index].orientation;
   }
   if (radius < 0.0) { /* switch side & make radius positive if radius negative */
@@ -3352,8 +3352,8 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
   } else if (g_code == G_43) {
     CHK((block->h_flag == OFF), NCE_OFFSET_INDEX_MISSING);
     index = block->h_number;
-    xoffset = settings->tool_table[index].xoffset;
-    zoffset = settings->tool_table[index].zoffset;
+    xoffset = USER_TO_PROGRAM_LEN(settings->tool_table[index].xoffset);
+    zoffset = USER_TO_PROGRAM_LEN(settings->tool_table[index].zoffset);
   } else if (g_code == G_43_1) {
     CHK((block->x_flag == ON) ||
         (block->y_flag == ON) ||
