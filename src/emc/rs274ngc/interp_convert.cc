@@ -1793,27 +1793,21 @@ Side effects:
 
 Called by: convert_g.
 
-We are not changing tool length offset values or tool diameter values.
-Those values must be given in the table in the correct units. Thus it
-will generally not be feasible to switch units in the middle of a
-program.
+Tool length offset and diameter, work coordinate systems, feed rate,
+g28/g30 home positions, and g53 motion in absolute coordinates all work
+properly after switching units.  Historically these had problems but the
+intention is that they work properly now.
 
-We are not changing the parameters that represent the positions
-of the nine work coordinate systems.
+The tool table in settings is not converted here; it is always in
+inifile units and the conversion happens when reading an entry.  Tool
+offsets and feed rate that are in effect are converted by rereading them
+from the canon level.
 
-We are also not changing feed rate values when length units are
-changed, so the actual behavior may change.
+Cutter diameter is not converted because radius comp is not in effect
+when we are changing units.  
 
-Several other distance items in the settings (such as the various
-parameters for cycles) are also not reset.
-
-We are changing origin offset and axis offset values, which are
-critical. If this were not done, when length units are set and the new
-length units are not the same as the default length units
-(millimeters), and any XYZ origin or axis offset is not zero, then any
-subsequent change in XYZ origin or axis offset values will be
-incorrect.  Also, g53 (motion in absolute coordinates) will not work
-correctly.
+XXX Other distance items in the settings (such as the various parameters
+for cycles) need testing.
 
 */
 
