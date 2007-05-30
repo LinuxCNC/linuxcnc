@@ -2194,6 +2194,17 @@ Circular Holes
 \end_inset 
 
 
+\layout Standard
+
+If the environment variable AXIS_PROGRESS_BAR is set, then lines written
+ to stderr of the form
+\layout LyX-Code
+
+FILTER_PROGRESS=%d
+\layout Standard
+
+will set the AXIS progress bar to the given percentage.
+ This feature should be used by any filter that runs for a long time.
 \layout Subsection
 
 The X Resource Database
