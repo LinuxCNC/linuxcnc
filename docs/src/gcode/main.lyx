@@ -8208,6 +8208,20 @@ inifile units
  is programmed.
 \layout Subsection
 
+Tool table lengths/diameters are in inifile units
+\layout Standard
+
+In EMC2, the tool lengths (offsets) and diameters in the tool table are
+ specified in inifile units only.
+ This change was made because otherwise the length of a tool and its diameter
+ would change based on whether G20 or G21 was active when initiating G43,
+ G41, G42 modes.
+ This made it impossible to run gcode in the machine's non-native units,
+ even when the gcode was simple and well-formed (starting with G20 or G21,
+ and didn't change units throughout the program), without changing the tool
+ table.
+\layout Subsection
+
 G84, G87 not implemented
 \layout Standard
 
@@ -8244,7 +8258,7 @@ M53 overrides
 These codes are not defined in RS274NGC
 \layout Subsection
 
-G43
+G43, G43.1
 \layout Subsubsection
 
 Negative Tool Lengths
@@ -8274,7 +8288,25 @@ Dynamic tool lengths
 
 EMC2 allows specification of a computed tool length through 
 \family typewriter 
-G43 H-1 I K
+G43.1 I K.
+\layout Subsection
+
+G41.1/G42.1
+\layout Standard
+
+EMC2 allows specification of a tool diameter and, if in lathe mode, orientation
+ in the gcode.
+ The format is 
+\family typewriter 
+G41.1/G42.1 D L
 \family default 
-.
+, where 
+\family typewriter 
+D
+\family default 
+ is diameter and 
+\family typewriter 
+L
+\family default 
+ (if specified) is the lathe tool orientation.
 \the_end
