@@ -101,10 +101,10 @@ class BitFile:
 
 	return result
     
-    def tofile(cls, file):
+    def tofile(self, file):
 	return file.write(self.tostring())
 
-    def tofilename(cls, filename):
+    def tofilename(self, filename):
 	return open(filename, "wb").write(self.tostring())
 
 if __name__ == '__main__':
