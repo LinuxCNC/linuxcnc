@@ -15,7 +15,7 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-import sys
+import sys, math
 
 def dist_lseg(l1, l2, p):
     "Compute the 3D distance from the line segment l1..l2 to the point p."
@@ -37,17 +37,123 @@ def dist_lseg(l1, l2, p):
 
     return dist2 ** .5
 
-def douglas(st, tolerance=.001, _first=True):
+def rad1(x1,y1,x2,y2,x3,y3):
+    x12 = x1-x2
+    y12 = y1-y2
+    x23 = x2-x3
+    y23 = y2-y3
+    x31 = x3-x1
+    y31 = y3-y1
+
+    den = abs(x12 * y23 - x23 * y12)
+    if abs(den) < 1e-5: return sys.maxint
+
+    #print "rad1", x1, y1, x2, y2, x3, y3
+    math.hypot(x12, y12) * math.hypot(x23, y23) * math.hypot(x31, y31) / 2 / den
+    return math.hypot(x12, y12) * math.hypot(x23, y23) * math.hypot(x31, y31) / 2 / den
+
+class Point:
+    def __init__(self, x, y):
+	self.x = x
+	self.y = y
+    def __str__(self): return "<%f,%f>" % (self.x, self.y)
+    def __sub__(self, other):
+	return Point(self.x - other.x, self.y - other.y)	
+    def __add__(self, other):
+	return Point(self.x + other.x, self.y + other.y)	
+    def __mul__(self, other):
+	return Point(self.x * other, self.y * other)
+    __rmul__ = __mul__
+    def cross(self, other):
+	return self.x * other.y - self.y * other.x
+    def dot(self, other):
+	return self.x * other.x + self.y * other.y
+    def mag(self):
+	return hypot(self.x, self.y)
+    def mag2(self):
+	return self.x**2 + self.y**2
+
+def cent1(x1,y1,x2,y2,x3,y3):
+    P1 = Point(x1,y1)
+    P2 = Point(x2,y2)
+    P3 = Point(x3,y3)
+
+    den = abs((P1-P2).cross(P2-P3))
+    if abs(den) < 1e-5: return sys.maxint, sys.maxint
+
+    alpha = (P2-P3).mag2() * (P1-P2).dot(P1-P3) / 2 / den / den
+    beta  = (P1-P3).mag2() * (P2-P1).dot(P2-P3) / 2 / den / den
+    gamma = (P1-P2).mag2() * (P3-P1).dot(P3-P2) / 2 / den / den
+
+    Pc = alpha * P1 + beta * P2 + gamma * P3
+    #print >>sys.stderr, "cent1", P1, P2, P3, Pc
+    #print >>sys.stderr, "\t", alpha, beta, gamma
+    return Pc.x, Pc.y
+
+def arc_center(plane, p1, p2, p3):
+    x1, y1, z1 = p1
+    x2, y2, z2 = p2
+    x3, y3, z3 = p3
+    
+    if plane == 17: return cent1(x1,y1,x2,y2,x3,y3)
+    if plane == 18: return cent1(x1,z1,x2,z2,x3,z3)
+    if plane == 19: return cent1(y1,z1,y2,z2,y3,z3)
+    
+def arc_rad(plane, P1, P2, P3):
+    if plane is None: return sys.maxint
+
+    x1, y1, z1 = P1
+    x2, y2, z2 = P2
+    x3, y3, z3 = P3
+    
+    if plane == 17: return rad1(x1,y1,x2,y2,x3,y3)
+    if plane == 18: return rad1(x1,z1,x2,z2,x3,z3)
+    if plane == 19: return rad1(y1,z1,y2,z2,y3,z3)
+    return None, 0
+
+def get_pts(plane, (x,y,z)):
+    if plane == 17: return x,y
+    if plane == 18: return x,z
+    if plane == 19: return y,z
+
+def arc_dir(plane, c, p1, p2, p3):
+    xc, yc = c
+    x1, y1 = get_pts(plane, p1)
+    x2, y2 = get_pts(plane, p2)
+    x3, y3 = get_pts(plane, p3)
+
+    theta_start = math.atan2(y1-yc, x1-xc)
+    theta_mid = math.atan2(y2-yc, x2-xc)
+    theta_end = math.atan2(y3-yc, x3-xc)
+
+    if theta_mid < theta_start:
+	theta_mid = theta_mid + 2 * math.pi
+    while theta_end < theta_mid:
+	theta_end = theta_end + 2 * math.pi
+
+    return theta_end < 2 * math.pi
+
+def arc_fmt(plane, c1, c2, p1):
+    x, y, z = p1
+    if plane == 17: return "I%.4f J%.4f" % (c1-x, c2-y)
+    if plane == 18: return "I%.4f K%.4f" % (c1-x, c2-z)
+    if plane == 19: return "J%.4f K%.4f" % (c1-y, c2-z)
+
+def douglas(st, tolerance=.001, plane=None, _first=True):
     """\
 Perform Douglas-Peucker simplification on the path 'st' with the specified
 tolerance.  The '_first' argument is for internal use only.
 
-The Douglas-Peucker simplification algorithm finds a subset of the input
-points whose path is never more than 'tolerance' away from the original
-input path.
+The Douglas-Peucker simplification algorithm finds a subset of the input points
+whose path is never more than 'tolerance' away from the original input path.
+
+If 'plane' is specified as 17, 18, or 19, it may find helical arcs in the given
+plane in addition to lines.  Note that if there is movement in the plane
+perpendicular to the arc, it will be distorted, so 'plane' should usually
+be specified only when there is only movement on 2 axes
 """
     if len(st) == 1:
-        yield st[0]
+        yield "G1", st[0], None
         return
 
     l1 = st[0]
@@ -55,23 +161,72 @@ input path.
     
     worst_dist = 0
     worst = 0
-    
+    min_rad = sys.maxint
+    max_arc = -1
+
+    ps = st[0]
+    pe = st[-1]
+
     for i, p in enumerate(st): 
         if p is l1 or p is l2: continue
         dist = dist_lseg(l1, l2, p)
         if dist > worst_dist:
             worst = i
             worst_dist = dist
-            
-    if _first: yield st[0]
-    if worst_dist > tolerance:
-        for i in douglas(st[:worst+1], tolerance, False):
-            yield i
-        yield st[worst]
-        for i in douglas(st[worst:], tolerance, False):
-            yield i
-    if _first: yield st[-1]
+	    rad = arc_rad(plane, ps, p, pe)
+	    #print >>sys.stderr, "rad", rad, max_arc, min_rad
+	    if rad < min_rad:
+		max_arc = i
+		min_rad = rad
 
+    worst_arc_dist = 0
+    if 0 && min_rad != sys.maxint:  ## XXX auto-arcs are disabled, because they generated undercut on torus.png
+	c1, c2 = arc_center(plane, ps, st[max_arc], pe)
+	lx, ly, lz = st[0]
+	for i, (x,y,z) in enumerate(st):
+	    if plane == 17: dist = abs(math.hypot(c1-x, c2-y) - min_rad)
+	    elif plane == 18: dist = abs(math.hypot(c1-x, c2-z) - min_rad)
+	    elif plane == 19: dist = abs(math.hypot(c1-y, c2-z) - min_rad)
+	    else: dist = sys.maxint
+	    #print >>sys.stderr, "wad", dist, worst_arc_dist
+	    if dist > worst_arc_dist: worst_arc_dist = dist
+
+	    mx = (x+lx)/2
+	    my = (y+ly)/2
+	    mz = (z+lz)/2
+	    if plane == 17: dist = abs(math.hypot(c1-mx, c2-my) - min_rad)
+	    elif plane == 18: dist = abs(math.hypot(c1-mx, c2-mz) - min_rad)
+	    elif plane == 19: dist = abs(math.hypot(c1-my, c2-mz) - min_rad)
+	    else: dist = sys.maxint
+	    #if dist > worst_arc_dist: worst_arc_dist = dist
+
+	    lx, ly, lz = x, y, z
+    else:
+	worst_arc_dist = sys.maxint
+
+    #if worst_arc_dist != sys.maxint:
+	#print >>sys.stderr, "douglas", len(st), "\n\t", st[0], "\n\t", st[max_arc], "\n\t", st[-1]
+	#print >>sys.stderr, "\t", worst_arc_dist, worst_dist
+	#print >>sys.stderr, "\t", c1, c2
+    if worst_arc_dist < tolerance and worst_arc_dist < worst_dist:
+	ccw = arc_dir(plane, (c1, c2), ps, st[max_arc], pe)
+	if plane == 18: ccw = not ccw # wtf?
+	yield "G1", ps, None
+	if ccw:
+	    yield "G3", st[-1], arc_fmt(plane, c1, c2, ps)
+	else:
+	    yield "G2", st[-1], arc_fmt(plane, c1, c2, ps)
+    elif worst_dist > tolerance:
+	if _first: yield "G1", st[0], None
+        for i in douglas(st[:worst+1], tolerance, plane, False):
+            yield i
+        yield "G1", st[worst], None
+        for i in douglas(st[worst:], tolerance, plane, False):
+            yield i
+	if _first: yield "G1", st[-1], None
+    else:
+	if _first: yield "G1", st[0], None
+	if _first: yield "G1", st[-1], None
 
 class Gcode:
     "For creating rs274ngc files"
@@ -86,6 +241,13 @@ class Gcode:
         self.write = target
         self.time = 0
         self.spindle_speed = spindle_speed
+	self.plane = None
+
+    def set_plane(self, p):
+	assert p in (17,18,19)
+	if p != self.plane:
+	    self.plane = p
+	    self.write("G%d" % p)
 
     def begin(self):
 	"""\
@@ -111,8 +273,15 @@ that the last 'cut' coordinate is actually in the output file, and it may
 give better performance because this means that the simplification algorithm
 will examine fewer points per run."""
         if not self.cuts: return
-        for x, y, z in douglas(self.cuts, self.tolerance):
-            self.move_common(x, y, z, gcode="G1")
+        for move, (x, y, z), cent in douglas(self.cuts, self.tolerance, self.plane):
+	    if cent:
+		self.write("%s X%.4f Y%.4f Z%.4f %s" % (move, x, y, z, cent))
+		self.lastgcode = None
+		self.lastx = x
+		self.lasty = y
+		self.lastz = z
+	    else:
+		self.move_common(x, y, z, gcode="G1")
         self.cuts = []
 
     def end(self):
@@ -146,9 +315,6 @@ the simplification algorithm may still skip over specified points."""
         if y == None: y = self.lasty
         if z == None: z = self.lastz
         if a == None: a = self.lasta
-        if gcode != self.lastgcode:
-                gcodestring = gcode
-                self.lastgcode = gcode
         if x != self.lastx:
                 xstring = " X%.4f" % (x)
                 self.lastx = x
@@ -161,6 +327,11 @@ the simplification algorithm may still skip over specified points."""
         if a != self.lasta:
                 astring = " A%.4f" % (a)
                 self.lasta = a
+	if xstring == ystring == zstring == astring == "":
+	    return
+        if gcode != self.lastgcode:
+                gcodestring = gcode
+                self.lastgcode = gcode
         cmd = "".join([gcodestring, xstring, ystring, zstring, astring])
         if cmd:
             self.write(cmd)
@@ -177,8 +348,8 @@ the simplification algorithm may still skip over specified points."""
         else:
             lastx, lasty, lastz = self.lastx, self.lasty, self.lastz
         if x is None: x = lastx
-        if y == None: y = lasty
-        if z == None: z = lastz
+        if y is None: y = lasty
+        if z is None: z = lastz
         self.cuts.append([x,y,z])
 
     def home(self):

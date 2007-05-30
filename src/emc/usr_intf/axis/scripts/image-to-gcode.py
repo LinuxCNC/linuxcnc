@@ -230,16 +230,18 @@ class Converter:
         self.tool_shape = tool_shape * self.pixelsize * ts / 2;
     
     def one_pass(self):
-        print >>sys.stderr, self.ro, self.rd
         g = self.g
         g.set_feed(self.feed)
 
         if self.convert_cols and self.cols_first_flag:
+            self.g.set_plane(19)
             self.mill_cols(self.convert_cols, True)
             if self.convert_rows: g.safety()
         if self.convert_rows:
+            self.g.set_plane(18)
             self.mill_rows(self.convert_rows, not self.cols_first_flag)
         if self.convert_cols and not self.cols_first_flag:
+            self.g.set_plane(19)
             if self.convert_rows: g.safety()
             self.mill_cols(self.convert_cols, not self.convert_rows)
         if self.convert_cols:
@@ -256,7 +258,7 @@ class Converter:
         g.continuous(self.tolerance)
         g.write(self.units)
         g.safety()
-        if self.roughing_delta:
+        if self.roughing_delta and self.roughing_offset:
             base_image = self.image
             rough = make_tool_shape(ball_tool,
                                 2*self.roughing_offset, self.pixelsize)
@@ -282,11 +284,11 @@ class Converter:
             if r < m + epsilon:
                 self.rd = m
                 self.one_pass()
-            self.feed = self.base_feed
-            self.rd = m
-            self.ro = 0
             self.image = base_image
             self.cache.clear()
+        self.feed = self.base_feed
+        self.ro = 0
+        self.rd = self.image.min()
         self.one_pass()
         g.end()
 
@@ -444,9 +446,9 @@ class ArcEntryCut:
 
             conv.g.flush(); conv.g.lastgcode = None
             if cx > 0:
-                conv.g.write("G18 G3 X%f Z%f R%f" % (p1[0], p1[2], radius))
+                conv.g.write("G3 X%f Z%f R%f" % (p1[0], p1[2], radius))
             else:
-                conv.g.write("G18 G2 X%f Z%f R%f" % (p1[0], p1[2], radius))
+                conv.g.write("G2 X%f Z%f R%f" % (p1[0], p1[2], radius))
             conv.g.lastx = p1[0]
             conv.g.lasty = p1[1]
             conv.g.lastz = p1[2]
@@ -473,9 +475,9 @@ class ArcEntryCut:
 
             conv.g.flush(); conv.g.lastgcode = None
             if cy > 0:
-                conv.g.write("G19 G2 Y%f Z%f R%f" % (p1[1], p1[2], radius))
+                conv.g.write("G2 Y%f Z%f R%f" % (p1[1], p1[2], radius))
             else:
-                conv.g.write("G19 G3 Y%f Z%f R%f" % (p1[1], p1[2], radius))
+                conv.g.write("G3 Y%f Z%f R%f" % (p1[1], p1[2], radius))
             conv.g.lastx = p1[0]
             conv.g.lasty = p1[1]
             conv.g.lastz = p1[2]
