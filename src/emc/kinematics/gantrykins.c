@@ -12,6 +12,7 @@
 
 #include "motion.h"		/* these decls */
 #include "hal.h"
+#include "rtapi.h"
 #include "rtapi_math.h"
 #include "rtapi_string.h"
 
