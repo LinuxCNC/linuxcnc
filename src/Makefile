@@ -134,6 +134,11 @@ endif
 
 # Each directory in $(INCLUDES) is passed as a -I directory when compiling.
 INCLUDE := $(patsubst %,-I%, $(INCLUDES)) -I$(RTDIR)/include
+
+ifneq ($(KERNELDIR),)
+INCLUDE += -I$(KERNELDIR)/include
+endif
+
 ifeq ($(BUILD_PYTHON),yes)
 INCLUDE += -I$(INCLUDEPY)
 endif
