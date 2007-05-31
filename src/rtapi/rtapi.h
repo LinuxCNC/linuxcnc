@@ -75,7 +75,7 @@
     only.  Since we have a simulator that runs everything in user
     space, the non-underscore types should NEVER be used.
 */
-#include <linux/types.h>
+#include <asm/types.h>
 
 /** These status codes are returned by many RTAPI functions. */
 
