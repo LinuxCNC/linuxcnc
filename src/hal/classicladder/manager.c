@@ -21,6 +21,7 @@
 /* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA */
 
 #ifdef HAL_SUPPORT
+#include "rtapi.h"
 #include "rtapi_string.h"
 #else
 #include <string.h>

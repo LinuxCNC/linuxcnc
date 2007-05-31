@@ -25,6 +25,7 @@
 #include <stdlib.h>
 #endif
 
+#include "rtapi.h"
 #include "rtapi_string.h"
 
 #include "classicladder.h"
