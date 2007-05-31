@@ -24,7 +24,7 @@ think of a better way.
  * "rtai_math") then put the shorter name last.
  */
 char *module_whitelist[] = {
-    "rtai_math", "rtai_sem", "rtai_shm", "rtai_fifos", "rtai_up", 
+    "rtai_math", "rtai_sem", "rtai_shm", "rtai_fifos", "rtai_up", "rtai_lxrt",
     "rtai_hal", "rtai_sched", "rtai_smi", "rtai", "rt_mem_mgr", "adeos",
     "rtl_time", "rtl_sched", "rtl_posixio", "rtl_fifo", "rtl", "mbuff",
 
