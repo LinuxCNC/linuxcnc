@@ -33,7 +33,7 @@ MODULE_EXT=@MODEXT@ # module extension, used when insmod'ing
 
 # used for building
 RTDIR     = @RTDIR@
-
+RTARCH    = @RTARCH@
 
 # Standard configure directories
 # do we really need these?

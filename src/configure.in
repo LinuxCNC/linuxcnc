@@ -178,6 +178,7 @@ fi
 # see each case for more details                                             #
 ##############################################################################
 
+RTARCH=`uname -m | sed s/i.86/i386/`
 case $RTS in
 */rtai-config)
     RTNAME=rtai-3.0
@@ -188,7 +189,7 @@ case $RTS in
     RTFLAGS=`$RTS --module-cflags`
     RTFLAGS="$RTFLAGS -DRTAI=3"
     KERNELDIR=`$RTS --linux-dir`
-
+    RTARCH=`$RTS --arch`
 ;;
 */realtime-config)
 # For RTAI-24.1x $RTS = realtime-config
@@ -260,6 +261,7 @@ AC_SUBST([RTPREFIX])
 AC_SUBST([KERNELDIR])
 AC_SUBST([RTFLAGS])
 AC_SUBST([RTDIR])
+AC_SUBST([RTARCH])
 
 if test $RTPREFIX = sim; then
     AC_DEFINE(RTAPI_SIM, [], [Realtime system is simulated])
