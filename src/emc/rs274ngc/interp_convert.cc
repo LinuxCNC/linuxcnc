@@ -1909,11 +1909,27 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
   if (block->m_modes[6] != -1) {
     CHP(convert_tool_change(settings));
 #ifdef DEBATABLE
-    // I would like this, but it's a big change.  It would allow you
-    // to turn on G43 at the beginning of the program and not worry
-    // about it.  But, what to do when you load T0?  Switch to G49?
-    if(settings->active_g_codes[9] == G_43 && settings->selected_tool_slot > 0) {
-      CHP(convert_tool_length_offset(G_43, block, settings));
+    // I would like this, but it's a big change.  It changes the
+    // operation of legal ngc programs, but it could be argued that
+    // those programs are buggy or likely to be not what the author
+    // intended.
+
+    // It would allow you to turn on G43 after loading the first tool,
+    // and then not worry about it through the program.  When you
+    // finally unload the last tool, G43 mode is canceled.
+
+    if(settings->active_g_codes[9] == G_43) {
+        if(settings->selected_tool_slot > 0) {
+            struct block_struct g43;
+            init_block(&g43);
+            block->g_modes[_gees[G_43]] = G_43;
+            CHP(convert_tool_length_offset(G_43, &g43, settings));
+        } else {
+            struct block_struct g49;
+            init_block(&g49);
+            block->g_modes[_gees[G_49]] = G_49;
+            CHP(convert_tool_length_offset(G_49, &g49, settings));
+        }
     }
 #endif
   }
