@@ -193,7 +193,6 @@ def prologue(f):
 #include "rtapi.h"
 #include "rtapi_app.h"
 #include "hal.h"
-#include "rtapi_string.h"
 
 static int comp_id;
 """
