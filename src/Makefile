@@ -29,6 +29,12 @@ ifeq ($(BASEPWD),)
 BASEPWD := $(shell pwd)
 export BASEPWD
 include Makefile.inc
+ifeq ($(origin PYTHONPATH),undefined)
+PYTHONPATH:=$(EMC2_HOME)/lib/python
+else
+PYTHONPATH:=$(EMC2_HOME)/lib/python:$(PYTHONPATH)
+endif
+export PYTHONPATH
 else
 include $(BASEPWD)/Makefile.inc
 endif
@@ -414,7 +420,7 @@ install-kernel-indep: install-dirs
 	$(FILE) ../docs/UPDATING $(DESTDIR)$(docsdir)/UPDATING
 	$(FILE) ../*.png ../*.gif $(DESTDIR)$(sysconfdir)/emc2
 	$(INSTALL_CONFIGS)
-	$(EXE) $(filter-out ../bin/emc_module_helper, $(filter ../bin/%,$(TARGETS))) $(DESTDIR)$(bindir)
+	$(EXE) $(filter-out ../bin/emc_module_helper ../bin/bfload ../bin/bfmerge, $(filter ../bin/%,$(TARGETS))) $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/emc $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/emcmkdesktop $(DESTDIR)$(bindir)
 	$(FILE) $(filter ../lib/%.a ../lib/%.so ../lib/%.so.0,$(TARGETS)) $(DESTDIR)$(libdir)
@@ -452,6 +458,7 @@ install-kernel-dep:
 	$(FILE) ../rtlib/*$(MODULE_EXT) $(DESTDIR)$(EMC2_RTLIB_DIR)
 ifneq "$(BUILD_SYS)" "sim"
 	$(SETUID) ../bin/emc_module_helper $(DESTDIR)$(bindir)
+	$(SETUID) ../bin/bfload $(DESTDIR)$(bindir)
 endif
 	$(FILE) ../scripts/rtapi.conf $(DESTDIR)$(sysconfdir)/emc2
 endif # RUN_IN_PLACE
