@@ -23,5 +23,5 @@ $(HALMODULE): $(call TOOBJS, $(HALMODULESRCS)) $(HALLIB)
 	$(ECHO) Linking python module $(notdir $@)
 	@$(CXX) $(LDFLAGS) -shared -o $@ $^
 
-TARGETS += $(HALLIB)
+TARGETS += $(HALLIB) ../lib/libemchal.so.0
 PYTARGETS += $(HALMODULE)
