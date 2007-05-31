@@ -2,7 +2,11 @@
 #    $(error "source ~/xilinx/settings.sh" to set env vars)
 #endif
 
-vpath %.vhd ../5i2x_vhdl
+ifeq ($(origin PYTHONPATH),undefined)
+PYTHONPATH:=../../../../../lib/python
+else
+PYTHONPATH:=../../../../../lib/python:$(PYTHONPATH)
+endif
 
 vpath %.o work_sim
 
@@ -39,6 +43,9 @@ help :
 %.wave : %.ghw
 	@gtkwave $< $*.sav &>/dev/null
 
+%.vhd %.rspec : %.spec
+	@echo "making top level VHDL and ram spec from $<"
+	@python spec2vhdl.py $*
 
 %.t : %.vhd
 	@echo "making $@"
@@ -117,9 +124,9 @@ help :
 
 # a .fpga file is a bitfile with config ram info added
 
-%.fpga : %.ram
-	@echo "bfmerge: Merging $< and bitfile into $@"
-	@../../../../../bin/bfmerge $^ $@
+%.fpga : %.rspec %.bit
+	@echo "bit2fpga: Merging $^ into $@"
+	@python bit2fpga.py $*
 
 .PRECIOUS : %.prj %.scr %.ngc %.ngd %.nad %.nbd %.ncd %.bit %.o %.bin %.ghw %.log.syn %.log.ngd %.log.map
 
@@ -153,18 +160,5 @@ makefile.vhd.dep : *.vhd
 	    fi ;\
 	done
 
-makefile.ram.dep : *.ram
-	@echo "Making $@"
-	@touch $@
-	@for FILE in $? ; do BASE=$${FILE/\.ram/} ;\
-	    grep -v "^$$BASE.fpga :" $@  >$@.tmp ;\
-	    mv $@.tmp $@ ;\
-	    if grep -q -e "## *use" $$FILE ; then \
-	        echo -n "$$BASE.fpga :" >>$@ ;\
-	        set -- `grep -e "## *use" $$FILE` ; echo " $$3" >>$@ ;\
-	    fi ;\
-	done
-
 include makefile.vhd.dep
-include makefile.ram.dep
 
