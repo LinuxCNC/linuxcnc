@@ -25,7 +25,11 @@ using namespace std;
 #include "hal.h"
 #include "hal_priv.h"
 
-typedef unsigned long Py_ssize_t;
+#if PY_VERSION_HEX < 0x02050000 && !defined(PY_SSIZE_T_MIN)
+typedef int Py_ssize_t;
+#define PY_SSIZE_T_MAX INT_MAX
+#define PY_SSIZE_T_MIN INT_MIN
+#endif
 
 union paramunion {
     hal_bit_t b;
@@ -420,7 +424,7 @@ static int pyhal_setattro(halobject *self, PyObject *attro, PyObject *v) {
     return pyhal_write_common(find_item(self, PyString_AsString(attro)), v);
 }
 
-static int pyhal_len(halobject *self) {
+static Py_ssize_t pyhal_len(halobject *self) {
     return self->items->size();
 }
 
@@ -576,11 +580,11 @@ static void pyshm_delete(shmobject *self) {
     Py_XDECREF(self->comp);
 }
 
-static int shm_buffer(shmobject *self, Py_ssize_t segment, void **ptrptr){
+static Py_ssize_t shm_buffer(shmobject *self, Py_ssize_t segment, void **ptrptr){
     if(ptrptr) *ptrptr = self->buf;
     return self->size;
 }
-static int shm_segcount(shmobject *self, Py_ssize_t *lenp) {
+static Py_ssize_t shm_segcount(shmobject *self, Py_ssize_t *lenp) {
     if(lenp) *lenp = self->size;
     return 1;
 }
