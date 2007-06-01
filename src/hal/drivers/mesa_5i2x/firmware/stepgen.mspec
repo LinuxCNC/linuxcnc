@@ -8,9 +8,9 @@ step_up_phA_pin : "step, up, or phaseA (depends on step type)"
 dir_down_phB_pin : "dir, down, or phaseB (depends on step type)"
 
 [stepgen.post-vhdl-vars]
-enable : { "no":0, "yes":1 } : "enable step generator $INSTANCE?"
-ctrl_type : { "velocity":0, "position":1 } : "position or velocity control mode?"
-step_type : { "step-dir":0, "up-down":1, "quadrature":2 } : "step type?" CHANGEABLE
+enable : 1 ! { "no":0, "yes":1 } ! "enable step generator $INSTANCE?"
+ctrl_type : 1 ! { "velocity":0, "position":1 } ! "position or velocity control mode?"
+step_type : 0 ! { "step-dir":0, "up-down":1, "quadrature":2 } ! "step type?" CHANGEABLE
 
 [stepgen.pre-vhdl-vars]
 

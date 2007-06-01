@@ -1,0 +1,7 @@
+[pin.0]
+[pin.1]
+[pin.2]
+[pin.3]
+[pin.47]
+[gpio.0]
+[gpio.1]

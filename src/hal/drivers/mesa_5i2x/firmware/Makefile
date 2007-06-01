@@ -95,7 +95,7 @@ help :
 # The makefile uses distinct extensions to keep the dependencies straight,
 # and to preserve the intermediate files.
 
-%.nad %.log.map : %.ngd
+%.nad : %.ngd
 	@echo "Mapping: making $@ (unplaced) from $^"
 	@map $<
 	@mv $*.ncd $*.nad
@@ -128,13 +128,26 @@ help :
 	@echo "bit2fpga: Merging $^ into $@"
 	@python bit2fpga.py $*
 
-.PRECIOUS : %.prj %.scr %.ngc %.ngd %.nad %.nbd %.ncd %.bit %.o %.bin %.ghw %.log.syn %.log.ngd %.log.map
+.PRECIOUS : %.vhd %.rspec %.prj %.scr %.ngc %.ngd %.nad %.nbd %.ncd %.bit %.o %.bin %.ghw %.log.syn %.log.ngd %.log.map
 
-.PHONY : clean
+.PHONY : clean clean_all
 
+# because placed and routed .fpga files might represent many hours
+# of work, 'make clean' doesn't remove them or their precursers,
+# it only removes incidental files that are generated along the way
+# if you truly want to remove everything, use 'make clean_all'
+# if you want to redo only a single FPGA file, touch the
+# corresponding .spec file
 clean :
-	@rm -f *.prj *.scr *.ngc *.ngd *.nad *.nbd *.ncd *.o *.bin
-	@rm -f *.ghw *.log.syn *.log.ngd *.log.map *.bgn *.drc *.ngm 
+	@rm -f *.scr *.o *.bin
+	@rm -f *.pad *_pad.csv *_pad.txt *.par *.unroutes
+	@rm -f *.ghw *.log.syn *.log.ngd *.log.map *.bgn *.drc *.ngm *.usage
+	@rm -f *_usage.xml *~
+
+clean_all :
+	@rm -f *.prj *.scr *.ngc *.ngd *.nad *.nbd *.ncd *.o *.bin *.bit
+	@rm -f *.pad *_pad.csv *_pad.txt *.par *.unroutes *.xpi *.rspec *.fpga
+	@rm -f *.ghw *.log.syn *.log.ngd *.log.map *.bgn *.drc *.ngm *.usage
 	@rm -f *.pcf *.t *_usage.xml *~
 
 

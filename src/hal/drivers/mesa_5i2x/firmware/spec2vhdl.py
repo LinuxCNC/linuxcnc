@@ -48,9 +48,21 @@ class ModuleSpec :
 	# extract data from config file object 'lib'
 	self.constants = section2dict(name+".constants", lib_cfgfile)
 	self.pins = section2dict(name+".pins", lib_cfgfile)
+	# get definitions for module variables
 	self.pre_vhdl_vars = section2dict(name+".pre-vhdl-vars", lib_cfgfile)
 	self.post_vhdl_vars = section2dict(name+".post-vhdl-vars", lib_cfgfile)
-	# get required templates
+	self.all_vars = {}
+	for var,value in self.pre_vhdl_vars.iteritems() :
+	    self.all_vars[var] = value
+	for var,value in self.post_vhdl_vars.iteritems() :
+	    self.all_vars[var] = value
+	# get default values for variables
+	# default is the first field in a variable definition string
+	# fields separated by "!"
+	self.defaults = {}
+	for var,value in self.all_vars.iteritems() :
+	    temp = value.split("!")
+	    self.defaults[var] = temp[0]
 	section = name+".templates"
 	if not lib_cfgfile.has_section(section) :
 	    print "ERROR: module spec '"+name+"' missing 'templates' section"
@@ -75,8 +87,9 @@ class ModuleSpec :
 	p = self.constants['vhdl_package']
 	if not p in packages :
 	    packages.append(p)
-	# turn string into integer
-	self.num_regs = eval(self.constants['num_regs'])
+	# turn strings into integers
+	self.num_regs = int(self.constants['num_regs'])
+	self.id_code = int(self.constants['id_code'])
 	# compute power of two size of register block
 	self.blk_size = 1
 	while self.blk_size < self.num_regs :
@@ -98,18 +111,23 @@ class ModuleInstance :
 	self.name = name
 	self.modname = name.split('.')[0]
 	self.instance = name.split('.')[1]
-	# extract variable/value pairs from config file object 'src'
-	self.values = section2dict(name, src_cfgfile)
-	# add a couple values
-	self.values["instnum"] = self.instance
 	# do we already have a matching module spec?
 	if not self.modname in modspecs :
 	    # no, add the module spec
 	    modspecs[self.modname] = ModuleSpec(self.modname)
 	self.module = modspecs[self.modname]
-	# add module spec supplied constants to this instance
-	for cname,cvalue in self.module.constants.iteritems() :
-	    self.values[cname] = cvalue
+	# get default variable values from module spec
+	self.values = {}
+	for var,value in self.module.defaults.iteritems() :
+	    self.values[var] = value
+	# get variable/value pairs from the spec file (replace defaults)
+	for var,value in section2dict(name, src_cfgfile).iteritems() :
+	    self.values[var] = value
+	# add a couple special values
+	self.values["instnum"] = self.instance
+	# add constant values from the module spec
+	for var,value in self.module.constants.iteritems() :
+	    self.values[var] = value
 	# verify that we have values for every variable in the module spec
 	required = self.module.pins.keys()
 	required.extend(self.module.pre_vhdl_vars.keys())
@@ -131,6 +149,9 @@ class ModuleInstance :
     def get_num_regs (self) :
 	return self.module.num_regs
 
+    def get_id_code_and_instance (self) :
+	return (self.module.id_code << 8 ) | int(self.instance)
+
     def get_blk_size (self) :
 	return self.module.blk_size
 
@@ -144,11 +165,16 @@ class ModuleInstance :
 	chip_selects.append(self.select)
 
     def vhdl (self) :
-	vhdl = self.module.templates["vhdl"].substitute(self.values)
+	try:
+	    vhdl = self.module.templates["vhdl"].substitute(self.values)
+	except KeyError :
+	    print "no value for '"+str(sys.exc_value)+"' in '"+self.name+"'"
+	    sys.exit(1)
 	return vhdl
 
     def ram_template (self) :
-	prefix = "${"+self.modname+"_"+self.instance+"_"
+	# use "__" to separate module, instance, and variable names
+	prefix = "${"+self.modname+"__"+self.instance+"__"
 	rv = self.module.templates["ram"].template
 	rv = re.sub("\${",prefix, rv)
 	return rv
@@ -156,7 +182,7 @@ class ModuleInstance :
     def variable_values (self) :
 	rv = {}
 	for name,value in self.values.iteritems() :
-	    name = self.modname+"_"+self.instance+"_"+name
+	    name = self.modname+"__"+self.instance+"__"+name
 	    rv[name] = value
 	return rv
 
@@ -362,6 +388,8 @@ for name in spec_fname, rspec_fname, vhdl_fname :
 	sys.exit(2)
 # read the source file into a config file object
 src_cfgfile = ConfigParser.ConfigParser()
+# read in core stuff first
+src_cfgfile.read("core.spec")
 src_cfgfile.read(spec_fname)
 if len(src_cfgfile.sections()) == 0 :
     print "ERROR: source file '"+spec_fname+"' not found, empty, or misformatted"
@@ -397,7 +425,7 @@ lower_limit = 0x0100
 chip_selects.append(ChipSelect(0,0x3F00))
 # preliminary sort gets like modules together, and instances
 # in numerical order
-instances.sort(key=ModuleInstance.get_name, reverse=1)
+instances.sort(key=ModuleInstance.get_id_code_and_instance)
 # instances are placed from largest to smallest, since larger
 # address spaces have more demanding alignment requirements
 instances.sort(key=ModuleInstance.get_num_regs, reverse=1)
@@ -416,8 +444,9 @@ for i in instances :
 # sort so that derived selects come after the ones they use
 # (not strictly neccessary, VHDL can figure it out anyway)
 chip_selects.sort()
-# restore "sorted by name" ordering for subsequent processing
-instances.sort(key=ModuleInstance.get_name)
+# restore "sorted by ID code and instance" ordering for
+# subsequent processing
+instances.sort(key=ModuleInstance.get_id_code_and_instance)
 
 # more gathering of infomation and validation needs to be done here
 
