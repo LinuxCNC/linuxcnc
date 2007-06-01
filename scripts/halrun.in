@@ -9,7 +9,7 @@ INTERACTIVE=0
 while true; do
 	case $1 in
 		-I) INTERACTIVE=1; shift;;
-		-U) halcmd -R; halcmd unload all; $REALTIME stop; exit;;
+		-U) halcmd -R; halcmd stop; halcmd unload all; $REALTIME stop; exit;;
 		*) break
 	esac
 done
@@ -29,6 +29,7 @@ halcmd $@; result=$?
 
 if [ $INTERACTIVE -eq 1 ]; then halcmd -kf; fi
 
+halcmd stop || result=$?
 halcmd unload all || result=$?
 
 $REALTIME stop || result=$?
