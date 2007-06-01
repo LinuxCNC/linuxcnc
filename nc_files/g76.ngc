@@ -2,7 +2,7 @@
 (t1 is for facing and left turning, t4 is threading tool, t9 parting)
 (proper tool offsets should be set in the tool table!)
 
-g20 g64
+g20 g64 g18
 
 (face and turn outside diameter)
 t1 m6
@@ -17,7 +17,67 @@ x.120
 f5
 g1z-.55
 g0x.2
+
+
+(round the end)
+o100 sub 
+g0z1x-1
+g41
+g0z1
+g2 x0 z0 r1
+g3 x3.05 z-3.05 i0 k-3.05
+g91 
+g2 z-1.5 x1 r1.5
+g90 
+g40
+g0 x4.5
+o100 endsub
+
+g21
+f50
+
+g0z1.3
+g92z0
+o100 call
+
+f50
+
+g92.1
+g0z.9
+g92z0
+o100 call
+
+g92.1
+g0z.5
+g92z0
+o100 call
+
+g92.1
+g0z.3
+g92z0
+o100 call
+
+g92.1
+g0z.1
+g92z0
+o100 call
+
+g92.1
+g0z0
+g92z0
+o100 call
+g0z0
+o100 call
+
+g92.1
+g0z-.025
+g92z0
+o100 call
+
+g92.1
 m5
+g20
+f5
 
 (thread)
 t4 m6
