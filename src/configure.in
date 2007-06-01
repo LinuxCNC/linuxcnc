@@ -319,6 +319,10 @@ elif ! test `$CC -dumpversion | cut -d '.' -f 1` -gt 2 ; then
   AC_MSG_ERROR([Compilers older than gcc 3.x are no longer supported])
 fi
 
+CFLAGS_save=$CFLAGS
+if ! test -z "$KERNELDIR"; then
+	CFLAGS="$CFLAGS -I$KERNELDIR/include"
+fi
 AC_MSG_CHECKING([for usability of linux/joystick.h])
 AC_TRY_LINK(
     [
@@ -328,21 +332,8 @@ AC_TRY_LINK(
     [JOYSTICK_H_USABLE=yes],
     [JOYSTICK_H_USABLE=no])
 AC_MSG_RESULT($JOYSTICK_H_USABLE)
-
-AC_MSG_CHECKING([for usability of asm/bitops.h])
-AC_TRY_LINK(
-    [
-#include <asm/bitops.h>
-    ],
-    [test_and_set_bit(0,0)],
-    [ASM_BITOPS_H_USABLE=yes],
-    [ASM_BITOPS_H_USABLE=no])
-AC_MSG_RESULT($ASM_BITOPS_H_USABLE)
- 
-if test "$ASM_BITOPS_H_USABLE" = yes; then
-    ASM_BITOPS_DEFINE="-DASM_BITOPS_H_USABLE"
-fi
-AC_SUBST([ASM_BITOPS_DEFINE])
+AC_SUBST([JOYSTICK_H_USABLE])
+CFLAGS=$CFLAGS_save
 
 ##############################################################################
 # Subsection 3.2 - check for the kernel version, with RT patches             #
