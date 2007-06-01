@@ -122,6 +122,9 @@ static SEM ossem_array[RTAPI_MAX_SEMS + 1];
 #define DEFAULT_MAX_DELAY 10000
 static long int max_delay = DEFAULT_MAX_DELAY;
 
+// Actual number of RTAI timer counts of the periodic timer
+static unsigned long timer_counts; 
+
 /* module parameters */
 
 static int msg_level = RTAPI_MSG_INFO;	/* message printing level */
@@ -288,6 +291,7 @@ void cleanup_module(void)
 	stop_rt_timer();
 	rt_free_timer();
 	rtapi_data->timer_period = 0;
+	timer_counts = 0;
 	rtapi_data->timer_running = 0;
 	max_delay = DEFAULT_MAX_DELAY;
     }
@@ -432,6 +436,7 @@ static int module_delete(int module_id)
 	    stop_rt_timer();
 	    rt_free_timer();
 	    rtapi_data->timer_period = 0;
+	    timer_counts = 0;
 	    max_delay = DEFAULT_MAX_DELAY;
 	    rtapi_data->timer_running = 0;
 	}
@@ -523,7 +528,7 @@ int rtapi_get_msg_level(void)
 
 long int rtapi_clock_set_period(long int nsecs)
 {
-    RTIME counts;
+    RTIME counts, got_counts;
 
     if (nsecs == 0) {
 	/* it's a query, not a command */
@@ -543,11 +548,13 @@ long int rtapi_clock_set_period(long int nsecs)
     rt_set_periodic_mode();
     counts = nano2count((RTIME) nsecs);
     if(count2nano(counts) > nsecs) counts--;
-    rtapi_data->timer_period = count2nano(start_rt_timer(counts));
+    got_counts = start_rt_timer(counts);
+    rtapi_data->timer_period = count2nano(got_counts);
+    timer_counts = got_counts;
 
     rtapi_print_msg(RTAPI_MSG_DBG,
-	"RTAPI: clock_set_period requested: %ld  actual: %ld\n",
-	nsecs, rtapi_data->timer_period);
+	"RTAPI: clock_set_period requested: %ld  actual: %ld  counts requested: %d  actual: %d\n",
+	nsecs, rtapi_data->timer_period, (int)counts, (int)got_counts);
     rtapi_data->timer_running = 1;
     max_delay = rtapi_data->timer_period / 4;
     return rtapi_data->timer_period;
@@ -807,7 +814,7 @@ static int task_delete(int task_id)
 int rtapi_task_start(int task_id, unsigned long int period_nsec)
 {
     int retval;
-    unsigned long int quo, rem;
+    unsigned long int quo, period_counts;
     task_data *task;
 
     /* validate task ID */
@@ -826,33 +833,48 @@ int rtapi_task_start(int task_id, unsigned long int period_nsec)
                 "RTAPI: could not start task: timer isn't running\n");
 	return RTAPI_FAIL;
     }
-    /* make period_nsec an integer multiple of timer_period */
-    quo = period_nsec / rtapi_data->timer_period;
-    rem = period_nsec - (quo * rtapi_data->timer_period);
-    /* round to nearest */
-    if (rem > (rtapi_data->timer_period / 2)) {
-	quo++;
-    }
-    /* must be at least 1 * timer_period */
-    if (quo == 0) {
-	quo = 1;
-    }
-    period_nsec = quo * rtapi_data->timer_period;
+
+    period_counts = nano2count((RTIME)period_nsec);  
+    quo = (period_counts + timer_counts / 2) / timer_counts;
+    period_counts = quo * timer_counts;
+    period_nsec = count2nano(period_counts);
+
     /* start the task */
     retval = rt_task_make_periodic(ostask_array[task_id],
-	rt_get_time(), nano2count((RTIME) period_nsec));
+	rt_get_time() + period_counts, period_counts);
     if (retval != 0) {
 	return RTAPI_FAIL;
     }
     /* ok, task is started */
     task->state = PERIODIC;
     rtapi_print_msg(RTAPI_MSG_DBG, "RTAPI: start_task id: %02d\n", task_id);
+    rtapi_print_msg(RTAPI_MSG_DBG, "RTAPI: period_nsec: %ld\n", period_nsec);
+    rtapi_print_msg(RTAPI_MSG_DBG, "RTAPI: count: %ld\n", period_counts);
     return retval;
 }
 
 void rtapi_wait(void)
 {
-    rt_task_wait_period();
+    int result = rt_task_wait_period();
+    if(result != 0) {
+	static int error_printed = 0;
+	if(error_printed < 10) {
+	    if(result == RTE_UNBLKD) {
+		rtapi_print_msg(RTAPI_MSG_ERR,
+		    "RTAPI: ERROR: rt_task_wait_period() returned RTE_TMROVRN (%d).\n", result);
+	    } else if(result == RTE_UNBLKD) {
+		rtapi_print_msg(RTAPI_MSG_ERR,
+		    "RTAPI: ERROR: rt_task_wait_period() returned RTE_UNBLKD (%d).\n", result);
+	    } else {
+		rtapi_print_msg(RTAPI_MSG_ERR,
+		    "RTAPI: ERROR: rt_task_wait_period() returned %d.\n", result);
+	    }
+	    error_printed++;
+	    if(error_printed == 10)
+	        rtapi_print_msg(RTAPI_MSG_ERR,
+		"RTAPI: (further messages will be suppressed)\n");
+	}
+    }
 }
 
 int rtapi_task_resume(int task_id)
