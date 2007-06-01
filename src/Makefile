@@ -186,8 +186,10 @@ $(sort $(patsubst %.cc,%.ii,$(CXXUSERSRCS))): %.ii: %.cc
 	@echo Preprocessing $< to $@
 	@$(CXX) -dD $(CXXFLAGS) $(EXTRAFLAGS) -E $< -o $@
 
+ifeq ($(TRIVIAL_BUILD),no)
 config.status: configure
 	if [ -f config.status ]; then ./config.status --recheck; else ./configure --enable-run-in-place; fi
+endif
 
 config.h: config.h.in config.status
 	@./config.status -q --header=$@
