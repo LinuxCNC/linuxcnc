@@ -111,7 +111,7 @@ typedef struct {
     hal_bit_t *enable;		/* pin for enable signal */
     hal_float_t *value;		/* command value */
     hal_float_t scale;		/* param: scaling from value to duty cycle */
-    hal_float_t offset;		/* param: offset: this is subtracted from duty cycle */
+    hal_float_t offset;		/* param: offset: this is added to duty cycle */
     float old_scale;		/* stored scale value */
     double scale_recip;		/* reciprocal value used for scaling */
     hal_float_t pwm_freq;	/* param: (max) output frequency in Hz */
@@ -419,7 +419,7 @@ static void update(void *arg, long period)
 	    pwmgen->old_pwm_freq = pwmgen->pwm_freq;
 	}
 	/* convert value command to duty cycle */
-	tmpdc = *(pwmgen->value) * pwmgen->scale_recip - pwmgen->offset;
+	tmpdc = *(pwmgen->value) * pwmgen->scale_recip + pwmgen->offset;
 	if ( pwmgen->output_type == 0 ) {
 	    /* unidirectional mode, no negative output */
 	    if ( tmpdc < 0.0 ) {
