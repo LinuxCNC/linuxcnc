@@ -859,16 +859,22 @@ void rtapi_wait(void)
     if(result != 0) {
 	static int error_printed = 0;
 	if(error_printed < 10) {
+#ifdef RTE_TMROVRN
 	    if(result == RTE_TMROVRN) {
 		rtapi_print_msg(
 		    error_printed == 0 ? RTAPI_MSG_ERR : RTAPI_MSG_WARN,
 		    "RTAPI: ERROR: Unexpected realtime delay on task %d\n", 
 		    rtapi_task_self());
-	    } else if(result == RTE_UNBLKD) {
+	    } else
+#endif
+#ifdef RTE_UNBLKD
+		    if(result == RTE_UNBLKD) {
 		rtapi_print_msg(
 		    error_printed == 0 ? RTAPI_MSG_ERR : RTAPI_MSG_WARN,
 		    "RTAPI: ERROR: rt_task_wait_period() returned RTE_UNBLKD (%d).\n", result);
-	    } else {
+	    } else
+#endif
+	    {
 		rtapi_print_msg(
 		    error_printed == 0 ? RTAPI_MSG_ERR : RTAPI_MSG_WARN,
 		    "RTAPI: ERROR: rt_task_wait_period() returned %d.\n", result);
