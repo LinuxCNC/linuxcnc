@@ -3363,7 +3363,6 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
   double xoffset, zoffset;
 
   if (g_code == G_49) {
-    USE_TOOL_LENGTH_OFFSET(0.0,0.0);
     xoffset = 0;
     zoffset = 0;
     index = 0;
