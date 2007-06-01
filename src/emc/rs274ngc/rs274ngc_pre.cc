@@ -83,8 +83,6 @@ include an option for suppressing superfluous commands.
 #include <unistd.h>
 #include <libintl.h>
 
-#define _ gettext
-
 #include "inifile.hh"		// INIFILE
 #include "rs274ngc.hh"
 #include "rs274ngc_return.hh"
