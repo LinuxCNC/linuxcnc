@@ -319,6 +319,16 @@ elif ! test `$CC -dumpversion | cut -d '.' -f 1` -gt 2 ; then
   AC_MSG_ERROR([Compilers older than gcc 3.x are no longer supported])
 fi
 
+AC_MSG_CHECKING([for usability of linux/joystick.h])
+AC_TRY_LINK(
+    [
+#include <linux/joystick.h>
+    ],
+    [],
+    [JOYSTICK_H_USABLE=yes],
+    [JOYSTICK_H_USABLE=no])
+AC_MSG_RESULT($JOYSTICK_H_USABLE)
+
 AC_MSG_CHECKING([for usability of asm/bitops.h])
 AC_TRY_LINK(
     [

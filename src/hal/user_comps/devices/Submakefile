@@ -1,4 +1,4 @@
-
+ifeq ($(JOYSTICK_H_USABLE),yes)
 HALJSSRCS := hal/user_comps/devices/hal_joystick.c
 
 USERSRCS += $(HALJSSRCS)
@@ -8,3 +8,4 @@ USERSRCS += $(HALJSSRCS)
 	@$(CXX) $(LDFLAGS) -o $@ $^
 
 TARGETS += ../bin/hal_joystick
+endif
