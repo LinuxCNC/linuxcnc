@@ -1,18 +1,13 @@
-[stepgen.constants]
-id_code : 10
-num_regs : 4
-vhdl_package : stepgen
-
-[stepgen.pins]
-step_up_phA_pin : "step, up, or phaseA (depends on step type)"
-dir_down_phB_pin : "dir, down, or phaseB (depends on step type)"
-
-[stepgen.post-vhdl-vars]
-enable : 1 ! { "no":0, "yes":1 } ! "enable step generator $INSTANCE?"
-ctrl_type : 1 ! { "velocity":0, "position":1 } ! "position or velocity control mode?"
-step_type : 0 ! { "step-dir":0, "up-down":1, "quadrature":2 } ! "step type?" CHANGEABLE
-
-[stepgen.pre-vhdl-vars]
+[stepgen.symbols]
+id_code : {"type":"constant", "value":10}
+num_regs : {"type":"constant", "value":3}
+vhdl_package : {"type":"constant", "value":"stepgen"}
+step_up_phA : {"type":"pin", "description":"step, up, or phaseA (depends on step type)"}
+dir_down_phB : {"type":"pin", "description":"dir, down, or phaseB (depends on step type)"}
+enable : { "type":"bool_postroute", "default":1, "question":"enable step generator $instnum?" }
+ctrl_type : { "type":"enum_postroute", "default":1, "options":{ "velocity":0, "position":1 }, "question":"position or velocity control mode?" }
+step_type : { "type":"enum_postroute", "default":0, "options":{ "step-dir":0, "up-down":1, "quadrature":2 }, "question":"step type?" }
+clk_source : { "type":"enum_preroute", "default":0, "options":{ "33MHz":0, "16MHz":1 }, "question":"clock source for stepgen?" }
 
 [stepgen.templates]
 
@@ -37,8 +32,8 @@ vhdl :
  !        write => write,
  !        read => read,
  !        addr => addr(3 downto 2),
- !        out0 => pins_out(${step_up_pha_pin}),
- !        out1 => pins_out(${dir_down_phb_pin})
+ !        out0 => pins_out(${step_up_pha}),
+ !        out1 => pins_out(${dir_down_phb})
  !   );
 
 ram :
@@ -47,7 +42,7 @@ ram :
  ${baseaddr}>>8
  ${baseaddr}
  ${step_type} | (${ctrl_type}<<2) | (${enable}<<3)
- ${step_up_pha_pin}
- ${dir_down_phb_pin}
+ ${step_up_pha}
+ ${dir_down_phb}
 
 

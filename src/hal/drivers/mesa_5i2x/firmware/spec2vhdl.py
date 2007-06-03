@@ -36,77 +36,140 @@ def section2dict(section, cfgfile) :
 	tmp[option] = cfgfile.get(section, option)
     return tmp
 
+class KeyValueError (Exception):
+    def __str__ (self):
+	return "KeyValueError"
+
+class SymbolSpec :
+    def __init__ (self, defstr) :
+	#print "SymbolSpec.__init__("+defstr+")"
+	definition = eval(defstr)
+	try:
+	    types = definition["type"].split("_")
+	    self.vartype = types[0]
+	    if len(types) == 1:
+		self.tweakable = 0
+	    elif len(types) == 2:
+		if types[1] == "preroute":
+		    self.tweakable = 0
+		elif types[1] == "postroute":
+		    self.tweakable = 1
+		else:
+		    raise KeyValueError, ("type", definition["type"])
+	    else:
+		raise KeyValueError, ("type", definition["type"])
+	    if self.vartype == "constant":
+		self.default = definition["value"]
+	    elif self.vartype == "pin":
+		self.default = 0
+		self.description = definition["description"]
+	    elif self.vartype == "enum":
+		self.default = definition["default"]
+		self.choices = definition["options"]
+		self.question = definition["question"]
+	    elif self.vartype == "bool":
+		self.default = definition["default"]
+		self.question = definition["question"]
+	    else:
+		print "ERROR: symbol spec '"+defstr+"' has illegal type '"+var_type+"'"
+		sys.exit(1)
+	except KeyError, key:
+	    print "ERROR: symbol spec '"+defstr+"' is missing item '"+str(key)+"'"
+	    sys.exit(1)
+	except KeyValueError, (key, value):
+	    print "ERROR: symbol spec '"+defstr+"' has bad value '"+value+"' for item '"+str(key)+"'"
+	    sys.exit(1)
+
+    def to_list (self):
+	rep = [ self.vartype, self.tweakable, self.default ]
+	if self.vartype == "constant":
+	    return rep
+	if self.vartype == "pin":
+	    rep.append(self.description)
+	    return rep
+	if self.vartype == "enum":
+	    rep.append(self.choices)
+	    rep.append(self.question)
+	    return rep
+	if self.vartype == "bool":
+	    rep.append(self.question)
+	    return rep
+
+    def __repr__ (self):
+	return repr(self.to_list())
+
+
 class ModuleSpec :
     def __init__ (self, name) :
-	global lib_cfgfile
+	global lib
 	global packages
-	if not lib_cfgfile.has_section(name+".constants") :
-	    print "ERROR: no module spec found for '"+name+"'"
-	    sys.exit(1)
+	#print "ModuleSpec.__init__("+name+")"
 	# save basic stuff
 	self.name = name
-	# extract data from config file object 'lib'
-	self.constants = section2dict(name+".constants", lib_cfgfile)
-	self.pins = section2dict(name+".pins", lib_cfgfile)
-	# get definitions for module variables
-	self.pre_vhdl_vars = section2dict(name+".pre-vhdl-vars", lib_cfgfile)
-	self.post_vhdl_vars = section2dict(name+".post-vhdl-vars", lib_cfgfile)
-	self.all_vars = {}
-	for var,value in self.pre_vhdl_vars.iteritems() :
-	    self.all_vars[var] = value
-	for var,value in self.post_vhdl_vars.iteritems() :
-	    self.all_vars[var] = value
-	# get default values for variables
-	# default is the first field in a variable definition string
-	# fields separated by "!"
-	self.defaults = {}
-	for var,value in self.all_vars.iteritems() :
-	    temp = value.split("!")
-	    self.defaults[var] = temp[0]
-	section = name+".templates"
-	if not lib_cfgfile.has_section(section) :
-	    print "ERROR: module spec '"+name+"' missing 'templates' section"
+	# extract symbol data from module spec library
+	section = name+".symbols"
+	if not lib.has_section(section):
+	    print "ERROR: module spec '"+name+"' has no 'symbols' section"
 	    sys.exit(1)
+	self.symspecs = {}
+	for key in lib.options(section):
+	    self.symspecs[key] = SymbolSpec(lib.get(section, key))
+	# check for required symbols
+	required_symbols = [ 'num_regs', 'id_code', 'vhdl_package' ]
+	for s in required_symbols :
+	    if not s in self.symspecs :
+		print "ERROR: modspec '"+self.name+"' needs symbol '"+s+"'"
+		sys.exit(1)
+	# extract template data from module spec library
+	section = name+".templates"
+	if not lib.has_section(section):
+	    print "WARNING: module spec '"+name+"' has no 'templates' section"
 	self.templates = {}
-	for template in [ 'sigs', 'vhdl', 'ram' ] :
-	    if not lib_cfgfile.has_option(section, template) :
-		print "ERROR: module spec '"+name+"' missing '"+template+"' template"
-		sys.exit(1)
-	    # get value
-	    s = lib_cfgfile.get(section, template)
-	    # strip '!' hackery (used to preserve indenting in templates)
-	    s = re.sub("(?m)^!","",s)
-	    # turn it into a Template object for later substitution
-	    self.templates[template] = string.Template(s)
-	# check for required constants
-	for constant in [ 'num_regs', 'id_code', 'vhdl_package' ] :
-	    if not constant in self.constants :
-		print "ERROR: modspec '"+self.name+"' needs constant '"+constant+"'"
-		sys.exit(1)
+	required_templates = [ 'sigs', 'vhdl', 'ram' ]
+	for key in required_templates:
+	    if lib.has_option(section, key):
+		s = lib.get(section, key)
+		# strip '!' hackery (used to preserve indenting), and
+		# turn it into a Template object for later substitution
+		self.templates[key] = string.Template(re.sub("(?m)^!","", s))
+	    else:
+		# load default template
+		self.templates[key] = string.Template("")
 	# do we already have the neccessary package?
-	p = self.constants['vhdl_package']
+	p = self.symspecs["vhdl_package"].default
 	if not p in packages :
 	    packages.append(p)
 	# turn strings into integers
-	self.num_regs = int(self.constants['num_regs'])
-	self.id_code = int(self.constants['id_code'])
+	self.num_regs = int(self.symspecs["num_regs"].default)
+	self.id_code = int(self.symspecs["id_code"].default)
 	# compute power of two size of register block
 	self.blk_size = 1
 	while self.blk_size < self.num_regs :
 	    self.blk_size <<= 1
 
-    def __str__ (self) :
-	return self.name
+    def to_list (self) :
+	rep = [ self.name, self.id_code, self.num_regs, self.blk_size, self.symspecs]
+	templates = {}
+	for key, template in self.templates.iteritems():
+	    templates[key] = template.template
+	rep.extend([templates])
+	return rep
 
     def __repr__ (self) :
-	return self.name
+	return repr(self.to_list())
 
-
+    def symbol_table (self) :
+	rv = {}
+	for name,value in self.symspecs.iteritems() :
+	    name = self.name+"__"+name
+	    rv[name] = value
+	return rv
 
 class ModuleInstance :
     def __init__ (self, name) :
-	global src_cfgfile
+	global src
 	global modspecs
+	#print "ModuleInstance.__init__("+name+")"
 	# save some basic stuff
 	self.name = name
 	self.modname = name.split('.')[0]
@@ -116,32 +179,26 @@ class ModuleInstance :
 	    # no, add the module spec
 	    modspecs[self.modname] = ModuleSpec(self.modname)
 	self.module = modspecs[self.modname]
-	# get default variable values from module spec
-	self.values = {}
-	for var,value in self.module.defaults.iteritems() :
-	    self.values[var] = value
+	# get default and/or constant symbol values from module spec
+	self.symbols = {}
+	for key,symspec in self.module.symspecs.iteritems():
+	    self.symbols[key] = symspec.default
 	# get variable/value pairs from the spec file (replace defaults)
-	for var,value in section2dict(name, src_cfgfile).iteritems() :
-	    self.values[var] = value
+	for key in src.options(name) :
+	    if key in self.symbols.keys():
+		self.symbols[key] = src.get(name, key)
+	    else:
+		print "WARNING: module '"+name+"' has unneeded variable '"+key+"'"
 	# add a couple special values
-	self.values["instnum"] = self.instance
-	# add constant values from the module spec
-	for var,value in self.module.constants.iteritems() :
-	    self.values[var] = value
-	# verify that we have values for every variable in the module spec
-	required = self.module.pins.keys()
-	required.extend(self.module.pre_vhdl_vars.keys())
-	required.extend(self.module.post_vhdl_vars.keys())
-	for variable in required :
-	    if not self.values.has_key(variable) :
-		print "ERROR: instance '"+self.name+"' needs a value for '"+variable+"'"
-		sys.exit(1)
+	self.symbols["instnum"] = self.instance
+	self.byteaddr = -1
 
-    def __str__ (self) :
-	return self.name
+    def to_list (self) :
+	rep = [ self.name, self.modname, self.instance, self.symbols]
+	return rep
 
     def __repr__ (self) :
-	return self.name
+	return repr(self.to_list())
 
     def get_name (self) :
 	return self.name
@@ -158,17 +215,17 @@ class ModuleInstance :
     def assign_address (self, addr) :
 	self.wordaddr = upper_limit
 	self.byteaddr = upper_limit * 4
-	self.values['baseaddr'] = repr(self.byteaddr)
+	self.symbols['baseaddr'] = repr(self.byteaddr)
 	mask = 0x3FFF & ~(self.module.blk_size-1)
 	self.select = ChipSelect(self.wordaddr, mask)
-	self.values['cs'] = self.select.name
+	self.symbols['cs'] = self.select.name
 	chip_selects.append(self.select)
 
     def vhdl (self) :
 	try:
-	    vhdl = self.module.templates["vhdl"].substitute(self.values)
+	    vhdl = self.module.templates["vhdl"].substitute(self.symbols)
 	except KeyError :
-	    print "no value for '"+str(sys.exc_value)+"' in '"+self.name+"'"
+	    print "ERROR: no value for '"+str(sys.exc_value)+"' in '"+self.name+"'"
 	    sys.exit(1)
 	return vhdl
 
@@ -179,9 +236,9 @@ class ModuleInstance :
 	rv = re.sub("\${",prefix, rv)
 	return rv
 
-    def variable_values (self) :
+    def symbol_table (self) :
 	rv = {}
-	for name,value in self.values.iteritems() :
+	for name,value in self.symbols.iteritems() :
 	    name = self.modname+"__"+self.instance+"__"+name
 	    rv[name] = value
 	return rv
@@ -214,6 +271,7 @@ def trim_ones_lsb(value, bits) :
 
 class ChipSelect :
     def __init__ (self, addr, mask) :
+	#print "ChipSelect.__init__("+binstr(addr)+", "+binstr(mask)+")"
 	self.addr = addr
 	self.mask = mask
 	self.name = "cs"
@@ -387,11 +445,11 @@ for name in spec_fname, rspec_fname, vhdl_fname :
 	usage()
 	sys.exit(2)
 # read the source file into a config file object
-src_cfgfile = ConfigParser.ConfigParser()
+src = ConfigParser.ConfigParser()
 # read in core stuff first
-src_cfgfile.read("core.spec")
-src_cfgfile.read(spec_fname)
-if len(src_cfgfile.sections()) == 0 :
+src.read("core.spec")
+src.read(spec_fname)
+if len(src.sections()) == 0 :
     print "ERROR: source file '"+spec_fname+"' not found, empty, or misformatted"
     sys.exit(2)
 # get a list of all module spec files in the library
@@ -402,9 +460,9 @@ if len(mspecs) == 0 :
     sys.exit(2)
 
 # read the module spec file(s) into a config file object
-lib_cfgfile = ConfigParser.ConfigParser()
+lib = ConfigParser.ConfigParser()
 for name in mspecs :
-    lib_cfgfile.read(name)
+    lib.read(name)
 
 # create empty data structures
 instances = []
@@ -413,7 +471,7 @@ packages = []
 chip_selects = []
 
 # create instances of VHDL modules based on spec file
-for name in src_cfgfile.sections() :
+for name in src.sections() :
     instances.append(ModuleInstance(name))
 
 # assign addresses to instances
@@ -477,15 +535,22 @@ toplevel_out.write(string.Template(toplevel_in.read()).substitute(toplevel_value
 
 # next we generate the data to be merged into the final .fpga file
 ram_template = ""
-variable_values = {}
-for i in instances :
+symbol_values = {}
+#print instances
+for i in instances:
     ram_template += i.ram_template()
-    variable_values.update(i.variable_values())
+    symbol_values.update(i.symbol_table())
+symbol_specs = {}
+for m in modspecs.values():
+    symbol_specs.update(m.symbol_table())
 
 bf = bitfile.BitFile()
 # 't' section - template for RAM
 bf["t"] = repr(ram_template)
-# 'v' section - variable values
-bf["v"] = repr(variable_values)
+# 'v' section - symbol values
+bf["v"] = repr(symbol_values)
+# 's' section - symbol specs
+bf["s"] = repr(symbol_specs)
+# write to file
 bf.tofilename(rspec_fname)
 

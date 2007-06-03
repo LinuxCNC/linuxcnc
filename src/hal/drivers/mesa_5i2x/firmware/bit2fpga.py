@@ -81,13 +81,17 @@ fpga["e"] = xilinx["e"]
 # copy stuff from .rspec file
 fpga["t"] = rspec["t"]
 fpga["v"] = rspec["v"]
+fpga["s"] = rspec["s"]
+# generate stuff for info section
+info = {"bitfile":bit_fname, "rspec_file":rspec_fname, "orig_name":fpga_fname }
+fpga["i"] = repr(info)
 
 # get ram template from .rspec file
 ram_template = string.Template(eval(rspec["t"]))
-# get variable values from .rspec file
-variable_values = eval(rspec["v"])
+# get symbol values from .rspec file
+symbol_table = eval(rspec["v"])
 # perform text substitution
-text = ram_template.substitute(variable_values)
+text = ram_template.substitute(symbol_table)
 # strip whitespace, break into lines
 text = text.strip()
 lines = text.split("\n")
