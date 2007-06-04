@@ -16,6 +16,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 import sys
+import os.path
 import string
 # this is a hack until I find out how we're really supposed to do it
 sys.path.append("../../../../../lib/python")
@@ -83,7 +84,10 @@ fpga["t"] = rspec["t"]
 fpga["v"] = rspec["v"]
 fpga["s"] = rspec["s"]
 # generate stuff for info section
-info = {"bitfile":bit_fname, "rspec_file":rspec_fname, "orig_name":fpga_fname }
+info = {}
+info["bitfile"] = os.path.basename(bit_fname)
+info["rspec_file"] = os.path.basename(rspec_fname)
+info["orig_name"] = os.path.basename(fpga_fname)
 fpga["i"] = repr(info)
 
 # get ram template from .rspec file

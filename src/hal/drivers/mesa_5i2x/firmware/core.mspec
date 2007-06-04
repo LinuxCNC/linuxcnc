@@ -6,9 +6,9 @@
 id_code : {"type":"constant", "value":0}
 num_regs : {"type":"constant", "value":0}
 vhdl_package : {"type":"constant", "value":"pindriver"}
-mode : { "type":"enum", "default":0, "options":{ "disabled":0, "enabled":1, "tri-state":2, "open-collector":3 }, "question":"pin driver mode for output?"}
-invert : { "type":"enum", "default":0, "options":{ "active high":0, "active low":1 }, "question":"pin polarity?"}
-source : { "type":"enum", "default":0, "options":{ "GPIO":0, "dedicated":1 }, "question":"pin driver source?"}
+mode : { "type":"enum_postroute", "default":0, "options":{ "disabled":0, "enabled":1, "tri-state":2, "open-collector":3 }, "question":"pin driver mode for output?"}
+invert : { "type":"enum_postroute", "default":0, "options":{ "active high":0, "active low":1 }, "question":"pin polarity?"}
+source : { "type":"enum_postroute", "default":0, "options":{ "GPIO":0, "dedicated":1 }, "question":"pin driver source?"}
 
 [pin.templates]
 sigs :
