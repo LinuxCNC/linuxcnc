@@ -7,39 +7,39 @@
 newsig Xminlim bit
 newsig Xmaxlim  bit
 newsig Xhome bit
-linksp Xminlim <= ppmc.0.din.01.in
+linksp Xminlim <= ppmc.0.din.01.in-not
 linksp Xminlim => axis.0.neg-lim-sw-in
-linksp Xmaxlim <= ppmc.0.din.02.in
+linksp Xmaxlim <= ppmc.0.din.02.in-not
 linksp Xmaxlim => axis.0.pos-lim-sw-in
-linksp Xhome <= ppmc.0.din.00.in
+linksp Xhome <= ppmc.0.din.00.in-not
 linksp Xhome => axis.0.home-sw-in
 
 newsig Yminlim bit
 newsig Ymaxlim  bit
 newsig Yhome bit
-linksp Yminlim <= ppmc.0.din.05.in
+linksp Yminlim <= ppmc.0.din.05.in-not
 linksp Yminlim => axis.1.neg-lim-sw-in
-linksp Ymaxlim <= ppmc.0.din.06.in
+linksp Ymaxlim <= ppmc.0.din.06.in-not
 linksp Ymaxlim => axis.1.pos-lim-sw-in
-linksp Yhome <= ppmc.0.din.04.in
+linksp Yhome <= ppmc.0.din.04.in-not
 linksp Yhome => axis.1.home-sw-in
 
 newsig Zminlim bit
 newsig Zmaxlim  bit
 newsig Zhome bit
-linksp Zminlim <= ppmc.0.din.09.in
+linksp Zminlim <= ppmc.0.din.09.in-not
 linksp Zminlim => axis.2.neg-lim-sw-in
-linksp Zmaxlim <= ppmc.0.din.10.in
+linksp Zmaxlim <= ppmc.0.din.10.in-not
 linksp Zmaxlim => axis.2.pos-lim-sw-in
-linksp Zhome <= ppmc.0.din.08.in
+linksp Zhome <= ppmc.0.din.08.in-not
 linksp Zhome => axis.2.home-sw-in
 
 newsig Aminlim bit
 newsig Amaxlim  bit
 newsig Ahome bit
-linksp Aminlim <= ppmc.0.din.12.in
+linksp Aminlim <= ppmc.0.din.12.in-not
 linksp Aminlim => axis.3.neg-lim-sw-in
-linksp Amaxlim <= ppmc.0.din.13.in
+linksp Amaxlim <= ppmc.0.din.13.in-not
 linksp Amaxlim => axis.3.pos-lim-sw-in
 linksp Ahome <= ppmc.0.din.11.in
 linksp Ahome => axis.3.home-sw-in
@@ -50,12 +50,12 @@ linksp Ahome => axis.3.home-sw-in
 newsig Xindex bit
 newsig Yindex  bit
 newsig Zindex bit
-#linksp Xindex <= ppmc.0.encoder.00.index
-#linksp Xindex => axis.0.index-enable
-#linksp Yindex <= ppmc.0.encoder.01.index
-#linksp Yindex => axis.1.index-enable
-#linksp Zindex <= ppmc.0.encoder.02.index
-#linksp Zindex => axis.2.index-enable
+linksp Xindex <= ppmc.0.encoder.00.index-enable
+linksp Xindex => axis.0.index-enable
+linksp Yindex <= ppmc.0.encoder.01.index-enable
+linksp Yindex => axis.1.index-enable
+linksp Zindex <= ppmc.0.encoder.02.index-enable
+linksp Zindex => axis.2.index-enable
 
 #
 # Connect I/O controller I/Os
@@ -98,6 +98,14 @@ linksp SpindleFwd <= ppmc.0.dout.00.out
 linksp SpindleFwd => motion.spindle-forward
 linksp SpindleRev <= ppmc.0.dout.01.out
 linksp SpindleRev => motion.spindle-reverse
+
+# connect spindle speed up/down to I/O controller
+#newsig SpindleUp bit
+#newsig SpindleDown bit
+#linksp SpindleUp <= ppmc.0.dout.06.out
+#linksp SpindleUp => motion.spindle-incr-speed
+#linksp SpindleDown <= ppmc.0.dout.05.out
+#linksp SpindleDown => motion.spindle-decr-speed
 
 # connect spindle brake to I/O controller
 newsig SpindleBrakeOn bit
