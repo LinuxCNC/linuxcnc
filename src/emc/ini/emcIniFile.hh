@@ -61,7 +61,8 @@ public:
 
     // From base class.
     ErrorCode                   Find(int *result, int min, int max,
-                                     const char *tag,const char *section,int num){
+                                     const char *tag,const char *section,
+                                     int num=1){
                                     return(IniFile::Find(result, min, max,
                                                          tag, section, num));
                                 }
@@ -71,7 +72,8 @@ public:
                                                          tag, section, num));
                                 }
     ErrorCode                   Find(double *result, double min, double max,
-                                     const char *tag,const char *section,int num){
+                                     const char *tag,const char *section,
+                                     int num=1){
                                     return(IniFile::Find(result, min, max,
                                                          tag, section, num));
                                 }

@@ -54,11 +54,13 @@ public:
     bool                        Close(void);
     bool                        IsOpen(void){ return(fp != NULL); }
     ErrorCode                   Find(int *result, int min, int max,
-                                     const char *tag,const char *section,int num);
+                                     const char *tag,const char *section,
+                                     int num=1);
     ErrorCode                   Find(int *result, const char *tag,
                                      const char *section=NULL, int num = 1);
     ErrorCode                   Find(double *result, double min, double max,
-                                     const char *tag,const char *section,int num);
+                                     const char *tag,const char *section,
+                                     int num=1);
     ErrorCode                   Find(double *result, const char *tag,
                                      const char *section=NULL, int num = 1);
     const char *                Find(const char *tag, const char *section=NULL,
