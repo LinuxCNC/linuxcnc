@@ -107,6 +107,7 @@ feedrate_blackout = 0
 spindlerate_blackout = 0
 jogincr_index_last = 1
 mdi_history_index= -1
+button_jog_axis = None
 
 homeicon = array.array('B', 
         [0x2, 0x00,   0x02, 0x00,   0x02, 0x00,   0x0f, 0x80,
@@ -2116,17 +2117,6 @@ def reload_file(refilter=True):
     if line:
         o.set_highlight_line(line)
  
-def is_continuous():
-    return Tkinter.getboolean(root_window.tk.call("is_continuous"))
-
-def bind_once(window, event, func):
-    if not event: return
-    def wrapper(event):
-        print "bind once wrapper", event
-        window.bind(event, "")
-        return func(event)
-    window.bind(event, wrapper)
-
 class TclCommands(nf.TclCommands):
     def to_internal_linear_unit(a, b=None):
         if b is not None: b = float(b)
@@ -2681,19 +2671,28 @@ class TclCommands(nf.TclCommands):
     def clear_live_plot(*ignored):
         live_plotter.clear()
 
-    # this doesn't have 'manual_ok' because that's done in jog_on
-    def jog_event(direction, end_binding):
-        cont = is_continuous()
+    # The next three don't have 'manual_ok' because that's done in jog_on /
+    # jog_off
+    def jog_plus(incr=False):
+        global button_jog_axis
         a = vars.current_axis.get()
+        if button_jog_axis is not None: commands.jog_stop()
+        if not incr: button_jog_axis = a
         if isinstance(a, (str, unicode)):
             a = "xyzabc".index(a)
-        if isinstance(direction, (str, unicode)):
-            direction = int(direction)
-        print "jog_event", a
         speed = get_jog_speed(a)
-        jog_on(a, speed * direction)
-        if cont:
-            bind_once(root_window, end_binding, lambda event: jog_off(a,0))
+        jog_on(a, speed)
+    def jog_minus(incr=False):
+        global button_jog_axis
+        a = vars.current_axis.get()
+        if button_jog_axis is not None: commands.jog_stop()
+        if not incr: button_jog_axis = a
+        if isinstance(a, (str, unicode)):
+            a = "xyzabc".index(a)
+        speed = get_jog_speed(a)
+        jog_on(a, -speed)
+    def jog_stop(event=None):
+        jog_off(vars.current_axis.get())
 
     def home_all_axes(event=None):
         if not manual_ok(): return
@@ -3054,8 +3053,6 @@ def jog_on(a, b):
         if vars.metric.get(): b = b / 25.4
         b = from_internal_linear_unit(b)
     if jog_after[a]:
-        # A continuous keyboard jog sees repeated KeyRelease + KeyPress events
-        # this filters them and avoids making the jog stutter
         root_window.after_cancel(jog_after[a])
         jog_after[a] = None
         return
@@ -3076,19 +3073,17 @@ def jog_on(a, b):
             jog_cont[a] = True
             jogging[a] = b
 
-def jog_off(a, select=1):
-    print "jog_off", a
+def jog_off(a):
     if isinstance(a, (str, unicode)):
         a = "xyzabc".index(a)
     if jog_after[a]: return
-    jog_after[a] = root_window.after_idle(lambda: jog_off_actual(a, select))
+    jog_after[a] = root_window.after_idle(lambda: jog_off_actual(a))
 
-def jog_off_actual(a, select):
-    print "jog_off_actual", a
-    if select: activate_axis(a)
+def jog_off_actual(a):
+    if not manual_ok(): return
+    activate_axis(a)
     jog_after[a] = None
     jogging[a] = 0
-    if not manual_ok(): return
     if s.motion_mode == emc.TRAJ_MODE_TELEOP:
         c.teleop_vector(*jogging)
     else:
@@ -3098,7 +3093,7 @@ def jog_off_actual(a, select):
 def jog_off_all():
     for i in range(6):
         if jogging[i]:
-            jog_off_actual(i, 0)
+            jog_off_actual(i)
 
 def bind_axis(a, b, d):
     root_window.bind("<KeyPress-%s>" % a, kp_wrap(lambda e: jog_on(d, -get_jog_speed(d)), "KeyPress"))
@@ -3242,9 +3237,12 @@ else:
     bind_axis("KP_Down", "KP_Up", 1)
     bind_axis("KP_Next", "KP_Prior", 2)
     bind_axis("bracketleft", "bracketright", 3)
-root_window.bind("<KeyPress-minus>", lambda event: commands.jog_event(-1, "<KeyRelease-minus>"))
-root_window.bind("<KeyPress-equal>", lambda event: commands.jog_event(1, "<KeyRelease-equal>"))
-root_window.bind("<KeyPress-plus>", lambda event: commands.jog_event(1, "<KeyRelease-plus>"))
+root_window.bind("<KeyPress-minus>", commands.jog_minus)
+root_window.bind("<KeyPress-equal>", commands.jog_plus)
+root_window.bind("<KeyRelease-minus>", commands.jog_stop)
+root_window.bind("<KeyRelease-equal>", commands.jog_stop)
+
+
 
 opts, args = getopt.getopt(sys.argv[1:], 'd:')
 for i in range(len(axisnames), 6):
