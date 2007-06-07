@@ -10,7 +10,7 @@ TOPDIR=$(cd $MYDIR/..; pwd)
 . $TOPDIR/scripts/emc-environment >/dev/null
 
 NUM=0
-FAIL=0
+FAIL=0; FAIL_NAMES=""
 XFAIL=0
 
 clean () {
@@ -94,6 +94,8 @@ run_tests () {
 		fi
 	    else
 		FAIL=$(($FAIL+1))
+		FAIL_NAMES="$FAIL_NAMES
+	$testdir"
 		echo "*** $testdir: FAIL: $reason"
 	    fi
 	else
@@ -109,7 +111,12 @@ run_tests () {
 
     SUCC=$((NUM-FAIL-XFAIL))
     echo "Runtest: $NUM tests run, $SUCC successful, $FAIL failed + $XFAIL expected"
-    if [ $FAIL -ne 0 ]; then exit 1; else exit 0; fi
+    if [ $FAIL -ne 0 ]; then
+	echo "Failed: $FAIL_NAMES"
+	exit 1;
+    else
+	exit 0;
+    fi
 }
 
 usage () {
