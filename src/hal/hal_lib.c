@@ -2396,7 +2396,10 @@ static void *shmalloc_up(long int size)
 
     /* deal with alignment requirements */
     tmp_bot = hal_data->shmem_bot;
-    if (size >= 3) {
+    if (size >= 8 && __alignof__(long) > 4) {
+	/* align on 8 byte boundary */
+	tmp_bot = (tmp_bot + 7) & (~7);
+    } else if (size >= 4) {
 	/* align on 4 byte boundary */
 	tmp_bot = (tmp_bot + 3) & (~3);
     } else if (size == 2) {
@@ -2423,7 +2426,10 @@ static void *shmalloc_dn(long int size)
     /* tentatively allocate memory */
     tmp_top = hal_data->shmem_top - size;
     /* deal with alignment requirements */
-    if (size >= 3) {
+    if (size >= 8 && __alignof__(long) > 4) {
+	/* align on 8 byte boundary */
+	tmp_top &= (~7);
+    } else if (size >= 4) {
 	/* align on 4 byte boundary */
 	tmp_top &= (~3);
     } else if (size == 2) {
