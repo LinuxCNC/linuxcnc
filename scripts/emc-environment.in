@@ -30,6 +30,12 @@ EMC2_EMCSH=@EMC2_BIN_DIR@/emcsh; export EMC2_EMCSH
 EMC2_IOSH=@EMC2_BIN_DIR@/iosh; export EMC2_IOSH
 PATH=@EMC2_BIN_DIR@:$EMC2_HOME/scripts:$EMC2_HOME/tcl:"$PATH"
 
+if [ -z "$LD_LIBRARY_PATH" ]; then
+    LD_LIBRARY_PATH=$EMC2_HOME/lib
+else
+    LD_LIBRARY_PATH=$EMC2_HOME/lib:"$LD_LIBRARY_PATH"
+fi
+
 if [ -z "$PYTHONPATH" ]; then
     PYTHONPATH=$EMC2_HOME/lib/python
 else
