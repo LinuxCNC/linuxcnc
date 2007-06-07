@@ -328,7 +328,7 @@ rtapi_app_main(void)
 	// Map card into memory.
 	pCard = (MotencRegMap *)ioremap_nocache(pci_resource_start(pDev, 2), pci_resource_len(pDev, 2));
 	rtapi_print_msg(RTAPI_MSG_INFO, "MOTENC: Card detected in slot %2x\n", PCI_SLOT(pDev->devfn));
-	rtapi_print_msg(RTAPI_MSG_INFO, "MOTENC: Card address @ %x, Len = %d\n", (int)pCard, (int)pci_resource_len(pDev, 2));
+	rtapi_print_msg(RTAPI_MSG_INFO, "MOTENC: Card address @ %p, Len = %d\n", pCard, (int)pci_resource_len(pDev, 2));
 
 	// Initialize device.
 	Device_Init(pDevice, pCard);

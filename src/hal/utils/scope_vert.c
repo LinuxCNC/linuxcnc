@@ -527,13 +527,13 @@ static void init_chan_sel_window(void)
 {
     scope_vert_t *vert;
     GtkWidget *button;
-    gint n;
+    long n;
     gchar buf[5];
     GdkColor c;
 
     vert = &(ctrl_usr->vert);
     for (n = 0; n < 16; n++) {
-	snprintf(buf, 4, "%d", n + 1);
+	snprintf(buf, 4, "%ld", n + 1);
 	/* define the button */
 	button = gtk_toggle_button_new_with_label(buf);
 
@@ -813,13 +813,14 @@ static void offset_activated(GtkEditable * editable, gchar * button)
 
 static void chan_sel_button(GtkWidget * widget, gpointer gdata)
 {
-    int chan_num, n, count;
+    long chan_num;
+    int n, count;
     scope_vert_t *vert;
     scope_chan_t *chan;
     char *title, *msg;
 
     vert = &(ctrl_usr->vert);
-    chan_num = (int) gdata;
+    chan_num = (long) gdata;
     chan = &(ctrl_usr->chan[chan_num - 1]);
 
     if (ignore_click != 0) {

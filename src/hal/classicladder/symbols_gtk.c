@@ -86,7 +86,7 @@ void Callback_TextEdited(GtkCellRendererText *cell, gchar *path_string,
 					data, new_text, -1);
 //printf( "path=%s, new_text=%s, data_column=%d, offset_array=%d\n",path_string, new_text, (int)data, OffsetArray );
 	pSymbol = &SymbolArray[ OffsetArray ];
-	switch( (int)data )
+	switch( (long)data )
 	{
 		case VAR_NAME:
 			new_text[ LGT_VAR_NAME-1 ] = '\0';
@@ -146,7 +146,7 @@ void SymbolsInitGtk()
 	GtkWidget  *scrolled_win, *vbox;
 	GtkWidget *ListView;
 	GtkCellRenderer   *renderer;
-	int ScanCol;
+	long ScanCol;
 	char * ColName[] = { "HiddenColNbr!", "Variable", "Symbol name", "Comment" };
 
 	SymbolsWindow = gtk_window_new( GTK_WINDOW_TOPLEVEL );

@@ -929,7 +929,7 @@ static void rec_len_button(GtkWidget * widget, gpointer gdata)
 	/* not pressed, ignore it */
 	return;
     }
-    retval = set_rec_len((int)gdata);
+    retval = set_rec_len((long)gdata);
     if (retval < 0) {
 	/* too many channels already enabled */
 	title = "Not enough channels";

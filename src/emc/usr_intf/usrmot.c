@@ -188,16 +188,16 @@ int main(int argc, char *argv[])
 
     /* print the sizes first, so that even if emcmot isn't up and running we
        can use usrmot to simply print the size and fail */
-    printf("sizeof(emcmot_command_t) = %d\n", sizeof(emcmot_command_t));
-    printf("sizeof(emcmot_status_t) = %d\n", sizeof(emcmot_status_t));
-    printf("sizeof(emcmot_config_t) = %d\n", sizeof(emcmot_config_t));
-    printf("sizeof(emcmot_internal_t) = %d\n", sizeof(emcmot_internal_t));
-    printf("sizeof(emcmot_debug_t) = %d\n", sizeof(emcmot_debug_t));
-    printf("sizeof(emcmot_error_t) = %d\n", sizeof(emcmot_error_t));
-    printf("sizeof(emcmot_comp_t) = %d\n", sizeof(emcmot_comp_t));
-    printf("sizeof(emcmot_joint_t) = %d\n", sizeof(emcmot_joint_t));
-     printf("sizeof(emcmot_struct_t) = %d\n", sizeof(emcmot_struct_t));
-    printf("sizeof(TC_STRUCT) = %d\n", sizeof(TC_STRUCT));
+    printf("sizeof(emcmot_command_t) = %lu\n", (unsigned long)sizeof(emcmot_command_t));
+    printf("sizeof(emcmot_status_t) = %lu\n", (unsigned long)sizeof(emcmot_status_t));
+    printf("sizeof(emcmot_config_t) = %lu\n", (unsigned long)sizeof(emcmot_config_t));
+    printf("sizeof(emcmot_internal_t) = %lu\n", (unsigned long)sizeof(emcmot_internal_t));
+    printf("sizeof(emcmot_debug_t) = %lu\n", (unsigned long)sizeof(emcmot_debug_t));
+    printf("sizeof(emcmot_error_t) = %lu\n", (unsigned long)sizeof(emcmot_error_t));
+    printf("sizeof(emcmot_comp_t) = %lu\n", (unsigned long)sizeof(emcmot_comp_t));
+    printf("sizeof(emcmot_joint_t) = %lu\n", (unsigned long)sizeof(emcmot_joint_t));
+     printf("sizeof(emcmot_struct_t) = %lu\n", (unsigned long)sizeof(emcmot_struct_t));
+    printf("sizeof(TC_STRUCT) = %lu\n", (unsigned long)sizeof(TC_STRUCT));
 
     /* process command line args */
     emcmotGetArgs(argc, argv);

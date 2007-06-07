@@ -276,7 +276,7 @@ int ClassicLadderAllocAll()
     // Allocate last for alignment reasons.
     VarArray = (TYPE_FOR_BOOL_VAR *) pByte;
 
-    rtapi_print("VarArray = %p (%d)\n", VarArray, pByte - (unsigned char*)shmBase);
+    rtapi_print("VarArray = %p (%ld)\n", VarArray, (long)(pByte - (unsigned char*)shmBase));
 #elif !defined(RT_SUPPORT)
 
 	InfosGene = (StrInfosGene *)malloc( sizeof(StrInfosGene) );

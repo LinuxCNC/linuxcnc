@@ -202,7 +202,7 @@ int main(int argc, char * argv[])
 	}
 	rdlen = read (jsfd, &event, sizeof(struct js_event));
 	if ( rdlen != sizeof(struct js_event) ) {
-	    printf ( "ERROR: expected %d bytes, got %d\n", sizeof(struct js_event), rdlen );
+	    printf ( "ERROR: expected %ld bytes, got %d\n", (long)sizeof(struct js_event), rdlen );
 	    break;
 	}
 	/* detect init events, and export a pin for each one */

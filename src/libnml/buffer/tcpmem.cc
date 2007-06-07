@@ -107,8 +107,7 @@ TCPMEM::TCPMEM(char *_bufline, char *_procline):CMS(_bufline, _procline)
     char bufferhost_first_char = BufferHost[0];
     if (bufferhost_first_char >= '0' && bufferhost_first_char <= '9') {
 	server_socket_address.sin_addr.s_addr = inet_addr(BufferHost);
-	if (server_socket_address.sin_addr.s_addr != 0 &&
-	    ((long) server_socket_address.sin_addr.s_addr) != -1) {
+	if (server_socket_address.sin_addr.s_addr != INADDR_NONE) {
 	    hostname_was_address = 1;
 	}
     }

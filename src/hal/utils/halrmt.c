@@ -1356,11 +1356,11 @@ static void getFunctInfo(char *pattern, connectionRecType *context)
       fptr = SHMPTR(next);
       if (strncmp(pattern, fptr->name, len) == 0) {
         comp = SHMPTR(fptr->owner_ptr);
-	sprintf(context->outBuf, "FUNCT %s %02d %08X %08X %s %3d", 
+	sprintf(context->outBuf, "FUNCT %s %02d %08lX %08lX %s %3d", 
 	  fptr->name, 
 	  comp->comp_id, 
-	  (unsigned int)fptr->funct,
-	  (unsigned int)fptr->arg,
+	  (unsigned long)fptr->funct,
+	  (unsigned long)fptr->arg,
 	  (fptr->uses_fp ? "YES" : "NO"),
 	  fptr->users);
 	sockWrite(context);

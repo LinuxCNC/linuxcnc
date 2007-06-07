@@ -818,14 +818,14 @@ static int vti_init_card()
     } else {
 	return (retval);
     }
-    rtapi_print_msg(RTAPI_MSG_INFO, "VTI: Encoders mapped to : %x2\n",
-	(int) encoder);
-    rtapi_print_msg(RTAPI_MSG_INFO, "VTI: DACs mapped to : %x2\n",
-	(int) dac);
-    rtapi_print_msg(RTAPI_MSG_INFO, "VTI: Timers mapped to : %x2\n",
-	(int) timer);
-    rtapi_print_msg(RTAPI_MSG_INFO, "VTI: Industry pack mapped to : %x2\n",
-	(int) ip);
+    rtapi_print_msg(RTAPI_MSG_INFO, "VTI: Encoders mapped to : %p\n",
+	encoder);
+    rtapi_print_msg(RTAPI_MSG_INFO, "VTI: DACs mapped to : %p\n",
+	dac);
+    rtapi_print_msg(RTAPI_MSG_INFO, "VTI: Timers mapped to : %p\n",
+	timer);
+    rtapi_print_msg(RTAPI_MSG_INFO, "VTI: Industry pack mapped to : %p\n",
+	ip);
     encoder->Status = 0;
     encoder->Reset = 0;
     // all ok

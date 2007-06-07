@@ -284,7 +284,7 @@ printf("Select the current rung, with a shift of rungs=%d\n", NbrRungsShift );
 
 static gint chkvar_press_event( GtkWidget      *widget, void * numcheck )
 {
-	int NumCheckWidget = (int)numcheck;
+	long NumCheckWidget = (long)numcheck;
 	int Type = VAR_MEM_BIT;
 	int Offset = ValOffsetBoolVar[ 0 ];
 	int NumCheck = NumCheckWidget;
@@ -337,7 +337,7 @@ printf("ici...\n");
 static gint OffsetBoolVar_activate_event(GtkWidget *widget, void * NumVarSpy)
 {
 	int Maxi = 0;
-	int NumType = (int)NumVarSpy;
+	long NumType = (long)NumVarSpy;
 	int ValOffset = atoi( gtk_entry_get_text((GtkEntry *)widget) );
 	switch( NumType )
 	{
@@ -919,7 +919,7 @@ void VarsWindowInitGtk()
 	GtkWidget *windowvars;
 	GtkWidget *vboxboolvars[ NBR_TYPE_BOOLS_SPY ],*vboxmain,*hboxvars,*hboxvars2;
 	GtkWidget * hboxfreevars[ NBR_FREE_VAR_SPY ];
-	int NumCheckWidget,ColumnVar,NumVarSpy,NumEntry;
+	long NumCheckWidget,ColumnVar,NumVarSpy,NumEntry;
 	GList *DisplayFormatItems = NULL;
 	
 	windowvars = gtk_window_new (GTK_WINDOW_TOPLEVEL);
