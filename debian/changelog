@@ -1,8 +1,12 @@
-emc2 (1:pre-2.1.6) unstable; urgency=low
+emc2 (1:2.1.6) unstable; urgency=low
 
   * fix TkEMC jog increment/continuous doesn't show on screen
+  * fix ppmc index polarity and HAL hookups
+  * fix some incorrect comments in hal files
+  * print a warning when a common hal 'net' error is made
+  * improve documentation for R format arcs
 
- -- Alex Joni <juve@juve-desktop>  Sun, 20 May 2007 13:15:29 +0300
+ -- Chris Radek <chris@timeguy.com>  Thu,  7 Jun 2007 19:48:45 -0500
 
 emc2 (1:2.1.5) unstable; urgency=low
 
