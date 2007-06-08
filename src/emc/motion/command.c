@@ -1140,7 +1140,10 @@ check_stuff ( "before command_handler()" );
 	    }
 
 	    if(joint_num == -1) {
-		emcmotStatus->homingSequenceState = HOME_SEQUENCE_START;
+                if(emcmotStatus->homingSequenceState == HOME_SEQUENCE_IDLE)
+                    emcmotStatus->homingSequenceState = HOME_SEQUENCE_START;
+                else
+                    reportError("homing sequence already in progress");
 		break;
 	    }
 
@@ -1148,11 +1151,17 @@ check_stuff ( "before command_handler()" );
 		break;
 	    }
 
-	    /* abort any movement (jog, etc) that is in progress */
-	    joint->free_tp_enable = 0;
-	    
-	    /* prime the homing state machine */
-	    joint->home_state = HOME_START;
+            if(joint->home_state != HOME_IDLE) {
+                reportError("homing already in progress");
+            } else if(emcmotStatus->homingSequenceState != HOME_SEQUENCE_IDLE) {
+                reportError("homing sequence already in progress");
+            } else {
+                /* abort any movement (jog, etc) that is in progress */
+                joint->free_tp_enable = 0;
+                
+                /* prime the homing state machine */
+                joint->home_state = HOME_START;
+            }
 	    break;
 
 	case EMCMOT_ENABLE_WATCHDOG:
