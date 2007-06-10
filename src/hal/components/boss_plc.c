@@ -37,6 +37,10 @@
  *        bit       boss_plc.<id>.tool-change-in
  *        bit       boss_plc.<id>.tool-changed-out
  *        bit       boss_plc.<id>.wait-user-out
+ *        bit       boss_plc.<id>.mist-on-in
+ *        bit       boss_plc.<id>.mist-on-out
+ *        bit       boss_plc.<id>.flood-on-in
+ *        bit       boss_plc.<id>.flood-on-out
  *
  *        bit       boss_plc.<id>.limit-override-in
  *        bit       boss_plc.<id>.limit-active-out
@@ -277,6 +281,10 @@ typedef struct {
     hal_bit_t                   *pToolChangeIn;
     hal_bit_t                   *pToolChangedOut;
     hal_bit_t                   *pWaitUserOut;
+    hal_bit_t                   *pMistOnIn;
+    hal_bit_t                   *pMistOnOut;
+    hal_bit_t                   *pFloodOnIn;
+    hal_bit_t                   *pFloodOnOut;
 
     hal_bit_t                   *pLimitOverrideIn;
     hal_bit_t                   *pLimitActiveOut;
@@ -555,6 +563,26 @@ Plc_ExportFeed(Plc *this, int compId, int id, char *name)
         error = hal_pin_bit_new(name, HAL_OUT, &this->pWaitUserOut, compId);
     }
 
+    if(!error){
+        rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.mist-on-in", id);
+        error = hal_pin_bit_new(name, HAL_IN, &this->pMistOnIn, compId);
+    }
+
+    if(!error){
+        rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.mist-on-out", id);
+        error = hal_pin_bit_new(name, HAL_OUT, &this->pMistOnOut, compId);
+    }
+
+    if(!error){
+        rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.flood-on-in", id);
+        error = hal_pin_bit_new(name, HAL_IN, &this->pFloodOnIn, compId);
+    }
+
+    if(!error){
+        rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.flood-on-out", id);
+        error = hal_pin_bit_new(name, HAL_OUT, &this->pFloodOnOut, compId);
+    }
+
     return(error);
 }
 
@@ -793,6 +821,10 @@ Plc_RefreshFeed(Plc *this, long period)
     // Indicates waiting for user to press cycle start.
     *this->pWaitUserOut = *this->pFeedHoldOut
                             || (*this->pToolChangeIn && !*this->pToolChangedOut);
+
+    // Turn coolant off during tool changes.
+    *this->pMistOnOut = *this->pMistOnIn && !*this->pToolChangeIn;
+    *this->pFloodOnOut = *this->pFloodOnIn && !*this->pToolChangeIn;
 }
 
 
