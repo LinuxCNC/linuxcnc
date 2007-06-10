@@ -804,23 +804,29 @@ def main():
         raise SystemExit, "Can only specify -o when preprocessing or documenting"
 
     for f in args:
-        if f.endswith(".comp") and mode == DOCUMENT:
-            document(f, outfile)            
-        elif f.endswith(".comp"):
-            process(f, mode, outfile)
-        elif f.endswith(".c") and mode != PREPROCESS:
-            tempdir = tempfile.mkdtemp()
+        try:
+            if f.endswith(".comp") and mode == DOCUMENT:
+                document(f, outfile)            
+            elif f.endswith(".comp"):
+                process(f, mode, outfile)
+            elif f.endswith(".c") and mode != PREPROCESS:
+                tempdir = tempfile.mkdtemp()
+                try:
+                    shutil.copy(f, tempdir)
+                    if userspace:
+                        build_usr(tempdir, os.path.join(tempdir, os.path.basename(f)), mode, f)
+                    else:
+                        build_rt(tempdir, os.path.join(tempdir, os.path.basename(f)), mode, f)
+                finally:
+                    shutil.rmtree(tempdir) 
+            else:
+                raise SystemExit, "Unrecognized file type: %s" % f
+        except:
             try:
-                shutil.copy(f, tempdir)
-                if userspace:
-                    build_usr(tempdir, os.path.join(tempdir, os.path.basename(f)), mode, f)
-                else:
-                    build_rt(tempdir, os.path.join(tempdir, os.path.basename(f)), mode, f)
-            finally:
-                shutil.rmtree(tempdir) 
-        else:
-            raise SystemExit, "Unrecognized file type: %s" % f
-
+                os.unlink(outfile)
+            except os.error:
+                pass
+            raise
 if __name__ == '__main__':
     main()
 
