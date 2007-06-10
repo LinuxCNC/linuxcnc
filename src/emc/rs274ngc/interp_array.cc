@@ -25,6 +25,7 @@
 #include <sys/stat.h>
 #include "rs274ngc.hh"
 #include "rs274ngc_return.hh"
+#include "interp_internal.hh"	// interpreter private definitions
 
 /* Interpreter global arrays for g_codes and m_codes. The nth entry
 in each array is the modal group number corresponding to the nth

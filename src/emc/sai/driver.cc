@@ -25,6 +25,7 @@
 #include "rs274ngc_return.hh"
 #include "inifile.hh"		// INIFILE
 #include "canon.hh"		// _parameter_file_name
+#include "config.h"		// LINELEN
 #include <stdio.h>    /* gets, etc. */
 #include <stdlib.h>   /* exit       */
 #include <string.h>   /* strcpy     */

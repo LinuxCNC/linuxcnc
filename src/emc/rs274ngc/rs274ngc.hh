@@ -17,13 +17,28 @@
 #ifndef RS274NGC_HH
 #define RS274NGC_HH
 
+/* Size of certain arrays */
+#define ACTIVE_G_CODES 13
+#define ACTIVE_M_CODES 10
+#define ACTIVE_SETTINGS 3
+
 /**********************/
 /* INCLUDE DIRECTIVES */
 /**********************/
 
 #include <stdio.h>
 #include "canon.hh"
-#include "interp_internal.hh"
+
+typedef struct setup_struct setup;
+typedef setup *setup_pointer;
+typedef struct block_struct block;
+typedef block *block_pointer;
+
+typedef bool ON_OFF;
+
+// Declare class so that we can use it in the typedef.
+class Interp;
+typedef int (Interp::*read_function_pointer) (char *, int *, block_pointer, double *);
 
 #define DEBUG_EMC
 

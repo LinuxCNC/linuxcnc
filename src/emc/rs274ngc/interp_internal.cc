@@ -24,6 +24,7 @@
 #include <sys/stat.h>
 #include "rs274ngc.hh"
 #include "rs274ngc_return.hh"
+#include "interp_internal.hh"	// interpreter private definitions
 
 /****************************************************************************/
 

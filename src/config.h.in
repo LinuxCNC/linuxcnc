@@ -22,11 +22,6 @@
 /* Used in a number of places for sprintf() buffers. */
 #define BUFFERLEN 80
 
-/* Assorted defines used through out the source code. */
-#define ACTIVE_G_CODES 13
-#define ACTIVE_M_CODES 9
-#define ACTIVE_SETTINGS 3
-
 #define MM_PER_INCH 25.4
 #define INCH_PER_MM (1.0/25.4)
 

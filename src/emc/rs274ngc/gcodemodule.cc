@@ -22,6 +22,7 @@
 #include "rs274ngc.hh"
 #include "interp_return.hh"
 #include "canon.hh"
+#include "config.h"		// LINELEN
 
 #define active_settings  interp_new.active_settings
 #define active_g_codes   interp_new.active_g_codes

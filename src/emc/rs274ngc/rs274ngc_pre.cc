@@ -86,6 +86,7 @@ include an option for suppressing superfluous commands.
 #include "inifile.hh"		// INIFILE
 #include "rs274ngc.hh"
 #include "rs274ngc_return.hh"
+#include "interp_internal.hh"	// interpreter private definitions
 //#include "rs274ngc_errors.cc"
 
 #include "units.h"

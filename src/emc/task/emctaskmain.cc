@@ -68,15 +68,11 @@
 #include "interpl.hh"		// NML_INTERP_LIST, interp_list
 #include "emcglb.h"		// EMC_INIFILE,NMLFILE, EMC_TASK_CYCLE_TIME
 #include "interp_return.hh"	// public interpreter return values
+#include "interp_internal.hh"	// interpreter private definitions
 #include "rcs_print.hh"
 #include "timer.hh"
 #include "nml_oi.hh"
 
-#ifdef USE_NLS
-#define _(string) gettext(string)
-#else
-#define _(string) (string)
-#endif
 // command line args-- global so that other modules can access 
 int Argc;
 char **Argv;

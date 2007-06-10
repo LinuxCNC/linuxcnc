@@ -211,8 +211,6 @@ typedef enum
 { R_PLANE, OLD_Z }
 RETRACT_MODE;
 
-typedef bool ON_OFF;
-
 typedef struct block_struct
 {
   ON_OFF a_flag;
@@ -289,10 +287,6 @@ typedef struct offset_struct {
   int sequence_number;
 }offset;
 
-// Declare class so that we can use it in the typedef.
-class Interp;
-typedef int (Interp::*read_function_pointer) (char *, int *, block_pointer, double *);
-
 /*
 
 The current_x, current_y, and current_z are the location of the tool
@@ -307,7 +301,6 @@ values are set by g54 - g59.3. The net origin offset uses both values
 and is not represented here
 
 */
-
 typedef struct setup_struct
 {
   double AA_axis_offset;        // A-axis g92 offset

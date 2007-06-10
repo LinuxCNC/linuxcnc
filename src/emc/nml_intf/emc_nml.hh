@@ -6,6 +6,7 @@
 #include "stat_msg.hh"
 #include "emcpos.h"
 #include "canon.hh"		// CANON_TOOL_TABLE, CANON_UNITS
+#include "rs274ngc.hh"		// ACTIVE_G_CODES, etc
 
 // ------------------
 // CLASS DECLARATIONS
