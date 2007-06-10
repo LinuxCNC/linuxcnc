@@ -38,10 +38,11 @@ parser Hal:
     token POP: "[-()+*/]|&&|\\|\\||personality|==|&|!=|<|<=|>|>="
     token TSTRING: "\"\"\"(\\.|\\\n|[^\\\"]|\"(?!\"\")|\n)*\"\"\""
 
-    rule File: Declaration* "$" {{ return True }}
-    rule Declaration:
+    rule File: ComponentDeclaration Declaration* "$" {{ return True }}
+    rule ComponentDeclaration:
         "component" NAME OptString";" {{ comp(NAME, OptString); }}
-      | "pin" PINDIRECTION TYPE HALNAME OptArray OptAssign OptPersonality OptString ";"  {{ pin(HALNAME, TYPE, OptArray, PINDIRECTION, OptString, OptAssign, OptPersonality) }}
+    rule Declaration:
+        "pin" PINDIRECTION TYPE HALNAME OptArray OptAssign OptPersonality OptString ";"  {{ pin(HALNAME, TYPE, OptArray, PINDIRECTION, OptString, OptAssign, OptPersonality) }}
       | "param" PARAMDIRECTION TYPE HALNAME OptArray OptAssign OptPersonality OptString ";" {{ param(HALNAME, TYPE, OptArray, PARAMDIRECTION, OptString, OptAssign, OptPersonality) }}
       | "function" NAME OptFP OptString ";"       {{ function(NAME, OptFP, OptString) }}
       | "variable" NAME {{ NAME1=NAME; }} NAME OptSimpleArray OptAssign ";" {{ variable(NAME1, NAME, OptSimpleArray, OptAssign) }}
