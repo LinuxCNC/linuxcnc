@@ -60,7 +60,6 @@ setp pid.3.maxoutput [AXIS_3]MAX_VELOCITY
 setp pid.0.Pgain [AXIS_0]P
 setp pid.0.Igain [AXIS_0]I
 setp pid.0.Dgain [AXIS_0]D
-setp pid.0.maxerrorI [AXIS_0]MAX_ERROR_I
 setp pid.0.bias [AXIS_0]BIAS
 setp pid.0.FF0 [AXIS_0]FF0
 setp pid.0.FF1 [AXIS_0]FF1
@@ -71,7 +70,6 @@ setp pid.0.deadband [AXIS_0]DEADBAND
 setp pid.1.Pgain [AXIS_1]P
 setp pid.1.Igain [AXIS_1]I
 setp pid.1.Dgain [AXIS_1]D
-setp pid.1.maxerrorI [AXIS_1]MAX_ERROR_I
 setp pid.1.bias [AXIS_1]BIAS
 setp pid.1.FF0 [AXIS_1]FF0
 setp pid.1.FF1 [AXIS_1]FF1
@@ -82,7 +80,6 @@ setp pid.1.deadband [AXIS_1]DEADBAND
 setp pid.2.Pgain [AXIS_2]P
 setp pid.2.Igain [AXIS_2]I
 setp pid.2.Dgain [AXIS_2]D
-setp pid.2.maxerrorI [AXIS_2]MAX_ERROR_I
 setp pid.2.bias [AXIS_2]BIAS
 setp pid.2.FF0 [AXIS_2]FF0
 setp pid.2.FF1 [AXIS_2]FF1
@@ -93,7 +90,6 @@ setp pid.2.deadband [AXIS_2]DEADBAND
 setp pid.3.Pgain [AXIS_3]P
 setp pid.3.Igain [AXIS_3]I
 setp pid.3.Dgain [AXIS_3]D
-setp pid.3.maxerrorI [AXIS_3]MAX_ERROR_I
 setp pid.3.bias [AXIS_3]BIAS
 setp pid.3.FF0 [AXIS_3]FF0
 setp pid.3.FF1 [AXIS_3]FF1
@@ -221,6 +217,7 @@ net spindleIsOn debounce.0.5.out => boss_plc.0.spindle-is-on-in
 setp boss_plc.0.brake-on-delay 500
 setp boss_plc.0.brake-off-delay 800
 net spindleBrakeOnMot motion.spindle-brake => boss_plc.0.brake-en-in
+setp motenc.0.out-02-invert 1
 net spindleBrakeOn boss_plc.0.brake-en-out => motenc.0.out-02
 
 # Tool change.
@@ -234,15 +231,19 @@ net toolChanged boss_plc.0.tool-changed-out => iocontrol.0.tool-changed
 
 # Coolant.
 #
+# Connect mist/flood coolant to PLC.
+net mistOnIo iocontrol.0.coolant-mist => boss_plc.0.mist-on-in
+net floodOnIo iocontrol.0.coolant-flood => boss_plc.0.flood-on-in
+
 # Connect mist/flood coolant to I/O.
-net mistOn iocontrol.0.coolant-mist => motenc.0.out-14
-net floodOn iocontrol.0.coolant-flood => motenc.0.out-15
+net mistOn boss_plc.0.mist-on-out => motenc.0.out-14
+net floodOn boss_plc.0.flood-on-out => motenc.0.out-15
 
 # Lube.
 #
 # Connect lube motor run to I/O.
-#net lubeOn iocontrol.0.lube => motenc.0.out-13
-net lubeOn motion.spindle-on => motenc.0.out-13
+net lubeOn iocontrol.0.lube => motenc.0.out-13
+#net lubeOn motion.spindle-on => motenc.0.out-13
 
 # Connect lube level to I/O.
 net lubeLevel motenc.0.in-30-not => iocontrol.0.lube_level
