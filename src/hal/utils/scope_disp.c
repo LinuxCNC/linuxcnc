@@ -667,10 +667,12 @@ static double distance_point_line(int x, int y, int x1, int y1, int x2, int y2) 
     return mag(&R);
 }
 
+#define COORDINATE_CLIP(coord)  ((coord < -32768) ? -32768 : (coord > 32767) ? 32767 : coord)
+
 void line(int chan_num, int x1, int y1, int x2, int y2) {
     scope_disp_t *disp = &(ctrl_usr->disp);
     if(DRAWING) {
-        gdk_draw_line(disp->win, disp->context, x1, y1, x2, y2);
+        gdk_draw_line(disp->win, disp->context, COORDINATE_CLIP(x1), COORDINATE_CLIP(y1), COORDINATE_CLIP(x2), COORDINATE_CLIP(y2));
     } else {
         double dist = distance_point_line(select_x, select_y, x1, y1, x2, y2);
         if(dist < min_dist) {
@@ -840,6 +842,10 @@ void draw_waveform(int chan_num, int highlight)
 	} else if (y2 > maxy) {
 	    y2 = maxy;
 	}
+        x1 = COORDINATE_CLIP(x1);
+        x2 = COORDINATE_CLIP(x2);
+        y1 = COORDINATE_CLIP(y1);
+        y2 = COORDINATE_CLIP(y2);
 	/* don't draw segment ending at first point */
 	if (n > start) {
             if(pn == 0) {
