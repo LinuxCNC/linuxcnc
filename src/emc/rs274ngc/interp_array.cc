@@ -62,14 +62,14 @@ group  0 = {g4,g10,g28,g30,g53,g92,g92.1,g92.2,g92.3} - NON-MODAL
 group  1 = {g0,g1,g2,g3,g33,g38.2,g76,g80,g81,g82,g83,g84,g85,g86,g87,g88,g89} - motion
 group  2 = {g17,g18,g19}   - plane selection
 group  3 = {g90,g91}       - distance mode
-group  5 = {g93,g94}       - feed rate mode
+group  5 = {g93,g94,g95}   - feed rate mode
 group  6 = {g20,g21}       - units
 group  7 = {g40,g41,g42}   - cutter diameter compensation
 group  8 = {g43,g49}       - tool length offset
 group 10 = {g98,g99}       - return mode in canned cycles
 group 12 = {g54,g55,g56,g57,g58,g59,g59.1,g59.2,g59.3} - coordinate system
 group 13 = {g61,g61.1,g64} - control mode (path following)
-group 14 = {g95,g97}       - spindle speed mode
+group 14 = {g96,g97}       - spindle speed mode
 */
 // This stops indent from reformatting the following code.
 // *INDENT-OFF*
@@ -121,8 +121,8 @@ const int Interp::_gees[] = {
 /* 880 */   1,-1,-1,-1,-1,-1,-1,-1,-1,-1, 1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
 /* 900 */   3,-1,-1,-1,-1,-1,-1,-1,-1,-1, 3,-1,-1,-1,-1,-1,-1,-1,-1,-1,
 /* 920 */   0, 0, 0, 0,-1,-1,-1,-1,-1,-1, 5,-1,-1,-1,-1,-1,-1,-1,-1,-1,
-/* 940 */   5,-1,-1,-1,-1,-1,-1,-1,-1,-1,14,-1,-1,-1,-1,-1,-1,-1,-1,-1,
-/* 960 */   5,-1,-1,-1,-1,-1,-1,-1,-1,-1,14,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+/* 940 */   5,-1,-1,-1,-1,-1,-1,-1,-1,-1, 5,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+/* 960 */  14,-1,-1,-1,-1,-1,-1,-1,-1,-1,14,-1,-1,-1,-1,-1,-1,-1,-1,-1,
 /* 980 */  10,-1,-1,-1,-1,-1,-1,-1,-1,-1,10,-1,-1,-1,-1,-1,-1,-1,-1,-1};
 
 /*

@@ -57,7 +57,7 @@ group 1  - gez[1]  g0, g1, g2, g3, g38.2, g80, g81, g82, g83, g84, g85,
 group 2  - gez[3]  g17, g18, g19 - plane selection
 group 3  - gez[6]  g90, g91 - distance mode
 group 4  - no such group
-group 5  - gez[7]  g93, g94 - feed rate mode
+group 5  - gez[7]  g93, g94, g95 - feed rate mode
 group 6  - gez[5]  g20, g21 - units
 group 7  - gez[4]  g40, g41, g42 - cutter radius compensation
 group 8  - gez[9]  g43, g49 - tool length offse
@@ -90,7 +90,7 @@ int Interp::write_g_codes(block_pointer block,   //!< pointer to a block of RS27
   gez[5] = (settings->length_units == CANON_UNITS_INCHES) ? G_20 : G_21;
   gez[6] = (settings->distance_mode == MODE_ABSOLUTE) ? G_90 : G_91;
   gez[7] = (settings->feed_mode == INVERSE_TIME) ? G_93 :
-	    (settings->feed_mode == UNITS_PER_MINUTE) ? G_94 : G_96;
+	    (settings->feed_mode == UNITS_PER_MINUTE) ? G_94 : G_95;
   gez[8] =
     (settings->origin_index <
      7) ? (530 + (10 * settings->origin_index)) : (584 +
@@ -101,7 +101,7 @@ int Interp::write_g_codes(block_pointer block,   //!< pointer to a block of RS27
     (settings->control_mode == CANON_CONTINUOUS) ? G_64 :
     (settings->control_mode == CANON_EXACT_PATH) ? G_61 : G_61_1;
   gez[13] =
-    (settings->spindle_mode == CONSTANT_RPM) ? G_97 : G_95;
+    (settings->spindle_mode == CONSTANT_RPM) ? G_97 : G_96;
   return INTERP_OK;
 }
 

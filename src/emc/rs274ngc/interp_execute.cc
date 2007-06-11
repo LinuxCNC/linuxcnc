@@ -219,7 +219,7 @@ but is not specified clearly in the RS274/NGC documentation.
 
 Actions are executed in the following order:
 1. any comment.
-2. a feed mode setting (g93, g94)
+2. a feed mode setting (g93, g94, g95)
 3. a feed rate (f) setting if in units_per_minute feed mode.
 4. a spindle speed (s) setting.
 5. a tool selection (t).

@@ -1536,7 +1536,7 @@ int Interp::convert_dwell(double time)   //!< time in seconds to dwell  */
 Returned Value: int
    If any of the following errors occur, this returns an error code.
    Otherwise, it returns INTERP_OK.
-   1.  g_code isn't G_93, G_94 or G_96
+   1.  g_code isn't G_93, G_94 or G_95
 
 Side effects:
    The interpreter switches the machine settings to indicate the current
@@ -1567,14 +1567,14 @@ int Interp::convert_feed_mode(int g_code,        //!< g_code being executed (mus
 #endif
     settings->feed_mode = UNITS_PER_MINUTE;
     SET_FEED_MODE(0);
-  } else if(g_code == G_96) {
+  } else if(g_code == G_95) {
 #ifdef DEBUG_EMC
     COMMENT("interpreter: feed mode set to units per revolution");
 #endif
     settings->feed_mode = UNITS_PER_REVOLUTION;
     SET_FEED_MODE(1);
   } else
-    ERS("BUG: Code not G93, G94, or G96");
+    ERS("BUG: Code not G93, G94, or G95");
   return INTERP_OK;
 }
 

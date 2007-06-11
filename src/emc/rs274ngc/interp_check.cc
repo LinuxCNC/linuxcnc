@@ -254,8 +254,8 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
   if (block->d_flag == ON) {
     CHKS(((block->g_modes[7] != G_41) && (block->g_modes[7] != G_42) &&
         (block->g_modes[7] != G_41_1) && (block->g_modes[7] != G_42_1) &&
-	(block->g_modes[14] != G_95)),
-        "D word with no G41, G41.1, G42, G42.2, or G95 to use it");
+	(block->g_modes[14] != G_96)),
+        "D word with no G41, G41.1, G42, G42.2, or G96 to use it");
   }
   if (block->h_flag == ON) {
     CHK((block->g_modes[8] != G_43 && motion != G_76), NCE_H_WORD_WITH_NO_G43);
