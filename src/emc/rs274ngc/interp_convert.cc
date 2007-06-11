@@ -1551,7 +1551,7 @@ Called by: execute_block.
 
 */
 
-int Interp::convert_feed_mode(int g_code,        //!< g_code being executed (must be G_93, G_94 or G_96)
+int Interp::convert_feed_mode(int g_code,        //!< g_code being executed (must be G_93, G_94 or G_95)
                              setup_pointer settings)    //!< pointer to machine settings                 
 {
   static char name[] = "convert_feed_mode";

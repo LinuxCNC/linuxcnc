@@ -259,6 +259,7 @@ char * _rs274ngc_errors[] = {
 /* 228 */ _("Place holder for NCE_VARIABLE: should not occur"),
 
 /* 229 */ _("X Y Z A B C J words not allowed with G43 H-1, G41 R, or G42 R"),
-/* 230 */ _("Unknown error"), // dummy
+/* 230 */ _("S word missing with G96"),
+/* 231 */ _("Unknown error"), // dummy
 _("The End")};
 // *INDENT-ON*
