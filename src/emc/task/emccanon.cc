@@ -233,20 +233,24 @@ void SET_FEED_MODE(int mode) {
 void SET_FEED_RATE(double rate)
 {
 
-    /* convert from /min to /sec */
-    rate /= 60.0;
+    if(feed_mode) {
+	START_SPEED_FEED_SYNCH(rate, 0);
+    } else {
+	/* convert from /min to /sec */
+	rate /= 60.0;
 
 
-    /* convert to traj units (mm & deg) if needed */
-    double newLinearFeedRate = FROM_PROG_LEN(rate),
-           newAngularFeedRate = FROM_PROG_ANG(rate);
+	/* convert to traj units (mm & deg) if needed */
+	double newLinearFeedRate = FROM_PROG_LEN(rate),
+	       newAngularFeedRate = FROM_PROG_ANG(rate);
 
-    if(newLinearFeedRate != currentLinearFeedRate
-            || newAngularFeedRate != currentAngularFeedRate)
-        flush_segments();
+	if(newLinearFeedRate != currentLinearFeedRate
+		|| newAngularFeedRate != currentAngularFeedRate)
+	    flush_segments();
 
-    currentLinearFeedRate = newLinearFeedRate;
-    currentAngularFeedRate = newAngularFeedRate;
+	currentLinearFeedRate = newLinearFeedRate;
+	currentAngularFeedRate = newAngularFeedRate;
+    }
 }
 
 void SET_FEED_REFERENCE(CANON_FEED_REFERENCE reference)
@@ -782,11 +786,12 @@ void STOP_CUTTER_RADIUS_COMPENSATION()
 
 
 
-void START_SPEED_FEED_SYNCH(double sync)
+void START_SPEED_FEED_SYNCH(double feed_per_revolution, bool wait_for_index)
 {
     flush_segments();
     EMC_TRAJ_SET_SPINDLESYNC spindlesyncMsg;
-    spindlesyncMsg.spindlesync = TO_EXT_LEN(FROM_PROG_LEN(sync));
+    spindlesyncMsg.feed_per_revolution = TO_EXT_LEN(FROM_PROG_LEN(feed_per_revolution));
+    spindlesyncMsg.wait_for_index = wait_for_index;
     interp_list.append(spindlesyncMsg);
 }
 
@@ -794,7 +799,8 @@ void STOP_SPEED_FEED_SYNCH()
 {
     flush_segments();
     EMC_TRAJ_SET_SPINDLESYNC spindlesyncMsg;
-    spindlesyncMsg.spindlesync = 0.0;
+    spindlesyncMsg.feed_per_revolution = 0.0;
+    spindlesyncMsg.wait_for_index = false;
     interp_list.append(spindlesyncMsg);
 }
 

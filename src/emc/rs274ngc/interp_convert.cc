@@ -1591,7 +1591,7 @@ Side effects:
 
 Called by: execute_block
 
-This is called only if the feed mode is UNITS_PER_MINUTE.
+This is called only if the feed mode is UNITS_PER_MINUTE or UNITS_PER_REVOLUTION.
 
 */
 
@@ -2747,7 +2747,7 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
     settings->current_y = end_y;
     settings->current_z = end_z;
   } else if (move == G_33) {
-    START_SPEED_FEED_SYNCH(block->k_number);
+    START_SPEED_FEED_SYNCH(block->k_number, 1);
     STRAIGHT_FEED(end_x, end_y, end_z, AA_end, BB_end, CC_end);
     STOP_SPEED_FEED_SYNCH();
     settings->current_x = end_x;
@@ -2782,25 +2782,25 @@ threading_pass(setup_pointer settings,
 		      start_y, start_z - zoff, AABBCC); //back
     if(taper_dist && entry_taper) {
 	DISABLE_FEED_OVERRIDE();
-	START_SPEED_FEED_SYNCH(taper_pitch);
+	START_SPEED_FEED_SYNCH(taper_pitch, 1);
 	STRAIGHT_FEED(boring? 
 		      safe_x + depth - full_threadheight: 
 		      safe_x - depth + full_threadheight,
 		      start_y, start_z - zoff, AABBCC); //in
 	STRAIGHT_FEED(boring? safe_x + depth: safe_x - depth, //angled in
 		      start_y, start_z - zoff - taper_dist, AABBCC);
-	START_SPEED_FEED_SYNCH(pitch);
+	START_SPEED_FEED_SYNCH(pitch, 1);
     } else {
 	STRAIGHT_TRAVERSE(boring? safe_x + depth: safe_x - depth, 
 			  start_y, start_z - zoff, AABBCC); //in
 	DISABLE_FEED_OVERRIDE();
-	START_SPEED_FEED_SYNCH(pitch);
+	START_SPEED_FEED_SYNCH(pitch, 1);
     }
         
     if(taper_dist && exit_taper) {
 	STRAIGHT_FEED(boring? safe_x + depth: safe_x - depth,  //over
 		      start_y, target_z - zoff + taper_dist, AABBCC);
-	START_SPEED_FEED_SYNCH(taper_pitch);
+	START_SPEED_FEED_SYNCH(taper_pitch, 1);
 	STRAIGHT_FEED(boring? 
 		      safe_x + depth - full_threadheight: 
 		      safe_x - depth + full_threadheight, 

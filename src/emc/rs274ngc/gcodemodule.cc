@@ -326,7 +326,7 @@ void SET_CUTTER_RADIUS_COMPENSATION(double radius) {}
 void START_CUTTER_RADIUS_COMPENSATION(int direction) {}
 void STOP_CUTTER_RADIUS_COMPENSATION(int direction) {}
 void START_SPEED_FEED_SYNCH() {}
-void START_SPEED_FEED_SYNCH(double sync) {}
+void START_SPEED_FEED_SYNCH(double sync, bool wait) {}
 void STOP_SPEED_FEED_SYNCH() {}
 void START_SPINDLE_COUNTERCLOCKWISE() {}
 void START_SPINDLE_CLOCKWISE() {}

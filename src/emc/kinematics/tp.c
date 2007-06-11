@@ -296,6 +296,7 @@ int tpAddLine(TP_STRUCT * tp, EmcPose end, int type, double vel, double ini_maxv
     tc.tolerance = tp->tolerance;
 
     tc.synchronized = tp->synchronized;
+    tc.wait_synch = tp->wait_synch;
     tc.uu_per_rev = tp->uu_per_rev;
     tc.enables = enables;
 
@@ -526,7 +527,7 @@ int tpRunCycle(TP_STRUCT * tp, long period)
     else
         nexttc = NULL;
 
-    if(!tc->synchronized && nexttc && nexttc->synchronized) {
+    if(!tc->synchronized && nexttc && nexttc->synchronized && nexttc->wait_synch) {
         // we'll have to wait for spindle sync; might as well
         // stop at the right place (don't blend)
         tc->blend_with_next = 0;
@@ -543,7 +544,9 @@ int tpRunCycle(TP_STRUCT * tp, long period)
         tc->blending = 0;
 
         if(tc->synchronized) {
-            if(!emcmotStatus->spindleSync) {
+            if(!tc->wait_synch) { 
+                spindleoffset = emcmotStatus->spindleRevs;
+            } else if(!emcmotStatus->spindleSync) {
                 // if we aren't already synced, wait
                 waiting = tc->id;
                 // ask for an index reset
@@ -752,10 +755,11 @@ int tpRunCycle(TP_STRUCT * tp, long period)
     return 0;
 }
 
-int tpSetSpindleSync(TP_STRUCT * tp, double sync) {
+int tpSetSpindleSync(TP_STRUCT * tp, double sync, int wait) {
     if(sync) {
         tp->synchronized = 1;
         tp->uu_per_rev = sync;
+        tp->wait_synch = wait;
     } else
         tp->synchronized = 0;
 

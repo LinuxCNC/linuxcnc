@@ -873,7 +873,8 @@ class EMC_TRAJ_SET_SPINDLESYNC:public EMC_TRAJ_CMD_MSG {
         };
 
         void update(CMS * cms);
-        double spindlesync;
+        double feed_per_revolution;
+	bool wait_for_index; 
 };
 
 class EMC_TRAJ_SET_OFFSET:public EMC_TRAJ_CMD_MSG {

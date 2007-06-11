@@ -725,10 +725,10 @@ int emcTaskPlanExecute(const char *command)
     }
 
     if (!strcmp(the_command_name, "START_SPEED_FEED_SYNCH")) {
-	if (1 != sscanf(the_command_args, "%lf", &d1)) {
+	if (2 != sscanf(the_command_args, "%lf %d", &d1, &i1)) {
             return 1;
         }
-	START_SPEED_FEED_SYNCH(d1);
+	START_SPEED_FEED_SYNCH(d1, i1);
 	return 0;
     }
 

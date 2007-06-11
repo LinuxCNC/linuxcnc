@@ -1715,7 +1715,8 @@ void EMC_TRAJ_SET_TERM_COND::update(CMS * cms)
 void EMC_TRAJ_SET_SPINDLESYNC::update(CMS * cms)
 {
     EMC_TRAJ_CMD_MSG::update(cms);
-    cms->update(spindlesync);
+    cms->update(feed_per_revolution);
+    cms->update(feed_per_revolution);
 }
 
 /*

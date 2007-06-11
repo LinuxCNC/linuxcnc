@@ -1603,7 +1603,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 
     case EMC_TRAJ_SET_SPINDLESYNC_TYPE:
         emcTrajSetSpindlesyncMsg = (EMC_TRAJ_SET_SPINDLESYNC *) cmd;
-        retval = emcTrajSetSpindleSync(emcTrajSetSpindlesyncMsg->spindlesync);
+        retval = emcTrajSetSpindleSync(emcTrajSetSpindlesyncMsg->feed_per_revolution, emcTrajSetSpindlesyncMsg->wait_for_index);
         break;
 
     case EMC_TRAJ_SET_OFFSET_TYPE:

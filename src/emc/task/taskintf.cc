@@ -924,11 +924,11 @@ double emcTrajGetAngularUnits()
     return localEmcTrajAngularUnits;
 }
 
-int emcTrajSetSpindleSync(double sync) 
+int emcTrajSetSpindleSync(double fpr, bool wait_for_index) 
 {
     emcmotCommand.command = EMCMOT_SET_SPINDLESYNC;
-    emcmotCommand.spindlesync = sync;
-
+    emcmotCommand.spindlesync = fpr;
+    emcmotCommand.flags = wait_for_index;
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
