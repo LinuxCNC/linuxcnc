@@ -1801,43 +1801,49 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 
     case EMC_TASK_SET_MODE_TYPE:
 	mode_msg = (EMC_TASK_SET_MODE *) cmd;
-	if (mode_msg->mode == EMC_TASK_MODE_MANUAL &&
-	    emcStatus->task.mode != EMC_TASK_MODE_MANUAL) {
-	    // leaving auto or mdi mode for manual
+	if (emcStatus->task.mode == EMC_TASK_MODE_AUTO &&
+	    emcStatus->task.interpState != EMC_TASK_INTERP_IDLE &&
+	    mode_msg->mode != EMC_TASK_MODE_AUTO) {
+	    emcOperatorError(0, "Can't switch mode while mode is AUTO and interpreter is not IDLE\n");
+	} else { // we can honour the modeswitch
+	    if (mode_msg->mode == EMC_TASK_MODE_MANUAL &&
+		emcStatus->task.mode != EMC_TASK_MODE_MANUAL) {
+		// leaving auto or mdi mode for manual
 
-	    /*! \todo FIXME-- duplicate code for abort,
-	       also near end of main, when aborting on subordinate errors,
-	       and in emcTaskExecute() */
+		/*! \todo FIXME-- duplicate code for abort,
+	        also near end of main, when aborting on subordinate errors,
+	        and in emcTaskExecute() */
 
-	    // abort everything
-	    emcTaskAbort();
+		// abort everything
+		emcTaskAbort();
 
-	    // without emcTaskPlanClose(), a new run command resumes at
-	    // aborted line-- feature that may be considered later
-	    {
-		int was_open = taskplanopen;
-		emcTaskPlanClose();
-		if (EMC_DEBUG & EMC_DEBUG_INTERP && was_open) {
-		    rcs_print("emcTaskPlanClose() called at %s:%d\n",
+		// without emcTaskPlanClose(), a new run command resumes at
+		// aborted line-- feature that may be considered later
+		{
+		    int was_open = taskplanopen;
+		    emcTaskPlanClose();
+		    if (EMC_DEBUG & EMC_DEBUG_INTERP && was_open) {
+			rcs_print("emcTaskPlanClose() called at %s:%d\n",
 			      __FILE__, __LINE__);
+		    }
 		}
+
+		// clear out the pending command
+		emcTaskCommand = 0;
+		interp_list.clear();
+
+		// clear out the interpreter state
+		emcStatus->task.interpState = EMC_TASK_INTERP_IDLE;
+		emcStatus->task.execState = EMC_TASK_EXEC_DONE;
+		stepping = 0;
+		steppingWait = 0;
+
+		// now queue up command to resynch interpreter
+		emcTaskQueueCommand(&taskPlanSynchCmd);
+		retval = 0;
 	    }
-
-	    // clear out the pending command
-	    emcTaskCommand = 0;
-	    interp_list.clear();
-
-	    // clear out the interpreter state
-	    emcStatus->task.interpState = EMC_TASK_INTERP_IDLE;
-	    emcStatus->task.execState = EMC_TASK_EXEC_DONE;
-	    stepping = 0;
-	    steppingWait = 0;
-
-	    // now queue up command to resynch interpreter
-	    emcTaskQueueCommand(&taskPlanSynchCmd);
-	    retval = 0;
+	    retval = emcTaskSetMode(mode_msg->mode);
 	}
-	retval = emcTaskSetMode(mode_msg->mode);
 	break;
 
     case EMC_TASK_SET_STATE_TYPE:
