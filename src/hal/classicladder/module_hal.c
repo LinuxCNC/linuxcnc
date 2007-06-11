@@ -138,6 +138,7 @@ error:
 }
 
 void rtapi_app_exit(void) {
+	hal_exit(compId);
 	ClassicLadderFreeAll( );
 }
 
