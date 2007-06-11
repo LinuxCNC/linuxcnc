@@ -244,14 +244,17 @@ int Interp::execute_block(block_pointer block,   //!< pointer to a block of RS27
   if (block->comment[0] != 0) {
     CHP(convert_comment(block->comment));
   }
+  if (block->g_modes[14] != -1) {
+    CHP(convert_spindle_mode(block, settings));
+  }
   if (block->g_modes[5] != -1) {
     CHP(convert_feed_mode(block->g_modes[5], settings));
   }
   if (block->f_number > -1.0) {
-    if (settings->feed_mode == INVERSE_TIME);   /* handle elsewhere */
-    else {
+    if (settings->feed_mode != INVERSE_TIME) {
       CHP(convert_feed_rate(block, settings));
     }
+    /* INVERSE_TIME is handled elsewhere */
   }
   if (block->s_number > -1.0) {
     CHP(convert_speed(block, settings));

@@ -68,6 +68,7 @@ group 12 - gez[8]  g54, g55, g56, g57, g58, g59, g59.1, g59.2, g59.3
                    - coordinate system
 group 13 - gez[11] g61, g61.1, g64 - control mode
 group 14 - gez[12] g50, g51 - adaptive feed mode
+group 15 - gez[13] g96, g97 - spindle speed mode
 
 */
 
@@ -88,7 +89,8 @@ int Interp::write_g_codes(block_pointer block,   //!< pointer to a block of RS27
     (settings->cutter_comp_side == LEFT) ? G_41 : G_40;
   gez[5] = (settings->length_units == CANON_UNITS_INCHES) ? G_20 : G_21;
   gez[6] = (settings->distance_mode == MODE_ABSOLUTE) ? G_90 : G_91;
-  gez[7] = (settings->feed_mode == INVERSE_TIME) ? G_93 : G_94;
+  gez[7] = (settings->feed_mode == INVERSE_TIME) ? G_93 :
+	    (settings->feed_mode == UNITS_PER_MINUTE) ? G_94 : G_96;
   gez[8] =
     (settings->origin_index <
      7) ? (530 + (10 * settings->origin_index)) : (584 +
@@ -98,7 +100,8 @@ int Interp::write_g_codes(block_pointer block,   //!< pointer to a block of RS27
   gez[11] =
     (settings->control_mode == CANON_CONTINUOUS) ? G_64 :
     (settings->control_mode == CANON_EXACT_PATH) ? G_61 : G_61_1;
-
+  gez[13] =
+    (settings->spindle_mode == CONSTANT_RPM) ? G_97 : G_95;
   return INTERP_OK;
 }
 

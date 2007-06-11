@@ -1681,7 +1681,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 
     case EMC_SPINDLE_ON_TYPE:
 	spindle_on_msg = (EMC_SPINDLE_ON *) cmd;
-	retval = emcSpindleOn(spindle_on_msg->speed);
+	retval = emcSpindleOn(spindle_on_msg->speed, spindle_on_msg->factor, spindle_on_msg->xoffset);
 	break;
 
     case EMC_SPINDLE_OFF_TYPE:

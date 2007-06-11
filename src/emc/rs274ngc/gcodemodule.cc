@@ -254,6 +254,18 @@ void SET_TRAVERSE_RATE(double rate) {
     Py_XDECREF(result);
 }
 
+void SET_FEED_MODE(int mode) {
+#if 0
+    maybe_new_line();   
+    if(interp_error) return;
+    PyObject *result =
+        PyObject_CallMethod(callback, "set_feed_mode", "i", mode);
+    if(result == NULL) interp_error ++;
+    Py_XDECREF(result);
+#endif
+}
+
+
 void SET_FEED_RATE(double rate) {
     maybe_new_line();   
     if(interp_error) return;
@@ -308,14 +320,6 @@ void USE_TOOL_LENGTH_OFFSET(double xoffset, double zoffset) {
     if(result == NULL) interp_error ++;
     Py_XDECREF(result);
 }
-void USE_TOOL_LENGTH_OFFSET(double offset) {
-    tool_zoffset = offset;
-    maybe_new_line();
-    if(interp_error) return;
-    PyObject *result = PyObject_CallMethod(callback, "tool_offset", "dd",
-            offset, 0);
-    if(result == NULL) interp_error ++;
-}
 
 void SET_FEED_REFERENCE(double reference) { }
 void SET_CUTTER_RADIUS_COMPENSATION(double radius) {}
@@ -326,6 +330,7 @@ void START_SPEED_FEED_SYNCH(double sync) {}
 void STOP_SPEED_FEED_SYNCH() {}
 void START_SPINDLE_COUNTERCLOCKWISE() {}
 void START_SPINDLE_CLOCKWISE() {}
+void SET_SPINDLE_MODE(double) {}
 void STOP_SPINDLE_TURNING() {}
 void SET_SPINDLE_SPEED(double rpm) {}
 void ORIENT_SPINDLE(double d, int i) {}

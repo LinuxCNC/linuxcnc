@@ -829,6 +829,7 @@ class EMC_TRAJ_LINEAR_MOVE:public EMC_TRAJ_CMD_MSG {
     int type;
     EmcPose end;		// end point
     double vel, ini_maxvel, acc;
+    int feed_mode;
 };
 
 class EMC_TRAJ_CIRCULAR_MOVE:public EMC_TRAJ_CMD_MSG {
@@ -847,6 +848,7 @@ class EMC_TRAJ_CIRCULAR_MOVE:public EMC_TRAJ_CMD_MSG {
     int turn;
     int type;
     double vel, ini_maxvel, acc;
+    int feed_mode;
 };
 
 class EMC_TRAJ_SET_TERM_COND:public EMC_TRAJ_CMD_MSG {
@@ -1727,13 +1729,16 @@ class EMC_SPINDLE_ABORT:public EMC_SPINDLE_CMD_MSG {
 class EMC_SPINDLE_ON:public EMC_SPINDLE_CMD_MSG {
   public:
     EMC_SPINDLE_ON():EMC_SPINDLE_CMD_MSG(EMC_SPINDLE_ON_TYPE,
-					 sizeof(EMC_SPINDLE_ON)) {
+					 sizeof(EMC_SPINDLE_ON)),
+	speed(0), factor(0), xoffset(0) {
     };
 
     // For internal NML/CMS use only.
     void update(CMS * cms);
 
-    double speed;		// commanded speed in RPMs
+    double speed;   // commanded speed in RPMs or maximum speed for CSS
+    double factor;  // Zero for constant RPM.  numerator of speed for CSS
+    double xoffset; // X axis offset compared to center of rotation, for CSS
 };
 
 class EMC_SPINDLE_OFF:public EMC_SPINDLE_CMD_MSG {

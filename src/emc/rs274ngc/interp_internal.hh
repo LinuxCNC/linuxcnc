@@ -57,13 +57,15 @@
 #define ON 1
 
 // feed_mode
-#define UNITS_PER_MINUTE 0
-#define INVERSE_TIME 1
+enum feed_mode { UNITS_PER_MINUTE=0, INVERSE_TIME=1, UNITS_PER_REVOLUTION=2 };
 
 // cutter radius compensation mode, OFF already defined to 0
 // not using CANON_SIDE since interpreter handles cutter radius comp
 #define RIGHT 1
 #define LEFT 2
+
+// spindle control modes
+enum SPINDLE_MODE { CONSTANT_RPM, CONSTANT_SURFACE };
 
 // unary operations
 // These are not enums because the "&" operator is used in
@@ -181,6 +183,9 @@
 #define G_92_3 923
 #define G_93   930
 #define G_94   940
+#define G_95   950
+#define G_96   960
+#define G_97   970
 #define G_98   980
 #define G_99   990
 
@@ -370,7 +375,8 @@ typedef struct setup_struct
   RETRACT_MODE retract_mode;    // for cycles, old_z or r_plane
   int selected_tool_slot;       // tool slot selected but not active
   int sequence_number;          // sequence number of line last read
-  double speed;                 // current spindle speed in rpm
+  double speed;                 // current spindle speed in rpm or SxM
+  SPINDLE_MODE spindle_mode;    // CONSTANT_RPM or CONSTANT_SURFACE
   CANON_SPEED_FEED_MODE speed_feed_mode;        // independent or synched
   ON_OFF speed_override;        // whether speed override is enabled
   CANON_DIRECTION spindle_turning;      // direction spindle is turning

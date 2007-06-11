@@ -532,6 +532,8 @@ Suggestion: Split this in to an Error and a Status flag register..
 
     typedef struct {
 	double speed;		// spindle speed in RPMs
+	double css_factor;
+	double xoffset;
 	int direction;		// 0 stopped, 1 forward, -1 reverse
 	int brake;		// 0 released, 1 engaged
     } spindle_status;

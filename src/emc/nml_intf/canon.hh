@@ -299,6 +299,12 @@ for the same motions.
 
 */
 
+extern void SET_FEED_MODE(int mode);
+
+/* This sets the feed mode: 0 for feed in units per minute, and 1 for feed in
+ * units per revolution.  In units per revolution mode, the values are in
+ * inches per revolution (G20 in effect) or mm per minute (G21 in effect) */
+
 extern void SET_MOTION_CONTROL_MODE(CANON_MOTION_MODE mode, double tolerance);
 
 /*
@@ -415,6 +421,7 @@ extern void DWELL(double seconds);
 
 /* Spindle Functions */
 
+extern void SET_SPINDLE_MODE(double);
 extern void SPINDLE_RETRACT_TRAVERSE();
 
 /* Retract the spindle at traverse rate to the fully retracted position. */

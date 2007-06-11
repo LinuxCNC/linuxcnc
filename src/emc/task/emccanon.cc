@@ -44,6 +44,7 @@
 #include "emcpos.h"
 
 static int debug_velacc = 0;
+static double css_maximum, css_numerator;
 
 #ifndef MIN
 #define MIN(a,b) ((a)<(b)?(a):(b))
@@ -87,6 +88,8 @@ extern void CANON_ERROR(const char *fmt, ...);
 static CANON_POSITION programOrigin(0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
 static CANON_UNITS lengthUnits = CANON_UNITS_MM;
 static CANON_PLANE activePlane = CANON_PLANE_XY;
+
+static int feed_mode = 0;
 
 /*
   canonEndPoint is the last programmed end point, stored in case it's
@@ -220,6 +223,11 @@ void USE_LENGTH_UNITS(CANON_UNITS in_unit)
 void SET_TRAVERSE_RATE(double rate)
 {
     // nothing need be done here
+}
+
+void SET_FEED_MODE(int mode) {
+    flush_segments();
+    feed_mode = mode;
 }
 
 void SET_FEED_RATE(double rate)
@@ -491,6 +499,7 @@ static void flush_segments(void) {
 
 
     EMC_TRAJ_LINEAR_MOVE linearMoveMsg;
+    linearMoveMsg.feed_mode = feed_mode;
 
     // now x, y, z, and b are in absolute mm or degree units
     linearMoveMsg.end.tran.x = TO_EXT_LEN(x);
@@ -570,6 +579,7 @@ void STRAIGHT_TRAVERSE(double x, double y, double z,
 {
     double vel, acc;
     EMC_TRAJ_LINEAR_MOVE linearMoveMsg;
+    linearMoveMsg.feed_mode = feed_mode;
 
     // convert to mm units
     x = FROM_PROG_LEN(x);
@@ -622,6 +632,7 @@ void STRAIGHT_FEED(double x, double y, double z, double a, double b,
 		   double c)
 {
     EMC_TRAJ_LINEAR_MOVE linearMoveMsg;
+    linearMoveMsg.feed_mode = feed_mode;
 
     // convert to mm units
     x = FROM_PROG_LEN(x);
@@ -806,6 +817,8 @@ void ARC_FEED(double first_end, double second_end,
     double radius, angle, theta1, theta2, helical_length, axis_len;
     double tmax, thelix, ta, tb, tc, da, db, dc;
 
+    linearMoveMsg.feed_mode = feed_mode;
+    circularMoveMsg.feed_mode = feed_mode;
     flush_segments();
     /* In response to  Bugs item #1274108 - rotary axis moves when coordinate
        offsets used with A. Original code failed to include programOrigin on
@@ -1099,14 +1112,28 @@ void SPINDLE_RETRACT_TRAVERSE()
 /* 0 is off, -1 is CCW, 1 is CW; used as flag if settting speed again */
 static int spindleOn = 0;
 
+void SET_SPINDLE_MODE(double css_max) {
+    css_maximum = css_max;
+}
+
 void START_SPINDLE_CLOCKWISE()
 {
     EMC_SPINDLE_ON emc_spindle_on_msg;
 
     flush_segments();
 
-    emc_spindle_on_msg.speed = spindleSpeed;
-
+    if(css_maximum) {
+	if(lengthUnits == CANON_UNITS_INCHES) 
+	    css_numerator = 12 / (2 * M_PI) * spindleSpeed;
+	else
+	    css_numerator = 1000 / (2 * M_PI) * spindleSpeed;
+	emc_spindle_on_msg.speed = css_maximum;
+	emc_spindle_on_msg.factor = css_numerator;
+	emc_spindle_on_msg.xoffset = currentXToolOffset;
+    } else {
+	emc_spindle_on_msg.speed = spindleSpeed;
+	css_numerator = 0;
+    }
     interp_list.append(emc_spindle_on_msg);
 
     spindleOn = 1;
@@ -1118,7 +1145,19 @@ void START_SPINDLE_COUNTERCLOCKWISE()
 
     flush_segments();
 
-    emc_spindle_on_msg.speed = -spindleSpeed;
+    if(css_maximum) {
+	if(lengthUnits == CANON_UNITS_INCHES) 
+	    css_numerator = -12 / (2 * M_PI) * spindleSpeed;
+	else
+	    css_numerator = -1000 / (2 * M_PI) * spindleSpeed;
+	emc_spindle_on_msg.speed = css_maximum;
+	emc_spindle_on_msg.factor = css_numerator;
+	emc_spindle_on_msg.xoffset = currentXToolOffset;
+    } else {
+	emc_spindle_on_msg.speed = -spindleSpeed;
+	css_numerator = 0;
+    }
+
 
     interp_list.append(emc_spindle_on_msg);
 
@@ -1199,13 +1238,21 @@ void USE_TOOL_LENGTH_OFFSET(double xoffset, double zoffset)
     set_offset_msg.offset.b = 0.0;
     set_offset_msg.offset.c = 0.0;
 
+    if(css_maximum && spindleOn) {
+	EMC_SPINDLE_ON emc_spindle_on_msg;
+	emc_spindle_on_msg.speed = css_maximum;
+	emc_spindle_on_msg.factor = css_numerator;
+	emc_spindle_on_msg.xoffset = currentXToolOffset;
+	interp_list.append(emc_spindle_on_msg);
+    }
     interp_list.append(set_offset_msg);
 }
 
 /* CHANGE_TOOL results from M6, for example */
 void CHANGE_TOOL(int slot)
 {
-    EMC_TRAJ_LINEAR_MOVE linear_move_msg;
+    EMC_TRAJ_LINEAR_MOVE linearMoveMsg;
+    linearMoveMsg.feed_mode = feed_mode;
     EMC_TOOL_LOAD load_tool_msg;
 
     flush_segments();
@@ -1231,19 +1278,19 @@ void CHANGE_TOOL(int slot)
         vel = getStraightVelocity(x, y, z, a, b, c);
         acc = getStraightAcceleration(x, y, z, a, b, c);
 
-	linear_move_msg.end.tran.x = TO_EXT_LEN(x);
-	linear_move_msg.end.tran.y = TO_EXT_LEN(y);
-	linear_move_msg.end.tran.z = TO_EXT_LEN(z);
-	linear_move_msg.end.a = TO_EXT_ANG(a);
-	linear_move_msg.end.b = TO_EXT_ANG(b);
-	linear_move_msg.end.c = TO_EXT_ANG(c);
+	linearMoveMsg.end.tran.x = TO_EXT_LEN(x);
+	linearMoveMsg.end.tran.y = TO_EXT_LEN(y);
+	linearMoveMsg.end.tran.z = TO_EXT_LEN(z);
+	linearMoveMsg.end.a = TO_EXT_ANG(a);
+	linearMoveMsg.end.b = TO_EXT_ANG(b);
+	linearMoveMsg.end.c = TO_EXT_ANG(c);
 
-        linear_move_msg.vel = linear_move_msg.ini_maxvel = toExtVel(vel);
-        linear_move_msg.acc = toExtAcc(acc);
-        linear_move_msg.type = EMC_MOTION_TYPE_TOOLCHANGE;
+        linearMoveMsg.vel = linearMoveMsg.ini_maxvel = toExtVel(vel);
+        linearMoveMsg.acc = toExtAcc(acc);
+        linearMoveMsg.type = EMC_MOTION_TYPE_TOOLCHANGE;
 
         if(acc) 
-            interp_list.append(linear_move_msg);
+            interp_list.append(linearMoveMsg);
 
         canonUpdateEndPoint(x, y, z, a, b, c);
     }

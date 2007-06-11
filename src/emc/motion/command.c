@@ -1304,6 +1304,8 @@ check_stuff ( "before command_handler()" );
 	case EMCMOT_SPINDLE_ON:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SPINDLE_ON");
 	    emcmotStatus->spindle.speed = emcmotCommand->vel;
+	    emcmotStatus->spindle.css_factor = emcmotCommand->ini_maxvel;
+	    emcmotStatus->spindle.xoffset = emcmotCommand->acc;
 	    if (emcmotCommand->vel >= 0) {
 		emcmotStatus->spindle.direction = 1;
 	    } else {

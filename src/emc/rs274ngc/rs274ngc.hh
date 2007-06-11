@@ -258,6 +258,7 @@ private:
  int convert_setup(block_pointer block, setup_pointer settings);
  int convert_set_plane(int g_code, setup_pointer settings);
  int convert_speed(block_pointer block, setup_pointer settings);
+     int convert_spindle_mode(block_pointer block, setup_pointer settings);
  int convert_stop(block_pointer block, setup_pointer settings);
  int convert_straight(int move, block_pointer block,
                             setup_pointer settings);

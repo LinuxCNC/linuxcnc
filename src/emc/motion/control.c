@@ -2379,7 +2379,16 @@ static void output_to_hal(void)
     emcmot_hal_data->teleop_mode = GET_MOTION_TELEOP_FLAG();
     emcmot_hal_data->coord_error = GET_MOTION_ERROR_FLAG();
     emcmot_hal_data->on_soft_limit = emcmotStatus->on_soft_limit;
-    *(emcmot_hal_data->spindle_speed_out) = emcmotStatus->spindle.speed * emcmotStatus->net_spindle_scale;
+    if(emcmotStatus->spindle.css_factor) {
+	double denom = fabs(emcmotStatus->spindle.xoffset - emcmotStatus->carte_pos_cmd.tran.x);
+	double speed;
+        if(denom > 0) speed = emcmotStatus->spindle.css_factor / denom;
+	else speed = emcmotStatus->spindle.speed;
+	if(fabs(speed) > fabs(emcmotStatus->spindle.speed)) speed = emcmotStatus->spindle.speed;
+	*(emcmot_hal_data->spindle_speed_out) = speed;
+    } else {
+	*(emcmot_hal_data->spindle_speed_out) = emcmotStatus->spindle.speed * emcmotStatus->net_spindle_scale;
+    }
     *(emcmot_hal_data->spindle_on) = ((emcmotStatus->spindle.speed * emcmotStatus->net_spindle_scale) != 0) ? 1 : 0;
     *(emcmot_hal_data->spindle_forward) = (emcmotStatus->spindle.speed > 0) ? 1 : 0;
     *(emcmot_hal_data->spindle_reverse) = (emcmotStatus->spindle.speed < 0) ? 1 : 0;

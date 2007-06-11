@@ -49,6 +49,7 @@ FILE * _outfile=NULL;      /* where to print, set in main */
 
 static CANON_PLANE       _active_plane = CANON_PLANE_XY;
 static int               _active_slot = 1;
+static int               _feed_mode = 0;
 static double            _feed_rate = 0.0;
 static int               _flood = 0;
 static double            _length_unit_factor = 1; /* 1 for MM 25.4 for inch */
@@ -366,6 +367,11 @@ void STRAIGHT_TRAVERSE(
 }
 
 /* Machining Attributes */
+void SET_FEED_MODE(int mode)
+{
+  PRINT1("SET_FEED_MODE(%d)\n", mode);
+  _feed_mode = mode;
+}
 void SET_FEED_RATE(double rate)
 {
   PRINT1("SET_FEED_RATE(%.4f)\n", rate);
@@ -648,6 +654,10 @@ void DWELL(double seconds)
 void SPINDLE_RETRACT_TRAVERSE()
 {PRINT0("SPINDLE_RETRACT_TRAVERSE()\n");}
 
+void SET_SPINDLE_MODE(double arg) {
+  PRINT1("SET_SPINDLE_MODE(%.4f)\n", arg);
+}
+
 void START_SPINDLE_CLOCKWISE()
 {
   PRINT0("START_SPINDLE_CLOCKWISE()\n");
@@ -687,13 +697,6 @@ void USE_NO_SPINDLE_FORCE()
 {PRINT0("USE_NO_SPINDLE_FORCE()\n");}
 
 /* Tool Functions */
-
-void USE_TOOL_LENGTH_OFFSET(double length)
-{
-    _tool_zoffset = length;
-    PRINT1("USE_TOOL_LENGTH_OFFSET(%.4f)\n", _tool_zoffset);
-}
-
 void USE_TOOL_LENGTH_OFFSET(double xoffset, double zoffset) 
 {
     _tool_xoffset = xoffset;

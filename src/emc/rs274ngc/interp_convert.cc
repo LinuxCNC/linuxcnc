@@ -132,7 +132,7 @@ int Interp::convert_arc(int move,        //!< either G_2 (cw arc) or G_3 (ccw ar
       NCE_R_I_J_K_WORDS_ALL_MISSING_FOR_ARC);
   CHK(((block->r_flag == ON) && (ijk_flag == ON)),
       NCE_MIXED_RADIUS_IJK_FORMAT_FOR_ARC);
-  if (settings->feed_mode == UNITS_PER_MINUTE) {
+  if (settings->feed_mode == UNITS_PER_MINUTE || settings->feed_mode == UNITS_PER_REVOLUTION) {
     CHK((settings->feed_rate == 0.0),
         NCE_CANNOT_MAKE_ARC_WITH_ZERO_FEED_RATE);
   } else if (settings->feed_mode == INVERSE_TIME) {
@@ -1534,9 +1534,9 @@ int Interp::convert_dwell(double time)   //!< time in seconds to dwell  */
 /*! convert_feed_mode
 
 Returned Value: int
-   If any of the following errors occur, this returns the error code shown.
+   If any of the following errors occur, this returns an error code.
    Otherwise, it returns INTERP_OK.
-   1.  g_code isn't G_93 or G_94: NCE_BUG_CODE_NOT_G93_OR_G94
+   1.  g_code isn't G_93, G_94 or G_96
 
 Side effects:
    The interpreter switches the machine settings to indicate the current
@@ -1551,7 +1551,7 @@ Called by: execute_block.
 
 */
 
-int Interp::convert_feed_mode(int g_code,        //!< g_code being executed (must be G_93 or G_94)
+int Interp::convert_feed_mode(int g_code,        //!< g_code being executed (must be G_93, G_94 or G_96)
                              setup_pointer settings)    //!< pointer to machine settings                 
 {
   static char name[] = "convert_feed_mode";
@@ -1560,13 +1560,21 @@ int Interp::convert_feed_mode(int g_code,        //!< g_code being executed (mus
     COMMENT("interpreter: feed mode set to inverse time");
 #endif
     settings->feed_mode = INVERSE_TIME;
+    SET_FEED_MODE(0);
   } else if (g_code == G_94) {
 #ifdef DEBUG_EMC
     COMMENT("interpreter: feed mode set to units per minute");
 #endif
     settings->feed_mode = UNITS_PER_MINUTE;
+    SET_FEED_MODE(0);
+  } else if(g_code == G_96) {
+#ifdef DEBUG_EMC
+    COMMENT("interpreter: feed mode set to units per revolution");
+#endif
+    settings->feed_mode = UNITS_PER_REVOLUTION;
+    SET_FEED_MODE(1);
   } else
-    ERM(NCE_BUG_CODE_NOT_G93_OR_G94);
+    ERS("BUG: Code not G93, G94, or G96");
   return INTERP_OK;
 }
 
@@ -2435,6 +2443,18 @@ int Interp::convert_speed(block_pointer block,   //!< pointer to a block of RS27
   return INTERP_OK;
 }
 
+int Interp::convert_spindle_mode(block_pointer block, setup_pointer settings)
+{
+    if(block->g_modes[14] == G_97) {
+	SET_SPINDLE_MODE(0);
+    } else {
+	if(block->d_flag)
+	    SET_SPINDLE_MODE(block->d_number_float);
+	else
+	    SET_SPINDLE_MODE(1e30);
+    }
+    return INTERP_OK;
+}
 /****************************************************************************/
 
 /*! convert_stop
@@ -2682,7 +2702,7 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
   int status;
 
   if (move == G_1) {
-    if (settings->feed_mode == UNITS_PER_MINUTE) {
+    if (settings->feed_mode == UNITS_PER_MINUTE || settings->feed_mode == UNITS_PER_REVOLUTION) {
       CHK((settings->feed_rate == 0.0), NCE_CANNOT_DO_G1_WITH_ZERO_FEED_RATE);
     } else if (settings->feed_mode == INVERSE_TIME) {
       CHK((block->f_number == -1.0),

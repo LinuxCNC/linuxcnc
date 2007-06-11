@@ -1305,11 +1305,13 @@ int emcSpindleAbort()
     return emcSpindleOff();
 }
 
-int emcSpindleOn(double speed)
+int emcSpindleOn(double speed, double css_factor, double offset)
 {
 
     emcmotCommand.command = EMCMOT_SPINDLE_ON;
     emcmotCommand.vel = speed;
+    emcmotCommand.ini_maxvel = css_factor;
+    emcmotCommand.acc = offset;
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
