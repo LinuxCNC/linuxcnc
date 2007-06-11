@@ -85,6 +85,7 @@ typedef struct {
     probe_t *probe;		/* probe that locates the data */
     GtkWidget *value_label;	/* label object to display value */
     GtkWidget *name_label;	/* label object to display name */
+    GtkWidget *button_select;	/* invokes the select dialog */
 } meter_t;
 
 /***********************************************************************
@@ -263,6 +264,9 @@ int main(int argc, gchar * argv[])
 	/* activate selection window when the 'select' button is clicked */
 	gtk_signal_connect(GTK_OBJECT(button_select), "clicked",
 	    GTK_SIGNAL_FUNC(popup_probe_window), meter->probe);
+
+	/* save reference to select button */
+	meter->button_select = button_select;
 
 	gtk_widget_show(button_select);
 	gtk_widget_show(button_exit);
@@ -467,9 +471,17 @@ static int refresh_value(gpointer data)
     probe_t *probe;
     char *value_str, *name_str;
     hal_sig_t *sig;
+    static int first = 1;
 
     meter = (meter_t *) data;
     probe = meter->probe;
+
+    if ( first ) {
+	first = 0;
+	if ( probe->pickname == NULL ) {
+	    g_signal_emit_by_name(meter->button_select, "clicked");
+	}
+    }
 
     rtapi_mutex_get(&(hal_data->mutex));
     if (probe->pin != NULL) {
