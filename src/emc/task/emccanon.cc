@@ -1303,8 +1303,14 @@ void CHANGE_TOOL(int slot)
         linearMoveMsg.acc = toExtAcc(acc);
         linearMoveMsg.type = EMC_MOTION_TYPE_TOOLCHANGE;
 
+	if(feed_mode)
+	    STOP_SPEED_FEED_SYNCH();
+
         if(acc) 
             interp_list.append(linearMoveMsg);
+
+	if(feed_mode)
+	    START_SPEED_FEED_SYNCH(currentLinearFeedRate, 1);
 
         canonUpdateEndPoint(x, y, z, a, b, c);
     }
