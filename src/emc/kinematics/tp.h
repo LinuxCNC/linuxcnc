@@ -53,8 +53,9 @@ typedef struct {
     double tolerance;           /* for subsequent motions, stay within this
                                    distance of the programmed path during
                                    blends */
-    int synchronized;           /* motion synchronized with spindle */
-    int wait_synch;		/* if a prior move was not synchronized, wait for index */
+    int synchronized;       // spindle sync required for this move
+    int velocity_mode; 	        /* TRUE if spindle sync is in velocity mode,
+				   FALSE if in position mode */
     double uu_per_rev;          /* user units per spindle revolution */
 } TP_STRUCT;
 

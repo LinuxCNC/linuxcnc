@@ -132,9 +132,14 @@ int Interp::convert_arc(int move,        //!< either G_2 (cw arc) or G_3 (ccw ar
       NCE_R_I_J_K_WORDS_ALL_MISSING_FOR_ARC);
   CHK(((block->r_flag == ON) && (ijk_flag == ON)),
       NCE_MIXED_RADIUS_IJK_FORMAT_FOR_ARC);
-  if (settings->feed_mode == UNITS_PER_MINUTE || settings->feed_mode == UNITS_PER_REVOLUTION) {
+  if (settings->feed_mode == UNITS_PER_MINUTE) {
     CHK((settings->feed_rate == 0.0),
         NCE_CANNOT_MAKE_ARC_WITH_ZERO_FEED_RATE);
+  } else if(settings->feed_mode == UNITS_PER_REVOLUTION) {
+    CHK((settings->feed_rate == 0.0),
+        NCE_CANNOT_MAKE_ARC_WITH_ZERO_FEED_RATE);
+    CHKS((settings->speed == 0.0),
+	"Cannot feed with zero spindle speed in feed per rev mode");
   } else if (settings->feed_mode == INVERSE_TIME) {
     CHK((block->f_number == -1.0),
         NCE_F_WORD_MISSING_WITH_INVERSE_TIME_ARC_MOVE);
@@ -1567,12 +1572,14 @@ int Interp::convert_feed_mode(int g_code,        //!< g_code being executed (mus
 #endif
     settings->feed_mode = UNITS_PER_MINUTE;
     SET_FEED_MODE(0);
+    SET_FEED_RATE(0);
   } else if(g_code == G_95) {
 #ifdef DEBUG_EMC
     COMMENT("interpreter: feed mode set to units per revolution");
 #endif
     settings->feed_mode = UNITS_PER_REVOLUTION;
     SET_FEED_MODE(1);
+    SET_FEED_RATE(0);
   } else
     ERS("BUG: Code not G93, G94, or G95");
   return INTERP_OK;
@@ -2195,6 +2202,9 @@ int Interp::convert_probe(block_pointer block,   //!< pointer to a block of RS27
   CHK((settings->cutter_comp_side != OFF),
       NCE_CANNOT_PROBE_WITH_CUTTER_RADIUS_COMP_ON);
   CHK((settings->feed_rate == 0.0), NCE_CANNOT_PROBE_WITH_ZERO_FEED_RATE);
+  CHKS(settings->feed_mode == UNITS_PER_REVOLUTION,
+	  "Cannot probe with feed per rev mode");
+  CHK((settings->feed_rate == 0.0), NCE_CANNOT_PROBE_WITH_ZERO_FEED_RATE);
   find_ends(block, settings, &end_x, &end_y, &end_z,
             &AA_end, &BB_end, &CC_end);
   CHK((settings->current_x == end_x && settings->current_y == end_y &&
@@ -2702,8 +2712,11 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
   int status;
 
   if (move == G_1) {
-    if (settings->feed_mode == UNITS_PER_MINUTE || settings->feed_mode == UNITS_PER_REVOLUTION) {
+    if (settings->feed_mode == UNITS_PER_MINUTE) {
       CHK((settings->feed_rate == 0.0), NCE_CANNOT_DO_G1_WITH_ZERO_FEED_RATE);
+    } else if (settings->feed_mode == UNITS_PER_REVOLUTION) {
+      CHK((settings->feed_rate == 0.0), NCE_CANNOT_DO_G1_WITH_ZERO_FEED_RATE);
+      CHKS((settings->speed == 0.0), "Cannot feed with zero spindle speed in feed per rev mode");
     } else if (settings->feed_mode == INVERSE_TIME) {
       CHK((block->f_number == -1.0),
           NCE_F_WORD_MISSING_WITH_INVERSE_TIME_G1_MOVE);
@@ -2747,7 +2760,7 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
     settings->current_y = end_y;
     settings->current_z = end_z;
   } else if (move == G_33) {
-    START_SPEED_FEED_SYNCH(block->k_number, 1);
+    START_SPEED_FEED_SYNCH(block->k_number, 0);
     STRAIGHT_FEED(end_x, end_y, end_z, AA_end, BB_end, CC_end);
     STOP_SPEED_FEED_SYNCH();
     settings->current_x = end_x;
@@ -2782,25 +2795,25 @@ threading_pass(setup_pointer settings,
 		      start_y, start_z - zoff, AABBCC); //back
     if(taper_dist && entry_taper) {
 	DISABLE_FEED_OVERRIDE();
-	START_SPEED_FEED_SYNCH(taper_pitch, 1);
+	START_SPEED_FEED_SYNCH(taper_pitch, 0);
 	STRAIGHT_FEED(boring? 
 		      safe_x + depth - full_threadheight: 
 		      safe_x - depth + full_threadheight,
 		      start_y, start_z - zoff, AABBCC); //in
 	STRAIGHT_FEED(boring? safe_x + depth: safe_x - depth, //angled in
 		      start_y, start_z - zoff - taper_dist, AABBCC);
-	START_SPEED_FEED_SYNCH(pitch, 1);
+	START_SPEED_FEED_SYNCH(pitch, 0);
     } else {
 	STRAIGHT_TRAVERSE(boring? safe_x + depth: safe_x - depth, 
 			  start_y, start_z - zoff, AABBCC); //in
 	DISABLE_FEED_OVERRIDE();
-	START_SPEED_FEED_SYNCH(pitch, 1);
+	START_SPEED_FEED_SYNCH(pitch, 0);
     }
         
     if(taper_dist && exit_taper) {
 	STRAIGHT_FEED(boring? safe_x + depth: safe_x - depth,  //over
 		      start_y, target_z - zoff + taper_dist, AABBCC);
-	START_SPEED_FEED_SYNCH(taper_pitch, 1);
+	START_SPEED_FEED_SYNCH(taper_pitch, 0);
 	STRAIGHT_FEED(boring? 
 		      safe_x + depth - full_threadheight: 
 		      safe_x - depth + full_threadheight, 

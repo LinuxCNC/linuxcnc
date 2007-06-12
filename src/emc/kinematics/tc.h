@@ -68,7 +68,7 @@ typedef struct {
     double tolerance;       // during the blend at the end of this move, 
                             // stay within this distance from the path.
     int synchronized;       // spindle sync required for this move
-    int wait_synch;	    // actually need to wait for index for this move
+    int velocity_mode;	    // TRUE if spindle sync is in velocity mode, FALSE if in position mode
     double uu_per_rev;      // for sync, user units per rev (e.g. 0.0625 for 16tpi)
     double vel_at_blend_start;
     unsigned char enables;  // Feed scale, etc, enable bits for this move

@@ -234,7 +234,8 @@ void SET_FEED_RATE(double rate)
 {
 
     if(feed_mode) {
-	START_SPEED_FEED_SYNCH(rate, 0);
+	START_SPEED_FEED_SYNCH(rate, 1);
+	currentLinearFeedRate = rate;
     } else {
 	/* convert from /min to /sec */
 	rate /= 60.0;
@@ -786,12 +787,12 @@ void STOP_CUTTER_RADIUS_COMPENSATION()
 
 
 
-void START_SPEED_FEED_SYNCH(double feed_per_revolution, bool wait_for_index)
+void START_SPEED_FEED_SYNCH(double feed_per_revolution, bool velocity_mode)
 {
     flush_segments();
     EMC_TRAJ_SET_SPINDLESYNC spindlesyncMsg;
     spindlesyncMsg.feed_per_revolution = TO_EXT_LEN(FROM_PROG_LEN(feed_per_revolution));
-    spindlesyncMsg.wait_for_index = wait_for_index;
+    spindlesyncMsg.velocity_mode = velocity_mode;
     interp_list.append(spindlesyncMsg);
 }
 
@@ -800,7 +801,7 @@ void STOP_SPEED_FEED_SYNCH()
     flush_segments();
     EMC_TRAJ_SET_SPINDLESYNC spindlesyncMsg;
     spindlesyncMsg.feed_per_revolution = 0.0;
-    spindlesyncMsg.wait_for_index = false;
+    spindlesyncMsg.velocity_mode = false;
     interp_list.append(spindlesyncMsg);
 }
 

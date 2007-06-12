@@ -296,7 +296,7 @@ int tpAddLine(TP_STRUCT * tp, EmcPose end, int type, double vel, double ini_maxv
     tc.tolerance = tp->tolerance;
 
     tc.synchronized = tp->synchronized;
-    tc.wait_synch = tp->wait_synch;
+    tc.velocity_mode = tp->velocity_mode;
     tc.uu_per_rev = tp->uu_per_rev;
     tc.enables = enables;
 
@@ -527,7 +527,7 @@ int tpRunCycle(TP_STRUCT * tp, long period)
     else
         nexttc = NULL;
 
-    if(!tc->synchronized && nexttc && nexttc->synchronized && nexttc->wait_synch) {
+    if(!tc->synchronized && nexttc && nexttc->synchronized && nexttc->velocity_mode) {
         // we'll have to wait for spindle sync; might as well
         // stop at the right place (don't blend)
         tc->blend_with_next = 0;
@@ -544,7 +544,7 @@ int tpRunCycle(TP_STRUCT * tp, long period)
         tc->blending = 0;
 
         if(tc->synchronized) {
-            if(!tc->wait_synch) { 
+            if(!tp->velocity_mode) { 
                 spindleoffset = emcmotStatus->spindleRevs;
             } else if(!emcmotStatus->spindleSync) {
                 // if we aren't already synced, wait
@@ -608,12 +608,19 @@ int tpRunCycle(TP_STRUCT * tp, long period)
 
     if(tc->synchronized) {
         double pos_error;
-        double revs = emcmotStatus->spindleRevs;
 
-        pos_error = (revs - spindleoffset) * tc->uu_per_rev - tc->progress;
-        if(nexttc) pos_error -= nexttc->progress;
+        if(tc->velocity_mode) {
+            pos_error = emcmotStatus->spindleSpeedIn * tc->uu_per_rev;
+            if(nexttc) pos_error -= nexttc->progress; /* ?? */
+            tc->reqvel = pos_error;
+            rtapi_print_msg(RTAPI_MSG_ERR, "vel=% 8.4f\n", tc->reqvel);
+        } else {
+            double revs = emcmotStatus->spindleRevs;
+            pos_error = (revs - spindleoffset) * tc->uu_per_rev - tc->progress;
+            if(nexttc) pos_error -= nexttc->progress;
 
-        tc->reqvel = pos_error/tc->cycle_time/2.0;
+            tc->reqvel = pos_error/tc->cycle_time/2.0;
+        }
         tc->feed_override = 1.0;
         if(tc->reqvel < 0.0) tc->reqvel = 0.0;
         if(nexttc) {
@@ -755,11 +762,11 @@ int tpRunCycle(TP_STRUCT * tp, long period)
     return 0;
 }
 
-int tpSetSpindleSync(TP_STRUCT * tp, double sync, int wait) {
+int tpSetSpindleSync(TP_STRUCT * tp, double sync, int mode) {
     if(sync) {
         tp->synchronized = 1;
         tp->uu_per_rev = sync;
-        tp->wait_synch = wait;
+        tp->velocity_mode = mode;
     } else
         tp->synchronized = 0;
 

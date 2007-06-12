@@ -555,6 +555,9 @@ int Interp::convert_cycle(int motion,    //!< a g-code between G_81 and G_89, a 
   CANON_PLANE plane;
   int status;
 
+  CHKS((settings->feed_rate == 0.0), "Cannot feed with zero feed rate");
+  CHKS((settings->feed_mode != UNITS_PER_MINUTE), "Cannot feed in canned cycles except in feed-per-minute mode");
+
   plane = settings->plane;
   if (block->r_flag == OFF) {
     if (settings->motion_mode == motion)
@@ -1277,7 +1280,6 @@ int Interp::cycle_feed(CANON_PLANE plane,        //!< currently selected plane
                       double end2,      //!< second coordinate value   
                       double end3)      //!< third coordinate value    
 {
-
   if (plane == CANON_PLANE_XY)
     STRAIGHT_FEED(end1, end2, end3,
                   _setup.AA_current, _setup.BB_current, _setup.CC_current);

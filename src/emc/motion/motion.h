@@ -596,6 +596,7 @@ Suggestion: Split this in to an Error and a Status flag register..
         int spindle_index_enable;  /* hooked to a canon encoder index-enable */
         int spindleSync;        /* we are doing spindle-synced motion */
         double spindleRevs;     /* position of spindle in revolutions */
+        double spindleSpeedIn;  /* velocity of spindle in revolutions per minute */
 
 	spindle_status spindle;	/* data types for spindle status */
 

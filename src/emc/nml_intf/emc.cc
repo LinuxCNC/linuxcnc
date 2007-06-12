@@ -1716,7 +1716,7 @@ void EMC_TRAJ_SET_SPINDLESYNC::update(CMS * cms)
 {
     EMC_TRAJ_CMD_MSG::update(cms);
     cms->update(feed_per_revolution);
-    cms->update(feed_per_revolution);
+    cms->update(velocity_mode);
 }
 
 /*

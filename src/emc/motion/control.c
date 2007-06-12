@@ -385,6 +385,7 @@ static void process_inputs(void)
     }
     /* read spindle angle (for threading, etc) */
     emcmotStatus->spindleRevs = *emcmot_hal_data->spindle_revs;
+    emcmotStatus->spindleSpeedIn = *emcmot_hal_data->spindle_speed_in;
     /* compute net feed and spindle scale factors */
     if ( emcmotStatus->motion_state == EMCMOT_MOTION_COORD ) {
 	/* use the enables that were queued with the current move */
@@ -2384,6 +2385,7 @@ static void output_to_hal(void)
 	double speed;
         if(denom > 0) speed = emcmotStatus->spindle.css_factor / denom;
 	else speed = emcmotStatus->spindle.speed;
+	speed = speed * emcmotStatus->net_spindle_scale;
 	if(fabs(speed) > fabs(emcmotStatus->spindle.speed)) speed = emcmotStatus->spindle.speed;
 	*(emcmot_hal_data->spindle_speed_out) = speed;
     } else {

@@ -59,7 +59,7 @@ linksp spindle-pos => motion.spindle-revs
 loadrt lowpass count=1
 loadrt scale count=1
 net spindle-rps-raw encoder.0.velocity lowpass.0.in
-net spindle-rps-filtered lowpass.0.out scale.0.in
+net spindle-rps-filtered lowpass.0.out scale.0.in motion.spindle-speed-in
 net spindle-rpm-filtered scale.0.out
 setp scale.0.gain 60
 setp lowpass.0.gain .07

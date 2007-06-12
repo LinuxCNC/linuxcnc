@@ -332,7 +332,7 @@ extern void STOP_CUTTER_RADIUS_COMPENSATION();
 translation commands. */
 
 /* used for threading */
-extern void START_SPEED_FEED_SYNCH(double feed_per_revolution, bool wait_for_index);
+extern void START_SPEED_FEED_SYNCH(double feed_per_revolution, bool velocity_mode);
 extern void STOP_SPEED_FEED_SYNCH();
 
 

@@ -792,7 +792,6 @@ check_stuff ( "before command_handler()" );
 	    break;
 
         case EMCMOT_SET_SPINDLESYNC:
-            rtapi_print_msg(RTAPI_MSG_ERR, "SET_SYNCHRONIZATION %f %d", emcmotCommand->spindlesync, emcmotCommand->flags);
             tpSetSpindleSync(&emcmotDebug->queue, emcmotCommand->spindlesync, emcmotCommand->flags);
             break;
 
