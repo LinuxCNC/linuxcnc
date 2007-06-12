@@ -1034,6 +1034,13 @@ static void read_encoders(slot_data_t *slot)
 		if ( (slot->encoder[0].indres & ( 1 << i )) != 0 ) {
 		    /* yes, clear index-enable to announce that we found it */
 		    *(slot->encoder[i].index_enable) = 0;
+		    /* need to properly set the 24->32 bit extension byte */
+		    if ( pos.byte.b2 < 0 ) {
+			/* going backwards */
+			pos.byte.b3 = 0xFF;
+		    } else {
+			pos.byte.b3 = 0;
+		    }
 		}
 	    }
 	} else {
