@@ -587,7 +587,7 @@ int main (int argc, char ** argv)
   int gees[ACTIVE_G_CODES];
   int ems[ACTIVE_M_CODES];
   double sets[ACTIVE_SETTINGS];
-  char default_name[] = "sim.var";
+  char default_name[] = EMC2_HOME "/configs/sim/sim.var";
   int print_stack;
   int go_flag;
   do_next = 2;  /* 2=stop */
@@ -667,7 +667,7 @@ usage:
   fprintf(stderr, "executing\n");
   if (tool_flag == 0)
     {
-      if (read_tool_file("sim.tbl") != 0)
+      if (read_tool_file(EMC2_HOME "/configs/sim/sim.tbl") != 0)
         exit(1);
     }
 
