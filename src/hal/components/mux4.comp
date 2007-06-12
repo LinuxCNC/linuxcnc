@@ -10,11 +10,11 @@ function _;
 license "GPL";
 ;;
 FUNCTION(_) {
-    if(sel0) {
-        if(sel1) out = in3;
+    if(sel1) {
+        if(sel0) out = in3;
         else out = in2;
     } else {
-        if(sel1) out = in1;
+        if(sel0) out = in1;
         else out = in0;
     }
 }
