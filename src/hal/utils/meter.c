@@ -251,8 +251,10 @@ int main(int argc, gchar * argv[])
 	hbox = gtk_hbox_new_in_box(FALSE, 0, 0, vbox, FALSE, TRUE, 0);
 
 	/* create the buttons and add them to the hbox */
-	button_select = gtk_button_new_with_label("Select");
-	button_exit = gtk_button_new_with_label("Exit");
+	button_select = gtk_button_new_with_label("_Select");
+	button_exit = gtk_button_new_with_label("E_xit");
+	gtk_button_set_use_underline((GtkButton *)button_select, TRUE);
+	gtk_button_set_use_underline((GtkButton *)button_exit, TRUE);
 
 	gtk_box_pack_start(GTK_BOX(hbox), button_select, TRUE, TRUE, 4);
 	gtk_box_pack_start(GTK_BOX(hbox), button_exit, TRUE, TRUE, 4);
@@ -597,9 +599,9 @@ static void create_probe_window(probe_t * probe)
     /* set overall notebook parameters */
     gtk_notebook_set_homogeneous_tabs(GTK_NOTEBOOK(notebk), TRUE);
     /* text for tab labels */
-    tab_label_text[0] = " Pins ";
-    tab_label_text[1] = " Signals ";
-    tab_label_text[2] = " Parameters ";
+    tab_label_text[0] = " _Pins ";
+    tab_label_text[1] = " _Signals ";
+    tab_label_text[2] = " Para_meters ";
     /* loop to create three identical tabs */
     for (n = 0; n < 3; n++) {
 	/* Create a scrolled window to display the list */
@@ -639,9 +641,13 @@ static void create_probe_window(probe_t * probe)
     hbox = gtk_hbox_new_in_box(TRUE, 0, 0, vbox, FALSE, TRUE, 0);
 
     /* create the buttons and add them to the hbox */
-    button_OK = gtk_button_new_with_label("OK");
-    button_apply = gtk_button_new_with_label("Apply");
-    button_cancel = gtk_button_new_with_label("Cancel");
+    button_OK = gtk_button_new_with_label("_OK");
+    button_apply = gtk_button_new_with_label("_Apply");
+    button_cancel = gtk_button_new_with_label("_Cancel");
+    gtk_button_set_use_underline((GtkButton *)button_OK, TRUE);
+    gtk_button_set_use_underline((GtkButton *)button_apply, TRUE);
+    gtk_button_set_use_underline((GtkButton *)button_cancel, TRUE);
+
 
     gtk_box_pack_start(GTK_BOX(hbox), button_OK, TRUE, TRUE, 4);
     gtk_box_pack_start(GTK_BOX(hbox), button_apply, TRUE, TRUE, 4);
