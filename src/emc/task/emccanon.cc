@@ -627,8 +627,15 @@ void STRAIGHT_TRAVERSE(double x, double y, double z,
 
     linearMoveMsg.type = EMC_MOTION_TYPE_TRAVERSE;
 
+
+    if(feed_mode)
+	STOP_SPEED_FEED_SYNCH();
+
     if(acc) 
         interp_list.append(linearMoveMsg);
+
+    if(feed_mode)
+	START_SPEED_FEED_SYNCH(currentLinearFeedRate, 1);
 
     canonUpdateEndPoint(x, y, z, a, b, c);
 }
