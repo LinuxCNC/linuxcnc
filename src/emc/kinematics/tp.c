@@ -613,7 +613,6 @@ int tpRunCycle(TP_STRUCT * tp, long period)
             pos_error = emcmotStatus->spindleSpeedIn * tc->uu_per_rev;
             if(nexttc) pos_error -= nexttc->progress; /* ?? */
             tc->reqvel = pos_error;
-            rtapi_print_msg(RTAPI_MSG_ERR, "vel=% 8.4f\n", tc->reqvel);
         } else {
             double revs = emcmotStatus->spindleRevs;
             pos_error = (revs - spindleoffset) * tc->uu_per_rev - tc->progress;
