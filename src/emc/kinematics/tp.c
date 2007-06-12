@@ -527,7 +527,7 @@ int tpRunCycle(TP_STRUCT * tp, long period)
     else
         nexttc = NULL;
 
-    if(!tc->synchronized && nexttc && nexttc->synchronized && nexttc->velocity_mode) {
+    if(!tc->synchronized && nexttc && nexttc->synchronized && !nexttc->velocity_mode) {
         // we'll have to wait for spindle sync; might as well
         // stop at the right place (don't blend)
         tc->blend_with_next = 0;
@@ -544,9 +544,7 @@ int tpRunCycle(TP_STRUCT * tp, long period)
         tc->blending = 0;
 
         if(tc->synchronized) {
-            if(!tp->velocity_mode) { 
-                spindleoffset = emcmotStatus->spindleRevs;
-            } else if(!emcmotStatus->spindleSync) {
+            if(!tc->velocity_mode && !emcmotStatus->spindleSync) {
                 // if we aren't already synced, wait
                 waiting = tc->id;
                 // ask for an index reset
