@@ -464,6 +464,11 @@ printf("Allocated %d rungs, %d timers, %d monostables...\n", NBR_RUNGS, NBR_TIME
 	InfosGene->VScrollValue = 0;
 	InfosGene->HScrollValue = 0;
 
+
+
+	InfosGene->MsSinceLastScan = 0;
+	InfosGene->NsSinceLastScan = 0;
+
 	InfosGene->DurationOfLastScan = 0;
 	InfosGene->CurrentSection = 0;
 	InitIOConf( );

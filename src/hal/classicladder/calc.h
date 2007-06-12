@@ -8,5 +8,5 @@ void InitCounters(void);
 void PrepareCounters(void);
 void InitArithmExpr(void);
 void InitIOConf( void );
-void RefreshAllRungs(void);
+void RefreshAllRungs(unsigned long period);
 void CopyRungToRung(StrRung * RungSrc,StrRung * RungDest);

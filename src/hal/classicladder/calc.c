@@ -362,7 +362,7 @@ void CalcTypeTimer(int x,int y,StrRung * UpdateRung)
     {
         if (Timer->Value>0)
         {
-            Timer->Value = Timer->Value - TIME_REFRESH_RUNG_MS;
+            Timer->Value = Timer->Value - InfosGene->MsSinceLastScan;
             Timer->OutputRunning = 1;
             Timer->OutputDone = 0;
         }
@@ -396,7 +396,7 @@ void CalcTypeMonostable(int x,int y,StrRung * UpdateRung)
         Monostable->Value = Monostable->Preset;
     }
     if (Monostable->Value>0)
-        Monostable->Value = Monostable->Value - TIME_REFRESH_RUNG_MS;
+        Monostable->Value = Monostable->Value - InfosGene->MsSinceLastScan;
     else
         Monostable->OutputRunning = 0;
     Monostable->InputBak = Monostable->Input;
@@ -578,7 +578,7 @@ int RefreshRung(StrRung * Rung, int * JumpTo, int * CallTo)
 // All the sections 'main' are refreshed in the order defined.
 // TODO : if we have a mad Jump (infinite loop) we must make something !
 #define SR_STACK 25
-void RefreshAllRungs()
+void RefreshAllRungs(unsigned long period)
 {
     int NumRung;
     int Goto;
@@ -599,6 +599,11 @@ void RefreshAllRungs()
 #if defined( RTAI ) && defined( MODULE )
     long StartTime = rt_get_cpu_time_ns();
 #endif
+
+    InfosGene->NsSinceLastScan += period;
+    InfosGene->MsSinceLastScan = InfosGene->NsSinceLastScan / 1000000;
+    InfosGene->NsSinceLastScan %= 1000000;
+
     CycleStart();
 
     for ( ScanMainSection=0; ScanMainSection<NBR_SECTIONS; ScanMainSection++ )

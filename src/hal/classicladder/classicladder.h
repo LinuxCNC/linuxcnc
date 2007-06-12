@@ -275,6 +275,8 @@ typedef struct StrInfosGene
     int OffsetCurrentRungDisplayed;
     int HScrollValue;
     int VScrollValue;
+    unsigned long MsSinceLastScan;
+    unsigned long NsSinceLastScan;
 
     /* how time for the last scan of the rungs in ns (if calc on RTLinux side) */
     int DurationOfLastScan;

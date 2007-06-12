@@ -58,6 +58,7 @@ RTAPI_MP_INT(numSections, "i");
 
 hal_bit_t **hal_inputs;
 hal_bit_t **hal_outputs;
+hal_s32_t *hal_state;
 
 extern plc_sizeinfo_s sinfo;
 
@@ -78,26 +79,21 @@ void HalWritePhysicalOutputs(void) {
 }
 
 static void hal_task(void *arg, long period) {
-	/* XXX: TIME_REFRESH_RUNG_MS is a compile-time constant.  suck it. */
-	static long left = TIME_REFRESH_RUNG_NS;
-	left = left - period;
-	if(left < 0) {
-                unsigned long t0 = rtapi_get_time(), t1;
-		left += TIME_REFRESH_RUNG_NS;
+	*hal_state = InfosGene->LadderState;
+	unsigned long t0 = rtapi_get_time(), t1;
 
-		if (InfosGene->LadderState==STATE_RUN)
-		{
+	if (InfosGene->LadderState==STATE_RUN)
+	{
 
-			HalReadPhysicalInputs();
+		HalReadPhysicalInputs();
 
-			RefreshAllRungs();
+		RefreshAllRungs(period);
 
-			HalWritePhysicalOutputs();
+		HalWritePhysicalOutputs();
 
-		}
-                t1 = rtapi_get_time();
-                InfosGene->DurationOfLastScan = t1 - t0;
 	}
+	t1 = rtapi_get_time();
+	InfosGene->DurationOfLastScan = t1 - t0;
 }
 
 extern void CopySizesInfosFromModuleParams( void );
@@ -108,9 +104,19 @@ int rtapi_app_main(void) {
 
 	compId = hal_init("classicladder_rt");
 	if(compId < 0) return compId;
+
+	rtapi_print("creating ladder-state\n");
+
 	result = hal_export_funct("classicladder.0.refresh", hal_task, 0, 1, 0, compId);
 	if(result < 0) {
 error:
+		hal_exit(compId);
+		return result;
+	}
+
+	hal_state = hal_malloc(sizeof(hal_s32_t));
+	result = hal_param_s32_new("classicladder.ladder-state", HAL_RO, hal_state, compId);
+	if(result < 0) {
 		hal_exit(compId);
 		return result;
 	}
