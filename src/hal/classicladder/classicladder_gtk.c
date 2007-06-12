@@ -1092,13 +1092,14 @@ void UpdateAllLabelsBoolsVars( )
 
 void quit_appli()
 {
-#ifdef HAL_SUPPORT
-        hal_exit(compId);
-#else
+#ifndef HAL_SUPPORT
 	CloseSocketModbusMaster( );
 	CloseSocketServer( );
 #endif
 	ClassicLadderFreeAll();
+#ifdef HAL_SUPPORT
+        hal_exit(compId);
+#endif
 	gtk_exit (0);
 }
 
