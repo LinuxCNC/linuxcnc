@@ -1,7 +1,7 @@
 digraph homing {
     HOME_IDLE -> HOME_START [label="on EMCMOT_HOME(j)"];
     HOME_START -> HOME_IDLE [label="shared home\nswitch closed"];
-    HOME_START -> HOME_SWITCH_SET_POSITION [label="no switch for this axis\nimmediate"];
+    HOME_START -> HOME_SET_SWITCH_POSITION [label="no switch for this axis\nimmediate"];
     HOME_START -> HOME_INITIAL_SEARCH_START [label="otherwise\nimmediate"];
     HOME_INITIAL_BACKOFF_START -> HOME_INITIAL_BACKOFF_WAIT [label="after HOME_DELAY"];
     HOME_INITIAL_BACKOFF_WAIT -> HOME_INITIAL_SEARCH_START [label="home_sw_fall"];
