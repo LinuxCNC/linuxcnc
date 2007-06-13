@@ -1,0 +1,31 @@
+digraph homing {
+    HOME_IDLE -> HOME_START [label="on EMCMOT_HOME(j)"];
+    HOME_START -> HOME_IDLE [label="shared home\nswitch closed"];
+    HOME_START -> HOME_SWITCH_SET_POSITION [label="no switch for this axis\nimmediate"];
+    HOME_START -> HOME_INITIAL_SEARCH_START [label="otherwise\nimmediate"];
+    HOME_INITIAL_BACKOFF_START -> HOME_INITIAL_BACKOFF_WAIT [label="after HOME_DELAY"];
+    HOME_INITIAL_BACKOFF_WAIT -> HOME_INITIAL_SEARCH_START [label="home_sw_fall"];
+    HOME_INITIAL_SEARCH_START -> HOME_INITIAL_BACKOFF_START [label="after HOME_DELAY\nif home switch closed\nimmediate"];
+    HOME_INITIAL_SEARCH_START -> HOME_INITIAL_SEARCH_WAIT [label="after HOME_DELAY\nif home switch open\nimmediate"];
+    HOME_INITIAL_SEARCH_WAIT -> HOME_SET_COARSE_POSITION [label="home_sw_rise\nimmediate"];
+    HOME_SET_COARSE_POSITION -> HOME_FINAL_BACKOFF_START [label="search and latch are same direction\nimmediate"]
+    HOME_SET_COARSE_POSITION -> HOME_FALL_SEARCH_START [label="search and latch are opposite direction\nimmediate"]
+    HOME_FINAL_BACKOFF_START -> HOME_FINAL_BACKOFF_WAIT [label="after HOME_DELAY"];
+    HOME_FINAL_BACKOFF_WAIT -> HOME_RISE_SEARCH_START [label="home_sw_fall\nimmediate"];
+    HOME_RISE_SEARCH_START -> HOME_RISE_SEARCH_WAIT [label="after HOME_DELAY"];
+    HOME_RISE_SEARCH_WAIT -> HOME_INDEX_SEARCH_START [label="home_sw_rise\nHOME_USE_INDEX\nimmediate"]
+    HOME_RISE_SEARCH_WAIT -> HOME_SET_SWITCH_POSITION [label="home_sw_rise\n!HOME_USE_INDEX\nimmediate"]
+    HOME_FALL_SEARCH_START -> HOME_FALL_SEARCH_WAIT [label="after HOME_DELAY"];
+    HOME_FALL_SEARCH_WAIT -> HOME_INDEX_SEARCH_START [label="home_sw_fall\nHOME_USE_INDEX\nimmediate"]
+    HOME_FALL_SEARCH_WAIT -> HOME_SET_SWITCH_POSITION [label="home_sw_fall\n!HOME_USE_INDEX\nimmediate"]
+    HOME_INDEX_SEARCH_START -> HOME_INDEX_SEARCH_WAIT [label="immediate"];
+    HOME_INDEX_SEARCH_WAIT -> HOME_SET_INDEX_POSITION [label="index seen\nimmediate"];
+    HOME_SET_SWITCH_POSITION -> HOME_FINAL_MOVE_START [label="immediate"];
+    HOME_SET_INDEX_POSITION -> HOME_FINAL_MOVE_START [label="immediate"];
+    HOME_FINAL_MOVE_START -> HOME_FINAL_MOVE_WAIT [label="after HOME_DELAY"];
+    HOME_FINAL_MOVE_WAIT -> HOME_ABORT [label="on limit"];
+    HOME_FINAL_MOVE_WAIT -> HOME_FINISHED [label="reached home position"];
+    HOME_FINISHED -> HOME_IDLE;
+    any -> HOME_ABORT [label="hit limit\nend of move"]
+    HOME_ABORT -> HOME_IDLE;
+}
