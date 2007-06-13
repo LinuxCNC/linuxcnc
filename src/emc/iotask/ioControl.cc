@@ -90,7 +90,8 @@ struct iocontrol_str {
     // the following pins are needed for toolchanging
     //tool-prepare
     hal_bit_t *tool_prepare;	/* output, pin that notifies HAL it needs to prepare a tool */
-    hal_s32_t  *tool_prep_number;/* output, pin that holds the tool number to be prepared, only valid when tool-prepare=TRUE */
+    hal_s32_t *tool_prep_number;/* output, pin that holds the tool number to be prepared, only valid when tool-prepare=TRUE */
+    hal_s32_t *tool_number;     /* output, pin that holds the tool number currently in the spindle */
     hal_bit_t *tool_prepared;	/* input, pin that notifies that the tool has been prepared */
     //tool-change
     hal_bit_t *tool_change;	/* output, notifies a tool-change should happen (emc should be in the tool-change position) */
@@ -540,6 +541,17 @@ int iocontrol_hal_init(void)
 	return -1;
     }
     // tool-number
+    rtapi_snprintf(name, HAL_NAME_LEN, "iocontrol.%d.tool-number", n);
+    retval =
+	hal_pin_s32_new(name, HAL_OUT, &(iocontrol_data->tool_number), comp_id);
+    if (retval != HAL_SUCCESS) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"IOCONTROL: ERROR: iocontrol %d pin tool-number export failed with err=%i\n",
+			n, retval);
+	hal_exit(comp_id);
+	return -1;
+    }
+    // tool-prep-number
     rtapi_snprintf(name, HAL_NAME_LEN, "iocontrol.%d.tool-prep-number", n);
     retval =
 	hal_pin_s32_new(name, HAL_OUT, &(iocontrol_data->tool_prep_number), comp_id);
@@ -701,7 +713,8 @@ int read_tool_inputs(void)
     
     oldval = emcioStatus.tool.toolInSpindle;
     if ((*(iocontrol_data->tool_change) != 0) && (*(iocontrol_data->tool_changed)==1)) {
-	emcioStatus.tool.toolInSpindle = emcioStatus.tool.toolPrepped; //check if tool has been prepared
+	emcioStatus.tool.toolInSpindle = emcioStatus.tool.toolPrepped; //the tool now in the spindle is the one that was prepared
+	*(iocontrol_data->tool_number) = emcioStatus.tool.toolInSpindle; //likewise in HAL
 	emcioStatus.tool.toolPrepped = -1; //reset the tool preped number, -1 to permit tool 0 to be loaded
 	*(iocontrol_data->tool_prep_number) = 0; //likewise in HAL
 	*(iocontrol_data->tool_change) = 0; //also reset the tool change signal
@@ -878,14 +891,19 @@ int main(int argc, char *argv[])
 	    break;
 
 	case EMC_TOOL_LOAD_TYPE:
-	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_TOOL_LOAD\n");
-	    if (emcioStatus.tool.toolPrepped != -1) {
-		*(iocontrol_data->tool_change) = 1; //notify HW for toolchange
+	    rtapi_print_msg(RTAPI_MSG_WARN, "EMC_TOOL_LOAD loaded=%d prepped=%d\n", emcioStatus.tool.toolInSpindle, emcioStatus.tool.toolPrepped);
+	    if ( emcioStatus.tool.toolInSpindle != emcioStatus.tool.toolPrepped
+		    && emcioStatus.tool.toolPrepped) {
+		//notify HW for toolchange
+		*(iocontrol_data->tool_change) = 1;
+		// the feedback logic is done inside read_hal_inputs() we only
+		// need to set RCS_EXEC if RCS_DONE is not already set by the
+		// above logic
+		if (tool_status != 11)
+		    // set above to 11 in case LOAD already finished (HAL
+		    // loopback machine)
+		    emcioStatus.status = RCS_EXEC;
 	    }
-	    // the feedback logic is done inside read_hal_inputs()
-	    // we only need to set RCS_EXEC if RCS_DONE is not already set by the above logic
-	    if (tool_status != 11) //set above to 11 in case LOAD already finished (HAL loopback machine)
-		emcioStatus.status = RCS_EXEC;
 	    break;
 
 	case EMC_TOOL_UNLOAD_TYPE:
