@@ -87,7 +87,11 @@ loadrt mux2 count=2
 loadrt mux4 count=1
 loadrt wcomp count=2
 loadrt scale count=2
-loadrt modmath mod_dir=1
+loadrt modmath mod_dir=2
+loadrt charge_pump
+loadrt tristate_bit
+loadrt sample_hold
+loadrt not
 
 # Software encoder counter, for the jogwheel, and possibly a future
 # small manual encoder for a feedrate override knob.
@@ -123,15 +127,21 @@ addf motenc.3.adc-read              servo-thread
 # converter for tool magazine position
 addf process_wsums                  servo-thread
 addf mod-dir.0			    servo-thread
+addf mod-dir.1			    servo-thread
 
 # ladder logic is executed once all the inputs are read
-addf classicladder.0.refresh        servo-thread
+#addf classicladder.0.refresh        servo-thread
 
 # adaptive feedrate mux
 addf mux2.1			    servo-thread
 # now we run the motion controller
 addf motion-command-handler         servo-thread
 addf motion-controller              servo-thread
+
+# ladder logic is executed once all the inputs are read
+addf classicladder.0.refresh        servo-thread
+# charge pump can run just about any time
+addf charge-pump                    servo-thread
 
 # pid calculations are done after the motion module
 # has determined new position commands.
@@ -147,6 +157,9 @@ addf scale.1                        servo-thread
 addf mux4.0                         servo-thread
 addf wcomp.0                        servo-thread
 addf wcomp.1                        servo-thread
+addf tristate-bit.0                 servo-thread
+addf not.0                          servo-thread
+addf sample-hold.0                  servo-thread
 
 # output drivers are loaded last
 addf motenc.3.dac-write             servo-thread
@@ -175,10 +188,13 @@ linksp gui-estop-ok iocontrol.0.user-enable-out
 newsig main-estop-ok bit
 linksp main-estop-ok parport.0.pin-01-out
 linksp main-estop-ok iocontrol.0.emc-enable-in
+linksp main-estop-ok charge-pump.enable
 newsig estop-reset bit
 linksp estop-reset iocontrol.0.user-request-enable
 newsig charge-pump bit
 linksp charge-pump parport.0.pin-17-out
+linksp charge-pump charge-pump.out
+
 
 # servo power supply control
 newsig AP1 bit
@@ -224,47 +240,31 @@ linksp Z-amp-fault axis.2.amp-fault-in
 # we invert the signals by using the -not input
 # pin - the result is limit signals that are
 # TRUE when the machine is on the limit.)
-newsig X-lim-plus bit
-linksp X-lim-plus motenc.3.in-00-not
-linksp X-lim-plus axis.0.pos-lim-sw-in
-newsig X-lim-minus bit
-linksp X-lim-minus motenc.3.in-01-not
-linksp X-lim-minus axis.0.neg-lim-sw-in
-newsig Y-lim-plus bit
-linksp Y-lim-plus motenc.3.in-02-not
-linksp Y-lim-plus axis.1.pos-lim-sw-in
-newsig Y-lim-minus bit
-linksp Y-lim-minus motenc.3.in-03-not
-linksp Y-lim-minus axis.1.neg-lim-sw-in
-newsig Z-lim-plus bit
-linksp Z-lim-plus motenc.3.in-04-not
-linksp Z-lim-plus axis.2.pos-lim-sw-in
-newsig Z-lim-minus bit
-linksp Z-lim-minus motenc.3.in-05-not
-linksp Z-lim-minus axis.2.neg-lim-sw-in
+net X-lim-plus  motenc.3.in-00-not => axis.0.pos-lim-sw-in
+net X-lim-minus motenc.3.in-01-not => axis.0.neg-lim-sw-in
+net Y-lim-plus  motenc.3.in-02-not => axis.1.pos-lim-sw-in
+net Y-lim-minus motenc.3.in-03-not => axis.1.neg-lim-sw-in
+net Z-lim-plus  motenc.3.in-04-not => axis.2.pos-lim-sw-in
+net Z-lim-minus motenc.3.in-05-not => axis.2.neg-lim-sw-in
 
 # Home switches
 # (the switches are NC, see note above)
-newsig X-home bit
-linksp X-home motenc.3.in-08-not
-linksp X-home axis.0.home-sw-in
-newsig Y-home bit
-linksp Y-home motenc.3.in-09-not
-linksp Y-home axis.1.home-sw-in
-newsig Z-home bit
-linksp Z-home motenc.3.in-10-not
-linksp Z-home axis.2.home-sw-in
+net X-home motenc.3.in-08-not => axis.0.home-sw-in
+net Y-home motenc.3.in-09-not => axis.1.home-sw-in
+net Z-home motenc.3.in-10-not => axis.2.home-sw-in
 
 # spindle related signals: "high level" signals
 #   ready (from drive to PC)
-#   run (from PC to drive)
+#   run (from motion)
+#   run (to drive)
 #   at speed (from drive to PC)
 #   orient command (to spindle control)
 #   oriented status (from spindle control)
 #   commanded speed (from EMC to control)
 #   spindle current feedback (from drive to PC)
 newsig spindle-ready bit
-newsig spindle-run bit
+newsig spindle-run-request bit
+newsig spindle-drive-run bit
 newsig spindle-at-speed bit
 newsig spindle-do-orient bit
 newsig spindle-oriented bit
@@ -299,8 +299,10 @@ linksp sp-enc-pos motenc.3.enc-03-position
 setp motenc.3.enc-03-scale -4.0
 
 # set encoder latch enable TRUE so encoder count "wraps"
-linksp sp-index-enable motenc.3.enc-03-latch-index
-sets sp-index-enable TRUE
+linksp sp-index-enable motenc.3.enc-03-index-enable
+linksp sp-index-enable tristate-bit.0.out
+setp tristate-bit.0.in 1
+setp tristate-bit.0.enable 1
 
 # get desired orient position from ini file
 sets sp-orient-pos-cmd [SPINDLE]ORIENT_POSITION
@@ -371,7 +373,7 @@ setp motenc.3.dac-03-offset -8
 
 # connect other signals to drive
 linksp spindle-ready motenc.3.in-15
-linksp spindle-run motenc.3.out-03
+linksp spindle-drive-run motenc.3.out-03
 linksp sp-at-speed motenc.3.in-11
 linksp spindle-amps motenc.3.adc-03-value
 
@@ -387,7 +389,7 @@ linksp sp-in-low-gear ax5214h.0.in-36
 # rayh begins to screw it up with help from his friends
 # connect iocontrol signals for spindle run and speed
 # these work as long as a spindle command is being output.
-linksp spindle-run motion.spindle-on
+linksp spindle-run-request motion.spindle-on
 linksp spindle-rpm-cmd motion.spindle-speed-out
 
 # end of spindle control
@@ -408,6 +410,16 @@ newsig tool-changed bit
 linksp tool-changed iocontrol.0.tool-changed
 newsig tool-requested-number s32
 linksp tool-requested-number iocontrol.0.tool-prep-number
+linksp tool-requested-number sample-hold.0.in
+
+newsig tool-previous-number s32
+linksp tool-previous-number sample-hold.0.out
+
+linksp tool-changed not.0.in
+
+newsig tool-number-hold bit
+linksp tool-number-hold not.0.out
+linksp tool-number-hold sample-hold.0.hold
 
 # misc control
 # tool change location push button operators
@@ -532,18 +544,28 @@ linksp flood-coolant ax5214h.0.out-16
 # magazine indexing
 linksp magazine-position mod-dir.0.actual
 linksp tool-requested-number mod-dir.0.desired
+newsig tool-requested-match bit
+linksp tool-requested-match mod-dir.0.on-target
 
-newsig tool-prepped bit
-
-linksp tool-prepped iocontrol.0.tool-prepared
-linksp tool-prepped mod-dir.0.on-target
+linksp magazine-position mod-dir.1.actual
+linksp tool-previous-number mod-dir.1.desired
+newsig tool-previous-match bit
+linksp tool-previous-match mod-dir.1.on-target
 
 setp mod-dir.0.max-num [EMCIO]TOOL_TURRET_MAX
 setp mod-dir.0.wrap [EMCIO]TOOL_TURRET_WRAP
-newsig magazine-fwd-req bit
-newsig magazine-rev-req bit
-linksp magazine-fwd-req mod-dir.0.up
-linksp magazine-rev-req mod-dir.0.down
+setp mod-dir.1.max-num [EMCIO]TOOL_TURRET_MAX
+setp mod-dir.1.wrap [EMCIO]TOOL_TURRET_WRAP
+# direction to move to fetch new tool
+newsig magazine-fwd-req-fetch bit
+newsig magazine-rev-req-fetch bit
+linksp magazine-fwd-req-fetch mod-dir.0.up
+linksp magazine-rev-req-fetch mod-dir.0.down
+# direction to move to store previous tool
+newsig magazine-fwd-req-store bit
+newsig magazine-rev-req-store bit
+linksp magazine-fwd-req-store mod-dir.1.up
+linksp magazine-rev-req-store mod-dir.1.down
 
 
 # jogwheel signals
@@ -726,19 +748,23 @@ linkps classicladder.0.in-14 tool-loaded
 linkps classicladder.0.in-15 tool-unload-pbs
 linkps classicladder.0.in-16 tool-unloaded
 linkps classicladder.0.in-17 tool-unclamp-pbs
-# High level input tool change inputs
-linkps classicladder.0.in-18 tool-prepare
-linkps classicladder.0.in-19 tool-change
+# based on difference between current position and
+# the slot for the tool currently in the spindle
+linkps classicladder.0.in-18 magazine-fwd-req-store
+linkps classicladder.0.in-19 magazine-rev-req-store
 # I20 = means the external estop chain is OK
 linkps classicladder.0.in-20 external-estop-ok
 # I21 = estop-reset, pulsed to reset the estop relay
 linkps classicladder.0.in-21 estop-reset
 linkps classicladder.0.in-22 feed-hold-pbs
-linkps classicladder.0.in-23 spindle-run
+linkps classicladder.0.in-23 spindle-run-request
 linkps classicladder.0.in-24 sp-orient-pos-ok
+linkps classicladder.0.in-25 tool-requested-match
 linkps classicladder.0.in-26 tool-prepare
-linkps classicladder.0.in-27 magazine-fwd-req
-linkps classicladder.0.in-28 magazine-rev-req
+# based on difference between current position and EMC
+# requested position (from a T block)
+linkps classicladder.0.in-27 magazine-fwd-req-fetch
+linkps classicladder.0.in-28 magazine-rev-req-fetch
 # tool changer proxes
 linkps classicladder.0.in-29 arm-at-0/180
 linkps classicladder.0.in-30 arm-at-0/60
@@ -746,10 +772,10 @@ linkps classicladder.0.in-31 arm-at-180
 linkps classicladder.0.in-32 arm-at-60
 linkps classicladder.0.in-33 arm-extended
 linkps classicladder.0.in-34 arm-retracted
-newsig start-change bit
-linkps classicladder.0.in-35 start-change
+linkps classicladder.0.in-35 tool-change
 linkps classicladder.0.in-36 tool-clamped
 linkps classicladder.0.in-37 tool-unclamped
+linkps classicladder.0.in-38 tool-previous-match
 
 
 
@@ -784,7 +810,7 @@ linkps classicladder.0.out-20 tool-prepared
 linkps classicladder.0.out-21 tool-changed
 # Q22 indicates that the estop ladder rung (latch) is ok
 linkps classicladder.0.out-22 main-estop-ok
-linkps classicladder.0.out-23 charge-pump
+linkps classicladder.0.out-23 spindle-drive-run
 linkps classicladder.0.out-24 spindle-at-speed
 linkps classicladder.0.out-25 spindle-oriented
 linkps classicladder.0.out-26 feed-hold

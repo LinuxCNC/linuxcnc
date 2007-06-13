@@ -11,7 +11,7 @@ linksp AP2 led.powered
 linksp motion-enable led.motion-enable
 
 linksp spindle-ready led.sp-ready
-linksp spindle-run led.sp-run
+linksp spindle-drive-run led.sp-run
 linksp spindle-at-speed led.sp-at-speed
 linksp spindle-use-low-gear led.sp-low-gear
 linksp spindle-use-low-gear button.sp-low-gear
