@@ -271,6 +271,7 @@ typedef struct {
     hal_bit_t *index_enable;    /* enable index pulse to reset encoder count */
     signed long oldreading;     /* used to detect overflow / underflow of the counter */
   unsigned int indres;        /* copy of reset-on-index register bits (only valid on 1st encoder of board)*/
+  unsigned int indrescnt;    /* counts servo cycles since index reset was turned on */
 } encoder_t;
 
 /* this structure contains the runtime data for a single EPP bus slot */
@@ -1002,6 +1003,7 @@ static void read_encoders(slot_data_t *slot)
 
     byteindex = ENCCNT0;        /* first encoder count register */
     for (i = 0; i < 4; i++) {
+      slot->encoder[i].indrescnt++;  /* increment counter each servo cycle */
         oldpos.l = slot->encoder[i].oldreading;
 	pos.byte.b0 = (signed char)slot->rd_buf[byteindex++];
 	pos.byte.b1 = (signed char)slot->rd_buf[byteindex++];
@@ -1014,39 +1016,43 @@ static void read_encoders(slot_data_t *slot)
             if ((oldpos.byte.b2 == 0) && (pos.byte.b2 & 0xc0) == 0xc0)
                 pos.byte.b3--;
 	*(slot->encoder[i].delta) = pos.l - slot->encoder[i].oldreading;
-	slot->encoder[i].oldreading = pos.l;
-	*(slot->encoder[i].count) = pos.l;
-	if (slot->encoder[i].scale < 0.0) {
-	    if (slot->encoder[i].scale > -EPSILON)
-		slot->encoder[i].scale = -1.0;
-	} else {
-	    if (slot->encoder[i].scale < EPSILON)
-		slot->encoder[i].scale = 1.0;
-	}
-	*(slot->encoder[i].position) = pos.l / slot->encoder[i].scale;
 	/* index processing */
 	if ( (slot->rd_buf[ENCISR] & ( 1 << i )) != 0 ) {
+	  //	  rtapi_print_msg(RTAPI_MSG_INFO, "index seen for axis %d",i);
+	  //	  rtapi_print_msg(RTAPI_MSG_INFO, "indrescnt %d\n",slot->encoder[i].indrescnt);
 	    /* index edge occurred since last time this code ran */
 	    *(slot->encoder[i].index) = 1;
 	    /* index-enable only works on version 2 and up */
 	    if (slot->ver >= 2) {
 		/* were we looking for an index edge? */
-		if ( (slot->encoder[0].indres & ( 1 << i )) != 0 ) {
+		if ( ((slot->encoder[0].indres & ( 1 << i )) != 0) &&
+		     (slot->encoder[i].indrescnt > 3)) {
 		    /* yes, clear index-enable to announce that we found it */
 		    *(slot->encoder[i].index_enable) = 0;
-		    /* need to properly set the 24->32 bit extension byte */
-		    if ( pos.byte.b2 < 0 ) {
-			/* going backwards */
-			pos.byte.b3 = 0xFF;
-		    } else {
-			pos.byte.b3 = 0;
-		    }
+    /* need to properly set the 24->32 bit extension byte */
+    if ( pos.byte.b2 < 0 ) {
+      /* going backwards */
+      pos.byte.b3 = 0xFF;
+    } else {
+      pos.byte.b3 = 0;
+    }
+    oldpos.byte.b3 = pos.byte.b3;
 		}
 	    }
 	} else {
-	    /* no index edge since last check */
-	    *(slot->encoder[i].index) = 0;
+	  /* no index edge since last check */
+	  *(slot->encoder[i].index) = 0;
 	}
+	slot->encoder[i].oldreading = pos.l;
+	*(slot->encoder[i].count) = pos.l;
+	if (slot->encoder[i].scale < 0.0) {
+	  if (slot->encoder[i].scale > -EPSILON)
+	    slot->encoder[i].scale = -1.0;
+	} else {
+	  if (slot->encoder[i].scale < EPSILON)
+	    slot->encoder[i].scale = 1.0;
+	}
+	*(slot->encoder[i].position) = pos.l / slot->encoder[i].scale;
     }
 }
 
@@ -1066,8 +1072,11 @@ static void write_encoders(slot_data_t *slot)
     for (i = 0; i < 4; i++) {
 	if ( *(slot->encoder[i].index_enable) ) {
 	    /* all 4 control bits are packed into the same register */
+	  if ((slot->encoder[0].indres & (1 << i)) == 0) {
+	    slot->encoder[i].indrescnt = 0; /* clear counter first time only */
 	    /* set bit to force reset on index pulse */
 	    (slot->encoder[0].indres) |= (1 << i);
+	  }
 	} else {
 	    /* clear bit to ignore index pulses */
 	    (slot->encoder[0].indres) &= ~(1 << i);
