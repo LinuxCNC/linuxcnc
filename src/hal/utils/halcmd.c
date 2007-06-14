@@ -360,6 +360,13 @@ static int parse_cmd1(char **argv) {
 	    return HAL_INVAL;
 	}
 
+        if(posargs > nargs && !is_plus) {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+		"HAL:%d: %s requires %s%d arguments, %d given\n", linenumber,
+		command->name, is_optional ? "at most " : "", nargs, posargs);
+	    return HAL_INVAL;
+        }
+
 	switch(nargs | is_plus) {
 	case A_ZERO: {
 	    return command->func();
