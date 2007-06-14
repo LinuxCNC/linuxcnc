@@ -181,7 +181,6 @@ typedef struct {
     // Private data.
     float				oldScale;	// Stored scale value.
     double				scaleRecip;	// Reciprocal value used for scaling.
-    int					latchEnabled;
 } EncoderPinsParams;
 
 typedef struct {
@@ -545,7 +544,6 @@ Device_ExportEncoderPinsParametersFunctions(Device *this, int componentId, int b
 	this->encoder[channel].scale = 1.0;
 	this->encoder[channel].oldScale = 1.0;
 	this->encoder[channel].scaleRecip = 1.0 / this->encoder[channel].scale;
-	this->encoder[channel].latchEnabled = 0;
     }
 
     // Export functions.
@@ -795,6 +793,9 @@ Device_EncoderRead(void *arg, long period)
     // For each FPGA.
     for(i = 0; i < this->numFpga; i++){
 
+	// read status register just once, before writing anything to the card
+	status = pCard->fpga[i].statusControl;
+
 	// For each encoder.
 	for(j = 0; j < MOTENC_FPGA_NUM_ENCODER_CHANNELS; j++, pEncoder++){
 
@@ -807,24 +808,22 @@ Device_EncoderRead(void *arg, long period)
 		pCard->fpga[i].statusControl = 1 << (MOTENC_CONTROL_ENCODER_RESET_SHFT + j);
 	    }
 
-	    // Check index enable pin.
-	    if(*(pEncoder->pIndexEnable) && !pEncoder->latchEnabled){
-		// Set index latch.
-		pCard->fpga[i].encoderCount[j] = 1;
-		pEncoder->latchEnabled = 1;
-	    }
-
-	    // Update index and index latched pins.
-	    status = pCard->fpga[i].statusControl;
+	    // check state of hardware index pin
 	    *(pEncoder->pIndex) = (status >> (MOTENC_STATUS_INDEX_SHFT + j)) & 1;
 
+	    // check for index pulse detected
 	    if((status >> (MOTENC_STATUS_INDEX_LATCH_SHFT + j)) & 1){
-		// Clear index latch.
-		pCard->fpga[i].encoderCount[j] = 0;
-		pEncoder->latchEnabled = 0;
-
-		// Clear pin.
+		// cancel index-enable
 		*(pEncoder->pIndexEnable) = 0;
+	    }
+
+	    // Check for index enable request from HAL
+	    if(*(pEncoder->pIndexEnable)){
+		// tell hardware to latch on index
+		pCard->fpga[i].encoderCount[j] = 1;
+	    } else {
+		// cancel hardware latch on index
+		pCard->fpga[i].encoderCount[j] = 0;
 	    }
 
 	    // Read encoder counts.
