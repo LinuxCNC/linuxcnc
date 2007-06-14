@@ -130,7 +130,8 @@ static void apply_selection_and_close(GtkWidget * widget, gpointer data);
 static void close_selection(GtkWidget * widget, gpointer data);
 static void selection_made(GtkWidget * clist, gint row, gint column,
     GdkEventButton * event, gpointer data);
-
+static void page_switched(GtkNotebook *notebook, GtkNotebookPage *page,
+		guint page_num, gpointer user_data);
 /***********************************************************************
 *                        MAIN() FUNCTION                               *
 ************************************************************************/
@@ -630,6 +631,8 @@ static void create_probe_window(probe_t * probe)
 	gtk_widget_show(hbox);
 	/* add page to the notebook */
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebk), scrolled_window, hbox);
+	gtk_signal_connect(GTK_OBJECT(notebk), "switch-page",
+	    GTK_SIGNAL_FUNC(page_switched), probe);
 	/* set tab attributes */
 	gtk_notebook_set_tab_label_packing(GTK_NOTEBOOK(notebk), hbox,
 	    TRUE, TRUE, GTK_PACK_START);
@@ -729,32 +732,32 @@ static void selection_made(GtkWidget * clist, gint row, gint column,
     GdkEventButton * event, gpointer data)
 {
     probe_t *probe;
-    GdkEventType type;
-    gint n;
 
     /* get a pointer to the probe data structure */
     probe = (probe_t *) data;
 
-    if ((event == NULL) || (clist == NULL)) {
+    if (clist == NULL) {
 	/* We get spurious events when the lists are populated I don't know
-	   why.  If either clist or event is null, it's a bad one! */
+	   why.  If clist is null, it's a bad one! */
 	return;
     }
-    type = event->type;
-    if (type != 4) {
+    if ((event) && ((event->type != 4) && (event->type != 12))) {
 	/* We also get bad callbacks if you drag the mouse across the list
 	   with the button held down.  They can be distinguished because
-	   their event type is 3, not 4. */
+	   their event type is 3, not 4. 
+	   Apparently, event type 12 represents keyboarding into the list,
+	   so we accept that now as well. */
 	return;
     }
     /* If we get here, it should be a valid selection */
-    /* figure out which notebook tab it was */
-    for (n = 0; n < 3; n++) {
-	if (clist == probe->lists[n]) {
-	    probe->listnum = n;
-	}
-    }
     /* Get the text from the list */
-    gtk_clist_get_text(GTK_CLIST(clist), row, column, &(probe->pickname));
+    gtk_clist_get_text(GTK_CLIST(clist), row, 0, &(probe->pickname));
     return;
+}
+
+static void page_switched(GtkNotebook *notebook, GtkNotebookPage *page,
+		guint page_num, gpointer user_data)
+{
+	// update the listnum in probe data, because 
+	((probe_t *)user_data)->listnum=page_num;
 }
