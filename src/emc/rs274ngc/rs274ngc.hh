@@ -18,7 +18,7 @@
 #define RS274NGC_HH
 
 /* Size of certain arrays */
-#define ACTIVE_G_CODES 13
+#define ACTIVE_G_CODES 14
 #define ACTIVE_M_CODES 10
 #define ACTIVE_SETTINGS 3
 
