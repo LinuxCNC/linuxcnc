@@ -298,6 +298,7 @@ int tpAddRigidTap(TP_STRUCT *tp, EmcPose end, double vel, double ini_maxvel,
     tc.synchronized = tp->synchronized;
     
     tc.uu_per_rev = tp->uu_per_rev;
+    tc.velocity_mode = tp->velocity_mode;
     tc.enables = enables;
 
     if (tcqPut(&tp->queue, tc) == -1) {
