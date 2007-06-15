@@ -1,5 +1,22 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
    "http://www.w3.org/TR/html4/strict.dtd">
+<!-- 
+Copyright (C) 2006, 2007 Jeff Epler
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+-->
 <HTML>
 <HEAD>
 <STYLE type="text/css"><!--
@@ -38,6 +55,7 @@ tr.head td, tr.head th { background: black; color: white; }
 <TR> <TD> <A HREF="http://www.linuxcnc.org/handbook/RS274NGC_3/RS274NGC_33a.html#1003380">G81</A> <TD> R L P <TD> Drilling Cycle </TR>
 <TR> <TD> <A HREF="http://www.linuxcnc.org/handbook/RS274NGC_3/RS274NGC_33a.html#1003380">G82&hellip;G89</A> <TD> R L P Q <TD> Other canned cycles </TR>
 <TR> <TD> <A HREF="http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?SpindleSynchronizedMotion">G33</A> <TD> K <TD> Spindle-synchronized motion </TR>
+<TR> <TD> <A HREF="http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?SpindleSynchronizedMotion">G33.1</A> <TD> K <TD> Rigid Tapping </TR>
 <TR> <TD> <A HREF="http://linuxcnc.org/docs/2.1/html/gcode/main/index.html#SECTION003170000000000000000">G76</A> <TD> P Z I J R K Q H L E<TD> Multipass lathe threading cycle </TR>
 <TR> <TH COLSPAN=3>Plane Selection (affects G2, G3, G81&hellip;G89, G40&hellip;G42)</TR>
 <TR> <TD> <A HREF="http://www.linuxcnc.org/handbook/RS274NGC_3/RS274NGC_33a.html#1012609">G17</A> <TD> <TD> Select XY plane </TR>
@@ -49,6 +67,7 @@ tr.head td, tr.head th { background: black; color: white; }
 <TR> <TH COLSPAN=3>Feed Rate Mode </TR>
 <TR> <TD> <A HREF="http://www.linuxcnc.org/handbook/RS274NGC_3/RS274NGC_33a.html#1003508">G93</A> <TD> <TD> Inverse time feed rate </TR>
 <TR> <TD> <A HREF="http://www.linuxcnc.org/handbook/RS274NGC_3/RS274NGC_33a.html#1003508">G94</A> <TD> <TD> Units per minute feed rate </TR>
+<TR> <TD> <A HREF="http://www.linuxcnc.org/handbook/RS274NGC_3/RS274NGC_33a.html#1003508">G95</A> <TD> <TD> Units per revolution </TR>
 <TR> <TH COLSPAN=3>Units </TR>
 <TR> <TD> <A HREF="http://www.linuxcnc.org/handbook/RS274NGC_3/RS274NGC_33a.html#1004239">G20</A> <TD> <TD> Inches </TR>
 <TR> <TD> <A HREF="http://www.linuxcnc.org/handbook/RS274NGC_3/RS274NGC_33a.html#1004239">G21</A> <TD> <TD> Millimeters </TR>
@@ -74,6 +93,8 @@ tr.head td, tr.head th { background: black; color: white; }
 <TR> <TH COLSPAN=3>Spindle Control </TR>
 <TR> <TD> <A HREF="http://www.linuxcnc.org/handbook/RS274NGC_3/RS274NGC_33a.html#1016064">M3, M4</A> <TD> S <TD> Turn spindle clockwise or counterclockwise </TR>
 <TR> <TD> <A HREF="http://www.linuxcnc.org/handbook/RS274NGC_3/RS274NGC_33a.html#1016064">M5</A> <TD> <TD> Stop spindle </TR>
+<TR> <TD> G96 <TD> D S <TD> Constant surface speed mode (foot/minute or meter/minute) with top speed </TR>
+<TR> <TD> G97 <TD> <TD> RPM mode </TR>
 <TR> <TH COLSPAN=3>Coolant </TR>
 <TR> <TD> <A HREF="http://www.linuxcnc.org/handbook/RS274NGC_3/RS274NGC_33a.html#1016069">M7</A> <TD> <TD> Turn mist on </TR>
 <TR> <TD> <A HREF="http://www.linuxcnc.org/handbook/RS274NGC_3/RS274NGC_33a.html#1016069">M8</A> <TD> <TD> Turn flood on </TR>
