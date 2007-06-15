@@ -146,14 +146,20 @@ static int limits_ok(void)
 static int jog_ok(int joint_num, double vel)
 {
     emcmot_joint_t *joint;
+    int neg_limit_override, pos_limit_override;
 
     /* point to joint data */
     joint = &joints[joint_num];
-
-    if (emcmotStatus->overrideLimits) {
-	return 1;		/* okay to jog when limits overridden */
+    /* are any limits for this joint overridden? */
+    neg_limit_override = emcmotStatus->overrideLimitMask & ( 1 << (joint_num*2));
+    pos_limit_override = emcmotStatus->overrideLimitMask & ( 2 << (joint_num*2));
+    if ( neg_limit_override && pos_limit_override ) {
+	/* both limits have been overridden at the same time.  This
+	   happens only when they both share an input, but means it
+	   is impossible to know which direction is safe to move.  So
+	   we skip the following tests... */
+	return 1;
     }
-
     if (joint_num < 0 || joint_num >= num_joints) {
 	reportError("Can't jog invalid joint number %d.", joint_num);
 	return 0;
@@ -528,10 +534,21 @@ check_stuff ( "before command_handler()" );
 	    if (emcmotCommand->axis < 0) {
 		/* don't override limits */
 		rtapi_print_msg(RTAPI_MSG_DBG, "override off");
-		emcmotStatus->overrideLimits = 0;
+		emcmotStatus->overrideLimitMask = 0;
 	    } else {
 		rtapi_print_msg(RTAPI_MSG_DBG, "override on");
-		emcmotStatus->overrideLimits = 1;
+		emcmotStatus->overrideLimitMask = 0;
+		for (joint_num = 0; joint_num < num_joints; joint_num++) {
+		    /* point at joint data */
+		    joint = &joints[joint_num];
+		    /* only override limits that are currently tripped */
+		    if ( GET_JOINT_NHL_FLAG(joint) ) {
+			emcmotStatus->overrideLimitMask |= (1 << (joint_num*2));
+		    }
+		    if ( GET_JOINT_PHL_FLAG(joint) ) {
+			emcmotStatus->overrideLimitMask |= (2 << (joint_num*2));
+		    }
+		}
 	    }
 	    emcmotDebug->overriding = 0;
 	    for (joint_num = 0; joint_num < num_joints; joint_num++) {

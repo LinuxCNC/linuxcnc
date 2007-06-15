@@ -616,7 +616,7 @@ void usrmotPrintEmcmotStatus(emcmot_status_t s, int which)
 #endif
 	printf("fault\n");
 	printf("\npolarity: ");
-	printf("limit override: %d\n", s.overrideLimits);
+	printf("limit override mask: %08x\n", s.overrideLimitMask);
 	break;
 
     case 4:

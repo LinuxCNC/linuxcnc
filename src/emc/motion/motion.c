@@ -859,7 +859,7 @@ static int init_comm_buffers(void)
     emcmotStatus->depth = 0;
     emcmotStatus->activeDepth = 0;
     emcmotStatus->paused = 0;
-    emcmotStatus->overrideLimits = 0;
+    emcmotStatus->overrideLimitMask = 0;
     emcmotStatus->spindle.speed = 0.0;
     SET_MOTION_INPOS_FLAG(1);
     SET_MOTION_ENABLE_FLAG(0);

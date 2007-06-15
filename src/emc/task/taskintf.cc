@@ -581,7 +581,7 @@ int emcAxisUpdate(EMC_AXIS_STAT stat[], int numAxes)
 	    (joint->flag & EMCMOT_AXIS_MIN_HARD_LIMIT_BIT ? 1 : 0);
 	stat[axis].maxHardLimit =
 	    (joint->flag & EMCMOT_AXIS_MAX_HARD_LIMIT_BIT ? 1 : 0);
-	stat[axis].overrideLimits = (emcmotStatus.overrideLimits);	// one
+	stat[axis].overrideLimits = (emcmotStatus.overrideLimitMask);	// one
 	// for
 	// all
 

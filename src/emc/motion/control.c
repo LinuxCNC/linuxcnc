@@ -636,7 +636,8 @@ static void check_for_faults(void)
 {
     int joint_num;
     emcmot_joint_t *joint;
-    
+    int neg_limit_override, pos_limit_override;
+
     /* check for various global fault conditions */
     /* only check enable input if running */
     if ( GET_MOTION_ENABLE_FLAG() != 0 ) {
@@ -651,11 +652,14 @@ static void check_for_faults(void)
 	joint = &joints[joint_num];
 	/* only check active, enabled axes */
 	if ( GET_JOINT_ACTIVE_FLAG(joint) && GET_JOINT_ENABLE_FLAG(joint) ) {
+	    /* are any limits for this joint overridden? */
+	    neg_limit_override = emcmotStatus->overrideLimitMask & ( 1 << (joint_num*2));
+	    pos_limit_override = emcmotStatus->overrideLimitMask & ( 2 << (joint_num*2));
 	    /* check for hard limits */
-	    if (GET_JOINT_PHL_FLAG(joint) || GET_JOINT_NHL_FLAG(joint)) {
+	    if ((GET_JOINT_PHL_FLAG(joint) && ! pos_limit_override ) ||
+		(GET_JOINT_NHL_FLAG(joint) && ! neg_limit_override )) {
 		/* joint is on limit switch, should we trip? */
-		if (emcmotStatus->overrideLimits
-		    || GET_JOINT_HOMING_FLAG(joint)) {
+		if (GET_JOINT_HOMING_FLAG(joint)) {
 		    /* no, ignore limits */
 		} else {
 		    /* trip on limits */
@@ -828,7 +832,7 @@ static void set_operating_mode(void)
 		}
 		/* clear the override limits flags */
 		emcmotDebug->overriding = 0;
-		emcmotStatus->overrideLimits = 0;
+		emcmotStatus->overrideLimitMask = 0;
 		SET_MOTION_COORD_FLAG(1);
 		SET_MOTION_TELEOP_FLAG(0);
 		SET_MOTION_ERROR_FLAG(0);
@@ -1776,8 +1780,8 @@ static void get_pos_cmds(long period)
 		    /* active TP means we're moving, so not in position */
 		    SET_JOINT_INPOS_FLAG(joint, 0);
 		    SET_MOTION_INPOS_FLAG(0);
-		    /* check to see if this move is with limits disabled */
-		    if ( emcmotStatus->overrideLimits ) {
+		    /* is any limit disabled for this move? */
+		    if ( emcmotStatus->overrideLimitMask ) {
 			emcmotDebug->overriding = 1;
 		    }
 		} else {
@@ -1791,7 +1795,7 @@ static void get_pos_cmds(long period)
 	/* if overriding is true and we're in position, the jog
 	   is complete, and the limits should be re-enabled */
 	if ( (emcmotDebug->overriding ) && ( GET_MOTION_INPOS_FLAG() ) ) {
-	    emcmotStatus->overrideLimits = 0;
+	    emcmotStatus->overrideLimitMask = 0;
 	    emcmotDebug->overriding = 0;
 	}
 	/*! \todo FIXME - this should run at the traj rate */
