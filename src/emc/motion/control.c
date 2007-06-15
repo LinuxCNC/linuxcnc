@@ -1136,7 +1136,7 @@ static void do_homing(void)
     int joint_num;
     emcmot_joint_t *joint;
     double offset, tmp;
-    int home_sw_new, home_sw_rise, home_sw_fall, homing_flag;
+    int home_sw_active, homing_flag;
 
     homing_flag = 0;
     if (emcmotStatus->motion_state != EMCMOT_MOTION_FREE) {
@@ -1151,21 +1151,7 @@ static void do_homing(void)
 	    /* if joint is not active, skip it */
 	    continue;
 	}
-	/* detect rising and falling edges on home switch */
-	home_sw_rise = 0;
-	home_sw_fall = 0;
-	home_sw_new = GET_JOINT_HOME_SWITCH_FLAG(joint);
-	if (home_sw_new) {
-	    if (!joint->home_sw_old) {
-		home_sw_rise = 1;
-	    }
-	} else {
-	    if (joint->home_sw_old) {
-		home_sw_fall = 1;
-	    }
-	}
-	joint->home_sw_old = home_sw_new;
-
+	home_sw_active = GET_JOINT_HOME_SWITCH_FLAG(joint);
 	if (joint->home_state != HOME_IDLE) {
 	    homing_flag = 1; /* at least one axis is homing */
 	}
@@ -1196,7 +1182,7 @@ static void do_homing(void)
 		/* This state is responsible for getting the homing process
 		   started.  It doesn't actually do anything, it simply
 		   determines what state is next */
-		if (joint->home_flags & HOME_IS_SHARED && home_sw_new) {
+		if (joint->home_flags & HOME_IS_SHARED && home_sw_active) {
 		    reportError(
 			"Cannot home while shared home switch is closed");
 		    joint->home_state = HOME_IDLE;
@@ -1253,7 +1239,7 @@ static void do_homing(void)
 		   successfully.  If the move ends or hits a limit before it
 		   clears the switch, the home is aborted. */
 		/* are we off home switch yet? */
-		if (home_sw_fall) {
+		if (! home_sw_active) {
 		    /* yes, stop motion */
 		    joint->free_tp_enable = 0;
 		    /* begin initial search */
@@ -1283,7 +1269,7 @@ static void do_homing(void)
 		}
 		joint->home_pause_timer = 0;
 		/* make sure we aren't already on home switch */
-		if (GET_JOINT_HOME_SWITCH_FLAG(joint)) {
+		if (home_sw_active) {
 		    /* already on switch, need to back off it first */
 		    joint->home_state = HOME_INITIAL_BACKOFF_START;
 		    immediate_state = 1;
@@ -1301,7 +1287,7 @@ static void do_homing(void)
 		   the move ends or hits a limit before it finds the switch,
 		   the home is aborted. */
 		/* have we hit home switch yet? */
-		if (home_sw_rise) {
+		if (home_sw_active) {
 		    /* yes, stop motion */
 		    joint->free_tp_enable = 0;
 		    /* go to next step */
@@ -1367,6 +1353,13 @@ static void do_homing(void)
 		    break;
 		}
 		joint->home_pause_timer = 0;
+		/* we should still be on the switch */
+		if (! home_sw_active) {
+		    reportError(
+			"Home switch inactive before start of backoff move");
+		    joint->home_state = HOME_IDLE;
+		    break;
+		}
 		/* set up a move at '-search_vel' to back off of switch */
 		home_start_move(joint, -joint->home_search_vel);
 		/* next state */
@@ -1380,7 +1373,7 @@ static void do_homing(void)
 		   the move ends or hits a limit before it clears the switch,
 		   the home is aborted. */
 		/* are we off home switch yet? */
-		if (home_sw_fall) {
+		if (! home_sw_active) {
 		    /* yes, stop motion */
 		    joint->free_tp_enable = 0;
 		    /* begin final search */
@@ -1408,6 +1401,13 @@ static void do_homing(void)
 		    break;
 		}
 		joint->home_pause_timer = 0;
+		/* we should still be off of the switch */
+		if (home_sw_active) {
+		    reportError(
+			"Home switch active before start of latch move");
+		    joint->home_state = HOME_IDLE;
+		    break;
+		}
 		/* set up a move at 'latch_vel' to locate the switch */
 		home_start_move(joint, joint->home_latch_vel);
 		/* next state */
@@ -1421,7 +1421,7 @@ static void do_homing(void)
 		   or hits a limit before it hits the switch, the home is
 		   aborted. */
 		/* have we hit the home switch yet? */
-		if (home_sw_rise) {
+		if (home_sw_active) {
 		    /* yes, where do we go next? */
 		    if (joint->home_flags & HOME_USE_INDEX) {
 			/* look for index pulse */
@@ -1457,6 +1457,13 @@ static void do_homing(void)
 		    break;
 		}
 		joint->home_pause_timer = 0;
+		/* we should still be on the switch */
+		if (!home_sw_active) {
+		    reportError(
+			"Home switch inactive before start of latch move");
+		    joint->home_state = HOME_IDLE;
+		    break;
+		}
 		/* set up a move at 'latch_vel' to locate the switch */
 		home_start_move(joint, joint->home_latch_vel);
 		/* next state */
@@ -1470,7 +1477,7 @@ static void do_homing(void)
 		   hits a limit before it clears the switch, the home is
 		   aborted. */
 		/* have we cleared the home switch yet? */
-		if (home_sw_fall) {
+		if (!home_sw_active) {
 		    /* yes, where do we go next? */
 		    if (joint->home_flags & HOME_USE_INDEX) {
 			/* look for index pulse */

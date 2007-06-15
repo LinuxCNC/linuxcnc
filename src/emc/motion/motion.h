@@ -483,7 +483,6 @@ Suggestion: Split this in to an Error and a Status flag register..
 	int on_neg_limit;	/* non-zero if on limit */
 	double home_sw_pos;	/* latched position of home sw */
 	int home_pause_timer;	/* used to delay between homing states */
-	char home_sw_old;	/* previous value, for edge detection */
 	int index_enable;	/* current state of index enable pin */
 
 	home_state_t home_state;	/* state machine for homing */
