@@ -964,6 +964,19 @@ class EMC_TRAJ_PROBE:public EMC_TRAJ_CMD_MSG {
     double vel, ini_maxvel, acc;
 };
 
+class EMC_TRAJ_RIGID_TAP:public EMC_TRAJ_CMD_MSG {
+  public:
+    EMC_TRAJ_RIGID_TAP():EMC_TRAJ_CMD_MSG(EMC_TRAJ_RIGID_TAP_TYPE,
+				      sizeof(EMC_TRAJ_RIGID_TAP)) {
+    };
+
+    // For internal NML/CMS use only.
+    void update(CMS * cms);
+
+    EmcPose pos;
+    double vel, ini_maxvel, acc;
+};
+
 // EMC_TRAJ status base class
 class EMC_TRAJ_STAT_MSG:public RCS_STAT_MSG {
   public:

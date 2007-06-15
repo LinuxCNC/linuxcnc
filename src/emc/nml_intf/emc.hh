@@ -139,9 +139,10 @@ class PM_CARTESIAN;
 #define EMC_TRAJ_SET_TELEOP_VECTOR_TYPE              ((NMLTYPE) 231)
 #define EMC_TRAJ_SET_SPINDLESYNC_TYPE                ((NMLTYPE) 232)
 #define EMC_TRAJ_SET_SPINDLE_SCALE_TYPE              ((NMLTYPE) 233)
-#define EMC_TRAJ_SET_FO_ENABLE_TYPE              ((NMLTYPE) 234)
-#define EMC_TRAJ_SET_SO_ENABLE_TYPE           ((NMLTYPE) 235)
-#define EMC_TRAJ_SET_FH_ENABLE_TYPE         ((NMLTYPE) 236)
+#define EMC_TRAJ_SET_FO_ENABLE_TYPE                  ((NMLTYPE) 234)
+#define EMC_TRAJ_SET_SO_ENABLE_TYPE                  ((NMLTYPE) 235)
+#define EMC_TRAJ_SET_FH_ENABLE_TYPE                  ((NMLTYPE) 236)
+#define EMC_TRAJ_RIGID_TAP_TYPE                      ((NMLTYPE) 237)
 
 #define EMC_TRAJ_STAT_TYPE                           ((NMLTYPE) 299)
 
@@ -461,6 +462,7 @@ extern int emcTrajSetHome(EmcPose home);
 extern int emcTrajClearProbeTrippedFlag();
 extern int emcTrajProbe(EmcPose pos, int type, double vel, 
 	double ini_maxvel, double acc);
+extern int emcTrajRigidTap(EmcPose pos, double vel, double ini_maxvel, double acc);
 
 extern int emcTrajUpdate(EMC_TRAJ_STAT * stat);
 
