@@ -701,18 +701,14 @@ int read_hal_inputs(void)
 ********************************************************************/
 int read_tool_inputs(void)
 {
-    int oldval, retval = 0;
-
-    oldval = emcioStatus.tool.toolPrepped;
-    if ((*(iocontrol_data->tool_prepare) == 1) && (*(iocontrol_data->tool_prepared) == 1)) {
+    if (*iocontrol_data->tool_prepare && *iocontrol_data->tool_prepared) {
 	emcioStatus.tool.toolPrepped = *(iocontrol_data->tool_prep_number); //check if tool has been prepared
 	*(iocontrol_data->tool_prepare) = 0;
 	emcioStatus.status = RCS_DONE;  // we finally finished to do tool-changing, signal task with RCS_DONE
 	return 10; //prepped finished
     }
     
-    oldval = emcioStatus.tool.toolInSpindle;
-    if ((*(iocontrol_data->tool_change) != 0) && (*(iocontrol_data->tool_changed)==1)) {
+    if (*iocontrol_data->tool_change && *iocontrol_data->tool_changed) {
 	emcioStatus.tool.toolInSpindle = emcioStatus.tool.toolPrepped; //the tool now in the spindle is the one that was prepared
 	*(iocontrol_data->tool_number) = emcioStatus.tool.toolInSpindle; //likewise in HAL
 	emcioStatus.tool.toolPrepped = -1; //reset the tool preped number, -1 to permit tool 0 to be loaded
@@ -721,7 +717,7 @@ int read_tool_inputs(void)
 	emcioStatus.status = RCS_DONE;	// we finally finished to do tool-changing, signal task with RCS_DONE
 	return 11; //change finished
     }
-    return retval;
+    return 0;
 }
 
 static void do_hal_exit(void) {
@@ -891,9 +887,9 @@ int main(int argc, char *argv[])
 	    break;
 
 	case EMC_TOOL_LOAD_TYPE:
-	    rtapi_print_msg(RTAPI_MSG_WARN, "EMC_TOOL_LOAD loaded=%d prepped=%d\n", emcioStatus.tool.toolInSpindle, emcioStatus.tool.toolPrepped);
+	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_TOOL_LOAD loaded=%d prepped=%d\n", emcioStatus.tool.toolInSpindle, emcioStatus.tool.toolPrepped);
 	    if ( emcioStatus.tool.toolInSpindle != emcioStatus.tool.toolPrepped
-		    && emcioStatus.tool.toolPrepped) {
+		    && emcioStatus.tool.toolPrepped != -1) {
 		//notify HW for toolchange
 		*(iocontrol_data->tool_change) = 1;
 		// the feedback logic is done inside read_hal_inputs() we only
