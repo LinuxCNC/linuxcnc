@@ -639,6 +639,7 @@ static void create_probe_window(probe_t * probe)
     }
     /* this selects the page holding the current selected probe */
     gtk_widget_show(notebk);
+    probe->listnum=0;
 
     /* an hbox to hold the OK, apply, and cancel buttons */
     hbox = gtk_hbox_new_in_box(TRUE, 0, 0, vbox, FALSE, TRUE, 0);
