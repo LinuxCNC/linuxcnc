@@ -71,12 +71,12 @@ pin out float encoder.#.velocity[4];
 pin in bit encoder.#.reset[4];
 pin io bit encoder.#.index-enable[4] """encoder.\\fIM\\fR corresponds to the
 pins labeled QA\\fIM\\fR, QB\\fIM\\fR, and QZ\\fIM\\fR on the pinout diagram""";
-param rw float encoder_#_scale[4] =1;
+param rw float encoder.#.scale[4] =1;
 
 param rw bit encoder.z-polarity "Set to TRUE if the index pulse is active low, FALSE if it is active high.  Affects all encoders.";
 
 pin in float pwm.#.value[4];
-pin in bit pwm_#_enable[4] "pwm.\\fIM\\fR corresponds to the pins labeled UP\\fIM\\fR and DN\\fIM\\fR on the pinout diagram";
+pin in bit pwm.#.enable[4] "pwm.\\fIM\\fR corresponds to the pins labeled UP\\fIM\\fR and DN\\fIM\\fR on the pinout diagram";
 param rw float pwm.#.offset[4];
 param rw float pwm.#.scale[4]=1;
 param rw float pwm.#.max-dc[4]=1;
