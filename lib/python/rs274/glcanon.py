@@ -93,6 +93,12 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         self.first_move = False
         self.lo = l
 
+    def rigid_tap(self, x, y, z):
+        l = (x + self.offset_x,y + self.offset_y,z + self.offset_z)
+        self.feed_append((self.lineno, self.lo, l, self.feedrate))
+        self.dwells_append((self.lineno, self.colors['dwell'], x,y,z, 0))
+        self.feed_append((self.lineno, l, self.lo, self.feedrate))
+
     def arc_feed(self, *args):
         self.in_arc = True
         try:

@@ -374,11 +374,9 @@ void STRAIGHT_PROBE(double x, double y, double z, double a, double b, double c) 
 void RIGID_TAP(double x, double y, double z) {
     if(metric) { x /= 25.4; y /= 25.4; z /= 25.4; }
     maybe_new_line();
-    x=_pos_x; y=_pos_y; z=_pos_z;
-    maybe_new_line();
     if(interp_error) return;
     PyObject *result =
-        PyObject_CallMethod(callback, "rigid_tap", "ffffff",
+        PyObject_CallMethod(callback, "rigid_tap", "fff",
             x, y, z);
     if(result == NULL) interp_error ++;
     Py_XDECREF(result);
