@@ -1,0 +1,4 @@
+linksp Xvel-cmd pyvcp.xpid-bar
+linksp Zvel-cmd pyvcp.zpid-bar
+
+linksp spindle-speed-cmd pyvcp.spindle-bar
