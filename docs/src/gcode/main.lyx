@@ -4676,10 +4676,20 @@ G33
 
 \end_inset 
 
+, G33.1
+\begin_inset LatexCommand \index{1}
+
+\end_inset 
+
 : Spindle-Synchronized Motion
+\begin_inset LatexCommand \label{sec:G33,-G33.1:-Spindle-Synchronized}
+
+\end_inset 
+
+
 \layout Standard
 
-For spindle-synchronized motion, code 
+For spindle-synchronized motion in one direction, code 
 \family typewriter 
 G33 X- Y- Z- K- 
 \family default 
@@ -4699,6 +4709,53 @@ G33 Z1 K.0625
 \family default 
  produces a 1 inch motion in Z over 16 revolutions of the spindle.
  This command might be part of a program to produce a 16TPI thread.
+\layout Standard
+
+For rigid tapping (spindle synchronized motion with return) code 
+\family typewriter 
+G33.1 X- Y- Z- K-
+\family default 
+ where 
+\family typewriter 
+K-
+\family default 
+ gives the distance moved for each revolution of the spindle.
+ A rigid tapping move consists of the following operations:
+\layout Itemize
+
+A move to the specified coordinate synchronized with the spindle
+\layout Itemize
+
+A command to reverse the spindle (e.g., from 300 RPM clockwise to 300RPM countercl
+ockwise)
+\layout Itemize
+
+A synchronized move 
+\series bold 
+beyond
+\series default 
+ the specified end coordinate until the spindle actually stops and reverses
+\layout Itemize
+
+A move back to the original coordinate
+\layout Itemize
+
+A command to reverse the spindle a second time (e.g., from 300RPM counterclockwise
+ to 300RPM clockwise)
+\layout Itemize
+
+A synchronized move 
+\series bold 
+beyond
+\series default 
+ the original coordinate until the spindle actually stops and reverses
+\layout Itemize
+
+An 
+\series bold 
+unsynchronized
+\series default 
+ move to the original coordinate sytem.
 \layout Standard
 
 All the axis words are optional, except that at least one must be used.
@@ -6681,6 +6738,11 @@ G93
 
 \end_inset 
 
+, G95
+\begin_inset LatexCommand \index{G95}
+
+\end_inset 
+
 : Set Feed Rate Mode
 \begin_inset LatexCommand \label{sub:G93,-G94:-Set}
 
@@ -6689,15 +6751,23 @@ G93
 
 \layout Standard
 
-Two feed rate modes are recognized: units per minute and inverse time.
+Three feed rate modes are recognized: units per minute, inverse time, and
+ units per revolution.
  Program G94 to start the units per minute mode.
  Program G93 to start the inverse time mode.
+ Program G95 to start the units per revolution mode.
 \layout Standard
 
 In units per minute feed rate mode, an F word is interpreted to mean the
  controlled point should move at a certain number of inches per minute,
  millimeters per minute, or degrees per minute, depending upon what length
  units are being used and which axis or axes are moving.
+\layout Standard
+
+In units per revolution mode, an F word is interpreted to mean the controlled
+ point should move a certain number of inches per revolution of the spindle,
+ depending on what length units are being used and which axis or axes are
+ moving.
 \layout Standard
 
 In inverse time feed rate mode, an F word means the move should be completed
@@ -6716,6 +6786,51 @@ When the inverse time feed rate mode is active, an F word must appear on
 
 inverse time feed rate mode is active and a line with G1, G2, or G3 (explicitly
  or implicitly) does not have an F word.
+\layout Itemize
+
+A new feed rate is not specified after switching to G94 or G95
+\layout Section
+
+G96
+\begin_inset LatexCommand \index{G96}
+
+\end_inset 
+
+, G97
+\begin_inset LatexCommand \index{G97}
+
+\end_inset 
+
+: Spindle control mode
+\begin_inset LatexCommand \index{mode}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \label{sec:G97,-G98:-Spindle}
+
+\end_inset 
+
+
+\layout Standard
+
+Two spindle control modes are recognized: revolutions per minute, and constant
+ surface speed.
+ Program G96 D- S- to select constant surface speed of S feet per minute
+ (if G20 is in effect) or meters per minute (if G21 is in effect).
+ The maximum spindle speed is set by the D- number in revolutions per minute.
+\layout Standard
+
+Program G95 to select RPM mode.
+\layout Standard
+
+It is an error if:
+\layout Itemize
+
+S is not specified with G96
+\layout Itemize
+
+A feed move is specified in G96 mode while the spindle is not turning
 \layout Section
 
 G98
