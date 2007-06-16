@@ -159,14 +159,14 @@ def param(name, type, array, dir, doc, value, personality):
 
 def function(name, fp, doc):
     if name in names:
-        raise runtime.SyntaxError, "Duplicate item name %s" % name
+        Error("Duplicate item name %s" % name)
     docs.append(('funct', name, fp, doc))
     names[name] = None
     functions.append((name, fp))
 
 def option(name, value):
     if name in options:
-        raise runtime.SyntaxError, "Duplicate option name %s" % name
+        Error("Duplicate option name %s" % name)
     options[name] = value
 
 def variable(type, name, array, default):
@@ -277,7 +277,7 @@ static int comp_id;
     print >>f
     for name, fp in functions:
         if names.has_key(name):
-            raise RuntimeError, "Duplicate item name: %s" % name
+            Error("Duplicate item name: %s" % name)
         print >>f, "static void %s(struct state *inst, long period);" % to_c(name)
         names[name] = 1
 
@@ -822,11 +822,12 @@ def main():
             else:
                 raise SystemExit, "Unrecognized file type: %s" % f
         except:
+            ex_type, ex_value, exc_tb = sys.exc_info()
             try:
                 os.unlink(outfile)
-            except os.error:
+            except: # os.error:
                 pass
-            raise
+            raise ex_type, ex_value, exc_tb
 if __name__ == '__main__':
     main()
 
