@@ -3413,8 +3413,8 @@ forget(widgets.spindlel,  "motion.spindle-forward", "motion.spindle-reverse",
 forget(widgets.spinoverridef, "motion.spindle-speed-out")
 
 forget(widgets.mist, "iocontrol.0.coolant-mist")
-forget(widgets.flood, "iocontrol.0.coolant-mist")
-forget(widgets.lubel, "iocontrol.0.coolant-mist", "iocontrol.0.coolant-mist")
+forget(widgets.flood, "iocontrol.0.coolant-flood")
+forget(widgets.lubel, "iocontrol.0.coolant-flood", "iocontrol.0.coolant-mist")
 
 rcfile = os.path.expanduser("~/.axisrc")
 if os.path.exists(rcfile):
