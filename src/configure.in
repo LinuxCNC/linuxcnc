@@ -326,6 +326,7 @@ fi
 AC_MSG_CHECKING([for usability of linux/joystick.h])
 AC_TRY_LINK(
     [
+#include <inttypes.h>
 #include <linux/joystick.h>
     ],
     [],
