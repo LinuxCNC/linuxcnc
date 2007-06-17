@@ -15,8 +15,10 @@ usr/include/emc2/cubic.h
 usr/include/emc2/emccfg.h
 usr/include/emc2/emcglb.h
 usr/include/emc2/emc.hh
+usr/include/emc2/emcIniFile.hh
 usr/include/emc2/emcmotcfg.h
 usr/include/emc2/emcmotglb.h
+usr/include/emc2/emc_nml.hh
 usr/include/emc2/emcpos.h
 usr/include/emc2/genhexkins.h
 usr/include/emc2/hal.h
@@ -39,6 +41,7 @@ usr/include/emc2/nml_mod.hh
 usr/include/emc2/nmlmsg.hh
 usr/include/emc2/nml_oi.hh
 usr/include/emc2/nml_srv.hh
+usr/include/emc2/nml_type.hh
 usr/include/emc2/phantom.hh
 usr/include/emc2/physmem.hh
 usr/include/emc2/posemath.h
@@ -76,6 +79,7 @@ usr/include/emc2/timer.hh
 usr/include/emc2/tp.h
 usr/include/emc2/usrmotintf.h
 usr/lib/libemc.a
+usr/share/doc/emc2-dev/EMC2_Developer_Manual.pdf
 usr/share/man/man3/hal_add_funct_to_thread.3hal
 usr/share/man/man3/hal_bit_t.3hal
 usr/share/man/man3/hal_create_thread.3hal
@@ -150,4 +154,3 @@ usr/share/man/man3/rtapi_task_start.3rtapi
 usr/share/man/man3/rtapi_task_wait.3rtapi
 usr/share/man/man3/undocumented.3hal
 usr/share/man/man3/undocumented.3rtapi
-usr/share/doc/emc2-dev/EMC2_Developer_Manual.pdf

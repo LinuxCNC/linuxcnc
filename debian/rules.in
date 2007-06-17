@@ -31,7 +31,7 @@ build-stamp:
 ifeq "$(kernel_version)" "sim"
 	cd src && ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --enable-simulator --enable-build-documentation=pdf
 else
-	cd src && ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --with-rtai=/usr/realtime-$(kernel_version) --enable-build-documentation
+	cd src && ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --with-realtime=/usr/realtime-$(kernel_version) --enable-build-documentation=pdf
 endif
 	(cd src; $(MAKE) && $(MAKE) docs)
 	touch build-stamp
@@ -44,7 +44,7 @@ clean: debian/control
 ifeq "$(kernel_version)" "sim"
 	cd src && ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --enable-simulator
 else
-	cd src && ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --with-rtai=/usr/realtime-$(kernel_version)
+	cd src && ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --with-realtime=/usr/realtime-$(kernel_version)
 endif
 	cd src && $(MAKE) clean -s
 	rm -f Makefile.inc
@@ -73,6 +73,7 @@ install: build
 	rm debian/tmp/usr/share/doc/emc2/EMC2_Manual_Pages.pdf 
 	rm -rf debian/tmp/usr/share/doc/emc2/html
 	rm debian/tmp/emc2.files
+	@rm debian/tmp/etc/emc2/sample-configs/*/*position*.txt
 	dh_movefiles
 	if [ `find debian/tmp -type f | wc -c` != 0 ]; then \
 		echo "Files exist in debian/tmp, but should not"; \
