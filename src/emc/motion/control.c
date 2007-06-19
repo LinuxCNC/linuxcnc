@@ -2086,7 +2086,7 @@ static void get_pos_cmds(long period)
     if ( onlimit ) {
 	if ( ! emcmotStatus->on_soft_limit ) {
 	    /* just hit the limit */
-	    reportError("Exceeded soft limit (bug?)");
+	    reportError("Exceeded soft limit");
 	    SET_MOTION_ERROR_FLAG(1);
 	    emcmotStatus->on_soft_limit = 1;
 	}
