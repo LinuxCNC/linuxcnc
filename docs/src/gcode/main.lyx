@@ -4694,21 +4694,17 @@ For spindle-synchronized motion in one direction, code
 G33 X- Y- Z- K- 
 \family default 
 where K gives the distance moved in XYZ for each revolution of the spindle.
- This syntax is subject to change (In particular, to use 
+ For instance, if starting at 
 \family typewriter 
-F-
+Z=0
 \family default 
- instead of 
+, 
 \family typewriter 
-K-
-\family default 
-).
- For instance, 
-\family typewriter 
-G33 Z1 K.0625
+G33 Z-1 K.0625
 \family default 
  produces a 1 inch motion in Z over 16 revolutions of the spindle.
  This command might be part of a program to produce a 16TPI thread.
+ 
 \layout Standard
 
 For rigid tapping (spindle synchronized motion with return) code 
@@ -4720,31 +4716,32 @@ G33.1 X- Y- Z- K-
 K-
 \family default 
  gives the distance moved for each revolution of the spindle.
- A rigid tapping move consists of the following operations:
+ A rigid tapping move consists of the following sequence:
 \layout Itemize
 
-A move to the specified coordinate synchronized with the spindle
+A move to the specified coordinate, synchronized with the spindle at the
+ given ratio and starting with a spindle index pulse
 \layout Itemize
 
-A command to reverse the spindle (e.g., from 300 RPM clockwise to 300RPM countercl
-ockwise)
+When reaching the endpoint, a command to reverse the spindle (e.g., from 300
+ RPM clockwise to 300RPM counterclockwise)
 \layout Itemize
 
-A synchronized move 
+Continued synchronized motion 
 \series bold 
 beyond
 \series default 
  the specified end coordinate until the spindle actually stops and reverses
 \layout Itemize
 
-A move back to the original coordinate
+Continued synchronized motion back to the original coordinate
 \layout Itemize
 
-A command to reverse the spindle a second time (e.g., from 300RPM counterclockwise
- to 300RPM clockwise)
+When reaching the original coordinate, a command to reverse the spindle
+ a second time (e.g., from 300RPM counterclockwise to 300RPM clockwise)
 \layout Itemize
 
-A synchronized move 
+Continued synchronized motion 
 \series bold 
 beyond
 \series default 
@@ -4755,12 +4752,24 @@ An
 \series bold 
 unsynchronized
 \series default 
- move to the original coordinate sytem.
+ move back to the original coordinate.
+\layout Standard
+
+All spindle-synchronized motions wait for spindle index, so multiple passes
+ line up.
+ 
+\family typewriter 
+G33
+\family default 
+ moves end at the programmed endpoint; 
+\family typewriter 
+G33.1
+\family default 
+ moves end at the original coordinate.
 \layout Standard
 
 All the axis words are optional, except that at least one must be used.
- This will produce coordinated linear motion to the destination point at
- a rate dependant on the speed of the spindle.
+ 
 \layout Standard
 
 It is an error if: 
