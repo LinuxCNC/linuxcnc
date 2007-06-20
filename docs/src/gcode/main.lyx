@@ -6330,7 +6330,7 @@ Rapid back out to the clear_z.
 Rapid back down to the current hole bottom, backed off a bit.
 \layout Enumerate
 
-Repeat steps 1, 2, and 3 until the Z position is reached at step 1.
+Repeat steps 2, 3, and 4 until the Z position is reached at step 2.
 \layout Enumerate
 
 Retract the Z-axis at traverse rate to clear Z.
