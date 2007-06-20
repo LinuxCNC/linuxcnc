@@ -2,6 +2,7 @@ emc2 (1:2.1.7) unstable; urgency=low
 
   * additional PPMC indexing fixes
   * motenc indexing fixes 
+  * french translation improvements from Francis TISSERANT
 
  -- jepler <jepler@unpythonic.net>  Wed, 13 Jun 2007 23:45:23 -0500
 
