@@ -330,6 +330,7 @@ usr/share/emc/tcl/emc.tcl
 usr/share/emc/tcl/mini.tcl
 usr/share/emc/tcl/tkemc.tcl
 usr/share/emc/tcl/msgs/de.msg
+usr/share/emc/tcl/msgs/fr.msg
 usr/share/emc/tcl/msgs/it.msg
 usr/share/emc/tcl/msgs/ja.msg
 usr/share/emc/tcl/msgs/ro.msg
