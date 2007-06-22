@@ -171,7 +171,7 @@ typedef struct {
     hal_float_t				scale;		// Scaling factor for position.
 
     // Private data.
-    int					indexEnabled;
+    short				control;	// value to write to control register
 
 } EncoderPinsParams;
 
@@ -606,7 +606,9 @@ Device_ExportEncoderPinsParametersFunctions(Device *this, int componentId, int b
 	*(this->encoder[channel].pIndexEnable) = 0;
 	*(this->encoder[channel].pReset) = 0;
 	this->encoder[channel].scale = 1.0;
-	this->encoder[channel].indexEnabled = 0;
+	this->encoder[channel].control = M5I20_ENC_CTL_COUNT_QUADRATURE
+	    | M5I20_ENC_CTL_INDEX_ACTIVE_HI | M5I20_ENC_CTL_QUAD_FILTER_4MHZ
+	    | M5I20_ENC_CTL_LATCH_ON_READ;
     }
 
     // Export functions.
@@ -824,26 +826,20 @@ Device_EncoderRead(void *arg, long period)
     M5i20HostMotRegMap			*pCard16 = this->pCard16;
     M5i20HostMotRegMap			*pCard32 = this->pCard32;
     EncoderPinsParams			*pEncoder;
-    int					i, j;
-    __u16				status;
+    int				i, j;
+    __u16				status, old_control;
 
     pEncoder = &this->encoder[0];
 
     // For each encoder.
     for(i = 0, j = 0; j < M5I20_NUM_ENCODER_CHANNELS; j++, pEncoder++){
 
-	// Check reset pin.
+	// save previous control word
+	old_control = pEncoder->control;
+
 	if(*(pEncoder->pReset)){
 	    // Reset encoder.
-	    pCard16->encoderControl[i] |= M5I20_ENC_CTL_LOCAL_CLEAR;
-	}
-
-	// Check index enable pin.
-	if(*(pEncoder->pIndexEnable) && !pEncoder->indexEnabled){
-	    pEncoder->indexEnabled = 1;
-
-	    // Enable index clear.
-	    pCard16->encoderControl[i] |= M5I20_ENC_CTL_CLEAR_ON_INDEX | M5I20_ENC_CTL_CLEAR_ONCE;
+	    pCard16->encoderControl[i] = pEncoder->control | M5I20_ENC_CTL_LOCAL_CLEAR;
 	}
 
 	// Read encoder status.
@@ -856,14 +852,25 @@ Device_EncoderRead(void *arg, long period)
 	if(pEncoder->scale)
 	    *(pEncoder->pPosition) = *(pEncoder->pCount) / pEncoder->scale;
 
-	// Update index and index enable pins.
+	// Update index pin
 	*(pEncoder->pIndex) = (status & M5I20_ENC_CTL_INDEX)? 1: 0;
 
-	if(pEncoder->indexEnabled && !(status & M5I20_ENC_CTL_CLEAR_ON_INDEX)){
-	    pEncoder->indexEnabled = 0;
-
-	    // Clear pin.
+	// Update index enable pin
+	if( (pEncoder->control & M5I20_ENC_CTL_CLEAR_ON_INDEX) && !(status & M5I20_ENC_CTL_CLEAR_ON_INDEX)){
+	    // got an index, clear the enable
 	    *(pEncoder->pIndexEnable) = 0;
+	}
+
+	// Check index enable
+	if(*(pEncoder->pIndexEnable)){
+	    pEncoder->control |= M5I20_ENC_CTL_CLEAR_ON_INDEX | M5I20_ENC_CTL_CLEAR_ONCE;
+	} else {
+	    pEncoder->control &= ~(M5I20_ENC_CTL_CLEAR_ON_INDEX | M5I20_ENC_CTL_CLEAR_ONCE);
+	}
+
+	// write control word to hardware only if changed
+	if ( pEncoder->control != old_control ) {
+	    pCard16->encoderControl[i] = pEncoder->control;
 	}
 
 	// Loop house keeping.
