@@ -361,7 +361,7 @@ static PyTypeObject Quadric_Type = {
 
 static void Quadric_dealloc(Quadric *q) {
     if(q->q) { gluDeleteQuadric(q->q); }
-    PyMem_DEL(q);
+    PyObject_Del(q);
 }
 
 static Quadric *pygluNewQuadric(PyObject *s, PyObject *o) {
