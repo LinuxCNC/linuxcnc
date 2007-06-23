@@ -16,6 +16,7 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
+python_version = @PYTHON_VERSION@
 kernel_version = @KERNEL_VERSION@
 
 debian/control:
@@ -61,8 +62,8 @@ install: build
 	-(cd debian/extras && find . | grep -v CVS |cpio -pdmuv ../tmp)
 	-(cd debian/extras-@DISTRIB_NAME@ && find . | grep -v CVS | cpio -pdmuv ../tmp)
 	(cd src; export DESTDIR=`pwd`/../debian/tmp; $(MAKE) $@)
-	python2.4 /usr/lib/python2.4/compileall.py debian/tmp/usr/lib/python2.4
-	find debian/tmp/usr/lib/python2.4 -name \*.py -exec rm {} \;
+	python@PYTHON_VERSION@ /usr/lib/python@PYTHON_VERSION@/compileall.py debian/tmp/usr/lib/python@PYTHON_VERSION@
+	find debian/tmp/usr/lib/python@PYTHON_VERSION@ -name \*.py -exec rm {} \;
 	mkdir -p debian/tmp/usr/lib debian/tmp/usr/include/emc2
 	cp lib/*.a debian/tmp/usr/lib
 	mkdir -p debian/tmp/usr/share/doc/emc2-dev
@@ -72,8 +73,8 @@ install: build
 	rm debian/tmp/usr/share/doc/emc2/HAL_User_Manual.pdf 
 	rm debian/tmp/usr/share/doc/emc2/EMC2_Manual_Pages.pdf 
 	rm -rf debian/tmp/usr/share/doc/emc2/html
-	rm debian/tmp/emc2.files
-	@rm debian/tmp/etc/emc2/sample-configs/*/*position*.txt
+	-rm debian/tmp/emc2*.files
+	-rm debian/tmp/etc/emc2/sample-configs/*/*position*.txt
 	dh_movefiles
 	if [ `find debian/tmp -type f | wc -c` != 0 ]; then \
 		echo "Files exist in debian/tmp, but should not"; \
