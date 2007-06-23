@@ -117,9 +117,13 @@ static int loadAxis(int axis, EmcIniFile *axisIniFile)
         }
 
         // set units
-        units = (axisType == EMC_AXIS_LINEAR)? emcTrajGetLinearUnits()
-                                            :emcTrajGetAngularUnits();
-        axisIniFile->Find(&units, "UNITS", axisString);
+        if(axisType == EMC_AXIS_LINEAR){
+            units = emcTrajGetLinearUnits();
+            axisIniFile->FindLinearUnits(&units, "UNITS", axisString);
+        }else{
+            units = emcTrajGetAngularUnits();
+            axisIniFile->FindAngularUnits(&units, "UNITS", axisString);
+        }
 
         if (0 != emcAxisSetUnits(axis, units)) {
             if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
