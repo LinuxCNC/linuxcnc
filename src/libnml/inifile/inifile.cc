@@ -174,11 +174,17 @@ IniFile::Find(int *result, StrIntPair *pPair,
      const char *tag, const char *section, int num)
 {
     const char                  *pStr;
+    int                         tmp;
 
     if((pStr = Find(tag, section, num)) == NULL){
         // We really need an ErrorCode return from Find() and should be passing
         // in a buffer. Just pick a suitable ErrorCode for now.
         return(ERR_TAG_NOT_FOUND);
+    }
+
+    if(sscanf(pStr, "%i", &tmp) == 1){
+        *result = tmp;
+        return(ERR_NONE);
     }
 
     while(pPair->pStr != NULL){
@@ -199,11 +205,17 @@ IniFile::Find(double *result, StrDoublePair *pPair,
      const char *tag, const char *section, int num)
 {
     const char                  *pStr;
+    double                      tmp;
 
     if((pStr = Find(tag, section, num)) == NULL){
         // We really need an ErrorCode return from Find() and should be passing
         // in a buffer. Just pick a suitable ErrorCode for now.
         return(ERR_TAG_NOT_FOUND);
+    }
+
+    if(sscanf(pStr, "%lf", &tmp) == 1){
+        *result = tmp;
+        return(ERR_NONE);
     }
 
     while(pPair->pStr != NULL){
@@ -335,8 +347,8 @@ IniFile::Find(const char *_tag, const char *_section, int _num)
             continue;
         }
 
-        if (--num > 0) {
-            /* Not looking for the first one, so skip it... */
+        if (--_num > 0) {
+            /* Not looking for this one, so skip it... */
             continue;
         }
 
