@@ -57,7 +57,9 @@
 #include <ctype.h>		// isspace()
 #include "emc.hh"		// emcStatus
 #include "emc_nml.hh"
+#include "rcs_print.hh"
 #include "canon.hh"		// CANON_VECTOR, GET_PROGRAM_ORIGIN()
+#include "emc/task/task.hh"	// emcTaskCommand etc
 
 static FILE *the_file = NULL;	// our file pointer
 static char the_file_name[LINELEN] = { 0 };	// our file pointer
@@ -84,6 +86,30 @@ int emcTaskAbort()
 {
     emcMotionAbort();
     emcIoAbort();
+
+    // clear out the pending command
+    emcTaskCommand = 0;
+
+    // clear out the interpreter state
+    emcStatus->task.interpState = EMC_TASK_INTERP_IDLE;
+    emcStatus->task.execState = EMC_TASK_EXEC_DONE;
+    stepping = 0;
+    steppingWait = 0;
+
+    // now queue up command to resynch interpreter
+    EMC_TASK_PLAN_SYNCH taskPlanSynchCmd;
+    emcTaskQueueCommand(&taskPlanSynchCmd);
+
+    // without emcTaskPlanClose(), a new run command resumes at
+    // aborted line-- feature that may be considered later
+    {
+	int was_open = taskplanopen;
+	emcTaskPlanClose();
+	if (EMC_DEBUG & EMC_DEBUG_INTERP && was_open) {
+	    rcs_print("emcTaskPlanClose() called at %s:%d\n", __FILE__,
+		      __LINE__);
+	}
+    }
 
     return 0;
 }
@@ -134,6 +160,8 @@ int emcTaskSetState(int state)
 	}
 	emcTrajDisable();
 	emcLubeOff();
+	emcTaskAbort();
+	emcTaskPlanSynch();
 	break;
 
     case EMC_TASK_STATE_ON:
@@ -149,6 +177,8 @@ int emcTaskSetState(int state)
 	// reset the estop
 	emcAuxEstopOff();
 	emcLubeOff();
+	emcTaskAbort();
+	emcTaskPlanSynch();
 	break;
 
     case EMC_TASK_STATE_ESTOP:
@@ -159,6 +189,8 @@ int emcTaskSetState(int state)
 	}
 	emcTrajDisable();
 	emcLubeOff();
+	emcTaskAbort();
+	emcTaskPlanSynch();
 	break;
 
     default:

@@ -31,6 +31,7 @@
 #include "interp_return.hh"	// INTERP_FILE_NOT_OPEN
 #include "inifile.hh"
 #include "rcs_print.hh"
+#include "task.hh"		// emcTaskCommand etc
 
 /* flag for how we want to interpret traj coord mode, as mdi or auto */
 static int mdiOrAuto = EMC_TASK_MODE_AUTO;
@@ -114,6 +115,31 @@ int emcTaskAbort()
     emcMotionAbort();
     emcIoAbort();
 
+    // clear out the pending command
+    emcTaskCommand = 0;
+    interp_list.clear();
+
+    // clear out the interpreter state
+    emcStatus->task.interpState = EMC_TASK_INTERP_IDLE;
+    emcStatus->task.execState = EMC_TASK_EXEC_DONE;
+    stepping = 0;
+    steppingWait = 0;
+
+    // now queue up command to resynch interpreter
+    EMC_TASK_PLAN_SYNCH taskPlanSynchCmd;
+    emcTaskQueueCommand(&taskPlanSynchCmd);
+
+    // without emcTaskPlanClose(), a new run command resumes at
+    // aborted line-- feature that may be considered later
+    {
+	int was_open = taskplanopen;
+	emcTaskPlanClose();
+	if (EMC_DEBUG & EMC_DEBUG_INTERP && was_open) {
+	    rcs_print("emcTaskPlanClose() called at %s:%d\n", __FILE__,
+		      __LINE__);
+	}
+    }
+
     return 0;
 }
 
@@ -164,6 +190,8 @@ int emcTaskSetState(int state)
 	}
 	emcTrajDisable();
 	emcLubeOff();
+	emcTaskAbort();
+	emcTaskPlanSynch();
 	break;
 
     case EMC_TASK_STATE_ON:
@@ -179,6 +207,8 @@ int emcTaskSetState(int state)
 	// reset the estop
 	emcAuxEstopOff();
 	emcLubeOff();
+	emcTaskAbort();
+	emcTaskPlanSynch();
 	break;
 
     case EMC_TASK_STATE_ESTOP:
@@ -190,6 +220,8 @@ int emcTaskSetState(int state)
 	}
 	emcTrajDisable();
 	emcLubeOff();
+	emcTaskAbort();
+	emcTaskPlanSynch();
 	break;
 
     default:
@@ -433,7 +465,12 @@ int emcTaskPlanCommand(char *cmd)
 int emcTaskUpdate(EMC_TASK_STAT * stat)
 {
     stat->mode = (enum EMC_TASK_MODE_ENUM) determineMode();
+    int oldstate = stat->state;
     stat->state = (enum EMC_TASK_STATE_ENUM) determineState();
+
+    if(oldstate == EMC_TASK_STATE_ON && oldstate != stat->state) {
+	emcTaskAbort();
+    }
 
     // execState set in main
     // interpState set in main

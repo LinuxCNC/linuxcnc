@@ -72,6 +72,7 @@
 #include "rcs_print.hh"
 #include "timer.hh"
 #include "nml_oi.hh"
+#include "task.hh"		// emcTaskCommand etc
 
 // command line args-- global so that other modules can access 
 int Argc;
@@ -105,14 +106,11 @@ static double EMC_TASK_CYCLE_TIME_ORIG = 0.0;
 // delay counter
 static double taskExecDelayTimeout = 0.0;
 
-// emcTaskQueueCommand puts cmd on interp_list
-static int emcTaskQueueCommand(NMLmsg * cmd);
-
 // emcTaskIssueCommand issues command immediately
 static int emcTaskIssueCommand(NMLmsg * cmd);
 
 // pending command to be sent out by emcTaskExecute()
-static NMLmsg *emcTaskCommand = 0;
+NMLmsg *emcTaskCommand = 0;
 
 // signal handling code to stop main loop
 static int done;
@@ -356,8 +354,8 @@ static int programStartLine = 0;	// which line to run program from
 /*! \todo FIXME-- make an ini file global */
 #define EMC_TASK_INTERP_MAX_LEN 1000
 
-static int stepping = 0;
-static int steppingWait = 0;
+int stepping = 0;
+int steppingWait = 0;
 static int steppedLine = 0;
 
 /*
@@ -1383,7 +1381,7 @@ static int emcTaskCheckPreconditions(NMLmsg * cmd)
 }
 
 // puts command on interp list
-static int emcTaskQueueCommand(NMLmsg * cmd)
+int emcTaskQueueCommand(NMLmsg * cmd)
 {
     if (0 == cmd) {
 	return 0;
@@ -1779,36 +1777,8 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	break;
 
     case EMC_TASK_ABORT_TYPE:
-
-	/*! \todo FIXME-- duplicate code for abort,
-	   also near end of main, when aborting on subordinate errors,
-	   and in emcTaskExecute() */
-
 	// abort everything
 	emcTaskAbort();
-	// clear out the pending command
-	emcTaskCommand = 0;
-	interp_list.clear();
-
-	// clear out the interpreter state
-	emcStatus->task.interpState = EMC_TASK_INTERP_IDLE;
-	emcStatus->task.execState = EMC_TASK_EXEC_DONE;
-	stepping = 0;
-	steppingWait = 0;
-
-	// now queue up command to resynch interpreter
-	emcTaskQueueCommand(&taskPlanSynchCmd);
-
-	// without emcTaskPlanClose(), a new run command resumes at
-	// aborted line-- feature that may be considered later
-	{
-	    int was_open = taskplanopen;
-	    emcTaskPlanClose();
-	    if (EMC_DEBUG & EMC_DEBUG_INTERP && was_open) {
-		rcs_print("emcTaskPlanClose() called at %s:%d\n", __FILE__,
-			  __LINE__);
-	    }
-	}
 	retval = 0;
 	break;
 
@@ -2833,6 +2803,8 @@ int main(int argc, char *argv[])
 			      emcStatus->io.aux.estop);
 		}
 		emcTrajDisable();
+		emcTaskAbort();
+		emcTaskPlanSynch();
 	    }
 	    if (emcStatus->io.coolant.mist) {
 		emcCoolantMistOff();
