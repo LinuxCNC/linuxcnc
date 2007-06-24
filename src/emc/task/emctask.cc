@@ -157,6 +157,7 @@ int emcTaskSetMode(int mode)
     case EMC_TASK_MODE_MDI:
 	// go to mdi mode
 	emcTrajSetMode(EMC_TRAJ_MODE_COORD);
+	emcTaskAbort();
 	emcTaskPlanSynch();
 	mdiOrAuto = EMC_TASK_MODE_MDI;
 	break;
@@ -164,6 +165,7 @@ int emcTaskSetMode(int mode)
     case EMC_TASK_MODE_AUTO:
 	// go to auto mode
 	emcTrajSetMode(EMC_TRAJ_MODE_COORD);
+	emcTaskAbort();
 	emcTaskPlanSynch();
 	mdiOrAuto = EMC_TASK_MODE_AUTO;
 	break;
