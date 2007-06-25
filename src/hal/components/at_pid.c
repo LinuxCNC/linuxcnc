@@ -129,6 +129,7 @@
 
 #include "rtapi.h"                      // RTAPI realtime OS API.
 #include "rtapi_app.h"                  // RTAPI realtime module decls.
+#include "rtapi_math.h"
 #include "hal.h"                        // HAL public API decls.
 
 
@@ -590,12 +591,7 @@ Pid_AutoTune(Pid *this, long period)
         this->avgAmplitude = 0;
         this->ultimateGain = 0;
         this->ultimatePeriod = 0;
-
-        // Make sure control effort is positive.
-        if(this->tuneEffort < 0.0)
-            this->tuneEffort = -this->tuneEffort;
-
-        *this->pOutput = this->bias + this->tuneEffort;
+        *this->pOutput = this->bias + abs(this->tuneEffort);
         break;
 
     case STATE_TUNE_POS:
@@ -610,12 +606,11 @@ Pid_AutoTune(Pid *this, long period)
             // Check for end of cycle.
             if(this->state == STATE_TUNE_POS){
                 this->state = STATE_TUNE_NEG;
-                *this->pOutput = this->bias - this->tuneEffort;
                 Pid_CycleEnd(this);
-            }else{
-                // Update output so user can ramp effort until movement occurs.
-                *this->pOutput = this->bias + this->tuneEffort;
             }
+
+            // Update output so user can ramp effort until movement occurs.
+            *this->pOutput = this->bias - abs(this->tuneEffort);
         }else{
             // Check amplitude.
             if(error > this->cycleAmplitude)
@@ -624,12 +619,11 @@ Pid_AutoTune(Pid *this, long period)
             // Check for end of cycle.
             if(this->state == STATE_TUNE_NEG){
                 this->state = STATE_TUNE_POS;
-                *this->pOutput = this->bias + this->tuneEffort;
                 Pid_CycleEnd(this);
-            }else{
-                // Update output so user can ramp effort until movement occurs.
-                *this->pOutput = this->bias - this->tuneEffort;
             }
+
+            // Update output so user can ramp effort until movement occurs.
+            *this->pOutput = this->bias + abs(this->tuneEffort);
         }
 
         // Check if the last cycle just ended. This is really the number
@@ -638,7 +632,7 @@ Pid_AutoTune(Pid *this, long period)
             break;
 
         // Calculate PID.
-        this->ultimateGain = (4.0 * this->tuneEffort)/(PI * this->avgAmplitude);
+        this->ultimateGain = (4.0 * abs(this->tuneEffort))/(PI * this->avgAmplitude);
         this->ultimatePeriod = 2.0 * this->totalTime / this->tuneCycles;
         this->ff0Gain = 0;
         this->ff2Gain = 0;
