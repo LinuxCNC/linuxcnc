@@ -31,7 +31,9 @@ During auto tuning, the \fBcommand\fR input should not change. The limit
 cycle is setup around the commanded position. No initial tuning values are
 required to start auto tuning.  Only \fBtune-cycles\fR, \fBtune-effort\fR
 and \fBtune-mode\fR need be set before starting auto tuning.  When auto tuning
-completes, the tuning parameters will be set.
+completes, the tuning parameters will be set. If running from EMC, the FERROR
+setting for the axis being tuned may need to be loosened up as it must be
+larger than the limit cycle amplitude in order to avoid a following error.
 .P
 To perform auto tuning, take the following steps.  Move the axis to be tuned,
 to somewhere near the center of it's travel.  Set \fBtune-cycles\fR (the
