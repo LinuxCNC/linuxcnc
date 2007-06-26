@@ -1323,11 +1323,8 @@ m5i20.<board>.enc-<channel>-index
 \noun on 
 true
 \noun default 
-, and an index pulse appears on the encoder input, reset 
-\family typewriter 
-count
-\family default 
- to zero and clear 
+, and an index pulse appears on the encoder input, reset counter to zero
+ and clear 
 \family typewriter 
 index-enable
 \family default 
@@ -1339,9 +1336,9 @@ index-enable
 \noun on 
 (bit) 
 \noun default 
-m5i20.<board>.enc-<channel>-reset-count
+m5i20.<board>.enc-<channel>-reset
 \family default 
- -- Bidirectional (why?) - used to reset counter?
+ -- When true, counter is forced to zero.
 \layout Itemize
 
 
