@@ -2674,6 +2674,7 @@ class TclCommands(nf.TclCommands):
     # The next three don't have 'manual_ok' because that's done in jog_on /
     # jog_off
     def jog_plus(incr=False):
+        print "jog_plus"
         global button_jog_axis
         a = vars.current_axis.get()
         if button_jog_axis is not None: commands.jog_stop()
@@ -2692,6 +2693,7 @@ class TclCommands(nf.TclCommands):
         speed = get_jog_speed(a)
         jog_on(a, -speed)
     def jog_stop(event=None):
+        print "jog_stop"
         global button_jog_axis
         jog_off(button_jog_axis)
         button_jog_axis = None
@@ -3239,10 +3241,11 @@ else:
     bind_axis("KP_Down", "KP_Up", 1)
     bind_axis("KP_Next", "KP_Prior", 2)
     bind_axis("bracketleft", "bracketright", 3)
-root_window.bind("<KeyPress-minus>", commands.jog_minus)
-root_window.bind("<KeyPress-equal>", commands.jog_plus)
-root_window.bind("<KeyRelease-minus>", commands.jog_stop)
-root_window.bind("<KeyRelease-equal>", commands.jog_stop)
+
+#root_window.bind("<KeyPress-minus>", commands.jog_minus)
+#root_window.bind("<KeyPress-equal>", commands.jog_plus)
+#root_window.bind("<KeyRelease-minus>", commands.jog_stop)
+#root_window.bind("<KeyRelease-equal>", commands.jog_stop)
 
 
 
