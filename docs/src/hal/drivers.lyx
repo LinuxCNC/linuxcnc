@@ -1360,6 +1360,29 @@ In the following pins, parameters, and functions, <board> is the board ID.
  According to the naming conventions the first board should always have
  an ID of zero, however this driver uses the PCI board ID, so it may be
  non-zero even if there is only one board.
+ The driver attempts to emulate the 
+\begin_inset Quotes eld
+\end_inset 
+
+canonical encoder
+\begin_inset Quotes erd
+\end_inset 
+
+, however there are some differences.
+\begin_inset Foot
+collapsed true
+
+\layout Standard
+
+Versions 2.1.6 and earlier had a significantly different encoder interface,
+ and had bugs in the indexing code.
+ Normal motion control worked, but homing to index, threading, and rigid
+ tapping did not, since all of those features require the index pulse to
+ work properly.
+ This documentation is for versions 2.1.7 and later.
+\end_inset 
+
+
 \layout Itemize
 
 
@@ -1376,17 +1399,6 @@ In the following pins, parameters, and functions, <board> is the board ID.
 \family typewriter 
 (
 \noun on 
-s32
-\noun default 
-) m5i20.<board>.enc-<channel>-cnt-latch
-\family default 
- -- Position in counts when index pulse arrived.
-\layout Itemize
-
-
-\family typewriter 
-(
-\noun on 
 float
 \noun default 
 ) m5i20.<board>.enc-<channel>-position 
@@ -1396,23 +1408,12 @@ float
 
 
 \family typewriter 
-(
-\noun on 
-float
-\noun default 
-) m5i20.<board>.enc-<channel>-pos-latch
-\family default 
- -- Position in user units when index pulse arrived.
-\layout Itemize
-
-
-\family typewriter 
 \noun on 
 (bit) 
 \noun default 
 m5i20.<board>.enc-<channel>-index
 \family default 
- -- Current status of index pulse input?
+ -- Current status of index pulse input
 \layout Itemize
 
 
@@ -1420,19 +1421,14 @@ m5i20.<board>.enc-<channel>-index
 \noun on 
 (bit) 
 \noun default 
-m5i20.<board>.enc-<channel>-idx-latch
+m5i20.<board>.enc-<channel>-index-enable
 \family default 
- -- Goes true when an index pulse arrives?
-\layout Itemize
-
-
+ -- Bidirectional - if TRUE, counter will reset on next index pulse, and
+ 
 \family typewriter 
-\noun on 
-(bit) 
-\noun default 
-m5i20.<board>.enc-<channel>-latch-index
+index-enable
 \family default 
- -- Bidirectional - used to control/report index latching?
+ will be cleared
 \layout Itemize
 
 
@@ -1442,7 +1438,11 @@ m5i20.<board>.enc-<channel>-latch-index
 \noun default 
 m5i20.<board>.enc-<channel>-reset-count
 \family default 
- -- Bidirectional (why?) - used to reset counter?
+ -- Bidirectional - if TRUE, counter will reset immediately, and 
+\family typewriter 
+reset-count
+\family default 
+ will be cleared.
 \layout Itemize
 
 
