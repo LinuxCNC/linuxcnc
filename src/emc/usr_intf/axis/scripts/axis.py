@@ -107,7 +107,6 @@ feedrate_blackout = 0
 spindlerate_blackout = 0
 jogincr_index_last = 1
 mdi_history_index= -1
-button_jog_axis = None
 
 homeicon = array.array('B', 
         [0x2, 0x00,   0x02, 0x00,   0x02, 0x00,   0x0f, 0x80,
@@ -2674,29 +2673,19 @@ class TclCommands(nf.TclCommands):
     # The next three don't have 'manual_ok' because that's done in jog_on /
     # jog_off
     def jog_plus(incr=False):
-        print "jog_plus"
-        global button_jog_axis
         a = vars.current_axis.get()
-        if button_jog_axis is not None: commands.jog_stop()
-        if not incr: button_jog_axis = a
         if isinstance(a, (str, unicode)):
             a = "xyzabc".index(a)
         speed = get_jog_speed(a)
         jog_on(a, speed)
     def jog_minus(incr=False):
-        global button_jog_axis
         a = vars.current_axis.get()
-        if button_jog_axis is not None: commands.jog_stop()
-        if not incr: button_jog_axis = a
         if isinstance(a, (str, unicode)):
             a = "xyzabc".index(a)
         speed = get_jog_speed(a)
         jog_on(a, -speed)
     def jog_stop(event=None):
-        print "jog_stop"
-        global button_jog_axis
-        jog_off(button_jog_axis)
-        button_jog_axis = None
+        jog_off(vars.current_axis.get())
 
     def home_all_axes(event=None):
         if not manual_ok(): return
@@ -3242,10 +3231,10 @@ else:
     bind_axis("KP_Next", "KP_Prior", 2)
     bind_axis("bracketleft", "bracketright", 3)
 
-#root_window.bind("<KeyPress-minus>", commands.jog_minus)
-#root_window.bind("<KeyPress-equal>", commands.jog_plus)
-#root_window.bind("<KeyRelease-minus>", commands.jog_stop)
-#root_window.bind("<KeyRelease-equal>", commands.jog_stop)
+root_window.bind("<KeyPress-minus>", commands.jog_minus)
+root_window.bind("<KeyPress-equal>", commands.jog_plus)
+root_window.bind("<KeyRelease-minus>", commands.jog_stop)
+root_window.bind("<KeyRelease-equal>", commands.jog_stop)
 
 
 
