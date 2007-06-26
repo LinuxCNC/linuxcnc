@@ -2692,7 +2692,9 @@ class TclCommands(nf.TclCommands):
         speed = get_jog_speed(a)
         jog_on(a, -speed)
     def jog_stop(event=None):
-        jog_off(vars.current_axis.get())
+        global button_jog_axis
+        jog_off(button_jog_axis)
+        button_jog_axis = None
 
     def home_all_axes(event=None):
         if not manual_ok(): return
