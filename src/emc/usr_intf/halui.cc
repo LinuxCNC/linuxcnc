@@ -170,9 +170,10 @@ DONE: - program:
    halui.program.pause                 bit
    halui.program.resume                bit
    halui.program.step                  bit
+   halui.program.stop                  bit
 
 DONE: - general:
-   halui.abort                         bit // pin to send an abort message (clears out most errors)
+   halui.abort                         bit // pin to send an abort message (clears out most errors, stops running programs, etc)
 
 DONE: - feed-override
    halui.feed-override.value           float //current FO value
@@ -225,6 +226,7 @@ struct halui_str {
     hal_bit_t *program_pause;      //pin for pausing program
     hal_bit_t *program_resume;     //pin for resuming program
     hal_bit_t *program_step;       //pin for running one line of the program
+    hal_bit_t *program_stop;       //pin for stopping the program
     hal_bit_t *program_os_on;      //pin for setting optional stop on
     hal_bit_t *program_os_off;     //pin for setting optional stop off
     hal_bit_t *program_os_is_on;   //status pin that optional stop is on
@@ -303,6 +305,7 @@ struct local_halui_str {
     hal_bit_t program_pause;      //pin for pausing program
     hal_bit_t program_resume;     //pin for resuming program
     hal_bit_t program_step;       //pin for running one line of the program
+    hal_bit_t program_stop;       //pin for stopping the program
     hal_bit_t program_os_on;      //pin for setting optional stop on
     hal_bit_t program_os_off;     //pin for setting optional stop off
     hal_bit_t program_bd_on;      //pin for setting block delete on
@@ -794,6 +797,8 @@ int halui_hal_init(void)
     retval = halui_export_pin_IN_bit(&(halui_data->program_resume), "halui.program.resume"); 
     if (retval != HAL_SUCCESS) return retval;
     retval = halui_export_pin_IN_bit(&(halui_data->program_step), "halui.program.step"); 
+    if (retval != HAL_SUCCESS) return retval;
+    retval = halui_export_pin_IN_bit(&(halui_data->program_stop), "halui.program.stop"); 
     if (retval != HAL_SUCCESS) return retval;
     retval = halui_export_pin_IN_bit(&(halui_data->program_os_on), "halui.program.optional-stop.on"); 
     if (retval != HAL_SUCCESS) return retval;
@@ -1794,6 +1799,9 @@ static void check_hal_changes()
 
     if (check_bit_changed(halui_data->program_step, &(old_halui_data.program_step)) != 0)
 	sendProgramStep();
+
+    if (check_bit_changed(halui_data->program_stop, &(old_halui_data.program_stop)) != 0)
+	sendAbort();
 
     //feed-override stuff
     counts = *halui_data->fo_counts;
