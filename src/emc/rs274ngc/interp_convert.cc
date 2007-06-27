@@ -2760,6 +2760,9 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
     settings->current_y = end_y;
     settings->current_z = end_z;
   } else if (move == G_33) {
+    CHKS(((settings->spindle_turning != CANON_CLOCKWISE) &&
+           (settings->spindle_turning != CANON_COUNTERCLOCKWISE)),
+          "Spindle not turning in G33");
     START_SPEED_FEED_SYNCH(block->k_number, 0);
     STRAIGHT_FEED(end_x, end_y, end_z, AA_end, BB_end, CC_end);
     STOP_SPEED_FEED_SYNCH();
@@ -2767,6 +2770,9 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
     settings->current_y = end_y;
     settings->current_z = end_z;
   } else if (move == G_33_1) {
+    CHKS(((settings->spindle_turning != CANON_CLOCKWISE) &&
+           (settings->spindle_turning != CANON_COUNTERCLOCKWISE)),
+          "Spindle not turning in G33.1");
     START_SPEED_FEED_SYNCH(block->k_number, 0);
     RIGID_TAP(end_x, end_y, end_z);
     STOP_SPEED_FEED_SYNCH();
