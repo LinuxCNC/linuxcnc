@@ -220,7 +220,7 @@ static void Limit_Refresh(Limit *this, hal_bit_t override);
 /******************************************************************************
  * AMP OBJECT
  *
- * This object creates the am fault signal from the enable and ready signal.
+ * This object creates the amp fault signal from the enable and ready signal.
  *
  ******************************************************************************/
 
@@ -315,8 +315,8 @@ typedef struct {
     // Private data.
     SpindleState                spindleState;
     Timer                       spindleTimer;
+    hal_float_t                 lastSpindleSpeed;
     hal_bit_t                   lastCycleStart;
-    BOOL                        riseCycleStart;
 } Plc;
 
 
@@ -444,8 +444,8 @@ Plc_Init(Plc *this)
 
     // Initialize variables.
     this->spindleState = SS_OFF;
+    this->lastSpindleSpeed = 0.0;
     this->lastCycleStart = 1;
-    this->riseCycleStart = FALSE;
 
     // Initialize parameters.
     this->brakeOffDelay = 500;
@@ -799,14 +799,19 @@ Plc_Refresh(void *arg, long period)
 static void
 Plc_RefreshFeed(Plc *this, long period)
 {
-    this->riseCycleStart = (this->lastCycleStart==0) && (*this->pCycleStartIn==1);
+    BOOL                        riseCycleStart;
+
+    riseCycleStart = !this->lastCycleStart && *this->pCycleStartIn;
     this->lastCycleStart = *this->pCycleStartIn;
 
     // Condition feed hold so machine waits for cycle start and spindle to be
     // running if it is enabled.
     *this->pFeedHoldOut = *this->pCycleHoldIn
                             || (*this->pSpindleSpeedIn && !*this->pSpindleIsOnIn)
-                            || (*this->pFeedHoldOut && !this->riseCycleStart);
+                            || (*this->pSpindleIsOnIn
+                                && (this->lastSpindleSpeed != *this->pSpindleSpeedIn))
+                            || (*this->pFeedHoldOut && !riseCycleStart);
+    this->lastSpindleSpeed = *this->pSpindleSpeedIn;
 
     // Limit rapid/feed to 1% when limits are being overriden.
     if(*this->pLimitOverrideIn && (*this->pAdaptiveFeedIn > 0.01))
@@ -815,7 +820,7 @@ Plc_RefreshFeed(Plc *this, long period)
         *this->pAdaptiveFeedOut = *this->pAdaptiveFeedIn;
 
     // Wait for cycle start to acknowledge tool change.
-    *this->pToolChangedOut = (*this->pToolChangeIn && this->riseCycleStart)
+    *this->pToolChangedOut = (*this->pToolChangeIn && riseCycleStart)
                             || (*this->pToolChangedOut && *this->pToolChangeIn);
 
     // Indicates waiting for user to press cycle start.
@@ -948,9 +953,9 @@ Plc_RefreshSpindle(Plc *this, long period)
     // Condition spindle increase and decrease so they are disabled when
     // spindle is not running and both cannot be enabled at the same time.
     *this->pSpindleIncOut = *this->pSpindleIncIn && !*this->pSpindleDecIn
-                            && (this->spindleState == SS_ON);
+                            && *this->pSpindleIsOnIn;
     *this->pSpindleDecOut = *this->pSpindleDecIn && !*this->pSpindleIncIn
-                            && (this->spindleState == SS_ON);
+                            && *this->pSpindleIsOnIn;
 }
 
 
