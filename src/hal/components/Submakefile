@@ -63,10 +63,10 @@ USERSRCS += $(HALSAMPLERSRCS)
 TARGETS += ../bin/halsampler
 
 hal/components/conv_float_s32.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
-	sh hal/components/mkconv.sh float s32 "" 0 2147483647 < $< > $@
+	sh hal/components/mkconv.sh float s32 "" -2147483647-1 2147483647 < $< > $@
 
 hal/components/conv_float_u32.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
-	sh hal/components/mkconv.sh float u32 "" -2147483647-1 2147483647 < $< > $@
+	sh hal/components/mkconv.sh float u32 "" 0 2147483647 < $< > $@
 
 hal/components/conv_bit_s32.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
 	sh hal/components/mkconv.sh bit s32 // < $< > $@
