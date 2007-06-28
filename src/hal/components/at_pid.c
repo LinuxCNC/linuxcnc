@@ -76,7 +76,7 @@
  * all the nitty gritty details):
  *
  * error = command - feedback
- * if ( abs(error) < deadband ) then error = 0
+ * if ( fabs(error) < deadband ) then error = 0
  * limit error to +/- maxerror
  * errorI += error * period
  * limit errorI to +/- maxerrorI
@@ -591,7 +591,7 @@ Pid_AutoTune(Pid *this, long period)
         this->avgAmplitude = 0;
         this->ultimateGain = 0;
         this->ultimatePeriod = 0;
-        *this->pOutput = this->bias + abs(this->tuneEffort);
+        *this->pOutput = this->bias + fabs(this->tuneEffort);
         break;
 
     case STATE_TUNE_POS:
@@ -610,7 +610,7 @@ Pid_AutoTune(Pid *this, long period)
             }
 
             // Update output so user can ramp effort until movement occurs.
-            *this->pOutput = this->bias - abs(this->tuneEffort);
+            *this->pOutput = this->bias - fabs(this->tuneEffort);
         }else{
             // Check amplitude.
             if(error > this->cycleAmplitude)
@@ -623,7 +623,7 @@ Pid_AutoTune(Pid *this, long period)
             }
 
             // Update output so user can ramp effort until movement occurs.
-            *this->pOutput = this->bias + abs(this->tuneEffort);
+            *this->pOutput = this->bias + fabs(this->tuneEffort);
         }
 
         // Check if the last cycle just ended. This is really the number
@@ -632,7 +632,7 @@ Pid_AutoTune(Pid *this, long period)
             break;
 
         // Calculate PID.
-        this->ultimateGain = (4.0 * abs(this->tuneEffort))/(PI * this->avgAmplitude);
+        this->ultimateGain = (4.0 * fabs(this->tuneEffort))/(PI * this->avgAmplitude);
         this->ultimatePeriod = 2.0 * this->totalTime / this->tuneCycles;
         this->ff0Gain = 0;
         this->ff2Gain = 0;
