@@ -191,7 +191,9 @@ typedef struct {
 #define MASK ((1<<W)-1)
 #define MAXDELTA (MASK/2)
 
+#ifndef labs // linux/kernel.h may provide labs for realtime systems
 static long labs(long l) { if(l < 0) return -l; return l; }
+#endif
 
 long extend(long old, int newlow) {
     long oldhigh = old & ~MASK;
