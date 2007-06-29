@@ -32,6 +32,13 @@ secondary address.
 Set to zero to disable "wide EPP mode".  "Wide" mode allows 16- and 32-bit EPP
 transfers, which can reduce the time spent in the read and write functions.
 However, this mode may not work on all EPP parallel ports.
+
+.TP
+\\fBwatchdog\\fR [default: 1]
+Set to zero to disable the "hardware watchdog".  "Watchdog" will tristate all
+outputs approximately 6ms after the last execution of
+\\fBpluto-servo.write\\fR, which adds some protection in the case of emc
+crashes.
 .RE""";
 
 description """
@@ -163,6 +170,7 @@ MODULE_LICENSE("GPL");
 
 #ifdef SIM
 #include <sys/io.h>
+#include <errno.h>
 #else
 #include <asm/io.h>
 #endif
@@ -170,6 +178,8 @@ MODULE_LICENSE("GPL");
 int ioaddr = 0x378;
 int ioaddr_hi = 0;
 int epp_wide = 1;
+int test_encoder = 0;
+int watchdog = 1;
 
 typedef struct {
     long last_index[4];
@@ -177,17 +187,25 @@ typedef struct {
     long reset_count[4];
 } internal;
 
-long extend(long oldval, int newbits) {
-    int oldhighbits = oldval & 0x3000;
-    int newhighbits = newbits & 0x3000;
-    long newval = (oldval & ~0x3fff) | newbits;
+#define W 14
+#define MASK ((1<<W)-1)
+#define MAXDELTA (MASK/2)
 
-    if(oldhighbits == 0x3000 && newhighbits == 0)
-	newval += 0x4000;	
-    else if(oldhighbits == 0 && newhighbits == 0x3000)
-	newval -= 0x4000;	
+static long labs(long l) { if(l < 0) return -l; return l; }
 
-    return newval;
+long extend(long old, int newlow) {
+    long oldhigh = old & ~MASK;
+    long oldlow = old & MASK;
+    long candidate1, candidate2;
+
+    candidate1 = oldhigh | newlow;
+    if(oldlow < newlow) candidate2 = candidate1 - (1<<W);
+    else                candidate2 = candidate1 + (1<<W);
+
+    if (labs(old-candidate1) > MAXDELTA)
+	return candidate2;
+    else
+	return candidate1;
 }
 
 void EPP_DIR_WRITE(void) { }
@@ -205,7 +223,7 @@ int READ(void) {
 }
 
 
-unsigned long read32(void) {
+__u32 read32(void) {
     unsigned char a, b, c, d;
 
     if(epp_wide)
@@ -293,18 +311,21 @@ FUNCTION(write) {
         if(!dout(i) ^ !dout_invert(i)) r |= (1<<i);
     }
     if (encoder_z_polarity) r |= 0x8000;
+    if (watchdog) r |= 0x4000;
+    if (test_encoder) r |= 0x2000;
     write16(r);
 }
 
 FUNCTION(read) {
     int i;
-    u32 ppdata;
+    __u32 ppdata;
 
     ADDR(0);
     EPP_DIR_READ();
 
     for(i=0; i<4; i++) {
         long count, index;
+	int newlow, indlow, indexed;
         int reset;
         ppdata = read32();
         reset = encoder_reset(i);
@@ -313,10 +334,18 @@ FUNCTION(read) {
             if(status) communication_error ++;
             if(communication_error) { EPP_DIR_WRITE(); return; }
         }
-        count = extend(data.last_count[i], ppdata & 0x3fff);;
-        index = extend(data.last_index[i], (ppdata >> 14) & 0x3fff);
 
-        if(encoder_index_enable(i) && index != data.last_index[i]) {
+	newlow = ppdata & 0x3fff;
+	indlow = (ppdata >> 14) & 0x3fff;
+	indexed = ppdata & (1<<28);
+
+        count = extend(data.last_count[i], newlow);
+	if(indexed)
+	    index = extend(count, indlow);
+	else
+	    index = data.last_index[i];
+
+        if(encoder_index_enable(i) && indexed) {
             encoder_index_enable(i) = 0;
             data.reset_count[i] = index;
         }
@@ -329,8 +358,8 @@ FUNCTION(read) {
         encoder_count(i) = count - data.reset_count[i];
         encoder_position(i) = encoder_count(i) / encoder_scale(i);
 
-        if(i == 2) {
-            debug_0 = count; debug_1 = index;
+        if(i == 0) {
+            debug_0 = ppdata; debug_1 = count;
         }
     }
 
@@ -408,5 +437,9 @@ EXTRA_CLEANUP() {
 }
 
 RTAPI_MP_INT(ioaddr, "Address of parallel port where pluto-p is attached");
-RTAPI_MP_INT(ioaddr_hi, "Secondary address of parallel port (0 to use ioaddr+0x400)");
+RTAPI_MP_INT(ioaddr_hi,
+	"Secondary address of parallel port (0 to use ioaddr+0x400)");
 RTAPI_MP_INT(epp_wide, "Use 16- and 32-bit EPP transfers with hardware EPP");
+RTAPI_MP_INT(test_encoder, "Loop back dout0..2 onto quadrature 0 for testing");
+RTAPI_MP_INT(watchdog,
+	"Enable hardware watchdog to tristate outputs if EMC crashes");

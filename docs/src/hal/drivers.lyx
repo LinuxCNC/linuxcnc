@@ -4856,7 +4856,6 @@ The board features:
  The counters operate in "4x" mode.
  The maximum useful quadrature rate is 8191 counts per emc2 servo cycle,
  or about 8MHz for EMC2's default 1ms servo rate.
- An axis with index pulse must have fewer than 8192 counts per revolution.
 \layout Itemize
 
 4 PWM channels, "up/down" or "pwm+dir" style.
@@ -5821,9 +5820,11 @@ Before configuration and after properly exiting emc2, all Pluto-P pins are
 \end_inset 
 
  max).
- However, software bugs in the pluto_servo firmware or emc2, or a crash
- of the computer where emc2 is running, can leave the Pluto-P pins in an
- undefined state.
+ If the watchdog timer is enabled (the default), these pins are also tristated
+ after an interruption of communication between emc2 and the board.
+ The watchdog timer takes approximately 6.5ms to activate.
+ However, software bugs in the pluto_servo firmware or emc2 can leave the
+ Pluto-P pins in an undefined state.
 \layout Itemize
 
 In pwm+dir mode, by default dir is HIGH for negative values and LOW for
@@ -5835,10 +5836,10 @@ In pwm+dir mode, by default dir is HIGH for negative values and LOW for
 The index input is triggered on the rising edge.
  Initial testing has shown that the QZx inputs are particularly noise sensitive,
  due to being polled every 25ns.
- Digital filtering has been added to filter pulses shorter than 150ns (six
+ Digital filtering has been added to filter pulses shorter than 175ns (seven
  polling times).
- Additional external filtering, such as a Schmitt buffer or inverter, RC
- filter, or differential receiver (if applicable) is recommended.
+ Additional external filtering on all input pins, such as a Schmitt buffer
+ or inverter, RC filter, or differential receiver (if applicable) is recommended.
 \layout Itemize
 
 The IN1\SpecialChar \ldots{}

@@ -20,12 +20,16 @@ interpretation are undefined.
 Address     Bits        Interpretation
 0..3        0..13       Encoder 0 count
             14..27      Encoder 0 last index pulse count
+	    15		Encoder 0 index seen
 4..7        0..13       Encoder 1 count
             14..27      Encoder 1 last index pulse count
+	    15		Encoder 0 index seen
 8..11       0..13       Encoder 2 count
             14..27      Encoder 2 last index pulse count
+	    15		Encoder 0 index seen
 12..15      0..13       Encoder 3 count
             14..27      Encoder 3 last index pulse count
+	    15		Encoder 0 index seen
 16..19      0..7        Dedicated digital inputs 0..7
             8..11       Encoder 0..3 "Z" input
             12..15      Encoder 0..3 "B" input
@@ -64,7 +68,8 @@ Address     Bits        Interpretation
             15          PWM 3 sign (0=force 'up' low; 1=force 'down' low)
 
 8..9        0..9        Dedicated digital outputs 0..9
-            14          (future) write to 1 to enable watchdog and reset WDT
+            13          write to 1 to enable encoder test mode
+            14          write to 1 to enable watchdog and reset WDT
             15          Index signal polarity for encoder 0..3
 
 
@@ -73,15 +78,12 @@ Notes
 
 Encoder
 =======
-The encoder "count" and "last index pulse count" must be sign extended
-in the driver.  The sign-extend logic in pluto_servo.comp works by
-inspecting the top two bits of the count in the previous report and this
-report.  This makes the maximum count rate be 4096 counts per polling
-period, and the maximum number of counts between indexes is also 4096
-counts.
+The encoder "count" and "last index pulse count" must be sign extended in the
+driver.  This makes the maximum count rate 8191 counts per polling period.
 
-The "last index pulse count" is always updated on the rising edge of
-index, leaving it up to the HAL driver to perform index-enable logic.
+When an index pulse has occurred, "last index pulse count" is updated with the
+count on the rising edge of the index, and "index seen" will be set on the next
+read cycle.  It is up to the HAL driver to perform index-enable logic.
 
 PWM
 ===
@@ -93,12 +95,11 @@ set all the bits properly for the desired PWM/digital output mode.
 
 Watchdog
 ========
-(not yet implemented)
-The watchdog consists of a 7-bit counter and a 1-bit enable which gives
-a watchdog period of approximately 6.5ms.  At power-up the enable is
-FALSE.  When bit 14 of register 8..9 is written TRUE, the counter is
-reset to 0 and enable is set to TRUE. (there is no provision for
-resetting the WDE to FALSE) Every time the PWM counter overflows
-(approximately 51.2us) the watchdog counter is incremented if it is not
-already at its maximum.  When the watchdog counter is at its maximum,
-the dedicated digital outputs and PWM outputs are tristated.
+The watchdog consists of a 7-bit counter and a 1-bit enable which gives a
+watchdog period of approximately 6.5ms.  At power-up the enable is FALSE.  When
+bit 14 of register 8..9 is written TRUE, the counter is reset to 0 and enable
+is set to TRUE. (there is no provision for resetting the watchdog enable to
+FALSE) Every time the PWM counter overflows (approximately 51.2us) the watchdog
+counter is incremented if it is not already at its maximum.  When the watchdog
+counter is at its maximum, the dedicated digital outputs and PWM outputs are
+tristated.

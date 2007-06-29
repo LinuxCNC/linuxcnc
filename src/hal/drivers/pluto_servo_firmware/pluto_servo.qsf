@@ -40,8 +40,6 @@ set_global_assignment -name SLOW_SLEW_RATE OFF
 set_global_assignment -name SMART_RECOMPILE OFF
 set_global_assignment -name STATE_MACHINE_PROCESSING AUTO
 set_global_assignment -name TOP_LEVEL_ENTITY pluto_servo
-set_global_assignment -name VERILOG_FILE quad.v
-set_global_assignment -name VERILOG_FILE servo.v
 set_instance_assignment -name CLOCK_SETTINGS clk -to clk
 set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to dout
 set_instance_assignment -name POWER_UP_LEVEL LOW -to *
@@ -99,3 +97,7 @@ set_location_assignment PIN_93 -to din[1]
 set_location_assignment PIN_94 -to pport_data[5]
 set_location_assignment PIN_96 -to pport_data[6]
 set_location_assignment PIN_97 -to pport_data[7]
+
+set_global_assignment -name VERILOG_FILE wdt.v
+set_global_assignment -name VERILOG_FILE quad.v
+set_global_assignment -name VERILOG_FILE servo.v
