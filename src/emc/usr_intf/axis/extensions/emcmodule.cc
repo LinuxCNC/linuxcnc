@@ -236,9 +236,6 @@ static void emcWaitCommandReceived(int serial_number, RCS_STAT_CHANNEL *s) {
 }
 
 static int next_serial(pyCommandChannel *c) {
-    if(c->serial != 0) {
-        emcWaitCommandReceived(c->serial, c->s);
-    }
     return ++c->serial;
 }
 
@@ -740,6 +737,7 @@ static PyObject *block_delete(pyCommandChannel *s, PyObject *o) {
             
     m.serial_number = next_serial(s);
     s->c->write(m);
+    emcWaitCommandReceived(s->serial, s->s);
 
     Py_INCREF(Py_None);
     return Py_None;
@@ -753,6 +751,7 @@ static PyObject *optional_stop(pyCommandChannel *s, PyObject *o) {
             
     m.serial_number = next_serial(s);
     s->c->write(m);
+    emcWaitCommandReceived(s->serial, s->s);
 
     Py_INCREF(Py_None);
     return Py_None;
@@ -772,6 +771,7 @@ static PyObject *mode(pyCommandChannel *s, PyObject *o) {
     }
     m.serial_number = next_serial(s);
     s->c->write(m);
+    emcWaitCommandReceived(s->serial, s->s);
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -781,6 +781,7 @@ static PyObject *feedrate(pyCommandChannel *s, PyObject *o) {
     if(!PyArg_ParseTuple(o, "d", &m.scale)) return NULL;
     m.serial_number = next_serial(s);
     s->c->write(m);
+    emcWaitCommandReceived(s->serial, s->s);
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -790,6 +791,7 @@ static PyObject *spindleoverride(pyCommandChannel *s, PyObject *o) {
     if(!PyArg_ParseTuple(o, "d", &m.scale)) return NULL;
     m.serial_number = next_serial(s);
     s->c->write(m);
+    emcWaitCommandReceived(s->serial, s->s);
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -806,6 +808,7 @@ static PyObject *spindle(pyCommandChannel *s, PyObject *o) {
             m.speed = dir;
             m.serial_number = next_serial(s);
             s->c->write(m);
+            emcWaitCommandReceived(s->serial, s->s);
         }
             break;
         case LOCAL_SPINDLE_INCREASE:
@@ -813,6 +816,7 @@ static PyObject *spindle(pyCommandChannel *s, PyObject *o) {
             EMC_SPINDLE_INCREASE m;
             m.serial_number = next_serial(s);
             s->c->write(m);
+            emcWaitCommandReceived(s->serial, s->s);
         }
             break;
         case LOCAL_SPINDLE_DECREASE:
@@ -820,6 +824,7 @@ static PyObject *spindle(pyCommandChannel *s, PyObject *o) {
             EMC_SPINDLE_DECREASE m;
             m.serial_number = next_serial(s);
             s->c->write(m);
+            emcWaitCommandReceived(s->serial, s->s);
         }
             break;
         case LOCAL_SPINDLE_CONSTANT:
@@ -827,6 +832,7 @@ static PyObject *spindle(pyCommandChannel *s, PyObject *o) {
             EMC_SPINDLE_CONSTANT m;
             m.serial_number = next_serial(s);
             s->c->write(m);
+            emcWaitCommandReceived(s->serial, s->s);
         }
             break;
         case LOCAL_SPINDLE_OFF:
@@ -834,6 +840,7 @@ static PyObject *spindle(pyCommandChannel *s, PyObject *o) {
             EMC_SPINDLE_OFF m;
             m.serial_number = next_serial(s);
             s->c->write(m);
+            emcWaitCommandReceived(s->serial, s->s);
         }
             break;
         default:
@@ -856,6 +863,7 @@ static PyObject *mdi(pyCommandChannel *s, PyObject *o) {
     m.serial_number = next_serial(s);
     strcpy(m.command, cmd);
     s->c->write(m);
+    emcWaitCommandReceived(s->serial, s->s);
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -875,6 +883,7 @@ static PyObject *state(pyCommandChannel *s, PyObject *o) {
     }
     m.serial_number = next_serial(s);
     s->c->write(m);
+    emcWaitCommandReceived(s->serial, s->s);
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -884,6 +893,7 @@ static PyObject *tool_offset(pyCommandChannel *s, PyObject *o) {
     if(!PyArg_ParseTuple(o, "idd", &m.tool, &m.length, &m.diameter)) return NULL;
     m.serial_number = next_serial(s);
     s->c->write(m);
+    emcWaitCommandReceived(s->serial, s->s);
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -897,6 +907,7 @@ static PyObject *mist(pyCommandChannel *s, PyObject *o) {
             EMC_COOLANT_MIST_ON m;
             m.serial_number = next_serial(s);
             s->c->write(m);
+            emcWaitCommandReceived(s->serial, s->s);
         }
             break;
         case LOCAL_MIST_OFF:
@@ -904,6 +915,7 @@ static PyObject *mist(pyCommandChannel *s, PyObject *o) {
             EMC_COOLANT_MIST_OFF m;
             m.serial_number = next_serial(s);
             s->c->write(m);
+            emcWaitCommandReceived(s->serial, s->s);
         }
             break;
         default:
@@ -923,6 +935,7 @@ static PyObject *flood(pyCommandChannel *s, PyObject *o) {
             EMC_COOLANT_FLOOD_ON m;
             m.serial_number = next_serial(s);
             s->c->write(m);
+            emcWaitCommandReceived(s->serial, s->s);
         }
             break;
         case LOCAL_FLOOD_OFF:
@@ -930,6 +943,7 @@ static PyObject *flood(pyCommandChannel *s, PyObject *o) {
             EMC_COOLANT_FLOOD_OFF m;
             m.serial_number = next_serial(s);
             s->c->write(m);
+            emcWaitCommandReceived(s->serial, s->s);
         }
             break;
         default:
@@ -949,6 +963,7 @@ static PyObject *brake(pyCommandChannel *s, PyObject *o) {
             EMC_SPINDLE_BRAKE_ENGAGE m;
             m.serial_number = next_serial(s);
             s->c->write(m);
+            emcWaitCommandReceived(s->serial, s->s);
         }
             break;
         case LOCAL_BRAKE_RELEASE:
@@ -956,6 +971,7 @@ static PyObject *brake(pyCommandChannel *s, PyObject *o) {
             EMC_SPINDLE_BRAKE_RELEASE m;
             m.serial_number = next_serial(s);
             s->c->write(m);
+            emcWaitCommandReceived(s->serial, s->s);
         }
             break;
         default:
@@ -971,6 +987,7 @@ static PyObject *load_tool_table(pyCommandChannel *s, PyObject *o) {
     m.file[0] = '\0'; // don't override the ini file
     m.serial_number = next_serial(s);
     s->c->write(m);
+    emcWaitCommandReceived(s->serial, s->s);
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -979,6 +996,7 @@ static PyObject *emcabort(pyCommandChannel *s, PyObject *o) {
     EMC_TASK_ABORT m;
     m.serial_number = next_serial(s);
     s->c->write(m);
+    emcWaitCommandReceived(s->serial, s->s);
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -988,6 +1006,7 @@ static PyObject *override_limits(pyCommandChannel *s, PyObject *o) {
     m.axis = 0; // same number for all
     m.serial_number = next_serial(s);
     s->c->write(m);
+    emcWaitCommandReceived(s->serial, s->s);
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -997,6 +1016,7 @@ static PyObject *home(pyCommandChannel *s, PyObject *o) {
     if(!PyArg_ParseTuple(o, "i", &m.axis)) return NULL;
     m.serial_number = next_serial(s);
     s->c->write(m);
+    emcWaitCommandReceived(s->serial, s->s);
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -1023,6 +1043,7 @@ static PyObject *jog(pyCommandChannel *s, PyObject *o) {
         abort.axis = axis;
         abort.serial_number = next_serial(s);
         s->c->write(abort);
+        emcWaitCommandReceived(s->serial, s->s);
     } else if(fn == LOCAL_JOG_CONTINUOUS) {
         if(PyTuple_Size(o) != 3) {
             PyErr_Format( PyExc_TypeError,
@@ -1035,6 +1056,7 @@ static PyObject *jog(pyCommandChannel *s, PyObject *o) {
         cont.vel = vel;
         cont.serial_number = next_serial(s);
         s->c->write(cont);
+        emcWaitCommandReceived(s->serial, s->s);
     } else if(fn == LOCAL_JOG_INCREMENT) {
         if(PyTuple_Size(o) != 4) {
             PyErr_Format( PyExc_TypeError,
@@ -1049,6 +1071,7 @@ static PyObject *jog(pyCommandChannel *s, PyObject *o) {
         incr.incr = inc;
         incr.serial_number = next_serial(s);
         s->c->write(incr);
+        emcWaitCommandReceived(s->serial, s->s);
     } else {
         PyErr_Format( PyExc_TypeError, "jog() first argument must be JOG_xxx");
         return NULL;
@@ -1062,6 +1085,7 @@ static PyObject *reset_interpreter(pyCommandChannel *s, PyObject *o) {
     EMC_TASK_PLAN_INIT m;
     m.serial_number = next_serial(s);
     s->c->write(m);
+    emcWaitCommandReceived(s->serial, s->s);
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -1075,6 +1099,7 @@ static PyObject *program_open(pyCommandChannel *s, PyObject *o) {
     m.serial_number = next_serial(s);
     strcpy(m.file, file);
     s->c->write(m);
+    emcWaitCommandReceived(s->serial, s->s);
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -1089,6 +1114,7 @@ static PyObject *emcauto(pyCommandChannel *s, PyObject *o) {
     if(PyArg_ParseTuple(o, "ii", &fn, &run.line) && fn == LOCAL_AUTO_RUN) {
         run.serial_number = next_serial(s);
         s->c->write(run);
+        emcWaitCommandReceived(s->serial, s->s);
     } else {
         PyErr_Clear();
         if(!PyArg_ParseTuple(o, "i", &fn)) return NULL;
@@ -1096,14 +1122,17 @@ static PyObject *emcauto(pyCommandChannel *s, PyObject *o) {
         case LOCAL_AUTO_PAUSE:
             pause.serial_number = next_serial(s);
             s->c->write(pause);
+            emcWaitCommandReceived(s->serial, s->s);
             break;
         case LOCAL_AUTO_RESUME:
             resume.serial_number = next_serial(s);
             s->c->write(resume);
+            emcWaitCommandReceived(s->serial, s->s);
             break;
         case LOCAL_AUTO_STEP:
             step.serial_number = next_serial(s);
             s->c->write(step);
+            emcWaitCommandReceived(s->serial, s->s);
             break;
         default:
             PyErr_Format(error, "Unexpected argument '%d' to command.auto", fn);
@@ -1120,6 +1149,7 @@ PyObject *debug(pyCommandChannel *s, PyObject *o) {
     if(!PyArg_ParseTuple(o, "i", &d.debug)) return NULL;
     d.serial_number = next_serial(s);
     s->c->write(d);
+    emcWaitCommandReceived(s->serial, s->s);
     
     Py_INCREF(Py_None);
     return Py_None;
@@ -1132,6 +1162,7 @@ PyObject *teleop(pyCommandChannel *s, PyObject *o) {
 
     en.serial_number = next_serial(s);
     s->c->write(en);
+    emcWaitCommandReceived(s->serial, s->s);
     
     Py_INCREF(Py_None);
     return Py_None;
@@ -1144,6 +1175,7 @@ PyObject *set_traj_mode(pyCommandChannel *s, PyObject *o) {
 
     mo.serial_number = next_serial(s);
     s->c->write(mo);
+    emcWaitCommandReceived(s->serial, s->s);
     
     Py_INCREF(Py_None);
     return Py_None;
@@ -1159,6 +1191,7 @@ PyObject *set_teleop_vector(pyCommandChannel *s, PyObject *o) {
 
     mo.serial_number = next_serial(s);
     s->c->write(mo);
+    emcWaitCommandReceived(s->serial, s->s);
 
     Py_INCREF(Py_None);
     return Py_None;
