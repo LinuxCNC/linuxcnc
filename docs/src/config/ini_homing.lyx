@@ -106,41 +106,8 @@ HOME_SEARCH_VEL
 
 'HOME_SEARCH_VEL' is defined in each AXIS_* section.
  The default value is zero.
- A value of zero causes EMC to assume that there is no home switch.
- The search and latch stages of homing are skipped, EMC declares the current
- position to be 
-\begin_inset Quotes eld
-\end_inset 
-
-HOME_OFFSET
-\begin_inset Quotes erd
-\end_inset 
-
-, and does a rapid to 
-\begin_inset Quotes eld
-\end_inset 
-
-HOME
-\begin_inset Quotes erd
-\end_inset 
-
- if 
-\begin_inset Quotes eld
-\end_inset 
-
-HOME
-\begin_inset Quotes erd
-\end_inset 
-
- is not equal to 
-\begin_inset Quotes eld
-\end_inset 
-
-HOME_OFFSET
-\begin_inset Quotes erd
-\end_inset 
-
-.
+ A value of zero causes EMC to assume that there is no home switch; the
+ search stage of homing is skipped.
  
 \layout Standard
 
@@ -171,7 +138,8 @@ HOME_LATCH_VEL
 
 'HOME_LATCH_VEL' is also defined in the ini file, for each AXIS.
  It specifies the speed and direction that EMC uses when it makes its final
- accurate determination of the home switch and index pulse location.
+ accurate determination of the home switch (if present) and index pulse
+ location (if present).
  It will usually be slower than the search velocity to maximise accuracy.
  If HOME_SEARCH_VEL and HOME_LATCH_VEL have the same sign, then the latch
  phase is done while moving in the same direction as the search phase.
@@ -180,8 +148,8 @@ HOME_LATCH_VEL
  opposite signs, the latch phase is done while moving in the opposite direction
  from the search phase.
  That means EMC will latch the first pulse after it moves off the switch.
- If 'HOME_SEARCH_VEL' is zero, the latch phase is skipped and this parameter
- is ignored.
+ If 'HOME_SEARCH_VEL' is zero (meaning there is no home switch), and this
+ parameter is nonzero, EMC goes ahead to the index pulse search.
  If 'HOME_SEARCH_VEL' is non-zero and this parameter is zero, it is an error
  and the homing operation will fail.
  The default value is zero.
@@ -218,9 +186,7 @@ HOME_USE_INDEX
  If the flag is true (HOME_USE_INDEX = YES), EMC will latch on the rising
  edge of the index pulse.
  If false, EMC will latch on either the rising or falling edge of the home
- switch (depending on the signs of search_vel and latch_vel).
- If 'HOME_SEARCH_VEL' is zero, the latch phase is skipped and this parameter
- is ignored.
+ switch (depending on the signs of 'HOME_SEARCH_VEL' and 'HOME_LATCH_VEL').
  The default value is NO.
 \layout Subsubsection
 
