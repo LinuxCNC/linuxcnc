@@ -65,11 +65,13 @@ or2.9
 pluto_servo.9
 sample_hold.9
 scale.9
+select8.9
 serport.9
 sum2.9
 threadtest.9
 toggle.9
 tristate_float.9
 tristate_bit.9
+updown.9
 wcomp.9
 xor2.9
