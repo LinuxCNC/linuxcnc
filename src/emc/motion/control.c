@@ -1136,7 +1136,6 @@ static void do_homing_sequence(void)
 
 static void do_homing(void)
 {
-/* this is still very much under construction */
     int joint_num;
     emcmot_joint_t *joint;
     double offset, tmp;
@@ -1202,15 +1201,27 @@ static void do_homing(void)
 		joint->home_pause_timer = 0;
 		/* figure out exactly what homing sequence is needed */
 		if (joint->home_search_vel == 0.0) {
-		    /* vel == 0 means no switch, home at current position */
-		    joint->home_state = HOME_SET_SWITCH_POSITION;
-		    immediate_state = 1;
-		    break;
+		    if (joint->home_latch_vel == 0.0) {
+			/* both vels == 0 means home at current position */
+			joint->home_state = HOME_SET_SWITCH_POSITION;
+			immediate_state = 1;
+		    } else if (joint->home_flags & HOME_USE_INDEX) {
+			/* home using index pulse only */
+			joint->home_state = HOME_INDEX_ONLY_START;
+			immediate_state = 1;
+		    } else {
+			reportError("invalid homing config: non-zero LATCH_VEL needs either SEARCH_VEL or USE_INDEX");
+			joint->home_state = HOME_IDLE;
+		    }
 		} else {
-		    /* need to find home switch */
-		    joint->home_state = HOME_INITIAL_SEARCH_START;
-		    immediate_state = 1;
-		    break;
+		    if (joint->home_latch_vel != 0.0) {
+			/* need to find home switch */
+			joint->home_state = HOME_INITIAL_SEARCH_START;
+			immediate_state = 1;
+		    } else {
+			reportError("invalid homing config: non-zero SEARCH_VEL needs LATCH_VEL");
+			joint->home_state = HOME_IDLE;
+		    }
 		}
 		break;
 
@@ -1328,13 +1339,9 @@ static void do_homing(void)
 		if (tmp > 0.0) {
 		    /* search and latch vel are same direction */
 		    joint->home_state = HOME_FINAL_BACKOFF_START;
-		} else if (tmp < 0.0) {
+		} else {
 		    /* search and latch vel are opposite directions */
 		    joint->home_state = HOME_FALL_SEARCH_START;
-		} else {
-		    /* latch vel is zero - error */
-		    reportError("home latch velocity is zero");
-		    joint->home_state = HOME_ABORT;
 		}
 		immediate_state = 1;
 		break;
@@ -1516,6 +1523,46 @@ static void do_homing(void)
 		/* next state */
 		joint->home_state = HOME_FINAL_MOVE_START;
 		immediate_state = 1;
+		break;
+
+	    case HOME_INDEX_ONLY_START:
+		/* This state is used if the machine has been pre-positioned
+		   near the home position, and simply needs to find the
+		   next index pulse.  It starts a move at latch_vel, and
+		   sets index-enable, which tells the encoder driver to
+		   reset its counter to zero and clear the enable when the
+		   next index pulse arrives. */
+		/* is the joint already moving? */
+		if (joint->free_tp_active) {
+		    /* yes, reset delay, wait until joint stops */
+		    joint->home_pause_timer = 0;
+		    break;
+		}
+		/* has delay timed out? */
+		if (joint->home_pause_timer < (HOME_DELAY * servo_freq)) {
+		    /* no, update timer and wait some more */
+		    joint->home_pause_timer++;
+		    break;
+		}
+		joint->home_pause_timer = 0;
+		/* Although we don't know the exact home position yet, we
+		   we reset the joint coordinates now so that screw error
+		   comp will be appropriate for this portion of the screw
+		   (previously we didn't know where we were at all). */
+		/* set the current position to 'home_offset' */
+		offset = joint->home_offset - joint->pos_fb;
+		/* this moves the internal position but does not affect the
+		   motor position */
+		joint->pos_cmd += offset;
+		joint->pos_fb += offset;
+		joint->free_pos_cmd += offset;
+		joint->motor_offset -= offset;
+		/* set the index enable */
+		joint->index_enable = 1;
+		/* set up a move at 'latch_vel' to find the index pulse */
+		home_start_move(joint, joint->home_latch_vel);
+		/* next state */
+		joint->home_state = HOME_INDEX_SEARCH_WAIT;
 		break;
 
 	    case HOME_INDEX_SEARCH_START:
