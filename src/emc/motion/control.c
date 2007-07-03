@@ -176,9 +176,7 @@ static void do_homing_sequence(void);
 static void do_homing(void);
 
 /* 'get_pos_cmds()' generates the position setpoints.  This includes
-   calling the trajectory planner and interpolating it's outputs.
-   The teleop and coord mode code is copied directly from emc1 for
-   now, the free mode code has been re-written.
+   calling the trajectory planner and interpolating its outputs.
 */
 
 static void get_pos_cmds(long period);
@@ -1379,7 +1377,7 @@ static void do_homing(void)
 
 	    case HOME_FINAL_BACKOFF_WAIT:
 		/* This state is called while the machine is moving off of
-		   the home switch after finding it's approximate location.
+		   the home switch after finding its approximate location.
 		   It terminates when the switch is cleared successfully.  If
 		   the move ends or hits a limit before it clears the switch,
 		   the home is aborted. */
@@ -1427,7 +1425,7 @@ static void do_homing(void)
 
 	    case HOME_RISE_SEARCH_WAIT:
 		/* This state is called while the machine is moving towards
-		   the home switch on it's final, low speed pass.  It
+		   the home switch on its final, low speed pass.  It
 		   terminates when the switch is detected. If the move ends
 		   or hits a limit before it hits the switch, the home is
 		   aborted. */
@@ -1483,7 +1481,7 @@ static void do_homing(void)
 
 	    case HOME_FALL_SEARCH_WAIT:
 		/* This state is called while the machine is moving away from
-		   the home switch on it's final, low speed pass.  It
+		   the home switch on its final, low speed pass.  It
 		   terminates when the switch is cleared. If the move ends or
 		   hits a limit before it clears the switch, the home is
 		   aborted. */
