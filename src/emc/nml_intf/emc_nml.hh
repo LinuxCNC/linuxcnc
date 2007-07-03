@@ -1162,10 +1162,6 @@ class EMC_SPINDLE_STAT:public EMC_SPINDLE_STAT_MSG {
     int enabled;		// non-zero means enabled
 };
 
-
-// number of axes in EMC_MOTION_STAT class
-#define EMC_AXIS_MAX 8
-
 class EMC_MOTION_STAT:public EMC_MOTION_STAT_MSG {
   public:
     EMC_MOTION_STAT():EMC_MOTION_STAT_MSG(EMC_MOTION_STAT_TYPE,

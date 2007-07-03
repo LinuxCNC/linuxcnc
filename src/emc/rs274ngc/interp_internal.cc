@@ -150,7 +150,9 @@ int Interp::enhance_block(block_pointer block,   //!< pointer to a block to be c
 
   axis_flag = ((block->x_flag == ON) || (block->y_flag == ON) ||
                (block->z_flag == ON) || (block->a_flag == ON) ||
-               (block->b_flag == ON) || (block->c_flag == ON) );
+               (block->b_flag == ON) || (block->c_flag == ON) ||
+               (block->u_flag == ON) || (block->v_flag == ON) ||
+               (block->w_flag == ON));
   mode0 = block->g_modes[0];
   mode1 = block->g_modes[1];
   mode_zero_covets_axes =
