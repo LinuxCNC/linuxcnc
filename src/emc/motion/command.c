@@ -78,8 +78,9 @@ extern void check_stuff(char *msg);
 
 
 /* value for world home position */
-EmcPose worldHome = { {0.0, 0.0, 0.0}
-, 0.0, 0.0, 0.0
+EmcPose worldHome = { {0.0, 0.0, 0.0},
+                      0.0, 0.0, 0.0,
+                      0.0, 0.0, 0.0
 };
 
 /* kinematics flags */

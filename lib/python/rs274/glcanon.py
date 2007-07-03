@@ -81,12 +81,13 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
     def get_tool(self, tool):
         return tool, .75, .0625
 
-    def set_origin_offsets(self, offset_x, offset_y, offset_z, offset_a, offset_b, offset_c):
+    # XXX handle abc, uvw offsets?
+    def set_origin_offsets(self, offset_x, offset_y, offset_z, offset_a, offset_b, offset_c, offset_u, offset_v, offset_w):
         self.offset_x = offset_x
         self.offset_y = offset_y
         self.offset_z = offset_z
 
-    def straight_traverse(self, x,y,z, a,b,c):
+    def straight_traverse(self, x,y,z, a,b,c, u, v, w):
         l = (x + self.offset_x,y + self.offset_y,z + self.offset_z)
         if not self.first_move:
                 self.traverse_append((self.lineno, self.lo, l))
@@ -106,7 +107,7 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         finally:
             self.in_arc = False
 
-    def straight_feed(self, x,y,z, a,b,c, is_arc=0):
+    def straight_feed(self, x,y,z, a,b,c, u, v, w, is_arc=0):
         self.first_move = False
         l = (x + self.offset_x,y + self.offset_y,z + self.offset_z)
         if self.in_arc:

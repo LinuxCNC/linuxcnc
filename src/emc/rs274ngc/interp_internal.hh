@@ -252,6 +252,12 @@ typedef struct block_struct
   double r_number;
   double s_number;
   int t_number;
+  ON_OFF u_flag;
+  double u_number;
+  ON_OFF v_flag;
+  double v_number;
+  ON_OFF w_flag;
+  double w_number;
   ON_OFF x_flag;
   double x_number;
   ON_OFF y_flag;
@@ -318,6 +324,11 @@ typedef struct setup_struct
   double CC_axis_offset;        // C-axis g92offset
   double CC_current;            // current C-axis position
   double CC_origin_offset;      // C-axis origin offset
+
+  double u_axis_offset, u_current, u_origin_offset;
+  double v_axis_offset, v_current, v_origin_offset;
+  double w_axis_offset, w_current, w_origin_offset;
+
   int active_g_codes[ACTIVE_G_CODES];  // array of active G codes
   int active_m_codes[ACTIVE_M_CODES];  // array of active M codes
   double active_settings[ACTIVE_SETTINGS];     // array of feed, speed, etc.

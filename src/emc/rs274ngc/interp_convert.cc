@@ -124,6 +124,7 @@ int Interp::convert_arc(int move,        //!< either G_2 (cw arc) or G_3 (ccw ar
   double AA_end;
   double BB_end;
   double CC_end;
+  double u_end, v_end, w_end;
 
   ijk_flag = ((block->i_flag || block->j_flag) || block->k_flag) ? ON : OFF;
   first = settings->cutter_comp_firstmove == ON;
@@ -179,7 +180,8 @@ int Interp::convert_arc(int move,        //!< either G_2 (cw arc) or G_3 (ccw ar
   }
 
   find_ends(block, settings, &end_x, &end_y, &end_z,
-            &AA_end, &BB_end, &CC_end);
+            &AA_end, &BB_end, &CC_end, 
+            &u_end, &v_end, &w_end);
 
   settings->motion_mode = move;
 
@@ -191,16 +193,18 @@ int Interp::convert_arc(int move,        //!< either G_2 (cw arc) or G_3 (ccw ar
                      &(settings->current_x), &(settings->current_y),
                      &(settings->current_z), end_x, end_y, end_z,
                      AA_end, BB_end, CC_end,
+                     u_end, v_end, w_end,
                      block->i_number, block->j_number);
       CHP(status);
     } else if (first) {
       status = convert_arc_comp1(move, block, settings, end_x, end_y, end_z,
-                                 AA_end, BB_end, CC_end);
+                                 AA_end, BB_end, CC_end,
+                                 u_end, v_end, w_end);
       CHP(status);
     } else {
       status = convert_arc_comp2(move, block, settings, end_x, end_y, end_z,
-                                 AA_end, BB_end, CC_end);
-
+                                 AA_end, BB_end, CC_end,
+                                 u_end, v_end, w_end);
       CHP(status);
     }
   } else if (settings->plane == CANON_PLANE_XZ) {
@@ -211,15 +215,18 @@ int Interp::convert_arc(int move,        //!< either G_2 (cw arc) or G_3 (ccw ar
                      &(settings->current_z), &(settings->current_x),
                      &(settings->current_y), end_z, end_x, end_y,
                      AA_end, BB_end, CC_end,
+                     u_end, v_end, w_end,
                      block->k_number, block->i_number);
       CHP(status);
     } else if (first) {
       status = convert_arc_comp1(move, block, settings, end_x, end_y, end_z,
-                                 AA_end, BB_end, CC_end);
+                                 AA_end, BB_end, CC_end,
+                                 u_end, v_end, w_end);
       CHP(status);
     } else {
       status = convert_arc_comp2(move, block, settings, end_x, end_y, end_z,
-                                 AA_end, BB_end, CC_end);
+                                 AA_end, BB_end, CC_end,
+                                 u_end, v_end, w_end);
 
       CHP(status);
     }
@@ -229,6 +236,7 @@ int Interp::convert_arc(int move,        //!< either G_2 (cw arc) or G_3 (ccw ar
                    &(settings->current_y), &(settings->current_z),
                    &(settings->current_x), end_y, end_z, end_x,
                    AA_end, BB_end, CC_end,
+                   u_end, v_end, w_end,
                    block->j_number, block->k_number);
     CHP(status);
   } else
@@ -268,6 +276,7 @@ int Interp::convert_arc2(int move,       //!< either G_2 (cw arc) or G_3 (ccw ar
                         double AA_end,  //!< a-value at end of arc                   
                         double BB_end,  //!< b-value at end of arc                   
                         double CC_end,  //!< c-value at end of arc                   
+                         double u, double v, double w, //!< values at end of arc
                         double offset1, //!< offset of center from current1          
                         double offset2) //!< offset of center from current2          
 {
@@ -294,13 +303,17 @@ int Interp::convert_arc2(int move,       //!< either G_2 (cw arc) or G_3 (ccw ar
     inverse_time_rate_arc(*current1, *current2, *current3, center1, center2,
                           turn, end1, end2, end3, block, settings);
   ARC_FEED(end1, end2, center1, center2, turn, end3,
-           AA_end, BB_end, CC_end);
+           AA_end, BB_end, CC_end, u, v, w);
   *current1 = end1;
   *current2 = end2;
   *current3 = end3;
   settings->AA_current = AA_end;
   settings->BB_current = BB_end;
   settings->CC_current = CC_end;
+  settings->u_current = u;
+  settings->v_current = v;
+  settings->w_current = w;
+  
   return INTERP_OK;
 }
 
@@ -339,7 +352,8 @@ int Interp::convert_arc_comp1(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
                              double end_z,      //!< z-value at end of arc                           
                              double AA_end,     //!< a-value at end of arc                     
                              double BB_end,     //!< b-value at end of arc                     
-                             double CC_end)     //!< c-value at end of arc                     
+                              double CC_end,     //!< c-value at end of arc                     
+                              double u_end, double v_end, double w_end) //!< uvw at end of arc
 {
   static char name[] = "convert_arc_comp1";
   double center[2];
@@ -437,9 +451,9 @@ int Interp::convert_arc_comp1(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
   if(settings->plane == CANON_PLANE_XZ) {
       if (settings->feed_mode == INVERSE_TIME)
         inverse_time_rate_straight(xtrans(settings, current[0]), current[2], ztrans(settings, current[1]),
-                                   AA_end, BB_end, CC_end, block, settings);
+                                   AA_end, BB_end, CC_end, u_end, v_end, w_end, block, settings);
       STRAIGHT_FEED(xtrans(settings, current[0]), current[2], ztrans(settings, current[1]),
-                    AA_end, BB_end, CC_end);
+                    AA_end, BB_end, CC_end, u_end, v_end, w_end);
 
       if (settings->feed_mode == INVERSE_TIME)
         inverse_time_rate_arc(current[0], current[1],
@@ -447,26 +461,32 @@ int Interp::convert_arc_comp1(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
                               end[0], end[1], end[2], block, settings);
       ARC_FEED(ztrans(settings, end[1]), xtrans(settings, end[0]), 
                ztrans(settings, center[1]), xtrans(settings, center[0]), 
-               -turn, end[2], AA_end, BB_end, CC_end);
+               -turn, end[2], AA_end, BB_end, CC_end, u_end, v_end, w_end);
       settings->current_x = end[0];
       settings->current_z = end[1];
       settings->current_y = end[2];
       settings->AA_current = AA_end;
       settings->BB_current = BB_end;
       settings->CC_current = CC_end;
+      settings->u_current = u_end;
+      settings->v_current = v_end;
+      settings->w_current = w_end;
   } else if (settings->plane == CANON_PLANE_XY) {
       if (settings->feed_mode == INVERSE_TIME)
         inverse_time_rate_arc(current[0], current[1],
                               current[2], center[0], center[1], turn,
                               end[0], end[1], end[2], block, settings);
       ARC_FEED(end[0], end[1], center[0], center[1], turn, end[2],
-               AA_end, BB_end, CC_end);
+               AA_end, BB_end, CC_end, u_end, v_end, w_end);
       settings->current_x = end[0];
       settings->current_y = end[1];
       settings->current_z = end[2];
       settings->AA_current = AA_end;
       settings->BB_current = BB_end;
       settings->CC_current = CC_end;
+      settings->u_current = u_end;
+      settings->v_current = v_end;
+      settings->w_current = w_end;
   }
 
   return INTERP_OK;
@@ -519,7 +539,8 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
                              double end_z,      //!< z-value at end of arc                         
                              double AA_end,     //!< a-value at end of arc
                              double BB_end,     //!< b-value at end of arc
-                             double CC_end)     //!< c-value at end of arc
+                              double CC_end,     //!< c-value at end of arc
+                              double u, double v, double w) //!< uvw at end of arc
 {
   static char name[] = "convert_arc_comp2";
   double alpha;                 /* direction of tangent to start of arc */
@@ -624,15 +645,15 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
     if(settings->plane == CANON_PLANE_XZ) {
       ARC_FEED(ztrans(settings, mid[1]), xtrans(settings, mid[0]), ztrans(settings, start[1]), xtrans(settings, start[0]),
                ((side == LEFT) ? 1 : -1),
-               current[2], AA_end, BB_end, CC_end);
+               current[2], AA_end, BB_end, CC_end, u, v, w);
       ARC_FEED(ztrans(settings, end[1]), xtrans(settings, end[0]), ztrans(settings, center[1]), xtrans(settings, center[0]),
-               -turn, end[2], AA_end, BB_end, CC_end);
+               -turn, end[2], AA_end, BB_end, CC_end, u, v, w);
     } else if (settings->plane == CANON_PLANE_XY) {
       ARC_FEED(mid[0], mid[1], start[0], start[1], ((side == LEFT) ? -1 : 1),
                current[2],
-               AA_end, BB_end, CC_end);
+               AA_end, BB_end, CC_end, u, v, w);
       ARC_FEED(end[0], end[1], center[0], center[1], turn, end[2],
-               AA_end, BB_end, CC_end);
+               AA_end, BB_end, CC_end, u, v, w);
     }
   } else {                      /* one arc needed */
     if (settings->feed_mode == INVERSE_TIME)
@@ -641,10 +662,10 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
                             end[0], end[1], end[2], block, settings);
     if(settings->plane == CANON_PLANE_XZ) {
       ARC_FEED(ztrans(settings, end[1]), xtrans(settings, end[0]), ztrans(settings, center[1]), xtrans(settings, center[0]),
-               -turn, end[2], AA_end, BB_end, CC_end);
+               -turn, end[2], AA_end, BB_end, CC_end, u, v, w);
     } else if (settings->plane == CANON_PLANE_XY) {
       ARC_FEED(end[0], end[1], center[0], center[1], turn, end[2],
-               AA_end, BB_end, CC_end);
+               AA_end, BB_end, CC_end, u, v, w);
     }
   }
 
@@ -660,6 +681,9 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
   settings->AA_current = AA_end;
   settings->BB_current = BB_end;
   settings->CC_current = CC_end;
+  settings->u_current = u;
+  settings->v_current = v;
+  settings->w_current = w;
 
   return INTERP_OK;
 }
@@ -775,14 +799,23 @@ int Interp::convert_axis_offsets(int g_code,     //!< g_code being executed (mus
                        (settings->BB_origin_offset +
                         settings->BB_axis_offset),
                        (settings->CC_origin_offset +
-                        settings->CC_axis_offset));
+                        settings->CC_axis_offset),
+                       (settings->u_origin_offset +
+                        settings->u_axis_offset),
+                       (settings->v_origin_offset +
+                        settings->v_axis_offset),
+                       (settings->w_origin_offset +
+                        settings->w_axis_offset));
+    
     pars[5211] = PROGRAM_TO_USER_LEN(settings->axis_offset_x);
     pars[5212] = PROGRAM_TO_USER_LEN(settings->axis_offset_y);
     pars[5213] = PROGRAM_TO_USER_LEN(settings->axis_offset_z);
     pars[5214] = PROGRAM_TO_USER_ANG(settings->AA_axis_offset);
     pars[5215] = PROGRAM_TO_USER_ANG(settings->BB_axis_offset);
     pars[5216] = PROGRAM_TO_USER_ANG(settings->CC_axis_offset);
-
+    pars[5217] = PROGRAM_TO_USER_ANG(settings->u_axis_offset);
+    pars[5218] = PROGRAM_TO_USER_ANG(settings->v_axis_offset);
+    pars[5219] = PROGRAM_TO_USER_ANG(settings->w_axis_offset);
   } else if ((g_code == G_92_1) || (g_code == G_92_2)) {
     settings->current_x = settings->current_x + settings->axis_offset_x;
     settings->current_y = settings->current_y + settings->axis_offset_y;
@@ -794,14 +827,19 @@ int Interp::convert_axis_offsets(int g_code,     //!< g_code being executed (mus
                        settings->origin_offset_y, settings->origin_offset_z,
                        settings->AA_origin_offset,
                        settings->BB_origin_offset,
-                       settings->CC_origin_offset);
-
+                       settings->CC_origin_offset,
+                       settings->u_origin_offset,
+                       settings->v_origin_offset,
+                       settings->w_origin_offset);
     settings->axis_offset_x = 0.0;
     settings->axis_offset_y = 0.0;
     settings->axis_offset_z = 0.0;
     settings->AA_axis_offset = 0.0;
     settings->BB_axis_offset = 0.0;
     settings->CC_axis_offset = 0.0;
+    settings->u_axis_offset = 0.0;
+    settings->v_axis_offset = 0.0;
+    settings->w_axis_offset = 0.0;
     if (g_code == G_92_1) {
       pars[5211] = 0.0;
       pars[5212] = 0.0;
@@ -809,6 +847,9 @@ int Interp::convert_axis_offsets(int g_code,     //!< g_code being executed (mus
       pars[5214] = 0.0;
       pars[5215] = 0.0;
       pars[5216] = 0.0;
+      pars[5217] = 0.0;
+      pars[5218] = 0.0;
+      pars[5219] = 0.0;
     }
   } else if (g_code == G_92_3) {
     settings->current_x =
@@ -823,12 +864,22 @@ int Interp::convert_axis_offsets(int g_code,     //!< g_code being executed (mus
       settings->BB_current + settings->BB_axis_offset - USER_TO_PROGRAM_ANG(pars[5215]);
     settings->CC_current =
       settings->CC_current + settings->CC_axis_offset - USER_TO_PROGRAM_ANG(pars[5216]);
+    settings->u_current =
+      settings->u_current + settings->u_axis_offset - USER_TO_PROGRAM_ANG(pars[5217]);
+    settings->v_current =
+      settings->v_current + settings->v_axis_offset - USER_TO_PROGRAM_ANG(pars[5218]);
+    settings->w_current =
+      settings->w_current + settings->w_axis_offset - USER_TO_PROGRAM_ANG(pars[5219]);
+
     settings->axis_offset_x = USER_TO_PROGRAM_LEN(pars[5211]);
     settings->axis_offset_y = USER_TO_PROGRAM_LEN(pars[5212]);
     settings->axis_offset_z = USER_TO_PROGRAM_LEN(pars[5213]);
     settings->AA_axis_offset = USER_TO_PROGRAM_ANG(pars[5214]);
     settings->BB_axis_offset = USER_TO_PROGRAM_ANG(pars[5215]);
     settings->CC_axis_offset = USER_TO_PROGRAM_ANG(pars[5216]);
+    settings->u_axis_offset = USER_TO_PROGRAM_ANG(pars[5217]);
+    settings->v_axis_offset = USER_TO_PROGRAM_ANG(pars[5218]);
+    settings->w_axis_offset = USER_TO_PROGRAM_ANG(pars[5219]);
     SET_ORIGIN_OFFSETS(settings->origin_offset_x + settings->axis_offset_x,
                        settings->origin_offset_y + settings->axis_offset_y,
                        settings->origin_offset_z + settings->axis_offset_z,
@@ -837,7 +888,13 @@ int Interp::convert_axis_offsets(int g_code,     //!< g_code being executed (mus
                        (settings->BB_origin_offset +
                         settings->BB_axis_offset),
                        (settings->CC_origin_offset +
-                        settings->CC_axis_offset));
+                        settings->CC_axis_offset),
+                       (settings->u_origin_offset +
+                        settings->u_axis_offset),
+                       (settings->v_origin_offset +
+                        settings->v_axis_offset),
+                       (settings->w_origin_offset +
+                        settings->w_axis_offset));
 
   } else
     ERM(NCE_BUG_CODE_NOT_IN_G92_SERIES);
@@ -1190,6 +1247,7 @@ int Interp::convert_coordinate_system(int g_code,        //!< g_code called (mus
   double a;
   double b;
   double c;
+  double u, v, w;
   double *parameters;
 
   parameters = settings->parameters;
@@ -1244,6 +1302,9 @@ int Interp::convert_coordinate_system(int g_code,        //!< g_code called (mus
   settings->AA_current = (settings->AA_current + settings->AA_origin_offset);
   settings->BB_current = (settings->BB_current + settings->BB_origin_offset);
   settings->CC_current = (settings->CC_current + settings->CC_origin_offset);
+  settings->u_current = (settings->u_current + settings->u_origin_offset);
+  settings->v_current = (settings->v_current + settings->v_origin_offset);
+  settings->w_current = (settings->w_current + settings->w_origin_offset);
 
   x = USER_TO_PROGRAM_LEN(parameters[5201 + (origin * 20)]);
   y = USER_TO_PROGRAM_LEN(parameters[5202 + (origin * 20)]);
@@ -1251,6 +1312,9 @@ int Interp::convert_coordinate_system(int g_code,        //!< g_code called (mus
   a = USER_TO_PROGRAM_ANG(parameters[5204 + (origin * 20)]);
   b = USER_TO_PROGRAM_ANG(parameters[5205 + (origin * 20)]);
   c = USER_TO_PROGRAM_ANG(parameters[5206 + (origin * 20)]);
+  u = USER_TO_PROGRAM_ANG(parameters[5207 + (origin * 20)]);
+  v = USER_TO_PROGRAM_ANG(parameters[5208 + (origin * 20)]);
+  w = USER_TO_PROGRAM_ANG(parameters[5209 + (origin * 20)]);
 
   settings->origin_offset_x = x;
   settings->origin_offset_y = y;
@@ -1258,6 +1322,9 @@ int Interp::convert_coordinate_system(int g_code,        //!< g_code called (mus
   settings->AA_origin_offset = a;
   settings->BB_origin_offset = b;
   settings->CC_origin_offset = c;
+  settings->u_origin_offset = u;
+  settings->v_origin_offset = v;
+  settings->w_origin_offset = w;
 
   settings->current_x = (settings->current_x - x);
   settings->current_y = (settings->current_y - y);
@@ -1265,12 +1332,19 @@ int Interp::convert_coordinate_system(int g_code,        //!< g_code called (mus
   settings->AA_current = (settings->AA_current - a);
   settings->BB_current = (settings->BB_current - b);
   settings->CC_current = (settings->CC_current - c);
+  settings->u_current = (settings->u_current - u);
+  settings->v_current = (settings->v_current - v);
+  settings->w_current = (settings->w_current - w);
 
   SET_ORIGIN_OFFSETS(x + settings->axis_offset_x,
-                     y + settings->axis_offset_y, z + settings->axis_offset_z,
+                     y + settings->axis_offset_y,
+                     z + settings->axis_offset_z,
                      a + settings->AA_axis_offset,
                      b + settings->BB_axis_offset,
-                     c + settings->CC_axis_offset);
+                     c + settings->CC_axis_offset,
+                     u + settings->u_axis_offset,
+                     v + settings->v_axis_offset,
+                     w + settings->w_axis_offset);
   return INTERP_OK;
 }
 
@@ -1749,16 +1823,21 @@ int Interp::convert_home(int move,       //!< G code, must be G_28 or G_30
   double AA_end;
   double BB_end;
   double CC_end;
+  double u_end;
+  double v_end;
+  double w_end;
   double *parameters;
 
   parameters = settings->parameters;
   find_ends(block, settings, &end_x, &end_y, &end_z,
-            &AA_end, &BB_end, &CC_end);
+            &AA_end, &BB_end, &CC_end, 
+            &u_end, &v_end, &w_end);
 
   CHK((settings->cutter_comp_side != OFF),
       NCE_CANNOT_USE_G28_OR_G30_WITH_CUTTER_RADIUS_COMP);
   STRAIGHT_TRAVERSE(end_x, end_y, end_z,
-                    AA_end, BB_end, CC_end);
+                    AA_end, BB_end, CC_end,
+                    u_end, v_end, w_end);
   if (move == G_28) {
       find_relative(USER_TO_PROGRAM_LEN(parameters[5161]),
                     USER_TO_PROGRAM_LEN(parameters[5162]),
@@ -1766,8 +1845,12 @@ int Interp::convert_home(int move,       //!< G code, must be G_28 or G_30
                     USER_TO_PROGRAM_ANG(parameters[5164]),
                     USER_TO_PROGRAM_ANG(parameters[5165]),
                     USER_TO_PROGRAM_ANG(parameters[5166]),
+                    USER_TO_PROGRAM_LEN(parameters[5167]),
+                    USER_TO_PROGRAM_LEN(parameters[5168]),
+                    USER_TO_PROGRAM_LEN(parameters[5169]),
                     &end_x, &end_y, &end_z,
-                    &AA_end, &BB_end, &CC_end, settings);
+                    &AA_end, &BB_end, &CC_end, 
+                    &u_end, &v_end, &w_end, settings);
   } else if (move == G_30) {
       find_relative(USER_TO_PROGRAM_LEN(parameters[5181]),
                     USER_TO_PROGRAM_LEN(parameters[5182]),
@@ -1775,18 +1858,27 @@ int Interp::convert_home(int move,       //!< G code, must be G_28 or G_30
                     USER_TO_PROGRAM_ANG(parameters[5184]),
                     USER_TO_PROGRAM_ANG(parameters[5185]),
                     USER_TO_PROGRAM_ANG(parameters[5186]),
+                    USER_TO_PROGRAM_LEN(parameters[5187]),
+                    USER_TO_PROGRAM_LEN(parameters[5188]),
+                    USER_TO_PROGRAM_LEN(parameters[5189]),
                     &end_x, &end_y, &end_z,
-                    &AA_end, &BB_end, &CC_end, settings);
+                    &AA_end, &BB_end, &CC_end, 
+                    &u_end, &v_end, &w_end, settings);
   } else
     ERM(NCE_BUG_CODE_NOT_G28_OR_G30);
   STRAIGHT_TRAVERSE(end_x, end_y, end_z,
-                    AA_end, BB_end, CC_end);
+                    AA_end, BB_end, CC_end,
+                    u_end, v_end, w_end);
   settings->current_x = end_x;
   settings->current_y = end_y;
   settings->current_z = end_z;
   settings->AA_current = AA_end;
   settings->BB_current = BB_end;
   settings->CC_current = CC_end;
+  settings->u_current = u_end;
+  settings->v_current = v_end;
+  settings->w_current = w_end;
+  
   return INTERP_OK;
 }
 
@@ -1845,6 +1937,17 @@ int Interp::convert_length_units(int g_code,     //!< g_code being executed (mus
       settings->origin_offset_x = (settings->origin_offset_x * INCH_PER_MM);
       settings->origin_offset_y = (settings->origin_offset_y * INCH_PER_MM);
       settings->origin_offset_z = (settings->origin_offset_z * INCH_PER_MM);
+
+      settings->u_current = (settings->u_current * INCH_PER_MM);
+      settings->v_current = (settings->v_current * INCH_PER_MM);
+      settings->w_current = (settings->w_current * INCH_PER_MM);
+      settings->u_axis_offset = (settings->u_axis_offset * INCH_PER_MM);
+      settings->v_axis_offset = (settings->v_axis_offset * INCH_PER_MM);
+      settings->w_axis_offset = (settings->w_axis_offset * INCH_PER_MM);
+      settings->u_origin_offset = (settings->u_origin_offset * INCH_PER_MM);
+      settings->v_origin_offset = (settings->v_origin_offset * INCH_PER_MM);
+      settings->w_origin_offset = (settings->w_origin_offset * INCH_PER_MM);
+
       settings->tool_zoffset = GET_EXTERNAL_TOOL_LENGTH_ZOFFSET();
       settings->tool_xoffset = GET_EXTERNAL_TOOL_LENGTH_XOFFSET();
       settings->feed_rate = GET_EXTERNAL_FEED_RATE();
@@ -1862,6 +1965,17 @@ int Interp::convert_length_units(int g_code,     //!< g_code being executed (mus
       settings->origin_offset_x = (settings->origin_offset_x * MM_PER_INCH);
       settings->origin_offset_y = (settings->origin_offset_y * MM_PER_INCH);
       settings->origin_offset_z = (settings->origin_offset_z * MM_PER_INCH);
+
+      settings->u_current = (settings->u_current * MM_PER_INCH);
+      settings->v_current = (settings->v_current * MM_PER_INCH);
+      settings->w_current = (settings->w_current * MM_PER_INCH);
+      settings->u_axis_offset = (settings->u_axis_offset * MM_PER_INCH);
+      settings->v_axis_offset = (settings->v_axis_offset * MM_PER_INCH);
+      settings->w_axis_offset = (settings->w_axis_offset * MM_PER_INCH);
+      settings->u_origin_offset = (settings->u_origin_offset * MM_PER_INCH);
+      settings->v_origin_offset = (settings->v_origin_offset * MM_PER_INCH);
+      settings->w_origin_offset = (settings->w_origin_offset * MM_PER_INCH);
+
       settings->tool_zoffset = GET_EXTERNAL_TOOL_LENGTH_ZOFFSET();
       settings->tool_xoffset = GET_EXTERNAL_TOOL_LENGTH_XOFFSET();
       settings->feed_rate = GET_EXTERNAL_FEED_RATE();
@@ -2194,7 +2308,10 @@ int Interp::convert_probe(block_pointer block,   //!< pointer to a block of RS27
   double AA_end;
   double BB_end;
   double CC_end;
-
+  double u_end;
+  double v_end;
+  double w_end;
+  
   CHK((block->x_flag == OFF && block->y_flag == OFF &&
        block->z_flag == OFF && block->a_flag == OFF &&
        block->b_flag == OFF && block->c_flag == OFF), 
@@ -2206,7 +2323,8 @@ int Interp::convert_probe(block_pointer block,   //!< pointer to a block of RS27
 	  "Cannot probe with feed per rev mode");
   CHK((settings->feed_rate == 0.0), NCE_CANNOT_PROBE_WITH_ZERO_FEED_RATE);
   find_ends(block, settings, &end_x, &end_y, &end_z,
-            &AA_end, &BB_end, &CC_end);
+            &AA_end, &BB_end, &CC_end,
+            &u_end, &v_end, &w_end);
   CHK((settings->current_x == end_x && settings->current_y == end_y &&
        settings->current_z == end_z && settings->AA_current == AA_end &&
        settings->BB_current == BB_end && settings->CC_current == CC_end),
@@ -2214,7 +2332,8 @@ int Interp::convert_probe(block_pointer block,   //!< pointer to a block of RS27
        
   TURN_PROBE_ON();
   STRAIGHT_PROBE(end_x, end_y, end_z,
-                 AA_end, BB_end, CC_end);
+                 AA_end, BB_end, CC_end,
+                 u_end, v_end, w_end);
 
   TURN_PROBE_OFF();
   settings->motion_mode = G_38_2;
@@ -2299,6 +2418,7 @@ int Interp::convert_setup(block_pointer block,   //!< pointer to a block of RS27
   double a;
   double b;
   double c;
+  double u, v, w;
   double *parameters;
   int p_int;
 
@@ -2341,6 +2461,24 @@ int Interp::convert_setup(block_pointer block,   //!< pointer to a block of RS27
   } else
     c = USER_TO_PROGRAM_ANG(parameters[5206 + (p_int * 20)]);
 
+  if (block->u_flag == ON) {
+    u = block->u_number;
+    parameters[5207 + (p_int * 20)] = PROGRAM_TO_USER_LEN(u);
+  } else
+    u = USER_TO_PROGRAM_LEN(parameters[5207 + (p_int * 20)]);
+
+  if (block->v_flag == ON) {
+    v = block->v_number;
+    parameters[5208 + (p_int * 20)] = PROGRAM_TO_USER_LEN(v);
+  } else
+    v = USER_TO_PROGRAM_LEN(parameters[5208 + (p_int * 20)]);
+
+  if (block->w_flag == ON) {
+    w = block->w_number;
+    parameters[5209 + (p_int * 20)] = PROGRAM_TO_USER_LEN(v);
+  } else
+    w = USER_TO_PROGRAM_LEN(parameters[5209 + (p_int * 20)]);
+
 /* axis offsets could be included in the two sets of calculations for
    current_x, current_y, etc., but do not need to be because the results
    would be the same. They would be added in then subtracted out. */
@@ -2354,6 +2492,12 @@ int Interp::convert_setup(block_pointer block,   //!< pointer to a block of RS27
       (settings->BB_current + settings->BB_origin_offset);
     settings->CC_current =
       (settings->CC_current + settings->CC_origin_offset);
+    settings->u_current =
+      (settings->u_current + settings->u_origin_offset);
+    settings->v_current =
+      (settings->v_current + settings->v_origin_offset);
+    settings->w_current =
+      (settings->w_current + settings->w_origin_offset);
 
     settings->origin_offset_x = x;
     settings->origin_offset_y = y;
@@ -2361,6 +2505,9 @@ int Interp::convert_setup(block_pointer block,   //!< pointer to a block of RS27
     settings->AA_origin_offset = a;
     settings->BB_origin_offset = b;
     settings->CC_origin_offset = c;
+    settings->u_origin_offset = u;
+    settings->v_origin_offset = v;
+    settings->w_origin_offset = w;
 
     settings->current_x = (settings->current_x - x);
     settings->current_y = (settings->current_y - y);
@@ -2368,13 +2515,19 @@ int Interp::convert_setup(block_pointer block,   //!< pointer to a block of RS27
     settings->AA_current = (settings->AA_current - a);
     settings->BB_current = (settings->BB_current - b);
     settings->CC_current = (settings->CC_current - c);
+    settings->u_current = (settings->u_current - u);
+    settings->v_current = (settings->v_current - v);
+    settings->w_current = (settings->w_current - w);
 
     SET_ORIGIN_OFFSETS(x + settings->axis_offset_x,
                        y + settings->axis_offset_y,
                        z + settings->axis_offset_z,
                        a + settings->AA_axis_offset,
                        b + settings->BB_axis_offset,
-                       c + settings->CC_axis_offset);
+                       c + settings->CC_axis_offset,
+                       u + settings->u_axis_offset,
+                       v + settings->v_axis_offset,
+                       w + settings->w_axis_offset);
   }
 #ifdef DEBUG_EMC
   else
@@ -2557,6 +2710,12 @@ int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS27
       + settings->BB_origin_offset + settings->BB_axis_offset;
     settings->CC_current = settings->CC_current
       + settings->CC_origin_offset + settings->CC_axis_offset;
+    settings->u_current = settings->u_current
+      + settings->u_origin_offset + settings->u_axis_offset;
+    settings->v_current = settings->v_current
+      + settings->v_origin_offset + settings->v_axis_offset;
+    settings->w_current = settings->w_current
+      + settings->w_origin_offset + settings->w_axis_offset;
     settings->origin_index = 1;
     settings->parameters[5220] = 1.0;
     settings->origin_offset_x = USER_TO_PROGRAM_LEN(settings->parameters[5221]);
@@ -2565,6 +2724,9 @@ int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS27
     settings->AA_origin_offset = USER_TO_PROGRAM_ANG(settings->parameters[5224]);
     settings->BB_origin_offset = USER_TO_PROGRAM_ANG(settings->parameters[5225]);
     settings->CC_origin_offset = USER_TO_PROGRAM_ANG(settings->parameters[5226]);
+    settings->u_origin_offset = USER_TO_PROGRAM_LEN(settings->parameters[5227]);
+    settings->v_origin_offset = USER_TO_PROGRAM_LEN(settings->parameters[5228]);
+    settings->w_origin_offset = USER_TO_PROGRAM_LEN(settings->parameters[5229]);
 
     settings->axis_offset_x = 0;
     settings->axis_offset_y = 0;
@@ -2572,6 +2734,9 @@ int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS27
     settings->AA_axis_offset = 0;
     settings->BB_axis_offset = 0;
     settings->CC_axis_offset = 0;
+    settings->u_axis_offset = 0;
+    settings->v_axis_offset = 0;
+    settings->w_axis_offset = 0;
 
     settings->current_x = settings->current_x - settings->origin_offset_x;
     settings->current_y = settings->current_y - settings->origin_offset_y;
@@ -2579,12 +2744,18 @@ int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS27
     settings->AA_current = settings->AA_current - settings->AA_origin_offset;
     settings->BB_current = settings->BB_current - settings->BB_origin_offset;
     settings->CC_current = settings->CC_current - settings->CC_origin_offset;
+    settings->u_current = settings->u_current - settings->u_origin_offset;
+    settings->v_current = settings->v_current - settings->v_origin_offset;
+    settings->w_current = settings->w_current - settings->w_origin_offset;
 
     SET_ORIGIN_OFFSETS(settings->origin_offset_x,
                        settings->origin_offset_y, settings->origin_offset_z,
                        settings->AA_origin_offset,
                        settings->BB_origin_offset,
-                       settings->CC_origin_offset);
+                       settings->CC_origin_offset,
+                       settings->u_origin_offset,
+                       settings->v_origin_offset,
+                       settings->w_origin_offset);
 
 /*2*/ if (settings->plane != CANON_PLANE_XY) {
       SELECT_PLANE(CANON_PLANE_XY);
@@ -2709,6 +2880,7 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
   double AA_end;
   double BB_end;
   double CC_end;
+  double u_end, v_end, w_end;
   int status;
 
   if (move == G_1) {
@@ -2725,7 +2897,7 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
 
   settings->motion_mode = move;
   find_ends(block, settings, &end_x, &end_y, &end_z,
-            &AA_end, &BB_end, &CC_end);
+            &AA_end, &BB_end, &CC_end, &u_end, &v_end, &w_end);
 
   if ((settings->cutter_comp_side != OFF) &&    /* ! "== ON" */
       (settings->cutter_comp_radius > 0.0)) {   /* radius always is >= 0 */
@@ -2734,18 +2906,19 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
     if (settings->cutter_comp_firstmove == ON) {
       status =
         convert_straight_comp1(move, block, settings, end_x, end_y, end_z,
-                               AA_end, BB_end, CC_end);
+                               AA_end, BB_end, CC_end, u_end, v_end, w_end);
 
       CHP(status);
     } else {
       status =
         convert_straight_comp2(move, block, settings, end_x, end_y, end_z,
-                               AA_end, BB_end, CC_end);
+                               AA_end, BB_end, CC_end, u_end, v_end, w_end);
       CHP(status);
     }
   } else if (move == G_0) {
     STRAIGHT_TRAVERSE(end_x, end_y, end_z,
-                      AA_end, BB_end, CC_end);
+                      AA_end, BB_end, CC_end,
+                      u_end, v_end, w_end);
     settings->current_x = end_x;
     settings->current_y = end_y;
     settings->current_z = end_z;
@@ -2753,9 +2926,11 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
     if (settings->feed_mode == INVERSE_TIME)
       inverse_time_rate_straight(end_x, end_y, end_z,
                                  AA_end, BB_end, CC_end,
+                                 u_end, v_end, w_end,
                                  block, settings);
     STRAIGHT_FEED(end_x, end_y, end_z,
-                  AA_end, BB_end, CC_end);
+                  AA_end, BB_end, CC_end,
+                  u_end, v_end, w_end);
     settings->current_x = end_x;
     settings->current_y = end_y;
     settings->current_z = end_z;
@@ -2764,7 +2939,7 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
            (settings->spindle_turning != CANON_COUNTERCLOCKWISE)),
           "Spindle not turning in G33");
     START_SPEED_FEED_SYNCH(block->k_number, 0);
-    STRAIGHT_FEED(end_x, end_y, end_z, AA_end, BB_end, CC_end);
+    STRAIGHT_FEED(end_x, end_y, end_z, AA_end, BB_end, CC_end, u_end, v_end, w_end);
     STOP_SPEED_FEED_SYNCH();
     settings->current_x = end_x;
     settings->current_y = end_y;
@@ -2780,7 +2955,10 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
   } else if (move == G_76) {
     CHK((settings->AA_current != AA_end || 
          settings->BB_current != BB_end || 
-         settings->CC_current != CC_end), NCE_CANNOT_MOVE_ROTARY_AXES_WITH_G76);
+         settings->CC_current != CC_end ||
+         settings->u_current != u_end ||
+         settings->v_current != v_end ||
+         settings->w_current != w_end), NCE_CANNOT_MOVE_ROTARY_AXES_WITH_G76);
     convert_threading_cycle(block, settings, end_x, end_y, end_z);
   } else
     ERM(NCE_BUG_CODE_NOT_G0_OR_G1);
@@ -2788,10 +2966,13 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
   settings->AA_current = AA_end;
   settings->BB_current = BB_end;
   settings->CC_current = CC_end;
+  settings->u_current = u_end;
+  settings->v_current = v_end;
+  settings->w_current = w_end;
   return INTERP_OK;
 }
 
-#define AABBCC settings->AA_current, settings->BB_current, settings->CC_current
+#define AABBCC settings->AA_current, settings->BB_current, settings->CC_current, settings->u_current, settings->v_current, settings->w_current
 
 // make one threading pass.  only called from convert_threading_cycle.
 static void 
@@ -2953,14 +3134,15 @@ the destination point.
 */
 
 int Interp::convert_straight_comp1(int move,     //!< either G_0 or G_1                        
-                                  block_pointer block,  //!< pointer to a block of RS274 instructions 
-                                  setup_pointer settings,       //!< pointer to machine settings              
-                                  double px,    //!< X coordinate of end point                
-                                  double py,    //!< Y coordinate of end point                
-                                  double pz,    //!< Z coordinate of end point                
-                                  double AA_end,        //!< A coordinate of end point          
-                                  double BB_end,        //!< B coordinate of end point          
-                                  double CC_end)        //!< C coordinate of end point          
+                                   block_pointer block,  //!< pointer to a block of RS274 instructions 
+                                   setup_pointer settings,       //!< pointer to machine settings              
+                                   double px,    //!< X coordinate of end point                
+                                   double py,    //!< Y coordinate of end point                
+                                   double pz,    //!< Z coordinate of end point                
+                                   double AA_end,        //!< A coordinate of end point          
+                                   double BB_end,        //!< B coordinate of end point          
+                                   double CC_end,        //!< C coordinate of end point          
+                                   double u_end, double v_end, double w_end)
 {
   static char name[] = "convert_straight_comp1";
   double alpha;
@@ -3003,10 +3185,10 @@ int Interp::convert_straight_comp1(int move,     //!< either G_0 or G_1
   if (move == G_0) {
      if(settings->plane == CANON_PLANE_XZ) {
          STRAIGHT_TRAVERSE(xtrans(settings, c[0]), p[2], ztrans(settings, c[1]),
-                           AA_end, BB_end, CC_end);
+                           AA_end, BB_end, CC_end, u_end, v_end, w_end);
      } else if(settings->plane == CANON_PLANE_XY) {
          STRAIGHT_TRAVERSE(c[0], c[1], p[2],
-                           AA_end, BB_end, CC_end);
+                           AA_end, BB_end, CC_end, u_end, v_end, w_end);
      }
   }
   else if (move == G_1) {
@@ -3014,16 +3196,18 @@ int Interp::convert_straight_comp1(int move,     //!< either G_0 or G_1
        if (settings->feed_mode == INVERSE_TIME)
          inverse_time_rate_straight(c[0], p[2], c[1],
                                     AA_end, BB_end, CC_end,
+                                    u_end, v_end, w_end,
                                     block, settings);
        STRAIGHT_FEED(xtrans(settings, c[0]), p[2], ztrans(settings, c[1]),
-                     AA_end, BB_end, CC_end);
+                     AA_end, BB_end, CC_end, u_end, v_end, w_end);
     } else if(settings->plane == CANON_PLANE_XY) {
        if (settings->feed_mode == INVERSE_TIME)
          inverse_time_rate_straight(c[0], c[1], p[2],
                                     AA_end, BB_end, CC_end,
+                                    u_end, v_end, w_end,
                                     block, settings);
        STRAIGHT_FEED(c[0], c[1], p[2],
-                     AA_end, BB_end, CC_end);
+                     AA_end, BB_end, CC_end, u_end, v_end, w_end);
     }
   } else
     ERM(NCE_BUG_CODE_NOT_G0_OR_G1);
@@ -3120,14 +3304,15 @@ move is the same as the end point for a G1 move, however.
 */
 
 int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1                        
-                                  block_pointer block,  //!< pointer to a block of RS274 instructions 
-                                  setup_pointer settings,       //!< pointer to machine settings              
-                                  double px,    //!< X coordinate of programmed end point     
-                                  double py,    //!< Y coordinate of programmed end point     
-                                  double pz,    //!< Z coordinate of end point                
-                                  double AA_end,        //!< A coordinate of end point
-                                  double BB_end,        //!< B coordinate of end point
-                                  double CC_end)        //!< C coordinate of end point
+                                   block_pointer block,  //!< pointer to a block of RS274 instructions 
+                                   setup_pointer settings,       //!< pointer to machine settings              
+                                   double px,    //!< X coordinate of programmed end point     
+                                   double py,    //!< Y coordinate of programmed end point     
+                                   double pz,    //!< Z coordinate of end point                
+                                   double AA_end,        //!< A coordinate of end point
+                                   double BB_end,        //!< B coordinate of end point
+                                   double CC_end,        //!< C coordinate of end point
+                                   double u_end, double v_end, double w_end)
 {
   static char name[] = "convert_straight_comp2";
   double alpha;
@@ -3170,26 +3355,28 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
     if (move == G_0) {
       if(settings->plane == CANON_PLANE_XZ) {
           STRAIGHT_TRAVERSE(xtrans(settings, end[0]), py, ztrans(settings, end[1]),
-                            AA_end, BB_end, CC_end);
+                            AA_end, BB_end, CC_end, u_end, v_end, w_end);
       } else if(settings->plane == CANON_PLANE_XY) {
           STRAIGHT_TRAVERSE(end[0], end[1], pz,
-                            AA_end, BB_end, CC_end);
+                            AA_end, BB_end, CC_end, u_end, v_end, w_end);
       }
     } else if (move == G_1) {
       if(settings->plane == CANON_PLANE_XZ) {
           if (settings->feed_mode == INVERSE_TIME)
             inverse_time_rate_straight(end[0], py, end[1],
                                        AA_end, BB_end, CC_end,
+                                       u_end, v_end, w_end,
                                        block, settings);
           STRAIGHT_FEED(xtrans(settings, end[0]), py, ztrans(settings, end[1]),
-                        AA_end, BB_end, CC_end);
+                        AA_end, BB_end, CC_end, u_end, v_end, w_end);
       } else if(settings->plane == CANON_PLANE_XY) {
           if (settings->feed_mode == INVERSE_TIME)
             inverse_time_rate_straight(end[0], end[1], pz,
                                        AA_end, BB_end, CC_end,
+                                       u_end, v_end, w_end,
                                        block, settings);
           STRAIGHT_FEED(end[0], end[1], pz,
-                        AA_end, BB_end, CC_end);
+                        AA_end, BB_end, CC_end, u_end, v_end, w_end);
       }
     } else
       ERM(NCE_BUG_CODE_NOT_G0_OR_G1);
@@ -3222,11 +3409,11 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
     if (move == G_0) {
       if(settings->plane == CANON_PLANE_XZ) {
           STRAIGHT_TRAVERSE(xtrans(settings, end[0]), py, ztrans(settings, end[1]),
-                            AA_end, BB_end, CC_end);
+                            AA_end, BB_end, CC_end, u_end, v_end, w_end);
       }
       else if(settings->plane == CANON_PLANE_XY) {
           STRAIGHT_TRAVERSE(end[0], end[1], pz,
-                            AA_end, BB_end, CC_end);
+                            AA_end, BB_end, CC_end, u_end, v_end, w_end);
       }
     }
     else if (move == G_1) {
@@ -3237,12 +3424,13 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
                                    (side == LEFT) ? -1 : 1, mid[0],
                                    mid[1], end[0], p[2], end[1],
                                    AA_end, BB_end, CC_end,
+                                   u_end, v_end, w_end,
                                    block, settings);
             ARC_FEED(ztrans(settings, mid[1]), xtrans(settings, mid[0]), ztrans(settings, start[1]), xtrans(settings, start[0]),
                      ((side == LEFT) ? 1 : -1), settings->current_y,
-                     AA_end, BB_end, CC_end);
+                     AA_end, BB_end, CC_end, u_end, v_end, w_end);
             STRAIGHT_FEED(xtrans(settings, end[0]), p[2], ztrans(settings, end[1]),
-                          AA_end, BB_end, CC_end);
+                          AA_end, BB_end, CC_end, u_end, v_end, w_end);
         }
         else if(settings->plane == CANON_PLANE_XY) {
             if (settings->feed_mode == INVERSE_TIME)
@@ -3250,28 +3438,31 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
                                    (side == LEFT) ? -1 : 1, mid[0],
                                    mid[1], end[0], end[1], p[2],
                                    AA_end, BB_end, CC_end,
+                                   u_end, v_end, w_end,
                                    block, settings);
             ARC_FEED(mid[0], mid[1], start[0], start[1],
                      ((side == LEFT) ? -1 : 1), settings->current_z,
-                     AA_end, BB_end, CC_end);
+                     AA_end, BB_end, CC_end, u_end, v_end, w_end);
             STRAIGHT_FEED(end[0], end[1], p[2],
-                          AA_end, BB_end, CC_end);
+                          AA_end, BB_end, CC_end, u_end, v_end, w_end);
         }
       } else {
          if(settings->plane == CANON_PLANE_XZ) {
             if (settings->feed_mode == INVERSE_TIME)
               inverse_time_rate_straight(end[0], p[2], end[1],
                                          AA_end, BB_end, CC_end,
+                                         u_end, v_end, w_end,
                                          block, settings);
             STRAIGHT_FEED(xtrans(settings, end[0]), p[2], ztrans(settings, end[1]),
-                          AA_end, BB_end, CC_end);
+                          AA_end, BB_end, CC_end, u_end, v_end, w_end);
          } else if(settings->plane == CANON_PLANE_XY) {
             if (settings->feed_mode == INVERSE_TIME)
               inverse_time_rate_straight(end[0], end[1], p[2],
                                          AA_end, BB_end, CC_end,
+                                         u_end, v_end, w_end,
                                          block, settings);
             STRAIGHT_FEED(end[0], end[1], p[2],
-                          AA_end, BB_end, CC_end);
+                          AA_end, BB_end, CC_end, u_end, v_end, w_end);
          }
       }
     } else

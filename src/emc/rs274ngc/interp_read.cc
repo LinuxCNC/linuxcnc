@@ -3160,6 +3160,61 @@ int Interp::read_unary(char *line,       //!< string: line of RS274/NGC code bei
   return INTERP_OK;
 }
 
+int Interp::read_u(char *line,   //!< string: line of RS274/NGC code being processed
+                  int *counter, //!< pointer to a counter for position on the line 
+                  block_pointer block,  //!< pointer to a block being filled from the line 
+                  double *parameters)   //!< array of system parameters                    
+{
+  static char name[] = "read_u";
+  double value;
+  int status;
+
+  CHK((line[*counter] != 'u'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
+  *counter = (*counter + 1);
+  CHKS((block->u_flag != OFF), _("Multiple U words on one line"));
+  CHP(read_real_value(line, counter, &value, parameters));
+  block->u_flag = ON;
+  block->u_number = value;
+  return INTERP_OK;
+}
+
+int Interp::read_v(char *line,   //!< string: line of RS274/NGC code being processed
+                  int *counter, //!< pointer to a counter for position on the line 
+                  block_pointer block,  //!< pointer to a block being filled from the line 
+                  double *parameters)   //!< array of system parameters                    
+{
+  static char name[] = "read_v";
+  double value;
+  int status;
+
+  CHK((line[*counter] != 'v'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
+  *counter = (*counter + 1);
+  CHKS((block->v_flag != OFF), _("Multiple V words on one line"));
+  CHP(read_real_value(line, counter, &value, parameters));
+  block->v_flag = ON;
+  block->v_number = value;
+  return INTERP_OK;
+}
+
+int Interp::read_w(char *line,   //!< string: line of RS274/NGC code being processed
+                  int *counter, //!< pointer to a counter for position on the line 
+                  block_pointer block,  //!< pointer to a block being filled from the line 
+                  double *parameters)   //!< array of system parameters                    
+{
+  static char name[] = "read_w";
+  double value;
+  int status;
+
+  CHK((line[*counter] != 'w'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
+  *counter = (*counter + 1);
+  CHKS((block->w_flag != OFF), _("Multiple W words on one line"));
+  CHP(read_real_value(line, counter, &value, parameters));
+  block->w_flag = ON;
+  block->w_number = value;
+  return INTERP_OK;
+}
+
+
 /****************************************************************************/
 
 /*! read_x

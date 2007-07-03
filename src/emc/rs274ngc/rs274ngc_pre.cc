@@ -409,7 +409,10 @@ int Interp::init()
                      USER_TO_PROGRAM_LEN(pars[k + 3] + pars[5213]),
                      USER_TO_PROGRAM_ANG(pars[k + 4] + pars[5214]),
                      USER_TO_PROGRAM_ANG(pars[k + 5] + pars[5215]),
-                     USER_TO_PROGRAM_ANG(pars[k + 6] + pars[5216]));
+                     USER_TO_PROGRAM_ANG(pars[k + 6] + pars[5216]),
+                     USER_TO_PROGRAM_LEN(pars[k + 7] + pars[5217]),
+                     USER_TO_PROGRAM_LEN(pars[k + 8] + pars[5218]),
+                     USER_TO_PROGRAM_LEN(pars[k + 9] + pars[5219]));
   SET_FEED_REFERENCE(CANON_XYZ);
   _setup.AA_axis_offset = USER_TO_PROGRAM_ANG(pars[5214]);
 //_setup.Aa_current set in Interp::synch
@@ -420,6 +423,12 @@ int Interp::init()
   _setup.CC_axis_offset = USER_TO_PROGRAM_ANG(pars[5216]);
 //_setup.Cc_current set in Interp::synch
   _setup.CC_origin_offset = USER_TO_PROGRAM_ANG(pars[k + 6]);
+  _setup.u_axis_offset = USER_TO_PROGRAM_LEN(pars[5217]);
+  _setup.u_origin_offset = USER_TO_PROGRAM_LEN(pars[k + 7]);
+  _setup.v_axis_offset = USER_TO_PROGRAM_LEN(pars[5218]);
+  _setup.v_origin_offset = USER_TO_PROGRAM_LEN(pars[k + 8]);
+  _setup.w_axis_offset = USER_TO_PROGRAM_LEN(pars[5219]);
+  _setup.w_origin_offset = USER_TO_PROGRAM_LEN(pars[k + 9]);
 //_setup.active_g_codes initialized below
 //_setup.active_m_codes initialized below
 //_setup.active_settings initialized below

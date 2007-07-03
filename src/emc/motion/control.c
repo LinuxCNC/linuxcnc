@@ -49,13 +49,16 @@ static double servo_freq;
 
 void print_pose ( EmcPose *pos )
 {
-    rtapi_print(" (%d, %d, %d):(%d, %d, %d) ",
-	(int)(pos->tran.x*1000000.0),
-	(int)(pos->tran.y*1000000.0),
-	(int)(pos->tran.z*1000000.0),
-	(int)(pos->a*1000000.0),
-	(int)(pos->b*1000000.0),
-	(int)(pos->c*1000000.0) );
+    rtapi_print(" (%d, %d, %d):(%d, %d, %d),(%d, %d, %d) ",
+                (int)(pos->tran.x*1000000.0),
+                (int)(pos->tran.y*1000000.0),
+                (int)(pos->tran.z*1000000.0),
+                (int)(pos->a*1000000.0),
+                (int)(pos->b*1000000.0),
+                (int)(pos->c*1000000.0),
+                (int)(pos->u*1000000.0),
+                (int)(pos->v*1000000.0),
+                (int)(pos->w*1000000.0));
 }
 
 

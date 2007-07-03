@@ -147,31 +147,29 @@ convert_straight_comp2.
 */
 
 int Interp::inverse_time_rate_as(double start_x, //!< x coord of last program point, extra arc center x
-                                double start_y, //!< y coord of last program point, extra arc center y
-                                int turn,       //!< turn of extra arc                                
-                                double mid_x,   //!< x coord of end point of extra arc                
-                                double mid_y,   //!< y coord of end point of extra arc                
-                                double end_x,   //!< x coord of end point of straight line            
-                                double end_y,   //!< y coord of end point of straight line            
-                                double end_z,   //!< z coord of end point of straight line            
-                                double AA_end,  //!< A coord of end point of straight line      
-                                double BB_end,  //!< B coord of end point of straight line      
-                                double CC_end,  //!< C coord of end point of straight line      
-                                block_pointer block,    //!< pointer to a block of RS274 instructions         
-                                setup_pointer settings) //!< pointer to machine settings                      
+                                 double start_y, //!< y coord of last program point, extra arc center y
+                                 int turn,       //!< turn of extra arc                                
+                                 double mid_x,   //!< x coord of end point of extra arc                
+                                 double mid_y,   //!< y coord of end point of extra arc                
+                                 double end_x,   //!< x coord of end point of straight line            
+                                 double end_y,   //!< y coord of end point of straight line            
+                                 double end_z,   //!< z coord of end point of straight line            
+                                 double AA_end,  //!< A coord of end point of straight line      
+                                 double BB_end,  //!< B coord of end point of straight line      
+                                 double CC_end,  //!< C coord of end point of straight line      
+                                 double u_end, double v_end, double w_end,
+                                 block_pointer block,    //!< pointer to a block of RS274 instructions         
+                                 setup_pointer settings) //!< pointer to machine settings                      
 {
   double length;
   double rate;
 
   length =
-    (find_arc_length
-     (settings->current_x, settings->current_y, settings->current_z,
-      start_x, start_y, turn, mid_x, mid_y,
-      settings->current_z) + find_straight_length(end_x, end_y, end_z,
-                            AA_end, BB_end, CC_end,
-                            mid_x, mid_y, settings->current_z,
-                            AA_end, BB_end, CC_end));
-
+      find_arc_length(settings->current_x, settings->current_y, settings->current_z,
+                      start_x, start_y, turn, mid_x, mid_y, settings->current_z) + 
+      find_straight_length(end_x, end_y, end_z, AA_end, BB_end, CC_end,
+                           u_end, v_end, w_end, mid_x, mid_y, settings->current_z,
+                           AA_end, BB_end, CC_end, u_end, v_end, w_end);
 
   rate = MAX(0.1, (length * block->f_number));
   SET_FEED_RATE(rate);
@@ -199,21 +197,24 @@ of the work here is in finding the length of the line.
 */
 
 int Interp::inverse_time_rate_straight(double end_x,     //!< x coordinate of end point of straight line
-                                      double end_y,     //!< y coordinate of end point of straight line
-                                      double end_z,     //!< z coordinate of end point of straight line
-                                      double AA_end,    //!< A coordinate of end point of straight line/*AA*/
-                                      double BB_end,    //!< B coordinate of end point of straight line/*BB*/
-                                      double CC_end,    //!< C coordinate of end point of straight line/*CC*/
-                                      block_pointer block,      //!< pointer to a block of RS274 instructions  
-                                      setup_pointer settings)   //!< pointer to machine settings               
+                                       double end_y,     //!< y coordinate of end point of straight line
+                                       double end_z,     //!< z coordinate of end point of straight line
+                                       double AA_end,    //!< A coordinate of end point of straight line/*AA*/
+                                       double BB_end,    //!< B coordinate of end point of straight line/*BB*/
+                                       double CC_end,    //!< C coordinate of end point of straight line/*CC*/
+                                       double u_end, double v_end, double w_end,
+                                       block_pointer block,      //!< pointer to a block of RS274 instructions  
+                                       setup_pointer settings)   //!< pointer to machine settings               
 {
   double length;
   double rate;
 
   length = find_straight_length(end_x, end_y, end_z,
                                 AA_end, BB_end, CC_end,
+                                u_end, v_end, w_end,
                                 settings->current_x, settings->current_y, settings->current_z,
-                                settings->AA_current, settings->BB_current, settings->CC_current);
+                                settings->AA_current, settings->BB_current, settings->CC_current,
+                                settings->u_current, settings->v_current, settings->w_current);
 
   rate = MAX(0.1, (length * block->f_number));
   SET_FEED_RATE(rate);

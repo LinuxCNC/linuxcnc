@@ -421,13 +421,16 @@ static PyObject *double_array(double *arr, int sz) {
 }
 
 static PyObject *pose(const EmcPose &p) {
-    PyObject *res = PyTuple_New(6);
+    PyObject *res = PyTuple_New(9);
     PyTuple_SET_ITEM(res, 0, PyFloat_FromDouble(p.tran.x));
     PyTuple_SET_ITEM(res, 1, PyFloat_FromDouble(p.tran.y));
     PyTuple_SET_ITEM(res, 2, PyFloat_FromDouble(p.tran.z));
     PyTuple_SET_ITEM(res, 3, PyFloat_FromDouble(p.a));
     PyTuple_SET_ITEM(res, 4, PyFloat_FromDouble(p.b));
     PyTuple_SET_ITEM(res, 5, PyFloat_FromDouble(p.c));
+    PyTuple_SET_ITEM(res, 6, PyFloat_FromDouble(p.u));
+    PyTuple_SET_ITEM(res, 7, PyFloat_FromDouble(p.v));
+    PyTuple_SET_ITEM(res, 8, PyFloat_FromDouble(p.w));
     return res;
 }
 

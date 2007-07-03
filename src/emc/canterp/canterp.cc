@@ -476,7 +476,7 @@ int emcTaskPlanRead(void)
 int emcTaskPlanExecute(const char *command)
 {
     int retval;
-    double d1, d2, d3, d4, d5, d6, d7, d8;
+    double d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11;
     int i1;
     char s1[256];
 
@@ -487,39 +487,39 @@ int emcTaskPlanExecute(const char *command)
     }
 
     if (!strcmp(the_command_name, "STRAIGHT_FEED")) {
-	if (6 != sscanf(the_command_args, "%lf %lf %lf %lf %lf %lf",
-			&d1, &d2, &d3, &d4, &d5, &d6)) {
+	if (6 != sscanf(the_command_args, "%lf %lf %lf %lf %lf %lf %lf %lf %lf",
+			&d1, &d2, &d3, &d4, &d5, &d6, &d7, &d8, &d9)) {
 	    return 1;
 	}
-	STRAIGHT_FEED(d1, d2, d3, d4, d5, d6);
+	STRAIGHT_FEED(d1, d2, d3, d4, d5, d6, d7, d8, d9);
 	return 0;
     }
 
     if (!strcmp(the_command_name, "ARC_FEED")) {
 	if (9 != sscanf(the_command_args,
-			"%lf %lf %lf %lf %d %lf %lf %lf %lf",
-			&d1, &d2, &d3, &d4, &i1, &d5, &d6, &d7, &d8)) {
+			"%lf %lf %lf %lf %d %lf %lf %lf %lf %lf %lf %lf",
+			&d1, &d2, &d3, &d4, &i1, &d5, &d6, &d7, &d8, &d9, &d10, &d11)) {
 	    return 1;
 	}
-	ARC_FEED(d1, d2, d3, d4, i1, d5, d6, d7, d8);
+	ARC_FEED(d1, d2, d3, d4, i1, d5, d6, d7, d8, d9, d10, d11);
 	return 0;
     }
 
     if (!strcmp(the_command_name, "STRAIGHT_TRAVERSE")) {
-	if (6 != sscanf(the_command_args, "%lf %lf %lf %lf %lf %lf",
-			&d1, &d2, &d3, &d4, &d5, &d6)) {
+	if (6 != sscanf(the_command_args, "%lf %lf %lf %lf %lf %lf %lf %lf %lf",
+			&d1, &d2, &d3, &d4, &d5, &d6, &d7, &d8, &d9)) {
 	    return 1;
 	}
-	STRAIGHT_TRAVERSE(d1, d2, d3, d4, d5, d6);
+	STRAIGHT_TRAVERSE(d1, d2, d3, d4, d5, d6, d7, d8, d9);
 	return 0;
     }
 
     if (!strcmp(the_command_name, "STRAIGHT_PROBE")) {
-	if (6 != sscanf(the_command_args, "%lf %lf %lf %lf %lf %lf",
-			&d1, &d2, &d3, &d4, &d5, &d6)) {
+	if (6 != sscanf(the_command_args, "%lf %lf %lf %lf %lf %lf %lf %lf %lf",
+			&d1, &d2, &d3, &d4, &d5, &d6, &d7, &d8, &d9)) {
 	    return 1;
 	}
-	STRAIGHT_PROBE(d1, d2, d3, d4, d5, d6);
+	STRAIGHT_PROBE(d1, d2, d3, d4, d5, d6, d7, d8, d9);
 	return 0;
     }
 
@@ -540,11 +540,11 @@ int emcTaskPlanExecute(const char *command)
     }
 
     if (!strcmp(the_command_name, "SET_ORIGIN_OFFSETS")) {
-	if (6 != sscanf(the_command_args, "%lf %lf %lf %lf %lf %lf",
-			&d1, &d2, &d3, &d4, &d5, &d6)) {
+	if (6 != sscanf(the_command_args, "%lf %lf %lf %lf %lf %lf %lf %lf %lf",
+			&d1, &d2, &d3, &d4, &d5, &d6, &d7, &d8, &d9)) {
 	    return 1;
 	}
-	SET_ORIGIN_OFFSETS(d1, d2, d3, d4, d5, d6);
+	SET_ORIGIN_OFFSETS(d1, d2, d3, d4, d5, d6, d7, d8, d9);
 	return 0;
     }
 

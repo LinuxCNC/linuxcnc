@@ -2761,7 +2761,9 @@ void EmcPose_update(CMS * cms, EmcPose * x)
     cms->update(x->a);
     cms->update(x->b);
     cms->update(x->c);
-
+    cms->update(x->u);
+    cms->update(x->v);
+    cms->update(x->w);
 }
 
 /*

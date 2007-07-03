@@ -34,12 +34,14 @@
 typedef struct {
     PmLine xyz;
     PmLine abc;
-} PmLine6;
+    PmLine uvw;
+} PmLine9;
 
 typedef struct {
     PmCircle xyz;
     PmLine abc;
-} PmCircle6;
+    PmLine uvw;
+} PmCircle9;
 
 typedef enum {
     TAPPING, REVERSING, RETRACTION, FINAL_REVERSAL, FINAL_PLACEMENT
@@ -50,6 +52,7 @@ typedef struct {
     PmLine aux_xyz;         // this will be generated on the fly, for the other
                             // two moves: retraction, final placement
     PmCartesian abc;
+    PmCartesian uvw;
     double reversal_target;
     double spindlerevs_at_reversal;
     RIGIDTAP_STATE state;
@@ -68,8 +71,8 @@ typedef struct {
     int id;                 // segment's serial number
 
     union {                 // describes the segment's start and end positions
-        PmLine6 line;
-        PmCircle6 circle;
+        PmLine9 line;
+        PmCircle9 circle;
         PmRigidTap rigidtap;
     } coords;
 
