@@ -223,7 +223,7 @@ def to_internal_units(pos, unit=None):
         unit = s.linear_units
     lu = (unit or 1) * 25.4
 
-    lus = [lu, lu, lu, 1, 1, 1]
+    lus = [lu, lu, lu, 1, 1, 1, lu, lu, lu]
     return [a/b for a, b in zip(pos, lus)]
 
 def to_internal_linear_unit(v, unit=None):
@@ -237,7 +237,7 @@ def from_internal_units(pos, unit=None):
         unit = s.linear_units
     lu = (unit or 1) * 25.4
 
-    lus = [lu, lu, lu, 1, 1, 1]
+    lus = [lu, lu, lu, 1, 1, 1, lu, lu, lu]
     return [a*b for a, b in zip(pos, lus)]
 
 def from_internal_linear_unit(v, unit=None):
@@ -1850,7 +1850,7 @@ widgets = nf.Widgets(root_window,
 def activate_axis(i, force=0):
     if not force and not manual_ok(): return
     if i >= axiscount: return
-    axis = getattr(widgets, "axis_%s" % "xyzabc"[i])
+    axis = getattr(widgets, "axis_%s" % "xyzabcuvw"[i])
     axis.focus()
     axis.invoke()
 
@@ -2675,13 +2675,13 @@ class TclCommands(nf.TclCommands):
     def jog_plus(incr=False):
         a = vars.current_axis.get()
         if isinstance(a, (str, unicode)):
-            a = "xyzabc".index(a)
+            a = "xyzabcuvw".index(a)
         speed = get_jog_speed(a)
         jog_on(a, speed)
     def jog_minus(incr=False):
         a = vars.current_axis.get()
         if isinstance(a, (str, unicode)):
-            a = "xyzabc".index(a)
+            a = "xyzabcuvw".index(a)
         speed = get_jog_speed(a)
         jog_on(a, -speed)
     def jog_stop(event=None):
@@ -2695,7 +2695,7 @@ class TclCommands(nf.TclCommands):
     def home_axis(event=None):
         if not manual_ok(): return
         ensure_mode(emc.MODE_MANUAL)
-        c.home("xyzabc".index(vars.current_axis.get()))
+        c.home("xyzabcuvw".index(vars.current_axis.get()))
 
     def home_axis_number(num):
         ensure_mode(emc.MODE_MANUAL)
@@ -2717,7 +2717,7 @@ class TclCommands(nf.TclCommands):
     def touch_off(event=None, new_axis_value = None, system = "1"):
         if not manual_ok(): return
         if s.motion_mode == emc.TRAJ_MODE_FREE and s.kinematics_type != emc.KINEMATICS_IDENTITY: return
-        offset_axis = "xyzabc".index(vars.current_axis.get())
+        offset_axis = "xyzabcuvw".index(vars.current_axis.get())
         if new_axis_value is None:
             new_axis_value = prompt_float(_("Touch Off"),
                 _("Enter %s coordinate relative to workpiece:")
@@ -3035,13 +3035,13 @@ def jog(*args):
     c.jog(*args)
 
 # XXX correct for machines with more than six axes
-jog_after = [None] * 6
-jog_cont  = [False] * 6
-jogging   = [0] * 6
+jog_after = [None] * 9
+jog_cont  = [False] * 9
+jogging   = [0] * 9
 def jog_on(a, b):
     if not manual_ok(): return
     if isinstance(a, (str, unicode)):
-        a = "xyzabc".index(a)
+        a = "xyzabcuvw".index(a)
     if a < 3:
         if vars.metric.get(): b = b / 25.4
         b = from_internal_linear_unit(b)
@@ -3068,7 +3068,7 @@ def jog_on(a, b):
 
 def jog_off(a):
     if isinstance(a, (str, unicode)):
-        a = "xyzabc".index(a)
+        a = "xyzabcuvw".index(a)
     if jog_after[a]: return
     jog_after[a] = root_window.after_idle(lambda: jog_off_actual(a))
 
@@ -3102,8 +3102,8 @@ import sys, getopt
 axiscount = 3
 axisnames = ["X", "Y", "Z"]
 jointnames = ["0", "1", "2"]
-machine_limit_min = [-10] * 6
-machine_limit_max = [-10] * 6
+machine_limit_min = [-10] * 9
+machine_limit_max = [-10] * 9
 
 open_directory = "programs"
 
@@ -3239,8 +3239,8 @@ root_window.bind("<KeyRelease-equal>", commands.jog_stop)
 
 
 opts, args = getopt.getopt(sys.argv[1:], 'd:')
-for i in range(len(axisnames), 6):
-    c = getattr(widgets, "axis_%s" % ("xyzabc"[i]))
+for i in range(len(axisnames), 9):
+    c = getattr(widgets, "axis_%s" % ("xyzabcuvw"[i]))
     c.grid_forget()
 if len(axisnames) < 4:
     widgets.ajogspeed.grid_forget()

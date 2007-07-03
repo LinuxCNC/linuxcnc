@@ -39,7 +39,7 @@
 // replaced with the result of a configure test.
 #define T_BOOL T_UBYTE
 
-#define NUM_AXES (6)
+#define NUM_AXES (9)
 
 #define LOCAL_SPINDLE_FORWARD (1)
 #define LOCAL_SPINDLE_REVERSE (-1)
