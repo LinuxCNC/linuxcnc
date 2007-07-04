@@ -1804,9 +1804,9 @@ widgets = nf.Widgets(root_window,
     ("axis_a", Radiobutton, tabs_manual + ".axes.axisa"),
     ("axis_b", Radiobutton, tabs_manual + ".axes.axisb"),
     ("axis_c", Radiobutton, tabs_manual + ".axes.axisc"),
-    ("axis_u", Radiobutton, tabs_manual + ".axes.axisc"),
-    ("axis_v", Radiobutton, tabs_manual + ".axes.axisc"),
-    ("axis_w", Radiobutton, tabs_manual + ".axes.axisc"),
+    ("axis_u", Radiobutton, tabs_manual + ".axes.axisu"),
+    ("axis_v", Radiobutton, tabs_manual + ".axes.axisv"),
+    ("axis_w", Radiobutton, tabs_manual + ".axes.axisw"),
 
     ("jogincr", Entry, tabs_manual + ".jogf.jog.jogincr"),
 
@@ -2076,7 +2076,7 @@ def dist((x,y,z),(p,q,r)):
 
 # returns units/sec
 def get_jog_speed(a):
-    if vars.joint_mode.get() or a < 3:
+    if vars.joint_mode.get() or a in (0,1,2,6,7,8):
         return vars.jog_speed.get()/60.
     else: return vars.jog_aspeed.get()/60.
 
@@ -3171,7 +3171,13 @@ if homing_order_defined:
     root_window.tk.call("setup_menu_accel", widgets.homemenu, "end",
             _("Home All Axes"))
 
-s = emc.stat(); s.poll()
+s = emc.stat();
+s.poll()
+while s.axes == 0:
+    print "waiting for s.axes != 0 -- Had to poll again..."
+    time.sleep(.01)
+    s.poll()
+
 for i,j in enumerate("XYZABCUVW"):
     if s.axis_mask & (1<<i) == 0: continue
     widgets.homemenu.add_command(command=lambda i=i: commands.home_axis_number(i))
@@ -3242,6 +3248,7 @@ opts, args = getopt.getopt(sys.argv[1:], 'd:')
 for i in range(9):
     if s.axis_mask & (1<<i): continue
     c = getattr(widgets, "axis_%s" % ("xyzabcuvw"[i]))
+    print "forget", c, s.axis_mask, i, (1<<i)
     c.grid_forget()
 if s.axis_mask & 56 == 0:
     widgets.ajogspeed.grid_forget()
