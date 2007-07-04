@@ -17,8 +17,7 @@
 #include "rtapi_string.h"
 
 struct data { 
-    hal_s32_t joints[8];
-/* hal_u8_t joints[8]; */
+    hal_s32_t joints[EMCMOT_MAX_JOINTS];
 } *data;
 
 #define SET(f) pos->f = joints[i]
@@ -92,10 +91,33 @@ KINEMATICS_TYPE kinematicsType()
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
 #include "hal.h"
 
+char *coordinates = "XYZABC";
+RTAPI_MP_STRING(coordinates, "Mapping from axes to joints");
 EXPORT_SYMBOL(kinematicsType);
 EXPORT_SYMBOL(kinematicsForward);
 EXPORT_SYMBOL(kinematicsInverse);
 MODULE_LICENSE("GPL");
+
+static int next_axis_number(void) {
+    while(*coordinates) {
+	switch(*coordinates) {
+	    case 'x': case 'X': coordinates++; return 0;
+	    case 'y': case 'Y': coordinates++; return 1;
+	    case 'z': case 'Z': coordinates++; return 2;
+	    case 'a': case 'A': coordinates++; return 3;
+	    case 'b': case 'B': coordinates++; return 4;
+	    case 'c': case 'C': coordinates++; return 5;
+	    case 'u': case 'U': coordinates++; return 6;
+	    case 'v': case 'V': coordinates++; return 7;
+	    case 'w': case 'W': coordinates++; return 8;
+	    case ' ': case '\t': coordinates++; continue;
+	}
+	rtapi_print_msg(RTAPI_MSG_ERR,
+		"GANTRYKINS: ERROR: Invalid character '%c' in coordinates",
+		*coordinates);
+    }
+    return -1;
+}
 
 int comp_id;
 int rtapi_app_main(void) {
@@ -105,14 +127,13 @@ int rtapi_app_main(void) {
 
     data = hal_malloc(sizeof(struct data));
 
-    for(i=0; i<8; i++) {
+    for(i=0; i<EMCMOT_MAX_JOINTS; i++) {
         result = hal_param_s32_newf(HAL_RW, &(data->joints[i]), comp_id,
                 "gantrykins.joint-%d", i);
         if(result < 0) goto error;
-        if(i < 6)
-            data->joints[i] = i;
-        else
-            data->joints[i] = -1;
+	data->joints[i] = next_axis_number();
+	rtapi_print_msg(RTAPI_MSG_ERR, 
+		"GANTRYKINS: joints[%d] = %d\n", i, data->joints[i]);
     }
 
     hal_ready(comp_id);
