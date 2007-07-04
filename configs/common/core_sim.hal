@@ -38,6 +38,13 @@ linksp Xpos => axis.0.motor-pos-fb
 linksp Ypos => axis.1.motor-pos-fb
 linksp Zpos => axis.2.motor-pos-fb
 
+net Apos axis.3.motor-pos-cmd => axis.3.motor-pos-fb
+net Bpos axis.4.motor-pos-cmd => axis.4.motor-pos-fb
+net Cpos axis.5.motor-pos-cmd => axis.5.motor-pos-fb
+net Upos axis.6.motor-pos-cmd => axis.6.motor-pos-fb
+net Vpos axis.7.motor-pos-cmd => axis.7.motor-pos-fb
+net Wpos axis.8.motor-pos-cmd => axis.8.motor-pos-fb
+
 # send the position commands thru differentiators to
 # generate velocity and accel signals
 # define the signals, and hook them up
