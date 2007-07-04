@@ -2704,7 +2704,7 @@ class TclCommands(nf.TclCommands):
     def clear_offset(num):
         ensure_mode(emc.MODE_MDI)
         s.poll()
-        clear_command = "G10 L2 P%c X0 Y0 Z0 A0 B0 C0\n" % num
+        clear_command = "G10 L2 P%c X0 Y0 Z0 A0 B0 C0 U0 V0 W0\n" % num
         c.mdi(clear_command)
         ensure_mode(emc.MODE_MANUAL)
         s.poll()

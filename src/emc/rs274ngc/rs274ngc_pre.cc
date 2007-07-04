@@ -1016,6 +1016,9 @@ int Interp::synch()
   _setup.current_x = GET_EXTERNAL_POSITION_X();
   _setup.current_y = GET_EXTERNAL_POSITION_Y();
   _setup.current_z = GET_EXTERNAL_POSITION_Z();
+  _setup.u_current = GET_EXTERNAL_POSITION_U();
+  _setup.v_current = GET_EXTERNAL_POSITION_V();
+  _setup.w_current = GET_EXTERNAL_POSITION_W();
   _setup.feed_rate = GET_EXTERNAL_FEED_RATE();
   _setup.flood = (GET_EXTERNAL_FLOOD() != 0) ? ON : OFF;
   _setup.length_units = GET_EXTERNAL_LENGTH_UNIT_TYPE();

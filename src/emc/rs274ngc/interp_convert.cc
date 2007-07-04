@@ -790,6 +790,21 @@ int Interp::convert_axis_offsets(int g_code,     //!< g_code being executed (mus
                                   settings->CC_axis_offset - block->c_number);
       settings->CC_current = block->c_number;
     }
+    if (block->u_flag == ON) {
+      settings->u_axis_offset = (settings->u_current +
+                                 settings->u_axis_offset - block->u_number);
+      settings->u_current = block->u_number;
+    }
+    if (block->v_flag == ON) {
+      settings->v_axis_offset = (settings->v_current +
+                                 settings->v_axis_offset - block->v_number);
+      settings->v_current = block->v_number;
+    }
+    if (block->w_flag == ON) {
+      settings->w_axis_offset = (settings->w_current +
+                                 settings->w_axis_offset - block->w_number);
+      settings->w_current = block->w_number;
+    }
 
     SET_ORIGIN_OFFSETS(settings->origin_offset_x + settings->axis_offset_x,
                        settings->origin_offset_y + settings->axis_offset_y,
@@ -823,6 +838,9 @@ int Interp::convert_axis_offsets(int g_code,     //!< g_code being executed (mus
     settings->AA_current = (settings->AA_current + settings->AA_axis_offset);
     settings->BB_current = (settings->BB_current + settings->BB_axis_offset);
     settings->CC_current = (settings->CC_current + settings->CC_axis_offset);
+    settings->u_current = (settings->u_current + settings->u_axis_offset);
+    settings->v_current = (settings->v_current + settings->v_axis_offset);
+    settings->w_current = (settings->w_current + settings->w_axis_offset);
     SET_ORIGIN_OFFSETS(settings->origin_offset_x,
                        settings->origin_offset_y, settings->origin_offset_z,
                        settings->AA_origin_offset,
@@ -2475,7 +2493,7 @@ int Interp::convert_setup(block_pointer block,   //!< pointer to a block of RS27
 
   if (block->w_flag == ON) {
     w = block->w_number;
-    parameters[5209 + (p_int * 20)] = PROGRAM_TO_USER_LEN(v);
+    parameters[5209 + (p_int * 20)] = PROGRAM_TO_USER_LEN(w);
   } else
     w = USER_TO_PROGRAM_LEN(parameters[5209 + (p_int * 20)]);
 
