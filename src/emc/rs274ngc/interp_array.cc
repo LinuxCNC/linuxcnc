@@ -217,7 +217,7 @@ const int Interp::_required_parameters[] = {
    At some point, it may be advantageous to add a read_$ or read_n for perhaps
    macro or jump labels..
    */
-const read_function_pointer Interp::_readers[] = {
+const read_function_pointer Interp::default_readers[256] = {
 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 &Interp::read_parameter_setting, // reads # or ASCII 0x23

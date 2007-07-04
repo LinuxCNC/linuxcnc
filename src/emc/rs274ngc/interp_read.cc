@@ -1119,9 +1119,12 @@ int Interp::read_one_item(
   char letter;
 
   letter = line[*counter];      /* check if in array range */
-  CHK(((letter < ' ') || (letter > 'z')), NCE_BAD_CHARACTER_USED);
+  CHKF(((letter < ' ') || (letter > 'z')),
+	("Bad character '\\%03o' used", letter));
   function_pointer = _readers[(int) letter]; /* Find the function pointer in the array */
-  CHK((function_pointer == 0), NCE_BAD_CHARACTER_USED);
+  CHKF((function_pointer == 0),
+	((!isprint(letter) || isspace(letter)) ?
+	    "Bad character '\\%03o' used" : "Bad character '%c' used", letter));
   CHP((*this.*function_pointer)(line, counter, block, parameters)); /* Call the function */ 
   return INTERP_OK;
 }

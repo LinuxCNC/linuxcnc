@@ -884,13 +884,6 @@ class MyOpengl(Opengl):
             pos = to_internal_units(pos[:3])
             glPushMatrix()
             glTranslatef(*pos)
-            if len(axisnames) > 3:
-                if axisnames[3] == "A":
-                    glRotatef(s.position[3], 1, 0, 0)
-                elif axisnames[3] == "B":
-                    glRotatef(s.position[3], 0, 1, 0)
-                elif axisnames[3] == "C":
-                    glRotatef(s.position[3], 0, 0, 1)
 
             glEnable(GL_BLEND)
             glEnable(GL_CULL_FACE);
@@ -948,10 +941,11 @@ class MyOpengl(Opengl):
                 format = "%3s:% 9.3f"
             else:
                 format = "%3s:% 9.4f"
-            posstrs = [format % i for i in zip(axisnames, positions)]
+
+            posstrs = [format % j for i, j in zip(range(9), zip("XYZABCUVW", positions)) if s.axis_mask & (1<<i)]
 
             if lathe:
-                posstrs = [posstrs[0]] + [format % ("Dia", positions[0]*2.0)] + posstrs[2:]
+                posstrs.insert(1, format % ("Dia", positions[0]*2.0))
 
             limit = s.limit[:]
             homed = s.homed[:]
@@ -1653,6 +1647,9 @@ class AxisCanon(GLCanon):
     def get_external_length_units(self):
         return s.linear_units or 1.0
 
+    def get_axis_mask(self):
+        return s.axis_mask
+
 progress_re = re.compile("^FILTER_PROGRESS=(\\d*)$")
 def filter_program(program_filter, infilename, outfilename):
     import subprocess
@@ -1807,6 +1804,9 @@ widgets = nf.Widgets(root_window,
     ("axis_a", Radiobutton, tabs_manual + ".axes.axisa"),
     ("axis_b", Radiobutton, tabs_manual + ".axes.axisb"),
     ("axis_c", Radiobutton, tabs_manual + ".axes.axisc"),
+    ("axis_u", Radiobutton, tabs_manual + ".axes.axisc"),
+    ("axis_v", Radiobutton, tabs_manual + ".axes.axisc"),
+    ("axis_w", Radiobutton, tabs_manual + ".axes.axisc"),
 
     ("jogincr", Entry, tabs_manual + ".jogf.jog.jogincr"),
 
@@ -2086,10 +2086,10 @@ def run_warn():
         for i in range(min(axiscount, 3)): # Does not enforce angle limits
             if o.g.min_extents[i] < machine_limit_min[i]:
                 warnings.append(_("Program exceeds machine minimum on axis %s")
-                    % axisnames[i])
+                    % "XYZABCUVW"[i])
             if o.g.max_extents[i] > machine_limit_max[i]:
                 warnings.append(_("Program exceeds machine maximum on axis %s")
-                    % axisnames[i])
+                    % "XYZABCUVW"[i])
     if warnings:
         text = "\n".join(warnings)
         return int(root_window.tk.call("nf_dialog", ".error",
@@ -2920,7 +2920,8 @@ def set_feedrate(n):
     widgets.feedoverride.set(n)
 
 def activate_axis_or_set_feedrate(n):
-    if manual_ok() and n < axiscount:
+    # XXX: axis_mask does not apply if in joint mode
+    if manual_ok() and s.axis_mask & (1<<n):
         activate_axis(n)
     else:
         set_feedrate(10*n)
@@ -2965,9 +2966,9 @@ root_window.bind("2", lambda event: activate_axis_or_set_feedrate(2))
 root_window.bind("3", lambda event: activate_axis_or_set_feedrate(3))
 root_window.bind("4", lambda event: activate_axis_or_set_feedrate(4))
 root_window.bind("5", lambda event: activate_axis_or_set_feedrate(5))
-root_window.bind("6", lambda event: set_feedrate(60))
-root_window.bind("7", lambda event: set_feedrate(70))
-root_window.bind("8", lambda event: set_feedrate(80))
+root_window.bind("6", lambda event: activate_axis_or_set_feedrate(6))
+root_window.bind("7", lambda event: activate_axis_or_set_feedrate(7))
+root_window.bind("8", lambda event: activate_axis_or_set_feedrate(8))
 root_window.bind("9", lambda event: set_feedrate(90))
 root_window.bind("0", lambda event: set_feedrate(100))
 root_window.bind("c", lambda event: jogspeed_continuous())
@@ -3100,8 +3101,6 @@ def set_tabs(e):
 
 import sys, getopt
 axiscount = 3
-axisnames = ["X", "Y", "Z"]
-jointnames = ["0", "1", "2"]
 machine_limit_min = [-10] * 9
 machine_limit_max = [-10] * 9
 
@@ -3120,7 +3119,6 @@ if sys.argv[1] != "-ini":
 inifile = emc.ini(sys.argv[2])
 vars.emcini.set(sys.argv[2])
 axiscount = int(inifile.find("TRAJ", "AXES"))
-axisnames = inifile.find("TRAJ", "COORDINATES").split()
 jointnames = "012345678"[:axiscount]
 open_directory = inifile.find("DISPLAY", "PROGRAM_PREFIX")
 extensions = inifile.findall("FILTER", "PROGRAM_EXTENSION")
@@ -3173,14 +3171,16 @@ if homing_order_defined:
     root_window.tk.call("setup_menu_accel", widgets.homemenu, "end",
             _("Home All Axes"))
 
-for i,j in enumerate(axisnames):
-    if i == 1 and lathe: continue
+s = emc.stat(); s.poll()
+for i,j in enumerate("XYZABCUVW"):
+    if s.axis_mask & (1<<i) == 0: continue
     widgets.homemenu.add_command(command=lambda i=i: commands.home_axis_number(i))
     root_window.tk.call("setup_menu_accel", widgets.homemenu, "end",
             _("Home Axis _%s") % j)
 
 astep_size = step_size = 1
 for a in range(axiscount):
+    if s.axis_mask & (1<<a) == 0: continue
     section = "AXIS_%d" % a
     unit = inifile.find(section, "UNITS") or lu
     unit = units(unit) * 25.4
@@ -3239,12 +3239,12 @@ root_window.bind("<KeyRelease-equal>", commands.jog_stop)
 
 
 opts, args = getopt.getopt(sys.argv[1:], 'd:')
-for i in range(len(axisnames), 9):
+for i in range(9):
+    if s.axis_mask & (1<<i): continue
     c = getattr(widgets, "axis_%s" % ("xyzabcuvw"[i]))
     c.grid_forget()
-if len(axisnames) < 4:
+if s.axis_mask & 56 == 0:
     widgets.ajogspeed.grid_forget()
-s = emc.stat(); s.poll()
 c = emc.command()
 e = emc.error_channel()
 

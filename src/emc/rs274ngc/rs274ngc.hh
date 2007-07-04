@@ -118,7 +118,7 @@ public:
  void error_text(int error_code, char *error_text,
                                 int max_size);
 
- void setError(char *fmt, ...);
+ void setError(const char *fmt, ...);
 
 // copy the name of the currently open file into the file_name array,
 // but stop at max_size if the name is longer
@@ -455,11 +455,16 @@ private:
  static const int _gees[];
  static const int _ems[];
  static const int _required_parameters[];
- static const read_function_pointer _readers[];
+ read_function_pointer _readers[256];
+ static const read_function_pointer default_readers[256];
 
  static setup _setup;
 
-
+ enum {
+     AXIS_MASK_X =   1, AXIS_MASK_Y =   2, AXIS_MASK_Z =   4,
+     AXIS_MASK_A =   8, AXIS_MASK_B =  16, AXIS_MASK_C =  32,
+     AXIS_MASK_U =  64, AXIS_MASK_V = 128, AXIS_MASK_W = 256,
+ };
 };
 
 

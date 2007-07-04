@@ -615,17 +615,34 @@ int emcAxisUpdate(EMC_AXIS_STAT stat[], int numAxes)
 
 // local status data, not provided by emcmot
 static int localEmcTrajAxes = 0;
+static int localEmcTrajAxisMask = 0;
 static double localEmcTrajLinearUnits = 1.0;
 static double localEmcTrajAngularUnits = 1.0;
 static int localEmcTrajMotionId = 0;
 
-int emcTrajSetAxes(int axes)
+int emcTrajSetAxes(int axes, int axismask)
 {
-    if (axes <= 0 || axes > EMCMOT_MAX_AXIS) {
+    if(axes == 0) {
+	if(axismask & 256) axes = 9;
+	else if(axismask & 128) axes = 8;
+	else if(axismask & 64) axes = 7;
+	else if(axismask & 32) axes = 6;
+	else if(axismask & 16) axes = 5;
+	else if(axismask & 8) axes = 4;
+	else if(axismask & 4) axes = 3;
+	else if(axismask & 2) axes = 2;
+	else if(axismask & 1) axes = 1;
+    }
+    if (axes <= 0 || axes > EMCMOT_MAX_AXIS || axismask >= (1<<axes)) {
+	rcs_print("emcTrajSetAxes failing: axes=%d axismask=%x\n",
+		axes, axismask);
 	return -1;
     }
+    rcs_print("emcTrajSetAxes succeeding: axes=%d axismask=%x\n",
+	    axes, axismask);
 
     localEmcTrajAxes = axes;
+    localEmcTrajAxisMask = axismask;
     emcmotCommand.command = EMCMOT_SET_NUM_AXES;
     emcmotCommand.axis = axes;
     return usrmotWriteEmcmotCommand(&emcmotCommand);
@@ -1058,6 +1075,7 @@ int emcTrajUpdate(EMC_TRAJ_STAT * stat)
     int axis;
 
     stat->axes = localEmcTrajAxes;
+    stat->axis_mask = localEmcTrajAxisMask;
     stat->linearUnits = localEmcTrajLinearUnits;
     stat->angularUnits = localEmcTrajAngularUnits;
 

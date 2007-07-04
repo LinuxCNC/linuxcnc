@@ -997,7 +997,8 @@ class EMC_TRAJ_STAT:public EMC_TRAJ_STAT_MSG {
     double linearUnits;		// units per mm
     double angularUnits;	// units per degree
     double cycleTime;		// cycle time, in seconds
-    int axes;			// number of axes in group
+    int axes;			// maximum axis number
+    int axis_mask;		// mask of axes actually present
     enum EMC_TRAJ_MODE_ENUM mode;	// EMC_TRAJ_MODE_FREE,
     // EMC_TRAJ_MODE_COORD
     int enabled;		// non-zero means enabled

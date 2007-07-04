@@ -787,6 +787,9 @@ extern int GET_EXTERNAL_SPINDLE_OVERRIDE_ENABLE();
 extern int GET_EXTERNAL_ADAPTIVE_FEED_ENABLE();
 extern int GET_EXTERNAL_FEED_HOLD_ENABLE();
 
+// Returns the mask of axes present in the system
+extern int GET_EXTERNAL_AXIS_MASK();
+
 extern FILE *_outfile;		/* where to print, set in main */
 extern CANON_TOOL_TABLE _tools[];	/* in canon.cc */
 extern int _tool_max;		/* in canon.cc */

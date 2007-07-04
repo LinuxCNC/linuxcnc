@@ -2317,6 +2317,10 @@ int GET_EXTERNAL_FEED_HOLD_ENABLE()
     return emcStatus->motion.traj.feed_hold_enabled;
 }
 
+int GET_EXTERNAL_AXIS_MASK() {
+    return emcStatus->motion.traj.axis_mask;
+}
+
 CANON_PLANE GET_EXTERNAL_PLANE()
 {
     return activePlane;

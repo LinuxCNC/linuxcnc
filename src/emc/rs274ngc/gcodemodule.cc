@@ -475,6 +475,17 @@ int GET_EXTERNAL_SPINDLE_OVERRIDE_ENABLE() {return 1;}
 int GET_EXTERNAL_ADAPTIVE_FEED_ENABLE() {return 0;}
 int GET_EXTERNAL_FEED_HOLD_ENABLE() {return 1;}
 
+int GET_EXTERNAL_AXIS_MASK() {
+    if(interp_error) return 7;
+    PyObject *result =
+        PyObject_CallMethod(callback, "get_axis_mask", "");
+    if(!result) { interp_error ++; return 7 /* XYZABC */; }
+    if(!PyInt_Check(result)) { interp_error ++; return 7 /* XYZABC */; }
+    int mask = PyInt_AsLong(result);
+    Py_DECREF(result);
+    return mask;
+}
+
 double GET_EXTERNAL_TOOL_LENGTH_XOFFSET() {
     return tool_xoffset;
 }

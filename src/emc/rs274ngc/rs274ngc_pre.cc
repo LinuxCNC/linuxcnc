@@ -494,6 +494,19 @@ int Interp::init()
   _setup.skipping_o = 0;
   _setup.oword_labels = 0;
 
+  memcpy(_readers, default_readers, sizeof(default_readers));
+
+  long axis_mask = GET_EXTERNAL_AXIS_MASK();
+  if(!(axis_mask & AXIS_MASK_X)) _readers[(int)'x'] = 0;
+  if(!(axis_mask & AXIS_MASK_Y)) _readers[(int)'y'] = 0;
+  if(!(axis_mask & AXIS_MASK_Z)) _readers[(int)'z'] = 0;
+  if(!(axis_mask & AXIS_MASK_A)) _readers[(int)'a'] = 0;
+  if(!(axis_mask & AXIS_MASK_B)) _readers[(int)'b'] = 0;
+  if(!(axis_mask & AXIS_MASK_C)) _readers[(int)'c'] = 0;
+  if(!(axis_mask & AXIS_MASK_U)) _readers[(int)'u'] = 0;
+  if(!(axis_mask & AXIS_MASK_V)) _readers[(int)'v'] = 0;
+  if(!(axis_mask & AXIS_MASK_W)) _readers[(int)'w'] = 0;
+
   synch(); //synch first, then update the interface
 
 
@@ -1109,7 +1122,7 @@ void Interp::active_settings(double *settings) //!< array of settings to copy in
 }
 
 static char savedError[LINELEN+1];
-void Interp::setError(char *fmt, ...)
+void Interp::setError(const char *fmt, ...)
 {
     va_list ap;
 
