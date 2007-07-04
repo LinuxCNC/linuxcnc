@@ -752,9 +752,9 @@ void STRAIGHT_FEED(double x, double y, double z,
     a = FROM_PROG_ANG(a);
     b = FROM_PROG_ANG(b);
     c = FROM_PROG_ANG(c);
-    x = FROM_PROG_LEN(u);
-    y = FROM_PROG_LEN(v);
-    z = FROM_PROG_LEN(w);
+    u = FROM_PROG_LEN(u);
+    v = FROM_PROG_LEN(v);
+    w = FROM_PROG_LEN(w);
 
     x += programOrigin.x;
     y += programOrigin.y;
