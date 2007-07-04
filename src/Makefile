@@ -10,7 +10,7 @@
 ifeq ($(MAKECMDGOALS),)
 TRIVIAL_BUILD=no
 else
-ifeq ($(filter-out docclean clean setuid install,$(MAKECMDGOALS)),)
+ifeq ($(filter-out docclean clean setuid install tags swish,$(MAKECMDGOALS)),)
 TRIVIAL_BUILD=yes
 else
 TRIVIAL_BUILD=no
