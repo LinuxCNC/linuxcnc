@@ -145,15 +145,16 @@ din.18\tQA2\tdin.19\tQA3
 .PD
 .DT""";
 
-param rw s32 debug_0;
-param rw s32 debug_1;
-
 param rw u32 communication_error """Incremented each time 
 pluto-servo.read detects an error code in the EPP status register.  While
 this register is nonzero, new values are not being written to the Pluto-P
 board, and the status of digital outputs and the PWM duty cycle of the PWM
-outputs will remain unchanged.  To continue after a communication error,
-set this parameter back to zero.""";
+outputs will remain unchanged.  If the watchdog is enabled, it will activate
+soon after the communication error is detected.  To continue after a
+communication error, set this parameter back to zero.""";
+
+param rw s32 debug_0;
+param rw s32 debug_1 """These parameters can display values which are useful to developers or for debugging the driver and firmware.  They are not useful for integrators or users.""";
 
 option singleton;
 option extra_setup;
@@ -165,8 +166,9 @@ function read "Read all the inputs from the pluto-servo board";
 function write "Write all the outputs on the pluto-servo board";
 
 see_also """The \\fIpluto_servo\\fR section in the HAL User Manual, which shows the location of each physical pin on the pluto board.""";
+
+license "GPL";
 ;;
-MODULE_LICENSE("GPL");
 
 #ifdef SIM
 #include <sys/io.h>
