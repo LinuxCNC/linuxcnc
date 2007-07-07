@@ -883,11 +883,11 @@ int Interp::convert_axis_offsets(int g_code,     //!< g_code being executed (mus
     settings->CC_current =
       settings->CC_current + settings->CC_axis_offset - USER_TO_PROGRAM_ANG(pars[5216]);
     settings->u_current =
-      settings->u_current + settings->u_axis_offset - USER_TO_PROGRAM_ANG(pars[5217]);
+      settings->u_current + settings->u_axis_offset - USER_TO_PROGRAM_LEN(pars[5217]);
     settings->v_current =
-      settings->v_current + settings->v_axis_offset - USER_TO_PROGRAM_ANG(pars[5218]);
+      settings->v_current + settings->v_axis_offset - USER_TO_PROGRAM_LEN(pars[5218]);
     settings->w_current =
-      settings->w_current + settings->w_axis_offset - USER_TO_PROGRAM_ANG(pars[5219]);
+      settings->w_current + settings->w_axis_offset - USER_TO_PROGRAM_LEN(pars[5219]);
 
     settings->axis_offset_x = USER_TO_PROGRAM_LEN(pars[5211]);
     settings->axis_offset_y = USER_TO_PROGRAM_LEN(pars[5212]);
@@ -895,9 +895,9 @@ int Interp::convert_axis_offsets(int g_code,     //!< g_code being executed (mus
     settings->AA_axis_offset = USER_TO_PROGRAM_ANG(pars[5214]);
     settings->BB_axis_offset = USER_TO_PROGRAM_ANG(pars[5215]);
     settings->CC_axis_offset = USER_TO_PROGRAM_ANG(pars[5216]);
-    settings->u_axis_offset = USER_TO_PROGRAM_ANG(pars[5217]);
-    settings->v_axis_offset = USER_TO_PROGRAM_ANG(pars[5218]);
-    settings->w_axis_offset = USER_TO_PROGRAM_ANG(pars[5219]);
+    settings->u_axis_offset = USER_TO_PROGRAM_LEN(pars[5217]);
+    settings->v_axis_offset = USER_TO_PROGRAM_LEN(pars[5218]);
+    settings->w_axis_offset = USER_TO_PROGRAM_LEN(pars[5219]);
     SET_ORIGIN_OFFSETS(settings->origin_offset_x + settings->axis_offset_x,
                        settings->origin_offset_y + settings->axis_offset_y,
                        settings->origin_offset_z + settings->axis_offset_z,
@@ -1330,9 +1330,9 @@ int Interp::convert_coordinate_system(int g_code,        //!< g_code called (mus
   a = USER_TO_PROGRAM_ANG(parameters[5204 + (origin * 20)]);
   b = USER_TO_PROGRAM_ANG(parameters[5205 + (origin * 20)]);
   c = USER_TO_PROGRAM_ANG(parameters[5206 + (origin * 20)]);
-  u = USER_TO_PROGRAM_ANG(parameters[5207 + (origin * 20)]);
-  v = USER_TO_PROGRAM_ANG(parameters[5208 + (origin * 20)]);
-  w = USER_TO_PROGRAM_ANG(parameters[5209 + (origin * 20)]);
+  u = USER_TO_PROGRAM_LEN(parameters[5207 + (origin * 20)]);
+  v = USER_TO_PROGRAM_LEN(parameters[5208 + (origin * 20)]);
+  w = USER_TO_PROGRAM_LEN(parameters[5209 + (origin * 20)]);
 
   settings->origin_offset_x = x;
   settings->origin_offset_y = y;
