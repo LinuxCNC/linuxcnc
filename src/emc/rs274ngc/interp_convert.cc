@@ -828,9 +828,9 @@ int Interp::convert_axis_offsets(int g_code,     //!< g_code being executed (mus
     pars[5214] = PROGRAM_TO_USER_ANG(settings->AA_axis_offset);
     pars[5215] = PROGRAM_TO_USER_ANG(settings->BB_axis_offset);
     pars[5216] = PROGRAM_TO_USER_ANG(settings->CC_axis_offset);
-    pars[5217] = PROGRAM_TO_USER_ANG(settings->u_axis_offset);
-    pars[5218] = PROGRAM_TO_USER_ANG(settings->v_axis_offset);
-    pars[5219] = PROGRAM_TO_USER_ANG(settings->w_axis_offset);
+    pars[5217] = PROGRAM_TO_USER_LEN(settings->u_axis_offset);
+    pars[5218] = PROGRAM_TO_USER_LEN(settings->v_axis_offset);
+    pars[5219] = PROGRAM_TO_USER_LEN(settings->w_axis_offset);
   } else if ((g_code == G_92_1) || (g_code == G_92_2)) {
     settings->current_x = settings->current_x + settings->axis_offset_x;
     settings->current_y = settings->current_y + settings->axis_offset_y;
