@@ -320,6 +320,14 @@ FUNCTION(write) {
     write16(r);
 }
 
+static void clear_epp_error_register(void) {
+    /* To clear timeout some chips require double read */
+    int r = inb(ioaddr+1);
+    outb (r | 0x01, ioaddr+1); /* Some reset by writing 1 */
+    outb (r & 0xfe, ioaddr+1); /* Others by writing 0 */
+
+}
+
 FUNCTION(read) {
     int i;
     __u32 ppdata;
@@ -337,7 +345,7 @@ FUNCTION(read) {
             int status = inb(ioaddr+1) & 1;
             if(status) {
                 communication_error ++;
-                outb(1, ioaddr+1); // some systems need to reset error bit
+		clear_epp_error_register();
             }
             if(communication_error) { EPP_DIR_WRITE(); return; }
         }
@@ -410,6 +418,7 @@ void program(int base, unsigned char firmware[SZ]) {
 }
 
 EXTRA_SETUP() {
+    int status;
     if(ioaddr_hi == 0) ioaddr_hi = ioaddr + 0x400;
 
     outb(4, ioaddr + 2);        // set control lines and input mode
@@ -422,17 +431,14 @@ EXTRA_SETUP() {
     }
 
     // Check for presence of working EPP hardware
-    {
-       int status;
-       outb(1, ioaddr+1); // some systems need to reset error bit
-       ADDR(0);
-       EPP_DIR_READ();
-       READ();
-       status = inb(ioaddr+1) & 1;
-       if(status) {
-           rtapi_print_msg(RTAPI_MSG_ERR, "Failed to communicate with pluto-servo board after programming firmware.\n");
-           return -EIO;
-       }
+    clear_epp_error_register();
+    ADDR(0);
+    EPP_DIR_READ();
+    READ();
+    status = inb(ioaddr+1) & 1;
+    if(status) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "Failed to communicate with pluto-servo board after programming firmware.\n");
+        return -EIO;
     }
     return 0;
 }
@@ -451,3 +457,5 @@ RTAPI_MP_INT(epp_wide, "Use 16- and 32-bit EPP transfers with hardware EPP");
 RTAPI_MP_INT(test_encoder, "Loop back dout0..2 onto quadrature 0 for testing");
 RTAPI_MP_INT(watchdog,
 	"Enable hardware watchdog to tristate outputs if EMC crashes");
+
+// vim:sts=4:et:sw=4
