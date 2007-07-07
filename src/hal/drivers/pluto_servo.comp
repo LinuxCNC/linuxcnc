@@ -335,7 +335,10 @@ FUNCTION(read) {
         reset = encoder_reset(i);
         if(i == 0) {
             int status = inb(ioaddr+1) & 1;
-            if(status) communication_error ++;
+            if(status) {
+                communication_error ++;
+                outb(1, ioaddr+1); // some systems need to reset error bit
+            }
             if(communication_error) { EPP_DIR_WRITE(); return; }
         }
 
@@ -421,6 +424,7 @@ EXTRA_SETUP() {
     // Check for presence of working EPP hardware
     {
        int status;
+       outb(1, ioaddr+1); // some systems need to reset error bit
        ADDR(0);
        EPP_DIR_READ();
        READ();
