@@ -1,0 +1,405 @@
+//    This program is free software; you can redistribute it and/or modify
+//    it under the terms of the GNU General Public License as published by
+//    the Free Software Foundation; either version 2 of the License, or
+//    (at your option) any later version.
+//
+//    This program is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//    GNU General Public License for more details.
+//
+//    You should have received a copy of the GNU General Public License
+//    along with this program; if not, write to the Free Software
+//    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+
+component pluto_step """Hardware driver and firmware for the Pluto-P parallel-port FPGA, for use with stepper machines.
+
+.B loadrt pluto_step ioaddr=\\fIaddr\\fB ioaddr_hi=\\fIaddr\\fB epp_wide=\\fI[0|1]\\fB
+
+.RS 4
+.TP
+\\fBioaddr\\fR [default: 0x378]
+The base address of the parallel port.
+
+.TP
+\\fBioaddr_hi\\fR [default: 0]
+The secondary address of the parallel port, used to set EPP
+mode.  0 means to use ioaddr + 0x400.  -1 means there is no
+secondary address.
+
+.TP
+\\fBepp_wide\\fR [default: 1]
+Set to zero to disable "wide EPP mode".  "Wide" mode allows 16- and 32-bit EPP
+transfers, which can reduce the time spent in the read and write functions.
+However, this mode may not work on all EPP parallel ports.
+
+.TP
+\\fBwatchdog\\fR [default: 1]
+Set to zero to disable the "hardware watchdog".  "Watchdog" will tristate all
+outputs approximately 6ms after the last execution of
+\\fBpluto-step.write\\fR, which adds some protection in the case of emc
+crashes.
+.RE""";
+
+description """
+Pluto_step is an emc2 software driver and associated firmware that allow the Pluto-P board to be used to control a stepper-based CNC machine.
+
+The driver has 4 step+direction channels, 14 dedicated digital outputs, and 16
+dedicated digital inputs.
+
+.SS Step generators
+The step generator takes a position input and output.
+
+The step waveform includes step length/space and direction hold/setup time.
+Step length and direction setup/hold time is enforced in the FPGA.  Step space
+is enforced by a velocity cap in the driver.
+
+\\fI(all the following numbers are subject to change)\\fR
+The maximum step rate is 321.5kHz.  For position feedback to be accurate, the
+maximum step rate is 512 pulses per servo cycle (so a 1kHz servo cycle does
+not impose any additional limitation).  The maximum step rate may be lowered by
+the step length and space parameters, which are rounded up to the nearest
+multiple of 1600ns.
+
+The minimum nonzero step rate is 1.2kHz.  This means that for a 1kHz servo
+cycle, it is not possible to command single steps.
+
+.SS Digital I/O
+The digital output pins conform to the `canonical digital output' interface
+described in the HAL manual.
+
+The digital input pins conform to the `canonical digital input' interface
+described in the HAL manual.
+""";
+pin in float stepgen.#.position-cmd[4];
+pin out float stepgen.#.velocity-fb[4];
+pin out float stepgen.#.position-fb[4];
+pin out s32 stepgen.#.counts[4];
+pin in bit stepgen.#.enable[4];
+pin in bit stepgen.#.reset[4] "When TRUE, reset position-fb to 0";
+param rw float stepgen.#.scale[4] = 1.0;
+param rw float stepgen.#.maxvel[4] = 1e30;
+param rw bit stepgen.step_polarity;
+
+param rw u32 stepgen.steplen "Step length in ns.";
+param rw u32 stepgen.stepspace "Step space in ns";
+param rw u32 stepgen.dirtime "Dir hold/setup in ns.  Refer to the pdf documentation for a diagram of what these timings mean.";
+
+pin in bit dout.##[14]
+"""dout.\\fIMM\\fR corresponds to the pin labeled
+OUT\\fIM\\fR on the pinout diagram.""";
+param rw bit dout.##-invert[14]
+"If TRUE, the output on the corresponding \\fBdout.\\fIMM\\fR is inverted.";
+
+pin out bit din.##[16];
+pin out bit din.##_not[16]
+"""din.\\fIMM\\fR corresponds to the pin labeled
+IN\\fIM\\fR on the pinout diagram.""";
+
+param rw u32 communication_error """Incremented each time 
+pluto-step.read detects an error code in the EPP status register.  While
+this register is nonzero, new values are not being written to the Pluto-P
+board, and the status of digital outputs and the PWM duty cycle of the PWM
+outputs will remain unchanged.  If the hardware watchdog is enabled, it will
+activate shortly after the communication error is detected by emc.  To continue
+after a communication error, set this parameter back to zero.""";
+
+param rw s32 debug_0;
+param rw s32 debug_1;
+param rw float debug_2=.5;
+param rw float debug_3=2.0
+ """Registers that hold debugging information of interest to developers""";
+
+option singleton;
+option extra_setup;
+option extra_cleanup;
+
+option data internal;
+
+function read "Read all the inputs from the pluto-step board";
+function write "Write all the outputs on the pluto-step board";
+
+see_also """The \\fIpluto_step\\fR section in the HAL User Manual, which shows the location of each physical pin on the pluto board.""";
+
+license "GPL";
+;;
+
+#ifdef SIM
+#include <sys/io.h>
+#include <errno.h>
+#else
+#include <asm/io.h>
+#endif
+
+#define PLUTO_SPEED_NS (1600)
+#define PLUTO_SPEED    (PLUTO_SPEED_NS * 1e-9)
+#define TMAX           ((1<<5)-1)
+
+#define W 10
+#define F 11
+#define MODULO ((1<<(W+F))-1)
+#define MASK ((1<<(W+F))-1)
+#define MAXDELTA (MASK/2)
+
+int ioaddr = 0x378;
+int ioaddr_hi = 0;
+int epp_wide = 1;
+int watchdog = 1;
+
+typedef struct {
+    long last_count[4];
+    long reset_count[4];
+    double old_position_cmd[4];
+    double old_velocity_cmd[4];
+} internal;
+
+#ifndef labs // linux/kernel.h may provide labs for realtime systems
+static long labs(long l) { if(l < 0) return -l; return l; }
+#endif
+
+long extend(long old, int newlow) {
+    long oldhigh = old & ~MASK;
+    long oldlow = old & MASK;
+    long candidate1, candidate2;
+
+    candidate1 = oldhigh | newlow;
+    if(oldlow < newlow) candidate2 = candidate1 - MODULO;
+    else                candidate2 = candidate1 + MODULO;
+
+    if (labs(old-candidate1) > MAXDELTA)
+	return candidate2;
+    else
+	return candidate1;
+}
+
+void EPP_DIR_WRITE(void) { }
+void EPP_DIR_READ(void) { }
+void ADDR(int w) {
+    outb(w, ioaddr+3);
+}
+
+void WRITE(int w) {
+    outb(w, ioaddr+4);
+}
+
+int READ(void) {
+    return inb(ioaddr+4);
+}
+
+
+__u32 read32(void) {
+    unsigned char a, b, c, d;
+
+    if(epp_wide)
+	return inl(ioaddr+4);
+
+    a = READ();
+    b = READ();
+    c = READ();
+    d = READ();
+
+    return a + (b<<8) + (c<<16) + (d<<24);
+}
+
+void write32(long w) {
+    if(epp_wide) {
+	outl(w, ioaddr+4);
+	return;
+    }
+
+    WRITE(w);
+    WRITE(w >> 8);
+    WRITE(w >> 16);
+    WRITE(w >> 24);
+}
+
+void write16(int w) {
+    if(epp_wide) {
+	outw(w, ioaddr+4);
+	return;
+    }
+
+    WRITE(w & 0xff);
+    WRITE(w >> 8);
+}
+
+#define ONE (1<<F)
+#define MAX_STEP_RATE (1<<(F-1))
+FUNCTION(write) {
+    int r = 0;
+    int i;
+    int stepspace_ticks = stepgen_stepspace/PLUTO_SPEED_NS;
+    int steplen_ticks = stepgen_steplen/PLUTO_SPEED_NS;
+    int dirtime_ticks = stepgen_dirtime/PLUTO_SPEED_NS;
+    int rate, maxrate = MAX_STEP_RATE;
+
+    double fmax = 1. / PLUTO_SPEED / (2 + steplen_ticks + stepspace_ticks);
+    if(fmax > MAXDELTA / fperiod) fmax = MAXDELTA / fperiod;
+
+    if(communication_error) return;
+
+    ADDR(0);
+
+    for(i=0; i<4; i++) {
+#define POSITION_MODE
+#ifdef POSITION_MODE
+	double new_position_cmd = stepgen_position_cmd(i);
+	double v = new_position_cmd - data.old_position_cmd[i];
+	double est_err = stepgen_position_fb(i) + data.old_velocity_cmd[i] * fperiod - new_position_cmd;
+
+	v = v - debug_2 * est_err / fperiod;
+	data.old_position_cmd[i] = new_position_cmd;
+	data.old_velocity_cmd[i] = v;
+#else
+        double v;
+        v = stepgen_velocity_cmd(i);
+#endif
+        if(stepgen_maxvel(i) < 0) stepgen_maxvel(i) = -stepgen_maxvel(i);
+        if(stepgen_maxvel(i) > fmax / stepgen_scale(i)) stepgen_maxvel(i) = fmax / stepgen_scale(i);
+
+	if(v < -stepgen_maxvel(i)) v = -stepgen_maxvel(i);
+	if(v > stepgen_maxvel(i)) v = stepgen_maxvel(i);
+
+	rate = v * stepgen_scale(i) * ONE;
+
+	if(rate > maxrate) rate = maxrate;
+	if(rate < -maxrate) rate = -maxrate;
+
+	// if(i==0) rtapi_print_msg(RTAPI_MSG_INFO, "rate=%d\n", rate);
+	if(!stepgen_enable(i)) rate = 0;
+	write16(rate);
+    }
+
+    r = 0;
+    for(i=0; i<14; i++) {
+        if(!dout(i) ^ !dout_invert(i)) r |= (1<<i);
+    }
+    write16(r);
+
+    r = steplen_ticks | (dirtime_ticks << 8);
+    if (stepgen_step_polarity) r |= 0x8000;
+}
+
+static void clear_epp_error_register(void) {
+    /* To clear timeout some chips require double read */
+    int r = inb(ioaddr+1);
+    outb (r | 0x01, ioaddr+1); /* Some reset by writing 1 */
+    outb (r & 0xfe, ioaddr+1); /* Others by writing 0 */
+}
+
+FUNCTION(read) {
+    int i;
+    __u32 ppdata;
+
+    ADDR(0);
+    EPP_DIR_READ();
+
+    for(i=0; i<4; i++) {
+        long count;
+        double fcount;
+	int newlow;
+        int reset;
+        ppdata = read32();
+        reset = stepgen_reset(i);
+        if(i == 0) {
+            int status = inb(ioaddr+1) & 1;
+            if(status) {
+                communication_error ++;
+		clear_epp_error_register();
+            }
+            if(communication_error) { EPP_DIR_WRITE(); return; }
+        }
+
+	newlow = ppdata & MASK;
+
+        count = extend(data.last_count[i], newlow);
+	stepgen_velocity_fb(i) = (count - data.last_count[i]) / stepgen_scale(i) / fperiod / (1 << F);
+        data.last_count[i] = count;
+        if(reset) data.reset_count[i] = count;
+        fcount = (count - data.reset_count[i]) * 1. / (1<<F);
+        stepgen_counts(i) = fcount;
+        stepgen_position_fb(i) = fcount / stepgen_scale(i);
+
+        if(i == 0) { debug_0 = ppdata; debug_1 = count; }
+    }
+
+    ppdata = read32();
+
+    for(i=0; i<16; i++) {
+        int b = ppdata & (1<<i);
+        din(i) = !!b; din_not(i) = !b;
+    }
+
+    EPP_DIR_WRITE();
+}
+
+#include "hal/drivers/pluto_step_rbf.h"
+#define SZ 19895
+
+void program(int base, unsigned char firmware[SZ]) {
+    int byte, bit;
+    int i;
+    rtapi_print_msg(RTAPI_MSG_INFO, "uploading firmware\n");
+
+    // pull the reset low -- bit 2 of status register
+    // keep it low 2 microseconds
+    for(i=0; i<4; i++) outb(0, base+2);
+
+    // let it go high again
+    // delay 10 microseconds to guarantee nStatus high
+    for(i=0; i<20; i++) outb(4, base+2);
+
+    // Now program the device...
+    for(byte = 0; byte < SZ; byte++) {
+	for(bit = 0; bit < 8; bit++) {
+	    int v = firmware[byte] & (1<<bit);
+	    if(v) outb(0xff, base); else outb(0, base);
+	    outb(0|4, base+2);
+	    outb(1|4, base+2);
+	    outb(0|4, base+2);
+	}
+    }
+    rtapi_print_msg(RTAPI_MSG_INFO, "done\n");
+}
+
+EXTRA_SETUP() {
+    int status;
+    if(ioaddr_hi == 0) ioaddr_hi = ioaddr + 0x400;
+
+    outb(4, ioaddr + 2);        // set control lines and input mode
+    if(ioaddr_hi != -1)
+        outb(0, ioaddr_hi + 0x2);    // select SPP mode in ECR
+    program(ioaddr, firmware);
+
+    if(ioaddr_hi != -1) {
+        outb(0x80, ioaddr_hi + 0x2); // select EPP mode in ECR
+    }
+
+    // Check for presence of working EPP hardware
+    clear_epp_error_register();
+    ADDR(0);
+    EPP_DIR_READ();
+    READ();
+    status = inb(ioaddr+1) & 1;
+    if(status) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "Failed to communicate with pluto-servo board after programming firmware.\n");
+        return -EIO;
+    }
+    return 0;
+}
+
+EXTRA_CLEANUP() {
+    outb(0, ioaddr+2); // set nInitialize low and reset the FPGA
+    // ADDR(11);
+    // WRITE(0xEE);		// resets the FPGA
+    rtapi_print_msg(RTAPI_MSG_ERR, "cleanup\n");
+}
+
+RTAPI_MP_INT(ioaddr, "Address of parallel port where pluto-p is attached");
+RTAPI_MP_INT(ioaddr_hi,
+	"Secondary address of parallel port (0 to use ioaddr+0x400)");
+RTAPI_MP_INT(epp_wide, "Use 16- and 32-bit EPP transfers with hardware EPP");
+RTAPI_MP_INT(watchdog,
+	"Enable hardware watchdog to tristate outputs if EMC crashes");
+
+// vim:sts=4:sw=4:et
