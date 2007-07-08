@@ -73,9 +73,8 @@ assign real_down[2] = pwm2[13] ^ (~pwm2[15] ? 1'd0 : pwmact2);
 assign real_down[3] = pwm3[13] ^ (~pwm3[15] ? 1'd0 : pwmact3);
 
 // Quadrature stuff
-// Quadrature is digitized at 40MHz into 12-bit counters
-// Read up to 2^11 pulses / polling period = 2048 kHz for 1kHz servo period
-
+// Quadrature is digitized at 40MHz into 14-bit counters
+// Read up to 2^13 pulses / polling period = 8MHz for 1kHz servo period
 reg qtest;
 wire qr0, qr1, qr2, qr3;
 quad q0(clk, qtest ? real_dout[0] : quadA[0], qtest ? real_dout[1] : quadB[0], qtest ? real_dout[2] : quadZ[0]^Zpolarity, qr0, quad0);
@@ -106,7 +105,7 @@ reg[7:0] lowbyte;
 
 always @(posedge clk)
     if(EPP_strobe_edge1 & EPP_write & EPP_addr_strobe) begin
-        addr_reg <= EPP_datain[3:0];
+        addr_reg <= EPP_datain[4:0];
     end
     else if(EPP_strobe_edge1 & !EPP_addr_strobe) addr_reg <= addr_reg + 4'd1;
 always @(posedge clk) begin
@@ -116,11 +115,10 @@ always @(posedge clk) begin
         else if(addr_reg[3:0] == 4'd5) pwm2 <= { EPP_datain, lowbyte };
         else if(addr_reg[3:0] == 4'd7) pwm3 <= { EPP_datain, lowbyte };
         else if(addr_reg[3:0] == 4'd9) begin
-                real_dout[9:0] <= { EPP_datain[1:0], lowbyte };
-                Zpolarity <= EPP_datain[7];
-                qtest <= EPP_datain[5];
+            real_dout <= { EPP_datain[1:0], lowbyte };
+            Zpolarity <= EPP_datain[7];
+            qtest <= EPP_datain[5];
         end
-//      else if(addr_reg[3:0] == 4'd11) reset <= EPP_datain == 8'hee;
         else lowbyte <= EPP_datain;
     end
 end
@@ -134,13 +132,13 @@ always @(posedge clk) begin
         else if(addr_reg[4:2] == 3'd2) data_buf <= quad2;
         else if(addr_reg[4:2] == 3'd3) data_buf <= quad3;
         else if(addr_reg[4:2] == 3'd4)
-            data_buf <= {4'd0, quadA, quadB, quadZ, din};
+            data_buf <= {quadA, quadB, quadZ, din};
     end
 end
 
-// the addr_reg test looks funny because it is auto-incremented in an always block
-// so "1" reads the low byte, "2 and "3" read middle bytes, and "0" reads the high byte
-// I have a feeling that I'm doing this in the wrong way.
+// the addr_reg test looks funny because it is auto-incremented in an always
+// block so "1" reads the low byte, "2 and "3" read middle bytes, and "0"
+// reads the high byte I have a feeling that I'm doing this in the wrong way.
 wire [7:0] data_reg = addr_reg[1:0] == 2'd1 ? data_buf[7:0] :
                          (addr_reg[1:0] == 2'd2 ? data_buf[15:8] :
                          (addr_reg[1:0] == 2'd3 ? data_buf[23:16] :
