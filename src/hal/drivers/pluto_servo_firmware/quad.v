@@ -28,8 +28,8 @@ reg [2:0] Zc;
 always @(posedge clk) Ad <= {Ad[1:0], A};
 always @(posedge clk) Bd <= {Bd[1:0], B};
 
-wire good_one = Zc == 2'b111;
-wire good_zero = Zc == 2'b000;
+wire good_one = &Zc;
+wire good_zero = ~|Zc;
 reg last_good;
 
 wire index_pulse = good_one && ! last_good;
