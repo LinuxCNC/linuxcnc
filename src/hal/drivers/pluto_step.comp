@@ -175,12 +175,13 @@ FUNCTION(write) {
 	if(v < -stepgen_maxvel(i)) v = -stepgen_maxvel(i);
 	if(v > stepgen_maxvel(i)) v = stepgen_maxvel(i);
 
-	rate = v * stepgen_scale(i) * ONE;
+	rate = v * stepgen_scale(i) * ONE * PLUTO_SPEED;
 
 	if(rate > maxrate) rate = maxrate;
 	if(rate < -maxrate) rate = -maxrate;
 
 	if(!stepgen_enable(i)) rate = 0;
+        if(i == 0) debug_1 = rate;
 	write16(rate);
     }
 
@@ -228,7 +229,7 @@ FUNCTION(read) {
         stepgen_counts(i) = fcount;
         stepgen_position_fb(i) = fcount / stepgen_scale(i);
 
-        if(i == 0) { debug_0 = ppdata; debug_1 = count; }
+        if(i == 0) { debug_0 = ppdata; }
     }
 
     ppdata = read32();
