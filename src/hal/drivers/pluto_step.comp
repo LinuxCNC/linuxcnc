@@ -1,3 +1,5 @@
+//    Copyright (C) 2007 Jeff Epler
+//
 //    This program is free software; you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
 //    the Free Software Foundation; either version 2 of the License, or
@@ -123,13 +125,7 @@ see_also """The \\fIpluto_step\\fR section in the HAL User Manual, which shows t
 
 license "GPL";
 ;;
-
-#ifdef SIM
-#include <sys/io.h>
-#include <errno.h>
-#else
-#include <asm/io.h>
-#endif
+#include "hal/drivers/pluto_common.h"
 
 #define PLUTO_SPEED_NS (1600)
 #define PLUTO_SPEED    (PLUTO_SPEED_NS * 1e-9)
@@ -141,87 +137,12 @@ license "GPL";
 #define MASK ((1<<(W+F))-1)
 #define MAXDELTA (MASK/2)
 
-int ioaddr = 0x378;
-int ioaddr_hi = 0;
-int epp_wide = 1;
-int watchdog = 1;
-
 typedef struct {
     long last_count[4];
     long reset_count[4];
     double old_position_cmd[4];
     double old_velocity_cmd[4];
 } internal;
-
-#ifndef labs // linux/kernel.h may provide labs for realtime systems
-static long labs(long l) { if(l < 0) return -l; return l; }
-#endif
-
-long extend(long old, int newlow) {
-    long oldhigh = old & ~MASK;
-    long oldlow = old & MASK;
-    long candidate1, candidate2;
-
-    candidate1 = oldhigh | newlow;
-    if(oldlow < newlow) candidate2 = candidate1 - MODULO;
-    else                candidate2 = candidate1 + MODULO;
-
-    if (labs(old-candidate1) > MAXDELTA)
-	return candidate2;
-    else
-	return candidate1;
-}
-
-void EPP_DIR_WRITE(void) { }
-void EPP_DIR_READ(void) { }
-void ADDR(int w) {
-    outb(w, ioaddr+3);
-}
-
-void WRITE(int w) {
-    outb(w, ioaddr+4);
-}
-
-int READ(void) {
-    return inb(ioaddr+4);
-}
-
-
-__u32 read32(void) {
-    unsigned char a, b, c, d;
-
-    if(epp_wide)
-	return inl(ioaddr+4);
-
-    a = READ();
-    b = READ();
-    c = READ();
-    d = READ();
-
-    return a + (b<<8) + (c<<16) + (d<<24);
-}
-
-void write32(long w) {
-    if(epp_wide) {
-	outl(w, ioaddr+4);
-	return;
-    }
-
-    WRITE(w);
-    WRITE(w >> 8);
-    WRITE(w >> 16);
-    WRITE(w >> 24);
-}
-
-void write16(int w) {
-    if(epp_wide) {
-	outw(w, ioaddr+4);
-	return;
-    }
-
-    WRITE(w & 0xff);
-    WRITE(w >> 8);
-}
 
 #define ONE (1<<F)
 #define MAX_STEP_RATE (1<<(F-1))
@@ -241,8 +162,6 @@ FUNCTION(write) {
     ADDR(0);
 
     for(i=0; i<4; i++) {
-#define POSITION_MODE
-#ifdef POSITION_MODE
 	double new_position_cmd = stepgen_position_cmd(i);
 	double v = new_position_cmd - data.old_position_cmd[i];
 	double est_err = stepgen_position_fb(i) + data.old_velocity_cmd[i] * fperiod - new_position_cmd;
@@ -250,10 +169,6 @@ FUNCTION(write) {
 	v = v - debug_2 * est_err / fperiod;
 	data.old_position_cmd[i] = new_position_cmd;
 	data.old_velocity_cmd[i] = v;
-#else
-        double v;
-        v = stepgen_velocity_cmd(i);
-#endif
         if(stepgen_maxvel(i) < 0) stepgen_maxvel(i) = -stepgen_maxvel(i);
         if(stepgen_maxvel(i) > fmax / stepgen_scale(i)) stepgen_maxvel(i) = fmax / stepgen_scale(i);
 
@@ -265,7 +180,6 @@ FUNCTION(write) {
 	if(rate > maxrate) rate = maxrate;
 	if(rate < -maxrate) rate = -maxrate;
 
-	// if(i==0) rtapi_print_msg(RTAPI_MSG_INFO, "rate=%d\n", rate);
 	if(!stepgen_enable(i)) rate = 0;
 	write16(rate);
     }
@@ -280,12 +194,6 @@ FUNCTION(write) {
     if (stepgen_step_polarity) r |= 0x8000;
 }
 
-static void clear_epp_error_register(void) {
-    /* To clear timeout some chips require double read */
-    int r = inb(ioaddr+1);
-    outb (r | 0x01, ioaddr+1); /* Some reset by writing 1 */
-    outb (r & 0xfe, ioaddr+1); /* Others by writing 0 */
-}
 
 FUNCTION(read) {
     int i;
@@ -305,14 +213,14 @@ FUNCTION(read) {
             int status = inb(ioaddr+1) & 1;
             if(status) {
                 communication_error ++;
-		clear_epp_error_register();
+		pluto_clear_error_register();
             }
             if(communication_error) { EPP_DIR_WRITE(); return; }
         }
 
 	newlow = ppdata & MASK;
 
-        count = extend(data.last_count[i], newlow);
+        count = extend(data.last_count[i], newlow, W+F);
 	stepgen_velocity_fb(i) = (count - data.last_count[i]) / stepgen_scale(i) / fperiod / (1 << F);
         data.last_count[i] = count;
         if(reset) data.reset_count[i] = count;
@@ -334,72 +242,13 @@ FUNCTION(read) {
 }
 
 #include "hal/drivers/pluto_step_rbf.h"
-#define SZ 19895
-
-void program(int base, unsigned char firmware[SZ]) {
-    int byte, bit;
-    int i;
-    rtapi_print_msg(RTAPI_MSG_INFO, "uploading firmware\n");
-
-    // pull the reset low -- bit 2 of status register
-    // keep it low 2 microseconds
-    for(i=0; i<4; i++) outb(0, base+2);
-
-    // let it go high again
-    // delay 10 microseconds to guarantee nStatus high
-    for(i=0; i<20; i++) outb(4, base+2);
-
-    // Now program the device...
-    for(byte = 0; byte < SZ; byte++) {
-	for(bit = 0; bit < 8; bit++) {
-	    int v = firmware[byte] & (1<<bit);
-	    if(v) outb(0xff, base); else outb(0, base);
-	    outb(0|4, base+2);
-	    outb(1|4, base+2);
-	    outb(0|4, base+2);
-	}
-    }
-    rtapi_print_msg(RTAPI_MSG_INFO, "done\n");
-}
 
 EXTRA_SETUP() {
-    int status;
-    if(ioaddr_hi == 0) ioaddr_hi = ioaddr + 0x400;
-
-    outb(4, ioaddr + 2);        // set control lines and input mode
-    if(ioaddr_hi != -1)
-        outb(0, ioaddr_hi + 0x2);    // select SPP mode in ECR
-    program(ioaddr, firmware);
-
-    if(ioaddr_hi != -1) {
-        outb(0x80, ioaddr_hi + 0x2); // select EPP mode in ECR
-    }
-
-    // Check for presence of working EPP hardware
-    clear_epp_error_register();
-    ADDR(0);
-    EPP_DIR_READ();
-    READ();
-    status = inb(ioaddr+1) & 1;
-    if(status) {
-        rtapi_print_msg(RTAPI_MSG_ERR, "Failed to communicate with pluto-servo board after programming firmware.\n");
-        return -EIO;
-    }
-    return 0;
+    return pluto_setup(firmware);
 }
 
 EXTRA_CLEANUP() {
-    outb(0, ioaddr+2); // set nInitialize low and reset the FPGA
-    // ADDR(11);
-    // WRITE(0xEE);		// resets the FPGA
-    rtapi_print_msg(RTAPI_MSG_ERR, "cleanup\n");
+    pluto_cleanup();
 }
-
-RTAPI_MP_INT(ioaddr, "Address of parallel port where pluto-p is attached");
-RTAPI_MP_INT(ioaddr_hi,
-	"Secondary address of parallel port (0 to use ioaddr+0x400)");
-RTAPI_MP_INT(epp_wide, "Use 16- and 32-bit EPP transfers with hardware EPP");
-RTAPI_MP_INT(watchdog,
-	"Enable hardware watchdog to tristate outputs if EMC crashes");
 
 // vim:sts=4:sw=4:et
