@@ -53,6 +53,9 @@ static void user_defined_add_m_code(int num, double arg1, double arg2)
     char fmt[EMC_SYSTEM_CMD_LEN];
     EMC_SYSTEM_CMD system_cmd;
 
+    //we call FINISH() to flush any linked motions before the M1xx call, 
+    //otherwise they would mix badly
+    FINISH();
     strcpy(fmt, user_defined_fmt);
     strcat(fmt, " %f %f");
     sprintf(system_cmd.string, fmt, num, arg1, arg2);
