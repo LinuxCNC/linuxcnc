@@ -767,6 +767,7 @@ int usrmotLoadComp(int axis, const char *file, int type)
     		emcmotCommand.comp_forward = fwd;
     		emcmotCommand.comp_reverse = rev;		
 	    }
+	    emcmotCommand.axis = axis;
 	    emcmotCommand.command = EMCMOT_SET_JOINT_COMP;
 	    ret |= usrmotWriteEmcmotCommand(&emcmotCommand);
 	}
