@@ -255,10 +255,6 @@ static void capture_sample(void)
 	    dest->d_u8 = *((unsigned char *) (ctrl_rt->data_addr[n]));
 	    dest++;
 	    break;
-	case 2:
-	    dest->d_u16 = *((unsigned short *) (ctrl_rt->data_addr[n]));
-	    dest++;
-	    break;
 	case 4:
 	    dest->d_u32 = *((unsigned long *) (ctrl_rt->data_addr[n]));
 	    dest++;
