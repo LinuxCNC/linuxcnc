@@ -1,13 +1,11 @@
 emc2 (1:2.1.7) unstable; urgency=low
 
-  [ jepler ]
   * additional PPMC indexing fixes
   * motenc indexing fixes
   * mesa 5i20 indexing fixes
   * french translation improvements from Francis TISSERANT
-
-  [ Alex Joni ]
   * fix out-of-order scheduling of motion and custom M-codes
+  * fix leadscrew error compensation
 
  -- Alex Joni <juve@juve-desktop>  Mon,  9 Jul 2007 19:11:00 +0300
 
