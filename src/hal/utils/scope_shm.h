@@ -57,12 +57,9 @@ typedef enum {
 /* this struct holds a single value - one sample of one channel */
 
 typedef union {
-    unsigned char d_u8;		/* variable for u8 and bit */
-    signed char d_s8;		/* variable for s8 */
-    unsigned short d_u16;	/* variable for u16 */
-    signed short d_s16;		/* variable for s16 */
-    unsigned long d_u32;	/* variable for u32 */
-    signed long d_s32;		/* variable for s32 */
+    unsigned char d_u8;		/* variable for bit */
+    __u32 d_u32;	/* variable for u32 */
+    __s32 d_s32;		/* variable for s32 */
     float d_float;		/* variable for float */
 } scope_data_t;
 
