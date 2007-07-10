@@ -2161,7 +2161,7 @@ static char *data_value(int type, void *valptr)
 	value_str = buf;
 	break;
     case HAL_S32:
-	snprintf(buf, 14, "  %10ld", (long)*((hal_u32_t *) valptr));
+	snprintf(buf, 14, "  %10ld", (long)*((hal_s32_t *) valptr));
 	value_str = buf;
 	break;
     case HAL_U32:
