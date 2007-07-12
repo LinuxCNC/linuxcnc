@@ -209,6 +209,8 @@ typedef struct {
     int samples;		/* number of samples in display buffer */
     int display_refresh_timer;	/* flag for display refresh */
     scope_run_mode_t run_mode;	/* current run mode */
+    scope_run_mode_t old_run_mode;	/* run mode to restore*/
+    int pending_restart;        /* nonzero if run mode to be restored */
     /* top level windows */
     GtkWidget *main_win;
     GtkWidget *horiz_info_win;
@@ -296,5 +298,6 @@ int set_trigger_pos(double setting);
 int set_trigger_polarity(int setting);
 int set_trigger_mode(int mode);
 int set_run_mode(int mode);
+void prepare_scope_restart(void);
 
 #endif /* HALSC_USR_H */

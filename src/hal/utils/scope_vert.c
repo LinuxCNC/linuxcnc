@@ -135,9 +135,8 @@ int set_active_channel(int chan_num)
     if (vert->chan_enabled[chan_num - 1] == 0 ) {
 	/* channel is disabled, want to enable it */
 	if (ctrl_shm->state != IDLE) {
-	    /* acquisition in progress, 'push' the stop button */
-	    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ctrl_usr->
-		    rm_stop_button), TRUE);
+	    /* acquisition in progress, must restart it */
+            prepare_scope_restart();
 	}
 	count = 0;
 	for (n = 0; n < 16; n++) {
@@ -830,9 +829,8 @@ static void chan_sel_button(GtkWidget * widget, gpointer gdata)
     if (vert->chan_enabled[chan_num - 1] == 0 ) {
 	/* channel is disabled, want to enable it */
 	if (ctrl_shm->state != IDLE) {
-	    /* acquisition in progress, 'push' the stop button */
-	    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ctrl_usr->
-		    rm_stop_button), TRUE);
+	    /* acquisition in progress, must restart it */
+            prepare_scope_restart();
 	}
 	count = 0;
 	for (n = 0; n < 16; n++) {
@@ -897,9 +895,8 @@ static void change_source_button(GtkWidget * widget, gpointer gdata)
 	return;
     }
     if (ctrl_shm->state != IDLE) {
-	/* acquisition in progress, 'push' the stop button */
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ctrl_usr->
-		rm_stop_button), TRUE);
+        /* acquisition in progress, must restart it */
+        prepare_scope_restart();
     }
     invalidate_channel(chan_num);
     dialog_select_source(chan_num);

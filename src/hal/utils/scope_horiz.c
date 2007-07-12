@@ -767,9 +767,7 @@ static void dialog_realtime_not_running(void)
 
 static void acquire_popup(GtkWidget * widget, gpointer gdata)
 {
-    /* 'push' the stop button */
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ctrl_usr->rm_stop_button),
-	TRUE);
+    prepare_scope_restart();
 
     /** This function doesn't directly cause the acquire menu to
         pop up.  Instead is disconnects the acquire function from

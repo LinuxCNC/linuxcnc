@@ -301,11 +301,7 @@ static void dialog_select_trigger_source(void)
     GtkWidget *label, *button, *scrolled_window, *trig_list;
 
     /* is acquisition in progress? */
-    if (ctrl_shm->state != IDLE) {
-	/* yes, 'push' the stop button */
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ctrl_usr->
-		rm_stop_button), TRUE);
-    }
+    if (ctrl_shm->state != IDLE) { prepare_scope_restart(); }
     vert = &(ctrl_usr->vert);
     trig = &(ctrl_usr->trig);
     title = "Trigger Source";
@@ -464,9 +460,8 @@ int set_trigger_pos(double setting)
     trig = &(ctrl_usr->trig);
     /* is acquisition in progress? */
     if (ctrl_shm->state != IDLE) {
-	/* yes, 'push' the stop button */
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ctrl_usr->
-		rm_stop_button), TRUE);
+	/* yes, prepare to restart the scope */
+        prepare_scope_restart();
     }
     /* set position */
     trig->position = setting;

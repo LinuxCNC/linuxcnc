@@ -196,6 +196,13 @@ static int heartbeat(gpointer data)
     } else {
 	handle_watchdog_timeout();
     }
+    if (ctrl_usr->pending_restart && ctrl_shm->state == IDLE) {
+        ctrl_usr->pending_restart = 0;
+        ctrl_usr->run_mode = ctrl_usr->old_run_mode;
+        if(ctrl_usr->run_mode != STOP) {
+            start_capture();
+        }
+    }
     if (ctrl_usr->display_refresh_timer > 0) {
 	/* decrement timer, did it time out? */
 	if (--ctrl_usr->display_refresh_timer == 0) {
@@ -624,5 +631,13 @@ static void rm_stop_button_clicked(GtkWidget * widget, gpointer * gdata)
 	/* RT code is sampling, tell it to stop */
 	ctrl_shm->state = RESET;
     }
+    ctrl_usr->run_mode = STOP;
+}
+
+void prepare_scope_restart(void) {
+    if(ctrl_usr->pending_restart) return;
+    ctrl_shm->state = RESET;
+    ctrl_usr->old_run_mode = ctrl_usr->run_mode;
+    ctrl_usr->pending_restart = 1;
     ctrl_usr->run_mode = STOP;
 }
