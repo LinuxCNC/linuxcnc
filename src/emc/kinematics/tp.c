@@ -244,7 +244,7 @@ int tpAddRigidTap(TP_STRUCT *tp, EmcPose end, double vel, double ini_maxvel,
     TC_STRUCT tc;
     PmLine line_xyz;
     PmPose start_xyz, end_xyz;
-    PmCartesian abc;
+    PmCartesian abc, uvw;
     PmQuaternion identity_quat = { 1.0, 0.0, 0.0, 0.0 };
 
     if (!tp) {
@@ -267,6 +267,10 @@ int tpAddRigidTap(TP_STRUCT *tp, EmcPose end, double vel, double ini_maxvel,
     abc.y = tp->goalPos.b;
     abc.z = tp->goalPos.c;
 
+    uvw.x = tp->goalPos.u;
+    uvw.y = tp->goalPos.v;
+    uvw.z = tp->goalPos.w;
+
     pmLineInit(&line_xyz, start_xyz, end_xyz);
 
     tc.cycle_time = tp->cycleTime;
@@ -285,6 +289,7 @@ int tpAddRigidTap(TP_STRUCT *tp, EmcPose end, double vel, double ini_maxvel,
 
     tc.coords.rigidtap.xyz = line_xyz;
     tc.coords.rigidtap.abc = abc;
+    tc.coords.rigidtap.uvw = uvw;
     tc.coords.rigidtap.state = TAPPING;
     tc.motion_type = TC_RIGIDTAP;
     tc.canon_motion_type = 0;
@@ -324,8 +329,10 @@ int tpAddRigidTap(TP_STRUCT *tp, EmcPose end, double vel, double ini_maxvel,
 int tpAddLine(TP_STRUCT * tp, EmcPose end, int type, double vel, double ini_maxvel, double acc, unsigned char enables)
 {
     TC_STRUCT tc;
-    PmLine line_xyz, line_abc;
-    PmPose start_xyz, end_xyz, start_abc, end_abc;
+    PmLine line_xyz, line_uvw, line_abc;
+    PmPose start_xyz, end_xyz;
+    PmPose start_uvw, end_uvw;
+    PmPose start_abc, end_abc;
     PmQuaternion identity_quat = { 1.0, 0.0, 0.0, 0.0 };
 
     if (!tp) {
@@ -340,6 +347,13 @@ int tpAddLine(TP_STRUCT * tp, EmcPose end, int type, double vel, double ini_maxv
     start_xyz.tran = tp->goalPos.tran;
     end_xyz.tran = end.tran;
 
+    start_uvw.tran.x = tp->goalPos.u;
+    start_uvw.tran.y = tp->goalPos.v;
+    start_uvw.tran.z = tp->goalPos.w;
+    end_uvw.tran.x = end.u;
+    end_uvw.tran.y = end.v;
+    end_uvw.tran.z = end.w;
+
     start_abc.tran.x = tp->goalPos.a;
     start_abc.tran.y = tp->goalPos.b;
     start_abc.tran.z = tp->goalPos.c;
@@ -349,14 +363,24 @@ int tpAddLine(TP_STRUCT * tp, EmcPose end, int type, double vel, double ini_maxv
 
     start_xyz.rot = identity_quat;
     end_xyz.rot = identity_quat;
+    start_uvw.rot = identity_quat;
+    end_uvw.rot = identity_quat;
     start_abc.rot = identity_quat;
     end_abc.rot = identity_quat;
 
     pmLineInit(&line_xyz, start_xyz, end_xyz);
+    pmLineInit(&line_uvw, start_uvw, end_uvw);
     pmLineInit(&line_abc, start_abc, end_abc);
 
     tc.cycle_time = tp->cycleTime;
-    tc.target = line_xyz.tmag < 1e-6? line_abc.tmag: line_xyz.tmag;
+
+    if (line_xyz.tmag > 1e-6) 
+        tc.target = line_xyz.tmag;
+    else if (line_uvw.tmag > 1e-6) 
+        tc.target = line_uvw.tmag;
+    else
+        tc.target = line_abc.tmag;
+
     tc.progress = 0.0;
     tc.reqvel = vel;
     tc.maxaccel = acc * ACCEL_USAGE;
@@ -366,6 +390,7 @@ int tpAddLine(TP_STRUCT * tp, EmcPose end, int type, double vel, double ini_maxv
     tc.active = 0;
 
     tc.coords.line.xyz = line_xyz;
+    tc.coords.line.uvw = line_uvw;
     tc.coords.line.abc = line_abc;
     tc.motion_type = TC_LINEAR;
     tc.canon_motion_type = type;
@@ -405,8 +430,10 @@ int tpAddCircle(TP_STRUCT * tp, EmcPose end,
 {
     TC_STRUCT tc;
     PmCircle circle;
-    PmLine line_abc;
-    PmPose start_xyz, end_xyz, start_abc, end_abc;
+    PmLine line_uvw, line_abc;
+    PmPose start_xyz, end_xyz;
+    PmPose start_uvw, end_uvw;
+    PmPose start_abc, end_abc;
     double helix_z_component;   // z of the helix's cylindrical coord system
     double helix_length;
     PmQuaternion identity_quat = { 1.0, 0.0, 0.0, 0.0 };
@@ -424,12 +451,22 @@ int tpAddCircle(TP_STRUCT * tp, EmcPose end,
     end_abc.tran.y = end.b;
     end_abc.tran.z = end.c;
 
+    start_uvw.tran.x = tp->goalPos.u;
+    start_uvw.tran.y = tp->goalPos.v;
+    start_uvw.tran.z = tp->goalPos.w;
+    end_uvw.tran.x = end.u;
+    end_uvw.tran.y = end.v;
+    end_uvw.tran.z = end.w;
+
     start_xyz.rot = identity_quat;
     end_xyz.rot = identity_quat;
+    start_uvw.rot = identity_quat;
+    end_uvw.rot = identity_quat;
     start_abc.rot = identity_quat;
     end_abc.rot = identity_quat;
 
     pmCircleInit(&circle, start_xyz, end_xyz, center, normal, turn);
+    pmLineInit(&line_uvw, start_uvw, end_uvw);
     pmLineInit(&line_abc, start_abc, end_abc);
 
     // find helix length
@@ -448,6 +485,7 @@ int tpAddCircle(TP_STRUCT * tp, EmcPose end,
     tc.active = 0;
 
     tc.coords.circle.xyz = circle;
+    tc.coords.circle.uvw = line_uvw;
     tc.coords.circle.abc = line_abc;
     tc.motion_type = TC_CIRCULAR;
     tc.canon_motion_type = type;
@@ -840,6 +878,10 @@ int tpRunCycle(TP_STRUCT * tp, long period)
     primary_displacement.b = primary_after.b - primary_before.b;
     primary_displacement.c = primary_after.c - primary_before.c;
 
+    primary_displacement.u = primary_after.u - primary_before.u;
+    primary_displacement.v = primary_after.v - primary_before.v;
+    primary_displacement.w = primary_after.w - primary_before.w;
+
     // blend criteria
     if((tc->blending && nexttc) || 
             (nexttc && on_final_decel && primary_vel < tc->blend_vel)) {
@@ -881,6 +923,10 @@ int tpRunCycle(TP_STRUCT * tp, long period)
         secondary_displacement.b = secondary_after.b - secondary_before.b;
         secondary_displacement.c = secondary_after.c - secondary_before.c;
 
+        secondary_displacement.u = secondary_after.u - secondary_before.u;
+        secondary_displacement.v = secondary_after.v - secondary_before.v;
+        secondary_displacement.w = secondary_after.w - secondary_before.w;
+
         pmCartCartAdd(tp->currentPos.tran, primary_displacement.tran, 
                 &tp->currentPos.tran);
         pmCartCartAdd(tp->currentPos.tran, secondary_displacement.tran, 
@@ -888,6 +934,10 @@ int tpRunCycle(TP_STRUCT * tp, long period)
         tp->currentPos.a += primary_displacement.a + secondary_displacement.a;
         tp->currentPos.b += primary_displacement.b + secondary_displacement.b;
         tp->currentPos.c += primary_displacement.c + secondary_displacement.c;
+
+        tp->currentPos.u += primary_displacement.u + secondary_displacement.u;
+        tp->currentPos.v += primary_displacement.v + secondary_displacement.v;
+        tp->currentPos.w += primary_displacement.w + secondary_displacement.w;
     } else {
         tp->motionType = tc->canon_motion_type;
 	emcmotStatus->distance_to_go = tc->target - tc->progress;

@@ -30,6 +30,9 @@ int kinematicsForward(const double *joints,
     pos->a = joints[3];
     pos->b = joints[4];
     pos->c = joints[5];
+    pos->u = joints[6];
+    pos->v = joints[7];
+    pos->w = joints[8];
 
     return 0;
 }
@@ -45,6 +48,9 @@ int kinematicsInverse(const EmcPose * pos,
     joints[3] = pos->a;
     joints[4] = pos->b;
     joints[5] = pos->c;
+    joints[6] = pos->u;
+    joints[7] = pos->v;
+    joints[8] = pos->w;
 
     return 0;
 }

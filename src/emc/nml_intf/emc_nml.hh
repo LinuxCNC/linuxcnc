@@ -997,7 +997,8 @@ class EMC_TRAJ_STAT:public EMC_TRAJ_STAT_MSG {
     double linearUnits;		// units per mm
     double angularUnits;	// units per degree
     double cycleTime;		// cycle time, in seconds
-    int axes;			// number of axes in group
+    int axes;			// maximum axis number
+    int axis_mask;		// mask of axes actually present
     enum EMC_TRAJ_MODE_ENUM mode;	// EMC_TRAJ_MODE_FREE,
     // EMC_TRAJ_MODE_COORD
     int enabled;		// non-zero means enabled
@@ -1161,10 +1162,6 @@ class EMC_SPINDLE_STAT:public EMC_SPINDLE_STAT_MSG {
     int increasing;		// 1 increasing, -1 decreasing, 0 neither
     int enabled;		// non-zero means enabled
 };
-
-
-// number of axes in EMC_MOTION_STAT class
-#define EMC_AXIS_MAX 8
 
 class EMC_MOTION_STAT:public EMC_MOTION_STAT_MSG {
   public:

@@ -151,7 +151,7 @@ int interp_error;
 int last_sequence_number;
 int plane;
 bool metric;
-double _pos_x, _pos_y, _pos_z, _pos_a, _pos_b, _pos_c;
+double _pos_x, _pos_y, _pos_z, _pos_a, _pos_b, _pos_c, _pos_u, _pos_v, _pos_w;
 double tool_xoffset, tool_zoffset;
 
 Interp interp_new;
@@ -178,8 +178,9 @@ void maybe_new_line() {
 }
 
 void ARC_FEED(double first_end, double second_end, double first_axis,
-        double second_axis, int rotation, double axis_end_point,
-        double a_position, double b_position, double c_position) {
+              double second_axis, int rotation, double axis_end_point,
+              double a_position, double b_position, double c_position,
+              double u_position, double v_position, double w_position) {
     // XXX: set _pos_*
     if(metric) {
         first_end /= 25.4;
@@ -187,48 +188,63 @@ void ARC_FEED(double first_end, double second_end, double first_axis,
         first_axis /= 25.4;
         second_axis /= 25.4;
         axis_end_point /= 25.4;
+        u_position /= 25.4;
+        v_position /= 25.4;
+        w_position /= 25.4;
     }
     maybe_new_line();
     if(interp_error) return;
     PyObject *result =
-        PyObject_CallMethod(callback, "arc_feed", "ffffiffff",
-            first_end, second_end, first_axis, second_axis,
-            rotation, axis_end_point, a_position, b_position, c_position);
+        PyObject_CallMethod(callback, "arc_feed", "ffffifffffff",
+                            first_end, second_end, first_axis, second_axis,
+                            rotation, axis_end_point, 
+                            a_position, b_position, c_position,
+                            u_position, v_position, w_position);
     if(result == NULL) interp_error ++;
     Py_XDECREF(result);
 }
 
-void STRAIGHT_FEED(double x, double y, double z, double a, double b, double c) {
-    _pos_x=x; _pos_y=y; _pos_z=z; _pos_a=a; _pos_b=b; _pos_c=c;
-    if(metric) { x /= 25.4; y /= 25.4; z /= 25.4; }
+void STRAIGHT_FEED(double x, double y, double z,
+                   double a, double b, double c,
+                   double u, double v, double w) {
+    _pos_x=x; _pos_y=y; _pos_z=z; 
+    _pos_a=a; _pos_b=b; _pos_c=c;
+    _pos_u=u; _pos_v=v; _pos_w=w;
+    if(metric) { x /= 25.4; y /= 25.4; z /= 25.4; u /= 25.4; v /= 25.4; w /= 25.4; }
     maybe_new_line();
     if(interp_error) return;
     PyObject *result =
-        PyObject_CallMethod(callback, "straight_feed", "ffffff",
-            x, y, z, a, b, c);
+        PyObject_CallMethod(callback, "straight_feed", "fffffffff",
+                            x, y, z, a, b, c, u, v, w);
     if(result == NULL) interp_error ++;
     Py_XDECREF(result);
 }
 
-void STRAIGHT_TRAVERSE(double x, double y, double z, double a, double b, double c) {
-    _pos_x=x; _pos_y=y; _pos_z=z; _pos_a=a; _pos_b=b; _pos_c=c;
-    if(metric) { x /= 25.4; y /= 25.4; z /= 25.4; }
+void STRAIGHT_TRAVERSE(double x, double y, double z,
+                       double a, double b, double c,
+                       double u, double v, double w) {
+    _pos_x=x; _pos_y=y; _pos_z=z; 
+    _pos_a=a; _pos_b=b; _pos_c=c;
+    _pos_u=u; _pos_v=v; _pos_w=w;
+    if(metric) { x /= 25.4; y /= 25.4; z /= 25.4; u /= 25.4; v /= 25.4; w /= 25.4; }
     maybe_new_line();
     if(interp_error) return;
     PyObject *result =
-        PyObject_CallMethod(callback, "straight_traverse", "ffffff",
-            x, y, z, a, b, c);
+        PyObject_CallMethod(callback, "straight_traverse", "fffffffff",
+                            x, y, z, a, b, c, u, v, w);
     if(result == NULL) interp_error ++;
     Py_XDECREF(result);
 }
 
-void SET_ORIGIN_OFFSETS(double x, double y, double z, double a, double b, double c) {
-    if(metric) { x /= 25.4; y /= 25.4; z /= 25.4; }
+void SET_ORIGIN_OFFSETS(double x, double y, double z,
+                        double a, double b, double c,
+                        double u, double v, double w) {
+    if(metric) { x /= 25.4; y /= 25.4; z /= 25.4; u /= 25.4; v /= 25.4; w /= 25.4; }
     maybe_new_line();
     if(interp_error) return;
     PyObject *result =
-        PyObject_CallMethod(callback, "set_origin_offsets", "ffffff",
-            x, y, z, a, b, c);
+        PyObject_CallMethod(callback, "set_origin_offsets", "fffffffff",
+                            x, y, z, a, b, c, u, v, w);
     if(result == NULL) interp_error ++;
     Py_XDECREF(result);
 }
@@ -359,14 +375,18 @@ void SET_MOTION_OUTPUT_BIT(int bit) {}
 void SET_MOTION_OUTPUT_VALUE(int index, double value) {}
 void TURN_PROBE_ON() {}
 void TURN_PROBE_OFF() {}
-void STRAIGHT_PROBE(double x, double y, double z, double a, double b, double c) {
-    _pos_x=x; _pos_y=y; _pos_z=z; _pos_a=a; _pos_b=b; _pos_c=c;
-    if(metric) { x /= 25.4; y /= 25.4; z /= 25.4; }
+void STRAIGHT_PROBE(double x, double y, double z, 
+                    double a, double b, double c,
+                    double u, double v, double w) {
+    _pos_x=x; _pos_y=y; _pos_z=z; 
+    _pos_a=a; _pos_b=b; _pos_c=c;
+    _pos_u=u; _pos_v=v; _pos_w=w;
+    if(metric) { x /= 25.4; y /= 25.4; z /= 25.4; u /= 25.4; v /= 25.4; w /= 25.4; }
     maybe_new_line();
     if(interp_error) return;
     PyObject *result =
-        PyObject_CallMethod(callback, "straight_probe", "ffffff",
-            x, y, z, a, b, c);
+        PyObject_CallMethod(callback, "straight_probe", "fffffffff",
+                            x, y, z, a, b, c, u, v, w);
     if(result == NULL) interp_error ++;
     Py_XDECREF(result);
 
@@ -388,6 +408,9 @@ double GET_EXTERNAL_PROBE_POSITION_Z() { return _pos_z; }
 double GET_EXTERNAL_PROBE_POSITION_A() { return _pos_a; }
 double GET_EXTERNAL_PROBE_POSITION_B() { return _pos_b; }
 double GET_EXTERNAL_PROBE_POSITION_C() { return _pos_c; }
+double GET_EXTERNAL_PROBE_POSITION_U() { return _pos_u; }
+double GET_EXTERNAL_PROBE_POSITION_V() { return _pos_v; }
+double GET_EXTERNAL_PROBE_POSITION_W() { return _pos_w; }
 double GET_EXTERNAL_PROBE_VALUE() { return 0.0; }
 double GET_EXTERNAL_POSITION_X() { return _pos_x; }
 double GET_EXTERNAL_POSITION_Y() { return _pos_y; }
@@ -395,6 +418,9 @@ double GET_EXTERNAL_POSITION_Z() { return _pos_z; }
 double GET_EXTERNAL_POSITION_A() { return _pos_a; }
 double GET_EXTERNAL_POSITION_B() { return _pos_b; }
 double GET_EXTERNAL_POSITION_C() { return _pos_c; }
+double GET_EXTERNAL_POSITION_U() { return _pos_u; }
+double GET_EXTERNAL_POSITION_V() { return _pos_v; }
+double GET_EXTERNAL_POSITION_W() { return _pos_w; }
 void INIT_CANON() {}
 void GET_EXTERNAL_PARAMETER_FILE_NAME(char *name, int max_size) {
     PyObject *result = PyObject_GetAttrString(callback, "parameter_file");
@@ -448,6 +474,17 @@ int GET_EXTERNAL_FEED_OVERRIDE_ENABLE() {return 1;}
 int GET_EXTERNAL_SPINDLE_OVERRIDE_ENABLE() {return 1;}
 int GET_EXTERNAL_ADAPTIVE_FEED_ENABLE() {return 0;}
 int GET_EXTERNAL_FEED_HOLD_ENABLE() {return 1;}
+
+int GET_EXTERNAL_AXIS_MASK() {
+    if(interp_error) return 7;
+    PyObject *result =
+        PyObject_CallMethod(callback, "get_axis_mask", "");
+    if(!result) { interp_error ++; return 7 /* XYZABC */; }
+    if(!PyInt_Check(result)) { interp_error ++; return 7 /* XYZABC */; }
+    int mask = PyInt_AsLong(result);
+    Py_DECREF(result);
+    return mask;
+}
 
 double GET_EXTERNAL_TOOL_LENGTH_XOFFSET() {
     return tool_xoffset;
@@ -534,6 +571,7 @@ PyObject *parse_file(PyObject *self, PyObject *args) {
     last_sequence_number = -1;
 
     _pos_x = _pos_y = _pos_z = _pos_a = _pos_b = _pos_c = 0;
+    _pos_u = _pos_v = _pos_w = 0;
 
     interp_init();
     interp_open(f);

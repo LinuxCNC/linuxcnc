@@ -2544,6 +2544,7 @@ void EMC_TRAJ_STAT::update(CMS * cms)
     cms->update(angularUnits);
     cms->update(cycleTime);
     cms->update(axes);
+    cms->update(axis_mask);
     cms->update((int *) &mode, 1);
     cms->update(enabled);
     cms->update(inpos);
@@ -2761,7 +2762,9 @@ void EmcPose_update(CMS * cms, EmcPose * x)
     cms->update(x->a);
     cms->update(x->b);
     cms->update(x->c);
-
+    cms->update(x->u);
+    cms->update(x->v);
+    cms->update(x->w);
 }
 
 /*

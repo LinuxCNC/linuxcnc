@@ -38,18 +38,18 @@ class ArcsToSegmentsMixin:
     def set_plane(self, plane):
         self.plane = plane
 
-    def arc_feed(self, x1, y1, cx, cy, rot, z1, a, b, c):
+    def arc_feed(self, x1, y1, cx, cy, rot, z1, a, b, c, u, v, w):
         if self.plane == 1:
-            f = n = [x1,y1,z1, a, b, c]
+            f = n = [x1,y1,z1, a, b, c, 0, 0, 0]
             xyz = [0,1,2]
         elif self.plane == 3:
-            f = n = [y1,z1,x1, a, b, c]
+            f = n = [y1,z1,x1, a, b, c, 0, 0, 0]
             xyz = [2,0,1]
         else:
-            f = n = [z1,x1,y1, a, b, c]
+            f = n = [z1,x1,y1, a, b, c, 0, 0, 0]
             xyz = [1,2,0]
         ox, oy, oz = self.lo
-        o = [ox-self.offset_x, oy-self.offset_y, oz-self.offset_z, 0, 0, 0]
+        o = [ox-self.offset_x, oy-self.offset_y, oz-self.offset_z, 0, 0, 0, 0, 0, 0]
         theta1 = math.atan2(o[xyz[1]]-cy, o[xyz[0]]-cx)
         theta2 = math.atan2(n[xyz[1]]-cy, n[xyz[0]]-cx)
         rad = math.hypot(o[xyz[0]]-cx, o[xyz[1]]-cy)
@@ -63,7 +63,7 @@ class ArcsToSegmentsMixin:
             return low + (high-low) * i / steps
 
         steps = max(8, int(128 * abs(theta1 - theta2) / math.pi))
-        p = [0] * 6
+        p = [0] * 9
         for i in range(1, steps):
             theta = interp(theta1, theta2)
             p[xyz[0]] = math.cos(theta) * rad + cx
@@ -72,6 +72,9 @@ class ArcsToSegmentsMixin:
             p[3] = interp(o[3], n[3])
             p[4] = interp(o[4], n[4])
             p[5] = interp(o[5], n[5])
+            p[6] = interp(o[6], n[6])
+            p[7] = interp(o[7], n[7])
+            p[8] = interp(o[8], n[8])
             self.straight_feed(*p)
         self.straight_feed(*n)
 

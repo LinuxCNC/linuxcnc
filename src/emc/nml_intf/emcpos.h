@@ -22,6 +22,7 @@
 typedef struct EmcPose {
     PmCartesian tran;
     double a, b, c;
+    double u, v, w;
 } EmcPose;
 
 #endif

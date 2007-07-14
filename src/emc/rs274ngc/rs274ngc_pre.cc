@@ -409,7 +409,10 @@ int Interp::init()
                      USER_TO_PROGRAM_LEN(pars[k + 3] + pars[5213]),
                      USER_TO_PROGRAM_ANG(pars[k + 4] + pars[5214]),
                      USER_TO_PROGRAM_ANG(pars[k + 5] + pars[5215]),
-                     USER_TO_PROGRAM_ANG(pars[k + 6] + pars[5216]));
+                     USER_TO_PROGRAM_ANG(pars[k + 6] + pars[5216]),
+                     USER_TO_PROGRAM_LEN(pars[k + 7] + pars[5217]),
+                     USER_TO_PROGRAM_LEN(pars[k + 8] + pars[5218]),
+                     USER_TO_PROGRAM_LEN(pars[k + 9] + pars[5219]));
   SET_FEED_REFERENCE(CANON_XYZ);
   _setup.AA_axis_offset = USER_TO_PROGRAM_ANG(pars[5214]);
 //_setup.Aa_current set in Interp::synch
@@ -420,6 +423,12 @@ int Interp::init()
   _setup.CC_axis_offset = USER_TO_PROGRAM_ANG(pars[5216]);
 //_setup.Cc_current set in Interp::synch
   _setup.CC_origin_offset = USER_TO_PROGRAM_ANG(pars[k + 6]);
+  _setup.u_axis_offset = USER_TO_PROGRAM_LEN(pars[5217]);
+  _setup.u_origin_offset = USER_TO_PROGRAM_LEN(pars[k + 7]);
+  _setup.v_axis_offset = USER_TO_PROGRAM_LEN(pars[5218]);
+  _setup.v_origin_offset = USER_TO_PROGRAM_LEN(pars[k + 8]);
+  _setup.w_axis_offset = USER_TO_PROGRAM_LEN(pars[5219]);
+  _setup.w_origin_offset = USER_TO_PROGRAM_LEN(pars[k + 9]);
 //_setup.active_g_codes initialized below
 //_setup.active_m_codes initialized below
 //_setup.active_settings initialized below
@@ -484,6 +493,19 @@ int Interp::init()
   _setup.defining_sub = 0;
   _setup.skipping_o = 0;
   _setup.oword_labels = 0;
+
+  memcpy(_readers, default_readers, sizeof(default_readers));
+
+  long axis_mask = GET_EXTERNAL_AXIS_MASK();
+  if(!(axis_mask & AXIS_MASK_X)) _readers[(int)'x'] = 0;
+  if(!(axis_mask & AXIS_MASK_Y)) _readers[(int)'y'] = 0;
+  if(!(axis_mask & AXIS_MASK_Z)) _readers[(int)'z'] = 0;
+  if(!(axis_mask & AXIS_MASK_A)) _readers[(int)'a'] = 0;
+  if(!(axis_mask & AXIS_MASK_B)) _readers[(int)'b'] = 0;
+  if(!(axis_mask & AXIS_MASK_C)) _readers[(int)'c'] = 0;
+  if(!(axis_mask & AXIS_MASK_U)) _readers[(int)'u'] = 0;
+  if(!(axis_mask & AXIS_MASK_V)) _readers[(int)'v'] = 0;
+  if(!(axis_mask & AXIS_MASK_W)) _readers[(int)'w'] = 0;
 
   synch(); //synch first, then update the interface
 
@@ -994,6 +1016,9 @@ int Interp::synch()
   _setup.current_x = GET_EXTERNAL_POSITION_X();
   _setup.current_y = GET_EXTERNAL_POSITION_Y();
   _setup.current_z = GET_EXTERNAL_POSITION_Z();
+  _setup.u_current = GET_EXTERNAL_POSITION_U();
+  _setup.v_current = GET_EXTERNAL_POSITION_V();
+  _setup.w_current = GET_EXTERNAL_POSITION_W();
   _setup.feed_rate = GET_EXTERNAL_FEED_RATE();
   _setup.flood = (GET_EXTERNAL_FLOOD() != 0) ? ON : OFF;
   _setup.length_units = GET_EXTERNAL_LENGTH_UNIT_TYPE();
@@ -1100,7 +1125,7 @@ void Interp::active_settings(double *settings) //!< array of settings to copy in
 }
 
 static char savedError[LINELEN+1];
-void Interp::setError(char *fmt, ...)
+void Interp::setError(const char *fmt, ...)
 {
     va_list ap;
 

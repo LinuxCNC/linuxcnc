@@ -767,6 +767,56 @@ radiobutton $_tabs_manual.axes.axisc \
         -text C \
         -command axis_activated
 
+
+radiobutton $_tabs_manual.axes.axisu \
+	-anchor w \
+	-padx 0 \
+	-selectcolor #4864ab \
+	-value u \
+	-variable current_axis \
+	-width 2 \
+        -text U \
+        -command axis_activated
+
+radiobutton $_tabs_manual.axes.axisv \
+	-anchor w \
+	-padx 0 \
+	-selectcolor #4864ab \
+	-value v \
+	-variable current_axis \
+	-width 2 \
+        -text V \
+        -command axis_activated
+
+radiobutton $_tabs_manual.axes.axisw \
+	-anchor w \
+	-padx 0 \
+	-selectcolor #4864ab \
+	-value w \
+	-variable current_axis \
+	-width 2 \
+        -text W \
+        -command axis_activated
+
+# Grid widget $_tabs_manual.axes.axisa
+grid $_tabs_manual.axes.axisu \
+	-column 0 \
+	-row 2 \
+	-padx 4
+
+# Grid widget $_tabs_manual.axes.axisb
+grid $_tabs_manual.axes.axisv \
+	-column 1 \
+	-row 2 \
+	-padx 4
+
+# Grid widget $_tabs_manual.axes.axisc
+grid $_tabs_manual.axes.axisw \
+	-column 2 \
+	-row 2 \
+	-padx 4
+
+
 # Grid widget $_tabs_manual.axes.axisa
 grid $_tabs_manual.axes.axisa \
 	-column 0 \

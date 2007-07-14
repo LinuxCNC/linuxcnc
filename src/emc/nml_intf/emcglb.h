@@ -25,7 +25,7 @@
 extern "C" {
 #endif
 
-#define EMC_AXIS_MAX 8
+#define EMC_AXIS_MAX 9
 
     extern char EMC_INIFILE[LINELEN];
 

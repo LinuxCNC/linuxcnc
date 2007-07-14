@@ -59,7 +59,6 @@
 static int loadTraj(EmcIniFile *trajInifile)
 {
     const char *inistring;
-    int axes;
     EmcLinearUnits linearUnits;
     EmcAngularUnits angularUnits;
     double vel;
@@ -69,16 +68,31 @@ static int loadTraj(EmcIniFile *trajInifile)
     int len;
     char homes[LINELEN];
     char home[LINELEN];
-    EmcPose homePose = { {0.0, 0.0, 0.0}, 0.0, 0.0, 0.0 };
+    EmcPose homePose = { {0.0, 0.0, 0.0}, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
     double d;
 
     trajInifile->EnableExceptions(EmcIniFile::ERR_CONVERSION);
 
     try{
-        axes = 0;		// default
-        trajInifile->Find(&axes, "AXES", "TRAJ");
+	int axes = 0;
+	int axismask = 0;
+	const char *coord = trajInifile->Find("COORDINATES", "TRAJ");
+	if(coord) {
+	    if(strchr(coord, 'x') || strchr(coord, 'X')) axismask |= 1;
+	    if(strchr(coord, 'y') || strchr(coord, 'Y')) axismask |= 2;
+	    if(strchr(coord, 'z') || strchr(coord, 'Z')) axismask |= 4;
+	    if(strchr(coord, 'a') || strchr(coord, 'A')) axismask |= 8;
+	    if(strchr(coord, 'b') || strchr(coord, 'B')) axismask |= 16;
+	    if(strchr(coord, 'c') || strchr(coord, 'C')) axismask |= 32;
+	    if(strchr(coord, 'u') || strchr(coord, 'U')) axismask |= 64;
+	    if(strchr(coord, 'v') || strchr(coord, 'V')) axismask |= 128;
+	    if(strchr(coord, 'w') || strchr(coord, 'W')) axismask |= 256;
+	} else {
+	    axismask = 1 | 2 | 4;		// default: XYZ machine
+	}
+	trajInifile->Find(&axes, "AXES", "TRAJ");
 
-        if (0 != emcTrajSetAxes(axes)) {
+        if (0 != emcTrajSetAxes(axes, axismask)) {
             if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
                 rcs_print("bad return value from emcTrajSetAxes\n");
             }

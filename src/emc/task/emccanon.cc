@@ -58,8 +58,16 @@ static double css_maximum, css_numerator;
 #define MAX(a,b) ((a)>(b)?(a):(b))
 #endif
 
+#ifndef MAX3
+#define MAX3(a,b,c) (MAX(MAX((a),(b)),(c)))
+#endif
+
 #ifndef MAX4
 #define MAX4(a,b,c,d) (MAX(MAX((a),(b)),MAX((c),(d))))
+#endif
+
+#ifndef MAX9
+#define MAX9(a,b,c,d,e,f,g,h,i) (MAX3((MAX3(a,b,c)),(MAX3(d,e,f)),(MAX3(g,h,i))))
 #endif
 
 static PM_QUATERNION quat(1, 0, 0, 0);
@@ -85,7 +93,9 @@ extern void CANON_ERROR(const char *fmt, ...);
   Units are then converted from mm to external units, as reported by
   the GET_EXTERNAL_LENGTH_UNITS() function.
   */
-static CANON_POSITION programOrigin(0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+static CANON_POSITION programOrigin(0.0, 0.0, 0.0, 
+                                    0.0, 0.0, 0.0,
+                                    0.0, 0.0, 0.0);
 static CANON_UNITS lengthUnits = CANON_UNITS_MM;
 static CANON_PLANE activePlane = CANON_PLANE_XY;
 
@@ -96,15 +106,21 @@ static int feed_mode = 0;
   needed for subsequent calculations. It's in absolute frame, mm units.
   */
 static CANON_POSITION canonEndPoint;
-static void canonUpdateEndPoint(double x, double y, double z, double a,
-				double b, double c)
+static void canonUpdateEndPoint(double x, double y, double z, 
+                                double a, double b, double c,
+                                double u, double v, double w)
 {
     canonEndPoint.x = x;
     canonEndPoint.y = y;
     canonEndPoint.z = z;
+
     canonEndPoint.a = a;
     canonEndPoint.b = b;
     canonEndPoint.c = c;
+
+    canonEndPoint.u = u;
+    canonEndPoint.v = v;
+    canonEndPoint.w = w;
 }
 
 /* motion control mode is used to signify blended v. stop-at-end moves.
@@ -160,15 +176,15 @@ static double currentAngularFeedRate = 0.0;
    a combination of both. */
    //AJ says: linear means axes XYZ move (lines or even circles)
    //         angular means axes ABC move
-static int linear_move = 0;
+static int cartesian_move = 0;
 static int angular_move = 0;
 
 static double toExtVel(double vel) {
-    if (linear_move && !angular_move) {
+    if (cartesian_move && !angular_move) {
 	return TO_EXT_LEN(vel);
-    } else if (!linear_move && angular_move) {
+    } else if (!cartesian_move && angular_move) {
 	return TO_EXT_ANG(vel);
-    } else if (linear_move && angular_move) {
+    } else if (cartesian_move && angular_move) {
 	return TO_EXT_LEN(vel);
     } else { //seems this case was forgotten, neither linear, neither angular move (we are only sending vel)
 	return TO_EXT_LEN(vel);
@@ -179,7 +195,8 @@ static double toExtAcc(double acc) { return toExtVel(acc); }
 
 /* Representation */
 void SET_ORIGIN_OFFSETS(double x, double y, double z,
-			double a, double b, double c)
+                        double a, double b, double c,
+                        double u, double v, double w)
 {
     EMC_TRAJ_SET_ORIGIN set_origin_msg;
 
@@ -192,22 +209,35 @@ void SET_ORIGIN_OFFSETS(double x, double y, double z,
     a = FROM_PROG_ANG(a);
     b = FROM_PROG_ANG(b);
     c = FROM_PROG_ANG(c);
+    u = FROM_PROG_LEN(u);
+    v = FROM_PROG_LEN(v);
+    w = FROM_PROG_LEN(w);
 
     programOrigin.x = x;
     programOrigin.y = y;
     programOrigin.z = z;
+    
     programOrigin.a = a;
     programOrigin.b = b;
     programOrigin.c = c;
+
+    programOrigin.u = u;
+    programOrigin.v = v;
+    programOrigin.w = w;
 
     /* append it to interp list so it gets updated at the right time, not at
        read-ahead time */
     set_origin_msg.origin.tran.x = TO_EXT_LEN(programOrigin.x);
     set_origin_msg.origin.tran.y = TO_EXT_LEN(programOrigin.y);
     set_origin_msg.origin.tran.z = TO_EXT_LEN(programOrigin.z);
+
     set_origin_msg.origin.a = TO_EXT_ANG(programOrigin.a);
     set_origin_msg.origin.b = TO_EXT_ANG(programOrigin.b);
     set_origin_msg.origin.c = TO_EXT_ANG(programOrigin.c);
+
+    set_origin_msg.origin.u = TO_EXT_LEN(programOrigin.u);
+    set_origin_msg.origin.v = TO_EXT_LEN(programOrigin.v);
+    set_origin_msg.origin.w = TO_EXT_LEN(programOrigin.w);
 
     interp_list.append(set_origin_msg);
 }
@@ -260,10 +290,11 @@ void SET_FEED_REFERENCE(CANON_FEED_REFERENCE reference)
 }
 
 double getStraightAcceleration(double x, double y, double z,
-			   double a, double b, double c)
+                               double a, double b, double c,
+                               double u, double v, double w)
 {
-    double dx, dy, dz, da, db, dc;
-    double tx, ty, tz, ta, tb, tc, tmax;
+    double dx, dy, dz, du, dv, dw, da, db, dc;
+    double tx, ty, tz, tu, tv, tw, ta, tb, tc, tmax;
     double acc, dtot;
 
     const double tiny = 1e-10;
@@ -277,6 +308,9 @@ double getStraightAcceleration(double x, double y, double z,
     da = fabs(a - canonEndPoint.a);
     db = fabs(b - canonEndPoint.b);
     dc = fabs(c - canonEndPoint.c);
+    du = fabs(u - canonEndPoint.u);
+    dv = fabs(v - canonEndPoint.v);
+    dw = fabs(w - canonEndPoint.w);
 
     if(dx < tiny) dx = 0.0;
     if(dy < tiny) dy = 0.0;
@@ -284,16 +318,21 @@ double getStraightAcceleration(double x, double y, double z,
     if(da < tiny) da = 0.0;
     if(db < tiny) db = 0.0;
     if(dc < tiny) dc = 0.0;
+    if(du < tiny) du = 0.0;
+    if(dv < tiny) dv = 0.0;
+    if(dw < tiny) dw = 0.0;
 
     if(debug_velacc) 
-        printf("getStraightAcceleration dx %g dy %g dz %g da %g db %g dc %g ", 
-               dx, dy, dz, dz, db, dc);
+        printf("getStraightAcceleration dx %g dy %g dz %g da %g db %g dc %g du %g dv %g dw %g ", 
+               dx, dy, dz, da, db, dc, du, dv, dw);
 
-    // Figure out what kind of move we're making:
-    if (dx <= 0.0 && dy <= 0.0 && dz <= 0.0) {
-	linear_move = 0;
+    // Figure out what kind of move we're making.  This is used to determine
+    // the units of vel/acc.
+    if (dx <= 0.0 && dy <= 0.0 && dz <= 0.0 &&
+        du <= 0.0 && dv <= 0.0 && dw <= 0.0) {
+	cartesian_move = 0;
     } else {
-	linear_move = 1;
+	cartesian_move = 1;
     }
     if (da <= 0.0 && db <= 0.0 && dc <= 0.0) {
 	angular_move = 0;
@@ -302,25 +341,31 @@ double getStraightAcceleration(double x, double y, double z,
     }
 
     // Pure linear move:
-    if (linear_move && !angular_move) {
+    if (cartesian_move && !angular_move) {
 	tx = (dx / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[0]));
 	ty = (dy / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[1]));
 	tz = (dz / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[2]));
-	tmax = tx > ty ? tx : ty;
-	tmax = tz > tmax ? tz : tmax;
+	tu = du? (du / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[6])): 0.0;
+	tv = dv? (dv / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[7])): 0.0;
+	tw = dw? (dw / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[8])): 0.0;
+        tmax = MAX3(tx, ty ,tz);
+        tmax = MAX4(tu, tv, tw, tmax);
 
-	dtot = sqrt(dx * dx + dy * dy + dz * dz);
+        if(dx || dy || dz)
+            dtot = sqrt(dx * dx + dy * dy + dz * dz);
+        else
+            dtot = sqrt(du * du + dv * dv + dw * dw);
+        
 	if (tmax > 0.0) {
 	    acc = dtot / tmax;
 	}
     }
     // Pure angular move:
-    else if (!linear_move && angular_move) {
+    else if (!cartesian_move && angular_move) {
 	ta = da? (da / FROM_EXT_ANG(AXIS_MAX_ACCELERATION[3])): 0.0;
 	tb = db? (db / FROM_EXT_ANG(AXIS_MAX_ACCELERATION[4])): 0.0;
 	tc = dc? (dc / FROM_EXT_ANG(AXIS_MAX_ACCELERATION[5])): 0.0;
-	tmax = ta > tb ? ta : tb;
-	tmax = tc > tmax ? tc : tmax;
+        tmax = MAX3(ta, tb, tc);
 
 	dtot = sqrt(da * da + db * db + dc * dc);
 	if (tmax > 0.0) {
@@ -328,18 +373,19 @@ double getStraightAcceleration(double x, double y, double z,
 	}
     }
     // Combination angular and linear move:
-    else if (linear_move && angular_move) {
+    else if (cartesian_move && angular_move) {
 	tx = (dx / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[0]));
 	ty = (dy / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[1]));
 	tz = (dz / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[2]));
 	ta = da? (da / FROM_EXT_ANG(AXIS_MAX_ACCELERATION[3])): 0.0;
 	tb = db? (db / FROM_EXT_ANG(AXIS_MAX_ACCELERATION[4])): 0.0;
 	tc = dc? (dc / FROM_EXT_ANG(AXIS_MAX_ACCELERATION[5])): 0.0;
-	tmax = tx > ty ? tx : ty;
-	tmax = tz > tmax ? tz : tmax;
-	tmax = ta > tmax ? ta : tmax;
-	tmax = tb > tmax ? tb : tmax;
-	tmax = tc > tmax ? tc : tmax;
+	tu = du? (du / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[6])): 0.0;
+	tv = dv? (dv / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[7])): 0.0;
+	tw = dw? (dw / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[8])): 0.0;
+        tmax = MAX9(tx, ty, tz,
+                    ta, tb, tc,
+                    tu, tv, tw);
 
 /*  According to NIST IR6556 Section 2.1.2.5 Paragraph A
     a combnation move is handled like a linear move, except
@@ -347,26 +393,31 @@ double getStraightAcceleration(double x, double y, double z,
     complete their motion coordinated with the motion of
     the linear axes.
 */
-	dtot = sqrt(dx * dx + dy * dy + dz * dz);
+        if(dx || dy || dz)
+            dtot = sqrt(dx * dx + dy * dy + dz * dz);
+        else
+            dtot = sqrt(du * du + dv * dv + dw * dw);
+
 	if (tmax > 0.0) {
 	    acc = dtot / tmax;
 	}
     }
     if(debug_velacc) 
-        printf("lin %d ang %d acc %g\n", linear_move, angular_move, acc);
+        printf("cartesian %d ang %d acc %g\n", cartesian_move, angular_move, acc);
     return acc;
 }
 
 double getStraightVelocity(double x, double y, double z,
-			   double a, double b, double c)
+			   double a, double b, double c,
+                           double u, double v, double w)
 {
-    double dx, dy, dz, da, db, dc;
-    double tx, ty, tz, ta, tb, tc, tmax;
+    double dx, dy, dz, da, db, dc, du, dv, dw;
+    double tx, ty, tz, ta, tb, tc, tu, tv, tw, tmax;
     double vel, dtot;
 
     const double tiny = 1e-10;
 
-/* If we get a move to nowhere (!linear_move && !angular_move)
+/* If we get a move to nowhere (!cartesian_move && !angular_move)
    we might as well go there at the currentLinearFeedRate...
 */
     vel = currentLinearFeedRate;
@@ -378,6 +429,9 @@ double getStraightVelocity(double x, double y, double z,
     da = fabs(a - canonEndPoint.a);
     db = fabs(b - canonEndPoint.b);
     dc = fabs(c - canonEndPoint.c);
+    du = fabs(u - canonEndPoint.u);
+    dv = fabs(v - canonEndPoint.v);
+    dw = fabs(w - canonEndPoint.w);
 
     if(dx < tiny) dx = 0.0;
     if(dy < tiny) dy = 0.0;
@@ -385,16 +439,20 @@ double getStraightVelocity(double x, double y, double z,
     if(da < tiny) da = 0.0;
     if(db < tiny) db = 0.0;
     if(dc < tiny) dc = 0.0;
+    if(du < tiny) du = 0.0;
+    if(dv < tiny) dv = 0.0;
+    if(dw < tiny) dw = 0.0;
 
     if(debug_velacc) 
-        printf("getStraightVelocity dx %g dy %g dz %g da %g db %g dc %g ", 
-               dx, dy, dz, dz, db, dc);
+        printf("getStraightVelocity dx %g dy %g dz %g da %g db %g dc %g du %g dv %g dw %g ", 
+               dx, dy, dz, da, db, dc, du, dv, dw);
 
     // Figure out what kind of move we're making:
-    if (dx <= 0.0 && dy <= 0.0 && dz <= 0.0) {
-	linear_move = 0;
+    if (dx <= 0.0 && dy <= 0.0 && dz <= 0.0 &&
+        du <= 0.0 && dv <= 0.0 && dw <= 0.0) {
+	cartesian_move = 0;
     } else {
-	linear_move = 1;
+	cartesian_move = 1;
     }
     if (da <= 0.0 && db <= 0.0 && dc <= 0.0) {
 	angular_move = 0;
@@ -403,14 +461,21 @@ double getStraightVelocity(double x, double y, double z,
     }
 
     // Pure linear move:
-    if (linear_move && !angular_move) {
+    if (cartesian_move && !angular_move) {
 	tx = fabs(dx / FROM_EXT_LEN(AXIS_MAX_VELOCITY[0]));
 	ty = fabs(dy / FROM_EXT_LEN(AXIS_MAX_VELOCITY[1]));
 	tz = fabs(dz / FROM_EXT_LEN(AXIS_MAX_VELOCITY[2]));
-	tmax = tx > ty ? tx : ty;
-	tmax = tz > tmax ? tz : tmax;
+	tu = du? fabs(du / FROM_EXT_LEN(AXIS_MAX_VELOCITY[6])): 0.0;
+	tv = dv? fabs(dv / FROM_EXT_LEN(AXIS_MAX_VELOCITY[7])): 0.0;
+	tw = dw? fabs(dw / FROM_EXT_LEN(AXIS_MAX_VELOCITY[8])): 0.0;
+        tmax = MAX3(tx, ty ,tz);
+        tmax = MAX4(tu, tv, tw, tmax);
 
-	dtot = sqrt(dx * dx + dy * dy + dz * dz);
+        if(dx || dy || dz)
+            dtot = sqrt(dx * dx + dy * dy + dz * dz);
+        else
+            dtot = sqrt(du * du + dv * dv + dw * dw);
+
 	if (tmax <= 0.0) {
 	    vel = currentLinearFeedRate;
 	} else {
@@ -418,12 +483,11 @@ double getStraightVelocity(double x, double y, double z,
 	}
     }
     // Pure angular move:
-    else if (!linear_move && angular_move) {
+    else if (!cartesian_move && angular_move) {
 	ta = da? fabs(da / FROM_EXT_ANG(AXIS_MAX_VELOCITY[3])):0.0;
 	tb = db? fabs(db / FROM_EXT_ANG(AXIS_MAX_VELOCITY[4])):0.0;
 	tc = dc? fabs(dc / FROM_EXT_ANG(AXIS_MAX_VELOCITY[5])):0.0;
-	tmax = ta > tb ? ta : tb;
-	tmax = tc > tmax ? tc : tmax;
+        tmax = MAX3(ta, tb, tc);
 
 	dtot = sqrt(da * da + db * db + dc * dc);
 	if (tmax <= 0.0) {
@@ -433,18 +497,19 @@ double getStraightVelocity(double x, double y, double z,
 	}
     }
     // Combination angular and linear move:
-    else if (linear_move && angular_move) {
+    else if (cartesian_move && angular_move) {
 	tx = fabs(dx / FROM_EXT_LEN(AXIS_MAX_VELOCITY[0]));
 	ty = fabs(dy / FROM_EXT_LEN(AXIS_MAX_VELOCITY[1]));
 	tz = fabs(dz / FROM_EXT_LEN(AXIS_MAX_VELOCITY[2]));
 	ta = da? fabs(da / FROM_EXT_ANG(AXIS_MAX_VELOCITY[3])):0.0;
 	tb = db? fabs(db / FROM_EXT_ANG(AXIS_MAX_VELOCITY[4])):0.0;
 	tc = dc? fabs(dc / FROM_EXT_ANG(AXIS_MAX_VELOCITY[5])):0.0;
-	tmax = tx > ty ? tx : ty;
-	tmax = tz > tmax ? tz : tmax;
-	tmax = ta > tmax ? ta : tmax;
-	tmax = tb > tmax ? tb : tmax;
-	tmax = tc > tmax ? tc : tmax;
+	tu = du? fabs(du / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[6])): 0.0;
+	tv = dv? fabs(dv / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[7])): 0.0;
+	tw = dw? fabs(dw / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[8])): 0.0;
+        tmax = MAX9(tx, ty, tz,
+                    ta, tb, tc,
+                    tu, tv, tw);
 
 /*  According to NIST IR6556 Section 2.1.2.5 Paragraph A
     a combnation move is handled like a linear move, except
@@ -452,7 +517,11 @@ double getStraightVelocity(double x, double y, double z,
     complete their motion coordinated with the motion of
     the linear axes.
 */
-	dtot = sqrt(dx * dx + dy * dy + dz * dz);
+        if(dx || dy || dz)
+            dtot = sqrt(dx * dx + dy * dy + dz * dz);
+        else
+            dtot = sqrt(du * du + dv * dv + dw * dw);
+
 	if (tmax <= 0.0) {
 	    vel = currentLinearFeedRate;
 	} else {
@@ -460,12 +529,12 @@ double getStraightVelocity(double x, double y, double z,
 	}
     }
     if(debug_velacc) 
-        printf("lin %d ang %d vel %g\n", linear_move, angular_move, vel);
+        printf("cartesian %d ang %d vel %g\n", cartesian_move, angular_move, vel);
     return vel;
 }
 
 #include <vector>
-struct pt { double x, y, z, a, b, c; int line_no;};
+struct pt { double x, y, z, a, b, c, u, v, w; int line_no;};
 
 static std::vector<struct pt>& chained_points(void) {
     static std::vector<struct pt> points;
@@ -477,7 +546,10 @@ static void flush_segments(void) {
 
     struct pt &pos = chained_points().back();
 
-    double x = pos.x, y = pos.y, z = pos.z, a = pos.a, b = pos.b, c = pos.c;
+    double x = pos.x, y = pos.y, z = pos.z;
+    double a = pos.a, b = pos.b, c = pos.c;
+    double u = pos.u, v = pos.v, w = pos.w;
+    
     int line_no = pos.line_no;
 
 #ifdef SHOW_JOINED_SEGMENTS
@@ -485,18 +557,18 @@ static void flush_segments(void) {
     printf("\n");
 #endif
 
-    double ini_maxvel = getStraightVelocity(x, y, z, a, b, c),
+    double ini_maxvel = getStraightVelocity(x, y, z, a, b, c, u, v, w),
            vel = ini_maxvel;
 
-    if (linear_move && !angular_move) {
+    if (cartesian_move && !angular_move) {
 	if (vel > currentLinearFeedRate) {
 	    vel = currentLinearFeedRate;
 	}
-    } else if (!linear_move && angular_move) {
+    } else if (!cartesian_move && angular_move) {
 	if (vel > currentAngularFeedRate) {
 	    vel = currentAngularFeedRate;
 	}
-    } else if (linear_move && angular_move) {
+    } else if (cartesian_move && angular_move) {
 	if (vel > currentLinearFeedRate) {
 	    vel = currentLinearFeedRate;
 	}
@@ -511,6 +583,10 @@ static void flush_segments(void) {
     linearMoveMsg.end.tran.y = TO_EXT_LEN(y);
     linearMoveMsg.end.tran.z = TO_EXT_LEN(z);
 
+    linearMoveMsg.end.u = TO_EXT_LEN(u);
+    linearMoveMsg.end.v = TO_EXT_LEN(v);
+    linearMoveMsg.end.w = TO_EXT_LEN(w);
+
     // fill in the orientation
     linearMoveMsg.end.a = TO_EXT_ANG(a);
     linearMoveMsg.end.b = TO_EXT_ANG(b);
@@ -518,7 +594,7 @@ static void flush_segments(void) {
 
     linearMoveMsg.vel = toExtVel(vel);
     linearMoveMsg.ini_maxvel = toExtVel(ini_maxvel);
-    double acc = getStraightAcceleration(x, y, z, a, b, c);
+    double acc = getStraightAcceleration(x, y, z, a, b, c, u, v, w);
     linearMoveMsg.acc = toExtAcc(acc);
 
     linearMoveMsg.type = EMC_MOTION_TYPE_FEED;
@@ -526,14 +602,16 @@ static void flush_segments(void) {
     interp_list.set_line_number(line_no);
     interp_list.append(linearMoveMsg);
     interp_list.set_line_number(save);
-    canonUpdateEndPoint(x, y, z, a, b, c);
+    canonUpdateEndPoint(x, y, z, a, b, c, u, v, w);
 
     chained_points().clear();
 }
 
 
 static bool
-linkable(double x, double y, double z, double a, double b, double c) {
+linkable(double x, double y, double z, 
+         double a, double b, double c, 
+         double u, double v, double w) {
     struct pt &pos = chained_points().back();
     if(canonMotionMode != CANON_CONTINUOUS || canonMotionTolerance == 0)
         return false;
@@ -543,7 +621,10 @@ linkable(double x, double y, double z, double a, double b, double c) {
     if(a != pos.a) return false;
     if(b != pos.b) return false;
     if(c != pos.c) return false;
-
+    if(u != pos.u) return false;
+    if(v != pos.v) return false;
+    if(w != pos.w) return false;
+    
     for(std::vector<struct pt>::iterator it = chained_points().begin();
             it != chained_points().end(); it++) {
         PM_CARTESIAN M(x-canonEndPoint.x, y-canonEndPoint.y, z-canonEndPoint.z),
@@ -560,17 +641,23 @@ linkable(double x, double y, double z, double a, double b, double c) {
 }
 
 static void
-see_segment(double x, double y, double z, double a, double b, double c) {
+see_segment(double x, double y, double z, 
+            double a, double b, double c,
+            double u, double v, double w) {
     bool changed_abc = (a != canonEndPoint.a)
         || (b != canonEndPoint.b)
         || (c != canonEndPoint.c);
 
-    if(!chained_points().empty() && !linkable(x, y, z, a, b, c)) {
+    bool changed_uvw = (u != canonEndPoint.u)
+        || (v != canonEndPoint.v)
+        || (w != canonEndPoint.w);
+
+    if(!chained_points().empty() && !linkable(x, y, z, a, b, c, u, v, w)) {
         flush_segments();
     }
-    pt pos = {x, y, z, a, b, c, interp_list.get_next_line_number()};
+    pt pos = {x, y, z, a, b, c, u, v, w, interp_list.get_next_line_number()};
     chained_points().push_back(pos);
-    if(changed_abc) {
+    if(changed_abc || changed_uvw) {
         flush_segments();
     }
 }
@@ -580,7 +667,8 @@ void FINISH() {
 }
 
 void STRAIGHT_TRAVERSE(double x, double y, double z,
-		       double a, double b, double c)
+		       double a, double b, double c,
+                       double u, double v, double w)
 {
     double vel, acc;
     EMC_TRAJ_LINEAR_MOVE linearMoveMsg;
@@ -593,6 +681,9 @@ void STRAIGHT_TRAVERSE(double x, double y, double z,
     a = FROM_PROG_ANG(a);
     b = FROM_PROG_ANG(b);
     c = FROM_PROG_ANG(c);
+    u = FROM_PROG_LEN(u);
+    v = FROM_PROG_LEN(v);
+    w = FROM_PROG_LEN(w);
 
     x += programOrigin.x;
     y += programOrigin.y;
@@ -600,6 +691,9 @@ void STRAIGHT_TRAVERSE(double x, double y, double z,
     a += programOrigin.a;
     b += programOrigin.b;
     c += programOrigin.c;
+    u += programOrigin.u;
+    v += programOrigin.v;
+    w += programOrigin.w;
 
     x += currentXToolOffset;
     z += currentZToolOffset;
@@ -615,12 +709,16 @@ void STRAIGHT_TRAVERSE(double x, double y, double z,
     linearMoveMsg.end.b = TO_EXT_ANG(b);
     linearMoveMsg.end.c = TO_EXT_ANG(c);
 
+    linearMoveMsg.end.u = TO_EXT_LEN(u);
+    linearMoveMsg.end.v = TO_EXT_LEN(v);
+    linearMoveMsg.end.w = TO_EXT_LEN(w);
+
     linearMoveMsg.type = EMC_MOTION_TYPE_TRAVERSE;
 
     flush_segments();
 
-    vel = getStraightVelocity(x, y, z, a, b, c);
-    acc = getStraightAcceleration(x, y, z, a, b, c);
+    vel = getStraightVelocity(x, y, z, a, b, c, u, v, w);
+    acc = getStraightAcceleration(x, y, z, a, b, c, u, v, w);
 
     linearMoveMsg.vel = linearMoveMsg.ini_maxvel = toExtVel(vel);
     linearMoveMsg.acc = toExtAcc(acc);
@@ -637,11 +735,12 @@ void STRAIGHT_TRAVERSE(double x, double y, double z,
     if(feed_mode)
 	START_SPEED_FEED_SYNCH(currentLinearFeedRate, 1);
 
-    canonUpdateEndPoint(x, y, z, a, b, c);
+    canonUpdateEndPoint(x, y, z, a, b, c, u, v, w);
 }
 
-void STRAIGHT_FEED(double x, double y, double z, double a, double b,
-		   double c)
+void STRAIGHT_FEED(double x, double y, double z, 
+                   double a, double b, double c,
+                   double u, double v, double w)
 {
     EMC_TRAJ_LINEAR_MOVE linearMoveMsg;
     linearMoveMsg.feed_mode = feed_mode;
@@ -653,6 +752,9 @@ void STRAIGHT_FEED(double x, double y, double z, double a, double b,
     a = FROM_PROG_ANG(a);
     b = FROM_PROG_ANG(b);
     c = FROM_PROG_ANG(c);
+    u = FROM_PROG_LEN(u);
+    v = FROM_PROG_LEN(v);
+    w = FROM_PROG_LEN(w);
 
     x += programOrigin.x;
     y += programOrigin.y;
@@ -660,11 +762,14 @@ void STRAIGHT_FEED(double x, double y, double z, double a, double b,
     a += programOrigin.a;
     b += programOrigin.b;
     c += programOrigin.c;
+    u += programOrigin.u;
+    v += programOrigin.v;
+    w += programOrigin.w;
 
     x += currentXToolOffset;
     z += currentZToolOffset;
 
-    see_segment(x, y, z, a, b, c);
+    see_segment(x, y, z, a, b, c, u, v, w);
 }
 
 
@@ -689,9 +794,15 @@ void RIGID_TAP(double x, double y, double z)
     rigidTapMsg.pos.tran.y = TO_EXT_LEN(y);
     rigidTapMsg.pos.tran.z = TO_EXT_LEN(z);
 
-    ini_maxvel = vel = getStraightVelocity(x, y, z, canonEndPoint.a, canonEndPoint.b, canonEndPoint.c);
-    acc = getStraightAcceleration(x, y, z, canonEndPoint.a, canonEndPoint.b, canonEndPoint.c);
-
+    vel = getStraightVelocity(x, y, z, 
+                              canonEndPoint.a, canonEndPoint.b, canonEndPoint.c, 
+                              canonEndPoint.u, canonEndPoint.v, canonEndPoint.w);
+    ini_maxvel = vel;
+    
+    acc = getStraightAcceleration(x, y, z, 
+                                  canonEndPoint.a, canonEndPoint.b, canonEndPoint.c,
+                                  canonEndPoint.u, canonEndPoint.v, canonEndPoint.w);
+    
     rigidTapMsg.vel = toExtVel(vel);
     rigidTapMsg.ini_maxvel = toExtVel(ini_maxvel);
     rigidTapMsg.acc = toExtAcc(acc);
@@ -699,8 +810,8 @@ void RIGID_TAP(double x, double y, double z)
     flush_segments();
 
     interp_list.append(rigidTapMsg);
-    canonUpdateEndPoint(canonEndPoint.x, canonEndPoint.y, canonEndPoint.z, 
-			canonEndPoint.a, canonEndPoint.b, canonEndPoint.c);
+
+    // don't move the endpoint because after this move, we are back where we started
 }
 
 
@@ -709,8 +820,9 @@ void RIGID_TAP(double x, double y, double z)
   uses a probe message instead of a linear move message.
 */
 
-void STRAIGHT_PROBE(double x, double y, double z, double a, double b,
-		    double c)
+void STRAIGHT_PROBE(double x, double y, double z, 
+                    double a, double b, double c,
+                    double u, double v, double w)
 {
     double ini_maxvel, vel, acc;
     EMC_TRAJ_PROBE probeMsg;
@@ -722,6 +834,9 @@ void STRAIGHT_PROBE(double x, double y, double z, double a, double b,
     a = FROM_PROG_ANG(a);
     b = FROM_PROG_ANG(b);
     c = FROM_PROG_ANG(c);
+    u = FROM_PROG_LEN(u);
+    v = FROM_PROG_LEN(v);
+    w = FROM_PROG_LEN(w);
 
     x += programOrigin.x;
     y += programOrigin.y;
@@ -729,6 +844,9 @@ void STRAIGHT_PROBE(double x, double y, double z, double a, double b,
     a += programOrigin.a;
     b += programOrigin.b;
     c += programOrigin.c;
+    u += programOrigin.u;
+    v += programOrigin.v;
+    w += programOrigin.w;
 
     x += currentXToolOffset;
     z += currentZToolOffset;
@@ -743,25 +861,29 @@ void STRAIGHT_PROBE(double x, double y, double z, double a, double b,
     probeMsg.pos.b = TO_EXT_ANG(b);
     probeMsg.pos.c = TO_EXT_ANG(c);
 
+    probeMsg.pos.u = TO_EXT_LEN(u);
+    probeMsg.pos.v = TO_EXT_LEN(v);
+    probeMsg.pos.w = TO_EXT_LEN(w);
+
     flush_segments();
 
-    ini_maxvel = vel = getStraightVelocity(x, y, z, a, b, c);
+    ini_maxvel = vel = getStraightVelocity(x, y, z, a, b, c, u, v, w);
 
-    if (linear_move && !angular_move) {
+    if (cartesian_move && !angular_move) {
 	if (vel > currentLinearFeedRate) {
 	    vel = currentLinearFeedRate;
 	}
-    } else if (!linear_move && angular_move) {
+    } else if (!cartesian_move && angular_move) {
 	if (vel > currentAngularFeedRate) {
 	    vel = currentAngularFeedRate;
 	}
-    } else if (linear_move && angular_move) {
+    } else if (cartesian_move && angular_move) {
 	if (vel > currentLinearFeedRate) {
 	    vel = currentLinearFeedRate;
 	}
     }
 
-    acc = getStraightAcceleration(x, y, z, a, b, c);
+    acc = getStraightAcceleration(x, y, z, a, b, c, u, v, w);
 
     probeMsg.vel = toExtVel(vel);
     probeMsg.ini_maxvel = toExtVel(ini_maxvel);
@@ -769,7 +891,7 @@ void STRAIGHT_PROBE(double x, double y, double z, double a, double b,
 
     probeMsg.type = EMC_MOTION_TYPE_PROBING;
     interp_list.append(probeMsg);
-    canonUpdateEndPoint(x, y, z, a, b, c);
+    canonUpdateEndPoint(x, y, z, a, b, c, u, v, w);
 }
 
 /* Machining Attributes */
@@ -858,7 +980,9 @@ void SELECT_MOTION_MODE(CANON_MOTION_MODE mode)
 
 void ARC_FEED(double first_end, double second_end,
 	      double first_axis, double second_axis, int rotation,
-	      double axis_end_point, double a, double b, double c)
+	      double axis_end_point, 
+              double a, double b, double c,
+              double u, double v, double w)
 {
     EmcPose end;
     PM_CARTESIAN center, normal;
@@ -867,6 +991,7 @@ void ARC_FEED(double first_end, double second_end,
     double v1, v2, a1, a2, vel, ini_maxvel, acc=0.0;
     double radius, angle, theta1, theta2, helical_length, axis_len;
     double tmax, thelix, ta, tb, tc, da, db, dc;
+    double tu, tv, tw, du, dv, dw;
 
     linearMoveMsg.feed_mode = feed_mode;
     circularMoveMsg.feed_mode = feed_mode;
@@ -881,9 +1006,20 @@ void ARC_FEED(double first_end, double second_end,
     b += programOrigin.b;
     c += programOrigin.c;
 
+    u = FROM_PROG_LEN(u);
+    v = FROM_PROG_LEN(v);
+    w = FROM_PROG_LEN(w);
+    u += programOrigin.u;
+    v += programOrigin.v;
+    w += programOrigin.w;
+
     da = fabs(canonEndPoint.a - a);
     db = fabs(canonEndPoint.b - b);
     dc = fabs(canonEndPoint.c - c);
+
+    du = fabs(canonEndPoint.u - u);
+    dv = fabs(canonEndPoint.v - v);
+    dw = fabs(canonEndPoint.w - w);
 
     /* Since there's no default case here,
        we need to initialise vel to something safe! */
@@ -1021,7 +1157,13 @@ void ARC_FEED(double first_end, double second_end,
     ta = da? fabs(da / FROM_EXT_ANG(AXIS_MAX_VELOCITY[3])):0.0;
     tb = db? fabs(db / FROM_EXT_ANG(AXIS_MAX_VELOCITY[4])):0.0;
     tc = dc? fabs(dc / FROM_EXT_ANG(AXIS_MAX_VELOCITY[5])):0.0;
+
+    tu = du? (du / FROM_EXT_LEN(AXIS_MAX_VELOCITY[6])): 0.0;
+    tv = dv? (dv / FROM_EXT_LEN(AXIS_MAX_VELOCITY[7])): 0.0;
+    tw = dw? (dw / FROM_EXT_LEN(AXIS_MAX_VELOCITY[8])): 0.0;
+
     tmax = MAX4(thelix, ta, tb, tc);
+    tmax = MAX4(tmax, tu, tv, tw);
 
     if (tmax <= 0.0) {
         vel = currentLinearFeedRate;
@@ -1033,13 +1175,19 @@ void ARC_FEED(double first_end, double second_end,
     // for arcs we always user linear move since there is no
     // arc possible with only ABC motion
 
-    linear_move = 1;
+    cartesian_move = 1;
 
     thelix = (helical_length / acc);
     ta = da? (da / FROM_EXT_ANG(AXIS_MAX_ACCELERATION[3])): 0.0;
     tb = db? (db / FROM_EXT_ANG(AXIS_MAX_ACCELERATION[4])): 0.0;
     tc = dc? (dc / FROM_EXT_ANG(AXIS_MAX_ACCELERATION[5])): 0.0;
+
+    tu = du? (du / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[6])): 0.0;
+    tv = dv? (dv / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[7])): 0.0;
+    tw = dw? (dw / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[8])): 0.0;
+
     tmax = MAX4(thelix, ta, tb, tc);
+    tmax = MAX4(tmax, tu, tv, tw);
 
     if (tmax > 0.0) {
         acc = helical_length / tmax;
@@ -1068,41 +1216,17 @@ void ARC_FEED(double first_end, double second_end,
 	linearMoveMsg.end.b = TO_EXT_ANG(b);
 	linearMoveMsg.end.c = TO_EXT_ANG(c);
 
+	linearMoveMsg.end.u = TO_EXT_LEN(u);
+	linearMoveMsg.end.v = TO_EXT_LEN(v);
+	linearMoveMsg.end.w = TO_EXT_LEN(w);
+
         linearMoveMsg.type = EMC_MOTION_TYPE_ARC;
         linearMoveMsg.vel = toExtVel(vel);
         linearMoveMsg.ini_maxvel = toExtVel(ini_maxvel);
         linearMoveMsg.acc = toExtAcc(acc);
         if(acc)
             interp_list.append(linearMoveMsg);
-    } else if (rotation > 0) {
-	circularMoveMsg.end.tran.x = TO_EXT_LEN(end.tran.x);
-	circularMoveMsg.end.tran.y = TO_EXT_LEN(end.tran.y);
-	circularMoveMsg.end.tran.z = TO_EXT_LEN(end.tran.z);
-
-	circularMoveMsg.center.x = TO_EXT_LEN(center.x);
-	circularMoveMsg.center.y = TO_EXT_LEN(center.y);
-	circularMoveMsg.center.z = TO_EXT_LEN(center.z);
-
-	circularMoveMsg.normal.x = TO_EXT_LEN(normal.x);
-	circularMoveMsg.normal.y = TO_EXT_LEN(normal.y);
-	circularMoveMsg.normal.z = TO_EXT_LEN(normal.z);
-
-	circularMoveMsg.turn = rotation - 1;
-
-	// fill in the orientation
-	circularMoveMsg.end.a = TO_EXT_ANG(a);
-	circularMoveMsg.end.b = TO_EXT_ANG(b);
-	circularMoveMsg.end.c = TO_EXT_ANG(c);
-
-        circularMoveMsg.type = EMC_MOTION_TYPE_ARC;
-        circularMoveMsg.vel = toExtVel(vel);
-        circularMoveMsg.ini_maxvel = toExtVel(ini_maxvel);
-        circularMoveMsg.acc = toExtAcc(acc);
-        if(acc)
-            interp_list.append(circularMoveMsg);
     } else {
-	// reverse turn
-
 	circularMoveMsg.end.tran.x = TO_EXT_LEN(end.tran.x);
 	circularMoveMsg.end.tran.y = TO_EXT_LEN(end.tran.y);
 	circularMoveMsg.end.tran.z = TO_EXT_LEN(end.tran.z);
@@ -1115,12 +1239,20 @@ void ARC_FEED(double first_end, double second_end,
 	circularMoveMsg.normal.y = TO_EXT_LEN(normal.y);
 	circularMoveMsg.normal.z = TO_EXT_LEN(normal.z);
 
-	circularMoveMsg.turn = rotation;
+        if (rotation > 0)
+            circularMoveMsg.turn = rotation - 1;
+        else
+            // reverse turn
+            circularMoveMsg.turn = rotation;
 
 	// fill in the orientation
 	circularMoveMsg.end.a = TO_EXT_ANG(a);
 	circularMoveMsg.end.b = TO_EXT_ANG(b);
 	circularMoveMsg.end.c = TO_EXT_ANG(c);
+
+	circularMoveMsg.end.u = TO_EXT_LEN(u);
+	circularMoveMsg.end.v = TO_EXT_LEN(v);
+	circularMoveMsg.end.w = TO_EXT_LEN(w);
 
         circularMoveMsg.type = EMC_MOTION_TYPE_ARC;
 
@@ -1130,16 +1262,14 @@ void ARC_FEED(double first_end, double second_end,
         // 0,0,0 to 1,1,1 on a machine with maxvel=1 and maxaccel=1 on
         // all axes.  The actual maximums will be near sqrt(3) but
         // we'll be using 1 instead.
-
         circularMoveMsg.vel = toExtVel(vel);
         circularMoveMsg.ini_maxvel = toExtVel(ini_maxvel);
         circularMoveMsg.acc = toExtAcc(acc);
         if(acc)
             interp_list.append(circularMoveMsg);
     }
-
     // update the end point
-    canonUpdateEndPoint(end.tran.x, end.tran.y, end.tran.z, a, b, c);
+    canonUpdateEndPoint(end.tran.x, end.tran.y, end.tran.z, a, b, c, u, v, w);
 }
 
 
@@ -1326,8 +1456,12 @@ void CHANGE_TOOL(int slot)
         b = FROM_EXT_ANG(TOOL_CHANGE_POSITION.b);
         c = FROM_EXT_ANG(TOOL_CHANGE_POSITION.c);
 
-        vel = getStraightVelocity(x, y, z, a, b, c);
-        acc = getStraightAcceleration(x, y, z, a, b, c);
+        // XXX for now, don't move uvw for a tool change
+
+        vel = getStraightVelocity(x, y, z, a, b, c, 
+                                  canonEndPoint.u, canonEndPoint.v, canonEndPoint.w);
+        acc = getStraightAcceleration(x, y, z, a, b, c,
+                                      canonEndPoint.u, canonEndPoint.v, canonEndPoint.w);
 
 	linearMoveMsg.end.tran.x = TO_EXT_LEN(x);
 	linearMoveMsg.end.tran.y = TO_EXT_LEN(y);
@@ -1335,6 +1469,9 @@ void CHANGE_TOOL(int slot)
 	linearMoveMsg.end.a = TO_EXT_ANG(a);
 	linearMoveMsg.end.b = TO_EXT_ANG(b);
 	linearMoveMsg.end.c = TO_EXT_ANG(c);
+        linearMoveMsg.end.u = TO_EXT_LEN(canonEndPoint.u);
+        linearMoveMsg.end.v = TO_EXT_LEN(canonEndPoint.v);
+        linearMoveMsg.end.w = TO_EXT_LEN(canonEndPoint.w);
 
         linearMoveMsg.vel = linearMoveMsg.ini_maxvel = toExtVel(vel);
         linearMoveMsg.acc = toExtAcc(acc);
@@ -1349,7 +1486,8 @@ void CHANGE_TOOL(int slot)
 	if(feed_mode)
 	    START_SPEED_FEED_SYNCH(currentLinearFeedRate, 1);
 
-        canonUpdateEndPoint(x, y, z, a, b, c);
+        canonUpdateEndPoint(x, y, z, a, b, c, 
+                            canonEndPoint.u, canonEndPoint.v, canonEndPoint.w);
     }
 
     /* regardless of optional moves above, we'll always send a load tool
@@ -1732,7 +1870,7 @@ void INIT_CANON()
     SET_MOTION_CONTROL_MODE(CANON_CONTINUOUS, 0);
     spindleSpeed = 0.0;
     preppedTool = 0;
-    linear_move = 0;
+    cartesian_move = 0;
     angular_move = 0;
     currentLinearFeedRate = 0.0;
     currentAngularFeedRate = 0.0;
@@ -2063,6 +2201,27 @@ double GET_EXTERNAL_POSITION_C(void)
     return position.c;
 }
 
+double GET_EXTERNAL_POSITION_U(void)
+{
+    CANON_POSITION position;
+    position = GET_EXTERNAL_POSITION();
+    return position.u;
+}
+
+double GET_EXTERNAL_POSITION_V(void)
+{
+    CANON_POSITION position;
+    position = GET_EXTERNAL_POSITION();
+    return position.v;
+}
+
+double GET_EXTERNAL_POSITION_W(void)
+{
+    CANON_POSITION position;
+    position = GET_EXTERNAL_POSITION();
+    return position.w;
+}
+
 double GET_EXTERNAL_PROBE_POSITION_X(void)
 {
     CANON_POSITION position;
@@ -2156,6 +2315,10 @@ int GET_EXTERNAL_ADAPTIVE_FEED_ENABLE()
 int GET_EXTERNAL_FEED_HOLD_ENABLE()
 {
     return emcStatus->motion.traj.feed_hold_enabled;
+}
+
+int GET_EXTERNAL_AXIS_MASK() {
+    return emcStatus->motion.traj.axis_mask;
 }
 
 CANON_PLANE GET_EXTERNAL_PLANE()

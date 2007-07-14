@@ -180,29 +180,41 @@ Interp::save_parameters function.
 const int Interp::_required_parameters[] = {
  5161, 5162, 5163,   /* G28 home */
  5164, 5165, 5166, /* A, B, & C */
+ 5167, 5168, 5169, /* U, V, & W */
  5181, 5182, 5183,   /* G30 home */
- 5184, 5185, 5186, /*A, B, & C */
+ 5184, 5185, 5186, /* A, B, & C */
+ 5187, 5188, 5189, /* U, V, & W */
  5211, 5212, 5213,   /* G92 offsets */
- 5214, 5215, 5216, /*A, B. & C */
+ 5214, 5215, 5216, /* A, B, & C */
+ 5217, 5218, 5219, /* U, V, & W */
  5220,               /* selected coordinate */
  5221, 5222, 5223,   /* coordinate system 1 */
  5224, 5225, 5226, /* A, B, & C */
+ 5227, 5228, 5229, /* U, V, & W */
  5241, 5242, 5243,   /* coordinate system 2 */
  5244, 5245, 5246, /* A, B, & C */
+ 5247, 5248, 5249, /* U, V, & W */
  5261, 5262, 5263,   /* coordinate system 3 */
  5264, 5265, 5266, /* A, B, & C */
+ 5267, 5268, 5269, /* U, V, & W */
  5281, 5282, 5283,   /* coordinate system 4 */
  5284, 5285, 5286, /* A, B, & C */
+ 5287, 5288, 5289, /* U, V, & W */
  5301, 5302, 5303,   /* coordinate system 5 */
  5304, 5305, 5306, /* A, B, & C */
+ 5307, 5308, 5309, /* U, V, & W */
  5321, 5322, 5323,   /* coordinate system 6 */
  5324, 5325, 5326, /* A, B, & C */
+ 5327, 5328, 5329, /* U, V, & W */
  5341, 5342, 5343,   /* coordinate system 7 */
  5344, 5345, 5346, /* A, B, & C */
+ 5347, 5348, 5349, /* U, V, & W */
  5361, 5362, 5363,   /* coordinate system 8 */
  5364, 5365, 5366, /* A, B, & C */
+ 5367, 5368, 5369, /* U, V, & W */
  5381, 5382, 5383,   /* coordinate system 9 */
  5384, 5385, 5386, /* A, B, & C */
+ 5387, 5388, 5389, /* U, V, & W */
  RS274NGC_MAX_PARAMETERS
 };
 
@@ -217,7 +229,7 @@ const int Interp::_required_parameters[] = {
    At some point, it may be advantageous to add a read_$ or read_n for perhaps
    macro or jump labels..
    */
-const read_function_pointer Interp::_readers[] = {
+const read_function_pointer Interp::default_readers[256] = {
 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 &Interp::read_parameter_setting, // reads # or ASCII 0x23
@@ -245,7 +257,9 @@ const read_function_pointer Interp::_readers[] = {
 &Interp::read_r, // reads r or ASCII 0x72
 &Interp::read_s, // reads s or ASCII 0x73
 &Interp::read_t, // reads t or ASCII 0x74
-0, 0, 0,
+&Interp::read_u,
+&Interp::read_v,
+&Interp::read_w,
 &Interp::read_x, // reads x or ASCII 0x78
 &Interp::read_y, // reads y or ASCII 0x79
 &Interp::read_z}; // reads z or ASCII 0x7A

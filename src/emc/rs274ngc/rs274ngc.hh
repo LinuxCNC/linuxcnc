@@ -118,7 +118,7 @@ public:
  void error_text(int error_code, char *error_text,
                                 int max_size);
 
- void setError(char *fmt, ...);
+ void setError(const char *fmt, ...);
 
 // copy the name of the currently open file into the file_name array,
 // but stop at max_size if the name is longer
@@ -177,21 +177,24 @@ private:
  int close_and_downcase(char *line);
  int convert_arc(int move, block_pointer block, setup_pointer settings);
  int convert_arc2(int move, block_pointer block,
-                        setup_pointer settings, double *current1,
-                        double *current2, double *current3, double end1,
-                        double end2, double end3, double AA_end,
-                        double BB_end, double CC_end, double offset1,
-                        double offset2);
+                  setup_pointer settings, 
+                  double *current1, double *current2, double *current3, 
+                  double end1, double end2, double end3,
+                  double AA_end, double BB_end, double CC_end, 
+                  double u_end, double v_end, double w_end, 
+                  double offset1, double offset2);
 
  int convert_arc_comp1(int move, block_pointer block,
-                             setup_pointer settings, double end_x,
-                             double end_y, double end_z, double AA_end,
-                             double BB_end, double CC_end);
+                       setup_pointer settings,
+                       double end_x, double end_y, double end_z,
+                       double AA_end, double BB_end, double CC_end, 
+                       double u_end, double v_end, double w_end);
 
  int convert_arc_comp2(int move, block_pointer block,
-                             setup_pointer settings, double end_x,
-                             double end_y, double end_z, double AA_end,
-                             double BB_end, double CC_end);
+                       setup_pointer settings,
+                       double end_x, double end_y, double end_z,
+                       double AA_end, double BB_end, double CC_end,
+                       double u_end, double v_end, double w_end);
  char arc_axis1(int plane);
  char arc_axis2(int plane);
  int convert_axis_offsets(int g_code, block_pointer block,
@@ -263,13 +266,15 @@ private:
  int convert_straight(int move, block_pointer block,
                             setup_pointer settings);
  int convert_straight_comp1(int move, block_pointer block,
-                                  setup_pointer settings, double px,
-                                  double py, double end_z, double AA_end,
-                                  double BB_end, double CC_end);
+                            setup_pointer settings, 
+                            double px, double py, double end_z,
+                            double AA_end, double BB_end, double CC_end,
+                            double u_end, double v_end, double w_end);
  int convert_straight_comp2(int move, block_pointer block,
-                                  setup_pointer settings, double px,
-                                  double py, double end_z, double AA_end,
-                                  double BB_end, double CC_end);
+                            setup_pointer settings,
+                            double px, double py, double end_z,
+                            double AA_end, double BB_end, double CC_end,
+                            double u_end, double v_end, double w_end);
  int convert_threading_cycle(block_pointer block, setup_pointer settings,
                              double end_x, double end_y, double end_z);
  int convert_tool_change(setup_pointer settings);
@@ -289,17 +294,23 @@ private:
  double find_arc_length(double x1, double y1, double z1,
                               double center_x, double center_y, int turn,
                               double x2, double y2, double z2);
- int find_ends(block_pointer block, setup_pointer settings, double *px,
-                     double *py, double *pz, double *AA_p, double *BB_p,
-                     double *CC_p);
- int find_relative(double x1, double y1, double z1, double AA_1,
-                         double BB_1, double CC_1, double *x2, double *y2,
-                         double *z2, double *AA_2, double *BB_2, double *CC_2,
-                         setup_pointer settings);
+ int find_ends(block_pointer block, setup_pointer settings, 
+               double *px, double *py, double *pz, 
+               double *AA_p, double *BB_p, double *CC_p,
+               double *u_p, double *v_p, double *w_p);
+ int find_relative(double x1, double y1, double z1,
+                   double AA_1, double BB_1, double CC_1, 
+                   double u_1, double v_1, double w_1,
+                   double *x2, double *y2, double *z2,
+                   double *AA_2, double *BB_2, double *CC_2,
+                   double *u_2, double *v_2, double *w_2,
+                   setup_pointer settings);
  double find_straight_length(double x2, double y2, double z2,
-                                   double AA_2, double BB_2, double CC_2,
-                                   double x1, double y1, double z1,
-                                   double AA_1, double BB_1, double CC_1);
+                             double AA_2, double BB_2, double CC_2,
+                             double u_w, double v_2, double w_2,
+                             double x1, double y1, double z1,
+                             double AA_1, double BB_1, double CC_1,
+                             double u_1, double v_1, double w_1);
  double find_turn(double x1, double y1, double center_x,
                         double center_y, int turn, double x2, double y2);
  int init_block(block_pointer block);
@@ -314,15 +325,16 @@ private:
                                   block_pointer block,
                                   setup_pointer settings);
  int inverse_time_rate_as(double start_x, double start_y, int turn,
-                                double mid_x, double mid_y, double end_x,
-                                double end_y, double end_z, double AA_end,
-                                double BB_end, double CC_end,
-                                block_pointer block, setup_pointer settings);
- int inverse_time_rate_straight(double end_x, double end_y,
-                                      double end_z, double AA_end,
-                                      double BB_end, double CC_end,
-                                      block_pointer block,
-                                      setup_pointer settings);
+                          double mid_x, double mid_y, 
+                          double end_x, double end_y, double end_z,
+                          double AA_end, double BB_end, double CC_end,
+                          double u_end, double v_end, double w_end,
+                          block_pointer block, setup_pointer settings);
+ int inverse_time_rate_straight(double end_x, double end_y, double end_z, 
+                                double AA_end, double BB_end, double CC_end,
+                                double u_end, double v_end, double w_end,
+                                block_pointer block,
+                                setup_pointer settings);
  int parse_line(char *line, block_pointer block,
                       setup_pointer settings);
  int precedence(int an_operator);
@@ -399,6 +411,12 @@ private:
                      char *line, int *length);
  int read_unary(char *line, int *counter, double *double_ptr,
                       double *parameters);
+ int read_u(char *line, int *counter, block_pointer block,
+                  double *parameters);
+ int read_v(char *line, int *counter, block_pointer block,
+                  double *parameters);
+ int read_w(char *line, int *counter, block_pointer block,
+                  double *parameters);
  int read_x(char *line, int *counter, block_pointer block,
                   double *parameters);
  int read_y(char *line, int *counter, block_pointer block,
@@ -437,11 +455,16 @@ private:
  static const int _gees[];
  static const int _ems[];
  static const int _required_parameters[];
- static const read_function_pointer _readers[];
+ read_function_pointer _readers[256];
+ static const read_function_pointer default_readers[256];
 
  static setup _setup;
 
-
+ enum {
+     AXIS_MASK_X =   1, AXIS_MASK_Y =   2, AXIS_MASK_Z =   4,
+     AXIS_MASK_A =   8, AXIS_MASK_B =  16, AXIS_MASK_C =  32,
+     AXIS_MASK_U =  64, AXIS_MASK_V = 128, AXIS_MASK_W = 256,
+ };
 };
 
 

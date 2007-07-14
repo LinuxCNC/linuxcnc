@@ -131,15 +131,19 @@ struct CANON_VECTOR {
 struct CANON_POSITION {
     CANON_POSITION() {
     } CANON_POSITION(double _x, double _y, double _z,
-		     double _a, double _b, double _c) {
+		     double _a, double _b, double _c,
+                     double _u, double _v, double _w) {
 	x = _x;
 	y = _y;
 	z = _z;
 	a = _a;
 	b = _b;
 	c = _c;
+        u = _u;
+        v = _v;
+        w = _w;
     }
-    double x, y, z, a, b, c;
+    double x, y, z, a, b, c, u, v, w;
 };
 
 /* Tools are numbered 1..CANON_TOOL_MAX, with tool 0 meaning no tool. */
@@ -164,7 +168,8 @@ extern void INIT_CANON();
 /* Representation */
 
 extern void SET_ORIGIN_OFFSETS(double x, double y, double z,
-			       double a, double b, double c);
+                               double a, double b, double c,
+                               double u, double v, double w);
 
 /* Offset the origin to the point with absolute coordinates x, y, z,
 a, b, and c. Values of x, y, z, a, b, and c are real numbers. The units
@@ -191,8 +196,8 @@ is expected that no cutting will occur while a traverse move is being
 made. */
 
 extern void STRAIGHT_TRAVERSE(double x, double y, double z,
-			      double a_position, double b_position,
-			      double c_position);
+			      double a, double b, double c,
+                              double u, double v, double w);
 /*
 
 Move at traverse rate so that at any time during the move, all axes
@@ -340,8 +345,9 @@ extern void STOP_SPEED_FEED_SYNCH();
 
 extern void ARC_FEED(double first_end, double second_end,
 		     double first_axis, double second_axis, int rotation,
-		     double axis_end_point, double a_position,
-		     double b_position, double c_position);
+		     double axis_end_point, 
+                     double a, double b, double c,
+                     double u, double v, double w);
 
 /* Move in a helical arc from the current location at the existing feed
 rate. The axis of the helix is parallel to the x, y, or z axis,
@@ -395,8 +401,8 @@ a point moving along the arc has of its total motion.
 */
 
 extern void STRAIGHT_FEED(double x, double y, double z,
-			  double a_position, double b_position,
-			  double c_position);
+                          double a, double b, double c,
+                          double u, double v, double w);
 
 /* Move at existing feed rate so that at any time during the move,
 all axes have covered the same proportion of their required motion.
@@ -409,8 +415,8 @@ Only linear moves are allowed, axes A,B,C are not allowed to move.*/
 
 
 extern void STRAIGHT_PROBE(double x, double y, double z,
-			   double a_position, double b_position,
-			   double c_position);
+                           double a, double b, double c,
+                           double u, double v, double w);
 
 /* Perform a probing operation. This is a temporary addition to the
 canonical machining functions and its semantics are not defined.
@@ -461,7 +467,7 @@ extern void USE_SPINDLE_FORCE();
 extern void USE_NO_SPINDLE_FORCE();
 
 /* Tool Functions */
-extern void USE_TOOL_LENGTH_OFFSET(double xoffset, double yoffset);
+extern void USE_TOOL_LENGTH_OFFSET(double xoffset, double zoffset);
 
 extern void CHANGE_TOOL(int slot);	/* slot is slot number */
 
@@ -701,6 +707,15 @@ extern double GET_EXTERNAL_POSITION_Y();
 // returns the current z-axis position
 extern double GET_EXTERNAL_POSITION_Z();
 
+// returns the current u-axis position
+extern double GET_EXTERNAL_POSITION_U();
+
+// returns the current v-axis position
+extern double GET_EXTERNAL_POSITION_V();
+
+// returns the current w-axis position
+extern double GET_EXTERNAL_POSITION_W();
+
 // Returns the machine A-axis position at the last probe trip.
 extern double GET_EXTERNAL_PROBE_POSITION_A();
 
@@ -718,6 +733,15 @@ extern double GET_EXTERNAL_PROBE_POSITION_Y();
 
 // Returns the machine Z-axis position at the last probe trip.
 extern double GET_EXTERNAL_PROBE_POSITION_Z();
+
+// Returns the machine U-axis position at the last probe trip.
+extern double GET_EXTERNAL_PROBE_POSITION_U();
+
+// Returns the machine V-axis position at the last probe trip.
+extern double GET_EXTERNAL_PROBE_POSITION_V();
+
+// Returns the machine W-axis position at the last probe trip.
+extern double GET_EXTERNAL_PROBE_POSITION_W();
 
 // Returns the value for any analog non-contact probing.
 extern double GET_EXTERNAL_PROBE_VALUE();
@@ -762,6 +786,9 @@ extern int GET_EXTERNAL_FEED_OVERRIDE_ENABLE();
 extern int GET_EXTERNAL_SPINDLE_OVERRIDE_ENABLE();
 extern int GET_EXTERNAL_ADAPTIVE_FEED_ENABLE();
 extern int GET_EXTERNAL_FEED_HOLD_ENABLE();
+
+// Returns the mask of axes present in the system
+extern int GET_EXTERNAL_AXIS_MASK();
 
 extern FILE *_outfile;		/* where to print, set in main */
 extern CANON_TOOL_TABLE _tools[];	/* in canon.cc */

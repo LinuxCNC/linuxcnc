@@ -126,13 +126,14 @@ radius compensation is in progress, or (2) the actual current position.
 */
 
 int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS274/NGC instructions
-                     setup_pointer settings,    //!< pointer to machine settings                 
-                     double *px,        //!< pointer to end_x                            
-                     double *py,        //!< pointer to end_y                            
-                     double *pz,        //!< pointer to end_z                            
-                     double *AA_p,      //!< pointer to end_a                      
-                     double *BB_p,      //!< pointer to end_b                      
-                     double *CC_p)      //!< pointer to end_c                      
+                      setup_pointer settings,    //!< pointer to machine settings                 
+                      double *px,        //!< pointer to end_x                            
+                      double *py,        //!< pointer to end_y                            
+                      double *pz,        //!< pointer to end_z                            
+                      double *AA_p,      //!< pointer to end_a                      
+                      double *BB_p,      //!< pointer to end_b                      
+                      double *CC_p,      //!< pointer to end_c                      
+                      double *u_p, double *v_p, double *w_p)
 {
   int mode;
   int middle;
@@ -176,6 +177,20 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
        ON) ? (block->c_number - (settings->CC_origin_offset +
                                  settings->
                                  CC_axis_offset)) : settings->CC_current;
+    *u_p = (block->u_flag == ON) ? (block->u_number -
+                                     (settings->u_origin_offset +
+                                      settings->
+                                      u_axis_offset)) : settings->u_current;
+    *v_p =
+      (block->v_flag ==
+       ON) ? (block->v_number - (settings->v_origin_offset +
+                                 settings->
+                                 v_axis_offset)) : settings->v_current;
+    *w_p =
+      (block->w_flag ==
+       ON) ? (block->w_number - (settings->w_origin_offset +
+                                 settings->
+                                 w_axis_offset)) : settings->w_current;
   } else if (mode == MODE_ABSOLUTE) {
     *px = (block->x_flag == ON) ? block->x_number :
       (comp && middle) ? settings->program_x : settings->current_x;
@@ -189,6 +204,9 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
     *AA_p = (block->a_flag == ON) ? block->a_number : settings->AA_current;
     *BB_p = (block->b_flag == ON) ? block->b_number : settings->BB_current;
     *CC_p = (block->c_flag == ON) ? block->c_number : settings->CC_current;
+    *u_p = (block->u_flag == ON) ? block->u_number : settings->u_current;
+    *v_p = (block->v_flag == ON) ? block->v_number : settings->v_current;
+    *w_p = (block->w_flag == ON) ? block->w_number : settings->w_current;
   } else {                      /* mode is MODE_INCREMENTAL */
 
     *px = (block->x_flag == ON)
@@ -219,6 +237,14 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
     *CC_p =
       (block->c_flag ==
        ON) ? (settings->CC_current + block->c_number) : settings->CC_current;
+    *u_p = (block->u_flag == ON) ?
+      (settings->u_current + block->u_number) : settings->u_current;
+    *v_p =
+      (block->v_flag ==
+       ON) ? (settings->v_current + block->v_number) : settings->v_current;
+    *w_p =
+      (block->w_flag ==
+       ON) ? (settings->w_current + block->w_number) : settings->w_current;
   }
   return INTERP_OK;
 }
@@ -246,18 +272,24 @@ Don't confuse this with the inverse operation.
 */
 
 int Interp::find_relative(double x1,     //!< absolute x position        
-                         double y1,     //!< absolute y position        
-                         double z1,     //!< absolute z position        
-                         double AA_1,   //!< absolute a position         
-                         double BB_1,   //!< absolute b position         
-                         double CC_1,   //!< absolute c position         
-                         double *x2,    //!< pointer to relative x      
-                         double *y2,    //!< pointer to relative y      
-                         double *z2,    //!< pointer to relative z      
-                         double *AA_2,  //!< pointer to relative a       
-                         double *BB_2,  //!< pointer to relative b       
-                         double *CC_2,  //!< pointer to relative c       
-                         setup_pointer settings)        //!< pointer to machine settings
+                          double y1,     //!< absolute y position        
+                          double z1,     //!< absolute z position        
+                          double AA_1,   //!< absolute a position         
+                          double BB_1,   //!< absolute b position         
+                          double CC_1,   //!< absolute c position         
+                          double u_1,
+                          double v_1,
+                          double w_1,
+                          double *x2,    //!< pointer to relative x      
+                          double *y2,    //!< pointer to relative y      
+                          double *z2,    //!< pointer to relative z      
+                          double *AA_2,  //!< pointer to relative a       
+                          double *BB_2,  //!< pointer to relative b       
+                          double *CC_2,  //!< pointer to relative c       
+                          double *u_2,
+                          double *v_2,
+                          double *w_2,
+                          setup_pointer settings)        //!< pointer to machine settings
 {
   *x2 = (x1 - (settings->tool_xoffset + settings->origin_offset_x + settings->axis_offset_x));
   *y2 = (y1 - (settings->origin_offset_y + settings->axis_offset_y));
@@ -268,6 +300,9 @@ int Interp::find_relative(double x1,     //!< absolute x position
   *AA_2 = (AA_1 - (settings->AA_origin_offset + settings->AA_axis_offset));
   *BB_2 = (BB_1 - (settings->BB_origin_offset + settings->BB_axis_offset));
   *CC_2 = (CC_1 - (settings->CC_origin_offset + settings->CC_axis_offset));
+  *u_2 = (u_1 - (settings->u_origin_offset + settings->u_axis_offset));
+  *v_2 = (v_1 - (settings->v_origin_offset + settings->v_axis_offset));
+  *w_2 = (w_1 - (settings->w_origin_offset + settings->w_axis_offset));
   return INTERP_OK;
 }
 
@@ -305,27 +340,31 @@ which is what is desired.
 */
 
 double Interp::find_straight_length(double x2,   //!< X-coordinate of end point   
-                                   double y2,   //!< Y-coordinate of end point   
-                                   double z2,   //!< Z-coordinate of end point   
-                                   double AA_2, //!< A-coordinate of end point    
-                                   double BB_2, //!< B-coordinate of end point    
-                                   double CC_2, //!< C-coordinate of end point    
-                                   double x1,   //!< X-coordinate of start point 
-                                   double y1,   //!< Y-coordinate of start point 
-                                   double z1,    //!< Z-coordinate of start point 
-                                   double AA_1,        //!< A-coordinate of start point  
-                                   double BB_1,        //!< B-coordinate of start point  
-                                   double CC_1        //!< C-coordinate of start point  
+                                    double y2,   //!< Y-coordinate of end point   
+                                    double z2,   //!< Z-coordinate of end point   
+                                    double AA_2, //!< A-coordinate of end point    
+                                    double BB_2, //!< B-coordinate of end point    
+                                    double CC_2, //!< C-coordinate of end point    
+                                    double u_2,
+                                    double v_2,
+                                    double w_2,
+                                    double x1,   //!< X-coordinate of start point 
+                                    double y1,   //!< Y-coordinate of start point 
+                                    double z1,    //!< Z-coordinate of start point 
+                                    double AA_1,        //!< A-coordinate of start point  
+                                    double BB_1,        //!< B-coordinate of start point  
+                                    double CC_1,        //!< C-coordinate of start point  
+                                    double u_1,
+                                    double v_1,
+                                    double w_1
   )
 {
-  if ((x1 != x2) || (y1 != y2) || (z1 != z2) || ((AA_2 == AA_1)
-                                                 && (BB_2 == BB_1)
-                                                 && (CC_2 == CC_1)
-      ))                        /* straight line */
-    return sqrt(pow((x2 - x1), 2) + pow((y2 - y1), 2) + pow((z2 - z1), 2));
-  else
-    return sqrt(pow((AA_2 - AA_1), 2) +
-                pow((BB_2 - BB_1), 2) + pow((CC_2 - CC_1), 2));
+    if ((x1 != x2) || (y1 != y2) || (z1 != z2))
+        return sqrt(pow((x2 - x1), 2) + pow((y2 - y1), 2) + pow((z2 - z1), 2));
+    else if ((u_1 != u_2) || (v_1 != v_2) || (w_1 != w_2))
+        return sqrt(pow((u_2 - u_1), 2) + pow((v_2 - v_1), 2) + pow((w_2 - w_1), 2));
+    else
+        return sqrt(pow((AA_2 - AA_1), 2) + pow((BB_2 - BB_1), 2) + pow((CC_2 - CC_1), 2));
 }
 
 /****************************************************************************/

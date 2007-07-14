@@ -150,7 +150,9 @@ int Interp::enhance_block(block_pointer block,   //!< pointer to a block to be c
 
   axis_flag = ((block->x_flag == ON) || (block->y_flag == ON) ||
                (block->z_flag == ON) || (block->a_flag == ON) ||
-               (block->b_flag == ON) || (block->c_flag == ON) );
+               (block->b_flag == ON) || (block->c_flag == ON) ||
+               (block->u_flag == ON) || (block->v_flag == ON) ||
+               (block->w_flag == ON));
   mode0 = block->g_modes[0];
   mode1 = block->g_modes[1];
   mode_zero_covets_axes =
@@ -251,6 +253,9 @@ int Interp::init_block(block_pointer block)      //!< pointer to a block to be i
   block->r_flag = OFF;
   block->s_number = -1.0;
   block->t_number = -1;
+  block->u_flag = OFF;
+  block->v_flag = OFF;
+  block->w_flag = OFF;
   block->x_flag = OFF;
   block->y_flag = OFF;
   block->z_flag = OFF;
@@ -377,6 +382,9 @@ int Interp::set_probe_data(setup_pointer settings)       //!< pointer to machine
   settings->AA_current = GET_EXTERNAL_POSITION_A();
   settings->BB_current = GET_EXTERNAL_POSITION_B();
   settings->CC_current = GET_EXTERNAL_POSITION_C();
+  settings->u_current = GET_EXTERNAL_POSITION_U();
+  settings->v_current = GET_EXTERNAL_POSITION_V();
+  settings->w_current = GET_EXTERNAL_POSITION_W();
   settings->parameters[5061] = GET_EXTERNAL_PROBE_POSITION_X();
   settings->parameters[5062] = GET_EXTERNAL_PROBE_POSITION_Y();
   settings->parameters[5063] = GET_EXTERNAL_PROBE_POSITION_Z();
@@ -384,6 +392,7 @@ int Interp::set_probe_data(setup_pointer settings)       //!< pointer to machine
   settings->parameters[5065] = GET_EXTERNAL_PROBE_POSITION_B();
   settings->parameters[5066] = GET_EXTERNAL_PROBE_POSITION_C();
   settings->parameters[5067] = GET_EXTERNAL_PROBE_VALUE();
+  // XXX oops, no room to report uvw probe position
   return INTERP_OK;
 }
 

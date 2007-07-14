@@ -482,6 +482,7 @@ COPY_CONFIGS := \
 	$(patsubst %,../configs/%/core_stepper.hal, demo_step_cl stepper demo_sim_cl) \
 	$(patsubst %,../configs/%/core_servo.hal, motenc m5i20 stg vti) \
 	$(patsubst %,../configs/%/core_sim.hal, halui_halvcp sim) \
+	$(patsubst %,../configs/%/core_sim9.hal, sim) \
 	../configs/sim/axis_manualtoolchange.hal
 
 configs: $(COPY_CONFIGS)
@@ -495,6 +496,8 @@ $(call CONFILES,core_stepper.hal): %/core_stepper.hal: ../configs/common/core_st
 $(call CONFILES,core_servo.hal): %/core_servo.hal: ../configs/common/core_servo.hal
 	-cp $< $@
 $(call CONFILES,core_sim.hal): %/core_sim.hal: ../configs/common/core_sim.hal
+	-cp $< $@
+$(call CONFILES,core_sim9.hal): %/core_sim9.hal: ../configs/common/core_sim9.hal
 	-cp $< $@
  
 endif # userspace

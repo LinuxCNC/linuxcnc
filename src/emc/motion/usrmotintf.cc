@@ -218,8 +218,10 @@ static int htostr(char *s, unsigned short h)
 
 void printEmcPose(EmcPose * pose)
 {
-    printf("x=%f\ty=%f\tz=%f\ta=%f\tb=%f\tc=%f",
-	pose->tran.x, pose->tran.y, pose->tran.z, pose->a, pose->b, pose->c);
+    printf("x=%f\ty=%f\tz=%f\tu=%f\tv=%f\tw=%f\ta=%f\tb=%f\tc=%f",
+           pose->tran.x, pose->tran.y, pose->tran.z, 
+           pose->u, pose->v, pose->w,
+           pose->a, pose->b, pose->c);
 }
 
 void printTPstruct(TP_STRUCT * tp)

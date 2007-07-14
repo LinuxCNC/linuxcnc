@@ -221,6 +221,7 @@ void SET_ORIGIN_OFFSETS(
 #ifdef CC
  , double c  /*CC*/
 #endif
+ , double u, double v, double w
 )
 {
   fprintf(_outfile, "%5d ", _line_number++);
@@ -327,6 +328,7 @@ void STRAIGHT_TRAVERSE(
 #ifdef CC
  , double c /*CC*/
 #endif
+ , double u, double v, double w
 )
 {
   fprintf(_outfile, "%5d ", _line_number++);
@@ -446,6 +448,7 @@ void ARC_FEED(
 #ifdef CC
  , double c /*CC*/
 #endif
+ , double u, double v, double w
 )
 {
   fprintf(_outfile, "%5d ", _line_number++);
@@ -512,6 +515,7 @@ void STRAIGHT_FEED(
 #ifdef CC
  , double c /*CC*/
 #endif
+ , double u, double v, double w
 )
 {
   fprintf(_outfile, "%5d ", _line_number++);
@@ -567,6 +571,7 @@ void STRAIGHT_PROBE(
 #ifdef CC
  , double c /*CC*/
 #endif
+ , double u, double v, double w
 )
 {
   double distance;
@@ -866,6 +871,7 @@ int GET_EXTERNAL_FEED_OVERRIDE_ENABLE() {return 1;}
 double GET_EXTERNAL_MOTION_CONTROL_TOLERANCE() { return 0.1;}
 double GET_EXTERNAL_LENGTH_UNITS() {return 0.03937007874016;}
 int GET_EXTERNAL_FEED_HOLD_ENABLE() {return 1;}
+int GET_EXTERNAL_AXIS_MASK() {return 7;} // XYZ machine
 double GET_EXTERNAL_ANGLE_UNITS() {return 1.0;}
 int GET_EXTERNAL_SELECTED_TOOL_SLOT() { return 0; }
 int GET_EXTERNAL_SPINDLE_OVERRIDE_ENABLE() {return 1;}
@@ -1019,6 +1025,22 @@ double GET_EXTERNAL_POSITION_Y()
 double GET_EXTERNAL_POSITION_Z()
 {
   return _program_position_z;
+}
+
+// XXX fix sai for uvw
+double GET_EXTERNAL_POSITION_U()
+{
+    return 0.;
+}
+
+double GET_EXTERNAL_POSITION_V()
+{
+    return 0.;
+}
+
+double GET_EXTERNAL_POSITION_W()
+{
+    return 0.;
 }
 
 #ifdef AA
