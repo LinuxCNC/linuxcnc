@@ -1967,6 +1967,10 @@ CANON_POSITION GET_EXTERNAL_POSITION()
     canonEndPoint.b = FROM_EXT_ANG(pos.b);
     canonEndPoint.c = FROM_EXT_ANG(pos.c);
 
+    canonEndPoint.u = FROM_EXT_LEN(pos.u);
+    canonEndPoint.v = FROM_EXT_LEN(pos.v);
+    canonEndPoint.w = FROM_EXT_LEN(pos.w);
+
     // now calculate position in program units, for interpreter
     position.x = TO_PROG_LEN(canonEndPoint.x - programOrigin.x - currentXToolOffset);
     position.y = TO_PROG_LEN(canonEndPoint.y - programOrigin.y);
@@ -1977,6 +1981,10 @@ CANON_POSITION GET_EXTERNAL_POSITION()
     position.a = TO_PROG_ANG(canonEndPoint.a - programOrigin.a);
     position.b = TO_PROG_ANG(canonEndPoint.b - programOrigin.b);
     position.c = TO_PROG_ANG(canonEndPoint.c - programOrigin.c);
+
+    position.u = TO_PROG_LEN(canonEndPoint.u - programOrigin.u);
+    position.v = TO_PROG_LEN(canonEndPoint.v - programOrigin.v);
+    position.w = TO_PROG_LEN(canonEndPoint.w - programOrigin.w);
 
     return position;
 }
