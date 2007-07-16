@@ -51,33 +51,7 @@ The space after the data is filled with zeros.  The last two bytes
 are a checksum, used to verify that the driver is actually talking
 to a 5i2x board with a valid configuration in it.
 
-
-Items are exported to the HAL based on the capabilities that
-the config supplies.  <boardId> is the PCI board number and
-is formated as "%d". <channel> is formated as "%02d".
-
-Digital In:
-  Pins:
-	bit	m5i20.<boardId>.in-<channel>
-	bit	m5i20.<boardId>.in-<channel>-not
-
-  Functions:
-	void    m5i20.<boardId>.digital-in-read
-
-
-Digital Out:
-  Parameters:
-	bit	m5i20.<boardId>.out-<channel>-invert
-
-  Pins:
-	bit	m5i20.<boardId>.out-<channel>
-
-  Functions:
-	void    m5i20.<boardId>.digital-out-write
-
-Stepgen:
-
-**************************************************************************
+************************************************************************
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of version 2 of the GNU General
@@ -180,151 +154,6 @@ MODULE_LICENSE("GPL");
 int comp_id;	/* HAL component ID */
 static board_data_t *boards[MAX_BOARDS];
 
-/*************************************************************************
-                                 Realtime Code
- ************************************************************************/
-
-static void read_gpio(void *arg, long period)
-{
-    board_data_t *b;
-    dig_port_t *p;
-    int n, i;
-    __u32 ins, data;
-
-    b = arg;
-    for ( n = 0 ; n < PORTS_PER_BOARD; n++ ) {
-	p = &(b->gpio[n]);
-	ins = p->ins;
-	data = ioread32(p->data_addr);
-	i = 0;
-	while ( ins ) {
-	    if ( ins & 1 ) {
-		/* this pin is used as input, update HAL pins */
-		if ( data & 1 ) {
-		    *(p->pins[i].in) = 1;
-		    *(p->pins[i].in_not) = 0;
-		} else {
-		    *(p->pins[i].in) = 0;
-		    *(p->pins[i].in_not) = 1;
-		}
-	    }
-	    /* next */
-	    ins >>= 1;
-	    data >>= 1;
-	    i++;
-	}
-    }
-}
-
-static void write_gpio(void *arg, long period)
-{
-    board_data_t *b;
-    dig_port_t *p;
-    int n, i;
-    __u32 outs, dirs, mask, data;
-
-    b = arg;
-    for ( n = 0 ; n < PORTS_PER_BOARD; n++ ) {
-	p = &(b->gpio[n]);
-	outs = p->outs;
-	mask = 1;
-	data = 0;
-	i = 0;
-	while ( outs ) {
-	    if ( outs & 1 ) {
-		/* this pin is used as output, get data from HAL */
-		if ( *(p->pins[i].out) != 0 ) {
-		    data |= mask;
-		}
-		if ( p->pins[i].invert != 0 ) {
-		    data ^= mask;
-		}
-	    }
-	    /* next */
-	    outs >>= 1;
-	    mask <<= 1;
-	    i++;
-	}
-	/* enable pin driver if pin is an output, unless it is open-
-	   collector, and the data is high */
-	dirs = p->outs & ~(p->ocs & data);
-	iowrite32(dirs, p->dir_addr);
-	iowrite32(data, p->data_addr);
-    }
-}
-
-/******************************************************************************
-                                HAL export code
- ******************************************************************************/
-
-/* exports pins and params, based on board->gpio[]->ins and ->outs */
-static int export_gpio(int boardnum, board_data_t *board )
-{
-    dig_port_t *port;
-    int portnum, pin, retval;
-    __u32 mask;
-    char name[HAL_NAME_LEN + 2];
-
-    for ( portnum = 0 ; portnum < PORTS_PER_BOARD ; portnum++ ) {
-	/* point to port */
-	port = &(board->gpio[portnum]);
-	/* save FPGA addresses for accessing port data */
-	port->data_addr = board->base + GPIO_DATA + 4*portnum;
-	port->dir_addr  = board->base + GPIO_DIR  + 4*portnum;
-	/* export HAL stuff for port */
-	mask = 1;
-	for ( pin = 0 ; pin < PINS_PER_PORT ; pin++ ) {
-	    if ( port->ins & mask ) {
-		/* export output HAL pins for the input bit */
-		retval = hal_pin_bit_newf(HAL_OUT, &(port->pins[pin].in),
-		    comp_id, "5i20.%d.p%1d-%02d-in", boardnum, portnum, pin);
-		if (retval != 0) return retval;
-		retval = hal_pin_bit_newf(HAL_OUT, &(port->pins[pin].in_not),
-		    comp_id, "5i20.%d.p%1d-%02d-in-not", boardnum, portnum, pin);
-		if (retval != 0) return retval;
-		/* initial values for pins */
-		*(port->pins[pin].in) = 0;
-		*(port->pins[pin].in_not) = 1;
-	    }
-	    /* can be in and out at the same time - in will read back the
-		pin value, handy if the output is open collector */
-	    if ( port->outs & mask ) {
-		/* export input HAL pin for the output bit */
-		retval = hal_pin_bit_newf(HAL_IN, &(port->pins[pin].out),
-		    comp_id, "5i20.%d.p%1d-%02d-out", boardnum, portnum, pin);
-		if (retval != 0) return retval;
-		/* export HAL param for inversion */
-		retval = hal_param_bit_newf(HAL_RW, &(port->pins[pin].invert),
-		    comp_id, "5i20.%d.p%1d-%02d-invert", boardnum, portnum, pin);
-		if (retval != 0) return retval;
-		/* set initial value for pin and param */
-		*(port->pins[pin].out) = 0;
-		port->pins[pin].invert = 0;
-	    }
-	    mask <<= 1;
-	}
-    }
-    /* export functions */
-    rtapi_snprintf(name, HAL_NAME_LEN, "5i20.%d.gpio-read", boardnum);
-    retval = hal_export_funct(name, read_gpio, board, 0, 0, comp_id);
-    if (retval != 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-		"5i2x: ERROR: board %d GPIO read funct export failed\n", boardnum);
-	rtapi_app_exit();
-	return -1;
-    }
-    rtapi_snprintf(name, HAL_NAME_LEN, "5i20.%d.gpio-write", boardnum);
-    retval = hal_export_funct(name, write_gpio, board, 0, 0, comp_id);
-    if (retval != 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-		"5i2x: ERROR: board %d GPIO write funct export failed\n", boardnum);
-	rtapi_app_exit();
-	return -1;
-    }
-    return 0;
-}
-
-
 /******************************************************************************
                               Init and exit code
  ******************************************************************************/
@@ -411,9 +240,9 @@ int rtapi_app_main(void)
 	checksum2 = 0;
 	for ( i = 0 ; i <= DATA_END_ADDR ; i++ ) {
 	    checksum1 += config_data[i];
-	    while ( checksum1 > 251 ) checksum1 -= 251;
+	    checksum1 = checksum1 % 251;
 	    checksum2 += checksum1;
-	    while ( checksum2 > 251 ) checksum2 -= 251;
+	    checksum2 = checksum2 % 251;
 	}
 	/* validate the checksum */
 	if (( checksum1 != config_data[CHECKSUM1_ADDR] ) ||
@@ -459,6 +288,10 @@ int rtapi_app_main(void)
 	    block_code = *cfg_ptr;
 	    retval = -1;
 	    switch ( block_code ) {
+	    case GPIO:
+		rtapi_print("GPIO, code is %d, at %d\n", block_code, i );
+		retval = export_gpio(&cfg_ptr, board);
+		break;
 	    case STEPGEN_VEL_MODE:
 		rtapi_print("stepgen, code is %d, at %d\n", block_code, i );
 		retval = export_stepgen(&cfg_ptr, board);
