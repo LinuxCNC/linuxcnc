@@ -79,9 +79,10 @@ void HalWritePhysicalOutputs(void) {
 }
 
 static void hal_task(void *arg, long period) {
-	*hal_state = InfosGene->LadderState;
-	unsigned long t0 = rtapi_get_time(), t1;
+	unsigned long t0, t1;
 
+	*hal_state = InfosGene->LadderState;
+	t0 = rtapi_get_time();
 	if (InfosGene->LadderState==STATE_RUN)
 	{
 

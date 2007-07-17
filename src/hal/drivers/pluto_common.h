@@ -140,7 +140,7 @@ static void pluto_clear_error_register(void) {
     outb (r & 0xfe, ioaddr+1); /* Others by writing 0 */
 }
 
-static void pluto_cleanup() {
+static void pluto_cleanup(void) {
     outb(0, ioaddr+2); // set nInitialize low and reset the FPGA
 }
 
