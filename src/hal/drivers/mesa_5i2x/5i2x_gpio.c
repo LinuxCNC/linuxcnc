@@ -95,16 +95,19 @@ information, go to www.linuxcnc.org.
                           config ROM defines
 ***************************************************************************/
 
-#define HAL_INPUT_PIN_MASK	0x80
-#define HAL_OUTPUT_PIN_MASK	0x40
-#define HAL_ENABLE_PIN_MASK	0x20
-#define POLARITY_MASK		0x10
-#define SOURCE_MASK		0xC0
-#define SOURCE1_MASK		0x08
-#define SOURCE0_MASK		0x04
-#define MODE_MASK		0x03
-#define MODE1_MASK		0x02
-#define MODE0_MASK		0x01
+#define POLARITY_MASK		0x01
+#define HAL_INPUT_PIN_MASK	0x02
+#define MODE_MASK		0x0C
+#define MODE1_MASK		0x08
+#define MODE0_MASK		0x04
+#define MODE_INPUT_ONLY		(0 << 2)
+#define MODE_OUTPUT_ONLY	(1 << 2)
+#define MODE_TRI_STATE		(2 << 2)
+#define MODE_OPEN_COLLECTOR	(3 << 2)
+#define SOURCE_MASK		0x70
+#define SOURCE2_MASK		0x40
+#define SOURCE1_MASK		0x20
+#define SOURCE0_MASK		0x10
 
 /*************************************************************************
                           typedefs and defines
@@ -118,7 +121,8 @@ information, go to www.linuxcnc.org.
 #define GPIO_MODE1	3
 #define GPIO_SOURCE0	4
 #define GPIO_SOURCE1	5
-#define GPIO_POLARITY	6
+#define GPIO_SOURCE2	6
+#define GPIO_POLARITY	7
 
 /***************************************************************************
                          Data Structures
@@ -219,28 +223,32 @@ static void write_gpios(void *arg, long period)
 /* the data for a "gpio" consists of a code byte, a two byte base address,
    and 24 pin config bytes - formatted as follows:
 
-   IOEPSSMM
+   XSSSMMPI
 
    I = export input HAL pin
-   O = export output HAL pin
-   E = export enable HAL pin
    P = polarity
-   SS = source (one of four, 00 = GPIO)
    MM = mode (input, output, tristate, open-collector)
+   SSS = source (one of up to eight, 000 = GPIO)
+   X = no care
 
+   output and output-enable HAL pins are exported based on the values
+   of the source and mode bits.  If the source is non-zero, the pin is
+   not usable as a GP output, and the pins are not exported.  If it is
+   zero, the output pin is exported unless the mode is "input only",
+   and the output-enable pin is exported only if the mode is "tristate"
 */
 
 int export_gpio(__u8 **ppcfg, board_data_t *board)
 {
     __u8 *data;
-    int retval;
+    int retval, export_out, export_oe;
     int portnum, boardnum, pin;
     char portchar;
     gpio_t *gpio, **p;
     int code, addr;
     __u8 *cfg_bytes;
     char name[HAL_NAME_LEN + 2];
-    __u32 mode0, mode1, source0, source1, polarity, mask;
+    __u32 mode0, mode1, source0, source1, source2, polarity, mask;
 
     /* read and validate config data */
     data = *ppcfg;
@@ -273,6 +281,7 @@ int export_gpio(__u8 **ppcfg, board_data_t *board)
     mode1 = 0;
     source0 = 0;
     source1 = 0;
+    source2 = 0;
     polarity = 0;
     mask = 1;
     for ( pin = 0 ; pin < PINS_PER_PORT ; pin++ ) {
@@ -292,7 +301,21 @@ int export_gpio(__u8 **ppcfg, board_data_t *board)
 	    gpio->in[pin] = &dummy_in;
 	    gpio->in_not[pin] = &dummy_in;
 	}
-	if ( cfg_bytes[pin] & HAL_OUTPUT_PIN_MASK ) {
+	export_out = 0;
+	export_oe = 0;
+	if ( (cfg_bytes[pin] & SOURCE_MASK) == 0 ) {
+	    switch ( cfg_bytes[pin] & MODE_MASK ) {
+	    case MODE_TRI_STATE:
+		export_oe = 1;
+	    case MODE_OUTPUT_ONLY:
+	    case MODE_OPEN_COLLECTOR:
+		export_out = 1;
+	    case MODE_INPUT_ONLY:
+	    default:
+		break;
+	    }
+	}
+	if ( export_out ) {
 	    /* export input HAL pin for the output bit */
 	    retval = hal_pin_bit_newf(HAL_IN, &(gpio->out[pin]),
 		comp_id, "5i20.%d.pin-%c%02d-out", boardnum, portchar, pin);
@@ -308,7 +331,7 @@ int export_gpio(__u8 **ppcfg, board_data_t *board)
 	    /* output pin not used, point at a dummy */
 	    gpio->out[pin] = &dummy_out;
 	}
-	if ( cfg_bytes[pin] & HAL_ENABLE_PIN_MASK ) {
+	if ( export_oe ) {
 	    /* export input HAL pin for the output enable bit */
 	    retval = hal_pin_bit_newf(HAL_IN, &(gpio->out_ena[pin]),
 		comp_id, "5i20.%d.pin-%c%02d-out-en", boardnum, portchar, pin);
@@ -320,6 +343,7 @@ int export_gpio(__u8 **ppcfg, board_data_t *board)
 	    gpio->out_ena[pin] = &dummy_oe;
 	}
 	/* set appropriate bits in config register words */
+	if ( cfg_bytes[pin] & SOURCE2_MASK ) source2 |= mask;
 	if ( cfg_bytes[pin] & SOURCE1_MASK ) source1 |= mask;
 	if ( cfg_bytes[pin] & SOURCE0_MASK ) source0 |= mask;
 	if ( cfg_bytes[pin] & MODE1_MASK ) mode1 |= mask;
@@ -328,6 +352,7 @@ int export_gpio(__u8 **ppcfg, board_data_t *board)
 	mask <<= 1;
     }
     /* write config to registers */
+    iowrite32(source2, gpio->addr+GPIO_SOURCE1);
     iowrite32(source1, gpio->addr+GPIO_SOURCE1);
     iowrite32(source0, gpio->addr+GPIO_SOURCE0);
     iowrite32(mode1, gpio->addr+GPIO_MODE1);
