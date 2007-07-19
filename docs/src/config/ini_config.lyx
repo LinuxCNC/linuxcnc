@@ -862,18 +862,6 @@ The [TRAJ] section contains general parameters for the trajectory planning
 \layout Description
 
 
-\noun on 
-\color black
-AXES\SpecialChar ~
-=\SpecialChar ~
-3
-\noun default 
- The number of controlled axes in the system.
- If you have a four axis system put that number here and edit the next two
- variables as well
-\layout Description
-
-
 \color black
 COORDINATES\SpecialChar ~
 
@@ -892,11 +880,39 @@ Y
 Z
 \series default 
  The names of the axes being controlled.
- X, Y, Z, A, B, and C are all valid.
- It is also possible to have X Y Y Z and control ganged slides.
- For a fourth axis mounted on X you would use X Y Z A.
+ X, Y, Z, A, B, C, U, V, and W are all valid.
+ Only axis named in 
+\series bold 
+COORDINATES
+\series default 
+ are accepted in g-code.
  This has no effect on the mapping from G-code axis names (X- Y- Z-) to
- joint numbers--kinematics does this--but is largely for documentation.
+ joint numbers--for 
+\begin_inset Quotes eld
+\end_inset 
+
+trivial kinematics
+\begin_inset Quotes erd
+\end_inset 
+
+, X is always joint 0, A is always joint 4, and U is always joint 7, and
+ so on.
+ It is permitted to write an axis name twice (e.g., X Y Y Z for a gantry machine)
+ but this has no effect.
+\layout Description
+
+
+\noun on 
+\color black
+AXES\SpecialChar ~
+=\SpecialChar ~
+3
+\noun default 
+ One more than the number of the highest controlled axis in the system.
+ For an XYZ machine, the joints are numbered 0, 1 and 2; in this case AXES
+ should be 3.
+ For an XYUV machine, the V joint is numbered 8 and therefore AXES should
+ be 9.
 \layout Description
 
 
