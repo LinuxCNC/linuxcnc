@@ -908,11 +908,20 @@ AXES\SpecialChar ~
 =\SpecialChar ~
 3
 \noun default 
- One more than the number of the highest controlled axis in the system.
+ One more than the number of the highest joint number in the system.
  For an XYZ machine, the joints are numbered 0, 1 and 2; in this case AXES
  should be 3.
- For an XYUV machine, the V joint is numbered 8 and therefore AXES should
- be 9.
+ For an XYUV machine using 
+\begin_inset Quotes eld
+\end_inset 
+
+trivial kinematics
+\begin_inset Quotes erd
+\end_inset 
+
+, the V joint is numbered 8 and therefore AXES should be 9.
+ For a machine with nontrivial kinematics (e.g., scarakins) this will generally
+ be the number of controlled joints.
 \layout Description
 
 
