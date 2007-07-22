@@ -515,6 +515,8 @@ linkable(double x, double y, double z, double a, double b, double c) {
     if(b != pos.b) return false;
     if(c != pos.c) return false;
 
+    if(x==canonEndPoint.x && y==canonEndPoint.y && z==canonEndPoint.z) return false;
+    
     for(std::vector<struct pt>::iterator it = chained_points().begin();
             it != chained_points().end(); it++) {
         PM_CARTESIAN M(x-canonEndPoint.x, y-canonEndPoint.y, z-canonEndPoint.z),
