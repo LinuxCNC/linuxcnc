@@ -297,7 +297,7 @@ double getStraightAcceleration(double x, double y, double z,
     double tx, ty, tz, tu, tv, tw, ta, tb, tc, tmax;
     double acc, dtot;
 
-    const double tiny = 1e-10;
+    const double tiny = 1e-15;
 
     acc = 0.0; // if a move to nowhere
 

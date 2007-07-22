@@ -97,7 +97,7 @@ EmcPose tcGetPos(TC_STRUCT * tc)
         abc.tran = tc->coords.rigidtap.abc;
         uvw.tran = tc->coords.rigidtap.uvw;
     } else if (tc->motion_type == TC_LINEAR) {
-        if (tc->coords.line.xyz.tmag > 1e-6) {
+        if (tc->coords.line.xyz.tmag > 0.) {
             // progress is along xyz, so uvw and abc move proportionally in order
             // to end at the same time.
             pmLinePoint(&tc->coords.line.xyz, tc->progress, &xyz);
@@ -107,7 +107,7 @@ EmcPose tcGetPos(TC_STRUCT * tc)
             pmLinePoint(&tc->coords.line.abc,
                         tc->progress * tc->coords.line.abc.tmag / tc->target,
                         &abc);
-        } else if (tc->coords.line.uvw.tmag > 1e-6) {
+        } else if (tc->coords.line.uvw.tmag > 0.) {
             // xyz is not moving
             pmLinePoint(&tc->coords.line.xyz, 0.0, &xyz);
             pmLinePoint(&tc->coords.line.uvw, tc->progress, &uvw);
