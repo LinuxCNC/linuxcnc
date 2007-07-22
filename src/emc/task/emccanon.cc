@@ -624,6 +624,8 @@ linkable(double x, double y, double z,
     if(u != pos.u) return false;
     if(v != pos.v) return false;
     if(w != pos.w) return false;
+
+    if(x==canonEndPoint.x && y==canonEndPoint.y && z==canonEndPoint.z) return false;
     
     for(std::vector<struct pt>::iterator it = chained_points().begin();
             it != chained_points().end(); it++) {
