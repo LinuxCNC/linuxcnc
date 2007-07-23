@@ -20,7 +20,7 @@ WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #include <tk.h>
 extern Tk_Window TkpGetWrapperWindow(Tk_Window);
 
-Tcl_Interp *get_interpreter(PyObject *tkapp) {
+static Tcl_Interp *get_interpreter(PyObject *tkapp) {
     long interpaddr;
     PyObject *interpaddrobj = PyObject_CallMethod(tkapp, "interpaddr", NULL);
     if(interpaddrobj == NULL) { return NULL; }
@@ -30,52 +30,83 @@ Tcl_Interp *get_interpreter(PyObject *tkapp) {
     return (Tcl_Interp*)interpaddr;
 }
 
-static Atom NET_WM_ICON, NET_WM_NAME, CARDINAL, UTF8_STRING;
-PyObject *setname(PyObject *s, PyObject *o) {
+static Atom NET_WM_ICON=0, NET_WM_NAME=0, CARDINAL=0, UTF8_STRING=0;
+static Atom NET_WM_STATE, WM_TRANSIENT_FOR=0;
+
+#define INTERN(v, a) intern(Tk_Display(tkwin), v, &a)
+
+static Atom intern(Display *d, char *atom_name, Atom *atom_value) {
+    if(!*atom_value)
+        *atom_value = XInternAtom(d, atom_name, True);
+    return *atom_value;
+}
+
+static int get_windows(PyObject *win, Tk_Window *tkwin, Tk_Window *tkwrap) {
+    PyObject *app, *path;
     Tcl_Interp *trp;
+
+    app = PyObject_GetAttrString(win, "tk");
+    if(!app) return 0;
+
+    path = PyObject_GetAttrString(win, "_w");
+    if(!path) return 0;
+
+    if(!PyString_Check(path)) {
+        PyErr_SetString(PyExc_ValueError,
+                "Not a widget? (PyString_Check(path) returned false)");
+        return 0;
+    }
+
+    trp = get_interpreter(app);    
+    if(!trp) {
+        PyErr_SetString(PyExc_ValueError,
+                "Not a widget? (get_interpreter() returned NULL)");
+    }
+
+    *tkwin = Tk_NameToWindow(trp, PyString_AsString(path), Tk_MainWindow(trp));
+    Tk_MakeWindowExist(*tkwin);
+    *tkwrap = TkpGetWrapperWindow(*tkwin);
+    if(!*tkwrap) {
+        PyErr_SetString(PyExc_ValueError, "No wrapper widget?");
+        return 0;
+    }
+    Tk_MakeWindowExist(*tkwrap);
+    return 1;
+}
+
+static PyObject *getwrapper(PyObject *s, PyObject *o) {
     Tk_Window tkwin, tkwrap;
-    PyObject *win, *app, *path;
+    PyObject *win;
+
+    if(!PyArg_ParseTuple(o, "O", &win))
+        return NULL;
+
+    if(!get_windows(win, &tkwin, &tkwrap)) return NULL;
+
+    return PyInt_FromLong(Tk_WindowId(tkwrap));
+}
+
+static PyObject *setname(PyObject *s, PyObject *o) {
+    Tk_Window tkwin, tkwrap;
+    PyObject *win;
     char *title=0;
     int sz=0;
 
     if(!PyArg_ParseTuple(o, "Oes#", &win, "utf-8", &title, &sz))
         return NULL;
 
+    if(!get_windows(win, &tkwin, &tkwrap)) goto OUT_NULL;
+
     printf("title[%d] %s\n", sz, title);
-    app = PyObject_GetAttrString(win, "tk");
-    if(!app) goto OUT_NULL; 
-    path = PyObject_GetAttrString(win, "_w");
-    if(!path) goto OUT_NULL;
-    if(!PyString_Check(path)) {
-        PyErr_SetString(PyExc_ValueError, "Not a widget?");
-    }
+    INTERN("_NET_WM_NAME", NET_WM_NAME);
+    INTERN("UTF8_STRING", UTF8_STRING);
 
-    trp = get_interpreter(app);    
-    if(!PyString_Check(path)) {
-        PyErr_SetString(PyExc_ValueError, "Not a widget?");
-        goto OUT_NULL;
+    if(NET_WM_NAME && UTF8_STRING) {
+        XChangeProperty(Tk_Display(tkwin), Tk_WindowId(tkwrap), NET_WM_NAME,
+            UTF8_STRING, 8, PropModeReplace, (unsigned char *)title, sz);
+        XChangeProperty(Tk_Display(tkwin), Tk_WindowId(tkwin), NET_WM_NAME,
+            UTF8_STRING, 8, PropModeReplace, (unsigned char *)title, sz);
     }
-
-    tkwin = Tk_NameToWindow(trp, PyString_AsString(path), Tk_MainWindow(trp));
-    Tk_MakeWindowExist(tkwin);
-    tkwrap = TkpGetWrapperWindow(tkwin);
-    if(!tkwrap) {
-        PyErr_SetString(PyExc_ValueError, "No wrapper widget?");
-        goto OUT_NULL;
-    }
-    Tk_MakeWindowExist(tkwrap);
-
-    if(!NET_WM_NAME) {
-        NET_WM_NAME = XInternAtom(Tk_Display(tkwin), "_NET_WM_NAME", True);
-    }
-    if(!UTF8_STRING) {
-        UTF8_STRING = XInternAtom(Tk_Display(tkwin), "UTF8_STRING", True);
-    }
-
-    XChangeProperty(Tk_Display(tkwin), Tk_WindowId(tkwrap), NET_WM_NAME,
-        UTF8_STRING, 8, PropModeReplace, (unsigned char *)title, sz);
-    XChangeProperty(Tk_Display(tkwin), Tk_WindowId(tkwin), NET_WM_NAME,
-        UTF8_STRING, 8, PropModeReplace, (unsigned char *)title, sz);
 
     PyMem_Free(title);
 
@@ -87,45 +118,43 @@ OUT_NULL:
     return NULL;
 }
 
-
-PyObject *seticon(PyObject *s, PyObject *o) {
-    Tcl_Interp *trp;
+static PyObject *settransient(PyObject *s, PyObject *o) {
     Tk_Window tkwin, tkwrap;
-    PyObject *win, *app, *path;
+    Display *d;
+    PyObject *win;
+    int master;
+
+    if(!PyArg_ParseTuple(o, "Oi", &win, &master)) return NULL;
+    if(!get_windows(win, &tkwin, &tkwrap)) return NULL;
+
+    INTERN("WM_TRANSIENT_FOR", WM_TRANSIENT_FOR);
+
+    if(WM_TRANSIENT_FOR) {
+        d = Tk_Display(tkwin);
+        if(master) {
+            XSetTransientForHint(d, Tk_WindowId(tkwrap), master);
+            XSetTransientForHint(d, Tk_WindowId(tkwin), master);
+        } else {
+            XDeleteProperty(d, Tk_WindowId(tkwrap), WM_TRANSIENT_FOR);
+            XDeleteProperty(d, Tk_WindowId(tkwin), WM_TRANSIENT_FOR);
+        }
+    }
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+
+static PyObject *seticon(PyObject *s, PyObject *o) {
+    Tk_Window tkwin, tkwrap;
+    PyObject *win;
     char *icon;
     int sz;
 
     if(!PyArg_ParseTuple(o, "Os#", &win, &icon, &sz)) return NULL;
+    if(!get_windows(win, &tkwin, &tkwrap)) return NULL;
 
-    app = PyObject_GetAttrString(win, "tk");
-    if(!app) return NULL;
-    path = PyObject_GetAttrString(win, "_w");
-    if(!path) return NULL;
-    if(!PyString_Check(path)) {
-        PyErr_SetString(PyExc_ValueError, "Not a widget?");
-    }
-
-    trp = get_interpreter(app);    
-    if(!PyString_Check(path)) {
-        PyErr_SetString(PyExc_ValueError, "Not a widget?");
-        return NULL;
-    }
-
-    tkwin = Tk_NameToWindow(trp, PyString_AsString(path), Tk_MainWindow(trp));
-    Tk_MakeWindowExist(tkwin);
-    tkwrap = TkpGetWrapperWindow(tkwin);
-    if(!tkwrap) {
-        PyErr_SetString(PyExc_ValueError, "No wrapper widget?");
-        return NULL;
-    }
-    Tk_MakeWindowExist(tkwrap);
-
-    if(!NET_WM_ICON) {
-        NET_WM_ICON = XInternAtom(Tk_Display(tkwin), "_NET_WM_ICON", True);
-    }
-    if(!CARDINAL) {
-        CARDINAL = XInternAtom(Tk_Display(tkwin), "CARDINAL", True);
-    }
+    INTERN("_NET_WM_ICON", NET_WM_ICON);
+    INTERN("CARDINAL", CARDINAL);
 
     if(NET_WM_ICON && CARDINAL) {
 	XChangeProperty(Tk_Display(tkwin), Tk_WindowId(tkwrap), NET_WM_ICON,
@@ -137,14 +166,72 @@ PyObject *seticon(PyObject *s, PyObject *o) {
     return Py_None;
 }
 
-PyMethodDef methods[] = {
+static PyObject *setprop(PyObject *s, PyObject *o) {
+    Tk_Window tkwin, tkwrap;
+    PyObject *win;
+    char *prop_suffix;
+    char prop_string[32];
+    Atom prop=0;
+    int action;
+    int source = 1;
+    XEvent xev;
+
+    if(!PyArg_ParseTuple(o, "Ois|i", &win, &action, &prop_suffix, &source))
+        return NULL;
+    if(!get_windows(win, &tkwin, &tkwrap)) return NULL;
+
+    if(action < 0 || action > 2) {
+        PyErr_SetString(PyExc_ValueError,
+                "Action must be 0 (REMOVE), 1 (ADD), or 2 (TOGGLE)");
+        return 0;
+    }
+
+    INTERN("_NET_WM_STATE", NET_WM_STATE);
+
+    snprintf(prop_string, 32, "_NET_WM_STATE_%s", prop_suffix);
+    INTERN(prop_string, prop);
+
+    xev.xclient.type = ClientMessage;
+    xev.xclient.serial = 0;
+    xev.xclient.send_event = True;
+    xev.xclient.display = Tk_Display(tkwin);
+    xev.xclient.message_type = NET_WM_STATE;
+    xev.xclient.format = 32;
+    xev.xclient.data.l[0] = action;
+    xev.xclient.data.l[1] = prop;
+    xev.xclient.data.l[2] = 0;
+    xev.xclient.data.l[3] = source;
+
+    if(NET_WM_STATE && action && prop) {
+        xev.xclient.window = Tk_WindowId(tkwrap);
+        XSendEvent(Tk_Display(tkwin), DefaultRootWindow(Tk_Display(tkwin)),
+                False, SubstructureRedirectMask | SubstructureNotifyMask,
+                &xev);
+        xev.xclient.window = Tk_WindowId(tkwin);
+        XSendEvent(Tk_Display(tkwin), DefaultRootWindow(Tk_Display(tkwin)),
+                False, SubstructureRedirectMask | SubstructureNotifyMask,
+                &xev);
+    }
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyMethodDef methods[] = {
+    {"getwrapper", (PyCFunction)getwrapper, METH_VARARGS,
+        "Gets the ID of the Tk wrapper window"},
     {"seticon", (PyCFunction)seticon, METH_VARARGS, "Set the NET_WM_ICON"},
     {"setname", (PyCFunction)setname, METH_VARARGS, "Set the NET_WM_NAME"},
+    {"setprop", (PyCFunction)setprop, METH_VARARGS, "Set the NET_WM_STATE"},
+    {"settransient", (PyCFunction)settransient, METH_VARARGS,
+        "Set the WM_TRANSIENT_FOR hint by window ID"},
     {NULL}
 };
 
 PyMODINIT_FUNC
 init_tk_seticon(void) {
-    Py_InitModule3("_tk_seticon", methods, "Set the NET_WM_ICON");
+    Py_InitModule3("_tk_seticon", methods,
+"Control various X facilities (such as NET_WM_ICON) not directly accessible\n"
+"from Tk/Tkinter");
 }
 
