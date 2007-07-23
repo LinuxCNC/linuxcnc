@@ -87,6 +87,7 @@ GLCALL1V(glLineWidth, "f", float)
 GLCALL1V(glCallList, "i", int)
 GLCALL1V(glClear, "i", int)
 GLCALL4V(glClearColor, "ffff", float, float, float, float)
+GLCALL4V(glColorMask, "iiii", int, int, int, int);
 GLCALL1V(glDepthFunc, "i", int)
 GLCALL1V(glDepthMask, "i", int)
 GLCALL1V(glDisable, "i", int)
@@ -107,6 +108,8 @@ GLCALL2V(glRasterPos2i, "ii", int, int)
 GLCALL4V(glRectf, "ffff", float, float, float, float)
 GLCALL4V(glRotatef, "ffff", float, float, float, float)
 GLCALL3V(glScalef, "fff", float, float, float)
+GLCALL3V(glStencilFunc, "iii", int, int, int);
+GLCALL3V(glStencilOp, "iii", int, int, int);
 GLCALL1V(glDrawBuffer, "i", int)
 GLCALL3V(glDrawArrays, "iii", int, int, int)
 GLCALL1V(glMatrixMode, "i", int)
@@ -305,6 +308,21 @@ static PyObject *pyglPolygonStipple(PyObject *s, PyObject *o) {
     CHECK_ERROR;
     Py_INCREF(Py_None);
     return Py_None;
+}
+
+static PyObject *pyglReadPixels(PyObject *s, PyObject *o) {
+    int x, y, width, height, format=GL_RGB, type=GL_UNSIGNED_BYTE;
+    int sz;
+    char *buf;
+    PyObject *res;
+    if(!PyArg_ParseTuple(o, "iiii|ii", &x, &y, &width, &height, &format, &type))
+            return NULL;
+    sz = width * height * 4;
+    buf = malloc(sz);
+    glReadPixels(x,y,width,height,format,type,buf);
+    res = PyString_FromStringAndSize(buf, sz); 
+    free(buf);
+    return res;
 }
 
 typedef struct {
@@ -666,6 +684,7 @@ METH(glBlendFunc, "specify pixel arithmetic"),
 METH(glCallList, "execute a display list"),
 METH(glClear, "clear buffers to preset values"),
 METH(glClearColor, "specify clear values for the color buffers"),
+METH(glColorMask, "specify which components of color to write"),
 METH(glDepthFunc, "specify the value used for depth buffer comparisons"),
 METH(glDepthMask, "enable or disable writing into the depth buffer"),
 METH(glDisable, "enable or disable server-side GL capabilities"),
@@ -694,6 +713,8 @@ METH(glRasterPos2i, "specify the raster position for pixel operations"),
 METH(glRectf, "draw a rectangle"),
 METH(glRotatef, "multiply the current matrix by a rotation matrix"),
 METH(glScalef, "multiply the current matrix by a general scaling matrix"),
+METH(glStencilFunc, "specify the stencil buffer test function"),
+METH(glStencilOp, "specify the stencil buffer operation"),
 METH(glFlush, "force execution of GL commands in finite time"),
 METH(glDrawBuffer, "specify which color buffers are to be drawn into"),
 METH(glDrawArrays, "render primitives from array data"),
@@ -731,6 +752,7 @@ METH(gluProject, "map object coordinates to window coordinates"),
 METH(gluQuadricOrientation, "specify inside/outside orientation for quadrics"),
 METH(gluUnProject, "map window coordinates to object coordinates"),
 METH(glBitmap, "draw a bitmap"),
+METH(glReadPixels, "read pixels"),
 
 METH(draw_lines, "Draw a bunch of lines in the 'rs274.glcanon' format"),
 
@@ -756,6 +778,7 @@ void initminigl(void) {
     CONST(GL_FALSE);
     CONST(GL_FRONT);
     CONST(GL_FRONT_AND_BACK);
+    CONST(GL_KEEP);
     CONST(GL_LESS);
     CONST(GL_LIGHTING);
     CONST(GL_LIGHTING);
@@ -775,10 +798,13 @@ void initminigl(void) {
     CONST(GL_PROJECTION_MATRIX);
     CONST(GL_QUADS);
     CONST(GL_RENDER);
+    CONST(GL_REPLACE);
     CONST(GL_SELECT);
     CONST(GL_FEEDBACK);
     CONST(GL_SRC_ALPHA);
     CONST(GL_STACK_OVERFLOW);
+    CONST(GL_STENCIL_BUFFER_BIT);
+    CONST(GL_STENCIL_TEST);
     CONST(GL_TRUE);
     CONST(GL_UNPACK_ALIGNMENT);
     CONST(GL_V3F);
