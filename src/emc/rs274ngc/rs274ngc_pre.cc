@@ -161,6 +161,7 @@ int Interp::close()
   if (_setup.file_pointer != NULL) {
     fclose(_setup.file_pointer);
     _setup.file_pointer = NULL;
+    _setup.percent_flag = OFF;
   }
   reset();
 
