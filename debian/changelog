@@ -6,8 +6,9 @@ emc2 (1:2.1.7) unstable; urgency=low
   * french translation improvements from Francis TISSERANT
   * fix out-of-order scheduling of motion and custom M-codes
   * fix leadscrew error compensation
+  * fix bug #1734309, M2, M30 in MDI sometimes caused an error
 
- -- Alex Joni <juve@juve-desktop>  Mon,  9 Jul 2007 19:11:00 +0300
+ -- Alex Joni <juve@taurus>  Mon, 23 Jul 2007 22:16:56 +0300
 
 emc2 (1:2.1.6) unstable; urgency=low
 
