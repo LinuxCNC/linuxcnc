@@ -1654,7 +1654,9 @@ rtexample.ko
  in the emc2 realtime module directory:
 \layout LyX-Code
 
-comp --install rtexample.comp
+comp \SpecialChar \-
+\SpecialChar \-
+install rtexample.comp
 \layout Standard
 
 Or, it can process and compile in one step, leaving 
