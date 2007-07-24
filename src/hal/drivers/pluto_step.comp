@@ -153,8 +153,27 @@ FUNCTION(write) {
     int steplen_ticks = stepgen_steplen/PLUTO_SPEED_NS;
     int dirtime_ticks = stepgen_dirtime/PLUTO_SPEED_NS;
     int rate, maxrate = MAX_STEP_RATE;
+    double fmax;
 
-    double fmax = 1. / PLUTO_SPEED / (2 + steplen_ticks + stepspace_ticks);
+    if(steplen_ticks > TMAX) {
+        steplen_ticks = TMAX;
+        rtapi_print_msg(RTAPI_MSG_ERR,
+            "Requested step length %dns decreased to %dns "
+            "due to hardware limitations\n",
+            stepgen_steplen, TMAX * PLUTO_SPEED_NS);
+        stepgen_steplen = TMAX * PLUTO_SPEED_NS;
+    }
+
+    if(dirtime_ticks > TMAX) {
+        dirtime_ticks = TMAX;
+        rtapi_print_msg(RTAPI_MSG_ERR,
+            "Requested direction change time %dns decreased to %dns "
+            "due to hardware limitations\n",
+            stepgen_dirtime, TMAX * PLUTO_SPEED_NS);
+        stepgen_dirtime = TMAX * PLUTO_SPEED_NS;
+    }
+
+    fmax = 1. / PLUTO_SPEED / (2 + steplen_ticks + stepspace_ticks);
     if(fmax > MAXDELTA / fperiod) fmax = MAXDELTA / fperiod;
 
     if(communication_error) return;
@@ -170,7 +189,16 @@ FUNCTION(write) {
 	data.old_position_cmd[i] = new_position_cmd;
 	data.old_velocity_cmd[i] = v;
         if(stepgen_maxvel(i) < 0) stepgen_maxvel(i) = -stepgen_maxvel(i);
-        if(stepgen_maxvel(i) > fmax / stepgen_scale(i)) stepgen_maxvel(i) = fmax / stepgen_scale(i);
+        if(stepgen_maxvel(i) > fmax / stepgen_scale(i)) {
+            if(stepgen_maxvel(i) != 1e30) { // same default maxvel given above
+                rtapi_print_msg(RTAPI_MSG_ERR,
+                    "Requested step rate %dHz decreased to %dHz "
+                    "due to hardware or timing limitations\n",
+                    (int)(stepgen_maxvel(i) * stepgen_scale(i)),
+                    (int)(fmax));
+            }
+            stepgen_maxvel(i) = fmax / stepgen_scale(i);
+        }
 
 	if(v < -stepgen_maxvel(i)) v = -stepgen_maxvel(i);
 	if(v > stepgen_maxvel(i)) v = stepgen_maxvel(i);
