@@ -6146,7 +6146,7 @@ extended main connector
  step generators, 9 inputs, and 6 general-purpose outputs--the layout on
  this header is different than the layout of a standard 26-pin ribbon cable
  to DB25 connector.
-\layout Description
+\layout Standard
 
 
 \begin_inset Float figure
@@ -6166,8 +6166,6 @@ Pluto-Step Pinout
 
 \begin_inset Graphics
 	filename pluto-step-pinout.eps
-	width 80page%
-	keepAspectRatio
 
 \end_inset 
 
@@ -6234,7 +6232,7 @@ dirtime
 
  which should be the maximum of the two, and that the same step timings
  are always applied to all channels.
-\layout Description
+\layout Standard
 
 
 \begin_inset Float figure
@@ -6243,8 +6241,8 @@ collapsed false
 
 \layout Caption
 
-Step waveform timings
-\begin_inset LatexCommand \index{Pluto-Step Waveform Timings}
+Pluto-Step Timings
+\begin_inset LatexCommand \index{Pluto-Step Timings}
 
 \end_inset 
 
@@ -6254,7 +6252,7 @@ Step waveform timings
 
 \begin_inset Graphics
 	filename pluto_step_waveform.eps
-	width 80page%
+	width 50page%
 	keepAspectRatio
 
 \end_inset 
