@@ -36,3 +36,7 @@ net tool-prep-loop iocontrol.0.tool-prepare iocontrol.0.tool-prepared
 newsig spindle_on bit
 
 net spindle_on motion.spindle-on => pluto-step.dout.00
+
+setp pluto-step.stepgen.steplen 20000
+setp pluto-step.stepgen.stepspace 20000
+setp pluto-step.stepgen.dirtime 20000
