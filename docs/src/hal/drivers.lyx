@@ -4818,16 +4818,16 @@ ppmc.<port>.write
 \layout Section
 
 
-\begin_inset LatexCommand \label{sec:pluto-servo}
+\begin_inset LatexCommand \label{sec:Pluto-P:-generalities}
 
 \end_inset 
 
-pluto-servo
-\begin_inset LatexCommand \index{Pluto-servo}
+Pluto-P
+\begin_inset LatexCommand \index{Pluto-P}
 
 \end_inset 
 
-
+: generalities
 \layout Standard
 
 The Pluto
@@ -4841,15 +4841,225 @@ The Pluto
 \end_inset 
 
  chip from Altera.
- Pluto_servo is released under the terms of the GNU General Public License
- version 2.
- The pluto_servo system is suitable for control of a 4-axis CNC mill with
+\layout Subsection
+
+Requirements
+\layout Enumerate
+
+A Pluto-P board
+\layout Enumerate
+
+An EPP-compatible parallel port, configured for EPP mode in the system BIOS
+\layout Subsection
+
+Connectors
+\layout Itemize
+
+The Pluto-P board is shipped with the left connector presoldered, with the
+ key in the indicated position.
+ The other connectors are unpopulated.
+ There does not seem to be a standard 12-pin IDC connector, but some of
+ the pins of a 16P connector can hang off the board next to QA3/QZ3.
+\layout Itemize
+
+The bottom and right connectors are on the same .1" grid, but the left connector
+ is not.
+ If OUT2\SpecialChar \ldots{}
+OUT9 are not required, a single IDC connector can span the bottom
+ connector and the bottom two rows of the right connector.
+ 
+\layout Subsection
+
+Physical Pins
+\layout Itemize
+
+Read the ACEX1K datasheet for information about input and output voltage
+ thresholds.
+ The pins are all configured in "LVTTL/LVCMOS" mode and are generally compatible
+ with 5V TTL logic.
+\layout Itemize
+
+Before configuration and after properly exiting emc2, all Pluto-P pins are
+ tristated with weak pull-ups (20k
+\begin_inset Formula $\Omega$
+\end_inset 
+
+ min, 50k
+\begin_inset Formula $\Omega$
+\end_inset 
+
+ max).
+ If the watchdog timer is enabled (the default), these pins are also tristated
+ after an interruption of communication between emc2 and the board.
+ The watchdog timer takes approximately 6.5ms to activate.
+ However, software bugs in the pluto_servo firmware or emc2 can leave the
+ Pluto-P pins in an undefined state.
+\layout Itemize
+
+In pwm+dir mode, by default dir is HIGH for negative values and LOW for
+ positive values.
+ To select HIGH for positive values and LOW for negative values, set the
+ corresponding dout-NN-invert parameter TRUE to invert the signal.
+\layout Itemize
+
+The index input is triggered on the rising edge.
+ Initial testing has shown that the QZx inputs are particularly noise sensitive,
+ due to being polled every 25ns.
+ Digital filtering has been added to filter pulses shorter than 175ns (seven
+ polling times).
+ Additional external filtering on all input pins, such as a Schmitt buffer
+ or inverter, RC filter, or differential receiver (if applicable) is recommended.
+\layout Itemize
+
+The IN1\SpecialChar \ldots{}
+IN7 pins have 22-ohm series resistors to their associated FPGA pins.
+ No other pins have any sort of protection for out-of-spec voltages or currents.
+ It is up to the integrator to add appropriate isolation and protection.
+ Traditional parallel port optoisolator boards do not work with pluto_servo
+ due to the bidirectional nature of the EPP protocol.
+ 
+\layout Subsection
+
+LED
+\layout Itemize
+
+When the device is unprogrammed, the LED glows faintly.
+ When the device is programmed, the LED glows according to the duty cycle
+ of PWM0 (
+\series bold 
+LED
+\series default 
+ = 
+\series bold 
+UP0
+\series default 
+ 
+\emph on 
+xor
+\emph default 
+ 
+\series bold 
+DOWN0
+\series default 
+) or STEPGEN0 (
+\series bold 
+LED
+\series default 
+ = 
+\series bold 
+STEP0
+\series default 
+ 
+\emph on 
+xor
+\emph default 
+ 
+\series bold 
+DIR0
+\series default 
+).
+\layout Subsection
+
+Power
+\layout Itemize
+
+A small amount of current may be drawn from VCC.
+ The available current depends on the unregulated DC input to the board.
+ Alternately, regulated +3.3VDC may be supplied to the FPGA through these
+ VCC pins.
+ The required current is not yet known, but is probably around 50mA plus
+ I/O current.
+\layout Itemize
+
+The regulator on the Pluto-P board is a low-dropout type.
+ Supplying 5V at the power jack will allow the regulator to work properly.
+\layout Subsection
+
+PC interface
+\layout Itemize
+
+At present, only a single pluto_servo or pluto_step board is supported.
+ At present there is no provision for multiple boards on one parallel port
+ (because all boards reside at the same EPP address) but supporting one
+ board per parallel port should be possible.
+\layout Subsection
+
+Rebuilding the FPGA firmware
+\layout Standard
+
+The 
+\family typewriter 
+src/hal/drivers/pluto_servo_firmware/
+\family default 
+ and 
+\family typewriter 
+src/hal/drivers/pluto_step_firmware/
+\series bold 
+ 
+\family default 
+\series default 
+subdirectories contain the Verilog source code plus additional files used
+ by Quartus for the FPGA firmwares.
+ Altera's Quartus II software is required to rebuild the FPGA firmware.
+ To rebuild the firmware from the .hdl and other source files, open the 
+\family typewriter 
+.qpf
+\family default 
+ file and press CTRL-L.
+ Then, recompile emc2.
+\layout Standard
+
+Like the HAL hardware driver, the FPGA firmware is licensed under the terms
+ of the GNU General Public License.
+\layout Standard
+
+The gratis version of Quartus II runs only on Microsoft Windows, although
+ there is apparently a paid version that runs on Linux.
+ 
+\layout Subsection
+
+For more information
+\layout Standard
+
+The Pluto-P board may be ordered from 
+\begin_inset LatexCommand \htmlurl{http://www.knjn.com/ShopBoards_Parallel.html}
+
+\end_inset 
+
+ (US based, international shipping is available).
+ Some additional information about it is available from 
+\begin_inset LatexCommand \htmlurl{http://www.fpga4fun.com/board_pluto-P.html}
+
+\end_inset 
+
+ and from 
+\begin_inset LatexCommand \htmlurl[the developer's blog]{http://emergent.unpy.net/01165081407}
+
+\end_inset 
+
+.
+\layout Section
+
+
+\begin_inset LatexCommand \label{sec:pluto-servo}
+
+\end_inset 
+
+pluto-servo
+\begin_inset LatexCommand \index{Pluto-servo}
+
+\end_inset 
+
+: Hardware PWM and quadrature counting
+\layout Standard
+
+The pluto_servo system is suitable for control of a 4-axis CNC mill with
  servo motors, a 3-axis mill with PWM spindle control, a lathe with spindle
  encoder, etc.
  The large number of inputs allows a full set of limit switches.
 \layout Standard
 
-The board features:
+This driver features:
 \layout Itemize
 
 4 quadrature channels with 40MHz sample rate.
@@ -4879,15 +5089,6 @@ EPP communication with the PC.
  The EPP communication typically takes around 100uS on machines tested so
  far, enabling servo rates above 1kHz.
  
-\layout Subsection
-
-Requirements
-\layout Enumerate
-
-A Pluto-P board
-\layout Enumerate
-
-An EPP-compatible parallel port, configured for EPP mode in the system BIOS
 \layout Subsection
 
 Pinout
@@ -4955,7 +5156,12 @@ collapsed false
 
 \layout Caption
 
-Pluto-P Pinout
+Pluto-Servo Pinout
+\begin_inset LatexCommand \index{Pluto-Servo Pinout}
+
+\end_inset 
+
+
 \layout Standard
 \align center 
 
@@ -4977,7 +5183,12 @@ collapsed false
 
 \layout Caption
 
-Pluto-P Pin Alternate Functions
+Pluto-Servo Alternate Pin Functions
+\begin_inset LatexCommand \index{Pluto-Servo Alternate Pin Functions}
+
+\end_inset 
+
+
 \layout Standard
 
 
@@ -5783,122 +5994,6 @@ Read same value
 
 \layout Subsection
 
-Connectors
-\layout Itemize
-
-The Pluto-P board is shipped with the left connector presoldered, with the
- key in the indicated position.
- The other connectors are unpopulated.
- There does not seem to be a standard 12-pin IDC connector, but some of
- the pins of a 16P connector can hang off the board next to QA3/QZ3.
-\layout Itemize
-
-The bottom and right connectors are on the same .1" grid, but the left connector
- is not.
- If OUT2\SpecialChar \ldots{}
-OUT9 are not required, a single IDC connector can span the bottom
- connector and the bottom two rows of the right connector.
- 
-\layout Subsection
-
-Physical Pins
-\layout Itemize
-
-Read the ACEX1K datasheet for information about input and output voltage
- thresholds.
- The pins are all configured in "LVTTL/LVCMOS" mode and are generally compatible
- with 5V TTL logic.
-\layout Itemize
-
-Before configuration and after properly exiting emc2, all Pluto-P pins are
- tristated with weak pull-ups (20k
-\begin_inset Formula $\Omega$
-\end_inset 
-
- min, 50k
-\begin_inset Formula $\Omega$
-\end_inset 
-
- max).
- If the watchdog timer is enabled (the default), these pins are also tristated
- after an interruption of communication between emc2 and the board.
- The watchdog timer takes approximately 6.5ms to activate.
- However, software bugs in the pluto_servo firmware or emc2 can leave the
- Pluto-P pins in an undefined state.
-\layout Itemize
-
-In pwm+dir mode, by default dir is HIGH for negative values and LOW for
- positive values.
- To select HIGH for positive values and LOW for negative values, set the
- corresponding dout-NN-invert parameter TRUE to invert the signal.
-\layout Itemize
-
-The index input is triggered on the rising edge.
- Initial testing has shown that the QZx inputs are particularly noise sensitive,
- due to being polled every 25ns.
- Digital filtering has been added to filter pulses shorter than 175ns (seven
- polling times).
- Additional external filtering on all input pins, such as a Schmitt buffer
- or inverter, RC filter, or differential receiver (if applicable) is recommended.
-\layout Itemize
-
-The IN1\SpecialChar \ldots{}
-IN7 pins have 22-ohm series resistors to their associated FPGA pins.
- No other pins have any sort of protection for out-of-spec voltages or currents.
- It is up to the integrator to add appropriate isolation and protection.
- Traditional parallel port optoisolator boards do not work with pluto_servo
- due to the bidirectional nature of the EPP protocol.
- 
-\layout Subsection
-
-LED
-\layout Itemize
-
-When the device is unprogrammed, the LED glows faintly.
- When the device is programmed, the LED glows according to the duty cycle
- of PWM0 (
-\series bold 
-LED
-\series default 
- = 
-\series bold 
-UP0
-\series default 
- 
-\emph on 
-xor
-\emph default 
- 
-\series bold 
-DOWN0
-\series default 
-).
-\layout Subsection
-
-Power
-\layout Itemize
-
-A small amount of current may be drawn from VCC.
- The available current depends on the unregulated DC input to the board.
- Alternately, regulated +3.3VDC may be supplied to the FPGA through these
- VCC pins.
- The required current is not yet known, but is probably around 50mA plus
- I/O current.
-\layout Itemize
-
-The regulator on the Pluto-P board is a low-dropout type.
- Supplying 5V at the power jack will allow the regulator to work properly.
-\layout Subsection
-
-PC interface
-\layout Itemize
-
-At present, only a single pluto_servo board is supported.
- At present there is no provision for multiple boards on one parallel port
- (because all boards reside at the same EPP address) but supporting one
- board per parallel port should be possible.
-\layout Subsection
-
 Input latching and output updating
 \layout Itemize
 
@@ -5917,26 +6012,6 @@ Quadrature positions for each channel are latched at different times.
  
 \layout Subsection
 
-Rebuilding the FPGA firmware
-\layout Standard
-
-The src/hal/drivers/pluto_servo_firmware/ subdirectory contains the Verilog
- source code plus additional files used by Quartus for the FPGA firmware.
- Altera's Quartus II software is required to rebuild the FPGA firmware.
- To rebuild the firmware from the .hdl and other source files, open pluto_servo.qp
-f and press CTRL-L.
- Then, recompile emc2.
-\layout Standard
-
-Like the HAL hardware driver, the FPGA firmware is licensed under the terms
- of the GNU General Public License.
-\layout Standard
-
-The gratis version of Quartus II runs only on Microsoft Windows, although
- there is apparently a paid version that runs on Linux.
- 
-\layout Subsection
-
 HAL Functions, Pins and Parameters
 \layout Standard
 
@@ -5948,26 +6023,7 @@ pluto_servo.9
 .
 \layout Subsection
 
-For more information
-\layout Standard
-
-The Pluto-P board may be ordered from 
-\begin_inset LatexCommand \htmlurl{http://www.knjn.com/ShopBoards_Parallel.html}
-
-\end_inset 
-
- (US based, international shipping is available).
- Some additional information about it is available from 
-\begin_inset LatexCommand \htmlurl{http://www.fpga4fun.com/board_pluto-P.html}
-
-\end_inset 
-
- and from 
-\begin_inset LatexCommand \htmlurl[the developer's blog]{http://emergent.unpy.net/01165081407}
-
-\end_inset 
-
-.
+Compatible driver hardware
 \layout Standard
 
 A schematic for a 2A, 2-axis PWM servo amplifier board is available (
@@ -5993,4 +6049,229 @@ A schematic for a 2A, 2-axis PWM servo amplifier board is available (
 \end_inset 
 
 )
+\layout Section
+
+
+\begin_inset LatexCommand \label{sec:Pluto-step:-Hardware-step}
+
+\end_inset 
+
+Pluto-step
+\begin_inset LatexCommand \index{Pluto-step}
+
+\end_inset 
+
+: 300kHz Hardware Step Generator
+\layout Standard
+
+Pluto-step is suitable for control of a 3- or 4-axis CNC mill with stepper
+ motors.
+ The large number of inputs allows for a full set of limit switches.
+\layout Standard
+
+The board features:
+\layout Itemize
+
+4 
+\begin_inset Quotes eld
+\end_inset 
+
+step+direction
+\begin_inset Quotes erd
+\end_inset 
+
+ channels with 312.5kHz maximum step rate, programmable step length, space,
+ and direction change times
+\layout Itemize
+
+14 dedicated digital outputs
+\layout Itemize
+
+16 dedicated digital inputs
+\layout Itemize
+
+EPP communuication with the PC
+\layout Subsection
+
+Pinout
+\layout Description
+
+STEPx The 
+\begin_inset Quotes eld
+\end_inset 
+
+step
+\begin_inset Quotes erd
+\end_inset 
+
+ (clock) output of stepgen channel 
+\series bold 
+x
+\layout Description
+
+DIRx The 
+\begin_inset Quotes eld
+\end_inset 
+
+direction
+\begin_inset Quotes erd
+\end_inset 
+
+ output of stepgen channel 
+\series bold 
+x
+\layout Description
+
+INx Dedicated digital input #x 
+\layout Description
+
+OUTx Dedicated digital output #x 
+\layout Description
+
+GND Ground 
+\layout Description
+
+VCC +3.3V regulated DC
+\layout Standard
+
+While the 
+\begin_inset Quotes eld
+\end_inset 
+
+extended main connector
+\begin_inset Quotes erd
+\end_inset 
+
+ has a superset of signals usually found on a Step & Direction DB25 connector--4
+ step generators, 9 inputs, and 6 general-purpose outputs--the layout on
+ this header is different than the layout of a standard 26-pin ribbon cable
+ to DB25 connector.
+\layout Description
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Caption
+
+Pluto-Step Pinout
+\begin_inset LatexCommand \index{Pluto-Step Pinout}
+
+\end_inset 
+
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename pluto-step-pinout.eps
+	width 80page%
+	keepAspectRatio
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Subsection
+
+Input latching and output updating
+\layout Itemize
+
+Step frequencies for each channel are updated at different times.
+\layout Itemize
+
+Digital outputs are all updated at the same time.
+\layout Itemize
+
+Digital inputs are all latched at the same time.
+\layout Itemize
+
+Feedback positions for each channel are latched at different times.
+ 
+\layout Subsection
+
+Step Waveform Timings
+\layout Standard
+
+The firmware and driver enforce step length, space, and direction change
+ times.
+ Timings are rounded up to the next multiple of 
+\begin_inset Formula $1.6\mu s$
+\end_inset 
+
+, with a maximum of 
+\begin_inset Formula $49.6\mu s$
+\end_inset 
+
+.
+ The timings are the same as for the software stepgen component, except
+ that 
+\begin_inset Quotes eld
+\end_inset 
+
+dirhold
+\begin_inset Quotes erd
+\end_inset 
+
+ and 
+\begin_inset Quotes eld
+\end_inset 
+
+dirsetup
+\begin_inset Quotes erd
+\end_inset 
+
+ have been merged into a single parameter 
+\begin_inset Quotes eld
+\end_inset 
+
+dirtime
+\begin_inset Quotes erd
+\end_inset 
+
+ which should be the maximum of the two, and that the same step timings
+ are always applied to all channels.
+\layout Description
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Caption
+
+Step waveform timings
+\begin_inset LatexCommand \index{Pluto-Step Waveform Timings}
+
+\end_inset 
+
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename pluto_step_waveform.eps
+	width 80page%
+	keepAspectRatio
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Subsection
+
+HAL Functions, Pins and Parameters
+\layout Standard
+
+A list of all 'loadrt' arguments, HAL function names, pin names and parameter
+ names is in the manual page, 
+\emph on 
+pluto_step.9
+\emph default 
+.
 \the_end
