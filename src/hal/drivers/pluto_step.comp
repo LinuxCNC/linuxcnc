@@ -193,6 +193,7 @@ FUNCTION(write) {
 
     r = steplen_ticks | (dirtime_ticks << 8);
     if (stepgen_step_polarity) r |= 0x8000;
+    write16(r);
 }
 
 
