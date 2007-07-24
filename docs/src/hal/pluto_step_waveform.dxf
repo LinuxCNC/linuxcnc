@@ -29,7 +29,7 @@ $DIMADEC
   9
 $DIMGAP
  40
-2.0
+3.0
   9
 $SPLINESEGS
  70
@@ -45,7 +45,7 @@ $LUNITS
   9
 $DIMEXO
  40
-0.625
+2.0
   9
 $INSUNITS
  70
@@ -67,6 +67,14 @@ $LUPREC
  70
 4
   9
+$PSVPSCALE
+ 40
+0.7751394482850703
+  9
+$DIMSTYLE
+  2
+Standard
+  9
 $PLIMMAX
  10
 210.0
@@ -77,6 +85,14 @@ $PLIMMIN
  10
 0.0
  20
+0.0
+  9
+$PINSBASE
+ 10
+3.7151379287324211
+ 20
+85.5199195288551408
+ 30
 0.0
   9
 $DIMEXE
@@ -1323,15 +1339,15 @@ AcDbLine
   6
 ByLayer
  10
-290.0
+60.0
  20
--20.0
+60.0
  30
 0.0
  11
-290.0
+70.0
  21
--20.0
+80.0
  31
 0.0
   0
@@ -1351,13 +1367,13 @@ AcDbLine
   6
 ByLayer
  10
-60.0
+70.0
  20
-60.0
+80.0
  30
 0.0
  11
-70.0
+80.0
  21
 80.0
  31
@@ -1379,15 +1395,15 @@ AcDbLine
   6
 ByLayer
  10
-70.0
+80.0
  20
 80.0
  30
 0.0
  11
-80.0
+90.0
  21
-80.0
+60.0
  31
 0.0
   0
@@ -1407,15 +1423,15 @@ AcDbLine
   6
 ByLayer
  10
-80.0
+110.0
  20
-80.0
+60.0
  30
 0.0
  11
-90.0
+120.0
  21
-60.0
+80.0
  31
 0.0
   0
@@ -1435,15 +1451,15 @@ AcDbLine
   6
 ByLayer
  10
-110.0
+130.0
  20
-60.0
+80.0
  30
 0.0
  11
-120.0
+140.0
  21
-80.0
+60.0
  31
 0.0
   0
@@ -1463,34 +1479,6 @@ AcDbLine
   6
 ByLayer
  10
-130.0
- 20
-80.0
- 30
-0.0
- 11
-140.0
- 21
-60.0
- 31
-0.0
-  0
-LINE
-  5
-4A
-100
-AcDbEntity
-100
-AcDbLine
-  8
-0
- 62
-256
-370
--1
-  6
-ByLayer
- 10
 120.0
  20
 80.0
@@ -1505,7 +1493,7 @@ ByLayer
   0
 LINE
   5
-4B
+4A
 100
 AcDbEntity
 100
@@ -1531,33 +1519,125 @@ ByLayer
  31
 0.0
   0
-LINE
+DIMENSION
   5
-4C
+4B
 100
 AcDbEntity
-100
-AcDbLine
   8
-0
+dims
  62
 256
 370
 -1
   6
 ByLayer
+100
+AcDbDimension
  10
-240.0
+130.0
  20
-60.0
+130.0
  30
 0.0
  11
-250.0
+120.0
  21
-80.0
+134.5
  31
 0.0
+ 70
+0
+ 71
+5
+ 72
+0
+ 41
+1.0
+ 42
+0.0
+  1
+steplen
+  3
+Standard
+100
+AcDbAlignedDimension
+ 13
+110.0
+ 23
+60.0
+ 33
+0.0
+ 14
+130.0
+ 24
+80.0
+ 34
+0.0
+ 50
+0.0
+100
+AcDbRotatedDimension
+  0
+DIMENSION
+  5
+4C
+100
+AcDbEntity
+  8
+dims
+ 62
+256
+370
+-1
+  6
+ByLayer
+100
+AcDbDimension
+ 10
+160.0
+ 20
+130.0
+ 30
+0.0
+ 11
+145.0
+ 21
+134.5
+ 31
+0.0
+ 70
+0
+ 71
+5
+ 72
+0
+ 41
+1.0
+ 42
+0.0
+  1
+stepspace
+  3
+Standard
+100
+AcDbAlignedDimension
+ 13
+130.0
+ 23
+80.0
+ 33
+0.0
+ 14
+160.0
+ 24
+60.0
+ 34
+0.0
+ 50
+0.0
+100
+AcDbRotatedDimension
   0
 LINE
   5
@@ -1575,25 +1655,25 @@ AcDbLine
   6
 ByLayer
  10
-250.0
+50.0
  20
-80.0
+60.0
  30
 0.0
  11
-260.0
+60.0
  21
-80.0
+60.0
  31
 0.0
   0
-LINE
+MTEXT
   5
 4E
 100
 AcDbEntity
 100
-AcDbLine
+AcDbMText
   8
 0
  62
@@ -1603,25 +1683,37 @@ AcDbLine
   6
 ByLayer
  10
-260.0
+50.0
  20
-80.0
+70.0
  30
 0.0
- 11
-270.0
- 21
-60.0
- 31
+ 40
+6.0
+ 41
+100.0
+ 71
+6
+ 72
+2
+  1
+STEP
+  7
+normallatin1
+ 50
 0.0
+ 73
+0
+ 44
+1.0
   0
-LINE
+MTEXT
   5
 4F
 100
 AcDbEntity
 100
-AcDbLine
+AcDbMText
   8
 0
  62
@@ -1631,17 +1723,29 @@ AcDbLine
   6
 ByLayer
  10
-140.0
+50.0
  20
-60.0
+20.0
  30
 0.0
- 11
-240.0
- 21
-60.0
- 31
+ 40
+6.0
+ 41
+100.0
+ 71
+6
+ 72
+2
+  1
+DIRECTION
+  7
+normallatin1
+ 50
 0.0
+ 73
+0
+ 44
+1.0
   0
 DIMENSION
   5
@@ -1667,7 +1771,7 @@ AcDbDimension
  11
 120.0
  21
-133.5
+134.5
  31
 0.0
  70
@@ -1675,7 +1779,7 @@ AcDbDimension
  71
 5
  72
-1
+0
  41
 1.0
  42
@@ -1727,7 +1831,7 @@ AcDbDimension
  11
 145.0
  21
-133.5
+134.5
  31
 0.0
  70
@@ -1735,7 +1839,7 @@ AcDbDimension
  71
 5
  72
-1
+0
  41
 1.0
  42
@@ -1763,33 +1867,65 @@ AcDbAlignedDimension
 100
 AcDbRotatedDimension
   0
-LINE
+DIMENSION
   5
 52
 100
 AcDbEntity
-100
-AcDbLine
   8
-0
+dims
  62
 256
 370
 -1
   6
 ByLayer
+100
+AcDbDimension
  10
-270.0
+140.0
  20
-60.0
+130.0
  30
 0.0
  11
-280.0
+95.0
  21
-60.0
+134.5
  31
 0.0
+ 70
+0
+ 71
+5
+ 72
+0
+ 41
+1.0
+ 42
+0.0
+  1
+stepspace
+  3
+Standard
+100
+AcDbAlignedDimension
+ 13
+80.0
+ 23
+80.0
+ 33
+0.0
+ 14
+110.0
+ 24
+60.0
+ 34
+0.0
+ 50
+0.0
+100
+AcDbRotatedDimension
   0
 LINE
   5
@@ -1807,25 +1943,25 @@ AcDbLine
   6
 ByLayer
  10
-50.0
+210.0
  20
 60.0
  30
 0.0
  11
-60.0
+220.0
  21
-60.0
+80.0
  31
 0.0
   0
-MTEXT
+LINE
   5
 54
 100
 AcDbEntity
 100
-AcDbMText
+AcDbLine
   8
 0
  62
@@ -1835,37 +1971,25 @@ AcDbMText
   6
 ByLayer
  10
-50.0
+220.0
  20
-70.0
+80.0
  30
 0.0
- 40
-6.0
- 41
-100.0
- 71
-6
- 72
-0
-  1
-STEP
-  7
-normallatin1
- 50
+ 11
+230.0
+ 21
+80.0
+ 31
 0.0
- 73
-1
- 44
-1.0
   0
-MTEXT
+LINE
   5
 55
 100
 AcDbEntity
 100
-AcDbMText
+AcDbLine
   8
 0
  62
@@ -1875,29 +1999,17 @@ AcDbMText
   6
 ByLayer
  10
-50.0
+230.0
  20
-20.0
+80.0
  30
 0.0
- 40
-6.0
- 41
-100.0
- 71
-6
- 72
-0
-  1
-DIRECTION
-  7
-normallatin1
- 50
+ 11
+240.0
+ 21
+60.0
+ 31
 0.0
- 73
-1
- 44
-1.0
   0
 LINE
   5
@@ -1915,15 +2027,15 @@ AcDbLine
   6
 ByLayer
  10
-50.0
+240.0
  20
-10.0
+60.0
  30
 0.0
  11
-200.0
+250.0
  21
-10.0
+60.0
  31
 0.0
   0
@@ -1943,13 +2055,13 @@ AcDbLine
   6
 ByLayer
  10
-210.0
+180.0
  20
 30.0
  30
 0.0
  11
-280.0
+250.0
  21
 30.0
  31
@@ -1971,77 +2083,45 @@ AcDbLine
   6
 ByLayer
  10
-200.0
+170.0
  20
 10.0
  30
 0.0
  11
-210.0
+180.0
  21
 30.0
  31
 0.0
   0
-DIMENSION
+LINE
   5
 59
 100
 AcDbEntity
+100
+AcDbLine
   8
-dims
+0
  62
 256
 370
 -1
   6
 ByLayer
-100
-AcDbDimension
  10
-130.0
+50.0
  20
-130.0
+10.0
  30
 0.0
  11
-120.0
+170.0
  21
-133.5
+10.0
  31
 0.0
- 70
-0
- 71
-5
- 72
-1
- 41
-1.0
- 42
-0.0
-  1
-steplen
-  3
-Standard
-100
-AcDbAlignedDimension
- 13
-110.0
- 23
-60.0
- 33
-0.0
- 14
-130.0
- 24
-80.0
- 34
-0.0
- 50
-0.0
-100
-AcDbRotatedDimension
   0
 DIMENSION
   5
@@ -2059,15 +2139,15 @@ ByLayer
 100
 AcDbDimension
  10
-160.0
+190.0
  20
-130.0
+140.0
  30
 0.0
  11
-145.0
+150.0
  21
-133.5
+144.5
  31
 0.0
  70
@@ -2075,13 +2155,13 @@ AcDbDimension
  71
 5
  72
-1
+0
  41
 1.0
  42
 0.0
   1
-stepspace
+dirtime
   3
 Standard
 100
@@ -2093,9 +2173,9 @@ AcDbAlignedDimension
  33
 0.0
  14
-160.0
+170.0
  24
-60.0
+10.0
  34
 0.0
  50
@@ -2119,15 +2199,15 @@ ByLayer
 100
 AcDbDimension
  10
-140.0
+210.0
  20
-130.0
+140.0
  30
 0.0
  11
-95.0
+190.0
  21
-133.5
+144.5
  31
 0.0
  70
@@ -2135,25 +2215,25 @@ AcDbDimension
  71
 5
  72
-1
+0
  41
 1.0
  42
 0.0
   1
-stepspace
+dirtime
   3
 Standard
 100
 AcDbAlignedDimension
  13
-80.0
+170.0
  23
-80.0
+10.0
  33
 0.0
  14
-110.0
+210.0
  24
 60.0
  34
@@ -2163,15 +2243,15 @@ AcDbAlignedDimension
 100
 AcDbRotatedDimension
   0
-MTEXT
+LINE
   5
 5C
 100
 AcDbEntity
 100
-AcDbMText
+AcDbLine
   8
-dims
+0
  62
 256
 370
@@ -2179,149 +2259,17 @@ dims
   6
 ByLayer
  10
-200.0
- 20
 140.0
- 30
-0.0
- 40
-2.5
- 41
-100.0
- 71
-8
- 72
-0
-  1
-(on\~pluto-step,\~dirhold\~==\~dirsetup)
-  7
-normallatin1
- 50
-0.0
- 73
-1
- 44
-1.0
-  0
-DIMENSION
-  5
-5D
-100
-AcDbEntity
-  8
-dims
- 62
-256
-370
--1
-  6
-ByLayer
-100
-AcDbDimension
- 10
-240.0
  20
-130.0
- 30
-0.0
- 11
-220.0
- 21
-133.5
- 31
-0.0
- 70
-0
- 71
-5
- 72
-1
- 41
-1.0
- 42
-0.0
-  1
-dirsetup
-  3
-Standard
-100
-AcDbAlignedDimension
- 13
-200.0
- 23
-10.0
- 33
-0.0
- 14
-240.0
- 24
-30.0
- 34
-0.0
- 50
-0.0
-100
-AcDbRotatedDimension
-  0
-DIMENSION
-  5
-5E
-100
-AcDbEntity
-  8
-dims
- 62
-256
-370
--1
-  6
-ByLayer
-100
-AcDbDimension
- 10
-200.0
- 20
-130.0
- 30
-0.0
- 11
-180.0
- 21
-133.5
- 31
-0.0
- 70
-0
- 71
-5
- 72
-1
- 41
-1.0
- 42
-0.0
-  1
-dirhold
-  3
-Standard
-100
-AcDbAlignedDimension
- 13
-160.0
- 23
 60.0
- 33
+ 30
 0.0
- 14
-200.0
- 24
-10.0
- 34
+ 11
+210.0
+ 21
+60.0
+ 31
 0.0
- 50
-0.0
-100
-AcDbRotatedDimension
   0
 ENDSEC
   0
@@ -2361,7 +2309,7 @@ E
   3
 AcDbVariableDictionary
 350
-5F
+5D
   0
 DICTIONARY
   5
@@ -2825,7 +2773,7 @@ Layout2
   0
 DICTIONARY
   5
-5F
+5D
 100
 AcDbDictionary
 281
@@ -2833,15 +2781,15 @@ AcDbDictionary
   3
 DIMASSOC
 350
-61
+5F
   3
 HIDETEXT
 350
-60
+5E
   0
 DICTIONARYVAR
   5
-60
+5E
 100
 DictionaryVariables
 280
@@ -2851,7 +2799,7 @@ DictionaryVariables
   0
 DICTIONARYVAR
   5
-61
+5F
 100
 DictionaryVariables
 280
