@@ -81,12 +81,29 @@ A machining center has many mechanical components that may be controlled
  
 \layout Subsection
 
-Linear Axes
+Axes
+\begin_inset LatexCommand \index{Axes}
+
+\end_inset 
+
+
 \layout Standard
 
-A machining center has independent mechanisms
+Any machining center has one or more Axes.
+ Different types of machining centers have different combinations.
+ For instance, a 
+\begin_inset Quotes eld
+\end_inset 
+
+4-axis milling machine
+\begin_inset Quotes erd
+\end_inset 
+
+ may have XYZA or XYZB axes.
+ A lathe typically has XZ axes.
+ A foam-cutting machine may have XYUZ axes.
 \begin_inset Foot
-collapsed true
+collapsed false
 
 \layout Standard
 
@@ -95,38 +112,71 @@ If the motion of mechanical components is not independent, as with hexapod
  will still be usable, as long as the lower levels of control know how to
  control the actual mechanisms to produce the same relative motion of tool
  and workpiece as would be produced by independent axes.
-\end_inset 
-
- for producing relative linear motion of the tool and workpiece in three
- mutually orthogonal directions.
- These are the X, Y and Z axes.
-\layout Subsection
-
-Rotational axes
-\layout Standard
-
-Three additional independent mechanisms produce relative rotation of the
- workpiece and the tool around an axis.
- These mechanisms (often a rotary table on which the workpiece is mounted
- or a drum on which the spindle is mounted) are called rotational axes and
- labelled A, B, and C.
- The A-axis is parallel to the X-axis.
- B is parallel to the Y-axis, and C parallel to the Z-axis
-\begin_inset Foot
-collapsed true
-
-\layout Standard
-
-The requirement of parallelism is not used by either language, so both languages
- are usable if any rotational axis is not parallel to any linear axis.
- Rotational axis commands flow through both languages to lower levels of
- control without significant change in nature.
-\end_inset 
-
+ This is called 
+\emph on 
+kinematics
+\emph default 
 .
- Each rotational mechanism may or may not have a mechanical limit on how
- far it can rotate.
- 
+\end_inset 
+
+
+\begin_inset Foot
+collapsed false
+
+\layout Standard
+
+In EMC, the case of a XYYZ 
+\begin_inset Quotes eld
+\end_inset 
+
+gantry
+\begin_inset Quotes erd
+\end_inset 
+
+ machine with two motors for one axis is better handled by kinematics rather
+ than by a second linear axis.
+\end_inset 
+
+
+\layout Subsubsection
+
+Primary Linear Axes
+\begin_inset LatexCommand \index{Axes, Primary Linear}
+
+\end_inset 
+
+
+\layout Standard
+
+The X, Y, and Z axes produce linear motion in three mutually orthogonal
+ directions
+\layout Subsubsection
+
+Secondary Linear Axes
+\begin_inset LatexCommand \index{Axes, Secondary Linear}
+
+\end_inset 
+
+
+\layout Standard
+
+The U, V, and W axes produce linear motion in three mutually orthogonal
+ directions.
+ Typically, X and U are parallel, V and W are parallel, and Z and V are
+ parallel.
+\layout Subsubsection
+
+Rotational Axes
+\begin_inset LatexCommand \index{Axes, Rotational}
+
+\end_inset 
+
+
+\layout Standard
+
+The A, B and C axes produce angular motion (rotation).
+ Typically, X and A are parallel, Y and B are parallel, and Z and C are
+ parallel.
 \layout Subsection
 
 Spindle
@@ -292,6 +342,10 @@ The X, Y, and Z axes form a standard right-handed coordinate system of orthogona
 l linear axes.
  Positions of the three linear motion mechanisms are expressed using coordinates
  on these axes.
+\layout Standard
+
+The U, V and W axes also form a standard right-handed coordinate system.
+ X and U are parallel, Y and V are parallel, and Z and W are parallel.
 \layout Subsection
 
 Rotational Axes
@@ -320,9 +374,9 @@ Clockwise or counterclockwise is from the point of view of the workpiece.
  axis, a counterclockwise turn from the point of view of the workpiece is
  accomplished by turning the turntable in a direction that (for most common
  machine configurations) looks clockwise from the point of view of someone
- standing next to the machine
+ standing next to the machine.
 \begin_inset Foot
-collapsed false
+collapsed true
 
 \layout Standard
 
@@ -427,35 +481,26 @@ The rate at which the controlled point or the axes move is nominally a steady
 ).
 \layout Enumerate
 
-For motion involving one or more of the X, Y, and Z axes (with or without
- simultaneous rotational axis motion), the feed rate means length units
- per minute along the programmed XYZ path, as if the rotational axes were
- not moving.
- 
+If any of XYZ are moving, F is in units per minute in the XYZ cartesian
+ system, and all other axes (UVWABC) move so as to start and stop in coordinated
+ fashion
 \layout Enumerate
 
-For motion of one rotational axis with X, Y, and Z axes not moving, the
- feed rate means degrees per minute rotation of the rotational axis.
- 
+Otherwise, if any of UVW are moving, F is in units per minute in the UVW
+ cartesian system, and all other axes (ABC) move so as to start and stop
+ in coordinated fashion
 \layout Enumerate
 
-For motion of two or three rotational axes with X, Y, and Z axes not moving,
- the rate is applied as follows.
- Let dA, dB, and dC be the angles in degrees through which the A, B, and
- C axes, respectively, must move.
- Let 
-\begin_inset Formula $D=\sqrt{(dA)^{2}+(dB)^{2}+(dC)^{2}}$
+Otherwise, the move is pure rotary motion and the F word is in rotary units
+ in the ABC 
+\begin_inset Quotes eld
 \end_inset 
 
- .
- Conceptually, D is a measure of total angular motion, using the usual Euclidean
- metric.
- Let T be the amount of time required to move through D degrees at the current
- feed rate in degrees per minute.
- The rotational axes should be moved in coordinated linear motion so that
- the elapsed time from the start to the end of the motion is T plus any
- time required for acceleration or deceleration.
- 
+pseudo-cartesian
+\begin_inset Quotes erd
+\end_inset 
+
+ system.
 \layout Subsection
 
 Coolant
@@ -1363,7 +1408,7 @@ Meaning
 
 \layout Standard
 
-5061-5066
+5061-5069
 \end_inset 
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
@@ -1389,7 +1434,7 @@ G38.2
 
 \layout Standard
 
-5161-5166
+5161-5169
 \end_inset 
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
@@ -1415,7 +1460,7 @@ G28
 
 \layout Standard
 
-5181-5186
+5181-5189
 \end_inset 
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
@@ -1441,7 +1486,7 @@ G30
 
 \layout Standard
 
-5211-5216
+5211-5219
 \end_inset 
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
@@ -1485,7 +1530,7 @@ Coordinate System Number
 
 \layout Standard
 
-5221-5226
+5221-5229
 \end_inset 
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
@@ -1503,7 +1548,7 @@ Coordinate System 1
 
 \layout Standard
 
-5241-5246
+5241-5249
 \end_inset 
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
@@ -1521,7 +1566,7 @@ Coordinate System 2
 
 \layout Standard
 
-5261-5266
+5261-5269
 \end_inset 
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
@@ -1539,7 +1584,7 @@ Coordinate System 3
 
 \layout Standard
 
-5281-5286
+5281-5289
 \end_inset 
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
@@ -1557,7 +1602,7 @@ Coordinate System 4
 
 \layout Standard
 
-5301-5306
+5301-5309
 \end_inset 
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
@@ -1575,7 +1620,7 @@ Coordinate System 5
 
 \layout Standard
 
-5321-5326
+5321-5329
 \end_inset 
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
@@ -1593,7 +1638,7 @@ Coordinate System 6
 
 \layout Standard
 
-5341-5346
+5341-5349
 \end_inset 
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
@@ -1611,7 +1656,7 @@ Coordinate System 7
 
 \layout Standard
 
-5361-5366
+5361-5369
 \end_inset 
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
@@ -1629,7 +1674,7 @@ Coordinate System 8
 
 \layout Standard
 
-5381-5386
+5381-5389
 \end_inset 
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
@@ -2212,7 +2257,8 @@ Words may begin with any of the letters shown in Table
  numbers are not words.
  Several letters (I, J, K, L, P, R) may have different meanings in different
  contexts.
- 
+ Letters which refer to axis names are not valid on a machine which does
+ not have the corresponding axis.
 \layout Standard
 
 
@@ -2232,7 +2278,7 @@ Words and their meanings
 
 
 \begin_inset  Tabular
-<lyxtabular version="3" rows="23" columns="2">
+<lyxtabular version="3" rows="26" columns="2">
 <features>
 <column alignment="center" valignment="top" leftline="true" width="0">
 <column alignment="left" valignment="top" leftline="true" rightline="true" width="0">
@@ -2592,6 +2638,60 @@ T
 \layout Standard
 
 Tool selection
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+U
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+U axis of machine
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+V
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+V axis of machine
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+W
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+W axis of machine
 \end_inset 
 </cell>
 </row>
@@ -4224,6 +4324,18 @@ B-
 \family typewriter 
 C-
 \family default 
+, 
+\family typewriter 
+U-
+\family default 
+, 
+\family typewriter 
+V-
+\family default 
+, 
+\family typewriter 
+W-
+\family default 
 ) are given, they specify a destination point.
  Axis numbers are in the currently active coordinate system, unless explicitly
  described as being in the absolute coordinate system.
@@ -4232,6 +4344,12 @@ C-
  Any items in the command prototypes not explicitly described as optional
  are required.
  It is an error if a required item is omitted.
+ In prototypes, this will be written as 
+\family typewriter 
+\emph on 
+axes
+\family default 
+.
 \layout Standard
 
 In the prototypes, the values following letters are often given as explicit
@@ -4318,8 +4436,11 @@ G0
 
 For rapid linear motion, program 
 \family typewriter 
-G0 X- Y- Z- A- B- C-
+G0 
+\emph on 
+axes
 \family default 
+\emph default 
 , where all the axis words are optional, except that at least one must be
  used.
  The 
@@ -4377,8 +4498,11 @@ G1
 
 For linear motion at feed rate (for cutting or not), program 
 \family typewriter 
-G1 X- Y- Z- A- B- C-
+G1 
+\emph on 
+axes
 \family default 
+\emph default 
 , where all the axis words are optional, except that at least one must be
  used.
  The 
@@ -4505,7 +4629,11 @@ When the arc is projected on the selected plane, the distance from the current
 
 When the XY-plane is selected, program 
 \family typewriter 
-G2 X- Y- Z- A- B- C- I- J-
+G2 
+\emph on 
+axes
+\emph default 
+ I- J-
 \family default 
  (or use 
 \family typewriter 
@@ -4532,7 +4660,11 @@ or I and J are both omitted.
 
 When the XZ-plane is selected, program 
 \family typewriter 
-G2 X- Y- Z- A- B- C- I- K-
+G2 
+\emph on 
+axes
+\emph default 
+ I- K-
 \family default 
  (or use 
 \family typewriter 
@@ -4559,7 +4691,11 @@ or I and K are both omitted.
 
 When the YZ-plane is selected, program 
 \family typewriter 
-G2 X- Y- Z- A- B- C- J- K-
+G2 
+\emph on 
+axes
+\emph default 
+ J- K-
 \family default 
  (or use 
 \family typewriter 
@@ -4616,7 +4752,11 @@ In the radius format, the coordinates of the end point of the arc in the
  selected plane are specified along with the radius of the arc.
  Program 
 \family typewriter 
-G2 X- Y- Z- A- B- C- R-
+G2 
+\emph on 
+axes
+\emph default 
+ R-
 \family default 
  (or use 
 \family typewriter 
@@ -4826,8 +4966,11 @@ The RS274/NGC language view of coordinate systems is described in Section
 To set the coordinate values for the origin of a coordinate system, program
  
 \family typewriter 
-G10 L2 P - X- Y- Z- A- B- C-
+G10 L2 P- 
+\emph on 
+axes
 \family default 
+\emph default 
 , where the P number must evaluate to an integer in the range 1 to 9 (correspond
 ing to 
 \family typewriter 
@@ -4983,8 +5126,11 @@ G30
 To return to the predefined position by way of the programmed position,
  program 
 \family typewriter 
-G28 X- Y- Z- A- B- C-
+G28 
+\emph on 
+axes
 \family default 
+\emph default 
  (or use 
 \family typewriter 
 G30\SpecialChar ~
@@ -5018,7 +5164,14 @@ G38.2
 
 \layout Standard
 
-Program G38.2 X- Y- Z- A- B- C- to perform a straight probe operation.
+Program 
+\family typewriter 
+G38.2 
+\emph on 
+axes
+\family default 
+\emph default 
+ to perform a straight probe operation.
  The axis words are optional, except that at least one of them must be used.
  The tool in the spindle must be a probe.
 \layout Standard
@@ -8278,9 +8431,9 @@ Ignore everything in Section
  the semantics are well defined.
  (Exception: Updating a variable to a new value, such as 
 \family typewriter 
-#1=#1+#2
+#1=[#1+#2
 \family default 
-)
+])
 \layout Section
 
 Don't use line numbers
@@ -8289,6 +8442,16 @@ Don't use line numbers
 Line numbers offer no benefits.
  When line numbers are reported in error messages, the numbers refer to
  the line number in the file, not the N-word value.
+\layout Section
+
+When moving more than one coordinate system, consider inverse time feed
+ mode
+\layout Standard
+
+Because the meaning of an F-word in feed-per-minute mode varies depending
+ on which axes are commanded to move, and because the amount of material
+ removed does not depend only on the feed rate, it may be easier to use
+ G93 inverse time feed mode to achieve the desired material removal rate.
 \layout Standard
 
 
@@ -8455,4 +8618,11 @@ G41/G42
 D
 \family default 
  word is not specified.
+\layout Subsection
+
+U, V, and W axes
+\layout Standard
+
+EMC2 allows machines with up to 9 axes by defining an additional set of
+ 3 linear axes known as U, V and W
 \the_end
