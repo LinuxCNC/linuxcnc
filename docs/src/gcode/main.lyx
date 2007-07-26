@@ -6986,7 +6986,7 @@ Two spindle control modes are recognized: revolutions per minute, and constant
  The maximum spindle speed is set by the D- number in revolutions per minute.
 \layout Standard
 
-Program G95 to select RPM mode.
+Program G97 to select RPM mode.
 \layout Standard
 
 It is an error if:
