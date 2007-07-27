@@ -493,6 +493,7 @@ int tpAddCircle(TP_STRUCT * tp, EmcPose end,
     tc.tolerance = tp->tolerance;
 
     tc.synchronized = tp->synchronized;
+    tc.velocity_mode = tp->velocity_mode;
     tc.uu_per_rev = tp->uu_per_rev;
     tc.enables = enables;
 
