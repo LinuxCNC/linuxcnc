@@ -504,9 +504,9 @@ double getStraightVelocity(double x, double y, double z,
 	ta = da? fabs(da / FROM_EXT_ANG(AXIS_MAX_VELOCITY[3])):0.0;
 	tb = db? fabs(db / FROM_EXT_ANG(AXIS_MAX_VELOCITY[4])):0.0;
 	tc = dc? fabs(dc / FROM_EXT_ANG(AXIS_MAX_VELOCITY[5])):0.0;
-	tu = du? fabs(du / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[6])): 0.0;
-	tv = dv? fabs(dv / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[7])): 0.0;
-	tw = dw? fabs(dw / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[8])): 0.0;
+	tu = du? fabs(du / FROM_EXT_LEN(AXIS_MAX_VELOCITY[6])): 0.0;
+	tv = dv? fabs(dv / FROM_EXT_LEN(AXIS_MAX_VELOCITY[7])): 0.0;
+	tw = dw? fabs(dw / FROM_EXT_LEN(AXIS_MAX_VELOCITY[8])): 0.0;
         tmax = MAX9(tx, ty, tz,
                     ta, tb, tc,
                     tu, tv, tw);
