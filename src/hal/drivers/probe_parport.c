@@ -129,8 +129,7 @@ int rtapi_app_main(void) {
     if (r >= 0) {
         pnp_registered_parport = 1;
     } else {
-        rtapi_print_msg(RTAPI_MSG_ERR, "PROBE_PARPORT: ERROR: pnp_register_driver() -> %d\n", r);
-	return r;
+        rtapi_print_msg(RTAPI_MSG_WARN, "PROBE_PARPORT: no PnPBIOS parports were detected (%d)\n", r);
     }
 
     hal_ready(comp_id);
