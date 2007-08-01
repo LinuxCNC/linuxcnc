@@ -14,7 +14,7 @@ msgstr ""
 "Last-Translator: Medardo Torres <e0526338@stud3.tuwien.ac.at>\n"
 "Language-Team: Spanish <emc-developers@lists.sourceforge.net>\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=ISO-8859-15\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
 #: emc/usr_intf/axis/scripts/axis.py:107
