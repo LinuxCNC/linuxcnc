@@ -70,7 +70,7 @@ j1_hi2 = l2_dia * 1.2
 j2_hi = l2_dia * 1.3
 
 # don't change these
-tool_angle = math.atan2(d6,d5)*(180.0/3.1415927)
+tool_angle = math.degrees(math.atan2(d6,d5))
 tool_radius = tool_dia / 2.0
 l1_rad = l1_dia / 2.0
 l2_rad = l2_dia / 2.0
