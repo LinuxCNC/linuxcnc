@@ -3249,7 +3249,6 @@ opts, args = getopt.getopt(sys.argv[1:], 'd:')
 for i in range(9):
     if s.axis_mask & (1<<i): continue
     c = getattr(widgets, "axis_%s" % ("xyzabcuvw"[i]))
-    print "forget", c, s.axis_mask, i, (1<<i)
     c.grid_forget()
 if s.axis_mask & 56 == 0:
     widgets.ajogspeed.grid_forget()
