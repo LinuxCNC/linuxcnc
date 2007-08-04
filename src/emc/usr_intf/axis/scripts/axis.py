@@ -3176,7 +3176,6 @@ if homing_order_defined:
 s = emc.stat();
 s.poll()
 while s.axes == 0:
-    print "waiting for s.axes != 0 -- Had to poll again..."
     time.sleep(.01)
     s.poll()
 
