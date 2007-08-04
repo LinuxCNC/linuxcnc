@@ -638,8 +638,6 @@ int emcTrajSetAxes(int axes, int axismask)
 		axes, axismask);
 	return -1;
     }
-    rcs_print("emcTrajSetAxes succeeding: axes=%d axismask=%x\n",
-	    axes, axismask);
 
     localEmcTrajAxes = axes;
     localEmcTrajAxisMask = axismask;
