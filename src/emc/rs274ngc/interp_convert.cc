@@ -1811,22 +1811,23 @@ Returned Value: int
       NCE_CANNOT_USE_G28_OR_G30_WITH_CUTTER_RADIUS_COMP
    2. The code is not G28 or G30: NCE_BUG_CODE_NOT_G28_OR_G30
 
-Side effects:
+Side effects: 
    This executes a straight traverse to the programmed point, using
    the current coordinate system, tool length offset, and motion mode
    to interpret the coordinate values. Then it executes a straight
-   traverse to the location of reference point 1 (if G28) or reference
-   point 2 (if G30). It also updates the setting of the position of the
-   tool point to the end point of the move.
+   traverse to move one or more axes to the location of reference
+   point 1 (if G28) or reference point 2 (if G30).  If any axis words
+   are specified in this block, only those axes are moved to the
+   reference point.  If none are specified, all axes are moved.  It
+   also updates the setting of the position of the tool point to the
+   end point of the move.
+
+   N.B. Many gcode programmers call the reference point a home
+   position, and that is exactly what it is if the parameters are
+   zero.  Do not confuse this with homing the axis (searching for
+   a switch or index pulse).
 
 Called by: convert_modal_0.
-
-During the motion from the intermediate point to the home point, this
-function currently makes the A and C axes turn counterclockwise if a
-turn is needed.  This is not necessarily the most efficient way to do
-it. A check might be made of which direction to turn to have the least
-turn to get to the reference position, and the axis would turn that
-way.
 
 */
 
@@ -1844,6 +1845,15 @@ int Interp::convert_home(int move,       //!< G code, must be G_28 or G_30
   double u_end;
   double v_end;
   double w_end;
+  double end_x_home;
+  double end_y_home;
+  double end_z_home;
+  double AA_end_home;
+  double BB_end_home;
+  double CC_end_home;
+  double u_end_home;
+  double v_end_home;
+  double w_end_home;
   double *parameters;
 
   parameters = settings->parameters;
@@ -1853,9 +1863,13 @@ int Interp::convert_home(int move,       //!< G code, must be G_28 or G_30
 
   CHK((settings->cutter_comp_side != OFF),
       NCE_CANNOT_USE_G28_OR_G30_WITH_CUTTER_RADIUS_COMP);
+
+  // waypoint is in currently active coordinate system
+
   STRAIGHT_TRAVERSE(end_x, end_y, end_z,
                     AA_end, BB_end, CC_end,
                     u_end, v_end, w_end);
+
   if (move == G_28) {
       find_relative(USER_TO_PROGRAM_LEN(parameters[5161]),
                     USER_TO_PROGRAM_LEN(parameters[5162]),
@@ -1866,9 +1880,9 @@ int Interp::convert_home(int move,       //!< G code, must be G_28 or G_30
                     USER_TO_PROGRAM_LEN(parameters[5167]),
                     USER_TO_PROGRAM_LEN(parameters[5168]),
                     USER_TO_PROGRAM_LEN(parameters[5169]),
-                    &end_x, &end_y, &end_z,
-                    &AA_end, &BB_end, &CC_end, 
-                    &u_end, &v_end, &w_end, settings);
+                    &end_x_home, &end_y_home, &end_z_home,
+                    &AA_end_home, &BB_end_home, &CC_end_home, 
+                    &u_end_home, &v_end_home, &w_end_home, settings);
   } else if (move == G_30) {
       find_relative(USER_TO_PROGRAM_LEN(parameters[5181]),
                     USER_TO_PROGRAM_LEN(parameters[5182]),
@@ -1879,11 +1893,42 @@ int Interp::convert_home(int move,       //!< G code, must be G_28 or G_30
                     USER_TO_PROGRAM_LEN(parameters[5187]),
                     USER_TO_PROGRAM_LEN(parameters[5188]),
                     USER_TO_PROGRAM_LEN(parameters[5189]),
-                    &end_x, &end_y, &end_z,
-                    &AA_end, &BB_end, &CC_end, 
-                    &u_end, &v_end, &w_end, settings);
+                    &end_x_home, &end_y_home, &end_z_home,
+                    &AA_end_home, &BB_end_home, &CC_end_home, 
+                    &u_end_home, &v_end_home, &w_end_home, settings);
   } else
     ERM(NCE_BUG_CODE_NOT_G28_OR_G30);
+  
+  // if any axes are specified, home only those axes after the waypoint 
+  // (both fanuc & haas, contrary to emc historical operation)
+
+  if (block->x_flag == ON) end_x = end_x_home;  
+  if (block->y_flag == ON) end_y = end_y_home;  
+  if (block->z_flag == ON) end_z = end_z_home;  
+  if (block->a_flag == ON) AA_end = AA_end_home;
+  if (block->b_flag == ON) BB_end = BB_end_home;
+  if (block->c_flag == ON) CC_end = CC_end_home;
+  if (block->u_flag == ON) u_end = u_end_home;  
+  if (block->v_flag == ON) v_end = v_end_home;  
+  if (block->w_flag == ON) w_end = w_end_home;  
+
+  // but, if no axes are specified, home all of them 
+  // (haas does this, emc historical did, throws an error in fanuc)
+
+  if (block->x_flag == OFF && block->y_flag == OFF && block->z_flag == OFF &&
+      block->a_flag == OFF && block->b_flag == OFF && block->c_flag == OFF &&
+      block->u_flag == OFF && block->v_flag == OFF && block->w_flag == OFF) {
+      end_x = end_x_home;  
+      end_y = end_y_home;  
+      end_z = end_z_home;  
+      AA_end = AA_end_home;
+      BB_end = BB_end_home;
+      CC_end = CC_end_home;
+      u_end = u_end_home;  
+      v_end = v_end_home;  
+      w_end = w_end_home;  
+  }
+
   STRAIGHT_TRAVERSE(end_x, end_y, end_z,
                     AA_end, BB_end, CC_end,
                     u_end, v_end, w_end);
