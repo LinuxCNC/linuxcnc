@@ -1133,6 +1133,9 @@ int sendProgramStep()
 {
     EMC_TASK_PLAN_STEP emc_task_plan_step_msg;
 
+    // clear out start line, if we had a verify before it would be -1
+    programStartLine = 0;
+
     emc_task_plan_step_msg.serial_number = ++emcCommandSerialNumber;
     emcCommandBuffer->write(emc_task_plan_step_msg);
     if (emcWaitType == EMC_WAIT_RECEIVED) {
