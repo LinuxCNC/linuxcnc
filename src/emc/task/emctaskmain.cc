@@ -980,6 +980,20 @@ interpret_again:
 				interp_list.clear();
 			    }
 
+			    if (emcStatus->task.readLine < programStartLine) {
+			    
+				//update the position with our current position, as the other positions are only skipped through
+				CANON_UPDATE_END_POINT(emcStatus->motion.traj.actualPosition.tran.x,
+						       emcStatus->motion.traj.actualPosition.tran.y,
+						       emcStatus->motion.traj.actualPosition.tran.z,
+						       emcStatus->motion.traj.actualPosition.a,
+						       emcStatus->motion.traj.actualPosition.b,
+						       emcStatus->motion.traj.actualPosition.c,
+						       emcStatus->motion.traj.actualPosition.u,
+						       emcStatus->motion.traj.actualPosition.v,
+						       emcStatus->motion.traj.actualPosition.w);
+			    }
+
                             if (count++ < 1000
                                     && emcStatus->task.interpState == EMC_TASK_INTERP_READING
                                     && interp_list.len() <= EMC_TASK_INTERP_MAX_LEN * 2/3) {

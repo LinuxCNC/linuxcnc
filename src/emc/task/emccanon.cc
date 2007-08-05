@@ -70,6 +70,23 @@ static double css_maximum, css_numerator;
 #define MAX9(a,b,c,d,e,f,g,h,i) (MAX3((MAX3(a,b,c)),(MAX3(d,e,f)),(MAX3(g,h,i))))
 #endif
 
+/* macros for converting internal (mm/deg) units to external units */
+#define TO_EXT_LEN(mm) ((mm) * GET_EXTERNAL_LENGTH_UNITS())
+#define TO_EXT_ANG(deg) ((deg) * GET_EXTERNAL_ANGLE_UNITS())
+
+/* macros for converting external units to internal (mm/deg) units */
+#define FROM_EXT_LEN(ext) ((ext) / GET_EXTERNAL_LENGTH_UNITS())
+#define FROM_EXT_ANG(ext) ((ext) / GET_EXTERNAL_ANGLE_UNITS())
+
+/* macros for converting internal (mm/deg) units to program units */
+#define TO_PROG_LEN(mm) ((mm) / (lengthUnits == CANON_UNITS_INCHES ? 25.4 : lengthUnits == CANON_UNITS_CM ? 10.0 : 1.0))
+#define TO_PROG_ANG(deg) (deg)
+
+/* macros for converting program units to internal (mm/deg) units */
+#define FROM_PROG_LEN(prog) ((prog) * (lengthUnits == CANON_UNITS_INCHES ? 25.4 : lengthUnits == CANON_UNITS_CM ? 10.0 : 1.0))
+#define FROM_PROG_ANG(prog) (prog)
+
+
 static PM_QUATERNION quat(1, 0, 0, 0);
 
 static void flush_segments(void);
@@ -123,6 +140,18 @@ static void canonUpdateEndPoint(double x, double y, double z,
     canonEndPoint.w = w;
 }
 
+/* External call to update the canon end point.
+   Called by emctask during skipping of lines (run-from-line) */
+void CANON_UPDATE_END_POINT(double x, double y, double z, 
+			    double a, double b, double c, 
+			    double u, double v, double w)
+{
+    canonUpdateEndPoint(FROM_PROG_LEN(x),FROM_PROG_LEN(y),FROM_PROG_LEN(z),
+    			FROM_PROG_ANG(a),FROM_PROG_ANG(b),FROM_PROG_ANG(c),
+			FROM_PROG_LEN(u),FROM_PROG_LEN(v),FROM_PROG_LEN(w));
+}
+
+
 /* motion control mode is used to signify blended v. stop-at-end moves.
    Set to 0 (invalid) at start, so first call will send command out */
 static CANON_MOTION_MODE canonMotionMode = 0;
@@ -133,21 +162,6 @@ static CANON_MOTION_MODE canonMotionMode = 0;
    almost any deviation trying to keep speed up. */
 static double canonMotionTolerance = 0.0;
 
-/* macros for converting internal (mm/deg) units to external units */
-#define TO_EXT_LEN(mm) ((mm) * GET_EXTERNAL_LENGTH_UNITS())
-#define TO_EXT_ANG(deg) ((deg) * GET_EXTERNAL_ANGLE_UNITS())
-
-/* macros for converting external units to internal (mm/deg) units */
-#define FROM_EXT_LEN(ext) ((ext) / GET_EXTERNAL_LENGTH_UNITS())
-#define FROM_EXT_ANG(ext) ((ext) / GET_EXTERNAL_ANGLE_UNITS())
-
-/* macros for converting internal (mm/deg) units to program units */
-#define TO_PROG_LEN(mm) ((mm) / (lengthUnits == CANON_UNITS_INCHES ? 25.4 : lengthUnits == CANON_UNITS_CM ? 10.0 : 1.0))
-#define TO_PROG_ANG(deg) (deg)
-
-/* macros for converting program units to internal (mm/deg) units */
-#define FROM_PROG_LEN(prog) ((prog) * (lengthUnits == CANON_UNITS_INCHES ? 25.4 : lengthUnits == CANON_UNITS_CM ? 10.0 : 1.0))
-#define FROM_PROG_ANG(prog) (prog)
 
 /* Spindle speed is saved here */
 static double spindleSpeed = 0.0;

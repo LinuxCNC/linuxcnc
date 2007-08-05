@@ -176,6 +176,12 @@ a, b, and c. Values of x, y, z, a, b, and c are real numbers. The units
 are whatever length units are being used at the time this command is
 given. */
 
+extern void CANON_UPDATE_END_POINT(double x, double y, double z, 
+				   double a, double b, double c,
+				   double u, double v, double w);
+/* Called from emctask to update the canon position during skipping through
+   programs started with start-from-line > 0. */
+
 extern void USE_LENGTH_UNITS(CANON_UNITS u);
 
 /* Use the specified units for length. Conceptually, the units must
