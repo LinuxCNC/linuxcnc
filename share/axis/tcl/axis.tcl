@@ -175,55 +175,55 @@ setup_menu_accel .menu.machine end [_ "Homin_g"]
 setup_menu_accel .menu.machine end [_ "Coordinate system for Touch-O_ff"]
 
 .menu.machine.touchoff add radiobutton \
-    -command {set touch_off_system P1} \
+    -command {set touch_off_system {P1  G54}} \
     -variable touch_off_system \
     -value P1
 setup_menu_accel .menu.machine.touchoff end [_ "P1  G5_4"]
 
 .menu.machine.touchoff add radiobutton \
-    -command {set touch_off_system P2} \
+    -command {set touch_off_system {P2  G55}} \
     -variable touch_off_system \
     -value P2
 setup_menu_accel .menu.machine.touchoff end [_ "P2  G5_5"]
 
 .menu.machine.touchoff add radiobutton \
-    -command {set touch_off_system P3} \
+    -command {set touch_off_system {P3 G56}} \
     -variable touch_off_system \
     -value P3
 setup_menu_accel .menu.machine.touchoff end [_ "P3  G5_6"]
 
 .menu.machine.touchoff add radiobutton \
-    -command {set touch_off_system P4} \
+    -command {set touch_off_system {P4  G57}} \
     -variable touch_off_system \
     -value P4
 setup_menu_accel .menu.machine.touchoff end [_ "P4  G5_7"]
 
 .menu.machine.touchoff add radiobutton \
-    -command {set touch_off_system P5} \
+    -command {set touch_off_system {P5  G58}} \
     -variable touch_off_system \
     -value P5
 setup_menu_accel .menu.machine.touchoff end [_ "P5  G5_8"]
 
 .menu.machine.touchoff add radiobutton \
-    -command {set touch_off_system P6} \
+    -command {set touch_off_system {P6  G59}} \
     -variable touch_off_system \
     -value P6
 setup_menu_accel .menu.machine.touchoff end [_ "P6  G5_9"]
 
 .menu.machine.touchoff add radiobutton \
-    -command {set touch_off_system P7} \
+    -command {set touch_off_system {P7  G59.1}} \
     -variable touch_off_system \
     -value P7
 setup_menu_accel .menu.machine.touchoff end [_ "P7  G59._1"]
 
 .menu.machine.touchoff add radiobutton \
-    -command {set touch_off_system P8} \
+    -command {set touch_off_system {P8  G59.2}} \
     -variable touch_off_system \
     -value P8
 setup_menu_accel .menu.machine.touchoff end [_ "P8  G59._2"]
 
 .menu.machine.touchoff add radiobutton \
-    -command {set touch_off_system P9} \
+    -command {set touch_off_system {P9  G59.3}} \
     -variable touch_off_system \
     -value P9
 setup_menu_accel .menu.machine.touchoff end [_ "P9  G59._3"]

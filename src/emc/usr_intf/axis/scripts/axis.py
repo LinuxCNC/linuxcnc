@@ -2064,6 +2064,9 @@ def prompt_float(title, text, default):
     t = _prompt_float(title, text, default)
     return t.run()
 
+systems = ['P1  G54', 'P2  G55', 'P3  G56', 'P4  G57', 'P5  G58',
+            'P6  G59', 'P7  G59.1', 'P8  G59.2', 'P9  G59.3']
+
 class _prompt_touchoff(_prompt_float):
     def __init__(self, title, text, default, defaultsystem):
         _prompt_float.__init__(self, title, text, default)
@@ -2072,7 +2075,7 @@ class _prompt_touchoff(_prompt_float):
         self.c = c = StringVar(t)
         c.set(defaultsystem)
         l = Label(f, text=_("Coordinate System:"))
-        mb = OptionMenu(f, c, *["P%d" % p for p in range(1, 10)])
+        mb = OptionMenu(f, c, *systems)
         l.pack(side="left") 
         mb.pack(side="left")
         f.pack(side="top") 
@@ -2760,7 +2763,7 @@ class TclCommands(nf.TclCommands):
             scale *= 25.4
             p0 *= 25.4
 
-        offset_command = "G10 L2 %s %c[%.12f-[%f*[%s]]]\n" % (system, vars.current_axis.get(), p0, scale, new_axis_value)
+        offset_command = "G10 L2 %s %c[%.12f-[%f*[%s]]]\n" % (system.split()[0], vars.current_axis.get(), p0, scale, new_axis_value)
         c.mdi(offset_command)
         ensure_mode(emc.MODE_MANUAL)
         s.poll()
@@ -2938,7 +2941,7 @@ vars.show_extents.set(ap.getpref("show_extents", True))
 vars.show_machine_limits.set(ap.getpref("show_machine_limits", True))
 vars.show_machine_speed.set(ap.getpref("show_machine_speed", True))
 vars.show_distance_to_go.set(ap.getpref("show_distance_to_go", False))
-vars.touch_off_system.set("P1")
+vars.touch_off_system.set("P1  G54")
 
 
 def set_feedrate(n):
