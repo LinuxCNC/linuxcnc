@@ -1989,7 +1989,7 @@ class _prompt_float:
         m.pack(side="top", anchor="w")
         e.pack(side="top", anchor="e")
         l.pack(side="top", anchor="w", fill="x", expand=1)
-        f.pack(side="top", anchor="e")
+        f.pack(side="bottom", anchor="e")
         self.ok.pack(side="left", padx=3, pady=3)
         self.cancel.pack(side="left", padx=3, pady=3)
 
@@ -2047,6 +2047,10 @@ class _prompt_float:
             self.e.selection_range(0, "end")
             self._after = None
 
+    def result(self):
+        if self.u.get(): return self.v.get()
+        return None
+
     def run(self):
         self.t.grab_set()
         self._after = self.t.after_idle(self.do_focus)
@@ -2054,12 +2058,35 @@ class _prompt_float:
         if self._after is not None:
             self.t.after_cancel(self._after)
         self.t.destroy()
-        if self.u.get(): return self.v.get()
-        return None
+        return self.result()
 
 def prompt_float(title, text, default):
     t = _prompt_float(title, text, default)
     return t.run()
+
+class _prompt_touchoff(_prompt_float):
+    def __init__(self, title, text, default, defaultsystem):
+        _prompt_float.__init__(self, title, text, default)
+        t = self.t
+        f = Frame(t)
+        self.c = c = StringVar(t)
+        c.set(defaultsystem)
+        l = Label(f, text=_("Coordinate System:"))
+        mb = OptionMenu(f, c, *["P%d" % p for p in range(1, 10)])
+        l.pack(side="left") 
+        mb.pack(side="left")
+        f.pack(side="top") 
+    def result(self):
+        if self.u.get(): return self.v.get(), self.c.get()
+        return None, None
+        
+touchoff_system = "P1"
+def prompt_touchoff(title, text, default, system=None):
+    global touchoff_system
+    t = _prompt_touchoff(title, text, default, system or touchoff_system)
+    result = t.run()
+    if result[1]: touchoff_system = result[1]
+    return result
 
 property_names = [
     ('name', _("Name:")), ('size', _("Size:")),
@@ -2716,14 +2743,14 @@ class TclCommands(nf.TclCommands):
     def touch_off_system(num):
         commands.touch_off(system=num)
         
-    def touch_off(event=None, new_axis_value = None, system = "1"):
+    def touch_off(event=None, new_axis_value = None, system = None):
         if not manual_ok(): return
         if s.motion_mode == emc.TRAJ_MODE_FREE and s.kinematics_type != emc.KINEMATICS_IDENTITY: return
         offset_axis = "xyzabcuvw".index(vars.current_axis.get())
         if new_axis_value is None:
-            new_axis_value = prompt_float(_("Touch Off"),
+            new_axis_value, system = prompt_touchoff(_("Touch Off"),
                 _("Enter %s coordinate relative to workpiece:")
-                        % vars.current_axis.get().upper(), 0.0)
+                        % vars.current_axis.get().upper(), 0.0, system)
         if new_axis_value is None: return
         ensure_mode(emc.MODE_MDI)
         s.poll()
@@ -2739,7 +2766,7 @@ class TclCommands(nf.TclCommands):
             scale *= 25.4
             p0 *= 25.4
 
-        offset_command = "G10 L2 P%c %c[%.12f-[%f*[%s]]]\n" % (system, vars.current_axis.get(), p0, scale, new_axis_value)
+        offset_command = "G10 L2 %s %c[%.12f-[%f*[%s]]]\n" % (system, vars.current_axis.get(), p0, scale, new_axis_value)
         c.mdi(offset_command)
         ensure_mode(emc.MODE_MANUAL)
         s.poll()
