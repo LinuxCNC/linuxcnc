@@ -5123,8 +5123,13 @@ G30
  the machine's native coordinate system.
 \layout Standard
 
-To return to the predefined position by way of the programmed position,
- program 
+G28 and G30 do not use home switches to find the predefined position.
+ They merely command a rapid motion to the position defined by the parameters,
+ assuming that the machine has already been homed.
+\layout Standard
+
+To return one or more axes to the predefined position by way of the programmed
+ position, program 
 \family typewriter 
 G28 
 \emph on 
@@ -5133,22 +5138,30 @@ axes
 \emph default 
  (or use 
 \family typewriter 
-G30\SpecialChar ~
-\SpecialChar \ldots{}
-
+G30
 \family default 
 ).
- All axis words are optional.
  The path is made by a traverse move from the current position to the programmed
- position, followed by a traverse move to the predefined position.
- If no axis words are programmed, the intermediate point is the current
- point, so only one move is made.
- 
+ position, followed by a traverse move of the named axes to the predefined
+ position.
 \layout Standard
 
-G28 and G30 do not use home switches to find the predefined position.
- They merely command a rapid motion to the position defined by the parameters,
- assuming that the machine has already been homed.
+To return all axes to the predefined position without an intermediate position,
+ program 
+\family typewriter 
+G28
+\family default 
+ or 
+\family typewriter 
+G30
+\family default 
+ without any axis words.
+\layout Standard
+
+It is an error if :
+\layout Itemize
+
+Radius compensation is turned on
 \layout Section
 
 G38.2
@@ -8517,6 +8530,29 @@ G84, G87 not implemented
 
 G84 and G87 are not currently implemented, but may be added to a future
  release of emc2.
+\layout Subsection
+
+G28, G30 with axis words
+\layout Standard
+
+When 
+\family typewriter 
+G28
+\family default 
+ or 
+\family typewriter 
+G30
+\family default 
+ is programmed with only some axis words present, EMC2 only moves the named
+ axes.
+ This is common on other machine controls.
+ To move some axes to an intermediate point and then move all axes to the
+ predefined point, write two lines of gcode:
+\layout LyX-Code
+
+G0 X- Y- (axes to move to intermediate point)
+\newline 
+G28 (move all axes to predefined point)
 \layout Section
 
 Differences that do not change the meaning of well-formed RS274NGC programs
@@ -8581,7 +8617,7 @@ EMC2 allows specification of a computed tool length through
 G43.1 I K.
 \layout Subsection
 
-G41.1/G42.1
+G41.1, G42.1
 \layout Standard
 
 EMC2 allows specification of a tool diameter and, if in lathe mode, orientation
