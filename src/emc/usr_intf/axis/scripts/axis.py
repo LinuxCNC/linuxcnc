@@ -2080,13 +2080,9 @@ class _prompt_touchoff(_prompt_float):
         if self.u.get(): return self.v.get(), self.c.get()
         return None, None
         
-touchoff_system = "P1"
 def prompt_touchoff(title, text, default, system=None):
-    global touchoff_system
-    t = _prompt_touchoff(title, text, default, system or touchoff_system)
-    result = t.run()
-    if result[1]: touchoff_system = result[1]
-    return result
+    t = _prompt_touchoff(title, text, default, system)
+    return t.run()
 
 property_names = [
     ('name', _("Name:")), ('size', _("Size:")),
@@ -2740,18 +2736,16 @@ class TclCommands(nf.TclCommands):
         o.tkRedraw()
         reload_file(False)
         
-    def touch_off_system(num):
-        commands.touch_off(system=num)
-        
-    def touch_off(event=None, new_axis_value = None, system = None):
+    def touch_off(event=None, new_axis_value = None):
         if not manual_ok(): return
         if s.motion_mode == emc.TRAJ_MODE_FREE and s.kinematics_type != emc.KINEMATICS_IDENTITY: return
         offset_axis = "xyzabcuvw".index(vars.current_axis.get())
         if new_axis_value is None:
             new_axis_value, system = prompt_touchoff(_("Touch Off"),
                 _("Enter %s coordinate relative to workpiece:")
-                        % vars.current_axis.get().upper(), 0.0, system)
+                        % vars.current_axis.get().upper(), 0.0, vars.touch_off_system.get())
         if new_axis_value is None: return
+        vars.touch_off_system.set(system)
         ensure_mode(emc.MODE_MDI)
         s.poll()
 
@@ -2932,6 +2926,7 @@ vars = nf.Variables(root_window,
     ("optional_stop", BooleanVar),
     ("block_delete", BooleanVar),
     ("rotate_mode", BooleanVar),
+    ("touch_off_system", StringVar),
 )
 vars.emctop_command.set(os.path.join(os.path.dirname(sys.argv[0]), "emctop"))
 vars.highlight_line.set(-1)
@@ -2943,6 +2938,7 @@ vars.show_extents.set(ap.getpref("show_extents", True))
 vars.show_machine_limits.set(ap.getpref("show_machine_limits", True))
 vars.show_machine_speed.set(ap.getpref("show_machine_speed", True))
 vars.show_distance_to_go.set(ap.getpref("show_distance_to_go", False))
+vars.touch_off_system.set("P1")
 
 
 def set_feedrate(n):

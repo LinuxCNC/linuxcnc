@@ -172,42 +172,60 @@ setup_menu_accel .menu.machine end [_ "Homin_g"]
 
 .menu.machine add cascade \
     -menu .menu.machine.touchoff
-setup_menu_accel .menu.machine end [_ "Touch-O_ff current axis in system..."]
+setup_menu_accel .menu.machine end [_ "Coordinate system for Touch-O_ff"]
 
-.menu.machine.touchoff add command \
-    -command [list touch_off_system P1]
+.menu.machine.touchoff add radiobutton \
+    -command {set touch_off_system P1} \
+    -variable touch_off_system \
+    -value P1
 setup_menu_accel .menu.machine.touchoff end [_ "P1  G5_4"]
 
-.menu.machine.touchoff add command \
-    -command [list touch_off_system P2]
+.menu.machine.touchoff add radiobutton \
+    -command {set touch_off_system P2} \
+    -variable touch_off_system \
+    -value P2
 setup_menu_accel .menu.machine.touchoff end [_ "P2  G5_5"]
 
-.menu.machine.touchoff add command \
-    -command [list touch_off_system P3]
+.menu.machine.touchoff add radiobutton \
+    -command {set touch_off_system P3} \
+    -variable touch_off_system \
+    -value P3
 setup_menu_accel .menu.machine.touchoff end [_ "P3  G5_6"]
 
-.menu.machine.touchoff add command \
-    -command [list touch_off_system P4]
+.menu.machine.touchoff add radiobutton \
+    -command {set touch_off_system P4} \
+    -variable touch_off_system \
+    -value P4
 setup_menu_accel .menu.machine.touchoff end [_ "P4  G5_7"]
 
-.menu.machine.touchoff add command \
-    -command [list touch_off_system P5]
+.menu.machine.touchoff add radiobutton \
+    -command {set touch_off_system P5} \
+    -variable touch_off_system \
+    -value P5
 setup_menu_accel .menu.machine.touchoff end [_ "P5  G5_8"]
 
-.menu.machine.touchoff add command \
-    -command [list touch_off_system P6]
+.menu.machine.touchoff add radiobutton \
+    -command {set touch_off_system P6} \
+    -variable touch_off_system \
+    -value P6
 setup_menu_accel .menu.machine.touchoff end [_ "P6  G5_9"]
 
-.menu.machine.touchoff add command \
-    -command [list touch_off_system P7]
+.menu.machine.touchoff add radiobutton \
+    -command {set touch_off_system P7} \
+    -variable touch_off_system \
+    -value P7
 setup_menu_accel .menu.machine.touchoff end [_ "P7  G59._1"]
 
-.menu.machine.touchoff add command \
-    -command [list touch_off_system P8]
+.menu.machine.touchoff add radiobutton \
+    -command {set touch_off_system P8} \
+    -variable touch_off_system \
+    -value P8
 setup_menu_accel .menu.machine.touchoff end [_ "P8  G59._2"]
 
-.menu.machine.touchoff add command \
-    -command [list touch_off_system P9]
+.menu.machine.touchoff add radiobutton \
+    -command {set touch_off_system P9} \
+    -variable touch_off_system \
+    -value P9
 setup_menu_accel .menu.machine.touchoff end [_ "P9  G59._3"]
 
 
@@ -1698,8 +1716,7 @@ proc update_state {args} {
         {.menu.file "Edit _tool table..."}
 
     state  {$task_state == $STATE_ON && $interp_state == $INTERP_IDLE} \
-        {.menu.machine "Homin_g" "Touch-O_ff current axis in system..."
-            "_Zero coordinate system"}
+        {.menu.machine "Homin_g" "_Zero coordinate system"}
 
     relief {$interp_state != $INTERP_IDLE} .toolbar.program_run
     state  {$task_state == $STATE_ON && $taskfile != ""} \
