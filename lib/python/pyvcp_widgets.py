@@ -1103,6 +1103,15 @@ class pyvcp_include(Frame):
     def add(self, container, widget):
         widget.pack(fill=self.fill, anchor=self.anchor, expand=self.expand)
 
+class pyvcp_image:
+    all_images = []
+    def __init__(self, master, pycomp, name, **kw):
+        self.all_images.append(PhotoImage(name, kw, master))
+
+    def add(self, container, widget): pass
+    def update(self, pycomp): pass
+    def pack(self, *args, **kw): pass
+
 # This must come after all the pyvcp_xxx classes
 elements = []
 __all__ = []
