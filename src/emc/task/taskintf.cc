@@ -1039,6 +1039,12 @@ int emcTrajProbe(EmcPose pos, int type, double vel, double ini_maxvel, double ac
     emcmotCommand.pos.tran.x = pos.tran.x;
     emcmotCommand.pos.tran.y = pos.tran.y;
     emcmotCommand.pos.tran.z = pos.tran.z;
+    emcmotCommand.pos.a = pos.a;
+    emcmotCommand.pos.b = pos.b;
+    emcmotCommand.pos.c = pos.c;
+    emcmotCommand.pos.u = pos.u;
+    emcmotCommand.pos.v = pos.v;
+    emcmotCommand.pos.w = pos.w;
     emcmotCommand.id = localEmcTrajMotionId;
     emcmotCommand.motion_type = type;
     emcmotCommand.vel = vel;

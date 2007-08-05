@@ -2377,8 +2377,10 @@ int Interp::convert_probe(block_pointer block,   //!< pointer to a block of RS27
   
   CHK((block->x_flag == OFF && block->y_flag == OFF &&
        block->z_flag == OFF && block->a_flag == OFF &&
-       block->b_flag == OFF && block->c_flag == OFF), 
-       NCE_X_Y_Z_A_B_AND_C_WORDS_ALL_MISSING_WITH_G38_2);
+       block->b_flag == OFF && block->c_flag == OFF &&
+       block->u_flag == OFF && block->v_flag == OFF &&
+       block->w_flag == OFF),
+       NCE_X_Y_Z_A_B_C_U_V_AND_W_WORDS_ALL_MISSING_WITH_G38_2);
   CHK((settings->cutter_comp_side != OFF),
       NCE_CANNOT_PROBE_WITH_CUTTER_RADIUS_COMP_ON);
   CHK((settings->feed_rate == 0.0), NCE_CANNOT_PROBE_WITH_ZERO_FEED_RATE);
@@ -2390,7 +2392,9 @@ int Interp::convert_probe(block_pointer block,   //!< pointer to a block of RS27
             &u_end, &v_end, &w_end);
   CHK((settings->current_x == end_x && settings->current_y == end_y &&
        settings->current_z == end_z && settings->AA_current == AA_end &&
-       settings->BB_current == BB_end && settings->CC_current == CC_end),
+       settings->BB_current == BB_end && settings->CC_current == CC_end &&
+       settings->u_current == u_end && settings->v_current == v_end &&
+       settings->w_current == w_end),
        NCE_START_POINT_TOO_CLOSE_TO_PROBE_POINT);
        
   TURN_PROBE_ON();
