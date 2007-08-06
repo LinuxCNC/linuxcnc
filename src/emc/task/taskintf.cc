@@ -1159,6 +1159,13 @@ int emcTrajUpdate(EMC_TRAJ_STAT * stat)
     stat->probedPosition.tran.x = emcmotStatus.probedPos.tran.x;
     stat->probedPosition.tran.y = emcmotStatus.probedPos.tran.y;
     stat->probedPosition.tran.z = emcmotStatus.probedPos.tran.z;
+    stat->probedPosition.a = emcmotStatus.probedPos.a;
+    stat->probedPosition.b = emcmotStatus.probedPos.b;
+    stat->probedPosition.c = emcmotStatus.probedPos.c;
+    stat->probedPosition.u = emcmotStatus.probedPos.u;
+    stat->probedPosition.v = emcmotStatus.probedPos.v;
+    stat->probedPosition.w = emcmotStatus.probedPos.w;
+
     stat->probeval = emcmotStatus.probeVal;
     stat->probe_tripped = emcmotStatus.probeTripped;
     stat->feed_override_enabled = emcmotStatus.enables_new & FS_ENABLED;

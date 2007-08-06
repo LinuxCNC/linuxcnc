@@ -391,8 +391,11 @@ int Interp::set_probe_data(setup_pointer settings)       //!< pointer to machine
   settings->parameters[5064] = GET_EXTERNAL_PROBE_POSITION_A();
   settings->parameters[5065] = GET_EXTERNAL_PROBE_POSITION_B();
   settings->parameters[5066] = GET_EXTERNAL_PROBE_POSITION_C();
-  settings->parameters[5067] = GET_EXTERNAL_PROBE_VALUE();
-  // XXX oops, no room to report uvw probe position
+  settings->parameters[5067] = GET_EXTERNAL_PROBE_POSITION_U();
+  settings->parameters[5068] = GET_EXTERNAL_PROBE_POSITION_V();
+  settings->parameters[5069] = GET_EXTERNAL_PROBE_POSITION_W();
+
+  // was an undocumented feature?: settings->parameters[5067] = GET_EXTERNAL_PROBE_VALUE();
   return INTERP_OK;
 }
 

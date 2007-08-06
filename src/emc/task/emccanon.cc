@@ -2024,6 +2024,10 @@ CANON_POSITION GET_EXTERNAL_PROBE_POSITION()
     pos.b = FROM_EXT_ANG(pos.b);
     pos.c = FROM_EXT_ANG(pos.c);
 
+    pos.u = FROM_EXT_LEN(pos.u);
+    pos.v = FROM_EXT_LEN(pos.v);
+    pos.w = FROM_EXT_LEN(pos.w);
+
     // now calculate position in program units, for interpreter
     position.x = TO_PROG_LEN(pos.tran.x - programOrigin.x);
     position.y = TO_PROG_LEN(pos.tran.y - programOrigin.y);
@@ -2034,6 +2038,10 @@ CANON_POSITION GET_EXTERNAL_PROBE_POSITION()
     position.a = TO_PROG_ANG(pos.a - programOrigin.a);
     position.b = TO_PROG_ANG(pos.b - programOrigin.b);
     position.c = TO_PROG_ANG(pos.c - programOrigin.c);
+
+    position.u = TO_PROG_LEN(pos.u - programOrigin.u);
+    position.v = TO_PROG_LEN(pos.v - programOrigin.v);
+    position.w = TO_PROG_LEN(pos.w - programOrigin.w);
 
     /*! \todo FIXME-- back end of hot comment */
     if (probefile != NULL) {
@@ -2286,6 +2294,27 @@ double GET_EXTERNAL_PROBE_POSITION_C(void)
     CANON_POSITION position;
     position = GET_EXTERNAL_PROBE_POSITION();
     return position.c;
+}
+
+double GET_EXTERNAL_PROBE_POSITION_U(void)
+{
+    CANON_POSITION position;
+    position = GET_EXTERNAL_PROBE_POSITION();
+    return position.u;
+}
+
+double GET_EXTERNAL_PROBE_POSITION_V(void)
+{
+    CANON_POSITION position;
+    position = GET_EXTERNAL_PROBE_POSITION();
+    return position.v;
+}
+
+double GET_EXTERNAL_PROBE_POSITION_W(void)
+{
+    CANON_POSITION position;
+    position = GET_EXTERNAL_PROBE_POSITION();
+    return position.w;
 }
 
 CANON_MOTION_MODE GET_EXTERNAL_MOTION_CONTROL_MODE()
