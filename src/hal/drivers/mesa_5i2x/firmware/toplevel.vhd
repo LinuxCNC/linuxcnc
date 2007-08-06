@@ -7,8 +7,8 @@
 
 -- the following lines are for the make system
 -- they must start with three dashes or they will be ignored
---- device 2s200pq208-5
---- constraints 5i20-normal.ucf
+--- device ${device}
+--- constraints ${constraints}
 
 library IEEE;
 use IEEE.std_logic_1164.all;  -- defines std_logic types

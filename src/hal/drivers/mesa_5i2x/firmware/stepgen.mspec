@@ -2,8 +2,8 @@
 id_code : {"type":"constant", "value":10}
 num_regs : {"type":"constant", "value":3}
 vhdl_package : {"type":"constant", "value":"stepgen"}
-step_up_phA : {"type":"pin", "description":"step, up, or phaseA (depends on step type)"}
-dir_down_phB : {"type":"pin", "description":"dir, down, or phaseB (depends on step type)"}
+step_up_phA : {"type":"pin", "direction":"out", "description":"step, up, or phaseA (depends on step type)"}
+dir_down_phB : {"type":"pin", "direction":"out", "description":"dir, down, or phaseB (depends on step type)"}
 enable : { "type":"bool_postroute", "default":1, "question":"enable step generator $instnum?" }
 ctrl_type : { "type":"enum_postroute", "default":1, "options":{ "velocity":0, "position":1 }, "question":"position or velocity control mode?" }
 step_type : { "type":"enum_postroute", "default":0, "options":{ "step-dir":0, "up-down":1, "quadrature":2 }, "question":"step type?" }

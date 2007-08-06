@@ -27,6 +27,140 @@ import getopt
 sys.path.append("../../../../../lib/python")
 import bitfile
 
+class BaseSymbol:
+    def __init__ (self):
+	print "called BaseSymbol __init__ (should never happen)"
+
+    def get_modtype (self):
+	fields = self.name.split("__")
+	if len(fields) < 3:
+	    return ""
+	return fields[0]
+
+    def get_instnum (self):
+	fields = self.name.split("__")
+	if len(fields) < 3:
+	    return ""
+	return fields[1]
+
+    def get_instname (self):
+	fields = self.name.split("__")
+	if len(fields) < 3:
+	    return ""
+	return fields[0]+"."+fields[1]
+
+    def get_suffix (self):
+	fields = self.name.split("__")
+	if len(fields) < 3:
+	    return ""
+	return fields[2]
+
+    def get_value (self):
+	return repr(self.value)
+
+    def __repr__ (self):
+	rep = [ self.name, "undefined, base class" ]
+	return rep
+
+    def __cmp__ (self, other):
+	if self.name > other.name:
+	   return 1
+	if self.name < other.name:
+	   return -1
+	return 0
+
+class BoolSymbol(BaseSymbol):
+    def __init__ (self, name, tweakable, default, question):
+	print "called BoolSymbol __init__ ", name, tweakable, default, question
+	self.name = name
+	self.default = default
+	self.value = default
+	self.tweakable = tweakable
+	self.question = question
+
+    def __repr__ (self):
+	rep = [ self.name, self.value, "bool", self.tweakable, self.default, self.question ]
+	return repr(rep)
+
+    def report (self):
+	self.value = self.var.get()
+	if self.value:
+	    return self.question+": YES"
+	else:
+	    return self.question+": NO"
+
+class EnumSymbol(BaseSymbol):
+    def __init__ (self, name, tweakable, default, choices, question):
+	print "called EnumSymbol __init__ ", name, tweakable, default, choices, question
+	self.name = name
+	self.tweakable = tweakable
+	self.default = default
+	self.value = default
+	self.choices = choices
+	self.question = question
+
+    def __repr__ (self):
+	rep = [ self.name, self.value, "enum", self.tweakable, self.default, self.choices, self.question ]
+	return  repr(rep)
+
+    def report (self):
+	self.value = self.choices[self.var.get()]
+	# in case the value isn't one of the legal choices...
+	rep = self.question+": "+str(self.value)
+	# but it ought to be, so find it
+	for string, val in self.choices.iteritems():
+	    if str(val) == str(self.value):
+		rep = self.question+": "+string
+		break
+	return rep
+
+
+class ConstantSymbol(BaseSymbol):
+    def __init__ (self, name, value):
+	print "called ConstantSymbol __init__ ", name, value
+	self.name = name
+	self.value = value
+
+    def __repr__ (self):
+	rep = [ self.name, self.value, "constant" ]
+	return repr(rep)
+
+    def report (self):
+	return str(self.value)
+
+#class PinSymbol(BaseSymbol):
+#    def __init__ (self, name, value, spec):
+#	self.name = name
+#	self.value = value
+#	self.tweakable = spec[1]
+#	self.default = spec[2]
+#	self.description = spec[3]
+#
+#    def __repr__ (self):
+#	rep = [ "pin", self.tweakable, self.default, self.description ]
+#
+#    def report (self):
+#	return self.description+": pin "+str(self.value)
+
+
+# 'SpecSymbol' is a "class" that creates an instance of a symbol
+# based on the spec.  the actual class instance created varies
+# depending on the spec, so we implement SpecSymbol as a function
+def SpecSymbol(name, spec):
+    print "called SpecSymbol ", name, spec
+    var_type = spec[0]
+    if var_type == "bool":
+	return BoolSymbol(name, spec[1], spec[2], spec[3])
+    elif var_type == "enum":
+	return EnumSymbol(name, spec[1], spec[2], spec[3], spec[4])
+    elif var_type == "constant":
+	return ConstantSymbol(name, spec[1])
+    else:
+	print "unknown symbol type '"+var_type+"'"
+	return None
+
+
+
 def section2dict(section, cfgfile) :
     if not cfgfile.has_section(section) :
 	print "ERROR: section '"+section+"' not found"
@@ -61,7 +195,8 @@ class SymbolSpec :
 	    if self.vartype == "constant":
 		self.default = definition["value"]
 	    elif self.vartype == "pin":
-		self.default = 0
+		self.default = -1
+		self.direction = definition["direction"]
 		self.description = definition["description"]
 	    elif self.vartype == "enum":
 		self.default = definition["default"]
@@ -71,7 +206,7 @@ class SymbolSpec :
 		self.default = definition["default"]
 		self.question = definition["question"]
 	    else:
-		print "ERROR: symbol spec '"+defstr+"' has illegal type '"+var_type+"'"
+		print "ERROR: symbol spec '"+defstr+"' has illegal type '"+self.vartype+"'"
 		sys.exit(1)
 	except KeyError, key:
 	    print "ERROR: symbol spec '"+defstr+"' is missing item '"+str(key)+"'"
@@ -80,23 +215,19 @@ class SymbolSpec :
 	    print "ERROR: symbol spec '"+defstr+"' has bad value '"+value+"' for item '"+str(key)+"'"
 	    sys.exit(1)
 
-    def to_list (self):
+    def __repr__ (self):
 	rep = [ self.vartype, self.tweakable, self.default ]
 	if self.vartype == "constant":
-	    return rep
-	if self.vartype == "pin":
+	    pass
+	elif self.vartype == "pinnumber":
+	    rep.append(self.direction)
 	    rep.append(self.description)
-	    return rep
-	if self.vartype == "enum":
+	elif self.vartype == "enum":
 	    rep.append(self.choices)
 	    rep.append(self.question)
-	    return rep
-	if self.vartype == "bool":
+	elif self.vartype == "bool":
 	    rep.append(self.question)
-	    return rep
-
-    def __repr__ (self):
-	return repr(self.to_list())
+	return repr(rep)
 
 
 class ModuleSpec :
@@ -165,11 +296,139 @@ class ModuleSpec :
 	    rv[name] = value
 	return rv
 
+# source select logic depends on how many sources there are
+
+sel = []
+sel.append("""${o} <= (${i0})""")
+sel.append("""${o} <=
+ (${i0} and (not ${s0})) or
+ (${i1} and      ${s0}) """)
+sel.append("""${o} <=
+ (${i0} and (not ${s0}) and (not ${s1})) or
+ (${i1} and      ${s0}  and (not ${s1})) or
+ (${i2} and                      ${s1} )""")
+sel.append("""${o} <=
+ (${i0} and (not ${s0}) and (not ${s1})) or
+ (${i1} and      ${s0}  and (not ${s1})) or
+ (${i2} and (not ${s0}) and      ${s1} ) or
+ (${i3} and      ${s0}  and      ${s1} )""")
+sel.append("""${o} <=
+ (${i0} and (not ${s0}) and (not ${s1}) and (not ${s2})) or
+ (${i1} and      ${s0}  and (not ${s1}) and (not ${s2})) or
+ (${i2} and (not ${s0}) and      ${s1}  and (not ${s2})) or
+ (${i3} and      ${s0}  and      ${s1}  and (not ${s2})) or
+ (${i4} and                                      ${s2} )""")
+sel.append("""${o} <=
+ (${i0} and (not ${s0}) and (not ${s1}) and (not ${s2})) or
+ (${i1} and      ${s0}  and (not ${s1}) and (not ${s2})) or
+ (${i2} and (not ${s0}) and      ${s1}  and (not ${s2})) or
+ (${i3} and      ${s0}  and      ${s1}  and (not ${s2})) or
+ (${i4} and (not ${s0}) and                      ${s2} ) or
+ (${i5} and      ${s0}  and                      ${s2} )""")
+sel.append("""${o} <=
+ (${i0} and (not ${s0}) and (not ${s1}) and (not ${s2})) or
+ (${i1} and      ${s0}  and (not ${s1}) and (not ${s2})) or
+ (${i2} and (not ${s0}) and      ${s1}  and (not ${s2})) or
+ (${i3} and      ${s0}  and      ${s1}  and (not ${s2})) or
+ (${i4} and (not ${s0}) and (not ${s1}) and      ${s2} ) or
+ (${i5} and      ${s0}  and (not ${s1}) and      ${s2} ) or
+ (${i6} and                      ${s1}  and      ${s2} )""")
+sel.append("""${o} <=
+ (${i0} and (not ${s0}) and (not ${s1}) and (not ${s2})) or
+ (${i1} and      ${s0}  and (not ${s1}) and (not ${s2})) or
+ (${i2} and (not ${s0}) and      ${s1}  and (not ${s2})) or
+ (${i3} and      ${s0}  and      ${s1}  and (not ${s2})) or
+ (${i4} and (not ${s0}) and (not ${s1}) and      ${s2} ) or
+ (${i5} and      ${s0}  and (not ${s1}) and      ${s2} ) or
+ (${i6} and (not ${s0}) and      ${s1}  and      ${s2} ) or
+ (${i7} and      ${s0}  and      ${s1}  and      ${s2} )""")
+
+
+# a PinDriver represents one I/O pin
+#
+# create by invoking PinDriver(instnum)
+#
+# public methods:
+#    add_output(output, enable) - register a source signal for the pin
+#	output and optionally enable are the names of signals provided
+#	elsewhere.  if enable is not provided, the output will always
+#	be enabled.  returns false if there are already too many outputs
+#    vhdl_signal_decl() - returns VHDL declarations for any global
+#	signals that pin driver needs
+#    vhdl_logic() - returns a VHDL description of the pin driver
+#
+#    assign_address(cslist) - creates a ChipSelect object (if needed)
+#    variables() - returns a list of the variables used by the module
+#    ram_template() - returns a list of python expressions, one per byte
+#	the expressions may use variables as defined by the variables method
+#
+#
+#
+#
+# data members (private):
+#
+#
+#
+
+class PinDriver :
+    def __init__ (self, number) :
+	print "PinDriver.__init__("+str(number)+")"
+	# save some basic stuff
+	self.number = number
+	self.num_sources = 1
+	self.sources = [("gpio_out", "gpio_ena")]
+	
+
+    def vhdl_signal_decl (self) :
+	signals = "-- no signals for pin "+self.number+"\n"
+	return signals
+
+    def vhdl_logic (self) :
+	try:
+	    logic = self.module.templates["vhdl"].substitute(self.symbols)
+	except KeyError :
+	    print "ERROR: no value for '"+str(sys.exc_value)+"' in '"+self.name+"'"
+	    sys.exit(1)
+	return logic
+
+    def ram_template (self) :
+	# use "__" to separate module, instance, and variable names
+	prefix = "${"+self.modname+"__"+self.instance+"__"
+	rv = self.module.templates["ram"].template
+	rv = re.sub("\${",prefix, rv)
+	return rv
+
+    def symbol_table (self) :
+	rv = {}
+	for name,value in self.symbols.iteritems() :
+	    name = self.modname+"__"+self.instance+"__"+name
+	    rv[name] = value
+	return rv
+
+
+
+
+# a ModuleInstance represents a block of logic inside the FPGA
+#
+# create by invoking ModuleInstance(modspec, instnum)
+#
+# public methods:
+#    assign_address(cslist) - creates a ChipSelect object (if needed)
+#    vhdl_signal_decl() - returns VHDL declarations for any global
+#	signals that the module needs
+#    vhdl_logic() - returns a VHDL component invocation for the module
+#    variables() - returns a list of the variables used by the module
+#    ram_template() - returns a list of python expressions, one per byte
+#	the expressions may use variables as defined by the variables method
+#
+# data members (private):
+
 class ModuleInstance :
     def __init__ (self, name) :
 	global src
 	global modspecs
-	#print "ModuleInstance.__init__("+name+")"
+	global symbols
+	print "ModuleInstance.__init__("+name+")"
 	# save some basic stuff
 	self.name = name
 	self.modname = name.split('.')[0]
@@ -217,9 +476,79 @@ class ModuleInstance :
 	self.byteaddr = upper_limit * 4
 	self.symbols['baseaddr'] = repr(self.byteaddr)
 	mask = 0x3FFF & ~(self.module.blk_size-1)
-	self.select = ChipSelect(self.wordaddr, mask)
+	self.select = ChipSelect(self.wordaddr, mask, chip_selects)
 	self.symbols['cs'] = self.select.name
-	chip_selects.append(self.select)
+	#chip_selects.append(self.select)
+
+    def vhdl_signal_decl (self) :
+	signals = "-- no signals for "+self.name+"\n"
+	return signals
+
+    def vhdl_logic (self) :
+	try:
+	    logic = self.module.templates["vhdl"].substitute(self.symbols)
+	except KeyError :
+	    print "ERROR: no value for '"+str(sys.exc_value)+"' in '"+self.name+"'"
+	    sys.exit(1)
+	return logic
+
+    def ram_template (self) :
+	# use "__" to separate module, instance, and variable names
+	prefix = "${"+self.modname+"__"+self.instance+"__"
+	rv = self.module.templates["ram"].template
+	rv = re.sub("\${",prefix, rv)
+	return rv
+
+    def symbol_table (self) :
+	rv = {}
+	for name,value in self.symbols.iteritems() :
+	    name = self.modname+"__"+self.instance+"__"+name
+	    rv[name] = value
+	return rv
+
+class GPIOInstance :
+    def __init__ (self, name) :
+	global src
+	global modspecs
+	print "GPIOInstance.__init__("+name+")"
+	# save some basic stuff
+	self.name = name
+	self.modname = name.split('.')[0]
+	self.instance = name.split('.')[1]
+	# set constant symbol values
+	# GPIO doesn't use a module spec, the data is hardcoded here
+	self.symbols = {}
+	self.symbols["id_code"] = 1
+	self.symbols["num_regs"] = 7
+	self.symbols["instnum"] = self.instance
+	self.byteaddr = -1
+
+    def to_list (self) :
+	rep = [ self.name, self.modname, self.instance, self.symbols]
+	return rep
+
+    def __repr__ (self) :
+	return repr(self.to_list())
+
+    def get_name (self) :
+	return self.name
+
+    def get_num_regs (self) :
+	return self.module.num_regs
+
+    def get_id_code_and_instance (self) :
+	return (self.module.id_code << 8 ) | int(self.instance)
+
+    def get_blk_size (self) :
+	return self.module.blk_size
+
+    def assign_address (self, addr) :
+	self.wordaddr = upper_limit
+	self.byteaddr = upper_limit * 4
+	self.symbols['baseaddr'] = repr(self.byteaddr)
+	mask = 0x3FFF & ~(self.module.blk_size-1)
+	self.select = ChipSelect(self.wordaddr, mask, chip_selects)
+	self.symbols['cs'] = self.select.name
 
     def vhdl (self) :
 	try:
@@ -269,9 +598,39 @@ def trim_ones_lsb(value, bits) :
 		break
     return value
 
+# a ChipSelect object represents a block of address space, and
+# implements a VHDL signal that goes true for any address in that
+# block
+#
+# create by invoking ChipSelect(address, mask, cslist)
+#    addr   = base address (in 32-bit words)
+#    mask   = ones indicate bits to be decoded, zeros are no-care
+#    cslist = list of chip selects - the list will be consulted for
+#		higher level selects that can be re-used to save logic,
+#		and the newly created select(s) will be added to the
+#		list for possible reuse
+#
+# public methods:
+#    signal_name() - returns a VHDL identifier that is the chip select signal name
+#    vhdl_signal_decl() - returns a VHDL declaration for the chip select signal
+#    vhdl_logic() - returns a VHDL logic statement that implements the select
+#
+# data members (private):
+#    addr = base address (in 32-bit words)
+#    mask = identifies the no-care bits in the address
+#    name = a string, like "cs0010xxx01011xx"
+#    version = 0 if 4 (or fewer) address lines into a LUT
+#	       1 if 1 higher level select and 3 (or fewer) address lines 
+#	       3 if 2 higher level selects and 2 (or fewer) address lines
+#	      (Higher level selects are created if needed, all selects are
+#	       assumed to be in the list "chip_selects[]")
+#    finalmask = mask of address lines used at this stage (4 or less)
+#    ena1name = name of upper level select (if version 1 or 3)
+#    ena2name = name of 2nd upper level select (if version 3)
+
 class ChipSelect :
-    def __init__ (self, addr, mask) :
-	#print "ChipSelect.__init__("+binstr(addr)+", "+binstr(mask)+")"
+    def __init__ (self, addr, mask, cslist) :
+	print "ChipSelect.__init__("+binstr(addr)+", "+binstr(mask)+")"
 	self.addr = addr
 	self.mask = mask
 	self.name = "cs"
@@ -291,7 +650,7 @@ class ChipSelect :
 	# need multiple level decode
 	# find best available upper level decode
 	mask1 = mask
-	for s in chip_selects :
+	for s in cslist :
 	    m = s._remainder(addr, mask)
 	    if ( m < mask1 ) :
 		upper1 = s
@@ -302,8 +661,7 @@ class ChipSelect :
 	    # three levels of logic, and no more than four inputs at each level
 	    lut = { 5:3, 6:3, 7:3, 8:5, 9:5, 10:6, 11:3, 12:3, 13:3, 14:8, 15:8, 16:9 }
 	    umask = trim_ones_lsb(mask, lut[count_ones(mask)])
-	    upper1 = ChipSelect(addr, umask)
-	    chip_selects.append(upper1)
+	    upper1 = ChipSelect(addr, umask, cslist)
 	    mask1 = upper1._remainder(addr, mask)
 	if count_ones(mask1) <= 3 :
 	    # can decode with a single upper level
@@ -314,7 +672,7 @@ class ChipSelect :
 	# need another upper level decode
 	# find best available upper level decode
 	mask2 = mask1
-	for s in chip_selects :
+	for s in cslist :
 	    m = s._remainder(addr, mask1)
 	    if count_ones(m) < count_ones(mask2) :
 		upper2 = s
@@ -326,8 +684,7 @@ class ChipSelect :
 	    # didn't find a suitable decode, need to make one
 	    # we want to have 2 bits left to decode
 	    umask = trim_ones_lsb(mask1, 2)
-	    upper2 = ChipSelect(addr, umask)
-	    chip_selects.append(upper2)
+	    upper2 = ChipSelect(addr, umask, cslist)
 	    mask2 = upper2._remainder(addr, mask1)
 	# combine the two upper decodes and 2 bits of address
 	self.version = 3
@@ -373,10 +730,14 @@ class ChipSelect :
 	return 0
 
     def signal (self) :
+	# the signal name
+	return self.name
+
+    def vhdl_signal_decl (self) :
 	# the VHDL signal declaration
 	return "\tsignal "+self.name+" : std_logic;\n"
 
-    def logic (self) :
+    def vhdl_logic (self) :
 	# the VHDL implementation
 	logic = "    "+self.name+" <= "
 	if self.version & 1 :
@@ -397,6 +758,7 @@ class ChipSelect :
 	return logic
 
 
+
 def usage ():
     print "\nUsage: spec2vhdl [options] <name>\n"
     print "  Reads <name>.spec, writes <name>.rspec and <name>.vhd, where"
@@ -411,6 +773,7 @@ def usage ():
     print "    -h                print this help screen"
 
 
+# start of program - parse command line
 try:
     opts, args = getopt.gnu_getopt(sys.argv[1:],"hs:r:v:l:")
 except getopt.GetoptError:
@@ -444,67 +807,153 @@ for name in spec_fname, rspec_fname, vhdl_fname :
     if len(name) == 0 :
 	usage()
 	sys.exit(2)
-# read the source file into a config file object
+# read the source .spec file into a config file object
 src = ConfigParser.ConfigParser()
-# read in core stuff first
-src.read("core.spec")
 src.read(spec_fname)
 if len(src.sections()) == 0 :
     print "ERROR: source file '"+spec_fname+"' not found, empty, or misformatted"
     sys.exit(2)
+
+# read the [global] section of the spec
+try:
+    board = src.get("global", "board")
+except ConfigParser.NoOptionError, inst:
+    print "ERROR: "+spec_fname+": "+str(inst)
+    sys.exit(2)
+# deal with board specific stuff
+if board == "5i20":
+    num_ports = 3
+    pins_per_port = 24
+    num_pins = num_ports * pins_per_port
+    device = "2s200pq208-5"
+    constraints = "5i20-normal.ucf"
+elif board == "5i22":
+    print "ERROR: the 5i22 board is not yet supported"
+    sys.exit(2)
+else:
+    print "ERROR: '"+board+"' is not valid for [global]board"
+    sys.exit(2)
+
+
 # get a list of all module spec files in the library
 libpath += "/*.mspec"
 mspecs = glob.glob(libpath)
 if len(mspecs) == 0 :
     print "ERROR: no module specs found at '"+libpath+"'"
     sys.exit(2)
-
 # read the module spec file(s) into a config file object
 lib = ConfigParser.ConfigParser()
 for name in mspecs :
     lib.read(name)
 
 # create empty data structures
+symbols = []
 instances = []
 modspecs = {}
 packages = []
-chip_selects = []
 
+# DEBUG ONLY
+num_ports = 2
+pins_per_port = 2
+
+# create symbols for the pins
+portnames = "ABCDEF"
+for p in range(num_ports):
+    for n in range(pins_per_port):
+	pin_name = "pin__"+portnames[p]+"%02d"%n+"__"
+	print "creating pin ", pin_name
+	symbols.append(EnumSymbol(pin_name+"source", 1, 0, { "gpio":0 }, "source for pin" ))
+	symbols.append(EnumSymbol(pin_name+"mode", 1, 0, { "disabled":0, "enabled":1, "tri-state":2, "open-collector":3 }, "output mode" ))
+	symbols.append(EnumSymbol(pin_name+"polarity", 1, 0, { "active high":0, "active low":1 }, "polarity" ))
+	symbols.append(BoolSymbol(pin_name+"export-input", 1, 0, "Export HAL input pin" ))
+
+symbols.append(SpecSymbol("test__1__bool", [ "bool", 1, 1, "value for test bool" ] ))
+symbols.append(SpecSymbol("test__1__enum", [ "enum", 1, 2, { "foo":0, "bar":1, "spaz":2, "last":3 }, "value for test enum" ] ))
+symbols.append(SpecSymbol("test__023__num_regs", [ "constant", 023 ] ))
+symbols.append(SpecSymbol("test__123__num_regs", [ "constant", 123 ] ))
+symbols.append(SpecSymbol("test__23__num_regs", [ "constant", 23 ] ))
+symbols.append(SpecSymbol("test__015__num_regs", [ "constant", 15 ] ))
+symbols.append(SpecSymbol("test__31__num_regs", [ "constant", 31 ] ))
+symbols.append(SpecSymbol("test__56__num_regs", [ "constant", 56 ] ))
+symbols.append(SpecSymbol("test__12__num_regs", [ "constant", 12 ] ))
+symbols.append(SpecSymbol("test__18__num_regs", [ "constant", 18 ] ))
+symbols.append(SpecSymbol("test__5__num_regs", [ "constant", 5 ] ))
+symbols.append(SpecSymbol("test__8__num_regs", [ "constant", 8 ] ))
+symbols.append(SpecSymbol("blat__18__num_regs", [ "constant", 18 ] ))
+symbols.append(SpecSymbol("blat__5__num_regs", [ "constant", 5 ] ))
+symbols.append(SpecSymbol("blat__8__num_regs", [ "constant", 8 ] ))
+symbols.append(SpecSymbol("test__0__num_regs", [ "constant", 0 ] ))
+
+# create module instances for the GPIO ports
+#for n in range(num_ports):
+#    print "creating port ", n
+#    instances.append(ModuleInstance("gpio."+str(n)))
 # create instances of VHDL modules based on spec file
 for name in src.sections() :
+    if name == "global":
+	# the [global] section doesn't define a module
+	continue
+    print "creating instance ", name
     instances.append(ModuleInstance(name))
+
 
 # assign addresses to instances
 # size of address space: 16K 32-bit words, with the
 # first 256 words (1K bytes) reserved for config RAM
 upper_limit = 0x4000
 lower_limit = 0x0100
+chip_selects = []
 # chip select for the RAM
-chip_selects.append(ChipSelect(0,0x3F00))
-# preliminary sort gets like modules together, and instances
-# in numerical order
-instances.sort(key=ModuleInstance.get_id_code_and_instance)
-# instances are placed from largest to smallest, since larger
-# address spaces have more demanding alignment requirements
-instances.sort(key=ModuleInstance.get_num_regs, reverse=1)
-for i in instances :
-    if i.get_num_regs() == 0 :
-	# no registers, doesn't need address space or chip select
-	break
-    # instances are placed starting at the top of the address
+ram_chip_select = ChipSelect(0,0x3F00, chip_selects)
+# need a chip select for every "<module>__<instance>__num_regs" variable
+needed = []
+for symbol in symbols:
+    suffix = symbol.get_suffix()
+    if suffix == "num_regs":
+	regs = int(symbol.get_value())
+	if regs <= 0 :
+	    # no registers, doesn't need address space or chip select
+	    break
+	# calculate address space size (power of two)
+	size = 1
+	while size < regs:
+	    size <<= 1
+	# add item to list of things that need chip-selects
+	# each entry is a a list: [ name, size, type, instance number ]
+	needed.append( [ symbol.get_instname(), size, symbol.get_modtype(), symbol.get_instnum() ] )
+# multi-stage sort
+# result is sorted by size (largest first), then type, then instance number
+needed.sort(key=lambda i : int(i[3]))
+needed.sort(key=lambda i : i[2])
+needed.sort(key=lambda i : i[1], reverse=1)
+# address spaces are assigned from largest to smallest, since
+# larger spaces have more demanding alignment requirements
+for i in needed :
+    # selects are placed starting at the top of the address
     # space, since the RAM block at the bottom would mess
-    # up alignment of anything bigger than 256 registers.
-    upper_limit -= i.get_blk_size()
+    # up alignment of anything bigger than 256 registers
+    print i
+    upper_limit -= i[1]
     if upper_limit < lower_limit :
 	print "ERROR: ran out of address space in FPGA"
 	sys.exit(1)
-    i.assign_address(upper_limit)
+	self.byteaddr = upper_limit * 4
+	self.symbols['baseaddr'] = repr(self.byteaddr)
+	mask = 0x3FFF & ~(self.module.blk_size-1)
+	self.select = ChipSelect(self.wordaddr, mask, chip_selects)
+	self.symbols['cs'] = self.select.name
+
+    #i.assign_address(upper_limit)
 # sort so that derived selects come after the ones they use
 # (not strictly neccessary, VHDL can figure it out anyway)
 chip_selects.sort()
 # restore "sorted by ID code and instance" ordering for
 # subsequent processing
 instances.sort(key=ModuleInstance.get_id_code_and_instance)
+
+
+
+
 
 # more gathering of infomation and validation needs to be done here
 
@@ -516,17 +965,23 @@ toplevel_values["outfile"] = vhdl_fname
 toplevel_values["preprocessor"] = sys.argv[0]
 toplevel_values["infile"] = spec_fname
 toplevel_values["timestamp"] =  str(datetime.datetime.now()).split(".")[0]
+toplevel_values["device"] = device
+toplevel_values["constraints"] = constraints
 toplevel_values["packages"] = ""
 for p in packages :
     toplevel_values["packages"] += "use work."+p+"_pkg.all;\n"
-toplevel_values["instance_vhdl"] = ""
+
+toplevel_values["instance_signals"] = ""
+toplevel_values["instance_logic"] = ""
 for i in instances :
-    toplevel_values["instance_vhdl"] += i.vhdl()
+    toplevel_values["instance_signals"] += i.vhdl_signal_decl()
+    toplevel_values["instance_logic"] += i.vhdl_logic()
+
 toplevel_values["chipselect_signals"] = ""
 toplevel_values["chipselect_logic"] = ""
 for cs in chip_selects :
-    toplevel_values["chipselect_signals"] += cs.signal()
-    toplevel_values["chipselect_logic"] += cs.logic()
+    toplevel_values["chipselect_signals"] += cs.vhdl_signal_decl()
+    toplevel_values["chipselect_logic"] += cs.vhdl_logic()
 
 # do the substitution and write output file
 toplevel_in = open("toplevel.vhd", "r")
