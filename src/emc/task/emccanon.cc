@@ -2043,13 +2043,12 @@ CANON_POSITION GET_EXTERNAL_PROBE_POSITION()
     position.v = TO_PROG_LEN(pos.v - programOrigin.v);
     position.w = TO_PROG_LEN(pos.w - programOrigin.w);
 
-    /*! \todo FIXME-- back end of hot comment */
     if (probefile != NULL) {
-	if (last_probed_position.x != position.x ||
-	    last_probed_position.y != position.y ||
-	    last_probed_position.z != position.z) {
-	    fprintf(probefile, "%f %f %f\n", position.x, position.y,
-		    position.z);
+	if (last_probed_position != position) {
+	    fprintf(probefile, "%f %f %f %f %f %f %f %f %f\n",
+                    position.x, position.y, position.z,
+                    position.a, position.b, position.c,
+                    position.u, position.v, position.w);
 	    last_probed_position = position;
 	}
     }
