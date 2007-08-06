@@ -349,10 +349,10 @@ sel.append("""${o} <=
 # create by invoking PinDriver(instnum)
 #
 # public methods:
-#    add_output(output, enable) - register a source signal for the pin
-#	output and optionally enable are the names of signals provided
-#	elsewhere.  if enable is not provided, the output will always
-#	be enabled.  returns false if there are already too many outputs
+#    add_source(output, enable) - register a source signal for the pin
+#	'output' and optionally 'enable' are the names of signals provided
+#	elsewhere.  if 'enable' is an empty string, the output will always
+#	be enabled.
 #    vhdl_signal_decl() - returns VHDL declarations for any global
 #	signals that pin driver needs
 #    vhdl_logic() - returns a VHDL description of the pin driver
@@ -376,8 +376,14 @@ class PinDriver :
 	# save some basic stuff
 	self.number = number
 	self.num_sources = 1
-	self.sources = [("gpio_out", "gpio_ena")]
-	
+	self.sources = []
+
+    def add_source(self, output, enable) :
+	print "PinDriver."+str(self.number)+".add_source("+str(output)+", "+str(enable)+")"
+	if len(self.sources) >= 8 :
+	    print "too many sources for pin number ", self.number
+	    sys.exit(2)
+	self.sources.append((output, enable))
 
     def vhdl_signal_decl (self) :
 	signals = "-- no signals for pin "+self.number+"\n"
@@ -814,6 +820,21 @@ if len(src.sections()) == 0 :
     print "ERROR: source file '"+spec_fname+"' not found, empty, or misformatted"
     sys.exit(2)
 
+pins = []
+pins.append(PinDriver(0))
+pins.append(PinDriver(1))
+pins[0].add_source("out0", "ena0")
+pins[0].add_source("out1", "")
+pins[0].add_source("out2", "")
+pins[0].add_source("out3", "")
+pins[0].add_source("out4", "foo")
+pins[0].add_source("out5", "")
+pins[0].add_source("out6", "bar")
+pins[0].add_source("out7", "")
+pins[0].add_source("out8", "")
+pins[0].add_source("out9", "")
+sys.exit(2)
+
 # read the [global] section of the spec
 try:
     board = src.get("global", "board")
@@ -866,23 +887,6 @@ for p in range(num_ports):
 	symbols.append(EnumSymbol(pin_name+"mode", 1, 0, { "disabled":0, "enabled":1, "tri-state":2, "open-collector":3 }, "output mode" ))
 	symbols.append(EnumSymbol(pin_name+"polarity", 1, 0, { "active high":0, "active low":1 }, "polarity" ))
 	symbols.append(BoolSymbol(pin_name+"export-input", 1, 0, "Export HAL input pin" ))
-
-symbols.append(SpecSymbol("test__1__bool", [ "bool", 1, 1, "value for test bool" ] ))
-symbols.append(SpecSymbol("test__1__enum", [ "enum", 1, 2, { "foo":0, "bar":1, "spaz":2, "last":3 }, "value for test enum" ] ))
-symbols.append(SpecSymbol("test__023__num_regs", [ "constant", 023 ] ))
-symbols.append(SpecSymbol("test__123__num_regs", [ "constant", 123 ] ))
-symbols.append(SpecSymbol("test__23__num_regs", [ "constant", 23 ] ))
-symbols.append(SpecSymbol("test__015__num_regs", [ "constant", 15 ] ))
-symbols.append(SpecSymbol("test__31__num_regs", [ "constant", 31 ] ))
-symbols.append(SpecSymbol("test__56__num_regs", [ "constant", 56 ] ))
-symbols.append(SpecSymbol("test__12__num_regs", [ "constant", 12 ] ))
-symbols.append(SpecSymbol("test__18__num_regs", [ "constant", 18 ] ))
-symbols.append(SpecSymbol("test__5__num_regs", [ "constant", 5 ] ))
-symbols.append(SpecSymbol("test__8__num_regs", [ "constant", 8 ] ))
-symbols.append(SpecSymbol("blat__18__num_regs", [ "constant", 18 ] ))
-symbols.append(SpecSymbol("blat__5__num_regs", [ "constant", 5 ] ))
-symbols.append(SpecSymbol("blat__8__num_regs", [ "constant", 8 ] ))
-symbols.append(SpecSymbol("test__0__num_regs", [ "constant", 0 ] ))
 
 # create module instances for the GPIO ports
 #for n in range(num_ports):
