@@ -80,9 +80,12 @@ help :
 	@echo "Synthesis: making $@"
 	@xst -ifn $*.scr -ofn $*.log.syn
 
+# The .usage target is dependent on the output format of the Xilinx tools.
+# If they change the text of their report, it will be necessary to change the
+# search text, and possibly to use different strings for various versions.
 %.usage : %.log.syn
 	@echo "Usage report:"
-	@cat $< | awk '/Device utilization summary:/,/TIMING REPORT/' | head -n-3 | tail >$@
+	@cat $< | awk '/Selected Device/,/TIMING REPORT/' | head -n-3 >$@
 	@cat $@
 
 %.ngd %.log.ngd : %.ngc
