@@ -71,7 +71,10 @@ Level 4: Writes new modules
 input:
   none
 output:
-  module spec file
+  vhdl file implementing the module
+  C file(s) implementing the HAL driver for the module
+  makefile changes to incorporate the C files into the main driver
+  module spec file that tells the toolchain how to use the module
 tools used:
   text editor
 
@@ -97,7 +100,7 @@ output:
     'w' section: config ram contents - 1K bytes, packed binary (or we might generate it later)
 tools:
   make - controls the overall process
-  spec2vhdl - reads FPGA spec, module spec, and templates, generates top level VHDL, and 's' and 't' files
+  spec2vhdl - reads FPGA spec, module spec, and templates, generates top level VHDL, and 'v' and 't' files
   FPGA toolchain (xilinx) - reads top level VHDL and other VHDL, generates basic bitfile
   bit2fpga - reads bitfile, merges 'v' and 't' sections, generates 'w' section
 
@@ -109,7 +112,7 @@ output:
 tools used:
     editfpga.py - A nice-looking GUI that allows the user to select between different
     options for the modules that exist in the FPGA.  For example, choosing to enable
-    a stepgen or not.  The editor regenerates the 'w' section from the 's' and 't'
+    a stepgen or not.  The editor regenerates the 'w' section from the 'v' and 't'
     sections when saving the modified file
 
 level 1: Loads an FPGA file, manipulates it using HAL (exported pins are fixed by the FILE)
@@ -131,7 +134,7 @@ some non-trivial generation of stuff like decode logic.  On the bright side, wha
 can be done by hand initially.
 
 Number 2 is fairly simple, except for generation of the 'w' (binary config RAM) data from
-the 's' (values) and 't' (templates) sections.  That is mostly string substitution and
+the 'v' (values) and 't' (templates) sections.  That is mostly string substitution and
 evaluating expressions, both of which python does very well.
 
 Number 3 is a bit less complex fundamentally - the preprocessor has done the hard work,
@@ -139,8 +142,7 @@ and all that is left is a bunch of questions that the user can answer.  The hard
 here is simply writing the GUI code.  If the user is choosing one of 4 values, ideally
 there would be a drop-down list to pick from, etc.
 
-Number 4 is done. (Yay!)
-
+## EVERYTHING AFTER HERE IS IN A STATE OF FLUX ##
 
 Thoughts on tool number 1:
 
