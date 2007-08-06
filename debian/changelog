@@ -31,8 +31,42 @@ emc2 (2.2.0pre) testing; urgency=low
   * image-to-gcode: roughing passes
   * rs274.author: automatic arc recognition (used by image-to-gcode)
   * Filters can now show progress bars in the AXIS window as they run
+  * U,V,W linear axes with fully coordinated motion
+  * probing in A,B,C,U,V,W axes is now allowed
+  * AXIS: touch-off in any coordinate system
+  * AXIS: allow starting an editor on the loaded gcode or tool table from the
+    File menu
+  * AXIS: A much better Velocity display
+  * AXIS: Preferences set on the View menu are saved for the next EMC run
+  * Rigid tapping G33.1
+  * Feed Per Revolution and Constant Surface Speed for lathes
+  * Index-only homing for configurations where homing on a switch is
+    inconvenient
+  * G28/G30 now move only the specified axes to the home/reference point
+  * Improved error messages for incorrect arcs
+  * All combinations of inch/metric machines running inch/metric programs work
+    correctly when using the tool table.  The tool table is always in machine
+    units.
+  * Now any combination of XYZABCUVW axes can be defined, and trying to move
+    an undefined axis causes a proper error message
+  * Tool change position can have an ABC component.  Previously rotary axes
+    always moved to 0 for a tool change.
+  * Spindle speed override
+  * Optional stop
+  * Analog jogging in halui (for joysticks etc.)
+  * Fix several-second unresponsiveness when switching between two guis
+    (even if one of them was halui)
+  * AXIS: Show machine limits with red dashed lines
+  * Pluto step/direction driver
+  * Halscope display now shows the trace name and parameters for each trace
+  * Halscope "roll" mode
+  * Halscope "AC" coupling of signals
+  * for SMP configurations, run EMC's realtime parts on the highest numbered
+    CPU, since this can be isolated from the rest of linux using isolcpus=
+  * x86_64 port
+  * powerpc port (sim only)
 
- -- jepler <jepler@unpythonic.net>  Wed, 30 May 2007 06:22:35 -0500
+ -- Chris Radek <chris@rover>  Sun,  5 Aug 2007 20:07:45 -0500
 
   *** here, insert 2.1.x changes before releasing 2.2.0 ***
 
