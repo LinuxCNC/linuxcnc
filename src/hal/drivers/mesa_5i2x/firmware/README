@@ -1,0 +1,280 @@
+Notes from IRC and other discussions, and plans, and random scribbles
+
+Trying to support four classes of users:
+
+1) People who know nothing but basic HAL.  They'll be a little annoyed
+   by HAL name bloat if we simply export everything, but those names
+   are just more of something they already understand.  For these people,
+   5i20 specific tools are something new to learn, and another distinct
+   step in the config process.  They won't like that.
+
+2) People who want to cut down on HAL clutter, but don't have the FPGA
+   toolchain, or any VHDL or C skills.  If they are using a placed-and-
+   routed FPGA config that has has eight stepgens, they want to be able
+   to tell the driver to only export HAL pins for four of them, or to
+   make some pins active low open collector, without doing it with a
+   bunch of setp commands to 400 HAL parameters.
+
+3) People with an FPGA toolchain and rudimentary VHDL knowledge.  They
+   can modify the top level VHDL file, which merely invokes the more
+   complex blocks like encoders, stepgens, SPI, etc.  If they only want
+   four stepgens, then they will only put four in the top level VHDL.
+
+4) People with an FPGA toolchain, and good VHDL and C knowledge.  These
+   folks can not only re-arrange the top level VHDL, they can design
+   and implement completely new VHDL blocks.  These users will be the
+   ones who invent a VHDL block to drive a serial A/D, or one that can
+   talk to a Stegmann absolute encoder, or whatever.  They will write
+   the VHDL for their new block, and then write the C code to drive it.
+
+The common thread here is that "something" must tell the HAL driver
+what pins, and parameters to export, what structs and other internal
+data to allocate, and what C code to run.  Some list of "what's in this
+FPGA" needs to be passed to the driver to do that.  People in class 1
+will just use a list prepared by someone else, and live with the many
+HAL pins that a very general list will export.  People in class 2 will
+edit the list to suit their needs.  People in class 3 will create a new
+list to match their custom top level VHDL.  Finally, people in class 4
+will have to add a new item to the list protocol to describe their new
+module.
+
+Another place where a tool would be usefull.  Consider class 3 users.
+They will make a new top-level VHDL file, with a generate loop that
+says for example "generate 3 stepgens, with base addresses of 0x0410,
+0x0420, and 0x0430, connect their step and dir pins to I/O pins 5, 6,
+10, 11, 50, and 51".  Then they will manually make a list for the HAL
+driver that contains the exact same info in a different format.  Any
+mismatch between the VHDL and the list will cause problems.  It would
+be really nice to be able to start with something that just says "give
+me three stepgens, with step and dir hooked to pins 5, 6, 10, 11, 50,
+and 51" and from that automatically generate both the top level VHDL
+file and the list for the HAL driver.
+
+Class 2 users can mess things up though.  They will take a list that
+was created either by a class 3 user or by a tool as mentioned in
+the last paragraph, and edit it.  Some of the info in that list
+must not be modified, because it tells the driver stuff that is hard
+coded in the VHDL.  Things like like the base address of a stepgen,
+and what I/O pins it is connected to.  Other things in the list can be
+changed.  For example, if you comment out an entire stepgen line, the
+HAL pins for that stepgen won't be exported.  If you  change a bit in a
+GPIO entry, that pin will be open collector instead of totem pole.  If
+class 2 people use a regular editor to modify the the list, they need
+to know for themselves what is and isn't safe to change, and there is
+nothing to keep them from modifying things they shouldn't.  So ideally
+they would have a tool to modify the list, one that is aware of what
+can and can't be changed.
+
+Possible workflows (sorted by the level of user who would do each one):
+
+Level 4: Writes new modules
+input:
+  none
+output:
+  module spec file
+tools used:
+  text editor
+
+Level 3: Makes new arrangements of existing modules
+stage 1: generate FPGA spec
+input:
+  module spec files (read as reference info) (maybe from a specific dir)
+output:
+  an fpga spec file which contains info for each instance of each module
+tools used:
+  text editor initially, later a config editor that can read the module
+  specs and work interactively
+stage 2: generate an FPGA file
+input:
+  FPGA spec file
+  module spec files
+  module VHDL
+  top level VHDL template
+output:
+  an FPGA file (a bitstream file with additional data:
+    'v' section: contains variables, including type, legal values (if enum), default value, and current value
+    't' section: ram template for translating 'v' into 'w' (per module)
+    'w' section: config ram contents - 1K bytes, packed binary (or we might generate it later)
+tools:
+  make - controls the overall process
+  spec2vhdl - reads FPGA spec, module spec, and templates, generates top level VHDL, and 's' and 't' files
+  FPGA toolchain (xilinx) - reads top level VHDL and other VHDL, generates basic bitfile
+  bit2fpga - reads bitfile, merges 'v' and 't' sections, generates 'w' section
+
+Level 2: Chooses settings for an existing configuration
+input:
+  an FPGA file with suitable extra blocks of data ('v' and 't' above)
+output:
+  an FPGA file with same 't' section, modified 'v' section, and corresponding 'w' section (1K RAM config data)
+tools used:
+    editfpga.py - A nice-looking GUI that allows the user to select between different
+    options for the modules that exist in the FPGA.  For example, choosing to enable
+    a stepgen or not.  The editor regenerates the 'w' section from the 's' and 't'
+    sections when saving the modified file
+
+level 1: Loads an FPGA file, manipulates it using HAL (exported pins are fixed by the FILE)
+input:
+  an FPGA file with at least a 'w' section ('v' and 't' are ignored)
+tools used:
+  bfload
+
+
+The above workflow has four tools:
+
+1) fpga preprocessor
+2) fpga postprocessor
+3) fpga tweaker
+4) bitfile loader
+
+Number 1 is complex - it needs to understand both module specs and FPGA specs, and do
+some non-trivial generation of stuff like decode logic.  On the bright side, what it does
+can be done by hand initially.
+
+Number 2 is fairly simple, except for generation of the 'w' (binary config RAM) data from
+the 's' (values) and 't' (templates) sections.  That is mostly string substitution and
+evaluating expressions, both of which python does very well.
+
+Number 3 is a bit less complex fundamentally - the preprocessor has done the hard work,
+and all that is left is a bunch of questions that the user can answer.  The hard part
+here is simply writing the GUI code.  If the user is choosing one of 4 values, ideally
+there would be a drop-down list to pick from, etc.
+
+Number 4 is done. (Yay!)
+
+
+Thoughts on tool number 1:
+
+The tool works mostly by variable substitution into templates.
+But some variables are special:
+
+NUM_REGS for each module specifies the number of registers.  The
+tool will round it up to the next power of two, generate the decode
+logic, and set the following variables:
+BASEADDR (the address within the FPGA for the instance)
+CS (a signal that does true with the instance is being accessed)
+ADDR (a subset of the address bus that the instance can use for its internal decode)
+DECODE (a one-hot vector that the instance can use for internal decode)
+Any of those variables can be used in any template.  BASEADDR is the
+only one that would normally be used in the RAM template.  The others
+are more likely to be used in the VHDL template.
+
+The chip-select generation section of the code simply checks the entire
+variable list for variable names of the form <something>.num-regs, and
+for each one it finds, it creates new variables <something>.baseaddr,
+<something>.cs, <something>.addr, and <something>.decode
+
+
+Also special are the variables that determine what physical pin is
+connected to each port of a module.  Ideally, logic to mux the pin
+between its module-specific function(s) and GPIO would be generated
+automatically.  I'm not sure how the mux should be controlled.  One
+approach would be to have the module enabled/disabled by a post-FPGA
+variable, and a disabled module would automatically grant use of the
+pin to the next lower "priority" module (with GPIO as the lowest
+priority).
+
+
+SAMPLE MODULE SPECS:
+
+module spec for stepgen:
+
+[CONSTANTS]
+  ID_CODE=10
+  NUM_REGS=4
+[PRE_FPGA_VARS]
+  step_up_phA : 0..71 : "connect stepgen $INSTANCE Step/Up/PhaseA output to pin number?"
+  dir_down_phB : 0..71 : "connect stepgen $INSTANCE Dir/Down/PhaseB output to pin number?"
+[POST_FPGA_VARS]
+  enable : "no","yes"=0,1 : "enable step generator $INSTANCE?"
+  ctrl_type : "velocity","position"=0,1 : "position or velocity control mode?"
+  step_type : "step-dir","up-down","quadrature"=0,1,2 : "step type?" CHANGEABLE
+[VHDL_TEMPLATE]
+stepgen_$(INSTANCE): stepgen
+    port map (
+        clock => lclk,
+        enable => one,
+        ibus => wr_bus,
+        obus => rd_bus,
+        sel => $(CS),
+        write => write,
+        read => read,
+        addr => $(ADDRESS),
+        out0 => iobits.out($(step_up_phA)),
+        out1 => iobits.out($(dir_down_phB))
+    );
+[RAM_TEMPLATE]
+$(ID_CODE)
+$(INSTANCE)
+$(BASEADDR>>8)
+$(BASEADDR)
+$(ctrl_type) | $(step_type)<<2
+$(step_up_phA)
+$(dir_down_phB)
+
+[END]
+
+
+module spec for pin driver
+[CONSTANTS]
+  <none?>
+[PRE_FPGA_VARS]
+  <none?>
+[POST_FPGA_VARS]
+  mode : "in","out","tri-state","open-collector"=0,1,2,3 : "pin driver mode"
+  source : "GPout","module1","module2","module3"=0,1,2,3 : "pin control source"
+  invert : "active high","active low"=0,1 : "pin polarity"
+  hal_invert : "no","yes"=0,1 : "export HAL param for polarity"
+  hal_input : "no","yes"=0,1 : "export HAL param for input value"
+  hal_output : "no","yes"=0,1 : "export HAL param for output value (and oe if mode is tristate)(only if sel is 'gpio')"
+[VHDL_TEMPLATE]
+  <none>
+[RAM_TEMPLATE]
+  $(mode) | $(source)<<2 | $(invert)<<4 | $(hal_invert)<<5 | $(hal_input)<<6 | $(hal_output)<<7
+[END]
+
+--- FPGA SPEC ---
+
+Random Ramblings a couple months down the road.
+
+I've been working on this stuff for a couple months now... Either my mind is going (a
+distinct possibility - I have a lot going on right now), or the design approach I've
+taken has issues that lead to ballooning complexity.  I'd like to believe the latter.
+
+Using python and objects might be part of the problem.  Wrapping my brain around a new
+language and new paradigms isn't easy.  But at the same time, it avoids a crapload of
+code.  So - I need to come up with a structure that works.
+
+What objects should I have?
+
+variables - these are the smallest individual things that convey information to the VHDL
+and/or the driver.  Variable objects need to have a name, a value, and "other info" that
+defines what you can do with them (mutable or not, how to present in a GUI, default values,
+legal range of values, etc, etc)
+
+At the moment, a goal is to have ALL user input come down to modifying variables that are
+defined outside the program itself, with no hard-coded logic.  Maybe that insistence is
+the root of my problems?  The issues I'm having the most trouble with are those that want
+hardwired logic.
+
+modules - these are functional blocks in the FPGA.  They need to be specified and configured.
+
+chipselects - these represent a block of addresses
+  this is the only class that is well documented and seems somewhat clean
+
+
+my existing designs have worked reasonably well, EXCEPT for the I/O pins.  managing pins is
+the point at which everything seems to go to hell.
+
+maybe I need a pin object?
+
+also - just because I have "variable" objects doesn't mean that all variable objects
+need to be stored in a global list.  they can be stored inside individual module or
+pin objects.
+
+
+
+
+
+
+
+
