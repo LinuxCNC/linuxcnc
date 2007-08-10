@@ -35,7 +35,7 @@ initial ones = 0;
 always @(posedge clk) begin
     if(enable) begin
 	// $display("state=%d timer=%d position=%h velocity=%h dir=%d dbit=%d pbit=%d ones=%d", state, timer, position, xvelocity, dir, dbit, pbit, ones);
-	if(dir != dbit) begin
+	if((dir != dbit) && (pbit == ones)) begin
 	    if(state == `STATE_DIRCHANGE) begin
 		if(timer == 0) begin
 		    dir <= dbit;
@@ -59,7 +59,7 @@ always @(posedge clk) begin
 	    end else begin
 		timer <= timer - 1'd1;
 	    end
-	end else if(state == `STATE_STEP) begin
+	end else begin
 	    if(timer == 0) begin
 		if(pbit != ones) begin
 		    ones <= pbit;
@@ -71,10 +71,9 @@ always @(posedge clk) begin
 	    end else begin
 		timer <= timer - 1'd1;
 	    end
-	    position <= position + xvelocity;
-	end else begin
-	    state <= `STATE_STEP;
-	end
+            if(dir == dbit) 
+                position <= position + xvelocity;
+        end
     end
 end
 
