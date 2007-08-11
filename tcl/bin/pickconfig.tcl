@@ -34,6 +34,7 @@ exec wish "$0" "$@"
 source [file join [file dirname [info script]] .. emc.tcl]
 
 set logo [emc::image_search emc2-wizard]
+image create photo machinelogo
 
 option add *font [emc::standard_font]
 option add *Entry*background white
@@ -116,8 +117,26 @@ proc node_clicked {} {
 	# remove old text
 	$detail_box delete 1.0 end
 	# add new text
-	set readme [ file join [ file dirname $node ] README ]
-	if { [ file isfile $readme ] } {
+	set dir [ file dirname $node]
+	set name [ file rootname [file tail $node ] ]
+	set readme [file join $dir $name.txt]
+	if { ![ file exists $readme ] } {
+	    set readme [file join [ file dirname $node ] README ]
+	}
+	set image [file join $dir $name.gif]
+	if { ![ file exists $image ] } {
+	    set image [ file join [ file dirname $node ] logo.gif ]
+	}
+	if { [ file readable $image ] } {
+	    machinelogo blank
+	    machinelogo read $image
+	    puts stderr "using image $image"
+	    $detail_box image create end -image machinelogo
+	    $detail_box insert end "\n"
+	    $detail_box tag configure centered -justify center
+	    $detail_box tag add centered 0.0 0.end
+	}
+	if { [ file readable $readme ] } {
 	    # description found, read it
 	    set descr [ read -nonewline [ open $readme ]]
 	    # reformat - remove line breaks, preserve paragraph breaks
