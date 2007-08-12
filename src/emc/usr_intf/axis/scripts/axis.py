@@ -2110,6 +2110,7 @@ def run_warn():
     warnings = []
     if o.g:
         for i in range(min(axiscount, 3)): # Does not enforce angle limits
+            if not(s.axis_mask & (1<<i)): continue
             if o.g.min_extents[i] < machine_limit_min[i]:
                 warnings.append(_("Program exceeds machine minimum on axis %s")
                     % "XYZABCUVW"[i])
