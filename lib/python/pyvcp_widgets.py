@@ -741,6 +741,54 @@ class pyvcp_number(Label):
             dummy = "%(b)"+self.format
             self.v.set( str( dummy  % {'b':newvalue} ) )
 
+
+class pyvcp_u32(Label):
+    """ (indicator) shows a u32 as text """
+    n=0
+    def __init__(self,master,pycomp,halpin=None,format="d",**kw):
+        self.v = StringVar()
+        self.format=format
+        Label.__init__(self,master,textvariable=self.v,**kw)
+        if halpin == None:
+            halpin = "number."+str(pyvcp_number.n)
+        pyvcp_number.n += 1
+        self.halpin=halpin
+        self.value=0.0
+        dummy = "%(b)"+self.format
+        self.v.set( str( dummy  % {'b':self.value} ) )
+        pycomp.newpin(halpin, HAL_U32, HAL_IN)
+
+    def update(self,pycomp):    
+        newvalue = pycomp[self.halpin]
+        if newvalue != self.value:
+            self.value=newvalue
+            dummy = "%(b)"+self.format
+            self.v.set( str( dummy  % {'b':newvalue} ) )
+
+ 
+class pyvcp_s32(Label):
+    """ (indicator) shows a s32 as text """
+    n=0
+    def __init__(self,master,pycomp,halpin=None,format="d",**kw):
+        self.v = StringVar()
+        self.format=format
+        Label.__init__(self,master,textvariable=self.v,**kw)
+        if halpin == None:
+            halpin = "number."+str(pyvcp_number.n)
+        pyvcp_number.n += 1
+        self.halpin=halpin
+        self.value=0.0
+        dummy = "%(b)"+self.format
+        self.v.set( str( dummy  % {'b':self.value} ) )
+        pycomp.newpin(halpin, HAL_S32, HAL_IN)
+
+    def update(self,pycomp):    
+        newvalue = pycomp[self.halpin]
+        if newvalue != self.value:
+            self.value=newvalue
+            dummy = "%(b)"+self.format
+            self.v.set( str( dummy  % {'b':newvalue} ) )
+
   
 
 # -------------------------------------------
@@ -1103,14 +1151,29 @@ class pyvcp_include(Frame):
     def add(self, container, widget):
         widget.pack(fill=self.fill, anchor=self.anchor, expand=self.expand)
 
-class pyvcp_image:
-    all_images = []
-    def __init__(self, master, pycomp, name, **kw):
-        self.all_images.append(PhotoImage(name, kw, master))
-
+class _pyvcp_dummy:
     def add(self, container, widget): pass
     def update(self, pycomp): pass
     def pack(self, *args, **kw): pass
+
+class pyvcp_title(_pyvcp_dummy):
+    def __init__(self, master, pycomp, title, iconname=None):
+        master.wm_title(title)
+        if iconname: master.wm_iconname(iconname)
+
+class pyvcp_axisoptions(_pyvcp_dummy):
+    def __init__(self, master, pycomp):
+        import rs274.options
+        rs274.options.install(master)
+
+class pyvcp_option(_pyvcp_dummy):
+    def __init__(self, master, pycomp, pattern, value, priority=None):
+        master.option_add(pattern, value, priority)
+
+class pyvcp_image(_pyvcp_dummy):
+    all_images = []
+    def __init__(self, master, pycomp, name, **kw):
+        self.all_images.append(PhotoImage(name, kw, master))
 
 # This must come after all the pyvcp_xxx classes
 elements = []
