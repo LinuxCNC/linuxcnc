@@ -76,10 +76,13 @@ def main():
     pycomp=vcpparse.create_vcp(compname=component_name, master=pyvcp0)
     pycomp.ready()
 
-    try: 
-        pyvcp0.mainloop()
-    except KeyboardInterrupt:
-        sys.exit(0)
+    try:
+        try: 
+            pyvcp0.mainloop()
+        except KeyboardInterrupt:
+            sys.exit(0)
+    finally:
+        pycomp.exit()
 
 if __name__ == '__main__':
     main()
