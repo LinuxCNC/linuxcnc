@@ -1171,9 +1171,36 @@ class pyvcp_option(_pyvcp_dummy):
         master.option_add(pattern, value, priority)
 
 class pyvcp_image(_pyvcp_dummy):
-    all_images = []
+    all_images = {}
     def __init__(self, master, pycomp, name, **kw):
-        self.all_images.append(PhotoImage(name, kw, master))
+        self.all_images[name] = PhotoImage(name, kw, master)
+
+class _pyvcp_image(Label):
+    def __init__(self, master, pycomp, images, halpin=None, **kw):
+        Label.__init__(self, master, **kw)
+        if isinstance(images, basestring): images = images.split()
+        self.images = images
+        if halpin == None:
+            halpin = "number."+str(pyvcp_number.n)
+        pyvcp_number.n += 1
+        self.halpin = halpin
+        self.value = 0
+        self.last = None
+        pycomp.newpin(halpin, self.pintype, HAL_IN)
+
+    def update(self, pycomp):
+        l = pycomp[self.halpin]
+        if l != self.last:
+            try:
+                self.configure(image=self.images[l])
+            except (IndexError, KeyError):
+                print >>sys.stderr, "Unknown image #%d on %s" % (l, self.halpin)
+        self.last = l
+
+class pyvcp_image_bit(_pyvcp_image):
+    pintype = HAL_BIT
+class pyvcp_image_u32(_pyvcp_image):
+    pintype = HAL_U32
 
 # This must come after all the pyvcp_xxx classes
 elements = []
