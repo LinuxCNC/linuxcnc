@@ -28,6 +28,7 @@ import emc
 import pyvcp_widgets
 import hal 
 import time
+import traceback
 
 # this statement is required so that stuff from Tkinter
 # is not included in the pydoc documentation __All__ should list all 
@@ -138,7 +139,14 @@ def paramiterator(node):
     for e in node.childNodes:
 	if e.nodeType == e.ELEMENT_NODE \
 		and (e.nodeName not in pyvcp_widgets.elements):
-	    outparams[str(e.nodeName)] = eval(e.childNodes[0].nodeValue)
+            try:
+                v = eval(e.childNodes[0].nodeValue)
+            except: 
+                exc_type, exc_value, exc_tb = sys.exc_info()
+                raise SystemExit, ("Error evaluating xml file:\n"
+                    "Widget %s, Property %s\n%s: %s") % (
+                        node.nodeName, e.nodeName, exc_type.__name__, exc_value)
+	    outparams[str(e.nodeName)] = v
     return outparams
 
 
