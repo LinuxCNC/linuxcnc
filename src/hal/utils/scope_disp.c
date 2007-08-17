@@ -723,6 +723,9 @@ void draw_triggerline(int chan_num, int highlight) {
     if(dx < 5) dx = 5;
     if(dy < dx + 1) dy = dx + 1;
 
+    if(chan->data_type == HAL_BIT)
+        y1 = ypoffset;
+
     if(ctrl_shm->trig_edge) dy = -dy;
 
     if(highlight) {

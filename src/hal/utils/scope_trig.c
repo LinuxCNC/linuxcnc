@@ -159,8 +159,10 @@ void refresh_trigger(void)
     }
     if (chan->data_type == HAL_BIT) {
 	snprintf(buf, BUFLEN, "  ----  ");
+        gtk_widget_set_sensitive(GTK_WIDGET(trig->level_slider), 0);
     } else {
 	format_signal_value(buf, BUFLEN, fp_level);
+        gtk_widget_set_sensitive(GTK_WIDGET(trig->level_slider), 1);
     }
     gtk_label_set_text_if(trig->level_label, buf);
     refresh_display();
