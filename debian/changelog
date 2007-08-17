@@ -1,3 +1,9 @@
+emc2 (1:2.1.8~pre) unstable; urgency=low
+
+  * Fix SF#1772411: parameters incorrectly restored by O- endsub 
+
+ -- jepler <jepler@unpythonic.net>  Fri, 17 Aug 2007 08:53:22 -0500
+
 emc2 (1:2.1.7) unstable; urgency=low
 
   * additional PPMC indexing fixes
