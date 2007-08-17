@@ -627,7 +627,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 
       for(i=0; i<INTERP_SUB_PARAMS; i++)
 	{
-	  settings->parameters[i] =
+	  settings->parameters[i + INTERP_FIRST_SUBROUTINE_PARAM] =
 	    settings->sub_context[settings->call_level].saved_params[i];
 	}
 
