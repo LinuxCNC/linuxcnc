@@ -1,0 +1,17 @@
+
+(DUMMY SUBROUTINE)
+O100 sub
+O100 return
+O100 endsub
+
+(MAIN SUBROUTINE)
+O200 sub
+G00 X#1 Y#2 Z#3
+O100 call
+(#1 #2 and #3 are now corrupted upon return from dummy subroutine)
+G00 X#1 Y#2 Z#3
+O200 endsub
+
+(MAIN)
+O200 call [1] [2] [3]
+M02
