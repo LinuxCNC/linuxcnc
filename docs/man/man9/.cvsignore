@@ -70,6 +70,7 @@ select8.9
 serport.9
 sum2.9
 threadtest.9
+timedelta.9
 toggle.9
 tristate_float.9
 tristate_bit.9
