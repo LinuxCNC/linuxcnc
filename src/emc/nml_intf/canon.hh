@@ -21,12 +21,13 @@
 
 /*
   This is the header file that all applications that use the
-  canonical commands for three- to six-axis machining should include.
+  canonical commands for three- to nine-axis machining should include.
 
   Three mutually orthogonal (in a right-handed system) X, Y, and Z axes
   are always present. In addition, there may be zero to three rotational
   axes: A (parallel to the X-axis), B (parallel to the Y-axis), and C
-  (parallel to the Z-axis).
+  (parallel to the Z-axis). Additionally there may be zero to three linear
+  axes: U, V and W.
 
   In the functions that use rotational axes, the axis value is that of a
   wrapped linear axis, in degrees.
@@ -42,10 +43,6 @@
   The RS274NGC compiler references canon.hh, and here we switch on the
   symbols AA, BB and CC to declare the position structures. The EMC
   uses AA, BB and CC, and thus by default will get these.
-
-  In the rs274ngc_new directory, the Makefile defines the NO_AA, etc.
-  compile flags to force the exclusion of some axes. Note that these
-  interpreters won't work with the EMC.
  */
 
 #ifndef NO_AA
@@ -634,6 +631,18 @@ program. If commands are being executed with a stop after each one
 already (such as when the interpreter is being used with keyboard
 input), this command has no effect. */
 
+
+/* Commands to set/reset output bits and analog values */
+extern void SET_MOTION_OUTPUT_BIT(int index);
+extern void CLEAR_MOTION_OUTPUT_BIT(int index);
+extern void SET_AUX_OUTPUT_BIT(int index);
+extern void CLEAR_AUX_OUTPUT_BIT(int index);
+
+extern void SET_MOTION_OUTPUT_VALUE(int index, double value);
+extern void SET_AUX_OUTPUT_VALUE(int index, double value);
+
+
+
 /*************************************************************************/
 
 /* Canonical "Give me information" functions for the interpreter to call
@@ -820,14 +829,6 @@ extern USER_DEFINED_FUNCTION_TYPE
     USER_DEFINED_FUNCTION[USER_DEFINED_FUNCTION_NUM];
 extern int USER_DEFINED_FUNCTION_ADD(USER_DEFINED_FUNCTION_TYPE func,
 				     int num);
-
-extern void SET_MOTION_OUTPUT_BIT(int index);
-extern void CLEAR_MOTION_OUTPUT_BIT(int index);
-extern void SET_AUX_OUTPUT_BIT(int index);
-extern void CLEAR_AUX_OUTPUT_BIT(int index);
-
-extern void SET_MOTION_OUTPUT_VALUE(int index, double value);
-extern void SET_AUX_OUTPUT_VALUE(int index, double value);
 
 /* to be called by emcTaskPlanExecute when done interpreting.  This causes the
  * last segment to be output, if it has been held to do segment merging */
