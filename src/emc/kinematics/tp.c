@@ -297,7 +297,7 @@ int tpAddRigidTap(TP_STRUCT *tp, EmcPose end, double vel, double ini_maxvel,
     tc.tolerance = tp->tolerance;
 
     if(!tp->synchronized) {
-        rtapi_print_msg(RTAPI_MSG_ERR, "Cannot add unsychronized rigid tap move.\n");
+        rtapi_print_msg(RTAPI_MSG_ERR, "Cannot add unsynchronized rigid tap move.\n");
         return -1;
     }
     tc.synchronized = tp->synchronized;
