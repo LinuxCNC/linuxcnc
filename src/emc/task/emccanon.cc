@@ -2378,6 +2378,27 @@ CANON_PLANE GET_EXTERNAL_PLANE()
     return activePlane;
 }
 
+
+int GET_EXTERNAL_DIGITAL_INPUT(int index)
+{
+/* returns current value of the digital input selected by index.*/
+#ifdef INPUT_DEBUG
+    printf("GET_EXTERNAL_DIGITAL_INPUT called\n di[%d]=%d",index,emcStatus->motion.synch_di[index]);
+#endif
+    if ((index < 0) || (index >= EMC_MAX_DIO))
+	return -1;
+
+    return emcStatus->motion.synch_di[index];
+}
+
+double GET_EXTERNAL_ANALOG_INPUT(int index)
+{
+/* returns current value of the analog input selected by index.*/
+// FIXME-AJ - implement Analog
+    return 0;
+}
+
+
 USER_DEFINED_FUNCTION_TYPE USER_DEFINED_FUNCTION[USER_DEFINED_FUNCTION_NUM]
     = { 0 };
 
@@ -2551,4 +2572,26 @@ void SET_AUX_OUTPUT_VALUE(int index, double value)
   interp_list.append(aio_msg);
 
   return;
+}
+
+/*! \function WAIT
+   program execution and interpreting is stopped until the input selected by 
+   index changed to the needed state (specified by wait_type).
+   Return value: either wait_type if timeout didn't occur, or -1 otherwise. */
+
+void WAIT(int index, /* index of the motion exported input */
+         int input_type, /*DIGITAL_INPUT or ANALOG_INPUT */
+	 int wait_type, /* 0 - rise, 1 - fall, 2 - be high, 3 - be low */
+	 int timeout) /* time to wait [in seconds], if the input didn't change the value -1 is returned */
+{
+ EMC_AUX_INPUT_WAIT wait_msg;
+ 
+ flush_segments();
+ 
+ wait_msg.index = index;
+ wait_msg.input_type = input_type;
+ wait_msg.wait_type = wait_type;
+ wait_msg.timeout = timeout;
+ 
+ interp_list.append(wait_msg);
 }

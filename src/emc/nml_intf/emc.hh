@@ -204,6 +204,7 @@ class PM_CARTESIAN;
 #define EMC_AUX_ESTOP_ON_TYPE                         ((NMLTYPE) 1206)
 #define EMC_AUX_ESTOP_OFF_TYPE                        ((NMLTYPE) 1207)
 #define EMC_AUX_ESTOP_RESET_TYPE                      ((NMLTYPE) 1208)
+#define EMC_AUX_INPUT_WAIT_TYPE                       ((NMLTYPE) 1209)
 
 #define EMC_AUX_STAT_TYPE                             ((NMLTYPE) 1299)
 
@@ -462,6 +463,7 @@ extern int emcTrajSetHome(EmcPose home);
 extern int emcTrajClearProbeTrippedFlag();
 extern int emcTrajProbe(EmcPose pos, int type, double vel, 
 	double ini_maxvel, double acc);
+extern int emcAuxInputWait(int index, int input_type, int wait_type, int timeout);
 extern int emcTrajRigidTap(EmcPose pos, double vel, double ini_maxvel, double acc);
 
 extern int emcTrajUpdate(EMC_TRAJ_STAT * stat);

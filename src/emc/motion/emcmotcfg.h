@@ -31,7 +31,7 @@
 #define EMCMOT_MAX_JOINTS 9
 
 /* number of motion synched DIO's supported (increase this value to 
-   suit your needs) */
+   suit your needs), make sure to increase EMC_MAX_DIO aswell (emcglb.h) */
 #define EMCMOT_MAX_DIO 4
 
 #define EMCMOT_ERROR_NUM 32	/* how many errors we can queue */

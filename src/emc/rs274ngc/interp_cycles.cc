@@ -608,7 +608,7 @@ Returned Value: int
       NCE_DWELL_TIME_P_WORD_MISSING_WITH_G88
       NCE_DWELL_TIME_P_WORD_MISSING_WITH_G89
    5. G83 is called when it is not already in effect,
-      and no q number is in the block: NCE_Q_WORD_MISSING_WITH_G83
+      and no q number is in the block: NCE_Q_WORD_MISSING_WITH_G83_OR_M66
    6. G87 is called when it is not already in effect,
       and any of the i number, j number, or k number is missing:
       NCE_I_WORD_MISSING_WITH_G87

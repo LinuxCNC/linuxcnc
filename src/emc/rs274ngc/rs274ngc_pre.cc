@@ -468,6 +468,9 @@ int Interp::init()
 //_setup.percent_flag does not need initialization
 //_setup.plane set in Interp::synch
   _setup.probe_flag = OFF;
+  _setup.input_flag = OFF;
+  _setup.input_index = -1;
+  _setup.input_digital = OFF;
   _setup.program_x = 0.;   /* for cutter comp */
   _setup.program_y = 0.;   /* for cutter comp */
   _setup.program_z = 0.;   /* for cutter comp */
@@ -698,6 +701,16 @@ int Interp::read(const char *command)  //!< may be NULL or a string to read
         NCE_QUEUE_IS_NOT_EMPTY_AFTER_PROBING);
     set_probe_data(&_setup);
     _setup.probe_flag = OFF;
+  }
+  if (_setup.input_flag == ON) {
+    CHK((GET_EXTERNAL_QUEUE_EMPTY() == 0),
+        NCE_QUEUE_IS_NOT_EMPTY_AFTER_INPUT);
+    if (_setup.input_digital == ON) { // we are checking for a digital input
+	_setup.parameters[5398] = GET_EXTERNAL_DIGITAL_INPUT(_setup.input_index);
+    } else { // checking for analog input
+	_setup.parameters[5399] = GET_EXTERNAL_ANALOG_INPUT(_setup.input_index);
+    }
+    _setup.input_flag = OFF;
   }
   CHK(((command == NULL) && (_setup.file_pointer == NULL)),
       INTERP_FILE_NOT_OPEN);

@@ -2054,6 +2054,7 @@ int Interp::convert_length_units(int g_code,     //!< g_code being executed (mus
 
 Returned Value: int
    If convert_tool_change returns an error code, this returns that code.
+   If input-related stuff is needed, it sets the flag input_flag = ON.
    Otherwise, it returns INTERP_OK.
 
 Side effects:
@@ -2081,12 +2082,18 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 {
   static char name[] = "convert_m";
   int status;
+  double *pars;                 /* short name for settings->parameters            */
+
+  pars = settings->parameters;
 
   /* The M62-65 commands are used for DIO */
   /* M62 sets a DIO synched with motion
      M63 clears a DIO synched with motion
      M64 sets a DIO imediately
-     M65 clears a DIO imediately */
+     M65 clears a DIO imediately 
+     M66 waits for an input
+     M67 reads a digital input
+     M68 reads an analog input*/
 
   if (block->m_modes[5] == 62) {
     SET_MOTION_OUTPUT_BIT(round_to_int(block->p_number));
@@ -2096,7 +2103,28 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
     SET_AUX_OUTPUT_BIT(round_to_int(block->p_number));
   } else if (block->m_modes[5] == 65) {
     CLEAR_AUX_OUTPUT_BIT(round_to_int(block->p_number));
-  }
+  } else if (block->m_modes[5] == 66) {
+    CHK(((round_to_int(block->e_number) == 0) && (round_to_int(block->l_number) != 0)),
+	NCE_ANALOG_INPUT_WITH_WAIT_NOT_IMMEDIATE);
+
+    CHK(((round_to_int(block->q_number) <= 0) && (round_to_int(block->l_number) != 0)),
+	NCE_ZERO_TIMEOUT_WITH_WAIT_NOT_IMMEDIATE);
+
+    WAIT(round_to_int(block->p_number),round_to_int(block->e_number), round_to_int(block->l_number), round_to_int(block->q_number));
+    settings->input_flag = ON;
+    settings->input_index = round_to_int(block->p_number);
+    settings->input_digital = (round_to_int(block->e_number) != 0);
+  } else if (block->m_modes[5] == 67) {
+    WAIT(round_to_int(block->p_number), DIGITAL_INPUT, 0, 0); //if p_number wasn't specified, 0 - default channel is used
+    settings->input_flag = ON;
+    settings->input_index = round_to_int(block->p_number);
+    settings->input_digital = ON;
+  } else if (block->m_modes[5] == 68) {
+    WAIT(round_to_int(block->p_number), ANALOG_INPUT, 0, 0);
+    settings->input_flag = ON;
+    settings->input_index = round_to_int(block->p_number);
+    settings->input_digital = OFF;
+  } 
 
   if (block->m_modes[6] != -1) {
     CHP(convert_tool_change(settings));

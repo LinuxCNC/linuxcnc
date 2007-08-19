@@ -203,7 +203,8 @@ Returned Value: int
      convert_speed
      convert_stop
      convert_tool_select
-   Otherwise, if the probe_flag in the settings is ON, this returns
+   Otherwise, if the probe_flag in the settings is ON, 
+   or the input_flag is set to ON this returns
       INTERP_EXECUTE_FINISH.
    Otherwise, it returns INTERP_OK.
 
@@ -271,8 +272,13 @@ int Interp::execute_block(block_pointer block,   //!< pointer to a block of RS27
     else if (status != INTERP_OK)
       ERP(status);
   }
-  return ((settings->probe_flag ==
-           ON) ? INTERP_EXECUTE_FINISH : INTERP_OK);
+  if (settings->probe_flag == ON)
+    return INTERP_EXECUTE_FINISH;
+
+  if (settings->input_flag == ON)
+    return INTERP_EXECUTE_FINISH;
+
+  return INTERP_OK;
 }
 
 /****************************************************************************/

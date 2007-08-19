@@ -208,13 +208,13 @@ Returned Value: int
   10. A p_number is in a block with no G code that uses it:
       NCE_P_WORD_WITH_NO_G4_G10_G64_G82_G86_G88_G89
   11. A q_number is in a block with no G code that uses it:
-      NCE_Q_WORD_WITH_NO_G83
+      NCE_Q_WORD_WITH_NO_G83_OR_M66
   12. An r_number is in a block with no G code that uses it:
       NCE_R_WORD_WITH_NO_G_CODE_THAT_USES_IT
   13. A k word is missing from a G33 block:
       NCE_K_WORD_MISSING_WITH_G33
-  14. An e word is in a block with no G76 to use it:
-      NCE_E_WORD_WITH_NO_G76_TO_USE_IT
+  14. An e word is in a block with no G76 or M66 to use it:
+      NCE_E_WORD_WITH_NO_G76_OR_M66_TO_USE_IT
 
 Side effects: none
 
@@ -254,7 +254,7 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
   if (block->d_flag == ON) {
     CHKS(((block->g_modes[7] != G_41) && (block->g_modes[7] != G_42) &&
         (block->g_modes[7] != G_41_1) && (block->g_modes[7] != G_42_1) &&
-	(block->g_modes[14] != G_96)),
+	(block->g_modes[14] != G_96) && (block->m_modes[5] != 66)),
         "D word with no G41, G41.1, G42, G42.2, or G96 to use it");
   }
   if (block->s_number < 0) {
@@ -300,7 +300,8 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
          (block->g_modes[7] != G_41) &&
          (block->g_modes[7] != G_41_1) &&
          (block->g_modes[7] != G_42) &&
-         (block->g_modes[7] != G_42_1)),
+         (block->g_modes[7] != G_42_1) &&
+	 (block->m_modes[5] != 66)),
         "L word with no G10, cutter compensation, or canned cycle");
   }
 
@@ -312,6 +313,9 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
          (block->m_modes[5] != 63) &&
          (block->m_modes[5] != 64) &&
          (block->m_modes[5] != 65) &&
+         (block->m_modes[5] != 66) &&
+         (block->m_modes[5] != 67) &&
+         (block->m_modes[5] != 68) &&
          (block->m_modes[9] != 50) &&
          (block->m_modes[9] != 51) &&
          (block->m_modes[9] != 52) &&
@@ -323,12 +327,13 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
   }
 
   if (block->q_number != -1.0) {
-    CHK((motion != G_83) && (block->user_m != 1) && motion != G_76, 
-            NCE_Q_WORD_WITH_NO_G83);
+    CHK((motion != G_83) && (block->user_m != 1) && (motion != G_76) &&
+	    (block->m_modes[5] != 66), 
+            NCE_Q_WORD_WITH_NO_G83_OR_M66);
   }
 
   if (block->e_flag == ON) {
-    CHK((motion != G_76), NCE_E_WORD_WITH_NO_G76_TO_USE_IT);
+    CHK(((motion != G_76) && (block->m_modes[5] != 66)), NCE_E_WORD_WITH_NO_G76_OR_M66_TO_USE_IT);
   }
 
   if (block->r_flag == ON) {

@@ -107,6 +107,7 @@ typedef struct {
     hal_s32_t debug_s32_1;	/* RPA: generic param, for debugging */
     
     hal_bit_t *synch_do[EMCMOT_MAX_DIO]; /* WPI array: output pins for motion synched IO */
+    hal_bit_t *synch_di[EMCMOT_MAX_DIO]; /* RPI array: input pins for motion synched IO */
 
 
     // creating a lot of pins for spindle control to be very flexible

@@ -168,7 +168,7 @@ char * _rs274ngc_errors[] = {
 /* 141 */ _("Parameter file out of order"), // Interp::restore_parameters, Interp::save_parameters
 /* 142 */ _("Parameter number out of range"), // read_parameter, read_parameter_setting, Interp::restore_parameters, Interp::save_parameters
 /* 143 */ _("Q word missing with g83"), // convert_cycle_xy, convert_cycle_yz, convert_cycle_zx
-/* 144 */ _("Q word with no g83"), // check_other_codes
+/* 144 */ _("Q word with no g83 or m66"), // check_other_codes
 /* 145 */ _("Queue is not empty after probing"), // Interp::read
 /* 146 */ _("R clearance plane unspecified in cycle"), // convert_cycle
 /* 147 */ _("R i j k words all missing for arc"), // convert_arc
@@ -249,7 +249,7 @@ char * _rs274ngc_errors[] = {
 /* 220 */ _("Cannot move rotary axes with G76"),
 
 /* 221 */ _("Multiple e words on one line"),
-/* 222 */ _("E word with no G76 to use it"),
+/* 222 */ _("E word with no G76 or M66 to use it"),
 
 /* 223 */ _("Named parameter not terminated"),
 /* 224 */ _("Named parameter not defined"),
@@ -260,6 +260,11 @@ char * _rs274ngc_errors[] = {
 
 /* 229 */ _("X Y Z A B C J words not allowed with G43.1, G41 R, or G42 R"),
 /* 230 */ _("S word missing with G96"),
-/* 231 */ _("Unknown error"), // dummy
+
+/* 231 */ _("Queue is not empty after external input"), // Interp::read
+/* 232 */ _("Can't select analog input with wait type != immediate return"), // Interp::read
+/* 233 */ _("Zero timeout with wait type != immediate return"), // Interp::read
+
+/* 234 */ _("Unknown error"), // dummy
 _("The End")};
 // *INDENT-ON*

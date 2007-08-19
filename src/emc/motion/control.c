@@ -2546,7 +2546,7 @@ static void output_to_hal(void)
 
 static void update_status(void)
 {
-    int joint_num;
+    int joint_num, dio;
     emcmot_joint_t *joint;
     emcmot_joint_status_t *joint_status;
 #ifdef WATCH_FLAGS
@@ -2581,6 +2581,9 @@ static void update_status(void)
 	joint_status->max_ferror = joint->max_ferror;
 	joint_status->home_offset = joint->home_offset;
     }
+
+    for (dio = 0; dio < EMCMOT_MAX_DIO; dio++)
+	emcmotStatus->synch_di[dio] = *(emcmot_hal_data->synch_di[dio]);
 
     /*! \todo FIXME - the rest of this function is stuff that was apparently
        dropped in the initial move from emcmot.c to control.c.  I

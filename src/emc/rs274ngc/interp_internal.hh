@@ -380,6 +380,9 @@ typedef struct setup_struct
   ON_OFF percent_flag;          // ON means first line was percent sign
   CANON_PLANE plane;            // active plane, XY-, YZ-, or XZ-plane
   ON_OFF probe_flag;            // flag indicating probing done
+  ON_OFF input_flag;            // flag indicating waiting for input done
+  int input_index;		// channel queried
+  ON_OFF input_digital;		// input queried was digital (OFF=analog)
   ON_OFF cutter_comp_firstmove; // this is the first comp move
   double program_x;             // program x, used when cutter comp on
   double program_y;             // program y, used when cutter comp on

@@ -165,6 +165,7 @@ extern "C" {
 	EMCMOT_SPINDLE_BRAKE_RELEASE,	/* release the spindle brake */
 	EMCMOT_SET_MOTOR_OFFSET,	/* set the offset between joint and motor */
 	EMCMOT_SET_JOINT_COMP,	/* set a compensation triplet for a joint (nominal, forw., rev.) */
+	EMCMOT_INPUT_WAIT, /* wait for input */
     } cmd_code_t;
 
 /* this enum lists the possible results of a command */
@@ -224,6 +225,7 @@ extern "C" {
 	unsigned char now, out, start, end;	/* these are related to synched AOUT/DOUT. now=wether now or synched, out = which gets set, start=start value, end=end value */
 	unsigned char mode;	/* used for turning overrides etc. on/off */
 	double comp_nominal, comp_forward, comp_reverse; /* compensation triplet, nominal, forward, reverse */
+	int input_type;		/* used for input_wait */
 	unsigned char tail;	/* flag count for mutex detect */
     } emcmot_command_t;
 
@@ -601,6 +603,8 @@ Suggestion: Split this in to an Error and a Status flag register..
         double spindleSpeedIn;  /* velocity of spindle in revolutions per minute */
 
 	spindle_status spindle;	/* data types for spindle status */
+	
+	int synch_di[EMCMOT_MAX_DIO]; /* inputs to the motion controller, queried by g-code */
 
 /*! \todo FIXME - all structure members beyond this point are in limbo */
 

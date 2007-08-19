@@ -1054,6 +1054,17 @@ int emcTrajProbe(EmcPose pos, int type, double vel, double ini_maxvel, double ac
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
+int emcAuxInputWait(int index, int input_type, int wait_type, int timeout)
+{
+    emcmotCommand.command = EMCMOT_INPUT_WAIT;
+    emcmotCommand.axis = index;
+    emcmotCommand.input_type = input_type;
+    emcmotCommand.flags = wait_type;
+    emcmotCommand.wdWait = timeout;
+
+    return usrmotWriteEmcmotCommand(&emcmotCommand);
+}
+
 int emcTrajRigidTap(EmcPose pos, double vel, double ini_maxvel, double acc)
 {
     emcmotCommand.command = EMCMOT_RIGID_TAP;
@@ -1403,6 +1414,7 @@ int emcMotionUpdate(EMC_MOTION_STAT * stat)
     int axis;
     int error;
     int exec;
+    int dio;
 
     // read the emcmot status
     if (0 != usrmotReadEmcmotStatus(&emcmotStatus)) {
@@ -1451,6 +1463,10 @@ int emcMotionUpdate(EMC_MOTION_STAT * stat)
     // set the status flag
     error = 0;
     exec = 0;
+
+    for (dio = 0; dio < EMC_MAX_DIO; dio++) {
+	stat->synch_di[dio] = emcmotStatus.synch_di[dio];
+    }
 
     for (axis = 0; axis < stat->traj.axes; axis++) {
 	if (stat->axis[axis].status == RCS_ERROR) {

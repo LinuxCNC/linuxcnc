@@ -641,7 +641,24 @@ extern void CLEAR_AUX_OUTPUT_BIT(int index);
 extern void SET_MOTION_OUTPUT_VALUE(int index, double value);
 extern void SET_AUX_OUTPUT_VALUE(int index, double value);
 
+/* Commands to wait for, query input bits and analog values */
 
+#define DIGITAL_INPUT 1
+#define ANALOG_INPUT 0
+
+#define WAIT_MODE_IMMEDIATE	0
+#define WAIT_MODE_RISE 		1
+#define WAIT_MODE_FALL		2
+#define WAIT_MODE_HIGH		3
+#define WAIT_MODE_LOW		4
+
+extern void WAIT(int index, /* index of the motion exported input */
+		int input_type, /* 1=DIGITAL_INPUT or 0=ANALOG_INPUT */
+	        int wait_type, /* 0 - immediate, 1 - rise, 2 - fall, 3 - be high, 4 - be low */
+		int timeout); /* time to wait [in seconds], if the input didn't change the value -1 is returned */
+/* WAIT - program execution is stopped until the input selected by index 
+   changed to the needed state (specified by wait_type).
+   Return value: either wait_type if timeout didn't occur, or -1 otherwise. */
 
 /*************************************************************************/
 
@@ -813,6 +830,13 @@ extern int GET_EXTERNAL_SPINDLE_OVERRIDE_ENABLE();
 extern int GET_EXTERNAL_ADAPTIVE_FEED_ENABLE();
 extern int GET_EXTERNAL_FEED_HOLD_ENABLE();
 
+// Functions to query digital/analog Inputs
+extern int GET_EXTERNAL_DIGITAL_INPUT(int index);
+/* returns current value of the digital input selected by index.*/
+
+extern double GET_EXTERNAL_ANALOG_INPUT(int index);
+/* returns current value of the analog input selected by index.*/
+
 // Returns the mask of axes present in the system
 extern int GET_EXTERNAL_AXIS_MASK();
 
@@ -829,7 +853,7 @@ extern USER_DEFINED_FUNCTION_TYPE
     USER_DEFINED_FUNCTION[USER_DEFINED_FUNCTION_NUM];
 extern int USER_DEFINED_FUNCTION_ADD(USER_DEFINED_FUNCTION_TYPE func,
 				     int num);
-
+				     
 /* to be called by emcTaskPlanExecute when done interpreting.  This causes the
  * last segment to be output, if it has been held to do segment merging */
 extern void FINISH(void);
