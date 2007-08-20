@@ -1349,33 +1349,6 @@ check_stuff ( "before command_handler()" );
 	    emcmot_config_change();
 	    break;
 
-	case EMCMOT_INPUT_WAIT:
-	    rtapi_print_msg(RTAPI_MSG_DBG, "INPUT_WAIT");
-	    if (emcmotCommand->input_type == 1) { // checking for digital input
-		if (emcmotCommand->axis > EMCMOT_MAX_DIO) { //out of range
-		    reportError("Wait for Input out of range %d > %d (EMCMOT_MAX_DIO)", emcmotCommand->axis, EMCMOT_MAX_DIO);
-		    break;
-		} else if (emcmotCommand->axis < 0) { //out of range
-		    reportError("Wait for Input out of range (< 0)");
-		    break;
-		}
-		if (emcmotCommand->flags == 0) { //nothing to do, return immediately
-		    break;
-		} else { //FIXME-AJ: remember settings and check for input to change
-		    // emcmotCommand->flags == 1 - rise
-		    // emcmotCommand->flags == 2 - fall
-		    // emcmotCommand->flags == 3 - high
-		    // emcmotCommand->flags == 4 - low
-		    // emcmotCommand->wdWait == timeout for waiting
-		    reportError("Wait for Input with special event not yet implemented");
-		    break;
-		}
-	    break;
-	    } else { // analog input
-		reportError("Analog input not yet implemented");
-	    }
-	    break;
-
 	/* needed for synchronous I/O */
 	case EMCMOT_SET_AOUT:
 	    if (emcmotCommand->now) { //we set it right away

@@ -1054,17 +1054,6 @@ int emcTrajProbe(EmcPose pos, int type, double vel, double ini_maxvel, double ac
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
-int emcAuxInputWait(int index, int input_type, int wait_type, int timeout)
-{
-    emcmotCommand.command = EMCMOT_INPUT_WAIT;
-    emcmotCommand.axis = index;
-    emcmotCommand.input_type = input_type;
-    emcmotCommand.flags = wait_type;
-    emcmotCommand.wdWait = timeout;
-
-    return usrmotWriteEmcmotCommand(&emcmotCommand);
-}
-
 int emcTrajRigidTap(EmcPose pos, double vel, double ini_maxvel, double acc)
 {
     emcmotCommand.command = EMCMOT_RIGID_TAP;
