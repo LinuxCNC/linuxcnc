@@ -2114,6 +2114,7 @@ void EMC_TASK_STAT::update(CMS * cms)
     cms->update(activeSettings, 3);
     cms->update(programUnits);
     cms->update(interpreter_errcode);
+    cms->update(input_timeout);
 
 }
 

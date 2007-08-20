@@ -241,6 +241,7 @@ int Interp::init_block(block_pointer block)      //!< pointer to a block to be i
   block->j_flag = OFF;
   block->k_flag = OFF;
   block->l_number = -1;
+  block->l_flag = OFF;
   block->line_number = -1;
   block->motion_to_be = -1;
   block->m_count = 0;
@@ -249,6 +250,7 @@ int Interp::init_block(block_pointer block)      //!< pointer to a block to be i
   }
   block->user_m = 0;
   block->p_number = -1.0;
+  block->p_flag = OFF;
   block->q_number = -1.0;
   block->r_flag = OFF;
   block->s_number = -1.0;

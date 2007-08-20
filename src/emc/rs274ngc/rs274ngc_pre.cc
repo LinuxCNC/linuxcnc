@@ -706,7 +706,7 @@ int Interp::read(const char *command)  //!< may be NULL or a string to read
     CHK((GET_EXTERNAL_QUEUE_EMPTY() == 0),
         NCE_QUEUE_IS_NOT_EMPTY_AFTER_INPUT);
     if (_setup.input_digital == ON) { // we are checking for a digital input
-	_setup.parameters[5398] = GET_EXTERNAL_DIGITAL_INPUT(_setup.input_index);
+	_setup.parameters[5399] = GET_EXTERNAL_DIGITAL_INPUT(_setup.input_index);
     } else { // checking for analog input
 	_setup.parameters[5399] = GET_EXTERNAL_ANALOG_INPUT(_setup.input_index);
     }

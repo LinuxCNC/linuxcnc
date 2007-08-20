@@ -1380,7 +1380,7 @@ Parameters Used by the RS274NGC Interpreter
 
 
 \begin_inset  Tabular
-<lyxtabular version="3" rows="17" columns="2">
+<lyxtabular version="3" rows="16" columns="2">
 <features>
 <column alignment="left" valignment="top" leftline="true" width="0">
 <column alignment="left" valignment="top" leftline="true" rightline="true" width="0">
@@ -1686,24 +1686,6 @@ Coordinate System 9
 \end_inset 
 </cell>
 </row>
-<row topline="true">
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\layout Standard
-
-5398
-\end_inset 
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\layout Standard
-
-Result of M67 - Check digital input
-\end_inset 
-</cell>
-</row>
 <row topline="true" bottomline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
@@ -1718,7 +1700,7 @@ Result of M67 - Check digital input
 
 \layout Standard
 
-Result of M68 - Check analog input
+Result of M66 - Check or wait for input
 \end_inset 
 </cell>
 </row>
@@ -7752,8 +7734,8 @@ M65
  Turn off digital output immediately
 \layout Section
 
-M66 to M68: Digital Input Control
-\begin_inset LatexCommand \label{sec:M66-to-M68:}
+M66: Digital Input Control
+\begin_inset LatexCommand \label{sec:M66:}
 
 \end_inset 
 
@@ -7763,24 +7745,16 @@ M66 to M68: Digital Input Control
 \end_inset 
 
 
-\begin_inset LatexCommand \index{M67}
-
-\end_inset 
-
-
-\begin_inset LatexCommand \index{M68}
-
-\end_inset 
-
-
 \layout Standard
 
 To control a digital input bit, program 
 \family typewriter 
-M- P-
+M66 P- E- L- Q-
 \family default 
-, where the M-word ranges from 66 to 68, and the P-word ranges from 0 to
- an implementation-defined maximum.
+ , where the P-word and the E-word ranges from 0 to an implementation-defined
+ maximum.
+ Only one of the P or E words must be present.
+ It is an error if they are both missing.
 \layout Description
 
 M66
@@ -7791,12 +7765,12 @@ M66
  Wait on an input
 \layout Itemize
 
-The P-word specifies the input number.
- If no P-word is specified, the first input (-00) is used.
+The P-word specifies the digital input number.
+ 
 \layout Itemize
 
-The E-word specifies the type of input.
- If no E-word is specified, or E=0 an analog input is used.
+The E-word specifies the analog input number.
+ 
 \layout Itemize
 
 The L-word specifies the wait type:
@@ -7804,8 +7778,7 @@ The L-word specifies the wait type:
 \labelwidthstring 00.00.0000
 
 0 - WAIT_MODE_IMMEDIATE - no waiting, returns immediately.
- The current value of the input is stored in parameter #5398 (digital input)
- or parameter #5399 (analog input)
+ The current value of the input is stored in parameter #5399
 \layout List
 \labelwidthstring 00.00.0000
 
@@ -7828,7 +7801,7 @@ Mode 0 is the only one permitted for an analog input.
 \layout Itemize
 
 The Q-word specifies the timeout for the waiting.
- If the timeout is exceeded, the wait is interrupt, and the variable #5398
+ If the timeout is exceeded, the wait is interrupt, and the variable #5399
  will be holding the value -1.
 \layout Standard
 
@@ -7837,28 +7810,10 @@ M66 wait on an input stops further execution of the program, until the selected
  It is an error to program a timeout value of 0 with any mode different
  than mode 0.
  
-\layout Description
+\layout Standard
 
-M67
-\begin_inset LatexCommand \index{M67}
-
-\end_inset 
-
- Read the current value of a digital input.
- The P-word specifies the input number.
- If no P-word is specified, the first input (-00) is used.
- The value of the selected input is stored into parameter #5398.
-\layout Description
-
-M68
-\begin_inset LatexCommand \index{M68}
-
-\end_inset 
-
- Read the current value of an analog input.
- The P-word specifies the input number.
- If no P-word is specified, the first input (-00) is used.
- The value of the selected input is stored into parameter #5399.
+It is also an error to program M66 with both a P-word and an E-word (thus
+ selecting both an analog and a digital input).
 \layout Section
 
 M100 to M199

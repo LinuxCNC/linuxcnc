@@ -2386,10 +2386,13 @@ CANON_PLANE GET_EXTERNAL_PLANE()
 int GET_EXTERNAL_DIGITAL_INPUT(int index)
 {
 /* returns current value of the digital input selected by index.*/
-#ifdef INPUT_DEBUG
-    printf("GET_EXTERNAL_DIGITAL_INPUT called\n di[%d]=%d",index,emcStatus->motion.synch_di[index]);
-#endif
+//#ifdef INPUT_DEBUG
+    printf("GET_EXTERNAL_DIGITAL_INPUT called\n di[%d]=%d \n timeout=%d \n",index,emcStatus->motion.synch_di[index],emcStatus->task.input_timeout);
+//#endif
     if ((index < 0) || (index >= EMC_MAX_DIO))
+	return -1;
+
+    if (emcStatus->task.input_timeout == 1)
 	return -1;
 
     return emcStatus->motion.synch_di[index];

@@ -241,12 +241,14 @@ typedef struct block_struct
   ON_OFF k_flag;
   double k_number;
   int l_number;
+  ON_OFF l_flag;
   int line_number;
   int motion_to_be;
   int m_count;
   int m_modes[11];
   int user_m;
   double p_number;
+  ON_OFF p_flag;
   double q_number;
   ON_OFF r_flag;
   double r_number;

@@ -948,6 +948,7 @@ int Interp::read_l(char *line,   //!< string: line of RS274/NGC code being proce
   CHP(read_integer_value(line, counter, &value, parameters));
   CHK((value < 0), NCE_NEGATIVE_L_WORD_USED);
   block->l_number = value;
+  block->l_flag = ON;
   return INTERP_OK;
 }
 
@@ -1620,6 +1621,7 @@ int Interp::read_p(char *line,   //!< string: line of RS274/NGC code being proce
   // user-defined codes
   // CHK((value < 0.0), NCE_NEGATIVE_P_WORD_USED);
   block->p_number = value;
+  block->p_flag = ON;
   return INTERP_OK;
 }
 
@@ -1967,6 +1969,7 @@ int Interp::read_parameter(
   int status;
 
   CHK((line[*counter] != '#'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
+
   *counter = (*counter + 1);
   // !!!KL
   // named parameters look like '<letter...>' or '<_.....>'

@@ -1431,6 +1431,7 @@ class EMC_TASK_STAT:public EMC_TASK_STAT_MSG {
     int readLine;		// line interpreter has read to
     bool optional_stop_state;	// state of optional stop (== ON means we stop on M1)
     bool block_delete_state;	// state of block delete (== ON means we ignore lines starting with "/")
+    bool input_timeout;		// has a timeout happened on digital input
     char file[LINELEN];
     char command[LINELEN];
     EmcPose origin;		// origin, in user units, currently active

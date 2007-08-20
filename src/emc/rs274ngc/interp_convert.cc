@@ -2082,6 +2082,7 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 {
   static char name[] = "convert_m";
   int status;
+  int type, timeout;
   double *pars;                 /* short name for settings->parameters            */
 
   pars = settings->parameters;
@@ -2104,27 +2105,53 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
   } else if (block->m_modes[5] == 65) {
     CLEAR_AUX_OUTPUT_BIT(round_to_int(block->p_number));
   } else if (block->m_modes[5] == 66) {
-    CHK(((round_to_int(block->e_number) == 0) && (round_to_int(block->l_number) != 0)),
+    //P-word = digital channel
+    //E-word = analog channel
+    //L-word = wait type (immediate, rise, fall, high, low)
+    //Q-word = timeout
+    // it is an error if:
+
+    // P and E word are specified together
+    CHK(((block->p_flag == ON) && (block->e_flag == ON)),
+	NCE_BOTH_DIGITAL_AND_ANALOG_INPUT_SELECTED);
+
+    // L-word not 0, and timeout <= 0 
+    CHK(((round_to_int(block->q_number) <= 0) && (block->l_flag == ON) && (round_to_int(block->l_number) >= 0)),
+	NCE_ZERO_TIMEOUT_WITH_WAIT_NOT_IMMEDIATE);
+	
+    // E-word specified (analog input) and wait type not immediate
+    CHK(((block->e_flag == ON) && (round_to_int(block->l_number) != 0)),
 	NCE_ANALOG_INPUT_WITH_WAIT_NOT_IMMEDIATE);
 
-    CHK(((round_to_int(block->q_number) <= 0) && (round_to_int(block->l_number) != 0)),
-	NCE_ZERO_TIMEOUT_WITH_WAIT_NOT_IMMEDIATE);
+    // missing P or E (or invalid = negative)
+    CHK(((round_to_int(block->p_number) < 0) && (round_to_int(block->e_number) < 0)),
+	NCE_INVALID_OR_MISSING_P_AND_E_WORDS_FOR_WAIT_INPUT);
 
-    WAIT(round_to_int(block->p_number),round_to_int(block->e_number), round_to_int(block->l_number), round_to_int(block->q_number));
-    settings->input_flag = ON;
-    settings->input_index = round_to_int(block->p_number);
-    settings->input_digital = (round_to_int(block->e_number) != 0);
-  } else if (block->m_modes[5] == 67) {
-    WAIT(round_to_int(block->p_number), DIGITAL_INPUT, 0, 0); //if p_number wasn't specified, 0 - default channel is used
-    settings->input_flag = ON;
-    settings->input_index = round_to_int(block->p_number);
-    settings->input_digital = ON;
-  } else if (block->m_modes[5] == 68) {
-    WAIT(round_to_int(block->p_number), ANALOG_INPUT, 0, 0);
-    settings->input_flag = ON;
-    settings->input_index = round_to_int(block->p_number);
-    settings->input_digital = OFF;
-  } 
+    if (block->p_flag == ON) { // got a digital input
+	if (round_to_int(block->p_number) < 0) // safety check for negative words
+	    ERS("invalid P-word with M66");
+	    
+	if (block->l_flag == ON)
+	    type = round_to_int(block->l_number);
+	else 
+	    type = WAIT_MODE_IMMEDIATE;
+	    
+	if (round_to_int(block->q_number) >= 0)
+	    timeout = round_to_int(block->q_number);
+	else
+	    timeout = 0;
+
+	WAIT(round_to_int(block->p_number), DIGITAL_INPUT, type, timeout); 
+	settings->input_flag = ON;
+	settings->input_index = round_to_int(block->p_number);
+	settings->input_digital = ON;
+    } else if (round_to_int(block->e_number) >= 0) { // got an analog input
+	WAIT(round_to_int(block->e_number), ANALOG_INPUT, 0, 0);
+	settings->input_flag = ON;
+	settings->input_index = round_to_int(block->p_number);
+	settings->input_digital = OFF;
+    } 
+  }    
 
   if (block->m_modes[6] != -1) {
     CHP(convert_tool_change(settings));

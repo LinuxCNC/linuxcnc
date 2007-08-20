@@ -264,7 +264,9 @@ char * _rs274ngc_errors[] = {
 /* 231 */ _("Queue is not empty after external input"), // Interp::read
 /* 232 */ _("Can't select analog input with wait type != immediate return"), // Interp::read
 /* 233 */ _("Zero timeout with wait type != immediate return"), // Interp::read
+/* 234 */ _("Invalid to select both a digital and an analog input with M66"), // Interp::read
+/* 235 */ _("Need to have either a valid P or a valid E word with M66"), // Interp::read
 
-/* 234 */ _("Unknown error"), // dummy
+/* 236 */ _("Unknown error"), // dummy
 _("The End")};
 // *INDENT-ON*

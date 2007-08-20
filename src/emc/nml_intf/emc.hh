@@ -621,7 +621,7 @@ extern EMC_IO_STAT *emcIoStatus;
 extern EMC_MOTION_STAT *emcMotionStatus;
 
 #define EMC_VERSION_MAJOR 2
-#define EMC_VERSION_MINOR 1
+#define EMC_VERSION_MINOR 2
 #define EMC_VERSION_MICRO 0
 
 // values for EMC_AXIS_SET_AXIS, axisType
