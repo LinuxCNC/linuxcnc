@@ -343,6 +343,10 @@ static EMC_TASK_PLAN_OPEN *open_msg;
 static EMC_TASK_PLAN_SET_OPTIONAL_STOP *os_msg;
 static EMC_TASK_PLAN_SET_BLOCK_DELETE *bd_msg;
 
+static EMC_AUX_INPUT_WAIT *emcAuxInputWaitMsg;
+static int emcAuxInputWaitType;
+static int emcAuxInputWaitIndex;
+
 // commands we compose here
 static EMC_TASK_PLAN_RUN taskPlanRunCmd;	// 16-Aug-1999 FMP
 static EMC_TASK_PLAN_INIT taskPlanInitCmd;
@@ -1667,11 +1671,14 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	break;
 
     case EMC_AUX_INPUT_WAIT_TYPE:
-	retval = emcAuxInputWait(
-	    ((EMC_AUX_INPUT_WAIT *) cmd)->index,
-	    ((EMC_AUX_INPUT_WAIT *) cmd)->input_type,
-	    ((EMC_AUX_INPUT_WAIT *) cmd)->wait_type,
-	    ((EMC_AUX_INPUT_WAIT *) cmd)->timeout);
+	emcAuxInputWaitMsg = (EMC_AUX_INPUT_WAIT *) cmd;
+	if (emcAuxInputWaitMsg->timeout == WAIT_MODE_IMMEDIATE) { //nothing to do, CANON will get the needed value when asked by the interp
+	} else {
+	    emcAuxInputWaitType = emcAuxInputWaitMsg->wait_type; // remember what we are waiting for 
+	    emcAuxInputWaitIndex = emcAuxInputWaitMsg->index; // remember the input to look at
+	    // set the timeout clock to expire at 'now' + delay time
+	    taskExecDelayTimeout = etime() + emcAuxInputWaitMsg->timeout;
+	}
 	break;
 
     case EMC_TRAJ_RIGID_TAP_TYPE:
@@ -2095,7 +2102,6 @@ static int emcTaskCheckPostconditions(NMLmsg * cmd)
     case EMC_COOLANT_FLOOD_OFF_TYPE:
     case EMC_LUBE_ON_TYPE:
     case EMC_LUBE_OFF_TYPE:
-    case EMC_AUX_INPUT_WAIT_TYPE:
 	return EMC_TASK_EXEC_DONE;
 	break;
 
@@ -2110,6 +2116,7 @@ static int emcTaskCheckPostconditions(NMLmsg * cmd)
 	break;
 
     case EMC_TRAJ_DELAY_TYPE:
+    case EMC_AUX_INPUT_WAIT_TYPE:
 	return EMC_TASK_EXEC_WAITING_FOR_DELAY;
 	break;
 
@@ -2317,9 +2324,30 @@ static int emcTaskExecute(void)
 
     case EMC_TASK_EXEC_WAITING_FOR_DELAY:
 	STEPPING_CHECK();
+	// check if delay has passed
 	if (etime() >= taskExecDelayTimeout) {
 	    emcStatus->task.execState = EMC_TASK_EXEC_DONE;
 	    emcTaskEager = 1;
+	}
+	// delay can be also be because we wait for an input
+	// if the index is set (not -1)
+	if (emcAuxInputWaitIndex >= 0) { 
+	    switch (emcAuxInputWaitType) {
+		case WAIT_MODE_HIGH:
+    		case WAIT_MODE_RISE: //FIXME: implement different rise mode if needed
+		    if (emcStatus->motion.synch_di[emcAuxInputWaitIndex] == 1)
+			emcStatus->task.execState = EMC_TASK_EXEC_DONE;
+		    break;
+		    
+		case WAIT_MODE_LOW:
+		case WAIT_MODE_FALL: //FIXME: implement different fall mode if needed
+		    if (emcStatus->motion.synch_di[emcAuxInputWaitIndex] == 0)
+			emcStatus->task.execState = EMC_TASK_EXEC_DONE;
+		    break;
+		
+		default:
+		    emcOperatorError(0, "Unknown Wait Mode");
+	    }
 	}
 	break;
 
