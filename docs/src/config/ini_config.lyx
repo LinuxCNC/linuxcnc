@@ -919,7 +919,7 @@ trivial kinematics
 \begin_inset Quotes erd
 \end_inset 
 
-, the V joint is numbered 8 and therefore AXES should be 9.
+, the V joint is numbered 7 and therefore AXES should be 8.
  For a machine with nontrivial kinematics (e.g., scarakins) this will generally
  be the number of controlled joints.
 \layout Description
