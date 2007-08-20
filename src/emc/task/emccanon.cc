@@ -272,6 +272,7 @@ void SET_TRAVERSE_RATE(double rate)
 void SET_FEED_MODE(int mode) {
     flush_segments();
     feed_mode = mode;
+    if(feed_mode == 0) STOP_SPEED_FEED_SYNCH();
 }
 
 void SET_FEED_RATE(double rate)
@@ -688,7 +689,7 @@ void STRAIGHT_TRAVERSE(double x, double y, double z,
 {
     double vel, acc;
     EMC_TRAJ_LINEAR_MOVE linearMoveMsg;
-    linearMoveMsg.feed_mode = feed_mode;
+    linearMoveMsg.feed_mode = 0;
 
     // convert to mm units
     x = FROM_PROG_LEN(x);
@@ -742,13 +743,14 @@ void STRAIGHT_TRAVERSE(double x, double y, double z,
     linearMoveMsg.type = EMC_MOTION_TYPE_TRAVERSE;
 
 
+    int old_feed_mode = feed_mode;
     if(feed_mode)
 	STOP_SPEED_FEED_SYNCH();
 
     if(acc) 
         interp_list.append(linearMoveMsg);
 
-    if(feed_mode)
+    if(old_feed_mode)
 	START_SPEED_FEED_SYNCH(currentLinearFeedRate, 1);
 
     canonUpdateEndPoint(x, y, z, a, b, c, u, v, w);
@@ -1492,14 +1494,16 @@ void CHANGE_TOOL(int slot)
         linearMoveMsg.vel = linearMoveMsg.ini_maxvel = toExtVel(vel);
         linearMoveMsg.acc = toExtAcc(acc);
         linearMoveMsg.type = EMC_MOTION_TYPE_TOOLCHANGE;
+	linearMoveMsg.feed_mode = 0;
 
+	int old_feed_mode = feed_mode;
 	if(feed_mode)
 	    STOP_SPEED_FEED_SYNCH();
 
         if(acc) 
             interp_list.append(linearMoveMsg);
 
-	if(feed_mode)
+	if(old_feed_mode)
 	    START_SPEED_FEED_SYNCH(currentLinearFeedRate, 1);
 
         canonUpdateEndPoint(x, y, z, a, b, c, 
