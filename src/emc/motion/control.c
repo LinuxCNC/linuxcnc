@@ -957,8 +957,9 @@ static void handle_jogwheels(void)
 	   the command is faster than the machine can track, excess
 	   command is simply dropped. */
 	if ( *(axis_data->jog_vel_mode) ) {
+            double v = joint->vel_limit * emcmotStatus->net_feed_scale;
 	    /* compute stopping distance at max speed */
-	    stop_dist = joint->vel_limit * joint->vel_limit / ( 2 * joint->acc_limit);
+	    stop_dist = v * v / ( 2 * joint->acc_limit);
 	    /* if commanded position leads the actual position by more
 	       than stopping distance, discard excess command */
 	    if ( pos > joint->pos_cmd + stop_dist ) {
