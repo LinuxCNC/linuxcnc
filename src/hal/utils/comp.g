@@ -42,8 +42,8 @@ parser Hal:
     rule ComponentDeclaration:
         "component" NAME OptString";" {{ comp(NAME, OptString); }}
     rule Declaration:
-        "pin" PINDIRECTION TYPE HALNAME OptArray OptAssign OptPersonality OptString ";"  {{ pin(HALNAME, TYPE, OptArray, PINDIRECTION, OptString, OptAssign, OptPersonality) }}
-      | "param" PARAMDIRECTION TYPE HALNAME OptArray OptAssign OptPersonality OptString ";" {{ param(HALNAME, TYPE, OptArray, PARAMDIRECTION, OptString, OptAssign, OptPersonality) }}
+        "pin" PINDIRECTION TYPE HALNAME OptArray OptSAssign OptPersonality OptString ";"  {{ pin(HALNAME, TYPE, OptArray, PINDIRECTION, OptString, OptSAssign, OptPersonality) }}
+      | "param" PARAMDIRECTION TYPE HALNAME OptArray OptSAssign OptPersonality OptString ";" {{ param(HALNAME, TYPE, OptArray, PARAMDIRECTION, OptString, OptSAssign, OptPersonality) }}
       | "function" NAME OptFP OptString ";"       {{ function(NAME, OptFP, OptString) }}
       | "variable" NAME {{ NAME1=NAME; }} NAME OptSimpleArray OptAssign ";" {{ variable(NAME1, NAME, OptSimpleArray, OptAssign) }}
       | "option" NAME OptValue ";"   {{ option(NAME, OptValue) }}
@@ -313,6 +313,12 @@ static int comp_id;
         print >>f, "static int extra_setup(struct state *inst, long extra_arg);"
     if options.get("extra_cleanup"):
         print >>f, "static void extra_cleanup(void);"
+
+    if not options.get("no_convenience_defines"):
+        print >>f, "#define TRUE (1)"
+        print >>f, "#define FALSE (0)"
+        print >>f, "#define true (1)"
+        print >>f, "#define false (0)"
 
     print >>f
     if has_personality:
