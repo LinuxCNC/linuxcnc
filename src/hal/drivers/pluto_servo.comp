@@ -14,34 +14,7 @@
 //    along with this program; if not, write to the Free Software
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
-component pluto_servo """Hardware driver and firmware for the Pluto-P parallel-port FPGA, for use with servo machines.
-
-.B loadrt pluto_servo ioaddr=\\fIaddr\\fB ioaddr_hi=\\fIaddr\\fB epp_wide=\\fI[0|1]\\fB
-
-.RS 4
-.TP
-\\fBioaddr\\fR [default: 0x378]
-The base address of the parallel port.
-
-.TP
-\\fBioaddr_hi\\fR [default: 0]
-The secondary address of the parallel port, used to set EPP
-mode.  0 means to use ioaddr + 0x400.  -1 means there is no
-secondary address.
-
-.TP
-\\fBepp_wide\\fR [default: 1]
-Set to zero to disable "wide EPP mode".  "Wide" mode allows 16- and 32-bit EPP
-transfers, which can reduce the time spent in the read and write functions.
-However, this mode may not work on all EPP parallel ports.
-
-.TP
-\\fBwatchdog\\fR [default: 1]
-Set to zero to disable the "hardware watchdog".  "Watchdog" will tristate all
-outputs approximately 6ms after the last execution of
-\\fBpluto-servo.write\\fR, which adds some protection in the case of emc
-crashes.
-.RE""";
+component pluto_servo """Hardware driver and firmware for the Pluto-P parallel-port FPGA, for use with servo machines.""";
 
 description """
 Pluto_servo is an emc2 software driver and associated firmware that allow the Pluto-P board to be used to control a servo-based CNC machine.
@@ -169,13 +142,31 @@ function write "Write all the outputs on the pluto-servo board";
 
 see_also """The \\fIpluto_servo\\fR section in the HAL User Manual, which shows the location of each physical pin on the pluto board.""";
 
+modparam dummy ioaddr = 0x378 "The base address of the parallel port.";
+modparam dummy ioaddr_hi = 0
+"""The secondary address of the parallel port, used to set EPP
+mode.  0 means to use ioaddr + 0x400.  -1 means there is no
+secondary address.  The secondary address is used to set the port to EPP
+mode.""";
+
+modparam dummy epp_wide = 1
+    """Set to zero to disable the "wide EPP mode".  "Wide" mode allows a 16-
+and 32-bit EPP transfers, which can reduce the time spent in the read and write
+functions.  However, this may not work on all EPP parallel ports.""";
+
+modparam dummy watchdog = 1
+    """Set to zero to disable the "hardware watchdog".  "Watchdog" will
+tristate all outputs approximately 6ms after the last execution of
+\\fBpluto-servo.write\\fR, which adds some protection in the case of emc
+crashes.""";
+
+modparam int test_encoder = 0 
+    "Internally connect dout0..2 to QA0, QB0, QZ0 to test quadrature counting";
+
 license "GPL";
 ;;
 
 #include "hal/drivers/pluto_common.h"
-
-int test_encoder = 0;
-RTAPI_MP_INT(test_encoder, "Loop back dout0..2 onto quadrature 0 for testing");
 
 typedef struct {
     long last_index[4];
