@@ -50,6 +50,7 @@ parser Hal:
       | "see_also" String ";"   {{ see_also(String) }}
       | "description" String ";"   {{ description(String) }}
       | "license" String ";"   {{ license(String) }}
+      | "modparam" NAME {{ NAME1=NAME; }} NAME OptSAssign OptString ";" {{ modparam(NAME1, NAME, OptSAssign, OptString) }}
 
     rule String: TSTRING {{ return eval(TSTRING) }} 
             | STRING {{ return eval(STRING) }}
@@ -70,6 +71,8 @@ parser Hal:
             | {{ return '' }}
     rule OptAssign: "=" Value {{ return Value; }}
                 | {{ return None }}
+    rule OptSAssign: "=" SValue {{ return SValue; }}
+                | {{ return None }}
     rule OptFP: "fp" {{ return 1 }} | "nofp" {{ return 0 }} | {{ return 1 }}
     rule Value: "yes" {{ return 1 }} | "no" {{ return 0 }}  
                 | "true" {{ return 1 }} | "false" {{ return 0 }}  
@@ -77,9 +80,19 @@ parser Hal:
                 | NAME {{ return NAME }}
                 | FPNUMBER {{ return float(FPNUMBER.rstrip("f")) }}
                 | NUMBER {{ return int(NUMBER,0) }}
+    rule SValue: "yes" {{ return "yes" }} | "no" {{ return "no" }}  
+                | "true" {{ return "true" }} | "false" {{ return "false" }}  
+                | "TRUE" {{ return "TRUE" }} | "FALSE" {{ return "FALSE" }}  
+                | NAME {{ return NAME }}
+                | FPNUMBER {{ return FPNUMBER }}
+                | NUMBER {{ return NUMBER }}
     rule OptValue: Value {{ return Value }}
                 | {{ return 1 }}
+    rule OptSValue: SValue {{ return SValue }}
+                | {{ return 1 }}
 %%
+
+mp_decl_map = {'int': 'RTAPI_MP_INT', 'dummy': None}
 
 def parse(rule, text, filename=None):
     global P, S
@@ -94,9 +107,10 @@ deprecated = ['s32', 'u32']
 
 def initialize():
     global functions, params, pins, options, comp_name, names, docs, variables
+    global modparams
 
     functions = []; params = []; pins = []; options = {}; variables = []
-    docs = []
+    modparams = []; docs = []
     comp_name = None
 
     names = {}
@@ -175,6 +189,12 @@ def variable(type, name, array, default):
     names[name] = None
     variables.append((type, name, array, default))
 
+def modparam(type, name, default, doc):
+    if name in names:
+        Error("Duplicate item name %s" % name)
+    names[name] = None
+    modparams.append((type, name, default, doc))
+
 def removeprefix(s,p):
     if s.startswith(p): return s[len(p):]
     return s
@@ -235,7 +255,14 @@ static int comp_id;
         if personality: has_personality = True
     for type, name, array, value in variables:
         if array: has_array = True
-
+    for type, name, default, doc in modparams:
+        decl = mp_decl_map[type]
+        if decl:
+            print >>f, "%s %s" % (type, name),
+            if default: print >>f, "= %s;" % default
+            else: print >>f, ";"
+            print >>f, "%s(%s, %s);" % (decl, name, q(doc))
+            
     print >>f
     print >>f, "struct state {"
     print >>f, "    struct state *_next;"
@@ -625,16 +652,38 @@ def document(filename, outfilename):
     else:
         if rest:
             print >>f, rest
-        elif options.get("singleton") or options.get("count_function"):
-            if has_personality:
-                print >>f, ".B loadrt %s personality=\\fIP\\fB" % comp_name
-            else:
-                print >>f, ".B loadrt %s" % comp_name
         else:
-            if has_personality:
-                print >>f, ".B loadrt %s [count=\\fIN\\fB] [personality=\\fIP,P,...\\fB]" % comp_name
+            print >>f, ".HP"
+            if options.get("singleton") or options.get("count_function"):
+                if has_personality:
+                    print >>f, ".B loadrt %s personality=\\fIP\\fB" % comp_name,
+                else:
+                    print >>f, ".B loadrt %s" % comp_name,
             else:
-                print >>f, ".B loadrt %s [count=\\fIN\\fB]" % comp_name
+                if has_personality:
+                    print >>f, ".B loadrt %s [count=\\fIN\\fB] [personality=\\fIP,P,...\\fB]" % comp_name,
+                else:
+                    print >>f, ".B loadrt %s [count=\\fIN\\fB]" % comp_name,
+            for type, name, default, doc in modparams:
+                print >>f, "[%s=\\fIN\\fB]" % name,
+            print >>f
+
+            hasparamdoc = False
+            for type, name, default, doc in modparams:
+                if doc: hasparamdoc = True
+
+            if hasparamdoc:
+                print >>f, ".RS 4"
+                for type, name, default, doc in modparams:
+                    print >>f, ".TP"
+                    print >>f, "\\fB%s\\fR" % name,
+                    if default:
+                        print >>f, "[default: %s]" % default
+                    else:
+                        print >>f
+                    print >>f, doc
+                print >>f, ".RE"
+
         if options.get("constructable") and not options.get("singleton"):
             print >>f, ".PP\n.B newinst %s \\fIname\\fB" % comp_name
 
