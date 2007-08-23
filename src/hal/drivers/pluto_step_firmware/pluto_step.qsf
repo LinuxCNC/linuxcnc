@@ -1,3 +1,4 @@
+set_global_assignment -name ENABLE_DRC_SETTINGS OFF
 #     This is a component of pluto_step, a hardware step generator for emc2
 #     Copyright 2006 Jeff Epler <jepler@unpythonic.net>
 # 

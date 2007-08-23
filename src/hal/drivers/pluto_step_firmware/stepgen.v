@@ -1,4 +1,4 @@
-module stepgen(clk, enable, position, velocity, dirtime, steptime, step, dir);
+module stepgen(clk, enable, position, velocity, dirtime, steptime, step, dir, tap);
 `define STATE_STEP 0
 `define STATE_DIRCHANGE 1
 `define STATE_DIRWAIT 2
@@ -11,6 +11,7 @@ input clk, enable;
 output [W+F-1:0] position; reg [W+F-1:0] position;
 input [F:0] velocity;
 input [T-1:0] dirtime, steptime;
+input [1:0] tap;
 
 output step, dir;
 reg step, dir;
@@ -19,7 +20,10 @@ reg [T-1:0] timer;
 reg [1:0] state;
 reg ones;
 wire dbit = velocity[F];
-wire pbit = position[F];
+wire pbit = (tap == 0 ? position[F] 
+	    : (tap == 1 ? position[F+1]
+	    : (tap == 2 ? position[F+2]
+	    : position[F+3])));
 
 wire [W+F-1:0] xvelocity = {{W{velocity[F]}}, {1{velocity[F-1:0]}}};
 

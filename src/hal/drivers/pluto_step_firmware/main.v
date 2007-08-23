@@ -38,6 +38,7 @@ wire[3:0] real_dir; output [3:0] dir = do_tristate ? 4'bZ : real_dir;
 wire [W+F-1:0] pos0, pos1, pos2, pos3;
 reg  [F:0]     vel0, vel1, vel2, vel3;
 reg [T-1:0] dirtime, steptime;
+reg [1:0] tap;
 
 reg [10:0] div2048;
 wire stepcnt = ~|(div2048[5:0]);
@@ -49,10 +50,10 @@ end
 wire do_enable_wdt, do_tristate;
 wdt w(clk, do_enable_wdt, &div2048, do_tristate);
 
-stepgen #(W,F,T) s0(clk, stepcnt, pos0, vel0, dirtime, steptime, real_step[0], real_dir[0]);
-stepgen #(W,F,T) s1(clk, stepcnt, pos1, vel1, dirtime, steptime, real_step[1], real_dir[1]);
-stepgen #(W,F,T) s2(clk, stepcnt, pos2, vel2, dirtime, steptime, real_step[2], real_dir[2]);
-stepgen #(W,F,T) s3(clk, stepcnt, pos3, vel3, dirtime, steptime, real_step[3], real_dir[3]);
+stepgen #(W,F,T) s0(clk, stepcnt, pos0, vel0, dirtime, steptime, real_step[0], real_dir[0], tap);
+stepgen #(W,F,T) s1(clk, stepcnt, pos1, vel1, dirtime, steptime, real_step[1], real_dir[1], tap);
+stepgen #(W,F,T) s2(clk, stepcnt, pos2, vel2, dirtime, steptime, real_step[2], real_dir[2], tap);
+stepgen #(W,F,T) s3(clk, stepcnt, pos3, vel3, dirtime, steptime, real_step[3], real_dir[3], tap);
 
 // EPP stuff
 wire EPP_write = ~nWrite;
@@ -91,10 +92,12 @@ always @(posedge clk) begin
             real_dout <= { EPP_datain[5:0], lowbyte };
         end
         else if(addr_reg[3:0] == 4'd11) begin
-            dirtime <= EPP_datain[T-1:0];
+	    tap <= lowbyte[7:6];
             steptime <= lowbyte[T-1:0];
-	    // EPP_datain[6] is do_enable_wdt
+
             Spolarity <= EPP_datain[7];
+	    // EPP_datain[6] is do_enable_wdt
+            dirtime <= EPP_datain[T-1:0];
         end
         else lowbyte <= EPP_datain;
     end
@@ -125,7 +128,7 @@ wire [7:0] EPP_data_mux = data_reg;
 assign EPP_dataout = (EPP_read & EPP_wait) ? EPP_data_mux : 8'hZZ;
 // assign do_enable_wdt = EPP_strobe_edge1 & EPP_write & EPP_data_strobe & (addr_reg[3:0] == 4'd9) & EPP_datain[6];
 // assign led = do_tristate ? 1'BZ : (real_step[0] ^ real_dir[0]);
-assign led = do_tristate ? 'bZ : (real_step[0] ^ real_dir[0]);
+assign led = do_tristate ? 1'bZ : (real_step[0] ^ real_dir[0]);
 assign nConfig = epp_nReset; // 1'b1;
 assign do_enable_wdt = EPP_strobe_edge1 & EPP_write & EPP_data_strobe & (addr_reg[3:0] == 4'd9) & EPP_datain[6];
 endmodule

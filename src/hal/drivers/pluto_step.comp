@@ -41,6 +41,24 @@ Set to zero to disable the "hardware watchdog".  "Watchdog" will tristate all
 outputs approximately 6ms after the last execution of
 \\fBpluto-step.write\\fR, which adds some protection in the case of emc
 crashes.
+
+.TP
+\\fBspeedrange\\fR [default: 0]
+Selects one of four speed ranges:
+.RS
+.RS 4
+.TQ
+0: Top speed 312.5kHz; minimum speed 610Hz
+.TQ
+1: Top speed 156.25kHz; minimum speed 305Hz
+.TQ
+2: Top speed 78.125kHz; minimum speed 153Hz
+.TQ
+3: Top speed 39.06kHz; minimum speed 76Hz
+.RE
+Choosing the smallest maximum speed that is above the maximum for any one axis
+may give improved step regularity at low step speeds.
+.RE
 .RE""";
 
 description """
@@ -57,14 +75,14 @@ Step length and direction setup/hold time is enforced in the FPGA.  Step space
 is enforced by a velocity cap in the driver.
 
 \\fI(all the following numbers are subject to change)\\fR
-The maximum step rate is 321.5kHz.  For position feedback to be accurate, the
-maximum step rate is 512 pulses per servo cycle (so a 1kHz servo cycle does
-not impose any additional limitation).  The maximum step rate may be lowered by
-the step length and space parameters, which are rounded up to the nearest
-multiple of 1600ns.
+In \\fIspeedrange=0\\fR, the maximum step rate is 321.5kHz.  For position
+feedback to be accurate, the maximum step rate is 512 pulses per servo cycle
+(so a 1kHz servo cycle does not impose any additional limitation).  The maximum
+step rate may be lowered by the step length and space parameters, which are
+rounded up to the nearest multiple of 1600ns.
 
-The minimum nonzero step rate is 1.2kHz.  This means that for a 1kHz servo
-cycle, it is not possible to command single steps.
+In successive speedranges the maximum step rate is divided in half, as is the
+maximum steps per servo cycle, and the minimum nonzero step rate.
 
 .SS Digital I/O
 The digital output pins conform to the `canonical digital output' interface
@@ -127,8 +145,12 @@ license "GPL";
 ;;
 #include "hal/drivers/pluto_common.h"
 
+static int speedrange=0;
+RTAPI_MP_INT(speedrange, "Speed range 0..3");
+
 #define PLUTO_SPEED_NS (1600)
 #define PLUTO_SPEED    (PLUTO_SPEED_NS * 1e-9)
+#define PLUTO_FREQ     (1e9 / PLUTO_SPEED_NS)
 #define TMAX           ((1<<5)-1)
 
 #define W 10
@@ -173,8 +195,15 @@ FUNCTION(write) {
         stepgen_dirtime = TMAX * PLUTO_SPEED_NS;
     }
 
+    // Speed limits come from several sources
+    // First limit: step waveform timings
     fmax = 1. / PLUTO_SPEED / (2 + steplen_ticks + stepspace_ticks);
-    if(fmax > MAXDELTA / fperiod) fmax = MAXDELTA / fperiod;
+    // Second limit: highest speed command
+    if(fmax > PLUTO_FREQ / (2<<speedrange))
+        fmax = PLUTO_SPEED * (2<<speedrange);
+    // Third limit: max sign-extenable counts per period
+    if(fmax > MAXDELTA / fperiod / (1<<speedrange))
+        fmax = MAXDELTA / fperiod / (1<<speedrange);
 
     if(communication_error) return;
 
@@ -184,26 +213,29 @@ FUNCTION(write) {
 	double new_position_cmd = stepgen_position_cmd(i);
 	double v = new_position_cmd - data.old_position_cmd[i];
 	double est_err = stepgen_position_fb(i) + data.old_velocity_cmd[i] * fperiod - new_position_cmd;
+        double actual_max;
 
 	v = v - debug_2 * est_err / fperiod;
+        if(v > 0) v = v + .5/stepgen_scale(i);
+        else if(v < 0) v = v - .5/stepgen_scale(i);
+
 	data.old_position_cmd[i] = new_position_cmd;
 	data.old_velocity_cmd[i] = v;
+        actual_max = fmax / stepgen_scale(i);
         if(stepgen_maxvel(i) < 0) stepgen_maxvel(i) = -stepgen_maxvel(i);
-        if(stepgen_maxvel(i) > fmax / stepgen_scale(i)) {
-            if(stepgen_maxvel(i) != 1e30) { // same default maxvel given above
-                rtapi_print_msg(RTAPI_MSG_ERR,
-                    "Requested step rate %dHz decreased to %dHz "
-                    "due to hardware or timing limitations\n",
-                    (int)(stepgen_maxvel(i) * stepgen_scale(i)),
-                    (int)(fmax));
-            }
-            stepgen_maxvel(i) = fmax / stepgen_scale(i);
+        if(stepgen_maxvel(i) != 0 && stepgen_maxvel(i) > actual_max) {
+            rtapi_print_msg(RTAPI_MSG_ERR,
+                "Requested step rate %dHz decreased to %dHz "
+                "due to hardware or timing limitations\n",
+                (int)(stepgen_maxvel(i) * stepgen_scale(i)),
+                (int)(fmax));
+            stepgen_maxvel(i) = actual_max;
         }
 
-	if(v < -stepgen_maxvel(i)) v = -stepgen_maxvel(i);
-	if(v > stepgen_maxvel(i)) v = stepgen_maxvel(i);
+	if(v < -actual_max) v = -actual_max;
+	if(v > actual_max) v = actual_max;
 
-	rate = v * stepgen_scale(i) * ONE * PLUTO_SPEED;
+	rate = v * stepgen_scale(i) * ONE * PLUTO_SPEED / (1<<speedrange);
 
 	if(rate > maxrate) rate = maxrate;
 	if(rate < -maxrate) rate = -maxrate;

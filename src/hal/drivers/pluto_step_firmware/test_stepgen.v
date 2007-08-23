@@ -9,7 +9,7 @@ reg [4:0] vel;
 wire [19:0] pos;
 wire step, dir;
 
-stepgen #(16,4,16) s(clk, 1, pos, vel, 1, 0, step, dir);
+stepgen #(16,4,16) s(clk, 1, pos, vel, 1, 0, step, dir, 3);
 integer q;
 reg ost;
 
@@ -19,7 +19,7 @@ initial begin
                 // vel=5'h2 (~1 step per repeat)
     q = 0;
     repeat(50) begin
-        repeat(8) begin
+        repeat(50) begin
             #20 clk<=1;
             #20 clk<=0;
 
