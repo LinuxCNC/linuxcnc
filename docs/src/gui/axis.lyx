@@ -2113,9 +2113,9 @@ Run
 \newline 
 PROGRAM_EXTENSION = .png,.gif Greyscale Depth Image
 \newline 
-png = image-to-gcode.py
+png = image-to-gcode
 \newline 
-gif = image-to-gcode.py
+gif = image-to-gcode
 \layout Standard
 
 It is also possible to specify an interpreter:
