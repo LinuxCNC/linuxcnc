@@ -1,0 +1,322 @@
+.\" a large part of this file (the pin names and descriptions) came from
+.\" docs/src/config/emc2hal.lyx 
+.\"
+.TH MOTION "9" "2007-08-25" "EMC Documentation" "HAL Component" 
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+motion \- accepts NML motion commands, interacts with HAL in realtime
+.SH SYNOPSIS
+\fBloadrt motmod [base_period_nsec=\fIperiod\fB] [servo_period_nsec=\fIperiod\fB] [traj_period_nsec=\fIperiod\fB] [key=\fISHMEM_KEY\fB] [num_joints=\fI[0-9]\fB]
+
+.SH DESCRIPTION
+These pins and parameters are created by the realtime \fBmotmod\fR module. This module provides a HAL interface for EMC's motion planner. Basically \fBmotmod\fR takes in a list of waypoints and generates a nice blended and constraint-limited stream of joint positions to be fed to the motor drives.
+
+.P
+Pin names starting with "\fBaxis\fR" are actually joint values, but the pins and parameters are still called "\fBaxis.\fIN\fR". They are read and updated by the motion-controller function.
+
+.SH PINS
+
+.TP
+\fBaxis.\fIN\fB.amp-enable-out\fR OUT bit 
+TRUE if the amplifier for this joint should be enabled
+
+.TP
+\fBaxis.\fIN\fB.amp-fault-in\fR IN bit 
+Should be driven TRUE if an external fault is detected with the amplifier for this joint
+
+.TP
+\fBaxis.\fIN\fB.home-sw-in\fR IN bit 
+Should be driven TRUE if the home switch for this joint is closed
+
+.TP
+\fBaxis.\fIN\fB.homing\fR OUT bit 
+TRUE if the joint is currently homing
+
+.TP
+\fBaxis.\fIN\fB.index-enable\fR IO BIT 
+Should be attached to the index-enable pin of the joint's encoder to enable homing to index pulse
+
+.TP
+\fBaxis.\fIN\fB.jog-counts\fR IN s32 
+Connect to the "counts" pin of an external encoder to use a physical jog wheel.
+
+.TP
+\fBaxis.\fIN\fB.jog-enable\fR IN bit 
+When TRUE (and in manual mode), any change to "jog-counts" will result in motion. When false, "jog-counts" is ignored.
+
+.TP
+\fBaxis.\fIN\fB.jog-scale\fR IN float 
+Sets the distance moved for each count on "jog-counts", in machine units.
+
+.TP
+\fBaxis.\fIN\fB.jog-vel-mode\fR IN bit 
+When FALSE (the default), the jogwheel operates in position mode. The axis will move exactly jog-scale units for each count, regardless of how long that might take. When TRUE, the wheel operates in velocity mode - motion stops when the wheel stops, even if that means the commanded motion is not completed.
+
+.TP
+\fBaxis.\fIN\fB.joint-pos-cmd\fR OUT float 
+The joint (as opposed to motor) commanded position. There may be several offsets between the joint and motor coordinates: backlash compensation, screw error compensation, and home offsets.
+
+.TP
+\fBaxis.\fIN\fB.joint-pos-fb\fR OUT float 
+The joint feedback position. This value is computed from the actual motor position minus joint offsets. Useful for machine visualization.
+
+.TP
+\fBaxis.\fIN\fB.motor-pos-cmd\fR OUT float 
+The commanded position for this joint.
+
+.TP
+\fBaxis.\fIN\fB.motor-pos-fb\fR IN float 
+The actual position for this joint.
+
+.TP
+\fBaxis.\fIN\fB.neg-lim-sw-in\fR IN bit 
+Should be driven TRUE if the negative limit switch for this joint is tripped.
+
+.TP
+\fBaxis.\fIN\fB.pos-lim-sw-in\fR IN bit 
+Should be driven TRUE if the positive limit switch for this joint is tripped.
+
+.TP
+\fBmotion.adaptive-feed\fR IN float 
+When adaptive feed is enabled with M52 P1, the commanded velocity is multiplied by this value. This effect is multiplicative with the NML-level feed override value and motion.feed-hold.
+
+.TP
+(not yet implemented) motion.analog-in-\fINN\fR IN float 
+These pins are used by M66 Enn wait-for-input mode.
+
+.TP
+\fBmotion.digital-in-\fINN\fR IN bit 
+These pins are used by M66 Pnn wait-for-input mode.
+
+.TP
+\fBmotion.digital-out-\fINN\fR OUT bit 
+These pins are controlled by the M62 through M65 words.
+
+.TP
+\fBmotion.enable\fR IN bit 
+If this bit is driven FALSE, motion stops, the machine is placed in the "machine off" state, and a message is displayed for the operator. For normal motion, drive this bit TRUE.
+
+.TP
+\fBmotion.feed-hold\fR IN bit 
+When Feed Stop Control is enabled with M53 P1 (See section, and this bit is TRUE, the feed rate is set to 0.
+
+.TP
+\fBmotion.motion-inpos\fR OUT bit 
+TRUE if the machine is in position.
+
+.TP
+\fBmotion.probe-input\fR IN bit 
+G38.2 uses the value on this pin to determine when the probe has made contact. TRUE for probe contact closed (touching), FALSE for probe contact open.
+
+.TP
+\fBmotion.spindle-brake\fR OUT bit 
+TRUE when the spindle brake should be applied
+
+.TP
+\fBmotion.spindle-forward\fR OUT bit 
+TRUE when the spindle should rotate forward
+
+.TP
+\fBmotion.spindle-index-enable I/O bit 
+For correct operation of spindle synchronized moves, this signal must be hooked to the index-enable pin of the spindle encoder.
+
+.TP
+\fBmotion.spindle-on\fR OUT bit 
+TRUE when spindle should rotate
+
+.TP
+\fBmotion.spindle-reverse\fR OUT bit 
+TRUE when the spindle should rotate backward
+
+.TP
+\fBmotion.spindle-revs\fR IN float 
+For correct operation of spindle synchronized moves, this signal must be hooked to the position pin of the spindle encoder.
+
+.TP
+\fBmotion.spindle-speed-in\fR IN float 
+Actual spindle speed feedback; used for G96 feed-per-revolution and constant surface speed modes.
+
+.TP
+\fBmotion.spindle-speed-out\fR OUT float 
+Desired spindle speed in rotations per minute
+
+
+.SH PARAMETERS
+
+Many of these parameters serve as debugging aids, and are subject to change or removal at any time.
+
+.TP
+\fBaxis.\fIN\fB.active\fR 
+TRUE when this joint is active
+
+.TP
+\fBaxis.\fIN\fB.backlash-corr\fR 
+Backlash or screw compensation raw value
+
+.TP
+\fBaxis.\fIN\fB.backlash-filt\fR 
+Backlash or screw compensation filtered value (respecting motion limits)
+
+.TP
+\fBaxis.\fIN\fB.backlash-vel\fR 
+Backlash or screw compensation velocity 
+
+.TP
+\fBaxis.\fIN\fB.coarse-pos-cmd\fR
+
+
+.TP
+\fBaxis.\fIN\fB.error\fR 
+TRUE when this joint has encountered an error, such as a limit switch closing
+
+.TP
+\fBaxis.\fIN\fB.f-error\fR 
+The actual following error
+
+.TP
+\fBaxis.\fIN\fB.f-error-lim\fR 
+The following error limit
+
+.TP
+\fBaxis.\fIN\fB.f-errored\fR 
+TRUE when this joint has exceeded the following error limit
+
+.TP
+\fBaxis.\fIN\fB.faulted\fR
+
+
+.TP
+\fBaxis.\fIN\fB.free-pos-cmd\fR 
+The "free planner" commanded position for this joint.
+
+.TP
+\fBaxis.\fIN\fB.free-tp-enable\fR 
+TRUE when the "free planner" is enabled for this joint
+
+.TP
+\fBaxis.\fIN\fB.free-vel-lim\fR 
+The velocity limit for the free planner
+
+.TP
+\fBaxis.\fIN\fB.home-state\fR 
+Reflects the step of homing currently taking place
+
+.TP
+\fBaxis.\fIN\fB.homed\fR 
+TRUE if the joint has been homed
+
+.TP
+\fBaxis.\fIN\fB.in-position\fR 
+TRUE if the joint is using the "free planner" and has come to a stop
+
+.TP
+\fBaxis.\fIN\fB.joint-vel-cmd\fR 
+The joint's commanded velocity
+
+.TP
+\fBaxis.\fIN\fB.kb-jog-active\fR
+
+
+.TP
+\fBaxis.\fIN\fB.neg-hard-limit\fR 
+The negative hard limit for the joint
+
+.TP
+(removed) axis.N.neg-soft-limit\fR 
+The negative soft limit for the joint
+
+.TP
+\fBaxis.\fIN\fB.pos-hard-limit\fR 
+The positive hard limit for the joint
+
+.TP
+(removed) axis.N.pos-soft-limit\fR 
+The positive soft limit for the joint
+
+.TP
+\fBaxis.\fIN\fB.wheel-jog-active\fR
+
+
+.TP
+\fBmotion-command-handler.time\fR
+
+
+.TP
+\fBmotion-command-handler.tmax\fR
+
+
+.TP
+\fBmotion-controller.time\fR
+
+
+.TP
+\fBmotion-controller.tmax\fR
+
+
+.TP
+\fBmotion.coord-error\fR 
+TRUE when motion has encountered an error, such as exceeding a soft limit
+
+.TP
+\fBmotion.coord-mode\fR 
+TRUE when motion is in "coordinated mode", as opposed to "teleop mode"
+
+.TP
+\fBmotion.current-vel\fR
+
+
+.TP
+\fBmotion.debug-\fI*\fR 
+These values are used for debugging purposes. 
+
+.TP
+\fBmotion.in-position\fR 
+Same as the pin motion.motion-inpos
+
+.TP
+\fBmotion.motion-enabled\fR 
+TRUE when motion is enabled
+
+.TP
+\fBmotion.on-soft-limit\fR
+
+
+.TP
+\fBmotion.program-line\fR
+
+
+.TP
+\fBmotion.servo.last-period\fR 
+The number of CPU cycles between invocations of the servo thread. Typically, this number divided by the CPU speed gives the time in seconds, and can be used to determine whether the realtime motion controller is meeting its timing constraints
+
+.TP
+\fBmotion.servo.overruns\fR 
+By noting large differences between successive values of motion.servo.last-period, the motion controller can determine that there has probably been a failure to meet its timing constraints. Each time such a failure is detected, this value is incremented.
+
+.TP
+\fBmotion.teleop-mode\fR
+TRUE when motion is in "teleop mode", as opposed to "coordinated mode"
+
+
+.SH FUNCTIONS
+
+Generally, these functions are both added to the servo-thread in the order shown.
+
+.TP
+\fBmotion-command-handler\fR 
+Processes motion commands coming from user space
+
+.TP
+\fBmotion-controller\fR 
+Runs the emc motion controller
+
+.SH BUGS
+This manual page is horribly incomplete.
+
+.SH SEE ALSO
+iocontrol
