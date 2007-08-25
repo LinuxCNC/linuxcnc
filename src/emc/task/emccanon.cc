@@ -43,7 +43,7 @@
 #include "emcglb.h"		// TRAJ_MAX_VELOCITY
 #include "emcpos.h"
 
-static int debug_velacc = 0;
+static int debug_velacc = 1;
 static double css_maximum, css_numerator;
 
 #ifndef MIN
@@ -398,6 +398,11 @@ double getStraightAcceleration(double x, double y, double z,
 	tu = du? (du / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[6])): 0.0;
 	tv = dv? (dv / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[7])): 0.0;
 	tw = dw? (dw / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[8])): 0.0;
+
+	if(debug_velacc)
+	    printf("txyz=%g tabc=%g tuvw=%g ", MAX3(tx,ty,tz),
+		    MAX3(ta,tb,tc), MAX3(tu, tv, tw));
+
         tmax = MAX9(tx, ty, tz,
                     ta, tb, tc,
                     tu, tv, tw);

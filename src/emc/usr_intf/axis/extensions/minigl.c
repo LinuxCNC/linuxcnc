@@ -640,9 +640,9 @@ static PyObject *pydraw_lines(PyObject *s, PyObject *o) {
 
     for(i=0; i<PyList_GET_SIZE(li); i++) {
         PyObject *it = PyList_GET_ITEM(li, i);
-        PyObject *feed;
-        if(!PyArg_ParseTuple(it, "i(ddd)(ddd)|O", &n,
-                    p1, p1+1, p1+2, p2, p2+1, p2+2, &feed)) {
+        PyObject *dummy1, *dummy2, *dummy3;
+        if(!PyArg_ParseTuple(it, "i(ddd)(ddd)|OOO", &n,
+                    p1, p1+1, p1+2, p2, p2+1, p2+2, &dummy1, &dummy2, &dummy3)) {
             if(!first) glEnd();
             return NULL;
         }

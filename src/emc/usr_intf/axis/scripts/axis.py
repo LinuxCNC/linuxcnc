@@ -1761,6 +1761,7 @@ def open_file_guts(f, filtered = False):
         t.configure(state="disabled")
 
         canon.calc_extents()
+        canon.calc_notool_extents()
         make_main_list(canon)
         make_selection_list(canon)
 
@@ -2111,10 +2112,10 @@ def run_warn():
     if o.g:
         for i in range(min(axiscount, 3)): # Does not enforce angle limits
             if not(s.axis_mask & (1<<i)): continue
-            if o.g.min_extents[i] < machine_limit_min[i]:
+            if o.g.min_extents_notool[i] < machine_limit_min[i]:
                 warnings.append(_("Program exceeds machine minimum on axis %s")
                     % "XYZABCUVW"[i])
-            if o.g.max_extents[i] > machine_limit_max[i]:
+            if o.g.max_extents_notool[i] > machine_limit_max[i]:
                 warnings.append(_("Program exceeds machine maximum on axis %s")
                     % "XYZABCUVW"[i])
     if warnings:

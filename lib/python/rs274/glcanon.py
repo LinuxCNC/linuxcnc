@@ -36,9 +36,11 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         self.text = text
         self.min_extents = [9e99,9e99,9e99]
         self.max_extents = [-9e99,-9e99,-9e99]
+        self.min_extents_notool = [9e99,9e99,9e99]
+        self.max_extents_notool = [-9e99,-9e99,-9e99]
         self.colors = widget.colors
         self.in_arc = 0
-        self.old_xo = self.old_zo = 0
+        self.xo = self.zo = 0
         self.dwell_time = 0
 
     def message(self, message): pass
@@ -67,11 +69,37 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
             self.min_extents = [min(x), min(y), min(z)]
             self.max_extents = [max(x), max(y), max(z)]
 
+    def calc_notool_extents(self):
+        if self.arcfeed: print "arcfeed", min([len(i) for i in self.arcfeed])
+        if self.feed: print "feed", min([len(i) for i in self.feed])
+        if self.traverse: print "traverse", min([len(i) for i in self.traverse])
+        if self.arcfeed: print self.arcfeed[0]
+        if self.feed: print self.feed[0]
+        if self.traverse: print self.traverse[0]
+        x = [f[1][0]+f[4] for f in self.arcfeed] + [f[1][0]+f[4] for f in self.feed] + [f[1][0]+f[3] for f in self.traverse]
+        y = [f[1][1] for f in self.arcfeed] + [f[1][1] for f in self.feed] + [f[1][1] for f in self.traverse]
+        z = [f[1][2]+f[5] for f in self.arcfeed] + [f[1][2]+f[5] for f in self.feed] + [f[1][2]+f[4] for f in self.traverse]
+        if self.arcfeed:
+            x.append(self.arcfeed[-1][2][0] + self.arcfeed[-1][4])
+            y.append(self.arcfeed[-1][2][1])
+            z.append(self.arcfeed[-1][2][2] + self.arcfeed[-1][5])
+        if self.feed:
+            x.append(self.feed[-1][2][0] + self.feed[-1][4])
+            y.append(self.feed[-1][2][1])
+            z.append(self.feed[-1][2][2] + self.feed[-1][5])
+        if self.traverse:
+            x.append(self.traverse[-1][2][0] + self.traverse[-1][3])
+            y.append(self.traverse[-1][2][1])
+            z.append(self.traverse[-1][2][2] + self.traverse[-1][4])
+        if x:
+            self.min_extents_notool = [min(x), min(y), min(z)]
+            self.max_extents_notool = [max(x), max(y), max(z)]
+
     def tool_offset(self, zo, xo):
         x, y, z = self.lo
-        self.lo = (x - xo + self.old_xo, y, z - zo + self.old_zo)
-        self.old_xo = xo
-        self.old_zo = zo
+        self.lo = (x - xo + self.xo, y, z - zo + self.zo)
+        self.xo = xo
+        self.zo = zo
 
     def set_spindle_rate(self, arg): pass
     def set_feed_rate(self, arg): self.feedrate = arg / 60.
@@ -90,15 +118,15 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
     def straight_traverse(self, x,y,z, a,b,c, u, v, w):
         l = (x + self.offset_x,y + self.offset_y,z + self.offset_z)
         if not self.first_move:
-                self.traverse_append((self.lineno, self.lo, l))
+                self.traverse_append((self.lineno, self.lo, l, self.xo, self.zo))
         self.first_move = False
         self.lo = l
 
     def rigid_tap(self, x, y, z):
         l = (x + self.offset_x,y + self.offset_y,z + self.offset_z)
-        self.feed_append((self.lineno, self.lo, l, self.feedrate))
+        self.feed_append((self.lineno, self.lo, l, self.feedrate, self.xo, self.zo))
         self.dwells_append((self.lineno, self.colors['dwell'], x,y,z, 0))
-        self.feed_append((self.lineno, l, self.lo, self.feedrate))
+        self.feed_append((self.lineno, l, self.lo, self.feedrate, self.xo, self.zo))
 
     def arc_feed(self, *args):
         self.in_arc = True
@@ -111,9 +139,9 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         self.first_move = False
         l = (x + self.offset_x,y + self.offset_y,z + self.offset_z)
         if self.in_arc:
-            self.arcfeed_append((self.lineno, self.lo, l, self.feedrate))
+            self.arcfeed_append((self.lineno, self.lo, l, self.feedrate, self.xo, self.zo))
         else:
-            self.feed_append((self.lineno, self.lo, l, self.feedrate))
+            self.feed_append((self.lineno, self.lo, l, self.feedrate, self.xo, self.zo))
         self.lo = l
     straight_probe = straight_feed
 
