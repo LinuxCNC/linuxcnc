@@ -70,12 +70,6 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
             self.max_extents = [max(x), max(y), max(z)]
 
     def calc_notool_extents(self):
-        if self.arcfeed: print "arcfeed", min([len(i) for i in self.arcfeed])
-        if self.feed: print "feed", min([len(i) for i in self.feed])
-        if self.traverse: print "traverse", min([len(i) for i in self.traverse])
-        if self.arcfeed: print self.arcfeed[0]
-        if self.feed: print self.feed[0]
-        if self.traverse: print self.traverse[0]
         x = [f[1][0]+f[4] for f in self.arcfeed] + [f[1][0]+f[4] for f in self.feed] + [f[1][0]+f[3] for f in self.traverse]
         y = [f[1][1] for f in self.arcfeed] + [f[1][1] for f in self.feed] + [f[1][1] for f in self.traverse]
         z = [f[1][2]+f[5] for f in self.arcfeed] + [f[1][2]+f[5] for f in self.feed] + [f[1][2]+f[4] for f in self.traverse]
