@@ -20,10 +20,11 @@ if(last != 0) {
 	if(first) {
 		first = 0;
 		min_ = max_ = del;
+		jitter = 0;
 	} else {
 		if(del < min_) min_ = del;
 		if(del > max_) max_ = del;
-		jitter = max_ - min_;
+		jitter = max(max_ - period, period - min_);
 	}
 	count++;
 	avg_err = err / (double)count;
