@@ -1,9 +1,17 @@
-#!/bin/sh
+#!/bin/bash
 T=`mktemp -d`
 trap 'cd /; [ -d $T ] && rm -rf $T' SIGINT SIGTERM EXIT
 
+PERIOD=${1-25000}
+if [ $PERIOD -lt 1000 ]; then
+	UPERIOD=$PERIOD
+	PERIOD=$((UPERIOD*1000))
+else
+	UPERIOD=$((PERIOD/1000))
+fi
+
 cat > lat.hal <<EOF
-loadrt threads name1=fast period1=25000 name2=slow period2=1000000
+loadrt threads name1=fast period1=$PERIOD name2=slow period2=1000000
 loadrt timedelta count=2
 addf timedelta.0 fast
 addf timedelta.1 slow
@@ -30,9 +38,9 @@ cat > lat.xml <<EOF
 While the test is running, you should "abuse" the computer. Move windows around on the screen. Surf the web. Copy some large files around on the disk. Play some music. Run an OpenGL program such as glxgears. The idea is to put the PC through its paces while the latency test checks to see what the worst case numbers are."""
 </text>
 </label>
-<tablerow/><label/><label text="Max Interval (ns)" font="Helvetica -12 italic"/><label text="Max Jitter (ns)" font="Helvetica -12 italic"/><label text="Last interval (ns)" font="Helvetica -12 italic"/>
-<tablerow/><label text="Servo thread (1ms):"/><s32 halpin="sl"/><s32 halpin="sj" font="Helvetica -12 bold"/><s32 halpin="st"/>
-<tablerow/><label text="Base thread (25us):"/><s32 halpin="bl"/><s32 halpin="bj" font="Helvetica -12 bold"/><s32 halpin="bt"/>
+<tablerow/><label/><label text="Max Interval (ns)" font="Helvetica 12 italic"/><label text="Max Jitter (ns)" font="Helvetica 12 italic"/><label text="Last interval (ns)" font="Helvetica 12 italic"/>
+<tablerow/><label text="Servo thread (1ms):"/><s32 halpin="sl"/><s32 halpin="sj" font="Helvetica 12 bold"/><s32 halpin="st"/>
+<tablerow/><label text="Base thread (${UPERIOD}µs):"/><s32 halpin="bl"/><s32 halpin="bj" font="Helvetica 12 bold"/><s32 halpin="bt"/>
 </table>
 </pyvcp>
 EOF
