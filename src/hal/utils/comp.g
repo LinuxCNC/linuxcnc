@@ -386,7 +386,7 @@ def document(filename, outfilename):
     f = open(filename).read()
     a, b = f.split("\n;;\n", 1)
 
-    p = parse('File', a, filename)
+    p = parse('File', a + "\n\n", filename)
     if not p: raise SystemExit, 1
 
     f = open(outfilename, "w")
@@ -467,7 +467,7 @@ def process(filename, mode, outfilename):
         f = open(filename).read()
         a, b = f.split("\n;;\n", 1)
 
-        p = parse('File', a, filename)
+        p = parse('File', a + "\n\n", filename)
         if not p: raise SystemExit, 1
 
         f = open(outfilename, "w")
