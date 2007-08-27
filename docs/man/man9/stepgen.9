@@ -168,40 +168,44 @@ shows the output waveforms, and what each parameter adjusts.
 .P
 .ie '\*[.T]'html' .HTML <PRE> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; _____ &nbsp; &nbsp; &nbsp; &nbsp; _____ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; _____<BR> &nbsp; &nbsp;STEP &nbsp;____/ &nbsp; &nbsp; &#92;_______/ &nbsp; &nbsp; &#92;_____________/ &nbsp; &nbsp; &#92;______<BR> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;| &nbsp; &nbsp; | &nbsp; &nbsp; &nbsp; | &nbsp; &nbsp; | &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; | &nbsp; &nbsp; |<BR> &nbsp; &nbsp;Time &nbsp; &nbsp; &nbsp;|-(1)-|--(2)--|-(1)-|--(3)--|-(4)-|-(1)-|<BR> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;|__________________<BR> &nbsp; &nbsp;DIR &nbsp; ________________________________/<BR></PRE>
 .el \{\
+.PD 0
 .ft CR
 \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ _____\ \ \ \ \ \ \ \ \ _____\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ _____
-.BR
+.P
 \ \ \ \ STEP\ \ ____/\ \ \ \ \ \\_______/\ \ \ \ \ \\_____________/\ \ \ \ \ \\______
-.BR
+.P
 \ \ \ \ \ \ \ \ \ \ \ \ \ \ |\ \ \ \ \ |\ \ \ \ \ \ \ |\ \ \ \ \ |\ \ \ \ \ \ \ \ \ \ \ \ \ |\ \ \ \ \ |
-.BR
+.P
 \ \ \ \ Time\ \ \ \ \ \ |-(1)-|--(2)--|-(1)-|--(3)--|-(4)-|-(1)-|
-.BR
+.P
 \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ |__________________
-.BR
+.P
 \ \ \ \ DIR\ \ \ ________________________________/
 .ft R
 \}
+.PD
 .P
 For step type 1, timing parameters 1, 2, and 5 are used.  The following timing diagram
 shows the output waveforms, and what each parameter adjusts.
 .P
 .ie '\*[.T]'html' .HTML <PRE> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; _____ &nbsp; &nbsp; &nbsp; _____<BR> &nbsp; &nbsp;UP &nbsp; &nbsp;__/ &nbsp; &nbsp; &#92;_____/ &nbsp; &nbsp; &#92;________________________________<BR> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;| &nbsp; &nbsp; | &nbsp; &nbsp; | &nbsp; &nbsp; | &nbsp; &nbsp; &nbsp; &nbsp; |<BR> &nbsp; &nbsp;Time &nbsp; &nbsp;|-(1)-|-(2)-|-(1)-|---(5)---|-(1)-|-(2)-|-(1)-|<BR> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;|_____| &nbsp; &nbsp; |_____|<BR> &nbsp; &nbsp;DOWN &nbsp;______________________________/ &nbsp; &nbsp; &#92;_____/ &nbsp; &nbsp; &#92;____<BR></PRE>
 .el \{\
+.PD 0
 .ft CR
 \ \ \ \ \ \ \ \ \ \ \ \ \ _____\ \ \ \ \ \ \ _____
-.BR
+.P
 \ \ \ \ UP\ \ \ \ __/\ \ \ \ \ \\_____/\ \ \ \ \ \\________________________________
-.BR
+.P
 \ \ \ \ \ \ \ \ \ \ \ \ |\ \ \ \ \ |\ \ \ \ \ |\ \ \ \ \ |\ \ \ \ \ \ \ \ \ |
-.BR
+.P
 \ \ \ \ Time\ \ \ \ |-(1)-|-(2)-|-(1)-|---(5)---|-(1)-|-(2)-|-(1)-|
-.BR
+.P
 \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ |_____|\ \ \ \ \ |_____|
-.BR
+.P
 \ \ \ \ DOWN\ \ ______________________________/\ \ \ \ \ \\_____/\ \ \ \ \ \\____
 .ft R
 \}
+.PD
 .P
 For step types 2 and higher, the exact pattern of the outputs depends on the step
 type (see the HAL manual for a full listing).  The outputs change from one state to
