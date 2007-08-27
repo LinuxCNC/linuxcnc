@@ -426,6 +426,35 @@ Parameters
 parport.<portnum>.pin-<pinnum>-out-invert
 \family default 
  -- Inverts an output pin.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(bit) 
+\noun default 
+parport.<portnum>.pin-<pinnum>-out-reset 
+\family default 
+(only for pins 2..9) -- TRUE if this pin should be reset when the 
+\family typewriter 
+-reset
+\family default 
+ function is executed.
+\layout Itemize
+
+
+\family typewriter 
+(U32) parport.<portnum>.reset-time
+\family default 
+ -- The time (in nanoseconds) between a pin is set by 
+\family typewriter 
+write
+\family default 
+ and reset by 
+\family typewriter 
+reset
+\family default 
+ HAL functions.
 \layout Standard
 
 The 
@@ -451,6 +480,26 @@ The
 -out
 \family default 
  pin TRUE will drive the physical pin low.
+\layout Standard
+
+If 
+\family typewriter 
+-reset
+\family default 
+ is TRUE, then the 
+\family typewriter 
+reset
+\family default 
+ function will set the pin to the value of 
+\family typewriter 
+-out-invert
+\family default 
+.
+ This can be used in conjunction with stepgen's 
+\family typewriter 
+doublefreq
+\family default 
+ to produce one step per period.
 \layout Subsection
 
 Functions
@@ -526,6 +575,39 @@ parport.write-all
 -out
 \family default 
  pins of all ports and updates all physical output pins.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(funct) 
+\noun default 
+parport.<portnum>.reset
+\family default 
+ -- Waits until 
+\family typewriter 
+reset-time
+\family default 
+ has elapsed since the associated 
+\family typewriter 
+write
+\family default 
+, then resets pins to values indicated by 
+\family typewriter 
+-out-invert
+\family default 
+ and 
+\family typewriter 
+-out-invert
+\family default 
+ settings.
+ 
+\family typewriter 
+reset
+\family default 
+ must be later in the same thread as 
+\family typewriter 
+write
 \layout Standard
 
 The individual functions are provided for situations where one port needs
@@ -599,7 +681,7 @@ probe_parport
 hal_parport
 \family default 
 .
- On machines without PNP ports, it cannot be loaded.
+ On machines without PNP ports, it may be loaded but has no effect.
 \layout Subsection
 
 Installing
@@ -618,7 +700,7 @@ parport: PnPBIOS parport detected.
 
 when the parport_pc module is loaded (
 \family typewriter 
-sudo modprobe -a parport_pc) 
+sudo modprobe -a parport_pc; sudo rmmod parport_pc) 
 \family default 
 then use of this module is probably required
 \layout Section

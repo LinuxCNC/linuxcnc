@@ -144,7 +144,13 @@ The minimum hold time of direction after step, in nanoseconds.  Measured from fa
 .TP
 \fBstepgen.\fIN\fB.dirdelay\fR u32 rw (step types 1 and higher only)
 The minimum time between a forward step and a reverse step, in nanoseconds.
-
+.TP
+\fBstepgen.\fIN\fB.doublefreq\fR bit rw (step type 0 only)
+If TRUE, a step is indicated every period \fBstep\fR pin is TRUE, rather than the
+rising edge of \fBstep\fR.  This can be used in conjunction with
+\fBhal_parport\fR's self-resetting pins to double the possible step rate.
+When \fBdoublefreq\fR is TRUE, \fBsteplen\fR must be set to one period or less
+and \fBstepspace\fR must be set to 0.
 .SH TIMING
 .P
 There are five timing parameters which control the output waveform.  No step type

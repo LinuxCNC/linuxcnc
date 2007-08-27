@@ -157,9 +157,16 @@ typedef struct {
     hal_bit_t *data_in[16];	/* ptrs for input pins 2 - 9 */
     hal_bit_t *data_out[8];	/* ptrs for output pins 2 - 9 */
     hal_bit_t data_inv[8];	/* polarity params for output pins 2 - 9 */
+    hal_bit_t data_reset[8];	/* polarity params for output pins 2 - 9 */
     hal_bit_t *control_in[8];	/* ptrs for in pins 1, 14, 16, 17 */
     hal_bit_t *control_out[4];	/* ptrs for out pins 1, 14, 16, 17 */
     hal_bit_t control_inv[4];	/* pol. params for output pins 1, 14, 16, 17 */
+    hal_u32_t reset_time;       /* min ns between write and reset */
+    hal_u32_t debug1, debug2;
+    long long write_time;
+    unsigned char outdata;
+    unsigned char reset_mask;       /* reset flag for each pin 2..9 */
+    unsigned char reset_val;        /* reset values for each pin 2..9 */
 } parport_t;
 
 /* pointer to array of parport_t structs in shared memory, 1 per port */
@@ -168,6 +175,9 @@ static parport_t *port_data_array;
 /* other globals */
 static int comp_id;		/* component ID */
 static int num_ports;		/* number of ports configured */
+
+static unsigned long long ns2tsc_factor;
+#define ns2tsc(x) (((x) * ns2tsc_factor) >> 32)
 
 /***********************************************************************
 *                  LOCAL FUNCTION DECLARATIONS                         *
@@ -178,6 +188,7 @@ static int num_ports;		/* number of ports configured */
 */
 
 static void read_port(void *arg, long period);
+static void reset_port(void *arg, long period);
 static void write_port(void *arg, long period);
 static void read_all(void *arg, long period);
 static void write_all(void *arg, long period);
@@ -195,7 +206,7 @@ static unsigned short parse_port_addr(char *cp);
 static int export_port(int portnum, parport_t * addr);
 static int export_input_pin(int portnum, int pin, hal_bit_t ** base, int n);
 static int export_output_pin(int portnum, int pin, hal_bit_t ** dbase,
-    hal_bit_t * pbase, int n);
+    hal_bit_t * pbase, hal_bit_t * rbase, int n);
 
 /***********************************************************************
 *                       INIT AND EXIT CODE                             *
@@ -213,6 +224,13 @@ int rtapi_app_main(void)
     char *argv[MAX_TOK];
     char name[HAL_NAME_LEN + 2];
     int n, retval;
+
+
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,0)
+    ns2tsc_factor = (unsigned long long)(1e6 * (1ll<<32) / cpu_khz);
+#else
+    ns2tsc_factor = 1ll<<32;
+#endif
 
     /* test for config string */
     if (cfg == 0) {
@@ -274,6 +292,17 @@ rtapi_print ( "config string '%s'\n", cfg );
 	if (retval != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"PARPORT: ERROR: port %d write funct export failed\n", n);
+	    hal_exit(comp_id);
+	    return -1;
+	}
+	/* make reset function name */
+	rtapi_snprintf(name, HAL_NAME_LEN, "parport.%d.reset", n);
+	/* export write function */
+	retval = hal_export_funct(name, reset_port, &(port_data_array[n]),
+	    0, 0, comp_id);
+	if (retval != 0) {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+		"PARPORT: ERROR: port %d reset funct export failed\n", n);
 	    hal_exit(comp_id);
 	    return -1;
 	}
@@ -515,6 +544,19 @@ static void read_port(void *arg, long period)
     }
 }
 
+static void reset_port(void *arg, long period) {
+    parport_t *port = arg;
+    long long deadline;
+    unsigned char outdata = (port->outdata&~port->reset_mask) ^ port->reset_val;
+   
+    if(port->reset_time > period/4) port->reset_time = period/4;
+
+    deadline = port->write_time + ns2tsc(port->reset_time);
+    while(rtapi_get_clocks() < deadline) {}
+
+    rtapi_outb(outdata, port->base_addr);
+}
+
 static void write_port(void *arg, long period)
 {
     parport_t *port;
@@ -524,6 +566,7 @@ static void write_port(void *arg, long period)
     port = arg;
     /* are we using the data port for output? */
     if (port->data_dir == 0) {
+	int reset_mask=0, reset_val=0;
 	/* yes */
 	outdata = 0x00;
 	mask = 0x01;
@@ -536,10 +579,18 @@ static void write_port(void *arg, long period)
 	    if ((!*(port->data_out[b])) && (port->data_inv[b])) {
 		outdata |= mask;
 	    }
+	    if (port->data_reset[b]) {
+		reset_mask |= mask;
+		if(port->data_inv[b]) reset_val |= mask;
+	    }
 	    mask <<= 1;
 	}
 	/* write it to the hardware */
 	rtapi_outb(outdata, port->base_addr);
+	port->write_time = rtapi_get_clocks();
+	port->reset_val = reset_val;
+	port->reset_mask = reset_mask;
+	port->outdata = outdata;
 	/* prepare to build control port byte, with direction bit clear */
 	outdata = 0x00;
     } else {
@@ -750,32 +801,39 @@ static int export_port(int portnum, parport_t * port)
     } else {
 	/* declare output pins (data port) */
 	retval += export_output_pin(portnum, 2,
-	    port->data_out, port->data_inv, 0);
+	    port->data_out, port->data_inv, port->data_reset, 0);
 	retval += export_output_pin(portnum, 3,
-	    port->data_out, port->data_inv, 1);
+	    port->data_out, port->data_inv, port->data_reset, 1);
 	retval += export_output_pin(portnum, 4,
-	    port->data_out, port->data_inv, 2);
+	    port->data_out, port->data_inv, port->data_reset, 2);
 	retval += export_output_pin(portnum, 5,
-	    port->data_out, port->data_inv, 3);
+	    port->data_out, port->data_inv, port->data_reset, 3);
 	retval += export_output_pin(portnum, 6,
-	    port->data_out, port->data_inv, 4);
+	    port->data_out, port->data_inv, port->data_reset, 4);
 	retval += export_output_pin(portnum, 7,
-	    port->data_out, port->data_inv, 5);
+	    port->data_out, port->data_inv, port->data_reset, 5);
 	retval += export_output_pin(portnum, 8,
-	    port->data_out, port->data_inv, 6);
+	    port->data_out, port->data_inv, port->data_reset, 6);
 	retval += export_output_pin(portnum, 9,
-	    port->data_out, port->data_inv, 7);
+	    port->data_out, port->data_inv, port->data_reset, 7);
+	retval += hal_param_u32_newf(HAL_RW, &port->reset_time, comp_id, 
+			"parport.%d.reset-time", portnum);
+	retval += hal_param_u32_newf(HAL_RW, &port->debug1, comp_id, 
+			"parport.%d.debug1", portnum);
+	retval += hal_param_u32_newf(HAL_RW, &port->debug2, comp_id, 
+			"parport.%d.debug2", portnum);
+	port->write_time = 0;
     }
     if(port->use_control_in == 0) {
 	/* declare output variables (control port) */
 	retval += export_output_pin(portnum, 1,
-	    port->control_out, port->control_inv, 0);
+	    port->control_out, port->control_inv, 0, 0);
 	retval += export_output_pin(portnum, 14,
-	    port->control_out, port->control_inv, 1);
+	    port->control_out, port->control_inv, 0, 1);
 	retval += export_output_pin(portnum, 16,
-	    port->control_out, port->control_inv, 2);
+	    port->control_out, port->control_inv, 0, 2);
 	retval += export_output_pin(portnum, 17,
-	    port->control_out, port->control_inv, 3);
+	    port->control_out, port->control_inv, 0, 3);
     } else {
 	/* declare input variables (control port) */
         retval += export_input_pin(portnum, 1, port->control_in, 0);
@@ -806,7 +864,7 @@ static int export_input_pin(int portnum, int pin, hal_bit_t ** base, int n)
 }
 
 static int export_output_pin(int portnum, int pin, hal_bit_t ** dbase,
-    hal_bit_t * pbase, int n)
+    hal_bit_t * pbase, hal_bit_t * rbase, int n)
 {
     int retval;
 
@@ -819,5 +877,12 @@ static int export_output_pin(int portnum, int pin, hal_bit_t ** dbase,
     /* export parameter for polarity */
     retval = hal_param_bit_newf(HAL_RW, pbase + n, comp_id,
             "parport.%d.pin-%02d-out-invert", portnum, pin);
+    if (retval != 0) {
+	return retval;
+    }
+    /* export parameter for reset */
+    if (rbase)
+	retval = hal_param_bit_newf(HAL_RW, rbase + n, comp_id,
+		"parport.%d.pin-%02d-out-reset", portnum, pin);
     return retval;
 }
