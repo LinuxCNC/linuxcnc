@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: fr_rs274_err.po\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2007-06-22 12:16+0200\n"
-"PO-Revision-Date: 2007-06-22 21:43+0200\n"
+"PO-Revision-Date: 2007-08-26 23:35+0200\n"
 "Last-Translator: Francis TISSERANT <ftissera@free.fr>\n"
 "Language-Team: French <gnomefr@traduc.org>\n"
 "MIME-Version: 1.0\n"
@@ -29,14 +29,15 @@ msgstr ""
 msgid "exceeds +X limitexceeds +Y limitexceeds +Z limitexceeds -X limitexceeds -Y limitexceeds -Z limit"
 "command (%s) cannot be executed until the machine is out of E-stop and "
 "turned oncan't do that (%s) in manual mode"
-msgstr "Commande (%s) impossible en mode manuel"
+msgstr "limite +X dépassée limite +Y dépassée limite +Z dépassée limite -X dépassée limite -Y dépassée limite -Z dépassée"
+"La commande (%s) ne peut être exécutée tant que la machine est en arrêt d'urgence et en marche (%s) est impossible en mode manuel"
 
 #: emc/task/emctaskmain.cc:797
 #, c-format
 #: emc/task/emctaskmain.cc:858
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter idlecan't do that (%s) in auto mode with the interpreter reading"
-msgstr "(%s) impossible en mode auto avec l'interpréteur au repos (%s) impossible en mode auto avec l'interpréteur en lecture"
+msgstr "(%s) impossible en mode auto avec l'interpréteur en attente (%s) impossible en mode auto avec l'interpréteur en lecture"
 
 #: emc/task/emctaskmain.cc:1061
 #, c-format
@@ -130,7 +131,7 @@ msgstr "Erreur: code mouvement inconnu"
 #: emc/rs274ngc/rs274ngc_errors.cc:66
 msgid "Bug unknown operationCannot change axis offsets with cutter radius comp"
 msgstr ""
-"Impossible de changer les offsets d'axe avec la compensaion de rayon d'outil "
+"Impossible de changer les offsets d'axe avec la compensation de rayon d'outil "
 
 #: emc/rs274ngc/rs274ngc_errors.cc:67
 #: emc/rs274ngc/rs274ngc_errors.cc:68
@@ -141,7 +142,7 @@ msgstr "Impossible d'effectuer G1 avec une vitesse nulle"
 #: emc/rs274ngc/rs274ngc_errors.cc:70
 #: emc/rs274ngc/rs274ngc_errors.cc:71
 msgid "Cannot do zero repeats of cycleCannot make arc with zero feed rate"
-msgstr "Impossible de faire un arc avec une vitesse nulle"
+msgstr "Impossible de répéter le cycle zéro fois Impossible de faire un arc avec une vitesse nulle"
 
 #
 #: emc/rs274ngc/rs274ngc_errors.cc:72
@@ -167,8 +168,7 @@ msgstr "Mesure impossible en mode mouvement contrôlé. Impossible avec la compe
 #: emc/rs274ngc/rs274ngc_errors.cc:80
 #: emc/rs274ngc/rs274ngc_errors.cc:81
 msgid "Cannot probe with zero feed rateCannot put a b in canned cycleCannot put a c in canned cycleCannot put an a in canned cycleCannot turn cutter radius comp on out of xy plane"
-msgstr ""
-"Impossible d'activer la compensation de rayon d'outil en dehors du plan xy"
+msgstr "Mesure impossible avec une vitesse nulle Mots a et b interdit dans un cycle préprogrammé Mots a et c interdits dans un cycle préprogrammé mot a interdit dans un cycle préprogrammé Impossible d'activer la compensation de rayon d'outil en dehors du plan xy"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:82
 #: emc/rs274ngc/rs274ngc_errors.cc:83
