@@ -1,20 +1,22 @@
-# translation of fr.po to French
+# translation of fr.po to french
 # Translation of tcl.pot to French.
 # Copyright (C) 2007 Francis TISSERANT
 # This file is distributed under the same license package as tcl.pot.
 #
 # Francis TISSERANT, 2007.
+# Francis TISSERANT <ftissera@free.fr>, 2007.
 msgid ""
 msgstr ""
-"Project-Id-Version: fr.po\n"
+"Project-Id-Version: fr\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-06-22 12:16+0200\n"
-"PO-Revision-Date: 2007-08-26 23:28+0200\n"
+"POT-Creation-Date: 2007-08-27 22:44+0200\n"
+"PO-Revision-Date: 2007-08-28 21:55+0200\n"
 "Last-Translator: Francis TISSERANT <ftissera@free.fr>\n"
-"Language-Team: French <gnomefr@traduc.org>\n"
+"Language-Team: french <gnomefr@traduc.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: KBabel 1.11.2\n"
 
 #: ../tcl/bin/emccalib.tcl:84
 msgid "EMC2 Axis Calibration"
@@ -46,7 +48,7 @@ msgstr "Sauver"
 #: ../tcl/bin/emccalib.tcl:168 ../tcl/bin/halconfig.tcl:619
 #, tcl-format
 msgid "Tune %d"
-msgstr "Régler %d"
+msgstr "Regler %d"
 
 #: ../tcl/bin/emccalib.tcl:170 ../tcl/bin/halconfig.tcl:624
 msgid "INI Name"
@@ -67,8 +69,8 @@ msgstr "Test"
 
 #: ../tcl/bin/emccalib.tcl:235 ../tcl/bin/genedit.tcl:186
 #: ../tcl/bin/genedit.tcl:456 ../tcl/bin/halconfig.tcl:678
-#: ../tcl/bin/halconfig.tcl:729 ../tcl/bin/pickconfig.tcl:236
-#: ../tcl/bin/pickconfig.tcl:383 ../tcl/bin/pickconfig.tcl:408
+#: ../tcl/bin/halconfig.tcl:729 ../tcl/bin/pickconfig.tcl:255
+#: ../tcl/bin/pickconfig.tcl:402 ../tcl/bin/pickconfig.tcl:427
 #: ../tcl/mini.tcl:1453 ../tcl/mini.tcl:2931 ../tcl/tkemc.tcl:211
 #: ../tcl/tkemc.tcl:314 ../tcl/tkemc.tcl:460 ../tcl/tkemc.tcl:1246
 #: ../tcl/tkemc.tcl:1294 ../tcl/tkemc.tcl:1325 ../tcl/tkemc.tcl:1356
@@ -79,8 +81,8 @@ msgstr "OK"
 
 #: ../tcl/bin/emccalib.tcl:237 ../tcl/bin/genedit.tcl:300
 #: ../tcl/bin/halconfig.tcl:99 ../tcl/bin/halconfig.tcl:680
-#: ../tcl/bin/halconfig.tcl:731 ../tcl/bin/pickconfig.tcl:239
-#: ../tcl/bin/pickconfig.tcl:348 ../tcl/mini.tcl:1454 ../tcl/mini.tcl:2932
+#: ../tcl/bin/halconfig.tcl:731 ../tcl/bin/pickconfig.tcl:258
+#: ../tcl/bin/pickconfig.tcl:367 ../tcl/mini.tcl:1454 ../tcl/mini.tcl:2932
 #: ../tcl/mini.tcl:3104 ../tcl/tkemc.tcl:213 ../tcl/tkemc.tcl:256
 #: ../tcl/tkemc.tcl:282 ../tcl/tkemc.tcl:461 ../tcl/tkemc.tcl:1247
 #: ../tcl/tkemc.tcl:1295 ../tcl/tkemc.tcl:1326 ../tcl/tkemc.tcl:1357
@@ -95,9 +97,10 @@ msgid ""
 "  %s \n"
 " has changed. \n"
 " Really quit?"
-msgstr "Le paramètre HAL\n"
+msgstr ""
+"Le parametre HAL\n"
 "  %s \n"
-" à changé. \n"
+" a change. \n"
 " Quitter vraiment ?"
 
 #: ../tcl/bin/emccalib.tcl:391 ../tcl/bin/halconfig.tcl:1166
@@ -108,23 +111,24 @@ msgid ""
 msgstr ""
 "Pas permis de sauver ici.\n"
 "\n"
-"  Vous devez copier une configuration dans votre répertoire home et travailler avec."
+"  Vous devez copier une configuration dans votre repertoire home et "
+"travailler avec."
 
 #: ../tcl/bin/emccalib.tcl:443 ../tcl/bin/genedit.tcl:217
-#: ../tcl/bin/halconfig.tcl:1238 ../tcl/bin/pickconfig.tcl:446
-#: ../tcl/bin/pickconfig.tcl:457 ../tcl/scripts/Set_Coordinates.tcl:205
+#: ../tcl/bin/halconfig.tcl:1238 ../tcl/bin/pickconfig.tcl:465
+#: ../tcl/bin/pickconfig.tcl:476 ../tcl/scripts/Set_Coordinates.tcl:205
 #: ../tcl/scripts/Set_Coordinates.tcl:228
 #, tcl-format
 msgid "can't save %s"
-msgstr "impossible de sauveguarder %s"
+msgstr "sauveguarde impossible %s"
 
 #: ../tcl/bin/emcdebug.tcl:170 ../tcl/bin/emcdebug.tcl:181
 msgid "EMC Debug"
-msgstr "Débuggeur EMC"
+msgstr "Debuggeur EMC"
 
 #: ../tcl/bin/emcdebug.tcl:189
 msgid "Invalid INI file entries"
-msgstr "Entrée invalide dans le fichier ini"
+msgstr "Entree invalide dans le fichier ini"
 
 #: ../tcl/bin/emcdebug.tcl:190
 msgid "Configuration information"
@@ -132,7 +136,7 @@ msgstr "Information de configuration"
 
 #: ../tcl/bin/emcdebug.tcl:191
 msgid "Use of defaults"
-msgstr "Utiliser les défauts"
+msgstr "Utiliser les defauts"
 
 #: ../tcl/bin/emcdebug.tcl:192
 msgid "Version information"
@@ -140,7 +144,7 @@ msgstr "Information de version"
 
 #: ../tcl/bin/emcdebug.tcl:193
 msgid "Command issuing"
-msgstr "Problème de commande"
+msgstr "Probleme de commande"
 
 #: ../tcl/bin/emcdebug.tcl:194
 msgid "IO points"
@@ -156,7 +160,7 @@ msgstr "Temps moyen"
 
 #: ../tcl/bin/emcdebug.tcl:197
 msgid "Interpreter"
-msgstr "Interpréteur"
+msgstr "Interpreteur"
 
 #: ../tcl/bin/emcdebug.tcl:198
 msgid "RCS"
@@ -168,7 +172,7 @@ msgstr "Niveau de trajectoire"
 
 #: ../tcl/bin/emcdebug.tcl:200
 msgid "Interpreter list"
-msgstr "Liste de l'interpréteur"
+msgstr "Liste de l'interpreteur"
 
 #: ../tcl/bin/genedit.tcl:84 ../tcl/mini.tcl:2527
 msgid "New"
@@ -216,7 +220,7 @@ msgstr "Aide"
 #: ../tcl/bin/genedit.tcl:111 ../tcl/mini.tcl:1014 ../tcl/mini.tcl:2553
 #: ../tcl/tkemc.tcl:828
 msgid "About..."
-msgstr "A propos"
+msgstr "A propos..."
 
 #: ../tcl/bin/genedit.tcl:136
 msgid "Save and Reload"
@@ -228,20 +232,20 @@ msgstr "Chercher"
 
 #: ../tcl/bin/genedit.tcl:141 ../tcl/mini.tcl:2546
 msgid "Renumber File..."
-msgstr "Renuméroter fichier..."
+msgstr "Renumeroter fichier..."
 
 #: ../tcl/bin/genedit.tcl:146 ../tcl/mini.tcl:920 ../tcl/mini.tcl:2512
 #: ../tcl/tkemc.tcl:778
 msgid "Settings"
-msgstr "Réglages"
+msgstr "Reglages"
 
 #: ../tcl/bin/genedit.tcl:147 ../tcl/mini.tcl:2548
 msgid "No Numbering"
-msgstr "Pas de numérotation"
+msgstr "Pas de numerotation"
 
 #: ../tcl/bin/genedit.tcl:150 ../tcl/mini.tcl:2550
 msgid "Line Numbering..."
-msgstr "Numérotage de ligne..."
+msgstr "Numerotage de ligne..."
 
 #: ../tcl/bin/genedit.tcl:156 ../tcl/tkemc.tcl:800
 msgid "Scripts"
@@ -305,11 +309,11 @@ msgstr "Nettoyer"
 
 #: ../tcl/bin/genedit.tcl:428 ../tcl/mini.tcl:2634
 msgid "Set Line Numbering"
-msgstr "Régler numérotage de ligne"
+msgstr "Regler numerotage de ligne"
 
 #: ../tcl/bin/genedit.tcl:430 ../tcl/mini.tcl:2638
 msgid "Increment"
-msgstr "Incrément"
+msgstr "Increment"
 
 #: ../tcl/bin/genedit.tcl:432 ../tcl/mini.tcl:2640
 msgid "One"
@@ -341,15 +345,15 @@ msgstr "Double espace"
 
 #: ../tcl/bin/genedit.tcl:453 ../tcl/mini.tcl:2654
 msgid "Tab Space"
-msgstr "Espace arrière"
+msgstr "Espace arriere"
 
 #: ../tcl/bin/genedit.tcl:459
 msgid "Next Number:"
-msgstr "Numéro suivant"
+msgstr "Numero suivant"
 
 #: ../tcl/bin/genedit.tcl:480 ../tcl/mini.tcl:2662
 msgid "Renumber"
-msgstr "Renuméroter"
+msgstr "Renumeroter"
 
 #: ../tcl/bin/halconfig.tcl:84 ../tcl/bin/halshow.tcl:38
 msgid "HAL Configuration"
@@ -365,7 +369,7 @@ msgstr "Sauver tout"
 
 #: ../tcl/bin/halconfig.tcl:99
 msgid "Save Tune"
-msgstr "Sauver réglage"
+msgstr "Sauver reglage"
 
 #: ../tcl/bin/halconfig.tcl:99
 msgid "Save as Netlist"
@@ -389,7 +393,7 @@ msgstr "Modifier"
 
 #: ../tcl/bin/halconfig.tcl:153
 msgid "Save INI Tuning"
-msgstr "Sauver réglage HAL"
+msgstr "Sauver reglage HAL"
 
 #: ../tcl/bin/halconfig.tcl:155
 msgid "Save HAL Ini"
@@ -409,7 +413,7 @@ msgstr "Vues"
 
 #: ../tcl/bin/halconfig.tcl:166 ../tcl/bin/halshow.tcl:92
 msgid "Expand Tree"
-msgstr "Déployer l'arborescence"
+msgstr "Deployer l'arborescence"
 
 #: ../tcl/bin/halconfig.tcl:168 ../tcl/bin/halshow.tcl:94
 msgid "Collapse Tree"
@@ -417,15 +421,15 @@ msgstr "Replier l'arborescence"
 
 #: ../tcl/bin/halconfig.tcl:171 ../tcl/bin/halshow.tcl:97
 msgid "Expand Pins"
-msgstr "Déployer les pins"
+msgstr "Deployer les pins"
 
 #: ../tcl/bin/halconfig.tcl:173 ../tcl/bin/halshow.tcl:99
 msgid "Expand Parameters"
-msgstr "Paramètres d'extension"
+msgstr "Parametres d'extension"
 
 #: ../tcl/bin/halconfig.tcl:175 ../tcl/bin/halshow.tcl:101
 msgid "Expand Signals"
-msgstr "Déployer les signaux"
+msgstr "Deployer les signaux"
 
 #: ../tcl/bin/halconfig.tcl:178 ../tcl/bin/halshow.tcl:104
 msgid "Erase Watch"
@@ -446,26 +450,26 @@ msgstr "Entrer commande HAL:"
 #: ../tcl/bin/halconfig.tcl:475 ../tcl/bin/halconfig.tcl:524
 #: ../tcl/bin/halshow.tcl:387
 msgid "Execute"
-msgstr "Exécuter"
+msgstr "Executer"
 
 #: ../tcl/bin/halconfig.tcl:939 ../tcl/bin/halshow.tcl:443
 msgid "Select a node to show."
-msgstr "Séléctionner un \"node\" à afficher"
+msgstr "Selectionner un \"node\" a afficher"
 
 #: ../tcl/bin/halconfig.tcl:964 ../tcl/bin/halshow.tcl:468
 msgid "<-- Select a Leaf.  Click on its name."
-msgstr "<-- Sélectionnez un \"Leaf\".  Cliquez sur son nom."
+msgstr "<-- Selectionnez un \"Leaf\".  Cliquez sur son nom."
 
 #: ../tcl/bin/halconfig.tcl:1081 ../tcl/bin/halconfig.tcl:1091
 #: ../tcl/bin/halconfig.tcl:1098 ../tcl/bin/halconfig.tcl:1105
 #: ../tcl/bin/halconfig.tcl:1112
 #, tcl-format
 msgid "Click a highlighted entry where %s should go."
-msgstr "Cliquez une entrée en surbrillance ou %s doit aller."
+msgstr "Cliquez une ligne en surbrillance ou %s doit aller."
 
 #: ../tcl/bin/halconfig.tcl:1088
 msgid "Nothing to be done for parameters here. Try the tuning page"
-msgstr "Rien n'est paramètrable ici. Essayez la page de réglage"
+msgstr "Rien n'est parametrable ici. Essayez la page de reglage"
 
 #: ../tcl/bin/halconfig.tcl:1120
 #, tcl-format
@@ -487,10 +491,12 @@ msgstr ""
 "Copyright Raymond E Henry. 2006\n"
 "License: GPL Version 2\n"
 "\n"
-"Halconfig est un outil de configuration d'EMC2.  Il doit être lancé depuis le répertoire d'emc2 et requiert qu'une instance d'emc2 ait été lancée r work "
-"up a new configuration starting with a demo rt script.\n"
+"Halconfig est un outil de configuration d'EMC2.  Il doit être lance depuis "
+"le repertoire d'emc2 et requiert qu'une instance d'emc2 ait ete lancee r "
+"work up a new configuration starting with a demo rt script.\n"
 "\n"
-"Ce script n'est pas pour les cardiaques et n'offre aucune garantie ni responsabilité pour son utilisation selon les termes permis par la loi."
+"Ce script n'est pas pour les cardiaques et n'offre aucune garantie ni "
+"responsabilite pour son utilisation selon les termes permis par la loi."
 
 #: ../tcl/bin/halshow.tcl:74
 msgid " SHOW "
@@ -510,31 +516,31 @@ msgstr "Tester commande HAL :"
 
 #: ../tcl/bin/halshow.tcl:588
 msgid "Commands may be tested here but they will NOT be saved"
-msgstr "Ces commandes peuvent être testées ici mais ne seront PAS sauveguardées"
+msgstr "Ces commandes peuvent être testees ici mais ne seront PAS sauveguardees"
 
-#: ../tcl/bin/pickconfig.tcl:51
+#: ../tcl/bin/pickconfig.tcl:52
 msgid ""
 "Can't find the bwidget 1.7 package.  There is a debian bwidget package; "
 "install \n"
 "it with sudo apt-get install bwidget."
 msgstr ""
-"Ne peut trouver le paquet bwidget 1.7.  Il s'agit du paquet debian \"bwidget\"; "
-"installez \n"
+"Ne peut trouver le paquet bwidget 1.7.  Il s'agit du paquet debian \"bwidget"
+"\"; installez \n"
 "le avec sudo apt-get install bwidget."
 
-#: ../tcl/bin/pickconfig.tcl:129
+#: ../tcl/bin/pickconfig.tcl:148
 msgid "No details available."
-msgstr "Aucun détail disponible."
+msgstr "Aucun detail disponible."
 
-#: ../tcl/bin/pickconfig.tcl:161
+#: ../tcl/bin/pickconfig.tcl:180
 msgid "ERROR: must specify a path to search for configurations"
-msgstr "ERREUR: Spécifiez un chemin ou chercher les configurations"
+msgstr "ERREUR: Specifiez un chemin ou chercher les configurations"
 
-#: ../tcl/bin/pickconfig.tcl:173
+#: ../tcl/bin/pickconfig.tcl:192
 msgid "EMC2 Configuration Selector"
-msgstr "Sélecteur de configuration EMC2 "
+msgstr "Selecteur de configuration EMC2 "
 
-#: ../tcl/bin/pickconfig.tcl:194
+#: ../tcl/bin/pickconfig.tcl:213
 msgid ""
 "Welcome to EMC2.\n"
 "\n"
@@ -545,68 +551,74 @@ msgid ""
 msgstr ""
 "Bienvenue dans EMC2.\n"
 "\n"
-"Sélectionnez une configuration de machine dans la liste de gauche.\n"
-"Les détails à propos de cette configuration apparaîtront dans l'écran de droite.\n"
-"Cliquez 'OK' pour lancer la configuration sélectionnée"
+"Selectionnez une configuration de machine dans la liste de gauche.\n"
+"Les details a propos de cette configuration apparaîtront dans l'ecran de "
+"droite.\n"
+"Cliquez 'OK' pour lancer la configuration selectionnee"
 
-#: ../tcl/bin/pickconfig.tcl:251
+#: ../tcl/bin/pickconfig.tcl:270
 msgid "My Configurations"
 msgstr "Mes configurations"
 
-#: ../tcl/bin/pickconfig.tcl:254
+#: ../tcl/bin/pickconfig.tcl:273
 msgid "Sample Configurations"
 msgstr "Exemples de configuration"
 
-#: ../tcl/bin/pickconfig.tcl:311
+#: ../tcl/bin/pickconfig.tcl:330
 #, tcl-format
 msgid "ERROR: no configurations found in path '%s'"
-msgstr "ERREUR: Aucune configuration trouvée dans le chemin '%s'"
+msgstr "ERREUR: Aucune configuration trouvee dans le chemin '%s'"
 
-#: ../tcl/bin/pickconfig.tcl:348
+#: ../tcl/bin/pickconfig.tcl:367
 msgid "Copy Configuration?"
 msgstr "Copier configuration ?"
 
-#: ../tcl/bin/pickconfig.tcl:348
+#: ../tcl/bin/pickconfig.tcl:367
 #, tcl-format
 msgid ""
 "Would you like to copy the %s configuration to your home directory so you "
 "can customize it?"
 msgstr ""
-"Voulez-vous copier le dossier %s dans votre répertoire home pour pouvoir l'adapter à vos besoins ?"
+"Voulez-vous copier le dossier %s dans votre repertoire home pour pouvoir "
+"l'adapter a vos besoins ?"
 
-#: ../tcl/bin/pickconfig.tcl:348
+#: ../tcl/bin/pickconfig.tcl:367
 msgid "Yes"
 msgstr "Oui"
 
-#: ../tcl/bin/pickconfig.tcl:348
+#: ../tcl/bin/pickconfig.tcl:367
 msgid "No"
 msgstr "Non"
 
-#: ../tcl/bin/pickconfig.tcl:383
+#: ../tcl/bin/pickconfig.tcl:402
 msgid "Configuration Copied"
-msgstr "Configuration copiée"
+msgstr "Configuration copiee"
 
-#: ../tcl/bin/pickconfig.tcl:383
+#: ../tcl/bin/pickconfig.tcl:402
 #, tcl-format
 msgid ""
 "The configuration file has been copied to %s. Next time, choose this "
 "location when starting EMC2."
 msgstr ""
-"Le fichier de configuration à bien été copié dans %s. La prochaine fois, choisissez cet emplacement quand vous démarrerez EMC2."
+"Le fichier de configuration a bien ete copie dans %s. La prochaine fois, "
+"choisissez cet emplacement quand vous demarrerez EMC2."
 
-#: ../tcl/bin/pickconfig.tcl:408
+#: ../tcl/bin/pickconfig.tcl:427
 msgid "Shortcut Created"
-msgstr "Raccourci créé"
+msgstr "Raccourci cree"
 
-#: ../tcl/bin/pickconfig.tcl:408
+#: ../tcl/bin/pickconfig.tcl:427
 msgid ""
 "A shortcut to this configuration file has been created on your desktop.  You "
 "can use it to automatically launch this configuration."
-msgstr "Un raccourci vers ce fichier de configuration à bien été créé sur votre bureau.  Vous pourrez l'utiliser pour démarrer automatiquement cette configuration."
+msgstr ""
+"Un raccourci vers ce fichier de configuration a bien ete cree sur votre "
+"bureau.  Vous pourrez l'utiliser pour demarrer automatiquement cette "
+"configuration."
 
-#: ../tcl/bin/pickconfig.tcl:413
+#: ../tcl/bin/pickconfig.tcl:432
 msgid "Create Desktop Shortcut"
-msgstr "Crée un raccourci sur le bureau"
+msgstr "Cree un raccourci sur le bureau"
 
 #: ../tcl/bin/tkbackplot.tcl:113
 msgid "TkEmc BackPlot"
@@ -763,7 +775,7 @@ msgstr "Position actuelle"
 
 #: ../tcl/mini.tcl:983
 msgid "Commanded Position"
-msgstr "Position commandée"
+msgstr "Position commandee"
 
 #: ../tcl/mini.tcl:986
 msgid "Machine Position"
@@ -801,16 +813,16 @@ msgstr "Editeur de fichier"
 #: ../tcl/mini.tcl:1003
 #, tcl-format
 msgid "Editor file is %s"
-msgstr "L'éditeur de fichier est %s"
+msgstr "L'editeur de fichier est %s"
 
 #: ../tcl/mini.tcl:1004
 msgid "Parameter File"
-msgstr "Fichier de paramètres"
+msgstr "Fichier de parametres"
 
 #: ../tcl/mini.tcl:1005
 #, tcl-format
 msgid "Parameter file is %s"
-msgstr "Le fichier de paramètres est %s"
+msgstr "Le fichier de parametres est %s"
 
 #: ../tcl/mini.tcl:1006
 msgid "Tool File"
@@ -861,7 +873,7 @@ msgstr "MANUEL"
 
 #: ../tcl/mini.tcl:1109
 msgid "Tool #:"
-msgstr "Numéro d'outil:"
+msgstr "Numero d'outil:"
 
 #: ../tcl/mini.tcl:1111
 msgid "Length :"
@@ -873,11 +885,11 @@ msgstr "Offsets de travail:"
 
 #: ../tcl/mini.tcl:1124
 msgid "start offsets popup here"
-msgstr "Démarrer popun des offsets ici"
+msgstr "Demarrer popun des offsets ici"
 
 #: ../tcl/mini.tcl:1168
 msgid "start override popup here"
-msgstr "Démarrer override popup ici"
+msgstr "Demarrer override popup ici"
 
 #: ../tcl/mini.tcl:1171 ../tcl/tkemc.tcl:1420
 msgid "Feed Override:"
@@ -893,12 +905,16 @@ msgstr "Le basculement des vues ne donnera rien ici"
 
 #: ../tcl/mini.tcl:1285
 msgid "Can't set zero with a tool offset active so I issued G49 to cancel it."
-msgstr "Impossible de régler le zéro avec l'offset d'outil activé, appliquez G49 avant"
+msgstr ""
+"Impossible de regler le zero avec l'offset d'outil active, appliquez G49 "
+"avant"
 
 #: ../tcl/mini.tcl:1343
 #, tcl-format
 msgid "Can't update the var file while machine is in auto and %s."
-msgstr "Impossible de mettre le fichier de variables à jour tant que la machine est en auto et %s"
+msgstr ""
+"Impossible de mettre le fichier de variables a jour tant que la machine est "
+"en auto et %s"
 
 #: ../tcl/mini.tcl:1397 ../tcl/tkemc.tcl:1144
 msgid "override limits"
@@ -938,7 +954,7 @@ msgstr "JOG X -"
 
 #: ../tcl/mini.tcl:1513
 msgid "increment"
-msgstr "incrément"
+msgstr "increment"
 
 #: ../tcl/mini.tcl:1515 ../tcl/tkemc.tcl:652 ../tcl/tkemc.tcl:1166
 #: ../tcl/tkemc.tcl:1170
@@ -975,7 +991,7 @@ msgstr "Broche sens inverse"
 
 #: ../tcl/mini.tcl:1584 ../tcl/tkemc.tcl:903
 msgid "Spindle off"
-msgstr "Broche arrêtée"
+msgstr "Broche arrêtee"
 
 #: ../tcl/mini.tcl:1586
 msgid "Spindle Slower"
@@ -991,7 +1007,7 @@ msgstr "MDI:"
 
 #: ../tcl/mini.tcl:1663 ../tcl/tkemc.tcl:1500
 msgid "Run"
-msgstr "Démarre"
+msgstr "Demarre"
 
 #: ../tcl/mini.tcl:1665 ../tcl/tkemc.tcl:1501
 msgid "Pause"
@@ -1007,7 +1023,7 @@ msgstr "Pas"
 
 #: ../tcl/mini.tcl:1671 ../tcl/tkemc.tcl:1504
 msgid "Verify"
-msgstr "Vérifie"
+msgstr "Verifie"
 
 #: ../tcl/mini.tcl:1692
 msgid "RESTART LINE"
@@ -1015,7 +1031,7 @@ msgstr "REDEMARRER LIGNE"
 
 #: ../tcl/mini.tcl:1693
 msgid "Back"
-msgstr "Arrière"
+msgstr "Arriere"
 
 #: ../tcl/mini.tcl:1694
 msgid "Ahead"
@@ -1023,7 +1039,7 @@ msgstr "Avant"
 
 #: ../tcl/mini.tcl:1695
 msgid "Restart"
-msgstr "Redémarre"
+msgstr "Redemarre"
 
 #: ../tcl/mini.tcl:1705 ../tcl/mini.tcl:2817 ../tcl/mini.tcl:2876
 #: ../tcl/tkemc.tcl:515
@@ -1044,7 +1060,8 @@ msgstr "Fichiers NC"
 msgid ""
 "The interpreter is running. \n"
 " Pressing OK will abort and load the new program"
-msgstr "L'interpréteur est en marche. \n"
+msgstr ""
+"L'interpreteur est en marche. \n"
 " Presser OK va annuler et charger le nouveau programme"
 
 #: ../tcl/mini.tcl:1880
@@ -1129,7 +1146,8 @@ msgid ""
 " Click or tab to edit.   Press enter to return to keyboard machine control."
 msgstr ""
 "REGLAGE OUTIL \n"
-" Cliquez ou tab pour éditer.   Pressez \"Entrée\" pour retourner au contrôle de la machine par le clavier."
+" Cliquez ou tab pour editer.   Pressez \"Entree\" pour retourner au contrôle "
+"de la machine par le clavier."
 
 #: ../tcl/mini.tcl:2124
 msgid "  TOOL NUMBER  "
@@ -1158,7 +1176,9 @@ msgstr "Supprimer le dernier outil"
 #: ../tcl/mini.tcl:2211 ../tcl/mini.tcl:2247
 #, tcl-format
 msgid "Can't update the tool file while machine is in auto and %s."
-msgstr "Impossible de mettre à jour le fichier d'outils tant que la machine est en auto et %s"
+msgstr ""
+"Impossible de mettre a jour le fichier d'outils tant que la machine est en "
+"auto et %s"
 
 #: ../tcl/mini.tcl:2223
 msgid "This is not a good number."
@@ -1174,8 +1194,8 @@ msgid ""
 msgstr ""
 "REGLAGE COORDONNEES SYSTEME \n"
 "\n"
-"  Cliquez une valeur pourvalue to edit with keyboard.  Press enter to return to keyboard "
-"control of machine. \n"
+"  Cliquez une valeur pourvalue to edit with keyboard.  Press enter to return "
+"to keyboard control of machine. \n"
 " "
 
 #: ../tcl/mini.tcl:2314 ../tcl/scripts/Set_Coordinates.tcl:82
@@ -1212,47 +1232,47 @@ msgstr "Ajouter"
 
 #: ../tcl/mini.tcl:2360
 msgid "Zero All G54"
-msgstr "Zéro de tous les G54"
+msgstr "Zero de tous les G54"
 
 #: ../tcl/mini.tcl:2361
 msgid "Zero All G55"
-msgstr "Zéro de tous les G55"
+msgstr "Zero de tous les G55"
 
 #: ../tcl/mini.tcl:2362
 msgid "Zero All G56"
-msgstr "Zéro de tous les G56"
+msgstr "Zero de tous les G56"
 
 #: ../tcl/mini.tcl:2363
 msgid "Zero All G57"
-msgstr "Zéro de tous les G57"
+msgstr "Zero de tous les G57"
 
 #: ../tcl/mini.tcl:2364
 msgid "Zero All G58"
-msgstr "Zéro de tous les G58"
+msgstr "Zero de tous les G58"
 
 #: ../tcl/mini.tcl:2365
 msgid "Zero All G59"
-msgstr "Zéro de tous les G59"
+msgstr "Zero de tous les G59"
 
 #: ../tcl/mini.tcl:2366
 msgid "Zero All G59.1"
-msgstr "Zéro de tous les G59.1"
+msgstr "Zero de tous les G59.1"
 
 #: ../tcl/mini.tcl:2367
 msgid "Zero All G59.2"
-msgstr "Zéro de tous les G59.2"
+msgstr "Zero de tous les G59.2"
 
 #: ../tcl/mini.tcl:2368
 msgid "Zero All G59.3"
-msgstr "Zéro de tous les G59.3"
+msgstr "Zero de tous les G59.3"
 
 #: ../tcl/mini.tcl:2369
 msgid "Zero All ????"
-msgstr "Zéro de tous les ????"
+msgstr "Zero de tous les ????"
 
 #: ../tcl/mini.tcl:2487
 msgid "Modified..."
-msgstr "Modifié..."
+msgstr "Modifie..."
 
 #: ../tcl/mini.tcl:2532
 msgid "Save and Load"
@@ -1280,7 +1300,7 @@ msgstr "Nombre suivant: "
 
 #: ../tcl/mini.tcl:2759
 msgid "Basic Help"
-msgstr "Aide simplifiée"
+msgstr "Aide simplifiee"
 
 #: ../tcl/mini.tcl:2759
 msgid ""
@@ -1299,7 +1319,7 @@ msgid ""
 "Ctrl+F  Find\n"
 "Ctrl+R  Replace "
 msgstr ""
-"C'est un simple éditeur ASCII comme beaucoup d'autres.\n"
+"C'est un simple editeur ASCII comme beaucoup d'autres.\n"
 "\n"
 "Ctrl+O  Ouvrir\n"
 "Ctrl+S  Sauver\n"
@@ -1309,7 +1329,7 @@ msgstr ""
 "Ctrl+C  Copier\n"
 "Ctrl+V  Coller\n"
 "Suppr     Effacer\n"
-"Ctrl+A  Sélectionne tout\n"
+"Ctrl+A  Selectionne tout\n"
 "\n"
 "Ctrl+F  Chercher\n"
 "Ctrl+R  Remplacer "
@@ -1322,13 +1342,15 @@ msgid ""
 msgstr ""
 "tknotepad par Joseph Acosta. <joeja@mindspring.com>\n"
 "\n"
-" Modifié pour EMC par: Paul Corner <paul_c@users.sourceforge.net>"
+" Modifie pour EMC par: Paul Corner <paul_c@users.sourceforge.net>"
 
 #: ../tcl/mini.tcl:2787
 msgid ""
 "The contents of this file may have changed, do you wish to to save your "
 "changes?"
-msgstr "Le contenu de ce fichier peut avoir changé, voulez-vous sauver vos changements ?"
+msgstr ""
+"Le contenu de ce fichier peut avoir change, voulez-vous sauver vos "
+"changements ?"
 
 #: ../tcl/mini.tcl:2788
 msgid "New Confirm?"
@@ -1336,7 +1358,7 @@ msgstr "Nouvelle confirmation ?"
 
 #: ../tcl/mini.tcl:2922
 msgid "Print Setup"
-msgstr "Réglage imprimante"
+msgstr "Reglage imprimante"
 
 #: ../tcl/mini.tcl:2926
 msgid "Print Command: "
@@ -1407,7 +1429,8 @@ msgid ""
 "EMC2 terminated with an error.  When reporting problems, please include all "
 "the information below in your message."
 msgstr ""
-"EMC2 c'est terminé avec une erreur.  Si vous rapportez le problème, SVP incluez toutes les informations suivantes dans votre message."
+"EMC2 c'est termine avec une erreur.  Si vous rapportez le probleme, SVP "
+"incluez toutes les informations suivantes dans votre message."
 
 #: ../tcl/show_errors.tcl:52 ../tcl/scripts/Set_Coordinates.tcl:103
 msgid "Close"
@@ -1415,12 +1438,12 @@ msgstr "Fermer"
 
 #: ../tcl/tkemc.tcl:205 ../tcl/tkemc.tcl:232
 msgid "Set Run Mark"
-msgstr "Ajuster point de départ"
+msgstr "Ajuster point de depart"
 
 #: ../tcl/tkemc.tcl:207
 #, tcl-format
 msgid "Set run mark at line %s?"
-msgstr "Ajuster point de départ à la ligne %s?"
+msgstr "Ajuster point de depart a la ligne %s?"
 
 #: ../tcl/tkemc.tcl:227 ../tcl/tkemc.tcl:250 ../tcl/tkemc.tcl:273
 msgid "untitled"
@@ -1432,7 +1455,7 @@ msgstr "Charger table d'outils"
 
 #: ../tcl/tkemc.tcl:281
 msgid "Load Parameter File"
-msgstr "Charger fichier de paramètres"
+msgstr "Charger fichier de parametres"
 
 #: ../tcl/tkemc.tcl:330
 msgid "EMC Diagnostics"
@@ -1444,7 +1467,7 @@ msgstr "Tâche"
 
 #: ../tcl/tkemc.tcl:334 ../tcl/tkemc.tcl:357 ../tcl/tkemc.tcl:380
 msgid "Heartbeat:"
-msgstr "Fréquence:"
+msgstr "Frequence:"
 
 #: ../tcl/tkemc.tcl:337 ../tcl/tkemc.tcl:360 ../tcl/tkemc.tcl:383
 msgid "Command:"
@@ -1498,7 +1521,7 @@ msgstr "Longueur:"
 
 #: ../tcl/tkemc.tcl:456
 msgid "Diameter:"
-msgstr "Diamètre:"
+msgstr "Diametre:"
 
 #: ../tcl/tkemc.tcl:762
 msgid "Edit..."
@@ -1534,7 +1557,7 @@ msgstr "Police..."
 
 #: ../tcl/tkemc.tcl:786
 msgid "Units"
-msgstr "Unités"
+msgstr "Unites"
 
 #: ../tcl/tkemc.tcl:787
 msgid "auto"
@@ -1562,7 +1585,7 @@ msgstr "Hal Scope"
 
 #: ../tcl/tkemc.tcl:796
 msgid "Hal Meter"
-msgstr "Hal Mètre"
+msgstr "Hal Metre"
 
 #: ../tcl/tkemc.tcl:817
 msgid "HAL Show"
@@ -1662,7 +1685,7 @@ msgstr "actuel"
 
 #: ../tcl/tkemc.tcl:1154
 msgid "commanded"
-msgstr "commandé"
+msgstr "commande"
 
 #: ../tcl/tkemc.tcl:1156
 msgid "joint"
@@ -1674,7 +1697,7 @@ msgstr "global"
 
 #: ../tcl/tkemc.tcl:1241
 msgid "Axis Offset"
-msgstr "Offset axe"
+msgstr "Offset d'axe"
 
 #: ../tcl/tkemc.tcl:1243
 msgid "Set axis value:"
@@ -1758,11 +1781,11 @@ msgstr "LUBRIFIANT ?"
 
 #: ../tcl/scripts/Set_Coordinates.tcl:27
 msgid "EMC Set Coordinate"
-msgstr "Réglage coordonnées EMC"
+msgstr "Reglage coordonnees EMC"
 
 #: ../tcl/scripts/Set_Coordinates.tcl:30
 msgid "Coordinate System Control Window"
-msgstr "Fenêtre de contrôle des coordonnées système"
+msgstr "Fenêtre de contrôle des coordonnees systeme"
 
 #: ../tcl/scripts/Set_Coordinates.tcl:83
 msgid "Var # "
@@ -1778,310 +1801,13 @@ msgstr "Qu'apprendre"
 
 #: ../tcl/scripts/Set_Coordinates.tcl:101
 msgid "Set Old"
-msgstr "Ancien réglage"
+msgstr "Ancien reglage"
 
 #: ../tcl/scripts/Set_Coordinates.tcl:102
 msgid "Set Zero"
-msgstr "Régler le zéro"
+msgstr "Regler le zero"
 
 #: ../tcl/scripts/Set_Coordinates.tcl:104
 msgid "Write"
 msgstr "Ecrire"
 
-#~ msgid "Break on"
-#~ msgstr "Frein on"
-
-#~ msgid "Break off"
-#~ msgstr "Frein off"
-
-#~ msgid "Error: "
-#~ msgstr "Erreur: "
-
-#~ msgid "Welcome to EMC2!\n"
-#~ msgstr "Bienvenue dans EMC2 !\n"
-
-#~ msgid "To run EMC2 with an existing configuration,"
-#~ msgstr "Pour lancer EMC2 avec une configuration existante,"
-
-#~ msgid "click the RUN button.\n"
-#~ msgstr "cliquer le  bouton RUN.\n"
-
-#~ msgid "To create a new configuration, edit a configuration, backup or"
-#~ msgstr ""
-#~ "Pour créer une nouvelle configuration, éditer une configuration, "
-#~ "sauveguarder ou"
-
-#~ msgid "restore a configuration, or do other configuration related tasks,"
-#~ msgstr ""
-#~ "restaurer une configuration ou effectuer une autre tâche relative à la "
-#~ "configuration"
-
-#~ msgid "click the CONFIG button.\n"
-#~ msgstr "cliquer le bouton CONFIG.\n"
-
-#~ msgid ""
-#~ "Please select an EMC2 configuration from the list below and click 'RUN'."
-#~ msgstr ""
-#~ "SVP, choisissez une configuration pour EMC2 dans la liste ci-dessous et "
-#~ "cliquez 'RUN'."
-
-#~ msgid ""
-#~ "\n"
-#~ "Details about the selected configuration:"
-#~ msgstr ""
-#~ "\n"
-#~ "Détails de la configuration choisie :"
-
-#~ msgid "You must choose a config if you want to run EMC2!"
-#~ msgstr "Vous devez choisir une configuration pour lancer EMC2 !"
-
-#~ msgid "ERROR: no ini file(s) found in config directory"
-#~ msgstr ""
-#~ "ERREUR: aucun fichier ini trouvé dans le répertoire de configuration "
-
-#~ msgid "Click OK to continue."
-#~ msgstr "Cliquer OK pour continer."
-
-#~ msgid ""
-#~ "The config contains multiple ini files.\n"
-#~ "Pick one from the list below and click NEXT."
-#~ msgstr ""
-#~ "La configuration contient plusieurs fichiers ini.\n"
-#~ "Choisissez en un dans la liste ci-dessous puis cliquez NEXT."
-
-#~ msgid "You must select one ini file!"
-#~ msgstr "Vous devez choisir un fichier ini !"
-
-#~ msgid "The next step is to invoke the run script to run"
-#~ msgstr "l'étape suivante appelle le script de démarrage"
-
-#~ msgid "But thats not coded yet, so just click OK to quit."
-#~ msgstr "Mais ce n'est pas encore codé, cliquez juste OK pour quitter."
-
-#~ msgid "This page is used to manage EMC2 machine configurations.\n"
-#~ msgstr ""
-#~ "Cette page est utilisée pour gérer les configurations machine d'EMC2.\n"
-
-#~ msgid ""
-#~ "The list below shows all of the existing EMC2\n"
-#~ "configurations on this computer.\n"
-#~ "\n"
-#~ "Select a config, then click one of the buttons below.\n"
-#~ msgstr ""
-#~ "La liste ci-dessous montre toutes les configurations d'EMC2\n"
-#~ " existantes sur ce PC.\n"
-#~ "\n"
-#~ "Choisissez une configuration, puis cliquez sur un des boutons suivants.\n"
-
-#~ msgid ""
-#~ "Sorry, this function is not implemented yet.\n"
-#~ "\n"
-#~ "Click OK to return to the menu"
-#~ msgstr ""
-#~ "Pardon, cette fonction n'est pas encore implémentée.\n"
-#~ "\n"
-#~ "Cliquez OK pour retourner au menu."
-
-#~ msgid ""
-#~ "You have chosen to create a new EMC2 configuration.\n"
-#~ "\n"
-#~ "The next few screens will walk you through the process."
-#~ msgstr ""
-#~ "Vous avez choisi de créer une nouvelle configuration d'EMC2.\n"
-#~ "\n"
-#~ "Le prochain écran vous expliquera comment procéder."
-
-#~ msgid "Please select a name for your new configuration."
-#~ msgstr "SVP, choisissez un nom pour votre nouvelle configuration."
-
-#~ msgid ""
-#~ "(This will become a directory name, so please use only letters,\n"
-#~ "digits, period, dash, or underscore.)"
-#~ msgstr ""
-#~ "(Celà va devenir un nom de répertoire, SVP, utilisez seulement des "
-#~ "lettres,\n"
-#~ "chiffres, points, traits ou soulignés.)"
-
-#~ msgid ""
-#~ "contains illegal characters!\n"
-#~ "Please choose a new name."
-#~ msgstr ""
-#~ "contient des caractères illégaux !\n"
-#~ "SVP, choisissez un nouveau nom."
-
-#~ msgid "A directory or file called"
-#~ msgstr "Un répertoire ou fichier appelé"
-
-#~ msgid ""
-#~ "already exists!\n"
-#~ "Please choose a new name."
-#~ msgstr ""
-#~ "déjà existant!\n"
-#~ "SVP, choisissez un nouveau nom."
-
-#~ msgid ""
-#~ "Please select one of these existing configurations as the template\n"
-#~ "for your new configuration.\n"
-#~ "\n"
-#~ "All the files associated with the template will be copied into your new\n"
-#~ "config, so you can make whatever modifications are needed."
-#~ msgstr ""
-#~ "SVP, choisissez une configuration existante comme modèle\n"
-#~ "pour une nouvelle configuration.\n"
-#~ "\n"
-#~ "Tous les fichiers associés au modèle seront copiés dans la nouvelle \n"
-#~ "configuration, celà vous permettra de faire les modifications souhaîtées."
-
-#~ msgid "Creating new EMC2 configuration"
-#~ msgstr "Création d'une nouvelle configuration d'EMC2"
-
-#~ msgid ""
-#~ "A internal error has occurred, or the template directory was deleted.\n"
-#~ "Click OK to quit"
-#~ msgstr ""
-#~ "Une erreur interne est survenue ou le répertoire du modèle a été effacé.\n"
-#~ " Cliquez OK pour quitter."
-
-#~ msgid "Enter a description here"
-#~ msgstr "Insérer une description ici"
-
-#~ msgid "based on template"
-#~ msgstr "basée sur un modèle"
-
-#~ msgid ""
-#~ "Please enter a description of your configuration.\n"
-#~ "\n"
-#~ "The box below has been preloaded with the description of the template, "
-#~ "but\n"
-#~ "it is strongly recommended that you revise it.  At a minimum,\n"
-#~ "put your name and some specifics about your machine here."
-#~ msgstr ""
-#~ "SVP, entrez une description de votre configuration\n"
-#~ "\n"
-#~ "La fenêtre ci-dessous à été préchargée avec la description du modèle "
-#~ "mais\n"
-#~ " il est fortement recommandé de la réviser. Au minimu,\n"
-#~ "insérez votre nom et quelques informations spécifiques à votre machine."
-
-#~ msgid ""
-#~ "(If you ever need help, someone may ask you to send them your\n"
-#~ "configuration, and this information could be very usefull.)"
-#~ msgstr ""
-#~ "(Si vous avez besoin d'aide et que quelqu'un vous demande de lui envoyer "
-#~ "votre\n"
-#~ "configuration, ces informations seront très utiles.)"
-
-#~ msgid "You must enter at least one word!"
-#~ msgstr "Vous devez entrer au moins un paramètre:"
-
-#~ msgid ""
-#~ "You are about to create a new EMC2 configuration.\n"
-#~ "\n"
-#~ "Please verify that this is what you want:"
-#~ msgstr ""
-#~ "Vous êtes sur le point de créer une nouvelle configuration.d'EMC2 \n"
-#~ "\n"
-#~ "SVP, vérifiez que c'est bien ce que vous voulez:"
-
-#~ msgid "Description"
-#~ msgstr "Description"
-
-#~ msgid ""
-#~ "If this information is correct, click NEXT to create\n"
-#~ "the configuration directory and begin copying files."
-#~ msgstr ""
-#~ "Si ces informations sont correctes, cliquez NEXT pour créer\n"
-#~ "le répertoire de configuration et commencer d'y copier les fichiers."
-
-#~ msgid "Creating new config directory"
-#~ msgstr "Création d'un nouveau répertoire de configuration"
-
-#~ msgid "ERROR: Config directory could not be created."
-#~ msgstr "ERREUR: Le répertoire de configuration ne peut pas être créé"
-
-#~ msgid "Checking for ini file(s)..."
-#~ msgstr "Verification de la présence de fichier(s) ini..."
-
-#~ msgid "Transferring ini file"
-#~ msgstr "Transfert du fichier ini"
-
-#~ msgid "Writing description file 'README'..."
-#~ msgstr "Ecriture du fichier de description 'README'..."
-
-#~ msgid "Checking for other template file(s)..."
-#~ msgstr "Vérification la présence d'autre(s) fichier(s) modèle"
-
-#~ msgid "Copying template file"
-#~ msgstr "Copie fichier modèle"
-
-#~ msgid "Checking for common file(s)..."
-#~ msgstr "Vérifie la présence de fichier(s) commun(s)..."
-
-#~ msgid "Copying common file"
-#~ msgstr "Copie fichier commun"
-
-#~ msgid ""
-#~ "has been created.\n"
-#~ "Click OK to return to the main menu."
-#~ msgstr ""
-#~ "à bien été créé\n"
-#~ "Cliquer OK pour retourner au menu principal."
-
-#~ msgid ""
-#~ "An error happened while creating the new configuration.\n"
-#~ "Ideally this code would clean everything up and\n"
-#~ "then return to the main menu, but the cleanup isn't done yet.\n"
-#~ "Click OK to return to the main menu."
-#~ msgstr ""
-#~ "Une erreur est survenue lors de la création de la nouvelle configuration\n"
-#~ " En théorie ce code devrait rester propre puis\n"
-#~ "retourner au menu principal, mais le nettoyage n'est pas encore complet.\n"
-#~ "Cliquez OK pour retourner au menu principal."
-
-#~ msgid "ERROR: Not a valid config directory (contains no .ini files)"
-#~ msgstr ""
-#~ "ERREUR: Pas un répertoire de configuration valide (ne contient pas de "
-#~ "fichier .ini)"
-
-#~ msgid "ERROR: Not a valid ini file (must end in .ini)"
-#~ msgstr "ERREUR: Pas un fichier ini valide (devrait se finir avec .ini)"
-
-#~ msgid "ERROR: Config not found"
-#~ msgstr "ERREUR: Configuration non trouvée"
-
-#~ msgid ""
-#~ "ERROR: Not a valid config name\n"
-#~ "(must be either <config-name> or <config-name>/<ini-name>)"
-#~ msgstr ""
-#~ "ERREUR: Nom de configuration invalide\n"
-#~ "(devrait être de la forme <config-name> ou<config-name>/<ini-name>)"
-
-#~ msgid "ERROR: option '--configs-dir' must be followed by a directory name."
-#~ msgstr ""
-#~ "ERREUR: option '--configs-dir' devrait être suivi d'un nom de répertoire."
-
-#~ msgid "Click OK to exit."
-#~ msgstr "Cliquez OK pour quitter."
-
-#~ msgid "ERROR: '--configs-dir' argument is"
-#~ msgstr "ERREUR: argument '--configs-dir' est"
-
-#~ msgid "ERROR: environment variable EMC2_CONFIG_DIR is"
-#~ msgstr "ERREUR: la variable d'environnement EMC2_CONFIG_DIR est"
-
-#~ msgid ""
-#~ "ERROR: Cannot find the EMC2 configurations directory.\n"
-#~ "You can specify the directory with the '--configs-dir <dir>' option."
-#~ msgstr ""
-#~ "ERREUR: Impossible de trouver le répertoire de.configuration d'EMC2 \n"
-#~ "Vous pouvez spécifier le répertoire avec l'option '--configs-dir <dir>'."
-
-#~ msgid ""
-#~ "ERROR: options '--run', '--new', and '--get-config' are\n"
-#~ "mutually exclusive, please specify only one."
-#~ msgstr ""
-#~ "ERREUR: l'option '--run', '--new', et '--get-config' sont\n"
-#~ "mutuellement exclusives, svp, spécifiez en une seule."
-
-#~ msgid "ERROR: unknown command line option:"
-#~ msgstr "ERREUR: option en ligne de commande inconnue: "
