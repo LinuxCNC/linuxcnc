@@ -25,9 +25,6 @@
 #include "../motion/motion.h"
 #include "motion_debug.h"
 
-/* how close to accel limit we should go */
-#define ACCEL_USAGE 0.95
-
 extern emcmot_status_t *emcmotStatus;
 extern emcmot_debug_t *emcmotDebug;
 
@@ -281,9 +278,9 @@ int tpAddRigidTap(TP_STRUCT *tp, EmcPose end, double vel, double ini_maxvel,
 
     tc.progress = 0.0;
     tc.reqvel = vel;
-    tc.maxaccel = acc * ACCEL_USAGE;
+    tc.maxaccel = acc;
     tc.feed_override = 0.0;
-    tc.maxvel = ini_maxvel * ACCEL_USAGE;
+    tc.maxvel = ini_maxvel;
     tc.id = tp->nextId;
     tc.active = 0;
 
@@ -383,9 +380,9 @@ int tpAddLine(TP_STRUCT * tp, EmcPose end, int type, double vel, double ini_maxv
 
     tc.progress = 0.0;
     tc.reqvel = vel;
-    tc.maxaccel = acc * ACCEL_USAGE;
+    tc.maxaccel = acc;
     tc.feed_override = 0.0;
-    tc.maxvel = ini_maxvel * ACCEL_USAGE;
+    tc.maxvel = ini_maxvel;
     tc.id = tp->nextId;
     tc.active = 0;
 
@@ -478,9 +475,9 @@ int tpAddCircle(TP_STRUCT * tp, EmcPose end,
     tc.target = helix_length;
     tc.progress = 0.0;
     tc.reqvel = vel;
-    tc.maxaccel = acc * ACCEL_USAGE;
+    tc.maxaccel = acc;
     tc.feed_override = 0.0;
-    tc.maxvel = ini_maxvel * ACCEL_USAGE;
+    tc.maxvel = ini_maxvel;
     tc.id = tp->nextId;
     tc.active = 0;
 
