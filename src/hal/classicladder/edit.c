@@ -455,81 +455,176 @@ int TextParserForAVar( char * text,int * VarTypeFound,int * VarOffsetFound, int 
 /* return pointer on the new string converted and verified if okay, else NULL */
 char * TextParserForArithmExpr(char * text, int TypeElement)
 {
-	static char NewExpr[100];
-	char Buffer[20];
+	 static char NewExpr[100];
+	 char Buffer[20];
+	 char Temp [2];
 	int ItIsOk = TRUE;
+	int BeenHere = FALSE;
+	int HaveAUnit= FALSE;
 	int VarType;
 	int VarOffset;
-	char * ptr = text;
 	int StringLength;
+	char * tmpptr = text;
+	char * bufptr = Buffer;
 	ErrorMessageVarParser = NULL;
 	strcpy(NewExpr,"");
-	/* Convert expression for variables authorized */
-	do
-	{
-//TODO: symbols strings to support here...
-		/* Verify if it is a variable (character and number) */
-		if ( *ptr=='%' && *(ptr+2)>='0' && *(ptr+2)<='9' )
-		{
-			switch(*(ptr+1))
+	strcpy(Buffer,"");
+	
+	// we want to break the text into a "unit". The unit is between the math 
+	// symbols. The unit is check for a symbol, proper variable, decimal or text and converted. 
+	
+	// if the text is empty then set an error which does nothing
+	if (*tmpptr == '\0') { ItIsOk=FALSE;}
+	
+	do{
+		do{
+			
+			 
+			switch (*tmpptr)
 			{
-				case 'W':
-				case 'T':
-				case 'M':
-				case 'C':
-				case 'X':
-					if (TextParserForAVar(ptr,&VarType,&VarOffset,&StringLength,FALSE/*PartialNames*/))
+			case '\0':// we have found the end-must be a unit to check
+				HaveAUnit= TRUE; 
+			    break;
+			case ' ':
+				ItIsOk= FALSE;
+				ErrorMessageVarParser="No spaces allowed.";
+				break;
+			case '=':case '<':case '>':case '*':case '/':case '|':case ',':
+			case '!':case '&':case '+':case '-':case ')':case '^':
+				if (BeenHere==TRUE) // been here before then save the math symbols
+					{ 
+						//printf("added %c to NewExpr\n",*tmpptr);
+						sprintf (Temp,"%c",*tmpptr);
+					  strcat(NewExpr,Temp);
+					  tmpptr ++;
+					}
+				else { 
+					//printf("set been here true\n");
+					   HaveAUnit=TRUE;// otherwise we have a unit to check
+					   BeenHere=TRUE;
+					 }
+				break;
+			case '(': // is this the beginning bracket of absolute, minimum, maximum or average(MOY) funtion? 
+					 if (strcmp(Buffer,"ABS")==0 || strcmp(Buffer,"MINI")|| strcmp(Buffer,"MAXI")||strcmp(Buffer,"MOY"))  
+					 	{	sprintf(Temp,"%c",*tmpptr);// add ( to our buffer 
+					 		strcat(Buffer,Temp);
+							strcat(NewExpr,Buffer); // add Buffer to NewExp
+							strcpy(Buffer,""); //clear buffer
+							tmpptr ++;   // next character
+						}
+					else
 					{
+						// printf("added %c to NewExpr NewExpr %s\n",*tmpptr,NewExpr); 
+					  sprintf (Temp,"%c",*tmpptr); // add it to NewExpr
+					  strcat(NewExpr,Temp);
+					  tmpptr ++;
+					}	
+				break;
+					 default:
+					 //printf("added %c to Buffer\n",*tmpptr);
+					 sprintf(Temp,"%c",*tmpptr);// add it to our buffer to make a unit
+					 strcat(Buffer,Temp);
+					 tmpptr ++;
+					 BeenHere=FALSE;
+				break;
+				 }
+					 
+		
+			 }	 
+			while (HaveAUnit == FALSE && ItIsOk == TRUE);			 
+
+		if (ItIsOk == TRUE) // we have a unit and no error
+		{
+			//printf("Have a unit! %s\n",Buffer);
+			if (*bufptr !='%') // if not a variable
+				{
+					char * VarName=ConvSymbolToVarName(bufptr);// check for symbols
+					
+					if (VarName!=NULL)
+						{ 
+							//printf("converted symbol to variable %s,%s\n",Buffer,VarName);
+						  strcpy(Buffer,""); // empty buffer of symbols
+						  strcpy(Buffer,VarName); // copy the variable in
+						}
+				}
+			if (*bufptr !='%') // still not a variable?
+			 	{	
+					//printf("checking for a number\n");
+					switch (*bufptr) // does it have to do with numbers dec or hex?
+					{
+								case '0':case '1':case '2':case '3':
+								case '4':case '5':case '6':case '7':
+								case '8':case '9':case '-':case '+':
+								case '(':case ')':case '$':case '\0': //or at the end
+								//printf("found number\n");	
+								break;
+
+								default:
+								//printf("'%c' is not a number!\n",*bufptr);  		
+								ItIsOk=FALSE;
+										ErrorMessageVarParser="Not a symbol or dec/Hex number";
+			                    	break;	
+					}
+				}								
+			if (*bufptr =='%' && *(bufptr+2) >='0' && *(bufptr+2)<='9') //now a variable?
+			{   
+				//printf("It's a variable!\n");
+				switch (*(bufptr+1)) // is it the right variable?
+				{
+						case 'W':case 'T':case 'M':case 'C':case 'X':
+							if (TextParserForAVar(bufptr,&VarType,&VarOffset,&StringLength,FALSE/*PartialNames allowed*/))
+					{
+						strcpy(Buffer,"");
 						sprintf(Buffer,"@%d/%d@",VarType,VarOffset);
 						strcat(NewExpr,Buffer);
-						ptr+=StringLength;
+						strcpy(Buffer,"");
+						HaveAUnit=FALSE;
+						//printf("new expresion=%s\nbuffer=%s\n",NewExpr,Buffer);
 						if ( VarType<VAR_ARE_WORD )
 						{
+							//printf("variable atribute error 1");
 							ItIsOk = FALSE;
 							ErrorMessageVarParser = "Incompatible type of variable (must be an integer!)";
 						}
 					}
 					else
-					{
+					{   
+						//printf("variable atribute error 2");
 						ItIsOk = FALSE;
 					}
+					
 					break;
-				// booleans variables not allowed for arithmetic expressions...
-				case 'B':
-				case 'I':
-				case 'Q':
-					ItIsOk = FALSE;
-					ErrorMessageVarParser = "Incompatible type of variable";
-					break;
-				case '\0':
-					ItIsOk = FALSE;
-					ErrorMessageVarParser = "Null expression not valid";
-					break;
+				
 				default:
-					sprintf(Buffer,"%c",*ptr);
-					strcat(NewExpr, Buffer);
-					ptr++;
-					break;
+						ItIsOk=FALSE;
+						ErrorMessageVarParser = "can only use W,T,M,C,X variable letters";
+					   break;
+				}
+			}
+		else
+		    {if (*tmpptr=='%')
+				{   ItIsOk=FALSE;
+					ErrorMessageVarParser = "Syntaxt error in variable";
+				}
+				else 
+				{
+				 if (ItIsOk== TRUE)
+				 	{ 	
+						//printf("Adding %s to NewExpr_%s\n",Buffer,NewExpr);
+						strcat(NewExpr,Buffer);
+				  		strcpy(Buffer,"");					
+						HaveAUnit=FALSE;
+					}
+				}
 			}
 		}
-		else
-		{
-			sprintf(Buffer,"%c",*ptr);
-			strcat(NewExpr, Buffer);
-			ptr++;
-		}
 	}
-	while( (*ptr) && ItIsOk );
-	/* Verify length of the expression */
-	if (ItIsOk)
-	{
-		if (strlen(NewExpr)>=ARITHM_EXPR_SIZE)
-		{
-			ItIsOk = FALSE;
-			ErrorMessageVarParser = "Expression too long";
-		}
-	}
+	while (ItIsOk != FALSE && *tmpptr!='\0');// not at end and no error? 
+		
+			
+	
 //printf("Parser Arithm ; ItIsOk=%d ; OriExpr=%s ; NewExpr=%s\n",ItIsOk, text, NewExpr);
+	
 	/* Verify expression converted */
 	if (ItIsOk)
 	{
@@ -547,8 +642,11 @@ char * TextParserForArithmExpr(char * text, int TypeElement)
 	}
 	/* Give result */
 	if (ItIsOk)
+	{	
+		//printf("returned %s\n",NewExpr);	//for debugging
 		return NewExpr;
-	else
+	}
+		else
 		return NULL;
 }
 
