@@ -271,12 +271,67 @@ void CreateOneToolbar( GtkWidget * Box, int NumTable, short int PtrOnToolBarElem
 				switch( ToolBarEle.Type )
 				{
 					case EDIT_POINTER:
-						gtk_tooltips_set_tip (TheTooltips, ToolbarBtnRadio[ CurrentAvail ], "Selector", NULL);
+						gtk_tooltips_set_tip (TheTooltips, ToolbarBtnRadio[ CurrentAvail ], "Current Object\n      Selector", NULL);
 						break;
 					case EDIT_ERASER:
 						gtk_tooltips_set_tip (TheTooltips, ToolbarBtnRadio[ CurrentAvail ], "Eraser", NULL);
 						break;
-				}
+					case ELE_RISING_INPUT:
+						gtk_tooltips_set_tip (TheTooltips, ToolbarBtnRadio[ CurrentAvail ], "Rising Edge\n Input", NULL);
+						break;
+					case ELE_FALLING_INPUT:
+						gtk_tooltips_set_tip (TheTooltips, ToolbarBtnRadio[ CurrentAvail ], "Falling Edge\n Input", NULL);
+						break;
+					case ELE_INPUT:
+						gtk_tooltips_set_tip (TheTooltips, ToolbarBtnRadio[ CurrentAvail ], "N.O. Input", NULL);
+						break;
+					case ELE_INPUT_NOT:
+						gtk_tooltips_set_tip (TheTooltips, ToolbarBtnRadio[ CurrentAvail ], "N.C. Input ", NULL);
+						break;
+					case ELE_CONNECTION:
+						gtk_tooltips_set_tip (TheTooltips, ToolbarBtnRadio[ CurrentAvail ], "Horizontal\nConection", NULL);
+						break;
+					case EDIT_CNX_WITH_TOP:
+						gtk_tooltips_set_tip (TheTooltips, ToolbarBtnRadio[ CurrentAvail ], "  Vertical\nConection", NULL);
+						break;
+					case EDIT_LONG_CONNECTION:
+						gtk_tooltips_set_tip (TheTooltips, ToolbarBtnRadio[ CurrentAvail ], "  Running\nConnection", NULL);
+						break;
+					case ELE_TIMER:
+						gtk_tooltips_set_tip (TheTooltips, ToolbarBtnRadio[ CurrentAvail ], "Timer", NULL);
+						break;
+					case ELE_MONOSTABLE:
+						gtk_tooltips_set_tip (TheTooltips, ToolbarBtnRadio[ CurrentAvail ], "Monostable", NULL);
+						break;
+					case ELE_COUNTER:
+						gtk_tooltips_set_tip (TheTooltips, ToolbarBtnRadio[ CurrentAvail ], "Counter", NULL);
+						break;
+					case ELE_COMPAR:
+						gtk_tooltips_set_tip (TheTooltips, ToolbarBtnRadio[ CurrentAvail ], "Compare\n Variable", NULL);
+						break;
+					case ELE_OUTPUT:
+						gtk_tooltips_set_tip (TheTooltips, ToolbarBtnRadio[ CurrentAvail ], "N.O. Output", NULL);
+						break;
+					case ELE_OUTPUT_NOT:
+						gtk_tooltips_set_tip (TheTooltips, ToolbarBtnRadio[ CurrentAvail ], "N.C. Output", NULL);
+						break;
+					case ELE_OUTPUT_SET:
+						gtk_tooltips_set_tip (TheTooltips, ToolbarBtnRadio[ CurrentAvail ], "Set Output ", NULL);
+						break;
+					case ELE_OUTPUT_RESET:
+						gtk_tooltips_set_tip (TheTooltips, ToolbarBtnRadio[ CurrentAvail ], "Reset Output", NULL);
+						break;
+					case ELE_OUTPUT_JUMP:
+						gtk_tooltips_set_tip (TheTooltips, ToolbarBtnRadio[ CurrentAvail ], "Jump Coil", NULL);
+						break;
+					case ELE_OUTPUT_CALL:
+						gtk_tooltips_set_tip (TheTooltips, ToolbarBtnRadio[ CurrentAvail ], "Call Coil", NULL);
+						break;
+					case ELE_OUTPUT_OPERATE:
+						gtk_tooltips_set_tip (TheTooltips, ToolbarBtnRadio[ CurrentAvail ], "   Variable\nAssignment", NULL);
+						break;
+					
+					}
 
 				gtk_widget_show( ToolbarBtnRadio[ CurrentAvail ] );
 				CurrentAvail++;
@@ -354,4 +409,3 @@ void EditorInitGtk()
 
 	EditDatas.NumElementSelectedInToolBar = -1;
 }
-
