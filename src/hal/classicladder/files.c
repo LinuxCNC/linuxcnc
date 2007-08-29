@@ -51,7 +51,11 @@
 #else
 static inline int dbg_printf(char *f, ...) {return 0;}
 #endif
-
+// for auto assignment of symbols
+	enum pinnames
+		{BITIN=0,BITOUT,S32IN,S32OUT};
+	char pinletter[4]={'I','Q','W','W'};
+//
 StrDatasForBase CorresDatasForBase[3] = { {BASE_MINS , TIME_BASE_MINS , "%.1fmn" , "Mins" } ,
                                    {BASE_SECS , TIME_BASE_SECS , "%.1fs" , "Secs" } ,
                                    {BASE_100MS , TIME_BASE_100MS , "%.0f00ms" , "100msecs" } };
@@ -949,7 +953,93 @@ dbg_printf("Symbol: %s - %s - %s\n", pSymbol->VarName, pSymbol->Symbol, pSymbol-
 		fclose(File);
 		Okay = TRUE;
 	}
-	return (Okay);
+// call funtion to auto assign symbol names to HAL pins	 
+// must assign S32IN before S32OUT!	
+	
+	SymbolsAutoAssign(BITIN,"HALinB\0","Auto named bit-in pin \0");
+	SymbolsAutoAssign(BITOUT,"HALoutB\0","Auto named bit-out pin \0");
+	SymbolsAutoAssign(S32IN,"HALinS\0","Auto named s32-in pin \0");
+	SymbolsAutoAssign(S32OUT,"HALoutS\0","Auto named s32-out pin \0");
+	
+return (Okay);
+}
+
+//auto assignment of names for symbols of s32in,s32out, bitin 
+//and bitout if not already assigned a name
+// you must assign s32in before s32out unless there are no s32in
+void SymbolsAutoAssign (int VariableBuf,char SymbolBuf[],char CommentBuf[])
+{
+	int scansymb,found = FALSE,i,numofvariable =1;
+	char Buffer[30];
+	int startnum=0;// default number of s32in pins
+	
+	// this checks which type of pin we are naming. S32out is different
+	// because it starts naming variables after the last S32in so it needs
+	// to how many positions to offset- startnum
+	// S32 in and out are mapped on top of WORD variables instead of adding a new variable 
+	switch(VariableBuf)
+	{
+			case BITIN:numofvariable= InfosGene->SizesInfos.nbr_phys_inputs;break;
+			case BITOUT:numofvariable= InfosGene->SizesInfos.nbr_phys_outputs;break;
+			case S32IN:numofvariable= InfosGene->SizesInfos.nbr_s32in;break;
+			case S32OUT:numofvariable= InfosGene->SizesInfos.nbr_s32out +InfosGene->SizesInfos.nbr_s32in;
+				startnum=InfosGene->SizesInfos.nbr_s32in;break;
+				
+			default : printf("Cannot auto assign symbol names-wrong variable name");return;
+	}
+//printf("variable to assin %i   number of variables available %i\n",numofvariable-startnum,InfosGene->SizesInfos.nbr_symbols);
+	//  assign variable to each s32in pin...
+	for (i=startnum;i<numofvariable;i++)
+	
+{
+   	    found = FALSE;
+	//set buffer to variable to check %W0,%W1 ...
+    	strcpy(Buffer,"");
+   	    sprintf(Buffer,"%%%c%d",pinletter[VariableBuf],i);  
+
+	 //printf("%s\n",Buffer);
+		scansymb=0;	
+	// scan all symbol variables
+		while ( scansymb<InfosGene->SizesInfos.nbr_symbols  ) 
+		{ 
+	// check for exsisting variable/symbol name
+		if (strcmp(SymbolArray[ scansymb ].VarName, Buffer) == FALSE)
+			{
+				found = TRUE ; // already a symbol for this variable
+				break;// stop looking then
+			}
+	scansymb ++;// check the rest
+	}
+	
+	scansymb=0;
+// this assigns a symbol to an unassigned variable
+// while there is no symbol already assigned and we are not at the
+// end of the symbol data..
+	while ( found == FALSE && scansymb<InfosGene->SizesInfos.nbr_symbols )
+	{
+	// look for an empty spot...
+		if (SymbolArray[ scansymb ].VarName[ 0 ] == '\0')
+		{ 
+         //copy variable name already in Buffer to VarName array
+			strcpy( SymbolArray[scansymb].VarName, Buffer ); 
+	
+		//put a symbol name (and it's number) in buffer
+		// and copy it to Symbol array
+			strcpy(Buffer,"");
+			sprintf(Buffer,"%s%d",SymbolBuf,i-startnum);
+			strcpy( SymbolArray[scansymb].Symbol, Buffer );
+	    		//printf("%s\n",Buffer);
+			strcpy(Buffer,"");
+			sprintf(Buffer,"%s",CommentBuf);
+			strcpy( SymbolArray[scansymb].Comment, Buffer );
+	
+			break;// we are done looking
+		}
+	
+		scansymb ++;// keep looking for empty spot if not done
+	}	
+}
+return;
 }
 
 char SaveSymbols(char * FileName)
@@ -987,27 +1077,27 @@ void LoadAllLadderDatas(char * DatasDirectory)
 
 	printf("Loading datas from %s...\n", DatasDirectory);
 	sprintf(FileName,"%s/timers.csv",DatasDirectory);
-//	printf("Loading timers datas from %s\n",FileName);
+	//printf("Loading timers datas from %s\n",FileName);
 	LoadTimersParams(FileName,TimerArray);
 	sprintf(FileName,"%s/monostables.csv",DatasDirectory);
-//	printf("Loading monostables datas from %s\n",FileName);
+	//printf("Loading monostables datas from %s\n",FileName);
 	LoadMonostablesParams(FileName,MonostableArray);
 	sprintf(FileName,"%s/counters.csv",DatasDirectory);
-//	printf("Loading counters datas from %s\n",FileName);
+	//printf("Loading counters datas from %s\n",FileName);
 	LoadCountersParams(FileName);
 	PrepareTimers();
 	PrepareMonostables();
 	PrepareCounters();
 
 	sprintf(FileName,"%s/arithmetic_expressions.csv",DatasDirectory);
-//	printf("Loading arithmetic expressions from %s\n",FileName);
+	//printf("Loading arithmetic expressions from %s\n",FileName);
 	LoadArithmeticExpr(FileName);
 
 	// Sections added since v0.5.5, the format of files has a little changed :
 	// before the prev/next rungs were not saved in each rung...
 	// and the nmber of rungs changed when saved...
 	sprintf(FileName,"%s/sections.csv",DatasDirectory);
-//	printf("Loading sections datas from %s\n",FileName);
+   // printf("Loading sections datas from %s\n",FileName);
 	if ( LoadSectionsParams(FileName) )
 	{
 		sprintf(FileName,"%s/rung_",DatasDirectory);
@@ -1024,18 +1114,19 @@ void LoadAllLadderDatas(char * DatasDirectory)
 	}
 #ifdef SEQUENTIAL_SUPPORT
 	sprintf(FileName,"%s/sequential.csv",DatasDirectory);
-//	printf("Loading sequential datas from %s\n",FileName);
+	//printf("Loading sequential datas from %s\n",FileName);
 	LoadSequential( FileName );
 #endif
 	sprintf(FileName,"%s/ioconf.csv",DatasDirectory);
-//	printf("Loading I/O configuration datas from %s\n",FileName);
+	//printf("Loading I/O configuration datas from %s\n",FileName);
 	LoadIOConfParams( FileName );
 #ifdef USE_MODBUS
 	sprintf(FileName,"%s/modbusioconf.csv",DatasDirectory);
-//	printf("Loading modbus distributed I/O configuration datas from %s\n",FileName);
+	//printf("Loading modbus distributed I/O configuration datas from %s\n",FileName);
 	LoadModbusIOConfParams( FileName );
 #endif
 	sprintf(FileName,"%s/symbols.csv",DatasDirectory);
+	//printf("Loading symbols from %s\n",FileName);
 	LoadSymbols(FileName);
 
 	PrepareRungs();
@@ -1048,6 +1139,7 @@ void LoadAllLadderDatas(char * DatasDirectory)
 	ManagerDisplaySections( );
 	DisplaySymbols( );
 #endif
+return;
 }
 
 void SaveAllLadderDatas(char * DatasDirectory)
@@ -1209,7 +1301,8 @@ void CleanTmpDirectory( char * Directory, char DestroyDir )
 		closedir(pDir);
 		/* delete the temp directory if wanted */
 		if ( DestroyDir )
-			rmdir(Directory); // _rmdir() for Win32 ?
+		{rmdir(Directory); // _rmdir() for Win32 ?
+			printf("removing temp dir-%s\n",Directory);}
 	}
 }
 

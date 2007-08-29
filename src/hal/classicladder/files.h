@@ -20,6 +20,7 @@ char SaveIOConfParams(char * FileName);
 char LoadModbusIOConfParams(char * FileName);
 char SaveModbusIOConfParams(char * FileName);
 char LoadSymbols(char * FileName);
+void SymbolsAutoAssign(int VariableBuf,char SymbolBuf[],char CommentBuf[]);
 char SaveSymbols(char * FileName);
 
 void LoadAllLadderDatas(char * DatasDirectory);
