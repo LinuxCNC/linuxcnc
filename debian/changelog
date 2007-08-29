@@ -1,8 +1,11 @@
 emc2 (1:2.1.8~pre) unstable; urgency=low
 
-  * Fix SF#1772411: parameters incorrectly restored by O- endsub 
+  * Fix SF#1772411: parameters incorrectly restored by O- endsub
+  * Fix SF#1743942: MDI should not be allowed in OFF, ESTOP, or ESTOP RESET
+    states
+  * Improve comp error reporting when the error was on the last line before ;; 
 
- -- jepler <jepler@unpythonic.net>  Fri, 17 Aug 2007 08:53:22 -0500
+ -- jepler <jepler@unpythonic.net>  Wed, 29 Aug 2007 09:26:39 -0500
 
 emc2 (1:2.1.7) unstable; urgency=low
 
