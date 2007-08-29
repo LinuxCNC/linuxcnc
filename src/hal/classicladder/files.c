@@ -956,10 +956,10 @@ dbg_printf("Symbol: %s - %s - %s\n", pSymbol->VarName, pSymbol->Symbol, pSymbol-
 // call funtion to auto assign symbol names to HAL pins	 
 // must assign S32IN before S32OUT!	
 	
-	SymbolsAutoAssign(BITIN,"HALinB\0","Auto named bit-in pin \0");
-	SymbolsAutoAssign(BITOUT,"HALoutB\0","Auto named bit-out pin \0");
-	SymbolsAutoAssign(S32IN,"HALinS\0","Auto named s32-in pin \0");
-	SymbolsAutoAssign(S32OUT,"HALoutS\0","Auto named s32-out pin \0");
+	SymbolsAutoAssign(BITIN,"CLinB\0","Auto named bit-in pin \0");
+	SymbolsAutoAssign(BITOUT,"CLoutB\0","Auto named bit-out pin \0");
+	SymbolsAutoAssign(S32IN,"CLinS\0","Auto named s32-in pin \0");
+	SymbolsAutoAssign(S32OUT,"CLoutS\0","Auto named s32-out pin \0");
 	
 return (Okay);
 }
