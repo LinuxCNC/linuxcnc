@@ -558,16 +558,6 @@ static int emcTaskPlan(void)
 		}
 		break;
 
-		// queued commands
-
-	    case EMC_TASK_PLAN_EXECUTE_TYPE:
-		// resynch the interpreter, since we may have moved
-		// externally
-		emcTaskIssueCommand(&taskPlanSynchCmd);
-		// and now call for interpreter execute
-		retval = emcTaskIssueCommand(emcCommand);
-		break;
-
 	    case EMC_TOOL_LOAD_TOOL_TABLE_TYPE:
 	    case EMC_TOOL_SET_OFFSET_TYPE:
 		// send to IO
