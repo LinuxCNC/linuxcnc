@@ -127,7 +127,9 @@ plc_sizeinfo_s sinfo = {
 	.nbr_phys_outputs = NBR_PHYS_OUTPUTS_DEF,
 	.nbr_arithm_expr = NBR_ARITHM_EXPR_DEF,
 	.nbr_sections = NBR_SECTIONS_DEF,
-	.nbr_symbols = NBR_SYMBOLS_DEF
+	.nbr_symbols = NBR_SYMBOLS_DEF,
+	.nbr_s32in = NBR_S32IN_DEF,
+	.nbr_s32out = NBR_S32OUT_DEF
 };
 #endif
 
@@ -175,6 +177,7 @@ int ClassicLadderAllocAll()
 #endif
     bytes += numWords * sizeof(int);
     bytes += numBits * sizeof(TYPE_FOR_BOOL_VAR);
+     
 #endif
     // Attach SHMEM with proper size.
     if ((ShmemId = rtapi_shmem_new(CL_SHMEM_KEY, compId, bytes)) < 0) {
@@ -226,7 +229,7 @@ int ClassicLadderAllocAll()
     InfosGene->CurrentSection = 0;
 #endif
 
-    rtapi_print("Sizes: %d %d %d %d %d %d %d %d %d %d %d\n",
+     rtapi_print("Sizes: rungs- %d bits- %d words- %d timers- %d mono- %d count- %d \n HAL Bin- %d HAL Bout- %d expressions- %d sections- %d symbols - %d\n s32in - %d s32out- %d\n",
         pSizesInfos->nbr_rungs,
         pSizesInfos->nbr_bits,
         pSizesInfos->nbr_words,
@@ -237,7 +240,9 @@ int ClassicLadderAllocAll()
         pSizesInfos->nbr_phys_outputs,
         pSizesInfos->nbr_arithm_expr,
         pSizesInfos->nbr_sections,
-        pSizesInfos->nbr_symbols);
+        pSizesInfos->nbr_symbols,
+	    pSizesInfos->nbr_s32in,
+	    pSizesInfos->nbr_s32out);
 
     // Set global SHMEM pointers.
     pByte = (unsigned char *) InfosGene;
