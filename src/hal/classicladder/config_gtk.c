@@ -30,7 +30,7 @@
 #include "global.h"
 #include "config_gtk.h"
 
-#define NBR_OBJECTS 9
+#define NBR_OBJECTS 11
 GtkWidget *LabelParam[ NBR_OBJECTS ],*ValueParam[ NBR_OBJECTS ];
 
 static char * Devices[] = { "None", "DirectPortAccess",
@@ -110,13 +110,21 @@ GtkWidget * CreateSizesPage( void )
 				sprintf( BuffValue, "%d", InfosGene->SizesInfos.nbr_phys_outputs );
 				break;
 			case 7:
-				sprintf( BuffLabel, "Nbr.Arithm.Expr." );
+				sprintf( BuffLabel, "Nbr.Arithm.Expr" );
 				sprintf( BuffValue, "%d", InfosGene->SizesInfos.nbr_arithm_expr );
 				break;
 			case 8:
 				InfoUsed = NbrSectionsDefined( )*100/InfosGene->SizesInfos.nbr_sections;
 				sprintf( BuffLabel, "Nbr.Sections (%d%c used)", InfoUsed,'%' );
 				sprintf( BuffValue, "%d", InfosGene->SizesInfos.nbr_sections );
+				break;
+			case 9:				
+				sprintf( BuffLabel, "Nbr.S32.inputs " );
+				sprintf( BuffValue, "%d", InfosGene->SizesInfos.nbr_s32in );
+				break;
+			case 10:
+				sprintf( BuffLabel, "Nbr.S32.outputs ");
+				sprintf( BuffValue, "%d", InfosGene->SizesInfos.nbr_s32out );
 				break;
 			default:
 				sprintf( BuffLabel, "???" );
@@ -634,5 +642,3 @@ void OpenConfigWindowGtk()
 
 	gtk_widget_show( ConfigWindow );
 }
-
-
