@@ -29,6 +29,7 @@
 #include "classicladder_gtk.h"
 #include "symbols_gtk.h"
 
+static int SymbolWindowToggle; // toggle variable
 GtkWidget *SymbolsWindow;
 GtkListStore *ListStore;
 
@@ -68,7 +69,8 @@ void DisplaySymbols( void )
 /* The callback for the editing of text in our GtkTreeView */
 /* data=column number */
 void Callback_TextEdited(GtkCellRendererText *cell, gchar *path_string,
-		      gchar *new_text, gpointer data) {
+		      gchar *new_text, gpointer data)
+{
 
 	int OffsetArray = -999;
 	StrSymbol * pSymbol = NULL;
@@ -128,18 +130,26 @@ void Callback_TextEdited(GtkCellRendererText *cell, gchar *path_string,
 
 gint SymbolsWindowDeleteEvent( GtkWidget * widget, GdkEvent * event, gpointer data )
 {
-	gtk_widget_hide( SymbolsWindow );
+	SymbolWindowToggle=(SymbolWindowToggle-1)*-1; //toggle variable
+	gtk_widget_hide( SymbolsWindow );// hide window
 	// we do not want that the window be destroyed.
 	return TRUE;
 }
 
 void OpenSymbolsWindow( void )
 {
-	gtk_widget_show (SymbolsWindow);
-#ifdef GTK2
-	gtk_window_present( GTK_WINDOW(SymbolsWindow) );
-#endif
-}
+	
+	if (!SymbolWindowToggle)
+	{ gtk_widget_show (SymbolsWindow); //show window
+	  gtk_window_present( GTK_WINDOW(SymbolsWindow) );
+	  
+	}
+	else {gtk_widget_hide (SymbolsWindow); //hide window
+		  gtk_widget_hide (SymbolsWindow);
+		 }
+		SymbolWindowToggle=(SymbolWindowToggle-1)*-1; //toggle
+}	
+
 
 void SymbolsInitGtk()
 {
@@ -164,7 +174,7 @@ void SymbolsInitGtk()
 	for (ScanCol=1; ScanCol<NBR_INFOS; ScanCol++)
 	{
 		GtkTreeViewColumn *column;
-	       	renderer = gtk_cell_renderer_text_new();
+	    renderer = gtk_cell_renderer_text_new();
 		g_object_set(renderer, "editable", TRUE, NULL);
 //TODO? gtk_entry_set_max_length(GTK_ENTRY(  ),9);
 		g_signal_connect( G_OBJECT(renderer), "edited", G_CALLBACK(Callback_TextEdited), (gpointer)ScanCol );
@@ -191,6 +201,5 @@ gtk_window_set_default_size (GTK_WINDOW (SymbolsWindow), -1, 250);
 	gtk_container_add( GTK_CONTAINER(SymbolsWindow), vbox );
 	gtk_widget_show( vbox );
 
-//gtk_widget_show (SymbolsWindow);
+//gtk_widget_show (SymbolsWindow); //hide till toggled
 }
-
