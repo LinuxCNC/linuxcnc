@@ -41,6 +41,9 @@
 #define NBR_ARITHM_EXPR_DEF 100
 #define NBR_SECTIONS_DEF 10
 #define NBR_SYMBOLS_DEF 100
+#define NBR_REFRESH_DEF 50
+#define NBR_S32IN_DEF 0
+#define NBR_S32OUT_DEF 0
 
 #define NBR_INPUTS_CONF 5
 #define NBR_OUTPUTS_CONF 5
@@ -58,7 +61,10 @@ typedef struct plc_sizeinfo_s {
 	int	nbr_arithm_expr;
 	int	nbr_sections;
 	int nbr_symbols;
-}plc_sizeinfo_s;
+	int nbr_refresh; //number of ms between refresh of rungs
+	int nbr_s32in; //number of HAL signed inputs
+	int nbr_s32out; // number of HAL signed outputs
+	}plc_sizeinfo_s;
 
 #define NBR_RUNGS 	 InfosGene->SizesInfos.nbr_rungs
 #define NBR_BITS 	 InfosGene->SizesInfos.nbr_bits
@@ -70,8 +76,11 @@ typedef struct plc_sizeinfo_s {
 #define NBR_PHYS_OUTPUTS InfosGene->SizesInfos.nbr_phys_outputs
 #define NBR_ARITHM_EXPR  InfosGene->SizesInfos.nbr_arithm_expr
 #define NBR_SECTIONS 	 InfosGene->SizesInfos.nbr_sections
-#define NBR_SYMBOLS		InfosGene->SizesInfos.nbr_symbols
-
+#define NBR_SYMBOLS      InfosGene->SizesInfos.nbr_symbols
+#define NBR_REFRESH     InfosGene->SizesInfos.nbr_refresh 
+#define NBR_S32IN       InfosGene->SizesInfos.nbr_s32in
+#define NBR_S32OUT      InfosGene->SizesInfos.nbr_s32out
+	
 #else
 /* static size */
 #define NBR_RUNGS NBR_RUNGS_DEF
@@ -85,6 +94,10 @@ typedef struct plc_sizeinfo_s {
 #define NBR_ARITHM_EXPR NBR_ARITHM_EXPR_DEF
 #define NBR_SECTIONS NBR_SECTIONS_DEF
 #define NBR_SYMBOLS NBR_SYMBOLS_DEF
+#define NBR_REFRESH NBR_REFRESH_DEF
+#define NBR_S32IN NBR_S32IN_DEF
+#define NBR_S32OUT NBR_S32OUT_DEF
+
 #endif
 
 #define ARITHM_EXPR_SIZE 32
@@ -95,7 +108,7 @@ typedef struct plc_sizeinfo_s {
 #define TYPE_FOR_BOOL_VAR char
 #endif
 
-#define TIME_REFRESH_RUNG_MS 100
+#define TIME_REFRESH_RUNG_MS 100 
 #define TIME_BASE_MINS 60000
 #define TIME_BASE_SECS 1000
 #define TIME_BASE_100MS 100
@@ -277,7 +290,6 @@ typedef struct StrInfosGene
     int VScrollValue;
     unsigned long MsSinceLastScan;
     unsigned long NsSinceLastScan;
-
     /* how time for the last scan of the rungs in ns (if calc on RTLinux side) */
     int DurationOfLastScan;
 
