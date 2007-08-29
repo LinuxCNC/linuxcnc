@@ -33,9 +33,9 @@
 #include "classicladder_gtk.h"
 // #include "hardware.h"
 
-#define NBR_BOOLS_VAR_SPY 15
-#define NBR_TYPE_BOOLS_SPY 3
-#define NBR_FREE_VAR_SPY 5
+#define NBR_BOOLS_VAR_SPY 15 //for bit variable list (15 in each column)
+#define NBR_TYPE_BOOLS_SPY 3 // for 3 columns
+#define NBR_FREE_VAR_SPY 10 //for word variable list (10 variables)
 
 GdkPixmap *pixmap = NULL;
 GtkWidget *drawing_area = NULL;
@@ -43,7 +43,8 @@ GtkWidget *offsetboolvar[ NBR_TYPE_BOOLS_SPY ];
 int ValOffsetBoolVar[ NBR_TYPE_BOOLS_SPY ] = { 0, 0, 0 };
 GtkWidget *chkvar[ NBR_TYPE_BOOLS_SPY ][ NBR_BOOLS_VAR_SPY ];
 GtkWidget *EntryVarSpy[NBR_FREE_VAR_SPY*2];
-int VarSpy[NBR_FREE_VAR_SPY][2] = { {VAR_MEM_WORD,0}, {VAR_MEM_WORD,1}, {VAR_MEM_WORD,2}, {VAR_MEM_WORD,3}, {VAR_MEM_WORD,4} }; /* defaults vars to spy */
+int VarSpy[NBR_FREE_VAR_SPY][2] = { {VAR_MEM_WORD,0}, {VAR_MEM_WORD,1}, {VAR_MEM_WORD,2}, {VAR_MEM_WORD,3}, {VAR_MEM_WORD,4}, {VAR_MEM_WORD,5}, {VAR_MEM_WORD,6}, {VAR_MEM_WORD,7}, {VAR_MEM_WORD,8},{VAR_MEM_WORD,9 } }; /* defaults vars to spy */
+static int VarWindowToggle; // toggle display of vars window variable 
 GtkWidget *DisplayFormatVarSpy[NBR_FREE_VAR_SPY];
 GtkWidget *entrylabel,*entrycomment;
 GtkWidget *CheckDispSymbols;
@@ -58,7 +59,8 @@ GtkAdjustment * AdjustHScrollBar;
 GtkWidget *FileSelector;
 GtkWidget *ConfirmDialog;
 GtkWidget *RungWindow;
-
+GtkWidget *windowvars;
+GtkWidget *windowvars2; 
 #include "drawing.h"
 #include "vars_access.h"
 #include "calc.h"
@@ -284,7 +286,7 @@ printf("Select the current rung, with a shift of rungs=%d\n", NbrRungsShift );
 
 static gint chkvar_press_event( GtkWidget      *widget, void * numcheck )
 {
-	long NumCheckWidget = (long)numcheck;
+	int NumCheckWidget = (int)numcheck;
 	int Type = VAR_MEM_BIT;
 	int Offset = ValOffsetBoolVar[ 0 ];
 	int NumCheck = NumCheckWidget;
@@ -337,7 +339,7 @@ printf("ici...\n");
 static gint OffsetBoolVar_activate_event(GtkWidget *widget, void * NumVarSpy)
 {
 	int Maxi = 0;
-	long NumType = (long)NumVarSpy;
+	int NumType = (int)NumVarSpy;
 	int ValOffset = atoi( gtk_entry_get_text((GtkEntry *)widget) );
 	switch( NumType )
 	{
@@ -395,7 +397,20 @@ void autorize_prevnext_buttons(int Yes)
         gtk_widget_set_sensitive(entrycomment, TRUE);
     }
 }
-
+// **this function not needed after mod to refresh at realtime period
+// ** but is good example how to add a button/function to ladder window
+//void ButtonRefresh_click()
+//{
+//		if (InfosGene->SizesInfos.nbr_refresh <=10)
+//		{
+//		InfosGene->SizesInfos.nbr_refresh=100;
+//		}
+//	else
+//	    {
+//		InfosGene->SizesInfos.nbr_refresh-=10;	
+//		}
+//	}		
+	
 void ButtonRunStop_click()
 {
     if (InfosGene->LadderState==STATE_RUN)
@@ -610,11 +625,21 @@ void ButtonAbout_click()
 	GtkWidget *dialog, *label, *okay_button;
 	/* Create the widgets */
 	dialog = gtk_dialog_new();
-	label = gtk_label_new ("ClassicLadder v" RELEASE_VER_STRING "\n" RELEASE_DATE_STRING "\n"
+	label = gtk_label_new ("    Classicladder v" RELEASE_VER_STRING "\n" RELEASE_DATE_STRING "\n"
+						"EMC2 Development of Classicladder\n"
 						"Copyright (C) 2001-2006 Marc Le Douarain\nmarc . le - douarain /At\\ laposte \\DoT/ net\n"
 						"http://www.sourceforge.net/projects/classicladder\n"
 						"http://www.multimania.com/mavati/classicladder\n"
-						"Released under the terms of the\nGNU Lesser General Public License v2.1");
+						"Released under the terms of the\nGNU Lesser General Public License v2.1\n"
+						"Updates:\n"
+						"***New to this update ***\n"
+						"-load realtime component only once-with GUI or not\n"
+	    				"-compare/equate works properly, accepts symbols\n"
+						"-Two variable windows, toggle button to show/hide\n"
+						"-HAL s32 IN and OUT equipt words \n"
+						"-rungs refresh at realtime period\n"
+						"-symbols checkbox in section display controls variable window also\n"
+						"-number of HAL s32 IN / OUT pins configurable when loading classicladder RT module\n" 	);
 	gtk_label_set_justify( GTK_LABEL(label), GTK_JUSTIFY_CENTER );
 	okay_button = gtk_button_new_with_label("Okay");
 	/* Ensure that the dialog box is destroyed when the user clicks ok. */
@@ -688,8 +713,8 @@ void ShowConfirmationBox(char * title,char * text,void * function_if_yes)
 }
 
 void DoQuit( void )
-{
-	gtk_widget_destroy( RungWindow );
+{  
+	gtk_widget_destroy( RungWindow ); //sends signal 'destroy' to end the GUI
 }
 void ConfirmQuit( void )
 {
@@ -700,8 +725,8 @@ void ConfirmQuit( void )
 }
 gint RungWindowDeleteEvent( GtkWidget * widget, GdkEvent * event, gpointer data )
 {
-	ConfirmQuit( );
-	// we do not want that the window be destroyed.
+	ConfirmQuit( );  //If confirm quit returns then
+	// we do not want the window to be destroyed.
 	return TRUE;
 }
 void OpenEditWindow( void )
@@ -712,13 +737,14 @@ void OpenEditWindow( void )
 #endif
 }
 
+
 void RungWindowInitGtk()
 {
     GtkWidget *vbox,*hboxtop,*hboxbottom,*hboxbottom2;
     GtkWidget *hboxmiddle;
     GtkWidget *ButtonQuit;
     GtkWidget *ButtonNew,*ButtonLoad,*ButtonSave,*ButtonSaveAs,*ButtonReset,*ButtonConfig,*ButtonAbout;
-    GtkWidget *ButtonEdit,*ButtonSymbols;
+    GtkWidget *ButtonEdit,*ButtonSymbols,*ButtonVars;//,*ButtonRefresh;
 #ifdef GNOME_PRINT_USE
     GtkWidget *ButtonPrint,*ButtonPrintPreview;
 #endif
@@ -837,7 +863,16 @@ void RungWindowInitGtk()
     gtk_signal_connect(GTK_OBJECT (ButtonReset), "clicked",
                         (GtkSignalFunc) ButtonReset_click, 0);
     gtk_widget_show (ButtonReset);
-    ButtonRunStop = gtk_button_new_with_label ("Stop");
+	
+// **this next button object not needed after mod to refresh at realtime period
+// ** but is good example how to add a button/function to ladder window
+
+   //  ButtonRefresh= gtk_button_new_with_label ("Refresh");
+   // gtk_box_pack_start (GTK_BOX (hboxbottom), ButtonRefresh, TRUE, TRUE, 0);
+   // gtk_signal_connect(GTK_OBJECT (ButtonRefresh), "clicked",
+                     //   (GtkSignalFunc) ButtonRefresh_click, 0);
+  //  gtk_widget_show (ButtonRefresh);
+	ButtonRunStop = gtk_button_new_with_label ("Stop");
     gtk_box_pack_start (GTK_BOX (hboxbottom), ButtonRunStop, TRUE, TRUE, 0);
     gtk_signal_connect(GTK_OBJECT (ButtonRunStop), "clicked",
                         (GtkSignalFunc) ButtonRunStop_click, 0);
@@ -853,7 +888,12 @@ void RungWindowInitGtk()
     gtk_signal_connect(GTK_OBJECT (ButtonSymbols), "clicked",
                         (GtkSignalFunc) OpenSymbolsWindow, 0);
     gtk_widget_show (ButtonSymbols);
-    ButtonConfig = gtk_button_new_with_label ("Config");
+   ButtonVars = gtk_button_new_with_label ("Vars"); // add button to open vars list
+    gtk_box_pack_start (GTK_BOX (hboxbottom2), ButtonVars, TRUE, TRUE, 0);
+    gtk_signal_connect(GTK_OBJECT (ButtonVars), "clicked",
+                        (GtkSignalFunc) OpenVarsWindow, 0);
+    gtk_widget_show (ButtonVars);
+   ButtonConfig = gtk_button_new_with_label ("Config");
     gtk_box_pack_start (GTK_BOX (hboxbottom2), ButtonConfig, TRUE, TRUE, 0);
     gtk_signal_connect(GTK_OBJECT (ButtonConfig), "clicked",
                         (GtkSignalFunc) ButtonConfig_click, 0);
@@ -909,31 +949,34 @@ void RungWindowInitGtk()
 }
 
 gint VarsWindowDeleteEvent( GtkWidget * widget, GdkEvent * event, gpointer data )
-{
-	// we do not want that the window be destroyed.
+{	 
+	VarWindowToggle=(VarWindowToggle-1)*-1; //toggle the windowtoggle variable
+	gtk_widget_hide (windowvars2); 
+	gtk_widget_hide (windowvars);
+	// we can not destroy
 	return TRUE;
 }
 
 void VarsWindowInitGtk()
 {
-	GtkWidget *windowvars;
+	//GtkWidget *windowvars; // used for bit variables
+	//GtkWidget *windowvars2; // used for word variable list
 	GtkWidget *vboxboolvars[ NBR_TYPE_BOOLS_SPY ],*vboxmain,*hboxvars,*hboxvars2;
-	GtkWidget * hboxfreevars[ NBR_FREE_VAR_SPY ];
-	long NumCheckWidget,ColumnVar,NumVarSpy,NumEntry;
+	GtkWidget *hboxfreevars[ NBR_FREE_VAR_SPY ],*vboxmain2;//added cm
+	int NumCheckWidget,ColumnVar,NumVarSpy,NumEntry;
 	GList *DisplayFormatItems = NULL;
-	
+
 	windowvars = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_title ((GtkWindow *)windowvars, "Vars");
+	gtk_window_set_title ((GtkWindow *)windowvars, "Bit Vars");
+
 	vboxmain = gtk_vbox_new (FALSE, 0);
 	gtk_container_add (GTK_CONTAINER (windowvars), vboxmain);
 	gtk_widget_show (vboxmain);
+	
 	hboxvars = gtk_hbox_new (FALSE, 0);
 	gtk_container_add (GTK_CONTAINER (vboxmain), hboxvars);
 	gtk_widget_show (hboxvars);
-	hboxvars2 = gtk_hbox_new (FALSE, 0);
-	gtk_container_add (GTK_CONTAINER (vboxmain), hboxvars2);
-	gtk_widget_show (hboxvars2);
-
+	
 	for( ColumnVar=0; ColumnVar<NBR_TYPE_BOOLS_SPY; ColumnVar++ )
 	{
 		vboxboolvars[ ColumnVar ] = gtk_vbox_new (FALSE, 0);
@@ -968,17 +1011,32 @@ void VarsWindowInitGtk()
 		}
 	}
 	UpdateAllLabelsBoolsVars( );
+	//gtk_widget_show (windowvars); //default hide window
+	
+	// next is to build vars2 window
+	
+	windowvars2 = gtk_window_new (GTK_WINDOW_TOPLEVEL); //added cm
+	gtk_window_set_title ((GtkWindow *)windowvars2, " Word Vars"); // added cm
 
+	vboxmain2 = gtk_vbox_new (FALSE, 0);//added cm
+	gtk_container_add (GTK_CONTAINER (windowvars2), vboxmain2);//added cm
+	gtk_widget_show (vboxmain2);//added cm
+	
+	hboxvars2 = gtk_hbox_new (FALSE, 0);
+	gtk_container_add (GTK_CONTAINER (vboxmain2), hboxvars2);// changed cm
+	gtk_widget_show (hboxvars2);
+	
+	// NBR_FREE_VAR_SPY = how many WORDS shown
 	for(NumVarSpy=0; NumVarSpy<NBR_FREE_VAR_SPY; NumVarSpy++)
 	{
 		hboxfreevars[ NumVarSpy ] = gtk_hbox_new (FALSE, 0);
-		gtk_container_add (GTK_CONTAINER (vboxmain), hboxfreevars[ NumVarSpy ]);
+		gtk_container_add (GTK_CONTAINER (vboxmain2), hboxfreevars[ NumVarSpy ]);
 		gtk_widget_show (hboxfreevars[ NumVarSpy ]);
 		for(ColumnVar=0; ColumnVar<2; ColumnVar++)
 		{
 			NumEntry = NumVarSpy+ColumnVar*NBR_FREE_VAR_SPY;
 			EntryVarSpy[ NumEntry ] = gtk_entry_new();
-			gtk_widget_set_usize((GtkWidget *)EntryVarSpy[ NumEntry ],(ColumnVar==0)?50:80,0);
+			gtk_widget_set_usize((GtkWidget *)EntryVarSpy[ NumEntry ],(ColumnVar==0)?85:80,0);
 			gtk_box_pack_start (GTK_BOX( hboxfreevars[ NumVarSpy ] ), EntryVarSpy[ NumEntry ], TRUE, TRUE, 0);
 			gtk_widget_show(EntryVarSpy[NumEntry]);
 			if ( ColumnVar==0 )
@@ -999,8 +1057,27 @@ void VarsWindowInitGtk()
 	
 	gtk_signal_connect( GTK_OBJECT(windowvars), "delete_event",
 		(GtkSignalFunc)VarsWindowDeleteEvent, 0 );
-	gtk_widget_show (windowvars);
+	gtk_signal_connect( GTK_OBJECT(windowvars2), "delete_event",
+		(GtkSignalFunc)VarsWindowDeleteEvent, 0 );
+	//gtk_widget_show (windowvars2);//default the windows hidden
+	
 }
+
+void OpenVarsWindow ( void )
+{
+	
+	if (!VarWindowToggle)
+	{ gtk_widget_show (windowvars); //show windows
+	  gtk_window_present( GTK_WINDOW(windowvars) );
+	  gtk_widget_show (windowvars2);
+	  gtk_window_present( GTK_WINDOW(windowvars2) );
+	}
+	else {gtk_widget_hide (windowvars); //hide windows
+		  gtk_widget_hide (windowvars2);
+		 }
+		VarWindowToggle=(VarWindowToggle-1)*-1; //toggle
+}	
+
 
 char * ConvToBin( unsigned int Val )
 {
@@ -1033,6 +1110,8 @@ void DisplayFreeVarSpy()
 	int Value;
 	char BufferValue[50];
 	char DisplayFormat[10];
+	static int LastTime;
+	int NumEntry;
 	for (NumVarSpy=0; NumVarSpy<NBR_FREE_VAR_SPY; NumVarSpy++)
 	{
 		Value = ReadVar(VarSpy[NumVarSpy][0],VarSpy[NumVarSpy][1]);
@@ -1045,7 +1124,19 @@ void DisplayFreeVarSpy()
 		if (strcmp( DisplayFormat,"Bin" )==0 )
 			strcpy( BufferValue, ConvToBin( Value ) );
 		gtk_entry_set_text((GtkEntry *)EntryVarSpy[NBR_FREE_VAR_SPY+NumVarSpy],BufferValue);
+		if (InfosGene->DisplaySymbols!=LastTime) //check if display symbols checkbox changed
+		{	
+		 	NumEntry = NumVarSpy+0*NBR_FREE_VAR_SPY;// toggle display of symbols/variables in vars2 
+			gtk_entry_set_text((GtkEntry *)EntryVarSpy[ NumEntry ],DisplayInfo(VarSpy[NumVarSpy][0],VarSpy[NumVarSpy][1]));
+		}
+					
 	}
+	// we do this check after the FOR loop
+    //	so it does not toggle each time thru loop
+	if (InfosGene->DisplaySymbols!=LastTime) //check if toggled display
+		{
+			LastTime=((LastTime-1)*-1); //toggle lasttime variable to match display
+		}			
 }
 
 void RefreshOneBoolVar( int Type, int Num, int Val )
@@ -1091,17 +1182,8 @@ void UpdateAllLabelsBoolsVars( )
 }
 
 void quit_appli()
-{
-#ifndef HAL_SUPPORT
-	CloseSocketModbusMaster( );
-	CloseSocketServer( );
-#endif
-	ClassicLadderFreeAll();
-#ifdef HAL_SUPPORT
-        hal_exit(compId);
-#endif
-	gtk_exit (0);
-}
+{	gtk_main_quit();}
+
 
 static gint PeriodicUpdateDisplay(gpointer data)
 {
