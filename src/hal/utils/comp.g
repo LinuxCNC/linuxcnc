@@ -533,7 +533,7 @@ def epilogue(f):
     else:
         print >>f, "static int get_data_size(void) { return 0; }"
 
-INSTALL, COMPILE, PREPROCESS, DOCUMENT = range(4)
+INSTALL, COMPILE, PREPROCESS, DOCUMENT, INSTALLDOC = range(5)
 
 modinc = None
 def find_modinc():
@@ -574,6 +574,7 @@ def build_rt(tempdir, filename, mode, origfilename):
     print >>f, "obj-m += %s" % objname
     print >>f, "include %s" % find_modinc()
     print >>f, "EXTRA_CFLAGS += -I%s" % os.path.abspath(os.path.dirname(origfilename))
+    print >>f, "EXTRA_CFLAGS += -I%s" % os.path.abspath('.')
     f.close()
     if mode == INSTALL:
         target = "modules install"
@@ -821,8 +822,10 @@ def usage(exitval=0):
     print """%(name)s: Build, compile, and install EMC HAL components
 
 Usage:
-    %(name)s [--install|--compile|--preprocess|--document] compfile...
-    %(name)s [--install|--compile] [--userspace] cfile...
+           %(name)s [--compile|--preprocess|--document] compfile...
+    [sudo] %(name)s [--install|--install-doc] compfile...
+           %(name)s --compile --userspace cfile...
+    [sudo] %(name)s --install --userspace cfile...
 """ % {'name': os.path.basename(sys.argv[0])}
     raise SystemExit, exitval
 
@@ -831,9 +834,9 @@ def main():
     outfile = None
     userspace = False
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "uicpdo:h?",
+        opts, args = getopt.getopt(sys.argv[1:], "uijcpdo:h?",
                            ['install', 'compile', 'preprocess', 'outfile=',
-                            'document', 'help', 'userspace'])
+                            'document', 'help', 'userspace', 'install-doc'])
     except getopt.GetoptError:
         usage(1)
 
@@ -848,6 +851,8 @@ def main():
             mode = PREPROCESS
         if k in ("-d", "--document"):
             mode = DOCUMENT
+        if k in ("-j", "--install-doc"):
+            mode = INSTALLDOC
         if k in ("-o", "--outfile"):
             if len(args) != 1:
                 raise SystemExit, "Cannot specify -o with multiple input files"
@@ -860,7 +865,15 @@ def main():
 
     for f in args:
         try:
+            basename = os.path.basename(os.path.splitext(f)[0])
             if f.endswith(".comp") and mode == DOCUMENT:
+                document(f, outfile)            
+            elif f.endswith(".comp") and mode == INSTALLDOC:
+                manpath = os.path.join(BASE, "share/man/man9")
+                if not os.path.isdir(manpath):
+                    manpath = os.path.join(BASE, "docs/man/man9")
+                outfile = os.path.join(manpath, basename + ".9")
+                print "INSTALLDOC", outfile
                 document(f, outfile)            
             elif f.endswith(".comp"):
                 process(f, mode, outfile)
