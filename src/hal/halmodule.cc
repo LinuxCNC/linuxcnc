@@ -131,9 +131,10 @@ static PyObject *pyhal_error(int code) {
     return NULL;
 }
 
-static int pyhal_init(halobject *self, PyObject *args, PyObject *kw) {
+static int pyhal_init(PyObject *_self, PyObject *args, PyObject *kw) {
     char *name;
     char *prefix = 0;
+    halobject *self = (halobject *)_self;
 
     if(!PyArg_ParseTuple(args, "s|s:hal.component", &name, &prefix)) return -1;
 
@@ -154,7 +155,8 @@ static int pyhal_init(halobject *self, PyObject *args, PyObject *kw) {
     return 0;
 }
 
-static void pyhal_delete(halobject *self) {
+static void pyhal_delete(PyObject *_self) {
+    halobject *self = (halobject *)_self;
     if(self->hal_id > 0) 
         hal_exit(self->hal_id);
 
@@ -362,9 +364,10 @@ static PyObject * pyhal_create_pin(halobject *self, char *name, hal_type_t type,
     Py_RETURN_NONE;
 }
 
-static PyObject *pyhal_new_param(halobject *self, PyObject *o) {
+static PyObject *pyhal_new_param(PyObject *_self, PyObject *o) {
     char *name;
     int type, dir;
+    halobject *self = (halobject *)_self;
 
     if(!PyArg_ParseTuple(o, "sii", &name, &type, &dir)) 
         return NULL;
@@ -377,9 +380,10 @@ static PyObject *pyhal_new_param(halobject *self, PyObject *o) {
 }
 
 
-static PyObject *pyhal_new_pin(halobject *self, PyObject *o) {
+static PyObject *pyhal_new_pin(PyObject *_self, PyObject *o) {
     char *name;
     int type, dir;
+    halobject *self = (halobject *)_self;
 
     if(!PyArg_ParseTuple(o, "sii", &name, &type, &dir)) 
         return NULL;
@@ -391,27 +395,31 @@ static PyObject *pyhal_new_pin(halobject *self, PyObject *o) {
     return pyhal_create_pin(self, name, (hal_type_t)type, (hal_pin_dir_t)dir);
 }
 
-static PyObject *pyhal_ready(halobject *self, PyObject *o) {
+static PyObject *pyhal_ready(PyObject *_self, PyObject *o) {
     // hal_ready did not exist in EMC 2.0.x, make it a no-op
+    halobject *self = (halobject *)_self;
     int res = hal_ready(self->hal_id);
     if(res) return pyhal_error(res);
     Py_RETURN_NONE;
 }
 
-static PyObject *pyhal_exit(halobject *self, PyObject *o) {
+static PyObject *pyhal_exit(PyObject *_self, PyObject *o) {
+    halobject *self = (halobject *)_self;
     if(self->hal_id > 0) 
         hal_exit(self->hal_id);
     self->hal_id = 0;
     Py_RETURN_NONE;
 }
 
-static PyObject *pyhal_repr(halobject *self) {
+static PyObject *pyhal_repr(PyObject *_self) {
+    halobject *self = (halobject *)_self;
     return PyString_FromFormat("<hal component %s(%d) with %d pins and params>",
             self->name, self->hal_id, (int)self->items->size());
 }
 
-static PyObject *pyhal_getattro(halobject *self, PyObject *attro)  {
+static PyObject *pyhal_getattro(PyObject *_self, PyObject *attro)  {
     PyObject *result;
+    halobject *self = (halobject *)_self;
 
     result = PyObject_GenericGetAttr((PyObject*)self, attro);
     if(result) return result;
@@ -420,15 +428,18 @@ static PyObject *pyhal_getattro(halobject *self, PyObject *attro)  {
     return pyhal_read_common(find_item(self, PyString_AsString(attro)));
 }
 
-static int pyhal_setattro(halobject *self, PyObject *attro, PyObject *v) {
+static int pyhal_setattro(PyObject *_self, PyObject *attro, PyObject *v) {
+    halobject *self = (halobject *)_self;
     return pyhal_write_common(find_item(self, PyString_AsString(attro)), v);
 }
 
-static Py_ssize_t pyhal_len(halobject *self) {
+static Py_ssize_t pyhal_len(PyObject *_self) {
+    halobject* self = (halobject*)_self;
     return self->items->size();
 }
 
-static PyObject *pyhal_get_prefix(halobject *self, PyObject *args) {
+static PyObject *pyhal_get_prefix(PyObject *_self, PyObject *args) {
+    halobject* self = (halobject*)_self;
     if(!PyArg_ParseTuple(args, "")) return NULL;
 
     if(!self->prefix)
@@ -438,8 +449,9 @@ static PyObject *pyhal_get_prefix(halobject *self, PyObject *args) {
 }
 
 
-static PyObject *pyhal_set_prefix(halobject *self, PyObject *args) {
+static PyObject *pyhal_set_prefix(PyObject *_self, PyObject *args) {
     char *newprefix;
+    halobject* self = (halobject*)_self;
     if(!PyArg_ParseTuple(args, "s", &newprefix)) return NULL;
 
     if(self->prefix)
@@ -454,25 +466,25 @@ static PyObject *pyhal_set_prefix(halobject *self, PyObject *args) {
 }
 
 static PyMethodDef hal_methods[] = {
-    {"setprefix", (PyCFunction)pyhal_set_prefix, METH_VARARGS,
+    {"setprefix", pyhal_set_prefix, METH_VARARGS,
         "Set the prefix for newly created pins and parameters"},
-    {"getprefix", (PyCFunction)pyhal_get_prefix, METH_VARARGS,
+    {"getprefix", pyhal_get_prefix, METH_VARARGS,
         "Get the prefix for newly created pins and parameters"},
-    {"newparam", (PyCFunction)pyhal_new_param, METH_VARARGS,
+    {"newparam", pyhal_new_param, METH_VARARGS,
         "Create a new parameter"},
-    {"newpin", (PyCFunction)pyhal_new_pin, METH_VARARGS,
+    {"newpin", pyhal_new_pin, METH_VARARGS,
         "Create a new pin"},
-    {"exit", (PyCFunction)pyhal_exit, METH_NOARGS,
+    {"exit", pyhal_exit, METH_NOARGS,
         "Call hal_exit"},
-    {"ready", (PyCFunction)pyhal_ready, METH_NOARGS,
+    {"ready", pyhal_ready, METH_NOARGS,
         "Call hal_ready"},
     {NULL},
 };
 
 static PyMappingMethods halobject_map = {
-    (inquiry)pyhal_len,
-    (binaryfunc)pyhal_getattro,
-    (objobjargproc)pyhal_setattro
+    pyhal_len,
+    pyhal_getattro,
+    pyhal_setattro
 };
 
 static 
@@ -482,20 +494,20 @@ PyTypeObject halobject_type = {
     "hal.component",           /*tp_name*/
     sizeof(halobject),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
-    (destructor) pyhal_delete, /*tp_dealloc*/
+    pyhal_delete,              /*tp_dealloc*/
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
     0,                         /*tp_compare*/
-    (reprfunc) pyhal_repr,     /*tp_repr*/
+    pyhal_repr,                /*tp_repr*/
     0,                         /*tp_as_number*/
     0,                         /*tp_as_sequence*/
     &halobject_map,            /*tp_as_mapping*/
     0,                         /*tp_hash */
     0,                         /*tp_call*/
     0,                         /*tp_str*/
-    (getattrofunc)pyhal_getattro,/*tp_getattro*/
-    (setattrofunc)pyhal_setattro,/*tp_setattro*/
+    pyhal_getattro,            /*tp_getattro*/
+    pyhal_setattro,            /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT,        /*tp_flags*/
     "HAL Component",           /*tp_doc*/
@@ -513,7 +525,7 @@ PyTypeObject halobject_type = {
     0,                         /*tp_descr_get*/
     0,                         /*tp_descr_set*/
     0,                         /*tp_dictoffset*/
-    (initproc)pyhal_init,      /*tp_init*/
+    pyhal_init,                /*tp_init*/
     0,                         /*tp_alloc*/
     PyType_GenericNew,         /*tp_new*/
     0,                         /*tp_free*/
@@ -552,7 +564,8 @@ typedef struct shmobject {
     void *buf;
 };
 
-static int pyshm_init(shmobject *self, PyObject *args, PyObject *kw) {
+static int pyshm_init(PyObject *_self, PyObject *args, PyObject *kw) {
+    shmobject *self = (shmobject *)_self;
     self->comp = 0;
     self->shm_id = -1;
 
@@ -574,47 +587,53 @@ static int pyshm_init(shmobject *self, PyObject *args, PyObject *kw) {
     return 0;
 }
 
-static void pyshm_delete(shmobject *self) {
+static void pyshm_delete(PyObject *_self) {
+    shmobject *self = (shmobject *)_self;
     if(self->comp && self->shm_id > 0)
 	rtapi_shmem_delete(self->shm_id, self->comp->hal_id);
     Py_XDECREF(self->comp);
 }
 
-static Py_ssize_t shm_buffer(shmobject *self, Py_ssize_t segment, void **ptrptr){
+static Py_ssize_t shm_buffer(PyObject *_self, Py_ssize_t segment, void **ptrptr){
+    shmobject *self = (shmobject *)_self;
     if(ptrptr) *ptrptr = self->buf;
     return self->size;
 }
-static Py_ssize_t shm_segcount(shmobject *self, Py_ssize_t *lenp) {
+static Py_ssize_t shm_segcount(PyObject *_self, Py_ssize_t *lenp) {
+    shmobject *self = (shmobject *)_self;
     if(lenp) *lenp = self->size;
     return 1;
 }
 
-static PyObject *pyshm_repr(shmobject *self) {
+static PyObject *pyshm_repr(PyObject *_self) {
+    shmobject *self = (shmobject *)_self;
     return PyString_FromFormat("<shared memory buffer key=%08x id=%d size=%ld>",
 	    self->key, self->shm_id, (unsigned long)self->size);
 }
 
-static PyObject *shm_setsize(shmobject *self, PyObject *args) {
+static PyObject *shm_setsize(PyObject *_self, PyObject *args) {
+    shmobject *self = (shmobject *)_self;
     if(!PyArg_ParseTuple(args, "k", &self->size)) return NULL;
     Py_RETURN_NONE;
 }
 
-static PyObject *shm_getbuffer(shmobject *self) {
+static PyObject *shm_getbuffer(PyObject *_self, PyObject *o) {
+    shmobject *self = (shmobject *)_self;
     return (PyObject*)PyBuffer_FromReadWriteObject((PyObject*)self, 0, self->size);
 }
 
 static
 PyBufferProcs shmbuffer_procs = {
-    (getreadbufferproc)shm_buffer,
-    (getwritebufferproc)shm_buffer,
-    (getsegcountproc)shm_segcount,
-    (getcharbufferproc)NULL
+    shm_buffer,
+    shm_buffer,
+    shm_segcount,
+    NULL
 };
 
 static PyMethodDef shm_methods[] = {
-    {"getbuffer", (PyCFunction) shm_getbuffer, METH_NOARGS, 
+    {"getbuffer", shm_getbuffer, METH_NOARGS, 
 	"Get a writable buffer object for the shared memory segment"},
-    {"setsize", (PyCFunction) shm_setsize, METH_VARARGS, 
+    {"setsize", shm_setsize, METH_VARARGS, 
 	"Set the size of the shared memory segment"},
     {NULL},
 };
@@ -626,12 +645,12 @@ PyTypeObject shm_type = {
     "hal.shm",                 /*tp_name*/
     sizeof(shmobject),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
-    (destructor) pyshm_delete, /*tp_dealloc*/
+    pyshm_delete,              /*tp_dealloc*/
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
     0,                         /*tp_compare*/
-    (reprfunc) pyshm_repr,     /*tp_repr*/
+    pyshm_repr,                /*tp_repr*/
     0,                         /*tp_as_number*/
     0,                         /*tp_as_sequence*/
     0,                         /*tp_as_mapping*/
@@ -658,7 +677,7 @@ PyTypeObject shm_type = {
     0,                         /*tp_descr_get*/
     0,                         /*tp_descr_set*/
     0,                         /*tp_dictoffset*/
-    (initproc)pyshm_init,      /*tp_init*/
+    pyshm_init,                /*tp_init*/
     0,                         /*tp_alloc*/
     PyType_GenericNew,         /*tp_new*/
     0,                         /*tp_free*/
@@ -667,7 +686,7 @@ PyTypeObject shm_type = {
 
 
 PyMethodDef module_methods[] = {
-    {"pin_has_writer", (PyCFunction)pin_has_writer, METH_VARARGS,
+    {"pin_has_writer", pin_has_writer, METH_VARARGS,
 	"Return a FALSE value if a pin has no writers and TRUE if it does"},
     {NULL},
 };
