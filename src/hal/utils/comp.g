@@ -534,6 +534,7 @@ def epilogue(f):
         print >>f, "static int get_data_size(void) { return 0; }"
 
 INSTALL, COMPILE, PREPROCESS, DOCUMENT, INSTALLDOC = range(5)
+modename = ("install", "compile", "preprocess", "document", "installdoc")
 
 modinc = None
 def find_modinc():
@@ -826,6 +827,7 @@ Usage:
     [sudo] %(name)s [--install|--install-doc] compfile...
            %(name)s --compile --userspace cfile...
     [sudo] %(name)s --install --userspace cfile...
+    [sudo] %(name)s --install --userspace pyfile...
 """ % {'name': os.path.basename(sys.argv[0])}
     raise SystemExit, exitval
 
@@ -877,6 +879,15 @@ def main():
                 document(f, outfile)            
             elif f.endswith(".comp"):
                 process(f, mode, outfile)
+            elif f.endswith(".py") and mode == INSTALL:
+                lines = open(f).readlines()
+                if lines[0].startswith("#!"): del lines[0]
+                lines[0] = "#!%s\n" % sys.executable
+                outfile = os.path.join(BASE, "bin", basename)
+                try: os.unlink(outfile)
+                except os.error: pass
+                open(outfile, "w").writelines(lines)
+                os.chmod(outfile, 0555)
             elif f.endswith(".c") and mode != PREPROCESS:
                 tempdir = tempfile.mkdtemp()
                 try:
@@ -888,7 +899,7 @@ def main():
                 finally:
                     shutil.rmtree(tempdir) 
             else:
-                raise SystemExit, "Unrecognized file type: %s" % f
+                raise SystemExit, "Unrecognized file type for mode %s: %r" % (modename[mode], f)
         except:
             ex_type, ex_value, exc_tb = sys.exc_info()
             try:
