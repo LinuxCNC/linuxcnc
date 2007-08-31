@@ -52,6 +52,11 @@ setup_menu_accel .menu.file end [_ "_Edit..."]
 setup_menu_accel .menu.file end [_ "_Reload"]
 
 .menu.file add command \
+        -accelerator [_ "Ctrl-S"] \
+        -command save_gcode
+setup_menu_accel .menu.file end [_ "_Save g-code as"]
+
+.menu.file add command \
         -command gcode_properties
 setup_menu_accel .menu.file end [_ "_Properties..."]
 
@@ -68,7 +73,7 @@ setup_menu_accel .menu.file end [_ "Reload tool ta_ble"]
 .menu.file add separator
 
 .menu.file add command \
-        -command {exec classicladder}
+        -command {exec classicladder &}
 setup_menu_accel .menu.file end [_ "Ladder Editor..."]
 
 .menu.file add separator
