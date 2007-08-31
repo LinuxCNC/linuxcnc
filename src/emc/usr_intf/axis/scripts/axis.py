@@ -163,6 +163,7 @@ help2 = [
     ("", ""),
     ("O", _("Open program")),
     (_("Control-R"), _("Reload program")),
+    (_("Control-S"), _("Save g-code as")),
     ("R", _("Run program")),
     ("T", _("Step program")),
     ("P", _("Pause program")),
@@ -2887,6 +2888,26 @@ class TclCommands(nf.TclCommands):
     def set_joint_mode(*args):
         c.teleop_enable(vars.joint_mode.get())
 
+    def save_gcode(*args):
+        if not loaded_file: return
+        global open_directory
+        f = root_window.tk.call("tk_getSaveFile", "-initialdir", open_directory,
+            "-filetypes", ((_("rs274ngc files"), ".ngc"),))
+        if not f: return
+        print type(f), repr(f)
+        f = str(f)
+        open_directory = os.path.dirname(f)
+        if get_filter(loaded_file):
+            srcfile = os.path.join(tempdir, os.path.basename(loaded_file))
+        else:
+            srcfile = loaded_file
+        try:
+            shutil.copy(srcfile, f)
+        except (shutil.error, os.error), detail:
+            tb = traceback.format_exc()
+            root_window.tk.call("nf_dialog", ".error", _("Error saving file"),
+                tb, "error", 0, _("OK"))
+
 commands = TclCommands(root_window)
 
 vars = nf.Variables(root_window, 
@@ -2978,6 +2999,7 @@ root_window.bind("v", commands.cycle_view)
 root_window.bind("<Alt-p>", "#nothing")
 root_window.bind("r", commands.task_run)
 root_window.bind("<Control-r>", commands.reload_file)
+root_window.bind("<Control-s>", commands.save_gcode)
 root_window.bind_class("all", "<Key-F1>", commands.estop_clicked)
 root_window.bind("<Key-F2>", commands.onoff_clicked)
 root_window.bind("<Key-F7>", commands.mist_toggle)

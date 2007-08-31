@@ -54,7 +54,7 @@ setup_menu_accel .menu.file end [_ "_Reload"]
 .menu.file add command \
         -accelerator [_ "Ctrl-S"] \
         -command save_gcode
-setup_menu_accel .menu.file end [_ "_Save g-code as"]
+setup_menu_accel .menu.file end [_ "_Save gcode as..."]
 
 .menu.file add command \
         -command gcode_properties
@@ -1715,6 +1715,8 @@ proc update_state {args} {
 
     state  {$interp_state == $INTERP_IDLE && $taskfile != ""} \
         .toolbar.reload {.menu.file "_Reload"}
+    state  {$taskfile != ""} \
+        .toolbar.reload {.menu.file "_Save gcode as..."}
     state  {$interp_state == $INTERP_IDLE && $taskfile != "" && $::has_editor} \
         {.menu.file "_Edit..."}
     state  {$taskfile != ""} {.menu.file "_Properties..."}
