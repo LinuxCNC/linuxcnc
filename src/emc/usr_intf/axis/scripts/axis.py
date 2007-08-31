@@ -3316,6 +3316,7 @@ comp.newpin("jog.a", hal.HAL_BIT, hal.HAL_OUT)
 comp.newpin("jog.b", hal.HAL_BIT, hal.HAL_OUT)
 comp.newpin("jog.c", hal.HAL_BIT, hal.HAL_OUT)
 comp.newpin("jog.increment", hal.HAL_FLOAT, hal.HAL_OUT)
+vars.has_ladder.set(hal.component_exists('classicladder_rt'))
 
 if vcp:
     import vcpparse
