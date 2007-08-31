@@ -533,8 +533,8 @@ def epilogue(f):
     else:
         print >>f, "static int get_data_size(void) { return 0; }"
 
-INSTALL, COMPILE, PREPROCESS, DOCUMENT, INSTALLDOC = range(5)
-modename = ("install", "compile", "preprocess", "document", "installdoc")
+INSTALL, COMPILE, PREPROCESS, DOCUMENT, INSTALLDOC, VIEWDOC = range(6)
+modename = ("install", "compile", "preprocess", "document", "installdoc", "viewdoc")
 
 modinc = None
 def find_modinc():
@@ -823,7 +823,7 @@ def usage(exitval=0):
     print """%(name)s: Build, compile, and install EMC HAL components
 
 Usage:
-           %(name)s [--compile|--preprocess|--document] compfile...
+           %(name)s [--compile|--preprocess|--document|--view-doc] compfile...
     [sudo] %(name)s [--install|--install-doc] compfile...
            %(name)s --compile --userspace cfile...
     [sudo] %(name)s --install --userspace cfile...
@@ -838,7 +838,8 @@ def main():
     try:
         opts, args = getopt.getopt(sys.argv[1:], "uijcpdo:h?",
                            ['install', 'compile', 'preprocess', 'outfile=',
-                            'document', 'help', 'userspace', 'install-doc'])
+                            'document', 'help', 'userspace', 'install-doc',
+                            'view-doc'])
     except getopt.GetoptError:
         usage(1)
 
@@ -855,6 +856,8 @@ def main():
             mode = DOCUMENT
         if k in ("-j", "--install-doc"):
             mode = INSTALLDOC
+        if k in ("-j", "--view-doc"):
+            mode = VIEWDOC
         if k in ("-o", "--outfile"):
             if len(args) != 1:
                 raise SystemExit, "Cannot specify -o with multiple input files"
@@ -870,6 +873,14 @@ def main():
             basename = os.path.basename(os.path.splitext(f)[0])
             if f.endswith(".comp") and mode == DOCUMENT:
                 document(f, outfile)            
+            elif f.endswith(".comp") and mode == VIEWDOC:
+                tempdir = tempfile.mkdtemp()
+                try:
+                    outfile = os.path.join(tempdir, basename + ".9")
+                    document(f, outfile)
+                    os.spawnvp(os.P_WAIT, "man", ["man", outfile])
+                finally:
+                    shutil.rmtree(tempdir)
             elif f.endswith(".comp") and mode == INSTALLDOC:
                 manpath = os.path.join(BASE, "share/man/man9")
                 if not os.path.isdir(manpath):
