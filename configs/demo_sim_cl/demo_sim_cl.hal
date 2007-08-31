@@ -19,8 +19,6 @@ addf classicladder.0.refresh        servo-thread 1
 # later we will need to add the clp file mentioned below
 # to the ini file so that we do not need to hardcode it here.
 loadusr -w classicladder --nogui demo_sim_cl.clp
-# load the GUI aswell
-loadusr classicladder
 
 # three axis motion allows 6 other outputs on pins 8,9,1,14,16,17
 # five additional input pins are available 10,11,12,13,15
@@ -28,16 +26,16 @@ loadusr classicladder
 
 # estop signals
 # signal is the internal or gui estop command from EMC
-net estop-out iocontrol.0.user-enable-out classicladder.0.in-00
+net gui-estop iocontrol.0.user-enable-out classicladder.0.in-00
 # one-shot on  timer when signal above goes high.
-net estop-in iocontrol.0.user-request-enable  classicladder.0.in-02
+net estop-strobe iocontrol.0.user-request-enable  classicladder.0.in-02
 # this bit is an external estop button connected to parport pin 11 and ground
 newsig ext-estop bit
 linksp ext-estop vcp.button.estop
 linkps classicladder.0.in-01 ext-estop
 # This bit signal is comand to estop from CL to EMC
-net estop-enable-in iocontrol.0.emc-enable-in classicladder.0.out-00 
-linksp estop-enable-in vcp.led.estop
+net estop-all-ok iocontrol.0.emc-enable-in classicladder.0.out-00 
+linksp estop-all-ok vcp.led.estop
 
 # lube signals
 # lube run command from emc to CL 

@@ -81,7 +81,7 @@ _FILE-rung_2.csv
 0-0-0/0 , 0-0-0/0 , 0-1-0/0 , 99-0-0/0 , 99-0-0/0 , 9-0-0/0 , 9-0-0/0 , 9-0-0/0 , 9-0-0/0 , 52-0-60/1
 0-0-0/0 , 0-0-0/0 , 2-1-60/1 , 9-0-0/0 , 9-0-0/0 , 99-0-0/0 , 10-0-0/1 , 0-0-60/0 , 0-0-0/0 , 0-0-0/0
 0-0-0/0 , 0-0-0/0 , 0-1-0/0 , 0-0-0/0 , 0-0-0/0 , 99-0-0/0 , 99-0-0/0 , 9-0-0/0 , 9-0-0/0 , 50-0-0/0
-0-0-0/0 , 0-0-0/0 , 1-1-50/4 , 99-0-0/0 , 10-0-0/2 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-60/2
+0-0-0/0 , 0-0-0/0 , 1-1-50/4 , 99-0-0/0 , 10-0-0/2 , 103-0-0/0 , 103-0-0/0 , 103-0-0/0 , 103-0-0/0 , 103-0-60/9
 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 99-0-0/0 , 99-0-0/0 , 9-0-0/0 , 9-0-0/0 , 9-0-0/0 , 9-0-0/0 , 50-0-60/2
 _/FILE-rung_2.csv
 _FILE-sections.csv
@@ -100,5 +100,25 @@ _/FILE-ioconf.csv
 _FILE-symbols.csv
 ; Symbols
 #VER=1.0
+%I0,CLinB0,Auto named bit-in pin 
+%I1,CLinB1,Auto named bit-in pin 
+%I2,CLinB2,Auto named bit-in pin 
+%I3,CLinB3,Auto named bit-in pin 
+%I4,CLinB4,Auto named bit-in pin 
+%I5,CLinB5,Auto named bit-in pin 
+%I6,CLinB6,Auto named bit-in pin 
+%I7,CLinB7,Auto named bit-in pin 
+%I8,CLinB8,Auto named bit-in pin 
+%I9,CLinB9,Auto named bit-in pin 
+%Q0,CLoutB0,Auto named bit-out pin 
+%Q1,CLoutB1,Auto named bit-out pin 
+%Q2,CLoutB2,Auto named bit-out pin 
+%Q3,CLoutB3,Auto named bit-out pin 
+%Q4,CLoutB4,Auto named bit-out pin 
+%Q5,CLoutB5,Auto named bit-out pin 
+%Q6,CLoutB6,Auto named bit-out pin 
+%Q7,CLoutB7,Auto named bit-out pin 
+%Q8,CLoutB8,Auto named bit-out pin 
+%Q9,CLoutB9,Auto named bit-out pin 
 _/FILE-symbols.csv
 _/FILES_CLASSICLADDER
