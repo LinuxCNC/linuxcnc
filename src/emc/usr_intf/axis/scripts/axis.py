@@ -1554,6 +1554,8 @@ class AxisCanon(GLCanon):
             parts = arg.split(",")
             command = parts[1]
             if command == "stop": self.aborted = True
+            if command == "hide": self.suppress += 1
+            if command == "show": self.suppress -= 1
 
     def do_cancel(self, event):
         self.aborted = True

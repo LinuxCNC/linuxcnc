@@ -42,6 +42,7 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         self.in_arc = 0
         self.xo = self.zo = 0
         self.dwell_time = 0
+        self.suppress = 0
 
     def message(self, message): pass
 
@@ -110,6 +111,7 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         self.offset_z = offset_z
 
     def straight_traverse(self, x,y,z, a,b,c, u, v, w):
+        if self.suppress: return
         l = (x + self.offset_x,y + self.offset_y,z + self.offset_z)
         if not self.first_move:
                 self.traverse_append((self.lineno, self.lo, l, self.xo, self.zo))
@@ -117,12 +119,14 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         self.lo = l
 
     def rigid_tap(self, x, y, z):
+        if self.suppress: return
         l = (x + self.offset_x,y + self.offset_y,z + self.offset_z)
         self.feed_append((self.lineno, self.lo, l, self.feedrate, self.xo, self.zo))
         self.dwells_append((self.lineno, self.colors['dwell'], x,y,z, 0))
         self.feed_append((self.lineno, l, self.lo, self.feedrate, self.xo, self.zo))
 
     def arc_feed(self, *args):
+        if self.suppress: return
         self.in_arc = True
         try:
             ArcsToSegmentsMixin.arc_feed(self, *args)
@@ -140,10 +144,12 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
     straight_probe = straight_feed
 
     def user_defined_function(self, i, p, q):
+        if self.suppress: return
         color = self.colors['m1xx']
         self.dwells_append((self.lineno, color, self.lo[0], self.lo[1], self.lo[2], self.state.plane/10-17))
         
     def dwell(self, arg):
+        if self.suppress: return
         self.dwell_time += arg
         color = self.colors['dwell']
         self.dwells_append((self.lineno, color, self.lo[0], self.lo[1], self.lo[2], self.state.plane/10-17))
