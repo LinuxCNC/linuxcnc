@@ -161,7 +161,7 @@ char * ConvVarNameToSymbol( char * VarNameParam )
                 }
             }
         }
-        printf("ConvVarNameToSymbol(%s)\n", VarNameParam);
+
 	if ( pSymbol )
 	{
 		// if partial symbol, add the attribute taken from the var name
