@@ -160,7 +160,7 @@ if (ClassicLadderAllocAll())
 	{
 		if ( nogui )
 		{
-            printf("**** NO GUI! ****\n");        
+            printf("**** NO ladder GUI! ****\n");        
 			InitAllLadderDatas( TRUE );
             InitTempDir( );
             LoadProjectFiles( LadderDirectory );
@@ -169,6 +169,7 @@ if (ClassicLadderAllocAll())
 // Let HAL know we are ready now
             hal_ready(compId);       
             printf("Ladder project loaded\n");
+			CleanTmpDirectory( TmpDirectory, TRUE/*DestroyDir*/ );
 			hal_exit(compId);			
 			return 0;
 		}
@@ -196,7 +197,7 @@ if (ClassicLadderAllocAll())
 //		then	Load All LadderDatas
 			if(used==0)
 				{ LoadProjectFiles( LadderDirectory );}
-				
+			
 #ifdef GTK_INTERFACE
 				UpdateGtkAfterLoading( TRUE/*cCreateTimer*/ );
 #endif
@@ -207,14 +208,15 @@ if (ClassicLadderAllocAll())
 				
 #ifdef GTK_INTERFACE
 //ProblemWithPrint		gdk_threads_enter( );
-			printf("Loading GUI\n");
+			printf("Loading ladder GUI\n");
 			gtk_main();
-			printf("GUI closed. Realtime module still runs till HAL closes\n");
+			printf("Ladder GUI closed. Realtime module still runs till HAL closes\n");
 //ProblemWithPrint		gdk_threads_leave( );	
 			}
 	}
-	 ClassicLadderFreeAll();
-		hal_exit(compId);
+	 ClassicLadderFreeAll(); 
+	 CleanTmpDirectory( TmpDirectory, TRUE );
+	 hal_exit(compId);
 	return 0;
 }
 #endif

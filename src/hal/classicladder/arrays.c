@@ -491,6 +491,8 @@ void ClassicLadderFreeAll()
 #endif
 #ifdef HAL_SUPPORT
 	rtapi_shmem_delete(ShmemId, compId);
+	rtapi_print("freeing all\n");
+	
 #elif !defined(RT_SUPPORT)
 	if (RungArray)
 		free(RungArray);
