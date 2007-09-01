@@ -138,7 +138,7 @@ gint SymbolsWindowDeleteEvent( GtkWidget * widget, GdkEvent * event, gpointer da
 
 void OpenSymbolsWindow( void )
 {
-       DisplaySymbols()	;
+       DisplaySymbols()	; // update the symbols list
 	if (!SymbolWindowToggle)
 	{ gtk_widget_show (SymbolsWindow); //show window
 	  gtk_window_present( GTK_WINDOW(SymbolsWindow) );
