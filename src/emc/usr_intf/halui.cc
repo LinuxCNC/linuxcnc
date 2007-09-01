@@ -191,6 +191,7 @@ DONE: - spindle-override
 
 */
 
+#define MDI_MAX 10
 
 struct halui_str {
     hal_bit_t *machine_on;         //pin for setting machine On
@@ -281,6 +282,7 @@ struct halui_str {
     hal_bit_t  *so_decrease;	// pin for decreasing the SO (-=scale)
 
     hal_bit_t *abort;            //pin for aborting
+    hal_bit_t *mdi_commands[MDI_MAX];
 } * halui_data; 
 
 struct local_halui_str {
@@ -341,7 +343,11 @@ struct local_halui_str {
     hal_bit_t  so_decrease;	// pin for decreasing the SO (-=scale)
 
     hal_bit_t abort;            //pin for aborting
+    hal_bit_t mdi_commands[MDI_MAX];
 } old_halui_data; //pointer to the HAL-struct
+
+static char *mdi_commands[MDI_MAX];
+static int num_mdi_commands=0;
 
 static int comp_id, done;				/* component ID, main while loop */
 
@@ -873,6 +879,12 @@ int halui_hal_init(void)
     retval = halui_export_pin_IN_float(&(halui_data->jog_deadband), "halui.jog-deadband");
     if (retval != HAL_SUCCESS) return retval;
 
+
+    for (int n=0; n<num_mdi_commands; n++) {
+        retval = hal_pin_bit_newf(HAL_IN, &(halui_data->mdi_commands[n]), comp_id, "halui.mdi-command-%02d", n);
+        if (retval != HAL_SUCCESS) return retval;
+    }
+
     hal_ready(comp_id);
     return 0;
 }
@@ -987,6 +999,27 @@ static int sendMdi()
     }
 
     return 0;
+}
+
+int sendMdiCmd(char *mdi)
+{
+    EMC_TASK_PLAN_EXECUTE emc_task_plan_execute_msg;
+
+    strcpy(emc_task_plan_execute_msg.command, mdi);
+    emc_task_plan_execute_msg.serial_number = ++emcCommandSerialNumber;
+    emcCommandBuffer->write(emc_task_plan_execute_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
+static int sendMdiCommand(int n)
+{
+    return sendMdi() || sendMdiCmd(mdi_commands[n]);
 }
 
 static int sendMistOn()
@@ -1678,6 +1711,12 @@ static int iniLoad(const char *filename)
 	// not found, leave default alone
     }
 
+    const char *mc;
+    while(num_mdi_commands < MDI_MAX && (mc = inifile.Find("MDI_COMMAND", "HALUI", num_mdi_commands+1))) {
+        mdi_commands[num_mdi_commands++] = strdup(mc);
+        printf("halui found mdi command: %s\n", mc);
+    }
+
     // close it
     inifile.Close();
 
@@ -1947,7 +1986,10 @@ static void check_hal_changes()
 	old_halui_data.jog_plus[num_axes] = bit;
     }
 
-    
+    for(int n = 0; n < num_mdi_commands; n++) {
+        if (check_bit_changed(halui_data->mdi_commands[n], &(old_halui_data.mdi_commands[n])) != 0)
+            sendMdiCommand(n);
+    }
 }
 
 // this function looks at the received NML status message
