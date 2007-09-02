@@ -92,6 +92,8 @@ The digital input pins conform to the `canonical digital input' interface
 described in the HAL manual.
 """;
 pin in float stepgen.#.position-cmd[4];
+pin in float stepgen.#.velocity-cmd[4];
+pin in bit stepgen.#.command-mode[4] "TRUE for velocity mode";
 pin out float stepgen.#.velocity-fb[4];
 pin out float stepgen.#.position-fb[4];
 pin out s32 stepgen.#.counts[4];
@@ -210,30 +212,34 @@ FUNCTION(write) {
     ADDR(0);
 
     for(i=0; i<4; i++) {
-	double new_position_cmd = stepgen_position_cmd(i);
-	double v = new_position_cmd - data.old_position_cmd[i];
-	double est_err = stepgen_position_fb(i) + data.old_velocity_cmd[i] * fperiod - new_position_cmd;
-        double actual_max;
+        double v;
 
-	v = v - debug_2 * est_err / fperiod;
-        if(v > 0) v = v + .5/stepgen_scale(i);
-        else if(v < 0) v = v - .5/stepgen_scale(i);
+        if(stepgen_command_mode(i)) {
+            v = stepgen_velocity_cmd(i);
+        } else {
+            double new_position_cmd = stepgen_position_cmd(i);
+            double est_err = stepgen_position_fb(i) + data.old_velocity_cmd[i] * fperiod - new_position_cmd;
+            v = new_position_cmd - data.old_position_cmd[i];
 
-	data.old_position_cmd[i] = new_position_cmd;
-	data.old_velocity_cmd[i] = v;
-        actual_max = fmax / stepgen_scale(i);
+            v = v - debug_2 * est_err / fperiod;
+            if(v > 0) v = v + .5/stepgen_scale(i);
+            else if(v < 0) v = v - .5/stepgen_scale(i);
+
+            data.old_position_cmd[i] = new_position_cmd;
+            data.old_velocity_cmd[i] = v;
+        }
         if(stepgen_maxvel(i) < 0) stepgen_maxvel(i) = -stepgen_maxvel(i);
-        if(stepgen_maxvel(i) != 0 && stepgen_maxvel(i) > actual_max) {
+        if(stepgen_maxvel(i) != 0 && stepgen_maxvel(i) > fmax) {
             rtapi_print_msg(RTAPI_MSG_ERR,
                 "Requested step rate %dHz decreased to %dHz "
                 "due to hardware or timing limitations\n",
                 (int)(stepgen_maxvel(i) * stepgen_scale(i)),
                 (int)(fmax));
-            stepgen_maxvel(i) = actual_max;
+            stepgen_maxvel(i) = fmax;
         }
 
-	if(v < -actual_max) v = -actual_max;
-	if(v > actual_max) v = actual_max;
+	if(v < -stepgen_maxvel(i)) v = -stepgen_maxvel(i);
+	if(v > stepgen_maxvel(i)) v = stepgen_maxvel(i);
 
 	rate = v * stepgen_scale(i) * ONE * PLUTO_SPEED / (1<<speedrange);
 

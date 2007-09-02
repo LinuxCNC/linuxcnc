@@ -133,6 +133,7 @@ static void pluto_program(unsigned char firmware[FIRMWARE_SIZE]) {
     rtapi_print_msg(RTAPI_MSG_INFO, "done\n");
 }
 
+static void *region1=0, *region2=0;
 static void pluto_clear_error_register(void) {
     /* To clear timeout some chips require double read */
     int r = inb(ioaddr+1);
@@ -141,13 +142,41 @@ static void pluto_clear_error_register(void) {
 }
 
 static void pluto_cleanup(void) {
-    outb(0, ioaddr+2); // set nInitialize low and reset the FPGA
+    if(region1)
+	outb(0, ioaddr+2); // set nInitialize low and reset the FPGA
+    if(region1)
+	    rtapi_release_region(ioaddr, 8);
+    if(region2)
+	rtapi_release_region(ioaddr_hi, 4);
 }
 
 static int pluto_setup(unsigned char *firmware) {
 
     int status;
     if(ioaddr_hi == 0) ioaddr_hi = ioaddr + 0x400;
+
+    region1 = rtapi_request_region(ioaddr, 8, "pluto");
+    if(!region1) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	     "PLUTO: ERROR: request_region(%x) failed\n", ioaddr);
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	     "(make sure the kernel module 'parport' is unloaded)\n");
+	hal_exit(comp_id);
+	return -EBUSY;
+    }
+
+    if(ioaddr_hi != -1) {
+	region2 = rtapi_request_region(ioaddr_hi, 4, "pluto");
+	if(!region2) {
+	    rtapi_release_region(ioaddr, 8);
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+		 "PLUTO: ERROR: request_region(%x) failed\n", ioaddr);
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+		 "(make sure the kernel module 'parport' is unloaded)\n");
+	    hal_exit(comp_id);
+	    return -EBUSY;
+	}
+    }
 
     outb(4, ioaddr + 2);        // set control lines and input mode
     if(ioaddr_hi != -1)
