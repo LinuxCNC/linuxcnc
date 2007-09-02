@@ -1003,6 +1003,7 @@ EmcPose tpGetPos(TP_STRUCT * tp)
     if (0 == tp) {
 	retval.tran.x = retval.tran.y = retval.tran.z = 0.0;
 	retval.a = retval.b = retval.c = 0.0;
+	retval.u = retval.v = retval.w = 0.0;
 	return retval;
     }
 
