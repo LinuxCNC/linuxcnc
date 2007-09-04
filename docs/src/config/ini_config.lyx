@@ -661,8 +661,8 @@ SERVO_PERIOD
 BASE_PERIOD
 \series default 
  determines the maximum number of steps per second.
- In the absence of long setup or hold times, the absolute maximum step rate
- is one step per two 
+ In the absence of long step length and step space requirements, the absolute
+ maximum step rate is one step per two 
 \series bold 
 BASE_PERIOD
 \series default 
