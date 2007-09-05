@@ -1519,6 +1519,8 @@ int Interp::read_o(    /* ARGUMENTS                                     */
         // FIXME !!!KL -- should not eval expressions if skipping ???
       *counter += strlen("while");
       block->o_type = O_while;
+      CHKS((line[*counter] != '['),
+	    "Left bracket missing after 'while'");
       CHP(read_real_expression(line, counter, &value, parameters));
       _setup.test_value = value;
     }
@@ -1527,6 +1529,8 @@ int Interp::read_o(    /* ARGUMENTS                                     */
         // FIXME !!!KL -- should not eval expressions if skipping ???
       *counter += strlen("if");
       block->o_type = O_if;
+      CHKS((line[*counter] != '['),
+	    "Left bracket missing after 'if'");
       CHP(read_real_expression(line, counter, &value, parameters));
       _setup.test_value = value;
     }
@@ -1535,6 +1539,8 @@ int Interp::read_o(    /* ARGUMENTS                                     */
         // FIXME !!!KL -- should not eval expressions if skipping ???
       *counter += strlen("elseif");
       block->o_type = O_elseif;
+      CHKS((line[*counter] != '['),
+	    "Left bracket missing after 'elseif'");
       CHP(read_real_expression(line, counter, &value, parameters));
       _setup.test_value = value;
     }
