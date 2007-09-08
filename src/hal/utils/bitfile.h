@@ -71,7 +71,7 @@ struct bitfile_chunk {
 };
 
 #define BITFILE_MAXCHUNKS 50
-/* list of chunks that use 4 byte length values, all others are 2 byte */
+/* list of chunks that use 2 byte length values, all others are 4 byte */
 #define BITFILE_SMALLCHUNKS "abcd"
 #define BITFILE_HEADERLEN 13
 
