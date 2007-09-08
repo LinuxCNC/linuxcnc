@@ -75,6 +75,7 @@ Programming sequence:
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
+#include <string.h>
 #include <sys/types.h>
 #include <unistd.h>
 #include <linux/types.h>
@@ -95,12 +96,6 @@ Programming sequence:
 #define _WRITE_MASK		(1<<23)	/* GPIO 7 */
 #define _PROGRAM_MASK		(1<<26)	/* GPIO 8 */
 
-/* Card I.D */
-#define PLX9030_VENDOR 0x10B5 /* PCI vendor I.D. */
-#define PLX9030_DEVICE 0x9030 /* PCI device I.D. */
-#define M5I20_SSVENDOR 0x10B5 /* PCI subsystem vendor I.D. */
-#define M5I20_SSDEVICE 0x3131 /* PCI subsystem device I.D. */
-
 /* Exit codes */
 #define EC_OK    0   /* Exit OK. */
 #define EC_BADCL 100 /* Bad command line. */
@@ -110,11 +105,34 @@ Programming sequence:
 
 /************************************************************************/
 
+struct board_info {
+    char *board_type;
+    char *chip_type;
+    unsigned short vendor_id;
+    unsigned short device_id;
+    unsigned short ss_vendor_id;
+    unsigned short ss_device_id;
+    int fpga_pci_region;
+    int upci_devnum;
+    int (*program_funct) (struct board_info *bd, struct bitfile_chunk *ch);
+};
+
 static void errmsg(const char *funct, const char *fmt, ...);
 static int parse_cmdline(unsigned argc, char *argv[]);
-static int programfpga(int devnum, struct bitfile_chunk *ch);
+static int program_5i20_fpga(struct board_info *bd, struct bitfile_chunk *ch);
+static int program_5i22_fpga(struct board_info *bd, struct bitfile_chunk *ch);
 static __u8 bit_reverse (__u8 data);
-static int write5i20ram(int devnum, struct bitfile_chunk *ch);
+static int write_fpga_ram(struct board_info *bd, struct bitfile_chunk *ch);
+
+struct board_info board_info_table[] =
+    {
+	{ "5i20", "2s200pq208",
+	   0x10B5, 0x9030, 0x10B5, 0x3131, 5, 0, program_5i20_fpga },
+	{ "5i22-1M", "3s1000fg320",
+	   0x10B5, 0x9054, 0x10B5, 0x3131, 3, 0, program_5i22_fpga },
+	{ "5i22-1.5M", "3s1500fg320",
+	   0x10B5, 0x9054, 0x10B5, 0x3131, 3, 0, program_5i22_fpga }
+    };
 
 /* globals to pass data from command line parser to main */
 static char *config_file_name;
@@ -125,9 +143,11 @@ static int card_number;
 int main(int argc, char *argv[])
 {
     struct upci_dev_info info;
-    int retval, devnum;
+    int tablesize, n, retval;
     struct bitfile *bf;
     struct bitfile_chunk *ch;
+    char *chip;
+    struct board_info board;
 
     /* if we are setuid, drop privs until needed */
     seteuid(getuid());
@@ -147,28 +167,48 @@ int main(int argc, char *argv[])
 	return EC_FILE;
     }
     bitfile_print_xilinx_info(bf);
+    /* chunk 'b' has the target device */
+    ch = bitfile_find_chunk(bf, 'b', 0);
+    chip = (char *)(ch->body);
+    /* scan board specs table looking for a board that uses
+	the chip for which this bitfile was targeted */
+    tablesize = sizeof(board_info_table) / sizeof(struct board_info);
+    n = 0;
+    while ( strcmp(board_info_table[n].chip_type, chip ) != 0 ) {
+	n++;
+	if ( n >= tablesize ) {
+	    errmsg(__func__,"bitfile is targeted for a '%s' FPGA,\n"
+		"                 but no supported board uses that device", ch->body );
+	    return EC_FILE;
+	}
+    }
+    /* copy board data from table to local struct */
+    board = board_info_table[n];
+    printf ( "Board type:      %s\n", board.board_type );
     /* chunk 'e' has the bitstream */
     ch = bitfile_find_chunk(bf, 'e', 0);
     /* now deal with the hardware */
-    printf ( "Searching for 5i20 board...\n" );
+    printf ( "Searching for board...\n" );
     retval = upci_scan_bus();
     if ( retval < 0 ) {
 	errmsg(__func__,"PCI bus data missing" );
 	return EC_SYS;
     }
-    info.vendor_id = PLX9030_VENDOR;
-    info.device_id = PLX9030_DEVICE;
-    info.ss_vendor_id = M5I20_SSVENDOR;
-    info.ss_device_id = M5I20_SSDEVICE;
+    info.vendor_id = board.vendor_id;
+    info.device_id = board.device_id;
+    info.ss_vendor_id = board.ss_vendor_id;
+    info.ss_device_id = board.ss_device_id;
     info.instance = card_number;
-    devnum = upci_find_device(&info);
-    if ( devnum < 0 ) {
-	errmsg(__func__, "5i20 board %d not found", info.instance );
+    /* find the matching device */
+    board.upci_devnum = upci_find_device(&info);
+    if ( board.upci_devnum < 0 ) {
+	errmsg(__func__, "%s board #%d not found",
+	    board.board_type, info.instance );
 	return EC_HDW;
     }
-    upci_print_device_info(devnum);
-    printf ( "Loading configuration into 5i20 board...\n" );
-    retval = programfpga(devnum, ch);
+    upci_print_device_info(board.upci_devnum);
+    printf ( "Loading configuration into %s board...\n", board.board_type );
+    retval = board.program_funct(&board, ch);
     if ( retval != 0 ) {
 	errmsg(__func__, "configuration did not load");
 	return EC_HDW;
@@ -178,7 +218,7 @@ int main(int argc, char *argv[])
     if ( ch != NULL ) {
 	/* yes */
 	printf ( "Writing data to FPGA RAM\n" );
-	retval = write5i20ram(devnum, ch);
+	retval = write_fpga_ram(&board, ch);
 	if ( retval != 0 ) {
 	    errmsg(__func__, "RAM data could not be loaded", info.instance );
 	    return EC_HDW;
@@ -229,7 +269,8 @@ static int parse_cmdline(unsigned argc, char *argv[])
 
 /* program FPGA on PCI board 'devnum', with data from bitfile chunk 'ch' */
 
-static int programfpga(int devnum, struct bitfile_chunk *ch)
+
+static int program_5i20_fpga(struct board_info *bd, struct bitfile_chunk *ch)
 {
     int ctrl_region, data_region, count;
     __u32 status, control;
@@ -237,14 +278,16 @@ static int programfpga(int devnum, struct bitfile_chunk *ch)
 
     printf("Opening PCI regions...\n");
     /* open regions for access */
-    ctrl_region = upci_open_region(devnum, 1);
+    ctrl_region = upci_open_region(bd->upci_devnum, 1);
     if ( ctrl_region < 0 ) {
-	errmsg(__func__, "could not open device %d, region %d (5i20 control port)", devnum, 1 );
+	errmsg(__func__, "could not open device %d, region %d (5i20 control port)",
+	    bd->upci_devnum, 1 );
 	goto cleanup0;
     }
-    data_region = upci_open_region(devnum, 2);
+    data_region = upci_open_region(bd->upci_devnum, 2);
     if ( data_region < 0 ) {
-	errmsg(__func__, "could not open device %d, region %d (5i20 data port)", devnum, 2 );
+	errmsg(__func__, "could not open device %d, region %d (5i20 data port)",
+	    bd->upci_devnum, 2 );
 	goto cleanup1;
     }
     printf("Resetting FPGA...\n" );
@@ -322,6 +365,13 @@ cleanup0:
     return -1;
 }
 
+static int program_5i22_fpga(struct board_info *bd, struct bitfile_chunk *ch)
+{
+    printf ( "Sorry, the 5i22 is not supported yet\n" );
+    return -1;
+}
+
+
 /* the fpga was originally designed to be programmed serially... even
    though we are doing it using a parallel interface, the bit ordering
    is based on the serial interface, and the data needs to be reversed
@@ -352,16 +402,16 @@ static __u8 bit_reverse (__u8 data)
 
 /* write data from bitfile chunk 'ch' to FPGA on board 'devnum' */
 
-static int write5i20ram(int devnum, struct bitfile_chunk *ch)
+static int write_fpga_ram(struct board_info *bd, struct bitfile_chunk *ch)
 {
     int mem_region, n;
     __u32 data;
 
-    printf("Opening PCI region...\n");
-    mem_region = upci_open_region(devnum, 5);
+    printf("Opening PCI region %d...\n", bd->fpga_pci_region);
+    mem_region = upci_open_region(bd->upci_devnum, bd->fpga_pci_region);
     if ( mem_region < 0 ) {
-	errmsg(__func__, "could not open device %d, region %d (5i20 memory)",
-	    devnum, 5 );
+	errmsg(__func__, "could not open device %d, region %d (FPGA memory)",
+	    bd->upci_devnum, bd->fpga_pci_region );
 	return -1;
     }
     printf("Writing data to FPGA...\n");
