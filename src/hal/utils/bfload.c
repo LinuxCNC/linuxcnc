@@ -119,11 +119,13 @@ Programming sequence:
 #include "bitfile.h"
 
 /************************************************************************/
+#define MASK(x)			(1<<(x))	/* gets a bit in position (x) */
+#define CHECK_W(w,x)	((w&MASK(x))==MASK(x))	/* true if bit x in w is set */
 
 /* I/O registers */
 #define CTRL_STAT_OFFSET	0x0054	/* 9030 GPIO register (region 1) */
 
- /* bit number in GPIO register */
+ /* bit number in 9030 GPIO register */
 #define GPIO_3_MASK		(1<<11)	/* GPIO 3 */
 #define DONE_MASK		(1<<11)	/* GPIO 3 */
 #define _INIT_MASK		(1<<14)	/* GPIO 4 */
@@ -138,6 +140,20 @@ Programming sequence:
 #define EC_HDW   101 /* Some sort of hardware failure on the 5I20. */
 #define EC_FILE  102 /* File error of some sort. */
 #define EC_SYS   103 /* Beyond our scope. */
+
+/* I/O register indices.
+*/
+#define CTRL_STAT_OFFSET_5I22	0x006C /* 5I22 32-bit control/status register. */
+
+ /* bit number in 9054 GPIO register */
+ /* yes, the direction control bits are not in the same order as the I/O bits */
+#define DONE_MASK_5I22			(1<<17)	/* GPI */
+#define _PROGRAM_MASK_5I22		(1<<16)	/* GPO, active low */
+#define DONE_ENABLE_5I22		(1<<18) /* GPI direction control, 1=input */
+#define _PROG_ENABLE_5I22		(1<<19) /* GPO direction control, 1=output */
+
+/* how long should we wait for DONE when programming 9054-based cards */
+#define DONE_WAIT_5I22			20000
 
 /************************************************************************/
 
@@ -403,7 +419,78 @@ cleanup0:
 
 static int program_5i22_fpga(struct board_info *bd, struct bitfile_chunk *ch)
 {
-    printf ( "Sorry, the 5i22 is not supported yet\n" );
+    int ctrl_region, data_region, count;
+    __u32 status, control;
+    __u8 *dp;
+
+
+    printf("Opening PCI regions...\n");
+    /* open regions for access */
+    ctrl_region = upci_open_region(bd->upci_devnum, 1);
+    if ( ctrl_region < 0 ) {
+		errmsg(__func__, "could not open device %d, region %d (5i22 control port)",
+		    bd->upci_devnum, 1 );
+		goto cleanup22_0;
+    }
+    data_region = upci_open_region(bd->upci_devnum, 2);
+    if ( data_region < 0 ) {
+		errmsg(__func__, "could not open device %d, region %d (5i22 data port)",
+		    bd->upci_devnum, 2 );
+		goto cleanup22_1;
+    }
+    printf("Resetting FPGA...\n" );
+	/* Enable programming.
+	*/
+	printf("\nProgramming...\n") ;
+
+	/* set GPIO bits to GPIO function */
+	status = upci_read_u32(ctrl_region, CTRL_STAT_OFFSET_5I22);
+	control = status | (DONE_ENABLE_5I22 | _PROG_ENABLE_5I22);
+	upci_write_u32(ctrl_region, CTRL_STAT_OFFSET_5I22, control) ;
+	/* Turn off /PROGRAM bit and insure that DONE isn't asserted */
+	upci_write_u32(ctrl_region, CTRL_STAT_OFFSET_5I22, control & ~_PROGRAM_MASK_5I22) ;
+	status = upci_read_u32(ctrl_region, CTRL_STAT_OFFSET_5I22);
+	if ((status & DONE_MASK_5I22) == DONE_MASK_5I22) {
+		/* Note that if we see DONE at the start of programming, it's most likely due
+			 to an attempt to access the FPGA at the wrong I/O location.  */
+		errmsg(__func__, "<DONE> status bit indicates busy at start of programming.") ;
+		return EC_HDW;
+	}
+	/* turn on /PROGRAM output bit */
+	upci_write_u32(ctrl_region, CTRL_STAT_OFFSET_5I22, control | _PROGRAM_MASK_5I22) ;
+
+	/* Delay for at least 100 uS. to allow the FPGA to finish its reset
+		 sequencing.  3300 reads is at least 100 us, could be as long as a few ms
+	*/
+    for (count=0;count<3300;count++) {
+		status = upci_read_u32(ctrl_region, CTRL_STAT_OFFSET);
+    }
+
+	/* Program the card. */
+	count = ch->len;
+	dp = ch->body;
+	while (count-- > 0) {
+		upci_write_u8(data_region, 0, bit_reverse(*dp++));
+	};
+
+	/* Wait for completion of programming. */
+	for (count=0;count<DONE_WAIT_5I22;count++) {
+			status = upci_read_u32(ctrl_region, CTRL_STAT_OFFSET_5I22);
+			if ((status & DONE_MASK_5I22) == DONE_MASK_5I22)
+				break;
+		}
+	if (count >= DONE_WAIT_5I22) {
+		errmsg(__func__, "Error: Not <DONE>; programming not completed.") ;
+		return EC_HDW;
+	}
+
+	printf("\nSuccessfully programmed 5i22.");
+	return EC_OK;
+
+    upci_close_region(data_region);
+cleanup22_1:
+    upci_close_region(ctrl_region);
+cleanup22_0:
     return -1;
 }
 
