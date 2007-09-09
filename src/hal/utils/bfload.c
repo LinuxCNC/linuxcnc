@@ -129,7 +129,7 @@ struct board_info board_info_table[] =
 	{ "5i20", "2s200pq208",
 	   0x10B5, 0x9030, 0x10B5, 0x3131, 5, 0, program_5i20_fpga },
 	{ "5i22-1M", "3s1000fg320",
-	   0x10B5, 0x9054, 0x10B5, 0x3131, 3, 0, program_5i22_fpga },
+	   0x10B5, 0x9054, 0x10B5, 0x3132, 3, 0, program_5i22_fpga },
 	{ "5i22-1.5M", "3s1500fg320",
 	   0x10B5, 0x9054, 0x10B5, 0x3131, 3, 0, program_5i22_fpga }
     };
@@ -220,7 +220,7 @@ int main(int argc, char *argv[])
 	printf ( "Writing data to FPGA RAM\n" );
 	retval = write_fpga_ram(&board, ch);
 	if ( retval != 0 ) {
-	    errmsg(__func__, "RAM data could not be loaded", info.instance );
+	    errmsg(__func__, "RAM data could not be loaded" );
 	    return EC_HDW;
 	}
     }
