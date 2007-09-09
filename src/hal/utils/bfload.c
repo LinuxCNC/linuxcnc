@@ -37,11 +37,11 @@ Info about programming the 5i20:
 
 Board wiring (related to programming):
 
- ????				<-- 9030 pin 156, GPIO2, bit  8 reg 0x54
+ unused				<-- 9030 pin 156, GPIO2, bit  8 reg 0x54
  FPGA pin 104 = DONE		--> 9030 pin 157, GPIO3, bit 11 reg 0x54
  FGPA pin 107 = /INIT		--> 9030 pin 137, GPIO4, bit 14 reg 0x54
  STATUS LED CR11 (low = on)	<-- 9030 pin 136, GPIO5, bit 17 reg 0x54
- ????				<-- 9030 pin 135, GPIO6, bit 20 reg 0x54
+ unused				<-- 9030 pin 135, GPIO6, bit 20 reg 0x54
  FPGA pin 161 = /WRITE		<-- 9030 pin 134, GPIO7, but 23 reg 0x54
  FPGA pin 106 = /PROGRAM,	<-- 9030 pin  94, GPIO8, bit 26 reg 0x54
  FPGA pin 155 = CCLK		<-> FPGA pin 182 (LCLK 33MHz)
