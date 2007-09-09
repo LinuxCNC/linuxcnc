@@ -69,6 +69,42 @@ Programming sequence:
  DONE will go high during the dummy bytes at the end of the file
  set /WRITE high
 
+**************************************************************************
+
+Info about programming the 5i22:
+
+Board wiring (related to programming):
+
+ FPGA pin R15 = DONE		--> 9054 pin 159, USERI/
+ FGPA pin U10 = /INIT		--> not accessible from the PC
+ FPGA pin V3  = RD_WR/		<-- pulled low?
+ FPGA pin E5  = /PROGRAM,	<-- 9054 pin 154, USERO/
+ FPGA pin T15 = CCLK		<-> FPGA pin ??? (LCLK 33MHz???)
+ FPGA pin V2  = /CS		<-- /LWR (local bus write strobe)
+ FPGA pin T12 = D0		<-> LAD0 (local data bus)
+ FPGA pin R12 = D1		<-> LAD1 (local data bus)
+ FPGA pin N11 = D2		<-> LAD2 (local data bus)
+ FPGA pin P11 = D3		<-> LAD3 (local data bus)
+ FPGA pin U9  = D4		<-> LAD4 (local data bus)
+ FPGA pin V9  = D5		<-> LAD5 (local data bus)
+ FPGA pin R7  = D6		<-> LAD6 (local data bus)
+ FPGA pin T7  = D7		<-> LAD7 (local data bus)
+
+Programming sequence:
+
+ set /PROGRAM low for 300nS minimum (resets chip and starts clearing memory)
+ /INIT and DONE go low (verify that DONE is low, /INIT is inaccessible)
+ set /PROGRAM high
+ wait at least 100uS for clearing memory (INIT/ goes high but can't sense it)
+ set /WRITE low (maybe already pulled low?)
+ send data bytes (each byte strobes /CS low)
+ the last few bytes in the file are dummies, which provide the clocks
+ needed to let the device come out of config mode and begin running
+ if a CRC error is detected, /INIT will go low (can't tell) and DONE will
+ not go high.
+ DONE will go high during the dummy bytes at the end of the file if all is OK
+ set /WRITE high (or maybe leave alone)
+
 *************************************************************************/
 
 //#define _GNU_SOURCE /* getline() */
