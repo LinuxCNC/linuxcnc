@@ -82,6 +82,13 @@ USERSRCS += $(BFLOADSRCS)
 	@$(CXX) $(LDFLAGS) -o $@ $^
 TARGETS += ../bin/bfload
 
+PCIWRITESRCS := hal/utils/pci_write.c hal/utils/upci.c
+USERSRCS += $(PCIWRITESRCS)
+../bin/pci_write: $(call TOOBJS, $(PCIWRITESRCS))
+	$(ECHO) Linking $(notdir $@)
+	@$(CXX) $(LDFLAGS) -o $@ $^
+TARGETS += ../bin/pci_write
+
 endif
 
 ../bin/comp: ../bin/%: objects/hal/utils/%.py

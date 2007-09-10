@@ -354,6 +354,8 @@ setuid:
 	chmod 4750 ../bin/emc_module_helper
 	chown root ../bin/bfload
 	chmod 4750 ../bin/bfload
+	chown root ../bin/pci_write
+	chmod 4750 ../bin/pci_write
 endif
 
 # These rules allows a header file from this directory to be installed into
