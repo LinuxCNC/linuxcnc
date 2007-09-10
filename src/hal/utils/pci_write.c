@@ -32,7 +32,6 @@
 #include <linux/types.h>
 #include "upci.h"
 #include "bitfile.h"
-#include "mesa_board_info.h"
 
 /* define DEBUG_PRINTS to print info about command line parameters,
    the detected board, etc. */
