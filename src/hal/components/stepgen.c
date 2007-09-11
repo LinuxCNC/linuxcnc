@@ -357,7 +357,6 @@ typedef struct {
     /* stuff that is not accessed by makepulses */
     int pos_mode;		/* 1 = position mode, 0 = velocity mode */
     hal_u32_t step_space;	/* parameter: min step pulse spacing */
-    hal_bit_t doublefreq;	/* parameter: TRUE for double-freq stepping */
     double old_pos_cmd;		/* previous position command (counts) */
     hal_s32_t *count;		/* pin: captured feedback in counts */
     hal_float_t pos_scale;	/* param: steps per position unit */
@@ -836,12 +835,6 @@ static void update_freq(void *arg, long period)
 	    stepgen->step_len = stepgen->old_step_len;
 	}
 	if ( stepgen->step_space != stepgen->old_step_space ) {
-	    if ( stepgen->step_space == 0 && ! stepgen->doublefreq ) {
-		/* stepspace must be non-zero for step types 0 and 1 */
-		if ( stepgen->step_type < 2 ) {
-		    stepgen->step_space = 1;
-		}
-	    }
 	    /* make integer multiple of periodns */
 	    stepgen->old_step_space = ulceil(stepgen->step_space, periodns);
 	    stepgen->step_space = stepgen->old_step_space;
@@ -1092,8 +1085,6 @@ static int export_stepgen(int num, stepgen_t * addr, int step_type, int pos_mode
 	retval = hal_param_u32_newf(HAL_RW, &(addr->step_space),
 	    comp_id, "stepgen.%d.stepspace", num);
 	if (retval != 0) { return retval; }
-	retval = hal_param_bit_newf(HAL_RW, &(addr->doublefreq),
-	    comp_id, "stepgen.%d.doublefreq", num);
 	if (retval != 0) { return retval; }
     }
     if ( step_type == 0 ) {

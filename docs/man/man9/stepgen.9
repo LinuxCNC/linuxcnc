@@ -133,8 +133,13 @@ The position in counts, as updated by \fBmake-pulses\fR.  (Note: this is updated
 \fBstepgen.\fIN\fB.steplen\fR u32 rw
 The length of the step pulses, in nanoseconds.  Measured from rising edge to falling edge.
 .TP
-\fBstepgen.\fIN\fB.stepspace\fR u32 rw (step types 0 and 1 only)
-The minimum space between step pulses, in nanoseconds.  Measured from falling edge to rising edge.  The actual time depends on the step rate and can be much longer.
+\fBstepgen.\fIN\fB.stepspace\fR u32 rw (step types 0 and 1 only) The minimum
+space between step pulses, in nanoseconds.  Measured from falling edge to
+rising edge.  The actual time depends on the step rate and can be much longer.
+If \fBstepspace\fR is 0, then \fBstep\fR can be asserted every period.    This
+can be used in conjunction with \fBhal_parport\fR's auto-resetting pins to
+output one step pulse per period.  In this mode, \fBsteplen\fR must be set for
+one period or less.
 .TP
 \fBstepgen.\fIN\fB.dirsetup\fR u32 rw (step type 0 only)
 The minimum setup time from direction to step, in nanoseconds periods.  Measured from change of direction to rising edge of step.
@@ -144,13 +149,6 @@ The minimum hold time of direction after step, in nanoseconds.  Measured from fa
 .TP
 \fBstepgen.\fIN\fB.dirdelay\fR u32 rw (step types 1 and higher only)
 The minimum time between a forward step and a reverse step, in nanoseconds.
-.TP
-\fBstepgen.\fIN\fB.doublefreq\fR bit rw (step type 0 only)
-If TRUE, a step is indicated every period \fBstep\fR pin is TRUE, rather than the
-rising edge of \fBstep\fR.  This can be used in conjunction with
-\fBhal_parport\fR's self-resetting pins to double the possible step rate.
-When \fBdoublefreq\fR is TRUE, \fBsteplen\fR must be set to one period or less
-and \fBstepspace\fR must be set to 0.
 .SH TIMING
 .P
 There are five timing parameters which control the output waveform.  No step type
