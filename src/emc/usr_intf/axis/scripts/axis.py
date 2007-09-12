@@ -3248,13 +3248,14 @@ for a in range(axiscount):
     machine_limit_max[a] = float(inifile.find(section, "MAX_LIMIT")) / unit
     f = inifile.find(section, "SCALE") or inifile.find(section, "INPUT_SCALE") or "8000"
     try:
-        f = float(f.split()[0])
+        f = abs(float(f.split()[0]))
     except ValueError:
         pass
     else:
-        step_size_tmp = min(step_size, 1. / f)
-        if a < 3: step_size = astep_size = step_size_tmp
-        else: astep_size = step_size_tmp
+        if f != 0:
+            step_size_tmp = min(step_size, 1. / f)
+            if a < 3: step_size = astep_size = step_size_tmp
+            else: astep_size = step_size_tmp
 
 if step_size != 1:
     root_window.tk.call("set_slider_min", step_size*30)
