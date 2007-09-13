@@ -3110,15 +3110,11 @@ int Interp::read_text(
   }
   _setup.named_parameter_occurrence = 0;      /* initialize parameter buffer */
 
-  if ((line[0] == 0) || ((line[0] == '/') && (line[1] == 0)))
+  if ((line[0] == 0) || ((line[0] == '/') && (GET_BLOCK_DELETE() == ON)))
     *length = 0;
   else
     *length = strlen(line);
 
-
-  if ((line[0] == '/') && (GET_BLOCK_DELETE() == ON)) 
-    return INTERP_EXECUTE_FINISH;
-  else
     return INTERP_OK;
 }
 
