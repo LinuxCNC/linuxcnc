@@ -280,7 +280,7 @@ static int init_hal_io(void)
     axis_hal_t *axis_data;
     char buf[HAL_NAME_LEN + 2];
 
-    rtapi_print_msg(RTAPI_MSG_ERR, "MOTION: init_hal_io() starting...\n");
+    rtapi_print_msg(RTAPI_MSG_INFO, "MOTION: init_hal_io() starting...\n");
 
     /* allocate shared memory for machine data */
     emcmot_hal_data = hal_malloc(sizeof(emcmot_hal_data_t));
