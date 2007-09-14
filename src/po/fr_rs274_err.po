@@ -1,4 +1,4 @@
-# translation of fr_rs274_err.po to french
+# translation of fr_rs274_err.po to Francais
 # Translation of rs274ngc_err to Italian.
 # Copyright (C) 2007 Ernesto Lo Valvo
 # This file is distributed under the same license package as rs274ngc.pot.
@@ -10,13 +10,13 @@ msgstr ""
 "Project-Id-Version: fr_rs274_err\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2007-08-27 22:44+0200\n"
-"PO-Revision-Date: 2007-08-28 22:11+0200\n"
+"PO-Revision-Date: 2007-09-03 23:34+0200\n"
 "Last-Translator: Francis TISSERANT <ftissera@free.fr>\n"
-"Language-Team: french <gnomefr@traduc.org>\n"
+"Language-Team: Francais <gnomefr@traduc.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: KBabel 1.11.2\n"
+"X-Generator: KBabel 1.11.4\n"
 
 #: emc/task/emctaskmain.cc:396 emc/task/emctaskmain.cc:435
 msgid "exceeds +X limit"
@@ -47,7 +47,7 @@ msgstr "limite -Z depassee"
 msgid ""
 "command (%s) cannot be executed until the machine is out of E-stop and "
 "turned on"
-msgstr "La commande (%s) ne peut être executee tant que la machine n'est pas sortie de l'arrêt d'urgence et mise en marche"
+msgstr "La commande (%s) ne peut etre executee tant que la machine n'est pas sortie de l'arret d'urgence et mise en marche"
 
 #: emc/task/emctaskmain.cc:694
 #, c-format
@@ -57,7 +57,7 @@ msgstr "Commande (%s) impossible en mode manuel"
 #: emc/task/emctaskmain.cc:792
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter idle"
-msgstr "(%s) impossible en mode auto avec l'interpreteur en idle"
+msgstr "(%s) impossible en mode auto avec l'interpreteur inactif"
 
 #: emc/task/emctaskmain.cc:856
 #, c-format
@@ -67,7 +67,7 @@ msgstr "(%s) impossible en mode auto avec l'interpreteur en lecture"
 #: emc/task/emctaskmain.cc:1077
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter paused"
-msgstr "(%s) impossible en mode auto avec l'interpreteur en pose"
+msgstr "(%s) impossible en mode auto avec l'interpreteur en pause"
 
 #: emc/task/emctaskmain.cc:1141
 #, c-format
@@ -87,12 +87,12 @@ msgstr "Impossible d'ouvrir %s "
 #: emc/task/emctaskmain.cc:2991
 #, c-format
 msgid "Minimum Software Limit on axis %d exceeded."
-msgstr "Soft limite minimum de l'axe %d depassee"
+msgstr "Limite logicielle minimale de l'axe %d depassee"
 
 #: emc/task/emctaskmain.cc:3000
 #, c-format
 msgid "Maximum Software Limit on axis %d exceeded."
-msgstr "Soft limite maximum sur l'axe %d depassee"
+msgstr "Limite logicielle maximale sur l'axe %d depassee"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:27 emc/rs274ngc/rs274ngc_errors.cc:28
 #: emc/rs274ngc/rs274ngc_errors.cc:29 emc/rs274ngc/rs274ngc_errors.cc:30
@@ -117,15 +117,15 @@ msgstr "Les axes sont manquants avec un code mouvement"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:35
 msgid "Arc radius too small to reach end point"
-msgstr "Rayon trop petit pour atteindre le point final"
+msgstr "Le rayon de l'arc est trop petit pour atteindre le point final"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:36
 msgid "Argument to acos out of range"
-msgstr "Argument de acos hors echelle"
+msgstr "Argument de acos hors d'echelle"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:37
 msgid "Argument to asin out of range"
-msgstr "Argument de asin hors echelle"
+msgstr "Argument de asin hors d'echelle"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:38
 msgid "Attempt to divide by zero"
@@ -177,11 +177,11 @@ msgstr "Bug code sans G41 ou G42"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:50
 msgid "Bug code not g43 or g49"
-msgstr "Gcode sans G43 ou G49"
+msgstr "Bug code sans G43 ou G49"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:51
 msgid "Bug code not g4 g10 g28 g30 g53 or g92 series"
-msgstr "Bug code sans g4 g10 g28 g30 g53 ou de la serie g92"
+msgstr "Bug code sans g4 g10 g28 g30 g53 ou des series g92"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:52
 msgid "Bug code not g61 g61.1 or g64"
@@ -217,7 +217,7 @@ msgstr "Bug mode distance sans g90 ou g91"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:60
 msgid "Bug function should not have been called"
-msgstr "Bug la fonction n'a pas du être bien appelee"
+msgstr "Bug la fonction n'a pas du etre bien appelee"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:61
 msgid "Bug in tool radius comp"
@@ -229,7 +229,7 @@ msgstr "Bug plan ni xy yz ou xz"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:63
 msgid "Bug side not right or left"
-msgstr "Bug côte ni droit ni gauche"
+msgstr "Bug cote ni droit ni gauche"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:64
 msgid "Bug unknown motion code"
@@ -280,7 +280,7 @@ msgstr "Impossible d'ouvrir le fichier de variables"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:75
 msgid "Cannot probe in inverse time feed mode"
-msgstr "Mesure impossible en mode mouvement contrôle"
+msgstr "Mesure impossible en mode mouvement controle"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:76
 msgid "Cannot probe with cutter radius comp on"
@@ -364,7 +364,7 @@ msgstr "Coin concave avec la compensation de rayon d'outil"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:96
 msgid "Coordinate system index parameter 5220 out of range"
-msgstr "Le parametre 5220 d'index de coordonnees systeme hors d'echelle"
+msgstr "Parametre 5220 d'index de coordonnees systeme hors d'echelle"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:97
 msgid "Current point same as end point of arc"
@@ -372,7 +372,7 @@ msgstr "Point courant identique au point final de l'arc"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:98
 msgid "Cutter gouging with cutter radius comp"
-msgstr " 'Gouging' avec la compensation de rayon d'outil"
+msgstr "'Gouging' avec la compensation de rayon d'outil"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:99
 msgid "D word with no g41 or g42"
@@ -404,11 +404,11 @@ msgstr "Signe egal manquant dans le reglage des parametres"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:106
 msgid "F word missing with inverse time arc move"
-msgstr "Mot F manquant pour un arc en mouvement contrôle"
+msgstr "Mot F manquant pour un arc en mouvement controle"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:107
 msgid "F word missing with inverse time g1 move"
-msgstr "Mot F manquant pour g1 en mouvement contrôle"
+msgstr "Mot F manquant pour g1 en mouvement controle"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:108
 msgid "File ended with no percent sign"
@@ -424,7 +424,7 @@ msgstr "Nom de fichier trop long"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:111
 msgid "G code out of range"
-msgstr "Gcode hors echelle"
+msgstr "Gcode hors d'echelle"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:112
 msgid "H word with no g43"
@@ -624,7 +624,7 @@ msgstr "Pas de caractere trouve en lisant une valeur reelle"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:161
 msgid "No digits found where real number should be"
-msgstr "Aucun digit trouve ou un nombre reel devrait être"
+msgstr "Aucun digit trouve la ou un nombre reel devrait etre"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:162
 msgid "Non integer value for integer"
@@ -632,7 +632,7 @@ msgstr "Valeur non entiere pour un entier"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:163
 msgid "Null missing after newline"
-msgstr "Null manquant apres newline"
+msgstr "Null manquant apres un newline"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:164
 msgid "Offset index missing"
@@ -640,11 +640,11 @@ msgstr "Index d'offset manquant"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:165
 msgid "P value not an integer with g10 l2"
-msgstr "Valeur de P-n'est pas un entier avec G10 L2 "
+msgstr "Valeur de P n'est pas un entier avec G10 L2 "
 
 #: emc/rs274ngc/rs274ngc_errors.cc:166
 msgid "P value out of range with g10 l2"
-msgstr "Valeur de P-hors d'echelle avec G10 L2 "
+msgstr "Valeur de P hors d'echelle avec G10 L2 "
 
 #: emc/rs274ngc/rs274ngc_errors.cc:167
 msgid "P word with no g4 g10 g64 g76 g82 g86 g88 g89"
@@ -668,7 +668,7 @@ msgstr "Mot Q sans G83 ou m66"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:172
 msgid "Queue is not empty after probing"
-msgstr "La queue n'est pas vide apres mesure"
+msgstr "La queue n'est pas vide apres la mesure"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:173
 msgid "R clearance plane unspecified in cycle"
@@ -676,19 +676,19 @@ msgstr "Plan de retrait R non specifie dans le cycle"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:174
 msgid "R i j k words all missing for arc"
-msgstr "Mots R i j k tous manquants pour l'arc"
+msgstr "Mots R i j k manquants pour l'arc"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:175
 msgid "R less than x in cycle in yz plane"
-msgstr "R inferieur a x en cycle dans le plan yz"
+msgstr "R inferieur a x dans un cycle dans le plan yz"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:176
 msgid "R less than y in cycle in xz plane"
-msgstr "R inferieur a y en cycle dans le plan xz"
+msgstr "R inferieur a y dans un cycle dans le plan xz"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:177
 msgid "R less than z in cycle in xy plane"
-msgstr "R inferieur a z en cycle dans le plan xy"
+msgstr "R inferieur a z dans un cycle dans le plan xy"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:178
 msgid "R word with no g code that uses it"
@@ -708,7 +708,7 @@ msgstr "Parametre requis manquant"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:182
 msgid "Selected tool slot number too large"
-msgstr "Slot d'outil selectionne trop grand"
+msgstr "Numero d'outil trop grand"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:183
 msgid "Slash missing after first atan argument"
@@ -756,15 +756,15 @@ msgstr "Index de rayon d'outil trop grand"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:194
 msgid "Tool radius not less than arc radius with comp"
-msgstr "Rayon d'outil pas inferieur au rayon de l'arc apres compensation de rayon d'outil"
+msgstr "Rayon d'outil non inferieur au rayon de l'arc apres compensation de rayon d'outil"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:195
 msgid "Two g codes used from same modal group"
-msgstr "Deux Gcodes utilises dans le même groupe modal"
+msgstr "Deux Gcodes utilises dans le meme groupe modal"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:196
 msgid "Two m codes used from same modal group"
-msgstr "Deux Mcodes utilises dans le même groupe modal"
+msgstr "Deux Mcodes utilises dans le meme groupe modal"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:197
 msgid "Unable to open file"
@@ -792,55 +792,55 @@ msgstr "Operation inconnue"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:203
 msgid "Unknown operation name starting with a"
-msgstr "Nom d'operation commençant par a inconnu "
+msgstr "Nom d'operation commencant par a inconnu "
 
 #: emc/rs274ngc/rs274ngc_errors.cc:204
 msgid "Unknown operation name starting with m"
-msgstr "Nom d'operation commençant par m inconnu "
+msgstr "Nom d'operation commencant par m inconnu "
 
 #: emc/rs274ngc/rs274ngc_errors.cc:205
 msgid "Unknown operation name starting with o"
-msgstr "Nom d'operation commençant par o inconnu "
+msgstr "Nom d'operation commencant par o inconnu "
 
 #: emc/rs274ngc/rs274ngc_errors.cc:206
 msgid "Unknown operation name starting with x"
-msgstr "Nom d'operation commençant par x inconnu "
+msgstr "Nom d'operation commencant par x inconnu "
 
 #: emc/rs274ngc/rs274ngc_errors.cc:207
 msgid "Unknown word starting with a"
-msgstr "Mot commençant par a inconnu "
+msgstr "Mot commencant par a inconnu "
 
 #: emc/rs274ngc/rs274ngc_errors.cc:208
 msgid "Unknown word starting with c"
-msgstr "Mot commençant par c inconnu "
+msgstr "Mot commencant par c inconnu "
 
 #: emc/rs274ngc/rs274ngc_errors.cc:209
 msgid "Unknown word starting with e"
-msgstr "Mot commençant par e inconnu "
+msgstr "Mot commencant par e inconnu "
 
 #: emc/rs274ngc/rs274ngc_errors.cc:210
 msgid "Unknown word starting with f"
-msgstr "Mot commençant par f inconnu "
+msgstr "Mot commencant par f inconnu "
 
 #: emc/rs274ngc/rs274ngc_errors.cc:211
 msgid "Unknown word starting with l"
-msgstr "Mot commençant par l inconnu "
+msgstr "Mot commencant par l inconnu "
 
 #: emc/rs274ngc/rs274ngc_errors.cc:212
 msgid "Unknown word starting with r"
-msgstr "Mot commençant par r inconnu "
+msgstr "Mot commencant par r inconnu "
 
 #: emc/rs274ngc/rs274ngc_errors.cc:213
 msgid "Unknown word starting with s"
-msgstr "Mot commençant par s inconnu "
+msgstr "Mot commencant par s inconnu "
 
 #: emc/rs274ngc/rs274ngc_errors.cc:214
 msgid "Unknown word starting with t"
-msgstr "Mot commençant par t inconnu "
+msgstr "Mot commencant par t inconnu "
 
 #: emc/rs274ngc/rs274ngc_errors.cc:215
 msgid "Unknown word where unary operation could be"
-msgstr "Mot inconnu ou devrait être une operation unaire"
+msgstr "Mot inconnu la ou devrait etre une operation unaire"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:216
 msgid "X and y words missing for arc in xy plane"
@@ -856,7 +856,7 @@ msgstr "Valeur de x non specifiee dans un cycle preprogramme dans le plan yz"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:219
 msgid "X, y, z, a, b, c, u, v, and w words all missing with g38.2"
-msgstr "Mots x, y, z, a, b, c, u, v, et w tous manquants avec g38"
+msgstr "Mots x, y, z, a, b, c, u, v, et w manquants avec g38"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:220
 msgid "Y and z words missing for arc in yz plane"
@@ -872,7 +872,7 @@ msgstr "Valeur de z non specifiee pour un cycle preprogramme dans le plan xy"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:223
 msgid "Zero or negative argument to ln"
-msgstr "Argument negatif ou a zero pout ln"
+msgstr "Argument negatif ou a zero pour ln"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:224
 msgid "Zero radius arc"
@@ -896,19 +896,19 @@ msgstr "Cycle preprogramme inconnu"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:230
 msgid "Unknown operation name starting with e"
-msgstr "Nom d'operation commençant par e inconnu "
+msgstr "Nom d'operation commencant par e inconnu "
 
 #: emc/rs274ngc/rs274ngc_errors.cc:231
 msgid "Unknown operation name starting with n"
-msgstr "Nom d'operation commençant par n inconnu "
+msgstr "Nom d'operation commencant par n inconnu "
 
 #: emc/rs274ngc/rs274ngc_errors.cc:232
 msgid "Unknown operation name starting with g"
-msgstr "Nom d'operation commençant par g inconnu "
+msgstr "Nom d'operation commencant par g inconnu "
 
 #: emc/rs274ngc/rs274ngc_errors.cc:233
 msgid "Unknown operation name starting with l"
-msgstr "Nom d'operation commençant par l inconnu "
+msgstr "Nom d'operation commencant par l inconnu "
 
 #: emc/rs274ngc/rs274ngc_errors.cc:234
 msgid "Too many subroutine parameters"
@@ -916,11 +916,11 @@ msgstr "Trop de parametres de sous-programmes"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:235
 msgid "Too many subroutine levels"
-msgstr "trop de niveaux de sous-programmes"
+msgstr "Trop de niveaux de sous-programmes"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:236
 msgid "Unknown control command in o word"
-msgstr "Commande de contrôle inconnue dans mot o"
+msgstr "Commande de controle inconnue des mot o"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:237
 msgid "Too many oword labels"
@@ -944,7 +944,7 @@ msgstr "Retour en dehors d'un sous-programme"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:243
 msgid "Need tool prepared -Txx- for toolchange"
-msgstr "Necessaire d'appeler l'outil -Txx pout le changeur d'outil"
+msgstr "Necessaire d'appeler l'outil -Txx pour le changeur d'outil"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:244
 msgid "Cannot change planes with cutter radius compensation on"

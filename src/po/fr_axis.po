@@ -1,4 +1,4 @@
-# translation of fr_axis.po to french
+# translation of fr_axis.po to Français
 # Alex Joni <alex_joni@users.sourceforge.net>, 2006.
 # "R.Labahn" <r.labahn@bau.hs-wismar.de>, 2007.
 # <>, 2007.
@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: fr_axis\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2007-08-27 22:44+0200\n"
-"PO-Revision-Date: 2007-08-28 22:29+0200\n"
+"PO-Revision-Date: 2007-09-04 17:34+0200\n"
 "Last-Translator: Francis TISSERANT <ftissera@free.fr>\n"
-"Language-Team: french <gnomefr@traduc.org>\n"
+"Language-Team: Français <gnomefr@traduc.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: KBabel 1.11.2\n"
+"X-Generator: KBabel 1.11.4\n"
 
 #: emc/usr_intf/axis/scripts/axis.py:123
 msgid "Emergency stop"
@@ -33,27 +33,27 @@ msgstr "Activer le premier axe"
 
 #: emc/usr_intf/axis/scripts/axis.py:127
 msgid "Activate second axis"
-msgstr "Activer le deuxieme axe "
+msgstr "Activer le deuxième axe "
 
 #: emc/usr_intf/axis/scripts/axis.py:128
 msgid "Activate third axis"
-msgstr "Activer le troisieme axe "
+msgstr "Activer le troisième axe "
 
 #: emc/usr_intf/axis/scripts/axis.py:129
 msgid "Activate fourth axis"
-msgstr "Activer le quatrieme axe "
+msgstr "Activer le quatrième axe "
 
 #: emc/usr_intf/axis/scripts/axis.py:130
 msgid "Activate fifth axis"
-msgstr "Activer le cinquieme axe "
+msgstr "Activer le cinquième axe "
 
 #: emc/usr_intf/axis/scripts/axis.py:131
 msgid "Activate sixth axis"
-msgstr "Activer le sixieme axe "
+msgstr "Activer le sixième axe "
 
 #: emc/usr_intf/axis/scripts/axis.py:132
 msgid "Set Feed Override from 0% to 100%"
-msgstr "Correcteur de vitesse de 0% a 100%"
+msgstr "Correcteur de vitesse de 0% à 100%"
 
 #: emc/usr_intf/axis/scripts/axis.py:133
 msgid ", and ."
@@ -61,7 +61,7 @@ msgstr ", et ."
 
 #: emc/usr_intf/axis/scripts/axis.py:133
 msgid "Select jog speed"
-msgstr "Selecteur de vitesse de jog"
+msgstr "Sélecteur de vitesse de jog"
 
 #: emc/usr_intf/axis/scripts/axis.py:134
 msgid "< and >"
@@ -69,7 +69,7 @@ msgstr "< et >"
 
 #: emc/usr_intf/axis/scripts/axis.py:134
 msgid "Select angular jog speed"
-msgstr "Selecteur de vitesse angulaire de jog"
+msgstr "Sélecteur de vitesse angulaire de jog"
 
 #: emc/usr_intf/axis/scripts/axis.py:135
 msgid "I, Shift-I"
@@ -77,7 +77,7 @@ msgstr "I, Maj-I"
 
 #: emc/usr_intf/axis/scripts/axis.py:135 ../share/axis/tcl/axis.tcl:2038
 msgid "Select jog increment"
-msgstr "Selection increment de jog"
+msgstr "Sélection d'incrément de jog"
 
 #: emc/usr_intf/axis/scripts/axis.py:136
 msgid "Continuous jog"
@@ -89,7 +89,7 @@ msgstr "Origine machine"
 
 #: emc/usr_intf/axis/scripts/axis.py:137
 msgid "Send active axis home"
-msgstr "Prise d'origine machine de l'axe actif"
+msgstr "Prise d'origine machine de l'axe courant"
 
 #: emc/usr_intf/axis/scripts/axis.py:138
 msgid "Ctrl-Home"
@@ -105,7 +105,7 @@ msgstr "Maj-Home"
 
 #: emc/usr_intf/axis/scripts/axis.py:139
 msgid "Zero G54 offset for active axis"
-msgstr "Met l'offset G54 a zero pour l'axe actif"
+msgstr "Annule le décalage G54 de l'axe actif"
 
 #: emc/usr_intf/axis/scripts/axis.py:140
 msgid "End"
@@ -113,7 +113,7 @@ msgstr "Fin"
 
 #: emc/usr_intf/axis/scripts/axis.py:140
 msgid "Set G54 offset for active axis"
-msgstr "Entrer l'offset G54 pour l'axe actif"
+msgstr "Valide le décalage G54 de l'axe actif"
 
 #: emc/usr_intf/axis/scripts/axis.py:141
 msgid "Jog active axis"
@@ -133,7 +133,7 @@ msgstr "Haut, Bas"
 
 #: emc/usr_intf/axis/scripts/axis.py:143
 msgid "Jog second axis"
-msgstr "Jog du deuxieme axe"
+msgstr "Jog du deuxième axe"
 
 #: emc/usr_intf/axis/scripts/axis.py:144
 msgid "Pg Up, Pg Dn"
@@ -141,15 +141,15 @@ msgstr "Pg Up, Pg Dn"
 
 #: emc/usr_intf/axis/scripts/axis.py:144
 msgid "Jog third axis"
-msgstr "Jog du troisieme axe"
+msgstr "Jog du troisième axe"
 
 #: emc/usr_intf/axis/scripts/axis.py:145
 msgid "Jog fourth axis"
-msgstr "Jog du quatrieme axe"
+msgstr "Jog du quatrième axe"
 
 #: emc/usr_intf/axis/scripts/axis.py:147
 msgid "Toggle between Drag and Rotate mode"
-msgstr "Bascule entre \"glisser la vue\" et \"tourner la vue\""
+msgstr "Bascule entre « glisser la vue » et « tourner la vue »"
 
 #: emc/usr_intf/axis/scripts/axis.py:148
 msgid "Left Button"
@@ -157,7 +157,7 @@ msgstr "Bouton gauche"
 
 #: emc/usr_intf/axis/scripts/axis.py:148
 msgid "Pan, rotate or select line"
-msgstr "Deplacer, tourner ou selectionner la ligne"
+msgstr "Déplacer, tourner la vue ou sélectionner la ligne"
 
 #: emc/usr_intf/axis/scripts/axis.py:149
 msgid "Shift+Left Button"
@@ -165,7 +165,7 @@ msgstr "Maj+bouton gauche"
 
 #: emc/usr_intf/axis/scripts/axis.py:149
 msgid "Rotate or pan"
-msgstr "Rotation ou deplacement"
+msgstr "Rotation ou déplacement de la vue"
 
 #: emc/usr_intf/axis/scripts/axis.py:150
 msgid "Right Button"
@@ -214,11 +214,11 @@ msgstr "Ctrl-H"
 
 #: emc/usr_intf/axis/scripts/axis.py:159
 msgid "Copy selected MDI history elements"
-msgstr "Copier les elements choisis de l'historique du MDI"
+msgstr "Copier depuis l'historique du MDI"
 
 #: emc/usr_intf/axis/scripts/axis.py:160
 msgid "to clipboard"
-msgstr "dans le presse-papier"
+msgstr "dans le presse-papiers"
 
 #: emc/usr_intf/axis/scripts/axis.py:161
 msgid "Control-Shift-H"
@@ -226,7 +226,7 @@ msgstr "Ctrl-Maj-H"
 
 #: emc/usr_intf/axis/scripts/axis.py:161
 msgid "Paste clipboard to MDI history"
-msgstr "Coller le presse-papier dans l'historique du MDI"
+msgstr "Coller dans l'historique du MDI"
 
 #: emc/usr_intf/axis/scripts/axis.py:162 ../share/axis/tcl/axis.tcl:927
 msgid "Override Limits"
@@ -238,7 +238,7 @@ msgstr "Ouvrir un programme"
 
 #: emc/usr_intf/axis/scripts/axis.py:165
 msgid "Control-R"
-msgstr "Controle-R"
+msgstr "Contrôle-R"
 
 #: emc/usr_intf/axis/scripts/axis.py:165
 msgid "Reload program"
@@ -246,11 +246,11 @@ msgstr "Recharger le programme"
 
 #: emc/usr_intf/axis/scripts/axis.py:166
 msgid "Run program"
-msgstr "Lancer le programme"
+msgstr "Exécuter le programme"
 
 #: emc/usr_intf/axis/scripts/axis.py:167
 msgid "Step program"
-msgstr "Programme en pas par pas"
+msgstr "Exécuter le programme ligne par ligne"
 
 #: emc/usr_intf/axis/scripts/axis.py:168
 msgid "Pause program"
@@ -262,23 +262,23 @@ msgstr "Reprise du programme"
 
 #: emc/usr_intf/axis/scripts/axis.py:170
 msgid "Stop running program, or"
-msgstr "Arreter le programme, ou"
+msgstr "Arrêter le programme, ou"
 
 #: emc/usr_intf/axis/scripts/axis.py:171
 msgid "stop loading program preview"
-msgstr "Arreter le chargement de la previsualisation"
+msgstr "arrêter le chargement de la prévisualisation"
 
 #: emc/usr_intf/axis/scripts/axis.py:173
 msgid "Toggle mist"
-msgstr "On/Off Brouillard"
+msgstr "Avec ou sans brouillard"
 
 #: emc/usr_intf/axis/scripts/axis.py:174
 msgid "Toggle flood"
-msgstr "On/Off Arrosage"
+msgstr "Avec ou sans arrosage"
 
 #: emc/usr_intf/axis/scripts/axis.py:176
 msgid "Spindle brake off"
-msgstr "Frein de broche desactive"
+msgstr "Frein de broche désactivé"
 
 #: emc/usr_intf/axis/scripts/axis.py:177
 msgid "Shift-B"
@@ -286,7 +286,7 @@ msgstr "Maj-B"
 
 #: emc/usr_intf/axis/scripts/axis.py:177
 msgid "Spindle brake on"
-msgstr "Frein de broche active"
+msgstr "Frein de broche activé"
 
 #: emc/usr_intf/axis/scripts/axis.py:178
 msgid "Turn spindle clockwise"
@@ -298,11 +298,11 @@ msgstr "Broche en sens anti-horaire"
 
 #: emc/usr_intf/axis/scripts/axis.py:180
 msgid "Turn spindle more slowly"
-msgstr "Diminuer la vitesse broche"
+msgstr "Diminuer la vitesse de broche"
 
 #: emc/usr_intf/axis/scripts/axis.py:181
 msgid "Turn spindle more quickly"
-msgstr "Augmenter la vitesse broche"
+msgstr "Augmenter la vitesse de broche"
 
 #: emc/usr_intf/axis/scripts/axis.py:183
 msgid "Control-K"
@@ -310,11 +310,11 @@ msgstr "Ctrl-K"
 
 #: emc/usr_intf/axis/scripts/axis.py:183
 msgid "Clear live plot"
-msgstr "Nettoyer le chemin d'outil"
+msgstr "Rafraîchir le chemin d'outil"
 
 #: emc/usr_intf/axis/scripts/axis.py:184
 msgid "Cycle among preset views"
-msgstr "Cyclage des vues preselectionnees"
+msgstr "Cyclage des vues présélectionnées"
 
 #: emc/usr_intf/axis/scripts/axis.py:1346
 msgid "AXIS error"
@@ -349,7 +349,7 @@ msgstr "Outil %d inconnu"
 #: emc/usr_intf/axis/scripts/axis.py:1424
 #, python-format
 msgid "Tool %d, offset %g, diameter %g"
-msgstr "Outil %d, offset %g, diametre %g"
+msgstr "Outil %d, offset %g, diamètre %g"
 
 #: emc/usr_intf/axis/scripts/axis.py:1421
 #, python-format
@@ -362,28 +362,28 @@ msgstr "Filtrage.."
 
 #: emc/usr_intf/axis/scripts/axis.py:1705
 msgid "Filter failed"
-msgstr "Echec du filtre"
+msgstr "Échec du filtre"
 
 #: emc/usr_intf/axis/scripts/axis.py:1706
 #, python-format
 msgid ""
 "The program %r exited with code %d.  Any error messages it produced are "
 "shown below:"
-msgstr ""
-"Le programme %r à quitte avec le code %d.  Les messages produits sont "
-"visibles ici:"
+msgstr "Le programme %r c'est arrêté avec le code %d.  Les messages produits sont les suivants:"
 
 #: emc/usr_intf/axis/scripts/axis.py:1757
 #, python-format
 msgid "G-Code error in %s"
-msgstr "Erreur Gcode en %s"
+msgstr "Erreur de G-code en %s"
 
 #: emc/usr_intf/axis/scripts/axis.py:1758
 #, python-format
 msgid ""
 "Near line %d of %s:\n"
 "%s"
-msgstr "Vers la ligne %d de %s:<br> %s"
+msgstr ""
+"Vers la ligne %d de %s:\n"
+"%s"
 
 #: emc/usr_intf/axis/scripts/axis.py:1887
 #: emc/usr_intf/axis/scripts/axis.py:3089 ../share/axis/tcl/axis.tcl:906
@@ -399,7 +399,7 @@ msgstr "Annuler"
 
 #: emc/usr_intf/axis/scripts/axis.py:2078
 msgid "Coordinate System:"
-msgstr "Coordonnees systeme"
+msgstr "Système de coordonnées:"
 
 #: emc/usr_intf/axis/scripts/axis.py:2092
 msgid "Name:"
@@ -415,7 +415,7 @@ msgstr "Ordre des outils:"
 
 #: emc/usr_intf/axis/scripts/axis.py:2093
 msgid "Rapid distance:"
-msgstr "Distance en grande vitesse:"
+msgstr "Distance en vitesse rapide:"
 
 #: emc/usr_intf/axis/scripts/axis.py:2094
 msgid "Feed distance:"
@@ -431,45 +431,45 @@ msgstr "Run time:"
 
 #: emc/usr_intf/axis/scripts/axis.py:2095
 msgid "X bounds:"
-msgstr "Limite X:"
+msgstr "Limites X:"
 
 #: emc/usr_intf/axis/scripts/axis.py:2096
 msgid "Y bounds:"
-msgstr "Limite Y:"
+msgstr "Limites Y:"
 
 #: emc/usr_intf/axis/scripts/axis.py:2096
 msgid "Z bounds:"
-msgstr "Limite Z:"
+msgstr "Limites Z:"
 
 #: emc/usr_intf/axis/scripts/axis.py:2097
 msgid "A bounds:"
-msgstr "Limite A:"
+msgstr "Limites A:"
 
 #: emc/usr_intf/axis/scripts/axis.py:2097
 msgid "B bounds:"
-msgstr "Limite B:"
+msgstr "Limites B:"
 
 #: emc/usr_intf/axis/scripts/axis.py:2098
 msgid "C bounds:"
-msgstr "Limite C:"
+msgstr "Limites C:"
 
 #: emc/usr_intf/axis/scripts/axis.py:2116
 #, python-format
 msgid "Program exceeds machine minimum on axis %s"
-msgstr "Le programme depasse la limite mini sur l'axe %s"
+msgstr "Le programme dépasse la limite mini sur l'axe %s"
 
 #: emc/usr_intf/axis/scripts/axis.py:2119
 #, python-format
 msgid "Program exceeds machine maximum on axis %s"
-msgstr "Le programme depasse la limite maxi sur l'axe %s"
+msgstr "Le programme dépasse la limite max sur l'axe %s"
 
 #: emc/usr_intf/axis/scripts/axis.py:2124
 msgid "Program exceeds machine limits"
-msgstr "Le programme depasse les limites machine"
+msgstr "Le programme dépasse les limites machine"
 
 #: emc/usr_intf/axis/scripts/axis.py:2127
 msgid "Run Anyway"
-msgstr "Executer tout de meme"
+msgstr "Exécuter quand même"
 
 #: emc/usr_intf/axis/scripts/axis.py:2212
 #, python-format
@@ -478,15 +478,15 @@ msgstr "%f à %f = %f %s"
 
 #: emc/usr_intf/axis/scripts/axis.py:2213
 msgid "G-Code Properties"
-msgstr "Proprietes du Gcode"
+msgstr "Propriétés du G-code"
 
 #: emc/usr_intf/axis/scripts/axis.py:2402
 msgid "All machinable files"
-msgstr "Tous formats d'usinage"
+msgstr "Tous formats utilisables"
 
 #: emc/usr_intf/axis/scripts/axis.py:2403
 msgid "rs274ngc files"
-msgstr "fichiers rs274ngc"
+msgstr "Fichiers rs274ngc"
 
 #: emc/usr_intf/axis/scripts/axis.py:2404
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:745
@@ -495,29 +495,29 @@ msgstr "Tous fichiers"
 
 #: emc/usr_intf/axis/scripts/axis.py:2749 ../share/axis/tcl/axis.tcl:922
 msgid "Touch Off"
-msgstr "Toucher"
+msgstr "Mesure"
 
 #: emc/usr_intf/axis/scripts/axis.py:2750
 #, python-format
 msgid "Enter %s coordinate relative to workpiece:"
-msgstr "Entrez la coordonnee %s relative à la piece:"
+msgstr "Entrer la coordonnée %s relative à la pièce:"
 
 #: emc/usr_intf/axis/scripts/axis.py:3197
 msgid "Home All"
-msgstr "POM generale"
+msgstr "POM générale"
 
 #: emc/usr_intf/axis/scripts/axis.py:3199
 msgid "Home all axes [Ctrl-Home]"
-msgstr "Prise d'Origine Machine generale [Ctrl-Home]"
+msgstr "Prise d'origine machine générale [Ctrl-Home]"
 
 #: emc/usr_intf/axis/scripts/axis.py:3202
 msgid "Home All Axes"
-msgstr "POM generale"
+msgstr "POM générale"
 
 #: emc/usr_intf/axis/scripts/axis.py:3214
 #, python-format
 msgid "Home Axis _%s"
-msgstr "POM axe _%s"
+msgstr "POM de l'axe _%s"
 
 #: emc/usr_intf/axis/scripts/axis.py:3456
 msgid "Error in ~/.axisrc"
@@ -526,11 +526,11 @@ msgstr "Erreur dans ~/.axisrc"
 #: emc/usr_intf/axis/scripts/hal_manualtoolchange.py:11
 #, python-format
 msgid "Insert tool %d and click continue when ready"
-msgstr "Monter l'outil %d et cliquer \"continuer\" quand c'est pret"
+msgstr "Monter l'outil %d et cliquer « continuer » quand c'est prêt"
 
 #: emc/usr_intf/axis/scripts/hal_manualtoolchange.py:13
 msgid "Remove the tool and click continue when ready"
-msgstr "Démonter l'outil et cliquer \"terminer\" quand c'est pret"
+msgstr "Démonter l'outil et cliquer « terminer » quand c'est prêt"
 
 #: emc/usr_intf/axis/scripts/hal_manualtoolchange.py:17
 msgid "Tool change"
@@ -548,18 +548,16 @@ msgstr "Changement d'outil manuel d'AXIS"
 msgid ""
 "This window is part of the AXIS manual toolchanger.  It is safe to close or "
 "iconify this window, or it will close automatically after a few seconds."
-msgstr ""
-"Cette fenetre fait partie du changeur d'outil manuel. Elle peut etre fermee "
-"ou iconisee.sinon elle sera fermee automatiquement apres quelques secondes."
+msgstr "Cette fenêtre fait partie du changeur d'outil manuel. Elle peut être fermée ou réduite sinon se fermera automatiquement après quelques secondes."
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:498
 #, python-format
 msgid "%s: Image to gcode"
-msgstr "%s: Image vers gcode"
+msgstr "%s: Image vers G-code"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:499
 msgid "Image to gcode"
-msgstr "Image vers gcode"
+msgstr "Image vers G-code"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:509
 #, python-format
@@ -568,7 +566,7 @@ msgid ""
 "Minimum pixel value: %d\n"
 "Maximum pixel value: %d"
 msgstr ""
-"Taille image: %d x %d pixels\n"
+"Taille de l'image: %d x %d pixels\n"
 "Nombre minimum de pixels: %d\n"
 "Nombre maximum de pixels: %d"
 
@@ -578,7 +576,7 @@ msgstr "Oui"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:599
 msgid "G20 (in)"
-msgstr "G20 (inch)"
+msgstr "G20 (pouces)"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:599
 msgid "G21 (mm)"
@@ -619,7 +617,7 @@ msgstr "Positif"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:609
 msgid "Negative"
-msgstr "Negatif"
+msgstr "Négatif"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:609
 msgid "Alternating"
@@ -635,19 +633,19 @@ msgstr "Fraisage descendant"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:614
 msgid "Ball End"
-msgstr "Fraise hemispherique"
+msgstr "Fraise hémisphèrique"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:614
 msgid "Flat End"
-msgstr "Fraise a bout plat"
+msgstr "Fraise à bout plat"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:614
 msgid "45 Degree"
-msgstr "45 Degres"
+msgstr "45 Degrés"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:614
 msgid "60 Degree"
-msgstr "60 Degres"
+msgstr "60 Degrés"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:615
 msgid "Secondary"
@@ -671,23 +669,23 @@ msgstr "Etendre les bords de la vue"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:648
 msgid "Pixel Size (Units)"
-msgstr "Taille pixel (unites)"
+msgstr "Taille du pixel (unités)"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:649
 msgid "Depth (units)"
-msgstr "Profondeur (unites)"
+msgstr "Profondeur (unités)"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:650
 msgid "Tolerance (units)"
-msgstr "Tolérance (unites)"
+msgstr "Tolérance (unités)"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:651
 msgid "Stepover (pixels)"
-msgstr " (pixels)"
+msgstr "Stepover (pixels)"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:652
 msgid "Tool Diameter (units)"
-msgstr "Diametre d'outil (unites)"
+msgstr "Diamètre d'outil (unités)"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:653
 msgid "Tool Type"
@@ -695,27 +693,27 @@ msgstr "Type d'outil"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:654
 msgid "Feed Rate (units per minute)"
-msgstr "Vitesse d'avance (unites par minute)"
+msgstr "Vitesse d'avance travail (unités par minute)"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:655
 msgid "Plunge Feed Rate (units per minute)"
-msgstr "Vitesse de plongee (unites par minute)"
+msgstr "Vitesse d'avance en plongée (unités par minute)"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:656
 msgid "Units"
-msgstr "Unites"
+msgstr "Unités"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:657
 msgid "Safety Height (units)"
-msgstr "Hauteur de securite (unites)"
+msgstr "Hauteur de sécurité (unités)"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:658
 msgid "Scan Pattern"
-msgstr "Grille de scan"
+msgstr "Grille de numérisation"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:659
 msgid "Scan Direction"
-msgstr "Direction de scan"
+msgstr "Sens de numérisation"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:660
 msgid "Lace Bounding"
@@ -723,7 +721,7 @@ msgstr "Lace Bouding"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:661
 msgid "Contact Angle (degrees)"
-msgstr "Angle de contact (degres)"
+msgstr "Angle de contact (degrés)"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:662
 msgid "Spindle Speed (RPM)"
@@ -731,35 +729,35 @@ msgstr "Vitesse de broche (tr/mn)"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:663
 msgid "Roughing offset (units, 0=no roughing)"
-msgstr "Offset d'ebauche (unites, 0=pas d'ebauche)"
+msgstr "Offset d'ébauche (unités, 0=pas d'ébauche)"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:664
 msgid "Roughing depth per pass (units)"
-msgstr "Profondeur par passe d'ebauche (unites)"
+msgstr "Profondeur par passe d'ébauche (unités)"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:731
 msgid "image-to-gcode: User pressed cancel"
-msgstr "image-vers-gcode: L'utilisateur a presse \"Annuler\""
+msgstr "image-vers-gcode: L'utilisateur a pressé « Annuler »"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:744
 msgid "Depth images"
-msgstr "Profondeur images"
+msgstr "Profondeur d'images"
 
 #: emc/usr_intf/axis/scripts/debuglevel.py:42
 msgid "Task Issue"
-msgstr "Probleme de tache"
+msgstr "Problème de tâche"
 
 #: emc/usr_intf/axis/scripts/debuglevel.py:43
 msgid "IO Points"
-msgstr "I/O Points"
+msgstr "Points d'entrée/sortie"
 
 #: emc/usr_intf/axis/scripts/debuglevel.py:45
 msgid "Motion Time"
-msgstr "Temps moyen"
+msgstr "Durée de mouvement"
 
 #: emc/usr_intf/axis/scripts/debuglevel.py:46
 msgid "Interpreter"
-msgstr "Interpreteur"
+msgstr "Interpréteur"
 
 #: emc/usr_intf/axis/scripts/debuglevel.py:48
 msgid "Trajectory"
@@ -767,7 +765,7 @@ msgstr "Trajectoire"
 
 #: emc/usr_intf/axis/scripts/debuglevel.py:49
 msgid "Interpreter List"
-msgstr "Liste de l'interpreteur"
+msgstr "Liste de l'interpréteur"
 
 #: ../share/axis/tcl/axis.tcl:43
 msgid "_Open..."
@@ -787,15 +785,15 @@ msgstr "_Recharger"
 
 #: ../share/axis/tcl/axis.tcl:56
 msgid "_Properties..."
-msgstr "_Proprietes..."
+msgstr "_Propriétés..."
 
 #: ../share/axis/tcl/axis.tcl:62
 msgid "Edit _tool table..."
-msgstr "Editer la ta_ble d'outils"
+msgstr "Éditer la ta_ble d'outils"
 
 #: ../share/axis/tcl/axis.tcl:66
 msgid "Reload tool ta_ble"
-msgstr "Recharger ta_ble d'outils"
+msgstr "Recharger la ta_ble d'outils"
 
 #: ../share/axis/tcl/axis.tcl:72
 msgid "_Quit"
@@ -803,11 +801,11 @@ msgstr "_Quitter"
 
 #: ../share/axis/tcl/axis.tcl:78
 msgid "Toggle _Emergency Stop"
-msgstr "_Arret d'urgence On/Off"
+msgstr "_Arrêt d'urgence"
 
 #: ../share/axis/tcl/axis.tcl:83
 msgid "Toggle _Machine Power"
-msgstr "_Marche machine On/Off"
+msgstr "_Marche/Arrêt machine"
 
 #: ../share/axis/tcl/axis.tcl:89
 msgid "Set _next line"
@@ -815,11 +813,11 @@ msgstr "Choisir la ligne _suivante"
 
 #: ../share/axis/tcl/axis.tcl:94
 msgid "_Run program"
-msgstr "_Executer le programme"
+msgstr "_Exécuter le programme"
 
 #: ../share/axis/tcl/axis.tcl:99
 msgid "S_tep"
-msgstr "Pas par pas"
+msgstr "Exécu_ter ligne par ligne"
 
 #: ../share/axis/tcl/axis.tcl:104
 msgid "_Pause"
@@ -835,11 +833,11 @@ msgstr "Stop"
 
 #: ../share/axis/tcl/axis.tcl:119
 msgid "Stop at M_1"
-msgstr "Arret sur M_1"
+msgstr "Arrêt sur M_1"
 
 #: ../share/axis/tcl/axis.tcl:124
 msgid "Skip lines with '_/'"
-msgstr "Sauter ligne avec '_/'"
+msgstr "Sauter les lignes avec '_/'"
 
 #: ../share/axis/tcl/axis.tcl:129
 msgid "Ctrl-M"
@@ -891,11 +889,11 @@ msgstr "Choisir le niveau de _Debug"
 
 #: ../share/axis/tcl/axis.tcl:171
 msgid "Homin_g"
-msgstr "Prise d'ori_gine"
+msgstr "Prises d'ori_gines machine"
 
 #: ../share/axis/tcl/axis.tcl:175
 msgid "Coordinate system for Touch-O_ff"
-msgstr "Coordonnees systeme pour \"Touch O_ff\""
+msgstr "Validation décalages d'origine pièce"
 
 #: ../share/axis/tcl/axis.tcl:181 ../share/axis/tcl/axis.tcl:239
 msgid "P1  G5_4"
@@ -935,7 +933,7 @@ msgstr "P9  G59._3"
 
 #: ../share/axis/tcl/axis.tcl:235
 msgid "_Zero coordinate system"
-msgstr "_Zero coordonnees systeme"
+msgstr "Annulation décalages d'origine pièce"
 
 #: ../share/axis/tcl/axis.tcl:280
 msgid "_Top view"
@@ -943,11 +941,11 @@ msgstr "Vue de dessus"
 
 #: ../share/axis/tcl/axis.tcl:287
 msgid "_Rotated Top view"
-msgstr "Vue de dessus _basculee"
+msgstr "Vue de dessus _basculée"
 
 #: ../share/axis/tcl/axis.tcl:294
 msgid "_Side view"
-msgstr "Vue de _cote"
+msgstr "Vue de _coté"
 
 #: ../share/axis/tcl/axis.tcl:301
 msgid "_Front view"
@@ -967,15 +965,15 @@ msgstr "Affichage en _mm"
 
 #: ../share/axis/tcl/axis.tcl:329
 msgid "S_how program"
-msgstr "_Afficher l'usinage"
+msgstr "_Afficher le tracé d'outil"
 
 #: ../share/axis/tcl/axis.tcl:334
 msgid "Sho_w live plot"
-msgstr "Chemin d'outil en temps reel"
+msgstr "Tracé d'outil en temps réel"
 
 #: ../share/axis/tcl/axis.tcl:339
 msgid "Show too_l"
-msgstr "Afficher l'outi_l"
+msgstr "Visualiser l'outi_l"
 
 #: ../share/axis/tcl/axis.tcl:344
 msgid "Show e_xtents"
@@ -999,11 +997,11 @@ msgstr "Ctrl-K"
 
 #: ../share/axis/tcl/axis.tcl:364
 msgid "_Clear live plot"
-msgstr "Raffraichir chemin d'outil"
+msgstr "Rafraîchir le chemin d'outil"
 
 #: ../share/axis/tcl/axis.tcl:373
 msgid "Show commanded position"
-msgstr "Afficher la position commandee"
+msgstr "Afficher la position commandée"
 
 #: ../share/axis/tcl/axis.tcl:380
 msgid "Show actual position"
@@ -1023,7 +1021,7 @@ msgstr "Mode articulations"
 
 #: ../share/axis/tcl/axis.tcl:412
 msgid "World mode"
-msgstr "Mode cartesien"
+msgstr "Mode cartésien"
 
 #: ../share/axis/tcl/axis.tcl:421
 msgid "_About AXIS"
@@ -1051,15 +1049,15 @@ msgstr "_Aide"
 
 #: ../share/axis/tcl/axis.tcl:452
 msgid "Toggle Emergency Stop [F1]"
-msgstr "On/Off Arret d'urgence [F1]"
+msgstr "Arrêt d'urgence [F1]"
 
 #: ../share/axis/tcl/axis.tcl:461
 msgid "Toggle Machine power [F2]"
-msgstr "On/Off Marche machine [F2]"
+msgstr "Marche/arrêt machine [F2]"
 
 #: ../share/axis/tcl/axis.tcl:472
 msgid "Open G-Code file [O]"
-msgstr "Ouvrir fichier Gcode [O]"
+msgstr "Ouvrir fichier G-code [O]"
 
 #: ../share/axis/tcl/axis.tcl:480
 msgid "Reopen current file [Control-R]"
@@ -1067,19 +1065,19 @@ msgstr "Recharger le fichier courant [Control-R]"
 
 #: ../share/axis/tcl/axis.tcl:490
 msgid "Begin executing current file [R]"
-msgstr "Debut d'execution du fichier courant [R]"
+msgstr "Exécution du programme [R]"
 
 #: ../share/axis/tcl/axis.tcl:498
 msgid "Execute next line [T]"
-msgstr "Executer une seule ligne [T]"
+msgstr "Exécuter un seul pas de programme [T]"
 
 #: ../share/axis/tcl/axis.tcl:506
 msgid "Pause [P] / resume [S] execution"
-msgstr "Pause [P] / reprise [s] d'execution"
+msgstr "Pause [P] / reprise [s] d'exécution"
 
 #: ../share/axis/tcl/axis.tcl:514
 msgid "Stop program execution [ESC]"
-msgstr "Stopper execution programme [ESC]"
+msgstr "Stopper l'exécution du programme [ESC]"
 
 #: ../share/axis/tcl/axis.tcl:524
 msgid "Zoom in"
@@ -1095,11 +1093,11 @@ msgstr "Vue de dessus"
 
 #: ../share/axis/tcl/axis.tcl:548
 msgid "Rotated top view"
-msgstr "Vue de dessus, basculee"
+msgstr "Vue de dessus, basculée"
 
 #: ../share/axis/tcl/axis.tcl:556
 msgid "Side view"
-msgstr "Vue de cote"
+msgstr "Vue de coté"
 
 #: ../share/axis/tcl/axis.tcl:564
 msgid "Front view"
@@ -1111,11 +1109,11 @@ msgstr "Vue en perspective"
 
 #: ../share/axis/tcl/axis.tcl:580
 msgid "Toggle between Drag and Rotate Mode [D]"
-msgstr "Bascule entre \"glisser la vue\" et \"tourner la vue\" "
+msgstr "Bascule entre « glisser la vue » et « tourner la vue» "
 
 #: ../share/axis/tcl/axis.tcl:595
 msgid "Clear live plot [Ctrl-K]"
-msgstr "Nettoyer le chemin d'outil [Ctrl-K]"
+msgstr "Rafraîchi le tracé du chemin d'outil [Ctrl-K]"
 
 #: ../share/axis/tcl/axis.tcl:711
 msgid "Manual Control [F3]"
@@ -1163,7 +1161,7 @@ msgstr "Historique:"
 
 #: ../share/axis/tcl/axis.tcl:1208
 msgid "MDI Command:"
-msgstr "Commande MDI"
+msgstr "Commande MDI:"
 
 #: ../share/axis/tcl/axis.tcl:1217
 msgid "Go"
@@ -1171,7 +1169,7 @@ msgstr "Envoi"
 
 #: ../share/axis/tcl/axis.tcl:1223
 msgid "Active G-Codes:"
-msgstr "Gcodes actifs:"
+msgstr "G-codes actifs:"
 
 #: ../share/axis/tcl/axis.tcl:1374 ../share/axis/tcl/axis.tcl:1387
 msgid "Jog Speed:"
@@ -1179,7 +1177,7 @@ msgstr "Vitesse de jog:"
 
 #: ../share/axis/tcl/axis.tcl:1416
 msgid "Spindle Override:"
-msgstr "Correcteur vitesse broche:"
+msgstr "Correcteur de vitesse de broche:"
 
 #: ../share/axis/tcl/axis.tcl:1418 ../share/axis/tcl/axis.tcl:1458
 msgid "%"
@@ -1211,11 +1209,11 @@ msgstr ""
 
 #: ../share/axis/tcl/axis.tcl:1526
 msgid "About AXIS"
-msgstr "A propos d'AXIS"
+msgstr "À propos d'AXIS"
 
 #: ../share/axis/tcl/axis.tcl:1555
 msgid "AXIS Quick Reference"
-msgstr "References rapides d'AXIS"
+msgstr "Aide rapide d'AXIS"
 
 #: ../share/axis/tcl/axis.tcl:1685
 msgid "AXIS (No file)"
@@ -1223,15 +1221,15 @@ msgstr "AXIS (aucun fichier)"
 
 #: ../share/axis/tcl/axis.tcl:1696
 msgid "ESTOP"
-msgstr "ARRET URGENCE"
+msgstr "A/U ACTIVÉ"
 
 #: ../share/axis/tcl/axis.tcl:1697
 msgid "OFF"
-msgstr "ARRET"
+msgstr "A L'ARRÊT"
 
 #: ../share/axis/tcl/axis.tcl:1698
 msgid "ON"
-msgstr "MARCHE"
+msgstr "EN MARCHE"
 
 #: ../share/axis/tcl/axis.tcl:1747 ../share/axis/tcl/axis.tcl:1752
 msgid "Position:"
@@ -1251,7 +1249,7 @@ msgstr "Actuelle"
 
 #: ../share/axis/tcl/axis.tcl:1750
 msgid "Commanded"
-msgstr "Commande"
+msgstr "Commandée"
 
 #: ../share/axis/tcl/axis.tcl:2020
 msgid "Turn spindle counterclockwise [F10]"
@@ -1263,35 +1261,35 @@ msgstr "Broche en sens horaire [F9]"
 
 #: ../share/axis/tcl/axis.tcl:2022
 msgid "Stop spindle [F9/F10]"
-msgstr "Arret broche [F9/F10]"
+msgstr "Arrêt broche [F9/F10]"
 
 #: ../share/axis/tcl/axis.tcl:2023
 msgid "Turn spindle Faster [F12]"
-msgstr "Augmenter vitesse broche [F12]"
+msgstr "Augmenter la vitesse de broche [F12]"
 
 #: ../share/axis/tcl/axis.tcl:2024
 msgid "Turn spindle Slower [F11]"
-msgstr "Diminuer la vitesse broche [F11]"
+msgstr "Diminuer la vitesse de broche [F11]"
 
 #: ../share/axis/tcl/axis.tcl:2025
 msgid "Turn spindle brake on [Shift-B] or off [B]"
-msgstr "Activer [Shift-B] ou arreter [B] frein de broche"
+msgstr "Activer [Maj-B] ou arrêter [B] le frein de broche"
 
 #: ../share/axis/tcl/axis.tcl:2026
 msgid "Turn flood on or off [F8]"
-msgstr "On/Off Arrosage [F8]"
+msgstr "Avec ou sans arrosage [F8]"
 
 #: ../share/axis/tcl/axis.tcl:2027
 msgid "Turn mist on or off [F7]"
-msgstr "On/Off Brouillard [F7]"
+msgstr "Avec ou sans brouillard [F7]"
 
 #: ../share/axis/tcl/axis.tcl:2028
 msgid "Send active axis home [Home]"
-msgstr "Prise d'origine machine axe courant [Home]"
+msgstr "Prise d'origine machine de l'axe courant [Home]"
 
 #: ../share/axis/tcl/axis.tcl:2029
 msgid "Set G54 offset for active axis [End]"
-msgstr "Entrer l'offset G54 pour l'axe actif [End]"
+msgstr "Valide le décalage G54 de l'axe actif [Fin]"
 
 #: ../share/axis/tcl/axis.tcl:2030
 msgid "Activate axis [X]"
@@ -1319,7 +1317,7 @@ msgstr "Activer l'axe [5]"
 
 #: ../share/axis/tcl/axis.tcl:2036 ../share/axis/tcl/axis.tcl:2037
 msgid "Jog selected axis"
-msgstr "Jog de l'axe sélectionne"
+msgstr "Jog de l'axe sélectionné"
 
 #: ../share/axis/tcl/axis.tcl:2039
 msgid "Temporarily allow jogging outside machine limits [L]"
