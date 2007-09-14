@@ -93,7 +93,7 @@ static int fifo_delete(int fifo_id, int module_id);
 static void *shmem_addr_array[RTAPI_MAX_SHMEMS + 1];
 static int fifo_fd_array[RTAPI_MAX_FIFOS + 1];
 
-static int msg_level = RTAPI_MSG_INFO;	/* message printing level */
+static int msg_level = RTAPI_MSG_ERR;	/* message printing level */
 
 /***********************************************************************
 *                      GENERAL PURPOSE FUNCTIONS                       *

@@ -127,8 +127,8 @@ static unsigned long timer_counts;
 
 /* module parameters */
 
-static int msg_level = RTAPI_MSG_INFO;	/* message printing level */
-RTAPI_MP_INT(msg_level, "debug message level (default=3)");
+static int msg_level = RTAPI_MSG_ERR;	/* message printing level */
+RTAPI_MP_INT(msg_level, "debug message level (default=1)");
 
 /* other module information */
 MODULE_AUTHOR("John Kasunich, Fred Proctor, & Paul Corner");

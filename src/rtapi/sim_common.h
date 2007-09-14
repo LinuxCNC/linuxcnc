@@ -2,7 +2,7 @@
 #include <time.h>
 #include <stdio.h>
 
-static int msg_level = RTAPI_MSG_INFO;	/* message printing level */
+static int msg_level = RTAPI_MSG_ERR;	/* message printing level */
 
 #include <sys/ipc.h>		/* IPC_* */
 #include <sys/shm.h>		/* shmget() */

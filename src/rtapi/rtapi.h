@@ -178,7 +178,7 @@ extern "C" {			/* Need this when the header is included in a
 
 /** 'rtapi_print_msg()' prints debug messages.  Works like rtapi_print
     but only prints if 'level' is less than or equal to the current
-    message level. The default message level is RTAPI_MSG_INFO, but it may
+    message level. The default message level is RTAPI_MSG_ERR, but it may
     be changed. The defines below are used for RTAPI messages, and are
     recommended for user messages as well.  May be called from user, 
     init/cleanup, and realtime code.
@@ -199,7 +199,7 @@ extern "C" {			/* Need this when the header is included in a
 	    __attribute__((format(printf,2,3)));
 
 /** 'rtapi_set_msg_level()' and rtapi_get_msg_level() access the message
-    level used by rtapi_print_msg().  The default is RTAPI_MSG_INFO, and
+    level used by rtapi_print_msg().  The default is RTAPI_MSG_ERR, and
     the legal range is defined in the enumerate msg_level_t.
     rtapi_set_msg_level() returns a status code, and rtapi_get_msg_level()
     returns the current level.
