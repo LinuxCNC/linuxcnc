@@ -88,7 +88,6 @@ int hal_flag = 0;	/* used to indicate that halcmd might have the
 			   hal mutex, so the sig handler can't just
 			   exit, instead it must set 'done' */
 int halcmd_done = 0;		/* used to break out of processing loop */
-int linenumber=0;	/* used to print linenumber on errors */
 int scriptmode = 0;	/* used to make output "script friendly" (suppress headers) */
 int prompt_mode = 0;	/* when getting input from stdin, print a prompt */
 char comp_name[HAL_NAME_LEN];	/* name for this instance of halcmd */
@@ -211,8 +210,7 @@ pid_t hal_systemv_nowait(char *const argv[]) {
     pid = fork();
     if ( pid < 0 ) {
 	/* fork failed */
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL:%d: ERROR: fork() failed\n", linenumber);
+	halcmd_error("fork() failed\n");
 	/* reconnect to the HAL shmem area */
 	comp_id = hal_init(comp_name);
 	if (comp_id < 0) {
@@ -233,8 +231,7 @@ pid_t hal_systemv_nowait(char *const argv[]) {
         /* call execv() to invoke command */
 	execvp(argv[0], argv);
 	/* should never get here */
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL:%d: ERROR: execv(%s) failed\n", linenumber, argv[0] );
+	halcmd_error("execv(%s) failed\n", argv[0] );
 	exit(1);
     }
     /* parent process */
@@ -260,19 +257,16 @@ int hal_systemv(char *const argv[]) {
     hal_ready(comp_id);
     /* check result of waitpid() */
     if ( retval < 0 ) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL:%d: ERROR: waitpid(%d) failed\n", linenumber, pid );
+	halcmd_error("waitpid(%d) failed: %s\n", pid, strerror(errno) );
 	return -1;
     }
     if ( WIFEXITED(status) == 0 ) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL:%d: ERROR: child did not exit normally\n", linenumber);
+	halcmd_error("child did not exit normally\n");
 	return -1;
     }
     retval = WEXITSTATUS(status);
     if ( retval != 0 ) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL:%d: ERROR: systemv failed, returned %d\n", linenumber, retval );
+	halcmd_error("exit value: %d\n", retval );
 	return -1;
     }
     return 0;
@@ -329,8 +323,7 @@ static int parse_cmd1(char **argv) {
 	if(argc == 3 && strcmp(argv[1], "=")) {
 	    return do_setp_cmd(argv[0], argv[2]);
 	} else {
-            rtapi_print_msg(RTAPI_MSG_ERR,
-                "HAL:%d: Unknown command '%s'\n", linenumber, argv[0]);
+            halcmd_error("Unknown command '%s'\n", argv[0]);
             return HAL_INVAL;
         }
     } else {
@@ -354,15 +347,13 @@ static int parse_cmd1(char **argv) {
 
         posargs = argc - 1;
 	if(posargs < nargs && !is_optional) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"HAL:%d: %s requires %s%d arguments, %d given\n", linenumber,
+	    halcmd_error("%s requires %s%d arguments, %d given\n",
 		command->name, is_plus ? "at least " : "", nargs, posargs);
 	    return HAL_INVAL;
 	}
 
         if(posargs > nargs && !is_plus) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"HAL:%d: %s requires %s%d arguments, %d given\n", linenumber,
+	    halcmd_error("%s requires %s%d arguments, %d given\n",
 		command->name, is_optional ? "at most " : "", nargs, posargs);
 	    return HAL_INVAL;
         }
@@ -407,9 +398,8 @@ static int parse_cmd1(char **argv) {
 	}
 
 	default:
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"HAL:%d: BUG: unchandled case: command=%s type=0x%x",
-		linenumber, command->name, command->type);
+	    halcmd_error("BUG: unchandled case: command=%s type=0x%x",
+		command->name, command->type);
 	    return HAL_INVAL;
 	}
     }
@@ -777,27 +767,23 @@ int halcmd_preprocess_line ( char *line, char **tokens )
     /* strip comments and trailing newline (if any) */
     retval = strip_comments(line);
     if (retval != 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL:%d: unterminated quoted string\n", linenumber);
+	halcmd_error("unterminated quoted string\n");
 	return -1;
     }
     /* copy to cmd_buf while doing variable replacements */
     retval = replace_vars(line, cmd_buf, sizeof(cmd_buf)-2);
     if (retval != 0) {
 	if ((retval < 0) && (retval >= -7)) {  /* print better replacement errors */
-		rtapi_print_msg(RTAPI_MSG_ERR,
-		    "HAL:%d: %s.\n", linenumber, replace_errors[(-retval) -1]);
+		halcmd_error("%s.\n", replace_errors[(-retval) -1]);
 	} else {
-		rtapi_print_msg(RTAPI_MSG_ERR,
-		    "HAL:%d: unknown variable replacement error\n", linenumber);
+		halcmd_error("unknown variable replacement error\n");
 	}
 	return -2;
     }
     /* split cmd_buff into tokens */
     retval = tokenize(cmd_buf, tokens);
     if (retval != 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL:%d: too many tokens on line\n", linenumber);
+	halcmd_error("too many tokens on line\n");
 	return -3;
     }
     /* tokens[] contains MAX_TOK+1 elements so there is always
@@ -813,6 +799,14 @@ int halcmd_parse_line(char *line) {
     return halcmd_parse_cmd(tokens);
 }
 
+static int linenumber=0;
+static const char *filename=NULL;
+
+void halcmd_set_filename(const char *new_filename) { filename = new_filename; }
+const char *halcmd_get_filename(void) { return filename; }
+
+void halcmd_set_linenumber(int new_linenumber) { linenumber = new_linenumber; }
+int halcmd_get_linenumber(void) { return linenumber; }
 
 /* vim:sts=4:sw=4:et
  */

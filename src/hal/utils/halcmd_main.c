@@ -75,6 +75,7 @@ int main(int argc, char **argv)
     char *filename = NULL;
     FILE *srcfile = NULL;
     char raw_buf[MAX_CMD_LEN+1];
+    int linenumber = 0;
 
     if (argc < 2) {
 	/* no args specified, print help */
@@ -173,6 +174,7 @@ int main(int argc, char **argv)
             /* there is a following arg, and it's not an option */
             filename = argv[optind++];
             srcfile = fopen(filename, "r");
+            halcmd_set_filename(filename);
             if (srcfile == NULL) {
                 fprintf(stderr,
                     "Could not open command file '%s'\n",
@@ -183,6 +185,7 @@ int main(int argc, char **argv)
             fd = fileno(srcfile);
             fcntl(fd, F_SETFD, FD_CLOEXEC);
         } else {
+            halcmd_set_filename("<stdin>");
             /* no filename followed -f option, use stdin */
             srcfile = stdin;
             prompt_mode = 1;
@@ -204,6 +207,8 @@ int main(int argc, char **argv)
 	    strncat(raw_buf, " ", MAX_CMD_LEN);
 	}
 
+        halcmd_set_filename("<commandline>");
+        halcmd_set_linenumber(0);
 
 	retval = halcmd_parse_line(raw_buf);
 	if (retval != 0) {
@@ -213,7 +218,7 @@ int main(int argc, char **argv)
 	/* read command line(s) from 'srcfile' */
 	while (get_input(srcfile, raw_buf, MAX_CMD_LEN)) {
 	    char *tokens[MAX_TOK+1];
-	    linenumber++;
+	    halcmd_set_linenumber(linenumber++);
 	    /* remove comments, do var substitution, and tokenise */
 	    retval = halcmd_preprocess_line(raw_buf, tokens);
 	    if (retval == 0) {
@@ -369,3 +374,27 @@ void halcmd_output(const char *format, ...) {
     va_end(ap);
 }
 
+void halcmd_warning(const char *format, ...) {
+    va_list ap;
+    fprintf(stdout, "%s:%d: Warning: ", halcmd_get_filename(), halcmd_get_linenumber());
+    va_start(ap, format);
+    vfprintf(stdout, format, ap);
+    va_end(ap);
+}
+
+void halcmd_error(const char *format, ...) {
+    va_list ap;
+    fprintf(stdout, "%s:%d: ", halcmd_get_filename(), halcmd_get_linenumber());
+    va_start(ap, format);
+    vfprintf(stdout, format, ap);
+    va_end(ap);
+}
+
+void halcmd_info(const char *format, ...) {
+    va_list ap;
+    if(rtapi_get_msg_level() < RTAPI_MSG_INFO) return;
+    fprintf(stdout, "%s:%d: ", halcmd_get_filename(), halcmd_get_linenumber());
+    va_start(ap, format);
+    vfprintf(stdout, format, ap);
+    va_end(ap);
+}

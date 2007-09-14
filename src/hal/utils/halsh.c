@@ -120,3 +120,66 @@ void halcmd_output(const char *format, ...) {
     Tcl_AppendResult(target_interp, buf, NULL);
 }
 
+void halcmd_error(const char *format, ...) {
+    char buf[BUFFERLEN + 1];
+    va_list ap;
+    int len;
+
+    va_start(ap, format);
+    vsnprintf(buf, BUFFERLEN, format, ap);
+    va_end(ap);
+
+    if(pending_cr) 
+	Tcl_AppendResult(target_interp, "\n", NULL);
+    len = strlen(buf);
+    if(buf[len-1] == '\n') {
+	buf[len-1] = 0;
+	pending_cr = 1;
+    } else {
+	pending_cr = 0;
+    }
+    Tcl_AppendResult(target_interp, buf, NULL);
+}
+
+void halcmd_warning(const char *format, ...) {
+    char buf[BUFFERLEN + 1];
+    va_list ap;
+    int len;
+
+    va_start(ap, format);
+    vsnprintf(buf, BUFFERLEN, format, ap);
+    va_end(ap);
+
+    if(pending_cr) 
+	Tcl_AppendResult(target_interp, "\n", NULL);
+    len = strlen(buf);
+    if(buf[len-1] == '\n') {
+	buf[len-1] = 0;
+	pending_cr = 1;
+    } else {
+	pending_cr = 0;
+    }
+    Tcl_AppendResult(target_interp, buf, NULL);
+}
+
+void halcmd_info(const char *format, ...) {
+    char buf[BUFFERLEN + 1];
+    va_list ap;
+    int len;
+
+    va_start(ap, format);
+    vsnprintf(buf, BUFFERLEN, format, ap);
+    va_end(ap);
+
+    if(pending_cr) 
+	Tcl_AppendResult(target_interp, "\n", NULL);
+    len = strlen(buf);
+    if(buf[len-1] == '\n') {
+	buf[len-1] = 0;
+	pending_cr = 1;
+    } else {
+	pending_cr = 0;
+    }
+    Tcl_AppendResult(target_interp, buf, NULL);
+}
+

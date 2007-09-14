@@ -81,6 +81,5 @@ extern int do_setexact_cmd(void);
 pid_t hal_systemv_nowait(char *const argv[]);
 int hal_systemv(char *const argv[]);
 
-extern int linenumber, scriptmode, comp_id;
-
+extern int scriptmode, comp_id;
 #endif

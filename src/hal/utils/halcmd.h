@@ -50,7 +50,17 @@ extern void halcmd_shutdown(void);
 extern int prompt_mode, errorcount, halcmd_done;
 extern int halcmd_preprocess_line ( char *line, char **tokens);
 
-void halcmd_output(const char *format, ...);
+void halcmd_info(const char *format,...) __attribute__((format(printf,1,2)));
+void halcmd_output(const char *format,...) __attribute__((format(printf,1,2)));
+void halcmd_warning(const char *format,...) __attribute__((format(printf,1,2)));
+void halcmd_error(const char *format,...) __attribute__((format(printf,1,2)));
+
+void halcmd_set_filename(const char *new_filename);
+const char *halcmd_get_filename(void);
+
+void halcmd_set_linenumber(int new_linenumber);
+int halcmd_get_linenumber(void);
+
 
 extern FILE *halcmd_inifile;
 
