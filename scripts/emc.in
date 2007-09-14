@@ -532,16 +532,7 @@ fi
 NUM=1
 CFGFILE=`$INIVAR -ini $INIFILE -var HALFILE -sec HAL -num $NUM 2> /dev/null`
 while [ -n "$CFGFILE" ] ; do
-    if [ ! -f $INI_DIR/$CFGFILE ] ; then
-	echo "Can't find HAL config file: $INI_DIR/$CFGFILE"
-	Cleanup
-	exit -1
-    else
-	CFGFILE=$INI_DIR/$CFGFILE
-    fi
-    echo "Running HAL config file $CFGFILE" >>$PRINT_FILE
     if ! $HALCMD -i $INIFILE -f $CFGFILE ; then
-	echo "HAL config file $CFGFILE failed."
 	Cleanup
 	exit -1
     fi
