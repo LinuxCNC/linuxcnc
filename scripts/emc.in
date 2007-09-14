@@ -403,6 +403,14 @@ function Cleanup() {
     echo "Removing HAL_LIB, RTAPI, and Real Time OS modules" >>$PRINT_FILE
     $REALTIME stop
 
+    echo "Removing NML shared memory segments" >> $PRINT_FILE
+    while read b x t x x x x x x m x; do
+        case $b$t in
+            BSHMEM) ipcrm -M $m 2>/dev/null;;
+        esac
+    done < $NMLFILE
+
+
     # remove lock file
     if [ -f $LOCKFILE ] ; then
 	rm $LOCKFILE
