@@ -994,7 +994,7 @@ check_stuff ( "before command_handler()" );
                 emcmotDebug->idForStep = emcmotStatus->id;
                 emcmotDebug->stepping = 1;
                 tpResume(&emcmotDebug->queue);
-                emcmotStatus->paused = 0;
+                emcmotStatus->paused = 1;
             } else {
 		reportError("MOTION: can't STEP while already executing");
 	    }

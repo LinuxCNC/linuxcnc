@@ -845,8 +845,6 @@ static int emcTaskPlan(void)
 		case EMC_TASK_PLAN_STEP_TYPE:
 		    stepping = 1;	// set stepping mode in case it's not
 		    steppingWait = 0;	// clear the wait
-		    retval = emcTaskIssueCommand(emcCommand);
-		    return retval;
 		    break;
 
 		    // otherwise we can't handle it
@@ -1066,8 +1064,9 @@ interpret_again:
 			emcStatus->motion.traj.queue > 0) {
 			// there are pending motions paused; step them
 			emcTrajStep();
+		    } else {
+			emcStatus->task.interpState = (enum EMC_TASK_INTERP_ENUM) interpResumeState;
 		    }
-		    retval = emcTaskIssueCommand(emcCommand);
 		    break;
 
 		    // otherwise we can't handle it
@@ -1965,18 +1964,6 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	steppingWait = 0;
 	retval = 0;
 	break;
-
-    case EMC_TASK_PLAN_STEP_TYPE: //step while pause should resume & step
-	if (emcStatus->task.interpState == EMC_TASK_INTERP_PAUSED) {
-	    emcTrajResume();
-	    emcStatus->task.interpState =
-		(enum EMC_TASK_INTERP_ENUM) interpResumeState;
-	    stepping = 1;
-	    steppingWait = 0;
-	}
-	retval = 0;
-	break;
-
 
     case EMC_TASK_PLAN_END_TYPE:
 	retval = 0;
