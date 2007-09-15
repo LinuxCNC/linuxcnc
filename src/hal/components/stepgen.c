@@ -1085,7 +1085,6 @@ static int export_stepgen(int num, stepgen_t * addr, int step_type, int pos_mode
 	retval = hal_param_u32_newf(HAL_RW, &(addr->step_space),
 	    comp_id, "stepgen.%d.stepspace", num);
 	if (retval != 0) { return retval; }
-	if (retval != 0) { return retval; }
     }
     if ( step_type == 0 ) {
 	/* step/dir is the only one that uses dirsetup and dirhold */
