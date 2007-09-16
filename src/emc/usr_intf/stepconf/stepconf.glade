@@ -165,7 +165,7 @@
 		  <child>
 		    <widget class="GtkLabel" id="label173">
 		      <property name="visible">True</property>
-		      <property name="label" translatable="yes">If you have made modifications to this configuration outside this program, theey will be lost when you select &quot;Modify a configuration&quot;</property>
+		      <property name="label" translatable="yes">If you have made modifications to this configuration outside this program, they will be lost when you select &quot;Modify a configuration&quot;</property>
 		      <property name="use_underline">False</property>
 		      <property name="use_markup">False</property>
 		      <property name="justify">GTK_JUSTIFY_LEFT</property>
