@@ -1,6 +1,5 @@
 component steptest """\
-This component is used by Stepconf to allow testing of acceleration and
-velocity values for an axis.""";
+Used by Stepconf to allow testing of acceleration and velocity values for an axis.""";
 pin in bit jog-minus "Drive TRUE to jog the axis in its minus direction";
 pin in bit jog-plus "Drive TRUE to jog the axis in its positive direction";
 pin in bit run "Drive TRUE to run the axis near its current position_fb with a trapezoidal velocity profile";
