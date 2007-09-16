@@ -45,7 +45,7 @@ wizard = os.path.join(datadir, "emc2-wizard.gif")
 if not os.path.isfile(wizard):
     wizard = os.path.join("/etc/emc2/emc2-wizard.gif")
 
-distdir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "configs", "common")
+distdir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "configs", "common")
 if not os.path.isdir(distdir):
     distdir = "/etc/emc2/sample-configs/common"
 
