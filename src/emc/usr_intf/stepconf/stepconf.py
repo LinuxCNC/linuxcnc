@@ -420,7 +420,6 @@ class Data:
         else:
             pps = max(xhz, zhz)
 	base_period = 1e9 / pps
-	print "ideal_period", xhz, yhz, zhz, ahz, base_period
 	if base_period > 100000: base_period = 100000
         if base_period < self.minperiod(): base_period = self.minperiod()
         return int(base_period)
@@ -797,9 +796,7 @@ class App:
 
     def __init__(self):
 	gnome.init("stepconf", "0.6") 
-	print "glade", os.path.join(datadir, self.fname)
 	glade = xml.dom.minidom.parse(os.path.join(datadir, self.fname))
-        print "glade", glade
 	self.make_axispage(glade, 'y')
 	self.make_axispage(glade, 'z')
 	self.make_axispage(glade, 'a')
@@ -1326,7 +1323,6 @@ class App:
         if period < minperiod:
             period = minperiod
             maxvel = 1e9 / minperiod / scale
-        print "Using period %d\n", period
 
 	self.halrun = halrun = os.popen("halrun", "w")
 	axnum = "xyza".index(axis)
