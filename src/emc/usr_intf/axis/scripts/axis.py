@@ -2519,6 +2519,7 @@ class TclCommands(nf.TclCommands):
             if mdi_history_index != (widgets.mdi_history.size() - 1):
                 widgets.mdi_history.selection_set(mdi_history_index, mdi_history_index)
             vars.mdi_command.set(widgets.mdi_history.get(mdi_history_index))
+            widgets.mdi_command.selection_range(0, "end")
 
     def mdi_down_cmd(*event):
         global mdi_history_index
@@ -2535,6 +2536,7 @@ class TclCommands(nf.TclCommands):
             if mdi_history_index != (widgets.mdi_history.size() - 1):
                 widgets.mdi_history.selection_set(mdi_history_index, mdi_history_index)
             vars.mdi_command.set(widgets.mdi_history.get(mdi_history_index))
+            widgets.mdi_command.selection_range(0, "end")
 
     def send_mdi(*event):
         global mdi_history_index, mdi_history_save_filename
@@ -3319,6 +3321,7 @@ o.pack(fill="both", expand=1)
 
 root_window.bind("<Key-F3>", pane_top + ".tabs raise manual")
 root_window.bind("<Key-F5>", pane_top + ".tabs raise mdi")
+root_window.bind("<Key-F5>", "+" + tabs_mdi + ".command selection range 0 end")
 
 init()
 
