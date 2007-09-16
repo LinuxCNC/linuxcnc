@@ -1,0 +1,47 @@
+component steptest """\
+This component is used by Stepconf to allow testing of acceleration and
+velocity values for an axis.""";
+pin in bit jog-minus "Drive TRUE to jog the axis in its minus direction";
+pin in bit jog-plus "Drive TRUE to jog the axis in its positive direction";
+pin in bit run "Drive TRUE to run the axis near its current position_fb with a trapezoidal velocity profile";
+pin in float maxvel "Maximum velocity";
+pin in float maxaccel "Permitted Acceleration";
+pin in float amplitude "Approximate amplitude of positions to command during 'run'";
+pin out float position-cmd;
+pin in float position-fb;
+pin out bit running;
+pin out float run-target;
+pin out float run-start;
+param rw float epsilon = .001;
+function _;
+;;
+extern double fabs(double);
+
+if(run) {
+    if(!running) {
+        running = 1;
+        run_start = position_fb;
+        position_cmd = run_start + amplitude;
+    }
+
+    if(fabs(position_fb - position_cmd) < epsilon) {
+        if(position_cmd > run_start) {
+            position_cmd = run_start - amplitude;
+        } else {
+            position_cmd = run_start + amplitude;
+        }
+    }
+} else if(running) {
+    position_cmd = run_start;
+    if(fabs(position_fb - run_start) < epsilon) {
+        running = 0;
+    }
+} else {
+    if(jog_minus) {
+        position_cmd = position_fb - maxvel * fperiod;
+    } else if(jog_plus) {
+        position_cmd = position_fb + maxvel * fperiod;
+    } else {
+        position_cmd = position_fb;
+    }
+}

@@ -132,6 +132,15 @@ preview false
 \layout Standard
 
 
+\begin_inset Include \include{config/stepconf.lyx}
+preview false
+
+\end_inset 
+
+
+\layout Standard
+
+
 \begin_inset Include \include{config/stepper.lyx}
 preview false
 

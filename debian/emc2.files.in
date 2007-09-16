@@ -3,6 +3,7 @@ etc/init.d/realtime
 etc/emc2/rtapi.conf
 usr/bin/emc
 usr/bin/emcmkdesktop
+usr/bin/stepconf
 usr/bin/halcmd
 usr/bin/halrun
 usr/bin/halrmt

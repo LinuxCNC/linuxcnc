@@ -1,0 +1,1226 @@
+#LyX 1.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 221
+\textclass book
+\begin_preamble
+\usepackage[plainpages=false,pdfpagelabels,colorlinks=true,linkcolor=blue]{hyperref}
+\end_preamble
+\language english
+\inputencoding auto
+\fontscheme pslatex
+\graphics default
+\paperfontsize default
+\spacing single 
+\papersize Default
+\paperpackage a4
+\use_geometry 0
+\use_amsmath 0
+\use_natbib 0
+\use_numerical_citations 0
+\paperorientation portrait
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\defskip medskip
+\quotes_language english
+\quotes_times 2
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+
+\layout Chapter
+
+Stepconf: Configure EMC2 for Step & Direction CNC Machines
+\layout Standard
+
+EMC2 is capable of controlling a wide range of machinery using many different
+ hardware interfaces.
+ Stepconf is a program which generates EMC configuration files for a specific
+ class of CNC machine: those connected to the PC using a standard 
+\series bold 
+parallel port
+\series default 
+ and controlled with 
+\series bold 
+step & direction
+\series default 
+ signals.
+\layout Section
+
+Step by Step Instructions
+\layout Subsection
+
+Basic Information
+\layout Description
+
+Machine\SpecialChar ~
+Name Choose a name for your machine.
+ Use only uppercase letters, lowercase letters, digits, 
+\begin_inset Quotes eld
+\end_inset 
+
+-
+\begin_inset Quotes erd
+\end_inset 
+
+ and 
+\begin_inset Quotes eld
+\end_inset 
+
+_
+\begin_inset Quotes erd
+\end_inset 
+
+.
+\layout Description
+
+Axis\SpecialChar ~
+Configuration Choose XYZ (Mill), XYZA (4-axis mill) or XZ (Lathe).
+\layout Description
+
+Machine\SpecialChar ~
+Units Choose Inch or mm.
+ All subsequent questions (such as machine travel, leadscrew pitch, etc)
+ will be answered in the chosen units
+\layout Description
+
+Driver\SpecialChar ~
+Characteristics If you have one of the stepper drivers listed in the
+ pulldown box, choose it.
+ Otherwise, find the 4 timing values in your driver's datasheet and enter
+ them.
+ If the datasheet gives a value in microseconds, multiply by 1000.
+ For example, enter 4.5us as 4500.
+\layout Description
+
+Latency\SpecialChar ~
+Test\SpecialChar ~
+Result Enter the result of the Latency Test here.
+ (see section 
+\begin_inset LatexCommand \ref{sec:Latency-Test}
+
+\end_inset 
+
+)
+\layout Description
+
+Max\SpecialChar ~
+Step\SpecialChar ~
+Rate
+\layout Description
+
+Min\SpecialChar ~
+Base\SpecialChar ~
+Period Based on the Driver Characteristics and Latency Test Result,
+ Stepconf automatically determines the minimum usable BASE_PERIOD, and the
+ step rate that is possible at that BASE_PERIOD.
+ 
+\layout Description
+
+Onscreen\SpecialChar ~
+Prompt\SpecialChar ~
+For\SpecialChar ~
+Tool\SpecialChar ~
+Change If this box is checked, EMC will pause and prompt
+ you to change the tool when 
+\series bold 
+M6
+\series default 
+ is encountered.
+ Leave this box checked unless you plan to add support for an automatic
+ tool changer in a custom hal file
+\layout Subsection
+
+Parallel Port Setup
+\layout Standard
+
+For each pin, choose the signal which matches your parallel port pinout.
+ Turn on the 
+\begin_inset Quotes eld
+\end_inset 
+
+invert
+\begin_inset Quotes erd
+\end_inset 
+
+ checkbox if the signal is inverted (0V for true/active, 5V for false/inactive).
+\layout Description
+
+Output\SpecialChar ~
+pinout\SpecialChar ~
+presets Automatically set pins 2 through 9 according to the
+ Sherline standard (Direction on pins 2, 4, 6, 8) or the Xylotex standard
+ (Direction on pins 3, 5, 7, 9).
+\layout Description
+
+Include\SpecialChar ~
+custom\SpecialChar ~
+HAL\SpecialChar ~
+configuration Allows you to add additional hal customizations
+ in the file 
+\family typewriter 
+custom.hal
+\family default 
+ after running Stepconf.
+\layout Standard
+
+
+\series bold 
+Include\SpecialChar ~
+custom\SpecialChar ~
+PyVCP\SpecialChar ~
+Panel
+\series default 
+ If selected, the PyVCP control panel 
+\family typewriter 
+panel.xml
+\family default 
+ will be displayed on the right-hand side of the main AXIS window.
+\layout Subsection
+
+Axis Configuration
+\layout Description
+
+Motor\SpecialChar ~
+Steps\SpecialChar ~
+Per\SpecialChar ~
+Revolution The number of full steps per motor revolution.
+ If you know how many degrees the motor is (e.g., 1.2 degree), then divide
+ 360 by the degrees to find the number of steps per motor revolution.
+\layout Description
+
+Driver\SpecialChar ~
+Microstepping The amount of microstepping performed by the driver.
+ Enter 
+\begin_inset Quotes eld
+\end_inset 
+
+2
+\begin_inset Quotes erd
+\end_inset 
+
+ for half-stepping.
+\layout Description
+
+Pulley\SpecialChar ~
+Ratio If your machine has pulleys between the motor and leadscrew,
+ enter the ratio here.
+ If not, enter 
+\begin_inset Quotes eld
+\end_inset 
+
+1:1
+\begin_inset Quotes erd
+\end_inset 
+
+.
+\layout Description
+
+Leadscrew\SpecialChar ~
+Pitch Enter the pitch of the leadscrew here.
+ If you chose 
+\begin_inset Quotes eld
+\end_inset 
+
+Inch
+\begin_inset Quotes erd
+\end_inset 
+
+ units, enter the number of threads per inch here (e.g., enter 8 for 8TPI).
+ If you chose 
+\begin_inset Quotes eld
+\end_inset 
+
+mm
+\begin_inset Quotes erd
+\end_inset 
+
+ units, enter the number of millimeters per thread here (e.g., enter 2 for
+ 2mm/rev).
+ If the machine travels in the wrong direction, enter a negative number
+ here instead of a positive number.
+\layout Description
+
+Maximum\SpecialChar ~
+Velocity
+\layout Description
+
+Maximum\SpecialChar ~
+Acceleration The correct values for these items can only be determined
+ through experimentation.
+ See 
+\begin_inset Quotes eld
+\end_inset 
+
+Finding Velocity and Acceleration
+\begin_inset Quotes erd
+\end_inset 
+
+ below.
+\layout Description
+
+Home\SpecialChar ~
+Location The position the machine moves to after completing the homing
+ procedure for this axis.
+ For machines without home switches, this is the location the operator manually
+ moves the machine to before pressing the Home button.
+\layout Description
+
+Table\SpecialChar ~
+Travel The range of travel that gcode programs must not exceed.
+ The home location must be inside the Table Travel.
+ In particular, having Home Location exactly equal to one of the Tabel Travel
+ values is incorrect configuration
+\layout Description
+
+Home\SpecialChar ~
+Switch\SpecialChar ~
+Location The location at which the home switch trips or releases
+ during the homing process.
+ This item and the two below only appear when Home Switches were chosen
+ in the Parallel Port Pinout.
+\layout Description
+
+Home\SpecialChar ~
+Search\SpecialChar ~
+Velocity The velocity to use when moving towards the switch.
+ If the switch is near the end of travel, this velocity must be chosen so
+ that the axis can decelerate to a stop before hitting the end of travel.
+ If the switch is only closed for a short range of travel (instead of being
+ closed from its trip point to one end of travel), this velocity must be
+ chosen so that the axis can decelerate to a stop before the switch opens
+ again, and homing must always be started from the same side of the switch.
+\newline 
+If the machine moves the wrong direction at the beginning of the homing
+ procedure, negate the value of 
+\series bold 
+Home Search Velocity
+\series default 
+.
+\layout Description
+
+Home\SpecialChar ~
+Latch\SpecialChar ~
+Direction Choose 
+\begin_inset Quotes eld
+\end_inset 
+
+Same
+\begin_inset Quotes erd
+\end_inset 
+
+ to have homing back off the switch, then approach it again at a very low
+ speed.
+ The second time the switch closes, the home position is set.
+\newline 
+Choose 
+\begin_inset Quotes eld
+\end_inset 
+
+Opposite
+\begin_inset Quotes erd
+\end_inset 
+
+ to have homing slowly back off the switch.
+ When the switch opens, the home position is set.
+\layout Description
+
+Time\SpecialChar ~
+to\SpecialChar ~
+accelerate\SpecialChar ~
+to\SpecialChar ~
+max\SpecialChar ~
+speed
+\layout Description
+
+Distance\SpecialChar ~
+to\SpecialChar ~
+accelerate\SpecialChar ~
+to\SpecialChar ~
+max\SpecialChar ~
+speed
+\layout Description
+
+Pulse\SpecialChar ~
+rate\SpecialChar ~
+at\SpecialChar ~
+max\SpecialChar ~
+speed Information computed based on the values entered above.
+ The greatest 
+\series bold 
+Pulse rate at max speed
+\series default 
+ determines the 
+\series bold 
+BASE_PERIOD
+\series default 
+, and values above 20000Hz may lead to slow response time or even lockups
+ (the fastest usable pulse rate varies from computer to computer)
+\layout Subsection
+
+Spindle Configuration
+\layout Standard
+
+These options only appear when 
+\begin_inset Quotes eld
+\end_inset 
+
+Spindle PWM
+\begin_inset Quotes erd
+\end_inset 
+
+, 
+\begin_inset Quotes eld
+\end_inset 
+
+Spindle A
+\begin_inset Quotes erd
+\end_inset 
+
+ or 
+\begin_inset Quotes eld
+\end_inset 
+
+Spindle PPR
+\begin_inset Quotes erd
+\end_inset 
+
+ are chosen in the 
+\series bold 
+Parallel port pinout
+\series default 
+.
+\layout Subsubsection
+
+Spindle Speed Control
+\layout Standard
+
+If 
+\begin_inset Quotes eld
+\end_inset 
+
+Spindle PWM
+\begin_inset Quotes erd
+\end_inset 
+
+ appears on the pinout, the following information should be entered:
+\layout Description
+
+PWM\SpecialChar ~
+Rate The 
+\begin_inset Quotes eld
+\end_inset 
+
+carrier frequency
+\begin_inset Quotes erd
+\end_inset 
+
+ of the PWM signal to the spindle.
+ Enter 
+\begin_inset Quotes eld
+\end_inset 
+
+0
+\begin_inset Quotes erd
+\end_inset 
+
+ for PDM mode, which is useful for generating an analog control voltage.
+ Refer to the documentation for your spindle controller for the appropriate
+ value.
+\layout Description
+
+Speed\SpecialChar ~
+1\SpecialChar ~
+and\SpecialChar ~
+2,\SpecialChar ~
+PWM\SpecialChar ~
+1\SpecialChar ~
+and\SpecialChar ~
+2 The generated configuration file uses a simple linear
+ relationship to determine the PWM value for a given RPM value.
+ If the values are not known, they can be determined.
+ See the section 
+\begin_inset Quotes eld
+\end_inset 
+
+Determining Spindle Calibration
+\begin_inset Quotes erd
+\end_inset 
+
+ below.
+\layout Subsubsection
+
+Spindle-synchronized motion (lathe threading)
+\layout Standard
+
+When the appropriate signals from a spindle encoder are connected to the
+ parallel port, EMC supports lathe threading.
+ These signals are:
+\layout Description
+
+Spindle\SpecialChar ~
+PPR Also called 
+\begin_inset Quotes eld
+\end_inset 
+
+Index pulse
+\begin_inset Quotes erd
+\end_inset 
+
+, this is a pulse that occurs once per revolution of the spindle.
+\layout Description
+
+Spindle\SpecialChar ~
+A This is a pulse that occurs in multiple equally-spaced locations
+ as the spindle turns.
+\layout Description
+
+Spindle\SpecialChar ~
+B (optional) This is a second pulse that occurs, but with an offset
+ from 
+\series bold 
+Spindle A
+\series default 
+.
+ The advantages to using both 
+\series bold 
+A
+\series default 
+ and 
+\series bold 
+B
+\series default 
+ are increased noise immunity and increased resolution.
+\layout Standard
+
+If 
+\begin_inset Quotes eld
+\end_inset 
+
+Spindle A
+\begin_inset Quotes erd
+\end_inset 
+
+ and 
+\begin_inset Quotes eld
+\end_inset 
+
+Spindle PPR
+\begin_inset Quotes erd
+\end_inset 
+
+ appear on the pinout, the following information should be entered:
+\layout Description
+
+Cycles\SpecialChar ~
+per\SpecialChar ~
+revolution The number of cycles of the 
+\series bold 
+Spindle A
+\series default 
+ signal during one revolution of the spindle
+\layout Description
+
+
+\begin_inset Note
+collapsed false
+
+\layout Description
+
+Maximum\SpecialChar ~
+threading\SpecialChar ~
+speed The maximum spindle speed at which threading will
+ be used.
+ Like high motor speeds in Hz, high 
+\series bold 
+SPINDLE A
+\series default 
+ speeds require a low 
+\series bold 
+BASE_PERIOD
+\series default 
+ setting (TODO)
+\end_inset 
+
+
+\layout Subsection
+
+Machine Configuration Complete
+\layout Standard
+
+Click 
+\begin_inset Quotes eld
+\end_inset 
+
+Apply
+\begin_inset Quotes erd
+\end_inset 
+
+ to write the configuration files.
+ Later, you can re-run this program and tweak the settings you entered before.
+\layout Section
+
+Finding Velocity and Acceleration
+\layout Standard
+
+With Stepconf it is easy to try different values for acceleration and velocity.
+ First, enter the correct figures for 
+\series bold 
+Steps per Revolution
+\series default 
+, 
+\series bold 
+Microstepping
+\series default 
+, 
+\series bold 
+Pulley
+\series default 
+, and 
+\series bold 
+Leadscrew
+\series default 
+.
+ Then enter a provisional value for 
+\series bold 
+Velocity
+\series default 
+.
+
+\series bold 
+ Next
+\series default 
+, click 
+\series bold 
+Test this axis
+\series default 
+.
+\layout Subsection
+
+Finding Maximum Velocity
+\layout Standard
+
+Begin with a low Acceleration (e.g., 2 in/s^2 or 50mm/s^2) and the velocity
+ you hope to attain.
+ Using the buttons provided, jog the axis to near the center of travel.
+ Take care because with a low acceleration value, it can take a surprising
+ distance for the axis to decelerate to a stop.
+\layout Standard
+
+After gauging the amount of travel available, enter a safe distance in Test
+ Area, keeping in mind that after a stall the motor may next start to move
+ in an unexpected direction.
+ Then click Run.
+ The machine will begin to move back and forth along this axis.
+ In this test, it is important that the combination of Acceleration and
+ Test Area allow the machine to reach the selected Velocity and 
+\begin_inset Quotes eld
+\end_inset 
+
+cruise
+\begin_inset Quotes erd
+\end_inset 
+
+ for at least a short distance--the more distance, the better this test
+ is.
+ The formula d=.5*v*v/a gives the minimum distance required reach the specified
+ velocity with the given acceleration.
+ If it is convenient and safe to do so, push the table against the direction
+ of motion to simulate cutting forces.
+ If the machine stalls, reduce the speed and start the test again.
+\layout Standard
+
+If the machine did not obviously stall, click the 
+\begin_inset Quotes eld
+\end_inset 
+
+Run
+\begin_inset Quotes erd
+\end_inset 
+
+ button off.
+ The axis now returns to the position where it started.
+ If the position is incorrect, then the axis stalled or lost steps during
+ the test.
+ Reduce Velocity and start the test again.
+\layout Standard
+
+If the machine doesn't move, stalls, or loses steps no matter how low you
+ turn Velocity, verify the following:
+\layout Itemize
+
+Correct step waveform timings
+\layout Itemize
+
+Correct pinout, including 
+\begin_inset Quotes eld
+\end_inset 
+
+Invert
+\begin_inset Quotes erd
+\end_inset 
+
+ on step pins
+\layout Itemize
+
+Correct, well-shielded cabling
+\layout Itemize
+
+Physical problems with the motor, motor coupling, leadscrew, etc.
+\layout Standard
+
+Once you have found a speed at which the axis does not stall or lose steps
+ during this testing procedure, reduce it by 10% and use that as the axis
+ Maximum Velocity.
+\layout Subsection
+
+Finding Maximum Acceleration
+\layout Standard
+
+With the Maximum Velocity you found in the previous step, enter the acceleration
+ value to test.
+ procedure as above, adjusting the Acceleration value up or down as necessary.
+ In this test, it is important that the combination of Acceleration and
+ Test Area allow the machine to reach the selected Velocity.
+ Once you have found a value at which the axis does not stall or lose steps
+ during this testing procedure, reduce it by 10% and use that as the axis
+ Maximum Acceleration.
+\layout Section
+
+Determining Spindle Calibration
+\layout Standard
+
+Enter the following values in the Spindle Configuration page:
+\layout Standard
+
+
+\begin_inset  Tabular
+<lyxtabular version="3" rows="2" columns="4">
+<features>
+<column alignment="center" valignment="top" leftline="true" width="0">
+<column alignment="center" valignment="top" leftline="true" width="0">
+<column alignment="center" valignment="top" leftline="true" width="0">
+<column alignment="center" valignment="top" leftline="true" rightline="true" width="0">
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Speed 1:
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\series bold 
+0
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+PWM 1:
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\series bold 
+0
+\end_inset 
+</cell>
+</row>
+<row topline="true" bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Speed 2:
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\series bold 
+1000
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+PWM 1:
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\series bold 
+1
+\end_inset 
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset 
+
+
+\layout Standard
+
+Finish the remaining steps of the configuration process, then launch EMC
+ with your configuration.
+ Turn the machine on and select the MDI tab.
+ Start the spindle turning by entering: 
+\family typewriter 
+M3 S100
+\family default 
+.
+ Change the spindle speed by entering a different S-number: 
+\family typewriter 
+S800
+\family default 
+.
+ Valid numbers range from 0 to 1000.
+\layout Standard
+
+For two different S-numbers, measure the actual spindle speed in RPM.
+ Record the S-numbers and actual spindle speeds.
+ Run Stepconf again.
+ For 
+\begin_inset Quotes eld
+\end_inset 
+
+Speed
+\begin_inset Quotes erd
+\end_inset 
+
+ enter the measured speed, and for 
+\begin_inset Quotes eld
+\end_inset 
+
+PWM
+\begin_inset Quotes erd
+\end_inset 
+
+ enter the S-number divided by 1000.
+\layout Standard
+
+Because most spindle drivers are somewhat nonlinear in their response curves,
+ it is best to:
+\layout Itemize
+
+Make sure the two calibration speeds are not too close together in RPM
+\layout Itemize
+
+Make sure the two calibration speeds are in the range of speeds you will
+ typically use while milling
+\layout Standard
+
+For instance, if your spindle will go from 0RPM to 8000RPM, but you generally
+ use speeds from 400RPM to 4000RPM, then find the PWM values that give 1600RPM
+ and 2800RPM.
+\layout Standard
+
+Axis Travel, Home Location, and Home Switch Location
+\layout Standard
+
+For each axis, there is a limited range of travel.
+ The physical end of travel is called the 
+\series bold 
+hard stop
+\series default 
+.
+ 
+\layout Standard
+
+Before the 
+\series bold 
+hard stop
+\series default 
+ there is a 
+\series bold 
+limit switch
+\series default 
+.
+ If the limit switch is encountered during normal operation, EMC shuts down
+ the motor amplifier.
+ The distance between the 
+\series bold 
+hard stop
+\series default 
+ and 
+\series bold 
+limit switch
+\series default 
+ must be long enough to allow an unpowered motor to coast to a stop.
+ 
+\layout Standard
+
+Before the 
+\series bold 
+limit switch
+\series default 
+ there is a 
+\series bold 
+soft limit
+\series default 
+.
+ This is a limit enforced in software after homing.
+ If a MDI command, or gcode program would pass the soft limit, it is not
+ executed.
+ If a jog would pass the soft limit, it is terminated at the soft limit.
+\layout Standard
+
+The 
+\series bold 
+home switch
+\series default 
+ can be placed anywhere within the travel (between hard stops).
+ As long as external hardware does not deactivate the motor amplifiers with
+ the limit switch is reached, one of the limit switches can be used as a
+ home switch.
+\layout Standard
+
+The 
+\series bold 
+zero position
+\series default 
+ is the location on the axis that is 0 in the machine coordinate system.
+ Usually the 
+\series bold 
+zero position
+\series default 
+ will be within the 
+\series bold 
+soft limits
+\series default 
+.
+ On lathes, constant surface speed mode requires that machine 
+\series bold 
+X=0
+\series default 
+ correspond to the center of spindle rotation when no tool offset is in
+ effect.
+\layout Standard
+
+The 
+\series bold 
+home position
+\series default 
+ is the location within travel that the axis will be moved to at the end
+ of the homing sequence.
+ This value must be within the 
+\series bold 
+soft limits
+\series default 
+.
+ In particular, the 
+\series bold 
+home position
+\series default 
+ should never be exactly equal to a 
+\series bold 
+soft limit
+\series default 
+.
+\layout Standard
+
+
+\begin_inset Note
+collapsed false
+
+\layout Standard
+
+a diagram of all these limits would be nice
+\end_inset 
+
+
+\layout Subsection
+
+Operating without Limit Switches
+\layout Standard
+
+A machine can be operated without limit switches.
+ In this case, only the 
+\series bold 
+soft limits
+\series default 
+ stop the machine from reaching the 
+\series bold 
+hard stop
+\series default 
+.
+ 
+\series bold 
+Soft limits
+\series default 
+ only operate after the machine has been homed.
+\layout Subsection
+
+Operating without Home Switches
+\layout Standard
+
+A machine can be operated without home switches.
+ If the machine has limit switches, but no home switches, it is best to
+ use a limit switch as the home switch (e.g., choose 
+\series bold 
+Minimum Limit + Home X
+\series default 
+ in the pinout).
+ If the machine has no home switches, or the limit switches cannot be used
+ as home switches for another reason, then the machine must be homed 
+\begin_inset Quotes eld
+\end_inset 
+
+by eye
+\begin_inset Quotes erd
+\end_inset 
+
+.
+ Homing by eye is not as repeatable as homing to switches, but it still
+ allows the 
+\series bold 
+soft limits
+\series default 
+ to be useful.
+\layout Section
+
+Latency Test
+\begin_inset LatexCommand \label{sec:Latency-Test}
+
+\end_inset 
+
+
+\layout Standard
+
+Generating step pulses in software has one very big advantage - it's free.
+ Just about every PC has a parallel port that is capable of outputting step
+ pulses that are generated by the software.
+ However, software step pulses also have some disadvantages:
+\layout Itemize
+
+limited maximum step rate 
+\layout Itemize
+
+jitter in the generated pulses
+\layout Itemize
+
+loads the CPU
+\layout Standard
+
+Latency is how long it takes the PC to stop what it is doing and respond
+ to an external request.
+ In our case, the request is the periodic "heartbeat" that serves as a timing
+ reference for the step pulses.
+ The lower the latency, the faster you can run the heartbeat, and the faster
+ and smoother the step pulses will be.
+\layout Standard
+
+Latency is far more important than CPU speed.
+ A lowly Pentium II that responds to interrupts within 10 microseconds each
+ and every time can give better results than the latest and fastest P4 Hyperthre
+ading beast.
+\layout Standard
+
+The CPU isn't the only factor in determining latency.
+ Motherboards, video cards, USB ports, and a number of other things can
+ hurt the latency.
+ The best way to find out what you are dealing with is to run the HAL latency
+ test.
+\layout Standard
+
+To run the test, simply open a shell and type 
+\family typewriter 
+latency-test
+\family default 
+.
+ You should see something like this:
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename latency.png
+
+\end_inset 
+
+
+\layout Standard
+
+While the test is running, you should "abuse" the computer.
+ Move windows around on the screen.
+ Surf the web.
+ Copy some large files around on the disk.
+ Play some music.
+ Run an OpenGL program such as glxgears.
+ The idea is to put the PC through its paces while the latency test checks
+ to see what the worst case numbers are.
+ 
+\series bold 
+Do not run EMC2 or Stepconf while the latency test is running.
+\layout Standard
+
+The important numbers are the 
+\begin_inset Quotes eld
+\end_inset 
+
+max jitter
+\begin_inset Quotes erd
+\end_inset 
+
+.
+ In the example above, that is 17894 nanoseconds, or 17.9 microseconds.
+ Record this number, and enter it in Stepconf when it is requested.
+\layout Standard
+
+In the example above, latency-test only ran for a few seconds.
+ You should run the test for at least several minutes; sometimes the worst
+ case latency doesn't happen very often, or only happens when you do some
+ particular action.
+ For instance, one Intel motherboard worked pretty well most of the time,
+ but every 64 seconds it had a very bad 300uS latency.
+ Fortunately that was fixable (see 
+\begin_inset LatexCommand \htmlurl["Fixing Dapper SMI Issues"]{http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?FixingDapperSMIIssues}
+
+\end_inset 
+
+)
+\layout Standard
+
+So, what do the results mean? If your Max Jitter number is less than about
+ 15-20 microseconds (15000-20000 nanoseconds), the computer should give
+ very nice results with software stepping.
+ If the max latency is more like 30-50 microseconds, you can still get good
+ results, but your maximum step rate might be a little disappointing, especially
+ if you use microstepping or have very fine pitch leadscrews.
+ If the numbers are 100uS or more (100,000 nanoseconds), then the PC is
+ not a good candidate for software stepping.
+ Numbers over 1 millisecond (1,000,000 nanoseconds) mean the PC is not a
+ good candidate for EMC, regardless of whether you use software stepping
+ or not.
+\layout Standard
+
+Note that if you get high numbers, there may be ways to improve them.
+ Another PC had very bad latency (several milliseconds) when using the onboard
+ video.
+ But a $5 used Matrox video card solved the problem - EMC does not require
+ bleeding edge hardware.
+\layout Section
+
+Home and Limit Switch wiring options
+\layout Standard
+
+The ideal wiring for external switches would be one input per switch.
+ However, the PC parallel port only offers a total of 5 inputs, while there
+ are as many as 9 switches on a 3-axis machine.
+ Instead, multiple switches are wired together in various ways so that a
+ smaller number of inputs are required.
+\layout Standard
+
+The figures below show the general idea of wiring multiple switches to a
+ single input pin.
+ In each case, when one switch is actuated, the value seen on INPUT goes
+ from logic HIGH to LOW.
+ However, EMC expects a TRUE value when a switch is closed, so the corresponding
+ 
+\begin_inset Quotes eld
+\end_inset 
+
+Invert
+\begin_inset Quotes erd
+\end_inset 
+
+ box must be checked on the pinout configuration page.
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename switch-nc-series.eps
+	width 50page%
+	keepAspectRatio
+
+\end_inset 
+
+
+\layout Caption
+
+Wiring Normally Closed switches in series (simplified diagram)
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename switch-no-parallel.eps
+	width 50page%
+	keepAspectRatio
+
+\end_inset 
+
+
+\layout Caption
+
+Wiring Normally Open switches in parallel (simplified diagram)
+\end_inset 
+
+
+\layout Standard
+
+The following combinations of switches are permitted in Stepconf:
+\layout Itemize
+
+Combine home switches for all axes
+\layout Itemize
+
+Combine limit switches for all axes
+\layout Itemize
+
+Combine both limit switches for one axis
+\layout Itemize
+
+Combine both limit switches and the home switch for one axis
+\layout Itemize
+
+Combine one limit switch and the home switch for one axis
+\layout Standard
+
+The last two combinations are also appropriate when a 
+\begin_inset Quotes eld
+\end_inset 
+
+home to limit
+\begin_inset Quotes erd
+\end_inset 
+
+ is used.
+\the_end

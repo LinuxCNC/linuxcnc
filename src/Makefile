@@ -78,7 +78,7 @@ SUBDIRS := \
     hal/components hal/drivers hal/user_comps/vcp hal/user_comps/devices \
     hal/user_comps hal/classicladder hal/utils hal \
     \
-    emc/usr_intf/axis \
+    emc/usr_intf/axis emc/usr_intf/stepconf \
     emc/usr_intf emc/nml_intf emc/task emc/iotask emc/kinematics emc/canterp \
     emc/motion emc/ini emc/rs274ngc emc/sai emc \
     \

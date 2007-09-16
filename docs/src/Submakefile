@@ -36,6 +36,7 @@ DOC_SRCS := \
 	config/ini_homing.lyx \
 	config/emc2hal.lyx \
 	config/stepper.lyx \
+	config/stepconf.lyx \
 	gcode/coordinates.lyx \
 	gcode/main.lyx \
 	gcode/mill_canned.lyx \
