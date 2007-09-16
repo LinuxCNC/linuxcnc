@@ -1280,6 +1280,7 @@ class App:
 	    setp steptest.0.run %(run)s
 	    setp steptest.0.amplitude %(amplitude)s
 	    setp steptest.0.maxvel %(vel)s
+	    setp steptest.0.dir %(dir)s
 	""" % {
 	    'jogminus': self.jogminus,
 	    'jogplus': self.jogplus,
@@ -1287,6 +1288,7 @@ class App:
 	    'amplitude': self.widgets.testamplitude.get_value(),
 	    'accel': self.widgets.testacc.get_value(),
 	    'vel': self.widgets.testvel.get_value(),
+	    'dir': self.widgets.testdir.get_active(),
 	})
 	halrun.flush()
 
@@ -1324,7 +1326,7 @@ class App:
             period = minperiod
             maxvel = 1e9 / minperiod / scale
 
-	self.halrun = halrun = os.popen("halrun", "w")
+	self.halrun = halrun = os.popen("halrun -sf > /dev/null", "w")
 	axnum = "xyza".index(axis)
 	step = XSTEP + 2 * axnum
 	dir = XDIR + 2 * axnum
@@ -1426,6 +1428,7 @@ class App:
 	    widgets.testamplitude.set_digits(1)
 
 	self.jogplus = self.jogminus = 0
+	self.widgets.testdir.set_active(0)
 	self.widgets.run.set_active(0)
 	self.widgets.testacc.set_value(acc)
 	self.widgets.testvel.set_value(vel)
