@@ -176,8 +176,8 @@ static parport_t *port_data_array;
 static int comp_id;		/* component ID */
 static int num_ports;		/* number of ports configured */
 
-static unsigned long long ns2tsc_factor;
-#define ns2tsc(x) (((x) * ns2tsc_factor) >> 32)
+static unsigned long ns2tsc_factor;
+#define ns2tsc(x) (((x) * (unsigned long long)ns2tsc_factor) >> 12)
 
 /***********************************************************************
 *                  LOCAL FUNCTION DECLARATIONS                         *
@@ -227,9 +227,11 @@ int rtapi_app_main(void)
 
 
 #if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,0)
-    ns2tsc_factor = (unsigned long long)(1e6 * (1ll<<32) / cpu_khz);
+    // this calculation fits in a 32-bit unsigned 
+    // as long as CPUs are under about 6GHz
+    ns2tsc_factor = (cpu_khz << 6) / 15625ul;
 #else
-    ns2tsc_factor = 1ll<<32;
+    ns2tsc_factor = 1ll<<12;
 #endif
 
     /* test for config string */
@@ -551,6 +553,8 @@ static void reset_port(void *arg, long period) {
    
     if(port->reset_time > period/4) port->reset_time = period/4;
 
+    port->debug1 = ns2tsc(port->reset_time);
+    port->debug2 = ns2tsc_factor;
     deadline = port->write_time + ns2tsc(port->reset_time);
     while(rtapi_get_clocks() < deadline) {}
 
