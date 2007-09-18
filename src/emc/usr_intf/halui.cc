@@ -365,8 +365,9 @@ EMC_STAT *emcStatus = 0;
 // the NML channel for errors
 static NML *emcErrorBuffer = 0;
 
-// the current command numbers, set up updateStatus(), used in main()
-static int emcCommandSerialNumber = 0;
+// the serial number to use.  By starting high we'll not clash with other guis so easily.
+// XXX it would be nice to have a real fix here. XXX
+static int emcCommandSerialNumber = 100000;
 
 // default value for timeout, 0 means wait forever
 // use same timeout value as in tkemc & mini
@@ -1833,7 +1834,6 @@ int main(int argc, char *argv[])
 	esleep(0.02); //sleep for a while
 	
 	updateStatus();
-	emcCommandSerialNumber = emcStatus->echo_serial_number;
     }
     thisQuit();
     return 0;
