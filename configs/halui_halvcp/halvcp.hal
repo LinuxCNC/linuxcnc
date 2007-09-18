@@ -85,6 +85,9 @@ net os-is-on             led.os.is-on             halui.program.optional-stop.is
 
 net probe-button         button.probe             motion.probe-input
 
+net quill-up            button.quillup          halui.mdi-command-00
+net reference-pos       button.referencepos     halui.mdi-command-01
+
 #use a sets to set jog speed, until there is a halvcp slider
 newsig jogspeed float
 linksp jogspeed halui.jog-speed

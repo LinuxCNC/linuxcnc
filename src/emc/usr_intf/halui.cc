@@ -371,7 +371,8 @@ static int emcCommandSerialNumber = 100000;
 
 // default value for timeout, 0 means wait forever
 // use same timeout value as in tkemc & mini
-static double emcTimeout = 1.0;
+static double receiveTimeout = 1.;
+static double doneTimeout = 60.;
 
 static void quit(int sig)
 {
@@ -526,7 +527,7 @@ static int emcCommandWaitReceived(int serial_number)
 {
     double end = 0.0;
 
-    while (emcTimeout <= 0.0 || end < emcTimeout) {
+    while (end < receiveTimeout) {
 	updateStatus();
 
 	if (emcStatus->echo_serial_number == serial_number) {
@@ -549,7 +550,7 @@ static int emcCommandWaitDone(int serial_number)
 	return -1;
     }
     // now wait until it, or subsequent command (e.g., abort) is done
-    while (emcTimeout <= 0.0 || end < emcTimeout) {
+    while (end < doneTimeout) {
 	updateStatus();
 
 	if (emcStatus->status == RCS_DONE) {
@@ -563,7 +564,6 @@ static int emcCommandWaitDone(int serial_number)
 	esleep(EMC_COMMAND_DELAY);
 	end += EMC_COMMAND_DELAY;
     }
-
     return -1;
 }
 
@@ -958,12 +958,12 @@ int sendMdiCmd(char *mdi)
     strcpy(emc_task_plan_execute_msg.command, mdi);
     emc_task_plan_execute_msg.serial_number = ++emcCommandSerialNumber;
     emcCommandBuffer->write(emc_task_plan_execute_msg);
-    return emcCommandWaitReceived(emcCommandSerialNumber);
+    return emcCommandWaitDone(emcCommandSerialNumber);
 }
 
 static int sendMdiCommand(int n)
 {
-    return sendMdi() || sendMdiCmd(mdi_commands[n]);
+    return sendMdi() || sendMdiCmd(mdi_commands[n]) || sendManual();
 }
 
 static int sendMistOn()

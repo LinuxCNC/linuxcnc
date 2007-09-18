@@ -534,6 +534,18 @@ vcp {
                 }
 		
 	    }
+            box {
+                layout = vertical
+                title = "MDI commands"
+                button {
+                    halpin = button.quillup
+                    label { text = "Quill Up" }
+                }
+                button {
+                    halpin = button.referencepos
+                    label { text = "Reference Pos" }
+                }
+            }
         }
     }
     } # main-window
