@@ -281,7 +281,7 @@ int emcIoAbort()
     EMC_TOOL_ABORT ioAbortMsg;
 
     // send abort command to emcio
-    forceCommand(&ioAbortMsg);
+    sendCommand(&ioAbortMsg);
 
     return 0;
 }
