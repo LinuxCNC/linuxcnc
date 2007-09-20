@@ -59,37 +59,37 @@ msgstr "Commande (%s) impossible en mode manuel"
 msgid "can't do that (%s) in auto mode with the interpreter idle"
 msgstr "(%s) impossible en mode auto avec l'interpreteur inactif"
 
-#: emc/task/emctaskmain.cc:856
+#: emc/task/emctaskmain.cc:854
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter reading"
 msgstr "(%s) impossible en mode auto avec l'interpreteur en lecture"
 
-#: emc/task/emctaskmain.cc:1077
+#: emc/task/emctaskmain.cc:1076
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter paused"
 msgstr "(%s) impossible en mode auto avec l'interpreteur en pause"
 
-#: emc/task/emctaskmain.cc:1141
+#: emc/task/emctaskmain.cc:1140
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter waiting"
 msgstr "(%s) impossible en mode auto avec l'interpreteur en attente"
 
-#: emc/task/emctaskmain.cc:1256
+#: emc/task/emctaskmain.cc:1255
 #, c-format
 msgid "can't do that (%s) in MDI mode"
 msgstr "Commande (%s) impossible en mode MDI"
 
-#: emc/task/emctaskmain.cc:1887
+#: emc/task/emctaskmain.cc:1886
 #, c-format
 msgid "can't open %s"
 msgstr "Impossible d'ouvrir %s "
 
-#: emc/task/emctaskmain.cc:2991
+#: emc/task/emctaskmain.cc:2978
 #, c-format
 msgid "Minimum Software Limit on axis %d exceeded."
 msgstr "Limite logicielle minimale de l'axe %d depassee"
 
-#: emc/task/emctaskmain.cc:3000
+#: emc/task/emctaskmain.cc:2987
 #, c-format
 msgid "Maximum Software Limit on axis %d exceeded."
 msgstr "Limite logicielle maximale sur l'axe %d depassee"

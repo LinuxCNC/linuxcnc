@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: fr\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2007-08-27 22:44+0200\n"
-"PO-Revision-Date: 2007-09-04 16:53+0200\n"
+"PO-Revision-Date: 2007-09-18 20:54+0200\n"
 "Last-Translator: Francis TISSERANT <ftissera@free.fr>\n"
 "Language-Team: Français <gnomefr@traduc.org>\n"
 "MIME-Version: 1.0\n"
@@ -100,7 +100,7 @@ msgid ""
 msgstr ""
 "Le paramètre HAL\n"
 "  %s \n"
-" a change. \n"
+" a changé. \n"
 " Quitter vraiment ?"
 
 #: ../tcl/bin/emccalib.tcl:391 ../tcl/bin/halconfig.tcl:1166
@@ -385,7 +385,7 @@ msgstr "Afficher"
 
 #: ../tcl/bin/halconfig.tcl:129
 msgid "Watch"
-msgstr "Etats"
+msgstr "Watch"
 
 #: ../tcl/bin/halconfig.tcl:130
 msgid "Modify"
@@ -433,7 +433,7 @@ msgstr "Déployer les signaux"
 
 #: ../tcl/bin/halconfig.tcl:178 ../tcl/bin/halshow.tcl:104
 msgid "Erase Watch"
-msgstr "Effacer l'écran d'états "
+msgstr "Effacer l'écran de watch "
 
 #: ../tcl/bin/halconfig.tcl:190 ../tcl/mini.tcl:843 ../tcl/mini.tcl:2779
 msgid "About"
@@ -504,7 +504,7 @@ msgstr " MONTRER "
 
 #: ../tcl/bin/halshow.tcl:75
 msgid " WATCH "
-msgstr " ETATS "
+msgstr " WATCH "
 
 #: ../tcl/bin/halshow.tcl:90
 msgid "Tree View"
@@ -512,7 +512,7 @@ msgstr "Arborescence"
 
 #: ../tcl/bin/halshow.tcl:384
 msgid "Test HAL command :"
-msgstr "Tester commande HAL :"
+msgstr "Tester une commande HAL :"
 
 #: ../tcl/bin/halshow.tcl:588
 msgid "Commands may be tested here but they will NOT be saved"
@@ -531,11 +531,11 @@ msgstr "Aucun détail disponible."
 
 #: ../tcl/bin/pickconfig.tcl:180
 msgid "ERROR: must specify a path to search for configurations"
-msgstr "ERREUR: Spécifiez un chemin ou chercher les configurations"
+msgstr "ERREUR: Spécifiez un chemin où chercher les configurations"
 
 #: ../tcl/bin/pickconfig.tcl:192
 msgid "EMC2 Configuration Selector"
-msgstr "Sélecteur de configuration EMC2 "
+msgstr "Sélecteur de configuration d'EMC2 "
 
 #: ../tcl/bin/pickconfig.tcl:213
 msgid ""
@@ -549,7 +549,7 @@ msgstr ""
 "Bienvenue dans EMC2.\n"
 "\n"
 "Sélectionner une configuration de machine dans la liste de gauche.\n"
-"Les détails a propos de cette configuration apparaîtront dans l'écran de droite.\n"
+"Les détails à propos de cette configuration apparaîtront dans l'écran de droite.\n"
 "Cliquer 'OK' pour lancer la configuration sélectionnée"
 
 #: ../tcl/bin/pickconfig.tcl:270
@@ -567,7 +567,7 @@ msgstr "ERREUR: Aucune configuration trouvée dans le chemin '%s'"
 
 #: ../tcl/bin/pickconfig.tcl:367
 msgid "Copy Configuration?"
-msgstr "Copier configuration ?"
+msgstr "Copier la configuration ?"
 
 #: ../tcl/bin/pickconfig.tcl:367
 #, tcl-format
@@ -593,9 +593,7 @@ msgstr "Configuration copiée"
 msgid ""
 "The configuration file has been copied to %s. Next time, choose this "
 "location when starting EMC2."
-msgstr ""
-"Le fichier de configuration a bien été copié dans %s. La prochaine fois, "
-"choisissez cet emplacement quand vous démarrerez EMC2."
+msgstr "Le fichier de configuration a bien été copié dans %s. La prochaine fois, choisissez cet emplacement quand vous démarrerez EMC2."
 
 #: ../tcl/bin/pickconfig.tcl:427
 msgid "Shortcut Created"
@@ -605,10 +603,7 @@ msgstr "Raccourci créé"
 msgid ""
 "A shortcut to this configuration file has been created on your desktop.  You "
 "can use it to automatically launch this configuration."
-msgstr ""
-"Un lien vers ce fichier de configuration a bien été créé sur votre "
-"bureau.  Vous pourrez l'utiliser pour démarrer automatiquement cette "
-"configuration."
+msgstr "Un lien vers ce fichier de configuration a bien été créé sur votre bureau.  Vous pourrez l'utiliser pour démarrer automatiquement cette configuration."
 
 #: ../tcl/bin/pickconfig.tcl:432
 msgid "Create Desktop Shortcut"
@@ -632,7 +627,7 @@ msgstr "ANNULER"
 
 #: ../tcl/bin/tkbackplot.tcl:253
 msgid "AXIS"
-msgstr "AXIS"
+msgstr "AXES"
 
 #: ../tcl/bin/tkbackplot.tcl:254
 msgid "OFFSET"
