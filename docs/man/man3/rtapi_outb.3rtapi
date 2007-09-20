@@ -5,7 +5,7 @@ rtapi_outb, rtapi_inb \- Perform hardware I/O
 
 .SH SYNTAX
 .HP
-void rtapi_outb(unsigned char \fIbyte\fR, unsigned int \fIBport\fR)
+void rtapi_outb(unsigned char \fIbyte\fR, unsigned int \fIport\fR)
 
 .SH  ARGUMENTS
 .IP \fIport\fR
