@@ -536,16 +536,16 @@ class Data:
 	for i in inputs:
 	    pin = getattr(self, "pin%d" % i)
 	    inv = getattr(self, "pin%dinv" % i)
-	    if pin == input: return i, inv
-	return None, None
+	    if pin == input: return i
+	return None
 
     def find_output(self, output):
 	outputs = set((1, 2, 3, 4, 5, 6, 7, 8, 9, 14, 16, 17))
 	for i in outputs:
 	    pin = getattr(self, "pin%d" % i)
 	    inv = getattr(self, "pin%dinv" % i)
-	    if pin == output: return i, inv
-	return None, None
+	    if pin == output: return i
+	return None
 
     def connect_output(self, file, num):
 	p = self['pin%d' % num]
@@ -1278,8 +1278,8 @@ class App:
 	    setp steptest.0.jog-minus %(jogminus)s
 	    setp steptest.0.jog-plus %(jogplus)s
 	    setp steptest.0.run %(run)s
-	    setp steptest.0.amplitude %(amplitude)s
-	    setp steptest.0.maxvel %(vel)s
+	    setp steptest.0.amplitude %(amplitude)f
+	    setp steptest.0.maxvel %(vel)f
 	    setp steptest.0.dir %(dir)s
 	""" % {
 	    'jogminus': self.jogminus,
@@ -1326,7 +1326,8 @@ class App:
             period = minperiod
             maxvel = 1e9 / minperiod / scale
 
-	self.halrun = halrun = os.popen("halrun -sf > /dev/null", "w")
+	#self.halrun = halrun = os.popen("halrun -sf > /dev/null", "w")
+	self.halrun = halrun = os.popen("halrun -f", "w")
 	axnum = "xyza".index(axis)
 	step = XSTEP + 2 * axnum
 	dir = XDIR + 2 * axnum
@@ -1356,34 +1357,33 @@ class App:
 	    setp stepgen.0.dirsetup %(dirsetup)d
 	    setp stepgen.0.position-scale %(scale)d
 	    setp steptest.0.epsilon %(onestep)f
-	    setp parport.0.pin-%(steppin)02d-out-invert %(stepinvert)d
 
 	    setp stepgen.0.enable 1
 	""" % {
 	    'period': period,
 	    'ioaddr': data.ioaddr,
-	    'steppin': data.find_output(step)[0],
-	    'dirpin': data.find_output(dir)[0],
-	    'stepinvert': data.find_output(step)[1],
-	    'dirinvert': data.find_output(dir)[1],
+	    'steppin': data.find_output(step),
+	    'dirpin': data.find_output(dir),
 	    'dirhold': data.dirhold + data.latency,
 	    'dirsetup': data.dirsetup + data.latency,
             'onestep': 1. / data[axis + "scale"],
 	    'scale': data[axis + "scale"],
 	})
-	amp, inv = data.find_output(AMP)
+	amp = data.find_output(AMP)
 	if amp:
-	    halrun.write("""
-	    setp parport.0.pin-%(enablepin)02d-out 1
-	    setp parport.0.pin-%(enablepin)02d-out-invert %(enableinvert)d"""
-		% {'enablepin': amp, 'enableinvert': inv})
+	    halrun.write("setp parport.0.pin-%(enablepin)02d-out 1\n"
+		% {'enablepin': amp})
 
-	estop, inv = data.find_output(ESTOP)
+	estop = data.find_output(ESTOP)
 	if estop:
-	    halrun.write("""
-	    setp parport.0.pin-%(estoppin)02d-out 1
-	    setp parport.0.pin-%(estoppin)02d-out-invert %(estopinvert)d"""
-		% {'estoppin': estop, 'estopinvert': inv})
+	    halrun.write("setp parport.0.pin-%(estoppin)02d-out 1\n"
+		% {'estoppin': estop})
+
+        for pin in 1,2,3,4,5,6,7,8,9,14,16,17:
+            inv = getattr(data, "pin%dinv" % pin)
+            if inv:
+                halrun.write("setp parport.0.pin-%(pin)02d-out-invert 1\n"
+                    % {'pin': pin}) 
 
 	widgets.dialog1.set_title("%s Axis Test" % axis.upper())
 
