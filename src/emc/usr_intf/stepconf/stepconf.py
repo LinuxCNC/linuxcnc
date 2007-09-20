@@ -367,7 +367,6 @@ class Data:
 	    print >>file, "LINEAR_UNITS = mm"
 	else:
 	    print >>file, "LINEAR_UNITS = inch"
-	print >>file, "ANGULAR_UNITS = degree"
 	print >>file, "CYCLE_TIME = 0.010"
 	maxvel = max(self.xmaxvel, self.ymaxvel, self.zmaxvel)	
 	hypotvel = (self.xmaxvel**2 + self.ymaxvel**2 + self.zmaxvel**2) **.5
@@ -1205,19 +1204,24 @@ class App:
 	    if d.units == 1 or axis == 'a': pitch = 1./pitch
 	    pps = (pitch * get("steprev") * get("microstep") *
 		(get("pulleynum") / get("pulleyden")) * get("maxvel"))
+            if pps == 0: raise ValueError
 	    acctime = get("maxvel") / get("maxacc")
 	    accdist = acctime * .5 * get("maxvel")
 	    w[axis + "acctime"].set_text("%.4f" % acctime)
 	    w[axis + "accdist"].set_text("%.4f" % accdist)
 	    w[axis + "hz"].set_text("%.1f" % pps)
-	    self.data[axis + "scale"] = (pitch * get("steprev")
+	    scale = self.data[axis + "scale"] = (pitch * get("steprev")
 		* get("microstep") * (get("pulleynum") / get("pulleyden")))
+            w[axis + "scale"].set_text("%.1f" % scale)
             self.widgets.druid1.set_buttons_sensitive(1,1,1,1)
+            w[axis + "axistest"].set_sensitive(1)
 	except ValueError: # Some entries not numbers
 	    w[axis + "acctime"].set_text("")
 	    w[axis + "accdist"].set_text("")
 	    w[axis + "hz"].set_text("")
+            w[axis + "scale"].set_text("")
             self.widgets.druid1.set_buttons_sensitive(1,0,1,1)
+            w[axis + "axistest"].set_sensitive(0)
 
     def on_xsteprev_changed(self, *args): self.update_pps('x')
     def on_ysteprev_changed(self, *args): self.update_pps('y')
