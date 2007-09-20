@@ -75,7 +75,7 @@ Step length and direction setup/hold time is enforced in the FPGA.  Step space
 is enforced by a velocity cap in the driver.
 
 \\fI(all the following numbers are subject to change)\\fR
-In \\fIspeedrange=0\\fR, the maximum step rate is 321.5kHz.  For position
+In \\fIspeedrange=0\\fR, the maximum step rate is 312.5kHz.  For position
 feedback to be accurate, the maximum step rate is 512 pulses per servo cycle
 (so a 1kHz servo cycle does not impose any additional limitation).  The maximum
 step rate may be lowered by the step length and space parameters, which are
@@ -98,7 +98,7 @@ pin out s32 stepgen.#.counts[4];
 pin in bit stepgen.#.enable[4];
 pin in bit stepgen.#.reset[4] "When TRUE, reset position-fb to 0";
 param rw float stepgen.#.scale[4] = 1.0;
-param rw float stepgen.#.maxvel[4] = 1e30;
+param rw float stepgen.#.maxvel[4] = 0;
 param rw bit stepgen.step_polarity;
 
 param rw u32 stepgen.steplen "Step length in ns.";
@@ -224,17 +224,25 @@ FUNCTION(write) {
         actual_max = fmax / stepgen_scale(i);
         if(stepgen_maxvel(i) < 0) stepgen_maxvel(i) = -stepgen_maxvel(i);
         if(stepgen_maxvel(i) != 0 && stepgen_maxvel(i) > actual_max) {
-            rtapi_print_msg(RTAPI_MSG_ERR,
-                "Requested step rate %dHz decreased to %dHz "
-                "due to hardware or timing limitations\n",
-                (int)(stepgen_maxvel(i) * stepgen_scale(i)),
-                (int)(fmax));
+            static int message_printed[4] = {0,0,0,0};
+            if(!message_printed[i]) {
+                rtapi_print_msg(RTAPI_MSG_ERR,
+                    "Requested step rate %dHz decreased to %dHz "
+                    "due to hardware or timing limitations\n",
+                    (int)(stepgen_maxvel(i) * stepgen_scale(i)),
+                    (int)(fmax));
+                message_printed[i] = 1;
+            }
             stepgen_maxvel(i) = actual_max;
         }
 
-	if(v < -actual_max) v = -actual_max;
-	if(v > actual_max) v = actual_max;
-
+        if(stepgen_maxvel(i) == 0) {
+            if(v < -actual_max) v = -actual_max;
+            if(v > actual_max) v = actual_max;
+        } else {
+            if(v < -stepgen_maxvel(i)) v = -stepgen_maxvel(i);
+            if(v > stepgen_maxvel(i)) v = stepgen_maxvel(i);
+        }
 	rate = v * stepgen_scale(i) * ONE * PLUTO_SPEED / (1<<speedrange);
 
 	if(rate > maxrate) rate = maxrate;
