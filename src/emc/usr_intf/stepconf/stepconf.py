@@ -67,7 +67,7 @@ MIST, FLOOD, ESTOP, AMP, PUMP, UNUSED_OUTPUT) = range(17)
 hal_output_names = ("xstep", "xdir", "ystep", "ydir",
 "zstep", "zdir", "astep", "adir",
 "spindle-cw", "spindle-ccw", "spindle-pwm",
-"coolant-mist", "coolant-flood", "estop-out", "amplifier-enable",
+"coolant-mist", "coolant-flood", "estop-out", "xenable",
 "charge-pump")
 
 hal_input_names = ("estop-ext", "probe-in",
@@ -353,7 +353,6 @@ class Data:
 	if self.axes == 1:
 	    print >>file, "AXES = 4"
 	    print >>file, "COORDINATES = X Y Z A"
-	    print >>file, "ANGULAR_UNITS = degrees"
 	    print >>file, "MAX_ANGULAR_VELOCITY = %.2f" % self.amaxvel
 	    defvel = min(60, self.amaxvel/10.)
 	    print >>file, "DEFAULT_ANGULAR_VELOCITY = %.2f" % defvel
@@ -367,6 +366,7 @@ class Data:
 	    print >>file, "LINEAR_UNITS = mm"
 	else:
 	    print >>file, "LINEAR_UNITS = inch"
+        print >>file, "ANGULAR_UNITS = degree"
 	print >>file, "CYCLE_TIME = 0.010"
 	maxvel = max(self.xmaxvel, self.ymaxvel, self.zmaxvel)	
 	hypotvel = (self.xmaxvel**2 + self.ymaxvel**2 + self.zmaxvel**2) **.5
@@ -510,13 +510,13 @@ class Data:
 	print >>file, "net %senable axis.%d.amp-enable-out => stepgen.%d.enable" % (let, axnum, num)
 	homesig = self.home_sig(axnum)
 	if homesig:
-	    print >>file, "net %s => axis.0.home-sw-in" % homesig
+	    print >>file, "net %s => axis.%d.home-sw-in" % (homesig, num)
 	min_limsig = self.min_lim_sig(axnum)
 	if min_limsig:
-	    print >>file, "net %s => axis.0.neg-lim-sw-in" % min_limsig
+	    print >>file, "net %s => axis.%d.neg-lim-sw-in" % (min_limsig, num)
 	max_limsig = self.max_lim_sig(axnum)
 	if max_limsig:
-	    print >>file, "net %s => axis.0.pos-lim-sw-in" % max_limsig
+	    print >>file, "net %s => axis.%d.pos-lim-sw-in" % (max_limsig, num)
 
     def connect_input(self, file, num):
 	p = self['pin%d' % num]
@@ -593,7 +593,7 @@ class Data:
 	    print >>file, "net estop-out charge-pump.enable <= iocontrol.0.user-enable-out"
 
 	if pwm:
-	    print >>file, "loadrt pwmgen chan_type=0"
+	    print >>file, "loadrt pwmgen output_type=0"
 
 	print >>file
 	print >>file, "addf parport.0.read base-thread"
@@ -626,6 +626,11 @@ class Data:
 	    print >>file, "setp pwmgen.0.pwm-freq %s" % self.spindlecarrier	
 	    print >>file, "setp pwmgen.0.scale %s" % scale
 	    print >>file, "setp pwmgen.0.offset %s" % offset
+
+        if CW in outputs:
+            print >>file, "net spindle-cw <= motion.spindle-forward"
+        if CCW in outputs:
+            print >>file, "net spindle-ccw <= motion.spindle-reverse"
 
 	if encoder:
 	    print >>file
@@ -694,7 +699,7 @@ class Data:
                 print >>f1, "<pyvcp>"
                 print >>f1, "</pyvcp>"
         if self.pyvcp or self.customhal:
-	    custom = os.path.join(base, "postconfig_custom.hal")
+	    custom = os.path.join(base, "custom_postgui.hal")
 	    if not os.path.exists(custom):
 		f1 = open(custom, "w")
 		print >>f1, "# Include your customized HAL commands here"
