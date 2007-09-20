@@ -96,6 +96,10 @@ DONE: - mode:
    halui.mode.is_auto                  bit  //pin for auto mode is on
    halui.mode.mdi                      bit  //pin for requesting mdi mode
    halui.mode.is_mdi                   bit  //pin for mdi mode is on
+   halui.mode.teleop                   bit  //pin for requesting teleop mode
+   halui.mode.is_teleop                bit  //pin for teleop mode is on
+   halui.mode.joint                    bit  //pin for requesting joint mode
+   halui.mode.is_joint                 bit  //pin for joint mode is on
 
 DONE: - mist, flood, lube:
    halui.mist.on                       bit  //pin for starting mist
@@ -209,6 +213,10 @@ struct halui_str {
     hal_bit_t *mode_is_auto;       //pin for auto mode is on
     hal_bit_t *mode_mdi;           //pin for requesting mdi mode
     hal_bit_t *mode_is_mdi;        //pin for mdi mode is on
+    hal_bit_t *mode_teleop;        //pin for requesting teleop mode
+    hal_bit_t *mode_is_teleop;     //pin for teleop mode is on
+    hal_bit_t *mode_joint;         //pin for requesting joint mode
+    hal_bit_t *mode_is_joint;      //pin for joint mode is on
 
     hal_bit_t *mist_on;            //pin for starting mist
     hal_bit_t *mist_off;           //pin for stoping mist
@@ -295,6 +303,8 @@ struct local_halui_str {
     hal_bit_t mode_manual;        //pin for requesting manual mode
     hal_bit_t mode_auto;          //pin for requesting auto mode
     hal_bit_t mode_mdi;           //pin for requesting mdi mode
+    hal_bit_t mode_teleop;        //pin for requesting teleop mode
+    hal_bit_t mode_joint;         //pin for requesting joint mode
 
     hal_bit_t mist_on;            //pin for starting mist
     hal_bit_t mist_off;           //pin for stoping mist
@@ -694,6 +704,9 @@ int halui_hal_init(void)
     if (retval != HAL_SUCCESS) return retval;
     retval = halui_export_pin_OUT_bit(&(halui_data->mode_is_mdi), "halui.mode.is-mdi"); 
     if (retval != HAL_SUCCESS) return retval;
+    retval = halui_export_pin_OUT_bit(&(halui_data->mode_is_teleop), "halui.mode.is-teleop"); 
+    retval = halui_export_pin_OUT_bit(&(halui_data->mode_is_joint), "halui.mode.is-joint"); 
+    if (retval != HAL_SUCCESS) return retval;
     retval = halui_export_pin_OUT_bit(&(halui_data->mist_is_on), "halui.mist.is-on"); 
     if (retval != HAL_SUCCESS) return retval;
     retval = halui_export_pin_OUT_bit(&(halui_data->flood_is_on), "halui.flood.is-on"); 
@@ -775,6 +788,10 @@ int halui_hal_init(void)
     retval = halui_export_pin_IN_bit(&(halui_data->mode_auto), "halui.mode.auto"); 
     if (retval != HAL_SUCCESS) return retval;
     retval = halui_export_pin_IN_bit(&(halui_data->mode_mdi), "halui.mode.mdi"); 
+    if (retval != HAL_SUCCESS) return retval;
+    retval = halui_export_pin_IN_bit(&(halui_data->mode_teleop), "halui.mode.teleop"); 
+    if (retval != HAL_SUCCESS) return retval;
+    retval = halui_export_pin_IN_bit(&(halui_data->mode_joint), "halui.mode.joint"); 
     if (retval != HAL_SUCCESS) return retval;
     retval = halui_export_pin_IN_bit(&(halui_data->mist_on), "halui.mist.on"); 
     if (retval != HAL_SUCCESS) return retval;
@@ -964,6 +981,27 @@ int sendMdiCmd(char *mdi)
 static int sendMdiCommand(int n)
 {
     return sendMdi() || sendMdiCmd(mdi_commands[n]) || sendManual();
+}
+
+
+static int sendTeleop()
+{
+    EMC_TRAJ_SET_TELEOP_ENABLE emc_set_teleop_enable_msg;
+
+    emc_set_teleop_enable_msg.enable = 1;
+    emc_set_teleop_enable_msg.serial_number = ++emcCommandSerialNumber;
+    emcCommandBuffer->write(emc_set_teleop_enable_msg);
+    return emcCommandWaitDone(emcCommandSerialNumber);
+}
+
+static int sendJoint()
+{
+    EMC_TRAJ_SET_TELEOP_ENABLE emc_set_teleop_enable_msg;
+
+    emc_set_teleop_enable_msg.enable = 0;
+    emc_set_teleop_enable_msg.serial_number = ++emcCommandSerialNumber;
+    emcCommandBuffer->write(emc_set_teleop_enable_msg);
+    return emcCommandWaitDone(emcCommandSerialNumber);
 }
 
 static int sendMistOn()
@@ -1512,6 +1550,12 @@ static void check_hal_changes()
     if (check_bit_changed(halui_data->mode_mdi, &(old_halui_data.mode_mdi)) != 0)
 	sendMdi();
 
+    if (check_bit_changed(halui_data->mode_teleop, &(old_halui_data.mode_teleop)) != 0)
+	sendTeleop();
+
+    if (check_bit_changed(halui_data->mode_joint, &(old_halui_data.mode_joint)) != 0)
+	sendJoint();
+
     if (check_bit_changed(halui_data->mist_on, &(old_halui_data.mist_on)) != 0)
 	sendMistOn();
 
@@ -1741,6 +1785,18 @@ static void modify_hal_pins()
 	*(halui_data->mode_is_mdi)=1;
     } else {
 	*(halui_data->mode_is_mdi)=0;
+    }
+
+    if (emcStatus->motion.traj.mode == EMC_TRAJ_MODE_TELEOP) {
+	*(halui_data->mode_is_teleop)=1;
+    } else {
+	*(halui_data->mode_is_teleop)=0;
+    }
+
+    if (emcStatus->motion.traj.mode == EMC_TRAJ_MODE_TELEOP) {
+	*(halui_data->mode_is_joint)=0;
+    } else {
+	*(halui_data->mode_is_joint)=1;
     }
 
     *(halui_data->program_is_paused) = emcStatus->task.interpState == EMC_TASK_INTERP_PAUSED;
