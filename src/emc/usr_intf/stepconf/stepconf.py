@@ -399,7 +399,7 @@ class Data:
         pulleyden = getattr(self, axname+"pulleyden")
         leadscrew = getattr(self, axname+"leadscrew")
         maxvel = getattr(self, axname+"maxvel")
-        if self.units: leadscrew = 1/leadscrew
+        if self.units or axname == 'a': leadscrew = 1./leadscrew
         pps = leadscrew * steprev * microstep * (pulleynum/pulleyden) * maxvel
         return pps
 
@@ -1061,7 +1061,7 @@ class App:
 	set_active("latchdir")
 
 	if axis == "a":
-	    w[axis + "screwunits"].set_text("rev / degree")
+	    w[axis + "screwunits"].set_text("degree / rev")
 	    w[axis + "velunits"].set_text("deg / s")
 	    w[axis + "accunits"].set_text("deg / s²")
 	    w[axis + "accdistunits"].set_text("deg")
@@ -1202,7 +1202,7 @@ class App:
 
 	try:
 	    pitch = get("leadscrew")
-	    if d.units == 1: pitch = 1/pitch
+	    if d.units == 1 or axis == 'a': pitch = 1./pitch
 	    pps = (pitch * get("steprev") * get("microstep") *
 		(get("pulleynum") / get("pulleyden")) * get("maxvel"))
 	    acctime = get("maxvel") / get("maxacc")
@@ -1326,8 +1326,8 @@ class App:
             period = minperiod
             maxvel = 1e9 / minperiod / scale
 
-	#self.halrun = halrun = os.popen("halrun -sf > /dev/null", "w")
-	self.halrun = halrun = os.popen("halrun -f", "w")
+	self.halrun = halrun = os.popen("halrun -sf > /dev/null", "w")
+
 	axnum = "xyza".index(axis)
 	step = XSTEP + 2 * axnum
 	dir = XDIR + 2 * axnum
@@ -1400,6 +1400,7 @@ class App:
 	    widgets.testvel.set_digits(1)
 	    widgets.testacc.set_digits(1)
 	    widgets.testamplitude.set_digits(1)
+            widgets.testamplitude.set_value(10)
 	elif data.units:
 	    widgets.testvelunit.set_text("mm / s")
 	    widgets.testaccunit.set_text("mm / s²")
@@ -1413,6 +1414,7 @@ class App:
 	    widgets.testvel.set_digits(2)
 	    widgets.testacc.set_digits(2)
 	    widgets.testamplitude.set_digits(2)
+            widgets.testamplitude.set_value(.5)
 	else:
 	    widgets.testvelunit.set_text("in / s")
 	    widgets.testaccunit.set_text("in / s²")
@@ -1426,6 +1428,7 @@ class App:
 	    widgets.testvel.set_digits(1)
 	    widgets.testacc.set_digits(1)
 	    widgets.testamplitude.set_digits(1)
+            widgets.testamplitude.set_value(15)
 
 	self.jogplus = self.jogminus = 0
 	self.widgets.testdir.set_active(0)
