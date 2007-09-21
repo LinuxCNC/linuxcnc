@@ -3111,7 +3111,8 @@ def jog_on(a, b):
     if s.motion_mode == emc.TRAJ_MODE_TELEOP:
         jogging[a] = b
         jog_cont[a] = False
-        c.teleop_vector(*jogging)
+        cartesian_only=jogging[:6]
+        c.teleop_vector(*cartesian_only)
     else:
         if jogincr != _("Continuous"):
             s.poll()
@@ -3136,7 +3137,8 @@ def jog_off_actual(a):
     jog_after[a] = None
     jogging[a] = 0
     if s.motion_mode == emc.TRAJ_MODE_TELEOP:
-        c.teleop_vector(*jogging)
+        cartesian_only=jogging[:6]
+        c.teleop_vector(*cartesian_only)
     else:
         if jog_cont[a]:
             jog(emc.JOG_STOP, a)
