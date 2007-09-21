@@ -622,18 +622,14 @@ static int localEmcTrajMotionId = 0;
 
 int emcTrajSetAxes(int axes, int axismask)
 {
-    if(axes == 0) {
-	if(axismask & 256) axes = 9;
-	else if(axismask & 128) axes = 8;
-	else if(axismask & 64) axes = 7;
-	else if(axismask & 32) axes = 6;
-	else if(axismask & 16) axes = 5;
-	else if(axismask & 8) axes = 4;
-	else if(axismask & 4) axes = 3;
-	else if(axismask & 2) axes = 2;
-	else if(axismask & 1) axes = 1;
+    int deduced_axes = 0;
+    //deconstruct the bitmask
+    for (int i=0; i < ( (int)sizeof(axismask) * 8 ); i++) {
+        if( (1<<i) & axismask ){
+            deduced_axes += 1;
+        }
     }
-    if (axes <= 0 || axes > EMCMOT_MAX_AXIS || axismask >= (1<<axes)) {
+      if (axes <= 0 || axes > EMCMOT_MAX_AXIS || deduced_axes != axes ) {
 	rcs_print("emcTrajSetAxes failing: axes=%d axismask=%x\n",
 		axes, axismask);
 	return -1;
