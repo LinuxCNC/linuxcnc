@@ -376,17 +376,17 @@ void halcmd_output(const char *format, ...) {
 
 void halcmd_warning(const char *format, ...) {
     va_list ap;
-    fprintf(stdout, "%s:%d: Warning: ", halcmd_get_filename(), halcmd_get_linenumber());
+    fprintf(stderr, "%s:%d: Warning: ", halcmd_get_filename(), halcmd_get_linenumber());
     va_start(ap, format);
-    vfprintf(stdout, format, ap);
+    vfprintf(stderr, format, ap);
     va_end(ap);
 }
 
 void halcmd_error(const char *format, ...) {
     va_list ap;
-    fprintf(stdout, "%s:%d: ", halcmd_get_filename(), halcmd_get_linenumber());
+    fprintf(stderr, "%s:%d: ", halcmd_get_filename(), halcmd_get_linenumber());
     va_start(ap, format);
-    vfprintf(stdout, format, ap);
+    vfprintf(stderr, format, ap);
     va_end(ap);
 }
 
