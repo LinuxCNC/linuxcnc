@@ -21,20 +21,21 @@ The major goals are:
 
 1)  Make the project more friendly to new developers.  This
     means a simpler build process, as well as other changes
-    listed below.
+    listed below. (DONE)
 
 2)  Reduce complexity by eliminating support for platforms
     other than Linux on x86, with either RTAI or RTLinux for
-    realtime.
+    realtime. (DONE)
 
 3)  Incorporate a Hardware Abstraction Layer that makes the
     realtime code more modular and allows pins and I/O devices
-    to be reconfigured easily.
+    to be reconfigured easily. (DONE)
 
 4)  Add some of the features that were discussed at the 2003
     NAMES show on EMC Monday - these include rigid tapping
     and single point threading, improved contouring, a built-
-    in PLC using ClassicLadder, and others.
+    in PLC using ClassicLadder, and others. (mostly DONE, yet
+    new features will constantly be added)
 
 
 The Build Process
