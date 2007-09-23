@@ -82,7 +82,7 @@
     errorI += error * period
     limit errorI to +/- maxerrorI
     errorD = (error - previouserror) / period
-    limit errorD to +/- paxerrorD
+    limit errorD to +/- maxerrorD
     commandD = (command - previouscommand) / period
     limit commandD to +/- maxcmdD
     commandDD = (commandD - previouscommandD) / period
