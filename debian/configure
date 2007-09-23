@@ -51,6 +51,7 @@ EXTRA_FILES="usr/bin/emc_module_helper usr/bin/bfload"
 KERNEL_VERSION=$1
 DRIVERS=drivers.files.in
 PYTHON_VERSION=$(python -c 'import sys; print sys.version[:3]')
+PYTHON_VERSION_NEXT=$(python -c 'import sys; print sys.version[:2] + str(1+int(sys.version[2]))')
 
 # hope this works on other systems too
 DISTRIB_NAME=
@@ -59,6 +60,7 @@ if [ -f /etc/lsb-release ]; then
     DISTRIB_NAME=$DISTRIB_ID-$DISTRIB_RELEASE
 fi
 
+EMC2_PACKAGE_NAME=emc2
 case $TARGET in
     sim)
         MODULE_PATH=usr/lib/emc2/modules
@@ -71,12 +73,13 @@ case $TARGET in
 	EMC2_PACKAGE_NAME=emc2-sim
     ;;
     2.6.12-magma)
-	EMC2_PACKAGE_NAME=emc2
         KERNEL_HEADERS="$KERNEL_HEADERS,gcc-3.4"
     ;;
     2.6.15-magma)
-	EMC2_PACKAGE_NAME=emc2
         KERNEL_HEADERS="$KERNEL_HEADERS,gcc-4.0"
+    ;;
+    2.6.22.6-magma)
+        KERNEL_HEADERS="$KERNEL_HEADERS,texlive-extra-utils"
     ;;
     *)
 	echo "your kernel '$TARGET' is not known. There might be needed dependencies which won't get set automatically."
@@ -93,6 +96,7 @@ sed -e "s|@MODULE_PATH@|$MODULE_PATH|g" \
     -e "s|@DISTRIB_NAME@|$DISTRIB_NAME|g" \
     -e "s|@TARGET@|$TARGET|g" \
     -e "s|@PYTHON_VERSION@|$PYTHON_VERSION|g" \
+    -e "s|@PYTHON_VERSION_NEXT@|$PYTHON_VERSION_NEXT|g" \
     $*
 }
 
