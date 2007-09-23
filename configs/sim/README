@@ -12,15 +12,25 @@ In addition you can chose between various GUIs
 one that you like.
 Right now the possible choices are:
 
--- AXIS (a modern GL-based interface in python)
+-- axis.ini (AXIS: a modern GL-based interface in python)
 
--- keystick (a terminal, curses based non-X interface)
+-- axis_9axis.ini (AXIS based, 9-axis machine: XYZABCUVW)
 
--- mini (advanced tcl/tk interface)
+-- axis_mm.ini (AXIS based config, with mm settings)
 
--- tkemc (another tcl/tk interface, lots of people like this one)
+-- keystick.ini (a terminal, curses based non-X interface)
 
--- xemc (native X interface, runs ok on older machines)
+-- lathe.ini (simulation for a lathe, AXIS-interface)
+
+-- mini.ini (advanced tcl/tk interface)
+
+-- servo_sim.ini (simulation for a servo machine)
+
+-- tkemc.ini (another tcl/tk interface, lots of people like this one)
+
+-- tripod.ini (non-trivial kinematics machine)
+
+-- xemc.ini (native X interface, runs ok on older machines)
 
 Select one of these if you have no functional machine 
 but want to edit some basic configuration stuff
