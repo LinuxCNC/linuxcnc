@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #prime the "old" states.  it seems that stepgen likes to start with phase-A=1
 read oa ob c < $1
 count=0

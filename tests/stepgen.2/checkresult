@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 COUNT=0
 while read i j; do
 	if [ $j  -eq 1 ]; then COUNT=$((COUNT+1)); fi
