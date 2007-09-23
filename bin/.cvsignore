@@ -39,6 +39,7 @@ mdi
 milltask
 milltaskcanon
 pyvcp
+pci_write
 rs274
 rtapi_app
 shmemusr
