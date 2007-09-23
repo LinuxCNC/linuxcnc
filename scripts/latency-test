@@ -1,6 +1,7 @@
 #!/bin/bash
 T=`mktemp -d`
 trap 'cd /; [ -d $T ] && rm -rf $T' SIGINT SIGTERM EXIT
+cd $T
 
 PERIOD=${1-25000}
 if [ $PERIOD -lt 1000 ]; then
