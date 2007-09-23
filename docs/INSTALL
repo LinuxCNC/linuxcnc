@@ -128,9 +128,8 @@ If you don't want to generate the documentation from source:
 
 configure also accepts other arguments. Use --help to view the list.
  
-  --with-rtai=<path to RTAI>              path where RTAI is installed
-  --with-rtlinux=<path to RTLINUX>        path where RTLinux is installed
-  --with-rtlinuxpro=<path to RTLINUXPRO>  path where RTLinuxPro is installed
+  --with-realtime=<path to RT system>     path where RTAI or RTLINUX is installed
+  --enable-simulator                      don't use a RT system
   --with-module-dir=<module-dir>          Installation directory for kernel modules
   --with-gtk_ver=<GTK-version>            GTK version
   --with-kbuild=<y/n>                     Specify if your kernel uses kbuild or not
