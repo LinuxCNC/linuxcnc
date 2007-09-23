@@ -7,8 +7,8 @@ in Auto mode, or you'll get an error.
 File->Reset : resets the interpreter. The modal G and M codes are
 set to their defaults.
 
-File->Quit : quits the Xemc graphical application. The controller will
-still be running.
+File->Quit : quits the Tkemc graphical application. The controller will
+also shut down.
 
 View->Tools : shows the tool table. You can edit the table. Selecting
 the Done button will save the table and reload it into the
@@ -269,6 +269,7 @@ G59.2              "" for system #8, G10 L2 P8
 G59.3              "" for system #9, G10 L2 P9
 G61                exact stop mode
 G64                cutting mode
+G76                threading canned cycle
 G80                cancel fixed (canned) cycle
 G81                drilling cycle, no dwell, rapid out
 G82                drilling cycle, dwell, rapid out
@@ -283,6 +284,7 @@ G90                non-incremental programming (the usual)
 G91                incremental programming
 G93                inverse time feed mode
 G94                feed per minute mode (the usual)
+G98,G99            set canned cycle return level
 
 M codes:
 
@@ -296,8 +298,18 @@ M6   tool change, e.g., T1 M6 for tool 1
 M7   mist coolant on
 M8   flood coolant on
 M9   all coolant off
-M48  disable feed override
-M49  disable spindle speed override
+M48  disable override control for M50-51 switches
+M49  enable override control for M50-51 switches
+M50  enable/disable feed override
+M51  enable/disable spindle speed override
+M52  enable/disable adaptive feed override
+M53  enable/disable feed hold
+M62  <|
+..    |- digital IO control
+M65  <|
+M100..M199  user defined commands
+
+(check the user manual for details).
 
 Frequently Asked Questions (FAQ)
 --------------------------------
