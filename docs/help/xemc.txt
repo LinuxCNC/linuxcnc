@@ -16,10 +16,9 @@ you can't select other units. For example, if the INI file (usually
 emc.ini) contains this entry in the TRAJ section:
 
      [TRAJ]
-     LINEAR_UNITS =             0.03937007874016
+     LINEAR_UNITS =             inch
 
-the units are inches. The value for LINEAR_UNITS is in machine units
-per millimeter.
+the units are inches.
 
 (!) Note: we will probably add a menu item to select display
 units, from either English, Metric, or Program. If Program units are
@@ -35,7 +34,7 @@ File->Reset : resets the interpreter. The modal G and M codes are
 set to their defaults.
 
 File->Quit : quits the Xemc graphical application. The controller will
-still be running.
+shutdown aswell.
 
 View->Tools : shows the tool table. You can edit the table. Selecting
 the Done button will save the table and reload it into the
