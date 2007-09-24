@@ -158,7 +158,7 @@ static void errmsg(const char *funct, const char *fmt, ...)
 
 void usage(void) {
 	int i;
-	printf("\nconfigtest <card> <cardtype> <region> <offset> <value>\n\n");
+	printf("\npci_write <card> <cardtype> <region> <offset> <value>\n\n");
 	printf("All parameters are required.\n");
 	printf("    <card>      - card number (0-15)\n\n");
 	printf("    <cardtype>  - card type.  valid types are:\n");
