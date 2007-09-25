@@ -157,16 +157,21 @@ typedef struct {
     hal_bit_t *data_in[16];	/* ptrs for input pins 2 - 9 */
     hal_bit_t *data_out[8];	/* ptrs for output pins 2 - 9 */
     hal_bit_t data_inv[8];	/* polarity params for output pins 2 - 9 */
-    hal_bit_t data_reset[8];	/* polarity params for output pins 2 - 9 */
+    hal_bit_t data_reset[8];	/* reset flag for output pins 2 - 9 */
     hal_bit_t *control_in[8];	/* ptrs for in pins 1, 14, 16, 17 */
     hal_bit_t *control_out[4];	/* ptrs for out pins 1, 14, 16, 17 */
     hal_bit_t control_inv[4];	/* pol. params for output pins 1, 14, 16, 17 */
+    hal_bit_t control_reset[4];	/* reset flag for output pins 1, 14, 16, 17 */
     hal_u32_t reset_time;       /* min ns between write and reset */
     hal_u32_t debug1, debug2;
     long long write_time;
     unsigned char outdata;
-    unsigned char reset_mask;       /* reset flag for each pin 2..9 */
-    unsigned char reset_val;        /* reset values for each pin 2..9 */
+    unsigned char reset_mask;       /* reset flag for pin 2..9 */
+    unsigned char reset_val;        /* reset values for pin 2..9 */
+    long long write_time_ctrl;
+    unsigned char outdata_ctrl;
+    unsigned char reset_mask_ctrl;  /* reset flag for pin 1, 14, 16, 17 */
+    unsigned char reset_val_ctrl;   /* reset values for pin 1, 14, 16, 17 */
 } parport_t;
 
 /* pointer to array of parport_t structs in shared memory, 1 per port */
@@ -548,17 +553,27 @@ static void read_port(void *arg, long period)
 
 static void reset_port(void *arg, long period) {
     parport_t *port = arg;
-    long long deadline;
+    long long deadline, reset_time_tsc;
     unsigned char outdata = (port->outdata&~port->reset_mask) ^ port->reset_val;
    
     if(port->reset_time > period/4) port->reset_time = period/4;
+    reset_time_tsc = ns2tsc(port->reset_time);
 
-    port->debug1 = ns2tsc(port->reset_time);
-    port->debug2 = ns2tsc_factor;
-    deadline = port->write_time + ns2tsc(port->reset_time);
-    while(rtapi_get_clocks() < deadline) {}
+    if(outdata != port->outdata) {
+        deadline = port->write_time + reset_time_tsc;
+        while(rtapi_get_clocks() < deadline) {}
+        rtapi_outb(outdata, port->base_addr);
+    }
 
-    rtapi_outb(outdata, port->base_addr);
+    outdata = (port->outdata_ctrl&~port->reset_mask_ctrl)^port->reset_val_ctrl;
+
+    if(outdata != port->outdata_ctrl) {
+	/* correct for hardware inverters on pins 1, 14, & 17 */
+	outdata ^= 0x0B;
+        deadline = port->write_time_ctrl + reset_time_tsc;
+        while(rtapi_get_clocks() < deadline) {}
+        rtapi_outb(outdata, port->base_addr);
+    }
 }
 
 static void write_port(void *arg, long period)
@@ -606,6 +621,7 @@ static void write_port(void *arg, long period)
 	/* yes, force those pins high */
 	outdata |= 0x0F;
     } else {
+	int reset_mask=0, reset_val=0;
 	/* no, assemble output byte from 4 source variables */
 	mask = 0x01;
 	for (b = 0; b < 4; b++) {
@@ -616,13 +632,21 @@ static void write_port(void *arg, long period)
 	    if ((!*(port->control_out[b])) && (port->control_inv[b])) {
 		outdata |= mask;
 	    }
+	    if (port->data_reset[b]) {
+		reset_mask |= mask;
+		if(port->data_inv[b]) reset_val |= mask;
+	    }
 	    mask <<= 1;
 	}
+        port->reset_mask_ctrl = reset_mask;
+        port->reset_val_ctrl = reset_val;
+	port->outdata_ctrl = outdata;
     }
     /* correct for hardware inverters on pins 1, 14, & 17 */
     outdata ^= 0x0B;
     /* write it to the hardware */
     rtapi_outb(outdata, port->base_addr + 2);
+    port->write_time_ctrl = rtapi_get_clocks();
 }
 
 void read_all(void *arg, long period)
@@ -831,13 +855,13 @@ static int export_port(int portnum, parport_t * port)
     if(port->use_control_in == 0) {
 	/* declare output variables (control port) */
 	retval += export_output_pin(portnum, 1,
-	    port->control_out, port->control_inv, 0, 0);
+	    port->control_out, port->control_inv, port->control_reset, 0);
 	retval += export_output_pin(portnum, 14,
-	    port->control_out, port->control_inv, 0, 1);
+	    port->control_out, port->control_inv, port->control_reset, 1);
 	retval += export_output_pin(portnum, 16,
-	    port->control_out, port->control_inv, 0, 2);
+	    port->control_out, port->control_inv, port->control_reset, 2);
 	retval += export_output_pin(portnum, 17,
-	    port->control_out, port->control_inv, 0, 3);
+	    port->control_out, port->control_inv, port->control_reset, 3);
     } else {
 	/* declare input variables (control port) */
         retval += export_input_pin(portnum, 1, port->control_in, 0);
