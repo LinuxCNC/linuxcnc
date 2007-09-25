@@ -572,7 +572,7 @@ static void reset_port(void *arg, long period) {
 	outdata ^= 0x0B;
         deadline = port->write_time_ctrl + reset_time_tsc;
         while(rtapi_get_clocks() < deadline) {}
-        rtapi_outb(outdata, port->base_addr);
+        rtapi_outb(outdata, port->base_addr + 2);
     }
 }
 
