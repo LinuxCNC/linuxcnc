@@ -1,0 +1,60 @@
+.\"
+.TH CLASSICLADDER "9" "2007-08-25" "EMC Documentation" "HAL Component" 
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+classicladder \- realtime software plc based on ladder logic
+.SH SYNOPSIS
+\fBloadrt classicladder_rt  [numRungs=\fIN\fB] [numBits=\fIN\fB] [numWords=\fIN\fB] [numTimers=\fIN\fB] [numMonostables=\fIN\fB] [numCounters=\fIN\fB] [numPhysInputs=\fIN\fB] [numPhysOutputs=\fIN\fB] [numArithmExpr=\fIN\fB] [numSections=\fIN\fB] [numSymbols=\fIN\fB] [numS32in=\fIN\fB] [numS32out=\fIN\fB]
+
+.SH DESCRIPTION
+These pins and parameters are created by the realtime \fBclassicladder_rt\fR module. Each period, classicladder reads the inputs, evaluates the ladder logic defined in the GUI, and then writes the outputs.
+
+.SH PINS
+
+.TP
+\fBclassicladder.0.in-\fIN\fB\fR IN bit 
+Connect a hal bit signal to this pin to use \fBB\fINN\fR in classicladder
+
+.TP
+\fBclassicladder.0.out-\fIN\fB\fR OUT bit 
+Output from classicladder
+
+.TP
+\fBclassicladder.0.in-\fIN\fB\fR IN s32
+Connect a hal s32 signal to this pin to use \fBW\fINN\fR in classicladder
+
+.TP
+\fBclassicladder.0.out-\fIN\fB\fR OUT s32 
+Integer output from classicladder
+
+.SH PARAMETERS
+
+.TP
+\fBclassicladder.0.refresh.time\fR RO s32
+not sure what this does anymore
+
+.TP
+\fBclassicladder.0.refresh.tmax\fR RW s32
+ditto
+
+.TP
+\fBclassicladder.0.ladder-state\fR RO s32
+
+.SH FUNCTIONS
+
+.TP
+\fBclassicladder.0.refresh\fR FP 
+The rung update rate. Add this to the servo thread.
+
+.SH BUGS
+The classicladder_rt module does not unload correctly.
+
+.SH SEE ALSO
+until we get some real docs put together:
+
+http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?ClassicLadder
