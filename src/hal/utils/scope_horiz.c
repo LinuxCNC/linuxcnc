@@ -65,6 +65,7 @@
 static void init_horiz_window(void);
 static void init_acquire_function(void);
 static void acquire_popup(GtkWidget * widget, gpointer gdata);
+static void log_popup(void);
 
 static void dialog_realtime_not_loaded(void);
 static void dialog_realtime_not_linked(void);
@@ -167,11 +168,22 @@ static void init_horiz_window(void)
     horiz->record_label = (GTK_BIN(horiz->record_button))->child;
     gtk_label_size_to_fit(GTK_LABEL(horiz->record_label),
 	"99999 Samples\nat 99.9 MHz");
-    gtk_box_pack_end(GTK_BOX(hbox), horiz->record_button, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(hbox), horiz->record_button, FALSE, FALSE, 0);
     /* activate the acquire menu if button is clicked */
     gtk_signal_connect(GTK_OBJECT(horiz->record_button), "clicked",
 	GTK_SIGNAL_FUNC(acquire_popup), NULL);
     gtk_widget_show(horiz->record_button);
+    /* fifth column - log to file button */
+    horiz->log_button =
+	gtk_button_new_with_label("log to\nfile..");
+    horiz->log_label = (GTK_BIN(horiz->log_button))->child;
+    gtk_label_size_to_fit(GTK_LABEL(horiz->log_label),
+	"log to\nfile..");
+    gtk_box_pack_end(GTK_BOX(hbox), horiz->log_button, FALSE, FALSE, 0);
+    /* activate the log menu if button is clicked */
+    gtk_signal_connect(GTK_OBJECT(horiz->log_button), "clicked",
+	GTK_SIGNAL_FUNC(log_popup), NULL);
+    gtk_widget_show(horiz->log_button);
     /* lower region, graphical status display */
     gtk_hseparator_new_in_box(ctrl_usr->horiz_info_win, 0);
     hbox =
@@ -763,6 +775,43 @@ static void dialog_realtime_not_running(void)
 	/* user either closed dialog, or hit cancel - end the program */
 	gtk_main_quit();
     }
+}
+
+void file_ok_sel( GtkWidget        *w,
+                  GtkFileSelection *fs )
+{
+    //scope_log_t* log_prefs;
+    //log_prefs = &(ctrl_usr->log);
+    //log_prefs->filename = 
+    //    (char*)gtk_file_selection_get_filename (GTK_FILE_SELECTION (fs));
+    //g_print ("filename is: %s\n", log_prefs->filename); 
+    
+    write_log_file( (char*)gtk_file_selection_get_filename (GTK_FILE_SELECTION (fs)));
+    //gtk_widget_destroy( w);
+}
+
+static void log_popup(void)
+{
+    //generic selection dialog, straight from the gtk tutorial
+    GtkWidget *filew;
+    filew = gtk_file_selection_new("Pick log file to write to:" );
+    gtk_signal_connect (GTK_OBJECT (filew), "destroy",
+        (GtkSignalFunc) gtk_widget_destroy, &filew);
+    gtk_signal_connect (GTK_OBJECT (GTK_FILE_SELECTION (filew)->ok_button),
+                        "clicked", (GtkSignalFunc) file_ok_sel, filew );
+    //link ok to destroy, otherwise the window stays open
+    gtk_signal_connect_object (GTK_OBJECT (GTK_FILE_SELECTION
+                                            (filew)->ok_button),
+                               "clicked", (GtkSignalFunc) gtk_widget_destroy,
+                               GTK_OBJECT (filew));
+    gtk_signal_connect_object (GTK_OBJECT (GTK_FILE_SELECTION
+                                            (filew)->cancel_button),
+                               "clicked", (GtkSignalFunc) gtk_widget_destroy,
+                               GTK_OBJECT (filew));
+    gtk_file_selection_set_filename (GTK_FILE_SELECTION(filew), 
+                                     "halscope.log");
+    gtk_widget_show(filew);
+
 }
 
 static void acquire_popup(GtkWidget * widget, gpointer gdata)

@@ -64,6 +64,8 @@ typedef struct {
     GtkWidget *disp_area;
     GdkGC *disp_context;
     GtkWidget *state_label;
+    GtkWidget *log_button;
+    GtkWidget *log_label;
     GtkWidget *record_button;
     GtkWidget *record_label;
     GtkWidget *zoom_slider;

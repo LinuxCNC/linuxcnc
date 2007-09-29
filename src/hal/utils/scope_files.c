@@ -344,7 +344,7 @@ void write_sample(FILE *fp, char *label, scope_data_t *dptr, hal_type_t type)
 		}
 	/*actually write the data to disk */
 	/* this should look something like CHAN1 1.234 */
-	fprintf(fp, "%s %f ", label, data_value );
+	fprintf(fp, "%s %+.14f ", label, data_value );
 }
 
 
