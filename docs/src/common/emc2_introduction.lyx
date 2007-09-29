@@ -655,7 +655,7 @@ collapsed false
 \added_space_top smallskip \added_space_bottom smallskip \align center 
 
 \begin_inset Graphics
-	filename whaty4.png
+	filename xemc.png
 	display color
 	width 80page%
 	keepAspectRatio
@@ -1089,42 +1089,15 @@ At a machine level, we set each axis's units to some value using an INI
  variable that looks like this.
 \layout LyX-Code
 
-UNITS = 1
+UNITS = inch
 \layout Standard
 
 or
 \layout LyX-Code
 
-UNITS = 0.03937007874016
+UNITS = mm
 \layout LyX-Code
 
-\layout Standard
-
-The long number above is the distance represented by one millimeter if we
- convert it into inches.
- 
-\begin_inset Quotes eld
-\end_inset 
-
-So,
-\begin_inset Quotes erd
-\end_inset 
-
- you say, 
-\begin_inset Quotes eld
-\end_inset 
-
-the EMC2 uses millimeters internally.
-\begin_inset Quotes erd
-\end_inset 
-
- If we use UNITS = 1 then we have defined our user units as millimeters.
- If we use UNITS = 0.03937007874016 then we have defined our user units as
- inches.
- Using similar arithmetic we could set our units to most any value we wanted.
- (You will want to use inches or millimeters for your minimill, but some
- who run vehicles with the EMC2 have been known to set units to kilometers
- or miles.)
 \layout Standard
 
 After we have decided upon a value for the units for an axis, we tell the
