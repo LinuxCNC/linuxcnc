@@ -185,7 +185,7 @@ Just download the
 \end_inset 
 
 ) and burn it to a CD.
- (The MD5SUM of the CD is 6ee5048eb9cb424aa030dfedccc5386b)
+ (The MD5SUM of the CD is to be determined)
 \layout Standard
 
 When you boot the CD on your machine, you can see and experiment with the
@@ -305,40 +305,31 @@ First add the repository to /etc/apt/sources.list:
 
 
 \size scriptsize 
-$ sudo sh -c 'echo "deb http://www.linuxcnc.org/emc2/ dapper emc2" >>/etc/apt/sour
-ces.list;'
+$ sudo sh -c 'echo "deb http://www.linuxcnc.org/emc2/ dapper emc2.2" >>/etc/apt/sou
+rces.list;'
 \layout LyX-Code
 
 
 \size scriptsize 
-$ sudo sh -c 'echo "deb-src http://www.linuxcnc.org/emc2/ dapper emc2" >>/etc/apt/
-sources.list'
+$ sudo sh -c 'echo "deb-src http://www.linuxcnc.org/emc2/ dapper emc2.2" >>/etc/apt
+/sources.list'
 \layout Standard
 
 Or replace 'dapper' above with 'breezy' if you still use Ubuntu 5.10 Breezy
  Badger.
 \layout Standard
 
-Then update & get emc2-axis.
+Then update & get emc2.
 \layout LyX-Code
 
 
 \size scriptsize 
 $ sudo apt-get update
 \newline 
-$ sudo apt-get install emc2-axis
+$ sudo apt-get install emc2
 \layout Standard
 
-This command will install the emc2-axis
-\begin_inset Foot
-collapsed true
-
-\layout Standard
-
-The emc2-axis package is the AXIS gui packaged for emc2.
-\end_inset 
-
- package along with all dependencies
+This command will install the emc2 package along with all dependencies
 \begin_inset Foot
 collapsed true
 
