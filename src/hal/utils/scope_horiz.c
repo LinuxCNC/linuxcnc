@@ -810,6 +810,7 @@ static void log_popup(void)
                                GTK_OBJECT (filew));
     gtk_file_selection_set_filename (GTK_FILE_SELECTION(filew), 
                                      "halscope.log");
+    gtk_file_selection_hide_fileop_buttons (GTK_FILE_SELECTION(filew) );
     gtk_widget_show(filew);
 
 }
