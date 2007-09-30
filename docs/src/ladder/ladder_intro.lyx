@@ -1,0 +1,144 @@
+#LyX 1.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 221
+\textclass book
+\begin_preamble
+\usepackage[plainpages=false,pdfpagelabels,colorlinks=true,linkcolor=blue]{hyperref}
+\end_preamble
+\language english
+\inputencoding default
+\fontscheme bookman
+\graphics default
+\float_placement !htbp
+\paperfontsize default
+\spacing single 
+\papersize letterpaper
+\paperpackage a4
+\use_geometry 1
+\use_amsmath 1
+\use_natbib 0
+\use_numerical_citations 0
+\paperorientation portrait
+\leftmargin 1in
+\topmargin 1in
+\rightmargin 0.8in
+\bottommargin 0.8in
+\secnumdepth 1
+\tocdepth 5
+\paragraph_separation skip
+\defskip smallskip
+\quotes_language english
+\quotes_times 2
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+
+\layout Chapter
+
+Ladder programming 
+\layout Section
+
+Introduction
+\layout Standard
+
+Ladder logic or the Ladder programming language is a method of drawing electrica
+l logic schematics.
+ It is now a graphical language very popular for programming Programmable
+ Logic Controllers (PLCs).
+ It was originally invented to describe logic made from relays.
+ The name is based on the observation that programs in this language resemble
+ ladders, with two vertical "rails" and a series of "rungs" between them.
+ In Germany and elsewhere in Europe, the style is to draw the rails horizontal
+ along the top and bottom of the page while the rungs are drawn sequentially
+ from left to right.
+\layout Standard
+
+A program in ladder logic, also called a ladder diagram, is similar to a
+ schematic for a set of relay circuits.
+ Ladder logic is useful because a wide variety of engineers and technicians
+ can understand and use it without much additional training because of the
+ resemblance.
+ 
+\layout Standard
+
+Ladder logic is widely used to program PLCs, where sequential control of
+ a process or manufacturing operation is required.
+ Ladder logic is useful for simple but critical control systems, or for
+ reworking old hardwired relay circuits.
+ As programmable logic controllers became more sophisticated it has also
+ been used in very complex automation systems.
+ 
+\layout Standard
+
+Ladder logic can be thought of as a rule-based language, rather than a procedura
+l language.
+ A "rung" in the ladder represents a rule.
+ When implemented with relays and other electromechanical devices, the various
+ rules "execute" simultaneously and immediately.
+ When implemented in a programmable logic controller, the rules are typically
+ executed sequentially by software, in a loop.
+ By executing the loop fast enough, typically many times per second, the
+ effect of simultaneous and immediate execution is obtained.
+\layout Section
+
+Example
+\layout Standard
+
+The most common components of ladder are contacts (inputs), these usually
+ are either NC (normally closed) or NO (normally open), and coils (outputs).
+ 
+\layout Itemize
+
+the NO contact 
+\begin_inset Graphics
+	filename ladder_action_load.png
+
+\end_inset 
+
+
+\layout Itemize
+
+the NC contact 
+\begin_inset Graphics
+	filename ladder_action_loadbar.png
+
+\end_inset 
+
+
+\layout Itemize
+
+the coil (output) 
+\begin_inset Graphics
+	filename ladder_action_out.png
+
+\end_inset 
+
+
+\layout Standard
+
+Of course there are way more components to a full ladder language, but understan
+ding these will help grasp the overall concept.
+ 
+\layout Standard
+
+The ladder consists of one or more rungs.
+ These rungs are horizontal traces, with components on them (inputs, outputs
+ and other), which get evaluated left to right.
+\layout Standard
+
+This example is the simplest rung: 
+\begin_inset Graphics
+	filename example_link_contact_coil.png
+
+\end_inset 
+
+
+\layout Standard
+
+The input on the left, a normal open contact is connected to the output
+ on the right Q0.
+ Now imagine a voltage gets applied to the leftmost end, as soon as the
+ B0 turns true (e.g.
+ the input is activated, or the user pushed the NO contact), the voltage
+ reaches the right part Q0.
+ As a consequence, the Q0 output will turn from 0 to 1.
+\the_end
