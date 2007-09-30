@@ -1,0 +1,949 @@
+#LyX 1.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 221
+\textclass book
+\begin_preamble
+\usepackage[plainpages=false,pdfpagelabels,colorlinks=true,linkcolor=blue]{hyperref}
+\end_preamble
+\language english
+\inputencoding default
+\fontscheme bookman
+\graphics default
+\float_placement !htbp
+\paperfontsize default
+\spacing single 
+\papersize letterpaper
+\paperpackage a4
+\use_geometry 1
+\use_amsmath 1
+\use_natbib 0
+\use_numerical_citations 0
+\paperorientation portrait
+\leftmargin 1in
+\topmargin 1in
+\rightmargin 0.8in
+\bottommargin 0.8in
+\secnumdepth 1
+\tocdepth 5
+\paragraph_separation skip
+\defskip smallskip
+\quotes_language english
+\quotes_times 2
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+
+\layout Chapter
+
+Ladder in emc2 - ClassicLadder 
+\layout Section
+
+Introduction
+\layout Standard
+
+ClassicLadder
+\begin_inset LatexCommand \index{ClassicLadder}
+
+\end_inset 
+
+ is a free implementation of a ladder interpreter, released under the LGPL.
+ It has been written by Marc Le Douarain.
+ 
+\layout Standard
+
+He describes the beginning of the project on his website: 
+\layout Quotation
+
+
+\begin_inset Quotes eld
+\end_inset 
+
+I decided to program a ladder language only for test purposes at the start,
+ in february 2001.
+ It was planned, that I would have to participate to a new product after
+ leaving the enterprise in which I was working at that time.
+ And I was thinking that to have a ladder language in thoses products could
+ be a nice option to considerate.
+ And so I started to code the first lines for calculating a rung with minimal
+ elements and displaying dynamically it under Gtk, to see if my first idea
+ to realise all this works.
+\layout Quotation
+
+And as quickly I've found that it advanced quite well, I've continued with
+ more complex elements : timer, multiples rungs, etc...
+\layout Quotation
+
+Voila, here is this work...
+ and more : I've continued to add features since then.
+\begin_inset Quotes erd
+\end_inset 
+
+
+\layout Standard
+
+ClassicLadder has been adapted to work with emc2's HAL, and is currently
+ beeing distributed along with emc2.
+ If there are issues/problems/bugs please report them to the Enhanced Machine
+ Controller project.
+\layout Section
+
+Languages
+\layout Standard
+
+The most common language used when working with ClassicLadder is 'ladder'.
+ ClassicLadder allows one to use other variants (like sequential function
+ chart - Grafcet) too, however those aren't covered by the current documentation.
+\layout Standard
+
+In the next chapters the main components of ClassicLadder will be described.
+\layout Section
+
+Starting ClassicLadder
+\layout Standard
+
+There are 2 components belonging to ClassicLadder: a realtime part, and
+ a userspace part (along with a GUI).
+\layout Subsection
+
+Loading the ClassicLadder realtime module
+\layout Standard
+
+Loading the ClassicLadder realtime module (classicladder_rt) is possible
+ from a halfile, or directly using a halcmd instruction.
+\layout Standard
+
+It is possible to configure the number of each ladder object while loading
+ the classicladder realtime module
+\layout Standard
+
+
+\begin_inset Float table
+wide false
+collapsed false
+
+\layout Caption
+
+ClassicLadder realtime component options
+\layout Standard
+\align center 
+
+\begin_inset  Tabular
+<lyxtabular version="3" rows="12" columns="3">
+<features>
+<column alignment="left" valignment="top" leftline="true" width="0">
+<column alignment="center" valignment="top" leftline="true" width="0">
+<column alignment="center" valignment="top" leftline="true" rightline="true" width="0">
+<row topline="true" bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Object name:
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+variable name:
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Default value:
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Number of rungs
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+(numRungs)
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+100
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Number of bits
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+(numBits)
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+500
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Number of word variables
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+(numWords)
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+100
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Number of timers
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+(numTimers)
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+10
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Number of monostables
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+(numMonostables)
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+10
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Number of counters
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+(numCounters)
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+10
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Number of hal inputs bit pins
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+(numPhysInputs)
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+50
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Number of hal output bit pins
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+(numPhysOuputs)
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+50
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Number of arithmetic expressions
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+(numArithmExpr)
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+50
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Number of sections
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+(numSections)
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+100
+\end_inset 
+</cell>
+</row>
+<row topline="true" bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Number of symbols
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+(numSymbols)
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+10
+\end_inset 
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Standard
+
+If you do not configure the number of ladder objects classicladder will
+ use the default values.
+ Objects of most interest are numPhysInputs and numPhysOutputs.
+\layout Standard
+
+Changing these numbers will change the number of HAL bit pins available.
+\layout Standard
+
+For example: 
+\layout LyX-Code
+
+loadrt classicladder_rt numRungs=12 numBits=100 numWords=10 numTimers=10
+ numMonostables=10 numCounters=10 numPhysInputs?=10 numPhysOutputs?=10 numArithm
+Expr?=100 numSections=4 numSymbols=200
+\layout Subsection
+
+Loading the ClassicLadder user module
+\layout Standard
+
+There are options while loading the user module:
+\layout Itemize
+
+--help \SpecialChar \menuseparator
+ displays basically this list then exits
+\layout Itemize
+
+--version \SpecialChar \menuseparator
+ displays the...
+ version ...surprise!! then exits
+\layout Itemize
+
+--nogui \SpecialChar \menuseparator
+ starts classicladder (while loading a ladder program if specified)
+ with no GUI.
+\layout Itemize
+
+--modbus_port=port \SpecialChar \menuseparator
+ sets up the modbus port number (EMC doesn't use it)
+\layout Itemize
+
+--config=file \SpecialChar \menuseparator
+ sets up the number of the each ladder object ( only if there
+ is no realtime support.In EMC you load this with the realtime module-I'll
+ get to this in a minute) 
+\layout Standard
+
+Unfortunately as of EMC 2.1.x, --version and --help do not exit HAL properly.
+ Really only --nogui is any use to you.
+ Use the GUI when setting up your system then change it to --nogui when
+ running.
+ The only other thing you can do while loading the user module is specify
+ a ladder program to load.
+ ladder programs are specified by the .clp ending.
+ 
+\layout Standard
+
+for examples: 
+\layout Itemize
+
+loadusr -w classicladder --nogui myladder.clp
+\begin_deeper 
+\layout Standard
+
+loads the classicladder user module, ladder program myladder and displays
+ nothing.
+\end_deeper 
+\layout Itemize
+
+loadusr -w classicladder myladder.clp
+\begin_deeper 
+\layout Standard
+
+loads the classicladder user module, ladder program myladder and starts
+ the classicladder GUI.
+\end_deeper 
+\layout Itemize
+
+loadusr -w classicladder
+\begin_deeper 
+\layout Standard
+
+loads the classicladder user module, starts the GUI but loads no laddder
+ program.
+\end_deeper 
+\layout Standard
+
+*** you can only use this after loading a ladder program previously ***
+\layout Section
+
+ClassicLadder GUI
+\layout Standard
+
+If you load classicladder with the GUI it will display three windows: vars,
+ section display, and section manager.
+\layout Subsection
+
+The Variables window
+\layout Standard
+
+It displays some of the variable data and variable names.
+ Notice all variable start with the % sign.
+\layout Standard
+
+The three edit areas at the top allow you to select what 15 variable will
+ be displayed in each column.
+ For instance if there were 30 %I variable and you entered 10 at the top
+ of the column, variable %I10 to %I25 would be displayed.
+\layout Standard
+
+The check boxes allow you to set and un set variables but when classicladder
+ is running hal will update the pins and change them.
+\layout Standard
+
+Near the bottom are the %W variables.
+ These are called word variable and represent positive and negative (signed)
+ numbers and are used with compare and operate.
+ By clicking on the variable, you can edit the number to display which ever
+ you want.The edit box beside it is the number stored in the variable -you
+ can change it- and the drop-down box beside that allow you to choose whether
+ the number to be displayed is in hex, decimal or binary.
+\layout Standard
+
+The %I variable represents HAL input bit pins.
+ The %Q represents the relay coil and HAL output bit pins.
+ The %B represents an internal relay coil or internal contact.
+\layout Standard
+
+There is a quirk that the word variables list will not display the symbols
+ unless the check-box in the section manager is checked and you miss-edit
+ the coresponding variable.
+ Meaning erase the numbers after the %W and press return-if there is a symbol
+ for that number you erased and the display symbols check-box in the section
+ display is checked it will show it.
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Caption
+
+ClassicLadder Var window
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename vars.png
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Subsection
+
+The Section Display window
+\layout Standard
+
+Most of the buttons are self explanitory: 
+\layout Standard
+
+The config button is not used in EMC.
+ 
+\layout Standard
+
+The symbols button will display an editable list of symbols for the variables
+ (eg you can name the inputs, outputs, coils etc).
+ 
+\layout Standard
+
+The quit button will only shut down the display-the ladder program will
+ still run in the back ground.
+ 
+\layout Standard
+
+The check box at the top right allows you to select whether variable names
+ or symbol names are displayed
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Caption
+
+ClassicLadder Section Display window
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename section_display.png
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Subsection
+
+The Section Manager window
+\layout Standard
+
+This window allows you to name, create or delete sections.
+ This is also how you name a subroutine for call coils.
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Caption
+
+ClassicLadder Section Manager window
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename sections_manager.png
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Subsection
+
+The Editor window
+\layout Standard
+
+Starting from the top left image:
+\layout Enumerate
+
+SELECTOR ARROW, ERASER
+\layout Enumerate
+
+N.O., N.C.
+ , RISING-EDGE ,FALLING-EDGE CONTACTS.
+\layout Enumerate
+
+HORIZONTAL, VERTICAL , HORIZONTAL RUNNING-CONNECTIONS
+\layout Enumerate
+
+TIMER, MONOSTABLE, COUNTER, COMPARE
+\layout Enumerate
+
+N.O.
+ COIL, N.C.
+ COIL, SET COIL, RESET COIL
+\layout Enumerate
+
+JUMP COIL, CALL COIL, OPERATE
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Caption
+
+ClassicLadder Editor window
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename editor.png
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Standard
+
+A short description of each of the buttons:
+\layout Itemize
+
+The SELECTOR ARROW button allows you to select existing objects and modify
+ the information.
+\layout Itemize
+
+The ERASER erases an object.
+\layout Itemize
+
+The N.O.
+ CONTACT is a normally open contact.
+ It can be an extenal HAL-pin (%I) input contact, an internal-bit coil (%B)
+ contact or a external coil (%Q) contact.
+ The Hal-pin input contact is closed when the HAL-pin is true.
+ The coil contacts are closed when the coresponding coil is active (%Q2
+ contact closes when %Q2 coil is active).
+\layout Itemize
+
+The N.C.
+ CONTACT is a normally closed contact.
+ It is the same as the n.o.
+ contact except that the contact is open when the hal-pin is true or the
+ coil is active.
+\layout Itemize
+
+The RISING-EDGE CONTACT is a contact that is closed when the HAL-pin goes
+ from False to true, or the coil from not-active to active.
+\layout Itemize
+
+The FALLING-EDGE CONTACT is a contact that is closed when the HAL-pin goes
+ from true to false or the coil from active to not.
+\layout Itemize
+
+The HORIZONTAL CONNECTION connects the 'signal' to objects horizontally.
+ 
+\layout Itemize
+
+The VERTICAL CONNECTION connects the 'signal' to objects vertically.
+ 
+\layout Itemize
+
+The HORIZONTAL-RUNNING CONNECTION is a quick way to connect a long run of
+ 'signal wire' horizontally.
+\layout Itemize
+
+The TIMER is a Timer Module.
+ 
+\layout Itemize
+
+The MONOSTABLE is monostable module (one-shot) 
+\layout Itemize
+
+The COUNTER is a counter module.
+ 
+\layout Itemize
+
+The COMPARE button allows you to compare variable to values or other variables.
+ (eg %W1<=5 or %W1=%W2)
+\newline 
+The variable you can use are: W-words,T-timers,M-monostables,C-counters,X-sequen
+tial and their attributes D-done, E-empty, F-full, P-preset, R-running,
+ and V-value (not all atributes are available to all variables) eg %T2.D.
+\newline 
+The math symbols are +,-,*,/,=,<,>,<=,>=,(,),^ (exponent),% (modulas),&
+ (and),| (or),! (not).
+ 
+\newline 
+Math function are ABS (absolute), MOY (average).
+ eg ABS(%W2)=1, MOY(%W1,%W2)<3 .
+\newline 
+Compare cannot be placed in the right most side of the section display.
+ 
+\layout Itemize
+
+The OPERATE button allows you to assign values to variables.
+ (eg %W2=7 or %W1=%W2) there are two math funtions MINI and MAXI that check
+ a variable for maximum (0x80000000) and minimum values (0x05FFFFFFF) (think
+ signed values) and keeps them from going beyond.
+ 
+\newline 
+You may use all the math symbols and functions from above.
+ OPERATE funtions can only be placed at the right most side of the section
+ display.
+\layout Section
+
+ClassicLadder Variables
+\layout Standard
+
+List of known variables :
+\layout Description
+
+Bxxx : Bit memory xxx (boolean)
+\layout Description
+
+Wxxx : Word memory xxx (32 bits integer)
+\layout Description
+
+Txx,R : Timer xx running (boolean, user read only)
+\layout Description
+
+Txx,D : Timer xx done (boolean, user read only)
+\layout Description
+
+Txx,V : Timer xx current value (integer, user read only)
+\layout Description
+
+Txx,P : Timer xx preset (integer)
+\layout Description
+
+Mxx,R : Monostable xx running (boolean)
+\layout Description
+
+Mxx,V : Monostable xx current value (integer, user read only)
+\layout Description
+
+Mxx,P : Monostable xx preset (integer)
+\layout Description
+
+Cxx,D : Counter xx done (boolean, user read only)
+\layout Description
+
+Cxx,E : Counter xx empty overflow (boolean, user read only)
+\layout Description
+
+Cxx,F : Counter xx full overflow (boolean, user read only)
+\layout Description
+
+Cxx,V : Counter xx current value (integer, user read only)
+\layout Description
+
+Cxx,P : Counter xx preset (integer)
+\layout Description
+
+Ixxx : Physical input xxx (boolean) - HAL input bit -
+\layout Description
+
+Qxxx : Physical output xxx (boolean) - HAL output bit -
+\layout Description
+
+Xxxx : Activity of step xxx (sequential language)
+\layout Description
+
+Xxxx,V : Time of activity in seconds of step xxx (sequential language)
+\layout Section
+
+Using JUMP COILs
+\layout Standard
+
+JUMP COILs are used to 'JUMP' to another section-like a goto in BASIC programmin
+g language.
+\layout Standard
+
+If you look at the top left of the sections display window you will see
+ a small lable box and a longer comment box beside it.
+ Now go to Editor->Modify then go back to the little box, type in a name.
+\layout Standard
+
+Go ahead and add a comment in the comment section.
+ This lable name is the name of this rung only and is used by the JUMP COIL
+ to identify where to go.
+\layout Standard
+
+When placing a JUMP COIL add it in the right most position and change the
+ lable to the rung you want to JUMP to.
+\layout Standard
+
+JUMP COILs should be placed as the last coil of a rung because of a bug.
+ If there are coils after the JUMP COIL (in the same rung) they will be
+ updated even if the JUMP COIL is true.
+\begin_inset Foot
+collapsed true
+
+\layout Standard
+
+If the JUMP COIL is true it should JUMP to the new rung right away and not
+ update the rest of the coils of the current rung
+\end_inset 
+
+
+\layout Section
+
+Using CALL COILs
+\layout Standard
+
+CALL COILs are used to go to a subroutine section then return-like a gosub
+ in BASIC programming language.
+\layout Standard
+
+If you go to the sections manager window hit the add section button.
+ You can name this section, select what language it will use (ladder or
+ sequential), and select what type (main or subroutine).
+\layout Standard
+
+Select a subroutine number (SR0 for exampe).
+ An empty section will be displayed and you can build your subroutine.
+\layout Standard
+
+When your done that, go back to the section manager and click on the your
+ 'main' section (default name prog1).
+\layout Standard
+
+Now you can add a CALL COIL to your program.
+ CALL COILs are to be placed at the right most position in the rung.
+\layout Standard
+
+Remember to change the lable to the subroutine number you choose before.
+ 
+\layout Standard
+
+There can only be one CALL COIL per rung-the rest wil not be called.
+\the_end
