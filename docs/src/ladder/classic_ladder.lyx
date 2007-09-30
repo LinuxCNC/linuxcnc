@@ -466,8 +466,11 @@ For example:
 \layout LyX-Code
 
 loadrt classicladder_rt numRungs=12 numBits=100 numWords=10 numTimers=10
- numMonostables=10 numCounters=10 numPhysInputs?=10 numPhysOutputs?=10 numArithm
-Expr?=100 numSections=4 numSymbols=200
+ 
+\newline 
+numMonostables=10 numCounters=10 numPhysInputs=10 numPhysOutputs=10 
+\newline 
+numArithmExpr=100 numSections=4 numSymbols=200
 \layout Subsection
 
 Loading the ClassicLadder user module
