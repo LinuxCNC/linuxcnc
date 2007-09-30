@@ -303,6 +303,27 @@ preview false
 \layout Section
 
 Tuning stepper systems
+\layout Part
+
+Machine logic
+\layout Standard
+
+
+\begin_inset Include \include{ladder/ladder_intro.lyx}
+preview false
+
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset Include \include{ladder/classic_ladder.lyx}
+preview false
+
+\end_inset 
+
+
 \layout Chapter
 \start_of_appendix 
 Glossary of Common Terms Used in the EMC Documents
