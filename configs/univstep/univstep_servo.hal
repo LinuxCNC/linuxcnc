@@ -44,6 +44,7 @@ setp pid.0.Dgain [AXIS_0]D
 setp pid.0.bias [AXIS_0]BIAS
 setp pid.0.FF0 [AXIS_0]FF0
 setp pid.0.FF1 [AXIS_0]FF1
+setp pid.0.FF2 [AXIS_0]FF2
 setp pid.0.deadband [AXIS_0]DEADBAND
 
 setp pid.1.Pgain [AXIS_1]P
@@ -52,6 +53,7 @@ setp pid.1.Dgain [AXIS_1]D
 setp pid.1.bias [AXIS_1]BIAS
 setp pid.1.FF0 [AXIS_1]FF0
 setp pid.1.FF1 [AXIS_1]FF1
+setp pid.1.FF2 [AXIS_1]FF2
 setp pid.1.deadband [AXIS_1]DEADBAND
 
 setp pid.2.Pgain [AXIS_2]P
@@ -60,6 +62,7 @@ setp pid.2.Dgain [AXIS_2]D
 setp pid.2.bias [AXIS_2]BIAS
 setp pid.2.FF0 [AXIS_2]FF0
 setp pid.2.FF1 [AXIS_2]FF1
+setp pid.2.FF2 [AXIS_2]FF2
 setp pid.2.deadband [AXIS_2]DEADBAND
 
 setp pid.3.Pgain [AXIS_3]P
@@ -68,6 +71,7 @@ setp pid.3.Dgain [AXIS_3]D
 setp pid.3.bias [AXIS_3]BIAS
 setp pid.3.FF0 [AXIS_3]FF0
 setp pid.3.FF1 [AXIS_3]FF1
+setp pid.3.FF2 [AXIS_3]FF2
 setp pid.3.deadband [AXIS_3]DEADBAND
 
 # create four position command signals

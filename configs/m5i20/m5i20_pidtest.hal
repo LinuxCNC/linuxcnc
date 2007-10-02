@@ -107,6 +107,7 @@ setp pid.0.Dgain 0
 setp pid.0.bias 0
 setp pid.0.FF0 0
 setp pid.0.FF1 0
+setp pid.0.FF2 0
 # deadband should be just over 1 count
 setp pid.0.deadband 0.000015
 
@@ -116,6 +117,7 @@ setp pid.1.Dgain 0
 setp pid.1.bias 0
 setp pid.1.FF0 0
 setp pid.1.FF1 0
+setp pid.1.FF2 0
 setp pid.1.deadband 0.000015
 
 setp pid.2.Pgain 0.01
@@ -124,6 +126,7 @@ setp pid.2.Dgain 0
 setp pid.2.bias 0
 setp pid.2.FF0 0
 setp pid.2.FF1 0
+setp pid.2.FF2 0
 setp pid.2.deadband 0.000015
 
 # create three position command signals

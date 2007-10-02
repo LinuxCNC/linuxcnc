@@ -154,6 +154,7 @@ setp pid.0.Dgain [AXIS_0]DGAIN
 setp pid.0.bias [AXIS_0]BIAS
 setp pid.0.FF0 [AXIS_0]FF0
 setp pid.0.FF1 [AXIS_0]FF1
+setp pid.0.FF2 [AXIS_0]FF2
 # deadband should be just over 1 count
 setp pid.0.deadband [AXIS_0]DEADBAND
 
@@ -163,6 +164,7 @@ setp pid.1.Dgain [AXIS_1]DGAIN
 setp pid.1.bias [AXIS_1]BIAS
 setp pid.1.FF0 [AXIS_1]FF0
 setp pid.1.FF1 [AXIS_1]FF1
+setp pid.1.FF2 [AXIS_1]FF2
 # deadband should be just over 1 count
 setp pid.1.deadband [AXIS_1]DEADBAND
 
@@ -172,6 +174,7 @@ setp pid.2.Dgain [AXIS_2]DGAIN
 setp pid.2.bias [AXIS_2]BIAS
 setp pid.2.FF0 [AXIS_2]FF0
 setp pid.2.FF1 [AXIS_2]FF1
+setp pid.2.FF2 [AXIS_2]FF2
 # deadband should be just over 1 count
 setp pid.2.deadband [AXIS_2]DEADBAND
 
