@@ -17,46 +17,28 @@ addf wcomp.8 servo-thread
 
 # connect position feedback from step generators
 # to window comparators
-linksp Xpos-fb => wcomp.0.in
-linksp Xpos-fb => wcomp.1.in
-linksp Xpos-fb => wcomp.2.in
-linksp Ypos-fb => wcomp.3.in
-linksp Ypos-fb => wcomp.4.in
-linksp Ypos-fb => wcomp.5.in
-linksp Zpos-fb => wcomp.6.in
-linksp Zpos-fb => wcomp.7.in
-linksp Zpos-fb => wcomp.8.in
+net Xpos-fb => wcomp.0.in
+net Xpos-fb => wcomp.1.in
+net Xpos-fb => wcomp.2.in
+net Ypos-fb => wcomp.3.in
+net Ypos-fb => wcomp.4.in
+net Ypos-fb => wcomp.5.in
+net Zpos-fb => wcomp.6.in
+net Zpos-fb => wcomp.7.in
+net Zpos-fb => wcomp.8.in
 
 # connect simulated switch outputs to motion controller
-newsig Xminlim bit
-newsig Xmaxlim  bit
-newsig Xhome bit
-linksp Xminlim <= wcomp.0.out
-linksp Xminlim => axis.0.neg-lim-sw-in
-linksp Xmaxlim <= wcomp.1.out
-linksp Xmaxlim => axis.0.pos-lim-sw-in
-linksp Xhome <= wcomp.2.out
-linksp Xhome => axis.0.home-sw-in
+net Xminlim wcomp.0.out => axis.0.neg-lim-sw-in
+net Xmaxlim wcomp.1.out => axis.0.pos-lim-sw-in
+net Xhome wcomp.2.out => axis.0.home-sw-in
 
-newsig Yminlim bit
-newsig Ymaxlim  bit
-newsig Yhome bit
-linksp Yminlim <= wcomp.3.out
-linksp Yminlim => axis.1.neg-lim-sw-in
-linksp Ymaxlim <= wcomp.4.out
-linksp Ymaxlim => axis.1.pos-lim-sw-in
-linksp Yhome <= wcomp.5.out
-linksp Yhome => axis.1.home-sw-in
+net Yminlim wcomp.3.out => axis.1.neg-lim-sw-in
+net Ymaxlim wcomp.4.out => axis.1.pos-lim-sw-in
+net Yhome wcomp.5.out => axis.1.home-sw-in
 
-newsig Zminlim bit
-newsig Zmaxlim  bit
-newsig Zhome bit
-linksp Zminlim <= wcomp.6.out
-linksp Zminlim => axis.2.neg-lim-sw-in
-linksp Zmaxlim <= wcomp.7.out
-linksp Zmaxlim => axis.2.pos-lim-sw-in
-linksp Zhome <= wcomp.8.out
-linksp Zhome => axis.2.home-sw-in
+net Zminlim wcomp.6.out => axis.2.neg-lim-sw-in
+net Zmaxlim wcomp.7.out => axis.2.pos-lim-sw-in
+net Zhome wcomp.8.out => axis.2.home-sw-in
 
 # configure the points at which the simulated switches trip
 # X axis first

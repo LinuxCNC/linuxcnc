@@ -11,28 +11,17 @@ addf limit2.0                   servo-thread
 #######################################################
 
 # spindle speed control
-newsig spindle-speed-cmd float
-newsig spindle-speed-limited float
-linkps motion.spindle-speed-out => spindle-speed-cmd
-linksp spindle-speed-cmd => limit2.0.in
-linkps limit2.0.out => spindle-speed-limited
-linksp spindle-speed-limited => sim-encoder.0.speed
+net spindle-speed-cmd  motion.spindle-speed.out => limit2.0.in
+net spindle-speed-limited limit2.0.out => sim-encoder.0.speed
 
 # simulate spindle mass
 setp limit2.0.maxv 500.0 # rpm/second
 
 # spindle encoder
 # connect encoder signals to encoder counter
-newsig spindle-phase-A bit
-newsig spindle-phase-B bit
-newsig spindle-phase-Z bit
-linksp spindle-phase-A => encoder.0.phase-A
-linksp spindle-phase-B => encoder.0.phase-B
-linksp spindle-phase-Z => encoder.0.phase-Z
-
-linkps sim-encoder.0.phase-A => spindle-phase-A
-linkps sim-encoder.0.phase-B => spindle-phase-B
-linkps sim-encoder.0.phase-Z => spindle-phase-Z
+net spindle-phase-A sim-encoder.0.phase-A => encoder.0.phase-A
+net spindle-phase-B sim-encoder.0.phase-B => encoder.0.phase-B
+net spindle-phase-Z sim-encoder.0.phase-Z => encoder.0.phase-Z
 
 # assume 120 ppr = 480 counts/rev for the spindle
 setp sim-encoder.0.ppr 120
@@ -46,14 +35,10 @@ setp encoder.0.position-scale 480
 
 # encoder reset control
 # hook up motion controller's sync output
-newsig spindle-index-enable bit
-linkps motion.spindle-index-enable <=> spindle-index-enable
-linksp spindle-index-enable <=> encoder.0.index-enable
+net spindle-index-enable motion.spindle-index-enable <=> encoder.0.index-enable
 
 # report our revolution count to the motion controller
-newsig spindle-pos float
-linkps encoder.0.position => spindle-pos
-linksp spindle-pos => motion.spindle-revs
+net spindle-pos encoder.0.position => motion.spindle-revs
 
 # for spindle velocity estimate
 loadrt lowpass count=1
@@ -66,8 +51,7 @@ setp lowpass.0.gain .07
 addf lowpass.0 servo-thread
 addf scale.0 servo-thread
 
-newsig spindle-fwd bit
-linksp spindle-fwd <= motion.spindle-forward
+net  spindle-fwd <= motion.spindle-forward
 
 addf encoder.capture-position servo-thread
 addf sim-encoder.update-speed servo-thread

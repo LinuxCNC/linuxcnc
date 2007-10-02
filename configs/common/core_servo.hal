@@ -15,47 +15,22 @@ addf pid.0.do-pid-calcs servo-thread
 addf pid.1.do-pid-calcs servo-thread
 addf pid.2.do-pid-calcs servo-thread
 
-# create three position feedback signals
-newsig Xpos-fb float
-newsig Ypos-fb float
-newsig Zpos-fb float
-
-# connect position feedback to PID loop
-linksp Xpos-fb => pid.0.feedback
-linksp Ypos-fb => pid.1.feedback
-linksp Zpos-fb => pid.2.feedback
-
-# connect position feedback to motion module
-linksp Xpos-fb => axis.0.motor-pos-fb
-linksp Ypos-fb => axis.1.motor-pos-fb
-linksp Zpos-fb => axis.2.motor-pos-fb
+# connect position feedback
+net Xpos-fb axis.0.motor-pos-fb => pid.0.feedback
+net Ypos-fb axis.1.motor-pos-fb => pid.1.feedback
+net Zpos-fb axis.2.motor-pos-fb => pid.2.feedback
 
 # create PID to DAC output signals
-newsig Xoutput float
-newsig Youtput float
-newsig Zoutput float
-
-# connect output signals to output of PID loops
-linksp Xoutput <= pid.0.output
-linksp Youtput <= pid.1.output
-linksp Zoutput <= pid.2.output
+net Xoutput <= pid.0.output
+net Youtput <= pid.1.output
+net Zoutput <= pid.2.output
 
 # set PID loop output limits to +/-1.00
 setp pid.0.maxoutput [AXIS_0]MAX_VELOCITY
 setp pid.1.maxoutput [AXIS_1]MAX_VELOCITY
 setp pid.2.maxoutput [AXIS_2]MAX_VELOCITY
 
-# set PID loop gains
-# NOTE: eventually these will be non-zero values as
-# needed to tune the performance of each axis.  The
-# initial values shown here are extremely conservative
-# to prevent unexpected behavior.  After this file 
-# has been "executed" by halcmd, the gains can be
-# interactively adjusted using commands like
-# "halcmd setp pid.<channel>.Pgain <value>"
-# Once the axis has been tuned to your satisfaction, 
-# do "halcmd show param | grep pid" to get a listing 
-# of the tuning parameters, and enter those values here.
+# set PID loop gains from inifile
 
 # the values below come from the ini
 setp pid.0.Pgain [AXIS_0]P
@@ -85,32 +60,12 @@ setp pid.2.FF1 [AXIS_2]FF1
 # deadband should be just over 1 count
 setp pid.2.deadband [AXIS_2]DEADBAND
 
-# create three position command signals
-newsig Xpos-cmd float
-newsig Ypos-cmd float
-newsig Zpos-cmd float
+# position command signals
+net Xpos-cmd axis.0.motor-pos-cmd => pid.0.command
+net Ypos-cmd axis.1.motor-pos-cmd => pid.1.command
+net Zpos-cmd axis.2.motor-pos-cmd => pid.2.command
 
-# connect position commands to motion controller
-linksp Xpos-cmd <= axis.0.motor-pos-cmd
-linksp Ypos-cmd <= axis.1.motor-pos-cmd
-linksp Zpos-cmd <= axis.2.motor-pos-cmd
-
-# connect position commands to PID input
-linksp Xpos-cmd => pid.0.command
-linksp Ypos-cmd => pid.1.command
-linksp Zpos-cmd => pid.2.command
-
-# create bit signals to enable/disable the PID loops
-newsig Xenable bit
-newsig Yenable bit
-newsig Zenable bit
-
-# connect the signals to the motion controller
-linksp Xenable <= axis.0.amp-enable-out
-linksp Yenable <= axis.1.amp-enable-out
-linksp Zenable <= axis.2.amp-enable-out
-
-# connect the signals to the PID blocks
-linksp Xenable => pid.0.enable
-linksp Yenable => pid.1.enable
-linksp Zenable => pid.2.enable
+# axis enable signals
+net Xenable axis.0.amp-enable-out => pid.0.enable
+net Yenable axis.1.amp-enable-out => pid.1.enable
+net Zenable axis.2.amp-enable-out => pid.2.enable

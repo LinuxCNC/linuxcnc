@@ -1,1 +1,1 @@
-linksp spindle-rpm-filtered  pyvcp.spindle-speed
+net spindle-rpm-filtered => pyvcp.spindle-speed

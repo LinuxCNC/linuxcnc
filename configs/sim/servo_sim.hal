@@ -57,87 +57,36 @@ addf ddt.3 servo-thread
 addf ddt.4 servo-thread
 addf ddt.5 servo-thread
 
-# create three position feedback signals
-newsig Xpos-fb float
-newsig Ypos-fb float
-newsig Zpos-fb float
-
 # get position feedback from encoder module
-linksp Xpos-fb <= encoder.0.position
-linksp Ypos-fb <= encoder.1.position
-linksp Zpos-fb <= encoder.2.position
+# connect position feedback to PID loop and motion module
+net Xpos-fb encoder.0.position => pid.0.feedback axis.0.motor-pos-fb
+net Ypos-fb encoder.1.position => pid.1.feedback axis.1.motor-pos-fb
+net Zpos-fb encoder.2.position => pid.2.feedback axis.2.motor-pos-fb
 
 # set position feedback scaling
 setp encoder.0.position-scale [AXIS_0]INPUT_SCALE
 setp encoder.1.position-scale [AXIS_1]INPUT_SCALE
 setp encoder.2.position-scale [AXIS_2]INPUT_SCALE
 
-# connect position feedback to PID loop
-linksp Xpos-fb => pid.0.feedback
-linksp Ypos-fb => pid.1.feedback
-linksp Zpos-fb => pid.2.feedback
-
-# connect position feedback to motion module
-linksp Xpos-fb => axis.0.motor-pos-fb
-linksp Ypos-fb => axis.1.motor-pos-fb
-linksp Zpos-fb => axis.2.motor-pos-fb
-
 # connect encoder index-enables for homing on index
-newsig Xindex-enable bit
-newsig Yindex-enable bit
-newsig Zindex-enable bit
-linksp Xindex-enable encoder.0.index-enable
-linksp Xindex-enable axis.0.index-enable
-linksp Yindex-enable encoder.1.index-enable
-linksp Yindex-enable axis.1.index-enable
-linksp Zindex-enable encoder.2.index-enable
-linksp Zindex-enable axis.2.index-enable
+net Xindex-enable encoder.0.index-enable <=> axis.0.index-enable
+net Yindex-enable encoder.1.index-enable <=> axis.1.index-enable
+net Zindex-enable encoder.2.index-enable <=> axis.2.index-enable
 
-# create three position command signals
-newsig Xpos-cmd float
-newsig Ypos-cmd float
-newsig Zpos-cmd float
+# connect position commands from motion controller to PID input
+net Xpos-cmd <= axis.0.motor-pos-cmd => pid.0.command
+net Ypos-cmd <= axis.1.motor-pos-cmd => pid.1.command
+net Zpos-cmd <= axis.2.motor-pos-cmd => pid.2.command
 
-# connect position commands to motion controller
-linksp Xpos-cmd <= axis.0.motor-pos-cmd
-linksp Ypos-cmd <= axis.1.motor-pos-cmd
-linksp Zpos-cmd <= axis.2.motor-pos-cmd
+# connect motion controller enables to PID blocks
+net Xenable axis.0.amp-enable-out => pid.0.enable
+net Yenable axis.1.amp-enable-out => pid.1.enable
+net Zenable axis.2.amp-enable-out => pid.2.enable
 
-# connect position commands to PID input
-linksp Xpos-cmd => pid.0.command
-linksp Ypos-cmd => pid.1.command
-linksp Zpos-cmd => pid.2.command
-
-# create bit signals to enable/disable the PID loops
-newsig Xenable bit
-newsig Yenable bit
-newsig Zenable bit
-
-# connect the signals to the motion controller
-linksp Xenable <= axis.0.amp-enable-out
-linksp Yenable <= axis.1.amp-enable-out
-linksp Zenable <= axis.2.amp-enable-out
-
-# connect the signals to the PID blocks
-linksp Xenable => pid.0.enable
-linksp Yenable => pid.1.enable
-linksp Zenable => pid.2.enable
-
-# create PID to "motor" output signals
-newsig Xoutput float
-newsig Youtput float
-newsig Zoutput float
-
-# connect output signals to output of PID loops
-linksp Xoutput <= pid.0.output
-linksp Youtput <= pid.1.output
-linksp Zoutput <= pid.2.output
-
-# connect output signals (in inches per sec) to
-# scale blocks that translate to motor revs per sec
-linksp Xoutput => scale.0.in
-linksp Youtput => scale.1.in
-linksp Zoutput => scale.2.in
+# connect PID loops to scale blocks that translate to motor revs per sec
+net Xoutput pid.0.output => scale.0.in
+net Youtput pid.1.output => scale.1.in
+net Zoutput pid.2.output => scale.2.in
 
 # set scaling, number of motor revs needed to
 # travel one inch
@@ -145,21 +94,12 @@ setp scale.0.gain [AXIS_0]DRIVE_RATIO
 setp scale.1.gain [AXIS_1]DRIVE_RATIO
 setp scale.2.gain [AXIS_2]DRIVE_RATIO
 
-# motor speed commands
-newsig Xmtr-cmd float
-newsig Ymtr-cmd float
-newsig Zmtr-cmd float
-
 # motor speed command sigs come from scale blocks
-linksp Xmtr-cmd <= scale.0.out
-linksp Ymtr-cmd <= scale.1.out
-linksp Zmtr-cmd <= scale.2.out
-
 # motor speed commands go thru lowpass filters
 # to simulate motor inertia
-linksp Xmtr-cmd => lowpass.0.in
-linksp Ymtr-cmd => lowpass.1.in
-linksp Zmtr-cmd => lowpass.2.in
+net Xmtr-cmd scale.0.out => lowpass.0.in
+net Ymtr-cmd scale.1.out => lowpass.1.in
+net Zmtr-cmd scale.2.out => lowpass.2.in
 
 # set "inertia" here, probalby by trial and error
 setp lowpass.0.gain 0.1
@@ -167,19 +107,11 @@ setp lowpass.1.gain 0.1
 setp lowpass.2.gain 0.1
 
 # "actual" motor speed signals
-newsig Xmtr-spd float
-newsig Ymtr-spd float
-newsig Zmtr-spd float
-
 # output of lowpass is simulated motor speed
-linksp Xmtr-spd <= lowpass.0.out
-linksp Ymtr-spd <= lowpass.1.out
-linksp Zmtr-spd <= lowpass.2.out
-
 # speed goes to simulated encoders
-linksp Xmtr-spd => sim-encoder.0.speed
-linksp Ymtr-spd => sim-encoder.1.speed
-linksp Zmtr-spd => sim-encoder.2.speed
+net Xmtr-spd lowpass.0.out => sim-encoder.0.speed
+net Ymtr-spd lowpass.1.out => sim-encoder.1.speed
+net Zmtr-spd lowpass.2.out => sim-encoder.2.speed
 
 # set simulated encoder scaling
 setp sim-encoder.0.ppr [AXIS_0]MOTOR_PPR
@@ -187,35 +119,16 @@ setp sim-encoder.1.ppr [AXIS_1]MOTOR_PPR
 setp sim-encoder.2.ppr [AXIS_2]MOTOR_PPR
 
 # simulated encoder output signals
-newsig XphA bit
-newsig XphB bit
-newsig XphZ bit
-newsig YphA bit
-newsig YphB bit
-newsig YphZ bit
-newsig ZphA bit
-newsig ZphB bit
-newsig ZphZ bit
-
 # connect them up
-linksp XphA <= sim-encoder.0.phase-A
-linksp XphA => encoder.0.phase-A
-linksp XphB <= sim-encoder.0.phase-B
-linksp XphB => encoder.0.phase-B
-linksp XphZ <= sim-encoder.0.phase-Z
-linksp XphZ => encoder.0.phase-Z
-linksp YphA <= sim-encoder.1.phase-A
-linksp YphA => encoder.1.phase-A
-linksp YphB <= sim-encoder.1.phase-B
-linksp YphB => encoder.1.phase-B
-linksp YphZ <= sim-encoder.1.phase-Z
-linksp YphZ => encoder.1.phase-Z
-linksp ZphA <= sim-encoder.2.phase-A
-linksp ZphA => encoder.2.phase-A
-linksp ZphB <= sim-encoder.2.phase-B
-linksp ZphB => encoder.2.phase-B
-linksp ZphZ <= sim-encoder.2.phase-Z
-linksp ZphZ => encoder.2.phase-Z
+net XphA sim-encoder.0.phase-A => encoder.0.phase-A
+net XphB sim-encoder.0.phase-B => encoder.0.phase-B
+net XphZ sim-encoder.0.phase-Z => encoder.0.phase-Z
+net YphA sim-encoder.1.phase-A => encoder.1.phase-A
+net YphB sim-encoder.1.phase-B => encoder.1.phase-B
+net YphZ sim-encoder.1.phase-Z => encoder.1.phase-Z
+net ZphA sim-encoder.2.phase-A => encoder.2.phase-A
+net ZphB sim-encoder.2.phase-B => encoder.2.phase-B
+net ZphZ sim-encoder.2.phase-Z => encoder.2.phase-Z
 
 # set PID loop output limits to max velocity
 setp pid.0.maxoutput [AXIS_0]MAX_VELOCITY
@@ -264,25 +177,12 @@ setp pid.2.deadband [AXIS_2]DEADBAND
 
 # send the position commands thru differentiators to
 # generate velocity and accel signals
-# define the signals, and hook them up
-newsig Xvel float
-newsig Xacc float
-linksp Xpos-cmd => ddt.0.in
-linkps ddt.0.out => Xvel
-linksp Xvel => ddt.1.in
-linkps ddt.1.out => Xacc
-newsig Yvel float
-newsig Yacc float
-linksp Ypos-cmd => ddt.2.in
-linkps ddt.2.out => Yvel
-linksp Yvel => ddt.3.in
-linkps ddt.3.out => Yacc
-newsig Zvel float
-newsig Zacc float
-linksp Zpos-cmd => ddt.4.in
-linkps ddt.4.out => Zvel
-linksp Zvel => ddt.5.in
-linkps ddt.5.out => Zacc
+net Xvel ddt.0.out => ddt.1.in
+net Xacc <= ddt.1.out 
+net Yvel ddt.2.out => ddt.3.in
+net Yacc <= ddt.3.out 
+net Zvel ddt.4.out => ddt.5.in
+net Zacc <= ddt.5.out 
 
 # estop loopback
 net estop-loop iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
@@ -291,76 +191,40 @@ net estop-loop iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
 net tool-prep-loop iocontrol.0.tool-prepare iocontrol.0.tool-prepared
 net tool-change-loop iocontrol.0.tool-change iocontrol.0.tool-changed
 
-newsig xflt bit
-linksp xflt axis.0.amp-fault-in
-newsig yflt bit
-linksp yflt axis.1.amp-fault-in
-newsig zflt bit
-linksp zflt axis.2.amp-fault-in
-
-# signals for "actual" axis position
-newsig Xaxis-pos float
-newsig Yaxis-pos float
-newsig Zaxis-pos float
+net xflt => axis.0.amp-fault-in
+net yflt => axis.1.amp-fault-in
+net zflt => axis.2.amp-fault-in
 
 # a second set of encoder counters keeps track of position
-linksp XphA encoder.3.phase-A
-linksp XphB encoder.3.phase-B
-linksp YphA encoder.4.phase-A
-linksp YphB encoder.4.phase-B
-linksp ZphA encoder.5.phase-A
-linksp ZphB encoder.5.phase-B
+net XphA => encoder.3.phase-A
+net XphB => encoder.3.phase-B
+net YphA => encoder.4.phase-A
+net YphB => encoder.4.phase-B
+net ZphA => encoder.5.phase-A
+net ZphB => encoder.5.phase-B
 
 setp encoder.3.position-scale [AXIS_0]INPUT_SCALE
 setp encoder.4.position-scale [AXIS_1]INPUT_SCALE
 setp encoder.5.position-scale [AXIS_2]INPUT_SCALE
 
-linksp Xaxis-pos encoder.3.position 
-linksp Yaxis-pos encoder.4.position 
-linksp Zaxis-pos encoder.5.position 
-
 # connect "actual" position from encoders
 # to window comparators
-linksp Xaxis-pos => wcomp.0.in
-linksp Xaxis-pos => wcomp.1.in
-linksp Xaxis-pos => wcomp.2.in
-linksp Yaxis-pos => wcomp.3.in
-linksp Yaxis-pos => wcomp.4.in
-linksp Yaxis-pos => wcomp.5.in
-linksp Zaxis-pos => wcomp.6.in
-linksp Zaxis-pos => wcomp.7.in
-linksp Zaxis-pos => wcomp.8.in
+net Xaxis-pos encoder.3.position => wcomp.0.in wcomp.1.in wcomp.2.in
+net Yaxis-pos encoder.4.position => wcomp.3.in wcomp.4.in wcomp.5.in
+net Zaxis-pos encoder.5.position => wcomp.6.in wcomp.7.in wcomp.8.in
 
 # connect simulated switch outputs to motion controller
-newsig Xminlim bit
-newsig Xmaxlim  bit
-newsig Xhome bit
-linksp Xminlim <= wcomp.0.out
-linksp Xminlim => axis.0.neg-lim-sw-in
-linksp Xmaxlim <= wcomp.1.out
-linksp Xmaxlim => axis.0.pos-lim-sw-in
-linksp Xhome <= wcomp.2.out
-linksp Xhome => axis.0.home-sw-in
+net Xminlim wcomp.0.out => axis.0.neg-lim-sw-in
+net Xmaxlim wcomp.1.out => axis.0.pos-lim-sw-in
+net Xhome wcomp.2.out => axis.0.home-sw-in
 
-newsig Yminlim bit
-newsig Ymaxlim  bit
-newsig Yhome bit
-linksp Yminlim <= wcomp.3.out
-linksp Yminlim => axis.1.neg-lim-sw-in
-linksp Ymaxlim <= wcomp.4.out
-linksp Ymaxlim => axis.1.pos-lim-sw-in
-linksp Yhome <= wcomp.5.out
-linksp Yhome => axis.1.home-sw-in
+net Yminlim wcomp.3.out => axis.0.neg-lim-sw-in
+net Ymaxlim wcomp.4.out => axis.0.pos-lim-sw-in
+net Yhome wcomp.5.out => axis.0.home-sw-in
 
-newsig Zminlim bit
-newsig Zmaxlim  bit
-newsig Zhome bit
-linksp Zminlim <= wcomp.6.out
-linksp Zminlim => axis.2.neg-lim-sw-in
-linksp Zmaxlim <= wcomp.7.out
-linksp Zmaxlim => axis.2.pos-lim-sw-in
-linksp Zhome <= wcomp.8.out
-linksp Zhome => axis.2.home-sw-in
+net Zminlim wcomp.6.out => axis.0.neg-lim-sw-in
+net Zmaxlim wcomp.7.out => axis.0.pos-lim-sw-in
+net Zhome wcomp.9.out => axis.0.home-sw-in
 
 # configure the points at which the simulated switches trip
 # X axis first

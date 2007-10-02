@@ -9,26 +9,19 @@ addf wcomp.3 servo-thread
 addf wcomp.4 servo-thread
 addf wcomp.5 servo-thread
 
-linksp Xacc => wcomp.0.in
-linksp Xvel => wcomp.1.in
-linksp Yacc => wcomp.2.in
-linksp Yvel => wcomp.3.in
-linksp Zacc => wcomp.4.in
-linksp Zvel => wcomp.5.in
+net Xacc => wcomp.0.in
+net Xvel => wcomp.1.in
+net Yacc => wcomp.2.in
+net Yvel => wcomp.3.in
+net Zacc => wcomp.4.in
+net Zvel => wcomp.5.in
 
-newsig acc-ok-x bit
-newsig vel-ok-x bit
-newsig acc-ok-y bit
-newsig vel-ok-y bit
-newsig acc-ok-z bit
-newsig vel-ok-z bit
-
-linksp acc-ok-x <= wcomp.0.out
-linksp vel-ok-x <= wcomp.1.out
-linksp acc-ok-y <= wcomp.2.out
-linksp vel-ok-y <= wcomp.3.out
-linksp acc-ok-z <= wcomp.4.out
-linksp vel-ok-z <= wcomp.5.out
+net acc-ok-x <= wcomp.0.out
+net vel-ok-x <= wcomp.1.out
+net acc-ok-y <= wcomp.2.out
+net vel-ok-y <= wcomp.3.out
+net acc-ok-z <= wcomp.4.out
+net vel-ok-z <= wcomp.5.out
 
 setp wcomp.0.max 20
 setp wcomp.0.min -20
@@ -47,17 +40,17 @@ loadrt match8 count=1
 
 addf match8.0 servo-thread
 
-linksp acc-ok-x match8.0.a0
+net acc-ok-x => match8.0.a0
 setp match8.0.b0 1
-linksp vel-ok-x match8.0.a1
+net vel-ok-x => match8.0.a1
 setp match8.0.b1 1
-linksp acc-ok-y match8.0.a2
+net acc-ok-y => match8.0.a2
 setp match8.0.b2 1
-linksp vel-ok-y match8.0.a3
+net vel-ok-y => match8.0.a3
 setp match8.0.b3 1
-linksp acc-ok-z match8.0.a4
+net acc-ok-z => match8.0.a4
 setp match8.0.b4 1
-linksp vel-ok-z match8.0.a5
+net vel-ok-z => match8.0.a5
 setp match8.0.b5 1
 
 setp match8.0.a6 0
@@ -67,5 +60,4 @@ setp match8.0.b7 0
 
 setp match8.0.in 1
 
-newsig constraints-ok bit
-linkps match8.0.out constraints-ok
+net constraints-ok <= match8.0.out

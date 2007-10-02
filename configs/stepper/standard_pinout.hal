@@ -11,12 +11,12 @@ addf parport.0.read base-thread 1
 addf parport.0.write base-thread -1
 #
 # finally connect physical pins to the signals
-linksp Xstep => parport.0.pin-03-out
-linksp Xdir  => parport.0.pin-02-out
-linksp Ystep => parport.0.pin-05-out
-linksp Ydir  => parport.0.pin-04-out
-linksp Zstep => parport.0.pin-07-out
-linksp Zdir  => parport.0.pin-06-out
+net Xstep => parport.0.pin-03-out
+net Xdir  => parport.0.pin-02-out
+net Ystep => parport.0.pin-05-out
+net Ydir  => parport.0.pin-04-out
+net Zstep => parport.0.pin-07-out
+net Zdir  => parport.0.pin-06-out
 
 # create a signal for the estop loopback
 net estop-loop iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
@@ -25,19 +25,15 @@ net estop-loop iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
 net tool-prep-loop iocontrol.0.tool-prepare iocontrol.0.tool-prepared
 net tool-change-loop iocontrol.0.tool-change iocontrol.0.tool-changed
 
-# create a signal for "spindle on"
-newsig spindle-on bit
-# connect the controller to it
-linkps motion.spindle-on => spindle-on
-# connect it to a physical pin
-linksp spindle-on => parport.0.pin-09-out
+# connect "spindle on" motion controller pin to a physical pin
+net spindle-on motion.spindle-on => parport.0.pin-09-out
 
 ###
 ### You might use something like this to enable chopper drives when machine ON
 ### the Xen signal is defined in core_stepper.hal
 ###
 
-# linksp Xen => parport.0.pin-01-out
+# net Xen => parport.0.pin-01-out
 
 ###
 ### If you want active low for this pin, invert it like this:
@@ -51,9 +47,7 @@ linksp spindle-on => parport.0.pin-09-out
 ### to EMC's axis 0 home switch input pin
 ###
 
-# newsig Xhome bit
-# linkps parport.0.pin-10-in => Xhome
-# linksp Xhome => axis.0.home-sw-in
+# net Xhome parport.0.pin-10-in => axis.0.home-sw-in
 
 ###
 ### Shared home switches all on one parallel port pin?
@@ -62,23 +56,17 @@ linksp spindle-on => parport.0.pin-09-out
 ### user manual!
 ###
 
-# newsig homeswitches bit
-# linkps parport.0.pin-10-in => homeswitches
-# linksp homeswitches => axis.0.home-sw-in
-# linksp homeswitches => axis.1.home-sw-in
-# linksp homeswitches => axis.2.home-sw-in
+# net homeswitches <= parport.0.pin-10-in
+# net homeswitches => axis.0.home-sw-in
+# net homeswitches => axis.1.home-sw-in
+# net homeswitches => axis.2.home-sw-in
 
 ###
 ### Sample separate limit switches on the X axis (axis 0)
 ###
 
-# newsig X-neg-limit bit
-# linkps parport.0.pin-11-in => X-neg-limit
-# linksp X-neg-limit => axis.0.neg-lim-sw-in
-
-# newsig X-pos-limit bit
-# linkps parport.0.pin-12-in => X-pos-limit
-# linksp X-pos-limit => axis.0.pos-lim-sw-in
+# net X-neg-limit parport.0.pin-11-in => axis.0.neg-lim-sw-in
+# net X-pos-limit parport.0.pin-12-in => axis.0.pos-lim-sw-in
 
 ###
 ### Just like the shared home switches example, you can wire together
@@ -86,16 +74,4 @@ linksp spindle-on => parport.0.pin-09-out
 ### you which switch/axis has faulted.  Use caution when recovering from this.
 ###
 
-# newsig Xlimits bit
-# linkps parport.0.pin-13-in => Xlimits
-# linksp Xlimits => axis.0.neg-lim-sw-in
-# linksp Xlimits => axis.0.pos-lim-sw-in
-
-###
-### you can also use the "net" syntax to accomplish the "newsig" and "link"
-### operations all at once.  This command does the same thing as the above
-### block.
-###
-
 # net Xlimits parport.0.pin-13-in => axis.0.neg-lim-sw-in axis.0.pos-lim-sw-in
-

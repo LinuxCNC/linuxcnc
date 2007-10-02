@@ -31,76 +31,37 @@ addf hypot.0 servo-thread
 addf hypot.1 servo-thread
 
 # create HAL signals for position commands from motion module
-newsig Xpos float
-linksp Xpos <= axis.0.motor-pos-cmd
-newsig Ypos float
-linksp Ypos <= axis.1.motor-pos-cmd
-newsig Zpos float
-linksp Zpos <= axis.2.motor-pos-cmd
-
-newsig Apos float
-linksp Apos <= axis.3.motor-pos-cmd
-
 # loop position commands back to motion module feedback
-linksp Xpos => axis.0.motor-pos-fb
-linksp Ypos => axis.1.motor-pos-fb
-linksp Zpos => axis.2.motor-pos-fb
-linksp Apos => axis.3.motor-pos-fb
+net Xpos axis.0.motor-pos-cmd => axis.0.motor-pos-fb ddt.0.in
+net Ypos axis.1.motor-pos-cmd => axis.1.motor-pos-fb ddt.2.in
+net Zpos axis.2.motor-pos-cmd => axis.2.motor-pos-fb ddt.4.in
+net Y1pos axis.3.motor-pos-cmd => axis.3.motor-pos-fb
 
 # send the position commands thru differentiators to
 # generate velocity and accel signals
 # define the signals, and hook them up
-newsig Xvel float
-newsig Xacc float
-linksp Xpos => ddt.0.in
-linkps ddt.0.out => Xvel
-linksp Xvel => ddt.1.in
-linkps ddt.1.out => Xacc
-newsig Yvel float
-newsig Yacc float
-linksp Ypos => ddt.2.in
-linkps ddt.2.out => Yvel
-linksp Yvel => ddt.3.in
-linkps ddt.3.out => Yacc
-newsig Zvel float
-newsig Zacc float
-linksp Zpos => ddt.4.in
-linkps ddt.4.out => Zvel
-linksp Zvel => ddt.5.in
-linkps ddt.5.out => Zacc
+net Xvel ddt.0.out => ddt.1.in hypot.0.in0
+net Xacc <= ddt.1.out
+net Yvel ddt.2.out => ddt.3.in hypot.0.in1
+net Yacc <= ddt.3.out
+net Zvel ddt.4.out => ddt.5.in hypot.1.in0
+net Zacc <= ddt.5.out
 
-newsig XYvel float
-linksp Xvel => hypot.0.in0
-linksp Yvel => hypot.0.in1
-linksp XYvel <= hypot.0.out
-newsig XYZvel float
-linksp Zvel => hypot.1.in0
-linksp XYvel => hypot.1.in1
-linksp XYZvel <= hypot.1.out
+net XYvel hypot.0.out => hypot.1.in0
+net XYZvel <= hypot.1.out
 
 # estop loopback
-linkpp iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
+net enable iocontrol.0.user-enable-out => iocontrol.0.emc-enable-in
 
 # create signals for tool loading loopback
-linkpp iocontrol.0.tool-prepare iocontrol.0.tool-prepared
-linkpp iocontrol.0.tool-change iocontrol.0.tool-changed
+net tool-prepare iocontrol.0.tool-prepare => iocontrol.0.tool-prepared
+net tool-change iocontrol.0.tool-change => iocontrol.0.tool-changed
 
 # amp control
-newsig xena bit
-linksp xena axis.0.amp-enable-out
-newsig yena bit
-linksp yena axis.1.amp-enable-out
-newsig zena bit
-linksp zena axis.2.amp-enable-out
+net xena <= axis.0.amp-enable-out
+net yena <= axis.1.amp-enable-out
+net zena <= axis.2.amp-enable-out
 
-newsig xflt bit
-linksp xflt axis.0.amp-fault-in
-newsig yflt bit
-linksp yflt axis.1.amp-fault-in
-newsig zflt bit
-linksp zflt axis.2.amp-fault-in
-
-# load realtime portion of scope
-loadrt scope_rt
-# start up scope user interface
-# loadusr halscope
+net xflt => axis.0.amp-fault-in
+net yflt => axis.1.amp-fault-in
+net zflt => axis.2.amp-fault-in

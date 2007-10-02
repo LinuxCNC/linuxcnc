@@ -33,8 +33,6 @@ net estop-loop iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
 net tool-prep-loop iocontrol.0.tool-prepare iocontrol.0.tool-prepared
 
 # create a signal for "spindle on"
-newsig spindle_on bit
-
 net spindle_on motion.spindle-on => pluto-step.dout.00
 
 setp pluto-step.stepgen.steplen 20000
