@@ -356,6 +356,8 @@ setuid:
 	chmod 4750 ../bin/bfload
 	chown root ../bin/pci_write
 	chmod 4750 ../bin/pci_write
+	chown root ../bin/pci_read
+	chmod 4750 ../bin/pci_read
 endif
 
 # These rules allows a header file from this directory to be installed into
