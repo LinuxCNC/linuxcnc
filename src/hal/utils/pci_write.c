@@ -185,7 +185,6 @@ static int parse_cmdline(unsigned argc, char *argv[])
 	/* loop through the command line parameters and the list of vars */
 	for (i=0;i<array_size(params);i++)
 	{
-//		if (sscanf(argv[i+1], "%i", &temp) !=1 )
 		temp = strtoul(argv[i+1], &eptr, 0);
 		if (*eptr!='\0')
 		{
