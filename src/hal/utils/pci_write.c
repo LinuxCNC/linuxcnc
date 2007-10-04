@@ -138,10 +138,11 @@ int main(int argc, char *argv[])
     }
 #ifdef DEBUG_PRINTS
     upci_print_device_info(board.upci_devnum);
-#endif
+#else
     data_region = upci_open_region(board.upci_devnum, pci_region);
-	upci_write_u32(data_region, pci_offset, value);
-	return EC_OK;
+    upci_write_u32(data_region, pci_offset, value);
+#endif
+    return EC_OK;
 }
 
 /************************************************************************/
@@ -174,6 +175,7 @@ static int parse_cmdline(unsigned argc, char *argv[])
 {
 	int i;
 	__u32 temp;
+	char *eptr;
 
     if (argc != array_size(params)+1) {
 		usage();
@@ -183,7 +185,9 @@ static int parse_cmdline(unsigned argc, char *argv[])
 	/* loop through the command line parameters and the list of vars */
 	for (i=0;i<array_size(params);i++)
 	{
-		if (sscanf(argv[i+1], "%u", &temp) !=1 )
+//		if (sscanf(argv[i+1], "%i", &temp) !=1 )
+		temp = strtoul(argv[i+1], &eptr, 0);
+		if (*eptr!='\0')
 		{
 			errmsg(__func__,"invalid %s: %s", params[i].longname, argv[i+1]);
 			return EC_BADCL;
