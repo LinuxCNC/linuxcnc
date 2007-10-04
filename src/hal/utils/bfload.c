@@ -300,8 +300,10 @@ static int parse_cmdline(unsigned argc, char *argv[])
 	printf("    <filename> - name of bitfile\n");
 	printf("    <cardnum>  - card number (default is 0)\n\n");
 	printf("Loads an FPGA configuration from a bitfile into a\n");
-	printf("Mesa 5i20 FPGA.  If the bitfile contains HAL driver\n");
-	printf("config data, writes that data to the FPGA's RAM.\n\n");
+	printf("Mesa 5i20 or 5i22 FPGA.  If the bitfile contains HAL driver\n");
+	printf("config data, writes that data to the FPGA's RAM.\n");
+	printf("The type of card is deduced from the FPGA type info in the bitfile.\n");
+	printf("Card types are numbered independently\n\n");
 	exit(EC_BADCL);
     }
     config_file_name = argv[1];
