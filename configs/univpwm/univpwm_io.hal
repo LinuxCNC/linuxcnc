@@ -46,9 +46,7 @@ linksp Ahome => axis.3.home-sw-in
 
 
 # connect index pulses to motion controller
-# do these when index pulsing is figured out
-# This has been commented out pending changes to the
-# driver to work with the canonical encoder interface
+# uncomment these lines only if you have a Rev 3 UPC board
 #newsig Xindex bit
 #newsig Yindex  bit
 #newsig Zindex bit
