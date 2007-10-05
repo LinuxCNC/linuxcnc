@@ -2356,4 +2356,25 @@ vars.show_distance_to_go.set(1)
 \end_inset 
 
 
+\layout Subsection
+
+External Editor
+\layout Standard
+
+By defining 
+\family typewriter 
+[DISPLAY]EDITOR
+\family default 
+, the menu options File > Edit...
+ and File > Edit Tool Table...
+ become available.
+ Useful values include 
+\family typewriter 
+EDITOR=gedit
+\family default 
+ and 
+\family typewriter 
+EDITOR=gnome-terminal -e vim
+\family default 
+.
 \the_end
