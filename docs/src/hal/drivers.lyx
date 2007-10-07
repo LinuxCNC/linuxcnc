@@ -626,9 +626,8 @@ Common problems
 If loading the module reports
 \layout LyX-Code
 
-insmod: error inserting '/home/jepler/emc2/rtlib/hal_parport.ko': 
-\layout LyX-Code
-
+insmod: error inserting '/home/jepler/emc2/rtlib/hal_parport.ko':
+\newline 
 -1 Device or resource busy 
 \layout Standard
 
