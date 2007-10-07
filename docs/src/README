@@ -16,20 +16,23 @@ The .dxf files can be edited with multiple CAD packages, and serve as the
 from .dxf to postscript (not .eps) using Qcad, which is available as an 
 ubuntu package (and I believe also available for debian).
 
-Unfortunately, EasyCad (and AutoCad) support a number of entities that
-Qcad does not.  Including some that were used in the EMC2 drawings: filled
-circles, filled arrowheads, non-zero width lines, and dashed lines.  Qcad
-renders filled circles as hollow, it renders all lines the same width, and
-it renders dashed lines as solid.  All of these things make the drawings
-less attractive, but are somewhat acceptable.  However, Qcad doesn't render
-filled arrowheads at all, which seriously hurts the drawings.  So EasyCad
-was used to convert the arrowheads to hollow before exporting them.  Hollow
-arrowheads don't look as nice as solid ones, but at least they are visible.
+Unfortunately, EasyCad (and AutoCad) support a number of entities 
+that Qcad does not import properly.  Including some that were used 
+in the EMC2 drawings: filled circles, filled arrowheads, non-zero 
+width lines, and dashed lines.  Qcad renders filled circles as 
+hollow, it renders all lines the same width, and it renders dashed 
+lines as solid, unless you tell it to do otherwise.  All of these 
+things make the drawings less attractive, but are somewhat 
+acceptable.  However, Qcad doesn't import filled arrowheads at all, 
+which seriously hurts the drawings.  So EasyCad was used to convert 
+the arrowheads to hollow before exporting them.  Hollow arrowheads 
+don't look as nice as solid ones, but at least they are visible.
 
 Once exported, the arrowheads lose their relationship with the line they 
 are on, and and need to be moved and/or rotated manually if the line is 
 moved.  I believe that even if they were imported back into EasyCad, the
-line/arrow connection would remain broken.
+line/arrow connection would remain broken. New lines with 
+arrowheads can be created in Qcad with the 'leader' dimension tool.
 
 Because the original EPS files with filled lines and circles, wide lines,
 and dashed lines look so much nicer, they will remain in CVS and should
