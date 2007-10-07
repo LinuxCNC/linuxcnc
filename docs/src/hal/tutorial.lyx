@@ -754,8 +754,6 @@ halcmd:
 
 \newline 
 emc2$
-\layout LyX-Code
-
 \layout Standard
 
 Check the parameters and pins again:
