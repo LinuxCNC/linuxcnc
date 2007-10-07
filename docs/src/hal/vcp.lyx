@@ -188,8 +188,6 @@ Place your pyVCP XML file describing the panel in the same directory where
     </bar>
 \newline 
 </pyvcp>
-\layout LyX-Code
-
 \layout Standard
 
 Here we've made a panel with a Label and a Bar widget, specified that the
