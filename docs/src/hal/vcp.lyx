@@ -87,10 +87,8 @@ The layout of a pyVCP panel is specified with an XML file that contains
     <led/>
 \newline 
 </pyvcp>
-\layout LyX-Code
-
-\layout LyX-Code
-
+\layout Standard
+\align center 
 
 \begin_inset Graphics
 	filename pyvcp_mypanel.png
@@ -256,7 +254,7 @@ pyvcp.
 
 .
 \layout Standard
-
+\align center 
 
 \begin_inset Graphics
 	filename pyvcp_AXIS.png
@@ -381,9 +379,7 @@ A LED is used to indicate the status of a BIT signal.
     <off_color>"black"</off_color>
 \newline 
 </led>
-\layout LyX-Code
-
-\layout LyX-Code
+\layout Standard
 \align center 
 
 \begin_inset Graphics
@@ -444,9 +440,7 @@ A button is used to control a BIT pin.
     <text>"ON"</text> 
 \newline 
 </button>
-\layout LyX-Code
-
-\layout LyX-Code
+\layout Standard
 \align center 
 
 \begin_inset Graphics
@@ -501,9 +495,7 @@ A radiobutton will set one of a number of BIT pins true.
     <halpin>"my-radio"</halpin> 
 \newline 
 </radiobutton>
-\layout LyX-Code
-
-\layout LyX-Code
+\layout Standard
 \align center 
 
 \begin_inset Graphics
@@ -542,9 +534,7 @@ The number widget displays the value of a FLOAT signal.
     <format>"+4.3f"</format>
 \newline 
 </number>
-\layout LyX-Code
-
-\layout LyX-Code
+\layout Standard
 \align center 
 
 \begin_inset Graphics
@@ -589,9 +579,7 @@ A bar widget displays the value of a FLOAT signal both graphically using
     <fillcolor>"red"</fillcolor>
 \newline 
 </bar>
-\layout LyX-Code
-
-\layout LyX-Code
+\layout Standard
 \align center 
 
 \begin_inset Graphics
@@ -621,9 +609,7 @@ Meter displays the value of a FLOAT signal using a traditional dial indicator.
     <max_>33</max_>
 \newline 
 </meter> 
-\layout LyX-Code
-
-\layout LyX-Code
+\layout Standard
 \align center 
 
 \begin_inset Graphics
@@ -659,9 +645,7 @@ Spinbox controls a FLOAT pin.
     <font>('Arial',30)</font>
 \newline 
 </spinbox>
-\layout LyX-Code
-
-\layout LyX-Code
+\layout Standard
 \align center 
 
 \begin_inset Graphics
@@ -693,9 +677,7 @@ Scale controls a FLOAT pin.
     <max_>26</max_>
 \newline 
 </scale>
-\layout LyX-Code
-
-\layout LyX-Code
+\layout Standard
 \align center 
 
 \begin_inset Graphics
@@ -759,8 +741,6 @@ Use a Hbox when you want to stack widgets horizontally next to eachother.
     <bar></bar>
 \newline 
 </hbox>
-\layout LyX-Code
-
 \layout Standard
 \align center 
 
@@ -826,8 +806,6 @@ Use a Vbox when you want to stack widgets vertically on top of each other.
     <bar></bar>
 \newline 
 </vbox>
-\layout LyX-Code
-
 \layout Standard
 \align center 
 
@@ -889,9 +867,7 @@ A label is a piece of text on your panel.
     <font>('Helvetica',20)</font>
 \newline 
 </label> 
-\layout LyX-Code
-
-\layout LyX-Code
+\layout Standard
 \align center 
 
 \begin_inset Graphics
@@ -1136,20 +1112,14 @@ show pin
 \layout LyX-Code
 
 Component Pins:
-\layout LyX-Code
-
+\newline 
 Owner  Type  Dir     Value      Name
-\layout LyX-Code
-
+\newline 
  03    bit   IN      FALSE      vcp.light
-\layout LyX-Code
-
+\newline 
  03    bit   OUT     FALSE      vcp.pushbutton
-\layout LyX-Code
-
+\newline 
 halcmd:
-\layout LyX-Code
-
 \layout Standard
 
 To make something happen, we can connect a HAL signal between the button
@@ -1159,41 +1129,24 @@ To make something happen, we can connect a HAL signal between the button
 halcmd: 
 \series bold 
 newsig jumper bit
-\layout LyX-Code
-
-halcmd: 
-\series bold 
-linksp jumper vcp.pushbutton
-\layout LyX-Code
-
-halcmd: 
-\series bold 
-linksp jumper vcp.light
-\layout LyX-Code
-
-halcmd: 
-\series bold 
-show sig
-\layout LyX-Code
-
+\newline 
+halcmd: linksp jumper vcp.pushbutton
+\newline 
+halcmd: linksp jumper vcp.light
+\newline 
+halcmd: show sig
+\newline 
 Signals:
-\layout LyX-Code
-
+\newline 
 Type      Value      Name
-\layout LyX-Code
-
+\newline 
 bit       FALSE      jumper
-\layout LyX-Code
-
+\newline 
                          ==> vcp.light
-\layout LyX-Code
-
+\newline 
                          <== vcp.pushbutton
-\layout LyX-Code
-
+\newline 
 halcmd:
-\layout LyX-Code
-
 \layout Standard
 
 Now push the button, and the the LED should light up!
