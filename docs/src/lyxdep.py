@@ -38,7 +38,7 @@ def process_file(name):
 o = os.path.splitext(sys.argv[1])[0]
 if len(sys.argv) > 2:
 	print " ".join(sys.argv[2:]),
-print "%s.pdf %s.tex:" % (o, o),
+print "%s.pdf:" % o,
 
 process_file(sys.argv[1])
 print

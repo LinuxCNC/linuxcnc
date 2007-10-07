@@ -713,9 +713,14 @@ fi
 
 # Programs required only for building the HTML documentation
 if ( test "$BUILD_DOCS_HTML" = "yes" ) ; then
-    AC_PATH_PROG(LATEX2HTML,latex2html,"none")
-    if ( test "none" = "$LATEX2HTML" ) ; then
-	AC_MSG_ERROR([no latex2html, HTML documentation cannot be built])
+    AC_PATH_PROG(XSLTPROC,xsltproc,"none")
+    if ( test "none" = "$XSLTPROC" ) ; then
+	AC_MSG_ERROR([no xsltproc, HTML documentation cannot be built])
+    fi
+
+    AC_PATH_PROG(DVIPNG,dvipng,"none")
+    if ( test "none" = "$DVIPNG" ) ; then
+	AC_MSG_ERROR([no dvipng, HTML documentation cannot be built])
     fi
 
     AC_MSG_CHECKING([for HTML support in groff])

@@ -59,9 +59,13 @@ DOC_SRCS := \
 	motion/pid_theory.lyx \
 	Master_HAL.lyx
 
+DOC_SRCS_HTML := $(patsubst %.lyx, %.html, $(filter-out Master_%, $(DOC_SRCS)))
+DOC_TARGETS_HTML:=$(addprefix $(DOC_DIR)/html/,$(subst /,_,$(DOC_SRCS_HTML)))
+DOC_TARGETS_XML:=$(DOC_TARGETS_HTML:.html=.xml)
+
 MAN_HTML_TARGETS := $(patsubst $(DOC_DIR)/man/%, $(DOC_DIR)/html/man/%.html, $(MAN_SRCS))
 PDF_TARGETS := $(addprefix $(DOC_DIR)/,HAL_User_Manual.pdf EMC2_User_Manual.pdf EMC2_Developer_Manual.pdf EMC2_Integrator_Manual.pdf EMC2_Manual_Pages.pdf)
-HTML_TARGETS := $(patsubst %.lyx,$(DOC_DIR)/html/%/index.html, $(filter-out Master_%, $(DOC_SRCS))) $(MAN_HTML_TARGETS) $(DOC_DIR)/html/index.html
+HTML_TARGETS := $(DOC_TARGETS_HTML) $(MAN_HTML_TARGETS) $(DOC_DIR)/html/index.html $(DOC_DIR)/html/xref.html
 
 L2HFLAGS := -init_file src/.latex2html-init -local_icons \
 	-unsegment -link 4 -info 0 -split +0 -html_version 4.0,math,table 
@@ -141,24 +145,42 @@ depends/%.d: $(DOC_SRCDIR)/%.lyx $(DOC_SRCDIR)/lyxdep.py
 	@mkdir -p $(dir $@)
 	@$(PYTHON) $(DOC_SRCDIR)/lyxdep.py $< $@ $(DOC_DIR)/html/$*/index.html > $@
 
-%.tex: %.lyx
-	$(ECHO) Converting $< to latex
-	@rm -f $(<:.lyx=.tex)
-	@$(LYX) --export latex $<
-	@test -f $(<:.lyx=.tex)
-	@sed -f $(DOC_SRCDIR)/l2hprep.sed -i $(<:.lyx=.tex)
+define lyx2xml
+python $(DOC_SRCDIR)/lyxtree.py -t "$(title-$(1)_$(2))" -o $(DOC_DIR)/html/$(1)_$(2).xml $(3)
+endef
 
-$(DOC_DIR)/html/%/index.html: $(DOC_SRCDIR)/%.tex
+$(filter $(DOC_DIR)/html/hal_%.xml,$(DOC_TARGETS_XML)): $(DOC_DIR)/html/hal_%.xml: $(DOC_SRCDIR)/hal/%.lyx
+	$(call lyx2xml,hal,$*,$^)
+$(filter $(DOC_DIR)/html/code_%.xml,$(DOC_TARGETS_XML)): $(DOC_DIR)/html/code_%.xml: $(DOC_SRCDIR)/code/%.lyx
+	$(call lyx2xml,code,$*,$^)
+$(filter $(DOC_DIR)/html/common_%.xml,$(DOC_TARGETS_XML)): $(DOC_DIR)/html/common_%.xml: $(DOC_SRCDIR)/common/%.lyx
+	$(call lyx2xml,common,$*,$^)
+$(filter $(DOC_DIR)/html/config_%.xml,$(DOC_TARGETS_XML)): $(DOC_DIR)/html/config_%.xml: $(DOC_SRCDIR)/config/%.lyx
+	$(call lyx2xml,config,$*,$^)
+$(filter $(DOC_DIR)/html/gcode_%.xml,$(DOC_TARGETS_XML)): $(DOC_DIR)/html/gcode_%.xml: $(DOC_SRCDIR)/gcode/%.lyx
+	$(call lyx2xml,gcode,$*,$^)
+$(filter $(DOC_DIR)/html/gui_%.xml,$(DOC_TARGETS_XML)): $(DOC_DIR)/html/gui_%.xml: $(DOC_SRCDIR)/gui/%.lyx
+	$(call lyx2xml,gui,$*,$^)
+$(filter $(DOC_DIR)/html/install_%.xml,$(DOC_TARGETS_XML)): $(DOC_DIR)/html/install_%.xml: $(DOC_SRCDIR)/install/%.lyx
+	$(call lyx2xml,install,$*,$^)
+$(filter $(DOC_DIR)/html/ladder_%.xml,$(DOC_TARGETS_XML)): $(DOC_DIR)/html/ladder_%.xml: $(DOC_SRCDIR)/ladder/%.lyx
+	$(call lyx2xml,ladder,$*,$^)
+$(filter $(DOC_DIR)/html/motion_%.xml,$(DOC_TARGETS_XML)): $(DOC_DIR)/html/motion_%.xml: $(DOC_SRCDIR)/motion/%.lyx
+	$(call lyx2xml,motion,$*,$^)
+$(filter $(DOC_DIR)/html/quickstart_%.xml,$(DOC_TARGETS_XML)): $(DOC_DIR)/html/quickstart_%.xml: $(DOC_SRCDIR)/quickstart/%.lyx
+	$(call lyx2xml,quickstart,$*,$^)
+
+$(DOC_DIR)/html/xref.xml: $(DOC_TARGETS_XML)
+	(cd $(DOC_DIR)/html; ../src/xref.py $(patsubst $(DOC_DIR)/html/%,%,$^)) > $@
+
+$(DOC_TARGETS_HTML): $(DOC_DIR)/html/%.html: $(DOC_DIR)/html/%.xml $(DOC_DIR)/html/xref.xml $(DOC_SRCDIR)/l2h.xsl
 	$(ECHO) Converting $< to HTML
-	@rm -rf $(<:.tex=)
-	@mkdir -p $(<:.tex=)
-	@if [ ! -z "$(filter %.eps, $^)" ]; then cp $(filter %.eps, $^) $(<:.tex=); fi
-	@(cd ../docs; latex2html $(L2HFLAGS) $(EXTRAL2HFLAGS) $(patsubst ../docs/%, %, $<))
-	@rm -rf $(dir $@)
-	@mkdir -p $(dir $@)
-	@mv $(<:.tex=)/* $(dir $@)
-	@rmdir $(<:.tex=)
+	@xsltproc --path $(DOC_DIR)/html -o $@ $(DOC_SRCDIR)/l2h.xsl $<
 
+$(DOC_DIR)/html/xref.html: $(DOC_DIR)/html/xref.xml $(DOC_SRCDIR)/xref.xsl
+	$(ECHO) Converting $< to HTML
+	@xsltproc --path $(DOC_DIR)/html -o $@ $(DOC_SRCDIR)/xref.xsl $<
+	
 default: docs
 
 install-doc-pdf:
@@ -199,3 +221,40 @@ ifeq ($(TRIVIAL_BUILD),no)
 Makefile: $(MAN_DEPS)
 endif
 
+title-code_Code_Notes = Code Notes
+title-code_Style_Guide = Style Guide
+title-hal_intro = Introduction
+title-hal_tutorial = Tutorial
+title-hal_general_ref = General Reference
+title-hal_tools = Tools
+title-hal_halshow = Halshow
+title-hal_vcp = Virtual Control Panels (pyvcp)
+title-hal_drivers = Hardware Drivers
+title-hal_rtcomps = Realtime Components
+title-hal_comp = Comp: a tool for creating HAL components
+title-hal_halmodule = Creating Userspace Python Components with the 'hal' module
+title-ladder_ladder_intro = Ladder Introduction
+title-ladder_classic_ladder = ClassicLadder
+title-config_stepconf = Configuration Wizard for Stepper-Based Machines
+title-config_ini_config = Basic Configuration
+title-config_ini_homing = Homing Configuration
+title-config_emc2hal = EMC2\'s interface to HAL
+title-gcode_main = The RS274NGC language
+title-gcode_coordinates = Coordinate Systems
+title-gcode_mill_canned = Canned Cycles
+title-gcode_tool_compensation = Tool Shape Compensation
+title-gcode = G-code quick reference
+title-gui_mini = MINI
+title-gui_axis = AXIS
+title-gui_halui = halui
+title-gui_tkemc = TkEmc
+title-gui_image-to-gcode = Image-to-gcode
+title-common_GPLD_Copyright = GPLD Copyright
+title-common_Glossary = Glossary
+title-common_emc2_introduction = EMC2 Introduction
+title-config_stepper = Stepper Configuration
+title-common_emc2_introduction = Introduction to EMC2
+title-install_compiling_emc2 = Compiling EMC2
+title-install_installing_emc2 = Installing EMC2
+title-motion_kinematics = Kinematics
+title-motion_pid_theory = PID Theory
