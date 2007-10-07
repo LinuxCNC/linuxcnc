@@ -31,7 +31,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 	<xsl:apply-templates select="//title" mode="htmltitle"/>
     </TITLE>
     <STYLE TYPE="text/css">
-h1, h2, h3, h4 { border-bottom: 2px solid black; background: #c0c0f0; color: black; }
+h1, h2, h3, h4, h5 { border-bottom: 2px solid black; background: #c0c0f0; color: black; }
 
 dt { font-weight: bold; }
 pre { margin-left: 4ex; margin-right: 4ex; background: #d9d9ec; color: black; padding: 1ex; }
@@ -118,6 +118,7 @@ table { border-collapse: collapse; margin-left: auto; margin-right: auto; }
 <xsl:template match="layout[@class='Subsection']"><H3><xsl:apply-templates/></H3></xsl:template>
 <xsl:template match="layout[@class='Subsection*']"><H3><xsl:apply-templates/></H3></xsl:template>
 <xsl:template match="layout[@class='Subsubsection']"><H4><xsl:apply-templates/></H4></xsl:template>
+<xsl:template match="layout[@class='Subparagraph']"><H5><xsl:apply-templates/></H5></xsl:template>
 <xsl:template match="layout[@class='LyX-Code']"><PRE><xsl:apply-templates/></PRE></xsl:template>
 <xsl:template match="layout[@class='Quote']"><BLOCKQUOTE><P><xsl:apply-templates/></P></BLOCKQUOTE></xsl:template>
 <xsl:template match="layout[@class='Quotation']"><BLOCKQUOTE><P><xsl:apply-templates/></P></BLOCKQUOTE></xsl:template>
@@ -276,4 +277,9 @@ table { border-collapse: collapse; margin-left: auto; margin-right: auto; }
 	</xsl:choose>
     </span>
 </xsl:template>
+
+<xsl:template match="htmlurl">
+    <a href="{@url}"><xsl:apply-templates/></a>
+</xsl:template>
+
 </xsl:stylesheet>

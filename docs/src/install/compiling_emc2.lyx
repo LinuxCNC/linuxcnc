@@ -190,8 +190,7 @@ Once you have it, extract it to your home folder:
 \layout LyX-Code
 
 $ cd ~/
-\layout LyX-Code
-
+\newline 
 $ tar xzvf emc2-version.tar.gz
 \layout Standard
 

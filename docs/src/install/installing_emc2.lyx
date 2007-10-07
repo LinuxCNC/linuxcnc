@@ -232,11 +232,6 @@ To use it you need to :
 \layout Itemize
 
 Download the script from 
-\begin_inset LatexCommand \url{http://www.linuxcnc.org/emc2-install.sh}
-
-\end_inset 
-
- (for Ubuntu 5.10) or 
 \begin_inset LatexCommand \url{http://linuxcnc.org/dapper/emc2-install.sh}
 
 \end_inset 
@@ -288,8 +283,16 @@ Manual installing using apt commands.
 
 \layout Standard
 
-The following few section will describe how to install EMC2 using a console
- and apt-commands.
+The following few section will describe how to install EMC2 on Ubuntu 6.06
+ 
+\begin_inset Quotes eld
+\end_inset 
+
+Dapper Dreake
+\begin_inset Quotes erd
+\end_inset 
+
+ using a console and apt-commands.
  If you know a bit about Linux and Debian-flavored distributions this might
  be trivial.
  If not, you might consider reading 
@@ -307,16 +310,9 @@ First add the repository to /etc/apt/sources.list:
 \size scriptsize 
 $ sudo sh -c 'echo "deb http://www.linuxcnc.org/emc2/ dapper emc2.2" >>/etc/apt/sou
 rces.list;'
-\layout LyX-Code
-
-
-\size scriptsize 
+\newline 
 $ sudo sh -c 'echo "deb-src http://www.linuxcnc.org/emc2/ dapper emc2.2" >>/etc/apt
 /sources.list'
-\layout Standard
-
-Or replace 'dapper' above with 'breezy' if you still use Ubuntu 5.10 Breezy
- Badger.
 \layout Standard
 
 Then update & get emc2.

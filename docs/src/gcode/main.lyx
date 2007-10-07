@@ -8148,7 +8148,7 @@ G1 Y[#1/10] X1
 #1 = [#1+1]
 \newline 
 O101 endwhile
-\layout Address
+\layout Standard
 
 Inside a while loop, 
 \family typewriter 

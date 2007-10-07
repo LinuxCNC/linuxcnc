@@ -1096,8 +1096,6 @@ or
 \layout LyX-Code
 
 UNITS = mm
-\layout LyX-Code
-
 \layout Standard
 
 After we have decided upon a value for the units for an axis, we tell the
