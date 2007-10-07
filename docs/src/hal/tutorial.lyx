@@ -130,7 +130,11 @@ emc2/src/rtapi/rtapi.h
 \layout Standard
 
 For this tutorial, we are going to assume that you have successfully compiled
- the emc2/ source tree.
+ the emc2/ source tree and, if necessary, invoked the 
+\family typewriter 
+emc-environment
+\family default 
+ script to prepare your shell.
  In that case, all you need to do is load the required RTOS and RTAPI modules
  into memory.
  Just run the following command:
@@ -746,8 +750,9 @@ setp
 halcmd:
 \series bold 
  setp siggen.0.amplitude 5
-\layout LyX-Code
+\series default 
 
+\newline 
 emc2$
 \layout LyX-Code
 
@@ -1407,52 +1412,6 @@ X_vel
 Y_vel
 \family default 
 .
- To create them we use the the 
-\family typewriter 
-newsi
-\family default 
-g command.
- We also need to specify the type of data that will flow through these 
-\begin_inset Quotes eld
-\end_inset 
-
-wires
-\begin_inset Quotes erd
-\end_inset 
-
-, in this case it is floating point:
-\layout LyX-Code
-
-halcmd:
-\series bold 
- newsig X_vel float
-\series default 
-
-\newline 
-halcmd:
-\series bold 
- newsig Y_vel float
-\layout Standard
-
-To make sure that worked, we can look at all the signals:
-\layout LyX-Code
-
-halcmd:
-\series bold 
- show sig
-\newline 
-
-\series default 
-Signals:
-\newline 
-Type      Value      Name
-\newline 
-float   0.00000e+00  X_vel
-\newline 
-float   0.00000e+00  Y_vel
-\layout Standard
-
-The next step is to connect the signals to component pins.
  The signal 
 \family typewriter 
 X_vel
@@ -1460,16 +1419,12 @@ X_vel
  is intended to run from the cosine output of the signal generator to the
  velocity input of the first step pulse generator.
  The first step is to connect the signal to the signal generator output.
- To connect a signal to a pin we use the 
-\family typewriter 
-linksp
-\family default 
- command.
+ To connect a signal to a pin we use the net command.
 \layout LyX-Code
 
 halcmd:
 \series bold 
- linksp X_vel siggen.0.cosine
+ net X_vel <= siggen.0.cosine
 \layout Standard
 
 To see the effect of the 
@@ -1524,7 +1479,7 @@ X_vel
 
 halcmd:
 \series bold 
- linksp X_vel freqgen.0.velocity
+ net X_vel => freqgen.0.velocity
 \layout Standard
 
 We can also connect up the Y axis signal 
@@ -1538,12 +1493,7 @@ Y_vel
 
 halcmd:
 \series bold 
- linksp Y_vel siggen.0.sine
-\layout LyX-Code
-
-halcmd:
-\series bold 
- linksp Y_vel freqgen.1.velocity
+ net Y_vel siggen.0.sine => freqgen.1.velocity
 \layout Standard
 
 Now let's take a final look at the signals and the pins connected to them:
