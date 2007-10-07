@@ -997,42 +997,30 @@ tiny.vcp
 :
 \layout LyX-Code
 
-vcp {
-\layout LyX-Code
-
-  main-window {
-\layout LyX-Code
-
-    box {
-\layout LyX-Code
-
-      button {
-\layout LyX-Code
-
-        halpin = vcp.pushbutton
-\layout LyX-Code
-
-        label { text = "Push Me" }
-\layout LyX-Code
-
-      }
-\layout LyX-Code
-
-      LED {
-\layout LyX-Code
-
-        halpin = vcp.light
-\layout LyX-Code
-
-      }
-\layout LyX-Code
-
-    }
-\layout LyX-Code
-
-  }
-\layout LyX-Code
-
+vcp { 
+\newline 
+ main-window { 
+\newline 
+   box { 
+\newline 
+     button { 
+\newline 
+       halpin = vcp.pushbutton 
+\newline 
+       label { text = "Push Me" } 
+\newline 
+     } 
+\newline 
+     LED { 
+\newline 
+       halpin = vcp.light 
+\newline 
+     } 
+\newline 
+   } 
+\newline 
+ }
+\newline 
 }
 \layout Standard
 
@@ -1044,11 +1032,10 @@ The above file describes a tiny Virtual Control Panel, with one push button,
 $
 \series bold 
 halrun
-\layout LyX-Code
+\series default 
 
+\newline 
 halcmd:
-\layout LyX-Code
-
 \layout Standard
 
 Next we load halvcp, and give it the name of our .vcp file:
@@ -1057,8 +1044,9 @@ Next we load halvcp, and give it the name of our .vcp file:
 halcmd: 
 \series bold 
 loadusr halvcp tiny.vcp
-\layout LyX-Code
+\series default 
 
+\newline 
 halcmd:
 \layout Standard
 
