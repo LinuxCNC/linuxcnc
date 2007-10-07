@@ -65,7 +65,7 @@ Compiling a HAL component is also much easier when using
 \emph on 
 comp
 \emph default 
-, whether the component is part of the emc2 source tree,or outside it.
+, whether the component is part of the emc2 source tree, or outside it.
 \layout Standard
 
 For instance, the 
@@ -1653,7 +1653,9 @@ rtexample.ko
  in the emc2 realtime module directory:
 \layout LyX-Code
 
-comp --install rtexample.comp
+comp \SpecialChar \-
+\SpecialChar \-
+install rtexample.comp
 \layout Standard
 
 Or, it can process and compile in one step, leaving 
