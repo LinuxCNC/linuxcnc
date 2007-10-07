@@ -72,8 +72,7 @@ try:
         time.sleep(1)
 \newline 
         h['out'] = h['in']
-\layout LyX-Code
-
+\newline 
 except KeyboardInterrupt:
 \newline 
     raise SystemExit
