@@ -1889,11 +1889,8 @@ hal_loop
 \layout LyX-Code
 
 component hal_loop;
-\layout LyX-Code
-
+\newline 
 pin out float example;
-\layout LyX-Code
-
 \layout Standard
 
 This fragment of a component illustrates the use of the 
