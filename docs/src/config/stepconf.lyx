@@ -835,7 +835,7 @@ Make sure the two calibration speeds are in the range of speeds you will
 For instance, if your spindle will go from 0RPM to 8000RPM, but you generally
  use speeds from 400RPM to 4000RPM, then find the PWM values that give 1600RPM
  and 2800RPM.
-\layout Standard
+\layout Section
 
 Axis Travel, Home Location, and Home Switch Location
 \layout Standard
