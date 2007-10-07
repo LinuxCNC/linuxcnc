@@ -33,7 +33,6 @@ def Node(n, **kw):
     x.documentElement.appendChild(n)
 
 for fn in sys.argv[1:]:
-    print >>sys.stderr, fn,
     fh = os.path.splitext(fn)[0] + ".html"
     d = parse(fn)
     for n in walkTag(d, 'index'):
@@ -44,5 +43,4 @@ for fn in sys.argv[1:]:
 	anchor = n.getAttribute('id')
 	if re.match("^r[0-9_]*$", anchor): continue
 	Node('label', anchor=anchor, src=fh)
-    print >>sys.stderr
 sys.stdout.write(x.toprettyxml("  "))

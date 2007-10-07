@@ -85,6 +85,11 @@ class LyxTreeMaker:
 		self.push('htmlurl', url=url)
 		self.text(url)
 		self.pop()
+	    elif v.startswith("\\url["):
+		text, url = re.match(r"\\url\[(.*)\]{(.*)}", v).group(1,2)
+		self.push('htmlurl', url=url)
+		self.text(text)
+		self.pop()
 	    elif v.startswith("\\htmlurl["):
 		text, url = re.match(r"\\htmlurl\[(.*)\]{(.*)}", v).group(1,2)
 		self.push('htmlurl', url=url)
@@ -557,7 +562,6 @@ def IndexFixer(d):
 	if id in u:
 	    id = "%s--%d" % (id0, u[id])
 	    n.setAttribute("id", id)
-	print >>sys.stderr, "IndexFixer", id, id0, u.get(id)
 	u[id0] = u.get(id0, 0) + 1
 
 def parse(args):
