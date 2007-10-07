@@ -117,10 +117,11 @@ The default value of \fBposition\fR is 1.
 .B input.\fIN\fB.led-\fIname\fB-invert\fR parameter bit rw
 Created for each LED on the device.
 .SH PERMISSIONS AND UDEV
-By default, the input devices may not be accessible to regular users.  To
-change the default permission of a device, add a new file to /etc/udev/rules.d
-to set the device's GROUP to "plugdev".  You can do this for all input devices
-with this rule:
+By default, the input devices may not be accessible to regular
+users--\fBhal_input\fR requires read-write access, even if the device has no
+outputs.  To change the default permission of a device, add a new file to
+/etc/udev/rules.d to set the device's GROUP to "plugdev".  You can do this for
+all input devices with this rule:
 .RS
 SUBSYSTEM="input", mode="0660", group="plugdev"
 .RE
