@@ -514,12 +514,12 @@ def EquationProcess(v0, outdir):
 	    
 	os.chdir(d)
 	try:
-	    res = os.spawnvp(os.P_WAIT, 'latex', ['latex', ft])
+	    res = os.spawnvp(os.P_WAIT, 'latex', [
+                'latex', '-interaction', 'batchmode', ft])
 	    if res: raise RuntimeError, "latex failed (%d)" % res
-	    res = os.spawnvp(os.P_WAIT, 'dvipng', ['dvipng', '-D', '115', fd])
-	    if res: raise RuntimeError, "latex failed (%d)" % res
-	    res = os.spawnvp(os.P_WAIT, 'mogrify', ['mogrify', '-trim', fp])
-	    if res: raise RuntimeError, "latex failed (%d)" % res
+	    res = os.spawnvp(os.P_WAIT, 'dvipng', [
+                'dvipng', '-D', '115', '-T', 'tight', '-bg', 'Transparent', fd])
+	    if res: raise RuntimeError, "dvipng failed (%d)" % res
 	finally:
 	    os.chdir(od) 
 
