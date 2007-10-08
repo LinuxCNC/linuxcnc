@@ -120,7 +120,7 @@ $(DOC_DIR)/html/man/%.html: $(DOC_DIR)/man/%
 	@mkdir -p $(dir $@)
 	@(cd $(DOC_DIR)/man; groff -Thtml -man $(patsubst $(DOC_DIR)/man/%,%,$<)) > $@
 
-ST := style=\"-moz-column-width: 25ex; -moz-column-gap: 4ex\"
+ST := style=\"-moz-column-width: 25ex; -moz-column-gap: 4ex; list-style-type: none\"
 
 objects/index.incl: objects/var-MAN_HTML_TARGETS $(DOC_SRCDIR)/Submakefile
 	echo "<LI>Commands and userspace components<UL $(ST)>" > $@.tmp

@@ -79,7 +79,7 @@ table { border-collapse: collapse; margin-left: auto; margin-right: auto; }
         </xsl:if>
     </DIV>
     <H1>Index</H1>
-    <UL style="-moz-column-width: 20ex; -moz-column-gap: 4ex;">
+    <UL style="-moz-column-width: 20ex; -moz-column-gap: 4ex; list-style-type: none">
     <!-- <index anchor="Parport" src="drivers.html"/> -->
     <xsl:for-each select="//index">
 	<xsl:sort select="@lcterm"/>

@@ -86,7 +86,7 @@ table { border-collapse: collapse; margin-left: auto; margin-right: auto; }
     </xsl:if>
     <xsl:if test="//index">
 	<H3>Index</H3>
-	<UL style="-moz-column-width: 20ex; -moz-column-gap: 4ex">
+	<UL style="-moz-column-width: 20ex; -moz-column-gap: 4ex; list-style-type: none">
 	<xsl:for-each select="//index">
 	    <xsl:sort select="@lcterm"/>
 	    <xsl:apply-templates select="." mode="endlist"/>
