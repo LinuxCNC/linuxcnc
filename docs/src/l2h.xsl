@@ -285,4 +285,6 @@ table { border-collapse: collapse; margin-left: auto; margin-right: auto; }
     <a href="{@url}"><xsl:apply-templates/></a>
 </xsl:template>
 
+<xsl:template match="inset[@data='Note']"/>
+
 </xsl:stylesheet>
