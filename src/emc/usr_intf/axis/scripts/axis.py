@@ -2886,6 +2886,9 @@ class TclCommands(nf.TclCommands):
         comp['jog.a'] = vars.current_axis.get() == "a"
         comp['jog.b'] = vars.current_axis.get() == "b"
         comp['jog.c'] = vars.current_axis.get() == "c"
+        comp['jog.u'] = vars.current_axis.get() == "u"
+        comp['jog.v'] = vars.current_axis.get() == "v"
+        comp['jog.w'] = vars.current_axis.get() == "w"
 
     def set_joint_mode(*args):
         c.teleop_enable(vars.joint_mode.get())
@@ -3349,6 +3352,9 @@ comp.newpin("jog.z", hal.HAL_BIT, hal.HAL_OUT)
 comp.newpin("jog.a", hal.HAL_BIT, hal.HAL_OUT)
 comp.newpin("jog.b", hal.HAL_BIT, hal.HAL_OUT)
 comp.newpin("jog.c", hal.HAL_BIT, hal.HAL_OUT)
+comp.newpin("jog.u", hal.HAL_BIT, hal.HAL_OUT)
+comp.newpin("jog.v", hal.HAL_BIT, hal.HAL_OUT)
+comp.newpin("jog.w", hal.HAL_BIT, hal.HAL_OUT)
 comp.newpin("jog.increment", hal.HAL_FLOAT, hal.HAL_OUT)
 vars.has_ladder.set(hal.component_exists('classicladder_rt'))
 
