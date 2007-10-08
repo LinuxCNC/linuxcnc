@@ -208,9 +208,12 @@ table { border-collapse: collapse; margin-left: auto; margin-right: auto; }
 	<xsl:when test="//*[@id=current()/@target]">
 	    <A><xsl:attribute name="href">#<xsl:value-of select="@target"/></xsl:attribute>[.]</A>
 	</xsl:when>
-	<xsl:otherwise>
+        <xsl:when test="document('xref.xml')//label[@anchor=current()/@target]">
 	    <A><xsl:attribute name="href">
 		<xsl:value-of select="document('xref.xml')//label[@anchor=current()/@target]/@src"/>#<xsl:value-of select="@target"/></xsl:attribute>[-&gt;]</A>
+	</xsl:when>
+	<xsl:otherwise>
+            <xsl:message>Unresolved cross-reference <xsl:value-of select="@target"/></xsl:message>
 	</xsl:otherwise>
     </xsl:choose>
 </xsl:template>
