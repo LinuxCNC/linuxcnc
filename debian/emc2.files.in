@@ -9,6 +9,7 @@ usr/bin/halcmd
 usr/bin/halrun
 usr/bin/halrmt
 usr/bin/emclcd
+usr/bin/pciread
 usr/bin/rs274
 @MODULE_PATH@/abs@MODULE_EXT@
 @MODULE_PATH@/and2@MODULE_EXT@
