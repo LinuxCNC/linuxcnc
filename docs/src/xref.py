@@ -37,8 +37,9 @@ for fn in sys.argv[1:]:
     d = parse(fn)
     for n in walkTag(d, 'index'):
 	anchor = n.getAttribute('id')
-	term = anchor.split("--")[0]
-	Node('index', anchor=anchor, term=term, src=fh)
+	term = n.getAttribute('term')
+	lcterm = n.getAttribute('lcterm')
+	Node('index', anchor=anchor, term=term, lcterm=lcterm, src=fh)
     for n in walkTag(d, 'label'):
 	anchor = n.getAttribute('id')
 	if re.match("^r[0-9_]*$", anchor): continue

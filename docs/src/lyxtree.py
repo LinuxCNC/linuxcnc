@@ -559,6 +559,7 @@ def IndexFixer(d):
     for n in d.getElementsByTagName('index'):
 	id0 = id = n.getAttribute("id")
 	n.setAttribute("term", id)
+	n.setAttribute("lcterm", id.lower())
 	if id in u:
 	    id = "%s--%d" % (id0, u[id])
 	    n.setAttribute("id", id)

@@ -70,7 +70,7 @@ table { border-collapse: collapse; margin-left: auto; margin-right: auto; }
 	<H3>Index</H3>
 	<UL style="-moz-column-width: 20ex; -moz-column-gap: 4ex">
 	<xsl:for-each select="//index">
-	    <xsl:sort select="@term"/>
+	    <xsl:sort select="@lcterm"/>
 	    <xsl:apply-templates select="." mode="endlist"/>
 	</xsl:for-each>
 	</UL>
