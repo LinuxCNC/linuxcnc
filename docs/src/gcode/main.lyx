@@ -4491,8 +4491,8 @@ all axis words are omitted.
 \layout Standard
 
 If cutter radius compensation is active, the motion will differ from the
- above; see Chapter 
-\begin_inset LatexCommand \ref{cha:Cutter-Radius-Compensation}
+ above; see Section 
+\begin_inset LatexCommand \ref{sec:Cutter-Radius-Compensation}
 
 \end_inset 
 
@@ -4548,8 +4548,8 @@ all axis words are omitted.
 \layout Standard
 
 If cutter radius compensation is active, the motion will differ from the
- above; see Chapter 
-\begin_inset LatexCommand \ref{cha:Cutter-Radius-Compensation}
+ above; see Section 
+\begin_inset LatexCommand \ref{sec:Cutter-Radius-Compensation}
 
 \end_inset 
 
@@ -4621,8 +4621,8 @@ If a line of RS274/NGC code makes an arc and includes rotational axis motion,
 
 If cutter radius compensation is active, the motion will differ from what
  is described here.
- See Chapter 
-\begin_inset LatexCommand \ref{cha:Cutter-Radius-Compensation}
+ See Section 
+\begin_inset LatexCommand \ref{sec:Cutter-Radius-Compensation}
 
 \end_inset 
 
@@ -5305,8 +5305,8 @@ Cutter radius compensation may be performed only if the XY-plane is active.
 \layout Standard
 
 The behavior of the machining center when cutter radius compensation is
- on is described in Chapter 
-\begin_inset LatexCommand \ref{cha:Cutter-Radius-Compensation}
+ on is described in Section 
+\begin_inset LatexCommand \ref{sec:Cutter-Radius-Compensation}
 
 \end_inset 
 

@@ -591,6 +591,11 @@ The effect of this is that in most cases the machine will pick up the offset
 \layout Section
 
 Cutter Radius Compensation
+\begin_inset LatexCommand \label{sec:Cutter-Radius-Compensation}
+
+\end_inset 
+
+
 \layout Comment
 
 By Jon Elson
