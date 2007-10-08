@@ -725,6 +725,33 @@ Finding Velocity and Acceleration
 
 \layout Standard
 
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Caption
+
+Axis Test Window
+\begin_inset LatexCommand \label{cap:Axis-Test-Window}
+
+\end_inset 
+
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename stepconf-test.png
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Standard
+
 With Stepconf it is easy to try different values for acceleration and velocity.
  First, enter the correct figures for 
 \series bold 
