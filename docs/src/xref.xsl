@@ -32,7 +32,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
     </HEAD>
 
     <BODY>
-    <UL style="-moz-column-count: 4">
+    <UL style="-moz-column-width: 20ex; -moz-column-gap: 4ex;">
     <!-- <index anchor="Parport" src="drivers.html"/> -->
     <xsl:for-each select="//index">
 	<xsl:sort select="@term"/>

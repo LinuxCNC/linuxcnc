@@ -67,7 +67,7 @@ table { border-collapse: collapse; margin-left: auto; margin-right: auto; }
     </xsl:if>
     <xsl:if test="//index">
 	<H3>Index</H3>
-	<UL style="-moz-column-count: 4">
+	<UL style="-moz-column-width: 20ex; -moz-column-gap: 4ex">
 	<xsl:for-each select="//index">
 	    <xsl:sort select="@term"/>
 	    <xsl:apply-templates select="." mode="endlist"/>
@@ -101,10 +101,12 @@ table { border-collapse: collapse; margin-left: auto; margin-right: auto; }
 </xsl:template>	
 
 <xsl:template match="toc">
-    <H1>Table of Contents</H1>
-    <UL>
-    <xsl:apply-templates/>
-    </UL>
+    <xsl:if test="tocentry">
+	<H1>Table of Contents</H1>
+	<UL style="-moz-column-width: 40ex; -moz-column-gap: 4ex;">
+	<xsl:apply-templates/>
+	</UL>
+    </xsl:if>
 </xsl:template>
 
 <xsl:template match="tocentry">
@@ -145,7 +147,7 @@ table { border-collapse: collapse; margin-left: auto; margin-right: auto; }
 -->
 
 <xsl:template match="layout">
-<DIV STYLE="float:right; color: #ececec; background:black;"><i><xsl:value-of select="@class"/></i></DIV>
+    <xsl:message>Unrecognized layout class: <xsl:value-of select="@class"/></xsl:message>
     <DIV><xsl:attribute name="class"><xsl:value-of select="@class"/></xsl:attribute><xsl:apply-templates/></DIV>
 </xsl:template>
 
