@@ -45,6 +45,11 @@ The Enhanced Machine Control
 \layout Section
 
 Introduction
+\begin_inset LatexCommand \label{sec:Introduction}
+
+\end_inset 
+
+
 \layout Standard
 
 This book is intended for people who want to use the Enhanced Machine Controller
@@ -70,6 +75,11 @@ If the user is interested in developing their own install using some other
 \layout Section
 
 The Big CNC Picture
+\begin_inset LatexCommand \label{sec:The-Big-CNC}
+
+\end_inset 
+
+
 \layout Standard
 
 The term CNC has taken on a lot of different meanings over the years.
@@ -172,7 +182,12 @@ conversational
  
 \layout Section
 
-Computer Operating Systems 
+Computer Operating Systems
+\begin_inset LatexCommand \label{sec:Computer-Operating-Systems}
+
+\end_inset 
+
+
 \layout Standard
 
 The EMC2 code can be compiled on almost any GNU-Linux Distribution (assuming
@@ -193,7 +208,12 @@ The EMC2 code can be compiled on almost any GNU-Linux Distribution (assuming
  and has been found to be very easy to use.
  Along with that, there are lots of places around the world that offer support
  for it.
- Installing EMC2 on it is trivial, as you will see in Chapter 2.
+ Installing EMC2 on it is trivial, see section 
+\begin_inset LatexCommand \ref{sec:EMC2-Ubuntu-Live-CD}
+
+\end_inset 
+
+
 \layout Standard
 
 The EMC2 will not run under a Microsoft (TM) operating system.
@@ -204,6 +224,11 @@ e of the Linux OS.
 \layout Section
 
 History of the Software
+\begin_inset LatexCommand \label{sec:History-of-the}
+
+\end_inset 
+
+
 \layout Standard
 
 The EMC code was started by the Intelligent Systems Division at the National
@@ -364,7 +389,12 @@ Lesser
 .
 \layout Section
 
-How the EMC2 Works
+How EMC2 Works
+\begin_inset LatexCommand \label{sec:How-EMC2-Works}
+
+\end_inset 
+
+
 \layout Standard
 
 The Enhanced Machine Controller (EMC2) is a lot more than just another CNC
@@ -392,7 +422,7 @@ collapsed false
 
 \end_inset 
 
-Typical EMC2 Controlled Machine
+Simple EMC2 Controlled Machine
 \layout Standard
 \align center 
 
@@ -444,7 +474,12 @@ There are four main components to the EMC2 software: a motion controller
  without the need of recompiling.
 \layout Subsection
 
-Graphical User Interfaces 
+Graphical User Interfaces
+\begin_inset LatexCommand \label{sub:Graphical-User-Interfaces}
+
+\end_inset 
+
+
 \layout Standard
 
 A graphical interface is the part of the EMC2 that the machine tool operator
@@ -687,6 +722,11 @@ Tkemc and Mini will run on Linux, Mac, and Microsoft Windows if the Tcl/Tk
 \layout Subsection
 
 Motion Controller EMCMOT 
+\begin_inset LatexCommand \label{sub:Motion-Controller-EMCMOT}
+
+\end_inset 
+
+
 \layout Standard
 
 Motion control includes sampling the position of the axes to be controlled,
@@ -726,6 +766,11 @@ Discrete I/O Controller EMCIO
 \end_inset 
 
  
+\begin_inset LatexCommand \label{sub:Discrete-I/O-Controller}
+
+\end_inset 
+
+
 \layout Standard
 
 Discrete I/O controllers are highly machine-specific, and are not customizable
@@ -756,6 +801,11 @@ Task Executor EMCTASK
 \end_inset 
 
  
+\begin_inset LatexCommand \label{sub:Task-Executor-EMCTASK}
+
+\end_inset 
+
+
 \layout Standard
 
 
@@ -848,6 +898,11 @@ G-code is sent to the interpreter which compares the new block with what
 \layout Section
 
 Thinking Like a Machine Operator
+\begin_inset LatexCommand \label{sec:Thinking-Operator}
+
+\end_inset 
+
+
 \layout Standard
 
 This book will not even pretend that it can teach you to run a mill or a
@@ -859,6 +914,15 @@ This book will not even pretend that it can teach you to run a mill or a
 
 We learn from experience, if at all.
 \begin_inset Quotes erd
+\end_inset 
+
+
+\begin_inset Note
+collapsed true
+
+\layout Standard
+
+As of 2007/10/07, the only google hits for this phrase are in emc2 documentation
 \end_inset 
 
  Broken tools, gouged vices, and scars are the evidence of lessons taught.
@@ -880,6 +944,11 @@ As you begin to work with the EMC2 program, you will need to place yourself
 \layout Subsection
 
 Modes of Operation
+\begin_inset LatexCommand \label{sub:Modes-of-Operation}
+
+\end_inset 
+
+
 \layout Standard
 
 When an EMC2 is running, there are three different major modes used for
@@ -910,7 +979,7 @@ When an EMC2 is running, there are three different major modes used for
  
 \layout Standard
 
-In manual mode, each command is entered separate.
+In manual mode, each command is entered separately.
  In human terms a manual command might be 
 \begin_inset Quotes eld
 \end_inset 
@@ -974,9 +1043,20 @@ feedrate override
 
 .
  Commands like these should be self explanatory.
+\layout Standard
+
+The AXIS user interface removes some of the distinctions between Auto and
+ the other modes by making Auto-commands available at most times.
+ It also blurs the distinction between Manual and MDI because some Manual
+ commands like Touch Off are actually implemented by sending MDI commands.
 \layout Subsection
 
 Information Display 
+\begin_inset LatexCommand \label{sub:Information-Display}
+
+\end_inset 
+
+
 \layout Standard
 
 While an EMC2 is running, each of the modules keeps up a conversation with
@@ -1052,6 +1132,11 @@ As you work your way through this text, you will be learning, bit by bit,
 \layout Section
 
 Thinking Like An Integrator
+\begin_inset LatexCommand \label{sec:Thinking-Integrator}
+
+\end_inset 
+
+
 \layout Standard
 
 The biggest task of a machine integrator is figuring out how to connect
@@ -1065,6 +1150,11 @@ The biggest task of a machine integrator is figuring out how to connect
 
 Units
 \begin_inset LatexCommand \index{Units}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \label{sub:Units}
 
 \end_inset 
 
@@ -1107,108 +1197,4 @@ After we have decided upon a value for the units for an axis, we tell the
  You can command distance in millimeters or inches without even thinking
  about the units that you defined.
  There are G-codes that allow you to switch easily between metric and imperial.
-\layout Subsection
-
-Some things we may not want to change.
-\layout Standard
-
-Within the EMC2 code are a few things that are not easily changed.
- We call these defaults.
- There are connections that have been made between the running components
- of the EMC2 that we can not easily change.
- We'll see that there are displays and buttons and keyboard keys that are
- not easily shifted about.
- We'll learn about and get used to these in the chapters ahead.
-\layout Subsection
-
-Some things we will need to change.
- 
-\layout Standard
-
-The EMC2 is configured with files that are read at startup and used to override
- the compiled defaults.
- No real controller will likely use the compiled defaults, so you will certainly
- need to edit at least some of these files to reflect the specifics of your
- machine.
- 
-\layout Standard
-
-There are five kinds of configuration files: INI
-\begin_inset LatexCommand \index{INI}
-
-\end_inset 
-
-, NML
-\begin_inset LatexCommand \index{NML}
-
-\end_inset 
-
-, TBL
-\begin_inset LatexCommand \index{TBL}
-
-\end_inset 
-
-, VAR
-\begin_inset LatexCommand \index{VAR}
-
-\end_inset 
-
- and HAL
-\begin_inset LatexCommand \index{HAL}
-
-\end_inset 
-
- files.
- These are reflected in lower case file extensions to a file name.
- They may be named stepper.tbl or generic.tbl but they do the same thing when
- they are read by the EMC2 as it starts up.
- Many users copy these and name them for the specific machine.
- A set of these files named Sherlinemill.ini, Sherlinemill.var, Sherlinemill.tbl
- and Sherlinemill.nml are certainly more descriptive than a bunch of files
- named generic.
- 
-\layout Standard
-
-These files each contain specific information for your CNC.
-\layout Itemize
-
-stepper.ini contains all the machine parameters such as servo gains, scale
- factors, cycle times, units, etc.
- and will certainly need to be edited.
- 
-\layout Itemize
-
-emc.nml contains communication settings for shared memory and network ports
- you may need to override on your system, although it is likely that you
- can leave these settings alone.
- 
-\layout Itemize
-
-stepper.tbl contains the tool information such as which pocket contains which
- tool, and the length and diameter for each tool.
- 
-\layout Itemize
-
-rs274ngc.var contains variables specific to the RS-274-NGC dialect of NC
- code, notably for setting the persistent numeric variables for the nine
- work coordinate systems.
- 
-\layout Standard
-
-We'll get into some of the details of these files as we begin to hook up
- and operate our little machine.
-\layout Standard
-
-In addition to these four files, there is a standard startup file.
- Back in the early days of the EMC it was common to have to start up several
- different tasks in different terminal windows in order to get the EMC to
- run a machine.
- Each of these tasks had to be supplied a bunch of information in the form
- of arguments in order to be certain that the task started the way that
- we expected it to.
- All of this was tedious and has been replaced by one script.
- It is named simply 'emc'.
- This executable script file controls the startup of all of the modules
- needed to run a standard version of the EMC2.
- When run, it lets the user choose a certain configuration.
 \the_end
