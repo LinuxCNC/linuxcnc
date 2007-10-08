@@ -47,9 +47,46 @@ step & direction
 \layout Section
 
 Step by Step Instructions
+\begin_inset LatexCommand \label{sec:Step-by-Step}
+
+\end_inset 
+
+
 \layout Subsection
 
 Basic Information
+\begin_inset LatexCommand \label{sub:Basic-Information}
+
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Caption
+
+Basic Information Page
+\begin_inset LatexCommand \label{cap:Basic-Information-Page}
+
+\end_inset 
+
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename stepconf-basic.png
+
+\end_inset 
+
+
+\end_inset 
+
+
 \layout Description
 
 Machine\SpecialChar ~
@@ -131,6 +168,38 @@ M6
 \layout Subsection
 
 Parallel Port Setup
+\begin_inset LatexCommand \label{sub:Parallel-Port-Setup}
+
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Caption
+
+Parallel Port Setup Page
+\begin_inset LatexCommand \label{cap:Parallel-Port-Setup}
+
+\end_inset 
+
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename stepconf-pinout.png
+
+\end_inset 
+
+
+\end_inset 
+
+
 \layout Standard
 
 For each pin, choose the signal which matches your parallel port pinout.
@@ -178,6 +247,38 @@ panel.xml
 \layout Subsection
 
 Axis Configuration
+\begin_inset LatexCommand \label{sub:Axis-Configuration}
+
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Caption
+
+Axis Configuration Page
+\begin_inset LatexCommand \label{cap:Axis-Configuration-Page}
+
+\end_inset 
+
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename stepconf-axis.png
+
+\end_inset 
+
+
+\end_inset 
+
+
 \layout Description
 
 Motor\SpecialChar ~
@@ -358,6 +459,38 @@ BASE_PERIOD
 \layout Subsection
 
 Spindle Configuration
+\begin_inset LatexCommand \label{sub:Spindle-Configuration}
+
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Caption
+
+Spindle Configuration Page
+\begin_inset LatexCommand \label{cap:Spindle-Configuration-Page}
+
+\end_inset 
+
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename stepconf-spindle.png
+
+\end_inset 
+
+
+\end_inset 
+
+
 \layout Standard
 
 These options only appear when 
@@ -392,6 +525,16 @@ Parallel port pinout
 \layout Subsubsection
 
 Spindle Speed Control
+\begin_inset LatexCommand \index{Spindle Speed Control}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \label{sub:Spindle-Speed-Control}
+
+\end_inset 
+
+
 \layout Standard
 
 If 
@@ -450,6 +593,16 @@ Determining Spindle Calibration
 \layout Subsubsection
 
 Spindle-synchronized motion (lathe threading)
+\begin_inset LatexCommand \label{sub:Spindle-synchronized-motion-(lathe}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \index{Spindle-synchronized motion}
+
+\end_inset 
+
+
 \layout Standard
 
 When the appropriate signals from a spindle encoder are connected to the
@@ -545,6 +698,11 @@ BASE_PERIOD
 \layout Subsection
 
 Machine Configuration Complete
+\begin_inset LatexCommand \label{sub:Machine-Configuration-Complete}
+
+\end_inset 
+
+
 \layout Standard
 
 Click 
@@ -560,6 +718,11 @@ Apply
 \layout Section
 
 Finding Velocity and Acceleration
+\begin_inset LatexCommand \label{sec:Finding-Velocity-and}
+
+\end_inset 
+
+
 \layout Standard
 
 With Stepconf it is easy to try different values for acceleration and velocity.
@@ -597,6 +760,11 @@ Test this axis
 \layout Subsection
 
 Finding Maximum Velocity
+\begin_inset LatexCommand \label{sub:Finding-Maximum-Velocity}
+
+\end_inset 
+
+
 \layout Standard
 
 Begin with a low Acceleration (e.g., 2 in/s^2 or 50mm/s^2) and the velocity
@@ -674,6 +842,11 @@ Once you have found a speed at which the axis does not stall or lose steps
 \layout Subsection
 
 Finding Maximum Acceleration
+\begin_inset LatexCommand \label{sub:Finding-Maximum-Acceleration}
+
+\end_inset 
+
+
 \layout Standard
 
 With the Maximum Velocity you found in the previous step, enter the acceleration
@@ -687,6 +860,11 @@ With the Maximum Velocity you found in the previous step, enter the acceleration
 \layout Section
 
 Determining Spindle Calibration
+\begin_inset LatexCommand \label{sec:Determining-Spindle-Calibration}
+
+\end_inset 
+
+
 \layout Standard
 
 Enter the following values in the Spindle Configuration page:
@@ -796,7 +974,7 @@ M3 S100
 S800
 \family default 
 .
- Valid numbers range from 0 to 1000.
+ Valid numbers range from 1 to 1000.
 \layout Standard
 
 For two different S-numbers, measure the actual spindle speed in RPM.
@@ -838,6 +1016,11 @@ For instance, if your spindle will go from 0RPM to 8000RPM, but you generally
 \layout Section
 
 Axis Travel, Home Location, and Home Switch Location
+\begin_inset LatexCommand \label{sec:Axis-Travel-Home}
+
+\end_inset 
+
+
 \layout Standard
 
 For each axis, there is a limited range of travel.
@@ -846,7 +1029,6 @@ For each axis, there is a limited range of travel.
 hard stop
 \series default 
 .
- 
 \layout Standard
 
 Before the 
@@ -954,6 +1136,11 @@ a diagram of all these limits would be nice
 \layout Subsection
 
 Operating without Limit Switches
+\begin_inset LatexCommand \label{sub:Operating-without-Limit}
+
+\end_inset 
+
+
 \layout Standard
 
 A machine can be operated without limit switches.
@@ -971,9 +1158,32 @@ hard stop
 Soft limits
 \series default 
  only operate after the machine has been homed.
+ Since there is no switch, the machine must be moved by eye to the home
+ position before pressing the 
+\begin_inset Quotes eld
+\end_inset 
+
+Home
+\begin_inset Quotes erd
+\end_inset 
+
+ or 
+\begin_inset Quotes eld
+\end_inset 
+
+Home All
+\begin_inset Quotes erd
+\end_inset 
+
+ button.
 \layout Subsection
 
 Operating without Home Switches
+\begin_inset LatexCommand \label{sub:Operating-without-Home}
+
+\end_inset 
+
+
 \layout Standard
 
 A machine can be operated without home switches.
@@ -1123,6 +1333,11 @@ Note that if you get high numbers, there may be ways to improve them.
 \layout Section
 
 Home and Limit Switch wiring options
+\begin_inset LatexCommand \label{sec:Home-and-Limit}
+
+\end_inset 
+
+
 \layout Standard
 
 The ideal wiring for external switches would be one input per switch.
