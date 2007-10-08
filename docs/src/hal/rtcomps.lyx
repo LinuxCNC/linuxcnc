@@ -651,6 +651,37 @@ collapsed false
 \align center 
 
 \begin_inset Graphics
+	filename stepgen-type2-4.eps
+	width 7.5in
+	height 8.5in
+	keepAspectRatio
+	rotateAngle 90
+
+\end_inset 
+
+
+\layout Caption
+
+Three-Phase step types
+\begin_inset LatexCommand \label{fig:Quad-Three-Phase}
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics
 	filename stepgen-type5-10.eps
 	width 7.5in
 	height 8.5in
