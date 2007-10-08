@@ -124,7 +124,7 @@ ST := style=\"-moz-column-width: 25ex; -moz-column-gap: 4ex\"
 
 objects/index.incl: objects/var-MAN_HTML_TARGETS $(DOC_SRCDIR)/Submakefile
 	echo "<LI>Commands and userspace components<UL $(ST)>" > $@.tmp
-	for i in $(filter %.1.html, $(MAN_HTML_TARGETS)); do j=$$(basename $$i .1..html); echo "<LI><A HREF=$${i#$(DOC_DIR)/html/}>$$j</A>"; done >> $@.tmp
+	for i in $(filter %.1.html, $(MAN_HTML_TARGETS)); do j=$$(basename $$i .1.html); echo "<LI><A HREF=$${i#$(DOC_DIR)/html/}>$$j</A>"; done >> $@.tmp
 	echo "</UL><LI>Realtime components and kernel modules<UL $(ST)>" >> $@.tmp
 	for i in $(filter %.9.html, $(MAN_HTML_TARGETS)); do j=$$(basename $$i .9.html); echo "<LI><A HREF=$${i#$(DOC_DIR)/html/}>$$j</A>"; done >> $@.tmp
 	echo "</UL><LI>HAL API calls<UL $(ST)>" >> $@.tmp
