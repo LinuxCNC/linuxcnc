@@ -31,10 +31,11 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 	<xsl:apply-templates select="//title" mode="htmltitle"/>
     </TITLE>
     <STYLE TYPE="text/css">
-h1, h2, h3, h4, h5 { border-bottom: 2px solid black; background: #c0c0f0; color: black; }
+h1, h2 { background: #c0c0f0; }
+h1, h2, h3, h4, h5 { border-bottom: 2px solid #8080c0; color: black; }
 
 dt { font-weight: bold; }
-pre { margin-left: 4ex; margin-right: 4ex; background: #d9d9ec; color: black; padding: 1ex; }
+pre { margin-left: 4ex; auto; color: black; padding: 1ex; border-left: 2px solid #8080c0; }
 div.float { text-align: center; margin: 2ex; }
 div.float span.caption { display: block; margin: 1em; }
 .typewriter { font-family: monospace; }
