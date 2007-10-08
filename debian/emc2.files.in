@@ -9,7 +9,8 @@ usr/bin/halcmd
 usr/bin/halrun
 usr/bin/halrmt
 usr/bin/emclcd
-usr/bin/pciread
+usr/bin/pci_read
+usr/bin/pci_write
 usr/bin/rs274
 @MODULE_PATH@/abs@MODULE_EXT@
 @MODULE_PATH@/and2@MODULE_EXT@
@@ -478,6 +479,7 @@ usr/share/man/man9/charge_pump.9
 usr/share/man/man9/clarke2.9
 usr/share/man/man9/clarke3.9
 usr/share/man/man9/clarkeinv.9
+usr/share/man/man9/classicladder.9
 usr/share/man/man9/comp.9
 usr/share/man/man9/constant.9
 usr/share/man/man9/conv_bit_s32.9
