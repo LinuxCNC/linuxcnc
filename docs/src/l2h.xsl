@@ -20,9 +20,14 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 <xsl:stylesheet
     xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-    xmlns:fo="http://www.w3.org/1999/XSL/Format"
     version="1.0">
-<xsl:output method="html"/>
+
+<xsl:output method="html"
+    media-type="text/html"
+    doctype-public="-//W3C//DTD HTML 4.01//EN"
+    doctype-system="http://www.w3.org/TR/html4/strict.dtd"
+    indent="no"
+    encoding="UTF-8"/>
 
 <xsl:template match="/">
     <HTML>
