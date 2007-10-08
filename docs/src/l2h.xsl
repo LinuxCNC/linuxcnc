@@ -29,15 +29,19 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
     indent="no"
     encoding="UTF-8"/>
 
+<xsl:param name="docname"/>
+
 <xsl:template match="/">
     <HTML>
     <HEAD>
     <TITLE>
-	<xsl:apply-templates select="//title" mode="htmltitle"/>
+        <xsl:value-of select="document('docs.xml')//doc[@name=$docname]/@title"/>
     </TITLE>
     <STYLE TYPE="text/css">
 h1, h2 { background: #c0c0f0; }
 h1, h2, h3, h4, h5 { border-bottom: 2px solid #8080c0; color: black; }
+
+div.nav { float: right; background: #ffffff; }
 
 dt { font-weight: bold; }
 pre { margin-left: 4ex; auto; color: black; padding: 1ex; border-left: 2px solid #8080c0; }
@@ -66,6 +70,15 @@ table { border-collapse: collapse; margin-left: auto; margin-right: auto; }
     </STYLE>
     </HEAD>
     <BODY>
+    <DIV class="nav">
+        <xsl:if test="document('docs.xml')//doc[@name=$docname]/preceding-sibling::*[position()=1]">
+            <A HREF="{document('docs.xml')//doc[@name=$docname]/preceding-sibling::*[position()=1]/@name}.html" TITLE="Previous: {document('docs.xml')//doc[@name=$docname]/preceding-sibling::*[position()=1]/@title}">[&lt;-]</A><xsl:text> </xsl:text>
+        </xsl:if>
+        <A HREF="index.html" TITLE="Up: Documentation Index" >[^]</A><xsl:text> </xsl:text>
+        <xsl:if test="document('docs.xml')//doc[@name=$docname]/following-sibling::*[position()=1]">
+            <A HREF="{document('docs.xml')//doc[@name=$docname]/following-sibling::*[position()=1]/@name}.html" TITLE="Next: {document('docs.xml')//doc[@name=$docname]/following-sibling::*[position()=1]/@title}">[-&gt;]</A>
+        </xsl:if>
+    </DIV>
     <xsl:apply-templates/>
     <xsl:if test="//footnote">
 	<H3>Footnotes</H3>

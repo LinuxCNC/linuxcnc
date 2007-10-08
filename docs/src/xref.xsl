@@ -29,13 +29,56 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
     indent="no"
     encoding="UTF-8"/>
 
+<xsl:param name="docname"/>
+
 <xsl:template match="/">
     <HTML>
     <HEAD>
     <TITLE>Cross-reference Index</TITLE>
-    </HEAD>
+    <STYLE TYPE="text/css">
+h1, h2 { background: #c0c0f0; }
+h1, h2, h3, h4, h5 { border-bottom: 2px solid #8080c0; color: black; }
+
+div.nav { float: right; background: #ffffff; }
+
+dt { font-weight: bold; }
+pre { margin-left: 4ex; auto; color: black; padding: 1ex; border-left: 2px solid #8080c0; }
+div.float { text-align: center; margin: 2ex; }
+div.float span.caption { display: block; margin: 1em; }
+.typewriter { font-family: monospace; }
+
+table { border-collapse: collapse; margin-left: auto; margin-right: auto; }
+.alignment_center { text-align: center; }
+.topline { border-top: 1px solid black; }
+.bottomline { border-bottom: 1px solid black; }
+.leftline { border-left: 1px solid black; }
+.rightline { border-right: 1px solid black; }
+.v_top { vertical-align: baseline; }
+.a_center { text-align: center; }
+.a_left { text-align: left; }
+.a_right { text-align: right; }
+
+.block { display: block }
+.blockformula { display: block; text-align: center }
+
+.f_typewriter { font-family: monospace; }
+.noun { font-variant: small-caps; }
+.s_bold { font-weight: bold; }
+
+    </STYLE>
+</HEAD>
 
     <BODY>
+    <DIV class="nav">
+        <xsl:if test="document('docs.xml')//doc[@name=$docname]/preceding-sibling::*[position()=1]">
+            <A HREF="{document('docs.xml')//doc[@name=$docname]/preceding-sibling::*[position()=1]/@name}.html" TITLE="Previous: {document('docs.xml')//doc[@name=$docname]/preceding-sibling::*[position()=1]/@title}">[&lt;-]</A><xsl:text> </xsl:text>
+        </xsl:if>
+        <A HREF="index.html" TITLE="Up: Documentation Index" >[^]</A><xsl:text> </xsl:text>
+        <xsl:if test="document('docs.xml')//doc[@name=$docname]/following-sibling::*[position()=1]">
+            <A HREF="{document('docs.xml')//doc[@name=$docname]/following-sibling::*[position()=1]/@name}.html" TITLE="Next: {document('docs.xml')//doc[@name=$docname]/following-sibling::*[position()=1]/@title}">[-&gt;]</A>
+        </xsl:if>
+    </DIV>
+    <H1>Index</H1>
     <UL style="-moz-column-width: 20ex; -moz-column-gap: 4ex;">
     <!-- <index anchor="Parport" src="drivers.html"/> -->
     <xsl:for-each select="//index">

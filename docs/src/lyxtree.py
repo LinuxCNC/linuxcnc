@@ -573,14 +573,12 @@ def parse(args):
     infile = None
     indir = None
     stylesheet=None
-    title = None
 
     for k, v in opts:
 	if k == '-s': stylesheet = v
 	if k == '-D': indir = v
 	if k == '-d': outdir = v
 	if k == '-o': outfile = v
-	if k == '-t': title = v
 
     if len(args) == 1:
 	infile = args[0]
@@ -635,12 +633,6 @@ def parse(args):
     LyxGroupFixer(d, 'Itemize', 'itemize', 'item')
     LyxGroupFixer(d, 'Enumerate', 'enumerate', 'item')
     LyxGraphicsFixer(d, indir, outdir)
-
-    if title:
-	n = d.documentElement
-	ti = d.createElement('title')
-	ti.appendChild(d.createTextNode(title))
-	n.insertBefore(ti, n.firstChild)
 
     return d, outfile
 

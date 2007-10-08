@@ -146,7 +146,7 @@ depends/%.d: $(DOC_SRCDIR)/%.lyx $(DOC_SRCDIR)/lyxdep.py
 	@$(PYTHON) $(DOC_SRCDIR)/lyxdep.py $< $@ $(DOC_DIR)/html/$*/index.html > $@
 
 define lyx2xml
-python $(DOC_SRCDIR)/lyxtree.py -t "$(title-$(1)_$(2))" -o $(DOC_DIR)/html/$(1)_$(2).xml $(3)
+python $(DOC_SRCDIR)/lyxtree.py -o $(DOC_DIR)/html/$(1)_$(2).xml $(3)
 endef
 
 XMLDEP := $(DOC_SRCDIR)/lyxtree.py $(DOC_SRCDIR)/lyxparser.py
@@ -175,13 +175,13 @@ $(filter $(DOC_DIR)/html/quickstart_%.xml,$(DOC_TARGETS_XML)): $(DOC_DIR)/html/q
 $(DOC_DIR)/html/xref.xml: $(DOC_TARGETS_XML) $(DOC_SRCDIR)/xref.py
 	(cd $(DOC_DIR)/html; ../src/xref.py $(filter %.xml, $(patsubst $(DOC_DIR)/html/%,%,$^))) > $@
 
-$(DOC_TARGETS_HTML): $(DOC_DIR)/html/%.html: $(DOC_DIR)/html/%.xml $(DOC_DIR)/html/xref.xml $(DOC_SRCDIR)/l2h.xsl
+$(DOC_TARGETS_HTML): $(DOC_DIR)/html/%.html: $(DOC_DIR)/html/%.xml $(DOC_DIR)/html/xref.xml $(DOC_SRCDIR)/l2h.xsl $(DOC_SRCDIR)/docs.xml
 	$(ECHO) Converting $< to HTML
-	@xsltproc --path $(DOC_DIR)/html -o $@ $(DOC_SRCDIR)/l2h.xsl $<
+	xsltproc --stringparam docname "$*" --path $(DOC_DIR)/html -o $@ $(DOC_SRCDIR)/l2h.xsl $<
 
-$(DOC_DIR)/html/xref.html: $(DOC_DIR)/html/xref.xml $(DOC_SRCDIR)/xref.xsl
+$(DOC_DIR)/html/xref.html: $(DOC_DIR)/html/xref.xml $(DOC_SRCDIR)/xref.xsl $(DOC_SRCDIR)/docs.xml
 	$(ECHO) Converting $< to HTML
-	@xsltproc --path $(DOC_DIR)/html -o $@ $(DOC_SRCDIR)/xref.xsl $<
+	xsltproc --stringparam docname "xref" --path $(DOC_DIR)/html -o $@ $(DOC_SRCDIR)/xref.xsl $<
 	
 default: docs
 
@@ -221,41 +221,3 @@ ifeq ($(TRIVIAL_BUILD),no)
 -include $(MAN_DEPS)
 Makefile: $(MAN_DEPS)
 endif
-
-title-code_Code_Notes = Code Notes
-title-code_Style_Guide = Style Guide
-title-hal_intro = Introduction
-title-hal_tutorial = Tutorial
-title-hal_general_ref = General Reference
-title-hal_tools = Tools
-title-hal_halshow = Halshow
-title-hal_vcp = Virtual Control Panels (pyvcp)
-title-hal_drivers = Hardware Drivers
-title-hal_rtcomps = Realtime Components
-title-hal_comp = Comp: a tool for creating HAL components
-title-hal_halmodule = Creating Userspace Python Components with the 'hal' module
-title-ladder_ladder_intro = Ladder Introduction
-title-ladder_classic_ladder = ClassicLadder
-title-config_stepconf = Configuration Wizard for Stepper-Based Machines
-title-config_ini_config = Basic Configuration
-title-config_ini_homing = Homing Configuration
-title-config_emc2hal = EMC2\'s interface to HAL
-title-gcode_main = The RS274NGC language
-title-gcode_coordinates = Coordinate Systems
-title-gcode_mill_canned = Canned Cycles
-title-gcode_tool_compensation = Tool Shape Compensation
-title-gcode = G-code quick reference
-title-gui_mini = MINI
-title-gui_axis = AXIS
-title-gui_halui = halui
-title-gui_tkemc = TkEmc
-title-gui_image-to-gcode = Image-to-gcode
-title-common_GPLD_Copyright = GPLD Copyright
-title-common_Glossary = Glossary
-title-common_emc2_introduction = EMC2 Introduction
-title-config_stepper = Stepper Configuration
-title-common_emc2_introduction = Introduction to EMC2
-title-install_compiling_emc2 = Compiling EMC2
-title-install_installing_emc2 = Installing EMC2
-title-motion_kinematics = Kinematics
-title-motion_pid_theory = PID Theory

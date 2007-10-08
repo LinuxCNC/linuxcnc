@@ -1,0 +1,46 @@
+<docs>
+<doc name="common_emc2_introduction" title="Introduction to EMC2"/>
+<doc name="install_compiling_emc2" title="Compiling EMC2"/>
+<doc name="install_installing_emc2" title="Installing EMC2"/>
+
+<doc name="config_stepconf" title="Configuration Wizard for Stepper-Based Machines"/>
+<doc name="config_ini_config" title="Basic Configuration"/>
+<doc name="config_ini_homing" title="Homing Configuration"/>
+<doc name="config_emc2hal" title="EMC2's interface to HAL"/>
+<doc name="config_stepper" title="Stepper Configuration"/>
+
+<doc name="gcode_main" title="The RS274NGC language"/>
+<doc name="gcode_coordinates" title="Coordinate Systems"/>
+<doc name="gcode_mill_canned" title="Canned Cycles"/>
+<doc name="gcode_tool_compensation" title="Tool Shape Compensation"/>
+
+<doc name="gui_mini" title="MINI"/>
+<doc name="gui_axis" title="AXIS"/>
+<doc name="gui_halui" title="halui"/>
+<doc name="gui_tkemc" title="TkEmc"/>
+<doc name="gui_image-to-gcode" title="Image-to-gcode"/>
+
+<doc name="hal_intro" title="Introduction"/>
+<doc name="hal_tutorial" title="Tutorial"/>
+<doc name="hal_general_ref" title="General Reference"/>
+<doc name="hal_tools" title="Tools"/>
+<doc name="hal_halshow" title="Halshow"/>
+<doc name="hal_vcp" title="Virtual Control Panels (pyvcp)"/>
+<doc name="hal_drivers" title="Hardware Drivers"/>
+<doc name="hal_rtcomps" title="Realtime Components"/>
+<doc name="hal_comp" title="Comp: a tool for creating HAL components"/>
+<doc name="hal_halmodule" title="Creating Userspace Python Components with the 'hal' module"/>
+<doc name="ladder_ladder_intro" title="Ladder Introduction"/>
+<doc name="ladder_classic_ladder" title="ClassicLadder"/>
+
+<doc name="code_Code_Notes" title="Code Notes"/>
+<doc name="code_Style_Guide" title="Style Guide"/>
+
+<doc name="motion_kinematics" title="Kinematics"/>
+<doc name="motion_pid_theory" title="PID Theory"/>
+
+<doc name="common_Glossary" title="Glossary"/>
+<doc name="common_GPLD_Copyright" title="GPLD Copyright"/>
+
+<doc name="xref" title="Cross Reference Index"/>
+</docs>
