@@ -67,6 +67,12 @@ table { border-collapse: collapse; margin-left: auto; margin-right: auto; }
 .noun { font-variant: small-caps; }
 .s_bold { font-weight: bold; }
 
+.clist { -moz-column-width: 40ex; -moz-column-gap: 4ex }
+.nclist { -moz-column-width: 20ex; -moz-column-gap: 4ex } 
+.nclist li { list-style-type: none; text-indent: -.5ex; }
+.toc li { list-style-type: none; }
+.toc li a { display: block; border: 1px solid transparent; text-indent: -1ex; }
+
     </STYLE>
     </HEAD>
     <BODY>
@@ -86,7 +92,7 @@ table { border-collapse: collapse; margin-left: auto; margin-right: auto; }
     </xsl:if>
     <xsl:if test="//index">
 	<H3>Index</H3>
-	<UL style="-moz-column-width: 20ex; -moz-column-gap: 4ex; list-style-type: none">
+	<UL class="nclist">
 	<xsl:for-each select="//index">
 	    <xsl:sort select="@lcterm"/>
 	    <xsl:apply-templates select="." mode="endlist"/>
@@ -122,7 +128,7 @@ table { border-collapse: collapse; margin-left: auto; margin-right: auto; }
 <xsl:template match="toc">
     <xsl:if test="tocentry">
 	<H1>Table of Contents</H1>
-	<UL style="-moz-column-width: 40ex; -moz-column-gap: 4ex;">
+	<UL CLASS="toc clist">
 	<xsl:apply-templates/>
 	</UL>
     </xsl:if>

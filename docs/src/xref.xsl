@@ -65,6 +65,9 @@ table { border-collapse: collapse; margin-left: auto; margin-right: auto; }
 .noun { font-variant: small-caps; }
 .s_bold { font-weight: bold; }
 
+.nclist { -moz-column-width: 20ex; -moz-column-gap: 4ex } 
+.nclist li { list-style-type: none; text-indent: -.5ex; }
+
     </STYLE>
 </HEAD>
 
@@ -79,7 +82,7 @@ table { border-collapse: collapse; margin-left: auto; margin-right: auto; }
         </xsl:if>
     </DIV>
     <H1>Index</H1>
-    <UL style="-moz-column-width: 20ex; -moz-column-gap: 4ex; list-style-type: none">
+    <UL class="nclist">
     <!-- <index anchor="Parport" src="drivers.html"/> -->
     <xsl:for-each select="//index">
 	<xsl:sort select="@lcterm"/>
