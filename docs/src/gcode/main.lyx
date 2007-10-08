@@ -2025,6 +2025,11 @@ G55
 \layout Chapter
 
 Language Overview
+\begin_inset LatexCommand \label{cha:Language-Overview}
+
+\end_inset 
+
+
 \layout Standard
 
 The RS274/NGC language is based on lines of code.

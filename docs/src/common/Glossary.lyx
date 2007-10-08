@@ -85,6 +85,11 @@ Screw
 \layout Description
 
 Axis
+\begin_inset LatexCommand \index{Axis}
+
+\end_inset 
+
+
 \begin_inset LatexCommand \label{Axis}
 
 \end_inset 
@@ -207,8 +212,13 @@ CNC
 
 Coordinate\SpecialChar ~
 Measuring\SpecialChar ~
-Machine A Coordinate Measuring Machine is used to make
- many accurate measurements on parts.
+Machine
+\begin_inset LatexCommand \index{Coordinate Measuring Machine}
+
+\end_inset 
+
+ A Coordinate Measuring Machine is used to make many accurate measurements
+ on parts.
  These machines can be used to create CAD data for parts where no drawings
  can be found, when a hand-made prototype needs to be digitized for moldmaking,
  or to check the accuracy of machined or molded parts.
@@ -346,11 +356,17 @@ Feedrate
 \layout Description
 
 Feedback
+\begin_inset LatexCommand \index{Feedback}
+
+\end_inset 
+
+
 \begin_inset LatexCommand \label{Feedback}
 
 \end_inset 
 
- 
+ A method (e.g., quadrature encoder signals) by which emc receives information
+ about the position of motors
 \layout Description
 
 Feedrate\SpecialChar ~
@@ -402,6 +418,11 @@ GUI
 
 \end_inset 
 
+
+\begin_inset LatexCommand \index{GUI}
+
+\end_inset 
+
  Graphical User Interface.
  
 \begin_deeper 
@@ -450,16 +471,33 @@ file
  for a particular machine
 \layout Description
 
-Joint_Coordinates:
+Joint\SpecialChar ~
+Coordinates
+\begin_inset LatexCommand \index{Joint Coordinates}
+
+\end_inset 
+
+
 \begin_inset LatexCommand \label{Joint_Coordinates}
 
 \end_inset 
 
  These specify the angles between the individual joints of the machine.\SpecialChar ~
-Kinematics
+See
+ also Kinematics
+\begin_inset LatexCommand \ref{Kinematics}
+
+\end_inset 
+
+
 \layout Description
 
-Jog Manually moving an axis of a machine.
+Jog
+\begin_inset LatexCommand \index{Jog}
+
+\end_inset 
+
+ Manually moving an axis of a machine.
  Jogging either moves the axis a fixed amount for each key-press, or moves
  the axis at a constant speed as long as you hold down the key.
 \layout Description
@@ -469,10 +507,20 @@ kernel-space
 
 \end_inset 
 
- 
+ See real-time 
+\begin_inset LatexCommand \ref{real-time}
+
+\end_inset 
+
+.
 \layout Description
 
 Kinematics
+\begin_inset LatexCommand \index{Kinematics}
+
+\end_inset 
+
+
 \begin_inset LatexCommand \label{Kinematics}
 
 \end_inset 
@@ -558,6 +606,11 @@ NIST
 \layout Description
 
 Offsets
+\begin_inset LatexCommand \index{Offsets}
+
+\end_inset 
+
+
 \begin_inset LatexCommand \label{Offsets}
 
 \end_inset 
@@ -567,6 +620,11 @@ Offsets
 
 Part\SpecialChar ~
 Program
+\begin_inset LatexCommand \index{Part Program}
+
+\end_inset 
+
+
 \begin_inset LatexCommand \label{PartProgram}
 
 \end_inset 
@@ -581,6 +639,11 @@ Program
 \layout Description
 
 Rapid
+\begin_inset LatexCommand \index{Rapid}
+
+\end_inset 
+
+
 \begin_inset LatexCommand \label{Rapid}
 
 \end_inset 
@@ -590,7 +653,12 @@ Rapid
  If the tool meets the material during a rapid, it is probably a bad thing!
 \layout Description
 
-Real-time 
+Real-time
+\begin_inset LatexCommand \index{real-time}
+
+\end_inset 
+
+ 
 \begin_inset LatexCommand \label{real-time}
 
 \end_inset 
@@ -659,6 +727,24 @@ RTLINUX
  performance.
 \layout Description
 
+RTAPI 
+\begin_inset LatexCommand \index{RTAPI}
+
+\end_inset 
+
+A portable interface to real-time operating systems including RTAI
+\begin_inset LatexCommand \ref{RTAI}
+
+\end_inset 
+
+ and RTLINUX
+\begin_inset LatexCommand \ref{RTLINUX}
+
+\end_inset 
+
+
+\layout Description
+
 RS-274/NGC
 \begin_inset LatexCommand \index{RS274NGC}
 
@@ -680,6 +766,12 @@ RS-274/NGC
 \end_inset 
 
 .
+ See Chapter 
+\begin_inset LatexCommand \ref{cha:Language-Overview}
+
+\end_inset 
+
+
 \layout Description
 
 Servo\SpecialChar ~
@@ -698,6 +790,11 @@ Motor
 
 Servo\SpecialChar ~
 Loop
+\begin_inset LatexCommand \index{Loop}
+
+\end_inset 
+
+
 \begin_inset LatexCommand \label{ServoLoop}
 
 \end_inset 
@@ -737,6 +834,11 @@ Motor
 \layout Description
 
 TASK
+\begin_inset LatexCommand \index{TASK}
+
+\end_inset 
+
+
 \begin_inset LatexCommand \label{TASK}
 
 \end_inset 
@@ -750,6 +852,11 @@ TASK
 \layout Description
 
 Tcl/Tk
+\begin_inset LatexCommand \index{Tk}
+
+\end_inset 
+
+
 \begin_inset LatexCommand \label{Tcl/Tk}
 
 \end_inset 
@@ -765,6 +872,11 @@ Tcl/Tk
 
 World\SpecialChar ~
 Coordinates
+\begin_inset LatexCommand \index{World Coordinates}
+
+\end_inset 
+
+
 \begin_inset LatexCommand \label{World_Coordinates}
 
 \end_inset 
