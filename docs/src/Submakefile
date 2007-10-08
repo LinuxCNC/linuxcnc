@@ -149,29 +149,31 @@ define lyx2xml
 python $(DOC_SRCDIR)/lyxtree.py -t "$(title-$(1)_$(2))" -o $(DOC_DIR)/html/$(1)_$(2).xml $(3)
 endef
 
-$(filter $(DOC_DIR)/html/hal_%.xml,$(DOC_TARGETS_XML)): $(DOC_DIR)/html/hal_%.xml: $(DOC_SRCDIR)/hal/%.lyx
-	$(call lyx2xml,hal,$*,$^)
-$(filter $(DOC_DIR)/html/code_%.xml,$(DOC_TARGETS_XML)): $(DOC_DIR)/html/code_%.xml: $(DOC_SRCDIR)/code/%.lyx
-	$(call lyx2xml,code,$*,$^)
-$(filter $(DOC_DIR)/html/common_%.xml,$(DOC_TARGETS_XML)): $(DOC_DIR)/html/common_%.xml: $(DOC_SRCDIR)/common/%.lyx
-	$(call lyx2xml,common,$*,$^)
-$(filter $(DOC_DIR)/html/config_%.xml,$(DOC_TARGETS_XML)): $(DOC_DIR)/html/config_%.xml: $(DOC_SRCDIR)/config/%.lyx
-	$(call lyx2xml,config,$*,$^)
-$(filter $(DOC_DIR)/html/gcode_%.xml,$(DOC_TARGETS_XML)): $(DOC_DIR)/html/gcode_%.xml: $(DOC_SRCDIR)/gcode/%.lyx
-	$(call lyx2xml,gcode,$*,$^)
-$(filter $(DOC_DIR)/html/gui_%.xml,$(DOC_TARGETS_XML)): $(DOC_DIR)/html/gui_%.xml: $(DOC_SRCDIR)/gui/%.lyx
-	$(call lyx2xml,gui,$*,$^)
-$(filter $(DOC_DIR)/html/install_%.xml,$(DOC_TARGETS_XML)): $(DOC_DIR)/html/install_%.xml: $(DOC_SRCDIR)/install/%.lyx
-	$(call lyx2xml,install,$*,$^)
-$(filter $(DOC_DIR)/html/ladder_%.xml,$(DOC_TARGETS_XML)): $(DOC_DIR)/html/ladder_%.xml: $(DOC_SRCDIR)/ladder/%.lyx
-	$(call lyx2xml,ladder,$*,$^)
-$(filter $(DOC_DIR)/html/motion_%.xml,$(DOC_TARGETS_XML)): $(DOC_DIR)/html/motion_%.xml: $(DOC_SRCDIR)/motion/%.lyx
-	$(call lyx2xml,motion,$*,$^)
-$(filter $(DOC_DIR)/html/quickstart_%.xml,$(DOC_TARGETS_XML)): $(DOC_DIR)/html/quickstart_%.xml: $(DOC_SRCDIR)/quickstart/%.lyx
-	$(call lyx2xml,quickstart,$*,$^)
+XMLDEP := $(DOC_SRCDIR)/lyxtree.py $(DOC_SRCDIR)/lyxparser.py
 
-$(DOC_DIR)/html/xref.xml: $(DOC_TARGETS_XML)
-	(cd $(DOC_DIR)/html; ../src/xref.py $(patsubst $(DOC_DIR)/html/%,%,$^)) > $@
+$(filter $(DOC_DIR)/html/hal_%.xml,$(DOC_TARGETS_XML)): $(DOC_DIR)/html/hal_%.xml: $(DOC_SRCDIR)/hal/%.lyx $(XMLDEP)
+	$(call lyx2xml,hal,$*,$<)
+$(filter $(DOC_DIR)/html/code_%.xml,$(DOC_TARGETS_XML)): $(DOC_DIR)/html/code_%.xml: $(DOC_SRCDIR)/code/%.lyx $(XMLDEP)
+	$(call lyx2xml,code,$*,$<)
+$(filter $(DOC_DIR)/html/common_%.xml,$(DOC_TARGETS_XML)): $(DOC_DIR)/html/common_%.xml: $(DOC_SRCDIR)/common/%.lyx $(XMLDEP)
+	$(call lyx2xml,common,$*,$<)
+$(filter $(DOC_DIR)/html/config_%.xml,$(DOC_TARGETS_XML)): $(DOC_DIR)/html/config_%.xml: $(DOC_SRCDIR)/config/%.lyx $(XMLDEP)
+	$(call lyx2xml,config,$*,$<)
+$(filter $(DOC_DIR)/html/gcode_%.xml,$(DOC_TARGETS_XML)): $(DOC_DIR)/html/gcode_%.xml: $(DOC_SRCDIR)/gcode/%.lyx $(XMLDEP)
+	$(call lyx2xml,gcode,$*,$<)
+$(filter $(DOC_DIR)/html/gui_%.xml,$(DOC_TARGETS_XML)): $(DOC_DIR)/html/gui_%.xml: $(DOC_SRCDIR)/gui/%.lyx $(XMLDEP)
+	$(call lyx2xml,gui,$*,$<)
+$(filter $(DOC_DIR)/html/install_%.xml,$(DOC_TARGETS_XML)): $(DOC_DIR)/html/install_%.xml: $(DOC_SRCDIR)/install/%.lyx $(XMLDEP)
+	$(call lyx2xml,install,$*,$<)
+$(filter $(DOC_DIR)/html/ladder_%.xml,$(DOC_TARGETS_XML)): $(DOC_DIR)/html/ladder_%.xml: $(DOC_SRCDIR)/ladder/%.lyx $(XMLDEP)
+	$(call lyx2xml,ladder,$*,$<)
+$(filter $(DOC_DIR)/html/motion_%.xml,$(DOC_TARGETS_XML)): $(DOC_DIR)/html/motion_%.xml: $(DOC_SRCDIR)/motion/%.lyx $(XMLDEP)
+	$(call lyx2xml,motion,$*,$<)
+$(filter $(DOC_DIR)/html/quickstart_%.xml,$(DOC_TARGETS_XML)): $(DOC_DIR)/html/quickstart_%.xml: $(DOC_SRCDIR)/quickstart/%.lyx $(XMLDEP)
+	$(call lyx2xml,quickstart,$*,$<)
+
+$(DOC_DIR)/html/xref.xml: $(DOC_TARGETS_XML) $(DOC_SRCDIR)/xref.py
+	(cd $(DOC_DIR)/html; ../src/xref.py $(filter %.xml, $(patsubst $(DOC_DIR)/html/%,%,$^))) > $@
 
 $(DOC_TARGETS_HTML): $(DOC_DIR)/html/%.html: $(DOC_DIR)/html/%.xml $(DOC_DIR)/html/xref.xml $(DOC_SRCDIR)/l2h.xsl
 	$(ECHO) Converting $< to HTML
@@ -204,8 +206,7 @@ docclean:
 	-rm -f $(DOC_DIR)/EMC2_Integrator_Manual.pdf
 	-rm -f $(DOC_SRCDIR)/*.d
 	-rm -f $(DOC_SRCDIR)/*.pdf
-	-rm -f $(patsubst %,$(DOC_SRCDIR)/%, $(DOC_SRCS:.lyx=.tex))
-	-rm -rf $(patsubst %.lyx,$(DOC_DIR)/html/%, $(DOC_SRCS))
+	-rm -f $(DOC_TARGETS_HTML) $(DOC_TARGETS_HTML:%.html=%.xml) $(DOC_DIR)/html/xref.html $(DOC_DIR)/html/xref.xml $(DOC_DIR)/*.png
 
 MAN_DEPS := $(patsubst $(DOC_DIR)/man/%, depends/%.d, $(MAN_SRCS))
 $(MAN_DEPS): depends/%.d: $(DOC_DIR)/man/%
