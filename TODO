@@ -1,5 +1,9 @@
 THINGS THAT ARE DESIRABLE FOR THE NEXT MAJOR RELEASE (EMC-2.2)
 
+TODO     Alex: verify configs (paths & README's)
+
+TODO     Chris: test stepconf
+
 TODO     Improved classicladder GUI
 
 TODO     Convert all hardware drivers to use canonical homing, 
