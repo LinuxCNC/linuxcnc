@@ -27,7 +27,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
     doctype-public="-//W3C//DTD HTML 4.01//EN"
     doctype-system="http://www.w3.org/TR/html4/strict.dtd"
     indent="no"
-    encoding="UTF-8"/>
+    encoding="ASCII"/>
 
 <xsl:param name="docname"/>
 
