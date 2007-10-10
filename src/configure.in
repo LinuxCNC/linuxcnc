@@ -723,6 +723,10 @@ if ( test "$BUILD_DOCS_HTML" = "yes" ) ; then
 	AC_MSG_ERROR([no dvipng, HTML documentation cannot be built])
     fi
 
+    AC_PATH_PROG(CONVERT,convert,"none")
+    if ( test "none" = "$CONVERT" ) ; then
+	AC_MSG_ERROR([no convert, HTML documentation cannot be built])
+    fi
     AC_MSG_CHECKING([for HTML support in groff])
     if ! groff -Thtml < /dev/null > /dev/null 2>&1 ; then
         AC_MSG_ERROR([no groff -Thtml, HTML documentation cannot be built])
