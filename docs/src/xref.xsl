@@ -92,6 +92,9 @@ table { border-collapse: collapse; margin-left: auto; margin-right: auto; }
 	    <xsl:when test="./@term=preceding::index/@term">
 		<xsl:text>, </xsl:text>
 		<A><xsl:attribute name="href"><xsl:value-of select="@src"/>#<xsl:value-of select="@anchor"/></xsl:attribute>[-]</A>
+	    <xsl:if test="not(./@term=following::index/@term)">
+		<xsl:text disable-output-escaping="yes">&lt;/li&gt;</xsl:text>
+	    </xsl:if>
 	    </xsl:when>
 	    <xsl:otherwise>
 		<xsl:text disable-output-escaping="yes">&lt;li&gt;</xsl:text>

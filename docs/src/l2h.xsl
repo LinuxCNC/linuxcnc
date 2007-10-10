@@ -282,6 +282,9 @@ table { border-collapse: collapse; margin-left: auto; margin-right: auto; }
 	<xsl:value-of select="@term"/></A>
     </xsl:otherwise>
 </xsl:choose>
+<xsl:if test="not(./@term=following::index/@term)">
+    <xsl:text disable-output-escaping="yes">&lt;/li&gt;</xsl:text>
+</xsl:if>
 </xsl:template>
 
 <xsl:template match="title"/>
