@@ -297,8 +297,8 @@ table { border-collapse: collapse; margin-left: auto; margin-right: auto; }
 	    <xsl:when test="@ref">
 		<IMG>
 		    <xsl:attribute name="src"><xsl:value-of select="@ref"/>.png</xsl:attribute>
-		    <xsl:attribute name="height"><xsl:value-of select="@height"/>.png</xsl:attribute>
-		    <xsl:attribute name="width"><xsl:value-of select="@width"/>.png</xsl:attribute>
+		    <xsl:attribute name="height"><xsl:value-of select="@height"/></xsl:attribute>
+		    <xsl:attribute name="width"><xsl:value-of select="@width"/></xsl:attribute>
 		</IMG>
 	    </xsl:when>
 	    <xsl:otherwise>
