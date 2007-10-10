@@ -41,6 +41,7 @@ formula_replacements = (
     (r'\omega', u'\N{GREEK SMALL LETTER OMEGA}'),
     (r'\mu ', u'\N{GREEK SMALL LETTER MU}'),
     (r'\mu', u'\N{GREEK SMALL LETTER MU}'),
+    (r'^{\textrm{TM}}', u'\N{TRADE MARK SIGN}'),
     (r'\textrm', u''),
 )
 
