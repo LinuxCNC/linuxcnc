@@ -1,4 +1,4 @@
-emc2 (2.2.0pre) testing; urgency=low
+emc2 (2.2.0~alpha0) testing; urgency=low
 
   * G41.1, G42.1, G43.1 to take tool parameters from gcode instead of tool
     table
