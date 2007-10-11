@@ -12,8 +12,8 @@
 ! Set the font size specifically for the position digits. Do this after
 ! setting the global font *top*font, or that will override this.
 ! For 640x480 displays, use 24 point font, e.g.,
-*top*position*font: -*-courier-bold-r-normal-*-24-*-*-*-*-*-*-*
-!*top*position*font: -*-courier-bold-r-normal-*-36-*-*-*-*-*-*-*
+! *top*position*font: -*-courier-bold-r-normal-*-24-*-*-*-*-*-*-*
+*top*position*font: -*-courier-bold-r-normal-*-56-*-*-*-*-*-*-*
 
 ! set background/foreground for labels that are clickable
 ! tool offset
