@@ -66,6 +66,7 @@ if {[file exists $TKEMCCONF]} {
 foreach f {TkEmc /usr/X11R6/lib/X11/app-defaults/TkEmc /etc/X11/app-defaults/TkEmc} {
     if {[file exists $f]} {
 	option readfile $f
+	puts $f
 	break
     }
 }
@@ -106,23 +107,6 @@ if { [ string first "Z" $coordnames ] >= 0 } {
     set axiscoordmap [ concat $axiscoordmap  2 ]
 }
 
-if { [ string first "R" $coordnames ] >= 0 } {
-    set numcoords $numcoords+1
-    set worldlabellist [ concat $worldlabellist A]
-    set axiscoordmap [ concat $axiscoordmap  3 ]
-}
-
-if { [ string first "P" $coordnames ] >= 0 } {
-    set numcoords $numcoords+1
-    set worldlabellist [ concat $worldlabellist B]
-    set axiscoordmap [ concat $axiscoordmap  4 ]
-}
-
-if { [ string first "W" $coordnames ] >= 0 } {
-    set numcoords $numcoords+1
-    set worldlabellist [ concat $worldlabellist C]
-    set axiscoordmap [ concat $axiscoordmap  5 ]
-}
 
 if { [ string first "A" $coordnames ] >= 0 } {
     set numcoords $numcoords+1
@@ -142,14 +126,35 @@ if { [ string first "C" $coordnames ] >= 0 } {
     set axiscoordmap [ concat $axiscoordmap  5 ]
 }
 
-set worldlabellist [ concat $worldlabellist "-" "-" "-" "-" "-" "-" ]
-set axiscoordmap [ concat $axiscoordmap 0 0 0 0 0 0 ]
+if { [ string first "U" $coordnames ] >= 0 } {
+    set numcoords $numcoords+1
+    set worldlabellist [ concat $worldlabellist U]
+    set axiscoordmap [ concat $axiscoordmap  6 ]
+}
+
+if { [ string first "V" $coordnames ] >= 0 } {
+    set numcoords $numcoords+1
+    set worldlabellist [ concat $worldlabellist V]
+    set axiscoordmap [ concat $axiscoordmap  7 ]
+}
+
+if { [ string first "W" $coordnames ] >= 0 } {
+    set numcoords $numcoords+1
+    set worldlabellist [ concat $worldlabellist W]
+    set axiscoordmap [ concat $axiscoordmap  8 ]
+}
+
+set worldlabellist [ concat $worldlabellist "-" "-" "-" "-" "-" "-" "-" "-" "-" ]
+set axiscoordmap [ concat $axiscoordmap 0 0 0 0 0 0 0 0 0]
 set worldlabel0 [lindex  $worldlabellist 0 ]
 set worldlabel1 [lindex  $worldlabellist 1 ]
 set worldlabel2 [lindex  $worldlabellist 2 ]
 set worldlabel3 [lindex  $worldlabellist 3 ]
 set worldlabel4 [lindex  $worldlabellist 4 ]
 set worldlabel5 [lindex  $worldlabellist 5 ]
+set worldlabel6 [lindex  $worldlabellist 6 ]
+set worldlabel7 [lindex  $worldlabellist 7 ]
+set worldlabel8 [lindex  $worldlabellist 8 ]
 
 set jointlabel0 "0"
 set jointlabel1 "1"
@@ -157,6 +162,9 @@ set jointlabel2 "2"
 set jointlabel3 "3"
 set jointlabel4 "4"
 set jointlabel5 "5"
+set jointlabel6 "6"
+set jointlabel7 "7"
+set jointlabel8 "8"
 
 # set the cycle time for display updating
 set temp [emc_ini "CYCLE_TIME" "DISPLAY"]
@@ -968,6 +976,9 @@ if {  [emc_kinematics_type] == 1 } {
     set poslabel3 $worldlabel3
     set poslabel4 $worldlabel4
     set poslabel5 $worldlabel5
+    set poslabel6 $worldlabel6
+    set poslabel7 $worldlabel7
+    set poslabel8 $worldlabel8
 } else {
     set jointworld "joint"
     set poslabel0 $jointlabel0
@@ -976,6 +987,9 @@ if {  [emc_kinematics_type] == 1 } {
     set poslabel3 $jointlabel3
     set poslabel4 $jointlabel4
     set poslabel5 $jointlabel5
+    set poslabel6 $jointlabel6
+    set poslabel7 $jointlabel7
+    set poslabel8 $jointlabel8
 }    
 
 # read the default jog speed
@@ -1003,6 +1017,9 @@ set pos2 [frame $position.pos2 -borderwidth 4]
 set pos3 [frame $position.pos3 -borderwidth 4]
 set pos4 [frame $position.pos4 -borderwidth 4]
 set pos5 [frame $position.pos5 -borderwidth 4]
+set pos6 [frame $position.pos6 -borderwidth 4]
+set pos7 [frame $position.pos7 -borderwidth 4]
+set pos8 [frame $position.pos8 -borderwidth 4]
 set bun [frame $move.bun]
 set limoride [frame $bun.limoride]
 set coordsel [frame $bun.coordsel]
@@ -1028,6 +1045,15 @@ if { $numaxes > 4 } {
 }
 if { $numaxes > 5 } {
     pack $pos5 -side top
+}
+if { $numaxes > 6 } {
+    pack $pos6 -side top
+}
+if { $numaxes > 7 } {
+    pack $pos7 -side top
+}
+if { $numaxes > 8 } {
+    pack $pos8 -side top
 }
 pack $bun -side right -anchor n ; # don't fill or expand these-- looks funny
 pack $limoride -side top -pady 2m
@@ -1056,6 +1082,15 @@ set pos4d [label $pos4.d -textvariable posdigit4 -width 10 -anchor w]
 set pos5l [label $pos5.l -textvariable poslabel5 -width 1 -anchor w]
 set pos5d [label $pos5.d -textvariable posdigit5 -width 10 -anchor w]
 
+set pos6l [label $pos6.l -textvariable poslabel6 -width 1 -anchor w]
+set pos6d [label $pos6.d -textvariable posdigit6 -width 10 -anchor w]
+
+set pos7l [label $pos7.l -textvariable poslabel7 -width 1 -anchor w]
+set pos7d [label $pos7.d -textvariable posdigit7 -width 10 -anchor w]
+
+set pos8l [label $pos8.l -textvariable poslabel8 -width 1 -anchor w]
+set pos8d [label $pos8.d -textvariable posdigit8 -width 10 -anchor w]
+
 pack $pos0l -side left
 pack $pos0d -side right
 pack $pos1l -side left
@@ -1068,6 +1103,12 @@ pack $pos4l -side left
 pack $pos4d -side right
 pack $pos5l -side left
 pack $pos5d -side right
+pack $pos6l -side left
+pack $pos6d -side right
+pack $pos7l -side left
+pack $pos7d -side right
+pack $pos8l -side left
+pack $pos8d -side right
 
 bind $pos0l <ButtonPress-1> {axisSelect 0}
 bind $pos0d <ButtonPress-1> {axisSelect 0}
@@ -1081,6 +1122,12 @@ bind $pos4l <ButtonPress-1> {axisSelect 4}
 bind $pos4d <ButtonPress-1> {axisSelect 4}
 bind $pos5l <ButtonPress-1> {axisSelect 5}
 bind $pos5d <ButtonPress-1> {axisSelect 5}
+bind $pos6l <ButtonPress-1> {axisSelect 6}
+bind $pos6d <ButtonPress-1> {axisSelect 6}
+bind $pos7l <ButtonPress-1> {axisSelect 7}
+bind $pos7d <ButtonPress-1> {axisSelect 7}
+bind $pos8l <ButtonPress-1> {axisSelect 8}
+bind $pos8d <ButtonPress-1> {axisSelect 8}
 
 bind $pos0l <ButtonPress-3> {axisSelect 0; popupAxisOffset 0}
 bind $pos0d <ButtonPress-3> {axisSelect 0; popupAxisOffset 0}
@@ -1094,6 +1141,12 @@ bind $pos4l <ButtonPress-3> {axisSelect 4; popupAxisOffset 4}
 bind $pos4d <ButtonPress-3> {axisSelect 4; popupAxisOffset 4}
 bind $pos5l <ButtonPress-3> {axisSelect 5; popupAxisOffset 5}
 bind $pos5d <ButtonPress-3> {axisSelect 5; popupAxisOffset 5}
+bind $pos6l <ButtonPress-3> {axisSelect 6; popupAxisOffset 6}
+bind $pos6d <ButtonPress-3> {axisSelect 6; popupAxisOffset 6}
+bind $pos7l <ButtonPress-3> {axisSelect 7; popupAxisOffset 7}
+bind $pos7d <ButtonPress-3> {axisSelect 7; popupAxisOffset 7}
+bind $pos8l <ButtonPress-3> {axisSelect 8; popupAxisOffset 8}
+bind $pos8d <ButtonPress-3> {axisSelect 8; popupAxisOffset 8}
 
 # set the position display font and radio button variables to their
 # ini file values, if present. Otherwise leave the font alone, as it
@@ -1108,6 +1161,9 @@ proc setfont {} {
     global pos3l pos3d
     global pos4l pos4d
     global pos5l pos5d
+    global pos6l pos6d
+    global pos7l pos7d
+    global pos8l pos8d
 
     set nf [list $fontfamily $fontsize $fontstyle]
 
@@ -1123,6 +1179,12 @@ proc setfont {} {
     $pos4d config -font $nf
     $pos5l config -font $nf
     $pos5d config -font $nf
+    $pos6l config -font $nf
+    $pos6d config -font $nf
+    $pos7l config -font $nf
+    $pos7d config -font $nf
+    $pos8l config -font $nf
+    $pos8d config -font $nf
 }
 
 set userfont [emc_ini "POSITION_FONT" "DISPLAY"]
@@ -1132,11 +1194,19 @@ if {$userfont != ""} {
     set fontstyle [font actual $userfont -weight]
 } elseif {[lsearch [font families] {courier 10 pitch}] != -1} {
     set fontfamily {courier 10 pitch}
-    set fontsize 48
+    if {$numaxes > 6} {
+	set fontsize 24
+    } else {
+	set fontsize 48
+    }
     set fontstyle bold
 } else {
     set fontfamily courier
-    set fontsize 48
+    if {$numaxes > 6} {
+	set fontsize 24
+    } else {
+        set fontsize 48
+    }
     set fontstyle bold
 }
 setfont
@@ -1191,7 +1261,7 @@ bind $jogposbutton <ButtonPress-1> {jogPos $activeAxis}
 bind $jogposbutton <ButtonRelease-1> {jogStop $activeAxis}
 
 proc axisSelect {axis} {
-    global pos0 pos1 pos2 pos3 pos4 pos5
+    global pos0 pos1 pos2 pos3 pos4 pos5 pos6 pos7 pos8
     global activeAxis
 
     $pos0 config -relief flat
@@ -1200,6 +1270,9 @@ proc axisSelect {axis} {
     $pos3 config -relief flat
     $pos4 config -relief flat
     $pos5 config -relief flat
+    $pos6 config -relief flat
+    $pos7 config -relief flat
+    $pos8 config -relief flat
     set activeAxis $axis
    
     if {$axis == 0} {
@@ -1214,6 +1287,12 @@ proc axisSelect {axis} {
         $pos4 config -relief groove
     } elseif {$axis == 5} {
         $pos5 config -relief groove
+    } elseif {$axis == 6} {
+        $pos6 config -relief groove
+    } elseif {$axis == 7} {
+        $pos7 config -relief groove
+    } elseif {$axis == 8} {
+        $pos8 config -relief groove
     }
 }
 
@@ -1548,6 +1627,9 @@ bind ManualBindings <KeyPress-2> {axisSelect 2}
 bind ManualBindings <KeyPress-3> {axisSelect 3}
 bind ManualBindings <KeyPress-4> {axisSelect 4}
 bind ManualBindings <KeyPress-5> {axisSelect 5}
+bind ManualBindings <KeyPress-6> {axisSelect 6}
+bind ManualBindings <KeyPress-7> {axisSelect 7}
+bind ManualBindings <KeyPress-8> {axisSelect 8}
 bind ManualBindings <KeyPress-at> {toggleCmdAct}
 bind ManualBindings <KeyPress-numbersign> {toggleRelAbs}
 bind ManualBindings <KeyPress-dollar> {toggleJointWorld}
@@ -1988,8 +2070,8 @@ set emc_teleop_enable_command_given 0
 
 proc updateStatus {} {
     global emc_teleop_enable_command_given
-    global jointlabel0 jointlabel1 jointlabel2 jointlabel3 jointlabel4 jointlabel5
-    global worldlabel0 worldlabel1 worldlabel2 worldlabel3 worldlabel4 worldlabel5
+    global jointlabel0 jointlabel1 jointlabel2 jointlabel3 jointlabel4 jointlabel5 jointlabel6 jointlabel7 jointlabel8
+    global worldlabel0 worldlabel1 worldlabel2 worldlabel3 worldlabel4 worldlabel5 worldlabel6 worldlabel7 worldlabel8
     global lastjointworld lastactcmd lastcoords
     global displayCycleTime
     global mistbutton floodbutton spindlebutton brakebutton
@@ -2005,12 +2087,18 @@ proc updateStatus {} {
     global poslabel3 posdigit3
     global poslabel4 posdigit4
     global poslabel5 posdigit5
+    global poslabel6 posdigit6
+    global poslabel7 posdigit7
+    global poslabel8 posdigit8
     global pos0l pos0d
     global pos1l pos1d
     global pos2l pos2d
     global pos3l pos3d
     global pos4l pos4d
     global pos5l pos5d
+    global pos6l pos6d
+    global pos7l pos7d
+    global pos8l pos8d
     # end
     global radiorel radiocmd radioact radioabs
     global limoridebutton limoridebuttonbg limoridebuttonabg
@@ -2167,6 +2255,9 @@ proc updateStatus {} {
 	    set poslabel3 $jointlabel3
 	    set poslabel4 $jointlabel4
 	    set poslabel5 $jointlabel5
+	    set poslabel6 $jointlabel6
+	    set poslabel7 $jointlabel7
+	    set poslabel8 $jointlabel8
 	    set lastactcmd $actcmd
 	    set lastcoords $coords
 	    set actcmd "actual"
@@ -2188,6 +2279,9 @@ proc updateStatus {} {
         set posdigit3 [format "%9.4f" [emc_joint_pos 3] ]
         set posdigit4 [format "%9.4f" [emc_joint_pos 4] ]
         set posdigit5 [format "%9.4f" [emc_joint_pos 5] ]
+        set posdigit6 [format "%9.4f" [emc_joint_pos 6] ]
+        set posdigit7 [format "%9.4f" [emc_joint_pos 7] ]
+        set posdigit8 [format "%9.4f" [emc_joint_pos 8] ]
     } else {
 	if { $lastjointworld != "world" } {
 	    if { [emc_teleop_enable] == 0  && [emc_kinematics_type] != 1 && $modeInDisplay == "manual" } {
@@ -2205,6 +2299,9 @@ proc updateStatus {} {
 		set poslabel3 $worldlabel3
 		set poslabel4 $worldlabel4
 		set poslabel5 $worldlabel5
+		set poslabel6 $worldlabel6
+		set poslabel7 $worldlabel7
+		set poslabel8 $worldlabel8
 		set actcmd $lastactcmd
 		set coords $lastcoords
 		$radiorel config -state normal
@@ -2222,20 +2319,29 @@ proc updateStatus {} {
 		set posdigit3 [format "%9.4f" [emc_rel_cmd_pos [ lindex $axiscoordmap 3 ] ] ]
 		set posdigit4 [format "%9.4f" [emc_rel_cmd_pos [ lindex $axiscoordmap 4 ] ] ]
 		set posdigit5 [format "%9.4f" [emc_rel_cmd_pos [ lindex $axiscoordmap 5 ] ] ]
+		set posdigit6 [format "%9.4f" [emc_rel_cmd_pos [ lindex $axiscoordmap 6 ] ] ]
+		set posdigit7 [format "%9.4f" [emc_rel_cmd_pos [ lindex $axiscoordmap 7 ] ] ]
+		set posdigit8 [format "%9.4f" [emc_rel_cmd_pos [ lindex $axiscoordmap 8 ] ] ]
 	    } elseif {$coords == "relative" && $actcmd == "actual"} {
 		set posdigit0 [format "%9.4f" [emc_rel_act_pos [ lindex $axiscoordmap 0 ] ] ]
-	    set posdigit1 [format "%9.4f" [emc_rel_act_pos [ lindex $axiscoordmap 1 ] ] ]
+		set posdigit1 [format "%9.4f" [emc_rel_act_pos [ lindex $axiscoordmap 1 ] ] ]
 		set posdigit2 [format "%9.4f" [emc_rel_act_pos [ lindex $axiscoordmap 2 ] ] ]
 		set posdigit3 [format "%9.4f" [emc_rel_act_pos [ lindex $axiscoordmap 3 ] ] ]
 		set posdigit4 [format "%9.4f" [emc_rel_act_pos [ lindex $axiscoordmap 4 ] ] ]
 		set posdigit5 [format "%9.4f" [emc_rel_act_pos [ lindex $axiscoordmap 5 ] ] ]
+		set posdigit6 [format "%9.4f" [emc_rel_act_pos [ lindex $axiscoordmap 6 ] ] ]
+		set posdigit7 [format "%9.4f" [emc_rel_act_pos [ lindex $axiscoordmap 7 ] ] ]
+		set posdigit8 [format "%9.4f" [emc_rel_act_pos [ lindex $axiscoordmap 8 ] ] ]
 	    } elseif {$coords == "machine" && $actcmd == "commanded"} {
-	    set posdigit0 [format "%9.4f" [emc_abs_cmd_pos [ lindex $axiscoordmap 0 ] ] ]
+		set posdigit0 [format "%9.4f" [emc_abs_cmd_pos [ lindex $axiscoordmap 0 ] ] ]
 		set posdigit1 [format "%9.4f" [emc_abs_cmd_pos [ lindex $axiscoordmap 1 ] ] ]
 		set posdigit2 [format "%9.4f" [emc_abs_cmd_pos [ lindex $axiscoordmap 2 ] ] ]
 		set posdigit3 [format "%9.4f" [emc_abs_cmd_pos [ lindex $axiscoordmap 3 ] ] ]
 		set posdigit4 [format "%9.4f" [emc_abs_cmd_pos [ lindex $axiscoordmap 4 ] ] ]
 		set posdigit5 [format "%9.4f" [emc_abs_cmd_pos [ lindex $axiscoordmap 5 ] ] ]
+		set posdigit6 [format "%9.4f" [emc_abs_cmd_pos [ lindex $axiscoordmap 6 ] ] ]
+		set posdigit7 [format "%9.4f" [emc_abs_cmd_pos [ lindex $axiscoordmap 7 ] ] ]
+		set posdigit8 [format "%9.4f" [emc_abs_cmd_pos [ lindex $axiscoordmap 8 ] ] ]
 	    } else {
 		# $coords == "machine" && $actcmd == "actual"
 		set posdigit0 [format "%9.4f" [emc_abs_act_pos [ lindex $axiscoordmap 0 ] ] ]
@@ -2244,6 +2350,9 @@ proc updateStatus {} {
 		set posdigit3 [format "%9.4f" [emc_abs_act_pos [ lindex $axiscoordmap 3 ] ] ]
 		set posdigit4 [format "%9.4f" [emc_abs_act_pos [ lindex $axiscoordmap 4 ] ] ]
 		set posdigit5 [format "%9.4f" [emc_abs_act_pos [ lindex $axiscoordmap 5 ] ] ]
+		set posdigit6 [format "%9.4f" [emc_abs_act_pos [ lindex $axiscoordmap 6 ] ] ]
+		set posdigit7 [format "%9.4f" [emc_abs_act_pos [ lindex $axiscoordmap 7 ] ] ]
+		set posdigit8 [format "%9.4f" [emc_abs_act_pos [ lindex $axiscoordmap 8 ] ] ]
 	    }
 	}
     }
@@ -2317,6 +2426,39 @@ proc updateStatus {} {
         $pos5d config -foreground yellow
     }
 
+    if {[emc_joint_limit 6] != "ok"} {
+        $pos6l config -foreground red
+        $pos6d config -foreground red
+    } elseif {[emc_joint_homed 6] == "homed"} {
+        $pos6l config -foreground green
+        $pos6d config -foreground green
+    } else {
+        $pos6l config -foreground yellow
+        $pos6d config -foreground yellow
+    }
+
+    if {[emc_joint_limit 7] != "ok"} {
+        $pos7l config -foreground red
+        $pos7d config -foreground red
+    } elseif {[emc_joint_homed 7] == "homed"} {
+        $pos7l config -foreground green
+        $pos7d config -foreground green
+    } else {
+        $pos7l config -foreground yellow
+        $pos7d config -foreground yellow
+    }
+    
+    if {[emc_joint_limit 8] != "ok"} {
+        $pos8l config -foreground red
+        $pos8d config -foreground red
+    } elseif {[emc_joint_homed 8] == "homed"} {
+        $pos8l config -foreground green
+        $pos8d config -foreground green
+    } else {
+        $pos8l config -foreground yellow
+        $pos8d config -foreground yellow
+    }
+    
     # color the limit override button red if active
     if {[emc_override_limit]} {
         $limoridebutton config -background red
