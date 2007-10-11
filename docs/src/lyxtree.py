@@ -127,7 +127,7 @@ class LyxTreeMaker:
 	    self.push('float', class_=v)
 	elif k == 'Graphics':
 	    dummy_inset = 'graphics'
-	    self.push('graphics')
+	    self.push('graphics', base=self.indir)
 	elif k == "Include":
 	    if v.startswith("\\verbatiminput"):
 		fn = v[15:-1]
@@ -141,6 +141,20 @@ class LyxTreeMaker:
 		self.text(f)
 		dummy_inset = 0
 		self.push('inset')
+	    elif v.startswith("\\input"):
+		fn = v[7:-1]
+		print >>sys.stderr, "# input", repr(fn), repr(v)
+		self.inclusion(fn)
+		dummy_inset = 0
+		self.push('inset')
+	    elif v.startswith("\\include"):
+		fn = v[9:-1]
+		print >>sys.stderr, "# include", repr(fn), repr(v)
+		self.inclusion(fn)
+		dummy_inset = 0
+		self.push('inset')
+	    else:
+		print >>sys.stderr, "# Include", v
 	else:
 	    dummy_inset = 0
             if len(tokens) == 0:
@@ -150,6 +164,23 @@ class LyxTreeMaker:
             else:
                 self.push('inset', data=str(tokens))
 	self.dummy_inset.append(dummy_inset)
+
+    def inclusion(self, fn):
+	indir = self.indir
+	fn = os.path.join(self.indir, fn)
+
+	if not os.path.exists(fn):
+	    print >>sys.stderr, "# Inclusion %r missing" % fn
+	    return
+
+	self.indir = os.path.dirname(fn)
+	try:
+	    contents = (line.decode('latin-1') for line in open(fn))
+	    self.parser.firstline = True
+	    for line in contents:
+		self.parser.feed(line.strip('\n'))
+	finally:
+	    self.indir = indir    
 
     def end_inset(self, text):
 	dummy_inset = self.dummy_inset.pop()
@@ -433,6 +464,7 @@ def LyxGraphicsFixer(d, srcdir, destdir):
 	if not fn:
 	    n.parentNode.removeChild(n)
 	    continue
+	srcdir = n.getAttribute('base') or srcdir
 	srcfile = os.path.join(srcdir, fn)
 	if not os.path.exists(srcfile):
 	    print >>sys.stderr, "Image does not exist", fn, srcfile
@@ -607,6 +639,8 @@ def parse(args):
 
     h = LyxTreeMaker(indir)
     p = LyxParser(h)
+    h.parser = p
+
     for line in infile: p.feed(line.strip('\n'))
     d = h.d
     if stylesheet:
