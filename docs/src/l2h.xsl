@@ -35,7 +35,14 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
     <HTML>
     <HEAD>
     <TITLE>
-        <xsl:value-of select="document('docs.xml')//doc[@name=$docname]/@title"/>
+	<xsl:choose>
+	    <xsl:when test="//layout[@class='Title']">
+		<xsl:value-of select="//layout[@class='Title']"/>
+	    </xsl:when>
+	    <xsl:otherwise>
+		<xsl:value-of select="document('docs.xml')//doc[@name=$docname]/@title"/>
+	    </xsl:otherwise>
+	</xsl:choose>
     </TITLE>
     <STYLE TYPE="text/css">
 h1, h2 { background: #c0c0f0; }
@@ -90,6 +97,11 @@ table { border-collapse: collapse; margin-left: auto; margin-right: auto; }
 	<H3>Footnotes</H3>
 	<xsl:apply-templates select="//footnote" mode="endlist"/>
     </xsl:if>
+    </BODY>
+    </HTML>
+</xsl:template>
+
+<xsl:template match="printindex">
     <xsl:if test="//index">
 	<H3>Index</H3>
 	<UL class="nclist">
@@ -99,10 +111,7 @@ table { border-collapse: collapse; margin-left: auto; margin-right: auto; }
 	</xsl:for-each>
 	</UL>
     </xsl:if>
-    </BODY>
-    </HTML>
 </xsl:template>
-
 
 <xsl:template match="footnote">
     <xsl:variable name="inc">
@@ -135,9 +144,23 @@ table { border-collapse: collapse; margin-left: auto; margin-right: auto; }
 </xsl:template>
 
 <xsl:template match="tocentry">
-    <xsl:if test="@level &lt; 4">
+    <xsl:choose>
+    <xsl:when test="@level = 0">
+    <LI><A STYLE="text-align:center; font-size: large;"><xsl:attribute name="href"><xsl:value-of select="@href"/></xsl:attribute><xsl:apply-templates/></A></LI>
+    </xsl:when>
+    <xsl:when test="@level &lt; 4">
     <LI><A><xsl:attribute name="href"><xsl:value-of select="@href"/></xsl:attribute><xsl:apply-templates/></A></LI>
-    </xsl:if>
+    </xsl:when>
+    </xsl:choose>
+</xsl:template>
+
+<xsl:template match="layout[@class='Part']">
+    <H1 style="text-align: center">
+    <xsl:variable name="part">
+	<xsl:number level="any" count="layout[@class='Part']" format="I"/>
+    </xsl:variable>
+    Part <xsl:value-of select="$part"/><BR/><xsl:apply-templates/>
+    </H1>
 </xsl:template>
 
 <xsl:template match="layout[@class='Chapter']"><H1><xsl:apply-templates/></H1></xsl:template>
@@ -150,6 +173,20 @@ table { border-collapse: collapse; margin-left: auto; margin-right: auto; }
 <xsl:template match="layout[@class='Quote']"><BLOCKQUOTE><P><xsl:apply-templates/></P></BLOCKQUOTE></xsl:template>
 <xsl:template match="layout[@class='Quotation']"><BLOCKQUOTE><P><xsl:apply-templates/></P></BLOCKQUOTE></xsl:template>
 <xsl:template match="layout[@class='Comment']"/>
+
+<!-- these deserve better handling -->
+<xsl:template match="layout[@class='Author']">
+<DIV style="font-size: xx-large; text-align: center">
+<xsl:apply-templates/>
+</DIV>
+</xsl:template>
+
+<xsl:template match="layout[@class='Title']">
+<DIV style="font-size: xx-large; text-align: center">
+<xsl:apply-templates/>
+</DIV>
+</xsl:template>
+
 
 <xsl:template match="layout[@class='Standard']">
     <P>

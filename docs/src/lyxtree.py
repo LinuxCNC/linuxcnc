@@ -96,7 +96,12 @@ class LyxTreeMaker:
 		self.push('htmlurl', url=url)
 		self.text(text)
 		self.pop()
+	    elif v == "\\tableofcontents{}":
+		self.add('toc')
+	    elif v == "\\printindex{}":
+		self.add('printindex')
 	    else:
+		print >>sys.stderr, "# Unrecognized LatexCommand:", repr(tokens[1])
 		self.add('latex', data=tokens[1])
 	elif k == 'Quotes':
 	    if tokens[1] == 'eld':
@@ -143,13 +148,11 @@ class LyxTreeMaker:
 		self.push('inset')
 	    elif v.startswith("\\input"):
 		fn = v[7:-1]
-		print >>sys.stderr, "# input", repr(fn), repr(v)
 		self.inclusion(fn)
 		dummy_inset = 0
 		self.push('inset')
 	    elif v.startswith("\\include"):
 		fn = v[9:-1]
-		print >>sys.stderr, "# include", repr(fn), repr(v)
 		self.inclusion(fn)
 		dummy_inset = 0
 		self.push('inset')
@@ -350,7 +353,21 @@ def getNodeAnchor(n):
         if l.nodeType == ELEMENT_NODE and l.nodeName == 'label':
             return l.getAttribute('id')
 
-tag2nesting = {'Chapter': 1, 'Section': 2, 'Subsection': 3, 'Subsubsection': 4}
+roman_pairs = (
+('m', 1000), ('cm', 900), ('d', 500), ('cd', 400), ('c', 100), ('xc', 90),
+('l', 50), ('xl', 40), ('x', 10), ('ix', 9), ('v', 5), ('iv', 4), ('i', 1))
+
+def roman(i):
+    result = []
+    for k, v in roman_pairs:
+        while i >= v:
+            result.append(k)
+            i -= v
+    return "".join(result)
+
+tag2nesting = {'Chapter': 1, 'Section': 2, 'Subsection': 3, 'Subsubsection': 4,
+    'Part': 0}
+
 def LyxTocXml(lyxdoc):
     def Node(p, n, **kw):
         n = lyxdoc.createElement(n)
@@ -361,11 +378,19 @@ def LyxTocXml(lyxdoc):
         if p is not None: p.appendChild(n)
         return n
 
-    n = Node(None, 'toc')
-    lyxdoc.documentElement.insertBefore(n, lyxdoc.documentElement.firstChild)
+    n = lyxdoc.getElementsByTagName('toc')
+    if n:
+	print >>sys.stderr, "# Using existing toc"
+	n = n[0]
+    else:
+	print >>sys.stderr, "# Using new toc"
+	n = Node(None, 'toc')
+	lyxdoc.documentElement.insertBefore(n,
+	    lyxdoc.documentElement.firstChild)
 
     lastlevel = 0
     counter = Counter()
+    scounter = 0
     for l in lyxdoc.documentElement.childNodes:
         if l.nodeType != ELEMENT_NODE: continue
         if l.nodeName != 'layout': continue
@@ -373,14 +398,22 @@ def LyxTocXml(lyxdoc):
 	l.setAttribute('class', klass)
         level = tag2nesting.get(klass, None)
         if level is None: continue
-        counter.level(level)
-        anchor = getNodeAnchor(l)
-	if not anchor:
-	    anchor = counter.anchor()
-	    Node(l, 'label', id=anchor)
-	cr = counter.render()
-        text= "%s. %s" % (cr, getNodeText(l))
-	l.insertBefore(lyxdoc.createTextNode(cr + " "), l.firstChild)
+	if level :
+	    counter.level(level)
+	    anchor = getNodeAnchor(l)
+	    if not anchor:
+		anchor = counter.anchor()
+		Node(l, 'label', id=anchor)
+	    cr = counter.render()
+	    text= "%s. %s" % (cr, getNodeText(l))
+	    l.insertBefore(lyxdoc.createTextNode(cr + " "), l.firstChild)
+	else:
+	    scounter += 1
+	    anchor = getNodeAnchor(l)
+	    if not anchor:
+		anchor = "part%d" % scounter
+		Node(l, 'label', id=anchor)
+	    text = "Part %s.  %s" % (roman(scounter).upper(), getNodeText(l))
         Node(n, 'tocentry', href="#" + anchor, level=str(level)).appendChild(lyxdoc.createTextNode(text))
 
 
@@ -597,6 +630,9 @@ def IndexFixer(d):
 	    id = "%s--%d" % (id0, u[id])
 	    n.setAttribute("id", id)
 	u[id0] = u.get(id0, 0) + 1
+
+    if not d.getElementsByTagName('printindex'):
+	d.documentElement.appendChild(d.createElement('printindex'))
 
 def parse(args):
     opts, args = getopt.getopt(args, "s:d:D:o:t:")
