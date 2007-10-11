@@ -1164,6 +1164,18 @@ static int emc_abs_cmd_pos(ClientData clientdata,
 		posobj =
 		    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.
 							traj.position.c));
+	    } else if (axis == 6) {
+		posobj =
+		    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.
+							traj.position.u));
+	    } else if (axis == 7) {
+		posobj =
+		    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.
+							traj.position.v));
+	    } else if (axis == 8) {
+		posobj =
+		    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.
+							traj.position.w));
 	    } else {
 		posobj = Tcl_NewDoubleObj(0.0);
 	    }
@@ -1228,6 +1240,21 @@ static int emc_abs_act_pos(ClientData clientdata,
 		    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.
 							traj.
 							actualPosition.c));
+	    } else if (axis == 6) {
+		posobj =
+		    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.
+							traj.
+							actualPosition.u));
+	    } else if (axis == 7) {
+		posobj =
+		    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.
+							traj.
+							actualPosition.v));
+	    } else if (axis == 8) {
+		posobj =
+		    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.
+							traj.
+							actualPosition.w));
 	    } else {
 		posobj = Tcl_NewDoubleObj(0.0);
 	    }
@@ -1301,6 +1328,24 @@ static int emc_rel_cmd_pos(ClientData clientdata,
 							traj.position.c -
 							emcStatus->task.
 							origin.c));
+	    } else if (axis == 6) {
+		posobj =
+		    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.
+							traj.position.u - 
+							emcStatus->task.
+							origin.u));
+	    } else if (axis == 7) {
+		posobj =
+		    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.
+							traj.position.v - 
+							emcStatus->task.
+							origin.v));
+	    } else if (axis == 8) {
+		posobj =
+		    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.
+							traj.position.w - 
+							emcStatus->task.
+							origin.w));
 	    } else {
 		posobj = Tcl_NewDoubleObj(0.0);
 	    }
@@ -1376,6 +1421,27 @@ static int emc_rel_act_pos(ClientData clientdata,
 							actualPosition.c -
 							emcStatus->task.
 							origin.c));
+	    } else if (axis == 6) {
+		posobj =
+		    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.
+							traj.
+							actualPosition.u -
+							emcStatus->task.
+							origin.u));
+	    } else if (axis == 7) {
+		posobj =
+		    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.
+							traj.
+							actualPosition.v -
+							emcStatus->task.
+							origin.v));
+	    } else if (axis == 8) {
+		posobj =
+		    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.
+							traj.
+							actualPosition.w -
+							emcStatus->task.
+							origin.w));
 	    } else {
 		posobj = Tcl_NewDoubleObj(0.0);
 	    }
@@ -1461,6 +1527,15 @@ static int emc_pos_offset(ClientData clientdata,
     } else if (string[0] == 'C') {
 	posobj =
 	    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->task.origin.c));
+    } else if (string[0] == 'U') {
+	posobj =
+	    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->task.origin.u));
+    } else if (string[0] == 'V') {
+	posobj =
+	    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->task.origin.v));
+    } else if (string[0] == 'W') {
+	posobj =
+	    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->task.origin.w));
     } else {
 	Tcl_SetResult(interp, "emc_pos_offset: bad integer argument",
 		      TCL_VOLATILE);
