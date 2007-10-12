@@ -162,7 +162,7 @@ Secondary Linear Axes
 
 The U, V, and W axes produce linear motion in three mutually orthogonal
  directions.
- Typically, X and U are parallel, V and W are parallel, and Z and V are
+ Typically, X and U are parallel, Y and V are parallel, and Z and W are
  parallel.
 \layout Subsubsection
 
@@ -175,8 +175,8 @@ Rotational Axes
 \layout Standard
 
 The A, B and C axes produce angular motion (rotation).
- Typically, X and A are parallel, Y and B are parallel, and Z and C are
- parallel.
+ Typically, A rotates around a line parallel to X, B rotates around a line
+ parallel to Y, and C rotates around a line parallel to Z.
 \layout Subsection
 
 Spindle
@@ -405,10 +405,28 @@ The controlled point is the point whose position and rate of motion are
  axis by specifying some positive amount for the tool length offset.
  This amount is normally the length of the cutting tool in use, so that
  the controlled point is at the end of the cutting tool.
- 
+ On a lathe, tool length offsets can be specified for X and Z axes, and
+ the controlled point is either at the tool tip or slightly outside it (where
+ the perpendicular, axis-aligned lines touched by the 
+\begin_inset Quotes eld
+\end_inset 
+
+front
+\begin_inset Quotes erd
+\end_inset 
+
+ and 
+\begin_inset Quotes eld
+\end_inset 
+
+side
+\begin_inset Quotes erd
+\end_inset 
+
+ of the tool intersect).
 \layout Subsection
 
-Coordinate Linear Motion
+Coordinated Linear Motion
 \begin_inset LatexCommand \label{sub:Coordinate-Linear-Motion}
 
 \end_inset 
@@ -450,10 +468,9 @@ linear
 \layout Standard
 
 Coordinated linear motion can be performed either at the prevailing feed
- rate, or at traverse rate.
+ rate, or at traverse rate, or it may be synchronized to the spindle rotation.
  If physical limits on axis speed make the desired rate unobtainable, all
  axes are slowed to maintain the desired path.
- 
 \layout Subsection
 
 Feed Rate
@@ -472,8 +489,23 @@ Feed Rate
 The rate at which the controlled point or the axes move is nominally a steady
  rate which may be set by the user.
  In the Interpreter, the interpretation of the feed rate is as follows unless
- inverse time feed rate mode is being used in the RS274/NGC view (see Section
  
+\begin_inset Quotes eld
+\end_inset 
+
+inverse time feed
+\begin_inset Quotes erd
+\end_inset 
+
+ or 
+\begin_inset Quotes eld
+\end_inset 
+
+feed per revolution
+\begin_inset Quotes erd
+\end_inset 
+
+ modes are being used (see Section 
 \begin_inset LatexCommand \ref{sub:G93,-G94:-Set}
 
 \end_inset 
@@ -555,8 +587,9 @@ rs or inches.
  Different quantities use different specific units.
  Spindle speed is measured in revolutions per minute.
  The positions of rotational axes are measured in degrees.
- Feed rates are expressed in current length units per minute or in degrees
- per minute, as described in Section 
+ Feed rates are expressed in current length units per minute, or degrees
+ per minute, or length units per spindle revolution, as described in Section
+ 
 \begin_inset LatexCommand \ref{sub:Feed-Rate}
 
 \end_inset 
@@ -710,14 +743,12 @@ M48
 M49
 \family default 
 ) the feed and speed override switches.
- It is useful to be able to override these switches for some machining operation
-s.
- The idea is that optimal settings have been included in the program, and
- the operator should not change them.
+ For certain moves, such as the traverse out of the end of a thread during
+ a threading cycle, the switches are disabled automatically.
 \layout Standard
 
-EMC2 reacts to the setting of the speed or feed override switches on the
- control panel, when these switches are enabled.
+EMC2 reacts to the speed and feed override settings when these switches
+ are enabled.
 \layout Subsection
 
 Block Delete
@@ -736,32 +767,8 @@ Block Delete
 If the block delete switch is on, lines of RS274/NGC code which start with
  a slash (the block delete character) are not interpreted.
  If the switch is off, such lines are interpreted.
-\layout Standard
-
-The Interpreter runs in two stages (read and execute).
- The driver tells the Interpreter when to perform each stage.
- When the Interpreter reads a line starting with a slash, it informs the
- driver, 
-\begin_inset Quotes eld
-\end_inset 
-
-I just read a line starting with a slash.
-\begin_inset Quotes erd
-\end_inset 
-
- The driver checks the setting of the block delete switch.
- If the switch is off, it tells the Interpreter, 
-\begin_inset Quotes eld
-\end_inset 
-
-Execute that line.
-\begin_inset Quotes erd
-\end_inset 
-
- If the switch is on, the driver does not tell the Interpreter to execute
- the line.
- Instead, it tells the Interpreter to read another line, with the result
- that the line starting with the slash is not executed.
+ Normally the block delete switch should be set before starting the NGC
+ program.
 \layout Subsection
 
 Optional Program Stop
@@ -777,14 +784,8 @@ Optional Program Stop
 
 \layout Standard
 
-The optional program stop switch works as follows.
- If this switch is on and an input RS274/NGC code line contains an M1 code,
- program execution is supposed to stop until the cycle start button is pushed.
-\layout Standard
-
-EMC2 checks the optional stop switch when the OPTIONAL_PROGRAM_STOP canonical
- function call is executed and either stops (if the switch is on) or not
- (if the switch is off).
+If this switch is on and an M1 code is encountered, program execution is
+ paused.
 \layout Section
 
 Tool File
@@ -5748,7 +5749,7 @@ G76
 
 Program 
 \family typewriter 
-G76 P- Z- I- J- R- K- Q- H- 
+G76 P- Z- I- J- R- K- Q- H- E- L- 
 \family default 
 to perform a threading canned cycle.
  It is an error if:
@@ -5772,6 +5773,10 @@ All the required words are not specified
 
 
 \family typewriter 
+P-
+\family default 
+, 
+\family typewriter 
 J-
 \family default 
 , 
@@ -5783,6 +5788,13 @@ K-
 H-
 \family default 
  is negative
+\layout Itemize
+
+
+\family typewriter 
+E-
+\family default 
+ is greater than half the drive line length
 \layout Standard
 
 The 
@@ -5851,7 +5863,11 @@ I
 I
 \family default 
  values indicate internal threads.
- Generally the material has been turned to this size before the canned cycle.
+ Generally the material has been turned to this size before the 
+\family typewriter 
+G76
+\family default 
+ cycle.
 \layout Standard
 
 The 
@@ -5951,8 +5967,10 @@ R1.0
 R2.0
 \family default 
  selects constant area.
- Values between 1.0 and 2.0 select decreasing depth and increasing area.
+ Values between 1.0 and 2.0 select decreasing depth but increasing area.
  Values above 2.0 select decreasing area.
+ Beware that unnecessarily high degression values will cause a large number
+ of passes to be used.
 \layout Standard
 
 The 
@@ -6000,33 +6018,56 @@ H0
 .
 \layout Standard
 
-Each pass begins at a position on the drive line.
- It consists of
-\layout Enumerate
-
-An X traverse to the depth for this pass
-\layout Enumerate
-
-A pause for the spindle to reach index position
-\layout Enumerate
-
-A spindle-synchronized Z feed along the thread
-\layout Enumerate
-
-A traverse to the original X
-\layout Enumerate
-
-On all passes but the last, a traverse Z move to the beginning point for
- the next pass
+Tapered entry and exit moves can be programmed using 
+\family typewriter 
+E-
+\family default 
+ and 
+\family typewriter 
+L-
+\family default 
+.
+ 
+\family typewriter 
+E-
+\family default 
+ gives a distance along the drive line used for the taper.
+ 
+\family typewriter 
+E0.2
+\family default 
+ will give a taper for the first/last 0.2 length units along the thread.
+ 
+\family typewriter 
+L-
+\family default 
+ is used to specify which ends of the thread get the taper.
+ Program 
+\family typewriter 
+L0
+\family default 
+ for no taper (the default), 
+\family typewriter 
+L1
+\family default 
+ for entry taper, 
+\family typewriter 
+L2
+\family default 
+ for exit taper, or 
+\family typewriter 
+L3
+\family default 
+ for both entry and exit tapers.
 \layout Standard
 
-The tool will pause briefly before each threading pass, so a relief groove
- will be required at the entry unless the beginning of the thread is past
- the end of the material.
+The tool will pause briefly for synchronization before each threading pass,
+ so a relief groove will be required at the entry unless the beginning of
+ the thread is past the end of the material or an entry taper is used.
 \layout Standard
 
-The exit move (traverse to original X) is not synchronized to the spindle
- speed.
+Unless using an exit taper, the exit move (traverse to original X) is not
+ synchronized to the spindle speed.
  With a slow spindle, the exit move might take only a small fraction of
  a revolution.
  If the spindle speed is increased after several passes are complete, subsequent
