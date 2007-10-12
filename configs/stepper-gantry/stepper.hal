@@ -26,10 +26,6 @@ setp stepgen.2.position-scale [AXIS_2]SCALE
 setp stepgen.3.position-scale [AXIS_3]SCALE
 
 # Set stepgen module velocity limits - get values from ini file
-setp stepgen.0.maxvel [AXIS_0]STEPGEN_MAXVEL
-setp stepgen.1.maxvel [AXIS_1]STEPGEN_MAXVEL
-setp stepgen.2.maxvel [AXIS_2]STEPGEN_MAXVEL
-setp stepgen.3.maxvel [AXIS_3]STEPGEN_MAXVEL
 
 # Set stepgen module accel limits - get values from ini file
 setp stepgen.0.maxaccel [AXIS_0]STEPGEN_MAXACCEL
