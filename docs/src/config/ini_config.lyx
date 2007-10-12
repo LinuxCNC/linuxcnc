@@ -65,7 +65,7 @@ Don't confuse a text editor with a word processor.
  
 \layout Standard
 
-Configuration files include;
+Configuration files include
 \layout Description
 
 INI
@@ -92,8 +92,22 @@ VAR
 
 \end_inset 
 
- The var file provide a set of numbered variables for use by the interpreter.
+ The var file provide a set of numbered variables (
+\begin_inset Quotes eld
+\end_inset 
+
+parameters
+\begin_inset Quotes erd
+\end_inset 
+
+) for use by the interpreter.
  These values are saved from one run to another.
+ See section 
+\begin_inset LatexCommand \ref{sub:Parameters}
+
+\end_inset 
+
+.
 \layout Description
 
 TBL
@@ -102,6 +116,12 @@ TBL
 \end_inset 
 
  The tbl file saves tool information.
+ See section 
+\begin_inset LatexCommand \ref{sub:Tool-File}
+
+\end_inset 
+
+.
 \layout Description
 
 NML
@@ -131,22 +151,6 @@ Usually this file is in the users home directory (e.g.
 \end_inset 
 
 
-\layout Standard
-
-This chapter describes the EMC2's INI file in just enough detail so that
- the reader can understand which variable values might need to be edited
- in order to make a stock configuration conform to a real machine.
-\begin_inset Foot
-collapsed true
-
-\layout Standard
-
-Complete reference to these files are left to the Integrator and Developer
- Handbooks.
- 
-\end_inset 
-
- 
 \layout Standard
 
 Items marked 
@@ -241,24 +245,41 @@ In this list, the DISPLAY
  variable will be set to axis because all of the others are commented out.
  If someone carelessly edits a list like this and leaves two of the lines
  uncommented, the first one encountered will be used.
+\layout Standard
+
+Note that inside a variable, the 
+\begin_inset Quotes eld
+\end_inset 
+
+#
+\begin_inset Quotes erd
+\end_inset 
+
+ and 
+\begin_inset Quotes eld
+\end_inset 
+
+;
+\begin_inset Quotes erd
+\end_inset 
+
+ characters do not denote comments:
+\layout LyX-Code
+
+INCORRECT = value     # and a comment
 \layout Subsection
 
 Sections
 \layout Standard
 
-Sections in an INI file work like file folders in a drawer.
- They separate variables based on what part of the EMC they refer to.
+Related parts of an ini file are separated into sections.
  A section line looks like [THIS_SECTION].
  The name of the section is enclosed in brackets.
- Common INI files have several sections including;
+ The order of sections is unimportant.
+ The following sections are used by emc:
 \layout Itemize
 
-[EMC
-\begin_inset LatexCommand \index{EMC}
-
-\end_inset 
-
-] general information (
+[EMC] general information (
 \begin_inset LatexCommand \ref{sub:[EMC]-Section}
 
 \end_inset 
@@ -266,12 +287,7 @@ Sections in an INI file work like file folders in a drawer.
 )
 \layout Itemize
 
-[DISPLAY
-\begin_inset LatexCommand \index{DISPLAY}
-
-\end_inset 
-
-] selects and sets up some display characteristics (
+[DISPLAY] settings related to the graphical user interface (
 \begin_inset LatexCommand \ref{sub:[DISPLAY]-Section}
 
 \end_inset 
@@ -279,33 +295,10 @@ Sections in an INI file work like file folders in a drawer.
 )
 \layout Itemize
 
-[TASK
-\begin_inset LatexCommand \index{TASK}
-
-\end_inset 
-
-] sets up the task planner (
-\begin_inset LatexCommand \ref{sub:[TASK]-Section}
-
-\end_inset 
-
-)
+[RS274NGC] settings used by the g-code interpreter
 \layout Itemize
 
-[RS274NGC
-\begin_inset LatexCommand \index{RS274NGC}
-
-\end_inset 
-
-] location of interpreter specific file
-\layout Itemize
-
-[EMCMOT
-\begin_inset LatexCommand \index{EMCMOT}
-
-\end_inset 
-
-] motion module and default characteristics (
+[EMCMOT] settings used by the realtime motion controller (
 \begin_inset LatexCommand \ref{sub:[EMCMOT]-Section}
 
 \end_inset 
@@ -313,12 +306,7 @@ Sections in an INI file work like file folders in a drawer.
 )
 \layout Itemize
 
-[HAL
-\begin_inset LatexCommand \index{HAL}
-
-\end_inset 
-
-] hardware configuration files and commands (
+[HAL] specifies .hal files (
 \begin_inset LatexCommand \ref{sub:[HAL]-section}
 
 \end_inset 
@@ -326,12 +314,15 @@ Sections in an INI file work like file folders in a drawer.
 )
 \layout Itemize
 
-[TRAJ
-\begin_inset LatexCommand \index{TRAJ}
+[TASK] settings used by the task controller (
+\begin_inset LatexCommand \ref{sub:[TASK]-Section}
 
 \end_inset 
 
-] information for the motion planner (
+)
+\layout Itemize
+
+[TRAJ] additional settings used by the realtime motion controller (
 \begin_inset LatexCommand \ref{sub:[TRAJ]-Section}
 
 \end_inset 
@@ -339,12 +330,7 @@ Sections in an INI file work like file folders in a drawer.
 )
 \layout Itemize
 
-[AXIS_0
-\begin_inset LatexCommand \index{AXIS 0,1,2,..}
-
-\end_inset 
-
-] ...
+[AXIS_0] ...
  [AXIS_n] individual axis variables (
 \begin_inset LatexCommand \ref{sub:[AXIS]-Section}
 
@@ -353,23 +339,12 @@ Sections in an INI file work like file folders in a drawer.
 )
 \layout Itemize
 
-[EMCIO
-\begin_inset LatexCommand \index{EMCIO}
-
-\end_inset 
-
-] emc's input and output variables.
- (
+[EMCIO] settings used by the I/O Controller (
 \begin_inset LatexCommand \ref{sub:[EMCIO]-Section}
 
 \end_inset 
 
 )
-\layout Standard
-
-Each of these section names are on a line by themselves so you can quickly
- scan through the file.
- 
 \layout Subsection
 
 Variables
@@ -383,11 +358,6 @@ Everything from the first non-whitespace character after the = up to the
  end of the line is passed as the value, so you can embed spaces in string
  symbols if you want to or need to.
  A variable name is often called a keyword.
- These variables and the values they are assigned are the way that the INI
- affects the operation of the EMC.
- You can edit the values for each keyword in any text editor.
- Changes don't take effect until the next time the controller is run.
- 
 \layout Standard
 
 
@@ -414,6 +384,11 @@ INI Variable Definitions
 \color black
 [EMC] Section
 \begin_inset LatexCommand \label{sub:[EMC]-Section}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \index{EMC (inifile section)}
 
 \end_inset 
 
@@ -506,6 +481,11 @@ G90
 \color black
 [DISPLAY] Section
 \begin_inset LatexCommand \label{sub:[DISPLAY]-Section}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \index{DISPLAY (inifile section)}
 
 \end_inset 
 
@@ -625,6 +605,11 @@ INTRO_TIME\SpecialChar ~
 \end_inset 
 
 
+\begin_inset LatexCommand \index{EMCMOT (inifile section)}
+
+\end_inset 
+
+
 \layout Description
 
 BASE_PERIOD
@@ -640,12 +625,15 @@ BASE_PERIOD
 (hal)
 \series default 
 \noun default 
- Base task period, in nanoseconds - this is the fastest thread in the machine.
- It's units are nanoseconds.
- This is a fairly conservative value but if you are installing on a very
- old, slow processor you may have to make this a larger number or the machine
- may lock up or reboot.
  
+\begin_inset Quotes eld
+\end_inset 
+
+Base
+\begin_inset Quotes erd
+\end_inset 
+
+ task period, in nanoseconds - this is the fastest thread in the machine.
 \newline 
 On servo-based systems, there is generally no reason for 
 \series bold 
@@ -656,22 +644,41 @@ BASE_PERIOD
 SERVO_PERIOD
 \series default 
 .
- On machines with software step generation, the 
+ 
+\newline 
+On machines with software step generation, the 
 \series bold 
 BASE_PERIOD
 \series default 
  determines the maximum number of steps per second.
  In the absence of long step length and step space requirements, the absolute
- maximum step rate is one step per two 
+ maximum step rate is one step per 
 \series bold 
 BASE_PERIOD
 \series default 
-s.
+.
  Thus, the 
 \series bold 
 BASE_PERIOD
 \series default 
- shown above gives an absolute maximum step rate of 10000 steps per second.
+ shown above gives an absolute maximum step rate of 20000 steps per second.
+ 50000ns is a fairly conservative value.
+ The smallest usable value is related to the Latency Test result (
+\begin_inset LatexCommand \ref{sec:Latency-Test}
+
+\end_inset 
+
+), the necessary step length, and the processor speed.
+\newline 
+Choosing a BASE_PERIOD that is too low can lead to the 
+\begin_inset Quotes eld
+\end_inset 
+
+Unexpected realtime delay
+\begin_inset Quotes erd
+\end_inset 
+
+ message, lockups, or spontaneous reboots.
 \layout Description
 
 SERVO_PERIOD
@@ -687,18 +694,27 @@ SERVO_PERIOD
 (hal)
 \series default 
 \noun default 
- Servo task period is also in nanoseconds.
+ 
+\begin_inset Quotes eld
+\end_inset 
+
+Servo
+\begin_inset Quotes erd
+\end_inset 
+
+ task period is also in nanoseconds.
  This value will be rounded to an integer multiple of 
 \series bold 
 BASE_PERIOD
 \series default 
 .
- 
+ This value is used even on systems based on stepper motors.
+\newline 
+This is the rate at which new motor positions are computed, following error
+ is checked, PID output values are updated, and so on.
 \newline 
 Most systems will not need to change this value.
  It is the update rate of the low level motion planner.
- You'll need it even if you only have steppers.
- 
 \layout Description
 
 TRAJ_PERIOD
@@ -710,20 +726,28 @@ TRAJ_PERIOD
 =\SpecialChar ~
 
 \series bold 
-10000000 
+1000000 
 \noun on 
 (hal)
 \series default 
 \noun default 
- Trajectory Planner task period in nanoseconds This value will be rounded
- to an integer multiple of 
+ 
+\series bold 
+Traj
+\series default 
+ectory Planner task period in nanoseconds This value will be rounded to
+ an integer multiple of 
 \series bold 
 SERVO_PERIOD
 \series default 
 .
 \newline 
-Folk with fast computers have found that reducing this value by half will
- give them smother motion blending during contour cutting .
+Except for machines with unusual kinematics (e.g., hexapods) there is no reason
+ to make this value larger than 
+\series bold 
+SERVO_PERIOD
+\series default 
+.
 \layout Subsection
 
 [TASK] Section
@@ -732,11 +756,11 @@ Folk with fast computers have found that reducing this value by half will
 \end_inset 
 
 
-\layout Standard
+\begin_inset LatexCommand \index{TASK (inifile section)}
 
-The [TASK] section contains general parameters for EMCTASK, which includes
- primarily the NC language interpreter and the sequencing logic for sending
- commands to EMCMOT and EMCIO.
+\end_inset 
+
+
 \layout Description
 
 CYCLE_TIME\SpecialChar ~
@@ -747,19 +771,22 @@ CYCLE_TIME\SpecialChar ~
 \SpecialChar ~
 
 \series bold 
-0.100
+0.0
 \series default 
- The period, in seconds, at which EMCTASK will run.
- This parameter mostly affects the polling interval when waiting for motion
- to complete, or when executing a pause instruction.
- It no longer affects the throughput when transferring segments to the real-time
- layer.
- Making it 0.0 or a negative number will tell EMCTASK not to sleep at all.
+01 The period, in seconds, at which EMCTASK will run.
+ This parameter affects the polling interval when waiting for motion to
+ complete, when executing a pause instruction, and when accepting a command
+ from a user interface.
  There is usually no need to change this number.
 \layout Subsection
 
 [HAL] section
 \begin_inset LatexCommand \label{sub:[HAL]-section}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \index{HAL (inifile section)}
 
 \end_inset 
 
@@ -844,6 +871,11 @@ example2.hal
 \color black
 [TRAJ] Section
 \begin_inset LatexCommand \label{sub:[TRAJ]-Section}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \index{TRAJ (inifile section)}
 
 \end_inset 
 
@@ -969,16 +1001,12 @@ LINEAR_UNITS
 \series bold 
  
 \series default 
-The name of units to be used.
+The name of units to be used in the inifile.
  Possible choices are (in, inch, imperial, metric, mm).
- For systems executing in native English (inch) units, this value shall
- be any one of 'in', 'inch' or 'imperial'.
- For systems executing in native millimeter units, this value shall be 'mm'
- or 'metric'.
- This does not affect the ability to program in English or metric units
- in NC code.
- It is used to determine how to interpret the numbers reported in the controller
- status by external programs.
+ 
+\newline 
+This does not affect the linear units in NC code (the G20 and G21 words
+ do this).
  
 \layout Description
 
@@ -995,12 +1023,12 @@ ANGULAR_UNITS
 =
 \series default 
 \SpecialChar ~
-<units> The name of units to be used.
- For systems executing in native degree units, this value should be 'deg'
- or 'degree'.
- For systems executing in radians, this value is 'rad' or 'radian'.
- Another possible value is 'grad' or 'gon' for units operating in gradians
- (400 gradians in a full circle).
+<units> The name of units used in the inifile.
+ Possible choices are 'deg', 'degree' (360 per circle), 'rad', 'radian'
+ (2pi per circle), 'grad', or 'gon' (400 per circle).
+\newline 
+This does not affect the angular units of NC code.
+ In RS274NGC, A-, B- and C- words are always expressed in degrees.
 \layout Description
 
 
@@ -1011,9 +1039,8 @@ DEFAULT_VELOCITY\SpecialChar ~
 =\SpecialChar ~
 0.0167
 \series default 
- The initial velocity used for axis or coordinated axis motion, in user
- units per second.
- The value shown is one inch per minute.
+ The initial rate for jogs of linear axes, in units per second.
+ The value shown equals one unit per minute.
 \layout Description
 
 
@@ -1024,8 +1051,15 @@ DEFAULT_ACCELERATION\SpecialChar ~
 =\SpecialChar ~
 2.0
 \series default 
- The initial acceleration used for axis or coordinated axis motion, in user
- units per second per second.
+ In machines with nontrivial kinematics, the acceleration used for 
+\begin_inset Quotes eld
+\end_inset 
+
+teleop
+\begin_inset Quotes erd
+\end_inset 
+
+ (cartesian space) jogs, in user units per second per second.
  
 \layout Description
 
@@ -1044,9 +1078,7 @@ MAX_VELOCITY
 \series default 
  The maximum velocity for any axis or coordinated move, in user units per
  second.
- Think for a moment what this value really means in hardware terms.
- The formula is MAX_VELOCITY * 60.
- In this case this is 300 inches per minute.
+ The value shown equals 300 units per minute.
 \layout Description
 
 
@@ -1096,6 +1128,11 @@ This assumes there was no movement of the machine while powered off.
 \end_inset 
 
 
+\begin_inset LatexCommand \index{AXIS (inifile section)}
+
+\end_inset 
+
+
 \layout Standard
 
 
@@ -1105,15 +1142,6 @@ The [AXIS_0], [AXIS_1], etc.
  axis control module.
  The axis section names begin numbering at 0, and run through the number
  of axes specified in the [TRAJ] AXES entry minus 1.
-\layout Standard
-
-
-\color black
-Values for the various parameters of LINEAR axes are in the units specified
- in the [TRAJ] LINEAR_UNITS entry.
- Values for the position of ANGULAR axes are in the units specified in the
- [TRAJ] ANGULAR_UNITS entry.
- 
 \layout Description
 
 
@@ -1123,10 +1151,21 @@ TYPE\SpecialChar ~
 LINEAR The type of axes, either LINEAR or ANGULAR.
 \layout Description
 
+UNITS
+\begin_inset LatexCommand \index{UNITS}
+
+\end_inset 
+
+\SpecialChar ~
+=\SpecialChar ~
+inch This setting overrides the related [TRAJ] UNITS setting if it is specified.
+ (e.g., [TRAJ]LINEAR_UNITS if the TYPE of this axis is LINEAR, [TRAJ]ANGULAR_UNITS
+ if the TYPE of this axis is ANGULAR)
+\layout Description
+
 MAX_VELOCITY\SpecialChar ~
 =\SpecialChar ~
-1.2 Per axis maximum velocity while coordinated motion is in
- effect.
+1.2 Maximum velocity for this axis in UNITS per second.
 \layout Description
 
 MAX_ACCELERATION\SpecialChar ~
@@ -1139,7 +1178,7 @@ MAX_ACCELERATION\SpecialChar ~
 \series bold 
 20.0
 \series default 
- Per axis maximum acceleration while coordinated motion is in effect.
+ Maximum acceleration for this axis in UNITS per second squared.
 \layout Description
 
 BACKLASH\SpecialChar ~
@@ -1154,8 +1193,6 @@ BACKLASH\SpecialChar ~
 \series default 
  Backlash compensation value can be used to make up for small deficiencies
  in the hardware used to drive an axis.
- Don't expect this to compensate for poor mechanical elements.
- The value set here is in UNITS.
 \layout Description
 
 COMP_FILE\SpecialChar ~
@@ -1168,65 +1205,19 @@ file.extension A file holding a compensation structure for the
  is while travelling back).
  One set of triplets per line.
  Currently the limit inside EMC2 is for 256 triplets / axis.
+ If COMP_FILE is specified, BACKLASH is ignored.
 \layout Description
 
 COMP_FILE_TYPE\SpecialChar ~
 =\SpecialChar ~
 1 Specifying a non-zero value changes the expected format
  of the COMP_FILE.
- While type == 0, the expected values are triplets for nominal, forward
+ For COMP_FILE_TYPE of zero, the values are triplets for nominal, forward
  & reverse.
- With COMP_FILE_TYPE non-zero, the expected values in the COMP_FILE are
- nominal, forward_trim and reverse_trim.
+ Otherwise, the values in the COMP_FILE are nominal, forward_trim and reverse_tr
+im.
  These correspond to the nominal, nominal-forward and nominal-reverse defined
  above.
-\layout Description
-
-
-\color black
-INPUT_SCALE
-\begin_inset LatexCommand \index{INPUT SCALE}
-
-\end_inset 
-
-\SpecialChar ~
-
-\series bold 
-=
-\series default 
-\SpecialChar ~
-
-\series bold 
-40000
-\series default 
-\color default
- Specifies the number of pulses that corresponds to a move of one UNIT.
- For stepper systems, this is the number of step pulses issued per UNIT.
- For servo systems, this is the number of feedback pulses per UNIT.
- A second number, if specified, is ignored.
-\color black
-
-\newline 
-The value for scale can be obtained by doing a unit analysis, i.e., units
- are
-\begin_inset Formula \[
-\frac{sensor\, units}{desired\, input\, SI\, units}\]
-
-\end_inset 
-
-For example, on a 2000 counts per rev encoder
-\begin_inset LatexCommand \index{encoder}
-
-\end_inset 
-
-, and 10 revs/inch gearing, and desired units of mm, we have
-\begin_inset Formula \begin{eqnarray*}
-input\_ scale & = & 2000\frac{counts}{rev}*10\frac{rev}{inch}*\frac{1\, inch}{25.4\, mm}\\
- & = & 787.4\frac{counts}{mm}\end{eqnarray*}
-
-\end_inset 
-
-
 \layout Description
 
 
@@ -1325,18 +1316,6 @@ ies.
  and verify their results so that the proper values can be put in the INI
  file with a minimum of trouble.
  
-\layout Description
-
-UNITS
-\begin_inset LatexCommand \index{UNITS}
-
-\end_inset 
-
-\SpecialChar ~
-=\SpecialChar ~
-inch Historically, the UNITS were specified for each axis.
- It is now preferable to specify the [TRAJ]LINEAR_UNITS and [TRAJ]ANGULAR_UNITS
- values only, and have no [AXIS_n]UNITS setting.
 \layout Subsubsection
 
 Homing-related items
@@ -2047,6 +2026,57 @@ Measured
 \end_inset 
 
 
+\layout Description
+
+
+\color black
+INPUT_SCALE
+\begin_inset LatexCommand \index{INPUT SCALE}
+
+\end_inset 
+
+\SpecialChar ~
+
+\series bold 
+=
+\series default 
+\SpecialChar ~
+
+\series bold 
+40000
+\series default 
+\color default
+ 
+\series bold 
+\noun on 
+(hal)
+\series default 
+\noun default 
+ Specifies the number of pulses that corresponds to a move of one UNIT.
+ A second number, if specified, is ignored.
+\color black
+
+\newline 
+The value for scale can be obtained by doing a unit analysis, i.e., units
+ are
+\begin_inset Formula \[
+\frac{sensor\, units}{desired\, input\, SI\, units}\]
+
+\end_inset 
+
+For example, on a 2000 counts per rev encoder
+\begin_inset LatexCommand \index{encoder}
+
+\end_inset 
+
+, and 10 revs/inch gearing, and desired units of mm, we have
+\begin_inset Formula \begin{eqnarray*}
+input\_ scale & = & 2000\frac{counts}{rev}*10\frac{rev}{inch}*\frac{1\, inch}{25.4\, mm}\\
+ & = & 787.40157\frac{counts}{mm}\end{eqnarray*}
+
+\end_inset 
+
+
 \layout Subsubsection
 
 Stepper-related items
@@ -2055,15 +2085,73 @@ Stepper-related items
 \end_inset 
 
 
-\layout Standard
+\layout Description
 
-The following items are used by 
-\family typewriter 
-core_stepper.hal
-\family default 
- to set limits on the step waveforms that will be generated.
- They typically include a headroom of 5% to 10% compared to the MAX_VELOCITY
- and MAX_ACCEL items in the same AXIS.
+
+\color black
+SCALE
+\begin_inset LatexCommand \index{INPUT SCALE}
+
+\end_inset 
+
+\SpecialChar ~
+=\SpecialChar ~
+40000
+\color default
+ 
+\series bold 
+\noun on 
+(hal)
+\series default 
+\noun default 
+ Specifies the number of pulses that corresponds to a move of one UNIT.
+ For stepper systems, this is the number of step pulses issued per UNIT.
+ For servo systems, this is the number of feedback pulses per UNIT.
+ A second number, if specified, is ignored.
+\color black
+
+\newline 
+The value for scale can be obtained by doing a unit analysis, i.e., units
+ are
+\begin_inset Formula \[
+\frac{step\, units}{desired\, input\, SI\, units}\]
+
+\end_inset 
+
+For example, on a 1.8 degree stepper motor with half-stepping, and 10 revs/inch
+ gearing, and desired units of mm, we have
+\begin_inset Formula \begin{eqnarray*}
+input\_ scale & = & \frac{{2\, count}}{1.8\, degree}*10\frac{rev}{inch}*\frac{1\, inch}{25.4\, mm}\\
+ & = & 157.48031\frac{counts}{mm}\end{eqnarray*}
+
+\end_inset 
+
+Older stepper configuration .ini and .hal used INPUT_SCALE for this value.
+\layout Description
+
+STEPGEN_MAXACCEL\SpecialChar ~
+
+\series bold 
+=\SpecialChar ~
+21.0
+\series default 
+ 
+\series bold 
+\noun on 
+(hal)
+\series default 
+\noun default 
+ Acceleration limit for the step generator.
+ This should be 1% to 10% larger than the axis MAX_ACCELERATION.
+ This value improves the tuning of stepgen's 
+\begin_inset Quotes eld
+\end_inset 
+
+position loop
+\begin_inset Quotes erd
+\end_inset 
+
+.
 \layout Description
 
 STEPGEN_MAXVEL\SpecialChar ~
@@ -2082,49 +2170,25 @@ STEPGEN_MAXVEL\SpecialChar ~
 (hal)
 \series default 
 \noun default 
- A value applied to the stepper pulse generator to provide some overhead
- for following error catch up.
+ Older configuration files have a velocity limit for the step generator
+ as well.
+
 \series bold 
-
-\begin_inset Foot
-collapsed true
-
-\layout Standard
-
-The step generator module, stepgen, applies its own limits to acceleration
- and velocity.
- We have discovered that it needs to have a little "headroom" over the accel
- by the trajectory planner, otherwise it can fall slightly behind during
- accel and later overshoot as it catches up.
- In the long term we hope to come up with a clean fix for this problem.
- In the meantime, please set STEPGEN_MAXVEL to a few percent higher than
- MAX_VELOCITY, the regular velocity limit and STEPGEN_MAXACCEL slightly
- larger that of MAX_ACCELERATION.
-\end_inset 
-
-
-\series default 
  
-\layout Description
-
-STEPGEN_MAXACCEL\SpecialChar ~
-
-\series bold 
-=\SpecialChar ~
-21.0
 \series default 
- 
-\series bold 
-\noun on 
-(hal)
-\series default 
-\noun default 
- Overhead for the stepper pulse generator when it needs to catch up.
+If specified, it should also be 1% to 10% larger than the axis MAX_VELOCITY.
+ Subsequent testing has shown that use of STEPGEN_MAXVEL does not improve
+ the tuning of stepgen's position loop.
  
 \layout Subsection
 
 [EMCIO] Section 
 \begin_inset LatexCommand \label{sub:[EMCIO]-Section}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \index{EMCIO (inifile section)}
 
 \end_inset 
 
