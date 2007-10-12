@@ -69,9 +69,9 @@ linkps stepgen.2.step Zstep
 linkps stepgen.2.dir  Zdir
 
 # set stepgen module scaling - get values from ini file
-setp stepgen.0.position-scale [AXIS_0]INPUT_SCALE
-setp stepgen.1.position-scale [AXIS_1]INPUT_SCALE
-setp stepgen.2.position-scale [AXIS_2]INPUT_SCALE
+setp stepgen.0.position-scale [AXIS_0]SCALE
+setp stepgen.1.position-scale [AXIS_1]SCALE
+setp stepgen.2.position-scale [AXIS_2]SCALE
 
 # set stepgen module velocity limits - get values from ini file
 setp stepgen.0.maxvel [AXIS_0]STEPGEN_MAXVEL

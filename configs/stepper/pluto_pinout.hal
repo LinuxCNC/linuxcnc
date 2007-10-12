@@ -10,9 +10,9 @@ addf motion-command-handler servo-thread
 addf motion-controller servo-thread
 addf pluto-step.write servo-thread
 
-setp pluto-step.stepgen.0.scale [AXIS_0]INPUT_SCALE
-setp pluto-step.stepgen.1.scale [AXIS_1]INPUT_SCALE
-setp pluto-step.stepgen.2.scale [AXIS_2]INPUT_SCALE
+setp pluto-step.stepgen.0.scale [AXIS_0]SCALE
+setp pluto-step.stepgen.1.scale [AXIS_1]SCALE
+setp pluto-step.stepgen.2.scale [AXIS_2]SCALE
 
 net Xpos-cmd axis.0.motor-pos-cmd => pluto-step.stepgen.0.position-cmd
 net Ypos-cmd axis.1.motor-pos-cmd => pluto-step.stepgen.1.position-cmd

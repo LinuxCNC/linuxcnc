@@ -155,10 +155,10 @@ setp parport.0.pin-14-out-invert 1
 # set scaling and other parameters of the basic machine
 
 # set stepgen module scaling - get values from ini file
-setp stepgen.0.position-scale [AXIS_0]INPUT_SCALE
-setp stepgen.1.position-scale [AXIS_1]INPUT_SCALE
-setp stepgen.2.position-scale [AXIS_2]INPUT_SCALE
-setp stepgen.3.position-scale [AXIS_3]INPUT_SCALE
+setp stepgen.0.position-scale [AXIS_0]SCALE
+setp stepgen.1.position-scale [AXIS_1]SCALE
+setp stepgen.2.position-scale [AXIS_2]SCALE
+setp stepgen.3.position-scale [AXIS_3]SCALE
 
 # set stepgen module velocity limits - get values from ini file
 setp stepgen.0.maxvel [AXIS_0]HAL_MAXVEL
