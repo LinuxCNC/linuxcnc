@@ -78,6 +78,7 @@ MODULE_AUTHOR("John Kasunich");
 MODULE_DESCRIPTION("HAL driver for Universal PWM Controller");
 MODULE_LICENSE("GPL");
 int port_addr[MAX_BUS] = { 0x0378, 0, 0 };  /* default, 1 bus at 0x0378 */
+void *port_registration[MAX_BUS] = {0,};
 RTAPI_MP_ARRAY_INT(port_addr, MAX_BUS, "port address(es) for EPP bus(es)");
 int extradac[MAX_BUS*8] = {
         -1,-1,-1,-1,-1,-1,-1,-1,
@@ -426,15 +427,31 @@ int rtapi_app_main(void)
 	/* is it legal? */
 	if ( port_addr[busnum] > 65535 ) {
 	    /* nope, complain and skip it */
-	    rtapi_print_msg(RTAPI_MSG_ERR, 
-		"PPMC: ERROR: invalid port_addr: %0X\n", port_addr[busnum]);
+            rtapi_print_msg(RTAPI_MSG_ERR,
+                 "PARPORT: ERROR: request_region(%x) failed\n"
+                 , port_addr[busnum]);
+            rtapi_print_msg(RTAPI_MSG_ERR,
+                 "(make sure the kernel module 'parport' is unloaded)\n");
 	    rv = -1;
 	    continue;
 	}
+        port_registration[busnum] =
+            rtapi_request_region(port_addr[busnum], 8, "hal_ppmc");
+        if(port_registration[busnum] == 0) {
+	    rtapi_print_msg(RTAPI_MSG_ERR, 
+		"PPMC: ERROR: invalid port_addr: %0X\n", port_addr[busnum]);
+            rv = -1;
+            continue;
+        }
 	/* got a good one */
 	n++;
     }
     if ( rv != 0 ) {
+        for(busnum = 0; busnum < MAX_BUS; busnum++) {
+            if(port_registration[busnum])
+                rtapi_release_region(port_addr[busnum], 8);
+            port_registration[busnum] = 0;
+        }
 	/* one or more invalid addresses, already printed msg */
 	return -1;
     }
@@ -734,6 +751,13 @@ void rtapi_app_exit(void)
 	    kfree(bus);
 	}
     }
+
+    for(busnum = 0; busnum < MAX_BUS; busnum++) {
+        if(port_registration[busnum])
+            rtapi_release_region(port_addr[busnum], 8);
+        port_registration[busnum] = 0;
+    }
+
     /* disconnect from HAL */
     hal_exit(comp_id);
 }
