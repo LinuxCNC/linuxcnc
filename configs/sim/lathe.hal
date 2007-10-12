@@ -11,7 +11,7 @@ addf limit2.0                   servo-thread
 #######################################################
 
 # spindle speed control
-net spindle-speed-cmd  motion.spindle-speed.out => limit2.0.in
+net spindle-speed-cmd  motion.spindle-speed-out => limit2.0.in
 net spindle-speed-limited limit2.0.out => sim-encoder.0.speed
 
 # simulate spindle mass
