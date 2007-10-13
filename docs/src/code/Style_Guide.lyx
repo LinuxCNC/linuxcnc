@@ -24,97 +24,76 @@
 \papersides 1
 \paperpagestyle default
 
+\layout Chapter
+
+Coding Style
+\layout Standard
+
+This chapter describes the source code style prefered by the EMC team.
 \layout Section
 
-Introduction
-\begin_inset Foot
-collapsed false
-
+Do no harm
 \layout Standard
 
-Most of this style guide has been copied wholesale from the Linux kernel
- documents - See linux/Documentation/CodingStyle for the full text.
- The C++ recommendations have been drawn from various sources such as the
- GTK headers, "C++ The Complete Reference" by Schildt, and IRC discussions.
-\end_inset 
-
-
+When making small edits to code in a style different than the one described
+ below, observe the local coding style.
+ Rapid changes from one coding style to another decrease code readability.
 \layout Standard
 
-This chapter describes in some detail the source code style prefered by
- the EMC team.
- It is not the only way that things can be done but is a, 
+Never check in code after running 
 \begin_inset Quotes eld
 \end_inset 
 
-this is the direction we are moving the code
+indent
 \begin_inset Quotes erd
 \end_inset 
 
- sort of description.
+ on it.
+ The whitespace changes introduced by indent make it more difficult to follow
+ the revision history of the file.
+\layout Standard
+
+Do not use an editor that makes unneeded changes to whitespace (e.g., which
+ replaces 8 spaces with a tabstop on a line not otherwise modified, or word-wrap
+s lines not otherwise modified)
+\layout Section
+
+Tab Stops
+\layout Standard
+
+A tab stop always corresponds to 8 spaces.
+ Do not write code that displays correctly only with a differing tab stop
+ setting.
 \layout Section
 
 Indentation
 \layout Standard
 
-Rationale: The whole idea behind indentation is to clearly define where
- a block of control starts and ends.
- Especially when you've been looking at your screen for 20 straight hours,
- you'll find it a lot easier to see how the indentation works if you have
- large indentations.
- 
-\layout Standard
-
-Now, some people will claim that having 8-character indentations makes the
- code move too far to the right, and makes it hard to read on a 80-character
- terminal screen.
- Whilst the GNU style of 2-character indentations reduces the clarity.
- For EMC2, a compromise of 4-character indentation has been chosen.
- This still spreads the code out and causes lines to wrap round leading
- to difficulties in reading the sources.
- The answer to that is that if you need more than 3 levels of indentation,
- you're screwed anyway, and should fix your program.
- 
+Use 4 spaces per level of indentation.
+ Combining 8 spaces into one tab is acceptable but not required.
 \layout Section
 
 Placing Braces
 \layout Standard
 
-The other issue that always comes up in C styling is the placement of braces.
- Unlike the indent size, there are few technical reasons to choose one placement
- strategy over the other, but the preferred way, as shown to us by the prophets
- Kernighan and Ritchie, is to put the opening brace last on the line, and
- put the closing brace first, thusly:
+Put the opening brace last on the line, and put the closing brace first:
 \layout LyX-Code
 
-if (x is true) { 
+if(x) { 
 \newline 
-   we do y
+   f();
 \newline 
 }
 \layout Standard
 
-However, there is one special case, namely functions: they have the opening
- brace at the beginning of the next line, thus:
-\layout LyX-Code
-
-int function(int x)
-\newline 
-{ 
-\newline 
-   body of function
-\newline 
-}
-\layout Standard
-
-Note that the closing brace is empty on a line of its own, _except_ in the
- cases where it is followed by a continuation of the same statement, i.e.
+The closing brace is on a line of its own, except in the cases where it
+ is followed by a continuation of the same statement, i.e.
  a "while" in a do-statement or an "else" in an if-statement, like this:
 \layout LyX-Code
 
-do { 
+do {
 \newline 
-   body of do-loop 
+   body();
 \newline 
 } while (condition);
 \layout Standard
@@ -122,12 +101,12 @@ do {
 and
 \layout LyX-Code
 
-if (x == y) { 
+if(x == y) { 
 \newline 
    ..
  
 \newline 
-} else if (x > y) { 
+} else if(x > y) { 
 \newline 
    ...
 \newline 
@@ -135,15 +114,12 @@ if (x == y) {
 \newline 
    ....
 \newline 
-}
+}some detail 
 \layout Standard
 
-Also, note that this brace-placement also minimizes the number of empty
- (or almost empty) lines, without any loss of readability.
- Thus, as the supply of new-lines on your screen is not a renewable resource
- (think 25-line terminal screens here), you have more empty lines to put
- comments on.
- 
+This brace-placement also minimizes the number of empty (or almost empty)
+ lines, which allows a greater amount of code or comments to be visible
+ at once in a terminal of a fixed size.
 \layout Section
 
 Naming
@@ -157,17 +133,22 @@ C is a Spartan language, and so should your naming be.
  
 \layout Standard
 
-HOWEVER, while mixed-case names are frowned upon, descriptive names for
- global variables are a must.
+However, descriptive names for global variables are a must.
  To call a global function "foo" is a shooting offense.
  
 \layout Standard
 
-GLOBAL variables (to be used only if you _really_ need them) need to have
- descriptive names, as do global functions.
+GLOBAL variables (to be used only if you 
+\series bold 
+really
+\series default 
+ need them) need to have descriptive names, as do global functions.
  If you have a function that counts the number of active users, you should
- call that "count_active_users()" or similar, you should _not_ call it "cntusr()
-".
+ call that "count_active_users()" or similar, you should 
+\series bold 
+not
+\series default 
+ call it "cntusr()".
  
 \layout Standard
 
@@ -192,7 +173,7 @@ If you are afraid to mix up your local variable names, you have another
  problem, which is called the function-growth-hormone-imbalance syndrome.
  See next chapter.
  
-\layout Standard
+\layout Section
 
 Functions
 \layout Standard
@@ -235,8 +216,11 @@ Commenting
 
 Comments are good, but there is also a danger of over-commenting.
  NEVER try to explain HOW your code works in a comment: it's much better
- to write the code so that the _working_ is obvious, and it's a waste of
- time to explain badly written code.
+ to write the code so that the 
+\series bold 
+working
+\series default 
+ is obvious, and it's a waste of time to explain badly written code.
  
 \layout Standard
 
@@ -327,11 +311,8 @@ There are certain special CVS keywords that can be used inside a document.
  However, it is a bad habit to include information that clutters the source
  file.
  One such example is the $Log directive; that information is stored in the
- CVS server on SourceForge, and can easily be viewed with the web interface.
- Some other fields are encouraged e.g.
- $Revision, $Author and $Date.
- These keywords all require a trailing $, but we don't want to put it there
- in this file, for obvious reasons.
+ CVS server and can easily be viewed with the web interface or the cvs client.
+ 
 \layout Section
 
 C++ Conventions
@@ -452,7 +433,7 @@ Only loop control statements must be included in a for() construct.
  sum = 0; for (i = 0; i < 10; i++) { sum += value[i]; }
 \layout Standard
 
-NOT for (i = 0; sum =0; i < 10; i++) sum += value[i];
+NOT for (i = 0, sum =0; i < 10; i++) sum += value[i];
 \layout Standard
 
 Likewise, executable statements in conditionals must be avoided.
@@ -464,23 +445,6 @@ Complex conditional statements should be avoided - Introduce temporary boolean
  variables instead.
 \layout Standard
 
-The form while(true) should be used for infinite loops.
- e.g.
- while (true) { ...; }
-\layout Standard
-
-NOT
-\layout Standard
-
-for (;;) { ...; }
-\layout Standard
-
-or
-\layout Standard
-
-while (1) { ...; }
-\layout Standard
-
 Parentheses should be used in plenty in mathematical expressions - Do not
  rely on operator precedence when an extra parentheses would clarify things.
 \layout Standard
@@ -490,4 +454,26 @@ File names: C++ sources and headers use .cc and .hh extension.
  Headers are for class, method, and structure declarations, not code (unless
  the functions are declared inline).
  
+\layout Section
+
+Python coding standards
+\layout Standard
+
+Use the 
+\begin_inset LatexCommand \url[PEP 8]{http://www.python.org/dev/peps/pep-0008/}
+
+\end_inset 
+
+ style for Python code.
+\layout Section
+
+Comp coding standards
+\layout Standard
+
+In the declaration portion of a .comp file, begin each declaration at the
+ first column.
+ Insert extra blank lines when they help group related items.
+\layout Standard
+
+In the code portion of a .comp file, follow normal C coding style.
 \the_end
