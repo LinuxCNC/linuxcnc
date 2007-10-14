@@ -632,9 +632,9 @@ static void write_port(void *arg, long period)
 	    if ((!*(port->control_out[b])) && (port->control_inv[b])) {
 		outdata |= mask;
 	    }
-	    if (port->data_reset[b]) {
+	    if (port->control_reset[b]) {
 		reset_mask |= mask;
-		if(port->data_inv[b]) reset_val |= mask;
+		if(port->control_inv[b]) reset_val |= mask;
 	    }
 	    mask <<= 1;
 	}
