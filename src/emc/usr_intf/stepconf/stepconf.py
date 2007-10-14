@@ -187,7 +187,7 @@ class Data:
 	self.xhomepos = 0
 	self.xminlim =  0
 	self.xmaxlim =  8
-	self.xhomesw = -4.5
+	self.xhomesw =  0
 	self.xhomevel = .05
 	self.xlatchdir = 0
 	self.xscale = 0
@@ -203,7 +203,7 @@ class Data:
 	self.yhomepos = 0
 	self.yminlim =  0
 	self.ymaxlim =  8
-	self.yhomesw = -4.5
+	self.yhomesw =  0
 	self.yhomevel = .05
 	self.ylatchdir = 0
 	self.yscale = 0
@@ -220,7 +220,7 @@ class Data:
 	self.zhomepos = 0
 	self.zminlim = -4
 	self.zmaxlim =  0
-	self.zhomesw = -4.5
+	self.zhomesw = 0
 	self.zhomevel = .05
 	self.zlatchdir = 0
 	self.zscale = 0
@@ -235,9 +235,9 @@ class Data:
 	self.amaxacc = 1200
 
 	self.ahomepos = 0
-	self.aminlim = -4
-	self.amaxlim =  4
-	self.ahomesw = -4.5
+	self.aminlim = -9999
+	self.amaxlim =  9999
+	self.ahomesw =  0
 	self.ahomevel = .05
 	self.alatchdir = 0
 	self.ascale = 0
@@ -372,7 +372,6 @@ class Data:
 	hypotvel = (self.xmaxvel**2 + self.ymaxvel**2 + self.zmaxvel**2) **.5
 	defvel = min(maxvel, max(.1, maxvel/10.))
 	print >>file, "DEFAULT_VELOCITY = %.2f" % defvel
-	print >>file, "MAX_VELOCITY = %.2f" % hypotvel
 	print >>file, "MAX_LINEAR_VELOCITY = %.2f" % maxvel
 
 	print >>file
@@ -434,7 +433,10 @@ class Data:
 	print >>file, "MAX_ACCELERATION = %s" % get("maxacc")
 	print >>file, "STEPGEN_MAXACCEL = %s" % (1.05 * get("maxacc"))
 	print >>file, "SCALE = %s" % get("scale")
-	if self.units:
+	if num == 3:
+	    print >>file, "FERROR = 1"
+	    print >>file, "MIN_FERROR = .25"
+	elif self.units:
 	    print >>file, "FERROR = 1"
 	    print >>file, "MIN_FERROR = .25"
 	else:
@@ -1360,6 +1362,7 @@ class App:
 	    net fb stepgen.0.position-fb => steptest.0.position-fb
 
 	    setp parport.0.pin-%(steppin)02d-out-reset 1
+	    setp parport.0.reset-time %(resettime)d
 	    setp stepgen.0.stepspace 0
 	    setp stepgen.0.steplen 1
 	    setp stepgen.0.dirhold %(dirhold)d
@@ -1377,6 +1380,7 @@ class App:
 	    'dirsetup': data.dirsetup + data.latency,
             'onestep': 1. / data[axis + "scale"],
 	    'scale': data[axis + "scale"],
+	    'resettime': data['steptime']
 	})
 	amp = data.find_output(AMP)
 	if amp:
