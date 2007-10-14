@@ -758,12 +758,13 @@ XZ (Lathe)</property>
 		  <child>
 		    <widget class="GtkLabel" id="confdir">
 		      <property name="visible">True</property>
+		      <property name="can_focus">True</property>
 		      <property name="label" translatable="yes">confdir</property>
 		      <property name="use_underline">False</property>
 		      <property name="use_markup">False</property>
 		      <property name="justify">GTK_JUSTIFY_LEFT</property>
 		      <property name="wrap">False</property>
-		      <property name="selectable">False</property>
+		      <property name="selectable">True</property>
 		      <property name="xalign">1</property>
 		      <property name="yalign">0.5</property>
 		      <property name="xpad">0</property>
@@ -1084,12 +1085,13 @@ XZ (Lathe)</property>
 		  <child>
 		    <widget class="GtkLabel" id="baseperiod">
 		      <property name="visible">True</property>
+		      <property name="can_focus">True</property>
 		      <property name="label" translatable="yes">x0000 ns</property>
 		      <property name="use_underline">False</property>
 		      <property name="use_markup">False</property>
 		      <property name="justify">GTK_JUSTIFY_LEFT</property>
 		      <property name="wrap">False</property>
-		      <property name="selectable">False</property>
+		      <property name="selectable">True</property>
 		      <property name="xalign">0</property>
 		      <property name="yalign">0.5</property>
 		      <property name="xpad">0</property>
@@ -1112,12 +1114,13 @@ XZ (Lathe)</property>
 		  <child>
 		    <widget class="GtkLabel" id="maxsteprate">
 		      <property name="visible">True</property>
+		      <property name="can_focus">True</property>
 		      <property name="label" translatable="yes">yyyyy Hz</property>
 		      <property name="use_underline">False</property>
 		      <property name="use_markup">False</property>
 		      <property name="justify">GTK_JUSTIFY_LEFT</property>
 		      <property name="wrap">False</property>
-		      <property name="selectable">False</property>
+		      <property name="selectable">True</property>
 		      <property name="xalign">0</property>
 		      <property name="yalign">0.5</property>
 		      <property name="xpad">0</property>
@@ -3186,6 +3189,7 @@ Charge Pump</property>
 		      <property name="yalign">0.5</property>
 		      <property name="xpad">0</property>
 		      <property name="ypad">0</property>
+		      <property name="mnemonic_widget">xacctime</property>
 		      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
 		      <property name="width_chars">-1</property>
 		      <property name="single_line_mode">False</property>
@@ -3214,6 +3218,7 @@ Charge Pump</property>
 		      <property name="yalign">0.5</property>
 		      <property name="xpad">0</property>
 		      <property name="ypad">0</property>
+		      <property name="mnemonic_widget">xaccdist</property>
 		      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
 		      <property name="width_chars">-1</property>
 		      <property name="single_line_mode">False</property>
@@ -3392,12 +3397,13 @@ Charge Pump</property>
 		  <child>
 		    <widget class="GtkLabel" id="xacctime">
 		      <property name="visible">True</property>
+		      <property name="can_focus">True</property>
 		      <property name="label" translatable="yes">label42</property>
 		      <property name="use_underline">False</property>
 		      <property name="use_markup">False</property>
 		      <property name="justify">GTK_JUSTIFY_RIGHT</property>
 		      <property name="wrap">False</property>
-		      <property name="selectable">False</property>
+		      <property name="selectable">True</property>
 		      <property name="xalign">1</property>
 		      <property name="yalign">0.5</property>
 		      <property name="xpad">0</property>
@@ -3420,12 +3426,13 @@ Charge Pump</property>
 		  <child>
 		    <widget class="GtkLabel" id="xaccdist">
 		      <property name="visible">True</property>
+		      <property name="can_focus">True</property>
 		      <property name="label" translatable="yes">label42</property>
 		      <property name="use_underline">False</property>
 		      <property name="use_markup">False</property>
 		      <property name="justify">GTK_JUSTIFY_RIGHT</property>
 		      <property name="wrap">False</property>
-		      <property name="selectable">False</property>
+		      <property name="selectable">True</property>
 		      <property name="xalign">1</property>
 		      <property name="yalign">0.5</property>
 		      <property name="xpad">0</property>
@@ -3448,12 +3455,13 @@ Charge Pump</property>
 		  <child>
 		    <widget class="GtkLabel" id="xhz">
 		      <property name="visible">True</property>
+		      <property name="can_focus">True</property>
 		      <property name="label" translatable="yes">label42</property>
 		      <property name="use_underline">False</property>
 		      <property name="use_markup">False</property>
 		      <property name="justify">GTK_JUSTIFY_RIGHT</property>
 		      <property name="wrap">False</property>
-		      <property name="selectable">False</property>
+		      <property name="selectable">True</property>
 		      <property name="xalign">1</property>
 		      <property name="yalign">0.5</property>
 		      <property name="xpad">0</property>
@@ -4133,12 +4141,13 @@ Opposite</property>
 		  <child>
 		    <widget class="GtkLabel" id="xscale">
 		      <property name="visible">True</property>
+		      <property name="can_focus">True</property>
 		      <property name="label" translatable="yes">label230</property>
 		      <property name="use_underline">False</property>
 		      <property name="use_markup">False</property>
 		      <property name="justify">GTK_JUSTIFY_LEFT</property>
 		      <property name="wrap">False</property>
-		      <property name="selectable">False</property>
+		      <property name="selectable">True</property>
 		      <property name="xalign">1</property>
 		      <property name="yalign">0.5</property>
 		      <property name="xpad">0</property>
