@@ -63,36 +63,6 @@ class HalTranslate(Collection):
     def unapply(self):
 	glPopMatrix()
 
-class Scale(Collection):
-    def __init__(self, parts, x, y, z):
-	self.parts = parts
-	self.where = x, y, z
-
-    def apply(self):
-	glPushMatrix()
-	glScalef(*self.where)
-
-    def unapply(self):
-	glPopMatrix()
-
-class HalScale(Collection):
-    def __init__(self, parts, comp, var, x, y, z):
-	self.parts = parts
-	self.where = x, y, z
-	self.comp = comp
-	self.var = var
-
-    def apply(self):
-	x, y, z = self.where
-	v = self.comp[self.var]
-	
-	glPushMatrix()
-	glScalef(x*v, y*v, z*v)
-
-    def unapply(self):
-	glPopMatrix()
-
-
 class HalRotate(Collection):
     def __init__(self, parts, comp, var, th, x, y, z):
 	self.parts = parts
