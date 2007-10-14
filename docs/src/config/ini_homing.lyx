@@ -92,8 +92,7 @@ Configuration
 
 There are six pieces of information that determine exactly how the home
  sequence behaves.
- They are defined in the ini, and can be tweaked to obtain the result you
- are after.
+ They are defined in an [AXIS] section of the inifile.
 \layout Subsubsection
 
 HOME_SEARCH_VEL
@@ -104,8 +103,7 @@ HOME_SEARCH_VEL
 
 \layout Standard
 
-'HOME_SEARCH_VEL' is defined in each AXIS_* section.
- The default value is zero.
+The default value is zero.
  A value of zero causes EMC to assume that there is no home switch; the
  search stage of homing is skipped.
  
@@ -136,8 +134,7 @@ HOME_LATCH_VEL
 
 \layout Standard
 
-'HOME_LATCH_VEL' is also defined in the ini file, for each AXIS.
- It specifies the speed and direction that EMC uses when it makes its final
+Specifies the speed and direction that EMC uses when it makes its final
  accurate determination of the home switch (if present) and index pulse
  location (if present).
  It will usually be slower than the search velocity to maximise accuracy.
@@ -163,8 +160,7 @@ HOME_IGNORE_LIMITS
 
 \layout Standard
 
-'HOME_IGNORE_LIMITS' is another settable option in the AXIS_* section.
- It's a boolean flag, and can hold the values YES / NO.
+Can hold the values YES / NO.
  This flag determines whether EMC will ignore the limit switch inputs.
  Some machine configurations do not use a separate home switch, instead
  they route one of the limit switch signals to the home switch input as
@@ -181,8 +177,7 @@ HOME_USE_INDEX
 
 \layout Standard
 
-'HOME_USE_INDEX' is a single bit settable in the AXIS_* section.
- It specifies whether or not there is an index pulse.
+Specifies whether or not there is an index pulse.
  If the flag is true (HOME_USE_INDEX = YES), EMC will latch on the rising
  edge of the index pulse.
  If false, EMC will latch on either the rising or falling edge of the home
@@ -198,9 +193,7 @@ HOME_OFFSET
 
 \layout Standard
 
-'HOME_OFFSET' is a value setable from the ini in the AXIS_* section.
- It contains the location of the home switch or index pulse, in joint coordinate
-s.
+Contains the location of the home switch or index pulse, in joint coordinates.
  It can also be treated as the distance between the point where the switch
  or index pulse is latched and the zero point of the joint.
  After detecting the index pulse, EMC sets the joint coordinate of the current
@@ -224,9 +217,7 @@ HOME
 
 \layout Standard
 
-'HOME' is a value setable from the ini in the AXIS_* section.
- It is the position that the joint will go to upon completion of the homing
- sequence.
+The position that the joint will go to upon completion of the homing sequence.
  After detecting the index pulse, and setting the coordinate of that point
  to 
 \begin_inset Quotes eld
@@ -274,8 +265,7 @@ HOME_IS_SHARED
 
 \layout Standard
 
-'HOME_IS_SHARED' is a value setable from the ini in the AXIS_* section.
- If there is not a separate home switch input for this axis, but a number
+If there is not a separate home switch input for this axis, but a number
  of momentary switches wired to the same pin, set this value to 1 to prevent
  homing from starting if one of the shared switches is already closed.
  Set this value to 0 to permit homing even if the switch is already closed.
@@ -289,8 +279,7 @@ HOME_SEQUENCE
 
 \layout Standard
 
-'HOME_SEQUENCE' is a value setable from the ini in the AXIS_* section.
- This value is used to perform a multi-axis homing sequence (
+Used to define a multi-axis homing sequence (
 \begin_inset Quotes eld
 \end_inset 
 
