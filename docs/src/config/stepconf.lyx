@@ -127,6 +127,14 @@ Characteristics If you have one of the stepper drivers listed in the
  them.
  If the datasheet gives a value in microseconds, multiply by 1000.
  For example, enter 4.5us as 4500.
+\begin_deeper 
+\layout Standard
+
+Additional signal conditioning or isolation such as optocouplers and RC
+ filters can impose timing constraints of their own, in addition to those
+ of the driver.
+ 
+\end_deeper 
 \layout Description
 
 Latency\SpecialChar ~
