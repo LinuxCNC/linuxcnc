@@ -125,7 +125,7 @@ static int loadTraj(EmcIniFile *trajInifile)
             return -1;
         }
 
-        vel = 1.0;
+        vel = 1e99; // by default, use AXIS limit
         trajInifile->Find(&vel, "MAX_VELOCITY", "TRAJ");
 
         // set the corresponding global
