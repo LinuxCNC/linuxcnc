@@ -28,6 +28,8 @@ Right now the possible choices are:
 
 -- tkemc.ini (another tcl/tk interface, lots of people like this one)
 
+-- tracking-test.hal (a demonstration of hal_input and vismach. a neat toy)
+
 -- tripod.ini (non-trivial kinematics machine)
 
 -- xemc.ini (native X interface, runs ok on older machines)
