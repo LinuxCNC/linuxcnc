@@ -1,0 +1,20 @@
+#vismach GUI stuff
+
+loadusr -W hexagui
+#must run this from the same directory for now
+loadusr -W halui -ini minitetra.ini
+
+net j0 axis.0.joint-pos-fb hexagui.joint.0
+net j1 axis.1.joint-pos-fb hexagui.joint.1
+net j2 axis.2.joint-pos-fb hexagui.joint.2
+net j3 axis.3.joint-pos-fb hexagui.joint.3
+net j4 axis.4.joint-pos-fb hexagui.joint.4
+net j5 axis.5.joint-pos-fb hexagui.joint.5
+#get tool position from emc
+net x-fb halui.axis.0.pos-feedback hexagui.axis.0
+net y-fb halui.axis.1.pos-feedback hexagui.axis.1
+net z-fb halui.axis.2.pos-feedback hexagui.axis.2
+net a-fb halui.axis.3.pos-feedback hexagui.axis.3
+net b-fb halui.axis.4.pos-feedback hexagui.axis.4
+net c-fb halui.axis.5.pos-feedback hexagui.axis.5
+
