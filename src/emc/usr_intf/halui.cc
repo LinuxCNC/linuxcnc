@@ -148,6 +148,12 @@ DONE: - joint:
    halui.joint.x.select                bit  // pins for selecting a joint    - internal halui
    halui.joint.x.is-selected           bit  // status pin                    - internal halui
 
+WIP:
+   halui.axis.0.pos-commanded          float //cartesian position, commanded
+   halui.axis.0.pos-feedback           float //cartesian position, actual
+   ..
+
+
 DONE - jogging:
    halui.jog.speed                     float //set jog speed
    halui.jog-deadband                  float //pin for setting the jog analog deadband (where not to move)
@@ -270,6 +276,9 @@ struct halui_str {
     hal_u32_t *joint_selected;                               // status pin for the joint selected
     hal_bit_t *joint_nr_select[EMCMOT_MAX_JOINTS];             // nr. of pins to select a joint
     hal_bit_t *joint_is_selected[EMCMOT_MAX_JOINTS];           // nr. of status pins for joint selected
+
+    hal_float_t *axis_pos_commanded[EMCMOT_MAX_AXIS+1]; //status pin for commanded cartesian position
+    hal_float_t *axis_pos_feedback[EMCMOT_MAX_AXIS+1]; //status pin for actual cartesian position
 
     hal_float_t *jog_speed;	//pin for setting the jog speed (halui internal)
     hal_bit_t *jog_minus[EMCMOT_MAX_JOINTS+1];	//pin to jog in positive direction
@@ -674,6 +683,7 @@ int halui_hal_init(void)
 {
     int retval;
     int joint;
+    int axis;
 
     /* STEP 1: initialise the hal component */
     comp_id = hal_init("halui");
@@ -761,6 +771,13 @@ int halui_hal_init(void)
     if (retval != HAL_SUCCESS) return retval;
     retval =  hal_pin_bit_newf(HAL_OUT, &(halui_data->joint_is_homed[num_axes]), comp_id, "halui.joint.selected.is_homed"); 
     if (retval != HAL_SUCCESS) return retval;
+
+    for (axis=0; axis < EMCMOT_MAX_AXIS ; axis++) {
+	retval =  hal_pin_float_newf(HAL_OUT, &(halui_data->axis_pos_commanded[axis]), comp_id, "halui.axis.%d.pos-commanded", axis);
+    if (retval != HAL_SUCCESS) return retval;
+	retval =  hal_pin_float_newf(HAL_OUT, &(halui_data->axis_pos_feedback[axis]), comp_id, "halui.axis.%d.pos-feedback", axis);
+    if (retval != HAL_SUCCESS) return retval;
+    }
 
     retval =  hal_pin_float_newf(HAL_OUT, &(halui_data->fo_value), comp_id, "halui.feed-override.value"); 
     if (retval != HAL_SUCCESS) return retval;
@@ -1829,7 +1846,28 @@ static void modify_hal_pins()
 	*(halui_data->joint_on_hard_max_limit[joint]) = emcStatus->motion.axis[joint].maxHardLimit; 
 	*(halui_data->joint_has_fault[joint]) = emcStatus->motion.axis[joint].fault;
     }
-    
+
+	//sigh..
+    //i guess support for UVW isnt complete yet
+	*(halui_data->axis_pos_commanded[0]) = emcStatus->motion.traj.position.tran.x;	
+    *(halui_data->axis_pos_commanded[1]) = emcStatus->motion.traj.position.tran.y;	
+    *(halui_data->axis_pos_commanded[2]) = emcStatus->motion.traj.position.tran.z;
+    *(halui_data->axis_pos_commanded[3]) = emcStatus->motion.traj.position.a;
+    *(halui_data->axis_pos_commanded[4]) = emcStatus->motion.traj.position.b;
+    *(halui_data->axis_pos_commanded[5]) = emcStatus->motion.traj.position.c;
+    //*(halui_data->axis_pos_commanded[6]) = emcStatus->motion.traj.position.tran.u;
+    //*(halui_data->axis_pos_commanded[7]) = emcStatus->motion.traj.position.tran.v;
+    //*(halui_data->axis_pos_commanded[8]) = emcStatus->motion.traj.position.tran.w;
+	*(halui_data->axis_pos_feedback[0]) = emcStatus->motion.traj.actualPosition.tran.x;	
+    *(halui_data->axis_pos_feedback[1]) = emcStatus->motion.traj.actualPosition.tran.y;	
+    *(halui_data->axis_pos_feedback[2]) = emcStatus->motion.traj.actualPosition.tran.z;
+    *(halui_data->axis_pos_feedback[3]) = emcStatus->motion.traj.actualPosition.a;
+    *(halui_data->axis_pos_feedback[4]) = emcStatus->motion.traj.actualPosition.b;
+    *(halui_data->axis_pos_feedback[5]) = emcStatus->motion.traj.actualPosition.c;
+    //*(halui_data->axis_pos_feedback[6]) = emcStatus->motion.traj.actualPosition.tran.u;
+    //*(halui_data->axis_pos_feedback[7]) = emcStatus->motion.traj.actualPosition.tran.v;
+    //*(halui_data->axis_pos_feedback[8]) = emcStatus->motion.traj.actualPosition.tran.w;
+
     *(halui_data->joint_is_homed[num_axes]) = emcStatus->motion.axis[*(halui_data->joint_selected)].homed;
     *(halui_data->joint_on_soft_min_limit[num_axes]) = emcStatus->motion.axis[*(halui_data->joint_selected)].minSoftLimit;
     *(halui_data->joint_on_soft_max_limit[num_axes]) = emcStatus->motion.axis[*(halui_data->joint_selected)].maxSoftLimit; 
