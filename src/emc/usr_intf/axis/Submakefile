@@ -55,7 +55,4 @@ PYI18NSRCS := $(addprefix emc/usr_intf/axis/scripts/, $(PYSCRIPTS))  \
 	../lib/python/propertywindow.py \
 	../share/axis/tcl/axis.tcl
 
-
-po/axis.pot: $(PYI18NSRCS)
-	$(XGETTEXT) -k_ -o $@ $^
 PYTARGETS += po/axis.pot
