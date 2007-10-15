@@ -61,7 +61,7 @@ Hello World
 \end_inset 
 
  of the HAL.
- As noted above halcmd can be used to create a working system.
+ As noted above halrun can be used to create a working system.
  It is a command line or text file tool for configuration and tuning.
  The following examples illustrate its setup and operation.
  
@@ -575,17 +575,7 @@ To actually run the code contained in the function
 siggen.0.update
 \family default 
 , we need a realtime thread.
- Eventually 
-\family typewriter 
-halcmd
-\family default 
- will have a 
-\family typewriter 
-newthread
-\family default 
- command that can be used to create a thread, but that requires some significant
- internal changes.
- For now, we have a component called 
+ The component called 
 \family typewriter 
 threads
 \family default 
@@ -888,16 +878,29 @@ To restore the HAL configuration stored in
 saved.hal
 \family default 
 , we need to execute all of those HAL commands.
- To do that, we use 
+ To do that, we use
 \family typewriter 
-halcmd -f <filename>
+ -f <filename>
 \family default 
- which reads commands from a file:
+ which reads commands from a file, and 
+\family typewriter 
+-I
+\family default 
+ which shows the halcmd prompt after execiting the commands:
 \layout LyX-Code
 
 emc2$ 
 \series bold 
-halcmd -f saved.hal
+halrun -I -f saved.hal
+\layout Standard
+
+Notice that there is not a 'start' command in saved.hal.
+ It's necessary to issue it again (or edit saved.hal to add it there):
+\layout LyX-Code
+
+halcmd: 
+\series bold 
+start
 \layout Section
 
 
@@ -1427,7 +1430,7 @@ halcmd:
 
 To see the effect of the 
 \family typewriter 
-linksp
+net
 \family default 
  command, we show the signals again:
 \layout LyX-Code
@@ -1445,8 +1448,6 @@ Type      Value      Name
 float   0.00000e+00  X_vel
 \newline 
                          <== siggen.0.cosine
-\newline 
-float   0.00000e+00  Y_vel
 \layout Standard
 
 When a signal is connected to one or more pins, the show command lists the
@@ -1486,7 +1487,19 @@ Y_vel
 \family default 
 .
  It is intended to run from the sine output of the signal generator to the
- input of the second step pulse generator:
+ input of the second step pulse generator.
+ The following command accomplishes in one line what two 
+\family typewriter 
+net
+\series bold 
+ 
+\family default 
+\series default 
+commands accomplished for 
+\family typewriter 
+X_vel
+\family default 
+:
 \layout LyX-Code
 
 halcmd:
