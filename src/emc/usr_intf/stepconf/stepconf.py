@@ -39,8 +39,8 @@ LOCALEDIR = os.path.join(BASE, "share", "locale")
 import gettext;
 #def _(x): return x
 gettext.install("axis", localedir=LOCALEDIR, unicode=True)
-print gtk.glade.bindtextdomain("axis", LOCALEDIR), "locale/fr"; sys.stdout.flush()
-print gtk.glade.textdomain("axis"), "locale/fr"; sys.stdout.flush()
+gtk.glade.bindtextdomain("axis", LOCALEDIR)
+gtk.glade.textdomain("axis")
 
 def iceil(x):
     if isinstance(x, (int, long)): return x
@@ -822,7 +822,7 @@ class App:
 	self.make_axispage(glade, 'a')
 	doc = glade.toxml().encode("utf-8")
 
-	self.xml = gtk.glade.xml_new_from_buffer(doc, len(doc), domain='axis')
+	self.xml = gtk.glade.xml_new_from_buffer(doc, len(doc), domain="axis")
 	self.widgets = Widgets(self.xml)
 
         self.watermark = gtk.gdk.pixbuf_new_from_file(wizard)
