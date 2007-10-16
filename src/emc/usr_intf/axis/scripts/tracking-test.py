@@ -48,7 +48,7 @@ tool = HalTranslate([tool],c,"axis0",scale,0,0)
 tool = HalTranslate([tool],c,"axis1",0,-scale,0)
 tool = HalTranslate([tool],c,"axis2",0,0,-10*scale)
 
-tracker = CylinderZ(0,1,5,0.2)
+tracker = CylinderZ(0,0.1,5,0.1)
 tracker = Track([tracker], world_coords, tool_coords, world_coords)
 
 workpiece = Box(0,0,0,0,0,0)
@@ -62,7 +62,10 @@ inner = CylinderZ(0, 1, 10, 1)
 size=20
 floor = Box(-0.5*size,-0.5*size,-0.02*size,0.5*size,0.5*size,0.0)
 
+myhud = Hud()
+myhud.debug_track = 1
+myhud.show("right-click to reset. scroll for Z")
 
 model = Collection([ tool, floor, workpiece, tracker, foo])
-main(model, tool_coords, work_coords, size)
+main(model, tool_coords, work_coords, size, myhud)
 

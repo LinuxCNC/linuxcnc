@@ -134,13 +134,11 @@ class Track(Collection):
 	#if (z<0):
 	#	b=-b
 	#	a=-a
-
-
 	r = sqrt(x**2+y**2+z**2)
 	
 	return([a,b,r])
 	
-#bugger all this
+	#bugger all this
 	#getting world coords should go in its own function.
     def map_coords(self,tx,ty,tz,transform):
 	# now we have to transform them to the world frame
@@ -151,7 +149,6 @@ class Track(Collection):
 	
 	
     def apply(self):
-
 	#matrix = glGetDoublev(GL_MODELVIEW_MATRIX)
 	#print help(self.position)
 	
@@ -161,17 +158,20 @@ class Track(Collection):
 		print "vismach.py: Track: why am i here? world is not in the scene yet"
 		glPushMatrix()
 		return
+	
 	view2world = invert(self.world2view.t)
-
+	
 	px, py, pz = self.position.t[12:15]
 	px, py, pz = self.map_coords(px,py,pz,view2world)
-	print "current coords: %3.4f %3.4f %3.4f " % (px, py, pz)
 	tx, ty, tz = self.target.t[12:15]
 	tx, ty, tz = self.map_coords(tx,ty,tz,view2world)
-	print "target coords: %3.4f %3.4f %3.4f" %  (tx, ty, tz)
 	dx = tx - px; dy = ty - py; dz = tz - pz;
 	[a,b,r] = self.angle_to(dx,dy,dz)
-	print "a,b,r: %3.4f %3.4f %3.4f" %  (a,b,r)
+	if(hasattr(HUD, "debug_track") and HUD.debug_track == 1):
+		HUD.strs = []
+		HUD.strs += ["current coords: %3.4f %3.4f %3.4f " % (px, py, pz)]
+		HUD.strs += ["target coords: %3.4f %3.4f %3.4f" %  (tx, ty, tz)]
+		HUD.strs += ["a,b,r: %3.4f %3.4f %3.4f" %  (a,b,r)]
 	b += 90
 	a += 90
 	glPushMatrix()
@@ -409,6 +409,97 @@ def invert(src):
 	inv[14] = -(src[12]*inv[2] + src[13]*inv[6] + src[14]*inv[10])
 	return inv
 
+class Hud(object):
+	'''head up display - draws a semi-transparent text box.
+	use HUD.strs for things that must be updated constantly,
+	and HUD.show("stuff") for one-shot things like error messages'''
+	def __init__(self,  showme=1):
+		self.app = []
+		self.strs = []
+		self.messages = []
+		self.showme = 0
+		
+	def show(self, string="xyzzy"):
+		self.showme = 1
+		if string != "xyzzy":
+			self.messages += [str(string)]
+		
+	def hide(self):
+		self.showme = 0
+		
+	def clear(self):
+		self.messages = []
+		
+	def draw(self):
+		drawtext = self.strs + self.messages
+		self.lines = len(drawtext)
+		#draw head-up-display
+		#see axis.py for more font/color configurability
+		if ((self.showme == 0) or (self.lines == 0)):
+			return
+		
+		glMatrixMode(GL_PROJECTION)
+		glPushMatrix()
+		glLoadIdentity()
+		
+		#pointer to font?
+		fontbase = int(self.app.loadbitmapfont("9x15"))
+		char_width, char_height = 9, 15
+		xmargin,ymargin = 5,5
+		ypos = float(self.app.winfo_height())
+		
+		glOrtho(0.0, self.app.winfo_width(), 0.0, ypos, -1.0, 1.0)
+		glMatrixMode(GL_MODELVIEW)
+		glPushMatrix()
+		glLoadIdentity()
+		
+		#draw the text box
+		maxlen = max([len(p) for p in drawtext])
+		box_width = maxlen * char_width
+		glDepthFunc(GL_ALWAYS)
+		glDepthMask(GL_FALSE)
+		glDisable(GL_LIGHTING)
+		glEnable(GL_BLEND)
+		glBlendFunc(GL_ONE, GL_CONSTANT_ALPHA)
+		glColor3f(0.2,0,0)
+		glBlendColor(0,0,0,0.5) #rgba
+		glBegin(GL_QUADS)
+		glVertex3f(0, ypos, 1) #upper left
+		glVertex3f(0, ypos - 2*ymargin - char_height*len(drawtext), 1) #lower left
+		glVertex3f(box_width+2*xmargin, ypos - 2*ymargin - char_height*len(drawtext), 1) #lower right
+		glVertex3f(box_width+2*xmargin,  ypos , 1) #upper right
+		glEnd()
+		glDisable(GL_BLEND)
+		glEnable(GL_LIGHTING)
+		
+		#fill the box with text
+		maxlen = 0
+		ypos -= char_height+ymargin
+		i=0
+		glDisable(GL_LIGHTING)
+		glColor3f(0.9,0.9,0.9)
+		for string in drawtext:
+			maxlen = max(maxlen, len(string))
+		#	if i < len(homed) and homed[i]:
+		#		glRasterPos2i(6, ypos)
+		#		glBitmap(13, 16, 0, 3, 17, 0, homeicon)
+			glRasterPos2i(xmargin, int(ypos))
+			for char in string:
+				glCallList(fontbase + ord(char))
+		#	if i < len(homed) and limit[i]:
+		#		glBitmap(13, 16, -5, 3, 17, 0, limiticon)
+			ypos -= char_height
+			i = i + 1
+		glDepthFunc(GL_LESS)
+		glDepthMask(GL_TRUE)
+		glEnable(GL_LIGHTING)
+	
+		glPopMatrix()
+		glMatrixMode(GL_PROJECTION)
+		glPopMatrix()
+		glMatrixMode(GL_MODELVIEW)
+
+
 class O(rs274.OpenGLTk.Opengl):
     def __init__(self, *args, **kw):
         rs274.OpenGLTk.Opengl.__init__(self, *args, **kw)
@@ -420,15 +511,17 @@ class O(rs274.OpenGLTk.Opengl):
 	#self.q3 = gluNewQuadric()
 	self.plotdata = []
 	self.plotlen = 4000
+	#does not show HUD by default
+	self.hud = Hud()
 
     def zoomin(self, event):
         self.distance = self.distance / 1.1
         self.tkRedraw()
-
+  
     def zoomout(self, event):
         self.distance = self.distance * 1.1
         self.tkRedraw()
-
+  
     def basic_lighting(self):
         self.activate()
         glLightfv(GL_LIGHT0, GL_POSITION, (1, -1, .5, 0))
@@ -446,6 +539,9 @@ class O(rs274.OpenGLTk.Opengl):
         glEnable(GL_DEPTH_TEST)
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
+  
+
+		
 
     def redraw(self, *args):
         if self.winfo_width() == 1: return
@@ -509,6 +605,10 @@ class O(rs274.OpenGLTk.Opengl):
 
 	# just a test object, sitting on the table
 	#gluCylinder(self.q2, 40, 20, 60, 32, 16)
+	
+	#draw head up display
+	if(hasattr(self.hud, "draw")):
+		self.hud.draw()
 
 	# draw backplot
 	glDisable(GL_LIGHTING)
@@ -522,11 +622,20 @@ class O(rs274.OpenGLTk.Opengl):
 	glPopMatrix()
 
 
-def main(model, tool, work, size=10 ):
+def main(model, tool, work, size=10, hud=0):
     app = Tkinter.Tk()
 
     t = O(app, double=1, depth=1)
 
+    #there's probably a better way of doing this
+    global HUD
+    if(hud != 0 and hasattr(hud, "app")):
+    	HUD = hud
+		#point our app at the global
+    	t.hud = HUD
+
+    t.hud.app = t #HUD needs to know where to draw
+	
     # need to capture the world coordinate system
     world = Capture()
 
