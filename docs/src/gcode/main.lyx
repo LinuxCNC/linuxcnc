@@ -6096,6 +6096,11 @@ collapsed false
 
 \layout Caption
 
+
+\begin_inset LatexCommand \label{fig:G76-canned-cycle}
+
+\end_inset 
+
 G76 canned cycle
 \layout Standard
 \align center 
