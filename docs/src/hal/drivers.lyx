@@ -5243,6 +5243,11 @@ Pluto-Servo Pinout
 \end_inset 
 
 
+\begin_inset LatexCommand \label{fig:Pluto-Servo-Pinout}
+
+\end_inset 
+
+
 \layout Standard
 \align center 
 
@@ -5263,6 +5268,11 @@ wide false
 collapsed false
 
 \layout Caption
+
+
+\begin_inset LatexCommand \label{table:Pluto-Servo-Alternate-Pin}
+
+\end_inset 
 
 Pluto-Servo Alternate Pin Functions
 \begin_inset LatexCommand \index{Pluto-Servo Alternate Pin Functions}
@@ -6236,6 +6246,11 @@ collapsed false
 
 \layout Caption
 
+
+\begin_inset LatexCommand \label{fig:Pluto-Step-Pinout}
+
+\end_inset 
+
 Pluto-Step Pinout
 \begin_inset LatexCommand \index{Pluto-Step Pinout}
 
@@ -6321,6 +6336,11 @@ wide false
 collapsed false
 
 \layout Caption
+
+
+\begin_inset LatexCommand \label{fig:Pluto-Step-Timings}
+
+\end_inset 
 
 Pluto-Step Timings
 \begin_inset LatexCommand \index{Pluto-Step Timings}
