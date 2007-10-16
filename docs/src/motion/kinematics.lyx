@@ -105,7 +105,7 @@ A joint of a CNC machine is a one of the physical degrees of freedom of
 There are certain machines where the joints are layed out to match kinematics
  axes (joint 0 along axis X, joint 1 along axis Y, joint 2 along axis Z),
  and these machines are called 
-\begin_inset LatexCommand \index{Carthesian machines}
+\begin_inset LatexCommand \index{Cartesian machines}
 
 \end_inset 
 

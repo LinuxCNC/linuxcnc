@@ -526,19 +526,6 @@ X Windows programs named xemc
  
 \layout Itemize
 
-a Java
-\begin_inset LatexCommand \index{Java}
-
-\end_inset 
-
--based GUI, emcgui
-\begin_inset LatexCommand \index{emcgui}
-
-\end_inset 
-
-
-\layout Itemize
-
 two Tcl/Tk-based GUIs named tkemc
 \begin_inset LatexCommand \index{tkemc}
 
@@ -841,7 +828,7 @@ The Task Executor is responsible for interpreting G and M code programs
  G-code programming is designed to work like a machinist might work.
  The motion or turns of a handwheel are coded into blocks.
  If a machinist wanted his mill to move an inch in the +X direction at some
- feedrate, he might slowly turn the handwheel five turns clockwise in 20
+ feed rate, he might slowly turn the handwheel five turns clockwise in 20
  seconds.
  The same machinist programming that same move for CNC might write the following
  block of code.
@@ -850,7 +837,7 @@ The Task Executor is responsible for interpreting G and M code programs
 G1 F3 X1.000
 \layout Standard
 
-G1 means that the machine is supposed to run at a programmed feedrate rather
+G1 means that the machine is supposed to run at a programmed feed rate rather
  than at the fastest speed that it can (G0 is the way to command a rapid
  move like you would make above the work when not cutting).
  The F3 means that it should travel at 3 inches a minute or 3 millimeters
@@ -1033,11 +1020,11 @@ estop
 , and 
 \shape smallcaps 
 \noun on 
-feedrate override
+feed rate override
 \shape default 
 \noun default 
 
-\begin_inset LatexCommand \index{Feedrate Override}
+\begin_inset LatexCommand \index{Feed Override}
 
 \end_inset 
 

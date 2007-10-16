@@ -474,7 +474,7 @@ Coordinated linear motion can be performed either at the prevailing feed
 \layout Subsection
 
 Feed Rate
-\begin_inset LatexCommand \index{Feed Rate}
+\begin_inset LatexCommand \index{Feed rate}
 
 \end_inset 
 
@@ -2410,7 +2410,7 @@ F
 
 \layout Standard
 
-Feedrate
+Feed rate
 \end_inset 
 </cell>
 </row>
@@ -7513,7 +7513,7 @@ M48
 
 \layout Standard
 
-To enable the spindle speed and feedrate override switches, program 
+To enable the spindle speed and feed rate override switches, program 
 \family typewriter 
 M48
 \family default 
@@ -7563,7 +7563,7 @@ M50
 
 \layout Standard
 
-To enable the feedrate override switch, program 
+To enable the feed rate override switch, program 
 \family typewriter 
 M50
 \family default 
@@ -7578,8 +7578,8 @@ M50 P0
 \family default 
 .
  While disabled the feed override will have no influence, and the motion
- will be executed at programmed feedrate.
- (unless there is an adaptive feedrate override active).
+ will be executed at programmed feed rate.
+ (unless there is an adaptive feed rate override active).
 \layout Section
 
 M51

@@ -344,14 +344,15 @@ Feed
  Relatively slow, controlled motion of the tool used when making a cut.
 \layout Description
 
-Feedrate
-\begin_inset LatexCommand \index{Feedrate}
+Feed\SpecialChar ~
+rate
+\begin_inset LatexCommand \index{Feed rate}
 
 \end_inset 
 
  The speed at which a motion occurs.
  In manual mode, jog speed can be set from the graphical interface.
- In auto or mdi mode feedrate is commanded using a (f) word.
+ In auto or mdi mode feed rate is commanded using a (f) word.
  F10 would mean ten units per minute.
 \layout Description
 
@@ -369,7 +370,8 @@ Feedback
  about the position of motors
 \layout Description
 
-Feedrate\SpecialChar ~
+Feed\SpecialChar ~
+rate\SpecialChar ~
 Override
 \begin_inset LatexCommand \index{Feed Override}
 

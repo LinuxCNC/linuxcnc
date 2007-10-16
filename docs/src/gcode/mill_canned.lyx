@@ -642,7 +642,7 @@ The G85 cycle is intended for boring or reaming.
 2.
  Retract the Z-axis at the current feed rate to clear Z.
  This motion is very similar to g81 except that the tool is retracted from
- the hole at feedrate rather than rapid.
+ the hole at feed rate rather than rapid.
 \layout Section
 
 G86
@@ -898,7 +898,7 @@ collapsed false
 \layout Standard
 
 Now the g87 canned cycle turns the spindle on and moves back up into the
- bore at the programmed feedrate.
+ bore at the programmed feed rate.
  This is the real cutting action of this canned cycle.
  With the proper tool in a boring bar this cycle will produce a chamfer
  on the bottom side of the bore.
@@ -1019,8 +1019,8 @@ The G89
 
 3.
  Retract the Z-axis at the current feed rate to clear Z.
- This cycle is like G82 except that the tool is drawn back at feedrate rather
- than rapid.
+ This cycle is like G82 except that the tool is drawn back at feed rate
+ rather than rapid.
 \layout Section
 
 G98 G99

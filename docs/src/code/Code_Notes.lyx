@@ -793,7 +793,7 @@ SCALE
 
 The SCALE command scales all velocity limits and commands by a specified
  amount.
- It is used to implement feedrate override and other similar functions.
+ It is used to implement feed rate override and other similar functions.
  The scaling works in free, teleop, and coord modes, and affects everything,
  including homing velocities, etc.
  However, individual joint velocity limits are unaffected.

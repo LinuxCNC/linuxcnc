@@ -479,7 +479,7 @@ When the Auto button is pressed, or <F4> on the keyboard, the EMC is changed
 \layout Standard
 
 In the auto mode, many of the keyboard keys are bound to controls.
- For example the numbers above the querty keys are bound to feedrate override.
+ For example the numbers above the querty keys are bound to feed rate override.
  The 0 sets 100%, 9 sets 90% and such.
  Other keys work much the same as they do with the tkemc graphical interface.
  
@@ -520,7 +520,7 @@ If abort or estop is pressed during a run a set of buttons displays to the
  or backwards.
  If the restart line is not the last active line, it will be highlighted
  as white letters on a blue background.
- Caution, a very slow feedrate, and a finger poised over the pause button
+ Caution, a very slow feed rate, and a finger poised over the pause button
  is advised during any program restart.
 \layout Quotation
 
@@ -546,7 +546,7 @@ The real heart of CNC machine tool work is the auto mode.
  on many controllers.
  The difference is that [Pause] does not let motion continue to the end
  of the current block.
- Feedrate Override ...
+ Feed rate Override ...
  can be very handy as you approach a first cut.
  Move in quickly at 100 percent, throttle back to 10% and toggle between
  [Feedhold] and 10% using the pause button.
@@ -616,7 +616,7 @@ Feedhold is a toggle.
  If feedhold has been pressed then it will show the continue label.
  Using it to pause motion has the advantage of being able to restart the
  program from where you stopped it.
- Feedhold will toggle between zero speed and whatever feedrate override
+ Feedhold will toggle between zero speed and whatever feed rate override
  was active before it was pressed.
  This button and the function that it activates is also bound to the pause
  button on most keyboards.
@@ -745,7 +745,7 @@ The position can be changed to display any one of several values by using
  displays wake up just the way that you want them.
 \layout Subsection
 
-Feedrate Override
+Feed rate Override
 \begin_inset LatexCommand \index{Feed Override}
 
 \end_inset 
@@ -753,7 +753,7 @@ Feedrate Override
 
 \layout Standard
 
-Immediately below the axis position displays is the feedrate override slider.
+Immediately below the axis position displays is the feed rate override slider.
  You can operate feed rate override and feedhold in any mode of operation.
  Override will change the speed of jogs or feed rate in manual or MDI modes.
  You can adjust feed rate override by grabbing the slider with your mouse
@@ -763,7 +763,7 @@ Immediately below the axis position displays is the feedrate override slider.
  In auto mode you can also set feed override in 10% increments by pressing
  the top row of numbers.
  This slider is a handy visual reference to how much override is being applied
- to programmed feedrate.
+ to programmed feed rate.
 \layout Subsection
 
 Messages 
@@ -922,7 +922,7 @@ Along the right side of the pop-in there is a small pyramid shaped graphic
 If backplot is started before a program is started, it will try to use some
  color lines to indicate the kind of motion that was used to make it.
  A green line is a rapid move.
- A black line is a feedrate move.
+ A black line is a feed rate move.
  Blue and red indicate arcs in counterclockwise and clockwise directions.
 \layout Standard
 
