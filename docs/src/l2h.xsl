@@ -95,7 +95,7 @@ table { border-collapse: collapse; margin-left: auto; margin-right: auto; }
     </DIV>
     <xsl:apply-templates/>
     <xsl:if test="//footnote">
-	<H3>Footnotes</H3>
+	<H2>Footnotes</H2>
 	<xsl:apply-templates select="//footnote" mode="endlist"/>
     </xsl:if>
     </BODY>
@@ -104,7 +104,7 @@ table { border-collapse: collapse; margin-left: auto; margin-right: auto; }
 
 <xsl:template match="printindex">
     <xsl:if test="//index">
-	<H3>Index</H3>
+	<H2>Index</H2>
 	<UL class="nclist">
 	<xsl:for-each select="//index">
 	    <xsl:sort select="@lcterm"/>
