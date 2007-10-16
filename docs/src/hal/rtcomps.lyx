@@ -40,6 +40,26 @@
 \end_inset 
 
 Internal Components
+\layout Standard
+
+Most components have unix-style manual pages.
+ To view manual pages for real-time components, type 
+\begin_inset Quotes eld
+\end_inset 
+
+man 9 
+\emph on 
+componentname
+\emph default 
+
+\begin_inset Quotes erd
+\end_inset 
+
+ at the terminal prompt.
+\layout Standard
+
+This document focuses on more complicated components which have figures
+ which are hard to reproduce in the manual page format.
 \layout Section
 
 
@@ -48,6 +68,11 @@ Internal Components
 \end_inset 
 
 Stepgen
+\begin_inset LatexCommand \index{stepgen}
+
+\end_inset 
+
+
 \layout Standard
 
 This component provides software based generation of step pulses in response
@@ -98,7 +123,38 @@ collapsed false
 
 \end_inset 
 
-Step Pulse Generator Block Diagram
+Step Pulse Generator Block Diagram (position mode)
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename freqgen-block-diag.eps
+	width 7.5in
+	height 8.5in
+	keepAspectRatio
+	clip
+
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:Freqgen-Block-Diag}
+
+\end_inset 
+
+Step Pulse Generator Block Diagram (velocity mode)
 \end_inset 
 
 
@@ -544,7 +600,7 @@ steplen
 \family typewriter 
 stepspace
 \family default 
- nS low, the maximum frequency is the 1,000,000,000 divided by 
+ nS low, the maximum frequency is 1,000,000,000 divided by 
 \family typewriter 
 (steplen+stepspace)
 \family default 
@@ -818,492 +874,16 @@ clearpage
 \layout Section
 
 
-\begin_inset LatexCommand \label{sec:Freqgen}
-
-\end_inset 
-
-Freqgen
-\layout Standard
-
-
-\series bold 
-FREQGEN IS DEPRECATED! Use stepgen's velocity mode for stepper control,
- and use pwmgen for Pulse Width Modulation.
- Freqgen may be removed in future releases.
-\layout Standard
-
-This component provides software based generation of step pulses from a
- frequency or velocity command.
- EMC normally uses position commands, not velocity commands, and stepgen
- (described in section 
-\begin_inset LatexCommand \ref{sec:Stepgen}
-
-\end_inset 
-
- is more appropriate.
- However, there may be applications where velocity based pulses are needed.
- One such application is using step type 1 as a pseudo-PWM output.
- Combined with a PID loop.
- the software encoder counter module, and a simple H-bridge, this has been
- used to run small DC servomotors, however now that the pwmgen component
- has been added, it is a better choice for this purpose.
- Another possible use for freqgen is to simply spin a stepper motor at a
- constant (or adjustable) rate, while ignoring position.
- Freqgen uses the same pulse generator core as stepgen, however it has no
- position loop.
- It is a realtime component only, and depending on CPU speed, etc, is capable
- of maximum step rates of 10kHz to perhaps 50kHz.
- Figure 
-\begin_inset LatexCommand \ref{fig:Freqgen-Block-Diag}
-
-\end_inset 
-
- shows three block diagrams, each is a single step pulse generator.
- The first diagram is for step type '0', (step and direction).
- The second is for step type '1' (up/down, or pseudo-PWM), and the third
- is for step types 2 through 14 (various stepping patterns).
-\layout Standard
-
-
-\begin_inset Float figure
-wide false
-collapsed false
-
-\layout Standard
-\align center 
-
-\begin_inset Graphics
-	filename freqgen-block-diag.eps
-	width 7.5in
-	height 8.5in
-	keepAspectRatio
-	clip
-
-\end_inset 
-
-
-\layout Caption
-
-
-\begin_inset LatexCommand \label{fig:Freqgen-Block-Diag}
-
-\end_inset 
-
-Step Pulse Generator Block Diagram
-\end_inset 
-
-
-\layout Subsection
-
-Installing
-\layout LyX-Code
-
-emc2$ 
-\series bold 
-halcmd loadrt freqgen step_type=<config-array>
-\layout Standard
-
-
-\family typewriter 
-<config-array>
-\family default 
- is a series of comma separated decimal integers.
- Each number causes a single frequency generator to be loaded, the value
- of the number determines the stepping type.
- For example:
-\layout LyX-Code
-
-emc2$ 
-\series bold 
-halcmd loadrt freqgen step_type=0,0,2
-\layout Standard
-
-will install three frequency generators, two with step type '0' (step and
- direction) and one with step type '2' (quadrature).
- The default value for 
-\family typewriter 
-<config-array>
-\family default 
- is 
-\family typewriter 
-
-\begin_inset Quotes eld
-\end_inset 
-
-0,0,0
-\begin_inset Quotes erd
-\end_inset 
-
-
-\family default 
- which will install three type '0' (step/dir) generators.
- The maximum number of frequency generators is 8 (as defined by MAX_CHAN
- in freqgen.c).
- Each generator is independent, but all are updated by the same function(s)
- at the same time.
- In the following descriptions, 
-\family typewriter 
-<chan>
-\family default 
- is the number of a specific generator.
- The first generator is number 0.
-\layout Subsection
-
-Removing
-\layout LyX-Code
-
-emc2$ 
-\series bold 
-halcmd unloadrt freqgen
-\layout Subsection
-
-Pins
-\layout Standard
-
-Each frequency generator will have only some of these pins, depending on
- the step type selected.
-\layout Itemize
-
-
-\family typewriter 
-\noun on 
-(float)
-\noun default 
- freqgen.<chan>.velocity
-\family default 
- -- Desired velocity, in arbitrary units.
-\layout Itemize
-
-
-\family typewriter 
-\noun on 
-(bit)
-\noun default 
- freqgen.<chan>.step
-\family default 
- -- Step pulse output (step type 0 only).
-\layout Itemize
-
-
-\family typewriter 
-\noun on 
-(bit)
-\noun default 
- freqgen.<chan>.dir
-\family default 
- -- Direction output (step type 0 only).
-\layout Itemize
-
-
-\family typewriter 
-\noun on 
-(bit) 
-\noun default 
-freqgen.<chan>.up
-\family default 
- -- UP pseudo-PWM output (step type 1 only).
-\layout Itemize
-
-
-\family typewriter 
-\noun on 
-(bit) 
-\noun default 
-freqgen.<chan>.down
-\family default 
- -- DOWN pseudo-PWM output (step type 1 only).
-\layout Itemize
-
-
-\family typewriter 
-\noun on 
-(bit) 
-\noun default 
-freqgen.<chan>.phase-A
-\family default 
- -- Phase A output (step types 2-14 only).
-\layout Itemize
-
-
-\family typewriter 
-\noun on 
-(bit) 
-\noun default 
-freqgen.<chan>.phase-B
-\family default 
- -- Phase B output (step types 2-14 only).
-\layout Itemize
-
-
-\family typewriter 
-\noun on 
-(bit) 
-\noun default 
-freqgen.<chan>.phase-C
-\family default 
- -- Phase C output (step types 3-14 only).
-\layout Itemize
-
-
-\family typewriter 
-\noun on 
-(bit) 
-\noun default 
-freqgen.<chan>.phase-D
-\family default 
- -- Phase D output (step types 5-14 only).
-\layout Itemize
-
-
-\family typewriter 
-\noun on 
-(bit) 
-\noun default 
-freqgen.<chan>.phase-E
-\family default 
- -- Phase E output (step types 11-14 only).
-\layout Itemize
-
-
-\family typewriter 
-\noun on 
-(s32) 
-\noun default 
-freqgen.<chan>.count
-\family default 
- -- Feedback position in counts, updated by 
-\family typewriter 
-capture_position()
-\family default 
-.
-\layout Itemize
-
-
-\family typewriter 
-\noun on 
-(float) 
-\noun default 
-freqgen.<chan>.position-fb
-\family default 
- -- Position feedback in arbitrary units updated by 
-\family typewriter 
-capture_position()
-\family default 
-.
-\layout Subsection
-
-Parameters
-\layout Itemize
-
-
-\family typewriter 
-\noun on 
-(float)
-\noun default 
- freqgen.<chan>.velocity-scale
-\family default 
- -- Scaling factor to convert from velocity units to pulses per second (Hz).
-\layout Itemize
-
-
-\family typewriter 
-\noun on 
-(float)
-\noun default 
- freqgen.<chan>.maxfreq
-\family default 
- -- Maximum frequency, in Hz.
- If 0.0, has no effect.
- If set higher than internal limits, next call of 
-\family typewriter 
-update_freq()
-\family default 
- will set it to the internal limit.
-\layout Itemize
-
-
-\family typewriter 
-\noun on 
-(float)
-\noun default 
- freqgen.<chan>.frequency
-\family default 
- -- The current frequency, in Hz.
- This is the value after scaling and limiting.
-\layout Itemize
-
-
-\family typewriter 
-\noun on 
-(float)
-\noun default 
- freqgen.<chan>.maxaccel
-\family default 
- -- Maximum accel/decel rate, in Hz per second.
- If 0.0, has no effect.
-\layout Itemize
-
-
-\family typewriter 
-\noun on 
-(float)
-\noun default 
- freqgen.<chan>.steplen
-\family default 
- -- Length of a step pulse (step type 0 only).
-\layout Itemize
-
-
-\family typewriter 
-\noun on 
-(float)
-\noun default 
- freqgen.<chan>.stepspace
-\family default 
- -- Minimum spacing between two step pulses (step type 0 only).
-\layout Itemize
-
-
-\family typewriter 
-\noun on 
-(float)
-\noun default 
- freqgen.<chan>.dirsetup
-\family default 
- -- Minimum time from a direction change to the beginning of the next step
- pulse (step type 0 only).
-\layout Itemize
-
-
-\family typewriter 
-\noun on 
-(float)
-\noun default 
- freqgen.<chan>.dirhold
-\family default 
- -- Minmum time from the end of a step pulse to a direction change (step
- type 0 only).
-\layout Itemize
-
-
-\family typewriter 
-\noun on 
-(s32)
-\noun default 
- freqgen.<chan>.rawcounts
-\family default 
- -- The raw feedback count, updated by 
-\family typewriter 
-make_pulses()
-\family default 
-.
- 
-\layout Itemize
-
-
-\family typewriter 
-\noun on 
-(float)
-\noun default 
- freqgen.<chan>.position-scale
-\family default 
- -- The scale factor used to convert from feedback counts to position units.
- 
-\layout Subsection
-
-Step Types
-\layout Standard
-
-The frequency generator supports 15 different 
-\begin_inset Quotes eld
-\end_inset 
-
-step types
-\begin_inset Quotes erd
-\end_inset 
-
-.
- Except for stepping type 1, they are identical to those generated by the
- stepgen component.
- Refer to section 
-\begin_inset LatexCommand \ref{sub:Stepgen-Step-Types}
-
-\end_inset 
-
- for more information.
-\layout Standard
-
-There is one difference between stepgen and freqgen.
- Step type 1 has two outputs, up and down.
- Pulses appear on one or the other, depending on the direction of travel.
- Each pulse is one thread period long.
- Stepgen assumes that you need a distinct pulse for each step, so it limits
- the frequency to half of the thread rate, to allow for one low period between
- pulses.
- However, freqgen allows higher frequencies, up to the thread rate.
- This allows step type 1 to be used as a pseudo-PWM source, or filtered
- to use as a D-to-A converter.
- At the maximum frequency (equal to the thread rate), the up or down output
- will remain on constantly.
-\layout Subsection
-
-Functions
-\layout Standard
-
-The component exports three functions.
- Each function acts on all of the step pulse generators - running different
- generators in different threads is not supported.
- 
-\layout Itemize
-
-
-\family typewriter 
-\noun on 
-(funct)
-\noun default 
- freqgen.make-pulses
-\family default 
- -- High speed function to generate and count pulses (no floating point).
-\layout Itemize
-
-
-\family typewriter 
-\noun on 
-(funct)
-\noun default 
- freqgen.update-freq
-\family default 
- -- Low speed function to scale and limit velocity command.
-\layout Itemize
-
-
-\family typewriter 
-\noun on 
-(funct)
-\noun default 
- freqgen.capture-position
-\family default 
- -- Low speed function for feedback, updates latches and scales position.
-\layout Standard
-
-The high speed function 
-\family typewriter 
-freqgen.make-pulses
-\family default 
- should be run in a very fast thread, from 10 to 50uS depending on the capabilit
-ies of the computer.
- That thread's period determines the maximum step frequency, and is also
- the time unit used by the length, space, setup, and hold parameters (step
- type 0).
- The other two functions can be called at a much lower rate.
-\layout Section
-
-
 \begin_inset LatexCommand \label{sec:PWMgen}
 
 \end_inset 
 
 PWMgen
+\begin_inset LatexCommand \index{pwmgen}
+
+\end_inset 
+
+
 \layout Standard
 
 This component provides software based generation of PWM (Pulse Width Modulation
@@ -1622,6 +1202,11 @@ clearpage
 \end_inset 
 
 Encoder
+\begin_inset LatexCommand \index{encoder}
+
+\end_inset 
+
+
 \layout Standard
 
 This component provides software based counting of signals from quadrature
@@ -1886,6 +1471,11 @@ clearpage
 \end_inset 
 
 PID
+\begin_inset LatexCommand \index{pid}
+
+\end_inset 
+
+
 \layout Standard
 
 This component provides Proportional/Integeral/Derivative control loops.
@@ -2355,6 +1945,11 @@ clearpage
 \end_inset 
 
 Simulated Encoder
+\begin_inset LatexCommand \index{sim-encoder}
+
+\end_inset 
+
+
 \layout Standard
 
 The simulated encoder is exactly that.
@@ -2553,6 +2148,11 @@ clearpage
 \end_inset 
 
 Debounce
+\begin_inset LatexCommand \index{debounce}
+
+\end_inset 
+
+
 \layout Standard
 
 Debounce is a realtime component that can filter the glitches created by
@@ -2766,632 +2366,6 @@ simultaneously
 <G>
 \family default 
 .
-\layout Standard
-
-
-\begin_inset ERT
-status Collapsed
-
-\layout Standard
-
-\backslash 
-clearpage
-\end_inset 
-
-
-\layout Section
-
-
-\begin_inset LatexCommand \label{sec:Blocks}
-
-\end_inset 
-
-Blocks
-\layout Standard
-
-Blocks is a realtime HAL component containing a number of simple functional
- blocks.
- They are primarily intended for testing and other offhand uses, but may
- prove useful for some EMC configurations as well.
-\layout Subsection
-
-Available Blocks
-\layout Standard
-
-The complete list of available blocks is as follows:
-\layout Itemize
-
-constant -- makes a parameter value available on a pin
-\layout Itemize
-
-comp -- standard 2-input comparator with adjustable hysteresis
-\layout Itemize
-
-wcomp -- window comparator, output true when input is between adjustable
- upper and lower limits
-\layout Itemize
-
-sum2 -- 2-input summer, output = in0 * gain0 + in1 * gain1
-\layout Itemize
-
-mux2 -- 2-input multiplexor, output = in0 if sel is false, output = in1
- if sel is true
-\layout Itemize
-
-mux4 -- 4-input multiplexor, output = in<n> based on sel0, sel1
-\layout Itemize
-
-integ -- integrator, input of +1.0 produces an output ramp of +1.0 per second
-\layout Itemize
-
-ddt -- differentiator, input ramp of +1.0 per second produces output of +1.0
-\layout Itemize
-
-limit1 -- first order limiter (limits output)
-\layout Itemize
-
-limit2 -- second order limiter (limits output and 1st derivative)
-\layout Itemize
-
-limit3 -- third order limiter (limits ouput, 1st & 2nd derivative)
-\layout Itemize
-
-estop -- latch for estops or other faults, with reset
-\layout Itemize
-
-not -- logical inverter
-\layout Itemize
-
-and2 -- 2 input logical and
-\layout Itemize
-
-or2 -- 2 input logical or
-\layout Itemize
-
-scale -- gain/offset block (out = in * gain + offset)
-\layout Itemize
-
-lowpass -- lowpass filter (out = last_out * (1 - gain) + in * gain
-\layout Itemize
-
-match8 -- 8 bit binary match detector (with input for cascading)
-\layout Subsection
-
-Installing
-\layout LyX-Code
-
-emc2$ 
-\series bold 
-halcmd loadrt blocks <blockname>=<number>
-\layout LyX-Code
-
-\layout Standard
-
-
-\family typewriter 
-<blockname>
-\family default 
- is the name of one of the functional blocks that the component can provide,
- and 
-\family typewriter 
-<number>
-\family default 
- is the desired quantity of that block.
- Multiple name/number pairs may be specified on the command line to install
- a variety of different blocks.
- For example:
-\layout LyX-Code
-
-emc2$ 
-\series bold 
-halcmd loadrt blocks wcomp=2 sum2=1 comp=3
-\layout Standard
-
-installs two window comparators (wcomp), one two-input summer (sum2), and
- three standard comparators (comp).
- 
-\layout Subsection
-
-Removing
-\layout LyX-Code
-
-emc2$ 
-\series bold 
-halcmd unloadrt blocks
-\layout Subsection
-
-Pins
-\layout Standard
-
-The various blocks each have their own input and output pins.
- Each pin begins with the block name, then the block number, and finally
- the pin function.
-\layout Itemize
-
-
-\family typewriter 
-\shape smallcaps 
-\noun on 
-(float)
-\shape default 
- 
-\noun default 
-constant.<num>.out
-\family default 
- -- Output of constant block, tracks the parameter 
-\family typewriter 
-value
-\family default 
-.
-\layout Itemize
-
-
-\family typewriter 
-\shape smallcaps 
-(float)
-\shape default 
- comp.<num>.in0
-\family default 
- -- Inverting input of 2-input comparator.
-\layout Itemize
-
-
-\family typewriter 
-\shape smallcaps 
-(float)
-\shape default 
- comp.<num>.in1
-\family default 
- -- Non-inverting input of 2-input comparator.
-\layout Itemize
-
-
-\family typewriter 
-\shape smallcaps 
-(bit)
-\shape default 
- comp.<num>.out
-\family default 
- -- Output, true if 
-\family typewriter 
-in1
-\family default 
- > 
-\family typewriter 
-in0
-\family default 
-.
-\layout Itemize
-
-
-\family typewriter 
-\shape smallcaps 
-(float)
-\shape default 
- wcomp.<num>.in
-\family default 
- --Input of window comparator.
-\layout Itemize
-
-
-\family typewriter 
-\shape smallcaps 
-(bit)
-\shape default 
- wcomp.<num>.out
-\family default 
- -- Output, TRUE if 
-\family typewriter 
-min
-\family default 
- < 
-\family typewriter 
-input
-\family default 
- < 
-\family typewriter 
-max
-\family default 
-.
-\layout Itemize
-
-
-\family typewriter 
-\shape smallcaps 
-(float)
-\shape default 
- sum2.<num>.in0
-\family default 
- -- First input of 2-input summer.
-\layout Itemize
-
-
-\family typewriter 
-\shape smallcaps 
-(float)
-\shape default 
- sum2.<num>.in1
-\family default 
- -- Second input of 2-input summer.
-\layout Itemize
-
-
-\family typewriter 
-\shape smallcaps 
-(float)
-\shape default 
- sum2.<num>.out
-\family default 
- -- Output, equals 
-\family typewriter 
-in0
-\family default 
- * 
-\family typewriter 
-gain0
-\family default 
- + 
-\family typewriter 
-in1
-\family default 
- * 
-\family typewriter 
-gain1
-\family default 
-.
-\layout Itemize
-
-
-\family typewriter 
-\shape smallcaps 
-(float)
-\shape default 
- mux2.<num>.in0
-\family default 
- -- First input of 2-input multiplexor.
-\layout Itemize
-
-
-\family typewriter 
-\shape smallcaps 
-(float)
-\shape default 
- mux2.<num>.in1
-\family default 
- --Second input of 2-input multiplexor.
-\layout Itemize
-
-
-\family typewriter 
-\shape smallcaps 
-(bit)
-\shape default 
- mux2.<num>.sel
-\family default 
- -- Control input of 2-input multiplexor.
-\layout Itemize
-
-
-\family typewriter 
-\shape smallcaps 
-(float)
-\shape default 
- mux2.<num>.out
-\family default 
- -- Output, equals 
-\family typewriter 
-in0
-\family default 
- if 
-\family typewriter 
-sel
-\family default 
- is FALSE, 
-\family typewriter 
-in1
-\family default 
- if 
-\family typewriter 
-sel
-\family default 
- is TRUE.
-\layout Itemize
-
-
-\family typewriter 
-\shape smallcaps 
-(float)
-\shape default 
- integ.<num>.in
-\family default 
- -- Input of integrator.
-\layout Itemize
-
-
-\family typewriter 
-\shape smallcaps 
-(float)
-\shape default 
- integ.<num>.out
-\family default 
- -- Output of integrator.
-\layout Itemize
-
-
-\family typewriter 
-\shape smallcaps 
-(float)
-\shape default 
- ddt.<num>.in
-\family default 
- -- Input of differentiator.
-\layout Itemize
-
-
-\family typewriter 
-\shape smallcaps 
-(float)
-\shape default 
- ddt.<num>.out
-\family default 
- -- Output of differentiator.
-\layout Itemize
-
-...
- and so on (too many pins to list them all here, but you can easily see
- them with halcmd show pin )
-\layout Subsection
-
-Parameters
-\layout Standard
-
-Some of the blocks have parameters that control and adjust the details of
- their operation.
- Like the pin names, they begin with the block name and the block number,
- then the parameter name.
-\layout Itemize
-
-
-\family typewriter 
-\shape smallcaps 
-(float)
-\shape default 
- constant.<num>.value
-\family default 
- -- The value to be written to the 
-\family typewriter 
-out
-\family default 
- pin, default value is 1.0.
-\layout Itemize
-
-
-\family typewriter 
-\shape smallcaps 
-(float)
-\shape default 
- comp.<num>.hyst
-\family default 
- -- Hystersis for 2-input comparator, default is 0.0.
-\layout Itemize
-
-
-\family typewriter 
-\shape smallcaps 
-(float)
-\shape default 
- wcomp.<num>.min
-\family default 
- -- Minimum threshold for window comparator, default is -1.0.
-\layout Itemize
-
-
-\family typewriter 
-\shape smallcaps 
-(float)
-\shape default 
- wcomp.<num>.max
-\family default 
- -- Maximum threshold for window comparator, default is +1.0.
-\layout Itemize
-
-
-\family typewriter 
-\shape smallcaps 
-(float)
-\shape default 
- sum2.<num>.gain0
-\family default 
- -- Value by which 
-\family typewriter 
-in0
-\family default 
- is multiplied, default is 1.0.
-\layout Itemize
-
-
-\family typewriter 
-\shape smallcaps 
-(float)
-\shape default 
- sum2.<num>.gain1
-\family default 
- -- Value by which 
-\family typewriter 
-in1
-\family default 
- is multiplied, default is 1.0.
-\layout Subsection
-
-Functions
-\layout Standard
-
-Each individual block has its own function.
- This allows complete control over when each block executes.
- In general, blocks should execute in the order of signal flow.
- If the outputs of blocks A and B are connected to inputs of block C, then
- the functions for A and B should be executed before the function for C.
- Note that unless these functions are connected to a realtime thread so
- that they execute, the blocks do nothing at all.
-\layout Itemize
-
-
-\family typewriter 
-\shape smallcaps 
-(funct)
-\shape default 
- constant.<num>
-\family default 
- -- Writes parameter 
-\family typewriter 
-value
-\family default 
- to pin 
-\family typewriter 
-out
-\family default 
-.
-\layout Itemize
-
-
-\family typewriter 
-\shape smallcaps 
-(funct)
-\shape default 
- comp.<num>
-\family default 
- -- Compares 
-\family typewriter 
-in0
-\family default 
- and 
-\family typewriter 
-in1
-\family default 
- (with hysteresis), writes result to 
-\family typewriter 
-out
-\family default 
-.
-\layout Itemize
-
-
-\family typewriter 
-\shape smallcaps 
-(funct)
-\shape default 
- wcomp.<num>
-\family default 
- -- Compares 
-\family typewriter 
-in
-\family default 
- to 
-\family typewriter 
-min
-\family default 
- and 
-\family typewriter 
-max
-\family default 
-, writes result to 
-\family typewriter 
-out
-\family default 
-.
-\layout Itemize
-
-
-\family typewriter 
-\shape smallcaps 
-(funct)
-\shape default 
- sum2.<num>
-\family default 
- -- Computes 
-\family typewriter 
-out = in0 * gain0 + in1 * gain1
-\family default 
-.
-\layout Itemize
-
-
-\family typewriter 
-\shape smallcaps 
-(funct)
-\shape default 
- mux2.<num>
-\family default 
- -- If 
-\family typewriter 
-sel
-\family default 
- is TRUE, writes 
-\family typewriter 
-in1
-\family default 
- to 
-\family typewriter 
-out
-\family default 
-, else writes 
-\family typewriter 
-in0
-\family default 
- to 
-\family typewriter 
-out
-\family default 
-.
-\layout Itemize
-
-
-\family typewriter 
-\shape smallcaps 
-(funct)
-\shape default 
- integ.<num>
-\family default 
- -- Calculates integral of 
-\family typewriter 
-in
-\family default 
-, writes result to 
-\family typewriter 
-out
-\family default 
-.
-\layout Itemize
-
-
-\family typewriter 
-\shape smallcaps 
-(funct)
-\shape default 
- constant.<num>
-\family default 
- -- Calculates derivative of 
-\family typewriter 
-in
-\family default 
-, writes result to 
-\family typewriter 
-out
-\family default 
-.
-\layout Standard
-
-
-\begin_inset ERT
-status Collapsed
-
-\layout Standard
-
-\backslash 
-clearpage
-\end_inset 
-
-
 \layout Section
 
 
@@ -3400,6 +2374,11 @@ clearpage
 \end_inset 
 
 Siggen
+\begin_inset LatexCommand \index{siggen}
+
+\end_inset 
+
+
 \layout Standard
 
 Siggen is a realtime component that generates square, triangle, and sine
