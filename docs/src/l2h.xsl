@@ -135,12 +135,51 @@ table { border-collapse: collapse; margin-left: auto; margin-right: auto; }
     </p>
 </xsl:template>	
 
+<xsl:template mode="loft" match="float">
+    <xsl:choose>
+        <xsl:when test=".//label[position()=1]/@id">
+            <A HREF="#{.//label[position()=1]/@id}">
+            <xsl:for-each select="*[@class='Caption']">
+                <xsl:value-of select="."/>
+            </xsl:for-each>
+            </A>
+        </xsl:when>
+        <xsl:otherwise>
+            <xsl:for-each select="*[@class='Caption']">
+                <xsl:value-of select="."/>
+            </xsl:for-each>
+        </xsl:otherwise>
+    </xsl:choose>
+</xsl:template>
+
 <xsl:template match="toc">
-    <xsl:if test="tocentry">
+    <xsl:if test="tocentry or //float">
 	<H1>Table of Contents</H1>
+    </xsl:if>
+    <xsl:if test="tocentry">
 	<UL CLASS="toc clist">
 	<xsl:apply-templates/>
 	</UL>
+    </xsl:if>
+    <xsl:if test="//float[@class='figure']">
+        <H2>List of figures</H2>
+        <UL CLASS="toc clist">
+        <xsl:for-each select="//float[@class='figure']">
+            <LI>
+            <xsl:apply-templates mode="loft" select="."/>
+            </LI>
+        </xsl:for-each>
+        </UL>
+    </xsl:if>
+    <xsl:if test="//float[@class='table']">
+        <H2>List of tables</H2>
+        <UL CLASS="toc clist">
+        <xsl:for-each select="//float[@class='table']">
+            <LI>
+            <xsl:apply-templates mode="loft" select="."/>
+            </LI>
+        </xsl:for-each>
+        </UL>
     </xsl:if>
 </xsl:template>
 
@@ -294,10 +333,14 @@ table { border-collapse: collapse; margin-left: auto; margin-right: auto; }
 	    </xsl:if>
 	</xsl:for-each>
 	<SPAN CLASS="caption">
-	    <xsl:for-each select="*">
-		<xsl:if test="@class='Caption'">
-		    <xsl:apply-templates/>
-		</xsl:if>
+            <xsl:choose>
+                <xsl:when test="@class='figure'">
+                    <xsl:text>Figure: </xsl:text></xsl:when>
+                <xsl:when test="@class='table'">
+                    <xsl:text>Table: </xsl:text></xsl:when>
+            </xsl:choose>
+	    <xsl:for-each select="*[@class='Caption']">
+                <xsl:apply-templates/>
 	    </xsl:for-each>
 	</SPAN>
     </DIV>
