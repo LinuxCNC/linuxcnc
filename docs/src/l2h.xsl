@@ -45,6 +45,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 	</xsl:choose>
     </TITLE>
     <STYLE TYPE="text/css">
+:target { background: #DEF !important;  }
 h1, h2 { background: #c0c0f0; }
 h1, h2, h3, h4, h5 { border-bottom: 2px solid #8080c0; color: black; }
 
@@ -52,7 +53,7 @@ div.nav { float: right; background: #ffffff; }
 
 dt { font-weight: bold; }
 pre { margin-left: 4ex; auto; color: black; padding: 1ex; border-left: 2px solid #8080c0; }
-div.float { text-align: center; margin: 2ex; }
+div.float { text-align: center; margin: 2ex; padding: 1ex; }
 div.float span.caption { display: block; margin: 1em; }
 .typewriter { font-family: monospace; }
 
@@ -155,7 +156,7 @@ table { border-collapse: collapse; margin-left: auto; margin-right: auto; }
 </xsl:template>
 
 <xsl:template match="layout[@class='Part']">
-    <H1 style="text-align: center">
+    <H1 style="text-align: center" id="{label[position()=1]/@id}">
     <xsl:variable name="part">
 	<xsl:number level="any" count="layout[@class='Part']" format="I"/>
     </xsl:variable>
@@ -163,15 +164,15 @@ table { border-collapse: collapse; margin-left: auto; margin-right: auto; }
     </H1>
 </xsl:template>
 
-<xsl:template match="layout[@class='Chapter']"><H1><xsl:apply-templates/></H1></xsl:template>
-<xsl:template match="layout[@class='Section']"><H2><xsl:apply-templates/></H2></xsl:template>
-<xsl:template match="layout[@class='Subsection']"><H3><xsl:apply-templates/></H3></xsl:template>
-<xsl:template match="layout[@class='Subsection*']"><H3><xsl:apply-templates/></H3></xsl:template>
-<xsl:template match="layout[@class='Subsubsection']"><H4><xsl:apply-templates/></H4></xsl:template>
-<xsl:template match="layout[@class='Subparagraph']"><H5><xsl:apply-templates/></H5></xsl:template>
-<xsl:template match="layout[@class='LyX-Code']"><PRE><xsl:apply-templates/></PRE></xsl:template>
-<xsl:template match="layout[@class='Quote']"><BLOCKQUOTE><P><xsl:apply-templates/></P></BLOCKQUOTE></xsl:template>
-<xsl:template match="layout[@class='Quotation']"><BLOCKQUOTE><P><xsl:apply-templates/></P></BLOCKQUOTE></xsl:template>
+<xsl:template match="layout[@class='Chapter']"><H1 id="{label[position()=1]/@id}"><xsl:apply-templates/></H1></xsl:template>
+<xsl:template match="layout[@class='Section']"><H2 id="{label[position()=1]/@id}"><xsl:apply-templates/></H2></xsl:template>
+<xsl:template match="layout[@class='Subsection']"><H3 id="{label[position()=1]/@id}"><xsl:apply-templates/></H3></xsl:template>
+<xsl:template match="layout[@class='Subsection*']"><H3 id="{label[position()=1]/@id}"><xsl:apply-templates/></H3></xsl:template>
+<xsl:template match="layout[@class='Subsubsection']"><H4 id="{label[position()=1]/@id}"><xsl:apply-templates/></H4></xsl:template>
+<xsl:template match="layout[@class='Subparagraph']"><H5 id="{label[position()=1]/@id}"><xsl:apply-templates/></H5></xsl:template>
+<xsl:template match="layout[@class='LyX-Code']"><PRE id="{label[position()=1]/@id}"><xsl:apply-templates/></PRE></xsl:template>
+<xsl:template match="layout[@class='Quote']"><BLOCKQUOTE><P id="{label[position()=1]/@id}"><xsl:apply-templates/></P></BLOCKQUOTE></xsl:template>
+<xsl:template match="layout[@class='Quotation']"><BLOCKQUOTE><P id="{label[position()=1]/@id}"><xsl:apply-templates/></P></BLOCKQUOTE></xsl:template>
 <xsl:template match="layout[@class='Comment']"/>
 
 <!-- these deserve better handling -->
@@ -217,9 +218,9 @@ table { border-collapse: collapse; margin-left: auto; margin-right: auto; }
 
 <xsl:template match="enumerate"><OL><xsl:apply-templates/></OL></xsl:template>
 <xsl:template match="itemize"><UL><xsl:apply-templates/></UL></xsl:template>
-<xsl:template match="item"><LI><xsl:apply-templates/></LI></xsl:template>
-<xsl:template match="descr"><DL><xsl:apply-templates/></DL></xsl:template>
-<xsl:template match="term"><DT><xsl:apply-templates/></DT></xsl:template>
+<xsl:template match="item"><LI id="{label[position()=1]/@id}"><xsl:apply-templates/></LI></xsl:template>
+<xsl:template match="descr"><DL id="{label[position()=1]/@id}"><xsl:apply-templates/></DL></xsl:template>
+<xsl:template match="term"><DT id="{label[position()=1]/@id}"><xsl:apply-templates/></DT></xsl:template>
 <xsl:template match="desc"><DD><xsl:apply-templates/></DD></xsl:template>
 
 <xsl:template match="tabular">
@@ -274,7 +275,7 @@ table { border-collapse: collapse; margin-left: auto; margin-right: auto; }
     </xsl:choose>
 </xsl:template>
 <xsl:template match="label">
-    <A><xsl:attribute name="id"><xsl:value-of select="@id"/></xsl:attribute></A>
+    <A><xsl:attribute name="name"><xsl:value-of select="@id"/></xsl:attribute></A>
 </xsl:template>
 
 <xsl:template match="graphics">
@@ -286,7 +287,7 @@ table { border-collapse: collapse; margin-left: auto; margin-right: auto; }
 </xsl:template>
 
 <xsl:template match="float">
-    <DIV CLASS="float">
+    <DIV CLASS="float" id="{.//label[position()=1]/@id}">
 	<xsl:for-each select="*">
 	    <xsl:if test="not(@class='Caption')">
 		<xsl:apply-templates/>
@@ -303,7 +304,7 @@ table { border-collapse: collapse; margin-left: auto; margin-right: auto; }
 </xsl:template>
 
 <xsl:template match="index">
-<A><xsl:attribute name="id"><xsl:value-of select="@id"/></xsl:attribute></A>
+<A><xsl:attribute name="name"><xsl:value-of select="@id"/></xsl:attribute></A>
 </xsl:template>
 
 <xsl:template match="index" mode="endlist">
