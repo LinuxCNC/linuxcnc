@@ -1416,6 +1416,11 @@ collapsed false
 
 \layout Caption
 
+
+\begin_inset LatexCommand \label{cap:Wiring-Normally-Closed}
+
+\end_inset 
+
 Wiring Normally Closed switches in series (simplified diagram)
 \end_inset 
 
@@ -1439,6 +1444,11 @@ collapsed false
 
 
 \layout Caption
+
+
+\begin_inset LatexCommand \label{cap:Wiring-Normally-Open}
+
+\end_inset 
 
 Wiring Normally Open switches in parallel (simplified diagram)
 \end_inset 
