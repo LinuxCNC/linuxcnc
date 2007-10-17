@@ -42,13 +42,38 @@ c.ready()
 #################################
 #draw it!
 
+minitetra = 1
+#stolen from genhexkins.h 
+# you must change these if you are not using minitetra
+# positions of base strut ends in base (world) coordinates	
+base_offsets = range(6)
+base_offsets[0] = (-22.950, 13.250, 0)
+base_offsets[1] = (22.950, 13.250, 0)
+base_offsets[2] = (22.950, 13.250, 0)
+base_offsets[3] = (0, -26.5, 0)
+base_offsets[4] = (0, -26.5, 0)
+base_offsets[5] = (-22.950, 13.250, 0)
+
+# position of platform strut end in platform coordinate system 
+plat_offsets = range(6)
+plat_offsets[0] = (-1, 11.5, 0)
+plat_offsets[1] = (1, 11.5, 0)
+plat_offsets[2] = (10.459, -4.884, 0)
+plat_offsets[3] = (9.459, -6.616, 0)
+plat_offsets[4] = (-9.459, -6.616, 0)
+plat_offsets[5] = (-10.459, -4.884, 0)
+
+
+
 scale = 1
 tool_len = 3
-plat_radius = 5
-plat_thickness = 1
-base_radius = 10
-base_thickness = 1
-strut_length = 13
+plat_radius = 11.5
+plat_thickness = 2
+base_radius = 28
+base_thickness = 3
+strut_length = 21
+strut_radius = 1
+#not used if joint coordinates are defined
 angles = [5, 115, 125, 235, 245, 355]
 
 #provide some reference frames
@@ -78,10 +103,10 @@ plat_joints = []
 
 for i in range(6):
   #the end-cap is so we can always see where the cylinder is
-  inner = CylinderZ(0, 0.8, strut_length, 0.8)
-  endcap = CylinderZ(strut_length-1,1.2,strut_length,1.2)
+  inner = CylinderZ(0, 0.8*strut_radius, strut_length, 0.8*strut_radius)
+  endcap = CylinderZ(strut_length-1,1.2*strut_radius,strut_length,1.2*strut_radius)
   inner = Collection([inner, endcap])
-  outer = CylinderZ(0, 1, strut_length, 1)
+  outer = CylinderZ(0, 1*strut_radius, strut_length, 1*strut_radius)
   #account for joint offset
   inner = Translate([inner],0,0,-30)
   # make strut extend and retract
@@ -95,9 +120,14 @@ for i in range(6):
   plat_joint_coords = Capture()
   plat_joint = BoxCentered(1,1,2)
   plat_joint = Collection([plat_joint, plat_joint_coords])
-  plat_joint = Translate([plat_joint], 0.8*plat_radius,0,-plat_thickness)
   #put the joints at weird locations to make an octahedron
-  plat_joint = Rotate([plat_joint], angles[i]-120*(i%2)+60, 0,0,1)
+  if(minitetra):
+    plat_joint = Rotate([plat_joint],-120*(i%2)+60*i, 0,0,1)
+    x,y,z = plat_offsets[i]
+    plat_joint = Translate([plat_joint],x,y,z) 
+  else:
+    plat_joint = Translate([plat_joint], 0.8*plat_radius,0,-plat_thickness)
+    plat_joint = Rotate([plat_joint], angles[i]-120*(i%2)+60, 0,0,1)
   plat_joints += [plat_joint]
   
   #build base
@@ -105,8 +135,14 @@ for i in range(6):
   base_joint_coords = Capture()
   base_joint = BoxCentered(2,3,1.5)
   base_joint = Collection([base_joint, base_joint_coords])
-  base_joint = Translate([base_joint], 0.8*base_radius,0,base_thickness)
-  base_joint = Rotate([base_joint], angles[i], 0,0,1)
+  #put the joints at weird locations to make an octahedron
+  if(minitetra):
+    base_joint = Rotate([base_joint],-120*(i%2)+60*i, 0,0,1)
+    x,y,z = base_offsets[i]
+    base_joint = Translate([base_joint],x,y,z)
+  else:
+    base_joint = Translate([base_joint], 0.8*base_radius,0,0)
+    base_joint = Rotate([base_joint], angles[i], 0,0,1)
   base_joints += [base_joint]
   
   #point strut at platform - this also translates the strut to the base joint
@@ -114,6 +150,8 @@ for i in range(6):
   strut = Track([strut],base_joint_coords, plat_joint_coords, world_coords)
   struts += [strut]
 
+
+base = Translate([base],0,0,-base_thickness)
 
 #de-listify
 struts = Collection(struts[:])
@@ -143,8 +181,12 @@ platform = Collection([platform])
 base = Translate([base],0,0,-strut_length)
 workpiece = Translate([workpiece],0,0,-strut_length)
 
+#myhud = Hud()
+#myhud.show("welcome!")
 
+#myhud.debug_track = 0
 model = Collection([platform, struts, base, workpiece, foo])
 
-main(model, tool_coords, work_coords, 50)
+#main(model, tool_coords, work_coords, size=30, hud=myhud)
+main(model, tool_coords, work_coords, size=30)
 
