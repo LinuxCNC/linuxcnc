@@ -629,6 +629,7 @@ def main(model, tool, work, size=10, hud=0):
 
     #there's probably a better way of doing this
     global HUD
+    HUD = 0
     if(hud != 0 and hasattr(hud, "app")):
     	HUD = hud
 		#point our app at the global
