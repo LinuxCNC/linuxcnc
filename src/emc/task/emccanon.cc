@@ -43,7 +43,7 @@
 #include "emcglb.h"		// TRAJ_MAX_VELOCITY
 #include "emcpos.h"
 
-static int debug_velacc = 1;
+static int debug_velacc = 0;
 static double css_maximum, css_numerator;
 
 #ifndef MIN
