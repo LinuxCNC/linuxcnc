@@ -1008,7 +1008,7 @@ void ARC_FEED(double first_end, double second_end,
     EMC_TRAJ_LINEAR_MOVE linearMoveMsg;
     double v1, v2, a1, a2, vel, ini_maxvel, acc=0.0;
     double radius, angle, theta1, theta2, helical_length, axis_len;
-    double tmax, thelix, ta, tb, tc, da, db, dc;
+    double tcircle, tmax, thelix, ta, tb, tc, da, db, dc;
     double tu, tv, tw, du, dv, dw;
 
     linearMoveMsg.feed_mode = feed_mode;
@@ -1180,7 +1180,11 @@ void ARC_FEED(double first_end, double second_end,
     tv = dv? (dv / FROM_EXT_LEN(AXIS_MAX_VELOCITY[7])): 0.0;
     tw = dw? (dw / FROM_EXT_LEN(AXIS_MAX_VELOCITY[8])): 0.0;
 
-    tmax = MAX4(thelix, ta, tb, tc);
+    // find out how long the arc takes at ini_maxvel
+    tcircle = fabs(2.0 * angle * radius / ini_maxvel);
+
+    tmax = MAX(thelix, tcircle);
+    tmax = MAX4(tmax, ta, tb, tc);
     tmax = MAX4(tmax, tu, tv, tw);
 
     if (tmax <= 0.0) {
