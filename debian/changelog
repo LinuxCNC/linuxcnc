@@ -13,6 +13,7 @@ emc2 (2.2.0~alpha0) testing; urgency=low
   * scara robot sample configuration with visualization
   * opengl machine visualization, starting with puma-style robots
   * new m5i20 firmwares
+  * M66 - digital input control (wait & read external HAL inputs)
   * userspace "comp"
   * hal-8255 driver for a PCI multiple-8255 card
   * tapered in/out on multipass threading canned cycle
