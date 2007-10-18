@@ -19,7 +19,7 @@ loadrt boss_plc
 
 # Install debounce filters for operator console (cycle hold/start,
 # limit override, spindle increase/decrease/status).
-loadrt debounce cfg="6"
+loadrt debounce cfg="7"
 
 # Add functions to servo thread so they will be evaluated
 # every servo period.
@@ -49,12 +49,6 @@ setp pid.0.maxoutput [AXIS_0]MAX_OUTPUT
 setp pid.1.maxoutput [AXIS_1]MAX_OUTPUT
 setp pid.2.maxoutput [AXIS_2]MAX_OUTPUT
 setp pid.3.maxoutput [AXIS_3]MAX_OUTPUT
-
-# Set PID loop output limits.
-setp pid.0.maxoutput [AXIS_0]MAX_VELOCITY
-setp pid.1.maxoutput [AXIS_1]MAX_VELOCITY
-setp pid.2.maxoutput [AXIS_2]MAX_VELOCITY
-setp pid.3.maxoutput [AXIS_3]MAX_VELOCITY
 
 # Set PID loop gains.
 setp pid.0.Pgain [AXIS_0]P
@@ -211,7 +205,8 @@ net spindleSpeed motion.spindle-speed-out => boss_plc.0.spindle-speed-in
 net spindleFwd boss_plc.0.spindle-fwd-out => motenc.0.out-11
 net spindleRev boss_plc.0.spindle-rev-out => motenc.0.out-12
 net spindleIsOnSw motenc.0.in-29-not => debounce.0.5.in
-net spindleIsOn debounce.0.5.out => boss_plc.0.spindle-is-on-in
+net spindleIsOnDly debounce.0.5.out => debounce.0.6.in
+net spindleIsOn debounce.0.6.out => boss_plc.0.spindle-is-on-in
 
 # Connect spindle brake to PLC and PLC brake to I/O.
 setp boss_plc.0.brake-on-delay 500
