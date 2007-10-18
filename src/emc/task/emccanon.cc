@@ -43,7 +43,7 @@
 #include "emcglb.h"		// TRAJ_MAX_VELOCITY
 #include "emcpos.h"
 
-static int debug_velacc = 0;
+static int debug_velacc = 1;
 static double css_maximum, css_numerator;
 
 #ifndef MIN
@@ -357,9 +357,9 @@ double getStraightAcceleration(double x, double y, double z,
 
     // Pure linear move:
     if (cartesian_move && !angular_move) {
-	tx = (dx / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[0]));
-	ty = (dy / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[1]));
-	tz = (dz / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[2]));
+	tx = dx? (dx / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[0])): 0.0;
+	ty = dy? (dy / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[1])): 0.0;
+	tz = dz? (dz / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[2])): 0.0;
 	tu = du? (du / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[6])): 0.0;
 	tv = dv? (dv / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[7])): 0.0;
 	tw = dw? (dw / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[8])): 0.0;
@@ -389,9 +389,9 @@ double getStraightAcceleration(double x, double y, double z,
     }
     // Combination angular and linear move:
     else if (cartesian_move && angular_move) {
-	tx = (dx / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[0]));
-	ty = (dy / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[1]));
-	tz = (dz / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[2]));
+	tx = dx? (dx / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[0])): 0.0;
+	ty = dy? (dy / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[1])): 0.0;
+	tz = dz? (dz / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[2])): 0.0;
 	ta = da? (da / FROM_EXT_ANG(AXIS_MAX_ACCELERATION[3])): 0.0;
 	tb = db? (db / FROM_EXT_ANG(AXIS_MAX_ACCELERATION[4])): 0.0;
 	tc = dc? (dc / FROM_EXT_ANG(AXIS_MAX_ACCELERATION[5])): 0.0;
@@ -477,9 +477,9 @@ double getStraightVelocity(double x, double y, double z,
 
     // Pure linear move:
     if (cartesian_move && !angular_move) {
-	tx = fabs(dx / FROM_EXT_LEN(AXIS_MAX_VELOCITY[0]));
-	ty = fabs(dy / FROM_EXT_LEN(AXIS_MAX_VELOCITY[1]));
-	tz = fabs(dz / FROM_EXT_LEN(AXIS_MAX_VELOCITY[2]));
+	tx = dx? fabs(dx / FROM_EXT_LEN(AXIS_MAX_VELOCITY[0])): 0.0;
+	ty = dy? fabs(dy / FROM_EXT_LEN(AXIS_MAX_VELOCITY[1])): 0.0;
+	tz = dz? fabs(dz / FROM_EXT_LEN(AXIS_MAX_VELOCITY[2])): 0.0;
 	tu = du? fabs(du / FROM_EXT_LEN(AXIS_MAX_VELOCITY[6])): 0.0;
 	tv = dv? fabs(dv / FROM_EXT_LEN(AXIS_MAX_VELOCITY[7])): 0.0;
 	tw = dw? fabs(dw / FROM_EXT_LEN(AXIS_MAX_VELOCITY[8])): 0.0;
@@ -513,9 +513,9 @@ double getStraightVelocity(double x, double y, double z,
     }
     // Combination angular and linear move:
     else if (cartesian_move && angular_move) {
-	tx = fabs(dx / FROM_EXT_LEN(AXIS_MAX_VELOCITY[0]));
-	ty = fabs(dy / FROM_EXT_LEN(AXIS_MAX_VELOCITY[1]));
-	tz = fabs(dz / FROM_EXT_LEN(AXIS_MAX_VELOCITY[2]));
+	tx = dx? fabs(dx / FROM_EXT_LEN(AXIS_MAX_VELOCITY[0])): 0.0;
+	ty = dy? fabs(dy / FROM_EXT_LEN(AXIS_MAX_VELOCITY[1])): 0.0;
+	tz = dz? fabs(dz / FROM_EXT_LEN(AXIS_MAX_VELOCITY[2])): 0.0;
 	ta = da? fabs(da / FROM_EXT_ANG(AXIS_MAX_VELOCITY[3])):0.0;
 	tb = db? fabs(db / FROM_EXT_ANG(AXIS_MAX_VELOCITY[4])):0.0;
 	tc = dc? fabs(dc / FROM_EXT_ANG(AXIS_MAX_VELOCITY[5])):0.0;
