@@ -43,7 +43,7 @@
 #include "emcglb.h"		// TRAJ_MAX_VELOCITY
 #include "emcpos.h"
 
-static int debug_velacc = 0;
+static int debug_velacc = 1;
 static double css_maximum, css_numerator;
 
 #ifndef MIN
@@ -1253,9 +1253,7 @@ void ARC_FEED(double first_end, double second_end,
 	circularMoveMsg.center.y = TO_EXT_LEN(center.y);
 	circularMoveMsg.center.z = TO_EXT_LEN(center.z);
 
-	circularMoveMsg.normal.x = TO_EXT_LEN(normal.x);
-	circularMoveMsg.normal.y = TO_EXT_LEN(normal.y);
-	circularMoveMsg.normal.z = TO_EXT_LEN(normal.z);
+	circularMoveMsg.normal = normal;
 
         if (rotation > 0)
             circularMoveMsg.turn = rotation - 1;
