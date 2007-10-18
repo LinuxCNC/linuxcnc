@@ -530,10 +530,6 @@ void tcRunCycle(TC_STRUCT *tc, double *v, int *on_final_decel) {
             newvel = tc->reqvel * tc->feed_override;
         if(newvel > tc->maxvel) newvel = tc->maxvel;
 
-        if(tc->motion_type == TC_CIRCULAR &&
-                newvel > pmSqrt(tc->maxaccel * tc->coords.circle.xyz.radius))
-            newvel = pmSqrt(tc->maxaccel * tc->coords.circle.xyz.radius);
-
         // get resulting acceleration
         newaccel = (newvel - tc->currentvel) / tc->cycle_time;
         
