@@ -3405,6 +3405,8 @@ if args:
     open_file_guts(args[0])
 elif os.environ.has_key("AXIS_OPEN_FILE"):
     open_file_guts(os.environ["AXIS_OPEN_FILE"])
+elif inifile.find("DISPLAY", "OPEN_FILE"):
+    open_file_guts(inifile.find("DISPLAY", "OPEN_FILE"))
 elif not lathe:
     demofile = os.path.join(BASE, "share", "axis", "images", "axis.ngc")
     if os.path.exists(demofile):

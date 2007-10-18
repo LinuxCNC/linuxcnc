@@ -185,7 +185,7 @@ Each of these elements is separated on single lines.
 \layout Subsection
 
 Comments
-\begin_inset LatexCommand \index{Comments}
+\begin_inset LatexCommand \index{comments}
 
 \end_inset 
 
@@ -595,6 +595,12 @@ emc2.gif The image shown on the splash screen
 INTRO_TIME\SpecialChar ~
 =\SpecialChar ~
 5 The maximum time to show the splash screen
+\layout Description
+
+OPEN_FILE\SpecialChar ~
+=\SpecialChar ~
+/full/path/to/file.ngc The file to show in the preview plot when
+ AXIS starts
 \layout Subsection
 
 
