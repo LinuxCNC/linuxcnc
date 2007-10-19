@@ -1108,7 +1108,7 @@ int Interp::convert_comment(char *comment)       //!< string with comment
   }
   else if (!strncmp(lc, PRINT_STR, strlen(PRINT_STR)))
   {
-      convert_param_comment(comment+start+strlen(DEBUG_STR), expanded,
+      convert_param_comment(comment+start+strlen(PRINT_STR), expanded,
                             2*LC_SIZE);
       fprintf(stdout, "%s\n", expanded);
       return INTERP_OK;
