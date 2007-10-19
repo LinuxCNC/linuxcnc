@@ -10,6 +10,7 @@ emc2 (2.2.0~alpha0) testing; urgency=low
   * new component: random
   * new components: clarke2 clark3 clarkeinv
   * new hardware driver: pci_8255
+  * hexapod visualization
   * scara robot sample configuration with visualization
   * opengl machine visualization, starting with puma-style robots
   * new m5i20 firmwares
