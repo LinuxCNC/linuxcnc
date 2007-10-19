@@ -67,6 +67,8 @@ emc2 (2.2.0~alpha0) testing; urgency=low
     CPU, since this can be isolated from the rest of linux using isolcpus=
   * x86_64 port
   * powerpc port (sim only)
+  * fixed a bug that caused helixes with a small circular component to have 
+    too low a feed rate
 
  -- Chris Radek <chris@rover>  Sun,  5 Aug 2007 20:07:45 -0500
 
