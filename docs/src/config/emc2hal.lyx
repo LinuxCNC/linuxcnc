@@ -27,6 +27,17 @@
 \layout Chapter
 
 EMC2 and HAL
+\layout Standard
+
+See also the manual pages 
+\series bold 
+motion(9)
+\series default 
+ and 
+\series bold 
+iocontrol(1)
+\series default 
+.
 \layout Section
 
 motion (realtime)
@@ -40,6 +51,11 @@ motmod
 \layout Subsection
 
 Pins
+\begin_inset LatexCommand \index{motion (hal pins)}
+
+\end_inset 
+
+
 \layout Description
 
 motion.adaptive-feed\SpecialChar ~
@@ -282,6 +298,11 @@ motion-controller
 \layout Subsection
 
 Pins
+\begin_inset LatexCommand \index{axis (hal pins)}
+
+\end_inset 
+
+
 \layout Description
 
 axis.N.amp-enable-out\SpecialChar ~
@@ -505,6 +526,11 @@ io
 \layout Subsection
 
 Pins
+\begin_inset LatexCommand \index{iocontrol (HAL pins)}
+
+\end_inset 
+
+
 \layout Description
 
 iocontrol.0.coolant-flood TRUE when flood coolant is requested
