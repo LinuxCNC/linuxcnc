@@ -1029,11 +1029,7 @@ The above file describes a tiny Virtual Control Panel, with one push button,
 
 $
 \series bold 
-halrun
-\series default 
-
-\newline 
-halcmd:
+ halrun
 \layout Standard
 
 Next we load halvcp, and give it the name of our .vcp file:
@@ -1112,16 +1108,34 @@ To make something happen, we can connect a HAL signal between the button
  and the light:
 \layout LyX-Code
 
-halcmd: 
+halcmd
+\series bold 
+:
+\series default 
+ 
 \series bold 
 newsig jumper bit
 \newline 
-halcmd: linksp jumper vcp.pushbutton
+
+\series default 
+halcmd:
+\series bold 
+ linksp jumper vcp.pushbutton
 \newline 
-halcmd: linksp jumper vcp.light
+
+\series default 
+halcmd:
+\series bold 
+ linksp jumper vcp.light
 \newline 
-halcmd: show sig
+
+\series default 
+halcmd:
+\series bold 
+ show sig
 \newline 
+
+\series default 
 Signals:
 \newline 
 Type      Value      Name
