@@ -36,7 +36,7 @@
 
 \layout Chapter
 
-Using the AXIS Graphical Interface
+vcUsing the AXIS Graphical Interface
 \layout Section
 
 Introduction
@@ -2376,5 +2376,17 @@ EDITOR=gedit
 \family typewriter 
 EDITOR=gnome-terminal -e vim
 \family default 
+.
+\layout Subsection
+
+Virtual Control Panel
+\layout Standard
+
+AXIS can display a pyVCP xml file in the right-hand pane.
+ For more information, see section 
+\begin_inset LatexCommand \ref{sec:pyvcp-with-axis}
+
+\end_inset 
+
 .
 \the_end

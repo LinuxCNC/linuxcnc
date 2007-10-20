@@ -158,6 +158,11 @@ Parts of pyVCP files are evaluated as Python code, and can take any action
 \layout Section
 
 Using pyVCP with AXIS
+\begin_inset LatexCommand \label{sec:pyvcp-with-axis}
+
+\end_inset 
+
+
 \layout Standard
 
 Since AXIS uses the same GUI toolkit (Tkinter) as pyVCP, it is possible
