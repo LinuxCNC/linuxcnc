@@ -564,6 +564,34 @@ MAX_SPINDLE_OVERRIDE\SpecialChar ~
  1.0 means 100% of the programmed spindle speed
 \layout Description
 
+DEFAULT_LINEAR_VELOCITY\SpecialChar ~
+=\SpecialChar ~
+.25 The default velocity for linear jogs, in machine
+ units per second.
+ Only in the AXIS user interface.
+\layout Description
+
+MAX_LINEAR_VELOCITY\SpecialChar ~
+=\SpecialChar ~
+1.0 The maximum velocity for linear jogs, in machine
+ units per second.
+ Only in the AXIS user interface.
+\layout Description
+
+DEFAULT_ANGULAR_VELOCITY\SpecialChar ~
+=\SpecialChar ~
+.25 The default velocity for angular jogs, in machine
+ units per second.
+ Only in the AXIS user interface.
+\layout Description
+
+MAX_ANGULAR_VELOCITY\SpecialChar ~
+=\SpecialChar ~
+1.0 The maximum velocity for angular jogs, in machine
+ units per second.
+ Only in the AXIS user interface.
+\layout Description
+
 PROGRAM_PREFIX\SpecialChar ~
 =\SpecialChar ~
 ~/emc2/nc_files The default location for g-code files and
