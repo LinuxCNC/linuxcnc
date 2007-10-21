@@ -1181,7 +1181,7 @@ void ARC_FEED(double first_end, double second_end,
     tw = dw? (dw / FROM_EXT_LEN(AXIS_MAX_VELOCITY[8])): 0.0;
 
     // find out how long the arc takes at ini_maxvel
-    tcircle = fabs(2.0 * angle * radius / ini_maxvel);
+    tcircle = fabs(angle * radius / ini_maxvel);
 
     tmax = MAX(thelix, tcircle);
     tmax = MAX4(tmax, ta, tb, tc);
