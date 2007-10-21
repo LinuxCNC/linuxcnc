@@ -1,5 +1,7 @@
 THINGS THAT ARE DESIRABLE FOR THE NEXT MAJOR RELEASE (EMC-2.2)
 
+TODO     Sort out the canon ARC_FEED issues
+
 TODO	 Jeff: make gcode/main.lyx docs match implementation for IOs
 
 TODO     Alex: verify configs (paths & README's)
