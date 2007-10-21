@@ -8704,6 +8704,13 @@ G30
 G0 X- Y- (axes to move to intermediate point)
 \newline 
 G28 (move all axes to predefined point)
+\layout Subsection
+
+M62, M63 not implemented
+\layout Standard
+
+M62 and M63 are not currently implemented, but may be added to a future
+ release of emc2.
 \layout Section
 
 Differences that do not change the meaning of well-formed RS274NGC programs
