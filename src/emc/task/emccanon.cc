@@ -1006,10 +1006,14 @@ void ARC_FEED(double first_end, double second_end,
     PM_CARTESIAN center, normal;
     EMC_TRAJ_CIRCULAR_MOVE circularMoveMsg;
     EMC_TRAJ_LINEAR_MOVE linearMoveMsg;
-    double v1, v2, a1, a2, vel, ini_maxvel, acc=0.0;
+    double v1, v2,  a1, a2, vel, ini_maxvel, circ_maxvel, axial_maxvel=0.0, circ_acc, axial_acc, acc=0.0;
     double radius, angle, theta1, theta2, helical_length, axis_len;
-    double tcircle, tmax, thelix, ta, tb, tc, da, db, dc;
+    double tcircle, taxial, tmax, thelix, ta, tb, tc, da, db, dc;
     double tu, tv, tw, du, dv, dw;
+    
+    //ini_maxvel = max vel defined by various ini constraints
+    //circ_maxvel = max vel defined by ini constraints in the circle plane (XY, YZ or XZ)
+    //axial_maxvel = max vel defined by ini constraints in the axial direction (Z, X or Y)
 
     linearMoveMsg.feed_mode = feed_mode;
     circularMoveMsg.feed_mode = feed_mode;
@@ -1078,11 +1082,11 @@ void ARC_FEED(double first_end, double second_end,
 	v2 = FROM_EXT_LEN(AXIS_MAX_VELOCITY[1]);
 	a1 = FROM_EXT_LEN(AXIS_MAX_ACCELERATION[0]);
 	a2 = FROM_EXT_LEN(AXIS_MAX_ACCELERATION[1]);
-        ini_maxvel = MIN(v1, v2);
-        acc = MIN(a1, a2);
+        circ_maxvel = ini_maxvel = MIN(v1, v2);
+        circ_acc = acc = MIN(a1, a2);
         if(axis_len > 0.001) {
-            v1 = FROM_EXT_LEN(AXIS_MAX_VELOCITY[2]);
-            a1 = FROM_EXT_LEN(AXIS_MAX_ACCELERATION[2]);
+            axial_maxvel = v1 = FROM_EXT_LEN(AXIS_MAX_VELOCITY[2]);
+            axial_acc = a1 = FROM_EXT_LEN(AXIS_MAX_ACCELERATION[2]);
             ini_maxvel = MIN(ini_maxvel, v1);
             acc = MIN(acc, a1);
         }
@@ -1114,11 +1118,11 @@ void ARC_FEED(double first_end, double second_end,
 	v2 = FROM_EXT_LEN(AXIS_MAX_VELOCITY[2]);
 	a1 = FROM_EXT_LEN(AXIS_MAX_ACCELERATION[1]);
 	a2 = FROM_EXT_LEN(AXIS_MAX_ACCELERATION[2]);
-        ini_maxvel = MIN(v1, v2);
-        acc = MIN(a1, a2);
+        circ_maxvel = ini_maxvel = MIN(v1, v2);
+        circ_acc = acc = MIN(a1, a2);
         if(axis_len > 0.001) {
-            v1 = FROM_EXT_LEN(AXIS_MAX_VELOCITY[0]);
-            a1 = FROM_EXT_LEN(AXIS_MAX_ACCELERATION[0]);
+            axial_maxvel = v1 = FROM_EXT_LEN(AXIS_MAX_VELOCITY[0]);
+            axial_acc = a1 = FROM_EXT_LEN(AXIS_MAX_ACCELERATION[0]);
             ini_maxvel = MIN(ini_maxvel, v1);
             acc = MIN(acc, a1);
         }
@@ -1152,11 +1156,11 @@ void ARC_FEED(double first_end, double second_end,
 	v2 = FROM_EXT_LEN(AXIS_MAX_VELOCITY[2]);
 	a1 = FROM_EXT_LEN(AXIS_MAX_ACCELERATION[0]);
 	a2 = FROM_EXT_LEN(AXIS_MAX_ACCELERATION[2]);
-	ini_maxvel = MIN(v1, v2);
-        acc = MIN(a1, a2);
+	circ_maxvel = ini_maxvel = MIN(v1, v2);
+        circ_acc = acc = MIN(a1, a2);
         if(axis_len > 0.001) {
-            v1 = FROM_EXT_LEN(AXIS_MAX_VELOCITY[1]);
-            a1 = FROM_EXT_LEN(AXIS_MAX_ACCELERATION[1]);
+            axial_maxvel = v1 = FROM_EXT_LEN(AXIS_MAX_VELOCITY[1]);
+            axial_acc = a1 = FROM_EXT_LEN(AXIS_MAX_ACCELERATION[1]);
             ini_maxvel = MIN(ini_maxvel, v1);
             acc = MIN(acc, a1);
         }
@@ -1171,7 +1175,7 @@ void ARC_FEED(double first_end, double second_end,
     angle = theta2 - theta1;
     helical_length = hypot(angle * radius, axis_len);
 
-    thelix = fabs(helical_length / ini_maxvel);
+// COMPUTE VELOCITIES
     ta = da? fabs(da / FROM_EXT_ANG(AXIS_MAX_VELOCITY[3])):0.0;
     tb = db? fabs(db / FROM_EXT_ANG(AXIS_MAX_VELOCITY[4])):0.0;
     tc = dc? fabs(dc / FROM_EXT_ANG(AXIS_MAX_VELOCITY[5])):0.0;
@@ -1180,18 +1184,23 @@ void ARC_FEED(double first_end, double second_end,
     tv = dv? (dv / FROM_EXT_LEN(AXIS_MAX_VELOCITY[7])): 0.0;
     tw = dw? (dw / FROM_EXT_LEN(AXIS_MAX_VELOCITY[8])): 0.0;
 
-    // find out how long the arc takes at ini_maxvel
-    tcircle = fabs(angle * radius / ini_maxvel);
+    //we have accel, check what the max_vel is that doesn't violate the centripetal accel=accel
+    v1 = sqrt(circ_acc * radius);
+    circ_maxvel = MIN(v1, circ_maxvel);
 
-    tmax = MAX(thelix, tcircle);
+    // find out how long the arc takes at ini_maxvel
+    tcircle = fabs(angle * radius / circ_maxvel);
+
+    taxial = fabs(axis_len / axial_maxvel);
+    tmax = MAX(taxial, tcircle);
     tmax = MAX4(tmax, ta, tb, tc);
     tmax = MAX4(tmax, tu, tv, tw);
 
     if (tmax <= 0.0) {
         vel = currentLinearFeedRate;
     } else {
-        ini_maxvel = helical_length / tmax;
-        vel = MIN(vel, ini_maxvel);
+        ini_maxvel = helical_length / tmax; //compute the new maxvel based on all previous constraints
+        vel = MIN(vel, ini_maxvel); //the programmed vel is either feedrate or machine_maxvel if lower
     }
 
     // for arcs we always user linear move since there is no
@@ -1199,6 +1208,7 @@ void ARC_FEED(double first_end, double second_end,
 
     cartesian_move = 1;
 
+// COMPUTE ACCELS
     thelix = (helical_length / acc);
     ta = da? (da / FROM_EXT_ANG(AXIS_MAX_ACCELERATION[3])): 0.0;
     tb = db? (db / FROM_EXT_ANG(AXIS_MAX_ACCELERATION[4])): 0.0;
