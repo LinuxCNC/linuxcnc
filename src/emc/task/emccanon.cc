@@ -1209,6 +1209,8 @@ void ARC_FEED(double first_end, double second_end,
     cartesian_move = 1;
 
 // COMPUTE ACCELS
+    //the next couples are not really times but t^2, it saves time & code to use them like this
+    //the proper way would be to add a couple of sqare-roots, then square the result
     thelix = (helical_length / acc);
     ta = da? (da / FROM_EXT_ANG(AXIS_MAX_ACCELERATION[3])): 0.0;
     tb = db? (db / FROM_EXT_ANG(AXIS_MAX_ACCELERATION[4])): 0.0;
