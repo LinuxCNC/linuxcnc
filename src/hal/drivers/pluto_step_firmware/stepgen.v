@@ -1,5 +1,4 @@
-//    This is a component of pluto_servo, a PWM servo driver and quadrature
-//    counter for emc2
+//    This is a component of pluto_step, a hardware step waveform generator
 //    Copyright 2007 Jeff Epler <jepler@unpythonic.net>
 //
 //    This program is free software; you can redistribute it and/or modify
