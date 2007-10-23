@@ -635,12 +635,13 @@ def IndexFixer(d):
 	d.documentElement.appendChild(d.createElement('printindex'))
 
 def parse(args):
-    opts, args = getopt.getopt(args, "s:d:D:o:t:")
+    opts, args = getopt.getopt(args, "s:d:D:o:t:", ("imagedir=",))
 
     outdir = None
     outfile = None
     infile = None
     indir = None
+    imagedir = None
     stylesheet=None
 
     for k, v in opts:
@@ -648,6 +649,7 @@ def parse(args):
 	if k == '-D': indir = v
 	if k == '-d': outdir = v
 	if k == '-o': outfile = v
+	if k == '--imagedir': imagedir = v
 
     if len(args) == 1:
 	infile = args[0]
@@ -667,6 +669,8 @@ def parse(args):
     if indir is None:
 	indir = os.path.dirname(infile)
     if outdir and not os.path.isdir(outdir): os.makedirs(outdir)
+    if imagedir is None: imagedir = outdir
+    if imagedir and not os.path.isdir(imagedir): os.makedirs(imagedir)
 
     if isinstance(infile, str):
 	if infile == '-': infile = sys.stdin
@@ -700,10 +704,10 @@ def parse(args):
     LyxTocXml(d)
     ListFixer(d)
     IndexFixer(d)
-    EquationFixer(d, outdir)
+    EquationFixer(d, imagedir)
     LyxGroupFixer(d, 'Itemize', 'itemize', 'item')
     LyxGroupFixer(d, 'Enumerate', 'enumerate', 'item')
-    LyxGraphicsFixer(d, indir, outdir)
+    LyxGraphicsFixer(d, indir, imagedir)
 
     return d, outfile
 
