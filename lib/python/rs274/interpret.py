@@ -55,9 +55,9 @@ class ArcsToSegmentsMixin:
         rad = math.hypot(o[xyz[0]]-cx, o[xyz[1]]-cy)
 
         if rot < 0:
-            if theta2 - theta1 >= -self.FUZZ: theta2 -= math.pi * 2
+            while theta2 - theta1 >= -self.FUZZ: theta2 -= math.pi * 2
         else:
-            if theta2 - theta1 <= self.FUZZ: theta2 += math.pi * 2
+            while theta2 - theta1 <= self.FUZZ: theta2 += math.pi * 2
 
         def interp(low, high):
             return low + (high-low) * i / steps
