@@ -32,7 +32,6 @@ class Translated:
         self.offset_z = offset_z #- (self.oz - self.offset_z)
 
 class ArcsToSegmentsMixin:
-    FUZZ = 0.000001
     plane = 1
 
     def set_plane(self, plane):
@@ -40,24 +39,30 @@ class ArcsToSegmentsMixin:
 
     def arc_feed(self, x1, y1, cx, cy, rot, z1, a, b, c, u, v, w):
         if self.plane == 1:
-            f = n = [x1,y1,z1, a, b, c, 0, 0, 0]
+            f = n = [x1+self.offset_x,y1+self.offset_y,z1+self.offset_z, a, b, c, 0, 0, 0]
+            cx=cx+self.offset_x
+            cy=cy+self.offset_y
             xyz = [0,1,2]
         elif self.plane == 3:
-            f = n = [y1,z1,x1, a, b, c, 0, 0, 0]
+            f = n = [y1+self.offset_x,z1+self.offset_y,x1+self.offset_z, a, b, c, 0, 0, 0]
+            cx=cx+self.offset_x
+            cy=cy+self.offset_z
             xyz = [2,0,1]
         else:
-            f = n = [z1,x1,y1, a, b, c, 0, 0, 0]
+            f = n = [z1+self.offset_x,x1+self.offset_y,y1+self.offset_z, a, b, c, 0, 0, 0]
+            cx=cx+self.offset_y
+            cy=cy+self.offset_z
             xyz = [1,2,0]
         ox, oy, oz = self.lo
-        o = [ox-self.offset_x, oy-self.offset_y, oz-self.offset_z, 0, 0, 0, 0, 0, 0]
+        o = [ox, oy, oz, 0, 0, 0, 0, 0, 0]
         theta1 = math.atan2(o[xyz[1]]-cy, o[xyz[0]]-cx)
         theta2 = math.atan2(n[xyz[1]]-cy, n[xyz[0]]-cx)
         rad = math.hypot(o[xyz[0]]-cx, o[xyz[1]]-cy)
 
         if rot < 0:
-            while theta2 - theta1 >= -self.FUZZ: theta2 -= math.pi * 2
+            if theta2 >= theta1: theta2 -= math.pi * 2
         else:
-            while theta2 - theta1 <= self.FUZZ: theta2 += math.pi * 2
+            if theta2 <= theta1: theta2 += math.pi * 2
 
         def interp(low, high):
             return low + (high-low) * i / steps
@@ -75,8 +80,8 @@ class ArcsToSegmentsMixin:
             p[6] = interp(o[6], n[6])
             p[7] = interp(o[7], n[7])
             p[8] = interp(o[8], n[8])
-            self.straight_feed(*p)
-        self.straight_feed(*n)
+            self.straight_arcsegment(*p)
+        self.straight_arcsegment(*n)
 
 class PrintCanon:
     def set_origin_offsets(self, *args):

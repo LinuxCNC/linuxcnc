@@ -133,13 +133,17 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         finally:
             self.in_arc = False
 
-    def straight_feed(self, x,y,z, a,b,c, u, v, w, is_arc=0):
+    def straight_arcsegment(self, x,y,z, a,b,c, u, v, w):
+        self.first_move = False
+        l = (x,y,z)
+        self.arcfeed_append((self.lineno, self.lo, l, self.feedrate, self.xo, self.zo))
+        self.lo = l
+
+    def straight_feed(self, x,y,z, a,b,c, u, v, w):
+        if self.suppress: return
         self.first_move = False
         l = (x + self.offset_x,y + self.offset_y,z + self.offset_z)
-        if self.in_arc:
-            self.arcfeed_append((self.lineno, self.lo, l, self.feedrate, self.xo, self.zo))
-        else:
-            self.feed_append((self.lineno, self.lo, l, self.feedrate, self.xo, self.zo))
+        self.feed_append((self.lineno, self.lo, l, self.feedrate, self.xo, self.zo))
         self.lo = l
     straight_probe = straight_feed
 
