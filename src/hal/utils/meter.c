@@ -190,6 +190,7 @@ int main(int argc, gchar * argv[])
     if (comp_id < 0) {
 	return -1;
     }
+    hal_ready(comp_id);
     /* register an exit function to disconnect from the HAL */
     g_atexit(exit_from_hal);
     /* capture INT (ctrl-C) and TERM signals */

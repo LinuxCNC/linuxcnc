@@ -139,6 +139,9 @@ int main(int argc, gchar * argv[])
 	hal_exit(comp_id);
 	return -1;
     }
+
+    hal_ready(comp_id);
+
     /* register an exit function to cleanup and disconnect from the HAL */
     g_atexit(exit_from_hal);
 
