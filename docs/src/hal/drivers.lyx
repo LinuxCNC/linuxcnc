@@ -1330,7 +1330,7 @@ dacRate
 \series default 
  sets the carrier frequency for the PWM outputs, in Hz.
  The default is 32000, for 32KHz PWM.
- Valid values are from 1 to 32000.
+ Valid values are from 1 to 32226.
  The driver prints some useful debugging message to the kernel log, which
  can be viewed with 
 \family typewriter 
