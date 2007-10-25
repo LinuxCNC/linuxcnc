@@ -43,7 +43,7 @@ Hardware Drivers
 \end_inset 
 
 Parport
-\begin_inset LatexCommand \index{Parport}
+\begin_inset LatexCommand \index{parallel port}
 
 \end_inset 
 
@@ -1330,20 +1330,8 @@ dacRate
 \series default 
  sets the carrier frequency for the PWM outputs, in Hz.
  The default is 32000, for 32KHz PWM.
-\begin_inset Foot
-collapsed true
-
-\layout Standard
-
-I don't know what the maximum (and minimum, if any) PWM frequency is, it
- should be documented here.
- Also, this is the kind of thing that ideally is controlled by a HAL parameter,
- rather than being set when the driver is initially loaded.
- I don't know if that is possible, it depends on the hardware and I don't
- have the neccessary information.
-\end_inset 
-
- The driver prints some usefull debugging message to the kernel log, which
+ Valid values are from 1 to 32000.
+ The driver prints some useful debugging message to the kernel log, which
  can be viewed with 
 \family typewriter 
 \series bold 
@@ -3014,31 +3002,6 @@ Ground
 \end_inset 
 
 
-\layout Standard
-
-
-\emph on 
-Note!
-\emph default 
-: This is the intended pinout of P3.
- Unfortunately, in the current FPGA configuration distributed with EMC2
-\begin_inset Foot
-collapsed false
-
-\layout Standard
-
-emc2/src/hal/drivers/m5i20_HM5-4E.h dated 2005/06/07 
-\end_inset 
-
-, the secondary encoders, enc-04, enc-05, enc-06, and enc-07 are wrongly
- configured.
- The input pins for enc-04 and enc-05 partly overlap, as do the pins for
- enc-06 and enc-07.
- Thus it is possible to use enc-04 and enc-06 simultaneously, but using
- enc-04 and enc-05 is not possible since counts on enc-04 will make the
- count on enc-05 jump by +/- 1.
- If you are using pins in-00 to in-11 as general purpose inputs you are
- not affected by this bug.
 \layout Subsubsection
 
 Connector P4
@@ -3774,7 +3737,7 @@ parameter.
 \family typewriter 
 m5i20.<board>.misc-update
 \family default 
- is required to update the LEDs.
+ is required to update the viewed channel.
 \layout Standard
 
 
@@ -4911,12 +4874,7 @@ Pluto-P
 : generalities
 \layout Standard
 
-The Pluto
-\begin_inset LatexCommand \index{Pluto}
-
-\end_inset 
-
--P is an inexpensive ($60) FPGA board featuring the ACEX1K
+The Pluto-P is an inexpensive ($60) FPGA board featuring the ACEX1K
 \begin_inset LatexCommand \index{ACEX1K}
 
 \end_inset 
@@ -5127,7 +5085,7 @@ The Pluto-P board may be ordered from
 \end_inset 
 
 pluto-servo
-\begin_inset LatexCommand \index{Pluto-servo}
+\begin_inset LatexCommand \index{pluto-servo}
 
 \end_inset 
 
@@ -5238,7 +5196,7 @@ collapsed false
 \layout Caption
 
 Pluto-Servo Pinout
-\begin_inset LatexCommand \index{Pluto-Servo Pinout}
+\begin_inset LatexCommand \index{pluto-servo pinout}
 
 \end_inset 
 
@@ -5275,7 +5233,7 @@ collapsed false
 \end_inset 
 
 Pluto-Servo Alternate Pin Functions
-\begin_inset LatexCommand \index{Pluto-Servo Alternate Pin Functions}
+\begin_inset LatexCommand \index{pluto-servo alternate pin functions}
 
 \end_inset 
 
@@ -6148,7 +6106,7 @@ A schematic for a 2A, 2-axis PWM servo amplifier board is available (
 \end_inset 
 
 Pluto-step
-\begin_inset LatexCommand \index{Pluto-step}
+\begin_inset LatexCommand \index{pluto-step}
 
 \end_inset 
 
@@ -6252,7 +6210,7 @@ collapsed false
 \end_inset 
 
 Pluto-Step Pinout
-\begin_inset LatexCommand \index{Pluto-Step Pinout}
+\begin_inset LatexCommand \index{pluto-step pinout}
 
 \end_inset 
 
@@ -6343,7 +6301,7 @@ collapsed false
 \end_inset 
 
 Pluto-Step Timings
-\begin_inset LatexCommand \index{Pluto-Step Timings}
+\begin_inset LatexCommand \index{pluto-step timings}
 
 \end_inset 
 
