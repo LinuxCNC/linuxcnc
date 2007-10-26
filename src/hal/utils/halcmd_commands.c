@@ -2550,9 +2550,9 @@ static void print_help_commands(void)
     printf("  net                 Link a number of pins to a signal\n");
     printf("  unlinkp             Unlink pin\n");
     printf("  newsig, delsig      Create/delete a signal\n");
-    printf("  getp, gets          Get the value of a parameter or signal\n");
-    printf("  ptype, stype        Get the type of a parameter or signal\n");
-    printf("  setp, sets          Set the value of a parameter or signal\n");
+    printf("  getp, gets          Get the value of a pin, parameter or signal\n");
+    printf("  ptype, stype        Get the type of a pin, parameter or signal\n");
+    printf("  setp, sets          Set the value of a pin, parameter or signal\n");
     printf("  addf, delf          Add/remove function to/from a thread\n");
     printf("  show                Display info about HAL objects\n");
     printf("  list                Display names of HAL objects\n");
