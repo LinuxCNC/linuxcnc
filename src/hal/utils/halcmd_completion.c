@@ -558,6 +558,10 @@ char **completer(const char *text, int start, int end) {
         result = rl_completion_matches(text, rtcomp_generator);
     } else if(startswith(rl_line_buffer, "unload ") && argno == 1) {
         result = rl_completion_matches(text, comp_generator);
+    } else if(startswith(rl_line_buffer, "source ") && argno == 1) {
+        rtapi_mutex_give(&(hal_data->mutex));
+        // leaves rl_attempted_completion_over = 0 to complete from filesystem
+        return 0;
     } else if(startswith(rl_line_buffer, "loadusr ") && argno < 3) {
         rtapi_mutex_give(&(hal_data->mutex));
         // leaves rl_attempted_completion_over = 0 to complete from filesystem
