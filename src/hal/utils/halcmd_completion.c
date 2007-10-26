@@ -48,8 +48,8 @@ static int argno;
 static char *command_table[] = {
     "loadrt", "loadusr", "unload", "lock", "unlock",
     "linkps", "linksp", "linkpp", "unlinkp",
-    "net", "newsig", "delsig", "getp", "gets", "setp", "sets",
-    "addf", "delf", "show", "list", "status", "save",
+    "net", "newsig", "delsig", "getp", "gets", "setp", "sets", "ptype", "stype",
+    "addf", "delf", "show", "list", "status", "save", "source",
     "start", "stop", "quit", "exit", "help", 
     NULL,
 };
@@ -498,8 +498,12 @@ char **completer(const char *text, int start, int end) {
         result = rl_completion_matches(text, setp_generator);
     } else if(startswith(rl_line_buffer, "sets ") && argno == 1) {
         result = rl_completion_matches(text, signal_generator);
+    } else if(startswith(rl_line_buffer, "ptype ") && argno == 1) {
+        result = rl_completion_matches(text, getp_generator);
     } else if(startswith(rl_line_buffer, "getp ") && argno == 1) {
         result = rl_completion_matches(text, getp_generator);
+    } else if(startswith(rl_line_buffer, "stype ") && argno == 1) {
+        result = rl_completion_matches(text, signal_generator);
     } else if(startswith(rl_line_buffer, "gets ") && argno == 1) {
         result = rl_completion_matches(text, signal_generator);
     } else if(startswith(rl_line_buffer, "show ") && argno == 1) {
