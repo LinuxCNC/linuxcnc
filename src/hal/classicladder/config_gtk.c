@@ -624,10 +624,6 @@ void OpenConfigWindowGtk()
 	nbook = gtk_notebook_new( );
 	gtk_notebook_append_page( GTK_NOTEBOOK(nbook), CreateSizesPage(),
 				 gtk_label_new ("Sizes") );
-	gtk_notebook_append_page( GTK_NOTEBOOK(nbook), CreateIOConfPage( 1/*ForInputs*/ ),
-				 gtk_label_new ("Physical Inputs") );
-	gtk_notebook_append_page( GTK_NOTEBOOK(nbook), CreateIOConfPage( 0/*ForInputs*/ ),
-				 gtk_label_new ("Physical Outputs") );
 #ifdef USE_MODBUS
 	gtk_notebook_append_page( GTK_NOTEBOOK(nbook), CreateModbusModulesIO( ),
 				 gtk_label_new ("Modbus distributed I/O") );
