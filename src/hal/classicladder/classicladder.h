@@ -375,18 +375,7 @@ void InitAllLadderDatas( char NoScreenRefresh );
 int ClassicLadderAllocAll(void);
 void ClassicLadderFreeAll(void);
 
-#ifdef __RTL__
-#include <rtl_printf.h>
-#define debug_printf rtl_printf
-#endif
-
-#if defined( RTAI ) && defined( MODULE )
-#define debug_printf rt_printk
-#endif
-
-#ifndef MODULE
-#define debug_printf printf
-#endif
+#define debug_printf(format...) rtapi_print_msg(RTAPI_MSG_DBG, format)
 
 #ifdef HAL_SUPPORT
 #include "rtapi.h"

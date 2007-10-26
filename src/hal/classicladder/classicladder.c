@@ -160,7 +160,7 @@ if (ClassicLadderAllocAll())
 	{
 		if ( nogui )
 		{
-            printf("**** NO ladder GUI! ****\n");        
+            rtapi_print_msg(RTAPI_MSG_DBG, "**** NO ladder GUI! ****\n");        
 			InitAllLadderDatas( TRUE );
             InitTempDir( );
             LoadProjectFiles( LadderDirectory );
@@ -168,7 +168,7 @@ if (ClassicLadderAllocAll())
 			InfosGene->LadderState = STATE_RUN;
 // Let HAL know we are ready now
             hal_ready(compId);       
-            printf("Ladder project loaded\n");
+            rtapi_print_msg(RTAPI_MSG_INFO, "Ladder project loaded\n");
 			CleanTmpDirectory( TmpDirectory, TRUE/*DestroyDir*/ );
 			hal_exit(compId);			
 			return 0;
@@ -178,20 +178,20 @@ if (ClassicLadderAllocAll())
        else{	
 //check for used rungs
 // check for previous program loaded
-				 printf("checking for used rungs\n");
+				 rtapi_print_msg(RTAPI_MSG_INFO, "checking for used rungs\n");
         		 for(NumRung=0;NumRung<NBR_RUNGS;NumRung++) 
 		 		{ if(RungArray[NumRung].Used) used++; }
-    			 printf("Used rungs: %d\n", used);
+    			 rtapi_print_msg(RTAPI_MSG_INFO, "Used rungs: %d\n", used);
 			
 		   if (used==0) 
 					{ InitAllLadderDatas( TRUE );}
 
 #ifdef GTK_INTERFACE
 				InitGtkWindows( argc, argv );
-				printf("Init GTK");
+				rtapi_print_msg(RTAPI_MSG_INFO, "Init GTK");
 #endif
 				InitTempDir( );
-				printf("Init tmp dir=%s\n", TmpDirectory);
+				rtapi_print_msg(RTAPI_MSG_INFO, "Init tmp dir=%s\n", TmpDirectory);
 	
 // if no rungs used (meaning no program previously loaded)
 //		then	Load All LadderDatas
@@ -208,7 +208,7 @@ if (ClassicLadderAllocAll())
 				
 #ifdef GTK_INTERFACE
 //ProblemWithPrint		gdk_threads_enter( );
-			printf("Loading ladder GUI\n");
+			rtapi_print_msg(RTAPI_MSG_INFO, "Loading ladder GUI\n");
 			gtk_main();
 			printf("Ladder GUI closed. Realtime module still runs till HAL closes\n");
 //ProblemWithPrint		gdk_threads_leave( );	

@@ -159,7 +159,7 @@ char LoadRung(char * FileName,StrRung * BufRung)
                         {
                             if (atoi(&Line[5])>2)
                             {
-                                printf("Rung version not supported...\n");
+                                rtapi_print_msg(RTAPI_MSG_ERR, "Rung version not supported...\n");
                                 LineOk = FALSE;
                             }
                         }
@@ -372,7 +372,7 @@ int ConvBaseInMilliSecsToId(int NbrMilliSecs)
         case TIME_BASE_100MS:
             return BASE_100MS;
         default:
-            printf("!!!Error in ConvBaseInMilliSecsToInt()\n");
+            rtapi_print_msg(RTAPI_MSG_ERR, "!!!Error in ConvBaseInMilliSecsToInt()\n");
             return BASE_SECS;
     }
 }
@@ -441,7 +441,7 @@ char LoadTimersParams(char * FileName,StrTimer * BufTimers)
                             BufTimers->Base = 1;
                             BufTimers->Preset = 10;
                             strcpy(BufTimers->DisplayFormat,"%f?");
-                            printf("!!! Error loading parameter base in %s\n",FileName);
+                            rtapi_print_msg(RTAPI_MSG_ERR, "!!! Error loading parameter base in %s\n",FileName);
                             break;
                     }
 dbg_printf("Timer => Base = %d , Preset = %d\n",BufTimers->Base,BufTimers->Preset);
@@ -476,7 +476,7 @@ char SaveTimersParams(char * FileName,StrTimer * BufTimers)
         fclose(File);
         Okay = TRUE;
     }
-printf( " - result=%d\n", Okay );
+rtapi_print_msg(RTAPI_MSG_DBG, " - result=%d\n", Okay );
     return (Okay);
 }
 
@@ -511,10 +511,10 @@ char LoadMonostablesParams(char * FileName,StrMonostable * BufMonostables)
                             BufMonostables->Base = 1;
                             BufMonostables->Preset = 10;
                             strcpy(BufMonostables->DisplayFormat,"%f?");
-                            printf("!!! Error loading parameter base in %s\n",FileName);
+                            rtapi_print_msg(RTAPI_MSG_ERR, "!!! Error loading parameter base in %s\n",FileName);
                             break;
                     }
-dbg_printf("Monostable => Base = %d , Preset = %d\n",BufMonostables->Base,BufMonostables->Preset);
+rtapi_print_msg(RTAPI_MSG_DBG, "Monostable => Base = %d , Preset = %d\n",BufMonostables->Base,BufMonostables->Preset);
                     BufMonostables++;
                 }
             }
@@ -676,7 +676,7 @@ char LoadSectionsParams(char * FileName)
                         {
                             if (atoi(&Line[5])>1)
                             {
-                                printf("Sections file version not supported...\n");
+                                rtapi_print_msg(RTAPI_MSG_ERR, "Sections file version not supported...\n");
                                 LineOk = FALSE;
                             }
                         }
@@ -930,7 +930,7 @@ char LoadSymbols(char * FileName)
 						{
 							if (atoi(&Line[5])>1)
 							{
-								printf("Symbols file version not supported...\n");
+								rtapi_print_msg(RTAPI_MSG_ERR, "Symbols file version not supported...\n");
 								LineOk = FALSE;
 							}
 						}
@@ -985,7 +985,7 @@ void SymbolsAutoAssign (int VariableBuf,char SymbolBuf[],char CommentBuf[])
 			case S32OUT:numofvariable= InfosGene->SizesInfos.nbr_s32out +InfosGene->SizesInfos.nbr_s32in;
 				startnum=InfosGene->SizesInfos.nbr_s32in;break;
 				
-			default : printf("Cannot auto assign symbol names-wrong variable name");return;
+			default : rtapi_print_msg(RTAPI_MSG_ERR, "Cannot auto assign symbol names-wrong variable name");return;
 	}
 //printf("variable to assin %i   number of variables available %i\n",numofvariable-startnum,InfosGene->SizesInfos.nbr_symbols);
 	//  assign variable to each s32in pin...
@@ -1075,29 +1075,29 @@ void LoadAllLadderDatas(char * DatasDirectory)
 	char FileName[500];
 	InitAllLadderDatas( TRUE );
 
-	printf("Loading datas from %s...\n", DatasDirectory);
+	rtapi_print_msg(RTAPI_MSG_DBG, "Loading datas from %s...\n", DatasDirectory);
 	sprintf(FileName,"%s/timers.csv",DatasDirectory);
-	//printf("Loading timers datas from %s\n",FileName);
+	//rtapi_print_msg(RTAPI_MSG_DBG, "Loading timers datas from %s\n",FileName);
 	LoadTimersParams(FileName,TimerArray);
 	sprintf(FileName,"%s/monostables.csv",DatasDirectory);
-	//printf("Loading monostables datas from %s\n",FileName);
+	//rtapi_print_msg(RTAPI_MSG_DBG, "Loading monostables datas from %s\n",FileName);
 	LoadMonostablesParams(FileName,MonostableArray);
 	sprintf(FileName,"%s/counters.csv",DatasDirectory);
-	//printf("Loading counters datas from %s\n",FileName);
+	//rtapi_print_msg(RTAPI_MSG_DBG, "Loading counters datas from %s\n",FileName);
 	LoadCountersParams(FileName);
 	PrepareTimers();
 	PrepareMonostables();
 	PrepareCounters();
 
 	sprintf(FileName,"%s/arithmetic_expressions.csv",DatasDirectory);
-	//printf("Loading arithmetic expressions from %s\n",FileName);
+	//rtapi_print_msg(RTAPI_MSG_DBG, "Loading arithmetic expressions from %s\n",FileName);
 	LoadArithmeticExpr(FileName);
 
 	// Sections added since v0.5.5, the format of files has a little changed :
 	// before the prev/next rungs were not saved in each rung...
 	// and the nmber of rungs changed when saved...
 	sprintf(FileName,"%s/sections.csv",DatasDirectory);
-   // printf("Loading sections datas from %s\n",FileName);
+   // rtapi_print_msg(RTAPI_MSG_DBG, "Loading sections datas from %s\n",FileName);
 	if ( LoadSectionsParams(FileName) )
 	{
 		sprintf(FileName,"%s/rung_",DatasDirectory);
@@ -1105,7 +1105,7 @@ void LoadAllLadderDatas(char * DatasDirectory)
 	}
 	else
 	{
-		printf("Rungs with old format found (no sections)\n");
+		rtapi_print_msg(RTAPI_MSG_DBG, "Rungs with old format found (no sections)\n");
 		sprintf(FileName,"%s/rung_",DatasDirectory);
 		LoadAllRungs_V1(FileName,RungArray,&InfosGene->FirstRung,&InfosGene->LastRung,&InfosGene->CurrentRung);
 		// if we load old format files, sections wasn't created, so we must write theses infos...
@@ -1114,19 +1114,19 @@ void LoadAllLadderDatas(char * DatasDirectory)
 	}
 #ifdef SEQUENTIAL_SUPPORT
 	sprintf(FileName,"%s/sequential.csv",DatasDirectory);
-	//printf("Loading sequential datas from %s\n",FileName);
+	//rtapi_print_msg(RTAPI_MSG_DBG, "Loading sequential datas from %s\n",FileName);
 	LoadSequential( FileName );
 #endif
 	sprintf(FileName,"%s/ioconf.csv",DatasDirectory);
-	//printf("Loading I/O configuration datas from %s\n",FileName);
+	//rtapi_print_msg(RTAPI_MSG_DBG, "Loading I/O configuration datas from %s\n",FileName);
 	LoadIOConfParams( FileName );
 #ifdef USE_MODBUS
 	sprintf(FileName,"%s/modbusioconf.csv",DatasDirectory);
-	//printf("Loading modbus distributed I/O configuration datas from %s\n",FileName);
+	//rtapi_print_msg(RTAPI_MSG_DBG, "Loading modbus distributed I/O configuration datas from %s\n",FileName);
 	LoadModbusIOConfParams( FileName );
 #endif
 	sprintf(FileName,"%s/symbols.csv",DatasDirectory);
-	//printf("Loading symbols from %s\n",FileName);
+	//rtapi_print_msg(RTAPI_MSG_DBG, "Loading symbols from %s\n",FileName);
 	LoadSymbols(FileName);
 
 	PrepareRungs();
@@ -1244,21 +1244,21 @@ char LoadProjectFiles( char * FileProject )
 	char Result = FALSE;
 	char OldProjectFound = TRUE;
 //V0.7.5	InitTempDir( );
-//V0.7.5 printf("Init tmp dir=%s\n", TmpDirectory);
+//V0.7.5 rtapi_print_msg(RTAPI_MSG_DBG, "Init tmp dir=%s\n", TmpDirectory);
 	CleanTmpDirectory( TmpDirectory, FALSE );
 	/* if it is an old project, read directly from the directory selected... */
 	if ( strcmp( &FileProject[ strlen( FileProject ) -4 ], ".clp" )==0 )
 		OldProjectFound = FALSE;
 	if ( OldProjectFound )
 	{
-		printf("Loading an old project (many files in a directory) !\n");
+		rtapi_print_msg(RTAPI_MSG_DBG, "Loading an old project (many files in a directory) !\n");
 		LoadAllLadderDatas( FileProject );
 	}
 	else
 	{
 		// split files of the project in the temp directory
 		Result = SplitFiles( FileProject, TmpDirectory );
-printf("Load project '%s' in tmp dir=%s\n", FileProject, TmpDirectory);
+rtapi_print_msg(RTAPI_MSG_DBG, "Load project '%s' in tmp dir=%s\n", FileProject, TmpDirectory);
 		LoadAllLadderDatas( TmpDirectory );
 	}
 	return Result;
@@ -1268,7 +1268,7 @@ char SaveProjectFiles( char * FileProject )
 {
 //v0.7.5	InitTempDir( );
 	CleanTmpDirectory( TmpDirectory, FALSE );
-printf("Save project '%s' from tmp dir=%s\n", FileProject, TmpDirectory);
+rtapi_print_msg(RTAPI_MSG_DBG, "Save project '%s' from tmp dir=%s\n", FileProject, TmpDirectory);
 	SaveAllLadderDatas( TmpDirectory );
 	if ( strcmp( &FileProject[ strlen( FileProject ) -4 ], ".clp" )!=0 )
 		strcat( FileProject, ".clp" );
@@ -1302,7 +1302,7 @@ void CleanTmpDirectory( char * Directory, char DestroyDir )
 		/* delete the temp directory if wanted */
 		if ( DestroyDir )
 		{rmdir(Directory); // _rmdir() for Win32 ?
-			printf("removing temp dir-%s\n",Directory);}
+			rtapi_print_msg(RTAPI_MSG_DBG, "removing temp dir-%s\n",Directory);}
 	}
 }
 

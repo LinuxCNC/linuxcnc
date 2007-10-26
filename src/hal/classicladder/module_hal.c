@@ -129,7 +129,7 @@ int rtapi_app_main(void) {
 	compId = hal_init("classicladder_rt");
 	if(compId < 0) return compId;
 
-	rtapi_print("creating ladder-state\n");
+	rtapi_print_msg(RTAPI_MSG_INFO, "creating ladder-state\n");
 
 	result = hal_export_funct("classicladder.0.refresh",hal_task,0,1, 0, compId);
 	if(result < 0) {

@@ -1210,7 +1210,7 @@ static gint PeriodicUpdateDisplay(gpointer data)
 
 void InitGtkWindows( int argc, char *argv[] )
 {
-	printf( "Your GTK+ version is %d.%d.%d\n", gtk_major_version, gtk_minor_version,
+	rtapi_print_msg(RTAPI_MSG_DBG, "Your GTK+ version is %d.%d.%d\n", gtk_major_version, gtk_minor_version,
 			gtk_micro_version );
 //ProblemWithPrint	g_thread_init (NULL);
 //ProblemWithPrint	gdk_threads_init ();

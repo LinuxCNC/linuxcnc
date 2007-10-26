@@ -144,8 +144,6 @@ char TmpDirectory[ 400 ];
 /* return TRUE if okay */
 int ClassicLadderAllocAll()
 {
-
-#if defined(HAL_SUPPORT)
     unsigned char *pByte; 
     unsigned long bytes = sizeof(StrInfosGene) + sizeof(long);
     unsigned long *shmBase;
@@ -177,15 +175,15 @@ int ClassicLadderAllocAll()
 #endif
     bytes += numWords * sizeof(int);
     bytes += numBits * sizeof(TYPE_FOR_BOOL_VAR);
-     
 #endif
+     
     // Attach SHMEM with proper size.
     if ((ShmemId = rtapi_shmem_new(CL_SHMEM_KEY, compId, bytes)) < 0) {
-        rtapi_print("Failed to alloc shared memory (%x %d %lu) !\n",
+        rtapi_print_msg(RTAPI_MSG_ERR, "Failed to alloc shared memory (%x %d %lu) !\n",
                 CL_SHMEM_KEY, compId, bytes);
         return FALSE;
     }
-    rtapi_print("Shared memory: %x %d %lu\n",
+    rtapi_print_msg(RTAPI_MSG_INFO, "Shared memory: %x %d %lu\n",
                 CL_SHMEM_KEY, compId, bytes);
     // Map SHMEM.
     if (rtapi_shmem_getptr(ShmemId, (void **) &shmBase) < 0) {
@@ -229,7 +227,7 @@ int ClassicLadderAllocAll()
     InfosGene->CurrentSection = 0;
 #endif
 
-     rtapi_print("Sizes: rungs- %d bits- %d words- %d timers- %d mono- %d count- %d \n HAL Bin- %d HAL Bout- %d expressions- %d sections- %d symbols - %d\n s32in - %d s32out- %d\n",
+     rtapi_print_msg(RTAPI_MSG_INFO, "Sizes: rungs- %d bits- %d words- %d timers- %d mono- %d count- %d \n HAL Bin- %d HAL Bout- %d expressions- %d sections- %d symbols - %d\n s32in - %d s32out- %d\n",
         pSizesInfos->nbr_rungs,
         pSizesInfos->nbr_bits,
         pSizesInfos->nbr_words,
@@ -281,171 +279,13 @@ int ClassicLadderAllocAll()
     // Allocate last for alignment reasons.
     VarArray = (TYPE_FOR_BOOL_VAR *) pByte;
 
-    rtapi_print("VarArray = %p (%ld)\n", VarArray, (long)(pByte - (unsigned char*)shmBase));
-#elif !defined(RT_SUPPORT)
-
-	InfosGene = (StrInfosGene *)malloc( sizeof(StrInfosGene) );
-	if (!InfosGene)
-	{
-		printf("Failed to alloc InfosGene !\n");
-		return FALSE;
-	}
-	// set sizes values before making the next allocs...
-#ifdef DYNAMIC_PLCSIZE
-//	plc_sizeinfo = &sinfo;
-	memcpy( &InfosGene->SizesInfos, &sinfo, sizeof( plc_sizeinfo_s ) );
-//printf("Will alloc %d rungs, %d timers, %d monostables...\n", InfosGene->SizesInfos.nbr_rungs, InfosGene->SizesInfos.nbr_timers, InfosGene->SizesInfos.nbr_monostables);
-#endif
-	RungArray = (StrRung *)malloc( NBR_RUNGS * sizeof(StrRung) );
-	if (!RungArray)
-	{
-		rtapi_print("Failed to alloc RungArray !\n");
-		return FALSE;
-	}
-	TimerArray = (StrTimer *)malloc( NBR_TIMERS * sizeof(StrTimer) );
-	if (!TimerArray)
-	{
-		rtapi_print("Failed to alloc TimerArray !\n");
-		return FALSE;
-	}
-	MonostableArray = (StrMonostable *)malloc( NBR_MONOSTABLES * sizeof(StrMonostable) );
-	if (!MonostableArray)
-	{
-		rtapi_print("Failed to alloc MonostableArray !\n");
-		return FALSE;
-	}
-	CounterArray = (StrCounter *)malloc( NBR_COUNTERS * sizeof(StrCounter) );
-	if (!CounterArray)
-	{
-		rtapi_print("Failed to alloc CounterArray !\n");
-		return FALSE;
-	}
-	VarArray = (TYPE_FOR_BOOL_VAR *)malloc( SIZE_VAR_ARRAY * sizeof(TYPE_FOR_BOOL_VAR) );
-	if (!VarArray)
-	{
-		rtapi_print("Failed to alloc VarArray !\n");
-		return FALSE;
-	}
-	VarWordArray = (int *)malloc( SIZE_VAR_WORD_ARRAY * sizeof(int) );
-	if (!VarWordArray)
-	{
-		rtapi_print("Failed to alloc VarWordArray !\n");
-		return FALSE;
-	}
-	ArithmExpr = (StrArithmExpr *)malloc( NBR_ARITHM_EXPR * sizeof(StrArithmExpr) );
-	if (!ArithmExpr)
-	{
-		rtapi_print("Failed to alloc ArithmExpr !\n");
-		return FALSE;
-	}
-	SectionArray = (StrSection *)malloc( NBR_SECTIONS * sizeof(StrSection) );
-	if (!SectionArray)
-	{
-		rtapi_print("Failed to alloc SectionArray !\n");
-		return FALSE;
-	}
-#ifdef SEQUENTIAL_SUPPORT
-	Sequential = (StrSequential *)malloc( sizeof(StrSequential) );
-	if (!Sequential)
-	{
-		rtapi_print("Failed to alloc Sequential !\n");
-		return FALSE;
-	}
-#endif
-	SymbolArray = (StrSymbol *)malloc( NBR_SYMBOLS * sizeof(StrSymbol) );
-	if (!SymbolArray)
-	{
-		rtapi_print("Failed to alloc SymbolArray !\n");
-		return FALSE;
-	}
-
-#else
-
-	InfosGene = (StrInfosGene *)mbuff_alloc( "InfosGene", sizeof(StrInfosGene) );
-	if (!InfosGene)
-	{
-		debug_printf("Failed to alloc InfosGene shared memory !\n");
-		debug_printf("The real-time module must be inserted before...\n");
-		debug_printf("See the README to know how you must launch the real-time version !\n");
-		return FALSE;
-	}
-	// get sizes before making the next allocs...
-#if defined( DYNAMIC_PLCSIZE ) && defined( MODULE )
-	// get default values...
-	memcpy( &InfosGene->SizesInfos, &sinfo, sizeof( plc_sizeinfo_s ) );
-	// get RT module parameters
-	CopySizesInfosFromModuleParams( );
-#endif
-	RungArray = (StrRung *)mbuff_alloc( "Rungs", NBR_RUNGS * sizeof(StrRung) );
-	if (!RungArray)
-	{
-		debug_printf("Failed to alloc RungArray shared memory !\n");
-		return FALSE;
-	}
-	TimerArray = (StrTimer *)mbuff_alloc( "Timers", NBR_TIMERS * sizeof(StrTimer) );
-	if (!TimerArray)
-	{
-		debug_printf("Failed to alloc TimerArray shared memory !\n");
-		return FALSE;
-	}
-	MonostableArray = (StrMonostable *)mbuff_alloc( "Monostables", NBR_MONOSTABLES * sizeof(StrMonostable) );
-	if (!MonostableArray)
-	{
-		debug_printf("Failed to alloc MonostableArray shared memory !\n");
-		return FALSE;
-	}
-	CounterArray = (StrCounter *)mbuff_alloc( "Counters", NBR_COUNTERS * sizeof(StrCounters) );
-	if (!CounterArray)
-	{
-		debug_printf("Failed to alloc CounterArray shared memory !\n");
-		return FALSE;
-	}
-	VarArray = (TYPE_FOR_BOOL_VAR *)mbuff_alloc( "VarsBits", SIZE_VAR_ARRAY * sizeof(TYPE_FOR_BOOL_VAR) );
-	if (!VarArray)
-	{
-		debug_printf("Failed to alloc VarArray shared memory !\n");
-		return FALSE;
-	}
-	VarWordArray = (int *)mbuff_alloc( "VarWords", SIZE_VAR_WORD_ARRAY * sizeof(int) );
-	if (!VarWordArray)
-	{
-		debug_printf("Failed to alloc VarWordArray shared memory !\n");
-		return FALSE;
-	}
-	ArithmExpr = (StrArithmExpr *)mbuff_alloc( "ArithmExpr", NBR_ARITHM_EXPR * sizeof(StrArithmExpr) );
-	if (!ArithmExpr)
-	{
-		debug_printf("Failed to alloc ArithmExpr shared memory !\n");
-		return FALSE;
-	}
-	SectionArray = (StrSection *)mbuff_alloc( "Sections", NBR_SECTIONS * sizeof(StrSection) );
-	if (!SectionArray)
-	{
-		debug_printf("Failed to alloc SectionArray shared memory !\n");
-		return FALSE;
-	}
-#ifdef SEQUENTIAL_SUPPORT
-	Sequential = (StrSequential *)mbuff_alloc( "Sequential", sizeof(StrSequential) );
-	if (!Sequential)
-	{
-		debug_printf("Failed to alloc Sequential shared memory !\n");
-		return FALSE;
-	}
-#endif
-	SymbolArray = (StrSection *)mbuff_alloc( "Symbols", NBR_SYMBOL * sizeof(StrSymbol) );
-	if (!SymbolArray)
-	{
-		debug_printf("Failed to alloc SymbolArray shared memory !\n");
-		return FALSE;
-	}
-
-#endif
+    rtapi_print_msg(RTAPI_MSG_INFO, "VarArray = %p (%ld)\n", VarArray, (long)(pByte - (unsigned char*)shmBase));
 
 #ifdef GTK_INTERFACE
 	EditArithmExpr = (StrArithmExpr *)malloc( NBR_ARITHM_EXPR * sizeof(StrArithmExpr) );
 	if (!EditArithmExpr)
 	{
-		rtapi_print("Failed to alloc EditArithmExpr !\n");
+		rtapi_print_msg(RTAPI_MSG_ERR, "Failed to alloc EditArithmExpr !\n");
 		return FALSE;
 	}
 #endif
