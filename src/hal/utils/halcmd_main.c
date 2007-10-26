@@ -324,9 +324,9 @@ static void print_help_general(int showR)
     printf("  -V             Very verbose - print lots of junk.\n");
     printf("  -h             Help - print this help screen and exit.\n\n");
     printf("commands:\n\n");
-    printf("  loadrt, unloadrt, loadusr, lock, unlock, linkps, linksp, linkpp,\n");
-    printf("  unlinkp, newsig, delsig, setp, getp, sets, gets, addf, delf, show,\n");
-    printf("  list, save, status, start, stop, quit, exit\n");
+    printf("  loadrt, loadusr, waitusr, unload, lock, unlock, net, linkps, linksp,\n");
+    printf("  unlinkp, newsig, delsig, setp, getp, ptype, sets, gets, stype,\n");
+    printf("  addf, delf, show, list, save, status, start, stop, source, quit, exit\n");
     printf("  help           Lists all commands with short descriptions\n");
     printf("  help command   Prints detailed help for 'command'\n\n");
 }
