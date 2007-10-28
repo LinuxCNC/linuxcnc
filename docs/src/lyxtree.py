@@ -65,6 +65,15 @@ class LyxTreeMaker:
 	self.e.appendChild(n)
 	return n
 
+    SUPPORTED_VERSION = 221
+    def do_lyxformat(self, tokens):
+	version = int(tokens[0])
+	if version != self.SUPPORTED_VERSION:
+	    raise SystemExit, (
+		"This file is version %d, but lyxtree " 
+		"can only process files of version %d" % 
+		    (version, self.SUPPORTED_VERSION))
+
     def begin_inset(self, tokens):
 	dummy_inset = 1
 	k = tokens[0]
