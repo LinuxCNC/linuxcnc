@@ -22,6 +22,7 @@ DOC_SRCS := \
 	code/Code_Notes.lyx \
 	code/Style_Guide.lyx \
 	gui/axis.lyx \
+	gui/axis_fr.lyx \
 	gui/halui.lyx \
 	gui/mini.lyx \
 	gui/tkemc.lyx \
@@ -29,6 +30,7 @@ DOC_SRCS := \
 	Master_Developer.lyx \
 	Master_Integrator.lyx \
 	Master_User.lyx \
+	Master_User_fr.lyx \
 	common/GPLD_Copyright.lyx \
 	common/Glossary.lyx \
 	common/emc2_introduction.lyx \
@@ -65,7 +67,7 @@ DOC_TARGETS_XML:=$(patsubst $(DOC_DIR)/html/%.html, objects/%.xml,\
 	 $(DOC_TARGETS_HTML))
 
 MAN_HTML_TARGETS := $(patsubst $(DOC_DIR)/man/%, $(DOC_DIR)/html/man/%.html, $(MAN_SRCS))
-PDF_TARGETS := $(addprefix $(DOC_DIR)/,HAL_User_Manual.pdf EMC2_User_Manual.pdf EMC2_Developer_Manual.pdf EMC2_Integrator_Manual.pdf EMC2_Manual_Pages.pdf)
+PDF_TARGETS := $(addprefix $(DOC_DIR)/,HAL_User_Manual.pdf EMC2_User_Manual.pdf EMC2_Developer_Manual.pdf EMC2_Integrator_Manual.pdf EMC2_Manual_Pages.pdf EMC2_User_Manual_fr.pdf)
 HTML_TARGETS := $(DOC_TARGETS_HTML) $(MAN_HTML_TARGETS) $(DOC_DIR)/html/index.html $(DOC_DIR)/html/xref.html
 
 L2HFLAGS := -init_file src/.latex2html-init -local_icons \
@@ -110,6 +112,8 @@ $(DOC_DIR)/EMC2_Manual_Pages.pdf: $(MAN_SRCS) objects/var-PDF_MAN_ORDER
 $(DOC_DIR)/HAL_User_Manual.pdf: $(DOC_SRCDIR)/Master_HAL.pdf
 	@ln -f $< $@
 $(DOC_DIR)/EMC2_User_Manual.pdf: $(DOC_SRCDIR)/Master_User.pdf
+	@ln -f $< $@
+$(DOC_DIR)/EMC2_User_Manual_fr.pdf: $(DOC_SRCDIR)/Master_User_fr.pdf
 	@ln -f $< $@
 $(DOC_DIR)/EMC2_Developer_Manual.pdf: $(DOC_SRCDIR)/Master_Developer.pdf
 	@ln -f $< $@
