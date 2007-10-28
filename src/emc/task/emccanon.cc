@@ -46,6 +46,8 @@
 static int debug_velacc = 0;
 static double css_maximum, css_numerator;
 
+static const double tiny = 1e-10;
+
 #ifndef MIN
 #define MIN(a,b) ((a)<(b)?(a):(b))
 #endif
@@ -312,8 +314,6 @@ double getStraightAcceleration(double x, double y, double z,
     double tx, ty, tz, tu, tv, tw, ta, tb, tc, tmax;
     double acc, dtot;
 
-    const double tiny = 1e-15;
-
     acc = 0.0; // if a move to nowhere
 
     // Compute absolute travel distance for each axis:
@@ -429,8 +429,6 @@ double getStraightVelocity(double x, double y, double z,
     double dx, dy, dz, da, db, dc, du, dv, dw;
     double tx, ty, tz, ta, tb, tc, tu, tv, tw, tmax;
     double vel, dtot;
-
-    const double tiny = 1e-10;
 
 /* If we get a move to nowhere (!cartesian_move && !angular_move)
    we might as well go there at the currentLinearFeedRate...
@@ -747,7 +745,7 @@ void STRAIGHT_TRAVERSE(double x, double y, double z,
     if(feed_mode)
 	STOP_SPEED_FEED_SYNCH();
 
-    if(acc) 
+    if(vel && acc) 
         interp_list.append(linearMoveMsg);
 
     if(old_feed_mode)
@@ -1519,7 +1517,7 @@ void CHANGE_TOOL(int slot)
 	if(feed_mode)
 	    STOP_SPEED_FEED_SYNCH();
 
-        if(acc) 
+        if(vel && acc) 
             interp_list.append(linearMoveMsg);
 
 	if(old_feed_mode)
