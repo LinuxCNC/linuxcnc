@@ -4,6 +4,19 @@ The main EMC2 makefile can optionally build the documentation from lyx and
 other files in this directory tree.  Use --enable-build-documentation when
 invoking emc2/src/configure, and run make from emc2/src
 
+
+Version of LyX to use:
+
+The LyX files must be in a version understood by lyx on Ubuntu Dapper as well
+as the LyX-to-html converter.  This is "version 221".  On systems with newer
+versions, it appears that the documentation can be edited as long as it is
+converted to 221 format before being committed.  The following commands
+accomplish this:
+    /usr/share/lyx/lyx2lyx/lyx2lyx --to 221 example.lyx > example.tmp.lyx
+    (verify that example.tmp.lyx is OK)
+    mv example.tmp.lyx example.lyx
+
+
 Notes about drawings:
 
 Many of the lyx documents include drawings.  Most of them were originally
