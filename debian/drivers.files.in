@@ -18,3 +18,4 @@
 @MODULE_PATH@/serport@MODULE_EXT@
 usr/bin/m5i20cfg
 usr/bin/pci_write
+usr/bin/pci_read

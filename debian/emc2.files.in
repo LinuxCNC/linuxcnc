@@ -9,8 +9,6 @@ usr/bin/halcmd
 usr/bin/halrun
 usr/bin/halrmt
 usr/bin/emclcd
-usr/bin/pci_read
-usr/bin/pci_write
 usr/bin/rs274
 @MODULE_PATH@/abs@MODULE_EXT@
 @MODULE_PATH@/and2@MODULE_EXT@
@@ -177,6 +175,7 @@ etc/emc2/sample-configs/halui_halvcp/sim.tbl
 etc/emc2/sample-configs/halui_halvcp/sim.var
 etc/emc2/sample-configs/hexapod-sim/core_sim_6.hal
 etc/emc2/sample-configs/hexapod-sim/emc.nml
+etc/emc2/sample-configs/hexapod-sim/hexagui.hal
 etc/emc2/sample-configs/hexapod-sim/hexapod.tbl
 etc/emc2/sample-configs/hexapod-sim/hexapod.var
 etc/emc2/sample-configs/hexapod-sim/minitetra.ini
@@ -301,6 +300,7 @@ etc/emc2/sample-configs/sim/sim.var
 etc/emc2/sample-configs/sim/sim-xyyz.hal
 etc/emc2/sample-configs/sim/test.vcp
 etc/emc2/sample-configs/sim/tkemc.ini
+etc/emc2/sample-configs/sim/tracking-test.hal
 etc/emc2/sample-configs/sim/tripod.ini
 etc/emc2/sample-configs/sim/tripodsim.hal
 etc/emc2/sample-configs/sim/xemc.ini
@@ -458,6 +458,7 @@ etc/X11/app-defaults/TkEmc
 etc/X11/app-defaults/XEmc
 usr/share/man/man1/axis-remote.1
 usr/share/man/man1/axis.1
+usr/share/man/man1/comp.1
 usr/share/man/man1/emc.1
 usr/share/man/man1/hal_input.1
 usr/share/man/man1/hal_joystick.1
@@ -467,6 +468,9 @@ usr/share/man/man1/halrun.1
 usr/share/man/man1/halsampler.1
 usr/share/man/man1/halstreamer.1
 usr/share/man/man1/halui.1
+usr/share/man/man1/io.1
+usr/share/man/man1/iocontrol.1
+usr/share/man/man1/pyvcp.1
 usr/share/man/man3/hal_unlink.3hal
 usr/share/man/man9/abs.9
 usr/share/man/man9/and2.9
@@ -505,8 +509,6 @@ usr/share/man/man9/freqgen.9
 usr/share/man/man9/genhexkins.9
 usr/share/man/man9/hypot.9
 usr/share/man/man9/integ.9
-usr/share/man/man9/io.9
-usr/share/man/man9/iocontrol.9
 usr/share/man/man9/kins.9
 usr/share/man/man9/knob2float.9
 usr/share/man/man9/limit1.9
@@ -650,5 +652,6 @@ usr/share/locale/ro/LC_MESSAGES/axis.mo
 usr/share/locale/ru/LC_MESSAGES/axis.mo
 usr/share/locale/se/LC_MESSAGES/axis.mo
 usr/share/doc/emc2/EMC2_User_Manual.pdf
+usr/share/doc/emc2/EMC2_User_Manual_fr.pdf
 usr/share/doc/emc2/EMC2_Integrator_Manual.pdf
 usr/share/doc/emc2/gcode.html
