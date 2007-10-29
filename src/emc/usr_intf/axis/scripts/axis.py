@@ -2597,7 +2597,6 @@ class TclCommands(nf.TclCommands):
                 count += 1
             if selection != "":
 	        root_window.clipboard_append(selection, type = "STRING")
-        print "DBG: Copying %d selected mdi history element(s) to clipboard ..." % count
 
     def mdi_history_clip2hist(*event):
         try:
@@ -2621,7 +2620,6 @@ class TclCommands(nf.TclCommands):
                             history_size= (mdi_history_max_entries + 1)
                         mdi_history_index = widgets.mdi_history.index("end") - 1
             commands.mdi_history_write_to_file(mdi_history_save_filename, history_size)
-            print "DBG: Copy clipboard to mdi history. Added %d elements." % count
             return
         except Tkinter.TclError:
             print "DBG: Sorry, but the clipboard is empty ..."
@@ -2773,7 +2771,6 @@ class TclCommands(nf.TclCommands):
             p0 *= 25.4
 
         offset_command = "G10 L2 %s %c[%.12f-[%f*[%s]]]\n" % (system.split()[0], vars.current_axis.get(), p0, scale, new_axis_value)
-        print offset_command
         c.mdi(offset_command)
         ensure_mode(emc.MODE_MANUAL)
         s.poll()
