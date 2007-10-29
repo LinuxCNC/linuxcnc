@@ -488,8 +488,8 @@ HAL components
 
 Each HAL component is a piece of software with well-defined inputs, outputs,
  and behavior, that can be installed and interconnected as needed.
- This section lists available components and a brief description of what
- each does.
+ This section lists some of the available components and a brief description
+ of what each does.
  Complete details for each component are available later in this document.
 \layout Subsection
 
@@ -553,20 +553,6 @@ stepgen
  Software step pulse generator with position loop.
  See section 
 \begin_inset LatexCommand \ref{sec:Stepgen}
-
-\end_inset 
-
-
-\layout Description
-
-freqgen
-\begin_inset LatexCommand \index{freqgen}
-
-\end_inset 
-
- Software step pulse generator.
- See section 
-\begin_inset LatexCommand \ref{sec:Freqgen}
 
 \end_inset 
 
@@ -1016,10 +1002,9 @@ This kind of automatic HAL configuration is possible because all kinematics
 Timing Issues In HAL
 \layout Standard
 
-Threads is going to take a major intellectual push because unlike the physical
- wiring models between black boxes that we have said that HAL is based upon,
- simply connecting two pins with a hal-signal falls far short of the action
- of the physical case.
+Unlike the physical wiring models between black boxes that we have said
+ that HAL is based upon, simply connecting two pins with a hal-signal falls
+ far short of the action of the physical case.
  
 \layout Standard
 
@@ -1053,7 +1038,7 @@ d by how often the PLC evaluates the rung.
 \layout Standard
 
 In HAL, the function is the code that evaluates the rung(s).
- In fact a HAL-aware realtime version of ClassicLadder would export a function
+ In fact, the HAL-aware realtime version of ClassicLadder exports a function
  to do exactly that.
  Meanwhile, a thread is the thing that runs the function at specific time
  intervals.
@@ -1061,64 +1046,31 @@ In HAL, the function is the code that evaluates the rung(s).
  or every second, you can define HAL threads with different periods.
 \layout Standard
 
-What distinguishes one thread from another is _not_ what the thread does
- - that is determined by which functions are connected to it.
+What distinguishes one thread from another is 
+\emph on 
+not
+\emph default 
+ what the thread does - that is determined by which functions are connected
+ to it.
  The real distinction is simply how often a thread runs.
 \layout Standard
 
-In EMC we might have a 15uS thread, a 1mS thread, and a 10mS thread.
- These would be created based on "Period", "ServoPeriod", and "TrajPeriod"
- respectively - the actual times would depend on the ini.
- That is one part of the config process, and although it could be done manually,
- it would normally be automatic.
+In EMC you might have a 50
+\begin_inset Formula $\mu$
+\end_inset 
+
+s thread and a 1ms thread.
+ These would be created baseds on BASE_PERIOD and SERVO_PERIOD--the actual
+ times depend on the ini.
 \layout Standard
 
 The next step is to decide what each thread needs to do.
- Some of those decisions would also be automatic - the motion module would
- automatically connect its "PlanTrajectory" function to the TrajPeriod thread,
- and its "ControlMotion" function to the ServoPeriod thread.
- 
+ Some of those decisions are the same in (nearly) any emc system--For instance,
+ motion-command-handler is always added to servo-thread.
 \layout Standard
 
-Other connections would be made by the integrator (at least the first time).
+Other connections would be made by the integrator.
  These might include hooking the STG driver's encoder read and DAC write
- functions to the servo thread, or hooking stepgen's function to the fast
- thread, along with the parport function(s) to write the steps to the port.
-\layout Section
-
-
-\begin_inset LatexCommand \label{sec:Dynamic-Linking}
-
-\end_inset 
-
-Dynamic Linking and Configuration
-\layout Standard
-
-It is indeed possible to configure HAL with a form of dynamic linking.
- But it is different than DLLs as used by Microsoft(tm) or shared libraries
- as used in Linux.
- Both DLLs and shared libraries essentially say "Here I am, I have this
- code you might want to use", where "you" is other modules.
- Then when those other modules or programs are loaded, they say "I need
- a function called 'X', is there one?" and if the answer is YES, they link
- to it.
-\layout Standard
-
-With HAL, a component still says "Here I am, I have this code you might
- want to use", but "you" is the system integrator.
- The integrator gets to decide what functions are used and doesn't have
- to worry about another module needing "function X" and not finding it.
-\layout Standard
-
-HAL can follow the normal DLL model as well.
- Although most components will simply export pins, functions, and parameters,
- and then wait for the integrator (or a saved file) to interconnect them,
- we can write modules that (attempt to) make connections when they are installed.
- One specific place where this would work well is kinematics as illustrated
- in the Lego section 
-\begin_inset LatexCommand \ref{sub:A-Lego-Example}
-
-\end_inset 
-
- .
+ functions to the servo thread, or hooking stepgen's function to the base-thread
+, along with the parport function(s) to write the steps to the port.
 \the_end
