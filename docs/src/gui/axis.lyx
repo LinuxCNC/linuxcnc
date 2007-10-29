@@ -277,7 +277,7 @@ Code Entry
 \end_inset 
 
 Feed Override
-\begin_inset LatexCommand \index{Feed Override}
+\begin_inset LatexCommand \index{feed override}
 
 \end_inset 
 
@@ -299,7 +299,7 @@ A status bar which shows the state of the machine.
 \end_inset 
 
 Relative
-\begin_inset LatexCommand \index{Position: Relative}
+\begin_inset LatexCommand \index{position: relative}
 
 \end_inset 
 
@@ -312,7 +312,7 @@ Relative
 \end_inset 
 
 Absolute
-\begin_inset LatexCommand \index{Position: Absolute}
+\begin_inset LatexCommand \index{position: absolute}
 
 \end_inset 
 
@@ -325,7 +325,7 @@ Absolute
 \end_inset 
 
 Actual
-\begin_inset LatexCommand \index{Position: Actual}
+\begin_inset LatexCommand \index{position: actual}
 
 \end_inset 
 
@@ -338,7 +338,7 @@ Actual
 \end_inset 
 
 Commanded
-\begin_inset LatexCommand \index{Position: Commanded}
+\begin_inset LatexCommand \index{position: commanded}
 
 \end_inset 
 
@@ -372,7 +372,7 @@ Emergency Stop
 \layout Enumerate
 
 Toggle machine power
-\begin_inset LatexCommand \index{MachineOn}
+\begin_inset LatexCommand \index{machine on}
 
 \end_inset 
 
@@ -577,7 +577,7 @@ Actual
 \layout Subsubsection
 
 Preview Plot
-\begin_inset LatexCommand \index{Preview Plot}
+\begin_inset LatexCommand \index{preview plot}
 
 \end_inset 
 
@@ -611,7 +611,7 @@ X
 \layout Subsubsection
 
 Program Extents
-\begin_inset LatexCommand \index{Program Extents}
+\begin_inset LatexCommand \index{program extents}
 
 \end_inset 
 
@@ -1043,7 +1043,7 @@ Spindle
 \end_inset 
 
  group
-\begin_inset LatexCommand \index{Spindle}
+\begin_inset LatexCommand \index{spindle}
 
 \end_inset 
 
@@ -1068,7 +1068,7 @@ Coolant
 \end_inset 
 
  group
-\begin_inset LatexCommand \index{Coolant}
+\begin_inset LatexCommand \index{coolant}
 
 \end_inset 
 
@@ -1188,7 +1188,7 @@ G54 offset
 \layout Subsection
 
 Feed Override
-\begin_inset LatexCommand \index{Feed Override}
+\begin_inset LatexCommand \index{feed override}
 
 \end_inset 
 
@@ -1204,7 +1204,7 @@ F60
 \layout Subsection
 
 Spindle Speed Override
-\begin_inset LatexCommand \index{Spindle Speed Override}
+\begin_inset LatexCommand \index{spindle speed override}
 
 \end_inset 
 
@@ -1222,7 +1222,7 @@ motion.spindle-speed-out
 \layout Subsection
 
 Jog Speed
-\begin_inset LatexCommand \index{Jog Speed}
+\begin_inset LatexCommand \index{jog speed}
 
 \end_inset 
 
@@ -2022,7 +2022,7 @@ scripts/emc-environment
 \layout Section
 
 Using AXIS to control a CNC Lathe
-\begin_inset LatexCommand \index{Lathe}
+\begin_inset LatexCommand \index{lathe}
 
 \end_inset 
 

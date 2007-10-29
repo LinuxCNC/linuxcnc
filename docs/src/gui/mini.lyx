@@ -746,7 +746,7 @@ The position can be changed to display any one of several values by using
 \layout Subsection
 
 Feed rate Override
-\begin_inset LatexCommand \index{Feed Override}
+\begin_inset LatexCommand \index{feed override}
 
 \end_inset 
 

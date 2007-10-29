@@ -59,7 +59,7 @@ so that they look good in the published documents.
 
 Acme\SpecialChar ~
 Screw
-\begin_inset LatexCommand \index{Acme Screw}
+\begin_inset LatexCommand \index{acme screw}
 
 \end_inset 
 
@@ -85,7 +85,7 @@ Screw
 \layout Description
 
 Axis
-\begin_inset LatexCommand \index{Axis}
+\begin_inset LatexCommand \index{axis}
 
 \end_inset 
 
@@ -103,7 +103,7 @@ ely.
 \layout Description
 
 Backlash
-\begin_inset LatexCommand \index{Backlash}
+\begin_inset LatexCommand \index{backlash}
 
 \end_inset 
 
@@ -134,7 +134,7 @@ Backlash
 
 Backlash\SpecialChar ~
 Compensation
-\begin_inset LatexCommand \index{Backlash Compensation}
+\begin_inset LatexCommand \index{backlash compensation}
 
 \end_inset 
 
@@ -149,7 +149,7 @@ Compensation
 
 Ball\SpecialChar ~
 Screw
-\begin_inset LatexCommand \index{Ball Screw}
+\begin_inset LatexCommand \index{ball screw}
 
 \end_inset 
 
@@ -175,7 +175,7 @@ Screw
 
 Ball\SpecialChar ~
 Nut
-\begin_inset LatexCommand \index{Ball Nut}
+\begin_inset LatexCommand \index{ball nut}
 
 \end_inset 
 
@@ -213,7 +213,7 @@ CNC
 Coordinate\SpecialChar ~
 Measuring\SpecialChar ~
 Machine
-\begin_inset LatexCommand \index{Coordinate Measuring Machine}
+\begin_inset LatexCommand \index{coordinate measuring machine}
 
 \end_inset 
 
@@ -316,7 +316,7 @@ EMCMOT
 \layout Description
 
 Encoder
-\begin_inset LatexCommand \index{Encoder}
+\begin_inset LatexCommand \index{encoder}
 
 \end_inset 
 
@@ -332,7 +332,7 @@ Encoder
 \layout Description
 
 Feed
-\begin_inset LatexCommand \index{Feed}
+\begin_inset LatexCommand \index{feed}
 
 \end_inset 
 
@@ -346,7 +346,7 @@ Feed
 
 Feed\SpecialChar ~
 rate
-\begin_inset LatexCommand \index{Feed rate}
+\begin_inset LatexCommand \index{feed rate}
 
 \end_inset 
 
@@ -357,7 +357,7 @@ rate
 \layout Description
 
 Feedback
-\begin_inset LatexCommand \index{Feedback}
+\begin_inset LatexCommand \index{feedback}
 
 \end_inset 
 
@@ -373,7 +373,7 @@ Feedback
 Feed\SpecialChar ~
 rate\SpecialChar ~
 Override
-\begin_inset LatexCommand \index{Feed Override}
+\begin_inset LatexCommand \index{feed override}
 
 \end_inset 
 
@@ -441,7 +441,7 @@ EMC An application that presents a graphical screen to the machine operator
 \layout Description
 
 Home
-\begin_inset LatexCommand \index{Home}
+\begin_inset LatexCommand \index{home}
 
 \end_inset 
 
@@ -475,7 +475,7 @@ file
 
 Joint\SpecialChar ~
 Coordinates
-\begin_inset LatexCommand \index{Joint Coordinates}
+\begin_inset LatexCommand \index{joint coordinates}
 
 \end_inset 
 
@@ -495,7 +495,7 @@ See
 \layout Description
 
 Jog
-\begin_inset LatexCommand \index{Jog}
+\begin_inset LatexCommand \index{jog}
 
 \end_inset 
 
@@ -518,7 +518,7 @@ kernel-space
 \layout Description
 
 Kinematics
-\begin_inset LatexCommand \index{Kinematics}
+\begin_inset LatexCommand \index{kinematics}
 
 \end_inset 
 
@@ -548,7 +548,7 @@ s.
 \layout Description
 
 Lead-screw
-\begin_inset LatexCommand \index{LeadScrew}
+\begin_inset LatexCommand \index{lead screw}
 
 \end_inset 
 
@@ -608,7 +608,7 @@ NIST
 \layout Description
 
 Offsets
-\begin_inset LatexCommand \index{Offsets}
+\begin_inset LatexCommand \index{offsets}
 
 \end_inset 
 
@@ -622,7 +622,7 @@ Offsets
 
 Part\SpecialChar ~
 Program
-\begin_inset LatexCommand \index{Part Program}
+\begin_inset LatexCommand \index{part Program}
 
 \end_inset 
 
@@ -641,7 +641,7 @@ Program
 \layout Description
 
 Rapid
-\begin_inset LatexCommand \index{Rapid}
+\begin_inset LatexCommand \index{rapid}
 
 \end_inset 
 
@@ -778,7 +778,7 @@ RS-274/NGC
 
 Servo\SpecialChar ~
 Motor
-\begin_inset LatexCommand \index{Servo Motor}
+\begin_inset LatexCommand \index{servo motor}
 
 \end_inset 
 
@@ -792,7 +792,7 @@ Motor
 
 Servo\SpecialChar ~
 Loop
-\begin_inset LatexCommand \index{Loop}
+\begin_inset LatexCommand \index{loop}
 
 \end_inset 
 
@@ -805,7 +805,7 @@ Loop
 \layout Description
 
 Spindle
-\begin_inset LatexCommand \index{Spindle}
+\begin_inset LatexCommand \index{spindle}
 
 \end_inset 
 
@@ -820,7 +820,7 @@ Spindle
 
 Stepper\SpecialChar ~
 Motor
-\begin_inset LatexCommand \index{Stepper Motor}
+\begin_inset LatexCommand \index{stepper motor}
 
 \end_inset 
 
@@ -874,7 +874,7 @@ Tcl/Tk
 
 World\SpecialChar ~
 Coordinates
-\begin_inset LatexCommand \index{World Coordinates}
+\begin_inset LatexCommand \index{world coordinates}
 
 \end_inset 
 

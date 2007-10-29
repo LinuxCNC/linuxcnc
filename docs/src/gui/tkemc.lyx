@@ -152,7 +152,7 @@ E-STOP
 \end_inset 
 
 Home
-\begin_inset LatexCommand \index{Home}
+\begin_inset LatexCommand \index{home}
 
 \end_inset 
 
@@ -205,7 +205,7 @@ A set of sliders which control
 \end_inset 
 
 Jogging speed
-\begin_inset LatexCommand \index{Jog Speed}
+\begin_inset LatexCommand \index{jog speed}
 
 \end_inset 
 
@@ -218,7 +218,7 @@ Jogging speed
 \end_inset 
 
 Feed Override
-\begin_inset LatexCommand \index{Feed Override}
+\begin_inset LatexCommand \index{feed override}
 
 \end_inset 
 
@@ -231,7 +231,7 @@ Feed Override
 \end_inset 
 
 Spindle speed Override
-\begin_inset LatexCommand \index{Spindle Speed Override}
+\begin_inset LatexCommand \index{spindle speed override}
 
 \end_inset 
 
@@ -309,7 +309,7 @@ Decrease spindle speed
 \layout Enumerate
 
 Set spindle
-\begin_inset LatexCommand \index{Spindle}
+\begin_inset LatexCommand \index{spindle}
 
 \end_inset 
 
@@ -559,7 +559,7 @@ The buttons in the lower part of TkEMC (seen in Figure
 \end_inset 
 
 Open
-\begin_inset LatexCommand \index{Open}
+\begin_inset LatexCommand \index{open}
 
 \end_inset 
 
@@ -572,7 +572,7 @@ Open
 \end_inset 
 
 Verify
-\begin_inset LatexCommand \index{Verify}
+\begin_inset LatexCommand \index{verify}
 
 \end_inset 
 
@@ -585,7 +585,7 @@ Verify
 \end_inset 
 
 Run
-\begin_inset LatexCommand \index{Run}
+\begin_inset LatexCommand \index{run}
 
 \end_inset 
 
@@ -598,7 +598,7 @@ Run
 \end_inset 
 
 Pause
-\begin_inset LatexCommand \index{Pause}
+\begin_inset LatexCommand \index{pause}
 
 \end_inset 
 
@@ -611,7 +611,7 @@ Pause
 \end_inset 
 
 Resume
-\begin_inset LatexCommand \index{Resume}
+\begin_inset LatexCommand \index{resume}
 
 \end_inset 
 
@@ -624,7 +624,7 @@ Resume
 \end_inset 
 
 Step
-\begin_inset LatexCommand \index{Step}
+\begin_inset LatexCommand \index{step}
 
 \end_inset 
 
@@ -637,7 +637,7 @@ Step
 \end_inset 
 
 Optional Stop
-\begin_inset LatexCommand \index{Optional Stop}
+\begin_inset LatexCommand \index{optional stop}
 
 \end_inset 
 
@@ -793,7 +793,7 @@ The
 \end_inset 
 
 Spindle
-\begin_inset LatexCommand \index{Spindle}
+\begin_inset LatexCommand \index{spindle}
 
 \end_inset 
 
@@ -818,7 +818,7 @@ The
 \end_inset 
 
 Coolant
-\begin_inset LatexCommand \index{Coolant}
+\begin_inset LatexCommand \index{coolant}
 
 \end_inset 
 

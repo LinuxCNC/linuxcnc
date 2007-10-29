@@ -83,7 +83,7 @@ Most of this chapter is based on the sample config released along with EMC2.
 \end_inset 
 
 Maximum step rate
-\begin_inset LatexCommand \index{Step Rate}
+\begin_inset LatexCommand \index{step rate}
 
 \end_inset 
 
@@ -121,7 +121,7 @@ If no valid combination of BASE_PERIOD, INPUT_SCALE, and MAX_VELOCITY is
 \end_inset 
 
 Pinout
-\begin_inset LatexCommand \index{Pinout}
+\begin_inset LatexCommand \index{pinout}
 
 \end_inset 
 
@@ -306,7 +306,7 @@ Hint: make sure you don't have more than one signal connected to the same
 \end_inset 
 
 Changing the polarity of a signal
-\begin_inset LatexCommand \index{Signal Polarity}
+\begin_inset LatexCommand \index{signal polarity}
 
 \end_inset 
 
@@ -338,7 +338,7 @@ setp parport.0.pin-09-invert TRUE
 \end_inset 
 
 Adding PWM Spindle Speed Control
-\begin_inset LatexCommand \index{Spindle Speed Control}
+\begin_inset LatexCommand \index{spindle speed control}
 
 \end_inset 
 
@@ -464,7 +464,7 @@ make sure you use a maintained switch for ESTOP.
 , EMC2 will be in the ESTOP state.
  When the external button gets released EMC2 will imediately switch to the
  ESTOP-RESET state, and all you need to do is switch to Machine On
-\begin_inset LatexCommand \index{MachineOn}
+\begin_inset LatexCommand \index{machine on}
 
 \end_inset 
 

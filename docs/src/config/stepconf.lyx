@@ -533,7 +533,7 @@ Parallel port pinout
 \layout Subsubsection
 
 Spindle Speed Control
-\begin_inset LatexCommand \index{Spindle Speed Control}
+\begin_inset LatexCommand \index{spindle speed control}
 
 \end_inset 
 
@@ -606,7 +606,7 @@ Spindle-synchronized motion (lathe threading)
 \end_inset 
 
 
-\begin_inset LatexCommand \index{Spindle-synchronized motion}
+\begin_inset LatexCommand \index{spindle-synchronized motion}
 
 \end_inset 
 

@@ -1024,7 +1024,7 @@ feed rate override
 \shape default 
 \noun default 
 
-\begin_inset LatexCommand \index{Feed Override}
+\begin_inset LatexCommand \index{feed override}
 
 \end_inset 
 
@@ -1136,7 +1136,7 @@ The biggest task of a machine integrator is figuring out how to connect
 \layout Subsection
 
 Units
-\begin_inset LatexCommand \index{Units}
+\begin_inset LatexCommand \index{units}
 
 \end_inset 
 
