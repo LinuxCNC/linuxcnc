@@ -82,7 +82,7 @@ A machining center has many mechanical components that may be controlled
 \layout Subsection
 
 Axes
-\begin_inset LatexCommand \index{Axes}
+\begin_inset LatexCommand \index{axes}
 
 \end_inset 
 
@@ -141,7 +141,7 @@ gantry
 \layout Subsubsection
 
 Primary Linear Axes
-\begin_inset LatexCommand \index{Axes, Primary Linear}
+\begin_inset LatexCommand \index{axes, primary linear}
 
 \end_inset 
 
@@ -153,7 +153,7 @@ The X, Y, and Z axes produce linear motion in three mutually orthogonal
 \layout Subsubsection
 
 Secondary Linear Axes
-\begin_inset LatexCommand \index{Axes, Secondary Linear}
+\begin_inset LatexCommand \index{axes, secondary linear}
 
 \end_inset 
 
@@ -167,7 +167,7 @@ The U, V, and W axes produce linear motion in three mutually orthogonal
 \layout Subsubsection
 
 Rotational Axes
-\begin_inset LatexCommand \index{Axes, Rotational}
+\begin_inset LatexCommand \index{axes, rotational}
 
 \end_inset 
 
@@ -180,7 +180,7 @@ The A, B and C axes produce angular motion (rotation).
 \layout Subsection
 
 Spindle
-\begin_inset LatexCommand \index{Spindle}
+\begin_inset LatexCommand \index{spindle}
 
 \end_inset 
 
@@ -200,7 +200,7 @@ A machining center has a spindle which holds one cutting tool, probe, or
 \layout Subsection
 
 Coolant
-\begin_inset LatexCommand \index{Coolant}
+\begin_inset LatexCommand \index{coolant}
 
 \end_inset 
 
@@ -211,7 +211,7 @@ A machining center has components to provide mist coolant and/or flood coolant.
 \layout Subsection
 
 Pallet Shuttle
-\begin_inset LatexCommand \index{Pallet Shuttle}
+\begin_inset LatexCommand \index{pallet shuttle}
 
 \end_inset 
 
@@ -225,7 +225,7 @@ A machining center has a pallet shuttle system.
 \layout Subsection
 
 Tool Carousel
-\begin_inset LatexCommand \index{Tool Carousel}
+\begin_inset LatexCommand \index{tool carousel}
 
 \end_inset 
 
@@ -238,7 +238,7 @@ A machining center has a tool carousel with slots for tools fixed in tool
 \layout Subsection
 
 Tool Changer
-\begin_inset LatexCommand \index{Tool Changer}
+\begin_inset LatexCommand \index{tool changer}
 
 \end_inset 
 
@@ -258,12 +258,12 @@ A machining center has a device that can display messages.
 \layout Subsection
 
 Feed
-\begin_inset LatexCommand \index{Feed Override}
+\begin_inset LatexCommand \index{feed override}
 
 \end_inset 
 
  and Speed
-\begin_inset LatexCommand \index{Spindle Speed Override}
+\begin_inset LatexCommand \index{spindle speed override}
 
 \end_inset 
 
@@ -288,7 +288,7 @@ A machining center has separate feed and speed override switches, which
 \layout Subsection
 
 Block Delete Switch
-\begin_inset LatexCommand \index{Optional Block Delete}
+\begin_inset LatexCommand \index{optional block delete}
 
 \end_inset 
 
@@ -310,7 +310,7 @@ A machining center has a block delete switch.
 \layout Subsection
 
 Optional Program Stop
-\begin_inset LatexCommand \index{Optional Program Stop}
+\begin_inset LatexCommand \index{optional program stop}
 
 \end_inset 
 
@@ -474,7 +474,7 @@ Coordinated linear motion can be performed either at the prevailing feed
 \layout Subsection
 
 Feed Rate
-\begin_inset LatexCommand \index{Feed rate}
+\begin_inset LatexCommand \index{feed rate}
 
 \end_inset 
 
@@ -536,7 +536,7 @@ pseudo-cartesian
 \layout Subsection
 
 Coolant
-\begin_inset LatexCommand \index{Coolant}
+\begin_inset LatexCommand \index{coolant}
 
 \end_inset 
 
@@ -553,7 +553,7 @@ Flood coolant and mist coolant may each be turned on independently.
 \layout Subsection
 
 Dwell
-\begin_inset LatexCommand \index{Dwell}
+\begin_inset LatexCommand \index{dwell}
 
 \end_inset 
 
@@ -574,7 +574,7 @@ A machining center may be commanded to dwell (i.e., keep all axes unmoving)
 \layout Subsection
 
 Units
-\begin_inset LatexCommand \index{Units}
+\begin_inset LatexCommand \index{units}
 
 \end_inset 
 
@@ -686,7 +686,7 @@ The feed and speed override switches may be enabled (so they work as expected)
 \layout Subsection
 
 Path Control Mode
-\begin_inset LatexCommand \index{Path Control Mode}
+\begin_inset LatexCommand \index{path control mode}
 
 \end_inset 
 
@@ -752,7 +752,7 @@ EMC2 reacts to the speed and feed override settings when these switches
 \layout Subsection
 
 Block Delete
-\begin_inset LatexCommand \index{Block Delete}
+\begin_inset LatexCommand \index{block delete}
 
 \end_inset 
 
@@ -772,7 +772,7 @@ If the block delete switch is on, lines of RS274/NGC code which start with
 \layout Subsection
 
 Optional Program Stop
-\begin_inset LatexCommand \index{Optional Program Stop}
+\begin_inset LatexCommand \index{optional program stop}
 
 \end_inset 
 
@@ -826,14 +826,14 @@ Sample Tool File
 
 
 \begin_inset  Tabular
-<lyxtabular version="3" rows="9" columns="5">
+<lyxtabular version="3" rows="10" columns="5">
 <features>
 <column alignment="center" valignment="top" leftline="true" width="0">
 <column alignment="center" valignment="top" leftline="true" width="0">
 <column alignment="center" valignment="top" leftline="true" width="0">
 <column alignment="center" valignment="top" leftline="true" width="0">
 <column alignment="center" valignment="top" leftline="true" rightline="true" width="0">
-<row topline="true" bottomline="true">
+<row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
@@ -872,6 +872,43 @@ Diameter
 \layout Standard
 
 Comment
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
 \end_inset 
 </cell>
 </row>
@@ -1225,7 +1262,7 @@ large chuck
 
 The file consists of any number of header lines, followed by one blank line,
  followed by any number of lines of data.
- The header lines are ignored.
+ The header lines are ignored by the interpreter.
  It is important that there be exactly one blank line (with no spaces or
  tabs, even) before the data.
  The header line shown in Table 
@@ -1338,10 +1375,19 @@ The lines do not have to be in any particular order.
  is used on two or more lines, which should not normally be done, in which
  case the data for only the last such line will be used.
  
+\layout Standard
+
+In emc, the location of the tool file is specified in the ini file.
+ See section 
+\begin_inset LatexCommand \ref{sub:[EMCIO]-Section}
+
+\end_inset 
+
+ for more details.
 \layout Section
 
 Parameters
-\begin_inset LatexCommand \index{Parameters}
+\begin_inset LatexCommand \index{parameters}
 
 \end_inset 
 
@@ -1882,7 +1928,7 @@ G28 Home Y
 \layout Section
 
 Coordinate Systems
-\begin_inset LatexCommand \index{Coordinate Systems}
+\begin_inset LatexCommand \index{coordinate systems}
 
 \end_inset 
 
