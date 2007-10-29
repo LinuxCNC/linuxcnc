@@ -11,7 +11,7 @@ msgstr ""
 "Project-Id-Version: fr_axis\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2007-08-27 22:44+0200\n"
-"PO-Revision-Date: 2007-09-18 22:45+0200\n"
+"PO-Revision-Date: 2007-10-28 00:30+0200\n"
 "Last-Translator: Francis TISSERANT <ftissera@free.fr>\n"
 "Language-Team: Français <gnomefr@traduc.org>\n"
 "MIME-Version: 1.0\n"
@@ -73,7 +73,7 @@ msgstr "Sélecteur de vitesse angulaire de jog"
 
 #: emc/usr_intf/axis/scripts/axis.py:135
 msgid "I, Shift-I"
-msgstr "I, Maj-I"
+msgstr "I, Maj+I"
 
 #: emc/usr_intf/axis/scripts/axis.py:135 ../share/axis/tcl/axis.tcl:2053
 msgid "Select jog increment"
@@ -93,7 +93,7 @@ msgstr "Prise d'origine machine de l'axe courant"
 
 #: emc/usr_intf/axis/scripts/axis.py:138
 msgid "Ctrl-Home"
-msgstr "Ctrl-Home"
+msgstr "Ctrl+origine"
 
 #: emc/usr_intf/axis/scripts/axis.py:138
 msgid "Home all axes"
@@ -101,7 +101,7 @@ msgstr "Prise d'origine machine de tous les axes"
 
 #: emc/usr_intf/axis/scripts/axis.py:139
 msgid "Shift-Home"
-msgstr "Maj-Home"
+msgstr "Maj+origine"
 
 #: emc/usr_intf/axis/scripts/axis.py:139
 msgid "Zero G54 offset for active axis"
@@ -198,11 +198,11 @@ msgstr "Contrôle manuel"
 
 #: emc/usr_intf/axis/scripts/axis.py:157
 msgid "Code entry (MDI)"
-msgstr "Commandes manuelles (MDI)"
+msgstr "Entrée de codes (MDI)"
 
 #: emc/usr_intf/axis/scripts/axis.py:158
 msgid "Control-M"
-msgstr "Ctrl-M"
+msgstr "Ctrl+M"
 
 #: emc/usr_intf/axis/scripts/axis.py:158
 msgid "Clear MDI history"
@@ -210,7 +210,7 @@ msgstr "Vider l'historique du MDI"
 
 #: emc/usr_intf/axis/scripts/axis.py:159
 msgid "Control-H"
-msgstr "Ctrl-H"
+msgstr "Ctrl+H"
 
 #: emc/usr_intf/axis/scripts/axis.py:159
 msgid "Copy selected MDI history elements"
@@ -222,7 +222,7 @@ msgstr "dans le presse-papiers"
 
 #: emc/usr_intf/axis/scripts/axis.py:161
 msgid "Control-Shift-H"
-msgstr "Ctrl-Maj-H"
+msgstr "Ctrl+Maj+H"
 
 #: emc/usr_intf/axis/scripts/axis.py:161
 msgid "Paste clipboard to MDI history"
@@ -238,7 +238,7 @@ msgstr "Ouvrir un programme"
 
 #: emc/usr_intf/axis/scripts/axis.py:165
 msgid "Control-R"
-msgstr "Ctrl-R"
+msgstr "Ctrl+R"
 
 #: emc/usr_intf/axis/scripts/axis.py:165
 msgid "Reload program"
@@ -246,7 +246,7 @@ msgstr "Recharger le programme"
 
 #: emc/usr_intf/axis/scripts/axis.py:166
 msgid "Control-S"
-msgstr "Ctrl-S"
+msgstr "Ctrl+S"
 
 #: emc/usr_intf/axis/scripts/axis.py:166
 msgid "Save g-code as"
@@ -290,7 +290,7 @@ msgstr "Frein de broche désactivé"
 
 #: emc/usr_intf/axis/scripts/axis.py:178
 msgid "Shift-B"
-msgstr "Maj-B"
+msgstr "Maj+B"
 
 #: emc/usr_intf/axis/scripts/axis.py:178
 msgid "Spindle brake on"
@@ -314,7 +314,7 @@ msgstr "Augmenter la vitesse de broche"
 
 #: emc/usr_intf/axis/scripts/axis.py:184
 msgid "Control-K"
-msgstr "Ctrl-K"
+msgstr "Ctrl+K"
 
 #: emc/usr_intf/axis/scripts/axis.py:184
 msgid "Clear live plot"
@@ -322,7 +322,7 @@ msgstr "Rafraîchir le chemin d'outil"
 
 #: emc/usr_intf/axis/scripts/axis.py:185
 msgid "Cycle among preset views"
-msgstr "Cyclage des vues présélectionnées"
+msgstr "Défilement cyclique des vues prédéfinies"
 
 #: emc/usr_intf/axis/scripts/axis.py:1347
 msgid "AXIS error"
@@ -522,7 +522,7 @@ msgstr "POM générale"
 
 #: emc/usr_intf/axis/scripts/axis.py:3226
 msgid "Home all axes [Ctrl-Home]"
-msgstr "Prise d'origine machine générale [Ctrl-Home]"
+msgstr "Prise d'origine machine générale [Ctrl+origine]"
 
 #: emc/usr_intf/axis/scripts/axis.py:3229
 msgid "Home All Axes"
@@ -562,7 +562,7 @@ msgstr "Changement d'outil manuel d'AXIS"
 msgid ""
 "This window is part of the AXIS manual toolchanger.  It is safe to close or "
 "iconify this window, or it will close automatically after a few seconds."
-msgstr "Cette fenêtre fait partie du changeur d'outil manuel. Elle peut être fermée ou réduite sinon elle se fermera automatiquement après quelques secondes."
+msgstr "Cette fenêtre fait partie du changement manuel d'outil. Elle peut être fermée ou réduite sinon elle se fermera automatiquement après quelques secondes."
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:498
 #, python-format
@@ -791,7 +791,7 @@ msgstr "_Editer"
 
 #: ../share/axis/tcl/axis.tcl:50
 msgid "Ctrl-R"
-msgstr "Ctrl-R"
+msgstr "Ctrl+R"
 
 #: ../share/axis/tcl/axis.tcl:52
 msgid "_Reload"
@@ -799,7 +799,7 @@ msgstr "_Recharger"
 
 #: ../share/axis/tcl/axis.tcl:55
 msgid "Ctrl-S"
-msgstr "Ctrl-S"
+msgstr "Ctrl+S"
 
 #: ../share/axis/tcl/axis.tcl:57
 msgid "_Save gcode as..."
@@ -867,7 +867,7 @@ msgstr "Passer les lignes avec '_/'"
 
 #: ../share/axis/tcl/axis.tcl:140
 msgid "Ctrl-M"
-msgstr "Ctrl-M"
+msgstr "Ctrl+M"
 
 #: ../share/axis/tcl/axis.tcl:142
 msgid "Clear MDI h_istory"
@@ -875,7 +875,7 @@ msgstr "Vider l'h_istorique du MDI"
 
 #: ../share/axis/tcl/axis.tcl:144
 msgid "Ctrl-H"
-msgstr "Ctrl-H"
+msgstr "Ctrl+H"
 
 #: ../share/axis/tcl/axis.tcl:146
 msgid "Copy from MDI hist_ory"
@@ -883,7 +883,7 @@ msgstr "Copier depuis l'hist_orique du MDI"
 
 #: ../share/axis/tcl/axis.tcl:148
 msgid "Ctrl-Shift-H"
-msgstr "Ctrl-Maj-H"
+msgstr "Ctrl+Maj+H"
 
 #: ../share/axis/tcl/axis.tcl:150
 msgid "Paste to MDI histor_y"
@@ -907,7 +907,7 @@ msgstr "Ha_l Scope"
 
 #: ../share/axis/tcl/axis.tcl:172
 msgid "Sho_w EMC Status"
-msgstr "Afficher le status d'EMC"
+msgstr "Fenêtre d'état d'EMC"
 
 #: ../share/axis/tcl/axis.tcl:176
 msgid "Set _Debug Level"
@@ -1019,7 +1019,7 @@ msgstr "Afficher la _distance restante"
 
 #: ../share/axis/tcl/axis.tcl:373
 msgid "Ctrl-K"
-msgstr "Ctrl-K"
+msgstr "Ctrl+K"
 
 #: ../share/axis/tcl/axis.tcl:375
 msgid "_Clear live plot"
@@ -1139,7 +1139,7 @@ msgstr "Bascule entre « glisser la vue » et « tourner la vue» "
 
 #: ../share/axis/tcl/axis.tcl:606
 msgid "Clear live plot [Ctrl-K]"
-msgstr "Rafraîchi le tracé du chemin d'outil [Ctrl-K]"
+msgstr "Rafraîchi le tracé du chemin d'outil [Ctrl+K]"
 
 #: ../share/axis/tcl/axis.tcl:722
 msgid "Manual Control [F3]"
@@ -1147,11 +1147,11 @@ msgstr "Contrôle manuel [F3]"
 
 #: ../share/axis/tcl/axis.tcl:723
 msgid "MDI [F5]"
-msgstr "MDI [F5]"
+msgstr "Données manuelles [F5]"
 
 #: ../share/axis/tcl/axis.tcl:735
 msgid "Axis:"
-msgstr "Axe:"
+msgstr "Axes:"
 
 #: ../share/axis/tcl/axis.tcl:1001
 msgid "Spindle:"
@@ -1299,7 +1299,7 @@ msgstr "Diminuer la vitesse de broche [F11]"
 
 #: ../share/axis/tcl/axis.tcl:2040
 msgid "Turn spindle brake on [Shift-B] or off [B]"
-msgstr "Activer [Maj-B] ou arrêter [B] le frein de broche"
+msgstr "Activer [Maj+B] ou arrêter [B] le frein de broche"
 
 #: ../share/axis/tcl/axis.tcl:2041
 msgid "Turn flood on or off [F8]"
@@ -1311,7 +1311,7 @@ msgstr "Avec ou sans brouillard [F7]"
 
 #: ../share/axis/tcl/axis.tcl:2043
 msgid "Send active axis home [Home]"
-msgstr "Prise d'origine machine de l'axe courant [Home]"
+msgstr "Prise d'origine machine de l'axe courant [origine]"
 
 #: ../share/axis/tcl/axis.tcl:2044
 msgid "Set G54 offset for active axis [End]"
