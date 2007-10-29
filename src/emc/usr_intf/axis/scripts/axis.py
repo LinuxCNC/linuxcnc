@@ -127,8 +127,7 @@ help1 = [
     ("Y, 1", _("Activate second axis")),
     ("Z, 2", _("Activate third axis")),
     ("A, 3", _("Activate fourth axis")),
-    ("   4", _("Activate fifth axis")),
-    ("   5", _("Activate sixth axis")),
+    ("4..8", _("Activate fifth through ninth axis")),
     ("`, 1..9, 0", _("Set Feed Override from 0% to 100%")),
     (_(", and ."), _("Select jog speed")),
     (_("< and >"), _("Select angular jog speed")),
@@ -2747,6 +2746,7 @@ class TclCommands(nf.TclCommands):
         reload_file(False)
         
     def touch_off(event=None, new_axis_value = None):
+        global system
         if not manual_ok(): return
         if s.motion_mode == emc.TRAJ_MODE_FREE and s.kinematics_type != emc.KINEMATICS_IDENTITY: return
         offset_axis = "xyzabcuvw".index(vars.current_axis.get())
@@ -2754,6 +2754,8 @@ class TclCommands(nf.TclCommands):
             new_axis_value, system = prompt_touchoff(_("Touch Off"),
                 _("Enter %s coordinate relative to workpiece:")
                         % vars.current_axis.get().upper(), 0.0, vars.touch_off_system.get())
+        else:
+            system = vars.touch_off_system.get()
         if new_axis_value is None: return
         vars.touch_off_system.set(system)
         ensure_mode(emc.MODE_MDI)
@@ -2771,6 +2773,7 @@ class TclCommands(nf.TclCommands):
             p0 *= 25.4
 
         offset_command = "G10 L2 %s %c[%.12f-[%f*[%s]]]\n" % (system.split()[0], vars.current_axis.get(), p0, scale, new_axis_value)
+        print offset_command
         c.mdi(offset_command)
         ensure_mode(emc.MODE_MANUAL)
         s.poll()
