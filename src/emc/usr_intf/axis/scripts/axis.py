@@ -2899,8 +2899,7 @@ class TclCommands(nf.TclCommands):
         f = root_window.tk.call("tk_getSaveFile", "-initialdir", open_directory,
             "-filetypes", ((_("rs274ngc files"), ".ngc"),))
         if not f: return
-        print type(f), repr(f)
-        f = str(f)
+        f = unicode(f)
         open_directory = os.path.dirname(f)
         if get_filter(loaded_file):
             srcfile = os.path.join(tempdir, os.path.basename(loaded_file))
@@ -2908,10 +2907,10 @@ class TclCommands(nf.TclCommands):
             srcfile = loaded_file
         try:
             shutil.copy(srcfile, f)
-        except (shutil.error, os.error), detail:
+        except (shutil.Error, os.error, IOError), detail:
             tb = traceback.format_exc()
             root_window.tk.call("nf_dialog", ".error", _("Error saving file"),
-                tb, "error", 0, _("OK"))
+                str(detail), "error", 0, _("OK"))
 
 commands = TclCommands(root_window)
 
