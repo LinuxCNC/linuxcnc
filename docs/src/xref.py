@@ -44,4 +44,4 @@ for fn in sys.argv[1:]:
 	anchor = n.getAttribute('id')
 	if re.match("^r[0-9_]*$", anchor): continue
 	Node('label', anchor=anchor, src=fh)
-sys.stdout.write(x.toprettyxml("  "))
+sys.stdout.write(x.toprettyxml("  ", encoding='utf-8'))
