@@ -743,18 +743,18 @@ static void selection_made(GtkWidget * clist, gint row, gint column,
 	   why.  If clist is null, it's a bad one! */
 	return;
     }
-    if ((event) && ((event->type != 4) && (event->type != 12))) {
-	/* We also get bad callbacks if you drag the mouse across the list
-	   with the button held down.  They can be distinguished because
-	   their event type is 3, not 4. 
-	   Apparently, event type 12 represents keyboarding into the list,
-	   so we accept that now as well. */
-	return;
-    }
-    /* If we get here, it should be a valid selection */
-    /* Get the text from the list */
-    gtk_clist_get_text(GTK_CLIST(clist), row, 0, &(probe->pickname));
-    return;
+
+    if (event) {
+        /* If we get here, it should be a valid selection */
+        /* Get the text from the list */
+        gtk_clist_get_text(GTK_CLIST(clist), row, 0, &(probe->pickname));
+        apply_selection(GTK_WIDGET(probe->window), probe);
+        if (event->type == GDK_2BUTTON_PRESS) {
+            close_selection(GTK_WIDGET(probe->window), probe);
+        }
+        return;
+    } 
+
 }
 
 static void page_switched(GtkNotebook *notebook, GtkNotebookPage *page,
