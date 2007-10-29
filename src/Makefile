@@ -402,7 +402,17 @@ NC_FILES=$(call GLOB,../nc_files/*)
 TCL=$(call GLOB,../tcl/*.tcl)
 TCL_BIN=$(call GLOB,../tcl/bin/*.tcl) ../tcl/bin/popimage
 
-install: install-kernel-dep install-kernel-indep
+install-test:
+	@if type -path dpkg-query > /dev/null 2>&1 ; then  \
+		if dpkg-query -S $(DESTDIR)/usr/bin/emc > /dev/null 2>&1 ; then \
+			echo "*** Error: Package version installed in $(DESTDIR)/usr"; \
+			echo "Use './configure --enable-run-in-place' or uninstall the emc2 package"; \
+			echo "before installing."; \
+			exit 1; \
+		fi \
+	fi
+
+install: install-test install-kernel-dep install-kernel-indep
 	$(ECHO) "Installed in $(DESTDIR) with prefix $(prefix)"
 
 install-dirs:
@@ -412,7 +422,7 @@ install-dirs:
 		$(DESTDIR)$(libdir) $(DESTDIR)$(includedir)/emc2 \
 		$(DESTDIR)$(docsdir) $(DESTDIR)$(ncfilesdir) \
 		$(DESTDIR)/etc/X11/app-defaults $(DESTDIR)$(tcldir)/bin \
-		$(DESTDIR)$(tcldir)/scripts \
+		$(DESTDIR)$(tcldir)/scripts $(DESTDIR)$(libdir)/emc/tcl \
 		$(DESTDIR)$(mandir)/man1 \
 		$(DESTDIR)$(mandir)/man3 \
 		$(DESTDIR)$(mandir)/man9 \
@@ -446,6 +456,7 @@ install-kernel-indep: install-dirs
 	$(FILE) ../app-defaults/XEmc $(DESTDIR)/etc/X11/app-defaults
 	$(FILE) Makefile.modinc $(DESTDIR)/etc/emc2
 	$(EXE) $(TCL) $(DESTDIR)$(tcldir)
+	$(FILE) ../tcl/hal.so $(DESTDIR)$(libdir)/emc/tcl
 	$(EXE) $(TCL_BIN) $(DESTDIR)$(tcldir)/bin
 	$(FILE) ../tcl/scripts/balloon.tcl ../tcl/scripts/emchelp.tcl $(DESTDIR)$(tcldir)/scripts
 	$(EXE) ../tcl/scripts/Set_Coordinates.tcl $(DESTDIR)$(tcldir)/scripts
