@@ -191,9 +191,14 @@ $(DOC_TARGETS_HTML): $(DOC_DIR)/html/%.html: objects/%.xml objects/xref.xml $(DO
 	$(ECHO) Converting $< to HTML
 	@xsltproc --stringparam docname "$*" --path objects -o $@ $(DOC_SRCDIR)/l2h.xsl $<
 
-$(DOC_DIR)/html/xref%.html: objects/xref%.xml $(DOC_SRCDIR)/xref.xsl $(DOC_SRCDIR)/docs.xml
+$(DOC_DIR)/html/xref.html: objects/xref.xml $(DOC_SRCDIR)/xref.xsl $(DOC_SRCDIR)/docs.xml
 	$(ECHO) Converting $< to HTML
 	@xsltproc --stringparam docname "xref" --path objects -o $@ $(DOC_SRCDIR)/xref.xsl $<
+	
+default: docs
+$(DOC_DIR)/html/xref_%.html: objects/xref_%.xml $(DOC_SRCDIR)/xref.xsl $(DOC_SRCDIR)/docs.xml
+	$(ECHO) Converting $< to HTML
+	@xsltproc --stringparam docname "xref_$*" --path objects -o $@ $(DOC_SRCDIR)/xref.xsl $<
 	
 default: docs
 
