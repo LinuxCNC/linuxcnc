@@ -393,6 +393,11 @@ Controlled Point
 \end_inset 
 
 
+\begin_inset LatexCommand \index{controlled point}
+
+\end_inset 
+
+
 \layout Standard
 
 The controlled point is the point whose position and rate of motion are
@@ -801,7 +806,98 @@ A tool file is required to use the Interpreter.
  and diameter of each tool are.
 \layout Standard
 
-The format of a tool file is exemplified in Table 
+The file consists of any number of header lines, followed by one blank line,
+ followed by any number of lines of data.
+ The header lines are ignored by the interpreter.
+ It is important that there be exactly one blank line (with no spaces or
+ tabs, even) before the data.
+ The header line shown in Table 
+\begin_inset LatexCommand \ref{cap:Sample-Tool-File}
+
+\end_inset 
+
+ describes the data columns, so it is suggested (but not required) that
+ such a line always be included in the header.
+\layout Standard
+
+Each data line of the file contains the data for one tool.
+ The line may contain 4 or 5 elements (
+\begin_inset Quotes eld
+\end_inset 
+
+mill format
+\begin_inset Quotes erd
+\end_inset 
+
+) or 8 or 9 elements (
+\begin_inset Quotes eld
+\end_inset 
+
+lathe format
+\begin_inset Quotes erd
+\end_inset 
+
+).
+\layout Standard
+
+The units used for the length and diameter are in machine units.
+\layout Standard
+
+The lines do not have to be in any particular order.
+ Switching the order of lines has no effect unless the same slot number
+ is used on two or more lines, which should not normally be done, in which
+ case the data for only the last such line will be used.
+ 
+\layout Standard
+
+In emc, the location of the tool file is specified in the ini file.
+ See section 
+\begin_inset LatexCommand \ref{sub:[EMCIO]-Section}
+
+\end_inset 
+
+ for more details.
+\layout Standard
+
+A tool file may have a mixture of 
+\begin_inset Quotes eld
+\end_inset 
+
+mill format
+\begin_inset Quotes erd
+\end_inset 
+
+ and 
+\begin_inset Quotes eld
+\end_inset 
+
+lathe format
+\begin_inset Quotes erd
+\end_inset 
+
+ lines, though usually the 
+\begin_inset Quotes eld
+\end_inset 
+
+lathe format
+\begin_inset Quotes erd
+\end_inset 
+
+ lines are only required for lathe-type tooling.
+\layout Subsection
+
+Mill Format Tool Files
+\layout Standard
+
+The 
+\begin_inset Quotes eld
+\end_inset 
+
+mill format
+\begin_inset Quotes erd
+\end_inset 
+
+ of a tool file is shown in Table 
 \begin_inset LatexCommand \ref{cap:Sample-Tool-File}
 
 \end_inset 
@@ -816,7 +912,7 @@ collapsed false
 
 \layout Caption
 
-Sample Tool File
+Sample Tool File (mill format)
 \begin_inset LatexCommand \label{cap:Sample-Tool-File}
 
 \end_inset 
@@ -826,7 +922,7 @@ Sample Tool File
 
 
 \begin_inset  Tabular
-<lyxtabular version="3" rows="10" columns="5">
+<lyxtabular version="3" rows="6" columns="5">
 <features>
 <column alignment="center" valignment="top" leftline="true" width="0">
 <column alignment="center" valignment="top" leftline="true" width="0">
@@ -1036,7 +1132,7 @@ endmill
 \end_inset 
 </cell>
 </row>
-<row topline="true">
+<row topline="true" bottomline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
@@ -1078,178 +1174,6 @@ for testing
 \end_inset 
 </cell>
 </row>
-<row topline="true">
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\layout Standard
-
-21
-\end_inset 
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\layout Standard
-
-21
-\end_inset 
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\layout Standard
-
-173.740
-\end_inset 
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\layout Standard
-
-0
-\end_inset 
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\layout Standard
-
-1/2
-\begin_inset Quotes erd
-\end_inset 
-
- spot drill
-\end_inset 
-</cell>
-</row>
-<row topline="true">
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\layout Standard
-
-32
-\end_inset 
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\layout Standard
-
-32
-\end_inset 
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\layout Standard
-
-247.615
-\end_inset 
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\layout Standard
-
-0
-\end_inset 
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\layout Standard
-
-8.5mm drill
-\end_inset 
-</cell>
-</row>
-<row topline="true">
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\layout Standard
-
-41
-\end_inset 
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\layout Standard
-
-41
-\end_inset 
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\layout Standard
-
-228.360
-\end_inset 
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\layout Standard
-
-0
-\end_inset 
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\layout Standard
-
-10mm tap
-\end_inset 
-</cell>
-</row>
-<row topline="true" bottomline="true">
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\layout Standard
-
-60
-\end_inset 
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\layout Standard
-
-60
-\end_inset 
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\layout Standard
-
-0
-\end_inset 
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\layout Standard
-
-0
-\end_inset 
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\layout Standard
-
-large chuck
-\end_inset 
-</cell>
-</row>
 </lyxtabular>
 
 \end_inset 
@@ -1260,22 +1184,7 @@ large chuck
 
 \layout Standard
 
-The file consists of any number of header lines, followed by one blank line,
- followed by any number of lines of data.
- The header lines are ignored by the interpreter.
- It is important that there be exactly one blank line (with no spaces or
- tabs, even) before the data.
- The header line shown in Table 
-\begin_inset LatexCommand \ref{cap:Sample-Tool-File}
-
-\end_inset 
-
- describes the data columns, so it is suggested (but not required) that
- such a line always be included in the header.
-\layout Standard
-
-Each data line of the file contains the data for one tool.
- Each line has five entries.
+Each line has five entries.
  The first four entries are required.
  The last entry (a comment) is optional.
  It makes reading easier if the entries are arranged in columns, as shown
@@ -1311,6 +1220,7 @@ FMS
  the tool.
  The user may use any code for any tool, as long as the codes are unsigned
  integers.
+ This is typically the same as the pocket number.
 \layout Standard
 
 The 
@@ -1361,29 +1271,405 @@ Comment
  column may optionally be used to describe the tool.
  Any type of description is OK.
  This column is for the benefit of human readers only.
+\layout Subsection
+
+Lathe Format Tool Files
 \layout Standard
 
-The units used for the length and diameter of the tool may be in either
- millimeters or inches, but if the data is used by an NC program, the user
- must be sure the units used for a tool in the file are the same as the
- units in effect when NC code that uses the tool data is interpreted.
- The table shows a mixture of types of units.
-\layout Standard
+The 
+\begin_inset Quotes eld
+\end_inset 
 
-The lines do not have to be in any particular order.
- Switching the order of lines has no effect unless the same slot number
- is used on two or more lines, which should not normally be done, in which
- case the data for only the last such line will be used.
- 
-\layout Standard
+lathe format
+\begin_inset Quotes erd
+\end_inset 
 
-In emc, the location of the tool file is specified in the ini file.
- See section 
-\begin_inset LatexCommand \ref{sub:[EMCIO]-Section}
+ of a tool file is shown in Table 
+\begin_inset LatexCommand \ref{cap:Lathe-Tool-File}
 
 \end_inset 
 
- for more details.
+.
+\layout Standard
+
+
+\begin_inset Float table
+wide false
+collapsed false
+
+\layout Caption
+
+Sample Tool File (lathe format)
+\begin_inset LatexCommand \label{cap:Lathe-Tool-File}
+
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset  Tabular
+<lyxtabular version="3" rows="4" columns="9">
+<features>
+<column alignment="center" valignment="top" leftline="true" width="0">
+<column alignment="center" valignment="top" leftline="true" width="0">
+<column alignment="center" valignment="top" leftline="true" width="0">
+<column alignment="center" valignment="top" leftline="true" width="0">
+<column alignment="center" valignment="top" leftline="true" width="0">
+<column alignment="center" valignment="top" leftline="true" width="0">
+<column alignment="center" valignment="top" leftline="true" width="0">
+<column alignment="center" valignment="top" leftline="true" width="0">
+<column alignment="center" valignment="top" leftline="true" rightline="true" width="0">
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Pocket
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+FMS
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+ZOFFSET
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+XOFFSET
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+DIA
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+FRONTANGLE
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+BACKANGLE
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+ORIENTATION
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Comment
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+1
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+1
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+0.0
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+0.0
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+0.1
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+95.0
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+155.0
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+1
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+</row>
+<row topline="true" bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+2
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+2
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+0.5
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+0.5
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+0.1
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+120
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+60
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+6
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Standard
+
+The Pocket, FMS, DIA and Comment fields are as for mill format tool files.
+ The ZOFFSET field is the same as the TLO field of mill format tool files.
+ 
+\layout Standard
+
+The XOFFSET field gives an offset for the X coordinate when tool length
+ offsets are in effect.
+ 
+\layout Standard
+
+The ORIENTATION field gives the orientation of the lathe tool, as illustrated
+ in 
+\begin_inset LatexCommand \ref{cap:Tool-Orientations}
+
+\end_inset 
+
+.
+ The red cross is the controlled point.
+ See 
+\begin_inset LatexCommand \ref{sub:Controlled-Point}
+
+\end_inset 
+
+.
+\layout Standard
+
+The FRONTANGLE and BACKANGLE fields are used by some user interfaces to
+ display a fancy representation of the lathe tool.
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Caption
+
+Tool Orientations
+\begin_inset LatexCommand \label{cap:Tool-Orientations}
+
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset Graphics
+	filename cutting_orientation2.png
+
+\end_inset 
+
+
+\end_inset 
+
+
 \layout Section
 
 Parameters
