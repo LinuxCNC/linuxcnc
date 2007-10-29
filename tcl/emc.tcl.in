@@ -2,6 +2,7 @@ namespace eval emc {
     variable HOME @EMC2_HOME@
     variable BIN_DIR @EMC2_BIN_DIR@
     variable TCL_DIR @EMC2_TCL_DIR@
+    variable TCL_LIB_DIR @EMC2_TCL_LIB_DIR@
     variable TCL_BIN_DIR @EMC2_TCL_DIR@/bin
     variable TCL_SCRIPT_DIR @EMC2_TCL_DIR@/scripts
     variable HELP_DIR @EMC2_HELP_DIR@
@@ -34,7 +35,7 @@ proc emc::image_search i {
 
 # Arrange to load hal.so when the 'hal' command is requested
 proc hal {args} {
-    load $::emc::TCL_DIR/hal.so
+    load $::emc::TCL_LIB_DIR/hal.so
     eval hal $args
 }
 
