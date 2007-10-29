@@ -587,6 +587,7 @@ usr/lib/python@PYTHON_VERSION@/site-packages/_tk_seticon.so
 usr/lib/python@PYTHON_VERSION@/site-packages/_togl.so
 usr/lib/python@PYTHON_VERSION@/site-packages/vcpparse.pyc
 usr/lib/python@PYTHON_VERSION@/site-packages/vismach.pyc
+usr/lib/emc/tcl/hal.so
 usr/share/axis/images/axis.ngc
 usr/share/axis/images/banner.gif
 usr/share/axis/images/cba0.gif
