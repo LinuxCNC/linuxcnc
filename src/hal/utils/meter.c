@@ -126,7 +126,6 @@ static char *data_value(int type, void *valptr);
 
 static void create_probe_window(probe_t * probe);
 static void apply_selection(GtkWidget * widget, gpointer data);
-static void apply_selection_and_close(GtkWidget * widget, gpointer data);
 static void close_selection(GtkWidget * widget, gpointer data);
 static void selection_made(GtkWidget * clist, gint row, gint column,
     GdkEventButton * event, gpointer data);
@@ -572,7 +571,7 @@ static char *data_value(int type, void *valptr)
 static void create_probe_window(probe_t * probe)
 {
     GtkWidget *vbox, *hbox, *notebk;
-    GtkWidget *button_OK, *button_apply, *button_cancel;
+    GtkWidget *button_close;
     GtkWidget *scrolled_window;
     gchar *tab_label_text[3];
     gint n;
@@ -645,34 +644,15 @@ static void create_probe_window(probe_t * probe)
     /* an hbox to hold the OK, apply, and cancel buttons */
     hbox = gtk_hbox_new_in_box(TRUE, 0, 0, vbox, FALSE, TRUE, 0);
 
-    /* create the buttons and add them to the hbox */
-    button_OK = gtk_button_new_with_label("_OK");
-    button_apply = gtk_button_new_with_label("_Apply");
-    button_cancel = gtk_button_new_with_label("_Cancel");
-    gtk_button_set_use_underline((GtkButton *)button_OK, TRUE);
-    gtk_button_set_use_underline((GtkButton *)button_apply, TRUE);
-    gtk_button_set_use_underline((GtkButton *)button_cancel, TRUE);
+    /* create the close button and add it to the hbox */
+    button_close = gtk_button_new_with_label("_Close");
+    gtk_button_set_use_underline((GtkButton *)button_close, TRUE);
+    gtk_box_pack_start(GTK_BOX(hbox), button_close, TRUE, TRUE, 4);
 
-
-    gtk_box_pack_start(GTK_BOX(hbox), button_OK, TRUE, TRUE, 4);
-    gtk_box_pack_start(GTK_BOX(hbox), button_apply, TRUE, TRUE, 4);
-    gtk_box_pack_start(GTK_BOX(hbox), button_cancel, TRUE, TRUE, 4);
-
-    /* activate the new selection if 'OK' button is clicked */
-    gtk_signal_connect(GTK_OBJECT(button_OK), "clicked",
-	GTK_SIGNAL_FUNC(apply_selection_and_close), probe);
-
-    /* activate the new selection if 'apply' button is clicked */
-    gtk_signal_connect(GTK_OBJECT(button_apply), "clicked",
-	GTK_SIGNAL_FUNC(apply_selection), probe);
-
-    /* make the window disappear if 'cancel' button is clicked */
-    gtk_signal_connect(GTK_OBJECT(button_cancel), "clicked",
+    /* make the window disappear if 'close' button is clicked */
+    gtk_signal_connect(GTK_OBJECT(button_close), "clicked",
 	GTK_SIGNAL_FUNC(close_selection), probe);
-
-    gtk_widget_show(button_OK);
-    gtk_widget_show(button_apply);
-    gtk_widget_show(button_cancel);
+    gtk_widget_show(button_close);
 
     /* set probe->window to NULL if window is destroyed */
     gtk_signal_connect(GTK_OBJECT(probe->window), "destroy",
@@ -708,12 +688,6 @@ static void apply_selection(GtkWidget * widget, gpointer data)
     }
     /* at this point, the probe structure contain a pointer to the item we
        wish to display, or all three are NULL if the item doesn't exist */
-}
-
-static void apply_selection_and_close(GtkWidget * widget, gpointer data)
-{
-    apply_selection(widget, data);
-    close_selection(widget, data);
 }
 
 static void close_selection(GtkWidget * widget, gpointer data)
