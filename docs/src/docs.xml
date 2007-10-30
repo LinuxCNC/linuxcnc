@@ -47,11 +47,11 @@
 </docgroup>
 
 <docgroup lang="fr">
-<doc name="install_compiling_emc2_fr" title="Compiling EMC2"/>
-<doc name="install_installing_emc2_fr" title="Installing EMC2"/>
-<doc name="gui_axis_fr" title="AXIS"/>
-<doc name="gui_image-to-gcode_fr" title="Image-to-gcode"/>
-<doc name="xref_fr" title="Cross Reference Index"/>
+<doc name="install_compiling_emc2_fr" title="Comment compiler EMC2"/>
+<doc name="install_installing_emc2_fr" title="Comment installer EMC2"/>
+<doc name="gui_axis_fr" title="L'interface graphique AXIS"/>
+<doc name="gui_image-to-gcode_fr" title="Image-vers-gcode"/>
+<doc name="xref_fr" title="Index général"/>
 </docgroup>
 
 </docs>
