@@ -31,6 +31,7 @@
 \papercolumns 1
 \papersides 2
 \paperpagestyle default
+\author ""
 
 \layout Chapter
 Utiliser l'interface graphique AXIS
@@ -70,7 +71,7 @@ collapsed false
 
 \layout Caption
 Fenêtre d'AXIS
-\begin_inset LatexCommand \label{cap:AXIS-Window}
+\begin_inset LatexCommand \label{cap:Fenêtre d'AXIS}
 
 \end_inset
 
@@ -111,7 +112,7 @@ DISPLAY
 DISPLAY = axis
 
 \layout Standard
-Puis, lancez emc2 et choisissez ce fichier ini.
+Puis, lancez emc2 et choisissez le fichier ini.
  La configuration simplifiée 
 \family typewriter
 sim/axis.ini
@@ -120,7 +121,7 @@ sim/axis.ini
 
 \layout Standard
 Quand vous démarrez AXIS, une fenêtre telle que celle de la figure 
-\begin_inset LatexCommand \ref{cap:AXIS-Window}
+\begin_inset LatexCommand \ref{cap:Fenêtre d'AXIS}
 
 \end_inset
 
@@ -170,8 +171,15 @@ Utilisez l'écran de tracé du chemin d'outil pour vérifier que le programme
 Bridez le brut à usiner sur la table.
 
 \layout Enumerate
-Réglez les décalages d'origine pièce de chacun des axes avec le jog et en
- utilisant le bouton 
+Faites les prises d'origine pièce 
+\begin_inset Quotes sld
+\end_inset
+
+POP
+\begin_inset Quotes srd
+\end_inset
+
+ de chacun des axes avec le jog et en utilisant le bouton 
 \begin_inset Quotes eld
 \end_inset
 
@@ -210,22 +218,14 @@ axis.ngc
 \begin_inset Quotes erd
 \end_inset
 
-), ainsi que la position courante du point contrôlé par la machine CNC
+), ainsi que la position courante du point programmé par la machine CNC
 \begin_inset LatexCommand \index{CNC}
 
 \end_inset
 
- (
-\begin_inset Quotes eld
-\end_inset
-
-controlled point
-\begin_inset Quotes erd
-\end_inset
-
-).
+.
  Plus tard, cette zone affichera le cheminement de l'outil déplacé par la
- machine CNC, c'est appelé le chemin d'outil (
+ machine CNC, cette zone est appelée le chemin d'outil (
 \begin_inset Quotes eld
 \end_inset
 
@@ -254,7 +254,7 @@ Contrôle manuel
 \end_inset
 
 , qui permet de faire des mouvements d'axe, de mettre la broche en rotation
- ou de l'arrêter, de mettre l'arrosage en marche ou de l'arrêter
+ ou de l'arrêter, de mettre l'arrosage en marche ou de l'arrêter.
 
 \layout Itemize
 L'onglet 
@@ -476,7 +476,7 @@ L'affichage des coordonnées est situé en haut à gauche de l'écran graphique.
 
 \end_inset
 
-) est visible si la prise d'origine de l'axe à été faite.
+) est visible si la prise d'origine de l'axe a été faite.
  A droite du nom de l'axe, un symbole de limite (
 \begin_inset Graphics
 	filename axis-limit.png
@@ -587,18 +587,18 @@ Vue du chemin d'outil
 \layout Standard
 Quand un fichier est chargé, une vue du chemin d'outil qu'il produira est
  visible dans la zone graphique.
- Les mouvements en vitesse rapide (tel ceux produits par une commande 
+ Les mouvements en vitesse rapide (tels ceux produits par une commande 
 \family typewriter
 G0
 \family default
 ) sont affichés en lignes pointillées vertes.
- Les déplacements en vitesse programmée (tel ceux produits par une commande
+ Les déplacements en vitesse programmée (tels ceux produits par une commande
  
 \family typewriter
 G1
 \family default
 ) sont affichés en lignes continues blanches.
- Les arrêts (tel ceux produits par la commande 
+ Les arrêts (tels ceux produits par la commande 
 \family typewriter
 G4
 \family default
@@ -634,7 +634,7 @@ Les
  coordonnées sont indiquées.
  Au milieu, la différence entre ces valeurs de coordonnées est visible.
  Sur la figure 
-\begin_inset LatexCommand \ref{cap:AXIS-Window}
+\begin_inset LatexCommand \ref{cap:Fenêtre d'AXIS}
 
 \end_inset
 
@@ -649,7 +649,7 @@ soft limits
 \begin_inset Quotes erd
 \end_inset
 
- établie dans le fichier .ini, la dimension correspondante et affichée dans
+ établie dans le fichier .ini, la dimension correspondante est affichée dans
  une couleur différente.
  Ici, la limite maximale est dépassée sur l'axe X:
 
@@ -915,7 +915,7 @@ En continu
 Le réglage du fichier .ini 
 \family typewriter
 [DISPLAY]INCREMENTS
-\begin_inset LatexCommand \label{DISPLAY-INCREMENTS}
+\begin_inset LatexCommand \label{Incréments du jog}
 
 \end_inset
 
@@ -923,8 +923,8 @@ Le réglage du fichier .ini
 \family default
  peut être utilisé pour remplacer ces valeurs par défaut.
  Ces valeurs doivent contenir des nombres décimaux (ex.
- 0.1000) ou des nombres fractionnaire (ex.
- 1/16), éventuellement suivi par une unité (une parmi 'cm', 'mm', 'um',
+ 0.1000) ou des nombres fractionnaires (ex.
+ 1/16), éventuellement suivis par une unité (une parmi 'cm', 'mm', 'um',
  'inch', 'in', ou 'mil').
  Si aucune unité n'est spécifiée, les unités natives de la machine seront
  utilisées.
@@ -961,7 +961,7 @@ Le mélange entre métrique et impérial est possible:
 INCREMENTS = 1 inch, 1 mil, 1 cm, 1 mm, 1 um
 
 \layout Standard
-Si votre machine à une séquence de prise d'origines machine définie, le
+Si votre machine a une séquence de prise d'origines machine définie, le
  bouton 
 \begin_inset Quotes eld
 \end_inset
@@ -1030,7 +1030,7 @@ collapsed false
 
 \layout Caption
 Toucher
-\begin_inset LatexCommand \label{cap:Touch-Off}
+\begin_inset LatexCommand \label{cap:Toucher}
 
 \end_inset
 
@@ -1039,7 +1039,7 @@ Toucher
 \layout Standard
 \align center
 \begin_inset Graphics
-	filename touchoff.png
+	filename touchoff_fr.png
 
 \end_inset
 
@@ -1047,6 +1047,9 @@ Toucher
 
 \end_inset
 
+
+
+\layout Standard
 
 
 \layout Standard
@@ -1083,10 +1086,11 @@ Broche
 \layout Standard
 Les boutons de la première rangée permettent de sélectionner la direction
  de rotation de la broche: Sens anti-horaire, Arrêt, Sens horaire.
- Les boutons de la rangée suivante augmente ou diminue la fréquence de rotation.
+ Les boutons de la rangée suivante augmentent ou diminuent la fréquence
+ de rotation.
  La case à cocher de la troisième rangée permet d'engager ou de relâcher
  le frein de broche.
- Selon la configuration de votre machine, ces éléments n'apparaîtrons peut
+ Selon la configuration de votre machine, ces éléments n'apparaîtront peut
  être pas tous.
 
 \layout Subsubsection
@@ -1123,7 +1127,7 @@ Arrosage
 \end_inset
 
  ou de les désactiver.
- Selon la configuration de votre machine, ces boutons n'apparaîtrons peut
+ Selon la configuration de votre machine, ces boutons n'apparaîtront peut
  être pas tous.
 
 \layout Subsection
@@ -1146,12 +1150,12 @@ wide false
 collapsed false
 
 \layout Caption
-L'onglet d'entrées manuelles
+L'onglet Données manuelles
 
 \layout Standard
 \align center
 \begin_inset Graphics
-	filename axis-codeentry.png
+	filename axis-codeentry_fr.png
 
 \end_inset
 
@@ -1252,7 +1256,7 @@ Correcteur de vitesse de broche
 En déplaçant ce curseur, la vitesse programmée de la broche peut être modifiée.
  Par exemple, si un programme requiert une vitesse à F8000 et que le curseur
  est placé sur 80%, alors la fréquence de rotation résultante sera de 6400.
- Cette élément n'apparaît que si la 
+ Cet élément n'apparaît que si la 
 \begin_inset Quotes eld
 \end_inset
 
@@ -1302,7 +1306,7 @@ Aide > Aide rapide
 
 \layout Standard
 Les raccourcis clavier les plus fréquents sont visibles dans la table 
-\begin_inset LatexCommand \ref{cap:Most-Common-Keyboard}
+\begin_inset LatexCommand \ref{cap:Raccourcis clavier usuels}
 
 \end_inset
 
@@ -1315,7 +1319,7 @@ collapsed false
 
 \layout Caption
 Raccourcis clavier usuels
-\begin_inset LatexCommand \label{cap:Most-Common-Keyboard}
+\begin_inset LatexCommand \label{cap:Raccourcis clavier usuels}
 
 \end_inset
 
@@ -1756,7 +1760,7 @@ V
 \begin_inset Text
 
 \layout Standard
-Défilement cyclic des vues prédéfinies
+Défilement cyclique des vues prédéfinies
 
 \end_inset
 </cell>
@@ -1813,7 +1817,7 @@ Fenêtre d'état d'EMC
 \layout Standard
 Le nom de chaque entrée est affiché dans la colonne de gauche.
  La valeur courante de chaque entrée s'affiche dans la colonne de droite.
- Si la valeur à changé récemment, elle s'affiche en surbrillance rouge.
+ Si la valeur a changé récemment, elle s'affiche en surbrillance rouge.
 
 \layout Section
 mdi: Interface d'entrée de texte (MDI)
@@ -1844,7 +1848,7 @@ MDI>
  affichée.
  Quand une commande est entrée, elle est passée à emc qui l'exécute.
  Une courte session MDI est visible sur la figure 
-\begin_inset LatexCommand \ref{cap:MDI-Session}
+\begin_inset LatexCommand \ref{cap:Session MDI}
 
 \end_inset
 
@@ -1857,7 +1861,7 @@ collapsed false
 
 \layout Caption
 Session MDI
-\begin_inset LatexCommand \label{cap:MDI-Session}
+\begin_inset LatexCommand \label{cap:Session MDI}
 
 \end_inset
 
@@ -1919,7 +1923,7 @@ axis-remote --help
 ).
 
 \layout Section
-hal_manualtoolchange: Dialogue de changement manuel d'outils
+hal_manualtoolchange: Dialogue de changement manuel d'outil
 
 \layout Standard
 AXIS inclut un composant Hall appelé 
@@ -1930,8 +1934,8 @@ hal_manualtoolchange
 \begin_inset Quotes erd
 \end_inset
 
-, il ouvre une fenêtre (Figure 
-\begin_inset LatexCommand \ref{cap:The-Manual-Toolchange}
+, il ouvre une fenêtre d'appel d'outil (Figure 
+\begin_inset LatexCommand \ref{cap:Changement manuel d'outil}
 
 \end_inset
 
@@ -1960,7 +1964,7 @@ collapsed false
 
 \layout Caption
 La fenêtre de changement manuel d'outil
-\begin_inset LatexCommand \label{cap:The-Manual-Toolchange}
+\begin_inset LatexCommand \label{cap:Changement manuel d'outil}
 
 \end_inset
 
@@ -1969,7 +1973,7 @@ La fenêtre de changement manuel d'outil
 \layout Standard
 \align center
 \begin_inset Graphics
-	filename manualtoolchange.png
+	filename manualtoolchange_fr.png
 
 \end_inset
 
@@ -2052,8 +2056,8 @@ minigl
  fournit l'accès aux sous-ensembles d'OpenGL utilisés par AXIS
 
 \layout Standard
-Pour utiliser ces modules dans vos propres scripts, assurer vous que le
- répertoire ou ils se trouvent est dans le chemin d'accès des modules Python.
+Pour utiliser ces modules dans vos propres scripts, assurez-vous que le
+ répertoire où ils se trouvent est dans le chemin d'accès des modules Python.
  Avec une version installée d'EMC2, ça se fera automatiquement.
  Avec une version installée en 
 \begin_inset Quotes eld
@@ -2071,7 +2075,7 @@ scripts/emc-environment
 
 \layout Section
 Utiliser AXIS pour contrôler un tour CNC
-\begin_inset LatexCommand \index{tour}
+\begin_inset LatexCommand \index{AXIS avec un tour}
 
 \end_inset
 
@@ -2097,7 +2101,7 @@ Y
 
  ne sera pas visible dans l'affichage des coordonnées, la vue sera modifiée
  pour placer l'axe Z dans le sens gauche/droite et l'axe X dans le sens
- avant/arrière et différents éléments (tel que les icônes des vues prédéfinies)
+ avant/arrière et différents éléments (tels que les icônes des vues prédéfinies)
  seront supprimés.
 
 \layout Standard
@@ -2212,7 +2216,7 @@ PROGRAM_EXTENSION = .py Python Script
 py = python
 
 \layout Standard
-De cette manière, n'importe quel script Python pourras être ouvert et sa
+De cette manière, n'importe quel script Python pourra être ouvert et sa
  sortie traitée comme du g-code.
  Un autre exemple est disponible dans: 
 \family typewriter
@@ -2309,7 +2313,7 @@ userDefault
 ) puissent l'emporter.
 
 \layout Subsection
-\begin_inset LatexCommand \label{sub:Physical-jog-wheels}
+\begin_inset LatexCommand \label{sub:Manivelle de jog}
 
 \end_inset
 
@@ -2377,12 +2381,12 @@ Si il existe, le contenu de:
 \family default
  est exécuté comme un code source Python juste avant l'ouverture de l'interface
  graphique d'AXIS.
- Les détails de ce qui peut être écrit dans .axisrc sont sujet à changement
+ Les détails de ce qui peut être écrit dans .axisrc sont sujets à changement
  durant le cycle de développement.
 
 \layout Standard
 Les lignes visibles sur la figure 
-\begin_inset LatexCommand \ref{cap:Sample-.axisrc-file}
+\begin_inset LatexCommand \ref{cap:Exemple de fichier .axisrc}
 
 \end_inset
 
@@ -2404,7 +2408,7 @@ collapsed false
 
 \layout Caption
 Exemple de fichier .axisrc
-\begin_inset LatexCommand \label{cap:Sample-.axisrc-file}
+\begin_inset LatexCommand \label{cap:Exemple de fichier .axisrc}
 
 \end_inset
 

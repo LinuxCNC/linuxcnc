@@ -194,7 +194,7 @@ None
 
 , l'image entrée sera utilisée telle-quelle, les détails les plus aux bords
  de l'image pourraient être coupés.
- si 
+ Si 
 \begin_inset Quotes eld
 \end_inset
 
@@ -231,8 +231,8 @@ tolerance
 Pixel Size (unités)
 
 \layout Standard
-Il y a beaucoup d'unités pour un pixel dans l'image entrée, habituellement
- ce nombre est beaucoup plus petit que 1.0.
+Il y a beaucoup d'unités pour un pixel dans l'image entrée.
+ Habituellement ce nombre est beaucoup plus petit que 1.0.
  Par exemple, pour usiner un objet de 50x50mm depuis une image de 400x400
  pixels, utiliser un 
 \begin_inset Quotes sld
@@ -288,14 +288,14 @@ Directions de balayage possibles:
 
 \layout Itemize
 Positive: le fraisage commence à de petites valeurs de X ou Y et se poursuit
- avec des valeurs croîssantes.
+ avec des valeurs croissantes.
 
 \layout Itemize
 Négative: le fraisage commence à des valeurs élevées de X ou Y et se poursuit
- avec des valeurs décroîssantes.
+ avec des valeurs décroissantes.
 
 \layout Itemize
-Alternatif: le fraisage commence à aux valeurs de X ou Y où c'est terminé
+Alternative: le fraisage commence aux valeurs de X ou Y où s'est terminé
  le dernier mouvement.
  Cela réduit les déplacements 
 \begin_inset Quotes sld
@@ -401,8 +401,8 @@ Lace bounding
 \layout Standard
 Contrôle si les zones relativement plates le long d'une colonne ou d'une
  rangée peuvent être ignorées.
- Cette option n'a de sens que pour un fraisage dans les deux directions.
- Possible bounding options are:
+ Ces options n'ont de sens que pour un fraisage dans les deux directions.
+ Trois choix sont possibles:
 
 \layout Itemize
 None: toutes les rangées et les colonnes seront entièrement fraisées.
@@ -425,7 +425,7 @@ Quand
 \series bold
 Lace bounding
 \series default
- n'est pas None, les pentes qui présentent une pente suppérieure à 
+ n'est pas None, les pentes qui présentent une pente supérieure à 
 \series bold
 Contact angle
 \series default
@@ -453,13 +453,13 @@ Roughing depth per pass
 \end_inset
 
 .
- Par exemple, entrer 0.2 une première passe d'ébauche d'une profondeur de
- 0.2, la seconde passe d'ébauche aura une profondeur de 0.4 et ainsi de suite,
- jusqu'à-ce que la profondeur totale Depth de l'image soit atteinte.
- Aucune des passes d'ébauche n'usinera plus prêt de la partie finale que
+ Par exemple, entrer 0.2 pour une première passe d'ébauche d'une profondeur
+ de 0.2, la seconde passe d'ébauche aura une profondeur de 0.4 et ainsi de
+ suite, jusqu'à-ce que la profondeur totale Depth de l'image soit atteinte.
+ Aucune des passes d'ébauche n'usinera plus près de la partie finale que
  Roughing Offset.
  La figure 
-\begin_inset LatexCommand \ref{cap:Roughing-passes-and}
+\begin_inset LatexCommand \ref{cap:Passes d'ébauche}
 
 \end_inset
 
@@ -473,8 +473,8 @@ wide false
 collapsed false
 
 \layout Caption
-Passes d'ébauche et passes de finition
-\begin_inset LatexCommand \label{cap:Roughing-passes-and}
+Passes d'ébauche
+\begin_inset LatexCommand \label{cap:Passes d'ébauche}
 
 \end_inset
 
