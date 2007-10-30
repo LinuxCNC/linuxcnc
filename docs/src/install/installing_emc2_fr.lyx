@@ -26,6 +26,7 @@
 \papercolumns 1
 \papersides 2
 \paperpagestyle default
+\author ""
 
 \layout Chapter
 Installer le logiciel EMC2
@@ -36,8 +37,8 @@ Introduction
 \layout Standard
 Un des problèmes les plus souvent évoqués par les utilisateurs à propos
  d'EMC a été qu'il ne s'installait pas de lui-même.
- Il fallait qu'ils récupère les sources, les compile eux-mêmes, essaye d'appliqu
-er un noyau Linux patché RT, etc.
+ Il fallait qu'ils récupèrent les sources, les compilent eux-mêmes, essaient
+ d'appliquer un noyau Linux patché RT, etc.
  Les développeurs d'EMC2 ont donc choisi une distribution standard appelée
  Ubuntu
 \begin_inset LatexCommand \index{Ubuntu}
@@ -46,7 +47,7 @@ er un noyau Linux patché RT, etc.
 
 
 \begin_inset Foot
-collapsed true
+collapsed false
 
 \layout Standard
 Le mot 
@@ -77,7 +78,7 @@ Je suis ce que je suis à cause de ce que nous sommes tous
 .
  La distribution Ubuntu Linux amène l'esprit d'Ubuntu au monde du logiciel.
  Vous pouvez en lire plus à ce propos ici: 
-\begin_inset LatexCommand \url{http://www.ubuntu.com}
+\begin_inset LatexCommand \url{http://www.ubuntu-fr.org/}
 
 \end_inset
 
@@ -104,7 +105,7 @@ e edition", nous faisons de notre mieux pour rendre notre travail disponible
 \layout Itemize
 Ubuntu fournit un support professionnel commercial à des centaines de sociétés
  dans le monde, vous aurez peut être besoin de ces services.
- Chaque nouvelle version d'Ubuntu reçoit des mise à jours de sécurité gratuites
+ Chaque nouvelle version d'Ubuntu reçoit des mises à jour de sécurité gratuites
  pendant 18 mois après sa publication, certaines versions sont supportées
  plus longtemps.
 
@@ -115,7 +116,7 @@ Ubuntu utilise le meilleur en termes de traduction et d'accessibilité à
 
 \layout Itemize
 Ubuntu est publié régulièrement selon un calendrier précis; Une nouvelle
- version est publiée tout les six mois.
+ version est publiée tous les six mois.
  Vous pouvez utiliser la dernière version stable ou aider à stabiliser la
  version en cours de développement.
 
@@ -140,7 +141,7 @@ Vous pouvez trouver l'annonce des plus récentes versions publiées d'EMC2
 Le présent document (plus orienté utilisateur final) expliquera seulement
  comment installer les paquets binaires sur une distribution Ubuntu
 \begin_inset Foot
-collapsed true
+collapsed false
 
 \layout Standard
 Pour plus d'informations sur les autres variantes Linux, lisez le Manuel
@@ -267,7 +268,7 @@ t d'aucun matériel.
 \layout Itemize
 Maintenant que l'installation est terminée, Ubuntu vous avertira quand des
  mises à jour d'EMC2 seront disponibles.
- Quand ça arrivera, vous pourrez mettre à jours facilement et automatiquement
+ Quand ça arrivera, vous pourrez mettre à jour facilement et automatiquement
  avec le gestionnaire de mises à jour.
 
 \layout Section
@@ -326,14 +327,14 @@ $ sudo apt-get install emc2
 Ces commandes vont installer correctement les paquets emc2 avec toutes leurs
  dépendances
 \begin_inset Foot
-collapsed true
+collapsed false
 
 \layout Standard
 Les dépendances sont un des atouts majeurs des distributions basées sur
  Debian.
  Elles assurent que vous avez la totalité de ce qui doit être installé.
  Même dans un cas comme emc2 qui nécessite un noyau de Linux patché pour
- travailler en temps réel, ansi que toutes les librairies indispensables.
+ travailler en temps réel, ainsi que toutes les librairies indispensables.
 
 \end_inset
 

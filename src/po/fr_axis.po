@@ -11,7 +11,7 @@ msgstr ""
 "Project-Id-Version: fr_axis\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2007-08-27 22:44+0200\n"
-"PO-Revision-Date: 2007-10-28 00:30+0200\n"
+"PO-Revision-Date: 2007-10-30 22:54+0100\n"
 "Last-Translator: Francis TISSERANT <ftissera@free.fr>\n"
 "Language-Team: Français <gnomefr@traduc.org>\n"
 "MIME-Version: 1.0\n"
@@ -408,7 +408,7 @@ msgstr "Annuler"
 
 #: emc/usr_intf/axis/scripts/axis.py:2081
 msgid "Coordinate System:"
-msgstr "Système de coordonnées:"
+msgstr "Décalage d'origine pièce:"
 
 #: emc/usr_intf/axis/scripts/axis.py:2095
 msgid "Name:"
@@ -505,12 +505,12 @@ msgstr "Tous fichiers"
 
 #: emc/usr_intf/axis/scripts/axis.py:2754 ../share/axis/tcl/axis.tcl:933
 msgid "Touch Off"
-msgstr "Touche"
+msgstr "Toucher"
 
 #: emc/usr_intf/axis/scripts/axis.py:2755
 #, python-format
 msgid "Enter %s coordinate relative to workpiece:"
-msgstr "Entrer la coordonnée %s relative à la pièce:"
+msgstr "Entrez la coordonnée %s relative à la pièce:"
 
 #: emc/usr_intf/axis/scripts/axis.py:2910
 msgid "Error saving file"
@@ -919,7 +919,7 @@ msgstr "Prises d'ori_gines machine"
 
 #: ../share/axis/tcl/axis.tcl:186
 msgid "Coordinate system for Touch-O_ff"
-msgstr "Validation décalages d'origine pièce"
+msgstr "Validation d'origine pièce"
 
 #: ../share/axis/tcl/axis.tcl:192 ../share/axis/tcl/axis.tcl:250
 msgid "P1  G5_4"
@@ -959,7 +959,7 @@ msgstr "P9  G59._3"
 
 #: ../share/axis/tcl/axis.tcl:246
 msgid "_Zero coordinate system"
-msgstr "Annulation décalages d'origine pièce"
+msgstr "Annulation d'origine pièce"
 
 #: ../share/axis/tcl/axis.tcl:291
 msgid "_Top view"
