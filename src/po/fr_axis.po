@@ -818,8 +818,8 @@ msgid "Reload tool ta_ble"
 msgstr "Recharger la ta_ble d'outils"
 
 #: ../share/axis/tcl/axis.tcl:77
-msgid "Ladder Editor..."
-msgstr "Editeur de Ladder..."
+msgid "_Ladder Editor..."
+msgstr "Editeur de _Ladder..."
 
 #: ../share/axis/tcl/axis.tcl:83
 msgid "_Quit"
