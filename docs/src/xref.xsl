@@ -30,11 +30,15 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
     encoding="ASCII"/>
 
 <xsl:param name="docname"/>
+<xsl:param name="language"/>
+
+<xsl:variable name="terms"
+    select="document('terms.xml')//terms[@language=$language]"/>
 
 <xsl:template match="/">
     <HTML>
     <HEAD>
-    <TITLE>Cross-reference Index</TITLE>
+    <TITLE><xsl:value-of select="$terms/term[@id='index']"/></TITLE>
     <STYLE TYPE="text/css">
 h1, h2 { background: #c0c0f0; }
 h1, h2, h3, h4, h5 { border-bottom: 2px solid #8080c0; color: black; }

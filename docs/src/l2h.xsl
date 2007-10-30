@@ -30,17 +30,23 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
     encoding="ASCII"/>
 
 <xsl:param name="docname"/>
+<xsl:variable name="language" select="//language/@data"/>
+<xsl:variable name="terms"
+    select="document('terms.xml')//terms[@language=$language]"/>
+<xsl:variable name="doc"
+    select="document('docs.xml')//doc[@name=$docname]"/>
 
 <xsl:template match="/">
     <HTML>
     <HEAD>
+    <META http-equiv="content-language" content="{$terms/term[@id='lang']}"/>
     <TITLE>
 	<xsl:choose>
 	    <xsl:when test="//layout[@class='Title']">
 		<xsl:value-of select="//layout[@class='Title']"/>
 	    </xsl:when>
 	    <xsl:otherwise>
-		<xsl:value-of select="document('docs.xml')//doc[@name=$docname]/@title"/>
+		<xsl:value-of select="$doc/@title"/>
 	    </xsl:otherwise>
 	</xsl:choose>
     </TITLE>
@@ -85,12 +91,12 @@ table { border-collapse: collapse; margin-left: auto; margin-right: auto; }
     </HEAD>
     <BODY>
     <DIV class="nav">
-        <xsl:if test="document('docs.xml')//doc[@name=$docname]/preceding-sibling::*[position()=1]">
-            <A HREF="{document('docs.xml')//doc[@name=$docname]/preceding-sibling::*[position()=1]/@name}.html" TITLE="Previous: {document('docs.xml')//doc[@name=$docname]/preceding-sibling::*[position()=1]/@title}">[&lt;-]</A><xsl:text> </xsl:text>
+        <xsl:if test="$doc/preceding-sibling::*[position()=1]">
+            <A HREF="{$doc/preceding-sibling::*[position()=1]/@name}.html" TITLE="{$terms/term[@id='previous']}: {$doc/preceding-sibling::*[position()=1]/@title}">[&lt;-]</A><xsl:text> </xsl:text>
         </xsl:if>
-        <A HREF="index.html" TITLE="Up: Documentation Index" >[^]</A><xsl:text> </xsl:text>
-        <xsl:if test="document('docs.xml')//doc[@name=$docname]/following-sibling::*[position()=1]">
-            <A HREF="{document('docs.xml')//doc[@name=$docname]/following-sibling::*[position()=1]/@name}.html" TITLE="Next: {document('docs.xml')//doc[@name=$docname]/following-sibling::*[position()=1]/@title}">[-&gt;]</A>
+        <A HREF="index.html" TITLE="{$terms/term[@id='up']}" >[^]</A><xsl:text> </xsl:text>
+        <xsl:if test="$doc/following-sibling::*[position()=1]">
+            <A HREF="{$doc/following-sibling::*[position()=1]/@name}.html" TITLE="{$terms/term[@id='next']}: {$doc/following-sibling::*[position()=1]/@title}">[-&gt;]</A>
         </xsl:if>
     </DIV>
     <xsl:apply-templates/>
@@ -104,7 +110,7 @@ table { border-collapse: collapse; margin-left: auto; margin-right: auto; }
 
 <xsl:template match="printindex">
     <xsl:if test="//index">
-	<H2>Index</H2>
+	<H2><xsl:value-of select="$terms/term[@id='index']"/></H2>
 	<UL class="nclist">
 	<xsl:for-each select="//index">
 	    <xsl:sort select="@lcterm"/>
@@ -154,7 +160,7 @@ table { border-collapse: collapse; margin-left: auto; margin-right: auto; }
 
 <xsl:template match="toc">
     <xsl:if test="tocentry or //float">
-	<H1>Table of Contents</H1>
+	<H1><xsl:value-of select="$terms/term[@id='toc']"/></H1>
     </xsl:if>
     <xsl:if test="tocentry">
 	<UL CLASS="toc clist">
@@ -162,7 +168,7 @@ table { border-collapse: collapse; margin-left: auto; margin-right: auto; }
 	</UL>
     </xsl:if>
     <xsl:if test="//float[@class='figure']">
-        <H2>List of figures</H2>
+        <H2><xsl:value-of select="$terms/term[@id='figures']"/></H2>
         <UL CLASS="toc clist">
         <xsl:for-each select="//float[@class='figure']">
             <LI>
@@ -172,7 +178,7 @@ table { border-collapse: collapse; margin-left: auto; margin-right: auto; }
         </UL>
     </xsl:if>
     <xsl:if test="//float[@class='table']">
-        <H2>List of tables</H2>
+        <H2><xsl:value-of select="$terms/term[@id='tables']"/></H2>
         <UL CLASS="toc clist">
         <xsl:for-each select="//float[@class='table']">
             <LI>
