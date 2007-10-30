@@ -1,4 +1,5 @@
 <docs>
+<docgroup lang="en">
 <doc name="common_emc2_introduction" title="Introduction to EMC2"/>
 <doc name="install_compiling_emc2" title="Compiling EMC2"/>
 <doc name="install_installing_emc2" title="Installing EMC2"/>
@@ -43,4 +44,14 @@
 <doc name="common_GPLD_Copyright" title="GPLD Copyright"/>
 
 <doc name="xref" title="Cross Reference Index"/>
+</docgroup>
+
+<docgroup lang="fr">
+<doc name="install_compiling_emc2_fr" title="Compiling EMC2"/>
+<doc name="install_installing_emc2_fr" title="Installing EMC2"/>
+<doc name="gui_axis_fr" title="AXIS"/>
+<doc name="gui_image-to-gcode_fr" title="Image-to-gcode"/>
+<doc name="xref_fr" title="Cross Reference Index"/>
+</docgroup>
+
 </docs>
