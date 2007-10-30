@@ -55,7 +55,9 @@ DOC_SRCS := \
 	hal/tutorial.lyx \
 	hal/vcp.lyx \
 	install/compiling_emc2.lyx \
+	install/compiling_emc2_fr.lyx \
 	install/installing_emc2.lyx \
+	install/installing_emc2_fr.lyx \
 	ladder/ladder_intro.lyx \
 	ladder/classic_ladder.lyx \
 	motion/kinematics.lyx \
