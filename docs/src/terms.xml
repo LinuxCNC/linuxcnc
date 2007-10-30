@@ -1,8 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
 <!-- this document gives translations of terms used in l2h.xsl and xref.xsl -->
 <terms>
     <terms language="english">
 	<term id="lang">en</term>
 	<term id="toc">Table of Contents</term>
+	<term id="fig">Fig</term>
+	<term id="tabl">Tab</term>
 	<term id="figures">List of figures</term>
 	<term id="tables">List of tables</term>
 	<term id="index">Index</term>
@@ -13,7 +16,9 @@
     </terms>
     <terms language="french">
 	<term id="lang">fr</term>
-	<term id="toc">Contenu</term>
+	<term id="toc">Table des Matières</term>
+	<term id="fig">Fig</term>
+	<term id="tabl">Tab</term>
 	<term id="figures">Liste des illustrations</term>
 	<term id="tables">Liste des tableaux</term>
 	<term id="index">Index</term>
