@@ -74,7 +74,7 @@ setup_menu_accel .menu.file end [_ "Reload tool ta_ble"]
 
 .menu.file add command \
         -command {exec classicladder &}
-setup_menu_accel .menu.file end [_ "Ladder Editor..."]
+setup_menu_accel .menu.file end [_ "_Ladder Editor..."]
 
 .menu.file add separator
 
