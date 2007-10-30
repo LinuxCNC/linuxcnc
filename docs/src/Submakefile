@@ -190,16 +190,16 @@ objects/xref_fr.xml: $(DOC_TARGETS_XML_FR) $(DOC_SRCDIR)/xref.py
 objects/xref.xml: $(DOC_TARGETS_XML_EN) $(DOC_SRCDIR)/xref.py
 	(cd objects; ../../docs/src/xref.py $(filter %.xml, $(patsubst objects/%,%,$^))) > $@
 
-$(DOC_TARGETS_HTML): $(DOC_DIR)/html/%.html: objects/%.xml objects/xref.xml $(DOC_SRCDIR)/l2h.xsl $(DOC_SRCDIR)/docs.xml
+$(DOC_TARGETS_HTML): $(DOC_DIR)/html/%.html: objects/%.xml objects/xref.xml $(DOC_SRCDIR)/l2h.xsl $(DOC_SRCDIR)/docs.xml $(DOC_SRCDIR)/terms.xml
 	$(ECHO) Converting $< to HTML
 	@xsltproc --stringparam docname "$*" --path objects -o $@ $(DOC_SRCDIR)/l2h.xsl $<
 
-$(DOC_DIR)/html/xref.html: objects/xref.xml $(DOC_SRCDIR)/xref.xsl $(DOC_SRCDIR)/docs.xml
+$(DOC_DIR)/html/xref.html: objects/xref.xml $(DOC_SRCDIR)/xref.xsl $(DOC_SRCDIR)/docs.xml $(DOC_SRCDIR)/terms.xml
 	$(ECHO) Converting $< to HTML
 	@xsltproc --stringparam docname "xref" --stringparam language english --path objects -o $@ $(DOC_SRCDIR)/xref.xsl $<
 	
 default: docs
-$(DOC_DIR)/html/xref_fr.html: objects/xref_fr.xml $(DOC_SRCDIR)/xref.xsl $(DOC_SRCDIR)/docs.xml
+$(DOC_DIR)/html/xref_fr.html: objects/xref_fr.xml $(DOC_SRCDIR)/xref.xsl $(DOC_SRCDIR)/docs.xml $(DOC_SRCDIR)/terms.xml
 	$(ECHO) Converting $< to HTML
 	@xsltproc --stringparam docname "xref_fr" --stringparam language french --path objects -o $@ $(DOC_SRCDIR)/xref.xsl $<
 	
