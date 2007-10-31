@@ -80,7 +80,7 @@ Fenêtre d'AXIS
 \layout Standard
 \align center
 \begin_inset Graphics
-	filename /home/francis/emc2.TRUNK/docs/src/common/axis_fr.png
+	filename ../common/axis_fr.png
 	lyxscale 50
 	width 80page%
 
