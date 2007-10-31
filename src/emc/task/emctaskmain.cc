@@ -57,8 +57,7 @@
 #include <unistd.h>		// fork()
 #include <sys/wait.h>		// waitpid(), WNOHANG, WIFEXITED
 #include <ctype.h>		// isspace()
-#include <libintl.h>    // i18n (gettext)
-#include <locale.h>     // i18n (gettext)
+#include <libintl.h>
 
 #include "rcs.hh"		// NML classes, nmlErrorFormat()
 #include "emc.hh"		// EMC NML
@@ -2781,12 +2780,6 @@ static EMC_STAT last_emc_status;
   */
 int main(int argc, char *argv[])
 {
-    /*! \todo FIXME-- replace path with path declared from configure/make */
-    // Settings for gettext
-    setlocale(LC_MESSAGES,"");
-    bindtextdomain("rs274_err",EMC2_HOME"/share/locale");
-    textdomain("rs274_err");
-
     int taskAborted = 0;	// flag to prevent flurry of task aborts
     int taskPlanError = 0;
     int taskExecuteError = 0;
