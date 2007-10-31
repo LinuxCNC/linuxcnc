@@ -80,10 +80,9 @@ Fenêtre d'AXIS
 \layout Standard
 \align center
 \begin_inset Graphics
-	filename ../common/axis.png
+	filename /home/francis/emc2.TRUNK/docs/src/common/axis_fr.png
 	lyxscale 50
 	width 80page%
-	keepAspectRatio
 
 \end_inset
 
@@ -751,7 +750,7 @@ Ligne courante et ligne en surbrillance
 \layout Standard
 \align center
 \begin_inset Graphics
-	filename axis-currentandselected.png
+	filename axis-currentandselected_fr.png
 	lyxscale 50
 	width 80page%
 
