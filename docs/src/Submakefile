@@ -71,7 +71,7 @@ DOC_TARGETS_XML:=$(patsubst $(DOC_DIR)/html/%.html, objects/%.xml,\
 
 MAN_HTML_TARGETS := $(patsubst $(DOC_DIR)/man/%, $(DOC_DIR)/html/man/%.html, $(MAN_SRCS))
 PDF_TARGETS := $(addprefix $(DOC_DIR)/,HAL_User_Manual.pdf EMC2_User_Manual.pdf EMC2_Developer_Manual.pdf EMC2_Integrator_Manual.pdf EMC2_Manual_Pages.pdf EMC2_User_Manual_fr.pdf)
-HTML_TARGETS := $(DOC_TARGETS_HTML) $(MAN_HTML_TARGETS) $(DOC_DIR)/html/index.html $(DOC_DIR)/html/xref.html $(DOC_DIR)/html/xref_fr.html
+HTML_TARGETS := $(DOC_TARGETS_HTML) $(MAN_HTML_TARGETS) $(DOC_DIR)/html/index.html $(DOC_DIR)/html/index_fr.html $(DOC_DIR)/html/xref.html $(DOC_DIR)/html/xref_fr.html
 
 L2HFLAGS := -init_file src/.latex2html-init -local_icons \
 	-unsegment -link 4 -info 0 -split +0 -html_version 4.0,math,table 
@@ -142,6 +142,9 @@ objects/index.incl: objects/var-MAN_HTML_TARGETS $(DOC_SRCDIR)/Submakefile
 	echo "</UL>" >> $@.tmp
 	mv -f $@.tmp $@
 
+$(DOC_DIR)/html/index_%.html: $(DOC_SRCDIR)/index_%.tmpl ../VERSION
+	cat $^ $(DOC_SRCDIR)/index.foot|sed "s/@VERSION@/`cat ../VERSION`/">$@	
+	
 $(DOC_DIR)/html/index.html: $(DOC_SRCDIR)/index.tmpl objects/index.incl $(DOC_SRCDIR)/index.foot ../VERSION $(DOC_SRCDIR)/Submakefile
 	(cat $(DOC_SRCDIR)/index.tmpl objects/index.incl $(DOC_SRCDIR)/index.foot) | sed "s/@VERSION@/`cat ../VERSION`/" > $@	
 $(DOC_SRCDIR)/%.pdf: $(DOC_SRCDIR)/%.lyx
