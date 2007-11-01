@@ -2162,7 +2162,7 @@ class TclCommands(nf.TclCommands):
     def gcode_properties(event=None):
         props = {}
         if not loaded_file:
-            props['name'] = "No file loaded"
+            props['name'] = _("No file loaded")
         else:
             ext = os.path.splitext(loaded_file)[1]
             program_filter = None
@@ -2170,21 +2170,21 @@ class TclCommands(nf.TclCommands):
                 program_filter = inifile.find("FILTER", ext[1:])
             name = os.path.basename(loaded_file)
             if program_filter:
-                props['name'] = "generated from %s" % name
+                props['name'] = _("generated from %s") % name
             else:
                 props['name'] = name
 
             size = os.stat(loaded_file).st_size
             lines = int(widgets.text.index("end").split(".")[0])-2
-            props['size'] = "%s bytes\n%s gcode lines" % (size, lines)
+            props['size'] = _("%s bytes\n%s gcode lines") % (size, lines)
 
             if vars.metric.get():
                 conv = 1
-                units = "mm"
+                units = _("mm")
                 fmt = "%.3f"
             else:
                 conv = 1/25.4
-                units = "in"
+                units = _("in")
                 fmt = "%.4f"
 
             mf = vars.max_speed.get()
@@ -2201,9 +2201,9 @@ class TclCommands(nf.TclCommands):
             props['g0'] = "%f %s".replace("%f", fmt) % (from_internal_linear_unit(g0, conv), units)
             props['g1'] = "%f %s".replace("%f", fmt) % (from_internal_linear_unit(g1, conv), units)
             if gt > 120:
-                props['run'] = "%.1f minutes" % (gt/60)
+                props['run'] = _("%.1f minutes") % (gt/60)
             else:
-                props['run'] = "%d seconds" % (int(gt))
+                props['run'] = _("%d seconds") % (int(gt))
 
             min_extents = from_internal_units(o.g.min_extents, conv)
             max_extents = from_internal_units(o.g.max_extents, conv)
