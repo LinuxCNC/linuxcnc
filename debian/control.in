@@ -1,8 +1,8 @@
-Source: emc2
+Source: @EMC2_PACKAGE_NAME@
 Section: misc
 Priority: extra
 Maintainer: Chris Radek <chris@timeguy.com>
-Build-Depends: debhelper (>> 4.0.0),@KERNEL_DEPENDS@,@KERNEL_HEADERS@,g++,make,libc6-dev,tcl8.4-dev,tk8.4-dev,libgtk2.0-dev,libncurses-dev,gettext,libxaw7-dev,libreadline5-dev,lyx-qt | lyx,python,tetex-bin,python-dev,libglu1-mesa-dev,libgl1-mesa-dev,libgnomeprintui2.2-dev,bwidget,tetex-extra
+Build-Depends: debhelper (>> 4.0.0),@KERNEL_DEPENDS@,@KERNEL_HEADERS@,@EXTRA_BUIL@,g++,make,libc6-dev,tcl8.4-dev,tk8.4-dev,libgtk2.0-dev,libncurses-dev,gettext,libxaw7-dev,libreadline5-dev,lyx-qt | lyx,python,tetex-bin,python-dev,libglu1-mesa-dev,libgl1-mesa-dev,libgnomeprintui2.2-dev,bwidget,tetex-extra
 Standards-Version: 2.0.0-rc
 
 Package: @EMC2_PACKAGE_NAME@
@@ -17,8 +17,9 @@ Description: PC based motion controller for real-time Linux.
  provides motion control for CNC machine tools and robotic 
  applications (milling, cutting, routing, etc.).
 
-Package: emc2-dev
+Package: @EMC2_PACKAGE_NAME@-dev
 Architecture: any
+Provides: emc2-dev
 Depends: g++, @KERNEL_HEADERS@, python (>= @PYTHON_VERSION@), python (<< @PYTHON_VERSION_NEXT@), @EMC2_PACKAGE_NAME@ (= ${Source-Version}), yapps2-runtime
 Section: libs
 Description: PC based motion controller for real-time Linux.

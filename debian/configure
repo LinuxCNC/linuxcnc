@@ -79,7 +79,8 @@ case $TARGET in
         KERNEL_HEADERS="$KERNEL_HEADERS,gcc-4.0"
     ;;
     2.6.22.6-magma)
-        KERNEL_HEADERS="$KERNEL_HEADERS,texlive-extra-utils"
+        KERNEL_HEADERS="$KERNEL_HEADERS"
+        EXTRA_BUILD="texlive-extra-utils"
     ;;
     *)
 	echo "your kernel '$TARGET' is not known. There might be needed dependencies which won't get set automatically."
@@ -91,6 +92,7 @@ sed -e "s|@MODULE_PATH@|$MODULE_PATH|g" \
     -e "s|@KERNEL_VERSION@|$KERNEL_VERSION|g" \
     -e "s|@KERNEL_DEPENDS@|$KERNEL_DEPENDS|g" \
     -e "s|@KERNEL_HEADERS@|$KERNEL_HEADERS|g" \
+    -e "s|@EXTRA_BUILD@|$EXTRA_BUILD|g" \
     -e "s|@EMC2_PACKAGE_NAME@|$EMC2_PACKAGE_NAME|g" \
     -e "s|@EXTRA_FILES@|$EXTRA_FILES|g" \
     -e "s|@DISTRIB_NAME@|$DISTRIB_NAME|g" \
