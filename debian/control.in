@@ -1,4 +1,4 @@
-Source: @EMC2_PACKAGE_NAME@
+Source: emc2
 Section: misc
 Priority: extra
 Maintainer: Chris Radek <chris@timeguy.com>
@@ -17,7 +17,7 @@ Description: PC based motion controller for real-time Linux.
  provides motion control for CNC machine tools and robotic 
  applications (milling, cutting, routing, etc.).
 
-Package: @EMC2_PACKAGE_NAME@-dev
+Package: emc2-dev
 Architecture: any
 Provides: emc2-dev
 Depends: g++, @KERNEL_HEADERS@, python (>= @PYTHON_VERSION@), python (<< @PYTHON_VERSION_NEXT@), @EMC2_PACKAGE_NAME@ (= ${Source-Version}), yapps2-runtime
