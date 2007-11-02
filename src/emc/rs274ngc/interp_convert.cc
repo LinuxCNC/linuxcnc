@@ -2732,7 +2732,7 @@ int Interp::convert_spindle_mode(block_pointer block, setup_pointer settings)
 {
     if(block->g_modes[14] == G_97) {
 	SET_SPINDLE_MODE(0);
-    } else {
+    } else { /* G_96 */
 	if(block->d_flag)
 	    SET_SPINDLE_MODE(block->d_number_float);
 	else
@@ -2888,6 +2888,8 @@ int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS27
     settings->distance_mode = MODE_ABSOLUTE;
 
 /*4*/ settings->feed_mode = UNITS_PER_MINUTE;
+    SET_FEED_MODE(0);
+    SET_FEED_RATE(0);
 
 /*5*/ if (settings->feed_override != ON) {
       ENABLE_FEED_OVERRIDE();
@@ -2904,6 +2906,9 @@ int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS27
 
 /*7*/ STOP_SPINDLE_TURNING();
     settings->spindle_turning = CANON_STOPPED;
+
+    /* turn off FPR */
+    SET_SPINDLE_MODE(0);
 
 /*8*/ settings->motion_mode = G_1;
 
