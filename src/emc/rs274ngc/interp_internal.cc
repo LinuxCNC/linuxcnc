@@ -361,6 +361,23 @@ int Interp::precedence(int an_operator)
 }
 
 
+int Interp::refresh_actual_position(setup_pointer settings) 
+{
+  settings->current_x = GET_EXTERNAL_POSITION_X();
+  settings->current_y = GET_EXTERNAL_POSITION_Y();
+  settings->current_z = GET_EXTERNAL_POSITION_Z();
+  settings->AA_current = GET_EXTERNAL_POSITION_A();
+  settings->BB_current = GET_EXTERNAL_POSITION_B();
+  settings->CC_current = GET_EXTERNAL_POSITION_C();
+  settings->u_current = GET_EXTERNAL_POSITION_U();
+  settings->v_current = GET_EXTERNAL_POSITION_V();
+  settings->w_current = GET_EXTERNAL_POSITION_W();
+
+  return INTERP_OK;
+}
+
+
+
 /****************************************************************************/
 
 /*! set_probe_data
@@ -377,16 +394,7 @@ Called by:  Interp::read
 
 int Interp::set_probe_data(setup_pointer settings)       //!< pointer to machine settings
 {
-
-  settings->current_x = GET_EXTERNAL_POSITION_X();
-  settings->current_y = GET_EXTERNAL_POSITION_Y();
-  settings->current_z = GET_EXTERNAL_POSITION_Z();
-  settings->AA_current = GET_EXTERNAL_POSITION_A();
-  settings->BB_current = GET_EXTERNAL_POSITION_B();
-  settings->CC_current = GET_EXTERNAL_POSITION_C();
-  settings->u_current = GET_EXTERNAL_POSITION_U();
-  settings->v_current = GET_EXTERNAL_POSITION_V();
-  settings->w_current = GET_EXTERNAL_POSITION_W();
+  refresh_actual_position(settings);
   settings->parameters[5061] = GET_EXTERNAL_PROBE_POSITION_X();
   settings->parameters[5062] = GET_EXTERNAL_PROBE_POSITION_Y();
   settings->parameters[5063] = GET_EXTERNAL_PROBE_POSITION_Z();

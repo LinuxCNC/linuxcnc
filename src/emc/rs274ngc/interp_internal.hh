@@ -383,6 +383,7 @@ typedef struct setup_struct
   CANON_PLANE plane;            // active plane, XY-, YZ-, or XZ-plane
   ON_OFF probe_flag;            // flag indicating probing done
   ON_OFF input_flag;            // flag indicating waiting for input done
+  ON_OFF toolchange_flag;       // flag indicating we just had a tool change
   int input_index;		// channel queried
   ON_OFF input_digital;		// input queried was digital (OFF=analog)
   ON_OFF cutter_comp_firstmove; // this is the first comp move

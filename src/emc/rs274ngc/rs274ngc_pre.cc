@@ -468,6 +468,7 @@ int Interp::init()
 //_setup.percent_flag does not need initialization
 //_setup.plane set in Interp::synch
   _setup.probe_flag = OFF;
+  _setup.toolchange_flag = OFF;
   _setup.input_flag = OFF;
   _setup.input_index = -1;
   _setup.input_digital = OFF;
@@ -701,6 +702,12 @@ int Interp::read(const char *command)  //!< may be NULL or a string to read
         NCE_QUEUE_IS_NOT_EMPTY_AFTER_PROBING);
     set_probe_data(&_setup);
     _setup.probe_flag = OFF;
+  }
+  if (_setup.toolchange_flag == ON) {
+    CHKF((GET_EXTERNAL_QUEUE_EMPTY() == 0),
+         (_("Queue is not empty after tool change")));
+    refresh_actual_position(&_setup);
+    _setup.toolchange_flag = OFF;
   }
   if (_setup.input_flag == ON) {
     CHK((GET_EXTERNAL_QUEUE_EMPTY() == 0),

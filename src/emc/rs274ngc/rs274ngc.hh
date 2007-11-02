@@ -423,6 +423,7 @@ private:
                   double *parameters);
  int read_z(char *line, int *counter, block_pointer block,
                   double *parameters);
+ int refresh_actual_position(setup_pointer settings);
  int set_probe_data(setup_pointer settings);
  int write_g_codes(block_pointer block, setup_pointer settings);
  int write_m_codes(block_pointer block, setup_pointer settings);

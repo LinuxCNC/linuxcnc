@@ -3677,7 +3677,8 @@ int Interp::convert_tool_change(setup_pointer settings)  //!< pointer to machine
   CHANGE_TOOL(settings->selected_tool_slot);
   settings->current_slot = settings->selected_tool_slot;
   settings->spindle_turning = CANON_STOPPED;
-
+  // tool change can move the controlled point.  reread it:
+  settings->toolchange_flag = ON; 
   return INTERP_OK;
 }
 
