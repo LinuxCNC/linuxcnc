@@ -14,3 +14,4 @@ autom4te.cache
 depend.sh
 axis
 axis.*
+Module.symvers
