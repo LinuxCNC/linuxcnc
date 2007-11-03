@@ -1961,6 +1961,9 @@ class DummyCanon:
     def get_external_angular_units(self): return 1.0
     def get_external_length_units(self): return 1.0
     def set_plane(*args): pass
+    def get_axis_mask(self): return 7
+    def get_tool(self, tool):
+        return tool,0.,0.,0.,0.,0.,0
 
     def user_defined_function(self, m, p, q):
         self.number = p
@@ -2029,6 +2032,12 @@ class _prompt_float:
         if ok:
             f = os.path.devnull
             canon = DummyCanon()
+
+            parameter = inifile.find("RS274NGC", "PARAMETER_FILE")
+            temp_parameter = os.path.join(tempdir, os.path.basename(parameter))
+            shutil.copy(parameter, temp_parameter)
+            canon.parameter_file = temp_parameter
+
             result, seq = gcode.parse("", canon, "M199 P["+v+"]", "M2")
 
             if result > gcode.MIN_ERROR:
