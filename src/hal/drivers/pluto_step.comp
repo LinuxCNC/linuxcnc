@@ -16,6 +16,9 @@
 
 component pluto_step """Hardware driver and firmware for the Pluto-P parallel-port FPGA, for use with stepper machines.
 
+\\fBNote\\fR: In this release of emc2, this driver is \\fBalpha-quality\\fR and
+not suitable for use on production machines.
+
 .B loadrt pluto_step ioaddr=\\fIaddr\\fB ioaddr_hi=\\fIaddr\\fB epp_wide=\\fI[0|1]\\fB
 
 .RS 4

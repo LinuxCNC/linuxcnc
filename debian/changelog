@@ -58,7 +58,7 @@ emc2 (1:2.2.0) unstable; urgency=low
   * Fix several-second unresponsiveness when switching between two guis
     (even if one of them was halui)
   * AXIS: Show machine limits with red dashed lines
-  * Pluto step/direction driver
+  * Pluto step/direction driver (ALPHA QUALITY DRIVER)
   * Halscope display now shows the trace name and parameters for each trace
   * Halscope "roll" mode
   * Halscope "AC coupling" of signals
