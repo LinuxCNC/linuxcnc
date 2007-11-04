@@ -1,3 +1,9 @@
+emc2 (1:2.2.1~cvs) unstable; urgency=low
+
+  * [note each bugfix here]
+
+ -- Jeff Epler <jepler@unpythonic.net>  Sun,  4 Nov 2007 14:37:13 -0600
+
 emc2 (1:2.2.0) unstable; urgency=low
 
   * Bump version for release
