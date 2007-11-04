@@ -62,6 +62,7 @@ DOC_SRCS := \
 	ladder/classic_ladder.lyx \
 	motion/kinematics.lyx \
 	motion/pid_theory.lyx \
+	motion/tweaking_steppers.lyx \
 	Master_HAL.lyx
 
 DOC_SRCS_HTML := $(patsubst %.lyx, %.html, $(filter-out Master_%, $(DOC_SRCS)))
