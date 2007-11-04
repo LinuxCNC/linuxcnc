@@ -441,7 +441,7 @@ Another tuning method is formally known as the "Ziegler-Nichols method",
 ).
  Then adjust the P, I and D controls as the table shows:
 \layout Standard
-\align center 
+\pagebreak_bottom \align center 
 
 \begin_inset  Tabular
 <lyxtabular version="3" rows="4" columns="4">
