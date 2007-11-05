@@ -50,6 +50,7 @@ DOC_SRCS := \
 	hal/halshow.lyx \
 	hal/halmodule.lyx \
 	hal/intro.lyx \
+	hal/intro_fr.lyx \
 	hal/rtcomps.lyx \
 	hal/tools.lyx \
 	hal/tutorial.lyx \
@@ -63,7 +64,9 @@ DOC_SRCS := \
 	motion/kinematics.lyx \
 	motion/pid_theory.lyx \
 	motion/tweaking_steppers.lyx \
-	Master_HAL.lyx
+	Master_HAL.lyx \
+	Master_HAL_fr.lyx
+
 
 DOC_SRCS_HTML := $(patsubst %.lyx, %.html, $(filter-out Master_%, $(DOC_SRCS)))
 DOC_TARGETS_HTML:=$(addprefix $(DOC_DIR)/html/,$(subst /,_,$(DOC_SRCS_HTML)))
@@ -71,7 +74,8 @@ DOC_TARGETS_XML:=$(patsubst $(DOC_DIR)/html/%.html, objects/%.xml,\
 	 $(DOC_TARGETS_HTML))
 
 MAN_HTML_TARGETS := $(patsubst $(DOC_DIR)/man/%, $(DOC_DIR)/html/man/%.html, $(MAN_SRCS))
-PDF_TARGETS := $(addprefix $(DOC_DIR)/,HAL_User_Manual.pdf EMC2_User_Manual.pdf EMC2_Developer_Manual.pdf EMC2_Integrator_Manual.pdf EMC2_Manual_Pages.pdf EMC2_User_Manual_fr.pdf)
+PDF_TARGETS := $(addprefix $(DOC_DIR)/,HAL_User_Manual.pdf EMC2_User_Manual.pdf EMC2_Developer_Manual.pdf EMC2_Integrator_Manual.pdf EMC2_Manual_Pages.pdf EMC2_User_Manual_fr.pdf HAL_User_Manual_fr.pdf)
+
 HTML_TARGETS := $(DOC_TARGETS_HTML) $(MAN_HTML_TARGETS) $(DOC_DIR)/html/index.html $(DOC_DIR)/html/index_fr.html $(DOC_DIR)/html/xref.html $(DOC_DIR)/html/xref_fr.html
 
 L2HFLAGS := -init_file src/.latex2html-init -local_icons \
@@ -114,6 +118,8 @@ $(DOC_DIR)/EMC2_Manual_Pages.pdf: $(MAN_SRCS) objects/var-PDF_MAN_ORDER
 		| ps2pdf - $@
 
 $(DOC_DIR)/HAL_User_Manual.pdf: $(DOC_SRCDIR)/Master_HAL.pdf
+	@ln -f $< $@
+$(DOC_DIR)/HAL_User_Manual_fr.pdf: $(DOC_SRCDIR)/Master_HAL_fr.pdf
 	@ln -f $< $@
 $(DOC_DIR)/EMC2_User_Manual.pdf: $(DOC_SRCDIR)/Master_User.pdf
 	@ln -f $< $@
