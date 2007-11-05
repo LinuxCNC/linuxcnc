@@ -1655,7 +1655,8 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	    ((EMC_TRAJ_PROBE *) cmd)->type,
 	    ((EMC_TRAJ_PROBE *) cmd)->vel,
             ((EMC_TRAJ_PROBE *) cmd)->ini_maxvel,  
-	    ((EMC_TRAJ_PROBE *) cmd)->acc);
+	    ((EMC_TRAJ_PROBE *) cmd)->acc,
+            ((EMC_TRAJ_PROBE *) cmd)->probe_type);
 	break;
 
     case EMC_AUX_INPUT_WAIT_TYPE:

@@ -2367,8 +2367,9 @@ int Interp::convert_motion(int motion,   //!< g_code for a line, arc, canned cyc
     CHP(convert_straight(motion, block, settings));
   } else if ((motion == G_3) || (motion == G_2)) {
     CHP(convert_arc(motion, block, settings));
-  } else if (motion == G_38_2) {
-    CHP(convert_probe(block, settings));
+  } else if (motion == G_38_2 || motion == G_38_3 || 
+             motion == G_38_4 || motion == G_38_5) {
+    CHP(convert_probe(block, motion, settings));
   } else if (motion == G_80) {
 #ifdef DEBUG_EMC
     COMMENT("interpreter: motion mode set to none");
@@ -2417,7 +2418,8 @@ current position by calls to get_external_position_x, etc.
 */
 
 int Interp::convert_probe(block_pointer block,   //!< pointer to a block of RS274 instructions
-                         setup_pointer settings)        //!< pointer to machine settings             
+                          int g_code,
+                          setup_pointer settings)        //!< pointer to machine settings             
 {
   static char name[] = "convert_probe";
   double end_x;
@@ -2429,7 +2431,16 @@ int Interp::convert_probe(block_pointer block,   //!< pointer to a block of RS27
   double u_end;
   double v_end;
   double w_end;
+
+  /* probe_type: 
+     ~1 = error if probe operation is unsuccessful (ngc default)
+     |1 = suppress error, report in # instead
+     ~2 = move until probe trips (ngc default)
+     |2 = move until probe clears */
+
+  unsigned char probe_type = g_code - G_38_2;
   
+
   CHK((block->x_flag == OFF && block->y_flag == OFF &&
        block->z_flag == OFF && block->a_flag == OFF &&
        block->b_flag == OFF && block->c_flag == OFF &&
@@ -2455,10 +2466,10 @@ int Interp::convert_probe(block_pointer block,   //!< pointer to a block of RS27
   TURN_PROBE_ON();
   STRAIGHT_PROBE(end_x, end_y, end_z,
                  AA_end, BB_end, CC_end,
-                 u_end, v_end, w_end);
+                 u_end, v_end, w_end, probe_type);
 
   TURN_PROBE_OFF();
-  settings->motion_mode = G_38_2;
+  settings->motion_mode = g_code;
   settings->probe_flag = ON;
   return INTERP_OK;
 }

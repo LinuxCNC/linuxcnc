@@ -1257,6 +1257,7 @@ check_stuff ( "before command_handler()" );
 		break;
 	    } else {
 		emcmotStatus->probing = 1;
+                emcmotStatus->probe_type = emcmotCommand->probe_type;
 		SET_MOTION_ERROR_FLAG(0);
 		/* set flag that indicates all axes need rehoming, if any
 		   axis is moved in joint mode, for machines with no forward

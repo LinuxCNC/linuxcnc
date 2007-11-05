@@ -962,6 +962,7 @@ class EMC_TRAJ_PROBE:public EMC_TRAJ_CMD_MSG {
     EmcPose pos;
     int type;
     double vel, ini_maxvel, acc;
+    unsigned char probe_type;
 };
 
 class EMC_TRAJ_RIGID_TAP:public EMC_TRAJ_CMD_MSG {

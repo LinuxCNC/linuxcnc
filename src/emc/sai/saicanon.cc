@@ -571,7 +571,7 @@ void STRAIGHT_PROBE(
 #ifdef CC
  , double c /*CC*/
 #endif
- , double u, double v, double w
+ , double u, double v, double w, unsigned char probe_type
 )
 {
   double distance;

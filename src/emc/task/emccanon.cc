@@ -838,7 +838,8 @@ void RIGID_TAP(double x, double y, double z)
 
 void STRAIGHT_PROBE(double x, double y, double z, 
                     double a, double b, double c,
-                    double u, double v, double w)
+                    double u, double v, double w,
+                    unsigned char probe_type)
 {
     double ini_maxvel, vel, acc;
     EMC_TRAJ_PROBE probeMsg;
@@ -906,6 +907,7 @@ void STRAIGHT_PROBE(double x, double y, double z,
     probeMsg.acc = toExtAcc(acc);
 
     probeMsg.type = EMC_MOTION_TYPE_PROBING;
+    probeMsg.probe_type = probe_type;
     interp_list.append(probeMsg);
     canonUpdateEndPoint(x, y, z, a, b, c, u, v, w);
 }

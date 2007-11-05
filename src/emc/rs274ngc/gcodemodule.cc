@@ -379,7 +379,7 @@ void TURN_PROBE_ON() {}
 void TURN_PROBE_OFF() {}
 void STRAIGHT_PROBE(double x, double y, double z, 
                     double a, double b, double c,
-                    double u, double v, double w) {
+                    double u, double v, double w, unsigned char probe_type) {
     _pos_x=x; _pos_y=y; _pos_z=z; 
     _pos_a=a; _pos_b=b; _pos_c=c;
     _pos_u=u; _pos_v=v; _pos_w=w;

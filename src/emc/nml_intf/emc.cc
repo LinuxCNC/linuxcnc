@@ -3052,7 +3052,7 @@ void EMC_TRAJ_PROBE::update(CMS * cms)
     cms->update(vel);
     cms->update(ini_maxvel);
     cms->update(acc);
-
+    cms->update(probe_type);
 }
 
 /*

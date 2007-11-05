@@ -430,7 +430,7 @@ Only linear moves are allowed, axes A,B,C are not allowed to move.*/
 
 extern void STRAIGHT_PROBE(double x, double y, double z,
                            double a, double b, double c,
-                           double u, double v, double w);
+                           double u, double v, double w, unsigned char probe_type);
 
 /* Perform a probing operation. This is a temporary addition to the
 canonical machining functions and its semantics are not defined.

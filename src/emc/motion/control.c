@@ -364,6 +364,7 @@ static void process_inputs(void)
     emcmot_joint_t *joint;
     unsigned char enables;
     static int old_probeVal = 0;
+    unsigned char probe_type = emcmotStatus->probe_type;
     
     /* read probe input */
     emcmotStatus->probeVal = *(emcmot_hal_data->probe_input);

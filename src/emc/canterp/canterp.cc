@@ -519,7 +519,7 @@ int emcTaskPlanExecute(const char *command)
 			&d1, &d2, &d3, &d4, &d5, &d6, &d7, &d8, &d9)) {
 	    return 1;
 	}
-	STRAIGHT_PROBE(d1, d2, d3, d4, d5, d6, d7, d8, d9);
+	STRAIGHT_PROBE(d1, d2, d3, d4, d5, d6, d7, d8, d9, 0);
 	return 0;
     }
 

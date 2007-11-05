@@ -224,6 +224,10 @@ extern "C" {
 	unsigned char now, out, start, end;	/* these are related to synched AOUT/DOUT. now=wether now or synched, out = which gets set, start=start value, end=end value */
 	unsigned char mode;	/* used for turning overrides etc. on/off */
 	double comp_nominal, comp_forward, comp_reverse; /* compensation triplet, nominal, forward, reverse */
+        unsigned char probe_type; /* ~1 = error if probe operation is unsuccessful (ngc default)
+                                     |1 = suppress error, report in # instead
+                                     ~2 = move until probe trips (ngc default)
+                                     |2 = move until probe clears */
 	unsigned char tail;	/* flag count for mutex detect */
     } emcmot_command_t;
 
@@ -593,6 +597,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 	int probeTripped;	/* Has the probe signal changed since start
 				   of probe command? */
 	int probing;		/* Currently looking for a probe signal? */
+        unsigned char probe_type;
 	EmcPose probedPos;	/* Axis positions stored as soon as possible
 				   after last probeTripped */
         int spindle_index_enable;  /* hooked to a canon encoder index-enable */
