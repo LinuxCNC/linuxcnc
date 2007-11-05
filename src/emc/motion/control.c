@@ -363,7 +363,8 @@ static void process_inputs(void)
     axis_hal_t *axis_data;
     emcmot_joint_t *joint;
     unsigned char enables;
-
+    static int old_probeVal = 0;
+    
     /* read probe input */
     emcmotStatus->probeVal = *(emcmot_hal_data->probe_input);
     if (emcmotStatus->probing) {
@@ -380,10 +381,34 @@ static void process_inputs(void)
                position here, because it will still be queried */
             emcmotStatus->probedPos = emcmotStatus->carte_pos_fb;
             emcmotStatus->probing=0;
-            reportError("G38.2 probe move finished without tripping probe\n");
+            reportError("G38.2 probe move finished without tripping probe");
             SET_MOTION_ERROR_FLAG(1);
         }
+    } else if (!old_probeVal && emcmotStatus->probeVal) {
+        // not probing, but we have a rising edge on the probe.
+        // this could be expensive if we don't stop.
+        int i;
+
+        reportError("Probe tripped while not probing.");
+        if(!GET_MOTION_INPOS_FLAG() && tpQueueDepth(&emcmotDebug->queue)) {
+            // TP running
+            tpAbort(&emcmotDebug->queue);
+        }
+        for(i=0; i<num_joints; i++) {
+            emcmot_joint_t *joint = &joints[i];
+            if (!GET_JOINT_ACTIVE_FLAG(joint)) {
+                /* if joint is not active, skip it */
+                continue;
+            }
+            // abort any homing
+            if(GET_JOINT_HOMING_FLAG(joint)) {
+                joint->home_state = HOME_ABORT;
+            }
+            // abort any jogs
+            joint->free_tp_enable = 0;
+        }
     }
+    old_probeVal = emcmotStatus->probeVal;
     /* read spindle angle (for threading, etc) */
     emcmotStatus->spindleRevs = *emcmot_hal_data->spindle_revs;
     emcmotStatus->spindleSpeedIn = *emcmot_hal_data->spindle_speed_in;
