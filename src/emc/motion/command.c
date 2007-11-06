@@ -1246,7 +1246,25 @@ check_stuff ( "before command_handler()" );
 		tpAbort(&emcmotDebug->queue);
 		SET_MOTION_ERROR_FLAG(1);
 		break;
-	    }
+	    } else if (!(emcmotCommand->probe_type & 1)) {
+                // if suppress errors = off...
+
+                int probeval = *(emcmot_hal_data->probe_input);
+                int probe_whenclears = !!(emcmotCommand->probe_type & 2);
+
+                if (probeval != probe_whenclears) {
+                    // the probe is already in the state we're seeking.
+                    if(probe_whenclears) 
+                        reportError("Probe is already clear when starting G38.4 or G38.5 move");
+                    else
+                        reportError("Probe is already tripped when starting G38.2 or G38.3 move");
+
+                    emcmotStatus->commandStatus = EMCMOT_COMMAND_BAD_EXEC;
+                    tpAbort(&emcmotDebug->queue);
+                    SET_MOTION_ERROR_FLAG(1);
+                    break;
+                }
+            }
 
 	    /* append it to the emcmotDebug->queue */
 	    tpSetId(&emcmotDebug->queue, emcmotCommand->id);
