@@ -404,7 +404,15 @@ Implementation details
 
 A kinematics module is implemented as a HAL component, and is permitted
  to export pins and parameters.
- It consists of several functions:
+ It consists of several 
+\begin_inset Quotes eld
+\end_inset 
+
+C
+\begin_inset Quotes erd
+\end_inset 
+
+ functions (as opposed to HAL functions):
 \layout Itemize
 
 
@@ -425,8 +433,8 @@ Implements the forward kinematics function as described in section
 
 
 \family typewriter 
-extern int kinematicsInverse(const EmcPose * world, double *joints, const
- KINEMATICS_INVERSE_FLAGS *iflags, KINEMATICS_FORWARD_FLAGS *fflags)
+int kinematicsInverse(const EmcPose * world, double *joints, const KINEMATICS_IN
+VERSE_FLAGS *iflags, KINEMATICS_FORWARD_FLAGS *fflags)
 \begin_deeper 
 \layout Standard
 
@@ -441,11 +449,15 @@ Implements the inverse kinematics function as described in section
 
 
 \family typewriter 
-extern KINEMATICS_TYPE kinematicsType(void)
+KINEMATICS_TYPE kinematicsType(void)
 \begin_deeper 
 \layout Standard
 
-Returns the kinematics type identifier.
+Returns the kinematics type identifier, typically 
+\family typewriter 
+KINEMATICS_BOTH
+\family default 
+.
 \end_deeper 
 \layout Itemize
 
@@ -466,12 +478,35 @@ The home kinematics function sets all its arguments to their proper values
 \end_deeper 
 \layout Itemize
 
+
+\family typewriter 
 int rtapi_app_main(void)
 \layout Itemize
 
+
+\family typewriter 
 void rtapi_app_exit(void)
 \begin_deeper 
 \layout Standard
 
 These are the standard setup and tear-down functions of RTAPI modules.
+\end_deeper 
+\layout Standard
+
+When they are contained in a single source file, kinematics modules may
+ be compiled and installed by 
+\family typewriter 
+comp
+\family default 
+.
+ See the 
+\family typewriter 
+comp(1)
+\family default 
+ manpage or section 
+\begin_inset LatexCommand \ref{sec:Compiling-realtime-components}
+
+\end_inset 
+
+ for more information.
 \the_end
