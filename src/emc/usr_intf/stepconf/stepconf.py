@@ -92,11 +92,11 @@ hal_input_names = ("estop-ext", "probe-in",
 "both-x", "both-y", "both-z", "both-a",
 "all-limit", "all-home")
 
-human_output_names = ("X Step", "X Direction", "Y Step", "Y Direction",
-"Z Step", "Z Direction", "A Step", "A Direction",
-"Spindle CW", "Spindle CCW", "Spindle PWM",
-"Coolant Mist", "Coolant Flood", "ESTOP Out", "Amplifier Enable",
-"Charge Pump", "Unused")
+human_output_names = (_("X Step"), _("X Direction"), _("Y Step"), _("Y Direction"),
+_("Z Step"), _("Z Direction"), _("A Step"), _("A Direction"),
+_("Spindle CW"), _("Spindle CCW"), _("Spindle PWM"),
+_("Coolant Mist"), _("Coolant Flood"), _("ESTOP Out"), _("Amplifier Enable"),
+_("Charge Pump"), _("Unused"))
 
 human_input_names = (_("ESTOP In"), _("Probe In"),
 _("Spindle Index"), _("Spindle Phase A"), _("Spindle Phase B"),
@@ -138,7 +138,7 @@ class Widgets:
 class Data:
     def __init__(self):
 	pw = pwd.getpwuid(os.getuid())
-	self.machinename = "my-mill"
+	self.machinename = _("my-mill")
 	self.axes = 0 # XYZ
 	self.units = 0 # inch
 	self.drivertype = 5 # Other
@@ -1081,20 +1081,20 @@ class App:
 	set_active("latchdir")
 
 	if axis == "a":
-	    w[axis + "screwunits"].set_text("degree / rev")
-	    w[axis + "velunits"].set_text("deg / s")
-	    w[axis + "accunits"].set_text("deg / s²")
-	    w[axis + "accdistunits"].set_text("deg")
+	    w[axis + "screwunits"].set_text(_("degree / rev"))
+	    w[axis + "velunits"].set_text(_("deg / s"))
+	    w[axis + "accunits"].set_text(_("deg / s²"))
+	    w[axis + "accdistunits"].set_text(_("deg"))
 	elif d.units:
-	    w[axis + "screwunits"].set_text("mm / rev")
-	    w[axis + "velunits"].set_text("mm / s")
-	    w[axis + "accunits"].set_text("mm / s²")
-	    w[axis + "accdistunits"].set_text("mm")
+	    w[axis + "screwunits"].set_text(_("mm / rev"))
+	    w[axis + "velunits"].set_text(_("mm / s"))
+	    w[axis + "accunits"].set_text(_("mm / s²"))
+	    w[axis + "accdistunits"].set_text(_("mm"))
 	else:
-	    w[axis + "screwunits"].set_text("rev / in")
-	    w[axis + "velunits"].set_text("in / s")
-	    w[axis + "accunits"].set_text("in / s²")
-	    w[axis + "accdistunits"].set_text("in")
+	    w[axis + "screwunits"].set_text(_("rev / in"))
+	    w[axis + "velunits"].set_text(_("in / s"))
+	    w[axis + "accunits"].set_text(_("in / s²"))
+	    w[axis + "accdistunits"].set_text(_("in"))
 
 	n = "xyza".index(axis)
 
@@ -1413,12 +1413,12 @@ class App:
                 halrun.write("setp parport.0.pin-%(pin)02d-out-invert 1\n"
                     % {'pin': pin}) 
 
-	widgets.dialog1.set_title("%s Axis Test" % axis.upper())
+	widgets.dialog1.set_title(_("%s Axis Test") % axis.upper())
 
 	if axis == "a":
-	    widgets.testvelunit.set_text("deg / s")
-	    widgets.testaccunit.set_text("deg / s²")
-	    widgets.testampunit.set_text("deg")
+	    widgets.testvelunit.set_text(_("deg / s"))
+	    widgets.testaccunit.set_text(_("deg / s²"))
+	    widgets.testampunit.set_text(_("deg"))
 	    widgets.testvel.set_increments(1,5)
 	    widgets.testacc.set_increments(1,5)
 	    widgets.testamplitude.set_increments(1,5)
@@ -1430,9 +1430,9 @@ class App:
 	    widgets.testamplitude.set_digits(1)
             widgets.testamplitude.set_value(10)
 	elif data.units:
-	    widgets.testvelunit.set_text("mm / s")
-	    widgets.testaccunit.set_text("mm / s²")
-	    widgets.testampunit.set_text("mm")
+	    widgets.testvelunit.set_text(_("mm / s"))
+	    widgets.testaccunit.set_text(_("mm / s²"))
+	    widgets.testampunit.set_text(_("mm"))
 	    widgets.testvel.set_increments(1,5)
 	    widgets.testacc.set_increments(1,5)
 	    widgets.testamplitude.set_increments(1,5)
@@ -1444,9 +1444,9 @@ class App:
 	    widgets.testamplitude.set_digits(2)
             widgets.testamplitude.set_value(.5)
 	else:
-	    widgets.testvelunit.set_text("in / s")
-	    widgets.testaccunit.set_text("in / s²")
-	    widgets.testampunit.set_text("in")
+	    widgets.testvelunit.set_text(_("in / s"))
+	    widgets.testaccunit.set_text(_("in / s²"))
+	    widgets.testampunit.set_text(_("in"))
 	    widgets.testvel.set_increments(.1,5)
 	    widgets.testacc.set_increments(1,5)
 	    widgets.testamplitude.set_increments(.1,5)
