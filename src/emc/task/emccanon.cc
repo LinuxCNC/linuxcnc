@@ -2079,6 +2079,11 @@ CANON_POSITION GET_EXTERNAL_PROBE_POSITION()
     return position;
 }
 
+int GET_EXTERNAL_PROBE_TRIPPED_VALUE()
+{
+    return emcStatus->motion.traj.probe_tripped;
+}
+
 double GET_EXTERNAL_PROBE_VALUE()
 {
     // only for analog non-contact probe, so force a 0

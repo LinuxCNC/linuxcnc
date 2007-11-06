@@ -365,25 +365,36 @@ static void process_inputs(void)
     unsigned char enables;
     static int old_probeVal = 0;
     unsigned char probe_type = emcmotStatus->probe_type;
+
+    // don't error
+    char probe_suppress = probe_type & 1;
+
+    // trigger when the probe clears, instead of the usual case of triggering when it trips
+    char probe_whenclears = !!(probe_type & 2);
     
     /* read probe input */
     emcmotStatus->probeVal = *(emcmot_hal_data->probe_input);
     if (emcmotStatus->probing) {
         /* check if the probe has been tripped */
-        if (emcmotStatus->probeVal) {
+        if (emcmotStatus->probeVal ^ probe_whenclears) {
             /* remember the current position */
             emcmotStatus->probedPos = emcmotStatus->carte_pos_fb; 
             /* stop! */
             tpAbort(&emcmotDebug->queue);
-            emcmotStatus->probing=0;
+            emcmotStatus->probing = 0;
+            emcmotStatus->probeTripped = 1;
         /* check if the probe hasn't tripped, but the move finished */
         } else if (GET_MOTION_INPOS_FLAG() && tpQueueDepth(&emcmotDebug->queue) == 0) {
             /* we are already stopped, but we need to remember the current 
                position here, because it will still be queried */
             emcmotStatus->probedPos = emcmotStatus->carte_pos_fb;
-            emcmotStatus->probing=0;
-            reportError("G38.2 probe move finished without tripping probe");
-            SET_MOTION_ERROR_FLAG(1);
+            emcmotStatus->probing = 0;
+            if (probe_suppress) {
+                emcmotStatus->probeTripped = 0;
+            } else {
+                reportError("G38.2 probe move finished without tripping probe");
+                SET_MOTION_ERROR_FLAG(1);
+            }
         }
     } else if (!old_probeVal && emcmotStatus->probeVal) {
         // not probing, but we have a rising edge on the probe.

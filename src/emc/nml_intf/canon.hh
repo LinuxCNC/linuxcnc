@@ -789,6 +789,9 @@ extern double GET_EXTERNAL_PROBE_POSITION_W();
 // Returns the value for any analog non-contact probing.
 extern double GET_EXTERNAL_PROBE_VALUE();
 
+// Whether the probe changed state during the last probing move
+extern int GET_EXTERNAL_PROBE_TRIPPED_VALUE();
+
 // Returns zero if queue is not empty, non-zero if the queue is empty
 // This always returns a valid value
 extern int GET_EXTERNAL_QUEUE_EMPTY();

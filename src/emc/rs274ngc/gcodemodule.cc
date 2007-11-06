@@ -414,6 +414,7 @@ double GET_EXTERNAL_PROBE_POSITION_U() { return _pos_u; }
 double GET_EXTERNAL_PROBE_POSITION_V() { return _pos_v; }
 double GET_EXTERNAL_PROBE_POSITION_W() { return _pos_w; }
 double GET_EXTERNAL_PROBE_VALUE() { return 0.0; }
+int GET_EXTERNAL_PROBE_TRIPPED_VALUE() { return 0; }
 double GET_EXTERNAL_POSITION_X() { return _pos_x; }
 double GET_EXTERNAL_POSITION_Y() { return _pos_y; }
 double GET_EXTERNAL_POSITION_Z() { return _pos_z; }

@@ -404,6 +404,7 @@ int Interp::set_probe_data(setup_pointer settings)       //!< pointer to machine
   settings->parameters[5067] = GET_EXTERNAL_PROBE_POSITION_U();
   settings->parameters[5068] = GET_EXTERNAL_PROBE_POSITION_V();
   settings->parameters[5069] = GET_EXTERNAL_PROBE_POSITION_W();
+  settings->parameters[5070] = (double) GET_EXTERNAL_PROBE_TRIPPED_VALUE();
 
   // was an undocumented feature?: settings->parameters[5067] = GET_EXTERNAL_PROBE_VALUE();
   return INTERP_OK;

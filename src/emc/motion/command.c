@@ -1216,6 +1216,7 @@ check_stuff ( "before command_handler()" );
 	case EMCMOT_CLEAR_PROBE_FLAGS:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "CLEAR_PROBE_FLAGS");
 	    emcmotStatus->probing = 0;
+            emcmotStatus->probeTripped = 0;
 	    break;
 
 	case EMCMOT_PROBE:

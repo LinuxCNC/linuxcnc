@@ -1118,6 +1118,11 @@ extern double GET_EXTERNAL_PROBE_VALUE()
   return 1.0;
 }
 
+extern int GET_EXTERNAL_PROBE_TRIPPED_VALUE()
+{
+    return 0;
+}
+
 /* Returns zero if queue is not empty, non-zero if the queue is empty */
 /* In the stand-alone interpreter, there is no queue, so it is always empty */
 extern int GET_EXTERNAL_QUEUE_EMPTY()
