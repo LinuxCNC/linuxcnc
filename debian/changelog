@@ -1,12 +1,9 @@
 emc2 (1:2.2.1~cvs) unstable; urgency=low
 
-  [ Jeff Epler ]
-  * [note each bugfix here]
-
-  [ Alex Joni ]
   * fix packaging of stepconf.glade
+  * german translation improvements 
 
- -- Alex Joni <juve@taurus>  Wed,  7 Nov 2007 01:45:40 +0200
+ -- Jeff Epler <jepler@unpythonic.net>  Wed,  7 Nov 2007 10:06:45 -0600
 
 emc2 (1:2.2.0) unstable; urgency=low
 
@@ -79,7 +76,7 @@ emc2 (1:2.2.0) unstable; urgency=low
   * fixed a bug that caused helixes with a small circular component to have 
     too low a feed rate
 
- -- Chris Radek <chris@rover>  Sun,  5 Aug 2007 20:07:45 -0500
+ -- Jeff Epler <jepler@unpythonic.net>  Sun,  4 Nov 2007 21:38:55 -0600
 
 emc2 (1:2.1.8~pre) unstable; urgency=low
 
