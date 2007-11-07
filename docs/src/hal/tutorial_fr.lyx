@@ -36,14 +36,14 @@
 
 \end_inset
 
-Tutoriel HAL
+Tutoriel de HAL
 
 \layout Section
 \begin_inset LatexCommand \label{sec:Intro-tutoriel}
 
 \end_inset
 
-Avant de démarrer
+Introduction
 
 \layout Standard
 La configuration passe de la théorie à la pratique de HAL.
@@ -57,11 +57,8 @@ Hello World
 \end_inset
 
  de HAL.
- Comme indiqué précédemment halrun
-\emph on
- 
-\emph default
-peut être utilisé pour créer un système qui fonctionne.
+ Comme indiqué précédemment halrun peut être utilisé pour créer un système
+ qui fonctionne.
  Il s'agit d'un outil de configuration et de mise au point en ligne de commande
  ou en fichier texte.
  Les exemples suivants illustrent son installation et son fonctionnement.
@@ -115,12 +112,12 @@ RTAPI est le sigle de Real Time Application Programming Interface.
  le type de mémoire partagée dont HAL a besoin.
  Heureusement, il existe des systèmes d'exploitation temps réel RTOS qui
  fournissent les extensions nécessaires à Linux.
- Malheureusement, chaque RTOS fait les choses différamment des autres.
+ Malheureusement, chaque RTOS fait les choses différemment des autres.
 
 \layout Standard
-Pour remédier à ces différences, l'équipe d'EMC à proposé RTAPI, qui fournit
+Pour remédier à ces différences, l'équipe d'EMC a proposé RTAPI, qui fournit
  une manière cohérente aux programmes de parler au RTOS.
- Si vous êtes un programmeur qui veux travailler à l'intérieur d'EMC, vous
+ Si vous êtes un programmeur qui veut travailler à l'intérieur d'EMC, vous
  pouvez étudier 
 \family typewriter
 emc2/src/rtapi/rtapi.h
@@ -140,7 +137,7 @@ emc-environment
  pour préparer votre shell.
  Dans ce cas, tout ce que vous avez à faire est de charger le RTOS requis
  et les modules RTAPI dans la mémoire.
- Tapez juste les commendes suivante dans une console:
+ Tapez juste les commandes suivantes dans une console:
 
 \layout LyX-Code
 emc2$ 
@@ -209,8 +206,8 @@ Vous pouvez également passer des arguments à halrun, il seront répercutés
 \family typewriter
 halrun
 \family default
- arrête le système temps réel quand il se tramine, le fichier hal fonctionnera
- de cette façon est s'arrêtera généralement avec une commande comme: 
+ arrête le système temps réel quand il se termine, le fichier hal fonctionnera
+ de cette façon et s'arrêtera généralement avec une commande comme: 
 \family typewriter
 loadrt -w halscope
 \family default
@@ -221,7 +218,7 @@ Tab-complétion
 
 \layout Standard
 Votre version de halcmd peut inclure la complétion avec la touche tab.
- Au lieu de compléter les noms de fichiers comme le fait un shell, il compléte
+ Au lieu de compléter les noms de fichiers comme le fait un shell, il complète
  les commandes avec les identifiants HAL.
  Essayez de presser la touche tab après le début d'une commande HAL:
 
@@ -247,7 +244,7 @@ ddt       debounce
 
 \end_inset
 
-A simple exemple
+Un exemple simple
 
 \layout Subsection
 Chargement d'un composant temps réel
@@ -262,22 +259,13 @@ siggen
 \family typewriter
 siggen
 \family default
- rst disponible à la section 
+ reste disponible à la section 
 \begin_inset LatexCommand \ref{sec:Siggen}
 
 \end_inset
 
  de ce document.
- Il s'agit d'un composant en temps réel, mise en 
-
-\begin_inset ERT
-status Collapsed
-\layout 
-\backslash
-oe
-
-\end_inset
-uvre comme un module du
+ Il s'agit d'un composant en temps réel, mis en oeuvre comme un module du
  noyau Linux.
  Pour charger 
 \family typewriter
@@ -303,11 +291,11 @@ Maintenant que le module est chargé, il faut introduire
 halcmd
 \family default
 , l'outil en ligne de commande utilisé pour configurer le HAL.
- Pour une description plus complète essayer: 
+ Pour une description plus complète essayez: 
 \family typewriter
 man halcmd
 \family default
-, ou consultez consultez la section 
+, ou consultez la section 
 \family typewriter
 halcmd
 \family default
@@ -318,7 +306,7 @@ halcmd
 
  de ce document.
  La première commande de halcmd et show, qui affichera les informations
- concernat létat actuel du HAL.
+ concernant l'état actuel du HAL.
  Pour afficher tout ce qui est installé tapez:
 
 \layout LyX-Code
@@ -346,10 +334,10 @@ halcmd
 \family default
  lui même est un composant HAL, il sera toujours présent dans la liste
 \begin_inset Foot
-collapsed true
+collapsed false
 
 \layout Standard
-Le nombre après halcmd dans la liste des composants 
+Le nombre après halcmd dans la liste des composants est le 
 \begin_inset Quotes eld
 \end_inset
 
@@ -435,7 +423,7 @@ siggen
  toutes les pins ont une valeur de zéro.
 
 \layout Standard
-L'étape suivante consiste à examiner les paramétres:
+L'étape suivante consiste à examiner les paramètres:
 
 \layout LyX-Code
 halcmd: 
@@ -470,9 +458,9 @@ show param
 \begin_inset Quotes erd
 \end_inset
 
- affiche tous les paramétres de HAL.
- Pour le moment chaque paramétre à la valeur par défaut attribuée quand
- le composant à été chargé.
+ affiche tous les paramètres de HAL.
+ Pour le moment chaque paramètre à la valeur par défaut attribuée quand
+ le composant a été chargé.
  Notez dans la colonne 
 \family typewriter
 Dir
@@ -486,19 +474,19 @@ Dir
  lui-même, mais qui sont modifiable par l'utilisateur pour contrôler le
  composant.
  Nous verrons comment plus tard.
- Les paramétres marqués 
+ Les paramètres marqués 
 \family typewriter
 R-
 \family default
  sont en lecture seule.
  Il ne peuvent être modifiés que par le composant.
- Finalement, les paramétres marqués 
+ Finalement, les paramètres marqués 
 \family typewriter
 RW
 \family default
  sont en lecture/écriture.
  Ils peuvent être modifiés par le composant et aussi par l'utilisateur.
- Nota: les paramétres 
+ Nota: les paramètres 
 \family typewriter
 siggen.0.update.time
 \family default
@@ -513,13 +501,13 @@ tion.
 collapsed false
 
 \layout Standard
-Les paramétres thread.time et thread.tmax sont associés avec le thread créé
+Les paramètres thread.time et thread.tmax sont associés avec le thread créé
  quand le composant a été chargé.
- Une fois que la réécriture de HAL terminée, le thread ne sera plus créé
- à ce stade, de sorte que ces paramètres ne seront plus visibles.
+ Quand la réécriture de HAL sera terminée, le thread ne sera plus créé à
+ ce stade, de sorte que ces paramètres ne seront plus visibles.
 
 \layout Standard
-Il n'y a pas de thread créé ici, mais il y a quand même les paramétres siggen.0.up
+Il n'y a pas de thread créé ici, mais il y a quand même les paramètres siggen.0.up
 date.{time,tmax}.
 
 \end_inset
@@ -529,10 +517,10 @@ date.{time,tmax}.
 collapsed false
 
 \layout Standard
-Les paramétres de thread sont ceux du composant 02, le module siggen.
+Les paramètres de thread sont ceux du composant 02, le module siggen.
  C'est incorrect, ils devraient être ceux du module hal_lib, parce que le
  thread lui même n'est plus la propriété de siggen, et en fait, si siggen
- est retiré, les paramétres devraient rester.
+ est retiré, les paramètres devraient rester.
 
 \end_inset
 
@@ -549,7 +537,7 @@ fixer
 \begin_inset Quotes erd
 \end_inset
 
- les paramétres de thread aurait pris plus de temps que je ne pensais.
+ les paramètres de thread aura pris plus de temps que je ne pensais.
  Donc, je les ai éliminés pour l'instant.
  Quand la réécriture de HAL sera terminée, je les remettrai.
 
@@ -596,7 +584,7 @@ users
 collapsed false
 
 \layout Standard
-Les champs codeaddr et arg  ont été utilisées pendant le développement et
+Les champs codeaddr et arg  ont été utilisés pendant le développement et
  devraient probablement disparaître.
 
 \end_inset
@@ -648,7 +636,7 @@ Realtime Threads:
 
 \layout Standard
 Il fonctionne.
- La période n'est pas exactement de 1000000ns à cause des limitations dûe
+ La période n'est pas exactement de 1000000ns à cause des limitations dues
  au matériel, mais nous avons bien un thread qui tourne à une période approximat
 ivement correcte et qui peut manipuler des fonctions en virgule flottante.
  La prochaine étape sera de connecter la fonction au thread:
@@ -664,7 +652,7 @@ Pour le moment nous avions utilisé
 halcmd
 \family default
  seulement pour regarder le HAL.
- Mais cette fois-ci, nous avons utilisée la commande 
+ Mais cette fois-ci, nous avons utilisé la commande 
 \family typewriter
 addf
 \family default
@@ -763,17 +751,17 @@ Owner  Type  Dir     Value
   siggen.0.triangle
 
 \layout Standard
-Nous avons fait, trés rapidement, deux commandes 
+Nous avons fait, très rapidement, deux commandes 
 \family typewriter
 show pin
 \family default
  et vous pouvez voir que les sorties ne sont plus à zéro.
- Les sorties sinus, cosinus, dents de scie et triangle changent constament.
+ Les sorties sinus, cosinus, dents de scie et triangle changent constamment.
  La sortie carrée fonctionne également, mais elle passe simplement de +1.0
  à -1.0 à chaque cycle.
 
 \layout Subsection
-Modifier des paramétres
+Modifier des paramètres
 
 \layout Standard
 La réelle puissance de HAL est de permettre de modifier les choses.
@@ -781,7 +769,7 @@ La réelle puissance de HAL est de permettre de modifier les choses.
 \family typewriter
 setp
 \family default
- pour ajuster la valur d'un paramétre.
+ pour ajuster la valeur d'un paramètre.
  Modifions l'amplitude du signal de sortie du générateur de 1.0 à 5.0:
 
 \layout LyX-Code
@@ -794,7 +782,7 @@ setp siggen.0.amplitude 5
 emc2$
 
 \layout Standard
-Voyons encore une fois les paramétres et les pins:
+Voyons encore une fois les paramètres et les pins:
 
 \layout LyX-Code
 halcmd: setp siggen.0.amplitude 5
@@ -840,7 +828,7 @@ Owner  Type  Dir     Value      Name
  32769    float OUT   4.02213e+00  siggen.0.triangle
 
 \layout Standard
-Notez que la valeur du paramétre 
+Notez que la valeur du paramètre 
 \family typewriter
 siggen.0.amplitude
 \family default
@@ -855,7 +843,7 @@ La plupart de ce que nous avons fait jusqu'ici avec
 \family typewriter
 halcmd
 \family default
- a été de simplement de regarder les choses avec la commande 
+ a été de simplement regarder les choses avec la commande 
 \family typewriter
 show
 \family default
@@ -863,9 +851,9 @@ show
  Toutefois, deux commandes ont rééllement modifié des valeurs.
  Au fur et à mesure que nous concevons des systèmes plus complexes avec
  HAL, nous allons utiliser de nombreuses commandes pour le configurer comme
- nous le souhaîtons.
+ nous le souhaitons.
  HAL a une mémoire d'éléphant et peut retenir sa configuration jusqu'à ce
- qu'il ne s'arrête.
+ qu'il s'arrête.
  Mais qu'en est-il de la prochaine fois ? Nous ne voulons pas entrer une
  série de commande à chaque fois que l'on veut utiliser le système.
  Nous pouvons enregistrer la configuration de l'ensemble de HAL en une seule
@@ -935,7 +923,7 @@ save all saved.hal
 Restaurer la configuration de HAL 
 
 \layout Standard
-Pour restaurer la configuration de HAL stockées dans 
+Pour restaurer la configuration de HAL stockée dans 
 \family typewriter
 saved.hal
 \family default
@@ -948,7 +936,7 @@ saved.hal
 \family typewriter
 -I
 \family default
- qui affichera le prompt halcmd aprés l'exécution des commandes:
+ qui affichera le prompt halcmd après l'exécution des commandes:
 
 \layout LyX-Code
 emc2$ 
@@ -974,8 +962,8 @@ Visualiser le HAL avec halmeter
 \layout Standard
 Vous pouvez construire des systèmes HAL vraiment complexes sans utiliser
  d'interface graphique.
- Mais il y a quelque chose de rassurant a visualiser le résulat du travail.
- Le premier et le plus simple des outils graphiques pour le HAL est 
+ Mais il y a quelque chose de rassurant à visualiser le résultat du travail.
+ Le premier, et le plus simple des outils graphiques pour le HAL, est 
 \begin_inset Quotes eld
 \end_inset
 
@@ -1112,7 +1100,7 @@ collapsed false
 
 \end_inset
 
-Dialoque de sélection de Halmeter
+Dialogue de sélection de Halmeter
 
 \end_inset
 
@@ -1161,7 +1149,7 @@ Affichage dans Halmeter de la valeur d'une pin
 
 
 \layout Standard
-Vous devriez voir la valeur évoluer à mesure que siggen génére son signal
+Vous devriez voir la valeur évoluer à mesure que siggen génère son signal
  triangulaire.
  Halmeter est raffraîchi environ 5 fois par seconde.
  
@@ -1174,8 +1162,8 @@ Si vous voulez visualiser rapidement des pins successives, vous pouvez cliquer
  'Accept'.
  La nouvelle valeur s'affiche alors immédiatement, mais le dialogue de sélection
  reste ouvert.
- Essayez d'afficher un paramétre au lieu d'une pin.
- Cliquez sur l'onglet 'Parameters', puis sélectionnez un paramétre et cliquez
+ Essayez d'afficher un paramètre au lieu d'une pin.
+ Cliquez sur l'onglet 'Parameters', puis sélectionnez un paramètre et cliquez
  encore sur 'Accept'.
  Vous pouvez ainsi afficher très rapidement la valeur d'un élément puis
  d'un autre en quelques clics.
@@ -1205,7 +1193,7 @@ Halmeter sera réécrit.
  Cette réécriture le rendra plus agréable à utiliser.
  La notation scientifique sera éliminée, elle est trop difficile à lire.
  Certaines formes d'échelles seront ajoutées (y compris, une échelle automatique
-) pour afficher des échelles plus grandes sans notation scientifiques.
+) pour afficher des échelles plus grandes sans notation scientifique.
  Un affichage par 
 \begin_inset Quotes eld
 \end_inset
@@ -1250,8 +1238,8 @@ Jusqu'à maintenant, nous avons chargé un composant HAL.
  Le prochain exemple va utiliser deux composants.
 
 \layout Standard
-Avant que nous ne puissions commencer à mettre en place ce nouvel exemple,
- nous allons commencer par un petit nettoyage.
+Avant de mettre en place ce nouvel exemple, nous allons commencer par un
+ petit nettoyage.
  Si vous avez fini l'un des exemples précédents, il faut supprimer tous
  les composants et ensuite recharger la RTAPI et les librairies de HAL en
  faisant:
@@ -1332,7 +1320,7 @@ halcmd:
 loadrt threads name1=fast fp1=0 period1=50000 name2=slow period2=1000000
 
 \layout Standard
-La première commande charges deux générateurs d'impulsions, configurés pour
+La première commande charge deux générateurs d'impulsions, configurés pour
  générer des impulsions de type 0.
  La seconde commande charge notre vieil ami siggen et la troisième crée
  deux threads, un rapide (fast) avec une période de 50µs et un lent avec
@@ -1567,9 +1555,9 @@ Quand un signal est connecté à une ou plusieurs pins, la commande
 \family typewriter
 show
 \family default
- liste les pins immediatement suivies par nom du signal.
- Les flèches montre la direction du flux de données, dans ce cas, les flux
- vont de la pin 
+ liste les pins immédiatement suivies par nom du signal.
+ Les flèches montrent la direction du flux de données, dans ce cas, les
+ flux vont de la pin 
 \family typewriter
 siggen.0.cosine
 \family default
@@ -1682,12 +1670,12 @@ fils
 \begin_inset Quotes erd
 \end_inset
 
- rend les pins et les signaux assez facile à comprendre.
+ rend les pins et les signaux assez faciles à comprendre.
  Les threads et les fonctions sont un peu plus difficiles.
  Les fonctions contiennent des instructions pour l'ordinateur.
  Les threads sont les méthodes utilisées pour faire exécuter ces instructions
  quand c'est nécessaire.
- Première regardons les fonctions dont nous disposons:
+ Premièrement, regardons les fonctions dont nous disposons:
 
 \layout LyX-Code
 halcmd: 
@@ -1773,16 +1761,17 @@ Pour notre exemple nous voulons faire tourner
 siggen.0.update
 \family default
  avec une vitesse de calcul des valeurs sinus et cosinus modérée.
- Immediatement aprés, nous lançons 
+ Immédiatement après, nous lançons 
 \family typewriter
 siggen.0.update
 \family default
-, nous voulons lancer 
+.
+ Nous voulons lancer 
 \family typewriter
 freqgen.update_freq
 \family default
  pour charger les nouvelles valeurs dans le générateur d'impulsions.
- Finallement nous lancerons 
+ Finalement nous lancerons 
 \family typewriter
 freqgen.make_pulses
 \family default
@@ -1853,7 +1842,7 @@ freqgen.make_pulses
 addf
 \family default
 .
- Nous spécifions la fonction en premier suivie pat le thread:
+ Nous spécifions la fonction en premier suivie par le thread:
 
 \layout LyX-Code
 halcmd: 
@@ -1873,9 +1862,9 @@ halcmd:
 addf freqgen.make_pulses fast
 
 \layout Standard
-Après avoir lancé ces commandes, nous pouvons lancer la commande
+Après avoir lancé ces commandes, nous pouvons lancer la commande 
 \family typewriter
- show thread
+show thread
 \family default
  une nouvelle fois pour voir ce qui ce passe:
 
@@ -1908,35 +1897,35 @@ Maintenant, chaque thread est suivi par les noms des fonctions, dans l'ordre
  
 
 \layout Subsection
-Réglage des paramétres
+Réglage des paramètres
 
 \layout Standard
 Nous sommes presque prêts à démarrer notre système HAL.
- Mais il faut auparavent régler quelques paramètres.
- Par défaut le comosant siggen génére des signaux qui varient entre +1 et
- -1.
+ Mais il faut auparavant régler quelques paramètres.
+ Par défaut le composant siggen génère des signaux qui varient entre +1
+ et -1.
  Pour notre exemple, c'est très bien, nous voulons que la vitesse de la
- table varie de +1 à -1 pouces par seconde.
+ table varie de +1 à -1 pouce par seconde.
  Toutefois, l'échelle du générateur d'impulsions de pas n'est pas bonne.
  Par défaut, il génère une fréquence de sortie de 1 pas par seconde avec
  une capacité de 1000.
  Il est fort improbable qu'un pas par seconde nous donne une vitesse de
  déplacement de la table d'un pouce par seconde.
  Supposons que notre vis fasse 5 tours par pouce, couplée à un moteur pas
- à pas de 200 pas par tour et une interface qui fournis 10x micropas par
+ à pas de 200 pas par tour et une interface qui fournit 10x micropas par
  pas.
  Il faut donc 2000 pas pour faire un tour de vis et 5 tours pour faire un
  pouce.
  Ce qui signifie que notre montage utilisera 10000 pas par pouce.
  Nous avons besoin de multiplier la vitesse d'entrée à l'étape générateur
- d'impulsions par 10000 pour obtenir le bonne valeur.
- C'est exactement pour cela qu'existe le paramétre 
+ d'impulsions par 10000 pour obtenir la bonne valeur.
+ C'est exactement pour cela qu'existe le paramètre 
 \family typewriter
 freqgen.n.velocity-scale
 \family default
 .
  Dans notre cas, les axes X et Y ont la même échelle et nous pouvons passer
- les deux paramétres à 10000:
+ les deux paramètres à 10000:
 
 \layout LyX-Code
 halcmd: 
@@ -1955,8 +1944,8 @@ Cela signifie que, avec la pin
 freqgen.0.velocity
 \family default
  à 1.000 et le générateur réglé pour 10000 impulsions par seconde (10kHz),
- avec le moteur et le vis décrit précédemment, nos axes auront une vitesse
- de déplacement de exactement 1.000 pouces par seconde.
+ avec le moteur et la vis décrits précédemment, nos axes auront une vitesse
+ de déplacement de exactement 1.000 pouce par seconde.
  Cela illustre une notion clé du concept de HAL, des éléments comme les
  échelles étant au plus bas niveau possible, dans notre exemple le générateur
  d'impulsions de pas, le signal interne 
@@ -1969,7 +1958,7 @@ X_vel
 siggen
 \family default
  ne savent rien du tout à propos de l'échelle des autres.
- Si on change de vis, ou de moteur, il n'y a qu'un seul paramétre à changer,
+ Si on change de vis, ou de moteur, il n'y a qu'un seul paramètre à changer,
  l'échelle du générateur d'impulsions de pas.
 
 \layout Subsection
@@ -1993,7 +1982,7 @@ Bien que rien ne semble se produire, à l'intérieur de l'ordinateur les impulsion
 s de pas sont présentes sur la sortie du générateur, variant entre 10kHz
  dans un sens et 10kHz dans l'autre à chaque seconde.
  Dans la suite de ce tutoriel, nous allons voir comment convertir ces signaux
- internes des moteurs dans le monde réel, mais nous allons d'abord les axaminer
+ internes des moteurs dans le monde réel, mais nous allons d'abord les examiner
  pour voir ce qui se passe.
 
 \layout Section
@@ -2234,8 +2223,8 @@ sondes du scope
 \layout Standard
 À ce stade, Halscope est prêt à l'emploi.
  Nous avons déjà choisi le taux d'échantillonnage et la longueur d'enregistremen
-t, de sorte que la prochaine étape consiste à décider ce qu'il faut mesurer.
- C'est équivalent à brncher les 
+t, de sorte que la prochaine étape consiste à décider de ce qu'il faut mesurer.
+ C'est équivalent à brancher les 
 \begin_inset Quotes eld
 \end_inset
 
@@ -2245,7 +2234,7 @@ sondes virtuelles du scope
 
  à HAL.
  Halscope dispose de 16 canaux, mais le nombre que vous pouvez utiliser
- à un moment donné dépend de la longueur d'enregistrement, plus il y à de
+ à un moment donné dépend de la longueur d'enregistrement, plus il y a de
  canaux, plus les enregistrements doivent être courts, car la mémoire disponible
  pour l'enregistrement est fixée à environ 16000 échantillons.
 
@@ -2275,7 +2264,7 @@ Select Channel Source
 .
  Ce dialogue est très similaire à celui utilisé par Halmeter.
  Nous aimerions bien regarder les signaux que nous avons défini précédemment,
- pour cela, cliquons sur l'ongler 
+ pour cela, cliquons sur l'onglet 
 \begin_inset Quotes eld
 \end_inset
 
@@ -2283,7 +2272,7 @@ Signaux
 \begin_inset Quotes erd
 \end_inset
 
- et le dialogue affichera tous les signaux existant dans le HAL (seulement
+ et le dialogue affichera tous les signaux existants dans le HAL (seulement
  deux dans notre exemple).
 
 \layout Standard
@@ -2320,9 +2309,9 @@ Pour choisir un signal, il suffit de cliquer dessus.
  Le bouton du canal 1 est pressé et le numéro du canal 1 et le nom `` X_vel''
  apparaissent sous la rangée de boutons.
  L'affichage indique toujours le canal sélectionné, vous pouvez avoir beaucoup
- de canaux sur l'écran, mais l'un est choisi en surbrillance et les différents
- contrôles comme la position verticale et l'amplitude sont toujours relatifs
- au canal 1.
+ de canaux sur l'écran, mais celui qui est actif sera en surbrillance.
+ Les différents contrôles comme la position verticale et l'amplitude sont
+ toujours relatifs au canal 1.
  Pour ajouter un signal au canal 2, cliquez sur le bouton "2''.
  Dans la fenêtre de dialogue, cliquez sur l'onglet "Signals'', puis cliquez
  sur `` Y_vel''.
@@ -2368,15 +2357,15 @@ Capturer notre première forme d'onde
 
 \layout Standard
 Maintenant que nous avons plusieurs sondes branchées sur HAL, il est temps
- de saisir quelques formes d'ondes.
+ de capturer quelques formes d'ondes.
  Pour démarrer le scope, cochez la case "Normal'' du groupe ``run mode''
  (en haut à droite).
  Puisque nous avons une longueur d'enregistrement de 4000 échantillons et
  une acquisition de 1000 échantillons par seconde, il faudra à halscope
  environ 2 secondes pour remplir la moitié de son tampon.
  Pendant ce temps, une barre de progression juste au-dessus de l'écran principal
- affichera remplissage du tampon.
- Une fois que le tampon est à moitié plein, le champ attend un déclencheur.
+ affichera le remplissage du tampon.
+ Une fois que le tampon est à moitié plein, scope attend un déclencheur.
  Puisque nous n'en avons pas encore configuré, il attendra toujours.
  Pour déclencher manuellement, cliquez sur le bouton "Force'' du groupe
  `` Trigger'' en haut à droite.
@@ -2453,8 +2442,8 @@ clearpage
 Ajustement vertical
 
 \layout Standard
-Les traces sont assez difficiles à distinguer car tous les quatre sont les
- uns sur les autres.
+Les traces sont assez difficiles à distinguer car toutes les quatre sont
+ les unes sur les autres.
  Pour résoudre ce problème, nous utilisons le curseur 
 \begin_inset Quotes eld
 \end_inset
@@ -2466,7 +2455,7 @@ Vertical
  situé à droite de l'écran.
  Ces contrôles agissent sur le canal actuellement sélectionné.
  En ajustant le gain, notez qu'il couvre une large échelle (contrairement
- aux scope rééls) celle-ci permet d'afficher des signaux très petits (pico
+ aux scopes réels), celle-ci permet d'afficher des signaux très petits (pico
  unités) à très grands (Tera - unités).
  Le curseur 
 \begin_inset Quotes eld
@@ -2552,8 +2541,8 @@ Dialogue des sources de déclenchement
 
 \layout Standard
 Après avoir défini les sources de déclenchement, vous pouvez ajuster le
- niveau de déclenchement et déclencher la position avec les curseurs dans
- la boîte `` Trigger'' le long du bord droit.
+ niveau de déclenchement avec les curseurs dans la boîte `` Trigger'' le
+ long du bord droit.
  Le niveau peut être modifié à partir du haut vers le bas de l'écran, et
  est affiché sous les curseurs.
  La position est l'emplacement du point de déclenchement dans l'enregistrement
@@ -2616,7 +2605,7 @@ collapsed false
 
 \end_inset
 
-Forme d'ondes avec déclenchement
+Formes d'ondes avec déclenchement
 
 \end_inset
 
@@ -2792,12 +2781,12 @@ Si le composant
 scope_rt
 \family default
  n'est pas déjà chargé, halscope va le charger et lui demander un total
- de 80000 écnatillons, de sorte que lorsque l'échantillonnage se fera sur
+ de 80000 échantillons, de sorte que lorsque l'échantillonnage se fera sur
  4 canaux à la fois, il y aura 20000 échantillons par canal.
  (Si 
 \family typewriter
 scope_rt
 \family default
- déjà chargé, l'argument numérique passé à halscope sera sans effet)
+ est déjà chargé, l'argument numérique passé à halscope sera sans effet)
 
 \the_end
