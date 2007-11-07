@@ -10,6 +10,11 @@ usr/bin/halrun
 usr/bin/halrmt
 usr/bin/emclcd
 usr/bin/rs274
+usr/bin/pumagui
+usr/bin/scaragui
+usr/bin/hexagui
+usr/bin/tracking-test
+usr/bin/teach-in
 @MODULE_PATH@/abs@MODULE_EXT@
 @MODULE_PATH@/and2@MODULE_EXT@
 @MODULE_PATH@/at_pid@MODULE_EXT@
