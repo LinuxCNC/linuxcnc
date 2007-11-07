@@ -310,8 +310,6 @@ Returned Value: int
    If any of the following errors occur, this returns the error code shown.
    Otherwise, this returns INTERP_OK.
    1. Interp::restore_parameters returns an error code.
-   2. Parameter 5220, the work coordinate system index, is not in the range
-      1 to 9: NCE_COORDINATE_SYSTEM_INDEX_PARAMETER_5220_OUT_OF_RANGE
 
 Side Effects:
    Many values in the _setup structure are reset.
@@ -402,8 +400,11 @@ int Interp::init()
   CHP(restore_parameters(filename));
   pars = _setup.parameters;
   _setup.origin_index = (int) (pars[5220] + 0.0001);
-  CHK(((_setup.origin_index < 1) || (_setup.origin_index > 9)),
-      NCE_COORDINATE_SYSTEM_INDEX_PARAMETER_5220_OUT_OF_RANGE);
+  if(_setup.origin_index < 1 || _setup.origin_index > 9) {
+      _setup.origin_index = 1;
+      pars[5220] = 1.0;
+  }
+
   k = (5200 + (_setup.origin_index * 20));
   SET_ORIGIN_OFFSETS(USER_TO_PROGRAM_LEN(pars[k + 1] + pars[5211]),
                      USER_TO_PROGRAM_LEN(pars[k + 2] + pars[5212]), 
@@ -818,9 +819,7 @@ Returned Value:
   Otherwise it returns INTERP_OK.
   1. The parameter file cannot be opened for reading: NCE_UNABLE_TO_OPEN_FILE
   2. A parameter index is out of range: NCE_PARAMETER_NUMBER_OUT_OF_RANGE
-  3. A required parameter is missing from the file:
-     NCE_REQUIRED_PARAMETER_MISSING
-  4. The parameter file is not in increasing order:
+  3. The parameter file is not in increasing order:
      NCE_PARAMETER_FILE_OUT_OF_ORDER
 
 Side Effects: See below
@@ -887,15 +886,13 @@ int Interp::restore_parameters(const char *filename)   //!< name of parameter fi
         } else                  // if (k < variable)
         {
           if (k == required)
-            ERM(NCE_REQUIRED_PARAMETER_MISSING);
-          else
-            pars[k] = 0;
+            required = _required_parameters[index++];
+          pars[k] = 0;
         }
       }
     }
   }
   fclose(infile);
-  CHK((required != RS274NGC_MAX_PARAMETERS), NCE_REQUIRED_PARAMETER_MISSING);
   for (; k < RS274NGC_MAX_PARAMETERS; k++) {
     pars[k] = 0;
   }
