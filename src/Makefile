@@ -460,6 +460,7 @@ install-kernel-indep: install-dirs
 	$(EXE) $(TCL_BIN) $(DESTDIR)$(tcldir)/bin
 	$(FILE) ../tcl/scripts/balloon.tcl ../tcl/scripts/emchelp.tcl $(DESTDIR)$(tcldir)/scripts
 	$(EXE) ../tcl/scripts/Set_Coordinates.tcl $(DESTDIR)$(tcldir)/scripts
+	$(FILE) ../share/emc/stepconf.glade $(DESTDIR)$(prefix)/share/emc/stepconf.glade
 
 ifeq ($(BUILD_PYTHON),yes)
 install-kernel-indep: install-python

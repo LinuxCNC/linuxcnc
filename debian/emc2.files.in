@@ -454,6 +454,7 @@ usr/share/emc/tcl/msgs/it.msg
 usr/share/emc/tcl/msgs/ja.msg
 usr/share/emc/tcl/msgs/ro.msg
 usr/share/emc/tcl/show_errors.tcl
+usr/share/emc/stepconf.glade
 etc/X11/app-defaults/TkEmc
 etc/X11/app-defaults/XEmc
 usr/share/man/man1/axis-remote.1
