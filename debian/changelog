@@ -1,9 +1,13 @@
 emc2 (1:2.2.1) unstable; urgency=low
 
   * fix packaging of stepconf.glade
-  * german translation improvements 
+  * german translation improvements
+  * package additional new-in-2.2.x programs (pumagui, scaragui, hexagui
+    tracking-test, teach-in)
+  * fix problems using v2.1 var file -- it's silently upgraded with the new
+    entries used by v2.2 instead of issing weird errors at startup
 
- -- Jeff Epler <jepler@unpythonic.net>  Wed,  7 Nov 2007 10:06:45 -0600
+ -- Jeff Epler <jepler@unpythonic.net>  Wed,  7 Nov 2007 17:14:43 -0600
 
 emc2 (1:2.2.0) unstable; urgency=low
 
