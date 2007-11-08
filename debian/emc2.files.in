@@ -477,7 +477,6 @@ usr/share/man/man1/halui.1
 usr/share/man/man1/io.1
 usr/share/man/man1/iocontrol.1
 usr/share/man/man1/pyvcp.1
-usr/share/man/man3/hal_unlink.3hal
 usr/share/man/man9/abs.9
 usr/share/man/man9/and2.9
 usr/share/man/man9/at_pid.9

@@ -118,6 +118,7 @@ usr/share/man/man3/hal_signal_new.3hal
 usr/share/man/man3/hal_start_threads.3hal
 usr/share/man/man3/hal_type_t.3hal
 usr/share/man/man3/hal_u32_t.3hal
+usr/share/man/man3/hal_unlink.3hal
 usr/share/man/man3/intro.3hal
 usr/share/man/man3/intro.3rtapi
 usr/share/man/man3/rtapi_clock_set_period.3rtapi
