@@ -136,7 +136,5 @@ int rtapi_app_main(void) {
 }
 
 void rtapi_app_exit(void) {
-    if (pnp_registered_parport)
-            pnp_unregister_driver (&parport_pc_pnp_driver);
     hal_exit(comp_id);
 }
