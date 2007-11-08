@@ -825,7 +825,8 @@ void RIGID_TAP(double x, double y, double z)
 
     flush_segments();
 
-    interp_list.append(rigidTapMsg);
+    if(vel && acc) 
+        interp_list.append(rigidTapMsg);
 
     // don't move the endpoint because after this move, we are back where we started
 }
@@ -908,7 +909,8 @@ void STRAIGHT_PROBE(double x, double y, double z,
 
     probeMsg.type = EMC_MOTION_TYPE_PROBING;
     probeMsg.probe_type = probe_type;
-    interp_list.append(probeMsg);
+    if(vel && acc) 
+        interp_list.append(probeMsg);
     canonUpdateEndPoint(x, y, z, a, b, c, u, v, w);
 }
 
