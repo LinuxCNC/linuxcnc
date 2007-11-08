@@ -57,8 +57,14 @@ if {[catch {image create photo image1 -file $img}]} {
   exit
 }
 
-label .label -image image1 -borderwidth 0 -highlightthickness 0
-pack .label
+set w [image width image1]
+set h [image height image1]
+canvas .c -width $w -height $h -borderwidth 0 -highlightthickness 0
+.c create image 0 0 -anchor nw -image image1
+.c create text 4 [expr $h-4] -anchor sw \
+    -text $env(EMC2VERSION) -fill white -font {Helvetica 18}
+
+pack .c
 
 # Center popup in screen.
 
