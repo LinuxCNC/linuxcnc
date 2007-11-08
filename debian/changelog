@@ -1,8 +1,11 @@
 emc2 (1:2.2.2~cvs) unstable; urgency=low
 
-  * - move hal_unlink manpage to development package
+  [ Jeff Epler ]
+  * move hal_unlink manpage to development package
+  * make gcode quick reference link into our own full gcode reference
+    instead of the outdated nist document
 
- -- Jeff Epler <jepler@unpythonic.net>  Thu,  8 Nov 2007 08:25:46 -0600
+ -- jepler <jepler@unpythonic.net>  Thu,  8 Nov 2007 14:28:17 -0600
 
 emc2 (1:2.2.1) unstable; urgency=low
 
