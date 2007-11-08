@@ -2456,11 +2456,12 @@ int Interp::convert_probe(block_pointer block,   //!< pointer to a block of RS27
   find_ends(block, settings, &end_x, &end_y, &end_z,
             &AA_end, &BB_end, &CC_end,
             &u_end, &v_end, &w_end);
-  CHK((settings->current_x == end_x && settings->current_y == end_y &&
-       settings->current_z == end_z && settings->AA_current == AA_end &&
-       settings->BB_current == BB_end && settings->CC_current == CC_end &&
-       settings->u_current == u_end && settings->v_current == v_end &&
-       settings->w_current == w_end),
+  CHK(((!(probe_type & 1)) && 
+        settings->current_x == end_x && settings->current_y == end_y &&
+        settings->current_z == end_z && settings->AA_current == AA_end &&
+        settings->BB_current == BB_end && settings->CC_current == CC_end &&
+        settings->u_current == u_end && settings->v_current == v_end &&
+        settings->w_current == w_end),
        NCE_START_POINT_TOO_CLOSE_TO_PROBE_POINT);
        
   TURN_PROBE_ON();
