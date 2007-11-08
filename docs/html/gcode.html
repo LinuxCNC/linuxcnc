@@ -26,8 +26,8 @@ table #titlerow th:first-child { border-bottom: 2px solid black; border-left: 0p
 table td:first-child { border-left: 0px; }
 table td { border-left: 1px solid black; padding-left: .25em; padding-right: .25em; }
 table th { text-align: left; border-bottom: 1px solid black; border-top: 1px solid black; }
-@page { margin: .150in; }
 @media print {
+@page { margin: .150in; }
 html { padding: 0; margin: 0; }
 body { padding: 3px; margin: 3px; }
 * { font-size: 8pt }
@@ -37,7 +37,7 @@ table { width: 100%; }
 td { background: white; color: black; }
 tr.odd td { background: #d9d9d9; }
 tr.head td, tr.head th { background: black; color: white; }
-//--></STYLE>
+--></STYLE>
 <TITLE>EMC2 "G-Code" Quick Reference</TITLE>
 </HEAD>
 
@@ -136,6 +136,28 @@ for(var i=0; i<rows.snapshotLength; i++) {
     } else {
         if(j) it.setAttribute('class', 'odd');
         j = !j;
+    }
+}
+
+function fixup_urls() {
+var links=document.evaluate('//a[@href]', document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+    for(var i=0; i<links.snapshotLength; i++) {
+        var it = links.snapshotItem(i);
+        it.setAttribute('href',
+            "http://linuxcnc.org/docs/devel/html/" + it.getAttribute('href'));
+    }
+}
+
+// In the emc package, gcode_main.html is (probably) not included.  In this
+// case, fix up the links to point at the online version instead of a local
+// version
+if(document.location.protocol == "file:") {
+    try {
+        var x = document.implementation.createDocument("", "", null);
+        x.load("gcode_main.html");
+        x.onerror = fixup_urls;
+    } catch(err) {
+        fixup_urls();
     }
 }
 // --></SCRIPT>
