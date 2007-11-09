@@ -131,7 +131,7 @@ motion.probe-input\SpecialChar ~
 IN\SpecialChar ~
 bit 
 \family typewriter 
-G38.2
+G38.x
 \family default 
  uses the value on this pin to determine when the probe has made contact.
  TRUE for probe contact closed (touching), FALSE for probe contact open.
