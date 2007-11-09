@@ -13,6 +13,8 @@ FileRules filename contains \.png$
 FileRules filename contains \.BIT$
 FileRules filename contains \.tex$
 FileRules filename contains \.aux$
+FileRules filename contains \.pyc$
+FileRules filename contains \.odg$
 FileRules pathname contains /objects/
 FileRules pathname contains /depends/
 FileRules pathname contains /CVS/
