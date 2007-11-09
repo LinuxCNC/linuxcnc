@@ -3647,6 +3647,48 @@ A comment can also be used to specify a file for the results of G38.x probing.
 \end_inset 
 
 .
+\layout Standard
+
+Often, general logging is more useful than probe logging.
+ Using general logging, the format of the output data can be controlled.
+\layout Subsection
+
+General logging
+\begin_inset LatexCommand \label{sub:General-logging}
+
+\end_inset 
+
+
+\layout Subsubsection
+
+(LOGOPEN,filename)
+\layout Standard
+
+Opens the named log file.
+ If the file already exists, it is truncated.
+\layout Subsubsection
+
+(LOGCLOSE)
+\layout Standard
+
+If the log file is open, it is closed.
+\layout Subsubsection
+
+(LOG,\SpecialChar \ldots{}
+)
+\layout Standard
+
+The message 
+\begin_inset Quotes eld
+\end_inset 
+
+\SpecialChar \ldots{}
+
+\begin_inset Quotes erd
+\end_inset 
+
+ is expanded as described below and then written to the log file if it is
+ open.
 \layout Subsection
 
 Debugging messages
@@ -3673,6 +3715,13 @@ Comments that look like:
 (print, rest of comment)
 \family default 
  are output to stderr with special handling for parameters.
+\layout Subsection
+
+Parameters in special comments
+\layout Standard
+
+In the DEBUG, PRINT and LOG comments, the values of parameters in the message
+ are expanded.
 \layout Standard
 
 For example: to print a named global variable to stderr (the default console
@@ -5953,7 +6002,8 @@ filename.txt
 \emph on 
 filename.txt
 \emph default 
- and store the coordinate of each successful straight probe in it.
+ and store the 9-number coordinate of each successful straight probe in
+ it.
  The file must be closed with 
 \family typewriter 
 (PROBECLOSE)
