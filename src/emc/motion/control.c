@@ -401,23 +401,40 @@ static void process_inputs(void)
         // this could be expensive if we don't stop.
         int i;
 
-        reportError("Probe tripped while not probing.");
-        if(!GET_MOTION_INPOS_FLAG() && tpQueueDepth(&emcmotDebug->queue)) {
-            // TP running
+        if(!GET_MOTION_INPOS_FLAG() && tpQueueDepth(&emcmotDebug->queue) &&
+           tpGetExecId(&emcmotDebug->queue) <= 0) {
+            // running an MDI command
+            reportError("Probe tripped during non-probe MDI command.");
             tpAbort(&emcmotDebug->queue);
         }
+
         for(i=0; i<num_joints; i++) {
             emcmot_joint_t *joint = &joints[i];
+            int aborted = 0;
+
             if (!GET_JOINT_ACTIVE_FLAG(joint)) {
                 /* if joint is not active, skip it */
                 continue;
             }
+
             // abort any homing
             if(GET_JOINT_HOMING_FLAG(joint)) {
+                aborted++;
                 joint->home_state = HOME_ABORT;
             }
+            if(aborted) {
+                reportError("Probe tripped during homing motion.");
+            }
+            aborted=0;
+
             // abort any jogs
-            joint->free_tp_enable = 0;
+            if(joint->free_tp_enable == 1) {
+                joint->free_tp_enable = 0;
+                aborted++;
+            }
+            if(aborted) {
+                reportError("Probe tripped during a jog.");
+            }
         }
     }
     old_probeVal = emcmotStatus->probeVal;
