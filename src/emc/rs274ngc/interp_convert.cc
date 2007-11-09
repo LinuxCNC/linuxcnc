@@ -1068,19 +1068,29 @@ subtype of comment. This is an extension to the rs274NGC language.
 
 */
 
+static int streq(char *s1, char *s2) {
+    return !strcmp(s1, s2);
+}
+
+static int startswith(char *haystack, char *needle) {
+    return !strncmp(haystack, needle, strlen(needle));
+}
+
 int Interp::convert_comment(char *comment)       //!< string with comment
 {
   enum
-  { LC_SIZE = 256 };            // 256 from comment[256] in rs274ngc.hh
-  char lc[LC_SIZE];
-  char expanded[2*LC_SIZE+1];
+  { LC_SIZE = 256, EX_SIZE = 2*LC_SIZE};            // 256 from comment[256] in rs274ngc.hh
+  char lc[LC_SIZE+1];
+  char expanded[EX_SIZE+1];
   char MSG_STR[] = "msg,";
-  char SYSTEM_STR[] = "system,";
 
   //!!!KL add two -- debug => same as msg
   //!!!KL         -- print => goes to stderr
   char DEBUG_STR[] = "debug,";
   char PRINT_STR[] = "print,";
+  char LOG_STR[] = "log,";
+  char LOGOPEN_STR[] = "logopen,";
+  char LOGCLOSE_STR[] = "logclose";
   int m, n, start;
 
   // step over leading white space in comment
@@ -1095,32 +1105,40 @@ int Interp::convert_comment(char *comment)       //!< string with comment
   lc[n] = 0;                    // null terminate
 
   // compare with MSG, SYSTEM, DEBUG, PRINT
-  if (!strncmp(lc, MSG_STR, strlen(MSG_STR))) {
+  if (startswith(lc, MSG_STR)) {
     MESSAGE(comment + start + strlen(MSG_STR));
     return INTERP_OK;
   }
-  else if (!strncmp(lc, DEBUG_STR, strlen(DEBUG_STR)))
+  else if (startswith(lc, DEBUG_STR))
   {
       convert_param_comment(comment+start+strlen(DEBUG_STR), expanded,
-                            2*LC_SIZE);
+                            EX_SIZE);
       MESSAGE(expanded);
       return INTERP_OK;
   }
-  else if (!strncmp(lc, PRINT_STR, strlen(PRINT_STR)))
+  else if (startswith(lc, PRINT_STR)) 
   {
       convert_param_comment(comment+start+strlen(PRINT_STR), expanded,
-                            2*LC_SIZE);
+                            EX_SIZE);
       fprintf(stdout, "%s\n", expanded);
       return INTERP_OK;
   }
-  else if (!strncmp(lc, SYSTEM_STR, strlen(SYSTEM_STR))) {
-/*! \todo Implement SYSTEM commands in the task controller */
-/*! \todo Another #if 0 */
-#if 0
-/*! \todo FIX-ME Impliment these at a later stage... */
-    SYSTEM(comment + start + strlen(SYSTEM_STR));
-    return INTERP_EXECUTE_FINISH;     // inhibit read-ahead until this is done
-#endif
+  else if (startswith(lc, LOG_STR))
+  {
+      convert_param_comment(comment+start+strlen(LOG_STR), expanded,
+                            EX_SIZE);
+      LOG(expanded);
+      return INTERP_OK;
+  }
+  else if (startswith(lc, LOGOPEN_STR))
+  {
+      LOGOPEN(comment + start + strlen(LOGOPEN_STR));
+      return INTERP_OK;
+  }
+  else if (streq(lc, LOGCLOSE_STR))
+  {
+      LOGCLOSE();
+      return INTERP_OK;
   }
   // else it's a real comment
   COMMENT(comment + start);

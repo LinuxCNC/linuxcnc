@@ -791,6 +791,13 @@ void MESSAGE(char *s)
 void SYSTEM(char *s)
 {PRINT1("SYSTEM(\"%s\")\n", s);}
 
+void LOG(char *s)
+{PRINT1("LOG(\"%s\")\n", s);}
+void LOGOPEN(char *s)
+{PRINT1("LOGOPEN(\"%s\")\n", s);}
+void LOGCLOSE()
+{PRINT0("LOGCLOSE()\n");}
+
 void MIST_OFF()
 {
   PRINT0("MIST_OFF()\n");

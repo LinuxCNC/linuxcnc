@@ -20,7 +20,7 @@ F20    (probe speed)
 #8=-.1 (Z probe)
 (End configuration section)
 
-(PROBEOPEN probe-results.txt)
+(LOGOPEN,probe-results.txt)
 #9=0 #10=0
 G0Z#7
 O1 while [#9 lt #6]
@@ -40,14 +40,14 @@ O1 while [#9 lt #6]
         O4 endwhile
 
         G38.2Z#8
-        (print,#5063)
+        (LOG,G1 X#5061 Y#5062 Z#5063)
         #10=[#10+1]
     O2 endwhile
     G0Z#7
     #9=[#9+1]
 O1 endwhile
 
-(PROBECLOSE)
+(LOGCLOSE)
 G0Z#7
 G0X#1Y#4
 M2

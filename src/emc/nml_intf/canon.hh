@@ -560,6 +560,10 @@ extern void FLOOD_ON();
 
 extern void MESSAGE(char *s);
 
+extern void LOG(char *s);
+extern void LOGOPEN(char *s);
+extern void LOGCLOSE();
+
 extern void MIST_OFF();
 /* Turn mist coolant off. */
 

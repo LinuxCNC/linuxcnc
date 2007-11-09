@@ -1626,7 +1626,7 @@ void COMMENT(char *comment)
 	    ptr++;
 	}
 	setString(probefilename, ptr, LINELEN);
-	if (NULL == (probefile = fopen(probefilename, "w"))) {
+	if (NULL == (probefile = fopen(probefilename, "wt"))) {
 	    // pop up a warning message
 	    setString(msg, "can't open probe file ", LINELEN);
 	    addString(msg, probefilename, LINELEN);
@@ -1752,6 +1752,27 @@ void MESSAGE(char *s)
     operator_display_msg.display[LINELEN - 1] = 0;
 
     interp_list.append(operator_display_msg);
+}
+
+static FILE *logfile = NULL;
+
+void LOG(char *s) {
+    flush_segments();
+    if(logfile) { fprintf(logfile, "%s\n", s); fflush(logfile); }
+    fprintf(stderr, "LOG(%s)\n", s);
+
+}
+
+void LOGOPEN(char *name) {
+    if(logfile) fclose(logfile);
+    logfile = fopen(name, "wt");
+    fprintf(stderr, "LOGOPEN(%s) -> %p\n", name, logfile);
+}
+
+void LOGCLOSE() {
+    if(logfile) fclose(logfile);
+    logfile = NULL;
+    fprintf(stderr, "LOGCLOSE()\n");
 }
 
 void MIST_OFF()

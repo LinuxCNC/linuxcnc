@@ -311,6 +311,10 @@ void MESSAGE(char *comment) {
     Py_XDECREF(result);
 }
 
+void LOG(char *s) {}
+void LOGOPEN(char *f) {}
+void LOGCLOSE() {}
+
 void SYSTEM(char *comment) {
     maybe_new_line();   
     if(interp_error) return;
