@@ -629,12 +629,17 @@ def EquationFixer(d, outdir):
 	    for k in n.childNodes: n.removeChild(k)
 	    n.appendChild(d.createTextNode(v))
 
+def order(term):
+    term = term.lower()
+    term = re.sub("\d+", lambda m: "%08d" % int(m.group(0)), term)
+    return term
+
 def IndexFixer(d):
     u = {}
     for n in d.getElementsByTagName('index'):
 	id0 = id = n.getAttribute("id")
 	n.setAttribute("term", id)
-	n.setAttribute("lcterm", id.lower())
+	n.setAttribute("lcterm", order(term))
 	if id in u:
 	    id = "%s--%d" % (id0, u[id])
 	    n.setAttribute("id", id)
