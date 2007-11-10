@@ -196,7 +196,7 @@ $(filter objects/quickstart_%.xml,$(DOC_TARGETS_XML)): objects/quickstart_%.xml:
 	$(call lyx2xml,quickstart,$*,$<)
 
 DOC_TARGETS_XML_FR := $(filter %_fr.xml, $(DOC_TARGETS_XML))
-DOC_TARGETS_XML_EN := $(filter-out $(DOC_TARGETS_FR), $(DOC_TARGETS_XML))
+DOC_TARGETS_XML_EN := $(filter-out $(DOC_TARGETS_XML_FR), $(DOC_TARGETS_XML))
 
 objects/xref_fr.xml: $(DOC_TARGETS_XML_FR) $(DOC_SRCDIR)/xref.py
 	(cd objects; ../../docs/src/xref.py $(filter %.xml, $(patsubst objects/%,%,$^))) > $@
