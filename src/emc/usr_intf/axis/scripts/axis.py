@@ -884,13 +884,8 @@ class MyOpengl(Opengl):
             pos = to_internal_units(pos[:3])
             glPushMatrix()
             glTranslatef(*pos)
-            if len(axisnames) > 3:
-                if axisnames[3] == "A":
-                    glRotatef(s.position[3], 1, 0, 0)
-                elif axisnames[3] == "B":
-                    glRotatef(s.position[3], 0, 1, 0)
-                elif axisnames[3] == "C":
-                    glRotatef(s.position[3], 0, 0, 1)
+            if s.axis_mask & (1<<3):
+                glRotatef(s.position[3], 1, 0, 0)
 
             glEnable(GL_BLEND)
             glEnable(GL_CULL_FACE);
