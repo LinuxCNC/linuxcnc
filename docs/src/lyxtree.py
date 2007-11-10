@@ -639,7 +639,7 @@ def IndexFixer(d):
     for n in d.getElementsByTagName('index'):
 	id0 = id = n.getAttribute("id")
 	n.setAttribute("term", id)
-	n.setAttribute("lcterm", order(term))
+	n.setAttribute("lcterm", order(id))
 	if id in u:
 	    id = "%s--%d" % (id0, u[id])
 	    n.setAttribute("id", id)
