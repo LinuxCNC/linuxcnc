@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fr\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-08-27 22:44+0200\n"
+"POT-Creation-Date: 2007-11-09 02:04+0100\n"
 "PO-Revision-Date: 2007-09-18 20:54+0200\n"
 "Last-Translator: Francis TISSERANT <ftissera@free.fr>\n"
 "Language-Team: Français <gnomefr@traduc.org>\n"
@@ -31,7 +31,7 @@ msgid "Quit"
 msgstr "Quitter"
 
 #: ../tcl/bin/emccalib.tcl:110 ../tcl/bin/genedit.tcl:83
-#: ../tcl/bin/halconfig.tcl:147 ../tcl/mini.tcl:2510 ../tcl/tkemc.tcl:759
+#: ../tcl/bin/halconfig.tcl:147 ../tcl/mini.tcl:2510 ../tcl/tkemc.tcl:767
 msgid "File"
 msgstr "Fichier"
 
@@ -71,11 +71,11 @@ msgstr "Tester"
 #: ../tcl/bin/genedit.tcl:456 ../tcl/bin/halconfig.tcl:678
 #: ../tcl/bin/halconfig.tcl:729 ../tcl/bin/pickconfig.tcl:255
 #: ../tcl/bin/pickconfig.tcl:402 ../tcl/bin/pickconfig.tcl:427
-#: ../tcl/mini.tcl:1453 ../tcl/mini.tcl:2931 ../tcl/tkemc.tcl:211
-#: ../tcl/tkemc.tcl:314 ../tcl/tkemc.tcl:460 ../tcl/tkemc.tcl:1246
-#: ../tcl/tkemc.tcl:1294 ../tcl/tkemc.tcl:1325 ../tcl/tkemc.tcl:1356
-#: ../tcl/tkemc.tcl:1849 ../tcl/tkemc.tcl:1868 ../tcl/tkemc.tcl:1887
-#: ../tcl/tkemc.tcl:1934
+#: ../tcl/mini.tcl:1453 ../tcl/mini.tcl:2931 ../tcl/tkemc.tcl:219
+#: ../tcl/tkemc.tcl:322 ../tcl/tkemc.tcl:468 ../tcl/tkemc.tcl:1325
+#: ../tcl/tkemc.tcl:1373 ../tcl/tkemc.tcl:1404 ../tcl/tkemc.tcl:1435
+#: ../tcl/tkemc.tcl:1931 ../tcl/tkemc.tcl:1950 ../tcl/tkemc.tcl:1969
+#: ../tcl/tkemc.tcl:2016
 msgid "OK"
 msgstr "OK"
 
@@ -83,10 +83,10 @@ msgstr "OK"
 #: ../tcl/bin/halconfig.tcl:99 ../tcl/bin/halconfig.tcl:680
 #: ../tcl/bin/halconfig.tcl:731 ../tcl/bin/pickconfig.tcl:258
 #: ../tcl/bin/pickconfig.tcl:367 ../tcl/mini.tcl:1454 ../tcl/mini.tcl:2932
-#: ../tcl/mini.tcl:3104 ../tcl/tkemc.tcl:213 ../tcl/tkemc.tcl:256
-#: ../tcl/tkemc.tcl:282 ../tcl/tkemc.tcl:461 ../tcl/tkemc.tcl:1247
-#: ../tcl/tkemc.tcl:1295 ../tcl/tkemc.tcl:1326 ../tcl/tkemc.tcl:1357
-#: ../tcl/tkemc.tcl:1935
+#: ../tcl/mini.tcl:3104 ../tcl/tkemc.tcl:221 ../tcl/tkemc.tcl:264
+#: ../tcl/tkemc.tcl:290 ../tcl/tkemc.tcl:469 ../tcl/tkemc.tcl:1326
+#: ../tcl/tkemc.tcl:1374 ../tcl/tkemc.tcl:1405 ../tcl/tkemc.tcl:1436
+#: ../tcl/tkemc.tcl:2017
 msgid "Cancel"
 msgstr "Annuler"
 
@@ -179,7 +179,7 @@ msgid "New"
 msgstr "Nouveau"
 
 #: ../tcl/bin/genedit.tcl:86 ../tcl/mini.tcl:1661 ../tcl/mini.tcl:2528
-#: ../tcl/tkemc.tcl:760 ../tcl/tkemc.tcl:1499
+#: ../tcl/tkemc.tcl:768 ../tcl/tkemc.tcl:1578
 msgid "Open..."
 msgstr "Ouvrir..."
 
@@ -188,7 +188,7 @@ msgid "Save As..."
 msgstr "Enregistrer sous..."
 
 #: ../tcl/bin/genedit.tcl:93 ../tcl/bin/halconfig.tcl:161 ../tcl/mini.tcl:957
-#: ../tcl/tkemc.tcl:765
+#: ../tcl/tkemc.tcl:773
 msgid "Exit"
 msgstr "Quitter"
 
@@ -213,12 +213,12 @@ msgid "Select All"
 msgstr "Tout sélectionner"
 
 #: ../tcl/bin/genedit.tcl:110 ../tcl/bin/halconfig.tcl:188 ../tcl/mini.tcl:922
-#: ../tcl/mini.tcl:2513 ../tcl/tkemc.tcl:822
+#: ../tcl/mini.tcl:2513 ../tcl/tkemc.tcl:830
 msgid "Help"
 msgstr "Aide"
 
 #: ../tcl/bin/genedit.tcl:111 ../tcl/mini.tcl:1014 ../tcl/mini.tcl:2553
-#: ../tcl/tkemc.tcl:828
+#: ../tcl/tkemc.tcl:836
 msgid "About..."
 msgstr "À propos..."
 
@@ -235,7 +235,7 @@ msgid "Renumber File..."
 msgstr "Re-numéroter le fichier..."
 
 #: ../tcl/bin/genedit.tcl:146 ../tcl/mini.tcl:920 ../tcl/mini.tcl:2512
-#: ../tcl/tkemc.tcl:778
+#: ../tcl/tkemc.tcl:786
 msgid "Settings"
 msgstr "Réglages"
 
@@ -247,7 +247,7 @@ msgstr "Sans numérotation"
 msgid "Line Numbering..."
 msgstr "Numérotation de ligne..."
 
-#: ../tcl/bin/genedit.tcl:156 ../tcl/tkemc.tcl:800
+#: ../tcl/bin/genedit.tcl:156 ../tcl/tkemc.tcl:808
 msgid "Scripts"
 msgstr "Scripts"
 
@@ -270,7 +270,7 @@ msgstr ""
 "GPL Version 2"
 
 #: ../tcl/bin/genedit.tcl:203 ../tcl/mini.tcl:1370 ../tcl/mini.tcl:1769
-#: ../tcl/tkemc.tcl:501
+#: ../tcl/tkemc.tcl:509
 #, tcl-format
 msgid "can't open %s"
 msgstr "impossible d'ouvrir %s"
@@ -407,7 +407,7 @@ msgstr "Enregistrer les liaisons HAL"
 msgid "Save and Exit"
 msgstr "Enregistrer et quitter"
 
-#: ../tcl/bin/halconfig.tcl:164 ../tcl/mini.tcl:919 ../tcl/tkemc.tcl:770
+#: ../tcl/bin/halconfig.tcl:164 ../tcl/mini.tcl:919 ../tcl/tkemc.tcl:778
 msgid "View"
 msgstr "Vues"
 
@@ -523,7 +523,9 @@ msgid ""
 "Can't find the bwidget 1.7 package.  There is a debian bwidget package; "
 "install \n"
 "it with sudo apt-get install bwidget."
-msgstr "Ne peut trouver le paquet « bwidget 1.7 ».  Il s'agit du paquet « debian bwidget »; installez le avec « sudo apt-get install bwidget »."
+msgstr ""
+"Ne peut trouver le paquet « bwidget 1.7 ».  Il s'agit du paquet « debian "
+"bwidget »; installez le avec « sudo apt-get install bwidget »."
 
 #: ../tcl/bin/pickconfig.tcl:148
 msgid "No details available."
@@ -549,7 +551,8 @@ msgstr ""
 "Bienvenue dans EMC2.\n"
 "\n"
 "Sélectionner une configuration de machine dans la liste de gauche.\n"
-"Les détails à propos de cette configuration apparaîtront dans l'écran de droite.\n"
+"Les détails à propos de cette configuration apparaîtront dans l'écran de "
+"droite.\n"
 "Cliquer 'OK' pour lancer la configuration sélectionnée"
 
 #: ../tcl/bin/pickconfig.tcl:270
@@ -574,7 +577,9 @@ msgstr "Copier la configuration ?"
 msgid ""
 "Would you like to copy the %s configuration to your home directory so you "
 "can customize it?"
-msgstr "Voulez-vous copier le dossier %s dans votre répertoire home pour pouvoir l'adapter à vos besoins ?"
+msgstr ""
+"Voulez-vous copier le dossier %s dans votre répertoire home pour pouvoir "
+"l'adapter à vos besoins ?"
 
 #: ../tcl/bin/pickconfig.tcl:367
 msgid "Yes"
@@ -593,7 +598,9 @@ msgstr "Configuration copiée"
 msgid ""
 "The configuration file has been copied to %s. Next time, choose this "
 "location when starting EMC2."
-msgstr "Le fichier de configuration a bien été copié dans %s. La prochaine fois, choisissez cet emplacement quand vous démarrerez EMC2."
+msgstr ""
+"Le fichier de configuration a bien été copié dans %s. La prochaine fois, "
+"choisissez cet emplacement quand vous démarrerez EMC2."
 
 #: ../tcl/bin/pickconfig.tcl:427
 msgid "Shortcut Created"
@@ -603,7 +610,9 @@ msgstr "Raccourci créé"
 msgid ""
 "A shortcut to this configuration file has been created on your desktop.  You "
 "can use it to automatically launch this configuration."
-msgstr "Un lien vers ce fichier de configuration a bien été créé sur votre bureau.  Vous pourrez l'utiliser pour démarrer automatiquement cette configuration."
+msgstr ""
+"Un lien vers ce fichier de configuration a bien été créé sur votre bureau.  "
+"Vous pourrez l'utiliser pour démarrer automatiquement cette configuration."
 
 #: ../tcl/bin/pickconfig.tcl:432
 msgid "Create Desktop Shortcut"
@@ -722,7 +731,7 @@ msgstr "Offsets"
 msgid "Tools"
 msgstr "Outils"
 
-#: ../tcl/mini.tcl:954 ../tcl/mini.tcl:3559 ../tcl/tkemc.tcl:763
+#: ../tcl/mini.tcl:954 ../tcl/mini.tcl:3559 ../tcl/tkemc.tcl:771
 msgid "Reset"
 msgstr "Reset"
 
@@ -774,7 +783,7 @@ msgstr "Position machine"
 msgid "Relative Position"
 msgstr "Position relative"
 
-#: ../tcl/mini.tcl:991 ../tcl/tkemc.tcl:779
+#: ../tcl/mini.tcl:991 ../tcl/tkemc.tcl:787
 msgid "Calibration..."
 msgstr "Calibration..."
 
@@ -835,11 +844,11 @@ msgstr ""
 "Les codes actifs incluent ; \n"
 "%s"
 
-#: ../tcl/mini.tcl:1013 ../tcl/mini.tcl:2552 ../tcl/tkemc.tcl:823
+#: ../tcl/mini.tcl:1013 ../tcl/mini.tcl:2552 ../tcl/tkemc.tcl:831
 msgid "Help..."
 msgstr "Aide..."
 
-#: ../tcl/mini.tcl:1030 ../tcl/tkemc.tcl:922
+#: ../tcl/mini.tcl:1030 ../tcl/tkemc.tcl:930
 msgid "ABORT"
 msgstr "ANNULER"
 
@@ -847,16 +856,16 @@ msgstr "ANNULER"
 msgid "CONTINUE"
 msgstr "CONTINUER"
 
-#: ../tcl/mini.tcl:1047 ../tcl/tkemc.tcl:860 ../tcl/tkemc.tcl:2073
+#: ../tcl/mini.tcl:1047 ../tcl/tkemc.tcl:868 ../tcl/tkemc.tcl:2161
 msgid "MDI"
 msgstr "MDI"
 
-#: ../tcl/mini.tcl:1051 ../tcl/tkemc.tcl:2064
+#: ../tcl/mini.tcl:1051 ../tcl/tkemc.tcl:2152
 msgid "AUTO"
 msgstr "AUTO"
 
-#: ../tcl/mini.tcl:1055 ../tcl/mini.tcl:1806 ../tcl/tkemc.tcl:1973
-#: ../tcl/tkemc.tcl:2086
+#: ../tcl/mini.tcl:1055 ../tcl/mini.tcl:1806 ../tcl/tkemc.tcl:2055
+#: ../tcl/tkemc.tcl:2174
 msgid "MANUAL"
 msgstr "MANUEL"
 
@@ -880,7 +889,7 @@ msgstr "Ouvrir la fenêtre des offsets ici"
 msgid "start override popup here"
 msgstr "Ouvrir la fenêtre des correcteurs ici"
 
-#: ../tcl/mini.tcl:1171 ../tcl/tkemc.tcl:1420
+#: ../tcl/mini.tcl:1171 ../tcl/tkemc.tcl:1499
 msgid "Feed Override:"
 msgstr "Correcteur de vitesse:"
 
@@ -894,18 +903,22 @@ msgstr "Le basculement des vues ne donnera rien ici"
 
 #: ../tcl/mini.tcl:1285
 msgid "Can't set zero with a tool offset active so I issued G49 to cancel it."
-msgstr "Impossible de régler le zéro avec l'offset d'outil activé, un G49 a donc été appliqué pour le désactiver"
+msgstr ""
+"Impossible de régler le zéro avec l'offset d'outil activé, un G49 a donc été "
+"appliqué pour le désactiver"
 
 #: ../tcl/mini.tcl:1343
 #, tcl-format
 msgid "Can't update the var file while machine is in auto and %s."
-msgstr "Impossible de mettre le fichier de variables à jour tant que la machine est en auto et %s"
+msgstr ""
+"Impossible de mettre le fichier de variables à jour tant que la machine est "
+"en auto et %s"
 
-#: ../tcl/mini.tcl:1397 ../tcl/tkemc.tcl:1144
+#: ../tcl/mini.tcl:1397 ../tcl/tkemc.tcl:1214
 msgid "override limits"
 msgstr "Dépassement de limite"
 
-#: ../tcl/mini.tcl:1402 ../tcl/tkemc.tcl:1180
+#: ../tcl/mini.tcl:1402 ../tcl/tkemc.tcl:1250
 msgid "home"
 msgstr "origine"
 
@@ -921,11 +934,11 @@ msgstr "Vitesse:"
 msgid "RAPID"
 msgstr "RAPIDE"
 
-#: ../tcl/mini.tcl:1444 ../tcl/tkemc.tcl:1285
+#: ../tcl/mini.tcl:1444 ../tcl/tkemc.tcl:1364
 msgid "Set Jog Speed"
 msgstr "Ajuster vitesse de jog"
 
-#: ../tcl/mini.tcl:1450 ../tcl/tkemc.tcl:1291
+#: ../tcl/mini.tcl:1450 ../tcl/tkemc.tcl:1370
 msgid "Set jog speed:"
 msgstr "Ajuster vitesse de jog:"
 
@@ -941,8 +954,8 @@ msgstr "JOG X -"
 msgid "increment"
 msgstr "incrément"
 
-#: ../tcl/mini.tcl:1515 ../tcl/tkemc.tcl:652 ../tcl/tkemc.tcl:1166
-#: ../tcl/tkemc.tcl:1170
+#: ../tcl/mini.tcl:1515 ../tcl/tkemc.tcl:660 ../tcl/tkemc.tcl:1236
+#: ../tcl/tkemc.tcl:1240
 msgid "continuous"
 msgstr "continu"
 
@@ -974,7 +987,7 @@ msgstr "Broche sens horaire"
 msgid "Spindle Reverse"
 msgstr "Broche sens anti-horaire"
 
-#: ../tcl/mini.tcl:1584 ../tcl/tkemc.tcl:903
+#: ../tcl/mini.tcl:1584 ../tcl/tkemc.tcl:911
 msgid "Spindle off"
 msgstr "Arrêt broche"
 
@@ -986,27 +999,27 @@ msgstr "Broche moins vite"
 msgid "Spindle Faster"
 msgstr "Broche plus vite"
 
-#: ../tcl/mini.tcl:1626 ../tcl/tkemc.tcl:1462
+#: ../tcl/mini.tcl:1626 ../tcl/tkemc.tcl:1541
 msgid "MDI:"
 msgstr "MDI:"
 
-#: ../tcl/mini.tcl:1663 ../tcl/tkemc.tcl:1500
+#: ../tcl/mini.tcl:1663 ../tcl/tkemc.tcl:1579
 msgid "Run"
 msgstr "Démarre"
 
-#: ../tcl/mini.tcl:1665 ../tcl/tkemc.tcl:1501
+#: ../tcl/mini.tcl:1665 ../tcl/tkemc.tcl:1580
 msgid "Pause"
 msgstr "Pause"
 
-#: ../tcl/mini.tcl:1667 ../tcl/tkemc.tcl:1502
+#: ../tcl/mini.tcl:1667 ../tcl/tkemc.tcl:1581
 msgid "Resume"
 msgstr "Reprise"
 
-#: ../tcl/mini.tcl:1669 ../tcl/tkemc.tcl:1503
+#: ../tcl/mini.tcl:1669 ../tcl/tkemc.tcl:1582
 msgid "Step"
 msgstr "Pas"
 
-#: ../tcl/mini.tcl:1671 ../tcl/tkemc.tcl:1504
+#: ../tcl/mini.tcl:1671 ../tcl/tkemc.tcl:1583
 msgid "Verify"
 msgstr "Vérifie"
 
@@ -1027,17 +1040,17 @@ msgid "Restart"
 msgstr "Redémarrer"
 
 #: ../tcl/mini.tcl:1705 ../tcl/mini.tcl:2817 ../tcl/mini.tcl:2876
-#: ../tcl/tkemc.tcl:515
+#: ../tcl/tkemc.tcl:523
 msgid "All files"
 msgstr "Tous les fichiers"
 
 #: ../tcl/mini.tcl:1706 ../tcl/mini.tcl:2818 ../tcl/mini.tcl:2877
-#: ../tcl/tkemc.tcl:516
+#: ../tcl/tkemc.tcl:524
 msgid "Text files"
 msgstr "Fichiers texte"
 
 #: ../tcl/mini.tcl:1707 ../tcl/mini.tcl:2819 ../tcl/mini.tcl:2878
-#: ../tcl/tkemc.tcl:517
+#: ../tcl/tkemc.tcl:525
 msgid "NC files"
 msgstr "Fichiers NC"
 
@@ -1057,67 +1070,67 @@ msgstr "A/U ACTIVÉ"
 msgid "ESTOP PUSH"
 msgstr "A/U"
 
-#: ../tcl/mini.tcl:1886 ../tcl/tkemc.tcl:2058
+#: ../tcl/mini.tcl:1886 ../tcl/tkemc.tcl:2146
 msgid "ESTOP RESET"
 msgstr "RÉINITIALISER A/U"
 
-#: ../tcl/mini.tcl:1891 ../tcl/tkemc.tcl:2123
+#: ../tcl/mini.tcl:1891 ../tcl/tkemc.tcl:2211
 msgid "SPINDLE FORWARD"
 msgstr "BROCHE SENS HORAIRE"
 
-#: ../tcl/mini.tcl:1893 ../tcl/tkemc.tcl:2125
+#: ../tcl/mini.tcl:1893 ../tcl/tkemc.tcl:2213
 msgid "SPINDLE REVERSE"
 msgstr "BROCHE SENS ANTI-HORAIRE"
 
-#: ../tcl/mini.tcl:1895 ../tcl/tkemc.tcl:2127
+#: ../tcl/mini.tcl:1895 ../tcl/tkemc.tcl:2215
 msgid "SPINDLE OFF"
 msgstr "ARRÊT BROCHE"
 
-#: ../tcl/mini.tcl:1897 ../tcl/tkemc.tcl:2129
+#: ../tcl/mini.tcl:1897 ../tcl/tkemc.tcl:2217
 msgid "SPINDLE INCREASE"
 msgstr "BROCHE ACCÉLÈRE"
 
-#: ../tcl/mini.tcl:1899 ../tcl/tkemc.tcl:2131
+#: ../tcl/mini.tcl:1899 ../tcl/tkemc.tcl:2219
 msgid "SPINDLE DECREASE"
 msgstr "BROCHE DÉCÉLÈRE"
 
-#: ../tcl/mini.tcl:1901 ../tcl/tkemc.tcl:2133
+#: ../tcl/mini.tcl:1901 ../tcl/tkemc.tcl:2221
 msgid "SPINDLE ?"
 msgstr "BROCHE ?"
 
-#: ../tcl/mini.tcl:1905 ../tcl/tkemc.tcl:2137
+#: ../tcl/mini.tcl:1905 ../tcl/tkemc.tcl:2225
 msgid "BRAKE ON"
 msgstr "FREIN SERRÉ"
 
-#: ../tcl/mini.tcl:1907 ../tcl/tkemc.tcl:2139
+#: ../tcl/mini.tcl:1907 ../tcl/tkemc.tcl:2227
 msgid "BRAKE OFF"
 msgstr "FREIN RELÂCHÉ"
 
-#: ../tcl/mini.tcl:1909 ../tcl/tkemc.tcl:2141
+#: ../tcl/mini.tcl:1909 ../tcl/tkemc.tcl:2229
 msgid "BRAKE ?"
 msgstr "FREIN ?"
 
-#: ../tcl/mini.tcl:1913 ../tcl/tkemc.tcl:2099
+#: ../tcl/mini.tcl:1913 ../tcl/tkemc.tcl:2187
 msgid "MIST ON"
 msgstr "AVEC BROUILLARD"
 
-#: ../tcl/mini.tcl:1915 ../tcl/tkemc.tcl:2101
+#: ../tcl/mini.tcl:1915 ../tcl/tkemc.tcl:2189
 msgid "MIST OFF"
 msgstr "SANS BROUILLARD"
 
-#: ../tcl/mini.tcl:1917 ../tcl/tkemc.tcl:2103
+#: ../tcl/mini.tcl:1917 ../tcl/tkemc.tcl:2191
 msgid "MIST ?"
 msgstr "BROUILLARD ?"
 
-#: ../tcl/mini.tcl:1921 ../tcl/tkemc.tcl:2107
+#: ../tcl/mini.tcl:1921 ../tcl/tkemc.tcl:2195
 msgid "FLOOD ON"
 msgstr "AVEC ARROSAGE"
 
-#: ../tcl/mini.tcl:1923 ../tcl/tkemc.tcl:2109
+#: ../tcl/mini.tcl:1923 ../tcl/tkemc.tcl:2197
 msgid "FLOOD OFF"
 msgstr "SANS ARROSAGE"
 
-#: ../tcl/mini.tcl:1925 ../tcl/tkemc.tcl:2111
+#: ../tcl/mini.tcl:1925 ../tcl/tkemc.tcl:2199
 msgid "FLOOD ?"
 msgstr "ARROSAGE ?"
 
@@ -1131,7 +1144,8 @@ msgid ""
 " Click or tab to edit.   Press enter to return to keyboard machine control."
 msgstr ""
 "RÉGLAGE OUTIL \n"
-" Cliquer ou « tab » pour éditer.   Presser « Entrée » pour retourner au contrôle de la machine depuis le clavier."
+" Cliquer ou « tab » pour éditer.   Presser « Entrée » pour retourner au "
+"contrôle de la machine depuis le clavier."
 
 #: ../tcl/mini.tcl:2124
 msgid "  TOOL NUMBER  "
@@ -1160,7 +1174,9 @@ msgstr "Enlever le dernier outil"
 #: ../tcl/mini.tcl:2211 ../tcl/mini.tcl:2247
 #, tcl-format
 msgid "Can't update the tool file while machine is in auto and %s."
-msgstr "Impossible de mettre à jour le fichier d'outils tant que la machine est en auto et %s"
+msgstr ""
+"Impossible de mettre à jour le fichier d'outils tant que la machine est en "
+"auto et %s"
 
 #: ../tcl/mini.tcl:2223
 msgid "This is not a good number."
@@ -1176,7 +1192,8 @@ msgid ""
 msgstr ""
 "RÉGLAGE COORDONNÉES SYSTÈME \n"
 "\n"
-"  Cliquer la valeur à éditer au clavier.  Presser « entrée » pour revenir au contrôle de la machine depuis le clavier. \n"
+"  Cliquer la valeur à éditer au clavier.  Presser « entrée » pour revenir au "
+"contrôle de la machine depuis le clavier. \n"
 " "
 
 #: ../tcl/mini.tcl:2314 ../tcl/scripts/Set_Coordinates.tcl:82
@@ -1409,70 +1426,72 @@ msgstr "Erreur d'EMC2"
 msgid ""
 "EMC2 terminated with an error.  When reporting problems, please include all "
 "the information below in your message."
-msgstr "EMC2 c'est terminé avec une erreur.  Si vous rapportez le problème, merci d'inclure toutes les informations suivantes dans votre message."
+msgstr ""
+"EMC2 c'est terminé avec une erreur.  Si vous rapportez le problème, merci "
+"d'inclure toutes les informations suivantes dans votre message."
 
 #: ../tcl/show_errors.tcl:52 ../tcl/scripts/Set_Coordinates.tcl:103
 msgid "Close"
 msgstr "Fermer"
 
-#: ../tcl/tkemc.tcl:205 ../tcl/tkemc.tcl:232
+#: ../tcl/tkemc.tcl:213 ../tcl/tkemc.tcl:240
 msgid "Set Run Mark"
 msgstr "Ajuster point de départ"
 
-#: ../tcl/tkemc.tcl:207
+#: ../tcl/tkemc.tcl:215
 #, tcl-format
 msgid "Set run mark at line %s?"
 msgstr "Ajuster point de départ sur la ligne %s?"
 
-#: ../tcl/tkemc.tcl:227 ../tcl/tkemc.tcl:250 ../tcl/tkemc.tcl:273
+#: ../tcl/tkemc.tcl:235 ../tcl/tkemc.tcl:258 ../tcl/tkemc.tcl:281
 msgid "untitled"
 msgstr "Sans titre"
 
-#: ../tcl/tkemc.tcl:255
+#: ../tcl/tkemc.tcl:263
 msgid "Load Tool Table"
 msgstr "Charger table d'outils"
 
-#: ../tcl/tkemc.tcl:281
+#: ../tcl/tkemc.tcl:289
 msgid "Load Parameter File"
 msgstr "Charger fichier de paramètres"
 
-#: ../tcl/tkemc.tcl:330
+#: ../tcl/tkemc.tcl:338
 msgid "EMC Diagnostics"
 msgstr "Diagnostique EMC"
 
-#: ../tcl/tkemc.tcl:332
+#: ../tcl/tkemc.tcl:340
 msgid "Task"
 msgstr "Tâche"
 
-#: ../tcl/tkemc.tcl:334 ../tcl/tkemc.tcl:357 ../tcl/tkemc.tcl:380
+#: ../tcl/tkemc.tcl:342 ../tcl/tkemc.tcl:365 ../tcl/tkemc.tcl:388
 msgid "Heartbeat:"
 msgstr "Fréquence:"
 
-#: ../tcl/tkemc.tcl:337 ../tcl/tkemc.tcl:360 ../tcl/tkemc.tcl:383
+#: ../tcl/tkemc.tcl:345 ../tcl/tkemc.tcl:368 ../tcl/tkemc.tcl:391
 msgid "Command:"
 msgstr "Commande:"
 
-#: ../tcl/tkemc.tcl:340 ../tcl/tkemc.tcl:363 ../tcl/tkemc.tcl:386
+#: ../tcl/tkemc.tcl:348 ../tcl/tkemc.tcl:371 ../tcl/tkemc.tcl:394
 msgid "Command #:"
 msgstr "Numéro de commande :"
 
-#: ../tcl/tkemc.tcl:343 ../tcl/tkemc.tcl:366 ../tcl/tkemc.tcl:389
+#: ../tcl/tkemc.tcl:351 ../tcl/tkemc.tcl:374 ../tcl/tkemc.tcl:397
 msgid "Status:"
 msgstr "Status:"
 
-#: ../tcl/tkemc.tcl:355
+#: ../tcl/tkemc.tcl:363
 msgid "Io"
 msgstr "I/o"
 
-#: ../tcl/tkemc.tcl:378
+#: ../tcl/tkemc.tcl:386
 msgid "Motion"
 msgstr "Mouvement"
 
-#: ../tcl/tkemc.tcl:419
+#: ../tcl/tkemc.tcl:427
 msgid "About TkEmc"
 msgstr "À propos de TkEmc"
 
-#: ../tcl/tkemc.tcl:420
+#: ../tcl/tkemc.tcl:428
 msgid ""
 "TkEmc\n"
 "\n"
@@ -1486,275 +1505,275 @@ msgstr ""
 "\n"
 "Domaine Publique (1999)/n Traduction française de Francis TISSERANT."
 
-#: ../tcl/tkemc.tcl:440
+#: ../tcl/tkemc.tcl:448
 msgid "Set Tool Offset"
 msgstr "Ajuster l'offset d'outil"
 
-#: ../tcl/tkemc.tcl:448 ../tcl/tkemc.tcl:937
+#: ../tcl/tkemc.tcl:456 ../tcl/tkemc.tcl:945
 msgid "Tool:"
 msgstr "Outil:"
 
-#: ../tcl/tkemc.tcl:452
+#: ../tcl/tkemc.tcl:460
 msgid "Length:"
 msgstr "Longueur:"
 
-#: ../tcl/tkemc.tcl:456
+#: ../tcl/tkemc.tcl:464
 msgid "Diameter:"
 msgstr "Diamètre:"
 
-#: ../tcl/tkemc.tcl:762
+#: ../tcl/tkemc.tcl:770
 msgid "Edit..."
 msgstr "Éditer.."
 
-#: ../tcl/tkemc.tcl:771
+#: ../tcl/tkemc.tcl:779
 msgid "Tools..."
 msgstr "Outils..."
 
-#: ../tcl/tkemc.tcl:772
+#: ../tcl/tkemc.tcl:780
 msgid "Offsets and Variables..."
 msgstr "Offsets et variables.."
 
-#: ../tcl/tkemc.tcl:773
+#: ../tcl/tkemc.tcl:781
 msgid "Diagnostics..."
 msgstr "Diagnostiques..."
 
-#: ../tcl/tkemc.tcl:774
+#: ../tcl/tkemc.tcl:782
 msgid "Backplot..."
 msgstr "Chemin d'outil..."
 
-#: ../tcl/tkemc.tcl:780
+#: ../tcl/tkemc.tcl:788
 msgid "Testing..."
 msgstr "Testing..."
 
-#: ../tcl/tkemc.tcl:781
+#: ../tcl/tkemc.tcl:789
 msgid "Debug..."
 msgstr "Débogue..."
 
-#: ../tcl/tkemc.tcl:782
+#: ../tcl/tkemc.tcl:790
 msgid "Font..."
 msgstr "Police..."
 
-#: ../tcl/tkemc.tcl:786
+#: ../tcl/tkemc.tcl:794
 msgid "Units"
 msgstr "Unités"
 
-#: ../tcl/tkemc.tcl:787
+#: ../tcl/tkemc.tcl:795
 msgid "auto"
 msgstr "auto"
 
-#: ../tcl/tkemc.tcl:788
+#: ../tcl/tkemc.tcl:796
 msgid "inches"
 msgstr "pouces"
 
-#: ../tcl/tkemc.tcl:789
+#: ../tcl/tkemc.tcl:797
 msgid "mm"
 msgstr "mm"
 
-#: ../tcl/tkemc.tcl:790
+#: ../tcl/tkemc.tcl:798
 msgid "cm"
 msgstr "cm"
 
-#: ../tcl/tkemc.tcl:794
+#: ../tcl/tkemc.tcl:802
 msgid "Utilities"
 msgstr "Utilitaires"
 
-#: ../tcl/tkemc.tcl:795
+#: ../tcl/tkemc.tcl:803
 msgid "Hal Scope"
 msgstr "Hal Scope"
 
-#: ../tcl/tkemc.tcl:796
+#: ../tcl/tkemc.tcl:804
 msgid "Hal Meter"
 msgstr "Hal Metre"
 
-#: ../tcl/tkemc.tcl:817
+#: ../tcl/tkemc.tcl:825
 msgid "HAL Show"
 msgstr "Afficher HAL"
 
-#: ../tcl/tkemc.tcl:818
+#: ../tcl/tkemc.tcl:826
 msgid "HAL Config"
 msgstr "Configuration HAL"
 
-#: ../tcl/tkemc.tcl:824
+#: ../tcl/tkemc.tcl:832
 msgid "Balloon help"
 msgstr "Bulle d'aide"
 
-#: ../tcl/tkemc.tcl:847
+#: ../tcl/tkemc.tcl:855
 msgid "Estop on"
 msgstr "A/U activé"
 
-#: ../tcl/tkemc.tcl:848
+#: ../tcl/tkemc.tcl:856
 msgid "Estop off"
 msgstr "A/U désactivé"
 
-#: ../tcl/tkemc.tcl:850
+#: ../tcl/tkemc.tcl:858
 msgid "Machine on"
 msgstr "Machine en marche"
 
-#: ../tcl/tkemc.tcl:851
+#: ../tcl/tkemc.tcl:859
 msgid "Machine off"
 msgstr "Machine à l'arrêt"
 
-#: ../tcl/tkemc.tcl:858
+#: ../tcl/tkemc.tcl:866
 msgid "Manual"
 msgstr "Manuel"
 
-#: ../tcl/tkemc.tcl:859
+#: ../tcl/tkemc.tcl:867
 msgid "Auto"
 msgstr "Auto"
 
-#: ../tcl/tkemc.tcl:867
+#: ../tcl/tkemc.tcl:875
 msgid "Mist on"
 msgstr "Avec brouillard"
 
-#: ../tcl/tkemc.tcl:868
+#: ../tcl/tkemc.tcl:876
 msgid "Mist off"
 msgstr "Sans brouillard"
 
-#: ../tcl/tkemc.tcl:875
+#: ../tcl/tkemc.tcl:883
 msgid "Flood on"
 msgstr "Avec arrosage"
 
-#: ../tcl/tkemc.tcl:876
+#: ../tcl/tkemc.tcl:884
 msgid "Flood off"
 msgstr "Sans arrosage"
 
-#: ../tcl/tkemc.tcl:883
+#: ../tcl/tkemc.tcl:891
 msgid "Lube on"
 msgstr "Avec lubrifiant"
 
-#: ../tcl/tkemc.tcl:884
+#: ../tcl/tkemc.tcl:892
 msgid "Lube off"
 msgstr "Sans lubrifiant"
 
-#: ../tcl/tkemc.tcl:901
+#: ../tcl/tkemc.tcl:909
 msgid "Spindle forward"
 msgstr "Broche sens horaire"
 
-#: ../tcl/tkemc.tcl:902
+#: ../tcl/tkemc.tcl:910
 msgid "Spindle reverse"
 msgstr "Broche sens anti-horaire"
 
-#: ../tcl/tkemc.tcl:917
+#: ../tcl/tkemc.tcl:925
 msgid "Brake on"
 msgstr "Frein mis"
 
-#: ../tcl/tkemc.tcl:918
+#: ../tcl/tkemc.tcl:926
 msgid "Brake off"
 msgstr "Sans frein"
 
-#: ../tcl/tkemc.tcl:939
+#: ../tcl/tkemc.tcl:947
 msgid "Offset:"
 msgstr "Offset:"
 
-#: ../tcl/tkemc.tcl:941
+#: ../tcl/tkemc.tcl:949
 msgid "Work Offsets:"
 msgstr "Offsets de travail:"
 
-#: ../tcl/tkemc.tcl:1150
+#: ../tcl/tkemc.tcl:1220
 msgid "relative"
 msgstr "relatif"
 
-#: ../tcl/tkemc.tcl:1151
+#: ../tcl/tkemc.tcl:1221
 msgid "machine"
 msgstr "machine"
 
-#: ../tcl/tkemc.tcl:1153
+#: ../tcl/tkemc.tcl:1223
 msgid "actual"
 msgstr "actuel"
 
-#: ../tcl/tkemc.tcl:1154
+#: ../tcl/tkemc.tcl:1224
 msgid "commanded"
 msgstr "commandé"
 
-#: ../tcl/tkemc.tcl:1156
+#: ../tcl/tkemc.tcl:1226
 msgid "joint"
 msgstr "articulation"
 
-#: ../tcl/tkemc.tcl:1157
+#: ../tcl/tkemc.tcl:1227
 msgid "world"
 msgstr "global"
 
-#: ../tcl/tkemc.tcl:1241
+#: ../tcl/tkemc.tcl:1320
 msgid "Axis Offset"
 msgstr "Offset d'axe"
 
-#: ../tcl/tkemc.tcl:1243
+#: ../tcl/tkemc.tcl:1322
 msgid "Set axis value:"
 msgstr "Ajuster valeurs d'axes"
 
-#: ../tcl/tkemc.tcl:1316
+#: ../tcl/tkemc.tcl:1395
 msgid "Set Feed Override"
 msgstr "Ajuster correcteur de vitesse"
 
-#: ../tcl/tkemc.tcl:1322
+#: ../tcl/tkemc.tcl:1401
 msgid "Set feed override:"
 msgstr "Ajuster correcteur de vitesse:"
 
-#: ../tcl/tkemc.tcl:1347
+#: ../tcl/tkemc.tcl:1426
 msgid "Set Spindle Override"
 msgstr "Ajuster correcteur de vitesse de broche"
 
-#: ../tcl/tkemc.tcl:1353
+#: ../tcl/tkemc.tcl:1432
 msgid "Set spindle speed override:"
 msgstr "Ajuster correcteur de vitesse de broche:"
 
-#: ../tcl/tkemc.tcl:1401
+#: ../tcl/tkemc.tcl:1480
 msgid "Axis Speed:"
 msgstr "Vitesse d'axes:"
 
-#: ../tcl/tkemc.tcl:1439
+#: ../tcl/tkemc.tcl:1518
 msgid "Spindle speed Override:"
 msgstr "Correcteur de vitesse de broche"
 
-#: ../tcl/tkemc.tcl:1484
+#: ../tcl/tkemc.tcl:1563
 msgid "Program: "
 msgstr "Programme: "
 
-#: ../tcl/tkemc.tcl:1489
+#: ../tcl/tkemc.tcl:1568
 msgid "  -  Status: "
 msgstr "  -  Status: "
 
-#: ../tcl/tkemc.tcl:1505
+#: ../tcl/tkemc.tcl:1584
 msgid "Optional Stop"
 msgstr "Arrêt optionnel"
 
-#: ../tcl/tkemc.tcl:1842
+#: ../tcl/tkemc.tcl:1924
 msgid "Error"
 msgstr "Erreur"
 
-#: ../tcl/tkemc.tcl:1902
+#: ../tcl/tkemc.tcl:1984
 msgid "Set Font"
 msgstr "Choisir police"
 
-#: ../tcl/tkemc.tcl:1911
+#: ../tcl/tkemc.tcl:1993
 msgid "Font"
 msgstr "Police"
 
-#: ../tcl/tkemc.tcl:1918
+#: ../tcl/tkemc.tcl:2000
 msgid "Size"
 msgstr "Taille"
 
-#: ../tcl/tkemc.tcl:1925
+#: ../tcl/tkemc.tcl:2007
 msgid "Style"
 msgstr "Style"
 
-#: ../tcl/tkemc.tcl:2054
+#: ../tcl/tkemc.tcl:2142
 msgid "ESTOP"
 msgstr "A/U"
 
-#: ../tcl/tkemc.tcl:2056
+#: ../tcl/tkemc.tcl:2144
 msgid "ON"
 msgstr "ON"
 
-#: ../tcl/tkemc.tcl:2115
+#: ../tcl/tkemc.tcl:2203
 msgid "LUBE ON"
 msgstr "LUBRIFIANT ON"
 
-#: ../tcl/tkemc.tcl:2117
+#: ../tcl/tkemc.tcl:2205
 msgid "LUBE OFF"
 msgstr "LUBRIFIANT OFF"
 
-#: ../tcl/tkemc.tcl:2119
+#: ../tcl/tkemc.tcl:2207
 msgid "LUBE ?"
 msgstr "LUBRIFIANT ?"
 
@@ -1789,4 +1808,3 @@ msgstr "Régler le zéro"
 #: ../tcl/scripts/Set_Coordinates.tcl:104
 msgid "Write"
 msgstr "Écrire"
-
