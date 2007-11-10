@@ -23,12 +23,14 @@ import shutil
 import StringIO
 
 class LyxParser:
-    def __init__(self, handler):
+    def __init__(self, handler, filename):
 	self.handler = handler
 	handler.parser = self
 	self.in_verbatim = 0
-	self.firstline = True
+	self.linenumber = 0
+	self.filename = filename
 
+    def where(self): return "%s:%d" % (self.filename, self.linenumber)
     def feed(self, line):
 	if self.in_verbatim:
 	    if line.startswith(self.end_verbatim):
@@ -36,9 +38,8 @@ class LyxParser:
 	    else:
 		return self.do_verbatim(line)
 
-	if self.firstline and line.startswith("#"): return
-	self.firstline = False
-
+	if self.linenumber == 0 and line.startswith("#"): return
+	self.linenumber += 1
 
 	if line.startswith("\\"):
 	    tokens = line.split(None, 2)

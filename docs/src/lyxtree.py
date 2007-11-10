@@ -26,6 +26,7 @@ import subprocess
 import xml.dom.minidom
 import mimetypes
 import shutil
+import traceback
 
 from xcommon import *
 
@@ -188,9 +189,13 @@ class LyxTreeMaker:
 	self.indir = os.path.dirname(fn)
 	try:
 	    contents = (line.decode('latin-1') for line in open(fn))
-	    self.parser.firstline = True
+	    oldlinenumber = self.parser.linenumber
+	    self.parser.linenumber = 0
+	    self.parser.filename = fn
 	    for line in contents:
 		self.parser.feed(line.strip('\n'))
+	    self.parser.linenumber = oldlinenumber
+
 	finally:
 	    self.indir = indir    
 
@@ -225,6 +230,7 @@ class LyxTreeMaker:
 	self.pop('deeper')
 
     def do_layout(self, tokens):
+	#if not tokens: return
 	if self.e.tagName == 'layout': self.pop()
 	self.push('layout', class_=tokens[0])
 	
@@ -389,10 +395,8 @@ def LyxTocXml(lyxdoc):
 
     n = lyxdoc.getElementsByTagName('toc')
     if n:
-	print >>sys.stderr, "# Using existing toc"
 	n = n[0]
     else:
-	print >>sys.stderr, "# Using new toc"
 	n = Node(None, 'toc')
 	lyxdoc.documentElement.insertBefore(n,
 	    lyxdoc.documentElement.firstChild)
@@ -629,12 +633,17 @@ def EquationFixer(d, outdir):
 	    for k in n.childNodes: n.removeChild(k)
 	    n.appendChild(d.createTextNode(v))
 
+def order(term):
+    term = term.lower()
+    term = re.sub("\d+", lambda m: "%08d" % int(m.group(0)), term)
+    return term
+
 def IndexFixer(d):
     u = {}
     for n in d.getElementsByTagName('index'):
 	id0 = id = n.getAttribute("id")
 	n.setAttribute("term", id)
-	n.setAttribute("lcterm", id.lower())
+	n.setAttribute("lcterm", order(id))
 	if id in u:
 	    id = "%s--%d" % (id0, u[id])
 	    n.setAttribute("id", id)
@@ -681,16 +690,24 @@ def parse(args):
     if imagedir is None: imagedir = outdir
     if imagedir and not os.path.isdir(imagedir): os.makedirs(imagedir)
 
-    if isinstance(infile, str):
-	if infile == '-': infile = sys.stdin
-	else: infile = open(infile)
+    filename = infile
+    if infile == '-': infile = sys.stdin
+    else: infile = open(infile)
     infile = (line.decode('latin-1') for line in infile)
 
     h = LyxTreeMaker(indir)
-    p = LyxParser(h)
+    p = LyxParser(h, filename)
     h.parser = p
 
-    for line in infile: p.feed(line.strip('\n'))
+    try:
+	for line in infile:
+	    p.feed(line.strip('\n'))
+    except:
+	ei = sys.exc_info()
+	traceback.print_tb(ei[2])
+	print p.where(), ei[1]
+	raise SystemExit, 1
+
     d = h.d
     if stylesheet:
 	if stylesheet.endswith(".xsl"):
