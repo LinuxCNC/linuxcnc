@@ -221,13 +221,13 @@ net Xminlim wcomp.0.out => axis.0.neg-lim-sw-in
 net Xmaxlim wcomp.1.out => axis.0.pos-lim-sw-in
 net Xhome wcomp.2.out => axis.0.home-sw-in
 
-net Yminlim wcomp.3.out => axis.0.neg-lim-sw-in
-net Ymaxlim wcomp.4.out => axis.0.pos-lim-sw-in
-net Yhome wcomp.5.out => axis.0.home-sw-in
+net Yminlim wcomp.3.out => axis.1.neg-lim-sw-in
+net Ymaxlim wcomp.4.out => axis.1.pos-lim-sw-in
+net Yhome wcomp.5.out => axis.1.home-sw-in
 
-net Zminlim wcomp.6.out => axis.0.neg-lim-sw-in
-net Zmaxlim wcomp.7.out => axis.0.pos-lim-sw-in
-net Zhome wcomp.9.out => axis.0.home-sw-in
+net Zminlim wcomp.6.out => axis.2.neg-lim-sw-in
+net Zmaxlim wcomp.7.out => axis.2.pos-lim-sw-in
+net Zhome wcomp.8.out => axis.2.home-sw-in
 
 # configure the points at which the simulated switches trip
 # X axis first
