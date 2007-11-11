@@ -21,4 +21,6 @@ TODO     hal_m5i20 driver update
          -enable autodetection of configs
               - 33 or 100 MHz PWM clock (affects timing calculations)
               - 4 or 8-axis config (how many ENCs and DACs, how much I/O)
+         -make a version that works with pico-systems amps
+           (50kHz PWM and 'handshake' at amp bootup)
          -enable writing the CCR register (is this needed?)
