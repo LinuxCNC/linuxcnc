@@ -1,80 +1,83 @@
-# translation of fr_rs274_err.po to Francais
+# translation of fr_rs274_err.po to french
 # Translation of rs274ngc_err to Italian.
 # Copyright (C) 2007 Ernesto Lo Valvo
 # This file is distributed under the same license package as rs274ngc.pot.
 #
 # Ernesto Lo Valvo <elovalvo@unipa.it>, 2007.
 # Francis TISSERANT <ftissera@free.fr>, 2007.
+# Francis Tisserant <ftissera@free.fr>, 2007.
 msgid ""
 msgstr ""
 "Project-Id-Version: fr_rs274_err\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-08-27 22:44+0200\n"
-"PO-Revision-Date: 2007-09-03 23:34+0200\n"
-"Last-Translator: Francis TISSERANT <ftissera@free.fr>\n"
-"Language-Team: Francais <gnomefr@traduc.org>\n"
+"POT-Creation-Date: 2007-11-09 02:04+0100\n"
+"PO-Revision-Date: 2007-11-11 01:33+0100\n"
+"Last-Translator: Francis Tisserant <ftissera@free.fr>\n"
+"Language-Team: french <gnomefr@traduc.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: KBabel 1.11.4\n"
+"X-Generator: KBabel 1.11.2\n"
 
-#: emc/task/emctaskmain.cc:396 emc/task/emctaskmain.cc:435
+#: emc/task/emctaskmain.cc:395 emc/task/emctaskmain.cc:434
 msgid "exceeds +X limit"
 msgstr "limite +X depassee"
 
-#: emc/task/emctaskmain.cc:402 emc/task/emctaskmain.cc:441
+#: emc/task/emctaskmain.cc:401 emc/task/emctaskmain.cc:440
 msgid "exceeds +Y limit"
 msgstr "limite +Y depassee"
 
-#: emc/task/emctaskmain.cc:408 emc/task/emctaskmain.cc:447
+#: emc/task/emctaskmain.cc:407 emc/task/emctaskmain.cc:446
 msgid "exceeds +Z limit"
 msgstr "limite +Z depassee"
 
-#: emc/task/emctaskmain.cc:414 emc/task/emctaskmain.cc:453
+#: emc/task/emctaskmain.cc:413 emc/task/emctaskmain.cc:452
 msgid "exceeds -X limit"
 msgstr "limite -X depassee"
 
-#: emc/task/emctaskmain.cc:420 emc/task/emctaskmain.cc:459
+#: emc/task/emctaskmain.cc:419 emc/task/emctaskmain.cc:458
 msgid "exceeds -Y limit"
 msgstr "limite -Y depassee"
 
-#: emc/task/emctaskmain.cc:426 emc/task/emctaskmain.cc:465
+#: emc/task/emctaskmain.cc:425 emc/task/emctaskmain.cc:464
 msgid "exceeds -Z limit"
 msgstr "limite -Z depassee"
 
-#: emc/task/emctaskmain.cc:583
+#: emc/task/emctaskmain.cc:582
 #, c-format
 msgid ""
 "command (%s) cannot be executed until the machine is out of E-stop and "
 "turned on"
-msgstr "La commande (%s) ne peut etre executee tant que la machine n'est pas sortie de l'arret d'urgence et mise en marche"
+msgstr ""
+"La commande (%s) ne peut etre executee tant que la machine n'est pas sortie "
+"de l'arret d'urgence et mise en marche"
 
-#: emc/task/emctaskmain.cc:694
+#: emc/task/emctaskmain.cc:693
 #, c-format
 msgid "can't do that (%s) in manual mode"
 msgstr "Commande (%s) impossible en mode manuel"
 
-#: emc/task/emctaskmain.cc:792
+#: emc/task/emctaskmain.cc:791
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter idle"
 msgstr "(%s) impossible en mode auto avec l'interpreteur inactif"
 
-#: emc/task/emctaskmain.cc:854
+#: emc/task/emctaskmain.cc:853
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter reading"
 msgstr "(%s) impossible en mode auto avec l'interpreteur en lecture"
 
-#: emc/task/emctaskmain.cc:1076
+#: emc/task/emctaskmain.cc:1075
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter paused"
 msgstr "(%s) impossible en mode auto avec l'interpreteur en pause"
 
-#: emc/task/emctaskmain.cc:1140
+#: emc/task/emctaskmain.cc:1139
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter waiting"
 msgstr "(%s) impossible en mode auto avec l'interpreteur en attente"
 
-#: emc/task/emctaskmain.cc:1255
+#: emc/task/emctaskmain.cc:1254
 #, c-format
 msgid "can't do that (%s) in MDI mode"
 msgstr "Commande (%s) impossible en mode MDI"
@@ -84,12 +87,12 @@ msgstr "Commande (%s) impossible en mode MDI"
 msgid "can't open %s"
 msgstr "Impossible d'ouvrir %s "
 
-#: emc/task/emctaskmain.cc:2978
+#: emc/task/emctaskmain.cc:2972
 #, c-format
 msgid "Minimum Software Limit on axis %d exceeded."
 msgstr "Limite logicielle minimale de l'axe %d depassee"
 
-#: emc/task/emctaskmain.cc:2987
+#: emc/task/emctaskmain.cc:2981
 #, c-format
 msgid "Maximum Software Limit on axis %d exceeded."
 msgstr "Limite logicielle maximale sur l'axe %d depassee"
@@ -308,7 +311,9 @@ msgstr "Impossible d'activer la compensation de rayon d'outil hors du plan xy"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:82
 msgid "Cannot turn cutter radius comp on when on"
-msgstr "Impossible d'activer la compensation de rayon d'outil quand elle est deja activee"
+msgstr ""
+"Impossible d'activer la compensation de rayon d'outil quand elle est deja "
+"activee"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:83
 msgid "Cannot use a word"
@@ -716,7 +721,7 @@ msgstr "Slash manquant apres le premier argument d'atan"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:184
 msgid "Spindle not turning clockwise in g84"
-msgstr "La broche ne trourne pas en sens horaire dans g84"
+msgstr "La broche ne tourne pas en sens horaire dans g84"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:185
 msgid "Spindle not turning in g86"
@@ -756,7 +761,9 @@ msgstr "Index de rayon d'outil trop grand"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:194
 msgid "Tool radius not less than arc radius with comp"
-msgstr "Rayon d'outil non inferieur au rayon de l'arc apres compensation de rayon d'outil"
+msgstr ""
+"Rayon d'outil non inferieur au rayon de l'arc apres compensation de rayon "
+"d'outil"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:195
 msgid "Two g codes used from same modal group"
@@ -1013,7 +1020,9 @@ msgstr "La queue n'est pas vide apres une entree externe"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:265
 msgid "Can't select analog input with wait type != immediate return"
-msgstr "Ne peut selectionner une entree analogique avec le type attente != retour immediat"
+msgstr ""
+"Ne peut selectionner une entree analogique avec le type attente != retour "
+"immediat"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:266
 msgid "Zero timeout with wait type != immediate return"
@@ -1040,5 +1049,7 @@ msgstr "La fin"
 msgid ""
 "Radius to end of arc differs from radius to start: start=(%c%.4f,%c%.4f) "
 "center=(%c%.4f,%c%.4f) end=(%c%.4f,%c%.4f) r1=%.4f r2=%.4f"
-msgstr "Le rayon de fin d'arc differe de celui de debut: start=(%c%.4f,%c%.4f) center=(%c%.4f,%c%.4f) end=(%c%.4f,%c%.4f) r1=%.4f r2=%.4f"
+msgstr ""
+"Le rayon de fin d'arc differe de celui de debut: start=(%c%.4f,%c%.4f) "
+"center=(%c%.4f,%c%.4f) end=(%c%.4f,%c%.4f) r1=%.4f r2=%.4f"
 
