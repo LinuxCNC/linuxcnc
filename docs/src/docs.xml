@@ -51,6 +51,8 @@
 <doc name="install_installing_emc2_fr" title="Comment installer EMC2"/>
 <doc name="gui_axis_fr" title="L'interface graphique AXIS"/>
 <doc name="gui_image-to-gcode_fr" title="Image-vers-gcode"/>
+<doc name="hal_intro_fr" title="Introduction à HAL"/>
+<doc name="hal_tutorial_fr" title="Le tutoriel de HAL"/>
 <doc name="xref_fr" title="Index général"/>
 </docgroup>
 
