@@ -1,22 +1,23 @@
-# translation of fr_rs274_err.po to Francais
+# translation of fr_rs274_err.po to french
 # Translation of rs274ngc_err to Italian.
 # Copyright (C) 2007 Ernesto Lo Valvo
 # This file is distributed under the same license package as rs274ngc.pot.
 #
 # Ernesto Lo Valvo <elovalvo@unipa.it>, 2007.
 # Francis TISSERANT <ftissera@free.fr>, 2007.
+# Francis Tisserant <ftissera@free.fr>, 2007.
 msgid ""
 msgstr ""
 "Project-Id-Version: fr_rs274_err\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2007-11-09 02:04+0100\n"
-"PO-Revision-Date: 2007-09-03 23:34+0200\n"
-"Last-Translator: Francis TISSERANT <ftissera@free.fr>\n"
-"Language-Team: Francais <gnomefr@traduc.org>\n"
+"PO-Revision-Date: 2007-11-11 01:34+0100\n"
+"Last-Translator: Francis Tisserant <ftissera@free.fr>\n"
+"Language-Team: french <gnomefr@traduc.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: KBabel 1.11.4\n"
+"X-Generator: KBabel 1.11.2\n"
 
 #: emc/task/emctaskmain.cc:395 emc/task/emctaskmain.cc:434
 msgid "exceeds +X limit"
@@ -720,7 +721,7 @@ msgstr "Slash manquant apres le premier argument d'atan"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:184
 msgid "Spindle not turning clockwise in g84"
-msgstr "La broche ne trourne pas en sens horaire dans g84"
+msgstr "La broche ne tourne pas en sens horaire dans g84"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:185
 msgid "Spindle not turning in g86"
@@ -958,8 +959,7 @@ msgstr "Impossible de changer de plan avec la compensation de rayon d'outil"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:245
 msgid "Cutter radius compensation allowed only in XY, XZ planes"
-msgstr ""
-"Compensation de rayon d'outil permise seulement dans les plans XY et XZ"
+msgstr "Compensation de rayon d'outil permise seulement dans les plans XY et XZ"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:247
 msgid "P word missing with G76"
@@ -1052,3 +1052,4 @@ msgid ""
 msgstr ""
 "Le rayon de fin d'arc differe de celui de debut: start=(%c%.4f,%c%.4f) "
 "center=(%c%.4f,%c%.4f) end=(%c%.4f,%c%.4f) r1=%.4f r2=%.4f"
+

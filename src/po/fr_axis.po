@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: fr_axis\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2007-11-09 02:04+0100\n"
-"PO-Revision-Date: 2007-11-10 22:46+0100\n"
+"PO-Revision-Date: 2007-11-11 14:09+0100\n"
 "Last-Translator: Francis Tisserant <ftissera@free.fr>\n"
 "Language-Team: french <gnomefr@traduc.org>\n"
 "MIME-Version: 1.0\n"
@@ -45,9 +45,8 @@ msgid "Activate fourth axis"
 msgstr "Activer le quatrième axe "
 
 #: emc/usr_intf/axis/scripts/axis.py:130
-#, fuzzy
 msgid "Activate fifth through ninth axis"
-msgstr "Activer le cinquième axe "
+msgstr "Activer du cinquième axe au neuvième"
 
 #: emc/usr_intf/axis/scripts/axis.py:131
 msgid "Set Feed Override from 0% to 100%"
@@ -1191,9 +1190,8 @@ msgid "Axis:"
 msgstr "Axes:"
 
 #: ../share/axis/tcl/axis.tcl:867
-#, fuzzy
 msgid "Home Axis"
-msgstr "POM de l'axe _%s"
+msgstr "POM des axes"
 
 #: ../share/axis/tcl/axis.tcl:941
 msgid "Spindle:"
@@ -1408,7 +1406,7 @@ msgstr "Y direction"
 
 #: emc/usr_intf/stepconf/stepconf.py:96
 msgid "Z Step"
-msgstr "Z pasExécu_ter ligne par ligne"
+msgstr "Z pas"
 
 #: emc/usr_intf/stepconf/stepconf.py:96
 msgid "Z Direction"
@@ -1444,11 +1442,11 @@ msgstr "Arrosage"
 
 #: emc/usr_intf/stepconf/stepconf.py:98
 msgid "ESTOP Out"
-msgstr "A/U DÉSACTIVÉ"
+msgstr "Sortie arrêt d'urgence"
 
 #: emc/usr_intf/stepconf/stepconf.py:98
 msgid "Amplifier Enable"
-msgstr "Ampli actif"
+msgstr "Activation ampli (enable)"
 
 #: emc/usr_intf/stepconf/stepconf.py:99
 msgid "Charge Pump"
@@ -1460,11 +1458,11 @@ msgstr "Inutilisé"
 
 #: emc/usr_intf/stepconf/stepconf.py:101
 msgid "ESTOP In"
-msgstr "A/U ACTIVÉ"
+msgstr "Entrée A/U"
 
 #: emc/usr_intf/stepconf/stepconf.py:101
 msgid "Probe In"
-msgstr "Sonde activée"
+msgstr "Entrée sonde"
 
 #: emc/usr_intf/stepconf/stepconf.py:102
 msgid "Spindle Index"
@@ -1472,11 +1470,11 @@ msgstr "Index broche:"
 
 #: emc/usr_intf/stepconf/stepconf.py:102
 msgid "Spindle Phase A"
-msgstr "Phase A broche"
+msgstr "Phase A codeur broche"
 
 #: emc/usr_intf/stepconf/stepconf.py:102
 msgid "Spindle Phase B"
-msgstr "Phase B broche"
+msgstr "Phase B codeur broche"
 
 #: emc/usr_intf/stepconf/stepconf.py:103
 msgid "Home X"
@@ -1528,19 +1526,19 @@ msgstr "Limite maxi + origine machine A"
 
 #: emc/usr_intf/stepconf/stepconf.py:108
 msgid "Both Limit + Home X"
-msgstr "Limites + origine machine X simultanées"
+msgstr "Les deux limites + origine machine X"
 
 #: emc/usr_intf/stepconf/stepconf.py:108
 msgid "Both Limit + Home Y"
-msgstr "Limites + origine machine Y simultanées"
+msgstr "Les deux limites + origine machine Y"
 
 #: emc/usr_intf/stepconf/stepconf.py:109
 msgid "Both Limit + Home Z"
-msgstr "Limites + origine machine Z simultanées"
+msgstr "Les deux limites + origine machine Z"
 
 #: emc/usr_intf/stepconf/stepconf.py:109
 msgid "Both Limit + Home A"
-msgstr "Limites + origine machine A simultanées"
+msgstr "Les deux limites + origine machine A"
 
 #: emc/usr_intf/stepconf/stepconf.py:110
 msgid "Minimum Limit X"
@@ -1568,7 +1566,7 @@ msgstr "Limite maxi Y"
 
 #: emc/usr_intf/stepconf/stepconf.py:113
 msgid "Maximum Limit Z"
-msgstr "Limite maxy Z"
+msgstr "Limite maxi Z"
 
 #: emc/usr_intf/stepconf/stepconf.py:113
 msgid "Maximum Limit A"
@@ -1600,7 +1598,7 @@ msgstr "Toutes le prises d'origine"
 
 #: emc/usr_intf/stepconf/stepconf.py:141
 msgid "my-mill"
-msgstr "Ma fraiseuse"
+msgstr "ma-machine"
 
 #: emc/usr_intf/stepconf/stepconf.py:283
 #, python-format
@@ -1670,7 +1668,7 @@ msgstr "Généré par Stepconf à %s"
 #: emc/usr_intf/stepconf/stepconf.py:801
 #, python-format
 msgid "%s Axis Configuration"
-msgstr "%s Configuration Axis"
+msgstr "Configuration de l'axe %s"
 
 #: emc/usr_intf/stepconf/stepconf.py:850
 msgid "Quit Stepconf and discard changes?"
@@ -1678,7 +1676,7 @@ msgstr "Quitter Stepconf et perdre les modifications ?"
 
 #: emc/usr_intf/stepconf/stepconf.py:865
 msgid "EMC2 'stepconf' configuration files"
-msgstr "Fichiers de configuration EMCS, 'stepconf'"
+msgstr "Fichiers de configuration EMC, 'stepconf'"
 
 #: emc/usr_intf/stepconf/stepconf.py:866
 msgid "Modify Existing Configuration"
@@ -1741,13 +1739,13 @@ msgstr "%s Test d'axe"
 #: emc/usr_intf/stepconf/stepconf.glade:9
 #: emc/usr_intf/stepconf/stepconf.glade:36
 msgid "EMC2 Stepper Mill Configuration"
-msgstr "Configuration EMC2 moteurs pas à pas"
+msgstr "Outil de configuration EMC2 pour moteurs pas à pas"
 
 #: emc/usr_intf/stepconf/stepconf.glade:37
 msgid ""
 "This program creates configuration files (.ini and .hal) for \"step and "
 "direction\" milling machines and lathes connected to the PC parallel port."
-msgstr "Ce programme crée les fichiers de configuration (.ini et .Hal) \"pas et direction\" pour une machine connectée au port parallèle du PC."
+msgstr "Ce programme crée les fichiers de configuration (.ini et .Hal) \"pas et direction\" pour une machine pilotée via le port parallèle du PC."
 
 #: emc/usr_intf/stepconf/stepconf.glade:68
 msgid "Create a _new configuration"
@@ -1774,7 +1772,7 @@ msgstr "Si vous avez modifié ce fichier à l'extérieur du programme, les modif
 
 #: emc/usr_intf/stepconf/stepconf.glade:227
 msgid "Basic machine information"
-msgstr "Informations de base sur la machine"
+msgstr "Informations sur la machine"
 
 #: emc/usr_intf/stepconf/stepconf.glade:250
 msgid "Machine _Name:"
@@ -1786,7 +1784,7 @@ msgstr "Configuration des _axes"
 
 #: emc/usr_intf/stepconf/stepconf.glade:307
 msgid "Machine _units:"
-msgstr "Unités utilisées par la machine:"
+msgstr "Unité utilisée par la machine:"
 
 #: emc/usr_intf/stepconf/stepconf.glade:335
 msgid "Step _Time:"
@@ -1850,7 +1848,7 @@ msgid ""
 "Millimeter"
 msgstr ""
 "pouce\n"
-"Millimètre"
+"millimètre"
 
 #: emc/usr_intf/stepconf/stepconf.glade:741
 msgid ""
@@ -1868,15 +1866,15 @@ msgstr "confdir"
 
 #: emc/usr_intf/stepconf/stepconf.glade:813
 msgid "Parport Base Address:"
-msgstr "Adresse du port parrallèle:"
+msgstr "Adresse du port parallèle:"
 
 #: emc/usr_intf/stepconf/stepconf.glade:976
 msgid "Min Base Period:"
-msgstr "Min Base période:"
+msgstr "Période de base minimale:"
 
 #: emc/usr_intf/stepconf/stepconf.glade:1004
 msgid "Max step rate:"
-msgstr "Max step rate:"
+msgstr "Fréquence maxi des pas:"
 
 #: emc/usr_intf/stepconf/stepconf.glade:1032
 msgid ""
@@ -1890,7 +1888,7 @@ msgid ""
 msgstr ""
 "Caractéristiques du pilote: (Multipliez par 1000 pour les temps spécifiés en µs ou microsecondes)\n"
 "\n"
-"Conditionnement additionnel du signal ou isolement tels qu'optocoupleurs et filtres RC\n"
+"Mise en forme du signal, isolement galvanique, optocoupleurs ou filtres RC\n"
 "qui imposent des contraintes de temps en plus de celles du pilote."
 
 #: emc/usr_intf/stepconf/stepconf.glade:1063
@@ -1907,7 +1905,7 @@ msgstr "yyyyy Hz"
 
 #: emc/usr_intf/stepconf/stepconf.glade:1189
 msgid "Parallel Port Setup"
-msgstr "Réglages port parrallèle"
+msgstr "Réglage du port parallèle"
 
 #: emc/usr_intf/stepconf/stepconf.glade:1213
 msgid "Pin _1:"
@@ -2141,11 +2139,11 @@ msgstr "Configuration de l'axe X"
 
 #: emc/usr_intf/stepconf/stepconf.glade:3011
 msgid "_Motor steps per revolution:"
-msgstr "Pas _moteur par tour:"
+msgstr "No_mbre de pas moteur par tour:"
 
 #: emc/usr_intf/stepconf/stepconf.glade:3040
 msgid "_Driver Microstepping"
-msgstr "Micropas du pilote"
+msgstr "Micropas du pilote:"
 
 #: emc/usr_intf/stepconf/stepconf.glade:3069
 msgid "_Pulley ratio (Motor:Leadscrew):"
@@ -2153,7 +2151,7 @@ msgstr "Ratio des poulies (moteur:vis):"
 
 #: emc/usr_intf/stepconf/stepconf.glade:3098
 msgid "_Leadscrew Pitch:"
-msgstr "Pas de _la vis"
+msgstr "Pas de _la vis:"
 
 #: emc/usr_intf/stepconf/stepconf.glade:3127
 msgid "Maximum _Velocity:"
@@ -2211,11 +2209,11 @@ msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:3716
 msgid "Tab_le travel:"
-msgstr "Déplacement de la tab_le:"
+msgstr "Course de la tab_le:"
 
 #: emc/usr_intf/stepconf/stepconf.glade:3766
 msgid "t_o"
-msgstr "t_o"
+msgstr " à "
 
 #: emc/usr_intf/stepconf/stepconf.glade:3925
 msgid "mm / s^2\t"
@@ -2276,7 +2274,7 @@ msgstr "Fréquence PWM:"
 
 #: emc/usr_intf/stepconf/stepconf.glade:4484
 msgid "Cycles per revolution:"
-msgstr "Cyclespar tour:"
+msgstr "Cycles par tour:"
 
 #: emc/usr_intf/stepconf/stepconf.glade:4576
 msgid "Enter 0 Hz for \"PDM\" mode"
@@ -2303,11 +2301,11 @@ msgid ""
 "thorough latency test as described on the linuxcnc.org wiki: \n"
 " http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?TroubleShooting"
 msgstr ""
-"Toutes les informations nécessaires ont été recueillies.  Cliquez sur \"Appliquer\" pour enregistrer votre fichier de configuration sur le disque.\n"
-"Si vous constatez un bloquage de l'ordinateur quand EMC tourne, vous devrez diminuer la vitesse maximum ce qui aura pour effet d'augmenter la valeur de BASE_PERIOD.\n"
+"Toutes les informations nécessaires ont été recueillies. \n Cliquez sur \"Appliquer\" pour enregistrer votre fichier de configuration sur le disque.\n"
+"Si vous constatez un bloquage de l'ordinateur quand EMC tourne avec cette configuration, vous devrez diminuer la vitesse maximum ce qui aura pour effet d'augmenter la valeur de BASE_PERIOD.\n"
 "\n"
-"Si vous constatez des pertes de pas quand EMC fonctionne, vérifiez en premier que vous avez bien renseigné les constantes de temps du pilote des moteurs. "
-"Si ça ne corrige pas le problème, alors relancez un minutieux \"latency test\" comme décrit sur le wiki de linuxcnc.org:\n"
+"Si vous constatez des pertes de pas quand EMC fonctionne avec cette configuration, vérifiez en premier que vous avez bien renseigné les constantes de temps du pilote des moteurs. "
+"Si le problème persiste, relancez un minutieux \"latency test\" comme décrit sur le wiki de linuxcnc.org:\n"
 " http;//wiki.linuxcnc.org/cgi-bin/emcinfo.pl?TroubleShooting\n"
 "\n"
 "Faites de même si vous avez le message \"Unexpected Realtime Delay\". "
