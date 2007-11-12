@@ -362,7 +362,7 @@ static int preflight_net_cmd(char *signal, hal_sig_t *sig, char *pins[]) {
         }
         if(pin->dir == HAL_OUT) {
             if(writers || bidirs) {
-                halcmd_error("Signal '%s' may not add OUT pin '%s'\n",
+                halcmd_error("Signal '%s' can not add OUT pin '%s'\n",
                         signal, pin->name);
                 return HAL_INVAL;
             }
@@ -370,7 +370,7 @@ static int preflight_net_cmd(char *signal, hal_sig_t *sig, char *pins[]) {
         }
 	if(pin->dir == HAL_IO) {
             if(writers) {
-                halcmd_error("Signal '%s' may not add I/O pin '%s'\n",
+                halcmd_error("Signal '%s' can not add I/O pin '%s'\n",
                         signal, pin->name);
                 return HAL_INVAL;
             }
@@ -402,7 +402,7 @@ int do_net_cmd(char *signal, char *pins[]) {
     {
 	hal_pin_t *pin = halpr_find_pin_by_name(signal);
 	if(pin) {
-	    halcmd_error("Signal name '%s' may not be the same as a pin.\n",
+	    halcmd_error("Signal name '%s' must not be the same as a pin.\n",
 		signal);
 	    rtapi_mutex_give(&(hal_data->mutex));
 	    return HAL_BADVAR;
@@ -824,7 +824,7 @@ int do_gets_cmd(char *name)
     hal_type_t type;
     void *d_ptr;
 
-    halcmd_info("getting signal '%s'\n", name);
+    rtapi_print_msg(RTAPI_MSG_DBG, "getting signal '%s'\n", name);
     /* get mutex before accessing shared data */
     rtapi_mutex_get(&(hal_data->mutex));
     /* search signal list for name */
