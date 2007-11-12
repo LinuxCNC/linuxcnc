@@ -824,7 +824,7 @@ int do_gets_cmd(char *name)
     hal_type_t type;
     void *d_ptr;
 
-    halcmd_info("getting signal '%s'\n", name);
+    rtapi_print_msg(RTAPI_MSG_DBG, "getting signal '%s'\n", name);
     /* get mutex before accessing shared data */
     rtapi_mutex_get(&(hal_data->mutex));
     /* search signal list for name */
