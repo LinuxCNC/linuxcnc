@@ -2138,11 +2138,13 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 	NCE_ZERO_TIMEOUT_WITH_WAIT_NOT_IMMEDIATE);
 	
     // E-word specified (analog input) and wait type not immediate
-    CHK(((block->e_flag == ON) && (round_to_int(block->l_number) != 0)),
+    CHK(((block->e_flag == ON) && (block->l_flag == ON) && (round_to_int(block->l_number) != 0)),
 	NCE_ANALOG_INPUT_WITH_WAIT_NOT_IMMEDIATE);
 
     // missing P or E (or invalid = negative)
-    CHK(((round_to_int(block->p_number) < 0) && (round_to_int(block->e_number) < 0)),
+    CHK( ((block->p_flag == ON) && (round_to_int(block->p_number) < 0)) || 
+         ((block->e_flag == ON) && (round_to_int(block->e_number) < 0)) ||
+	 ((block->p_flag == OFF) && (block->e_flag == OFF)) ,
 	NCE_INVALID_OR_MISSING_P_AND_E_WORDS_FOR_WAIT_INPUT);
 
     if (block->p_flag == ON) { // got a digital input
@@ -2166,7 +2168,7 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
     } else if (round_to_int(block->e_number) >= 0) { // got an analog input
 	WAIT(round_to_int(block->e_number), ANALOG_INPUT, 0, 0);
 	settings->input_flag = ON;
-	settings->input_index = round_to_int(block->p_number);
+	settings->input_index = round_to_int(block->e_number);
 	settings->input_digital = OFF;
     } 
   }    
