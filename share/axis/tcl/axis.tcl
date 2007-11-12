@@ -1681,7 +1681,7 @@ proc update_state {args} {
                 {.menu.machine "Re_sume"}
     state  {$task_state == $STATE_ON && $interp_state != $INTERP_IDLE} \
                 .toolbar.program_pause
-    relief {$interp_state == $INTERP_PAUSED} \
+    relief {$task_paused != 0} \
                 .toolbar.program_pause
     state  {$task_state == $STATE_ON && $interp_state != $INTERP_IDLE} \
                 .toolbar.program_stop {.menu.machine "Stop"}
@@ -1774,6 +1774,7 @@ set has_editor 1
 set has_ladder 0
 set last_task_state 0
 set task_mode -1
+set task_paused 0
 set interp_pause 0
 set last_interp_state 0
 set interp_state 0
@@ -1790,6 +1791,7 @@ trace variable taskfile w update_title
 trace variable taskfile w queue_update_state
 trace variable task_state w queue_update_state
 trace variable task_mode w queue_update_state
+trace variable task_paused w queue_update_state
 trace variable interp_pause w queue_update_state
 trace variable interp_state w queue_update_state
 trace variable running_line w queue_update_state

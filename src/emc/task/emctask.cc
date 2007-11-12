@@ -125,6 +125,7 @@ int emcTaskAbort()
     // clear out the interpreter state
     emcStatus->task.interpState = EMC_TASK_INTERP_IDLE;
     emcStatus->task.execState = EMC_TASK_EXEC_DONE;
+    emcStatus->task.task_paused = 0;
     stepping = 0;
     steppingWait = 0;
 

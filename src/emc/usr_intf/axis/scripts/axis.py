@@ -1391,6 +1391,7 @@ class LivePlotter:
         vupdate(vars.interp_state, self.stat.interp_state)
         vupdate(vars.task_mode, self.stat.task_mode)
         vupdate(vars.task_state, self.stat.task_state)
+        vupdate(vars.task_paused, self.stat.task_paused)
         vupdate(vars.taskfile, self.stat.file)
         vupdate(vars.interp_pause, self.stat.paused)
         vupdate(vars.mist, self.stat.mist)
@@ -2933,6 +2934,7 @@ vars = nf.Variables(root_window,
     ("interp_pause", IntVar),
     ("exec_state", IntVar),
     ("task_state", IntVar),
+    ("task_paused", IntVar),
     ("interp_state", IntVar),
     ("task_mode", IntVar),
     ("has_ladder", IntVar),

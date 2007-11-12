@@ -1445,6 +1445,7 @@ class EMC_TASK_STAT:public EMC_TASK_STAT_MSG {
 
     int interpreter_errcode;	// return value from rs274ngc function 
     // (only useful for new interpreter.)
+    int task_paused;		// non-zero means task is paused
 };
 
 // declarations for EMC_TOOL classes

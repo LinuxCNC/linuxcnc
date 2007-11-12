@@ -769,6 +769,7 @@ static int emcTaskPlan(void)
 		    // flag-- reset it here
 		    stepping = 1;	// set step flag
 		    steppingWait = 0;	// don't wait for first one
+		    emcStatus->task.task_paused = 1;
 		    break;
 
 		case EMC_TOOL_LOAD_TOOL_TABLE_TYPE:
@@ -1066,6 +1067,7 @@ interpret_again:
 		    } else {
 			emcStatus->task.interpState = (enum EMC_TASK_INTERP_ENUM) interpResumeState;
 		    }
+		    emcStatus->task.task_paused = 1;
 		    break;
 
 		    // otherwise we can't handle it
@@ -1130,6 +1132,7 @@ interpret_again:
 		case EMC_TASK_PLAN_STEP_TYPE:
 		    stepping = 1;	// set stepping mode in case it's not
 		    steppingWait = 0;	// clear the wait
+		    emcStatus->task.task_paused = 1;
 		    break;
 
 		    // otherwise we can't handle it
@@ -1603,10 +1606,12 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	break;
 
     case EMC_TRAJ_PAUSE_TYPE:
+	emcStatus->task.task_paused = 1;
 	retval = emcTrajPause();
 	break;
 
     case EMC_TRAJ_RESUME_TYPE:
+	emcStatus->task.task_paused = 1;
 	retval = emcTrajResume();
 	break;
 
@@ -1933,6 +1938,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	run_msg = (EMC_TASK_PLAN_RUN *) cmd;
 	programStartLine = run_msg->line;
 	emcStatus->task.interpState = EMC_TASK_INTERP_READING;
+	emcStatus->task.task_paused = 0;
 	retval = 0;
 	break;
 
@@ -1942,6 +1948,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	    interpResumeState = emcStatus->task.interpState;
 	}
 	emcStatus->task.interpState = EMC_TASK_INTERP_PAUSED;
+	emcStatus->task.task_paused = 1;
 	retval = 0;
 	break;
 
@@ -1952,6 +1959,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 		interpResumeState = emcStatus->task.interpState;
 	    }
 	    emcStatus->task.interpState = EMC_TASK_INTERP_PAUSED;
+	    emcStatus->task.task_paused = 1;
 	}
 	retval = 0;
 	break;
@@ -1960,6 +1968,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	emcTrajResume();
 	emcStatus->task.interpState =
 	    (enum EMC_TASK_INTERP_ENUM) interpResumeState;
+	emcStatus->task.task_paused = 0;
 	stepping = 0;
 	steppingWait = 0;
 	retval = 0;
