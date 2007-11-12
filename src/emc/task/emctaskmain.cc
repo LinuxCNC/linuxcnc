@@ -1132,7 +1132,6 @@ interpret_again:
 		case EMC_TASK_PLAN_STEP_TYPE:
 		    stepping = 1;	// set stepping mode in case it's not
 		    steppingWait = 0;	// clear the wait
-		    emcStatus->task.task_paused = 1;
 		    break;
 
 		    // otherwise we can't handle it
