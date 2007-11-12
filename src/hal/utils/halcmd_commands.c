@@ -871,9 +871,15 @@ int do_show_cmd(char *type, char **patterns)
 	print_pin_info(patterns);
     } else if (strcmp(type, "sig") == 0) {
 	print_sig_info(patterns);
+    } else if (strcmp(type, "signal") == 0) {
+	print_sig_info(patterns);
     } else if (strcmp(type, "param") == 0) {
 	print_param_info(patterns);
+    } else if (strcmp(type, "parameter") == 0) {
+	print_param_info(patterns);
     } else if (strcmp(type, "funct") == 0) {
+	print_funct_info(patterns);
+    } else if (strcmp(type, "function") == 0) {
 	print_funct_info(patterns);
     } else if (strcmp(type, "thread") == 0) {
 	print_thread_info(patterns);
@@ -900,9 +906,15 @@ int do_list_cmd(char *type, char **patterns)
 	print_pin_names(patterns);
     } else if (strcmp(type, "sig") == 0) {
 	print_sig_names(patterns);
+    } else if (strcmp(type, "signal") == 0) {
+	print_sig_names(patterns);
     } else if (strcmp(type, "param") == 0) {
 	print_param_names(patterns);
+    } else if (strcmp(type, "parameter") == 0) {
+	print_param_names(patterns);
     } else if (strcmp(type, "funct") == 0) {
+	print_funct_names(patterns);
+    } else if (strcmp(type, "function") == 0) {
 	print_funct_names(patterns);
     } else if (strcmp(type, "thread") == 0) {
 	print_thread_names(patterns);
@@ -2108,6 +2120,8 @@ int do_save_cmd(char *type, char *filename)
 	save_comps(dst);
     } else if (strcmp(type, "sig") == 0) {
 	save_signals(dst, 0);
+    } else if (strcmp(type, "signal") == 0) {
+	save_signals(dst, 0);
     } else if (strcmp(type, "sigu") == 0) {
 	save_signals(dst, 1);
     } else if (strcmp(type, "link") == 0) {
@@ -2123,6 +2137,8 @@ int do_save_cmd(char *type, char *filename)
     } else if (strcmp(type, "netla") == 0 || strcmp(type, "netal") == 0) {
 	save_nets(dst, 3);
     } else if (strcmp(type, "param") == 0) {
+	save_params(dst);
+    } else if (strcmp(type, "parameter") == 0) {
 	save_params(dst);
     } else if (strcmp(type, "thread") == 0) {
 	save_threads(dst);
