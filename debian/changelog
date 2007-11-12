@@ -5,8 +5,10 @@ emc2 (1:2.2.2~cvs) unstable; urgency=low
     instead of the outdated nist document
   * fix stepconf 'charge pump' pin
   * fix halshow 'watch pin'
+  * restore cone rotation when the A-axis moves
+  * fix 'scara' sample configuration
 
- -- jepler <jepler@unpythonic.net>  Mon, 12 Nov 2007 13:56:05 -0600
+ -- jepler <jepler@unpythonic.net>  Mon, 12 Nov 2007 14:00:06 -0600
 
 emc2 (1:2.2.1) unstable; urgency=low
 
