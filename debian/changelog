@@ -1,11 +1,12 @@
 emc2 (1:2.2.2~cvs) unstable; urgency=low
 
-  [ Jeff Epler ]
   * move hal_unlink manpage to development package
   * make gcode quick reference link into our own full gcode reference
     instead of the outdated nist document
+  * fix stepconf 'charge pump' pin
+  * fix halshow 'watch pin'
 
- -- jepler <jepler@unpythonic.net>  Thu,  8 Nov 2007 14:28:17 -0600
+ -- jepler <jepler@unpythonic.net>  Mon, 12 Nov 2007 13:56:05 -0600
 
 emc2 (1:2.2.1) unstable; urgency=low
 
