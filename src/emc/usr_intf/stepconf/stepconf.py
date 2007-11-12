@@ -607,6 +607,7 @@ class Data:
 	if pump:
 	    print >>file, "loadrt charge_pump"
 	    print >>file, "net estop-out charge-pump.enable <= iocontrol.0.user-enable-out"
+            print >>file, "net charge-pump <= charge-pump.out"
 
 	if pwm:
 	    print >>file, "loadrt pwmgen output_type=0"
