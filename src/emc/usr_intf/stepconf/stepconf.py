@@ -687,7 +687,6 @@ class Data:
 
 	print >>file
 	print >>file, "net estop-out <= iocontrol.0.user-enable-out"
-	print "inputs", inputs, ESTOP_IN, ESTOP_IN in inputs
 	if ESTOP_IN in inputs:
 	    print >>file, "net estop-ext => iocontrol.0.emc-enable-in"
 	else:
