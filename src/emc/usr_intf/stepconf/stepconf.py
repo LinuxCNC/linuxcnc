@@ -61,7 +61,7 @@ if not os.path.isdir(distdir):
     distdir = "/etc/emc2/sample-configs/common"
 
 
-(ESTOP, PROBE, PPR, PHA, PHB,
+(ESTOP_IN, PROBE, PPR, PHA, PHB,
 HOME_X, HOME_Y, HOME_Z, HOME_A,
 MIN_HOME_X, MIN_HOME_Y, MIN_HOME_Z, MIN_HOME_A,
 MAX_HOME_X, MAX_HOME_Y, MAX_HOME_Z, MAX_HOME_A,
@@ -687,8 +687,9 @@ class Data:
 
 	print >>file
 	print >>file, "net estop-out <= iocontrol.0.user-enable-out"
-	if ESTOP in inputs:
-	    print >>file, "net estop-in => iocontrol.0.emc-enable-in"
+	print "inputs", inputs, ESTOP_IN, ESTOP_IN in inputs
+	if ESTOP_IN in inputs:
+	    print >>file, "net estop-ext => iocontrol.0.emc-enable-in"
 	else:
 	    print >>file, "net estop-out => iocontrol.0.emc-enable-in"
 
