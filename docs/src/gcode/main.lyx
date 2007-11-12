@@ -4982,7 +4982,35 @@ G53
 \end_inset 
 
 .
- 
+\layout Standard
+
+If a 
+\family typewriter 
+G0
+\family default 
+ motion only moves rotational axes, and the target position for those axes
+ is in the range from -360 to 360 degrees, then the motion is modified so
+ that each rotational axis actually rotates less than one full revolution.
+ Example:
+\layout LyX-Code
+
+N1 G0 X1 A[20*360]
+\layout LyX-Code
+
+N2 G0 A0
+\layout Standard
+
+After line 
+\family typewriter 
+N1
+\family default 
+, the position of the A axis is 7200 degrees.
+ 7200 degrees is the same as zero degrees on a rotational axis, so the rapid
+ linear motion specified on line 
+\family typewriter 
+N2
+\family default 
+ actually produces no motion.
 \layout Section
 
 G1
@@ -9514,6 +9542,13 @@ M62, M63 not implemented
 
 M62 and M63 are not currently implemented, but may be added to a future
  release of emc2.
+\layout Subsection
+
+G0 reduces long angular motions to be less than one revolution
+\layout Standard
+
+As described above, G0 reduces angular motions to less than one revolution.
+ This can produce a different path than under RS274NGC.
 \layout Section
 
 Differences that do not change the meaning of well-formed RS274NGC programs

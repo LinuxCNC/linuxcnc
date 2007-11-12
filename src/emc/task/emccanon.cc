@@ -88,6 +88,10 @@ static const double tiny = 1e-10;
 #define FROM_PROG_LEN(prog) ((prog) * (lengthUnits == CANON_UNITS_INCHES ? 25.4 : lengthUnits == CANON_UNITS_CM ? 10.0 : 1.0))
 #define FROM_PROG_ANG(prog) (prog)
 
+/* Certain axes are periodic.  Hardcode this for now */
+#define IS_PERIODIC(axisnum) \
+    ((axisnum) == 3 || (axisnum) == 4 || (axisnum) == 5)
+#define AXIS_PERIOD(axisnum) (IS_PERIODIC(axisnum) ? 360 : 0)
 
 static PM_QUATERNION quat(1, 0, 0, 0);
 
@@ -109,12 +113,18 @@ extern void CANON_ERROR(const char *fmt, ...);
   When it's applied to positions, convert positions to mm units first
   and then add programOrigin.
 
+  wrapOrigin is an additional offset for axes which wrap around (typically,
+  rotational axes)
+
   Units are then converted from mm to external units, as reported by
   the GET_EXTERNAL_LENGTH_UNITS() function.
   */
 static CANON_POSITION programOrigin(0.0, 0.0, 0.0, 
                                     0.0, 0.0, 0.0,
                                     0.0, 0.0, 0.0);
+static CANON_POSITION wrapOrigin(0.0, 0.0, 0.0, 
+                                 0.0, 0.0, 0.0,
+                                 0.0, 0.0, 0.0);
 static CANON_UNITS lengthUnits = CANON_UNITS_MM;
 static CANON_PLANE activePlane = CANON_PLANE_XY;
 
@@ -209,15 +219,33 @@ static double toExtVel(double vel) {
 
 static double toExtAcc(double acc) { return toExtVel(acc); }
 
+static void send_origin_msg(void) {
+    flush_segments();
+
+    /* append it to interp list so it gets updated at the right time, not at
+       read-ahead time */
+    EMC_TRAJ_SET_ORIGIN set_origin_msg;
+
+    set_origin_msg.origin.tran.x = TO_EXT_LEN(programOrigin.x + wrapOrigin.x);
+    set_origin_msg.origin.tran.y = TO_EXT_LEN(programOrigin.y + wrapOrigin.y);
+    set_origin_msg.origin.tran.z = TO_EXT_LEN(programOrigin.z + wrapOrigin.z);
+
+    set_origin_msg.origin.a = TO_EXT_ANG(programOrigin.a + wrapOrigin.a);
+    set_origin_msg.origin.b = TO_EXT_ANG(programOrigin.b + wrapOrigin.b);
+    set_origin_msg.origin.c = TO_EXT_ANG(programOrigin.c + wrapOrigin.c);
+
+    set_origin_msg.origin.u = TO_EXT_LEN(programOrigin.u + wrapOrigin.u);
+    set_origin_msg.origin.v = TO_EXT_LEN(programOrigin.v + wrapOrigin.v);
+    set_origin_msg.origin.w = TO_EXT_LEN(programOrigin.w + wrapOrigin.w);
+
+    interp_list.append(set_origin_msg);
+}
+
 /* Representation */
 void SET_ORIGIN_OFFSETS(double x, double y, double z,
                         double a, double b, double c,
                         double u, double v, double w)
 {
-    EMC_TRAJ_SET_ORIGIN set_origin_msg;
-
-    flush_segments();
-
     /* convert to mm units */
     x = FROM_PROG_LEN(x);
     y = FROM_PROG_LEN(y);
@@ -241,22 +269,9 @@ void SET_ORIGIN_OFFSETS(double x, double y, double z,
     programOrigin.v = v;
     programOrigin.w = w;
 
-    /* append it to interp list so it gets updated at the right time, not at
-       read-ahead time */
-    set_origin_msg.origin.tran.x = TO_EXT_LEN(programOrigin.x);
-    set_origin_msg.origin.tran.y = TO_EXT_LEN(programOrigin.y);
-    set_origin_msg.origin.tran.z = TO_EXT_LEN(programOrigin.z);
-
-    set_origin_msg.origin.a = TO_EXT_ANG(programOrigin.a);
-    set_origin_msg.origin.b = TO_EXT_ANG(programOrigin.b);
-    set_origin_msg.origin.c = TO_EXT_ANG(programOrigin.c);
-
-    set_origin_msg.origin.u = TO_EXT_LEN(programOrigin.u);
-    set_origin_msg.origin.v = TO_EXT_LEN(programOrigin.v);
-    set_origin_msg.origin.w = TO_EXT_LEN(programOrigin.w);
-
-    interp_list.append(set_origin_msg);
+    send_origin_msg();
 }
+
 
 void USE_LENGTH_UNITS(CANON_UNITS in_unit)
 {
@@ -681,6 +696,62 @@ void FINISH() {
     flush_segments();
 }
 
+static bool reduce_one(double &v, double e, double o, double &w, double period) {
+    if(period == 0) return false;
+
+    // make v the target position before program and wrap origins were added
+    v = v - o - w;
+    if(v > period || v < -period) {
+        v = v + o + w;
+        // target position is more than +- 1 rev; don't second-guess gcode
+        return false;
+    }
+
+    e = e - o;
+    // make e the current position before program origin was added
+    double revs = v / period;
+    double erevs = e / period;
+
+    // compute new offset, an integer number of revolutions
+    double neww = round(erevs - revs) * period;
+
+    v = v + o + neww;
+    if(neww != 1) {
+        w = neww;
+        return true;
+    }
+    return false;
+}
+
+static void periodic_reduce(double &x, double &y, double &z,
+                            double &a, double &b, double &c,
+                            double &u, double &v, double &w)
+{
+    if(x != canonEndPoint.x && !IS_PERIODIC(0)) return;
+    if(y != canonEndPoint.y && !IS_PERIODIC(1)) return;
+    if(z != canonEndPoint.z && !IS_PERIODIC(2)) return;
+    if(a != canonEndPoint.a && !IS_PERIODIC(3)) return;
+    if(b != canonEndPoint.b && !IS_PERIODIC(4)) return;
+    if(c != canonEndPoint.c && !IS_PERIODIC(5)) return;
+    if(u != canonEndPoint.u && !IS_PERIODIC(6)) return;
+    if(v != canonEndPoint.v && !IS_PERIODIC(7)) return;
+    if(w != canonEndPoint.w && !IS_PERIODIC(8)) return;
+
+    int changed = 0;
+    changed += reduce_one(x, canonEndPoint.x, programOrigin.x, wrapOrigin.x, AXIS_PERIOD(0));
+    changed += reduce_one(y, canonEndPoint.y, programOrigin.y, wrapOrigin.y, AXIS_PERIOD(1));
+    changed += reduce_one(z, canonEndPoint.z, programOrigin.z, wrapOrigin.z, AXIS_PERIOD(2));
+    changed += reduce_one(a, canonEndPoint.a, programOrigin.a, wrapOrigin.a, AXIS_PERIOD(3));
+    changed += reduce_one(b, canonEndPoint.b, programOrigin.b, wrapOrigin.b, AXIS_PERIOD(4));
+    changed += reduce_one(c, canonEndPoint.c, programOrigin.c, wrapOrigin.c, AXIS_PERIOD(5));
+    changed += reduce_one(u, canonEndPoint.u, programOrigin.u, wrapOrigin.u, AXIS_PERIOD(6));
+    changed += reduce_one(v, canonEndPoint.v, programOrigin.v, wrapOrigin.v, AXIS_PERIOD(7));
+    changed += reduce_one(w, canonEndPoint.w, programOrigin.w, wrapOrigin.w, AXIS_PERIOD(8));
+
+    if(changed)
+        send_origin_msg();
+}
+
 void STRAIGHT_TRAVERSE(double x, double y, double z,
 		       double a, double b, double c,
                        double u, double v, double w)
@@ -700,19 +771,20 @@ void STRAIGHT_TRAVERSE(double x, double y, double z,
     v = FROM_PROG_LEN(v);
     w = FROM_PROG_LEN(w);
 
-    x += programOrigin.x;
-    y += programOrigin.y;
-    z += programOrigin.z;
-    a += programOrigin.a;
-    b += programOrigin.b;
-    c += programOrigin.c;
-    u += programOrigin.u;
-    v += programOrigin.v;
-    w += programOrigin.w;
+    x += programOrigin.x + wrapOrigin.x;
+    y += programOrigin.y + wrapOrigin.y;
+    z += programOrigin.z + wrapOrigin.z;
+    a += programOrigin.a + wrapOrigin.a;
+    b += programOrigin.b + wrapOrigin.b;
+    c += programOrigin.c + wrapOrigin.c;
+    u += programOrigin.u + wrapOrigin.u;
+    v += programOrigin.v + wrapOrigin.v;
+    w += programOrigin.w + wrapOrigin.w;
 
     x += currentXToolOffset;
     z += currentZToolOffset;
 
+    periodic_reduce(x,y,z,a,b,c,u,v,w);
 
     // now x, y, z, and b are in absolute mm or degree units
     linearMoveMsg.end.tran.x = TO_EXT_LEN(x);
@@ -772,15 +844,15 @@ void STRAIGHT_FEED(double x, double y, double z,
     v = FROM_PROG_LEN(v);
     w = FROM_PROG_LEN(w);
 
-    x += programOrigin.x;
-    y += programOrigin.y;
-    z += programOrigin.z;
-    a += programOrigin.a;
-    b += programOrigin.b;
-    c += programOrigin.c;
-    u += programOrigin.u;
-    v += programOrigin.v;
-    w += programOrigin.w;
+    x += programOrigin.x + wrapOrigin.x;
+    y += programOrigin.y + wrapOrigin.y;
+    z += programOrigin.z + wrapOrigin.z;
+    a += programOrigin.a + wrapOrigin.a;
+    b += programOrigin.b + wrapOrigin.b;
+    c += programOrigin.c + wrapOrigin.c;
+    u += programOrigin.u + wrapOrigin.u;
+    v += programOrigin.v + wrapOrigin.v;
+    w += programOrigin.w + wrapOrigin.w;
 
     x += currentXToolOffset;
     z += currentZToolOffset;
@@ -799,9 +871,9 @@ void RIGID_TAP(double x, double y, double z)
     y = FROM_PROG_LEN(y);
     z = FROM_PROG_LEN(z);
     
-    x += programOrigin.x;
-    y += programOrigin.y;
-    z += programOrigin.z;
+    x += programOrigin.x + wrapOrigin.x;
+    y += programOrigin.y + wrapOrigin.y;
+    z += programOrigin.z + wrapOrigin.z;
 
     x += currentXToolOffset;
     z += currentZToolOffset;
@@ -856,15 +928,15 @@ void STRAIGHT_PROBE(double x, double y, double z,
     v = FROM_PROG_LEN(v);
     w = FROM_PROG_LEN(w);
 
-    x += programOrigin.x;
-    y += programOrigin.y;
-    z += programOrigin.z;
-    a += programOrigin.a;
-    b += programOrigin.b;
-    c += programOrigin.c;
-    u += programOrigin.u;
-    v += programOrigin.v;
-    w += programOrigin.w;
+    x += programOrigin.x + wrapOrigin.x;
+    y += programOrigin.y + wrapOrigin.y;
+    z += programOrigin.z + wrapOrigin.z;
+    a += programOrigin.a + wrapOrigin.a;
+    b += programOrigin.b + wrapOrigin.b;
+    c += programOrigin.c + wrapOrigin.c;
+    u += programOrigin.u + wrapOrigin.u;
+    v += programOrigin.v + wrapOrigin.v;
+    w += programOrigin.w + wrapOrigin.w;
 
     x += currentXToolOffset;
     z += currentZToolOffset;
@@ -1026,16 +1098,16 @@ void ARC_FEED(double first_end, double second_end,
     a = FROM_PROG_ANG(a);
     b = FROM_PROG_ANG(b);
     c = FROM_PROG_ANG(c);
-    a += programOrigin.a;
-    b += programOrigin.b;
-    c += programOrigin.c;
+    a += programOrigin.a + wrapOrigin.a;
+    b += programOrigin.b + wrapOrigin.b;
+    c += programOrigin.c + wrapOrigin.c;
 
     u = FROM_PROG_LEN(u);
     v = FROM_PROG_LEN(v);
     w = FROM_PROG_LEN(w);
-    u += programOrigin.u;
-    v += programOrigin.v;
-    w += programOrigin.w;
+    u += programOrigin.u + wrapOrigin.u;
+    v += programOrigin.v + wrapOrigin.v;
+    w += programOrigin.w + wrapOrigin.w;
 
     da = fabs(canonEndPoint.a - a);
     db = fabs(canonEndPoint.b - b);
@@ -1062,14 +1134,14 @@ void ARC_FEED(double first_end, double second_end,
     case CANON_PLANE_XY:
 
 	// offset and align args properly
-	end.tran.x = first_end + programOrigin.x;
-	end.tran.y = second_end + programOrigin.y;
-	end.tran.z = axis_end_point + programOrigin.z;
+	end.tran.x = first_end + programOrigin.x + wrapOrigin.x;
+	end.tran.y = second_end + programOrigin.y + wrapOrigin.y;
+	end.tran.z = axis_end_point + programOrigin.z + wrapOrigin.z;
 	end.tran.x += currentXToolOffset;
 	end.tran.z += currentZToolOffset;
-	center.x = first_axis + programOrigin.x;
+	center.x = first_axis + programOrigin.x + wrapOrigin.x;
         center.x += currentXToolOffset;
-	center.y = second_axis + programOrigin.y;
+	center.y = second_axis + programOrigin.y + wrapOrigin.y;
 	center.z = end.tran.z;
 	normal.x = 0.0;
 	normal.y = 0.0;
@@ -1097,14 +1169,14 @@ void ARC_FEED(double first_end, double second_end,
     case CANON_PLANE_YZ:
 
 	// offset and align args properly
-	end.tran.y = first_end + programOrigin.y;
-	end.tran.z = second_end + programOrigin.z;
-	end.tran.x = axis_end_point + programOrigin.x;
+	end.tran.y = first_end + programOrigin.y + wrapOrigin.y;
+	end.tran.z = second_end + programOrigin.z + wrapOrigin.z;
+	end.tran.x = axis_end_point + programOrigin.x + wrapOrigin.x;
 	end.tran.x += currentXToolOffset;
 	end.tran.z += currentZToolOffset;
 
-	center.y = first_axis + programOrigin.y;
-	center.z = second_axis + programOrigin.z;
+	center.y = first_axis + programOrigin.y + wrapOrigin.y;
+	center.z = second_axis + programOrigin.z + wrapOrigin.z;
 	center.z += currentZToolOffset;
 	center.x = end.tran.x;
 	normal.y = 0.0;
@@ -1134,15 +1206,15 @@ void ARC_FEED(double first_end, double second_end,
     case CANON_PLANE_XZ:
 
 	// offset and align args properly
-	end.tran.z = first_end + programOrigin.z;
-	end.tran.x = second_end + programOrigin.x;
-	end.tran.y = axis_end_point + programOrigin.y;
+	end.tran.z = first_end + programOrigin.z + wrapOrigin.z;
+	end.tran.x = second_end + programOrigin.x + wrapOrigin.x;
+	end.tran.y = axis_end_point + programOrigin.y + wrapOrigin.y;
 	end.tran.x += currentXToolOffset;
 	end.tran.z += currentZToolOffset;
 
-	center.z = first_axis + programOrigin.z;
+	center.z = first_axis + programOrigin.z + wrapOrigin.z;
 	center.z += currentZToolOffset;
-	center.x = second_axis + programOrigin.x;
+	center.x = second_axis + programOrigin.x + wrapOrigin.x;
 	center.x += currentXToolOffset;
 	center.y = end.tran.y;
 	normal.z = 0.0;
@@ -1872,19 +1944,6 @@ void PROGRAM_END()
     interp_list.append(endMsg);
 }
 
-/* returns the current x, y, z origin offsets */
-CANON_VECTOR GET_PROGRAM_ORIGIN()
-{
-    CANON_VECTOR origin;
-
-    /* and convert from mm units to interpreter units */
-    origin.x = TO_PROG_LEN(programOrigin.x);
-    origin.y = TO_PROG_LEN(programOrigin.y);
-    origin.z = TO_PROG_LEN(programOrigin.z);
-
-    return origin;		/* in program units */
-}
-
 /* returns the current active units */
 CANON_UNITS GET_LENGTH_UNITS()
 {
@@ -1922,6 +1981,18 @@ void INIT_CANON()
     programOrigin.a = 0.0;
     programOrigin.b = 0.0;
     programOrigin.c = 0.0;
+    programOrigin.u = 0.0;
+    programOrigin.v = 0.0;
+    programOrigin.w = 0.0;
+    wrapOrigin.x = 0.0;
+    wrapOrigin.y = 0.0;
+    wrapOrigin.z = 0.0;
+    wrapOrigin.a = 0.0;
+    wrapOrigin.b = 0.0;
+    wrapOrigin.c = 0.0;
+    wrapOrigin.u = 0.0;
+    wrapOrigin.v = 0.0;
+    wrapOrigin.w = 0.0;
     activePlane = CANON_PLANE_XY;
     canonEndPoint.x = 0.0;
     canonEndPoint.y = 0.0;
@@ -1929,6 +2000,9 @@ void INIT_CANON()
     canonEndPoint.a = 0.0;
     canonEndPoint.b = 0.0;
     canonEndPoint.c = 0.0;
+    canonEndPoint.u = 0.0;
+    canonEndPoint.v = 0.0;
+    canonEndPoint.w = 0.0;
     SET_MOTION_CONTROL_MODE(CANON_CONTINUOUS, 0);
     spindleSpeed = 0.0;
     preppedTool = 0;
@@ -2034,19 +2108,19 @@ CANON_POSITION GET_EXTERNAL_POSITION()
     canonEndPoint.w = FROM_EXT_LEN(pos.w);
 
     // now calculate position in program units, for interpreter
-    position.x = TO_PROG_LEN(canonEndPoint.x - programOrigin.x - currentXToolOffset);
-    position.y = TO_PROG_LEN(canonEndPoint.y - programOrigin.y);
+    position.x = TO_PROG_LEN(canonEndPoint.x - programOrigin.x - currentXToolOffset - wrapOrigin.x);
+    position.y = TO_PROG_LEN(canonEndPoint.y - programOrigin.y - wrapOrigin.y);
     position.z =
 	TO_PROG_LEN(canonEndPoint.z - programOrigin.z -
-		    currentZToolOffset);
+		    currentZToolOffset - wrapOrigin.z);
 
-    position.a = TO_PROG_ANG(canonEndPoint.a - programOrigin.a);
-    position.b = TO_PROG_ANG(canonEndPoint.b - programOrigin.b);
-    position.c = TO_PROG_ANG(canonEndPoint.c - programOrigin.c);
+    position.a = TO_PROG_ANG(canonEndPoint.a - programOrigin.a - wrapOrigin.a);
+    position.b = TO_PROG_ANG(canonEndPoint.b - programOrigin.b - wrapOrigin.b);
+    position.c = TO_PROG_ANG(canonEndPoint.c - programOrigin.c - wrapOrigin.c);
 
-    position.u = TO_PROG_LEN(canonEndPoint.u - programOrigin.u);
-    position.v = TO_PROG_LEN(canonEndPoint.v - programOrigin.v);
-    position.w = TO_PROG_LEN(canonEndPoint.w - programOrigin.w);
+    position.u = TO_PROG_LEN(canonEndPoint.u - programOrigin.u - wrapOrigin.u);
+    position.v = TO_PROG_LEN(canonEndPoint.v - programOrigin.v - wrapOrigin.v);
+    position.w = TO_PROG_LEN(canonEndPoint.w - programOrigin.w - wrapOrigin.w);
 
     return position;
 }
@@ -2075,19 +2149,19 @@ CANON_POSITION GET_EXTERNAL_PROBE_POSITION()
     pos.w = FROM_EXT_LEN(pos.w);
 
     // now calculate position in program units, for interpreter
-    position.x = TO_PROG_LEN(pos.tran.x - programOrigin.x);
-    position.y = TO_PROG_LEN(pos.tran.y - programOrigin.y);
-    position.z = TO_PROG_LEN(pos.tran.z - programOrigin.z);
+    position.x = TO_PROG_LEN(pos.tran.x - programOrigin.x - wrapOrigin.x);
+    position.y = TO_PROG_LEN(pos.tran.y - programOrigin.y - wrapOrigin.y);
+    position.z = TO_PROG_LEN(pos.tran.z - programOrigin.z - wrapOrigin.z);
     position.x -= TO_PROG_LEN(currentXToolOffset);
     position.z -= TO_PROG_LEN(currentZToolOffset);
 
-    position.a = TO_PROG_ANG(pos.a - programOrigin.a);
-    position.b = TO_PROG_ANG(pos.b - programOrigin.b);
-    position.c = TO_PROG_ANG(pos.c - programOrigin.c);
+    position.a = TO_PROG_ANG(pos.a - programOrigin.a - wrapOrigin.a);
+    position.b = TO_PROG_ANG(pos.b - programOrigin.b - wrapOrigin.b);
+    position.c = TO_PROG_ANG(pos.c - programOrigin.c - wrapOrigin.c);
 
-    position.u = TO_PROG_LEN(pos.u - programOrigin.u);
-    position.v = TO_PROG_LEN(pos.v - programOrigin.v);
-    position.w = TO_PROG_LEN(pos.w - programOrigin.w);
+    position.u = TO_PROG_LEN(pos.u - programOrigin.u - wrapOrigin.u);
+    position.v = TO_PROG_LEN(pos.v - programOrigin.v - wrapOrigin.v);
+    position.w = TO_PROG_LEN(pos.w - programOrigin.w - wrapOrigin.w);
 
     if (probefile != NULL) {
 	if (last_probed_position != position) {
