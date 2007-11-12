@@ -60,6 +60,14 @@ distdir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "config
 if not os.path.isdir(distdir):
     distdir = "/etc/emc2/sample-configs/common"
 
+(XSTEP, XDIR, YSTEP, YDIR,
+ZSTEP, ZDIR, ASTEP, ADIR, CW, CCW, PWM,
+MIST, FLOOD, ESTOP, AMP, PUMP, UNUSED_OUTPUT) = hal_output_names = [
+"xstep", "xdir", "ystep", "ydir",
+"zstep", "zdir", "astep", "adir",
+"spindle-cw", "spindle-ccw", "spindle-pwm",
+"coolant-mist", "coolant-flood", "estop-out", "xenable",
+"charge-pump", "unused-output"]
 
 (ESTOP_IN, PROBE, PPR, PHA, PHB,
 HOME_X, HOME_Y, HOME_Z, HOME_A,
@@ -69,19 +77,8 @@ BOTH_HOME_X, BOTH_HOME_Y, BOTH_HOME_Z, BOTH_HOME_A,
 MIN_X, MIN_Y, MIN_Z, MIN_A,
 MAX_X, MAX_Y, MAX_Z, MAX_A,
 BOTH_X, BOTH_Y, BOTH_Z, BOTH_A,
-ALL_LIMIT, ALL_HOME, UNUSED_INPUT) = range(36)
-
-(XSTEP, XDIR, YSTEP, YDIR,
-ZSTEP, ZDIR, ASTEP, ADIR, CW, CCW, PWM,
-MIST, FLOOD, ESTOP, AMP, PUMP, UNUSED_OUTPUT) = range(17)
-
-hal_output_names = ("xstep", "xdir", "ystep", "ydir",
-"zstep", "zdir", "astep", "adir",
-"spindle-cw", "spindle-ccw", "spindle-pwm",
-"coolant-mist", "coolant-flood", "estop-out", "xenable",
-"charge-pump")
-
-hal_input_names = ("estop-ext", "probe-in",
+ALL_LIMIT, ALL_HOME, UNUSED_INPUT) = hal_input_names = [
+"estop-ext", "probe-in",
 "spindle-index", "spindle-phase-a", "spindle-phase-b",
 "home-x", "home-y", "home-z", "home-a",
 "min-home-x", "min-home-y", "min-home-z", "min-home-a",
@@ -90,7 +87,7 @@ hal_input_names = ("estop-ext", "probe-in",
 "min-x", "min-y", "min-z", "min-a",
 "max-x", "max-y", "max-z", "max-a",
 "both-x", "both-y", "both-z", "both-a",
-"all-limit", "all-home")
+"all-limit", "all-home", "unused-input"]
 
 human_output_names = (_("X Step"), _("X Direction"), _("Y Step"), _("Y Direction"),
 _("Z Step"), _("Z Direction"), _("A Step"), _("A Direction"),
@@ -302,6 +299,35 @@ class Data:
             response = raw_input(_("Continue? "))
             if response[0] not in _("yY"): raise SystemExit, 1
 
+        legacy_hal_output_names = ["xstep", "xdir", "ystep", "ydir",
+        "zstep", "zdir", "astep", "adir",
+        "spindle-cw", "spindle-ccw", "spindle-pwm",
+        "coolant-mist", "coolant-flood", "estop-out", "xenable",
+        "charge-pump", "unused-output"]
+
+        legacy_hal_input_names = ["estop-ext", "probe-in",
+        "spindle-index", "spindle-phase-a", "spindle-phase-b",
+        "home-x", "home-y", "home-z", "home-a",
+        "min-home-x", "min-home-y", "min-home-z", "min-home-a",
+        "max-home-x", "max-home-y", "max-home-z", "max-home-a",
+        "both-home-x", "both-home-y", "both-home-z", "both-home-a",
+        "min-x", "min-y", "min-z", "min-a",
+        "max-x", "max-y", "max-z", "max-a",
+        "both-x", "both-y", "both-z", "both-a",
+        "all-limit", "all-home", "unused-input"]
+
+        for p in (10,11,12,13,15):
+            pin = "pin%d" % p
+            p = self[pin]
+            if isinstance(p, int):
+                self[pin] = legacy_hal_input_names[p]
+
+        for p in (1,2,3,4,5,6,7,8,9,14,16,17):
+            pin = "pin%d" % p
+            p = self[pin]
+            if isinstance(p, int):
+                self[pin] = legacy_hal_output_names[p]
+
     def add_md5sum(self, filename, mode="r"):
 	self.md5sums.append((filename, md5sum(filename)))
 
@@ -470,9 +496,10 @@ class Data:
 	print >>file, "MAX_LIMIT = %s" % maxlim
 
 	inputs = set((self.pin10,self.pin11,self.pin12,self.pin13,self.pin15))
-	thisaxishome = set((ALL_HOME, HOME_X + num, MIN_HOME_X + num,
-			    MAX_HOME_X + num, BOTH_HOME_X + num))
-	ignore = set((MIN_HOME_X + num, MAX_HOME_X + num, BOTH_HOME_X + num))
+	thisaxishome = set((ALL_HOME, "home-" + letter, "min-home-" + letter,
+			    "max-home-" + letter, "both-home-" + letter))
+	ignore = set(("min-home-" + letter, "max-home-" + letter,
+                            "both-home-" + letter))
 	homes = bool(inputs & thisaxishome)
     
 	if homes:
@@ -488,26 +515,26 @@ class Data:
 	else:
 	    print >>file, "HOME_OFFSET = %s" % get("homepos")
 
-    def home_sig(self, axnum):
+    def home_sig(self, axis):
 	inputs = set((self.pin10,self.pin11,self.pin12,self.pin13,self.pin15))
-	thisaxishome = set((ALL_HOME, HOME_X + axnum, MIN_HOME_X + axnum,
-			    MAX_HOME_X + axnum, BOTH_HOME_X + axnum))
+	thisaxishome = set((ALL_HOME, "home-" + axis, "min-home-" + axis,
+			    "max-home-" + axis, "both-home-" + axis))
 	for i in inputs:
-	    if i in thisaxishome: return hal_input_names[i]
+	    if i in thisaxishome: return i
 
-    def min_lim_sig(self, axnum):
+    def min_lim_sig(self, axis):
    	inputs = set((self.pin10,self.pin11,self.pin12,self.pin13,self.pin15))
-	thisaxishome = set((ALL_LIMIT, MIN_X + axnum, MIN_HOME_X + axnum,
-			    BOTH_HOME_X + axnum))
+	thisaxishome = set((ALL_HOME, "home-" + axis, "min-home-" + axis,
+			    "max-home-" + axis, "both-home-" + axis))
 	for i in inputs:
-	    if i in thisaxishome: return hal_input_names[i]
+	    if i in thisaxishome: return i
 
-    def max_lim_sig(self, axnum):
+    def max_lim_sig(self, axis):
    	inputs = set((self.pin10,self.pin11,self.pin12,self.pin13,self.pin15))
-	thisaxishome = set((ALL_LIMIT, MAX_X + axnum, MAX_HOME_X + axnum,
-			    BOTH_HOME_X + axnum))
+	thisaxishome = set((ALL_HOME, "home-" + axis, "min-home-" + axis,
+			    "max-home-" + axis, "both-home-" + axis))
 	for i in inputs:
-	    if i in thisaxishome: return hal_input_names[i]
+	    if i in thisaxishome: return i
  
     def connect_axis(self, file, num, let):
 	axnum = "xyza".index(let)
@@ -524,13 +551,13 @@ class Data:
 	print >>file, "net %sstep <= stepgen.%d.step" % (let, num)
 	print >>file, "net %sdir <= stepgen.%d.dir" % (let, num)
 	print >>file, "net %senable axis.%d.amp-enable-out => stepgen.%d.enable" % (let, axnum, num)
-	homesig = self.home_sig(axnum)
+	homesig = self.home_sig(let)
 	if homesig:
 	    print >>file, "net %s => axis.%d.home-sw-in" % (homesig, num)
-	min_limsig = self.min_lim_sig(axnum)
+	min_limsig = self.min_lim_sig(let)
 	if min_limsig:
 	    print >>file, "net %s => axis.%d.neg-lim-sw-in" % (min_limsig, num)
-	max_limsig = self.max_lim_sig(axnum)
+	max_limsig = self.max_lim_sig(let)
 	if max_limsig:
 	    print >>file, "net %s => axis.%d.pos-lim-sw-in" % (max_limsig, num)
 
@@ -541,10 +568,10 @@ class Data:
 
 	if i:
 	    print >>file, "net %s <= parport.0.pin-%02d-in-not" \
-		% (hal_input_names[p], num)
+		% (p, num)
 	else:
 	    print >>file, "net %s <= parport.0.pin-%02d-in" \
-		% (hal_input_names[p], num)
+		% (p, num)
 
     def find_input(self, input):
 	inputs = set((10, 11, 12, 13, 15))
@@ -567,7 +594,7 @@ class Data:
 	i = self['pin%dinv' % num]
 	if p == UNUSED_OUTPUT: return
 	if i: print >>file, "setp parport.0.pin-%02d-out-invert 1" % num
-	print >>file, "net %s => parport.0.pin-%02d-out" % (hal_output_names[p], num)
+	print >>file, "net %s => parport.0.pin-%02d-out" % (p, num)
         if p in (XSTEP, YSTEP, ZSTEP, ASTEP):
             print >>file, "setp parport.0.pin-%02d-out-reset 1" % num
 
@@ -943,6 +970,7 @@ class App:
 	    self.widgets.dirsetup.set_sensitive(1)
 
     def do_exclusive_inputs(self, pin):
+        print "do_exclusive_inputs", self.in_pport_prepare
 	if self.in_pport_prepare: return
 	exclusive = {
 	    HOME_X: (MAX_HOME_X, MIN_HOME_X, BOTH_HOME_X, ALL_HOME),
@@ -994,13 +1022,14 @@ class App:
 
 	p = 'pin%d' % pin
 	v = self.widgets[p].get_active()
-	ex = exclusive.get(v, ())
+	ex = exclusive.get(hal_input_names[v], ())
+        print "exclusive:", hal_input_names[v], ex
 	for pin1 in (10,11,12,13,15):
 	    if pin1 == pin: continue
 	    p = 'pin%d' % pin1
-	    v1 = self.widgets[p].get_active()
+	    v1 = hal_input_names[self.widgets[p].get_active()]
 	    if v1 in ex or v1 == v:
-		self.widgets[p].set_active(UNUSED_INPUT)
+		self.widgets[p].set_active(hal_input_names.index(UNUSED_INPUT))
 
     def on_pin10_changed(self, *args):
 	self.do_exclusive_inputs(10)
@@ -1020,14 +1049,18 @@ class App:
 	    model = self.widgets[p].get_model()
 	    model.clear()
 	    for name in human_output_names: model.append((name,))
+            print hal_output_names
+            print p, repr(self.data[p]), hal_output_names.index(self.data[p])
+            self.widgets[p].set_active(hal_output_names.index(self.data[p]))
+            self.widgets[p].set_active(hal_output_names.index(self.data[p]))
+	    p = 'pin%dinv' % pin
+	    self.widgets[p].set_active(self.data[p])
 	for pin in (10,11,12,13,15):
 	    p = 'pin%d' % pin
 	    model = self.widgets[p].get_model()
 	    model.clear()
 	    for name in human_input_names: model.append((name,))
-	for pin in (1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17):
-	    p = 'pin%d' % pin
-	    self.widgets[p].set_active(self.data[p])
+            self.widgets[p].set_active(hal_input_names.index(self.data[p]))
 	    p = 'pin%dinv' % pin
 	    self.widgets[p].set_active(self.data[p])
 	self.widgets.customhal.set_active(self.data.customhal)
@@ -1036,9 +1069,13 @@ class App:
 	self.in_pport_prepare = False
  
     def on_pport_next(self, *args):
-	for pin in (1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17):
+	for pin in (10,11,12,13,15):
 	    p = 'pin%d' % pin
-	    self.data[p] = self.widgets[p].get_active()
+	    self.data[p] = hal_input_names[self.widgets[p].get_active()]
+	for pin in (1,2,3,4,5,6,7,8,9,14,16,17):
+	    p = 'pin%d' % pin
+	    self.data[p] = hal_output_names[self.widgets[p].get_active()]
+	for pin in (1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17):
 	    p = 'pin%dinv' % pin
 	    self.data[p] = self.widgets[p].get_active()
 	self.data.customhal = self.widgets.customhal.get_active()
@@ -1100,11 +1137,9 @@ class App:
 	    w[axis + "accunits"].set_text(_("in / s²"))
 	    w[axis + "accdistunits"].set_text(_("in"))
 
-	n = "xyza".index(axis)
-
 	inputs = set((d.pin10, d.pin11, d.pin12, d.pin13, d.pin15))
-	thisaxishome = set((ALL_HOME, HOME_X + n, MIN_HOME_X + n,
-			    MAX_HOME_X + n, BOTH_HOME_X + n))
+	thisaxishome = set((ALL_HOME, "home-" + axis, "min-home-" + axis,
+			    "max-home-" + axis, "both-home-" + axis))
 	homes = bool(inputs & thisaxishome)
 	w[axis + "homesw"].set_sensitive(homes)
 	w[axis + "homevel"].set_sensitive(homes)
