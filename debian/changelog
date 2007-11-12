@@ -2,6 +2,7 @@ emc2 (1:2.3.0~alpha) unstable; urgency=low
 
   * minor improvements for teach-in.py
   * G38.x extensions allow for smart & fast probing
+  * M66 now reads analog inputs aswell
   
 [add bugfixes from the 2.2.x branch here, before release]
 
