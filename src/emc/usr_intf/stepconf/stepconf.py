@@ -606,7 +606,10 @@ class Data:
 
 	if pump:
 	    print >>file, "loadrt charge_pump"
-	    print >>file, "net estop-out charge-pump.enable <= iocontrol.0.user-enable-out"
+	    if ESTOP_IN in inputs:
+	        print >>file, "net estop-ext => charge-pump.enable"
+	    else:
+	        print >>file, "net estop-out => charge-pump.enable"
             print >>file, "net charge-pump <= charge-pump.out"
 
 	if pwm:
