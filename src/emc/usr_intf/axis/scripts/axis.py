@@ -3173,8 +3173,8 @@ def set_tabs(e):
 
 import sys, getopt
 axiscount = 3
-machine_limit_min = [-10] * 9
-machine_limit_max = [-10] * 9
+machine_limit_min = [None] * 9
+machine_limit_max = [None] * 9
 
 open_directory = "programs"
 
@@ -3278,8 +3278,9 @@ for a in range(axiscount):
     section = "AXIS_%d" % a
     unit = inifile.find(section, "UNITS") or lu
     unit = units(unit) * 25.4
-    machine_limit_min[a] = float(inifile.find(section, "MIN_LIMIT")) / unit
-    machine_limit_max[a] = float(inifile.find(section, "MAX_LIMIT")) / unit
+    if a < 3:
+        machine_limit_min[a] = float(inifile.find(section, "MIN_LIMIT")) / unit
+        machine_limit_max[a] = float(inifile.find(section, "MAX_LIMIT")) / unit
     f = inifile.find(section, "SCALE") or inifile.find(section, "INPUT_SCALE") or "8000"
     try:
         f = abs(float(f.split()[0]))
