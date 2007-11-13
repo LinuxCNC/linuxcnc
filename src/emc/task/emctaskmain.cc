@@ -1610,7 +1610,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	break;
 
     case EMC_TRAJ_RESUME_TYPE:
-	emcStatus->task.task_paused = 1;
+	emcStatus->task.task_paused = 0;
 	retval = emcTrajResume();
 	break;
 
