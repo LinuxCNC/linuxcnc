@@ -61,13 +61,17 @@ if not os.path.isdir(distdir):
     distdir = "/etc/emc2/sample-configs/common"
 
 (XSTEP, XDIR, YSTEP, YDIR,
-ZSTEP, ZDIR, ASTEP, ADIR, CW, CCW, PWM,
-MIST, FLOOD, ESTOP, AMP, PUMP, UNUSED_OUTPUT) = hal_output_names = [
+ZSTEP, ZDIR, ASTEP, ADIR,
+CW, CCW, PWM, BRAKE,
+MIST, FLOOD, ESTOP, AMP,
+PUMP, DOUT0, DOUT1, DOUT2, DOUT3,
+UNUSED_OUTPUT) = hal_output_names = [
 "xstep", "xdir", "ystep", "ydir",
 "zstep", "zdir", "astep", "adir",
-"spindle-cw", "spindle-ccw", "spindle-pwm",
+"spindle-cw", "spindle-ccw", "spindle-pwm", "spindle-brake",
 "coolant-mist", "coolant-flood", "estop-out", "xenable",
-"charge-pump", "unused-output"]
+"charge-pump", "dout-00", "dout-01", "dout-02", "dout-03",
+"unused-output"]
 
 (ESTOP_IN, PROBE, PPR, PHA, PHB,
 HOME_X, HOME_Y, HOME_Z, HOME_A,
@@ -77,9 +81,9 @@ BOTH_HOME_X, BOTH_HOME_Y, BOTH_HOME_Z, BOTH_HOME_A,
 MIN_X, MIN_Y, MIN_Z, MIN_A,
 MAX_X, MAX_Y, MAX_Z, MAX_A,
 BOTH_X, BOTH_Y, BOTH_Z, BOTH_A,
-ALL_LIMIT, ALL_HOME, UNUSED_INPUT) = hal_input_names = [
-"estop-ext", "probe-in",
-"spindle-index", "spindle-phase-a", "spindle-phase-b",
+ALL_LIMIT, ALL_HOME, DIN0, DIN1, DIN2, DIN3,
+UNUSED_INPUT) = hal_input_names = [
+"estop-ext", "probe-in", "spindle-index", "spindle-phase-a", "spindle-phase-b",
 "home-x", "home-y", "home-z", "home-a",
 "min-home-x", "min-home-y", "min-home-z", "min-home-a",
 "max-home-x", "max-home-y", "max-home-z", "max-home-a",
@@ -87,13 +91,16 @@ ALL_LIMIT, ALL_HOME, UNUSED_INPUT) = hal_input_names = [
 "min-x", "min-y", "min-z", "min-a",
 "max-x", "max-y", "max-z", "max-a",
 "both-x", "both-y", "both-z", "both-a",
-"all-limit", "all-home", "unused-input"]
+"all-limit", "all-home", "din-00", "din-01", "din-02", "din-03",
+"unused-input"]
 
 human_output_names = (_("X Step"), _("X Direction"), _("Y Step"), _("Y Direction"),
 _("Z Step"), _("Z Direction"), _("A Step"), _("A Direction"),
-_("Spindle CW"), _("Spindle CCW"), _("Spindle PWM"),
+_("Spindle CW"), _("Spindle CCW"), _("Spindle PWM"), _("Spindle Brake"),
 _("Coolant Mist"), _("Coolant Flood"), _("ESTOP Out"), _("Amplifier Enable"),
-_("Charge Pump"), _("Unused"))
+_("Charge Pump"),
+_("Digital out 0"), _("Digital out 1"), _("Digital out 2"), _("Digital out 3"),
+_("Unused"))
 
 human_input_names = (_("ESTOP In"), _("Probe In"),
 _("Spindle Index"), _("Spindle Phase A"), _("Spindle Phase B"),
@@ -110,7 +117,9 @@ _("Maximum Limit X"), _("Maximum Limit Y"),
 _("Maximum Limit Z"), _("Maximum Limit A"),
 _("Both Limit X"), _("Both Limit Y"),
 _("Both Limit Z"), _("Both Limit A"),
-_("All limits"), _("All home"), _("Unused"))
+_("All limits"), _("All home"),
+_("Digital in 0"), _("Digital in 1"), _("Digital in 2"), _("Digital in 3"),
+_("Unused"))
 
 def md5sum(filename):
     try:
@@ -678,6 +687,8 @@ class Data:
             print >>file, "net spindle-cw <= motion.spindle-forward"
         if CCW in outputs:
             print >>file, "net spindle-ccw <= motion.spindle-reverse"
+        if CCW in outputs:
+            print >>file, "net spindle-brake <= motion.spindle-brake"
 
 	if encoder:
 	    print >>file
@@ -695,6 +706,18 @@ class Data:
 	if probe:
 	    print >>file
 	    print >>file, "net probe-in => motion.probe-input"
+
+        for i in range(4):
+            dout = "dout-%02d" % i
+            print dout, dout in outputs
+            if dout in outputs:
+                print >>file, "net %s <= motion.digital-out-%02d" % (dout, i)
+
+        for i in range(4):
+            din = "din-%02d" % i
+            print din, din in inputs
+            if din in inputs:
+                print >>file, "net %s <= motion.digital-in-%02d" % (din, i)
 
 	print >>file
 	for o in (1,2,3,4,5,6,7,8,9,14,16,17): self.connect_output(file, o)
