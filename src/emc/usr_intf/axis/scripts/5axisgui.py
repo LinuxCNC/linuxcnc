@@ -65,6 +65,8 @@ ram = Collection([wrist,
                   Box(-100,-100,200, 100,100,700),
                   ])
 
+ram = Translate([ram], 0,0,150)
+
 ram = HalTranslate([ram],c,"joint2",0,0,1)
 
 ram = Collection([ram,
