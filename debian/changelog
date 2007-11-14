@@ -8,8 +8,9 @@ emc2 (1:2.2.2~cvs) unstable; urgency=low
   * fix halshow 'watch pin'
   * restore cone rotation when the A-axis moves
   * fix 'scara' sample configuration
+  * fix display of home and limit switches on XYZBC machines
 
- -- jepler <jepler@unpythonic.net>  Mon, 12 Nov 2007 14:25:44 -0600
+ -- jepler <jepler@unpythonic.net>  Wed, 14 Nov 2007 08:02:58 -0600
 
 emc2 (1:2.2.1) unstable; urgency=low
 
