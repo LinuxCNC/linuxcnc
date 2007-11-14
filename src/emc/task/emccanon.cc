@@ -91,6 +91,11 @@ static const double tiny = 1e-10;
 /* Certain axes are periodic.  Hardcode this for now */
 #define IS_PERIODIC(axisnum) \
     ((axisnum) == 3 || (axisnum) == 4 || (axisnum) == 5)
+
+// this doesn't quite work yet: disable
+#undef IS_PERIODIC
+#define IS_PERIODIC(axisnum) (0)
+
 #define AXIS_PERIOD(axisnum) (IS_PERIODIC(axisnum) ? 360 : 0)
 
 static PM_QUATERNION quat(1, 0, 0, 0);
