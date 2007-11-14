@@ -925,6 +925,16 @@ class MyOpengl(Opengl):
         glLoadIdentity()
         s.poll()
 
+        limit = []
+        for i,l in enumerate(s.limit):
+            if s.axis_mask & (1<<i):
+                limit.append(l)
+
+        homed = []
+        for i,h in enumerate(s.homed):
+            if s.axis_mask & (1<<i):
+                homed.append(h)
+
         if s.kinematics_type == emc.KINEMATICS_IDENTITY or s.motion_mode != emc.TRAJ_MODE_FREE:
             if vars.display_type.get():
                 positions = s.position
@@ -949,9 +959,6 @@ class MyOpengl(Opengl):
             if lathe:
                 posstrs.insert(1, format % ("Dia", positions[0]*2.0))
 
-            limit = s.limit[:]
-            homed = s.homed[:]
-
             if vars.show_machine_speed.get():
                 spd = to_internal_linear_unit(s.current_vel)
                 if vars.metric.get():
@@ -966,8 +973,6 @@ class MyOpengl(Opengl):
                     dtg *= 25.4
                 posstrs.append(format % ("DTG", dtg))
         else:
-            limit = s.limit[:]
-            homed = s.homed[:]
             # N.B. no conversion here because joint positions are unitless
             posstrs = ["  %s:% 9.4f" % i for i in
                 zip(jointnames, s.joint_actual_position)]
