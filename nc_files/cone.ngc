@@ -1,13 +1,13 @@
 (for the simulated 5 axis machine)
 g21g90g94
 g0z0
-b45 c-180
+x0y0
+b45c-180
 y100
-z-100
+g1z-100f2000
 g93
 
 #1=-180
-
 g93
 o100 while [ #1 le 180 ]
     g1 x[100*cos[#1-90]] y[100*sin[#1-90]] c#1 f300
