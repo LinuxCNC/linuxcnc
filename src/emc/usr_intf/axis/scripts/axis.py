@@ -3183,8 +3183,8 @@ def set_tabs(e):
 
 import sys, getopt
 axiscount = 3
-machine_limit_min = [None] * 9
-machine_limit_max = [None] * 9
+machine_limit_min = [-1] * 9
+machine_limit_max = [1] * 9
 
 open_directory = "programs"
 
