@@ -8,12 +8,22 @@ RTAPI is a library providing a uniform API for several real time operating
 systems.  As of ver 2.1, RTLinux, RTAI, and a pure userspace simulator are
 supported.
 
+.SH HEADER FILES
+.SS rtapi.h
 The file \fBrtapi.h\fR defines the RTAPI for both realtime and non-realtime
 code.  This is a change from Rev 2, where the non-realtime (user space) API
 was defined in ulapi.h and used different function names.  The symbols RTAPI
 and ULAPI are used to determine which mode is being compiled, RTAPI for
 realtime and ULAPI for non-realtime.
 
+.SS rtapi_math.h
+The file \fRrtapi_math.h\fR defines floating-point functions and constants.
+It should be used instead of \fR<math.h>\fR in rtapi real-time components.
+
+
+.SS rtapi_string.h
+The file \fRrtapi_string.h\fR defines string-related functions.
+It should be used instead of \fR<string.h>\fR in rtapi real-time components.
 
 .SH RTAPI STATUS CODES
 .TP
