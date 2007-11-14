@@ -631,10 +631,12 @@ static void flush_segments(void) {
     linearMoveMsg.acc = toExtAcc(acc);
 
     linearMoveMsg.type = EMC_MOTION_TYPE_FEED;
-    int save = interp_list.get_next_line_number();
-    interp_list.set_line_number(line_no);
-    interp_list.append(linearMoveMsg);
-    interp_list.set_line_number(save);
+    if(vel && acc) {
+        int save = interp_list.get_next_line_number();
+        interp_list.set_line_number(line_no);
+        interp_list.append(linearMoveMsg);
+        interp_list.set_line_number(save);
+    }
     canonUpdateEndPoint(x, y, z, a, b, c, u, v, w);
 
     chained_points().clear();
@@ -1342,7 +1344,7 @@ void ARC_FEED(double first_end, double second_end,
         linearMoveMsg.vel = toExtVel(vel);
         linearMoveMsg.ini_maxvel = toExtVel(ini_maxvel);
         linearMoveMsg.acc = toExtAcc(acc);
-        if(acc)
+        if(vel && acc)
             interp_list.append(linearMoveMsg);
     } else {
 	circularMoveMsg.end.tran.x = TO_EXT_LEN(end.tran.x);
@@ -1381,7 +1383,7 @@ void ARC_FEED(double first_end, double second_end,
         circularMoveMsg.vel = toExtVel(vel);
         circularMoveMsg.ini_maxvel = toExtVel(ini_maxvel);
         circularMoveMsg.acc = toExtAcc(acc);
-        if(acc)
+        if(vel && acc)
             interp_list.append(circularMoveMsg);
     }
     // update the end point
