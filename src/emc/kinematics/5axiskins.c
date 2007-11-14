@@ -18,7 +18,7 @@
 
 #include "kinematics.h"		/* these decls */
 #include "posemath.h"
-#include "math.h"
+#include "rtapi_math.h"
 
 #define d2r(d) ((d)*PM_PI/180.0)
 #define r2d(r) ((r)*180.0/PM_PI)
