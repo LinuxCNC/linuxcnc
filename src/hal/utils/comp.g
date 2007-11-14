@@ -633,8 +633,10 @@ def document(filename, outfilename):
     has_personality = False
     for name, type, array, dir, value, personality in pins:
         if personality: has_personality = True
+        if isinstance(array, tuple): has_personality = True
     for name, type, array, dir, value, personality in params:
         if personality: has_personality = True
+        if isinstance(array, tuple): has_personality = True
 
     print >>f, ".TH %s \"9\" \"%s\" \"EMC Documentation\" \"HAL Component\"" % (
         comp_name.upper(), time.strftime("%F"))
