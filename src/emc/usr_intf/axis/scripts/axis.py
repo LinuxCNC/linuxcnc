@@ -934,6 +934,9 @@ class MyOpengl(Opengl):
         for i,h in enumerate(s.homed):
             if s.axis_mask & (1<<i):
                 homed.append(h)
+        if lathe and not s.axis_mask & 2:
+            homed.insert(1, 0)
+            limit.insert(1, 0)
 
         if s.kinematics_type == emc.KINEMATICS_IDENTITY or s.motion_mode != emc.TRAJ_MODE_FREE:
             if vars.display_type.get():
