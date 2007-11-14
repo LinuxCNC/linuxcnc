@@ -10,6 +10,10 @@ function _ nofp;
 variable __s64 last=0;
 variable int first=1;
 ;;
+#ifdef SIM
+#define max(a,b) ((a)>(b)?(a):(b))
+#endif
+
 __s64 now = rtapi_get_time();
 __s64 del = (now - last);
 out = del;
