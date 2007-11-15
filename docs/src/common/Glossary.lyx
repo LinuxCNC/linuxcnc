@@ -225,6 +225,15 @@ Machine
  
 \layout Description
 
+Display\SpecialChar ~
+units
+\begin_inset LatexCommand \index{display units}
+
+\end_inset 
+
+ The linear and angular units used for onscreen display.
+\layout Description
+
 DRO
 \begin_inset LatexCommand \index{DRO}
 
@@ -573,6 +582,17 @@ Lead-screw
  and long life are not as important as low cost.
 \layout Description
 
+Machine\SpecialChar ~
+units
+\begin_inset LatexCommand \index{machine units}
+
+\end_inset 
+
+ The linear and angular units used for machine configuration.
+ These units are used in the inifile.
+ HAL pins and parameters are also generally in machine units.
+\layout Description
+
 MDI
 \begin_inset LatexCommand \index{MDI}
 
@@ -638,6 +658,15 @@ Program
 \end_inset 
 
 .
+\layout Description
+
+Program\SpecialChar ~
+Units
+\begin_inset LatexCommand \index{program units}
+
+\end_inset 
+
+ The linear and angular units used for part programs.
 \layout Description
 
 Rapid
@@ -870,6 +899,38 @@ Tcl/Tk
 \end_inset 
 
  were written.
+\layout Description
+
+Units
+\begin_inset LatexCommand \index{units}
+
+\end_inset 
+
+ See 
+\begin_inset Quotes eld
+\end_inset 
+
+Machine Units
+\begin_inset Quotes erd
+\end_inset 
+
+, 
+\begin_inset Quotes eld
+\end_inset 
+
+Display Units
+\begin_inset Quotes erd
+\end_inset 
+
+, or 
+\begin_inset Quotes eld
+\end_inset 
+
+Program Units
+\begin_inset Quotes erd
+\end_inset 
+
+, above.
 \layout Description
 
 World\SpecialChar ~
