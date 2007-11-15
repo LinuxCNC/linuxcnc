@@ -1547,7 +1547,7 @@ The derivative gain for the axis servo.
  The value multiplies the difference between the current and previous errors,
  resulting in a contribution to the computed voltage for the motor amplifier.
  The units on the D gain are volts per machine unit per second, e.g., 
-\begin_inset Formula $\frac{volt}{mm\, s^{2}}$
+\begin_inset Formula $\frac{volt}{mm/s}$
 \end_inset 
 
  if machine units are millimeters.
