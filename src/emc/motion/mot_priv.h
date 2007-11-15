@@ -146,6 +146,9 @@ typedef struct {
     hal_float_t last_period_ns;	/* param: last period in clocks */
     hal_u32_t overruns;		/* param: count of RT overruns */
 
+    hal_float_t *tooloffset_x;
+    hal_float_t *tooloffset_z;
+
     axis_hal_t axis[EMCMOT_MAX_JOINTS];	/* data for each joint */
 
 } emcmot_hal_data_t;

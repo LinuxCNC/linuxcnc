@@ -2556,6 +2556,9 @@ static void output_to_hal(void)
     old_motion_index = emcmotStatus->spindle_index_enable;
     old_hal_index = *emcmot_hal_data->spindle_index_enable;
 
+    *(emcmot_hal_data->tooloffset_x) = emcmotStatus->tooloffset_x;
+    *(emcmot_hal_data->tooloffset_z) = emcmotStatus->tooloffset_z;
+
     /* output axis info to HAL for scoping, etc */
     for (joint_num = 0; joint_num < num_joints; joint_num++) {
 	/* point to joint struct */

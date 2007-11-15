@@ -939,6 +939,14 @@ double emcTrajGetAngularUnits()
     return localEmcTrajAngularUnits;
 }
 
+int emcTrajSetOffset(double z, double x) 
+{
+    emcmotCommand.command = EMCMOT_SET_OFFSET;
+    emcmotCommand.tooloffset_z = z;
+    emcmotCommand.tooloffset_x = x;
+    return usrmotWriteEmcmotCommand(&emcmotCommand);
+}
+
 int emcTrajSetSpindleSync(double fpr, bool wait_for_index) 
 {
     emcmotCommand.command = EMCMOT_SET_SPINDLESYNC;

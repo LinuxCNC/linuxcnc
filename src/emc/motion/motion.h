@@ -165,6 +165,7 @@ extern "C" {
 	EMCMOT_SPINDLE_BRAKE_RELEASE,	/* release the spindle brake */
 	EMCMOT_SET_MOTOR_OFFSET,	/* set the offset between joint and motor */
 	EMCMOT_SET_JOINT_COMP,	/* set a compensation triplet for a joint (nominal, forw., rev.) */
+        EMCMOT_SET_OFFSET, /* set tool offsets */
     } cmd_code_t;
 
 /* this enum lists the possible results of a command */
@@ -228,6 +229,7 @@ extern "C" {
                                      |1 = suppress error, report in # instead
                                      ~2 = move until probe trips (ngc default)
                                      |2 = move until probe clears */
+        double tooloffset_z, tooloffset_x;
 	unsigned char tail;	/* flag count for mutex detect */
     } emcmot_command_t;
 
@@ -637,6 +639,8 @@ Suggestion: Split this in to an Error and a Status flag register..
         double current_vel;
 
         unsigned int tcqlen;
+        double tooloffset_x;
+        double tooloffset_z;
 	unsigned char tail;	/* flag count for mutex detect */
         
     } emcmot_status_t;

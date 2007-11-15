@@ -1479,6 +1479,11 @@ check_stuff ( "before command_handler()" );
 	    joint->comp.entries++;
 	    break;
 
+        case EMCMOT_SET_OFFSET:
+            emcmotStatus->tooloffset_x = emcmotCommand->tooloffset_x;
+            emcmotStatus->tooloffset_z = emcmotCommand->tooloffset_z;
+            break;
+
 	default:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "UNKNOWN");
 	    reportError("unrecognized command %d", emcmotCommand->command);

@@ -495,6 +495,15 @@ static int init_hal_io(void)
 	return retval;
     }
 
+    retval = hal_pin_float_new("motion.tooloffset.x", HAL_OUT, &(emcmot_hal_data->tooloffset_x), mot_comp_id);
+    if (retval != 0) {
+        return retval;
+    }
+    retval = hal_pin_float_new("motion.tooloffset.z", HAL_OUT, &(emcmot_hal_data->tooloffset_z), mot_comp_id);
+    if (retval != 0) {
+        return retval;
+    }
+
     /* initialize machine wide pins and parameters */
     *(emcmot_hal_data->probe_input) = 0;
     /* default value of enable is TRUE, so simple machines
