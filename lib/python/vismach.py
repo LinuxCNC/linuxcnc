@@ -621,6 +621,18 @@ class O(rs274.OpenGLTk.Opengl):
 	# back to world again
 	glPopMatrix()
 
+class Color(Collection):
+    def __init__(self, color, parts):
+        self.color = color
+        Collection.__init__(self, parts)
+
+    def apply(self):
+        glPushAttrib(GL_LIGHTING_BIT)
+        glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, self.color)
+
+    def unapply(self):
+        glPopAttrib()
+
 
 def main(model, tool, work, size=10, hud=0):
     app = Tkinter.Tk()

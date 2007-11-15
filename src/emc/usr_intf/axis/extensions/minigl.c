@@ -103,6 +103,8 @@ GLCALL3V(glNormal3f, "fff", float, float, float)
 GLCALL2V(glPolygonOffset, "ff", float, float)
 GLCALL0V(glPopMatrix)
 GLCALL0V(glPushMatrix)
+GLCALL1V(glPushAttrib, "i", int)
+GLCALL0V(glPopAttrib)
 GLCALL1V(glPushName, "i", int)
 GLCALL2V(glRasterPos2i, "ii", int, int)
 GLCALL4V(glRectf, "ffff", float, float, float, float)
@@ -707,6 +709,8 @@ METH(glPolygonOffset, "set the scale and units used to calculate depth values"),
 METH(glPolygonStipple, "set the polygon stippling pattern"),
 METH(glPopMatrix, "push and pop the current matrix stack"),
 METH(glPushMatrix, "push and pop the current matrix stack"),
+METH(glPopAttrib, "push and pop the current attribute stack"),
+METH(glPushAttrib, "push and pop the current attribute stack"),
 METH(glPushName, "push and pop the name stack"),
 METH(glRenderMode, "set rasterization mode"),
 METH(glRasterPos2i, "specify the raster position for pixel operations"),
@@ -781,7 +785,7 @@ void initminigl(void) {
     CONST(GL_KEEP);
     CONST(GL_LESS);
     CONST(GL_LIGHTING);
-    CONST(GL_LIGHTING);
+    CONST(GL_LIGHTING_BIT);
     CONST(GL_LIGHT_MODEL_AMBIENT);
     CONST(GL_LIGHT_MODEL_LOCAL_VIEWER);
     CONST(GL_LINES);
