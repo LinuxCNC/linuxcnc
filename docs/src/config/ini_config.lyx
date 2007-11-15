@@ -370,6 +370,14 @@ Some of the variables are used by EMC, and must always use the section names
  and variable names shown.
  Other variables are used only by HAL, and the section names and variable
  names shown are those used in the sample configuration files.
+\layout Subsection
+
+Definitions
+\layout Description
+
+Machine\SpecialChar ~
+Units The units (of length or angle) specified in the inifile for
+ a particular axis
 \layout Section
 
 
@@ -920,11 +928,6 @@ example2.hal
 \color black
 The [TRAJ] section contains general parameters for the trajectory planning
  module in EMCMOT.
- You will not need to change these if you are applying EMC to a common three
- axis mill in the United States of America.
- If you are in an area using metric hardware components you might be working
- with the stepper_mm.ini where these numbers are already setup for that system
- of units.
 \layout Description
 
 
@@ -1035,7 +1038,7 @@ LINEAR_UNITS
 \series bold 
  
 \series default 
-The name of units to be used in the inifile.
+Specifies the machine units for linear axes.
  Possible choices are (in, inch, imperial, metric, mm).
  
 \newline 
@@ -1057,7 +1060,7 @@ ANGULAR_UNITS
 =
 \series default 
 \SpecialChar ~
-<units> The name of units used in the inifile.
+<units> Specifies the machine units for rotational axes.
  Possible choices are 'deg', 'degree' (360 per circle), 'rad', 'radian'
  (2pi per circle), 'grad', or 'gon' (400 per circle).
 \newline 
@@ -1073,7 +1076,7 @@ DEFAULT_VELOCITY\SpecialChar ~
 =\SpecialChar ~
 0.0167
 \series default 
- The initial rate for jogs of linear axes, in units per second.
+ The initial rate for jogs of linear axes, in machine units per second.
  The value shown equals one unit per minute.
 \layout Description
 
@@ -1093,7 +1096,7 @@ teleop
 \begin_inset Quotes erd
 \end_inset 
 
- (cartesian space) jogs, in user units per second per second.
+ (cartesian space) jogs, in machine units per second per second.
  
 \layout Description
 
@@ -1110,8 +1113,8 @@ MAX_VELOCITY
 =\SpecialChar ~
 5.0
 \series default 
- The maximum velocity for any axis or coordinated move, in user units per
- second.
+ The maximum velocity for any axis or coordinated move, in machine units
+ per second.
  The value shown equals 300 units per minute.
 \layout Description
 
@@ -1132,7 +1135,7 @@ MAX_ACCELERATION
 \series bold 
 20.0
 \series default 
- The maximum acceleration for any axis or coordinated axis move, in user
+ The maximum acceleration for any axis or coordinated axis move, in machine
  units per second per second.
 \layout Description
 
@@ -1192,14 +1195,14 @@ UNITS
 
 \SpecialChar ~
 =\SpecialChar ~
-inch This setting overrides the related [TRAJ] UNITS setting if it is specified.
+inch If specified, this setting overrides the related [TRAJ] UNITS setting.
  (e.g., [TRAJ]LINEAR_UNITS if the TYPE of this axis is LINEAR, [TRAJ]ANGULAR_UNITS
  if the TYPE of this axis is ANGULAR)
 \layout Description
 
 MAX_VELOCITY\SpecialChar ~
 =\SpecialChar ~
-1.2 Maximum velocity for this axis in UNITS per second.
+1.2 Maximum velocity for this axis in machine units per second.
 \layout Description
 
 MAX_ACCELERATION\SpecialChar ~
@@ -1212,7 +1215,7 @@ MAX_ACCELERATION\SpecialChar ~
 \series bold 
 20.0
 \series default 
- Maximum acceleration for this axis in UNITS per second squared.
+ Maximum acceleration for this axis in machine units per second squared.
 \layout Description
 
 BACKLASH\SpecialChar ~
@@ -1225,6 +1228,7 @@ BACKLASH\SpecialChar ~
 \series bold 
 0.000
 \series default 
+ Backlash in machine units.
  Backlash compensation value can be used to make up for small deficiencies
  in the hardware used to drive an axis.
 \layout Description
@@ -1240,6 +1244,7 @@ file.extension A file holding a compensation structure for the
  One set of triplets per line.
  Currently the limit inside EMC2 is for 256 triplets / axis.
  If COMP_FILE is specified, BACKLASH is ignored.
+ COMP_FILE values are in machine units.
 \layout Description
 
 COMP_FILE_TYPE\SpecialChar ~
@@ -1267,7 +1272,7 @@ MIN_LIMIT
 \series bold 
 -1000 
 \series default 
-The minimum limit (soft limit) for axis motion, in user units.
+The minimum limit (soft limit) for axis motion, in machine units.
  When this limit is exceeded, the controller aborts axis motion.
  
 \layout Description
@@ -1285,7 +1290,7 @@ MAX_LIMIT
 =\SpecialChar ~
 1000
 \series default 
- The maximum limit (soft limit) for axis motion, in user units.
+ The maximum limit (soft limit) for axis motion, in machine units.
  When this limit is exceeded, the controller aborts axis motion.
  
 \layout Description
@@ -1305,8 +1310,8 @@ MIN_FERROR
 \series bold 
 0.010
 \series default 
- This is the value by which the axis is permitted to deviate from commanded
- position at very low speeds.
+ This is the value in machine units by which the axis is permitted to deviate
+ from commanded position at very low speeds.
  If MIN_FERROR is smaller than FERROR, the two produce a ramp of error trip
  points.
  You could think of this as a graph where one dimension is speed and the
@@ -1329,7 +1334,7 @@ FERROR
 =\SpecialChar ~
 1.0 
 \series default 
-FERROR is the maximum allowable following error, in user units.
+FERROR is the maximum allowable following error, in machine units.
  If the difference between commanded and sensed position exceeds this amount,
  the controller disables servo calculations, sets all the outputs to 0.0,
  and disables the amplifiers.
@@ -1375,7 +1380,7 @@ HOME_OFFSET\SpecialChar ~
 =\SpecialChar ~
 0.0
 \series default 
- The axis position of the home switch or index pulse.
+ The axis position of the home switch or index pulse, in machine units.
 \layout Description
 
 HOME_SEARCH_VEL
@@ -1393,6 +1398,7 @@ HOME_SEARCH_VEL
 \series bold 
 0.0
 \series default 
+ Initial homing velocity in machine units per escond.
  A value of zero means assume that the current location is the home position
  for the machine.
  If your machine has no home switches you will want to leave this value
@@ -1409,7 +1415,7 @@ HOME_LATCH_VEL\SpecialChar ~
 \series bold 
 0.0
 \series default 
- This is the final velocity to be used during a home sequence.
+ Final homing velocity in machine units per second.
 \layout Description
 
 HOME_USE_INDEX\SpecialChar ~
@@ -1447,7 +1453,6 @@ Servo-related items
 
 The following items are for servo-based systems and servo-like systems including
  the univstep board from Pico Systems.
- 
 \begin_inset Foot
 collapsed true
 
@@ -1457,7 +1462,8 @@ Refer to the the EMC2_Integrator_Manual for further information about servo
  systems and PID control.
 \end_inset 
 
-
+ This description assumes that the units of output from the PID component
+ are volts.
 \layout Description
 
 
@@ -1483,10 +1489,13 @@ P\SpecialChar ~
 \color black
 The proportional gain for the axis servo.
  This value multiplies the error between commanded and actual position in
- user units, resulting in a contribution to the computed voltage for the
- motor amplifier.
- The units on the P gain are volts per user unit.
- 
+ machine units, resulting in a contribution to the computed voltage for
+ the motor amplifier.
+ The units on the P gain are volts per machine unit, e.g., 
+\begin_inset Formula $\frac{volt}{mm}$
+\end_inset 
+
+ if machine units are millimeters.
 \layout Description
 
 
@@ -1508,10 +1517,13 @@ I\SpecialChar ~
 \color black
 The integral gain for the axis servo.
  The value multiplies the cumulative error between commanded and actual
- position in user units, resulting in a contribution to the computed voltage
- for the motor amplifier.
- The units on the I gain are volts per user unit-seconds.
- 
+ position in machine units, resulting in a contribution to the computed
+ voltage for the motor amplifier.
+ The units on the I gain are volts per machine unit per second, e.g., 
+\begin_inset Formula $\frac{volt}{mm\, s}$
+\end_inset 
+
+ if machine units are millimeters.
 \layout Description
 
 
@@ -1534,8 +1546,11 @@ D\SpecialChar ~
 The derivative gain for the axis servo.
  The value multiplies the difference between the current and previous errors,
  resulting in a contribution to the computed voltage for the motor amplifier.
- The units on the D gain are volts per user unit per second.
- 
+ The units on the D gain are volts per machine unit per second, e.g., 
+\begin_inset Formula $\frac{volt}{mm/s}$
+\end_inset 
+
+ if machine units are millimeters.
 \layout Description
 
 
@@ -1558,8 +1573,11 @@ FF0\SpecialChar ~
 The 0-th order feedforward gain.
  This number is multiplied by the commanded position, resulting in a contributio
 n to the computed voltage for the motor amplifier.
- The units on the FF0 gain are volts per user unit.
- 
+ The units on the FF0 gain are volts per machine unit, e.g., 
+\begin_inset Formula $\frac{volt}{mm}$
+\end_inset 
+
+ if machine units are millimeters.
 \layout Description
 
 
@@ -1582,8 +1600,11 @@ FF1\SpecialChar ~
 The 1st order feedforward gain.
  This number is multiplied by the change in commanded position per second,
  resulting in a contribution to the computed voltage for the motor amplifier.
- The units on the FF1 gain are volts per user unit per second.
- 
+ The units on the FF1 gain are volts per machine unit per second, e.g., 
+\begin_inset Formula $\frac{volt}{mm\, s}$
+\end_inset 
+
+ if machine units are millimeters.
 \layout Description
 
 
@@ -1607,8 +1628,12 @@ The 2nd order feedforward gain.
  This number is multiplied by the change in commanded position per second
  per second, resulting in a contribution to the computed voltage for the
  motor amplifier.
- The units on the FF1 gain are volts per user unit per second per second.
- 
+ The units on the FF2 gain are volts per machine unit per second per second,
+ e.g., 
+\begin_inset Formula $\frac{volt}{mm\, s^{2}}$
+\end_inset 
+
+ if machine units are millimeters.
 \layout Description
 
 OUTPUT_SCALE\SpecialChar ~
@@ -1665,8 +1690,8 @@ amplifier[volts]=(output[\frac{mm}{sec}]-offset[\frac{mm}{sec}])/250\frac{mm}{se
 
 \end_inset 
 
- Note that the units of the offset are in user units, e.g., mm/sec, and they
- are pre-subtracted from the sensor readings.
+ Note that the units of the offset are in machine units, e.g., mm/sec, and
+ they are pre-subtracted from the sensor readings.
  The value for this offset is obtained by finding the value of your output
  which yields 0.0 for the actuator output.
  If the DAC is linearized, this offset is normally 0.0.
@@ -2086,7 +2111,8 @@ INPUT_SCALE
 (hal)
 \series default 
 \noun default 
- Specifies the number of pulses that corresponds to a move of one UNIT.
+ Specifies the number of pulses that corresponds to a move of one machine
+ unit.
  A second number, if specified, is ignored.
 \color black
 
@@ -2138,9 +2164,11 @@ SCALE
 (hal)
 \series default 
 \noun default 
- Specifies the number of pulses that corresponds to a move of one UNIT.
- For stepper systems, this is the number of step pulses issued per UNIT.
- For servo systems, this is the number of feedback pulses per UNIT.
+ Specifies the number of pulses that corresponds to a move of one machine
+ unit.
+ For stepper systems, this is the number of step pulses issued per machine
+ unit.
+ For servo systems, this is the number of feedback pulses per machine unit.
  A second number, if specified, is ignored.
 \color black
 
