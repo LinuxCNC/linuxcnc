@@ -50,7 +50,12 @@ ClassicLadder
  
 \layout Standard
 
-He describes the beginning of the project on his website: 
+He describes the beginning of the project on his website 
+\begin_inset LatexCommand \htmlurl[Original project homepage]{http://membres.lycos.fr/mavati/classicladder/}
+
+\end_inset 
+
+: 
 \layout Quotation
 
 
