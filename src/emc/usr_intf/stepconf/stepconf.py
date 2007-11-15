@@ -477,11 +477,11 @@ class Data:
     
 	if homes:
 	    print >>file, "HOME_OFFSET = %f" % get("homesw")
-	    print >>file, "SEARCH_VEL = %f" % get("homevel")
+	    print >>file, "HOME_SEARCH_VEL = %f" % get("homevel")
 	    latchvel = get("homevel") / abs(get("homevel"))
 	    if get("latchdir"): latchvel = -latchvel
 	    latchvel = latchvel * 1000 / get("scale")
-	    print >>file, "LATCH_VEL = %f" % latchvel
+	    print >>file, "HOME_LATCH_VEL = %f" % latchvel
 	    if inputs & ignore:
 		print >>file, "HOME_IGNORE_LIMITS = YES"
 	    print >>file, "HOME_SEQUENCE = %s" % order[num]
