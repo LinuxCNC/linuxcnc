@@ -3116,6 +3116,11 @@ Z axis of machine
 \layout Subsection
 
 Number
+\begin_inset LatexCommand \label{sub:Number}
+
+\end_inset 
+
+
 \layout Standard
 
 The following rules are used for (explicit) numbers.
@@ -3159,6 +3164,11 @@ Numbers used for specific purposes in RS274/NGC are often restricted to
 \layout Subsection
 
 Parameter Value
+\begin_inset LatexCommand \label{sub:Parameter-Value}
+
+\end_inset 
+
+
 \layout Standard
 
 A parameter value is the pound character 
@@ -3208,7 +3218,12 @@ The
  
 \layout Subsection
 
-Expressions and Binary Operations
+Expressions
+\begin_inset LatexCommand \label{sub:Expressions}
+
+\end_inset 
+
+
 \layout Standard
 
 An expression is a set of characters starting with a left bracket 
@@ -3222,17 +3237,25 @@ An expression is a set of characters starting with a left bracket
 .
  In between the brackets are numbers, parameter values, mathematical operations,
  and other expressions.
- An expression may be evaluated to produce a number.
+ An expression is evaluated to produce a number.
  The expressions on a line are evaluated when the line is read, before anything
  on the line is executed.
  An example of an expression is 
 \family typewriter 
-[ 1 + acos[0] - [#3 ** [4.0/2]]]
+[1 + acos[0] - [#3 ** [4.0/2]]]
 \family default 
 .
+\layout Subsection
+
+Binary Operators
+\begin_inset LatexCommand \label{sub:Binary-Operators}
+
+\end_inset 
+
+
 \layout Standard
 
-Binary operations appear only inside expressions.
+Binary operators only appear inside expressions.
  There are four basic mathematical operations: addition (
 \family typewriter 
 +
@@ -3309,18 +3332,20 @@ LE
 ).
 \layout Standard
 
-The binary operations are divided into three groups.
- The first group is: power.
- The second group is: multiplication, division, and modulus.
- The third group is: addition, subtraction, logical non-exclusive or, logical
- exclusive or, and logical and.
- If operations are strung together (for example in the expression 
+The binary operations are divided into several groups according to their
+ precedence.
+ (see table 
+\begin_inset LatexCommand \ref{cap:Operator-Precedence}
+
+\end_inset 
+
+) If operations in different precedence groups are strung together (for
+ example in the expression 
 \family typewriter 
 [2.0 / 3 * 1.5 - 5.5 / 11.0]
 \family default 
-), operations in the first group are to be performed before operations in
- the second group and operations in the second group before operations in
- the third group.
+), operations in a higher group are to be performed before operations in
+ a lower group.
  If an expression contains more than one operation from the same group (such
  as the first 
 \family typewriter 
@@ -3333,9 +3358,9 @@ The binary operations are divided into three groups.
  in the example), the operation on the left is performed first.
  Thus, the example is equivalent to: 
 \family typewriter 
-[((2.0 / 3) * 1.5) - (5.5 / 11.0)]
+[[[2.0 / 3] * 1.5] - [5.5 / 11.0]]
 \family default 
- , which simplifies to 
+ , which is equivalent to to 
 \family typewriter 
 [1.0 - 0.5]
 \family default 
@@ -3351,12 +3376,162 @@ The logical operations and modulus are to be performed on any real numbers,
  The number zero is equivalent to logical false, and any non-zero number
  is equivalent to logical true.
  
-\layout Subsection
-
-Unary Operation Value
 \layout Standard
 
-A unary operation value is either 
+
+\begin_inset Float table
+wide false
+collapsed false
+
+\layout Caption
+
+Operator Precedence
+\begin_inset LatexCommand \label{cap:Operator-Precedence}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \index{operator precedence}
+
+\end_inset 
+
+
+\layout Standard
+\align center 
+
+\begin_inset  Tabular
+<lyxtabular version="3" rows="6" columns="2">
+<features>
+<column alignment="center" valignment="top" leftline="true" width="0">
+<column alignment="center" valignment="top" leftline="true" rightline="true" width="0">
+<row topline="true" bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Operators
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Precedence
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+**
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\emph on 
+highest
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+* / MOD
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
++ -
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+EQ NE GT GE LT LE
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+</row>
+<row topline="true" bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+AND OR XOR
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\emph on 
+lowest
+\end_inset 
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Subsection
+
+Functions
+\begin_inset LatexCommand \label{sub:Unary-Operation-Value}
+
+\end_inset 
+
+
+\layout Standard
+
+A function is either 
 \begin_inset Quotes eld
 \end_inset 
 
@@ -3380,8 +3555,7 @@ ATAN[2]/[1+3]
 \begin_inset Quotes erd
 \end_inset 
 
-) or any other unary operation name followed by an expression (for example
- 
+) or any other function name followed by an expression (for example 
 \begin_inset Quotes eld
 \end_inset 
 
@@ -3394,59 +3568,12 @@ SIN[90]
 \end_inset 
 
 ).
- The unary operations are: 
-\family typewriter 
-ABS
-\family default 
- (absolute value), 
-\family typewriter 
-ACOS
-\family default 
- (arc cosine), 
-\family typewriter 
-ASIN
-\family default 
- (arc sine), 
-\family typewriter 
-ATAN
-\family default 
- (arc tangent), 
-\family typewriter 
-COS
-\family default 
- (cosine), 
-\family typewriter 
-EXP
-\family default 
- (e raised to the given power), 
-\family typewriter 
-FIX
-\family default 
- (round down), 
-\family typewriter 
-FUP
-\family default 
- (round up), 
-\family typewriter 
-LN
-\family default 
- (natural logarithm), 
-\family typewriter 
-ROUND
-\family default 
- (round to the nearest whole number), 
-\family typewriter 
-SIN
-\family default 
- (sine), 
-\family typewriter 
-SQRT
-\family default 
- (square root), and 
-\family typewriter 
-TAN
-\family default 
- (tangent).
+ The available functions are shown in table 
+\begin_inset LatexCommand \ref{cap:Functions}
+
+\end_inset 
+
+.
  Arguments to unary operations which take angle measures (
 \family typewriter 
 COS
@@ -3504,9 +3631,333 @@ FUP[-2.8] = -2
 \family default 
 , for example.
  
+\layout Standard
+
+
+\begin_inset Float table
+wide false
+collapsed false
+
+\layout Caption
+
+Functions
+\begin_inset LatexCommand \label{cap:Functions}
+
+\end_inset 
+
+
+\layout Standard
+\align center 
+
+\begin_inset  Tabular
+<lyxtabular version="3" rows="16" columns="2">
+<features>
+<column alignment="center" valignment="top" leftline="true" width="0">
+<column alignment="center" valignment="top" leftline="true" rightline="true" width="0">
+<row topline="true" bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Function Name
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Function result
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+ATAN[Y]/[X]
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Four quadrant tangent
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+ATAN[arg]
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Two quadrant tangent
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+ABS[arg]
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Absolute value
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+ACOS[arg]
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Inverse cosine
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+ASIN[arg]
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Inverse sine
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+ATAN[arg]
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Inverse tangent
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+COS[arg]
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Cosine
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+EXP[arg]
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+e raised to the given power
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+FIX[arg]
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Round down to integer
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+FUP[arg]
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Round up to integer
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+ROUND[arg]
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Round to nearest integer
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+LN[arg]
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Base-e logarithm
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+SIN[arg]
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Sine
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+SQRT[arg]
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Square Root
+\end_inset 
+</cell>
+</row>
+<row topline="true" bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+TAN[arg]
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Tangent
+\end_inset 
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset 
+
+
+\end_inset 
+
+
 \layout Section
 
 Parameter Setting
+\begin_inset LatexCommand \label{sec:Parameter-Setting}
+
+\end_inset 
+
+
 \layout Standard
 
 A parameter setting is the following four items one after the other: (1)
@@ -9123,6 +9574,32 @@ The O- value may be given by a parameter or calculation.
 \layout LyX-Code
 
 O[#101+2] call
+\layout Section
+
+Computing values in O-words
+\layout Standard
+
+In O-words, Parameters (section 
+\begin_inset LatexCommand \ref{sub:Parameter-Value}
+
+\end_inset 
+
+), Expressions (section 
+\begin_inset LatexCommand \ref{sub:Expressions}
+
+\end_inset 
+
+), Binary Operators (section 
+\begin_inset LatexCommand \ref{sub:Binary-Operators}
+
+\end_inset 
+
+) and Functions (table 
+\begin_inset LatexCommand \ref{cap:Functions}
+
+\end_inset 
+
+) are particularly useful.
 \layout Chapter
 
 Other Codes
