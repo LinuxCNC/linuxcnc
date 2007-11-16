@@ -29,21 +29,22 @@ c.newpin("joint2", hal.HAL_FLOAT, hal.HAL_IN)
 c.newpin("joint3", hal.HAL_FLOAT, hal.HAL_IN)
 c.newpin("joint4", hal.HAL_FLOAT, hal.HAL_IN)
 c.newpin("joint5", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("tool_length", hal.HAL_FLOAT, hal.HAL_IN)
 c.ready()
 
-tool_len=100
+pivot_len=100
 tool_radius=25
 
 for setting in sys.argv[1:]: exec setting
 
 tooltip = Capture()
 tool = Collection([tooltip,
-                   CylinderZ(tool_len, tool_radius, 0.0, tool_radius),
-                   Box(-100,-100,tool_len, 100,100,tool_len+50),
-                   Box(-50,25,tool_len+50, 50,100,tool_len+150)
+                   CylinderZ(pivot_len, 100, 0.0, 50),
+                   Box(-100,-100,pivot_len, 100,100,pivot_len+50),
+                   Box(-50,25,pivot_len+50, 50,100,pivot_len+150)
                    ])
 
-tool = Translate([tool], 0, 0, -tool_len-150)
+tool = Translate([tool], 0, 0, -pivot_len-150)
 
 tool = Collection([tool,
                    CylinderY(100,75, 10,75),
