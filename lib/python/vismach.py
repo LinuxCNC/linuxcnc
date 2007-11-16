@@ -258,6 +258,42 @@ class CylinderY:
 
 # give endpoint Z values and radii
 # resulting cylinder is on the Z axis
+class HalCylinderZ:
+    def __init__(self, comp, z1, r1, z2, r2):
+        self.comp = comp
+	self._coords = z1, r1, z2, r2
+	self.q = gluNewQuadric()
+
+    def coords(self):
+        for c in self._coords:
+            if isinstance(c, str): yield self.comp[c]
+            else: yield c
+
+    def draw(self):
+	z1, r1, z2, r2 = self.coords()
+	if z1 > z2:
+	    tmp = z1
+	    z1 = z2
+	    z2 = tmp
+	    tmp = r1
+	    r1 = r2
+	    r2 = tmp
+	# need to translate the whole thing to z1
+	glPushMatrix()
+	glTranslatef(0,0,z1)
+	# the cylinder starts out at Z=0
+	gluCylinder(self.q, r1, r2, z2-z1, 32, 1)
+	# bottom cap
+	glRotatef(180,1,0,0)
+	gluDisk(self.q, 0, r1, 32, 1)
+	glRotatef(180,1,0,0)
+	# the top cap needs flipped and translated
+	glPushMatrix()
+	glTranslatef(0,0,z2-z1)
+	gluDisk(self.q, 0, r2, 32, 1)
+	glPopMatrix()
+	glPopMatrix()
+
 class CylinderZ:
     def __init__(self, z1, r1, z2, r2):
 	self.coords = z1, r1, z2, r2

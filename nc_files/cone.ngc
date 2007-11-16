@@ -1,7 +1,12 @@
 (for the simulated 5 axis machine)
-g21 g90 g94
-g0 z0
-y0
+g21 g90 g94 g28
+
+o200 sub
+
+g0 b0 c0
+g43.1 k#1
+g0z0
+
 x-100 b-45 c-180
 g1 z-100 f2000
 g93
@@ -14,5 +19,12 @@ o100 while [ #1 le 180 ]
 o100 endwhile
 g94 g0 z0
 x0 y0 b0 c0
+o200 endsub
+
+o200 call [20]
+o200 call [50]
+o200 call [80]
+
+g49 g28
 
 m2
