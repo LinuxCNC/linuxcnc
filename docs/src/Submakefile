@@ -36,10 +36,12 @@ DOC_SRCS := \
 	common/Glossary.lyx \
 	common/emc2_introduction.lyx \
 	config/ini_config.lyx \
+	config/ini_config_fr.lyx \
 	config/ini_homing.lyx \
 	config/emc2hal.lyx \
 	config/stepper.lyx \
 	config/stepconf.lyx \
+	config/stepconf_fr.lyx \
 	gcode/coordinates.lyx \
 	gcode/main.lyx \
 	gcode/mill_canned.lyx \
