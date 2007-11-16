@@ -49,6 +49,8 @@
 <docgroup lang="fr">
 <doc name="install_compiling_emc2_fr" title="Comment compiler EMC2"/>
 <doc name="install_installing_emc2_fr" title="Comment installer EMC2"/>
+<doc name="config_stepconf_fr" title="Assistant de configuration pour machines à moteurs pas à pas"/>
+<doc name="config_ini_config" title="Les bases de la configuration"/>
 <doc name="gui_axis_fr" title="L'interface graphique AXIS"/>
 <doc name="gui_image-to-gcode_fr" title="Image-vers-gcode"/>
 <doc name="hal_intro_fr" title="Introduction à HAL"/>
