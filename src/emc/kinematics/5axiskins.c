@@ -18,14 +18,18 @@
 
 #include "kinematics.h"		/* these decls */
 #include "posemath.h"
+#include "hal.h"
 #include "rtapi_math.h"
 
 #define d2r(d) ((d)*PM_PI/180.0)
 #define r2d(r) ((r)*180.0/PM_PI)
 
-static const double pivot_length = 250.0;
+struct haldata {
+    hal_float_t *tool_length;
+    hal_float_t pivot_length;
+} *haldata;
 
-PmCartesian s2r(double r, double t, double p) {
+static PmCartesian s2r(double r, double t, double p) {
     PmCartesian c;
     t = d2r(t), p = d2r(p);
 
@@ -36,16 +40,27 @@ PmCartesian s2r(double r, double t, double p) {
     return c;
 }
 
+static int fez(double n) {
+    // fuzzy equal to zero
+    const double small = 0.00001;
+
+    return n<small && n>-small;
+}
+
 int kinematicsForward(const double *joints,
 		      EmcPose * pos,
 		      const KINEMATICS_FORWARD_FLAGS * fflags,
 		      KINEMATICS_INVERSE_FLAGS * iflags)
 {
-    PmCartesian r = s2r(pivot_length, joints[5], 180.0 - joints[4]);
+    PmCartesian r = s2r(haldata->pivot_length + *haldata->tool_length, joints[5], 180.0 - joints[4]);
+    int upright = fez(joints[4]) && fez(joints[5]);
 
     pos->tran.x = joints[0] + r.x;
     pos->tran.y = joints[1] + r.y;
-    pos->tran.z = joints[2] + r.z + pivot_length;
+    if(upright)
+        pos->tran.z = joints[2];
+    else
+        pos->tran.z = joints[2] + haldata->pivot_length + r.z + *haldata->tool_length;
     pos->a = joints[3];
     pos->b = joints[4];
     pos->c = joints[5];
@@ -62,11 +77,15 @@ int kinematicsInverse(const EmcPose * pos,
 		      KINEMATICS_FORWARD_FLAGS * fflags)
 {
 
-    PmCartesian r = s2r(pivot_length, pos->c, 180.0 - pos->b);
+    PmCartesian r = s2r(haldata->pivot_length + *haldata->tool_length, pos->c, 180.0 - pos->b);
+    int upright = fez(pos->b) && fez(pos->c);
 
     joints[0] = pos->tran.x - r.x;
     joints[1] = pos->tran.y - r.y;
-    joints[2] = pos->tran.z - r.z - pivot_length;
+    if(upright)
+        joints[2] = pos->tran.z;
+    else
+        joints[2] = pos->tran.z - haldata->pivot_length - r.z - *haldata->tool_length;
     joints[3] = pos->a;
     joints[4] = pos->b;
     joints[5] = pos->c;
@@ -106,12 +125,25 @@ MODULE_LICENSE("GPL");
 
 int comp_id;
 int rtapi_app_main(void) {
+    int result;
     comp_id = hal_init("5axiskins");
-    if(comp_id > 0) {
-	hal_ready(comp_id);
-	return 0;
-    }
-    return comp_id;
+    if(comp_id < 0) return comp_id;
+
+    haldata = hal_malloc(sizeof(struct haldata));
+
+    result = hal_pin_float_new("5axiskins.tooloffset.z", HAL_IN, &(haldata->tool_length), comp_id);
+    if(result < 0) goto error;
+    result = hal_param_float_new("5axiskins.pivot-length", HAL_RW, &(haldata->pivot_length), comp_id);
+    if(result < 0) goto error;
+
+    haldata->pivot_length = 250.0;
+
+    hal_ready(comp_id);
+    return 0;
+
+error:
+    hal_exit(comp_id);
+    return result;
 }
 
 void rtapi_app_exit(void) { hal_exit(comp_id); }
