@@ -114,3 +114,5 @@ net j2 axis.2.joint-pos-fb 5axisgui.joint2
 net j3 axis.3.joint-pos-fb 5axisgui.joint3
 net j4 axis.4.joint-pos-fb 5axisgui.joint4
 net j5 axis.5.joint-pos-fb 5axisgui.joint5
+
+net tool-len motion.tooloffset.z 5axiskins.tooloffset.z
