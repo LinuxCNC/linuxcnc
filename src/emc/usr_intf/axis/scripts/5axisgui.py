@@ -40,21 +40,22 @@ tooltip = Capture()
 tool = Collection([tooltip,
                    CylinderZ(tool_len, tool_radius, 0.0, tool_radius),
                    Box(-100,-100,tool_len, 100,100,tool_len+50),
-                   Box(25,-50,tool_len+50, 100,50,tool_len+150)
+                   Box(-50,25,tool_len+50, 50,100,tool_len+150)
                    ])
 
 tool = Translate([tool], 0, 0, -tool_len-150)
 
 tool = Collection([tool,
-                   CylinderX(100,75, 10,75),
-                   CylinderX(-50,60,50,60),
+                   CylinderY(100,75, 10,75),
+                   CylinderY(-50,60,50,60),
                    ])
 
-tool = HalRotate([tool],c,"joint4",1,1,0,0)
+
+tool = HalRotate([tool],c,"joint4",1,0,-1,0)
 
 wrist = Collection([tool,
-                    CylinderX(-100,75, -10,75),
-                    Box(-100,-50,0, -25,50,100),
+                    CylinderY(-100,75, -10,75),
+                    Box(-50,-100,0, 50,-25,100),
                     Box(-100,-100,100, 100,100,150),
                     CylinderZ(150,75, 200, 75)
                     ])
@@ -62,7 +63,7 @@ wrist = Collection([tool,
 wrist = HalRotate([wrist],c,"joint5",1,0,0,1)
 
 ram = Collection([wrist,
-                  Box(-100,-100,200, 100,100,700),
+                  Box(-100,-100,200, 100,100,900),
                   ])
 
 ram = Translate([ram], 0,0,150)

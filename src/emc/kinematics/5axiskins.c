@@ -41,7 +41,7 @@ int kinematicsForward(const double *joints,
 		      const KINEMATICS_FORWARD_FLAGS * fflags,
 		      KINEMATICS_INVERSE_FLAGS * iflags)
 {
-    PmCartesian r = s2r(pivot_length, joints[5] + 90.0, 180.0 - joints[4]);
+    PmCartesian r = s2r(pivot_length, joints[5], 180.0 - joints[4]);
 
     pos->tran.x = joints[0] + r.x;
     pos->tran.y = joints[1] + r.y;
@@ -62,7 +62,7 @@ int kinematicsInverse(const EmcPose * pos,
 		      KINEMATICS_FORWARD_FLAGS * fflags)
 {
 
-    PmCartesian r = s2r(pivot_length, pos->c + 90.0, 180.0 - pos->b);
+    PmCartesian r = s2r(pivot_length, pos->c, 180.0 - pos->b);
 
     joints[0] = pos->tran.x - r.x;
     joints[1] = pos->tran.y - r.y;
