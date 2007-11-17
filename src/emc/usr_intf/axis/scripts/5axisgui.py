@@ -24,39 +24,13 @@ import sys
 
 # give endpoint Z values and radii
 # resulting cylinder is on the Z axis
-class HalToolCylinder:
-    def __init__(self, comp):
-        self.comp = comp
-	self.q = gluNewQuadric()
+class HalToolCylinder(CylinderZ):
+    def __init__(self, comp, *args):
+	CylinderZ.__init__(self, *args)
+	self.comp = comp
 
     def coords(self):
         return -self.comp.tool_length, 20, 0, 20
-
-    def draw(self):
-	z1, r1, z2, r2 = self.coords()
-	if z1 > z2:
-	    tmp = z1
-	    z1 = z2
-	    z2 = tmp
-	    tmp = r1
-	    r1 = r2
-	    r2 = tmp
-	# need to translate the whole thing to z1
-	glPushMatrix()
-	glTranslatef(0,0,z1)
-	# the cylinder starts out at Z=0
-	gluCylinder(self.q, r1, r2, z2-z1, 32, 1)
-	# bottom cap
-	glRotatef(180,1,0,0)
-	gluDisk(self.q, 0, r1, 32, 1)
-	glRotatef(180,1,0,0)
-	# the top cap needs flipped and translated
-	glPushMatrix()
-	glTranslatef(0,0,z2-z1)
-	gluDisk(self.q, 0, r2, 32, 1)
-	glPopMatrix()
-	glPopMatrix()
-
 
 c = hal.component("5axisgui")
 c.newpin("joint0", hal.HAL_FLOAT, hal.HAL_IN)
