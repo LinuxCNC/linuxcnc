@@ -1,10 +1,11 @@
-THINGS THAT ARE DESIRABLE FOR THE NEXT MAJOR RELEASE (EMC-2.2)
+THINGS THAT ARE DESIRABLE FOR THE NEXT MAJOR RELEASE (EMC-2.3)
 
-DONE     Sort out the canon ARC_FEED issues
+TODO     sort out axis/joints issues:
+	    * limits need to be imposed on joints (tricky with kins)
+	    * ini changes 
+	    * clean out code (on all different levels, when joints are involved, call them joints..)
 
 TODO	 Jeff: make gcode/main.lyx docs match implementation for IOs
-
-DONE     Alex: verify configs (paths & README's)
 
 TODO     Convert all hardware drivers to use canonical homing, 
 
