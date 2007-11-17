@@ -52,13 +52,13 @@ int kinematicsForward(const double *joints,
 		      const KINEMATICS_FORWARD_FLAGS * fflags,
 		      KINEMATICS_INVERSE_FLAGS * iflags)
 {
-    PmCartesian r = s2r(haldata->pivot_length + *haldata->tool_length, joints[5], 180.0 - joints[4]);
+    PmCartesian r = s2r(haldata->pivot_length + *haldata->tool_length - joints[8], joints[5], 180.0 - joints[4]);
     int upright = fez(joints[4]) && fez(joints[5]);
 
     pos->tran.x = joints[0] + r.x;
     pos->tran.y = joints[1] + r.y;
     if(upright)
-        pos->tran.z = joints[2];
+        pos->tran.z = joints[2] + joints[8];
     else
         pos->tran.z = joints[2] + haldata->pivot_length + r.z + *haldata->tool_length;
     pos->a = joints[3];
@@ -77,13 +77,13 @@ int kinematicsInverse(const EmcPose * pos,
 		      KINEMATICS_FORWARD_FLAGS * fflags)
 {
 
-    PmCartesian r = s2r(haldata->pivot_length + *haldata->tool_length, pos->c, 180.0 - pos->b);
+    PmCartesian r = s2r(haldata->pivot_length + *haldata->tool_length - pos->w, pos->c, 180.0 - pos->b);
     int upright = fez(pos->b) && fez(pos->c);
 
     joints[0] = pos->tran.x - r.x;
     joints[1] = pos->tran.y - r.y;
     if(upright)
-        joints[2] = pos->tran.z;
+        joints[2] = pos->tran.z - pos->w;
     else
         joints[2] = pos->tran.z - haldata->pivot_length - r.z - *haldata->tool_length;
     joints[3] = pos->a;

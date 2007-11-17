@@ -31,6 +31,8 @@ newsig J4pos float
 linksp J4pos <= axis.4.motor-pos-cmd
 newsig J5pos float
 linksp J5pos <= axis.5.motor-pos-cmd
+newsig J8pos float
+linksp J8pos <= axis.8.motor-pos-cmd
 
 
 # loop position commands back to motion module feedback
@@ -40,6 +42,7 @@ linksp J2pos => axis.2.motor-pos-fb
 linksp J3pos => axis.3.motor-pos-fb
 linksp J4pos => axis.4.motor-pos-fb
 linksp J5pos => axis.5.motor-pos-fb
+linksp J8pos => axis.8.motor-pos-fb
 
 # send the position commands thru differentiators to
 # generate velocity and accel signals
@@ -92,6 +95,8 @@ newsig bena bit
 linksp bena axis.4.amp-enable-out
 newsig cena bit
 linksp cena axis.5.amp-enable-out
+newsig wena bit
+linksp wena axis.8.amp-enable-out
 
 newsig xflt bit
 linksp xflt axis.0.amp-fault-in
@@ -105,6 +110,8 @@ newsig bflt bit
 linksp bflt axis.4.amp-fault-in
 newsig cflt bit
 linksp cflt axis.5.amp-fault-in
+newsig wflt bit
+linksp wflt axis.8.amp-fault-in
 
 loadusr -W 5axisgui
 
