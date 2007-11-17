@@ -3,24 +3,25 @@ g21 g90 g94 g28
 
 o200 sub
 
-g0 b0 c0
-g43.1 k#1
-g0z0
+g0 b0 c0 (tool length change must happen with b,c=0)
+g91 g28 z0 (could also be done with tool change position)
+g90
+g43.1 k#1 (change tool length)
+g0z0 (move Z to apply new length)
 
 x-100 b-45 c-180
 g1 z-100 f2000
-g93
 
 #100=-180
-g93
 o100 while [ #100 le 180 ]
-    g1 x[100*cos[#100]] y[100*sin[#100]] c#100 f300
+    g1 x[100*cos[#100]] y[100*sin[#100]] c#100
     #100=[#100+10]
 o100 endwhile
-g94 g0 z0
+g0 z0
 x0 y0 b0 c0
 o200 endsub
 
+(cut around the "cone" with different tool lengths)
 o200 call [20]
 o200 call [50]
 o200 call [80]
