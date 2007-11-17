@@ -543,10 +543,10 @@ iocontrol.0.emc-enable-in Should be driven FALSE when an external estop conditio
  exists
 \layout Description
 
-iocontrol.0.lube
+iocontrol.0.lube TRUE when lube is commanded
 \layout Description
 
-iocontrol.0.lube_level Should be driven TRUE when 
+iocontrol.0.lube_level Should be driven TRUE when lube level is high enough
 \layout Description
 
 iocontrol.0.tool-change TRUE when a tool change is requested
