@@ -765,29 +765,6 @@ The trajectory planner resumes, and later pauses when it reaches a specific
  point.
 \layout Subsection
 
-OPEN_LOG, START_LOG, STOP_LOG, CLOSE_LOG
-\layout Standard
-
-These commands are used to control the logging feature of the motion controller.
- Logging will probably be changed in the near future, so I'm not attempting
- to document these commands in detail right now.
- Parts of the logging feature may be replaced by halscope and other tools,
- other parts will be retained.
- 
-\layout Subsubsection
-
-Requirements
-\layout Standard
-
-To be documented later.
-\layout Subsubsection
-
-Results
-\layout Standard
-
-To be documented later.
-\layout Subsection
-
 SCALE
 \layout Standard
 
