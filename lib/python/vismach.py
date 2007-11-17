@@ -18,7 +18,7 @@ import rs274.OpenGLTk, Tkinter
 from minigl import *
 from math import *
 
-class Collection:
+class Collection(object):
     def __init__(self, parts):
 	self.parts = parts
 
@@ -183,16 +183,19 @@ class Track(Collection):
     def unapply(self):
 	glPopMatrix()
 
+class CoordsBase(object):
+    def __init__(self, *args):
+	self._coords = args
+	self.q = gluNewQuadric()
+
+    def coords(self):
+	return self._coords
 
 # give endpoint X values and radii
 # resulting cylinder is on the X axis
-class CylinderX:
-    def __init__(self, x1, r1, x2, r2):
-	self.coords = x1, r1, x2, r2
-	self.q = gluNewQuadric()
-
+class CylinderX(CoordsBase):
     def draw(self):
-	x1, r1, x2, r2 = self.coords
+	x1, r1, x2, r2 = self.coords()
 	if x1 > x2:
 	    tmp = x1
 	    x1 = x2
@@ -222,13 +225,13 @@ class CylinderX:
 
 # give endpoint Y values and radii
 # resulting cylinder is on the Y axis
-class CylinderY:
+class CylinderY(CoordsBase):
     def __init__(self, y1, r1, y2, r2):
-	self.coords = y1, r1, y2, r2
+	self._coords = y1, r1, y2, r2
 	self.q = gluNewQuadric()
 
     def draw(self):
-	y1, r1, y2, r2 = self.coords
+	y1, r1, y2, r2 = self.coords()
 	if y1 > y2:
 	    tmp = y1
 	    y1 = y2
@@ -256,19 +259,7 @@ class CylinderY:
 	glPopMatrix()
 	glPopMatrix()
 
-# give endpoint Z values and radii
-# resulting cylinder is on the Z axis
-class HalCylinderZ:
-    def __init__(self, comp, z1, r1, z2, r2):
-        self.comp = comp
-	self._coords = z1, r1, z2, r2
-	self.q = gluNewQuadric()
-
-    def coords(self):
-        for c in self._coords:
-            if isinstance(c, str): yield self.comp[c]
-            else: yield c
-
+class CylinderZ(CoordsBase):
     def draw(self):
 	z1, r1, z2, r2 = self.coords()
 	if z1 > z2:
@@ -294,44 +285,10 @@ class HalCylinderZ:
 	glPopMatrix()
 	glPopMatrix()
 
-class CylinderZ:
-    def __init__(self, z1, r1, z2, r2):
-	self.coords = z1, r1, z2, r2
-	self.q = gluNewQuadric()
-
-    def draw(self):
-	z1, r1, z2, r2 = self.coords
-	if z1 > z2:
-	    tmp = z1
-	    z1 = z2
-	    z2 = tmp
-	    tmp = r1
-	    r1 = r2
-	    r2 = tmp
-	# need to translate the whole thing to z1
-	glPushMatrix()
-	glTranslatef(0,0,z1)
-	# the cylinder starts out at Z=0
-	gluCylinder(self.q, r1, r2, z2-z1, 32, 1)
-	# bottom cap
-	glRotatef(180,1,0,0)
-	gluDisk(self.q, 0, r1, 32, 1)
-	glRotatef(180,1,0,0)
-	# the top cap needs flipped and translated
-	glPushMatrix()
-	glTranslatef(0,0,z2-z1)
-	gluDisk(self.q, 0, r2, 32, 1)
-	glPopMatrix()
-	glPopMatrix()
-
 # give center and radius
-class Sphere:
-    def __init__(self, x, y, z, r):
-	self.coords = x, y, z, r
-	self.q = gluNewQuadric()
-
+class Sphere(CoordsBase):
     def draw(self):
-	x, y, z, r = self.coords
+	x, y, z, r = self.coords()
 	# need to translate the whole thing to x,y,z
 	glPushMatrix()
 	glTranslatef(x,y,z)
@@ -340,12 +297,9 @@ class Sphere:
 	glPopMatrix()
 
 # six coordinate version - specify each side of the box
-class Box:
-    def __init__(self, x1, y1, z1, x2, y2, z2):
-        self.coords = x1, y1, z1, x2, y2, z2
-
+class Box(CoordsBase):
     def draw(self):
-        x1, y1, z1, x2, y2, z2 = self.coords
+        x1, y1, z1, x2, y2, z2 = self.coords()
         if x1 > x2:
 	    tmp = x1
 	    x1 = x2
@@ -402,19 +356,19 @@ class Box:
 # the box is centered on the origin
 class BoxCentered(Box):
     def __init__(self, xw, yw, zw):
-        self.coords = -xw/2.0, -yw/2.0, -zw/2.0, xw/2.0, yw/2.0, zw/2.0
+	Box.__init__(self, -xw/2.0, -yw/2.0, -zw/2.0, xw/2.0, yw/2.0, zw/2.0)
 
 # specify the width in X and Y, and the height in Z
 # the box is centered in X and Y, and runs from Z=0 up
 # (or down) to the specified Z value
 class BoxCenteredXY(Box):
     def __init__(self, xw, yw, zw):
-        self.coords = -xw/2.0, -yw/2.0, 0, xw/2.0, yw/2.0, zw
+	Box.__init__(self, -xw/2.0, -yw/2.0, 0, xw/2.0, yw/2.0, zw)
 
 # capture current transformation matrix
 # note that this tranforms from the current coordinate system
 # to the viewport system, NOT to the world system
-class Capture:
+class Capture(object):
     def __init__(self):
 	self.t = []
 
