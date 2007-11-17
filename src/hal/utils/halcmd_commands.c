@@ -59,10 +59,10 @@
 
 static int unloadrt_comp(char *mod_name);
 static void print_comp_info(char **patterns);
-static void print_pin_info(char **patterns);
-static void print_sig_info(char **patterns);
-static void print_script_sig_info(char **patterns);
-static void print_param_info(char **patterns);
+static void print_pin_info(int type, char **patterns);
+static void print_sig_info(int type, char **patterns);
+static void print_script_sig_info(int type, char **patterns);
+static void print_param_info(int type, char **patterns);
 static void print_funct_info(char **patterns);
 static void print_thread_info(char **patterns);
 static void print_comp_names(char **patterns);
@@ -89,6 +89,10 @@ static void save_nets(FILE *dst, int arrows);
 static void save_params(FILE *dst);
 static void save_threads(FILE *dst);
 static void print_help_commands(void);
+
+static int tmatch(int req_type, int type) {
+    return req_type == -1 || type == req_type;
+}
 
 static int match(char **patterns, char *value) {
     int i;
@@ -842,6 +846,27 @@ int do_gets_cmd(char *name)
     return HAL_SUCCESS;
 }
 
+static int get_type(char ***patterns) {
+    char *typestr = 0;
+    if(!(*patterns)) return -1;
+    if((*patterns)[0][0] != '-' || (*patterns)[0][1] != 't') return -1;
+    if((*patterns)[0][2]) {
+	typestr = &(*patterns)[0][2];
+	*patterns += 1;
+    } else if((*patterns)[1][0]) {
+	typestr = (*patterns)[1];
+	*patterns += 2;
+    }
+    if(!typestr) return -1;
+    if(strcmp(typestr, "float") == 0) return HAL_FLOAT;
+    if(strcmp(typestr, "bit") == 0) return HAL_BIT;
+    if(strcmp(typestr, "s32") == 0) return HAL_S32;
+    if(strcmp(typestr, "u32") == 0) return HAL_U32;
+    if(strcmp(typestr, "signed") == 0) return HAL_S32;
+    if(strcmp(typestr, "unsigned") == 0) return HAL_U32;
+    return -1;
+}
+
 int do_show_cmd(char *type, char **patterns)
 {
 
@@ -852,31 +877,36 @@ int do_show_cmd(char *type, char **patterns)
     if (!type || *type == '\0') {
 	/* print everything */
 	print_comp_info(NULL);
-	print_pin_info(NULL);
-	print_sig_info(NULL);
-	print_param_info(NULL);
+	print_pin_info(-1, NULL);
+	print_sig_info(-1, NULL);
+	print_param_info(-1, NULL);
 	print_funct_info(NULL);
 	print_thread_info(NULL);
     } else if (strcmp(type, "all") == 0) {
 	/* print everything, using the pattern */
 	print_comp_info(patterns);
-	print_pin_info(patterns);
-	print_sig_info(patterns);
-	print_param_info(patterns);
+	print_pin_info(-1, patterns);
+	print_sig_info(-1, patterns);
+	print_param_info(-1, patterns);
 	print_funct_info(patterns);
 	print_thread_info(patterns);
     } else if (strcmp(type, "comp") == 0) {
 	print_comp_info(patterns);
     } else if (strcmp(type, "pin") == 0) {
-	print_pin_info(patterns);
+	int type = get_type(&patterns);
+	print_pin_info(type, patterns);
     } else if (strcmp(type, "sig") == 0) {
-	print_sig_info(patterns);
+	int type = get_type(&patterns);
+	print_sig_info(type, patterns);
     } else if (strcmp(type, "signal") == 0) {
-	print_sig_info(patterns);
+	int type = get_type(&patterns);
+	print_sig_info(type, patterns);
     } else if (strcmp(type, "param") == 0) {
-	print_param_info(patterns);
+	int type = get_type(&patterns);
+	print_param_info(type, patterns);
     } else if (strcmp(type, "parameter") == 0) {
-	print_param_info(patterns);
+	int type = get_type(&patterns);
+	print_param_info(type, patterns);
     } else if (strcmp(type, "funct") == 0) {
 	print_funct_info(patterns);
     } else if (strcmp(type, "function") == 0) {
@@ -1473,7 +1503,7 @@ static void print_comp_info(char **patterns)
     halcmd_output("\n");
 }
 
-static void print_pin_info(char **patterns)
+static void print_pin_info(int type, char **patterns)
 {
     int next;
     hal_pin_t *pin;
@@ -1489,7 +1519,7 @@ static void print_pin_info(char **patterns)
     next = hal_data->pin_list_ptr;
     while (next != 0) {
 	pin = SHMPTR(next);
-	if ( match(patterns, pin->name) ) {
+	if ( tmatch(type, pin->type) && match(patterns, pin->name) ) {
 	    comp = SHMPTR(pin->owner_ptr);
 	    if (pin->signal != 0) {
 		sig = SHMPTR(pin->signal);
@@ -1525,7 +1555,7 @@ static void print_pin_info(char **patterns)
     halcmd_output("\n");
 }
 
-static void print_sig_info(char **patterns)
+static void print_sig_info(int type, char **patterns)
 {
     int next;
     hal_sig_t *sig;
@@ -1533,7 +1563,7 @@ static void print_sig_info(char **patterns)
     hal_pin_t *pin;
 
     if (scriptmode != 0) {
-    	print_script_sig_info(patterns);
+    	print_script_sig_info(type, patterns);
 	return;
     }
     halcmd_output("Signals:\n");
@@ -1542,7 +1572,7 @@ static void print_sig_info(char **patterns)
     next = hal_data->sig_list_ptr;
     while (next != 0) {
 	sig = SHMPTR(next);
-	if ( match(patterns, sig->name) ) {
+	if ( tmatch(type, sig->type) && match(patterns, sig->name) ) {
 	    dptr = SHMPTR(sig->data_ptr);
 	    halcmd_output("%s  %s  %s\n", data_type((int) sig->type),
 		data_value((int) sig->type, dptr), sig->name);
@@ -1560,7 +1590,7 @@ static void print_sig_info(char **patterns)
     halcmd_output("\n");
 }
 
-static void print_script_sig_info(char **patterns)
+static void print_script_sig_info(int type, char **patterns)
 {
     int next;
     hal_sig_t *sig;
@@ -1574,7 +1604,7 @@ static void print_script_sig_info(char **patterns)
     next = hal_data->sig_list_ptr;
     while (next != 0) {
 	sig = SHMPTR(next);
-	if ( match(patterns, sig->name) ) {
+	if ( tmatch(type, sig->type) && match(patterns, sig->name) ) {
 	    dptr = SHMPTR(sig->data_ptr);
 	    halcmd_output("%s  %s  %s", data_type((int) sig->type),
 		data_value2((int) sig->type, dptr), sig->name);
@@ -1593,7 +1623,7 @@ static void print_script_sig_info(char **patterns)
     halcmd_output("\n");
 }
 
-static void print_param_info(char **patterns)
+static void print_param_info(int type, char **patterns)
 {
     int next;
     hal_param_t *param;
@@ -1607,7 +1637,7 @@ static void print_param_info(char **patterns)
     next = hal_data->param_list_ptr;
     while (next != 0) {
 	param = SHMPTR(next);
-	if ( match(patterns, param->name) ) {
+	if ( tmatch(type, param->type), match(patterns, param->name) ) {
 	    comp = SHMPTR(param->owner_ptr);
 	    if (scriptmode == 0) {
 		halcmd_output(" %5d  %5s %-3s  %9s  %s\n",
@@ -2504,17 +2534,18 @@ int do_help_cmd(char *command)
 	printf("  'thread', or 'all'.  If 'type' is omitted, it assumes\n");
 	printf("  'all' with no pattern.  If 'pattern' is specified\n");
 	printf("  it prints only those items whose names match the\n");
-	printf("  pattern (no fancy regular expressions, just a simple\n");
-	printf("  match: 'foo' matches 'foo', 'foobar' and 'foot' but\n");
-	printf("  not 'fo' or 'frobz' or 'ffoo').\n");
+	printf("  pattern, which may be a 'shell glob'.\n");
     } else if (strcmp(command, "list") == 0) {
 	printf("list type [pattern]\n");
 	printf("  Prints the names of HAL items of the specified type.\n");
 	printf("  'type' is 'comp', 'pin', 'sig', 'param', 'funct', or\n");
 	printf("  'thread'.  If 'pattern' is specified it prints only\n");
-	printf("  those names that match the pattern (no fancy regular\n");
-	printf("  expressions, just a simple match: 'foo' matches 'foo',\n");
-	printf("  'foobar' and 'foot' but not 'fo' or 'frobz' or 'ffoo').\n");
+	printf("  those names that match the pattern, which may be a\n");
+	printf("  'shell glob'.\n");
+	printf("  For 'sig', 'pin' and 'param', the first pattern may be\n");
+	printf("  -tdatatype where datatype is the data type (e.g., 'float')\n");
+	printf("  in this case, the listed pins, signals, or parameters\n");
+	printf("  are restricted to the given data type\n");
 	printf("  Names are printed on a single line, space separated.\n");
     } else if (strcmp(command, "status") == 0) {
 	printf("status [type]\n");
