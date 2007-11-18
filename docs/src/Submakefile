@@ -40,6 +40,7 @@ DOC_SRCS := \
 	config/ini_homing.lyx \
 	config/ini_homing_fr.lyx \
 	config/emc2hal.lyx \
+	config/emc2hal_fr.lyx \
 	config/stepper.lyx \
 	config/stepconf.lyx \
 	config/stepconf_fr.lyx \
