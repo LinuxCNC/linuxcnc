@@ -22,10 +22,21 @@ x0 y0 b0 c0
 o200 endsub
 
 (cut around the "cone" with different tool lengths)
-o200 call [20]
 o200 call [50]
 o200 call [80]
 
-g49 g28
+g61
+
+g0 x-100 b-45 c-180
+#100=-180
+o101 while [ #100 lt 180 ]
+    g0 x[150*cos[#100]] y[150*sin[#100]] z-100 c#100
+    g1 w100 f2000 (drill)
+    g0 w0
+    #100=[#100+45]
+o101 endwhile
+
+g28
+g49
 
 m2
