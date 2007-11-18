@@ -38,6 +38,7 @@ DOC_SRCS := \
 	config/ini_config.lyx \
 	config/ini_config_fr.lyx \
 	config/ini_homing.lyx \
+	config/ini_homing_fr.lyx \
 	config/emc2hal.lyx \
 	config/stepper.lyx \
 	config/stepconf.lyx \
