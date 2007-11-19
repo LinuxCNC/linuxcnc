@@ -238,7 +238,9 @@ endif
     
 docclean:
 	-rm -f $(DOC_DIR)/HAL_User_Manual.pdf
+	-rm -f $(DOC_DIR)/HAL_User_Manual_fr.pdf
 	-rm -f $(DOC_DIR)/EMC2_User_Manual.pdf
+	-rm -f $(DOC_DIR)/EMC2_User_Manual_fr.pdf
 	-rm -f $(DOC_DIR)/EMC2_Developer_Manual.pdf
 	-rm -f $(DOC_DIR)/EMC2_Integrator_Manual.pdf
 	-rm -f $(DOC_SRCDIR)/*.d

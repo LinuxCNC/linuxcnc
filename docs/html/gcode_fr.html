@@ -1,0 +1,165 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+   "http://www.w3.org/TR/html4/strict.dtd">
+<!-- 
+Copyright (C) 2006, 2007 Jeff Epler
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+-->
+<HTML>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=ISO-8859-15" >
+<STYLE type="text/css"><!--
+table { border: 1px solid black; border-collapse: collapse; }
+table #titlerow th { border-bottom: 2px solid black; border-left: 2px solid black; text-align: center; }
+table #titlerow th:first-child { border-bottom: 2px solid black; border-left: 0px; text-align: center; }
+table td:first-child { border-left: 0px; }
+table td { border-left: 1px solid black; padding-left: .25em; padding-right: .25em; }
+table th { text-align: left; border-bottom: 1px solid black; border-top: 1px solid black; }
+@media print {
+@page { margin: .150in; }
+html { padding: 0; margin: 0; }
+body { padding: 3px; margin: 3px; }
+* { font-size: 8pt }
+a { text-decoration: none; color: black; }
+table { width: 100%; }
+}
+td { background: white; color: black; }
+tr.odd td { background: #d9d9d9; }
+tr.head td, tr.head th { background: black; color: white; }
+--></STYLE>
+<TITLE>EMC2 "G-Code" Aide rapide</TITLE>
+</HEAD>
+
+<BODY>
+<TABLE ID=ref1>
+<CAPTION> EMC2 "G-Code" Aide rapide </CAPTION>
+<COL id="group"> <COL id="codes"> <COL id="paramètres"> <COL id="description">
+<TR id="titlerow"> <TH>Codes <TH>Paramètres <TH>Description </TR>
+<TR> <TH>Mouvements <TD COLSPAN=2 STYLE="border-bottom: 1px solid black">(X Y Z A B C U V W s'appliquent a tout les mouvements) </TR>
+<TR> <TD> <A HREF="gcode_main.html#sec:G0:-Deplacement lineaire rapide">G0</A> <TD> <TD> Déplacement linéaire en vitesse rapide </TR>
+<TR> <TD> <A HREF="gcode_main.html#sec:G1:-Interpolation lineaire a vitesse programmee">G1</A> <TD> <TD> Interpolation linéaire en vitesse programmée </TR>
+<TR> <TD> <A HREF="gcode_main.html#sub:G2,-G3:-Arc">G2</A>, <A HREF="gcode_main.html#sub:G2,-G3:-Arc">G3</A> <TD> I J K ou R <TD> Interpolation circulaire ("ou helicoidale") sens horaire, sens anti-horaire </TR>
+<TR> <TD> <A HREF="gcode_main.html#sub:G38.2:-Straight-Probe">G38.2&hellip;G38.5</A> <TD> <TD> Sonde de mesure </TR>
+<TR> <TD> <A HREF="gcode_main.html#sec:G80:-Cancel-Modal">G80</A> <TD> <TD> Révocation des codes modaux  </TR>
+<TR> <TD> <A HREF="gcode_main.html#sub:G81:-Drilling-Cycle">G81</A> <TD> R L P <TD> Cycle de perçage </TR>
+<TR> <TD> <A HREF="gcode_main.html#sub:G81-to-G89:">G82&hellip;G89</A> <TD> R L P Q <TD> Autres cycles préprogrammés</TR>
+<TR> <TD> <A HREF="gcode_main.html#sec:G33,-G33.1:-Spindle-Synchronized">G33</A> <TD> K <TD> Filetage avec broche synchronisée </TR>
+<TR> <TD> <A HREF="gcode_main.html#sec:G33,-G33.1:-Spindle-Synchronized">G33.1</A> <TD> K <TD> Taraudage rigide </TR>
+<TR> <TD> <A HREF="gcode_main.html#sec:G76:-Threading-Canned">G76</A> <TD> P Z I J R K Q H L E<TD> Cycle de filetage multi-passes (tour) </TR>
+<TR> <TH COLSPAN=3>Choix du plan de travail (affecte G2, G3, G81&hellip;G89, G40&hellip;G42)</TR>
+<TR> <TD> <A HREF="gcode_main.html#sub:G17,-G18,-G19:">G17</A> <TD> <TD> Plan de travail XY </TR>
+<TR> <TD> <A HREF="gcode_main.html#sec:G17,-G18,-G19:">G18</A> <TD> <TD> Plan de travail XZ </TR>
+<TR> <TD> <A HREF="gcode_main.html#sec:G17,-G18,-G19:">G19</A> <TD> <TD> Plan de travail YZ </TR>
+<TR> <TH COLSPAN=3>Types de déplacements</TR>
+<TR> <TD> <A HREF="gcode_main.html#sub:G90,-G91:-Set">G90</A> <TD> <TD> Déplacements en coordonnées absolues </TR>
+<TR> <TD> <A HREF="gcode_main.html#sub:G90,-G91:-Set">G91</A> <TD> <TD> Déplacements en coordonnées relatives </TR>
+<TR> <TH COLSPAN=3>Types de vitesses</TR>
+<TR> <TD> <A HREF="gcode_main.html#sub:G93,-G94:-Set">G93</A> <TD> <TD> Vitesse en temps inverse, vitesse/distance </TR>
+<TR> <TD> <A HREF="gcode_main.html#sub:G93,-G94:-Set">G94</A> <TD> <TD> Vitesse en unités par minute </TR>
+<TR> <TD> <A HREF="gcode_main.html#sub:G93,-G94:-Set">G95</A> <TD> <TD> Vitesse en unités par tour </TR>
+<TR> <TH COLSPAN=3>Unités machine </TR>
+<TR> <TD> <A HREF="gcode_main.html#sec:G20,-G21:-Length">G20</A> <TD> <TD> Pouces </TR>
+<TR> <TD> <A HREF="gcode_main.html#sec:G20,-G21:-Length">G21</A> <TD> <TD> Millimètres </TR>
+<TR> <TH COLSPAN=3>Compensation de rayon d'outil</TR>
+<TR> <TD> <A HREF="gcode_main.html#sub:G40,-G41,-G42:">G41</A>, <A HREF="gcode_main.html#sub:G40,-G41,-G42:">G42</A> <TD> D <TD> Compensation de rayon d'outil, vers la gauche ou vers la droite </TR>
+<TR> <TD> <A HREF="gcode_main.html#sub:G40,-G41,-G42:">G41.1</A>, <A HREF="gcode_main.html#sub:G40,-G41,-G42:">G42.1</A> <TD> D L <TD> Compensation de rayon d'outil transitoire, à gauche ou à droite </TR>
+<TR> <TD> <A HREF="gcode_main.html#sub:G40,-G41,-G42:">G40</A> <TD> <TD> Annulation de la compensation de rayon d'outil </TR>
+<TR> <TH COLSPAN=3>Correcteur de longueur d'outil</TR>
+<TR> <TD> <A HREF="gcode_main.html#sub:G43,-G49:-Tool">G43</A> <TD> H <TD> Correcteur de longueur d'outil depuis la table d'outils</TR>
+<TR> <TD> <A HREF="gcode_main.html#sub:G43,-G49:-Tool">G43.1</A> <TD> I K <TD> Correction de longueur d'outil transitoire </TR>
+<TR> <TD> <A HREF="gcode_main.html#sub:G43,-G49:-Tool">G49</A> <TD> <TD> Annulation du correcteur de longueur d'outil </TR>
+<TR> <TH COLSPAN=3>Types de retrait des cycles préprogrammés </TR>
+<TR> <TD> <A HREF="gcode_main.html#sub:G98,-G99:-Set">G98</A> <TD> <TD> Position de retrait sur R </TR>
+<TR> <TD> <A HREF="gcode_main.html#sub:G98,-G99:-Set">G99</A> <TD> <TD> Retrait au point initial </TR>
+<TR> <TH COLSPAN=3>Types de contrôle des trajectoires </TR>
+<TR> <TD> <A HREF="gcode_main.html#sub:G61,-G61.1,-G64:">G61</A> <TD> <TD> Mode trajectoire exacte </TR>
+<TR> <TD> <A HREF="gcode_main.html#sub:G61,-G61.1,-G64:">G61.1</A> <TD> <TD> Mode d'arrêts exacts </TR>
+<TR> <TD> <A HREF="gcode_main.html#sub:G61,-G61.1,-G64:">G64</A> <TD> P <TD> Mode trajectoire continue avec tolérance optionnelle </TR>
+<TR> <TH COLSPAN=3>Arrêts de programme </TR>
+<TR> <TD> <A HREF="gcode_main.html#sub:M0,-M1,-M2,">M0</A> <TD> <TD> Programme en pause </TR>
+<TR> <TD> <A HREF="gcode_main.html#sub:M0,-M1,-M2,">M2</A> <TD> <TD> Fin de programme </TR>
+<TR> <TD COLSPAN=2> <A HREF="gcode_main.html#sub:M0,-M1,-M2,">M1, M30, M60</A> <TD> Autres codes d'arrêt </TR>
+<TR> <TH COLSPAN=3>Contrôle de broche </TR>
+<TR> <TD> <A HREF="gcode_main.html#sub:M3,-M4,-M5:">M3, M4</A> <TD> S <TD> Marche broche sens horaire, sens anti-horaire </TR>
+<TR> <TD> <A HREF="gcode_main.html#sub:M3,-M4,-M5:">M5</A> <TD> <TD> Arrêt de la broche </TR>
+<TR> <TD> <A HREF="gcode_main.html#sec:G96,-G97:-Spindle">G96</A> <TD> D S <TD> Vitesse de coupe constante (pieds par minute ou mètre par minute) </TR>
+<TR> <TD> <A HREF="gcode_main.html#sec:G96,-G97:-Spindle">G97</A> <TD> <TD> Vitesse en tours par minute </TR>
+<TR> <TH COLSPAN=3>Arrosages </TR>
+<TR> <TD> <A HREF="gcode_main.html#sub:M7,-M8,-M9:">M7</A> <TD> <TD> Marche brouillard </TR>
+<TR> <TD> <A HREF="gcode_main.html#sub:M7,-M8,-M9:">M8</A> <TD> <TD> Marche arrosage </TR>
+<TR> <TD> <A HREF="gcode_main.html#sub:M7,-M8,-M9:">M9</A> <TD> <TD> Arrêt des arrosages </TR>
+<TR> <TH COLSPAN=3>Autres codes modaux </TR>
+<TR> <TD> <A HREF="gcode_main.html#sub:F:-Set-Feed">F</A> <TD> <TD> Réglage vitesse travail </TR>
+<TR> <TD> <A HREF="gcode_main.html#sub:S:-Set-Spindle">S</A> <TD> <TD> Réglage vitesse broche </TR>
+<TR> <TD> <A HREF="gcode_main.html#sub:M6:-Tool-Change">T</A> <TD> <TD> Appel d'outil </TR>
+<TR> <TD> <A HREF="gcode_main.html#sec:M50:-Feed-Override">M50&hellip;M53</A> <TD> P0 (off) ou P1 (on) <TD> Correcteur vitesse travail, Correcteur vitesse broche, Vitesse adaptative, Vitesse constante</TR>
+<TR> <TD COLSPAN=2><A HREF="gcode_main.html#sub:G54-to-G59.3:">G54&hellip;G59, G59.1&hellip;G59.3</A><TD> Select coordinate system </TR>
+<TR> <TH COLSPAN=3>Instructions de contrôle </TR>
+<TR> <TD> <A HREF="gcode_main.html#cha:O-Codes">O &hellip;</A> <TD COLSPAN=2> sub/endsub, while/endwhile, if/else/endif, do/while, call, break/continue/return </TR>
+<TR> <TH COLSPAN=3>Codes non modaux </TR>
+<TR> <TD> <A HREF="gcode_main.html#sub:M6:-Tool-Change">M6</A> <TD> T <TD> Appel d'outil </TR>
+<TR> <TD> <A HREF="gcode_main.html#sec:G4:-Dwell">G4</A> <TD> P <TD> Temporisation (secondes) </TR>
+<TR> <TD> <A HREF="gcode_main.html#sub:G10:-Set-Coordinate">G10 L2</A> <TD> P X Y Z A B C <TD> Etablissement du système de coordonnées pièce </TR>
+<TR> <TD> <A HREF="gcode_main.html#sub:G28,-G30:-Return">G28</A> <TD> <TD> Retour à l'origine machine </TR>
+<TR> <TD> <A HREF="gcode_main.html#sub:G28,-G30:-Return">G30</A> <TD> <TD> Retour à l'origine pièce </TR>
+<TR> <TD> <A HREF="gcode_main.html#sub:G53:-Move-in">G53</A> <TD> <TD> Déplacements en coordonnées machine </TR>
+<TR> <TD> <A HREF="gcode_main.html#sub:G92,-G92.1,-G92.2,">G92</A> <TD> X Y Z A B C <TD> Décalages d'origines avec réglage des paramètres</TR>
+<TR> <TD> <A HREF="gcode_main.html#sub:G92,-G92.1,-G92.2,">G92.1</A> <TD> <TD> Annulation des décalages d'origines avec remise à zéro des paramètres </TR>
+<TR> <TD> <A HREF="gcode_main.html#sub:G92,-G92.1,-G92.2,">G92.2</A> <TD> <TD> Annulation des décalages d'origines sans remise à zéro des paramètres </TR>
+<TR> <TD> <A HREF="gcode_main.html#sub:G92,-G92.1,-G92.2,">G92.3</A> <TD> <TD> Applique les paramètres aux décalages d'origines  </TR>
+<TR> <TD> <A HREF="gcode_main.html#sec:M100-to-M199:">M101&hellip;M199</A> <TD> P Q <TD> M-codes définis par l'opérateur </TR>
+<TR> <TD> <A HREF="gcode_main.html#sec:Comments">(&hellip;)</A> <TD> <TD> Un commentaire "<STRONG>&hellip;</STRONG>" à l'opérateur</TR>
+<TR> <TD> <A HREF="gcode_main.html#sub:Messages">(MSG,&hellip;)</A> <TD> <TD> Affiche un message "<STRONG>&hellip;</STRONG>" à l'opérateur (ex: dans une fenêtre)</TR>
+<TR> <TD COLSPAN=2> <A HREF="gcode_main.html#sub:Debugging-messages">(DEBUG,&hellip;#123&hellip;#&lt;foo&gt;)</A> <TD> Affiche le message (avec substitution de variables) comme MSG</TR>
+<TR> <TD COLSPAN=2> <A HREF="gcode_main.html#sub:Debugging-messages">(PRINT,&hellip;#123&hellip;#&lt;foo&gt;)</A> <TD> Affiche le message (avec substitution de variables) dans stderr</TR>
+</TABLE>
+<SCRIPT><!--
+var rows=document.evaluate('//tr', document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+var j=0;
+for(var i=0; i<rows.snapshotLength; i++) {
+    var it = rows.snapshotItem(i);
+    var th = document.evaluate('th', it, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
+    if(th.snapshotLength) {
+        it.setAttribute('class', 'head');
+        j = 0;
+    } else {
+        if(j) it.setAttribute('class', 'odd');
+        j = !j;
+    }
+}
+
+function fixup_urls() {
+var links=document.evaluate('//a[@href]', document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+    for(var i=0; i<links.snapshotLength; i++) {
+        var it = links.snapshotItem(i);
+        it.setAttribute('href',
+            "http://linuxcnc.org/docs/devel/html/" + it.getAttribute('href'));
+    }
+}
+
+// In the emc package, gcode_main.html is (probably) not included.  In this
+// case, fix up the links to point at the online version instead of a local
+// version
+if(document.location.protocol == "file:") {
+    try {
+        var x = document.implementation.createDocument("", "", null);
+        x.load("gcode_main.html");
+        x.onerror = fixup_urls;
+    } catch(err) {
+        fixup_urls();
+    }
+}
+// --></SCRIPT>
+</BODY>
