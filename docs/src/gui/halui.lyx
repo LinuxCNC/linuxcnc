@@ -637,6 +637,44 @@ General
 bit
 \noun default 
 ) halui.abort - pin to send an abort message (clears out most errors)
+\layout Subsection
+
+MDI
+\layout Standard
+
+Sometimes the user wants to add more complicated tasks to be performed by
+ the activation of a HAL pin.
+ This is possible using the following MDI commands scheme:
+\layout Itemize
+
+a MDI_COMMAND is added to the ini (in the section [HALUI]) (e.g.
+ [HALUI] MDI_COMMAND = G0 X0
+\layout Itemize
+
+when halui starts it will read/detect the MDI_COMMAND fields in the ini,
+ and export pins of type (
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.mdi-command-<nr> (<nr> is a number from 00 to the number of MDI_COMMAND's
+ found in the ini)
+\layout Itemize
+
+when the pin halui.mdi-command-<nr> is activated halui will try to send the
+ MDI command defined in the ini 
+\begin_inset Foot
+collapsed true
+
+\layout Standard
+
+This will not always succeed, depending on the operating mode emc2 is in
+ (e.g.
+ while in AUTO halui can't successfully send MDI commands).
+\end_inset 
+
+
 \layout Section
 
 Case - Studies
