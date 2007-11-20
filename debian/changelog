@@ -10,6 +10,7 @@ emc2 (1:2.2.2~cvs) unstable; urgency=low
   * restore cone rotation when the A-axis moves
   * fix 'scara' sample configuration
   * fix display of home and limit switches on XYZBC machines
+  * improve legibility of running line in text area
 
  -- jepler <jepler@unpythonic.net>  Thu, 15 Nov 2007 07:43:04 -0600
 
