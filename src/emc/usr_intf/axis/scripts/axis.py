@@ -3368,7 +3368,7 @@ init()
 t = widgets.text
 t.bind("<Configure>", set_tabs)
 t.tag_configure("lineno", foreground="#808080")
-t.tag_configure("executing", background="#804040")
+t.tag_configure("executing", background="#804040", foreground="#ffffff")
 if args:
     for i, l in enumerate(open(args[0])):
         l = l.expandtabs().replace("\r", "")
