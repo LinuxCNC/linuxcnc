@@ -11,8 +11,9 @@ emc2 (1:2.2.2~cvs) unstable; urgency=low
   * fix 'scara' sample configuration
   * fix display of home and limit switches on XYZBC machines
   * improve legibility of running line in text area
+  * additional french documentation translation, including gcode quickref
 
- -- jepler <jepler@unpythonic.net>  Thu, 15 Nov 2007 07:43:04 -0600
+ -- Jeff Epler <jepler@unpythonic.net>  Tue, 20 Nov 2007 15:55:31 -0600
 
 emc2 (1:2.2.1) unstable; urgency=low
 
