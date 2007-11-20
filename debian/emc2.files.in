@@ -10,6 +10,7 @@ usr/bin/halrun
 usr/bin/halrmt
 usr/bin/emclcd
 usr/bin/rs274
+@MODULE_PATH@/5axiskins@MODULE_EXT@
 @MODULE_PATH@/abs@MODULE_EXT@
 @MODULE_PATH@/and2@MODULE_EXT@
 @MODULE_PATH@/at_pid@MODULE_EXT@
@@ -102,6 +103,12 @@ usr/bin/rs274
 etc/emc2/emc2icon.png
 etc/emc2/emc2.gif
 etc/emc2/emc2-wizard.gif
+etc/emc2/sample-configs/5axis/5axis_sim.hal
+etc/emc2/sample-configs/5axis/emc.nml
+etc/emc2/sample-configs/5axis/5axis.ini
+etc/emc2/sample-configs/5axis/5axis.tbl
+etc/emc2/sample-configs/5axis/README
+etc/emc2/sample-configs/5axis/5axis.var
 etc/emc2/sample-configs/boss/boss.hal
 etc/emc2/sample-configs/boss/boss.ini
 etc/emc2/sample-configs/boss/boss.tbl
@@ -414,6 +421,7 @@ usr/share/emc/ncfiles/cds.ngc
 usr/share/emc/ncfiles/comp.ngc
 usr/share/emc/ncfiles/comp311.ngc
 usr/share/emc/ncfiles/comp311_2.ngc
+usr/share/emc/ncfiles/cone.ngc
 usr/share/emc/ncfiles/daisy.ngc
 usr/share/emc/ncfiles/flowsnake.ngc
 usr/share/emc/ncfiles/flowsnake.py
@@ -424,6 +432,7 @@ usr/share/emc/ncfiles/involute.py
 usr/share/emc/ncfiles/lathe_pawn.ngc
 usr/share/emc/ncfiles/lathecomp.ngc
 usr/share/emc/ncfiles/skeleton.ngc
+usr/share/emc/ncfiles/smartprobe.ngc
 usr/share/emc/ncfiles/spiral.ngc
 usr/share/emc/ncfiles/systems.ngc
 usr/share/emc/ncfiles/threading.ngc
@@ -656,4 +665,6 @@ usr/share/locale/se/LC_MESSAGES/axis.mo
 usr/share/doc/emc2/EMC2_User_Manual.pdf
 usr/share/doc/emc2/EMC2_User_Manual_fr.pdf
 usr/share/doc/emc2/EMC2_Integrator_Manual.pdf
+usr/share/doc/emc2/HAL_User_Manual_fr.pdf
 usr/share/doc/emc2/gcode.html
+usr/share/doc/emc2/gcode_fr.html
