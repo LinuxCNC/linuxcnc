@@ -6701,8 +6701,8 @@ G43
 G43 and G43.1 change subsequent motions by offsetting the Z and/or X coordinates
  by the length of the tool.
  G43 and G43.1 do not cause any motion.
- However, at the end of a subsequent movement, the tool tip will be at the
- programmed location.
+ The next time a compensated axis is moved, that axis's endpoint is the
+ compensated location.
 \layout Subsubsection
 
 G43: Offsets from tool table
