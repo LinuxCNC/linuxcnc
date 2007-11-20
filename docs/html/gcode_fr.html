@@ -48,8 +48,8 @@ tr.head td, tr.head th { background: black; color: white; }
 <COL id="group"> <COL id="codes"> <COL id="paramètres"> <COL id="description">
 <TR id="titlerow"> <TH>Codes <TH>Paramètres <TH>Description </TR>
 <TR> <TH>Mouvements <TD COLSPAN=2 STYLE="border-bottom: 1px solid black">(X Y Z A B C U V W s'appliquent a tout les mouvements) </TR>
-<TR> <TD> <A HREF="gcode_main.html#sec:G0:-Deplacement lineaire rapide">G0</A> <TD> <TD> Déplacement linéaire en vitesse rapide </TR>
-<TR> <TD> <A HREF="gcode_main.html#sec:G1:-Interpolation lineaire a vitesse programmee">G1</A> <TD> <TD> Interpolation linéaire en vitesse programmée </TR>
+<TR> <TD> <A HREF="gcode_main.html#sec:G0:-Rapid-Linear">G0</A> <TD> <TD> Interpolation linéaire en vitesse rapide </TR>
+<TR> <TD> <A HREF="gcode_main.html#sec:G1:-Linear-Motion">G1</A> <TD> <TD> Interpolation linéaire en vitesse programmée </TR>
 <TR> <TD> <A HREF="gcode_main.html#sub:G2,-G3:-Arc">G2</A>, <A HREF="gcode_main.html#sub:G2,-G3:-Arc">G3</A> <TD> I J K ou R <TD> Interpolation circulaire ("ou helicoidale") sens horaire, sens anti-horaire </TR>
 <TR> <TD> <A HREF="gcode_main.html#sub:G38.2:-Straight-Probe">G38.2&hellip;G38.5</A> <TD> <TD> Sonde de mesure </TR>
 <TR> <TD> <A HREF="gcode_main.html#sec:G80:-Cancel-Modal">G80</A> <TD> <TD> Révocation des codes modaux  </TR>
@@ -115,13 +115,13 @@ tr.head td, tr.head th { background: black; color: white; }
 <TR> <TD> <A HREF="gcode_main.html#sub:G28,-G30:-Return">G28</A> <TD> <TD> Retour à l'origine machine </TR>
 <TR> <TD> <A HREF="gcode_main.html#sub:G28,-G30:-Return">G30</A> <TD> <TD> Retour à l'origine pièce </TR>
 <TR> <TD> <A HREF="gcode_main.html#sub:G53:-Move-in">G53</A> <TD> <TD> Déplacements en coordonnées machine </TR>
-<TR> <TD> <A HREF="gcode_main.html#sub:G92,-G92.1,-G92.2,">G92</A> <TD> X Y Z A B C <TD> Décalages d'origines avec réglage des paramètres</TR>
+<TR> <TD> <A HREF="gcode_main.html#sub:G92,-G92.1,-G92.2,">G92</A> <TD> X Y Z A B C <TD> Décalages d'origines avec mise à jour des paramètres</TR>
 <TR> <TD> <A HREF="gcode_main.html#sub:G92,-G92.1,-G92.2,">G92.1</A> <TD> <TD> Annulation des décalages d'origines avec remise à zéro des paramètres </TR>
 <TR> <TD> <A HREF="gcode_main.html#sub:G92,-G92.1,-G92.2,">G92.2</A> <TD> <TD> Annulation des décalages d'origines sans remise à zéro des paramètres </TR>
-<TR> <TD> <A HREF="gcode_main.html#sub:G92,-G92.1,-G92.2,">G92.3</A> <TD> <TD> Applique les paramètres aux décalages d'origines  </TR>
+<TR> <TD> <A HREF="gcode_main.html#sub:G92,-G92.1,-G92.2,">G92.3</A> <TD> <TD> Applique le contenu des paramètres aux décalages d'origines  </TR>
 <TR> <TD> <A HREF="gcode_main.html#sec:M100-to-M199:">M101&hellip;M199</A> <TD> P Q <TD> M-codes définis par l'opérateur </TR>
-<TR> <TD> <A HREF="gcode_main.html#sec:Comments">(&hellip;)</A> <TD> <TD> Un commentaire "<STRONG>&hellip;</STRONG>" à l'opérateur</TR>
-<TR> <TD> <A HREF="gcode_main.html#sub:Messages">(MSG,&hellip;)</A> <TD> <TD> Affiche un message "<STRONG>&hellip;</STRONG>" à l'opérateur (ex: dans une fenêtre)</TR>
+<TR> <TD> <A HREF="gcode_main.html#sec:Comments">(&hellip;)</A> <TD> <TD> Un commentaire "<STRONG>&hellip;</STRONG>" pour l'opérateur</TR>
+<TR> <TD> <A HREF="gcode_main.html#sub:Messages">(MSG,&hellip;)</A> <TD> <TD> Affiche un message "<STRONG>&hellip;</STRONG>" pour l'opérateur (ex: dans une fenêtre)</TR>
 <TR> <TD COLSPAN=2> <A HREF="gcode_main.html#sub:Debugging-messages">(DEBUG,&hellip;#123&hellip;#&lt;foo&gt;)</A> <TD> Affiche le message (avec substitution de variables) comme MSG</TR>
 <TR> <TD COLSPAN=2> <A HREF="gcode_main.html#sub:Debugging-messages">(PRINT,&hellip;#123&hellip;#&lt;foo&gt;)</A> <TD> Affiche le message (avec substitution de variables) dans stderr</TR>
 </TABLE>
