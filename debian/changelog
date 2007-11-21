@@ -12,8 +12,10 @@ emc2 (1:2.2.2~cvs) unstable; urgency=low
   * fix display of home and limit switches on XYZBC machines
   * improve legibility of running line in text area
   * additional french documentation translation, including gcode quickref
+  * improve time estimate in gcode File > Properties: it paid no attention to
+    requested feed rates
 
- -- Jeff Epler <jepler@unpythonic.net>  Tue, 20 Nov 2007 15:55:31 -0600
+ -- jepler <jepler@unpythonic.net>  Wed, 21 Nov 2007 10:01:44 -0600
 
 emc2 (1:2.2.1) unstable; urgency=low
 
