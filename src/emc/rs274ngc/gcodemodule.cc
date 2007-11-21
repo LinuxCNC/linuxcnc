@@ -282,9 +282,15 @@ void SET_FEED_MODE(int mode) {
 }
 
 
+/* XXX: This needs to be re-thought.  Sometimes feed rate is not in linear
+ * units--e.g., it could be inverse time feed mode.  in that case, it's wrong
+ * to convert from mm to inch here.  but the gcode time estimate gets inverse
+ * time feed wrong anyway..
+ */
 void SET_FEED_RATE(double rate) {
     maybe_new_line();   
     if(interp_error) return;
+    if(metric) rate /= 25.4;
     PyObject *result =
         PyObject_CallMethod(callback, "set_feed_rate", "f", rate);
     if(result == NULL) interp_error ++;
