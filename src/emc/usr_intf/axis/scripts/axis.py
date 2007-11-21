@@ -1975,6 +1975,7 @@ class DummyCanon:
     def get_axis_mask(self): return 7
     def get_tool(self, tool):
         return tool,0.,0.,0.,0.,0.,0
+    def set_feed_rate(self, rate): pass
 
     def user_defined_function(self, m, p, q):
         self.number = p

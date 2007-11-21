@@ -283,14 +283,12 @@ void SET_FEED_MODE(int mode) {
 
 
 void SET_FEED_RATE(double rate) {
-#if 0
     maybe_new_line();   
     if(interp_error) return;
     PyObject *result =
         PyObject_CallMethod(callback, "set_feed_rate", "f", rate);
     if(result == NULL) interp_error ++;
     Py_XDECREF(result);
-#endif
 }
 
 void DWELL(double time) {
