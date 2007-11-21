@@ -40,27 +40,16 @@ static PmCartesian s2r(double r, double t, double p) {
     return c;
 }
 
-static int fez(double n) {
-    // fuzzy equal to zero
-    const double small = 0.00001;
-
-    return n<small && n>-small;
-}
-
 int kinematicsForward(const double *joints,
 		      EmcPose * pos,
 		      const KINEMATICS_FORWARD_FLAGS * fflags,
 		      KINEMATICS_INVERSE_FLAGS * iflags)
 {
-    PmCartesian r = s2r(haldata->pivot_length + *haldata->tool_length - joints[8], joints[5], 180.0 - joints[4]);
-    int upright = fez(joints[4]) && fez(joints[5]);
+    PmCartesian r = s2r(haldata->pivot_length + joints[8], joints[5], 180.0 - joints[4]);
 
     pos->tran.x = joints[0] + r.x;
     pos->tran.y = joints[1] + r.y;
-    if(upright)
-        pos->tran.z = joints[2] + joints[8];
-    else
-        pos->tran.z = joints[2] + haldata->pivot_length + r.z + *haldata->tool_length;
+    pos->tran.z = joints[2] + haldata->pivot_length + r.z;
     pos->a = joints[3];
     pos->b = joints[4];
     pos->c = joints[5];
@@ -77,15 +66,11 @@ int kinematicsInverse(const EmcPose * pos,
 		      KINEMATICS_FORWARD_FLAGS * fflags)
 {
 
-    PmCartesian r = s2r(haldata->pivot_length + *haldata->tool_length - pos->w, pos->c, 180.0 - pos->b);
-    int upright = fez(pos->b) && fez(pos->c);
+    PmCartesian r = s2r(haldata->pivot_length + pos->w, pos->c, 180.0 - pos->b);
 
     joints[0] = pos->tran.x - r.x;
     joints[1] = pos->tran.y - r.y;
-    if(upright)
-        joints[2] = pos->tran.z - pos->w;
-    else
-        joints[2] = pos->tran.z - haldata->pivot_length - r.z - *haldata->tool_length;
+    joints[2] = pos->tran.z - haldata->pivot_length - r.z;
     joints[3] = pos->a;
     joints[4] = pos->b;
     joints[5] = pos->c;

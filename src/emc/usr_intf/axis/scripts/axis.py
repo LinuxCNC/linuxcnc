@@ -944,7 +944,13 @@ class MyOpengl(Opengl):
             else:
                 positions = s.actual_position
 
-            positions = [(i-j) for i, j in zip(positions, s.tool_offset)]
+#            positions = [(i-j) for i, j in zip(positions, s.tool_offset)]
+#            print positions
+#            print s.tool_offset
+
+            positions = list(positions)
+            positions[8] -= s.tool_offset[2]
+
 
             if vars.coord_type.get():
                 positions = [(i-j) for i, j in zip(positions, s.origin)]
@@ -2779,7 +2785,9 @@ class TclCommands(nf.TclCommands):
         ensure_mode(emc.MODE_MDI)
         s.poll()
 
-        pos = [(a-b) for a, b in zip(s.position , s.tool_offset)]
+#        pos = [(a-b) for a, b in zip(s.position , s.tool_offset)]
+        pos = list(s.position)
+
         pos = to_internal_units(pos)
         p0 = pos[offset_axis]
 

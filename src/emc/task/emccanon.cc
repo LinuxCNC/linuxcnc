@@ -789,7 +789,7 @@ void STRAIGHT_TRAVERSE(double x, double y, double z,
     w += programOrigin.w + wrapOrigin.w;
 
     x += currentXToolOffset;
-    z += currentZToolOffset;
+    w += currentZToolOffset;
 
     periodic_reduce(x,y,z,a,b,c,u,v,w);
 
@@ -862,7 +862,7 @@ void STRAIGHT_FEED(double x, double y, double z,
     w += programOrigin.w + wrapOrigin.w;
 
     x += currentXToolOffset;
-    z += currentZToolOffset;
+    w += currentZToolOffset;
 
     see_segment(x, y, z, a, b, c, u, v, w);
 }
@@ -883,7 +883,6 @@ void RIGID_TAP(double x, double y, double z)
     z += programOrigin.z + wrapOrigin.z;
 
     x += currentXToolOffset;
-    z += currentZToolOffset;
 
     rigidTapMsg.pos.tran.x = TO_EXT_LEN(x);
     rigidTapMsg.pos.tran.y = TO_EXT_LEN(y);
@@ -946,7 +945,7 @@ void STRAIGHT_PROBE(double x, double y, double z,
     w += programOrigin.w + wrapOrigin.w;
 
     x += currentXToolOffset;
-    z += currentZToolOffset;
+    w += currentZToolOffset;
 
     // now x, y, z, and b are in absolute mm or degree units
     probeMsg.pos.tran.x = TO_EXT_LEN(x);
@@ -1145,7 +1144,6 @@ void ARC_FEED(double first_end, double second_end,
 	end.tran.y = second_end + programOrigin.y + wrapOrigin.y;
 	end.tran.z = axis_end_point + programOrigin.z + wrapOrigin.z;
 	end.tran.x += currentXToolOffset;
-	end.tran.z += currentZToolOffset;
 	center.x = first_axis + programOrigin.x + wrapOrigin.x;
         center.x += currentXToolOffset;
 	center.y = second_axis + programOrigin.y + wrapOrigin.y;
@@ -1180,11 +1178,9 @@ void ARC_FEED(double first_end, double second_end,
 	end.tran.z = second_end + programOrigin.z + wrapOrigin.z;
 	end.tran.x = axis_end_point + programOrigin.x + wrapOrigin.x;
 	end.tran.x += currentXToolOffset;
-	end.tran.z += currentZToolOffset;
 
 	center.y = first_axis + programOrigin.y + wrapOrigin.y;
 	center.z = second_axis + programOrigin.z + wrapOrigin.z;
-	center.z += currentZToolOffset;
 	center.x = end.tran.x;
 	normal.y = 0.0;
 	normal.z = 0.0;
@@ -1217,10 +1213,8 @@ void ARC_FEED(double first_end, double second_end,
 	end.tran.x = second_end + programOrigin.x + wrapOrigin.x;
 	end.tran.y = axis_end_point + programOrigin.y + wrapOrigin.y;
 	end.tran.x += currentXToolOffset;
-	end.tran.z += currentZToolOffset;
 
 	center.z = first_axis + programOrigin.z + wrapOrigin.z;
-	center.z += currentZToolOffset;
 	center.x = second_axis + programOrigin.x + wrapOrigin.x;
 	center.x += currentXToolOffset;
 	center.y = end.tran.y;
@@ -2117,9 +2111,7 @@ CANON_POSITION GET_EXTERNAL_POSITION()
     // now calculate position in program units, for interpreter
     position.x = TO_PROG_LEN(canonEndPoint.x - programOrigin.x - currentXToolOffset - wrapOrigin.x);
     position.y = TO_PROG_LEN(canonEndPoint.y - programOrigin.y - wrapOrigin.y);
-    position.z =
-	TO_PROG_LEN(canonEndPoint.z - programOrigin.z -
-		    currentZToolOffset - wrapOrigin.z);
+    position.z = TO_PROG_LEN(canonEndPoint.z - programOrigin.z - wrapOrigin.z);
 
     position.a = TO_PROG_ANG(canonEndPoint.a - programOrigin.a - wrapOrigin.a);
     position.b = TO_PROG_ANG(canonEndPoint.b - programOrigin.b - wrapOrigin.b);
@@ -2127,7 +2119,7 @@ CANON_POSITION GET_EXTERNAL_POSITION()
 
     position.u = TO_PROG_LEN(canonEndPoint.u - programOrigin.u - wrapOrigin.u);
     position.v = TO_PROG_LEN(canonEndPoint.v - programOrigin.v - wrapOrigin.v);
-    position.w = TO_PROG_LEN(canonEndPoint.w - programOrigin.w - wrapOrigin.w);
+    position.w = TO_PROG_LEN(canonEndPoint.w - programOrigin.w - currentZToolOffset - wrapOrigin.w);
 
     return position;
 }
@@ -2160,7 +2152,6 @@ CANON_POSITION GET_EXTERNAL_PROBE_POSITION()
     position.y = TO_PROG_LEN(pos.tran.y - programOrigin.y - wrapOrigin.y);
     position.z = TO_PROG_LEN(pos.tran.z - programOrigin.z - wrapOrigin.z);
     position.x -= TO_PROG_LEN(currentXToolOffset);
-    position.z -= TO_PROG_LEN(currentZToolOffset);
 
     position.a = TO_PROG_ANG(pos.a - programOrigin.a - wrapOrigin.a);
     position.b = TO_PROG_ANG(pos.b - programOrigin.b - wrapOrigin.b);
@@ -2169,6 +2160,7 @@ CANON_POSITION GET_EXTERNAL_PROBE_POSITION()
     position.u = TO_PROG_LEN(pos.u - programOrigin.u - wrapOrigin.u);
     position.v = TO_PROG_LEN(pos.v - programOrigin.v - wrapOrigin.v);
     position.w = TO_PROG_LEN(pos.w - programOrigin.w - wrapOrigin.w);
+    position.w -= TO_PROG_LEN(currentZToolOffset);
 
     if (probefile != NULL) {
 	if (last_probed_position != position) {
