@@ -70,6 +70,9 @@
 #include <unistd.h>
 #include <signal.h>
 #include <time.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "hal.h"                /* HAL public API decls */
@@ -131,8 +134,7 @@ int main(int argc, char **argv)
     for ( n = 1 ; n < argc ; n++ ) {
 	cp = argv[n];
 	if ( *cp != '-' ) {
-	    fprintf(stderr, "ERROR: expecting option, found '%s'\n", cp );
-	    exit(1);
+	    break;
 	}
 	switch ( *(++cp) ) {
 	case 'c':
@@ -163,6 +165,17 @@ int main(int argc, char **argv)
 	    exit(1);
 	    break;
 	}
+    }
+    if(n < argc) {
+	int fd;
+	if(argc > n+1) {
+	    fprintf(stderr, "ERROR: At most one filename may be specified\n");
+	    exit(1);
+	}
+	// make stdout be the named file
+	fd = open(argv[n], O_WRONLY | O_CREAT, 0666);
+	close(1);
+	dup2(fd, 1);
     }
     /* register signal handlers - if the process is killed
        we need to call hal_exit() to free the shared memory */
