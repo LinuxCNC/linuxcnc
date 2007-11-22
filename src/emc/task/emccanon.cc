@@ -1114,6 +1114,7 @@ void ARC_FEED(double first_end, double second_end,
     u += programOrigin.u + wrapOrigin.u;
     v += programOrigin.v + wrapOrigin.v;
     w += programOrigin.w + wrapOrigin.w;
+    w += currentZToolOffset;
 
     da = fabs(canonEndPoint.a - a);
     db = fabs(canonEndPoint.b - b);

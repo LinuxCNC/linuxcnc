@@ -3787,7 +3787,7 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
   }
   USE_TOOL_LENGTH_OFFSET(xoffset, zoffset);
   settings->current_x += settings->tool_xoffset - xoffset;
-  settings->current_z += settings->tool_zoffset - zoffset;
+  settings->w_current += settings->tool_zoffset - zoffset;
   settings->tool_xoffset = xoffset;
   settings->tool_zoffset = zoffset;
   settings->tool_offset_index = index;
