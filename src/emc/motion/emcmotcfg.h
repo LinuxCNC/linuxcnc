@@ -22,13 +22,12 @@
 #define DEFAULT_EMCMOT_INIFILE "emc.ini"	/* same as for EMC-- we're in 
 						   touch */
 
-/* number of axes supported
+/* number of joints supported
    Note: this is not a global variable but a compile-time parameter
    since it sets array sizes, etc. */
-#define EMCMOT_MAX_AXIS 9
-/* they're joints, not axes, dammit! */
-/* phase out the above, and replace it with this */
 #define EMCMOT_MAX_JOINTS 9
+/* number of axes defined by the interp */ //FIXME: shouldn't be here..
+#define EMCMOT_MAX_AXIS 9
 
 /* number of motion synched DIO's supported (increase this value to 
    suit your needs), make sure to increase EMC_MAX_DIO aswell (emcglb.h) */

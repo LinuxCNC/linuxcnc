@@ -465,7 +465,7 @@ void usrmotPrintEmcmotStatus(emcmot_status_t s, int which)
 				   structures */
 	printf("axes enabled: \t");
 	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
-	    printf("%d", s.axisFlag[t] & EMCMOT_AXIS_ENABLE_BIT ? 1 : 0);
+	    printf("%d", s.axisFlag[t] & EMCMOT_JOINT_ENABLE_BIT ? 1 : 0);
 	}
 	printf("\n");
 #endif
@@ -533,7 +533,7 @@ void usrmotPrintEmcmotStatus(emcmot_status_t s, int which)
 				   structures */
 	printf("homing:       \t");
 	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
-	    printf("%d", s.axisFlag[0] & EMCMOT_AXIS_HOMING_BIT ? 1 : 0);
+	    printf("%d", s.axisFlag[0] & EMCMOT_JOINT_HOMING_BIT ? 1 : 0);
 	}
 	printf("\n");
 #endif
@@ -560,60 +560,60 @@ void usrmotPrintEmcmotStatus(emcmot_status_t s, int which)
 	}
 	printf("\n");
 	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
-	    printf("%d\t", ((s.axisFlag[t] & EMCMOT_AXIS_ENABLE_BIT) != 0));
+	    printf("%d\t", ((s.axisFlag[t] & EMCMOT_JOINT_ENABLE_BIT) != 0));
 	}
 	printf("enable\n");
 	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
-	    printf("%d\t", ((s.axisFlag[t] & EMCMOT_AXIS_ACTIVE_BIT) != 0));
+	    printf("%d\t", ((s.axisFlag[t] & EMCMOT_JOINT_ACTIVE_BIT) != 0));
 	}
 	printf("active\n");
 	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
-	    printf("%d\t", ((s.axisFlag[t] & EMCMOT_AXIS_INPOS_BIT) != 0));
+	    printf("%d\t", ((s.axisFlag[t] & EMCMOT_JOINT_INPOS_BIT) != 0));
 	}
 	printf("inpos\n");
 	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
-	    printf("%d\t", ((s.axisFlag[t] & EMCMOT_AXIS_ERROR_BIT) != 0));
+	    printf("%d\t", ((s.axisFlag[t] & EMCMOT_JOINT_ERROR_BIT) != 0));
 	}
 	printf("error\n");
 	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
 	    printf("%d\t",
-		((s.axisFlag[t] & EMCMOT_AXIS_MAX_SOFT_LIMIT_BIT) != 0));
+		((s.axisFlag[t] & EMCMOT_JOINT_MAX_SOFT_LIMIT_BIT) != 0));
 	}
 	printf("max_soft_limit\n");
 	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
 	    printf("%d\t",
-		((s.axisFlag[t] & EMCMOT_AXIS_MIN_SOFT_LIMIT_BIT) != 0));
+		((s.axisFlag[t] & EMCMOT_JOINT_MIN_SOFT_LIMIT_BIT) != 0));
 	}
 	printf("min_soft_limit\n");
 	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
 	    printf("%d\t",
-		((s.axisFlag[t] & EMCMOT_AXIS_MAX_HARD_LIMIT_BIT) != 0));
+		((s.axisFlag[t] & EMCMOT_JOINT_MAX_HARD_LIMIT_BIT) != 0));
 	}
 	printf("max_hard_limit\n");
 	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
 	    printf("%d\t",
-		((s.axisFlag[t] & EMCMOT_AXIS_MIN_HARD_LIMIT_BIT) != 0));
+		((s.axisFlag[t] & EMCMOT_JOINT_MIN_HARD_LIMIT_BIT) != 0));
 	}
 	printf("min_hard_limit\n");
 	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
 	    printf("%d\t",
-		((s.axisFlag[t] & EMCMOT_AXIS_HOME_SWITCH_BIT) != 0));
+		((s.axisFlag[t] & EMCMOT_JOINT_HOME_SWITCH_BIT) != 0));
 	}
 	printf("home_switch\n");
 	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
-	    printf("%d\t", ((s.axisFlag[t] & EMCMOT_AXIS_HOMING_BIT) != 0));
+	    printf("%d\t", ((s.axisFlag[t] & EMCMOT_JOINT_HOMING_BIT) != 0));
 	}
 	printf("homing\n");
 	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
-	    printf("%d\t", ((s.axisFlag[t] & EMCMOT_AXIS_HOMED_BIT) != 0));
+	    printf("%d\t", ((s.axisFlag[t] & EMCMOT_JOINT_HOMED_BIT) != 0));
 	}
 	printf("homed\n");
 	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
-	    printf("%d\t", ((s.axisFlag[t] & EMCMOT_AXIS_FERROR_BIT) != 0));
+	    printf("%d\t", ((s.axisFlag[t] & EMCMOT_JOINT_FERROR_BIT) != 0));
 	}
 	printf("ferror\n");
 	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
-	    printf("%d\t", ((s.axisFlag[t] & EMCMOT_AXIS_FAULT_BIT) != 0));
+	    printf("%d\t", ((s.axisFlag[t] & EMCMOT_JOINT_FAULT_BIT) != 0));
 	}
 #endif
 	printf("fault\n");
@@ -727,7 +727,7 @@ int usrmotExit(void)
 	(where forward_trim = nominal - forward
 	       reverse_trim = nominal - reverse)
 */
-int usrmotLoadComp(int axis, const char *file, int type)
+int usrmotLoadComp(int joint, const char *file, int type)
 {
     FILE *fp;
     char buffer[LINELEN];
@@ -736,7 +736,7 @@ int usrmotLoadComp(int axis, const char *file, int type)
     emcmot_command_t emcmotCommand;
 
     /* check axis range */
-    if (axis < 0 || axis >= EMCMOT_MAX_JOINTS) {
+    if (joint < 0 || joint >= EMCMOT_MAX_JOINTS) {
 	fprintf(stderr, "joint out of range for compensation\n");
 	return -1;
     }
@@ -769,7 +769,7 @@ int usrmotLoadComp(int axis, const char *file, int type)
     		emcmotCommand.comp_forward = fwd;
     		emcmotCommand.comp_reverse = rev;		
 	    }
-	    emcmotCommand.axis = axis;
+	    emcmotCommand.axis = joint;
 	    emcmotCommand.command = EMCMOT_SET_JOINT_COMP;
 	    ret |= usrmotWriteEmcmotCommand(&emcmotCommand);
 	}
@@ -780,32 +780,32 @@ int usrmotLoadComp(int axis, const char *file, int type)
 }
 
 
-int usrmotPrintComp(int axis)
+int usrmotPrintComp(int joint)
 {
-/*! \todo FIXME - the comp stuff is temporarily disabled */
+/* FIXME-AJ:reenable this in the next commit */
 return -1;
-/*! \todo Another #if 0 */
+/* currently disabled */
 #if 0
     int t;
 
     /* check axis range */
-    if (axis < 0 || axis >= EMCMOT_MAX_JOINTS) {
-	fprintf(stderr, "axis out of range for compensation\n");
+    if (joint < 0 || joint >= EMCMOT_MAX_JOINTS) {
+	fprintf(stderr, "joint out of range for compensation\n");
 	return -1;
     }
 
     /* first check if comp pointer is valid */
-    if (emcmotComp[axis] == 0) {
+    if (emcmotComp[joint] == 0) {
 	fprintf(stderr, "compensation data structure not present\n");
 	return -1;
     }
 
-    printf("total:  %d\n", emcmotComp[axis]->total);
-    printf("avgint: %f\n", emcmotComp[axis]->avgint);
-    for (t = 0; t < emcmotComp[axis]->total; t++) {
+    printf("total:  %d\n", emcmotComp[joint]->total);
+    printf("avgint: %f\n", emcmotComp[joint]->avgint);
+    for (t = 0; t < emcmotComp[joint]->total; t++) {
 	printf("%f\t%f\t%f\n",
-	    emcmotComp[axis]->nominal[t],
-	    emcmotComp[axis]->forward[t], emcmotComp[axis]->reverse[t]);
+	    emcmotComp[joint]->nominal[t],
+	    emcmotComp[joint]->forward[t], emcmotComp[joint]->reverse[t]);
     }
 
     return 0;

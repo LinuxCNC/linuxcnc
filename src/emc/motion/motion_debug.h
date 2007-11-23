@@ -92,7 +92,7 @@
 				   soft limit */
 #endif
 
-	int overriding;		/* non-zero means we've initiated an axis
+	int overriding;		/* non-zero means we've initiated an joint
 				   move while overriding limits */
 
 	int stepping;

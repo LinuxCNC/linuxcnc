@@ -457,7 +457,7 @@ int main(int argc, char *argv[])
 		   at all. */
 		valid = 0;
 		if (1 == sscanf(input, "%*s %d", &axis)) {
-		    if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
+		    if (axis < 0 || axis >= EMCMOT_MAX_JOINTS) {
 			fprintf(stderr, "bad axis %d to abort\n", axis);
 		    } else {
 			emcmotCommand.axis = axis;
@@ -724,20 +724,20 @@ int main(int argc, char *argv[])
 		    valid = 1;
 
 		    if (!strcmp(cmd, "enable")) {
-			emcmotCommand.axisFlag = EMCMOT_AXIS_ENABLE_BIT;
+			emcmotCommand.axisFlag = EMCMOT_JOINT_ENABLE_BIT;
 		    } else if (!strcmp(cmd, "nhl")) {
 			emcmotCommand.axisFlag =
-			    EMCMOT_AXIS_MIN_HARD_LIMIT_BIT;
+			    EMCMOT_JOINT_MIN_HARD_LIMIT_BIT;
 		    } else if (!strcmp(cmd, "phl")) {
 			emcmotCommand.axisFlag =
-			    EMCMOT_AXIS_MAX_HARD_LIMIT_BIT;
+			    EMCMOT_JOINT_MAX_HARD_LIMIT_BIT;
 		    } else if (!strcmp(cmd, "homedir")) {
-			emcmotCommand.axisFlag = EMCMOT_AXIS_HOMING_BIT;
+			emcmotCommand.axisFlag = EMCMOT_JOINT_HOMING_BIT;
 		    } else if (!strcmp(cmd, "homesw")) {
 			emcmotCommand.axisFlag =
-			    EMCMOT_AXIS_HOME_SWITCH_BIT;
+			    EMCMOT_JOINT_HOME_SWITCH_BIT;
 		    } else if (!strcmp(cmd, "fault")) {
-			emcmotCommand.axisFlag = EMCMOT_AXIS_FAULT_BIT;
+			emcmotCommand.axisFlag = EMCMOT_JOINT_FAULT_BIT;
 		    } else {
 			valid = 0;
 		    }
@@ -756,7 +756,7 @@ int main(int argc, char *argv[])
 	    } else if (!strcmp(cmd, "pid")) {
 		if (1 != sscanf(input, "%*s %d", &emcmotCommand.axis) ||
 		    emcmotCommand.axis < 0 ||
-		    emcmotCommand.axis >= EMCMOT_MAX_AXIS ||
+		    emcmotCommand.axis >= EMCMOT_MAX_JOINTS ||
 		    1 != sscanf(input, "%*s %*s %s", filename)) {
 		    printf("syntax: pid <n> <ini file>\n");
 		} else {
@@ -818,7 +818,7 @@ int main(int argc, char *argv[])
 	    } else if (!strcmp(cmd, "live")) {
 		if (1 != sscanf(input, "%*s %d", &emcmotCommand.axis) ||
 		    emcmotCommand.axis < 0 ||
-		    emcmotCommand.axis >= EMCMOT_MAX_AXIS) {
+		    emcmotCommand.axis >= EMCMOT_MAX_JOINTS) {
 		    printf("syntax: live <n>\n");
 		} else {
 		    emcmotCommand.command = EMCMOT_ENABLE_AMPLIFIER;
@@ -830,7 +830,7 @@ int main(int argc, char *argv[])
 	    } else if (!strcmp(cmd, "kill")) {
 		if (1 != sscanf(input, "%*s %d", &emcmotCommand.axis) ||
 		    emcmotCommand.axis < 0 ||
-		    emcmotCommand.axis >= EMCMOT_MAX_AXIS) {
+		    emcmotCommand.axis >= EMCMOT_MAX_JOINTS) {
 		    printf("syntax: kill <n>\n");
 		} else {
 		    emcmotCommand.command = EMCMOT_DISABLE_AMPLIFIER;
@@ -842,7 +842,7 @@ int main(int argc, char *argv[])
 	    } else if (!strcmp(cmd, "activate")) {
 		if (1 != sscanf(input, "%*s %d", &emcmotCommand.axis) ||
 		    emcmotCommand.axis < 0 ||
-		    emcmotCommand.axis >= EMCMOT_MAX_AXIS) {
+		    emcmotCommand.axis >= EMCMOT_MAX_JOINTS) {
 		    printf("syntax: activate <n>\n");
 		} else {
 		    emcmotCommand.command = EMCMOT_ACTIVATE_JOINT;
@@ -854,7 +854,7 @@ int main(int argc, char *argv[])
 	    } else if (!strcmp(cmd, "deactivate")) {
 		if (1 != sscanf(input, "%*s %d", &emcmotCommand.axis) ||
 		    emcmotCommand.axis < 0 ||
-		    emcmotCommand.axis >= EMCMOT_MAX_AXIS) {
+		    emcmotCommand.axis >= EMCMOT_MAX_JOINTS) {
 		    printf("syntax: deactivate <n>\n");
 		} else {
 		    emcmotCommand.command = EMCMOT_DEACTIVATE_JOINT;

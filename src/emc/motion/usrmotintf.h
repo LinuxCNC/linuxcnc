@@ -80,11 +80,11 @@ extern "C" {
 /* usrmotExit() terminates communication with the emcmot process */
     extern int usrmotExit(void);
 
-/* usrmotLoadComp() loads the compensation data in file into the axis */
-    extern int usrmotLoadComp(int axis, const char *file, int type);
+/* usrmotLoadComp() loads the compensation data in file into the joint */
+    extern int usrmotLoadComp(int joint, const char *file, int type);
 
-/* usrmotPrintComp() prints the axis compensation data for axis */
-    extern int usrmotPrintComp(int axis);
+/* usrmotPrintComp() prints the joint compensation data for the specified joint */
+    extern int usrmotPrintComp(int joint);
 
 #ifdef __cplusplus
 }

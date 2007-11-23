@@ -63,7 +63,7 @@ void print_pose ( EmcPose *pos )
 
 
 /*! \todo FIXME - debugging - uncomment the following line to log changes in
-   AXIS_FLAG and MOTION_FLAG */
+   JOINT_FLAG and MOTION_FLAG */
 // #define WATCH_FLAGS 1
 
 
@@ -188,8 +188,8 @@ static void get_pos_cmds(long period);
    lead screw error compensation.  (Leadscrew error compensation is
    a more sophisticated version that includes backlash comp.)  It uses
    the velocity in emcmotStatus->joint_vel_cmd to determine which way
-   each axis is moving, and the position in emcmotStatus->joint_pos_cmd
-   to determine where the axis is at.  That information is used to
+   each joint is moving, and the position in emcmotStatus->joint_pos_cmd
+   to determine where the joint is at.  That information is used to
    create the compensation value that is added to the joint_pos_cmd
    to create motor_pos_cmd, and is subtracted from motor_pos_fb to
    get joint_pos_fb.  (This function does not add or subtract the
@@ -360,7 +360,7 @@ static void process_inputs(void)
 {
     int joint_num;
     double abs_ferror, tmp, scale;
-    axis_hal_t *axis_data;
+    joint_hal_t *joint_data;
     emcmot_joint_t *joint;
     unsigned char enables;
     static int old_probeVal = 0;
@@ -483,8 +483,8 @@ static void process_inputs(void)
 
     /* read and process per-joint inputs */
     for (joint_num = 0; joint_num < num_joints; joint_num++) {
-	/* point to axis HAL data */
-	axis_data = &(emcmot_hal_data->axis[joint_num]);
+	/* point to joint HAL data */
+	joint_data = &(emcmot_hal_data->joint[joint_num]);
 	/* point to joint data */
 	joint = &joints[joint_num];
 	if (!GET_JOINT_ACTIVE_FLAG(joint)) {
@@ -492,8 +492,8 @@ static void process_inputs(void)
 	    continue;
 	}
 	/* copy data from HAL to joint structure */
-	joint->index_enable = *(axis_data->index_enable);
-	joint->motor_pos_fb = *(axis_data->motor_pos_fb);
+	joint->index_enable = *(joint_data->index_enable);
+	joint->motor_pos_fb = *(joint_data->motor_pos_fb);
 	/* calculate pos_fb */
 	if (( joint->home_state == HOME_INDEX_SEARCH_WAIT ) &&
 	    ( joint->index_enable == 0 )) {
@@ -534,12 +534,12 @@ static void process_inputs(void)
 	}
 
 	/* read limit switches */
-	if (*(axis_data->pos_lim_sw)) {
+	if (*(joint_data->pos_lim_sw)) {
 	    SET_JOINT_PHL_FLAG(joint, 1);
 	} else {
 	    SET_JOINT_PHL_FLAG(joint, 0);
 	}
-	if (*(axis_data->neg_lim_sw)) {
+	if (*(joint_data->neg_lim_sw)) {
 	    SET_JOINT_NHL_FLAG(joint, 1);
 	} else {
 	    SET_JOINT_NHL_FLAG(joint, 0);
@@ -547,19 +547,19 @@ static void process_inputs(void)
 	joint->on_pos_limit = GET_JOINT_PHL_FLAG(joint);
 	joint->on_neg_limit = GET_JOINT_NHL_FLAG(joint);
 	/* read amp fault input */
-	if (*(axis_data->amp_fault)) {
+	if (*(joint_data->amp_fault)) {
 	    SET_JOINT_FAULT_FLAG(joint, 1);
 	} else {
 	    SET_JOINT_FAULT_FLAG(joint, 0);
 	}
 
 	/* read home switch input */
-	if (*(axis_data->home_sw)) {
+	if (*(joint_data->home_sw)) {
 	    SET_JOINT_HOME_SWITCH_FLAG(joint, 1);
 	} else {
 	    SET_JOINT_HOME_SWITCH_FLAG(joint, 0);
 	}
-	/* end of read and process axis inputs loop */
+	/* end of read and process joint inputs loop */
     }
 }
 
@@ -596,7 +596,7 @@ static void do_forward_kins(void)
    we are in teleop or coord mode, or if we are in free mode and all
    axes are homed, and haven't been moved since they were homed, then
    we set carte_pos_fb to carte_pos_cmd, and set carte_pos_fb_ok to 1.
-   If we are in free mode, and any axis is not homed, or any axis has
+   If we are in free mode, and any joint is not homed, or any joint has
    moved since it was homed, we leave cart_pos_fb alone, and set
    carte_pos_fb_ok to 0.
 
@@ -729,7 +729,7 @@ static void check_for_faults(void)
 	    }
 	    /* check for amp fault */
 	    if (GET_JOINT_FAULT_FLAG(joint)) {
-		/* axis is faulted, trip */
+		/* joint is faulted, trip */
 		if (!GET_JOINT_ERROR_FLAG(joint)) {
 		    /* report the error just this once */
 		    reportError("joint %d amplifier fault", joint_num);
@@ -746,9 +746,9 @@ static void check_for_faults(void)
 		SET_JOINT_ERROR_FLAG(joint, 1);
 		emcmotDebug->enabling = 0;
 	    }
-	    /* end of if AXIS_ACTIVE_FLAG(joint) */
+	/* end of if JOINT_ACTIVE_FLAG(joint) */
 	}
-	/* end of check for joint faults loop */
+    /* end of check for joint faults loop */
     }
 }
 
@@ -756,7 +756,7 @@ static void set_operating_mode(void)
 {
     int joint_num;
     emcmot_joint_t *joint;
-    axis_hal_t *axis_data;
+    joint_hal_t *joint_data;
 
     /* check for disabling */
     if (!emcmotDebug->enabling && GET_MOTION_ENABLE_FLAG()) {
@@ -764,7 +764,7 @@ static void set_operating_mode(void)
 	tpClear(&emcmotDebug->queue);
 	for (joint_num = 0; joint_num < num_joints; joint_num++) {
 	    /* point to joint data */
-	    axis_data = &(emcmot_hal_data->axis[joint_num]);
+	    joint_data = &(emcmot_hal_data->joint[joint_num]);
 	    joint = &joints[joint_num];
 	    /* disable free mode planner */
 	    joint->free_tp_enable = 0;
@@ -797,7 +797,7 @@ static void set_operating_mode(void)
 	tpSetPos(&emcmotDebug->queue, emcmotStatus->carte_pos_cmd);
 	for (joint_num = 0; joint_num < num_joints; joint_num++) {
 	    /* point to joint data */
-	    axis_data = &(emcmot_hal_data->axis[joint_num]);
+	    joint_data = &(emcmot_hal_data->joint[joint_num]);
 	    joint = &joints[joint_num];
 
 	    joint->free_pos_cmd = joint->pos_cmd;
@@ -806,7 +806,7 @@ static void set_operating_mode(void)
 		SET_JOINT_HOMING_FLAG(joint, 0);
 		joint->home_state = HOME_IDLE;
 	    }
-	    /* clear any outstanding axis errors when going into enabled
+	    /* clear any outstanding joint errors when going into enabled
 	       state */
 	    SET_JOINT_ERROR_FLAG(joint, 0);
 	}
@@ -935,20 +935,20 @@ static void handle_jogwheels(void)
 {
     int joint_num;
     emcmot_joint_t *joint;
-    axis_hal_t *axis_data;
+    joint_hal_t *joint_data;
     int new_jog_counts, delta;
     double distance, pos, stop_dist;
 
     for (joint_num = 0; joint_num < num_joints; joint_num++) {
 	/* point to joint data */
-	axis_data = &(emcmot_hal_data->axis[joint_num]);
+	joint_data = &(emcmot_hal_data->joint[joint_num]);
 	joint = &joints[joint_num];
 	if (!GET_JOINT_ACTIVE_FLAG(joint)) {
 	    /* if joint is not active, skip it */
 	    continue;
 	}
 	/* get counts from jogwheel */
-	new_jog_counts = *(axis_data->jog_counts);
+	new_jog_counts = *(joint_data->jog_counts);
 	delta = new_jog_counts - joint->old_jog_counts;
 	/* save value for next time */
 	joint->old_jog_counts = new_jog_counts;
@@ -968,8 +968,8 @@ static void handle_jogwheels(void)
 	if (!GET_MOTION_ENABLE_FLAG()) {
 	    continue;
 	}
-	/* the jogwheel input for this axis must be enabled */
-	if ( *(axis_data->jog_enable) == 0 ) {
+	/* the jogwheel input for this joint must be enabled */
+	if ( *(joint_data->jog_enable) == 0 ) {
 	    continue;
 	}
 	/* must not be homing */
@@ -985,7 +985,7 @@ static void handle_jogwheels(void)
 	    break;
 	}
 	/* calculate distance to jog */
-	distance = delta * *(axis_data->jog_scale);
+	distance = delta * *(joint_data->jog_scale);
 	/* check for joint already on hard limit */
 	if (distance > 0.0 && GET_JOINT_PHL_FLAG(joint)) {
 	    continue;
@@ -1010,7 +1010,7 @@ static void handle_jogwheels(void)
 	   commanded distance.  Velocity mode is for those folks.  If
 	   the command is faster than the machine can track, excess
 	   command is simply dropped. */
-	if ( *(axis_data->jog_vel_mode) ) {
+	if ( *(joint_data->jog_vel_mode) ) {
             double v = joint->vel_limit * emcmotStatus->net_feed_scale;
 	    /* compute stopping distance at max speed */
 	    stop_dist = v * v / ( 2 * joint->acc_limit);
@@ -1030,7 +1030,7 @@ static void handle_jogwheels(void)
         /* and let it go */
         joint->free_tp_enable = 1;
 	SET_JOINT_ERROR_FLAG(joint, 0);
-	/* clear axis homed flag(s) if we don't have forward kins.
+	/* clear joint homed flag(s) if we don't have forward kins.
 	   Otherwise, a transition into coordinated mode will incorrectly
 	   assume the homed position. Do all if they've all been moved
 	   since homing, otherwise just do this one */
@@ -1054,19 +1054,19 @@ static int immediate_state;
    repeated in several different states of the homing state machine */
 
 /* 'home_start_move()' starts a move at the specified velocity.  The
-   length of the move is equal to twice the overall range of the axis,
+   length of the move is equal to twice the overall range of the joint,
    but the intent is that something (like a home switch or index pulse)
    will stop it before that point. */
 void home_start_move(emcmot_joint_t * joint, double vel)
 {
-    double axis_range;
+    double joint_range;
 
     /* set up a long move */
-    axis_range = joint->max_pos_limit - joint->min_pos_limit;
+    joint_range = joint->max_pos_limit - joint->min_pos_limit;
     if (vel > 0.0) {
-	joint->free_pos_cmd = joint->pos_cmd + 2.0 * axis_range;
+	joint->free_pos_cmd = joint->pos_cmd + 2.0 * joint_range;
     } else {
-	joint->free_pos_cmd = joint->pos_cmd - 2.0 * axis_range;
+	joint->free_pos_cmd = joint->pos_cmd - 2.0 * joint_range;
     }
     joint->free_vel_lim = fabs(vel);
     /* start the move */
@@ -1206,7 +1206,7 @@ static void do_homing(void)
 	/* can't home unless in free mode */
 	return;
     }
-    /* loop thru axis, treat each one individually */
+    /* loop thru joints, treat each one individually */
     for (joint_num = 0; joint_num < num_joints; joint_num++) {
 	/* point to joint struct */
 	joint = &joints[joint_num];
@@ -1216,10 +1216,10 @@ static void do_homing(void)
 	}
 	home_sw_active = GET_JOINT_HOME_SWITCH_FLAG(joint);
 	if (joint->home_state != HOME_IDLE) {
-	    homing_flag = 1; /* at least one axis is homing */
+	    homing_flag = 1; /* at least one joint is homing */
 	}
 	
-	/* when an axis is homing, 'check_for_faults()' ignores its limit
+	/* when an joint is homing, 'check_for_faults()' ignores its limit
 	   switches, so that this code can do the right thing with them. Once
 	   the homing process is finished, the 'check_for_faults()' resumes
 	   checking */
@@ -1761,12 +1761,12 @@ static void do_homing(void)
     }	/* end of loop through all joints */
 
     if ( homing_flag ) {
-	/* at least one axis is homing, set global flag */
+	/* at least one joint is homing, set global flag */
 	emcmotStatus->homing_active = 1;
     } else {
 	/* is a homing sequence in progress? */
 	if (emcmotStatus->homingSequenceState == HOME_SEQUENCE_IDLE) {
-	    /* no, single axis only, we're done */
+	    /* no, single joint only, we're done */
 	    emcmotStatus->homing_active = 0;
 	}
     }
@@ -1865,7 +1865,7 @@ static void get_pos_cmds(long period)
 		} else if (vel_req < -vel_lim) {
 		    vel_req = -vel_lim;
 		}
-		/* ramp velocity toward request at axis accel limit */
+		/* ramp velocity toward request at joint accel limit */
 		if (vel_req > joint->vel_cmd + max_dv) {
 		    joint->vel_cmd += max_dv;
 		} else if (vel_req < joint->vel_cmd - max_dv) {
@@ -2472,7 +2472,7 @@ static void compute_screw_comp(void)
             }
         }
         /* backlash (and motor offset) will be applied to output later */
-        /* end of axis loop */
+        /* end of joint loop */
     }
 }
 
@@ -2487,7 +2487,7 @@ static void output_to_hal(void)
 {
     int joint_num;
     emcmot_joint_t *joint;
-    axis_hal_t *axis_data;
+    joint_hal_t *joint_data;
     static int old_motion_index=0, old_hal_index=0;
 
     /* output machine info to HAL for scoping, etc */
@@ -2559,7 +2559,7 @@ static void output_to_hal(void)
     *(emcmot_hal_data->tooloffset_x) = emcmotStatus->tooloffset_x;
     *(emcmot_hal_data->tooloffset_z) = emcmotStatus->tooloffset_z;
 
-    /* output axis info to HAL for scoping, etc */
+    /* output joint info to HAL for scoping, etc */
     for (joint_num = 0; joint_num < num_joints; joint_num++) {
 	/* point to joint struct */
 	joint = &joints[joint_num];
@@ -2567,38 +2567,38 @@ static void output_to_hal(void)
 	joint->motor_pos_cmd =
 	    joint->pos_cmd + joint->backlash_filt + joint->motor_offset;
 	/* point to HAL data */
-	axis_data = &(emcmot_hal_data->axis[joint_num]);
+	joint_data = &(emcmot_hal_data->joint[joint_num]);
 	/* write to HAL pins */
-	*(axis_data->motor_pos_cmd) = joint->motor_pos_cmd;
-	*(axis_data->joint_pos_cmd) = joint->pos_cmd;
-	*(axis_data->joint_pos_fb) = joint->pos_fb;
-	*(axis_data->amp_enable) = GET_JOINT_ENABLE_FLAG(joint);
-	*(axis_data->index_enable) = joint->index_enable;
-	*(axis_data->homing) = GET_JOINT_HOMING_FLAG(joint);
+	*(joint_data->motor_pos_cmd) = joint->motor_pos_cmd;
+	*(joint_data->joint_pos_cmd) = joint->pos_cmd;
+	*(joint_data->joint_pos_fb) = joint->pos_fb;
+	*(joint_data->amp_enable) = GET_JOINT_ENABLE_FLAG(joint);
+	*(joint_data->index_enable) = joint->index_enable;
+	*(joint_data->homing) = GET_JOINT_HOMING_FLAG(joint);
 	/* output to parameters (for scoping, etc.) */
-	axis_data->coarse_pos_cmd = joint->coarse_pos;
-	axis_data->joint_vel_cmd = joint->vel_cmd;
-	axis_data->backlash_corr = joint->backlash_corr;
-	axis_data->backlash_filt = joint->backlash_filt;
-	axis_data->backlash_vel = joint->backlash_vel;
-	axis_data->f_error = joint->ferror;
-	axis_data->f_error_lim = joint->ferror_limit;
+	joint_data->coarse_pos_cmd = joint->coarse_pos;
+	joint_data->joint_vel_cmd = joint->vel_cmd;
+	joint_data->backlash_corr = joint->backlash_corr;
+	joint_data->backlash_filt = joint->backlash_filt;
+	joint_data->backlash_vel = joint->backlash_vel;
+	joint_data->f_error = joint->ferror;
+	joint_data->f_error_lim = joint->ferror_limit;
 
-	axis_data->free_pos_cmd = joint->free_pos_cmd;
-	axis_data->free_vel_lim = joint->free_vel_lim;
-	axis_data->free_tp_enable = joint->free_tp_enable;
-	axis_data->kb_jog_active = joint->kb_jog_active;
-	axis_data->wheel_jog_active = joint->wheel_jog_active;
+	joint_data->free_pos_cmd = joint->free_pos_cmd;
+	joint_data->free_vel_lim = joint->free_vel_lim;
+	joint_data->free_tp_enable = joint->free_tp_enable;
+	joint_data->kb_jog_active = joint->kb_jog_active;
+	joint_data->wheel_jog_active = joint->wheel_jog_active;
 
-	axis_data->active = GET_JOINT_ACTIVE_FLAG(joint);
-	axis_data->in_position = GET_JOINT_INPOS_FLAG(joint);
-	axis_data->error = GET_JOINT_ERROR_FLAG(joint);
-	axis_data->phl = GET_JOINT_PHL_FLAG(joint);
-	axis_data->nhl = GET_JOINT_NHL_FLAG(joint);
-	axis_data->homed = GET_JOINT_HOMED_FLAG(joint);
-	axis_data->f_errored = GET_JOINT_FERROR_FLAG(joint);
-	axis_data->faulted = GET_JOINT_FAULT_FLAG(joint);
-	axis_data->home_state = joint->home_state;
+	joint_data->active = GET_JOINT_ACTIVE_FLAG(joint);
+	joint_data->in_position = GET_JOINT_INPOS_FLAG(joint);
+	joint_data->error = GET_JOINT_ERROR_FLAG(joint);
+	joint_data->phl = GET_JOINT_PHL_FLAG(joint);
+	joint_data->nhl = GET_JOINT_NHL_FLAG(joint);
+	joint_data->homed = GET_JOINT_HOMED_FLAG(joint);
+	joint_data->f_errored = GET_JOINT_FERROR_FLAG(joint);
+	joint_data->faulted = GET_JOINT_FAULT_FLAG(joint);
+	joint_data->home_state = joint->home_state;
     }
 }
 

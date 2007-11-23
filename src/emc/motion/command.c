@@ -109,11 +109,11 @@ int checkAllHomed(void) {
 	    return 0;
 	}
     }
-    /* set the global flag that all axes are homed */
+    /* set the global flag that all joints are homed */
     if (0 != emcmotDebug) {
 	emcmotDebug->allHomed = 1;
     }
-    /* return true if all are actives are homed*/
+    /* return true if all active joints are homed*/
     return 1;
 }
 
@@ -141,7 +141,7 @@ static int limits_ok(void)
     return 1;
 }
 
-/* check the value of the axis and velocity against current position,
+/* check the value of the joint and velocity against current position,
    returning 1 (okay) if the request is to jog off the limit, 0 (bad)
    if the request is to jog further past a limit. */
 static int jog_ok(int joint_num, double vel)
@@ -372,9 +372,9 @@ check_stuff ( "before command_handler()" );
 	       sets the desired velocities to zero, if in coordinated mode,
 	       it calls the traj planner abort function (don't know what that
 	       does yet), and if in free mode, it disables the free mode traj
-	       planners which stops axis motion */
+	       planners which stops joint motion */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "ABORT");
-	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", emcmotCommand->axis);
+	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
 	    /* check for coord or free space motion active */
 	    if (GET_MOTION_TELEOP_FLAG()) {
 		emcmotDebug->teleop_data.desiredVel.tran.x = 0.0;
@@ -398,7 +398,7 @@ check_stuff ( "before command_handler()" );
 		    }
 		}
 	    }
-	    /* clear axis errors (regardless of mode */	    
+	    /* clear joint errors (regardless of mode */	    
 	    for (joint_num = 0; joint_num < num_joints; joint_num++) {
 		/* point to joint struct */
 		joint = &joints[joint_num];
@@ -408,14 +408,14 @@ check_stuff ( "before command_handler()" );
 	    }
 	    break;
 
-	case EMCMOT_AXIS_ABORT:
-	    /* abort one axis */
+	case EMCMOT_AXIS_ABORT: //FIXME-AJ: rename
+	    /* abort one joint */
 	    /* can happen at any time */
-	    /* this command stops a single axis.  It is only usefull
+	    /* this command stops a single joint.  It is only usefull
 	       in free mode, so in coord or teleop mode it does
 	       nothing. */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "AXIS_ABORT");
-	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", emcmotCommand->axis);
+	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
 	    if (GET_MOTION_TELEOP_FLAG()) {
 		/* do nothing in teleop mode */
 	    } else if (GET_MOTION_COORD_FLAG()) {
@@ -437,7 +437,7 @@ check_stuff ( "before command_handler()" );
 	    break;
 
 	case EMCMOT_FREE:
-	    /* change the mode to free axis motion */
+	    /* change the mode to free mode motion (joint mode) */
 	    /* can be done at any time */
 	    /* this code doesn't actually make the transition, it merely
 	       requests the transition by clearing a couple of flags */
@@ -462,7 +462,7 @@ check_stuff ( "before command_handler()" );
 	    if (kinType != KINEMATICS_IDENTITY) {
 		if (!checkAllHomed()) {
 		    reportError
-			("all axes must be homed before going into coordinated mode");
+			("all joints must be homed before going into coordinated mode");
 		    emcmotDebug->coordinating = 0;
 		    break;
 		}
@@ -483,7 +483,7 @@ check_stuff ( "before command_handler()" );
 		
 		if (!checkAllHomed()) {
 		    reportError
-			("all axes must be homed before going into teleop mode");
+			("all joints must be homed before going into teleop mode");
 		    emcmotDebug->teleoperating = 0;
 		    break;
 		}
@@ -491,19 +491,19 @@ check_stuff ( "before command_handler()" );
 	    }
 	    break;
 
-	case EMCMOT_SET_NUM_AXES:
-	    /* set the global NUM_AXES, which must be between 1 and
-	       EMCMOT_MAX_AXIS, inclusive */
+	case EMCMOT_SET_NUM_AXES: //FIXME-AJ: we'll want to rename this to EMCMOT_SET_NUM_JOINTS
+	    /* set the global NUM_JOINTS, which must be between 1 and
+	       EMCMOT_MAX_JOINTS, inclusive */
 	    /* this sets a global - I hate globals - hopefully this can be
 	       moved into the config structure, or dispensed with completely */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_NUM_AXES");
 	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", emcmotCommand->axis);
 	    if (( emcmotCommand->axis <= 0 ) ||
-		( emcmotCommand->axis > EMCMOT_MAX_AXIS )) {
+		( emcmotCommand->axis > EMCMOT_MAX_JOINTS )) {
 		break;
 	    }
-	    num_axes = emcmotCommand->axis;
-	    emcmotConfig->numAxes = num_axes;
+	    num_joints = emcmotCommand->axis;
+	    emcmotConfig->numJoints = num_joints;
 	    break;
 
 	case EMCMOT_SET_WORLD_HOME:
@@ -531,8 +531,8 @@ check_stuff ( "before command_handler()" );
 	       limits, but they are automatically re-enabled at the
 	       end of the next jog */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "OVERRIDE_LIMITS");
-	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", emcmotCommand->axis);
-	    if (emcmotCommand->axis < 0) {
+	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
+	    if (joint_num < 0) {
 		/* don't override limits */
 		rtapi_print_msg(RTAPI_MSG_DBG, "override off");
 		emcmotStatus->overrideLimitMask = 0;
@@ -562,7 +562,7 @@ check_stuff ( "before command_handler()" );
 
 	case EMCMOT_SET_MOTOR_OFFSET:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_MOTOR_OFFSET");
-	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", emcmotCommand->axis);
+	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
 	    if(joint == 0) {
 		break;
 	    }
@@ -570,11 +570,11 @@ check_stuff ( "before command_handler()" );
 	    break;
 
 	case EMCMOT_SET_POSITION_LIMITS:
-	    /* sets soft limits for an axis */
+	    /* sets soft limits for a joint */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_POSITION_LIMITS");
 	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
 	    emcmot_config_change();
-	    /* set the position limits for the axis */
+	    /* set the position limits for the joint */
 	    /* can be done at any time */
 	    if (joint == 0) {
 		break;
@@ -584,11 +584,11 @@ check_stuff ( "before command_handler()" );
 	    break;
 
 	case EMCMOT_SET_BACKLASH:
-	    /* sets backlash for an axis */
+	    /* sets backlash for a joint */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_BACKLASH");
 	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
 	    emcmot_config_change();
-	    /* set the backlash for the axis */
+	    /* set the backlash for the joint */
 	    /* can be done at any time */
 	    if (joint == 0) {
 		break;
@@ -628,24 +628,24 @@ check_stuff ( "before command_handler()" );
 	       stop the jog. */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "JOG_CONT");
 	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
-	    /* check axis range */
+	    /* check joint range */
 	    if (joint == 0) {
 		break;
 	    }
 
 	    /* must be in free mode and enabled */
 	    if (GET_MOTION_COORD_FLAG()) {
-		reportError("Can't jog axis in coordinated mode.");
+		reportError("Can't jog joint in coordinated mode.");
 		SET_JOINT_ERROR_FLAG(joint, 1);
 		break;
 	    }
 	    if (!GET_MOTION_ENABLE_FLAG()) {
-		reportError("Can't jog axis when not enabled.");
+		reportError("Can't jog joint when not enabled.");
 		SET_JOINT_ERROR_FLAG(joint, 1);
 		break;
 	    }
 	    if (emcmotStatus->homing_active) {
-		reportError("Can't jog any axis while homing.");
+		reportError("Can't jog any joints while homing.");
 		SET_JOINT_ERROR_FLAG(joint, 1);
 		break;
 	    }
@@ -677,7 +677,7 @@ check_stuff ( "before command_handler()" );
 	    joint->free_tp_enable = 1;
 	    /*! \todo FIXME - should we really be clearing errors here? */
 	    SET_JOINT_ERROR_FLAG(joint, 0);
-	    /* clear axis homed flag(s) if we don't have forward kins.
+	    /* clear joints homed flag(s) if we don't have forward kins.
 	       Otherwise, a transition into coordinated mode will incorrectly
 	       assume the homed position. Do all if they've all been moved
 	       since homing, otherwise just do this one */
@@ -687,7 +687,7 @@ check_stuff ( "before command_handler()" );
 	case EMCMOT_JOG_INCR:
 	    /* do an incremental jog */
 
-	    /* check axis range */
+	    /* check joints range */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "JOG_INCR");
 	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
 	    if (joint == 0) {
@@ -696,17 +696,17 @@ check_stuff ( "before command_handler()" );
 
 	    /* must be in free mode and enabled */
 	    if (GET_MOTION_COORD_FLAG()) {
-		reportError("Can't jog axis in coordinated mode.");
+		reportError("Can't jog joint in coordinated mode.");
 		SET_JOINT_ERROR_FLAG(joint, 1);
 		break;
 	    }
 	    if (!GET_MOTION_ENABLE_FLAG()) {
-		reportError("Can't jog axis when not enabled.");
+		reportError("Can't jog joint when not enabled.");
 		SET_JOINT_ERROR_FLAG(joint, 1);
 		break;
 	    }
 	    if (emcmotStatus->homing_active) {
-		reportError("Can't jog any axis while homing.");
+		reportError("Can't jog any joint while homing.");
 		SET_JOINT_ERROR_FLAG(joint, 1);
 		break;
 	    }
@@ -746,7 +746,7 @@ check_stuff ( "before command_handler()" );
 	    /* and let it go */
 	    joint->free_tp_enable = 1;
 	    SET_JOINT_ERROR_FLAG(joint, 0);
-	    /* clear axis homed flag(s) if we don't have forward kins.
+	    /* clear joint homed flag(s) if we don't have forward kins.
 	       Otherwise, a transition into coordinated mode will incorrectly
 	       assume the homed position. Do all if they've all been moved
 	       since homing, otherwise just do this one */
@@ -756,7 +756,7 @@ check_stuff ( "before command_handler()" );
 	case EMCMOT_JOG_ABS:
 	    /* do an absolute jog */
 
-	    /* check axis range */
+	    /* check joint range */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "JOG_ABS");
 	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
 	    if (joint == 0) {
@@ -764,17 +764,17 @@ check_stuff ( "before command_handler()" );
 	    }
 	    /* must be in free mode and enabled */
 	    if (GET_MOTION_COORD_FLAG()) {
-		reportError("Can't jog axis in coordinated mode.");
+		reportError("Can't jog joint in coordinated mode.");
 		SET_JOINT_ERROR_FLAG(joint, 1);
 		break;
 	    }
 	    if (!GET_MOTION_ENABLE_FLAG()) {
-		reportError("Can't jog axis when not enabled.");
+		reportError("Can't jog joint when not enabled.");
 		SET_JOINT_ERROR_FLAG(joint, 1);
 		break;
 	    }
 	    if (emcmotStatus->homing_active) {
-		reportError("Can't jog any axis while homing.");
+		reportError("Can't jog any joints while homing.");
 		SET_JOINT_ERROR_FLAG(joint, 1);
 		break;
 	    }
@@ -808,7 +808,7 @@ check_stuff ( "before command_handler()" );
 	    /* and let it go */
 	    joint->free_tp_enable = 1;
 	    SET_JOINT_ERROR_FLAG(joint, 0);
-	    /* clear axis homed flag(s) if we don't have forward kins.
+	    /* clear joint homed flag(s) if we don't have forward kins.
 	       Otherwise, a transition into coordinated mode will incorrectly
 	       assume the homed position. Do all if they've all been moved
 	       since homing, otherwise just do this one */
@@ -863,8 +863,8 @@ check_stuff ( "before command_handler()" );
 		break;
 	    } else {
 		SET_MOTION_ERROR_FLAG(0);
-		/* set flag that indicates all axes need rehoming, if any
-		   axis is moved in joint mode, for machines with no forward
+		/* set flag that indicates all joints need rehoming, if any
+		   joint is moved in joint mode, for machines with no forward
 		   kins */
 		rehomeAll = 1;
 	    }
@@ -913,8 +913,8 @@ check_stuff ( "before command_handler()" );
 		break;
 	    } else {
 		SET_MOTION_ERROR_FLAG(0);
-		/* set flag that indicates all axes need rehoming, if any
-		   axis is moved in joint mode, for machines with no forward
+		/* set flag that indicates all joints need rehoming, if any
+		   joint is moved in joint mode, for machines with no forward
 		   kins */
 		rehomeAll = 1;
 	    }
@@ -942,7 +942,7 @@ check_stuff ( "before command_handler()" );
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_JOINT_VEL_LIMIT");
 	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
 	    emcmot_config_change();
-	    /* check axis range */
+	    /* check joint range */
 	    if (joint == 0) {
 		break;
 	    }
@@ -954,7 +954,7 @@ check_stuff ( "before command_handler()" );
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_JOINT_ACC_LIMIT");
 	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
 	    emcmot_config_change();
-	    /* check axis range */
+	    /* check joint range */
 	    if (joint == 0) {
 		break;
 	    }
@@ -1099,7 +1099,7 @@ check_stuff ( "before command_handler()" );
 	    break;
 
 	case EMCMOT_ACTIVATE_JOINT:
-	    /* make axis active, so that amps will be enabled when system is
+	    /* make joint active, so that amps will be enabled when system is
 	       enabled or disabled */
 	    /* can be done at any time */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "ACTIVATE_JOINT");
@@ -1111,10 +1111,10 @@ check_stuff ( "before command_handler()" );
 	    break;
 
 	case EMCMOT_DEACTIVATE_JOINT:
-	    /* make axis inactive, so that amps won't be affected when system
+	    /* make joint inactive, so that amps won't be affected when system
 	       is enabled or disabled */
 	    /* can be done at any time */
-	    rtapi_print_msg(RTAPI_MSG_DBG, "DEACTIVATE_AXIS");
+	    rtapi_print_msg(RTAPI_MSG_DBG, "DEACTIVATE_JOINT");
 	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
 	    if (joint == 0) {
 		break;
@@ -1132,12 +1132,12 @@ check_stuff ( "before command_handler()" );
 	    }
 /*! \todo Another #if 0 */
 #if 0
-	    extAmpEnable(axis, 1);
+	    extAmpEnable(joint_num, 1);
 #endif
 	    break;
 
 	case EMCMOT_DISABLE_AMPLIFIER:
-	    /* disable the axis calculations and amplifier, but don't disable
+	    /* disable the joint calculations and amplifier, but don't disable
 	       calculations */
 	    /* can be done at any time */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "DISABLE_AMP");
@@ -1147,12 +1147,12 @@ check_stuff ( "before command_handler()" );
 	    }
 /*! \todo Another #if 0 */
 #if 0
-	    extAmpEnable(axis, 0);
+	    extAmpEnable(joint_num, 0);
 #endif
 	    break;
 
 	case EMCMOT_HOME:
-	    /* home the specified axis */
+	    /* home the specified joint */
 	    /* need to be in free mode, enable on */
 	    /* this just sets the initial state, then the state machine in
 	       control.c does the rest */
@@ -1278,8 +1278,8 @@ check_stuff ( "before command_handler()" );
 		emcmotStatus->probing = 1;
                 emcmotStatus->probe_type = emcmotCommand->probe_type;
 		SET_MOTION_ERROR_FLAG(0);
-		/* set flag that indicates all axes need rehoming, if any
-		   axis is moved in joint mode, for machines with no forward
+		/* set flag that indicates all joints need rehoming, if any
+		   joint is moved in joint mode, for machines with no forward
 		   kins */
 		rehomeAll = 1;
 	    }

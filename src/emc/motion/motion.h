@@ -23,7 +23,7 @@ Misc ramblings:
 The terms axis and joint are used inconsistently throughout EMC.
 For all new code, the usages are as follows:
 
-    axis - one of the six degrees of freedom, x, y, z, a, b, c
+    axis - one of the nine degrees of freedom, x, y, z, a, b, c, u, v, w
 	these refer to axes in Cartesian space, which may or
 	may not match up with joints (see below). On Cartesian
 	machines they do match up, but for hexapods, robots, and
@@ -79,7 +79,7 @@ to another.
 #include "posemath.h"		/* PmCartesian, PmPose, pmCartMag() */
 #include "emcpos.h"		/* EmcPose */
 #include "cubic.h"		/* CUBIC_STRUCT, CUBIC_COEFF */
-#include "emcmotcfg.h"		/* EMCMOT_MAX_AXIS, EMCMOT_MAX_JOINTS */
+#include "emcmotcfg.h"		/* EMCMOT_MAX_JOINTS */
 #include "kinematics.h"
 
 #ifdef __cplusplus
@@ -97,15 +97,15 @@ extern "C" {
 
     typedef enum {
 	EMCMOT_ABORT = 1,	/* abort all motion */
-	EMCMOT_AXIS_ABORT,	/* abort one axis */
-	EMCMOT_ENABLE,		/* enable servos for active axes */
-	EMCMOT_DISABLE,		/* disable servos for active axes */
+	EMCMOT_AXIS_ABORT,	/* abort one axis */ //FIXME-AJ: replace command name to EMCMOT_JOINT_ABORT
+	EMCMOT_ENABLE,		/* enable servos for active joints */
+	EMCMOT_DISABLE,		/* disable servos for active joints */
 	EMCMOT_ENABLE_AMPLIFIER,	/* enable amp outputs */
 	EMCMOT_DISABLE_AMPLIFIER,	/* disable amp outputs */
 	EMCMOT_ENABLE_WATCHDOG,	/* enable watchdog sound, parport */
 	EMCMOT_DISABLE_WATCHDOG,	/* enable watchdog sound, parport */
-	EMCMOT_ACTIVATE_JOINT,	/* make axis active */
-	EMCMOT_DEACTIVATE_JOINT,	/* make axis inactive */
+	EMCMOT_ACTIVATE_JOINT,	/* make joint active */
+	EMCMOT_DEACTIVATE_JOINT,	/* make joint inactive */
 
 	EMCMOT_PAUSE,		/* pause motion */
 	EMCMOT_RESUME,		/* resume motion */
@@ -122,7 +122,7 @@ extern "C" {
 	EMCMOT_AF_ENABLE,	/* enable/disable adaptive feedrate */
 	EMCMOT_OVERRIDE_LIMITS,	/* temporarily ignore limits until jog done */
 
-	EMCMOT_HOME,		/* home an axis */
+	EMCMOT_HOME,		/* home a joint */
 	EMCMOT_JOG_CONT,	/* continuous jog */
 	EMCMOT_JOG_INCR,	/* incremental jog */
 	EMCMOT_JOG_ABS,		/* absolute jog */
@@ -138,19 +138,19 @@ extern "C" {
 	EMCMOT_RIGID_TAP,	/* go to pos, with sync to spindle speed, 
 				   then return to initial pos */
 
-	EMCMOT_SET_POSITION_LIMITS,	/* set the axis position +/- limits */
-	EMCMOT_SET_BACKLASH,	/* set the axis backlash */
+	EMCMOT_SET_POSITION_LIMITS,	/* set the joint position +/- limits */
+	EMCMOT_SET_BACKLASH,	/* set the joint backlash */
 	EMCMOT_SET_MIN_FERROR,	/* minimum following error, input units */
 	EMCMOT_SET_MAX_FERROR,	/* maximum following error, input units */
 	EMCMOT_SET_VEL,		/* set the velocity for subsequent moves */
 	EMCMOT_SET_VEL_LIMIT,	/* set the max vel for all moves (tooltip) */
-	EMCMOT_SET_JOINT_VEL_LIMIT,	/* set the max axis vel */
-	EMCMOT_SET_JOINT_ACC_LIMIT,	/* set the max axis accel */
+	EMCMOT_SET_JOINT_VEL_LIMIT,	/* set the max joint vel */
+	EMCMOT_SET_JOINT_ACC_LIMIT,	/* set the max joint accel */
 	EMCMOT_SET_ACC,		/* set the max accel for moves (tooltip) */
 	EMCMOT_SET_TERM_COND,	/* set termination condition (stop, blend) */
-	EMCMOT_SET_NUM_AXES,	/* set the number of axes */
+	EMCMOT_SET_NUM_AXES,	/* set the number of joints */ //FIXME-AJ: function needs to get renamed
 	EMCMOT_SET_WORLD_HOME,	/* set pose for world home */
-	EMCMOT_SET_HOMING_PARAMS,	/* sets axis homing parameters */
+	EMCMOT_SET_HOMING_PARAMS,	/* sets joint homing parameters */
 	EMCMOT_SET_DEBUG,       /* sets the debug level */
 	EMCMOT_SET_DOUT,        /* sets or unsets a DIO, this can be imediate or synched with motion */
 	EMCMOT_SET_AOUT,	/* sets or unsets a AIO, this can be imediate or synched with motion */
@@ -210,7 +210,7 @@ extern "C" {
 	int id;			/* id for motion */
 	int termCond;		/* termination condition */
 	double tolerance;	/* tolerance for path deviation in CONTINUOUS mode */
-	int axis;		/* which index to use for below */
+	int axis;		/* which index to use for below */ //FIXME-AJ: replace with joint
 	double scale;		/* velocity scale or spindle_speed scale arg */
 	double offset;		/* input, output, or home offset arg */
 	double home;		/* joint home position */
@@ -252,7 +252,7 @@ extern "C" {
   where:
 
   EN is 1 if calculations are enabled, 0 if not
-  IP is 1 if all axes in position, 0 if not
+  IP is 1 if all joints in position, 0 if not
   C is 1 if coordinated mode, 0 if in free mode
   CE is 1 if coordinated mode error, 0 if not
   T is 1 if we are in teleop mode.
@@ -265,10 +265,10 @@ extern "C" {
 #define EMCMOT_MOTION_ERROR_BIT       0x0008
 #define EMCMOT_MOTION_TELEOP_BIT      0x0010
 
-/* axis flag type */
-    typedef unsigned short EMCMOT_AXIS_FLAG;
+/* joint flag type */
+    typedef unsigned short EMCMOT_JOINT_FLAG;
 /*
-  axis status flag structure-- looks like:
+  joint status flag structure-- looks like:
 
   MSB                                                          LSB
   ----------v-----------------v--------------------v-------------------v
@@ -280,50 +280,50 @@ extern "C" {
 
   where:
 
-  EN  is 1 if axis amplifier is enabled, 0 if not
-  AC  is 1 if axis is active for calculations, 0 if not
-  IP  is 1 if axis is in position, 0 if not (free mode only)
-  ER  is 1 if axis has an error, 0 if not
+  EN  is 1 if joint amplifier is enabled, 0 if not
+  AC  is 1 if joint is active for calculations, 0 if not
+  IP  is 1 if joint is in position, 0 if not (free mode only)
+  ER  is 1 if joint has an error, 0 if not
 
-  PHL is 1 if axis is on maximum hardware limit, 0 if not
-  NHL is 1 if axis is on minimum hardware limit, 0 if not
+  PHL is 1 if joint is on maximum hardware limit, 0 if not
+  NHL is 1 if joint is on minimum hardware limit, 0 if not
 
-  HS  is 1 if axis home switch is tripped, 0 if not
-  H   is 1 if axis is homing, 0 if not
-  HD  is 1 if axis has been homed, 0 if not
-  AH  is 1 if axis is at home position, 0 if not
+  HS  is 1 if joint home switch is tripped, 0 if not
+  H   is 1 if joint is homing, 0 if not
+  HD  is 1 if joint has been homed, 0 if not
+  AH  is 1 if joint is at home position, 0 if not
 
-  FE  is 1 if axis exceeded following error, 0 if not
+  FE  is 1 if joint exceeded following error, 0 if not
   AF  is 1 if amplifier is faulted, 0 if not
 
 Suggestion: Split this in to an Error and a Status flag register..
              Then a simple test on each of the two flags can be performed
-             rather than testing each bit... Saving on a global per axis
+             rather than testing each bit... Saving on a global per joint
              fault and ready status flag.
   */
 
 /* bit masks */
-#define EMCMOT_AXIS_ENABLE_BIT         0x0001
-#define EMCMOT_AXIS_ACTIVE_BIT         0x0002
-#define EMCMOT_AXIS_INPOS_BIT          0x0004
-#define EMCMOT_AXIS_ERROR_BIT          0x0008
+#define EMCMOT_JOINT_ENABLE_BIT         0x0001
+#define EMCMOT_JOINT_ACTIVE_BIT         0x0002
+#define EMCMOT_JOINT_INPOS_BIT          0x0004
+#define EMCMOT_JOINT_ERROR_BIT          0x0008
 
-#define EMCMOT_AXIS_MAX_HARD_LIMIT_BIT 0x0040
-#define EMCMOT_AXIS_MIN_HARD_LIMIT_BIT 0x0080
+#define EMCMOT_JOINT_MAX_HARD_LIMIT_BIT 0x0040
+#define EMCMOT_JOINT_MIN_HARD_LIMIT_BIT 0x0080
 
-#define EMCMOT_AXIS_HOME_SWITCH_BIT    0x0100
-#define EMCMOT_AXIS_HOMING_BIT         0x0200
-#define EMCMOT_AXIS_HOMED_BIT          0x0400
+#define EMCMOT_JOINT_HOME_SWITCH_BIT    0x0100
+#define EMCMOT_JOINT_HOMING_BIT         0x0200
+#define EMCMOT_JOINT_HOMED_BIT          0x0400
 
 /*! \todo FIXME - I'm not sure AT_HOME is being reported correctly.
    AT_HOME is cleared when you jog in free mode, but not if
    you do a coordinated move... perhaps that is the intended
    behavior.
 */
-#define EMCMOT_AXIS_AT_HOME_BIT        0x0800
+#define EMCMOT_JOINT_AT_HOME_BIT        0x0800
 
-#define EMCMOT_AXIS_FERROR_BIT         0x1000
-#define EMCMOT_AXIS_FAULT_BIT          0x2000
+#define EMCMOT_JOINT_FERROR_BIT         0x1000
+#define EMCMOT_JOINT_FAULT_BIT          0x2000
 
 /*! \todo FIXME - the terms "teleop", "coord", and "free" are poorly
    documented.  This is my feeble attempt to understand exactly
@@ -333,17 +333,17 @@ Suggestion: Split this in to an Error and a Status flag register..
    although that may not be true for machines with non-trivial
    kinematics.
 
-   "coord", or coordinated mode, means that all the axis are
+   "coord", or coordinated mode, means that all the joints are
    synchronized, and move together as commanded by the higher
    level code.  It is the normal mode when machining.  In
    coordinated mode, commands are assumed to be in the cartesean
    reference frame, and if the machine is non-cartesean, the
    commands are translated by the kinematics to drive each
-   axis in joint space as needed.
+   joint in joint space as needed.
 
    "free" mode means commands are interpreted in joint space.
-   It is used for jogging individual axes (joints), although
-   it does not preclude multiple axes moving at once (I think).
+   It is used for jogging individual joints, although
+   it does not preclude multiple joints moving at once (I think).
    Homing is also done in free mode, in fact machines with
    non-trivial kinematics must be homed before they can go
    into either coord or teleop mode.
@@ -464,7 +464,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 	/* many of these need to be made available to higher levels */
 	/* they can either be copied to the status struct, or an array of
 	   joint structs can be made part of the status */
-	EMCMOT_AXIS_FLAG flag;	/* see above for bit details */
+	EMCMOT_JOINT_FLAG flag;	/* see above for bit details */
 	double coarse_pos;	/* trajectory point, before interp */
 	double pos_cmd;		/* commanded joint position */
 	double vel_cmd;		/* comanded joint velocity */
@@ -518,7 +518,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 */
     typedef struct {
 
-	EMCMOT_AXIS_FLAG flag;	/* see above for bit details */
+	EMCMOT_JOINT_FLAG flag;	/* see above for bit details */
 	double pos_cmd;		/* commanded joint position */
 	double pos_fb;		/* position feedback, comp removed */
 	double ferror;		/* following error */
@@ -588,11 +588,11 @@ Suggestion: Split this in to an Error and a Status flag register..
 	EmcPose carte_pos_fb;	/* actual Cartesian position */
 	int carte_pos_fb_ok;	/* non-zero if feedback is valid */
 	EmcPose world_home;	/* cartesean coords of home position */
-	int homing_active;	/* non-zero if any axis is homing */
+	int homing_active;	/* non-zero if any joint is homing */
 	home_sequence_state_t homingSequenceState;
 	emcmot_joint_status_t joint_status[EMCMOT_MAX_JOINTS];	/* all joint status data */
 
-	int on_soft_limit;	/* non-zero if any axis is on soft limit */
+	int on_soft_limit;	/* non-zero if any joint is on soft limit */
 
 	int probeVal;		/* debounced value of probe input */
 
@@ -675,12 +675,10 @@ Suggestion: Split this in to an Error and a Status flag register..
 
 	int config_num;		/* Incremented everytime configuration
 				   changed, should match status.config_num */
-	/* FIXME at present, this is getting loaded with num_joints...
-	   more of the thrice-damned axis/joints confusion. */
-	int numAxes;		/* The number of axes in the system (which
-				   must be between 1 and EMCMOT_MAX_AXIS,
+	int numJoints;		/* The number of joints in the system (which
+				   must be between 1 and EMCMOT_MAX_JOINTS,
 				   inclusive). Allegedly, holds a copy of the
-				   global num_axes - seems daft to maintain
+				   global num_joints - seems daft to maintain
 				   duplicates ! */
 
 	double trajCycleTime;	/* the rate at which the trajectory loop

@@ -32,7 +32,7 @@
    WRPI: read/write pin
 */
 
-/* axis data */
+/* joint data */
 
 typedef struct {
     hal_float_t coarse_pos_cmd;	/* RPA: commanded position, w/o comp */
@@ -54,15 +54,15 @@ typedef struct {
     hal_bit_t kb_jog_active;    /* RPA: executing keyboard jog */
     hal_bit_t wheel_jog_active; /* RPA: executing handwheel jog */
 
-    hal_bit_t active;		/* RPA: axis is active, whatever that means */
-    hal_bit_t in_position;	/* RPA: axis is in position */
-    hal_bit_t error;		/* RPA: axis has an error */
-    hal_bit_t phl;		/* RPA: axis is at positive hard limit */
-    hal_bit_t nhl;		/* RPA: axis is at negative hard limit */
-    hal_bit_t *homing;		/* RPI: axis is homing */
-    hal_bit_t homed;		/* RPA: axis was homed */
-    hal_bit_t f_errored;	/* RPA: axis had too much following error */
-    hal_bit_t faulted;		/* RPA: axis amp faulted */
+    hal_bit_t active;		/* RPA: joint is active, whatever that means */
+    hal_bit_t in_position;	/* RPA: joint is in position */
+    hal_bit_t error;		/* RPA: joint has an error */
+    hal_bit_t phl;		/* RPA: joint is at positive hard limit */
+    hal_bit_t nhl;		/* RPA: joint is at negative hard limit */
+    hal_bit_t *homing;		/* RPI: joint is homing */
+    hal_bit_t homed;		/* RPA: joint was homed */
+    hal_bit_t f_errored;	/* RPA: joint had too much following error */
+    hal_bit_t faulted;		/* RPA: joint amp faulted */
     hal_bit_t *pos_lim_sw;	/* RPI: positive limit switch input */
     hal_bit_t *neg_lim_sw;	/* RPI: negative limit switch input */
     hal_bit_t *home_sw;		/* RPI: home switch input */
@@ -77,7 +77,7 @@ typedef struct {
     hal_float_t *jog_scale;	/* RPI: distance to jog on each count */
     hal_bit_t *jog_vel_mode;	/* RPI: true for "velocity mode" jogwheel */
 
-} axis_hal_t;
+} joint_hal_t;
 
 /* machine data */
 
@@ -88,9 +88,9 @@ typedef struct {
     hal_float_t *spindle_revs;
     hal_float_t *adaptive_feed;	/* RPI: adaptive feedrate, 0.0 to 1.0 */
     hal_bit_t *feed_hold;	/* RPI: set TRUE to stop motion */
-    hal_bit_t motion_enabled;	/* RPA: motion enable for all axis */
-    hal_bit_t in_position;	/* RPA: all axis are in position */
-    hal_bit_t *inpos_output;	/* WPI: all axes are in position (used to power down steppers for example) */
+    hal_bit_t motion_enabled;	/* RPA: motion enable for all joints */
+    hal_bit_t in_position;	/* RPA: all joints are in position */
+    hal_bit_t *inpos_output;	/* WPI: all joints are in position (used to power down steppers for example) */
     hal_bit_t coord_mode;	/* RPA: TRUE if coord, FALSE if free */
     hal_bit_t teleop_mode;	/* RPA: TRUE if teleop mode */
     hal_bit_t coord_error;	/* RPA: TRUE if coord mode error */
@@ -149,7 +149,7 @@ typedef struct {
     hal_float_t *tooloffset_x;
     hal_float_t *tooloffset_z;
 
-    axis_hal_t axis[EMCMOT_MAX_JOINTS];	/* data for each joint */
+    joint_hal_t joint[EMCMOT_MAX_JOINTS];	/* data for each joint */
 
 } emcmot_hal_data_t;
 
@@ -247,57 +247,55 @@ extern void reportError(const char *fmt, ...);	/* Use the rtapi_print call */
 
 #define SET_MOTION_ENABLE_FLAG(fl) if (fl) emcmotStatus->motionFlag |= EMCMOT_MOTION_ENABLE_BIT; else emcmotStatus->motionFlag &= ~EMCMOT_MOTION_ENABLE_BIT;
 
-/* axis flags */
-
 /* joint flags */
 
-#define GET_JOINT_ENABLE_FLAG(joint) ((joint)->flag & EMCMOT_AXIS_ENABLE_BIT ? 1 : 0)
+#define GET_JOINT_ENABLE_FLAG(joint) ((joint)->flag & EMCMOT_JOINT_ENABLE_BIT ? 1 : 0)
 
-#define SET_JOINT_ENABLE_FLAG(joint,fl) if (fl) (joint)->flag |= EMCMOT_AXIS_ENABLE_BIT; else (joint)->flag &= ~EMCMOT_AXIS_ENABLE_BIT;
+#define SET_JOINT_ENABLE_FLAG(joint,fl) if (fl) (joint)->flag |= EMCMOT_JOINT_ENABLE_BIT; else (joint)->flag &= ~EMCMOT_JOINT_ENABLE_BIT;
 
-#define GET_JOINT_ACTIVE_FLAG(joint) ((joint)->flag & EMCMOT_AXIS_ACTIVE_BIT ? 1 : 0)
+#define GET_JOINT_ACTIVE_FLAG(joint) ((joint)->flag & EMCMOT_JOINT_ACTIVE_BIT ? 1 : 0)
 
-#define SET_JOINT_ACTIVE_FLAG(joint,fl) if (fl) (joint)->flag |= EMCMOT_AXIS_ACTIVE_BIT; else (joint)->flag &= ~EMCMOT_AXIS_ACTIVE_BIT;
+#define SET_JOINT_ACTIVE_FLAG(joint,fl) if (fl) (joint)->flag |= EMCMOT_JOINT_ACTIVE_BIT; else (joint)->flag &= ~EMCMOT_JOINT_ACTIVE_BIT;
 
-#define GET_JOINT_INPOS_FLAG(joint) ((joint)->flag & EMCMOT_AXIS_INPOS_BIT ? 1 : 0)
+#define GET_JOINT_INPOS_FLAG(joint) ((joint)->flag & EMCMOT_JOINT_INPOS_BIT ? 1 : 0)
 
-#define SET_JOINT_INPOS_FLAG(joint,fl) if (fl) (joint)->flag |= EMCMOT_AXIS_INPOS_BIT; else (joint)->flag &= ~EMCMOT_AXIS_INPOS_BIT;
+#define SET_JOINT_INPOS_FLAG(joint,fl) if (fl) (joint)->flag |= EMCMOT_JOINT_INPOS_BIT; else (joint)->flag &= ~EMCMOT_JOINT_INPOS_BIT;
 
-#define GET_JOINT_ERROR_FLAG(joint) ((joint)->flag & EMCMOT_AXIS_ERROR_BIT ? 1 : 0)
+#define GET_JOINT_ERROR_FLAG(joint) ((joint)->flag & EMCMOT_JOINT_ERROR_BIT ? 1 : 0)
 
-#define SET_JOINT_ERROR_FLAG(joint,fl) if (fl) (joint)->flag |= EMCMOT_AXIS_ERROR_BIT; else (joint)->flag &= ~EMCMOT_AXIS_ERROR_BIT;
+#define SET_JOINT_ERROR_FLAG(joint,fl) if (fl) (joint)->flag |= EMCMOT_JOINT_ERROR_BIT; else (joint)->flag &= ~EMCMOT_JOINT_ERROR_BIT;
 
-#define GET_JOINT_PHL_FLAG(joint) ((joint)->flag & EMCMOT_AXIS_MAX_HARD_LIMIT_BIT ? 1 : 0)
+#define GET_JOINT_PHL_FLAG(joint) ((joint)->flag & EMCMOT_JOINT_MAX_HARD_LIMIT_BIT ? 1 : 0)
 
-#define SET_JOINT_PHL_FLAG(joint,fl) if (fl) (joint)->flag |= EMCMOT_AXIS_MAX_HARD_LIMIT_BIT; else (joint)->flag &= ~EMCMOT_AXIS_MAX_HARD_LIMIT_BIT;
+#define SET_JOINT_PHL_FLAG(joint,fl) if (fl) (joint)->flag |= EMCMOT_JOINT_MAX_HARD_LIMIT_BIT; else (joint)->flag &= ~EMCMOT_JOINT_MAX_HARD_LIMIT_BIT;
 
-#define GET_JOINT_NHL_FLAG(joint) ((joint)->flag & EMCMOT_AXIS_MIN_HARD_LIMIT_BIT ? 1 : 0)
+#define GET_JOINT_NHL_FLAG(joint) ((joint)->flag & EMCMOT_JOINT_MIN_HARD_LIMIT_BIT ? 1 : 0)
 
-#define SET_JOINT_NHL_FLAG(joint,fl) if (fl) (joint)->flag |= EMCMOT_AXIS_MIN_HARD_LIMIT_BIT; else (joint)->flag &= ~EMCMOT_AXIS_MIN_HARD_LIMIT_BIT;
+#define SET_JOINT_NHL_FLAG(joint,fl) if (fl) (joint)->flag |= EMCMOT_JOINT_MIN_HARD_LIMIT_BIT; else (joint)->flag &= ~EMCMOT_JOINT_MIN_HARD_LIMIT_BIT;
 
-#define GET_JOINT_HOME_SWITCH_FLAG(joint) ((joint)->flag & EMCMOT_AXIS_HOME_SWITCH_BIT ? 1 : 0)
+#define GET_JOINT_HOME_SWITCH_FLAG(joint) ((joint)->flag & EMCMOT_JOINT_HOME_SWITCH_BIT ? 1 : 0)
 
-#define SET_JOINT_HOME_SWITCH_FLAG(joint,fl) if (fl) (joint)->flag |= EMCMOT_AXIS_HOME_SWITCH_BIT; else (joint)->flag &= ~EMCMOT_AXIS_HOME_SWITCH_BIT;
+#define SET_JOINT_HOME_SWITCH_FLAG(joint,fl) if (fl) (joint)->flag |= EMCMOT_JOINT_HOME_SWITCH_BIT; else (joint)->flag &= ~EMCMOT_JOINT_HOME_SWITCH_BIT;
 
-#define GET_JOINT_HOMING_FLAG(joint) ((joint)->flag & EMCMOT_AXIS_HOMING_BIT ? 1 : 0)
+#define GET_JOINT_HOMING_FLAG(joint) ((joint)->flag & EMCMOT_JOINT_HOMING_BIT ? 1 : 0)
 
-#define SET_JOINT_HOMING_FLAG(joint,fl) if (fl) (joint)->flag |= EMCMOT_AXIS_HOMING_BIT; else (joint)->flag &= ~EMCMOT_AXIS_HOMING_BIT;
+#define SET_JOINT_HOMING_FLAG(joint,fl) if (fl) (joint)->flag |= EMCMOT_JOINT_HOMING_BIT; else (joint)->flag &= ~EMCMOT_JOINT_HOMING_BIT;
 
-#define GET_JOINT_HOMED_FLAG(joint) ((joint)->flag & EMCMOT_AXIS_HOMED_BIT ? 1 : 0)
+#define GET_JOINT_HOMED_FLAG(joint) ((joint)->flag & EMCMOT_JOINT_HOMED_BIT ? 1 : 0)
 
-#define SET_JOINT_HOMED_FLAG(joint,fl) if (fl) (joint)->flag |= EMCMOT_AXIS_HOMED_BIT; else (joint)->flag &= ~EMCMOT_AXIS_HOMED_BIT;
+#define SET_JOINT_HOMED_FLAG(joint,fl) if (fl) (joint)->flag |= EMCMOT_JOINT_HOMED_BIT; else (joint)->flag &= ~EMCMOT_JOINT_HOMED_BIT;
 
-#define GET_JOINT_AT_HOME_FLAG(joint) ((joint)->flag & EMCMOT_AXIS_AT_HOME_BIT ? 1 : 0)
+#define GET_JOINT_AT_HOME_FLAG(joint) ((joint)->flag & EMCMOT_JOINT_AT_HOME_BIT ? 1 : 0)
 
-#define SET_JOINT_AT_HOME_FLAG(joint,fl) if (fl) (joint)->flag |= EMCMOT_AXIS_AT_HOME_BIT; else (joint)->flag &= ~EMCMOT_AXIS_AT_HOME_BIT;
+#define SET_JOINT_AT_HOME_FLAG(joint,fl) if (fl) (joint)->flag |= EMCMOT_JOINT_AT_HOME_BIT; else (joint)->flag &= ~EMCMOT_JOINT_AT_HOME_BIT;
 
-#define GET_JOINT_FERROR_FLAG(joint) ((joint)->flag & EMCMOT_AXIS_FERROR_BIT ? 1 : 0)
+#define GET_JOINT_FERROR_FLAG(joint) ((joint)->flag & EMCMOT_JOINT_FERROR_BIT ? 1 : 0)
 
-#define SET_JOINT_FERROR_FLAG(joint,fl) if (fl) (joint)->flag |= EMCMOT_AXIS_FERROR_BIT; else (joint)->flag &= ~EMCMOT_AXIS_FERROR_BIT;
+#define SET_JOINT_FERROR_FLAG(joint,fl) if (fl) (joint)->flag |= EMCMOT_JOINT_FERROR_BIT; else (joint)->flag &= ~EMCMOT_JOINT_FERROR_BIT;
 
-#define GET_JOINT_FAULT_FLAG(joint) ((joint)->flag & EMCMOT_AXIS_FAULT_BIT ? 1 : 0)
+#define GET_JOINT_FAULT_FLAG(joint) ((joint)->flag & EMCMOT_JOINT_FAULT_BIT ? 1 : 0)
 
-#define SET_JOINT_FAULT_FLAG(joint,fl) if (fl) (joint)->flag |= EMCMOT_AXIS_FAULT_BIT; else (joint)->flag &= ~EMCMOT_AXIS_FAULT_BIT;
+#define SET_JOINT_FAULT_FLAG(joint,fl) if (fl) (joint)->flag |= EMCMOT_JOINT_FAULT_BIT; else (joint)->flag &= ~EMCMOT_JOINT_FAULT_BIT;
 
 #if defined(LINUX_VERSION_CODE) && !defined(SIM)
 #if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,0)

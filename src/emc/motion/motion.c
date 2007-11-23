@@ -128,7 +128,7 @@ static int emc_shmem_id;	/* the shared memory ID */
 static int init_hal_io(void);
 
 /* functions called by init_hal_io() */
-static int export_axis(int num, axis_hal_t * addr);
+static int export_joint(int num, joint_hal_t * addr);
 
 /* init_comm_buffers() allocates and initializes the command,
    status, and error buffers used to communicate witht the user
@@ -240,7 +240,6 @@ int rtapi_app_main(void)
 
 void rtapi_app_exit(void)
 {
-//    int axis;
     int retval;
 
     rtapi_set_msg_handler(old_handler);
@@ -277,7 +276,7 @@ void rtapi_app_exit(void)
 static int init_hal_io(void)
 {
     int n, retval;
-    axis_hal_t *axis_data;
+    joint_hal_t *joint_data;
     char buf[HAL_NAME_LEN + 2];
 
     rtapi_print_msg(RTAPI_MSG_INFO, "MOTION: init_hal_io() starting...\n");
@@ -539,22 +538,22 @@ static int init_hal_io(void)
     emcmot_hal_data->overruns = 0;
     emcmot_hal_data->last_period = 0;
 
-    /* export axis pins and parameters */
+    /* export joint pins and parameters */
     for (n = 0; n < num_joints; n++) {
 	/* point to axis data */
-	axis_data = &(emcmot_hal_data->axis[n]);
+	joint_data = &(emcmot_hal_data->joint[n]);
 	/* export all vars */
-        retval = export_axis(n, axis_data);
+        retval = export_joint(n, joint_data);
 	if (retval != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"MOTION: axis %d pin/param export failed\n", n);
+		"MOTION: joint %d pin/param export failed\n", n);
 	    return -1;
 	}
 	/* init axis pins and parameters */
-	/*! \todo FIXME - struct members are in a state of flux - make sure to
+	/* FIXME - struct members are in a state of flux - make sure to
 	   update this - most won't need initing anyway */
-	*(axis_data->amp_enable) = 0;
-	axis_data->home_state = 0;
+	*(joint_data->amp_enable) = 0;
+	joint_data->home_state = 0;
 	/* We'll init the index model to EXT_ENCODER_INDEX_MODEL_RAW for now,
 	   because it is always supported. */
     }
@@ -568,7 +567,7 @@ static int init_hal_io(void)
 
 }
 
-static int export_axis(int num, axis_hal_t * addr)
+static int export_joint(int num, joint_hal_t * addr)
 {
     int retval, msg;
     char buf[HAL_NAME_LEN + 2];
@@ -580,7 +579,7 @@ static int export_axis(int num, axis_hal_t * addr)
     msg = rtapi_get_msg_level();
     rtapi_set_msg_level(RTAPI_MSG_WARN);
 
-    /* export axis pins */
+    /* export joint pins */ //FIXME-AJ: changing these will bork configs, still we should do it
     rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.joint-pos-cmd", num);
     retval =
 	hal_pin_float_new(buf, HAL_OUT, &(addr->joint_pos_cmd), mot_comp_id);
@@ -660,7 +659,7 @@ static int export_axis(int num, axis_hal_t * addr)
     if (retval != 0) {
 	return retval;
     }
-    /* export axis parameters */
+    /* export joint parameters */ //FIXME-AJ: changing these to joints will break configs.
     rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.coarse-pos-cmd", num);
     retval =
 	hal_param_float_new(buf, HAL_RO, &(addr->coarse_pos_cmd),
@@ -860,8 +859,7 @@ static int init_comm_buffers(void)
     emcmotDebug->split = 0;
     emcmotStatus->heartbeat = 0;
     emcmotStatus->computeTime = 0.0;
-    /* FIXME is this axes or joints?! */
-    emcmotConfig->numAxes = num_joints;
+    emcmotConfig->numJoints = num_joints;
 
     emcmotStatus->carte_pos_cmd.tran.x = 0.0;
     emcmotStatus->carte_pos_cmd.tran.y = 0.0;
@@ -903,7 +901,7 @@ static int init_comm_buffers(void)
     joints = &(joint_array[0]);
 #endif
 
-    /* init per-axis stuff */
+    /* init per-joint stuff */
     for (joint_num = 0; joint_num < num_joints; joint_num++) {
 	/* point to structure for this joint */
 	joint = &joints[joint_num];
