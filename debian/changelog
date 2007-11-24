@@ -14,8 +14,9 @@ emc2 (1:2.2.2~cvs) unstable; urgency=low
   * additional french documentation translation, including gcode quickref
   * improve time estimate in gcode File > Properties: it paid no attention to
     requested feed rates
+  * fix ZX-plane (G18) arcs in the AXIS preview window
 
- -- jepler <jepler@unpythonic.net>  Wed, 21 Nov 2007 10:01:44 -0600
+ -- Chris Radek <chris@timeguy.com>  Fri, 23 Nov 2007 21:37:07 -0600
 
 emc2 (1:2.2.1) unstable; urgency=low
 
