@@ -15,8 +15,9 @@ emc2 (1:2.2.2~cvs) unstable; urgency=low
   * improve time estimate in gcode File > Properties: it paid no attention to
     requested feed rates
   * fix ZX-plane (G18) arcs in the AXIS preview window
+  * fix tripod kinematics example configuration
 
- -- Chris Radek <chris@timeguy.com>  Fri, 23 Nov 2007 21:37:07 -0600
+ -- Chris Radek <chris@timeguy.com>  Fri, 23 Nov 2007 23:08:35 -0600
 
 emc2 (1:2.2.1) unstable; urgency=low
 
