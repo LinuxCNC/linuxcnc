@@ -31,11 +31,11 @@ net J2pos axis.2.motor-pos-cmd => axis.2.motor-pos-fb ddt.4.in
 
 # send the position commands thru differentiators to
 # generate velocity and accel signals
-net J0vel ddt.0.out => ddt.1.in hypot.0.in0
+net J0vel ddt.0.out => ddt.1.in
 net J0acc <= ddt.1.out 
-net J1vel ddt.2.out => ddt.3.in hypot.0.in1
+net J1vel ddt.2.out => ddt.3.in
 net J1acc <= ddt.3.out 
-net J2vel ddt.4.out => ddt.5.in hypot.1.in0
+net J2vel ddt.4.out => ddt.5.in
 net J2acc <= ddt.5.out 
 
 # estop loopback
