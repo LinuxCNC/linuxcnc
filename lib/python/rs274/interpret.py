@@ -45,8 +45,8 @@ class ArcsToSegmentsMixin:
             xyz = [0,1,2]
         elif self.plane == 3:
             f = n = [y1+self.offset_x,z1+self.offset_y,x1+self.offset_z, a, b, c, 0, 0, 0]
-            cx=cx+self.offset_x
-            cy=cy+self.offset_z
+            cx=cx+self.offset_z
+            cy=cy+self.offset_x
             xyz = [2,0,1]
         else:
             f = n = [z1+self.offset_x,x1+self.offset_y,y1+self.offset_z, a, b, c, 0, 0, 0]
