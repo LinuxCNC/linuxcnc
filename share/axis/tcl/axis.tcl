@@ -1752,6 +1752,9 @@ proc joint_mode_switch {args} {
         $::_tabs_manual.axes.axisa configure -text A
         $::_tabs_manual.axes.axisb configure -text B
         $::_tabs_manual.axes.axisc configure -text C
+        $::_tabs_manual.axes.axisu configure -text U
+        $::_tabs_manual.axes.axisv configure -text V
+        $::_tabs_manual.axes.axisw configure -text W
     } else {
         $::_tabs_manual.axes.axisx configure -text 0
         $::_tabs_manual.axes.axisy configure -text 1
@@ -1759,6 +1762,9 @@ proc joint_mode_switch {args} {
         $::_tabs_manual.axes.axisa configure -text 3
         $::_tabs_manual.axes.axisb configure -text 4
         $::_tabs_manual.axes.axisc configure -text 5
+        $::_tabs_manual.axes.axisu configure -text 6
+        $::_tabs_manual.axes.axisv configure -text 7
+        $::_tabs_manual.axes.axisw configure -text 8
     }
 }
 
