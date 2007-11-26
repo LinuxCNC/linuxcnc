@@ -1455,7 +1455,7 @@ class App:
 	    'dirpin': data.find_output(dir),
 	    'dirhold': data.dirhold + data.latency,
 	    'dirsetup': data.dirsetup + data.latency,
-            'onestep': 1. / data[axis + "scale"],
+	    'onestep': abs(1. / data[axis + "scale"]),
 	    'scale': data[axis + "scale"],
 	    'resettime': data['steptime']
 	})
