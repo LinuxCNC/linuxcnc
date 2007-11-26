@@ -5,7 +5,9 @@
 g20 f60
 
 (first, no compensation so we can see the part outline)
+g0 z1
 g0 x1 y4
+g1 z0
 g3 x2 y3 i1
 g2 x3 y2 j-1
 g1 y-1
@@ -17,8 +19,10 @@ g2 x2 y3 i.6 j-.8
 
 (with compensation)
 t4 m6
+g0 z1
 g0 x1 y4
-g41 
+g1 z0
+g41
 g3 x2 y3 i1
 g2 x3 y2 j-1
 g1 y-1
