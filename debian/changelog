@@ -19,8 +19,9 @@ emc2 (1:2.2.2~cvs) unstable; urgency=low
   * fix "arc in mdi takes forever" bug (SF#1834576)
   * fix gcode documentation of toolchange
   * fix comp311 examples to program Z position
+  * fix stepconf for negative and fractional axis SCALEs
 
- -- jepler <jepler@unpythonic.net>  Sun, 25 Nov 2007 21:41:46 -0600
+ -- jepler <jepler@unpythonic.net>  Mon, 26 Nov 2007 07:55:11 -0600
 
 emc2 (1:2.2.1) unstable; urgency=low
 
