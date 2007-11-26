@@ -448,7 +448,7 @@ class Data:
         maxvel = getattr(self, axname+"maxvel")
         if self.units or axname == 'a': leadscrew = 1./leadscrew
         pps = leadscrew * steprev * microstep * (pulleynum/pulleyden) * maxvel
-        return pps
+        return abs(pps)
 
     def minperiod(self):
         return self.latency + self.steptime + self.stepspace + 5000
@@ -1294,7 +1294,7 @@ class App:
 	    w[axis + "acctime"].set_text("%.4f" % acctime)
 	    w[axis + "accdist"].set_text("%.4f" % accdist)
 	    w[axis + "hz"].set_text("%.1f" % pps)
-	    scale = self.data[axis + "scale"] = (pitch * get("steprev")
+	    scale = self.data[axis + "scale"] = (1.0 * pitch * get("steprev")
 		* get("microstep") * (get("pulleynum") / get("pulleyden")))
             w[axis + "scale"].set_text("%.1f" % scale)
             self.widgets.druid1.set_buttons_sensitive(1,1,1,1)
@@ -1412,13 +1412,13 @@ class App:
 
         if period < minperiod:
             period = minperiod
-            maxvel = 1e9 / minperiod / scale
+            maxvel = 1e9 / minperiod / abs(scale)
 
 	self.halrun = halrun = os.popen("halrun -sf > /dev/null", "w")
 
 	axnum = "xyza".index(axis)
-	step = XSTEP + 2 * axnum
-	dir = XDIR + 2 * axnum
+	step = axis + "step"
+	dir = axis + "dir"
 	halrun.write("""
 	    loadrt steptest
 	    loadrt stepgen step_type=0
@@ -1444,7 +1444,7 @@ class App:
 	    setp stepgen.0.steplen 1
 	    setp stepgen.0.dirhold %(dirhold)d
 	    setp stepgen.0.dirsetup %(dirsetup)d
-	    setp stepgen.0.position-scale %(scale)d
+	    setp stepgen.0.position-scale %(scale)f
 	    setp steptest.0.epsilon %(onestep)f
 
 	    setp stepgen.0.enable 1
@@ -1528,15 +1528,15 @@ class App:
 	self.axis_under_test = axis
 	self.update_axis_params()
 
-	halrun.write("start"); halrun.flush()
+	halrun.write("start\n"); halrun.flush()
 	widgets.dialog1.show_all()
 	result = widgets.dialog1.run()
 	widgets.dialog1.hide()
 	
 	if amp:
-	    halrun.write("""setp parport.0.pin-%02d-out 0""" % amp)
+	    halrun.write("""setp parport.0.pin-%02d-out 0\n""" % amp)
 	if estop:
-	    halrun.write("""setp parport.0.pin-%02d-out 0""" % estop)
+	    halrun.write("""setp parport.0.pin-%02d-out 0\n""" % estop)
 
 	time.sleep(.001)
 
