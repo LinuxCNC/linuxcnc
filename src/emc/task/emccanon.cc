@@ -1087,7 +1087,9 @@ void ARC_FEED(double first_end, double second_end,
             axial_acc = a1 = FROM_EXT_LEN(AXIS_MAX_ACCELERATION[2]);
             ini_maxvel = MIN(ini_maxvel, v1);
             acc = MIN(acc, a1);
-        }
+        } else {
+	    axis_len = 0;
+	}
 	break;
 
     case CANON_PLANE_YZ:
@@ -1123,7 +1125,9 @@ void ARC_FEED(double first_end, double second_end,
             axial_acc = a1 = FROM_EXT_LEN(AXIS_MAX_ACCELERATION[0]);
             ini_maxvel = MIN(ini_maxvel, v1);
             acc = MIN(acc, a1);
-        }
+        } else {
+	    axis_len = 0;
+	}
 
 	break;
 
@@ -1161,7 +1165,9 @@ void ARC_FEED(double first_end, double second_end,
             axial_acc = a1 = FROM_EXT_LEN(AXIS_MAX_ACCELERATION[1]);
             ini_maxvel = MIN(ini_maxvel, v1);
             acc = MIN(acc, a1);
-        }
+        } else {
+	    axis_len = 0;
+	}
 	break;
     }
 
