@@ -8734,8 +8734,7 @@ If the selected tool was not in the spindle before the tool change, the
  
 \layout Itemize
 
-The coordinate axes will be stopped in the same absolute position they were
- in before the tool change (but the spindle may be re-oriented).
+The axis positions may be modified
 \layout Itemize
 
 No other changes will be made.
@@ -8747,7 +8746,7 @@ M9
 .
 \layout Standard
 
-The tool change may include axis motion while it is in progress.
+The tool change may include axis motion.
  It is OK (but not useful) to program a change to the tool already in the
  spindle.
  It is OK if there is no tool in the selected slot; in that case, the spindle
