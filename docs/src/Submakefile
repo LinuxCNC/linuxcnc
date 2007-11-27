@@ -46,8 +46,10 @@ DOC_SRCS := \
 	config/stepconf_fr.lyx \
 	gcode/coordinates.lyx \
 	gcode/main.lyx \
+	gcode/main_fr.lyx \
 	gcode/mill_canned.lyx \
 	gcode/tool_compensation.lyx \
+	gcode/tool_compensation_fr.lyx \
 	hal/comp.lyx \
 	hal/drivers.lyx \
 	hal/general_ref.lyx \
@@ -238,7 +240,9 @@ endif
     
 docclean:
 	-rm -f $(DOC_DIR)/HAL_User_Manual.pdf
+	-rm -f $(DOC_DIR)/HAL_User_Manual_fr.pdf
 	-rm -f $(DOC_DIR)/EMC2_User_Manual.pdf
+	-rm -f $(DOC_DIR)/EMC2_User_Manual_fr.pdf
 	-rm -f $(DOC_DIR)/EMC2_Developer_Manual.pdf
 	-rm -f $(DOC_DIR)/EMC2_Integrator_Manual.pdf
 	-rm -f $(DOC_SRCDIR)/*.d
