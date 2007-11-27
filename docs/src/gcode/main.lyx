@@ -5097,6 +5097,7 @@ G2
  I and J are the offsets from the current location (in the X and Y directions,
  respectively) of the center of the circle.
  I and J are optional except that at least one of the two must be used.
+ If only one is specified, the value of the other is taken as 0.
  It is an error if: 
 \layout Itemize
 
@@ -5128,6 +5129,7 @@ G2
  I and K are the offsets from the current location (in the X and Z directions,
  respectively) of the center of the circle.
  I and K are optional except that at least one of the two must be used.
+ If only one is specified, the value of the other is taken as 0.
  It is an error if: 
 \layout Itemize
 
@@ -5159,6 +5161,7 @@ G2
  J and K are the offsets from the current location (in the Y and Z directions,
  respectively) of the center of the circle.
  J and K are optional except that at least one of the two must be used.
+ If only one is specified, the value of the other is taken as 0.
  It is an error if: 
 \layout Itemize
 
