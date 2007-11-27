@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: fr_axis\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2007-11-09 02:04+0100\n"
-"PO-Revision-Date: 2007-11-14 01:41+0100\n"
+"PO-Revision-Date: 2007-11-24 17:22+0100\n"
 "Last-Translator: Francis Tisserant <ftissera@free.fr>\n"
 "Language-Team: french <gnomefr@traduc.org>\n"
 "MIME-Version: 1.0\n"
@@ -195,7 +195,7 @@ msgstr "Contrôle manuel"
 
 #: emc/usr_intf/axis/scripts/axis.py:156
 msgid "Code entry (MDI)"
-msgstr "Entrée de codes (MDI)"
+msgstr "Données en manuel (MDI)"
 
 #: emc/usr_intf/axis/scripts/axis.py:157
 msgid "Control-M"
@@ -959,7 +959,7 @@ msgstr "Prises d'ori_gines machine"
 
 #: ../share/axis/tcl/axis.tcl:186
 msgid "_Zero coordinate system"
-msgstr "Annulation d'origine pièce"
+msgstr "Annulation décalage d'origine"
 
 #: ../share/axis/tcl/axis.tcl:190
 msgid "P1  G5_4"
@@ -1071,7 +1071,7 @@ msgstr "Afficher la position actuelle"
 
 #: ../share/axis/tcl/axis.tcl:340
 msgid "Show machine position"
-msgstr "Afficher la position machine"
+msgstr "Afficher la position absolue"
 
 #: ../share/axis/tcl/axis.tcl:347
 msgid "Show relative position"
