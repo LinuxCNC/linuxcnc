@@ -101,7 +101,7 @@ table { border-collapse: collapse; margin-left: auto; margin-right: auto; }
     </DIV>
     <xsl:apply-templates/>
     <xsl:if test="//footnote">
-	<H2>Footnotes</H2>
+	<H2><xsl:value-of select="$terms/term[@id='foot']"/></H2>
 	<xsl:apply-templates select="//footnote" mode="endlist"/>
     </xsl:if>
     </BODY>
