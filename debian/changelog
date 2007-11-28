@@ -3,6 +3,8 @@ emc2 (1:2.2.2~cvs) unstable; urgency=low
   * move hal_unlink manpage to development package
   * make gcode quick reference link into our own full gcode reference
     instead of the outdated nist document
+  * fix stepconf 'pulley' numbers: the 'motor' and 'leadscrew' fields
+    were transposed
   * fix stepconf 'charge pump' pin
   * fix stepconf 'external estop' pin
   * fix homing in stepconf-created configurations

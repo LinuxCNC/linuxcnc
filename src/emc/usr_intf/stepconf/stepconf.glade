@@ -3076,7 +3076,7 @@ Charge Pump</property>
 		      <property name="yalign">0.5</property>
 		      <property name="xpad">0</property>
 		      <property name="ypad">0</property>
-		      <property name="mnemonic_widget">xpulleynum</property>
+		      <property name="mnemonic_widget">xpulleyden</property>
 		      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
 		      <property name="width_chars">-1</property>
 		      <property name="single_line_mode">False</property>
@@ -3260,7 +3260,7 @@ Charge Pump</property>
 		  </child>
 
 		  <child>
-		    <widget class="GtkEntry" id="xpulleynum">
+		    <widget class="GtkEntry" id="xpulleyden">
 		      <property name="visible">True</property>
 		      <property name="can_focus">True</property>
 		      <property name="editable">True</property>
@@ -3270,7 +3270,7 @@ Charge Pump</property>
 		      <property name="has_frame">True</property>
 		      <property name="invisible_char">●</property>
 		      <property name="activates_default">False</property>
-		      <signal name="changed" handler="on_xpulleynum_changed" last_modification_time="Sun, 29 Jul 2007 13:10:15 GMT"/>
+		      <signal name="changed" handler="on_xpulleyden_changed" last_modification_time="Sun, 29 Jul 2007 13:10:15 GMT"/>
 		    </widget>
 		    <packing>
 		      <property name="left_attach">1</property>
@@ -3282,7 +3282,7 @@ Charge Pump</property>
 		  </child>
 
 		  <child>
-		    <widget class="GtkEntry" id="xpulleyden">
+		    <widget class="GtkEntry" id="xpulleynum">
 		      <property name="visible">True</property>
 		      <property name="can_focus">True</property>
 		      <property name="editable">True</property>
@@ -3292,7 +3292,7 @@ Charge Pump</property>
 		      <property name="has_frame">True</property>
 		      <property name="invisible_char">●</property>
 		      <property name="activates_default">False</property>
-		      <signal name="changed" handler="on_xpulleyden_changed" last_modification_time="Sun, 29 Jul 2007 13:10:21 GMT"/>
+		      <signal name="changed" handler="on_xpulleynum_changed" last_modification_time="Sun, 29 Jul 2007 13:10:21 GMT"/>
 		    </widget>
 		    <packing>
 		      <property name="left_attach">3</property>
@@ -3612,7 +3612,7 @@ Charge Pump</property>
 		      <property name="yalign">0.5</property>
 		      <property name="xpad">0</property>
 		      <property name="ypad">0</property>
-		      <property name="mnemonic_widget">xpulleyden</property>
+		      <property name="mnemonic_widget">xpulleynum</property>
 		      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
 		      <property name="width_chars">-1</property>
 		      <property name="single_line_mode">False</property>
