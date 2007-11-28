@@ -14,6 +14,7 @@
 	<term id="next">Next</term>
 	<term id="previous">Previous</term>
 	<term id="up">Up: Documentation Index</term>
+	<term id="foot">Footnotes</term>
     </terms>
     <terms language="french">
 	<term id="lang">fr</term>
@@ -27,5 +28,6 @@
 	<term id="next">Suivant</term>
 	<term id="previous">Précédent</term>
 	<term id="up">Remonter vers l'index</term>
+	<term id="foot">Pieds de page</term>
     </terms>
 </terms>
