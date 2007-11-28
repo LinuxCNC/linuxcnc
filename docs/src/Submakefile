@@ -45,6 +45,7 @@ DOC_SRCS := \
 	config/stepconf.lyx \
 	config/stepconf_fr.lyx \
 	gcode/coordinates.lyx \
+	gcode/coordinates_fr.lyx \
 	gcode/main.lyx \
 	gcode/main_fr.lyx \
 	gcode/mill_canned.lyx \
