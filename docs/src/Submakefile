@@ -203,15 +203,21 @@ $(filter objects/quickstart_%.xml,$(DOC_TARGETS_XML)): objects/quickstart_%.xml:
 
 DOC_TARGETS_XML_FR := $(filter %_fr.xml, $(DOC_TARGETS_XML))
 DOC_TARGETS_XML_EN := $(filter-out $(DOC_TARGETS_XML_FR), $(DOC_TARGETS_XML))
+DOC_TARGETS_HTML_FR := $(filter %_fr.html, $(DOC_TARGETS_HTML))
+DOC_TARGETS_HTML_EN := $(filter-out $(DOC_TARGETS_HTML_FR), $(DOC_TARGETS_HTML))
 
 objects/xref_fr.xml: $(DOC_TARGETS_XML_FR) $(DOC_SRCDIR)/xref.py
 	(cd objects; ../../docs/src/xref.py $(filter %.xml, $(patsubst objects/%,%,$^))) > $@
 objects/xref.xml: $(DOC_TARGETS_XML_EN) $(DOC_SRCDIR)/xref.py
 	(cd objects; ../../docs/src/xref.py $(filter %.xml, $(patsubst objects/%,%,$^))) > $@
 
-$(DOC_TARGETS_HTML): $(DOC_DIR)/html/%.html: objects/%.xml objects/xref.xml $(DOC_SRCDIR)/l2h.xsl $(DOC_SRCDIR)/docs.xml $(DOC_SRCDIR)/terms.xml
+$(DOC_TARGETS_HTML_EN): $(DOC_DIR)/html/%.html: objects/%.xml objects/xref.xml $(DOC_SRCDIR)/l2h.xsl $(DOC_SRCDIR)/docs.xml $(DOC_SRCDIR)/terms.xml
 	$(ECHO) Converting $< to HTML
-	@xsltproc --stringparam docname "$*" --path objects -o $@ $(DOC_SRCDIR)/l2h.xsl $<
+	xsltproc --stringparam xrefdoc objects/xref.xml --stringparam docname "$*" --path objects -o $@ $(DOC_SRCDIR)/l2h.xsl $<
+
+$(DOC_TARGETS_HTML_FR): $(DOC_DIR)/html/%.html: objects/%.xml objects/xref_fr.xml $(DOC_SRCDIR)/l2h.xsl $(DOC_SRCDIR)/docs.xml $(DOC_SRCDIR)/terms.xml
+	$(ECHO) Converting $< to HTML
+	xsltproc --stringparam xrefdoc objects/xref_fr.xml --stringparam docname "$*" --path objects -o $@ $(DOC_SRCDIR)/l2h.xsl $<
 
 $(DOC_DIR)/html/xref.html: objects/xref.xml $(DOC_SRCDIR)/xref.xsl $(DOC_SRCDIR)/docs.xml $(DOC_SRCDIR)/terms.xml
 	$(ECHO) Converting $< to HTML

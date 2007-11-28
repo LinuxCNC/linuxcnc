@@ -30,11 +30,14 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
     encoding="ASCII"/>
 
 <xsl:param name="docname"/>
+<xsl:param name="xrefdoc">xref.xml</xsl:param>
 <xsl:variable name="language" select="//language/@data"/>
 <xsl:variable name="terms"
     select="document('terms.xml')//terms[@language=$language]"/>
 <xsl:variable name="doc"
     select="document('docs.xml')//doc[@name=$docname]"/>
+<xsl:variable name="xref"
+    select="document($xrefdoc)"/>
 
 <xsl:template match="/">
     <HTML>
@@ -310,9 +313,9 @@ table { border-collapse: collapse; margin-left: auto; margin-right: auto; }
 	<xsl:when test="//*[@id=current()/@target]">
 	    <A><xsl:attribute name="href">#<xsl:value-of select="@target"/></xsl:attribute>[.]</A>
 	</xsl:when>
-        <xsl:when test="document('xref.xml')//label[@anchor=current()/@target]">
+        <xsl:when test="$xref//label[@anchor=current()/@target]">
 	    <A><xsl:attribute name="href">
-		<xsl:value-of select="document('xref.xml')//label[@anchor=current()/@target]/@src"/>#<xsl:value-of select="@target"/></xsl:attribute>[-&gt;]</A>
+		<xsl:value-of select="$xref//label[@anchor=current()/@target]/@src"/>#<xsl:value-of select="@target"/></xsl:attribute>[-&gt;]</A>
 	</xsl:when>
 	<xsl:otherwise>
             <xsl:message>Unresolved cross-reference <xsl:value-of select="@target"/></xsl:message>
