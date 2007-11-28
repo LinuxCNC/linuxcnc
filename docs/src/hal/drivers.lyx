@@ -701,7 +701,7 @@ when the parport_pc module is loaded (
 \family typewriter 
 sudo modprobe -a parport_pc; sudo rmmod parport_pc) 
 \family default 
-then use of this module is probably required
+then use of this module is probably required.
 \layout Section
 
 
@@ -770,6 +770,7 @@ O
  The second board is at address 0x300, and has 20 inputs (8-15, 24-31, and
  40-43) and 28 outputs (0-7.
  16-23, 32-39, and 44-47).
+ Up to 8 boards may be used in one system.
 \layout Subsection
 
 Pins
@@ -1339,6 +1340,9 @@ dmesg
 \family default 
 \series default 
 .
+\layout Standard
+
+Up to 4 boards may be used in one system.
 \layout Subsection
 
 Pins
@@ -3953,6 +3957,9 @@ dmesg
 \family default 
 \series default 
 .
+\layout Standard
+
+Up to 4 boards may be used in one system.
 \layout Subsection
 
 Pins
@@ -4470,6 +4477,10 @@ dmesg
 \family default 
 \series default 
 .
+\layout Standard
+
+Up to 3 parport busses may be used, and each bus may have up to 8 devices
+ on it.
 \layout Subsection
 
 Pins
