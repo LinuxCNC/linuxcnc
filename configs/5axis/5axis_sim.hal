@@ -31,6 +31,10 @@ newsig J4pos float
 linksp J4pos <= axis.4.motor-pos-cmd
 newsig J5pos float
 linksp J5pos <= axis.5.motor-pos-cmd
+newsig J6pos float
+linksp J6pos <= axis.6.motor-pos-cmd
+newsig J7pos float
+linksp J7pos <= axis.7.motor-pos-cmd
 newsig J8pos float
 linksp J8pos <= axis.8.motor-pos-cmd
 
@@ -42,6 +46,8 @@ linksp J2pos => axis.2.motor-pos-fb
 linksp J3pos => axis.3.motor-pos-fb
 linksp J4pos => axis.4.motor-pos-fb
 linksp J5pos => axis.5.motor-pos-fb
+linksp J6pos => axis.6.motor-pos-fb
+linksp J7pos => axis.7.motor-pos-fb
 linksp J8pos => axis.8.motor-pos-fb
 
 # send the position commands thru differentiators to
@@ -95,6 +101,10 @@ newsig bena bit
 linksp bena axis.4.amp-enable-out
 newsig cena bit
 linksp cena axis.5.amp-enable-out
+newsig uena bit
+linksp uena axis.6.amp-enable-out
+newsig vena bit
+linksp vena axis.7.amp-enable-out
 newsig wena bit
 linksp wena axis.8.amp-enable-out
 
@@ -110,6 +120,10 @@ newsig bflt bit
 linksp bflt axis.4.amp-fault-in
 newsig cflt bit
 linksp cflt axis.5.amp-fault-in
+newsig uflt bit
+linksp uflt axis.6.amp-fault-in
+newsig vflt bit
+linksp vflt axis.7.amp-fault-in
 newsig wflt bit
 linksp wflt axis.8.amp-fault-in
 
