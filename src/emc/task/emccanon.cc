@@ -2424,7 +2424,13 @@ int GET_EXTERNAL_DIGITAL_INPUT(int index)
 double GET_EXTERNAL_ANALOG_INPUT(int index)
 {
 /* returns current value of the analog input selected by index.*/
-// FIXME-AJ - implement Analog
+    if ((index < 0) || (index >= EMC_MAX_AIO))
+	return -1;
+
+    if (emcStatus->task.input_timeout == 1)
+	return -1;
+
+    return emcStatus->motion.analog_input[index];
     return 0;
 }
 

@@ -1403,7 +1403,7 @@ int emcMotionUpdate(EMC_MOTION_STAT * stat)
     int axis;
     int error;
     int exec;
-    int dio;
+    int dio, aio;
 
     // read the emcmot status
     if (0 != usrmotReadEmcmotStatus(&emcmotStatus)) {
@@ -1455,6 +1455,10 @@ int emcMotionUpdate(EMC_MOTION_STAT * stat)
 
     for (dio = 0; dio < EMC_MAX_DIO; dio++) {
 	stat->synch_di[dio] = emcmotStatus.synch_di[dio];
+    }
+
+    for (aio = 0; aio < EMC_MAX_AIO; aio++) {
+	stat->analog_input[aio] = emcmotStatus.analog_input[aio];
     }
 
     for (axis = 0; axis < stat->traj.axes; axis++) {

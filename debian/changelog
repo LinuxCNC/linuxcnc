@@ -22,8 +22,9 @@ emc2 (1:2.2.2~cvs) unstable; urgency=low
   * fix gcode documentation of toolchange
   * fix comp311 examples to program Z position
   * fix stepconf for negative and fractional axis SCALEs
+  * implement M66 E- (read analog value from gcode)
 
- -- jepler <jepler@unpythonic.net>  Mon, 26 Nov 2007 07:55:11 -0600
+ -- jepler <jepler@unpythonic.net>  Tue, 27 Nov 2007 09:58:44 -0600
 
 emc2 (1:2.2.1) unstable; urgency=low
 

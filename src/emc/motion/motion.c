@@ -320,6 +320,11 @@ static int init_hal_io(void)
 	if ((retval = hal_pin_bit_newf(HAL_IN, &(emcmot_hal_data->synch_di[n]), mot_comp_id, "motion.digital-in-%02d", n)) != HAL_SUCCESS) goto error;
     }
 
+    /* export motion analog input pins */
+    for (n = 0; n < EMCMOT_MAX_AIO; n++) {
+	if ((retval = hal_pin_float_newf(HAL_IN, &(emcmot_hal_data->analog_input[n]), mot_comp_id, "motion.analog-in-%02d", n)) != HAL_SUCCESS) goto error;
+    }
+
     /* export machine wide hal parameters */
     rtapi_snprintf(buf, HAL_NAME_LEN, "motion.motion-enabled");
     retval =
@@ -500,6 +505,10 @@ static int init_hal_io(void)
     for (n = 0; n < EMCMOT_MAX_DIO; n++) {
 	 *(emcmot_hal_data->synch_do[n]) = 0;
 	 *(emcmot_hal_data->synch_di[n]) = 0;
+    }
+
+    for (n = 0; n < EMCMOT_MAX_AIO; n++) {
+	 *(emcmot_hal_data->analog_input[n]) = 0.0;
     }
     
     /*! \todo FIXME - these don't really need initialized, since they are written
