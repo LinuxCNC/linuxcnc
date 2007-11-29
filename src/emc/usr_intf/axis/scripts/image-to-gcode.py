@@ -253,10 +253,10 @@ class Converter:
     def convert(self):
         self.g = g = Gcode(safetyheight=self.safetyheight,
                            tolerance=self.tolerance,
-                           spindle_speed=self.spindle_speed)
+                           spindle_speed=self.spindle_speed,
+                           units=self.units)
         g.begin()
         g.continuous(self.tolerance)
-        g.write(self.units)
         g.safety()
         if self.roughing_delta and self.roughing_offset:
             base_image = self.image
