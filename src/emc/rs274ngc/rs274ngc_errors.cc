@@ -267,6 +267,13 @@ char * _rs274ngc_errors[] = {
 /* 234 */ _("Invalid to select both a digital and an analog input with M66"), // Interp::read
 /* 235 */ _("Need to have either a valid P or a valid E word with M66"), // Interp::read
 
-/* 236 */ _("Unknown error"), // dummy
+/* 236 */ _("W value unspecified in UV plane canned cycle"), // convert_cycle_uv
+/* 237 */ _("U value unspecified in VW plane canned cycle"), // convert_cycle_vw
+/* 238 */ _("V value unspecified in UW plane canned cycle"), // convert_cycle_wu
+/* 239 */ _("R less than W in cycle in UV plane"), // convert_cycle_uv
+/* 240 */ _("R less than U in cycle in VW plane"), // convert_cycle_vw
+/* 241 */ _("R less than V in cycle in UW plane"), // convert_cycle_wu
+
+/* 242 */ _("Unknown error"), // dummy
 _("The End")};
 // *INDENT-ON*

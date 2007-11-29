@@ -238,6 +238,12 @@ private:
                             setup_pointer settings);
  int convert_cycle_zx(int motion, block_pointer block,
                             setup_pointer settings);
+ int convert_cycle_uv(int motion, block_pointer block,
+                            setup_pointer settings);
+ int convert_cycle_vw(int motion, block_pointer block,
+                            setup_pointer settings);
+ int convert_cycle_wu(int motion, block_pointer block,
+                            setup_pointer settings);
  int convert_distance_mode(int g_code, setup_pointer settings);
  int convert_dwell(double time);
  int convert_feed_mode(int g_code, setup_pointer settings);
