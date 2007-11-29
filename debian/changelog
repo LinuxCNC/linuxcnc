@@ -23,8 +23,9 @@ emc2 (1:2.2.2~cvs) unstable; urgency=low
   * fix comp311 examples to program Z position
   * fix stepconf for negative and fractional axis SCALEs
   * implement M66 E- (read analog value from gcode)
+  * add missing dependency on python2.4-glade 
 
- -- jepler <jepler@unpythonic.net>  Tue, 27 Nov 2007 09:58:44 -0600
+ -- jepler <jepler@unpythonic.net>  Thu, 29 Nov 2007 07:48:55 -0600
 
 emc2 (1:2.2.1) unstable; urgency=low
 
