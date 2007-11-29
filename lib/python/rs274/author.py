@@ -268,13 +268,15 @@ be specified only when there is only movement on 2 axes
 
 class Gcode:
     "For creating rs274ngc files"
-    def __init__(self, homeheight = 1.5, safetyheight = 0.04, tolerance=0.001, spindle_speed=1000,
+    def __init__(self, homeheight = 1.5, safetyheight = 0.04, tolerance=0.001,
+            spindle_speed=1000, units="G20",
             target=lambda s: sys.stdout.write(s + "\n")):
         self.lastx = self.lasty = self.lastz = self.lasta = None
         self.lastgcode = self.lastfeed = None
         self.homeheight = homeheight
         self.safetyheight = self.lastz = safetyheight
         self.tolerance = tolerance
+        self.units = units
         self.cuts = []
         self.write = target
         self.time = 0
@@ -292,7 +294,7 @@ class Gcode:
 This function moves to the safety height, sets many modal codes to default
 values, turns the spindle on at 1000RPM, and waits for it to come up to
 speed."""
-	self.write("G20")
+	self.write(self.units)
         self.write("G0 Z%.4f" % (self.safetyheight))
 	self.write("G17 G40 G49")
 	self.write("G54 G80 G90 G94")
