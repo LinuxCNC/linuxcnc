@@ -939,59 +939,6 @@ I watched my children and grandchildren build with legos -- the same legos.
  The little booklets that came with them are long gone but the magic of
  building with interlocking pieces all the same size is something to watch.
  
-\layout Standard
-
-Notice the following description of building a set of motion components
- in the HAL and how much like a wall of lego blocks it is.
-\layout Quote
-
-The motion module exports a pin for each axis in cartesean space, and another
- pin for each axis in joint space.
- When it is loaded, it automatically creates a "jumper" signal for each
- axis, and automatically connects those signals from the joint pin to the
- cartesean pin.
- So you automatically have "trivkins" as soon as you load the motion module.
- (trivkins -- trivial kinematics is the case where each motor moves a single
- axis at 90 degrees to the others)
-\layout Standard
-
-The motion module is like a pair of legos in a line end to end.
- Trivkins is just like a single block overlapping the two.
- The in and out motion pins are plugged into each other by the block resting
- above.
- But the parallel goes on.
-\layout Quote
-
-If you need some other kinematics, you then load a specific kins component.
- This component "knows" the names of the pins that the motion module uses
- for each axis, both joint and cartesean.
- When the module loads, it again automatically creates signals and connects
- its own pins to the motion module's pins (which will disconnect the "jumpers").
- It could also know the thread names used by the motion module, and could
- automatically add its own functions to those threads.
-\layout Standard
-
-Trivkins is removed so that the motion blocks can be spread apart and by
- using other blocks, a different bridge is built between input and output
- pins.
- In Lego terms, trivkins might be a gray block and xxkins might be a yellow
- block.
- 
-\layout Quote
-
-So the net result is that 24 HAL signals and two HAL functions are configured,
- with no action needed by the integrator other than loading the module.
- (24 signals are from 6 axis * 2 because we have joint and cartesean * 2
- because we have forward and inverse kinematics.
- Two functions because we have forward and inverse.) Because these HAL signals
- exist, they can be metered or scoped or whatever for testing.
- But because both modules know their names and know how to automatically
- connect them, the integrator doesn't have to know or care.
-\layout Standard
-
-This kind of automatic HAL configuration is possible because all kinematics
- modules "plug in" the same way.
- 
 \layout Section
 
 
