@@ -7442,7 +7442,7 @@ Mouvement préliminaire et Intermédiaire
 
 \layout Standard
 Tout au début de l'exécution d'un cycle préprogrammé, avec le plan courant
- XY, si le position actuelle de Z est en dessous de la position de retrait
+ XY, si la position actuelle de Z est en dessous de la position de retrait
  R, l'axe Z va à la position R.
  Ceci n'arrive qu'une fois, sans tenir compte de la valeur de L.
 

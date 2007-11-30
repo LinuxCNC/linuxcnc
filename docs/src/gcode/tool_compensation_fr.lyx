@@ -34,9 +34,9 @@ Fichier d'outils et compensation
 Fichier d'outils
 
 \layout Standard
-Les longueurs et diamètres d'outils peuvent être lus dans un fichier d'outils
+Les longueurs et diamètres d'outils peuvent être lues dans un fichier d'outils
  (voir la section 
-\begin_inset LatexCommand \ref{sub:-Fichier-d'outils}
+\begin_inset LatexCommand \ref{sub:Tool-File}
 
 \end_inset
 
@@ -68,13 +68,13 @@ Tout au long de ce module, vous trouverez occasionnellement des références
  
 
 \layout Section
-Décalages de longueur d'outil
+Compensation de longueur d'outil
 
 \layout Standard
-Les décalages de longueur de l'outil sont donnés comme des nombres positifs
+Les compensations de longueur de l'outil sont donnés comme des nombres positifs
  dans la table d'outils.
- Un décalage d'outil est programmé en utilisant G43 Hn, où n est le numéro
- d'index de l'outil souhaîté dans la table d'outil.
+ Une compensation d'outil est programmée en utilisant G43 Hn, où n est le
+ numéro d'index de l'outil souhaité dans la table d'outil.
  Il est prévu que toutes les entrées dans la table d'outils soit positives.
  La valeur de H est vérifiée, elle doit être un entier non négatif quand
  elle est lue.
@@ -86,7 +86,7 @@ Les décalages de longueur de l'outil sont donnés comme des nombres positifs
 ) est fait (où longueur est la valeur d'offset, lue dans la table d'outils,
  de l'outil indexé n), tool_length_offset est repositionné dans le modèle
  de réglages de la machine et la valeur de current_z dans le modèle est
- ajusté.
+ ajustée.
  Noter que n n'a pas besoin d'être le même que le numéro de slot de l'outil
  actuellement dans la broche.
 
@@ -113,11 +113,11 @@ width "50col%"
 collapsed false
 
 \layout Standard
-Programme test longueur d'outil.
+Test tool length program.
  
 
 \layout Standard
-L'outil #1 fait 1 pouce de long.
+Tool #1 is 1 inch long.
 
 \layout Standard
 
@@ -174,7 +174,7 @@ Avec ce programme, dans la plupart des cas, la machine va appliquer le décalage
 
 \layout Section
 Compensation de rayon d'outil
-\begin_inset LatexCommand \label{sec:-Compensation-rayon-d'outil}
+\begin_inset LatexCommand \label{sec:Cutter-Radius-Compensation}
 
 \end_inset
 
