@@ -1,4 +1,4 @@
-#LyX 1.5.2 created this file. For more info see http://www.lyx.org/
+#LyX 1.3 created this file. For more info see http://www.lyx.org/
 \lyxformat 221
 \textclass book
 \begin_preamble
@@ -10,8 +10,9 @@
 \graphics default
 \float_placement h
 \paperfontsize 10
-\spacing single
-\papersize default
+\spacing single 
+\papersize Default
+\paperpackage a4
 \use_geometry 0
 \use_amsmath 0
 \use_natbib 0
@@ -22,30 +23,31 @@
 \paragraph_separation skip
 \defskip smallskip
 \quotes_language english
+\quotes_times 2
 \papercolumns 1
 \papersides 2
 \paperpagestyle default
-\author ""
 
 \layout Chapter
+
 Fichier d'outils et compensation
-
 \layout Section
+
 Fichier d'outils
-
 \layout Standard
-Les longueurs et diamètres d'outils peuvent être lus dans un fichier d'outils
- (voir la section 
-\begin_inset LatexCommand \ref{sub:-Fichier-d'outils}
 
-\end_inset
+Les longueurs et diamètres d'outils peuvent être lues dans un fichier d'outils
+ (voir la section 
+\begin_inset LatexCommand \ref{sub:Tool-File}
+
+\end_inset 
 
 ) ou provenir d'un mot spécifié quand la compensation d'outil est activée.
-
 \layout Section
-Compensation d'outil
 
+Compensation d'outil
 \layout Standard
+
 La compensation d'outil peut causer des problèmes aux meilleurs programmeurs
  de code nc.
  Mais elle peut être une aide puissante quand elle est utilisée pour aider
@@ -56,8 +58,8 @@ La compensation d'outil peut causer des problèmes aux meilleurs programmeurs
  des trajectoires programmées.
  Et ces changements peuvent être faits sans que l'opérateur n'ait à chercher
  et à changer quoi que ce soit dans le fichier du programme.
-
 \layout Standard
+
 Tout au long de ce module, vous trouverez occasionnellement des références
  à des fonctions canoniques, là où il est nécessaire pour le lecteur de
  comprendre comment fonctionne une compensation d'outil dans une situation
@@ -66,31 +68,31 @@ Tout au long de ce module, vous trouverez occasionnellement des références
  plutôt que d'exiger du lecteur de comprendre la façon dont les fonctions
  canoniques elles-mêmes fonctionnent dans EMC.
  
-
 \layout Section
-Décalages de longueur d'outil
 
+Compensation de longueur d'outil
 \layout Standard
-Les décalages de longueur de l'outil sont donnés comme des nombres positifs
+
+Les compensations de longueur de l'outil sont donnés comme des nombres positifs
  dans la table d'outils.
- Un décalage d'outil est programmé en utilisant G43 Hn, où n est le numéro
- d'index de l'outil souhaîté dans la table d'outil.
+ Une compensation d'outil est programmée en utilisant G43 Hn, où n est le
+ numéro d'index de l'outil souhaité dans la table d'outil.
  Il est prévu que toutes les entrées dans la table d'outils soit positives.
  La valeur de H est vérifiée, elle doit être un entier non négatif quand
  elle est lue.
  L'interprèteur se comporte comme suit:
-
 \layout Standard
+
 1.
  Si G43 Hn est programmé, un appel à la fonction USE_TOOL_LENGTH_OFFSET(longueur
 ) est fait (où longueur est la valeur d'offset, lue dans la table d'outils,
  de l'outil indexé n), tool_length_offset est repositionné dans le modèle
  de réglages de la machine et la valeur de current_z dans le modèle est
- ajusté.
+ ajustée.
  Noter que n n'a pas besoin d'être le même que le numéro de slot de l'outil
  actuellement dans la broche.
-
 \layout Standard
+
 2.
  Si G49 est programmé, USE_TOOL_LENGTH_OFFSET(0.0) est appelé, tool_length_offset
  est remis à 0.0 dans le modèle de règlages de la machine et la valeur courante
@@ -102,9 +104,9 @@ Les décalages de longueur de l'outil sont donnés comme des nombres positifs
  l'effet de la compensation de longueur est immédiat quand on voit la position
  de z comme une coordonnée relative mais il est sans effet sur la position
  actuelle de la machine jusqu'à ce qu'un mouvement en Z soit programmé.
-
 \layout Standard
-\added_space_bottom 0.3cm 
+\added_space_bottom 0.3cm \align left 
+
 \begin_inset Minipage
 position 1
 inner_position 1
@@ -113,85 +115,82 @@ width "50col%"
 collapsed false
 
 \layout Standard
-Programme test longueur d'outil.
+
+Test tool length program.
  
-
-\layout Standard
-L'outil #1 fait 1 pouce de long.
-
 \layout Standard
 
-\family typewriter
+Tool #1 is 1 inch long.
+\layout Standard
+
+
+\family typewriter 
 N01 G1 F15 X0 Y0 Z0
-\newline
+\newline 
 N02 G43 H1 Z0 X1
-\newline
+\newline 
 N03 G49 X0 Z0
-\newline
+\newline 
 N04 G0 X2
-\newline
-N05 G1 G43 H1 G4
- P10 Z0 X3
-\newline
+\newline 
+N05 G1 G43 H1 G4 P10 Z0 X3
+\newline 
 N06 G49 X2 Z0
-\newline
+\newline 
 N07 G0 X0
+\end_inset 
 
-\end_inset
 
+\layout Standard
+\added_space_bottom 0.3cm \align left 
 
-\hfill
-
-\begin_inset Frameless
-position "c"
-hor_pos "c"
-has_inner_box 1
-inner_pos "t"
-use_parbox 0
+\begin_inset Minipage
+position 1
+inner_position 0
+height "0"
 width "50col%"
-special "none"
-height "1pt"
-height_special "totalheight"
 collapsed false
 
-
 \layout Standard
-\align center
-\added_space_bottom 0.3cm 
+
+
 \begin_inset Graphics
 	filename length1.png
 	width 2in
 	subcaptionText "Length Offset"
 
-\end_inset
+\end_inset 
 
 
+\end_inset 
 
 
 \layout Standard
+
 Avec ce programme, dans la plupart des cas, la machine va appliquer le décalage
  sous forme d'une rampe pendant le mouvement en xyz suivant le mot G43.
-
 \layout Section
+
 Compensation de rayon d'outil
-\begin_inset LatexCommand \label{sec:-Compensation-rayon-d'outil}
+\begin_inset LatexCommand \label{sec:Cutter-Radius-Compensation}
 
-\end_inset
-
+\end_inset 
 
 
 \layout Standard
+
+
 \begin_inset Note
 collapsed true
 
 \layout Standard
+
 By Jon Elson
-
-\end_inset
-
+\end_inset 
 
 
 \layout Standard
+
 Cutter Diameter Compensation (also called Cutter Radius Compensation) is
  something that was obviously added onto the RS-274D specification at the
  demand of users, as it is VERY useful, but the implementation was poorly
@@ -202,8 +201,8 @@ Cutter Diameter Compensation (also called Cutter Radius Compensation) is
  the tools available.
  If you resharpen the side cutting edges of end mills, then they will end
  up smaller than the standard diameters.
-
 \layout Standard
+
 The problem is to describe to the control whether the tool is going to be
  cutting on the outside of an imaginary path, or on the inside.
  Since these paths are not necessarily closed paths (although they can be),
@@ -215,22 +214,23 @@ The problem is to describe to the control whether the tool is going to be
  cutter motion'.
  The interpretation is as if you were standing on the part, walking behind
  the tool as it progresses across the part.
-
 \layout Subsection
-Cutter Radius Compensation Detail
 
+Cutter Radius Compensation Detail
 \layout Standard
+
+
 \begin_inset Note
 collapsed true
 
 \layout Standard
+
 By Tom Kramer and Fred Proctor
-
-\end_inset
-
+\end_inset 
 
 
 \layout Standard
+
 The cutter radius compensation capabilities of the interpreter enable the
  programmer to specify that a cutter should travel to the right or left
  of an open or closed contour in the XY-plane composed of arcs of circles
@@ -239,9 +239,9 @@ The cutter radius compensation capabilities of the interpreter enable the
  it may be a tool path to be followed by an exactly sized tool.
  This figure shows two examples of the path of a tool cutting using cutter
  radius compensation so that it leaves a triangle of material remaining.
-
 \layout Standard
-\added_space_bottom 0.3cm 
+\added_space_bottom 0.3cm \align left 
+
 \begin_inset Minipage
 position 1
 inner_position 1
@@ -250,6 +250,7 @@ width "50col%"
 collapsed false
 
 \layout Standard
+
 In both examples, the shaded triangle represents material which should remain
  after cutting, and the line outside the shaded triangle represents the
  path of the tip of a cutting tool.
@@ -259,38 +260,34 @@ In both examples, the shaded triangle represents material which should remain
  In the method on the right (the one not used), the tool does not stay in
  contact with the shaded triangle at sharp corners.
  
-
-\end_inset
-
-
-\hfill
-
-\begin_inset Frameless
-position "c"
-hor_pos "c"
-has_inner_box 1
-inner_pos "t"
-use_parbox 0
-width "50col%"
-special "none"
-height "1pt"
-height_special "totalheight"
-collapsed false
+\end_inset 
 
 
 \layout Standard
-\align center
-\added_space_bottom 0.3cm 
+\added_space_bottom 0.3cm \align left 
+
+\begin_inset Minipage
+position 1
+inner_position 0
+height "0"
+width "50col%"
+collapsed false
+
+\layout Standard
+
+
 \begin_inset Graphics
 	filename radius_comp.png
 	width 2.5in
 
-\end_inset
+\end_inset 
 
 
+\end_inset 
 
 
 \layout Standard
+
 Z axis motion may take place while the contour is being followed in the
  XY plane.
  Portions of the contour may be skipped by retracting the Z axis above the
@@ -302,31 +299,31 @@ Z axis motion may take place while the contour is being followed in the
  used with cutter radius compensation.
  Under G94, the feed rate will apply to the actual path of the cutter tip,
  not to the programmed contour.
-
 \layout Subsubsection*
-Programming Instructions
 
+Programming Instructions
 \layout Itemize
+
 To start cutter radius compensation, program either G41 (for keeping the
  tool to the left of the contour) or G42 (for keeping the tool to the right
  of the contour).
  In Figure 7, for example, if G41 were programmed, the tool would stay left
  and move clockwise around the triangle, and if G42 were programmed, the
  tool would stay right and move counterclockwise around the triangle.
-
 \layout Itemize
+
 To stop cutter radius compensation, program G40.
-
 \layout Itemize
+
 If G40, G41, or G42 is programmed in the same block as tool motion, cutter
  compensation will be turned on or off before the motion is made.
  To make the motion come first, the motion must be programmed in a separate,
  previous block.
-
 \layout Subsubsection*
-D Number
 
+D Number
 \layout Standard
+
 The current interpreter requires a D number on each line that has the G41
  or G42 word.
  The value specified with D must be a non-negative integer.
@@ -337,11 +334,11 @@ The current interpreter requires a D number on each line that has the G41
  Any slot in the tool table may be selected this way.
  The D number does not have to be the same as the slot number of the tool
  in the spindle.
-
 \layout Subsubsection*
-Tool Table
 
+Tool Table
 \layout Standard
+
 Cutter radius compensation uses data from the machining center's tool table.
  For each slot in the tool carrousel, the tool table contains the diameter
  of the tool in that slot (or the difference between the actual diameter
@@ -349,34 +346,34 @@ Cutter radius compensation uses data from the machining center's tool table.
  The tool table is indexed by slot number.
  How to put data into the table when using the stand-alone interpreter is
  discussed in the tool table page.
-
 \layout Subsubsection*
+
 Two Kinds of Contour
-
 \layout Standard
-The interpreter handles compensation for two types of contour:
 
+The interpreter handles compensation for two types of contour:
 \layout Itemize
+
 The contour given in the NC code is the edge of material that is not to
  be machined away.
  We will call this type a "material edge contour".
  
-
 \layout Itemize
+
 The contour given in the NC code is the tool path that would be followed
  by a tool of exactly the correct radius.
  We will call this type a "tool path contour".
-
 \layout Standard
+
 The interpreter does not have any setting that determines which type of
  contour is used, but the description of the contour will differ (for the
  same part geometry) between the two types and the values for diameters
  in the tool table will be different for the two types.
-
 \layout Subsubsection*
-Material Edge Contour 
 
+Material Edge Contour 
 \layout Standard
+
 When the contour is the edge of the material, the outline of the edge is
  described in the NC program.
  For a material edge contour, the value for the diameter in the tool table
@@ -385,54 +382,54 @@ When the contour is the edge of the material, the outline of the edge is
  The NC code for a material edge contour is the same regardless of the (actual
  or intended) diameter of the tool.
  
-
 \layout Standard
+
 Example 1 : 
-
 \layout Standard
+
 Here is an NC program which cuts material away from the outside of the triangle
  in figure above.
  In this example, the cutter compensation radius is the actual radius of
  the tool in use, which is 0.5, The value for the diameter in the tool table
  is twice the radius, which is 1.0.
-
 \layout Standard
 
-\family typewriter
+
+\family typewriter 
 N0010 G41 G1 X2 Y2 (turn compensation on and make entry move)
-
 \layout Standard
 
-\family typewriter
+
+\family typewriter 
 N0020 Y-1 (follow right side of triangle)
-
 \layout Standard
 
-\family typewriter
+
+\family typewriter 
 N0030 X-2 (follow bottom side of triangle)
-
 \layout Standard
 
-\family typewriter
+
+\family typewriter 
 N0040 X2 Y2 (follow hypotenuse of triangle)
-
 \layout Standard
 
-\family typewriter
+
+\family typewriter 
 N0050 G40 (turn compensation off)
-
 \layout Standard
+
 This will result in the tool following a path consisting of an entry move
  and the path shown on the left going clockwise around the triangle.
  Notice that the coordinates of the triangle of material appear in the NC
  code.
  Notice also that the tool path includes three arcs which are not explicitly
  programmed; they are generated automatically.
-
 \layout Subsubsection*
-Tool Path Contour
 
+Tool Path Contour
 \layout Standard
+
 When the contour is a tool path contour, the path is described in the NC
  program.
  It is expected that (except for during the entry moves) the path is intended
@@ -446,8 +443,8 @@ When the contour is a tool path contour, the path is described in the NC
  the tool does not stay in contact with the part geometry all the time,
  the interpreter will not be able to compensate properly when undersized
  tools are used.
-
 \layout Standard
+
 For a tool path contour, the value for the cutter diameter in the tool table
  will be a small positive number if the selected tool is slightly oversized
  and will be a small negative number if the tool is slightly undersized.
@@ -456,118 +453,111 @@ For a tool path contour, the value for the cutter diameter in the tool table
  uses the absolute value of the given diameter.
  If the actual tool is the correct size, the value in the table should be
  zero.
-
 \layout Standard
+
 Tool Path Contour example
-
 \layout Standard
+
 Suppose the diameter of the cutter currently in the spindle is 0.97, and
  the diameter assumed in generating the tool path was 1.0.
  Then the value in the tool table for the diameter for this tool should
  be -0.03.
  Here is an NC program which cuts material away from the outside of the
  triangle in the figure.
-
 \layout Standard
 
-\family typewriter
-\size small
+
+\family typewriter 
+\size small 
 N0010 G1 X1 Y4.5 (make alignment move)
-\newline
-N0020 G41 G1 Y3.5 (turn compensation
- on and make first entry move)
-\newline
+\newline 
+N0020 G41 G1 Y3.5 (turn compensation on and make first entry move)
+\newline 
 N0030 G3 X2 Y2.5 I1 (make second entry move)
-\newline
-N0040
- G2 X2.5 Y2 J-0.5 (cut along arc at top of tool path)
-\newline
-N0050 G1 Y-1 (cut along
- right side of tool path)
-\newline
-N0060 G2 X2 Y-1.5 I-0.5 (cut along arc at bottom
- right of tool path)
-\newline
+\newline 
+N0040 G2 X2.5 Y2 J-0.5 (cut along arc at top of tool path)
+\newline 
+N0050 G1 Y-1 (cut along right side of tool path)
+\newline 
+N0060 G2 X2 Y-1.5 I-0.5 (cut along arc at bottom right of tool path)
+\newline 
 N0070 G1 X-2 (cut along bottom side of tool path)
-\newline
-N0080
- G2 X-2.3 Y-0.6 J0.5 (cut along arc at bottom left of tool path)
-\newline
-N0090 G1 X1.7
- Y2.4 (cut along hypotenuse of tool path)
-\newline
-N0100 G2 X2 Y2.5 I0.3 J-0.4 (cut along
- arc at top of tool path)
-\newline
+\newline 
+N0080 G2 X-2.3 Y-0.6 J0.5 (cut along arc at bottom left of tool path)
+\newline 
+N0090 G1 X1.7 Y2.4 (cut along hypotenuse of tool path)
+\newline 
+N0100 G2 X2 Y2.5 I0.3 J-0.4 (cut along arc at top of tool path)
+\newline 
 N0110 G40 (turn compensation off)
-
 \layout Standard
+
 This will result in the tool making an alignment move and two entry moves,
  and then following a path slightly inside the path shown on the left in
  Figure 7 going clockwise around the triangle.
  This path is to the right of the programmed path even though G41 was programmed
 , because the diameter value is negative.
-
 \layout Subsubsection*
-Programming Errors and Limitations 
 
+Programming Errors and Limitations 
 \layout Standard
+
 The interpreter will issue the following messages involving cutter radius
  compensation.
-
 \layout Enumerate
+
 Cannot change axis offsets with cutter radius comp
-
 \layout Enumerate
+
 Cannot change units with cutter radius comp
-
 \layout Enumerate
+
 Cannot turn cutter radius comp on out of XY-plane
-
 \layout Enumerate
+
 Cannot turn cutter radius comp on when already on
-
 \layout Enumerate
+
 Cannot use G28 or G30 with cutter radius comp
-
 \layout Enumerate
+
 Cannot use G53 with cutter radius comp
-
 \layout Enumerate
+
 Cannot use XZ plane with cutter radius comp
-
 \layout Enumerate
+
 Cannot use YZ plane with cutter radius comp
-
 \layout Enumerate
+
 Concave corner with cutter radius comp
-
 \layout Enumerate
+
 Cutter gouging with cutter radius comp
-
 \layout Enumerate
+
 D word on line with no cutter comp on (G41 or G42) command
-
 \layout Enumerate
+
 Tool radius index too big
-
 \layout Enumerate
+
 Tool radius not less than arc radius with cutter radius comp
-
 \layout Enumerate
+
 Two G codes used from same modal group.
-
 \layout Standard
+
 For some of these messages additional explanation is given below.
-
 \layout Standard
+
 Changing a tool while cutter radius compensation is on is not treated as
  an error, although it is unlikely this would be done intentionally.
  The radius used when cutter radius compensation was first turned on will
  continue to be used until compensation is turned off, even though a new
  tool is actually being used.
-
 \layout Standard
+
 
 \begin_inset Minipage
 position 1
@@ -575,39 +565,40 @@ inner_position 1
 height "1pt"
 width "40col%"
 collapsed false
+
 \layout Standard
-\align left
+\align left 
 When cutter radius compensation is on, it must be physically possible for
  a circle whose radius is the half the diameter given in the tool table
  to be tangent to the contour at all points of the contour.
+\end_inset 
 
-\end_inset
 
-
-\hfill
+\layout Standard
 
 
 \begin_inset Minipage
 position 1
-inner_position 1
-height "1pt"
-width "60col%"
+inner_position 0
+height "0"
+width "50col%"
 collapsed false
+
 \layout Standard
-\align center
+
+
 \begin_inset Graphics
 	filename radius_comp_error.png
 	width 3in
 
-\end_inset
+\end_inset 
 
 
-
-\end_inset
-
+\end_inset 
 
 
 \layout Standard
+
 In particular, the interpreter treats concave corners and concave arcs into
  which the circle will not fit as errors, since the circle cannot be kept
  tangent to the contour in these situations.
@@ -623,8 +614,8 @@ In particular, the interpreter treats concave corners and concave arcs into
  It is not necessary to move the cutter between turning compensation off
  and back on, but the move after turning it back on will be treated as a
  first move, as described below.
-
 \layout Standard
+
 It is not possible to change from one cutter radius index to another while
  compensation is on because of the combined effect of rules 4 and 11.
  It is also not possible to switch compensation from one side to another
@@ -634,25 +625,25 @@ It is not possible to change from one cutter radius index to another while
  line of NC code which gives the point is reached.
  In this situation, the tool is already cutting into material it should
  not cut.
-
 \layout Standard
+
 If a D word is programmed that is larger than the number of tool carrousel
  slots, an error message is given.
  In the current implementation, the number of slots is 68.
-
 \layout Standard
+
 The error message.
  "two G Codes Used from Same Modal Group," is a generic message used for
  many sets of G codes.
  As applied to cutter radius compensation, it means that more than one of
  G40, G41, and G42 appears on a line of NC code.
  This is not allowed.
-
 \layout Subsection*
-First Move 
 
+First Move 
 \layout Standard
-\added_space_bottom 0.3cm 
+\added_space_top 0.3cm \added_space_bottom 0.3cm \align left 
+
 \begin_inset Minipage
 position 1
 inner_position 1
@@ -661,6 +652,7 @@ width "40col%"
 collapsed false
 
 \layout Standard
+
 The algorithm used for the first move when the first move is a straight
  line is to draw a straight line from the destination point which is tangent
  to a circle whose center is at the current point and whose radius is the
@@ -671,52 +663,57 @@ The algorithm used for the first move when the first move is a straight
  This is shown in Figure 9.
  If the programmed point is inside the initial cross section of the tool
  (the circle on the left), an error is signalled.
-
-\end_inset
-
-
-\hfill
-
-\begin_inset Frameless
-position "c"
-hor_pos "c"
-has_inner_box 1
-inner_pos "t"
-use_parbox 0
-width "60col%"
-special "none"
-height "1pt"
-height_special "totalheight"
-collapsed false
+\end_inset 
 
 
 \layout Standard
-\align center
-\added_space_bottom 0.3cm 
+\added_space_top 0.3cm \added_space_bottom 0.3cm \align left 
+
+\begin_inset Minipage
+position 1
+inner_position 0
+height "0"
+width "50col%"
+collapsed false
+
+\layout Standard
+
+
 \begin_inset Graphics
 	filename radius_comp_straight.png
 	width 3in
 
-\end_inset
+\end_inset 
 
 
-
+\end_inset 
 
 
 \layout Standard
-\added_space_top 0.3cm 
-\added_space_bottom 0.3cm 
-\align center
+\added_space_top 0.3cm \added_space_bottom 0.3cm \align left 
+
+\begin_inset Minipage
+position 1
+inner_position 0
+height "0"
+width "50col%"
+collapsed false
+
+\layout Standard
+
+
 \begin_inset Graphics
 	filename radius_comp_arc.png
 	width 3in
 
-\end_inset
+\end_inset 
 
 
+\end_inset 
 
 
 \layout Standard
+
 If the first move after cutter radius compensation has been turned on is
  an arc, the arc which is generated is derived from an auxiliary arc which
  has its center at the programmed center point, passes through the programmed
@@ -725,32 +722,32 @@ If the first move after cutter radius compensation has been turned on is
  The generated arc moves the tool so that it stays tangent to the auxiliary
  arc throughout the move.
  This is shown in Figure 10.
-
 \layout Standard
+
 Regardless of whether the first move is a straight line or an arc, the Z
  axis may also move at the same time.
  It will move linearly, as it does when cutter radius compensation is not
  being used.Rotary axis motions (A, B, and C axes) are allowed with cutter
  radius compensation, but using them would be very unusual.
-
 \layout Standard
+
 After the entry moves of cutter radius compensation, the interpreter keeps
  the tool tangent to the programmed path on the appropriate side.
  If a convex corner is on the path, an arc is inserted to go around the
  corner.
  The radius of the arc is half the diameter given in the tool table.
-
 \layout Standard
+
 When cutter radius compensation is turned off, no special exit move takes
  place.
  The next move is what it would have been if cutter radius compensation
  had never been turned on and the previous move had placed the tool at its
  current position.
-
 \layout Subsubsection*
-Programming Entry Moves
 
+Programming Entry Moves
 \layout Standard
+
 In general, an alignment move and two entry moves are needed to begin compensati
 on correctly.
  However, where the programmed contour is a material edge contour and there
@@ -759,33 +756,32 @@ on correctly.
  The general method, which will work in all situations, is described first.
  We assume here that the programmer knows what the contour is already and
  has the job of adding entry moves.
-
 \layout Subsubsection*
-General Method
 
+General Method
 \layout Standard
+
 The general method includes programming an alignment move and two entry
  moves.
  The entry moves given above will be used as an example.
  Here is the relevant code again:
-
 \layout Standard
 
-\family typewriter
-\size small
+
+\family typewriter 
+\size small 
 N0010 G1 X1 Y4.5 (make aligment move to point C)
-\newline
-N0020 G41 G1 Y3.5 (turn compensati
-on on and make first entry move to point B)
-\newline
-N0030 G3 X2 Y2.5 I1 (make second
- entry move to point A)
-
+\newline 
+N0020 G41 G1 Y3.5 (turn compensation on and make first entry move to point
+ B)
+\newline 
+N0030 G3 X2 Y2.5 I1 (make second entry move to point A)
 \layout Standard
+
 See Figure 11.
  The figure shows the two entry moves but not the alignment move.
-
 \layout Standard
+
 First, pick a point A on the contour where it is convenient to attach an
  entry arc.
  Specify an arc outside the contour which begins at a point B and ends at
@@ -795,9 +791,9 @@ First, pick a point A on the contour where it is convenient to attach an
  the tool table.
  Then extend a line tangent to the arc from B to some point C, located so
  that the line BC is more than one radius long.
-
 \layout Standard
-\added_space_bottom 0.3cm 
+\added_space_bottom 0.3cm \align left 
+
 \begin_inset Minipage
 position 1
 inner_position 1
@@ -806,6 +802,7 @@ width "40col%"
 collapsed false
 
 \layout Standard
+
 After the construction is finished, the code is written in the reverse order
  from the construction.
  Cutter radius compensation is turned on after the alignment move and before
@@ -813,38 +810,34 @@ After the construction is finished, the code is written in the reverse order
  In the code above, line N0010 is the alignment move, line N0020 turns compensat
 ion on and makes the first entry move, and line N0030 makes the second entry
  move.
-
-\end_inset
-
-
-\hfill
-
-\begin_inset Frameless
-position "c"
-hor_pos "c"
-has_inner_box 1
-inner_pos "t"
-use_parbox 0
-width "60col%"
-special "none"
-height "1pt"
-height_special "totalheight"
-collapsed false
+\end_inset 
 
 
 \layout Standard
-\align center
-\added_space_bottom 0.3cm 
+\added_space_bottom 0.3cm \align left 
+
+\begin_inset Minipage
+position 1
+inner_position 0
+height "0"
+width "50col%"
+collapsed false
+
+\layout Standard
+
+
 \begin_inset Graphics
 	filename radius_comp_entry.png
 	width 3in
 
-\end_inset
+\end_inset 
 
 
+\end_inset 
 
 
 \layout Standard
+
 In this example, the arc AB and the line BC are fairly large, but they need
  not be.
  For a tool path contour, the radius of arc AB need only be slightly larger
@@ -854,16 +847,16 @@ In this example, the arc AB and the line BC are fairly large, but they need
  the one to use if the tool is oversized.
  As mentioned earlier, if the tool is undersized, the interpreter will switch
  sides.
-
 \layout Subsubsection*
-Simple Method
 
+Simple Method
 \layout Standard
+
 If the contour is a material edge contour and there is a convex corner somewhere
  on the contour, a simpler method of making an entry is available.
  See Figure 12.
-
 \layout Standard
+
 First, pick a convex corner, D.
  Decide which way you want to go along the contour from D.
  In our example we are keeping the tool to the left of the contour and going
@@ -880,9 +873,9 @@ First, pick a convex corner, D.
  move is needed.
  Now write a line of NC code that turns compensation on and moves to point
  D
-
 \layout Standard
-\added_space_bottom 0.3cm 
+\added_space_bottom 0.3cm \align left 
+
 \begin_inset Minipage
 position 1
 inner_position 1
@@ -892,49 +885,46 @@ collapsed false
 
 \layout Standard
 
-\family typewriter
-\size small
-N0010 G41 G1 X2 Y2 (turn compensation on and make entry move) 
 
+\family typewriter 
+\size small 
+N0010 G41 G1 X2 Y2 (turn compensation on and make entry move) 
 \layout Standard
+
 This method will also work at a concave corner on a tool path contour, if
  the actual tool is oversized, but it will fail with a tool path contour
  if the tool is undersized.
-
-\end_inset
-
-
-\hfill
-
-\begin_inset Frameless
-position "c"
-hor_pos "c"
-has_inner_box 1
-inner_pos "t"
-use_parbox 0
-width "60col%"
-special "none"
-height "1pt"
-height_special "totalheight"
-collapsed false
+\end_inset 
 
 
 \layout Standard
-\align center
-\added_space_bottom 0.3cm 
+\added_space_bottom 0.3cm \align left 
+
+\begin_inset Minipage
+position 1
+inner_position 0
+height "0"
+width "50col%"
+collapsed false
+
+\layout Standard
+
+
 \begin_inset Graphics
 	filename radius_comp_entry_simple.png
 	width 3in
 
-\end_inset
+\end_inset 
 
 
+\end_inset 
 
 
 \layout Subsubsection*
-Other Items Where Cutter Radius Compensation is Performed.
 
+Other Items Where Cutter Radius Compensation is Performed.
 \layout Standard
+
 The complete set of canonical functions includes functions which turn cutter
  radius on and off, so that cutter radius compensation can be performed
  in the controller executing the canonical functions.
@@ -943,21 +933,21 @@ The complete set of canonical functions includes functions which turn cutter
  which continue to direct the motion of the center of the cutter tip.
  This simplifies the job of the motion controller while making the job of
  the interpreter a little harder.
-
 \layout Subsubsection*
-Algorithms for Cutter Radius Compensation
 
+Algorithms for Cutter Radius Compensation
 \layout Standard
+
 The interpreter allows the entry and exit moves to be arcs.
  The behavior for the intermediate moves is the same, except that some situation
 s treated as errors in the interpreter are not treated as errors in other
  machine controls.
  
-
 \layout Standard
+
 Data for Cutter Radius Compensation 
-
 \layout Standard
+
 The interpreter machine model keeps three data items for cutter radius compensat
 ion: the setting itself (right, left, or off), program_x, and program_y.
  The last two represent the X and Y positions which are given in the NC
@@ -967,11 +957,11 @@ ion: the setting itself (right, left, or off), program_x, and program_y.
  The interpreter machine model uses the data items current_x and current_y
  to represent the position of the center of the tool tip (in the currently
  active coordinate system) at all times.
-
 \layout Subsection*
-Jon Elson's Example
 
+Jon Elson's Example
 \layout Standard
+
 All further system-specific information refers to NIST's EMC program, but
  much of it applies to most modern CNC controls.
  My method of checking these programs is to first select tool zero, which
@@ -1009,19 +999,18 @@ All further system-specific information refers to NIST's EMC program, but
  This requires some careful adjustment of the starting and ending points,
  which are not compensated by cutter radius, but must be chosen with an
  approximate radius in mind.
-
 \layout Standard
+
 The operative commands are :
-
 \layout Standard
+
 G40 - Cancel Cutter compensation
-\newline
-G41 - Cutter Compensation, Tool Left of
- Path
-\newline
+\newline 
+G41 - Cutter Compensation, Tool Left of Path
+\newline 
 G42 - Cutter Compensation, Tool Right of Path
-
 \layout Standard
+
 Here is a short file that cuts one side of a part with multiple convex and
  concave arcs, and several straight cuts, too.
  It is to clamp a high speed drilling spindle to the side of the main Bridgeport
@@ -1029,40 +1018,37 @@ Here is a short file that cuts one side of a part with multiple convex and
  Most of these commands are straight from Bobcad/CAM, but lines N15 and
  N110 were added by me, and some of the coordinates around those lines had
  to be fudged a bit by me.
-
 \layout Standard
 
-\family typewriter
-\size small
+
+\family typewriter 
+\size small 
 N10 G01 G40 X-1.3531 Y3.4
-\newline
+\newline 
 N15 F10 G17 G41 D4 X-0.7 Y3.1875 (COMP LEAD IN)
-\newline
-N20
- X0.
+\newline 
+N20 X0.
  Y3.1875
-\newline
+\newline 
 N40 X0.5667 F10
-\newline
+\newline 
 N50 G03 X0.8225 Y3.3307 R0.3
-\newline
+\newline 
 N60 G02 X2.9728 Y4.3563 R2.1875
-\newline
-N70
- G01 X7.212 Y3.7986
-\newline
+\newline 
+N70 G01 X7.212 Y3.7986
+\newline 
 N80 G02 X8.1985 Y3.2849 R1.625
-\newline
+\newline 
 N90 G03 X8.4197 Y3.1875 R0.3
-\newline
-N100
- G01 X9.
-\newline
+\newline 
+N100 G01 X9.
+\newline 
 N110 G40 X10.1972 Y3.432 (COMP LEAD OUT
-\newline
+\newline 
 N220 M02
-
 \layout Standard
+
 Line 15 contains G41 D4, which means that the diameter of the tool described
  as tool #4 in the tool table will be used to offset the spindle by 1/2
  the diameter, which is, of course, the tool's radius.
@@ -1075,30 +1061,39 @@ Line 15 contains G41 D4, which means that the diameter of the tool described
  of tool number 4 in the tool table.
  Note that tool DIAMETERS are entered in the tool table.
  (Jon's tool diameter is about 0.4890)
-
 \layout Standard
+\added_space_bottom 0.3cm \align left 
 But, note that in line 110, where the G40 'cancel cutter compensation' command
-\added_space_bottom 0.3cm 
  is, that cutter compensation will be interpolated out in this move.
  The way I have these set up, the moves in lines 15 and 110 are almost exactly
  parallel to the X axis, and the difference in Y coordinates is to line
  the tool up outside the portion of the program where cutter compensation
  is in force.
+\layout Standard
+\added_space_bottom 0.3cm \align left 
 
+\begin_inset Minipage
+position 1
+inner_position 0
+height "0"
+width "50col%"
+collapsed false
 
 \layout Standard
-\align center
-\added_space_bottom 0.3cm 
+
+
 \begin_inset Graphics
 	filename partdraw1.png
 	width 5in
 
-\end_inset
+\end_inset 
 
 
+\end_inset 
 
 
 \layout Standard
+
 Some other things to note are that the program starts with a G40, to turn
  off any compensation that was in effect.
  This saves a lot of hassle when the program stops due to a concavity error,
@@ -1116,33 +1111,29 @@ Some other things to note are that the program starts with a G40, to turn
  number of degrees, then there will be trouble with EMC.
  The R word clears up all that mess, and is a lot easier to work with, anyway.
  If the arc is more than 180 degrees, R should be negative.
-
 \layout Section
-Tool Compensation Sources
 
+Tool Compensation Sources
 \layout Standard
+
 This unit borrows heavily from the published works of Tom Kramer and Fred
  Proctor at NIST and the cutter compensation web page of Jon Elson.
-
 \layout Standard
+
 Papers by Tom Kramer and Fred Proctor
-\newline
-http://www.isd.mel.nist.gov/personnel/kramer/pu
-blications.html
-\newline
+\newline 
+http://www.isd.mel.nist.gov/personnel/kramer/publications.html
+\newline 
 http://www.isd.mel.nist.gov/personnel/kramer/pubs/RS274NGC_22.pdf
-\newline
-http:/
-/www.isd.mel.nist.gov/personnel/kramer/pubs/RS274VGER_11.pdf
-
+\newline 
+http://www.isd.mel.nist.gov/personnel/kramer/pubs/RS274VGER_11.pdf
 \layout Standard
-Pages by Jon Elson 
-\newline
-http://artsci.wustl.edu/~jmelson/ 
-\newline
-http://206.19.206.56/diacomp.htm
- 
-\newline
-http://206.19.206.56/lencomp.htm 
 
+Pages by Jon Elson 
+\newline 
+http://artsci.wustl.edu/~jmelson/ 
+\newline 
+http://206.19.206.56/diacomp.htm 
+\newline 
+http://206.19.206.56/lencomp.htm 
 \the_end
