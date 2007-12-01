@@ -700,6 +700,7 @@ L297
 PMDX-150
 Sherline
 Xylotex
+Parker-oem750
 Other</property>
 		      <property name="add_tearoffs">False</property>
 		      <property name="has_frame">True</property>
@@ -926,28 +927,6 @@ XZ (Lathe)</property>
 		  </child>
 
 		  <child>
-		    <widget class="GtkSpinButton" id="dirsetup">
-		      <property name="visible">True</property>
-		      <property name="can_focus">True</property>
-		      <property name="climb_rate">100</property>
-		      <property name="digits">0</property>
-		      <property name="numeric">True</property>
-		      <property name="update_policy">GTK_UPDATE_ALWAYS</property>
-		      <property name="snap_to_ticks">False</property>
-		      <property name="wrap">False</property>
-		      <property name="adjustment">1000 0 50000 100 1000 1000</property>
-		    </widget>
-		    <packing>
-		      <property name="left_attach">1</property>
-		      <property name="right_attach">2</property>
-		      <property name="top_attach">10</property>
-		      <property name="bottom_attach">11</property>
-		      <property name="x_options">fill</property>
-		      <property name="y_options"></property>
-		    </packing>
-		  </child>
-
-		  <child>
 		    <widget class="GtkSpinButton" id="latency">
 		      <property name="visible">True</property>
 		      <property name="can_focus">True</property>
@@ -1168,6 +1147,28 @@ can impose timing constraints of their own, in addition to those of the driver.<
 		      <property name="top_attach">11</property>
 		      <property name="bottom_attach">12</property>
 		      <property name="y_options">fill</property>
+		    </packing>
+		  </child>
+
+		  <child>
+		    <widget class="GtkSpinButton" id="dirsetup">
+		      <property name="visible">True</property>
+		      <property name="can_focus">True</property>
+		      <property name="climb_rate">100</property>
+		      <property name="digits">0</property>
+		      <property name="numeric">True</property>
+		      <property name="update_policy">GTK_UPDATE_ALWAYS</property>
+		      <property name="snap_to_ticks">False</property>
+		      <property name="wrap">False</property>
+		      <property name="adjustment">200000 0 250000 100 1000 1000</property>
+		    </widget>
+		    <packing>
+		      <property name="left_attach">1</property>
+		      <property name="right_attach">2</property>
+		      <property name="top_attach">10</property>
+		      <property name="bottom_attach">11</property>
+		      <property name="x_options">fill</property>
+		      <property name="y_options"></property>
 		    </packing>
 		  </child>
 		</widget>

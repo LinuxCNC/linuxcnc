@@ -147,7 +147,7 @@ class Data:
 	self.machinename = _("my-mill")
 	self.axes = 0 # XYZ
 	self.units = 0 # inch
-	self.drivertype = 5 # Other
+	self.drivertype = 6 # Other
 	self.steptime = self.stepspace = 5000
 	self.dirhold = self.dirsetup = 20000
         self.latency = 15000
@@ -645,11 +645,8 @@ class Data:
 
 	if pump:
 	    print >>file, "loadrt charge_pump"
-	    if ESTOP_IN in inputs:
-	        print >>file, "net estop-ext => charge-pump.enable"
-	    else:
-	        print >>file, "net estop-out => charge-pump.enable"
-            print >>file, "net charge-pump <= charge-pump.out"
+	    print >>file, "net estop-out charge-pump.enable iocontrol.0.user-enable-out"
+	    print >>file, "net charge-pump <= charge-pump.out"
 
 	if pwm:
 	    print >>file, "loadrt pwmgen output_type=0"
@@ -692,6 +689,12 @@ class Data:
             print >>file, "net spindle-ccw <= motion.spindle-reverse"
         if CCW in outputs:
             print >>file, "net spindle-brake <= motion.spindle-brake"
+
+	if MIST in outputs:
+	    print >>file, "net coolant-mist <= iocontrol.0.coolant-mist"
+
+	if FLOOD in outputs:
+	    print >>file, "net coolant-flood <= iocontrol.0.coolant-flood"
 
 	if encoder:
 	    print >>file
@@ -976,6 +979,7 @@ class App:
 	    [1000, 2000, 1000, 1000],     # PMDX-150
 	    [1000, 6000, 24000, 20000],   # Sherline  XXX find proper values
 	    [1000, 2000, 200, 200],       # Xylotex
+	    [1000, 1000, 1000, 200000],   # Parker-Compumotor oem750
 	]
 	v = self.widgets.drivertype.get_active()
 	if v < len(drive_characteristics):
