@@ -11,7 +11,7 @@ msgstr ""
 "Project-Id-Version: fr_rs274_err\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2007-11-09 02:04+0100\n"
-"PO-Revision-Date: 2007-11-11 01:34+0100\n"
+"PO-Revision-Date: 2007-12-01 12:07+0100\n"
 "Last-Translator: Francis Tisserant <ftissera@free.fr>\n"
 "Language-Team: french <gnomefr@traduc.org>\n"
 "MIME-Version: 1.0\n"
@@ -224,7 +224,7 @@ msgstr "Bug la fonction n'a pas du etre bien appelee"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:61
 msgid "Bug in tool radius comp"
-msgstr "Bug dans la compensation de rayon d'outil"
+msgstr "Bogue dans la compensation de rayon d'outil"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:62
 msgid "Bug plane not xy yz or xz"
@@ -245,7 +245,7 @@ msgstr "Bug operation inconnue"
 #: emc/rs274ngc/rs274ngc_errors.cc:66
 msgid "Cannot change axis offsets with cutter radius comp"
 msgstr ""
-"Impossible de changer les offsets d'axe avec la compensation de rayon "
+"Impossible de changer les decalages d'axe avec la compensation de rayon "
 "d'outil "
 
 #: emc/rs274ngc/rs274ngc_errors.cc:67
@@ -377,7 +377,7 @@ msgstr "Point courant identique au point final de l'arc"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:98
 msgid "Cutter gouging with cutter radius comp"
-msgstr "'Gouging' avec la compensation de rayon d'outil"
+msgstr "Interference de l'outil avec une partie finie de la pièce avec la compensation de rayon d'outil"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:99
 msgid "D word with no g41 or g42"
@@ -581,7 +581,7 @@ msgstr "Argument negatif pour sqrt"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:149
 msgid "Negative d word tool radius index used"
-msgstr "Utilisation d'un mot d d'index de rayon d'outil negatif"
+msgstr "Utilisation d'un d'index D de rayon d'outil negatif"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:150
 msgid "Negative f word used"
@@ -761,9 +761,7 @@ msgstr "Index de rayon d'outil trop grand"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:194
 msgid "Tool radius not less than arc radius with comp"
-msgstr ""
-"Rayon d'outil non inferieur au rayon de l'arc apres compensation de rayon "
-"d'outil"
+msgstr "Rayon d'outil non inferieur au rayon de l'arc apres compensation de rayon d'outil"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:195
 msgid "Two g codes used from same modal group"
