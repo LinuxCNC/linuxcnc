@@ -693,7 +693,7 @@
 		  </child>
 
 		  <child>
-		    <widget class="GtkComboBoxEntry" id="drivertype">
+		    <widget class="GtkComboBox" id="drivertype">
 		      <property name="visible">True</property>
 		      <property name="items" translatable="yes">Gecko
 L297
@@ -717,7 +717,7 @@ Other</property>
 		  </child>
 
 		  <child>
-		    <widget class="GtkComboBoxEntry" id="units">
+		    <widget class="GtkComboBox" id="units">
 		      <property name="visible">True</property>
 		      <property name="items" translatable="yes">Inch
 Millimeter</property>
@@ -736,7 +736,7 @@ Millimeter</property>
 		  </child>
 
 		  <child>
-		    <widget class="GtkComboBoxEntry" id="axes">
+		    <widget class="GtkComboBox" id="axes">
 		      <property name="visible">True</property>
 		      <property name="items" translatable="yes">XYZ
 XYZA
@@ -1544,7 +1544,7 @@ can impose timing constraints of their own, in addition to those of the driver.<
 		  </child>
 
 		  <child>
-		    <widget class="GtkComboBoxEntry" id="pin2">
+		    <widget class="GtkComboBox" id="pin2">
 		      <property name="visible">True</property>
 		      <property name="items" translatable="yes">X Step
 X Direction
@@ -1577,7 +1577,7 @@ Charge Pump</property>
 		  </child>
 
 		  <child>
-		    <widget class="GtkComboBoxEntry" id="pin3">
+		    <widget class="GtkComboBox" id="pin3">
 		      <property name="visible">True</property>
 		      <property name="items" translatable="yes">X Step
 X Direction
@@ -1610,7 +1610,7 @@ Charge Pump</property>
 		  </child>
 
 		  <child>
-		    <widget class="GtkComboBoxEntry" id="pin4">
+		    <widget class="GtkComboBox" id="pin4">
 		      <property name="visible">True</property>
 		      <property name="items" translatable="yes">X Step
 X Direction
@@ -1643,7 +1643,7 @@ Charge Pump</property>
 		  </child>
 
 		  <child>
-		    <widget class="GtkComboBoxEntry" id="pin5">
+		    <widget class="GtkComboBox" id="pin5">
 		      <property name="visible">True</property>
 		      <property name="items" translatable="yes">X Step
 X Direction
@@ -1676,7 +1676,7 @@ Charge Pump</property>
 		  </child>
 
 		  <child>
-		    <widget class="GtkComboBoxEntry" id="pin6">
+		    <widget class="GtkComboBox" id="pin6">
 		      <property name="visible">True</property>
 		      <property name="items" translatable="yes">X Step
 X Direction
@@ -1709,7 +1709,7 @@ Charge Pump</property>
 		  </child>
 
 		  <child>
-		    <widget class="GtkComboBoxEntry" id="pin7">
+		    <widget class="GtkComboBox" id="pin7">
 		      <property name="visible">True</property>
 		      <property name="items" translatable="yes">X Step
 X Direction
@@ -1742,7 +1742,7 @@ Charge Pump</property>
 		  </child>
 
 		  <child>
-		    <widget class="GtkComboBoxEntry" id="pin8">
+		    <widget class="GtkComboBox" id="pin8">
 		      <property name="visible">True</property>
 		      <property name="items" translatable="yes">X Step
 X Direction
@@ -1775,7 +1775,7 @@ Charge Pump</property>
 		  </child>
 
 		  <child>
-		    <widget class="GtkComboBoxEntry" id="pin9">
+		    <widget class="GtkComboBox" id="pin9">
 		      <property name="visible">True</property>
 		      <property name="items" translatable="yes">X Step
 X Direction
@@ -1808,7 +1808,7 @@ Charge Pump</property>
 		  </child>
 
 		  <child>
-		    <widget class="GtkComboBoxEntry" id="pin14">
+		    <widget class="GtkComboBox" id="pin14">
 		      <property name="visible">True</property>
 		      <property name="items" translatable="yes">X Step
 X Direction
@@ -1841,7 +1841,7 @@ Charge Pump</property>
 		  </child>
 
 		  <child>
-		    <widget class="GtkComboBoxEntry" id="pin16">
+		    <widget class="GtkComboBox" id="pin16">
 		      <property name="visible">True</property>
 		      <property name="items" translatable="yes">X Step
 X Direction
@@ -1874,7 +1874,7 @@ Charge Pump</property>
 		  </child>
 
 		  <child>
-		    <widget class="GtkComboBoxEntry" id="pin17">
+		    <widget class="GtkComboBox" id="pin17">
 		      <property name="visible">True</property>
 		      <property name="items" translatable="yes">X Step
 X Direction
@@ -2075,7 +2075,7 @@ Charge Pump</property>
 		  </child>
 
 		  <child>
-		    <widget class="GtkComboBoxEntry" id="pin11">
+		    <widget class="GtkComboBox" id="pin11">
 		      <property name="visible">True</property>
 		      <property name="items" translatable="yes">ESTOP IN
 Spindle PPR
@@ -2614,7 +2614,7 @@ Unused</property>
 		  </child>
 
 		  <child>
-		    <widget class="GtkComboBoxEntry" id="pin12">
+		    <widget class="GtkComboBox" id="pin12">
 		      <property name="visible">True</property>
 		      <property name="items" translatable="yes">ESTOP IN
 Spindle PPR
@@ -2667,7 +2667,7 @@ Unused</property>
 		  </child>
 
 		  <child>
-		    <widget class="GtkComboBoxEntry" id="pin13">
+		    <widget class="GtkComboBox" id="pin13">
 		      <property name="visible">True</property>
 		      <property name="items" translatable="yes">ESTOP IN
 Spindle PPR
@@ -2720,7 +2720,7 @@ Unused</property>
 		  </child>
 
 		  <child>
-		    <widget class="GtkComboBoxEntry" id="pin15">
+		    <widget class="GtkComboBox" id="pin15">
 		      <property name="visible">True</property>
 		      <property name="items" translatable="yes">ESTOP IN
 Spindle PPR
@@ -2841,7 +2841,7 @@ Unused</property>
 		  </child>
 
 		  <child>
-		    <widget class="GtkComboBoxEntry" id="pin10">
+		    <widget class="GtkComboBox" id="pin10">
 		      <property name="visible">True</property>
 		      <property name="items" translatable="yes">ESTOP IN
 Spindle PPR
@@ -2894,7 +2894,7 @@ Unused</property>
 		  </child>
 
 		  <child>
-		    <widget class="GtkComboBoxEntry" id="pin1">
+		    <widget class="GtkComboBox" id="pin1">
 		      <property name="visible">True</property>
 		      <property name="items" translatable="yes">X Step
 X Direction
@@ -3629,7 +3629,7 @@ Charge Pump</property>
 		  </child>
 
 		  <child>
-		    <widget class="GtkComboBoxEntry" id="xlatchdir">
+		    <widget class="GtkComboBox" id="xlatchdir">
 		      <property name="visible">True</property>
 		      <property name="items" translatable="yes">Same
 Opposite</property>
