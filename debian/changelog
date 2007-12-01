@@ -31,8 +31,9 @@ emc2 (1:2.2.2~cvs) unstable; urgency=low
     when starting a lathe configuration
   * fix stepconf 'pin 'motion.spindle-speed-in' was already linked' for
     machines with spindle speed control and spindle feedback
+  * fix stepconf: don't allow arbitrary text to be entered in comboboxes
 
- -- Jeff Epler <jepler@unpythonic.net>  Sat,  1 Dec 2007 09:23:39 -0600
+ -- Jeff Epler <jepler@unpythonic.net>  Sat,  1 Dec 2007 09:46:53 -0600
 
 emc2 (1:2.2.1) unstable; urgency=low
 
