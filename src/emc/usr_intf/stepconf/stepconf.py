@@ -335,6 +335,9 @@ class Data:
         if self.pyvcp:
             print >>file, "PYVCP = panel.xml"
 
+        if self.axes == 2:
+            print >>file, "LATHE = 1"
+
 	print >>file
 	print >>file, "[TASK]"
 	print >>file, "TASK = milltask"
@@ -640,7 +643,7 @@ class Data:
 	    scale = (y2-y1) / (x2-x1)
 	    offset = y1 - x1 * scale
 	    print >>file
-	    print >>file, "net spindle-cmd <= motion.spindle-speed-in => pwmgen.0.value"
+	    print >>file, "net spindle-cmd <= motion.spindle-speed-out => pwmgen.0.value"
 	    print >>file, "net spindle-enable <= motion.spindle-on => pwmgen.0.enable"
 	    print >>file, "net spindle-pwm <= pwmgen.0.pwm"
 	    print >>file, "setp pwmgen.0.pwm-freq %s" % self.spindlecarrier	
