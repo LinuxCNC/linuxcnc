@@ -704,10 +704,14 @@ class Data:
 		print >>file, "setp encoder.0.counter-mode 1"
 	    else:
 		print >>file, "setp encoder.0.position-scale %f" \
-		    % (1. / 4 / int(self.spindlecpr))
+		    % ( 4.0 * int(self.spindlecpr))
 	    print >>file, "net spindle-position encoder.0.position => motion.spindle-revs"
 	    print >>file, "net spindle-velocity encoder.0.velocity => motion.spindle-speed-in"
 	    print >>file, "net spindle-index-enable encoder.0.index-enable <=> motion.spindle-index-enable"
+	    print >>file, "net spindle-phase-a encoder.0.phase-A"
+	    print >>file, "net spindle-phase-b encoder.0.phase-B"
+	    print >>file, "net spindle-phase-index encoder.0.phase-Z"
+
 
 	if probe:
 	    print >>file
