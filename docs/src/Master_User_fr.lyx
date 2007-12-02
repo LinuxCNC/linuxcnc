@@ -1,7 +1,5 @@
 #LyX 1.5.2 created this file. For more info see http://www.lyx.org/
-\lyxformat 276
-\begin_document
-\begin_header
+\lyxformat 221
 \textclass book
 \begin_preamble
 \usepackage[plainpages=false,pdfpagelabels,colorlinks=true,linkcolor=blue]{hyperref}
@@ -17,24 +15,16 @@
 \end_preamble
 \language french
 \inputencoding auto
-\font_roman bookman
-\font_sans default
-\font_typewriter default
-\font_default_family default
-\font_sc false
-\font_osf false
-\font_sf_scale 100
-\font_tt_scale 100
+\fontscheme bookman
 \graphics default
 \float_placement !h
 \paperfontsize 10
 \spacing single
 \papersize letterpaper
-\use_geometry true
-\use_amsmath 1
-\use_esint 0
-\cite_engine basic
-\use_bibtopic false
+\use_geometry 1
+\use_amsmath 0
+\use_natbib 0
+\use_numerical_citations 0
 \paperorientation portrait
 \paperwidth 8.5in
 \paperheight 11in
@@ -50,15 +40,9 @@
 \papercolumns 1
 \papersides 1
 \paperpagestyle headings
-\tracking_changes false
-\output_changes false
-\author "" 
-\author "" 
-\end_header
+\author ""
 
-\begin_body
-
-\begin_layout Title
+\layout Title
 \begin_inset Graphics
 	filename common/emc2-intro.png
 	lyxscale 80
@@ -70,67 +54,36 @@
 
 \newline
 Manuel de l'utilisateur V2.2
-\end_layout
 
-\begin_layout Author
+\layout Author
 The EMC Team
-\end_layout
 
-\begin_layout Standard
-\InsetSpace ~
-\InsetSpace ~
-\InsetSpace ~
+\layout Standard
+\SpecialChar ~
+\SpecialChar ~
+\SpecialChar ~
 
-\end_layout
 
-\begin_layout Standard
-\begin_inset VSpace 1in
-\end_inset
+\layout Standard
+\added_space_bottom 1in 
+\added_space_top 1in 
 
 This handbook is a work in progress.
  If you are able to help with writing, editing, or graphic preparation please
  contact any member of the writing team or join and send an email to emc-users@l
 ists.sourceforge.net.
-\begin_inset VSpace 1in
-\end_inset
 
 
-\end_layout
 
-\begin_layout Standard
+\layout Standard
 \align center
 Copyright (c) 2000-7 LinuxCNC.org
-\end_layout
-
-\begin_layout Standard
-\begin_inset VSpace 0.5in
-\end_inset
 
 
-\lyxline
-
-\begin_inset ERT
-status collapsed
-
-\begin_layout Standard
-
-
-\backslash
-vspace{-1
-\backslash
-parskip}
-\end_layout
-
-\begin_layout Standard
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
+\layout Standard
+\line_top 
+\line_bottom 
+\added_space_top 0.5in 
 \noindent
 Permission is granted to copy, distribute and/or modify this document under
  the terms of the GNU Free Documentation License, Version 1.1 or any later
@@ -143,51 +96,40 @@ Permission is granted to copy, distribute and/or modify this document under
  If you do not find the license you may order a copy from Free Software
  Foundation, Inc.
  59 Temple Place, Suite 330 Boston, MA 02111-1307 
-\end_layout
 
-\begin_layout Standard
 
-\lyxline
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset LatexCommand tableofcontents
+\layout Standard
+\begin_inset LatexCommand \tableofcontents{}
 
 \end_inset
 
 
-\end_layout
 
-\begin_layout Part
+\layout Part
 Introduction et Installation d'EMC2
-\end_layout
 
-\begin_layout Standard
+\layout Standard
 \begin_inset Include \include{install/installing_emc2_fr.lyx}
 preview false
 
 \end_inset
 
 
-\end_layout
 
-\begin_layout Standard
+\layout Standard
 \begin_inset Include \include{install/compiling_emc2_fr.lyx}
 preview false
 
 \end_inset
 
 
-\end_layout
 
-\begin_layout Part
+\layout Part
 
 \lang english
 Configuring EMC2
-\end_layout
 
-\begin_layout Standard
+\layout Standard
 
 \lang english
 \begin_inset Include \input{config/copy_and_run_fr.lyx}
@@ -196,9 +138,8 @@ preview true
 \end_inset
 
 
-\end_layout
 
-\begin_layout Standard
+\layout Standard
 
 \lang english
 \begin_inset Include \include{config/stepconf_fr.lyx}
@@ -207,9 +148,8 @@ preview false
 \end_inset
 
 
-\end_layout
 
-\begin_layout Standard
+\layout Standard
 
 \lang english
 \begin_inset Include \include{config/ini_config_fr.lyx}
@@ -218,9 +158,8 @@ preview false
 \end_inset
 
 
-\end_layout
 
-\begin_layout Standard
+\layout Standard
 
 \lang english
 \begin_inset Include \include{config/ini_homing.lyx}
@@ -229,9 +168,8 @@ preview false
 \end_inset
 
 
-\end_layout
 
-\begin_layout Standard
+\layout Standard
 
 \lang english
 \begin_inset Include \include{hal/intro_fr.lyx}
@@ -240,9 +178,8 @@ preview false
 \end_inset
 
 
-\end_layout
 
-\begin_layout Standard
+\layout Standard
 
 \lang english
 \begin_inset Include \include{hal/tutorial_fr.lyx}
@@ -251,9 +188,8 @@ preview false
 \end_inset
 
 
-\end_layout
 
-\begin_layout Standard
+\layout Standard
 
 \lang english
 \begin_inset Include \include{hal/drivers.lyx}
@@ -262,22 +198,19 @@ preview false
 \end_inset
 
 
-\end_layout
 
-\begin_layout Part
+\layout Part
 Utilisation d'EMC2
-\end_layout
 
-\begin_layout Standard
+\layout Standard
 \begin_inset Include \include{gui/axis_fr.lyx}
 preview false
 
 \end_inset
 
 
-\end_layout
 
-\begin_layout Standard
+\layout Standard
 
 \lang english
 \begin_inset Include \include{gcode/main_fr.lyx}
@@ -286,9 +219,8 @@ preview false
 \end_inset
 
 
-\end_layout
 
-\begin_layout Standard
+\layout Standard
 
 \lang english
 \begin_inset Include \include{gcode/coordinates_fr.lyx}
@@ -297,9 +229,8 @@ preview false
 \end_inset
 
 
-\end_layout
 
-\begin_layout Standard
+\layout Standard
 
 \lang english
 \begin_inset Include \include{gcode/mill_canned.lyx}
@@ -308,37 +239,31 @@ preview false
 \end_inset
 
 
-\end_layout
 
-\begin_layout Standard
+\layout Standard
 \begin_inset Include \include{gui/image-to-gcode_fr.lyx}
 preview false
 
 \end_inset
 
 
-\end_layout
 
-\begin_layout Chapter
-Section lÃ©gale
-\end_layout
+\layout Chapter
+Section légale
 
-\begin_layout Standard
+\layout Standard
 \begin_inset Include \input{common/GPLD_Copyright.lyx}
 preview false
 
 \end_inset
 
 
-\end_layout
 
-\begin_layout Standard
-\begin_inset LatexCommand printindex
+\layout Standard
+\begin_inset LatexCommand \printindex{}
 
 \end_inset
 
 
-\end_layout
 
-\end_body
-\end_document
+\the_end
