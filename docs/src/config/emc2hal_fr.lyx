@@ -72,12 +72,7 @@ float Quand la vitesse est placée en mode adaptatif
 M52\SpecialChar ~
 P1
 \family default
- (Voir la section 
-\begin_inset LatexCommand \ref{sec:M52:-Adaptive-Feed-Control}
-
-\end_inset
-
-), la vitesse commandée est multipliée par cette valeur.
+  la vitesse commandée est multipliée par cette valeur.
  Cet effet est multiplicatif avec 
 \series bold
 motion.feed-hold
@@ -121,12 +116,7 @@ bit Quand la vitesse est placée en mode arrêt contrôlé
 M53\SpecialChar ~
 P1
 \family default
- (Voir la section 
-\begin_inset LatexCommand \ref{sec:M53:-Feed-Stop-Control}
-
-\end_inset
-
-) et que ce bit est TRUE, la vitesse est fixée à 0.
+ et que ce bit est TRUE, la vitesse est fixée à 0.
 
 \layout Description
 motion.motion-inpos\SpecialChar ~

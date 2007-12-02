@@ -97,12 +97,7 @@ VAR
  Ce fichier contient une suite de numéros de variables.
  Ces variables contiennent les paramètres qui seront utilisés par l'interpréteur.
  Ces valeurs sont enregistrées d'une exécution à l'autre.
- Voir la section 
-\begin_inset LatexCommand \ref{sub:Parameters}
-
-\end_inset
-
-.
+ 
 
 \layout Description
 TBL
@@ -111,12 +106,7 @@ TBL
 \end_inset
 
  Ce fichier contient les informations relatives aux outils.
- Voir la section 
-\begin_inset LatexCommand \ref{sub:Tool-File}
-
-\end_inset
-
-.
+ 
 
 \layout Description
 NML
@@ -590,7 +580,7 @@ mm,\SpecialChar ~
 \SpecialChar \ldots{}
  Définit les incréments disponibles pour le jog incremental.
  Voir la section 
-\begin_inset LatexCommand \ref{DISPLAY-INCREMENTS}
+\begin_inset LatexCommand \ref{sub:Section-[DISPLAY]}
 
 \end_inset
 
@@ -881,12 +871,7 @@ example2.hal
 \emph default
  Exécute 'example2.hal' après que l'interface graphique ait créé ses HAL
  pins.
- Voir la section 
-\begin_inset LatexCommand \ref{sub:Physical-jog-wheels}
-
-\end_inset
-
- pour plus d'informations.
+ 
 
 \layout Subsection
 
@@ -1331,13 +1316,7 @@ Variables relatives aux prises d'origine
 
 
 \layout Standard
-Les cinq prochains paramètres sont relatifs aux prises d'origine, pour plus
- d'explications lisez la Section 
-\begin_inset LatexCommand \ref{sec:Homing}
-
-\end_inset
-
-
+Les cinq prochains paramètres sont relatifs aux prises d'origine.
 
 \layout Description
 HOME_OFFSET\SpecialChar ~
@@ -2261,13 +2240,7 @@ CYCLE_TIME\SpecialChar ~
 \layout Description
 TOOL_TABLE\SpecialChar ~
 =\SpecialChar ~
-tool.tbl Ce fichier contient les informations des outils, description
- dans 
-\begin_inset LatexCommand \ref{sub:Tool-File}
-
-\end_inset
-
-
+tool.tbl Ce fichier contient les informations des outils.
 
 \layout Description
 TOOL_CHANGE_POSITION\SpecialChar ~

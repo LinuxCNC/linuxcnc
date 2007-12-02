@@ -1,4 +1,4 @@
-#LyX 1.5.1 created this file. For more info see http://www.lyx.org/
+#LyX 1.5.2 created this file. For more info see http://www.lyx.org/
 \lyxformat 221
 \textclass book
 \begin_preamble
@@ -93,7 +93,7 @@ Fenêtre d'AXIS
 
 
 \layout Section
-Au commencement
+Pour commencer
 
 \layout Standard
 Pour choisir AXIS comme interface graphique d'emc2, éditez le fichier .ini
@@ -2450,11 +2450,6 @@ Panneau de contrôle virtuel
 
 \layout Standard
 AXIS peut afficher le fichier xml pyVCP dans le panneau droit de l'interface.
- Pour plus de détails, voyez la section 
-\begin_inset LatexCommand \ref{sec:pyvcp-with-axis}
-
-\end_inset
-
-.
+ 
 
 \the_end

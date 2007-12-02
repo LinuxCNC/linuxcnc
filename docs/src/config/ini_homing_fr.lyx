@@ -1,66 +1,104 @@
 #LyX 1.5.2 created this file. For more info see http://www.lyx.org/
-\lyxformat 221
+\lyxformat 276
+\begin_document
+\begin_header
 \textclass book
 \language french
 \inputencoding auto
-\fontscheme default
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
 \graphics default
 \paperfontsize default
 \spacing single
 \papersize default
-\use_geometry 0
-\use_amsmath 0
-\use_natbib 0
-\use_numerical_citations 0
+\use_geometry false
+\use_amsmath 1
+\use_esint 0
+\cite_engine basic
+\use_bibtopic false
 \paperorientation portrait
-\secnumdepth 3
-\tocdepth 3
+\secnumdepth 5
+\tocdepth 5
 \paragraph_separation indent
 \defskip medskip
 \quotes_language english
 \papercolumns 1
 \papersides 1
 \paperpagestyle default
-\author ""
+\tracking_changes false
+\output_changes false
+\author "" 
+\author "" 
+\end_header
 
-\layout Section
-\begin_inset LatexCommand \label{sec:Prises d'origine}
+\begin_body
+
+\begin_layout Section
+
+\lang english
+\begin_inset LatexCommand label
+name "sec:Homing"
 
 \end_inset
 
-Prise d'origine
+Homing
+\end_layout
 
-\layout Subsection
+\begin_layout Subsection
 Vue d'ensemble
+\end_layout
 
-\layout Standard
-La prise d'origine semble assez simple, il suffit de déplacer chaque axe
- à un emplacement connu et de positionner l'ensemble des variables internes
- d'EMC en conséquence.
- Toutefois, les machines sont différentes les unes des autres et la prise
+\begin_layout Standard
+La prise d'origine semble assez simple, il suffit de dÃ©placer chaque axe
+ Ã  un emplacement connu et de positionner l'ensemble des variables internes
+ d'EMC en consÃ©quence.
+ Toutefois, les machines sont diffÃ©rentes les unes des autres et la prise
  d'origine est maintenant devenue assez complexe.
  
+\end_layout
 
-\layout Subsection
-Séquence de prise d'origine
+\begin_layout Standard
 
-\layout Standard
+\end_layout
+
+\begin_layout Subsection
+SÃ©quence de prise d'origine
+\end_layout
+
+\begin_layout Standard
 La figure 
-\begin_inset LatexCommand \ref{fig: Séquences de prise d'origine possibles}
+\begin_inset LatexCommand ref
+reference "fig: SÃ©quences de prise d'origine possibles"
 
 \end_inset
 
- montre les quatre séquences de prise d'origine possibles, avec les variables
- de configuration associées.
- Une description détaillée de ces paramètres sera faite au chapitre suivant.
+ montre les quatre sÃ©quences de prise d'origine possibles, avec les variables
+ de configuration associÃ©es.
+ Une description dÃ©taillÃ©e de ces paramÃ¨tres sera faite au chapitre suivant.
+\end_layout
 
-\layout Standard
+\begin_layout Standard
+
+\end_layout
+
+\begin_layout Standard
+
+\lang english
 \begin_inset Float figure
 wide false
-collapsed false
+sideways false
+status open
 
-\layout Standard
+\begin_layout Standard
 \align center
+
+\lang english
 \begin_inset Graphics
 	filename emc2-motion-homing-diag.eps
 	width 7in
@@ -70,43 +108,55 @@ collapsed false
 \end_inset
 
 
+\end_layout
 
-\layout Caption
-\begin_inset LatexCommand \label{fig: Séquences de prise d'origine possibles}
-
-\end_inset
-
-Séquences de prise d'origine possibles
+\begin_layout Standard
+\begin_inset LatexCommand label
+name "fig: SÃ©quences de prise d'origine possibles"
 
 \end_inset
 
+SÃ©quences de prise d'origine possibles
+\end_layout
+
+\end_inset
 
 
-\layout Subsection
+\end_layout
+
+\begin_layout Subsection
 Configuration
+\end_layout
 
-\layout Standard
-Il y a six éléments d'information qui définissent le déroulement de la séquence
+\begin_layout Standard
+Il y a six Ã©lÃ©ments d'information qui dÃ©finissent le dÃ©roulement de la sÃ©quence
  de prise d'origine.
- Ils sont définis dans la section [AXIS] du fichier ini.
+ Ils sont dÃ©finis dans la section [AXIS] du fichier ini.
+\end_layout
 
-\layout Subsubsection
-HOME_SEARCH_VEL\SpecialChar ~
-=\SpecialChar ~
+\begin_layout Standard
+
+\end_layout
+
+\begin_layout Subsubsection
+HOME_SEARCH_VEL\InsetSpace ~
+=\InsetSpace ~
 0
-\begin_inset LatexCommand \index{Home_Search_Vel}
+\begin_inset LatexCommand index
+name "Home_Search_Vel"
 
 \end_inset
 
 
+\end_layout
 
-\layout Standard
+\begin_layout Standard
 Vitesse de la phase initiale de prise d'origine, c'est la recherche du contact
  d'origine machine.
- Une valeur différente de zéro indique à EMC la présence d'un contact d'origine
+ Une valeur diffÃ©rente de zÃ©ro indique Ã  EMC la prÃ©sence d'un contact d'origine
  machine.
- EMC va alors commencer par vérifier si ce contact est déjà pressé.
- Si oui, il le dégagera à la vitesse établie par 
+ EMC va alors commencer par vÃ©rifier si ce contact est dÃ©jÃ  pressÃ©.
+ Si oui, il le dÃ©gagera Ã  la vitesse Ã©tablie par 
 \begin_inset Quotes eld
 \end_inset
 
@@ -114,7 +164,7 @@ HOME_SEARCH_VEL
 \begin_inset Quotes erd
 \end_inset
 
-, la direction du dégagement sera de signe opposé à celui de 
+, la direction du dÃ©gagement sera de signe opposÃ© Ã  celui de 
 \begin_inset Quotes eld
 \end_inset
 
@@ -123,7 +173,7 @@ HOME_SEARCH_VEL
 \end_inset
 
 .
- Puis, il va revenir vers le contact en se déplaçant dans la direction spécifiée
+ Puis, il va revenir vers le contact en se dÃ©plaÃ§ant dans la direction spÃ©cifiÃ©e
  par le signe de 
 \begin_inset Quotes eld
 \end_inset
@@ -132,14 +182,14 @@ HOME_SEARCH_VEL
 \begin_inset Quotes erd
 \end_inset
 
- et à la vitesse déterminée par sa valeur absolue.
- Quand le contact d'origine machine est détecté, le mobile s'arrête aussi
- vite que possible, il y aura cependant toujours un certain dépassement
- dépendant de la vitesse.
- Si celle-ci est trop élevée, le mobile peut dépasser suffisamment le contact
- pour aller attaquer un fin de course de limite d'axe, voir même aller se
- crasher dans une butée mécanique.
- À l'opposé, si 
+ et Ã  la vitesse dÃ©terminÃ©e par sa valeur absolue.
+ Quand le contact d'origine machine est dÃ©tectÃ©, le mobile s'arrÃªte aussi
+ vite que possible, il y aura cependant toujours un certain dÃ©passement
+ dÃ©pendant de la vitesse.
+ Si celle-ci est trop Ã©levÃ©e, le mobile peut dÃ©passer suffisamment le contact
+ pour aller attaquer un fin de course de limite d'axe, voir mÃªme aller se
+ crasher dans une butÃ©e mÃ©canique.
+ Ã€ l'opposÃ©, si 
 \begin_inset Quotes eld
 \end_inset
 
@@ -147,31 +197,33 @@ HOME_SEARCH_VEL
 \begin_inset Quotes erd
 \end_inset
 
- est trop basse, la prise d'origine peut durer très longtemps.
+ est trop basse, la prise d'origine peut durer trÃ¨s longtemps.
+\end_layout
 
-\layout Standard
-Une valeur égale à zéro indique qu'il n'y a pas de contact d'origine machine,
- dans ce cas, les phases de recherche de ce contact seront occultées.
- La valeur par défaut est zéro.
+\begin_layout Standard
+Une valeur Ã©gale Ã  zÃ©ro indique qu'il n'y a pas de contact d'origine machine,
+ dans ce cas, les phases de recherche de ce contact seront occultÃ©es.
+ La valeur par dÃ©faut est zÃ©ro.
  
+\end_layout
 
-\layout Subsubsection
-HOME_LATCH_VEL\SpecialChar ~
-=\SpecialChar ~
-0
-\begin_inset LatexCommand \index{Home_Latch_Vel}
+\begin_layout Subsubsection
+HOME_LATCH_VEL=0
+\begin_inset LatexCommand index
+name "Home_Latch_Vel"
 
 \end_inset
 
 
+\end_layout
 
-\layout Standard
-Spécifie la vitesse et la direction utilisée par le mobile pendant la dernière
- phase de la prise d'origine, c'est la recherche précise du contact d'origine
+\begin_layout Standard
+SpÃ©cifie la vitesse et la direction utilisÃ©e par le mobile pendant la derniÃ¨re
+ phase de la prise d'origine, c'est la recherche prÃ©cise du contact d'origine
  machine, si il existe et de l'emplacement de l'impulsion d'index, si elle
- est présente.
- Cette vitesse est plus lente que celle de la phase initiale, afin d'améliorer
- la précision.
+ est prÃ©sente.
+ Cette vitesse est plus lente que celle de la phase initiale, afin d'amÃ©liorer
+ la prÃ©cision.
  Si 
 \begin_inset Quotes eld
 \end_inset
@@ -188,12 +240,12 @@ HOME_LATCH_VEL
 \begin_inset Quotes erd
 \end_inset
 
- sont de mêmes signes, la phase de recherche précise s'effectuera dans le
- même sens que la phase de recherche initiale.
- Dans ce cas, le mobile dégagera d'abord le contact en sens inverse avant
- de revenir vers lui à la vitesse définie ici.
- L'acquisition de la position d'origine se fera sur la première impulsion
- de changement d'état du contact.
+ sont de mÃªmes signes, la phase de recherche prÃ©cise s'effectuera dans le
+ mÃªme sens que la phase de recherche initiale.
+ Dans ce cas, le mobile dÃ©gagera d'abord le contact en sens inverse avant
+ de revenir vers lui Ã  la vitesse dÃ©finie ici.
+ L'acquisition de la position d'origine se fera sur la premiÃ¨re impulsion
+ de changement d'Ã©tat du contact.
  Si 
 \begin_inset Quotes eld
 \end_inset
@@ -210,11 +262,11 @@ HOME_LATCH_VEL
 \begin_inset Quotes erd
 \end_inset
 
- sont de signes opposés, la phase de recherche précise s'effectuera dans
- le sens opposé à celui de la recherche initiale.
- Dans ce cas, EMC dégagera le contact à la vitesse définie ici.
- L'acquisition de la position d'origine se fera sur la première impulsion
- de changement d'état du contact lors de son dégagement.
+ sont de signes opposÃ©s, la phase de recherche prÃ©cise s'effectuera dans
+ le sens opposÃ© Ã  celui de la recherche initiale.
+ Dans ce cas, EMC dÃ©gagera le contact Ã  la vitesse dÃ©finie ici.
+ L'acquisition de la position d'origine se fera sur la premiÃ¨re impulsion
+ de changement d'Ã©tat du contact lors de son dÃ©gagement.
  Si 
 \begin_inset Quotes eld
 \end_inset
@@ -223,7 +275,7 @@ HOME_SEARCH_VEL
 \begin_inset Quotes erd
 \end_inset
 
- est à zéro, signifiant qu'il n'y a pas de contact et que 
+ est Ã  zÃ©ro, signifiant qu'il n'y a pas de contact et que 
 \begin_inset Quotes eld
 \end_inset
 
@@ -231,7 +283,7 @@ HOME_LATCH_VEL
 \begin_inset Quotes erd
 \end_inset
 
- et différente de zéro, le mobile continuera jusqu'à la prochaine impulsion
+ et diffÃ©rente de zÃ©ro, le mobile continuera jusqu'Ã  la prochaine impulsion
  d'index.
  Si 
 \begin_inset Quotes eld
@@ -241,7 +293,7 @@ HOME_SEARCH_VEL
 \begin_inset Quotes erd
 \end_inset
 
- est différent de zéro et que 
+ est diffÃ©rent de zÃ©ro et que 
 \begin_inset Quotes eld
 \end_inset
 
@@ -249,48 +301,58 @@ HOME_LATCH_VEL
 \begin_inset Quotes erd
 \end_inset
 
- est égal à zéro, c'est une cause d'erreur, l'opération de prise d'origine
- échouera.
- La valeur par défaut est zéro.
+ est Ã©gal Ã  zÃ©ro, c'est une cause d'erreur, l'opÃ©ration de prise d'origine
+ Ã©chouera.
+ La valeur par dÃ©faut est zÃ©ro.
+\end_layout
 
-\layout Subsubsection
-HOME_IGNORE_LIMITS\SpecialChar ~
-=\SpecialChar ~
+\begin_layout Standard
+
+\end_layout
+
+\begin_layout Subsubsection
+HOME_IGNORE_LIMITS\InsetSpace ~
+=\InsetSpace ~
 YES/NO
-\begin_inset LatexCommand \index{HOME IGNORE LIMITS}
+\begin_inset LatexCommand index
+name "HOME IGNORE LIMITS"
 
 \end_inset
 
 
+\end_layout
 
-\layout Standard
+\begin_layout Standard
 Peut contenir les valeurs YES ou NO.
- Cette variable détermine si EMC doit ignorer les fins de course de limites
+ Cette variable dÃ©termine si EMC doit ignorer les fins de course de limites
  d'axe.
- Certaines machines n'utilisent pas un contact d'origine séparé, à la place,
+ Certaines machines n'utilisent pas un contact d'origine sÃ©parÃ©, Ã  la place,
  elles utilisent un des interrupteurs de fin de course comme contact d'origine.
  Dans ce cas, EMC doit ignorer l'activation de cette limite de course pendant
- la séquence de prise d'origine.
- La valeur par défaut de ce paramètre est NO.
+ la sÃ©quence de prise d'origine.
+ La valeur par dÃ©faut de ce paramÃ¨tre est NO.
  
+\end_layout
 
-\layout Subsubsection
-HOME_USE_INDEX\SpecialChar ~
-=\SpecialChar ~
+\begin_layout Subsubsection
+HOME_USE_INDEX\InsetSpace ~
+=\InsetSpace ~
 YES/NO
-\begin_inset LatexCommand \index{HOME USE INDEX}
+\begin_inset LatexCommand index
+name "HOME USE INDEX"
 
 \end_inset
 
 
+\end_layout
 
-\layout Standard
-Spécifie si une impulsion d'index doit être prise en compte (cas de règles
+\begin_layout Standard
+SpÃ©cifie si une impulsion d'index doit Ãªtre prise en compte (cas de rÃ¨gles
  de mesure ou de codeurs de positions).
  Si cette variable est vraie (HOME_USE_INDEX = YES), EMC fera l'acquisition
  de l'origine machine sur le premier front de l'impulsion d'index.
  Si elle est fausse (=NO), EMC fera l'acquisition de l'origine sur le premier
- front produit par le contact d'origine (dépendra des signes de 
+ front produit par le contact d'origine (dÃ©pendra des signes de 
 \begin_inset Quotes eld
 \end_inset
 
@@ -307,23 +369,30 @@ HOME_LATCH_VEL
 \end_inset
 
 ).
- La valeur par défaut est NO.
+ La valeur par dÃ©faut est NO.
+\end_layout
 
-\layout Subsubsection
+\begin_layout Standard
+
+\end_layout
+
+\begin_layout Subsubsection
 HOME_OFFSET
-\begin_inset LatexCommand \index{HOME OFFSET}
+\begin_inset LatexCommand index
+name "HOME OFFSET"
 
 \end_inset
 
 
+\end_layout
 
-\layout Standard
+\begin_layout Standard
 Contient l'emplacement du point d'origine ou de l'impulsion d'index, en
- coordonnées relatives.
- Il peut aussi être traité comme le décalage entre le point d'origine machine
- et le zéro de l'axe.
- A la détection de l'impulsion d'origine, EMC ajuste les coordonnées de
- l'axe à la valeur de 
+ coordonnÃ©es relatives.
+ Il peut aussi Ãªtre traitÃ© comme le dÃ©calage entre le point d'origine machine
+ et le zÃ©ro de l'axe.
+ A la dÃ©tection de l'impulsion d'origine, EMC ajuste les coordonnÃ©es de
+ l'axe Ã  la valeur de 
 \begin_inset Quotes eld
 \end_inset
 
@@ -332,21 +401,28 @@ HOME_OFFSET
 \end_inset
 
 .
- La valeur par défaut est zéro.
+ La valeur par dÃ©faut est zÃ©ro.
+\end_layout
 
-\layout Subsubsection
+\begin_layout Standard
+
+\end_layout
+
+\begin_layout Subsubsection
 HOME
-\begin_inset LatexCommand \index{HOME}
+\begin_inset LatexCommand index
+name "HOME"
 
 \end_inset
 
 
+\end_layout
 
-\layout Standard
-C'est la position sur laquelle ira le mobile à la fin de la séquence de
+\begin_layout Standard
+C'est la position sur laquelle ira le mobile Ã  la fin de la sÃ©quence de
  prise d'origine.
- Après avoir détecté le contact d'origine, avoir ajusté les coordonnées
- de ce point à la valeur de 
+ AprÃ¨s avoir dÃ©tectÃ© le contact d'origine, avoir ajustÃ© les coordonnÃ©es
+ de ce point Ã  la valeur de 
 \begin_inset Quotes eld
 \end_inset
 
@@ -354,13 +430,13 @@ HOME_OFFSET
 \begin_inset Quotes erd
 \end_inset
 
-, le mobile va se déplacer sur la valeur de 
+, le mobile va se dÃ©placer sur la valeur de 
 \begin_inset Quotes eld
 \end_inset
 
-HOME", c'est le point final de la séquence de prise d'origine.
- La valeur par défaut est zéro.
- Notez que même si ce paramètre est égal à la valeur de 
+HOME", c'est le point final de la sÃ©quence de prise d'origine.
+ La valeur par dÃ©faut est zÃ©ro.
+ Notez que mÃªme si ce paramÃ¨tre est Ã©gal Ã  la valeur de 
 \begin_inset Quotes eld
 \end_inset
 
@@ -368,9 +444,9 @@ HOME_OFFSET
 \begin_inset Quotes erd
 \end_inset
 
-, le mobile dépassera très légérement la position du point d'aquisition
- de l'origine machine avant de s'arrêter.
- Donc il y aura toujours un petit mouvement à ce moment là (sauf bien sûr
+, le mobile dÃ©passera trÃ¨s lÃ©gÃ©rement la position du point d'aquisition
+ de l'origine machine avant de s'arrÃªter.
+ Donc il y aura toujours un petit mouvement Ã  ce moment lÃ  (sauf bien sÃ»r
  si 
 \begin_inset Quotes eld
 \end_inset
@@ -379,50 +455,65 @@ HOME_SEARCH_VEL
 \begin_inset Quotes erd
 \end_inset
 
- est à zéro, et que toute la séquence de POM a été sautée).
- Ce mouvement final s'effectue en vitesse de déplacement rapide.
- Puisque l'axe est maintenant référencé, il n'y a plus de risque pour la
- machine, un mouvement rapide est donc la façon la plus rapide de finir
- la séquence de prise d'origine.
- 
-\begin_inset Foot
-collapsed false
+ est Ã  zÃ©ro, et que toute la sÃ©quence de POM a Ã©tÃ© sautÃ©e).
+ Ce mouvement final s'effectue en vitesse de dÃ©placement rapide.
+ Puisque l'axe est maintenant rÃ©fÃ©rencÃ©, il n'y a plus de risque pour la
+ machine, un mouvement rapide est donc la faÃ§on la plus rapide de finir
+ la sÃ©quence de prise d'origine.
+\end_layout
 
-\layout Standard
-La distinction entre l'origine machine et le décalage d'origine n'est pas
+\begin_layout Standard
+
+\lang english
+\begin_inset Foot
+status open
+
+\begin_layout Standard
+La distinction entre l'origine machine et le dÃ©calage d'origine n'est pas
  aussi claire que je le voudrais.
  J'envisage de faire un petit dessin et un exemple pour la clarifier.
+\end_layout
 
 \end_inset
 
 
+\end_layout
 
-\layout Subsubsection
+\begin_layout Subsubsection
 HOME_IS_SHARED
-\begin_inset LatexCommand \index{HOME IS SHARED}
+\begin_inset LatexCommand index
+name "HOME IS SHARED"
 
 \end_inset
 
 
+\end_layout
 
-\layout Standard
-Si cet axe n'a pas un contact d'origine séparé des autres, mais plusieurs
- contacts câblés sur la même broche, mettez cette valeur à 1 pour éviter
- de commencer la prise d'origine si un de ces contacts partagés est déjà
- activé.
- Mettez cette valeur à 0 pour permettre la prise d'origine même si un contact
- est déjà attaqué.
+\begin_layout Standard
+Si cet axe n'a pas un contact d'origine sÃ©parÃ© des autres, mais plusieurs
+ contacts cÃ¢blÃ©s sur la mÃªme broche, mettez cette valeur Ã  1 pour Ã©viter
+ de commencer la prise d'origine si un de ces contacts partagÃ©s est dÃ©jÃ 
+ activÃ©.
+ Mettez cette valeur Ã  0 pour permettre la prise d'origine mÃªme si un contact
+ est dÃ©jÃ  attaquÃ©.
+\end_layout
 
-\layout Subsubsection
+\begin_layout Standard
+
+\end_layout
+
+\begin_layout Subsubsection
 HOME_SEQUENCE
-\begin_inset LatexCommand \index{HOME SEQUENCE}
+\begin_inset LatexCommand index
+name "HOME SEQUENCE"
 
 \end_inset
 
 
+\end_layout
 
-\layout Standard
-Utilisé pour définir l'ordre des séquences 
+\begin_layout Standard
+UtilisÃ© pour dÃ©finir l'ordre des sÃ©quences 
 \begin_inset Quotes eld
 \end_inset
 
@@ -430,9 +521,9 @@ HOME ALL
 \begin_inset Quotes erd
 \end_inset
 
- de prise d'origine des différents axes (exemple: la POM de l'axe X ne pourra
- se faire qu'après celle de Z).
- La POM d'un axe ne pourra se faire qu'après tous les autres en ayant la
+ de prise d'origine des diffÃ©rents axes (exemple: la POM de l'axe X ne pourra
+ se faire qu'aprÃ¨s celle de Z).
+ La POM d'un axe ne pourra se faire qu'aprÃ¨s tous les autres en ayant la
  valeur la plus petite de 
 \begin_inset Quotes eld
 \end_inset
@@ -441,7 +532,7 @@ HOME_SEQUENCE
 \begin_inset Quotes erd
 \end_inset
 
- et après qu'ils soient déjà tous à 
+ et aprÃ¨s qu'ils soient dÃ©jÃ  tous Ã  
 \begin_inset Quotes eld
 \end_inset
 
@@ -450,7 +541,7 @@ HOME_OFFSET
 \end_inset
 
 .
- Si deux axes ont la même valeur de 
+ Si deux axes ont la mÃªme valeur de 
 \begin_inset Quotes eld
 \end_inset
 
@@ -458,7 +549,7 @@ HOME_SEQUENCE
 \begin_inset Quotes erd
 \end_inset
 
-, leur POM s'effectueront simultanément.
+, leur POM s'effectueront simultanÃ©ment.
  Si 
 \begin_inset Quotes eld
 \end_inset
@@ -467,7 +558,7 @@ HOME_SEQUENCE
 \begin_inset Quotes erd
 \end_inset
 
- est égale à -1 ou non spécifiée, l'axe ne sera pas compris dans la séquence
+ est Ã©gale Ã  -1 ou non spÃ©cifiÃ©e, l'axe ne sera pas compris dans la sÃ©quence
  
 \begin_inset Quotes eld
 \end_inset
@@ -485,20 +576,12 @@ HOME_SEQUENCE
 \begin_inset Quotes erd
 \end_inset
 
- débutent à 0, il ne peut pas y avoir de valeur inutilisée.
+ dÃ©butent Ã  0, il ne peut pas y avoir de valeur inutilisÃ©e.
+\end_layout
 
-\layout Standard
-\begin_inset ERT
-status Collapsed
+\begin_layout Standard
 
-\layout Standard
+\end_layout
 
-
-\backslash
-clearpage
-
-\end_inset
-
-
-
-\the_end
+\end_body
+\end_document

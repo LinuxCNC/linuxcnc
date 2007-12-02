@@ -587,6 +587,11 @@ Les boutons des correcteurs de vitesses peuvent être activés (ils fonctionnent
 
 \layout Subsection
 Modes de contrôle de trajectoire
+\begin_inset LatexCommand \label{sub:Modes-de-contrôle-trajectoires}
+
+\end_inset
+
+
 
 \layout Standard
 La machine peut être placée dans un de ces trois modes de contrôle de trajectoir
@@ -601,7 +606,7 @@ e: (1) mode arrêt exact, (2) mode trajectoire exacte ou (3) mode trajectoire
  légèrement arrondis pour que la vitesse soit maintenue (sans dépasser la
  tolérance, si elle est spécifiée).
  Voir la section 
-\begin_inset LatexCommand \ref{sub:G61,-G61.1,-G64:}
+\begin_inset LatexCommand \ref{sub:G61,-G61.1,-G64:-Types-contrôle-trajectoire}
 
 \end_inset
 
@@ -6427,7 +6432,7 @@ G40
 \end_inset
 
 : Compensation de rayon d'outil
-\begin_inset LatexCommand \label{sub:G40,-G41,-G42:}
+\begin_inset LatexCommand \label{sub:G40,-G41,-G42:Compensation-rayon-d'outil}
 
 \end_inset
 
@@ -6833,7 +6838,7 @@ G61
 \end_inset
 
 : Types de contrôle de trajectoire
-\begin_inset LatexCommand \label{sub:G61,-G61.1,-G64:}
+\begin_inset LatexCommand \label{sub:G61,-G61.1,-G64:-Types-contrôle-trajectoire}
 
 \end_inset
 
