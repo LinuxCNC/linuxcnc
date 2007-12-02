@@ -1,6 +1,5 @@
 emc2 (1:2.2.2~cvs) unstable; urgency=low
 
-  [ jepler ]
   * move hal_unlink manpage to development package
   * make gcode quick reference link into our own full gcode reference
     instead of the outdated nist document
@@ -34,8 +33,9 @@ emc2 (1:2.2.2~cvs) unstable; urgency=low
   * fix stepconf: don't allow arbitrary text to be entered in comboboxes
   * fix stepconf: coolant pins
   * stepconf: add parker oem750 timings
+  * fix stepconf: spindle feedback
 
- -- Jeff Epler <jepler@unpythonic.net>  Sat,  1 Dec 2007 12:19:14 -0600
+ -- Jeff Epler <jepler@unpythonic.net>  Sun,  2 Dec 2007 15:47:41 -0600
 
 emc2 (1:2.2.1) unstable; urgency=low
 
