@@ -161,7 +161,7 @@ preview false
 \layout Standard
 
 \lang english
-\begin_inset Include \include{config/ini_homing.lyx}
+\begin_inset Include \include{config/ini_homing_fr.lyx}
 preview false
 
 \end_inset
@@ -232,7 +232,7 @@ preview false
 \layout Standard
 
 \lang english
-\begin_inset Include \include{gcode/mill_canned.lyx}
+\begin_inset Include \include{gcode/mill_canned_fr.lyx}
 preview false
 
 \end_inset
