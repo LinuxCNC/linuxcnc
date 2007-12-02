@@ -32,7 +32,6 @@
 \papercolumns 1
 \papersides 2
 \paperpagestyle default
-\author ""
 
 \layout Chapter
 Vue d'ensemble d'un centre d'usinage
@@ -587,6 +586,11 @@ Les boutons des correcteurs de vitesses peuvent être activés (ils fonctionnent
 
 \layout Subsection
 Modes de contrôle de trajectoire
+\begin_inset LatexCommand \label{sub:Modes-de-contrôle-trajectoires}
+
+\end_inset
+
+
 
 \layout Standard
 La machine peut être placée dans un de ces trois modes de contrôle de trajectoir
@@ -601,7 +605,7 @@ e: (1) mode arrêt exact, (2) mode trajectoire exacte ou (3) mode trajectoire
  légèrement arrondis pour que la vitesse soit maintenue (sans dépasser la
  tolérance, si elle est spécifiée).
  Voir la section 
-\begin_inset LatexCommand \ref{sub:G61,-G61.1,-G64:}
+\begin_inset LatexCommand \ref{sub:G61,-G61.1,-G64:-Types-contrôle-trajectoire}
 
 \end_inset
 
@@ -3118,63 +3122,90 @@ Le caractère
  dans le paramètre 2.
 
 \layout Subsection
-Valeurs des paramètres
-\begin_inset LatexCommand \label{sub:-Valeurs-des-paramètres}
+Paramètres nommés
+\begin_inset LatexCommand \label{sub:-Paramètres-nommés}
 
 \end_inset
 
 
 
 \layout Standard
-Un paramètre est constitué du caractère # suivi d'un nombre réel.
- La valeur réelle doit être un entier compris entre 1 et 5399.
- L'entier est le numéro du paramètre et la valeur du paramètre est le nombre
- stocké dans le paramètre.
+Les paramètres nommés fonctionnent comme les paramètres numérotés mais sont
+ plus faciles à lire.
+ Les paramètres nommés sont convertis en minuscules, les espaces et tabulations
+ sont supprimés.
+ Les paramètres nommés doivent être encadrés des signes 
+\family typewriter
+< et >
+\family default
+.
 
 \layout Standard
-Une valeur est stockée dans un paramètre avec l'opérateur = par exemple
- "
+
 \family typewriter
-#3 = 15
+#<Un paramètre nommé>
 \family default
-" signifie que la valeur 15 est stockée dans le paramètre numéro 3.
+ est un paramètre nommé local.
+ Par défaut, un paramètre nommé est local à l'étendue dans laquelle il est
+ assigné.
+ L'accès à un paramètre local, en dehors de son sous-programme est impossible,
+ de sorte que deux sous-programmes puissent utiliser le même nom de paramètre
+ sans craindre qu'un des deux n'écrase la valeur de l'autre.
+
+\layout Standard
+
+\family typewriter
+#<_un paramètre global>
+\family default
+ est un paramètre nommé global.
+ Ils sont accessibles depuis des sous-programmes appelés et peuvent placer
+ des valeurs dans tous les sous-programmes accessibles à l'appelant.
+ En ce qui concerne la portée, ils agissent comme des paramètres numérotés.
+ Ils ne sont pas enregistrés dans des fichiers.
  
 
 \layout Standard
-Le caractère 
+Exemples: 
+
+\layout Itemize
+Déclaration d'une variable nommée globale
+
+\layout Standard
+
 \family typewriter
-#
+#<_troisdents_dia> = 10.00
 \family default
- a une précédence supérieure à celle des autres opérations, ainsi par exemple,
  
-\begin_inset Quotes eld
-\end_inset
 
+\layout Itemize
+Référence à la variable globale précédemment déclarée
+
+\layout Standard
 
 \family typewriter
-#1+2
+#<_troisdents_rayon> = [#<_troisdents_dia>/2.0]
 \family default
+ 
 
-\begin_inset Quotes erd
-\end_inset
+\layout Itemize
+Mélange de paramètres nommés et de valeurs littérales
 
- signifie la valeur trouvée en ajoutant 2 à la valeur contenue dans le paramètre
- 1 et non la valeur trouvée dans le paramètre 3.
- Bien sûr, 
+\layout Standard
+
 \family typewriter
-#[1+2]
-\family default
- signifie la valeur trouvée dans le paramètre 3.
- Le caractère 
-\family typewriter
-#
-\family default
- peut être répété, par exemple 
-\family typewriter
-##2
-\family default
- signifie le paramètre dont le numéro est égal à la valeur entière trouvée
- dans le paramètre 2.
+o100 call [0.0] [0.0] [#<_interieur_decoupe>-#<_troisdents_dia>] [#<_Zprofondeur>]
+ [#<_vitesse>]
+
+\layout Standard
+Notes: 
+
+\layout Standard
+Les paramètres globaux _a, _b, _c, ...
+ _z sont réservés pour une utilisation spéciale.
+ Dans le futur, ils pourront fournir l'accès aux derniers Aword, Bword,
+ Cword, ...
+ Zword etc.
+ 
 
 \layout Subsection
 Expressions
@@ -6400,7 +6431,7 @@ G40
 \end_inset
 
 : Compensation de rayon d'outil
-\begin_inset LatexCommand \label{sub:G40,-G41,-G42:}
+\begin_inset LatexCommand \label{sub:G40,-G41,-G42:Compensation-rayon-d'outil}
 
 \end_inset
 
@@ -6806,7 +6837,7 @@ G61
 \end_inset
 
 : Types de contrôle de trajectoire
-\begin_inset LatexCommand \label{sub:G61,-G61.1,-G64:}
+\begin_inset LatexCommand \label{sub:G61,-G61.1,-G64:-Types-contrôle-trajectoire}
 
 \end_inset
 
@@ -7415,7 +7446,7 @@ Mouvement préliminaire et Intermédiaire
 
 \layout Standard
 Tout au début de l'exécution d'un cycle préprogrammé, avec le plan courant
- XY, si le position actuelle de Z est en dessous de la position de retrait
+ XY, si la position actuelle de Z est en dessous de la position de retrait
  R, l'axe Z va à la position R.
  Ceci n'arrive qu'une fois, sans tenir compte de la valeur de L.
 

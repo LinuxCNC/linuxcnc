@@ -1,4 +1,4 @@
-#LyX 1.5.1 created this file. For more info see http://www.lyx.org/
+#LyX 1.5.2 created this file. For more info see http://www.lyx.org/
 \lyxformat 221
 \textclass book
 \begin_preamble
@@ -29,7 +29,6 @@
 \papercolumns 1
 \papersides 1
 \paperpagestyle default
-\author ""
 
 \layout Chapter
 \begin_inset LatexCommand \label{cha:Introduction}
@@ -835,12 +834,7 @@ stepgen
 \end_inset
 
  Générateur d'impulsions de pas avec boucle de position.
- Voir la section 
-\begin_inset LatexCommand \ref{sec:Stepgen}
-
-\end_inset
-
-
+ 
 
 \layout Description
 encoder
@@ -849,12 +843,7 @@ encoder
 \end_inset
 
  Codeur/compteur logiciel.
- Voir la section 
-\begin_inset LatexCommand \ref{sec:Encoder}
-
-\end_inset
-
-
+ 
 
 \layout Description
 pid
@@ -863,12 +852,7 @@ pid
 \end_inset
 
  Boucle de contrôle Proportionnelle/Intégrale/Dérivée.
- Voir la section 
-\begin_inset LatexCommand \ref{sec:PID}
-
-\end_inset
-
-
+ 
 
 \layout Description
 siggen
@@ -878,12 +862,7 @@ siggen
 
  Générateur d'ondes: sinusoïdale/cosinusoïdale/triangle/carrée, pour la
  mise au point.
- Voir la section 
-\begin_inset LatexCommand \ref{sec:Siggen}
-
-\end_inset
-
-
+ 
 
 \layout Description
 supply
@@ -940,12 +919,7 @@ hal_parport
 \end_inset
 
  Pilote pour le(ou les) port(s) parallèle(s).
- Voir la section 
-\begin_inset LatexCommand \ref{sec:Parport}
-
-\end_inset
-
-
+ 
 
 \layout Description
 hal_ppmc
@@ -985,11 +959,6 @@ halcmd
 \end_inset
 
  Ligne de commande pour la configuration et les réglages.
- Voir la section 
-\begin_inset LatexCommand \ref{sec:Halcmd}
-
-\end_inset
-
  
 
 \layout Description
@@ -1003,12 +972,7 @@ halmeter
 \end_inset
 
  Un multimètre pour les signaux HAL.
- Voir la section 
-\begin_inset LatexCommand \ref{sec:Halmeter}
-
-\end_inset
-
-
+ 
 
 \layout Description
 halscope
@@ -1018,12 +982,7 @@ halscope
 
  Un oscilloscope digital à mémoire, complétement fonctionnel pour les signaux
  HAL.
- Voir la section 
-\begin_inset LatexCommand \ref{sec:Halscope}
-
-\end_inset
-
-
+ 
 
 \layout Standard
 Chacun de ces modules est décrit en détail dans les chapitres suivants.

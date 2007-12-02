@@ -1,4 +1,4 @@
-#LyX 1.5.1 created this file. For more info see http://www.lyx.org/
+#LyX 1.5.2 created this file. For more info see http://www.lyx.org/
 \lyxformat 221
 \textclass book
 \begin_preamble
@@ -25,7 +25,6 @@
 \papercolumns 1
 \papersides 2
 \paperpagestyle default
-\author ""
 
 \layout Chapter
 Compiler EMC2 depuis les sources
@@ -340,14 +339,15 @@ $ make && sudo make setuid
 \layout Standard
 Dans une console, où vous voulez utiliser EMC2, tapez:
 \begin_inset Foot
-collapsed true
+collapsed false
 
 \layout Standard
-By putting this command in a shell start-up script, such as 
+En tapant cette commande dans dans le script de démarrage de la console,
+ comme 
 \family typewriter
 ~/.bash_profile
 \family default
-, you do not need to manually run it in each terminal window.
+, vous n'aurez plus à la taper manuellement dans la fenêtre de chaque console.
 
 \end_inset
 
@@ -380,14 +380,14 @@ configure
 \family default
 .
  Dans ce mode, seule la partie purement programme d'EMC2 démarrera.
- Aucun matériel ne pourra être contrôlé, les timmings ne sont pas garantis,
+ Aucun matériel n'aura à être contrôlé, les timmings ne sont pas garantis,
  mais les autres fonctionnalités de HAL, EMC2 et ses diverses interfaces
  sont disponibles.
  Pour utiliser ce mode ajoutez 
 \family typewriter
 --enable-run-in-place
 \family default
-, l'étape du 
+ à la commande configure, l'étape du 
 \family typewriter
 sudo make setuid
 \family default

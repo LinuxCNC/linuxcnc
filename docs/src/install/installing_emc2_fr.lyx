@@ -1,4 +1,4 @@
-#LyX 1.5.1 created this file. For more info see http://www.lyx.org/
+#LyX 1.5.2 created this file. For more info see http://www.lyx.org/
 \lyxformat 221
 \textclass book
 \begin_preamble
@@ -26,7 +26,6 @@
 \papercolumns 1
 \papersides 2
 \paperpagestyle default
-\author ""
 
 \layout Chapter
 Installer le logiciel EMC2
@@ -146,7 +145,7 @@ collapsed false
 \layout Standard
 Pour plus d'informations sur les autres variantes Linux, lisez le Manuel
  du développeur ou demandez de l'aide sur la 
-\begin_inset LatexCommand \htmlurl[mailing list]{http://sourceforge.net/mail/?group_id=6744}
+\begin_inset LatexCommand \htmlurl[Liste de diffusion]{http://sourceforge.net/mail/?group_id=6744}
 
 \end_inset
 
@@ -169,12 +168,12 @@ Le live CD d'EMC2
 
 
 \layout Standard
-Les développeurs d'EMC2 ont construit un Live-CD basé sur Ubuntu 6.06 qui
- vous permet d'essayer EMC2 avant de l'installer, c'est également une manière
+Les développeurs d'EMC2 ont créé un Live-CD basé sur Ubuntu 6.06 qui vous
+ permet d'essayer EMC2 avant de l'installer, c'est également une manière
  facile d'installer ensemble Ubuntu et EMC2.
 
 \layout Standard
-Téléchargez juste l'image 
+Téléchargez l'image 
 \begin_inset LatexCommand \url[image ISO]{http://linuxcnc.org/iso/emc2-ubuntu6.06-desktop-i386.iso}
 
 \end_inset
@@ -188,17 +187,17 @@ Téléchargez juste l'image
  (la somme MD5 du CD est vérifiable)
 
 \layout Standard
-Quand vous bootez avec ce CD dans votre machine, vous pouvez voir et expérimente
-r un environnement identique à celui d'EMC2 que vous aurez si vous choisissez
- de l'installer.
+Quand vous bootez avec ce CD dans le lecteur de votre machine, vous pouvez
+ voir et expérimenter un environnement identique à celui d'EMC2 qui sera
+ le vôtre si vous choisissez de l'installer.
 
 \layout Standard
-Si vous aimez ce que vous voyez, cliquez juste sur l'icône Install du bureau,
- répondez à quelques questions (vos nom, fuseau horaire, mot de passe) et
- l'installation complète se fera en quelques minutes.
+Si cette démonstation vous a convaicu, cliquez sur l'icône Install du bureau,
+ répondez à quelques questions (votre nom, fuseau horaire, mot de passe)
+ et l'installation terminera en quelques minutes.
 
 \layout Standard
-Cette installation vous apportera tout le bénéfice du support de la communauté
+Cette installation vous apportera tout les avantages du support de la communauté
  Ubuntu avec la configuration automatique d'EMC2.
  Quand une mise à jour d'EMC2 sera publiée, le gestionnaire de paquets vous
  le fera savoir et vous permettra une mise à jour aisée.
@@ -210,7 +209,7 @@ Cette installation vous apportera tout le bénéfice du support de la communauté
 \end_inset
 
 Script d'installation d'EMC2
-\begin_inset LatexCommand \index{Installation: Script d'installation d'EMC2}
+\begin_inset LatexCommand \index{Script d'installation d'EMC2}
 
 \end_inset
 
@@ -277,7 +276,7 @@ Maintenant que l'installation est terminée, Ubuntu vous avertira quand des
 \end_inset
 
 Installation manuelle par apt-get.
-\begin_inset LatexCommand \index{Installation: manuelle}
+\begin_inset LatexCommand \index{Installation manuelle}
 
 \end_inset
 
