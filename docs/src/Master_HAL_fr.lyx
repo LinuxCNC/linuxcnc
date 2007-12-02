@@ -31,7 +31,6 @@
 \papercolumns 1
 \papersides 1
 \paperpagestyle default
-\author ""
 
 \layout Title
 Le manuel de HAL (Hardware Abstraction Layer)

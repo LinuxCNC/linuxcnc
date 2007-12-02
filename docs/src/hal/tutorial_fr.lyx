@@ -29,7 +29,6 @@
 \papercolumns 1
 \papersides 1
 \paperpagestyle default
-\author ""
 
 \layout Chapter
 \begin_inset LatexCommand \label{cha:Tutoriel-HAL}
