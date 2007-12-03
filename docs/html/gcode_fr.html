@@ -145,7 +145,7 @@ var links=document.evaluate('//a[@href]', document, null, XPathResult.ORDERED_NO
     for(var i=0; i<links.snapshotLength; i++) {
         var it = links.snapshotItem(i);
         it.setAttribute('href',
-            "http://linuxcnc.org/docs/devel/html/" + it.getAttribute('href'));
+            "http://linuxcnc.org/docs/2.2/html/" + it.getAttribute('href'));
     }
 }
 
