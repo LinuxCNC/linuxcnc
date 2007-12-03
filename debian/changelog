@@ -1,3 +1,9 @@
+emc2 (1:2.2.3~cvs) unstable; urgency=low
+
+  * gcode quick reference had G98, G99 transposed 
+
+ -- jepler <jepler@unpythonic.net>  Mon,  3 Dec 2007 13:53:13 -0600
+
 emc2 (1:2.2.2) unstable; urgency=low
 
   * move hal_unlink manpage to development package
