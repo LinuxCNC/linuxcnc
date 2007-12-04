@@ -1,4 +1,4 @@
-#LyX 1.5.1 created this file. For more info see http://www.lyx.org/
+#LyX 1.3 created this file. For more info see http://www.lyx.org/
 \lyxformat 221
 \textclass book
 \begin_preamble
@@ -10,8 +10,9 @@
 \graphics default
 \float_placement !h
 \paperfontsize 10
-\spacing single
+\spacing single 
 \papersize letterpaper
+\paperpackage a4
 \use_geometry 1
 \use_amsmath 0
 \use_natbib 0
@@ -28,39 +29,30 @@
 \paragraph_separation skip
 \defskip smallskip
 \quotes_language english
+\quotes_times 2
 \papercolumns 1
 \papersides 1
 \paperpagestyle default
 
 \layout Title
-Le manuel de HAL (Hardware Abstraction Layer)
 \added_space_bottom medskip 
-\newline
-
-
+Le manuel de HAL (Hardware Abstraction Layer)
+\newline 
 
 \layout Author
-The EMC Team
 
+The EMC Team
 \layout Standard
 \added_space_bottom 1in 
 This handbook is a work in progress.
  If you are able to help with writing, editing, or graphic preparation please
  contact any member of the writing team or join and send an email to emc-users@l
 ists.sourceforge.net.
-
-
-
 \layout Standard
-\align center
+\align center 
 Copyright (c) 2000-6 LinuxCNC.org
-
-
 \layout Standard
-\line_top 
-\line_bottom 
-\added_space_top 0.5in 
-\noindent
+\added_space_top 0.5in \line_top \line_bottom \noindent 
 Permission is granted to copy, distribute and/or modify this document under
  the terms of the GNU Free Documentation License, Version 1.1 or any later
  version published by the Free Software Foundation; with no Invariant Sections,
@@ -72,111 +64,116 @@ Permission is granted to copy, distribute and/or modify this document under
  If you do not find the license you may order a copy from Free Software
  Foundation, Inc.
  59 Temple Place, Suite 330 Boston, MA 02111-1307 
-
-
 \layout Standard
+
+
 \begin_inset LatexCommand \tableofcontents{}
 
-\end_inset
-
+\end_inset 
 
 
 \layout Part
-Introduction et tutoriel
 
+Introduction et tutoriel
 \layout Standard
+
+
 \begin_inset Include \include{hal/intro_fr.lyx}
 preview false
 
-\end_inset
-
+\end_inset 
 
 
 \layout Standard
+
+
 \begin_inset Include \include{hal/tutorial_fr.lyx}
 preview false
 
-\end_inset
-
+\end_inset 
 
 
 \layout Part
-Références de HAL
 
+Documentation de HAL
 \layout Standard
-\begin_inset Include \include{hal/general_ref.lyx}
+
+
+\begin_inset Include \include{hal/general_ref_fr.lyx}
 preview false
 
-\end_inset
+\end_inset 
 
 
-\begin_inset Include \include{hal/tools.lyx}
+\begin_inset Include \include{hal/tools_fr.lyx}
 preview false
 
-\end_inset
+\end_inset 
 
 
 \begin_inset Include \include{hal/halshow.lyx}
 preview false
 
-\end_inset
+\end_inset 
 
 
 \begin_inset Include \include{hal/drivers.lyx}
 preview false
 
-\end_inset
+\end_inset 
 
 
 \begin_inset Include \include{hal/rtcomps.lyx}
 preview false
 
-\end_inset
+\end_inset 
 
 
 \begin_inset Include \include{hal/vcp.lyx}
 preview false
 
-\end_inset
-
+\end_inset 
 
 
 \layout Part
-Programmer HAL
 
+Programmer HAL
 \layout Standard
+
+
 \begin_inset Include \include{hal/comp.lyx}
 preview false
 
-\end_inset
-
+\end_inset 
 
 
 \layout Standard
+
+
 \begin_inset Include \include{hal/halmodule.lyx}
 preview false
 
-\end_inset
-
+\end_inset 
 
 
 \layout Chapter
-\start_of_appendix
+\start_of_appendix 
 Section légale
-
 \layout Standard
+
+
 \begin_inset Include \input{common/GPLD_Copyright.lyx}
 preview false
 
-\end_inset
-
+\end_inset 
 
 
 \layout Standard
+
+
 \begin_inset LatexCommand \printindex{}
 
-\end_inset
-
+\end_inset 
 
 
 \the_end

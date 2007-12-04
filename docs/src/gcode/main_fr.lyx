@@ -1560,6 +1560,7 @@ Les colonnes FRONTANGLE et BACKANGLE sont utilisées par certaines interfaces
 
 
 \begin_inset Float figure
+placement H
 wide false
 collapsed false
 
@@ -1576,6 +1577,8 @@ Orientations des outils de tour
 
 \begin_inset Graphics
 	filename cutting_orientation2.png
+	scale 60
+	BoundingBox 20bp 20bp 738bp 594bp
 
 \end_inset 
 
