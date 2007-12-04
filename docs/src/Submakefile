@@ -55,12 +55,14 @@ DOC_SRCS := \
 	hal/comp.lyx \
 	hal/drivers.lyx \
 	hal/general_ref.lyx \
+	hal/general_ref_fr.lyx \
 	hal/halshow.lyx \
 	hal/halmodule.lyx \
 	hal/intro.lyx \
 	hal/intro_fr.lyx \
 	hal/rtcomps.lyx \
 	hal/tools.lyx \
+	hal/tools_fr.lyx \
 	hal/tutorial.lyx \
 	hal/tutorial_fr.lyx \
 	hal/vcp.lyx \

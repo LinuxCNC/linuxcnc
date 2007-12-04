@@ -1663,6 +1663,7 @@ Tool Orientations
 
 \begin_inset Graphics
 	filename cutting_orientation2.png
+	scale 50
 
 \end_inset 
 
@@ -1741,7 +1742,7 @@ Meaning
 
 \layout Standard
 
-5061-5069
+5061-5070
 \end_inset 
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
@@ -3116,6 +3117,11 @@ Z axis of machine
 \layout Subsection
 
 Number
+\begin_inset LatexCommand \label{sub:Number}
+
+\end_inset 
+
+
 \layout Standard
 
 The following rules are used for (explicit) numbers.
@@ -3158,17 +3164,46 @@ Numbers used for specific purposes in RS274/NGC are often restricted to
  
 \layout Subsection
 
-Parameter Value
+Numbered Parameters
+\begin_inset LatexCommand \label{sub:Numbered-Parameters}
+
+\end_inset 
+
+
 \layout Standard
 
-A parameter value is the pound character 
+A numbered parameter is the pound character 
 \family typewriter 
 #
 \family default 
- followed by a real value.
- The real value must evaluate to an integer between 1 and 5399.
- The integer is a parameter number, and the value of the parameter value
- is whatever number is stored in the numbered parameter.
+ followed by an integer between 1 and 5399.
+ The parameter is referred to by this integer, and its value is whatever
+ number is stored in the parameter.
+ 
+\layout Standard
+
+A value is stored in a parameter with the = operator; for example "
+\family typewriter 
+#3 = 15
+\family default 
+" means "set parameter 3 to 15." A parameter setting does not take effect
+ until after all parameter values on the same line have been found.
+ For example, if parameter 3 has been previously set to 15 and the line
+ 
+\begin_inset Quotes eld
+\end_inset 
+
+
+\family typewriter 
+#3=6 G1 x#3
+\family default 
+
+\begin_inset Quotes erd
+\end_inset 
+
+ is interpreted, a straight move to a point where x equals 15 will occur
+ and the value of parameter 3 will be 6.
+ 
 \layout Standard
 
 The 
@@ -3208,7 +3243,97 @@ The
  
 \layout Subsection
 
-Expressions and Binary Operations
+Named Parameters
+\begin_inset LatexCommand \label{sub:Named-Parameters}
+
+\end_inset 
+
+
+\layout Standard
+
+Named parameters work like numbered parameters but are easier to read.
+ All parameter names are converted to lower case and have spaces and tabs
+ removed.
+ Named parameters must be enclosed with 
+\family typewriter 
+< >
+\family default 
+ marks.
+\layout Standard
+
+
+\family typewriter 
+#<named parameter here>
+\family default 
+ is a local named parameter.
+ By default, a named parameter is local to the scope in which it is assigned.
+ You can't access a local parameter outside of its subroutine - this is
+ so that two subroutines can use the same parameter names without fear of
+ one subroutine overwriting the values in another.
+\layout Standard
+
+
+\family typewriter 
+#<_global named parameter here>
+\family default 
+ is a global named parameter.
+ They are accessible from within called subroutines and may set values within
+ subroutines that are accessible to the caller.
+ As far as scope is concerned, they act just like regular numeric parameters.
+ They are not stored in files.
+ 
+\layout Standard
+
+Examples: 
+\layout Itemize
+
+Declaration of named global variable
+\layout Standard
+
+
+\family typewriter 
+#<_endmill_dia> = 0.049
+\family default 
+ 
+\layout Itemize
+
+Reference to previously declared global varaiable
+\layout Standard
+
+
+\family typewriter 
+#<_endmill_rad> = [#<_endmill_dia>/2.0]
+\family default 
+ 
+\layout Itemize
+
+Mixed literal and named params
+\layout Standard
+
+
+\family typewriter 
+o100 call [0.0] [0.0] [#<_inside_cutout>-#<_endmill_dia>] [#<_Zcut>] [#<_feedrate>
+]
+\layout Standard
+
+\layout Standard
+
+Notes: 
+\layout Standard
+
+The global parameters _a, _b, _c, ...
+ _z have been reserved for special use.
+ In the future, they may provide access to the last Aword, Bword, Cword,
+ etc.
+ 
+\layout Subsection
+
+Expressions
+\begin_inset LatexCommand \label{sub:Expressions}
+
+\end_inset 
+
+
 \layout Standard
 
 An expression is a set of characters starting with a left bracket 
@@ -3222,17 +3347,25 @@ An expression is a set of characters starting with a left bracket
 .
  In between the brackets are numbers, parameter values, mathematical operations,
  and other expressions.
- An expression may be evaluated to produce a number.
+ An expression is evaluated to produce a number.
  The expressions on a line are evaluated when the line is read, before anything
  on the line is executed.
  An example of an expression is 
 \family typewriter 
-[ 1 + acos[0] - [#3 ** [4.0/2]]]
+[1 + acos[0] - [#3 ** [4.0/2]]]
 \family default 
 .
+\layout Subsection
+
+Binary Operators
+\begin_inset LatexCommand \label{sub:Binary-Operators}
+
+\end_inset 
+
+
 \layout Standard
 
-Binary operations appear only inside expressions.
+Binary operators only appear inside expressions.
  There are four basic mathematical operations: addition (
 \family typewriter 
 +
@@ -3309,18 +3442,20 @@ LE
 ).
 \layout Standard
 
-The binary operations are divided into three groups.
- The first group is: power.
- The second group is: multiplication, division, and modulus.
- The third group is: addition, subtraction, logical non-exclusive or, logical
- exclusive or, and logical and.
- If operations are strung together (for example in the expression 
+The binary operations are divided into several groups according to their
+ precedence.
+ (see table 
+\begin_inset LatexCommand \ref{cap:Operator-Precedence}
+
+\end_inset 
+
+) If operations in different precedence groups are strung together (for
+ example in the expression 
 \family typewriter 
 [2.0 / 3 * 1.5 - 5.5 / 11.0]
 \family default 
-), operations in the first group are to be performed before operations in
- the second group and operations in the second group before operations in
- the third group.
+), operations in a higher group are to be performed before operations in
+ a lower group.
  If an expression contains more than one operation from the same group (such
  as the first 
 \family typewriter 
@@ -3333,9 +3468,9 @@ The binary operations are divided into three groups.
  in the example), the operation on the left is performed first.
  Thus, the example is equivalent to: 
 \family typewriter 
-[((2.0 / 3) * 1.5) - (5.5 / 11.0)]
+[[[2.0 / 3] * 1.5] - [5.5 / 11.0]]
 \family default 
- , which simplifies to 
+ , which is equivalent to to 
 \family typewriter 
 [1.0 - 0.5]
 \family default 
@@ -3351,12 +3486,162 @@ The logical operations and modulus are to be performed on any real numbers,
  The number zero is equivalent to logical false, and any non-zero number
  is equivalent to logical true.
  
-\layout Subsection
-
-Unary Operation Value
 \layout Standard
 
-A unary operation value is either 
+
+\begin_inset Float table
+wide false
+collapsed false
+
+\layout Caption
+
+Operator Precedence
+\begin_inset LatexCommand \label{cap:Operator-Precedence}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \index{operator precedence}
+
+\end_inset 
+
+
+\layout Standard
+\align center 
+
+\begin_inset  Tabular
+<lyxtabular version="3" rows="6" columns="2">
+<features>
+<column alignment="center" valignment="top" leftline="true" width="0">
+<column alignment="center" valignment="top" leftline="true" rightline="true" width="0">
+<row topline="true" bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Operators
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Precedence
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+**
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\emph on 
+highest
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+* / MOD
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
++ -
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+EQ NE GT GE LT LE
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+</row>
+<row topline="true" bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+AND OR XOR
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\emph on 
+lowest
+\end_inset 
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Subsection
+
+Functions
+\begin_inset LatexCommand \label{sub:Unary-Operation-Value}
+
+\end_inset 
+
+
+\layout Standard
+
+A function is either 
 \begin_inset Quotes eld
 \end_inset 
 
@@ -3380,8 +3665,7 @@ ATAN[2]/[1+3]
 \begin_inset Quotes erd
 \end_inset 
 
-) or any other unary operation name followed by an expression (for example
- 
+) or any other function name followed by an expression (for example 
 \begin_inset Quotes eld
 \end_inset 
 
@@ -3394,59 +3678,12 @@ SIN[90]
 \end_inset 
 
 ).
- The unary operations are: 
-\family typewriter 
-ABS
-\family default 
- (absolute value), 
-\family typewriter 
-ACOS
-\family default 
- (arc cosine), 
-\family typewriter 
-ASIN
-\family default 
- (arc sine), 
-\family typewriter 
-ATAN
-\family default 
- (arc tangent), 
-\family typewriter 
-COS
-\family default 
- (cosine), 
-\family typewriter 
-EXP
-\family default 
- (e raised to the given power), 
-\family typewriter 
-FIX
-\family default 
- (round down), 
-\family typewriter 
-FUP
-\family default 
- (round up), 
-\family typewriter 
-LN
-\family default 
- (natural logarithm), 
-\family typewriter 
-ROUND
-\family default 
- (round to the nearest whole number), 
-\family typewriter 
-SIN
-\family default 
- (sine), 
-\family typewriter 
-SQRT
-\family default 
- (square root), and 
-\family typewriter 
-TAN
-\family default 
- (tangent).
+ The available functions are shown in table 
+\begin_inset LatexCommand \ref{cap:Functions}
+
+\end_inset 
+
+.
  Arguments to unary operations which take angle measures (
 \family typewriter 
 COS
@@ -3504,55 +3741,327 @@ FUP[-2.8] = -2
 \family default 
 , for example.
  
-\layout Section
-
-Parameter Setting
 \layout Standard
 
-A parameter setting is the following four items one after the other: (1)
- a pound character # , (2) a real value which evaluates to an integer between
- 1 and 5399, (3) an equal sign = , and (4) a real value.
- For example 
-\begin_inset Quotes eld
-\end_inset 
 
+\begin_inset Float table
+wide false
+collapsed false
 
-\family typewriter 
-#3 = 15
-\family default 
+\layout Caption
 
-\begin_inset Quotes erd
-\end_inset 
+Functions
+\begin_inset LatexCommand \label{cap:Functions}
 
- is a parameter setting meaning 
-\begin_inset Quotes eld
-\end_inset 
-
-set parameter 3 to 15.
-\begin_inset Quotes erd
 \end_inset 
 
 
 \layout Standard
+\align center 
 
-A parameter setting does not take effect until after all parameter values
- on the same line have been found.
- For example, if parameter 3 has been previously set to 15 and the line
- 
-\begin_inset Quotes eld
+\begin_inset  Tabular
+<lyxtabular version="3" rows="16" columns="2">
+<features>
+<column alignment="center" valignment="top" leftline="true" width="0">
+<column alignment="center" valignment="top" leftline="true" rightline="true" width="0">
+<row topline="true" bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Function Name
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Function result
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+ATAN[Y]/[X]
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Four quadrant tangent
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+ATAN[arg]
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Two quadrant tangent
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+ABS[arg]
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Absolute value
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+ACOS[arg]
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Inverse cosine
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+ASIN[arg]
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Inverse sine
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+ATAN[arg]
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Inverse tangent
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+COS[arg]
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Cosine
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+EXP[arg]
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+e raised to the given power
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+FIX[arg]
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Round down to integer
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+FUP[arg]
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Round up to integer
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+ROUND[arg]
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Round to nearest integer
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+LN[arg]
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Base-e logarithm
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+SIN[arg]
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Sine
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+SQRT[arg]
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Square Root
+\end_inset 
+</cell>
+</row>
+<row topline="true" bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+TAN[arg]
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Tangent
+\end_inset 
+</cell>
+</row>
+</lyxtabular>
+
 \end_inset 
 
 
-\family typewriter 
-#3=6 G1 x#3
-\family default 
-
-\begin_inset Quotes erd
 \end_inset 
 
- is interpreted, a straight move to a point where x equals 15 will occur
- and the value of parameter 3 will be 6.
- 
+
+\layout Standard
+
 \layout Section
 
 Comments
@@ -3640,13 +4149,55 @@ Probe Logging
 
 \layout Standard
 
-A comment can also be used to specify a file for the results of G38.2 probing.
+A comment can also be used to specify a file for the results of G38.x probing.
  See section 
 \begin_inset LatexCommand \ref{sub:G38.2:-Straight-Probe}
 
 \end_inset 
 
 .
+\layout Standard
+
+Often, general logging is more useful than probe logging.
+ Using general logging, the format of the output data can be controlled.
+\layout Subsection
+
+General logging
+\begin_inset LatexCommand \label{sub:General-logging}
+
+\end_inset 
+
+
+\layout Subsubsection
+
+(LOGOPEN,filename)
+\layout Standard
+
+Opens the named log file.
+ If the file already exists, it is truncated.
+\layout Subsubsection
+
+(LOGCLOSE)
+\layout Standard
+
+If the log file is open, it is closed.
+\layout Subsubsection
+
+(LOG,\SpecialChar \ldots{}
+)
+\layout Standard
+
+The message 
+\begin_inset Quotes eld
+\end_inset 
+
+\SpecialChar \ldots{}
+
+\begin_inset Quotes erd
+\end_inset 
+
+ is expanded as described below and then written to the log file if it is
+ open.
 \layout Subsection
 
 Debugging messages
@@ -3673,6 +4224,13 @@ Comments that look like:
 (print, rest of comment)
 \family default 
  are output to stderr with special handling for parameters.
+\layout Subsection
+
+Parameters in special comments
+\layout Standard
+
+In the DEBUG, PRINT and LOG comments, the values of parameters in the message
+ are expanded.
 \layout Standard
 
 For example: to print a named global variable to stderr (the default console
@@ -3985,8 +4543,13 @@ G0
 
 \end_inset 
 
- G38.2
+ G38.x
 \begin_inset LatexCommand \index{G38.2}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \index{G38.x}
 
 \end_inset 
 
@@ -4928,7 +5491,35 @@ G53
 \end_inset 
 
 .
- 
+\layout Standard
+
+If a 
+\family typewriter 
+G0
+\family default 
+ motion only moves rotational axes, and the target position for those axes
+ is in the range from -360 to 360 degrees, then the motion is modified so
+ that each rotational axis actually rotates less than one full revolution.
+ Example:
+\layout LyX-Code
+
+N1 G0 X1 A[20*360]
+\layout LyX-Code
+
+N2 G0 A0
+\layout Standard
+
+After line 
+\family typewriter 
+N1
+\family default 
+, the position of the A axis is 7200 degrees.
+ 7200 degrees is the same as zero degrees on a rotational axis, so the rapid
+ linear motion specified on line 
+\family typewriter 
+N2
+\family default 
+ actually produces no motion.
 \layout Section
 
 G1
@@ -5625,8 +6216,13 @@ It is an error if :
 Radius compensation is turned on
 \layout Section
 
-G38.2
+G38.x
 \begin_inset LatexCommand \index{G38.2}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \index{G38.x}
 
 \end_inset 
 
@@ -5641,6 +6237,28 @@ G38.2
 Program 
 \family typewriter 
 G38.2 
+\emph on 
+axes
+\family default 
+, 
+\family typewriter 
+\emph default 
+G38.3 
+\emph on 
+axes
+\family default 
+,
+\family typewriter 
+\emph default 
+ G38.4 
+\emph on 
+axes
+\family default 
+,
+\emph default 
+ or 
+\family typewriter 
+G38.5 
 \emph on 
 axes
 \family default 
@@ -5663,6 +6281,9 @@ cutter radius compensation is enabled
 \layout Itemize
 
 the feed rate is zero
+\layout Itemize
+
+the probe is already in the target state
 \layout Standard
 
 In response to this command, the machine moves the controlled point (which
@@ -5671,11 +6292,242 @@ In response to this command, the machine moves the controlled point (which
  In inverse time feed mode, the feed rate is such that the whole motion
  from the current point to the programmed point would take the specified
  time.
- If the probe does not trip during the move, an error is signalled.
+ The move stops when the programmed point is reached, or when the requested
+ change in the probe input takes place
+\begin_inset Foot
+collapsed true
+
 \layout Standard
 
-After successful probing, parameters 5061 to 5066 will be set to the coordinates
- of the location of the controlled point at the time the probe tripped.
+Actually, the movement continues beyond the 
+\begin_inset Quotes eld
+\end_inset 
+
+probe state changed
+\begin_inset Quotes erd
+\end_inset 
+
+ point due to machine acceleration constraints.
+\end_inset 
+
+.
+ Table 
+\begin_inset LatexCommand \ref{cap:Probing-codes}
+
+\end_inset 
+
+ shows the meaning of the various probing codes.
+\layout Standard
+
+
+\begin_inset Float table
+wide false
+collapsed false
+
+\layout Caption
+
+Probing codes
+\begin_inset LatexCommand \label{cap:Probing-codes}
+
+\end_inset 
+
+
+\layout Standard
+\align center 
+
+\begin_inset  Tabular
+<lyxtabular version="3" rows="5" columns="4">
+<features>
+<column alignment="center" valignment="top" leftline="true" width="0">
+<column alignment="center" valignment="top" leftline="true" width="0">
+<column alignment="center" valignment="top" leftline="true" width="0">
+<column alignment="center" valignment="top" leftline="true" rightline="true" width="0">
+<row topline="true" bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Code
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Target state
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Direction
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Signal Error
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+G38.2
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Contact
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Toward workpiece
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Yes
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+G38.3
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Contact
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Toward workpiece
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+No
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+G38.4
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+No Contact
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Away from workpiece
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Yes
+\end_inset 
+</cell>
+</row>
+<row topline="true" bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+G38.5
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+No Contact
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Away from workpiece
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+No
+\end_inset 
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Standard
+
+After successful probing, parameters 5061 to 5069 will be set to the coordinates
+ of the location of the controlled point at the time the probe changed state.
+ After unsuccessful probing, they are set to the coordinates of the programmed
+ point.
+ Parameter 5070 is set to 1 if the probe suceeded and 0 if the probe failed.
+ If the probe failed, G38.2 and G38.4 will signal an error.
 \layout Standard
 
 A comment of the form 
@@ -5690,7 +6542,8 @@ filename.txt
 \emph on 
 filename.txt
 \emph default 
- and store the coordinate of each successful straight probe in it.
+ and store the 9-number coordinate of each successful straight probe in
+ it.
  The file must be closed with 
 \family typewriter 
 (PROBECLOSE)
@@ -5852,8 +6705,8 @@ G43
 G43 and G43.1 change subsequent motions by offsetting the Z and/or X coordinates
  by the length of the tool.
  G43 and G43.1 do not cause any motion.
- However, at the end of a subsequent movement, the tool tip will be at the
- programmed location.
+ The next time a compensated axis is moved, that axis's endpoint is the
+ compensated location.
 \layout Subsubsection
 
 G43: Offsets from tool table
@@ -8317,9 +9170,18 @@ The L-word specifies the wait type:
 \labelwidthstring 00.00.0000
 
 4 - WAIT_MODE_LOW - waits for the selected input to go to the LOW state.
-\layout Comment
+\layout Standard
+
+
+\begin_inset Note
+collapsed true
+
+\layout Standard
 
 Mode 0 is the only one permitted for an analog input.
+\end_inset 
+
+
 \layout Itemize
 
 The Q-word specifies the timeout for the waiting.
@@ -8420,6 +9282,9 @@ The behavior is undefined if
 \layout Itemize
 
 Other words are used on a line with an O- word
+\layout Itemize
+
+Comments are used on a line with an O-word
 \layout Section
 
 Subroutines: 
@@ -8538,8 +9403,8 @@ O- call
 \family default 
 , ..., #N.
  Parameters from #N+1 to #30 have the same value as in the calling context.
- On return from the subroutine the previous values parameters #1 through
- #30 (regardless of the number of arguments) will be restored to the values
+ On return from the subroutine, the values of parameters #1 through #30
+ (regardless of the number of arguments) will be restored to the values
  they had before the call.
 \layout Standard
 
@@ -8580,6 +9445,7 @@ return values
 
 , but they may change the value of parameters above #30 and those changes
  will be visible to the calling code.
+ Subroutines may also change the value of global named parameters.
 \layout Section
 
 Looping: 
@@ -8774,10 +9640,36 @@ O102 endif
 Indirection
 \layout Standard
 
-The O- value may be given by a parameter or calculation.
+The O-number may be given by a parameter or calculation.
 \layout LyX-Code
 
 O[#101+2] call
+\layout Section
+
+Computing values in O-words
+\layout Standard
+
+In O-words, Parameters (section 
+\begin_inset LatexCommand \ref{sub:Numbered-Parameters}
+
+\end_inset 
+
+), Expressions (section 
+\begin_inset LatexCommand \ref{sub:Expressions}
+
+\end_inset 
+
+), Binary Operators (section 
+\begin_inset LatexCommand \ref{sub:Binary-Operators}
+
+\end_inset 
+
+) and Functions (table 
+\begin_inset LatexCommand \ref{cap:Functions}
+
+\end_inset 
+
+) are particularly useful.
 \layout Chapter
 
 Other Codes
@@ -9197,6 +10089,13 @@ M62, M63 not implemented
 
 M62 and M63 are not currently implemented, but may be added to a future
  release of emc2.
+\layout Subsection
+
+G0 reduces long angular motions to be less than one revolution
+\layout Standard
+
+As described above, G0 reduces angular motions to less than one revolution.
+ This can produce a different path than under RS274NGC.
 \layout Section
 
 Differences that do not change the meaning of well-formed RS274NGC programs
@@ -9213,6 +10112,13 @@ G38.2
 
 The probe tip is not retracted after a G38.2 movement.
  This retraction move may be added in a future release of emc2.
+\layout Subsection
+
+G38.3\SpecialChar \ldots{}
+G38.5
+\layout Standard
+
+These codes are not defined in RS274NGC
 \layout Subsection
 
 O-codes
