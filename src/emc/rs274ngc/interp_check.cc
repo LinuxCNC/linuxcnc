@@ -327,7 +327,7 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
   }
 
   if (block->q_number != -1.0) {
-    CHK((motion != G_83) && (block->user_m != 1) && (motion != G_76) &&
+      CHK((motion != G_83) && (motion != G_73) && (block->user_m != 1) && (motion != G_76) &&
 	    (block->m_modes[5] != 66), 
             NCE_Q_WORD_WITH_NO_G83_OR_M66);
   }
@@ -338,8 +338,8 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
 
   if (block->r_flag == ON) {
     CHK(((motion != G_2) && (motion != G_3) && (motion != G_76) &&
-         ((motion < G_81) || (motion > G_89)) && (block->g_modes[7] != G_41_1) &&
-         (block->g_modes[7] != G_42_1)),
+         ((motion < G_81) || (motion > G_89)) && (motion != G_73) && 
+         (block->g_modes[7] != G_41_1) && (block->g_modes[7] != G_42_1)),
         NCE_R_WORD_WITH_NO_G_CODE_THAT_USES_IT);
   }
 

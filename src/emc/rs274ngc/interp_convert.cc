@@ -2395,7 +2395,7 @@ int Interp::convert_motion(int motion,   //!< g_code for a line, arc, canned cyc
     COMMENT("interpreter: motion mode set to none");
 #endif
     settings->motion_mode = G_80;
-  } else if ((motion > G_80) && (motion < G_90)) {
+  } else if (motion == G_73 || (motion > G_80) && (motion < G_90)) {
     CHP(convert_cycle(motion, block, settings));
   } else
     ERM(NCE_BUG_UNKNOWN_MOTION_CODE);

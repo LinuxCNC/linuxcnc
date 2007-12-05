@@ -211,6 +211,9 @@ private:
                              double clear_z, double bottom_z);
  int convert_cycle_g82(CANON_PLANE plane, double x, double y,
                              double clear_z, double bottom_z, double dwell);
+ int convert_cycle_g73(CANON_PLANE plane, double x, double y,
+                             double r, double clear_z, double bottom_z,
+                             double delta);
  int convert_cycle_g83(CANON_PLANE plane, double x, double y,
                              double r, double clear_z, double bottom_z,
                              double delta);

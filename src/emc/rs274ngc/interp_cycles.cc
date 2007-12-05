@@ -171,6 +171,69 @@ int Interp::convert_cycle_g83(CANON_PLANE plane, //!< selected plane
 
 /****************************************************************************/
 
+/*! convert_cycle_g73
+
+Returned Value: int (INTERP_OK)
+
+Side effects: See below
+
+Called by:
+   convert_cycle_xy
+   convert_cycle_yz
+   convert_cycle_zx
+
+For the XY plane, this implements the following RS274/NGC cycle,
+which is usually peck drilling:
+1. Move the z-axis only at the current feed rate downward by delta or
+   to the specified bottom_z, whichever is less deep.
+2. Rapid back out a bit.
+4. Repeat steps 1, 2, and 3 until the specified bottom_z is reached.
+5. Retract the z-axis at traverse rate to clear_z.
+
+CYCLE_MACRO has positioned the tool at (x, y, r, a, b, c) when this starts.
+
+The rapid out and back in causes any long stringers (which are common
+when drilling in aluminum) to be cut off and clears chips from the
+hole.
+
+For the XZ and YZ planes, this makes analogous motions.
+
+*/
+
+int Interp::convert_cycle_g73(CANON_PLANE plane, //!< selected plane                  
+                             double x,  //!< x-value where cycle is executed 
+                             double y,  //!< y-value where cycle is executed 
+                             double r,  //!< initial z-value                 
+                             double clear_z,    //!< z-value of clearance plane      
+                             double bottom_z,   //!< value of z at bottom of cycle   
+                             double delta)      //!< size of z-axis feed increment   
+{
+  static char name[] = "convert_cycle_g73";
+  double current_depth;
+  double rapid_delta;
+
+  /* Moved the check for negative Q values here as a sign
+     may be used with user defined M functions
+     Thanks to Billy Singleton for pointing it out... */
+  CHK((delta <= 0.0), NCE_NEGATIVE_OR_ZERO_Q_VALUE_USED);
+
+  rapid_delta = G83_RAPID_DELTA;
+  if (_setup.length_units == CANON_UNITS_MM)
+    rapid_delta = (rapid_delta * 25.4);
+
+  for (current_depth = (r - delta);
+       current_depth > bottom_z; current_depth = (current_depth - delta)) {
+    cycle_feed(plane, x, y, current_depth);
+    cycle_traverse(plane, x, y, current_depth + rapid_delta);
+  }
+  cycle_feed(plane, x, y, bottom_z);
+  cycle_traverse(plane, x, y, clear_z);
+
+  return INTERP_OK;
+}
+
+/****************************************************************************/
+
 /*! convert_cycle_g84
 
 Returned Value: int
@@ -764,6 +827,15 @@ int Interp::convert_cycle_xy(int motion, //!< a g-code between G_81 and G_89, a 
                                   block->p_number))
       settings->cycle_p = block->p_number;
     break;
+  case G_73:
+    CHK(((settings->motion_mode != G_73) && (block->q_number == -1.0)),
+        NCE_Q_WORD_MISSING_WITH_G73);
+    block->q_number =
+      block->q_number == -1.0 ? settings->cycle_q : block->q_number;
+    CYCLE_MACRO(convert_cycle_g73(CANON_PLANE_XY, aa, bb, r, clear_cc, cc,
+                                  block->q_number))
+      settings->cycle_q = block->q_number;
+    break;
   case G_83:
     CHK(((settings->motion_mode != G_83) && (block->q_number == -1.0)),
         NCE_Q_WORD_MISSING_WITH_G83);
@@ -964,6 +1036,15 @@ int Interp::convert_cycle_yz(int motion, //!< a g-code between G_81 and G_89, a 
     CYCLE_MACRO(convert_cycle_g82(CANON_PLANE_YZ, aa, bb, clear_cc, cc,
                                   block->p_number))
       settings->cycle_p = block->p_number;
+    break;
+  case G_73:
+    CHK(((settings->motion_mode != G_73) && (block->q_number == -1.0)),
+        NCE_Q_WORD_MISSING_WITH_G73);
+    block->q_number =
+      block->q_number == -1.0 ? settings->cycle_q : block->q_number;
+    CYCLE_MACRO(convert_cycle_g73(CANON_PLANE_YZ, aa, bb, r, clear_cc, cc,
+                                  block->q_number))
+      settings->cycle_q = block->q_number;
     break;
   case G_83:
     CHK(((settings->motion_mode != G_83) && (block->q_number == -1.0)),
@@ -1173,6 +1254,15 @@ int Interp::convert_cycle_zx(int motion, //!< a g-code between G_81 and G_89, a 
     CYCLE_MACRO(convert_cycle_g82(CANON_PLANE_XZ, aa, bb, clear_cc, cc,
                                   block->p_number))
       settings->cycle_p = block->p_number;
+    break;
+  case G_73:
+    CHK(((settings->motion_mode != G_73) && (block->q_number == -1.0)),
+        NCE_Q_WORD_MISSING_WITH_G73);
+    block->q_number =
+      block->q_number == -1.0 ? settings->cycle_q : block->q_number;
+    CYCLE_MACRO(convert_cycle_g73(CANON_PLANE_XZ, aa, bb, r, clear_cc, cc,
+                                  block->q_number))
+      settings->cycle_q = block->q_number;
     break;
   case G_83:
     CHK(((settings->motion_mode != G_83) && (block->q_number == -1.0)),

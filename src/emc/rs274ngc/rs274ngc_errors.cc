@@ -267,6 +267,8 @@ char * _rs274ngc_errors[] = {
 /* 234 */ _("Invalid to select both a digital and an analog input with M66"), // Interp::read
 /* 235 */ _("Need to have either a valid P or a valid E word with M66"), // Interp::read
 
-/* 236 */ _("Unknown error"), // dummy
+/* 236 */ _("Q word missing with g73"), // convert_cycle_xy, convert_cycle_yz, convert_cycle_zx
+
+/* 237 */ _("Unknown error"), // dummy
 _("The End")};
 // *INDENT-ON*
