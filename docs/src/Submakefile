@@ -1,4 +1,4 @@
-.PHONY: docs docsclean
+.PHONY: docs docsclean checkref checkref_en checkref_fr
 .PHONY: pdfdocs htmldocs install-doc install-doc-pdf install-doc-html
 
 DOC_DIR=../docs
@@ -108,7 +108,15 @@ docs: htmldocs
 install-doc: install-doc-html
 endif
 pdfdocs: $(PDF_TARGETS)
-htmldocs: $(HTML_TARGETS) $(MAN_HTML_TARGETS)
+htmldocs: $(HTML_TARGETS) $(MAN_HTML_TARGETS) checkref
+
+checkref: checkref_en checkref_fr
+
+checkref_en: $(DOC_DIR)/html/gcode.html $(DOC_DIR)/html/gcode_main.html
+	python $(DOC_SRCDIR)/checklinks.py $^
+
+checkref_fr: $(DOC_DIR)/html/gcode_fr.html $(DOC_DIR)/html/gcode_main_fr.html
+	-python $(DOC_SRCDIR)/checklinks.py $^
 
 MAN_SRCS_NOSO := $(patsubst $(DOC_DIR)/man/%,%, \
 			$(shell grep -L '^\.so ' $(sort $(MAN_SRCS))))
