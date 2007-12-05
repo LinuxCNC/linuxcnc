@@ -498,11 +498,11 @@ En cliquant sur l'onglet WATCH une zone vide s'affichera.
  Vous pouvez ajouter des signaux et des pins dans cette zone et visualiser
  leurs valeurs.
 \begin_inset Foot
-collapsed true
+collapsed false
 
 \layout Standard
 
-Le taux de raffraîchissement de la zone Watch est plus lent que celui de
+Le taux de rafraîchissement de la zone Watch est plus lent que celui de
  Halmeter ou de Halscope.
  Si vous avez besoin d'une bonne résolution dans le timming des signaux,
  ces outils sont plus efficaces.
@@ -580,7 +580,7 @@ Les cercles de deux couleurs, simili leds, sont toujours bruns foncé quand
 Watch permet de visualiser rapidement le résultat de tests sur des contacts
  ou de voir l'effet d'un changement que vous faites dans EMC en utilisant
  l'interface graphique.
- Le taux de raffraîchissement de Watch est un peu trop lent pour visualiser
+ Le taux de rafraîchissement de Watch est un peu trop lent pour visualiser
  les impulsions de pas d'un moteur mais vous pouvez l'utiliser si vous déplacez
  un axe très lentement ou par très petits incréments de distance.
  Si vous avez déjà utilisé IO_Show dans EMC, la page de Watch de halshow
