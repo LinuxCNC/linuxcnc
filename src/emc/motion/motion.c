@@ -7,11 +7,6 @@
 * System: Linux
 *
 * Copyright (c) 2004 All rights reserved.
-*
-* Last change:
-* $Revision$
-* $Author$
-* $Date$
 ********************************************************************/
 
 #include <stdarg.h>
@@ -864,9 +859,21 @@ static int init_comm_buffers(void)
     emcmotStatus->carte_pos_cmd.tran.x = 0.0;
     emcmotStatus->carte_pos_cmd.tran.y = 0.0;
     emcmotStatus->carte_pos_cmd.tran.z = 0.0;
+    emcmotStatus->carte_pos_cmd.a = 0.0;
+    emcmotStatus->carte_pos_cmd.b = 0.0;
+    emcmotStatus->carte_pos_cmd.c = 0.0;
+    emcmotStatus->carte_pos_cmd.u = 0.0;
+    emcmotStatus->carte_pos_cmd.v = 0.0;
+    emcmotStatus->carte_pos_cmd.w = 0.0;
     emcmotStatus->carte_pos_fb.tran.x = 0.0;
     emcmotStatus->carte_pos_fb.tran.y = 0.0;
     emcmotStatus->carte_pos_fb.tran.z = 0.0;
+    emcmotStatus->carte_pos_fb.a = 0.0;
+    emcmotStatus->carte_pos_fb.b = 0.0;
+    emcmotStatus->carte_pos_fb.c = 0.0;
+    emcmotStatus->carte_pos_fb.u = 0.0;
+    emcmotStatus->carte_pos_fb.v = 0.0;
+    emcmotStatus->carte_pos_fb.w = 0.0;
     emcmotStatus->vel = VELOCITY;
     emcmotConfig->limitVel = VELOCITY;
     emcmotStatus->acc = ACCELERATION;

@@ -11,12 +11,6 @@
 * System: Linux
 *
 * Copyright (c) 2004 All rights reserved.
-*
-* Last change:
-* $Revision$
-* $Author$
-* $Date$
-*
 ********************************************************************/
 
 #include "posemath.h"
@@ -609,7 +603,7 @@ static void do_forward_kins(void)
 /*! \todo FIXME FIXME FIXME - need to put a rate divider in here, run it
    at the traj rate */
 
-    double joint_pos[EMCMOT_MAX_JOINTS];
+    double joint_pos[EMCMOT_MAX_JOINTS] = {0,};
     int joint_num, all_homed, all_at_home, result;
     emcmot_joint_t *joint;
 
