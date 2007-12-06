@@ -602,11 +602,19 @@ class O(rs274.OpenGLTk.Opengl):
 
 	# draw backplot
 	glDisable(GL_LIGHTING)
+        glLineWidth(2)
+        glColor3f(1.0,0.5,0.5)
+
         glBegin(GL_LINE_STRIP)
 	for p in self.plotdata:
 	    glVertex3f(*p)
 	glEnd()
+
 	glEnable(GL_LIGHTING)
+        glColor3f(1,1,1)
+        glLineWidth(1)
+        glDisable(GL_BLEND)
+        glDepthFunc(GL_LESS)
 
 	# back to world again
 	glPopMatrix()
