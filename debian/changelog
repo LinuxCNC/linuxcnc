@@ -2,8 +2,10 @@ emc2 (1:2.2.3~cvs) unstable; urgency=low
 
   * gcode quick reference had G98, G99 transposed
   * gcode quick reference had wrong links to G18, G19 documentation
+  * make g38.2 probe log 0.000000 for axes that do not exist (instead of
+    an uninitialized value)
 
- -- jepler <jepler@unpythonic.net>  Wed,  5 Dec 2007 10:28:56 -0600
+ -- jepler <jepler@unpythonic.net>  Thu,  6 Dec 2007 07:55:23 -0600
 
 emc2 (1:2.2.2) unstable; urgency=low
 
