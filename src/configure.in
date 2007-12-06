@@ -1291,6 +1291,18 @@ AC_OUTPUT()
 ##############################################################################
 # message to the user what to do next, after a succesfull ./configure        #
 ##############################################################################
+bold () {
+    if ! tty > /dev/null 2>&1; then exit; fi
+    if ! type -path tput > /dev/null 2>&1; then exit; fi
+    tput smso
+}
+
+offbold () {
+    if ! tty > /dev/null 2>&1; then exit; fi
+    if ! type -path tput > /dev/null 2>&1; then exit; fi
+    tput rmso
+}
+
 echo ""
 echo ""
 echo "######################################################################"
@@ -1320,27 +1332,26 @@ if test $SIMULATOR != yes; then
 echo "#         sudo make setuid                                           #"
 fi
 echo "#                                                                    #"
-echo "#   to run the software you need to change to the top level          #"
-echo "#   EMC2 directory:                                                  #"
-echo "#         cd ..                                                      #"
-echo "#   and run it:                                                      #"
-echo "#         scripts/emc                                                #"
-
+echo "#   Before running the software, set the emc environment:            #"
+echo "#         . (top dir)/scripts/emc-environment                        #"
 else
-echo "#   hint: you are using the standard way of compile/install          #"
-echo "#         if you are trying only to test the software (without       #"
-echo "#         installing), use ./configure --enable-run-in-place instead #"
-echo "#   warning: If you already have an installed emc2, this might cause #"
-echo "#         incompatibilities.                                         #"
+bold
+echo "#   warning: If you already have an installed emc2, this will        #"
+echo "#         replace an existing installation.  If you have installed   #"
+echo "#         an emc2 package, this will damage the package.             #"
+offbold
+echo "#   hint: To test a self-built version of emc without damaging       #"
+echo "#         the package version, use                                   #"
+echo "#             ./configure --enable-run-in-place                      #"
 echo "#                                                                    #"
 echo "#   Next compile by typing                                           #"
 echo "#         make                                                       #"
 echo "#   then install it by typing                                        #"
 echo "#         sudo make install                                          #"
-echo "#                                                                    #"
-echo "#   to run the software type                                         #"
-echo "#         emc                                                        #"
 fi
+echo "#                                                                    #"
+echo "#   To run the software type                                         #"
+echo "#         emc                                                        #"
 echo "#                                                                    #"
 echo "######################################################################"
 echo ""
