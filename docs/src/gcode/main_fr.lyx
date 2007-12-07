@@ -6,7 +6,7 @@
 \title{The EMC2 RS274NGC Interpreter}
 \end_preamble
 \language french
-\inputencoding auto
+\inputencoding default
 \fontscheme bookman
 \graphics default
 \float_placement !h
