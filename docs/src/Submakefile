@@ -68,6 +68,7 @@ DOC_SRCS := \
 	hal/tutorial.lyx \
 	hal/tutorial_fr.lyx \
 	hal/vcp.lyx \
+	hal/vcp_fr.lyx \
 	install/compiling_emc2.lyx \
 	install/compiling_emc2_fr.lyx \
 	install/installing_emc2.lyx \
