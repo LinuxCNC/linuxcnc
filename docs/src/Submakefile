@@ -54,6 +54,7 @@ DOC_SRCS := \
 	gcode/tool_compensation_fr.lyx \
 	hal/comp.lyx \
 	hal/drivers.lyx \
+	hal/drivers_fr.lyx \
 	hal/general_ref.lyx \
 	hal/general_ref_fr.lyx \
 	hal/halshow.lyx \
@@ -67,6 +68,7 @@ DOC_SRCS := \
 	hal/tutorial.lyx \
 	hal/tutorial_fr.lyx \
 	hal/vcp.lyx \
+	hal/vcp_fr.lyx \
 	install/compiling_emc2.lyx \
 	install/compiling_emc2_fr.lyx \
 	install/installing_emc2.lyx \
