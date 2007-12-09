@@ -625,8 +625,6 @@ L'interpréteur interagit avec plusieurs boutons de commande.
  
 \layout Subsection
 
-
-\family typewriter 
 Boutons de correction de vitesses
 \begin_inset LatexCommand \label{sub:-Interaction-vitesses}
 
@@ -635,15 +633,8 @@ Boutons de correction de vitesses
 
 \layout Standard
 
-L'interpréteur de commande RS274/NGC autorise (
-\family typewriter 
-M48
-\family default 
-) ou interdit (
-\family typewriter 
-M49
-\family default 
-) l'action des boutons d'ajustement des vitesses.
+L'interpréteur de commande RS274/NGC autorise (M48) ou interdit (M49) l'action
+ des boutons d'ajustement des vitesses.
  Pour certains mouvements, tels que la sortie de filet à la fin d'un cycle
  de filetage, les boutons sont neutralisés automatiquement.
 \layout Standard
@@ -651,9 +642,7 @@ M49
 EMC2 réagit aux réglages de ces boutons seulement quand ils sont autorisés.
 \layout Subsection
 
-
-\family typewriter 
-Bouton d'effacement de block Switch
+Bouton d'effacement de block
 \begin_inset LatexCommand \label{sub:-Interaction-effacement-de-block}
 
 \end_inset 
@@ -681,8 +670,6 @@ Effacement de block
  de lancer le programme NGC.
 \layout Subsection
 
-
-\family typewriter 
 Bouton d'arrêt optionnel du programme
 \begin_inset LatexCommand \label{sub:-Interaction-arrêts-optionnels}
 
