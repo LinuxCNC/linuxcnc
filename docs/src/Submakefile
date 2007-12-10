@@ -30,6 +30,7 @@ DOC_SRCS := \
 	gui/image-to-gcode_fr.lyx \
 	Master_Developer.lyx \
 	Master_Integrator.lyx \
+	Master_Integrator_fr.lyx \
 	Master_User.lyx \
 	Master_User_fr.lyx \
 	common/GPLD_Copyright.lyx \
@@ -75,6 +76,7 @@ DOC_SRCS := \
 	install/installing_emc2.lyx \
 	install/installing_emc2_fr.lyx \
 	ladder/ladder_intro.lyx \
+	ladder/ladder_intro_fr.lyx \
 	ladder/classic_ladder.lyx \
 	motion/kinematics.lyx \
 	motion/pid_theory.lyx \
@@ -90,7 +92,7 @@ DOC_TARGETS_XML:=$(patsubst $(DOC_DIR)/html/%.html, objects/%.xml,\
 
 MAN_HTML_TARGETS := $(patsubst $(DOC_DIR)/man/%, $(DOC_DIR)/html/man/%.html, $(MAN_SRCS))
 PDF_TARGETS := $(addprefix $(DOC_DIR)/,HAL_User_Manual.pdf EMC2_User_Manual.pdf EMC2_Developer_Manual.pdf EMC2_Integrator_Manual.pdf \
-	EMC2_Manual_Pages.pdf EMC2_User_Manual_fr.pdf HAL_User_Manual_fr.pdf)
+	EMC2_Manual_Pages.pdf EMC2_User_Manual_fr.pdf HAL_User_Manual_fr.pdf EMC2_Integrator_Manual_fr.pdf)
 
 HTML_TARGETS := $(DOC_TARGETS_HTML) $(MAN_HTML_TARGETS) $(DOC_DIR)/html/index.html $(DOC_DIR)/html/index_fr.html $(DOC_DIR)/html/xref.html $(DOC_DIR)/html/xref_fr.html
 
@@ -152,6 +154,8 @@ $(DOC_DIR)/EMC2_User_Manual_fr.pdf: $(DOC_SRCDIR)/Master_User_fr.pdf
 $(DOC_DIR)/EMC2_Developer_Manual.pdf: $(DOC_SRCDIR)/Master_Developer.pdf
 	@ln -f $< $@
 $(DOC_DIR)/EMC2_Integrator_Manual.pdf: $(DOC_SRCDIR)/Master_Integrator.pdf
+	@ln -f $< $@
+$(DOC_DIR)/EMC2_Integrator_Manual_fr.pdf: $(DOC_SRCDIR)/Master_Integrator_fr.pdf
 	@ln -f $< $@
 
 $(DOC_DIR)/html/man/%.html: $(DOC_DIR)/man/%
@@ -267,6 +271,7 @@ docclean:
 	-rm -f $(DOC_DIR)/EMC2_User_Manual_fr.pdf
 	-rm -f $(DOC_DIR)/EMC2_Developer_Manual.pdf
 	-rm -f $(DOC_DIR)/EMC2_Integrator_Manual.pdf
+	-rm -f $(DOC_DIR)/EMC2_Integrator_Manual_fr.pdf
 	-rm -f $(DOC_SRCDIR)/*.d
 	-rm -f $(DOC_SRCDIR)/*.pdf
 	-rm -f $(DOC_TARGETS_HTML) $(DOC_DIR)/html/xref*.html $(DOC_DIR)/html/index*.html $(DOC_DIR)/*.png
