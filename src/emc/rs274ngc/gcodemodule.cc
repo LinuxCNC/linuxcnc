@@ -29,6 +29,7 @@
 #define active_m_codes   interp_new.active_m_codes
 #define interp_init	 interp_new.init
 #define interp_open      interp_new.open
+#define interp_close     interp_new.close
 #define interp_read	 interp_new.read
 #define interp_execute	 interp_new.execute
 char _parameter_file_name[LINELEN];
@@ -619,6 +620,7 @@ PyObject *parse_file(PyObject *self, PyObject *args) {
         result = interp_execute();
     }
 out_error:
+    interp_close();
     if(interp_error) {
         if(!PyErr_Occurred()) {
             PyErr_Format(PyExc_RuntimeError,
