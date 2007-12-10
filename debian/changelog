@@ -4,8 +4,9 @@ emc2 (1:2.2.3~cvs) unstable; urgency=low
   * gcode quick reference had wrong links to G18, G19 documentation
   * make g38.2 probe log 0.000000 for axes that do not exist (instead of
     an uninitialized value)
+  * axis: make 'touch off' work when the loaded file uses percent signs 
 
- -- jepler <jepler@unpythonic.net>  Thu,  6 Dec 2007 07:55:23 -0600
+ -- jepler <jepler@unpythonic.net>  Mon, 10 Dec 2007 10:57:06 -0600
 
 emc2 (1:2.2.2) unstable; urgency=low
 
