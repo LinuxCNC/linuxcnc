@@ -487,14 +487,6 @@ A graphical interface is the part of the EMC2 that the machine tool operator
  The EMC2 comes with several types of user interfaces: 
 \layout Itemize
 
-an interactive command-line program named emcpanel
-\begin_inset LatexCommand \index{emcpanel}
-
-\end_inset 
-
-
-\layout Itemize
-
 a character-based screen graphics program named keystick
 \begin_inset LatexCommand \index{keystick}
 
@@ -508,18 +500,13 @@ a character-based screen graphics program named keystick
 
 \layout Itemize
 
-X Windows programs named xemc
+an X Windows programs named xemc
 \begin_inset LatexCommand \index{xemc}
 
 \end_inset 
 
  
 \begin_inset LatexCommand \ref{fig:XEMC_Graphical_Interface}
-
-\end_inset 
-
- and yemc
-\begin_inset LatexCommand \index{yemc}
 
 \end_inset 
 
