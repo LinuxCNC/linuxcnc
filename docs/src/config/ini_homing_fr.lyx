@@ -1,8 +1,8 @@
 #LyX 1.3 created this file. For more info see http://www.lyx.org/
 \lyxformat 221
 \textclass book
-\language french
-\inputencoding auto
+\language frenchb
+\inputencoding default
 \fontscheme default
 \graphics default
 \paperfontsize default
@@ -29,16 +29,20 @@
 
 \lang english
 
-\begin_inset LatexCommand \label{sec:Homing}
+\begin_inset LatexCommand \label{sec:Prises-d'origine}
 
 \end_inset 
 
-Homing
+Prises d'origine
 \layout Subsection
 
+
+\lang french
 Vue d'ensemble
 \layout Standard
 
+
+\lang french
 La prise d'origine semble assez simple, il suffit de déplacer chaque axe
  à un emplacement connu et de positionner l'ensemble des variables internes
  d'EMC en conséquence.
@@ -47,9 +51,13 @@ La prise d'origine semble assez simple, il suffit de déplacer chaque axe
  
 \layout Subsection
 
+
+\lang french
 Séquence de prise d'origine
 \layout Standard
 
+
+\lang french
 La figure 
 \begin_inset LatexCommand \ref{fig: Séquences de prise d'origine possibles}
 
@@ -84,6 +92,8 @@ collapsed false
 \layout Standard
 
 
+\lang french
+
 \begin_inset LatexCommand \label{fig: Séquences de prise d'origine possibles}
 
 \end_inset 
@@ -94,14 +104,20 @@ Séquences de prise d'origine possibles
 
 \layout Subsection
 
+
+\lang french
 Configuration
 \layout Standard
 
+
+\lang french
 Il y a six éléments d'information qui définissent le déroulement de la séquence
  de prise d'origine.
  Ils sont définis dans la section [AXIS] du fichier ini.
 \layout Subsubsection
 
+
+\lang french
 HOME_SEARCH_VEL\SpecialChar ~
 =\SpecialChar ~
 0
@@ -112,6 +128,8 @@ HOME_SEARCH_VEL\SpecialChar ~
 
 \layout Standard
 
+
+\lang french
 Vitesse de la phase initiale de prise d'origine, c'est la recherche du contact
  d'origine machine.
  Une valeur différente de zéro indique à EMC la présence d'un contact d'origine
@@ -161,12 +179,16 @@ HOME_SEARCH_VEL
  est trop basse, la prise d'origine peut durer très longtemps.
 \layout Standard
 
+
+\lang french
 Une valeur égale à zéro indique qu'il n'y a pas de contact d'origine machine,
  dans ce cas, les phases de recherche de ce contact seront occultées.
  La valeur par défaut est zéro.
  
 \layout Subsubsection
 
+
+\lang french
 HOME_LATCH_VEL=0
 \begin_inset LatexCommand \index{HOME LATCH VEL}
 
@@ -175,6 +197,8 @@ HOME_LATCH_VEL=0
 
 \layout Standard
 
+
+\lang french
 Spécifie la vitesse et la direction utilisée par le mobile pendant la dernière
  phase de la prise d'origine, c'est la recherche précise du contact d'origine
  machine, si il existe et de l'emplacement de l'impulsion d'index, si elle
@@ -263,6 +287,8 @@ HOME_LATCH_VEL
  La valeur par défaut est zéro.
 \layout Subsubsection
 
+
+\lang french
 HOME_IGNORE_LIMITS\SpecialChar ~
 =\SpecialChar ~
 YES/NO
@@ -273,6 +299,8 @@ YES/NO
 
 \layout Standard
 
+
+\lang french
 Peut contenir les valeurs YES ou NO.
  Cette variable détermine si EMC doit ignorer les fins de course de limites
  d'axe.
@@ -284,6 +312,8 @@ Peut contenir les valeurs YES ou NO.
  
 \layout Subsubsection
 
+
+\lang french
 HOME_USE_INDEX\SpecialChar ~
 =\SpecialChar ~
 YES/NO
@@ -294,6 +324,8 @@ YES/NO
 
 \layout Standard
 
+
+\lang french
 Spécifie si une impulsion d'index doit être prise en compte (cas de règles
  de mesure ou de codeurs de positions).
  Si cette variable est vraie (HOME_USE_INDEX = YES), EMC fera l'acquisition
@@ -319,6 +351,8 @@ HOME_LATCH_VEL
  La valeur par défaut est NO.
 \layout Subsubsection
 
+
+\lang french
 HOME_OFFSET
 \begin_inset LatexCommand \index{HOME OFFSET}
 
@@ -327,6 +361,8 @@ HOME_OFFSET
 
 \layout Standard
 
+
+\lang french
 Contient l'emplacement du point d'origine ou de l'impulsion d'index, en
  coordonnées relatives.
  Il peut aussi être traité comme le décalage entre le point d'origine machine
@@ -344,6 +380,8 @@ HOME_OFFSET
  La valeur par défaut est zéro.
 \layout Subsubsection
 
+
+\lang french
 HOME
 \begin_inset LatexCommand \index{HOME}
 
@@ -352,6 +390,8 @@ HOME
 
 \layout Standard
 
+
+\lang french
 C'est la position sur laquelle ira le mobile à la fin de la séquence de
  prise d'origine.
  Après avoir détecté le contact d'origine, avoir ajusté les coordonnées
@@ -400,6 +440,8 @@ collapsed false
 
 \layout Standard
 
+
+\lang french
 La distinction entre l'origine machine et le décalage d'origine n'est pas
  aussi claire que je le voudrais.
  J'envisage de faire un petit dessin et un exemple pour la clarifier.
@@ -408,6 +450,8 @@ La distinction entre l'origine machine et le décalage d'origine n'est pas
 
 \layout Subsubsection
 
+
+\lang french
 HOME_IS_SHARED
 \begin_inset LatexCommand \index{HOME IS SHARED}
 
@@ -416,6 +460,8 @@ HOME_IS_SHARED
 
 \layout Standard
 
+
+\lang french
 Si cet axe n'a pas un contact d'origine séparé des autres, mais plusieurs
  contacts câblés sur la même broche, mettez cette valeur à 1 pour éviter
  de commencer la prise d'origine si un de ces contacts partagés est déjà
@@ -424,6 +470,8 @@ Si cet axe n'a pas un contact d'origine séparé des autres, mais plusieurs
  est déjà attaqué.
 \layout Subsubsection
 
+
+\lang french
 HOME_SEQUENCE
 \begin_inset LatexCommand \index{HOME SEQUENCE}
 
@@ -432,6 +480,8 @@ HOME_SEQUENCE
 
 \layout Standard
 
+
+\lang french
 Utilisé pour définir l'ordre des séquences 
 \begin_inset Quotes eld
 \end_inset 

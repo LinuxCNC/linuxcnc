@@ -4,8 +4,8 @@
 \begin_preamble
 \usepackage[plainpages=false,pdfpagelabels,colorlinks=true,linkcolor=blue]{hyperref}
 \end_preamble
-\language french
-\inputencoding auto
+\language frenchb
+\inputencoding default
 \fontscheme bookman
 \graphics default
 \float_placement !tbph
@@ -1298,8 +1298,11 @@ loadrt threads name1=fast fp1=0 period1=50000 name2=slow period2=1000000
 La première commande charge deux générateurs d'impulsions, configurés pour
  générer des impulsions de type 0.
  La seconde commande charge notre vieil ami siggen et la troisième crée
- deux threads, un rapide (fast) avec une période de 50µs et un lent avec
- une période de 1ms.
+ deux threads, un rapide (fast) avec une période de 50
+\begin_inset Formula $µ$
+\end_inset 
+
+s et un lent avec une période de 1ms.
  Le thread rapide ne prend pas en charge les fonctions à virgule flottante
  (fp1=0).
 \layout Standard
@@ -2587,8 +2590,11 @@ Pour examiner de près une partie d'une forme d'onde, vous pouvez utiliser
  la fréquence d'échantillonnage.
  Par exemple, nous aimerions voir les impulsions de pas qui sont générés
  dans notre exemple.
- Mais les impulsions de pas font seulement 50µs de long, l'échantillonnage
- à 1kHz n'est pas assez rapide.
+ Mais les impulsions de pas font seulement 50
+\begin_inset Formula $µ$
+\end_inset 
+
+s de long, l'échantillonnage à 1kHz n'est pas assez rapide.
  Pour changer le taux d'échantillonnage, cliquez sur le bouton qui affiche
  la longueur de l'enregistrement et l'échantillonnage pour avoir le dialogue
  

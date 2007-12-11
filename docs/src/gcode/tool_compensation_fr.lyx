@@ -4,8 +4,8 @@
 \begin_preamble
 \usepackage{a4}
 \end_preamble
-\language french
-\inputencoding auto
+\language frenchb
+\inputencoding default
 \fontscheme bookman
 \graphics default
 \float_placement h

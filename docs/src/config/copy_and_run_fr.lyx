@@ -4,8 +4,8 @@
 \begin_preamble
 \usepackage[plainpages=false,pdfpagelabels,colorlinks=true,linkcolor=blue]{hyperref}
 \end_preamble
-\language french
-\inputencoding auto
+\language frenchb
+\inputencoding default
 \fontscheme bookman
 \graphics default
 \float_placement !tbph

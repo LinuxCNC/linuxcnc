@@ -4,7 +4,7 @@
 \begin_preamble
 \usepackage[plainpages=false,pdfpagelabels,colorlinks=true,linkcolor=blue]{hyperref}
 \end_preamble
-\language french
+\language frenchb
 \inputencoding auto
 \fontscheme pslatex
 \graphics default

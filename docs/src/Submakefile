@@ -43,6 +43,7 @@ DOC_SRCS := \
 	config/emc2hal.lyx \
 	config/emc2hal_fr.lyx \
 	config/stepper.lyx \
+	config/stepper_fr.lyx \
 	config/stepconf.lyx \
 	config/stepconf_fr.lyx \
 	gcode/coordinates.lyx \

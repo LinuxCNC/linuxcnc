@@ -5,7 +5,7 @@
 \usepackage[plainpages=false,pdfpagelabels,colorlinks=true,linkcolor=blue]{hyperref}
 \title{The EMC2 RS274NGC Interpreter}
 \end_preamble
-\language french
+\language frenchb
 \inputencoding default
 \fontscheme bookman
 \graphics default
