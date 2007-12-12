@@ -1,0 +1,6 @@
+eppio8-2.bit	EPP GPIO Configuration for 200K part
+eppio8-4.bit    EPP GPIO Configuration for 400K part
+readme          This file
+regmap          EPP GPIO Configuration register map
+    
+

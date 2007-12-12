@@ -1,0 +1,72 @@
+7I43 IO CONNECTIONS
+
+IONAME	USERNAME	IC PIN 		P4 PIN		
+                                             
+IO0/GCLK6		127		1		
+IO1			33		3		
+IO2			31		5		
+IO3			28		7		
+IO4			26		9		
+IO5			24		11		
+IO6			21		13		
+IO7			18		15		
+IO8			15		17		
+IO9			13		19		
+IO10			11		21		
+IO11			8		23		
+IO12			6		25		
+IO13			4		27		
+IO14			135		29		
+IO15			131		31		
+IO16			129		33		
+IO17/GCLK4		123		35		
+IO18			122		37		
+IO19			118		39		
+IO20			98		41		
+IO21			100		43		
+IO22			103		45		
+IO23			105		47				
+                                             
+IONAME	USERNAME	IC PIN		P3 PIN       
+                                             
+IO24/GCLK7		128		1            
+IO25			32		3            
+IO26			30		5            
+IO27			27		7            
+IO28			25		9            
+IO29			23		11           
+IO30			20		13           
+IO31			17		15           
+IO32			14		17           
+IO33			12		19           
+IO34			10		21           
+IO35			7		23           
+IO36			5		25           
+IO37			137		27           
+IO38			132		29           
+IO39			130		31           
+IO40/GCLK5		125		33           
+IO41			123		35           
+IO42			119		37           
+IO43			116		39           
+IO44			97		41           
+IO45			99		43           
+IO46			102		45           
+IO47			104		47           
+                                             
+POWER = 				49	     
+GROUND = 				ALL EVEN PINS
+
+LED CONNECTIONS:
+
+LED0,CR8		96		ALL LEDS ARE ACTIVE LOW
+LED1,CR7		95
+LED2,CR6		93
+LED3,CR5		92
+LED4,CR4		90
+LED5,CR3		89
+LED6,CR2		87
+LED7,CR1		86
+
+INITLED			58
+					
