@@ -13,7 +13,27 @@ hal/drivers/pluto_step_rbf.h: hal/drivers/pluto_step_firmware/pluto_step.rbf hal
 
 hal/drivers/m5i20_HM5-4E.h: hal/drivers/m5i20/bit/hostmot5_4.bit ../bin/m5i20cfg
 	../bin/m5i20cfg $< > $@
- 
+
+
+hal/drivers/mesa7i43-firmware/mesa7i43-firmware-eppio8-4.h: hal/drivers/mesa7i43-firmware/eppio8-4.bit hal/drivers/mesa7i43-firmware/to-header.py
+	python hal/drivers/mesa7i43-firmware/to-header.py                 \
+	-d                                                                \
+	-c "This is a component of mesa7i43-gpio, a GPIO driver for EMC2" \
+	-c ""                                                             \
+	-c "Copyright (C) 2007, Peter C. Wallace, Mesa Electronics"       \
+	-c "<http://www.mesanet.com>"                                     \
+	$< > $@
+
+hal/drivers/mesa7i43-firmware/mesa7i43-firmware-eppio8-2.h: hal/drivers/mesa7i43-firmware/eppio8-2.bit hal/drivers/mesa7i43-firmware/to-header.py
+	python hal/drivers/mesa7i43-firmware/to-header.py                 \
+	-d                                                                \
+	-c "This is a component of mesa7i43-gpio, a GPIO driver for EMC2" \
+	-c ""                                                             \
+	-c "Copyright (C) 2007, Peter C. Wallace, Mesa Electronics"       \
+	-c "<http://www.mesanet.com>"                                     \
+	$< > $@
+
+
 clean: pluto_clean
 pluto_clean:
 	rm  -rf \
@@ -37,5 +57,5 @@ pluto_clean:
 # The kernel's build system won't know how to rebuild generated files
 # so modules must depend on them explicitly
 ifneq ($(BUILD_SYS),sim)
-modules: hal/drivers/pluto_servo_rbf.h hal/drivers/m5i20_HM5-4E.h hal/drivers/pluto_step_rbf.h
+modules: hal/drivers/pluto_servo_rbf.h hal/drivers/m5i20_HM5-4E.h hal/drivers/pluto_step_rbf.h hal/drivers/mesa7i43-firmware/mesa7i43-firmware-eppio8-4.h hal/drivers/mesa7i43-firmware/mesa7i43-firmware-eppio8-2.h
 endif

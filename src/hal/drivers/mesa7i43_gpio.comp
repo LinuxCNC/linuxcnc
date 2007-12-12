@@ -1,0 +1,512 @@
+
+//
+// Copyright (C) 2007 Sebastian Kuzminsky
+//
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 2 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+//
+
+
+component mesa7i43_gpio """RTAI driver for the Mesa Electronics 7i43 EPP Anything IO board with GPIO firmware.""";
+
+
+description """
+mesa7i43_gpio is an RTAI device driver that interfaces the Mesa 7i43
+board to the EMC2 HAL.  Both the 200K and the 400K FPGAs are supported.
+
+The driver uploads the EPPIO8 firmware to the board at module load time.
+The board should be ready to accept new firmware (freshly power cycled,
+so both the INIT and DONE lights are on) before loading the driver.
+
+.SS Jumper settings
+
+The board must be configured to get its firmware from the EPP port.  To do
+this, jumpers W4 and W5 must both be down, ie toward the USB connector.
+
+The board must be configured to power on whether or not the USB interface
+is active.  This is done by setting jumper W7 up, ie away from the edge
+of the board.
+
+.SS Digital I/O
+The GPIO pins on P3 are configured as inputs, the pins on P4 are
+configured as outputs.
+
+The digital output pins conform to the `canonical digital output'
+interface described in the HAL manual.
+
+The digital input pins conform to the `canonical digital input' interface
+described in the HAL manual.
+""";
+
+
+pin in bit digout.##.out [24]
+"""This driver configures all the pins on the P4 connector (ports 0-2, pins 0-23) as outputs.""";
+
+param rw bit digout.##.invert [24]
+"If TRUE, the output on the corresponding \\fBdigout.\\fIMM\\fB.out\\fR is inverted.";
+
+
+pin out bit digin.##.in [24]
+"""This driver configures all the pins on the P3 connector (ports 3-5, pins 24-47) as inputs.""";
+
+pin out bit digin.##.in_not [24]
+"Input pins, normal and inverted.";
+
+
+option singleton;
+option extra_setup;
+option extra_cleanup;
+
+function update nofp "Read all inputs, write all outputs.";
+
+
+modparam dummy ioaddr = 0x378
+"The base address of the parallel port.";
+
+modparam dummy ioaddr_hi = 0
+"""The secondary address of the parallel port, used to set EPP mode.
+0 means to use ioaddr + 0x400.""";
+
+modparam dummy epp_wide = 1
+"""Set to zero to disable the "wide EPP mode".  "Wide" mode allows a 16-
+and 32-bit EPP transfers, which can reduce the time spent in the read
+and write functions.  However, this may not work on all EPP parallel
+ports.""";
+
+
+license "GPL";
+
+;;
+
+
+#include "hal/drivers/mesa7i43-gpio.h"
+#include "hal/drivers/mesa7i43-firmware/mesa7i43-firmware-eppio8-2.h"
+#include "hal/drivers/mesa7i43-firmware/mesa7i43-firmware-eppio8-4.h"
+
+
+//
+// load-time parameters
+//
+
+int ioaddr = 0x378;
+RTAPI_MP_INT(ioaddr, "Address of parallel port where Mesa 7i43 is attached");
+
+int ioaddr_hi = 0;
+RTAPI_MP_INT(ioaddr_hi, "Secondary address of parallel port (0 to use ioaddr+0x400)");
+
+int epp_wide = 1;
+RTAPI_MP_INT(epp_wide, "Use 16- and 32-bit EPP transfers with hardware EPP");
+
+
+
+
+// 
+// EPP I/O code
+// 
+
+static inline void m7i43_epp_addr(int w) {
+    outb(w, ioaddr + M7I43_EPP_ADDRESS_OFFSET);
+}
+
+
+static inline void m7i43_epp_write(int w) {
+    outb(w, ioaddr + M7I43_EPP_DATA_OFFSET);
+}
+
+
+static inline int m7i43_epp_read(void) {
+    return inb(ioaddr + M7I43_EPP_DATA_OFFSET);
+}
+
+
+static inline __u32 m7i43_epp_read32(void) {
+    uint32_t data;
+
+    if (epp_wide) {
+	data = inl(ioaddr + M7I43_EPP_DATA_OFFSET);
+    } else {
+        uint8_t a, b, c, d;
+        a = m7i43_epp_read();
+        b = m7i43_epp_read();
+        c = m7i43_epp_read();
+        d = m7i43_epp_read();
+        data = a + (b<<8) + (c<<16) + (d<<24);
+    }
+
+    return data;
+}
+
+
+static inline void m7i43_epp_write32(long w) {
+    if (epp_wide) {
+	outl(w, ioaddr + M7I43_EPP_DATA_OFFSET);
+	return;
+    }
+
+    m7i43_epp_write(w);
+    m7i43_epp_write(w >> 8);
+    m7i43_epp_write(w >> 16);
+    m7i43_epp_write(w >> 24);
+}
+
+
+static inline uint8_t m7i43_epp_read_status(void) {
+    return inb(ioaddr + M7I43_EPP_STATUS_OFFSET);
+}
+
+
+static inline void m7i43_epp_write_status(uint8_t status_byte) {
+    outb(status_byte, ioaddr + M7I43_EPP_DATA_OFFSET);
+}
+
+
+static inline int m7i43_epp_check_for_timeout(void) {
+    uint8_t byte;
+
+    byte = m7i43_epp_read_status();
+    rtapi_print_msg(RTAPI_MSG_INFO, "mesa7i43_gpio: read 0x%02X from EPP Status Register\n", (unsigned int)byte);
+
+    if (byte & 0x01) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "mesa7i43_gpio: EPP Status register reports EPP Timeout!\n");
+    }
+
+    return (byte & 0x01);
+}
+
+
+static int m7i43_epp_clear_timeout(void) {
+    uint8_t status;
+
+    if (!m7i43_epp_check_for_timeout()) {
+        return 1;
+    }
+
+    /* To clear timeout some chips require double read */
+    (void)m7i43_epp_read_status();
+
+    // read in the actual status register
+    status = m7i43_epp_read_status();
+
+    m7i43_epp_write_status(status | 0x01);  // Some reset by writing 1
+    m7i43_epp_write_status(status & 0xFE);  // Others by writing 0
+
+    return !m7i43_epp_check_for_timeout();
+}
+
+
+
+
+// 
+// misc generic helper functions
+// 
+
+static void m7i43_nanosleep(unsigned long int nanoseconds) {
+    long int max_ns_delay;
+
+    max_ns_delay = rtapi_delay_max();
+
+    while (nanoseconds > max_ns_delay) {
+        rtapi_delay(max_ns_delay);
+        nanoseconds -= max_ns_delay;
+    }
+
+    rtapi_delay(nanoseconds);
+}
+
+
+
+
+// 
+// helper functions for dealing with the 7i43 board
+// 
+
+
+// doesnt work on my buggy prototype version of the 7i43 board
+static void m7i43_eppio_reset(void) {
+    m7i43_epp_addr(0x7F);
+    m7i43_epp_write(0x5A);
+}
+
+
+// returns TRUE if the FPGA reset, FALSE on error
+static int m7i43_cpld_reset(void) {
+    uint8_t byte;
+
+
+    // select the control register
+    m7i43_epp_addr(1);
+    m7i43_nanosleep(M7I43_EPP_DELAY);
+
+    // cycle /PROGRAM
+    m7i43_epp_write(0x00);
+    m7i43_nanosleep(100 * 1000);
+
+    m7i43_epp_write(0x01);
+    m7i43_nanosleep(100 * 1000);
+
+    // make sure it took
+    byte = m7i43_epp_read();
+    if ((byte & 0x01) != 0) {
+        rtapi_print_msg(RTAPI_MSG_INFO, "mesa7i43_gpio: DONE is not low after CPLD reset!\n");
+        return 0;
+    }
+
+    return 1;
+}
+
+
+// returns FPGA size in K-gates
+static int m7i43_cpld_get_fpga_size(void) {
+    uint8_t byte;
+
+    //  select data register
+    m7i43_epp_addr(0);
+    m7i43_nanosleep(M7I43_EPP_DELAY);
+
+    byte = m7i43_epp_read();
+
+    if ((byte & 0x01) == 0x01) {
+        return 400;
+    }
+
+    return 200;
+}
+
+
+
+
+//
+// setup and cleanup code
+//
+
+
+static void *m7i43_region1 = NULL;
+static void *m7i43_region2 = NULL;
+
+
+static void m7i43_cleanup(void) {
+    rtapi_print_msg(RTAPI_MSG_INFO, "mesa7i43_gpio: unloading\n");
+
+    // if we've initialized the board, reset it now
+    if (m7i43_region1 && m7i43_region2) {
+        m7i43_eppio_reset();
+    }
+
+    if (m7i43_region1) {
+        rtapi_release_region(ioaddr, 8);
+    }
+
+    if (m7i43_region2) {
+	rtapi_release_region(ioaddr_hi, 4);
+    }
+}
+
+
+static int m7i43_setup(void) {
+    rtapi_print_msg(RTAPI_MSG_INFO, "mesa7i43_gpio: loading Mesa 7i43 EPP GPIO driver version %s\n", M7I43_GPIO_VERSION);
+
+    if (ioaddr_hi == 0) {
+        ioaddr_hi = ioaddr + 0x400;
+    } else if (ioaddr_hi < 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR, "mesa7i43_gpio: ERROR: invalid ioaddr_hi 0x%X\n", ioaddr_hi);
+        hal_exit(comp_id);
+        return -EBUSY;
+    }
+
+    rtapi_print_msg(RTAPI_MSG_DBG, "mesa7i43_gpio: ioaddr=0x%04X, ioaddr_hi=0x%04X, wide mode is %s\n", ioaddr, ioaddr_hi, (epp_wide ? "ON" : "OFF"));
+
+
+    //
+    // claim the I/O regions for the parport
+    // 
+
+    m7i43_region1 = rtapi_request_region(ioaddr, 8, "mesa7i43_gpio");
+    if (!m7i43_region1) {
+	rtapi_print_msg(RTAPI_MSG_ERR, "mesa7i43_gpio: ERROR: request_region(%x) failed\n", ioaddr);
+	rtapi_print_msg(RTAPI_MSG_ERR, "(make sure the kernel module 'parport' is unloaded)\n");
+	hal_exit(comp_id);
+	return -EBUSY;
+    }
+
+    m7i43_region2 = rtapi_request_region(ioaddr_hi, 4, "mesa7i43_gpio");
+    if (!m7i43_region2) {
+        rtapi_release_region(ioaddr, 8);
+        rtapi_print_msg(RTAPI_MSG_ERR, "mesa7i43_gpio: ERROR: request_region(%x) failed\n", ioaddr);
+        rtapi_print_msg(RTAPI_MSG_ERR, "(make sure the kernel module 'parport' is unloaded)\n");
+        hal_exit(comp_id);
+        return -EBUSY;
+    }
+
+
+    // 
+    // set up the parport for EPP
+    // 
+
+    outb(0x80, ioaddr_hi + M7I43_ECP_CONTROL_HIGH_OFFSET); // select EPP mode in ECR
+    outb(0x04, ioaddr + M7I43_EPP_CONTROL_OFFSET);         // set control lines and input mode
+
+    m7i43_epp_clear_timeout();
+
+
+    // 
+    // send the firmware to the FPGA
+    // 
+
+    if (!m7i43_cpld_reset()) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "mesa7i43_gpio: error resetting FPGA, aborting load\n");
+        hal_exit(comp_id);
+        return -EIO;
+    }
+
+    // send appropriate firmware
+    {
+        int fpga_size;
+
+        fpga_size = m7i43_cpld_get_fpga_size();
+        // fpga_size = 400;  // kludge for broken CPLD on prototype board
+        rtapi_print_msg(RTAPI_MSG_INFO, "mesa7i43_gpio: detected %d Kgate FPGA\n", fpga_size);
+
+        // select the CPLD's data address
+        // FIXME: if the next line runs, the new boards fail to load firmware (works with prototype)
+        // some timing issue?  the python code does this and it works
+        m7i43_epp_addr(0);
+        m7i43_nanosleep(M7I43_EPP_DELAY);
+
+        if (m7i43_epp_check_for_timeout()) {
+            rtapi_print_msg(RTAPI_MSG_ERR, "mesa7i43_gpio: EPP Timeout before sending firmware!\n");
+            hal_exit(comp_id);
+            return -EIO;
+        }
+
+        // send the appropriate firmware
+        if (fpga_size == 200) {
+            int i;
+
+            rtapi_print_msg(RTAPI_MSG_INFO, "mesa7i43_gpio: sending 200K FPGA firmware\n");
+            
+            for (i = 0; i < sizeof(m7i43_firmware_eppio8_2_bit); i += 1) {
+                m7i43_epp_write(m7i43_firmware_eppio8_2_bit[i]);
+            }
+        } else if (fpga_size == 400) {
+            int i;
+
+            rtapi_print_msg(RTAPI_MSG_INFO, "mesa7i43_gpio: sending firmware for 400K FPGA (%d bytes)\n", sizeof(m7i43_firmware_eppio8_4_bit));
+            
+            for (i = 0; i < sizeof(m7i43_firmware_eppio8_4_bit); i += 1) {
+                m7i43_epp_write(m7i43_firmware_eppio8_4_bit[i]);
+            }
+        } else {
+            rtapi_print_msg(RTAPI_MSG_ERR, "mesa7i43_gpio: unknown FPGA size: %d\n", fpga_size); 
+            hal_exit(comp_id);
+            return -EINVAL;
+        }
+
+        rtapi_print_msg(RTAPI_MSG_INFO, "mesa7i43_gpio: firmware sent!\n");
+    }
+
+    if (m7i43_epp_check_for_timeout()) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "mesa7i43_gpio: EPP Timeout after sending firmware!\n");
+        hal_exit(comp_id);
+        return -EIO;
+    }
+
+
+    // 
+    // set up the 7i43 board:
+    //     P4 (ports 0-2; dio 0-23) is all outputs (initialized to 0)
+    //     P3 (ports 3-5; dio 24-47) is all inputs
+    //
+
+    // set values of output pins to 0
+    m7i43_epp_addr(0x10 | 0x80);
+    m7i43_epp_write(0x00);  // port 0
+    m7i43_epp_write(0x00);  // port 1
+    m7i43_epp_write(0x00);  // port 2
+
+    // set direction of all the pins
+    m7i43_epp_addr(0x20 | 0x80);
+    m7i43_epp_write(0xFF);  // ddr port 0: all outputs
+    m7i43_epp_write(0xFF);  // ddr port 1: all outputs
+    m7i43_epp_write(0xFF);  // ddr port 2: all outputs
+    m7i43_epp_write(0x00);  // ddr port 3: all inputs
+    m7i43_epp_write(0x00);  // ddr port 4: all inputs
+    m7i43_epp_write(0x00);  // ddr port 5: all inputs
+
+    if (m7i43_epp_check_for_timeout()) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "mesa7i43_gpio: EPP Timeout after initializing 7i43 board!\n");
+        hal_exit(comp_id);
+        return -EIO;
+    }
+
+    return 0;
+}
+
+
+EXTRA_SETUP() {
+    return m7i43_setup();
+}
+
+
+EXTRA_CLEANUP() {
+    m7i43_cleanup();
+}
+
+
+
+
+
+// 
+// functions exported to EMC
+// 
+
+
+FUNCTION(update) {
+    int port, bit;
+    __u32 ppdata;
+
+
+    //
+    // write part
+    //
+
+    // the output bits are ports 0-2
+    m7i43_epp_addr(0x10 | 0x80);
+
+    for (port = 0; port <= 2; port ++) {
+        uint8_t byte = 0;
+        for (bit = 0; bit < 8; bit ++) {
+            if (digout_out((port*8 + bit)) ^ digout_invert((port*8 + bit))) {
+                byte |= (1 << bit);
+            }
+        }
+        m7i43_epp_write(byte);
+    }
+
+
+    // 
+    // read part
+    // 
+
+    // the input bits are ports 3-5
+    // FIXME: this reads 4 bytes, we only need 3
+    m7i43_epp_addr(0x13 | 0x80);
+    ppdata = m7i43_epp_read32();
+
+    for (bit = 0; bit < 24; bit ++) {
+        int b = ppdata & (1 << bit);
+        digin_in(bit) = !!b;
+        digin_in_not(bit) = !b;
+    }
+}
+
