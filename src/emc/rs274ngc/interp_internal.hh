@@ -124,6 +124,8 @@ enum SPINDLE_MODE { CONSTANT_RPM, CONSTANT_SURFACE };
 #define O_continue 11
 #define O_endwhile 12
 #define O_return   13
+#define O_repeat   14
+#define O_endrepeat 15
 
 // G Codes are symbolic to be dialect-independent in source code
 #define G_0      0
@@ -303,6 +305,7 @@ typedef struct offset_struct {
   char *filename;  // the name of the file
   long offset;     // the offset in the file
   int sequence_number;
+  int repeat_count;
 }offset;
 
 /*

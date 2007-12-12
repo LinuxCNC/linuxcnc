@@ -1524,6 +1524,15 @@ int Interp::read_o(    /* ARGUMENTS                                     */
       CHP(read_real_expression(line, counter, &value, parameters));
       _setup.test_value = value;
     }
+  else if(CMP("repeat"))
+      {
+          *counter += strlen("repeat");
+          block->o_type = O_repeat;
+          CHKS((line[*counter] != '['),
+               "Left bracket missing after 'repeat'");
+          CHP(read_real_expression(line, counter, &value, parameters));
+          _setup.test_value = value;
+      }
   else if(CMP("if"))
     {
         // FIXME !!!KL -- should not eval expressions if skipping ???
@@ -1564,6 +1573,10 @@ int Interp::read_o(    /* ARGUMENTS                                     */
     {
       block->o_type = O_endwhile;
     }
+  else if(CMP("endrepeat"))
+      {
+          block->o_type = O_endrepeat;
+      }
   else if(CMP("return"))
     {
       block->o_type = O_return;

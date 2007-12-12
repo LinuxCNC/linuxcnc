@@ -67,6 +67,7 @@ int Interp::control_save_offset( /* ARGUMENTS                   */
   settings->oword_offset[index].type = block->o_type;
   settings->oword_offset[index].offset = block->offset;
   settings->oword_offset[index].filename = strdup(settings->filename);
+  settings->oword_offset[index].repeat_count = -1;
 
   // the sequence number has already been bumped, so save
   // the proper value
@@ -391,6 +392,46 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
       }
       break;
 
+    case O_repeat:
+      // if we were skipping, no longer
+      settings->skipping_o = 0;
+      status = control_find_oword(block->o_number, settings, &index);
+
+      // test if not already seen OR
+      // if seen and this is a repeat
+      if((status != INTERP_OK) ||
+	 (settings->oword_offset[index].type == block->o_type))	{
+	  // this is the beginning of a 'repeat' loop
+	  // add it to the table if not already there
+	  if(status != INTERP_OK)
+              CHP(control_save_offset(block->o_number, block, settings));
+
+          // note the repeat count.  it should only be calculated at the
+          // start of the repeat loop.
+          control_find_oword(block->o_number, settings, &index);
+          if(settings->oword_offset[index].repeat_count == -1)
+              settings->oword_offset[index].repeat_count = 
+                  round_to_int(settings->test_value);
+
+	  // are we still repeating?
+	  if(settings->oword_offset[index].repeat_count > 0) {
+	      // execute forward
+	      logDebug("executing forward: [o%d] in 'repeat' test value-- %g",
+		       block->o_number, settings->test_value);
+              // one less repeat remains
+              settings->oword_offset[index].repeat_count--;
+          } else {
+	      // skip forward
+	      logDebug("skipping forward: [o%d] in 'repeat'",
+		       block->o_number);
+	      settings->skipping_o = block->o_number;
+              settings->skipping_start = settings->sequence_number;
+              // cause the repeat count to be recalculated if we do this loop again
+              settings->oword_offset[index].repeat_count = -1;
+          }
+      }
+      break;
+
     case O_while:
       // if we were skipping, no longer
       settings->skipping_o = 0;
@@ -574,6 +615,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	      block->o_number);
       break;
 
+    case O_endrepeat:
     case O_endwhile:
       // end of a while loop
       if(settings->skipping_o == block->o_number)
@@ -586,14 +628,14 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	      settings->doing_continue = 0;
 
   	      // loop on back
-	      logDebug("looping back (continue) to: [o%d] in 'while endwhile'",
+	      logDebug("looping back (continue) to: [o%d] in while/repeat",
 		   block->o_number);
 	      CHP(control_back_to(block->o_number, settings));
 	    }
 	  else
 	    {
 	      // not doing continue, we are done
-	      logDebug("falling thru the complete while: [o%d] in 'endwhile'",
+	      logDebug("falling thru the complete while/repeat: [o%d]",
 		   block->o_number);
 	      return INTERP_OK;
 	    }
@@ -601,7 +643,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
       else
 	{
 	  // loop on back
-	  logDebug("looping back to: [o%d] in 'while endwhile'",
+	  logDebug("looping back to: [o%d] in 'endwhile/endrepeat'",
 		   block->o_number);
 	  CHP(control_back_to(block->o_number, settings));
 	}
