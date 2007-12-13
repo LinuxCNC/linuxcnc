@@ -22,7 +22,7 @@
 #endif
 
 
-#define M7I43_GPIO_VERSION "0.4"
+#define M7I43_GPIO_VERSION "0.5"
 
 static void m7i43_nanosleep(unsigned long int nanoseconds);
 
@@ -30,14 +30,6 @@ static void m7i43_nanosleep(unsigned long int nanoseconds);
 // 
 // EPP stuff
 // 
-
-// 
-// 50,000 ns works reliably
-// 20,000 ns works reliably
-//  5,000 ns does not work reliably
-// 
-
-#define M7I43_EPP_DELAY (20 * 1000)
 
 #define M7I43_EPP_STATUS_OFFSET   (1)
 #define M7I43_EPP_CONTROL_OFFSET  (2)

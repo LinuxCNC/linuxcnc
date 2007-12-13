@@ -246,7 +246,6 @@ static int m7i43_cpld_reset(void) {
 
     // select the control register
     m7i43_epp_addr(1);
-    m7i43_nanosleep(M7I43_EPP_DELAY);
 
     // cycle /PROGRAM
     m7i43_epp_write(0x00);
@@ -272,7 +271,7 @@ static int m7i43_cpld_get_fpga_size(void) {
 
     //  select data register
     m7i43_epp_addr(0);
-    m7i43_nanosleep(M7I43_EPP_DELAY);
+    m7i43_nanosleep(100 * 1000);  // FIXME: without this delay, firmware loading doesnt work
 
     byte = m7i43_epp_read();
 
@@ -378,10 +377,7 @@ static int m7i43_setup(void) {
         rtapi_print_msg(RTAPI_MSG_INFO, "mesa7i43_gpio: detected %d Kgate FPGA\n", fpga_size);
 
         // select the CPLD's data address
-        // FIXME: if the next line runs, the new boards fail to load firmware (works with prototype)
-        // some timing issue?  the python code does this and it works
         m7i43_epp_addr(0);
-        m7i43_nanosleep(M7I43_EPP_DELAY);
 
         if (m7i43_epp_check_for_timeout()) {
             rtapi_print_msg(RTAPI_MSG_ERR, "mesa7i43_gpio: EPP Timeout before sending firmware!\n");
