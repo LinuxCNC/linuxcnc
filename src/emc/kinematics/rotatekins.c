@@ -1,7 +1,6 @@
 /********************************************************************
 * Description: rotatekins.c
-*   Simple example kinematics for coord system rotated 45 degrees
-*   in XY
+*   Simple example kinematics for a rotary table in software
 *
 *   Derived from a work by Fred Proctor & Will Shackleford
 *
@@ -14,9 +13,6 @@
 ********************************************************************/
 
 #include "rtapi_math.h"
-#ifndef M_PI_4l
-#define M_PI_4l (M_PIl/4.0)
-#endif
 #include "kinematics.h"		/* these decls */
 
 int kinematicsForward(const double *joints,
@@ -24,8 +20,9 @@ int kinematicsForward(const double *joints,
 		      const KINEMATICS_FORWARD_FLAGS * fflags,
 		      KINEMATICS_INVERSE_FLAGS * iflags)
 {
-    pos->tran.x = joints[0] * cos(-M_PI_4l) - joints[1] * sin(-M_PI_4l);
-    pos->tran.y = joints[0] * sin(-M_PI_4l) + joints[1] * cos(-M_PI_4l);
+    double c_rad = joints[5]*M_PI/180;
+    pos->tran.x = joints[0] * cos(c_rad) - joints[1] * sin(c_rad);
+    pos->tran.y = joints[0] * sin(c_rad) + joints[1] * cos(c_rad);
     pos->tran.z = joints[2];
     pos->a = joints[3];
     pos->b = joints[4];
@@ -42,8 +39,9 @@ int kinematicsInverse(const EmcPose * pos,
 		      const KINEMATICS_INVERSE_FLAGS * iflags,
 		      KINEMATICS_FORWARD_FLAGS * fflags)
 {
-    joints[0] = pos->tran.x * cos(M_PI_4l) - pos->tran.y * sin(M_PI_4l);
-    joints[1] = pos->tran.x * sin(M_PI_4l) + pos->tran.y * cos(M_PI_4l);
+    double c_rad = pos->c*M_PI/180;
+    joints[0] = pos->tran.x * cos(c_rad) - pos->tran.y * sin(c_rad);
+    joints[1] = pos->tran.x * sin(c_rad) + pos->tran.y * cos(c_rad);
     joints[2] = pos->tran.z;
     joints[3] = pos->a;
     joints[4] = pos->b;
