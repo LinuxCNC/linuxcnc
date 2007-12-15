@@ -13,21 +13,31 @@
 #include "kinematics.h"		/* these decls */
 #include "posemath.h"
 #include "hal.h"
+#include "rtapi.h"
 #include "rtapi_math.h"
 
 #define d2r(d) ((d)*PM_PI/180.0)
 #define r2d(r) ((r)*180.0/PM_PI)
 
+#ifndef hypot
+#define hypot(a,b) (sqrt((a)*(a)+(b)*(b)))
+#endif
+
 struct haldata {
     hal_float_t pivot_length;
 } *haldata;
 
-#if 0
+// should not even be called
 int kinematicsForward(const double *joints,
 		      EmcPose * pos,
 		      const KINEMATICS_FORWARD_FLAGS * fflags,
 		      KINEMATICS_INVERSE_FLAGS * iflags)
 {
+
+    static int printed=0;
+
+    if(!printed) rtapi_print_msg(RTAPI_MSG_ERR, "TP is null\n");
+    printed=1;
 
     pos->tran.x = joints[0];
     pos->tran.y = joints[1];
@@ -41,7 +51,6 @@ int kinematicsForward(const double *joints,
 
     return 0;
 }
-#endif
 
 int kinematicsInverse(const EmcPose * pos,
 		      double *joints,
@@ -59,7 +68,7 @@ int kinematicsInverse(const EmcPose * pos,
 
     joints[0] = xyr * cos(xytheta) + xb;
     joints[1] = xyr * sin(xytheta);
-    joints[2] = pos->tran.z + zb;
+    joints[2] = pos->tran.z + zb - haldata->pivot_length;
 
     joints[3] = pos->a;
     joints[4] = pos->b;
@@ -82,6 +91,7 @@ KINEMATICS_TYPE kinematicsType()
 
 EXPORT_SYMBOL(kinematicsType);
 EXPORT_SYMBOL(kinematicsInverse);
+EXPORT_SYMBOL(kinematicsForward);
 MODULE_LICENSE("GPL");
 
 int comp_id;
