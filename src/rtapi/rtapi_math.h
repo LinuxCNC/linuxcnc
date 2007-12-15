@@ -15,6 +15,7 @@ extern double ceil(double);
 extern double floor(double);
 
 #define M_PIl		3.1415926535897932384626433832795029L  /* pi */
+#define M_PI		3.1415926535897932384626433832795029   /* pi */
 
 #ifndef __GNUC_PREREQ
 /* Convenience macro to test the versions of glibc and gcc. */
