@@ -9149,27 +9149,24 @@ The E-word specifies the analog input number.
 \layout Itemize
 
 The L-word specifies the wait type:
-\layout List
-\labelwidthstring 00.00.0000
+\begin_deeper 
+\layout Description
 
 0 - WAIT_MODE_IMMEDIATE - no waiting, returns immediately.
  The current value of the input is stored in parameter #5399
-\layout List
-\labelwidthstring 00.00.0000
+\layout Description
 
 1 - WAIT_MODE_RISE - waits for the selected input to perform a rise event.
-\layout List
-\labelwidthstring 00.00.0000
+\layout Description
 
 2 - WAIT_MODE_FALL - waits for the selected input to perform a fall event.
-\layout List
-\labelwidthstring 00.00.0000
+\layout Description
 
 3 - WAIT_MODE_HIGH - waits for the selected input to go to the HIGH state.
-\layout List
-\labelwidthstring 00.00.0000
+\layout Description
 
 4 - WAIT_MODE_LOW - waits for the selected input to go to the LOW state.
+\end_deeper 
 \layout Standard
 
 
