@@ -1030,8 +1030,8 @@ Override Limits
 \begin_inset Quotes erd
 \end_inset 
 
-, the machine will temporarily be permitted to jog outside the limits defined
- in the .ini file.
+, the machine will temporarily be allowed to jog off of a physical limit
+ switch.
 \layout Subsubsection
 
 The 
