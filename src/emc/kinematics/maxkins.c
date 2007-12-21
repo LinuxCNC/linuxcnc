@@ -63,12 +63,17 @@ int kinematicsInverse(const EmcPose * pos,
         
     // C correction
     double xyr = hypot(pos->tran.x, pos->tran.y);
-    double xytheta = atan2(pos->tran.y, pos->tran.x);
-    xytheta += d2r(pos->c);
+    double xytheta = atan2(pos->tran.y, pos->tran.x) + d2r(pos->c);
 
-    joints[0] = xyr * cos(xytheta) + xb;
-    joints[1] = xyr * sin(xytheta);
-    joints[2] = pos->tran.z + zb - haldata->pivot_length;
+    // V correction
+    double zv = pos->v * sin(d2r(pos->b));
+    double xv = pos->v * cos(d2r(pos->b));
+
+    // U correction is always in joint 1 only
+
+    joints[0] = xyr * cos(xytheta) - xb + xv;
+    joints[1] = xyr * sin(xytheta) - pos->u;
+    joints[2] = pos->tran.z + zb + zv - haldata->pivot_length;
 
     joints[3] = pos->a;
     joints[4] = pos->b;
