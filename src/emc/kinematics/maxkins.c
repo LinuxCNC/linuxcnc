@@ -36,7 +36,7 @@ int kinematicsForward(const double *joints,
 
     static int printed=0;
 
-    if(!printed) rtapi_print_msg(RTAPI_MSG_ERR, "TP is null\n");
+    if(!printed) rtapi_print_msg(RTAPI_MSG_ERR, "kinematicsForward mistakenly called in INVERSE_ONLY configuration\n");
     printed=1;
 
     pos->tran.x = joints[0];
