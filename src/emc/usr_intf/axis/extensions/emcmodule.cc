@@ -1448,6 +1448,7 @@ static int Logger_init(pyPositionLogger *self, PyObject *a, PyObject *k) {
     self->npts = self->mpts = 0;
     self->exit = self->clear = 0;
     self->changed = 1;
+    self->st = 0;
     if(!PyArg_ParseTuple(a, "O!(BBBB)(BBBB)(BBBB)(BBBB)(BBBB)(BBBB)",
             &Stat_Type, &self->st,
             &c[0].r,&c[0].g, &c[0].b, &c[0].a,
@@ -1458,11 +1459,13 @@ static int Logger_init(pyPositionLogger *self, PyObject *a, PyObject *k) {
             &c[5].r,&c[5].g, &c[5].b, &c[5].a
             ))
         return -1;
+    Py_INCREF(self->st);
     return 0;
 }
 
 static void Logger_dealloc(pyPositionLogger *s) {
     free(s->p);
+    Py_XDECREF(s->st);
     PyObject_Del(s);
 }
 
