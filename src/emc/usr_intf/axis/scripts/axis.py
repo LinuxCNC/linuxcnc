@@ -2755,9 +2755,12 @@ class TclCommands(nf.TclCommands):
     def clear_offset(num):
         ensure_mode(emc.MODE_MDI)
         s.poll()
-        clear_command = "G10 L2 P%c" % num
-        for i, a in enumerate("XYZABCUVW"):
-            if s.axis_mask & (1<<i): clear_command += " %c0" % a
+        if num == "G92":
+            clear_command = "G92.1"
+        else:
+            clear_command = "G10 L2 P%c" % num
+            for i, a in enumerate("XYZABCUVW"):
+                if s.axis_mask & (1<<i): clear_command += " %c0" % a
         c.mdi(clear_command)
         ensure_mode(emc.MODE_MANUAL)
         s.poll()

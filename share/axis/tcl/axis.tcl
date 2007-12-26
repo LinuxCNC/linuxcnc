@@ -221,6 +221,11 @@ setup_menu_accel .menu.machine.clearoffset end [_ "P8  G59._2"]
     -command [list clear_offset 9]
 setup_menu_accel .menu.machine.clearoffset end [_ "P9  G59._3"]
 
+.menu.machine.clearoffset add command \
+    -command [list clear_offset G92]
+setup_menu_accel .menu.machine.clearoffset end [_ "_G92"]
+
+
 
 # ----------------------------------------------------------------------
 .menu.view add radiobutton \
