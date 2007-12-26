@@ -58,7 +58,15 @@ import locale
 from math import hypot, atan2, sin, cos, pi, sqrt
 from rs274 import ArcsToSegmentsMixin
 import emc
-import hal
+
+if os.environ.has_key("AXIS_NO_HAL"):
+    hal_present = 0;
+else:
+    hal_present = 1;
+
+if hal_present == 1 :
+    import hal
+
 
 import ConfigParser
 cp = ConfigParser.ConfigParser
@@ -1315,7 +1323,7 @@ class LivePlotter:
         if not os.path.exists(emc.nmlfile):
             return False
         try:
-            self.stat = emc.stat()
+	    self.stat = emc.stat()
         except emc.error:
             return False
         def C(s):
@@ -1323,7 +1331,7 @@ class LivePlotter:
             s = o.colors[s]
             return [int(x * 255) for x in s + (a,)]
 
-        self.logger = emc.positionlogger(self.stat,
+        self.logger = emc.positionlogger(emc.stat(),
             C('backplotjog'),
             C('backplottraverse'),
             C('backplotfeed'),
@@ -2904,15 +2912,16 @@ class TclCommands(nf.TclCommands):
             commands.set_view_z()
 
     def axis_activated(*args):
-        comp['jog.x'] = vars.current_axis.get() == "x"
-        comp['jog.y'] = vars.current_axis.get() == "y"
-        comp['jog.z'] = vars.current_axis.get() == "z"
-        comp['jog.a'] = vars.current_axis.get() == "a"
-        comp['jog.b'] = vars.current_axis.get() == "b"
-        comp['jog.c'] = vars.current_axis.get() == "c"
-        comp['jog.u'] = vars.current_axis.get() == "u"
-        comp['jog.v'] = vars.current_axis.get() == "v"
-        comp['jog.w'] = vars.current_axis.get() == "w"
+	if not hal_present: return # this only makes sense if HAL is present on this machine
+    	comp['jog.x'] = vars.current_axis.get() == "x"
+    	comp['jog.y'] = vars.current_axis.get() == "y"
+    	comp['jog.z'] = vars.current_axis.get() == "z"
+    	comp['jog.a'] = vars.current_axis.get() == "a"
+    	comp['jog.b'] = vars.current_axis.get() == "b"
+    	comp['jog.c'] = vars.current_axis.get() == "c"
+    	comp['jog.u'] = vars.current_axis.get() == "u"
+    	comp['jog.v'] = vars.current_axis.get() == "v"
+    	comp['jog.w'] = vars.current_axis.get() == "w"
 
     def set_joint_mode(*args):
         c.teleop_enable(vars.joint_mode.get())
@@ -3387,28 +3396,28 @@ t.bind("<Button-4>", scroll_up)
 t.bind("<Button-5>", scroll_down)
 t.configure(state="disabled")
 
-comp = hal.component("axisui")
-comp.newpin("jog.x", hal.HAL_BIT, hal.HAL_OUT)
-comp.newpin("jog.y", hal.HAL_BIT, hal.HAL_OUT)
-comp.newpin("jog.z", hal.HAL_BIT, hal.HAL_OUT)
-comp.newpin("jog.a", hal.HAL_BIT, hal.HAL_OUT)
-comp.newpin("jog.b", hal.HAL_BIT, hal.HAL_OUT)
-comp.newpin("jog.c", hal.HAL_BIT, hal.HAL_OUT)
-comp.newpin("jog.u", hal.HAL_BIT, hal.HAL_OUT)
-comp.newpin("jog.v", hal.HAL_BIT, hal.HAL_OUT)
-comp.newpin("jog.w", hal.HAL_BIT, hal.HAL_OUT)
-comp.newpin("jog.increment", hal.HAL_FLOAT, hal.HAL_OUT)
-vars.has_ladder.set(hal.component_exists('classicladder_rt'))
+if hal_present == 1 :
+    comp = hal.component("axisui")
+    comp.newpin("jog.x", hal.HAL_BIT, hal.HAL_OUT)
+    comp.newpin("jog.y", hal.HAL_BIT, hal.HAL_OUT)
+    comp.newpin("jog.z", hal.HAL_BIT, hal.HAL_OUT)
+    comp.newpin("jog.a", hal.HAL_BIT, hal.HAL_OUT)
+    comp.newpin("jog.b", hal.HAL_BIT, hal.HAL_OUT)
+    comp.newpin("jog.c", hal.HAL_BIT, hal.HAL_OUT)
+    comp.newpin("jog.u", hal.HAL_BIT, hal.HAL_OUT)
+    comp.newpin("jog.v", hal.HAL_BIT, hal.HAL_OUT)
+    comp.newpin("jog.w", hal.HAL_BIT, hal.HAL_OUT)
+    comp.newpin("jog.increment", hal.HAL_FLOAT, hal.HAL_OUT)
+    vars.has_ladder.set(hal.component_exists('classicladder_rt'))
 
-if vcp:
-    import vcpparse
-    comp.setprefix("pyvcp")
-    f = Tkinter.Frame(root_window)
-    f.grid(row=0, column=4, rowspan=6, sticky="nw", padx=4, pady=4)
-    vcpparse.filename = vcp
-    vcpparse.create_vcp(f, comp)
-
-comp.ready()
+    if vcp:
+	import vcpparse
+	comp.setprefix("pyvcp")
+	f = Tkinter.Frame(root_window)
+	f.grid(row=0, column=4, rowspan=6, sticky="nw", padx=4, pady=4)
+	vcpparse.filename = vcp
+	vcpparse.create_vcp(f, comp)
+    comp.ready()
 
 make_cone()
 
@@ -3506,8 +3515,9 @@ commands.set_spindlerate(100)
 
 def forget(widget, *pins):
     if os.environ.has_key("AXIS_NO_AUTOCONFIGURE"): return
-    for p in pins:
-        if hal.pin_has_writer(p): return
+    if hal_present == 1 :
+	for p in pins:
+    	    if hal.pin_has_writer(p): return
     m = widget.winfo_manager()
     if m in ("grid", "pack"):
         widget.tk.call(m, "forget", widget._w)
