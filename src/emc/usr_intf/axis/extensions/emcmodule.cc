@@ -267,7 +267,7 @@ static void Stat_dealloc(PyObject *self) {
 
 static bool check_stat(RCS_STAT_CHANNEL *emcStatusBuffer) {
     if(!emcStatusBuffer->valid()) { 
-        PyErr_Format( error, "emcStatusBuffer invalid" );
+        PyErr_Format( error, "emcStatusBuffer invalid err=%d", emcStatusBuffer->error_type);
         return false;
     }
     return true;
