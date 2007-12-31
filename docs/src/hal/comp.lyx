@@ -337,6 +337,11 @@ see_also DOC;
 
 \family typewriter 
 license LICENSE;
+\layout Itemize
+
+
+\family typewriter 
+author AUTHOR;
 \layout Standard
 
 Parentheses indicate optional items.
@@ -1188,6 +1193,9 @@ option \SpecialChar \ldots{}
 
 LICENSE Specify the license of the module, for the documentation and for
  the MODULE_LICENSE() module declaration.
+\layout Description
+
+AUTHOR Specify the author of the module, for the documentation
 \layout Section
 
 Per-instance data storage
