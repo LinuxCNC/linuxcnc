@@ -6,7 +6,7 @@
 *
 * This component is the equivalent of a time delay relay.  There are
 * separate parameters for "on-delay" and "off-delay".  The delays
-* are specified in milliseconds.
+* are specified in seconds.
 *
 * There are two pins, an input bit and an output bit.  The output is
 * changed only if the input remains at the same state for the duration
@@ -20,7 +20,7 @@
 * ClassicLadder instead of this component.  By default, one delay
 * component will be created.
 *
-* The default on-delay and off-delay are both 500 ms.
+* The default on-delay and off-delay are both 0.5 seconds.
 *
 *********************************************************************
 *
