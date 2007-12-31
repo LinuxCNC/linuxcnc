@@ -1818,6 +1818,39 @@ int Interp::convert_g(block_pointer block,       //!< pointer to a block of RS27
   return INTERP_OK;
 }
 
+
+int Interp::convert_savehome(int code, block_pointer block, setup_pointer s) {
+    static char name[] = "convert_savehome";
+    double *p = s->parameters;
+    
+    if(s->cutter_comp_side != OFF)
+        ERS("Cannot set reference point with cutter compensation in effect");
+
+    if(code == G_28_1) {
+        p[5161] = PROGRAM_TO_USER_LEN(s->current_x + s->tool_xoffset + s->origin_offset_x + s->axis_offset_x);
+        p[5162] = PROGRAM_TO_USER_LEN(s->current_y +                   s->origin_offset_y + s->axis_offset_y);
+        p[5163] = PROGRAM_TO_USER_LEN(s->current_z + s->tool_zoffset + s->origin_offset_z + s->axis_offset_z);
+        p[5164] = PROGRAM_TO_USER_ANG(s->AA_current + s->AA_origin_offset + s->AA_axis_offset);
+        p[5165] = PROGRAM_TO_USER_ANG(s->BB_current + s->BB_origin_offset + s->BB_axis_offset);
+        p[5166] = PROGRAM_TO_USER_ANG(s->CC_current + s->CC_origin_offset + s->CC_axis_offset);
+        p[5167] = PROGRAM_TO_USER_LEN(s->u_current + s->u_origin_offset + s->u_axis_offset);
+        p[5168] = PROGRAM_TO_USER_LEN(s->v_current + s->v_origin_offset + s->v_axis_offset);
+        p[5169] = PROGRAM_TO_USER_LEN(s->w_current + s->w_origin_offset + s->w_axis_offset);
+    } else if(code == G_30_1) {
+        p[5181] = PROGRAM_TO_USER_LEN(s->current_x + s->tool_xoffset + s->origin_offset_x + s->axis_offset_x);
+        p[5182] = PROGRAM_TO_USER_LEN(s->current_y +                   s->origin_offset_y + s->axis_offset_y);
+        p[5183] = PROGRAM_TO_USER_LEN(s->current_z + s->tool_zoffset + s->origin_offset_z + s->axis_offset_z);
+        p[5184] = PROGRAM_TO_USER_ANG(s->AA_current + s->AA_origin_offset + s->AA_axis_offset);
+        p[5185] = PROGRAM_TO_USER_ANG(s->BB_current + s->BB_origin_offset + s->BB_axis_offset);
+        p[5186] = PROGRAM_TO_USER_ANG(s->CC_current + s->CC_origin_offset + s->CC_axis_offset);
+        p[5187] = PROGRAM_TO_USER_LEN(s->u_current + s->u_origin_offset + s->u_axis_offset);
+        p[5188] = PROGRAM_TO_USER_LEN(s->v_current + s->v_origin_offset + s->v_axis_offset);
+        p[5189] = PROGRAM_TO_USER_LEN(s->w_current + s->w_origin_offset + s->w_axis_offset);
+    } else ERS("BUG: Code not G28.1 or G38.1");
+    return INTERP_OK;
+}
+
+
 /****************************************************************************/
 
 /*! convert_home
@@ -2344,6 +2377,8 @@ int Interp::convert_modal_0(int code,    //!< G code, must be from group 0
     CHP(convert_setup(block, settings));
   } else if ((code == G_28) || (code == G_30)) {
     CHP(convert_home(code, block, settings));
+  } else if ((code == G_28_1) || (code == G_30_1)) {
+    CHP(convert_savehome(code, block, settings));
   } else if ((code == G_92) || (code == G_92_1) ||
              (code == G_92_2) || (code == G_92_3)) {
     CHP(convert_axis_offsets(code, block, settings));
