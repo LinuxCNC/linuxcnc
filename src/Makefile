@@ -588,8 +588,6 @@ obj-$(CONFIG_PID) += threads.o
 threads-objs := hal/components/threads.o $(MATHSTUB)
 obj-$(CONFIG_SUPPLY) += supply.o
 supply-objs := hal/components/supply.o $(MATHSTUB)
-obj-$(CONFIG_TIMEDELAY) += timedelay.o
-timedelay-objs := hal/components/timedelay.o $(MATHSTUB)
 obj-$(CONFIG_SIM_ENCODER) += sim_encoder.o
 sim_encoder-objs := hal/components/sim_encoder.o $(MATHSTUB)
 obj-$(CONFIG_WEIGHTED_SUM) += weighted_sum.o
@@ -767,7 +765,6 @@ endif
 ../rtlib/pid$(MODULE_EXT): $(addprefix objects/rt,$(pid-objs))
 ../rtlib/threads$(MODULE_EXT): $(addprefix objects/rt,$(threads-objs))
 ../rtlib/supply$(MODULE_EXT): $(addprefix objects/rt,$(supply-objs))
-../rtlib/timedelay$(MODULE_EXT): $(addprefix objects/rt,$(timedelay-objs))
 ../rtlib/sim_encoder$(MODULE_EXT): $(addprefix objects/rt,$(sim_encoder-objs))
 ../rtlib/weighted_sum$(MODULE_EXT): $(addprefix objects/rt,$(weighted_sum-objs))
 ../rtlib/modmath$(MODULE_EXT): $(addprefix objects/rt,$(modmath-objs))
