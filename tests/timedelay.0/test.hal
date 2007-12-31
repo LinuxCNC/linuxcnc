@@ -4,10 +4,10 @@ loadrt not
 loadrt threads name1=thread period1=1953125
 
 # Thread period is 1/512 second.
-# on-delay is 1/128 second, or 4 periods.
-# off-delay is 1/64 second, or 8 periods.
-setp delay.0.on-delay 0.0078125
-setp delay.0.off-delay 0.015625
+# on-delay is 1/128 + 1/1024 second, or 4.5 periods.
+# off-delay is 1/64 + 1/1024 second, or 8.5 periods.
+setp delay.0.on-delay 0.0087890625
+setp delay.0.off-delay 0.0166015625
 
 net square not.0.out => delay.0.in sampler.0.pin.0
 net delayed delay.0.out => not.0.in sampler.0.pin.1
