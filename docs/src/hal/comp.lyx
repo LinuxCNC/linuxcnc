@@ -1437,7 +1437,7 @@ When the item is a conditional item, it is only legal to refer to it when
 \emph on 
 condition
 \emph default 
- evalued to a nonzero value.
+ evaluated to a nonzero value.
 \end_deeper 
 \layout Description
 
