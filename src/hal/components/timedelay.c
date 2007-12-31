@@ -5,7 +5,7 @@
 *   See the "Users Manual" at emc2/docs/Hal_Introduction.pdf
 *
 * This component is the equivalent of a time delay relay.  There are
-* separate parameters for "on delay" and "off delay".  The delays
+* separate parameters for "on-delay" and "off-delay".  The delays
 * are specified in milliseconds.
 *
 * There are two pins, an input bit and an output bit.  The output is
@@ -214,7 +214,7 @@ static int export_delay(int num, bit_delay_t * addr)
     }
     
     /* export off delay parameter */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "delay.%d.off_delay", num);
+    rtapi_snprintf(buf, HAL_NAME_LEN, "delay.%d.off-delay", num);
     retval = hal_param_float_new(buf, HAL_RW, &(addr->off_delay), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -222,7 +222,7 @@ static int export_delay(int num, bit_delay_t * addr)
 	return retval;
     }
     /* export on delay parameter */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "delay.%d.on_delay", num);
+    rtapi_snprintf(buf, HAL_NAME_LEN, "delay.%d.on-delay", num);
     retval = hal_param_float_new(buf, HAL_RW, &(addr->on_delay), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
