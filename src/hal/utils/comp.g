@@ -50,6 +50,7 @@ parser Hal:
       | "see_also" String ";"   {{ see_also(String) }}
       | "description" String ";"   {{ description(String) }}
       | "license" String ";"   {{ license(String) }}
+      | "author" String ";"   {{ author(String) }}
       | "modparam" NAME {{ NAME1=NAME; }} NAME OptSAssign OptString ";" {{ modparam(NAME1, NAME, OptSAssign, OptString) }}
 
     rule String: TSTRING {{ return eval(TSTRING) }} 
@@ -137,6 +138,9 @@ def description(doc):
 
 def license(doc):
     docs.append(('license', doc));
+
+def author(doc):
+    docs.append(('author', doc));
 
 def see_also(doc):
     docs.append(('see_also', doc));
@@ -762,6 +766,11 @@ def document(filename, outfilename):
     doc = finddoc('see_also')    
     if doc and doc[1]:
         print >>f, ".SH SEE ALSO\n"
+        print >>f, "%s" % doc[1]
+
+    doc = finddoc('author')    
+    if doc and doc[1]:
+        print >>f, ".SH AUTHOR\n"
         print >>f, "%s" % doc[1]
 
     doc = finddoc('license')    
