@@ -43,8 +43,8 @@ option constructable no;
 function read nofp;
 function write nofp;
 
+license "GPL";
 ;;
-MODULE_LICENSE("GPL");
 
 #include <asm/io.h>
 #include <rtapi_errno.h>
