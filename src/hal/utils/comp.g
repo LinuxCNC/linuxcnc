@@ -95,11 +95,22 @@ parser Hal:
 
 mp_decl_map = {'int': 'RTAPI_MP_INT', 'dummy': None}
 
-def parse(rule, text, filename=None):
+def _parse(rule, text, filename=None):
     global P, S
     S = HalScanner(text, filename=filename)
     P = Hal(S)
     return runtime.wrap_error_reporter(P, rule)
+
+def parse(filename):
+    initialize()
+    f = open(filename).read()
+    a, b = f.split("\n;;\n", 1)
+    p = _parse('File', a + "\n\n", filename)
+    if not p: raise SystemExit, 1
+    if require_license:
+        if not finddoc('license'):
+            raise SystemExit, "%s:0: License not specified" % filename
+    return a, b
 
 dirmap = {'r': 'HAL_RO', 'rw': 'HAL_RW', 'in': 'HAL_IN', 'out': 'HAL_OUT', 'io': 'HAL_IO' }
 typemap = {'signed': 's32', 'unsigned': 'u32'}
@@ -625,13 +636,7 @@ def document(filename, outfilename):
     if outfilename is None:
         outfilename = os.path.splitext(filename)[0] + ".9"
 
-    initialize()
-    f = open(filename).read()
-    a, b = f.split("\n;;\n", 1)
-
-    p = parse('File', a + "\n\n", filename)
-    if not p: raise SystemExit, 1
-
+    a, b = parse(filename)
     f = open(outfilename, "w")
 
     has_personality = False
@@ -788,14 +793,7 @@ def process(filename, mode, outfilename):
                 outfilename = os.path.join(tempdir,
                     os.path.splitext(os.path.basename(filename))[0] + ".c")
 
-        initialize()
-
-        f = open(filename).read()
-        a, b = f.split("\n;;\n", 1)
-
-        p = parse('File', a + "\n\n", filename)
-        if not p: raise SystemExit, 1
-
+        a, b = parse(filename)
         f = open(outfilename, "w")
 
         if options.get("userspace"):
@@ -843,14 +841,16 @@ Usage:
     raise SystemExit, exitval
 
 def main():
+    global require_license
+    require_license = False
     mode = PREPROCESS
     outfile = None
     userspace = False
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "uijcpdo:h?",
+        opts, args = getopt.getopt(sys.argv[1:], "luijcpdo:h?",
                            ['install', 'compile', 'preprocess', 'outfile=',
                             'document', 'help', 'userspace', 'install-doc',
-                            'view-doc'])
+                            'view-doc', 'require-license'])
     except getopt.GetoptError:
         usage(1)
 
@@ -869,6 +869,8 @@ def main():
             mode = INSTALLDOC
         if k in ("-j", "--view-doc"):
             mode = VIEWDOC
+        if k in ("-l", "--require-license"):
+            require_license = True
         if k in ("-o", "--outfile"):
             if len(args) != 1:
                 raise SystemExit, "Cannot specify -o with multiple input files"

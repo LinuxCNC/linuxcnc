@@ -38,7 +38,7 @@ objects/%.mak: %.comp hal/components/Submakefile
 objects/%.c: %.comp ../bin/comp
 	$(ECHO) "Preprocessing $(notdir $<)"
 	@mkdir -p $(dir $@)
-	@../bin/comp -o $@ $<
+	@../bin/comp --require-license -o $@ $<
 
 modules: $(patsubst %.comp, objects/%.c, $(COMPS) $(COMP_DRIVERS))
 
