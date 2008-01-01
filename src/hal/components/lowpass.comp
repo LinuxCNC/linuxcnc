@@ -3,8 +3,8 @@ pin in float in;
 pin out float out " out += (in - out) * gain ";
 param rw float gain;
 function _;
+license "GPL";
 ;;
-MODULE_LICENSE("GPL");
 FUNCTION(_) {
     out += (in - out) * gain;
 }

@@ -9,6 +9,7 @@ pin in bit reset;
 function _ nofp;
 variable __s64 last=0;
 variable int first=1;
+license "GPL";
 ;;
 #ifdef SIM
 #define max(a,b) ((a)>(b)?(a):(b))
