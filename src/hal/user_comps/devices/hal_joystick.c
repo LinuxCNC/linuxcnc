@@ -69,8 +69,8 @@
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "hal.h"		/* HAL public API decls */
 
-#define MAX_AXIS 6
-#define MAX_BUTTON 16
+#define MAX_AXIS 8
+#define MAX_BUTTON 32
 
 typedef struct {
     hal_float_t *axis[MAX_AXIS];
