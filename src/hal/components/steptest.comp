@@ -16,6 +16,7 @@ pin out float run-low;
 pin out float run-high;
 param rw float epsilon = .001;
 function _;
+license "GPL";
 ;;
 extern double fabs(double);
 

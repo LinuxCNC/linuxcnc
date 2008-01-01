@@ -9,6 +9,7 @@ pin in bit reset;
 function _ nofp;
 variable __s64 last=0;
 variable int first=1;
+license "GPL";
 ;;
 __s64 now = rtapi_get_time();
 __s64 del = (now - last);
