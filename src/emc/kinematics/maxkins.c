@@ -33,15 +33,24 @@ int kinematicsForward(const double *joints,
 		      const KINEMATICS_FORWARD_FLAGS * fflags,
 		      KINEMATICS_INVERSE_FLAGS * iflags)
 {
+    // B correction
+    double zb = (haldata->pivot_length + joints[8]) * cos(d2r(joints[4]));
+    double xb = (haldata->pivot_length + joints[8]) * sin(d2r(joints[4]));
+        
+    // C correction
+    double xyr = hypot(joints[0], joints[1]);
+    double xytheta = atan2(joints[1], joints[0]) - d2r(joints[5]);
 
-    static int printed=0;
+    // V correction
+    double zv = pos->v * sin(d2r(joints[4]));
+    double xv = pos->v * cos(d2r(joints[4]));
 
-    if(!printed) rtapi_print_msg(RTAPI_MSG_ERR, "kinematicsForward mistakenly called in INVERSE_ONLY configuration\n");
-    printed=1;
+    // U correction is always in joint 1 only
 
-    pos->tran.x = joints[0];
-    pos->tran.y = joints[1];
-    pos->tran.z = joints[2];
+    pos->tran.x = xyr * cos(xytheta) + xb - xv;
+    pos->tran.y = xyr * sin(xytheta) + joints[6];
+    pos->tran.z = joints[2] - zb + zv + haldata->pivot_length;
+
     pos->a = joints[3];
     pos->b = joints[4];
     pos->c = joints[5];
@@ -87,7 +96,7 @@ int kinematicsInverse(const EmcPose * pos,
 
 KINEMATICS_TYPE kinematicsType()
 {
-    return KINEMATICS_INVERSE_ONLY;
+    return KINEMATICS_BOTH;
 }
 
 #ifdef RTAPI
