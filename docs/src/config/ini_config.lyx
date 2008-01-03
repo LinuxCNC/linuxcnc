@@ -2095,15 +2095,8 @@ INPUT_SCALE
 \end_inset 
 
 \SpecialChar ~
-
-\series bold 
-=
-\series default 
-\SpecialChar ~
-
-\series bold 
-40000
-\series default 
+=\SpecialChar ~
+20000
 \color default
  
 \series bold 
@@ -2117,13 +2110,6 @@ INPUT_SCALE
 \color black
 
 \newline 
-The value for scale can be obtained by doing a unit analysis, i.e., units
- are
-\begin_inset Formula \[
-\frac{sensor\, units}{desired\, input\, SI\, units}\]
-
-\end_inset 
-
 For example, on a 2000 counts per rev encoder
 \begin_inset LatexCommand \index{encoder}
 
@@ -2131,8 +2117,8 @@ For example, on a 2000 counts per rev encoder
 
 , and 10 revs/inch gearing, and desired units of mm, we have
 \begin_inset Formula \begin{eqnarray*}
-input\_ scale & = & 2000\frac{counts}{rev}*10\frac{rev}{inch}*\frac{1\, inch}{25.4\, mm}\\
- & = & 787.40157\frac{counts}{mm}\end{eqnarray*}
+input\_ scale & = & 2000\frac{counts}{rev}*10\frac{rev}{inch}\\
+ & = & 20000\frac{counts}{inch}\end{eqnarray*}
 
 \end_inset 
 
@@ -2156,7 +2142,7 @@ SCALE
 
 \SpecialChar ~
 =\SpecialChar ~
-40000
+4000
 \color default
  
 \series bold 
@@ -2173,18 +2159,11 @@ SCALE
 \color black
 
 \newline 
-The value for scale can be obtained by doing a unit analysis, i.e., units
- are
-\begin_inset Formula \[
-\frac{step\, units}{desired\, input\, SI\, units}\]
-
-\end_inset 
-
 For example, on a 1.8 degree stepper motor with half-stepping, and 10 revs/inch
  gearing, and desired units of mm, we have
 \begin_inset Formula \begin{eqnarray*}
-input\_ scale & = & \frac{{2\, count}}{1.8\, degree}*10\frac{rev}{inch}*\frac{1\, inch}{25.4\, mm}\\
- & = & 157.48031\frac{counts}{mm}\end{eqnarray*}
+input\_ scale & = & \frac{{2\, steps}}{1.8\, degree}*360\frac{{degree}}{rev}*10\frac{rev}{inch}\\
+ & = & 4000\frac{steps}{inch}\end{eqnarray*}
 
 \end_inset 
 
