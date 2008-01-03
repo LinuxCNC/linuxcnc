@@ -5,6 +5,7 @@ emc2 (1:2.2.3~cvs) unstable; urgency=low
   * make g38.2 probe log 0.000000 for axes that do not exist (instead of
     an uninitialized value)
   * axis: make 'touch off' work when the loaded file uses percent signs 
+  * stepconf: fix several problems with Test Axis button
 
  -- jepler <jepler@unpythonic.net>  Mon, 10 Dec 2007 10:57:06 -0600
 

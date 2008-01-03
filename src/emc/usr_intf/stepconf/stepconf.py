@@ -1366,6 +1366,8 @@ class App:
         if period < minperiod:
             period = minperiod
             maxvel = 1e9 / minperiod / abs(scale)
+        if period > 100000:
+            period = 100000
 
 	self.halrun = halrun = os.popen("halrun -sf > /dev/null", "w")
 
@@ -1376,6 +1378,7 @@ class App:
 	halrun.write("""
 	    loadrt steptest
 	    loadrt stepgen step_type=0
+	    loadrt probe_parport
 	    loadrt hal_parport cfg=%(ioaddr)s
 	    loadrt threads period1=%(period)d name1=fast fp1=0 period2=1000000 name2=slow\n
 
