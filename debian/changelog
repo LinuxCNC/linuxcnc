@@ -6,6 +6,8 @@ emc2 (1:2.2.3~cvs) unstable; urgency=low
     an uninitialized value)
   * axis: make 'touch off' work when the loaded file uses percent signs 
   * stepconf: fix several problems with Test Axis button
+  * hal_input: make sure absolute axes are driven with the correct value at
+    startup
 
  -- jepler <jepler@unpythonic.net>  Mon, 10 Dec 2007 10:57:06 -0600
 
