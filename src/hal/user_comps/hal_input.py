@@ -93,7 +93,9 @@ class HalInputDevice:
                 comp.newparam("%s.%s-max" % (idx, name), HAL_S32, HAL_RO)
                 center = (absinfo.minimum + absinfo.maximum)/2.
                 halfrange = (absinfo.maximum - absinfo.minimum)/2.
-                self.set(name + "-counts", int(halfrange))
+                self.set(name + "-counts", absinfo.value)
+                self.set(name + "-position",
+                    (absinfo.value - center) / halfrange)
                 self.set(name + "-scale", halfrange)
                 self.set(name + "-offset", center)
                 self.set(name + "-fuzz", absinfo.fuzz)
@@ -187,6 +189,7 @@ for f in sys.argv[1:]:
         d.append(HalInputDevice(w, i, f, parts))
         parts = 'KRAL'
         i += 1
+w.drive()
 h.ready()
 
 fds = [dev.device.fileno() for dev in d]
