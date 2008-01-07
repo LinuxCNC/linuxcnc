@@ -126,9 +126,12 @@ fi
 
 function ErrorCheck () {
     result=$?
-    echo "catch {send -async popimage destroy .}; destroy ." | @WISH@
+    if [ ! -z "$DISPLAY" ]; then
+        echo "catch {send -async popimage destroy .}; destroy ." | @WISH@
+    fi
+
     if [ $result -ne 0 ]; then
-        if tty -s; then
+        if tty -s || [ -z "$DISPLAY" ] ; then
             case $DEBUG_FILE in
             /dev/tty) rm -f $HOME/emc_debug.txt;;
             *) cp $DEBUG_FILE $HOME/emc_debug.txt
@@ -475,7 +478,7 @@ if [ "$imgtime" = "" ] ; then
   imgtime=5
 fi
 if [ "$img" != "" ] ; then
-  if [ -x $EMC2_TCL_DIR/bin/popimage ] ; then
+  if [ -x $EMC2_TCL_DIR/bin/popimage && ! -z "$DISPLAY" ] ; then
     $EMC2_TCL_DIR/bin/popimage $EMC2_IMAGEDIR/$img $imgtime &
   fi
 fi
@@ -607,26 +610,17 @@ case $EMCDISPLAY in
 	exit 1
     fi
 #    xterm -xrm 'XTerm*metaSendsEscape:false' -xrm 'XTerm*VT100.Translations: #override <Key>Home: string("\033[1~")\n <Key>End: string("\033[4~")' -ls -e $EMC2_BIN_DIR/keystick -ini $INIFILE
-    xterm -xrm 'XTerm*metaSendsEscape:false' -ls -e $EMC2_BIN_DIR/keystick -ini $INIFILE
-    result=$?
-  ;;
-  axis)
-    if [ ! -x $EMC2_BIN_DIR/$EMCDISPLAY ] ; then
-	echo "Can't execute DISPLAY program $EMC2_BIN_DIR/$EMCDISPLAY $EMCDISPLAYARGS $EXTRA_ARGS"
-	Cleanup
-	exit 1
+    if [ ! -z "$DISPLAY" ]; then
+        xterm -xrm 'XTerm*metaSendsEscape:false' -ls -e $EMC2_BIN_DIR/keystick -ini $INIFILE
+    else
+    sleep 2;
+        $EMC2_BIN_DIR/keystick -ini $INIFILE
     fi
-    $EMC2_BIN_DIR/$EMCDISPLAY -ini $INIFILE $EMCDISPLAYARGS $EXTRA_ARGS
     result=$?
   ;;
   *)
-    # all other displays are assumed to be in the bin directory
-    if [ ! -x $EMC2_BIN_DIR/$EMCDISPLAY ] ; then
-	echo "Can't execute DISPLAY program $EMC2_BIN_DIR/$EMCDISPLAY $EMCDISPLAYARGS $EXTRA_ARGS"
-	Cleanup
-	exit 1
-    fi
-    $EMC2_BIN_DIR/$EMCDISPLAY -ini $INIFILE $EMCDISPLAYARGS $EXTRA_ARGS
+    # all other displays are assumed to be commands on the PATH
+    $EMCDISPLAY -ini $INIFILE $EMCDISPLAYARGS $EXTRA_ARGS
     result=$?
   ;;
 esac
