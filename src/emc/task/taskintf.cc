@@ -62,11 +62,6 @@ static int emcmotIoInited = 0;	// non-zero means io called init
 static int emcmotion_initialized = 0;	// non-zero means both
 						// emcMotionInit called.
 
-// saved value of velocity last sent out, so we don't send redundant requests
-// used by emcTrajSetVelocity(), emcMotionAbort()
-static double lastVel = -1.0;
-static double last_ini_maxvel = -1.0;
-
 // EMC_AXIS functions
 
 // local status data, not provided by emcmot
@@ -707,11 +702,6 @@ int emcTrajSetVelocity(double vel, double ini_maxvel)
 
     retval = usrmotWriteEmcmotCommand(&emcmotCommand);
 
-    if (0 == retval) {
-	lastVel = vel;
-	last_ini_maxvel = ini_maxvel;
-    }
-
     return retval;
 }
 
@@ -1293,9 +1283,6 @@ int emcMotionAbort()
 
     r2 = emcTrajAbort();
     r3 = emcSpindleAbort();
-
-    // reset optimization flag which suppresses duplicate speed requests
-    lastVel = -1.0;
 
     return (r1 == 0 && r2 == 0 && r3 == 0) ? 0 : -1;
 }
