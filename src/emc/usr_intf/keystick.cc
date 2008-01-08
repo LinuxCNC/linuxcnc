@@ -1586,6 +1586,63 @@ static int iniLoad(const char *filename)
   return 0;;
 }
 
+int tryNml()
+{
+    double end;
+    int good;
+#define RETRY_TIME 10.0		// seconds to wait for subsystems to come up
+#define RETRY_INTERVAL 1.0	// seconds between wait tries for a subsystem
+
+    if (EMC_DEBUG & EMC_DEBUG_NML == 0) {
+	set_rcs_print_destination(RCS_PRINT_TO_NULL);	// inhibit diag
+	// messages
+    }
+    end = RETRY_TIME;
+    good = 0;
+    do {
+	if (0 == emcTaskNmlGet()) {
+	    good = 1;
+	    break;
+	}
+	esleep(RETRY_INTERVAL);
+	end -= RETRY_INTERVAL;
+    } while (end > 0.0);
+    if (EMC_DEBUG & EMC_DEBUG_NML == 0) {
+	set_rcs_print_destination(RCS_PRINT_TO_STDOUT);	// inhibit diag
+	// messages
+    }
+    if (!good) {
+	return -1;
+    }
+
+    if (EMC_DEBUG & EMC_DEBUG_NML == 0) {
+	set_rcs_print_destination(RCS_PRINT_TO_NULL);	// inhibit diag
+	// messages
+    }
+    end = RETRY_TIME;
+    good = 0;
+    do {
+	if (0 == emcErrorNmlGet()) {
+	    good = 1;
+	    break;
+	}
+	esleep(RETRY_INTERVAL);
+	end -= RETRY_INTERVAL;
+    } while (end > 0.0);
+    if (EMC_DEBUG & EMC_DEBUG_NML == 0) {
+	set_rcs_print_destination(RCS_PRINT_TO_STDOUT);	// inhibit diag
+	// messages
+    }
+    if (!good) {
+	return -1;
+    }
+
+    return 0;
+
+#undef RETRY_TIME
+#undef RETRY_INTERVAL
+}
+
 int main(int argc, char *argv[])
 {
   int dump = 0;
@@ -1723,11 +1780,7 @@ int main(int argc, char *argv[])
   // init NML
   if (! dump)
     {
-      if (emcTaskNmlGet())
-        {
-          exit(1);
-        }
-      if (emcErrorNmlGet())
+        if(tryNml())
         {
           exit(1);
         }

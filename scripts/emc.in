@@ -613,7 +613,6 @@ case $EMCDISPLAY in
     if [ ! -z "$DISPLAY" ]; then
         xterm -xrm 'XTerm*metaSendsEscape:false' -ls -e $EMC2_BIN_DIR/keystick -ini $INIFILE
     else
-    sleep 2;
         $EMC2_BIN_DIR/keystick -ini $INIFILE
     fi
     result=$?
