@@ -9260,7 +9260,7 @@ M66 wait on an input stops further execution of the program, until the selected
 
 It is also an error to program M66 with both a P-word and an E-word (thus
  selecting both an analog and a digital input).
-In EMC2 these outputs are not changed in realtime and thus should not be 
+In EMC2 these inputs are not monitored in realtime and thus should not be 
 used for timing-critical applications.
 \layout Section
 
