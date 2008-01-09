@@ -478,7 +478,7 @@ if [ "$imgtime" = "" ] ; then
   imgtime=5
 fi
 if [ "$img" != "" ] ; then
-  if [ -x $EMC2_TCL_DIR/bin/popimage && ! -z "$DISPLAY" ] ; then
+  if [ -x $EMC2_TCL_DIR/bin/popimage -a ! -z "$DISPLAY" ] ; then
     $EMC2_TCL_DIR/bin/popimage $EMC2_IMAGEDIR/$img $imgtime &
   fi
 fi
