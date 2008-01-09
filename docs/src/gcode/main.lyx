@@ -9137,7 +9137,9 @@ To control a digital output bit, program
 M- P-
 \family default 
 , where the M-word ranges from 62 to 65, and the P-word ranges from 0 to
- an implementation-defined maximum.
+ an implementation-defined maximum- currently this is 3 in EMC2. 
+ These outputs are not changed in realtime and thus should not be used 
+ for timing-critical applications.
 \layout Description
 
 M62
@@ -9258,6 +9260,8 @@ M66 wait on an input stops further execution of the program, until the selected
 
 It is also an error to program M66 with both a P-word and an E-word (thus
  selecting both an analog and a digital input).
+In EMC2 these outputs are not changed in realtime and thus should not be 
+used for timing-critical applications.
 \layout Section
 
 M100 to M199
