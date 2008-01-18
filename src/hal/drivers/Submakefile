@@ -15,7 +15,7 @@ hal/drivers/m5i20_HM5-4E.h: hal/drivers/m5i20/bit/hostmot5_4.bit ../bin/m5i20cfg
 	../bin/m5i20cfg $< > $@
 
 
-hal/drivers/mesa7i43-firmware/mesa7i43-firmware-eppio8-4.h: hal/drivers/mesa7i43-firmware/eppio8-4.bit hal/drivers/mesa7i43-firmware/to-header.py
+hal/drivers/mesa7i43-firmware/mesa7i43-firmware-eppio8-4.h: hal/drivers/mesa7i43-firmware/gpio/eppio8-4.bit hal/drivers/mesa7i43-firmware/to-header.py
 	python hal/drivers/mesa7i43-firmware/to-header.py                 \
 	-d                                                                \
 	-c "This is a component of mesa7i43-gpio, a GPIO driver for EMC2" \
@@ -24,12 +24,57 @@ hal/drivers/mesa7i43-firmware/mesa7i43-firmware-eppio8-4.h: hal/drivers/mesa7i43
 	-c "<http://www.mesanet.com>"                                     \
 	$< > $@
 
-hal/drivers/mesa7i43-firmware/mesa7i43-firmware-eppio8-2.h: hal/drivers/mesa7i43-firmware/eppio8-2.bit hal/drivers/mesa7i43-firmware/to-header.py
+hal/drivers/mesa7i43-firmware/mesa7i43-firmware-eppio8-2.h: hal/drivers/mesa7i43-firmware/gpio/eppio8-2.bit hal/drivers/mesa7i43-firmware/to-header.py
 	python hal/drivers/mesa7i43-firmware/to-header.py                 \
 	-d                                                                \
 	-c "This is a component of mesa7i43-gpio, a GPIO driver for EMC2" \
 	-c ""                                                             \
 	-c "Copyright (C) 2007, Peter C. Wallace, Mesa Electronics"       \
+	-c "<http://www.mesanet.com>"                                     \
+	$< > $@
+
+hal/drivers/mesa7i43-firmware/m7i43-firmware-hm2-svst44-4.h: hal/drivers/mesa7i43-firmware/hostmot2/svst44_4.bit hal/drivers/mesa7i43-firmware/to-header.py
+	python hal/drivers/mesa7i43-firmware/to-header.py                 \
+	-d                                                                \
+	-c "This is a component of m7i43-hm2, a Servo/Stepper/GPIO driver for EMC2" \
+	-c ""                                                             \
+	-c "Copyright (C) 2007-2008, Peter C. Wallace, Mesa Electronics"       \
+	-c "<http://www.mesanet.com>"                                     \
+	$< > $@
+
+hal/drivers/mesa7i43-firmware/m7i43-firmware-hm2-svst44-2.h: hal/drivers/mesa7i43-firmware/hostmot2/svst44_2.bit hal/drivers/mesa7i43-firmware/to-header.py
+	python hal/drivers/mesa7i43-firmware/to-header.py                 \
+	-d                                                                \
+	-c "This is a component of m7i43-hm2, a Servo/Stepper/GPIO driver for EMC2" \
+	-c ""                                                             \
+	-c "Copyright (C) 2007-2008, Peter C. Wallace, Mesa Electronics"       \
+	-c "<http://www.mesanet.com>"                                     \
+	$< > $@
+
+hal/drivers/mesa7i43-firmware/m7i43-firmware-hm2-sv8-4.h: hal/drivers/mesa7i43-firmware/hostmot2/sv8_4.bit hal/drivers/mesa7i43-firmware/to-header.py
+	python hal/drivers/mesa7i43-firmware/to-header.py                 \
+	-d                                                                \
+	-c "This is a component of m7i43-hm2, a Servo/Stepper/GPIO driver for EMC2" \
+	-c ""                                                             \
+	-c "Copyright (C) 2007-2008, Peter C. Wallace, Mesa Electronics"       \
+	-c "<http://www.mesanet.com>"                                     \
+	$< > $@
+
+hal/drivers/mesa7i43-firmware/m7i43-firmware-hm2-sv8-2.h: hal/drivers/mesa7i43-firmware/hostmot2/sv8_2.bit hal/drivers/mesa7i43-firmware/to-header.py
+	python hal/drivers/mesa7i43-firmware/to-header.py                 \
+	-d                                                                \
+	-c "This is a component of m7i43-hm2, a Servo/Stepper/GPIO driver for EMC2" \
+	-c ""                                                             \
+	-c "Copyright (C) 2007-2008, Peter C. Wallace, Mesa Electronics"       \
+	-c "<http://www.mesanet.com>"                                     \
+	$< > $@
+
+hal/drivers/mesa7i43-firmware/m7i43-firmware-hm2-svst46-4.h: hal/drivers/mesa7i43-firmware/hostmot2/svst46_4.bit hal/drivers/mesa7i43-firmware/to-header.py
+	python hal/drivers/mesa7i43-firmware/to-header.py                 \
+	-d                                                                \
+	-c "This is a component of m7i43-hm2, a Servo/Stepper/GPIO driver for EMC2" \
+	-c ""                                                             \
+	-c "Copyright (C) 2007-2008, Peter C. Wallace, Mesa Electronics"       \
 	-c "<http://www.mesanet.com>"                                     \
 	$< > $@
 
@@ -57,5 +102,15 @@ pluto_clean:
 # The kernel's build system won't know how to rebuild generated files
 # so modules must depend on them explicitly
 ifneq ($(BUILD_SYS),sim)
-modules: hal/drivers/pluto_servo_rbf.h hal/drivers/m5i20_HM5-4E.h hal/drivers/pluto_step_rbf.h hal/drivers/mesa7i43-firmware/mesa7i43-firmware-eppio8-4.h hal/drivers/mesa7i43-firmware/mesa7i43-firmware-eppio8-2.h
+modules:                                                         \
+    hal/drivers/pluto_servo_rbf.h                                \
+    hal/drivers/m5i20_HM5-4E.h                                   \
+    hal/drivers/pluto_step_rbf.h                                 \
+    hal/drivers/mesa7i43-firmware/mesa7i43-firmware-eppio8-4.h   \
+    hal/drivers/mesa7i43-firmware/mesa7i43-firmware-eppio8-2.h   \
+    hal/drivers/mesa7i43-firmware/m7i43-firmware-hm2-svst44-4.h  \
+    hal/drivers/mesa7i43-firmware/m7i43-firmware-hm2-svst44-2.h  \
+    hal/drivers/mesa7i43-firmware/m7i43-firmware-hm2-sv8-4.h     \
+    hal/drivers/mesa7i43-firmware/m7i43-firmware-hm2-sv8-2.h     \
+    hal/drivers/mesa7i43-firmware/m7i43-firmware-hm2-svst46-4.h
 endif
