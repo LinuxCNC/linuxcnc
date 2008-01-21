@@ -1638,10 +1638,10 @@ proc relief {e args} {
 
 proc update_title {args} {
     if {$::taskfile == ""} {
-        wm ti . [_ "AXIS (No file)"]
+        wm ti . [_ "AXIS $::version (No file)"]
         wm iconname . "AXIS"
     } else {
-        wm ti . "[lindex [file split $::taskfile] end] - AXIS"
+        wm ti . "[lindex [file split $::taskfile] end] - AXIS $::version"
         wm iconname . "[lindex [file split $::taskfile] end]"
     }
 
