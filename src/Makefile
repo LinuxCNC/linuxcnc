@@ -500,7 +500,7 @@ COPY_CONFIGS := \
 	$(patsubst %,../configs/%/core_servo.hal, motenc m5i20 stg vti) \
 	$(patsubst %,../configs/%/core_sim.hal, halui_halvcp sim) \
 	$(patsubst %,../configs/%/core_sim9.hal, sim) \
-	../configs/sim/axis_manualtoolchange.hal
+	$(patsubst %,../configs/%/axis_manualtoolchange.hal, sim lathe-pluto)
 
 configs: $(COPY_CONFIGS)
 
