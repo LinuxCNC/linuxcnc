@@ -41,32 +41,6 @@
 
 #include <string.h>
 
-#ifndef USE_POSIX_SHAREDMEM
-
-struct ipc_perm2 {
-    uint key;
-    ushort uid;			/* owner euid and egid */
-    ushort gid;
-    ushort cuid;		/* creator euid and egid */
-    ushort cgid;
-    ushort mode;		/* lower 9 bits of access modes */
-    ushort seq;			/* sequence number */
-};
-
-struct shmid_ds2 {
-    struct ipc_perm2 shm_perm;	/* operation perms */
-    int shm_segsz;		/* size of segment (bytes) */
-    long int shm_atime;		/* last attach time */
-    long int shm_dtime;		/* last detach time */
-    long int shm_ctime;		/* last change time */
-    unsigned short shm_cpid;	/* pid of creator */
-    unsigned short shm_lpid;	/* pid of last operator */
-    short shm_nattch;		/* no. of current attaches */
-    char bigpad[256];
-};
-
-#endif
-
 static int shmems_created_list[100];
 static int shmems_created_list_initialized = 0;
 
@@ -82,10 +56,7 @@ shm_t *rcs_shm_open(key_t key, size_t size, int oflag, /* int mode */ ...)
     struct stat statbuf;
 #endif
 #else
-    union {
-	struct shmid_ds shared_mem_info1;
-	struct shmid_ds2 shared_mem_info2;
-    } shared_mem_info;
+    struct shmid_ds shared_mem_info;
 
     int pid;
     int i;
@@ -274,7 +245,7 @@ shm_t *rcs_shm_open(key_t key, size_t size, int oflag, /* int mode */ ...)
     }
 
     /* Check to see if I am the creator of this shared memory buffer. */
-    if (shmctl(shm->id, IPC_STAT, ((struct shmid_ds *) &shared_mem_info)) < 0) {
+    if (shmctl(shm->id, IPC_STAT, &shared_mem_info) < 0) {
 	rcs_print_error("shmctl error: %d %s\n", errno, strerror(errno));
 	return shm;
     }
@@ -300,12 +271,7 @@ shm_t *rcs_shm_open(key_t key, size_t size, int oflag, /* int mode */ ...)
 	rcs_print_error("getpid error: %d %s\n", errno, strerror(errno));
 	return shm;
     }
-    if (shared_mem_info.shared_mem_info2.shm_segsz == shm->size &&
-	shared_mem_info.shared_mem_info1.shm_segsz != shm->size) {
-	shm->created = (shared_mem_info.shared_mem_info2.shm_cpid == pid);
-    } else {
-	shm->created = (shared_mem_info.shared_mem_info1.shm_cpid == pid);
-    }
+    shm->created = (shared_mem_info.shm_cpid == pid);
 #ifdef linux_2_4_0
     shm->created = 1;
 #endif
@@ -349,10 +315,7 @@ int rcs_shm_close(shm_t * shm)
 	shm->id = 0;
     }
 #else
-    union {
-	struct shmid_ds shared_mem_info1;
-	struct shmid_ds2 shared_mem_info2;
-    } shared_mem_info;
+    struct shmid_ds shared_mem_info;
 
     int i;
 
@@ -369,7 +332,7 @@ int rcs_shm_close(shm_t * shm)
 
     /* remove OS shmem if there are no attached processes */
     if (rcs_shm_nattch(shm) == 0) {
-	shmctl(shm->id, IPC_RMID, ((struct shmid_ds *) &shared_mem_info));
+	shmctl(shm->id, IPC_RMID, &shared_mem_info);
     }
 
     if (shm->created && shmems_created_list_initialized) {
@@ -411,10 +374,7 @@ int rcs_shm_delete(shm_t * shm)
     }
     shm_unlink(shm->name);
 #else
-    union {
-	struct shmid_ds shared_mem_info1;
-	struct shmid_ds2 shared_mem_info2;
-    } shared_mem_info;
+    struct shmid_ds shared_mem_info;
 
     /* check for invalid ptr */
     if (shm == NULL)
@@ -424,7 +384,7 @@ int rcs_shm_delete(shm_t * shm)
     shmdt((char *) shm->addr);
 
     /* remove OS shmem regardless of whether there are attached processes */
-    shmctl(shm->id, IPC_RMID, ((struct shmid_ds *) &shared_mem_info));
+    shmctl(shm->id, IPC_RMID, &shared_mem_info);
 #endif
 
     free(shm);
@@ -443,23 +403,16 @@ int rcs_shm_nattch(shm_t * shm)
     }
     return *((int *) (((char *) shm->addr) + shm->size)) + 1;
 #else
-    union {
-	struct shmid_ds shared_mem_info1;
-	struct shmid_ds2 shared_mem_info2;
-    } shared_mem_info;
+    struct shmid_ds shared_mem_info;
 
     /* check for invalid ptr */
     if (shm == NULL)
 	return -1;
 
     /* get the status of shared memory */
-    shmctl(shm->id, IPC_STAT, ((struct shmid_ds *) &shared_mem_info));
+    shmctl(shm->id, IPC_STAT, &shared_mem_info);
 
-    if (shared_mem_info.shared_mem_info2.shm_segsz == shm->size &&
-	shared_mem_info.shared_mem_info1.shm_segsz != shm->size) {
-	return shared_mem_info.shared_mem_info2.shm_nattch;
-    }
-    return shared_mem_info.shared_mem_info1.shm_nattch;
+    return shared_mem_info.shm_nattch;
 #endif
 
 }
