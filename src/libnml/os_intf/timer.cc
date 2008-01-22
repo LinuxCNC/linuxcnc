@@ -40,6 +40,7 @@ extern "C" {
 RCS_TIMER::RCS_TIMER(char *process_name, char *config_file)
 {
     zero_timer();
+    set_timeout(0);
 }
 
 RCS_TIMER::RCS_TIMER(double _timeout, char *process_name, char *config_file)
@@ -68,6 +69,9 @@ void RCS_TIMER::zero_timer()
 #endif
     id = 0;
     function = NULL;
+    arg = NULL;
+    last_time = etime();	/* initialize start time and last time called
+				   to current time since epoch */
     idle = 0.0;			/* set accumulated idle time to 0.0 */
     counts = 0;			/* set accumulated waits to 0 */
     start_time = etime();	/* set creation time to now */
@@ -101,11 +105,6 @@ RCS_TIMER::RCS_TIMER(double _timeout, RCS_TIMERFUNC _function, void *_arg)
     }
     function = _function;
     arg = _arg;
-    last_time = etime();	/* initialize start time and last time called
-				   to current time since epoch */
-    idle = 0.0;			/* set accumulated idle time to 0.0 */
-    counts = 0;			/* set accumulated waits to 0 */
-    start_time = etime();	/* set creation time to now */
     time_since_real_sleep = start_time;
 }
 
@@ -151,6 +150,7 @@ int RCS_TIMER::wait()
 	missed = (int) (numcycles - (clk_tck_val / timeout));
 	idle += interval;
 	last_time = time_done;
+        remaining = 0.0;
     } else {
 	missed = (int) (numcycles); 
 	remaining = timeout * (1.0 - (numcycles - (int) numcycles));
