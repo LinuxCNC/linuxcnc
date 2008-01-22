@@ -1249,8 +1249,7 @@ def lathetool():
 
         x1 = (w - d0)
 
-        if radius: sz = 3 * radius
-        else: sz = w
+        sz = max(w, 3*radius)
 
         glBegin(GL_TRIANGLE_FAN)
         glVertex3f(
