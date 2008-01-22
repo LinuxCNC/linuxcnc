@@ -338,6 +338,7 @@ void USE_TOOL_LENGTH_OFFSET(double xoffset, double zoffset) {
     tool_zoffset = zoffset; tool_xoffset = xoffset;
     maybe_new_line();
     if(interp_error) return;
+    if(metric) { xoffset /= 25.4; zoffset /= 25.4; }
     PyObject *result = PyObject_CallMethod(callback, "tool_offset", "dd",
             zoffset, xoffset);
     if(result == NULL) interp_error ++;
