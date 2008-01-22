@@ -67,6 +67,10 @@ MODULE_EXT=@MODEXT@ # module extension, used when insmod'ing
 DEBUG_FILE=$(mktemp /tmp/emc.debug.XXXXXX)
 PRINT_FILE=$(mktemp /tmp/emc.print.XXXXXX)
 
+program_available () {
+    type -path $1 > /dev/null 2>&1
+}
+
 usage () {
 	P=${0##*/}
 	cat <<EOF
@@ -176,11 +180,11 @@ echo RUN_IN_PLACE=$RUN_IN_PLACE >>$PRINT_FILE
 EMC2VERSION="@EMC2VERSION@"; export EMC2VERSION
 
 # common from here..
-INIVAR=$EMC2_BIN_DIR/inivar
-HALCMD=$EMC2_BIN_DIR/halcmd
+INIVAR=inivar
+HALCMD=halcmd
 PICKCONFIG="@WISH@ $EMC2_TCL_DIR/bin/pickconfig.tcl"
-EMC2_EMCSH=$EMC2_BIN_DIR/emcsh
-EMC2_IOSH=$EMC2_BIN_DIR/iosh
+EMC2_EMCSH=emcsh
+EMC2_IOSH=iosh
 
 echo EMC2_DIR=$EMC2_DIR >>$PRINT_FILE
 echo EMC2_BIN_DIR=$EMC2_BIN_DIR >>$PRINT_FILE
@@ -367,7 +371,7 @@ function Cleanup() {
 	fi
     done
 
-    if [ -x EMC2_BIN_DIR/axis-remote ]; then
+    if program_available axis-remote ; then
 	axis-remote --ping && axis-remote --quit
     fi
 
@@ -487,15 +491,15 @@ fi
 # 4.2. Now we can finally start loading EMC
 ################################################################################
 
-# 4.3.1. Run emcserver in background, always (it owns/createas the NML buffers)
+# 4.3.1. Run emcserver in background, always (it owns/creates the NML buffers)
 echo "Starting EMC2 server program: $EMCSERVER" >>$PRINT_FILE
-if [ ! -x $EMC2_BIN_DIR/$EMCSERVER ] ; then
-    echo "Can't execute server program $EMC2_BIN_DIR/$EMCSERVER"
+if ! program_available $EMCSERVER; then
+    echo "Can't execute server program $EMCSERVER"
     Cleanup
     exit 1
 fi
 export INI_FILE_NAME=$INIFILE
-$EMC2_BIN_DIR/$EMCSERVER -ini $INIFILE &
+$EMCSERVER -ini $INIFILE &
 sleep 1
 
 # 4.3.2. Start REALTIME
@@ -512,22 +516,22 @@ export HAL_RTMOD_DIR=$EMC2_RTLIB_DIR
 
 # 4.3.4. Run emcio in background
 echo "Starting EMC2 IO program: $EMCIO" >>$PRINT_FILE
-if [ ! -x $EMC2_BIN_DIR/$EMCIO ] ; then
-    echo "Can't execute IO program $EMC2_BIN_DIR/$EMCIO"
+if ! program_available $EMCIO ; then
+    echo "Can't execute IO program $EMCIO"
     Cleanup
     exit 1
 fi
-$HALCMD loadusr -Wn iocontrol $EMC2_BIN_DIR/$EMCIO -ini $INIFILE
+$HALCMD loadusr -Wn iocontrol $EMCIO -ini $INIFILE
 
 # 4.3.5. Run halui in background, if necessary
 if [ -n "$HALUI" ] ; then
     echo "Starting HAL User Interface program: $HALUI" >>$PRINT_FILE
-    if [ ! -x $EMC2_BIN_DIR/$HALUI ] ; then
-	echo "Can't execute halui program $EMC2_BIN_DIR/$HALUI"
+    if ! program_available $HALUI ; then
+	echo "Can't execute halui program $HALUI"
 	Cleanup
 	exit 1
     fi
-    $HALCMD loadusr -Wn halui $EMC2_BIN_DIR/$HALUI -ini $INIFILE
+    $HALCMD loadusr -Wn halui $HALUI -ini $INIFILE
 fi
 
 # 4.3.6. execute HALCMD config files (if any)
@@ -567,12 +571,12 @@ $HALCMD start
 
 # 4.3.9. Run emctask in background
 echo "Starting EMC2 TASK program: $EMCTASK" >>$PRINT_FILE
-if [ ! -x $EMC2_BIN_DIR/$EMCTASK ] ; then
-    echo "Can't execute TASK program $EMC2_BIN_DIR/$EMCTASK"
+if ! program_available $EMCTASK ; then
+    echo "Can't execute TASK program $EMCTASK"
     Cleanup
     exit 1
 fi
-$EMC2_BIN_DIR/$EMCTASK -ini $INIFILE &
+$EMCTASK -ini $INIFILE &
 
 #export some common directories, used by some of the GUI's
 export EMC2_TCL_DIR=$EMC2_TCL_DIR
@@ -604,21 +608,25 @@ case $EMCDISPLAY in
     read foo;
   ;;
   keystick)
-    if [ ! -x $EMC2_BIN_DIR/keystick ] ; then
-	echo "Can't execute DISPLAY program $EMC2_BIN_DIR/$EMCDISPLAY $EMCDISPLAYARGS $EXTRA_ARGS"
+    if ! program_available keystick ; then
+	echo "Can't execute DISPLAY program $EMCDISPLAY $EMCDISPLAYARGS $EXTRA_ARGS"
 	Cleanup
 	exit 1
     fi
-#    xterm -xrm 'XTerm*metaSendsEscape:false' -xrm 'XTerm*VT100.Translations: #override <Key>Home: string("\033[1~")\n <Key>End: string("\033[4~")' -ls -e $EMC2_BIN_DIR/keystick -ini $INIFILE
     if [ ! -z "$DISPLAY" ]; then
-        xterm -xrm 'XTerm*metaSendsEscape:false' -ls -e $EMC2_BIN_DIR/keystick -ini $INIFILE
+        xterm -xrm 'XTerm*metaSendsEscape:false' -ls -e keystick -ini $INIFILE
     else
-        $EMC2_BIN_DIR/keystick -ini $INIFILE
+        keystick -ini $INIFILE
     fi
     result=$?
   ;;
   *)
     # all other displays are assumed to be commands on the PATH
+    if ! program_available $EMCDISPLAY; then
+        echo "Can't execute DISPLAY program $EMCDISPLAY $EMCDISPLAYARGS $EXTRA_ARGS"
+        Cleanup
+        exit 1
+    fi
     $EMCDISPLAY -ini $INIFILE $EMCDISPLAYARGS $EXTRA_ARGS
     result=$?
   ;;
