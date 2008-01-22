@@ -37,5 +37,8 @@
  N..... COMMENT("interpreter: cutter radius compensation off")
  N..... SET_ORIGIN_OFFSETS(0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000)
  N..... SET_ORIGIN_OFFSETS(0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000)
+ N..... SET_FEED_MODE(0)
+ N..... SET_FEED_RATE(0.0000)
  N..... STOP_SPINDLE_TURNING()
+ N..... SET_SPINDLE_MODE(0.0000)
  N..... PROGRAM_END()
