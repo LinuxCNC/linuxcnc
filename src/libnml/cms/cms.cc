@@ -190,7 +190,7 @@ CMS::CMS(long s)
  /* 1 force this CMS object to be in server mode. */
 CMS::CMS(char *bufline, char *procline, int set_to_server)
 {
-    char *word[32];		/* Array of pointers to strings.  */
+    char *word[32]={0,};	/* Array of pointers to strings.  */
     char *buffer_type_name;	/* pointer to buffer type name from bufline */
     char *proc_type_name;	/* pointer to process type from procline */
     int i;
@@ -266,9 +266,6 @@ CMS::CMS(char *bufline, char *procline, int set_to_server)
 
     dummy_handle = (PHYSMEM_HANDLE *) NULL;
     remote_port_type = CMS_NO_REMOTE_PORT_TYPE;
-    for (i = 0; i < 10; i++) {
-	word[i] = (char *) NULL;
-    }
 
     /* Store the bufline and procline for debugging later. */
     strcpy(BufferLine, bufline);
