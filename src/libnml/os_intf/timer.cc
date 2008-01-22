@@ -39,10 +39,12 @@ extern "C" {
 /* RCS_TIMER class */
 RCS_TIMER::RCS_TIMER(char *process_name, char *config_file)
 {
+    zero_timer();
 }
 
 RCS_TIMER::RCS_TIMER(double _timeout, char *process_name, char *config_file)
 {
+    zero_timer();
     set_timeout(_timeout);
 }
 

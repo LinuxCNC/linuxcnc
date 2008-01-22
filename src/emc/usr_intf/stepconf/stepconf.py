@@ -28,6 +28,7 @@ import math
 import getopt
 import textwrap
 
+import gobject
 import gtk
 import gtk.glade
 import gnome.ui
@@ -57,6 +58,8 @@ if not os.path.isfile(wizard):
     wizard = os.path.join(wizdir, "emc2-wizard.gif")
 
 distdir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "configs", "common")
+if not os.path.isdir(distdir):
+    distdir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "emc2", "sample-configs", "common")
 if not os.path.isdir(distdir):
     distdir = "/etc/emc2/sample-configs/common"
 
@@ -891,10 +894,10 @@ class App:
 
         self.watermark = gtk.gdk.pixbuf_new_from_file(wizard)
 	self.widgets.dialog1.hide()
-	self.widgets.druidpagestart1.show()
         self.widgets.druidpagestart1.set_watermark(self.watermark)
-	self.widgets.complete.show()
         self.widgets.complete.set_watermark(self.watermark)
+	self.widgets.druidpagestart1.show()
+	self.widgets.complete.show()
 	
 	self.xml.signal_autoconnect(self)
 
@@ -1004,7 +1007,6 @@ class App:
 	    self.widgets.dirsetup.set_sensitive(1)
 
     def do_exclusive_inputs(self, pin):
-        print "do_exclusive_inputs", self.in_pport_prepare
 	if self.in_pport_prepare: return
 	exclusive = {
 	    HOME_X: (MAX_HOME_X, MIN_HOME_X, BOTH_HOME_X, ALL_HOME),
@@ -1057,7 +1059,7 @@ class App:
 	p = 'pin%d' % pin
 	v = self.widgets[p].get_active()
 	ex = exclusive.get(hal_input_names[v], ())
-        print "exclusive:", hal_input_names[v], ex
+
 	for pin1 in (10,11,12,13,15):
 	    if pin1 == pin: continue
 	    p = 'pin%d' % pin1
@@ -1367,6 +1369,19 @@ class App:
         self.widgets.baseperiod.set_text("%s ns" % minperiod)
         self.widgets.maxsteprate.set_text("%s Hz" % maxhz)
 
+    def on_latency_test_clicked(self, w):
+        self.latency_pid = os.spawnvp(os.P_NOWAIT,
+                                "latency-test", ["latency-test"])
+        self.widgets['window1'].set_sensitive(0)
+        gobject.timeout_add(15, self.latency_running_callback)
+
+    def latency_running_callback(self):
+        pid, status = os.waitpid(self.latency_pid, os.WNOHANG)
+        if pid:
+            self.widgets['window1'].set_sensitive(1)
+            return False
+        return True
+
     def update_axis_params(self, *args):
 	axis = self.axis_under_test
 	if axis is None: return
@@ -1404,6 +1419,8 @@ class App:
     def on_jogplus_released(self, w):
 	self.jogplus = 0
 	self.update_axis_params()
+
+        
 
     def test_axis(self, axis):
 	data = self.data

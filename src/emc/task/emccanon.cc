@@ -706,16 +706,26 @@ void FINISH() {
 static bool reduce_one(double &v, double e, double o, double &w, double period) {
     if(period == 0) return false;
 
+    if(fabs(e-v) < period) {
+        // total movement is less than +- 1 rev; don't second-guess gcode
+        return false;
+    }
+
     // make v the target position before program and wrap origins were added
     v = v - o - w;
-    if(v > period || v < -period) {
+    if(fabs(v) > period) {
         v = v + o + w;
         // target position is more than +- 1 rev; don't second-guess gcode
         return false;
     }
 
-    e = e - o;
+    if(fabs(e-w) < period) {
+        // start position is less than +- 1 rev; don't second-guess gcode
+        return false; 
+    }
+
     // make e the current position before program origin was added
+    e = e - o;
     double revs = v / period;
     double erevs = e / period;
 
@@ -1165,12 +1175,12 @@ void ARC_FEED(double first_end, double second_end,
 	a2 = FROM_EXT_LEN(AXIS_MAX_ACCELERATION[1]);
         circ_maxvel = ini_maxvel = MIN(v1, v2);
         circ_acc = acc = MIN(a1, a2);
-        if(axis_len > 0.001) {
-            axial_maxvel = v1 = FROM_EXT_LEN(AXIS_MAX_VELOCITY[2]);
-            axial_acc = a1 = FROM_EXT_LEN(AXIS_MAX_ACCELERATION[2]);
-            ini_maxvel = MIN(ini_maxvel, v1);
-            acc = MIN(acc, a1);
-        }
+
+        axial_maxvel = v1 = FROM_EXT_LEN(AXIS_MAX_VELOCITY[2]);
+        axial_acc = a1 = FROM_EXT_LEN(AXIS_MAX_ACCELERATION[2]);
+        ini_maxvel = MIN(ini_maxvel, v1);
+        acc = MIN(acc, a1);
+
 	break;
 
     case CANON_PLANE_YZ:
@@ -1201,12 +1211,11 @@ void ARC_FEED(double first_end, double second_end,
 	a2 = FROM_EXT_LEN(AXIS_MAX_ACCELERATION[2]);
         circ_maxvel = ini_maxvel = MIN(v1, v2);
         circ_acc = acc = MIN(a1, a2);
-        if(axis_len > 0.001) {
-            axial_maxvel = v1 = FROM_EXT_LEN(AXIS_MAX_VELOCITY[0]);
-            axial_acc = a1 = FROM_EXT_LEN(AXIS_MAX_ACCELERATION[0]);
-            ini_maxvel = MIN(ini_maxvel, v1);
-            acc = MIN(acc, a1);
-        }
+
+        axial_maxvel = v1 = FROM_EXT_LEN(AXIS_MAX_VELOCITY[0]);
+        axial_acc = a1 = FROM_EXT_LEN(AXIS_MAX_ACCELERATION[0]);
+        ini_maxvel = MIN(ini_maxvel, v1);
+        acc = MIN(acc, a1);
 
 	break;
 
@@ -1239,12 +1248,12 @@ void ARC_FEED(double first_end, double second_end,
 	a2 = FROM_EXT_LEN(AXIS_MAX_ACCELERATION[2]);
 	circ_maxvel = ini_maxvel = MIN(v1, v2);
         circ_acc = acc = MIN(a1, a2);
-        if(axis_len > 0.001) {
-            axial_maxvel = v1 = FROM_EXT_LEN(AXIS_MAX_VELOCITY[1]);
-            axial_acc = a1 = FROM_EXT_LEN(AXIS_MAX_ACCELERATION[1]);
-            ini_maxvel = MIN(ini_maxvel, v1);
-            acc = MIN(acc, a1);
-        }
+
+        axial_maxvel = v1 = FROM_EXT_LEN(AXIS_MAX_VELOCITY[1]);
+        axial_acc = a1 = FROM_EXT_LEN(AXIS_MAX_ACCELERATION[1]);
+        ini_maxvel = MIN(ini_maxvel, v1);
+        acc = MIN(acc, a1);
+
 	break;
     }
 

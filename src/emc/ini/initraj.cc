@@ -219,7 +219,7 @@ static int loadTraj(EmcIniFile *trajInifile)
 		// position string ptr past this value
 		len += strlen(home);
 		// and at start of next value
-		while ((homes[len] == ' ' || home[len] == '\t') &&
+		while ((homes[len] == ' ' || homes[len] == '\t') &&
 		       len < LINELEN) {
 		    len++;
 		}
