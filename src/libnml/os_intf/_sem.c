@@ -68,7 +68,7 @@ union semun {
 int rcs_sem_destroy(rcs_sem_t * sem)
 {
     /* remove OS semaphore */
-    if (semctl(*sem, 0, IPC_RMID) == -1) {
+    if (semctl(*sem, 0, IPC_RMID, 0) == -1) {
 	rcs_print_error("semctl(%d,0,%d) failed: (errno = %d) %s\n",
 	    *sem, IPC_RMID, errno, strerror(errno));
 	return -1;
