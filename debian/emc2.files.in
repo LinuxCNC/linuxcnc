@@ -185,6 +185,7 @@ etc/emc2/sample-configs/hexapod-sim/hexapod.tbl
 etc/emc2/sample-configs/hexapod-sim/hexapod.var
 etc/emc2/sample-configs/hexapod-sim/minitetra.ini
 etc/emc2/sample-configs/hexapod-sim/README
+etc/emc2/sample-configs/lathe-pluto/axis_manualtoolchange.hal
 etc/emc2/sample-configs/lathe-pluto/emc.nml
 etc/emc2/sample-configs/lathe-pluto/emc.tbl
 etc/emc2/sample-configs/lathe-pluto/emc.var
