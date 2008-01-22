@@ -52,8 +52,10 @@ limit3.9
 lowpass.9
 lut5.9
 knob2float.9
+m7i43_hm2.9
 maj3.9
 match8.9
+mesa7i43_gpio.9
 minmax.9
 mult2.9
 mux2.9
@@ -72,6 +74,7 @@ steptest.9
 sum2.9
 threadtest.9
 timedelta.9
+timedelay.9
 toggle.9
 tristate_float.9
 tristate_bit.9
