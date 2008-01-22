@@ -404,13 +404,18 @@ int rcs_shm_nattch(shm_t * shm)
     return *((int *) (((char *) shm->addr) + shm->size)) + 1;
 #else
     struct shmid_ds shared_mem_info;
-
+    int err;
     /* check for invalid ptr */
     if (shm == NULL)
 	return -1;
 
     /* get the status of shared memory */
-    shmctl(shm->id, IPC_STAT, &shared_mem_info);
+    err = shmctl(shm->id, IPC_STAT, &shared_mem_info);
+
+    if(err == -1) {
+        perror("shmctl");
+        return 0;
+    }
 
     return shared_mem_info.shm_nattch;
 #endif
