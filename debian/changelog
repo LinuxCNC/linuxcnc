@@ -1,12 +1,14 @@
 emc2 (1:2.3.0~alpha) unstable; urgency=low
 
+  [ Sebastian Kuzminsky ]
   * minor improvements for teach-in.py
   * G38.x extensions allow for smart & fast probing
   * M66 now reads analog inputs aswell
   * [add bugfixes from the 2.2.x branch here, before release]
   * added a driver for Mesa Electronics' 7i43 FPGA I/O board
+  * sanity checks for M66 input indexes (prevents a possible segfault on task)
 
- -- Sebastian Kuzminsky <seb@highlab.com>  Wed, 12 Dec 2007 15:25:01 -0700
+ -- Alex Joni <juve@taurus>  Wed, 23 Jan 2008 23:42:53 +0200
 
 emc2 (1:2.2.0) unstable; urgency=low
 
