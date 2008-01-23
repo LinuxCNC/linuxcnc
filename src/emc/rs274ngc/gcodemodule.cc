@@ -461,7 +461,7 @@ CANON_TOOL_TABLE GET_EXTERNAL_TOOL_TABLE(int tool) {
 
 int GET_EXTERNAL_DIGITAL_INPUT(int index) { return 1; }
 double GET_EXTERNAL_ANALOG_INPUT(int index) { return 1.0; }
-void WAIT(int index, int input_type, int wait_type, int timeout) { }
+int WAIT(int index, int input_type, int wait_type, int timeout) { return 0;}
 
 void user_defined_function(int num, double arg1, double arg2) {
     if(interp_error) return;

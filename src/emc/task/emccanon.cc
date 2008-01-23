@@ -2510,19 +2510,18 @@ CANON_PLANE GET_EXTERNAL_PLANE()
     return activePlane;
 }
 
-
+/* returns current value of the digital input selected by index.*/
 int GET_EXTERNAL_DIGITAL_INPUT(int index)
 {
-/* returns current value of the digital input selected by index.*/
-//#ifdef INPUT_DEBUG
-    printf("GET_EXTERNAL_DIGITAL_INPUT called\n di[%d]=%d \n timeout=%d \n",index,emcStatus->motion.synch_di[index],emcStatus->task.input_timeout);
-//#endif
     if ((index < 0) || (index >= EMC_MAX_DIO))
 	return -1;
 
     if (emcStatus->task.input_timeout == 1)
 	return -1;
 
+#ifdef INPUT_DEBUG
+    printf("GET_EXTERNAL_DIGITAL_INPUT called\n di[%d]=%d \n timeout=%d \n",index,emcStatus->motion.synch_di[index],emcStatus->task.input_timeout);
+#endif
     return emcStatus->motion.synch_di[index];
 }
 
@@ -2723,11 +2722,14 @@ void SET_AUX_OUTPUT_VALUE(int index, double value)
    index changed to the needed state (specified by wait_type).
    Return value: either wait_type if timeout didn't occur, or -1 otherwise. */
 
-void WAIT(int index, /* index of the motion exported input */
+int WAIT(int index, /* index of the motion exported input */
          int input_type, /*DIGITAL_INPUT or ANALOG_INPUT */
 	 int wait_type, /* 0 - rise, 1 - fall, 2 - be high, 3 - be low */
 	 int timeout) /* time to wait [in seconds], if the input didn't change the value -1 is returned */
 {
+ if ((index < 0) || (index >= EMC_MAX_DIO))
+	return -1;
+
  EMC_AUX_INPUT_WAIT wait_msg;
  
  flush_segments();
@@ -2738,4 +2740,5 @@ void WAIT(int index, /* index of the motion exported input */
  wait_msg.timeout = timeout;
  
  interp_list.append(wait_msg);
+ return 0;
 }

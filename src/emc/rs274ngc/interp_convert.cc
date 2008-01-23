@@ -2132,7 +2132,7 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
                      setup_pointer settings)    //!< pointer to machine settings                 
 {
   static char name[] = "convert_m";
-  int status;
+  int status, ret=0;
   int type, timeout;
   double *pars;                 /* short name for settings->parameters            */
 
@@ -2194,15 +2194,22 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 	else
 	    timeout = 0;
 
-	WAIT(round_to_int(block->p_number), DIGITAL_INPUT, type, timeout); 
-	settings->input_flag = ON;
-	settings->input_index = round_to_int(block->p_number);
-	settings->input_digital = ON;
+	ret = WAIT(round_to_int(block->p_number), DIGITAL_INPUT, type, timeout);
+	//WAIT returns 0 on success, -1 for out of bounds
+	CHK((ret == -1), NCE_DIGITAL_INPUT_INVALID_ON_M66);
+	if (ret == 0) {
+	    settings->input_flag = ON;
+	    settings->input_index = round_to_int(block->p_number);
+	    settings->input_digital = ON;
+	}
     } else if (round_to_int(block->e_number) >= 0) { // got an analog input
-	WAIT(round_to_int(block->e_number), ANALOG_INPUT, 0, 0);
-	settings->input_flag = ON;
-	settings->input_index = round_to_int(block->e_number);
-	settings->input_digital = OFF;
+	ret = WAIT(round_to_int(block->e_number), ANALOG_INPUT, 0, 0); //WAIT returns 0 on success, -1 for out of bounds
+	CHK((ret == -1), NCE_ANALOG_INPUT_INVALID_ON_M66);
+	if (ret == 0) {
+	    settings->input_flag = ON;
+	    settings->input_index = round_to_int(block->e_number);
+	    settings->input_digital = OFF;
+	}
     } 
   }    
 
