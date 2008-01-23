@@ -34,7 +34,6 @@
 #include "emcglb.h"		// EMC_NMLFILE, TRAJ_MAX_VELOCITY, etc.
 #include "emccfg.h"		// DEFAULT_TRAJ_MAX_VELOCITY
 #include "inifile.hh"		// INIFILE
-#include "emcmotcfg.h"          // EMCMOT_MAX_JOINTS
 #include "rcs_print.hh"
 #include "nml_oi.hh"
 #include "timer.hh"
