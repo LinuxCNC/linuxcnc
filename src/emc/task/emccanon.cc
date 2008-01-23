@@ -2419,7 +2419,7 @@ int GET_EXTERNAL_DIGITAL_INPUT(int index)
     printf("GET_EXTERNAL_DIGITAL_INPUT called\n di[%d]=%d \n timeout=%d \n",index,emcStatus->motion.synch_di[index],emcStatus->task.input_timeout);
 //#endif
 
-    return emcStatus->motion.synch_di[index];
+    return (emcStatus->motion.synch_di[index] != 0) ? 1 : 0;
 }
 
 double GET_EXTERNAL_ANALOG_INPUT(int index)
@@ -2432,7 +2432,6 @@ double GET_EXTERNAL_ANALOG_INPUT(int index)
 	return -1;
 
     return emcStatus->motion.analog_input[index];
-    return 0;
 }
 
 
