@@ -2323,7 +2323,7 @@ static int emcTaskExecute(void)
 	    switch (emcAuxInputWaitType) {
 		case WAIT_MODE_HIGH:
     		case WAIT_MODE_RISE: //FIXME: implement different rise mode if needed
-		    if (emcStatus->motion.synch_di[emcAuxInputWaitIndex] == 1) {
+		    if (emcStatus->motion.synch_di[emcAuxInputWaitIndex] != 0) {
 			emcStatus->task.input_timeout = 0; // clear timeout flag
 			emcAuxInputWaitIndex = -1;
 			emcStatus->task.execState = EMC_TASK_EXEC_DONE;
