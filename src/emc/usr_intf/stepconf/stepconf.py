@@ -692,7 +692,7 @@ class Data:
             print >>file, "net spindle-cw <= motion.spindle-forward"
         if CCW in outputs:
             print >>file, "net spindle-ccw <= motion.spindle-reverse"
-        if CCW in outputs:
+        if BRAKE in outputs:
             print >>file, "net spindle-brake <= motion.spindle-brake"
 
 	if MIST in outputs:
