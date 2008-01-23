@@ -283,13 +283,13 @@ void clearHomes(int joint_num)
   sets or clears a HAL DIO pin, 
   pins get exported at runtime
   
-  index is valid from 0 to EMCMOT_MAX_DIO, defined in emcmotcfg.h
+  index is valid from 0 to num_dio <= EMCMOT_MAX_DIO, defined in emcmotcfg.h
   
 */
 void emcmotDioWrite(int index, char value)
 {
-    if ((index >= EMCMOT_MAX_DIO) || (index < 0)) {
-	rtapi_print_msg(RTAPI_MSG_ERR, "ERROR: index out of range, %d not in [0..%d] (increase EMCMOT_MAX_DIO)\n",index,EMCMOT_MAX_DIO);
+    if ((index >= num_dio) || (index < 0)) {
+	rtapi_print_msg(RTAPI_MSG_ERR, "ERROR: index out of range, %d not in [0..%d] (increase num_dio/EMCMOT_MAX_DIO=%d)\n", index,num_dio, EMCMOT_MAX_DIO);
     } else {
 	if (value != 0) {
 	    *(emcmot_hal_data->synch_do[index])=1;

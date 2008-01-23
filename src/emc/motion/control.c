@@ -2634,10 +2634,10 @@ static void update_status(void)
 	joint_status->home_offset = joint->home_offset;
     }
 
-    for (dio = 0; dio < EMCMOT_MAX_DIO; dio++)
+    for (dio = 0; dio < num_dio; dio++)
 	emcmotStatus->synch_di[dio] = *(emcmot_hal_data->synch_di[dio]);
 
-    for (aio = 0; aio < EMCMOT_MAX_AIO; aio++)
+    for (aio = 0; aio < num_aio; aio++)
 	emcmotStatus->analog_input[aio] = *(emcmot_hal_data->analog_input[aio]);
 
     /*! \todo FIXME - the rest of this function is stuff that was apparently

@@ -63,6 +63,10 @@ static long traj_period_nsec = 0;	/* trajectory planner period */
 RTAPI_MP_LONG(traj_period_nsec, "trajectory planner period (nsecs)");
 int num_joints = EMCMOT_MAX_JOINTS;	/* default number of joints present */
 RTAPI_MP_INT(num_joints, "number of joints");
+int num_dio = 4;			/* default number of motion synched DIO */
+RTAPI_MP_INT(num_dio, "number of digital inputs/outputs");
+int num_aio = 4;			/* default number of motion synched AIO */
+RTAPI_MP_INT(num_aio, "number of analog inputs/outputs");
 #endif
 
 /***********************************************************************
@@ -199,6 +203,20 @@ int rtapi_app_main(void)
 	return -1;
     }
 
+    if (( num_dio < 1 ) || ( num_dio > EMCMOT_MAX_DIO )) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "MOTION: num_dio is %d, must be between 1 and %d\n",
+	    num_dio, EMCMOT_MAX_DIO);
+	return -1;
+    }
+    
+    if (( num_aio < 1 ) || ( num_aio > EMCMOT_MAX_AIO )) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "MOTION: num_aio is %d, must be between 1 and %d\n",
+	    num_aio, EMCMOT_MAX_AIO);
+	return -1;
+    }
+
     /* initialize/export HAL pins and parameters */
     retval = init_hal_io();
     if (retval != 0) {
@@ -305,17 +323,17 @@ static int init_hal_io(void)
     if ((retval = hal_pin_bit_newf(HAL_IN, &(emcmot_hal_data->enable), mot_comp_id, "motion.enable")) != HAL_SUCCESS) goto error;
 
     /* export motion-synched digital output pins */
-    for (n = 0; n < EMCMOT_MAX_DIO; n++) {
+    for (n = 0; n < num_dio; n++) {
 	if ((retval = hal_pin_bit_newf(HAL_OUT, &(emcmot_hal_data->synch_do[n]), mot_comp_id, "motion.digital-out-%02d", n)) != HAL_SUCCESS) goto error;
     }
 
     /* export motion digital input pins */
-    for (n = 0; n < EMCMOT_MAX_DIO; n++) {
+    for (n = 0; n < num_dio; n++) {
 	if ((retval = hal_pin_bit_newf(HAL_IN, &(emcmot_hal_data->synch_di[n]), mot_comp_id, "motion.digital-in-%02d", n)) != HAL_SUCCESS) goto error;
     }
 
     /* export motion analog input pins */
-    for (n = 0; n < EMCMOT_MAX_AIO; n++) {
+    for (n = 0; n < num_aio; n++) {
 	if ((retval = hal_pin_float_newf(HAL_IN, &(emcmot_hal_data->analog_input[n]), mot_comp_id, "motion.analog-in-%02d", n)) != HAL_SUCCESS) goto error;
     }
 
@@ -505,12 +523,12 @@ static int init_hal_io(void)
     *(emcmot_hal_data->enable) = 1;
     
     /* motion synched dio, init to not enabled */
-    for (n = 0; n < EMCMOT_MAX_DIO; n++) {
+    for (n = 0; n < num_dio; n++) {
 	 *(emcmot_hal_data->synch_do[n]) = 0;
 	 *(emcmot_hal_data->synch_di[n]) = 0;
     }
 
-    for (n = 0; n < EMCMOT_MAX_AIO; n++) {
+    for (n = 0; n < num_aio; n++) {
 	 *(emcmot_hal_data->analog_input[n]) = 0.0;
     }
     

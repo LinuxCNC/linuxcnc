@@ -164,6 +164,14 @@ extern int mot_comp_id;
    but can be altered at motmod insmod time */
 extern int num_joints;
 
+/* userdefined number of digital IO. default is 4. (EMCMOT_MAX_DIO=64), 
+   but can be altered at motmod insmod time */
+extern int num_dio;
+
+/* userdefined number of analog IO. default is 4. (EMCMOT_MAX_AIO=16), 
+   but can be altered at motmod insmod time */
+extern int num_aio;
+
 /* pointer to emcmot_hal_data_t struct in HAL shmem, with all HAL data */
 extern emcmot_hal_data_t *emcmot_hal_data;
 
