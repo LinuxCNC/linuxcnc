@@ -371,9 +371,9 @@ int tpAddLine(TP_STRUCT * tp, EmcPose end, int type, double vel, double ini_maxv
 
     tc.cycle_time = tp->cycleTime;
 
-    if (line_xyz.tmag > 0.) 
+    if (!line_xyz.tmag_zero) 
         tc.target = line_xyz.tmag;
-    else if (line_uvw.tmag > 0.) 
+    else if (!line_uvw.tmag_zero)
         tc.target = line_uvw.tmag;
     else
         tc.target = line_abc.tmag;
