@@ -13,8 +13,11 @@ emc2 (1:2.2.3~cvs) unstable; urgency=low
   * test suite: update expected results for several gcode tests
   * fix sample configuration 'lathe-pluto'
   * axis: fix incorrect line in the preview where tool length offset is changed
+  * fixed ferror problem when using start-from-line
+  * fix #1853953 M66 doesn't work with parport inputs
+  * temp fix preventing segfaults on bad M66 indexes
 
- -- Chris Radek <chris@timeguy.com>  Tue, 22 Jan 2008 09:31:41 -0600
+ -- Alex Joni <juve@taurus>  Wed, 23 Jan 2008 23:58:53 +0200
 
 emc2 (1:2.2.2) unstable; urgency=low
 
