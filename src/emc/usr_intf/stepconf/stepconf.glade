@@ -1575,6 +1575,7 @@ Z Step
 Z Direction
 A Step
 A Direction
+Spindle ON
 Spindle CW
 Spindle CCW
 Spindle PWM
@@ -1608,6 +1609,7 @@ Z Step
 Z Direction
 A Step
 A Direction
+Spindle ON
 Spindle CW
 Spindle CCW
 Spindle PWM
@@ -1641,6 +1643,7 @@ Z Step
 Z Direction
 A Step
 A Direction
+Spindle ON
 Spindle CW
 Spindle CCW
 Spindle PWM
@@ -1674,6 +1677,7 @@ Z Step
 Z Direction
 A Step
 A Direction
+Spindle ON
 Spindle CW
 Spindle CCW
 Spindle PWM
@@ -1707,6 +1711,7 @@ Z Step
 Z Direction
 A Step
 A Direction
+Spindle ON
 Spindle CW
 Spindle CCW
 Spindle PWM
@@ -1740,6 +1745,7 @@ Z Step
 Z Direction
 A Step
 A Direction
+Spindle ON
 Spindle CW
 Spindle CCW
 Spindle PWM
@@ -1773,6 +1779,7 @@ Z Step
 Z Direction
 A Step
 A Direction
+Spindle ON
 Spindle CW
 Spindle CCW
 Spindle PWM
@@ -1806,6 +1813,7 @@ Z Step
 Z Direction
 A Step
 A Direction
+Spindle ON
 Spindle CW
 Spindle CCW
 Spindle PWM
@@ -1839,6 +1847,7 @@ Z Step
 Z Direction
 A Step
 A Direction
+Spindle ON
 Spindle CW
 Spindle CCW
 Spindle PWM
@@ -1872,6 +1881,7 @@ Z Step
 Z Direction
 A Step
 A Direction
+Spindle ON
 Spindle CW
 Spindle CCW
 Spindle PWM
@@ -1905,6 +1915,7 @@ Z Step
 Z Direction
 A Step
 A Direction
+Spindle ON
 Spindle CW
 Spindle CCW
 Spindle PWM
@@ -2925,6 +2936,7 @@ Z Step
 Z Direction
 A Step
 A Direction
+Spindle ON
 Spindle CW
 Spindle CCW
 Spindle PWM

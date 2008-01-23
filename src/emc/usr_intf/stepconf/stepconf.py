@@ -65,13 +65,13 @@ if not os.path.isdir(distdir):
 
 (XSTEP, XDIR, YSTEP, YDIR,
 ZSTEP, ZDIR, ASTEP, ADIR,
-CW, CCW, PWM, BRAKE,
+ON, CW, CCW, PWM, BRAKE,
 MIST, FLOOD, ESTOP, AMP,
 PUMP, DOUT0, DOUT1, DOUT2, DOUT3,
 UNUSED_OUTPUT) = hal_output_names = [
 "xstep", "xdir", "ystep", "ydir",
 "zstep", "zdir", "astep", "adir",
-"spindle-cw", "spindle-ccw", "spindle-pwm", "spindle-brake",
+"spindle-on", "spindle-cw", "spindle-ccw", "spindle-pwm", "spindle-brake",
 "coolant-mist", "coolant-flood", "estop-out", "xenable",
 "charge-pump", "dout-00", "dout-01", "dout-02", "dout-03",
 "unused-output"]
@@ -99,7 +99,7 @@ UNUSED_INPUT) = hal_input_names = [
 
 human_output_names = (_("X Step"), _("X Direction"), _("Y Step"), _("Y Direction"),
 _("Z Step"), _("Z Direction"), _("A Step"), _("A Direction"),
-_("Spindle CW"), _("Spindle CCW"), _("Spindle PWM"), _("Spindle Brake"),
+_("Spindle ON"),_("Spindle CW"), _("Spindle CCW"), _("Spindle PWM"), _("Spindle Brake"),
 _("Coolant Mist"), _("Coolant Flood"), _("ESTOP Out"), _("Amplifier Enable"),
 _("Charge Pump"),
 _("Digital out 0"), _("Digital out 1"), _("Digital out 2"), _("Digital out 3"),
@@ -313,7 +313,7 @@ class Data:
 
         legacy_hal_output_names = ["xstep", "xdir", "ystep", "ydir",
         "zstep", "zdir", "astep", "adir",
-        "spindle-cw", "spindle-ccw", "spindle-pwm",
+        "spindle-on", "spindle-cw", "spindle-ccw", "spindle-pwm",
         "coolant-mist", "coolant-flood", "estop-out", "xenable",
         "charge-pump", "unused-output"]
 
@@ -686,6 +686,8 @@ class Data:
 	    print >>file, "setp pwmgen.0.scale %s" % scale
 	    print >>file, "setp pwmgen.0.offset %s" % offset
 
+	if ON in outputs:
+            print >>file, "net spindle-on <= motion.spindle-on"
         if CW in outputs:
             print >>file, "net spindle-cw <= motion.spindle-forward"
         if CCW in outputs:
