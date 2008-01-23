@@ -20,15 +20,16 @@
 
 #include "config.h"             /* LINELEN */
 #include "math.h"		/* M_PI */
+#include "emcmotcfg.h"          /* EMCMOT_MAX_DIO */
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define EMC_AXIS_MAX 9
+#define EMC_AXIS_MAX EMCMOT_MAX_AXIS
 
-#define EMC_MAX_DIO 4
-#define EMC_MAX_AIO 4
+#define EMC_MAX_DIO EMCMOT_MAX_DIO
+#define EMC_MAX_AIO EMCMOT_MAX_AIO
 
     extern char EMC_INIFILE[LINELEN];
 
