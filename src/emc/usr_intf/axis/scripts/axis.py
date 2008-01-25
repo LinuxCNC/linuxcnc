@@ -659,6 +659,7 @@ class MyOpengl(Opengl):
                 glEnd()
 
                 # Labels
+                s.poll()
                 if vars.coord_type.get():
                     offset = to_internal_units(s.origin)
                 else:
