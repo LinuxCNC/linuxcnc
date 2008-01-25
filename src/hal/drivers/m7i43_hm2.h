@@ -19,7 +19,7 @@
 #endif
 
 
-#define M7I43_HM2_VERSION "0.1"
+#define M7I43_HM2_VERSION "0.2"
 
 #define M7I43_HM2_ID "m7i43_hm2: "
 #define  PRINT(level, fmt, args...)  rtapi_print_msg(level, M7I43_HM2_ID fmt, ## args);
@@ -117,6 +117,13 @@ typedef struct {
 } hm2_idrom_t;
 
 
+
+
+// 
+// these structures keep track of the FPGA's I/O pins; and for I/O pins
+// used as GPIOs, keep track of the HAL state of the pins
+//
+
 typedef struct {
     struct {
         hal_bit_t *in;
@@ -157,10 +164,12 @@ typedef struct {
 typedef struct {
     struct {
         __u16 count;
-        __u16 timestamp;
-
         __u16 prev_count;
+
+        __u16 timestamp;
         __u16 prev_timestamp;
+
+        __u16 control;
     } hw;
 
     struct {
@@ -274,6 +283,78 @@ typedef struct {
 
 
 
+typedef struct {
+    struct {
+        __u32 rate;
+        __u32 accumulator;
+        __u32 mode;
+        __u32 dir_setup_time;
+        __u32 dir_hold_time;
+        __u32 pulse_width;
+        __u32 pulse_idle_width;
+        __u32 table_sequence_data_setup;
+        __u32 table_sequence_length;
+
+        __u32 prev_accumulator;
+    } hw;
+
+    struct {
+
+        struct {
+            hal_float_t *position_cmd;
+
+            hal_s32_t *counts;
+            s32 prev_counts;
+
+            hal_float_t *position_fb;
+            hal_float_t *velocity_fb;
+
+            // these are just for debugging for now, i'll remove them later
+            hal_u32_t *rate;
+            hal_float_t *error;
+        } pin;
+
+        struct {
+            hal_float_t position_scale;
+
+            hal_float_t steplen;
+            hal_float_t stepspace;
+            hal_float_t dirsetup;
+            hal_float_t dirhold;
+
+            float written_steplen;
+            float written_stepspace;
+            float written_dirsetup;
+            float written_dirhold;
+        } param;
+
+    } hal;
+} hm2_stepgen_instance_t;
+
+
+typedef struct {
+    int num_instances;
+    hm2_stepgen_instance_t *instance;
+
+    __u32 clock_frequency;
+    __u8 version;
+
+    // stepgen has lots of registers
+    __u32 step_rate_addr;
+    __u32 accumulator_addr;
+    __u32 mode_addr;
+    __u32 dir_setup_time_addr;
+    __u32 dir_hold_time_addr;
+    __u32 pulse_width_addr;
+    __u32 pulse_idle_width_addr;
+    __u32 table_sequence_data_setup_addr;
+    __u32 table_sequence_length_addr;
+    __u32 master_dds_addr;
+} hm2_stepgen_t;
+
+
+
+
 //
 // Mesa 7i43 structs
 //
@@ -301,6 +382,7 @@ typedef struct {
     // the hostmot2 "Functions"
     hm2_encoder_t encoder;
     hm2_pwmgen_t pwmgen;
+    hm2_stepgen_t stepgen;
     hm2_ioport_t ioport;
 } m7i43_t;
 
