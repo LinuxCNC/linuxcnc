@@ -273,7 +273,7 @@ FUNCTION(read) {
     EPP_DIR_READ();
 
     for(i=0; i<4; i++) {
-        long count;
+        long long count;
         double fcount;
 	int newlow;
         int reset;
