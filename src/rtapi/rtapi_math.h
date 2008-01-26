@@ -1,6 +1,8 @@
 #ifndef RTAPI_MATH_H
 #define RTAPI_MATH_H
 
+#include <float.h>  /* DBL_MAX and other FP goodies */
+
 #if defined(RTAPI) && !defined(SIM)
 extern double sin(double);
 extern double cos(double);
@@ -29,22 +31,6 @@ extern double floor(double);
 # define __GNUC_PREREQ(maj, min) 0
 #endif
 #endif /* __GNUC_PREREQ */
-
-
-#ifndef HUGE_VAL
-/* IEEE positive infinity (-HUGE_VAL is negative infinity).  */
-/*  taken from include/bits/huge_val.h */
-#if __GNUC_PREREQ(3,3)
-# define HUGE_VAL	(__builtin_huge_val())
-#elif __GNUC_PREREQ(2,96)
-# define HUGE_VAL	(__extension__ 0x1.0p2047)
-#else
-# define HUGE_VAL \
-  (__extension__							      \
-   ((union { unsigned __l __attribute__((__mode__(__DI__))); double __d; })   \
-    { __l: 0x7ff0000000000000ULL }).__d)
-#endif
-#endif /* HUGE_VAL */
 
 
 #ifdef __i386__

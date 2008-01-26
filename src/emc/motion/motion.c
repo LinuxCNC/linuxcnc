@@ -950,16 +950,16 @@ static int init_comm_buffers(void)
 
 	joint->comp.entries = 0;
 	joint->comp.entry = &(joint->comp.array[0]);
-	/* the compensation code has -HUGE_VAL at one end of the table
-	   and +HUGE_VAL at the other so _all_ commanded positions are
+	/* the compensation code has -DBL_MAX at one end of the table
+	   and +DBL_MAX at the other so _all_ commanded positions are
 	   guaranteed to be covered by the table */
-	joint->comp.array[0].nominal = -HUGE_VAL;
+	joint->comp.array[0].nominal = -DBL_MAX;
 	joint->comp.array[0].fwd_trim = 0.0;
 	joint->comp.array[0].rev_trim = 0.0;
 	joint->comp.array[0].fwd_slope = 0.0;
 	joint->comp.array[0].rev_slope = 0.0;
 	for ( n = 1 ; n < EMCMOT_COMP_SIZE+2 ; n++ ) {
-	    joint->comp.array[n].nominal = HUGE_VAL;
+	    joint->comp.array[n].nominal = DBL_MAX;
 	    joint->comp.array[n].fwd_trim = 0.0;
 	    joint->comp.array[n].rev_trim = 0.0;
 	    joint->comp.array[n].fwd_slope = 0.0;
