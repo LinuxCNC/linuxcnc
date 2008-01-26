@@ -157,7 +157,7 @@ clean_all :
 makefile.vhd.dep : *.vhd
 	@echo "Making $@"
 	@touch $@
-	@for FILE in $? ; do BASE=$${FILE/\.vhd/} ;\
+	@bash -c 'for FILE in $? ; do BASE=$${FILE/\.vhd/} ;\
 	    grep -v "^$$BASE.o :" $@ | grep -v "^$$BASE.t :" | grep -v "^$$BASE.ngd :" >$@.tmp ;\
 	    mv $@.tmp $@ ;\
 	    echo -n "$$BASE.o :" >>$@ ;\
@@ -174,7 +174,7 @@ makefile.vhd.dep : *.vhd
 	        echo -n "$$BASE.ngd :" >>$@ ;\
 	        set -- `grep -e "--- *constraints" $$FILE` ; echo " $$3" >>$@ ;\
 	    fi ;\
-	done
+	done'
 
 include makefile.vhd.dep
 
