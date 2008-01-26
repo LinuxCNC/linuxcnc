@@ -3422,7 +3422,7 @@ if hal_present == 1 :
 make_cone()
 
 # Find font for coordinate readout and get metrics
-coordinate_font = o.option_get("font", "Font") or "9x15"
+coordinate_font = o.option_get("font", "Coordinate_Font") or "9x15"
 coordinate_font_metrics = o.tk.call("font", "metrics", coordinate_font).split()
 linespace_index = coordinate_font_metrics.index("-linespace")
 coordinate_linespace = int(coordinate_font_metrics[linespace_index+1])
