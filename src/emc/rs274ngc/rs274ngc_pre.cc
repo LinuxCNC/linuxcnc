@@ -859,7 +859,8 @@ int Interp::restore_parameters(const char *filename)   //!< name of parameter fi
 
   // open original for reading
   infile = fopen(filename, "r");
-  CHK((infile == NULL), NCE_UNABLE_TO_OPEN_FILE);
+  sprintf(line,"Unable to open parameter file: '%s'", filename);
+  CHKS((infile == NULL), line);
 
   pars = _setup.parameters;
   k = 0;
