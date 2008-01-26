@@ -52,12 +52,6 @@
 * System: Linux
 *
 * Copyright (c) 2004 All rights reserved.
-*
-* Last change:
-* $Revision$
-* $Author$
-* $Date$
-*
 ********************************************************************/
 
 #include <linux/types.h>
@@ -1444,7 +1438,7 @@ check_stuff ( "before command_handler()" );
 	    comp_entry[1].fwd_trim = emcmotCommand->comp_forward;
 	    comp_entry[1].rev_trim = emcmotCommand->comp_reverse;
 	    /* calculate slopes from previous entry to the new one */
-	    if ( comp_entry[0].nominal != -HUGE_VAL ) {
+	    if ( comp_entry[0].nominal != -DBL_MAX ) {
 		/* but only if the previous entry is "real" */
 		tmp1 = comp_entry[1].nominal - comp_entry[0].nominal;
 		comp_entry[0].fwd_slope =
