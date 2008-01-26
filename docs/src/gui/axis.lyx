@@ -2225,7 +2225,15 @@ dark lines on white background
 \end_inset 
 
  scheme, and also serves as a reference for the configurable items in the
- display area.
+ display area. The sample file 
+\family typewriter
+axis_big_dro
+\family default
+ changes the position readout to a larger size font. To use these files:
+\layout LyX-Code
+xrdb -merge /usr/share/doc/emc2/axis_light_background
+\layout LyX-Code
+xrdb -merge /usr/share/doc/emc2/axis_big_dro
 \layout Standard
 
 For information about the other items which can be configured in Tk applications
