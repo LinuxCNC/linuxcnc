@@ -37,12 +37,12 @@ RTAPI_MP_INT(watchdog,
 static long labs(long l) { if(l < 0) return -l; return l; }
 #endif
 
-static inline long extend(long old, int newlow, int nbits) {
-    long mask = (1<<nbits) - 1;
-    long maxdelta = mask / 2;
-    long oldhigh = old & ~mask;
-    long oldlow = old & mask;
-    long candidate1, candidate2;
+static inline long long extend(long long old, int newlow, int nbits) {
+    long long mask = (1<<nbits) - 1;
+    long long maxdelta = mask / 2;
+    long long oldhigh = old & ~mask;
+    long long oldlow = old & mask;
+    long long candidate1, candidate2;
 
     candidate1 = oldhigh | newlow;
     if(oldlow < newlow) candidate2 = candidate1 - (1<<nbits);
