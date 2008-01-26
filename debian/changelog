@@ -16,8 +16,12 @@ emc2 (1:2.2.3~cvs) unstable; urgency=low
   * fixed ferror problem when using start-from-line
   * fix #1853953 M66 doesn't work with parport inputs
   * temp fix preventing segfaults on bad M66 indexes
+  * pluto-step: fix a problem when the motor position went beyond +-2^20 counts
+  * fix NAN that appears when you move below the lower extent of a screw comp
+    file
+  * pluto-servo: fix a problem with pwm+direction mode
 
- -- Alex Joni <juve@taurus>  Wed, 23 Jan 2008 23:58:53 +0200
+ -- Jeff Epler <jepler@unpythonic.net>  Sat, 26 Jan 2008 14:24:08 -0600
 
 emc2 (1:2.2.2) unstable; urgency=low
 
