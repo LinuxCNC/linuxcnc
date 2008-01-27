@@ -159,7 +159,7 @@ DONE - jogging:
 
    halui.jog.0.minus                   bit
    halui.jog.0.plus                    bit
-   halui.jog.7.analog                  float //pin for jogging the axis 0
+   halui.jog.0.analog                  float //pin for jogging the axis 0
    ..
    halui.jog.7.minus                   bit
    halui.jog.7.plus                    bit
