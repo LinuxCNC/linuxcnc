@@ -57,12 +57,22 @@ Halui is a HAL based user interface for EMC, it connects HAL pins to NML
 \layout Standard
 
 The easiest way to use halui is to modify your ini file to include
-\layout Standard
+\layout LyX-Code
 
 HALUI = halui
 \layout Standard
 
 in the [HAL] section.
+\layout Standard
+
+An alternate way to invoke it (especially when using a stepconf generated
+ config file) is to include
+\layout LyX-Code
+
+loadusr halui -ini /path/to/inifile.ini
+\layout Standard
+
+in your custom.hal file.
 \layout Section
 
 
@@ -256,7 +266,7 @@ Spindle
 bit
 \family default 
 \noun default 
-) halui.spindle.start
+) halui.spindle.start - starts the spindle
 \layout Itemize
 
 (
@@ -265,7 +275,7 @@ bit
 bit
 \family default 
 \noun default 
-) halui.spindle.stop
+) halui.spindle.stop - stops the spindle
 \layout Itemize
 
 (
@@ -274,7 +284,7 @@ bit
 bit
 \family default 
 \noun default 
-) halui.spindle.forward
+) halui.spindle.forward - starts the spindle with CW motion
 \layout Itemize
 
 (
@@ -283,7 +293,7 @@ bit
 bit
 \family default 
 \noun default 
-) halui.spindle.reverse
+) halui.spindle.reverse - starts the spindle with a CCW motion
 \layout Itemize
 
 (
@@ -292,7 +302,7 @@ bit
 bit
 \family default 
 \noun default 
-) halui.spindle.increase
+) halui.spindle.increase - increases spindle speed
 \layout Itemize
 
 (
@@ -301,7 +311,7 @@ bit
 bit
 \family default 
 \noun default 
-) halui.spindle.decrease
+) halui.spindle.decrease - decreases spindle speed
 \layout Itemize
 
 (
@@ -418,6 +428,14 @@ float
 \layout Itemize
 
 (
+\noun on 
+float
+\noun default 
+) halui.jog-deadband - deadband for analog jogging (smaller jogging speed
+ requests are not performed)
+\layout Itemize
+
+(
 \family typewriter 
 \noun on 
 bit
@@ -433,6 +451,14 @@ bit
 \family default 
 \noun default 
 ) halui.jog.<channel>.plus - jog in positive direction
+\layout Itemize
+
+(
+\noun on 
+bit
+\noun default 
+) halui.jog.<channel>.analog - analog velocity input for jogging (usefull with
+ joysticks or other analog devices)
 \layout Subsection
 
 Selecting a joint
