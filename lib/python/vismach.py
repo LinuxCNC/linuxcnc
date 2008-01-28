@@ -14,7 +14,7 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-import rs274.OpenGLTk, Tkinter
+import rs274.OpenGLTk, Tkinter, signal
 from minigl import *
 from math import *
 
@@ -664,7 +664,11 @@ def main(model, tool, work, size=10, hud=0):
 	t.tkRedraw()
 	t.after(100, update)
     update()
-    try:
-	app.mainloop()
-    except KeyboardInterrupt:
+
+    def quit(*args):
 	raise SystemExit
+
+    signal.signal(signal.SIGTERM, quit)
+    signal.signal(signal.SIGINT, quit)
+
+    app.mainloop()
