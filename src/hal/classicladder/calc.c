@@ -1,6 +1,6 @@
 /* Classic Ladder Project */
-/* Copyright (C) 2001-2006 Marc Le Douarain */
-/* http://www.multimania.com/mavati/classicladder */
+/* Copyright (C) 2001-2007 Marc Le Douarain */
+/* http://membres.lycos.fr/mavati/classicladder/ */
 /* http://www.sourceforge.net/projects/classicladder */
 /* February 2001 */
 /* -------------- */
@@ -46,126 +46,170 @@
 
 void InitRungs()
 {
-    int NumRung;
-    int x,y;
-    for (NumRung=0;NumRung<NBR_RUNGS;NumRung++)
-    {
-        RungArray[NumRung].Used = FALSE;
-        strcpy(RungArray[NumRung].Label,"");
-        strcpy(RungArray[NumRung].Comment,"");
-        for (y=0;y<RUNG_HEIGHT;y++)
-        {
-            for(x=0;x<RUNG_WIDTH;x++)
-            {
-                RungArray[NumRung].Element[x][y].Type = ELE_FREE;
-                RungArray[NumRung].Element[x][y].ConnectedWithTop = 0;
-                RungArray[NumRung].Element[x][y].VarType = 0;
-                RungArray[NumRung].Element[x][y].VarNum = 0;
-                RungArray[NumRung].Element[x][y].DynamicInput = 0;
-                RungArray[NumRung].Element[x][y].DynamicState = 0;
-                RungArray[NumRung].Element[x][y].DynamicVarBak = 0;
-                RungArray[NumRung].Element[x][y].DynamicOutput = 0;
-            }
-        }
-    }
-    InfosGene->FirstRung = 0;
-    InfosGene->LastRung = 0;
-    InfosGene->CurrentRung = 0;
-    RungArray[0].Used = TRUE;
+	int NumRung;
+	int x,y;
+	for (NumRung=0;NumRung<NBR_RUNGS;NumRung++)
+	{
+		RungArray[NumRung].Used = FALSE;
+		strcpy(RungArray[NumRung].Label,"");
+		strcpy(RungArray[NumRung].Comment,"");
+		for (y=0;y<RUNG_HEIGHT;y++)
+		{
+			for(x=0;x<RUNG_WIDTH;x++)
+			{
+				RungArray[NumRung].Element[x][y].Type = ELE_FREE;
+				RungArray[NumRung].Element[x][y].ConnectedWithTop = 0;
+				RungArray[NumRung].Element[x][y].VarType = 0;
+				RungArray[NumRung].Element[x][y].VarNum = 0;
+				RungArray[NumRung].Element[x][y].DynamicInput = 0;
+				RungArray[NumRung].Element[x][y].DynamicState = 0;
+				RungArray[NumRung].Element[x][y].DynamicVarBak = 0;
+				RungArray[NumRung].Element[x][y].DynamicOutput = 0;
+			}
+		}
+	}
+	InfosGene->FirstRung = 0;
+	InfosGene->LastRung = 0;
+	InfosGene->CurrentRung = 0;
+	RungArray[0].Used = TRUE;
 }
 /* Set DynamicVarBak (Element) to the right value before calculating the rungs */
 /* for detecting rising/falling edges used in some elements */
 void PrepareRungs()
 {
-    int NumRung;
-    int x,y;
-    char StateElement;
-    for (NumRung=0;NumRung<NBR_RUNGS;NumRung++)
-    {
-        for (y=0;y<RUNG_HEIGHT;y++)
-        {
-            for(x=0;x<RUNG_WIDTH;x++)
-            {
-                if ( (RungArray[NumRung].Element[x][y].Type==ELE_RISING_INPUT)
-                    || (RungArray[NumRung].Element[x][y].Type==ELE_FALLING_INPUT) )
-                {
-                    StateElement = ReadVar(RungArray[NumRung].Element[x][y].VarType,RungArray[NumRung].Element[x][y].VarNum);
-                    if (RungArray[NumRung].Element[x][y].Type==ELE_FALLING_INPUT)
-                        StateElement = !StateElement;
-                    RungArray[NumRung].Element[x][y].DynamicVarBak = StateElement;
-                }
-            }
-        }
-    }
+	int NumRung;
+	int x,y;
+	char StateElement;
+	for (NumRung=0;NumRung<NBR_RUNGS;NumRung++)
+	{
+		for (y=0;y<RUNG_HEIGHT;y++)
+		{
+			for(x=0;x<RUNG_WIDTH;x++)
+			{
+				if ( (RungArray[NumRung].Element[x][y].Type==ELE_RISING_INPUT)
+					|| (RungArray[NumRung].Element[x][y].Type==ELE_FALLING_INPUT) )
+				{
+					StateElement = ReadVar(RungArray[NumRung].Element[x][y].VarType,RungArray[NumRung].Element[x][y].VarNum);
+					if (RungArray[NumRung].Element[x][y].Type==ELE_FALLING_INPUT)
+						StateElement = !StateElement;
+					RungArray[NumRung].Element[x][y].DynamicVarBak = StateElement;
+				}
+			}
+		}
+	}
+
 }
+#ifdef OLD_TIMERS_MONOS_SUPPORT
 void InitTimers()
 {
-    int NumTimer;
-    for (NumTimer=0; NumTimer<NBR_TIMERS; NumTimer++)
-    {
-        TimerArray[NumTimer].Preset = 0;
-        TimerArray[NumTimer].Base = TIME_BASE_SECS;
-        strcpy( TimerArray[NumTimer].DisplayFormat, "%.1fs" );
-    }
+	int NumTimer;
+	for (NumTimer=0; NumTimer<NBR_TIMERS; NumTimer++)
+	{
+		TimerArray[NumTimer].Preset = 0;
+		TimerArray[NumTimer].Base = TIME_BASE_SECS;
+		strcpy( TimerArray[NumTimer].DisplayFormat, "%.1fs" );
+	}
 }
 void PrepareTimers()
 {
-    int NumTimer;
-    for (NumTimer=0; NumTimer<NBR_TIMERS; NumTimer++)
-    {
-        TimerArray[NumTimer].Value = TimerArray[NumTimer].Preset;
-        TimerArray[NumTimer].InputEnable = 0;
-        TimerArray[NumTimer].OutputDone = 0;
-        TimerArray[NumTimer].OutputRunning = 0;
-    }
+	int NumTimer;
+	for (NumTimer=0; NumTimer<NBR_TIMERS; NumTimer++)
+	{
+		TimerArray[NumTimer].Value = TimerArray[NumTimer].Preset;
+		TimerArray[NumTimer].InputEnable = 0;
+		TimerArray[NumTimer].InputControl = 0;
+		TimerArray[NumTimer].OutputDone = 0;
+		TimerArray[NumTimer].OutputRunning = 0;
+	}
 }
 void InitMonostables()
 {
-    int NumMonostable;
-    for (NumMonostable=0; NumMonostable<NBR_MONOSTABLES; NumMonostable++)
-    {
-        MonostableArray[NumMonostable].Preset = 0;
-        MonostableArray[NumMonostable].Base = TIME_BASE_SECS;
-        strcpy( MonostableArray[NumMonostable].DisplayFormat, "%.1fs" );
-    }
+	int NumMonostable;
+	for (NumMonostable=0; NumMonostable<NBR_MONOSTABLES; NumMonostable++)
+	{
+		MonostableArray[NumMonostable].Preset = 0;
+		MonostableArray[NumMonostable].Base = TIME_BASE_SECS;
+		strcpy( MonostableArray[NumMonostable].DisplayFormat, "%.1fs" );
+	}
 }
 void PrepareMonostables()
 {
-    int NumMonostable;
-    for (NumMonostable=0; NumMonostable<NBR_MONOSTABLES; NumMonostable++)
-    {
-        MonostableArray[NumMonostable].Value = 0;
-        MonostableArray[NumMonostable].Input = 0;
-        MonostableArray[NumMonostable].OutputRunning = 0;
-        MonostableArray[NumMonostable].InputBak = 0;
-    }
+	int NumMonostable;
+	for (NumMonostable=0; NumMonostable<NBR_MONOSTABLES; NumMonostable++)
+	{
+		MonostableArray[NumMonostable].Value = 0;
+		MonostableArray[NumMonostable].Input = 0;
+		MonostableArray[NumMonostable].OutputRunning = 0;
+		MonostableArray[NumMonostable].InputBak = 0;
+	}
 }
+#endif
 void InitCounters()
 {
-    int NumCounter;
-    for (NumCounter=0; NumCounter<NBR_COUNTERS; NumCounter++)
-    {
-        CounterArray[NumCounter].Preset = 0;
-    }
+	int NumCounter;
+	for (NumCounter=0; NumCounter<NBR_COUNTERS; NumCounter++)
+	{
+		CounterArray[NumCounter].Preset = 0;
+	}
 }
 void PrepareCounters()
 {
-    int NumCounter;
-    for (NumCounter=0; NumCounter<NBR_COUNTERS; NumCounter++)
-    {
-        CounterArray[NumCounter].Value = 0;
-        CounterArray[NumCounter].ValueBak = 0;
-        CounterArray[NumCounter].InputReset = 0;
-        CounterArray[NumCounter].InputPreset = 0;
-        CounterArray[NumCounter].InputCountUp = 0;
-        CounterArray[NumCounter].InputCountUpBak = 0;
-        CounterArray[NumCounter].InputCountDown = 0;
-        CounterArray[NumCounter].InputCountDownBak = 0;
-        CounterArray[NumCounter].OutputDone = 0;
-        CounterArray[NumCounter].OutputEmpty = 0;
-        CounterArray[NumCounter].OutputFull = 0;
-    }
+	int NumCounter;
+	for (NumCounter=0; NumCounter<NBR_COUNTERS; NumCounter++)
+	{
+		CounterArray[NumCounter].Value = 0;
+		CounterArray[NumCounter].ValueBak = 0;
+		CounterArray[NumCounter].InputReset = 0;
+		CounterArray[NumCounter].InputPreset = 0;
+		CounterArray[NumCounter].InputCountUp = 0;
+		CounterArray[NumCounter].InputCountUpBak = 0;
+		CounterArray[NumCounter].InputCountDown = 0;
+		CounterArray[NumCounter].InputCountDownBak = 0;
+		CounterArray[NumCounter].OutputDone = 0;
+		CounterArray[NumCounter].OutputEmpty = 0;
+		CounterArray[NumCounter].OutputFull = 0;
+	}
 }
+void InitTimersIEC()
+{
+	int NumTimer;
+	for (NumTimer=0; NumTimer<NBR_TIMERS_IEC; NumTimer++)
+	{
+		NewTimerArray[NumTimer].Preset = 0;
+		NewTimerArray[NumTimer].Base = TIME_BASE_SECS;
+		NewTimerArray[NumTimer].TimerMode = TIMER_IEC_MODE_ON;
+		strcpy( NewTimerArray[NumTimer].DisplayFormat, "%.1fs" );
+	}
+}
+void PrepareTimersIEC()
+{
+	int NumTimer;
+	for (NumTimer=0; NumTimer<NBR_TIMERS_IEC; NumTimer++)
+	{
+		NewTimerArray[NumTimer].Value = 0;
+		NewTimerArray[NumTimer].Input = 0;
+		NewTimerArray[NumTimer].InputBak = 0;
+		NewTimerArray[NumTimer].Output = 0;
+		NewTimerArray[NumTimer].TimerStarted = 0;
+		NewTimerArray[NumTimer].ValueToReachOneBaseUnit = 0;
+	}
+}
+
+void PrepareAllDatasBeforeRun( )
+{
+#ifdef OLD_TIMERS_MONOS_SUPPORT
+	PrepareTimers( );
+	PrepareMonostables( );
+#endif
+	PrepareCounters( );
+	PrepareTimersIEC( );
+	PrepareRungs( );
+#ifdef SEQUENTIAL_SUPPORT
+	PrepareSequential( );
+
+#endif
+}
+
 void InitArithmExpr()
 {
     int NumExpr;
@@ -338,6 +382,8 @@ int CalcTypeOutputCall(int x,int y,StrRung * UpdateRung)
     UpdateRung->Element[x][y].DynamicState = State;
     return CallSrSection;
 }
+#ifdef OLD_TIMERS_MONOS_SUPPORT
+// modified for EMC2 to force InputControl true so timers work the same as before
 /* Element : Timer (2x2 Blocks) */
 void CalcTypeTimer(int x,int y,StrRung * UpdateRung)
 {
@@ -352,6 +398,15 @@ void CalcTypeTimer(int x,int y,StrRung * UpdateRung)
     {
         Timer->InputEnable = StateOnLeft(x-1,y,UpdateRung);
     }
+    if (x==0)
+    {
+        Timer->InputControl = 1;
+    }
+    else
+    {
+	Timer->InputControl = 1;        
+	//Timer->InputControl = StateOnLeft(x-1,y+1,UpdateRung);
+    }
     if (!Timer->InputEnable)
     {
         Timer->OutputRunning = 0;
@@ -362,9 +417,12 @@ void CalcTypeTimer(int x,int y,StrRung * UpdateRung)
     {
         if (Timer->Value>0)
         {
-            Timer->Value = Timer->Value - InfosGene->MsSinceLastScan;
-            Timer->OutputRunning = 1;
-            Timer->OutputDone = 0;
+            if ( Timer->InputControl )
+            {
+                Timer->Value = Timer->Value - InfosGene->GeneralParams.PeriodicRefreshMilliSecs;
+                Timer->OutputRunning = 1;
+                Timer->OutputDone = 0;
+            }
         }
         else
         {
@@ -396,16 +454,20 @@ void CalcTypeMonostable(int x,int y,StrRung * UpdateRung)
         Monostable->Value = Monostable->Preset;
     }
     if (Monostable->Value>0)
-        Monostable->Value = Monostable->Value - InfosGene->MsSinceLastScan;
+        Monostable->Value = Monostable->Value - InfosGene->GeneralParams.PeriodicRefreshMilliSecs;
     else
         Monostable->OutputRunning = 0;
     Monostable->InputBak = Monostable->Input;
     UpdateRung->Element[x][y].DynamicOutput = Monostable->OutputRunning;
 }
+#endif
 /* Element : Counter (2x4 Blocks) */
 void CalcTypeCounter(int x,int y,StrRung * UpdateRung)
 {
-	StrCounter * Counter = &CounterArray[ UpdateRung->Element[x][y].VarNum ];
+	int CounterNbr = UpdateRung->Element[x][y].VarNum;
+	StrCounter * Counter = &CounterArray[ CounterNbr ];
+	int CurrentValue = Counter->Value;
+	int PresetValue = Counter->Preset;
 	// directly connected to the "left"? if yes, ON !
 	if ( x==0 )
 	{
@@ -423,37 +485,136 @@ void CalcTypeCounter(int x,int y,StrRung * UpdateRung)
 	}
 	if ( Counter->InputCountUp && Counter->InputCountUpBak==0 )
 	{
-		Counter->ValueBak = Counter->Value;
-		Counter->Value++;
-		if ( Counter->Value>9999 )
-			Counter->Value = 0;
+		Counter->ValueBak = CurrentValue;
+		CurrentValue++;
+		if ( CurrentValue>9999 )
+			CurrentValue = 0;
 	}
 	if ( Counter->InputCountDown && Counter->InputCountDownBak==0 )
 	{
-		Counter->ValueBak = Counter->Value;
-		Counter->Value--;
-		if ( Counter->Value<0 )
-			Counter->Value = 9999;
+		Counter->ValueBak = CurrentValue;
+		CurrentValue--;
+		if ( CurrentValue<0 )
+			CurrentValue = 9999;
 	}
 	if ( Counter->InputPreset )
 	{
-		Counter->ValueBak = Counter->Value;
-		Counter->Value = Counter->Preset;
+		Counter->ValueBak = CurrentValue;
+		CurrentValue = PresetValue;
 	}
 	if ( Counter->InputReset )
 	{
-		Counter->ValueBak = Counter->Value;
-		Counter->Value = 0;
+		Counter->ValueBak = CurrentValue;
+		CurrentValue = 0;
 	}
 	Counter->InputCountUpBak = Counter->InputCountUp;
 	Counter->InputCountDownBak = Counter->InputCountDown;
-	Counter->OutputDone = ( Counter->Value==Counter->Preset )?1:0;
-	Counter->OutputEmpty = ( Counter->Value==9999 && Counter->ValueBak==0 )?1:0;
-	Counter->OutputFull = ( Counter->Value==0 && Counter->ValueBak==9999 )?1:0;
 
 	UpdateRung->Element[x][y].DynamicOutput = Counter->OutputEmpty;
 	UpdateRung->Element[x][y + 1].DynamicOutput = Counter->OutputDone;
 	UpdateRung->Element[x][y + 2].DynamicOutput = Counter->OutputFull;
+
+	// now update public vars
+	// (we could have directly written in the counter structure)
+	// (but on another project, vars can be mapped in another way)
+	WriteVar( VAR_COUNTER_DONE, CounterNbr, ( CurrentValue==PresetValue )?1:0 );
+	WriteVar( VAR_COUNTER_EMPTY, CounterNbr, ( CurrentValue==9999 && Counter->ValueBak==0 )?1:0 );
+	WriteVar( VAR_COUNTER_FULL, CounterNbr, ( CurrentValue==0 && Counter->ValueBak==9999 )?1:0 );
+	WriteVar( VAR_COUNTER_PRESET, CounterNbr, PresetValue );
+	WriteVar( VAR_COUNTER_VALUE, CounterNbr, CurrentValue );
+}
+/* Element : New IEC Timer with many modes (2x2 Blocks) */
+void CalcTypeTimerIEC(int x,int y,StrRung * UpdateRung)
+{
+	int TimerNbr = UpdateRung->Element[x][y].VarNum;
+	StrTimerIEC * TimerIEC = &NewTimerArray[ TimerNbr ];
+	int CurrentValue = TimerIEC->Value;
+	int PresetValue = TimerIEC->Preset;
+	char OutputResult = TimerIEC->Output;
+	char DoIncTime = FALSE;
+	// directly connected to the "left"? if yes, ON !
+	if (x==0)
+	{
+		TimerIEC->Input = 1;
+	}
+	else
+	{
+		TimerIEC->Input = StateOnLeft(x-1,y,UpdateRung);
+	}
+	switch( TimerIEC->TimerMode )
+	{
+		case TIMER_IEC_MODE_ON:
+			if (!TimerIEC->Input)
+			{
+				OutputResult = 0;
+				CurrentValue = 0;
+			}
+			else
+			{
+				if (CurrentValue<PresetValue)
+					DoIncTime = TRUE;
+				else
+					OutputResult = 1;
+			}
+			break;
+		case TIMER_IEC_MODE_OFF:
+			if ( TimerIEC->Input )
+			{
+				OutputResult = 1;
+				CurrentValue = 0;
+				TimerIEC->TimerStarted = 0;
+			}
+			else
+			{
+				/* detecting falling edge on input */
+				if ( !TimerIEC->Input && TimerIEC->InputBak )
+					TimerIEC->TimerStarted = 1;
+			}
+			break;
+		case TIMER_IEC_MODE_PULSE:
+			/* detecting rising edge on input, the monostable is not retriggerable */
+			if (TimerIEC->Input && !TimerIEC->InputBak && TimerIEC->TimerStarted==0 )
+			{
+				OutputResult = 1;
+				CurrentValue = 0;
+				TimerIEC->TimerStarted = 1;
+			}
+			break;
+	}
+	if ( TimerIEC->TimerMode==TIMER_IEC_MODE_OFF || TimerIEC->TimerMode==TIMER_IEC_MODE_PULSE )
+	{
+		if (TimerIEC->TimerStarted )
+		{
+			if (CurrentValue<PresetValue)
+			{
+				DoIncTime = TRUE;
+			}
+			else
+			{
+				OutputResult = 0;
+				CurrentValue = 0;
+				TimerIEC->TimerStarted = 0;
+			}
+		}
+	}
+	if ( DoIncTime )
+	{
+		TimerIEC->ValueToReachOneBaseUnit = TimerIEC->ValueToReachOneBaseUnit+InfosGene->GeneralParams.PeriodicRefreshMilliSecs;
+		if ( TimerIEC->ValueToReachOneBaseUnit>=TimerIEC->Base )
+		{
+			CurrentValue++;
+			// do not lost the little too-much time part...
+			TimerIEC->ValueToReachOneBaseUnit = TimerIEC->ValueToReachOneBaseUnit-TimerIEC->Base;
+		}
+	}
+	TimerIEC->InputBak = TimerIEC->Input;
+	UpdateRung->Element[x][y].DynamicOutput = TimerIEC->Output;
+	// now update public vars
+	// (we could have directly written in the IEC Timer structure)
+	// (but on another project, vars can be mapped in another way)
+	WriteVar( VAR_TIMER_IEC_DONE, TimerNbr, OutputResult );
+	WriteVar( VAR_TIMER_IEC_PRESET, TimerNbr, PresetValue );
+	WriteVar( VAR_TIMER_IEC_VALUE, TimerNbr, CurrentValue );
 }
 
 /* Element : Compar (3 Horizontal Blocks) */
@@ -490,258 +651,190 @@ char CalcTypeOutputOperate(int x,int y,StrRung * UpdateRung)
 }
 
 
-int RefreshRung(StrRung * Rung, int * JumpTo, int * CallTo)
+int RefreshRung(StrRung * Rung, int * JumpTo)
 {
-    int x,y;
-    int JumpToRung = -1;
-    int SectionToCall = -1;
+	int x = 0, y = 0;
+	int JumpToRung = -1;
+	int SectionToCall = -1;
 
-    for (x=0;x<RUNG_WIDTH;x++)
-    {
-        for(y=0;y<RUNG_HEIGHT;y++)
-        {
-            switch(Rung->Element[x][y].Type)
-            {
-                /* MLD,16/5/2001,V0.2.8 , fixed for drawing */
-                case ELE_FREE:
-                case ELE_UNUSABLE:
-                    if (StateOnLeft(x,y,Rung))
-                        Rung->Element[x][y].DynamicInput = 1;
-                    else
-                        Rung->Element[x][y].DynamicInput = 0;
-                    break;
-                /* End fix */
-                case ELE_INPUT:
-                    CalcTypeInput(x,y,Rung,FALSE,FALSE);
-                    break;
-                case ELE_INPUT_NOT:
-                    CalcTypeInput(x,y,Rung,TRUE,FALSE);
-                    break;
-                case ELE_RISING_INPUT:
-                    CalcTypeInput(x,y,Rung,FALSE,TRUE);
-                    break;
-                case ELE_FALLING_INPUT:
-                    CalcTypeInput(x,y,Rung,TRUE,TRUE);
-                    break;
-                case ELE_CONNECTION:
-                    CalcTypeConnection(x,y,Rung);
-                    break;
-                case ELE_TIMER:
-                    CalcTypeTimer(x,y,Rung);
-                    break;
-                case ELE_MONOSTABLE:
-                    CalcTypeMonostable(x,y,Rung);
-                    break;
-                case ELE_COUNTER:
-                    CalcTypeCounter(x,y,Rung);
-                    break;
-                case ELE_COMPAR:
-                    CalcTypeCompar(x,y,Rung);
-                    break;
-                case ELE_OUTPUT:
-                    CalcTypeOutput(x,y,Rung,FALSE);
-                    break;
-                case ELE_OUTPUT_NOT:
-                    CalcTypeOutput(x,y,Rung,TRUE);
-                    break;
-                case ELE_OUTPUT_SET:
-                    CalcTypeOutputSetReset(x,y,Rung,FALSE);
-                    break;
-                case ELE_OUTPUT_RESET:
-                    CalcTypeOutputSetReset(x,y,Rung,TRUE);
-                    break;
-                case ELE_OUTPUT_JUMP:
-                    JumpToRung = CalcTypeOutputJump(x,y,Rung);
-                    // TODO : abort the refresh of the rung immediately...
-                    break;
-                case ELE_OUTPUT_CALL:
-                    SectionToCall = CalcTypeOutputCall(x,y,Rung);
-                    break;
-                case ELE_OUTPUT_OPERATE:
-                    CalcTypeOutputOperate(x,y,Rung);
-                    break;
-            }
-        }
-    }
+	do
+	{
+		do
+		{
+			switch(Rung->Element[x][y].Type)
+			{
+				/* MLD,16/5/2001,V0.2.8 , fixed for drawing */
+				case ELE_FREE:
+				case ELE_UNUSABLE:
+					if (StateOnLeft(x,y,Rung))
+						Rung->Element[x][y].DynamicInput = 1;
+					else
+						Rung->Element[x][y].DynamicInput = 0;
+					break;
+				/* End fix */
+				case ELE_INPUT:
+					CalcTypeInput(x,y,Rung,FALSE,FALSE);
+					break;
+				case ELE_INPUT_NOT:
+					CalcTypeInput(x,y,Rung,TRUE,FALSE);
+					break;
+				case ELE_RISING_INPUT:
+					CalcTypeInput(x,y,Rung,FALSE,TRUE);
+					break;
+				case ELE_FALLING_INPUT:
+					CalcTypeInput(x,y,Rung,TRUE,TRUE);
+					break;
+				case ELE_CONNECTION:
+					CalcTypeConnection(x,y,Rung);
+					break;
+#ifdef OLD_TIMERS_MONOS_SUPPORT
+				case ELE_TIMER:
+					CalcTypeTimer(x,y,Rung);
+					break;
+				case ELE_MONOSTABLE:
+					CalcTypeMonostable(x,y,Rung);
+					break;
+#endif
+				case ELE_COUNTER:
+					CalcTypeCounter(x,y,Rung);
+					break;
+				case ELE_TIMER_IEC:
+					CalcTypeTimerIEC(x,y,Rung);
+					break;
+				case ELE_COMPAR:
+					CalcTypeCompar(x,y,Rung);
+					break;
+				case ELE_OUTPUT:
+					CalcTypeOutput(x,y,Rung,FALSE);
+					break;
+				case ELE_OUTPUT_NOT:
+					CalcTypeOutput(x,y,Rung,TRUE);
+					break;
+				case ELE_OUTPUT_SET:
+					CalcTypeOutputSetReset(x,y,Rung,FALSE);
+					break;
+				case ELE_OUTPUT_RESET:
+					CalcTypeOutputSetReset(x,y,Rung,TRUE);
+					break;
+				case ELE_OUTPUT_JUMP:
+					JumpToRung = CalcTypeOutputJump(x,y,Rung);
+					// we will now abort the refresh of the rung immediately...
+					break;
+				case ELE_OUTPUT_CALL:
+					SectionToCall = CalcTypeOutputCall(x,y,Rung);
+					if ( SectionToCall!=-1 )
+					{
+						StrSection * pSubRoutineSection = &SectionArray[ SectionToCall ];
+						if ( pSubRoutineSection->Used && pSubRoutineSection->SubRoutineNumber>=0 )
+							RefreshASection( pSubRoutineSection ); //recursive call! ;-)
+						else
+							debug_printf("Refresh rungs aborted - call to a sub-routine undefined or programmed as main !!!");
+					}
+					break;
+				case ELE_OUTPUT_OPERATE:
+					CalcTypeOutputOperate(x,y,Rung);
+					break;
+			}
+			y++;
+		}while( y<RUNG_HEIGHT && JumpToRung==-1 );
+		y = 0;
+		x++;
+	}
+	while( x<RUNG_WIDTH && JumpToRung==-1 );
 
-    *JumpTo = JumpToRung;
-    *CallTo = SectionToCall;
-    // TODO : tell if the rung isn't finished : if found Call, immediately abort
-    // and return here to finish the end, after the sub-routine has been called...
-    return TRUE;
+	*JumpTo = JumpToRung;
+	return TRUE;
 }
 
-// we refresh all the rungs of one section.
-// we can (J)ump to another rung in the same section.
-// we can (C)all a sub-routine (a section) and at the end of it, returns to the
-// next rung.
-// All the sections 'main' are refreshed in the order defined.
-// TODO : if we have a mad Jump (infinite loop) we must make something !
-#define SR_STACK 25
-void RefreshAllRungs(unsigned long period)
-{
-    int NumRung;
-    int Goto;
-    int SectionForCallSR;
-    int Done;
-    int ScanMainSection;
-    int CurrentSection;
-    StrSection * pSection;
 
-    int SubRoutinesStack[ SR_STACK ];
-    int RungsStack[ SR_STACK ];
-    int SubRoutineDepth = 0;
+// we refresh all the rungs of this section.
+// we can (J)ump to another rung in this section.
+// we can arrive here with a sub-routine (C)all coil (another section, recursively) !
+void RefreshASection( StrSection * pSection )
+{
+	int Goto;
+	int Done = FALSE;
+	int NumRung = pSection->FirstRung;
+	int MadLoopBreak = 0;
+	do
+	{
+		RefreshRung(&RungArray[NumRung], &Goto);
+
+		if ( Goto!=-1 )
+		{
+			if (!RungArray[Goto].Used)
+			{
+				Done = TRUE;
+				debug_printf("Refresh rungs aborted - jump to an undefined rung found in rung No%d...\n",Goto);
+			}
+			NumRung = Goto;
+			MadLoopBreak++;
+			if ( MadLoopBreak>99999 ) //value to set here?... or else measuring time?
+			{
+				Done = TRUE;
+				debug_printf("Refresh rungs aborted - endless loop jump detected - STOPPED...!\n");
+				InfosGene->LadderState = STATE_STOP;
+			}
+		}
+		else
+		{
+			if (NumRung == pSection->LastRung)
+				Done = TRUE;
+			else
+				NumRung = RungArray[ NumRung ].NextRung;
+		}
+	}
+	while(!Done);
+}
+
+// All the sections 'main' are refreshed in the order defined.
+#define SR_STACK 25
+void ClassicLadder_RefreshAllSections(unsigned long period)
+{
+	int ScanMainSection;
+	StrSection * pScanSection;
 
 //TODO: times measures should be moved directly in the module task
 #ifdef __RTL__
-    long StartTime = gethrtime();
+	long StartTime = gethrtime();
 #endif
 #if defined( RTAI ) && defined( MODULE )
-    long StartTime = rt_get_cpu_time_ns();
+	long StartTime = rt_get_cpu_time_ns();
 #endif
 
-    InfosGene->NsSinceLastScan += period;
-    InfosGene->MsSinceLastScan = InfosGene->NsSinceLastScan / 1000000;
-    InfosGene->NsSinceLastScan %= 1000000;
+	CycleStart();
 
-    CycleStart();
+	for ( ScanMainSection=0; ScanMainSection<NBR_SECTIONS; ScanMainSection++ )
+	{
 
-    for ( ScanMainSection=0; ScanMainSection<NBR_SECTIONS; ScanMainSection++ )
-    {
+		pScanSection = &SectionArray[ ScanMainSection ];
 
-        CurrentSection = ScanMainSection;
-        pSection = &SectionArray[ CurrentSection ];
-
-        // current section defined and is a main-section (not a sub-routine)
-        // and in Ladder language ?
-        if ( pSection->Used && pSection->SubRoutineNumber==-1 && pSection->Language==SECTION_IN_LADDER )
-        {
-            Done = FALSE;
-            NumRung = pSection->FirstRung;
-            do
-            {
-                RefreshRung(&RungArray[NumRung], &Goto, &SectionForCallSR);
-                if ( SectionForCallSR!=-1 )
-                {
-                    if ( SectionArray[ SectionForCallSR ].Used && SectionArray[ SectionForCallSR ].SubRoutineNumber>=0 )
-                    {
-                        if ( SubRoutineDepth<SR_STACK-1 )
-                        {
-                            // saving current section context
-                            SubRoutineDepth++;
-                            SubRoutinesStack[ SubRoutineDepth ] = CurrentSection;
-                            if ( NumRung!=pSection->LastRung )
-                            {
-                                RungsStack[ SubRoutineDepth ] = RungArray[NumRung].NextRung;
-                            }
-                            else
-                            {
-                                // at the end of the sub-routine, this section is already finished
-                                RungsStack[ SubRoutineDepth ] = -1;
-                            }
-                            // now starting the sub-routine section...
-                            CurrentSection = SectionForCallSR;
-                            pSection = &SectionArray[ CurrentSection ];
-                            NumRung = pSection->FirstRung;
-//printf("-> sub-routine called : SR : Sec=%d, Rung =%d\n", CurrentSection, NumRung );
-                        }
-                        else
-                        {
-                            debug_printf("Refresh rungs aborted - too much sub-routine calls in series !?");
-                        }
-                    }
-                    else
-                    {
-                        debug_printf("Refresh rungs aborted - call to a sub-routine undefined or programmed as main !!!");
-                    }
-                }
-                else if ( Goto!=-1 )
-                {
-                    if (!RungArray[Goto].Used)
-                    {
-                        Done = TRUE;
-                        debug_printf("Refresh rungs aborted - jump to an undefined rung found in rung No%d...\n",Goto);
-                    }
-                    NumRung = Goto;
-                }
-                else
-                {
-                    if (NumRung == pSection->LastRung)
-                    {
-                        // if this section is a sub-routine, we make a return...
-                        if ( pSection->SubRoutineNumber>=0 )
-                        {
-                            int ReturnFound = FALSE;
-                            do
-                            {
-                                if ( SubRoutineDepth>0 )
-                                {
-
-                                    // previous section already finished ?
-                                    if ( RungsStack[ SubRoutineDepth ]!=-1 )
-                                    {
-                                        CurrentSection = SubRoutinesStack[ SubRoutineDepth ];
-                                        pSection = &SectionArray[ CurrentSection ];
-                                        NumRung = RungsStack[ SubRoutineDepth ];
-                                        ReturnFound = TRUE;
-//printf( "-> return from sub-routine to : Sec=%d, Rung =%d\n", CurrentSection, NumRung );
-                                    }
-                                    else
-                                    {
-                                        // the previous main section was already finished...
-                                        if ( SectionArray[ SubRoutinesStack[ SubRoutineDepth ] ].SubRoutineNumber==0 )
-                                        {
-                                            Done = TRUE;
-                                            ReturnFound = TRUE;
-//printf( "-> return from sub-routine with previous main section done...\n" );
-                                        }
-                                        else
-                                        {
-//printf( "-> return from sub-routine with sub-routine already done... searching again...\n" );
-                                        }
-
-                                    }
-                                    SubRoutineDepth--;
-                                }
-                                else
-                                {
-                                    debug_printf("Refresh rungs aborted - return of sub-routine without call before !?");
-                                }
-                            }
-                            while( !ReturnFound );
-                        }
-                        else
-                        {
-                            // last rung found for a main section
-                            Done = TRUE;
-                        }
-                    }
-                    else
-                        NumRung = RungArray[NumRung].NextRung;
-                }
-            }
-            while(!Done);
-        }
+		// current section defined and is a main-section (not a sub-routine)
+		// and in Ladder language ?
+		if ( pScanSection->Used && pScanSection->SubRoutineNumber==-1 && pScanSection->Language==SECTION_IN_LADDER )
+		{
+			RefreshASection( pScanSection );
+		}
 
 #ifdef SEQUENTIAL_SUPPORT
-        // current section defined and is in sequential language
-        if ( pSection->Used && pSection->Language==SECTION_IN_SEQUENTIAL )
-        {
-            RefreshSequentialPage( pSection->SequentialPage );
-        }
+		// current section defined and is in sequential language
+		if ( pScanSection->Used && pScanSection->Language==SECTION_IN_SEQUENTIAL )
+		{
+			RefreshSequentialPage( pScanSection->SequentialPage );
+		}
 #endif
 
-    }// for( )
+	}// for( )
 
-    CycleEnd();
+	CycleEnd();
 //TODO: times measures should be moved directly in the module task
 #ifdef __RTL__
-    InfosGene->DurationOfLastScan = gethrtime() - StartTime;
+	InfosGene->DurationOfLastScan = gethrtime() - StartTime;
 //    rtl_printf("Time elapsed for refresh = %u nsec\n",gethrtime()-StartTime);
 #endif
-#if defined( RTAI ) && defined ( MODULE )
-    InfosGene->DurationOfLastScan = rt_get_cpu_time_ns() - StartTime;
-#endif
+
+	//InfosGene->DurationOfLastScan = period;
+ InfosGene->GeneralParams.PeriodicRefreshMilliSecs=period/ 1000000; //added for emc
 }
 
 void CopyRungToRung(StrRung * RungSrc,StrRung * RungDest)

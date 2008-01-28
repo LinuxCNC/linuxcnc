@@ -1,6 +1,6 @@
 /* Classic Ladder Project */
-/* Copyright (C) 2001-2006 Marc Le Douarain */
-/* http://www.multimania.com/mavati/classicladder */
+/* Copyright (C) 2001-2007 Marc Le Douarain */
+/* http://membres.lycos.fr/mavati/classicladder/ */
 /* http://www.sourceforge.net/projects/classicladder */
 /* October 2002 */
 /* ---------------------------------- */
@@ -139,7 +139,7 @@ void RefreshStepsVars( void )
 	for( NumStep=0; NumStep<NBR_STEPS; NumStep++ )
 	{
 		if ( Sequential->Step[ NumStep ].Activated )
-			Sequential->Step[ NumStep ].TimeActivated += TIME_REFRESH_RUNG_MS;
+			Sequential->Step[ NumStep ].TimeActivated += InfosGene->GeneralParams.PeriodicRefreshMilliSecs;
 		else
 			Sequential->Step[ NumStep ].TimeActivated = 0;
 
