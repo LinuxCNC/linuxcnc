@@ -172,8 +172,6 @@ static void pyhal_delete(PyObject *_self) {
     PyObject_Del(self);
 }
 
-#define MAX_PIN_SIZE sizeof(hal_float_t)
-
 static int pyhal_write_common(halitem *pin, PyObject *value) {
     int is_int = PyInt_Check(value);
     int intval = is_int ? PyInt_AsLong(value) : -1;
