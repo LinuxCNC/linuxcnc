@@ -177,7 +177,6 @@ KNOWN LIMITATIONS /  BUGS...
   set ouputs, but it is absolutely not the case with distributed I/O. Perhaps it could cause
   some troubles...?
 
-
 FUTURE / TO DO LIST...
 ----------------------
 see file TODO.txt
