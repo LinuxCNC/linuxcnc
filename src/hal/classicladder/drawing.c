@@ -1,6 +1,6 @@
 /* Classic Ladder Project */
-/* Copyright (C) 2001-2006 Marc Le Douarain */
-/* http://www.multimania.com/mavati/classicladder */
+/* Copyright (C) 2001-2007 Marc Le Douarain */
+/* http://membres.lycos.fr/mavati/classicladder/ */
 /* http://www.sourceforge.net/projects/classicladder */
 /* February 2001 */
 /* ----------- */
@@ -33,132 +33,74 @@
 #include "drawing_sequential.h"
 #endif
 #include "symbols.h"
+#include "vars_names.h"
 #include "drawing.h"
 
 #ifdef GTK2
 #include <pango/pango.h>
 #endif
 
-char * DisplayInfo(int Type, int Offset)
-{
-    static char Buffer[20];
-    switch(Type)
-    {
-        case VAR_MEM_BIT:
-            sprintf(Buffer,"%cB%d",'%',Offset);
-            break;
-        case VAR_TIMER_DONE:
-            sprintf(Buffer,"%cT%d.D",'%',Offset);
-            break;
-        case VAR_TIMER_RUNNING:
-            sprintf(Buffer,"%cT%d.R",'%',Offset);
-            break;
-        case VAR_MONOSTABLE_RUNNING:
-            sprintf(Buffer,"%cM%d.R",'%',Offset);
-            break;
-        case VAR_COUNTER_DONE:
-            sprintf(Buffer,"%cC%d.D",'%',Offset);
-            break;
-        case VAR_COUNTER_EMPTY:
-            sprintf(Buffer,"%cC%d.E",'%',Offset);
-            break;
-        case VAR_COUNTER_FULL:
-            sprintf(Buffer,"%cC%d.F",'%',Offset);
-            break;
-        case VAR_STEP_ACTIVITY:
-            sprintf(Buffer,"%cX%d",'%',Offset);
-            break;
-        case VAR_PHYS_INPUT:
-            sprintf(Buffer,"%cI%d",'%',Offset);
-            break;
-        case VAR_PHYS_OUTPUT:
-            sprintf(Buffer,"%cQ%d",'%',Offset);
-            break;
-        case VAR_MEM_WORD:
-            sprintf(Buffer,"%cW%d",'%',Offset);
-            break;
-        case VAR_STEP_TIME:
-            sprintf(Buffer,"%cX%d.V",'%',Offset);
-            break;
-        case VAR_TIMER_PRESET:
-            sprintf(Buffer,"%cT%d.P",'%',Offset);
-            break;
-        case VAR_TIMER_VALUE:
-            sprintf(Buffer,"%cT%d.V",'%',Offset);
-            break;
-        case VAR_MONOSTABLE_PRESET:
-            sprintf(Buffer,"%cM%d.P",'%',Offset);
-            break;
-        case VAR_MONOSTABLE_VALUE:
-            sprintf(Buffer,"%cM%d.V",'%',Offset);
-            break;
-        case VAR_COUNTER_PRESET:
-            sprintf(Buffer,"%cC%d.P",'%',Offset);
-            break;
-        case VAR_COUNTER_VALUE:
-            sprintf(Buffer,"%cC%d.V",'%',Offset);
-            break;
-        default:
-            sprintf(Buffer,"???");
-            break;
-    }
-	if ( InfosGene->DisplaySymbols )
-	{
-		// verify if a symbol has been defined for the variable...
-		char * Symbol = ConvVarNameToSymbol( Buffer );
-		if ( Symbol!=NULL )
-			return Symbol;
-	}
-    return Buffer;
-}
 char * DisplayArithmExpr(char * Expr,int NumCarMax)
 {
-    static char Buffer[ARITHM_EXPR_SIZE+30];
-    char * Ptr = Expr;
-    int Fill = 0;
-    Buffer[0] = '\0';
-    /* null expression ? */
-    if (Expr[0]=='\0')
-        return Buffer;
-    do
-    {
-        /* start of a variable ? */
-        if (*Ptr=='@')
-        {
-            int NumVar,TypeVar;
-            char VarBuffer[20];
-            if (IdentifyVariable(Ptr,&NumVar,&TypeVar))
-                strcpy(VarBuffer,DisplayInfo(NumVar,TypeVar));
-            else
-                strcpy(VarBuffer,"??");
-            strcpy(&Buffer[Fill],VarBuffer);
-            /* flush until end of a variable */
-            do
-            {
-                Ptr++;
-            }
-            while(*Ptr!='@');
-            Ptr++;
-            Fill = Fill+strlen(VarBuffer);
-        }
-        else
-        {
-            Buffer[Fill++] = *Ptr++;
-        }
-    }
-    while(*Ptr!='\0');
-    Buffer[Fill] = '\0';
-    /* size limited ? */
-    if (NumCarMax>0)
-    {
-        if (strlen(Buffer)>NumCarMax)
-        {
-            Buffer[NumCarMax-1] = '.';
-            Buffer[NumCarMax] = '.';
-            Buffer[NumCarMax+1] = '\0';
-        }
-    }
-    return Buffer;
+	static char Buffer[ARITHM_EXPR_SIZE+30];
+	char * Ptr = Expr;
+	int Fill = 0;
+	Buffer[0] = '\0';
+	/* null expression ? */
+	if (Expr[0]=='\0')
+		return Buffer;
+	do
+	{
+		/* start of a variable ? */
+		if (*Ptr=='@')
+		{
+			int NumVar,TypeVar;
+			int IndexNumVar,IndexTypeVar;
+			char VarBuffer[20];
+			char VarIndexBuffer[20];
+			if ( IdentifyVarIndexedOrNot( Ptr, &TypeVar, &NumVar, &IndexTypeVar, &IndexNumVar ) )
+			{
+				if ( IndexTypeVar!=-1 && IndexNumVar!=-1 )
+				{
+					// buffer for index required as CreateVarName() returns on a static buffer !
+					strcpy( VarIndexBuffer, CreateVarName(IndexTypeVar,IndexNumVar) );
+                	sprintf(VarBuffer, "%s[%s]", CreateVarName(TypeVar,NumVar), VarIndexBuffer );
+				}
+				else
+				{
+                	strcpy(VarBuffer,CreateVarName(TypeVar,NumVar));
+				}
+			}
+			else
+				strcpy(VarBuffer,"??");
+			strcpy(&Buffer[Fill],VarBuffer);
+			/* flush until end of a variable */
+			do
+			{
+				Ptr++;
+			}
+			while(*Ptr!='@');
+			Ptr++;
+			Fill = Fill+strlen(VarBuffer);
+		}
+		else
+		{
+			Buffer[Fill++] = *Ptr++;
+		}
+	}
+	while(*Ptr!='\0');
+	Buffer[Fill] = '\0';
+	/* size limited ? */
+	if (NumCarMax>0)
+	{
+		if (strlen(Buffer)>NumCarMax)
+		{
+			Buffer[NumCarMax-1] = '.';
+			Buffer[NumCarMax] = '.';
+			Buffer[NumCarMax+1] = '\0';
+		}
+	}
+	return Buffer;
 }
 
 #ifdef GTK2
@@ -166,10 +108,18 @@ char * DisplayArithmExpr(char * Expr,int NumCarMax)
 /* if Height is -1, then drawing on top of BaseY given... */
 void DrawTextWithOffsetGTK2( GdkPixmap * DrawPixmap, GdkGC * GcRef, int BaseX, int BaseY, int Width, int Height, char * Text, int BorderOffset ) 
 {
-	PangoLayout * playout = gtk_widget_create_pango_layout ( GTK_WIDGET(drawing_area), Text );
 	int SizeX, SizeY, OffsetX,PosiY;
+	PangoFontDescription *FontDesc;
+	PangoLayout * playout = gtk_widget_create_pango_layout ( GTK_WIDGET(drawing_area), Text );
 
 	pango_layout_set_width( playout, Width*PANGO_SCALE );
+
+//	FontDesc = pango_font_description_from_string( "Andale Mono 8" );
+	FontDesc = pango_font_description_from_string( "Courier New 8" );
+//	FontDesc = pango_font_description_from_string( "Lucida Bright 8" );
+//	FontDesc = pango_font_description_from_string( "Lucida Sans 8" );
+	pango_layout_set_font_description( playout, FontDesc );
+	pango_font_description_free( FontDesc );
 
 	pango_layout_get_pixel_size( playout, &SizeX, &SizeY );
 	OffsetX = 0;
@@ -264,9 +214,12 @@ void DrawCommonElementForToolbar(GdkPixmap * DrawPixmap,int x,int y,int Size,int
 void DrawElement(GdkPixmap * DrawPixmap,int x,int y,int Width,int Height,StrElement Element,char DrawingOption)
 {
     char BufTxt[50];
+#ifdef OLD_TIMERS_MONOS_SUPPORT
     StrTimer * Timer;
     StrMonostable * Monostable;
+#endif
     StrCounter * Counter;
+    StrTimerIEC * TimerIEC;
     int WidDiv2 = Width/2;
     int WidDiv3 = Width/3;
     int WidDiv4 = Width/4;
@@ -421,6 +374,7 @@ void DrawElement(GdkPixmap * DrawPixmap,int x,int y,int Width,int Height,StrElem
     /* Drawing complex ones : Timer, Monostable, Compar, Operate */
     switch(Element.Type)
     {
+#ifdef OLD_TIMERS_MONOS_SUPPORT
         case ELE_TIMER:
             if (DrawingOption==DRAW_FOR_TOOLBAR)
                 break;
@@ -437,9 +391,18 @@ void DrawElement(GdkPixmap * DrawPixmap,int x,int y,int Width,int Height,StrElem
                                 x-Width,y+HeiDiv2, x-Width+WidDiv3,y+HeiDiv2);
 #ifndef GTK2
             gdk_draw_text(DrawPixmap, drawing_area->style->font, drawing_area->style->black_gc,
-                        x-Width,y+HeiDiv2-1,"I",1);
+                        x-Width+2,y+HeiDiv2-1,"E",1);
 #else
-			DrawTextGTK2( DrawPixmap, drawing_area->style->black_gc, x-Width, y+HeiDiv2-1, -1, -1, "I" );
+			DrawTextGTK2( DrawPixmap, drawing_area->style->black_gc, x-Width+2, y+HeiDiv2-1, -1, -1, "E" );
+#endif
+            /* input : control */
+            gdk_draw_line(DrawPixmap, (Timer->InputControl)?DynaGcOn:DynaGcOff,
+                                x-Width,y+HeiDiv2+Height, x-Width+WidDiv3,y+HeiDiv2+Height);
+#ifndef GTK2
+            gdk_draw_text(DrawPixmap, drawing_area->style->font, drawing_area->style->black_gc,
+                        x-Width+2,y+HeiDiv2-1+Height,"C",1);
+#else
+			DrawTextGTK2( DrawPixmap, drawing_area->style->black_gc, x-Width+2, y+HeiDiv2-1+Height, -1, -1, "C" );
 #endif
             /* output : done */
             gdk_draw_line(DrawPixmap, (Timer->OutputDone)?DynaGcOn:DynaGcOff,
@@ -460,12 +423,18 @@ void DrawElement(GdkPixmap * DrawPixmap,int x,int y,int Width,int Height,StrElem
 			DrawTextGTK2( DrawPixmap, drawing_area->style->black_gc, x+Width-WidDiv4,y+HeiDiv2-1+Height, -1, -1, "R" );
 #endif
             /* Timer Number */
-            sprintf(BufTxt,"T%d",Element.VarNum);
+			sprintf( BufTxt,"%cT%d", '%', Element.VarNum );
+			if ( InfosGene->DisplaySymbols )
+			{
+				StrSymbol * SymbolName = ConvVarNameInSymbolPtr( BufTxt );
+				if ( SymbolName )
+					strcpy( BufTxt, SymbolName->Symbol );
+			}
 #ifndef GTK2
             gdk_draw_text(DrawPixmap, drawing_area->style->font, drawing_area->style->black_gc,
                         x+WidDiv2-Width,y+HeiDiv4-2,BufTxt,strlen(BufTxt));
 #else
-			DrawTextGTK2( DrawPixmap, drawing_area->style->black_gc, x+WidDiv2-Width,y+HeiDiv4+2, -1, -1, BufTxt );
+			DrawTextGTK2( DrawPixmap, drawing_area->style->black_gc, x+WidDiv3-Width,y+HeiDiv4+2, (Width-WidDiv3)*2, -1, BufTxt );
 #endif
             /* Current Value (or Preset if print/edit) */
 			if ( DrawingOption!=DRAW_FOR_PRINT && !EditDatas.ModeEdit )
@@ -511,12 +480,18 @@ void DrawElement(GdkPixmap * DrawPixmap,int x,int y,int Width,int Height,StrElem
 			DrawTextGTK2( DrawPixmap, drawing_area->style->black_gc, x+Width-WidDiv4,y+HeiDiv2-1, -1, -1, "R" );
 #endif
             /* Monostable Number */
-            sprintf(BufTxt,"M%d",Element.VarNum);
+			sprintf( BufTxt,"%cM%d", '%', Element.VarNum );
+			if ( InfosGene->DisplaySymbols )
+			{
+				StrSymbol * SymbolName = ConvVarNameInSymbolPtr( BufTxt );
+				if ( SymbolName )
+					strcpy( BufTxt, SymbolName->Symbol );
+			}
 #ifndef GTK2
             gdk_draw_text(DrawPixmap, drawing_area->style->font, drawing_area->style->black_gc,
                         x+WidDiv2-Width,y+HeiDiv4-2,BufTxt,strlen(BufTxt));
 #else
-			DrawTextGTK2( DrawPixmap, drawing_area->style->black_gc, x+WidDiv2-Width,y+HeiDiv4+2, -1, -1, BufTxt );
+			DrawTextGTK2( DrawPixmap, drawing_area->style->black_gc, x+WidDiv3-Width,y+HeiDiv4+2, (Width-WidDiv3)*2, -1, BufTxt );
 #endif
             /* Current Value (or Preset if print/edit) */
 			if ( DrawingOption!=DRAW_FOR_PRINT && !EditDatas.ModeEdit )
@@ -530,6 +505,7 @@ void DrawElement(GdkPixmap * DrawPixmap,int x,int y,int Width,int Height,StrElem
 			DrawTextGTK2( DrawPixmap, drawing_area->style->black_gc, x-Width, y, Width*2, Height*2, BufTxt );
 #endif
             break;
+#endif
 
         case ELE_COUNTER:
             if (DrawingOption==DRAW_FOR_TOOLBAR)
@@ -606,12 +582,18 @@ void DrawElement(GdkPixmap * DrawPixmap,int x,int y,int Width,int Height,StrElem
 			DrawTextGTK2( DrawPixmap, drawing_area->style->black_gc, x+Width-WidDiv4,y+HeiDiv2-1+Height*2, -1, -1, "F" );
 #endif
             /* Counter Number */
-            sprintf(BufTxt,"C%d",Element.VarNum);
+			sprintf( BufTxt,"%cC%d", '%', Element.VarNum );
+			if ( InfosGene->DisplaySymbols )
+			{
+				StrSymbol * SymbolName = ConvVarNameInSymbolPtr( BufTxt );
+				if ( SymbolName )
+					strcpy( BufTxt, SymbolName->Symbol );
+			}
 #ifndef GTK2
             gdk_draw_text(DrawPixmap, drawing_area->style->font, drawing_area->style->black_gc,
                         x+WidDiv2-Width,y+HeiDiv4-2,BufTxt,strlen(BufTxt));
 #else
-			DrawTextGTK2( DrawPixmap, drawing_area->style->black_gc, x+WidDiv2-Width,y+HeiDiv4+2, -1, -1, BufTxt );
+			DrawTextGTK2( DrawPixmap, drawing_area->style->black_gc, x+WidDiv3-Width,y+HeiDiv4+2, (Width-WidDiv3)*2, -1, BufTxt );
 #endif
             /* Current Value (or Preset if print/edit) */
 			if ( DrawingOption!=DRAW_FOR_PRINT && !EditDatas.ModeEdit )
@@ -623,6 +605,71 @@ void DrawElement(GdkPixmap * DrawPixmap,int x,int y,int Width,int Height,StrElem
                             x+WidDiv2-2-Width,y+Height,BufTxt,strlen(BufTxt));
 #else
 			DrawTextGTK2( DrawPixmap, drawing_area->style->black_gc, x-Width, y, Width*2, Height*2, BufTxt );
+#endif
+            break;
+
+        case ELE_TIMER_IEC:
+            if (DrawingOption==DRAW_FOR_TOOLBAR)
+                break;
+            TimerIEC = &NewTimerArray[Element.VarNum];
+            /* the box */
+            gdk_draw_rectangle(DrawPixmap, drawing_area->style->white_gc, TRUE,
+                                x+WidDiv3-Width, y+HeiDiv3,
+                                Width+1*WidDiv3, Height+1*HeiDiv3);
+            gdk_draw_rectangle(DrawPixmap, DynaGcOff, FALSE,
+                                x+WidDiv3-Width, y+HeiDiv3,
+                                Width+1*WidDiv3, Height+1*HeiDiv3);
+            /* input : enable */
+            gdk_draw_line(DrawPixmap, (TimerIEC->Input)?DynaGcOn:DynaGcOff,
+                                x-Width,y+HeiDiv2, x-Width+WidDiv3,y+HeiDiv2);
+#ifndef GTK2
+            gdk_draw_text(DrawPixmap, drawing_area->style->font, drawing_area->style->black_gc,
+                        x-Width,y+HeiDiv2-1,"I",1);
+#else
+			DrawTextGTK2( DrawPixmap, drawing_area->style->black_gc, x-Width, y+HeiDiv2-1, -1, -1, "I" );
+#endif
+            /* output : done */
+            gdk_draw_line(DrawPixmap, (TimerIEC->Output)?DynaGcOn:DynaGcOff,
+                                x+WidDiv3*2,y+HeiDiv2, x+Width,y+HeiDiv2);
+#ifndef GTK2
+            gdk_draw_text(DrawPixmap, drawing_area->style->font, drawing_area->style->black_gc,
+                        x+Width-WidDiv4,y+HeiDiv2-1,"Q",1);
+#else
+			DrawTextGTK2( DrawPixmap, drawing_area->style->black_gc, x+Width-WidDiv4,y+HeiDiv2-1, -1, -1, "Q" );
+#endif
+            /* Timer IEC Number */
+			sprintf( BufTxt,"%cTM%d", '%', Element.VarNum );
+			if ( InfosGene->DisplaySymbols )
+			{
+				StrSymbol * SymbolName = ConvVarNameInSymbolPtr( BufTxt );
+				if ( SymbolName )
+					strcpy( BufTxt, SymbolName->Symbol );
+			}
+#ifndef GTK2
+            gdk_draw_text(DrawPixmap, drawing_area->style->font, drawing_area->style->black_gc,
+                        x+WidDiv2-Width,y+HeiDiv4-2,BufTxt,strlen(BufTxt));
+#else
+			DrawTextGTK2( DrawPixmap, drawing_area->style->black_gc, x+WidDiv3-Width,y+HeiDiv4+2, (Width-WidDiv3)*2, -1, BufTxt );
+#endif
+			/* Timer mode */
+			sprintf( BufTxt, "%s", TimersModesStrings[ (int)TimerIEC->TimerMode ] );
+#ifndef GTK2
+            gdk_draw_text(DrawPixmap, drawing_area->style->font, drawing_area->style->black_gc,
+                            x+WidDiv2-2-Width,y+Height,BufTxt,strlen(BufTxt));
+#else
+			DrawTextGTK2( DrawPixmap, drawing_area->style->black_gc, x-Width, y+HeiDiv3, Width*2, Height-HeiDiv3, BufTxt );
+#endif
+
+            /* Current Value (or Preset if print/edit) */
+			if ( DrawingOption!=DRAW_FOR_PRINT && !EditDatas.ModeEdit )
+                sprintf(BufTxt,/*TimerIEC->DisplayFormat*/"%d", TimerIEC->Value);
+			else
+                sprintf(BufTxt,/*TimerIEC->DisplayFormat*/"%d", TimerIEC->Preset);
+#ifndef GTK2
+            gdk_draw_text(DrawPixmap, drawing_area->style->font, drawing_area->style->black_gc,
+                            x+WidDiv2-2-Width,y+Height,BufTxt,strlen(BufTxt));
+#else
+			DrawTextGTK2( DrawPixmap, drawing_area->style->black_gc, x-Width, y+Height+HeiDiv2, Width*2, -1/*Height-HeiDiv3*/, BufTxt );
 #endif
             break;
 
@@ -708,7 +755,7 @@ void DrawElement(GdkPixmap * DrawPixmap,int x,int y,int Width,int Height,StrElem
             case ELE_OUTPUT_NOT:
             case ELE_OUTPUT_SET:
             case ELE_OUTPUT_RESET:
-                strcpy(BufTxt,DisplayInfo(Element.VarType,Element.VarNum));
+                strcpy(BufTxt,CreateVarName(Element.VarType,Element.VarNum));
 #ifndef GTK2
                 gdk_draw_text(DrawPixmap, drawing_area->style->font, drawing_area->style->black_gc,
                                 x+WidDiv4,y+HeiDiv4-2,BufTxt,strlen(BufTxt));
@@ -772,15 +819,18 @@ void DrawElement(GdkPixmap * DrawPixmap,int x,int y,int Width,int Height,StrElem
             case ELE_TIMER:
             case ELE_MONOSTABLE:
             case ELE_COUNTER:
+            case ELE_TIMER_IEC:
                 {
                     char * Letter = "T";
                     if ( Element.Type==ELE_MONOSTABLE )
                         Letter = "M";
                     if ( Element.Type==ELE_COUNTER )
                         Letter = "C";
+                    if ( Element.Type==ELE_TIMER_IEC )
+                        Letter = "TM";
                     gdk_draw_rectangle(DrawPixmap, drawing_area->style->black_gc, FALSE,
-                                    x+WidDiv4, y+HeiDiv4,
-                                    Width-2*WidDiv4, Height-2*HeiDiv4);
+                                    x/*+WidDiv4*/, y+HeiDiv4,
+                                    Width-2/**WidDiv4*/, Height-2*HeiDiv4);
 #ifndef GTK2
                     gdk_draw_text(DrawPixmap, drawing_area->style->font, TheGc,
                             x+WidDiv3+2,y+HeiDiv3*2,Letter,1);
@@ -852,10 +902,10 @@ void DrawGrid( int PosiY )
     int x,y;
     GdkColor DynaGdkColor;
     GdkGC * DynaGcOn;
-    DynaGdkColor.pixel = 0xF4F4F4;
-    DynaGdkColor.red = 0xF4;
-    DynaGdkColor.green = 0xF4;
-    DynaGdkColor.blue = 0xF4;
+    DynaGdkColor.pixel = 0xA0D0D0;
+    DynaGdkColor.red = 0xA0;
+    DynaGdkColor.green = 0xD0;
+    DynaGdkColor.blue = 0xD0;
 
     DynaGcOn = gdk_gc_new(pixmap);
     gdk_gc_set_foreground(DynaGcOn,&DynaGdkColor);

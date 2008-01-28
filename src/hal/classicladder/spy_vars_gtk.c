@@ -1,0 +1,385 @@
+/* Classic Ladder Project */
+/* Copyright (C) 2001-2007 Marc Le Douarain */
+/* http://membres.lycos.fr/mavati/classicladder/ */
+/* http://www.sourceforge.net/projects/classicladder */
+/* February 2001 */
+/* -------------------------------------------------------------------------------------------- */
+/* Spy variables windows (booleans with checkboxes, and any with entry widgets) - GTK interface */
+/* -------------------------------------------------------------------------------------------- */
+/* This library is free software; you can redistribute it and/or */
+/* modify it under the terms of the GNU Lesser General Public */
+/* License as published by the Free Software Foundation; either */
+/* version 2.1 of the License, or (at your option) any later version. */
+
+/* This library is distributed in the hope that it will be useful, */
+/* but WITHOUT ANY WARRANTY; without even the implied warranty of */
+/* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU */
+/* Lesser General Public License for more details. */
+
+/* You should have received a copy of the GNU Lesser General Public */
+/* License along with this library; if not, write to the Free Software */
+/* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA */
+
+#include <gtk/gtk.h>
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <unistd.h>
+
+#include "classicladder.h"
+#include "global.h"
+#include "vars_access.h"
+#include "drawing.h"
+#include "edit.h"
+#include "classicladder_gtk.h"
+#include "vars_names.h"
+#include "symbols.h"
+
+#include "spy_vars_gtk.h"
+
+#define NBR_BOOLS_VAR_SPY 15
+#define NBR_TYPE_BOOLS_SPY 3
+#define NBR_FREE_VAR_SPY 10
+
+GtkWidget *SpyBoolVarsWindow;
+GtkWidget *SpyFreeVarsWindow;
+
+GtkWidget *offsetboolvar[ NBR_TYPE_BOOLS_SPY ];
+int ValOffsetBoolVar[ NBR_TYPE_BOOLS_SPY ] = { 0, 0, 0 };
+GtkWidget *chkvar[ NBR_TYPE_BOOLS_SPY ][ NBR_BOOLS_VAR_SPY ];
+
+GtkWidget *EntryVarSpy[NBR_FREE_VAR_SPY*2];
+GtkTooltips * TooltipsEntryVarSpy[ NBR_FREE_VAR_SPY ];
+/* defaults vars to spy list */
+int VarSpy[NBR_FREE_VAR_SPY][2] = { {VAR_MEM_WORD,0}, {VAR_MEM_WORD,1}, {VAR_MEM_WORD,2}, {VAR_MEM_WORD,3}, {VAR_MEM_WORD,4}, {VAR_MEM_WORD,5}, {VAR_MEM_WORD,6}, {VAR_MEM_WORD,7}, {VAR_MEM_WORD,8}, {VAR_MEM_WORD,9} }; 
+GtkWidget *DisplayFormatVarSpy[NBR_FREE_VAR_SPY];
+
+static gint chkvar_press_event( GtkWidget      *widget, void * numcheck )
+{
+	long NumCheckWidget = (long)numcheck;
+	int Type = VAR_MEM_BIT;
+	int Offset = ValOffsetBoolVar[ 0 ];
+	int NumCheck = NumCheckWidget;
+	if( NumCheckWidget>=NBR_BOOLS_VAR_SPY && NumCheckWidget<2*NBR_BOOLS_VAR_SPY )
+	{
+		Type = VAR_PHYS_INPUT;
+		Offset = ValOffsetBoolVar[ 1 ];
+		NumCheck -= NBR_BOOLS_VAR_SPY;
+	} 
+	if( NumCheckWidget>=2*NBR_BOOLS_VAR_SPY && NumCheckWidget<3*NBR_BOOLS_VAR_SPY )
+	{
+		Type = VAR_PHYS_OUTPUT;
+		Offset = ValOffsetBoolVar[ 2 ];
+		NumCheck -= 2*NBR_BOOLS_VAR_SPY;
+	} 
+	if (gtk_toggle_button_get_active((GtkToggleButton *)widget))
+		WriteVar(Type,Offset+NumCheck,1);
+	else
+		WriteVar(Type,Offset+NumCheck,0);
+	return TRUE;
+}
+
+void RefreshOneBoolVar( int Type, int Num, int Val )
+{
+	int Col = 0;
+	switch( Type )
+	{
+		case VAR_PHYS_INPUT: Col = 1; break;
+		case VAR_PHYS_OUTPUT: Col = 2; break;
+	}
+	if ( Num>=ValOffsetBoolVar[ Col ] && Num<ValOffsetBoolVar[ Col ]+NBR_BOOLS_VAR_SPY )
+		gtk_toggle_button_set_active((GtkToggleButton *)chkvar[Col][Num-ValOffsetBoolVar[ Col ]],(Val!=0)?TRUE:FALSE);
+}
+
+void RefreshAllBoolsVars( )
+{
+	int NumVar;
+	for (NumVar=0; NumVar<NBR_BOOLS_VAR_SPY; NumVar++)
+	{
+		gtk_toggle_button_set_active( (GtkToggleButton *)chkvar[0][NumVar], ReadVar(VAR_MEM_BIT,NumVar+ValOffsetBoolVar[ 0 ])?TRUE:FALSE );
+		gtk_toggle_button_set_active( (GtkToggleButton *)chkvar[1][NumVar], ReadVar(VAR_PHYS_INPUT,NumVar+ValOffsetBoolVar[ 1 ])?TRUE:FALSE );
+		gtk_toggle_button_set_active( (GtkToggleButton *)chkvar[2][NumVar], ReadVar(VAR_PHYS_OUTPUT,NumVar+ValOffsetBoolVar[ 2 ])?TRUE:FALSE );
+	}
+}
+
+void UpdateAllLabelsBoolsVars( )
+{
+	int ColumnVar, OffVar;
+	for(ColumnVar=0; ColumnVar<NBR_TYPE_BOOLS_SPY; ColumnVar++)
+	{
+		for(OffVar=0; OffVar<NBR_BOOLS_VAR_SPY; OffVar++)
+		{
+			char BufNumVar[20];
+			switch( ColumnVar )
+			{
+				case 0: sprintf(BufNumVar, "%cB%d",'%', OffVar+ValOffsetBoolVar[ ColumnVar ]); break;
+				case 1: sprintf(BufNumVar, "%cI%d",'%', OffVar+ValOffsetBoolVar[ ColumnVar ]); break;
+				case 2: sprintf(BufNumVar, "%cQ%d",'%', OffVar+ValOffsetBoolVar[ ColumnVar ]); break;
+			}
+			gtk_label_set_text(GTK_LABEL(GTK_BIN( chkvar[ ColumnVar ][ OffVar ] )->child),BufNumVar);
+		}
+	}
+}
+
+static gint OffsetBoolVar_activate_event(GtkWidget *widget, void * NumVarSpy)
+{
+	int Maxi = 0;
+	long NumType = (long)NumVarSpy;
+	int ValOffset = atoi( gtk_entry_get_text((GtkEntry *)widget) );
+	switch( NumType )
+	{
+		case 0: Maxi = NBR_BITS; break;
+		case 1: Maxi = NBR_PHYS_INPUTS; break;
+		case 2: Maxi = NBR_PHYS_OUTPUTS; break;
+	}
+	if ( ValOffset+NBR_BOOLS_VAR_SPY>Maxi || ValOffset<0 )
+		ValOffset = 0;
+	ValOffsetBoolVar[ NumType ] = ValOffset;
+	UpdateAllLabelsBoolsVars( );
+	RefreshAllBoolsVars( );
+	return TRUE;
+}
+
+gint BoolVarsWindowDeleteEvent( GtkWidget * widget, GdkEvent * event, gpointer data )
+{
+	gtk_widget_hide( SpyBoolVarsWindow );
+	// we do not want that the window be destroyed.
+	return TRUE;
+}
+
+void OpenSpyBoolVarsWindow( )
+{
+	if ( !GTK_WIDGET_VISIBLE( SpyBoolVarsWindow ) )
+	{
+		gtk_widget_show (SpyBoolVarsWindow);
+#ifdef GTK2
+		gtk_window_present( GTK_WINDOW(SpyBoolVarsWindow) );
+#endif
+	}
+	else
+	{
+		gtk_widget_hide( SpyBoolVarsWindow );
+	}
+}
+
+void BoolVarsWindowInitGtk()
+{
+	GtkWidget *vboxboolvars[ NBR_TYPE_BOOLS_SPY ],*vboxmain,*hboxvars;
+	long NumCheckWidget,ColumnVar;
+	GtkTooltips * WidgetTooltips[ NBR_TYPE_BOOLS_SPY ];
+	
+	SpyBoolVarsWindow = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+	gtk_window_set_title ((GtkWindow *)SpyBoolVarsWindow, "Spy bools vars");
+	vboxmain = gtk_vbox_new (FALSE, 0);
+	gtk_container_add (GTK_CONTAINER (SpyBoolVarsWindow), vboxmain);
+	gtk_widget_show (vboxmain);
+	hboxvars = gtk_hbox_new (FALSE, 0);
+	gtk_container_add (GTK_CONTAINER (vboxmain), hboxvars);
+	gtk_widget_show (hboxvars);
+
+	for( ColumnVar=0; ColumnVar<NBR_TYPE_BOOLS_SPY; ColumnVar++ )
+	{
+		vboxboolvars[ ColumnVar ] = gtk_vbox_new (FALSE, 0);
+		gtk_container_add (GTK_CONTAINER (hboxvars), vboxboolvars[ ColumnVar ]);
+		gtk_widget_show (vboxboolvars[ ColumnVar ]);
+	}
+
+	NumCheckWidget = 0;
+	for(ColumnVar=0; ColumnVar<NBR_TYPE_BOOLS_SPY; ColumnVar++)
+	{
+		int OffVar;
+		offsetboolvar[ ColumnVar ]  = gtk_entry_new();
+		WidgetTooltips[ ColumnVar ] = gtk_tooltips_new();
+		gtk_tooltips_set_tip ( WidgetTooltips[ ColumnVar ], offsetboolvar[ ColumnVar ], "Offset for vars displayed below (return to apply)", NULL );
+		gtk_widget_set_usize((GtkWidget *)offsetboolvar[ ColumnVar ],40,0);
+		gtk_box_pack_start (GTK_BOX(vboxboolvars[ ColumnVar ]),  offsetboolvar[ ColumnVar ] , FALSE, FALSE, 0);
+		gtk_widget_show( offsetboolvar[ ColumnVar ] );
+		gtk_entry_set_text((GtkEntry *)offsetboolvar[ ColumnVar ],"0");
+		gtk_signal_connect(GTK_OBJECT (offsetboolvar[ ColumnVar ]), "activate",
+					(GtkSignalFunc) OffsetBoolVar_activate_event, (void *)ColumnVar);
+		
+		for(OffVar=0; OffVar<NBR_BOOLS_VAR_SPY; OffVar++)
+		{
+			chkvar[ ColumnVar ][ OffVar ] = gtk_check_button_new_with_label("xxxx");
+			gtk_box_pack_start (GTK_BOX(vboxboolvars[ ColumnVar ]), chkvar[ ColumnVar ][ OffVar ], FALSE, FALSE, 0);
+			gtk_widget_show(chkvar[ ColumnVar ][ OffVar ]);
+			gtk_signal_connect(GTK_OBJECT (chkvar[ ColumnVar ][ OffVar ]), "toggled",
+					(GtkSignalFunc) chkvar_press_event, (void*)NumCheckWidget);
+			NumCheckWidget++;
+		}
+	}
+	UpdateAllLabelsBoolsVars( );
+	
+	gtk_signal_connect( GTK_OBJECT(SpyBoolVarsWindow), "delete_event",
+		(GtkSignalFunc)BoolVarsWindowDeleteEvent, 0 );
+
+//	gtk_window_set_policy( GTK_WINDOW(SpyBoolVarsWindow), FALSE/*allow_shrink*/, FALSE/*allow_grow*/, TRUE/*auto_shrink*/ );
+}
+
+
+
+char * ConvToBin( unsigned int Val )
+{
+	static char TabBin[ 33 ];
+	int Pos;
+	unsigned int Mask = 0x80000000;
+	char First1 = FALSE;
+	strcpy( TabBin, "" );
+	for ( Pos = 0; Pos<32; Pos++ )
+	{
+		if ( Val & Mask )
+			First1 = TRUE;
+		if ( First1 )
+		{
+			if ( Val & Mask )
+				strcat( TabBin, "1" );
+			else
+				strcat( TabBin, "0" );
+		}
+		Mask = Mask>>1;
+	}
+	if ( Val==0 )
+		strcpy( TabBin,"0" );
+	return TabBin;
+}
+
+void DisplayFreeVarSpy()
+{
+	int NumVarSpy;
+	int Value;
+	char BufferValue[50];
+	char DisplayFormat[10];
+	for (NumVarSpy=0; NumVarSpy<NBR_FREE_VAR_SPY; NumVarSpy++)
+	{
+		Value = ReadVar(VarSpy[NumVarSpy][0],VarSpy[NumVarSpy][1]);
+		strcpy( DisplayFormat , (char *)gtk_entry_get_text((GtkEntry *)((GtkCombo *)DisplayFormatVarSpy[NumVarSpy])->entry) );
+		strcpy( BufferValue, "" );
+		if (strcmp( DisplayFormat,"Dec" )==0 )
+			sprintf(BufferValue,"%d",Value);
+		if (strcmp( DisplayFormat,"Hex" )==0 )
+			sprintf(BufferValue,"%X",Value);
+		if (strcmp( DisplayFormat,"Bin" )==0 )
+			strcpy( BufferValue, ConvToBin( Value ) );
+		gtk_entry_set_text((GtkEntry *)EntryVarSpy[NBR_FREE_VAR_SPY+NumVarSpy],BufferValue);
+	}
+}
+
+static gint EntryVarSpy_activate_event(GtkWidget *widget, int NumSpy)
+{
+	int NewVarType,NewVarOffset;
+	int * NumVarSpy = &VarSpy[NumSpy][0];
+	char BufferVar[30];
+	strcpy(BufferVar, gtk_entry_get_text((GtkEntry *)widget) );
+	if (TextParserForAVar(BufferVar , &NewVarType, &NewVarOffset, NULL, FALSE/*PartialNames*/))
+	{
+		char * OtherVarName = NULL;
+		*NumVarSpy++ = NewVarType;
+		*NumVarSpy = NewVarOffset;
+		if ( BufferVar[ 0 ]=='%' )
+			OtherVarName = ConvVarNameToSymbol( BufferVar );
+		else
+			OtherVarName = ConvSymbolToVarName( BufferVar );
+		if ( OtherVarName )
+				gtk_tooltips_set_tip ( TooltipsEntryVarSpy[ NumSpy ], widget, OtherVarName, NULL );
+	}
+	else
+	{
+		int OldType,OldOffset;
+		/* Error Message */
+		if (ErrorMessageVarParser)
+			ShowMessageBox("Error",ErrorMessageVarParser,"Ok");
+		else
+			ShowMessageBox( "Error", "Unknown variable...", "Ok" );
+		OldType = *NumVarSpy++;
+		OldOffset = *NumVarSpy;
+		/* put back old correct var */
+		gtk_entry_set_text((GtkEntry *)widget,CreateVarName(OldType,OldOffset));
+	}
+	return TRUE;
+}
+
+gint FreeVarsWindowDeleteEvent( GtkWidget * widget, GdkEvent * event, gpointer data )
+{
+	gtk_widget_hide( SpyFreeVarsWindow );
+	// we do not want that the window be destroyed.
+	return TRUE;
+}
+
+void OpenSpyFreeVarsWindow( )
+{
+	if ( !GTK_WIDGET_VISIBLE( SpyFreeVarsWindow ) )
+	{
+		gtk_widget_show (SpyFreeVarsWindow);
+#ifdef GTK2
+		gtk_window_present( GTK_WINDOW(SpyFreeVarsWindow) );
+#endif
+	}
+	else
+	{
+		gtk_widget_hide( SpyFreeVarsWindow );
+	}
+}
+
+void FreeVarsWindowInitGtk( )
+{
+	GtkWidget * hboxfreevars[ NBR_FREE_VAR_SPY ], *vboxMain;
+	long ColumnVar;
+	int NumVarSpy,NumEntry;
+	GList *DisplayFormatItems = NULL;
+
+	SpyFreeVarsWindow = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+	gtk_window_set_title ((GtkWindow *)SpyFreeVarsWindow, "Spy free vars");
+	vboxMain = gtk_vbox_new (FALSE, 0);
+	gtk_container_add (GTK_CONTAINER (SpyFreeVarsWindow), vboxMain);
+	gtk_widget_show (vboxMain);
+	
+	DisplayFormatItems = g_list_append(DisplayFormatItems,"Dec");
+	DisplayFormatItems = g_list_append(DisplayFormatItems,"Hex");
+	DisplayFormatItems = g_list_append(DisplayFormatItems,"Bin");
+	
+	for(NumVarSpy=0; NumVarSpy<NBR_FREE_VAR_SPY; NumVarSpy++)
+	{
+		hboxfreevars[ NumVarSpy ] = gtk_hbox_new (FALSE, 0);
+		gtk_container_add (GTK_CONTAINER (vboxMain), hboxfreevars[ NumVarSpy ]);
+		gtk_widget_show (hboxfreevars[ NumVarSpy ]);
+		for(ColumnVar=0; ColumnVar<2; ColumnVar++)
+		{
+			NumEntry = NumVarSpy+ColumnVar*NBR_FREE_VAR_SPY;
+			EntryVarSpy[ NumEntry ] = gtk_entry_new();
+			gtk_widget_set_usize((GtkWidget *)EntryVarSpy[ NumEntry ],(ColumnVar==2)?80:110,0);
+			gtk_box_pack_start (GTK_BOX( hboxfreevars[ NumVarSpy ] ), EntryVarSpy[ NumEntry ], TRUE, TRUE, 0);
+			gtk_widget_show(EntryVarSpy[NumEntry]);
+			if ( ColumnVar==0 )
+			{
+				char * VarName = CreateVarName(VarSpy[NumVarSpy][0],VarSpy[NumVarSpy][1]);
+				TooltipsEntryVarSpy[ NumVarSpy ] = gtk_tooltips_new();
+
+				gtk_entry_set_text((GtkEntry *)EntryVarSpy[ NumEntry ],VarName);
+				gtk_signal_connect(GTK_OBJECT (EntryVarSpy[ NumEntry ]), "activate",
+                                        (GtkSignalFunc) EntryVarSpy_activate_event, (void *)NumVarSpy);
+			}
+		}
+
+		DisplayFormatVarSpy[NumVarSpy] = gtk_combo_new();
+		gtk_combo_set_value_in_list(GTK_COMBO(DisplayFormatVarSpy[NumVarSpy]), TRUE /*val*/, FALSE /*ok_if_empty*/);
+		gtk_combo_set_popdown_strings(GTK_COMBO(DisplayFormatVarSpy[NumVarSpy]), DisplayFormatItems);
+		gtk_widget_set_usize((GtkWidget *)DisplayFormatVarSpy[NumVarSpy],65,0);
+		gtk_box_pack_start (GTK_BOX(hboxfreevars[ NumVarSpy ]), DisplayFormatVarSpy[NumVarSpy], FALSE, FALSE, 0);
+		gtk_widget_show(DisplayFormatVarSpy[NumVarSpy]);
+	}
+	gtk_signal_connect( GTK_OBJECT(SpyFreeVarsWindow), "delete_event",
+		(GtkSignalFunc)FreeVarsWindowDeleteEvent, 0 );
+}
+
+void VarsWindowInitGtk()
+{
+	FreeVarsWindowInitGtk( );
+	BoolVarsWindowInitGtk( );
+}
+
+void OpenSpyVarsWindow( )
+{
+	OpenSpyBoolVarsWindow( );
+	OpenSpyFreeVarsWindow( );
+}
+
