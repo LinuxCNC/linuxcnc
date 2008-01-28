@@ -1,3 +1,9 @@
+emc2 (1:2.2.4~cvs) unstable; urgency=low
+
+  * 
+
+ -- Jeff Epler <jepler@unpythonic.net>  Sun, 27 Jan 2008 20:30:52 -0600
+
 emc2 (1:2.2.3) unstable; urgency=low
 
   * gcode quick reference had G98, G99 transposed
