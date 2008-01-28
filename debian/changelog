@@ -1,9 +1,12 @@
-emc2 (1:2.2.3~cvs) unstable; urgency=low
+emc2 (1:2.2.3) unstable; urgency=low
 
   * gcode quick reference had G98, G99 transposed
   * gcode quick reference had wrong links to G18, G19 documentation
-  * make g38.2 probe log 0.000000 for axes that do not exist (instead of
-    an uninitialized value)
+  * initialize all axes, including unused ones, to 0.00000.  this fixes
+    several problems:
+    * g38.2 probe logs 0.000000 for axes that do not exist
+    * several types of 'following error' messages.  In particular, 4-axis code
+      seemed to be affected by this.
   * axis: make 'touch off' work when the loaded file uses percent signs
   * stepconf: fix several problems with Test Axis button
   * hal_input: make sure absolute axes are driven with the correct value at
@@ -20,8 +23,9 @@ emc2 (1:2.2.3~cvs) unstable; urgency=low
   * fix NAN that appears when you move below the lower extent of a screw comp
     file
   * pluto-servo: fix a problem with pwm+direction mode
+  * updates to romanian translation
 
- -- Jeff Epler <jepler@unpythonic.net>  Sat, 26 Jan 2008 14:24:08 -0600
+ -- Jeff Epler <jepler@unpythonic.net>  Sun, 27 Jan 2008 20:26:21 -0600
 
 emc2 (1:2.2.2) unstable; urgency=low
 
