@@ -1,6 +1,6 @@
 /* Classic Ladder Project */
-/* Copyright (C) 2001-2007 Marc Le Douarain */
-/* http://membres.lycos.fr/mavati/classicladder/ */
+/* Copyright (C) 2001-2006 Marc Le Douarain */
+/* http://www.multimania.com/mavati/classicladder */
 /* http://www.sourceforge.net/projects/classicladder */
 /* December 2003 */
 /* --------------------------- */
@@ -35,7 +35,6 @@
 #include "editproperties_gtk.h"
 #include "classicladder_gtk.h"
 #include "calc_sequential.h"
-#include "vars_names.h"
 #include "edit_sequential.h"
 
 /* We modify the datas in this variable. It is only
@@ -65,7 +64,7 @@ void LoadSeqElementProperties( void )
 				SetProperty(0,"Step Nbr",TextToWrite);
 				break;
 			case ELE_SEQ_TRANSITION:
-				strcpy( TextToWrite, CreateVarName( EditSeqDatas.Transition[ OffsetSeqEleEdited ].VarTypeCondi,
+				strcpy( TextToWrite, DisplayInfo( EditSeqDatas.Transition[ OffsetSeqEleEdited ].VarTypeCondi,
 					EditSeqDatas.Transition[ OffsetSeqEleEdited ].VarNumCondi ) );
 				SetProperty(0,"Variable",TextToWrite);
 				break;
@@ -125,12 +124,9 @@ void CancelSeqPageEdited()
 
 void ApplySeqPageEdited()
 {
-	// passing in STOP and waiting not under calc...
-	StopRunIfRunning( );
+	//TODO: passing in STOP and waiting not under calc...
 	memcpy( Sequential, &EditSeqDatas, sizeof( StrSequential ) );
-	// passing in RUN now...
-	RunBackIfStopped( );
-
+	//TODO: passing in RUN now...
 	EditDatas.ModeEdit = FALSE;
 	EditDatas.NumElementSelectedInToolBar = -1;
 	TypeSeqEleEdited = -1;
@@ -408,7 +404,6 @@ char CommonSearchForManyStepsOrTransi( char ForManySteps, int TypeEle1, int OffE
 	}
 	else if ( TypeEle1==ELE_SEQ_TRANSITION )
 	{
-		// search transition corresponding... directly clicked on it!
 		OffsetTransiFound = OffEle1;
 		Ele1X = EditSeqDatas.Transition[ OffEle1 ].PosiX;
 		TransitionsBaseY = EditSeqDatas.Transition[ OffEle1 ].PosiY;

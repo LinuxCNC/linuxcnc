@@ -1,4 +1,4 @@
-/* ClassicLadder Project */
+/* Classic Ladder Project */
 /* Copyright (C) 2001-2006 Marc Le Douarain */
 /* http://www.multimania.com/mavati/classicladder */
 /* http://www.sourceforge.net/projects/classicladder */
@@ -75,7 +75,7 @@ void DrawPrint( GnomePrintContext *gpc )
 		do
 		{
 			char Buffer[ LGT_LABEL+LGT_COMMENT+20 ];
-			GdkPixbuf* pixbuf_for_print;
+			GdkPixbuf *pixbuf_for_print;
 
 			if ( NewPage==TRUE )
 			{
@@ -83,7 +83,7 @@ void DrawPrint( GnomePrintContext *gpc )
 				NewPage = FALSE;
 				SizePageOffset = 800;
 
-				sprintf(Buffer, CL_PRODUCT_NAME CL_RELEASE_VER_STRING ".  Section:%s  -  Page:%d", SectionArray[ InfosGene->CurrentSection ].Name, PageNumber );
+				sprintf(Buffer, "ClassicLadder" RELEASE_VER_STRING ".  Section:%s  -  Page:%d", SectionArray[ InfosGene->CurrentSection ].Name, PageNumber );
 				gnome_print_moveto( gpc, 50, 20 );
 				gnome_print_show( gpc, (guchar *)Buffer );
 
@@ -112,9 +112,9 @@ void DrawPrint( GnomePrintContext *gpc )
                                              the_height);
 			if ( pixbuf_for_print )
 			{
-
-				guchar * raw_image;
+				guchar *raw_image;
 				gint rowstride;
+
 				if ( iCurrentLanguage==SECTION_IN_LADDER )
 				{
 					char BuffFormat[10] = "%s (%s)";

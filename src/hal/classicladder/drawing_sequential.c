@@ -26,7 +26,6 @@
 #include "classicladder.h"
 #include "global.h"
 #include "drawing.h"
-#include "vars_names.h"
 #include "drawing_sequential.h"
 
 #ifdef GTK2
@@ -150,7 +149,7 @@ void DrawSeqTransition(GdkPixmap * DrawPixmap,int x,int y,int Size,StrTransition
 			x+Size-SizeDiv3, y+SizeDiv2);
 
 	// variable for transition
-	strcpy(BufTxt, CreateVarName( pTransi->VarTypeCondi, pTransi->VarNumCondi ) );
+	strcpy(BufTxt, DisplayInfo( pTransi->VarTypeCondi, pTransi->VarNumCondi ) );
 #ifndef GTK2
 	gdk_draw_text(DrawPixmap, drawing_area->style->font, drawing_area->style->black_gc,
 		x+3*SizeDiv4,y+SizeDiv2+5,BufTxt,strlen(BufTxt));

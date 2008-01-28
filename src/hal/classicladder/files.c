@@ -1,6 +1,6 @@
 /* Classic Ladder Project */
-/* Copyright (C) 2001-2007 Marc Le Douarain */
-/* http://membres.lycos.fr/mavati/classicladder/ */
+/* Copyright (C) 2001-2006 Marc Le Douarain */
+/* http://www.multimania.com/mavati/classicladder */
 /* http://www.sourceforge.net/projects/classicladder */
 /* February 2001 */
 /* -------------------------------------------------------------------------------------------- */
@@ -39,36 +39,26 @@
 #include "files_sequential.h"
 #include "files.h"
 
+#ifdef GTK_INTERFACE
+//#include "classicladder_gtk.h"
+#include "manager_gtk.h"
+#include "symbols_gtk.h"
+//#include <gtk/gtk.h>
+#endif
+
 #ifdef debug
 #define dbg_printf printf
 #else
 static inline int dbg_printf(char *f, ...) {return 0;}
 #endif
-
+// for auto assignment of symbols
+	enum pinnames
+		{BITIN=0,BITOUT,S32IN,S32OUT};
+	char pinletter[4]={'I','Q','W','W'};
+//
 StrDatasForBase CorresDatasForBase[3] = { {BASE_MINS , TIME_BASE_MINS , "%.1fmn" , "Mins" } ,
                                    {BASE_SECS , TIME_BASE_SECS , "%.1fs" , "Secs" } ,
                                    {BASE_100MS , TIME_BASE_100MS , "%.0f00ms" , "100msecs" } };
-char * TimersModesStrings[ NBR_TIMERSMODES ] = { "TON", "TOF", "TP" };
-
-char TmpDirectory[ 400 ] = "";
-
-
-char *cl_fgets(char *s, int size, FILE *stream)
-{
-	s[0] = '\0';
-	char * res = fgets( s, size, stream );
-
-	// While last character in string is either CR or LF, remove.
-	while (strlen(s)>=1 && ((s[strlen(s)-1]=='\r') || (s[strlen(s)-1]=='\n')))
-		s[strlen(s)-1] = '\0';
-
-	if ( strlen( S_LINE )>0 && strlen(s)>strlen( S_LINE )+strlen( E_LINE ) )
-	{
-		strcpy( s, s+strlen( S_LINE ) );
-		s[ strlen(s)-strlen(E_LINE) ] = '\0';
-	}
-	return res;
-}
 
 char ConvRawLineOfElements(char * RawLine,int y,StrRung * StorageRung)
 {
@@ -119,7 +109,7 @@ char ConvRawLineOfElements(char * RawLine,int y,StrRung * StorageRung)
         {
             EndOfValue++;
         }
-        while( (*EndOfValue!=',') && (*EndOfValue!=10) && (*EndOfValue!='\0') );
+        while( (*EndOfValue!=',') && (*EndOfValue!=10) );
         EndOfLine = TRUE;
         if (*EndOfValue==',')
             EndOfLine = FALSE;
@@ -134,7 +124,7 @@ char ConvRawLineOfElements(char * RawLine,int y,StrRung * StorageRung)
     return (x);
 }
 
-/*void RemoveEndLine( char * line )
+void RemoveEndLine( char * line )
 {
 	if (strlen( line )>0 && line[ strlen(line)-1 ]=='\n')
 		line[ strlen(line)-1 ]='\0';
@@ -142,7 +132,7 @@ char ConvRawLineOfElements(char * RawLine,int y,StrRung * StorageRung)
 		line[ strlen(line)-1 ]='\0';
 	if (strlen( line )>0 && line[ strlen(line)-1 ]=='\r')
 		line[ strlen(line)-1 ]='\0';
-}*/
+}
 
 char LoadRung(char * FileName,StrRung * BufRung)
 {
@@ -156,7 +146,7 @@ char LoadRung(char * FileName,StrRung * BufRung)
     {
         do
         {
-            LineOk = cl_fgets(Line,300,File);
+            LineOk = fgets(Line,300,File);
             if (LineOk)
             {
                 char FndElements;
@@ -169,7 +159,7 @@ char LoadRung(char * FileName,StrRung * BufRung)
                         {
                             if (atoi(&Line[5])>2)
                             {
-                                printf("Rung version not supported...\n");
+                                rtapi_print_msg(RTAPI_MSG_ERR, "Rung version not supported...\n");
                                 LineOk = FALSE;
                             }
                         }
@@ -177,13 +167,13 @@ char LoadRung(char * FileName,StrRung * BufRung)
                         {
                             strcpy(BufRung->Label,&Line[7]);
 //WIN32PORT
-//							RemoveEndLine( BufRung->Label );
+							RemoveEndLine( BufRung->Label );
                         }
                         if(strncmp(&Line[1],"COMMENT=",8)==0)
                         {
                             strcpy(BufRung->Comment,&Line[9]);
 //WIN32PORT
-//							RemoveEndLine( BufRung->Comment );
+							RemoveEndLine( BufRung->Comment );
                         }
                         if(strncmp(&Line[1],"PREVRUNG=",9)==0)
                             BufRung->PrevRung = atoi( &Line[10] );
@@ -210,17 +200,16 @@ char SaveRung(char * FileName,StrRung * BufRung)
     File = fopen(FileName,"wt");
     if (File)
     {
-//        fprintf(File,"; Rung :\n");
-//        fprintf(File,"; all the blocks with the following format :\n");
-//        fprintf(File,"; type (see classicladder.h) - ConnectedWithTop - VarType (see classicladder.h) / VarOffset\n");
-        fprintf(File,S_LINE "#VER=2.0" E_LINE "\n");
-        fprintf(File,S_LINE "#LABEL=%s" E_LINE "\n",BufRung->Label);
-        fprintf(File,S_LINE "#COMMENT=%s" E_LINE "\n",BufRung->Comment);
-        fprintf(File,S_LINE "#PREVRUNG=%d" E_LINE "\n",BufRung->PrevRung);
-        fprintf(File,S_LINE "#NEXTRUNG=%d" E_LINE "\n",BufRung->NextRung);
+        fprintf(File,"; Rung :\n");
+        fprintf(File,"; all the blocks with the following format :\n");
+        fprintf(File,"; type (see classicladder.h) - ConnectedWithTop - VarType (see classicladder.h) / VarOffset\n");
+        fprintf(File,"#VER=2.0\n");
+        fprintf(File,"#LABEL=%s\n",BufRung->Label);
+        fprintf(File,"#COMMENT=%s\n",BufRung->Comment);
+        fprintf(File,"#PREVRUNG=%d\n",BufRung->PrevRung);
+        fprintf(File,"#NEXTRUNG=%d\n",BufRung->NextRung);
         for (y=0;y<RUNG_HEIGHT;y++)
         {
-            fprintf(File, "%s", S_LINE );
             for(x=0;x<RUNG_WIDTH;x++)
             {
                 fprintf(File,"%d-%d-%d/%d",BufRung->Element[x][y].Type, BufRung->Element[x][y].ConnectedWithTop ,
@@ -228,7 +217,7 @@ char SaveRung(char * FileName,StrRung * BufRung)
                 if (x<RUNG_WIDTH-1)
                     fprintf(File," , ");
             }
-            fprintf(File,E_LINE "\n");
+            fprintf(File,"\n");
         }
         fclose(File);
         Okay = TRUE;
@@ -247,7 +236,7 @@ void LoadAllRungs_V1(char * BaseName,StrRung * Rungs,int * TheFirst,int * TheLas
     {
         char RungFile[400];
         sprintf(RungFile,"%s%d.csv",BaseName,NumRung);
-       // rtapi_print("Loading file : %s\n",RungFile);
+        dbg_printf("Loading file : %s",RungFile);
         if (LoadRung(RungFile,Rungs))
         {
             if (*TheFirst==-1)
@@ -264,10 +253,10 @@ void LoadAllRungs_V1(char * BaseName,StrRung * Rungs,int * TheFirst,int * TheLas
             *TheLast = NumRung;
             PrevNumRung = NumRung;
             PrevRung = Rungs;
-            rtapi_print(" - ok.\n");
+            dbg_printf(" - ok.\n");
         }
         else
-             dbg_printf(" - not found.\n");
+            dbg_printf(" - not found.\n");
         //DumpRung(Rungs);
         Rungs++;
     }
@@ -286,11 +275,11 @@ void LoadAllRungs(char * BaseName,StrRung * Rungs)
     {
         char RungFile[400];
         sprintf(RungFile,"%s%d.csv",BaseName,NumRung);
-        //rtapi_print("Loading file : %s\n",RungFile);
+        dbg_printf("Loading file : %s",RungFile);
         if (LoadRung(RungFile,Rungs))
         {
             Rungs->Used = TRUE;
-         //   rtapi_print(" - ok.\n");
+            dbg_printf(" - ok.\n");
         }
         else
             dbg_printf(" - not found.\n");
@@ -342,50 +331,50 @@ void DumpRung(StrRung * TheRung)
 
 char * ConvRawLineOfNumbers(char * RawLine,char NbrParams,int * ValuesFnd)
 {
-	char * StartOfValue;
-	char * EndOfValue;
-	char Num = 0;
-	
-	char EndOfLine;
-	
-	StartOfValue = RawLine;
-	EndOfValue = RawLine;
-	EndOfLine = FALSE;
-	
-	do
-	{
-		/* Extract Value */
-		StartOfValue = EndOfValue;
-		do
-		{
-		EndOfValue++;
-		}
-		while( (*EndOfValue!=',') && (*EndOfValue!=10) && (*EndOfValue!='\0') );
-		if (*EndOfValue==10 || *EndOfValue=='\0')
-			EndOfLine = TRUE;
-		*EndOfValue++ = '\0';
-		*ValuesFnd++ = atoi(StartOfValue);
-		Num++;
-		StartOfValue = EndOfValue;
-	}
-	while( (!EndOfLine) && (Num<NbrParams) );
-		return EndOfValue;
+    char * StartOfValue;
+    char * EndOfValue;
+    char Num = 0;
+
+    char EndOfLine;
+
+    StartOfValue = RawLine;
+    EndOfValue = RawLine;
+    EndOfLine = FALSE;
+
+    do
+    {
+        /* Extract Value */
+        StartOfValue = EndOfValue;
+        do
+        {
+            EndOfValue++;
+        }
+        while( (*EndOfValue!=',') && (*EndOfValue!=10) );
+        if (*EndOfValue==10)
+            EndOfLine = TRUE;
+            *EndOfValue++ = '\0';
+            *ValuesFnd++ = atoi(StartOfValue);
+            Num++;
+            StartOfValue = EndOfValue;
+    }
+    while( (!EndOfLine) && (Num<NbrParams) );
+	return EndOfValue;
 }
 
 int ConvBaseInMilliSecsToId(int NbrMilliSecs)
 {
-	switch(NbrMilliSecs)
-	{
-		case TIME_BASE_MINS:
-		return BASE_MINS;
-		case TIME_BASE_SECS:
-		return BASE_SECS;
-		case TIME_BASE_100MS:
-		return BASE_100MS;
-		default:
-		printf("!!!Error in ConvBaseInMilliSecsToInt()\n");
-		return BASE_SECS;
-	}
+    switch(NbrMilliSecs)
+    {
+        case TIME_BASE_MINS:
+            return BASE_MINS;
+        case TIME_BASE_SECS:
+            return BASE_SECS;
+        case TIME_BASE_100MS:
+            return BASE_100MS;
+        default:
+            rtapi_print_msg(RTAPI_MSG_ERR, "!!!Error in ConvBaseInMilliSecsToInt()\n");
+            return BASE_SECS;
+    }
 }
 
 char * ConvRawLineOfStrings(char * RawLine,int * LgtParams,char ** ParamsStringsFnd)
@@ -408,8 +397,8 @@ char * ConvRawLineOfStrings(char * RawLine,int * LgtParams,char ** ParamsStrings
 		{
 			EndOfValue++;
 		}
-		while( (*EndOfValue!=',') && (*EndOfValue!=10) && (*EndOfValue!='\0') );
-		if (*EndOfValue==10 || *EndOfValue=='\0')
+		while( (*EndOfValue!=',') && (*EndOfValue!=10) );
+		if (*EndOfValue==10)
 			EndOfLine = TRUE;
 		*EndOfValue++ = '\0';
 		if ( strlen( StartOfValue )<LgtParams[ Num ] )
@@ -421,7 +410,6 @@ char * ConvRawLineOfStrings(char * RawLine,int * LgtParams,char ** ParamsStrings
 	return EndOfValue;
 }
 
-#ifdef OLD_TIMERS_MONOS_SUPPORT
 char LoadTimersParams(char * FileName,StrTimer * BufTimers)
 {
     FILE * File;
@@ -434,7 +422,7 @@ char LoadTimersParams(char * FileName,StrTimer * BufTimers)
     {
         do
         {
-            LineOk = cl_fgets(Line,300,File);
+            LineOk = fgets(Line,300,File);
             if (LineOk)
             {
                 if (Line[0]!=';')
@@ -453,7 +441,7 @@ char LoadTimersParams(char * FileName,StrTimer * BufTimers)
                             BufTimers->Base = 1;
                             BufTimers->Preset = 10;
                             strcpy(BufTimers->DisplayFormat,"%f?");
-                            printf("!!! Error loading parameter base in %s\n",FileName);
+                            rtapi_print_msg(RTAPI_MSG_ERR, "!!! Error loading parameter base in %s\n",FileName);
                             break;
                     }
 dbg_printf("Timer => Base = %d , Preset = %d\n",BufTimers->Base,BufTimers->Preset);
@@ -476,11 +464,11 @@ char SaveTimersParams(char * FileName,StrTimer * BufTimers)
     File = fopen(FileName,"wt");
     if (File)
     {
-//        fprintf(File,"; Timers :\n");
-//        fprintf(File,"; Base(see classicladder.h),Preset\n");
+        fprintf(File,"; Timers :\n");
+        fprintf(File,"; Base(see classicladder.h),Preset\n");
         do
         {
-            fprintf(File,S_LINE "%d,%d" E_LINE  "\n",ConvBaseInMilliSecsToId(BufTimers->Base),BufTimers->Preset/BufTimers->Base);
+            fprintf(File,"%d,%d\n",ConvBaseInMilliSecsToId(BufTimers->Base),BufTimers->Preset/BufTimers->Base);
             BufTimers++;
             NumTimer++;
         }
@@ -488,7 +476,7 @@ char SaveTimersParams(char * FileName,StrTimer * BufTimers)
         fclose(File);
         Okay = TRUE;
     }
-printf( " - result=%d\n", Okay );
+rtapi_print_msg(RTAPI_MSG_DBG, " - result=%d\n", Okay );
     return (Okay);
 }
 
@@ -504,7 +492,7 @@ char LoadMonostablesParams(char * FileName,StrMonostable * BufMonostables)
     {
         do
         {
-            LineOk = cl_fgets(Line,300,File);
+            LineOk = fgets(Line,300,File);
             if (LineOk)
             {
                 if (Line[0]!=';')
@@ -523,10 +511,10 @@ char LoadMonostablesParams(char * FileName,StrMonostable * BufMonostables)
                             BufMonostables->Base = 1;
                             BufMonostables->Preset = 10;
                             strcpy(BufMonostables->DisplayFormat,"%f?");
-                            printf("!!! Error loading parameter base in %s\n",FileName);
+                            rtapi_print_msg(RTAPI_MSG_ERR, "!!! Error loading parameter base in %s\n",FileName);
                             break;
                     }
-dbg_printf("Monostable => Base = %d , Preset = %d\n",BufMonostables->Base,BufMonostables->Preset);
+rtapi_print_msg(RTAPI_MSG_DBG, "Monostable => Base = %d , Preset = %d\n",BufMonostables->Base,BufMonostables->Preset);
                     BufMonostables++;
                 }
             }
@@ -546,11 +534,11 @@ char SaveMonostablesParams(char * FileName,StrMonostable * BufMonostables)
     File = fopen(FileName,"wt");
     if (File)
     {
-//        fprintf(File,"; Monostables :\n");
-//        fprintf(File,"; Base(see classicladder.h),Preset\n");
+        fprintf(File,"; Monostables :\n");
+        fprintf(File,"; Base(see classicladder.h),Preset\n");
         do
         {
-            fprintf(File,S_LINE "%d,%d" E_LINE  "\n",ConvBaseInMilliSecsToId(BufMonostables->Base),BufMonostables->Preset/BufMonostables->Base);
+            fprintf(File,"%d,%d\n",ConvBaseInMilliSecsToId(BufMonostables->Base),BufMonostables->Preset/BufMonostables->Base);
             BufMonostables++;
             NumMonostable++;
         }
@@ -560,7 +548,6 @@ char SaveMonostablesParams(char * FileName,StrMonostable * BufMonostables)
     }
     return (Okay);
 }
-#endif
 
 char LoadCountersParams(char * FileName)
 {
@@ -575,7 +562,7 @@ char LoadCountersParams(char * FileName)
     {
         do
         {
-            LineOk = cl_fgets(Line,300,File);
+            LineOk = fgets(Line,300,File);
             if (LineOk)
             {
                 if (Line[0]!=';')
@@ -600,11 +587,11 @@ char SaveCountersParams(char * FileName)
     File = fopen(FileName,"wt");
     if (File)
     {
-//        fprintf(File,"; Counters :\n");
-//        fprintf(File,"; Preset\n");
+        fprintf(File,"; Counters :\n");
+        fprintf(File,"; Preset\n");
         for( ScanCounter=0; ScanCounter<NBR_COUNTERS; ScanCounter++ )
         {
-            fprintf(File,S_LINE "%d" E_LINE "\n",CounterArray[ ScanCounter ].Preset);
+            fprintf(File,"%d\n",CounterArray[ ScanCounter ].Preset);
         }
         fclose(File);
         Okay = TRUE;
@@ -612,137 +599,55 @@ char SaveCountersParams(char * FileName)
     return (Okay);
 }
 
-char LoadNewTimersParams(char * FileName)
-{
-	FILE * File;
-	char Okay = FALSE;
-	char Line[300];
-	char * LineOk;
-	int Params[3];
-    int ScanTimerIEC = 0;
-	File = fopen(FileName,"rt");
-	if (File)
-	{
-		do
-		{
-			LineOk = cl_fgets(Line,300,File);
-			if (LineOk)
-			{
-				if (Line[0]!=';')
-				{
-					StrTimerIEC * TimerIEC = &NewTimerArray[ ScanTimerIEC++ ];
-					ConvRawLineOfNumbers(Line,3,Params);
-					switch(Params[0])
-					{
-						case BASE_MINS:
-						case BASE_SECS:
-						case BASE_100MS:
-							TimerIEC->Base = CorresDatasForBase[Params[0]].ValueInMS;
-							TimerIEC->Preset = Params[1];
-							strcpy(TimerIEC->DisplayFormat,CorresDatasForBase[Params[0]].DisplayFormat);
-							break;
-						default:
-							TimerIEC->Base = 1;
-							TimerIEC->Preset = 10;
-							strcpy(TimerIEC->DisplayFormat,"%f?");
-							printf("!!! Error loading parameter base in %s\n",FileName);
-							break;
-					}
-					TimerIEC->TimerMode = (char)Params[2];
-				}
-			}
-		}
-		while(LineOk);
-		fclose(File);
-		Okay = TRUE;
-	}
-	return (Okay);
-}
-
-char SaveNewTimersParams(char * FileName)
-{
-	FILE * File;
-	char Okay = FALSE;
-	int NumTimerIEC = 0;
-	File = fopen(FileName,"wt");
-	if (File)
-	{
-//		fprintf(File,"; Timers IEC :\n");
-//		fprintf(File,"; Base(see classicladder.h),Preset,TimerMode(see classicladder.h)\n");
-		do
-		{
-			StrTimerIEC * TimerIEC = &NewTimerArray[ NumTimerIEC ];
-			fprintf(File,S_LINE "%d,%d,%d" E_LINE "\n",ConvBaseInMilliSecsToId(TimerIEC->Base),TimerIEC->Preset,TimerIEC->TimerMode);
-			NumTimerIEC++;
-		}
-		while(NumTimerIEC<NBR_TIMERS_IEC);
-		fclose(File);
-		Okay = TRUE;
-	}
-	return (Okay);
-}
-
 char LoadArithmeticExpr(char * FileName)
 {
-	FILE * File;
-	char Okay = FALSE;
-	char Line[300];
-	char * LineOk;
-	int NumExpr = 0;
-	File = fopen(FileName,"rt");
-	if (File)
-	{
-		do
-		{
-			LineOk = cl_fgets(Line,300,File);
-			if (LineOk)
-			{
-				if (Line[0]!=';' && Line[0]!='#')
-				{
+    FILE * File;
+    char Okay = FALSE;
+    char Line[300];
+    char * LineOk;
+    int NumExpr = 0;
+    File = fopen(FileName,"rt");
+    if (File)
+    {
+        do
+        {
+            LineOk = fgets(Line,300,File);
+            if (LineOk)
+            {
+                if (Line[0]!=';')
+                {
 //WIN32PORT
-//					RemoveEndLine( Line );
-					// new format with number at the start ?
-					// (only not blank lines saved!)
-					if ( Line[0]>='0' && Line[0]<='9' )
-					{
-						NumExpr = atoi(Line);
-						strcpy(ArithmExpr[NumExpr].Expr,Line+strlen("xxxx,"));
-					}
-					else
-					{
-						strcpy(ArithmExpr[NumExpr].Expr,Line);
-						NumExpr++;
-					}
-				}
-			}
-		}
-		while(LineOk);
-		fclose(File);
-		Okay = TRUE;
-	}
-	return (Okay);
+					RemoveEndLine( Line );
+                    strcpy(ArithmExpr[NumExpr].Expr,Line);
+                    NumExpr++;
+                }
+            }
+        }
+        while(LineOk);
+        fclose(File);
+        Okay = TRUE;
+    }
+    return (Okay);
 }
 
 char SaveArithmeticExpr(char * FileName)
 {
-	FILE * File;
-	char Okay = FALSE;
-	int NumExpr;
-	File = fopen(FileName,"wt");
-	if (File)
-	{
-//		fprintf(File,"; Arithmetic expressions :\n");
-//		fprintf(File,"; Compare or Operate ones\n");
-		fprintf(File,S_LINE "#VER=2.0" E_LINE "\n");
-		for(NumExpr=0; NumExpr<NBR_ARITHM_EXPR; NumExpr++)
-		{
-			if ( ArithmExpr[NumExpr].Expr[0]!='\0')
-				fprintf(File,S_LINE "%04d,%s" E_LINE "\n",NumExpr,ArithmExpr[NumExpr].Expr);
-		}
-		fclose(File);
-		Okay = TRUE;
-	}
-	return (Okay);
+    FILE * File;
+    char Okay = FALSE;
+    int NumExpr;
+    File = fopen(FileName,"wt");
+    if (File)
+    {
+        fprintf(File,"; Arithmetic expressions :\n");
+        fprintf(File,"; Compare or Operate ones\n");
+        for(NumExpr=0; NumExpr<NBR_ARITHM_EXPR; NumExpr++)
+        {
+            fprintf(File,"%s\n",ArithmExpr[NumExpr].Expr);
+        }
+        fclose(File);
+        Okay = TRUE;
+    }
+    return (Okay);
 }
 
 char LoadSectionsParams(char * FileName)
@@ -759,7 +664,7 @@ char LoadSectionsParams(char * FileName)
     {
         do
         {
-            LineOk = cl_fgets(Line,300,File);
+            LineOk = fgets(Line,300,File);
             if (LineOk)
             {
                 switch(Line[0])
@@ -771,7 +676,7 @@ char LoadSectionsParams(char * FileName)
                         {
                             if (atoi(&Line[5])>1)
                             {
-                                printf("Sections file version not supported...\n");
+                                rtapi_print_msg(RTAPI_MSG_ERR, "Sections file version not supported...\n");
                                 LineOk = FALSE;
                             }
                         }
@@ -782,7 +687,7 @@ char LoadSectionsParams(char * FileName)
                             NumSection = atoi( &Line[5] );
                             strcpy(SectionArray[ NumSection ].Name, &Line[9]);
 //WIN32PORT
-//							RemoveEndLine( SectionArray[ NumSection ].Name );
+							RemoveEndLine( SectionArray[ NumSection ].Name );
                         }
                         break;
                     default:
@@ -795,7 +700,8 @@ char LoadSectionsParams(char * FileName)
                         pSection->FirstRung = Params[ 3 ];
                         pSection->LastRung = Params[ 4 ];
                         pSection->SequentialPage = Params[ 5 ];
-
+dbg_printf("Section %d => Name=%s, Language=%d, SRnbr=%d, FirstRung=%d, LastRung=%d, SequentialPage=%d\n", NumSection,
+pSection->Name, pSection->Language, pSection->SubRoutineNumber, pSection->FirstRung, pSection->LastRung, pSection->SequentialPage);
                         break;
                 }
             }
@@ -816,14 +722,14 @@ char SaveSectionsParams(char * FileName)
     File = fopen(FileName,"wt");
     if (File)
     {
-//        fprintf(File,"; Sections\n");
-        fprintf(File,S_LINE "#VER=1.0" E_LINE "\n");
+        fprintf(File,"; Sections\n");
+        fprintf(File,"#VER=1.0\n");
         NumSection = 0;
         do
         {
             pSection = &SectionArray[ NumSection ];
             if ( pSection->Used )
-                fprintf(File,S_LINE "#NAME%03d=%s" E_LINE "\n", NumSection, pSection->Name);
+                fprintf(File,"#NAME%03d=%s\n", NumSection, pSection->Name);
             NumSection++;
         }
         while(NumSection<NBR_SECTIONS);
@@ -832,7 +738,7 @@ char SaveSectionsParams(char * FileName)
         {
             pSection = &SectionArray[ NumSection ];
             if ( pSection->Used )
-                fprintf(File,S_LINE "%03d,%d,%d,%d,%d,%d" E_LINE "\n", NumSection, pSection->Language, pSection->SubRoutineNumber, pSection->FirstRung, pSection->LastRung, pSection->SequentialPage );
+                fprintf(File,"%03d,%d,%d,%d,%d,%d\n", NumSection, pSection->Language, pSection->SubRoutineNumber, pSection->FirstRung, pSection->LastRung, pSection->SequentialPage );
             NumSection++;
         }
         while(NumSection<NBR_SECTIONS);
@@ -857,10 +763,10 @@ char LoadIOConfParams(char * FileName)
 	{
 		do
 		{
-			LineOk = cl_fgets(Line,300,File);
+			LineOk = fgets(Line,300,File);
 			if (LineOk)
 			{
-				if (Line[0]!=';' && Line[0]!='#')
+				if (Line[0]!=';')
 				{
 					/* input/output depending of the first caracter */
 					if ( Line[0]=='0' )
@@ -888,8 +794,7 @@ char SaveIOConfParams(char * FileName)
 	File = fopen(FileName,"wt");
 	if (File)
 	{
-//		fprintf(File,"; I/O Configuration\n");
-		fprintf(File,S_LINE "#VER=1.0" E_LINE "\n");
+		fprintf(File,"; I/O Configuration\n");
 		for( Pass=0; Pass<2; Pass++)
 		{
 			NbrConf = (Pass==0)?NBR_INPUTS_CONF:NBR_OUTPUTS_CONF;
@@ -899,7 +804,7 @@ char SaveIOConfParams(char * FileName)
 				/* valid mapping ? */
 				if ( pConf->FirstClassicLadderIO!=-1 )
 				{
-					fprintf(File,S_LINE "%d,%d,%d,%d,%d,%d,%d" E_LINE "\n", Pass, pConf->FirstClassicLadderIO,
+					fprintf(File,"%d,%d,%d,%d,%d,%d,%d\n", Pass, pConf->FirstClassicLadderIO,
 						pConf->DeviceType, pConf->SubDevOrAdr, pConf->FirstChannel,
 						pConf->NbrConsecutivesChannels, pConf->FlagInverted );
 				}
@@ -912,6 +817,7 @@ char SaveIOConfParams(char * FileName)
 }
 
 
+#ifdef USE_MODBUS
 char LoadModbusIOConfParams(char * FileName)
 {
 	FILE * File;
@@ -925,10 +831,10 @@ char LoadModbusIOConfParams(char * FileName)
 	{
 		do
 		{
-			LineOk = cl_fgets(Line,300,File);
+			LineOk = fgets(Line,300,File);
 			if (LineOk)
 			{
-				if (Line[0]!=';' && Line[0]!='#')
+				if (Line[0]!=';')
 				{
 					// if dotted IP address is used, special first field
 					if ( strchr( Line, '.' ) )
@@ -979,15 +885,14 @@ char SaveModbusIOConfParams(char * FileName)
 	File = fopen(FileName,"wt");
 	if (File)
 	{
-//		fprintf(File,"; Modbus Distributed I/O Configuration\n");
-        fprintf(File,S_LINE "#VER=1.0" E_LINE "\n");
+		fprintf(File,"; Modbus Distributed I/O Configuration\n");
 		for (NumLine=0; NumLine<NBR_MODBUS_MASTER_REQ; NumLine++ )
 		{
 			pConf = &ModbusMasterReq[ NumLine ];
 			/* valid request ? */
 			if ( pConf->SlaveAdr[0]!='\0' )
 			{
-				fprintf(File,S_LINE "%s,%d,%d,%d,%d,%d" E_LINE "\n", pConf->SlaveAdr, pConf->TypeReq,
+				fprintf(File,"%s,%d,%d,%d,%d,%d\n", pConf->SlaveAdr, pConf->TypeReq,
 					pConf->FirstModbusElement, pConf->NbrModbusElements, pConf->LogicInverted, pConf->OffsetVarMapped );
 			}
 		}
@@ -996,7 +901,7 @@ char SaveModbusIOConfParams(char * FileName)
 	}
 	return (Okay);
 }
-
+#endif
 
 char LoadSymbols(char * FileName)
 {
@@ -1013,7 +918,7 @@ char LoadSymbols(char * FileName)
 	{
 		do
 		{
-			LineOk = cl_fgets(Line,300,File);
+			LineOk = fgets(Line,300,File);
 			if (LineOk)
 			{
 				switch(Line[0])
@@ -1025,7 +930,7 @@ char LoadSymbols(char * FileName)
 						{
 							if (atoi(&Line[5])>1)
 							{
-								printf("Symbols file version not supported...\n");
+								rtapi_print_msg(RTAPI_MSG_ERR, "Symbols file version not supported...\n");
 								LineOk = FALSE;
 							}
 						}
@@ -1037,8 +942,8 @@ char LoadSymbols(char * FileName)
 						PtrStrings[ 2 ] = pSymbol->Comment; LgtMaxStrings[ 2 ] = LGT_SYMBOL_COMMENT;
 						PtrStrings[ 3 ] = NULL; LgtMaxStrings[ 3 ] = 0;
 						ConvRawLineOfStrings( Line, LgtMaxStrings, PtrStrings );
-//						RemoveEndLine( pSymbol->Comment );
-//rtapi_print("Symbol: %s - %s - %s\n", pSymbol->VarName, pSymbol->Symbol, pSymbol->Comment);
+						RemoveEndLine( pSymbol->Comment );
+dbg_printf("Symbol: %s - %s - %s\n", pSymbol->VarName, pSymbol->Symbol, pSymbol->Comment);
 						NumSymbol++;
 						break;
 				}
@@ -1048,7 +953,93 @@ char LoadSymbols(char * FileName)
 		fclose(File);
 		Okay = TRUE;
 	}
-	return (Okay);
+// call funtion to auto assign symbol names to HAL pins	 
+// must assign S32IN before S32OUT!	
+	
+	SymbolsAutoAssign(BITIN,"CLinB\0","Auto named bit-in pin \0");
+	SymbolsAutoAssign(BITOUT,"CLoutB\0","Auto named bit-out pin \0");
+	SymbolsAutoAssign(S32IN,"CLinS\0","Auto named s32-in pin \0");
+	SymbolsAutoAssign(S32OUT,"CLoutS\0","Auto named s32-out pin \0");
+	
+return (Okay);
+}
+
+//auto assignment of names for symbols of s32in,s32out, bitin 
+//and bitout if not already assigned a name
+// you must assign s32in before s32out unless there are no s32in
+void SymbolsAutoAssign (int VariableBuf,char SymbolBuf[],char CommentBuf[])
+{
+	int scansymb,found = FALSE,i,numofvariable =1;
+	char Buffer[30];
+	int startnum=0;// default number of s32in pins
+	
+	// this checks which type of pin we are naming. S32out is different
+	// because it starts naming variables after the last S32in so it needs
+	// to how many positions to offset- startnum
+	// S32 in and out are mapped on top of WORD variables instead of adding a new variable 
+	switch(VariableBuf)
+	{
+			case BITIN:numofvariable= InfosGene->SizesInfos.nbr_phys_inputs;break;
+			case BITOUT:numofvariable= InfosGene->SizesInfos.nbr_phys_outputs;break;
+			case S32IN:numofvariable= InfosGene->SizesInfos.nbr_s32in;break;
+			case S32OUT:numofvariable= InfosGene->SizesInfos.nbr_s32out +InfosGene->SizesInfos.nbr_s32in;
+				startnum=InfosGene->SizesInfos.nbr_s32in;break;
+				
+			default : rtapi_print_msg(RTAPI_MSG_ERR, "Cannot auto assign symbol names-wrong variable name");return;
+	}
+//printf("variable to assin %i   number of variables available %i\n",numofvariable-startnum,InfosGene->SizesInfos.nbr_symbols);
+	//  assign variable to each s32in pin...
+	for (i=startnum;i<numofvariable;i++)
+	
+{
+   	    found = FALSE;
+	//set buffer to variable to check %W0,%W1 ...
+    	strcpy(Buffer,"");
+   	    sprintf(Buffer,"%%%c%d",pinletter[VariableBuf],i);  
+
+	 //printf("%s\n",Buffer);
+		scansymb=0;	
+	// scan all symbol variables
+		while ( scansymb<InfosGene->SizesInfos.nbr_symbols  ) 
+		{ 
+	// check for exsisting variable/symbol name
+		if (strcmp(SymbolArray[ scansymb ].VarName, Buffer) == FALSE)
+			{
+				found = TRUE ; // already a symbol for this variable
+				break;// stop looking then
+			}
+	scansymb ++;// check the rest
+	}
+	
+	scansymb=0;
+// this assigns a symbol to an unassigned variable
+// while there is no symbol already assigned and we are not at the
+// end of the symbol data..
+	while ( found == FALSE && scansymb<InfosGene->SizesInfos.nbr_symbols )
+	{
+	// look for an empty spot...
+		if (SymbolArray[ scansymb ].VarName[ 0 ] == '\0')
+		{ 
+         //copy variable name already in Buffer to VarName array
+			strcpy( SymbolArray[scansymb].VarName, Buffer ); 
+	
+		//put a symbol name (and it's number) in buffer
+		// and copy it to Symbol array
+			strcpy(Buffer,"");
+			sprintf(Buffer,"%s%d",SymbolBuf,i-startnum);
+			strcpy( SymbolArray[scansymb].Symbol, Buffer );
+	    		//printf("%s\n",Buffer);
+			strcpy(Buffer,"");
+			sprintf(Buffer,"%s",CommentBuf);
+			strcpy( SymbolArray[scansymb].Comment, Buffer );
+	
+			break;// we are done looking
+		}
+	
+		scansymb ++;// keep looking for empty spot if not done
+	}	
+}
+return;
 }
 
 char SaveSymbols(char * FileName)
@@ -1060,13 +1051,13 @@ char SaveSymbols(char * FileName)
 	File = fopen(FileName,"wt");
 	if (File)
 	{
-//		fprintf(File,"; Symbols\n");
-		fprintf(File,S_LINE "#VER=1.0" E_LINE "\n");
+		fprintf(File,"; Symbols\n");
+		fprintf(File,"#VER=1.0\n");
 		do
 		{
 			pSymbol = &SymbolArray[ NumSymbol ];
 			if ( pSymbol->VarName[0]!='\0')
-				fprintf(File,S_LINE "%s,%s,%s" E_LINE "\n", pSymbol->VarName, pSymbol->Symbol, pSymbol->Comment );
+				fprintf(File,"%s,%s,%s\n", pSymbol->VarName, pSymbol->Symbol, pSymbol->Comment );
 			NumSymbol++;
 		}
 		while(NumSymbol<NBR_SYMBOLS);
@@ -1077,234 +1068,384 @@ char SaveSymbols(char * FileName)
 }
 
 
-char LoadGeneralParameters(char * FileName)
-{return TRUE;
-	FILE * File;
-	char Okay = FALSE;
-	char Line[300];
-	char * LineOk;
-	File = fopen(FileName,"rt");
-	if (File)
-	{
-		do
-		{
-			LineOk = cl_fgets(Line,300,File);
-			if (LineOk)
-			{
-				char * pParameter;
-				pParameter = "PERIODIC_REFRESH=";
-				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
-					GeneralParamsMirror.PeriodicRefreshMilliSecs = atoi( &Line[ strlen( pParameter) ] );
-				pParameter = "SIZE_NBR_RUNGS=";
-				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
-					GeneralParamsMirror.SizesInfos.nbr_rungs = atoi( &Line[ strlen( pParameter) ] );
-				pParameter = "SIZE_NBR_BITS=";
-				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
-					GeneralParamsMirror.SizesInfos.nbr_bits = atoi( &Line[ strlen( pParameter) ] );
-				pParameter = "SIZE_NBR_WORDS=";
-				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
-					GeneralParamsMirror.SizesInfos.nbr_words = atoi( &Line[ strlen( pParameter) ] );
-#ifdef OLD_TIMERS_MONOS_SUPPORT
-				pParameter = "SIZE_NBR_TIMERS=";
-				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
-					GeneralParamsMirror.SizesInfos.nbr_timers = atoi( &Line[ strlen( pParameter) ] );
-				pParameter = "SIZE_NBR_MONOSTABLES=";
-				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
-					GeneralParamsMirror.SizesInfos.nbr_monostables = atoi( &Line[ strlen( pParameter) ] );
-#endif
-				pParameter = "SIZE_NBR_COUNTERS=";
-				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
-					GeneralParamsMirror.SizesInfos.nbr_counters = atoi( &Line[ strlen( pParameter) ] );
-				pParameter = "SIZE_NBR_TIMERS_IEC=";
-				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
-					GeneralParamsMirror.SizesInfos.nbr_timers_iec = atoi( &Line[ strlen( pParameter) ] );
-				pParameter = "SIZE_NBR_PHYS_INPUTS=";
-				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
-					GeneralParamsMirror.SizesInfos.nbr_phys_inputs = atoi( &Line[ strlen( pParameter) ] );
-				pParameter = "SIZE_NBR_PHYS_OUTPUTS=";
-				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
-					GeneralParamsMirror.SizesInfos.nbr_phys_outputs = atoi( &Line[ strlen( pParameter) ] );
-				pParameter = "SIZE_NBR_ARITHM_EXPR=";
-				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
-					GeneralParamsMirror.SizesInfos.nbr_arithm_expr = atoi( &Line[ strlen( pParameter) ] );
-				pParameter = "SIZE_NBR_SECTIONS=";
-				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
-					GeneralParamsMirror.SizesInfos.nbr_sections = atoi( &Line[ strlen( pParameter) ] );
-				pParameter = "SIZE_NBR_SYMBOLS=";
-				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
-					GeneralParamsMirror.SizesInfos.nbr_symbols = atoi( &Line[ strlen( pParameter) ] );
-			}
-		}
-		while(LineOk);
-		fclose(File);
-		Okay = TRUE;
-	}
-	return (Okay);
-}
 
-char SaveGeneralParameters(char * FileName)
-{
-	FILE * File;
-	char Okay = FALSE;
-	File = fopen(FileName,"wt");
-	if (File)
-	{
-		fprintf( File,S_LINE "PERIODIC_REFRESH=%d" E_LINE "\n", GeneralParamsMirror.PeriodicRefreshMilliSecs );
-		fprintf( File,S_LINE "SIZE_NBR_RUNGS=%d" E_LINE "\n", GeneralParamsMirror.SizesInfos.nbr_rungs );
-		fprintf( File,S_LINE "SIZE_NBR_BITS=%d" E_LINE "\n", GeneralParamsMirror.SizesInfos.nbr_bits );
-		fprintf( File,S_LINE "SIZE_NBR_WORDS=%d" E_LINE "\n", GeneralParamsMirror.SizesInfos.nbr_words );
-#ifdef OLD_TIMERS_MONOS_SUPPORT
-		fprintf( File,S_LINE "SIZE_NBR_TIMERS=%d" E_LINE "\n", GeneralParamsMirror.SizesInfos.nbr_timers );
-		fprintf( File,S_LINE "SIZE_NBR_MONOSTABLES=%d" E_LINE "\n", GeneralParamsMirror.SizesInfos.nbr_monostables );
-#endif
-		fprintf( File,S_LINE "SIZE_NBR_COUNTERS=%d" E_LINE "\n", GeneralParamsMirror.SizesInfos.nbr_counters );
-		fprintf( File,S_LINE "SIZE_NBR_TIMERS_IEC=%d" E_LINE "\n", GeneralParamsMirror.SizesInfos.nbr_timers_iec );
-		fprintf( File,S_LINE "SIZE_NBR_PHYS_INPUTS=%d" E_LINE "\n", GeneralParamsMirror.SizesInfos.nbr_phys_inputs );
-		fprintf( File,S_LINE "SIZE_NBR_PHYS_OUTPUTS=%d" E_LINE "\n", GeneralParamsMirror.SizesInfos.nbr_phys_outputs );
-		fprintf( File,S_LINE "SIZE_NBR_ARITHM_EXPR=%d" E_LINE "\n", GeneralParamsMirror.SizesInfos.nbr_arithm_expr );
-		fprintf( File,S_LINE "SIZE_NBR_SECTIONS=%d" E_LINE "\n", GeneralParamsMirror.SizesInfos.nbr_sections );
-		fprintf( File,S_LINE "SIZE_NBR_SYMBOLS=%d" E_LINE "\n", GeneralParamsMirror.SizesInfos.nbr_symbols );
-		fclose(File);
-		Okay = TRUE;
-	}
-	return (Okay);
-}
 
-char FileName[500];
 void LoadAllLadderDatas(char * DatasDirectory)
 {
-	ClassicLadder_InitAllDatas( );
+	char FileName[500];
+	InitAllLadderDatas( TRUE );
 
-	printf("Loading datas from %s...\n", DatasDirectory);
-
-	sprintf(FileName,"%s/"FILE_PREFIX"general.txt",DatasDirectory);
-	LoadGeneralParameters( FileName );
-#ifdef OLD_TIMERS_MONOS_SUPPORT
-	sprintf(FileName,"%s/"FILE_PREFIX"timers.csv",DatasDirectory);
-	//printf("Loading timers datas from %s\n",FileName);
+	rtapi_print_msg(RTAPI_MSG_DBG, "Loading datas from %s...\n", DatasDirectory);
+	sprintf(FileName,"%s/timers.csv",DatasDirectory);
+	//rtapi_print_msg(RTAPI_MSG_DBG, "Loading timers datas from %s\n",FileName);
 	LoadTimersParams(FileName,TimerArray);
-	sprintf(FileName,"%s/"FILE_PREFIX"monostables.csv",DatasDirectory);
-	//printf("Loading monostables datas from %s\n",FileName);
+	sprintf(FileName,"%s/monostables.csv",DatasDirectory);
+	//rtapi_print_msg(RTAPI_MSG_DBG, "Loading monostables datas from %s\n",FileName);
 	LoadMonostablesParams(FileName,MonostableArray);
-#endif
-	sprintf(FileName,"%s/"FILE_PREFIX"counters.csv",DatasDirectory);
-	//printf("Loading counters datas from %s\n",FileName);
+	sprintf(FileName,"%s/counters.csv",DatasDirectory);
+	//rtapi_print_msg(RTAPI_MSG_DBG, "Loading counters datas from %s\n",FileName);
 	LoadCountersParams(FileName);
-	sprintf(FileName,"%s/"FILE_PREFIX"timers_iec.csv",DatasDirectory);
-	LoadNewTimersParams(FileName);
+	PrepareTimers();
+	PrepareMonostables();
+	PrepareCounters();
 
-	sprintf(FileName,"%s/"FILE_PREFIX"arithmetic_expressions.csv",DatasDirectory);
-	//printf("Loading arithmetic expressions from %s\n",FileName);
+	sprintf(FileName,"%s/arithmetic_expressions.csv",DatasDirectory);
+	//rtapi_print_msg(RTAPI_MSG_DBG, "Loading arithmetic expressions from %s\n",FileName);
 	LoadArithmeticExpr(FileName);
 
 	// Sections added since v0.5.5, the format of files has a little changed :
 	// before the prev/next rungs were not saved in each rung...
 	// and the nmber of rungs changed when saved...
-	sprintf(FileName,"%s/"FILE_PREFIX"sections.csv",DatasDirectory);
-	//printf("Loading sections datas from %s\n",FileName);
+	sprintf(FileName,"%s/sections.csv",DatasDirectory);
+   // rtapi_print_msg(RTAPI_MSG_DBG, "Loading sections datas from %s\n",FileName);
 	if ( LoadSectionsParams(FileName) )
 	{
-		sprintf(FileName,"%s/"FILE_PREFIX"rung_",DatasDirectory);
+		sprintf(FileName,"%s/rung_",DatasDirectory);
 		LoadAllRungs(FileName,RungArray);
 	}
 	else
 	{
-		printf("Rungs with old format found (no sections)\n");
-		sprintf(FileName,"%s/"FILE_PREFIX"rung_",DatasDirectory);
+		rtapi_print_msg(RTAPI_MSG_DBG, "Rungs with old format found (no sections)\n");
+		sprintf(FileName,"%s/rung_",DatasDirectory);
 		LoadAllRungs_V1(FileName,RungArray,&InfosGene->FirstRung,&InfosGene->LastRung,&InfosGene->CurrentRung);
 		// if we load old format files, sections wasn't created, so we must write theses infos...
 		SectionArray[ 0 ].FirstRung = InfosGene->FirstRung;
 		SectionArray[ 0 ].LastRung = InfosGene->LastRung;
 	}
 #ifdef SEQUENTIAL_SUPPORT
-	sprintf(FileName,"%s/"FILE_PREFIX"sequential.csv",DatasDirectory);
-	//printf("Loading sequential datas from %s\n",FileName);
+	sprintf(FileName,"%s/sequential.csv",DatasDirectory);
+	//rtapi_print_msg(RTAPI_MSG_DBG, "Loading sequential datas from %s\n",FileName);
 	LoadSequential( FileName );
 #endif
-	sprintf(FileName,"%s/"FILE_PREFIX"ioconf.csv",DatasDirectory);
-	//printf("Loading I/O configuration datas from %s\n",FileName);
+	sprintf(FileName,"%s/ioconf.csv",DatasDirectory);
+	//rtapi_print_msg(RTAPI_MSG_DBG, "Loading I/O configuration datas from %s\n",FileName);
 	LoadIOConfParams( FileName );
-	sprintf(FileName,"%s/"FILE_PREFIX"modbusioconf.csv",DatasDirectory);
-	//printf("Loading modbus distributed I/O configuration datas from %s\n",FileName);
+#ifdef USE_MODBUS
+	sprintf(FileName,"%s/modbusioconf.csv",DatasDirectory);
+	//rtapi_print_msg(RTAPI_MSG_DBG, "Loading modbus distributed I/O configuration datas from %s\n",FileName);
 	LoadModbusIOConfParams( FileName );
-	sprintf(FileName,"%s/"FILE_PREFIX"symbols.csv",DatasDirectory);
-	
+#endif
+	sprintf(FileName,"%s/symbols.csv",DatasDirectory);
+	//rtapi_print_msg(RTAPI_MSG_DBG, "Loading symbols from %s\n",FileName);
 	LoadSymbols(FileName);
 
+	PrepareRungs();
+#ifdef SEQUENTIAL_SUPPORT
+	PrepareSequential();
+#endif
 
-	PrepareAllDatasBeforeRun( );
-
+        if(nogui) return;
+#ifdef GTK_INTERFACE
+	ManagerDisplaySections( );
+	DisplaySymbols( );
+#endif
+return;
 }
 
 void SaveAllLadderDatas(char * DatasDirectory)
 {
-	CleanTmpLadderDirectory( FALSE/*DestroyDir*/ );
-	sprintf(FileName,"%s/"FILE_PREFIX"general.txt",DatasDirectory);
-	SaveGeneralParameters( FileName );
-#ifdef OLD_TIMERS_MONOS_SUPPORT
-	sprintf(FileName,"%s/"FILE_PREFIX"timers.csv",DatasDirectory);
+	char FileName[500];
+	sprintf(FileName,"%s/timers.csv",DatasDirectory);
 	SaveTimersParams(FileName,TimerArray);
-	sprintf(FileName,"%s/"FILE_PREFIX"monostables.csv",DatasDirectory);
+	sprintf(FileName,"%s/monostables.csv",DatasDirectory);
 	SaveMonostablesParams(FileName,MonostableArray);
-#endif
-	sprintf(FileName,"%s/"FILE_PREFIX"counters.csv",DatasDirectory);
+	sprintf(FileName,"%s/counters.csv",DatasDirectory);
 	SaveCountersParams(FileName);
-	sprintf(FileName,"%s/"FILE_PREFIX"timers_iec.csv",DatasDirectory);
-	SaveNewTimersParams(FileName);
-	sprintf(FileName,"%s/"FILE_PREFIX"arithmetic_expressions.csv",DatasDirectory);
+	sprintf(FileName,"%s/arithmetic_expressions.csv",DatasDirectory);
 	SaveArithmeticExpr(FileName);
-	sprintf(FileName,"%s/"FILE_PREFIX"rung_",DatasDirectory);
+	sprintf(FileName,"%s/rung_",DatasDirectory);
 	SaveAllRungs(FileName);
-	sprintf(FileName,"%s/"FILE_PREFIX"sections.csv",DatasDirectory);
+	sprintf(FileName,"%s/sections.csv",DatasDirectory);
 	SaveSectionsParams( FileName );
 #ifdef SEQUENTIAL_SUPPORT
-	sprintf(FileName,"%s/"FILE_PREFIX"sequential.csv",DatasDirectory);
+	sprintf(FileName,"%s/sequential.csv",DatasDirectory);
 	SaveSequential( FileName );
 #endif
-	sprintf(FileName,"%s/"FILE_PREFIX"ioconf.csv",DatasDirectory);
+	sprintf(FileName,"%s/ioconf.csv",DatasDirectory);
 	SaveIOConfParams( FileName );
-	sprintf(FileName,"%s/"FILE_PREFIX"modbusioconf.csv",DatasDirectory);
+#ifdef MODBUS
+	sprintf(FileName,"%s/modbusioconf.csv",DatasDirectory);
 	SaveModbusIOConfParams( FileName );
-	sprintf(FileName,"%s/"FILE_PREFIX"symbols.csv",DatasDirectory);
+#endif
+	sprintf(FileName,"%s/symbols.csv",DatasDirectory);
 	SaveSymbols( FileName );
 	InfosGene->AskConfirmationToQuit = FALSE;
 }
 
 
+#ifdef __WIN32__
+#define CAR_SEP '\\'
+#else
+#define CAR_SEP '/'
+#endif
+void VerifyDirectorySelected( char * NewDir )
+{
+	strcpy(LadderDirectory,NewDir);
+	if (strlen(LadderDirectory)>1)
+	{
+		if ( strcmp( &NewDir[ strlen( NewDir ) -4 ], ".clp" )!=0 )
+		{
+			// verify if path given is really a directory (not a file in it)
+			DIR *pDir;
+			pDir = opendir(LadderDirectory);
+			if (pDir==NULL && errno==ENOTDIR)
+			{
+				int Lgt = strlen(LadderDirectory);
+				char * End = &LadderDirectory[Lgt-1];
+				do
+				{
+					End--;
+				}
+				while(*End!=CAR_SEP && --Lgt>0);
+				End++;
+				if ( Lgt>0 )
+				{
+					*End = '\0';
+				}
+				else
+				{
+					debug_printf("ERROR whith path directory given for project !!!\n");
+					LadderDirectory[ 0 ] = '\0';
+				}
+			}
+			else
+			{
+				if (LadderDirectory[strlen(LadderDirectory)-1]!=CAR_SEP)
+					strcat( LadderDirectory, "/" );
+			}
+		}
+	}
+	debug_printf("DIRECTORY = %s\n",LadderDirectory);
+}
+
+
+
+void InitTempDir( void )
+{
+	char * TmpEnv = getenv("TMP");
+	if ( TmpEnv==NULL )
+		TmpEnv = "/tmp";
+
+	// get a single name directory
+	sprintf( TmpDirectory, "%s/classicladder_tmp_XXXXXX", TmpEnv );
+	if ( mkdtemp( TmpDirectory )==NULL )
+	{
+		sprintf( TmpDirectory, "%s/classicladder_tmp", TmpEnv );
+#ifndef __WIN32__
+		mkdir( TmpDirectory, S_IRWXU );
+#else
+		mkdir( TmpDirectory );
+#endif
+	}
+}
+
+char LoadProjectFiles( char * FileProject )
+{
+	char Result = FALSE;
+	char OldProjectFound = TRUE;
+//V0.7.5	InitTempDir( );
+//V0.7.5 rtapi_print_msg(RTAPI_MSG_DBG, "Init tmp dir=%s\n", TmpDirectory);
+	CleanTmpDirectory( TmpDirectory, FALSE );
+	/* if it is an old project, read directly from the directory selected... */
+	if ( strcmp( &FileProject[ strlen( FileProject ) -4 ], ".clp" )==0 )
+		OldProjectFound = FALSE;
+	if ( OldProjectFound )
+	{
+		rtapi_print_msg(RTAPI_MSG_DBG, "Loading an old project (many files in a directory) !\n");
+		LoadAllLadderDatas( FileProject );
+	}
+	else
+	{
+		// split files of the project in the temp directory
+		Result = SplitFiles( FileProject, TmpDirectory );
+rtapi_print_msg(RTAPI_MSG_DBG, "Load project '%s' in tmp dir=%s\n", FileProject, TmpDirectory);
+		LoadAllLadderDatas( TmpDirectory );
+	}
+	return Result;
+}
+
+char SaveProjectFiles( char * FileProject )
+{
+//v0.7.5	InitTempDir( );
+	CleanTmpDirectory( TmpDirectory, FALSE );
+rtapi_print_msg(RTAPI_MSG_DBG, "Save project '%s' from tmp dir=%s\n", FileProject, TmpDirectory);
+	SaveAllLadderDatas( TmpDirectory );
+	if ( strcmp( &FileProject[ strlen( FileProject ) -4 ], ".clp" )!=0 )
+		strcat( FileProject, ".clp" );
+	// join files for the project in one file
+	return JoinFiles( FileProject, TmpDirectory );
+}
+
 /* clean the tmp directory of the parameters files */
-void CleanTmpLadderDirectory( char DestroyDir )
+void CleanTmpDirectory( char * Directory, char DestroyDir )
 {
 	DIR *pDir;
 	struct dirent *pEnt;
 	char Buff[400];
 
-	if (TmpDirectory[0]!='\0')
+	if (Directory[0]!='\0')
 	{
-		pDir = opendir(TmpDirectory);
+		pDir = opendir(Directory);
 		if (pDir)
 		{
 			while ((pEnt = readdir(pDir)) != NULL)
 			{
 				if ( strcmp(pEnt->d_name,".") && strcmp(pEnt->d_name,"..") )
 				{
-					char cRemoveIt = TRUE;
-					// if a file prefix defined, only remove the classicladder files...
-					if ( strlen(FILE_PREFIX)>0 )
-					{
-						if ( strncmp( pEnt->d_name, FILE_PREFIX, strlen(FILE_PREFIX) )!=0 )
-							cRemoveIt = FALSE;
-					}
-					if ( cRemoveIt )
-					{
-						sprintf(Buff, "%s/%s", TmpDirectory,pEnt->d_name);
-						remove(Buff);
-					}
+////WIN32PORT added /
+					sprintf(Buff, "%s/%s", Directory,pEnt->d_name);
+					remove(Buff);
 				}
 			}
 		}
 		closedir(pDir);
 		/* delete the temp directory if wanted */
 		if ( DestroyDir )
-			rmdir(TmpDirectory); // _rmdir() for Win32 ?
+		{rmdir(Directory); // _rmdir() for Win32 ?
+			rtapi_print_msg(RTAPI_MSG_DBG, "removing temp dir-%s\n",Directory);}
 	}
+}
+
+#define FILE_HEAD "_FILE-"
+#define STR_LEN_FILE_HEAD strlen(FILE_HEAD)
+// Join many parameters files in a project file
+char JoinFiles( char * DirAndNameOfProject, char * TmpDirectoryFiles )
+{
+	char ProjectFileOk = FALSE;
+	FILE * pProjectFile;
+	char Buff[300];
+	char BuffTemp[300];
+	DIR *pDir;
+	struct dirent *pEnt;
+
+	pProjectFile = fopen( DirAndNameOfProject, "wt" );
+	if ( pProjectFile )
+	{
+
+		/* start line of project */
+		fputs( "_FILES_CLASSICLADDER\n", pProjectFile );
+
+		/* read directory of the parameters files */
+		pDir = opendir( TmpDirectoryFiles );
+		if (pDir)
+		{
+			while ((pEnt = readdir(pDir)) != NULL)
+			{
+				if ( strcmp(pEnt->d_name,".") && strcmp(pEnt->d_name,"..") )
+				{
+					FILE * pParametersFile;
+////WIN32PORT added /
+					sprintf(Buff, "%s/%s", TmpDirectoryFiles,pEnt->d_name);
+					pParametersFile = fopen( Buff, "rt" );
+					if (pParametersFile)
+					{
+						sprintf( BuffTemp, FILE_HEAD "%s\n", pEnt->d_name );
+						fputs( BuffTemp, pProjectFile );
+						while( !feof( pParametersFile ) )
+						{
+							char Buff[ 300 ];
+							fgets( Buff, 300, pParametersFile );
+							if (!feof(pParametersFile))
+							{
+								fputs( Buff, pProjectFile );
+							}
+						}
+						fclose( pParametersFile );
+						sprintf( BuffTemp, "_/FILE-%s\n", pEnt->d_name );
+						fputs( BuffTemp, pProjectFile );
+					}
+				}
+			}
+			closedir(pDir);
+
+		}
+
+		/* end line of project */
+		fputs( "_/FILES_CLASSICLADDER\n", pProjectFile );
+		fclose(pProjectFile);
+
+		ProjectFileOk = TRUE;
+	}
+
+	return ProjectFileOk;
+}
+
+// Split a project file in many parameters files
+char SplitFiles( char * DirAndNameOfProject, char * TmpDirectoryFiles )
+{
+	char ProjectFileOk = TRUE;
+	char Buff[ 300 ];
+	FILE * pProjectFile;
+	FILE * pParametersFile;
+	char ParametersFile[300];
+	strcpy(ParametersFile,"");
+
+	pProjectFile = fopen( DirAndNameOfProject, "rb" );
+	if ( pProjectFile )
+	{
+
+		/* start line of project ?*/
+		fgets( Buff, 300, pProjectFile );
+		if ( strncmp( Buff, "_FILES_CLASSICLADDER", strlen( "_FILES_CLASSICLADDER" ) )==0 )
+		{
+
+			while( !feof( pProjectFile ) )
+			{
+				fgets( Buff, 300, pProjectFile );
+				if ( !feof( pProjectFile ) )
+				{
+					// header line for a file parameter ?
+					if (strncmp(Buff,FILE_HEAD,STR_LEN_FILE_HEAD) ==0)
+					{
+////WIN32PORT added /
+						sprintf(ParametersFile, "%s/%s", TmpDirectoryFiles, &Buff[STR_LEN_FILE_HEAD]);
+						ParametersFile[ strlen( ParametersFile )-1 ] = '\0';
+//WIN32PORT
+if ( ParametersFile[ strlen(ParametersFile)-1 ]=='\r' )
+ParametersFile[ strlen(ParametersFile)-1 ] = '\0';
+					}
+					else
+					{
+						/* not end line of project ? */
+						if ( ( strncmp( Buff, "_/FILES_CLASSICLADDER", strlen("_/FILES_CLASSICLADDER") )!=0 )
+								&& Buff[ 0 ]!='\n' )
+						{
+							char cEndOfFile = FALSE;
+							/* file parameter */
+
+							pParametersFile = fopen( ParametersFile, "wt" );
+							if (pParametersFile)
+							{
+								fputs( Buff, pParametersFile );
+								while( !feof( pProjectFile ) && !cEndOfFile )
+								{
+									fgets( Buff, 300, pProjectFile );
+									if (strncmp(Buff,"_/FILE-",strlen("_/FILE-")) !=0)
+									{
+										if (!feof(pProjectFile))
+											fputs( Buff, pParametersFile );
+									}
+									else
+									{
+										cEndOfFile = TRUE;
+									}
+								}
+								fclose(pParametersFile);
+							}
+						}
+					}
+				}
+			}
+		}
+		else
+		{
+			ProjectFileOk = FALSE;
+		}
+		fclose(pProjectFile);
+	}
+	else
+	{
+		ProjectFileOk = FALSE;
+	}
+	return ProjectFileOk;
 }

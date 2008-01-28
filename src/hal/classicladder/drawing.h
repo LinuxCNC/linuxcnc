@@ -2,6 +2,7 @@
 #define DRAW_FOR_TOOLBAR 1
 #define DRAW_FOR_PRINT 2
 
+char * DisplayInfo(int Type, int Offset);
 char * DisplayArithmExpr(char * Expr,int NumCarMax);
 void DrawTextWithOffsetGTK2( GdkPixmap * DrawPixmap, GdkGC * GcRef, int BaseX, int BaseY, int Width, int Height, char * Text, int BorderOffset );
 void DrawTextGTK2( GdkPixmap * DrawPixmap, GdkGC * GcRef, int BaseX, int BaseY, int Width, int Height, char * Text );

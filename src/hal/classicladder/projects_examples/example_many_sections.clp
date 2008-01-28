@@ -1,19 +1,4 @@
 _FILES_CLASSICLADDER
-_FILE-general.txt
-PERIODIC_REFRESH=100
-SIZE_NBR_RUNGS=100
-SIZE_NBR_BITS=500
-SIZE_NBR_WORDS=100
-SIZE_NBR_TIMERS=10
-SIZE_NBR_MONOSTABLES=10
-SIZE_NBR_COUNTERS=10
-SIZE_NBR_TIMERS_IEC=10
-SIZE_NBR_PHYS_INPUTS=50
-SIZE_NBR_PHYS_OUTPUTS=50
-SIZE_NBR_ARITHM_EXPR=100
-SIZE_NBR_SECTIONS=10
-SIZE_NBR_SYMBOLS=100
-_/FILE-general.txt
 _FILE-timers.csv
 ; Timers :
 ; Base(see classicladder.h),Preset
@@ -42,34 +27,6 @@ _FILE-monostables.csv
 1,10
 1,10
 _/FILE-monostables.csv
-_FILE-counters.csv
-; Counters :
-; Preset
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-_/FILE-counters.csv
-_FILE-timers_iec.csv
-; Timers IEC :
-; Base(see classicladder.h),Preset,TimerMode(see classicladder.h)
-1,0,0
-1,0,0
-1,0,0
-1,0,0
-1,0,0
-1,0,0
-1,0,0
-1,0,0
-1,0,0
-1,0,0
-_/FILE-timers_iec.csv
 _FILE-arithmetic_expressions.csv
 ; Arithmetic expressions :
 ; Compare or Operate ones
@@ -188,7 +145,7 @@ _FILE-rung_0.csv
 0-0-0/12 , 0-0-0/13 , 0-0-0/14 , 0-0-0/15 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/22
 0-0-0/0 , 0-0-0/0 , 0-0-0/6 , 0-0-0/5 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/22
 2-0-20/0 , 9-0-0/0 , 99-0-0/0 , 10-0-0/1 , 9-0-0/0 , 99-0-0/0 , 11-0-0/0 , 9-0-0/0 , 9-0-0/0 , 50-0-0/20
-0-0-0/0 , 0-0-0/0 , 99-1-0/0 , 99-0-0/0 , 0-0-0/0 , 99-0-0/0 , 99-0-0/0 , 0-0-0/0 , 0-0-0/0 , 54-1-0/5
+0-0-0/0 , 0-0-0/0 , 99-0-0/0 , 99-0-0/0 , 0-0-0/0 , 99-0-0/0 , 99-0-0/0 , 0-0-0/0 , 0-0-0/0 , 54-1-0/5
 _/FILE-rung_0.csv
 _FILE-rung_1.csv
 ; Rung :
@@ -305,11 +262,4 @@ _/FILE-sequential.csv
 _FILE-ioconf.csv
 ; I/O Configuration
 _/FILE-ioconf.csv
-_FILE-modbusioconf.csv
-; Modbus Distributed I/O Configuration
-_/FILE-modbusioconf.csv
-_FILE-symbols.csv
-; Symbols
-#VER=1.0
-_/FILE-symbols.csv
 _/FILES_CLASSICLADDER

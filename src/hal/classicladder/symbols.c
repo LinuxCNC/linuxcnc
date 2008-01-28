@@ -34,7 +34,7 @@
 #include "classicladder.h"
 #include "global.h"
 #include "symbols.h"
-
+#include "hal/hal_priv.h"
 
 void InitSymbols( void )
 {
@@ -130,6 +130,54 @@ char tcBufferResult[ 100 ];
 char * ConvVarNameToSymbol( char * VarNameParam )
 {
 	StrSymbol * pSymbol = ConvVarNameInSymbolPtr( VarNameParam );
+        if( VarNameParam[0] == '%') {
+            char pin_name[100] = {0};
+            int arrowside=0;
+            int idx;
+
+            switch(VarNameParam[1]) {
+            case 'I':
+                sscanf(VarNameParam+2, "%d", &idx);
+                snprintf(pin_name, 100, "classicladder.0.in-%02d", idx);
+                arrowside = 1;
+                break;
+            case 'Q':
+                sscanf(VarNameParam+2, "%d", &idx);
+                snprintf(pin_name, 100, "classicladder.0.out-%02d", idx);
+                arrowside = 0;
+                break;
+            case 'W':
+                sscanf(VarNameParam+2, "%d", &idx);
+                if(idx > InfosGene->SizesInfos.nbr_s32in) {
+                    snprintf(pin_name, 100, "classicladder.0.s32out-%02d",
+                            idx - InfosGene->SizesInfos.nbr_s32in);
+                    arrowside = 0;
+                } else {
+                    snprintf(pin_name, 100, "classicladder.0.s32in-%02d", idx);
+                    arrowside = 1;
+                }
+                break;
+            }
+            if(*pin_name) {
+                hal_pin_t *pin = halpr_find_pin_by_name(pin_name);
+                if(pin && pin->signal) {
+                    hal_sig_t *sig = SHMPTR(pin->signal);
+                    if(sig->name) {
+                        static char sig_name[100];
+                        // char *arrow = "\xe2\x86\x90";
+                        char *arrow = "\xe2\x87\x92";
+
+                        if(arrowside == 0) {
+                            snprintf(sig_name, 100, "%s%s", sig->name, arrow);
+                        } else {
+                            snprintf(sig_name, 100, "%s%s", arrow, sig->name);
+                        }
+                        return sig_name;
+                    }
+                }
+            }
+        }
+
 	if ( pSymbol )
 	{
 		// if partial symbol, add the attribute taken from the var name
