@@ -97,7 +97,7 @@ typedef enum {
 } arg_type_t;
 
 typedef struct {
-  char* name;
+  const char* name;
   arg_type_t arg_type;
   char * (*handler)(void *arg);
 } cmd_lut_entry_t;
@@ -355,7 +355,8 @@ void write_sample(FILE *fp, char *label, scope_data_t *dptr, hal_type_t type)
 static int parse_command(char *in)
 {
     int n;
-    char *cp1, *cp2, *rv;
+    char *cp1, *rv;
+    const char *cp2;
     int arg_int;
     double arg_float;
     char *arg_string;

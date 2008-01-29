@@ -62,7 +62,7 @@ gboolean gtk_window_is_active( GtkWindow *window );
     a box.  It simply calls other GTK functions that do the real work.
     Normally it would take 4-5 lines of code to do the same thing.
 */
-GtkWidget *gtk_label_new_in_box(gchar * text, GtkWidget * box,
+GtkWidget *gtk_label_new_in_box(const gchar * text, GtkWidget * box,
     gboolean expand, gboolean fill, guint padding);
 
 /** more convenience functions - vertical and horizontal separators
@@ -87,10 +87,10 @@ GtkWidget *gtk_hbox_new_in_box(gboolean homogeneous, guint spacing,
     in a frame, which is in turn placed in the parent box.  'name'
     is the name displayed by the frame
 */
-GtkWidget *gtk_vbox_framed_new_in_box(gchar * name, gboolean homogeneous,
+GtkWidget *gtk_vbox_framed_new_in_box(const gchar * name, gboolean homogeneous,
     guint spacing, guint border, GtkWidget * box, gboolean expand,
     gboolean fill, guint padding);
-GtkWidget *gtk_hbox_framed_new_in_box(gchar * name, gboolean homogeneous,
+GtkWidget *gtk_hbox_framed_new_in_box(const gchar * name, gboolean homogeneous,
     guint spacing, guint border, GtkWidget * box, gboolean expand,
     gboolean fill, guint padding);
 
@@ -100,13 +100,13 @@ GtkWidget *gtk_hbox_framed_new_in_box(gchar * name, gboolean homogeneous,
     or may not be valid, for instance if they are part of a dialog
     that might not be active.
 */
-void gtk_label_set_text_if(GtkWidget * label, gchar * text);
+void gtk_label_set_text_if(GtkWidget * label, const gchar * text);
 
 /** gtk_label_size_to_fit() sets the size of the label to fit the
     the string "str".  It is usefull when you want the size of a
     label to remain constant, even if it's contents change.
 */
-void gtk_label_size_to_fit(GtkLabel * label, gchar * str);
+void gtk_label_size_to_fit(GtkLabel * label, const gchar * str);
 
 /* generic dialog typedef */
 typedef struct {
@@ -126,8 +126,8 @@ typedef struct {
     buttons that are not NULL will be displayed - for a two button
     dialog, supply two valid pointers and two NULLs.
 */
-int dialog_generic_msg(GtkWidget * parent, gchar * title, gchar * msg,
-    gchar * button1, gchar * button2, gchar * button3, gchar * button4);
+int dialog_generic_msg(GtkWidget * parent, const gchar * title, const gchar * msg,
+    const gchar * button1, const gchar * button2, const gchar * button3, const gchar * button4);
 
 /** the following functions are used by the generic dialog functions,
     but may also be usefull for custom dialogs, so they are made public

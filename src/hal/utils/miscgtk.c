@@ -88,7 +88,7 @@ gboolean gtk_window_is_active( GtkWindow *window ) { return FALSE; }
 #endif
 
 
-GtkWidget *gtk_label_new_in_box(gchar * text, GtkWidget * box,
+GtkWidget *gtk_label_new_in_box(const gchar * text, GtkWidget * box,
     gboolean expand, gboolean fill, guint padding)
 {
     GtkWidget *label;
@@ -146,7 +146,7 @@ GtkWidget *gtk_hbox_new_in_box(gboolean homogeneous, guint spacing,
     return hbox;
 }
 
-GtkWidget *gtk_vbox_framed_new_in_box(gchar * name, gboolean homogeneous,
+GtkWidget *gtk_vbox_framed_new_in_box(const gchar * name, gboolean homogeneous,
     guint spacing, guint border, GtkWidget * box, gboolean expand,
     gboolean fill, guint padding)
 {
@@ -162,7 +162,7 @@ GtkWidget *gtk_vbox_framed_new_in_box(gchar * name, gboolean homogeneous,
     return vbox;
 }
 
-GtkWidget *gtk_hbox_framed_new_in_box(gchar * name, gboolean homogeneous,
+GtkWidget *gtk_hbox_framed_new_in_box(const gchar * name, gboolean homogeneous,
     guint spacing, guint border, GtkWidget * box, gboolean expand,
     gboolean fill, guint padding)
 {
@@ -178,14 +178,14 @@ GtkWidget *gtk_hbox_framed_new_in_box(gchar * name, gboolean homogeneous,
     return hbox;
 }
 
-void gtk_label_set_text_if(GtkWidget * label, gchar * text)
+void gtk_label_set_text_if(GtkWidget * label, const gchar * text)
 {
     if (label != NULL) {
 	gtk_label_set_text(GTK_LABEL(label), text);
     }
 }
 
-void gtk_label_size_to_fit(GtkLabel * label, gchar * str)
+void gtk_label_size_to_fit(GtkLabel * label, const gchar * str)
 {
     GtkRequisition req;
     gchar *current_text;
@@ -218,12 +218,12 @@ void gtk_label_size_to_fit(GtkLabel * label, gchar * str)
     return;
 }
 
-int dialog_generic_msg(GtkWidget * parent, gchar * title, gchar * msg,
-    gchar * button1, gchar * button2, gchar * button3, gchar * button4)
+int dialog_generic_msg(GtkWidget * parent, const gchar * title, const gchar * msg,
+    const gchar * button1, const gchar * button2, const gchar * button3, const gchar * button4)
 {
     dialog_generic_t dialog;
     GtkWidget *button, *label;
-    gchar *button_name_array[4];
+    const gchar *button_name_array[4];
     void (*button_funct_array[4]) (GtkWidget *, dialog_generic_t *);
     gint n;
 

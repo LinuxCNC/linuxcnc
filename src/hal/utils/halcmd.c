@@ -145,7 +145,7 @@ typedef int(*func_t)(void);
 #define FUNCT(x) ((func_t)x)
 
 struct command {
-    char *name;
+    const char *name;
     func_t func;
     enum argtype type;
 };
@@ -748,7 +748,7 @@ static int replace_vars(char *source_str, char *dest_str, int max_chars)
 }
 
 
-static char *replace_errors[] = {
+static const char *replace_errors[] = {
 	"Missing close parenthesis",
 	"Zero length variable name",
 	"Missing close square bracket",

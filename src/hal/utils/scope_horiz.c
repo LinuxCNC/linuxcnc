@@ -293,7 +293,7 @@ void handle_watchdog_timeout(void)
 void refresh_state_info(void)
 {
     scope_horiz_t *horiz;
-    static gchar *state_names[] = { "IDLE",
+    static const gchar *state_names[] = { "IDLE",
 	"INIT",
 	"PRE-TRIG",
 	"TRIGGER?",
@@ -460,7 +460,7 @@ int set_horiz_pos(double setting)
 
 static void dialog_realtime_not_loaded(void)
 {
-    gchar *title, *msg;
+    const gchar *title, *msg;
     gint retval;
     static int first_time=1;
 
@@ -503,7 +503,7 @@ static void dialog_realtime_not_linked(void)
     GSList *buttongroup;
     GtkWidget *scrolled_window;
     gchar *titles[2];
-    gchar *title, *msg;
+    const gchar *title, *msg;
 
     horiz = &(ctrl_usr->horiz);
     if (horiz->thread_name == NULL) {
@@ -757,7 +757,7 @@ static void dialog_realtime_not_linked(void)
 
 static void dialog_realtime_not_running(void)
 {
-    gchar *title, *msg;
+    const gchar *title, *msg;
     gint retval;
 
     title = "Realtime thread(s) not running";
@@ -971,7 +971,7 @@ static void pos_changed(GtkAdjustment * adj, gpointer gdata)
 static void rec_len_button(GtkWidget * widget, gpointer gdata)
 {
     int retval;
-    char *title, *msg;
+    const char *title, *msg;
 
     if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget)) != TRUE) {
 	/* not pressed, ignore it */
@@ -1183,7 +1183,7 @@ static void refresh_pos_disp(void)
 
 static void format_time_value(char *buf, int buflen, float timeval)
 {
-    char *units;
+    const char *units;
     int decimals;
 
     /* convert to nanoseconds */
@@ -1213,7 +1213,7 @@ static void format_time_value(char *buf, int buflen, float timeval)
 
 static void format_freq_value(char *buf, int buflen, float freqval)
 {
-    char *units;
+    const char *units;
     int decimals;
 
     units = "Hz";

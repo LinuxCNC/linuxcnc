@@ -74,12 +74,12 @@ static void print_thread_names(char **patterns);
 static void print_lock_status();
 static int count_list(int list_root);
 static void print_mem_status();
-static char *data_type(int type);
-static char *data_type2(int type);
-static char *pin_data_dir(int dir);
-static char *param_data_dir(int dir);
-static char *data_arrow1(int dir);
-static char *data_arrow2(int dir);
+static const char *data_type(int type);
+static const char *data_type2(int type);
+static const char *pin_data_dir(int dir);
+static const char *param_data_dir(int dir);
+static const char *data_arrow1(int dir);
+static const char *data_arrow2(int dir);
 static char *data_value(int type, void *valptr);
 static char *data_value2(int type, void *valptr);
 static void save_comps(FILE *dst);
@@ -1920,9 +1920,9 @@ static void print_mem_status()
 }
 
 /* Switch function for pin/sig/param type for the print_*_list functions */
-static char *data_type(int type)
+static const char *data_type(int type)
 {
-    char *type_str;
+    const char *type_str;
 
     switch (type) {
     case HAL_BIT:
@@ -1944,9 +1944,9 @@ static char *data_type(int type)
     return type_str;
 }
 
-static char *data_type2(int type)
+static const char *data_type2(int type)
 {
-    char *type_str;
+    const char *type_str;
 
     switch (type) {
     case HAL_BIT:
@@ -1969,9 +1969,9 @@ static char *data_type2(int type)
 }
 
 /* Switch function for pin direction for the print_*_list functions  */
-static char *pin_data_dir(int dir)
+static const char *pin_data_dir(int dir)
 {
-    char *pin_dir;
+    const char *pin_dir;
 
     switch (dir) {
     case HAL_IN:
@@ -1991,9 +1991,9 @@ static char *pin_data_dir(int dir)
 }
 
 /* Switch function for param direction for the print_*_list functions  */
-static char *param_data_dir(int dir)
+static const char *param_data_dir(int dir)
 {
-    char *param_dir;
+    const char *param_dir;
 
     switch (dir) {
     case HAL_RO:
@@ -2010,9 +2010,9 @@ static char *param_data_dir(int dir)
 }
 
 /* Switch function for arrow direction for the print_*_list functions  */
-static char *data_arrow1(int dir)
+static const char *data_arrow1(int dir)
 {
-    char *arrow;
+    const char *arrow;
 
     switch (dir) {
     case HAL_IN:
@@ -2032,9 +2032,9 @@ static char *data_arrow1(int dir)
 }
 
 /* Switch function for arrow direction for the print_*_list functions  */
-static char *data_arrow2(int dir)
+static const char *data_arrow2(int dir)
 {
-    char *arrow;
+    const char *arrow;
 
     switch (dir) {
     case HAL_IN:

@@ -45,7 +45,7 @@
 
 static int argno;
 
-static char *command_table[] = {
+static const char *command_table[] = {
     "loadrt", "loadusr", "unload", "lock", "unlock",
     "linkps", "linksp", "linkpp", "unlinkp",
     "net", "newsig", "delsig", "getp", "gets", "setp", "sets", "ptype", "stype",
@@ -54,40 +54,40 @@ static char *command_table[] = {
     NULL,
 };
 
-static char *show_table[] = {
+static const char *show_table[] = {
     "all", "comp", "pin", "sig", "param", "funct", "thread",
     NULL,
 };
 
-static char *save_table[] = {
+static const char *save_table[] = {
     "all", "comp", "sig", "link", "linka", "net", "neta", "param", "thread",
     NULL,
 };
 
-static char *list_table[] = {
+static const char *list_table[] = {
     "comp", "pin", "sig", "param", "funct", "thread",
     NULL
 };
 
-static char *status_table[] = {
+static const char *status_table[] = {
     "lock", "mem", "all",
     NULL
 };
 
-static char *pintype_table[] = {
+static const char *pintype_table[] = {
     "bit", "float", "u32", "s32", 
     NULL
 };
 
-static char *lock_table[] = { "none", "tune", "all", NULL };
-static char *unlock_table[] = { "tune", "all", NULL };
+static const char *lock_table[] = { "none", "tune", "all", NULL };
+static const char *unlock_table[] = { "tune", "all", NULL };
 
-static char **string_table = NULL;
+static const char **string_table = NULL;
 
 static char *table_generator(const char *text, int state) {
     static int len;
     static int list_index = 0;
-    char *name;
+    const char *name;
 
     if(state == 0) {
         list_index = 0;
@@ -101,7 +101,7 @@ static char *table_generator(const char *text, int state) {
     return NULL;
 }
 
-static char **completion_matches_table(const char *text, char **table) {
+static char **completion_matches_table(const char *text, const char **table) {
     string_table = table;
     return rl_completion_matches(text, table_generator);
 }
@@ -376,7 +376,7 @@ static int startswith(const char *string, const char *stem) {
     return strncmp(string, stem, strlen(stem)) == 0;
 }
 
-char *loadusr_table[] = {"-W", "-Wn", "-w", "-iw", NULL};
+const char *loadusr_table[] = {"-W", "-Wn", "-w", "-iw", NULL};
 
 static char *loadusr_generator(const char *text, int state) {
     static int len;

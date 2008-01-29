@@ -85,11 +85,11 @@
 static int release_HAL_mutex(void);
 static int do_help_cmd(char *command);
 static int unloadrt_comp(char *mod_name);
-static char *data_type(int type);
-static char *pin_data_dir(int dir);
-static char *param_data_dir(int dir);
-static char *data_arrow1(int dir);
-static char *data_arrow2(int dir);
+static const char *data_type(int type);
+static const char *pin_data_dir(int dir);
+static const char *param_data_dir(int dir);
+static const char *data_arrow1(int dir);
+static const char *data_arrow2(int dir);
 static char *data_value(int type, void *valptr);
 static char *data_value2(int type, void *valptr);
 static void save_comps(FILE *dst);
@@ -138,7 +138,7 @@ struct sockaddr_in server_address;
 struct sockaddr_in client_address;
 int useSockets = 1;
 int tokenIdx;
-char *delims = " \n\r\0";
+const char *delims = " \n\r\0";
 int connCount = -1;
 int enabledConn = -1;
 
@@ -158,8 +158,8 @@ typedef enum {
   rtNoError, rtHandledNoError, rtStandardError, rtCustomError, rtCustomHandledError
   } cmdResponseType;  
 
-char *commands[] = {"HELLO", "SET", "GET", "QUIT", "SHUTDOWN", "HELP", ""};
-char *halCommands[] = {
+const char *commands[] = {"HELLO", "SET", "GET", "QUIT", "SHUTDOWN", "HELP", ""};
+const char *halCommands[] = {
   "ECHO", "VERBOSE", "ENABLE", "CONFIG", "COMM_MODE", "COMM_PROT",
   "COMPS", "PINS", "PINVALS", "SIGNALS", "SIGVALS", "PARAMS", "PARAMVALS", "FUNCTS", "THREADS",
   "COMP", "PIN", "PINVAL", "SIGNAL", "SIGVAL", "PARAM", "PARAMVAL", "FUNCT", "THREAD",
@@ -278,7 +278,7 @@ static int release_HAL_mutex(void)
 static int doLock(char *command, connectionRecType *context)
 {
     int retval=0;
-    char *nakStr = "SET LOCK NAK";
+    const char *nakStr = "SET LOCK NAK";
 
     /* if command is blank, want to lock everything */
     if (*command == '\0')
@@ -303,7 +303,7 @@ static int doLock(char *command, connectionRecType *context)
 static int doUnlock(char *command, connectionRecType *context)
 {
     int retval=0;
-    char *nakStr = "SET UNLOCK NAK";
+    const char *nakStr = "SET UNLOCK NAK";
 
     /* if command is blank, want to lock everything */
     if (*command == '\0')
@@ -326,7 +326,7 @@ static int doLinkpp(char *first_pin_name, char *second_pin_name, connectionRecTy
 {
     int retval;
     hal_pin_t *first_pin, *second_pin;
-    char *nakStr = "SET LINKPP NAK";
+    const char *nakStr = "SET LINKPP NAK";
 
     rtapi_mutex_get(&(hal_data->mutex));
     /* check if the pins are there */
@@ -380,7 +380,7 @@ static int doLinkpp(char *first_pin_name, char *second_pin_name, connectionRecTy
 static int doLink(char *pin, char *sig, connectionRecType *context)
 {
     int retval;
-    char *nakStr = "SET LINKPS NAK";
+    const char *nakStr = "SET LINKPS NAK";
 
     /* if sig is blank, want to unlink pin */
     if (*sig == '\0') {
@@ -400,7 +400,7 @@ static int doLink(char *pin, char *sig, connectionRecType *context)
 static int doNewsig(char *name, char *type, connectionRecType *context)
 {
     int retval;
-    char *nakStr = "SET NEWSIG NAK";
+    const char *nakStr = "SET NEWSIG NAK";
 
     if (strcasecmp(type, "bit") == 0)
       retval = hal_signal_new(name, HAL_BIT);
@@ -481,7 +481,7 @@ static int set_common(hal_type_t type, void *d_ptr, char *value, connectionRecTy
 
 static int doSetp(char *name, char *value, connectionRecType *context)
 {
-    char *nakStr = "SET SETP NAK";
+    const char *nakStr = "SET SETP NAK";
     int retval;
     hal_param_t *param;
     hal_pin_t *pin;
@@ -545,7 +545,7 @@ static int doSetp(char *name, char *value, connectionRecType *context)
 
 static int doSets(char *name, char *value, connectionRecType *context)
 {
-    char *nakStr = "SET SETS NAK";
+    const char *nakStr = "SET SETS NAK";
     int retval;
     hal_sig_t *sig;
     hal_type_t type;
@@ -585,7 +585,7 @@ static int doSets(char *name, char *value, connectionRecType *context)
 static int doAddf(char *name, char *thread, char *parm, connectionRecType *context)
 {
     int retval;
-    char *nakStr = "SET ADDF NAK";
+    const char *nakStr = "SET ADDF NAK";
     
     if (parm[0] == '\0')
 	    /* no - add function at end of thread */
@@ -603,7 +603,7 @@ static int doAddf(char *name, char *thread, char *parm, connectionRecType *conte
 static int doDelf(char *name, char *thread, connectionRecType *context)
 {
     int retval;
-    char *nakStr = "SET DELF NAK";
+    const char *nakStr = "SET DELF NAK";
     
     retval = hal_del_funct_from_thread(name, thread);
     if (retval != 0) {
@@ -617,7 +617,7 @@ static int doDelf(char *name, char *thread, connectionRecType *context)
 static int doStart(connectionRecType *context)
 {
     int retval;
-    char *nakStr = "SET START NAK";
+    const char *nakStr = "SET START NAK";
 
     retval = hal_start_threads();
     if (retval != 0) {
@@ -631,7 +631,7 @@ static int doStart(connectionRecType *context)
 static int doStop(connectionRecType *context)
 {
     int retval;
-    char *nakStr = "SET STOP NAK";
+    const char *nakStr = "SET STOP NAK";
 
     retval = hal_stop_threads();
     if (retval != 0) {
@@ -655,7 +655,7 @@ static int doLoadRt(char *mod_name, char *args[], connectionRecType *context)
     int n, m, retval, status;
     hal_comp_t *comp;
     pid_t pid;
-    char *nakStr = "SET LOADRT NAK";
+    const char *nakStr = "SET LOADRT NAK";
 
     if (hal_get_lock()&HAL_LOCK_LOAD) {
       sprintf(errorStr,  "HAL:%d: ERROR: HAL is locked, loading of modules is not permitted", 
@@ -792,7 +792,7 @@ static int doDelsig(char *mod_name, connectionRecType *context)
     int next, retval, retval1, n;
     hal_sig_t *sig;
     char sigs[MAX_EXPECTED_SIGS][HAL_NAME_LEN+1];
-    char *nakStr = "SET DELSIG NAK";
+    const char *nakStr = "SET DELSIG NAK";
 
     /* check for "all" */
     if ( strcmp(mod_name, "all" ) != 0 ) {
@@ -1413,9 +1413,9 @@ static void getThreadInfo(char *pattern, connectionRecType *context)
 
 
 /* Switch function for pin/sig/param type for the print_*_list functions */
-static char *data_type(int type)
+static const char *data_type(int type)
 {
-    char *type_str;
+    const char *type_str;
 
     switch (type) {
     case HAL_BIT:
@@ -1438,9 +1438,9 @@ static char *data_type(int type)
 }
 
 /* Switch function for pin direction for the print_*_list functions  */
-static char *pin_data_dir(int dir)
+static const char *pin_data_dir(int dir)
 {
-    char *pin_dir;
+    const char *pin_dir;
 
     switch (dir) {
     case HAL_IN:
@@ -1460,9 +1460,9 @@ static char *pin_data_dir(int dir)
 }
 
 /* Switch function for param direction for the print_*_list functions  */
-static char *param_data_dir(int dir)
+static const char *param_data_dir(int dir)
 {
-    char *param_dir;
+    const char *param_dir;
 
     switch (dir) {
     case HAL_RO:
@@ -1479,9 +1479,9 @@ static char *param_data_dir(int dir)
 }
 
 /* Switch function for arrow direction for the print_*_list functions  */
-static char *data_arrow1(int dir)
+static const char *data_arrow1(int dir)
 {
-    char *arrow;
+    const char *arrow;
 
     switch (dir) {
     case HAL_IN:
@@ -1501,9 +1501,9 @@ static char *data_arrow1(int dir)
 }
 
 /* Switch function for arrow direction for the print_*_list functions  */
-static char *data_arrow2(int dir)
+static const char *data_arrow2(int dir)
 {
-    char *arrow;
+    const char *arrow;
 
     switch (dir) {
     case HAL_IN:
@@ -1591,7 +1591,7 @@ static char *data_value2(int type, void *valptr)
 static int doSave(char *type, char *filename, connectionRecType *context)
 {
     FILE *dst;
-    char *nakStr = "SET SAVE NAK";
+    const char *nakStr = "SET SAVE NAK";
 
     if (rtapi_get_msg_level() == RTAPI_MSG_NONE) {
 	/* must be -Q, don't print anything */
@@ -1979,7 +1979,7 @@ static halCommandType lookupHalCommand(char *s)
  static int commandHello(connectionRecType *context)
 {
   char *pch;
-  char *password = "EMC";
+  const char *password = "EMC";
   
   pch = strtok(NULL, delims);
   if (pch == NULL) return -1;
@@ -1997,7 +1997,7 @@ static halCommandType lookupHalCommand(char *s)
 
 static cmdResponseType getEcho(char *s, connectionRecType *context)
 {
-  char *pEchoStr = "ECHO %s";
+  const char *pEchoStr = "ECHO %s";
   
   if (context->echo == 1) sprintf(context->outBuf, pEchoStr, "ON");
   else sprintf(context->outBuf, pEchoStr, "OFF");
@@ -2006,7 +2006,7 @@ static cmdResponseType getEcho(char *s, connectionRecType *context)
 
 static cmdResponseType getVerbose(char *s, connectionRecType *context)
 {
-  char *pVerboseStr = "VERBOSE %s";
+  const char *pVerboseStr = "VERBOSE %s";
   
   if (context->verbose == 1) sprintf(context->outBuf, pVerboseStr, "ON");
   else sprintf(context->outBuf, pVerboseStr, "OFF");
@@ -2015,7 +2015,7 @@ static cmdResponseType getVerbose(char *s, connectionRecType *context)
 
 static cmdResponseType getEnable(char *s, connectionRecType *context)
 {
-  char *pEnableStr = "ENABLE %s";
+  const char *pEnableStr = "ENABLE %s";
   
   if (context->cliSock == enabledConn) sprintf(context->outBuf, pEnableStr, "ON");
   else sprintf(context->outBuf, pEnableStr, "OFF");
@@ -2024,7 +2024,7 @@ static cmdResponseType getEnable(char *s, connectionRecType *context)
 
 static cmdResponseType getConfig(char *s, connectionRecType *context)
 {
-  char *pConfigStr = "CONFIG";
+  const char *pConfigStr = "CONFIG";
 
   strcpy(context->outBuf, pConfigStr);
   return rtNoError;
@@ -2032,7 +2032,7 @@ static cmdResponseType getConfig(char *s, connectionRecType *context)
 
 static cmdResponseType getCommMode(char *s, connectionRecType *context)
 {
-  char *pCommModeStr = "COMM_MODE %s";
+  const char *pCommModeStr = "COMM_MODE %s";
   
   switch (context->commMode) {
     case 0: sprintf(context->outBuf, pCommModeStr, "ASCII"); break;
@@ -2043,7 +2043,7 @@ static cmdResponseType getCommMode(char *s, connectionRecType *context)
 
 static cmdResponseType getCommProt(char *s, connectionRecType *context)
 {
-  char *pCommProtStr = "COMM_PROT %s";
+  const char *pCommProtStr = "COMM_PROT %s";
   
   sprintf(context->outBuf, pCommProtStr, context->version);
   return rtNoError;
