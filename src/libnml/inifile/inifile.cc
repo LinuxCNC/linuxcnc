@@ -534,7 +534,7 @@ IniFile::SkipWhite(const char *string)
 void
 IniFile::Exception::Print(FILE *fp)
 {
-    char                        *msg;
+    const char                  *msg;
 
     switch(errCode){
     case ERR_NONE:
