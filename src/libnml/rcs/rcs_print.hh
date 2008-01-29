@@ -47,25 +47,25 @@ extern "C" {
     extern int count_lines_in_print_list(void);
     extern void convert_print_list_to_lines(void);
     extern void update_lines_table(void);
-    extern int rcs_vprint(char *_fmt, va_list va_args, int save_string);
+    extern int rcs_vprint(const char *_fmt, va_list va_args, int save_string);
     /* Prints a message using the _fmt format string and the _va_args using
        the vprintf conventions. */
 
-    extern int rcs_print(char *_fmt, ...);
+    extern int rcs_print(const char *_fmt, ...);
     /* 
        Prints a message using the _fmt format string and optional additional
        arguments using the printf conventions. */
 
-    extern int rcs_print_debug(long, char *_fmt, ...);
+    extern int rcs_print_debug(long, const char *_fmt, ...);
     /* 
        Prints a message using the _fmt format string and optional additional
        arguments using the printf conventions if the corresponding flag to
        _flag_to_check is set. (See set_rcs_print_flag().) */
 #ifdef DO_NOT_USE_RCS_PRINT_ERROR_NEW
-    extern int rcs_print_error(char *_fmt, ...);
+    extern int rcs_print_error(const char *_fmt, ...);
 #else
     extern int set_print_rcs_error_info(const char *file, int line);
-    extern int print_rcs_error_new(char *_fmt, ...);
+    extern int print_rcs_error_new(const char *_fmt, ...);
 #define rcs_print_error set_print_rcs_error_info( __FILE__, __LINE__); print_rcs_error_new
 #endif
 
@@ -92,7 +92,7 @@ extern "C" {
        the new string was stored. */
 
     extern int separate_words(char **_dest, int _max, char *_src);
-    extern int rcs_puts(char *);
+    extern int rcs_puts(const char *);
     /* Prints the string _str and adds a new line character at the end
        following the puts convention. */
 

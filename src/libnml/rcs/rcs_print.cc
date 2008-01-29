@@ -287,7 +287,7 @@ int separate_words(char **_dest, int _max, char *_src)
     return (i + 1);
 }
 
-int rcs_vprint(char *_fmt, va_list _args, int save_string)
+int rcs_vprint(const char *_fmt, va_list _args, int save_string)
 {
     static char temp_string[256];
 
@@ -315,12 +315,12 @@ int rcs_vprint(char *_fmt, va_list _args, int save_string)
     return (rcs_fputs(temp_string));
 }
 
-int rcs_puts(char *_str)
+int rcs_puts(const char *_str)
 {
     int retval, retval2;
-    retval = rcs_fputs(_str);
+    retval = rcs_fputs(const_cast< char * >(_str));
     if (retval != EOF) {
-	retval2 = rcs_fputs("\n");
+	retval2 = rcs_fputs(const_cast< char * >("\n"));
 	if (retval2 != EOF) {
 	    retval += retval;
 	} else {
@@ -431,7 +431,7 @@ int set_rcs_print_file(char *_file_name)
     return 0;
 }
 
-int rcs_print(char *_fmt, ...)
+int rcs_print(const char *_fmt, ...)
 {
     static char temp_buffer[256];
     int retval;
@@ -459,7 +459,7 @@ int set_print_rcs_error_info(const char *file, int line)
     return (0);
 }
 
-int print_rcs_error_new(char *_fmt, ...)
+int print_rcs_error_new(const char *_fmt, ...)
 {
     int retval = 0;
     va_list args;
@@ -487,7 +487,7 @@ int print_rcs_error_new(char *_fmt, ...)
 
 #endif
 
-int rcs_print_debug(long flag_to_check, char *_fmt, ...)
+int rcs_print_debug(long flag_to_check, const char *_fmt, ...)
 {
     int retval = 0;
     int pid = 0;
@@ -513,7 +513,7 @@ void clear_rcs_print_flag(long flag_to_clear)
     rcs_print_mode_flags &= ~(flag_to_clear);
 }
 
-int rcs_print_sys_error(int error_source, char *_fmt, ...)
+int rcs_print_sys_error(int error_source, const char *_fmt, ...)
 {
     static char temp_string[256];
     static char message_string[512];
@@ -557,9 +557,9 @@ int rcs_print_sys_error(int error_source, char *_fmt, ...)
 #ifdef rcs_print_error
 #undef rcs_print_error
 #endif
-extern "C" int rcs_print_error(char *_fmt, ...);
+extern "C" int rcs_print_error(const char *_fmt, ...);
 
-int rcs_print_error(char *_fmt, ...)
+int rcs_print_error(const char *_fmt, ...)
 {
     int retval = 0;
     va_list args;
