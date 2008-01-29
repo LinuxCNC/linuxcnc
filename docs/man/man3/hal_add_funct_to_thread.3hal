@@ -5,10 +5,10 @@ hal_add_funct_to_thread \- one-line description of hal_add_funct_to_thread
 
 .SH SYNTAX
 .HP
-int hal_add_funct_to_thread(char *\fIfunct_name\fR, char *\fIthread_name\fR,
+int hal_add_funct_to_thread(const char *\fIfunct_name\fR, const char *\fIthread_name\fR,
  int position)
 
-int hal_del_funct_from_thread(char *\fIfunct_name\fR, char *\fIthread_name\fR)
+int hal_del_funct_from_thread(const char *\fIfunct_name\fR, const char *\fIthread_name\fR)
 
 .SH  ARGUMENTS
 .IP \fIfunct_name\fR

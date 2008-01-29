@@ -5,16 +5,16 @@ hal_signal_new, hal_signal_delete, hal_link, hal_unlink \- Manipulate HAL signal
 
 .SH SYNTAX
 .HP
-int hal_signal_new(char *\fIsignal_name\fR, hal_type_t \fItype\fR)
+int hal_signal_new(const char *\fIsignal_name\fR, hal_type_t \fItype\fR)
 
 .HP
-int hal_signal_delete(char *\fIsignal_name\fR)
+int hal_signal_delete(const char *\fIsignal_name\fR)
 
 .HP
-int hal_link(char *\fIpin_name\fR, char *\fIsignal_name\fR)
+int hal_link(const char *\fIpin_name\fR, const char *\fIsignal_name\fR)
 
 .HP
-int hal_unlink(char *\fIpin_name\fR)
+int hal_unlink(const char *\fIpin_name\fR)
 .SH  ARGUMENTS
 .IP \fIsignal_name\fR
 The name of the signal

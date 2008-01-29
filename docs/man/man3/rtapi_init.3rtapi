@@ -5,7 +5,7 @@ rtapi_init \- Sets up RTAPI
 
 .SH SYNTAX
 .HP
- int rtapi_init(char *\fImodname\fR)
+ int rtapi_init(const char *\fImodname\fR)
 
 .SH ARGUMENTS
 .IP \fImodname\fR

@@ -5,7 +5,7 @@ hal_set_constructor \- Set the constructor function for this component
 
 .SH SYNTAX
 .HP
-typedef int (*hal_constructor_t)(char *prefix, char *arg);
+typedef int (*hal_constructor_t)(const char *prefix, const char *arg);
 int hal_set_constructor(int \fIcomp_id\fR, hal_constructor_t \fIconstructor\fR)
 
 .SH  ARGUMENTS

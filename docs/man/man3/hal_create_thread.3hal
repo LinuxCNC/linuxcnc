@@ -5,10 +5,10 @@ hal_create_thread \- Create a HAL thread
 
 .SH SYNTAX
 .HP
-int hal_create_thread(char *\fIname\fR, unsigned long \fIperiod\fR, int \fIuses_fp\fR)
+int hal_create_thread(const char *\fIname\fR, unsigned long \fIperiod\fR, int \fIuses_fp\fR)
 
 .HP
-int hal_thread_delete(char *\fIname\fR)
+int hal_thread_delete(const char *\fIname\fR)
 
 .SH  ARGUMENTS
 .IP \fIname\fR

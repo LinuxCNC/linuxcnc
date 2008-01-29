@@ -5,7 +5,7 @@ hal_init \- Sets up HAL and RTAPI
 
 .SH SYNTAX
 .HP
- int hal_init(char *\fImodname\fR)
+ int hal_init(const char *\fImodname\fR)
 
 .SH ARGUMENTS
 .IP \fImodname\fR

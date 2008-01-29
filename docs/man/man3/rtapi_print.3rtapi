@@ -11,7 +11,7 @@ rtapi_print, rtapi_print_msg \- print diagnostic messages
  void rtapi_print_msg(int level, const char *\fIfmt\fR, \fI...\fR)
 
 .HP
- typedef void(*\fBrtapi_msg_handler_t\fR)(msg_level_t \fIlevel\fR, char *\fImsg\fR);
+ typedef void(*\fBrtapi_msg_handler_t\fR)(msg_level_t \fIlevel\fR, const char *\fImsg\fR);
 .HP
  void \fBrtapi_set_msg_handler\fR(rtapi_msg_handler_t \fIhandler\fR);
 .HP

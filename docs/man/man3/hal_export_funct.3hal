@@ -7,7 +7,7 @@ hal_export_funct \- create a realtime function callable from a thread
 .HP
 typedef void(*hal_funct_t)(void * \fIarg\fR, long \fIperiod\fR)
 .HP
-int hal_export_funct(char *\fIname\fR, hal_funct_t \fIfunct\fR, void *\fIarg\fR, int \fIuses_fp\fR, int \fIreentrant\fR, int \fIcomp_id\fR)
+int hal_export_funct(const char *\fIname\fR, hal_funct_t \fIfunct\fR, void *\fIarg\fR, int \fIuses_fp\fR, int \fIreentrant\fR, int \fIcomp_id\fR)
 
 .SH  ARGUMENTS
 .IP \fIname\fR
