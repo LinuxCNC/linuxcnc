@@ -28,7 +28,7 @@
 #include <ctype.h>
 #include "tokenizer.h"
 
-token_file_t *tf_open(char *name, int max_token_len, char *delims,
+token_file_t *tf_open(const char *name, int max_token_len, const char *delims,
                       char escape, char comment, char quote)
 {
     token_file_t *tf;

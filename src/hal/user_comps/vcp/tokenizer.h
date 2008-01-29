@@ -63,7 +63,7 @@ typedef struct {
        recognized inside quoted strings.
 */
    
-token_file_t *tf_open(char *name, int max_token_len, char *delims,
+token_file_t *tf_open(const char *name, int max_token_len, const char *delims,
                       char escape, char comment, char quote);
 
 /** 'tf_get_token()' returns the next token from the file.  It is returned

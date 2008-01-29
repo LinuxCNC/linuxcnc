@@ -116,7 +116,8 @@ int main(int argc, char **argv)
     void *shmem_ptr;
     fifo_t *fifo;
     shmem_data_t *data, *dptr;
-    char buf[BUF_SIZE], *errmsg;
+    char buf[BUF_SIZE];
+	const char *errmsg;
     int tmpin, newin;
     struct timespec delay;
 
