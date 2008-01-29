@@ -2102,7 +2102,7 @@ char *get_ip_address(char *hostname)
     struct hostent *host_entry;
     host_entry = gethostbyname(hostname);
     if (NULL == host_entry) {
-	return "UNKNOWN";
+	return const_cast< char * >("UNKNOWN");
     }
     socket_address.sin_addr.s_addr = *((int *) host_entry->h_addr_list[0]);
     socket_address.sin_family = host_entry->h_addrtype;
