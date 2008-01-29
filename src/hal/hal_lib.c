@@ -166,7 +166,7 @@ static void thread_task(void *arg);
 
 static int ref_cnt;
 
-int hal_init(char *name)
+int hal_init(const char *name)
 {
     int comp_id, mem_id, retval;
     void *mem;
@@ -485,33 +485,33 @@ unsigned char hal_get_lock() {
 
 /* wrapper functs for typed pins - these call the generic funct below */
 
-int hal_pin_bit_new(char *name, hal_pin_dir_t dir,
+int hal_pin_bit_new(const char *name, hal_pin_dir_t dir,
     hal_bit_t ** data_ptr_addr, int comp_id)
 {
     return hal_pin_new(name, HAL_BIT, dir, (void **) data_ptr_addr, comp_id);
 }
 
-int hal_pin_float_new(char *name, hal_pin_dir_t dir,
+int hal_pin_float_new(const char *name, hal_pin_dir_t dir,
     hal_float_t ** data_ptr_addr, int comp_id)
 {
     return hal_pin_new(name, HAL_FLOAT, dir, (void **) data_ptr_addr,
 	comp_id);
 }
 
-int hal_pin_u32_new(char *name, hal_pin_dir_t dir,
+int hal_pin_u32_new(const char *name, hal_pin_dir_t dir,
     hal_u32_t ** data_ptr_addr, int comp_id)
 {
     return hal_pin_new(name, HAL_U32, dir, (void **) data_ptr_addr, comp_id);
 }
 
-int hal_pin_s32_new(char *name, hal_pin_dir_t dir,
+int hal_pin_s32_new(const char *name, hal_pin_dir_t dir,
     hal_s32_t ** data_ptr_addr, int comp_id)
 {
     return hal_pin_new(name, HAL_S32, dir, (void **) data_ptr_addr, comp_id);
 }
 
 int hal_pin_bit_newf(hal_pin_dir_t dir,
-    hal_bit_t ** data_ptr_addr, int comp_id, char *fmt, ...)
+    hal_bit_t ** data_ptr_addr, int comp_id, const char *fmt, ...)
 {
     char name[HAL_NAME_LEN];
     va_list ap;
@@ -524,7 +524,7 @@ int hal_pin_bit_newf(hal_pin_dir_t dir,
 }
 
 int hal_pin_float_newf(hal_pin_dir_t dir,
-    hal_float_t ** data_ptr_addr, int comp_id, char *fmt, ...)
+    hal_float_t ** data_ptr_addr, int comp_id, const char *fmt, ...)
 {
     char name[HAL_NAME_LEN];
     va_list ap;
@@ -538,7 +538,7 @@ int hal_pin_float_newf(hal_pin_dir_t dir,
 }
 
 int hal_pin_u32_newf(hal_pin_dir_t dir,
-    hal_u32_t ** data_ptr_addr, int comp_id, char *fmt, ...)
+    hal_u32_t ** data_ptr_addr, int comp_id, const char *fmt, ...)
 {
     char name[HAL_NAME_LEN];
     va_list ap;
@@ -551,7 +551,7 @@ int hal_pin_u32_newf(hal_pin_dir_t dir,
 }
 
 int hal_pin_s32_newf(hal_pin_dir_t dir,
-    hal_s32_t ** data_ptr_addr, int comp_id, char *fmt, ...)
+    hal_s32_t ** data_ptr_addr, int comp_id, const char *fmt, ...)
 {
     char name[HAL_NAME_LEN];
     va_list ap;
@@ -566,7 +566,7 @@ int hal_pin_s32_newf(hal_pin_dir_t dir,
 
 /* this is a generic function that does the majority of the work. */
 
-int hal_pin_new(char *name, hal_type_t type, hal_pin_dir_t dir,
+int hal_pin_new(const char *name, hal_type_t type, hal_pin_dir_t dir,
     void **data_ptr_addr, int comp_id)
 {
     int *prev, next, cmp;
@@ -667,7 +667,7 @@ int hal_pin_new(char *name, hal_type_t type, hal_pin_dir_t dir,
 *                      "SIGNAL" FUNCTIONS                              *
 ************************************************************************/
 
-int hal_signal_new(char *name, hal_type_t type)
+int hal_signal_new(const char *name, hal_type_t type)
 {
 
     int *prev, next, cmp;
@@ -769,7 +769,7 @@ int hal_signal_new(char *name, hal_type_t type)
     }
 }
 
-int hal_signal_delete(char *name)
+int hal_signal_delete(const char *name)
 {
     hal_sig_t *sig;
     int *prev, next;
@@ -814,7 +814,7 @@ int hal_signal_delete(char *name)
     return HAL_INVAL;
 }
 
-int hal_link(char *pin_name, char *sig_name)
+int hal_link(const char *pin_name, const char *sig_name)
 {
     hal_pin_t *pin;
     hal_sig_t *sig;
@@ -925,7 +925,7 @@ int hal_link(char *pin_name, char *sig_name)
     return HAL_SUCCESS;
 }
 
-int hal_unlink(char *pin_name)
+int hal_unlink(const char *pin_name)
 {
     hal_pin_t *pin;
 
@@ -971,32 +971,32 @@ int hal_unlink(char *pin_name)
 
 /* wrapper functs for typed params - these call the generic funct below */
 
-int hal_param_bit_new(char *name, hal_param_dir_t dir, hal_bit_t * data_addr,
+int hal_param_bit_new(const char *name, hal_param_dir_t dir, hal_bit_t * data_addr,
     int comp_id)
 {
     return hal_param_new(name, HAL_BIT, dir, (void *) data_addr, comp_id);
 }
 
-int hal_param_float_new(char *name, hal_param_dir_t dir, hal_float_t * data_addr,
+int hal_param_float_new(const char *name, hal_param_dir_t dir, hal_float_t * data_addr,
     int comp_id)
 {
     return hal_param_new(name, HAL_FLOAT, dir, (void *) data_addr, comp_id);
 }
 
-int hal_param_u32_new(char *name, hal_param_dir_t dir, hal_u32_t * data_addr,
+int hal_param_u32_new(const char *name, hal_param_dir_t dir, hal_u32_t * data_addr,
     int comp_id)
 {
     return hal_param_new(name, HAL_U32, dir, (void *) data_addr, comp_id);
 }
 
-int hal_param_s32_new(char *name, hal_param_dir_t dir, hal_s32_t * data_addr,
+int hal_param_s32_new(const char *name, hal_param_dir_t dir, hal_s32_t * data_addr,
     int comp_id)
 {
     return hal_param_new(name, HAL_S32, dir, (void *) data_addr, comp_id);
 }
 
 int hal_param_bit_newf(hal_param_dir_t dir, hal_bit_t * data_addr,
-    int comp_id, char *fmt, ...)
+    int comp_id, const char *fmt, ...)
 {
     char name[HAL_NAME_LEN];
     va_list ap;
@@ -1009,7 +1009,7 @@ int hal_param_bit_newf(hal_param_dir_t dir, hal_bit_t * data_addr,
 }
 
 int hal_param_float_newf(hal_param_dir_t dir, hal_float_t * data_addr,
-    int comp_id, char *fmt, ...)
+    int comp_id, const char *fmt, ...)
 {
     char name[HAL_NAME_LEN];
     va_list ap;
@@ -1022,7 +1022,7 @@ int hal_param_float_newf(hal_param_dir_t dir, hal_float_t * data_addr,
 }
 
 int hal_param_u32_newf(hal_param_dir_t dir, hal_u32_t * data_addr,
-    int comp_id, char *fmt, ...)
+    int comp_id, const char *fmt, ...)
 {
     char name[HAL_NAME_LEN];
     va_list ap;
@@ -1035,7 +1035,7 @@ int hal_param_u32_newf(hal_param_dir_t dir, hal_u32_t * data_addr,
 }
 
 int hal_param_s32_newf(hal_param_dir_t dir, hal_s32_t * data_addr,
-    int comp_id, char *fmt, ...)
+    int comp_id, const char *fmt, ...)
 {
     char name[HAL_NAME_LEN];
     va_list ap;
@@ -1050,7 +1050,7 @@ int hal_param_s32_newf(hal_param_dir_t dir, hal_s32_t * data_addr,
 
 /* this is a generic function that does the majority of the work. */
 
-int hal_param_new(char *name, hal_type_t type, hal_param_dir_t dir, void *data_addr,
+int hal_param_new(const char *name, hal_type_t type, hal_param_dir_t dir, void *data_addr,
     int comp_id)
 {
     int *prev, next, cmp;
@@ -1146,29 +1146,29 @@ int hal_param_new(char *name, hal_type_t type, hal_param_dir_t dir, void *data_a
 
 /* wrapper functs for typed params - these call the generic funct below */
 
-int hal_param_bit_set(char *name, int value)
+int hal_param_bit_set(const char *name, int value)
 {
     return hal_param_set(name, HAL_BIT, &value);
 }
 
-int hal_param_float_set(char *name, float value)
+int hal_param_float_set(const char *name, float value)
 {
     return hal_param_set(name, HAL_FLOAT, &value);
 }
 
-int hal_param_u32_set(char *name, unsigned long value)
+int hal_param_u32_set(const char *name, unsigned long value)
 {
     return hal_param_set(name, HAL_U32, &value);
 }
 
-int hal_param_s32_set(char *name, signed long value)
+int hal_param_s32_set(const char *name, signed long value)
 {
     return hal_param_set(name, HAL_S32, &value);
 }
 
 /* this is a generic function that does the majority of the work */
 
-int hal_param_set(char *name, hal_type_t type, void *value_addr)
+int hal_param_set(const char *name, hal_type_t type, void *value_addr)
 {
     hal_param_t *param;
     void *d_ptr;
@@ -1248,7 +1248,7 @@ int hal_param_set(char *name, hal_type_t type, void *value_addr)
 
 #ifdef RTAPI
 
-int hal_export_funct(char *name, void (*funct) (void *, long),
+int hal_export_funct(const char *name, void (*funct) (void *, long),
     void *arg, int uses_fp, int reentrant, int comp_id)
 {
     int *prev, next, cmp;
@@ -1353,7 +1353,7 @@ int hal_export_funct(char *name, void (*funct) (void *, long),
     return HAL_SUCCESS;
 }
 
-int hal_create_thread(char *name, unsigned long period_nsec, int uses_fp)
+int hal_create_thread(const char *name, unsigned long period_nsec, int uses_fp)
 {
     int next, cmp, prev_priority;
     int retval, n;
@@ -1514,7 +1514,7 @@ int hal_create_thread(char *name, unsigned long period_nsec, int uses_fp)
     return HAL_SUCCESS;
 }
 
-extern int hal_thread_delete(char *name)
+extern int hal_thread_delete(const char *name)
 {
     hal_thread_t *thread;
     int *prev, next;
@@ -1561,7 +1561,7 @@ extern int hal_thread_delete(char *name)
 
 #endif /* RTAPI */
 
-int hal_add_funct_to_thread(char *funct_name, char *thread_name, int position)
+int hal_add_funct_to_thread(const char *funct_name, const char *thread_name, int position)
 {
     hal_thread_t *thread;
     hal_funct_t *funct;
@@ -1693,7 +1693,7 @@ int hal_add_funct_to_thread(char *funct_name, char *thread_name, int position)
     return HAL_SUCCESS;
 }
 
-int hal_del_funct_from_thread(char *funct_name, char *thread_name)
+int hal_del_funct_from_thread(const char *funct_name, const char *thread_name)
 {
     hal_thread_t *thread;
     hal_funct_t *funct;
@@ -1900,7 +1900,7 @@ hal_list_t *list_remove_entry(hal_list_t * entry)
     return next;
 }
 
-hal_comp_t *halpr_find_comp_by_name(char *name)
+hal_comp_t *halpr_find_comp_by_name(const char *name)
 {
     int next;
     hal_comp_t *comp;
@@ -1920,7 +1920,7 @@ hal_comp_t *halpr_find_comp_by_name(char *name)
     return 0;
 }
 
-hal_pin_t *halpr_find_pin_by_name(char *name)
+hal_pin_t *halpr_find_pin_by_name(const char *name)
 {
     int next;
     hal_pin_t *pin;
@@ -1940,7 +1940,7 @@ hal_pin_t *halpr_find_pin_by_name(char *name)
     return 0;
 }
 
-hal_sig_t *halpr_find_sig_by_name(char *name)
+hal_sig_t *halpr_find_sig_by_name(const char *name)
 {
     int next;
     hal_sig_t *sig;
@@ -1960,7 +1960,7 @@ hal_sig_t *halpr_find_sig_by_name(char *name)
     return 0;
 }
 
-hal_param_t *halpr_find_param_by_name(char *name)
+hal_param_t *halpr_find_param_by_name(const char *name)
 {
     int next;
     hal_param_t *param;
@@ -1980,7 +1980,7 @@ hal_param_t *halpr_find_param_by_name(char *name)
     return 0;
 }
 
-hal_thread_t *halpr_find_thread_by_name(char *name)
+hal_thread_t *halpr_find_thread_by_name(const char *name)
 {
     int next;
     hal_thread_t *thread;
@@ -2000,7 +2000,7 @@ hal_thread_t *halpr_find_thread_by_name(char *name)
     return 0;
 }
 
-hal_funct_t *halpr_find_funct_by_name(char *name)
+hal_funct_t *halpr_find_funct_by_name(const char *name)
 {
     int next;
     hal_funct_t *funct;

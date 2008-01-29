@@ -365,12 +365,12 @@ hal_list_t *list_remove_entry(hal_list_t * entry);
     an object that matches 'name'.  They return a pointer to the object,
     or NULL if no matching object is found.
 */
-extern hal_comp_t *halpr_find_comp_by_name(char *name);
-extern hal_pin_t *halpr_find_pin_by_name(char *name);
-extern hal_sig_t *halpr_find_sig_by_name(char *name);
-extern hal_param_t *halpr_find_param_by_name(char *name);
-extern hal_thread_t *halpr_find_thread_by_name(char *name);
-extern hal_funct_t *halpr_find_funct_by_name(char *name);
+extern hal_comp_t *halpr_find_comp_by_name(const char *name);
+extern hal_pin_t *halpr_find_pin_by_name(const char *name);
+extern hal_sig_t *halpr_find_sig_by_name(const char *name);
+extern hal_param_t *halpr_find_param_by_name(const char *name);
+extern hal_thread_t *halpr_find_thread_by_name(const char *name);
+extern hal_funct_t *halpr_find_funct_by_name(const char *name);
 
 /** Allocates a HAL component structure */
 extern hal_comp_t *halpr_alloc_comp_struct(void);

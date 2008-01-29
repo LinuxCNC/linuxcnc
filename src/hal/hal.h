@@ -182,7 +182,7 @@ extern "C" {
     Call only from within user space or init/cleanup code, not from
     realtime code.
 */
-extern int hal_init(char *name);
+extern int hal_init(const char *name);
 
 /** 'hal_exit()' must be called before a HAL component exits, to
     free resources associated with the component.
@@ -348,13 +348,13 @@ extern unsigned char hal_get_lock(void);
     If successful, the hal_pin_xxx_new() functions return HAL_SUCCESS.
     On failure they return a negative error code.
 */
-extern int hal_pin_bit_new(char *name, hal_pin_dir_t dir,
+extern int hal_pin_bit_new(const char *name, hal_pin_dir_t dir,
     hal_bit_t ** data_ptr_addr, int comp_id);
-extern int hal_pin_float_new(char *name, hal_pin_dir_t dir,
+extern int hal_pin_float_new(const char *name, hal_pin_dir_t dir,
     hal_float_t ** data_ptr_addr, int comp_id);
-extern int hal_pin_u32_new(char *name, hal_pin_dir_t dir,
+extern int hal_pin_u32_new(const char *name, hal_pin_dir_t dir,
     hal_u32_t ** data_ptr_addr, int comp_id);
-extern int hal_pin_s32_new(char *name, hal_pin_dir_t dir,
+extern int hal_pin_s32_new(const char *name, hal_pin_dir_t dir,
     hal_s32_t ** data_ptr_addr, int comp_id);
 
 /** The hal_pin_XXX_newf family of functions are similar to
@@ -364,16 +364,16 @@ extern int hal_pin_s32_new(char *name, hal_pin_dir_t dir,
     On failure they return a negative error code.
 */
 extern int hal_pin_bit_newf(hal_pin_dir_t dir,
-    hal_bit_t ** data_ptr_addr, int comp_id, char *fmt, ...)
+    hal_bit_t ** data_ptr_addr, int comp_id, const char *fmt, ...)
 	__attribute__((format(printf,4,5)));
 extern int hal_pin_float_newf(hal_pin_dir_t dir,
-    hal_float_t ** data_ptr_addr, int comp_id, char *fmt, ...)
+    hal_float_t ** data_ptr_addr, int comp_id, const char *fmt, ...)
 	__attribute__((format(printf,4,5)));
 extern int hal_pin_u32_newf(hal_pin_dir_t dir,
-    hal_u32_t ** data_ptr_addr, int comp_id, char *fmt, ...)
+    hal_u32_t ** data_ptr_addr, int comp_id, const char *fmt, ...)
 	__attribute__((format(printf,4,5)));
 extern int hal_pin_s32_newf(hal_pin_dir_t dir,
-    hal_s32_t ** data_ptr_addr, int comp_id, char *fmt, ...)
+    hal_s32_t ** data_ptr_addr, int comp_id, const char *fmt, ...)
 	__attribute__((format(printf,4,5)));
 
 
@@ -392,7 +392,7 @@ extern int hal_pin_s32_newf(hal_pin_dir_t dir,
     If successful, hal_pin_new() returns HAL_SUCCESS.  On failure
     it returns a negative error code.
 */
-extern int hal_pin_new(char *name, hal_type_t type, hal_pin_dir_t dir,
+extern int hal_pin_new(const char *name, hal_type_t type, hal_pin_dir_t dir,
     void **data_ptr_addr, int comp_id);
 
 /** There is no 'hal_pin_delete()' function.  Once a component has
@@ -422,7 +422,7 @@ extern int hal_pin_new(char *name, hal_type_t type, hal_pin_dir_t dir,
     If successful, 'hal_signal_new() returns HAL_SUCCESS.  On failure
     it returns a negative error code.
 */
-extern int hal_signal_new(char *name, hal_type_t type);
+extern int hal_signal_new(const char *name, hal_type_t type);
 
 /** 'hal_signal_delete()' deletes a signal object.  Any pins linked to
     the object are unlinked.
@@ -430,7 +430,7 @@ extern int hal_signal_new(char *name, hal_type_t type);
     If successful, 'hal_signal_delete()' returns HAL_SUCCESS.  On
     failure, it returns a negative error code.
 */
-extern int hal_signal_delete(char *name);
+extern int hal_signal_delete(const char *name);
 
 /** 'hal_link()' links a pin to a signal.  'pin_name' and 'sig_name' are
     strings containing the pin and signal names.  If the pin is already
@@ -443,14 +443,14 @@ extern int hal_signal_delete(char *name);
     On success, hal_link() returns HAL_SUCCESS, on failure it returns a
     negative error code.
 */
-extern int hal_link(char *pin_name, char *sig_name);
+extern int hal_link(const char *pin_name, const char *sig_name);
 
 /** 'hal_unlink()' unlinks any signal from the specified pin.  'pin_name'
     is a string containing the pin name.
     On success, hal_unlink() returns HAL_SUCCESS, on failure it
     returns a negative error code.
 */
-extern int hal_unlink(char *pin_name);
+extern int hal_unlink(const char *pin_name);
 
 /***********************************************************************
 *                     "PARAMETER" FUNCTIONS                            *
@@ -488,27 +488,27 @@ extern int hal_unlink(char *pin_name);
     If successful, the hal_param_xxx_new() functions return HAL_SUCCESS.
     On failure they return a negative error code.
 */
-extern int hal_param_bit_new(char *name, hal_param_dir_t dir,
+extern int hal_param_bit_new(const char *name, hal_param_dir_t dir,
     hal_bit_t * data_addr, int comp_id);
-extern int hal_param_float_new(char *name, hal_param_dir_t dir,
+extern int hal_param_float_new(const char *name, hal_param_dir_t dir,
     hal_float_t * data_addr, int comp_id);
-extern int hal_param_u32_new(char *name, hal_param_dir_t dir,
+extern int hal_param_u32_new(const char *name, hal_param_dir_t dir,
     hal_u32_t * data_addr, int comp_id);
-extern int hal_param_s32_new(char *name, hal_param_dir_t dir,
+extern int hal_param_s32_new(const char *name, hal_param_dir_t dir,
     hal_s32_t * data_addr, int comp_id);
 
 /** printf_style-style versions of hal_param_XXX_new */
 extern int hal_param_bit_newf(hal_param_dir_t dir, 
-    hal_bit_t * data_addr, int comp_id, char *fmt, ...)
+    hal_bit_t * data_addr, int comp_id, const char *fmt, ...)
 	__attribute__((format(printf,4,5)));
 extern int hal_param_float_newf(hal_param_dir_t dir,
-    hal_float_t * data_addr, int comp_id, char *fmt, ...)
+    hal_float_t * data_addr, int comp_id, const char *fmt, ...)
 	__attribute__((format(printf,4,5)));
 extern int hal_param_u32_newf(hal_param_dir_t dir,
-    hal_u32_t * data_addr, int comp_id, char *fmt, ...)
+    hal_u32_t * data_addr, int comp_id, const char *fmt, ...)
 	__attribute__((format(printf,4,5)));
 extern int hal_param_s32_newf(hal_param_dir_t dir,
-    hal_s32_t * data_addr, int comp_id, char *fmt, ...)
+    hal_s32_t * data_addr, int comp_id, const char *fmt, ...)
 	__attribute__((format(printf,4,5)));
 
 
@@ -531,7 +531,7 @@ extern int hal_param_s32_newf(hal_param_dir_t dir,
     If successful, hal_param_new() returns HAL_SUCCESS.  On failure
     it returns a negative error code.
 */
-extern int hal_param_new(char *name, hal_type_t type, hal_param_dir_t dir,
+extern int hal_param_new(const char *name, hal_type_t type, hal_param_dir_t dir,
     void *data_addr, int comp_id);
 
 /** There is no 'hal_param_delete()' function.  Once a component has
@@ -548,10 +548,10 @@ extern int hal_param_new(char *name, hal_type_t type, hal_param_dir_t dir,
     On success, the hal_param_xxx_set() functions return HAL_SUCCESS,
     and on failure they return a negative error code.
 */
-extern int hal_param_bit_set(char *name, int value);
-extern int hal_param_float_set(char *name, float value);
-extern int hal_param_u32_set(char *name, unsigned long value);
-extern int hal_param_s32_set(char *name, signed long value);
+extern int hal_param_bit_set(const char *name, int value);
+extern int hal_param_float_set(const char *name, float value);
+extern int hal_param_u32_set(const char *name, unsigned long value);
+extern int hal_param_s32_set(const char *name, signed long value);
 
 /** 'hal_param_set()' is a generic function that sets the value of a
     parameter.  It is provided ONLY for those special cases where a
@@ -568,7 +568,7 @@ extern int hal_param_s32_set(char *name, signed long value);
     If successful, hal_param_set() returns HAL_SUCCESS.  On failure
     it returns a negative error code.
 */
-extern int hal_param_set(char *name, hal_type_t type, void *value_addr);
+extern int hal_param_set(const char *name, hal_type_t type, void *value_addr);
 
 /***********************************************************************
 *                   EXECUTION RELATED FUNCTIONS                        *
@@ -608,7 +608,7 @@ extern int hal_param_set(char *name, hal_type_t type, void *value_addr);
     Call only from realtime init code, not from user space or
     realtime code.
 */
-extern int hal_export_funct(char *name, void (*funct) (void *, long),
+extern int hal_export_funct(const char *name, void (*funct) (void *, long),
     void *arg, int uses_fp, int reentrant, int comp_id);
 
 /** hal_create_thread() establishes a realtime thread that will
@@ -633,7 +633,7 @@ extern int hal_export_funct(char *name, void (*funct) (void *, long),
     above.  Call only from realtime init code, not from user
     space or realtime code.
 */
-extern int hal_create_thread(char *name, unsigned long period_nsec,
+extern int hal_create_thread(const char *name, unsigned long period_nsec,
     int uses_fp);
 
 /** hal_thread_delete() deletes a realtime thread.
@@ -644,7 +644,7 @@ extern int hal_create_thread(char *name, unsigned long period_nsec,
     Call only from realtime init code, not from user
     space or realtime code.
 */
-extern int hal_thread_delete(char *name);
+extern int hal_thread_delete(const char *name);
 
 #endif /* RTAPI */
 
@@ -669,7 +669,7 @@ extern int hal_thread_delete(char *name);
     only from within user space or init code, not from
     realtime code.
 */
-extern int hal_add_funct_to_thread(char *funct_name, char *thread_name,
+extern int hal_add_funct_to_thread(const char *funct_name, const char *thread_name,
     int position);
 
 /** hal_del_funct_from_thread() removes a function from a thread.
@@ -681,7 +681,7 @@ extern int hal_add_funct_to_thread(char *funct_name, char *thread_name,
     only from within user space or init code, not from
     realtime code.
 */
-extern int hal_del_funct_from_thread(char *funct_name, char *thread_name);
+extern int hal_del_funct_from_thread(const char *funct_name, const char *thread_name);
 
 /** hal_start_threads() starts all threads that have been created.
     This is the point at which realtime functions start being called.
