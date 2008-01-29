@@ -177,7 +177,7 @@ void reportError(const char *fmt, ...)
 }
 
 rtapi_msg_handler_t old_handler = NULL;
-static void emc_message_handler(msg_level_t level, char *message) {
+static void emc_message_handler(msg_level_t level, const char *message) {
     if(level == RTAPI_MSG_ERR) emcmotErrorPut(emcmotError, message);
     if(old_handler) old_handler(level, message);
 }

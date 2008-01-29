@@ -69,7 +69,7 @@ void print_pose ( EmcPose *pos )
 // #define ENABLE_CHECK_STUFF
 
 #ifdef ENABLE_CHECK_STUFF
-void check_stuff(char *location)
+void check_stuff(const char *location)
 {
    static char *target, old = 0xFF;
 /*! \todo Another #if 0 */
@@ -94,7 +94,7 @@ void check_stuff(char *location)
     }
 }
 #else /* make it disappear */
-void check_stuff(char *location)
+void check_stuff(const char *location)
 {
 /* do nothing (I wonder if gcc is smart
    enough to optimize the calls away?) */

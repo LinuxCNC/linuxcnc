@@ -74,7 +74,7 @@
 
 /* debugging functions */
 extern void print_pose ( EmcPose *pos );
-extern void check_stuff(char *msg);
+extern void check_stuff(const char *msg);
 
 
 /* value for world home position */

@@ -456,10 +456,10 @@ struct sockaddr_in server_address;
 struct sockaddr_in client_address;
 bool useSockets = true;
 int tokenIdx;
-char *delims = " \n\r\0";
+const char *delims = " \n\r\0";
 int enabledConn = -1;
 
-char *setCommands[] = {
+const char *setCommands[] = {
   "ECHO", "VERBOSE", "ENABLE", "CONFIG", "COMM_MODE", "COMM_PROT", "INIFILE", "PLAT", "INI", "DEBUG",
   "SET_WAIT", "WAIT", "TIMEOUT", "UPDATE", "ERROR", "OPERATOR_DISPLAY", "OPERATOR_TEXT",
   "TIME", "ESTOP", "MACHINE", "MODE", "MIST", "FLOOD", "LUBE", "LUBE_LEVEL",
@@ -474,7 +474,7 @@ char *setCommands[] = {
   "PROBE_VALUE", "PROBE", "TELEOP_ENABLE", "KINEMATICS_TYPE", "OVERRIDE_LIMITS", 
   "SPINDLE_OVERRIDE", "OPTIONAL_STOP", ""};
 
-char *commands[] = {"HELLO", "SET", "GET", "QUIT", "SHUTDOWN", "HELP", ""};
+const char *commands[] = {"HELLO", "SET", "GET", "QUIT", "SHUTDOWN", "HELP", ""};
 
 /* static char *skipWhite(char *s)
 {

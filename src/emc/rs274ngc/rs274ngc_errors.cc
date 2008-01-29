@@ -23,7 +23,7 @@
 #define _(string) (string)
 #endif
 
-char * _rs274ngc_errors[] = {
+const char * _rs274ngc_errors[] = {
 /*   0 */ _("No error"),
 /*   1 */ _("No error"),
 /*   2 */ _("No error"),
