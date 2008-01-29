@@ -95,7 +95,7 @@ int main(int argc, char * argv[])
     int axis_exported[MAX_AXIS];
     int button_exported[MAX_BUTTON];
     hal_js_t *js_data;
-    char *device, *prefix;
+    const char *device, *prefix;
     char name[HAL_NAME_LEN + 2];
     struct stat sb;
     int devmajor, devminor, chardev;
