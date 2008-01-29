@@ -143,11 +143,9 @@ void process_options (int argc, char *argv[])
 				nogui = 1;
 				break;
 			case 'c':
-	#ifndef RT_SUPPORT
+	
 				read_config (optarg);
-	#else
-				printf("Config file is used by the RT module in RTLinux version !!!\n");
-	#endif
+	
 				break;
 			case 'p':
 				ModbusServerPort = atoi( optarg );
