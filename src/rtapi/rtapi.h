@@ -116,7 +116,7 @@ extern "C" {			/* Need this when the header is included in a
     above.  Call only from within user or init/cleanup code, not
     from realtime tasks.
 */
-    extern int rtapi_init(char *modname);
+    extern int rtapi_init(const char *modname);
 
 /** 'rtapi_exit()' shuts down and cleans up the RTAPI.  It must be
     called prior to exit by any module that called rtapi_init.
@@ -216,7 +216,7 @@ extern "C" {			/* Need this when the header is included in a
     'level' is RTAPI_MSG_ALL, a level which should not normally be used
     with rtapi_print_msg().
 */
-    typedef void(*rtapi_msg_handler_t)(msg_level_t level, char *msg);
+    typedef void(*rtapi_msg_handler_t)(msg_level_t level, const char *msg);
 #ifdef RTAPI
     extern void rtapi_set_msg_handler(rtapi_msg_handler_t handler);
     extern rtapi_msg_handler_t rtapi_get_msg_handler(void);
@@ -805,11 +805,11 @@ extern "C" {			/* Need this when the header is included in a
     t rtapi_info_##a = c; EXPORT_SYMBOL(rtapi_info_##a);
 #define MODULE_INFO2(t, a, b, c) __attribute__((section(".modinfo"))) \
     t rtapi_info_##a##_##b = c; EXPORT_SYMBOL(rtapi_info_##a##_##b);
-#define MODULE_PARM(v,t) MODULE_INFO2(char*, type, v, t) MODULE_INFO2(void*, address, v, &v)
-#define MODULE_PARM_DESC(v,t) MODULE_INFO2(char*, description, v, t)
-#define MODULE_LICENSE(s) MODULE_INFO1(char*, license, s)
-#define MODULE_AUTHOR(s) MODULE_INFO1(char*, author, s)
-#define MODULE_DESCRIPTION(s) MODULE_INFO1(char*, description, s)
+#define MODULE_PARM(v,t) MODULE_INFO2(const char*, type, v, t) MODULE_INFO2(void*, address, v, &v)
+#define MODULE_PARM_DESC(v,t) MODULE_INFO2(const char*, description, v, t)
+#define MODULE_LICENSE(s) MODULE_INFO1(const char*, license, s)
+#define MODULE_AUTHOR(s) MODULE_INFO1(const char*, author, s)
+#define MODULE_DESCRIPTION(s) MODULE_INFO1(const char*, description, s)
 #define EXPORT_SYMBOL(x) __attribute__((section(".rtapi_export"))) \
     char rtapi_exported_##x[] = #x;
 #endif

@@ -344,7 +344,7 @@ simply register that another module is using the RTAPI.
 For other RTOSes, things might be different, especially
 if the RTOS does not use modules. */
 
-int rtapi_init(char *modname)
+int rtapi_init(const char *modname)
 {
     int n, module_id;
     module_data *module;

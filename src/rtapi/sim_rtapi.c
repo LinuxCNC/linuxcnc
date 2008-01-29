@@ -99,7 +99,7 @@ int rtapi_prio_next_lower(int prio)
 }
 
 
-int rtapi_init(char *modname)
+int rtapi_init(const char *modname)
 {
   int n, result=0;
   /* clear the task array - if magic doesn't contain the magic

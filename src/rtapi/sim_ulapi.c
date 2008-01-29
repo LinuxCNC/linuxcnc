@@ -24,7 +24,7 @@
 #include "rtapi.h"
 #include <unistd.h>
 
-int rtapi_init(char *modname)
+int rtapi_init(const char *modname)
 {
   /* does nothing, for now */
   return getpid();

@@ -122,7 +122,7 @@ int rtapi_shmem_delete(int handle, int module_id)
 
 #define BUFFERLEN 1024
 
-void default_rtapi_msg_handler(msg_level_t level, char *buffer) {
+void default_rtapi_msg_handler(msg_level_t level, const char *buffer) {
     if(level == RTAPI_MSG_ALL)
 	fputs(buffer, stdout);
     else

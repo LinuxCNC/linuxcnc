@@ -107,7 +107,7 @@ static int msg_level = RTAPI_MSG_INFO;	/* message printing level */
    that will be running rtapi processes.
 */
 
-int rtapi_init(char *modname)
+int rtapi_init(const char *modname)
 {
     int n, module_id;
     module_data *module;

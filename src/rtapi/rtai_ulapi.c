@@ -99,7 +99,7 @@ static int msg_level = RTAPI_MSG_ERR;	/* message printing level */
 *                      GENERAL PURPOSE FUNCTIONS                       *
 ************************************************************************/
 
-int rtapi_init(char *modname)
+int rtapi_init(const char *modname)
 {
     int n, module_id;
     module_data *module;
