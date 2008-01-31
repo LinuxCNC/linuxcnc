@@ -1,5 +1,5 @@
 /* Classic Ladder Project */
-/* Copyright (C) 2001-2007 Marc Le Douarain */
+/* Copyright (C) 2001-2008 Marc Le Douarain */
 /* http://membres.lycos.fr/mavati/classicladder/ */
 /* http://www.sourceforge.net/projects/classicladder */
 /* May 2001 */
@@ -295,7 +295,7 @@ char * TextParserForArithmExpr(char * text, int TypeElement)
 		char SymbolFound = FALSE;
 		int SymbolLength = 1;
 
-//printf("current ptr = %c\n", *ptr );
+//printf("current ptr = '%c'\n", *ptr );
 
 		// verify if it seems to be a symbol name...
 		if ( ( *ptr>='A' && *ptr<='Z' ) || ( *ptr>='a' && * ptr<='z' ) )
@@ -322,8 +322,11 @@ char * TextParserForArithmExpr(char * text, int TypeElement)
 		}
 
 		/* Verify if it is a variable (character and number) (or a symbol already found) */
-		if ( SymbolFound==TRUE || ( *ptr=='%' && ( ( *(ptr+2)>='0' && *(ptr+2)<='9' ) || ( *(ptr+3)>='0' && *(ptr+3)<='9' ) ) ) )
+//		if ( SymbolFound==TRUE || ( *ptr=='%' && ( ( *(ptr+2)>='0' && *(ptr+2)<='9' ) || ( *(ptr+3)>='0' && *(ptr+3)<='9' ) ) ) )
+		// Call variable parser if symbol found -or- '%' character
+		if ( SymbolFound==TRUE || *ptr=='%' )
 		{
+//printf("calling parser var...\n");
 			if (TextParserForAVar( SymbolFound==TRUE?SymbolBuff:ptr,&VarType,&VarOffset,&StringLength,FALSE/*PartialNames*/))
 			{
 //printf( "parser var give => %d/%d length=%d\n", VarType, VarOffset, StringLength );
@@ -335,7 +338,8 @@ char * TextParserForArithmExpr(char * text, int TypeElement)
 				if ( *ptr!='[' && VarIndexedIsFound==FALSE )
 					strcat( NewExpr, "@" );
 
-				if ( VarType<VAR_ARE_WORD )
+				if ( TEST_VAR_IS_A_BOOL( VarType,VarOffset ) )
+
 				{
 					ItIsOk = FALSE;
 					ErrorMessageVarParser = "Incompatible type of variable (must be an integer!)";
@@ -343,8 +347,9 @@ char * TextParserForArithmExpr(char * text, int TypeElement)
 			}
 			else
 			{
+//printf("parser var give FALSE!\n");
 				SimpleCharCopy = TRUE;
-				break;
+//				break;
 			}
 		}
 		else
@@ -354,6 +359,7 @@ char * TextParserForArithmExpr(char * text, int TypeElement)
 
 		if ( SimpleCharCopy )
 		{
+//printf("copy:'%c'.\n", *ptr);
 			sprintf(Buffer,"%c",*ptr);
 			strcat(NewExpr, Buffer);
 			// end of variable mark to add now after an indexed one !
@@ -441,7 +447,8 @@ void SaveElementProperties()
 			case ELE_OUTPUT_RESET:
 				if ( TextParserForAVar(GetProperty(0),&VarTypeEntered,&VarNumEntered,NULL,FALSE/*PartialNames*/) )
 				{
-					if ( VarTypeEntered>=VAR_ARE_WORD )
+					if ( !TEST_VAR_IS_A_BOOL( VarTypeEntered,VarNumEntered ) )
+
 					{
 						ShowMessageBox("Error","You must select a boolean variable !","Ok");
 					}
@@ -901,9 +908,11 @@ void ApplyRungEdited()
 	InfosGene->AskConfirmationToQuit = TRUE;
 }
 
+
+
 /* When we fall on an "unusable" element of a big one,
 we return new posix and posiy of the "alive" block */
-void CheckForBlocksOfBigElement(StrRung *pRungToCheck, int * PosiX,int * PosiY)
+void CheckForBlocksOfBigElement(StrRung *pRungToCheck, int * PosiX,int * PosiY )
 {
 	int ScanX,ScanY;
 	int ScanForRule;
@@ -1038,6 +1047,36 @@ void CheckBigElementTopLeft(short int NumEle,int * PosiX)
 	while(RulesForSpecialElements[RulePass][0]!=-1);
 }
 
+void GetSizesOfAnElement(short int NumEle,int * pSizeX, int * pSizeY)
+{
+	int RulePass;
+	// default size of an element	
+	*pSizeX = 1;
+	*pSizeY = 1;
+	RulePass = 0;
+	do
+	{
+		if (RulesForSpecialElements[RulePass][TYPEELERULE] == NumEle )
+		{
+			*pSizeX = RulesForSpecialElements[RulePass][XSIZEELERULE];
+			*pSizeY = RulesForSpecialElements[RulePass][YSIZEELERULE];
+		}
+		RulePass++;
+	}
+	while( RulesForSpecialElements[RulePass][0]!=-1 && *pSizeX==1 && *pSizeY==1 );
+	if ( NumEle==ELE_FREE || NumEle==ELE_CONNECTION || NumEle==ELE_UNUSABLE )
+	{
+		*pSizeX = 0;
+		*pSizeY = 0;
+	}
+	if ( NumEle>=EDIT_CNX_WITH_TOP )
+	{
+		printf("!!!Abnormal current type=%d in rung...(file %s,line %d)\n", NumEle, __FILE__, __LINE__ );
+		*pSizeX = 0;
+		*pSizeY = 0;
+	}
+}
+
 /* return TRUE if contact or coil element */
 int IsASimpleElement(int Element)
 {
@@ -1075,7 +1114,7 @@ void EditElementInRung(double x,double y)
 	{
 		/* check for "unusable" blocks */
 		if (EditDatas.NumElementSelectedInToolBar==EDIT_POINTER || EditDatas.NumElementSelectedInToolBar==EDIT_ERASER )
-			CheckForBlocksOfBigElement(&EditDatas.Rung, &RungX,&RungY);
+			CheckForBlocksOfBigElement( &EditDatas.Rung, &RungX,&RungY );
 		if (EditDatas.NumElementSelectedInToolBar!=EDIT_CNX_WITH_TOP
 				&& EditDatas.NumElementSelectedInToolBar!=EDIT_POINTER
 				&& EditDatas.NumElementSelectedInToolBar!=EDIT_LONG_CONNECTION )
@@ -1094,7 +1133,8 @@ void EditElementInRung(double x,double y)
 				/* the blocks other than the "alive" are now free... */
 				CleanForBigElement(EditDatas.Rung.Element[RungX][RungY].Type,RungX,RungY,ELE_FREE);
 				EditDatas.Rung.Element[RungX][RungY].DynamicOutput = 0;
-				EditDatas.Rung.Element[RungX][RungY].Type = NumElement;
+//v0.7.124				EditDatas.Rung.Element[RungX][RungY].Type = NumElement;
+				EditDatas.Rung.Element[RungX][RungY].Type = ELE_FREE;
 			}
 			else
 			{
@@ -1147,8 +1187,13 @@ void EditElementInRung(double x,double y)
 				EditDatas.Rung.Element[ScanX++][RungY].Type = ELE_CONNECTION;
 			}
 		}
+//printf("current type = %d\n",EditDatas.Rung.Element[RungX][RungY].Type);
 		LoadElementProperties(&EditDatas.Rung.Element[RungX][RungY]);
 		EditDatas.ElementUnderEdit = &EditDatas.Rung.Element[RungX][RungY];
+		// infos used to display the "selected element" box
+		EditDatas.CurrentElementPosiX = RungX;
+		EditDatas.CurrentElementPosiY = RungY;
+		GetSizesOfAnElement( EditDatas.Rung.Element[RungX][RungY].Type, &EditDatas.CurrentElementSizeX, &EditDatas.CurrentElementSizeY);
 	}
 }
 
@@ -1175,7 +1220,7 @@ char * GetLadderElePropertiesForStatusBar(double x,double y)
 		if ( ConvertDoublesToRungCoor( x, y - InfosGene->OffsetCurrentRungDisplayed, &RungX, &RungY ) )
 		{
 			StrElement * Element;
-			CheckForBlocksOfBigElement(&RungArray[InfosGene->CurrentRung], &RungX,&RungY);
+			CheckForBlocksOfBigElement( &RungArray[InfosGene->CurrentRung], &RungX,&RungY );
 			Element = &RungArray[InfosGene->CurrentRung].Element[RungX][RungY];
 			return GetElementPropertiesForStatusBar( Element );
 		}
