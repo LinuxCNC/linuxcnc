@@ -52,7 +52,7 @@
 #include "classicladder_gtk.h"
 #include "manager_gtk.h"
 #include "symbols_gtk.h"
-//#include <gtk/gtk.h>/
+//#include <gtk/gtk.h>
 #endif
 
 
@@ -154,7 +154,7 @@ void InitInfosGene( void )
 // -register the realtime side of shared memory
 // -copies GeneralPararsmirror into GeneralParams now that the number of elements are set
 // -set each element pointer to it's realtime shared memory address
-// -Initialize realtime Infosgene and returns\
+// -Initialize realtime Infosgene and returns
 //          ***USERSPACE***
 // -regester user space side of shared memory
 // -check that realtime shared memory has been done 
