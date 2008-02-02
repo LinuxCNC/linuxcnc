@@ -219,7 +219,7 @@ static int sockWrite(connectionRecType *context)
    return 0;
 }
 
-static void sockWriteError(char *nakStr, connectionRecType *context)
+static void sockWriteError(const char *nakStr, connectionRecType *context)
 {
   if (context->verbose == 1)
     sprintf(context->outBuf, "%s %s", nakStr, errorStr);
@@ -1696,7 +1696,7 @@ static void save_links(FILE *dst, int arrow)
     int next;
     hal_pin_t *pin;
     hal_sig_t *sig;
-    char *arrow_str;
+    const char *arrow_str;
 
     fprintf(dst, "# links\n");
     rtapi_mutex_get(&(hal_data->mutex));
@@ -1722,7 +1722,7 @@ static void save_nets(FILE *dst, int arrow)
     int next;
     hal_pin_t *pin;
     hal_sig_t *sig;
-    char *arrow_str;
+    const char *arrow_str;
 
     fprintf(dst, "# nets\n");
     rtapi_mutex_get(&(hal_data->mutex));
