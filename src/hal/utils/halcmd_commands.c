@@ -2238,7 +2238,7 @@ static void save_links(FILE *dst, int arrow)
     int next;
     hal_pin_t *pin;
     hal_sig_t *sig;
-    char *arrow_str;
+    const char *arrow_str;
 
     fprintf(dst, "# links\n");
     rtapi_mutex_get(&(hal_data->mutex));
@@ -2264,7 +2264,7 @@ static void save_nets(FILE *dst, int arrow)
     int next;
     hal_pin_t *pin;
     hal_sig_t *sig;
-    char *arrow_str;
+    const char *arrow_str;
 
     fprintf(dst, "# nets\n");
     rtapi_mutex_get(&(hal_data->mutex));
