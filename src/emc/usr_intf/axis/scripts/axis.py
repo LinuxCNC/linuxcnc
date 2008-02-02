@@ -1736,8 +1736,13 @@ def open_file_guts(f, filtered = False):
 
     canon = None
     try:
+        # be sure to switch modes to cause an interp synch, which
+        # writes out the var file.  there was a reset here, and that
+        # causes a var file write, but nukes important settings like
+        # TLO.
+        ensure_mode(emc.MODE_MDI)
         ensure_mode(emc.MODE_AUTO)
-        c.reset_interpreter(); c.wait_complete()
+        c.wait_complete()
         c.program_open(f)
         lines = open(f).readlines()
         progress = Progress(4, len(lines)) 
