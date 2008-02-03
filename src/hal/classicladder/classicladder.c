@@ -243,8 +243,8 @@ int main( int   argc, char *argv[] )
 				for(NumRung=0;NumRung<NBR_RUNGS;NumRung++) 
 		 		{ if(RungArray[NumRung].Used) used++; }
 				if(used==0){
-						ProjectLoadedOk = LoadProjectFiles( CurrentProjectFileName );
-						ClassicLadder_InitAllDatas( );	}
+						ClassicLadder_InitAllDatas( );
+						ProjectLoadedOk = LoadProjectFiles( CurrentProjectFileName );}
 				InitGtkWindows( argc, argv );
 				UpdateAllGtkWindows( );
 				MessageInStatusBar( ProjectLoadedOk?"Project loaded and running":"Project failed to load...");
