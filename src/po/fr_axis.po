@@ -3,7 +3,7 @@
 # "R.Labahn" <r.labahn@bau.hs-wismar.de>, 2007.
 # <>, 2007.
 # Francis TISSERANT <ftissera@free.fr>, 2007.
-# Francis Tisserant <ftissera@free.fr>, 2007.
+# Francis Tisserant <ftissera@free.fr>, 2007, 2008.
 # French translation of axis.pot
 # Copyright (C) 2007 THE AXIS'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the AXIS package.
@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: fr_axis\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2007-11-09 02:04+0100\n"
-"PO-Revision-Date: 2007-11-24 17:22+0100\n"
+"PO-Revision-Date: 2008-02-03 00:37+0100\n"
 "Last-Translator: Francis Tisserant <ftissera@free.fr>\n"
 "Language-Team: french <gnomefr@traduc.org>\n"
 "MIME-Version: 1.0\n"
@@ -134,7 +134,7 @@ msgstr "Jog du deuxième axe"
 
 #: emc/usr_intf/axis/scripts/axis.py:143
 msgid "Pg Up, Pg Dn"
-msgstr "Pg Up, Pg Dn"
+msgstr "Pg.Préc, Pg.Suiv"
 
 #: emc/usr_intf/axis/scripts/axis.py:143
 msgid "Jog third axis"
@@ -154,7 +154,7 @@ msgstr "Bouton gauche"
 
 #: emc/usr_intf/axis/scripts/axis.py:147
 msgid "Pan, rotate or select line"
-msgstr "Déplacer, tourner la vue ou sélectionner la ligne"
+msgstr "Glisser la vue, la tourner ou sélectionner la ligne"
 
 #: emc/usr_intf/axis/scripts/axis.py:148
 msgid "Shift+Left Button"
@@ -162,7 +162,7 @@ msgstr "Maj+bouton gauche"
 
 #: emc/usr_intf/axis/scripts/axis.py:148
 msgid "Rotate or pan"
-msgstr "Rotation ou déplacement de la vue"
+msgstr "Rotation ou glissement de la vue"
 
 #: emc/usr_intf/axis/scripts/axis.py:149
 msgid "Right Button"
@@ -211,7 +211,7 @@ msgstr "Ctrl+H"
 
 #: emc/usr_intf/axis/scripts/axis.py:158
 msgid "Copy selected MDI history elements"
-msgstr "Copier depuis l'historique du MDI"
+msgstr "Copier la sélection de l'historique du MDI"
 
 #: emc/usr_intf/axis/scripts/axis.py:159
 msgid "to clipboard"
@@ -368,16 +368,14 @@ msgstr "Filtrage.."
 
 #: emc/usr_intf/axis/scripts/axis.py:1707
 msgid "Filter failed"
-msgstr "Échec du filtre"
+msgstr "Le filtrage a échoué"
 
 #: emc/usr_intf/axis/scripts/axis.py:1708
 #, python-format
 msgid ""
 "The program %r exited with code %d.  Any error messages it produced are "
 "shown below:"
-msgstr ""
-"Le programme %r c'est arrêté avec le code %d.  Si des messages ont été produits, ils sont "
-"les suivants:"
+msgstr "Le programme %r c'est arrêté avec le code %d.  Si des messages ont été produits, ils sont les suivants:"
 
 #: emc/usr_intf/axis/scripts/axis.py:1759
 #, python-format
@@ -477,7 +475,7 @@ msgstr "Le programme dépasse les limites machine"
 
 #: emc/usr_intf/axis/scripts/axis.py:2138
 msgid "Run Anyway"
-msgstr "Exécuter quand même"
+msgstr "Exécuter tout de même"
 
 #: emc/usr_intf/axis/scripts/axis.py:2174
 msgid "No file loaded"
@@ -486,7 +484,7 @@ msgstr "Aucun fichier chargé"
 #: emc/usr_intf/axis/scripts/axis.py:2182
 #, python-format
 msgid "generated from %s"
-msgstr "généré depuis %s"
+msgstr "produit depuis %s"
 
 #: emc/usr_intf/axis/scripts/axis.py:2188
 #, python-format
@@ -580,11 +578,11 @@ msgstr "Erreur dans ~/.axisrc"
 #: emc/usr_intf/axis/scripts/hal_manualtoolchange.py:11
 #, python-format
 msgid "Insert tool %d and click continue when ready"
-msgstr "Monter l'outil %d et cliquer « continuer » quand c'est fait"
+msgstr "Monter l'outil %d puis cliquer « continuer »"
 
 #: emc/usr_intf/axis/scripts/hal_manualtoolchange.py:13
 msgid "Remove the tool and click continue when ready"
-msgstr "Démonter l'outil et cliquer « terminer » quand c'est fait"
+msgstr "Démonter l'outil puis cliquer « terminer »"
 
 #: emc/usr_intf/axis/scripts/hal_manualtoolchange.py:17
 msgid "Tool change"
@@ -711,7 +709,7 @@ msgstr "Plein"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:645
 msgid "Invert Image"
-msgstr "Inverser l'image"
+msgstr "Inverse l'image"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:646
 msgid "Normalize Image"
@@ -719,7 +717,7 @@ msgstr "Normalise l'image"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:647
 msgid "Extend Image Border"
-msgstr "Etendre les bords de la vue"
+msgstr "Etend les bords de la vue"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:648
 msgid "Pixel Size (Units)"
@@ -735,7 +733,7 @@ msgstr "Tolérance (unités)"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:651
 msgid "Stepover (pixels)"
-msgstr "Stepover (pixels)"
+msgstr "Chevauchement (pixels)"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:652
 msgid "Tool Diameter (units)"
@@ -1268,7 +1266,7 @@ msgstr ""
 "\n"
 "Copyright (C) 2004, 2005, 2006, 2007 Jeff Epler et Chris Radek.\n"
 "\n"
-"Ceci est un logiciel libre, vous pouvez le redistribuer sous quelques conditions.  Regardez le fichier COPYING, inclus dans EMC2.\n"
+"Ceci est un logiciel libre, vous pouvez le redistribuer sous certaines conditions.  Regardez le fichier COPYING, inclus dans EMC2.\n"
 "\n"
 "Visitez la page web EMC: "
 
@@ -1594,7 +1592,7 @@ msgstr "Toutes les limites"
 
 #: emc/usr_intf/stepconf/stepconf.py:116
 msgid "All home"
-msgstr "Toutes le prises d'origine"
+msgstr "Toutes les origines"
 
 #: emc/usr_intf/stepconf/stepconf.py:141
 msgid "my-mill"
@@ -1638,12 +1636,12 @@ msgid ""
 "The contents of this file will not be overwritten when you run stepconf "
 "again."
 msgstr ""
-"Incluez votre panneau PyVCP ici.\n"
+"Inclure votre panneau PyVCP ici.\n"
 "Le contenu de ce fichier ne sera pas écrasé quand vous relancerez Stepconf. "
 
 #: emc/usr_intf/stepconf/stepconf.py:721 emc/usr_intf/stepconf/stepconf.py:730
 msgid "# Include your customized HAL commands here"
-msgstr "# Incluez vos commandes HAL personnalisées ici"
+msgstr "# Inclure vos commandes HAL personnalisées ici"
 
 #: emc/usr_intf/stepconf/stepconf.py:722
 msgid ""
@@ -1745,7 +1743,7 @@ msgstr "Assistant de configuration pour machines step dir"
 msgid ""
 "This program creates configuration files (.ini and .hal) for \"step and "
 "direction\" milling machines and lathes connected to the PC parallel port."
-msgstr "Ce programme crée les fichiers de configuration (.ini et .Hal) \"pas et direction\" pour une machine pilotée via le port parallèle du PC."
+msgstr "Ce programme crée les fichiers de configuration (.ini et .Hal) \"pas et direction\" pour les fraiseuses ou les tours pilotés via le port parallèle du PC."
 
 #: emc/usr_intf/stepconf/stepconf.glade:68
 msgid "Create a _new configuration"
@@ -1776,11 +1774,11 @@ msgstr "Informations sur la machine"
 
 #: emc/usr_intf/stepconf/stepconf.glade:250
 msgid "Machine _Name:"
-msgstr "_Nom de la machine"
+msgstr "_Nom de la machine:"
 
 #: emc/usr_intf/stepconf/stepconf.glade:279
 msgid "_Axis configuration:"
-msgstr "Configuration des _axes"
+msgstr "Configuration des _axes:"
 
 #: emc/usr_intf/stepconf/stepconf.glade:307
 msgid "Machine _units:"
@@ -1889,7 +1887,7 @@ msgstr ""
 "Caractéristiques du pilote: (Multipliez par 1000 pour les temps spécifiés en µs ou microsecondes)\n"
 "\n"
 "Mise en forme du signal, isolement galvanique, optocoupleurs ou filtres RC\n"
-"qui imposent des contraintes de temps en plus de celles du pilote."
+"peuvent imposer des contraintes de temps en plus de celles du pilote."
 
 #: emc/usr_intf/stepconf/stepconf.glade:1063
 msgid "   "
@@ -1905,7 +1903,7 @@ msgstr "yyyyy Hz"
 
 #: emc/usr_intf/stepconf/stepconf.glade:1189
 msgid "Parallel Port Setup"
-msgstr "Brochage du port parallèle"
+msgstr "Réglage du port parallèle"
 
 #: emc/usr_intf/stepconf/stepconf.glade:1213
 msgid "Pin _1:"
@@ -2069,7 +2067,7 @@ msgid ""
 "Unused"
 msgstr ""
 "Entrée arrêt d'urgence\n"
-"Index codeur broche\n"
+"Index broche\n"
 "Canal A codeur broche\n"
 "Canal B codeur broche\n"
 "Origine machine X \n"
