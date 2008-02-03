@@ -2,8 +2,11 @@ emc2 (1:2.2.4~cvs) unstable; urgency=low
 
   * make xxxmach exit reliably with 'halcmd unload' (SF#1816781)
   * hook up encoder index for homing in the motenc sample configuration
+  * axis: don't reset the interpreter during touch-off and reload.  This
+    fixes the loss of modal settings from MDI, including tool length offset,
+    fixing SF#1825638
 
- -- Chris Radek <chris@timeguy.com>  Tue, 29 Jan 2008 19:05:29 -0600
+ -- Chris Radek <chris@timeguy.com>  Sat,  2 Feb 2008 19:37:31 -0600
 
 emc2 (1:2.2.3) unstable; urgency=low
 
