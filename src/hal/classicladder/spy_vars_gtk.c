@@ -379,7 +379,17 @@ void VarsWindowInitGtk()
 
 void OpenSpyVarsWindow( )
 {
-	OpenSpyBoolVarsWindow( );
-	OpenSpyFreeVarsWindow( );
+	static int toggle =0;
+	switch (toggle)
+	{
+	case 0 :	OpenSpyBoolVarsWindow( ); break;
+	case 1 :	OpenSpyBoolVarsWindow( );
+			OpenSpyFreeVarsWindow( ); break;
+	case 2 :	OpenSpyBoolVarsWindow( ); break;
+	case 3 :	OpenSpyBoolVarsWindow( );
+			OpenSpyFreeVarsWindow( ); break;
+	default:;
+	}
+	toggle++;
+	if (toggle==4) {toggle=0;}
 }
-
