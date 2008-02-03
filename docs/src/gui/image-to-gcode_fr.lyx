@@ -442,7 +442,7 @@ fortes
  pentes et celles en dessous de cet angle considérées comme de faible pentes.
 \layout Subsection
 
-Roughing offset and depth per pass
+Offset d'ébauche et profondeur par passe d'ébauche
 \layout Standard
 
 Image-to-gcode peut optionnellement produire des passes d'ébauche.

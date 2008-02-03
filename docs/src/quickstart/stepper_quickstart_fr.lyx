@@ -26,112 +26,116 @@
 
 \layout Title
 
-Guide de démarrage rapide pour configurations avec moteurs pas à pas
+Guide de démarrage rapide pour configuration avec moteurs pas à pas
 \layout Standard
 
 
 \series bold 
-Set machine units:
+Ajuster les unités machine:
 \series default 
- Vous devez décider dans quelle unité la machine va travailler par défaut,
+ Vous devez décider dans quelles unités la machine, par défaut, va travailler,
  pouces ou millimètres.
- This is done by choosing either the stepper/stepper_inch config or the
- stepper/stepper_mm config.
- The first time you run EMC2, a dialog will prompt you to copy the configuration
- to your home directory.
- You should select 
+ Ceci se fait en sélectionnant la configuration stepper/stepper_mm ou stepper/st
+epper_inch.
+ La première fois qu'EMC2 démarre, un dialogue s'ouvre qui demande si vous
+ voulez copier cette configuration dans votre répertoire home.
+ Vous devez répondre 
 \begin_inset Quotes eld
 \end_inset 
 
-yes
+oui
 \begin_inset Quotes erd
 \end_inset 
 
 .
 \layout Standard
 
-Before going on, you should open the ini file in a text editor.
- The file will be in your home directory under emc2/configs/stepper/stepper_inch.
-ini (or stepper_mm.ini if you chose that config).
+Avant de démarrer votre machine, vous devez encore ouvrir le fichier ini
+ dans un éditeur de texte pour l'adapter à votre configuration.
+ Le fichier copié sera dans votre répertoire home puis dans emc2/configs/stepper
+/stepper_mm.ini (ou stepper_inch.ini si vous choisissez cette configuration).
 \layout Standard
 
 
 \series bold 
-Determine the size of a step:
+Déterminer la taille d'un pas:
 \series default 
- EMC2 needs to know how far your machine will move for each step pulse it
- sends to the motors.
- The equation to calculate this is 
+ EMC2 a besoin de connaître de combien votre machine va bouger pour chaque
+ pas qu'il enverra au moteurs.
+ Le calcul est le suivant: 
 \layout Standard
 
 
 \series bold 
-steps * usteps * pitch * ratio
+pas (step) * micropas (microsteps) * pas de vis (pitch) * ratio
 \series default 
-, where 
+ dans cette formule, 
+\series bold 
+pas
+\series default 
+ est le nombre de pas par tour du moteur (habituellement 200)
 \layout Standard
 
 
 \series bold 
-steps
+micropas
 \series default 
- is the number of steps per revolution for your motor (usually 200)
+ est le nombre de micropas que votre pilote va fournir.
+ C'est 2 pour le demi-pas, 4 pour le quart de pas, etc.
 \layout Standard
 
 
 \series bold 
-usteps
+pas de vis
 \series default 
- is the number of microsteps your drive is set to.
- This is 2 for half stepping, 4 for quarter stepping, etc.
-\layout Standard
-
-
-\series bold 
-pitch
-\series default 
- is the screw pitch: How many turns does it take to move the table one unit?
+ est le pas de la vis d'entraînement: combien de tours doit faire la vis
+ pour déplacer la table d'une unité ?
 \layout Standard
 
 
 \series bold 
 ratio
 \series default 
- is the drive ratio between the motor and the screw.
- If using a belt or gear drive, use the final drive ratio.
+ est le rapport entre le moteur et la vis d'entrainement.
+ Si des poulies ou des pignons sont utilisés, entrez le rapport de démultiplicat
+ion.
 \layout Standard
 
-So, for a standard stepper (200 steps/rev), using Gecko drives (10x microsteppin
-g), a 10 pitch screw, and 2:1 belt drive, the formula is:
+Exemple, l'unité machine est le mm, le moteur pas à pas est un standard
+ de 200 pas/tour, vous utilisez un pilote Gecko matériel (qui fournit 10
+ micropas), le pas de la vis à billes est de 5,08mm et les poulies ont un
+ rapport de 2:1, la formule devient:
 \layout Standard
 
-200 * 10 * 10 * 2 = 40000 steps/inch
+200 * 10 * (1/5,08) * 2 = 787.4015748 pas/mm
 \layout Standard
 
-This needs to be determined independently for each axis.
+Ceci doit être déterminé indépendamment pour chaque axe.
 \layout Standard
 
-Let's set the X axis resolution to 40000 steps/inch.
- Find the [AXIS_0] section of the ini file.
- This contains all of the X-axis specific information.
- Change INPUT_SCALE (yes, input - EMC2 still keeps track of where the motor
- should be) to 40000.
- The other axes would be done the same way (Y = AXIS_1, Z = AXIS_2 ...)
-\layout Standard
-
-
-\series bold 
-Set up the parallel port connections:
-\series default 
- You need to tell EMC2 where you stepper drives are connected to the computer.
- There are two sample confi
+Réglons l'axe X à une résolution de 787.4015748 pas/mm.
+ Dans le fichier ini, cherchez la section [AXIS_0].
+ Elle contient toutes les informations spécifiques à l'axe X.
+ Modifiez INPUT_SCALE (oui, input - EMC2 garde une trace de l'endroit où
+ doit se trouver le moteur) en le mettant à 787.4015748.
+ Les autres axes doivent être traités de la même façon (Y = AXIS_1, Z =
+ AXIS_2 ...)
 \layout Standard
 
 
 \series bold 
-Set up stepgen:
+Configurer le port parallèle utilisé:
 \series default 
- Stepgen is the module EMC2 uses to convert the position outputs from the
- trajectory planner to steps for the motor.
+ Vous devez indiquer à EMC2 sur quel port parallèle votre pilote de moteur
+ est connecté.
+ Il y a deux exemples simples de configuration que vous pouvez adapter.
+\layout Standard
+
+
+\series bold 
+Mettre en place stepgen:
+\series default 
+ Stepgen est le module qu'EMC2 utilise pour convertir les positions, en
+ sortie du plannificateur de trajectoire, en pas pour les moteurs.
  
 \the_end
