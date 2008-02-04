@@ -3099,7 +3099,7 @@ Charge Pump</property>
 		  <child>
 		    <widget class="GtkLabel" id="label99">
 		      <property name="visible">True</property>
-		      <property name="label" translatable="yes">_Pulley ratio (Motor:Leadscrew):</property>
+		      <property name="label" translatable="yes">_Pulley teeth (Motor:Leadscrew):</property>
 		      <property name="use_underline">True</property>
 		      <property name="use_markup">False</property>
 		      <property name="justify">GTK_JUSTIFY_LEFT</property>
