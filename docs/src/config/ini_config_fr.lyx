@@ -2080,7 +2080,7 @@ Mesurées
 \color black
 INPUT_SCALE\SpecialChar ~
 =\SpecialChar ~
-40000
+20000
 \color none
  
 \series bold 
@@ -2105,22 +2105,15 @@ Spécifie le nombre d'impulsions qui correspond à un mouvement d'une unité
 \color black
 
 \newline 
-La valeur de l'échelle peut être obtenue par l'analyse des unités, exemple:
- les unités sont: 
-\begin_inset Formula \[
-\frac{sensor\, units}{desired\, input\, SI\, units}\]
-
-\end_inset 
-
-Par exemple, sur un codeur de 2000 top par tour
+Par exemple, sur un codeur de 2000 impulsions par tour
 \begin_inset LatexCommand \index{codeur}
 
 \end_inset 
 
 , un réducteur de 10 tours/pouce et des unités demandées en mm, nous avons:
 \begin_inset Formula \begin{eqnarray*}
-input\_ scale & = & 2000\frac{counts}{rev}*10\frac{rev}{inch}*\frac{1\, inch}{25.4\, mm}\\
- & = & 787.40157\frac{counts}{mm}\end{eqnarray*}
+input\_ scale & = & 2000\frac{impulsions}{tour}*10\frac{tours}{pouce}\\
+ & = & 20000\frac{impulsions}{pouce}\end{eqnarray*}
 
 \end_inset 
 
@@ -2139,7 +2132,7 @@ Variables relatives aux moteurs pas à pas
 \color black
 SCALE\SpecialChar ~
 =\SpecialChar ~
-40000
+4000
 \color none
  
 \series bold 
@@ -2168,18 +2161,11 @@ Spécifie le nombre d'impulsions qui correspond à un mouvement d'une unité
 \color black
 
 \newline 
-La valeur de l'échelle peut être obtenue par l'analyse des unités, exemple:
- les unités sont:
-\begin_inset Formula \[
-\frac{step\, units}{desired\, input\, SI\, units}\]
-
-\end_inset 
-
 Par exemple, un pas moteur de 1.8 degré, en mode demipas, avec une réduction
  de 10 tours/pouce et des unités souhaitées en mm, nous avons:
 \begin_inset Formula \begin{eqnarray*}
-input\_ scale & = & \frac{{2\, count}}{1.8\, degree}*10\frac{rev}{inch}*\frac{1\, inch}{25.4\, mm}\\
- & = & 157.48031\frac{counts}{mm}\end{eqnarray*}
+input\_ scale & = & \frac{{2\, pas}}{1.8\, degre}*360\frac{degres}{tour}*10\frac{tours}{pouce}\\
+ & = & 4000\frac{pas}{pouce}\end{eqnarray*}
 
 \end_inset 
 

@@ -2832,7 +2832,7 @@ Q
 
 \layout Standard
 
-Incrément Delta en Z dans un cycle préprogrammé G83
+Incrément Delta en Z dans un cycle préprogrammé G73, G83
 \end_inset 
 </cell>
 </row>
@@ -4407,6 +4407,11 @@ G0
 
 
 \begin_inset LatexCommand \index{G38.x}
+
+\end_inset 
+
+G73
+\begin_inset LatexCommand \index{G73}
 
 \end_inset 
 
@@ -7175,8 +7180,8 @@ G76 cycle de filetage
 
 \layout Section
 
-G81
-\begin_inset LatexCommand \index{G81}
+G73, G81
+\begin_inset LatexCommand \index{G73,G81}
 
 \end_inset 
 
@@ -7195,7 +7200,7 @@ G81
 
 Les cycles préprogrammés 
 \family typewriter 
-G81
+G73, G81
 \family default 
  à 
 \family typewriter 
@@ -7336,7 +7341,7 @@ plan de retrait
  retrait sur la position initiale de Z, si elle est au dessus de la valeur
  de R- et que le mode de retrait est 
 \family typewriter 
-G98
+G99
 \family default 
 , OLD_Z, sinon, à la position de R-.
  Voir la section 
@@ -7716,6 +7721,70 @@ Une plongée en vitesse rapide dans le même trou, presque jusqu'au fond.
 
 Répétition des étapes 2, 3 et 4 jusqu'à ce que la position programmée de
  Z soit atteinte à l'étape 2.
+\layout Enumerate
+
+Un mouvement de l'axe Z en vitesse rapide vers le plan de retrait.
+ 
+\layout Standard
+
+C'est une erreur si:
+\layout Itemize
+
+La valeur de Q est négative ou égale à zéro.
+\layout Subsection
+
+G73
+\begin_inset LatexCommand \index{G73}
+
+\end_inset 
+
+: Cycle de perçage avec brise copeaux
+\begin_inset LatexCommand \label{sub:G73:-Perçage-avec-brise-copeaux}
+
+\end_inset 
+
+
+\layout Standard
+
+Le cycle 
+\family typewriter 
+G73
+\family default 
+ est destiné au perçage profond ou au fraisage avec brise-copeaux.
+ Les retraits, au cours de ce cycle, fragmentent les copeaux longs (qui
+ sont fréquents lors du perçage dans l'aluminum).
+ Ce cycle utilise la valeur Q qui représente un incrément 
+\begin_inset Quotes eld
+\end_inset 
+
+delta
+\begin_inset Quotes erd
+\end_inset 
+
+ le long de l'axe Z.
+ Programmer 
+\family typewriter 
+G73 X- Y- Z- A- B- C- R- L- Q-
+\layout Standard
+
+donnera:
+\layout Enumerate
+
+Un mouvement préliminaire, comme décrit précédemment.
+ 
+\layout Enumerate
+
+Un mouvement de l'axe Z seul, en vitesse travail, sur la position la moins
+ profonde entre, un incrément delta, ou la position de Z programmée.
+ 
+\layout Enumerate
+
+Une petite remontée en vitesse rapide.
+ 
+\layout Enumerate
+
+Répétition des étapes 2 et 3 jusqu'à ce que la position programmée de Z
+ soit atteinte à l'étape 2.
 \layout Enumerate
 
 Un mouvement de l'axe Z en vitesse rapide vers le plan de retrait.

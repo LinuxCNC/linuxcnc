@@ -1065,10 +1065,9 @@ Mouvement temporaire hors limites
 \begin_inset Quotes erd
 \end_inset 
 
- permet un déplacement temporaire de la machine hors des limites définies
- dans le fichier ini.
- Par exemple, pour ramener dans les limites, un axe qui les a dépassé par
- erreur.
+ permet un déplacement temporaire de la machine hors des limites physiques.
+ Par exemple, pour ramener dans les limites, un axe engagé par erreur sur
+ un fin de course.
  
 \layout Subsubsection
 

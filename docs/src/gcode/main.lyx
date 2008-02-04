@@ -7923,7 +7923,7 @@ delta
  increment along the Z axis.
  Program 
 \family typewriter 
-G83 X- Y- Z- A- B- C- R- L- Q-
+G73 X- Y- Z- A- B- C- R- L- Q-
 \layout Enumerate
 
 Preliminary motion, as described above.
@@ -9137,9 +9137,9 @@ To control a digital output bit, program
 M- P-
 \family default 
 , where the M-word ranges from 62 to 65, and the P-word ranges from 0 to
- an implementation-defined maximum- currently this is 3 in EMC2. 
- These outputs are not changed in realtime and thus should not be used 
- for timing-critical applications.
+ an implementation-defined maximum- currently this is 3 in EMC2.
+  These outputs are not changed in realtime and thus should not be used
+  for timing-critical applications.
 \layout Description
 
 M62
@@ -9259,9 +9259,9 @@ M66 wait on an input stops further execution of the program, until the selected
 \layout Standard
 
 It is also an error to program M66 with both a P-word and an E-word (thus
- selecting both an analog and a digital input).
-In EMC2 these inputs are not monitored in realtime and thus should not be 
-used for timing-critical applications.
+ selecting both an analog and a digital input).In EMC2 these inputs are not
+ monitored in realtime and thus should not be used for timing-critical applicati
+ons.
 \layout Section
 
 M100 to M199
