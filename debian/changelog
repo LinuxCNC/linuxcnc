@@ -5,8 +5,10 @@ emc2 (1:2.2.4~cvs) unstable; urgency=low
   * axis: don't reset the interpreter during touch-off and reload.  This
     fixes the loss of modal settings from MDI, including tool length offset,
     fixing SF#1825638
+  * stepconf: clarify that it is the ratio of teeth on each pulley that must
+    be entered
 
- -- Chris Radek <chris@timeguy.com>  Sat,  2 Feb 2008 19:37:31 -0600
+ -- jepler <jepler@unpythonic.net>  Mon,  4 Feb 2008 09:40:11 -0600
 
 emc2 (1:2.2.3) unstable; urgency=low
 
