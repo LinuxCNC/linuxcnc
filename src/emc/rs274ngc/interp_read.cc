@@ -3068,6 +3068,7 @@ int Interp::read_text(
   int status;                   /* used in CHP */
   int index;
   int n;
+  char *semicolon;
 
   if (command == NULL) {
     if (fgets(raw_line, LINELEN, inport) == NULL) {
@@ -3128,7 +3129,14 @@ int Interp::read_text(
   else
     *length = strlen(line);
 
-    return INTERP_OK;
+  // everything from the first ; to the end of the line is a comment
+  semicolon = strchr(line, ';');
+  if (semicolon) {
+      *semicolon = '\0';
+      *length = strlen(line);
+  }
+
+  return INTERP_OK;
 }
 
 /****************************************************************************/
