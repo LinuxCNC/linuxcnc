@@ -309,7 +309,7 @@ class Data:
             print
             if force: return
             response = raw_input(_("Continue? "))
-            if response[0] not in _("yY"): raise SystemExit, 1
+            if response[0] not in "yY": raise SystemExit, 1
 
         legacy_hal_output_names = ["xstep", "xdir", "ystep", "ydir",
         "zstep", "zdir", "astep", "adir",

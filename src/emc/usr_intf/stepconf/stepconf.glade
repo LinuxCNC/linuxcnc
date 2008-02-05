@@ -137,7 +137,7 @@
 		  <child>
 		    <widget class="GtkLabel" id="label172">
 		      <property name="visible">True</property>
-		      <property name="label" translatable="yes">        </property>
+		      <property name="label">        </property>
 		      <property name="use_underline">False</property>
 		      <property name="use_markup">False</property>
 		      <property name="justify">GTK_JUSTIFY_LEFT</property>
@@ -760,7 +760,7 @@ XZ (Lathe)</property>
 		    <widget class="GtkLabel" id="confdir">
 		      <property name="visible">True</property>
 		      <property name="can_focus">True</property>
-		      <property name="label" translatable="yes">confdir</property>
+		      <property name="label">confdir</property>
 		      <property name="use_underline">False</property>
 		      <property name="use_markup">False</property>
 		      <property name="justify">GTK_JUSTIFY_LEFT</property>
@@ -1039,7 +1039,7 @@ can impose timing constraints of their own, in addition to those of the driver.<
 		  <child>
 		    <widget class="GtkLabel" id="label210">
 		      <property name="visible">True</property>
-		      <property name="label" translatable="yes">   </property>
+		      <property name="label">   </property>
 		      <property name="use_underline">False</property>
 		      <property name="use_markup">False</property>
 		      <property name="justify">GTK_JUSTIFY_LEFT</property>
@@ -1068,7 +1068,7 @@ can impose timing constraints of their own, in addition to those of the driver.<
 		    <widget class="GtkLabel" id="baseperiod">
 		      <property name="visible">True</property>
 		      <property name="can_focus">True</property>
-		      <property name="label" translatable="yes">x0000 ns</property>
+		      <property name="label">x0000 ns</property>
 		      <property name="use_underline">False</property>
 		      <property name="use_markup">False</property>
 		      <property name="justify">GTK_JUSTIFY_LEFT</property>
@@ -1097,7 +1097,7 @@ can impose timing constraints of their own, in addition to those of the driver.<
 		    <widget class="GtkLabel" id="maxsteprate">
 		      <property name="visible">True</property>
 		      <property name="can_focus">True</property>
-		      <property name="label" translatable="yes">yyyyy Hz</property>
+		      <property name="label">yyyyy Hz</property>
 		      <property name="use_underline">False</property>
 		      <property name="use_markup">False</property>
 		      <property name="justify">GTK_JUSTIFY_LEFT</property>
@@ -1567,7 +1567,7 @@ can impose timing constraints of their own, in addition to those of the driver.<
 		  <child>
 		    <widget class="GtkComboBox" id="pin2">
 		      <property name="visible">True</property>
-		      <property name="items" translatable="yes">X Step
+		      <property name="items">X Step
 X Direction
 Y Step
 Y Direction
@@ -1601,7 +1601,7 @@ Charge Pump</property>
 		  <child>
 		    <widget class="GtkComboBox" id="pin3">
 		      <property name="visible">True</property>
-		      <property name="items" translatable="yes">X Step
+		      <property name="items">X Step
 X Direction
 Y Step
 Y Direction
@@ -1635,7 +1635,7 @@ Charge Pump</property>
 		  <child>
 		    <widget class="GtkComboBox" id="pin4">
 		      <property name="visible">True</property>
-		      <property name="items" translatable="yes">X Step
+		      <property name="items">X Step
 X Direction
 Y Step
 Y Direction
@@ -1669,7 +1669,7 @@ Charge Pump</property>
 		  <child>
 		    <widget class="GtkComboBox" id="pin5">
 		      <property name="visible">True</property>
-		      <property name="items" translatable="yes">X Step
+		      <property name="items">X Step
 X Direction
 Y Step
 Y Direction
@@ -1703,7 +1703,7 @@ Charge Pump</property>
 		  <child>
 		    <widget class="GtkComboBox" id="pin6">
 		      <property name="visible">True</property>
-		      <property name="items" translatable="yes">X Step
+		      <property name="items">X Step
 X Direction
 Y Step
 Y Direction
@@ -1737,7 +1737,7 @@ Charge Pump</property>
 		  <child>
 		    <widget class="GtkComboBox" id="pin7">
 		      <property name="visible">True</property>
-		      <property name="items" translatable="yes">X Step
+		      <property name="items">X Step
 X Direction
 Y Step
 Y Direction
@@ -1771,7 +1771,7 @@ Charge Pump</property>
 		  <child>
 		    <widget class="GtkComboBox" id="pin8">
 		      <property name="visible">True</property>
-		      <property name="items" translatable="yes">X Step
+		      <property name="items">X Step
 X Direction
 Y Step
 Y Direction
@@ -1805,7 +1805,7 @@ Charge Pump</property>
 		  <child>
 		    <widget class="GtkComboBox" id="pin9">
 		      <property name="visible">True</property>
-		      <property name="items" translatable="yes">X Step
+		      <property name="items">X Step
 X Direction
 Y Step
 Y Direction
@@ -1839,7 +1839,7 @@ Charge Pump</property>
 		  <child>
 		    <widget class="GtkComboBox" id="pin14">
 		      <property name="visible">True</property>
-		      <property name="items" translatable="yes">X Step
+		      <property name="items">X Step
 X Direction
 Y Step
 Y Direction
@@ -1873,7 +1873,7 @@ Charge Pump</property>
 		  <child>
 		    <widget class="GtkComboBox" id="pin16">
 		      <property name="visible">True</property>
-		      <property name="items" translatable="yes">X Step
+		      <property name="items">X Step
 X Direction
 Y Step
 Y Direction
@@ -1907,7 +1907,7 @@ Charge Pump</property>
 		  <child>
 		    <widget class="GtkComboBox" id="pin17">
 		      <property name="visible">True</property>
-		      <property name="items" translatable="yes">X Step
+		      <property name="items">X Step
 X Direction
 Y Step
 Y Direction
@@ -2109,7 +2109,7 @@ Charge Pump</property>
 		  <child>
 		    <widget class="GtkComboBox" id="pin11">
 		      <property name="visible">True</property>
-		      <property name="items" translatable="yes">ESTOP IN
+		      <property name="items">ESTOP IN
 Spindle PPR
 Spindle A 
 Spindle B 
@@ -2190,7 +2190,7 @@ Unused</property>
 		  <child>
 		    <widget class="GtkLabel" id="label174">
 		      <property name="visible">True</property>
-		      <property name="label" translatable="yes">        </property>
+		      <property name="label">        </property>
 		      <property name="use_underline">False</property>
 		      <property name="use_markup">False</property>
 		      <property name="justify">GTK_JUSTIFY_LEFT</property>
@@ -2648,7 +2648,7 @@ Unused</property>
 		  <child>
 		    <widget class="GtkComboBox" id="pin12">
 		      <property name="visible">True</property>
-		      <property name="items" translatable="yes">ESTOP IN
+		      <property name="items">ESTOP IN
 Spindle PPR
 Spindle A 
 Spindle B 
@@ -2701,7 +2701,7 @@ Unused</property>
 		  <child>
 		    <widget class="GtkComboBox" id="pin13">
 		      <property name="visible">True</property>
-		      <property name="items" translatable="yes">ESTOP IN
+		      <property name="items">ESTOP IN
 Spindle PPR
 Spindle A 
 Spindle B 
@@ -2754,7 +2754,7 @@ Unused</property>
 		  <child>
 		    <widget class="GtkComboBox" id="pin15">
 		      <property name="visible">True</property>
-		      <property name="items" translatable="yes">ESTOP IN
+		      <property name="items">ESTOP IN
 Spindle PPR
 Spindle A 
 Spindle B 
@@ -2875,7 +2875,7 @@ Unused</property>
 		  <child>
 		    <widget class="GtkComboBox" id="pin10">
 		      <property name="visible">True</property>
-		      <property name="items" translatable="yes">ESTOP IN
+		      <property name="items">ESTOP IN
 Spindle PPR
 Spindle A 
 Spindle B 
@@ -2928,7 +2928,7 @@ Unused</property>
 		  <child>
 		    <widget class="GtkComboBox" id="pin1">
 		      <property name="visible">True</property>
-		      <property name="items" translatable="yes">X Step
+		      <property name="items">X Step
 X Direction
 Y Step
 Y Direction
@@ -3434,7 +3434,7 @@ Charge Pump</property>
 		    <widget class="GtkLabel" id="xacctime">
 		      <property name="visible">True</property>
 		      <property name="can_focus">True</property>
-		      <property name="label" translatable="yes">label42</property>
+		      <property name="label">label42</property>
 		      <property name="use_underline">False</property>
 		      <property name="use_markup">False</property>
 		      <property name="justify">GTK_JUSTIFY_RIGHT</property>
@@ -3463,7 +3463,7 @@ Charge Pump</property>
 		    <widget class="GtkLabel" id="xaccdist">
 		      <property name="visible">True</property>
 		      <property name="can_focus">True</property>
-		      <property name="label" translatable="yes">label42</property>
+		      <property name="label">label42</property>
 		      <property name="use_underline">False</property>
 		      <property name="use_markup">False</property>
 		      <property name="justify">GTK_JUSTIFY_RIGHT</property>
@@ -3492,7 +3492,7 @@ Charge Pump</property>
 		    <widget class="GtkLabel" id="xhz">
 		      <property name="visible">True</property>
 		      <property name="can_focus">True</property>
-		      <property name="label" translatable="yes">label42</property>
+		      <property name="label">label42</property>
 		      <property name="use_underline">False</property>
 		      <property name="use_markup">False</property>
 		      <property name="justify">GTK_JUSTIFY_RIGHT</property>
@@ -3983,7 +3983,7 @@ Opposite</property>
 		  <child>
 		    <widget class="GtkLabel" id="xaccdistunits">
 		      <property name="visible">True</property>
-		      <property name="label" translatable="yes">label193</property>
+		      <property name="label">label193</property>
 		      <property name="use_underline">False</property>
 		      <property name="use_markup">False</property>
 		      <property name="justify">GTK_JUSTIFY_LEFT</property>
@@ -4178,7 +4178,7 @@ Opposite</property>
 		    <widget class="GtkLabel" id="xscale">
 		      <property name="visible">True</property>
 		      <property name="can_focus">True</property>
-		      <property name="label" translatable="yes">label230</property>
+		      <property name="label">label230</property>
 		      <property name="use_underline">False</property>
 		      <property name="use_markup">False</property>
 		      <property name="justify">GTK_JUSTIFY_LEFT</property>
@@ -4665,7 +4665,7 @@ If you experience the &quot;Unexpected Realtime Delay&quot; message, run a more 
 </widget>
 
 <widget class="GtkDialog" id="dialog1">
-  <property name="title" translatable="yes">dialog1</property>
+  <property name="title">dialog1</property>
   <property name="type">GTK_WINDOW_TOPLEVEL</property>
   <property name="window_position">GTK_WIN_POS_CENTER_ON_PARENT</property>
   <property name="modal">True</property>
