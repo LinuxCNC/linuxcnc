@@ -348,6 +348,8 @@ private:
                   double *parameters);
  int read_comment(char *line, int *counter, block_pointer block,
                         double *parameters);
+ int read_semicolon(char *line, int *counter, block_pointer block,
+                        double *parameters);
  int read_d(char *line, int *counter, block_pointer block,
                   double *parameters);
  int read_e(char *line, int *counter, block_pointer block,

@@ -232,14 +232,26 @@ const int Interp::_required_parameters[] = {
    macro or jump labels..
    */
 const read_function_pointer Interp::default_readers[256] = {
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+/* 00 */
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+/* 10 */
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+/* 20 */
+0, 0, 0,
 &Interp::read_parameter_setting, // reads # or ASCII 0x23
 0, 0, 0, 0,
 &Interp::read_comment, // reads ( or ASCII 0x28
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 
+/* 30 */
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+&Interp::read_semicolon, 
+0, 0, 0, 0,
+/* 40 */
 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+/* 50 */
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+/* 60 */
+0,
 &Interp::read_a, // reads a or ASCII 0x61
 &Interp::read_b, // reads b or ASCII 0x62
 &Interp::read_c, // reads c or ASCII 0x63

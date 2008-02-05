@@ -307,6 +307,21 @@ int Interp::read_comment(char *line,     //!< string: line of RS274 code being p
   return INTERP_OK;
 }
 
+// A semicolon marks the beginning of a comment.  The comment goes to
+// the end of the line.
+
+int Interp::read_semicolon(char *line,     //!< string: line of RS274 code being processed   
+                           int *counter,   //!< pointer to a counter for position on the line
+                           block_pointer block,    //!< pointer to a block being filled from the line
+                           double *parameters)     //!< array of system parameters                   
+{
+  static char name[] = "read_semicolon";
+
+  CHK((line[*counter] != ';'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
+  (*counter) = strlen(line);
+  return INTERP_OK;
+}
+
 /****************************************************************************/
 
 /*! read_d
@@ -1081,7 +1096,7 @@ Called by: read_items.
 When this function is called, the counter is set so that the position
 being considered is the first position of a word. The character at
 that position must be one known to the system.  In this version those
-characters are: a,b,c,d,f,g,h,i,j,k,l,m,n,p,q,r,s,t,x,y,z,(,#.
+characters are: a,b,c,d,f,g,h,i,j,k,l,m,n,p,q,r,s,t,x,y,z,(,#,;.
 However, read_items calls read_line_number directly if the first word
 begins with n, so no read function is included in the "_readers" array
 for the letter n. Thus, if an n word is encountered in the middle of
@@ -3068,7 +3083,6 @@ int Interp::read_text(
   int status;                   /* used in CHP */
   int index;
   int n;
-  char *semicolon;
 
   if (command == NULL) {
     if (fgets(raw_line, LINELEN, inport) == NULL) {
@@ -3128,13 +3142,6 @@ int Interp::read_text(
     *length = 0;
   else
     *length = strlen(line);
-
-  // everything from the first ; to the end of the line is a comment
-  semicolon = strchr(line, ';');
-  if (semicolon) {
-      *semicolon = '\0';
-      *length = strlen(line);
-  }
 
   return INTERP_OK;
 }
