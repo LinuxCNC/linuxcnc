@@ -383,6 +383,9 @@ int CalcTypeOutputCall(int x,int y,StrRung * UpdateRung)
 }
 #ifdef OLD_TIMERS_MONOS_SUPPORT
 /* Element : Timer (2x2 Blocks) */
+// Marc added a control pin to the old timers to add features
+// For EMC, force (C) control pin to always be true so it doesn't
+// break older programs
 void CalcTypeTimer(int x,int y,StrRung * UpdateRung)
 {
     StrTimer * Timer;
@@ -402,7 +405,9 @@ void CalcTypeTimer(int x,int y,StrRung * UpdateRung)
     }
     else
     {
-        Timer->InputControl = 1;//StateOnLeft(x-1,y+1,UpdateRung);
+// The next line was changed for EMC from:
+// Timer->InputControl = StateOnLeft(x-1,y+1,UpdateRung);
+        Timer->InputControl = 1;
     }
     if (!Timer->InputEnable)
     {

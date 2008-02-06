@@ -377,9 +377,12 @@ void VarsWindowInitGtk()
 	BoolVarsWindowInitGtk( );
 }
 
+// This is modified to toggle the vars windows
+// be click the spyvars button multiple times
+// one, the other, both, then none of the windows will be shown
 void OpenSpyVarsWindow( )
 {
-	static int toggle =0;
+	static int toggle=0;
 	switch (toggle)
 	{
 	case 0 :	OpenSpyBoolVarsWindow( ); break;
@@ -392,4 +395,5 @@ void OpenSpyVarsWindow( )
 	}
 	toggle++;
 	if (toggle==4) {toggle=0;}
+
 }

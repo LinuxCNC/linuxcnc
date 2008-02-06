@@ -48,7 +48,7 @@ static inline int dbg_printf(char *f, ...) {return 0;}
 
 
 #ifdef GTK_INTERFACE
-char CurrentProjectFileName[400] = "src/hal/classicladder/projects_examples/example.clp";
+char CurrentProjectFileName[400] = "../src/hal/classicladder/projects_examples/example.clp";
 #else
 char CurrentProjectFileName[400] = "projects_examples/parallel_port_test.clp";
 #endif
@@ -85,7 +85,7 @@ void VerifyDirectorySelected( char * NewDir )
 				}
 				else
 				{
-					debug_printf("ERROR whith path directory given for project !!!\n");
+					printf("ERROR whith path directory given for project !!!\n");
 					CurrentProjectFileName[ 0 ] = '\0';
 				}
 			}
@@ -94,10 +94,10 @@ void VerifyDirectorySelected( char * NewDir )
 				if (CurrentProjectFileName[strlen(CurrentProjectFileName)-1]!=CAR_SEP)
 					strcat( CurrentProjectFileName, "/" );
 			}
-			debug_printf("DIRECTORY PROJECT = %s\n",CurrentProjectFileName);
+			printf("DIRECTORY PROJECT = %s\n",CurrentProjectFileName);
 		}
 	}
-}
+printf("DIRECTORY PROJECT = %s\n",CurrentProjectFileName);}
 
 
 

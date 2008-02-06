@@ -33,7 +33,6 @@
 #include <string.h>
 #endif
 
-//#include <math.h>
 #include "classicladder.h"
 #include "global.h"
 #include "vars_access.h"

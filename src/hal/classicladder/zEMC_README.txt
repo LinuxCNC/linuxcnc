@@ -7,10 +7,8 @@ arrays.c:
 --- this also means adding #ifndef RTAPI around 'CleanAndRemoveTmpDir' call in 'classicladder_free_all'
 
 Calc.c:
---- added period to ClassicLadder_RefreshAllSections function:   InfosGene->GeneralParams.PeriodicRefreshMilliSecs=period/ 1000000;
+---removed and moved period calculation to module_hal.c
 --- changed inputCountrol pin of old timers to be always true so it behaves as previous old timers. check out-CalcTypeTimer()
-Calc.h:
---- added period to ClassicLadder_RefreshAllSections function prototype
 
 classicladder.c:
 --- changed extensively. Removed most of initialization code besides what was added for HAL.
@@ -18,18 +16,24 @@ classicladder.c:
 classicladder.h:
  ---small amount added. Add definitions for HAL s32 pins and For HAL support.
 
-manager.c:
----added small amount INCLUDE for HAL/RTAPI support.
-
-Module_hal.c:
----  new program based on original module adds hal support/pins initialization of realtime code etc.
-
 classicladder gtk.c:
 --- removed define for hardware.h
 
 config_gtk.c:
 --- removed define for hardware.h
 
+emc_mods.c and emc_mods.h:
+----added Jeffs function to check for HAL signal names (called by function GetElementPropertiesForStatusBar in edit.c 
+
+manager.c:
+---added small amount INCLUDE for HAL/RTAPI support.
+
+Module_hal.c:
+---  new program based on original module adds hal support/pins initialization of realtime code etc.
+--- added code to refresh rungs at period rate unless period less then 1 MS then it waits till at least 1 MS has passed
+
+spy_vars_gtk.c:
+--- changed to be able to toggle vars windows (one, the other, both , both close) by clicking the button.
 
 SUBMAKEFILE:
 --- completely different for EMC. This makefile is for the user program only. 
@@ -37,6 +41,7 @@ SUBMAKEFILE:
 	-DSEQUENTIAL_SUPPORT -DHAL_SUPPORT -DDYNAMIC_PLCSIZE -DRT_SUPPORT -DOLD_TIMERS_MONOS_SUPPORT
 	-DGNOME_PRINT_USE
 	-DGTK_INTERFACE -DGTK2
+--- added emc_mods.c to compile list
 
 MAKE file:
 --- The makefile in source folder contains instructions for realtime program. added defines for modbus
@@ -48,5 +53,6 @@ classicladder_rt.o includes:
 	module_hal.o,arithm_eval.o,arrays.o,calc.o,calc_sequential.o,manager.o,symbols.o,vars_access.o
 
 
+changed classicladder to be able to load modbus configs
 
 

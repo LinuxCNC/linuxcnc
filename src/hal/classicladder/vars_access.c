@@ -105,7 +105,7 @@ int ReadVar(int TypeVar,int Offset)
 		case VAR_TIMER_IEC_VALUE:
 			return NewTimerArray[Offset].Value;
         default:
-            debug_printf("!!! Error : Type (=%d) not found in ReadVar()\n", TypeVar);
+            debug_printf("!!! Error : Type (=%d) not found in ReadVar(%d,%d)\n", TypeVar, TypeVar, Offset);
     }
     return 0;
 }
@@ -169,7 +169,7 @@ void WriteVar(int TypeVar,int NumVar,int Value)
 			NewTimerArray[NumVar].Value = Value;
 			break;
 		default:
-			debug_printf("!!! Error : Type (=%d) not found in WriteVar()\n", TypeVar);
+			debug_printf("!!! Error : Type (=%d) not found in WriteVar(%d,%d)\n", TypeVar, TypeVar, NumVar);
 			break;
 	}
 

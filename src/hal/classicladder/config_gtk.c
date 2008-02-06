@@ -1,5 +1,5 @@
 /* Classic Ladder Project */
-/* Copyright (C) 2001-2007 Marc Le Douarain */
+/* Copyright (C) 2001-2008 Marc Le Douarain */
 /* http://membres.lycos.fr/mavati/classicladder/ */
 /* http://www.sourceforge.net/projects/classicladder */
 /* July 2003 */
@@ -53,6 +53,7 @@ GtkWidget *OutputParamEntry[ NBR_OUTPUTS_CONF ][ NBR_IO_PARAMS ];
 GtkWidget *OutputDeviceParam[ NBR_OUTPUTS_CONF ];
 GtkWidget *OutputFlagParam[ NBR_OUTPUTS_CONF ];
 
+#ifdef MODBUS_IO_MASTER
 static char * ModbusReqType[] = { "Inputs", "Coils", /* TODO: "WriteRegs", "ReadRegs",*/ NULL };
 #define NBR_MODBUS_PARAMS 6
 GtkWidget *ModbusParamEntry[ NBR_MODBUS_MASTER_REQ ][ NBR_MODBUS_PARAMS ];
@@ -60,6 +61,7 @@ GtkWidget *SerialPortEntry;
 GtkWidget *SerialSpeedEntry;
 GtkWidget *PauseInterFrameEntry;
 GtkWidget *DebugLevelEntry;
+#endif
 
 GtkWidget *ConfigWindow;
 
@@ -431,6 +433,7 @@ void GetIOSettings( char ForInputs )
 	}
 }
 
+#ifdef MODBUS_IO_MASTER
 GtkWidget * CreateModbusModulesIO( void )
 {
 	static char * Labels[] = { "Slave Address", "TypeAccess", "1st Modbus Ele.", "Nbr Modbus Ele.", "Logic", "1st %I/%Q Mapped" };
@@ -657,13 +660,16 @@ void GetModbusModulesIOSettings( void )
 	text = (char *)gtk_entry_get_text(GTK_ENTRY(DebugLevelEntry));
 	ModbusDebugLevel = atoi( text );
 }
+#endif
 
 void GetSettings( void )
 {
 	GetGeneralParameters( );
 	GetIOSettings( 1/*ForInputs*/ );
 	GetIOSettings( 0/*ForInputs*/ );
+#ifdef MODBUS_IO_MASTER
 	GetModbusModulesIOSettings( );
+#endif
 #ifndef RT_SUPPORT
 //	ConfigHardware( );
 	InfosGene->AskToConfHard = TRUE;
@@ -685,8 +691,10 @@ void OpenConfigWindowGtk()
 				 gtk_label_new ("Physical Inputs") );
 	gtk_notebook_append_page( GTK_NOTEBOOK(nbook), CreateIOConfPage( 0/*ForInputs*/ ),
 				 gtk_label_new ("Physical Outputs") );
+#ifdef MODBUS_IO_MASTER
 	gtk_notebook_append_page( GTK_NOTEBOOK(nbook), CreateModbusModulesIO( ),
 				 gtk_label_new ("Modbus distributed I/O") );
+#endif
 
 	gtk_container_add( GTK_CONTAINER (ConfigWindow), nbook );
 	gtk_widget_show( nbook );

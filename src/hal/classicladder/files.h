@@ -9,7 +9,6 @@
 
 #endif
 
-extern char TmpDirectory[ 400 ];
 
 
 char *cl_fgets(char *s, int size, FILE *stream);

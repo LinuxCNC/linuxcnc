@@ -34,6 +34,8 @@
 
 
 
+//old code with names directly in it...
+//to be deleted, but some precise errors codes aren't present in the new function...
 #ifdef AAAAAAAAA
 char * CreateVarName(int Type, int Offset)
 {
@@ -450,6 +452,7 @@ char TextParserForAVar( char * text,int * VarTypeFound,int * VarOffsetFound, int
 #endif
 
 
+
 /* return 0 if bad or the number of characters to pass... */
 int ComparStaticPart(char * pSearchedString, char * pComparString)
 {
@@ -479,6 +482,7 @@ char TextParserForAVar( char * TextToParse, int * VarTypeFound,int * VarOffsetFo
 	int iOffset1;
 	int iOffset2;
 	int iOffset3;
+//printf( "TextParserForAVar:start...\n" );
 	if (*TextToParse=='\0' )
 		return FALSE;
 	// if not commencing per '%', search the corresponding symbol !
@@ -509,7 +513,7 @@ char TextParserForAVar( char * TextToParse, int * VarTypeFound,int * VarOffsetFo
 		iOffset3 = 0;
 		char cOneAttributPassed = FALSE;
 		// pointer on the table list
-		pConv = &TableConvTypeIdVarName[ iBalayTable ];
+		pConv = &TableConvIdVarName[ iBalayTable ];
 		do
 		{
 			// start number mark ?
@@ -583,7 +587,7 @@ char TextParserForAVar( char * TextToParse, int * VarTypeFound,int * VarOffsetFo
 		iBalayTable++;
 
 	}
-	while( !bFound && TableConvTypeIdVarName[ iBalayTable ].StringBaseVarName );
+	while( !bFound && TableConvIdVarName[ iBalayTable ].StringBaseVarName );
 
 	if (bFound)
 	{
@@ -625,10 +629,14 @@ char TextParserForAVar( char * TextToParse, int * VarTypeFound,int * VarOffsetFo
 				else
 					iIdVar = pConv->iIdVar + (iOffset1-pConv->iFirstVal1)*pConv->iSize2*pConv->iSize3 + (iOffset2-pConv->iFirstVal2)*pConv->iSize3 + iOffset3-pConv->iFirstVal3;
 			}
-#ifdef IDVAR_IS_TYPE_AND_OFFSET
 			if ( VarTypeFound!=NULL )
+			{
+#ifdef IDVAR_IS_TYPE_AND_OFFSET
 				*VarTypeFound = pConv->iTypeVar;
+#else
+				*VarTypeFound = VAR_DEFAULT_TYPE;
 #endif
+			}
 			if ( VarOffsetFound!=NULL )
 				*VarOffsetFound = iIdVar;
 			if ( pNumberOfChars!=NULL )
@@ -654,7 +662,7 @@ StrConvIdVarName * ConvIdVarEnPtrSurEleConv( int iTypeVarToSearch, int iIdVarChe
 	// research in the table list
 	do
 	{
-		pConv = &TableConvTypeIdVarName[ iBalayTable ];
+		pConv = &TableConvIdVarName[ iBalayTable ];
 		// same type ?
 #ifdef IDVAR_IS_TYPE_AND_OFFSET
 		if ( pConv->iTypeVar==iTypeVarToSearch )
@@ -670,12 +678,14 @@ StrConvIdVarName * ConvIdVarEnPtrSurEleConv( int iTypeVarToSearch, int iIdVarChe
 			else
 				iBalayTable++;
 		}
+#ifdef IDVAR_IS_TYPE_AND_OFFSET
 		else
 		{
 			iBalayTable++;
 		}
+#endif
 	}
-	while (!bFound && TableConvTypeIdVarName[ iBalayTable].StringBaseVarName);
+	while (!bFound && TableConvIdVarName[ iBalayTable].StringBaseVarName);
 	if (bFound)
 		return pConv;
 	else

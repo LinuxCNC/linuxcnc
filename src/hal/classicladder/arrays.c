@@ -52,7 +52,7 @@
 #include "classicladder_gtk.h"
 #include "manager_gtk.h"
 #include "symbols_gtk.h"
-//#include <gtk/gtk.h>
+//#include <gtk/gtk.h>/
 #endif
 
 
@@ -215,6 +215,7 @@ int ClassicLadder_AllocAll()
    	InfosGene->GeneralParams.SizesInfos = *pSizesInfos;
 
 	memcpy( &InfosGene->GeneralParams, &GeneralParamsMirror, sizeof( StrGeneralParams ) );
+//UpdateSizesOfConvVarNameTable();
  	rtapi_print("INFO----REALTIME INFO:\n");
 #endif //end of realtime code
 

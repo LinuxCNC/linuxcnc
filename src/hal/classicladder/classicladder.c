@@ -228,28 +228,36 @@ int main( int   argc, char *argv[] )
 		InitSocketServer( 0/*UseUdpMode*/, ModbusServerPort/*PortNbr*/ );
 		InitSocketModbusMaster( );
 				
-			char ProjectLoadedOk=FALSE;
+			char ProjectLoadedOk=TRUE;
 		if (nogui==TRUE) {
 			 rtapi_print("***No ladder GUI*** realtime is running till HAL closes***\n");
 			ClassicLadder_InitAllDatas( );
 			ProjectLoadedOk = LoadProjectFiles( CurrentProjectFileName );
-			hal_ready(compId);
+			
 			InfosGene->LadderState = STATE_RUN;
 			ClassicLadder_FreeAll(TRUE);
+			hal_ready(compId);
 			hal_exit(compId);	
 			return 0; }
 
 		else {		
 				for(NumRung=0;NumRung<NBR_RUNGS;NumRung++) 
 		 		{ if(RungArray[NumRung].Used) used++; }
-				if(used==0){
+				printf("\nINFO___used= %d\n",used);
+				if(used==0){	
 						ClassicLadder_InitAllDatas( );
-						ProjectLoadedOk = LoadProjectFiles( CurrentProjectFileName );}
+						ProjectLoadedOk = LoadProjectFiles( CurrentProjectFileName );
+					   }
+
 				InitGtkWindows( argc, argv );
-				UpdateAllGtkWindows( );
+				
+				UpdateAllGtkWindow( );				
 				MessageInStatusBar( ProjectLoadedOk?"Project loaded and running":"Project failed to load...");
-				hal_ready(compId);
+				if (!ProjectLoadedOk){ClassicLadder_InitAllDatas( );}				
+				printf("INFO___halready next\n");				
+
 				InfosGene->LadderState = STATE_RUN;
+				hal_ready(compId);
 				gtk_main();
 				 rtapi_print("Ladder GUI closed realtime runs till HAL closes\n");
 				ClassicLadder_FreeAll(TRUE);

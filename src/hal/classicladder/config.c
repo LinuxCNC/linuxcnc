@@ -52,12 +52,14 @@ static struct cfg_cfg maincfg[] = {
 	{ "NBR_PHYS_OUTPUTS", TYPE_INT, (void *) &GeneralParamsMirror.SizesInfos.nbr_phys_outputs },
 	{ "NBR_ARITHM_EXPR", TYPE_INT, (void *) &GeneralParamsMirror.SizesInfos.nbr_arithm_expr },
 	{ "NBR_SECTIONS", TYPE_INT, (void *) &GeneralParamsMirror.SizesInfos.nbr_sections },
+#ifdef MODBUS_IO_MASTER
 	{ "MODBUS_MASTER_SERIAL_PORT", TYPE_STRING, (void *) ModbusSerialPortNameUsed },
 	{ "MODBUS_MASTER_SERIAL_SPEED", TYPE_INT, (void *) &ModbusSerialSpeed },
 	{ "MODBUS_MASTER_SERIAL_USE_RTS_TO_SEND", TYPE_INT, (void *) &ModbusSerialUseRtsToSend },
 	{ "MODBUS_MASTER_TIME_INTER_FRAME", TYPE_INT, (void *) &ModbusTimeInterFrame },
 	{ "MODBUS_MASTER_TIME_OUT_RECEIPT", TYPE_INT, (void *) &ModbusTimeOutReceipt },
 	{ "MODBUS_MASTER_TIME_AFTER_TRANSMIT", TYPE_INT, (void *) &ModbusTimeAfterTransmit },
+#endif
 	{ NULL, 0, NULL },
 };
 

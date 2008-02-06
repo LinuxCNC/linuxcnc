@@ -1,5 +1,5 @@
 /* Classic Ladder Project */
-/* Copyright (C) 2001-2007 Marc Le Douarain */
+/* Copyright (C) 2001-2008 Marc Le Douarain */
 /* http://membres.lycos.fr/mavati/classicladder/ */
 /* http://www.sourceforge.net/projects/classicladder */
 /* February 2001 */
@@ -30,14 +30,17 @@
 #if !defined(__WIN32__)
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <unistd.h>
+#else
+#include <dir.h>
 #endif
 #include "classicladder.h"
 #include "global.h"
-#include "edit.h"
 #include "calc.h"
 #include "calc_sequential.h"
 #include "files_sequential.h"
 #include "files.h"
+#include "vars_access.h"
 
 #ifdef debug
 #define dbg_printf printf
@@ -159,7 +162,6 @@ char LoadRung(char * FileName,StrRung * BufRung)
             LineOk = cl_fgets(Line,300,File);
             if (LineOk)
             {
-                char FndElements;
                 switch(Line[0])
                 {
                     case ';':
@@ -191,7 +193,7 @@ char LoadRung(char * FileName,StrRung * BufRung)
                             BufRung->NextRung = atoi( &Line[10] );
                         break;
                     default:
-                    FndElements = ConvRawLineOfElements(Line,y,BufRung);
+					ConvRawLineOfElements(Line,y,BufRung);
                     y++;
                 }
             }
@@ -247,7 +249,7 @@ void LoadAllRungs_V1(char * BaseName,StrRung * Rungs,int * TheFirst,int * TheLas
     {
         char RungFile[400];
         sprintf(RungFile,"%s%d.csv",BaseName,NumRung);
-       // rtapi_print("Loading file : %s\n",RungFile);
+        dbg_printf("Loading file : %s",RungFile);
         if (LoadRung(RungFile,Rungs))
         {
             if (*TheFirst==-1)
@@ -264,10 +266,10 @@ void LoadAllRungs_V1(char * BaseName,StrRung * Rungs,int * TheFirst,int * TheLas
             *TheLast = NumRung;
             PrevNumRung = NumRung;
             PrevRung = Rungs;
-            rtapi_print(" - ok.\n");
+            dbg_printf(" - ok.\n");
         }
         else
-             dbg_printf(" - not found.\n");
+            dbg_printf(" - not found.\n");
         //DumpRung(Rungs);
         Rungs++;
     }
@@ -286,11 +288,11 @@ void LoadAllRungs(char * BaseName,StrRung * Rungs)
     {
         char RungFile[400];
         sprintf(RungFile,"%s%d.csv",BaseName,NumRung);
-        //rtapi_print("Loading file : %s\n",RungFile);
+        dbg_printf("Loading file : %s",RungFile);
         if (LoadRung(RungFile,Rungs))
         {
             Rungs->Used = TRUE;
-         //   rtapi_print(" - ok.\n");
+            dbg_printf(" - ok.\n");
         }
         else
             dbg_printf(" - not found.\n");
@@ -307,7 +309,7 @@ void SaveAllRungs(char * BaseName)
     for(NumRung=0;NumRung<NBR_RUNGS;NumRung++)
     {
         sprintf(RungFile,"%s%d.csv",BaseName,NumRung);
-        unlink(RungFile);
+        remove(RungFile);
     }
     /* save rungs (only defined ones are saved) */
     /* Since v0.5.5, the number of the rungs do not change : */
@@ -412,7 +414,7 @@ char * ConvRawLineOfStrings(char * RawLine,int * LgtParams,char ** ParamsStrings
 		if (*EndOfValue==10 || *EndOfValue=='\0')
 			EndOfLine = TRUE;
 		*EndOfValue++ = '\0';
-		if ( strlen( StartOfValue )<LgtParams[ Num ] )
+		if ( strlen( StartOfValue )<(unsigned int)LgtParams[ Num ] )
 			strcpy( ParamsStringsFnd[Num], StartOfValue );
 		Num++;
 		StartOfValue = EndOfValue;
@@ -581,7 +583,9 @@ char LoadCountersParams(char * FileName)
                 if (Line[0]!=';')
                 {
                     ConvRawLineOfNumbers(Line,1,Params);
-                    CounterArray[ ScanCounter++ ].Preset = Params[0];
+					WriteVar( VAR_COUNTER_PRESET, ScanCounter, Params[ 0 ] );
+					ScanCounter++;
+
                 }
             }
         }
@@ -630,7 +634,7 @@ char LoadNewTimersParams(char * FileName)
 			{
 				if (Line[0]!=';')
 				{
-					StrTimerIEC * TimerIEC = &NewTimerArray[ ScanTimerIEC++ ];
+					StrTimerIEC * TimerIEC = &NewTimerArray[ ScanTimerIEC ];
 					ConvRawLineOfNumbers(Line,3,Params);
 					switch(Params[0])
 					{
@@ -638,17 +642,18 @@ char LoadNewTimersParams(char * FileName)
 						case BASE_SECS:
 						case BASE_100MS:
 							TimerIEC->Base = CorresDatasForBase[Params[0]].ValueInMS;
-							TimerIEC->Preset = Params[1];
+							WriteVar( VAR_TIMER_IEC_PRESET, ScanTimerIEC, Params[1] );
 							strcpy(TimerIEC->DisplayFormat,CorresDatasForBase[Params[0]].DisplayFormat);
 							break;
 						default:
 							TimerIEC->Base = 1;
-							TimerIEC->Preset = 10;
+							WriteVar( VAR_TIMER_IEC_PRESET, ScanTimerIEC, 10 );
 							strcpy(TimerIEC->DisplayFormat,"%f?");
 							printf("!!! Error loading parameter base in %s\n",FileName);
 							break;
 					}
 					TimerIEC->TimerMode = (char)Params[2];
+					ScanTimerIEC++;
 				}
 			}
 		}
@@ -795,7 +800,8 @@ char LoadSectionsParams(char * FileName)
                         pSection->FirstRung = Params[ 3 ];
                         pSection->LastRung = Params[ 4 ];
                         pSection->SequentialPage = Params[ 5 ];
-
+dbg_printf("Section %d => Name=%s, Language=%d, SRnbr=%d, FirstRung=%d, LastRung=%d, SequentialPage=%d\n", NumSection,
+pSection->Name, pSection->Language, pSection->SubRoutineNumber, pSection->FirstRung, pSection->LastRung, pSection->SequentialPage);
                         break;
                 }
             }
@@ -912,6 +918,7 @@ char SaveIOConfParams(char * FileName)
 }
 
 
+#ifdef MODBUS_IO_MASTER
 char LoadModbusIOConfParams(char * FileName)
 {
 	FILE * File;
@@ -996,7 +1003,7 @@ char SaveModbusIOConfParams(char * FileName)
 	}
 	return (Okay);
 }
-
+#endif
 
 char LoadSymbols(char * FileName)
 {
@@ -1038,7 +1045,7 @@ char LoadSymbols(char * FileName)
 						PtrStrings[ 3 ] = NULL; LgtMaxStrings[ 3 ] = 0;
 						ConvRawLineOfStrings( Line, LgtMaxStrings, PtrStrings );
 //						RemoveEndLine( pSymbol->Comment );
-//rtapi_print("Symbol: %s - %s - %s\n", pSymbol->VarName, pSymbol->Symbol, pSymbol->Comment);
+dbg_printf("Symbol: %s - %s - %s\n", pSymbol->VarName, pSymbol->Symbol, pSymbol->Comment);
 						NumSymbol++;
 						break;
 				}
@@ -1078,7 +1085,7 @@ char SaveSymbols(char * FileName)
 
 
 char LoadGeneralParameters(char * FileName)
-{return TRUE;
+{
 	FILE * File;
 	char Okay = FALSE;
 	char Line[300];
@@ -1170,10 +1177,19 @@ char SaveGeneralParameters(char * FileName)
 	return (Okay);
 }
 
+void DeleteTheDefaultSection( )
+{
+	RungArray[0].Used = FALSE;
+	SectionArray[ 0 ].Used = FALSE;
+}
+
 char FileName[500];
 void LoadAllLadderDatas(char * DatasDirectory)
 {
 	ClassicLadder_InitAllDatas( );
+	// not necessary to have the default section, as we will load a working project
+	// and annoying if the section (with internal number 0) has been deleted in this project !
+	DeleteTheDefaultSection( );
 
 	printf("Loading datas from %s...\n", DatasDirectory);
 
@@ -1181,27 +1197,27 @@ void LoadAllLadderDatas(char * DatasDirectory)
 	LoadGeneralParameters( FileName );
 #ifdef OLD_TIMERS_MONOS_SUPPORT
 	sprintf(FileName,"%s/"FILE_PREFIX"timers.csv",DatasDirectory);
-	//printf("Loading timers datas from %s\n",FileName);
+//	printf("Loading timers datas from %s\n",FileName);
 	LoadTimersParams(FileName,TimerArray);
 	sprintf(FileName,"%s/"FILE_PREFIX"monostables.csv",DatasDirectory);
-	//printf("Loading monostables datas from %s\n",FileName);
+//	printf("Loading monostables datas from %s\n",FileName);
 	LoadMonostablesParams(FileName,MonostableArray);
 #endif
 	sprintf(FileName,"%s/"FILE_PREFIX"counters.csv",DatasDirectory);
-	//printf("Loading counters datas from %s\n",FileName);
+//	printf("Loading counters datas from %s\n",FileName);
 	LoadCountersParams(FileName);
 	sprintf(FileName,"%s/"FILE_PREFIX"timers_iec.csv",DatasDirectory);
 	LoadNewTimersParams(FileName);
 
 	sprintf(FileName,"%s/"FILE_PREFIX"arithmetic_expressions.csv",DatasDirectory);
-	//printf("Loading arithmetic expressions from %s\n",FileName);
+//	printf("Loading arithmetic expressions from %s\n",FileName);
 	LoadArithmeticExpr(FileName);
 
 	// Sections added since v0.5.5, the format of files has a little changed :
 	// before the prev/next rungs were not saved in each rung...
 	// and the nmber of rungs changed when saved...
 	sprintf(FileName,"%s/"FILE_PREFIX"sections.csv",DatasDirectory);
-	//printf("Loading sections datas from %s\n",FileName);
+//	printf("Loading sections datas from %s\n",FileName);
 	if ( LoadSectionsParams(FileName) )
 	{
 		sprintf(FileName,"%s/"FILE_PREFIX"rung_",DatasDirectory);
@@ -1218,22 +1234,23 @@ void LoadAllLadderDatas(char * DatasDirectory)
 	}
 #ifdef SEQUENTIAL_SUPPORT
 	sprintf(FileName,"%s/"FILE_PREFIX"sequential.csv",DatasDirectory);
-	//printf("Loading sequential datas from %s\n",FileName);
+//	printf("Loading sequential datas from %s\n",FileName);
 	LoadSequential( FileName );
 #endif
 	sprintf(FileName,"%s/"FILE_PREFIX"ioconf.csv",DatasDirectory);
-	//printf("Loading I/O configuration datas from %s\n",FileName);
+//	printf("Loading I/O configuration datas from %s\n",FileName);
 	LoadIOConfParams( FileName );
+#ifdef MODBUS_IO_MASTER
 	sprintf(FileName,"%s/"FILE_PREFIX"modbusioconf.csv",DatasDirectory);
-	//printf("Loading modbus distributed I/O configuration datas from %s\n",FileName);
+//	printf("Loading modbus distributed I/O configuration datas from %s\n",FileName);
 	LoadModbusIOConfParams( FileName );
+#endif
 	sprintf(FileName,"%s/"FILE_PREFIX"symbols.csv",DatasDirectory);
-	
+//	printf("Loading symbols datas from %s\n",FileName);
 	LoadSymbols(FileName);
 
-
+//printf("Prepare all datas before run...\n");
 	PrepareAllDatasBeforeRun( );
-
 }
 
 void SaveAllLadderDatas(char * DatasDirectory)
@@ -1263,8 +1280,10 @@ void SaveAllLadderDatas(char * DatasDirectory)
 #endif
 	sprintf(FileName,"%s/"FILE_PREFIX"ioconf.csv",DatasDirectory);
 	SaveIOConfParams( FileName );
+#ifdef MODBUS_IO_MASTER
 	sprintf(FileName,"%s/"FILE_PREFIX"modbusioconf.csv",DatasDirectory);
 	SaveModbusIOConfParams( FileName );
+#endif
 	sprintf(FileName,"%s/"FILE_PREFIX"symbols.csv",DatasDirectory);
 	SaveSymbols( FileName );
 	InfosGene->AskConfirmationToQuit = FALSE;
@@ -1304,7 +1323,12 @@ void CleanTmpLadderDirectory( char DestroyDir )
 		}
 		closedir(pDir);
 		/* delete the temp directory if wanted */
+#ifndef __WIN32__
 		if ( DestroyDir )
-			rmdir(TmpDirectory); // _rmdir() for Win32 ?
+			rmdir(TmpDirectory);
+#else
+		if ( DestroyDir )
+			_rmdir(TmpDirectory);
+#endif
 	}
 }

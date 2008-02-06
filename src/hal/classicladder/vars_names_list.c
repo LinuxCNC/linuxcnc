@@ -1,5 +1,5 @@
 /* Classic Ladder Project */
-/* Copyright (C) 2001-2007 Marc Le Douarain */
+/* Copyright (C) 2001-2008 Marc Le Douarain */
 /* http://membres.lycos.fr/mavati/classicladder/ */
 /* http://www.sourceforge.net/projects/classicladder */
 /* October 2007 */
@@ -42,7 +42,7 @@ typedef struct StrConvIdVarName
 }StrConvIdVarName;
 
 // Table of the defaults names variables (without the the first '%'' character)
-StrConvIdVarName TableConvTypeIdVarName[] = {
+StrConvIdVarName TableConvIdVarName[] = {
 		{ "B%d", VAR_MEM_BIT, 0, /*sizes*/ NBR_BITS_DEF, -1, -1, /*offsets */ 0, 0, 0 },
 #ifdef OLD_TIMERS_MONOS_SUPPORT
 		{ "T%d.D", VAR_TIMER_DONE, 0, /*sizes*/ NBR_TIMERS_DEF, -1, -1, /*offsets */ 0, 0, 0 },
@@ -66,31 +66,38 @@ StrConvIdVarName TableConvTypeIdVarName[] = {
 		{ "W%d", VAR_MEM_WORD, 0, /*sizes*/ NBR_WORDS_DEF, -1, -1, /*offsets */ 0, 0, 0 },
 		{ "X%d", VAR_STEP_ACTIVITY, 0, /*sizes*/ NBR_STEPS, -1, -1, /*offsets */ 0, 0, 0 },
 		{ "X%d.V", VAR_STEP_TIME, 0, /*sizes*/ NBR_STEPS, -1, -1, /*offsets */ 0, 0, 0 },
+
 		{ NULL, 0, 0, /*sizes*/ 0, 0, 0, /*offsets */ 0, 0, 0 }  //END
 };
 
 // use the real allocated sizes in the table now
+// can not be done before in the table, because they aren't constants !!!
 void UpdateSizesOfConvVarNameTable( void )
 {
 	int ScanTable = 0;
-	TableConvTypeIdVarName[ ScanTable++ ].iSize1 = NBR_BITS;
-	TableConvTypeIdVarName[ ScanTable++ ].iSize1 = NBR_TIMERS;
-	TableConvTypeIdVarName[ ScanTable++ ].iSize1 = NBR_TIMERS;
-	TableConvTypeIdVarName[ ScanTable++ ].iSize1 = NBR_TIMERS;
-	TableConvTypeIdVarName[ ScanTable++ ].iSize1 = NBR_TIMERS;
-	TableConvTypeIdVarName[ ScanTable++ ].iSize1 = NBR_MONOSTABLES;
-	TableConvTypeIdVarName[ ScanTable++ ].iSize1 = NBR_MONOSTABLES;
-	TableConvTypeIdVarName[ ScanTable++ ].iSize1 = NBR_MONOSTABLES;
-	TableConvTypeIdVarName[ ScanTable++ ].iSize1 = NBR_COUNTERS;
-	TableConvTypeIdVarName[ ScanTable++ ].iSize1 = NBR_COUNTERS;
-	TableConvTypeIdVarName[ ScanTable++ ].iSize1 = NBR_COUNTERS;
-	TableConvTypeIdVarName[ ScanTable++ ].iSize1 = NBR_COUNTERS;
-	TableConvTypeIdVarName[ ScanTable++ ].iSize1 = NBR_COUNTERS;
-	TableConvTypeIdVarName[ ScanTable++ ].iSize1 = NBR_TIMERS_IEC;
-	TableConvTypeIdVarName[ ScanTable++ ].iSize1 = NBR_TIMERS_IEC;
-	TableConvTypeIdVarName[ ScanTable++ ].iSize1 = NBR_TIMERS_IEC;
-	TableConvTypeIdVarName[ ScanTable++ ].iSize1 = NBR_PHYS_INPUTS;
-	TableConvTypeIdVarName[ ScanTable++ ].iSize1 = NBR_PHYS_OUTPUTS;
-	TableConvTypeIdVarName[ ScanTable++ ].iSize1 = NBR_WORDS;
+	TableConvIdVarName[ ScanTable++ ].iSize1 = NBR_BITS;
+#ifdef OLD_TIMERS_MONOS_SUPPORT
+	TableConvIdVarName[ ScanTable++ ].iSize1 = NBR_TIMERS;
+	TableConvIdVarName[ ScanTable++ ].iSize1 = NBR_TIMERS;
+	TableConvIdVarName[ ScanTable++ ].iSize1 = NBR_TIMERS;
+	TableConvIdVarName[ ScanTable++ ].iSize1 = NBR_TIMERS;
+	TableConvIdVarName[ ScanTable++ ].iSize1 = NBR_MONOSTABLES;
+	TableConvIdVarName[ ScanTable++ ].iSize1 = NBR_MONOSTABLES;
+	TableConvIdVarName[ ScanTable++ ].iSize1 = NBR_MONOSTABLES;
+#endif
+	TableConvIdVarName[ ScanTable++ ].iSize1 = NBR_COUNTERS;
+	TableConvIdVarName[ ScanTable++ ].iSize1 = NBR_COUNTERS;
+	TableConvIdVarName[ ScanTable++ ].iSize1 = NBR_COUNTERS;
+	TableConvIdVarName[ ScanTable++ ].iSize1 = NBR_COUNTERS;
+	TableConvIdVarName[ ScanTable++ ].iSize1 = NBR_COUNTERS;
+	TableConvIdVarName[ ScanTable++ ].iSize1 = NBR_TIMERS_IEC;
+	TableConvIdVarName[ ScanTable++ ].iSize1 = NBR_TIMERS_IEC;
+	TableConvIdVarName[ ScanTable++ ].iSize1 = NBR_TIMERS_IEC;
+	TableConvIdVarName[ ScanTable++ ].iSize1 = NBR_PHYS_INPUTS;
+	TableConvIdVarName[ ScanTable++ ].iSize1 = NBR_PHYS_OUTPUTS;
+	TableConvIdVarName[ ScanTable++ ].iSize1 = NBR_WORDS;
+	ScanTable++; // Nothing here (NBR_STEPS=constant!)
+	ScanTable++; // Nothing here (NBR_STEPS=constant!)
+
 }
 

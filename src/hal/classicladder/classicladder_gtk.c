@@ -1,5 +1,5 @@
 /* Classic Ladder Project */
-/* Copyright (C) 2001-2007 Marc Le Douarain */
+/* Copyright (C) 2001-2008 Marc Le Douarain */
 /* http://membres.lycos.fr/mavati/classicladder/ */
 /* http://www.sourceforge.net/projects/classicladder */
 /* February 2001 */
@@ -324,7 +324,7 @@ void autorize_prevnext_buttons(int Yes)
 }
 
 void ButtonRunStop_click()
-{ rtapi_print("run button pushed %d\n",InfosGene->LadderState);
+{
 	if (InfosGene->LadderState==STATE_RUN)
 	{
 		InfosGene->LadderState = STATE_STOP;
@@ -511,15 +511,24 @@ void DoNewProject( void )
 {
 	ClassicLadder_InitAllDatas( );
 	UpdateAllGtkWindows( );
+	InfosGene->AskConfirmationToQuit = TRUE;
 }
 
 void ButtonNew_click()
 {
 	ShowConfirmationBox("New","Do you really want to clear all datas ?",DoNewProject);
 }
-void ButtonLoad_click()
+void DoLoadProject()
 {
 	CreateFileSelection("Please select the project to load",FALSE);
+}
+
+void ButtonLoad_click()
+{
+	if ( InfosGene->AskConfirmationToQuit )
+		ShowConfirmationBox( "Sure?", "Do you really want to load another project ?\nIf not saved, all modifications on the current project will be lost  \n", DoLoadProject );
+	else
+		DoLoadProject( );
 }
 
 void ButtonSaveAs_click()
@@ -555,8 +564,7 @@ void ButtonAbout_click()
 	/* Create the widgets */
 	dialog = gtk_dialog_new();
 	label = gtk_label_new ( CL_PRODUCT_NAME " v" CL_RELEASE_VER_STRING "\n" CL_RELEASE_DATE_STRING "\n"
-						"As adapted for EMC-2\n"
-						"Copyright (C) 2001-2007 Marc Le Douarain\nmarc . le - douarain /At\\ laposte \\DoT/ net\n"
+						"Copyright (C) 2001-2008 Marc Le Douarain\nmarc . le - douarain /At\\ laposte \\DoT/ net\n"
 						"http://www.sourceforge.net/projects/classicladder\n"
 						"http://membres.lycos.fr/mavati/classicladder\n"
 						"Released under the terms of the\nGNU Lesser General Public License v2.1");
@@ -604,25 +612,35 @@ void DoFunctionOfConfirmationBox(void * (*function_to_do)(void *))
 	gtk_widget_destroy(ConfirmDialog);
 	(function_to_do)(NULL);
 }
-void ShowConfirmationBox(char * title,char * text,void * function_if_yes)
+void ShowConfirmationBoxWithChoiceOrNot(char * title,char * text,void * function_if_yes, char HaveTheChoice)
 {
 	/* From the example in gtkdialog help */
 	GtkWidget *label, *yes_button, *no_button;
 	/* Create the widgets */
 	ConfirmDialog = gtk_dialog_new();
 	label = gtk_label_new (text);
+	if ( HaveTheChoice )
+	{
 	yes_button = gtk_button_new_with_label("Yes");
 	no_button = gtk_button_new_with_label("No");
+	}
+	else
+	{
+		yes_button = gtk_button_new_with_label("Ok");
+	}
 	/* Ensure that the dialog box is destroyed when the user clicks ok. */
+	if ( HaveTheChoice )
+	{
 	gtk_signal_connect_object (GTK_OBJECT (no_button), "clicked",
 							GTK_SIGNAL_FUNC (gtk_widget_destroy), GTK_OBJECT(ConfirmDialog));
+		gtk_container_add (GTK_CONTAINER (GTK_DIALOG(ConfirmDialog)->action_area),
+					no_button);
+		gtk_widget_grab_focus(no_button);
+	}
 	gtk_signal_connect_object (GTK_OBJECT (yes_button), "clicked",
 							GTK_SIGNAL_FUNC (DoFunctionOfConfirmationBox), function_if_yes);
 	gtk_container_add (GTK_CONTAINER (GTK_DIALOG(ConfirmDialog)->action_area),
 					yes_button);
-	gtk_container_add (GTK_CONTAINER (GTK_DIALOG(ConfirmDialog)->action_area),
-					no_button);
-	gtk_widget_grab_focus(no_button);
 	/* Add the label, and show everything we've added to the dialog. */
 	gtk_container_add (GTK_CONTAINER (GTK_DIALOG(ConfirmDialog)->vbox),
 					label);
@@ -631,7 +649,10 @@ void ShowConfirmationBox(char * title,char * text,void * function_if_yes)
 	gtk_window_set_position(GTK_WINDOW(ConfirmDialog),GTK_WIN_POS_CENTER);
 	gtk_widget_show_all (ConfirmDialog);
 }
-
+void ShowConfirmationBox(char * title,char * text,void * function_if_yes)
+{
+	ShowConfirmationBoxWithChoiceOrNot( title, text, function_if_yes, TRUE );
+}
 
 void QuitAppliGtk()
 {
@@ -639,16 +660,16 @@ void QuitAppliGtk()
 	gtk_exit(0);
 }
 
-void DoQuit( void )
+void DoQuitGtkApplication( void )
 {
 	gtk_widget_destroy( RungWindow ); //sends signal "destroy" that will call QuitAppliGtk()...
 }
 void ConfirmQuit( void )
 {
 	if ( InfosGene->AskConfirmationToQuit )
-		ShowConfirmationBox( "Sure?", "Do you really want to quit ?\nIf not saved, all modifications will be lost  \n", DoQuit );
+		ShowConfirmationBox( "Sure?", "Do you really want to quit ?\nIf not saved, all modifications will be lost  \n", DoQuitGtkApplication );
 	else
-		DoQuit( );
+		DoQuitGtkApplication( );
 }
 gint RungWindowDeleteEvent( GtkWidget * widget, GdkEvent * event, gpointer data )
 {
