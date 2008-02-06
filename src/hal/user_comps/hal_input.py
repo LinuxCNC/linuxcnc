@@ -92,7 +92,7 @@ class HalInputDevice:
                 comp.newparam("%s.%s-min" % (idx, name), HAL_S32, HAL_RO)
                 comp.newparam("%s.%s-max" % (idx, name), HAL_S32, HAL_RO)
                 center = (absinfo.minimum + absinfo.maximum)/2.
-                halfrange = (absinfo.maximum - absinfo.minimum)/2.
+                halfrange = (absinfo.maximum - absinfo.minimum)/2. or 1
                 self.set(name + "-counts", absinfo.value)
                 self.set(name + "-position",
                     (absinfo.value - center) / halfrange)
