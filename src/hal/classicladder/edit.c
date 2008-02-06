@@ -210,15 +210,15 @@ char * GetElementPropertiesForStatusBar(StrElement * Element)
 	{
 		switch(Element->Type)
 		{
-			case ELE_INPUT:
+			case ELE_INPUT:                             	
 			case ELE_INPUT_NOT:
 			case ELE_RISING_INPUT:
 			case ELE_FALLING_INPUT:
-			case ELE_OUTPUT:
+			case ELE_OUTPUT:				
 			case ELE_OUTPUT_NOT:
 			case ELE_OUTPUT_SET:
 			case ELE_OUTPUT_RESET:
-				sprintf(PropertiesText, "Variable: %s",CreateVarName(Element->VarType,Element->VarNum));
+				sprintf(PropertiesText, "Variable: %s    Hal signal: %s",CreateVarName(Element->VarType,Element->VarNum),ConvVarNameToHalSigName(CreateVarName(Element->VarType,Element->VarNum)));
 				break;
 			case ELE_OUTPUT_JUMP:
 				sprintf(PropertiesText, "Label: %s", RungArray[Element->VarNum].Label);
