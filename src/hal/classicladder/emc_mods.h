@@ -1,0 +1,1 @@
+char * ConvVarNameToHalSigName( char * VarNameParam );
