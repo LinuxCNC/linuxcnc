@@ -68,6 +68,7 @@ void InitRungs()
 			}
 		}
 	}
+	// the rung used in the default section created per default
 	InfosGene->FirstRung = 0;
 	InfosGene->LastRung = 0;
 	InfosGene->CurrentRung = 0;
@@ -97,7 +98,6 @@ void PrepareRungs()
 			}
 		}
 	}
-
 }
 #ifdef OLD_TIMERS_MONOS_SUPPORT
 void InitTimers()
@@ -206,7 +206,6 @@ void PrepareAllDatasBeforeRun( )
 	PrepareRungs( );
 #ifdef SEQUENTIAL_SUPPORT
 	PrepareSequential( );
-
 #endif
 }
 
@@ -383,7 +382,6 @@ int CalcTypeOutputCall(int x,int y,StrRung * UpdateRung)
     return CallSrSection;
 }
 #ifdef OLD_TIMERS_MONOS_SUPPORT
-// modified for EMC2 to force InputControl true so timers work the same as before
 /* Element : Timer (2x2 Blocks) */
 void CalcTypeTimer(int x,int y,StrRung * UpdateRung)
 {
@@ -404,8 +402,7 @@ void CalcTypeTimer(int x,int y,StrRung * UpdateRung)
     }
     else
     {
-	Timer->InputControl = 1;        
-	//Timer->InputControl = StateOnLeft(x-1,y+1,UpdateRung);
+        Timer->InputControl = 1;//StateOnLeft(x-1,y+1,UpdateRung);
     }
     if (!Timer->InputEnable)
     {
@@ -466,8 +463,9 @@ void CalcTypeCounter(int x,int y,StrRung * UpdateRung)
 {
 	int CounterNbr = UpdateRung->Element[x][y].VarNum;
 	StrCounter * Counter = &CounterArray[ CounterNbr ];
-	int CurrentValue = Counter->Value;
-	int PresetValue = Counter->Preset;
+	char DoneResult, EmptyResult, FullResult;
+	int CurrentValue = ReadVar( VAR_COUNTER_VALUE, CounterNbr );
+	int PresetValue = ReadVar( VAR_COUNTER_PRESET, CounterNbr );
 	// directly connected to the "left"? if yes, ON !
 	if ( x==0 )
 	{
@@ -510,16 +508,19 @@ void CalcTypeCounter(int x,int y,StrRung * UpdateRung)
 	Counter->InputCountUpBak = Counter->InputCountUp;
 	Counter->InputCountDownBak = Counter->InputCountDown;
 
-	UpdateRung->Element[x][y].DynamicOutput = Counter->OutputEmpty;
-	UpdateRung->Element[x][y + 1].DynamicOutput = Counter->OutputDone;
-	UpdateRung->Element[x][y + 2].DynamicOutput = Counter->OutputFull;
+	DoneResult = ( CurrentValue==PresetValue )?1:0;
+	EmptyResult = ( CurrentValue==9999 && Counter->ValueBak==0 )?1:0;
+	FullResult = ( CurrentValue==0 && Counter->ValueBak==9999 )?1:0;
+	UpdateRung->Element[x][y + 1].DynamicOutput = DoneResult;
+	UpdateRung->Element[x][y].DynamicOutput = EmptyResult;
+	UpdateRung->Element[x][y + 2].DynamicOutput = FullResult;
 
 	// now update public vars
 	// (we could have directly written in the counter structure)
 	// (but on another project, vars can be mapped in another way)
-	WriteVar( VAR_COUNTER_DONE, CounterNbr, ( CurrentValue==PresetValue )?1:0 );
-	WriteVar( VAR_COUNTER_EMPTY, CounterNbr, ( CurrentValue==9999 && Counter->ValueBak==0 )?1:0 );
-	WriteVar( VAR_COUNTER_FULL, CounterNbr, ( CurrentValue==0 && Counter->ValueBak==9999 )?1:0 );
+	WriteVar( VAR_COUNTER_DONE, CounterNbr, DoneResult );
+	WriteVar( VAR_COUNTER_EMPTY, CounterNbr, EmptyResult );
+	WriteVar( VAR_COUNTER_FULL, CounterNbr, FullResult );
 	WriteVar( VAR_COUNTER_PRESET, CounterNbr, PresetValue );
 	WriteVar( VAR_COUNTER_VALUE, CounterNbr, CurrentValue );
 }
@@ -528,9 +529,10 @@ void CalcTypeTimerIEC(int x,int y,StrRung * UpdateRung)
 {
 	int TimerNbr = UpdateRung->Element[x][y].VarNum;
 	StrTimerIEC * TimerIEC = &NewTimerArray[ TimerNbr ];
-	int CurrentValue = TimerIEC->Value;
-	int PresetValue = TimerIEC->Preset;
-	char OutputResult = TimerIEC->Output;
+	int CurrentValue = ReadVar( VAR_TIMER_IEC_VALUE, TimerNbr );
+	int PresetValue = ReadVar( VAR_TIMER_IEC_PRESET, TimerNbr );
+	char OutputResult = ReadVar( VAR_TIMER_IEC_DONE, TimerNbr );
+
 	char DoIncTime = FALSE;
 	// directly connected to the "left"? if yes, ON !
 	if (x==0)
@@ -608,7 +610,7 @@ void CalcTypeTimerIEC(int x,int y,StrRung * UpdateRung)
 		}
 	}
 	TimerIEC->InputBak = TimerIEC->Input;
-	UpdateRung->Element[x][y].DynamicOutput = TimerIEC->Output;
+	UpdateRung->Element[x][y].DynamicOutput = OutputResult;
 	// now update public vars
 	// (we could have directly written in the IEC Timer structure)
 	// (but on another project, vars can be mapped in another way)
@@ -772,7 +774,7 @@ void RefreshASection( StrSection * pSection )
 			if ( MadLoopBreak>99999 ) //value to set here?... or else measuring time?
 			{
 				Done = TRUE;
-				debug_printf("Refresh rungs aborted - endless loop jump detected - STOPPED...!\n");
+				debug_printf("Refresh rungs aborted - mad loop jump detected - STOPPED...!\n");
 				InfosGene->LadderState = STATE_STOP;
 			}
 		}
@@ -789,18 +791,10 @@ void RefreshASection( StrSection * pSection )
 
 // All the sections 'main' are refreshed in the order defined.
 #define SR_STACK 25
-void ClassicLadder_RefreshAllSections(unsigned long period)
+void ClassicLadder_RefreshAllSections()
 {
 	int ScanMainSection;
 	StrSection * pScanSection;
-
-//TODO: times measures should be moved directly in the module task
-#ifdef __RTL__
-	long StartTime = gethrtime();
-#endif
-#if defined( RTAI ) && defined( MODULE )
-	long StartTime = rt_get_cpu_time_ns();
-#endif
 
 	CycleStart();
 
@@ -828,13 +822,7 @@ void ClassicLadder_RefreshAllSections(unsigned long period)
 
 	CycleEnd();
 //TODO: times measures should be moved directly in the module task
-#ifdef __RTL__
-	InfosGene->DurationOfLastScan = gethrtime() - StartTime;
-//    rtl_printf("Time elapsed for refresh = %u nsec\n",gethrtime()-StartTime);
-#endif
-
-	//InfosGene->DurationOfLastScan = period;
- InfosGene->GeneralParams.PeriodicRefreshMilliSecs=period/ 1000000; //added for emc
+// time measurement has been moved to module_hal.c for EMC
 }
 
 void CopyRungToRung(StrRung * RungSrc,StrRung * RungDest)

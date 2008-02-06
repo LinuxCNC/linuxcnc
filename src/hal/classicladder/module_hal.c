@@ -100,28 +100,48 @@ void HalWrites32Outputs(void) {
 		*(hal_s32_outputs[i]) = ReadVar(VAR_MEM_WORD, i+InfosGene->GeneralParams.SizesInfos.nbr_s32in);
 	}
 }
-static void hal_task(void *arg, long period) {
-	unsigned long t0, t1;
+// This actually does the magic of periodic refresh of pins and
+// calculations. This function runs at the period rate of the thread
+// that you added it to.
+// period, leftover, t0,and t1 are in nanoseconds. 
+// This function first checks to see if at least 1 micosecond has gone by
+// if the period is under 1 MS then if will not refresh rungs yet but 
+// will keep track of how many NS were left over. Does this each period
+// till at least 1 MS has occured, if more then 1 MS then keeps track of
+// leftover NS for accuracy. Buttom line is you can run classiclader in
+// a thread faster than 1 microsecond but it will not refresh the rungs
+// any faster (it can be slower though).
+// t0 and t1 are for keeping track of how long the refresh of sections, 
+// and HAL pins take (it is displayed in the 'section display' GUI). 
 
+static void hal_task(void *arg, long period) 
+{
+	unsigned long t0, t1,microseconds;
+ 	static unsigned long leftover=0;
+         leftover += period;
+	 microseconds= leftover / 1000000;
+	leftover %= 1000000;
+
+	if (microseconds >= 1) {
+	InfosGene->GeneralParams.PeriodicRefreshMilliSecs=microseconds;
 	*hal_state = InfosGene->LadderState;
 	t0 = rtapi_get_time();
-	if (InfosGene->LadderState==STATE_RUN)
-	{
-			HalReadPhysicalInputs();
+		if (InfosGene->LadderState==STATE_RUN)
+			{
+				HalReadPhysicalInputs();
 
-			HalReads32Inputs();
+				HalReads32Inputs();
 		
-			ClassicLadder_RefreshAllSections( period);
+				ClassicLadder_RefreshAllSections();
 		
+				HalWritePhysicalOutputs();
 
-			HalWritePhysicalOutputs();
-
-			HalWrites32Outputs();
-		}
-                t1 = rtapi_get_time();
-                InfosGene->DurationOfLastScan = t1 - t0;
-	}
-
+				HalWrites32Outputs();
+			}
+     	 t1 = rtapi_get_time();
+         InfosGene->DurationOfLastScan = t1 - t0;
+				}
+}
 
 extern void CopySizesInfosFromModuleParams( void );
 
