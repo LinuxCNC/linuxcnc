@@ -14,6 +14,7 @@ CLASSICLADDERSRCS := $(addprefix hal/classicladder/, \
 	edit_gtk.c \
 	edit_sequential.c \
 	editproperties_gtk.c \
+	emc_mods.c \
 	files.c \
 	files_project.c \
 	files_sequential.c \
