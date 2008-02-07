@@ -1103,7 +1103,7 @@ int do_delsig_cmd(char *mod_name)
 	next = hal_data->sig_list_ptr;
 	while (next != 0) {
 	    sig = SHMPTR(next);
-	    /* we want to unload this signal, remember it's name */
+	    /* we want to unload this signal, remember its name */
 	    if ( n < ( MAX_EXPECTED_SIGS - 1 ) ) {
 	        strncpy(sigs[n++], sig->name, HAL_NAME_LEN );
 	    }
@@ -1193,7 +1193,7 @@ int do_unloadrt_cmd(char *mod_name)
 	if ( comp->type == 1 ) {
 	    /* found a realtime component */
 	    if ( all || ( strcmp(mod_name, comp->name) == 0 )) {
-		/* we want to unload this component, remember it's name */
+		/* we want to unload this component, remember its name */
 		if ( n < 63 ) {
 		    strncpy(comps[n++], comp->name, HAL_NAME_LEN );
 		}
@@ -2353,7 +2353,7 @@ static void save_params(FILE *dst)
     while (next != 0) {
 	param = SHMPTR(next);
 	if (param->dir != HAL_RO) {
-	    /* param is writable, save it's value */
+	    /* param is writable, save its value */
 	    fprintf(dst, "setp %s %s\n", param->name,
 		data_value((int) param->type, SHMPTR(param->data_ptr)));
 	}
