@@ -1847,11 +1847,12 @@ bind Entry <Control-KeyPress-Home> {+if {[%W cget -state] == "normal"} break}
 bind Entry <Control-KeyRelease-Home> {+if {[%W cget -state] == "normal"} break}
 bind Entry <Control-KeyPress-KP_Home> {+if {[%W cget -state] == "normal"} break}
 bind Entry <Control-KeyRelease-KP_Home> {+if {[%W cget -state] == "normal"} break}
+set bb [bind Entry <KeyPress>]
 foreach k { Left Right Up Down Prior Next
             Home End } {
     set b [bind Entry <$k>]
-    if {$b == {}} { set b [bind Entry <Key>] }
-    bind Entry <KeyPress-KP_$k> $b
+    if {$b == {}} { set b $bb }
+    bind Entry <KeyPress-KP_$k> "if {%A == \"\"} { $b } { $bb; break }"
     bind Entry <KeyRelease-KP_$k> {+if {[%W cget -state] == "normal"} break}
 }
 

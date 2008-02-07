@@ -2016,6 +2016,7 @@ class _prompt_float:
         t.bind("<Return>", lambda event: (self.ok.flash(), self.ok.invoke()))
         t.bind("<KP_Enter>", lambda event: (self.ok.flash(), self.ok.invoke()))
         t.bind("<Escape>", lambda event: (self.cancel.flash(), self.cancel.invoke()))
+        t.bind("<Destroy>", lambda event: self.do_cancel())
 
         m.pack(side="top", anchor="w")
         e.pack(side="top", anchor="e")
@@ -2094,7 +2095,10 @@ class _prompt_float:
         self.t.wait_variable(self.u)
         if self._after is not None:
             self.t.after_cancel(self._after)
-        self.t.destroy()
+        try:
+            self.t.destroy()
+        except Tkinter.TclError:
+            pass
         return self.result()
 
 def prompt_float(title, text, default):
@@ -2538,7 +2542,8 @@ class TclCommands(nf.TclCommands):
     def task_stop(*event):
         c.abort()
 
-    def mdi_up_cmd(*event):
+    def mdi_up_cmd(*args):
+        if args and args[0].char: return   # e.g., for KP_Up with numlock on
         global mdi_history_index
         if widgets.mdi_command.cget("state") == "disabled":
             return
@@ -2554,7 +2559,8 @@ class TclCommands(nf.TclCommands):
             vars.mdi_command.set(widgets.mdi_history.get(mdi_history_index))
             widgets.mdi_command.selection_range(0, "end")
 
-    def mdi_down_cmd(*event):
+    def mdi_down_cmd(*args):
+        if args and args[0].char: return   # e.g., for KP_Up with numlock on
         global mdi_history_index
         if widgets.mdi_command.cget("state") == "disabled":
             return
@@ -3024,13 +3030,7 @@ def activate_axis_or_set_feedrate(n):
         set_feedrate(10*n)
 
 def kp_wrap(f,g):
-    def func(e):
-        if e.char and e.keysym.startswith("KP_"):
-            root_window.tk.call("event", "generate",
-                            e.widget, "<%s-%s>" % (g, e.char))
-        else:
-            f(e)
-    return func
+    return f
 
 root_window.bind("<Escape>", commands.task_stop)
 root_window.bind("l", commands.toggle_override_limits)
