@@ -251,7 +251,7 @@ int main( int   argc, char *argv[] )
 
 				InitGtkWindows( argc, argv );
 				
-				UpdateAllGtkWindow( );				
+				UpdateAllGtkWindows();				
 				MessageInStatusBar( ProjectLoadedOk?"Project loaded and running":"Project failed to load...");
 				if (!ProjectLoadedOk){ClassicLadder_InitAllDatas( );}				
 				printf("INFO___halready next\n");				
