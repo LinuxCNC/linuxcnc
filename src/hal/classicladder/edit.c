@@ -199,13 +199,15 @@ void LoadElementProperties(StrElement * Element)
 char * GetElementPropertiesForStatusBar(StrElement * Element)
 {
 	static char PropertiesText[100];
-	strcpy( PropertiesText, "" );
 #ifdef OLD_TIMERS_MONOS_SUPPORT
 	StrTimer * Timer = NULL;
 	StrMonostable * Monostable = NULL;
 #endif
 	StrCounter * Counter = NULL;
 	StrTimerIEC * TimerIEC = NULL;
+
+	strcpy( PropertiesText, "" );
+
 	if (Element)
 	{
 		switch(Element->Type)

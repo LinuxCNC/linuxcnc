@@ -58,8 +58,9 @@ char TmpDirectory[ 400 ] = "";
 
 char *cl_fgets(char *s, int size, FILE *stream)
 {
-	s[0] = '\0';
 	char * res = fgets( s, size, stream );
+	s[0] = '\0';
+	
 
 	// While last character in string is either CR or LF, remove.
 	while (strlen(s)>=1 && ((s[strlen(s)-1]=='\r') || (s[strlen(s)-1]=='\n')))

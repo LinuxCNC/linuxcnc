@@ -951,16 +951,17 @@ void DrawCurrentElementEdited( int AddPosiY )
 {
 	if ( EditDatas.CurrentElementSizeX>0 && EditDatas.CurrentElementSizeY>0 )
 	{
+		int Left = (EditDatas.CurrentElementPosiX-EditDatas.CurrentElementSizeX+1)*InfosGene->BlockWidth +OFFSET_X;
+		int Top = EditDatas.CurrentElementPosiY*InfosGene->BlockHeight +AddPosiY +OFFSET_Y;
+		int Width = EditDatas.CurrentElementSizeX*InfosGene->BlockWidth;
+		int Height = EditDatas.CurrentElementSizeY*InfosGene->BlockHeight;
 		GdkColor DynaGdkColor;
 		GdkGC * DynaGcColor;
 		DynaGdkColor.pixel = 0xFF3030;
 		DynaGdkColor.red = 0xFF;
 		DynaGdkColor.green = 0x30;
 		DynaGdkColor.blue = 0x30;
-		int Left = (EditDatas.CurrentElementPosiX-EditDatas.CurrentElementSizeX+1)*InfosGene->BlockWidth +OFFSET_X;
-		int Top = EditDatas.CurrentElementPosiY*InfosGene->BlockHeight +AddPosiY +OFFSET_Y;
-		int Width = EditDatas.CurrentElementSizeX*InfosGene->BlockWidth;
-		int Height = EditDatas.CurrentElementSizeY*InfosGene->BlockHeight;
+
 		DynaGcColor = gdk_gc_new( pixmap );
 		gdk_gc_set_foreground( DynaGcColor, &DynaGdkColor );
 		gdk_draw_rectangle( pixmap, DynaGcColor, FALSE, Left, Top, Width, Height );

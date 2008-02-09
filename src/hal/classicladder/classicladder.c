@@ -215,8 +215,7 @@ int main( int   argc, char *argv[] )
 	compId=hal_init("classicladder"); //emc
 	if (compId<0) return -1; //emc
 	signal(SIGTERM,do_exit); //emc
-	
-	
+		
 	InitModbusMasterBeforeReadConf( );
 
 	process_options (argc, argv);
@@ -224,11 +223,11 @@ int main( int   argc, char *argv[] )
 
 	if (ClassicLadder_AllocAll())
 	{
-
+		char ProjectLoadedOk=TRUE;
 		InitSocketServer( 0/*UseUdpMode*/, ModbusServerPort/*PortNbr*/ );
 		InitSocketModbusMaster( );
 				
-			char ProjectLoadedOk=TRUE;
+			
 		if (nogui==TRUE) {
 			 rtapi_print("***No ladder GUI*** realtime is running till HAL closes***\n");
 			ClassicLadder_InitAllDatas( );
