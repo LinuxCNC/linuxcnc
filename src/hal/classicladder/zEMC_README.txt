@@ -22,6 +22,12 @@ classicladder gtk.c:
 config_gtk.c:
 --- removed define for hardware.h
 
+edit.c
+--- added call to check for hal signal names (see GetElementPropertiesForStatusBar )
+
+edit.h
+--- added prototype for ConvVarNameToHalSigName
+
 emc_mods.c and emc_mods.h:
 ----added Jeffs function to check for HAL signal names (called by function GetElementPropertiesForStatusBar in edit.c 
 

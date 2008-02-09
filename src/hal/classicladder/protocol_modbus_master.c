@@ -409,8 +409,9 @@ int ModbusMasterAsk( unsigned char * SlaveAddressIP, unsigned char * Question )
 		{
 			if ( ModbusSerialPortNameUsed[ 0 ]!='\0' )
 			{
-				LgtAskFrame = LgtAskFrame+OffsetHeader;
 				unsigned short CalcCRC;
+				LgtAskFrame = LgtAskFrame+OffsetHeader;
+				
 				// slave address
 				Question[ 0 ] = atoi( ModbusMasterReq[ CurrentReq ].SlaveAdr );
 				// add CRC at the end of the frame
