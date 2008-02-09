@@ -504,14 +504,16 @@ char TextParserForAVar( char * TextToParse, int * VarTypeFound,int * VarOffsetFo
 	// scanning the base name variables table
 	do
 	{
-		pBalayVarCherch = pVarCherch;
 		char bEchecCompar = FALSE;
+		int iBalayProf = 0, iNumFound, iTaillePartieStatique;
+		char cOneAttributPassed = FALSE;
+
+		pBalayVarCherch = pVarCherch;
 		iScruteCarac = 0;
-		int iBalayProf = 0;
 		iOffset1 = 0;
 		iOffset2 = 0;
 		iOffset3 = 0;
-		char cOneAttributPassed = FALSE;
+		
 		// pointer on the table list
 		pConv = &TableConvIdVarName[ iBalayTable ];
 		do
@@ -530,7 +532,7 @@ char TextParserForAVar( char * TextToParse, int * VarTypeFound,int * VarOffsetFo
 				// number value in the string searched
 				if ( *pBalayVarCherch>='0' && *pBalayVarCherch<='9' )
 				{
-					int iNumFound = 0;
+					 iNumFound = 0;
 					do
 					{
 						iNumFound = iNumFound*10;
@@ -556,7 +558,7 @@ char TextParserForAVar( char * TextToParse, int * VarTypeFound,int * VarOffsetFo
 				if ( pConv->StringBaseVarName[ iScruteCarac ]=='.' )
 					cOneAttributPassed = TRUE;
 				// comparing static part...
-				int iTaillePartieStatique = ComparStaticPart(pBalayVarCherch,&pConv->StringBaseVarName[ iScruteCarac ]);
+				 iTaillePartieStatique = ComparStaticPart(pBalayVarCherch,&pConv->StringBaseVarName[ iScruteCarac ]);
 				if (iTaillePartieStatique>0)
 				{
                 	iScruteCarac = iScruteCarac+iTaillePartieStatique;

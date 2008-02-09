@@ -208,7 +208,7 @@ printf("FUNCTION CODE=%d\n", Question[ 0 ] );
 				int OffsetQuest = 3;
 				int FirstWord = (Question[1]<<8) | Question[2];
 				int NbrWords = 1;
-				int ValueWord;
+				int ValueWord = 0;
 				// is type n words ?
 				if ( Question[0]==16 )
 				{
