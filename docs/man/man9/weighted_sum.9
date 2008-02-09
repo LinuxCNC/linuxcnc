@@ -25,14 +25,14 @@ The \fIm\fR'th input of weighted summer \fIn\fR.
 When TRUE, the \fIsum\fR output does not change.  When FALSE, the \fIsum\fR
 output tracks the \fIbit\fR inputs according to the weights and offset.
 .TP
-.B wsum.\fIN\fB.sum\fR unsigned out
+.B wsum.\fIN\fB.sum\fR signed out
 The output of the weighted summer
 .SH PARAMETERS
 .TP
-.B wsum.\fIN\fB.bit.\fIM\fB.weight\fR unsigned rw
+.B wsum.\fIN\fB.bit.\fIM\fB.weight\fR signed rw
 The weight of the \fIm\fR'th input of weighted summer \fIn\fR.  The default
 value is 2^\fIm\fR.
 .TP
-.B wsum.\fIN\fB.offset\fR unsigned rw
+.B wsum.\fIN\fB.offset\fR signed rw
 The offset is added to the weights corresponding to all TRUE inputs to give the
 final sum.
