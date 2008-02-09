@@ -85,9 +85,9 @@ void ClassicLadderEndOfAppli( void )
 	CyclicThreadRunning = 0;
 	CloseSocketModbusMaster( );
 	CloseSocketServer( );
-	hal_exit(compId); // added for emc
+	//hal_exit(compId); // added for emc
 printf("end of appli --gonna free\n");
-	ClassicLadder_FreeAll(TRUE);
+	//ClassicLadder_FreeAll(TRUE);
 
 }
 
