@@ -584,7 +584,7 @@ void ButtonAbout_click()
 	gtk_widget_show_all (dialog);
 }
 
-void ShowMessageBox(char * title,char * text,char * button)
+void ShowMessageBox(const char * title,const char * text,const char * button)
 {
 	/* From the example in gtkdialog help */
 	GtkWidget *dialog, *label, *okay_button;
@@ -612,7 +612,7 @@ void DoFunctionOfConfirmationBox(void * (*function_to_do)(void *))
 	gtk_widget_destroy(ConfirmDialog);
 	(function_to_do)(NULL);
 }
-void ShowConfirmationBoxWithChoiceOrNot(char * title,char * text,void * function_if_yes, char HaveTheChoice)
+void ShowConfirmationBoxWithChoiceOrNot(const char * title,const char * text,void * function_if_yes, char HaveTheChoice)
 {
 	/* From the example in gtkdialog help */
 	GtkWidget *label, *yes_button, *no_button;
@@ -649,7 +649,7 @@ void ShowConfirmationBoxWithChoiceOrNot(char * title,char * text,void * function
 	gtk_window_set_position(GTK_WINDOW(ConfirmDialog),GTK_WIN_POS_CENTER);
 	gtk_widget_show_all (ConfirmDialog);
 }
-void ShowConfirmationBox(char * title,char * text,void * function_if_yes)
+void ShowConfirmationBox(const char * title,const char * text,void * function_if_yes)
 {
 	ShowConfirmationBoxWithChoiceOrNot( title, text, function_if_yes, TRUE );
 }
@@ -657,7 +657,8 @@ void ShowConfirmationBox(char * title,char * text,void * function_if_yes)
 void QuitAppliGtk()
 {
 	ClassicLadderEndOfAppli( );
-	gtk_exit(0);
+	//gtk_exit(0);
+	gtk_main_quit();
 }
 
 void DoQuitGtkApplication( void )
