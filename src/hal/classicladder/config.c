@@ -69,11 +69,13 @@ static struct cfg_cfg maincfg[] = {
 */
 static int read_configfile (char *fname, struct cfg_cfg *cfg)
 {
+       
 	FILE	*fp;
 	char	line[255];
 	char	*val;
 	int	i;
 	
+	 printf("Reading config file -%s\n",fname);
 	fp = fopen (fname, "r");
 	if (fp == NULL) {
 		fprintf (stderr, "Cannot open %s file !!!\n", fname);
