@@ -1,8 +1,8 @@
 component comp "Two input comparator with hysteresis";
 pin in float in0 "Inverting input to the comparator";
 pin in float in1 "Non-inverting input to the comparator";
-pin out bit out "Output of the comparator.";
-pin out bit equal "Equal within hysteresis.";
+pin out bit out "Normal output. True when in1 > in0 (see parameter 'hyst' for details)";
+pin out bit equal "Match output.  True when difference between in1 and in0 is less than 'hyst'.";
 
 param rw float hyst=0.0 """Hysteresis of the comparator (default 0.0)
 
