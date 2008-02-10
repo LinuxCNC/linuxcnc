@@ -37,12 +37,13 @@
 #define NBR_OBJECTS 11
 #endif
 GtkWidget *LabelParam[ NBR_OBJECTS ],*ValueParam[ NBR_OBJECTS ];
-
+#ifndef HAL_SUPPORT
 static char * Devices[] = { "None", "DirectPortAccess",
 #ifdef COMEDI_SUPPORT
 "/dev/comedi0", "/dev/comedi1", "/dev/comedi2", "/dev/comedi3",
 #endif
  NULL };
+#endif
 
 #define NBR_IO_PARAMS 6
 GtkWidget *InputParamEntry[ NBR_INPUTS_CONF ][ NBR_IO_PARAMS ];
@@ -208,7 +209,7 @@ void GetGeneralParameters( void )
 	GeneralParamsMirror.SizesInfos.nbr_monostables = TheValue;
 #endif
 }
-
+#ifndef HAL_SUPPORT
 GtkWidget * CreateIOConfPage( char ForInputs )
 {
 	static char * Labels[] = { "First %", "Type", "PortAdr/SubDev", "First Channel", "Nbr Channels", "Logic" };
@@ -349,7 +350,7 @@ for(testpack=0; testpack<30; testpack++)
 	
 	return vbox;
 }
-
+#endif
 int ConvComboToNum( char * text, char ** list )
 {
 	int Value = 0;
@@ -363,6 +364,7 @@ int ConvComboToNum( char * text, char ** list )
 	}
 	return Value;
 }
+#ifndef HAL_SUPPORT 
 void GetIOSettings( char ForInputs )
 {
 	int NumObj;
@@ -432,7 +434,7 @@ void GetIOSettings( char ForInputs )
 		}//if ( ComboVal>0 )
 	}
 }
-
+#endif
 #ifdef MODBUS_IO_MASTER
 GtkWidget * CreateModbusModulesIO( void )
 {
@@ -665,8 +667,10 @@ void GetModbusModulesIOSettings( void )
 void GetSettings( void )
 {
 	GetGeneralParameters( );
+#ifndef HAL_SUPPORT
 	GetIOSettings( 1/*ForInputs*/ );
 	GetIOSettings( 0/*ForInputs*/ );
+#endif
 #ifdef MODBUS_IO_MASTER
 	GetModbusModulesIOSettings( );
 #endif
@@ -687,10 +691,12 @@ void OpenConfigWindowGtk()
 	nbook = gtk_notebook_new( );
 	gtk_notebook_append_page( GTK_NOTEBOOK(nbook), CreateGeneralParametersPage( ),
 				 gtk_label_new ("Period/Sizes") );
+#ifndef HAL_SUPPORT 
 	gtk_notebook_append_page( GTK_NOTEBOOK(nbook), CreateIOConfPage( 1/*ForInputs*/ ),
 				 gtk_label_new ("Physical Inputs") );
 	gtk_notebook_append_page( GTK_NOTEBOOK(nbook), CreateIOConfPage( 0/*ForInputs*/ ),
 				 gtk_label_new ("Physical Outputs") );
+#endif 
 #ifdef MODBUS_IO_MASTER
 	gtk_notebook_append_page( GTK_NOTEBOOK(nbook), CreateModbusModulesIO( ),
 				 gtk_label_new ("Modbus distributed I/O") );
