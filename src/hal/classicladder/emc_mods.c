@@ -35,13 +35,14 @@
 // This function is a development of Jeff's orginal work for ver 7.100
 // It is called from the GetElementPropertiesForStatusBar function in edit.c 
 // it checks to see if the VarsNameParam is a symbol, if it is, converts it to a variable name
-// if not I, Q, or W then exports that signal name is not possible for B variable
-// then checks for what the pinname would be if it is a I, Q, or W  variable (these are the only variable that connect to the outside world)
+// if Variable is B then exports that signal name is not possible 
+// if not I, W, or Q then returns an error message 
+// then checks for what the pinname would be if it is a I, Q, or W  variable (these are the only variable that can connect to the outside world)
 // then checks to see if a signal is connected to that pin
-// if there is a signal exports that name with an arrow to show if the signal is coming in or going out
-// if there is such a pin but there is no signal connected export that fact
-// anything else should export an error
- 
+// if there is a signal returns that name with an arrow to show if the signal is coming in or going out
+// if there is such a pin but there is no signal connected returns that fact
+// anything else should return an error
+// edit.c uses this function 
 char * ConvVarNameToHalSigName( char * VarNameParam ) 
 {
 	
@@ -75,7 +76,10 @@ char * ConvVarNameToHalSigName( char * VarNameParam )
                 	}
                 break;
 	   case 'B':
-		return "no HAL signal possible";
+		return "No signal for %B variables possible ";
+		break;
+	default:
+                return "error";
 		break;
             }
 
@@ -98,11 +102,44 @@ char * ConvVarNameToHalSigName( char * VarNameParam )
                         return sig_name;
                   			  }
 					}
-			if (!pin->signal) {return "no HAL signal connected";  }
+			if (!pin->signal) {return "no signal connected";  }
 			}
 }
                 
             
 		
-return "ERROR";
+return "conv HAL signal ERROR";
+}
+
+// function to check for first Variable in an arithmetic expression
+// ultimately so we can check for a HAL signal name
+// It finds the first Variable or symbol name
+// sends that to ConvVarNameToHalSigName() which returns status or
+// name of a HAL signal connected .
+// then we piece together the signal name, first variable/symbolname
+// and  expression so it can be returned to be printed in the status bar
+// Edit.c uses this function
+
+char * FirstVariableInArithm(char * Expr)
+{
+		static char Buffer[100];
+		static char Tempbuf[100];
+		char * Ptr = Expr;
+		int i;
+		Buffer[0] = '\0';
+
+	if (Expr[0]=='\0' || Expr[0]=='#')
+		return "No expression";
+	
+//parse expression till we find = or : or the end
+// *TODO* have to add checks for & | ! prob others (will use a switch case)
+	for (i=0;i<100;i++)
+		if (Ptr[i] == ':' || Ptr[i] == '=' || Ptr[i] == '\0')
+		{			
+		snprintf(Buffer, i+1, "%s", Expr);
+		
+		snprintf(Tempbuf, 100, " %s (for %s)  Exprsn~ %s",ConvVarNameToHalSigName(Buffer),Buffer,Expr);
+		return Tempbuf;
+		}
+	return "first var. expression error";
 }

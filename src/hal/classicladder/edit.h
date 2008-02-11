@@ -17,3 +17,4 @@ void EditElementInRung(double x,double y);
 void EditElementInThePage(double x,double y);
 char * GetLadderElePropertiesForStatusBar(double x,double y);
 char * ConvVarNameToHalSigName (char *);
+char * FirstVariableInArithm(char *);
