@@ -15,9 +15,6 @@ exec wish "$0" "$@"
 #  Copyright (c) 2005 All rights reserved.
 #
 #  Last change:
-# $Revision$
-# $Author$
-# $Date$
 ###############################################################
 #  INI variables include
 #  [DISPLAY]
@@ -45,7 +42,7 @@ if {$imgtime <= 0} {
   set imgtime 5
 }
 # now convert imgtime to milliseconds
-set imgtime [expr $imgtime * 1000]
+set imgtime [expr {int($imgtime * 1000)}]
 
 if {! [file exists $img]} {
   puts stderr "can't find file $img"
