@@ -3558,7 +3558,6 @@ for j in range(9):
             has_limit_switch=1
             break
     except NameError, detail:
-        print "looking for limit switch", detail
         break
 if not has_limit_switch:
     widgets.override.grid_forget()
