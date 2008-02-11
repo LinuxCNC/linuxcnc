@@ -1422,6 +1422,11 @@ class LivePlotter:
         if time.time() > feedrate_blackout:
             vupdate(vars.feedrate, int(100 * self.stat.feedrate + .5))
         vupdate(vars.override_limits, self.stat.axis[0]['override_limits'])
+        on_any_limit = 0
+        for i, l in enumerate(self.stat.limit):
+            if self.stat.axis_mask & (1<<i) and l:
+                on_any_limit = True
+        vupdate(vars.on_any_limit, on_any_limit)
         global current_tool
         current_tool = None
         for i in self.stat.tool_table:
@@ -1836,6 +1841,7 @@ widgets = nf.Widgets(root_window,
     ("axis_w", Radiobutton, tabs_manual + ".axes.axisw"),
 
     ("jogincr", Entry, tabs_manual + ".jogf.jog.jogincr"),
+    ("override", Checkbutton, tabs_manual + ".jogf.override"),
 
     ("ajogspeed", Entry, pane_top + ".ajogspeed"),
 
@@ -3005,6 +3011,7 @@ vars = nf.Variables(root_window,
     ("block_delete", BooleanVar),
     ("rotate_mode", BooleanVar),
     ("touch_off_system", StringVar),
+    ("on_any_limit", BooleanVar),
 )
 vars.emctop_command.set(os.path.join(os.path.dirname(sys.argv[0]), "emctop"))
 vars.highlight_line.set(-1)
@@ -3540,6 +3547,22 @@ forget(widgets.spindlel,  "motion.spindle-forward", "motion.spindle-reverse",
     "motion.spindle-on", "motion.spindle-speed-out",
     "motion.spindle-brake")
 forget(widgets.spinoverridef, "motion.spindle-speed-out")
+
+has_limit_switch = 0
+for j in range(9):
+    try:
+        if hal.pin_has_writer("axis.%d.neg-lim-sw-in" % j):
+            has_limit_switch=1
+            break
+        if hal.pin_has_writer("axis.%d.pos-lim-sw-in" % j):
+            has_limit_switch=1
+            break
+    except NameError, detail:
+        print "looking for limit switch", detail
+        break
+if not has_limit_switch:
+    widgets.override.grid_forget()
+
 
 forget(widgets.mist, "iocontrol.0.coolant-mist")
 forget(widgets.flood, "iocontrol.0.coolant-flood")

@@ -1738,6 +1738,12 @@ proc update_state {args} {
 
     set ::last_interp_state $::interp_state
     set ::last_task_state $::task_state
+
+    if {$::on_any_limit} {
+        $::_tabs_manual.jogf.override configure -state normal
+    } else {
+        $::_tabs_manual.jogf.override configure -state disabled
+    }
 }
 
 proc set_mode_from_tab {} {
@@ -1812,6 +1818,7 @@ trace variable coord_type w queue_update_state
 trace variable display_type w queue_update_state
 trace variable motion_mode w queue_update_state
 trace variable kinematics_type w queue_update_state
+trace variable on_any_limit w queue_update_state
 trace variable motion_mode w joint_mode_switch
 
 set editor_deleted 0
