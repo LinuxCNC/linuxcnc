@@ -18,18 +18,25 @@ classicladder.h:
 
 classicladder gtk.c:
 --- removed define for hardware.h
+--- changed gtk_exit(0) to gtk_main_quit in function QuitAppliGtk() so program returns to where we called gtk_main in classicladder.c
+
+config.c :
+--- added printf so we know when a modbus config file is loading
 
 config_gtk.c:
 --- removed define for hardware.h
+--- added #ifndef HAL_SUPPORT around any code for direct I/O to hide it from configue window
 
 edit.c
---- added call to check for hal signal names (see GetElementPropertiesForStatusBar )
+--- added two calls to check for hal signal names (see GetElementPropertiesForStatusBar ) one for I, Q, and B variables and another for W variables in expressions 
 
 edit.h
---- added prototype for ConvVarNameToHalSigName
+--- added prototype for ConvVarNameToHalSigName()
+--- added prototype for FirstVariableInArithm();
 
 emc_mods.c and emc_mods.h:
-----added Jeffs function to check for HAL signal names (called by function GetElementPropertiesForStatusBar in edit.c 
+----added Jeffs function to check for HAL signal names (called by function GetElementPropertiesForStatusBar in edit.c) 
+--- added function to change check first variable in an expression for a HAL signal (called by function GetElementPropertiesForStatusBar in edit.c) 
 
 manager.c:
 ---added small amount INCLUDE for HAL/RTAPI support.
@@ -44,16 +51,15 @@ spy_vars_gtk.c:
 SUBMAKEFILE:
 --- completely different for EMC. This makefile is for the user program only. 
 ---All the DEFINEs for user space:
-	-DSEQUENTIAL_SUPPORT -DHAL_SUPPORT -DDYNAMIC_PLCSIZE -DRT_SUPPORT -DOLD_TIMERS_MONOS_SUPPORT
+	-DSEQUENTIAL_SUPPORT -DHAL_SUPPORT -DDYNAMIC_PLCSIZE -DRT_SUPPORT -DOLD_TIMERS_MONOS_SUPPORT -DMODBUS_IO_MASTER
 	-DGNOME_PRINT_USE
 	-DGTK_INTERFACE -DGTK2
 --- added emc_mods.c to compile list
 
 MAKE file:
 --- The makefile in source folder contains instructions for realtime program. added defines for modbus
-
 ---All the DEFINEs for realtime:
-        -DSEQUENTIAL_SUPPORT -DHAL_SUPPORT -DDYNAMIC_PLCSIZE -DRT_SUPPORT -DOLD_TIMERS_MONOS_SUPPORT -DMODBUS_IO_MASTER
+        -DSEQUENTIAL_SUPPORT -DHAL_SUPPORT -DDYNAMIC_PLCSIZE -DRT_SUPPORT -DOLD_TIMERS_MONOS_SUPPORT -DMODBUS_IO_MASTER 
 
 classicladder_rt.o includes:
 	module_hal.o,arithm_eval.o,arrays.o,calc.o,calc_sequential.o,manager.o,symbols.o,vars_access.o
