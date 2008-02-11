@@ -20,6 +20,7 @@
 /* You should have received a copy of the GNU Lesser General Public */
 /* License along with this library; if not, write to the Free Software */
 /* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA */
+// Chris Morley (EMC2) Jan 08
 
 #include <gtk/gtk.h>
 #include <gdk/gdk.h>
@@ -31,7 +32,7 @@
 #include "classicladder.h"
 #include "global.h"
 #include "classicladder_gtk.h"
-//#include "hardware.h"
+
 
 GdkPixmap *pixmap = NULL;
 GtkWidget *drawing_area = NULL;
@@ -565,9 +566,12 @@ void ButtonAbout_click()
 	dialog = gtk_dialog_new();
 	label = gtk_label_new ( CL_PRODUCT_NAME " v" CL_RELEASE_VER_STRING "\n" CL_RELEASE_DATE_STRING "\n"
 						"Copyright (C) 2001-2008 Marc Le Douarain\nmarc . le - douarain /At\\ laposte \\DoT/ net\n"
+
 						"http://www.sourceforge.net/projects/classicladder\n"
 						"http://membres.lycos.fr/mavati/classicladder\n"
-						"Released under the terms of the\nGNU Lesser General Public License v2.1");
+						"Released under the terms of the\nGNU Lesser General Public License v2.1"
+						"\nAs adapted to EMC2 (Chris Morley)"
+						"emc-users@lists.sourceforge.net");
 	gtk_label_set_justify( GTK_LABEL(label), GTK_JUSTIFY_CENTER );
 	okay_button = gtk_button_new_with_label("Okay");
 	/* Ensure that the dialog box is destroyed when the user clicks ok. */
@@ -657,7 +661,6 @@ void ShowConfirmationBox(const char * title,const char * text,void * function_if
 void QuitAppliGtk()
 {
 	ClassicLadderEndOfAppli( );
-	//gtk_exit(0);
 	gtk_main_quit();
 }
 
@@ -828,7 +831,7 @@ void RungWindowInitGtk()
 	gtk_signal_connect(GTK_OBJECT (ButtonRunStop), "clicked",
 						(GtkSignalFunc) ButtonRunStop_click, 0);
 	gtk_widget_show (ButtonRunStop);
-	ButtonSpyVars = gtk_button_new_with_label ("SpyVars");
+	ButtonSpyVars = gtk_button_new_with_label ("Vars");
 	gtk_box_pack_start (GTK_BOX (hboxbottom), ButtonSpyVars, TRUE, TRUE, 0);
 	gtk_signal_connect(GTK_OBJECT (ButtonSpyVars), "clicked",
 						(GtkSignalFunc) OpenSpyVarsWindow, 0);
