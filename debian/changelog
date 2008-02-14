@@ -10,8 +10,9 @@ emc2 (1:2.2.4~cvs) unstable; urgency=low
     be entered
   * hal_input: fix 'ZeroDivisionError' for absolute axes that report the same
     value for min and max
+  * fix the time displayed when mousing over a trace
 
- -- Jeff Epler <jepler@unpy.net>  Wed, 06 Feb 2008 08:12:58 -0600
+ -- jepler <jepler@unpythonic.net>  Thu, 14 Feb 2008 08:23:18 -0600
 
 emc2 (1:2.2.3) unstable; urgency=low
 
