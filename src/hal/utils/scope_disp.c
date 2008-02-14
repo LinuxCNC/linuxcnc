@@ -629,7 +629,6 @@ static void update_readout(void) {
     if(vert->selected != -1) {
         double t=0, v=0;
         int result = get_cursor_info(&t, &v);
-        t = t * 1e-6;
         if(result > 0) { 
             snprintf(tip, sizeof(tip), TIPFORMAT, t, v);
         } else { 
@@ -880,7 +879,7 @@ void draw_waveform(int chan_num, int highlight)
 		    gdk_draw_arc(disp->win, disp->context, TRUE,
 				x2-3, y2-3, 7, 7, 0, 360*64);
                     cursor_value = fy;
-                    cursor_time = (n - ctrl_shm->pre_trig)/horiz->sample_period;
+                    cursor_time = (n - ctrl_shm->pre_trig)*horiz->sample_period;
                     cursor_valid = 1;
 	    }
 	}
