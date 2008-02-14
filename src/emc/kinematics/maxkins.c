@@ -39,7 +39,7 @@ int kinematicsForward(const double *joints,
         
     // C correction
     double xyr = hypot(joints[0], joints[1]);
-    double xytheta = atan2(joints[1], joints[0]) - d2r(joints[5]);
+    double xytheta = atan2(joints[1], joints[0]) + d2r(joints[5]);
 
     // V correction
     double zv = pos->v * sin(d2r(joints[4]));
@@ -72,7 +72,7 @@ int kinematicsInverse(const EmcPose * pos,
         
     // C correction
     double xyr = hypot(pos->tran.x, pos->tran.y);
-    double xytheta = atan2(pos->tran.y, pos->tran.x) + d2r(pos->c);
+    double xytheta = atan2(pos->tran.y, pos->tran.x) - d2r(pos->c);
 
     // V correction
     double zv = pos->v * sin(d2r(pos->b));
