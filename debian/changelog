@@ -1,6 +1,5 @@
 emc2 (1:2.2.4~cvs) unstable; urgency=low
 
-  [ jepler ]
   * make xxxmach exit reliably with 'halcmd unload' (SF#1816781)
   * hook up encoder index for homing in the motenc sample configuration
   * axis: don't reset the interpreter during touch-off and reload.  This
@@ -10,9 +9,12 @@ emc2 (1:2.2.4~cvs) unstable; urgency=low
     be entered
   * hal_input: fix 'ZeroDivisionError' for absolute axes that report the same
     value for min and max
-  * fix the time displayed when mousing over a trace
+  * fix various inaccuracies in the documentation
+  * halshow: fix the time displayed when mousing over a trace
+  * axis: fix ctrl and - or = starting an unstoppable jog
+  * axis: fix the numeric keypad with numlock on
 
- -- jepler <jepler@unpythonic.net>  Thu, 14 Feb 2008 08:23:18 -0600
+ -- Jeff Epler <jepler@unpy.net>  Sat, 16 Feb 2008 13:08:35 -0600
 
 emc2 (1:2.2.3) unstable; urgency=low
 
