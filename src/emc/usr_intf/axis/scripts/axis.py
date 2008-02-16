@@ -3037,8 +3037,15 @@ def activate_axis_or_set_feedrate(n):
     else:
         set_feedrate(10*n)
 
+def nomodifier(f):
+    def g(event):
+        print "nomodifier", event.state, f
+        if event.state & (1|4|8|32|64|128): return ""
+        return f(event)
+    return g
+
 def kp_wrap(f,g):
-    return f
+    return nomodifier(f)
 
 root_window.bind("<Escape>", commands.task_stop)
 root_window.bind("l", commands.toggle_override_limits)
@@ -3367,8 +3374,8 @@ else:
     bind_axis("KP_Next", "KP_Prior", 2)
     bind_axis("bracketleft", "bracketright", 3)
 
-root_window.bind("<KeyPress-minus>", commands.jog_minus)
-root_window.bind("<KeyPress-equal>", commands.jog_plus)
+root_window.bind("<KeyPress-minus>", nomodifier(commands.jog_minus))
+root_window.bind("<KeyPress-equal>", nomodifier(commands.jog_plus))
 root_window.bind("<KeyRelease-minus>", commands.jog_stop)
 root_window.bind("<KeyRelease-equal>", commands.jog_stop)
 
