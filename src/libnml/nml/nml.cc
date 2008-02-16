@@ -2095,7 +2095,7 @@ static int info_message_printed = 0;
 char cwd_buf[256];
 char host_name_buf[MAXHOSTNAMELEN];
 
-char *get_ip_address(char *hostname)
+const char *get_ip_address(char *hostname)
 {
     struct sockaddr_in socket_address;
     /* Get the IP address of the server using it's BufferHost. */

@@ -330,7 +330,7 @@ int rcs_puts(const char *_str)
     return (retval);
 }
 
-int rcs_fputs(char *_str)
+int rcs_fputs(const char *_str)
 {
     int retval = EOF;
     if (NULL != _str) {
@@ -360,7 +360,7 @@ int rcs_fputs(char *_str)
 	    }
 	    if (NULL != rcs_print_list) {
 		if (-1 ==
-		    rcs_print_list->store_at_tail(_str,
+		    rcs_print_list->store_at_tail((void*)_str,
 			(retval = strlen(_str)) + 1, 1)) {
 		    retval = EOF;
 		}

@@ -42,7 +42,7 @@ extern "C" {
     extern void clean_print_list(void);
     /* Deletes the linked list where messages may have been stored. */
 
-    extern void output_print_list(int output_func(char *));
+    extern void output_print_list(int output_func(const char *));
     extern int count_characters_in_print_list(void);
     extern int count_lines_in_print_list(void);
     extern void convert_print_list_to_lines(void);
@@ -96,12 +96,12 @@ extern "C" {
     /* Prints the string _str and adds a new line character at the end
        following the puts convention. */
 
-    extern int rcs_fputs(char *);
+    extern int rcs_fputs(const char *);
     extern char **get_rcs_lines_table(void);
     extern int get_rcs_print_list_size(void);
     typedef void (*RCS_PRINT_NOTIFY_FUNC_PTR) (void);
     extern void set_rcs_print_notify(RCS_PRINT_NOTIFY_FUNC_PTR);
-    extern int set_rcs_print_file(char *_file_name);
+    extern int set_rcs_print_file(const char *_file_name);
     extern void close_rcs_printing(void);
 
 #ifdef __cplusplus
@@ -179,7 +179,7 @@ extern "C" {
        256 with excess nodes being deleted from the head. */
 
     extern RCS_PRINT_DESTINATION_TYPE get_rcs_print_destination(void);
-    extern int rcs_print_sys_error(int error_source, char *_fmt, ...);
+    extern int rcs_print_sys_error(int error_source, const char *_fmt, ...);
 
 #ifdef __cplusplus
     enum RCS_PRINT_ERROR_SOURCE_TYPE {

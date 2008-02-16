@@ -65,7 +65,7 @@ void NML_DIAGNOSTICS_INFO::print()
 	    dpi->number_of_new_messages);
 	rcs_print("\t bytes_moved: %f\n", dpi->bytes_moved);
 	time_t t = 0;
-	char *ctime_ret = "";
+	const char *ctime_ret = "";
 	if (dpi->first_access_time > 0.0) {
 	    t = (time_t) dpi->first_access_time;
 	    ctime_ret = ctime(&t);
