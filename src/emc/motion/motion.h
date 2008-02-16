@@ -229,7 +229,7 @@ extern "C" {
                                      |1 = suppress error, report in # instead
                                      ~2 = move until probe trips (ngc default)
                                      |2 = move until probe clears */
-        double tooloffset_z, tooloffset_x;
+        double tooloffset_z, tooloffset_x, tooloffset_w;
 	unsigned char tail;	/* flag count for mutex detect */
     } emcmot_command_t;
 

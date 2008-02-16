@@ -602,10 +602,10 @@ int emcTaskPlanExecute(const char *command)
     }
 
     if (!strcmp(the_command_name, "USE_TOOL_LENGTH_OFFSET")) {
-	if (1 != sscanf(the_command_args, "%lf %lf", &d1, &d2)) {
+	if (1 != sscanf(the_command_args, "%lf %lf %lf", &d1, &d2, &d3)) {
 	    return 1;
 	}
-	USE_TOOL_LENGTH_OFFSET(d1, d2);
+	USE_TOOL_LENGTH_OFFSET(d1, d2, d3);
 	return 0;
     }
 

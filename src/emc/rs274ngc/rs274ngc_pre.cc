@@ -488,6 +488,7 @@ int Interp::init()
 //_setup.stack_index does not need initialization
   _setup.tool_xoffset = 0.0;
   _setup.tool_zoffset = 0.0;
+  _setup.tool_woffset = 0.0;
 //_setup.tool_max set in Interp::synch
 //_setup.tool_table set in Interp::synch
 //_setup.traverse_rate set in Interp::synch

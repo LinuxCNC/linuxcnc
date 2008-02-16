@@ -153,7 +153,7 @@ int last_sequence_number;
 int plane;
 bool metric;
 double _pos_x, _pos_y, _pos_z, _pos_a, _pos_b, _pos_c, _pos_u, _pos_v, _pos_w;
-double tool_xoffset, tool_zoffset;
+double tool_xoffset, tool_zoffset, tool_woffset;
 
 Interp interp_new;
 
@@ -338,13 +338,13 @@ void COMMENT(char *comment) {
     Py_XDECREF(result);
 }
 
-void USE_TOOL_LENGTH_OFFSET(double xoffset, double zoffset) {
-    tool_zoffset = zoffset; tool_xoffset = xoffset;
+void USE_TOOL_LENGTH_OFFSET(double xoffset, double zoffset, double woffset) {
+    tool_zoffset = zoffset; tool_xoffset = xoffset; tool_woffset = woffset;
     maybe_new_line();
     if(interp_error) return;
-    if(metric) { xoffset /= 25.4; zoffset /= 25.4; }
-    PyObject *result = PyObject_CallMethod(callback, "tool_offset", "dd",
-            zoffset, xoffset);
+    if(metric) { xoffset /= 25.4; zoffset /= 25.4; woffset /= 25.4; }
+    PyObject *result = PyObject_CallMethod(callback, "tool_offset", "ddd",
+                                           zoffset, xoffset, woffset);
     if(result == NULL) interp_error ++;
     Py_XDECREF(result);
 }
@@ -458,6 +458,8 @@ CANON_TOOL_TABLE GET_EXTERNAL_TOOL_TABLE(int tool) {
     Py_XDECREF(result);
     return t;
 }
+
+int GET_EXTERNAL_TLO_IS_ALONG_W(void) { return 0; }
 
 int GET_EXTERNAL_DIGITAL_INPUT(int index) { return 1; }
 double GET_EXTERNAL_ANALOG_INPUT(int index) { return 1.0; }

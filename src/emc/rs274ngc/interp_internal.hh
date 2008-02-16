@@ -411,6 +411,7 @@ typedef struct setup_struct
   int stack_index;              // index into the stack
   double tool_zoffset;          // current tool Z offset (AKA tool length offset)
   double tool_xoffset;          // current tool X offset
+  double tool_woffset;          // current tool W offset
   int tool_max;                 // highest number tool slot in carousel
   CANON_TOOL_TABLE tool_table[CANON_TOOL_MAX + 1];      // index is slot number
   double traverse_rate;         // rate for traverse motions

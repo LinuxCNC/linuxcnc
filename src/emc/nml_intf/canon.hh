@@ -481,7 +481,7 @@ extern void USE_SPINDLE_FORCE();
 extern void USE_NO_SPINDLE_FORCE();
 
 /* Tool Functions */
-extern void USE_TOOL_LENGTH_OFFSET(double xoffset, double zoffset);
+extern void USE_TOOL_LENGTH_OFFSET(double xoffset, double zoffset, double woffset);
 
 extern void CHANGE_TOOL(int slot);	/* slot is slot number */
 
@@ -826,6 +826,9 @@ extern int GET_EXTERNAL_SELECTED_TOOL_SLOT();
 // Returns the CANON_TOOL_TABLE structure associated with the tool
 // in the given pocket
 extern CANON_TOOL_TABLE GET_EXTERNAL_TOOL_TABLE(int pocket);
+
+// the Z component of the tool offset should actually be put along W instead
+extern int GET_EXTERNAL_TLO_IS_ALONG_W(void);
 
 // Returns the system traverse rate
 extern double GET_EXTERNAL_TRAVERSE_RATE();

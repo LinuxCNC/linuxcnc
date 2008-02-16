@@ -188,7 +188,8 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
                                  v_axis_offset)) : settings->v_current;
     *w_p =
       (block->w_flag ==
-       ON) ? (block->w_number - (settings->w_origin_offset +
+       ON) ? (block->w_number - (settings->tool_woffset + 
+                                 settings->w_origin_offset +
                                  settings->
                                  w_axis_offset)) : settings->w_current;
   } else if (mode == MODE_ABSOLUTE) {
@@ -302,7 +303,7 @@ int Interp::find_relative(double x1,     //!< absolute x position
   *CC_2 = (CC_1 - (settings->CC_origin_offset + settings->CC_axis_offset));
   *u_2 = (u_1 - (settings->u_origin_offset + settings->u_axis_offset));
   *v_2 = (v_1 - (settings->v_origin_offset + settings->v_axis_offset));
-  *w_2 = (w_1 - (settings->w_origin_offset + settings->w_axis_offset));
+  *w_2 = (w_1 - (settings->tool_woffset + settings->w_origin_offset + settings->w_axis_offset));
   return INTERP_OK;
 }
 

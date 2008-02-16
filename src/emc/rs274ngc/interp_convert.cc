@@ -3798,18 +3798,25 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
 {
   static char name[] = "convert_tool_length_offset";
   int index;
-  double xoffset, zoffset;
+  double xoffset, zoffset, woffset;
 
   if (g_code == G_49) {
-    xoffset = 0;
-    zoffset = 0;
+    xoffset = 0.;
+    zoffset = 0.;
+    woffset = 0.;
     index = 0;
   } else if (g_code == G_43) {
     CHK((block->h_flag == OFF && !settings->current_slot), 
         NCE_OFFSET_INDEX_MISSING);
     index = block->h_flag == ON? block->h_number: settings->current_slot;
     xoffset = USER_TO_PROGRAM_LEN(settings->tool_table[index].xoffset);
-    zoffset = USER_TO_PROGRAM_LEN(settings->tool_table[index].zoffset);
+    if(GET_EXTERNAL_TLO_IS_ALONG_W()) {
+        woffset = USER_TO_PROGRAM_LEN(settings->tool_table[index].zoffset);
+        zoffset = 0.;
+    } else {
+        zoffset = USER_TO_PROGRAM_LEN(settings->tool_table[index].zoffset);
+        woffset = 0.;
+    }
   } else if (g_code == G_43_1) {
     CHK((block->x_flag == ON) ||
         (block->y_flag == ON) ||
@@ -3821,17 +3828,29 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
         NCE_XYZABCJ_WORDS_NOT_ALLOWED_WITH_G43H_1_G41R_OR_G42R);
     xoffset = settings->tool_xoffset;
     zoffset = settings->tool_zoffset;
+    woffset = settings->tool_woffset;
     index = -1;
     if(block->i_flag == ON) xoffset = block->i_number;
-    if(block->k_flag == ON) zoffset = block->k_number;
+    if(block->k_flag == ON) {
+        if(GET_EXTERNAL_TLO_IS_ALONG_W()) {
+            woffset = block->k_number;
+            zoffset = 0.;
+        } else {
+            zoffset = block->k_number;
+            woffset = 0.;
+        }
+    }
   } else {
     ERS("BUG: Code not G43, G43.1, or G49");
   }
-  USE_TOOL_LENGTH_OFFSET(xoffset, zoffset);
+  USE_TOOL_LENGTH_OFFSET(xoffset, zoffset, woffset);
+
   settings->current_x += settings->tool_xoffset - xoffset;
   settings->current_z += settings->tool_zoffset - zoffset;
+  settings->w_current += settings->tool_woffset - woffset;
   settings->tool_xoffset = xoffset;
   settings->tool_zoffset = zoffset;
+  settings->tool_woffset = woffset;
   settings->tool_offset_index = index;
   return INTERP_OK;
 }

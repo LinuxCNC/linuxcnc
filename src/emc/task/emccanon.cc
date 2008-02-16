@@ -195,6 +195,7 @@ static bool block_delete = ON; //set enabled by default (previous EMC behaviour)
 /* Tool length offset is saved here */
 static double currentXToolOffset = 0.0;
 static double currentZToolOffset = 0.0;
+static double currentWToolOffset = 0.0;
 
 /*
   Feed rate is saved here; values are in mm/sec or deg/sec.
@@ -790,6 +791,7 @@ void STRAIGHT_TRAVERSE(double x, double y, double z,
 
     x += currentXToolOffset;
     z += currentZToolOffset;
+    w += currentWToolOffset;
 
     periodic_reduce(x,y,z,a,b,c,u,v,w);
 
@@ -863,6 +865,7 @@ void STRAIGHT_FEED(double x, double y, double z,
 
     x += currentXToolOffset;
     z += currentZToolOffset;
+    w += currentWToolOffset;
 
     see_segment(x, y, z, a, b, c, u, v, w);
 }
@@ -947,6 +950,7 @@ void STRAIGHT_PROBE(double x, double y, double z,
 
     x += currentXToolOffset;
     z += currentZToolOffset;
+    w += currentWToolOffset;
 
     // now x, y, z, and b are in absolute mm or degree units
     probeMsg.pos.tran.x = TO_EXT_LEN(x);
@@ -1115,6 +1119,7 @@ void ARC_FEED(double first_end, double second_end,
     u += programOrigin.u + wrapOrigin.u;
     v += programOrigin.v + wrapOrigin.v;
     w += programOrigin.w + wrapOrigin.w;
+    w += currentWToolOffset;
 
     da = fabs(canonEndPoint.a - a);
     db = fabs(canonEndPoint.b - b);
@@ -1518,7 +1523,7 @@ void USE_NO_SPINDLE_FORCE(void)
   EMC has no tool length offset. To implement it, we save it here,
   and apply it when necessary
   */
-void USE_TOOL_LENGTH_OFFSET(double xoffset, double zoffset)
+void USE_TOOL_LENGTH_OFFSET(double xoffset, double zoffset, double woffset)
 {
     EMC_TRAJ_SET_OFFSET set_offset_msg;
 
@@ -1527,6 +1532,7 @@ void USE_TOOL_LENGTH_OFFSET(double xoffset, double zoffset)
     /* convert to mm units for internal canonical use */
     currentXToolOffset = FROM_PROG_LEN(xoffset);
     currentZToolOffset = FROM_PROG_LEN(zoffset);
+    currentWToolOffset = FROM_PROG_LEN(woffset);
 
     /* append it to interp list so it gets updated at the right time, not at
        read-ahead time */
@@ -1536,6 +1542,9 @@ void USE_TOOL_LENGTH_OFFSET(double xoffset, double zoffset)
     set_offset_msg.offset.a = 0.0;
     set_offset_msg.offset.b = 0.0;
     set_offset_msg.offset.c = 0.0;
+    set_offset_msg.offset.u = 0.0;
+    set_offset_msg.offset.v = 0.0;
+    set_offset_msg.offset.w = TO_EXT_LEN(currentWToolOffset);
 
     if(css_maximum && spindleOn) {
 	EMC_SPINDLE_ON emc_spindle_on_msg;
@@ -1970,6 +1979,10 @@ double GET_EXTERNAL_TOOL_LENGTH_ZOFFSET()
 {
     return TO_PROG_LEN(currentZToolOffset);
 }
+double GET_EXTERNAL_TOOL_LENGTH_WOFFSET()
+{
+    return TO_PROG_LEN(currentWToolOffset);
+}
 
 /*
   INIT_CANON()
@@ -2019,6 +2032,7 @@ void INIT_CANON()
     currentAngularFeedRate = 0.0;
     currentXToolOffset = 0.0;
     currentZToolOffset = 0.0;
+    currentWToolOffset = 0.0;
     /* 
        to set the units, note that GET_EXTERNAL_LENGTH_UNITS() returns
        traj->linearUnits, which is already set from the .ini file in
@@ -2092,6 +2106,10 @@ CANON_TOOL_TABLE GET_EXTERNAL_TOOL_TABLE(int pocket)
     return retval;
 }
 
+int GET_EXTERNAL_TLO_IS_ALONG_W(void) {
+    return 0;
+}
+
 CANON_POSITION GET_EXTERNAL_POSITION()
 {
     CANON_POSITION position;
@@ -2117,9 +2135,7 @@ CANON_POSITION GET_EXTERNAL_POSITION()
     // now calculate position in program units, for interpreter
     position.x = TO_PROG_LEN(canonEndPoint.x - programOrigin.x - currentXToolOffset - wrapOrigin.x);
     position.y = TO_PROG_LEN(canonEndPoint.y - programOrigin.y - wrapOrigin.y);
-    position.z =
-	TO_PROG_LEN(canonEndPoint.z - programOrigin.z -
-		    currentZToolOffset - wrapOrigin.z);
+    position.z = TO_PROG_LEN(canonEndPoint.z - programOrigin.z - currentZToolOffset - wrapOrigin.z);
 
     position.a = TO_PROG_ANG(canonEndPoint.a - programOrigin.a - wrapOrigin.a);
     position.b = TO_PROG_ANG(canonEndPoint.b - programOrigin.b - wrapOrigin.b);
@@ -2127,7 +2143,7 @@ CANON_POSITION GET_EXTERNAL_POSITION()
 
     position.u = TO_PROG_LEN(canonEndPoint.u - programOrigin.u - wrapOrigin.u);
     position.v = TO_PROG_LEN(canonEndPoint.v - programOrigin.v - wrapOrigin.v);
-    position.w = TO_PROG_LEN(canonEndPoint.w - programOrigin.w - wrapOrigin.w);
+    position.w = TO_PROG_LEN(canonEndPoint.w - programOrigin.w - currentWToolOffset - wrapOrigin.w);
 
     return position;
 }
@@ -2169,6 +2185,7 @@ CANON_POSITION GET_EXTERNAL_PROBE_POSITION()
     position.u = TO_PROG_LEN(pos.u - programOrigin.u - wrapOrigin.u);
     position.v = TO_PROG_LEN(pos.v - programOrigin.v - wrapOrigin.v);
     position.w = TO_PROG_LEN(pos.w - programOrigin.w - wrapOrigin.w);
+    position.w -= TO_PROG_LEN(currentWToolOffset);
 
     if (probefile != NULL) {
 	if (last_probed_position != position) {

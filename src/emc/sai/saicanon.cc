@@ -106,7 +106,7 @@ static bool block_delete = ON; //set enabled by default (previous EMC behaviour)
 /* Dummy status variables */
 static double            _traverse_rate;
 
-static double _tool_xoffset, _tool_zoffset;
+static double _tool_xoffset, _tool_zoffset, _tool_woffset;
 
 
 /************************************************************************/
@@ -714,11 +714,12 @@ void USE_NO_SPINDLE_FORCE()
 {PRINT0("USE_NO_SPINDLE_FORCE()\n");}
 
 /* Tool Functions */
-void USE_TOOL_LENGTH_OFFSET(double xoffset, double zoffset) 
+void USE_TOOL_LENGTH_OFFSET(double xoffset, double zoffset, double woffset) 
 {
     _tool_xoffset = xoffset;
     _tool_zoffset = zoffset;
-    PRINT2("USE_TOOL_LENGTH_OFFSET(%.4f %.4f)\n", xoffset, zoffset);
+    _tool_woffset = woffset;
+    PRINT3("USE_TOOL_LENGTH_OFFSET(%.4f %.4f %.4f)\n", xoffset, zoffset, woffset);
 }
 
 void CHANGE_TOOL(int slot)
@@ -1168,6 +1169,10 @@ int GET_EXTERNAL_TOOL_MAX()
 extern CANON_TOOL_TABLE GET_EXTERNAL_TOOL_TABLE(int pocket)
 {
   return _tools[pocket];
+}
+
+extern int GET_EXTERNAL_TLO_IS_ALONG_W(void) {
+    return 0;
 }
 
 /* Returns the system traverse rate */
