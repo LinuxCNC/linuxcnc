@@ -3011,6 +3011,7 @@ vars = nf.Variables(root_window,
     ("block_delete", BooleanVar),
     ("rotate_mode", BooleanVar),
     ("touch_off_system", StringVar),
+    ("machine", StringVar),
     ("on_any_limit", BooleanVar),
 )
 vars.emctop_command.set(os.path.join(os.path.dirname(sys.argv[0]), "emctop"))
@@ -3228,6 +3229,7 @@ vars.emcini.set(sys.argv[2])
 axiscount = int(inifile.find("TRAJ", "AXES"))
 jointnames = "012345678"[:axiscount]
 open_directory = inifile.find("DISPLAY", "PROGRAM_PREFIX")
+vars.machine.set(inifile.find("EMC", "MACHINE"))
 extensions = inifile.findall("FILTER", "PROGRAM_EXTENSION")
 extensions = [e.split(None, 1) for e in extensions]
 extensions = tuple([(v, tuple(k.split(","))) for k, v in extensions])

@@ -1637,11 +1637,12 @@ proc relief {e args} {
 }
 
 proc update_title {args} {
+    puts "update_title [info exists ::machine] [info exists ::taskfile]"
     if {$::taskfile == ""} {
-        wm ti . [_ "AXIS $::version (No file)"]
+        wm ti . [_ "AXIS $::version on $::machine (No file)"]
         wm iconname . "AXIS"
     } else {
-        wm ti . "[lindex [file split $::taskfile] end] - AXIS $::version"
+        wm ti . "[lindex [file split $::taskfile] end] - AXIS $::version on $::machine"
         wm iconname . "[lindex [file split $::taskfile] end]"
     }
 
@@ -1786,6 +1787,7 @@ proc queue_update_state {args} {
 
 set rotate_mode 0
 set taskfile ""
+set machine ""
 set task_state -1
 set has_editor 1
 set has_ladder 0
