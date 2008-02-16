@@ -667,9 +667,13 @@ def find(pattern):
 	if name.find(pattern) != -1 or fnmatch.fnmatch(name, pattern):
 	    return f
 
-	phys = get_phys(f)
-	if phys.find(pattern) != -1 or fnmatch.fnmatch(phys, pattern):
-	    return f
+        try:
+            phys = get_phys(f)
+        except IOError:
+            pass
+        else:
+            if phys.find(pattern) != -1 or fnmatch.fnmatch(phys, pattern):
+                return f
 
 	id = InputId.get(f)
 	sid = "Bus=%s Vendor=%04x Product=%04x Version=%04x" % (\
