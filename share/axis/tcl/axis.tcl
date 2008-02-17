@@ -1637,7 +1637,6 @@ proc relief {e args} {
 }
 
 proc update_title {args} {
-    puts "update_title [info exists ::machine] [info exists ::taskfile]"
     if {$::taskfile == ""} {
         wm ti . [_ "AXIS $::version on $::machine (No file)"]
         wm iconname . "AXIS"

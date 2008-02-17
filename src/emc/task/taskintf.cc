@@ -959,7 +959,6 @@ int emcTrajSetTermCond(int cond, double tolerance)
 }
 
 int emcTrajSetTloAxis(bool use_w_axis) {
-    fprintf(stderr, "emcTrajSetTloAxis(%d)\n", use_w_axis);
     emcStatus->task.tloIsAlongW = use_w_axis;
     return 0;
 }
