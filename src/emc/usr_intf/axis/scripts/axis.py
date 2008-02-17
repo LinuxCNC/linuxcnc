@@ -1432,27 +1432,23 @@ class LivePlotter:
         for i in self.stat.tool_table:
             if i[0] == self.stat.tool_in_spindle:
                 current_tool = i
+        if current_tool:
+            tool_data = {'tool': current_tool[0], 'zo': current_tool[1], 'xo': current_tool[2], 'dia': current_tool[3]}
         if self.stat.tool_in_spindle == 0:
             vupdate(vars.tool, _("No tool"))
         elif current_tool is None:
             vupdate(vars.tool, _("Unknown tool %d") % self.stat.tool_in_spindle)
-        elif len(current_tool) == 7:
-            if current_tool.xoffset == 0 and not lathe:
-                vupdate(vars.tool, _("Tool %d, offset %g, diameter %g") % (
-                            current_tool[0], current_tool[1], current_tool[3]))
-            else:
-                vupdate(vars.tool,
-                        _("Tool %d, zo %g, xo %g, dia %g") % current_tool[:4])
+        elif current_tool.xoffset == 0 and not lathe:
+            vupdate(vars.tool, _("Tool %(tool)d, offset %(zo)g, diameter %(dia)g") % tool_data)
         else:
-            vupdate(vars.tool,
-                    _("Tool %d, offset %g, diameter %g") % current_tool[:3])
+            vupdate(vars.tool, _("Tool %(tool)d, zo %(zo)g, xo %(xo)g, dia %(dia)g") % tool_data)
         active_codes = []
         for i in self.stat.gcodes[1:]:
             if i == -1: continue
             if i % 10 == 0:
                 active_codes.append("G%d" % (i/10))
             else:
-                active_codes.append("G%d.%d" % (i/10, i%10))
+                active_codes.append("G%(ones)d.%(tenths)d" % {'ones': i/10, 'tenths': i%10})
 
         for i in self.stat.mcodes[1:]:
             if i == -1: continue
@@ -1729,9 +1725,9 @@ def open_file_guts(f, filtered = False):
             if exitcode:
                 root_window.tk.call("nf_dialog", (".error", "-ext", stderr),
                         _("Filter failed"),
-                        _("The program %r exited with code %d.  "
+                        _("The program %(program)r exited with code %(code)d.  "
                         "Any error messages it produced are shown below:")
-                            % (program_filter, exitcode),
+                            % {'program': program_filter, 'code': exitcode},
                         "error",0,_("OK"))
                 return
             return open_file_guts(tempfile, True)
@@ -1786,7 +1782,7 @@ def open_file_guts(f, filtered = False):
             error_str = r_(gcode.strerror(result))
             root_window.tk.call("nf_dialog", ".error",
                     _("G-Code error in %s") % os.path.basename(f),
-                    _("Near line %d of %s:\n%s") % (seq, f, error_str),
+                    _("Near line %(seq)d of %(f)s:\n%(error_str)s") % {'seq': seq, 'f': f, 'error_str': error_str},
                     "error",0,_("OK"))
 
         t.configure(state="disabled")
@@ -2022,7 +2018,6 @@ class _prompt_float:
         t.bind("<Return>", lambda event: (self.ok.flash(), self.ok.invoke()))
         t.bind("<KP_Enter>", lambda event: (self.ok.flash(), self.ok.invoke()))
         t.bind("<Escape>", lambda event: (self.cancel.flash(), self.cancel.invoke()))
-        t.bind("<Destroy>", lambda event: self.do_cancel())
 
         m.pack(side="top", anchor="w")
         e.pack(side="top", anchor="e")
@@ -2098,7 +2093,7 @@ class _prompt_float:
     def run(self):
         self.t.grab_set()
         self._after = self.t.after_idle(self.do_focus)
-        self.t.wait_variable(self.u)
+        self.t.wait_window()
         if self._after is not None:
             self.t.after_cancel(self._after)
         try:
@@ -2220,7 +2215,7 @@ class TclCommands(nf.TclCommands):
 
             size = os.stat(loaded_file).st_size
             lines = int(widgets.text.index("end").split(".")[0])-2
-            props['size'] = _("%s bytes\n%s gcode lines") % (size, lines)
+            props['size'] = _("%(size)s bytes\n%(lines)s gcode lines") % {'size': size, 'lines': lines}
 
             if vars.metric.get():
                 conv = 1
@@ -2255,7 +2250,7 @@ class TclCommands(nf.TclCommands):
                 a = min_extents[i]
                 b = max_extents[i]
                 if a != b:
-                    props[c] = _("%f to %f = %f %s").replace("%f", fmt) % (a, b, b-a, units)
+                    props[c] = _("%(a)f to %(b)f = %(diff)f %(units)s").replace("%f", fmt) % {'a': a, 'b': b, 'diff': b-a, 'units': units}
         properties(root_window, _("G-Code Properties"), property_names, props)
 
     def launch_website(event=None):
