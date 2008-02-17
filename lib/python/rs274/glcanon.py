@@ -40,7 +40,7 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         self.max_extents_notool = [-9e99,-9e99,-9e99]
         self.colors = widget.colors
         self.in_arc = 0
-        self.xo = self.zo = 0
+        self.xo = self.zo = self.wo = 0
         self.dwell_time = 0
         self.suppress = 0
 
@@ -90,11 +90,12 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
             self.min_extents_notool = [min(x), min(y), min(z)]
             self.max_extents_notool = [max(x), max(y), max(z)]
 
-    def tool_offset(self, zo, xo):
+    def tool_offset(self, zo, xo, wo):
         x, y, z = self.lo
         self.lo = (x - xo + self.xo, y, z - zo + self.zo)
         self.xo = xo
         self.zo = zo
+        self.wo = wo
 
     def set_spindle_rate(self, arg): pass
     def set_feed_rate(self, arg): self.feedrate = arg / 60.
