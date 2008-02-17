@@ -460,6 +460,7 @@ extern int emcTrajSetSpindleSync(double feed_per_revolution, bool wait_for_index
 extern int emcTrajSetOffset(double z, double x, double w);
 extern int emcTrajSetOrigin(EmcPose origin);
 extern int emcTrajSetHome(EmcPose home);
+extern int emcTrajSetTloAxis(bool use_w_axis);
 extern int emcTrajClearProbeTrippedFlag();
 extern int emcTrajProbe(EmcPose pos, int type, double vel, 
                         double ini_maxvel, double acc, unsigned char probe_type);

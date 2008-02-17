@@ -245,6 +245,12 @@ static int loadTraj(EmcIniFile *trajInifile)
     return 0;
 }
 
+static int readTloAxis(IniFile *inifile) {
+    int use_w_axis = false;
+    inifile->Find(&use_w_axis, "TLO_IS_ALONG_W", "TRAJ");
+    return emcTrajSetTloAxis(use_w_axis);
+}
+
 /*
   iniTraj(const char *filename)
 
@@ -260,6 +266,10 @@ int iniTraj(const char *filename)
     // load trajectory values
     if (0 != loadTraj(&trajInifile)) {
 	return -1;
+    }
+    // read the tlo axis
+    if (0 != readTloAxis(&trajInifile)) {
+        return -1;
     }
 
     return 0;

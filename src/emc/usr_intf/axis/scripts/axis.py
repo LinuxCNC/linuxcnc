@@ -1672,6 +1672,9 @@ class AxisCanon(GLCanon):
     def get_axis_mask(self):
         return s.axis_mask
 
+    def get_tlo_is_along_w(self):
+        return s.tlo_is_along_w
+
 progress_re = re.compile("^FILTER_PROGRESS=(\\d*)$")
 def filter_program(program_filter, infilename, outfilename):
     import subprocess

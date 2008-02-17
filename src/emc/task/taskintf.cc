@@ -958,6 +958,12 @@ int emcTrajSetTermCond(int cond, double tolerance)
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
+int emcTrajSetTloAxis(bool use_w_axis) {
+    fprintf(stderr, "emcTrajSetTloAxis(%d)\n", use_w_axis);
+    emcStatus->task.tloIsAlongW = use_w_axis;
+    return 0;
+}
+
 int emcTrajLinearMove(EmcPose end, int type, double vel, double ini_maxvel, double acc)
 {
 
