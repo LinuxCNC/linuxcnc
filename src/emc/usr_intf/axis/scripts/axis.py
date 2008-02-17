@@ -2007,7 +2007,6 @@ class _prompt_float:
         t.bind("<Return>", lambda event: (self.ok.flash(), self.ok.invoke()))
         t.bind("<KP_Enter>", lambda event: (self.ok.flash(), self.ok.invoke()))
         t.bind("<Escape>", lambda event: (self.cancel.flash(), self.cancel.invoke()))
-        t.bind("<Destroy>", lambda event: self.do_cancel())
 
         m.pack(side="top", anchor="w")
         e.pack(side="top", anchor="e")
@@ -2083,7 +2082,7 @@ class _prompt_float:
     def run(self):
         self.t.grab_set()
         self._after = self.t.after_idle(self.do_focus)
-        self.t.wait_variable(self.u)
+        self.t.wait_window()
         if self._after is not None:
             self.t.after_cancel(self._after)
         try:
