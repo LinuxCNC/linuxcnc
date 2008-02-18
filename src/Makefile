@@ -831,8 +831,13 @@ tags:
 
 .PHONY: swish
 swish:
-	bash -c 'swish-e -c .swish_config -v 0 -i $(BASEPWD) \
-		$(dir $(BASEPWD)){tcl,share/axis/tcl,scripts,configs,docs/src,docs/man/man1}'
+	swish-e -c .swish_config -v 0 -i $(BASEPWD) \
+		$(dir $(BASEPWD))tcl \
+		$(dir $(BASEPWD))share/axis/tcl \
+		$(dir $(BASEPWD))scripts \
+		$(dir $(BASEPWD))configs \
+		$(dir $(BASEPWD))docs/src \
+		$(dir $(BASEPWD))docs/man/man1
         
 # When you depend on objects/var-ZZZ you are depending on the contents of the
 # variable ZZZ, which is assumed to depend on a Makefile, a Submakefile, or
