@@ -507,7 +507,7 @@ def ui(im, nim, im_name):
     ui_image = ImageTk.PhotoImage(ui_image, master = app)
     i = Tkinter.Label(app, image=ui_image, compound="top",
         text=_("Image size: %(w)d x %(h)d pixels\n"
-                "Minimum pixel value: %(min)d\nMaximum pixel value: %d(max)")
+                "Minimum pixel value: %(min)d\nMaximum pixel value: %(max)d")
             % {'w': im.size[0], 'h': im.size[1], 'min': nim.min(), 'max': nim.max()},
         justify="left")
     f = Tkinter.Frame(app)
