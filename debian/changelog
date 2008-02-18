@@ -10,11 +10,12 @@ emc2 (1:2.2.4~cvs) unstable; urgency=low
   * hal_input: fix 'ZeroDivisionError' for absolute axes that report the same
     value for min and max
   * fix various inaccuracies in the documentation
-  * halshow: fix the time displayed when mousing over a trace
+  * halscope: fix the time displayed when mousing over a trace
   * axis: fix ctrl and - or = starting an unstoppable jog
   * axis: fix the numeric keypad with numlock on
+  * task: fix the initial coordinate system offset (SF#1895693)
 
- -- Jeff Epler <jepler@unpy.net>  Sat, 16 Feb 2008 13:08:35 -0600
+ -- Jeff Epler <jepler@unpy.net>  Sun, 17 Feb 2008 17:58:35 -0600
 
 emc2 (1:2.2.3) unstable; urgency=low
 
