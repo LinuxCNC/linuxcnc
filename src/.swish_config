@@ -16,6 +16,7 @@ FileRules filename contains \.tex$
 FileRules filename contains \.aux$
 FileRules filename contains \.pyc$
 FileRules filename contains \.odg$
+FileRules filename contains \.dxf$
 FileRules pathname contains /objects/
 FileRules pathname contains /depends/
 FileRules pathname contains /CVS/
@@ -34,6 +35,8 @@ FileRules filename contains \.qar$
 FileRules filename contains \.ise
 FileRules filename contains \.vho$
 FileRules filename contains \.bit$
+FileRules filename contains \.ng.$
+FileRules filename contains \.twx$
 
 IndexFile .swishindex
 DefaultContents TXT
