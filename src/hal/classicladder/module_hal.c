@@ -81,17 +81,20 @@ void HalReadPhysicalInputs(void) {
 	}
 }
 
-void HalReads32Inputs(void) {
-	int i;
-	for( i=0; i<InfosGene->GeneralParams.SizesInfos.nbr_s32in; i++) {
-		WriteVar(VAR_MEM_WORD, i, *hal_s32_inputs[i]);
-	}
-}
-
 void HalWritePhysicalOutputs(void) {
 	int i;
 	for( i=0; i<InfosGene->GeneralParams.SizesInfos.nbr_phys_outputs; i++) {
 		*(hal_outputs[i]) = ReadVar(VAR_PHYS_OUTPUT, i);
+	}
+}
+
+// S32 in and out pins piggy back on top of the regular word variable's array
+// so all the s32_in pins are mapped first, then all the s32_out pins, then the rest are regular word memory
+
+void HalReads32Inputs(void) {
+	int i;
+	for( i=0; i<InfosGene->GeneralParams.SizesInfos.nbr_s32in; i++) {
+		WriteVar(VAR_MEM_WORD, i, *hal_s32_inputs[i]);
 	}
 }	
 void HalWrites32Outputs(void) {
@@ -108,7 +111,7 @@ void HalWrites32Outputs(void) {
 // if the period is under 1 MS then if will not refresh rungs yet but 
 // will keep track of how many NS were left over. Does this each period
 // till at least 1 MS has occured, if more then 1 MS then keeps track of
-// leftover NS for accuracy. Buttom line is you can run classiclader in
+// leftover NS for accuracy. Bottom line is you can run classiclader in
 // a thread faster than 1 microsecond but it will not refresh the rungs
 // any faster (it can be slower though).
 // t0 and t1 are for keeping track of how long the refresh of sections, 
@@ -209,6 +212,9 @@ void rtapi_app_exit(void) {
 	ClassicLadder_FreeAll( FALSE);
 }
 
+// this function copies any requested (from the cmd line) changes to ladder element amounts to GeneralParamsMirror
+// so memory allotment and pin numbers can be varied. Note no error checking is done such as
+// seeing if the number of S32 in and out pins are greater then the number of words available.
 void CopySizesInfosFromModuleParams( void )
 {
 #ifdef DYNAMIC_PLCSIZE
