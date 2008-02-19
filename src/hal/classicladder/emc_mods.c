@@ -1,8 +1,8 @@
 // classicladder v7.124 adaptation for emc2 January 08
-/* Classic Ladder Project */
-/* Copyright (C) 2001-2006 Marc Le Douarain */
-/* http://www.multimania.com/mavati/classicladder */
-/* http://www.sourceforge.net/projects/classicladder */
+
+// this is a collection of completely new functions added for the adaptation to EMC2
+// it is easier to keep them all together in one place --I hope!
+// please add all new functions here!
 
 /* This library is free software; you can redistribute it and/or */
 /* modify it under the terms of the GNU Lesser General Public */
@@ -18,9 +18,6 @@
 /* License along with this library; if not, write to the Free Software */
 /* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA */
 
-// this is a collection of completely new functions added for the adaptation to EMC2
-// it is easier to keep them all together in one place --I hope!
-// please add all new functions here!
 
 #include "hal.h"
 #include "hal/hal_priv.h"
@@ -33,16 +30,24 @@
 #include "emc_mods.h"
 
 // This function is a development of Jeff's orginal work for ver 7.100
+// it converts variables or symbols to HAL signal names (if present)
+
 // It is called from the GetElementPropertiesForStatusBar function in edit.c 
 // it checks to see if the VarsNameParam is a symbol, if it is, converts it to a variable name
 // if Variable is B then exports that signal name is not possible 
 // if not I, W, or Q then returns an error message 
-// then checks for what the pinname would be if it is a I, Q, or W  variable (these are the only variable that can connect to the outside world)
+// then checks for what the pinname would be if it is a I, Q, or W  variable 
+// (these are the only variable that can connect to the outside world)
+// (if W checks if in the range for hal pins - S32 in and out pins  piggy back on top of the regular word
+// variable array so in the array S32in are first, then S32 out, then word variables)
 // then checks to see if a signal is connected to that pin
 // if there is a signal returns that name with an arrow to show if the signal is coming in or going out
 // if there is such a pin but there is no signal connected returns that fact
 // anything else should return an error
 // edit.c uses this function 
+// Chris Morley Feb 08
+
+
 char * ConvVarNameToHalSigName( char * VarNameParam ) 
 {
 	
@@ -66,6 +71,8 @@ char * ConvVarNameToHalSigName( char * VarNameParam )
                 break;
             case 'W':
                 sscanf(VarNameParam+2, "%d", &idx);
+		if(idx > (InfosGene->GeneralParams.SizesInfos.nbr_s32in+InfosGene->GeneralParams.SizesInfos.nbr_s32out))
+			{return "No HAL pin ";}
                 if(idx > InfosGene->GeneralParams.SizesInfos.nbr_s32in) {
                     snprintf(pin_name, 100, "classicladder.0.s32out-%02d",
                             idx - InfosGene->GeneralParams.SizesInfos.nbr_s32in);
@@ -119,6 +126,7 @@ return "conv HAL signal ERROR";
 // then we piece together the signal name, first variable/symbolname
 // and  expression so it can be returned to be printed in the status bar
 // Edit.c uses this function
+// Chris Morley Feb 08
 
 char * FirstVariableInArithm(char * Expr)
 {
@@ -131,15 +139,29 @@ char * FirstVariableInArithm(char * Expr)
 	if (Expr[0]=='\0' || Expr[0]=='#')
 		return "No expression";
 	
-//parse expression till we find = or : or the end
-// *TODO* have to add checks for & | ! prob others (will use a switch case)
+//parse expression till we find a symbol that marks the end of a variable or symbol name , or find the end of expression
+
 	for (i=0;i<100;i++)
-		if (Ptr[i] == ':' || Ptr[i] == '=' || Ptr[i] == '\0')
-		{			
-		snprintf(Buffer, i+1, "%s", Expr);
-		
-		snprintf(Tempbuf, 100, " %s (for %s)  Exprsn~ %s",ConvVarNameToHalSigName(Buffer),Buffer,Expr);
-		return Tempbuf;
+	{
+
+		switch (Ptr[i])
+		{
+			case ':' :
+			case '=' :
+			case '\0':
+			case '&' :
+			case '!' :
+			case '|' :
+			case '[' :
+			case '(' :
+
+			snprintf(Buffer, i+1, "%s", Expr);
+			snprintf(Tempbuf, 100, " %s (for %s)  Exprsn~ %s",ConvVarNameToHalSigName(Buffer),Buffer,Expr);
+			return Tempbuf;
+			break;
+
+			default:;
 		}
+	}
 	return "first var. expression error";
 }
