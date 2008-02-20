@@ -43,11 +43,13 @@ enum
 	NBR_INFOS
 };
 
-
+// a little change to check present variables for HAL signals and post them in the comment slot of window
+// you can still comment other Variables
 void DisplaySymbols( void )
 {
 	GtkTreeIter   iter;
 	int ScanSymb;
+	static char Tempbuf[100];
 
 	gtk_list_store_clear( ListStore );
 
@@ -55,13 +57,17 @@ void DisplaySymbols( void )
 	{
 		// Acquire an iterator
 		gtk_list_store_append( ListStore, &iter );
+		
+		if(SymbolArray[ ScanSymb ].VarName [0] =='%')
+			{snprintf(Tempbuf, 100, "%s",ConvVarNameToHalSigName(SymbolArray[ ScanSymb ].VarName));
+		}else{ snprintf(Tempbuf, 100, "%s",SymbolArray[ ScanSymb ].Comment);}
 
-		// fill the element
+	// fill the element
 		gtk_list_store_set( ListStore, &iter,
 					NUM_ARRAY, ScanSymb,
                     VAR_NAME, SymbolArray[ ScanSymb ].VarName,
                     SYMBOL, SymbolArray[ ScanSymb ].Symbol,
-                    COMMENT, SymbolArray[ ScanSymb ].Comment,
+                    COMMENT, Tempbuf,
                     -1);
 	}
 }
@@ -140,7 +146,7 @@ gint SymbolsWindowDeleteEvent( GtkWidget * widget, GdkEvent * event, gpointer da
 void OpenSymbolsWindow( void )
 {
 	if ( !GTK_WIDGET_VISIBLE( SymbolsWindow ) )
-	{
+	{ DisplaySymbols();
 		gtk_widget_show (SymbolsWindow);
 #ifdef GTK2
 		gtk_window_present( GTK_WINDOW(SymbolsWindow) );
@@ -158,7 +164,7 @@ void SymbolsInitGtk()
 	GtkWidget *ListView;
 	GtkCellRenderer   *renderer;
 	long ScanCol;
-	char * ColName[] = { "HiddenColNbr!", "Variable", "Symbol name", "Comment" };
+	char * ColName[] = { "HiddenColNbr!", "Variable", "Symbol name", "HAL signal/Comment" };
 
 	SymbolsWindow = gtk_window_new( GTK_WINDOW_TOPLEVEL );
 	gtk_window_set_title( GTK_WINDOW( SymbolsWindow ), "Symbols names" );
