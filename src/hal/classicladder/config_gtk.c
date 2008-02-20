@@ -20,6 +20,9 @@
 /* License along with this library; if not, write to the Free Software */
 /* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA */
 
+// modified for EMC 
+// Chris Morley Feb 08
+
 #include <gtk/gtk.h>
 #include <stdio.h>
 #include <string.h>
@@ -32,9 +35,9 @@
 #include "config_gtk.h"
 
 #ifdef OLD_TIMERS_MONOS_SUPPORT
-#define NBR_OBJECTS 13
+#define NBR_OBJECTS 15
 #else
-#define NBR_OBJECTS 11
+#define NBR_OBJECTS 13
 #endif
 GtkWidget *LabelParam[ NBR_OBJECTS ],*ValueParam[ NBR_OBJECTS ];
 #ifndef HAL_SUPPORT
@@ -142,6 +145,14 @@ GtkWidget * CreateGeneralParametersPage( void )
 				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_monostables );
 				break;
 #endif
+			case 13:
+				sprintf( BuffLabel, "Nbr.S32in (current alloc=%d)", InfosGene->GeneralParams.SizesInfos.nbr_s32in );
+				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_s32in );
+				break;
+			case 14:
+				sprintf( BuffLabel, "Nbr.S32out (current alloc=%d)", InfosGene->GeneralParams.SizesInfos.nbr_s32out );
+				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_s32out );
+				break;
 			default:
 				sprintf( BuffLabel, "???" );
 				sprintf( BuffValue, "???" );
@@ -208,6 +219,10 @@ void GetGeneralParameters( void )
 	TheValue = GetOneGeneralInfo( 12 );
 	GeneralParamsMirror.SizesInfos.nbr_monostables = TheValue;
 #endif
+	TheValue = GetOneGeneralInfo( 13 );
+	GeneralParamsMirror.SizesInfos.nbr_s32in = TheValue;
+	TheValue = GetOneGeneralInfo( 14 );
+ 	GeneralParamsMirror.SizesInfos.nbr_s32out = TheValue;
 }
 #ifndef HAL_SUPPORT
 GtkWidget * CreateIOConfPage( char ForInputs )
@@ -364,6 +379,8 @@ int ConvComboToNum( char * text, char ** list )
 	}
 	return Value;
 }
+
+// we don't want this function if using EMC
 #ifndef HAL_SUPPORT 
 void GetIOSettings( char ForInputs )
 {
@@ -664,9 +681,12 @@ void GetModbusModulesIOSettings( void )
 }
 #endif
 
+// we dont want to change general parameters from user program -only when loading realtime
+// we also dont want calls to get IO settings in EMC (we use HAL instead)
+// configHardware is not used in EMC
 void GetSettings( void )
 {
-	GetGeneralParameters( );
+	//GetGeneralParameters( );
 #ifndef HAL_SUPPORT
 	GetIOSettings( 1/*ForInputs*/ );
 	GetIOSettings( 0/*ForInputs*/ );
@@ -680,6 +700,7 @@ void GetSettings( void )
 #endif
 }
 
+// we don't want to show physical input/ouput if using EMC in this function
 void OpenConfigWindowGtk()
 {
 	GtkWidget *nbook;
