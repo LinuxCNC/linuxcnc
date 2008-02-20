@@ -94,6 +94,7 @@ StrArithmExpr * EditArithmExpr;
 // Default sizes values
 // and variable used to store parameters before copying from realtime module
 // The real values allocated are in InfosGene->GeneralParams.SizesInfos...
+
 StrGeneralParams GeneralParamsMirror = {
 	.SizesInfos.nbr_rungs = NBR_RUNGS_DEF,
 	.SizesInfos.nbr_bits = NBR_BITS_DEF,
@@ -221,6 +222,7 @@ int ClassicLadder_AllocAll()
 
 #ifndef RTAPI// for user space
 
+	
     // Attach SHMEM with proper size.
     if ((ShmemId = rtapi_shmem_new(CL_SHMEM_KEY, compId, bytes)) < 0) {
         rtapi_print("Failed to alloc shared memory (%x %d %lu) !\n",
@@ -246,6 +248,8 @@ int ClassicLadder_AllocAll()
   	bytes = shmBase[1];   
 	InfosGene = (StrInfosGene*)(shmBase+1);
 	pSizesInfos = &(InfosGene->GeneralParams.SizesInfos);
+// copy generalparams to gen paramsMirror so Config window displays properly
+	memcpy(  &GeneralParamsMirror,&InfosGene->GeneralParams, sizeof( StrGeneralParams ) );
   	UpdateSizesOfConvVarNameTable();
 #ifdef GTK_INTERFACE
 	EditArithmExpr = (StrArithmExpr *)malloc(  pSizesInfos->nbr_arithm_expr * sizeof(StrArithmExpr) );
@@ -266,14 +270,13 @@ int ClassicLadder_AllocAll()
         pSizesInfos->nbr_timers,
         pSizesInfos->nbr_monostables,
         pSizesInfos->nbr_counters,
-		pSizesInfos->nbr_timers_iec,
+	pSizesInfos->nbr_timers_iec,
         pSizesInfos->nbr_phys_inputs,
         pSizesInfos->nbr_phys_outputs,
         pSizesInfos->nbr_arithm_expr,
         pSizesInfos->nbr_sections,
         pSizesInfos->nbr_symbols,
-		pSizesInfos->nbr_s32in,
-		pSizesInfos->nbr_s32out);
+	pSizesInfos->nbr_s32in,	pSizesInfos->nbr_s32out);
 
     	// Set global SHMEM pointers for each element
     pByte = (unsigned char *) InfosGene;
