@@ -1084,9 +1084,9 @@ char SaveSymbols(char * FileName)
 	return (Okay);
 }
 
-
+//this function is not used because paramaters are loaded with real time module in EMC
 char LoadGeneralParameters(char * FileName)
-{
+{ 
 	FILE * File;
 	char Okay = FALSE;
 	char Line[300];
@@ -1193,9 +1193,9 @@ void LoadAllLadderDatas(char * DatasDirectory)
 	DeleteTheDefaultSection( );
 
 	printf("Loading datas from %s...\n", DatasDirectory);
-
-	sprintf(FileName,"%s/"FILE_PREFIX"general.txt",DatasDirectory);
-	LoadGeneralParameters( FileName );
+// this function call is not wanted because in EMC parameters are loaded with the realtime module
+//	sprintf(FileName,"%s/"FILE_PREFIX"general.txt",DatasDirectory);
+//	LoadGeneralParameters( FileName );
 #ifdef OLD_TIMERS_MONOS_SUPPORT
 	sprintf(FileName,"%s/"FILE_PREFIX"timers.csv",DatasDirectory);
 //	printf("Loading timers datas from %s\n",FileName);
