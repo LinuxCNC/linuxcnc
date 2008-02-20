@@ -20,6 +20,9 @@
 /* License along with this library; if not, write to the Free Software */
 /* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA */
 
+// modified for EMC
+// Chris Morley Feb 08
+
 #include <gtk/gtk.h>
 #include <stdio.h>
 #include <string.h>
@@ -40,7 +43,7 @@
 #define NBR_BOOLS_VAR_SPY 15
 #define NBR_TYPE_BOOLS_SPY 3
 #define NBR_FREE_VAR_SPY 10
-
+static int toggle=0;
 GtkWidget *SpyBoolVarsWindow;
 GtkWidget *SpyFreeVarsWindow;
 
@@ -140,27 +143,18 @@ static gint OffsetBoolVar_activate_event(GtkWidget *widget, void * NumVarSpy)
 	return TRUE;
 }
 
+// return true so window is not destroyed
+// set toggle to 3 so hitting vars button again wiil hide everything
+// unless we were only showing BoolVars window then start from the beginning
 gint BoolVarsWindowDeleteEvent( GtkWidget * widget, GdkEvent * event, gpointer data )
 {
 	gtk_widget_hide( SpyBoolVarsWindow );
-	// we do not want that the window be destroyed.
+	if (toggle==1) {toggle=0;
+	}else{toggle=3;}
 	return TRUE;
 }
 
-void OpenSpyBoolVarsWindow( )
-{
-	if ( !GTK_WIDGET_VISIBLE( SpyBoolVarsWindow ) )
-	{
-		gtk_widget_show (SpyBoolVarsWindow);
-#ifdef GTK2
-		gtk_window_present( GTK_WINDOW(SpyBoolVarsWindow) );
-#endif
-	}
-	else
-	{
-		gtk_widget_hide( SpyBoolVarsWindow );
-	}
-}
+
 
 void BoolVarsWindowInitGtk()
 {
@@ -298,27 +292,17 @@ static gint EntryVarSpy_activate_event(GtkWidget *widget, int NumSpy)
 	return TRUE;
 }
 
+//return true so window is not destroyed
+//set toggle to 3 so hitting vars button again wiil hide everything
+//unless we were only showing FreeVars window then start from the beginning
 gint FreeVarsWindowDeleteEvent( GtkWidget * widget, GdkEvent * event, gpointer data )
 {
 	gtk_widget_hide( SpyFreeVarsWindow );
-	// we do not want that the window be destroyed.
+	if (toggle==2) {toggle=0;
+	}else{toggle=3;}
 	return TRUE;
 }
 
-void OpenSpyFreeVarsWindow( )
-{
-	if ( !GTK_WIDGET_VISIBLE( SpyFreeVarsWindow ) )
-	{
-		gtk_widget_show (SpyFreeVarsWindow);
-#ifdef GTK2
-		gtk_window_present( GTK_WINDOW(SpyFreeVarsWindow) );
-#endif
-	}
-	else
-	{
-		gtk_widget_hide( SpyFreeVarsWindow );
-	}
-}
 
 void FreeVarsWindowInitGtk( )
 {
@@ -382,15 +366,13 @@ void VarsWindowInitGtk()
 // one, the other, both, then none of the windows will be shown
 void OpenSpyVarsWindow( )
 {
-	static int toggle=0;
+	
 	switch (toggle)
 	{
-	case 0 :	OpenSpyBoolVarsWindow( ); break;
-	case 1 :	OpenSpyBoolVarsWindow( );
-			OpenSpyFreeVarsWindow( ); break;
-	case 2 :	OpenSpyBoolVarsWindow( ); break;
-	case 3 :	OpenSpyBoolVarsWindow( );
-			OpenSpyFreeVarsWindow( ); break;
+	case 0 :	gtk_widget_show( SpyBoolVarsWindow ); gtk_widget_hide( SpyFreeVarsWindow );break;
+	case 1 :        gtk_widget_hide( SpyBoolVarsWindow ); gtk_widget_show( SpyFreeVarsWindow );break;
+	case 2 :	gtk_widget_show( SpyBoolVarsWindow ); gtk_widget_show( SpyFreeVarsWindow );break;
+	case 3 :	gtk_widget_hide( SpyBoolVarsWindow ); gtk_widget_hide( SpyFreeVarsWindow );break;
 	default:;
 	}
 	toggle++;
