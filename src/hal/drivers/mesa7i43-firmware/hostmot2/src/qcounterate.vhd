@@ -1,7 +1,8 @@
-library IEEE;
-use IEEE.STD_LOGIC_1164.ALL;
-use IEEE.STD_LOGIC_ARITH.ALL;
-use IEEE.STD_LOGIC_UNSIGNED.ALL;
+
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.std_logic_arith.all;
+use ieee.std_logic_unsigned.all;
 --
 -- Copyright (C) 2007, Peter C. Wallace, Mesa Electronics
 -- http://www.mesanet.com
@@ -67,49 +68,34 @@ use IEEE.STD_LOGIC_UNSIGNED.ALL;
 --     POSSIBILITY OF SUCH DAMAGE.
 -- 
 
-entity boutreg is
-    generic ( 
-		size : integer;
-	 	buswidth : integer;
-		invert : boolean 
-		);
-    port ( 
-		clk : in std_logic;
-      ibus : in std_logic_vector(buswidth-1 downto 0);
-      obus : out std_logic_vector(buswidth-1 downto 0);
-      load : in std_logic;
-      read : in std_logic;
-		clear : in std_logic;
-      dout : out std_logic_vector(size -1 downto 0)
-		);
-end boutreg;
+entity qcounterate is
+    port ( ibus : in  std_logic_vector (11 downto 0);
+           loadrate : in  std_logic;
+           rateout : out  std_logic;
+			  clk : in std_logic);
+			  
+end qcounterate;
 
-architecture Behavioral of boutreg is
-signal oreg : std_logic_vector(size -1 downto 0);
-
+architecture Behavioral of qcounterate is
+signal rate: std_logic_vector (11 downto 0) := x"800"; 
+signal count: std_logic_vector (11 downto 0); 
+alias  countmsb: std_logic is  count(11);
 
 begin
-
-	a_basic_out_reg: process (clk,read,oreg)
-
+	arate: process (clk,count)
 	begin
-		if clk'event and clk = '1' then
-			if load = '1' then
-				 oreg <= ibus (size -1 downto 0);
+		if rising_edge(clk) then
+			
+			if countmsb= '0' then 
+				count <= count -1;
+			else
+				count <= rate;
 			end if;
-			if clear = '1' then
-				oreg <= (others => '0');
-			end if;	
-		end if; -- clk
-		obus <= (others => 'Z');
-		if read = '1' then
-			obus(size -1 downto 0) <= oreg;
-			obus(buswidth -1 downto size) <= (others => '0'); 
-		end if;		
-		if not invert then
-			dout <= oreg;
-		else
-			dout <= not oreg;
+			if loadrate = '1' then
+			   rate <= ibus;
+			end if;
 		end if;	
+		rateout <= countmsb;
 	end process;
+
 end Behavioral;

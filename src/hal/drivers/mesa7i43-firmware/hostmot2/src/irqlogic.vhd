@@ -81,7 +81,7 @@ entity irqlogic is
          loadstatus : in  std_logic;
          readstatus : in  std_logic;
          clear : in  std_logic;
-         ratesource : in  std_logic_vector (4 downto 0);
+         ratesource : in  std_logic_vector (7 downto 0);
          int : out  std_logic);
 end irqlogic;
 
@@ -99,7 +99,7 @@ signal rate : std_logic;
 
 begin
 
-	PeriodicIRQlogic : process (clk,statusreg,irqff)
+	PeriodicIRQlogic : process (clk,statusreg,irqff,readstatus, readdiv, divlatch)
 	begin
 		if rising_edge(clk) then
 			rated  <= rated(0) & rate;

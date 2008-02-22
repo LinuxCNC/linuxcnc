@@ -88,7 +88,7 @@ signal divlatch: std_logic_vector (15 downto 0);
 
 begin
 
-	atimestamp: process (clk)
+	atimestamp: process (clk,readts, counter, readtsdiv, divlatch)
 	begin
 		if rising_edge(clk) then
 			div <= div -1;

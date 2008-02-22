@@ -30,26 +30,32 @@ First ID stuff
 0x424	PortWidth		Normally 24
 0x428	ClockLow		In Hz	(note:on 5I20/4I65 = PCI clock -- guessed as 33.33 MHz)
 0x42C	ClockHigh		In Hz
+0x430	InstanceStride0
+0x434	InstanceStride1
+0x438	RegisterStride0
+0x43C	RegisterStride1
 
-0x440..	Module descriptions 0 through 47
-Each module descriptor is two doublewords with the following record structure:
+0x440..	Module descriptions 0 through 31
+Each module descriptor is three doublewords with the following record structure:
 
 0x440: (from least to most significant order)
 GTag(0		(byte) = General function tag
-Number(0)	(byte) = Number of modules in configuration
+Version(0)	(byte) = module version
 ClockTag(0)	(byte) = Whether module uses ClockHigh or ClockLow
-RegisterNum(0)	(byte) = Which register in set
+Instances(0)	(byte) = Number of instances of module in configuration
 BaseAddress(0)	(word) = offset to module. This is also specific register = Tag
-Version(0)	(word) = module version
+Registers(0)	(byte) = Number of registers per module
+MPBitmap(0)	(Double) = bit map of which registers are multiple '1' = multiple, LSb = reg(0)
 
-0x448:
+0x44C: (from least to most significant order)
 GTag(1)		(byte) = General function tag
-Number(1)	(byte) = Number of modules in configuration
+Version(1)	(byte) = module version
 ClockTag(1)	(byte) = Whether module uses ClockHigh or ClockLow
-RegisterNum(1)	(byte) = Which register in set
+Instances(1)	(byte) = Number of instances of module in configuration
 BaseAddress(1)	(word) = offset to module. This is also specific register = Tag
-Version(1)	(word) = module version
-...
+Registers(1)	(byte) = Number of registers per module
+MPBitmap(1)	(Double) = bit map of which registers are multiple '1' = multiple, LSb = reg(0)
+
 
 0 GTag marks end of module descriptors
 
@@ -85,11 +91,14 @@ PrimaryTag(1)	(byte) = Primary function tag (normally I/O port)
 0x0A00	IRQStatus
 
 Bit 2..4  Select which PWM reference counter bit is used as IRQ divider source:
-000 = PWMRefcount(MSB-4)
-001 = PWMRefcount(MSB-3)
-010 = PWMRefcount(MSB-2)
-011 = PWMRefcount(MSB-1)
-100 = PWMRefcount(MSB)
+000 = PWMRefcount(MSB-7)
+001 = PWMRefcount(MSB-6)
+010 = PWMRefcount(MSB-5)
+011 = PWMRefcount(MSB-4)
+100 = PWMRefcount(MSB-3)
+101 = PWMRefcount(MSB-2)
+110 = PWMRefcount(MSB-1)
+111 = PWMRefcount(MSB)
 
 Bit 1 = Irq mask: 0 = masked
 
@@ -203,7 +212,8 @@ Mode registers (2 bits Write only)
 0x221C	2 bit mode register for StepGen 7
 ...
 
-DIR Setup time = how long DIR must be valid before step pulses may be issued
+DIR Setup time = how long DIR must be valid before step 
+pulses may be issued
 Max time for 14 bits at ClockLow = 33 MHz = ~480 uS. 
 At ClockLow = 50 MHz = ~320 uS 
 
@@ -219,8 +229,8 @@ Write only
 0x231C	14 bit DIR setup time register for StepGen 7
 ...
 
-DIR Hold time = how long DIR most remain valid after a step pulse has 
-been issued 
+DIR Hold time = how long DIR most remain valid after 
+a step pulse has been issued 
 Max time for 14 bits at ClockLow = 33 MHz = ~480 mS. 
 At ClockLow = 50 MHz = ~320 mS 
 
@@ -321,6 +331,9 @@ Writes to counter register clear the counter.
 0x301c quad counter 7	
 ...
 
+The time stamp allows reciprocal time (DeltaCount/DeltaTime) velocity calculation 
+for better estimation of motor velocity at low counts/sample interval
+
 QuadratureCounter latch/Control register
 32 bit register: top 16 bits are latched (by index) count, 
 bottom 16 bits is control register
@@ -362,6 +375,53 @@ Timestamp count rate is ClockLow/(TSDiv+2).
 Any divisor with MSB set = divide by 1
 
 0x3300  TSCount 16 bit time stamp counter (read only) 
+
+0x3400  QfilterRate 12 bit Quadrature counter filter rate
+count rate is ClockLow/(QFilterRate+2). 
+Any divisor with MSB set = divide by 1
+
+Notes about quadrature filter rate:
+
+QFilterRate sets the sampling rate for all quadrature counters input filters.
+Input filtering should be set with as long a time constant as possible, especially 
+when using TTL encoders.
+
+The time constant chosen should give a fair (say 30%) margin of quadrature counter 
+maximum count rate above the hardwares maximum possible count rate.
+
+For example with a 33MHz ClockLow and QfilterRate = 0xFFF (divide by one):
+
+With the filter bit off, the the input filter requires 3 clocks to 
+recognize an input change = ~90 nS. This gives a maximum input frequency 
+of 1/180 nS = ~5MHz or a maximum quadrature (4X) count rate of ~ 20MHz
+
+With the filter bit on, the the input filter requires 15 clocks to 
+recognize an input change = ~450 nS. This gives a maximum input frequency 
+of 1/900 nS = ~1.1MHz or a maximum quadrature (4X) count rate of ~ 4.4 MHz
+
+This is still much faster than needed for most applications so the QFilterRate
+register allows lowering the filter sample rate. For example with the Qfilterrate
+register set to divide by 10 (QFilterRate loaded with 8), the input filter sample 
+rate at 33 MHz ClockLow would be 3.3 MHz:
+
+With the filter bit off, the the input filter requires 3 clocks to 
+recognize an input change = ~900 nS. This gives a maximum input frequency 
+of 1/1800 nS = ~500 KHz or a maximum quadrature (4X) count rate of ~ 2MHz
+
+With the filter bit on, the the input filter requires 15 clocks to 
+recognize an input change = ~4500 nS. This gives a maximum input frequency 
+of 1/9000 nS = ~110 KHz or a maximum quadrature (4X) count rate of ~ 440 KHz
+
+440 KHz is adequate for most normal applications = 13200 RPM with a 500 line (2000 count)
+encoder, and has the benefit that noise rejection is very good, input noise pulses
+less than 4500 nS will be ignored. Most PWM generated noise pulses tend to be short, 
+determined by the PWM voltage and the time constant of the PWM to encoder wire 
+capacitance and the encoder output resistance. This output resistance is often quite 
+high in low cost TTL encoders, with outputs that are just open collector comparators 
+with pullup resistors. These encoders are very susceptible to low going noise pulses, and 
+benefit greatly by maximizing the filter time constant.
+ 
+ 
 
 PWM generators (With FPGA compile time constant PWM width = 13)
 
@@ -412,7 +472,7 @@ PWM output is updated.
 ...
 
 0x4200  16 bit PWM gen master rate DDS (PWMCLOCK = CLKHIGH*Rate/65536) 
-        PWM rate will be PWMCLOCK/(2^PWMBITS) for normal and interleaved PWM
+        PWM rate will be PWMCLOCK/(2^PWMBITS) for normal PWM
         and PWMCLOCK/(2^(PWMBITS+1)) for symmetrical mode PWM.
 
 0x4300	16 bit PDM gen master rate DDS (PDMCLOCK = CLKHIGH*Rate/65536) 
@@ -438,47 +498,6 @@ PWM/PDM Notes:
    output!
 
 
-SPI SREG 32 bits
-
-Writes here load shift register and start frame transmission
-
-0x4200 SPI SREG 0
-0x4204 SPI SREG 1
-0x4208 SPI SREG 2
-0x420C SPI SREG 3
-0x4210 SPI SREG 4
-0x4214 SPI SREG 5
-...
-
-SPI bit count register
-
-Bits 0..5 = bits per SPI frame (bits = N+1) ie 0x1f = 32 bit frame
-Bit 6 = CPOL = Clock polarity ( FreeScale SPI spec compatible definitions)
-Bit 7 = CPHA = Clock Phase
-Bit 31 = DAV = data ready
-Bit 30 = Busy
-
-0x4300 SPI bit count register 0
-0x4304 SPI bit count register 1
-0x4308 SPI bit count register 2
-0x430C SPI bit count register 3
-0x4310 SPI bit count register 4
-0x4314 SPI bit count register 5
-...
-SPI bit rate register
-
-Bits 0..7 = programmable divider, SPI bit rate is (N+1)*2 
-Maximum rate (N=0) is 24 MHz (5I22 with 48 MHz clock) or 16.66 (5I20 with 33
-MHz clock
-Minmum rate (N=255) is 93.75 KHz (48 MHz clock) or ~65 KHz (33 MHz clock)
-
-0x4400 SPI bit rate register 0
-0x4404 SPI bit rate register 1
-0x4408 SPI bit rate register 2
-0x440C SPI bit rate register 3
-0x4410 SPI bit rate register 4
-0x4414 SPI bit rate register 5
-...
 
 UART TX data register
 Different offsets push different numbers of bytes on xmit FIFO
@@ -605,7 +624,49 @@ Notes:
    transmit data ia not echoed back to the receiver
 
 
-Address Translation RAM (8 bit interfaces only = EPP and USB)
+SPI SREG 32 bits
+
+Writes here load shift register and start frame transmission
+
+0x5000 SPI SREG 0
+0x5004 SPI SREG 1
+0x5008 SPI SREG 2
+0x500C SPI SREG 3
+0x5010 SPI SREG 4
+0x5014 SPI SREG 5
+...
+
+SPI bit count register
+
+Bits 0..5 = bits per SPI frame (bits = N+1) ie 0x1f = 32 bit frame
+Bit 6 = CPOL = Clock polarity ( FreeScale SPI spec compatible definitions)
+Bit 7 = CPHA = Clock Phase
+Bit 31 = DAV = data ready
+Bit 30 = Busy
+
+0x5100 SPI bit count register 0
+0x5104 SPI bit count register 1
+0x5108 SPI bit count register 2
+0x510C SPI bit count register 3
+0x5110 SPI bit count register 4
+0x5114 SPI bit count register 5
+...
+SPI bit rate register
+
+Bits 0..7 = programmable divider, SPI bit rate is (N+1)*2 
+Maximum rate (N=0) is 24 MHz (5I22 with 48 MHz clock) or 16.66 (5I20 with 33
+MHz clock
+Minmum rate (N=255) is 93.75 KHz (48 MHz clock) or ~65 KHz (33 MHz clock)
+
+0x5200 SPI bit rate register 0
+0x5204 SPI bit rate register 1
+0x5208 SPI bit rate register 2
+0x520C SPI bit rate register 3
+0x5210 SPI bit rate register 4
+0x5214 SPI bit rate register 5
+...
+
+Address Translation RAM (8/16 bit interfaces only = EPP, USB and PC/104)
 The address translation RAM is used to eliminate expensive address cycles 
 when addressing hardwired sequences of non-contiguous bytes.
 
@@ -633,8 +694,8 @@ To use address translation, there is a 256 byte window where addresses are trans
 7CFF	Translation region byte 255 (controlled by Translation RAM address @ 0x7BFC
 
 
-Here is an example of using address translation to write one 24 bit I/O port, 
-read the next 24 bit I/O port and read and 4 quadrature counters, 
+Here is an example of using address translation (With EPP) to write one 24 bit 
+I/O port, read the next 24 bit I/O port and read and 4 quadrature counters, 
 skipping the timestamp, and update 4 PWM generators.
 
 First initialize the translation RAM (Only done once at program startup)
@@ -701,3 +762,4 @@ The side effect of this is that the 16 unused output bits that coorespond to the
 the port _will_ be written with random data.
 
 
+

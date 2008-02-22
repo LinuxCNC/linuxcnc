@@ -87,7 +87,7 @@ signal rateout: std_logic;
 
 begin
 
-	rategen: process (clk)
+	rategen: process (clk,readbasicrate, ratelatch, rateout)
 	begin
 		if rising_edge(clk) then
 			if hold = '0' then

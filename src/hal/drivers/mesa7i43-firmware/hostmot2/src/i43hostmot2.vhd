@@ -72,9 +72,9 @@ use work.IDROMParms.all;
 entity i43hostmot2 is
 	 generic 
 	 (
-		STEPGENs: integer := 4;
-		QCOUNTERS: integer := 4;
-		PWMGens: integer := 4;
+		STEPGENs: integer := 0;
+		QCOUNTERS: integer := 8;
+		PWMGens: integer := 8;
 		SPIs: integer := 0;
 		SSIs: integer := 0;
 		UARTs: integer := 0;
@@ -83,14 +83,22 @@ entity i43hostmot2 is
 		IDROMType: integer := 2;		
 	   SepClocks: boolean := true;
 		OneWS: boolean := true;
-		I30Pinout: boolean := true;
-		I44pinout: boolean := false;
+		SVST8_24Pinout: boolean := false;
+		SVST8_8Pinout: boolean := false;
+		SVST4_8Pinout: boolean := false;
+		SVST8_4Pinout: boolean := false;
+		SVST4_4Pinout: boolean := false;
+		SVST4_6Pinout: boolean := false;
 		QCtrOnlyPinout: boolean := false;
 		QCtrOnlyPinoutWithIMask: boolean := false;
-		SVST8_4Pinout: boolean := false;
-		SVST4_4Pinout: boolean := true;
-		ConnsWithI30: integer := 1;
+		I30Pinout: boolean := true;
+		I44pinout: boolean := false;
+		ConnsWithI30: integer := 2;
+		StartingI30Conn: integer := 0;
 		ConnsWithI44: integer := 0;
+		StartingI44Conn: integer := 0;
+		ConnsWithStepGen: integer := 0;
+		StartingStepGenConn: integer := 0;
 		UseStepGenPrescaler : boolean := false;
 		UseIRQLogic: boolean := true;
 		UseWatchDog: boolean := true;
@@ -100,7 +108,7 @@ entity i43hostmot2 is
 		ClockLow: integer := ClockLow43;
 		BoardNameLow : std_Logic_Vector(31 downto 0) := BoardNameMESA;
 		BoardNameHigh : std_Logic_Vector(31 downto 0) := BoardName7I43;
-		FPGASize: integer := 200;
+		FPGASize: integer := 400;
 		FPGAPins: integer := 144;
 		IOPorts: integer := 2;
 		IOWidth: integer := 48;
@@ -194,14 +202,22 @@ ahostmot2: entity HostMot2
 		idromtype  => IDROMType,		
 	   sepclocks  => SepClocks,
 		onews  => OneWS,
+		svst8_24pinout => SVST8_24Pinout,
+		svst8_8pinout => SVST8_8Pinout,
+		svst4_8pinout => SVST4_8Pinout,
+		svst8_4pinout => SVST8_4Pinout,
+		svst4_4pinout => SVST4_4Pinout,
+		svst4_6pinout => SVST4_6Pinout,
 		i30pinout  => I30Pinout,
 		i44pinout  => I44pinout,
 		qctronlypinout  => QCtrOnlyPinout,
 		qctronlypinoutwithimask  => QCtrOnlyPinoutWithIMask,
-		svst8_4pinout => SVST8_4Pinout,
-		svst4_4pinout => SVST4_4Pinout,
 		connswithi30  => ConnsWithI30,
+		startingi30conn => Startingi30Conn,
 		connswithi44  => ConnsWithI44,
+		startingi44conn => Startingi44Conn,
+		connswithstepgen => ConnsWithStepgen,
+		startingstepgenconn => StartingStepGenConn, 
 		usestepgenprescaler => UseStepGenPrescaler,
 		useirqlogic  => UseIRQLogic,
 		usewatchdog  => UseWatchDog,

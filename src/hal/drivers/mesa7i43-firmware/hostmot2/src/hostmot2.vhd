@@ -85,14 +85,22 @@ entity HostMot2 is
 		IDROMType: integer;		
 	   SepClocks: boolean;
 		OneWS: boolean;
-		I30Pinout: boolean;
-		I44pinout: boolean;
-		QCtrOnlyPinout: boolean;
-		QCtrOnlyPinoutWithIMask: boolean;
+		SVST8_24Pinout: boolean;
+		SVST8_8Pinout: boolean;
+		SVST4_8Pinout: boolean;
 		SVST8_4Pinout: boolean;
 		SVST4_4Pinout: boolean;
+		SVST4_6Pinout: boolean;
+		I30Pinout: boolean;
+		I44Pinout: boolean;
+		Qctronlypinout: boolean;
+		Qctronlypinoutwithimask: boolean;
 		ConnsWithI30: integer;
+		Startingi30Conn: integer;
 		ConnsWithI44: integer;
+		StartingI44conn: integer;
+		ConnsWithStepGen: integer;
+		Startingstepgenconn: integer; 		
 		UseStepGenPrescaler : boolean;
 		UseIRQLogic: boolean;
 		UseWatchDog: boolean;
@@ -229,10 +237,13 @@ architecture dataflow of HostMot2 is
 	signal LoadTSDiv : std_logic;
 	signal ReadTSDiv : std_logic;
 	signal ReadTS : std_logic;
-
-
 	signal TimeStampBus: std_logic_vector(15 downto 0);
 
+-- Quadrature counter filter rate signals
+	signal LoadQCountRate : std_logic;
+	signal QCountFilterRate : std_logic;
+	
+-- Quadrature counter input signals
 	signal QuadA: std_logic_vector(QCounters-1 downto 0);
 	signal QuadB: std_logic_vector(QCounters-1 downto 0);
 	signal Index: std_logic_vector(QCounters -1 downto 0);
@@ -435,7 +446,7 @@ architecture dataflow of HostMot2 is
          loadstatus => LoadIRQStatus,
          readstatus => ReadIrqStatus,
          clear =>  ClearIRQ,
-         ratesource => RefCountBus(PWMRefWidth-1 downto PWMRefWidth-5),
+         ratesource => RefCountBus(PWMRefWidth-1 downto PWMRefWidth-8), -- from toggle bit all the way to 8X PWM rate
          int => INT);
 	end generate;
 	
@@ -456,6 +467,7 @@ architecture dataflow of HostMot2 is
 		generic map (
 			buswidth => BusWidth,
 			timersize => 14,			-- = ~480 usec at 33 MHz, ~320 at 50 Mhz 
+			tablewidth => StepGenTableWidth,
 			asize => 48,
 			rsize => 32 
 			)
@@ -492,6 +504,7 @@ architecture dataflow of HostMot2 is
 		generic map (
 			buswidth => BusWidth,
 			timersize => 14,			-- = ~480 usec at 33 MHz, ~320 at 50 Mhz 
+			tablewidth => StepGenTableWidth,
 			asize => 48,
 			rsize => 32 			
 			)
@@ -542,11 +555,12 @@ architecture dataflow of HostMot2 is
 			countclear => LoadQcounter(i),
 			timestamp => TimeStampBus,
 			indexmask => IndexMask(i),
+			filterrate => QCountFilterRate,
 			clk =>	clklow
 		);
 	end generate makequadcounters;
 
-	maketimestamp:  if (QCounters >0) generate
+	maketqcounterglobals:  if (QCounters >0) generate
 		timestampx: entity timestamp 
 			port map( 
 				ibus => ibus(15 downto 0),
@@ -555,6 +569,14 @@ architecture dataflow of HostMot2 is
 				readts => ReadTS,
 				readtsdiv =>ReadTSDiv,
 				tscount => TimeStampBus,
+				clk => clklow
+			);
+				
+			qcountratex: entity qcounterate 
+			port map( 
+				ibus => ibus(11 downto 0),
+				loadRate => LoadQCountRate,
+				rateout => QcountFilterRate,
 				clk => clklow
 			);
 	end generate;
@@ -615,7 +637,7 @@ architecture dataflow of HostMot2 is
 		 		
 	end generate;
 	
-	makespis: for i in 0 to SPIs -1 generate
+	makeSPIs: for i in 0 to SPIs -1 generate
 		aspi: entity SimpleSPI
 		generic map (
 			buswidth => BusWidth)		
@@ -710,7 +732,40 @@ architecture dataflow of HostMot2 is
          dout => IDROMWen
 		); 
 		 		
-	IDROM_3X_I30s: if I30Pinout and (ConnsWithI30 = 3) generate
+
+	IDROM_2X_I30s: if (ConnsWithI30 = 2) and (IOPorts = 2)  generate
+		IDROM : entity IDROM
+			generic map (
+				idromtype => IDROMType,
+				offsettomodules => OffsetToModules,
+				offsettopindesc => OffsetToPinDesc,
+				boardnamelow => BoardNameLow,
+				boardnamehigh => BoardNameHigh,
+				fpgasize => FPGASize,
+				fpgapins => FPGAPins,
+				ioports => IOPorts,
+				iowidth => IOWidth,
+				portwidth => PortWidth,		
+				clocklow => ClockLow,
+				clockhigh => ClockHigh,
+				inststride0 => InstStride0,
+				inststride1 => InstStride1,
+				regstride0 => RegStride0,
+				regstride1 => RegStride1,
+				pindesc => PinDesc_2xi30,
+				moduleid => ModuleID_2xi30)
+			port map (
+				clk  => clklow, 
+				we   => LoadIDROM,
+				re   => ReadIDROM,
+				radd => addr(9 downto 2),
+				wadd => A(9 downto 2),
+				din  => ibus, 
+				dout => obus
+		); 
+	end generate;
+
+	IDROM_3X_I30s: if I30Pinout and (ConnsWithI30 = 3) and (IOPorts = 3) generate
 		IDROM : entity IDROM
 			generic map (
 				idromtype => IDROMType,
@@ -742,6 +797,38 @@ architecture dataflow of HostMot2 is
 		); 
 	end generate;
 
+	IDROM_4X_I30s: if I30Pinout and (ConnsWithI30 = 4) and (IOPorts = 4) generate
+		IDROM : entity IDROM
+			generic map (
+				idromtype => IDROMType,
+				offsettomodules => OffsetToModules,
+				offsettopindesc => OffsetToPinDesc,
+				boardnamelow => BoardNameLow,
+				boardnamehigh => BoardNameHigh,
+				fpgasize => FPGASize,
+				fpgapins => FPGAPins,
+				ioports => IOPorts,
+				iowidth => IOWidth,
+				portwidth => PortWidth,		
+				clocklow => ClockLow,
+				clockhigh => ClockHigh,
+				inststride0 => InstStride0,
+				inststride1 => InstStride1,
+				regstride0 => RegStride0,
+				regstride1 => RegStride1,
+				pindesc => PinDesc_4xi30,
+				moduleid => ModuleID_4xi30)
+			port map (
+				clk  => clklow, 
+				we   => LoadIDROM,
+				re   => ReadIDROM,
+				radd => addr(9 downto 2),
+				wadd => A(9 downto 2),
+				din  => ibus, 
+				dout => obus
+		); 
+	end generate;
+		
 	SVST8_4s: if  SVST8_4Pinout generate
 		IDROM : entity IDROM
 			generic map (
@@ -773,6 +860,102 @@ architecture dataflow of HostMot2 is
 				dout => obus
 		); 
 	end generate;
+	
+	SVST4_8s: if  SVST4_8Pinout generate
+		IDROM : entity IDROM
+			generic map (
+				idromtype => IDROMType,
+				offsettomodules => OffsetToModules,
+				offsettopindesc => OffsetToPinDesc,
+				boardnamelow => BoardNameLow,
+				boardnamehigh => BoardNameHigh,
+				fpgasize => FPGASize,
+				fpgapins => FPGAPins,
+				ioports => IOPorts,
+				iowidth => IOWidth,
+				portwidth => PortWidth,		
+				clocklow => ClockLow,
+				clockhigh => ClockHigh,
+				inststride0 => InstStride0,
+				inststride1 => InstStride1,
+				regstride0 => RegStride0,
+				regstride1 => RegStride1,
+				pindesc => PinDesc_SVST4_8,
+				moduleid => ModuleID_SVST4_8)
+			port map (
+				clk  => clklow, 
+				we   => LoadIDROM,
+				re   => ReadIDROM,
+				radd => addr(9 downto 2),
+				wadd => A(9 downto 2),
+				din  => ibus, 
+				dout => obus
+		); 
+	end generate;
+
+	SVST8_8s: if  SVST8_8Pinout generate
+		IDROM : entity IDROM
+			generic map (
+				idromtype => IDROMType,
+				offsettomodules => OffsetToModules,
+				offsettopindesc => OffsetToPinDesc,
+				boardnamelow => BoardNameLow,
+				boardnamehigh => BoardNameHigh,
+				fpgasize => FPGASize,
+				fpgapins => FPGAPins,
+				ioports => IOPorts,
+				iowidth => IOWidth,
+				portwidth => PortWidth,		
+				clocklow => ClockLow,
+				clockhigh => ClockHigh,
+				inststride0 => InstStride0,
+				inststride1 => InstStride1,
+				regstride0 => RegStride0,
+				regstride1 => RegStride1,
+				pindesc => PinDesc_SVST8_8,
+				moduleid => ModuleID_SVST8_8)
+			port map (
+				clk  => clklow, 
+				we   => LoadIDROM,
+				re   => ReadIDROM,
+				radd => addr(9 downto 2),
+				wadd => A(9 downto 2),
+				din  => ibus, 
+				dout => obus
+		); 
+	end generate;	
+
+	SVST8_24s: if  SVST8_24Pinout generate
+		IDROM : entity IDROM
+			generic map (
+				idromtype => IDROMType,
+				offsettomodules => OffsetToModules,
+				offsettopindesc => OffsetToPinDesc,
+				boardnamelow => BoardNameLow,
+				boardnamehigh => BoardNameHigh,
+				fpgasize => FPGASize,
+				fpgapins => FPGAPins,
+				ioports => IOPorts,
+				iowidth => IOWidth,
+				portwidth => PortWidth,		
+				clocklow => ClockLow,
+				clockhigh => ClockHigh,
+				inststride0 => InstStride0,
+				inststride1 => InstStride1,
+				regstride0 => RegStride0,
+				regstride1 => RegStride1,
+				pindesc => PinDesc_SVST8_24,
+				moduleid => ModuleID_SVST8_24)
+			port map (
+				clk  => clklow, 
+				we   => LoadIDROM,
+				re   => ReadIDROM,
+				radd => addr(9 downto 2),
+				wadd => A(9 downto 2),
+				din  => ibus, 
+				dout => obus
+		); 
+	end generate;	
 
 	SVST4_4s: if  SVST4_4Pinout generate
 		IDROM : entity IDROM
@@ -805,7 +988,39 @@ architecture dataflow of HostMot2 is
 				dout => obus
 		); 
 	end generate;	
-	
+
+	SVST4_6s: if  SVST4_6Pinout generate
+		IDROM : entity IDROM
+			generic map (
+				idromtype => IDROMType,
+				offsettomodules => OffsetToModules,
+				offsettopindesc => OffsetToPinDesc,
+				boardnamelow => BoardNameLow,
+				boardnamehigh => BoardNameHigh,
+				fpgasize => FPGASize,
+				fpgapins => FPGAPins,
+				ioports => IOPorts,
+				iowidth => IOWidth,
+				portwidth => PortWidth,		
+				clocklow => ClockLow,
+				clockhigh => ClockHigh,
+				inststride0 => InstStride0,
+				inststride1 => InstStride1,
+				regstride0 => RegStride0,
+				regstride1 => RegStride1,
+				pindesc => PinDesc_SVST4_6,
+				moduleid => ModuleID_SVST4_6)
+			port map (
+				clk  => clklow, 
+				we   => LoadIDROM,
+				re   => ReadIDROM,
+				radd => addr(9 downto 2),
+				wadd => A(9 downto 2),
+				din  => ibus, 
+				dout => obus
+		); 
+	end generate;	
+		
 		IDROM_24X_QCtrsOnly: if QCtrOnlyPinout and (QCOUNTERS = 24) generate
 		IDROM : entity IDROM
 			generic map (
@@ -841,11 +1056,11 @@ architecture dataflow of HostMot2 is
 	
 		doi3xpinout: if I30Pinout generate
 			ConnectAltFuncs3X: process(PWMGenoutA,PWMGenOutB,
-											QuadA,QuadB,Index,IndexMask)
+											QuadA,QuadB,Index,IndexMask,IOBits,PWMGenOutC)
 			begin
 --				Altdata <= (others => '0');
 					
-					for i in 0 to ConnsWithI30 -1 loop
+					for i in StartingI30Conn to StartingI30Conn + ConnsWithI30 -1 loop
 					-- Note for 7I29/7I30/7I33/7I40  -- PWMGenOutA = PWM, PWMGenOutB = DIR, PWMGenOutC = ENA
 					QuadB(4*i+1) <= IOBits(PortWidth*i+0);
 					QuadA(4*i+1) <= IOBits(PortWidth*i+1);
@@ -939,34 +1154,20 @@ architecture dataflow of HostMot2 is
 			end process;		
 		end generate;	
 
-		SVSTStepGens84: if SVST8_4Pinout generate
+
+		SVSTStepGens: if StepGens > 0  generate
 			ConnectAltFuncsQC: process(StepGenOut)
 			begin	
 				for i in 0 to StepGens-1 loop
 					for j in 0 to StepGenTableWidth-1 loop
-						AltData(6*i+48+j) <= StepGenOut(i)(j);				
+						AltData(StepGenTableWidth*i+PortWidth*StartingStepGenConn+j) <= StepGenOut(i)(j);				
 					end loop;
 				end loop;	
 			end process;		
 		end generate;	
-
-		SVSTStepGens44: if SVST4_4Pinout generate
-			ConnectAltFuncsQC: process(StepGenOut)
-			begin	
-				for i in 0 to StepGens-1 loop
-					for j in 0 to StepGenTableWidth-1 loop
-						AltData(6*i+24+j) <= StepGenOut(i)(j);				
-					end loop;
-				end loop;	
-			end process;		
-		end generate;	
-
 
    LooseEnds: process(A,clklow)
 	begin
---	   DISABLECONF'Z'; 					-- Dont disable re-conf
---	   EnableHS'1';
---	   CCS'1';
 		if rising_edge(clklow) then
 			A <= addr;
 		end if;
@@ -974,7 +1175,7 @@ architecture dataflow of HostMot2 is
 
 
 
-	Decode: process(A) 
+	Decode: process(A,write, IDROMWEn, read) 
 	begin	
 		-- basic multi decodes are at 256 byte increments (64 longs)
 		-- first decode is 256 x 32 ID ROM
@@ -1259,6 +1460,12 @@ architecture dataflow of HostMot2 is
 			ReadTS <= '0';
 		end if;
 
+		if A(15 downto 8) = QCRateAddr and Write = '1' then	 --  
+			LoadQCountRate <= '1';
+		else
+			LoadQCountRate <= '0';
+		end if;
+
 		if A(15 downto 8) = PWMRateAddr and Write = '1' then	 --  
 			LoadPWMRate <= '1';
 		else
@@ -1303,7 +1510,7 @@ architecture dataflow of HostMot2 is
 
 	end process;
 	
-	PortDecode: process (A,Read,Write)
+	PortDecode: process (A,Read,Write,PortSel, DDRSel, AltDataSrcSel, OpenDrainModeSel, OutputInvSel)
 	begin
 
 		LoadPortCMD <= OneOfNDecode(IOPorts,PortSel,Write,A(3 downto 2));
@@ -1318,32 +1525,34 @@ architecture dataflow of HostMot2 is
 	end process PortDecode;
 
 		StepGenDecode: if (STEPGENs > 0) generate
-			StepGenDecodeProcess : process (A,Read,write)
+			StepGenDecodeProcess : process (A,Read,write,StepGenRateSel, StepGenAccumSel, StepGenModeSel,
+                                 			StepGenDSUTimeSel, StepGenDHLDTimeSel, StepGenPulseATimeSel, 
+			                                 StepGenPulseITimeSel, StepGenTableSel, StepGenTableMaxSel)
 			begin
-				LoadStepGenRate <= OneOfNDecode(STEPGENs,StepGenRateSel,Write,A(5 downto 2));
-				ReadStepGenRate <= OneOfNDecode(STEPGENs,StepGenRateSel,Read,A(5 downto 2));
-				LoadStepGenAccum <= OneOfNDecode(STEPGENs,StepGenAccumSel,Write,A(5 downto 2));
-				ReadStepGenAccum <= OneOfNDecode(STEPGENs,StepGenAccumSel,Read,A(5 downto 2));
-				LoadStepGenMode <= OneOfNDecode(STEPGENs,StepGenModeSel,Write,A(5 downto 2));			 
-				ReadStepGenMode <= OneOfNDecode(STEPGENs,StepGenModeSel,Read,A(5 downto 2));	
-				LoadStepGenDSUTime <= OneOfNDecode(STEPGENs,StepGenDSUTimeSel,Write,A(5 downto 2));
-				ReadStepGenDSUTime <= OneOfNDecode(STEPGENs,StepGenDSUTimeSel,Read,A(5 downto 2));
-				LoadStepGenDHLDTime <= OneOfNDecode(STEPGENs,StepGenDHLDTimeSel,Write,A(5 downto 2));
-				ReadStepGenDHLDTime <= OneOfNDecode(STEPGENs,StepGenDHLDTimeSel,Read,A(5 downto 2));
-				LoadStepGenPulseATime <= OneOfNDecode(STEPGENs,StepGenPulseATimeSel,Write,A(5 downto 2));
-				ReadStepGenPulseATime <= OneOfNDecode(STEPGENs,StepGenPulseATimeSel,Read,A(5 downto 2));
-				LoadStepGenPulseITime <= OneOfNDecode(STEPGENs,StepGenPulseITimeSel,Write,A(5 downto 2));
-				ReadStepGenPulseITime <= OneOfNDecode(STEPGENs,StepGenPulseITimeSel,Read,A(5 downto 2));
-				LoadStepGenTable <= OneOfNDecode(STEPGENs,StepGenTableSel,Write,A(5 downto 2));
-				ReadStepGenTable <= OneOfNDecode(STEPGENs,StepGenTableSel,Read,A(5 downto 2));
-				LoadStepGenTableMax <= OneOfNDecode(STEPGENs,StepGenTableMaxSel,Write,A(5 downto 2));
-				ReadStepGenTableMax <= OneOfNDecode(STEPGENs,StepGenTableMaxSel,Read,A(5 downto 2));
+				LoadStepGenRate <= OneOfNDecode(STEPGENs,StepGenRateSel,Write,A(6 downto 2));
+				ReadStepGenRate <= OneOfNDecode(STEPGENs,StepGenRateSel,Read,A(6 downto 2));
+				LoadStepGenAccum <= OneOfNDecode(STEPGENs,StepGenAccumSel,Write,A(6 downto 2));
+				ReadStepGenAccum <= OneOfNDecode(STEPGENs,StepGenAccumSel,Read,A(6 downto 2));
+				LoadStepGenMode <= OneOfNDecode(STEPGENs,StepGenModeSel,Write,A(6 downto 2));			 
+				ReadStepGenMode <= OneOfNDecode(STEPGENs,StepGenModeSel,Read,A(6 downto 2));	
+				LoadStepGenDSUTime <= OneOfNDecode(STEPGENs,StepGenDSUTimeSel,Write,A(6 downto 2));
+				ReadStepGenDSUTime <= OneOfNDecode(STEPGENs,StepGenDSUTimeSel,Read,A(6 downto 2));
+				LoadStepGenDHLDTime <= OneOfNDecode(STEPGENs,StepGenDHLDTimeSel,Write,A(6 downto 2));
+				ReadStepGenDHLDTime <= OneOfNDecode(STEPGENs,StepGenDHLDTimeSel,Read,A(6 downto 2));
+				LoadStepGenPulseATime <= OneOfNDecode(STEPGENs,StepGenPulseATimeSel,Write,A(6 downto 2));
+				ReadStepGenPulseATime <= OneOfNDecode(STEPGENs,StepGenPulseATimeSel,Read,A(6 downto 2));
+				LoadStepGenPulseITime <= OneOfNDecode(STEPGENs,StepGenPulseITimeSel,Write,A(6 downto 2));
+				ReadStepGenPulseITime <= OneOfNDecode(STEPGENs,StepGenPulseITimeSel,Read,A(6 downto 2));
+				LoadStepGenTable <= OneOfNDecode(STEPGENs,StepGenTableSel,Write,A(6 downto 2));
+				ReadStepGenTable <= OneOfNDecode(STEPGENs,StepGenTableSel,Read,A(6 downto 2));
+				LoadStepGenTableMax <= OneOfNDecode(STEPGENs,StepGenTableMaxSel,Write,A(6 downto 2));
+				ReadStepGenTableMax <= OneOfNDecode(STEPGENs,StepGenTableMaxSel,Read,A(6 downto 2));
 			end process StepGenDecodeProcess;
 		end generate;
 
 
 		QCounterDecode: if (QCOUNTERs > 0) generate		
-			QCounterDecodeProcess : process (A,Read,write)
+			QCounterDecodeProcess : process (A,Read,write,QCounterSel, QCounterCCRSel)
 			begin
 				LoadQCounter <= OneOfNDecode(QCOUNTERs,QCounterSel,Write,A(6 downto 2));
 				ReadQCounter <= OneOfNDecode(QCOUNTERs,QCounterSel,Read,A(6 downto 2));
@@ -1353,7 +1562,7 @@ architecture dataflow of HostMot2 is
 		end generate;
 
 		PWMDecode: if (PWMGENs > 0) generate		
-			PWMDecodeProcess : process (A,Read,write)
+			PWMDecodeProcess : process (A,Read,write,PWMValSel, PWMCRSel)
 			begin
 				LoadPWMVal <= OneOfNDecode(PWMGENs,PWMValSel,Write,A(6 downto 2));
 				LoadPWMCR <= OneOfNDecode(PWMGENs, PWMCRSel,Write,A(6 downto 2));
@@ -1361,7 +1570,7 @@ architecture dataflow of HostMot2 is
 		end generate;
 
 		SPIDecode: if (SPIs > 0) generate		
-			SPIDecodeProcess : process (A,Read,write)
+			SPIDecodeProcess : process (A,Read,write,SPIDataSel,SPIBitCountSel,SPIBitRateSel)
 			begin		
 				LoadSPIData <= OneOfNDecode(SPIs,SPIDataSel,Write,A(5 downto 2));
 				ReadSPIData <= OneOfNDecode(SPIs,SPIDataSel,Read,A(5 downto 2));
@@ -1373,7 +1582,8 @@ architecture dataflow of HostMot2 is
 		end generate;
 
 		UARTDecode: if (UARTs > 0) generate		
-			UARTDecodeProcess : process (A,Read,write)
+			UARTDecodeProcess : process (A,Read,write,UARTXDataSel,UARTXBitRateSel,UARTXModeRegSel,UARTXFIFOCountSel,
+			                             UARTRDataSel,UARTRBitRateSel,UARTRFIFOCountSel,UARTRModeSel)
 			begin		
 				LoadUARTXData <= OneOfNDecode(UARTs,UARTXDataSel,Write,A(6 downto 4));
 				LoadUARTXBitRate <= OneOfNDecode(UARTs,UARTXBitRateSel,Write,A(4 downto 2));

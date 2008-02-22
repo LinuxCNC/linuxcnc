@@ -89,7 +89,6 @@ architecture behavioral of pwmpdmgenh is
 
 signal pwmval: std_logic_vector (refwidth-2 downto 0);
 signal prepwmval: std_logic_vector (refwidth-2 downto 0);
-signal fixedpwmval: std_logic_vector (refwidth-2 downto 0);
 signal fixedrefcount: std_logic_vector (refwidth-2 downto 0);
 signal pdmaccum: std_logic_vector (refwidth-1 downto 0);
 alias  pdmbit: std_logic is pdmaccum(refwidth-1);
@@ -113,15 +112,13 @@ signal oldloadpcrreq: std_logic;
 signal olderloadpcrreq: std_logic;
 signal oldtoggle: std_logic;
 signal cyclestart: std_logic;
+signal cyclestartflag: std_logic;
 
 begin
-	apwmgen: process  (clk,
-							hclk, 
-	 						refcount,
-							ibus,
-							loadpwmval,
-							pwmval,
-						 	pwm
+	apwmgen: process  (clk,hclk,refcount,ibus,loadpwmval,pwmval,pwm,
+	                   fixedrefcount,mask,pwmmode,toggle,oldtoggle,
+							 pwmwidth,olderloadpwmreq,olderloadpcrreq,
+							 pwmoutmode,dir,pdmaccum
 							)
 							
 	begin
@@ -132,6 +129,7 @@ begin
 			if oldloadpwmreq = '1'  and olderloadpwmreq = '1' then
 				pwmval <= prepwmval;
 				dir <= predir;
+				cyclestartflag <= '0';
 			end if;  		
 			if oldloadpcrreq = '1' and olderloadpcrreq ='1' then
  		   	modereg <= premodereg;			
@@ -140,9 +138,11 @@ begin
 			olderloadpwmreq <= oldloadpwmreq;
 			olderloadpcrreq <= oldloadpcrreq;
 
-			oldloadpwmreq <= loadpwmreq and (cyclestart or (not doublebuf));			
+			oldloadpwmreq <= loadpwmreq and (cyclestartflag or (not doublebuf));			
 			oldloadpcrreq <= loadpcrreq;			
-			
+			if cyclestart = '1' then
+				cyclestartflag <= '1';
+			end if;	
 			-- was combinatorial but now pipelined to meet 100 MHz timing 	
 			if (UNSIGNED(maskedrefcount) < UNSIGNED(pwmval)) then 
 				pwm <= '1'; 
@@ -165,9 +165,9 @@ begin
 		maskedrefcount <= fixedrefcount and mask;
 
 		if pwmmode = '1' then
-			cyclestart <= ((not toggle) and oldtoggle); -- falling edge of toggle
+			cyclestart <= ((not toggle) and oldtoggle); -- falling edge of toggle sym mode
 		else
-			cyclestart <= toggle xor oldtoggle;
+			cyclestart <= toggle xor oldtoggle;         -- both edges of toggle ramp mode   
 		end if;
 		
 		case pwmwidth is

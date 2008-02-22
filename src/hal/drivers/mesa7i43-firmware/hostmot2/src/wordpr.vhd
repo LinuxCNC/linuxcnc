@@ -106,7 +106,12 @@ begin
 								loadport,
 								loadddr,
 								readddr,
-								outreg,ddrreg)
+								outreg,
+								ddrreg,
+								altdatasel, 
+								invertsel, 
+								altdata, 
+								opendrainsel)
 	begin
 		if rising_edge(clk) then
 			if loadport = '1'  then

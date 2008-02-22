@@ -19,7 +19,7 @@
 #endif
 
 
-#define M7I43_HM2_VERSION "0.2"
+#define M7I43_HM2_VERSION "0.3"
 
 #define M7I43_HM2_ID "m7i43_hm2: "
 #define  PRINT(level, fmt, args...)  rtapi_print_msg(level, M7I43_HM2_ID fmt, ## args);
@@ -203,6 +203,7 @@ typedef struct {
     __u32 latch_control_addr;
     __u32 timestamp_div_addr;
     __u32 timestamp_count_addr;
+    __u32 filter_rate_addr;
 } hm2_encoder_t;
 
 
@@ -355,6 +356,38 @@ typedef struct {
 
 
 
+typedef struct {
+    struct {
+        __u32 timer;
+    } hw;
+
+    struct {
+
+        struct {
+            hal_bit_t *has_bit;
+        } pin;
+
+    } hal;
+
+    __u32 timeout_ns;
+} hm2_watchdog_instance_t;
+
+
+typedef struct {
+    int num_instances;
+    hm2_watchdog_instance_t *instance;
+
+    __u32 clock_frequency;
+    __u8 version;
+
+    __u32 timer_addr;
+    __u32 status_addr;
+    __u32 reset_addr;
+} hm2_watchdog_t;
+
+
+
+
 //
 // Mesa 7i43 structs
 //
@@ -366,6 +399,8 @@ typedef struct {
 
 
 typedef struct {
+    hal_u32_t *epp_errors;
+
     cpld_t cpld;
 
     char config_name[M7I43_HM2_CONFIGNAME_LENGTH + 1];
@@ -384,5 +419,6 @@ typedef struct {
     hm2_pwmgen_t pwmgen;
     hm2_stepgen_t stepgen;
     hm2_ioport_t ioport;
+    hm2_watchdog_t watchdog;
 } m7i43_t;
 

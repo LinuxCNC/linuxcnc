@@ -107,9 +107,12 @@ signal prate: std_logic;
 
 begin
 	apwmref: process  (clk,
-							
-							count,
-							ibus) 
+                      olderpwmratelatchloadreq, 
+							 olderpdmratelatchloadreq, 
+							 prate,
+							 hclk,
+							 count,
+							 ibus) 
 	begin
 		if rising_edge(hclk) then	  			-- 100 Mhz high speed clock
 			

@@ -72,11 +72,11 @@ use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
 entity stepgen is
         generic (
-			buswidth : integer :=32;
-			timersize : integer := 14;
-			tablewidth : integer := 6;
-			asize : integer :=48;
-			rsize : integer := 32
+			buswidth : integer;
+			timersize : integer;
+			tablewidth : integer;
+			asize : integer;
+			rsize : integer
 			);
 			Port ( clk : in std_logic;
 	 		  ibus : in std_logic_vector(buswidth-1 downto 0);
@@ -177,7 +177,10 @@ begin
 			);	
   	end generate;
 
-	astepgen: process (clk)
+	astepgen: process (clk,stepdirout, steprate, nextaccum, stepaccum,
+	                   dirholdwait, ddirholdwait, pulsewait, dpulsewait,
+							 dirsetupwait, pulsewidthcount, dirshcount, dirhold,
+							 readaccum, tabledata, stepmode, steppulse, stepmsbs)
 	begin
 		if rising_edge(clk) then
 
