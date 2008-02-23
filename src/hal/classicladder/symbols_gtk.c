@@ -57,10 +57,9 @@ void DisplaySymbols( void )
 	{
 		// Acquire an iterator
 		gtk_list_store_append( ListStore, &iter );
-		
 		if(SymbolArray[ ScanSymb ].VarName [0] =='%')
-			{snprintf(Tempbuf, 100, "%s",ConvVarNameToHalSigName(SymbolArray[ ScanSymb ].VarName));
-		}else{ snprintf(Tempbuf, 100, "%s",SymbolArray[ ScanSymb ].Comment);}
+			{snprintf(Tempbuf, LGT_SYMBOL_COMMENT, "%s",ConvVarNameToHalSigName(SymbolArray[ ScanSymb ].VarName));
+		}else{ snprintf(Tempbuf,LGT_SYMBOL_COMMENT, "%s",SymbolArray[ ScanSymb ].Comment);}
 
 	// fill the element
 		gtk_list_store_set( ListStore, &iter,
