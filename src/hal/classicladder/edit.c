@@ -248,7 +248,6 @@ char * GetElementPropertiesForStatusBar(StrElement * Element)
 				break;
 			case ELE_COMPAR:
 			case ELE_OUTPUT_OPERATE:
-
 				sprintf(PropertiesText,"HAL sig~ %s",FirstVariableInArithm(DisplayArithmExpr(ArithmExpr[Element->VarNum].Expr,0)));
 							
 				break;

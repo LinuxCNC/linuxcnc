@@ -1046,7 +1046,7 @@ char LoadSymbols(char * FileName)
 						PtrStrings[ 3 ] = NULL; LgtMaxStrings[ 3 ] = 0;
 						ConvRawLineOfStrings( Line, LgtMaxStrings, PtrStrings );
 //						RemoveEndLine( pSymbol->Comment );
-dbg_printf("Symbol: %s - %s - %s\n", pSymbol->VarName, pSymbol->Symbol, pSymbol->Comment);
+						dbg_printf("Symbol: %s - %s - %s\n", pSymbol->VarName, pSymbol->Symbol, pSymbol->Comment);
 						NumSymbol++;
 						break;
 				}
@@ -1055,8 +1055,8 @@ dbg_printf("Symbol: %s - %s - %s\n", pSymbol->VarName, pSymbol->Symbol, pSymbol-
 		while(LineOk);
 		fclose(File);
 		Okay = TRUE;
-	}
-	return (Okay);
+	}	
+return (Okay);
 }
 
 char SaveSymbols(char * FileName)
