@@ -377,7 +377,7 @@ typedef struct StrSection
 
 #define LGT_VAR_NAME 10
 #define LGT_SYMBOL_STRING 10
-#define LGT_SYMBOL_COMMENT 30
+#define LGT_SYMBOL_COMMENT 50
 typedef struct StrSymbol
 {
 	char VarName[ LGT_VAR_NAME ];
