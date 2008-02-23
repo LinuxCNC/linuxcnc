@@ -38,8 +38,14 @@
 // if not I, W, or Q then returns an error message 
 // then checks for what the pinname would be if it is a I, Q, or W  variable 
 // (these are the only variable that can connect to the outside world)
-// (if W checks if in the range for hal pins - S32 in and out pins  piggy back on top of the regular word
-// variable array so in the array S32in are first, then S32 out, then word variables)
+//
+// if W, checks if in the range for hal pins loaded by realtime
+// (S32 in and out pins piggy back on top of the regular word-variable array so in the array,
+// S32in are first, then S32out, then word variables)
+// also checks to see if in the range of max number of word variables loaded by realtime
+//
+// if I or Q checks to see if in the range of number of HAL pins loaded by realtime module
+//
 // then checks to see if a signal is connected to that pin
 // if there is a signal returns that name with an arrow to show if the signal is coming in or going out
 // if there is such a pin but there is no signal connected returns that fact
@@ -63,20 +69,23 @@ char * ConvVarNameToHalSigName( char * VarNameParam )
                 sscanf(VarNameParam+2, "%d", &idx);
                 snprintf(pin_name, 100, "classicladder.0.in-%02d", idx);
                 arrowside = 1;
+		if((idx+1) > InfosGene->GeneralParams.SizesInfos.nbr_phys_inputs) {return "out of bounds variable number";}
                 break;
             case 'Q':
                 sscanf(VarNameParam+2, "%d", &idx);
                 snprintf(pin_name, 100, "classicladder.0.out-%02d", idx);
                 arrowside = 0;
+		if((idx+1) > InfosGene->GeneralParams.SizesInfos.nbr_phys_outputs) {return "out of bounds variable number";}
                 break;
             case 'W':
                 sscanf(VarNameParam+2, "%d", &idx);
-		if(idx > (InfosGene->GeneralParams.SizesInfos.nbr_s32in+InfosGene->GeneralParams.SizesInfos.nbr_s32out))
-			{return "No HAL pin ";}
+		if((idx+1) > InfosGene->GeneralParams.SizesInfos.nbr_words) {return "out of bounds variable number";}
+		if(idx > (InfosGene->GeneralParams.SizesInfos.nbr_s32in + InfosGene->GeneralParams.SizesInfos.nbr_s32out)) {return "No HAL pin-internal memory";}
                 if(idx > InfosGene->GeneralParams.SizesInfos.nbr_s32in) {
                     snprintf(pin_name, 100, "classicladder.0.s32out-%02d",
                             idx - InfosGene->GeneralParams.SizesInfos.nbr_s32in);
                     arrowside = 0;
+
                 } else {
                     snprintf(pin_name, 100, "classicladder.0.s32in-%02d", idx);
                     arrowside = 1;
@@ -92,7 +101,6 @@ char * ConvVarNameToHalSigName( char * VarNameParam )
 
             if(*pin_name) {
                 hal_pin_t *pin = halpr_find_pin_by_name(pin_name);
-		
                 if(pin && pin->signal) {
                     hal_sig_t *sig = SHMPTR(pin->signal);
                     if(sig->name) {
@@ -107,10 +115,10 @@ char * ConvVarNameToHalSigName( char * VarNameParam )
                         }
 			
                         return sig_name;
-                  			  }
+                  			   }
 					}
 			if (!pin->signal) {return "no signal connected";  }
-			}
+			  }
 }
                 
             
