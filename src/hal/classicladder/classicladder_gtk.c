@@ -330,11 +330,13 @@ void ButtonRunStop_click()
 	{
 		InfosGene->LadderState = STATE_STOP;
 		gtk_label_set_text(GTK_LABEL(GTK_BIN(ButtonRunStop)->child),"Run");
+		MessageInStatusBar("Stopped ladder program - press run button to continue.");
 	}
 	else
 	{
 		InfosGene->LadderState = STATE_RUN;
 		gtk_label_set_text(GTK_LABEL(GTK_BIN(ButtonRunStop)->child),"Stop");
+		MessageInStatusBar("Started Ladder program - press stop to pause."); 
 	}
 }
 
@@ -385,7 +387,6 @@ void LoadNewLadder()
 	ProjectLoadedOk = LoadProjectFiles( CurrentProjectFileName );
 	if ( !ProjectLoadedOk )
 		ShowMessageBox( "Load Error", "Failed to load the project file...", "Ok" );
-
 	UpdateAllGtkWindows( );
 	MessageInStatusBar( ProjectLoadedOk?"Project loaded (stopped).":"Project failed to load...");
 #ifndef RT_SUPPORT
@@ -398,7 +399,11 @@ void LoadNewLadder()
 void ButtonSave_click()
 {
 	if ( !SaveProjectFiles( CurrentProjectFileName ) )
+		{
 		ShowMessageBox( "Save Error", "Failed to save the project file...", "Ok" );
+	}else{ MessageInStatusBar(CurrentProjectFileName);}
+		
+
 }
 
 void SaveAsLadder(void)
@@ -539,18 +544,12 @@ void ButtonSaveAs_click()
 
 void ButtonReset_click()
 {
-//////	int StateBefore = InfosGene->LadderState;
-//////	InfosGene->LadderState = STATE_STOP;
-//////	// wait, to be sure calcs have ended...
-//////	usleep( 100000 );
-	StopRunIfRunning( );
 
+	StopRunIfRunning( );
 	InitVars();
 	PrepareAllDatasBeforeRun( );
-
-//////	if ( StateBefore==STATE_RUN )
-//////		InfosGene->LadderState = STATE_RUN;
 	RunBackIfStopped( );
+	MessageInStatusBar("Reset ladder data - Now running.");
 }
 
 void ButtonConfig_click()
@@ -569,8 +568,9 @@ void ButtonAbout_click()
 
 						"http://www.sourceforge.net/projects/classicladder\n"
 						"http://membres.lycos.fr/mavati/classicladder\n"
-						"Released under the terms of the\nGNU Lesser General Public License v2.1"
-						"\nAs adapted to EMC2 (Chris Morley)"
+						"Released under the terms of the\nGNU Lesser General Public License v2.1\n"
+						"\nAs adapted to EMC2\n"
+						"(Chris Morley)\n"
 						"emc-users@lists.sourceforge.net");
 	gtk_label_set_justify( GTK_LABEL(label), GTK_JUSTIFY_CENTER );
 	okay_button = gtk_button_new_with_label("Okay");
@@ -931,8 +931,7 @@ static gint PeriodicUpdateDisplay(gpointer data)
 
 void InitGtkWindows( int argc, char *argv[] )
 {
-	printf( "Your GTK+ version is %d.%d.%d\n", gtk_major_version, gtk_minor_version,
-			gtk_micro_version );
+	//printf( "Your GTK+ version is %d.%d.%d\n", gtk_major_version, gtk_minor_version,gtk_micro_version );
 //ProblemWithPrint	g_thread_init (NULL);
 //ProblemWithPrint	gdk_threads_init ();
     gtk_init (&argc, &argv);
