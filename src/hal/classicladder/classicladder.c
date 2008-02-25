@@ -75,7 +75,7 @@
 #endif
 
 int cl_remote;
-int nogui = 0;
+int nogui = 0,nomodbus=1;
 int ModbusServerPort = 9502; // Standard "502" requires root privileges...
 int CyclicThreadRunning = 0;
 
@@ -83,12 +83,11 @@ int CyclicThreadRunning = 0;
 void ClassicLadderEndOfAppli( void )
 {
 	CyclicThreadRunning = 0;
-	CloseSocketModbusMaster( );
-	CloseSocketServer( );
-	//hal_exit(compId); // added for emc
-printf("end of appli --gonna free\n");
-	//ClassicLadder_FreeAll(TRUE);
-
+	if(!nomodbus)  
+		{
+	    		CloseSocketModbusMaster( );
+			CloseSocketServer( );
+		}
 }
 
 void HandlerSignalInterrupt( int signal_id )
@@ -103,9 +102,7 @@ void display_help (void)
 {
 	printf("Usage: classicladder [OPTIONS] [PATH]\n"
 			"Start classicladder PLC with an optional project path e.g. myplc\n"
-			"\n"
-			"           --help     	        display this help and exit\n"
-			"           --version  	        output version information and exit\n"
+			"\n"			
 			"           --nogui             do not create the GUI\n"
 			"-p port    --modbus_port=port   port to use for modbus server\n"
 			"-c file    --config=file        read PLC configuration from file\n"
@@ -145,7 +142,7 @@ void process_options (int argc, char *argv[])
 			case 'c':
 	
 				read_config (optarg);
-	
+				nomodbus=0;
 				break;
 			case 'p':
 				ModbusServerPort = atoi( optarg );
@@ -162,7 +159,7 @@ void process_options (int argc, char *argv[])
 	if ((argc - optind) != 0)
 		VerifyDirectorySelected (argv[optind]);
 }
-//for emc: do_exit
+//for EMC: do_exit
 static void do_exit(int unused) {
 		hal_exit(compId);
 		printf("error intializing classicladder user module\n");
@@ -170,35 +167,28 @@ static void do_exit(int unused) {
 }
 void DoPauseMilliSecs( int Time )
 {
-#ifdef __WIN32__
-	Sleep( Time );
-#else
 	struct timespec time;
 	time.tv_sec = 0;
 	time.tv_nsec = Time*1000000;
 	nanosleep( &time, NULL );
 	//usleep( Time*1000 );
-#endif
 }
 void StopRunIfRunning( void )
 {
 	if (InfosGene->LadderState==STATE_RUN)
 	{
-		printf("Stopping...");
 		InfosGene->LadderStoppedToRunBack = TRUE;
 		InfosGene->LadderState = STATE_STOP;
 		while( InfosGene->UnderCalculationPleaseWait==TRUE )
 		{
 			DoPauseMilliSecs( 100 );
 		}
-		printf("done.\n");
 	}
 }
 void RunBackIfStopped( void )
 {
 	if ( InfosGene->LadderStoppedToRunBack )
 	{
-		printf("Start running!\n");
 		InfosGene->LadderState = STATE_RUN;
 		InfosGene->LadderStoppedToRunBack = FALSE;
 	}
@@ -215,8 +205,7 @@ int main( int   argc, char *argv[] )
 	compId=hal_init("classicladder"); //emc
 	if (compId<0) return -1; //emc
 	signal(SIGTERM,do_exit); //emc
-		
-	InitModbusMasterBeforeReadConf( );
+	if(!nomodbus)  {InitModbusMasterBeforeReadConf( );}
 
 	process_options (argc, argv);
 
@@ -224,44 +213,40 @@ int main( int   argc, char *argv[] )
 	if (ClassicLadder_AllocAll())
 	{
 		char ProjectLoadedOk=TRUE;
-		InitSocketServer( 0/*UseUdpMode*/, ModbusServerPort/*PortNbr*/ );
-		InitSocketModbusMaster( );
-				
+		if(!nomodbus) 
+		 {
+			InitSocketServer( 0/*UseUdpMode*/, ModbusServerPort/*PortNbr*/ );
+			InitSocketModbusMaster( );
+		}		
 			
 		if (nogui==TRUE) {
-			 rtapi_print("***No ladder GUI*** realtime is running till HAL closes***\n");
+			 rtapi_print("***No ladder GUI*** Realtime runs till HAL closes***\n");
 			ClassicLadder_InitAllDatas( );
 			ProjectLoadedOk = LoadProjectFiles( CurrentProjectFileName );
-			
 			InfosGene->LadderState = STATE_RUN;
 			ClassicLadder_FreeAll(TRUE);
 			hal_ready(compId);
 			hal_exit(compId);	
-			return 0; }
-
-		else {		
+			return 0; 
+		} else {		
 				for(NumRung=0;NumRung<NBR_RUNGS;NumRung++) 
 		 		{ if(RungArray[NumRung].Used) used++; }
-				printf("\nINFO___used= %d\n",used);
 				if(used==0){	
 						ClassicLadder_InitAllDatas( );
 						ProjectLoadedOk = LoadProjectFiles( CurrentProjectFileName );
 					   }
-
 				InitGtkWindows( argc, argv );
-				
 				UpdateAllGtkWindows();				
-				MessageInStatusBar( ProjectLoadedOk?"Project loaded and running":"Project failed to load...");
-				if (!ProjectLoadedOk){ClassicLadder_InitAllDatas( );}				
-				printf("INFO___halready next\n");				
-
+				MessageInStatusBar( ProjectLoadedOk?"Project loaded and running":"Project failed to load...");											
+				if (!ProjectLoadedOk)  {ClassicLadder_InitAllDatas( );}
 				InfosGene->LadderState = STATE_RUN;
 				hal_ready(compId);
 				gtk_main();
-				 rtapi_print("Ladder GUI closed realtime runs till HAL closes\n");
+				rtapi_print("Ladder GUI closed. Realtime runs till HAL closes\n");
 				ClassicLadder_FreeAll(TRUE);
 				hal_exit(compId);
-				return 0;	}		
+				return 0;
+			}		
 	}
 	 rtapi_print("Ladder memory allocation error\n");
 	ClassicLadder_FreeAll(TRUE);
