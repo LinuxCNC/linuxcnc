@@ -8,7 +8,7 @@ arrays.c:
 --- copy GeneralParams into GeneralParamsMirror (in user code only) so config window displays properly
 
 Calc.c:
----removed and moved period calculation to module_hal.c
+--- removed and moved period calculation to module_hal.c
 --- changed inputCountrol pin of old timers to be always true so it behaves as previous old timers. check out-CalcTypeTimer()
 
 classicladder.c:
@@ -16,7 +16,8 @@ classicladder.c:
 --- A config file can be loaded from the comand line for modbus info
 
 classicladder.h:
- ---small amount added. Add definitions for HAL s32 pins and For HAL support.
+--- small amount added. Add definitions for HAL s32 pins and For HAL support.
+--- changed define for symbols comment length from 30 to 50 for long signal names
 
 classicladder gtk.c:
 --- removed define for hardware.h
@@ -74,6 +75,6 @@ classicladder_rt.o includes:
 	module_hal.o,arithm_eval.o,arrays.o,calc.o,calc_sequential.o,manager.o,symbols.o,vars_access.o
 
 
-changed classicladder to be able to load modbus configs
+
 
 
