@@ -116,7 +116,7 @@ void InitSocketModbusMaster( )
 				Error = -1;
 		}
 		if ( Error!=-1 )
-			printf("I/O modbus master (%s) init ok !\n", ModbusSerialPortNameUsed[ 0 ]!='\0'?"Serial":"Ethernet");
+		printf("INFO CLASSICLADDER---I/O modbus master (%s) init ok !\n", ModbusSerialPortNameUsed[ 0 ]!='\0'?"Serial":"Ethernet");
 	}
 }
 
@@ -303,7 +303,7 @@ void CloseSocketModbusMaster( void )
 	}
 	if ( ModbusSerialPortNameUsed[ 0 ]!='\0' )
 		SerialClose( );
-	printf("I/O modbus master closed!\n");
+	printf("INFO CLASSICLADDER---I/O modbus master closed!\n");
 }
 
 void SocketModbusMasterLoop( void )

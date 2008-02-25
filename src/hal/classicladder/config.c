@@ -75,7 +75,7 @@ static int read_configfile (char *fname, struct cfg_cfg *cfg)
 	char	*val;
 	int	i;
 	
-	 printf("Reading config file -%s\n",fname);
+	 printf("INFO CLASSICLADDER---Reading MODBUS config file -%s\n",fname);
 	fp = fopen (fname, "r");
 	if (fp == NULL) {
 		fprintf (stderr, "Cannot open %s file !!!\n", fname);

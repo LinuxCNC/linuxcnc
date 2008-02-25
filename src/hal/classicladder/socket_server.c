@@ -130,7 +130,7 @@ void InitSocketServer( int UseUdpMode, int PortNbr )
 				}
 				else
 				{
-					printf("Server socket init ok (modbus - port %d)!\n", PortNbr);
+					printf("INFO CLASSICLADDER---Server socket init ok (modbus - port %d)!\n", PortNbr);
 				}
 
 			}
@@ -257,7 +257,7 @@ void CloseSocketServer( void )
 		close(server_s);
 #endif
 		SocketOpened = 0;
-		printf("Server socket closed!\n");
+		printf("INFO CLASSICLADDER---Server socket closed!\n");
 	}
 }
 
