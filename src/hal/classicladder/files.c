@@ -1192,7 +1192,7 @@ void LoadAllLadderDatas(char * DatasDirectory)
 	// and annoying if the section (with internal number 0) has been deleted in this project !
 	DeleteTheDefaultSection( );
 
-	printf("Loading datas from %s...\n", DatasDirectory);
+	//printf("Loading datas from %s...\n", DatasDirectory);
 // this function call is not wanted because in EMC parameters are loaded with the realtime module
 //	sprintf(FileName,"%s/"FILE_PREFIX"general.txt",DatasDirectory);
 //	LoadGeneralParameters( FileName );
@@ -1226,7 +1226,7 @@ void LoadAllLadderDatas(char * DatasDirectory)
 	}
 	else
 	{
-		printf("Rungs with old format found (no sections)\n");
+		//printf("Rungs with old format found (no sections)\n");
 		sprintf(FileName,"%s/"FILE_PREFIX"rung_",DatasDirectory);
 		LoadAllRungs_V1(FileName,RungArray,&InfosGene->FirstRung,&InfosGene->LastRung,&InfosGene->CurrentRung);
 		// if we load old format files, sections wasn't created, so we must write theses infos...

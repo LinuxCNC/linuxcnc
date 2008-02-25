@@ -94,10 +94,10 @@ void VerifyDirectorySelected( char * NewDir )
 				if (CurrentProjectFileName[strlen(CurrentProjectFileName)-1]!=CAR_SEP)
 					strcat( CurrentProjectFileName, "/" );
 			}
-			printf("DIRECTORY PROJECT = %s\n",CurrentProjectFileName);
+			//printf("DIRECTORY PROJECT = %s\n",CurrentProjectFileName);
 		}
 	}
-printf("DIRECTORY PROJECT = %s\n",CurrentProjectFileName);}
+}
 
 
 
@@ -143,7 +143,7 @@ char LoadProjectFiles( char * FileProject )
 		OldProjectFound = FALSE;
 	if ( OldProjectFound )
 	{
-		printf("Loading an old project (many files in a directory) !\n");
+		//printf("Loading an old project (many files in a directory) !\n");
 		LoadAllLadderDatas( FileProject );
 	
 	}
@@ -151,7 +151,7 @@ char LoadProjectFiles( char * FileProject )
 	{
 		// split files of the project in the temp directory
 		Result = SplitFiles( FileProject, TmpDirectory );
-printf("Load project '%s' in tmp dir=%s\n", FileProject, TmpDirectory);
+		//printf("Load project '%s' in tmp dir=%s\n", FileProject, TmpDirectory);
 		LoadAllLadderDatas( TmpDirectory );
 	}
 
