@@ -1,6 +1,6 @@
 /* Classic Ladder Project */
-/* Copyright (C) 2001-2006 Marc Le Douarain */
-/* http://www.multimania.com/mavati/classicladder */
+/* Copyright (C) 2001-2007 Marc Le Douarain */
+/* http://membres.lycos.fr/mavati/classicladder/ */
 /* http://www.sourceforge.net/projects/classicladder */
 /* October 2006 */
 /* -------------------- */
@@ -27,9 +27,9 @@
 #include "global.h"
 #include "edit.h"
 #include "classicladder_gtk.h"
+#include "vars_names.h"
 #include "symbols_gtk.h"
 
-static int SymbolWindowToggle; // toggle variable
 GtkWidget *SymbolsWindow;
 GtkListStore *ListStore;
 
@@ -43,11 +43,13 @@ enum
 	NBR_INFOS
 };
 
-
+// a little change to check present variables for HAL signals and post them in the comment slot of window
+// you can still comment other Variables
 void DisplaySymbols( void )
 {
 	GtkTreeIter   iter;
 	int ScanSymb;
+	static char Tempbuf[100];
 
 	gtk_list_store_clear( ListStore );
 
@@ -55,13 +57,16 @@ void DisplaySymbols( void )
 	{
 		// Acquire an iterator
 		gtk_list_store_append( ListStore, &iter );
+		if(SymbolArray[ ScanSymb ].VarName [0] =='%')
+			{snprintf(Tempbuf, LGT_SYMBOL_COMMENT, "%s",ConvVarNameToHalSigName(SymbolArray[ ScanSymb ].VarName));
+		}else{ snprintf(Tempbuf,LGT_SYMBOL_COMMENT, "%s",SymbolArray[ ScanSymb ].Comment);}
 
-		// fill the element
+	// fill the element
 		gtk_list_store_set( ListStore, &iter,
 					NUM_ARRAY, ScanSymb,
                     VAR_NAME, SymbolArray[ ScanSymb ].VarName,
                     SYMBOL, SymbolArray[ ScanSymb ].Symbol,
-                    COMMENT, SymbolArray[ ScanSymb ].Comment,
+                    COMMENT, Tempbuf,
                     -1);
 	}
 }
@@ -69,11 +74,10 @@ void DisplaySymbols( void )
 /* The callback for the editing of text in our GtkTreeView */
 /* data=column number */
 void Callback_TextEdited(GtkCellRendererText *cell, gchar *path_string,
-		      gchar *new_text, gpointer data)
-{
+		      gchar *new_text, gpointer data) {
 
 	int OffsetArray = -999;
-	StrSymbol * pSymbol = NULL;
+	StrSymbol * pSymbol;
 	GtkTreeModel *treemodel = (GtkTreeModel *)ListStore;
 	GtkTreeIter iter;
 
@@ -91,7 +95,6 @@ void Callback_TextEdited(GtkCellRendererText *cell, gchar *path_string,
 	switch( (long)data )
 	{
 		case VAR_NAME:
-			new_text[ LGT_VAR_NAME-1 ] = '\0';
 			if ( new_text[ 0 ]!='%' )
 			{
 				ShowMessageBox("Error","A variable name always start with '%' character !","Ok");
@@ -100,7 +103,9 @@ void Callback_TextEdited(GtkCellRendererText *cell, gchar *path_string,
 			{
 				if (TextParserForAVar( new_text, NULL, NULL, NULL, TRUE/*PartialNames*/ ) )
 				{
-					strcpy( pSymbol->VarName, new_text );
+					strncpy( pSymbol->VarName, new_text, LGT_VAR_NAME-1 );
+					pSymbol->VarName[ LGT_VAR_NAME-1 ] = '\0';
+					gtk_list_store_set( ListStore, &iter, data, pSymbol->VarName, -1);
 					if ( pSymbol->Symbol[0]=='\0' )
 						strcpy( pSymbol->Symbol, "***" );
 					InfosGene->AskConfirmationToQuit = TRUE;
@@ -115,13 +120,15 @@ void Callback_TextEdited(GtkCellRendererText *cell, gchar *path_string,
 			}
 			break;
 		case SYMBOL:
-			new_text[ LGT_SYMBOL_STRING-1 ] = '\0';
-			strcpy( pSymbol->Symbol, new_text );
+			strncpy( pSymbol->Symbol, new_text, LGT_SYMBOL_STRING-1 );
+			pSymbol->Symbol[ LGT_SYMBOL_STRING-1 ] = '\0';
+			gtk_list_store_set( ListStore, &iter, data, pSymbol->Symbol, -1);
 			InfosGene->AskConfirmationToQuit = TRUE;
 			break; 
 		case COMMENT:
-			new_text[ LGT_SYMBOL_COMMENT-1 ] = '\0';
-			strcpy( pSymbol->Comment, new_text );
+			strncpy( pSymbol->Comment, new_text, LGT_SYMBOL_COMMENT-1 );
+			pSymbol->Comment[ LGT_SYMBOL_COMMENT-1 ] = '\0';
+			gtk_list_store_set( ListStore, &iter, data, pSymbol->Comment, -1);
 			InfosGene->AskConfirmationToQuit = TRUE;
 			break;
 	}
@@ -130,26 +137,27 @@ void Callback_TextEdited(GtkCellRendererText *cell, gchar *path_string,
 
 gint SymbolsWindowDeleteEvent( GtkWidget * widget, GdkEvent * event, gpointer data )
 {
-	SymbolWindowToggle=(SymbolWindowToggle-1)*-1; //toggle variable
-	gtk_widget_hide( SymbolsWindow );// hide window
+	gtk_widget_hide( SymbolsWindow );
 	// we do not want that the window be destroyed.
 	return TRUE;
 }
 
 void OpenSymbolsWindow( void )
 {
-       DisplaySymbols()	; // update the symbols list
-	if (!SymbolWindowToggle)
-	{ gtk_widget_show (SymbolsWindow); //show window
-	  gtk_window_present( GTK_WINDOW(SymbolsWindow) );
-	  
+	if ( !GTK_WIDGET_VISIBLE( SymbolsWindow ) )
+	{ DisplaySymbols();
+		gtk_widget_show (SymbolsWindow);
+		MessageInStatusBar("openned SYMBOLS window. Press again to close");
+#ifdef GTK2
+		gtk_window_present( GTK_WINDOW(SymbolsWindow) );
+#endif
 	}
-	else {gtk_widget_hide (SymbolsWindow); //hide window
-		  gtk_widget_hide (SymbolsWindow);
-		 }
-		SymbolWindowToggle=(SymbolWindowToggle-1)*-1; //toggle
-}	
-
+	else
+	{
+		gtk_widget_hide( SymbolsWindow );
+		MessageInStatusBar("");
+	}
+}
 
 void SymbolsInitGtk()
 {
@@ -157,7 +165,7 @@ void SymbolsInitGtk()
 	GtkWidget *ListView;
 	GtkCellRenderer   *renderer;
 	long ScanCol;
-	char * ColName[] = { "HiddenColNbr!", "Variable", "Symbol name", "Comment" };
+	char * ColName[] = { "HiddenColNbr!", "Variable", "Symbol name", "HAL signal/Comment" };
 
 	SymbolsWindow = gtk_window_new( GTK_WINDOW_TOPLEVEL );
 	gtk_window_set_title( GTK_WINDOW( SymbolsWindow ), "Symbols names" );
@@ -174,7 +182,7 @@ void SymbolsInitGtk()
 	for (ScanCol=1; ScanCol<NBR_INFOS; ScanCol++)
 	{
 		GtkTreeViewColumn *column;
-	    renderer = gtk_cell_renderer_text_new();
+		renderer = gtk_cell_renderer_text_new();
 		g_object_set(renderer, "editable", TRUE, NULL);
 //TODO? gtk_entry_set_max_length(GTK_ENTRY(  ),9);
 		g_signal_connect( G_OBJECT(renderer), "edited", G_CALLBACK(Callback_TextEdited), (gpointer)ScanCol );
@@ -201,5 +209,6 @@ gtk_window_set_default_size (GTK_WINDOW (SymbolsWindow), -1, 250);
 	gtk_container_add( GTK_CONTAINER(SymbolsWindow), vbox );
 	gtk_widget_show( vbox );
 
-//gtk_widget_show (SymbolsWindow); //hide till toggled
+//gtk_widget_show (SymbolsWindow);
 }
+

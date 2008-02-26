@@ -31,6 +31,7 @@
 GtkWidget *PropertiesWindow;
 GtkWidget *PropLabelParam[NBR_PARAMS_PER_OBJ],*PropEntryParam[NBR_PARAMS_PER_OBJ];
 GtkWidget *PropEntryBaseParam[NBR_PARAMS_PER_OBJ];
+GtkWidget *PropEntryTimerModeParam[NBR_PARAMS_PER_OBJ];
 GtkWidget *ButtonApplyProperties;
 int SavePosX = -1;
 int SavePosY = -1;
@@ -40,22 +41,33 @@ void SetProperty(int NumParam,char * LblParam,char * ValParam)
 	gtk_label_set_text((GtkLabel *)PropLabelParam[NumParam],LblParam);
 	if (strcmp(LblParam,"Base")==0)
 	{
-		gtk_widget_show(PropEntryBaseParam[NumParam]);
 		gtk_widget_hide(PropEntryParam[NumParam]);
+		gtk_widget_show(PropEntryBaseParam[NumParam]);
+		gtk_widget_hide(PropEntryTimerModeParam[NumParam]);
 		gtk_entry_set_text((GtkEntry*)((GtkCombo *)PropEntryBaseParam[NumParam])->entry,ValParam);
 		if (NumParam==0)
-		{
 			gtk_widget_grab_focus( PropEntryBaseParam[0] );
-		}
 	}
 	else
 	{
-		gtk_widget_hide(PropEntryBaseParam[NumParam]);
-		gtk_widget_show(PropEntryParam[NumParam]);
-		gtk_entry_set_text(GTK_ENTRY(PropEntryParam[NumParam]),ValParam);
-		if (NumParam==0)
+		if (strcmp(LblParam,"TimerMode")==0)
 		{
-			gtk_widget_grab_focus( PropEntryParam[0] );
+			gtk_widget_hide(PropEntryParam[NumParam]);
+			gtk_widget_hide(PropEntryBaseParam[NumParam]);
+			gtk_widget_show(PropEntryTimerModeParam[NumParam]);
+			gtk_entry_set_text((GtkEntry*)((GtkCombo *)PropEntryTimerModeParam[NumParam])->entry,ValParam);
+			if (NumParam==0)
+				gtk_widget_grab_focus( PropEntryTimerModeParam[0] );
+		}
+		else
+		{
+			// others standard parameters
+			gtk_widget_show(PropEntryParam[NumParam]);
+			gtk_widget_hide(PropEntryBaseParam[NumParam]);
+			gtk_widget_hide(PropEntryTimerModeParam[NumParam]);
+			gtk_entry_set_text(GTK_ENTRY(PropEntryParam[NumParam]),ValParam);
+			if (NumParam==0)
+				gtk_widget_grab_focus( PropEntryParam[0] );
 		}
 	}
 	/* if no first param, means no params at all */
@@ -93,8 +105,16 @@ char * GetProperty(int NumParam)
 	}
 	else
 	{
-		strncpy( ValTxtParameter , (char *)gtk_entry_get_text((GtkEntry *)PropEntryParam[NumParam]), 60 );
-		ValTxtParameter[ 60 ] = '\0';
+		if (strcmp(TxtParameter,"TimerMode")==0)
+		{
+			strcpy( ValTxtParameter , (char *)gtk_entry_get_text((GtkEntry *)((GtkCombo *)PropEntryTimerModeParam[NumParam])->entry) );
+		}
+		else
+		{
+			// others standard parameters
+			strncpy( ValTxtParameter , (char *)gtk_entry_get_text((GtkEntry *)PropEntryParam[NumParam]), 60 );
+			ValTxtParameter[ 60 ] = '\0';
+		}
 	}
 	return ValTxtParameter;
 }
@@ -126,13 +146,19 @@ void PropertiesInitGtk()
 	GtkWidget *hbox[NBR_PARAMS_PER_OBJ + 1];
 	int NumParam;
 	GList *BaseItems = NULL;
+	GList *TimersModesItems = NULL;
 	int ScanBase = 0;
-
+	int ScanTimerMode = 0;
 	do
 	{
 		BaseItems = g_list_append(BaseItems,CorresDatasForBase[ScanBase++].ParamSelect);
 	}
 	while(ScanBase<NBR_TIMEBASES);
+	do
+	{
+		TimersModesItems = g_list_append(TimersModesItems,TimersModesStrings[ScanTimerMode++]);
+	}
+	while(ScanTimerMode<NBR_TIMERSMODES);
 
 	PropertiesWindow = gtk_window_new (GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_title ((GtkWindow *)PropertiesWindow, "Properties");
@@ -166,6 +192,13 @@ void PropertiesInitGtk()
 		gtk_combo_set_popdown_strings(GTK_COMBO(PropEntryBaseParam[NumParam]),BaseItems);
 //        gtk_widget_set_usize((GtkWidget *)PropEntryBaseParam[NumParam],85,0);
 		gtk_box_pack_start (GTK_BOX (hbox[NumParam]), PropEntryBaseParam[NumParam], FALSE, FALSE, 0);
+
+		/* For timer mode */
+		PropEntryTimerModeParam[NumParam] = gtk_combo_new();
+		gtk_combo_set_value_in_list(GTK_COMBO(PropEntryTimerModeParam[NumParam]), TRUE /*val*/, FALSE /*ok_if_empty*/);
+		gtk_combo_set_popdown_strings(GTK_COMBO(PropEntryTimerModeParam[NumParam]),TimersModesItems);
+//        gtk_widget_set_usize((GtkWidget *)PropEntryTimerModeParam[NumParam],85,0);
+		gtk_box_pack_start (GTK_BOX (hbox[NumParam]), PropEntryTimerModeParam[NumParam], FALSE, FALSE, 0);
 	}
 
 	/* for apply button... */

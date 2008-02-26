@@ -1,9 +1,8 @@
 /* Classic Ladder Project */
-/* Copyright (C) 2001 Marc Le Douarain */
-/* mavati@club-internet.fr */
-/* http://www.multimania.com/mavati/classicladder */
+/* Copyright (C) 2001-2007 Marc Le Douarain */
+/* http://membres.lycos.fr/mavati/classicladder/ */
+/* http://www.sourceforge.net/projects/classicladder */
 /* August 2002 */
-/* Last update : 2 November 2002 */
 /* -------------------------- */
 /* Sections manager (GTK part)*/
 /* -------------------------- */
@@ -150,14 +149,19 @@ gint AddSectionWindowDeleteEvent( GtkWidget * widget, GdkEvent * event, gpointer
 	return TRUE;
 }
 
+void DeleteCurrentSection( )
+{
+	DelSection( pNameSectionSelected );
+	ManagerDisplaySections( );
+}
+
 void ButtonDelClickSignal( )
 {
 	if (pNameSectionSelected )
 	{
 		if ( NbrSectionsDefined( )>1 )
 		{
-			DelSection( pNameSectionSelected );
-			ManagerDisplaySections( );
+			ShowConfirmationBox("New","Do you really want to delete the section ?", DeleteCurrentSection);	
 		}
 		else
 		{

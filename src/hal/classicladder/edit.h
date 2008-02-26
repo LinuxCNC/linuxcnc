@@ -3,7 +3,6 @@
 #define MODE_INSERT 2
 
 int TextToNumber(char * text,int ValMin,int ValMaxi,int *ValFound);
-int TextParserForAVar( char * text, int * VarTypeFound, int * VarOffsetFound, int * pNumberOfChars, char PartialNames );
 void SaveElementProperties(void);
 void InitBufferRungEdited( StrRung * pRung );
 int GetNbrRungsDefined(void);
@@ -16,4 +15,6 @@ void CancelRungEdited(void);
 void ApplyRungEdited(void);
 void EditElementInRung(double x,double y);
 void EditElementInThePage(double x,double y);
-
+char * GetLadderElePropertiesForStatusBar(double x,double y);
+char * ConvVarNameToHalSigName (char *);
+char * FirstVariableInArithm(char *);

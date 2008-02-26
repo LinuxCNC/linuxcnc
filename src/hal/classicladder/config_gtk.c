@@ -1,7 +1,7 @@
 /* Classic Ladder Project */
-/* Copyright (C) 2001-2003 Marc Le Douarain */
-/* mavati@club-internet.fr */
-/* http://www.multimania.com/mavati/classicladder */
+/* Copyright (C) 2001-2008 Marc Le Douarain */
+/* http://membres.lycos.fr/mavati/classicladder/ */
+/* http://www.sourceforge.net/projects/classicladder */
 /* July 2003 */
 /* ----------------------------- */
 /* Editor Config - GTK interface */
@@ -20,6 +20,9 @@
 /* License along with this library; if not, write to the Free Software */
 /* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA */
 
+// modified for EMC 
+// Chris Morley Feb 08
+
 #include <gtk/gtk.h>
 #include <stdio.h>
 #include <string.h>
@@ -27,17 +30,23 @@
 #include "classicladder.h"
 #include "manager.h"
 #include "edit.h"
+//#include "hardware.h"
 #include "global.h"
 #include "config_gtk.h"
 
-#define NBR_OBJECTS 11
+#ifdef OLD_TIMERS_MONOS_SUPPORT
+#define NBR_OBJECTS 15
+#else
+#define NBR_OBJECTS 13
+#endif
 GtkWidget *LabelParam[ NBR_OBJECTS ],*ValueParam[ NBR_OBJECTS ];
-
+#ifndef HAL_SUPPORT
 static char * Devices[] = { "None", "DirectPortAccess",
 #ifdef COMEDI_SUPPORT
 "/dev/comedi0", "/dev/comedi1", "/dev/comedi2", "/dev/comedi3",
 #endif
  NULL };
+#endif
 
 #define NBR_IO_PARAMS 6
 GtkWidget *InputParamEntry[ NBR_INPUTS_CONF ][ NBR_IO_PARAMS ];
@@ -48,8 +57,8 @@ GtkWidget *OutputParamEntry[ NBR_OUTPUTS_CONF ][ NBR_IO_PARAMS ];
 GtkWidget *OutputDeviceParam[ NBR_OUTPUTS_CONF ];
 GtkWidget *OutputFlagParam[ NBR_OUTPUTS_CONF ];
 
-#ifdef USE_MODBUS
-static char * ModbusReqType[] = { "Inputs", "Coils", /* TODO: "WriteRegs", "ReadRegas",*/ NULL };
+#ifdef MODBUS_IO_MASTER
+static char * ModbusReqType[] = { "Inputs", "Coils", /* TODO: "WriteRegs", "ReadRegs",*/ NULL };
 #define NBR_MODBUS_PARAMS 6
 GtkWidget *ModbusParamEntry[ NBR_MODBUS_MASTER_REQ ][ NBR_MODBUS_PARAMS ];
 GtkWidget *SerialPortEntry;
@@ -60,7 +69,7 @@ GtkWidget *DebugLevelEntry;
 
 GtkWidget *ConfigWindow;
 
-GtkWidget * CreateSizesPage( void )
+GtkWidget * CreateGeneralParametersPage( void )
 {
 	GtkWidget *vbox;
 	GtkWidget *hbox[ NBR_OBJECTS ];
@@ -81,50 +90,68 @@ GtkWidget * CreateSizesPage( void )
 		switch( NumObj )
 		{
 			case 0:
-				InfoUsed = GetNbrRungsDefined( )*100/InfosGene->SizesInfos.nbr_rungs;
-				sprintf( BuffLabel, "Nbr.rungs (%d%c used)", InfoUsed,'%' );
-				sprintf( BuffValue, "%d", InfosGene->SizesInfos.nbr_rungs );
+				sprintf( BuffLabel, "Periodic Refresh Rate (ms)" );
+				sprintf( BuffValue, "%d", InfosGene->GeneralParams.PeriodicRefreshMilliSecs );
 				break;
 			case 1:
-				sprintf( BuffLabel, "Nbr.Bits" );
-				sprintf( BuffValue, "%d", InfosGene->SizesInfos.nbr_bits );
+				InfoUsed = GetNbrRungsDefined( )*100/InfosGene->GeneralParams.SizesInfos.nbr_rungs;
+				sprintf( BuffLabel, "Nbr.rungs (%d%c used - current alloc=%d)", InfoUsed,'%', InfosGene->GeneralParams.SizesInfos.nbr_rungs );
+				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_rungs );
 				break;
 			case 2:
-				sprintf( BuffLabel, "Nbr.Words" );
-				sprintf( BuffValue, "%d", InfosGene->SizesInfos.nbr_words );
+				sprintf( BuffLabel, "Nbr.Bits (current alloc=%d)", InfosGene->GeneralParams.SizesInfos.nbr_bits );
+				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_bits );
 				break;
 			case 3:
-				sprintf( BuffLabel, "Nbr.Timers" );
-				sprintf( BuffValue, "%d", InfosGene->SizesInfos.nbr_timers );
+				sprintf( BuffLabel, "Nbr.Words (current alloc=%d)", InfosGene->GeneralParams.SizesInfos.nbr_words );
+				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_words );
 				break;
 			case 4:
-				sprintf( BuffLabel, "Nbr.Monostables" );
-				sprintf( BuffValue, "%d", InfosGene->SizesInfos.nbr_monostables );
+				sprintf( BuffLabel, "Nbr.Counters (current alloc=%d)", InfosGene->GeneralParams.SizesInfos.nbr_counters );
+				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_counters );
 				break;
 			case 5:
-				sprintf( BuffLabel, "Nbr.Phys.Inputs" );
-				sprintf( BuffValue, "%d", InfosGene->SizesInfos.nbr_phys_inputs );
+				sprintf( BuffLabel, "Nbr.Timers IEC (current alloc=%d)", InfosGene->GeneralParams.SizesInfos.nbr_timers_iec );
+				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_timers_iec );
 				break;
 			case 6:
-				sprintf( BuffLabel, "Nbr.Phys.Oututs" );
-				sprintf( BuffValue, "%d", InfosGene->SizesInfos.nbr_phys_outputs );
+				sprintf( BuffLabel, "Nbr.Phys.Inputs (current alloc=%d)", InfosGene->GeneralParams.SizesInfos.nbr_phys_inputs );
+				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_phys_inputs );
 				break;
 			case 7:
-				sprintf( BuffLabel, "Nbr.Arithm.Expr" );
-				sprintf( BuffValue, "%d", InfosGene->SizesInfos.nbr_arithm_expr );
+				sprintf( BuffLabel, "Nbr.Phys.Outputs (current alloc=%d)", InfosGene->GeneralParams.SizesInfos.nbr_phys_outputs );
+				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_phys_outputs );
 				break;
 			case 8:
-				InfoUsed = NbrSectionsDefined( )*100/InfosGene->SizesInfos.nbr_sections;
-				sprintf( BuffLabel, "Nbr.Sections (%d%c used)", InfoUsed,'%' );
-				sprintf( BuffValue, "%d", InfosGene->SizesInfos.nbr_sections );
+				sprintf( BuffLabel, "Nbr.Arithm.Expr. (current alloc=%d)", InfosGene->GeneralParams.SizesInfos.nbr_arithm_expr );
+				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_arithm_expr );
 				break;
-			case 9:				
-				sprintf( BuffLabel, "Nbr.S32.inputs " );
-				sprintf( BuffValue, "%d", InfosGene->SizesInfos.nbr_s32in );
+			case 9:
+				InfoUsed = NbrSectionsDefined( )*100/InfosGene->GeneralParams.SizesInfos.nbr_sections;
+				sprintf( BuffLabel, "Nbr.Sections (%d%c used - current alloc=%d)", InfoUsed,'%', InfosGene->GeneralParams.SizesInfos.nbr_sections );
+				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_sections );
 				break;
 			case 10:
-				sprintf( BuffLabel, "Nbr.S32.outputs ");
-				sprintf( BuffValue, "%d", InfosGene->SizesInfos.nbr_s32out );
+				sprintf( BuffLabel, "Nbr.Symbols (current alloc=%d)", InfosGene->GeneralParams.SizesInfos.nbr_symbols );
+				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_symbols );
+				break;
+#ifdef OLD_TIMERS_MONOS_SUPPORT
+			case 11:
+				sprintf( BuffLabel, "Nbr.Timers (current alloc=%d)", InfosGene->GeneralParams.SizesInfos.nbr_timers );
+				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_timers );
+				break;
+			case 12:
+				sprintf( BuffLabel, "Nbr.Monostables (current alloc=%d)", InfosGene->GeneralParams.SizesInfos.nbr_monostables );
+				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_monostables );
+				break;
+#endif
+			case 13:
+				sprintf( BuffLabel, "Nbr.S32in (current alloc=%d)", InfosGene->GeneralParams.SizesInfos.nbr_s32in );
+				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_s32in );
+				break;
+			case 14:
+				sprintf( BuffLabel, "Nbr.S32out (current alloc=%d)", InfosGene->GeneralParams.SizesInfos.nbr_s32out );
+				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_s32out );
 				break;
 			default:
 				sprintf( BuffLabel, "???" );
@@ -133,7 +160,7 @@ GtkWidget * CreateSizesPage( void )
 		}
 
 		LabelParam[NumObj] = gtk_label_new(BuffLabel);
-		gtk_widget_set_usize((GtkWidget *)LabelParam[NumObj],150,0);
+		gtk_widget_set_usize((GtkWidget *)LabelParam[NumObj],300,0);
 		gtk_box_pack_start (GTK_BOX (hbox[NumObj]), LabelParam[NumObj], FALSE, FALSE, 0);
 		gtk_widget_show (LabelParam[NumObj]);
 
@@ -143,11 +170,61 @@ GtkWidget * CreateSizesPage( void )
 		gtk_box_pack_start (GTK_BOX (hbox[NumObj]), ValueParam[NumObj], FALSE, FALSE, 0);
 		gtk_widget_show (ValueParam[NumObj]);
 		gtk_entry_set_text( GTK_ENTRY(ValueParam[NumObj]), BuffValue);
-		gtk_editable_set_editable( GTK_EDITABLE(ValueParam[NumObj]), FALSE);
+
+//		gtk_editable_set_editable( GTK_EDITABLE(ValueParam[NumObj]), (NumObj==0)?TRUE:FALSE);
 	}
 	return vbox;
 }
+int GetOneGeneralInfo( int iNumber )
+{
+	char text[ 10 ];
+	int value;
+	strncpy( text, (char *)gtk_entry_get_text((GtkEntry *)ValueParam[ iNumber ]), 10 );
+	text[ 9 ] = '\0';
+	value = atoi( text );
+	return value;
+}
+void GetGeneralParameters( void )
+{
+	int TheValue;
+	TheValue = GetOneGeneralInfo( 0 );
+	if ( TheValue<1 || TheValue>1000 )
+		TheValue = PERIODIC_REFRESH_MS_DEF;
+	InfosGene->GeneralParams.PeriodicRefreshMilliSecs = TheValue;
+	GeneralParamsMirror.PeriodicRefreshMilliSecs = TheValue;
 
+	TheValue = GetOneGeneralInfo( 1 );
+	GeneralParamsMirror.SizesInfos.nbr_rungs = TheValue;
+	TheValue = GetOneGeneralInfo( 2 );
+	GeneralParamsMirror.SizesInfos.nbr_bits = TheValue;
+	TheValue = GetOneGeneralInfo( 3 );
+	GeneralParamsMirror.SizesInfos.nbr_words = TheValue;
+	TheValue = GetOneGeneralInfo( 4 );
+	GeneralParamsMirror.SizesInfos.nbr_counters = TheValue;
+	TheValue = GetOneGeneralInfo( 5 );
+	GeneralParamsMirror.SizesInfos.nbr_timers_iec = TheValue;
+	TheValue = GetOneGeneralInfo( 6 );
+	GeneralParamsMirror.SizesInfos.nbr_phys_inputs = TheValue;
+	TheValue = GetOneGeneralInfo( 7 );
+	GeneralParamsMirror.SizesInfos.nbr_phys_outputs = TheValue;
+	TheValue = GetOneGeneralInfo( 8 );
+	GeneralParamsMirror.SizesInfos.nbr_arithm_expr = TheValue;
+	TheValue = GetOneGeneralInfo( 9 );
+	GeneralParamsMirror.SizesInfos.nbr_sections = TheValue;
+	TheValue = GetOneGeneralInfo( 10 );
+	GeneralParamsMirror.SizesInfos.nbr_symbols = TheValue;
+#ifdef OLD_TIMERS_MONOS_SUPPORT
+	TheValue = GetOneGeneralInfo( 11 );
+	GeneralParamsMirror.SizesInfos.nbr_timers = TheValue;
+	TheValue = GetOneGeneralInfo( 12 );
+	GeneralParamsMirror.SizesInfos.nbr_monostables = TheValue;
+#endif
+	TheValue = GetOneGeneralInfo( 13 );
+	GeneralParamsMirror.SizesInfos.nbr_s32in = TheValue;
+	TheValue = GetOneGeneralInfo( 14 );
+ 	GeneralParamsMirror.SizesInfos.nbr_s32out = TheValue;
+}
+#ifndef HAL_SUPPORT
 GtkWidget * CreateIOConfPage( char ForInputs )
 {
 	static char * Labels[] = { "First %", "Type", "PortAdr/SubDev", "First Channel", "Nbr Channels", "Logic" };
@@ -288,7 +365,7 @@ for(testpack=0; testpack<30; testpack++)
 	
 	return vbox;
 }
-
+#endif
 int ConvComboToNum( char * text, char ** list )
 {
 	int Value = 0;
@@ -302,6 +379,9 @@ int ConvComboToNum( char * text, char ** list )
 	}
 	return Value;
 }
+
+// we don't want this function if using EMC
+#ifndef HAL_SUPPORT 
 void GetIOSettings( char ForInputs )
 {
 	int NumObj;
@@ -371,8 +451,8 @@ void GetIOSettings( char ForInputs )
 		}//if ( ComboVal>0 )
 	}
 }
-
-#ifdef USE_MODBUS
+#endif
+#ifdef MODBUS_IO_MASTER
 GtkWidget * CreateModbusModulesIO( void )
 {
 	static char * Labels[] = { "Slave Address", "TypeAccess", "1st Modbus Ele.", "Nbr Modbus Ele.", "Logic", "1st %I/%Q Mapped" };
@@ -601,18 +681,26 @@ void GetModbusModulesIOSettings( void )
 }
 #endif
 
+// we dont want to change general parameters from user program -only when loading realtime
+// we also dont want calls to get IO settings in EMC (we use HAL instead)
+// configHardware is not used in EMC
 void GetSettings( void )
 {
+	//GetGeneralParameters( );
+#ifndef HAL_SUPPORT
 	GetIOSettings( 1/*ForInputs*/ );
 	GetIOSettings( 0/*ForInputs*/ );
-#ifdef USE_MODBUS
+#endif
+#ifdef MODBUS_IO_MASTER
 	GetModbusModulesIOSettings( );
 #endif
 #ifndef RT_SUPPORT
-	ConfigHardware( );
+//	ConfigHardware( );
+	InfosGene->AskToConfHard = TRUE;
 #endif
 }
 
+// we don't want to show physical input/ouput if using EMC in this function
 void OpenConfigWindowGtk()
 {
 	GtkWidget *nbook;
@@ -622,19 +710,28 @@ void OpenConfigWindowGtk()
 	gtk_window_set_modal( GTK_WINDOW(ConfigWindow), TRUE );
 
 	nbook = gtk_notebook_new( );
-	gtk_notebook_append_page( GTK_NOTEBOOK(nbook), CreateSizesPage(),
-				 gtk_label_new ("Sizes") );
-#ifdef USE_MODBUS
+	gtk_notebook_append_page( GTK_NOTEBOOK(nbook), CreateGeneralParametersPage( ),
+				 gtk_label_new ("Period/Sizes") );
+#ifndef HAL_SUPPORT 
+	gtk_notebook_append_page( GTK_NOTEBOOK(nbook), CreateIOConfPage( 1/*ForInputs*/ ),
+				 gtk_label_new ("Physical Inputs") );
+	gtk_notebook_append_page( GTK_NOTEBOOK(nbook), CreateIOConfPage( 0/*ForInputs*/ ),
+				 gtk_label_new ("Physical Outputs") );
+#endif 
+#ifdef MODBUS_IO_MASTER
 	gtk_notebook_append_page( GTK_NOTEBOOK(nbook), CreateModbusModulesIO( ),
 				 gtk_label_new ("Modbus distributed I/O") );
 #endif
+
 	gtk_container_add( GTK_CONTAINER (ConfigWindow), nbook );
 	gtk_widget_show( nbook );
 
 	gtk_window_set_position( GTK_WINDOW(ConfigWindow), GTK_WIN_POS_CENTER );
-	gtk_window_set_policy( GTK_WINDOW(ConfigWindow), FALSE, FALSE, TRUE );
+//	gtk_window_set_policy( GTK_WINDOW(ConfigWindow), FALSE, FALSE, TRUE );
 	gtk_signal_connect ( GTK_OBJECT(ConfigWindow), "destroy",
                         GTK_SIGNAL_FUNC(GetSettings), NULL );
 
 	gtk_widget_show( ConfigWindow );
 }
+
+

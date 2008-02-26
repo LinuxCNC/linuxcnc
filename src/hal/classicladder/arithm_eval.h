@@ -2,7 +2,7 @@
 #define arithmtype int
 
 
-int IdentifyVariable(char * StartExpr,int * ResType,int * ResOffset);
+int IdentifyVarIndexedOrNot(char * StartExpr,int * ResType,int * ResOffset, int * ResIndexType,int * ResIndexOffset);
 int EvalCompare(char * CompareString);
 void MakeCalc(char * CalcString,int VerifyMode);
 arithmtype AddSub(void);

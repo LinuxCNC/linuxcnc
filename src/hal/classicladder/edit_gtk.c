@@ -1,6 +1,6 @@
 /* Classic Ladder Project */
-/* Copyright (C) 2001-2006 Marc Le Douarain */
-/* http://www.multimania.com/mavati/classicladder */
+/* Copyright (C) 2001-2007 Marc Le Douarain */
+/* http://membres.lycos.fr/mavati/classicladder/ */
 /* http://www.sourceforge.net/projects/classicladder */
 /* May 2001 */
 /* --------------------------- */
@@ -52,10 +52,25 @@ static short int ToolBarElementsLadder[ ][NBR_ELE_TOOLBAR_X_MAX] =
             { {EDIT_POINTER , EDIT_ERASER, 0 , 0} ,
               {ELE_INPUT , ELE_INPUT_NOT , ELE_RISING_INPUT , ELE_FALLING_INPUT} ,
               {ELE_CONNECTION , EDIT_CNX_WITH_TOP, EDIT_LONG_CONNECTION , 0} ,
-              {ELE_TIMER , ELE_MONOSTABLE , ELE_COUNTER , ELE_COMPAR} ,
+              {ELE_TIMER_IEC , ELE_COUNTER , ELE_COMPAR , 0} ,
+#ifdef OLD_TIMERS_MONOS_SUPPORT
+              {ELE_TIMER , ELE_MONOSTABLE , 0 , 0} ,
+#endif
               {ELE_OUTPUT , ELE_OUTPUT_NOT, ELE_OUTPUT_SET , ELE_OUTPUT_RESET} ,
               {ELE_OUTPUT_JUMP, ELE_OUTPUT_CALL , ELE_OUTPUT_OPERATE , 0} ,
               {-1,-1}/*end*/ };
+char * ToolBarToolTipsTextLadder[ ][NBR_ELE_TOOLBAR_X_MAX] =
+            { { "Current Object\nSelector", "Eraser", NULL, NULL },
+              { "N.O. Input", "N.C. Input", "Rising Edge\n Input", "Falling Edge\n Input" },
+              { "Horizontal\nConnection", "Vertical\nConnection", "Long Horizontal\nConnection", NULL },
+              { "Timer IEC Block", "Counter Block", "Compare\n Variable", NULL },
+#ifdef OLD_TIMERS_MONOS_SUPPORT
+              { "Old Timer Block", "Old Monostable Block", NULL, NULL },
+#endif
+              { "N.O. Output", "N.C. Output", "Set Output", "Reset Output" },
+              { "Jump Coil", "Call Coil", "Variable\nAssignment", NULL },
+              { NULL, NULL, NULL, NULL } };
+
 
 #ifdef SEQUENTIAL_SUPPORT
 #include "drawing_sequential.h"
@@ -69,6 +84,15 @@ static short int ToolBarElementsSequential[ ][NBR_ELE_TOOLBAR_X_MAX] =
               {EDIT_SEQ_LINK , 0 , 0 , 0} ,
               {ELE_SEQ_COMMENT , 0 , 0 , 0} ,
               {-1,-1}/*end*/ };
+char * ToolBarToolTipsTextSequential[ ][NBR_ELE_TOOLBAR_X_MAX] =
+            { { "Current Object\nSelector", "Eraser", NULL, NULL },
+              { "Step", NULL, NULL, NULL },
+              { "Transition", NULL, NULL, NULL },
+              { NULL, NULL, NULL, NULL },
+              { NULL, NULL, NULL, NULL },
+              { "Link", NULL, NULL, NULL },
+              { "Comment", NULL, NULL, NULL },
+              { NULL, NULL, NULL, NULL } };
 #endif
 
 GtkWidget *EditWindow;
@@ -76,6 +100,7 @@ GtkWidget *EditWindow;
 
 void ButtonsForStart()
 {
+	int iCurrentLanguage = SectionArray[ InfosGene->CurrentSection ].Language;
 	gtk_widget_hide (EditorButtonAdd);
 	gtk_widget_hide (EditorButtonIns);
 	gtk_widget_hide (EditorButtonDel);
@@ -97,6 +122,7 @@ void ButtonsForStart()
 		gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(ToolbarBtnRadio[ NumWidgetEditPointer[ NUM_TOOLBAR_FOR_SEQ ] ]), TRUE );
 		gtk_widget_set_sensitive( ToolbarTable[ NUM_TOOLBAR_FOR_SEQ ], TRUE );
 	}
+	MessageInStatusBar( iCurrentLanguage==SECTION_IN_LADDER?"Current rung in edit mode...":"Edit mode..." );
 }
 void ButtonsForEnd( char ForRung )
 {
@@ -118,12 +144,15 @@ void ButtonsForEnd( char ForRung )
 	gtk_widget_hide (EditorButtonOk);
 	gtk_widget_hide (EditorButtonCancel);
 	ShowPropertiesWindow( FALSE );
+	MessageInStatusBar( "" );
 }
 
 void EditorButtonsAccordingSectionType( )
 {
 	int iCurrentLanguage = SectionArray[ InfosGene->CurrentSection ].Language;
-	ButtonsForEnd( iCurrentLanguage==SECTION_IN_LADDER );
+	// if under edit, cancel current operation
+	if ( EditDatas.ModeEdit )
+		ButtonCancelCurrentRung( );
 #ifdef SEQUENTIAL_SUPPORT
 	if ( iCurrentLanguage==SECTION_IN_SEQUENTIAL )
 	{
@@ -136,6 +165,7 @@ void EditorButtonsAccordingSectionType( )
 		gtk_widget_show( ToolbarTable[ NUM_TOOLBAR_FOR_RUNGS ] );
 	}
 #endif
+	MessageInStatusBar( "" );
 }
 
 void ButtonAddRung()
@@ -198,6 +228,20 @@ gint EditorWindowDeleteEvent( GtkWidget * widget, GdkEvent * event, gpointer dat
 	return TRUE;
 }
 
+void OpenEditWindow( void )
+{
+	if ( !GTK_WIDGET_VISIBLE( EditWindow ) )
+	{
+		gtk_widget_show (EditWindow);
+#ifdef GTK2
+		gtk_window_present( GTK_WINDOW(EditWindow) );
+#endif
+	}
+	else
+	{
+		gtk_widget_hide( EditWindow );
+	}
+}
 
 void ButtonToolbarSignal( GtkWidget * widget, gpointer data )
 {
@@ -216,7 +260,8 @@ void InitAllForToolbar( void )
 	NumWidgetEditPointer[ NUM_TOOLBAR_FOR_RUNGS ] = -1;
 	NumWidgetEditPointer[ NUM_TOOLBAR_FOR_SEQ ] = -1;
 }
-void CreateOneToolbar( GtkWidget * Box, int NumTable, short int PtrOnToolBarElementsList[][NBR_ELE_TOOLBAR_X_MAX] )
+
+void CreateOneToolbar( GtkWidget * Box, int NumTable, short int PtrOnToolBarElementsList[][NBR_ELE_TOOLBAR_X_MAX], char * PtrOnToolTipsText[][NBR_ELE_TOOLBAR_X_MAX] )
 {
 	int CurrentAvail = 0;
 	while( ToolbarBtnRadio[ CurrentAvail ]!=NULL && CurrentAvail<NBR_ELE_IN_TOOLBAR )
@@ -245,6 +290,7 @@ void CreateOneToolbar( GtkWidget * Box, int NumTable, short int PtrOnToolBarElem
 			if ( ToolBarEle.Type!=0 )
 			{
 				GdkGC * gc = drawing_area->style->bg_gc[0];
+				char * pHelpText = PtrOnToolTipsText[ ScanToolBarY ][ ScanToolBarX ];
 				ToolbarPixmap[ CurrentAvail ] = gdk_pixmap_new( GDK_DRAWABLE(drawing_area->window), PIXELS_SIZE_IN_TOOLBAR, PIXELS_SIZE_IN_TOOLBAR, -1 );
 				gdk_draw_rectangle (GDK_DRAWABLE(ToolbarPixmap[ CurrentAvail ]), gc, TRUE, 0, 0, PIXELS_SIZE_IN_TOOLBAR, PIXELS_SIZE_IN_TOOLBAR);
 	
@@ -268,70 +314,8 @@ void CreateOneToolbar( GtkWidget * Box, int NumTable, short int PtrOnToolBarElem
 
 				gtk_signal_connect( GTK_OBJECT (ToolbarBtnRadio[ CurrentAvail ]), "clicked", (GtkSignalFunc) ButtonToolbarSignal, GINT_TO_POINTER((int)ToolBarEle.Type) );
 
-				switch( ToolBarEle.Type )
-				{
-					case EDIT_POINTER:
-						gtk_tooltips_set_tip (TheTooltips, ToolbarBtnRadio[ CurrentAvail ], "Current Object\n      Selector", NULL);
-						break;
-					case EDIT_ERASER:
-						gtk_tooltips_set_tip (TheTooltips, ToolbarBtnRadio[ CurrentAvail ], "Eraser", NULL);
-						break;
-					case ELE_RISING_INPUT:
-						gtk_tooltips_set_tip (TheTooltips, ToolbarBtnRadio[ CurrentAvail ], "Rising Edge\n Input", NULL);
-						break;
-					case ELE_FALLING_INPUT:
-						gtk_tooltips_set_tip (TheTooltips, ToolbarBtnRadio[ CurrentAvail ], "Falling Edge\n Input", NULL);
-						break;
-					case ELE_INPUT:
-						gtk_tooltips_set_tip (TheTooltips, ToolbarBtnRadio[ CurrentAvail ], "N.O. Input", NULL);
-						break;
-					case ELE_INPUT_NOT:
-						gtk_tooltips_set_tip (TheTooltips, ToolbarBtnRadio[ CurrentAvail ], "N.C. Input ", NULL);
-						break;
-					case ELE_CONNECTION:
-						gtk_tooltips_set_tip (TheTooltips, ToolbarBtnRadio[ CurrentAvail ], "Horizontal\nConection", NULL);
-						break;
-					case EDIT_CNX_WITH_TOP:
-						gtk_tooltips_set_tip (TheTooltips, ToolbarBtnRadio[ CurrentAvail ], "  Vertical\nConection", NULL);
-						break;
-					case EDIT_LONG_CONNECTION:
-						gtk_tooltips_set_tip (TheTooltips, ToolbarBtnRadio[ CurrentAvail ], "  Running\nConnection", NULL);
-						break;
-					case ELE_TIMER:
-						gtk_tooltips_set_tip (TheTooltips, ToolbarBtnRadio[ CurrentAvail ], "Timer", NULL);
-						break;
-					case ELE_MONOSTABLE:
-						gtk_tooltips_set_tip (TheTooltips, ToolbarBtnRadio[ CurrentAvail ], "Monostable", NULL);
-						break;
-					case ELE_COUNTER:
-						gtk_tooltips_set_tip (TheTooltips, ToolbarBtnRadio[ CurrentAvail ], "Counter", NULL);
-						break;
-					case ELE_COMPAR:
-						gtk_tooltips_set_tip (TheTooltips, ToolbarBtnRadio[ CurrentAvail ], "Compare\n Variable", NULL);
-						break;
-					case ELE_OUTPUT:
-						gtk_tooltips_set_tip (TheTooltips, ToolbarBtnRadio[ CurrentAvail ], "N.O. Output", NULL);
-						break;
-					case ELE_OUTPUT_NOT:
-						gtk_tooltips_set_tip (TheTooltips, ToolbarBtnRadio[ CurrentAvail ], "N.C. Output", NULL);
-						break;
-					case ELE_OUTPUT_SET:
-						gtk_tooltips_set_tip (TheTooltips, ToolbarBtnRadio[ CurrentAvail ], "Set Output ", NULL);
-						break;
-					case ELE_OUTPUT_RESET:
-						gtk_tooltips_set_tip (TheTooltips, ToolbarBtnRadio[ CurrentAvail ], "Reset Output", NULL);
-						break;
-					case ELE_OUTPUT_JUMP:
-						gtk_tooltips_set_tip (TheTooltips, ToolbarBtnRadio[ CurrentAvail ], "Jump Coil", NULL);
-						break;
-					case ELE_OUTPUT_CALL:
-						gtk_tooltips_set_tip (TheTooltips, ToolbarBtnRadio[ CurrentAvail ], "Call Coil", NULL);
-						break;
-					case ELE_OUTPUT_OPERATE:
-						gtk_tooltips_set_tip (TheTooltips, ToolbarBtnRadio[ CurrentAvail ], "   Variable\nAssignment", NULL);
-						break;
-					
-					}
+				if (pHelpText!=NULL )
+					gtk_tooltips_set_tip (TheTooltips, ToolbarBtnRadio[ CurrentAvail ], pHelpText, NULL);
 
 				gtk_widget_show( ToolbarBtnRadio[ CurrentAvail ] );
 				CurrentAvail++;
@@ -392,12 +376,12 @@ void EditorInitGtk()
 	InitAllForToolbar( );
 	TheTooltips = gtk_tooltips_new();
 	/* Rungs elements toolbar */
-	CreateOneToolbar( vbox, NUM_TOOLBAR_FOR_RUNGS, ToolBarElementsLadder );
+	CreateOneToolbar( vbox, NUM_TOOLBAR_FOR_RUNGS, ToolBarElementsLadder, ToolBarToolTipsTextLadder );
 	gtk_widget_set_sensitive( ToolbarTable[ NUM_TOOLBAR_FOR_RUNGS ], FALSE );
 	gtk_widget_show( ToolbarTable[ NUM_TOOLBAR_FOR_RUNGS ] );
 	/* Sequential elements toolbar */
 #ifdef SEQUENTIAL_SUPPORT
-	CreateOneToolbar( vbox, NUM_TOOLBAR_FOR_SEQ, ToolBarElementsSequential );
+	CreateOneToolbar( vbox, NUM_TOOLBAR_FOR_SEQ, ToolBarElementsSequential, ToolBarToolTipsTextSequential );
 	gtk_widget_set_sensitive( ToolbarTable[ NUM_TOOLBAR_FOR_SEQ ], FALSE );
 #endif
 
@@ -409,3 +393,4 @@ void EditorInitGtk()
 
 	EditDatas.NumElementSelectedInToolBar = -1;
 }
+

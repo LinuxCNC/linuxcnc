@@ -1,6 +1,6 @@
 /* Classic Ladder Project */
-/* Copyright (C) 2001-2006 Marc Le Douarain */
-/* http://www.multimania.com/mavati/classicladder */
+/* Copyright (C) 2001-2008 Marc Le Douarain */
+/* http://membres.lycos.fr/mavati/classicladder/ */
 /* http://www.sourceforge.net/projects/classicladder */
 /* May 2001 */
 /* ------ */
@@ -42,6 +42,7 @@
 #include "edit_sequential.h"
 #endif
 #include "symbols.h"
+#include "vars_names.h"
 
 /* This array give for each special elements the size used */
 #define TYPEELERULE 0
@@ -51,12 +52,21 @@ static short int RulesForSpecialElements[][3] =
             { {ELE_TIMER , 2, 2 } ,
               {ELE_MONOSTABLE, 2, 2 },
               {ELE_COUNTER, 2, 4 },
+              {ELE_TIMER_IEC, 2, 2 },
               {ELE_COMPAR, 3, 1 },
               {ELE_OUTPUT_OPERATE, 3, 1 },
               {-1, -1, -1}/*end*/ };
 
 // pointer on a string error explanation...
 char * ErrorMessageVarParser = NULL;
+
+// used to mark the functions blocs already used
+#ifdef OLD_TIMERS_MONOS_SUPPORT
+char NumTimersUsedInRung[ 256 ];
+char NumMonostablesUsedInRung[ 256 ];
+#endif
+char NumCountersUsedInRung[ 256 ];
+char NumNewTimersUsedInRung[ 256 ];
 
 
 int ConvBaseInTextToId(char * text)
@@ -71,6 +81,19 @@ int ConvBaseInTextToId(char * text)
 	}
 	while(ScanBase<NBR_TIMEBASES);
 	return BaseFound;
+}
+int ConvTimerModeInTextToId(char * text)
+{
+	int ScanMode = 0;
+	int TimerModeFound = TIMER_IEC_MODE_ON;
+	do
+	{
+		if (strcmp(text,TimersModesStrings[ ScanMode ])==0)
+			TimerModeFound = ScanMode;
+		ScanMode++;
+	}
+	while(ScanMode<NBR_TIMERSMODES);
+	return TimerModeFound;
 }
 
 int ConvLabelToNumRung(char * LabelName)
@@ -96,9 +119,12 @@ void LoadElementProperties(StrElement * Element)
 {
 	char TextToWrite[100];
 	int NumParam;
-	StrTimer * Timer;
-	StrMonostable * Monostable;
-	StrCounter * Counter;
+#ifdef OLD_TIMERS_MONOS_SUPPORT
+	StrTimer * Timer = NULL;
+	StrMonostable * Monostable = NULL;
+#endif
+	StrCounter * Counter = NULL;
+	StrTimerIEC * TimerIEC = NULL;
 	for(NumParam=0;NumParam<NBR_PARAMS_PER_OBJ;NumParam++)
 		SetProperty(NumParam,"---","");
 	if (Element)
@@ -113,7 +139,7 @@ void LoadElementProperties(StrElement * Element)
 			case ELE_OUTPUT_NOT:
 			case ELE_OUTPUT_SET:
 			case ELE_OUTPUT_RESET:
-				strcpy(TextToWrite,DisplayInfo(Element->VarType,Element->VarNum));
+				strcpy(TextToWrite,CreateVarName(Element->VarType,Element->VarNum));
 				SetProperty(0,"Variable",TextToWrite);
 				break;
 			case ELE_OUTPUT_JUMP:
@@ -123,6 +149,7 @@ void LoadElementProperties(StrElement * Element)
 				sprintf(TextToWrite,"%d",Element->VarNum);
 				SetProperty(0,"Sub-Routine",TextToWrite);
 				break;
+#ifdef OLD_TIMERS_MONOS_SUPPORT
 			case ELE_TIMER:
 				Timer = &TimerArray[Element->VarNum];
 				sprintf(TextToWrite,"%d",Element->VarNum);
@@ -141,12 +168,24 @@ void LoadElementProperties(StrElement * Element)
 				sprintf(TextToWrite,"%d",Monostable->Preset/Monostable->Base);
 				SetProperty(2,"Preset",TextToWrite);
 				break;
+#endif
 			case ELE_COUNTER:
 				Counter = &CounterArray[Element->VarNum];
 				sprintf(TextToWrite,"%d",Element->VarNum);
 				SetProperty(0,"CounterNbr",TextToWrite);
 				sprintf(TextToWrite,"%d",Counter->Preset);
 				SetProperty(1,"Preset",TextToWrite);
+				break;
+			case ELE_TIMER_IEC:
+				TimerIEC = &NewTimerArray[Element->VarNum];
+				sprintf(TextToWrite,"%d",Element->VarNum);
+				SetProperty(0,"TimerNbr",TextToWrite);
+				sprintf(TextToWrite,"%s",CorresDatasForBase[ ConvBaseInMilliSecsToId(TimerIEC->Base) ].ParamSelect);
+				SetProperty(1,"Base",TextToWrite);
+				sprintf(TextToWrite,"%d",TimerIEC->Preset);
+				SetProperty(2,"Preset",TextToWrite);
+				sprintf(TextToWrite,"%s",TimersModesStrings[ (int)TimerIEC->TimerMode ]);
+				SetProperty(3,"TimerMode",TextToWrite);
 				break;
 			case ELE_COMPAR:
 			case ELE_OUTPUT_OPERATE:
@@ -157,6 +196,65 @@ void LoadElementProperties(StrElement * Element)
 	}
 }
 
+char * GetElementPropertiesForStatusBar(StrElement * Element)
+{
+	static char PropertiesText[100];
+#ifdef OLD_TIMERS_MONOS_SUPPORT
+	StrTimer * Timer = NULL;
+	StrMonostable * Monostable = NULL;
+#endif
+	StrCounter * Counter = NULL;
+	StrTimerIEC * TimerIEC = NULL;
+
+	strcpy( PropertiesText, "" );
+
+	if (Element)
+	{
+		switch(Element->Type)
+		{
+			case ELE_INPUT:                             	
+			case ELE_INPUT_NOT:
+			case ELE_RISING_INPUT:
+			case ELE_FALLING_INPUT:
+			case ELE_OUTPUT:				
+			case ELE_OUTPUT_NOT:
+			case ELE_OUTPUT_SET:
+			case ELE_OUTPUT_RESET:
+				sprintf(PropertiesText, "Variable: %s    Hal signal: %s",CreateVarName(Element->VarType,Element->VarNum),ConvVarNameToHalSigName(CreateVarName(Element->VarType,Element->VarNum)));
+				break;
+			case ELE_OUTPUT_JUMP:
+				sprintf(PropertiesText, "Label: %s", RungArray[Element->VarNum].Label);
+				break;
+			case ELE_OUTPUT_CALL:
+				sprintf(PropertiesText, "Sub-Routine: %d", Element->VarNum);
+				break;
+#ifdef OLD_TIMERS_MONOS_SUPPORT
+			case ELE_TIMER:
+				Timer = &TimerArray[Element->VarNum];
+				sprintf(PropertiesText, "%cT%d: Preset=%d Base=%s", '%', Element->VarNum, Timer->Preset/Timer->Base, CorresDatasForBase[ ConvBaseInMilliSecsToId(Timer->Base) ].ParamSelect);
+				break;
+			case ELE_MONOSTABLE:
+				Monostable = &MonostableArray[Element->VarNum];
+				sprintf(PropertiesText, "%cM%d: Preset=%d Base=%s", '%', Element->VarNum, Monostable->Preset/Monostable->Base, CorresDatasForBase[ ConvBaseInMilliSecsToId(Monostable->Base) ].ParamSelect);
+				break;
+#endif
+			case ELE_COUNTER:
+				Counter = &CounterArray[Element->VarNum];
+				sprintf(PropertiesText, "%cC%d: Preset=%d", '%', Element->VarNum, Counter->Preset);
+				break;
+			case ELE_TIMER_IEC:
+				TimerIEC = &NewTimerArray[Element->VarNum];
+				sprintf(PropertiesText, "%cTM%d: Preset=%d Base=%s Mode=%s", '%', Element->VarNum, TimerIEC->Preset, CorresDatasForBase[ ConvBaseInMilliSecsToId(TimerIEC->Base) ].ParamSelect, TimersModesStrings[ (int)TimerIEC->TimerMode ]);
+				break;
+			case ELE_COMPAR:
+			case ELE_OUTPUT_OPERATE:
+				sprintf(PropertiesText,"HAL sig~ %s",FirstVariableInArithm(DisplayArithmExpr(ArithmExpr[Element->VarNum].Expr,0)));
+							
+				break;
+		}
+	}
+	return PropertiesText;
+}
 /* Convert a string to a number if >=Min and <=Max */
 /* return TRUE if okay */
 int TextToNumber(char * text,int ValMin,int ValMaxi,int *ValFound)
@@ -170,461 +268,128 @@ int TextToNumber(char * text,int ValMin,int ValMaxi,int *ValFound)
 		*ValFound = Value;
 	return IsOk;
 }
-/* like the preceding one, but pointer advance ! */
-int TextToNumberAndAdvance(char ** text,int ValMin,int ValMaxi,int *ValFound)
-{
-	int IsOk = TRUE;
-	int Value = 0;
-	char * pScan = *text;
-	char NumberFound = FALSE;
-	while( *pScan>='0' && *pScan<='9' )
-	{
-		Value = Value*10+(*pScan-'0');
-		pScan++;
-		NumberFound = TRUE;
-	}
-	if ( !NumberFound || (Value<ValMin) || (Value>ValMaxi) )
-		IsOk = FALSE;
-	if (IsOk)
-	{
-		*ValFound = Value;
-		*text = pScan;
-	}
-	return IsOk;
-}
 
-/* Convert a string to variable (type/offset) */
-/* if pNumberOfChars not NULL, give length of the string found */
-/* return TRUE if okay */
-int TextParserForAVar( char * text,int * VarTypeFound,int * VarOffsetFound, int * pNumberOfChars, char PartialNames )
-{
-	int TypeFound = 0;
-	int OffsetFound;
-	int IsOk = TRUE;
-	char * pScanPos = text; // content will be modified when advancing!
-	char * * pPtrScanPos = &pScanPos;
-
-	// if not commencing per '%', search the corresponding symbol !
-	if ( *pScanPos!='%' )
-	{
-		char * VarName = ConvSymbolToVarName( pScanPos );
-		if ( VarName==NULL )
-		{
-			IsOk = FALSE;
-			ErrorMessageVarParser = "Unknown symbol for variable name";
-		}
-		else
-		{
-			pScanPos = VarName;
-		}
-	}
-
-	if ( IsOk )
-	{
-		// pass the first character '%'
-		(*pPtrScanPos)++;
-		switch(**pPtrScanPos)
-		{
-			case 'B':
-				TypeFound = VAR_MEM_BIT;
-				(*pPtrScanPos)++;
-				if (!TextToNumberAndAdvance(pPtrScanPos,0,NBR_BITS-1,&OffsetFound))
-				{
-					IsOk = FALSE;
-					ErrorMessageVarParser = "Unknown variable (number value out of bound)";
-				}
-				break;
-	
-			case 'T':
-				(*pPtrScanPos)++;
-				if (!TextToNumberAndAdvance(pPtrScanPos,0,NBR_TIMERS-1,&OffsetFound))
-				{
-					IsOk = FALSE;
-					ErrorMessageVarParser = "Unknown variable (number value out of bound)";
-				}
-				else
-				{
-					if ( PartialNames==FALSE )
-					{
-						if ( **pPtrScanPos!=VAR_ATTRIBUTE_SEP )
-						{
-							IsOk = FALSE;
-							ErrorMessageVarParser = "Unknown variable (missing '.' character before attribute)";
-						}
-						else
-						{
-							(*pPtrScanPos)++;
-							switch(**pPtrScanPos)
-							{
-								case 'D':
-									TypeFound = VAR_TIMER_DONE;
-									break;
-								case 'R':
-									TypeFound = VAR_TIMER_RUNNING;
-									break;
-								case 'P':
-									TypeFound = VAR_TIMER_PRESET;
-									break;
-								case 'V':
-									TypeFound = VAR_TIMER_VALUE;
-									break;
-								default:
-									IsOk = FALSE;
-									ErrorMessageVarParser = "Unknown variable (unknown attribute)";
-									break;
-							}
-							(*pPtrScanPos)++;
-						}
-					}
-				}
-				break;
-	
-			case 'M':
-				(*pPtrScanPos)++;
-				if (!TextToNumberAndAdvance(pPtrScanPos,0,NBR_MONOSTABLES-1,&OffsetFound))
-				{
-					IsOk = FALSE;
-					ErrorMessageVarParser = "Unknown variable (number value out of bound)";
-				}
-				else
-				{
-					if ( PartialNames==FALSE )
-					{
-						if ( **pPtrScanPos!=VAR_ATTRIBUTE_SEP )
-						{
-							IsOk = FALSE;
-							ErrorMessageVarParser = "Unknown variable (missing '.' character before attribute)";
-						}
-						else
-						{
-							(*pPtrScanPos)++;
-							switch(**pPtrScanPos)
-							{
-								case 'R':
-									TypeFound = VAR_MONOSTABLE_RUNNING;
-									break;
-								case 'P':
-									TypeFound = VAR_MONOSTABLE_PRESET;
-									break;
-								case 'V':
-									TypeFound = VAR_MONOSTABLE_VALUE;
-									break;
-								default:
-									IsOk = FALSE;
-									ErrorMessageVarParser = "Unknown variable (unknown attribute)";
-									break;
-							}
-							(*pPtrScanPos)++;
-						}
-					}
-				}
-				break;
-	
-			case 'C':
-				(*pPtrScanPos)++;
-				if (!TextToNumberAndAdvance(pPtrScanPos,0,NBR_COUNTERS-1,&OffsetFound))
-				{
-					IsOk = FALSE;
-					ErrorMessageVarParser = "Unknown variable (number value out of bound)";
-				}
-				else
-				{
-					if ( PartialNames==FALSE )
-					{
-						if ( **pPtrScanPos!=VAR_ATTRIBUTE_SEP )
-						{
-							IsOk = FALSE;
-							ErrorMessageVarParser = "Unknown variable (missing '.' character before attribute)";
-						}
-						else
-						{
-							(*pPtrScanPos)++;
-							switch(**pPtrScanPos)
-							{
-								case 'D':
-									TypeFound = VAR_COUNTER_DONE;
-									break;
-								case 'E':
-									TypeFound = VAR_COUNTER_EMPTY;
-									break;
-								case 'F':
-									TypeFound = VAR_COUNTER_FULL;
-									break;
-								case 'P':
-									TypeFound = VAR_COUNTER_PRESET;
-									break;
-								case 'V':
-									TypeFound = VAR_COUNTER_VALUE;
-									break;
-								default:
-									IsOk = FALSE;
-									ErrorMessageVarParser = "Unknown variable (unknown attribute)";
-									break;
-							}
-							(*pPtrScanPos)++;
-						}
-					}
-				}
-				break;
-	
-			case 'I':
-				TypeFound = VAR_PHYS_INPUT;
-				(*pPtrScanPos)++;
-				if (!TextToNumberAndAdvance(pPtrScanPos,0,NBR_PHYS_INPUTS-1,&OffsetFound))
-				{
-					IsOk = FALSE;
-					ErrorMessageVarParser = "Unknown variable (number value out of bound)";
-				}
-				break;
-	
-			case 'Q':
-				TypeFound = VAR_PHYS_OUTPUT;
-				(*pPtrScanPos)++;
-				if (!TextToNumberAndAdvance(pPtrScanPos,0,NBR_PHYS_OUTPUTS-1,&OffsetFound))
-				{
-					IsOk = FALSE;
-					ErrorMessageVarParser = "Unknown variable (number value out of bound)";
-				}
-				break;
-	
-			case 'W':
-				TypeFound = VAR_MEM_WORD;
-				(*pPtrScanPos)++;
-				if (!TextToNumberAndAdvance(pPtrScanPos,0,NBR_WORDS-1,&OffsetFound))
-				{
-					IsOk = FALSE;
-					ErrorMessageVarParser = "Unknown variable (number value out of bound)";
-				}
-				break;
-	
-	#ifdef SEQUENTIAL_SUPPORT
-			case 'X':
-				TypeFound = VAR_STEP_ACTIVITY; //per default, but it could change later...
-				(*pPtrScanPos)++;
-				if (!TextToNumberAndAdvance(pPtrScanPos,0,NBR_STEPS-1,&OffsetFound))
-				{
-					IsOk = FALSE;
-					ErrorMessageVarParser = "Unknown variable (number value out of bound)";
-				}
-				else
-				{
-					// verify if there is a '.' after number so that it must be the X..,V form
-					// instead of X... form.
-					if ( **pPtrScanPos==VAR_ATTRIBUTE_SEP )
-					{
-						(*pPtrScanPos)++;
-						if ( **pPtrScanPos=='V' )
-						{
-							TypeFound = VAR_STEP_TIME;
-						}
-						else
-						{
-							IsOk = FALSE;
-							ErrorMessageVarParser = "Unknown variable (unknown attribute)";
-						}
-					}
-				}
-				break;
-	#endif
-	
-			default:
-				IsOk = FALSE;
-				ErrorMessageVarParser = "Unknown variable (on first character following %)";
-		}
-		if (IsOk)
-		{
-			if ( VarTypeFound )
-				*VarTypeFound = TypeFound;
-			if ( VarOffsetFound ) 
-				*VarOffsetFound = OffsetFound;
-			if ( pNumberOfChars!=NULL )
-				*pNumberOfChars = *pPtrScanPos - text;
-		}
-		else
-		{
-			if ( ErrorMessageVarParser==NULL )
-				ErrorMessageVarParser = "Unknown variable (global error)";
-		}
-	}
-	return IsOk;
-}
-
-/* Convert a string of arithmetic expression for the arithm_eval : */
-/* Variables becomes @type/offset@ */
+/* Convert a string of arithmetic expression for the arithm_eval format : */
+/* Variables becomes @type/offset@ or @type/offset[indextype/indexoffset]@*/
 /* Then verify all the expression using arithm_eval */
 /* return pointer on the new string converted and verified if okay, else NULL */
 char * TextParserForArithmExpr(char * text, int TypeElement)
 {
-	 static char NewExpr[100];
-	 char Buffer[20];
-	 char Temp [2];
+	static char NewExpr[100];
+	char Buffer[20];
 	int ItIsOk = TRUE;
-	int BeenHere = FALSE;
-	int HaveAUnit= FALSE;
 	int VarType;
 	int VarOffset;
+	char * ptr = text;
 	int StringLength;
-	char * tmpptr = text;
-	char * bufptr = Buffer;
+	char VarIndexedIsFound = FALSE;
 	ErrorMessageVarParser = NULL;
+
+	if ( text[0]=='\0' )
+		return NULL;
+
 	strcpy(NewExpr,"");
-	strcpy(Buffer,"");
-	
-	// we want to break the text into a "unit". The unit is between the math 
-	// symbols. The unit is check for a symbol, proper variable, decimal or text and converted. 
-	
-	// if the text is empty then set an error which does nothing
-	if (*tmpptr == '\0') { ItIsOk=FALSE;}
-	
-	do{
-		do{
-			
-			 
-			switch (*tmpptr)
-			{
-			case '\0':// we have found the end-must be a unit to check
-				HaveAUnit= TRUE; 
-			    break;
-			case ' ':
-				ItIsOk= FALSE;
-				ErrorMessageVarParser="No spaces allowed.";
-				break;
-			case '=':case '<':case '>':case '*':case '/':case '|':case ',':
-			case '!':case '&':case '+':case '-':case ')':case '^':
-				if (BeenHere==TRUE) // been here before then save the math symbols
-					{ 
-						//printf("added %c to NewExpr\n",*tmpptr);
-						sprintf (Temp,"%c",*tmpptr);
-					  strcat(NewExpr,Temp);
-					  tmpptr ++;
-					}
-				else { 
-					//printf("set been here true\n");
-					   HaveAUnit=TRUE;// otherwise we have a unit to check
-					   BeenHere=TRUE;
-					 }
-				break;
-			case '(': // is this the beginning bracket of absolute, minimum, maximum or average(MOY) funtion? 
-					 if (strcmp(Buffer,"ABS")==0 || strcmp(Buffer,"MINI")|| strcmp(Buffer,"MAXI")||strcmp(Buffer,"MOY"))  
-					 	{	sprintf(Temp,"%c",*tmpptr);// add ( to our buffer 
-					 		strcat(Buffer,Temp);
-							strcat(NewExpr,Buffer); // add Buffer to NewExp
-							strcpy(Buffer,""); //clear buffer
-							tmpptr ++;   // next character
-						}
-					else
-					{
-						// printf("added %c to NewExpr NewExpr %s\n",*tmpptr,NewExpr); 
-					  sprintf (Temp,"%c",*tmpptr); // add it to NewExpr
-					  strcat(NewExpr,Temp);
-					  tmpptr ++;
-					}	
-				break;
-					 default:
-					 //printf("added %c to Buffer\n",*tmpptr);
-					 sprintf(Temp,"%c",*tmpptr);// add it to our buffer to make a unit
-					 strcat(Buffer,Temp);
-					 tmpptr ++;
-					 BeenHere=FALSE;
-				break;
-				 }
-					 
-		
-			 }	 
-			while (HaveAUnit == FALSE && ItIsOk == TRUE);			 
+	/* Convert expression for variables authorized */
+	do
+	{
+		char SimpleCharCopy = FALSE;
 
-		if (ItIsOk == TRUE) // we have a unit and no error
+		char SymbolBuff[ LGT_SYMBOL_STRING+10 ];
+		char SymbolFound = FALSE;
+		int SymbolLength = 1;
+
+//printf("current ptr = '%c'\n", *ptr );
+
+		// verify if it seems to be a symbol name...
+		if ( ( *ptr>='A' && *ptr<='Z' ) || ( *ptr>='a' && * ptr<='z' ) )
 		{
-			//printf("Have a unit! %s\n",Buffer);
-			if (*bufptr !='%') // if not a variable
-				{
-					char * VarName=ConvSymbolToVarName(bufptr);// check for symbols
-					
-					if (VarName!=NULL)
-						{ 
-							//printf("converted symbol to variable %s,%s\n",Buffer,VarName);
-						  strcpy(Buffer,""); // empty buffer of symbols
-						  strcpy(Buffer,VarName); // copy the variable in
-						}
-				}
-			if (*bufptr !='%') // still not a variable?
-			 	{	
-					//printf("checking for a number\n");
-					switch (*bufptr) // does it have to do with numbers dec or hex?
-					{
-								case '0':case '1':case '2':case '3':
-								case '4':case '5':case '6':case '7':
-								case '8':case '9':case '-':case '+':
-								case '(':case ')':case '$':case '\0': //or at the end
-								//printf("found number\n");	
-								break;
+			char * End = ptr;
+			char CharIn = FALSE;
+			// possible end here ?
+			do
+			{
+				CharIn = FALSE;
+				End++;
+				if ( *End==VAR_ATTRIBUTE_SEP || ( *End>='A' && *End<='Z' ) || ( *End>='a' && *End<='z' ) || ( *End>='0' && *End<='9' ) )
+					CharIn = TRUE;
+				if ( CharIn )
+					SymbolLength++;
+//printf("--> %c / lgt=%d / In=%d\n", *End, SymbolLength, CharIn );
+			}
+			while ( (*End!='\0' ) && CharIn );
+			strncpy( SymbolBuff, ptr, SymbolLength );
+			SymbolBuff[ SymbolLength ] = '\0'; 
+//printf("symbol search on this string : %s - lgt=%d (text=%s)\n", SymbolBuff, SymbolLength, ptr );
+			if ( ConvSymbolToVarName( SymbolBuff )!=NULL )
+				SymbolFound = TRUE;
+		}
 
-								default:
-								//printf("'%c' is not a number!\n",*bufptr);  		
-								ItIsOk=FALSE;
-										ErrorMessageVarParser="Not a symbol or dec/Hex number";
-			                    	break;	
-					}
-				}								
-			if (*bufptr =='%' && *(bufptr+2) >='0' && *(bufptr+2)<='9') //now a variable?
-			{   
-				//printf("It's a variable!\n");
-				switch (*(bufptr+1)) // is it the right variable?
+		/* Verify if it is a variable (character and number) (or a symbol already found) */
+//		if ( SymbolFound==TRUE || ( *ptr=='%' && ( ( *(ptr+2)>='0' && *(ptr+2)<='9' ) || ( *(ptr+3)>='0' && *(ptr+3)<='9' ) ) ) )
+		// Call variable parser if symbol found -or- '%' character
+		if ( SymbolFound==TRUE || *ptr=='%' )
+		{
+//printf("calling parser var...\n");
+			if (TextParserForAVar( SymbolFound==TRUE?SymbolBuff:ptr,&VarType,&VarOffset,&StringLength,FALSE/*PartialNames*/))
+			{
+//printf( "parser var give => %d/%d length=%d\n", VarType, VarOffset, StringLength );
+				if ( VarIndexedIsFound==FALSE )
+					strcat( NewExpr, "@" );
+				sprintf(Buffer,"%d/%d",VarType,VarOffset);
+				strcat(NewExpr,Buffer);
+				ptr = ptr + (SymbolFound==TRUE?SymbolLength:StringLength);
+				if ( *ptr!='[' && VarIndexedIsFound==FALSE )
+					strcat( NewExpr, "@" );
+
+				if ( TEST_VAR_IS_A_BOOL( VarType,VarOffset ) )
+
 				{
-						case 'W':case 'T':case 'M':case 'C':case 'X':
-							if (TextParserForAVar(bufptr,&VarType,&VarOffset,&StringLength,FALSE/*PartialNames allowed*/))
-					{
-						strcpy(Buffer,"");
-						sprintf(Buffer,"@%d/%d@",VarType,VarOffset);
-						strcat(NewExpr,Buffer);
-						strcpy(Buffer,"");
-						HaveAUnit=FALSE;
-						//printf("new expresion=%s\nbuffer=%s\n",NewExpr,Buffer);
-						if ( VarType<VAR_ARE_WORD )
-						{
-							//printf("variable atribute error 1");
-							ItIsOk = FALSE;
-							ErrorMessageVarParser = "Incompatible type of variable (must be an integer!)";
-						}
-					}
-					else
-					{   
-						//printf("variable atribute error 2");
-						ItIsOk = FALSE;
-					}
-					
-					break;
-				
-				default:
-						ItIsOk=FALSE;
-						ErrorMessageVarParser = "can only use W,T,M,C,X variable letters";
-					   break;
+					ItIsOk = FALSE;
+					ErrorMessageVarParser = "Incompatible type of variable (must be an integer!)";
 				}
 			}
-		else
-		    {if (*tmpptr=='%')
-				{   ItIsOk=FALSE;
-					ErrorMessageVarParser = "Syntaxt error in variable";
-				}
-				else 
-				{
-				 if (ItIsOk== TRUE)
-				 	{ 	
-						//printf("Adding %s to NewExpr_%s\n",Buffer,NewExpr);
-						strcat(NewExpr,Buffer);
-				  		strcpy(Buffer,"");					
-						HaveAUnit=FALSE;
-					}
-				}
+			else
+			{
+//printf("parser var give FALSE!\n");
+				SimpleCharCopy = TRUE;
+//				break;
 			}
 		}
+		else
+		{
+			SimpleCharCopy = TRUE;
+		}
+
+		if ( SimpleCharCopy )
+		{
+//printf("copy:'%c'.\n", *ptr);
+			sprintf(Buffer,"%c",*ptr);
+			strcat(NewExpr, Buffer);
+			// end of variable mark to add now after an indexed one !
+			if ( *ptr==']' )
+			{
+				strcat( NewExpr, "@" );
+				VarIndexedIsFound = FALSE;
+			}
+			if ( *ptr=='[' )
+				VarIndexedIsFound = TRUE;
+			ptr++;
+		}
 	}
-	while (ItIsOk != FALSE && *tmpptr!='\0');// not at end and no error? 
-		
-			
-	
+	while( (*ptr) && ItIsOk );
+
+	/* Verify length of the expression */
+	if (ItIsOk)
+	{
+		if (strlen(NewExpr)>=ARITHM_EXPR_SIZE-1)
+		{
+			NewExpr[ ARITHM_EXPR_SIZE-1 ] = '\0';
+			printf("New expr=%s\n", NewExpr );
+			ItIsOk = FALSE;
+			ErrorMessageVarParser = "Expression too long";
+		}
+	}
 //printf("Parser Arithm ; ItIsOk=%d ; OriExpr=%s ; NewExpr=%s\n",ItIsOk, text, NewExpr);
-	
 	/* Verify expression converted */
 	if (ItIsOk)
 	{
@@ -642,11 +407,8 @@ char * TextParserForArithmExpr(char * text, int TypeElement)
 	}
 	/* Give result */
 	if (ItIsOk)
-	{	
-		//printf("returned %s\n",NewExpr);	//for debugging
 		return NewExpr;
-	}
-		else
+	else
 		return NULL;
 }
 
@@ -655,9 +417,12 @@ void SaveElementProperties()
 	int IdBase;
 	int Preset;
 	int NumRungToJump;
-	StrTimer * Timer;
-	StrMonostable * Monostable;
-	StrCounter * Counter;
+#ifdef OLD_TIMERS_MONOS_SUPPORT
+	StrTimer * Timer = NULL;
+	StrMonostable * Monostable = NULL;
+#endif
+	StrCounter * Counter = NULL;
+	StrTimerIEC * TimerIEC = NULL;
 	char * NewArithmExpr;
 	int SubRoutineToCall;
 	int VarTypeEntered,VarNumEntered;
@@ -685,7 +450,8 @@ void SaveElementProperties()
 			case ELE_OUTPUT_RESET:
 				if ( TextParserForAVar(GetProperty(0),&VarTypeEntered,&VarNumEntered,NULL,FALSE/*PartialNames*/) )
 				{
-					if ( VarTypeEntered>=VAR_ARE_WORD )
+					if ( !TEST_VAR_IS_A_BOOL( VarTypeEntered,VarNumEntered ) )
+
 					{
 						ShowMessageBox("Error","You must select a boolean variable !","Ok");
 					}
@@ -703,6 +469,7 @@ void SaveElementProperties()
 						ShowMessageBox( "Error", "Unknown variable...", "Ok" );
 				}
 				break;
+#ifdef OLD_TIMERS_MONOS_SUPPORT
 			case ELE_TIMER:
 				TextToNumber(GetProperty(0),0,NBR_TIMERS-1,&EditDatas.ElementUnderEdit->VarNum);
 				Timer = &TimerArray[EditDatas.ElementUnderEdit->VarNum];
@@ -721,11 +488,22 @@ void SaveElementProperties()
 				if (TextToNumber(GetProperty(2),0,999,&Preset))
 					Monostable->Preset = Preset * Monostable->Base;
 				break;
+#endif
 			case ELE_COUNTER:
 				TextToNumber(GetProperty(0),0,NBR_COUNTERS-1,&EditDatas.ElementUnderEdit->VarNum);
 				Counter = &CounterArray[EditDatas.ElementUnderEdit->VarNum];
 				if (TextToNumber(GetProperty(1),0,9999,&Preset))
 					Counter->Preset = Preset;
+				break;
+			case ELE_TIMER_IEC:
+				TextToNumber(GetProperty(0),0,NBR_TIMERS_IEC-1,&EditDatas.ElementUnderEdit->VarNum);
+				TimerIEC = &NewTimerArray[EditDatas.ElementUnderEdit->VarNum];
+				IdBase = ConvBaseInTextToId(GetProperty(1));
+				TimerIEC->Base = CorresDatasForBase[IdBase].ValueInMS;
+				strcpy(TimerIEC->DisplayFormat,CorresDatasForBase[IdBase].DisplayFormat);
+				if (TextToNumber(GetProperty(2),0,999,&Preset))
+					TimerIEC->Preset = Preset;
+				TimerIEC->TimerMode = ConvTimerModeInTextToId( GetProperty(3) );
 				break;
 			case ELE_OUTPUT_JUMP:
 				NumRungToJump = ConvLabelToNumRung(GetProperty(0));
@@ -743,11 +521,15 @@ void SaveElementProperties()
 				NewArithmExpr = TextParserForArithmExpr(GetProperty(0), ELE_COMPAR);
 				if (NewArithmExpr)
 					strcpy(EditArithmExpr[EditDatas.ElementUnderEdit->VarNum].Expr,NewArithmExpr);
+				else
+					strcpy(EditArithmExpr[EditDatas.ElementUnderEdit->VarNum].Expr,"#"); //used but invalid!
 				break;
 			case ELE_OUTPUT_OPERATE:
 				NewArithmExpr = TextParserForArithmExpr(GetProperty(0), ELE_OUTPUT_OPERATE);
 				if (NewArithmExpr)
 					strcpy(EditArithmExpr[EditDatas.ElementUnderEdit->VarNum].Expr,NewArithmExpr);
+				else
+					strcpy(EditArithmExpr[EditDatas.ElementUnderEdit->VarNum].Expr,"#"); //used but invalid!
 				break;
 		}
 		/* display back to show what we have really understand... */
@@ -794,11 +576,118 @@ void CheckForAllocatingArithmExpr(int PosiX,int PosiY)
 				Found = TRUE;
 				/* Allocate this expr for the operate/compar block ! */
 				EditDatas.Rung.Element[PosiX][PosiY].VarNum = NumExpr;
+				strcpy(EditArithmExpr[NumExpr].Expr,"#"); //used but invalid!
 			}
 			NumExpr++;
 		}
 		while( (NumExpr<NBR_ARITHM_EXPR) && (!Found) );
 	}
+}
+
+void SetUsedStateFunctionBlock( int Type, int Num, char Val )
+{
+	switch( Type )
+	{
+#ifdef OLD_TIMERS_MONOS_SUPPORT
+		case ELE_TIMER:
+			NumTimersUsedInRung[Num] = Val;
+			break;
+		case ELE_MONOSTABLE:
+			NumMonostablesUsedInRung[Num] = Val;
+			break;
+#endif
+		case ELE_COUNTER:
+			NumCountersUsedInRung[Num] = Val;
+			break;
+		case ELE_TIMER_IEC:
+			NumNewTimersUsedInRung[Num] = Val;
+			break;
+	}
+}
+// update the lists with the functions blocks number already used in the rungs defined
+void CopyUsedFonctionBlockBeforeEdit( )
+{
+	int ScanBlock;
+	int ScanRung;
+#ifdef OLD_TIMERS_MONOS_SUPPORT
+	for( ScanBlock=0; ScanBlock<NBR_TIMERS; ScanBlock++ )
+		NumTimersUsedInRung[ ScanBlock ] = FALSE;
+	for( ScanBlock=0; ScanBlock<NBR_MONOSTABLES; ScanBlock++ )
+		NumMonostablesUsedInRung[ ScanBlock ] = FALSE;
+#endif
+	for( ScanBlock=0; ScanBlock<NBR_COUNTERS; ScanBlock++ )
+		NumCountersUsedInRung[ ScanBlock ] = FALSE;
+	for( ScanBlock=0; ScanBlock<NBR_TIMERS_IEC; ScanBlock++ )
+		NumNewTimersUsedInRung[ ScanBlock ] = FALSE;
+	// now search in the rungs defined
+	for (ScanRung=0;ScanRung<NBR_RUNGS;ScanRung++)
+	{
+		int x,y;
+		if ( RungArray[ScanRung].Used )
+		{
+			for (y=0;y<RUNG_HEIGHT;y++)
+			{
+				for(x=0;x<RUNG_WIDTH;x++)
+				{
+					if ( RungArray[ScanRung].Element[x][y].Type!=ELE_FREE )
+						SetUsedStateFunctionBlock( RungArray[ScanRung].Element[x][y].Type, RungArray[ScanRung].Element[x][y].VarNum, TRUE );
+				}
+			}
+		}
+	}
+}
+// if return -1: for a function block: no more available...
+int GetFreeNumberFunctionBlock( int Type )
+{
+	int Result = -1;
+	int ScanArray = 0;
+	char IsFunctionBlock = FALSE;
+	switch( Type )
+	{
+#ifdef OLD_TIMERS_MONOS_SUPPORT
+		case ELE_TIMER:
+			IsFunctionBlock = TRUE;
+			do
+			{
+				if ( NumTimersUsedInRung[ScanArray]==FALSE )
+					Result = ScanArray;
+				ScanArray++;
+			}
+			while( ScanArray<NBR_TIMERS && Result==-1 );
+			break;
+		case ELE_MONOSTABLE:
+			IsFunctionBlock = TRUE;
+			do
+			{
+				if ( NumMonostablesUsedInRung[ScanArray]==FALSE )
+					Result = ScanArray;
+				ScanArray++;
+			}
+			while( ScanArray<NBR_MONOSTABLES && Result==-1 );
+			break;
+#endif
+		case ELE_COUNTER:
+			IsFunctionBlock = TRUE;
+			do
+			{
+				if ( NumCountersUsedInRung[ScanArray]==FALSE )
+					Result = ScanArray;
+				ScanArray++;
+			}
+			while( ScanArray<NBR_COUNTERS && Result==-1 );
+			break;
+		case ELE_TIMER_IEC:
+			IsFunctionBlock = TRUE;
+			do
+			{
+				if ( NumNewTimersUsedInRung[ScanArray]==FALSE )
+					Result = ScanArray;
+				ScanArray++;
+			}
+			while( ScanArray<NBR_TIMERS_IEC && Result==-1 );
+			break;
+	}
+	return (IsFunctionBlock)?Result:0;
 }
 
 void InitBufferRungEdited( StrRung * pRung )
@@ -859,6 +748,7 @@ void AddRung()
 		autorize_prevnext_buttons(FALSE);
 		clear_label_comment();
 		CopyCurrentArithmExpr();
+		CopyUsedFonctionBlockBeforeEdit( );
 	}
 }
 
@@ -878,6 +768,7 @@ void ModifyCurrentRung()
 	EditDatas.ElementUnderEdit = NULL;
 	autorize_prevnext_buttons(FALSE);
 	CopyCurrentArithmExpr();
+	CopyUsedFonctionBlockBeforeEdit( );
 }
 
 void DeleteCurrentRung()
@@ -1020,14 +911,16 @@ void ApplyRungEdited()
 	InfosGene->AskConfirmationToQuit = TRUE;
 }
 
+
+
 /* When we fall on an "unusable" element of a big one,
 we return new posix and posiy of the "alive" block */
-void CheckForBlocksOfBigElement(int * PosiX,int * PosiY)
+void CheckForBlocksOfBigElement(StrRung *pRungToCheck, int * PosiX,int * PosiY )
 {
 	int ScanX,ScanY;
 	int ScanForRule;
 	/* on an "unusable" ? */
-	if (EditDatas.Rung.Element[*PosiX][*PosiY].Type==ELE_UNUSABLE)
+	if (pRungToCheck->Element[*PosiX][*PosiY].Type==ELE_UNUSABLE)
 	{
 		/* we now will have to check for all the "alive" block of
 		bigs elements */
@@ -1039,7 +932,7 @@ void CheckForBlocksOfBigElement(int * PosiX,int * PosiY)
 				do
 				{
 					/* Is is an element with a rule ? */
-					if (EditDatas.Rung.Element[ScanX][ScanY].Type == RulesForSpecialElements[ScanForRule][TYPEELERULE])
+					if (pRungToCheck->Element[ScanX][ScanY].Type == RulesForSpecialElements[ScanForRule][TYPEELERULE])
 					{
 						/* Have we clicked in it ? */
 						if ( (*PosiX>=ScanX-RulesForSpecialElements[ScanForRule][XSIZEELERULE]-1)
@@ -1124,6 +1017,9 @@ void CleanForBigElement(short int NumEle,int PosiX,int PosiY,short int FillWithT
 				for (PassY = PosiY ; PassY<=PosiY + RulesForSpecialElements[RulePass][YSIZEELERULE] -1 ; PassY++)
 				{
 					CheckForFreeingArithmExpr(PassX,PassY);
+
+					SetUsedStateFunctionBlock( EditDatas.Rung.Element[PassX][PassY].Type, EditDatas.Rung.Element[PassX][PassY].VarNum, FALSE );
+
 					EditDatas.Rung.Element[PassX][PassY].Type = FillWithThis;
 					EditDatas.Rung.Element[PassX][PassY].ConnectedWithTop = 0;
 					EditDatas.Rung.Element[PassX][PassY].DynamicOutput = 0;
@@ -1154,6 +1050,36 @@ void CheckBigElementTopLeft(short int NumEle,int * PosiX)
 	while(RulesForSpecialElements[RulePass][0]!=-1);
 }
 
+void GetSizesOfAnElement(short int NumEle,int * pSizeX, int * pSizeY)
+{
+	int RulePass;
+	// default size of an element	
+	*pSizeX = 1;
+	*pSizeY = 1;
+	RulePass = 0;
+	do
+	{
+		if (RulesForSpecialElements[RulePass][TYPEELERULE] == NumEle )
+		{
+			*pSizeX = RulesForSpecialElements[RulePass][XSIZEELERULE];
+			*pSizeY = RulesForSpecialElements[RulePass][YSIZEELERULE];
+		}
+		RulePass++;
+	}
+	while( RulesForSpecialElements[RulePass][0]!=-1 && *pSizeX==1 && *pSizeY==1 );
+	if ( NumEle==ELE_FREE || NumEle==ELE_CONNECTION || NumEle==ELE_UNUSABLE )
+	{
+		*pSizeX = 0;
+		*pSizeY = 0;
+	}
+	if ( NumEle>=EDIT_CNX_WITH_TOP )
+	{
+		printf("!!!Abnormal current type=%d in rung...(file %s,line %d)\n", NumEle, __FILE__, __LINE__ );
+		*pSizeX = 0;
+		*pSizeY = 0;
+	}
+}
+
 /* return TRUE if contact or coil element */
 int IsASimpleElement(int Element)
 {
@@ -1168,20 +1094,30 @@ int IsASimpleElement(int Element)
 }
 
 
+char ConvertDoublesToRungCoor( double coorx, double coory, int * pRungX, int * pRungY )
+{
+	char cOk = FALSE;
+	/* correspond to which block ? */
+	*pRungX = coorx/InfosGene->BlockWidth;
+	*pRungY = coory/InfosGene->BlockHeight;
+	if ( (*pRungX<RUNG_WIDTH) && (*pRungY<RUNG_HEIGHT) )
+	{
+		cOk = TRUE;
+	}
+	return cOk;
+}
+
 /* click with the mouse in x and y pixels of the rung */
 void EditElementInRung(double x,double y)
 {
 	int RungX,RungY;
 	short int NumElement;
-	/* correspond to which block ? */
-	RungX = x/InfosGene->BlockWidth;
-	RungY = y/InfosGene->BlockHeight;
-	if ( (RungX<RUNG_WIDTH) && (RungY<RUNG_HEIGHT)
+	if ( ConvertDoublesToRungCoor( x, y, &RungX, &RungY )
 		&& (EditDatas.NumElementSelectedInToolBar!=-1) )
 	{
 		/* check for "unusable" blocks */
 		if (EditDatas.NumElementSelectedInToolBar==EDIT_POINTER || EditDatas.NumElementSelectedInToolBar==EDIT_ERASER )
-			CheckForBlocksOfBigElement(&RungX,&RungY);
+			CheckForBlocksOfBigElement( &EditDatas.Rung, &RungX,&RungY );
 		if (EditDatas.NumElementSelectedInToolBar!=EDIT_CNX_WITH_TOP
 				&& EditDatas.NumElementSelectedInToolBar!=EDIT_POINTER
 				&& EditDatas.NumElementSelectedInToolBar!=EDIT_LONG_CONNECTION )
@@ -1200,7 +1136,8 @@ void EditElementInRung(double x,double y)
 				/* the blocks other than the "alive" are now free... */
 				CleanForBigElement(EditDatas.Rung.Element[RungX][RungY].Type,RungX,RungY,ELE_FREE);
 				EditDatas.Rung.Element[RungX][RungY].DynamicOutput = 0;
-				EditDatas.Rung.Element[RungX][RungY].Type = NumElement;
+//v0.7.124				EditDatas.Rung.Element[RungX][RungY].Type = NumElement;
+				EditDatas.Rung.Element[RungX][RungY].Type = ELE_FREE;
 			}
 			else
 			{
@@ -1215,6 +1152,18 @@ void EditElementInRung(double x,double y)
 					if ( !(IsASimpleElement(NumElement) && IsASimpleElement(EditDatas.Rung.Element[RungX][RungY].Type)) )
 					{
 						EditDatas.Rung.Element[RungX][RungY].VarNum = 0;
+					}
+					// function block element, set directly a free number one...
+					if ( !(IsASimpleElement(NumElement) ) )
+					{
+						EditDatas.Rung.Element[RungX][RungY].VarNum = GetFreeNumberFunctionBlock( NumElement );
+						//TODO: better error handling here (not creating element after...)
+						if ( EditDatas.Rung.Element[RungX][RungY].VarNum==-1 )
+						{
+							ShowMessageBox( "Error", "No more free function block available...please delete!", "Ok" );
+							EditDatas.Rung.Element[RungX][RungY].VarNum = 0;
+						}
+						SetUsedStateFunctionBlock( NumElement, EditDatas.Rung.Element[RungX][RungY].VarNum, TRUE );
 					}
 					EditDatas.Rung.Element[RungX][RungY].Type = NumElement;
 					CheckForAllocatingArithmExpr(RungX,RungY);
@@ -1241,8 +1190,13 @@ void EditElementInRung(double x,double y)
 				EditDatas.Rung.Element[ScanX++][RungY].Type = ELE_CONNECTION;
 			}
 		}
+//printf("current type = %d\n",EditDatas.Rung.Element[RungX][RungY].Type);
 		LoadElementProperties(&EditDatas.Rung.Element[RungX][RungY]);
 		EditDatas.ElementUnderEdit = &EditDatas.Rung.Element[RungX][RungY];
+		// infos used to display the "selected element" box
+		EditDatas.CurrentElementPosiX = RungX;
+		EditDatas.CurrentElementPosiY = RungY;
+		GetSizesOfAnElement( EditDatas.Rung.Element[RungX][RungY].Type, &EditDatas.CurrentElementSizeX, &EditDatas.CurrentElementSizeY);
 	}
 }
 
@@ -1260,3 +1214,20 @@ void EditElementInThePage(double x,double y)
 		EditElementInSeqPage( x+InfosGene->HScrollValue, y+InfosGene->VScrollValue );
 #endif
 }
+
+char * GetLadderElePropertiesForStatusBar(double x,double y)
+{
+	if ( ( y >= InfosGene->OffsetCurrentRungDisplayed ) && ( y < InfosGene->OffsetCurrentRungDisplayed+InfosGene->BlockHeight*RUNG_HEIGHT ) )
+	{
+		int RungX,RungY;
+		if ( ConvertDoublesToRungCoor( x, y - InfosGene->OffsetCurrentRungDisplayed, &RungX, &RungY ) )
+		{
+			StrElement * Element;
+			CheckForBlocksOfBigElement( &RungArray[InfosGene->CurrentRung], &RungX,&RungY );
+			Element = &RungArray[InfosGene->CurrentRung].Element[RungX][RungY];
+			return GetElementPropertiesForStatusBar( Element );
+		}
+	}
+	return "";
+}
+

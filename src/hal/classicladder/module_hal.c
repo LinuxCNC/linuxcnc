@@ -41,7 +41,7 @@ MODULE_DESCRIPTION("ClassicLadder HAL module");
 int comedi_to_open_mask;
 #ifdef DYNAMIC_PLCSIZE
 int numRungs=NBR_RUNGS_DEF, numBits=NBR_BITS_DEF,numWords=NBR_WORDS_DEF, numTimers=NBR_TIMERS_DEF, numMonostables=NBR_MONOSTABLES_DEF;
-int numCounters=NBR_COUNTERS_DEF,numPhysInputs=NBR_PHYS_INPUTS_DEF, numPhysOutputs=NBR_PHYS_OUTPUTS_DEF, numArithmExpr=NBR_ARITHM_EXPR_DEF, numSections=NBR_SECTIONS_DEF;
+int numCounters=NBR_COUNTERS_DEF,numTimersIec=NBR_TIMERS_IEC_DEF,numPhysInputs=NBR_PHYS_INPUTS_DEF, numPhysOutputs=NBR_PHYS_OUTPUTS_DEF, numArithmExpr=NBR_ARITHM_EXPR_DEF, numSections=NBR_SECTIONS_DEF;
 int numSymbols=NBR_SYMBOLS_DEF,numS32in=NBR_S32IN_DEF,numS32out=NBR_S32OUT_DEF;
 RTAPI_MP_INT(numRungs, "i");
 RTAPI_MP_INT(numBits, "i");
@@ -49,6 +49,7 @@ RTAPI_MP_INT(numWords, "i");
 RTAPI_MP_INT(numTimers, "i");
 RTAPI_MP_INT(numMonostables, "i");
 RTAPI_MP_INT(numCounters, "i");
+RTAPI_MP_INT(numTimersIec, "i");
 RTAPI_MP_INT(numPhysInputs, "i");
 RTAPI_MP_INT(numPhysOutputs, "i");
 RTAPI_MP_INT(numArithmExpr, "i");
@@ -68,57 +69,82 @@ hal_s32_t **hal_s32_inputs;
 hal_s32_t **hal_s32_outputs;
 hal_s32_t *hal_state;
 
-extern plc_sizeinfo_s sinfo;
+
+extern StrGeneralParams GeneralParamsMirror; 
 
 #define TIME_REFRESH_RUNG_NS (1000 * 1000 * (TIME_REFRESH_RUNG_MS))
 
 void HalReadPhysicalInputs(void) {
 	int i;
-	for( i=0; i<InfosGene->SizesInfos.nbr_phys_inputs; i++) {
+	for( i=0; i<InfosGene->GeneralParams.SizesInfos.nbr_phys_inputs; i++) {
 		WriteVar(VAR_PHYS_INPUT, i, *hal_inputs[i]);
-	}
-}
-
-void HalReads32Inputs(void) {
-	int i;
-	for( i=0; i<InfosGene->SizesInfos.nbr_s32in; i++) {
-		WriteVar(VAR_MEM_WORD, i, *hal_s32_inputs[i]);
 	}
 }
 
 void HalWritePhysicalOutputs(void) {
 	int i;
-	for( i=0; i<InfosGene->SizesInfos.nbr_phys_outputs; i++) {
+	for( i=0; i<InfosGene->GeneralParams.SizesInfos.nbr_phys_outputs; i++) {
 		*(hal_outputs[i]) = ReadVar(VAR_PHYS_OUTPUT, i);
+	}
+}
+
+// S32 in and out pins piggy back on top of the regular word variable's array
+// so all the s32_in pins are mapped first, then all the s32_out pins, then the rest are regular word memory
+
+void HalReads32Inputs(void) {
+	int i;
+	for( i=0; i<InfosGene->GeneralParams.SizesInfos.nbr_s32in; i++) {
+		WriteVar(VAR_MEM_WORD, i, *hal_s32_inputs[i]);
 	}
 }	
 void HalWrites32Outputs(void) {
 	int i;
-	for( i=0; i<InfosGene->SizesInfos.nbr_s32out; i++) {
-		*(hal_s32_outputs[i]) = ReadVar(VAR_MEM_WORD, i+InfosGene->SizesInfos.nbr_s32in);
+	for( i=0; i<InfosGene->GeneralParams.SizesInfos.nbr_s32out; i++) {
+		*(hal_s32_outputs[i]) = ReadVar(VAR_MEM_WORD, i+InfosGene->GeneralParams.SizesInfos.nbr_s32in);
 	}
 }
-static void hal_task(void *arg, long period) {
-	unsigned long t0, t1;
-	
+// This actually does the magic of periodic refresh of pins and
+// calculations. This function runs at the period rate of the thread
+// that you added it to.
+// period, leftover, t0,and t1 are in nanoseconds. 
+// This function first checks to see if at least 1 micosecond has gone by
+// if the period is under 1 MS then if will not refresh rungs yet but 
+// will keep track of how many NS were left over. Does this each period
+// till at least 1 MS has occured, if more then 1 MS then keeps track of
+// leftover NS for accuracy. Bottom line is you can run classiclader in
+// a thread faster than 1 microsecond but it will not refresh the rungs
+// any faster (it can be slower though).
+// t0 and t1 are for keeping track of how long the refresh of sections, 
+// and HAL pins take (it is displayed in the 'section display' GUI). 
+
+static void hal_task(void *arg, long period) 
+{
+	unsigned long t0, t1,microseconds;
+ 	static unsigned long leftover=0;
+         leftover += period;
+	 microseconds= leftover / 1000000;
+	leftover %= 1000000;
+
+	if (microseconds >= 1) {
+	InfosGene->GeneralParams.PeriodicRefreshMilliSecs=microseconds;
 	*hal_state = InfosGene->LadderState;
 	t0 = rtapi_get_time();
-	if (InfosGene->LadderState==STATE_RUN)
-	{
-			HalReadPhysicalInputs();
+		if (InfosGene->LadderState==STATE_RUN)
+			{
+				HalReadPhysicalInputs();
 
-			HalReads32Inputs();
+				HalReads32Inputs();
+		
+				ClassicLadder_RefreshAllSections();
+		
+				HalWritePhysicalOutputs();
 
-			RefreshAllRungs(period);
-
-			HalWritePhysicalOutputs();
-
-			HalWrites32Outputs();
-		}
-                t1 = rtapi_get_time();
-                InfosGene->DurationOfLastScan = t1 - t0;
-	}
-
+				HalWrites32Outputs();
+			}
+     	 t1 = rtapi_get_time();
+         InfosGene->DurationOfLastScan = t1 - t0;
+				}
+}
 
 extern void CopySizesInfosFromModuleParams( void );
 
@@ -129,7 +155,7 @@ int rtapi_app_main(void) {
 	compId = hal_init("classicladder_rt");
 	if(compId < 0) return compId;
 
-	rtapi_print_msg(RTAPI_MSG_INFO, "creating ladder-state\n");
+	rtapi_print("creating ladder-state\n");
 
 	result = hal_export_funct("classicladder.0.refresh",hal_task,0,1, 0, compId);
 	if(result < 0) {
@@ -178,42 +204,49 @@ error:
 	}
 	hal_ready(compId);
 
-	ClassicLadderAllocAll( );
+	ClassicLadder_AllocAll( );
 	return 0;
 }
 
 void rtapi_app_exit(void) {
-	ClassicLadderFreeAll( );
+	ClassicLadder_FreeAll( FALSE);
 }
 
+// this function copies any requested (from the cmd line) changes to ladder element amounts to GeneralParamsMirror
+// so memory allotment and pin numbers can be varied. Note no error checking is done such as
+// seeing if the number of S32 in and out pins are greater then the number of words available.
 void CopySizesInfosFromModuleParams( void )
 {
 #ifdef DYNAMIC_PLCSIZE
 	if ( numRungs>0 )
-		sinfo.nbr_rungs = numRungs;
+		GeneralParamsMirror.SizesInfos.nbr_rungs = numRungs;
 	if ( numBits>0 )
-		sinfo.nbr_bits = numBits;
+		GeneralParamsMirror.SizesInfos.nbr_bits = numBits;
 	if ( numWords>0 )
-		sinfo.nbr_words = numWords;
+		GeneralParamsMirror.SizesInfos.nbr_words = numWords;
 	if ( numTimers>0 )
-		sinfo.nbr_timers = numTimers;
+		GeneralParamsMirror.SizesInfos.nbr_timers = numTimers;
 	if ( numMonostables>0 )
-		sinfo.nbr_monostables = numMonostables;
+		GeneralParamsMirror.SizesInfos.nbr_monostables = numMonostables;
 	if ( numCounters>0 )
-		sinfo.nbr_counters = numCounters;
+		GeneralParamsMirror.SizesInfos.nbr_counters = numCounters;
+	if ( numTimersIec>0 )
+		GeneralParamsMirror.SizesInfos.nbr_timers_iec = numTimersIec;
 	if ( numPhysInputs>0 )
-		sinfo.nbr_phys_inputs = numPhysInputs;
+		GeneralParamsMirror.SizesInfos.nbr_phys_inputs = numPhysInputs;
 	if ( numPhysOutputs>0 )
-		sinfo.nbr_phys_outputs = numPhysOutputs;
+		GeneralParamsMirror.SizesInfos.nbr_phys_outputs = numPhysOutputs;
 	if ( numArithmExpr>0 )
-		sinfo.nbr_arithm_expr = numArithmExpr;
+		GeneralParamsMirror.SizesInfos.nbr_arithm_expr = numArithmExpr;
 	if ( numSections>0 )
-		sinfo.nbr_sections = numSections;
+		GeneralParamsMirror.SizesInfos.nbr_sections = numSections;
 	if ( numSymbols>0 )
-		sinfo.nbr_symbols = numSymbols;   
-	if ( numS32in>0 )
-		sinfo.nbr_s32in = numS32in;
+		GeneralParamsMirror.SizesInfos.nbr_symbols = numSymbols;
+    	if ( numS32in>0 )
+		GeneralParamsMirror.SizesInfos.nbr_s32in = numS32in;
 	if ( numS32out>0 )
-		sinfo.nbr_s32out = numS32out;
+		GeneralParamsMirror.SizesInfos.nbr_s32out = numS32out;
+
+	
 	#endif
 }
