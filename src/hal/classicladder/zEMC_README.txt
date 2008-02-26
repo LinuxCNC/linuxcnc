@@ -5,7 +5,7 @@ arrays.c:
 --- changed extensively. Removed most allocation code besides what EMC needs for realtime and user programs. 
 --- added #ifndef RTAPI around INCLUDE of files.h which caused error in realtime (no directory access in realtime)
 --- this also means adding #ifndef RTAPI around 'CleanAndRemoveTmpDir' call in 'classicladder_free_all'
---- copy GeneralParams into GeneralParamsMirror (in user code only) so config window displays properly
+--- copy GeneralParams into GeneralParamsMirror (in user code only) so config window displays proper info
 
 Calc.c:
 --- removed and moved period calculation to module_hal.c
@@ -14,6 +14,7 @@ Calc.c:
 classicladder.c:
 --- changed extensively. Removed most of initialization code besides what was added for HAL.
 --- A config file can be loaded from the comand line for modbus info
+--- to use MODBUS, MUST load a config file so nomodbus variable is set to 0
 
 classicladder.h:
 --- small amount added. Add definitions for HAL s32 pins and For HAL support.
@@ -21,7 +22,9 @@ classicladder.h:
 
 classicladder gtk.c:
 --- removed define for hardware.h
---- changed gtk_exit(0) to gtk_main_quit in function QuitAppliGtk() so program returns to where we called gtk_main in classicladder.c
+--- changed gtk_exit(0) to gtk_main_quit in function QuitAppliGtk() so program returns to where we called gtk_main in 
+classicladder.c
+--- run/stop and reset buttons send messages to statusbar
 
 config.c :
 --- added printf so we know when a modbus config file is loading
@@ -54,9 +57,11 @@ Module_hal.c:
 
 spy_vars_gtk.c:
 --- changed to be able to toggle vars windows (one, the other, both , both close) by clicking the button.
+--- added messages to statusbar when window toggled
 
 symbols_gtk.c:
 --- changed to show HAL signals in comment slot
+--- added messages to statusbar when window toggled
 
 SUBMAKEFILE:
 --- completely different for EMC. This makefile is for the user program only. 
