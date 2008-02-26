@@ -217,7 +217,7 @@ int ClassicLadder_AllocAll()
 
 	memcpy( &InfosGene->GeneralParams, &GeneralParamsMirror, sizeof( StrGeneralParams ) );
 //UpdateSizesOfConvVarNameTable();
- 	rtapi_print("INFO----REALTIME INFO:\n");
+ 	rtapi_print("INFO----REALTIME allocations for classicladder:\n");
 #endif //end of realtime code
 
 #ifndef RTAPI// for user space
@@ -229,7 +229,7 @@ int ClassicLadder_AllocAll()
                 CL_SHMEM_KEY, compId, bytes);
         return FALSE;
     }
-    rtapi_print("Shared memory:key- %x component id-%d # of bytes-%lu\n",
+     rtapi_print_msg(RTAPI_MSG_INFO,"Shared memory:key- %x component id-%d # of bytes-%lu\n",
                 CL_SHMEM_KEY, compId, bytes);
     // Map SHMEM.
     if (rtapi_shmem_getptr(ShmemId, (void **) &shmBase) < 0) {
@@ -239,7 +239,7 @@ int ClassicLadder_AllocAll()
 
     // Check signature written by RT module to make sure we have the
     // right region and RT module is loaded.
-	rtapi_print("INFO----USER INFO:\n");
+	 rtapi_print_msg(RTAPI_MSG_INFO,"INFO----USERSPACE allocations for classicladder\n");
     if (shmBase[0] != CL_SHMEM_KEY) {
         rtapi_print("Shared memory conflict or RT component not loaded!\n");
         return FALSE;
@@ -263,7 +263,7 @@ int ClassicLadder_AllocAll()
 
 // the rest is for both realtime and userspace program
 
-    rtapi_print("Sizes: rungs- %d bits- %d words- %d timers- %d mono- %d count- %d IEC timers- %d\n HAL Bin- %d HAL Bout- %d expressions- %d sections- %d symbols - %d\n  s32in - %d s32out- %d\n",
+    rtapi_print_msg(RTAPI_MSG_INFO,"Sizes: rungs- %d bits- %d words- %d timers- %d mono- %d count- %d IEC timers- %d\n HAL Bin- %d HAL Bout- %d expressions- %d sections- %d symbols - %d\n  s32in - %d s32out- %d\n",
         pSizesInfos->nbr_rungs,
         pSizesInfos->nbr_bits,
         pSizesInfos->nbr_words,
