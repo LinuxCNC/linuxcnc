@@ -194,6 +194,10 @@ extern int DEBUG_MOTION;
 extern int EMCMOT_NO_FORWARD_KINEMATICS;
 extern KINEMATICS_FORWARD_FLAGS fflags;
 extern KINEMATICS_INVERSE_FLAGS iflags;
+/* these variables have the servo cycle time and 1/cycle time */
+extern double servo_period;
+extern double servo_freq;
+
 
 /* Struct pointers */
 extern struct emcmot_struct_t *emcmotStruct;
@@ -215,6 +219,10 @@ extern void emcmotController(void *arg, long period);
 /* these are related to synchronized I/O */
 extern void emcmotDioWrite(int index, char value);
 extern void emcmotAioWrite(int index, double value);
+
+/* homing is no longer in control.c, make functions public */
+extern void do_homing_sequence(void);
+extern void do_homing(void);
 
 /* loops through the active joints and checks if any are not homed */
 extern int checkAllHomed(void);
