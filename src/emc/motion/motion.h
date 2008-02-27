@@ -737,4 +737,4 @@ Suggestion: Split this in to an Error and a Status flag register..
 #ifdef __cplusplus
 }
 #endif
-#endif				/* EMCMOT_H */
+#endif	/* MOTION_H */
