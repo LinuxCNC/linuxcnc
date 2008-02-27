@@ -84,6 +84,7 @@ class PM_CARTESIAN;
 #define EMC_AXIS_ENABLE_TYPE                         ((NMLTYPE) 121)
 #define EMC_AXIS_DISABLE_TYPE                        ((NMLTYPE) 122)
 #define EMC_AXIS_HOME_TYPE                           ((NMLTYPE) 123)
+#define EMC_AXIS_UNHOME_TYPE                           ((NMLTYPE) 135)
 #define EMC_AXIS_JOG_TYPE                            ((NMLTYPE) 124)
 #define EMC_AXIS_INCR_JOG_TYPE                       ((NMLTYPE) 125)
 #define EMC_AXIS_ABS_JOG_TYPE                        ((NMLTYPE) 126)
@@ -399,7 +400,7 @@ extern int emcAxisSetMinFerror(int axis, double ferror);
 extern int emcAxisSetHomingParams(int axis, double home, double offset,
 				  double search_vel, double latch_vel,
 				  int use_index, int ignore_limits,
-				  int is_shared, int home_sequence);
+				  int is_shared, int home_sequence, int volatile_home);
 extern int emcAxisSetMaxVelocity(int axis, double vel);
 extern int emcAxisSetMaxAcceleration(int axis, double acc);
 
@@ -409,6 +410,7 @@ extern int emcAxisAbort(int axis);
 extern int emcAxisEnable(int axis);
 extern int emcAxisDisable(int axis);
 extern int emcAxisHome(int axis);
+extern int emcAxisUnhome(int axis);
 extern int emcAxisJog(int axis, double vel);
 extern int emcAxisIncrJog(int axis, double incr, double vel);
 extern int emcAxisAbsJog(int axis, double pos, double vel);

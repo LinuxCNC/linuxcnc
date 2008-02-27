@@ -320,6 +320,7 @@ void emcmotAioWrite(int index, double value)
 void emcmotCommandHandler(void *arg, long period)
 {
     int joint_num;
+    int n;
     emcmot_joint_t *joint;
     double tmp1;
     emcmot_comp_entry_t *comp_entry;
@@ -524,6 +525,7 @@ check_stuff ( "before command_handler()" );
 	    joint->home_latch_vel = emcmotCommand->latch_vel;
 	    joint->home_flags = emcmotCommand->flags;
 	    joint->home_sequence = emcmotCommand->home_sequence;
+	    joint->volatile_home = emcmotCommand->volatile_home;
 	    break;
 
 	case EMCMOT_OVERRIDE_LIMITS:
@@ -1204,6 +1206,64 @@ check_stuff ( "before command_handler()" );
 	    }
 #endif
 	    break;
+
+	case EMCMOT_UNHOME:
+            /* unhome the specified joint, or all joints if -1 */
+            rtapi_print_msg(RTAPI_MSG_DBG, "UNHOME");
+            rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
+            
+            if (emcmotStatus->motion_state != EMCMOT_MOTION_FREE) {
+                reportError("must be in joint mode to unhome");
+                return;
+            }
+            if (!GET_MOTION_ENABLE_FLAG()) {
+                break;
+            }
+
+            if (joint_num < 0) {
+                /* we want all or none, so these checks need to all be done first.
+                 * but, let's only report the first error.  There might be several,
+                 * for instance if a homing sequence is running. */
+                for (n = 0; n < num_joints; n++) {
+                    joint = &joints[n];
+                    if(GET_JOINT_ACTIVE_FLAG(joint)) {
+                        if (GET_JOINT_HOMING_FLAG(joint)) {
+                            reportError("Cannot unhome while homing, joint %d", n);
+                            return;
+                        }
+                        if (!GET_JOINT_INPOS_FLAG(joint)) {
+                            reportError("Cannot unhome while moving, joint %d", n);
+                            return;
+                        }
+                    }
+                }
+                /* we made it through the checks, so unhome them all */
+                for (n = 0; n < num_joints; n++) {
+                    joint = &joints[n];
+                    if(GET_JOINT_ACTIVE_FLAG(joint)) {
+                        /* if -2, only unhome the volatile_home joints */
+                        if(joint_num != -2 || joint->volatile_home) {
+                            SET_JOINT_HOMED_FLAG(joint, 0);
+                        }
+                    }
+                }
+            } else {
+                /* request was for only one joint */
+                if(GET_JOINT_ACTIVE_FLAG(joint)) {
+                    if (GET_JOINT_HOMING_FLAG(joint)) {
+                        reportError("Cannot unhome while homing, joint %d", joint_num);
+                        return;
+                    }
+                    if (!GET_JOINT_INPOS_FLAG(joint)) {
+                        reportError("Cannot unhome while moving, joint %d", joint_num);
+                        return;
+                    }
+                    SET_JOINT_HOMED_FLAG(joint, 0);
+                } else {
+                    reportError("Cannot unhome inactive joint %d", joint_num);
+                }
+            }
+            break;
 
 	case EMCMOT_DISABLE_WATCHDOG:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "DISABLE_WATCHDOG");

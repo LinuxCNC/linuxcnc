@@ -1876,7 +1876,8 @@ widgets = nf.Widgets(root_window,
     ("menu_touchoff", Menu, ".menu.machine.touchoff"),
 
     ("homebutton", Button, tabs_manual + ".jogf.zerohome.home"),
-    ("homemenu", Menu, ".menu.machine.home")
+    ("homemenu", Menu, ".menu.machine.home"),
+    ("unhomemenu", Menu, ".menu.machine.unhome")
 )
 
 def activate_axis(i, force=0):
@@ -2766,14 +2767,28 @@ class TclCommands(nf.TclCommands):
         ensure_mode(emc.MODE_MANUAL)
         c.home(-1)
 
+    def unhome_all_axes(event=None):
+        if not manual_ok(): return
+        ensure_mode(emc.MODE_MANUAL)
+        c.unhome(-1)
+
     def home_axis(event=None):
         if not manual_ok(): return
         ensure_mode(emc.MODE_MANUAL)
         c.home("xyzabcuvw".index(vars.current_axis.get()))
 
+    def unhome_axis(event=None):
+        if not manual_ok(): return
+        ensure_mode(emc.MODE_MANUAL)
+        c.unhome("xyzabcuvw".index(vars.current_axis.get()))
+
     def home_axis_number(num):
         ensure_mode(emc.MODE_MANUAL)
         c.home(num)
+
+    def unhome_axis_number(num):
+        ensure_mode(emc.MODE_MANUAL)
+        c.unhome(num)
 
     def clear_offset(num):
         ensure_mode(emc.MODE_MDI)
@@ -3301,6 +3316,9 @@ if homing_order_defined:
     root_window.tk.call("setup_menu_accel", widgets.homemenu, "end",
             _("Home All Axes"))
 
+widgets.unhomemenu.add_command(command=commands.unhome_all_axes)
+root_window.tk.call("setup_menu_accel", widgets.unhomemenu, "end", _("Unhome All Axes"))
+
 s = emc.stat();
 s.poll()
 while s.axes == 0:
@@ -3310,8 +3328,11 @@ while s.axes == 0:
 for i,j in enumerate("XYZABCUVW"):
     if s.axis_mask & (1<<i) == 0: continue
     widgets.homemenu.add_command(command=lambda i=i: commands.home_axis_number(i))
+    widgets.unhomemenu.add_command(command=lambda i=i: commands.unhome_axis_number(i))
     root_window.tk.call("setup_menu_accel", widgets.homemenu, "end",
             _("Home Axis _%s") % j)
+    root_window.tk.call("setup_menu_accel", widgets.unhomemenu, "end",
+            _("Unhome Axis _%s") % j)
 
 astep_size = step_size = 1
 for a in range(axiscount):

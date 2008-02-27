@@ -978,6 +978,22 @@ int sendHome(int axis)
     return 0;
 }
 
+int sendUnHome(int axis)
+{
+    EMC_AXIS_UNHOME emc_axis_home_msg;
+
+    emc_axis_home_msg.serial_number = ++emcCommandSerialNumber;
+    emc_axis_home_msg.axis = axis;
+    emcCommandBuffer->write(emc_axis_home_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
 int sendFeedOverride(double override)
 {
     EMC_TRAJ_SET_SCALE emc_traj_set_scale_msg;

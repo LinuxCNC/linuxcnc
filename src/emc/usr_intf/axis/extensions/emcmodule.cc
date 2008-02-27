@@ -1027,6 +1027,16 @@ static PyObject *home(pyCommandChannel *s, PyObject *o) {
     return Py_None;
 }
 
+static PyObject *unhome(pyCommandChannel *s, PyObject *o) {
+    EMC_AXIS_UNHOME m;
+    if(!PyArg_ParseTuple(o, "i", &m.axis)) return NULL;
+    m.serial_number = next_serial(s);
+    s->c->write(m);
+    emcWaitCommandReceived(s->serial, s->s);
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 // jog(JOG_STOP, axis) 
 // jog(JOG_CONTINUOUS, axis, speed) 
 // jog(JOG_INCREMENT, axis, speed, increment)
@@ -1233,6 +1243,7 @@ static PyMethodDef Command_methods[] = {
     {"abort", (PyCFunction)emcabort, METH_NOARGS},
     {"override_limits", (PyCFunction)override_limits, METH_NOARGS},
     {"home", (PyCFunction)home, METH_VARARGS},
+    {"unhome", (PyCFunction)unhome, METH_VARARGS},
     {"jog", (PyCFunction)jog, METH_VARARGS},
     {"reset_interpreter", (PyCFunction)reset_interpreter, METH_NOARGS},
     {"program_open", (PyCFunction)program_open, METH_VARARGS},

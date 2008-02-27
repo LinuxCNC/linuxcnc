@@ -28,6 +28,8 @@ menu .menu.machine \
 	-tearoff 0
 menu .menu.machine.home \
 	-tearoff 0
+menu .menu.machine.unhome \
+	-tearoff 0
 menu .menu.view \
 	-tearoff 0
 menu .menu.help \
@@ -180,6 +182,10 @@ setup_menu_accel .menu.machine end [_ "Set _Debug Level"]
 .menu.machine add cascade \
         -menu .menu.machine.home
 setup_menu_accel .menu.machine end [_ "Homin_g"]
+
+.menu.machine add cascade \
+        -menu .menu.machine.unhome
+setup_menu_accel .menu.machine end [_ "_Unhoming"]
 
 .menu.machine add cascade \
     -menu .menu.machine.clearoffset

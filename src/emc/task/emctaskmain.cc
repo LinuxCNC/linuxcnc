@@ -300,6 +300,7 @@ static EMC_AXIS_HALT *axis_halt_msg;
 static EMC_AXIS_DISABLE *disable_msg;
 static EMC_AXIS_ENABLE *enable_msg;
 static EMC_AXIS_HOME *home_msg;
+static EMC_AXIS_UNHOME *unhome_msg;
 static EMC_AXIS_JOG *jog_msg;
 static EMC_AXIS_ABORT *axis_abort_msg;
 static EMC_AXIS_INCR_JOG *incr_jog_msg;
@@ -531,6 +532,7 @@ static int emcTaskPlan(void)
 	    case EMC_AXIS_SET_OUTPUT_TYPE:
 	    case EMC_AXIS_LOAD_COMP_TYPE:
 	    case EMC_AXIS_SET_STEP_PARAMS_TYPE:
+	    case EMC_AXIS_UNHOME_TYPE:
 	    case EMC_TRAJ_SET_SCALE_TYPE:
 	    case EMC_TRAJ_SET_SPINDLE_SCALE_TYPE:
 	    case EMC_TRAJ_SET_FO_ENABLE_TYPE:
@@ -619,6 +621,7 @@ static int emcTaskPlan(void)
 	    case EMC_AXIS_ABORT_TYPE:
 	    case EMC_AXIS_HALT_TYPE:
 	    case EMC_AXIS_HOME_TYPE:
+	    case EMC_AXIS_UNHOME_TYPE:
 	    case EMC_AXIS_JOG_TYPE:
 	    case EMC_AXIS_INCR_JOG_TYPE:
 	    case EMC_AXIS_ABS_JOG_TYPE:
@@ -717,6 +720,7 @@ static int emcTaskPlan(void)
 		case EMC_AXIS_SET_MIN_FERROR_TYPE:
 		case EMC_AXIS_SET_OUTPUT_TYPE:
 		case EMC_AXIS_SET_STEP_PARAMS_TYPE:
+		case EMC_AXIS_UNHOME_TYPE:
 		case EMC_TRAJ_PAUSE_TYPE:
 		case EMC_TRAJ_RESUME_TYPE:
 		case EMC_TRAJ_ABORT_TYPE:
@@ -814,6 +818,7 @@ static int emcTaskPlan(void)
 		case EMC_AXIS_SET_MIN_FERROR_TYPE:
 		case EMC_AXIS_SET_OUTPUT_TYPE:
 		case EMC_AXIS_SET_STEP_PARAMS_TYPE:
+		case EMC_AXIS_UNHOME_TYPE:
 		case EMC_TRAJ_PAUSE_TYPE:
 		case EMC_TRAJ_RESUME_TYPE:
 		case EMC_TRAJ_ABORT_TYPE:
@@ -1019,6 +1024,7 @@ interpret_again:
 		case EMC_AXIS_SET_MIN_FERROR_TYPE:
 		case EMC_AXIS_SET_OUTPUT_TYPE:
 		case EMC_AXIS_SET_STEP_PARAMS_TYPE:
+		case EMC_AXIS_UNHOME_TYPE:
 		case EMC_TRAJ_PAUSE_TYPE:
 		case EMC_TRAJ_RESUME_TYPE:
 		case EMC_TRAJ_ABORT_TYPE:
@@ -1101,6 +1107,7 @@ interpret_again:
 		case EMC_AXIS_SET_MIN_FERROR_TYPE:
 		case EMC_AXIS_SET_OUTPUT_TYPE:
 		case EMC_AXIS_SET_STEP_PARAMS_TYPE:
+		case EMC_AXIS_UNHOME_TYPE:
 		case EMC_TRAJ_PAUSE_TYPE:
 		case EMC_TRAJ_RESUME_TYPE:
 		case EMC_TRAJ_ABORT_TYPE:
@@ -1200,6 +1207,7 @@ interpret_again:
 	    case EMC_AXIS_SET_MIN_FERROR_TYPE:
 	    case EMC_AXIS_SET_OUTPUT_TYPE:
 	    case EMC_AXIS_SET_STEP_PARAMS_TYPE:
+	    case EMC_AXIS_UNHOME_TYPE:
 	    case EMC_TRAJ_SET_SCALE_TYPE:
 	    case EMC_TRAJ_SET_SPINDLE_SCALE_TYPE:
 	    case EMC_TRAJ_SET_FO_ENABLE_TYPE:
@@ -1469,6 +1477,11 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	retval = emcAxisHome(home_msg->axis);
 	break;
 
+    case EMC_AXIS_UNHOME_TYPE:
+	unhome_msg = (EMC_AXIS_UNHOME *) cmd;
+	retval = emcAxisUnhome(unhome_msg->axis);
+	break;
+
     case EMC_AXIS_JOG_TYPE:
 	jog_msg = (EMC_AXIS_JOG *) cmd;
 	retval = emcAxisJog(jog_msg->axis, jog_msg->vel);
@@ -1508,7 +1521,8 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 					set_homing_params_msg->use_index,
 					set_homing_params_msg->ignore_limits,
 					set_homing_params_msg->is_shared,
-					set_homing_params_msg->home_sequence);
+					set_homing_params_msg->home_sequence,
+					set_homing_params_msg->volatile_home);
 	break;
 
     case EMC_AXIS_SET_FERROR_TYPE:

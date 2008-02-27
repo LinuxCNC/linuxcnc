@@ -226,7 +226,7 @@ int emcAxisSetMinFerror(int axis, double ferror)
 int emcAxisSetHomingParams(int axis, double home, double offset,
 			   double search_vel, double latch_vel,
 			   int use_index, int ignore_limits, int is_shared,
-			   int sequence)
+			   int sequence,int volatile_home)
 {
     if (axis < 0 || axis >= EMCMOT_MAX_JOINTS) {
 	return 0;
@@ -240,6 +240,7 @@ int emcAxisSetHomingParams(int axis, double home, double offset,
     emcmotCommand.latch_vel = latch_vel;
     emcmotCommand.flags = 0;
     emcmotCommand.home_sequence = sequence;
+    emcmotCommand.volatile_home = volatile_home;
     if (use_index) {
 	emcmotCommand.flags |= HOME_USE_INDEX;
     }
@@ -439,6 +440,18 @@ int emcAxisHome(int axis)
     emcmotCommand.axis = axis;
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
+}
+
+int emcAxisUnhome(int axis)
+{
+	if (axis < -2 || axis >= EMCMOT_MAX_JOINTS) {
+		return 0;
+	}
+
+	emcmotCommand.command = EMCMOT_UNHOME;
+	emcmotCommand.axis = axis;
+
+	return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
 int emcAxisJog(int axis, double vel)

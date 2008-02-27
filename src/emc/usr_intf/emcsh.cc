@@ -165,6 +165,9 @@
   emc_home 0 | 1 | 2 | ...
   Homes the indicated axis.
 
+  emc_unhome 0 | 1 | 2 | ...
+  Unhomes the indicated axis.
+
   emc_jog_stop 0 | 1 | 2 | ...
   Stop the axis jog
 
@@ -1758,6 +1761,26 @@ static int emc_home(ClientData clientdata,
 
     if (TCL_OK == Tcl_GetIntFromObj(0, objv[1], &axis)) {
 	sendHome(axis);
+	return TCL_OK;
+    }
+
+    Tcl_SetResult(interp, "emc_home: need axis as integer, 0..",
+		  TCL_VOLATILE);
+    return TCL_ERROR;
+}
+
+static int emc_unhome(ClientData clientdata,
+		    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    int axis;
+
+    if (objc != 2) {
+	Tcl_SetResult(interp, "emc_home: need axis", TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    if (TCL_OK == Tcl_GetIntFromObj(0, objv[1], &axis)) {
+	sendUnHome(axis);
 	return TCL_OK;
     }
 
@@ -3582,6 +3605,9 @@ int Tcl_AppInit(Tcl_Interp * interp)
 			 (Tcl_CmdDeleteProc *) NULL);
 
     Tcl_CreateObjCommand(interp, "emc_home", emc_home, (ClientData) NULL,
+			 (Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_unhome", emc_unhome, (ClientData) NULL,
 			 (Tcl_CmdDeleteProc *) NULL);
 
     Tcl_CreateObjCommand(interp, "emc_jog_stop", emc_jog_stop,

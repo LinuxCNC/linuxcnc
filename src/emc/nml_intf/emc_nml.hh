@@ -277,6 +277,7 @@ class EMC_AXIS_SET_HOMING_PARAMS:public EMC_AXIS_CMD_MSG {
     int ignore_limits;
     int is_shared;
     int home_sequence;
+    int volatile_home;
 };
 
 class EMC_AXIS_SET_MAX_VELOCITY:public EMC_AXIS_CMD_MSG {
@@ -346,6 +347,16 @@ class EMC_AXIS_HOME:public EMC_AXIS_CMD_MSG {
   public:
     EMC_AXIS_HOME():EMC_AXIS_CMD_MSG(EMC_AXIS_HOME_TYPE,
 				     sizeof(EMC_AXIS_HOME)) {
+    };
+
+    // For internal NML/CMS use only.
+    void update(CMS * cms);
+};
+
+class EMC_AXIS_UNHOME:public EMC_AXIS_CMD_MSG {
+  public:
+    EMC_AXIS_UNHOME():EMC_AXIS_CMD_MSG(EMC_AXIS_UNHOME_TYPE,
+				     sizeof(EMC_AXIS_UNHOME)) {
     };
 
     // For internal NML/CMS use only.
