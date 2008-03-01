@@ -39,35 +39,36 @@ typedef struct StrConvIdVarName
 	int iFirstVal1;
 	int iFirstVal2;
 	int iFirstVal3;
+	char cReadWriteAccess;
 }StrConvIdVarName;
 
 // Table of the defaults names variables (without the the first '%'' character)
 StrConvIdVarName TableConvIdVarName[] = {
-		{ "B%d", VAR_MEM_BIT, 0, /*sizes*/ NBR_BITS_DEF, -1, -1, /*offsets */ 0, 0, 0 },
+		{ "B%d", VAR_MEM_BIT, 0, /*sizes*/ NBR_BITS_DEF, -1, -1, /*offsets */ 0, 0, 0, TRUE },
 #ifdef OLD_TIMERS_MONOS_SUPPORT
-		{ "T%d.D", VAR_TIMER_DONE, 0, /*sizes*/ NBR_TIMERS_DEF, -1, -1, /*offsets */ 0, 0, 0 },
-		{ "T%d.R", VAR_TIMER_RUNNING, 0, /*sizes*/ NBR_TIMERS_DEF, -1, -1, /*offsets */ 0, 0, 0 },
-		{ "T%d.P", VAR_TIMER_PRESET, 0, /*sizes*/ NBR_TIMERS_DEF, -1, -1, /*offsets */ 0, 0, 0 },
-		{ "T%d.V", VAR_TIMER_VALUE, 0, /*sizes*/ NBR_TIMERS_DEF, -1, -1, /*offsets */ 0, 0, 0 },
-		{ "M%d.R", VAR_MONOSTABLE_RUNNING, 0, /*sizes*/ NBR_MONOSTABLES_DEF, -1, -1, /*offsets */ 0, 0, 0 },
-		{ "M%d.P", VAR_MONOSTABLE_PRESET, 0, /*sizes*/ NBR_MONOSTABLES_DEF, -1, -1, /*offsets */ 0, 0, 0 },
-		{ "M%d.V", VAR_MONOSTABLE_VALUE, 0, /*sizes*/ NBR_MONOSTABLES_DEF, -1, -1, /*offsets */ 0, 0, 0 },
+		{ "T%d.D", VAR_TIMER_DONE, 0, /*sizes*/ NBR_TIMERS_DEF, -1, -1, /*offsets */ 0, 0, 0, FALSE },
+		{ "T%d.R", VAR_TIMER_RUNNING, 0, /*sizes*/ NBR_TIMERS_DEF, -1, -1, /*offsets */ 0, 0, 0, FALSE },
+		{ "T%d.P", VAR_TIMER_PRESET, 0, /*sizes*/ NBR_TIMERS_DEF, -1, -1, /*offsets */ 0, 0, 0, TRUE },
+		{ "T%d.V", VAR_TIMER_VALUE, 0, /*sizes*/ NBR_TIMERS_DEF, -1, -1, /*offsets */ 0, 0, 0, FALSE },
+		{ "M%d.R", VAR_MONOSTABLE_RUNNING, 0, /*sizes*/ NBR_MONOSTABLES_DEF, -1, -1, /*offsets */ 0, 0, 0, FALSE },
+		{ "M%d.P", VAR_MONOSTABLE_PRESET, 0, /*sizes*/ NBR_MONOSTABLES_DEF, -1, -1, /*offsets */ 0, 0, 0, TRUE },
+		{ "M%d.V", VAR_MONOSTABLE_VALUE, 0, /*sizes*/ NBR_MONOSTABLES_DEF, -1, -1, /*offsets */ 0, 0, 0, FALSE },
 #endif
-		{ "C%d.D", VAR_COUNTER_DONE, 0, /*sizes*/ NBR_COUNTERS_DEF, -1, -1, /*offsets */ 0, 0, 0 },
-		{ "C%d.E", VAR_COUNTER_EMPTY, 0, /*sizes*/ NBR_COUNTERS_DEF, -1, -1, /*offsets */ 0, 0, 0 },
-		{ "C%d.F", VAR_COUNTER_FULL, 0, /*sizes*/ NBR_COUNTERS_DEF, -1, -1, /*offsets */ 0, 0, 0 },
-		{ "C%d.P", VAR_COUNTER_PRESET, 0, /*sizes*/ NBR_COUNTERS_DEF, -1, -1, /*offsets */ 0, 0, 0 },
-		{ "C%d.V", VAR_COUNTER_VALUE, 0, /*sizes*/ NBR_COUNTERS_DEF, -1, -1, /*offsets */ 0, 0, 0 },
-		{ "TM%d.Q", VAR_TIMER_IEC_DONE, 0, /*sizes*/ NBR_TIMERS_IEC_DEF, -1, -1, /*offsets */ 0, 0, 0 },
-		{ "TM%d.P", VAR_TIMER_IEC_PRESET, 0, /*sizes*/ NBR_TIMERS_IEC_DEF, -1, -1, /*offsets */ 0, 0, 0 },
-		{ "TM%d.V", VAR_TIMER_IEC_VALUE, 0, /*sizes*/ NBR_TIMERS_IEC_DEF, -1, -1, /*offsets */ 0, 0, 0 },
-		{ "I%d", VAR_PHYS_INPUT, 0, /*sizes*/ NBR_PHYS_INPUTS_DEF, -1, -1, /*offsets */ 0, 0, 0 },
-		{ "Q%d", VAR_PHYS_OUTPUT, 0, /*sizes*/ NBR_PHYS_OUTPUTS_DEF, -1, -1, /*offsets */ 0, 0, 0 },
-		{ "W%d", VAR_MEM_WORD, 0, /*sizes*/ NBR_WORDS_DEF, -1, -1, /*offsets */ 0, 0, 0 },
-		{ "X%d", VAR_STEP_ACTIVITY, 0, /*sizes*/ NBR_STEPS, -1, -1, /*offsets */ 0, 0, 0 },
-		{ "X%d.V", VAR_STEP_TIME, 0, /*sizes*/ NBR_STEPS, -1, -1, /*offsets */ 0, 0, 0 },
+		{ "C%d.D", VAR_COUNTER_DONE, 0, /*sizes*/ NBR_COUNTERS_DEF, -1, -1, /*offsets */ 0, 0, 0, FALSE },
+		{ "C%d.E", VAR_COUNTER_EMPTY, 0, /*sizes*/ NBR_COUNTERS_DEF, -1, -1, /*offsets */ 0, 0, 0, FALSE },
+		{ "C%d.F", VAR_COUNTER_FULL, 0, /*sizes*/ NBR_COUNTERS_DEF, -1, -1, /*offsets */ 0, 0, 0, FALSE },
+		{ "C%d.P", VAR_COUNTER_PRESET, 0, /*sizes*/ NBR_COUNTERS_DEF, -1, -1, /*offsets */ 0, 0, 0, TRUE },
+		{ "C%d.V", VAR_COUNTER_VALUE, 0, /*sizes*/ NBR_COUNTERS_DEF, -1, -1, /*offsets */ 0, 0, 0, TRUE /*FALSE*/ },
+		{ "TM%d.Q", VAR_TIMER_IEC_DONE, 0, /*sizes*/ NBR_TIMERS_IEC_DEF, -1, -1, /*offsets */ 0, 0, 0, FALSE },
+		{ "TM%d.P", VAR_TIMER_IEC_PRESET, 0, /*sizes*/ NBR_TIMERS_IEC_DEF, -1, -1, /*offsets */ 0, 0, 0, TRUE },
+		{ "TM%d.V", VAR_TIMER_IEC_VALUE, 0, /*sizes*/ NBR_TIMERS_IEC_DEF, -1, -1, /*offsets */ 0, 0, 0, FALSE },
+		{ "I%d", VAR_PHYS_INPUT, 0, /*sizes*/ NBR_PHYS_INPUTS_DEF, -1, -1, /*offsets */ 0, 0, 0, FALSE },
+		{ "Q%d", VAR_PHYS_OUTPUT, 0, /*sizes*/ NBR_PHYS_OUTPUTS_DEF, -1, -1, /*offsets */ 0, 0, 0, TRUE },
+		{ "W%d", VAR_MEM_WORD, 0, /*sizes*/ NBR_WORDS_DEF, -1, -1, /*offsets */ 0, 0, 0, TRUE },
+		{ "X%d", VAR_STEP_ACTIVITY, 0, /*sizes*/ NBR_STEPS, -1, -1, /*offsets */ 0, 0, 0, FALSE },
+		{ "X%d.V", VAR_STEP_TIME, 0, /*sizes*/ NBR_STEPS, -1, -1, /*offsets */ 0, 0, 0, FALSE },
 
-		{ NULL, 0, 0, /*sizes*/ 0, 0, 0, /*offsets */ 0, 0, 0 }  //END
+		{ NULL, 0, 0, /*sizes*/ 0, 0, 0, /*offsets */ 0, 0, 0, FALSE }  //END
 };
 
 // use the real allocated sizes in the table now

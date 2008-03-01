@@ -36,7 +36,11 @@
 #include "classicladder.h"
 #include "global.h"
 #include "vars_access.h"
+#ifdef GTK_INTERFACE
+#include "vars_names.h"
+#endif
 #include "arithm_eval.h"
+
 
 char * Expr;
 char * ErrorDesc;
@@ -172,6 +176,7 @@ int IdentifyVarIndexedOrNot(char *StartExpr,int * ResType,int * ResOffset, int *
 	{
 		ErrorDesc = "Bad var coding (err=0), should start with @ for @xx/yy@ form";
 		SyntaxError();
+		return FALSE;
 	}
 	ScanExpr++;
 	// no index per default!
@@ -200,6 +205,8 @@ int IdentifyVarIndexedOrNot(char *StartExpr,int * ResType,int * ResOffset, int *
 			return TRUE;
 		}
 	}
+	ErrorDesc = "Bad var coding (unknown variable)";
+	SyntaxError();
 	return FALSE;
 }
 
@@ -332,11 +339,14 @@ arithmtype Function(void)
 
 arithmtype Term(void)
 {
+//if (UnderVerify)
+//printf("Term_Expr=%s (%c)\n",Expr, *Expr);
 	if (*Expr=='(')
 	{
 		arithmtype Res;
 		Expr++;
-		Res = AddSub();
+//		Res = AddSub();
+		Res = Or();
 		if (*Expr!=')')
 		{
 			ErrorDesc = "Missing parenthesis";
@@ -345,29 +355,26 @@ arithmtype Term(void)
 		Expr++;
 		return Res;
 	}
-	else
-	if ( (*Expr>='0' && *Expr<='9') || (*Expr=='$') || (*Expr=='-') )
+	else if ( (*Expr>='0' && *Expr<='9') || (*Expr=='$') || (*Expr=='-') )
 		return Constant();
-	else
-	if (*Expr>='A' && *Expr<='Z')
+	else if (*Expr>='A' && *Expr<='Z')
 		return Function();
-	else
-	if (*Expr=='@')
+	else if (*Expr=='@')
 	{
 		return Variable();
 	}
+	else if (*Expr=='!')
+	{
+		Expr++;
+		return Term()?0:1;
+	}
 	else
 	{
-		if (*Expr=='!')
-		{
-			Expr++;
-			return Term()?0:1;
-		}
-		else
-		{
-			ErrorDesc = "Unknown term";
-			SyntaxError();
-		}
+if (UnderVerify)
+rtapi_print("TermERROR!_ExprHere=%s\n",Expr);
+		ErrorDesc = "Unknown term";
+		SyntaxError();
+		return 0;
 	}
 	return 0;
 }
@@ -377,6 +384,8 @@ arithmtype Pow(void)
 	arithmtype Q,Res = Term();
 	while(*Expr=='^')
 	{
+		if ( ErrorDesc )
+			break;
 		Expr++;
 		Q = Pow();
 		Res = pow_int(Res,Q);
@@ -386,9 +395,14 @@ arithmtype Pow(void)
 
 arithmtype MulDivMod(void)
 {
+	int Val=0;
 	arithmtype Res = Pow();
 	while(1)
 	{
+		if ( ErrorDesc )
+			break;
+//if (UnderVerify)
+//printf("MulDivMod_Expr=%s\n",Expr);
 		if (*Expr=='*')
 		{
 			Expr++;
@@ -398,13 +412,17 @@ arithmtype MulDivMod(void)
 		if (*Expr=='/')
 		{
 			Expr++;
-			Res = Res / Pow();
+			Val = Pow();
+			if ( ErrorDesc==NULL )
+				Res = Res / Val;
 		}
 		else
 		if (*Expr=='%')
 		{
 			Expr++;
-			Res = Res % Pow();
+			Val = Pow();
+			if ( ErrorDesc==NULL )
+				Res = Res % Val;
 		}
 		else
 		{
@@ -419,6 +437,10 @@ arithmtype AddSub(void)
 	arithmtype Res = MulDivMod();
 	while(1)
 	{
+		if ( ErrorDesc )
+			break;
+//if (UnderVerify)
+//printf("AddSub_Expr=%s\n",Expr);
 		if (*Expr=='+')
 		{
 			Expr++;
@@ -443,6 +465,8 @@ arithmtype And(void)
 	arithmtype Res = AddSub();
 	while(1)
 	{
+		if ( ErrorDesc )
+			break;
 		if (*Expr=='&')
 		{
 			Expr++;
@@ -460,6 +484,8 @@ arithmtype Xor(void)
 	arithmtype Res = And();
 	while(1)
 	{
+		if ( ErrorDesc )
+			break;
 		if (*Expr=='^')
 		{
 			Expr++;
@@ -477,6 +503,8 @@ arithmtype Or(void)
 	arithmtype Res = Xor();
 	while(1)
 	{
+		if ( ErrorDesc )
+			break;
 		if (*Expr=='|')
 		{
 			Expr++;
@@ -495,10 +523,13 @@ arithmtype EvalExpression(char * ExprString)
 	arithmtype Res;
 	Expr = ExprString;
 //    Res = AddSub();
+	ErrorDesc = NULL;
 	Res = Or();
 
 	return Res;
 }
+
+
 
 /* Result of the comparison of 2 arithmetics expressions : */
 /* Expr1 ... Expr2 where ... can be : < , > , = , <= , >= , <> */
@@ -573,7 +604,7 @@ int EvalCompare(char * CompareString)
 void MakeCalc(char * CalcString,int VerifyMode)
 {
 	char StrCopy[ARITHM_EXPR_SIZE+1]; /* used for putting null char after first expr */
-	int VarType,VarOffset;
+	int TargetVarType,TargetVarOffset;
 	int  Found = FALSE;
 
 	/* null expression ? */
@@ -583,7 +614,7 @@ void MakeCalc(char * CalcString,int VerifyMode)
 	strcpy(StrCopy,CalcString);
 
 	Expr = StrCopy;
-	if (IdentifyFinalVar(Expr,&VarType,&VarOffset))
+	if (IdentifyFinalVar(Expr,&TargetVarType,&TargetVarOffset))
 	{
 		/* flush var found */
 		Expr++;
@@ -616,7 +647,19 @@ void MakeCalc(char * CalcString,int VerifyMode)
 			EvalExpr = EvalExpression(Expr);
 //printf("Calc - Result=%d\n",EvalExpr);
 			if (!VerifyMode)
-				WriteVar(VarType,VarOffset,(int)EvalExpr);
+			{
+				WriteVar(TargetVarType,TargetVarOffset,(int)EvalExpr);
+			}
+#ifdef GTK_INTERFACE
+			else
+			{
+				if ( !TestVarIsReadWrite( TargetVarType, TargetVarOffset ) )
+				{
+					ErrorDesc = "Target variable must be read/write !";
+					SyntaxError();
+				}
+			}
+#endif
 		}
 		else
 		{

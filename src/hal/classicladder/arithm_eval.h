@@ -6,6 +6,7 @@ int IdentifyVarIndexedOrNot(char * StartExpr,int * ResType,int * ResOffset, int 
 int EvalCompare(char * CompareString);
 void MakeCalc(char * CalcString,int VerifyMode);
 arithmtype AddSub(void);
+arithmtype Or(void);
 char * VerifySyntaxForEvalCompare(char * StringToVerify);
 char * VerifySyntaxForMakeCalc(char * StringToVerify);
 
