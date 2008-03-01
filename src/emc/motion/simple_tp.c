@@ -11,6 +11,7 @@
 ********************************************************************/
 
 #include "simple_tp.h"
+#include "rtapi_math.h"
 
 /***********************************************************************
 *                  LOCAL VARIABLE DECLARATIONS                         *
@@ -27,7 +28,7 @@
 *                        PUBLIC FUNCTION CODE                          *
 ************************************************************************/
 
-void simple_tp_update(simple_tp_t *tp, double period);
+void simple_tp_update(simple_tp_t *tp, double period)
 {
     double max_dv, tiny_dp, pos_err, vel_req;
 
