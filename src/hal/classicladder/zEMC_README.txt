@@ -1,6 +1,10 @@
 File changes for EMC classicladder 7.124 from original 7.124
 Jan. 2007
 
+arith_eval.c/.h:
+--- backported fix from version 7.126 to fix a crash if varible number is not a number
+--- changed printf to rtapi_print on line 414
+
 arrays.c:
 --- changed extensively. Removed most allocation code besides what EMC needs for realtime and user programs. 
 --- added #ifndef RTAPI around INCLUDE of files.h which caused error in realtime (no directory access in realtime)
@@ -70,6 +74,16 @@ SUBMAKEFILE:
 	-DGNOME_PRINT_USE
 	-DGTK_INTERFACE -DGTK2
 --- added emc_mods.c to compile list
+
+vars_names.c/.h:
+--- backported fix from version 7.126 to fix a crash if varible number is not a number
+
+var_names.c:
+--- backported fix from version 7.126 to fix a crash if varible number is not a number
+
+
+
+
 
 MAKE file:
 --- The makefile in source folder contains instructions for realtime program. added defines for modbus
