@@ -392,7 +392,7 @@ check_stuff ( "before command_handler()" );
 		    /* point to joint struct */
 		    joint = &joints[joint_num];
 		    /* tell joint planner to stop */
-		    joint->free_tp_enable = 0;
+		    joint->free_tp.enable = 0;
 		    /* stop homing if in progress */
 		    if ( joint->home_state != HOME_IDLE ) {
 			joint->home_state = HOME_ABORT;
@@ -427,7 +427,7 @@ check_stuff ( "before command_handler()" );
 		    break;
 		}
 		/* tell joint planner to stop */
-		joint->free_tp_enable = 0;
+		joint->free_tp.enable = 0;
 		/* stop homing if in progress */
 		if ( joint->home_state != HOME_IDLE ) {
 		    joint->home_state = HOME_ABORT;
@@ -667,16 +667,18 @@ check_stuff ( "before command_handler()" );
 	    /* set destination of jog */
 	    refresh_jog_limits(joint);
 	    if (emcmotCommand->vel > 0.0) {
-		joint->free_pos_cmd = joint->max_jog_limit;
+		joint->free_tp.pos_cmd = joint->max_jog_limit;
 	    } else {
-		joint->free_pos_cmd = joint->min_jog_limit;
+		joint->free_tp.pos_cmd = joint->min_jog_limit;
 	    }
 	    /* set velocity of jog */
-	    joint->free_vel_lim = fabs(emcmotCommand->vel);
+	    joint->free_tp.max_vel = fabs(emcmotCommand->vel);
+	    /* use max joint accel */
+	    joint->free_tp.max_acc = joint->acc_limit;
 	    /* lock out other jog sources */
 	    joint->kb_jog_active = 1;
 	    /* and let it go */
-	    joint->free_tp_enable = 1;
+	    joint->free_tp.enable = 1;
 	    /*! \todo FIXME - should we really be clearing errors here? */
 	    SET_JOINT_ERROR_FLAG(joint, 0);
 	    /* clear joints homed flag(s) if we don't have forward kins.
@@ -727,9 +729,9 @@ check_stuff ( "before command_handler()" );
 	    }
 	    /* set target position for jog */
 	    if (emcmotCommand->vel > 0.0) {
-		tmp1 = joint->free_pos_cmd + emcmotCommand->offset;
+		tmp1 = joint->free_tp.pos_cmd + emcmotCommand->offset;
 	    } else {
-		tmp1 = joint->free_pos_cmd - emcmotCommand->offset;
+		tmp1 = joint->free_tp.pos_cmd - emcmotCommand->offset;
 	    }
 	    /* don't jog past limits */
 	    refresh_jog_limits(joint);
@@ -740,13 +742,15 @@ check_stuff ( "before command_handler()" );
 		break;
 	    }
 	    /* set target position */
-	    joint->free_pos_cmd = tmp1;
+	    joint->free_tp.pos_cmd = tmp1;
 	    /* set velocity of jog */
-	    joint->free_vel_lim = fabs(emcmotCommand->vel);
+	    joint->free_tp.max_vel = fabs(emcmotCommand->vel);
+	    /* use max joint accel */
+	    joint->free_tp.max_acc = joint->acc_limit;
 	    /* lock out other jog sources */
 	    joint->kb_jog_active = 1;
 	    /* and let it go */
-	    joint->free_tp_enable = 1;
+	    joint->free_tp.enable = 1;
 	    SET_JOINT_ERROR_FLAG(joint, 0);
 	    /* clear joint homed flag(s) if we don't have forward kins.
 	       Otherwise, a transition into coordinated mode will incorrectly
@@ -794,21 +798,23 @@ check_stuff ( "before command_handler()" );
 		break;
 	    }
 	    /*! \todo FIXME-- use 'goal' instead */
-	    joint->free_pos_cmd = emcmotCommand->offset;
+	    joint->free_tp.pos_cmd = emcmotCommand->offset;
 	    /* don't jog past limits */
 	    refresh_jog_limits(joint);
-	    if (joint->free_pos_cmd > joint->max_jog_limit) {
-		joint->free_pos_cmd = joint->max_jog_limit;
+	    if (joint->free_tp.pos_cmd > joint->max_jog_limit) {
+		joint->free_tp.pos_cmd = joint->max_jog_limit;
 	    }
-	    if (joint->free_pos_cmd < joint->min_jog_limit) {
-		joint->free_pos_cmd = joint->min_jog_limit;
+	    if (joint->free_tp.pos_cmd < joint->min_jog_limit) {
+		joint->free_tp.pos_cmd = joint->min_jog_limit;
 	    }
 	    /* set velocity of jog */
-	    joint->free_vel_lim = fabs(emcmotCommand->vel);
+	    joint->free_tp.max_vel = fabs(emcmotCommand->vel);
+	    /* use max joint accel */
+	    joint->free_tp.max_acc = joint->acc_limit;
 	    /* lock out other jog sources */
 	    joint->kb_jog_active = 1;
 	    /* and let it go */
-	    joint->free_tp_enable = 1;
+	    joint->free_tp.enable = 1;
 	    SET_JOINT_ERROR_FLAG(joint, 0);
 	    /* clear joint homed flag(s) if we don't have forward kins.
 	       Otherwise, a transition into coordinated mode will incorrectly
@@ -1188,7 +1194,7 @@ check_stuff ( "before command_handler()" );
                 reportError("homing sequence already in progress");
             } else {
                 /* abort any movement (jog, etc) that is in progress */
-                joint->free_tp_enable = 0;
+                joint->free_tp.enable = 0;
                 
                 /* prime the homing state machine */
                 joint->home_state = HOME_START;
