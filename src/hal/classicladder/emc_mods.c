@@ -79,9 +79,9 @@ char * ConvVarNameToHalSigName( char * VarNameParam )
                 break;
             case 'W':
                 sscanf(VarNameParam+2, "%d", &idx);
-		if((idx+1) > InfosGene->GeneralParams.SizesInfos.nbr_words) {return "out of bounds variable number";}
-		if(idx > (InfosGene->GeneralParams.SizesInfos.nbr_s32in + InfosGene->GeneralParams.SizesInfos.nbr_s32out)) {return "No HAL pin-internal memory";}
-                if(idx > InfosGene->GeneralParams.SizesInfos.nbr_s32in) {
+		if((idx) >= InfosGene->GeneralParams.SizesInfos.nbr_words) {return "out of bounds variable number";}
+		if(idx >= (InfosGene->GeneralParams.SizesInfos.nbr_s32in + InfosGene->GeneralParams.SizesInfos.nbr_s32out)) {return "No HAL pin-internal memory";}
+                if(idx >= InfosGene->GeneralParams.SizesInfos.nbr_s32in) {
                     snprintf(pin_name, 100, "classicladder.0.s32out-%02d",
                             idx - InfosGene->GeneralParams.SizesInfos.nbr_s32in);
                     arrowside = 0;
@@ -98,7 +98,7 @@ char * ConvVarNameToHalSigName( char * VarNameParam )
                 return "error";
 		break;
             }
-
+//printf("INFO---PINNAME-%s\n",pin_name);
             if(*pin_name) {
                 hal_pin_t *pin = halpr_find_pin_by_name(pin_name);
                 if(pin && pin->signal) {
