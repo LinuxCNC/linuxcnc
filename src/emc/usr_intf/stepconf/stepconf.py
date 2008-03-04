@@ -540,14 +540,16 @@ class Data:
     def min_lim_sig(self, axis):
    	inputs = set((self.pin10,self.pin11,self.pin12,self.pin13,self.pin15))
 	thisaxishome = set((ALL_HOME, "home-" + axis, "min-home-" + axis,
-			    "max-home-" + axis, "both-home-" + axis))
+			    "max-home-" + axis, "both-" + axis,
+                            "both-home-" + axis))
 	for i in inputs:
 	    if i in thisaxishome: return i
 
     def max_lim_sig(self, axis):
    	inputs = set((self.pin10,self.pin11,self.pin12,self.pin13,self.pin15))
 	thisaxishome = set((ALL_HOME, "home-" + axis, "min-home-" + axis,
-			    "max-home-" + axis, "both-home-" + axis))
+			    "max-home-" + axis, "both-" + axis,
+                            "both-home-" + axis))
 	for i in inputs:
 	    if i in thisaxishome: return i
  
