@@ -507,7 +507,6 @@ class Data:
    	inputs = set((self.pin10,self.pin11,self.pin12,self.pin13,self.pin15))
 	thisaxishome = set((ALL_LIMIT, MIN_X + axnum, MIN_HOME_X + axnum,
 			    BOTH_X + axnum, BOTH_HOME_X + axnum))
-        print "min_lim_sig", inputs, thisaxishome, inputs & thisaxishome
 	for i in inputs:
 	    if i in thisaxishome: return hal_input_names[i]
 
@@ -515,7 +514,6 @@ class Data:
    	inputs = set((self.pin10,self.pin11,self.pin12,self.pin13,self.pin15))
 	thisaxishome = set((ALL_LIMIT, MAX_X + axnum, MAX_HOME_X + axnum,
 			    BOTH_X + axnum, BOTH_HOME_X + axnum))
-        print "max_lim_sig", inputs, thisaxishome, inputs & thisaxishome
 	for i in inputs:
 	    if i in thisaxishome: return hal_input_names[i]
  
