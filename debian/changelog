@@ -14,8 +14,9 @@ emc2 (1:2.2.4~cvs) unstable; urgency=low
   * axis: fix ctrl and - or = starting an unstoppable jog
   * axis: fix the numeric keypad with numlock on
   * task: fix the initial coordinate system offset (SF#1895693)
+  * stepconf: fix "Both Limit"-type inputs (SF#1906640)
 
- -- Jeff Epler <jepler@unpy.net>  Sun, 17 Feb 2008 17:58:35 -0600
+ -- Jeff Epler <jepler@unpy.net>  Mon, 03 Mar 2008 20:47:28 -0600
 
 emc2 (1:2.2.3) unstable; urgency=low
 
