@@ -435,12 +435,16 @@ class Data:
 	print >>file, "CYCLE_TIME = 0.100"
 	print >>file, "TOOL_TABLE = tool.tbl"
 
-	self.write_one_axis(file, 0, "x", "LINEAR")
+        all_homes = self.home_sig("x") and self.home_sig("z")
+        if self.axes != 2: all_homes = all_homes and self.home_sig("y")
+        if self.axes == 4: all_homes = all_homes and self.home_sig("a")
+
+	self.write_one_axis(file, 0, "x", "LINEAR", all_homes)
 	if self.axes != 2:
-	    self.write_one_axis(file, 1, "y", "LINEAR")
-	self.write_one_axis(file, 2, "z", "LINEAR")
+	    self.write_one_axis(file, 1, "y", "LINEAR", all_homes)
+	self.write_one_axis(file, 2, "z", "LINEAR", all_homes)
 	if self.axes == 1:
-	    self.write_one_axis(file, 3, "a", "ANGULAR")
+	    self.write_one_axis(file, 3, "a", "ANGULAR", all_homes)
 
 	file.close()
 	self.add_md5sum(filename)
@@ -477,7 +481,7 @@ class Data:
         if base_period < self.minperiod(): base_period = self.minperiod()
         return int(base_period)
 
-    def write_one_axis(self, file, num, letter, type):
+    def write_one_axis(self, file, num, letter, type, all_homes):
 	order = "1203"
 	def get(s): return self[letter + s]
 	print >>file
@@ -526,7 +530,8 @@ class Data:
 	    print >>file, "HOME_LATCH_VEL = %f" % latchvel
 	    if inputs & ignore:
 		print >>file, "HOME_IGNORE_LIMITS = YES"
-	    print >>file, "HOME_SEQUENCE = %s" % order[num]
+            if all_homes:
+                print >>file, "HOME_SEQUENCE = %s" % order[num]
 	else:
 	    print >>file, "HOME_OFFSET = %s" % get("homepos")
 
