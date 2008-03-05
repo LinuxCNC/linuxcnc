@@ -982,7 +982,9 @@ int Interp::convert_param_comment(char *comment, char *expanded, int len)
                     }
                     else
                     {
-                        param[i] = *comment++;
+		        // if tolower is a macro, may need this int
+		        int c = *comment++;
+                        param[i] = tolower(c);
                         i++;
                     }
                 }
