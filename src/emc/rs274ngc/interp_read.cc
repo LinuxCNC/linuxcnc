@@ -1508,14 +1508,20 @@ int Interp::read_o(    /* ARGUMENTS                                     */
       *counter += strlen("call");
       block->o_type = O_call;
 
-      for(param_cnt=0;line[*counter] == '[';param_cnt++)
+      for(param_cnt=0;(line[*counter] == '[') || (line[*counter] == '(');)
 	{
+	  if(line[*counter] == '(')
+	    {
+	      CHP(read_comment(line, counter, block, parameters));
+	      continue;
+	    }
 	  logDebug("counter[%d] rest of line:|%s|", *counter,
 		   line+*counter);
 	  CHK((param_cnt >= INTERP_SUB_PARAMS),
 	      NCE_TOO_MANY_SUBROUTINE_PARAMETERS);
 	  CHP(read_real_expression(line, counter, &value, parameters));
 	  block->params[param_cnt] = value;
+	  param_cnt++;
 	}
       logDebug("set arg params:%d", param_cnt);
 
