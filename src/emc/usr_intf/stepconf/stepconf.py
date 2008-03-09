@@ -575,13 +575,13 @@ class Data:
 	print >>file, "net %senable axis.%d.amp-enable-out => stepgen.%d.enable" % (let, axnum, num)
 	homesig = self.home_sig(let)
 	if homesig:
-	    print >>file, "net %s => axis.%d.home-sw-in" % (homesig, num)
+	    print >>file, "net %s => axis.%d.home-sw-in" % (homesig, axnum)
 	min_limsig = self.min_lim_sig(let)
 	if min_limsig:
-	    print >>file, "net %s => axis.%d.neg-lim-sw-in" % (min_limsig, num)
+	    print >>file, "net %s => axis.%d.neg-lim-sw-in" % (min_limsig, axnum)
 	max_limsig = self.max_lim_sig(let)
 	if max_limsig:
-	    print >>file, "net %s => axis.%d.pos-lim-sw-in" % (max_limsig, num)
+	    print >>file, "net %s => axis.%d.pos-lim-sw-in" % (max_limsig, axnum)
 
     def connect_input(self, file, num):
 	p = self['pin%d' % num]
