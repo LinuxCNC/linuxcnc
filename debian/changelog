@@ -17,8 +17,9 @@ emc2 (1:2.2.4~cvs) unstable; urgency=low
   * stepconf: fix "Both Limit"-type inputs (SF#1906640)
   * stepconf: fix "HOME_SEQUENCE" problem without full set of home inputs
     (SF#1906641)
+  * stepconf: fix Z home and limit switches on lathes (SF#1910452)
 
- -- Jeff Epler <jepler@unpy.net>  Mon, 03 Mar 2008 21:10:28 -0600
+ -- Jeff Epler <jepler@unpy.net>  Sun, 09 Mar 2008 10:58:05 -0500
 
 emc2 (1:2.2.3) unstable; urgency=low
 
