@@ -51,6 +51,11 @@ to write to FIFO
 .IR CHAN .
 FIFOs are numbered from zero, and the default value is zero, so
 this option is not needed unless multiple FIFOs have been created.
+.TP
+.B FILENAME
+instructs
+.B halsampler
+to read from \fBFILENAME\fR instead of from stdin.
 .SH USAGE
 A FIFO must first be created by loading 
 .BR streamer (9)
