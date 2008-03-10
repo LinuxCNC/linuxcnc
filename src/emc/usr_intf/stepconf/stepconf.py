@@ -288,7 +288,7 @@ class Data:
 	warnings = []
 	for f, m in self.md5sums:
 	    m1 = md5sum(f)
-	    if m != m1:
+	    if m1 and m != m1:
 		warnings.append(_("File %r was modified since it was written by stepconf") % f)
 	if not warnings: return
 
