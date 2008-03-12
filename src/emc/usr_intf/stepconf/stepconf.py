@@ -643,7 +643,7 @@ class Data:
 	    y1 = self.spindlespeed1
 	    y2 = self.spindlespeed2
 	    scale = (y2-y1) / (x2-x1)
-	    offset = y1 - x1 * scale
+	    offset = x1 - y1 / scale
 	    print >>file
 	    print >>file, "net spindle-cmd <= motion.spindle-speed-out => pwmgen.0.value"
 	    print >>file, "net spindle-enable <= motion.spindle-on => pwmgen.0.enable"

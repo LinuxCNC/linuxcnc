@@ -18,8 +18,9 @@ emc2 (1:2.2.4~cvs) unstable; urgency=low
   * stepconf: fix "HOME_SEQUENCE" problem without full set of home inputs
     (SF#1906641)
   * stepconf: fix Z home and limit switches on lathes (SF#1910452)
+  * stepconf: fix 'offset' value calculated for spindle speed control
 
- -- Jeff Epler <jepler@unpy.net>  Sun, 09 Mar 2008 10:58:05 -0500
+ -- jepler <jepler@unpythonic.net>  Wed, 12 Mar 2008 08:56:32 -0500
 
 emc2 (1:2.2.3) unstable; urgency=low
 
