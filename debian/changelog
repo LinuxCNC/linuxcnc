@@ -19,8 +19,9 @@ emc2 (1:2.2.4~cvs) unstable; urgency=low
     (SF#1906641)
   * stepconf: fix Z home and limit switches on lathes (SF#1910452)
   * stepconf: fix 'offset' value calculated for spindle speed control
+  * stepconf: enable 'dither-pwm' for spindle speed control
 
- -- jepler <jepler@unpythonic.net>  Wed, 12 Mar 2008 08:56:32 -0500
+ -- jepler <jepler@unpythonic.net>  Wed, 12 Mar 2008 09:04:01 -0500
 
 emc2 (1:2.2.3) unstable; urgency=low
 

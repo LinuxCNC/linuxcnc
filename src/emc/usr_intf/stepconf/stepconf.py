@@ -651,6 +651,7 @@ class Data:
 	    print >>file, "setp pwmgen.0.pwm-freq %s" % self.spindlecarrier	
 	    print >>file, "setp pwmgen.0.scale %s" % scale
 	    print >>file, "setp pwmgen.0.offset %s" % offset
+	    print >>file, "setp pwmgen.0.dither-pwm true"
 
         if CW in outputs:
             print >>file, "net spindle-cw <= motion.spindle-forward"
