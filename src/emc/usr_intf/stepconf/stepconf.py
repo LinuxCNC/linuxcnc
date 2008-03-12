@@ -279,7 +279,7 @@ class Data:
 	warnings = []
 	for f, m in self.md5sums:
 	    m1 = md5sum(f)
-	    if m != m1:
+	    if m1 and m != m1:
 		warnings.append(_("File %r was modified since it was written by stepconf") % f)
 	if not warnings: return
 
@@ -397,9 +397,9 @@ class Data:
 	print >>file, "CYCLE_TIME = 0.100"
 	print >>file, "TOOL_TABLE = tool.tbl"
 
-        all_homes = self.home_sig("x") and self.home_sig("z")
-        if self.axes != 2: all_homes = all_homes and self.home_sig("y")
-        if self.axes == 4: all_homes = all_homes and self.home_sig("a")
+        all_homes = self.home_sig(0) and self.home_sig(2)
+        if self.axes != 2: all_homes = all_homes and self.home_sig(1)
+        if self.axes == 4: all_homes = all_homes and self.home_sig(3)
 
 	self.write_one_axis(file, 0, "x", "LINEAR", all_homes)
 	if self.axes != 2:
