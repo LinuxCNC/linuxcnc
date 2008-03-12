@@ -684,7 +684,7 @@ class Data:
 	    y1 = self.spindlespeed1
 	    y2 = self.spindlespeed2
 	    scale = (y2-y1) / (x2-x1)
-	    offset = y1 - x1 * scale
+	    offset = x1 - y1 / scale
 	    print >>file
 	    print >>file, "net spindle-cmd <= motion.spindle-speed-out => pwmgen.0.value"
 	    print >>file, "net spindle-enable <= motion.spindle-on => pwmgen.0.enable"
@@ -692,6 +692,7 @@ class Data:
 	    print >>file, "setp pwmgen.0.pwm-freq %s" % self.spindlecarrier	
 	    print >>file, "setp pwmgen.0.scale %s" % scale
 	    print >>file, "setp pwmgen.0.offset %s" % offset
+	    print >>file, "setp pwmgen.0.dither-pwm true"
 
 	if ON in outputs:
             print >>file, "net spindle-on <= motion.spindle-on"
