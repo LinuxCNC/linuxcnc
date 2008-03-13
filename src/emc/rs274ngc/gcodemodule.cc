@@ -464,9 +464,11 @@ int GET_EXTERNAL_TLO_IS_ALONG_W(void) {
     if(interp_error) return 0;
     PyObject *result =
         PyObject_CallMethod(callback, "get_tlo_is_along_w", "");
-    if(result == NULL ||
-            !PyArg_ParseTuple(result, "i", &is_along_w))
+    if(result == NULL || !PyInt_Check(result)) {
         interp_error++;
+    } else {
+        is_along_w = PyInt_AsLong(result);
+    }
     Py_XDECREF(result);
     return is_along_w;
 }
