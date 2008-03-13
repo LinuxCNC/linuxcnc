@@ -113,12 +113,13 @@ char * CreateVarName(int Type, int Offset)
 			sprintf(Buffer,"???");
 			break;
 	}
+printf("infogene display symbols=&i\n",InfosGene->DisplaySymbols);
 	if ( InfosGene->DisplaySymbols )
-	{
+	{ 
 		// verify if a symbol has been defined for the variable...
 		char * Symbol = ConvVarNameToSymbol( Buffer );
-		if ( Symbol!=NULL )
-			return Symbol;
+		if ( (Symbol!=NULL )||(Symbol[0]!=' ')||(Symbol[0]!='\0')){
+			return Symbol;}
 	}
     return Buffer;
 }
@@ -473,8 +474,8 @@ int ComparStaticPart(char * pSearchedString, char * pComparString)
 char TextParserForAVar( char * TextToParse, int * VarTypeFound,int * VarOffsetFound, int * pNumberOfChars, char PartialNames )
 {
 	int iBalayTable = 0;
-	char bFound = FALSE;
-	int iIdVar = -1;
+	char bFound = FALSE, bEchecCompar,cOneAttributPassed ;
+	int iIdVar = -1,iBalayProf,iTaillePartieStatique;
 	StrConvIdVarName * pConv;
 	char * pVarCherch = TextToParse;
 	char * pBalayVarCherch;
@@ -505,13 +506,13 @@ char TextParserForAVar( char * TextToParse, int * VarTypeFound,int * VarOffsetFo
 	do
 	{
 		pBalayVarCherch = pVarCherch;
-		char bEchecCompar = FALSE;
+		bEchecCompar = FALSE;
 		iScruteCarac = 0;
-		int iBalayProf = 0;
+		iBalayProf = 0;
 		iOffset1 = 0;
 		iOffset2 = 0;
 		iOffset3 = 0;
-		char cOneAttributPassed = FALSE;
+		cOneAttributPassed = FALSE;
 		// pointer on the table list
 		pConv = &TableConvIdVarName[ iBalayTable ];
 		do
@@ -556,7 +557,7 @@ char TextParserForAVar( char * TextToParse, int * VarTypeFound,int * VarOffsetFo
 				if ( pConv->StringBaseVarName[ iScruteCarac ]=='.' )
 					cOneAttributPassed = TRUE;
 				// comparing static part...
-				int iTaillePartieStatique = ComparStaticPart(pBalayVarCherch,&pConv->StringBaseVarName[ iScruteCarac ]);
+				iTaillePartieStatique = ComparStaticPart(pBalayVarCherch,&pConv->StringBaseVarName[ iScruteCarac ]);
 				if (iTaillePartieStatique>0)
 				{
                 	iScruteCarac = iScruteCarac+iTaillePartieStatique;
@@ -725,8 +726,10 @@ char * CreateVarName( int TypeVarSearched, int OffsetVarSearched )
 		{
 			// verify if a symbol has been defined for the variable...
 			char * Symbol = ConvVarNameToSymbol( tcBuffer );
-			if ( Symbol!=NULL )
-				return Symbol;
+			if ( (Symbol!=NULL )&&(Symbol[0]!=' ')&&(Symbol[0]!='\0'))
+				{
+				printf("symbol-%s\n",Symbol);
+				return Symbol;}
 		}
 		return tcBuffer;
 	}
