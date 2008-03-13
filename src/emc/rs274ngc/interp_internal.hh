@@ -279,6 +279,7 @@ typedef struct block_struct
   long     offset;   // start of line in file
   int      o_type;
   int      o_number;
+  char    *o_name;   // !!!KL be sure to free this
   double   params[INTERP_SUB_PARAMS];
 }
 block;
@@ -297,12 +298,16 @@ typedef struct context_struct {
   long position;       // location (ftell) in file
   int sequence_number; // location (line number) in file
   char *filename;      // name of file for this context
+  char *subName;       // name of the subroutine (oword)
   double saved_params[INTERP_SUB_PARAMS];
   struct named_parameters_struct named_parameters;
 }context;
 
+
+// !!!KL ???use the index to this as a surrogate for the o-word text
 typedef struct offset_struct {
   int o_word;
+  char *o_word_name; // or zero
   int type;
   char *filename;  // the name of the file
   long offset;     // the offset in the file
@@ -418,11 +423,12 @@ typedef struct setup_struct
 
   /* stuff for subroutines and control structures */
   int defining_sub;                  // true if in a subroutine defn
+  char *sub_name;                    // name of sub we are defining (free this)
   int doing_continue;                // true if doing a continue
   //int doing_break;                 // true if doing a break
   int executed_if;                   // true if executed in current if
-  int skipping_o;                    // o_number we are skipping for (or zero)
-  int skipping_to_sub;               // o_number of sub skipping to (or zero)
+  char *skipping_o;                  // o_name we are skipping for (or zero)
+  char *skipping_to_sub;             // o_name of sub skipping to (or zero)
   int skipping_start;                // start of skipping (sequence)
   double test_value;                 // value for "if", "while", "elseif"
   int call_level;                    // current subroutine level
@@ -434,6 +440,9 @@ typedef struct setup_struct
   int loggingLevel;                  // 0 means logging is off
   char log_file[PATH_MAX];
   char program_prefix[PATH_MAX];
+  int use_lazy_close;                // wait until next open before closing
+                                     // the input file
+  int lazy_closing;                  // close has been called
 }
 setup;
 

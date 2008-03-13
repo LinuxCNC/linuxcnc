@@ -1446,6 +1446,20 @@ O codes are used for:
 12. endwhile
 13. return
 
+Labels (o-words) are of local scope except for sub, endsub, and call which
+are of global scope.
+
+Named o-words and scoping of o-words are implemented now.
+Numeric o-words get converted to strings. Global o-words are stored as
+just the string. Local o-words are stored as the name (o-word) of the
+sub containing the o-word, followed by a '#', followed by the local o-word.
+If the local o-word is not contained within a sub, then the sub name is null
+and the o-word just begins with a '#'.
+
+It has been a pain to do this because o-words are used as integers all over
+the place.
+!!!KL the code could use some cleanup.
+
 */
 
 int Interp::read_o(    /* ARGUMENTS                                     */
@@ -1459,6 +1473,8 @@ int Interp::read_o(    /* ARGUMENTS                                     */
   int status;
   int param_cnt;
   char oNameBuf[LINELEN+1];
+  char *subName;
+  char fullNameBuf[2*LINELEN+1];
   int oNumber;
 
   CHK((line[*counter] != 'o'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
@@ -1466,6 +1482,10 @@ int Interp::read_o(    /* ARGUMENTS                                     */
   // changed spec so we now read an expression
   // so... we can have a parameter contain a function pointer!
   *counter += 1;
+
+  block->o_number = 0;
+
+  logDebug("In: %s line:%d |%s|", name, block->line_number, line);
 
   if(line[*counter] == '<')
   {
@@ -1475,18 +1495,94 @@ int Interp::read_o(    /* ARGUMENTS                                     */
   {
      CHP(read_integer_value(line, counter, &oNumber,
                             parameters));
-
-     logDebug("In: %s line:%d |%s|", name, block->line_number, line);
+     sprintf(oNameBuf, "%d", oNumber);
+     block->o_number = oNumber; //!!!KL keeps this for now
   }
 
-  block->o_number = oNumber;
+  // We stash the text the offset part of setup
+  // And then store the index into block->o_number
+  // Just to be clean, we do not use index zero.
 
 #define CMP(txt) (strncmp(line+*counter, txt, strlen(txt)) == 0)
+  // characterize the type of o-word
+
   if(CMP("sub"))
+    block->o_type = O_sub;
+  else if(CMP("endsub"))
+    block->o_type = O_endsub;
+  else if(CMP("call"))
+    block->o_type = O_call;
+  else if(CMP("do"))
+    block->o_type = O_do;
+  else if(CMP("while"))
+    block->o_type = O_while;
+  else if(CMP("repeat"))
+    block->o_type = O_repeat;
+  else if(CMP("if"))
+    block->o_type = O_if;
+  else if(CMP("elseif"))
+    block->o_type = O_elseif;
+  else if(CMP("else"))
+    block->o_type = O_else;
+  else if(CMP("endif"))
+    block->o_type = O_endif;
+  else if(CMP("break"))
+    block->o_type = O_break;
+  else if(CMP("continue"))
+    block->o_type = O_continue;
+  else if(CMP("endwhile"))
+    block->o_type = O_endwhile;
+  else if(CMP("endrepeat"))
+    block->o_type = O_endrepeat;
+  else if(CMP("return"))
+    block->o_type = O_return;
+  else
+    block->o_type = O_none;
+
+  // we now have it characterized
+  // now create the text of the oword
+
+  switch(block->o_type)
+    {
+      // the global cases first
+    case O_sub:
+    case O_endsub:
+    case O_call:
+    case O_return:
+      block->o_name = strdup(oNameBuf);
+      logDebug("global case:|%s|", block->o_name);
+      break;
+
+      // the remainder are local cases
+    default:
+      if(_setup.call_level)
+	{
+	  subName = _setup.sub_context[_setup.call_level].subName;
+	  logDebug("inside a call[%d]:|%s|", _setup.call_level, subName);
+	}
+      else if(_setup.defining_sub)
+	{
+	  subName = _setup.sub_name;
+	  logDebug("defining_sub:|%s|", subName);
+	}
+      else
+	{
+	  subName = "";
+	  logDebug("not defining_sub:|%s|", subName);
+	}
+      sprintf(fullNameBuf, "%s#%s", subName, oNameBuf);
+      block->o_name = strdup(fullNameBuf);
+      logDebug("local case:|%s|", block->o_name);
+    }
+
+  logDebug("o_type:%d o_name:|%s| line:%d |%s|", block->o_type, block->o_name,
+	   block->line_number, line);
+
+  if(block->o_type == O_sub)
     {
       block->o_type = O_sub;
     }
-  else if(CMP("endsub"))
+  else if(block->o_type == O_endsub)
     {
       block->o_type = O_endsub;
     }
@@ -1495,7 +1591,7 @@ int Interp::read_o(    /* ARGUMENTS                                     */
       // we can not evaluate expressions -- so just skip on out
       block->o_type = O_none;
     }
-  else if(CMP("call"))
+  else if(block->o_type == O_call)
     {
       // we need to NOT evaluate parameters if skipping
       // skipping never ends on a "call"
@@ -1531,11 +1627,11 @@ int Interp::read_o(    /* ARGUMENTS                                     */
 	  block->params[param_cnt] = 0.0;
 	}
     }
-  else if(CMP("do"))
+  else if(block->o_type == O_do)
     {
       block->o_type = O_do;
     }
-  else if(CMP("while"))
+  else if(block->o_type == O_while)
     {
         // FIXME !!!KL -- should not eval expressions if skipping ???
       *counter += strlen("while");
@@ -1545,7 +1641,7 @@ int Interp::read_o(    /* ARGUMENTS                                     */
       CHP(read_real_expression(line, counter, &value, parameters));
       _setup.test_value = value;
     }
-  else if(CMP("repeat"))
+  else if(block->o_type == O_repeat)
       {
           *counter += strlen("repeat");
           block->o_type = O_repeat;
@@ -1554,7 +1650,7 @@ int Interp::read_o(    /* ARGUMENTS                                     */
           CHP(read_real_expression(line, counter, &value, parameters));
           _setup.test_value = value;
       }
-  else if(CMP("if"))
+  else if(block->o_type == O_if)
     {
         // FIXME !!!KL -- should not eval expressions if skipping ???
       *counter += strlen("if");
@@ -1564,7 +1660,7 @@ int Interp::read_o(    /* ARGUMENTS                                     */
       CHP(read_real_expression(line, counter, &value, parameters));
       _setup.test_value = value;
     }
-  else if(CMP("elseif"))
+  else if(block->o_type == O_elseif)
     {
         // FIXME !!!KL -- should not eval expressions if skipping ???
       *counter += strlen("elseif");
@@ -1574,31 +1670,31 @@ int Interp::read_o(    /* ARGUMENTS                                     */
       CHP(read_real_expression(line, counter, &value, parameters));
       _setup.test_value = value;
     }
-  else if(CMP("else"))
+  else if(block->o_type == O_else)
     {
       block->o_type = O_else;
     }
-  else if(CMP("endif"))
+  else if(block->o_type == O_endif)
     {
       block->o_type = O_endif;
     }
-  else if(CMP("break"))
+  else if(block->o_type == O_break)
     {
       block->o_type = O_break;
     }
-  else if(CMP("continue"))
+  else if(block->o_type == O_continue)
     {
       block->o_type = O_continue;
     }
-  else if(CMP("endwhile"))
+  else if(block->o_type == O_endwhile)
     {
       block->o_type = O_endwhile;
     }
-  else if(CMP("endrepeat"))
+  else if(block->o_type == O_endrepeat)
       {
           block->o_type = O_endrepeat;
       }
-  else if(CMP("return"))
+  else if(block->o_type == O_return)
     {
       block->o_type = O_return;
     }
@@ -1897,7 +1993,7 @@ stored in parameter 2):
   #[#2]
 
 
-!!!KL ADDED by K. Lerman
+ADDED by K. Lerman
 Named parameters are now supported.
 #<_abcd> is a parameter with name "abcd" of global scope
 #<abce> is a named parameter of local scope.
@@ -1989,7 +2085,7 @@ if #1 is 5 before the line "#1=10 #2=#1" is read, then after the line
 is is executed, #1 is 10 and #2 is 5. If parameter setting were done
 sequentially, the value of #2 would be 10 after the line was executed.
 
-!!!KL ADDED by K. Lerman
+ADDED by K. Lerman
 Named parameters are now supported.
 #[abcd] is a parameter with name "abcd"
 #[#2] is NOT a named parameter.
@@ -2011,7 +2107,7 @@ int Interp::read_parameter(
   CHK((line[*counter] != '#'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
 
   *counter = (*counter + 1);
-  // !!!KL
+
   // named parameters look like '<letter...>' or '<_.....>'
   if(line[*counter] == '<')
   {
@@ -2131,7 +2227,7 @@ int Interp::read_parameter_setting(
 
   CHK((line[*counter] != '#'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
   *counter = (*counter + 1);
-  // !!!KL
+
   // named parameters look like '<letter...>' or '<_letter.....>'
   if((line[*counter] == '<') || isalpha(line[*(counter)]))
   {
@@ -2790,7 +2886,6 @@ int Interp::read_real_value(char *line,  //!< string: line of RS274/NGC code bei
     CHP(read_real_expression(line, counter, double_ptr, parameters));
   else if (c == '#')
   {
-      // !!!KL
     CHP(read_parameter(line, counter, double_ptr, parameters));
   }
   else if ((c >= 'a') && (c <= 'z'))

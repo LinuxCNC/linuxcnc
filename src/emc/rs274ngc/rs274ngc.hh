@@ -438,12 +438,12 @@ private:
   setup_pointer settings);   /* pointer to machine settings */
 
  int control_find_oword(     /* ARGUMENTS                   */
-  int line,                  /* (o-word) line number        */
+  block_pointer block,       /* block pointer to get (o-word) name        */
   setup_pointer settings,    /* pointer to machine settings */
   int *o_index);             /* the index of o-word (returned) */
 
  int control_back_to(        /* ARGUMENTS                   */
-  int line,                  /* (o-word) line number        */
+  block_pointer block, // pointer to block
   setup_pointer settings);   /* pointer to machine settings */
 
  int convert_control_functions( /* ARGUMENTS           */

@@ -158,6 +158,12 @@ Called By: external programs
 
 int Interp::close()
 {
+  if(_setup.use_lazy_close)
+    {
+      _setup.lazy_closing = 1;
+      return INTERP_OK;
+    }
+
   if (_setup.file_pointer != NULL) {
     fclose(_setup.file_pointer);
     _setup.file_pointer = NULL;
@@ -195,35 +201,44 @@ int Interp::execute(const char *command)
   static char name[] = "Interp::execute";
   int status;
   int n;
+  int MDImode = 0;
 
   if (NULL != command) {
+    MDImode = 1;
     status = read(command);
     if (status != INTERP_OK) {
       return status;
     }
   }
 
+  logDebug("MDImode = 1");
   logDebug("Interp::execute(%s)", command);
   // process control functions -- will skip if skipping
-  if (_setup.block1.o_number != 0)
+  //  if (_setup.block1.o_number != 0)
+  if ((_setup.block1.o_number != 0) || (_setup.block1.o_name != 0) )
     {
       CHP(convert_control_functions(&(_setup.block1), &_setup));
-#if 0
-//!!!KL -- this is test code that is wrong
-// an attempt to let MDI code call subroutines.      
+
+#if 1
+      // let MDI code call subroutines.
+      // !!!KL not clear what happens if last execution failed while in
+      // !!!KL a subroutine
+
+      // NOTE: If LAZY_CLOSE is set in ini file, the last executed file
+      // NOTE: will still be open.
     
       logDebug("!!!KL Open file is:%s:", _setup.filename);
-      while(_setup.file_pointer) // we have an open file, execute it to completion
+      logDebug("MDImode = %d", MDImode);
+      while(MDImode && _setup.call_level) // we are still in a subroutine
       {
           status = read(0);  // reads from current file and calls parse
-          if (status != INTERP_OK) {
+          if (status != INTERP_OK)
+	    {
                return status;
-          }
+	    }
           execute();
       }
-//!!!KL -- end of test code
 #endif
-        
       return INTERP_OK;
     }
 
@@ -363,7 +378,6 @@ int Interp::init()
       {
           const char *inistring;
 
-
           if(NULL != (inistring = inifile.Find("LOG_LEVEL", "RS274NGC")))
           {
               _setup.loggingLevel = atol(inistring);
@@ -375,11 +389,17 @@ int Interp::init()
             realpath(inistring, &_setup.log_file[0]);
           }
 
+          if(NULL != (inistring = inifile.Find("LAZY_CLOSE", "RS274NGC")))
+          {
+              _setup.use_lazy_close = atol(inistring);
+          }
+
           if(NULL != (inistring = inifile.Find("PROGRAM_PREFIX", "DISPLAY")))
           {
 	    // found it
             realpath(inistring, _setup.program_prefix);
-            logDebug("program prefix:%s: prefix:%s:", inistring, _setup.program_prefix);
+            logDebug("program prefix:%s: prefix:%s:",
+		     inistring, _setup.program_prefix);
           }
           else
           {
@@ -625,6 +645,14 @@ int Interp::open(const char *filename) //!< string: the name of the input NC-pro
   int index;
   int length;
 
+  if(_setup.use_lazy_close && _setup.lazy_closing)
+    {
+      _setup.use_lazy_close = 0; // so that close will work
+      close();
+      _setup.use_lazy_close = 1;
+      _setup.lazy_closing = 0;
+    }
+
   CHK((_setup.file_pointer != NULL), NCE_A_FILE_IS_ALREADY_OPEN);
   CHK((strlen(filename) > (LINELEN - 1)), NCE_FILE_NAME_TOO_LONG);
   _setup.file_pointer = fopen(filename, "r");
@@ -802,6 +830,13 @@ int Interp::reset()
   _setup.blocktext[0] = 0;
   _setup.line_length = 0;
 
+  //!!!KL According to the comment,
+  //!!!KL this should not be here because this is for
+  //!!!KL more than one line.
+  //!!!KL But the comment seems wrong -- it is only called at open, close,
+  //!!!KL init times which should affect the more global structure.
+  //!!!KL (also called by external -- but probably OK)
+  //
   // initialization stuff for subroutines and control structures
   _setup.call_level = 0;
   _setup.defining_sub = 0;
