@@ -95,9 +95,11 @@ when the pwm generator is disabled, the outputs are constantly low,
 regardless of the setting of \fBmin-dc\fR.
 .TP
 \fBpwmgen.\fIN\fB.scale\fR float rw
-Scaling from the \fBvalue\fR pin to the actual duty cycle.  When
-\fBvalue\fR equals \fBscale\fR, the desired duty cycle is 100%.
-(The actual output may not be 100% due to \fBmax-dc\fR limiting.)
+.TQ
+\fBpwmgen.\fIN\fB.offset\fR float rw
+These parameters provide a scale and offset from the \fBvalue\fR pin to the
+actual duty cycle.  The duty cycle is calculated according to \fIdc =
+(value/scale) + offset\fR, with 1.0 meaning 100%.
 .TP
 \fBpwmgen.\fIN\fB.pwm-freq\fR float rw
 PWM frequency in Hz.  The upper limit is half of the frequency at which
