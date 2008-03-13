@@ -219,8 +219,8 @@ char * GetElementPropertiesForStatusBar(StrElement * Element)
 			case ELE_OUTPUT:				
 			case ELE_OUTPUT_NOT:
 			case ELE_OUTPUT_SET:
-			case ELE_OUTPUT_RESET:
-				sprintf(PropertiesText, "Variable: %s    Hal signal: %s",CreateVarName(Element->VarType,Element->VarNum),ConvVarNameToHalSigName(CreateVarName(Element->VarType,Element->VarNum)));
+			case ELE_OUTPUT_RESET:				
+				sprintf(PropertiesText, "Variable: %s    Hal sig: %s",CreateVarName(Element->VarType,Element->VarNum),ConvVarNameToHalSigName(CreateVarName(Element->VarType,Element->VarNum)));
 				break;
 			case ELE_OUTPUT_JUMP:
 				sprintf(PropertiesText, "Label: %s", RungArray[Element->VarNum].Label);
@@ -248,7 +248,7 @@ char * GetElementPropertiesForStatusBar(StrElement * Element)
 				break;
 			case ELE_COMPAR:
 			case ELE_OUTPUT_OPERATE:
-				sprintf(PropertiesText,"HAL sig~ %s",FirstVariableInArithm(DisplayArithmExpr(ArithmExpr[Element->VarNum].Expr,0)));
+				sprintf(PropertiesText,"HAL sig: %s",FirstVariableInArithm(DisplayArithmExpr(ArithmExpr[Element->VarNum].Expr,0)));
 							
 				break;
 		}
