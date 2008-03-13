@@ -20,6 +20,7 @@ emc2 (1:2.2.4~cvs) unstable; urgency=low
   * stepconf: fix Z home and limit switches on lathes (SF#1910452)
   * stepconf: fix 'offset' value calculated for spindle speed control
   * stepconf: enable 'dither-pwm' for spindle speed control
+  * traj planner: fix velocity 'bobble' between 1st and 2nd consecutive synced moves
 
  -- jepler <jepler@unpythonic.net>  Wed, 12 Mar 2008 09:04:01 -0500
 
