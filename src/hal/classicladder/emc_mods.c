@@ -56,8 +56,7 @@
 
 char * ConvVarNameToHalSigName( char * VarNameParam ) 
 {
-	
-	        
+	if( (VarNameParam[0]=='\0') ||  (VarNameParam[0]==' ')) {return "Error blank symbol name";}
 	if( VarNameParam[0] != '%') {VarNameParam= ConvSymbolToVarName(VarNameParam);}
 	if( VarNameParam[0] == '%'){
             char pin_name[100] = {0};
@@ -80,7 +79,7 @@ char * ConvVarNameToHalSigName( char * VarNameParam )
             case 'W':
                 sscanf(VarNameParam+2, "%d", &idx);
 		if((idx) >= InfosGene->GeneralParams.SizesInfos.nbr_words) {return "out of bounds variable number";}
-		if(idx >= (InfosGene->GeneralParams.SizesInfos.nbr_s32in + InfosGene->GeneralParams.SizesInfos.nbr_s32out)) {return "No HAL pin-internal memory";}
+		if(idx >= (InfosGene->GeneralParams.SizesInfos.nbr_s32in + InfosGene->GeneralParams.SizesInfos.nbr_s32out)) {return "None -internal memory";}
                 if(idx >= InfosGene->GeneralParams.SizesInfos.nbr_s32in) {
                     snprintf(pin_name, 100, "classicladder.0.s32out-%02d",
                             idx - InfosGene->GeneralParams.SizesInfos.nbr_s32in);
@@ -119,11 +118,11 @@ char * ConvVarNameToHalSigName( char * VarNameParam )
 					}
 			if (!pin->signal) {return "no signal connected";  }
 			  }
-}
+				}
                 
             
 		
-return "conv HAL signal ERROR";
+return "Conv. HAL signal ERROR";
 }
 
 // function to check for first Variable in an arithmetic expression
