@@ -15,7 +15,7 @@ while true; do
 done
 
 if $REALTIME status > /dev/null; then
-    echo "Realtime already running.  Use 'halrun -U' to stop existing realtime session."
+    echo "Realtime already running.  Use 'halrun -U' to stop existing realtime session." 1>&2
     exit 1
 fi
 
