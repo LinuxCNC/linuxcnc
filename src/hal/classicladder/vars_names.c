@@ -726,10 +726,7 @@ char * CreateVarName( int TypeVarSearched, int OffsetVarSearched )
 		{
 			// verify if a symbol has been defined for the variable...
 			char * Symbol = ConvVarNameToSymbol( tcBuffer );
-			if ( (Symbol!=NULL )&&(Symbol[0]!=' ')&&(Symbol[0]!='\0'))
-				{
-				printf("symbol-%s\n",Symbol);
-				return Symbol;}
+			if ( (Symbol!=NULL ) && ((Symbol[0]!=' ') || (Symbol[0]!='\0'))) {return Symbol;}
 		}
 		return tcBuffer;
 	}
