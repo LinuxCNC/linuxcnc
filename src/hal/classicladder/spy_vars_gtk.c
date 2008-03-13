@@ -163,7 +163,7 @@ void BoolVarsWindowInitGtk()
 	GtkTooltips * WidgetTooltips[ NBR_TYPE_BOOLS_SPY ];
 	
 	SpyBoolVarsWindow = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_title ((GtkWindow *)SpyBoolVarsWindow, "Spy bools vars");
+	gtk_window_set_title ((GtkWindow *)SpyBoolVarsWindow, "Bool (on/off) vars");
 	vboxmain = gtk_vbox_new (FALSE, 0);
 	gtk_container_add (GTK_CONTAINER (SpyBoolVarsWindow), vboxmain);
 	gtk_widget_show (vboxmain);
@@ -185,7 +185,7 @@ void BoolVarsWindowInitGtk()
 		offsetboolvar[ ColumnVar ]  = gtk_entry_new();
 		WidgetTooltips[ ColumnVar ] = gtk_tooltips_new();
 		gtk_tooltips_set_tip ( WidgetTooltips[ ColumnVar ], offsetboolvar[ ColumnVar ], "Offset for vars displayed below (return to apply)", NULL );
-		gtk_widget_set_usize((GtkWidget *)offsetboolvar[ ColumnVar ],40,0);
+		gtk_widget_set_usize((GtkWidget *)offsetboolvar[ ColumnVar ],75,0);
 		gtk_box_pack_start (GTK_BOX(vboxboolvars[ ColumnVar ]),  offsetboolvar[ ColumnVar ] , FALSE, FALSE, 0);
 		gtk_widget_show( offsetboolvar[ ColumnVar ] );
 		gtk_entry_set_text((GtkEntry *)offsetboolvar[ ColumnVar ],"0");
@@ -312,7 +312,7 @@ void FreeVarsWindowInitGtk( )
 	GList *DisplayFormatItems = NULL;
 
 	SpyFreeVarsWindow = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_title ((GtkWindow *)SpyFreeVarsWindow, "Spy free vars");
+	gtk_window_set_title ((GtkWindow *)SpyFreeVarsWindow, "Signed integer word vars");
 	vboxMain = gtk_vbox_new (FALSE, 0);
 	gtk_container_add (GTK_CONTAINER (SpyFreeVarsWindow), vboxMain);
 	gtk_widget_show (vboxMain);
