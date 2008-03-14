@@ -1,0 +1,6 @@
+This test mills the flowsnake form, testing the following interpreter features:
+
+named owords
+recursive subroutine calls
+
+
