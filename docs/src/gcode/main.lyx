@@ -2761,7 +2761,12 @@ G
 
 \layout Standard
 
-General function (See table 5)
+General function (See table 
+\begin_inset LatexCommand \ref{cap:Modal-Groups}
+
+\end_inset 
+
+)
 \end_inset 
 </cell>
 </row>
@@ -2868,7 +2873,12 @@ M
 
 \layout Standard
 
-Miscellaneous function (See table 7)
+Miscellaneous function (See table 
+\begin_inset LatexCommand \ref{cap:Modal-Groups}
+
+\end_inset 
+
+)
 \end_inset 
 </cell>
 </row>
@@ -7966,9 +7976,12 @@ G84
 
 This code is currently unimplemented in EMC2.
  It is accepted, but the behavior is undefined.
- See 
-\family typewriter 
-G33.1
+ See section
+\begin_inset LatexCommand \ref{sec:G33,-G33.1:-Spindle-Synchronized}
+
+\end_inset 
+
+
 \layout Subsection
 
 G85
