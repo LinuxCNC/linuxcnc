@@ -427,6 +427,22 @@ static int init_hal_io(void)
 	return retval;
     }
 
+    rtapi_snprintf(buf, HAL_NAME_LEN, "motion.debug-float-2");
+    retval =
+	hal_param_float_new(buf, HAL_RO, &(emcmot_hal_data->debug_float_2),
+	mot_comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+
+    rtapi_snprintf(buf, HAL_NAME_LEN, "motion.debug-float-3");
+    retval =
+	hal_param_float_new(buf, HAL_RO, &(emcmot_hal_data->debug_float_3),
+	mot_comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+
     rtapi_snprintf(buf, HAL_NAME_LEN, "motion.debug-s32-0");
     retval =
 	hal_param_s32_new(buf, HAL_RO, &(emcmot_hal_data->debug_s32_0),
@@ -547,6 +563,8 @@ static int init_hal_io(void)
     emcmot_hal_data->debug_bit_1 = 0;
     emcmot_hal_data->debug_float_0 = 0.0;
     emcmot_hal_data->debug_float_1 = 0.0;
+    emcmot_hal_data->debug_float_2 = 0.0;
+    emcmot_hal_data->debug_float_3 = 0.0;
 
     emcmot_hal_data->overruns = 0;
     emcmot_hal_data->last_period = 0;

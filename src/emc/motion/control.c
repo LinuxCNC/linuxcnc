@@ -1801,8 +1801,10 @@ static void output_to_hal(void)
     emcmot_hal_data->debug_bit_0 = joints[1].free_tp_active;
     emcmot_hal_data->debug_bit_1 = emcmotStatus->enables_new & AF_ENABLED;
     emcmot_hal_data->debug_float_0 = emcmotStatus->net_feed_scale;
-    emcmot_hal_data->debug_float_1 = 0.0;
-    emcmot_hal_data->debug_s32_0 = 0;
+    emcmot_hal_data->debug_float_1 = emcmotStatus->spindleRevs;
+    emcmot_hal_data->debug_float_2 = emcmotStatus->spindleSpeedIn;
+    emcmot_hal_data->debug_float_3 = emcmotStatus->net_spindle_scale;
+    emcmot_hal_data->debug_s32_0 = emcmotStatus->overrideLimitMask;
     emcmot_hal_data->debug_s32_1 = emcmotStatus->tcqlen;
 
     /* two way handshaking for the spindle encoder */
