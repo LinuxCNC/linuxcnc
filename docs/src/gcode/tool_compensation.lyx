@@ -96,20 +96,19 @@ Tool length offsets are given as positive numbers in the tool table.
 \layout Standard
 
 
-\begin_inset Minipage
-position 1
-inner_position 0
-height "0pt"
-width "50col%"
+\begin_inset Float figure
+wide false
 collapsed false
 
 \layout Standard
 
-Test tool length program.
- 
-\layout Standard
 
+\family typewriter 
+(
+\family default 
 Tool #1 is 1 inch long.
+\family typewriter 
+)
 \layout Standard
 
 
@@ -127,20 +126,22 @@ N05 G1 G43 H1 G4 P10 Z0 X3
 N06 G49 X2 Z0
 \newline 
 N07 G0 X0
+\layout Caption
+
+Test tool length program.
+ 
 \end_inset 
 
 
-\hfill 
+\layout Standard
 
-\begin_inset Minipage
-position 1
-inner_position 0
-height "0pt"
-width "50col%"
+
+\begin_inset Float figure
+wide false
 collapsed false
 
 \layout Standard
-\added_space_top 0.3cm \added_space_bottom 0.3cm \align center 
+
 
 \begin_inset Graphics
 	filename length1.png
@@ -150,6 +151,9 @@ collapsed false
 \end_inset 
 
 
+\layout Caption
+
+Result of tool length test program
 \end_inset 
 
 
@@ -211,16 +215,6 @@ The cutter radius compensation capabilities of the interpreter enable the
  radius compensation so that it leaves a triangle of material remaining.
 \layout Standard
 
-
-\begin_inset Minipage
-position 1
-inner_position 0
-height "0pt"
-width "50col%"
-collapsed false
-
-\layout Standard
-
 In both examples, the shaded triangle represents material which should remain
  after cutting, and the line outside the shaded triangle represents the
  path of the tip of a cutting tool.
@@ -229,21 +223,15 @@ In both examples, the shaded triangle represents material which should remain
  will generate.
  In the method on the right (the one not used), the tool does not stay in
  contact with the shaded triangle at sharp corners.
- 
-\end_inset 
+\layout Standard
 
 
-\hfill 
-
-\begin_inset Minipage
-position 1
-inner_position 0
-height "0pt"
-width "50col%"
+\begin_inset Float figure
+wide false
 collapsed false
 
 \layout Standard
-\added_space_top 0.3cm \added_space_bottom 0.3cm \align center 
+\align center 
 
 \begin_inset Graphics
 	filename radius_comp.png
@@ -252,6 +240,14 @@ collapsed false
 \end_inset 
 
 
+\layout Caption
+
+
+\begin_inset LatexCommand \label{cap:External-corners-cut}
+
+\end_inset 
+
+External corners cut with arcs
 \end_inset 
 
 
@@ -473,46 +469,46 @@ Programming Errors and Limitations
 
 The interpreter will issue the following messages involving cutter radius
  compensation.
-\layout Enumerate
+\layout Itemize
 
 Cannot change axis offsets with cutter radius comp
-\layout Enumerate
+\layout Itemize
 
 Cannot change units with cutter radius comp
-\layout Enumerate
+\layout Itemize
 
 Cannot turn cutter radius comp on out of XY-plane
-\layout Enumerate
+\layout Itemize
 
 Cannot turn cutter radius comp on when already on
-\layout Enumerate
+\layout Itemize
 
 Cannot use G28 or G30 with cutter radius comp
-\layout Enumerate
+\layout Itemize
 
 Cannot use G53 with cutter radius comp
-\layout Enumerate
+\layout Itemize
 
 Cannot use XZ plane with cutter radius comp
-\layout Enumerate
+\layout Itemize
 
 Cannot use YZ plane with cutter radius comp
-\layout Enumerate
+\layout Itemize
 
 Concave corner with cutter radius comp
-\layout Enumerate
+\layout Itemize
 
 Cutter gouging with cutter radius comp
-\layout Enumerate
+\layout Itemize
 
 D word on line with no cutter comp on (G41 or G42) command
-\layout Enumerate
+\layout Itemize
 
 Tool radius index too big
-\layout Enumerate
+\layout Itemize
 
 Tool radius not less than arc radius with cutter radius comp
-\layout Enumerate
+\layout Itemize
 
 Two G codes used from same modal group.
 \layout Standard
@@ -527,29 +523,19 @@ Changing a tool while cutter radius compensation is on is not treated as
  tool is actually being used.
 \layout Standard
 
-
-\begin_inset Minipage
-position 1
-inner_position 0
-height "0pt"
-width "40col%"
-collapsed false
-
-\layout Standard
-\align left 
 When cutter radius compensation is on, it must be physically possible for
  a circle whose radius is the half the diameter given in the tool table
- to be tangent to the contour at all points of the contour.
+ to be tangent to the contour at all points of the contour (See figure 
+\begin_inset LatexCommand \ref{cap:Concave-corners}
+
 \end_inset 
 
+)
+\layout Standard
 
-\hfill 
 
-\begin_inset Minipage
-position 1
-inner_position 0
-height "0pt"
-width "60col%"
+\begin_inset Float figure
+wide false
 collapsed false
 
 \layout Standard
@@ -562,6 +548,14 @@ collapsed false
 \end_inset 
 
 
+\layout Caption
+
+
+\begin_inset LatexCommand \label{cap:Concave-corners}
+
+\end_inset 
+
+Concave corners
 \end_inset 
 
 
@@ -611,16 +605,6 @@ The error message.
 First Move 
 \layout Standard
 
-
-\begin_inset Minipage
-position 1
-inner_position 0
-height "0pt"
-width "40col%"
-collapsed false
-
-\layout Standard
-
 The algorithm used for the first move when the first move is a straight
  line is to draw a straight line from the destination point which is tangent
  to a circle whose center is at the current point and whose radius is the
@@ -631,20 +615,15 @@ The algorithm used for the first move when the first move is a straight
  This is shown in Figure 9.
  If the programmed point is inside the initial cross section of the tool
  (the circle on the left), an error is signalled.
-\end_inset 
+\layout Standard
 
 
-\hfill 
-
-\begin_inset Minipage
-position 1
-inner_position 0
-height "0pt"
-width "60col%"
+\begin_inset Float figure
+wide false
 collapsed false
 
 \layout Standard
-\added_space_top 0.3cm \added_space_bottom 0.3cm \align center 
+\align center 
 
 \begin_inset Graphics
 	filename radius_comp_straight.png
@@ -652,10 +631,7 @@ collapsed false
 
 \end_inset 
 
-
-\layout Standard
-\added_space_top 0.3cm \added_space_bottom 0.3cm \align center 
-
+ 
 \begin_inset Graphics
 	filename radius_comp_arc.png
 	width 3in
@@ -663,6 +639,14 @@ collapsed false
 \end_inset 
 
 
+\layout Caption
+
+
+\begin_inset LatexCommand \label{cap:First-move}
+
+\end_inset 
+
+Constructing the first move
 \end_inset 
 
 
@@ -732,7 +716,12 @@ N0020 G41 G1 Y3.5 (turn compensation on and make first entry move to point
 N0030 G3 X2 Y2.5 I1 (make second entry move to point A)
 \layout Standard
 
-See Figure 11.
+See Figure 
+\begin_inset LatexCommand \ref{cap:Radius-compensation-entry}
+
+\end_inset 
+
+.
  The figure shows the two entry moves but not the alignment move.
 \layout Standard
 
@@ -748,36 +737,12 @@ First, pick a point A on the contour where it is convenient to attach an
 \layout Standard
 
 
-\begin_inset Minipage
-position 1
-inner_position 0
-height "0pt"
-width "40col%"
+\begin_inset Float figure
+wide false
 collapsed false
 
 \layout Standard
-
-After the construction is finished, the code is written in the reverse order
- from the construction.
- Cutter radius compensation is turned on after the alignment move and before
- the first entry move.
- In the code above, line N0010 is the alignment move, line N0020 turns compensat
-ion on and makes the first entry move, and line N0030 makes the second entry
- move.
-\end_inset 
-
-
-\hfill 
-
-\begin_inset Minipage
-position 1
-inner_position 0
-height "0pt"
-width "60col%"
-collapsed false
-
-\layout Standard
-\added_space_top 0.3cm \added_space_bottom 0.3cm \align center 
+\align center 
 
 \begin_inset Graphics
 	filename radius_comp_entry.png
@@ -786,6 +751,14 @@ collapsed false
 \end_inset 
 
 
+\layout Caption
+
+
+\begin_inset LatexCommand \label{cap:Radius-compensation-entry}
+
+\end_inset 
+
+Cutter radius compensation entry mov
 \end_inset 
 
 
@@ -807,7 +780,12 @@ Simple Method
 
 If the contour is a material edge contour and there is a convex corner somewhere
  on the contour, a simpler method of making an entry is available.
- See Figure 12.
+ See Figure 
+\begin_inset LatexCommand \ref{cap:Simpler-cutter-radius}
+
+\end_inset 
+
+.
 \layout Standard
 
 First, pick a convex corner, D.
@@ -825,17 +803,7 @@ First, pick a convex corner, D.
  Since it is on the same side of line DF as the shaded triangle, no additional
  move is needed.
  Now write a line of NC code that turns compensation on and moves to point
- D
-\layout Standard
-
-
-\begin_inset Minipage
-position 1
-inner_position 0
-height "0pt"
-width "40col%"
-collapsed false
-
+ D.
 \layout Standard
 
 
@@ -847,20 +815,15 @@ N0010 G41 G1 X2 Y2 (turn compensation on and make entry move)
 This method will also work at a concave corner on a tool path contour, if
  the actual tool is oversized, but it will fail with a tool path contour
  if the tool is undersized.
-\end_inset 
+\layout Standard
 
 
-\hfill 
-
-\begin_inset Minipage
-position 1
-inner_position 0
-height "0pt"
-width "60col%"
+\begin_inset Float figure
+wide false
 collapsed false
 
 \layout Standard
-\added_space_top 0.3cm \added_space_bottom 0.3cm \align center 
+\align center 
 
 \begin_inset Graphics
 	filename radius_comp_entry_simple.png
@@ -869,6 +832,14 @@ collapsed false
 \end_inset 
 
 
+\layout Caption
+
+
+\begin_inset LatexCommand \label{cap:Simpler-cutter-radius}
+
+\end_inset 
+
+Simpler cutter radius compensation entry move
 \end_inset 
 
 
@@ -928,8 +899,13 @@ All further system-specific information refers to NIST's EMC program, but
  it centered within a few thousandths of an inch.
  I run the program with tool zero selected, and it draws a line at the actual
  part's outline.
- (see figure below) Then, I select a tool with the diameter of the tool
- I intend to use, and run the program again.
+ (see figure 
+\begin_inset LatexCommand \ref{cap:Jon-Elson's-Example}
+
+\end_inset 
+
+) Then, I select a tool with the diameter of the tool I intend to use, and
+ run the program again.
  (Note that Z coordinates in the program may need to be changed to prevent
  plunging the pen through the platen.) Now, I get to see whether the G41
  or G42 compensation that I specified will cut on the desired side of the
@@ -1022,12 +998,30 @@ But, note that in line 110, where the G40 'cancel cutter compensation' command
  the tool up outside the portion of the program where cutter compensation
  is in force.
 \layout Standard
-\added_space_top 0.3cm \added_space_bottom 0.3cm \align center 
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Standard
+\align center 
 
 \begin_inset Graphics
 	filename partdraw1.png
 	width 5in
 
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{cap:Jon-Elson's-Example}
+
+\end_inset 
+
+Jon Elson's Example
 \end_inset 
 
 
