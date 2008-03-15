@@ -23,6 +23,8 @@ loadrt and2 count=1
 addf ppmc.0.read servo-thread
 # then run the motion controller
 addf motion-command-handler servo-thread
+addf and2.0 servo-thread
+addf estop-latch.0 servo-thread
 addf motion-controller servo-thread
 # then the PID loops
 addf pid.0.do-pid-calcs servo-thread
