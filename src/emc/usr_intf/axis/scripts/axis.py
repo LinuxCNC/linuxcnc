@@ -3016,7 +3016,6 @@ def activate_axis_or_set_feedrate(n):
 
 def nomodifier(f):
     def g(event):
-        print "nomodifier", event.state, f
         if event.state & (1|4|8|32|64|128): return ""
         return f(event)
     return g
