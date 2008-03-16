@@ -632,9 +632,10 @@ static void dialog_realtime_not_linked(void)
 	gtk_hbox_new_in_box(TRUE, 0, 0, (GTK_DIALOG(dialog.window)->vbox),
 	FALSE, TRUE, 5);
     gtk_label_new_in_box("Multiplier:", hbox, FALSE, FALSE, 0);
-    /* set up the multiplier spinbutton */
+    /* set up the multiplier spinbutton - ranges from every run of the
+       thread, to every 1000th run */
     horiz->mult_adj =
-	gtk_adjustment_new(ctrl_shm->mult, 1, ctrl_shm->mult, 1, 1, 0);
+	gtk_adjustment_new(ctrl_shm->mult, 1, 1000, 1, 1, 0);
     horiz->mult_spinbutton =
 	gtk_spin_button_new(GTK_ADJUSTMENT(horiz->mult_adj), 1, 0);
     gtk_box_pack_start(GTK_BOX(hbox), horiz->mult_spinbutton, FALSE, TRUE, 0);
