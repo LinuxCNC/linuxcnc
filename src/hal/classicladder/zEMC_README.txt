@@ -62,7 +62,11 @@ Module_hal.c:
 spy_vars_gtk.c:
 --- changed to be able to toggle vars windows (one, the other, both , both close) by clicking the button.
 --- added messages to statusbar when window toggled
-
+--- made integer window toggle from symbol names to variable names when section display window button is toggled.
+--- added colours to variables to diffientiate between in,out and internal variables
+--- if the number of words defined is less then number of words normally displayed the window adjusts
+--- displays 15 word variables now.
+  
 symbols_gtk.c:
 --- changed to show HAL signals in comment slot
 --- added messages to statusbar when window toggled
@@ -77,6 +81,7 @@ SUBMAKEFILE:
 
 vars_names.c/.h:
 --- backported fix from version 7.126 to fix a crash if varible number is not a number
+--- fix so if symbol name is blank will return the variable name instead (fix crash)
 
 var_names.c:
 --- backported fix from version 7.126 to fix a crash if varible number is not a number
