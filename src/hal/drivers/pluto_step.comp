@@ -217,14 +217,15 @@ FUNCTION(write) {
 	double v = new_position_cmd - data.old_position_cmd[i];
 	double est_err = stepgen_position_fb(i) + data.old_velocity_cmd[i] * fperiod - new_position_cmd;
         double actual_max;
+	double scale_abs = abs(stepgen_scale(i));
 
 	v = v - debug_2 * est_err / fperiod;
-        if(v > 0) v = v + .5/stepgen_scale(i);
-        else if(v < 0) v = v - .5/stepgen_scale(i);
+        if(v > 0) v = v + .5/scale_abs;
+        else if(v < 0) v = v - .5/scale_abs;
 
 	data.old_position_cmd[i] = new_position_cmd;
 	data.old_velocity_cmd[i] = v;
-        actual_max = fmax / stepgen_scale(i);
+        actual_max = fmax / scale_abs;
         if(stepgen_maxvel(i) < 0) stepgen_maxvel(i) = -stepgen_maxvel(i);
         if(stepgen_maxvel(i) != 0 && stepgen_maxvel(i) > actual_max) {
             static int message_printed[4] = {0,0,0,0};
@@ -232,7 +233,7 @@ FUNCTION(write) {
                 rtapi_print_msg(RTAPI_MSG_ERR,
                     "Requested step rate %dHz decreased to %dHz "
                     "due to hardware or timing limitations\n",
-                    (int)(stepgen_maxvel(i) * stepgen_scale(i)),
+                    (int)(stepgen_maxvel(i) * scale_abs),
                     (int)(fmax));
                 message_printed[i] = 1;
             }
