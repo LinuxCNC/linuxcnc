@@ -25,6 +25,7 @@ emc2 (1:2.2.4~cvs) unstable; urgency=low
   * configs/univstep: fix external estop in this configuration
   * pluto_step: fix for negative scale values
   * pluto_servo: fix for pwm+direction mode
+  * stepconf: improve calculation of HOME_LATCH_VEL
 
  -- Jeff Epler <jepler@unpythonic.net>  Sun, 16 Mar 2008 11:21:58 -0500
 
