@@ -1,3 +1,8 @@
+emc2 (1:2.2.5~cvs) unstable; urgency=low
+
+
+ -- Jeff Epler <jepler@unpythonic.net>  Sun, 16 Mar 2008 12:19:49 -0500
+
 emc2 (1:2.2.4) unstable; urgency=low
 
   * make xxxmach exit reliably with 'halcmd unload' (SF#1816781)
