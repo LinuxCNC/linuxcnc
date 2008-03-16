@@ -22,8 +22,9 @@ emc2 (1:2.2.4~cvs) unstable; urgency=low
   * stepconf: enable 'dither-pwm' for spindle speed control
   * traj planner: fix velocity 'bobble' between 1st and 2nd consecutive synced moves
   * halscope: fix 'sample every Nth time' function
+  * configs/univstep: fix external estop in this configuration
 
- -- jepler <jepler@unpythonic.net>  Wed, 12 Mar 2008 09:04:01 -0500
+ -- Jeff Epler <jepler@unpy.net>  Sun, 16 Mar 2008 08:48:20 -0500
 
 emc2 (1:2.2.3) unstable; urgency=low
 
