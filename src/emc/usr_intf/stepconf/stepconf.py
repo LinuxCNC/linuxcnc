@@ -526,7 +526,12 @@ class Data:
 	    print >>file, "HOME_SEARCH_VEL = %f" % get("homevel")
 	    latchvel = get("homevel") / abs(get("homevel"))
 	    if get("latchdir"): latchvel = -latchvel
-	    latchvel = latchvel * 1000 / get("scale")
+	    # set latch velocity to one step every two servo periods
+	    # to ensure that we can capture the position to within one step
+	    latchvel = latchvel * 500 / get("scale")
+	    # don't do the latch move faster than the search move
+	    if abs(latchvel) > abs(get("homevel")):
+		latchvel = latchvel * (abs(get("homevel"))/abs(latchvel))
 	    print >>file, "HOME_LATCH_VEL = %f" % latchvel
 	    if inputs & ignore:
 		print >>file, "HOME_IGNORE_LIMITS = YES"
