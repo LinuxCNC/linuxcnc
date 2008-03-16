@@ -42,7 +42,8 @@
 
 #define NBR_BOOLS_VAR_SPY 15
 #define NBR_TYPE_BOOLS_SPY 3
-#define NBR_FREE_VAR_SPY 10
+#define NBR_FREE_VAR_SPY 15
+
 static int toggle=0;
 GtkWidget *SpyBoolVarsWindow;
 GtkWidget *SpyFreeVarsWindow;
@@ -51,10 +52,11 @@ GtkWidget *offsetboolvar[ NBR_TYPE_BOOLS_SPY ];
 int ValOffsetBoolVar[ NBR_TYPE_BOOLS_SPY ] = { 0, 0, 0 };
 GtkWidget *chkvar[ NBR_TYPE_BOOLS_SPY ][ NBR_BOOLS_VAR_SPY ];
 
-GtkWidget *EntryVarSpy[NBR_FREE_VAR_SPY*2];
+GtkWidget *EntryVarSpy[NBR_FREE_VAR_SPY*3], *LabelFreeVars[ NBR_FREE_VAR_SPY];
+
 GtkTooltips * TooltipsEntryVarSpy[ NBR_FREE_VAR_SPY ];
 /* defaults vars to spy list */
-int VarSpy[NBR_FREE_VAR_SPY][2] = { {VAR_MEM_WORD,0}, {VAR_MEM_WORD,1}, {VAR_MEM_WORD,2}, {VAR_MEM_WORD,3}, {VAR_MEM_WORD,4}, {VAR_MEM_WORD,5}, {VAR_MEM_WORD,6}, {VAR_MEM_WORD,7}, {VAR_MEM_WORD,8}, {VAR_MEM_WORD,9} }; 
+int VarSpy[NBR_FREE_VAR_SPY][2] = { {VAR_MEM_WORD,0}, {VAR_MEM_WORD,1}, {VAR_MEM_WORD,2}, {VAR_MEM_WORD,3}, {VAR_MEM_WORD,4}, {VAR_MEM_WORD,5}, {VAR_MEM_WORD,6}, {VAR_MEM_WORD,7}, {VAR_MEM_WORD,8}, {VAR_MEM_WORD,9}, {VAR_MEM_WORD,10}, {VAR_MEM_WORD,11}, {VAR_MEM_WORD,12}, {VAR_MEM_WORD,13}, {VAR_MEM_WORD,14} }; 
 GtkWidget *DisplayFormatVarSpy[NBR_FREE_VAR_SPY];
 
 static gint chkvar_press_event( GtkWidget      *widget, void * numcheck )
@@ -112,14 +114,15 @@ void UpdateAllLabelsBoolsVars( )
 	{
 		for(OffVar=0; OffVar<NBR_BOOLS_VAR_SPY; OffVar++)
 		{
-			char BufNumVar[20];
+			char BufNumVar[40];
 			switch( ColumnVar )
 			{
-				case 0: sprintf(BufNumVar, "%cB%d",'%', OffVar+ValOffsetBoolVar[ ColumnVar ]); break;
-				case 1: sprintf(BufNumVar, "%cI%d",'%', OffVar+ValOffsetBoolVar[ ColumnVar ]); break;
-				case 2: sprintf(BufNumVar, "%cQ%d",'%', OffVar+ValOffsetBoolVar[ ColumnVar ]); break;
+				case 0: sprintf(BufNumVar, "<span foreground=\"black\" weight=\"bold\">%cB%d</span>",'%', OffVar+ValOffsetBoolVar[ ColumnVar ]); break;
+				case 1: sprintf(BufNumVar, "<span foreground=\"red\" weight=\"bold\">%cI%d</span>",'%', OffVar+ValOffsetBoolVar[ ColumnVar ]); break;
+				case 2: sprintf(BufNumVar, "<span foreground=\"blue\" weight=\"bold\">%cQ%d</span>",'%', OffVar+ValOffsetBoolVar[ ColumnVar ]); break;
 			}
-			gtk_label_set_text(GTK_LABEL(GTK_BIN( chkvar[ ColumnVar ][ OffVar ] )->child),BufNumVar);
+			gtk_label_set_markup (GTK_LABEL (GTK_BIN( chkvar[ ColumnVar ][ OffVar ] )->child),BufNumVar);
+			//gtk_label_set_text(GTK_LABEL(GTK_BIN( chkvar[ ColumnVar ][ OffVar ] )->child),BufNumVar);
 		}
 	}
 }
@@ -163,7 +166,7 @@ void BoolVarsWindowInitGtk()
 	GtkTooltips * WidgetTooltips[ NBR_TYPE_BOOLS_SPY ];
 	
 	SpyBoolVarsWindow = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_title ((GtkWindow *)SpyBoolVarsWindow, "Bool (on/off) vars");
+	gtk_window_set_title ((GtkWindow *)SpyBoolVarsWindow, "Spy bools vars");
 	vboxmain = gtk_vbox_new (FALSE, 0);
 	gtk_container_add (GTK_CONTAINER (SpyBoolVarsWindow), vboxmain);
 	gtk_widget_show (vboxmain);
@@ -185,7 +188,7 @@ void BoolVarsWindowInitGtk()
 		offsetboolvar[ ColumnVar ]  = gtk_entry_new();
 		WidgetTooltips[ ColumnVar ] = gtk_tooltips_new();
 		gtk_tooltips_set_tip ( WidgetTooltips[ ColumnVar ], offsetboolvar[ ColumnVar ], "Offset for vars displayed below (return to apply)", NULL );
-		gtk_widget_set_usize((GtkWidget *)offsetboolvar[ ColumnVar ],75,0);
+		gtk_widget_set_usize((GtkWidget *)offsetboolvar[ ColumnVar ],40,0);
 		gtk_box_pack_start (GTK_BOX(vboxboolvars[ ColumnVar ]),  offsetboolvar[ ColumnVar ] , FALSE, FALSE, 0);
 		gtk_widget_show( offsetboolvar[ ColumnVar ] );
 		gtk_entry_set_text((GtkEntry *)offsetboolvar[ ColumnVar ],"0");
@@ -236,14 +239,20 @@ char * ConvToBin( unsigned int Val )
 		strcpy( TabBin,"0" );
 	return TabBin;
 }
-
+// This function updates the signed Integer window
+// It checks the display format and displays the number in hex,binary or decimal
+// It checks to see what type of word variable it represents (Hal s32 pin in or out or an internal memory variable) and displays that label with colour
+// If Displays variable names or symbol names depending on the check box in the section display window
 void DisplayFreeVarSpy()
 {
-	int NumVarSpy;
-	int Value;
+	static int LastTime;
+	int NumVarSpy,i=NBR_FREE_VAR_SPY;
+	int Value,NumEntry;
 	char BufferValue[50];
 	char DisplayFormat[10];
-	for (NumVarSpy=0; NumVarSpy<NBR_FREE_VAR_SPY; NumVarSpy++)
+	char  * VarName;
+	if ( NBR_WORDS < NBR_FREE_VAR_SPY) { i=NBR_WORDS ;}
+	for (NumVarSpy=0; NumVarSpy<i; NumVarSpy++)
 	{
 		Value = ReadVar(VarSpy[NumVarSpy][0],VarSpy[NumVarSpy][1]);
 		strcpy( DisplayFormat , (char *)gtk_entry_get_text((GtkEntry *)((GtkCombo *)DisplayFormatVarSpy[NumVarSpy])->entry) );
@@ -254,8 +263,26 @@ void DisplayFreeVarSpy()
 			sprintf(BufferValue,"%X",Value);
 		if (strcmp( DisplayFormat,"Bin" )==0 )
 			strcpy( BufferValue, ConvToBin( Value ) );
-		gtk_entry_set_text((GtkEntry *)EntryVarSpy[NBR_FREE_VAR_SPY+NumVarSpy],BufferValue);
+		gtk_entry_set_text((GtkEntry *)EntryVarSpy[NumVarSpy+(2*NBR_FREE_VAR_SPY)],BufferValue);
+
+		if (VarSpy[NumVarSpy][1] >= ( NBR_S32IN + NBR_S32OUT )) 
+			{  VarName= "<span foreground=\"black\" weight=\"bold\" >Memory</span>";
+		}else if(VarSpy[NumVarSpy][1]>= NBR_S32IN ) 
+			{  VarName= "<span foreground=\"blue\" weight=\"bold\" >S32out pin</span>";
+		} else { VarName="<span foreground=\"red\" weight=\"bold\" >S32in pin</span>"; }
+			gtk_label_set_markup (GTK_LABEL (LabelFreeVars[NumVarSpy]),VarName);
+
+		if (InfosGene->DisplaySymbols!=LastTime) 
+		{		 	
+		NumEntry = NumVarSpy+0*NBR_FREE_VAR_SPY;
+		gtk_entry_set_text((GtkEntry *)EntryVarSpy[ NumVarSpy+(1 *NBR_FREE_VAR_SPY)],CreateVarName(VarSpy[NumVarSpy][0],VarSpy[NumVarSpy][1]));
+		}
 	}
+	// we do this check after the FOR loop
+    	// so it does not toggle each time thru loop
+        // Toggle LastTime to match InfoGene  
+	if (InfosGene->DisplaySymbols!=LastTime) 
+		{ LastTime=((LastTime-1)*-1); } 		
 }
 
 static gint EntryVarSpy_activate_event(GtkWidget *widget, int NumSpy)
@@ -269,6 +296,7 @@ static gint EntryVarSpy_activate_event(GtkWidget *widget, int NumSpy)
 		char * OtherVarName = NULL;
 		*NumVarSpy++ = NewVarType;
 		*NumVarSpy = NewVarOffset;
+
 		if ( BufferVar[ 0 ]=='%' )
 			OtherVarName = ConvVarNameToSymbol( BufferVar );
 		else
@@ -303,16 +331,17 @@ gint FreeVarsWindowDeleteEvent( GtkWidget * widget, GdkEvent * event, gpointer d
 	return TRUE;
 }
 
-
+// modified this to have 3 columns so we can display variable type
 void FreeVarsWindowInitGtk( )
 {
 	GtkWidget * hboxfreevars[ NBR_FREE_VAR_SPY ], *vboxMain;
+	char * VarName= NULL;
 	long ColumnVar;
-	int NumVarSpy,NumEntry;
+	int NumVarSpy,NumEntry,i=NBR_FREE_VAR_SPY;
 	GList *DisplayFormatItems = NULL;
 
 	SpyFreeVarsWindow = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_title ((GtkWindow *)SpyFreeVarsWindow, "Signed integer word vars");
+	gtk_window_set_title ((GtkWindow *)SpyFreeVarsWindow, "Signed integer variables");
 	vboxMain = gtk_vbox_new (FALSE, 0);
 	gtk_container_add (GTK_CONTAINER (SpyFreeVarsWindow), vboxMain);
 	gtk_widget_show (vboxMain);
@@ -320,28 +349,48 @@ void FreeVarsWindowInitGtk( )
 	DisplayFormatItems = g_list_append(DisplayFormatItems,"Dec");
 	DisplayFormatItems = g_list_append(DisplayFormatItems,"Hex");
 	DisplayFormatItems = g_list_append(DisplayFormatItems,"Bin");
-	
-	for(NumVarSpy=0; NumVarSpy<NBR_FREE_VAR_SPY; NumVarSpy++)
+	if ( NBR_WORDS < NBR_FREE_VAR_SPY) { i=NBR_WORDS ;}
+	for(NumVarSpy=0; NumVarSpy<i; NumVarSpy++)
 	{
 		hboxfreevars[ NumVarSpy ] = gtk_hbox_new (FALSE, 0);
 		gtk_container_add (GTK_CONTAINER (vboxMain), hboxfreevars[ NumVarSpy ]);
 		gtk_widget_show (hboxfreevars[ NumVarSpy ]);
-		for(ColumnVar=0; ColumnVar<2; ColumnVar++)
-		{
-			NumEntry = NumVarSpy+ColumnVar*NBR_FREE_VAR_SPY;
-			EntryVarSpy[ NumEntry ] = gtk_entry_new();
-			gtk_widget_set_usize((GtkWidget *)EntryVarSpy[ NumEntry ],(ColumnVar==2)?80:110,0);
-			gtk_box_pack_start (GTK_BOX( hboxfreevars[ NumVarSpy ] ), EntryVarSpy[ NumEntry ], TRUE, TRUE, 0);
-			gtk_widget_show(EntryVarSpy[NumEntry]);
-			if ( ColumnVar==0 )
-			{
-				char * VarName = CreateVarName(VarSpy[NumVarSpy][0],VarSpy[NumVarSpy][1]);
-				TooltipsEntryVarSpy[ NumVarSpy ] = gtk_tooltips_new();
 
+		for(ColumnVar=0; ColumnVar<3; ColumnVar++)
+		{
+			NumEntry = NumVarSpy+ColumnVar*NBR_FREE_VAR_SPY;			
+			
+			if ( ColumnVar==0)
+			{
+				//if (NumVarSpy >= ( NBR_S32IN + NBR_S32OUT )) { VarName = "Memory";
+				//}else if(NumVarSpy >= NBR_S32IN ) { VarName = "S32out pin";
+				//} else {VarName = "S32in pin";
+				LabelFreeVars[NumEntry] = gtk_label_new(NULL);				
+				gtk_widget_set_usize((GtkWidget *)LabelFreeVars[NumEntry],100,0);
+				gtk_box_pack_start (GTK_BOX (hboxfreevars[ NumVarSpy ]), LabelFreeVars[NumEntry], FALSE, FALSE, 0);
+				gtk_widget_show (LabelFreeVars[NumEntry]);
+			}
+			if ( ColumnVar==1)
+			{
+				EntryVarSpy[ NumEntry ] = gtk_entry_new();
+			        gtk_widget_show(EntryVarSpy[NumEntry]);
+				gtk_box_pack_start (GTK_BOX( hboxfreevars[ NumVarSpy ] ), EntryVarSpy[ NumEntry ], TRUE, TRUE, 0);
+				gtk_widget_set_usize((GtkWidget *)EntryVarSpy[ NumEntry ],(ColumnVar==1)?80:110,0);	
+				VarName = CreateVarName(VarSpy[NumVarSpy][0],VarSpy[NumVarSpy][1]);
+				TooltipsEntryVarSpy[ NumVarSpy ] = gtk_tooltips_new();
 				gtk_entry_set_text((GtkEntry *)EntryVarSpy[ NumEntry ],VarName);
 				gtk_signal_connect(GTK_OBJECT (EntryVarSpy[ NumEntry ]), "activate",
-                                        (GtkSignalFunc) EntryVarSpy_activate_event, (void *)NumVarSpy);
+                                (GtkSignalFunc) EntryVarSpy_activate_event, (void *)NumVarSpy);
 			}
+			if ( ColumnVar==2)
+			{
+				EntryVarSpy[ NumEntry ] = gtk_entry_new();
+			        gtk_widget_show(EntryVarSpy[NumEntry]);
+				gtk_box_pack_start (GTK_BOX( hboxfreevars[ NumVarSpy ] ), EntryVarSpy[ NumEntry ], TRUE, TRUE, 0);
+				gtk_widget_set_usize((GtkWidget *)EntryVarSpy[ NumEntry ],(ColumnVar==2)?80:110,0);
+
+			}
+
 		}
 
 		DisplayFormatVarSpy[NumVarSpy] = gtk_combo_new();
