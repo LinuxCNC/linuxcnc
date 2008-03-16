@@ -23,11 +23,11 @@ emc2 (1:2.2.4~cvs) unstable; urgency=low
   * traj planner: fix velocity 'bobble' between 1st and 2nd consecutive synced moves
   * halscope: fix 'sample every Nth time' function
   * configs/univstep: fix external estop in this configuration
-  * pluto_step: fix for negative scale values
+  * pluto_step: fix for negative scale values (SF#1915407)
   * pluto_servo: fix for pwm+direction mode
   * stepconf: improve calculation of HOME_LATCH_VEL
 
- -- Jeff Epler <jepler@unpythonic.net>  Sun, 16 Mar 2008 11:21:58 -0500
+ -- Jeff Epler <jepler@unpy.net>  Sun, 16 Mar 2008 13:13:49 -0500
 
 emc2 (1:2.2.3) unstable; urgency=low
 
