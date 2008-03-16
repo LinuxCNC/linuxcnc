@@ -1,4 +1,4 @@
-emc2 (1:2.2.4~cvs) unstable; urgency=low
+emc2 (1:2.2.4) unstable; urgency=low
 
   * make xxxmach exit reliably with 'halcmd unload' (SF#1816781)
   * hook up encoder index for homing in the motenc sample configuration
@@ -27,7 +27,7 @@ emc2 (1:2.2.4~cvs) unstable; urgency=low
   * pluto_servo: fix for pwm+direction mode
   * stepconf: improve calculation of HOME_LATCH_VEL
 
- -- Jeff Epler <jepler@unpy.net>  Sun, 16 Mar 2008 13:13:49 -0500
+ -- Jeff Epler <jepler@unpythonic.net>  Sun, 16 Mar 2008 12:15:28 -0500
 
 emc2 (1:2.2.3) unstable; urgency=low
 
