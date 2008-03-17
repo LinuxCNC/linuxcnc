@@ -3,7 +3,7 @@
 # "R.Labahn" <r.labahn@bau.hs-wismar.de>, 2007.
 # <>, 2007.
 # Francis TISSERANT <ftissera@free.fr>, 2007.
-# Francis Tisserant <ftissera@free.fr>, 2007.
+# Francis Tisserant <ftissera@free.fr>, 2007, 2008.
 # French translation of axis.pot
 # Copyright (C) 2007 THE AXIS'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the AXIS package.
@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fr_axis\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-11-09 02:04+0100\n"
-"PO-Revision-Date: 2007-11-14 01:41+0100\n"
+"POT-Creation-Date: 2008-03-17 00:45+0100\n"
+"PO-Revision-Date: 2008-03-17 16:53+0100\n"
 "Last-Translator: Francis Tisserant <ftissera@free.fr>\n"
 "Language-Team: french <gnomefr@traduc.org>\n"
 "MIME-Version: 1.0\n"
@@ -321,70 +321,70 @@ msgstr "Rafraîchir le chemin d'outil"
 msgid "Cycle among preset views"
 msgstr "Défilement cyclique des vues prédéfinies"
 
-#: emc/usr_intf/axis/scripts/axis.py:1346
+#: emc/usr_intf/axis/scripts/axis.py:1356
 msgid "AXIS error"
 msgstr "Erreur d'AXIS"
 
-#: emc/usr_intf/axis/scripts/axis.py:1346
-#: emc/usr_intf/axis/scripts/axis.py:1349
-#: emc/usr_intf/axis/scripts/axis.py:1711
-#: emc/usr_intf/axis/scripts/axis.py:1761
-#: emc/usr_intf/axis/scripts/axis.py:1987
-#: emc/usr_intf/axis/scripts/axis.py:2922
-#: emc/usr_intf/axis/scripts/axis.py:3525
+#: emc/usr_intf/axis/scripts/axis.py:1356
+#: emc/usr_intf/axis/scripts/axis.py:1359
+#: emc/usr_intf/axis/scripts/axis.py:1721
+#: emc/usr_intf/axis/scripts/axis.py:1776
+#: emc/usr_intf/axis/scripts/axis.py:2003
+#: emc/usr_intf/axis/scripts/axis.py:2943
+#: emc/usr_intf/axis/scripts/axis.py:3546
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:709
 #: ../lib/python/propertywindow.py:34 ../share/axis/tcl/axis.tcl:1458
 #: ../share/axis/tcl/axis.tcl:1495
 msgid "OK"
 msgstr "OK"
 
-#: emc/usr_intf/axis/scripts/axis.py:1349
+#: emc/usr_intf/axis/scripts/axis.py:1359
 msgid "AXIS Message"
 msgstr "Message d'AXIS"
 
-#: emc/usr_intf/axis/scripts/axis.py:1412
+#: emc/usr_intf/axis/scripts/axis.py:1422
 msgid "No tool"
 msgstr "Pas d'outil"
 
-#: emc/usr_intf/axis/scripts/axis.py:1414
+#: emc/usr_intf/axis/scripts/axis.py:1424
 #, python-format
 msgid "Unknown tool %d"
 msgstr "Outil %d inconnu"
 
-#: emc/usr_intf/axis/scripts/axis.py:1417
-#: emc/usr_intf/axis/scripts/axis.py:1424
+#: emc/usr_intf/axis/scripts/axis.py:1427
+#: emc/usr_intf/axis/scripts/axis.py:1434
 #, python-format
 msgid "Tool %d, offset %g, diameter %g"
 msgstr "Outil %d, offset %g, diamètre %g"
 
-#: emc/usr_intf/axis/scripts/axis.py:1421
+#: emc/usr_intf/axis/scripts/axis.py:1431
 #, python-format
 msgid "Tool %d, zo %g, xo %g, dia %g"
 msgstr "Outil %d, zo %g, xo %g, dia %g"
 
-#: emc/usr_intf/axis/scripts/axis.py:1665
+#: emc/usr_intf/axis/scripts/axis.py:1675
 msgid "Filtering..."
 msgstr "Filtrage.."
 
-#: emc/usr_intf/axis/scripts/axis.py:1707
+#: emc/usr_intf/axis/scripts/axis.py:1717
 msgid "Filter failed"
 msgstr "Échec du filtre"
 
-#: emc/usr_intf/axis/scripts/axis.py:1708
+#: emc/usr_intf/axis/scripts/axis.py:1718
 #, python-format
 msgid ""
 "The program %r exited with code %d.  Any error messages it produced are "
 "shown below:"
 msgstr ""
-"Le programme %r c'est arrêté avec le code %d.  Si des messages ont été produits, ils sont "
-"les suivants:"
+"Le programme %r c'est arrêté avec le code %d.  Si des messages ont été "
+"produits, ils sont les suivants:"
 
-#: emc/usr_intf/axis/scripts/axis.py:1759
+#: emc/usr_intf/axis/scripts/axis.py:1774
 #, python-format
 msgid "G-Code error in %s"
 msgstr "Erreur de G-code en %s"
 
-#: emc/usr_intf/axis/scripts/axis.py:1760
+#: emc/usr_intf/axis/scripts/axis.py:1775
 #, python-format
 msgid ""
 "Near line %d of %s:\n"
@@ -393,102 +393,102 @@ msgstr ""
 "Vers la ligne %d de %s:\n"
 "%s"
 
-#: emc/usr_intf/axis/scripts/axis.py:1889
-#: emc/usr_intf/axis/scripts/axis.py:3128 ../share/axis/tcl/axis.tcl:857
+#: emc/usr_intf/axis/scripts/axis.py:1904
+#: emc/usr_intf/axis/scripts/axis.py:3149 ../share/axis/tcl/axis.tcl:857
 #: ../share/axis/tcl/axis.tcl:859 ../share/axis/tcl/axis.tcl:1848
 msgid "Continuous"
 msgstr "En continu"
 
-#: emc/usr_intf/axis/scripts/axis.py:1988
-#: emc/usr_intf/axis/scripts/axis.py:2138
+#: emc/usr_intf/axis/scripts/axis.py:2004
+#: emc/usr_intf/axis/scripts/axis.py:2157
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:711
 msgid "Cancel"
 msgstr "Annuler"
 
-#: emc/usr_intf/axis/scripts/axis.py:2089
+#: emc/usr_intf/axis/scripts/axis.py:2108
 msgid "Coordinate System:"
 msgstr "Décalage d'origine pièce:"
 
-#: emc/usr_intf/axis/scripts/axis.py:2103
+#: emc/usr_intf/axis/scripts/axis.py:2122
 msgid "Name:"
 msgstr "Nom:"
 
-#: emc/usr_intf/axis/scripts/axis.py:2103
+#: emc/usr_intf/axis/scripts/axis.py:2122
 msgid "Size:"
 msgstr "Taille:"
 
-#: emc/usr_intf/axis/scripts/axis.py:2104
+#: emc/usr_intf/axis/scripts/axis.py:2123
 msgid "Tool order:"
 msgstr "Ordre des outils:"
 
-#: emc/usr_intf/axis/scripts/axis.py:2104
+#: emc/usr_intf/axis/scripts/axis.py:2123
 msgid "Rapid distance:"
 msgstr "Distance en vitesse rapide:"
 
-#: emc/usr_intf/axis/scripts/axis.py:2105
+#: emc/usr_intf/axis/scripts/axis.py:2124
 msgid "Feed distance:"
 msgstr "Distance en vitesse travail:"
 
-#: emc/usr_intf/axis/scripts/axis.py:2105
+#: emc/usr_intf/axis/scripts/axis.py:2124
 msgid "Total distance:"
 msgstr "Distance totale:"
 
-#: emc/usr_intf/axis/scripts/axis.py:2106
+#: emc/usr_intf/axis/scripts/axis.py:2125
 msgid "Run time:"
 msgstr "Run time:"
 
-#: emc/usr_intf/axis/scripts/axis.py:2106
+#: emc/usr_intf/axis/scripts/axis.py:2125
 msgid "X bounds:"
 msgstr "Limites X:"
 
-#: emc/usr_intf/axis/scripts/axis.py:2107
+#: emc/usr_intf/axis/scripts/axis.py:2126
 msgid "Y bounds:"
 msgstr "Limites Y:"
 
-#: emc/usr_intf/axis/scripts/axis.py:2107
+#: emc/usr_intf/axis/scripts/axis.py:2126
 msgid "Z bounds:"
 msgstr "Limites Z:"
 
-#: emc/usr_intf/axis/scripts/axis.py:2108
+#: emc/usr_intf/axis/scripts/axis.py:2127
 msgid "A bounds:"
 msgstr "Limites A:"
 
-#: emc/usr_intf/axis/scripts/axis.py:2108
+#: emc/usr_intf/axis/scripts/axis.py:2127
 msgid "B bounds:"
 msgstr "Limites B:"
 
-#: emc/usr_intf/axis/scripts/axis.py:2109
+#: emc/usr_intf/axis/scripts/axis.py:2128
 msgid "C bounds:"
 msgstr "Limites C:"
 
-#: emc/usr_intf/axis/scripts/axis.py:2127
+#: emc/usr_intf/axis/scripts/axis.py:2146
 #, python-format
 msgid "Program exceeds machine minimum on axis %s"
 msgstr "Le programme dépasse la limite mini sur l'axe %s"
 
-#: emc/usr_intf/axis/scripts/axis.py:2130
+#: emc/usr_intf/axis/scripts/axis.py:2149
 #, python-format
 msgid "Program exceeds machine maximum on axis %s"
 msgstr "Le programme dépasse la limite maxi sur l'axe %s"
 
-#: emc/usr_intf/axis/scripts/axis.py:2135
+#: emc/usr_intf/axis/scripts/axis.py:2154
 msgid "Program exceeds machine limits"
 msgstr "Le programme dépasse les limites machine"
 
-#: emc/usr_intf/axis/scripts/axis.py:2138
+#: emc/usr_intf/axis/scripts/axis.py:2157
 msgid "Run Anyway"
 msgstr "Exécuter quand même"
 
-#: emc/usr_intf/axis/scripts/axis.py:2174
+#: emc/usr_intf/axis/scripts/axis.py:2193
 msgid "No file loaded"
 msgstr "Aucun fichier chargé"
 
-#: emc/usr_intf/axis/scripts/axis.py:2182
+#: emc/usr_intf/axis/scripts/axis.py:2201
 #, python-format
 msgid "generated from %s"
 msgstr "généré depuis %s"
 
-#: emc/usr_intf/axis/scripts/axis.py:2188
+#: emc/usr_intf/axis/scripts/axis.py:2207
 #, python-format
 msgid ""
 "%s bytes\n"
@@ -497,83 +497,83 @@ msgstr ""
 "%s octets\n"
 "%s lignes de gcode"
 
-#: emc/usr_intf/axis/scripts/axis.py:2192
-#: emc/usr_intf/stepconf/stepconf.py:1092
-#: emc/usr_intf/stepconf/stepconf.py:1435
-#: emc/usr_intf/stepconf/stepconf.glade:5064
+#: emc/usr_intf/axis/scripts/axis.py:2211
+#: emc/usr_intf/stepconf/stepconf.py:1118
+#: emc/usr_intf/stepconf/stepconf.py:1465
+#: emc/usr_intf/stepconf/stepconf.glade:5065
 msgid "mm"
 msgstr "mm"
 
-#: emc/usr_intf/axis/scripts/axis.py:2196
-#: emc/usr_intf/stepconf/stepconf.py:1097
-#: emc/usr_intf/stepconf/stepconf.py:1449
+#: emc/usr_intf/axis/scripts/axis.py:2215
+#: emc/usr_intf/stepconf/stepconf.py:1123
+#: emc/usr_intf/stepconf/stepconf.py:1479
 msgid "in"
 msgstr "in"
 
-#: emc/usr_intf/axis/scripts/axis.py:2213
+#: emc/usr_intf/axis/scripts/axis.py:2232
 #, python-format
 msgid "%.1f minutes"
 msgstr "% 1f minutes"
 
-#: emc/usr_intf/axis/scripts/axis.py:2215
+#: emc/usr_intf/axis/scripts/axis.py:2234
 #, python-format
 msgid "%d seconds"
 msgstr "%d secondes"
 
-#: emc/usr_intf/axis/scripts/axis.py:2223
+#: emc/usr_intf/axis/scripts/axis.py:2242
 #, python-format
 msgid "%f to %f = %f %s"
 msgstr "%f à %f = %f %s"
 
-#: emc/usr_intf/axis/scripts/axis.py:2224
+#: emc/usr_intf/axis/scripts/axis.py:2243
 msgid "G-Code Properties"
 msgstr "Propriétés du G-code"
 
-#: emc/usr_intf/axis/scripts/axis.py:2413
+#: emc/usr_intf/axis/scripts/axis.py:2432
 msgid "All machinable files"
 msgstr "Tous formats utilisables"
 
-#: emc/usr_intf/axis/scripts/axis.py:2414
-#: emc/usr_intf/axis/scripts/axis.py:2909
+#: emc/usr_intf/axis/scripts/axis.py:2433
+#: emc/usr_intf/axis/scripts/axis.py:2930
 msgid "rs274ngc files"
 msgstr "Fichiers rs274ngc"
 
-#: emc/usr_intf/axis/scripts/axis.py:2415
+#: emc/usr_intf/axis/scripts/axis.py:2434
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:745
 msgid "All files"
 msgstr "Tous fichiers"
 
-#: emc/usr_intf/axis/scripts/axis.py:2761 ../share/axis/tcl/axis.tcl:873
+#: emc/usr_intf/axis/scripts/axis.py:2782 ../share/axis/tcl/axis.tcl:873
 msgid "Touch Off"
 msgstr "Toucher"
 
-#: emc/usr_intf/axis/scripts/axis.py:2762
+#: emc/usr_intf/axis/scripts/axis.py:2783
 #, python-format
 msgid "Enter %s coordinate relative to workpiece:"
 msgstr "Entrer la coordonnée %s relative à la pièce:"
 
-#: emc/usr_intf/axis/scripts/axis.py:2921
+#: emc/usr_intf/axis/scripts/axis.py:2942
 msgid "Error saving file"
 msgstr "Erreur d'enregistrement du fichier"
 
-#: emc/usr_intf/axis/scripts/axis.py:3254
+#: emc/usr_intf/axis/scripts/axis.py:3275
 msgid "Home All"
 msgstr "POM générale"
 
-#: emc/usr_intf/axis/scripts/axis.py:3256
+#: emc/usr_intf/axis/scripts/axis.py:3277
 msgid "Home all axes [Ctrl-Home]"
 msgstr "Prise d'origine machine générale [Ctrl+origine]"
 
-#: emc/usr_intf/axis/scripts/axis.py:3259
+#: emc/usr_intf/axis/scripts/axis.py:3280
 msgid "Home All Axes"
 msgstr "POM générale"
 
-#: emc/usr_intf/axis/scripts/axis.py:3271
+#: emc/usr_intf/axis/scripts/axis.py:3292
 #, python-format
 msgid "Home Axis _%s"
 msgstr "POM de l'axe _%s"
 
-#: emc/usr_intf/axis/scripts/axis.py:3524
+#: emc/usr_intf/axis/scripts/axis.py:3545
 msgid "Error in ~/.axisrc"
 msgstr "Erreur dans ~/.axisrc"
 
@@ -602,7 +602,9 @@ msgstr "Changement d'outil manuel d'AXIS"
 msgid ""
 "This window is part of the AXIS manual toolchanger.  It is safe to close or "
 "iconify this window, or it will close automatically after a few seconds."
-msgstr "Cette fenêtre fait partie du changement manuel d'outil. Elle peut être fermée ou réduite, elle se fermera automatiquement dans quelques secondes."
+msgstr ""
+"Cette fenêtre fait partie du changement manuel d'outil. Elle peut être "
+"fermée ou réduite, elle se fermera automatiquement dans quelques secondes."
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:498
 #, python-format
@@ -1268,7 +1270,8 @@ msgstr ""
 "\n"
 "Copyright (C) 2004, 2005, 2006, 2007 Jeff Epler et Chris Radek.\n"
 "\n"
-"Ceci est un logiciel libre, vous pouvez le redistribuer sous quelques conditions.  Regardez le fichier COPYING, inclus dans EMC2.\n"
+"Ceci est un logiciel libre, vous pouvez le redistribuer sous quelques "
+"conditions.  Regardez le fichier COPYING, inclus dans EMC2.\n"
 "\n"
 "Visitez la page web EMC: "
 
@@ -1279,10 +1282,6 @@ msgstr "À propos d'AXIS"
 #: ../share/axis/tcl/axis.tcl:1506
 msgid "AXIS Quick Reference"
 msgstr "Aide rapide d'AXIS"
-
-#: ../share/axis/tcl/axis.tcl:1636
-msgid "AXIS (No file)"
-msgstr "AXIS (pas de fichier)"
 
 #: ../share/axis/tcl/axis.tcl:1647
 msgid "ESTOP"
@@ -1609,7 +1608,9 @@ msgstr "Le fichier %r a été modifié depuis qu'il a été écrit par Stepconf"
 msgid ""
 "Saving this configuration file will discard configuration changes made "
 "outside stepconf."
-msgstr "Enregistrer cette configuration va écraser les modifications faites à l'extérieur de Stepconf"
+msgstr ""
+"Enregistrer cette configuration va écraser les modifications faites à "
+"l'extérieur de Stepconf"
 
 #: emc/usr_intf/stepconf/stepconf.py:302
 msgid "Continue? "
@@ -1619,20 +1620,20 @@ msgstr "Continuer ?"
 msgid "yY"
 msgstr "yY"
 
-#: emc/usr_intf/stepconf/stepconf.py:311 emc/usr_intf/stepconf/stepconf.py:582
+#: emc/usr_intf/stepconf/stepconf.py:311 emc/usr_intf/stepconf/stepconf.py:595
 #, python-format
 msgid "# Generated by stepconf at %s"
 msgstr "# Généré par Stepconf le %s"
 
-#: emc/usr_intf/stepconf/stepconf.py:312 emc/usr_intf/stepconf/stepconf.py:583
+#: emc/usr_intf/stepconf/stepconf.py:312 emc/usr_intf/stepconf/stepconf.py:596
 msgid "# If you make changes to this file, they will be"
 msgstr "# Si vous modifiez ce fichier, il sera"
 
-#: emc/usr_intf/stepconf/stepconf.py:313 emc/usr_intf/stepconf/stepconf.py:584
+#: emc/usr_intf/stepconf/stepconf.py:313 emc/usr_intf/stepconf/stepconf.py:597
 msgid "# overwritten when you run stepconf again"
 msgstr "# écrasé quand vous relancerez Stepconf"
 
-#: emc/usr_intf/stepconf/stepconf.py:713
+#: emc/usr_intf/stepconf/stepconf.py:738
 msgid ""
 "Include your PyVCP panel here.\n"
 "The contents of this file will not be overwritten when you run stepconf "
@@ -1641,97 +1642,98 @@ msgstr ""
 "Incluez votre panneau PyVCP ici.\n"
 "Le contenu de ce fichier ne sera pas écrasé quand vous relancerez Stepconf. "
 
-#: emc/usr_intf/stepconf/stepconf.py:721 emc/usr_intf/stepconf/stepconf.py:730
+#: emc/usr_intf/stepconf/stepconf.py:746 emc/usr_intf/stepconf/stepconf.py:755
 msgid "# Include your customized HAL commands here"
 msgstr "# Incluez vos commandes HAL personnalisées ici"
 
-#: emc/usr_intf/stepconf/stepconf.py:722
+#: emc/usr_intf/stepconf/stepconf.py:747
 msgid ""
 "# The commands in this file are run after the AXIS GUI (including PyVCP "
 "panel)\n"
 "# starts\n"
 "# This file will not be overwritten when you run stepconf again"
 msgstr ""
-"# Les commandes contenues dans ce fichier seront lancées après que l'interface graphique Axis (PyVCP inclus)\n"
+"# Les commandes contenues dans ce fichier seront lancées après que "
+"l'interface graphique Axis (PyVCP inclus)\n"
 "# aura démarré\n"
 "# Ce fichier ne sera pas écrasé si vous relancez Stepconf"
 
-#: emc/usr_intf/stepconf/stepconf.py:731
+#: emc/usr_intf/stepconf/stepconf.py:756
 msgid "# This file will not be overwritten when you run stepconf again"
 msgstr "# Ce fichier ne sera pas écrasé si vous relancez Stepconf"
 
-#: emc/usr_intf/stepconf/stepconf.py:738
+#: emc/usr_intf/stepconf/stepconf.py:763
 #, python-format
 msgid "Generated by stepconf at %s"
 msgstr "Généré par Stepconf le %s"
 
-#: emc/usr_intf/stepconf/stepconf.py:801
+#: emc/usr_intf/stepconf/stepconf.py:826
 #, python-format
 msgid "%s Axis Configuration"
 msgstr "Configuration de l'axe %s"
 
-#: emc/usr_intf/stepconf/stepconf.py:850
+#: emc/usr_intf/stepconf/stepconf.py:875
 msgid "Quit Stepconf and discard changes?"
 msgstr "Quitter Stepconf et perdre les modifications ?"
 
-#: emc/usr_intf/stepconf/stepconf.py:865
+#: emc/usr_intf/stepconf/stepconf.py:890
 msgid "EMC2 'stepconf' configuration files"
 msgstr "Fichiers de configuration EMC, 'stepconf'"
 
-#: emc/usr_intf/stepconf/stepconf.py:866
+#: emc/usr_intf/stepconf/stepconf.py:891
 msgid "Modify Existing Configuration"
 msgstr "Modifier la configuration existante"
 
-#: emc/usr_intf/stepconf/stepconf.py:1084
+#: emc/usr_intf/stepconf/stepconf.py:1110
 msgid "degree / rev"
 msgstr "degrés / tour"
 
-#: emc/usr_intf/stepconf/stepconf.py:1085
-#: emc/usr_intf/stepconf/stepconf.py:1419
+#: emc/usr_intf/stepconf/stepconf.py:1111
+#: emc/usr_intf/stepconf/stepconf.py:1449
 msgid "deg / s"
 msgstr "deg / s"
 
-#: emc/usr_intf/stepconf/stepconf.py:1086
-#: emc/usr_intf/stepconf/stepconf.py:1420
+#: emc/usr_intf/stepconf/stepconf.py:1112
+#: emc/usr_intf/stepconf/stepconf.py:1450
 msgid "deg / sÂ²"
 msgstr "deg / sÂ²"
 
-#: emc/usr_intf/stepconf/stepconf.py:1087
-#: emc/usr_intf/stepconf/stepconf.py:1421
+#: emc/usr_intf/stepconf/stepconf.py:1113
+#: emc/usr_intf/stepconf/stepconf.py:1451
 msgid "deg"
 msgstr "deg"
 
-#: emc/usr_intf/stepconf/stepconf.py:1089
-#: emc/usr_intf/stepconf/stepconf.glade:3869
+#: emc/usr_intf/stepconf/stepconf.py:1115
+#: emc/usr_intf/stepconf/stepconf.glade:3870
 msgid "mm / rev"
 msgstr "mm / tour"
 
-#: emc/usr_intf/stepconf/stepconf.py:1090
-#: emc/usr_intf/stepconf/stepconf.py:1433
-#: emc/usr_intf/stepconf/stepconf.glade:3897
+#: emc/usr_intf/stepconf/stepconf.py:1116
+#: emc/usr_intf/stepconf/stepconf.py:1463
+#: emc/usr_intf/stepconf/stepconf.glade:3898
 msgid "mm / s"
 msgstr "mm / s"
 
-#: emc/usr_intf/stepconf/stepconf.py:1091
-#: emc/usr_intf/stepconf/stepconf.py:1434
+#: emc/usr_intf/stepconf/stepconf.py:1117
+#: emc/usr_intf/stepconf/stepconf.py:1464
 msgid "mm / sÂ²"
 msgstr "mm / sÂ²"
 
-#: emc/usr_intf/stepconf/stepconf.py:1094
+#: emc/usr_intf/stepconf/stepconf.py:1120
 msgid "rev / in"
 msgstr "tour / pouce"
 
-#: emc/usr_intf/stepconf/stepconf.py:1095
-#: emc/usr_intf/stepconf/stepconf.py:1447
+#: emc/usr_intf/stepconf/stepconf.py:1121
+#: emc/usr_intf/stepconf/stepconf.py:1477
 msgid "in / s"
 msgstr "pouces / s"
 
-#: emc/usr_intf/stepconf/stepconf.py:1096
-#: emc/usr_intf/stepconf/stepconf.py:1448
+#: emc/usr_intf/stepconf/stepconf.py:1122
+#: emc/usr_intf/stepconf/stepconf.py:1478
 msgid "in / sÂ²"
 msgstr "pouces / sÂ²"
 
-#: emc/usr_intf/stepconf/stepconf.py:1416
+#: emc/usr_intf/stepconf/stepconf.py:1446
 #, python-format
 msgid "%s Axis Test"
 msgstr "Test de l'axe %s"
@@ -1745,7 +1747,9 @@ msgstr "Assistant de configuration pour machines step dir"
 msgid ""
 "This program creates configuration files (.ini and .hal) for \"step and "
 "direction\" milling machines and lathes connected to the PC parallel port."
-msgstr "Ce programme crée les fichiers de configuration (.ini et .Hal) \"pas et direction\" pour une machine pilotée via le port parallèle du PC."
+msgstr ""
+"Ce programme crée les fichiers de configuration (.ini et .Hal) \"pas et "
+"direction\" pour une machine pilotée via le port parallèle du PC."
 
 #: emc/usr_intf/stepconf/stepconf.glade:68
 msgid "Create a _new configuration"
@@ -1760,7 +1764,7 @@ msgid "Do you wish to:"
 msgstr "Que voulez-vous faire:"
 
 #: emc/usr_intf/stepconf/stepconf.glade:140
-#: emc/usr_intf/stepconf/stepconf.glade:2161
+#: emc/usr_intf/stepconf/stepconf.glade:2162
 msgid "        "
 msgstr "         "
 
@@ -1768,7 +1772,9 @@ msgstr "         "
 msgid ""
 "If you have made modifications to this configuration outside this program, "
 "they will be lost when you select \"Modify a configuration\""
-msgstr "Si vous avez modifié ce fichier à l'extérieur du programme, les modifications seront perdues si vous choisissez\"Modifier une configuration\""
+msgstr ""
+"Si vous avez modifié ce fichier à l'extérieur du programme, les "
+"modifications seront perdues si vous choisissez\"Modifier une configuration\""
 
 #: emc/usr_intf/stepconf/stepconf.glade:227
 msgid "Basic machine information"
@@ -1833,6 +1839,7 @@ msgid ""
 "PMDX-150\n"
 "Sherline\n"
 "Xylotex\n"
+"Parker-oem750\n"
 "Other"
 msgstr ""
 "Gecko\n"
@@ -1840,9 +1847,10 @@ msgstr ""
 "PMDX-150\n"
 "Sherline\n"
 "Xylotex\n"
+"Parker-oem750\n"
 "Autre"
 
-#: emc/usr_intf/stepconf/stepconf.glade:722
+#: emc/usr_intf/stepconf/stepconf.glade:723
 msgid ""
 "Inch\n"
 "Millimeter"
@@ -1850,7 +1858,7 @@ msgstr ""
 "pouce\n"
 "millimètre"
 
-#: emc/usr_intf/stepconf/stepconf.glade:741
+#: emc/usr_intf/stepconf/stepconf.glade:742
 msgid ""
 "XYZ\n"
 "XYZA\n"
@@ -1860,23 +1868,23 @@ msgstr ""
 "XYZA\n"
 "XZ (tour)"
 
-#: emc/usr_intf/stepconf/stepconf.glade:762
+#: emc/usr_intf/stepconf/stepconf.glade:763
 msgid "confdir"
 msgstr "confdir"
 
-#: emc/usr_intf/stepconf/stepconf.glade:813
+#: emc/usr_intf/stepconf/stepconf.glade:814
 msgid "Parport Base Address:"
 msgstr "Adresse du port parallèle:"
 
-#: emc/usr_intf/stepconf/stepconf.glade:976
+#: emc/usr_intf/stepconf/stepconf.glade:955
 msgid "Min Base Period:"
 msgstr "Période de base minimale:"
 
-#: emc/usr_intf/stepconf/stepconf.glade:1004
+#: emc/usr_intf/stepconf/stepconf.glade:983
 msgid "Max step rate:"
 msgstr "Fréquence maxi des pas:"
 
-#: emc/usr_intf/stepconf/stepconf.glade:1032
+#: emc/usr_intf/stepconf/stepconf.glade:1011
 msgid ""
 "Driver characteristics: (Multiply by 1000 for times specified in µs or "
 "microseconds)\n"
@@ -1886,87 +1894,88 @@ msgid ""
 "can impose timing constraints of their own, in addition to those of the "
 "driver."
 msgstr ""
-"Caractéristiques du pilote: (Multipliez par 1000 pour les temps spécifiés en µs ou microsecondes)\n"
+"Caractéristiques du pilote: (Multipliez par 1000 pour les temps spécifiés en "
+"µs ou microsecondes)\n"
 "\n"
 "Mise en forme du signal, isolement galvanique, optocoupleurs ou filtres RC\n"
 "qui imposent des contraintes de temps en plus de celles du pilote."
 
-#: emc/usr_intf/stepconf/stepconf.glade:1063
+#: emc/usr_intf/stepconf/stepconf.glade:1042
 msgid "   "
 msgstr "   "
 
-#: emc/usr_intf/stepconf/stepconf.glade:1092
+#: emc/usr_intf/stepconf/stepconf.glade:1071
 msgid "x0000 ns"
 msgstr "x0000 ns"
 
-#: emc/usr_intf/stepconf/stepconf.glade:1121
+#: emc/usr_intf/stepconf/stepconf.glade:1100
 msgid "yyyyy Hz"
 msgstr "yyyyy Hz"
 
-#: emc/usr_intf/stepconf/stepconf.glade:1189
+#: emc/usr_intf/stepconf/stepconf.glade:1190
 msgid "Parallel Port Setup"
 msgstr "Brochage du port parallèle"
 
-#: emc/usr_intf/stepconf/stepconf.glade:1213
+#: emc/usr_intf/stepconf/stepconf.glade:1214
 msgid "Pin _1:"
 msgstr "Pin _1:"
 
-#: emc/usr_intf/stepconf/stepconf.glade:1241
+#: emc/usr_intf/stepconf/stepconf.glade:1242
 msgid "Pin _2:"
 msgstr "Pin _2:"
 
-#: emc/usr_intf/stepconf/stepconf.glade:1269
+#: emc/usr_intf/stepconf/stepconf.glade:1270
 msgid "Pin _3:"
 msgstr "Pin _3:"
 
-#: emc/usr_intf/stepconf/stepconf.glade:1297
+#: emc/usr_intf/stepconf/stepconf.glade:1298
 msgid "Pin _4:"
 msgstr "Pin _4:"
 
-#: emc/usr_intf/stepconf/stepconf.glade:1325
+#: emc/usr_intf/stepconf/stepconf.glade:1326
 msgid "Pin _5:"
 msgstr "Pin _5:"
 
-#: emc/usr_intf/stepconf/stepconf.glade:1353
+#: emc/usr_intf/stepconf/stepconf.glade:1354
 msgid "Pin _6:"
 msgstr "Pin _6:"
 
-#: emc/usr_intf/stepconf/stepconf.glade:1381
+#: emc/usr_intf/stepconf/stepconf.glade:1382
 msgid "Pin _7:"
 msgstr "Pin _7:"
 
-#: emc/usr_intf/stepconf/stepconf.glade:1409
+#: emc/usr_intf/stepconf/stepconf.glade:1410
 msgid "Pin _8:"
 msgstr "Pin _8:"
 
-#: emc/usr_intf/stepconf/stepconf.glade:1437
+#: emc/usr_intf/stepconf/stepconf.glade:1438
 msgid "Pin _9:"
 msgstr "Pin _9:"
 
-#: emc/usr_intf/stepconf/stepconf.glade:1465
+#: emc/usr_intf/stepconf/stepconf.glade:1466
 msgid "_Pin 14:"
 msgstr "_Pin 14:"
 
-#: emc/usr_intf/stepconf/stepconf.glade:1493
+#: emc/usr_intf/stepconf/stepconf.glade:1494
 msgid "P_in 16:"
 msgstr "P_in 16:"
 
-#: emc/usr_intf/stepconf/stepconf.glade:1521
+#: emc/usr_intf/stepconf/stepconf.glade:1522
 msgid "Pi_n 17:"
 msgstr "Pi_n 17:"
 
-#: emc/usr_intf/stepconf/stepconf.glade:1549
-#: emc/usr_intf/stepconf/stepconf.glade:1582
-#: emc/usr_intf/stepconf/stepconf.glade:1615
-#: emc/usr_intf/stepconf/stepconf.glade:1648
-#: emc/usr_intf/stepconf/stepconf.glade:1681
-#: emc/usr_intf/stepconf/stepconf.glade:1714
-#: emc/usr_intf/stepconf/stepconf.glade:1747
-#: emc/usr_intf/stepconf/stepconf.glade:1780
-#: emc/usr_intf/stepconf/stepconf.glade:1813
-#: emc/usr_intf/stepconf/stepconf.glade:1846
-#: emc/usr_intf/stepconf/stepconf.glade:1879
-#: emc/usr_intf/stepconf/stepconf.glade:2899
+#: emc/usr_intf/stepconf/stepconf.glade:1550
+#: emc/usr_intf/stepconf/stepconf.glade:1583
+#: emc/usr_intf/stepconf/stepconf.glade:1616
+#: emc/usr_intf/stepconf/stepconf.glade:1649
+#: emc/usr_intf/stepconf/stepconf.glade:1682
+#: emc/usr_intf/stepconf/stepconf.glade:1715
+#: emc/usr_intf/stepconf/stepconf.glade:1748
+#: emc/usr_intf/stepconf/stepconf.glade:1781
+#: emc/usr_intf/stepconf/stepconf.glade:1814
+#: emc/usr_intf/stepconf/stepconf.glade:1847
+#: emc/usr_intf/stepconf/stepconf.glade:1880
+#: emc/usr_intf/stepconf/stepconf.glade:2900
 msgid ""
 "X Step\n"
 "X Direction\n"
@@ -2002,35 +2011,35 @@ msgstr ""
 "Ampli enable\n"
 "Pompe de charge"
 
-#: emc/usr_intf/stepconf/stepconf.glade:1912
+#: emc/usr_intf/stepconf/stepconf.glade:1913
 msgid "Outputs (PC to Mill):"
 msgstr "Sorties (PC vers machine)"
 
-#: emc/usr_intf/stepconf/stepconf.glade:1940
+#: emc/usr_intf/stepconf/stepconf.glade:1941
 msgid "Pin 1_0:"
 msgstr "Pin 1_0:"
 
-#: emc/usr_intf/stepconf/stepconf.glade:1968
+#: emc/usr_intf/stepconf/stepconf.glade:1969
 msgid "Pin 1_1:"
 msgstr "Pin 1_1:"
 
-#: emc/usr_intf/stepconf/stepconf.glade:1996
+#: emc/usr_intf/stepconf/stepconf.glade:1997
 msgid "Pin 1_2:"
 msgstr "Pin 1_2:"
 
-#: emc/usr_intf/stepconf/stepconf.glade:2024
+#: emc/usr_intf/stepconf/stepconf.glade:2025
 msgid "Pin 1_3:"
 msgstr "Pin 1_3:"
 
-#: emc/usr_intf/stepconf/stepconf.glade:2052
+#: emc/usr_intf/stepconf/stepconf.glade:2053
 msgid "Pin 1_5:"
 msgstr "Pin 1_5:"
 
-#: emc/usr_intf/stepconf/stepconf.glade:2080
-#: emc/usr_intf/stepconf/stepconf.glade:2619
-#: emc/usr_intf/stepconf/stepconf.glade:2672
-#: emc/usr_intf/stepconf/stepconf.glade:2725
-#: emc/usr_intf/stepconf/stepconf.glade:2846
+#: emc/usr_intf/stepconf/stepconf.glade:2081
+#: emc/usr_intf/stepconf/stepconf.glade:2620
+#: emc/usr_intf/stepconf/stepconf.glade:2673
+#: emc/usr_intf/stepconf/stepconf.glade:2726
+#: emc/usr_intf/stepconf/stepconf.glade:2847
 msgid ""
 "ESTOP IN\n"
 "Spindle PPR\n"
@@ -2104,102 +2113,102 @@ msgstr ""
 "Toutes les origines\n"
 "Inutilisé"
 
-#: emc/usr_intf/stepconf/stepconf.glade:2133
+#: emc/usr_intf/stepconf/stepconf.glade:2134
 msgid "Inputs (Mill to PC):"
 msgstr "Entrées (machine vers PC)"
 
-#: emc/usr_intf/stepconf/stepconf.glade:2189
-#: emc/usr_intf/stepconf/stepconf.glade:2217
+#: emc/usr_intf/stepconf/stepconf.glade:2190
+#: emc/usr_intf/stepconf/stepconf.glade:2218
 msgid "Invert"
 msgstr "Inverser"
 
-#: emc/usr_intf/stepconf/stepconf.glade:2779
+#: emc/usr_intf/stepconf/stepconf.glade:2780
 msgid "_Sherline Outputs"
 msgstr "Sorties de type _Sherline"
 
-#: emc/usr_intf/stepconf/stepconf.glade:2799
+#: emc/usr_intf/stepconf/stepconf.glade:2800
 msgid "_Xylotex Outputs"
 msgstr "Sorties de type _Xylotex"
 
-#: emc/usr_intf/stepconf/stepconf.glade:2818
+#: emc/usr_intf/stepconf/stepconf.glade:2819
 msgid "Output pinout presets:"
 msgstr "Sorties préselectionnées"
 
-#: emc/usr_intf/stepconf/stepconf.glade:2933
+#: emc/usr_intf/stepconf/stepconf.glade:2934
 msgid "Include custom _HAL configuration"
 msgstr "Inclure une configuration de _HAL personnalisée"
 
-#: emc/usr_intf/stepconf/stepconf.glade:2955
+#: emc/usr_intf/stepconf/stepconf.glade:2956
 msgid "Include custom Py_VCP Panel"
 msgstr "Inclure un panneau Py_VCP personnalisé"
 
-#: emc/usr_intf/stepconf/stepconf.glade:2987
+#: emc/usr_intf/stepconf/stepconf.glade:2988
 msgid "X Axis Configuration"
 msgstr "Configuration de l'axe X"
 
-#: emc/usr_intf/stepconf/stepconf.glade:3011
+#: emc/usr_intf/stepconf/stepconf.glade:3012
 msgid "_Motor steps per revolution:"
 msgstr "No_mbre de pas moteur par tour:"
 
-#: emc/usr_intf/stepconf/stepconf.glade:3040
+#: emc/usr_intf/stepconf/stepconf.glade:3041
 msgid "_Driver Microstepping"
 msgstr "Micropas du pilote:"
 
-#: emc/usr_intf/stepconf/stepconf.glade:3069
-msgid "_Pulley ratio (Motor:Leadscrew):"
-msgstr "Ratio des poulies (moteur:vis):"
+#: emc/usr_intf/stepconf/stepconf.glade:3070
+msgid "_Pulley teeth (Motor:Leadscrew):"
+msgstr "Dents des _poulies (moteur:vis):"
 
-#: emc/usr_intf/stepconf/stepconf.glade:3098
+#: emc/usr_intf/stepconf/stepconf.glade:3099
 msgid "_Leadscrew Pitch:"
 msgstr "Pas de _la vis:"
 
-#: emc/usr_intf/stepconf/stepconf.glade:3127
+#: emc/usr_intf/stepconf/stepconf.glade:3128
 msgid "Maximum _Velocity:"
 msgstr "_Vitesse maximum:"
 
-#: emc/usr_intf/stepconf/stepconf.glade:3156
+#: emc/usr_intf/stepconf/stepconf.glade:3157
 msgid "Maximum _Acceleration:"
 msgstr "_Accélération maximum:"
 
-#: emc/usr_intf/stepconf/stepconf.glade:3185
+#: emc/usr_intf/stepconf/stepconf.glade:3186
 msgid "Time to accelerate to max speed:"
 msgstr "Temps pour accélérer à la vitesse maxi:"
 
-#: emc/usr_intf/stepconf/stepconf.glade:3214
+#: emc/usr_intf/stepconf/stepconf.glade:3215
 msgid "Distance to accelerate to max speed:"
 msgstr "Distance pour accélérer à la vitesse maxi:"
 
-#: emc/usr_intf/stepconf/stepconf.glade:3375
+#: emc/usr_intf/stepconf/stepconf.glade:3376
 msgid "Pulse rate at max speed:"
 msgstr "Fréquence des impulsions à la vitesse maxi:"
 
-#: emc/usr_intf/stepconf/stepconf.glade:3404
-#: emc/usr_intf/stepconf/stepconf.glade:3433
-#: emc/usr_intf/stepconf/stepconf.glade:3462
+#: emc/usr_intf/stepconf/stepconf.glade:3405
+#: emc/usr_intf/stepconf/stepconf.glade:3434
+#: emc/usr_intf/stepconf/stepconf.glade:3463
 msgid "label42"
 msgstr "label42"
 
-#: emc/usr_intf/stepconf/stepconf.glade:3490
+#: emc/usr_intf/stepconf/stepconf.glade:3491
 msgid "_Home location:"
 msgstr "Emplacement de l'origine machine:"
 
-#: emc/usr_intf/stepconf/stepconf.glade:3519
+#: emc/usr_intf/stepconf/stepconf.glade:3520
 msgid "Home _Switch location:"
 msgstr "Po_sition du contact d'origine machine:"
 
-#: emc/usr_intf/stepconf/stepconf.glade:3548
+#: emc/usr_intf/stepconf/stepconf.glade:3549
 msgid "Home Sear_ch velocity:"
 msgstr "Vitesse de re_cherche de l'origine:"
 
-#: emc/usr_intf/stepconf/stepconf.glade:3577
+#: emc/usr_intf/stepconf/stepconf.glade:3578
 msgid "Home La_tch direction:"
 msgstr "Dégagement du contact d'origine:"
 
-#: emc/usr_intf/stepconf/stepconf.glade:3605
+#: emc/usr_intf/stepconf/stepconf.glade:3606
 msgid "_:"
 msgstr "_:"
 
-#: emc/usr_intf/stepconf/stepconf.glade:3634
+#: emc/usr_intf/stepconf/stepconf.glade:3635
 msgid ""
 "Same\n"
 "Opposite"
@@ -2207,84 +2216,84 @@ msgstr ""
 "Identique\n"
 "Opposée"
 
-#: emc/usr_intf/stepconf/stepconf.glade:3716
+#: emc/usr_intf/stepconf/stepconf.glade:3717
 msgid "Tab_le travel:"
 msgstr "Course de la tab_le:"
 
-#: emc/usr_intf/stepconf/stepconf.glade:3766
+#: emc/usr_intf/stepconf/stepconf.glade:3767
 msgid "t_o"
 msgstr " à "
 
-#: emc/usr_intf/stepconf/stepconf.glade:3925
+#: emc/usr_intf/stepconf/stepconf.glade:3926
 msgid "mm / s^2\t"
 msgstr "mm / s^2\t"
 
-#: emc/usr_intf/stepconf/stepconf.glade:3953
+#: emc/usr_intf/stepconf/stepconf.glade:3954
 msgid "label193"
 msgstr "label193"
 
-#: emc/usr_intf/stepconf/stepconf.glade:3981
+#: emc/usr_intf/stepconf/stepconf.glade:3982
 msgid "s"
 msgstr "s"
 
-#: emc/usr_intf/stepconf/stepconf.glade:4009
-#: emc/usr_intf/stepconf/stepconf.glade:4512
+#: emc/usr_intf/stepconf/stepconf.glade:4010
+#: emc/usr_intf/stepconf/stepconf.glade:4513
 msgid "Hz"
 msgstr "Hz"
 
-#: emc/usr_intf/stepconf/stepconf.glade:4080
+#: emc/usr_intf/stepconf/stepconf.glade:4081
 msgid "Test this axis"
 msgstr "Tester cet axe"
 
-#: emc/usr_intf/stepconf/stepconf.glade:4119
+#: emc/usr_intf/stepconf/stepconf.glade:4120
 msgid "Axis SCALE"
 msgstr "Echelle d'axe (SCALE)"
 
-#: emc/usr_intf/stepconf/stepconf.glade:4148
+#: emc/usr_intf/stepconf/stepconf.glade:4149
 msgid "label230"
 msgstr "label230"
 
-#: emc/usr_intf/stepconf/stepconf.glade:4187
+#: emc/usr_intf/stepconf/stepconf.glade:4188
 msgid "Spindle Configuration"
 msgstr "Configuration de la broche"
 
-#: emc/usr_intf/stepconf/stepconf.glade:4211
+#: emc/usr_intf/stepconf/stepconf.glade:4212
 msgid "Calibration:"
 msgstr "Calibration:"
 
-#: emc/usr_intf/stepconf/stepconf.glade:4239
+#: emc/usr_intf/stepconf/stepconf.glade:4240
 msgid "Speed 1:"
 msgstr "Vitesse 1:"
 
-#: emc/usr_intf/stepconf/stepconf.glade:4267
+#: emc/usr_intf/stepconf/stepconf.glade:4268
 msgid "PWM 1:"
 msgstr "PWM 1:"
 
-#: emc/usr_intf/stepconf/stepconf.glade:4295
+#: emc/usr_intf/stepconf/stepconf.glade:4296
 msgid "Speed 2:"
 msgstr "Vitesse 2:"
 
-#: emc/usr_intf/stepconf/stepconf.glade:4323
+#: emc/usr_intf/stepconf/stepconf.glade:4324
 msgid "PWM 2:"
 msgstr "PWM 2:"
 
-#: emc/usr_intf/stepconf/stepconf.glade:4351
+#: emc/usr_intf/stepconf/stepconf.glade:4352
 msgid "PWM Rate:"
 msgstr "Fréquence PWM:"
 
-#: emc/usr_intf/stepconf/stepconf.glade:4484
+#: emc/usr_intf/stepconf/stepconf.glade:4485
 msgid "Cycles per revolution:"
 msgstr "Cycles par tour:"
 
-#: emc/usr_intf/stepconf/stepconf.glade:4576
+#: emc/usr_intf/stepconf/stepconf.glade:4577
 msgid "Enter 0 Hz for \"PDM\" mode"
 msgstr "Entrez 0 Hz pour le mode \"PDM\""
 
-#: emc/usr_intf/stepconf/stepconf.glade:4616
+#: emc/usr_intf/stepconf/stepconf.glade:4617
 msgid "Machine configuration complete"
 msgstr "Configuration machine complète"
 
-#: emc/usr_intf/stepconf/stepconf.glade:4617
+#: emc/usr_intf/stepconf/stepconf.glade:4618
 msgid ""
 "All the necessary information has now been gathered.  Click \"Apply\" to "
 "write your configuration files to disk.\n"
@@ -2301,44 +2310,50 @@ msgid ""
 "thorough latency test as described on the linuxcnc.org wiki: \n"
 " http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?TroubleShooting"
 msgstr ""
-"Toutes les informations nécessaires ont été recueillies. \n Cliquez sur \"Appliquer\" pour enregistrer vos fichiers de configuration sur le disque.\n"
-"Si vous constatez un bloquage de l'ordinateur quand EMC fonctionne avec cette configuration, vous devrez diminuer la vitesse maximum ce qui aura pour effet d'augmenter la valeur de BASE_PERIOD.\n"
+"Toutes les informations nécessaires ont été recueillies. \n"
+" Cliquez sur \"Appliquer\" pour enregistrer vos fichiers de configuration "
+"sur le disque.\n"
+"Si vous constatez un bloquage de l'ordinateur quand EMC fonctionne avec "
+"cette configuration, vous devrez diminuer la vitesse maximum ce qui aura "
+"pour effet d'augmenter la valeur de BASE_PERIOD.\n"
 "\n"
-"Si vous constatez des pertes de pas quand EMC fonctionne avec cette configuration, vérifiez en premier que vous avez bien renseigné les constantes de temps du pilote des moteurs. "
-"Si le problème persiste, relancez un minutieux \"latency test\" comme décrit sur le wiki de linuxcnc.org:\n"
+"Si vous constatez des pertes de pas quand EMC fonctionne avec cette "
+"configuration, vérifiez en premier que vous avez bien renseigné les "
+"constantes de temps du pilote des moteurs. Si le problème persiste, relancez "
+"un minutieux \"latency test\" comme décrit sur le wiki de linuxcnc.org:\n"
 " http;//wiki.linuxcnc.org/cgi-bin/emcinfo.pl?TroubleShooting\n"
 "\n"
 "Faites de même si vous avez le message \"Unexpected Realtime Delay\". "
 
-#: emc/usr_intf/stepconf/stepconf.glade:4635
+#: emc/usr_intf/stepconf/stepconf.glade:4636
 msgid "dialog1"
 msgstr "Dialogue1"
 
-#: emc/usr_intf/stepconf/stepconf.glade:4707
+#: emc/usr_intf/stepconf/stepconf.glade:4708
 msgid "Velocity:"
 msgstr "Vitesse:"
 
-#: emc/usr_intf/stepconf/stepconf.glade:4736
+#: emc/usr_intf/stepconf/stepconf.glade:4737
 msgid "Acceleration:"
 msgstr "Accélération:"
 
-#: emc/usr_intf/stepconf/stepconf.glade:4765
+#: emc/usr_intf/stepconf/stepconf.glade:4766
 msgid "Jog:"
 msgstr "Jog:"
 
-#: emc/usr_intf/stepconf/stepconf.glade:4794
+#: emc/usr_intf/stepconf/stepconf.glade:4795
 msgid "Test Area:"
 msgstr "Zone de test:"
 
-#: emc/usr_intf/stepconf/stepconf.glade:4849
+#: emc/usr_intf/stepconf/stepconf.glade:4850
 msgid "mm/s^2"
 msgstr "mm/s^2"
 
-#: emc/usr_intf/stepconf/stepconf.glade:4911
+#: emc/usr_intf/stepconf/stepconf.glade:4912
 msgid "mm/s"
 msgstr "mm/s"
 
-#: emc/usr_intf/stepconf/stepconf.glade:5026
+#: emc/usr_intf/stepconf/stepconf.glade:5027
 msgid ""
 "±\n"
 "+\n"
@@ -2348,7 +2363,7 @@ msgstr ""
 "+\n"
 "-\n"
 
-#: emc/usr_intf/stepconf/stepconf.glade:5159
+#: emc/usr_intf/stepconf/stepconf.glade:5160
 msgid "Run"
 msgstr "Envoi"
 
