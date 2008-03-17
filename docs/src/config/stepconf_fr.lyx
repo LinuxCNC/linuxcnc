@@ -135,13 +135,14 @@ axes Choisissez votre type de machine: XYZ (fraiseuse),
  XYZA (machine 4-axes) ou XZ (tour).
 \layout Description
 
-L'unité\SpecialChar ~
-utilisée\SpecialChar ~
+Les\SpecialChar ~
+unités\SpecialChar ~
+utilisées\SpecialChar ~
 par\SpecialChar ~
 la\SpecialChar ~
 machine Choisissez entre pouce ou millimètre.
  Toutes les questions suivantes (telles que la longueur des courses, le
- pas de la vis, etc) devront obtenir des réponses dans cette unité.
+ pas de la vis, etc) devront obtenir des réponses dans l'unité choisie ici.
 \layout Description
 
 Caractéristiques\SpecialChar ~
@@ -361,10 +362,10 @@ pilote Le nombre de micropas produits par le pilote.
  pour le demipas.
 \layout Description
 
-Ratio\SpecialChar ~
+Dents\SpecialChar ~
 des\SpecialChar ~
-poulies Si votre machine a des poulies entre le moteur et la vis,
- entrez le ratio ici.
+poulies Si votre machine dispose de poulies entre le moteur et la
+ vis, entrez ici le nombre de dents de chacune d'elles.
  Pour un entraînement direct, entrez 
 \begin_inset Quotes eld
 \end_inset 

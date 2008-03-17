@@ -5,13 +5,13 @@
 #
 # Ernesto Lo Valvo <elovalvo@unipa.it>, 2007.
 # Francis TISSERANT <ftissera@free.fr>, 2007.
-# Francis Tisserant <ftissera@free.fr>, 2007.
+# Francis Tisserant <ftissera@free.fr>, 2007, 2008.
 msgid ""
 msgstr ""
 "Project-Id-Version: fr_rs274_err\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-11-09 02:04+0100\n"
-"PO-Revision-Date: 2007-12-01 12:07+0100\n"
+"POT-Creation-Date: 2008-03-17 01:44+0100\n"
+"PO-Revision-Date: 2008-03-17 17:43+0100\n"
 "Last-Translator: Francis Tisserant <ftissera@free.fr>\n"
 "Language-Team: french <gnomefr@traduc.org>\n"
 "MIME-Version: 1.0\n"
@@ -19,31 +19,31 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: KBabel 1.11.2\n"
 
-#: emc/task/emctaskmain.cc:395 emc/task/emctaskmain.cc:434
+#: emc/task/emctaskmain.cc:396 emc/task/emctaskmain.cc:435
 msgid "exceeds +X limit"
 msgstr "limite +X depassee"
 
-#: emc/task/emctaskmain.cc:401 emc/task/emctaskmain.cc:440
+#: emc/task/emctaskmain.cc:402 emc/task/emctaskmain.cc:441
 msgid "exceeds +Y limit"
 msgstr "limite +Y depassee"
 
-#: emc/task/emctaskmain.cc:407 emc/task/emctaskmain.cc:446
+#: emc/task/emctaskmain.cc:408 emc/task/emctaskmain.cc:447
 msgid "exceeds +Z limit"
 msgstr "limite +Z depassee"
 
-#: emc/task/emctaskmain.cc:413 emc/task/emctaskmain.cc:452
+#: emc/task/emctaskmain.cc:414 emc/task/emctaskmain.cc:453
 msgid "exceeds -X limit"
 msgstr "limite -X depassee"
 
-#: emc/task/emctaskmain.cc:419 emc/task/emctaskmain.cc:458
+#: emc/task/emctaskmain.cc:420 emc/task/emctaskmain.cc:459
 msgid "exceeds -Y limit"
 msgstr "limite -Y depassee"
 
-#: emc/task/emctaskmain.cc:425 emc/task/emctaskmain.cc:464
+#: emc/task/emctaskmain.cc:426 emc/task/emctaskmain.cc:465
 msgid "exceeds -Z limit"
 msgstr "limite -Z depassee"
 
-#: emc/task/emctaskmain.cc:582
+#: emc/task/emctaskmain.cc:584
 #, c-format
 msgid ""
 "command (%s) cannot be executed until the machine is out of E-stop and "
@@ -52,50 +52,81 @@ msgstr ""
 "La commande (%s) ne peut etre executee tant que la machine n'est pas sortie "
 "de l'arret d'urgence et mise en marche"
 
-#: emc/task/emctaskmain.cc:693
+#: emc/task/emctaskmain.cc:696
 #, c-format
 msgid "can't do that (%s) in manual mode"
 msgstr "Commande (%s) impossible en mode manuel"
 
-#: emc/task/emctaskmain.cc:791
+#: emc/task/emctaskmain.cc:796
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter idle"
 msgstr "(%s) impossible en mode auto avec l'interpreteur inactif"
 
-#: emc/task/emctaskmain.cc:853
+#: emc/task/emctaskmain.cc:859
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter reading"
 msgstr "(%s) impossible en mode auto avec l'interpreteur en lecture"
 
-#: emc/task/emctaskmain.cc:1075
+#: emc/task/emctaskmain.cc:1083
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter paused"
 msgstr "(%s) impossible en mode auto avec l'interpreteur en pause"
 
-#: emc/task/emctaskmain.cc:1139
+#: emc/task/emctaskmain.cc:1148
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter waiting"
 msgstr "(%s) impossible en mode auto avec l'interpreteur en attente"
 
-#: emc/task/emctaskmain.cc:1254
+#: emc/task/emctaskmain.cc:1264
 #, c-format
 msgid "can't do that (%s) in MDI mode"
 msgstr "Commande (%s) impossible en mode MDI"
 
-#: emc/task/emctaskmain.cc:1886
+#: emc/task/emctaskmain.cc:1903
 #, c-format
 msgid "can't open %s"
 msgstr "Impossible d'ouvrir %s "
 
-#: emc/task/emctaskmain.cc:2972
+#: emc/task/emctaskmain.cc:3006
 #, c-format
 msgid "Minimum Software Limit on axis %d exceeded."
 msgstr "Limite logicielle minimale de l'axe %d depassee"
 
-#: emc/task/emctaskmain.cc:2981
+#: emc/task/emctaskmain.cc:3015
 #, c-format
 msgid "Maximum Software Limit on axis %d exceeded."
 msgstr "Limite logicielle maximale sur l'axe %d depassee"
+
+#: emc/rs274ngc/interp_arc.cc:104 emc/rs274ngc/interp_arc.cc:261
+#, c-format
+msgid ""
+"Radius to end of arc differs from radius to start: start=(%c%.4f,%c%.4f) "
+"center=(%c%.4f,%c%.4f) end=(%c%.4f,%c%.4f) r1=%.4f r2=%.4f"
+msgstr ""
+"Le rayon de fin d'arc differe de celui de debut: start=(%c%.4f,%c%.4f) "
+"center=(%c%.4f,%c%.4f) end=(%c%.4f,%c%.4f) r1=%.4f r2=%.4f"
+
+#: emc/rs274ngc/interp_convert.cc:1543
+#, c-format
+msgid "G%d.1 with no D word"
+msgstr "G%d.1 sans mot D"
+
+#: emc/rs274ngc/interp_convert.cc:1556
+#, c-format
+msgid "G%d requires D word to be a whole number"
+msgstr "G%d exige que le mot D soit un nombre entier"
+
+#: emc/rs274ngc/interp_read.cc:3311
+msgid "Multiple U words on one line"
+msgstr "Multiples mots U sur une ligne"
+
+#: emc/rs274ngc/interp_read.cc:3329
+msgid "Multiple V words on one line"
+msgstr "Multiples mots V sur une ligne"
+
+#: emc/rs274ngc/interp_read.cc:3347
+msgid "Multiple W words on one line"
+msgstr "Multiples mots W sur une ligne"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:27 emc/rs274ngc/rs274ngc_errors.cc:28
 #: emc/rs274ngc/rs274ngc_errors.cc:29 emc/rs274ngc/rs274ngc_errors.cc:30
@@ -377,7 +408,7 @@ msgstr "Point courant identique au point final de l'arc"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:98
 msgid "Cutter gouging with cutter radius comp"
-msgstr "Interference de l'outil avec une partie finie de la pièce avec la compensation de rayon d'outil"
+msgstr "La compensation de rayon d'outil provoque une interference de l'outil avec la piece"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:99
 msgid "D word with no g41 or g42"
@@ -761,7 +792,9 @@ msgstr "Index de rayon d'outil trop grand"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:194
 msgid "Tool radius not less than arc radius with comp"
-msgstr "Rayon d'outil non inferieur au rayon de l'arc apres compensation de rayon d'outil"
+msgstr ""
+"Rayon d'outil non inferieur au rayon de l'arc apres compensation de rayon "
+"d'outil"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:195
 msgid "Two g codes used from same modal group"
@@ -1035,19 +1068,26 @@ msgid "Need to have either a valid P or a valid E word with M66"
 msgstr "Necessaire d'avoir au choix un mot p ou un mot e valide avec m66"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:270
+msgid "Q word missing with g73"
+msgstr "Mot Q manquant avec G73"
+
+#: emc/rs274ngc/rs274ngc_errors.cc:271
+msgid "Digital input selected out of bounds"
+msgstr "Entree numerique choisie hors limites"
+
+#: emc/rs274ngc/rs274ngc_errors.cc:272
+msgid "Analog input selected out of bounds"
+msgstr "Entree analogique choisie hors limites"
+
+#: emc/rs274ngc/rs274ngc_errors.cc:273
 msgid "Unknown error"
 msgstr "Erreur inconnue"
 
-#: emc/rs274ngc/rs274ngc_errors.cc:271
+#: emc/rs274ngc/rs274ngc_errors.cc:274
 msgid "The End"
 msgstr "La fin"
 
-#: emc/rs274ngc/interp_arc.cc:104 emc/rs274ngc/interp_arc.cc:261
-#, c-format
-msgid ""
-"Radius to end of arc differs from radius to start: start=(%c%.4f,%c%.4f) "
-"center=(%c%.4f,%c%.4f) end=(%c%.4f,%c%.4f) r1=%.4f r2=%.4f"
-msgstr ""
-"Le rayon de fin d'arc differe de celui de debut: start=(%c%.4f,%c%.4f) "
-"center=(%c%.4f,%c%.4f) end=(%c%.4f,%c%.4f) r1=%.4f r2=%.4f"
+#: emc/rs274ngc/rs274ngc_pre.cc:738
+msgid "Queue is not empty after tool change"
+msgstr "La queue n'est pas vide apres changement d'outil"
 
