@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fr_rs274_err\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-11-09 02:04+0100\n"
+"POT-Creation-Date: 2008-03-17 00:45+0100\n"
 "PO-Revision-Date: 2007-11-11 01:33+0100\n"
 "Last-Translator: Francis Tisserant <ftissera@free.fr>\n"
 "Language-Team: french <gnomefr@traduc.org>\n"
@@ -82,17 +82,17 @@ msgstr "(%s) impossible en mode auto avec l'interpreteur en attente"
 msgid "can't do that (%s) in MDI mode"
 msgstr "Commande (%s) impossible en mode MDI"
 
-#: emc/task/emctaskmain.cc:1886
+#: emc/task/emctaskmain.cc:1885
 #, c-format
 msgid "can't open %s"
 msgstr "Impossible d'ouvrir %s "
 
-#: emc/task/emctaskmain.cc:2972
+#: emc/task/emctaskmain.cc:2974
 #, c-format
 msgid "Minimum Software Limit on axis %d exceeded."
 msgstr "Limite logicielle minimale de l'axe %d depassee"
 
-#: emc/task/emctaskmain.cc:2981
+#: emc/task/emctaskmain.cc:2983
 #, c-format
 msgid "Maximum Software Limit on axis %d exceeded."
 msgstr "Limite logicielle maximale sur l'axe %d depassee"
@@ -959,7 +959,8 @@ msgstr "Impossible de changer de plan avec la compensation de rayon d'outil"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:245
 msgid "Cutter radius compensation allowed only in XY, XZ planes"
-msgstr "Compensation de rayon d'outil permise seulement dans les plans XY et XZ"
+msgstr ""
+"Compensation de rayon d'outil permise seulement dans les plans XY et XZ"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:247
 msgid "P word missing with G76"
@@ -1052,4 +1053,3 @@ msgid ""
 msgstr ""
 "Le rayon de fin d'arc differe de celui de debut: start=(%c%.4f,%c%.4f) "
 "center=(%c%.4f,%c%.4f) end=(%c%.4f,%c%.4f) r1=%.4f r2=%.4f"
-
