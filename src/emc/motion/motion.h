@@ -646,6 +646,7 @@ Suggestion: Split this in to an Error and a Status flag register..
         unsigned int tcqlen;
         double tooloffset_x;
         double tooloffset_z;
+        double tooloffset_w;
 	unsigned char tail;	/* flag count for mutex detect */
         
     } emcmot_status_t;

@@ -531,6 +531,10 @@ static int init_hal_io(void)
     if (retval != 0) {
         return retval;
     }
+    retval = hal_pin_float_new("motion.tooloffset.w", HAL_OUT, &(emcmot_hal_data->tooloffset_w), mot_comp_id);
+    if (retval != 0) {
+        return retval;
+    }
 
     /* initialize machine wide pins and parameters */
     *(emcmot_hal_data->probe_input) = 0;

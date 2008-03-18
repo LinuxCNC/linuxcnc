@@ -1821,6 +1821,7 @@ static void output_to_hal(void)
 
     *(emcmot_hal_data->tooloffset_x) = emcmotStatus->tooloffset_x;
     *(emcmot_hal_data->tooloffset_z) = emcmotStatus->tooloffset_z;
+    *(emcmot_hal_data->tooloffset_w) = emcmotStatus->tooloffset_w;
 
     /* output joint info to HAL for scoping, etc */
     for (joint_num = 0; joint_num < num_joints; joint_num++) {

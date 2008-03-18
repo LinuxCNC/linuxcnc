@@ -150,6 +150,7 @@ typedef struct {
 
     hal_float_t *tooloffset_x;
     hal_float_t *tooloffset_z;
+    hal_float_t *tooloffset_w;
 
     joint_hal_t joint[EMCMOT_MAX_JOINTS];	/* data for each joint */
 
