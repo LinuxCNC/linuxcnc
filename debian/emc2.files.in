@@ -59,6 +59,7 @@ usr/bin/rs274
 @MODULE_PATH@/lut5@MODULE_EXT@
 @MODULE_PATH@/maj3@MODULE_EXT@
 @MODULE_PATH@/match8@MODULE_EXT@
+@MODULE_PATH@/maxkins@MODULE_EXT@
 @MODULE_PATH@/minmax@MODULE_EXT@
 @MODULE_PATH@/modmath@MODULE_EXT@
 @MODULE_PATH@/motmod@MODULE_EXT@
@@ -415,6 +416,7 @@ usr/share/doc/emc2/UPDATING
 usr/share/doc/emc2/tkemc.txt
 usr/share/doc/emc2/xemc.txt
 usr/share/emc/ncfiles/3D_Chips.ngc
+usr/share/emc/ncfiles/3dtest.ngc
 usr/share/emc/ncfiles/M101
 usr/share/emc/ncfiles/M102.c
 usr/share/emc/ncfiles/arcspiral.ngc
@@ -558,6 +560,7 @@ usr/share/man/man9/sum2.9
 usr/share/man/man9/supply.9
 usr/share/man/man9/threads.9
 usr/share/man/man9/threadtest.9
+usr/share/man/man9/timedelay.9
 usr/share/man/man9/timedelta.9
 usr/share/man/man9/toggle.9
 usr/share/man/man9/tripodkins.9
@@ -666,6 +669,7 @@ usr/share/locale/se/LC_MESSAGES/axis.mo
 usr/share/doc/emc2/EMC2_User_Manual.pdf
 usr/share/doc/emc2/EMC2_User_Manual_fr.pdf
 usr/share/doc/emc2/EMC2_Integrator_Manual.pdf
+usr/share/doc/emc2/EMC2_Integrator_Manual_fr.pdf
 usr/share/doc/emc2/HAL_User_Manual_fr.pdf
 usr/share/doc/emc2/gcode.html
 usr/share/doc/emc2/gcode_fr.html
