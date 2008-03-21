@@ -136,8 +136,11 @@ pwmgens have names like "m7i43_hm2.<BoardNum>.pwmgen.<Instance>".
 Instance is a two-digit number that corresponds to the HostMot2 pwmgen
 instance number.  There are 'num_pwmgens' instances, starting with 00.
 
-In HM2, each pwmgen uses three output IO pins: Not-Enable, PWM, and
-Direction.
+In HM2, each pwmgen uses three output IO pins: Not-Enable, Out0, and
+Out1.
+
+The function of the Out0 and Out1 IO pins varies with output-type
+parameter (see below).
 
 The m7i43_hm2 pwmgen representation is modeled on the pwmgen software
 component.  Each pwmgen instance has the following pins and parameters:
@@ -155,6 +158,12 @@ Parameters:
 (float rw) scale: Scaling factor to convert 'value' from arbitrary units
 to duty cycle: dc = value / scale.  Duty cycle has an effective range
 of -1.0 to +1.0 inclusive.
+
+(s32 rw) output-type: This emulates the output_type load-time argument
+to the software pwmgen component.  This parameter may be changed at
+runtime, but most of the time you probably want to set it at startup and
+then leave it alone.  Accepted values are 1 (PWM on Out0 and Direction
+on Out1) and 2 (Up on Out0 and Down on Out1).
 
 
 .SS stepgen
@@ -554,6 +563,81 @@ static void m7i43_hm2_print_idrom(int level, m7i43_t *board) {
     PRINT(level, "    Register Stride 0: 0x%08X\n", board->idrom.register_stride_0); 
     PRINT(level, "    Register Stride 1: 0x%08X\n", board->idrom.register_stride_1); 
 }
+
+
+
+
+//
+// Update the PWM Mode Registers of all pwmgen instances that need it
+//
+
+static void hm2_pwmgen_update_mode_registers(m7i43_t *board) {
+    int need_update = 0;
+    int i;
+
+    for (i = 0; i < board->pwmgen.num_instances; i ++) {
+        if (board->pwmgen.instance[i].hal.param.output_type == board->pwmgen.instance[i].hal.param.written_output_type) continue;
+
+        need_update = 1;
+        board->pwmgen.instance[i].hal.param.written_output_type = board->pwmgen.instance[i].hal.param.output_type;
+
+        board->pwmgen.instance[i].hw.pwm_mode = board->pwmgen.instance[i].pwm_width_select;
+        board->pwmgen.instance[i].hw.pwm_mode |= board->pwmgen.instance[i].pwm_mode_select << 2;
+
+        switch (board->pwmgen.instance[i].hal.param.output_type) {
+            case 1: {  // PWM & Dir
+                board->pwmgen.instance[i].hw.pwm_mode |= 0x0 << 3;
+                PRINT(
+                    RTAPI_MSG_INFO,
+                    "pwmgen.%02d.output-mode is %d (PWM & Dir), Out0 is PWM, Out1 is Dir\n",
+                    i,
+                    board->pwmgen.instance[i].hal.param.output_type
+                );
+                break;
+            }
+
+            case 2: {  // Up & Down
+                board->pwmgen.instance[i].hw.pwm_mode |= 0x2 << 3;
+                PRINT(
+                    RTAPI_MSG_INFO,
+                    "pwmgen.%02d.output-mode is %d (Up & Down), Out0 is Up, Out1 is Down\n",
+                    i,
+                    board->pwmgen.instance[i].hal.param.output_type
+                );
+                break;
+            }
+
+            default: {  // unknown pwm mode!  complain and switch to pwm/dir
+                PRINT(
+                    RTAPI_MSG_WARN,
+                    "invalid pwmgen output_type %d, 1 and 2 are supported, switching to 1\n",
+                    board->pwmgen.instance[i].hal.param.output_type
+                ); 
+                board->pwmgen.instance[i].hal.param.output_type = 1;
+                board->pwmgen.instance[i].hal.param.written_output_type = board->pwmgen.instance[i].hal.param.output_type;
+                board->pwmgen.instance[i].hw.pwm_mode |= 0x0 << 3;
+                PRINT(
+                    RTAPI_MSG_INFO,
+                    "pwmgen.%02d.output-mode is %d (PWM & Dir), Out0 is PWM, Out1 is Dir\n",
+                    i,
+                    board->pwmgen.instance[i].hal.param.output_type
+                );
+                break;
+            }
+        }
+
+        board->pwmgen.instance[i].hw.pwm_mode |= board->pwmgen.instance[i].pwm_double_buffered << 5;
+    }
+
+    if (need_update) {
+        m7i43_epp_addr16(board->pwmgen.pwm_mode_addr + M7I43_HM2_ADDR_AUTOINCREMENT);
+        for (i = 0; i < board->pwmgen.num_instances; i ++) {
+            m7i43_epp_write32(board->pwmgen.instance[i].hw.pwm_mode);
+        }
+    }
+}
+
+
 
 
 // 
@@ -988,6 +1072,7 @@ static int hm2_md_parse_pwmgen(m7i43_t *board, hm2_module_descriptor_t *m) {
             }
 
             // parameters
+
             rtapi_snprintf(name, HAL_NAME_LEN, "m7i43_hm2.%d.pwmgen.%02d.scale", 0, i);
             r = hal_param_float_new(name, HAL_RW, &(board->pwmgen.instance[i].hal.param.scale), comp_id);
             if (r != HAL_SUCCESS) {
@@ -995,28 +1080,36 @@ static int hm2_md_parse_pwmgen(m7i43_t *board, hm2_module_descriptor_t *m) {
                 return -1;
             }
 
+            r = hal_param_s32_newf(
+                HAL_RW,
+                &(board->pwmgen.instance[i].hal.param.output_type),
+                comp_id,
+                "m7i43_hm2.%d.pwmgen.%02d.output-type",
+                0,
+                i
+            );
+            if (r != HAL_SUCCESS) {
+                PRINT(RTAPI_MSG_ERR, "error adding param, aborting\n");
+                return -1;
+            }
+
             // init
             *(board->pwmgen.instance[i].hal.pin.enable) = 0;
             *(board->pwmgen.instance[i].hal.pin.value) = 0.0;
             board->pwmgen.instance[i].hal.param.scale = 1.0;
+            board->pwmgen.instance[i].hal.param.output_type = 1;  // default to PWM+Dir
+            board->pwmgen.instance[i].hal.param.written_output_type = -666;  // force at update at the start
 
-            board->pwmgen.instance[i].hw.pwm_mode = 0x3;  // FIXME: let the user choose some of these bits?
+            // these are the fields of the PWM Mode Register that are not exposed to HAL
+            // FIXME: let the user choose some of these bits?
+            board->pwmgen.instance[i].pwm_width_select = 0x3;
+            board->pwmgen.instance[i].pwm_mode_select = 0;
+            board->pwmgen.instance[i].pwm_double_buffered = 1;
         }
     }
 
 
-    //
-    // write the PWM Mode registers
-    //
-
-    {
-        int i;
-
-        m7i43_epp_addr16(board->pwmgen.pwm_mode_addr + M7I43_HM2_ADDR_AUTOINCREMENT);
-        for (i = 0; i < board->pwmgen.num_instances; i ++) {
-            m7i43_epp_write32(board->pwmgen.instance[i].hw.pwm_mode);
-        }
-    }
+    hm2_pwmgen_update_mode_registers(board);
 
 
     // 
@@ -1498,13 +1591,6 @@ static int hm2_md_parse_watchdog(m7i43_t *board, hm2_module_descriptor_t *m) {
         }
 
         board->watchdog.instance[0].hw.timer = tmp;
-        PRINT(
-            RTAPI_MSG_DBG,
-            "watchdog timeout %u ns becomes timer value %u (0x%X)\n",
-            board->watchdog.instance[0].timeout_ns,
-            board->watchdog.instance[0].hw.timer,
-            board->watchdog.instance[0].hw.timer
-        );
     }
 
     // set the watchdog timeout
@@ -1625,8 +1711,8 @@ static const char* hm2_get_pin_secondary_name(hm2_pin_t *pin) {
 
         case HM2_GTAG_PWMGEN:
             switch (sec_pin) {
-                case 1: return "PWM";
-                case 2: return "Direction";
+                case 1: return "Out0 (PWM or Up)";
+                case 2: return "Out1 (Dir or Down)";
                 case 3: return "Not-Enable";
             }
             break;
@@ -2611,6 +2697,11 @@ FUNCTION(pwmgen_update) {
     if (board.pwmgen.num_instances == 0) return;
     if ((*board.epp_errors) != 0) return;
     if ((board.watchdog.num_instances == 1) && ((*board.watchdog.instance[0].hal.pin.has_bit) != 0)) return;
+
+
+    // update PWM Mode Registers, as needed
+    hm2_pwmgen_update_mode_registers(&board);
+
 
     // rewrite enable register?
     {

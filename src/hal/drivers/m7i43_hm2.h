@@ -19,7 +19,7 @@
 #endif
 
 
-#define M7I43_HM2_VERSION "0.3"
+#define M7I43_HM2_VERSION "0.4"
 
 #define M7I43_HM2_ID "m7i43_hm2: "
 #define  PRINT(level, fmt, args...)  rtapi_print_msg(level, M7I43_HM2_ID fmt, ## args);
@@ -226,9 +226,17 @@ typedef struct {
 
         struct {
             hal_float_t scale;
+            hal_s32_t output_type;
+            int32_t written_output_type;
         } param;
 
     } hal;
+
+    // these make up the fields of the PWM Mode Register, but they don't appear in the HAL
+    // (hal.output_type affects a field here too)
+    int pwm_width_select;
+    int pwm_mode_select;
+    int pwm_double_buffered;
 } hm2_pwmgen_instance_t;
 
 
