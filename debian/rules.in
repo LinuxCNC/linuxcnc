@@ -69,7 +69,8 @@ install: build
 	mkdir -p debian/tmp/usr/share/doc/emc2-dev
 	mv debian/tmp/usr/share/doc/emc2/EMC2_Developer_Manual.pdf \
 		debian/tmp/usr/share/doc/emc2-dev/
-	cp docs/html/gcode*.html debian/tmp/usr/share/doc/emc2/
+	cp src/emc/usr_intf/axis/extensions/LICENSE-Togl debian/tmp/usr/share/doc/emc2/
+	cp docs/html/gcode.html docs/html/gcode_??.html debian/tmp/usr/share/doc/emc2/
 	rm debian/tmp/usr/share/doc/emc2/HAL_User_Manual.pdf 
 	rm debian/tmp/usr/share/doc/emc2/EMC2_Manual_Pages.pdf 
 	rm -rf debian/tmp/usr/share/doc/emc2/html

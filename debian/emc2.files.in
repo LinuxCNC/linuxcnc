@@ -407,6 +407,7 @@ usr/lib/libposemath.so
 usr/lib/librs274.so
 usr/share/doc/emc2/AUTHORS
 usr/share/doc/emc2/INSTALL
+usr/share/doc/emc2/LICENSE-Togl
 usr/share/doc/emc2/NEWS
 usr/share/doc/emc2/README
 usr/share/doc/emc2/UPDATING

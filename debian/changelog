@@ -1,5 +1,7 @@
 emc2 (1:2.2.5~cvs) unstable; urgency=low
 
+  * Include license statement for the 'Togl' software, which is incorporated
+    in emc2
 
  -- Jeff Epler <jepler@unpythonic.net>  Sun, 16 Mar 2008 12:19:49 -0500
 
