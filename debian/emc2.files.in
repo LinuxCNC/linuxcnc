@@ -530,8 +530,10 @@ usr/share/man/man9/limit3.9
 usr/share/man/man9/logic.9
 usr/share/man/man9/lowpass.9
 usr/share/man/man9/lut5.9
+usr/share/man/man9/m7i43_hm2.9
 usr/share/man/man9/maj3.9
 usr/share/man/man9/match8.9
+usr/share/man/man9/mesa7i43_gpio.9
 usr/share/man/man9/minmax.9
 usr/share/man/man9/motion.9
 usr/share/man/man9/mult2.9
