@@ -1,0 +1,3021 @@
+
+//
+// Copyright (C) 2007-2008 Sebastian Kuzminsky
+//
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 2 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+//
+
+
+component m7i43_hm2 """RTAI driver for the Mesa Electronics 7i43 EPP Anything IO board with HostMot2 firmware.""";
+
+
+description """
+m7i43_hm2 is an RTAI device driver that interfaces the Mesa 7i43 board with
+the HostMot2 firmware to the EMC2 HAL.  Both the 200K and the 400K FPGAs
+are supported.
+
+The driver talks with the 7i43 over the parallel port, not over USB.  USB
+can be used to power the 7i43, but not to talk to it.  USB communication
+with the 7i43 will not be supported any time soon, since USB has poor
+real-time qualities.
+
+The driver sends the HostMot2 firmware to the board at module load time.
+The board should be ready to accept new firmware before loading the
+driver, ie both the INIT and DONE lights should be on.
+
+
+.SS Jumper settings
+
+The board must be configured to get its firmware from the EPP port.  To do
+this, jumpers W4 and W5 must both be down, ie toward the USB connector.
+
+The board must be configured to power on whether or not the USB interface
+is active.  This is done by setting jumper W7 up, ie away from the edge
+of the board.
+
+
+.SS Firmware
+
+The HostMot2 firmware provides encoders, PWM generators, step/dir
+generators, and general purpose I/O pins (GPIOs).  These things are called
+"Functions".  The firmware is configured, at firmware compile time,
+to provide zero or more instances of each of these four Functions.
+
+The firmware also provides a watchdog function, described in the Watchdog
+section below.
+
+
+.SS Communicating with the board
+
+The 7i43 communicates with the EMC computer over EPP, the Enhanced
+Parallel Port.  This provides about 1 MBps of throughput, and the
+communication latency is very predictable and reasonably low.
+
+EPP is very reliable under normal circumstances, but bad cabling
+or excessively long cabling runs may cause communication timeouts.
+The driver exports a parameter named m7i43_hm2.<BoardNum>.epp_errors to
+inform HAL of this condition.  When the driver detects an EPP timeout,
+it sets epp_errors to 1 and stops communicating with the 7i43 board.
+Setting epp_errors back to 0 makes the driver start trying to communicate
+with the 7i43 again.
+
+
+.SS Watchdog
+
+The 7i43 FPGA firmware implements a watchdog function.  The timeout
+is settable a driver load time using the watchdog_timeout_ns modparam
+described below.  The "pet-watchdog" function must be called no more
+than that many nanoseconds appart, or the watchdog will bite.
+
+When the watchdog bites, all board's I/O pins revert to inputs (pulled
+high), and all communication with the board stops.  This condition is
+reported to HAL by the watchdog.has-bit pin going high.  The user must
+set the pin back to low to restart communication with the board.
+
+
+.SS Board I/O Pins
+
+The 7i43 board has 48 I/O pins, 0-23 on the P4 connector and 24-47 on the
+P3 connector (see Mesa Electronics' manual for details on the pinout).
+Each pin can be configured, at driver load time, to serve one of two
+purposes: either as a particular I/O pin of a particular Function instance
+(encoder, pwmgen, or stepgen), or as a general purpose digital I/O pin.
+By default all firmware functions are enabled, and all the board's pins
+are used by the Function instances.
+
+The user can disable Function instances at driver load time, by specifying
+the module parameters num_encoders, num_pwmgens, and num_stepgens
+(described above).  Any pins which belong to Function instances that
+have been disabled automatically become GPIOs.
+
+
+.SS encoder
+
+Very basic support, more to come.  This is what's implemented so far:
+
+Encoders have names like "m7i43_hm2.<BoardNum>.encoder.<Instance>".
+Instance is a two-digit number that corresponds to the HostMot2 encoder
+instance number.  There are 'num_encoders' instances, starting with 00.
+
+In HM2, each encoder uses three input IO pins: A, B, and Index (sometimes
+also known as Z).  Index is currently not used, this will be fixed in
+the nearish future.
+
+Each encoder instance has the following pins and parameters:
+
+Pins:
+
+(s32 out) count: Number of encoder counts since the previous reset.
+(Like CDI.)
+
+(float out) position: Encoder position (count / scale).  (Like CDI.)
+
+Parameters:
+
+(float r/w) scale: Converts from 'count' units to 'position' units.
+(Like CDI.)
+
+
+.SS pwmgen
+
+Very basic support, more to come.  This is what's implemented so far:
+
+pwmgens have names like "m7i43_hm2.<BoardNum>.pwmgen.<Instance>".
+Instance is a two-digit number that corresponds to the HostMot2 pwmgen
+instance number.  There are 'num_pwmgens' instances, starting with 00.
+
+In HM2, each pwmgen uses three output IO pins: Not-Enable, Out0, and
+Out1.
+
+The function of the Out0 and Out1 IO pins varies with output-type
+parameter (see below).
+
+The m7i43_hm2 pwmgen representation is modeled on the pwmgen software
+component.  Each pwmgen instance has the following pins and parameters:
+
+Pins:
+
+(bit input) enable: If true, the pwmgen will set its Not-Enable pin
+false and output its PWM and Direction signals.  If 'enable' is false,
+pwmgen will set its Not-Enable pin true and not output any signals.
+
+(float input) value: The current pwmgen command value, in arbitrary units.
+
+Parameters:
+
+(float rw) scale: Scaling factor to convert 'value' from arbitrary units
+to duty cycle: dc = value / scale.  Duty cycle has an effective range
+of -1.0 to +1.0 inclusive.
+
+(s32 rw) output-type: This emulates the output_type load-time argument
+to the software pwmgen component.  This parameter may be changed at
+runtime, but most of the time you probably want to set it at startup and
+then leave it alone.  Accepted values are 1 (PWM on Out0 and Direction
+on Out1) and 2 (Up on Out0 and Down on Out1).
+
+
+.SS stepgen
+
+Very basic support.  This is what's implemented so far:
+
+stepgens have names like "m7i43_hm2.<BoardNum>.stepgen.<Instance>.
+Instance is a two-digit number that corresponds to the HostMot2 stepgen
+instance number.  There are 'num_stepgens' instances, starting with 00.
+
+Currently only Step/Dir output and Position-mode control is supported.
+
+Each stepgen allocates 6 IO pins, but only uses two: Step and Direction
+outputs.
+
+The m7i43_hm2 stepgen representation is modeled on the stepgen software
+component.  Each stepgen instance has the following pins and parameters:
+
+Pins:
+
+(float input) position_cmd: Target of stepper motion, in arbitrary
+position units.
+
+(float output) counts: Feedback position in counts (number of steps).
+
+(float output) position-fb: Feedback position in arbitrary position units
+(counts / position_scale).
+
+(float output) velocity-fb: Feedback velocity in arbitrary position
+units per second.
+
+Params:
+
+(float r/w) position_scale: Converts from counts to position units.
+position = counts / position_scale
+
+(float r/w) steplen: Duration of the step signal, in seconds.
+
+(float r/w) stepspace: Minimum interval between step signals, in seconds.
+
+(float r/w) dirsetup: Minimum duration of stable Direction signal before
+a step begins, in seconds.
+
+(float r/w) dirhold: Minimum duration of stable Direction signal after
+a step ends, in seconds.
+
+
+.SS General Purpose I/O
+
+Pins which are not used by one of the Functions above are
+exported to HAL as GPIO pins.  GPIO pins have names like
+"m7i43_hm2.<BoardNum>.gpio.<PinNum>".  PinNum is a three-digit number
+that corresponds to the I/O Pin number as given in Mesa Electronics'
+manual for the 7i43 board.
+
+Each GPIO has the following pins:
+
+(bit out) in & in_not: State (normal and inverted) of the hardware
+input pin.  (Like CDI for Digital Input).
+
+(bit in) out: Value to be written (possibly inverted) to the hardware
+output pin.  (Like the CDI for Digital Output.)
+
+Each GPIO has the following params:
+
+(bin r/w) is_output: If set to 1, the GPIO is an output, and the values
+of the "in" and "in_not" HAL pins are undefined.  If set to 0, the GPIO
+is an input, and writes to the "out" HAL pin have no effect.
+
+(bin r/w) invert_output: If set to 1, the value that will appear on
+the board's I/O pin will be the inverse of the value written to HAL's
+"out" pin.  (This corresponds to the 'invert' parameter in the CDI for
+Digital Output.)
+
+""";
+
+pin in bit ignore "ignore this pin, comp needs it";
+
+
+option singleton;
+option extra_setup;
+option extra_cleanup;
+
+function gpio_read                 nofp "Read GPIO pins.";
+function gpio_write                nofp "Write GPIO pins.";
+
+function encoder_update_counters   nofp "Read encoder counts.";
+function encoder_capture_position    fp "Compute encoder position.";
+
+function pwmgen_update               fp "Write pwmgen values.";
+
+function stepgen_update              fp "Update stepgen values.";
+
+function pet_watchdog              nofp "Pet the watchdog to keep it from biting us for a while.";
+
+
+modparam int ioaddr = 0x378
+"""The base address of the parallel port.""";
+
+modparam int ioaddr_hi = 0
+"""The secondary address of the parallel port, used to set EPP mode.
+0 means to use ioaddr + 0x400.""";
+
+modparam int epp_wide = 1
+"""Set to zero to disable the "wide EPP mode".  "Wide" mode allows a 16-
+and 32-bit EPP transfers, which can reduce the time spent in the read
+and write functions.  However, this may not work on all EPP parallel
+ports.""";
+
+modparam int num_encoders = -1
+"""Defaults to -1, which means "use all the encoder instances the
+firmware has".  If num_encoders is smaller than the number of encoder
+instances present in the firmware, only the first num_encoders instances
+are enabled; all later encoder instances are disabled and their I/O pins
+become digital I/O pins.""";
+
+modparam int num_pwmgens = -1
+"""Defaults to -1, which means "use all the pwmgen instances the
+firmware has".  If num_pwmgens is smaller than the number of pwmgen
+instances present in the firmware, only the first num_pwmgens instances
+are enabled; all later pwmgen instances are disabled and their I/O pins
+become digital I/O pins.""";
+
+modparam int num_stepgens = -1
+"""Defaults to -1, which means "use all the stepgen instances the
+firmware has".  If num_stepgens is smaller than the number of stepgen
+instances present in the firmware, only the first num_stepgens instances
+are enabled; all later stepgen instances are disabled and their I/O pins
+become digital I/O pins.""";
+
+modparam int watchdog_timeout_ns = 1000000
+"""Watchdog timeout in nanoseconds.  Defaults to 1,000,000 ns (1 ms).
+The pet_watchdog() function must be called at least this frequently,
+or it will bite.  When the watchdog bites, all I/O pins are reset to
+inputs (high with pullups) and all communication with the 7i43 stops.
+Each board exports a binary HAL pin called "watchdog.has_bit", which is
+set to 1 when the watchdog bites.  When this pin is True, the driver will
+not communicate with the board.  When the user sets the pin to False,
+the driver will reset the board's I/O pins to the configuration selected
+at load-time, and communications will resume.""";
+
+modparam int debug_epp = 0
+"""Developer/debug use only!  Enable debug logging of most EPP
+transfers.""";
+
+modparam int debug_idrom = 0
+"""Developer/debug use only!  Enable debug logging of the HostMot2
+IDROM header.""";
+
+modparam int debug_module_descriptors = 0
+"""Developer/debug use only!  Enable debug logging of the HostMot2
+Module Descriptors.""";
+
+modparam int debug_pin_descriptors = 0
+"""Developer/debug use only!  Enable debug logging of the HostMot2
+Pin Descriptors.""";
+
+modparam int debug_functions = 0
+"""Developer/debug use only!  Enable debug logging of the HostMot2
+Functions used.""";
+
+
+license "GPL";
+
+;;
+
+
+#include <asm/io.h>
+
+#include "rtapi_math.h"
+
+#include "hal/drivers/m7i43_hm2.h"
+#include "hal/drivers/mesa7i43-firmware/m7i43-firmware-hm2-svst4_4s.h"
+#include "hal/drivers/mesa7i43-firmware/m7i43-firmware-hm2-svst4_4b.h"
+// #include "hal/drivers/mesa7i43-firmware/m7i43-firmware-hm2-sv8s.h"
+// #include "hal/drivers/mesa7i43-firmware/m7i43-firmware-hm2-sv8b.h"
+// #include "hal/drivers/mesa7i43-firmware/m7i43-firmware-hm2-svst4_6b.h"
+
+
+
+
+//
+// the 7i43 board is tracked by this
+//
+
+m7i43_t board;
+
+
+
+
+// 
+// EPP I/O code
+// 
+
+static inline void m7i43_epp_addr8(__u8 addr) {
+    outb(addr, ioaddr + M7I43_EPP_ADDRESS_OFFSET);
+    DEBUG(debug_epp, "selected address 0x%02X\n", addr);
+}
+
+static inline void m7i43_epp_addr16(__u16 addr) {
+    outb((addr & 0x00FF), ioaddr + M7I43_EPP_ADDRESS_OFFSET);
+    outb((addr >> 8),     ioaddr + M7I43_EPP_ADDRESS_OFFSET);
+    DEBUG(debug_epp, "selected address 0x%04X\n", addr);
+}
+
+static inline void m7i43_epp_write(int w) {
+    outb(w, ioaddr + M7I43_EPP_DATA_OFFSET);
+    DEBUG(debug_epp, "wrote data 0x%02X\n", w);
+}
+
+static inline int m7i43_epp_read(void) {
+    int val;
+    val = inb(ioaddr + M7I43_EPP_DATA_OFFSET);
+    DEBUG(debug_epp, "read data 0x%02X\n", val);
+    return val;
+}
+
+static inline __u32 m7i43_epp_read32(void) {
+    uint32_t data;
+
+    if (epp_wide) {
+	data = inl(ioaddr + M7I43_EPP_DATA_OFFSET);
+        DEBUG(debug_epp, "read data 0x%08X\n", data);
+    } else {
+        uint8_t a, b, c, d;
+        a = m7i43_epp_read();
+        b = m7i43_epp_read();
+        c = m7i43_epp_read();
+        d = m7i43_epp_read();
+        data = a + (b<<8) + (c<<16) + (d<<24);
+    }
+
+    return data;
+}
+
+static inline void m7i43_epp_write32(uint32_t w) {
+    if (epp_wide) {
+	outl(w, ioaddr + M7I43_EPP_DATA_OFFSET);
+        DEBUG(debug_epp, "wrote data 0x%08X\n", w);
+    } else {
+        m7i43_epp_write((w) & 0xFF);
+        m7i43_epp_write((w >>  8) & 0xFF);
+        m7i43_epp_write((w >> 16) & 0xFF);
+        m7i43_epp_write((w >> 24) & 0xFF);
+    }
+}
+
+static inline uint8_t m7i43_epp_read_status(void) {
+    uint8_t val;
+    val = inb(ioaddr + M7I43_EPP_STATUS_OFFSET);
+    DEBUG(debug_epp, "read status 0x%02X\n", val);
+    return val;
+}
+
+static inline void m7i43_epp_write_status(uint8_t status_byte) {
+    outb(status_byte, ioaddr + M7I43_EPP_STATUS_OFFSET);
+    DEBUG(debug_epp, "wrote status 0x%02X\n", status_byte);
+}
+
+static inline void m7i43_epp_write_control(uint8_t control_byte) {
+    outb(control_byte, ioaddr + M7I43_EPP_CONTROL_OFFSET);
+    DEBUG(debug_epp, "wrote control 0x%02X\n", control_byte);
+}
+
+static inline int m7i43_epp_check_for_timeout(void) {
+    return (m7i43_epp_read_status() & 0x01);
+}
+
+static int m7i43_epp_clear_timeout(void) {
+    uint8_t status;
+
+    if (!m7i43_epp_check_for_timeout()) {
+        return 1;
+    }
+
+    /* To clear timeout some chips require double read */
+    (void)m7i43_epp_read_status();
+
+    // read in the actual status register
+    status = m7i43_epp_read_status();
+
+    m7i43_epp_write_status(status | 0x01);  // Some reset by writing 1
+    m7i43_epp_write_status(status & 0xFE);  // Others by writing 0
+
+    return !m7i43_epp_check_for_timeout();
+}
+
+
+
+
+// 
+// misc generic helper functions
+// 
+
+static void m7i43_nanosleep(unsigned long int nanoseconds) {
+    long int max_ns_delay;
+
+    max_ns_delay = rtapi_delay_max();
+
+    while (nanoseconds > max_ns_delay) {
+        rtapi_delay(max_ns_delay);
+        nanoseconds -= max_ns_delay;
+    }
+
+    rtapi_delay(nanoseconds);
+}
+
+
+
+
+// 
+// helper functions for dealing with the 7i43 board
+// 
+
+
+static const char *hm2_hz_to_mhz(__u32 freq_hz) {
+    static char mhz_str[20];
+
+    int freq_mhz, freq_mhz_fractional;
+
+    freq_mhz = freq_hz / (1000*1000);
+    freq_mhz_fractional = (freq_hz / 1000) % 1000;
+
+    sprintf(mhz_str, "%d.%03d", freq_mhz, freq_mhz_fractional);
+
+    return mhz_str;
+}
+
+
+// this function resets the FPGA *only* if it's currently configured with the HostMot2 firmware
+static void m7i43_hm2_reset(void) {
+    m7i43_epp_addr16(0x7F7F);
+    m7i43_epp_write(0x5A);
+}
+
+
+static void m7i43_hm2_print_idrom(int level, m7i43_t *board) {
+    PRINT(level, "IDRom:\n"); 
+
+    if (board->idrom.idrom_type == 2) {
+        PRINT(level, "    IDRom Type: 0x%08X\n", board->idrom.idrom_type); 
+    } else {
+        PRINT(level, "    IDRom Type: 0x%08X ***** Expected 2!  Continuing anyway! *****\n", board->idrom.idrom_type); 
+    }
+
+    if (board->idrom.offset_to_modules == 0x40) {
+        PRINT(level, "    Offset to Modules: 0x%08X\n", board->idrom.offset_to_modules); 
+    } else {
+        PRINT(level, "    Offset to Modules: 0x%08X ***** Expected 0x40!  Continuing anyway *****\n", board->idrom.offset_to_modules); 
+    }
+
+    if (board->idrom.offset_to_pin_desc == 0x200) {
+        PRINT(level, "    Offset to Pin Description: 0x%08X\n", board->idrom.offset_to_pin_desc); 
+    } else {
+        PRINT(level, "    Offset to Pin Description: 0x%08X ***** Expected 0x200!  Continuing anyway! *****\n", board->idrom.offset_to_pin_desc); 
+    }
+
+    PRINT(level, "    Board Name: %s\n", board->idrom.board_name); 
+
+    if (board->idrom.fpga_size == board->cpld.fpga_size) {
+        PRINT(level, "    FPGA Size: %u\n", board->idrom.fpga_size); 
+    } else {
+        PRINT(level, "    FPGA Size: %u ***** CPLD reported FPGA Size %d!  Continuing anyway! *****\n", board->idrom.fpga_size, board->cpld.fpga_size); 
+    }
+
+    PRINT(level, "    FPGA Pins: %u\n", board->idrom.fpga_pins); 
+
+    PRINT(level, "    IO Ports: %u\n", board->idrom.io_ports); 
+
+    PRINT(level, "    IO Width: %u\n", board->idrom.io_width); 
+
+    if (board->idrom.port_width == 24) {
+        PRINT(level, "    Port Width: %u\n", board->idrom.port_width); 
+    } else {
+        PRINT(level, "    Port Width: %u ***** Expected 24!  Continuing anyway! *****\n", board->idrom.port_width); 
+    }
+
+    PRINT(
+        level,
+        "    Clock Low: %d Hz (%d KHz, %d MHz)\n",
+        board->idrom.clock_low,
+        (board->idrom.clock_low / 1000),
+        (board->idrom.clock_low / (1000 * 1000))
+    ); 
+
+    PRINT(
+        level,
+        "    Clock High: %d Hz (%d KHz, %d MHz)\n",
+        board->idrom.clock_high,
+        (board->idrom.clock_high / 1000),
+        (board->idrom.clock_high / (1000 * 1000))
+    ); 
+
+    PRINT(level, "    Instance Stride 0: 0x%08X\n", board->idrom.instance_stride_0); 
+    PRINT(level, "    Instance Stride 1: 0x%08X\n", board->idrom.instance_stride_1); 
+
+    PRINT(level, "    Register Stride 0: 0x%08X\n", board->idrom.register_stride_0); 
+    PRINT(level, "    Register Stride 1: 0x%08X\n", board->idrom.register_stride_1); 
+}
+
+
+
+
+//
+// Update the PWM Mode Registers of all pwmgen instances that need it
+//
+
+static void hm2_pwmgen_update_mode_registers(m7i43_t *board) {
+    int need_update = 0;
+    int i;
+
+    for (i = 0; i < board->pwmgen.num_instances; i ++) {
+        if (board->pwmgen.instance[i].hal.param.output_type == board->pwmgen.instance[i].hal.param.written_output_type) continue;
+
+        need_update = 1;
+        board->pwmgen.instance[i].hal.param.written_output_type = board->pwmgen.instance[i].hal.param.output_type;
+
+        board->pwmgen.instance[i].hw.pwm_mode = board->pwmgen.instance[i].pwm_width_select;
+        board->pwmgen.instance[i].hw.pwm_mode |= board->pwmgen.instance[i].pwm_mode_select << 2;
+
+        switch (board->pwmgen.instance[i].hal.param.output_type) {
+            case 1: {  // PWM & Dir
+                board->pwmgen.instance[i].hw.pwm_mode |= 0x0 << 3;
+                PRINT(
+                    RTAPI_MSG_INFO,
+                    "pwmgen.%02d.output-mode is %d (PWM & Dir), Out0 is PWM, Out1 is Dir\n",
+                    i,
+                    board->pwmgen.instance[i].hal.param.output_type
+                );
+                break;
+            }
+
+            case 2: {  // Up & Down
+                board->pwmgen.instance[i].hw.pwm_mode |= 0x2 << 3;
+                PRINT(
+                    RTAPI_MSG_INFO,
+                    "pwmgen.%02d.output-mode is %d (Up & Down), Out0 is Up, Out1 is Down\n",
+                    i,
+                    board->pwmgen.instance[i].hal.param.output_type
+                );
+                break;
+            }
+
+            default: {  // unknown pwm mode!  complain and switch to pwm/dir
+                PRINT(
+                    RTAPI_MSG_WARN,
+                    "invalid pwmgen output_type %d, 1 and 2 are supported, switching to 1\n",
+                    board->pwmgen.instance[i].hal.param.output_type
+                ); 
+                board->pwmgen.instance[i].hal.param.output_type = 1;
+                board->pwmgen.instance[i].hal.param.written_output_type = board->pwmgen.instance[i].hal.param.output_type;
+                board->pwmgen.instance[i].hw.pwm_mode |= 0x0 << 3;
+                PRINT(
+                    RTAPI_MSG_INFO,
+                    "pwmgen.%02d.output-mode is %d (PWM & Dir), Out0 is PWM, Out1 is Dir\n",
+                    i,
+                    board->pwmgen.instance[i].hal.param.output_type
+                );
+                break;
+            }
+        }
+
+        board->pwmgen.instance[i].hw.pwm_mode |= board->pwmgen.instance[i].pwm_double_buffered << 5;
+    }
+
+    if (need_update) {
+        m7i43_epp_addr16(board->pwmgen.pwm_mode_addr + M7I43_HM2_ADDR_AUTOINCREMENT);
+        for (i = 0; i < board->pwmgen.num_instances; i ++) {
+            m7i43_epp_write32(board->pwmgen.instance[i].hw.pwm_mode);
+        }
+    }
+}
+
+
+
+
+// 
+// read the idrom
+// use address autoincrement, and just read everything in the correct order
+// 
+
+static int m7i43_hm2_read_idrom(m7i43_t *board) {
+    int i;
+    int ret_val = 0;
+    int show_idrom = 0;
+
+    m7i43_epp_addr16(board->idrom_offset + M7I43_HM2_ADDR_AUTOINCREMENT);
+
+    board->idrom.idrom_type = m7i43_epp_read32();
+    if (board->idrom.idrom_type != 2) {
+        PRINT(RTAPI_MSG_WARN, "invalid IDROM type %d, expected 2, aborting load\n", board->idrom.idrom_type); 
+        return -EINVAL;
+    }
+
+    board->idrom.offset_to_modules = m7i43_epp_read32();
+    board->idrom.offset_to_pin_desc = m7i43_epp_read32();
+
+    for (i = 0; i < 8; i ++) {
+        board->idrom.board_name[i] = m7i43_epp_read();
+    }
+    board->idrom.board_name[8] = '\0';
+
+    board->idrom.fpga_size = m7i43_epp_read32();
+    if (board->idrom.fpga_size != board->cpld.fpga_size) {
+        show_idrom = 1;
+        PRINT(
+            RTAPI_MSG_WARN,
+            "IDRom FPGA Size %d disagrees with CPLD FPGA Size %d, oh well\n",
+            board->idrom.fpga_size,
+            board->cpld.fpga_size
+        ); 
+    }
+
+    board->idrom.fpga_pins = m7i43_epp_read32();
+
+    board->idrom.io_ports = m7i43_epp_read32();
+    board->idrom.io_width = m7i43_epp_read32();
+    board->idrom.port_width = m7i43_epp_read32();
+    if (board->idrom.port_width != 24) {
+        PRINT(RTAPI_MSG_WARN, "invalid IDROM PortWidth %d, expected 24, aborting load\n", board->idrom.port_width); 
+        ret_val = -EINVAL;
+        show_idrom = 1;
+    }
+
+    board->idrom.clock_low = m7i43_epp_read32();
+    board->idrom.clock_high = m7i43_epp_read32();
+
+    board->idrom.instance_stride_0 = m7i43_epp_read32();
+    board->idrom.instance_stride_1 = m7i43_epp_read32();
+
+    board->idrom.register_stride_0 = m7i43_epp_read32();
+    board->idrom.register_stride_1 = m7i43_epp_read32();
+
+    if (show_idrom) {
+        m7i43_hm2_print_idrom(RTAPI_MSG_WARN, board);
+    } else if (debug_idrom) {
+        m7i43_hm2_print_idrom(RTAPI_MSG_INFO, board);
+    }
+
+    return ret_val;
+}
+
+
+
+
+// 
+// helper functions for dealing with the Module Descriptions
+//
+
+static const char *hm2_get_general_function_name(int gtag) {
+    switch (gtag) { 
+        case HM2_GTAG_WATCHDOG:        return "Watchdog";
+        case HM2_GTAG_IOPORT:          return "IOPort";
+        case HM2_GTAG_ENCODER:         return "Encoder";
+        case HM2_GTAG_STEPGEN:         return "StepGen";
+        case HM2_GTAG_PWMGEN:          return "PWMGen";
+        case HM2_GTAG_TRANSLATIONRAM:  return "TranslationRAM";
+        default: {
+            static char unknown[100];
+            rtapi_snprintf(unknown, 100, "(unknown-gtag-%d)", gtag);
+            return unknown;
+        }
+    }
+}
+
+
+
+
+// 
+// read the modules
+// 
+
+static int hm2_md_is_consistent(
+    hm2_module_descriptor_t *m,
+    __u8 version,
+    __u8 num_registers,
+    __u32 instance_stride,
+    __u32 multiple_registers
+) {
+    if (
+        (m->num_registers == num_registers)
+        && (m->version == version)
+        && (m->instance_stride == instance_stride)
+        && (m->multiple_registers == multiple_registers)
+    ) {
+        return 1;
+    }
+
+    PRINT(
+        RTAPI_MSG_ERR,
+        "inconsistent Module Descriptor for %s, not loading driver\n",
+        hm2_get_general_function_name(m->gtag)
+    );
+
+    PRINT(
+        RTAPI_MSG_ERR,
+        "    Version = %d, expected %d\n",
+        m->version,
+        version
+    );
+
+    PRINT(
+        RTAPI_MSG_ERR,
+        "    NumRegisters = %d, expected %d\n",
+        m->num_registers,
+        num_registers
+    );
+
+    PRINT(
+        RTAPI_MSG_ERR,
+        "    InstanceStride = 0x%08X, expected 0x%08X\n",
+        m->instance_stride,
+        instance_stride
+    );
+
+    PRINT(
+        RTAPI_MSG_ERR,
+        "    MultipleRegisters = 0x%08X, expected 0x%08X\n",
+        m->multiple_registers,
+        multiple_registers
+    );
+
+    return 0;
+}
+
+
+// reads the Module Descriptors
+// doesnt do any validation or parsing or anything, that's in hm2_parse_module_descriptors(), which comes next
+static void m7i43_hm2_read_module_descriptors(m7i43_t *board) {
+    int addr = board->idrom_offset + board->idrom.offset_to_modules;
+
+    m7i43_epp_addr16(addr + M7I43_HM2_ADDR_AUTOINCREMENT);
+
+    // we keep track of addr just for debugging, the actual board is using address auto-increment
+    for (
+        board->num_mds = 0;
+        board->num_mds < M7I43_HM2_MAX_MODULE_DESCRIPTORS;
+        board->num_mds ++, addr += 12
+    ) {
+        __u32 d[3];
+        hm2_module_descriptor_t *m = &board->md[board->num_mds];
+
+
+        d[0] = m7i43_epp_read32();
+        d[1] = m7i43_epp_read32();
+        d[2] = m7i43_epp_read32();
+
+        m->gtag = d[0] & 0x000000FF;
+        if (m->gtag == 0) {
+            return;
+        }
+
+        m->version   = (d[0] >>  8) & 0x000000FF;
+        m->clock_tag = (d[0] >> 16) & 0x000000FF;
+        m->instances = (d[0] >> 24) & 0x000000FF;
+
+        m->base_address = (d[1] >> 00) & 0x0000FFFF;
+        m->num_registers = (d[1] >> 16) & 0x000000FF;
+
+        m->register_stride = (d[1] >> 24) & 0x0000000F;
+        if (m->register_stride == 0) {
+            m->register_stride = board->idrom.register_stride_0;
+        } else {
+            m->register_stride = board->idrom.register_stride_1;
+        }
+
+        m->instance_stride = (d[1] >> 28) & 0x0000000F;
+        if (m->instance_stride == 0) {
+            m->instance_stride = board->idrom.instance_stride_0;
+        } else {
+            m->instance_stride = board->idrom.instance_stride_1;
+        }
+
+        m->multiple_registers = d[2];
+
+        if (debug_module_descriptors) {
+            int freq_hz;
+
+            if (m->clock_tag == 1) {
+                freq_hz = board->idrom.clock_low;
+            } else if (m->clock_tag == 2) {
+                freq_hz = board->idrom.clock_high;
+            } else {
+                freq_hz = 0;
+            }
+
+            PRINT(RTAPI_MSG_DBG, "Module Descriptor %d at 0x%04X:\n", board->num_mds, addr);
+            PRINT(RTAPI_MSG_DBG, "    General Function Tag: %d (%s)\n", m->gtag, hm2_get_general_function_name(m->gtag));
+            PRINT(RTAPI_MSG_DBG, "    Version: %d\n", m->version);
+            PRINT(RTAPI_MSG_DBG, "    Clock Tag: %d (%s MHz)\n", m->clock_tag, hm2_hz_to_mhz(freq_hz));
+            PRINT(RTAPI_MSG_DBG, "    Instances: %d\n", m->instances);
+            PRINT(RTAPI_MSG_DBG, "    Base Address: 0x%04X\n", m->base_address);
+            PRINT(RTAPI_MSG_DBG, "    -- Num Registers: %d\n", m->num_registers);
+            PRINT(RTAPI_MSG_DBG, "    Register Stride: 0x%08X\n", m->register_stride);
+            PRINT(RTAPI_MSG_DBG, "    -- Instance Stride: 0x%08X\n", m->instance_stride);
+            PRINT(RTAPI_MSG_DBG, "    -- Multiple Registers: 0x%08X\n", m->multiple_registers);
+        }
+    }
+}
+
+
+
+
+// 
+// Here comes the code to "parse" the Module Descriptors, turn them into
+// internal-to-the-driver representations, and export those internal
+// representations to the HAL.
+// 
+// There's a general function that walks the MD list and tries to parse
+// each MD in turn, and there's a special function to parse each GTag
+// (aka Function)
+// 
+// The per-Function parsers return the number of instances accepted, which
+// may be less than the number of instances available, or even 0, if the
+// user has disabled some instances using modparams.  The per-Function
+// parsers return -1 on error, which causes the module load to fail.
+// 
+
+static int hm2_md_parse_encoder(m7i43_t *board, hm2_module_descriptor_t *m) {
+    if (!hm2_md_is_consistent(m, 2, 5, 4, 0x0003)) {
+        PRINT(RTAPI_MSG_ERR, "inconsistent Module Descriptor!\n");
+        return -1;
+    }
+
+    if (board->encoder.num_instances != 0) {
+        PRINT(
+            RTAPI_MSG_ERR,
+            "Module Descriptor contains duplicate %s (inconsistent firmware), not loading driver\n",
+            hm2_get_general_function_name(m->gtag)
+        );
+        return -1;
+    }
+
+    if (num_encoders == -1) {
+        board->encoder.num_instances = m->instances;
+    } else if (num_encoders > m->instances) {
+        PRINT(
+            RTAPI_MSG_ERR,
+            "num_encoders=%d, but only %d are available, not loading driver\n",
+            num_encoders,
+            m->instances
+        );
+        return -1;
+    } else {
+        board->encoder.num_instances = num_encoders;
+    }
+
+    board->encoder.instance = (hm2_encoder_instance_t *)hal_malloc(board->encoder.num_instances * sizeof(hm2_encoder_instance_t));
+    if (board->encoder.instance == NULL) {
+        PRINT(RTAPI_MSG_ERR, "out of memory!\n");
+        return -1;
+    }
+
+    if (m->clock_tag == 1) {
+        board->encoder.clock_frequency = board->idrom.clock_low;
+    } else if (m->clock_tag == 2) {
+        board->encoder.clock_frequency = board->idrom.clock_high;
+    } else {
+        PRINT(RTAPI_MSG_ERR, "%s MD has invalid Clock Tag %d\n", hm2_get_general_function_name(m->gtag), m->clock_tag);
+    }
+
+    board->encoder.version = m->version;
+
+    board->encoder.counter_addr = m->base_address + (0 * m->register_stride);
+    board->encoder.latch_control_addr = m->base_address + (1 * m->register_stride);
+    board->encoder.timestamp_div_addr = m->base_address + (2 * m->register_stride);
+    board->encoder.timestamp_count_addr = m->base_address + (3 * m->register_stride);
+    board->encoder.filter_rate_addr = m->base_address + (4 * m->register_stride);
+
+    // export the encoders to HAL
+    {
+        int i;
+        int r;
+        char name[HAL_NAME_LEN + 2];
+
+        for (i = 0; i < board->encoder.num_instances; i ++) {
+            // pins
+            rtapi_snprintf(name, HAL_NAME_LEN, "m7i43_hm2.%d.encoder.%02d.count", 0, i);
+            r = hal_pin_s32_new(name, HAL_OUT, &(board->encoder.instance[i].hal.pin.count), comp_id);
+            if (r != HAL_SUCCESS) {
+                PRINT(RTAPI_MSG_ERR, "error adding pin '%s', aborting\n", name);
+                return -1;
+            }
+
+            rtapi_snprintf(name, HAL_NAME_LEN, "m7i43_hm2.%d.encoder.%02d.position", 0, i);
+            r = hal_pin_float_new(name, HAL_OUT, &(board->encoder.instance[i].hal.pin.position), comp_id);
+            if (r != HAL_SUCCESS) {
+                PRINT(RTAPI_MSG_ERR, "error adding pin '%s', aborting\n", name);
+                return -1;
+            }
+
+            // parameters
+            rtapi_snprintf(name, HAL_NAME_LEN, "m7i43_hm2.%d.encoder.%02d.scale", 0, i);
+            r = hal_param_float_new(name, HAL_RW, &(board->encoder.instance[i].hal.param.scale), comp_id);
+            if (r != HAL_SUCCESS) {
+                PRINT(RTAPI_MSG_ERR, "error adding param '%s', aborting\n", name);
+                return -1;
+            }
+
+            // init
+            board->encoder.instance[i].hw.count = 0;
+            board->encoder.instance[i].hw.prev_count = 0;
+
+            board->encoder.instance[i].hw.timestamp = 0;
+            board->encoder.instance[i].hw.prev_timestamp = 0;
+
+            board->encoder.instance[i].hw.control = 0x0800;  // quad filter = 15 clocks
+            // board->encoder.instance[i].hw.control = 0x0000;  // quad filter = 3 clocks
+
+            *(board->encoder.instance[i].hal.pin.count) = 0;
+            *(board->encoder.instance[i].hal.pin.position) = 0.0;
+            board->encoder.instance[i].hal.param.scale = 1.0;
+        }
+    }
+
+
+    //
+    // write the encoder control registers
+    //
+
+    {
+        int i;
+
+        m7i43_epp_addr16(board->encoder.latch_control_addr + M7I43_HM2_ADDR_AUTOINCREMENT);
+        for (i = 0; i < board->encoder.num_instances; i ++) {
+            m7i43_epp_write32(board->encoder.instance[i].hw.control);
+        }
+    }
+
+
+    return board->encoder.num_instances;
+}
+
+
+static int hm2_md_parse_pwmgen(m7i43_t *board, hm2_module_descriptor_t *m) {
+    if (!hm2_md_is_consistent(m, 0, 5, 4, 0x0003)) {
+        PRINT(RTAPI_MSG_ERR, "inconsistent Module Descriptor!\n");
+        return -1;
+    }
+
+    if (board->pwmgen.num_instances != 0) {
+        PRINT(
+            RTAPI_MSG_ERR,
+            "Module Descriptor contains duplicate %s (inconsistent firmware), not loading driver\n",
+            hm2_get_general_function_name(m->gtag)
+        );
+        return -1;
+    }
+
+    if (num_pwmgens == -1) {
+        board->pwmgen.num_instances = m->instances;
+    } else if (num_pwmgens > m->instances) {
+        PRINT(
+            RTAPI_MSG_ERR,
+            "num_pwmgens=%d, but only %d are available, not loading driver\n",
+            num_pwmgens,
+            m->instances
+        );
+        return -1;
+    } else {
+        board->pwmgen.num_instances = num_pwmgens;
+    }
+
+    board->pwmgen.instance = (hm2_pwmgen_instance_t *)hal_malloc(board->pwmgen.num_instances * sizeof(hm2_pwmgen_instance_t));
+    if (board->pwmgen.instance == NULL) {
+        PRINT(RTAPI_MSG_ERR, "out of memory!\n");
+        return -1;
+    }
+
+    if (m->clock_tag == 1) {
+        board->pwmgen.clock_frequency = board->idrom.clock_low;
+    } else if (m->clock_tag == 2) {
+        board->pwmgen.clock_frequency = board->idrom.clock_high;
+    } else {
+        PRINT(RTAPI_MSG_ERR, "%s MD has invalid Clock Tag %d\n", hm2_get_general_function_name(m->gtag), m->clock_tag);
+    }
+
+    board->pwmgen.version = m->version;
+
+    board->pwmgen.pwm_value_addr = m->base_address + (0 * m->register_stride);
+    board->pwmgen.pwm_mode_addr = m->base_address + (1 * m->register_stride);
+    board->pwmgen.pwmgen_master_rate_dds_addr = m->base_address + (2 * m->register_stride);
+    board->pwmgen.pdmgen_master_rate_dds_addr = m->base_address + (3 * m->register_stride);
+    board->pwmgen.enable_addr = m->base_address + (4 * m->register_stride);
+
+    // export to HAL
+    {
+        int i;
+        int r;
+        char name[HAL_NAME_LEN + 2];
+
+        for (i = 0; i < board->pwmgen.num_instances; i ++) {
+            // pins
+            rtapi_snprintf(name, HAL_NAME_LEN, "m7i43_hm2.%d.pwmgen.%02d.value", 0, i);
+            r = hal_pin_float_new(name, HAL_IN, &(board->pwmgen.instance[i].hal.pin.value), comp_id);
+            if (r != HAL_SUCCESS) {
+                PRINT(RTAPI_MSG_ERR, "error adding pin '%s', aborting\n", name);
+                return -1;
+            }
+
+            rtapi_snprintf(name, HAL_NAME_LEN, "m7i43_hm2.%d.pwmgen.%02d.enable", 0, i);
+            r = hal_pin_bit_new(name, HAL_IN, &(board->pwmgen.instance[i].hal.pin.enable), comp_id);
+            if (r != HAL_SUCCESS) {
+                PRINT(RTAPI_MSG_ERR, "error adding pin '%s', aborting\n", name);
+                return -1;
+            }
+
+            // parameters
+
+            rtapi_snprintf(name, HAL_NAME_LEN, "m7i43_hm2.%d.pwmgen.%02d.scale", 0, i);
+            r = hal_param_float_new(name, HAL_RW, &(board->pwmgen.instance[i].hal.param.scale), comp_id);
+            if (r != HAL_SUCCESS) {
+                PRINT(RTAPI_MSG_ERR, "error adding param '%s', aborting\n", name);
+                return -1;
+            }
+
+            r = hal_param_s32_newf(
+                HAL_RW,
+                &(board->pwmgen.instance[i].hal.param.output_type),
+                comp_id,
+                "m7i43_hm2.%d.pwmgen.%02d.output-type",
+                0,
+                i
+            );
+            if (r != HAL_SUCCESS) {
+                PRINT(RTAPI_MSG_ERR, "error adding param, aborting\n");
+                return -1;
+            }
+
+            // init
+            *(board->pwmgen.instance[i].hal.pin.enable) = 0;
+            *(board->pwmgen.instance[i].hal.pin.value) = 0.0;
+            board->pwmgen.instance[i].hal.param.scale = 1.0;
+            board->pwmgen.instance[i].hal.param.output_type = 1;  // default to PWM+Dir
+            board->pwmgen.instance[i].hal.param.written_output_type = -666;  // force at update at the start
+
+            // these are the fields of the PWM Mode Register that are not exposed to HAL
+            // FIXME: let the user choose some of these bits?
+            board->pwmgen.instance[i].pwm_width_select = 0x3;
+            board->pwmgen.instance[i].pwm_mode_select = 0;
+            board->pwmgen.instance[i].pwm_double_buffered = 1;
+        }
+    }
+
+
+    hm2_pwmgen_update_mode_registers(board);
+
+
+    // 
+    // set the PWM frequency
+    // FIXME: this is broken and should be exported to HAL
+    // 
+    // 16 bit PWM gen master rate DDS (PWMCLOCK = CLKHIGH*Rate/65536)
+    // PWM rate will be PWMCLOCK/(2^PWMBITS) for normal and interleaved PWM
+    // and PWMCLOCK/(2^(PWMBITS+1)) for symmetrical mode PWM.
+    // 
+    // ClockHigh = 100 MHz
+    // 7i30 max PWM rate is 50 KHz
+    // 
+    // PWMClock = 100 MHz * (val / 65536)
+    // PWMRate = PWMClock / 2^PWMBits = PWMClock / 2^12 = PWMClock / 4096
+    // 
+    // PWMRate = 50 Khz = PWMClock / 4096
+    // PWMClock = 205 MHz!?
+    // 
+    // PWMClock = 100 MHz * 65536 / 65536 = 100 MHz
+    // PWMRate = 100 MHz / 4096 = 24 KHz
+    // 
+    // FIXME: maybe use fewer bits?
+    // 
+    
+    m7i43_epp_addr16(board->pwmgen.pwmgen_master_rate_dds_addr + M7I43_HM2_ADDR_AUTOINCREMENT);
+    m7i43_epp_write32(65535);
+
+    return board->pwmgen.num_instances;
+}
+
+
+static int hm2_md_parse_ioport(m7i43_t *board, hm2_module_descriptor_t *m) {
+    if (!hm2_md_is_consistent(m, 0, 5, 4, 0x001F)) {
+        PRINT(RTAPI_MSG_ERR, "inconsistent Module Descriptor!\n");
+        return -1;
+    }
+
+    if (board->ioport.num_instances != 0) {
+        PRINT(
+            RTAPI_MSG_ERR,
+            "Module Descriptor contains duplicate %s (inconsistent firmware), not loading driver\n",
+            hm2_get_general_function_name(m->gtag)
+        );
+        return -1;
+    }
+
+    board->ioport.num_instances = m->instances;
+    board->ioport.instance = (hm2_ioport_instance_t *)hal_malloc(board->ioport.num_instances * sizeof(hm2_ioport_instance_t));
+    if (board->ioport.instance == NULL) {
+        PRINT(RTAPI_MSG_ERR, "out of memory!\n");
+        return -1;
+    }
+
+    if (m->clock_tag == 1) {
+        board->ioport.clock_frequency = board->idrom.clock_low;
+    } else if (m->clock_tag == 2) {
+        board->ioport.clock_frequency = board->idrom.clock_high;
+    } else {
+        PRINT(RTAPI_MSG_ERR, "%s MD has invalid Clock Tag %d\n", hm2_get_general_function_name(m->gtag), m->clock_tag);
+    }
+
+    board->ioport.version = m->version;
+
+    board->ioport.data_addr = m->base_address + (0 * m->register_stride);
+    board->ioport.ddr_addr = m->base_address + (1 * m->register_stride);
+    board->ioport.alt_source_addr = m->base_address + (2 * m->register_stride);
+    board->ioport.open_drain_addr = m->base_address + (3 * m->register_stride);
+    board->ioport.output_invert_addr = m->base_address + (4 * m->register_stride);
+
+    // we can't export this one yet, because some pins may be "allocated" to other modules
+
+    return board->ioport.num_instances;
+}
+
+
+
+
+static void m7i43_hm2_stepgen_update_times(m7i43_t *board) {
+    //
+    // write the StepGen Dir Setup Time registers
+    //
+
+    {
+        int i;
+        int need_update = 0;
+
+        for (i = 0; i < board->stepgen.num_instances; i ++) {
+            if (board->stepgen.instance[i].hal.param.dirsetup != board->stepgen.instance[i].hal.param.written_dirsetup) {
+                need_update = 1;
+                break;
+            }
+        }
+
+        if (need_update) {
+            m7i43_epp_addr16(board->stepgen.dir_setup_time_addr + M7I43_HM2_ADDR_AUTOINCREMENT);
+            for (i = 0; i < board->stepgen.num_instances; i ++) {
+                board->stepgen.instance[i].hw.dir_setup_time = board->stepgen.instance[i].hal.param.dirsetup * board->stepgen.clock_frequency;
+
+                if (board->stepgen.instance[i].hw.dir_setup_time > 0x3FFF) {
+                    PRINT(RTAPI_MSG_ERR, "stepgen %d has invalid dirsetup, resetting to max\n", i);
+                    board->stepgen.instance[i].hw.dir_setup_time = 0x3FFF;
+                    board->stepgen.instance[i].hal.param.dirsetup = (float)board->stepgen.instance[i].hw.dir_setup_time / board->stepgen.clock_frequency;
+                }
+
+                m7i43_epp_write32(board->stepgen.instance[i].hw.dir_setup_time);
+                board->stepgen.instance[i].hal.param.written_dirsetup = board->stepgen.instance[i].hal.param.dirsetup;
+            }
+        }
+    }
+
+
+    //
+    // write the StepGen Dir Hold Time registers
+    //
+
+    {
+        int i;
+        int need_update = 0;
+
+        for (i = 0; i < board->stepgen.num_instances; i ++) {
+            if (board->stepgen.instance[i].hal.param.dirhold != board->stepgen.instance[i].hal.param.written_dirhold) {
+                need_update = 1;
+                break;
+            }
+        }
+
+        if (need_update) {
+            m7i43_epp_addr16(board->stepgen.dir_hold_time_addr + M7I43_HM2_ADDR_AUTOINCREMENT);
+            for (i = 0; i < board->stepgen.num_instances; i ++) {
+                board->stepgen.instance[i].hw.dir_hold_time = board->stepgen.instance[i].hal.param.dirhold * board->stepgen.clock_frequency;
+
+                if (board->stepgen.instance[i].hw.dir_hold_time > 0x3FFF) {
+                    PRINT(RTAPI_MSG_ERR, "stepgen %d has invalid dirhold, resetting to max\n", i);
+                    board->stepgen.instance[i].hw.dir_hold_time = 0x3FFF;
+                    board->stepgen.instance[i].hal.param.dirhold = (float)board->stepgen.instance[i].hw.dir_hold_time / board->stepgen.clock_frequency;
+                }
+
+                m7i43_epp_write32(board->stepgen.instance[i].hw.dir_hold_time);
+                board->stepgen.instance[i].hal.param.written_dirhold = board->stepgen.instance[i].hal.param.dirhold;
+            }
+        }
+    }
+
+
+    //
+    // write the StepGen Pulse Width registers
+    //
+
+    {
+        int i;
+        int need_update = 0;
+
+        for (i = 0; i < board->stepgen.num_instances; i ++) {
+            if (board->stepgen.instance[i].hal.param.steplen != board->stepgen.instance[i].hal.param.written_steplen) {
+                need_update = 1;
+                break;
+            }
+        }
+
+        if (need_update) {
+            m7i43_epp_addr16(board->stepgen.pulse_width_addr + M7I43_HM2_ADDR_AUTOINCREMENT);
+            for (i = 0; i < board->stepgen.num_instances; i ++) {
+                board->stepgen.instance[i].hw.pulse_width = board->stepgen.instance[i].hal.param.steplen * board->stepgen.clock_frequency;
+
+                if (board->stepgen.instance[i].hw.pulse_width > 0x3FFF) {
+                    PRINT(RTAPI_MSG_ERR, "stepgen %d has invalid steplen, resetting to max\n", i);
+                    board->stepgen.instance[i].hw.pulse_width = 0x3FFF;
+                    board->stepgen.instance[i].hal.param.steplen = (float)board->stepgen.instance[i].hw.pulse_width / board->stepgen.clock_frequency;
+                }
+
+                m7i43_epp_write32(board->stepgen.instance[i].hw.pulse_width);
+                board->stepgen.instance[i].hal.param.written_steplen = board->stepgen.instance[i].hal.param.steplen;
+            }
+        }
+    }
+
+
+    //
+    // write the StepGen Pulse Idle Width registers
+    //
+
+    {
+        int i;
+        int need_update = 0;
+
+        for (i = 0; i < board->stepgen.num_instances; i ++) {
+            if (board->stepgen.instance[i].hal.param.stepspace != board->stepgen.instance[i].hal.param.written_stepspace) {
+                need_update = 1;
+                break;
+            }
+        }
+
+        if (need_update) {
+            m7i43_epp_addr16(board->stepgen.pulse_idle_width_addr + M7I43_HM2_ADDR_AUTOINCREMENT);
+            for (i = 0; i < board->stepgen.num_instances; i ++) {
+                board->stepgen.instance[i].hw.pulse_idle_width = board->stepgen.instance[i].hal.param.stepspace * board->stepgen.clock_frequency;
+
+                if (board->stepgen.instance[i].hw.pulse_idle_width > 0x3FFF) {
+                    PRINT(RTAPI_MSG_ERR, "stepgen %d has invalid stepspace, resetting to max\n", i);
+                    board->stepgen.instance[i].hw.pulse_idle_width = 0x3FFF;
+                    board->stepgen.instance[i].hal.param.stepspace = (float)board->stepgen.instance[i].hw.pulse_idle_width / board->stepgen.clock_frequency;
+                }
+
+                m7i43_epp_write32(board->stepgen.instance[i].hw.pulse_idle_width);
+                board->stepgen.instance[i].hal.param.written_stepspace = board->stepgen.instance[i].hal.param.stepspace;
+            }
+        }
+    }
+}
+
+
+static int hm2_md_parse_stepgen(m7i43_t *board, hm2_module_descriptor_t *m) {
+    if (!hm2_md_is_consistent(m, 0, 10, 4, 0x01FF)) {
+        PRINT(RTAPI_MSG_ERR, "inconsistent Module Descriptor!\n");
+        return -1;
+    }
+
+    if (board->stepgen.num_instances != 0) {
+        PRINT(
+            RTAPI_MSG_ERR,
+            "Module Descriptor contains duplicate %s (inconsistent firmware), not loading driver\n",
+            hm2_get_general_function_name(m->gtag)
+        );
+        return -1;
+    }
+
+    if (num_stepgens == -1) {
+        board->stepgen.num_instances = m->instances;
+    } else if (num_stepgens > m->instances) {
+        PRINT(
+            RTAPI_MSG_ERR,
+            "num_stepgens=%d, but only %d are available, not loading driver\n",
+            num_stepgens,
+            m->instances
+        );
+        return -1;
+    } else {
+        board->stepgen.num_instances = num_stepgens;
+    }
+
+    board->stepgen.instance = (hm2_stepgen_instance_t *)hal_malloc(board->stepgen.num_instances * sizeof(hm2_stepgen_instance_t));
+    if (board->stepgen.instance == NULL) {
+        PRINT(RTAPI_MSG_ERR, "out of memory!\n");
+        return -1;
+    }
+
+    if (m->clock_tag == 1) {
+        board->stepgen.clock_frequency = board->idrom.clock_low;
+    } else if (m->clock_tag == 2) {
+        board->stepgen.clock_frequency = board->idrom.clock_high;
+    } else {
+        PRINT(RTAPI_MSG_ERR, "%s MD has invalid Clock Tag %d\n", hm2_get_general_function_name(m->gtag), m->clock_tag);
+    }
+
+    board->stepgen.version = m->version;
+
+    board->stepgen.step_rate_addr = m->base_address + (0 * m->register_stride);
+    board->stepgen.accumulator_addr = m->base_address + (1 * m->register_stride);
+    board->stepgen.mode_addr = m->base_address + (2 * m->register_stride);
+    board->stepgen.dir_setup_time_addr = m->base_address + (3 * m->register_stride);
+    board->stepgen.dir_hold_time_addr = m->base_address + (4 * m->register_stride);
+    board->stepgen.pulse_width_addr = m->base_address + (5 * m->register_stride);
+    board->stepgen.pulse_idle_width_addr = m->base_address + (6 * m->register_stride);
+    board->stepgen.table_sequence_data_setup_addr = m->base_address + (7 * m->register_stride);
+    board->stepgen.table_sequence_length_addr = m->base_address + (8 * m->register_stride);
+
+    // export to HAL
+    {
+        int i;
+        int r;
+        char name[HAL_NAME_LEN + 2];
+
+        for (i = 0; i < board->stepgen.num_instances; i ++) {
+            // pins
+            rtapi_snprintf(name, HAL_NAME_LEN, "m7i43_hm2.%d.stepgen.%02d.position-cmd", 0, i);
+            r = hal_pin_float_new(name, HAL_IN, &(board->stepgen.instance[i].hal.pin.position_cmd), comp_id);
+            if (r != HAL_SUCCESS) {
+                PRINT(RTAPI_MSG_ERR, "error adding pin '%s', aborting\n", name);
+                return -1;
+            }
+
+            rtapi_snprintf(name, HAL_NAME_LEN, "m7i43_hm2.%d.stepgen.%02d.position-fb", 0, i);
+            r = hal_pin_float_new(name, HAL_OUT, &(board->stepgen.instance[i].hal.pin.position_fb), comp_id);
+            if (r != HAL_SUCCESS) {
+                PRINT(RTAPI_MSG_ERR, "error adding pin '%s', aborting\n", name);
+                return -1;
+            }
+
+            rtapi_snprintf(name, HAL_NAME_LEN, "m7i43_hm2.%d.stepgen.%02d.velocity-fb", 0, i);
+            r = hal_pin_float_new(name, HAL_OUT, &(board->stepgen.instance[i].hal.pin.velocity_fb), comp_id);
+            if (r != HAL_SUCCESS) {
+                PRINT(RTAPI_MSG_ERR, "error adding pin '%s', aborting\n", name);
+                return -1;
+            }
+
+            rtapi_snprintf(name, HAL_NAME_LEN, "m7i43_hm2.%d.stepgen.%02d.counts", 0, i);
+            r = hal_pin_s32_new(name, HAL_OUT, &(board->stepgen.instance[i].hal.pin.counts), comp_id);
+            if (r != HAL_SUCCESS) {
+                PRINT(RTAPI_MSG_ERR, "error adding pin '%s', aborting\n", name);
+                return -1;
+            }
+
+            rtapi_snprintf(name, HAL_NAME_LEN, "m7i43_hm2.%d.stepgen.%02d.rate", 0, i);
+            r = hal_pin_u32_new(name, HAL_OUT, &(board->stepgen.instance[i].hal.pin.rate), comp_id);
+            if (r != HAL_SUCCESS) {
+                PRINT(RTAPI_MSG_ERR, "error adding pin '%s', aborting\n", name);
+                return -1;
+            }
+
+            rtapi_snprintf(name, HAL_NAME_LEN, "m7i43_hm2.%d.stepgen.%02d.error", 0, i);
+            r = hal_pin_float_new(name, HAL_OUT, &(board->stepgen.instance[i].hal.pin.error), comp_id);
+            if (r != HAL_SUCCESS) {
+                PRINT(RTAPI_MSG_ERR, "error adding pin '%s', aborting\n", name);
+                return -1;
+            }
+
+            // parameters
+            rtapi_snprintf(name, HAL_NAME_LEN, "m7i43_hm2.%d.stepgen.%02d.position-scale", 0, i);
+            r = hal_param_float_new(name, HAL_RW, &(board->stepgen.instance[i].hal.param.position_scale), comp_id);
+            if (r != HAL_SUCCESS) {
+                PRINT(RTAPI_MSG_ERR, "error adding param '%s', aborting\n", name);
+                return -1;
+            }
+
+            rtapi_snprintf(name, HAL_NAME_LEN, "m7i43_hm2.%d.stepgen.%02d.steplen", 0, i);
+            r = hal_param_float_new(name, HAL_RW, &(board->stepgen.instance[i].hal.param.steplen), comp_id);
+            if (r != HAL_SUCCESS) {
+                PRINT(RTAPI_MSG_ERR, "error adding param '%s', aborting\n", name);
+                return -1;
+            }
+
+            rtapi_snprintf(name, HAL_NAME_LEN, "m7i43_hm2.%d.stepgen.%02d.stepspace", 0, i);
+            r = hal_param_float_new(name, HAL_RW, &(board->stepgen.instance[i].hal.param.stepspace), comp_id);
+            if (r != HAL_SUCCESS) {
+                PRINT(RTAPI_MSG_ERR, "error adding param '%s', aborting\n", name);
+                return -1;
+            }
+
+            rtapi_snprintf(name, HAL_NAME_LEN, "m7i43_hm2.%d.stepgen.%02d.dirsetup", 0, i);
+            r = hal_param_float_new(name, HAL_RW, &(board->stepgen.instance[i].hal.param.dirsetup), comp_id);
+            if (r != HAL_SUCCESS) {
+                PRINT(RTAPI_MSG_ERR, "error adding param '%s', aborting\n", name);
+                return -1;
+            }
+
+            rtapi_snprintf(name, HAL_NAME_LEN, "m7i43_hm2.%d.stepgen.%02d.dirhold", 0, i);
+            r = hal_param_float_new(name, HAL_RW, &(board->stepgen.instance[i].hal.param.dirhold), comp_id);
+            if (r != HAL_SUCCESS) {
+                PRINT(RTAPI_MSG_ERR, "error adding param '%s', aborting\n", name);
+                return -1;
+            }
+
+            // init
+            *(board->stepgen.instance[i].hal.pin.position_cmd) = 0.0;
+
+            *(board->stepgen.instance[i].hal.pin.counts) = 0;
+            *(board->stepgen.instance[i].hal.pin.position_fb) = 0.0;
+            *(board->stepgen.instance[i].hal.pin.velocity_fb) = 0.0;
+
+            board->stepgen.instance[i].hal.param.position_scale = 1.0;
+
+            // start out slow, let the user speed up if they want
+            board->stepgen.instance[i].hal.param.steplen = (float)0x3FFF / board->stepgen.clock_frequency;
+            board->stepgen.instance[i].hal.param.stepspace = (float)0x3FFF / board->stepgen.clock_frequency;
+            board->stepgen.instance[i].hal.param.dirsetup = (float)0x3FFF / board->stepgen.clock_frequency;
+            board->stepgen.instance[i].hal.param.dirhold = (float)0x3FFF / board->stepgen.clock_frequency;
+            board->stepgen.instance[i].hal.param.written_steplen = 0.0;
+            board->stepgen.instance[i].hal.param.written_stepspace = 0.0;
+            board->stepgen.instance[i].hal.param.written_dirsetup = 0.0;
+            board->stepgen.instance[i].hal.param.written_dirhold = 0.0;
+
+            board->stepgen.instance[i].hw.mode = 0;  // step/dir
+
+            board->stepgen.instance[i].hw.prev_accumulator = 0;
+        }
+    }
+
+
+    //
+    // write the StepGen Mode registers
+    //
+
+    {
+        int i;
+
+        m7i43_epp_addr16(board->stepgen.mode_addr + M7I43_HM2_ADDR_AUTOINCREMENT);
+        for (i = 0; i < board->stepgen.num_instances; i ++) {
+            m7i43_epp_write32(board->stepgen.instance[i].hw.mode);
+        }
+    }
+
+    m7i43_hm2_stepgen_update_times(board);
+
+    return board->stepgen.num_instances;
+}
+
+
+static int hm2_md_parse_watchdog(m7i43_t *board, hm2_module_descriptor_t *m) {
+    if (!hm2_md_is_consistent(m, 0, 3, 4, 0)) {
+        PRINT(RTAPI_MSG_ERR, "inconsistent Module Descriptor!\n");
+        return -1;
+    }
+
+    if (board->watchdog.num_instances != 0) {
+        PRINT(
+            RTAPI_MSG_ERR,
+            "Module Descriptor contains duplicate %s (inconsistent firmware), not loading driver\n",
+            hm2_get_general_function_name(m->gtag)
+        );
+        return -1;
+    }
+
+    if (m->instances != 1) {
+        PRINT(RTAPI_MSG_WARN, "MD declares %d watchdogs!  only using the first one...\n", m->instances);
+    }
+
+    board->watchdog.num_instances = 1;
+
+    board->watchdog.instance = (hm2_watchdog_instance_t *)hal_malloc(board->watchdog.num_instances * sizeof(hm2_watchdog_instance_t));
+    if (board->watchdog.instance == NULL) {
+        PRINT(RTAPI_MSG_ERR, "out of memory!\n");
+        return -1;
+    }
+
+    if (m->clock_tag == 1) {
+        board->watchdog.clock_frequency = board->idrom.clock_low;
+    } else if (m->clock_tag == 2) {
+        board->watchdog.clock_frequency = board->idrom.clock_high;
+    } else {
+        PRINT(RTAPI_MSG_ERR, "%s MD has invalid Clock Tag %d\n", hm2_get_general_function_name(m->gtag), m->clock_tag);
+    }
+
+    board->watchdog.version = m->version;
+
+    board->watchdog.timer_addr = m->base_address + (0 * m->register_stride);
+    board->watchdog.status_addr = m->base_address + (1 * m->register_stride);
+    board->watchdog.reset_addr = m->base_address + (2 * m->register_stride);
+
+
+    // export to HAL
+    {
+        int r;
+
+        // pins
+        r = hal_pin_bit_newf(
+            HAL_IO,
+            &(board->watchdog.instance[0].hal.pin.has_bit),
+            comp_id,
+            "m7i43_hm2.%d.watchdog.has-bit",
+            0
+        );
+        if (r != HAL_SUCCESS) {
+            PRINT(RTAPI_MSG_ERR, "error adding pin, aborting\n");
+            return -1;
+        }
+    }
+
+
+    //
+    // initialize the watchdog registers
+    //
+
+    (*board->watchdog.instance[0].hal.pin.has_bit) = 0;
+
+    // timeout_s = (timer_counts + 1) / clock_hz
+    // (timeout_s * clock_hz) - 1 = timer_counts
+    // (timeout_ns * (1 s/1e9 ns) * clock_hz) - 1 = timer_counts
+
+    {
+        __u64 tmp;
+
+        board->watchdog.instance[0].timeout_ns = watchdog_timeout_ns;
+        tmp = (board->watchdog.instance[0].timeout_ns * ((double)board->watchdog.clock_frequency / (double)(1000 * 1000 * 1000))) - 1;
+
+        if (tmp >= 0x80000000) {
+            PRINT(RTAPI_MSG_ERR, "watchdog timeout %u ns is too long!", board->watchdog.instance[0].timeout_ns);
+            return -1;
+        }
+
+        board->watchdog.instance[0].hw.timer = tmp;
+    }
+
+    // set the watchdog timeout
+    m7i43_epp_addr16(board->watchdog.timer_addr + M7I43_HM2_ADDR_AUTOINCREMENT);
+    m7i43_epp_write32(board->watchdog.instance[0].hw.timer);
+
+    // clear the has-bit bit
+    m7i43_epp_addr16(board->watchdog.status_addr + M7I43_HM2_ADDR_AUTOINCREMENT);
+    m7i43_epp_write32(0);
+
+
+    return board->watchdog.num_instances;
+}
+
+
+static int m7i43_hm2_parse_module_descriptors(m7i43_t *board) {
+    int i;
+
+    for (i = 0; i < board->num_mds; i ++) {
+        hm2_module_descriptor_t *m = &board->md[i];
+        int md_accepted;
+
+        if (m->gtag == 0) {
+            return 1;
+        }
+
+        if ((m->clock_tag != 1) && (m->clock_tag != 2)) {
+            PRINT(
+                RTAPI_MSG_ERR,
+                "Module Descriptor %d (gtag=%d (%s), version=%d) has invalid ClockTag %d, skipping\n",
+                i,
+                m->gtag,
+                hm2_get_general_function_name(m->gtag),
+                m->version,
+                m->clock_tag
+            );
+            continue;
+        }
+
+        md_accepted = 0;  // will be set by the switch
+
+        switch (m->gtag) {
+
+            case HM2_GTAG_ENCODER:
+                md_accepted = hm2_md_parse_encoder(board, m);
+                break;
+
+            case HM2_GTAG_PWMGEN:
+                md_accepted = hm2_md_parse_pwmgen(board, m);
+                break;
+
+            case HM2_GTAG_IOPORT:
+                md_accepted = hm2_md_parse_ioport(board, m);
+                break;
+
+            case HM2_GTAG_STEPGEN:
+                md_accepted = hm2_md_parse_stepgen(board, m);
+                break;
+
+            case HM2_GTAG_WATCHDOG:
+                md_accepted = hm2_md_parse_watchdog(board, m);
+                break;
+
+            default:
+                PRINT(
+                    RTAPI_MSG_WARN,
+                    "MD %d: %dx %s v%d: ignored\n",
+                    i,
+                    m->instances,
+                    hm2_get_general_function_name(m->gtag),
+                    m->version
+                );
+                continue;
+
+        }
+
+        if (md_accepted >= 0)  {
+            PRINT(
+                RTAPI_MSG_INFO,
+                "MD %d: %dx %s v%d: accepted, using %d\n",
+                i,
+                m->instances,
+                hm2_get_general_function_name(m->gtag),
+                m->version,
+                md_accepted
+            );
+        } else {
+            PRINT(RTAPI_MSG_ERR, "failed to parse Module Descriptor %d\n", i);
+            return 0;  // fail...
+        }
+
+    }
+
+    return 1;  // success!
+}
+
+
+
+
+// 
+// here come the functions to deal with pins
+// 
+
+
+static const char* hm2_get_pin_secondary_name(hm2_pin_t *pin) {
+    static char unknown[100];
+    int sec_pin = pin->sec_pin & 0x7F;  // turn off the "pin is an output" bit
+
+    switch (pin->sec_tag) {
+
+        case HM2_GTAG_ENCODER:
+            switch (sec_pin) {
+                case 1: return "A";
+                case 2: return "B";
+                case 3: return "Index";
+            }
+            break;
+
+        case HM2_GTAG_PWMGEN:
+            switch (sec_pin) {
+                case 1: return "Out0 (PWM or Up)";
+                case 2: return "Out1 (Dir or Down)";
+                case 3: return "Not-Enable";
+            }
+            break;
+
+        case HM2_GTAG_STEPGEN:
+            // FIXME: these depend on the stepgen mode
+            switch (sec_pin) {
+                case 1: return "Step";
+                case 2: return "Direction";
+                case 3: return "(unused)";
+                case 4: return "(unused)";
+                case 5: return "(unused)";
+                case 6: return "(unused)";
+            }
+            break;
+
+    }
+
+    rtapi_snprintf(unknown, sizeof(unknown), "unknown-pin-%d", sec_pin & 0x7F);
+    return unknown;
+}
+
+
+static int m7i43_hm2_read_pin_descriptors(m7i43_t *board) {
+    int i;
+    int addr = board->idrom_offset + board->idrom.offset_to_pin_desc;
+
+    m7i43_epp_addr16(addr + M7I43_HM2_ADDR_AUTOINCREMENT);
+
+    i = 0;
+
+    do {
+        __u32 d;
+
+        d = m7i43_epp_read32();
+
+        board->pin[i].sec_pin     = (d >>  0) & 0x000000FF;
+        board->pin[i].sec_tag     = (d >>  8) & 0x000000FF;
+        board->pin[i].sec_unit    = (d >> 16) & 0x000000FF;
+        board->pin[i].primary_tag = (d >> 24) & 0x000000FF;
+
+        if (board->pin[i].primary_tag == 0) {
+            board->num_pins = i;
+            return 1;
+        }
+
+        if (board->pin[i].primary_tag != HM2_GTAG_IOPORT) {
+            PRINT(
+                RTAPI_MSG_ERR,
+                "pin %d primary tag is %d (%s), not IOPort!\n",
+                i,
+                board->pin[i].primary_tag,
+                hm2_get_general_function_name(board->pin[i].primary_tag)
+            );
+            return 0;
+        }
+
+        i++;
+        addr += 4;  // just for debugging, the actual board is using address auto-increment
+    } while (i < M7I43_HM2_MAX_PIN_DESCRIPTORS);
+
+    return 1;
+}
+
+
+static void hm2_print_pin_descriptors(int msg_level, m7i43_t *board) {
+    int i;
+
+    PRINT(msg_level, "%d HM2 Pin Descriptors:\n", board->num_pins);
+
+    for (i = 0; i < board->num_pins; i ++) {
+        PRINT(msg_level, "    pin %d:\n", i);
+        PRINT(
+            msg_level,
+            "        Secondary Pin: 0x%02X (%s, %s)\n",
+            board->pin[i].sec_pin,
+            hm2_get_pin_secondary_name(&board->pin[i]),
+            ((board->pin[i].sec_pin & 0x80) ? "Output" : "Input")
+        );
+        PRINT(
+            msg_level,
+            "        Secondary Tag: 0x%02X (%s)\n",
+            board->pin[i].sec_tag,
+            hm2_get_general_function_name(board->pin[i].sec_tag)
+        );
+        PRINT(msg_level, "        Secondary Unit: 0x%02X\n", board->pin[i].sec_unit);
+        PRINT(
+            msg_level,
+            "        Primary Tag: 0x%02X (%s)\n",
+            board->pin[i].primary_tag,
+            hm2_get_general_function_name(board->pin[i].primary_tag)
+        );
+    }
+}
+
+
+static void hm2_set_pin_source(m7i43_t *board, int pin_number, int source) {
+    int ioport_number;
+    int bit_number;
+
+    ioport_number = pin_number / 24;
+    bit_number = pin_number % 24;
+
+    if ((pin_number < 0) || (ioport_number > board->ioport.num_instances)) {
+        PRINT(RTAPI_MSG_ERR, "invalid pin number %d\n", pin_number);
+        return;
+    }
+
+    if (source == HM2_PIN_SOURCE_IS_PRIMARY) {
+        board->ioport.instance[ioport_number].alt_source &= ~(1 << bit_number);
+        board->pin[pin_number].gtag = board->pin[pin_number].primary_tag;
+    } else if (source == HM2_PIN_SOURCE_IS_SECONDARY) {
+        board->ioport.instance[ioport_number].alt_source |= (1 << bit_number);
+        board->pin[pin_number].gtag = board->pin[pin_number].sec_tag;
+    } else {
+        PRINT(RTAPI_MSG_ERR, "invalid pin source 0x%08X\n", source);
+        return;
+    }
+}
+
+
+static void hm2_set_pin_direction(m7i43_t *board, int pin_number, int direction) {
+    int ioport_number;
+    int bit_number;
+
+    ioport_number = pin_number / 24;
+    bit_number = pin_number % 24;
+
+    if ((pin_number < 0) || (ioport_number > board->ioport.num_instances)) {
+        PRINT(RTAPI_MSG_ERR, "invalid pin number %d\n", pin_number);
+        return;
+    }
+
+    if (direction == HM2_PIN_DIR_IS_INPUT) {
+        board->ioport.instance[ioport_number].ddr &= ~(1 << bit_number);
+    } else if (direction == HM2_PIN_DIR_IS_OUTPUT) {
+        board->ioport.instance[ioport_number].ddr |= (1 << bit_number);
+    } else {
+        PRINT(RTAPI_MSG_ERR, "invalid pin direction 0x%08X\n", direction);
+    }
+}
+
+
+static void hm2_print_pin_usage(int msg_level, m7i43_t *board) {
+    int i;
+
+    PRINT(msg_level, "%d I/O Pins used:\n", board->num_pins);
+
+    for (i = 0; i < board->num_pins; i ++) {
+        if (board->pin[i].gtag == board->pin[i].sec_tag) {
+
+            PRINT(
+                msg_level,
+                "    I/O Pin % 3d: %s #%d, pin %s (%s)\n",
+                i,
+                hm2_get_general_function_name(board->pin[i].gtag),
+                board->pin[i].sec_unit,
+                hm2_get_pin_secondary_name(&board->pin[i]),
+                ((board->pin[i].sec_pin & 0x80) ? "Output" : "Input")
+            );
+
+        } else {
+            PRINT(
+                msg_level,
+                "    I/O Pin % 3d: %s\n",
+                i,
+                hm2_get_general_function_name(board->pin[i].gtag)
+            );
+        }
+    }
+}
+
+
+static int m7i43_hm2_configure_pins(m7i43_t *board) {
+    int i;
+    
+    static int created_hal_stuff_for_gpio = 0;
+
+
+    //
+    // reset to all gpios, all inputs, not open drain, not output-inverted
+    //
+
+    for (i = 0; i < board->ioport.num_instances; i ++) {
+        board->ioport.instance[i].data = 0x000000;          // data is delicious
+        board->ioport.instance[i].ddr = 0x000000;           // all are inputs
+        board->ioport.instance[i].alt_source = 0x000000;    // they're all gpios
+        board->ioport.instance[i].open_drain = 0x000000;    // none are open drain
+        board->ioport.instance[i].output_invert = 0x000000; // none are output-inverted
+    }
+
+    for (i = 0; i < board->num_pins; i ++) {
+        board->pin[i].gtag = board->pin[i].primary_tag;
+    }
+
+
+    // 
+    // the bits in the alt_source register of the ioport function say
+    // whether *output* data comes from the primary source (ioport
+    // function) (0) or the secondary source (1)
+    // 
+    // the bits in the data direction register say whether the pins are
+    // inputs (0) or outputs (1)
+    // 
+    // if a pin is marked as an input in the ddr, it can be used for its
+    // function (encoder, say) *and* as a digital input pin without
+    // conflict, but the driver does not support this
+    // 
+    // Each function instance that is not disabled by the relevant
+    // num_<functions> modparam has all its pins marked 1 in the alt_source
+    // register.  The driver uses this to to keep track of which pins are
+    // "allocated" to functions and which pins are available for use as
+    // gpios.
+    // 
+
+
+    // 
+    // deal with Encoder pins
+    // 
+
+    if (board->encoder.num_instances > 0) {
+        for (i = 0; i < board->num_pins; i ++) {
+            if (
+                (board->pin[i].sec_tag == HM2_GTAG_ENCODER)
+                && (board->pin[i].sec_unit < board->encoder.num_instances)
+            ) {
+                hm2_set_pin_source(board, i, HM2_PIN_SOURCE_IS_SECONDARY);
+                if (board->pin[i].sec_pin & 0x80){
+                    hm2_set_pin_direction(board, i, HM2_PIN_DIR_IS_OUTPUT);
+                }
+            }
+        }
+    }
+
+
+    // 
+    // deal with PWMGen pins
+    // 
+
+    if (board->pwmgen.num_instances > 0) {
+        for (i = 0; i < board->num_pins; i ++) {
+            if (
+                (board->pin[i].sec_tag == HM2_GTAG_PWMGEN)
+                && (board->pin[i].sec_unit < board->pwmgen.num_instances)
+            ) {
+                hm2_set_pin_source(board, i, HM2_PIN_SOURCE_IS_SECONDARY);
+                if (board->pin[i].sec_pin & 0x80) {
+                    hm2_set_pin_direction(board, i, HM2_PIN_DIR_IS_OUTPUT);
+                }
+            }
+        }
+    }
+
+
+    // 
+    // deal with StepGen pins
+    // 
+
+    if (board->stepgen.num_instances > 0) {
+        for (i = 0; i < board->num_pins; i ++) {
+            if (
+                (board->pin[i].sec_tag == HM2_GTAG_STEPGEN)
+                && (board->pin[i].sec_unit < board->stepgen.num_instances)
+            ) {
+                hm2_set_pin_source(board, i, HM2_PIN_SOURCE_IS_SECONDARY);
+                if (board->pin[i].sec_pin & 0x80) {
+                    hm2_set_pin_direction(board, i, HM2_PIN_DIR_IS_OUTPUT);
+                }
+            }
+        }
+    }
+
+
+    // 
+    // any pin not claimed by the secondary function becomes a gpio
+    // 
+
+    if (!created_hal_stuff_for_gpio) {
+        for (i = 0; i < board->num_pins; i ++) {
+            char name[HAL_NAME_LEN + 2];
+            int r;
+
+            if (board->pin[i].gtag != HM2_GTAG_IOPORT) {
+                board->pin[i].hal = NULL;
+                continue;
+            }
+
+            board->pin[i].hal = (hal_gpio_t *)hal_malloc(sizeof(hal_gpio_t));
+            if (board->pin[i].hal == NULL) {
+                PRINT(RTAPI_MSG_ERR, "out of memory!\n");
+                return -1;
+            }
+
+            // pins
+            rtapi_snprintf(name, HAL_NAME_LEN, "m7i43_hm2.%d.gpio.%03d.in", 0, i);
+            r = hal_pin_bit_new(name, HAL_OUT, &(board->pin[i].hal->pin.in), comp_id);
+            if (r != HAL_SUCCESS) {
+                PRINT(RTAPI_MSG_ERR, "error adding pin '%s', aborting\n", name);
+                return 0;  // fail
+            }
+
+            rtapi_snprintf(name, HAL_NAME_LEN, "m7i43_hm2.%d.gpio.%03d.in_not", 0, i);
+            r = hal_pin_bit_new(name, HAL_OUT, &(board->pin[i].hal->pin.in_not), comp_id);
+            if (r != HAL_SUCCESS) {
+                PRINT(RTAPI_MSG_ERR, "error adding pin '%s', aborting\n", name);
+                return 0;  // fail
+            }
+
+            rtapi_snprintf(name, HAL_NAME_LEN, "m7i43_hm2.%d.gpio.%03d.out", 0, i);
+            r = hal_pin_bit_new(name, HAL_IN, &(board->pin[i].hal->pin.out), comp_id);
+            if (r != HAL_SUCCESS) {
+                PRINT(RTAPI_MSG_ERR, "error adding pin '%s', aborting\n", name);
+                return 0;  // fail
+            }
+
+            // parameters
+            rtapi_snprintf(name, HAL_NAME_LEN, "m7i43_hm2.%d.gpio.%03d.is_output", 0, i);
+            r = hal_param_bit_new(name, HAL_RW, &(board->pin[i].hal->param.is_output), comp_id);
+            if (r != HAL_SUCCESS) {
+                PRINT(RTAPI_MSG_ERR, "error adding param '%s', aborting\n", name);
+                return 0;  // fail
+            }
+
+            rtapi_snprintf(name, HAL_NAME_LEN, "m7i43_hm2.%d.gpio.%03d.invert_output", 0, i);
+            r = hal_param_bit_new(name, HAL_RW, &(board->pin[i].hal->param.invert_output), comp_id);
+            if (r != HAL_SUCCESS) {
+                PRINT(RTAPI_MSG_ERR, "error adding param '%s', aborting\n", name);
+                return 0;  // fail
+            }
+
+
+            // initialize
+            hm2_set_pin_direction(board, i, HM2_PIN_DIR_IS_INPUT);
+            *(board->pin[i].hal->pin.out) = 0;
+            board->pin[i].hal->param.is_output = 0;
+            board->pin[i].hal->param.invert_output = 0;
+        }
+
+        created_hal_stuff_for_gpio = 1;
+    }
+
+
+    // 
+    // push settings out to IOPort function
+    // 
+
+    m7i43_epp_addr16(board->ioport.data_addr + M7I43_HM2_ADDR_AUTOINCREMENT);
+    for (i = 0; i < board->ioport.num_instances; i ++) {
+        m7i43_epp_write32(board->ioport.instance[i].data);
+    }
+
+    m7i43_epp_addr16(board->ioport.ddr_addr + M7I43_HM2_ADDR_AUTOINCREMENT);
+    for (i = 0; i < board->ioport.num_instances; i ++) {
+        m7i43_epp_write32(board->ioport.instance[i].ddr);
+        board->ioport.instance[i].written_ddr = board->ioport.instance[i].ddr;
+    }
+
+    m7i43_epp_addr16(board->ioport.alt_source_addr + M7I43_HM2_ADDR_AUTOINCREMENT);
+    for (i = 0; i < board->ioport.num_instances; i ++) {
+        m7i43_epp_write32(board->ioport.instance[i].alt_source);
+    }
+
+    m7i43_epp_addr16(board->ioport.open_drain_addr + M7I43_HM2_ADDR_AUTOINCREMENT);
+    for (i = 0; i < board->ioport.num_instances; i ++) {
+        m7i43_epp_write32(board->ioport.instance[i].open_drain);
+    }
+
+    m7i43_epp_addr16(board->ioport.output_invert_addr + M7I43_HM2_ADDR_AUTOINCREMENT);
+    for (i = 0; i < board->ioport.num_instances; i ++) {
+        m7i43_epp_write32(board->ioport.instance[i].output_invert);
+    }
+
+    return 1;  // success!
+}
+
+
+
+
+// 
+// some little functions to print out what we think we're doing on the FPGA
+// 
+
+
+static void hm2_print_function_encoder(int msg_level, m7i43_t *board) {
+    int i;
+    PRINT(msg_level, "Encoders: %d\n", board->encoder.num_instances);
+    PRINT(msg_level, "    clock_frequency: %d Hz (%s MHz)\n", board->encoder.clock_frequency, hm2_hz_to_mhz(board->encoder.clock_frequency));
+    PRINT(msg_level, "    version: %d\n", board->encoder.version);
+    PRINT(msg_level, "    counter_addr: 0x%04X\n", board->encoder.counter_addr);
+    PRINT(msg_level, "    latch_control_addr: 0x%04X\n", board->encoder.latch_control_addr);
+    PRINT(msg_level, "    timestamp_div_addr: 0x%04X\n", board->encoder.timestamp_div_addr);
+    PRINT(msg_level, "    timestamp_count_addr: 0x%04X\n", board->encoder.timestamp_count_addr);
+    PRINT(msg_level, "    filter_rate_addr: 0x%04X\n", board->encoder.filter_rate_addr);
+    for (i = 0; i < board->encoder.num_instances; i ++) {
+        PRINT(msg_level, "    instance %d:\n", i);
+        PRINT(msg_level, "        hw:\n");
+        PRINT(msg_level, "            count = %d\n", board->encoder.instance[i].hw.count);
+        PRINT(msg_level, "            timestamp = %d\n", board->encoder.instance[i].hw.timestamp);
+    }
+}
+
+static void hm2_print_function_ioport(int msg_level, m7i43_t *board) {
+    int i;
+    PRINT(msg_level, "IO Ports: %d\n", board->ioport.num_instances);
+    PRINT(msg_level, "    clock_frequency: %d Hz (%s MHz)\n", board->ioport.clock_frequency, hm2_hz_to_mhz(board->ioport.clock_frequency));
+    PRINT(msg_level, "    version: %d\n", board->ioport.version);
+    PRINT(msg_level, "    data_addr: 0x%04X\n", board->ioport.data_addr);
+    PRINT(msg_level, "    ddr_addr: 0x%04X\n", board->ioport.ddr_addr);
+    PRINT(msg_level, "    alt_source_addr: 0x%04X\n", board->ioport.alt_source_addr);
+    PRINT(msg_level, "    open_drain_addr: 0x%04X\n", board->ioport.open_drain_addr);
+    PRINT(msg_level, "    output_invert_addr: 0x%04X\n", board->ioport.output_invert_addr);
+    for (i = 0; i < board->ioport.num_instances; i ++) {
+        PRINT(msg_level, "    instance %d:\n", i);
+        PRINT(msg_level, "        data = 0x%06X\n", board->ioport.instance[i].data);
+        PRINT(msg_level, "        ddr = 0x%06X\n", board->ioport.instance[i].ddr);
+        PRINT(msg_level, "        alt_source = 0x%06X\n", board->ioport.instance[i].alt_source);
+        PRINT(msg_level, "        open_drain = 0x%06X\n", board->ioport.instance[i].open_drain);
+        PRINT(msg_level, "        output_invert = 0x%06X\n", board->ioport.instance[i].output_invert);
+    }
+}
+
+static void hm2_print_function_pwmgen(int msg_level, m7i43_t *board) {
+    int i;
+    PRINT(msg_level, "PWMGen: %d\n", board->pwmgen.num_instances);
+    PRINT(msg_level, "    clock_frequency: %d Hz (%s MHz)\n", board->pwmgen.clock_frequency, hm2_hz_to_mhz(board->pwmgen.clock_frequency));
+    PRINT(msg_level, "    version: %d\n", board->pwmgen.version);
+    PRINT(msg_level, "    pwmgen_master_rate_dds: 0x%08X (%d)\n", board->pwmgen.pwmgen_master_rate_dds, board->pwmgen.pwmgen_master_rate_dds);
+    PRINT(msg_level, "    pdmgen_master_rate_dds: 0x%08X (%d)\n", board->pwmgen.pdmgen_master_rate_dds, board->pwmgen.pdmgen_master_rate_dds);
+    PRINT(msg_level, "    enable: 0x%08X\n", board->pwmgen.enable);
+    PRINT(msg_level, "    pwm_value_addr: 0x%04X\n", board->pwmgen.pwm_value_addr);
+    PRINT(msg_level, "    pwm_mode_addr: 0x%04X\n", board->pwmgen.pwm_mode_addr);
+    PRINT(msg_level, "    pwmgen_master_rate_dds_addr: 0x%04X\n", board->pwmgen.pwmgen_master_rate_dds_addr);
+    PRINT(msg_level, "    pdmgen_master_rate_dds_addr: 0x%04X\n", board->pwmgen.pdmgen_master_rate_dds_addr);
+    PRINT(msg_level, "    enable_addr: 0x%04X\n", board->pwmgen.enable_addr);
+    for (i = 0; i < board->pwmgen.num_instances; i ++) {
+        PRINT(msg_level, "    instance %d:\n", i);
+        PRINT(msg_level, "        hw:\n");
+        PRINT(msg_level, "            pwm_val = 0x%08X\n", board->pwmgen.instance[i].hw.pwm_val);
+        PRINT(msg_level, "            pwm_mode = 0x%08X\n", board->pwmgen.instance[i].hw.pwm_mode);
+    }
+}
+
+static void hm2_print_function_stepgen(int msg_level, m7i43_t *board) {
+    int i;
+    PRINT(msg_level, "StepGen: %d\n", board->stepgen.num_instances);
+    PRINT(msg_level, "    clock_frequency: %d Hz (%s MHz)\n", board->stepgen.clock_frequency, hm2_hz_to_mhz(board->stepgen.clock_frequency));
+    PRINT(msg_level, "    version: %d\n", board->stepgen.version);
+    PRINT(msg_level, "    step_rate_addr: 0x%04X\n", board->stepgen.step_rate_addr);
+    PRINT(msg_level, "    accumulator_addr: 0x%04X\n", board->stepgen.accumulator_addr);
+    PRINT(msg_level, "    mode_addr: 0x%04X\n", board->stepgen.mode_addr);
+    PRINT(msg_level, "    dir_setup_time_addr: 0x%04X\n", board->stepgen.dir_setup_time_addr);
+    PRINT(msg_level, "    dir_hold_time_addr: 0x%04X\n", board->stepgen.dir_hold_time_addr);
+    PRINT(msg_level, "    pulse_width_addr: 0x%04X\n", board->stepgen.pulse_width_addr);
+    PRINT(msg_level, "    pulse_idle_width_addr: 0x%04X\n", board->stepgen.pulse_idle_width_addr);
+    PRINT(msg_level, "    table_sequence_data_setup_addr: 0x%04X\n", board->stepgen.table_sequence_data_setup_addr);
+    PRINT(msg_level, "    table_sequence_length_addr: 0x%04X\n", board->stepgen.table_sequence_length_addr);
+    PRINT(msg_level, "    master_dds_addr: 0x%04X\n", board->stepgen.master_dds_addr);
+    for (i = 0; i < board->stepgen.num_instances; i ++) {
+        PRINT(msg_level, "    instance %d:\n", i);
+        PRINT(msg_level, "        hw:\n");
+        PRINT(msg_level, "            rate = 0x%08X\n", board->stepgen.instance[i].hw.rate);
+        PRINT(msg_level, "            mode = 0x%08X\n", board->stepgen.instance[i].hw.mode);
+        PRINT(msg_level, "            dir_setup_time = 0x%08X\n", board->stepgen.instance[i].hw.dir_setup_time);
+        PRINT(msg_level, "            dir_hold_time = 0x%08X\n", board->stepgen.instance[i].hw.dir_hold_time);
+        PRINT(msg_level, "            pulse_width = 0x%08X\n", board->stepgen.instance[i].hw.pulse_width);
+        PRINT(msg_level, "            pulse_idle_width = 0x%08X\n", board->stepgen.instance[i].hw.pulse_idle_width);
+        PRINT(msg_level, "            table_sequence_data_setup = 0x%08X\n", board->stepgen.instance[i].hw.table_sequence_data_setup);
+        PRINT(msg_level, "            table_sequence_length = 0x%08X\n", board->stepgen.instance[i].hw.table_sequence_length);
+    }
+}
+
+static void hm2_print_function_watchdog(int msg_level, m7i43_t *board) {
+    int i;
+    PRINT(msg_level, "Watchdog: %d\n", board->watchdog.num_instances);
+    PRINT(msg_level, "    clock_frequency: %d Hz (%s MHz)\n", board->watchdog.clock_frequency, hm2_hz_to_mhz(board->watchdog.clock_frequency));
+    PRINT(msg_level, "    version: %d\n", board->watchdog.version);
+    PRINT(msg_level, "    timer_addr: 0x%04X\n", board->watchdog.timer_addr);
+    PRINT(msg_level, "    status_addr: 0x%04X\n", board->watchdog.status_addr);
+    PRINT(msg_level, "    reset_addr: 0x%04X\n", board->watchdog.reset_addr);
+    for (i = 0; i < board->watchdog.num_instances; i ++) {
+        PRINT(msg_level, "    instance %d:\n", i);
+        PRINT(msg_level, "        timeout_ns = %u\n", board->watchdog.instance[i].timeout_ns);
+        PRINT(msg_level, "        hw:\n");
+        PRINT(msg_level, "            timer = 0x%08X\n", board->watchdog.instance[i].hw.timer);
+        PRINT(msg_level, "        hal:\n");
+        PRINT(msg_level, "            pins:\n");
+        PRINT(msg_level, "                has_bit = %d\n", (*board->watchdog.instance[i].hal.pin.has_bit));
+    }
+}
+
+static void hm2_print_functions(int msg_level, m7i43_t *board) {
+    hm2_print_function_encoder(msg_level, board);
+    hm2_print_function_pwmgen(msg_level, board);
+    hm2_print_function_stepgen(msg_level, board);
+    hm2_print_function_ioport(msg_level, board);
+    hm2_print_function_watchdog(msg_level, board);
+}
+
+
+
+
+// 
+// functions for talking to the CPLD on the 7i43
+// 
+
+// returns TRUE if the FPGA reset, FALSE on error
+static int m7i43_cpld_reset(void) {
+    uint8_t byte;
+
+
+    // select the control register
+    m7i43_epp_addr8(1);
+
+    // bring the Spartan3's PROG_B line low for 1 us (the specs require 300-500 ns or longer)
+    m7i43_epp_write(0x00);
+    m7i43_nanosleep(1 * 1000);
+
+    // bring the Spartan3's PROG_B line high and wait for 2 ms before sending firmware (required by spec)
+    m7i43_epp_write(0x01);
+    m7i43_nanosleep(2 * 1000 * 1000);  // FIXME: it'd be nice to schedule() here
+
+    // make sure the FPGA is not asserting its DONE bit
+    byte = m7i43_epp_read();
+    if ((byte & 0x01) != 0) {
+        PRINT(RTAPI_MSG_ERR, "DONE is not low after CPLD reset!\n");
+        return 0;
+    }
+
+    return 1;
+}
+
+
+// returns FPGA size in K-gates
+static void m7i43_cpld_get_fpga_size(m7i43_t *board) {
+    uint8_t byte;
+
+    //  select data register
+    m7i43_epp_addr8(0);
+
+    byte = m7i43_epp_read();
+    if ((byte & 0x01) == 0x01) {
+        board->cpld.fpga_size = 400;
+    } else {
+        board->cpld.fpga_size = 200;
+    }
+}
+
+
+static int m7i43_cpld_send_firmware(m7i43_t *board) {
+    void *firmware;
+    int firmware_size;
+
+    int64_t start_time, end_time;
+
+    int orig_debug_epp = debug_epp;
+
+
+    // 
+    // pick a firmware
+    // FIXME: in time i'd like a nice flexible way for the user to specify which firmware to load on which board
+    // 
+
+    if (board->cpld.fpga_size == 200) {
+        firmware = m7i43_firmware_svst4_4s_bit;
+        firmware_size = sizeof(m7i43_firmware_svst4_4s_bit);
+    } else if (board->cpld.fpga_size == 400) {
+        firmware = m7i43_firmware_svst4_4b_bit;
+        firmware_size = sizeof(m7i43_firmware_svst4_4b_bit);
+    } else {
+        PRINT(RTAPI_MSG_ERR, "unknown FPGA size: %d\n", board->cpld.fpga_size); 
+        return 0;
+    }
+
+
+    // 
+    // send the firmware
+    // 
+
+    debug_epp = 0;
+    start_time = rtapi_get_time();
+
+    // select the CPLD's data address
+    m7i43_epp_addr8(0);
+
+    {
+        int i;
+
+        for (i = 0; i < (firmware_size & ~0x3); i += 4, firmware += 4) {
+            m7i43_epp_write32(*(__u32*)firmware);
+        }
+        for (; i < firmware_size; i += 1, firmware ++) {
+            m7i43_epp_write(*(__u8*)firmware);
+        }
+    }
+
+    end_time = rtapi_get_time();
+    debug_epp = orig_debug_epp;
+
+
+    // see if it worked
+    if (m7i43_epp_check_for_timeout()) {
+        PRINT(RTAPI_MSG_ERR, "EPP Timeout while sending firmware!\n");
+        return 0;
+    }
+
+
+    // 
+    // brag about how fast it was
+    //
+
+    {
+        uint32_t duration_ns;
+
+        duration_ns = (uint32_t)(end_time - start_time);
+
+        PRINT(
+            RTAPI_MSG_INFO,
+            "%d bytes of firmware sent (%u KB/s)\n",
+            firmware_size,
+            (uint32_t)(((double)firmware_size / ((double)duration_ns / (double)(1000 * 1000 * 1000))) / 1024)
+        );
+    }
+
+    return 1;
+}
+
+
+
+
+//
+// setup and cleanup code
+//
+
+
+static void *m7i43_region1 = NULL;
+static void *m7i43_region2 = NULL;
+
+
+static void m7i43_cleanup(void) {
+    PRINT(RTAPI_MSG_INFO, "unloading\n");
+
+    // kill the watchdog?  nah, let it bite us and make the board safe
+
+    // NOTE: hal_malloc() doesnt have a matching free
+
+    // if we've initialized the board, reset it now
+    if (m7i43_region1 && m7i43_region2) {
+        m7i43_hm2_reset();
+    }
+
+    if (m7i43_region1) {
+        rtapi_release_region(ioaddr, 8);
+    }
+
+    if (m7i43_region2) {
+	rtapi_release_region(ioaddr_hi, 4);
+    }
+}
+
+
+static int m7i43_setup(void) {
+    int r;
+
+
+    PRINT(RTAPI_MSG_INFO, "loading Mesa 7i43 HostMot2 driver version %s\n", M7I43_HM2_VERSION);
+
+    // zero the board struct
+    memset(&board, 0, sizeof(m7i43_t));
+
+    if (ioaddr_hi == 0) {
+        ioaddr_hi = ioaddr + 0x400;
+    } else if (ioaddr_hi < 0) {
+	PRINT(RTAPI_MSG_ERR, "invalid ioaddr_hi 0x%X\n", ioaddr_hi);
+        return -EBUSY;
+    }
+
+    PRINT(RTAPI_MSG_DBG, "ioaddr=0x%04X, ioaddr_hi=0x%04X, wide mode is %s\n", ioaddr, ioaddr_hi, (epp_wide ? "ON" : "OFF"));
+
+
+    //
+    // claim the I/O regions for the parport
+    // 
+
+    m7i43_region1 = rtapi_request_region(ioaddr, 8, "m7i43_hm2");
+    if (!m7i43_region1) {
+	PRINT(RTAPI_MSG_ERR, "request_region(%x) failed\n", ioaddr);
+	PRINT(RTAPI_MSG_ERR, "(make sure the kernel module 'parport' is unloaded)\n");
+	return -EBUSY;
+    }
+
+    m7i43_region2 = rtapi_request_region(ioaddr_hi, 4, "m7i43_hm2");
+    if (!m7i43_region2) {
+        rtapi_release_region(ioaddr, 8);
+        PRINT(RTAPI_MSG_ERR, "request_region(%x) failed\n", ioaddr);
+        PRINT(RTAPI_MSG_ERR, "(make sure the kernel module 'parport' is unloaded)\n");
+        return -EBUSY;
+    }
+
+
+    // 
+    // set up the parport for EPP
+    // 
+
+    outb(0x80, ioaddr_hi + M7I43_ECP_CONTROL_HIGH_OFFSET); // select EPP mode in ECR
+    m7i43_epp_write_control(0x04);                         // set control lines and input mode
+
+    m7i43_epp_clear_timeout();
+
+
+    // 
+    // export a parameter to deal with EPP errors
+    //
+
+    {
+        int r;
+        char name[HAL_NAME_LEN + 2];
+
+        board.epp_errors = (hal_u32_t *)hal_malloc(sizeof(hal_u32_t));
+        if (board.epp_errors == NULL) {
+            PRINT(RTAPI_MSG_ERR, "out of memory!\n");
+            return -EINVAL;
+        }
+
+        (*board.epp_errors) = 0;
+
+        rtapi_snprintf(name, HAL_NAME_LEN, "m7i43_hm2.%d.epp_errors", 0);
+        r = hal_param_u32_new(name, HAL_RW, board.epp_errors, comp_id);
+        if (r != HAL_SUCCESS) {
+            PRINT(RTAPI_MSG_ERR, "error adding param '%s', aborting\n", name);
+            return -EINVAL;
+        }
+    }
+
+
+    // 
+    // command the CPLD to reset the FPGA, then send appropriate firmware
+    //
+    // FIXME: This only works if the CPLD is currently in control of the
+    //     EPP connection.  When the FPGA is successfully configured, it
+    //     disconnects the CPLD from the EPP lines.  If the FPGA is in
+    //     control of the EPP, then this function will not reset it, and
+    //     subsequent programming of the FPGA will fail.
+    //     The only real solution to this problem is to make the CPLD and
+    //     FPGA reset procedures identical (currently they are different).
+    // 
+
+    if (!m7i43_cpld_reset()) {
+        PRINT(RTAPI_MSG_ERR, "error resetting FPGA, aborting load\n");
+        return -EIO;
+    }
+
+    m7i43_cpld_get_fpga_size(&board);
+
+    if (!m7i43_cpld_send_firmware(&board)) {
+        PRINT(RTAPI_MSG_ERR, "error sending FPGA firmware, aborting load\n");
+        return -EIO;
+    }
+
+
+    // 
+    // verify FPGA firmware IOCookie
+    // 
+
+    {
+        uint32_t cookie;
+
+        m7i43_epp_addr16(M7I43_HM2_ADDR_IOCOOKIE | M7I43_HM2_ADDR_AUTOINCREMENT);
+        cookie = m7i43_epp_read32();
+        if (cookie != M7I43_HM2_IOCOOKIE) {
+            PRINT(RTAPI_MSG_ERR, "invalid cookie, got 0x%08X, expected 0x%08X\n", cookie, M7I43_HM2_IOCOOKIE); 
+            PRINT(RTAPI_MSG_ERR, "FPGA failed to initialize, or unexpected firmware?\n"); 
+            return -EINVAL;
+        }
+    }
+
+
+    // 
+    // verify FPGA firmware ConfigName
+    // 
+
+    {
+        int i;
+
+        m7i43_epp_addr16(M7I43_HM2_ADDR_CONFIGNAME | M7I43_HM2_ADDR_AUTOINCREMENT);
+        for (i = 0; i < M7I43_HM2_CONFIGNAME_LENGTH; i ++) {
+            board.config_name[i] = m7i43_epp_read();
+        }
+        board.config_name[i] = '\0';
+        if (strncmp(board.config_name, M7I43_HM2_CONFIGNAME, 9) != 0) {
+            PRINT(RTAPI_MSG_ERR, "invalid config name, got '%s', expected '%s'\n", board.config_name, M7I43_HM2_CONFIGNAME); 
+            return -EINVAL;
+        }
+    }
+
+
+    // 
+    // read the IDROM
+    // 
+
+    // get the IDRom offset
+    m7i43_epp_addr16(M7I43_HM2_ADDR_IDROM_OFFSET | M7I43_HM2_ADDR_AUTOINCREMENT);
+    board.idrom_offset = m7i43_epp_read32();
+
+    r = m7i43_hm2_read_idrom(&board);
+    if (r != 0) {
+        // a descriptive error has already been logged
+        return r;
+    }
+
+    if (m7i43_epp_check_for_timeout()) {
+        PRINT(RTAPI_MSG_ERR, "EPP Timeout after reading IDRom!\n");
+        return -EIO;
+    }
+
+
+    // 
+    // read and then parse the modules, and initialize the functions found
+    // 
+
+    m7i43_hm2_read_module_descriptors(&board);
+    if (m7i43_epp_check_for_timeout()) {
+        PRINT(RTAPI_MSG_ERR, "EPP Timeout while reading Module Descriptors!\n");
+        return -EIO;
+    }
+
+    if (!m7i43_hm2_parse_module_descriptors(&board)) {
+        // the function has already logged an informative error message
+        return -EINVAL;
+    }
+
+    if (board.idrom.io_ports != board.ioport.num_instances) {
+        PRINT(
+            RTAPI_MSG_ERR,
+            "IDROM IOPorts is %d but MD IOPort NumInstances is %d, inconsistent firmware, aborting driver load\n",
+            board.idrom.io_ports,
+            board.ioport.num_instances
+        );
+        return -EINVAL;
+    }
+
+    if (board.idrom.io_width != (board.idrom.io_ports * board.idrom.port_width)) {
+        PRINT(
+            RTAPI_MSG_ERR,
+            "IDROM IOWidth is %d, but IDROM IOPorts is %d and IDROM PortWidth is %d (inconsistent firmware), aborting driver load\n",
+            board.idrom.io_width,
+            board.idrom.io_ports,
+            board.idrom.port_width
+        );
+        return -EINVAL;
+    }
+
+    if (debug_functions) {
+        PRINT(RTAPI_MSG_DBG, "HM2 Functions used:\n");
+        hm2_print_functions(RTAPI_MSG_DBG, &board);
+    }
+
+
+    // 
+    // read the pins and set IOPorts based on detected functions
+    // all detected functions get their pins, the other pins are left as GPIOs
+    // 
+
+    if (!m7i43_hm2_read_pin_descriptors(&board)) {
+        return -EINVAL;
+    }
+
+    if (m7i43_epp_check_for_timeout()) {
+        PRINT(RTAPI_MSG_ERR, "EPP Timeout while reading Pin Descriptors!\n");
+        return -EIO;
+    }
+
+    if (board.num_pins != board.idrom.io_width) {
+        PRINT(RTAPI_MSG_ERR, "there are %d Pin Descriptors but IDROM IO_Width is %d!\n", board.num_pins, board.idrom.io_width);
+        return -EINVAL;
+    }
+
+    if (debug_pin_descriptors) {
+        hm2_print_pin_descriptors(RTAPI_MSG_DBG, &board);
+    }
+
+    if (!m7i43_hm2_configure_pins(&board)) {
+        return -EINVAL;
+    }
+
+    if (m7i43_epp_check_for_timeout()) {
+        PRINT(RTAPI_MSG_ERR, "EPP Timeout while setting IOPort pin configuration!\n");
+        return -EIO;
+    }
+
+    hm2_print_pin_usage(RTAPI_MSG_INFO, &board);
+
+
+
+
+    //
+    // report success!
+    //
+
+    PRINT(
+        RTAPI_MSG_INFO,
+        "configured board '%s' (%d K gates) at EPP 0x%04X with firmware '%s'\n",
+        board.idrom.board_name,
+        board.idrom.fpga_size,
+        ioaddr,
+        board.config_name
+    );
+
+
+    return 0;
+}
+
+
+EXTRA_SETUP() {
+    return m7i43_setup();
+}
+
+
+EXTRA_CLEANUP() {
+    m7i43_cleanup();
+}
+
+
+
+
+// 
+// functions exported to EMC
+// FIXME: export these manually so they get names with '_' instead of '-'
+// 
+
+
+FUNCTION(encoder_update_counters) {
+    int i;
+
+    if (board.encoder.num_instances == 0) return;
+    if ((*board.epp_errors) != 0) return;
+    if ((board.watchdog.num_instances == 1) && ((*board.watchdog.instance[0].hal.pin.has_bit) != 0)) return;
+
+    // read counters & timestamps
+    m7i43_epp_addr16(board.encoder.counter_addr + M7I43_HM2_ADDR_AUTOINCREMENT);
+    for (i = 0; i < board.encoder.num_instances; i ++) {
+        __u32 d;
+        __s32 count_diff;
+
+        board.encoder.instance[i].hw.prev_count = board.encoder.instance[i].hw.count;
+        board.encoder.instance[i].hw.prev_timestamp = board.encoder.instance[i].hw.timestamp;
+
+        d = m7i43_epp_read32();
+        board.encoder.instance[i].hw.count = d & 0x0000FFFF;
+        board.encoder.instance[i].hw.timestamp = (d >> 16) & 0x0000FFFF;
+
+        count_diff = (__s32)board.encoder.instance[i].hw.count - (__s32)board.encoder.instance[i].hw.prev_count;
+        if (count_diff > 32768) count_diff -= 65536;
+        if (count_diff < -32768) count_diff += 65536;
+        *(board.encoder.instance[i].hal.pin.count) += count_diff;
+    }
+
+    if (m7i43_epp_check_for_timeout()) {
+        (*board.epp_errors) ++;
+        m7i43_epp_clear_timeout();
+        PRINT(RTAPI_MSG_ERR, "EPP timeout!\n");
+    }
+}
+
+
+FUNCTION(encoder_capture_position) {
+    int i;
+
+    for (i = 0; i < board.encoder.num_instances; i ++) {
+        if (board.encoder.instance[i].hal.param.scale == 0.0) {
+            PRINT(RTAPI_MSG_WARN, "encoder %d has invalid scale 0.0, setting to 1.0\n", i);
+            board.encoder.instance[i].hal.param.scale = 1.0;
+        }
+        *(board.encoder.instance[i].hal.pin.position) = *(board.encoder.instance[i].hal.pin.count) / board.encoder.instance[i].hal.param.scale;
+    }
+}
+
+
+FUNCTION(pwmgen_update) {
+    int i;
+    int need_update_value = 0;
+
+    if (board.pwmgen.num_instances == 0) return;
+    if ((*board.epp_errors) != 0) return;
+    if ((board.watchdog.num_instances == 1) && ((*board.watchdog.instance[0].hal.pin.has_bit) != 0)) return;
+
+
+    // update PWM Mode Registers, as needed
+    hm2_pwmgen_update_mode_registers(&board);
+
+
+    // rewrite enable register?
+    {
+        __u32 new_enable = 0;
+
+        for (i = 0; i < board.pwmgen.num_instances; i ++) {
+            if (*(board.pwmgen.instance[i].hal.pin.enable)) {
+                new_enable |= (1 << i);
+            }
+        }
+
+        if (new_enable != board.pwmgen.enable) {
+            m7i43_epp_addr16(board.pwmgen.enable_addr + M7I43_HM2_ADDR_AUTOINCREMENT);
+            m7i43_epp_write32(new_enable);
+            board.pwmgen.enable = new_enable;
+        }
+    }
+
+    // do any of the pwm_value registers need updating?
+    // if so update them all
+    for (i = 0; i < board.pwmgen.num_instances; i ++) {
+        if (*(board.pwmgen.instance[i].hal.pin.value) != board.pwmgen.instance[i].hal.pin.written_value) {
+            float val;
+
+            // FIXME
+            need_update_value = 1;
+            val = fabs(*(board.pwmgen.instance[i].hal.pin.value));
+            if (val > 1.0) val = 1.0;
+            board.pwmgen.instance[i].hw.pwm_val = val / board.pwmgen.instance[i].hal.param.scale;
+            board.pwmgen.instance[i].hw.pwm_val <<= 16;
+            if (*(board.pwmgen.instance[i].hal.pin.value) < 0) {
+                board.pwmgen.instance[i].hw.pwm_val |= (1 << 31);
+            }
+            board.pwmgen.instance[i].hal.pin.written_value = *(board.pwmgen.instance[i].hal.pin.value);
+        }
+    }
+
+    if (need_update_value) {
+        m7i43_epp_addr16(board.pwmgen.pwm_value_addr + M7I43_HM2_ADDR_AUTOINCREMENT);
+        for (i = 0; i < board.pwmgen.num_instances; i ++) {
+            m7i43_epp_write32(board.pwmgen.instance[i].hw.pwm_val);
+        }
+    }
+
+    if (m7i43_epp_check_for_timeout()) {
+        (*board.epp_errors) ++;
+        m7i43_epp_clear_timeout();
+        PRINT(RTAPI_MSG_ERR, "EPP timeout!\n");
+    }
+}
+
+
+FUNCTION(stepgen_update) {
+    int i;
+
+
+    if (board.stepgen.num_instances == 0) return;
+    if ((*board.epp_errors) != 0) return;
+    if ((board.watchdog.num_instances == 1) && ((*board.watchdog.instance[0].hal.pin.has_bit) != 0)) return;
+
+
+    m7i43_hm2_stepgen_update_times(&board);
+
+
+    // 
+    // read accumulator to figure out where the stepper has gotten to
+    // 
+
+    m7i43_epp_addr16(board.stepgen.accumulator_addr + M7I43_HM2_ADDR_AUTOINCREMENT);
+    for (i = 0; i < board.stepgen.num_instances; i ++) {
+        __u32 acc = m7i43_epp_read32();
+        __s32 counts_delta;
+        double pos_delta;
+
+        // those tricky users are always trying to get us to divide by zero
+        if (fabs(board.stepgen.instance[i].hal.param.position_scale) < 1e-10) {
+            PRINT(RTAPI_MSG_ERR, "stepgen %d position_scale is too small, resetting to 1\n", i);
+            board.stepgen.instance[i].hal.param.position_scale = 1.0;
+        }
+
+        board.stepgen.instance[i].hw.prev_accumulator = board.stepgen.instance[i].hw.accumulator;
+        board.stepgen.instance[i].hw.accumulator = acc;
+
+        counts_delta = (acc >> 16) - (board.stepgen.instance[i].hw.prev_accumulator >> 16);
+        if (counts_delta > 32768) {
+            counts_delta -= 65536;
+        } else if (counts_delta < -32768) {
+            counts_delta += 65536;
+        }
+        
+        pos_delta = (acc / 65536.0) - (board.stepgen.instance[i].hw.prev_accumulator / 65536.0);
+        if (pos_delta > 32768.0) {
+            pos_delta -= 65536.0;
+        } else if (pos_delta < -32768.0) {
+            pos_delta += 65536.0;
+        }
+
+        board.stepgen.instance[i].hal.pin.prev_counts = *(board.stepgen.instance[i].hal.pin.counts);
+
+        *(board.stepgen.instance[i].hal.pin.counts) += counts_delta;
+        *(board.stepgen.instance[i].hal.pin.position_fb) = *(board.stepgen.instance[i].hal.pin.counts) / board.stepgen.instance[i].hal.param.position_scale;
+        *(board.stepgen.instance[i].hal.pin.velocity_fb) = pos_delta / board.stepgen.instance[i].hal.param.position_scale / fperiod;
+    }
+
+
+    // 
+    // FIXME: the rate setting below needs work
+    // should it be in full.fractional step count units instead of position units?
+    //
+
+    m7i43_epp_addr16(board.stepgen.step_rate_addr + M7I43_HM2_ADDR_AUTOINCREMENT);
+    for (i = 0; i < board.stepgen.num_instances; i ++) {
+        double error = *(board.stepgen.instance[i].hal.pin.position_fb) - *(board.stepgen.instance[i].hal.pin.position_cmd);
+
+        // FIXME: this deadband is bogus
+        if (fabs(error) < 0.0005) {
+            board.stepgen.instance[i].hw.rate = 0;
+        } else {
+            board.stepgen.instance[i].hw.rate = -1 * error * board.stepgen.instance[i].hal.param.position_scale / fperiod;
+        }
+        *(board.stepgen.instance[i].hal.pin.rate) = board.stepgen.instance[i].hw.rate;
+        *(board.stepgen.instance[i].hal.pin.error) = error;
+        m7i43_epp_write32(board.stepgen.instance[i].hw.rate);
+    }
+
+    if (m7i43_epp_check_for_timeout()) {
+        (*board.epp_errors) ++;
+        m7i43_epp_clear_timeout();
+        PRINT(RTAPI_MSG_ERR, "EPP timeout!\n");
+    }
+}
+
+
+static void m7i43_hm2_gpio_update_ddr(m7i43_t *board) {
+    int port;
+    int port_pin;
+
+    int io_pin;
+
+    int update_ddr = 0;
+
+
+    //
+    // update ioport variables
+    //
+
+    for (port = 0; port < board->ioport.num_instances; port ++) {
+        for (port_pin = 0; port_pin < board->idrom.port_width; port_pin ++) {
+            io_pin = (port * board->idrom.port_width) + port_pin;
+            if (board->pin[io_pin].gtag != HM2_GTAG_IOPORT) continue;
+
+            if (board->pin[io_pin].hal->param.is_output) {
+                board->ioport.instance[port].ddr |= (1 << port_pin);  // set the bit in the ddr register
+            } else {
+                board->ioport.instance[port].ddr &= ~(1 << port_pin);  // clear the bit in the ddr register
+            }
+        }
+        if (board->ioport.instance[port].written_ddr != board->ioport.instance[port].ddr) {
+            update_ddr = 1;
+        }
+    }
+
+
+    // 
+    // update ddr if needed
+    // 
+
+    if (update_ddr) {
+        m7i43_epp_addr16(board->ioport.ddr_addr + M7I43_HM2_ADDR_AUTOINCREMENT);
+        for (port = 0; port < board->ioport.num_instances; port ++) {
+            m7i43_epp_write32(board->ioport.instance[port].ddr);
+            board->ioport.instance[port].written_ddr = board->ioport.instance[port].ddr;
+        }
+    }
+}
+
+
+FUNCTION(gpio_read) {
+    int port;
+    int port_pin;
+
+
+    if ((*board.epp_errors) != 0) return;
+    if ((board.watchdog.num_instances == 1) && ((*board.watchdog.instance[0].hal.pin.has_bit) != 0)) return;
+
+
+    m7i43_hm2_gpio_update_ddr(&board);
+
+
+    // 
+    // read data
+    // 
+
+    m7i43_epp_addr16(board.ioport.data_addr + M7I43_HM2_ADDR_AUTOINCREMENT);
+    for (port = 0; port < board.ioport.num_instances; port ++) {
+        board.ioport.instance[port].data = m7i43_epp_read32();
+
+        for (port_pin = 0; port_pin < board.idrom.port_width; port_pin ++) {
+            int io_pin = (port * board.idrom.port_width) + port_pin;
+            if (board.pin[io_pin].gtag != HM2_GTAG_IOPORT) continue;
+
+            if (!board.pin[io_pin].hal->param.is_output) {
+                hal_bit_t bit;
+
+                bit = (board.ioport.instance[port].data >> port_pin) & 0x1;
+                *board.pin[io_pin].hal->pin.in = bit;
+                *board.pin[io_pin].hal->pin.in_not = !bit;
+            }
+        }
+    }
+
+    if (m7i43_epp_check_for_timeout()) {
+        (*board.epp_errors) ++;
+        m7i43_epp_clear_timeout();
+        PRINT(RTAPI_MSG_ERR, "EPP timeout!\n");
+    }
+}
+
+
+FUNCTION(gpio_write) {
+    int port;
+    int port_pin;
+
+
+    if ((*board.epp_errors) != 0) return;
+    if ((board.watchdog.num_instances == 1) && ((*board.watchdog.instance[0].hal.pin.has_bit) != 0)) return;
+
+
+    m7i43_hm2_gpio_update_ddr(&board);
+
+
+    //
+    // copy HAL pins to HM2 pins
+    //
+
+    for (port = 0; port < board.ioport.num_instances; port ++) {
+        for (port_pin = 0; port_pin < board.idrom.port_width; port_pin ++) {
+            int io_pin = (port * board.idrom.port_width) + port_pin;
+
+            if (board.pin[io_pin].gtag != HM2_GTAG_IOPORT) continue;
+
+            if (board.pin[io_pin].hal->param.is_output) {
+                hal_bit_t out;
+
+                out = *(board.pin[io_pin].hal->pin.out) ^ board.pin[io_pin].hal->param.invert_output;
+                board.ioport.instance[port].data &= ~(1 << port_pin);   // zero the bit
+                board.ioport.instance[port].data |= (out << port_pin);  // and set it as appropriate
+            }
+        }
+    }
+
+
+    // 
+    // write data
+    // 
+
+    m7i43_epp_addr16(board.ioport.data_addr + M7I43_HM2_ADDR_AUTOINCREMENT);
+    for (port = 0; port < board.ioport.num_instances; port ++) {
+        m7i43_epp_write32(board.ioport.instance[port].data);
+    }
+
+    if (m7i43_epp_check_for_timeout()) {
+        (*board.epp_errors) ++;
+        m7i43_epp_clear_timeout();
+        PRINT(RTAPI_MSG_ERR, "EPP timeout!\n");
+    }
+}
+
+
+FUNCTION(pet_watchdog) {
+    static int unhandled_bite = 1;
+
+
+    if (board.watchdog.num_instances == 0) return;
+    if ((*board.epp_errors) != 0) return;
+    if (*board.watchdog.instance[0].hal.pin.has_bit) return;
+
+    if (unhandled_bite) {
+        // user has cleared the bit
+
+        // reconfigure the IO pins
+        if (!m7i43_hm2_configure_pins(&board)) {
+            PRINT(RTAPI_MSG_ERR, "failed to reconfigure IO pins after watchdog bite, things will probably break now\n");
+        }
+
+        // reset the watchdog status
+        m7i43_epp_addr16(board.watchdog.status_addr + M7I43_HM2_ADDR_AUTOINCREMENT);
+        m7i43_epp_write32(0);
+
+        unhandled_bite = 0;
+    }
+
+    // reset the watchdog timer
+    // FIXME: write just 1 byte
+    m7i43_epp_addr16(board.watchdog.reset_addr + M7I43_HM2_ADDR_AUTOINCREMENT);
+    m7i43_epp_write32(0x5A000000);
+
+    // see if we've been bit
+    {
+        __u32 d;
+
+        m7i43_epp_addr16(board.watchdog.status_addr + M7I43_HM2_ADDR_AUTOINCREMENT);
+        d = m7i43_epp_read32();
+        if (d & 0x1) {
+            PRINT(RTAPI_MSG_ERR, "Watchdog has bit!\n");
+            (*board.watchdog.instance[0].hal.pin.has_bit) = 1;
+            unhandled_bite = 1;
+        }
+    }
+
+    if (m7i43_epp_check_for_timeout()) {
+        (*board.epp_errors) ++;
+        m7i43_epp_clear_timeout();
+        PRINT(RTAPI_MSG_ERR, "EPP timeout!\n");
+    }
+}
+
