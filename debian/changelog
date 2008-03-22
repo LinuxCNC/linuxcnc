@@ -2,8 +2,10 @@ emc2 (1:2.2.5~cvs) unstable; urgency=low
 
   * Include license statement for the 'Togl' software, which is incorporated
     in emc2
+  * added m7i43_hm2, a driver for the Mesa 7i43 board with HostMot2
+    firmware
 
- -- Jeff Epler <jepler@unpythonic.net>  Sun, 16 Mar 2008 12:19:49 -0500
+ -- Sebastian Kuzminsky <seb@highlab.com>  Fri, 21 Mar 2008 19:54:23 -0600
 
 emc2 (1:2.2.4) unstable; urgency=low
 
