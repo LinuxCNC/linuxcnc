@@ -166,18 +166,20 @@ int Interp::convert_arc(int move,        //!< either G_2 (cw arc) or G_3 (ccw ar
         block->k_number = 0.0;
     } else
       ERM(NCE_BUG_PLANE_NOT_XY_YZ_OR_XZ);
-  } else;                       /* r format arc; no other checks needed specific to this format */
-
-  if (settings->plane == CANON_PLANE_XY) {      /* checks for both formats */
-    CHK(((block->x_flag == OFF) && (block->y_flag == OFF)),
-        NCE_X_AND_Y_WORDS_MISSING_FOR_ARC_IN_XY_PLANE);
-  } else if (settings->plane == CANON_PLANE_YZ) {
-    CHK(((block->y_flag == OFF) && (block->z_flag == OFF)),
-        NCE_Y_AND_Z_WORDS_MISSING_FOR_ARC_IN_YZ_PLANE);
-  } else if (settings->plane == CANON_PLANE_XZ) {
-    CHK(((block->x_flag == OFF) && (block->z_flag == OFF)),
-        NCE_X_AND_Z_WORDS_MISSING_FOR_ARC_IN_XZ_PLANE);
+  } else {
+    // in R format, we need some XYZ words specified because a full circle is not allowed.
+    if (settings->plane == CANON_PLANE_XY) { 
+        CHK(((block->x_flag == OFF) && (block->y_flag == OFF)),
+            NCE_X_AND_Y_WORDS_MISSING_FOR_ARC_IN_XY_PLANE);
+    } else if (settings->plane == CANON_PLANE_YZ) {
+        CHK(((block->y_flag == OFF) && (block->z_flag == OFF)),
+            NCE_Y_AND_Z_WORDS_MISSING_FOR_ARC_IN_YZ_PLANE);
+    } else if (settings->plane == CANON_PLANE_XZ) {
+        CHK(((block->x_flag == OFF) && (block->z_flag == OFF)),
+            NCE_X_AND_Z_WORDS_MISSING_FOR_ARC_IN_XZ_PLANE);
+    }
   }
+
 
   find_ends(block, settings, &end_x, &end_y, &end_z,
             &AA_end, &BB_end, &CC_end, 

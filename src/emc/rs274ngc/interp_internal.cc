@@ -167,7 +167,7 @@ int Interp::enhance_block(block_pointer block,   //!< pointer to a block to be c
     } else {
       CHK(mode_zero_covets_axes,
           NCE_CANNOT_USE_TWO_G_CODES_THAT_BOTH_USE_AXIS_VALUES);
-      CHK(((!axis_flag) && (mode1 != G_0) && (mode1 != G_1)),
+      CHK(((!axis_flag) && (mode1 != G_0) && (mode1 != G_1) && mode1 != G_2 && mode1 != G_3),
           NCE_ALL_AXES_MISSING_WITH_MOTION_CODE);
     }
     block->motion_to_be = mode1;
@@ -178,6 +178,9 @@ int Interp::enhance_block(block_pointer block,   //!< pointer to a block to be c
     CHK(((settings->motion_mode == -1)
          || (settings->motion_mode == G_80)),
         NCE_CANNOT_USE_AXIS_VALUES_WITHOUT_A_G_CODE_THAT_USES_THEM);
+    block->motion_to_be = settings->motion_mode;
+  } else if (!axis_flag && (settings->motion_mode == G_2 || settings->motion_mode == G_3)) {
+    // this is a block like simply "i1" which should be accepted if we're in arc mode
     block->motion_to_be = settings->motion_mode;
   }
   return INTERP_OK;
