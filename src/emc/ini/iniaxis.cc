@@ -1,6 +1,6 @@
 /********************************************************************
 * Description: iniaxis.cc
-*   INI file initialization routines for axis NML
+*   INI file initialization routines for joint/axis NML
 *
 *   Derived from a work by Fred Proctor & Will Shackleford
 *
