@@ -10,10 +10,10 @@ net Zpos-fb => pid.2.feedback
 net Apos-fb => pid.3.feedback
 
 # connect position feedback to motion module
-net Xpos-fb => axis.0.motor-pos-fb
-net Ypos-fb => axis.1.motor-pos-fb
-net Zpos-fb => axis.2.motor-pos-fb
-net Apos-fb => axis.3.motor-pos-fb
+net Xpos-fb => joint.0.motor-pos-fb
+net Ypos-fb => joint.1.motor-pos-fb
+net Zpos-fb => joint.2.motor-pos-fb
+net Apos-fb => joint.3.motor-pos-fb
 
 # create PID to DAC output signals
 
@@ -69,10 +69,10 @@ setp pid.3.deadband [AXIS_3]DEADBAND
 # create four position command signals
 
 # connect position commands to motion controller
-net Xpos-cmd <= axis.0.motor-pos-cmd
-net Ypos-cmd <= axis.1.motor-pos-cmd
-net Zpos-cmd <= axis.2.motor-pos-cmd
-net Apos-cmd <= axis.3.motor-pos-cmd
+net Xpos-cmd <= joint.0.motor-pos-cmd
+net Ypos-cmd <= joint.1.motor-pos-cmd
+net Zpos-cmd <= joint.2.motor-pos-cmd
+net Apos-cmd <= joint.3.motor-pos-cmd
 
 # connect position commands to PID input
 net Xpos-cmd => pid.0.command
@@ -83,10 +83,10 @@ net Apos-cmd => pid.3.command
 # create bit signals to enable/disable the PID loops
 
 # connect the signals to the motion controller
-net Xenable <= axis.0.amp-enable-out
-net Yenable <= axis.1.amp-enable-out
-net Zenable <= axis.2.amp-enable-out
-net Aenable <= axis.3.amp-enable-out
+net Xenable <= joint.0.amp-enable-out
+net Yenable <= joint.1.amp-enable-out
+net Zenable <= joint.2.amp-enable-out
+net Aenable <= joint.3.amp-enable-out
 
 # connect the signals to the PID blocks
 net Xenable => pid.0.enable

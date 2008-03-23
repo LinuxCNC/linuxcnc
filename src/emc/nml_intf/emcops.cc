@@ -21,7 +21,12 @@
 EMC_AXIS_STAT::EMC_AXIS_STAT():
 EMC_AXIS_STAT_MSG(EMC_AXIS_STAT_TYPE, sizeof(EMC_AXIS_STAT))
 {
-    axisType = EMC_AXIS_LINEAR;
+}
+
+EMC_JOINT_STAT::EMC_JOINT_STAT():
+EMC_JOINT_STAT_MSG(EMC_JOINT_STAT_TYPE, sizeof(EMC_JOINT_STAT))
+{
+    jointType = EMC_LINEAR;
     units = 1.0;
     backlash = 0.0;
     minPositionLimit = -1.0;
@@ -51,6 +56,7 @@ EMC_TRAJ_STAT_MSG(EMC_TRAJ_STAT_TYPE, sizeof(EMC_TRAJ_STAT))
     linearUnits = 1.0;
     angularUnits = 1.0;
     cycleTime = 0.0;
+    joints = 1;
     axes = 1;
     axis_mask = 1;
     mode = EMC_TRAJ_MODE_FREE;

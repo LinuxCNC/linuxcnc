@@ -1340,20 +1340,20 @@ static int sendBrakeRelease()
     return emcCommandSend(emc_spindle_brake_release_msg);
 }
 
-static int sendHome(int axis)
+static int sendHome(int joint)
 {
-    EMC_AXIS_HOME emc_axis_home_msg;
+    EMC_JOINT_HOME emc_joint_home_msg;
 
-    emc_axis_home_msg.axis = axis;
-    return emcCommandSend(emc_axis_home_msg);
+    emc_joint_home_msg.joint = joint;
+    return emcCommandSend(emc_joint_home_msg);
 }
 
-static int sendUnhome(int axis)
+static int sendUnhome(int joint)
 {
-    EMC_AXIS_UNHOME emc_axis_unhome_msg;
+    EMC_JOINT_UNHOME emc_joint_unhome_msg;
 
-    emc_axis_unhome_msg.axis = axis;
-    return emcCommandSend(emc_axis_unhome_msg);
+    emc_joint_unhome_msg.joint = joint;
+    return emcCommandSend(emc_joint_unhome_msg);
 }
 
 static int sendAbort()
@@ -1363,101 +1363,53 @@ static int sendAbort()
     return emcCommandSend(task_abort_msg);
 }
 
+static int axisJogging[EMCMOT_MAX_JOINTS] = {0,};
 
-static int sendJogStop(int axis)
+int sendJogStop(int axis)
 {
-    EMC_AXIS_ABORT emc_axis_abort_msg;
+    EMC_JOG_STOP emc_jog_stop_msg;
     
-    // in case of TELEOP mode we really need to send an TELEOP_VECTOR message
-    // not a simple AXIS_ABORT, as more than one axis would be moving
-    // (hint TELEOP mode is for nontrivial kinematics)
-    EMC_TRAJ_SET_TELEOP_VECTOR emc_set_teleop_vector;
-
-    if ((emcStatus->task.state != EMC_TASK_STATE_ON) || (emcStatus->task.mode != EMC_TASK_MODE_MANUAL))
-	return -1;
-
-    if (axis < 0 || axis >= EMC_AXIS_MAX) {
-	return -1;
-    }
-
-    if (emcStatus->motion.traj.mode != EMC_TRAJ_MODE_TELEOP) {
-	emc_axis_abort_msg.axis = axis;
-	return emcCommandSend(emc_axis_abort_msg);
-    } else {
-        ZERO_EMC_POSE(emc_set_teleop_vector.vector);
-	return emcCommandSend(emc_set_teleop_vector);
-    }
+    emc_jog_stop_msg.axis = axis;
+    axisJogging[axis] = 0;
+    return emcCommandSend(emc_jog_stop_msg);
 }
 
-static int sendJogCont(int axis, double speed)
+int sendJogCont(int axis, double speed)
 {
-    EMC_AXIS_JOG emc_axis_jog_msg;
-    EMC_TRAJ_SET_TELEOP_VECTOR emc_set_teleop_vector;
-
-    if (emcStatus->task.state != EMC_TASK_STATE_ON) {
-	return -1;
-    }
-
-    if (axis < 0 || axis >= EMC_AXIS_MAX) {
-	return -1;
-    }
+    EMC_JOG_CONT emc_jog_cont_msg;
 
     sendManual();
 
-    if (emcStatus->motion.traj.mode != EMC_TRAJ_MODE_TELEOP) {
-	emc_axis_jog_msg.axis = axis;
-	emc_axis_jog_msg.vel = speed / 60.0;
-	return emcCommandSend(emc_axis_jog_msg);
-    } else {
-        ZERO_EMC_POSE(emc_set_teleop_vector.vector);
-
-	switch (axis) {
-	case 0:
-	    emc_set_teleop_vector.vector.tran.x = speed / 60.0;
-	    break;
-	case 1:
-	    emc_set_teleop_vector.vector.tran.y = speed / 60.0;
-	    break;
-	case 2:
-	    emc_set_teleop_vector.vector.tran.z = speed / 60.0;
-	    break;
-	case 3:
-	    emc_set_teleop_vector.vector.a = speed / 60.0;
-	    break;
-	case 4:
-	    emc_set_teleop_vector.vector.b = speed / 60.0;
-	    break;
-	case 5:
-	    emc_set_teleop_vector.vector.c = speed / 60.0;
-	    break;
-	}
-	return emcCommandSend(emc_set_teleop_vector);
-    }
+    emc_jog_cont_msg.axis = axis;
+    emc_jog_cont_msg.vel = speed / 60.0;
+    axisJogging[axis] = 1;
+    return emcCommandSend(emc_jog_cont_msg);
 }
 
-
-static int sendJogInc(int axis, double speed, double inc)
+int sendJogInc(int axis, double speed, double incr)
 {
-    EMC_AXIS_INCR_JOG emc_axis_jog_msg;
+    EMC_JOG_INCR emc_jog_incr_msg;
 
     if (emcStatus->task.state != EMC_TASK_STATE_ON) {
 	return -1;
     }
 
-    if (axis < 0 || axis >= EMC_AXIS_MAX)
+    if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
 	return -1;
+    }
 
     sendManual();
 
     if (emcStatus->motion.traj.mode == EMC_TRAJ_MODE_TELEOP)
-    	return -1;
+        return -1;
 
-    emc_axis_jog_msg.axis = axis;
-    emc_axis_jog_msg.vel = speed / 60.0;
-    emc_axis_jog_msg.incr = inc;
-    return emcCommandSend(emc_axis_jog_msg);
+    emc_jog_incr_msg.axis = axis;
+    emc_jog_incr_msg.vel = speed / 60.0;
+    emc_jog_incr_msg.incr = incr;
+
+    axisJogging[axis] = 1;
+    return emcCommandSend(emc_jog_incr_msg);
 }
-
 
 static int sendFeedOverride(double override)
 {
@@ -2135,12 +2087,12 @@ static void modify_hal_pins()
     *(halui_data->spindle_brake_is_on) = emcStatus->motion.spindle.brake;
     
     for (joint=0; joint < num_axes; joint++) {
-	*(halui_data->joint_is_homed[joint]) = emcStatus->motion.axis[joint].homed;
-	*(halui_data->joint_on_soft_min_limit[joint]) = emcStatus->motion.axis[joint].minSoftLimit;
-	*(halui_data->joint_on_soft_max_limit[joint]) = emcStatus->motion.axis[joint].maxSoftLimit; 
-	*(halui_data->joint_on_hard_min_limit[joint]) = emcStatus->motion.axis[joint].minHardLimit; 
-	*(halui_data->joint_on_hard_max_limit[joint]) = emcStatus->motion.axis[joint].maxHardLimit; 
-	*(halui_data->joint_has_fault[joint]) = emcStatus->motion.axis[joint].fault;
+	*(halui_data->joint_is_homed[joint]) = emcStatus->motion.joint[joint].homed;
+	*(halui_data->joint_on_soft_min_limit[joint]) = emcStatus->motion.joint[joint].minSoftLimit;
+	*(halui_data->joint_on_soft_max_limit[joint]) = emcStatus->motion.joint[joint].maxSoftLimit; 
+	*(halui_data->joint_on_hard_min_limit[joint]) = emcStatus->motion.joint[joint].minHardLimit; 
+	*(halui_data->joint_on_hard_max_limit[joint]) = emcStatus->motion.joint[joint].maxHardLimit; 
+	*(halui_data->joint_has_fault[joint]) = emcStatus->motion.joint[joint].fault;
     }
 
     *(halui_data->axis_pos_commanded[0]) = emcStatus->motion.traj.position.tran.x;	
@@ -2171,12 +2123,12 @@ static void modify_hal_pins()
     *(halui_data->axis_pos_relative[7]) = emcStatus->motion.traj.actualPosition.v - emcStatus->task.g5x_offset.v - emcStatus->task.g92_offset.v - emcStatus->task.toolOffset.v;
     *(halui_data->axis_pos_relative[8]) = emcStatus->motion.traj.actualPosition.w - emcStatus->task.g5x_offset.w - emcStatus->task.g92_offset.w - emcStatus->task.toolOffset.w;
 
-    *(halui_data->joint_is_homed[num_axes]) = emcStatus->motion.axis[*(halui_data->joint_selected)].homed;
-    *(halui_data->joint_on_soft_min_limit[num_axes]) = emcStatus->motion.axis[*(halui_data->joint_selected)].minSoftLimit;
-    *(halui_data->joint_on_soft_max_limit[num_axes]) = emcStatus->motion.axis[*(halui_data->joint_selected)].maxSoftLimit; 
-    *(halui_data->joint_on_hard_min_limit[num_axes]) = emcStatus->motion.axis[*(halui_data->joint_selected)].minHardLimit; 
-    *(halui_data->joint_on_hard_max_limit[num_axes]) = emcStatus->motion.axis[*(halui_data->joint_selected)].maxHardLimit; 
-    *(halui_data->joint_has_fault[num_axes]) = emcStatus->motion.axis[*(halui_data->joint_selected)].fault;
+    *(halui_data->joint_is_homed[num_axes]) = emcStatus->motion.joint[*(halui_data->joint_selected)].homed;
+    *(halui_data->joint_on_soft_min_limit[num_axes]) = emcStatus->motion.joint[*(halui_data->joint_selected)].minSoftLimit;
+    *(halui_data->joint_on_soft_max_limit[num_axes]) = emcStatus->motion.joint[*(halui_data->joint_selected)].maxSoftLimit; 
+    *(halui_data->joint_on_hard_min_limit[num_axes]) = emcStatus->motion.joint[*(halui_data->joint_selected)].minHardLimit; 
+    *(halui_data->joint_on_hard_max_limit[num_axes]) = emcStatus->motion.joint[*(halui_data->joint_selected)].maxHardLimit; 
+    *(halui_data->joint_has_fault[num_axes]) = emcStatus->motion.joint[*(halui_data->joint_selected)].fault;
 
 }
 

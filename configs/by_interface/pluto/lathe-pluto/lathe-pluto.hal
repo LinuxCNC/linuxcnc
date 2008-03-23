@@ -55,11 +55,11 @@ setp pid.1.FF1 [AXIS_2]FF1
 setp pid.1.FF2 [AXIS_2]FF2
 setp pid.1.deadband [AXIS_2]DEADBAND
 
-net Xpos-fb pluto-servo.encoder.0.position => pid.0.feedback axis.0.motor-pos-fb
-net Zpos-fb pluto-servo.encoder.1.position => pid.1.feedback axis.2.motor-pos-fb
+net Xpos-fb pluto-servo.encoder.0.position => pid.0.feedback joint.0.motor-pos-fb
+net Zpos-fb pluto-servo.encoder.1.position => pid.1.feedback joint.2.motor-pos-fb
 
-net Xpos-cmd axis.0.motor-pos-cmd => pid.0.command ddt.0.in
-net Zpos-cmd axis.2.motor-pos-cmd => pid.1.command ddt.2.in
+net Xpos-cmd joint.0.motor-pos-cmd => pid.0.command ddt.0.in
+net Zpos-cmd joint.2.motor-pos-cmd => pid.1.command ddt.2.in
 
 net Xvel-cmd pid.0.output => pluto-servo.pwm.0.value
 net Zvel-cmd pid.1.output => pluto-servo.pwm.1.value
@@ -71,8 +71,8 @@ net Zvel ddt.2.out => ddt.3.in
 net Zacc ddt.3.out
 
 # machine ON
-net Xenable axis.0.amp-enable-out => pid.0.enable pluto-servo.pwm.0.enable pluto-servo.dout.09
-net Zenable axis.2.amp-enable-out => pid.1.enable pluto-servo.pwm.1.enable
+net Xenable joint.0.amp-enable-out => pid.0.enable pluto-servo.pwm.0.enable pluto-servo.dout.09
+net Zenable joint.2.amp-enable-out => pid.1.enable pluto-servo.pwm.1.enable
 
 net estop-loop iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
 
@@ -81,7 +81,7 @@ net estop-loop iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
 
 setp debounce.0.delay 3
 net Xswitch pluto-servo.din.00-not => debounce.0.0.in
-net Xswitch-debounced debounce.0.0.out => axis.0.home-sw-in axis.0.pos-lim-sw-in
+net Xswitch-debounced debounce.0.0.out => joint.0.home-sw-in joint.0.pos-lim-sw-in
 
 # tool loading loopback
 net tool-prep-loop iocontrol.0.tool-prepare iocontrol.0.tool-prepared

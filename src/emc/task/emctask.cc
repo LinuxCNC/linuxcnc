@@ -259,14 +259,14 @@ int emcTaskSetState(int state)
 	// turn the machine servos off-- go into READY state
         emcSpindleAbort();
 	for (t = 0; t < emcStatus->motion.traj.axes; t++) {
-	    emcAxisDisable(t);
+	    emcJointDisable(t);
 	}
 	emcTrajDisable();
 	emcIoAbort(EMC_ABORT_TASK_STATE_OFF);
 	emcLubeOff();
 	emcTaskAbort();
         emcSpindleAbort();
-        emcAxisUnhome(-2); // only those joints which are volatile_home
+        emcJointUnhome(-2); // only those joints which are volatile_home
 	emcAbortCleanup(EMC_ABORT_TASK_STATE_OFF);
 	emcTaskPlanSynch();
 	break;
@@ -275,7 +275,7 @@ int emcTaskSetState(int state)
 	// turn the machine servos on
 	emcTrajEnable();
 	for (t = 0; t < emcStatus->motion.traj.axes; t++) {
-	    emcAxisEnable(t);
+	    emcJointEnable(t);
 	}
 	emcLubeOn();
 	break;
@@ -297,13 +297,14 @@ int emcTaskSetState(int state)
 	// go into estop-- do both IO estop and machine servos off
 	emcAuxEstopOn();
 	for (t = 0; t < emcStatus->motion.traj.axes; t++) {
-	    emcAxisDisable(t);
+	    emcJointDisable(t);
 	}
 	emcTrajDisable();
 	emcLubeOff();
 	emcTaskAbort();
         emcIoAbort(EMC_ABORT_TASK_STATE_ESTOP);
-        emcAxisUnhome(-2); // only those joints which are volatile_home
+        emcSpindleAbort();
+        emcJointUnhome(-2); // only those joints which are volatile_home
 	emcAbortCleanup(EMC_ABORT_TASK_STATE_ESTOP);
 	emcTaskPlanSynch();
 	break;
