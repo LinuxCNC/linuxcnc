@@ -7,8 +7,9 @@ emc2 (1:2.3.0~alpha) unstable; urgency=low
   * [add bugfixes from the 2.2.x branch here, before release]
   * added a driver for Mesa Electronics' 7i43 FPGA I/O board
   * sanity checks for M66 input indexes (prevents a possible segfault on task)
+  * put RS274NGC_STARTUP_CODE in [RS274NGC]
 
- -- Alex Joni <juve@taurus>  Wed, 23 Jan 2008 23:42:53 +0200
+ -- Alex Joni <juve@juve-desktop>  Sun, 23 Mar 2008 14:26:32 +0200
 
 emc2 (1:2.2.0) unstable; urgency=low
 
