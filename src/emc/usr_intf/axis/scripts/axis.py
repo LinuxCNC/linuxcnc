@@ -1774,6 +1774,8 @@ def open_file_guts(f, filtered = False):
         canon.parameter_file = temp_parameter
 
         initcode = inifile.find("EMC", "RS274NGC_STARTUP_CODE") or ""
+	if initcode == "":
+    	    initcode = inifile.find("RS274NGC", "RS274NGC_STARTUP_CODE") or ""
         unitcode = "G%d" % (20 + (s.linear_units == 1))
         try:
             result, seq = gcode.parse(f, canon, unitcode, initcode)

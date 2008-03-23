@@ -2771,9 +2771,13 @@ static int iniLoad(const char *filename)
 	// copy to global
 	strcpy(RS274NGC_STARTUP_CODE, inistring);
     } else {
+	if (NULL != (inistring = inifile.Find("RS274NGC_STARTUP_CODE", "RS274NGC"))) {
+	    // copy to global
+	    strcpy(RS274NGC_STARTUP_CODE, inistring);
+	} else {
 	// not found, use default
+	}
     }
-
     saveDouble = EMC_TASK_CYCLE_TIME;
     EMC_TASK_CYCLE_TIME_ORIG = EMC_TASK_CYCLE_TIME;
     emcTaskNoDelay = 0;
