@@ -376,12 +376,12 @@ check_stuff ( "before command_handler()" );
 	
 	/* ...and process command */
 
-	/* Many commands uses "command->axis" to indicate which joint they
+	/* Many commands uses "command->joint" to indicate which joint they
 	   wish to operate on.  This code eliminates the need to copy
-	   command->axis to "joint_num", limit check it, and then set "joint"
+	   command->joint to "joint_num", limit check it, and then set "joint"
 	   to point to the joint data.  All the individual commands need to do
 	   is verify that "joint" is non-zero. */
-	joint_num = emcmotCommand->axis;
+	joint_num = emcmotCommand->joint;
 	if (joint_num >= 0 && joint_num < num_joints) {
 	    /* valid joint, point to it's data */
 	    joint = &joints[joint_num];
@@ -416,7 +416,7 @@ check_stuff ( "before command_handler()" );
 		    /* point to joint struct */
 		    joint = &joints[joint_num];
 		    /* tell joint planner to stop */
-		    joint->free_tp_enable = 0;
+		    joint->free_tp.enable = 0;
 		    /* stop homing if in progress */
 		    if ( joint->home_state != HOME_IDLE ) {
 			joint->home_state = HOME_ABORT;
@@ -435,13 +435,13 @@ check_stuff ( "before command_handler()" );
 	    emcmotStatus->paused = 0;
 	    break;
 
-	case EMCMOT_AXIS_ABORT: //FIXME-AJ: rename
+	case EMCMOT_JOINT_ABORT:
 	    /* abort one joint */
 	    /* can happen at any time */
 	    /* this command stops a single joint.  It is only usefull
 	       in free mode, so in coord or teleop mode it does
 	       nothing. */
-	    rtapi_print_msg(RTAPI_MSG_DBG, "AXIS_ABORT");
+	    rtapi_print_msg(RTAPI_MSG_DBG, "JOINT_ABORT");
 	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
 	    if (GET_MOTION_TELEOP_FLAG()) {
 		/* do nothing in teleop mode */
@@ -453,7 +453,7 @@ check_stuff ( "before command_handler()" );
 		    break;
 		}
 		/* tell joint planner to stop */
-		joint->free_tp_enable = 0;
+		joint->free_tp.enable = 0;
 		/* stop homing if in progress */
 		if ( joint->home_state != HOME_IDLE ) {
 		    joint->home_state = HOME_ABORT;
@@ -518,18 +518,18 @@ check_stuff ( "before command_handler()" );
 	    }
 	    break;
 
-	case EMCMOT_SET_NUM_AXES: //FIXME-AJ: we'll want to rename this to EMCMOT_SET_NUM_JOINTS
+	case EMCMOT_SET_NUM_JOINTS:
 	    /* set the global NUM_JOINTS, which must be between 1 and
 	       EMCMOT_MAX_JOINTS, inclusive */
 	    /* this sets a global - I hate globals - hopefully this can be
 	       moved into the config structure, or dispensed with completely */
-	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_NUM_AXES");
-	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", emcmotCommand->axis);
-	    if (( emcmotCommand->axis <= 0 ) ||
-		( emcmotCommand->axis > EMCMOT_MAX_JOINTS )) {
+	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_NUM_JOINTS");
+	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", emcmotCommand->joint);
+	    if (( emcmotCommand->joint <= 0 ) ||
+		( emcmotCommand->joint > EMCMOT_MAX_JOINTS )) {
 		break;
 	    }
-	    num_joints = emcmotCommand->axis;
+	    num_joints = emcmotCommand->joint;
 	    emcmotConfig->numJoints = num_joints;
 	    break;
 
@@ -661,7 +661,7 @@ check_stuff ( "before command_handler()" );
 	    if (joint == 0) {
 		break;
 	    }
-
+	    //FIXME-AJ: this command is used for teleop too, check for TELEOP mode, etc..
 	    /* must be in free mode and enabled */
 	    if (GET_MOTION_COORD_FLAG()) {
 		reportError(_("Can't jog joint in coordinated mode."));
@@ -699,16 +699,18 @@ check_stuff ( "before command_handler()" );
 	    /* set destination of jog */
 	    refresh_jog_limits(joint);
 	    if (emcmotCommand->vel > 0.0) {
-		joint->free_pos_cmd = joint->max_jog_limit;
+		joint->free_tp.pos_cmd = joint->max_jog_limit;
 	    } else {
-		joint->free_pos_cmd = joint->min_jog_limit;
+		joint->free_tp.pos_cmd = joint->min_jog_limit;
 	    }
 	    /* set velocity of jog */
-	    joint->free_vel_lim = fabs(emcmotCommand->vel);
+	    joint->free_tp.max_vel = fabs(emcmotCommand->vel);
+	    /* use max joint accel */
+	    joint->free_tp.max_acc = joint->acc_limit;
 	    /* lock out other jog sources */
 	    joint->kb_jog_active = 1;
 	    /* and let it go */
-	    joint->free_tp_enable = 1;
+	    joint->free_tp.enable = 1;
 	    /*! \todo FIXME - should we really be clearing errors here? */
 	    SET_JOINT_ERROR_FLAG(joint, 0);
 	    /* clear joints homed flag(s) if we don't have forward kins.
@@ -727,7 +729,7 @@ check_stuff ( "before command_handler()" );
 	    if (joint == 0) {
 		break;
 	    }
-
+	    //FIXME-AJ: this command is used for teleop too, check for TELEOP mode, etc..
 	    /* must be in free mode and enabled */
 	    if (GET_MOTION_COORD_FLAG()) {
 		reportError(_("Can't jog joint in coordinated mode."));
@@ -764,9 +766,9 @@ check_stuff ( "before command_handler()" );
 	    }
 	    /* set target position for jog */
 	    if (emcmotCommand->vel > 0.0) {
-		tmp1 = joint->free_pos_cmd + emcmotCommand->offset;
+		tmp1 = joint->free_tp.pos_cmd + emcmotCommand->offset;
 	    } else {
-		tmp1 = joint->free_pos_cmd - emcmotCommand->offset;
+		tmp1 = joint->free_tp.pos_cmd - emcmotCommand->offset;
 	    }
 	    /* don't jog past limits */
 	    refresh_jog_limits(joint);
@@ -777,13 +779,15 @@ check_stuff ( "before command_handler()" );
 		break;
 	    }
 	    /* set target position */
-	    joint->free_pos_cmd = tmp1;
+	    joint->free_tp.pos_cmd = tmp1;
 	    /* set velocity of jog */
-	    joint->free_vel_lim = fabs(emcmotCommand->vel);
+	    joint->free_tp.max_vel = fabs(emcmotCommand->vel);
+	    /* use max joint accel */
+	    joint->free_tp.max_acc = joint->acc_limit;
 	    /* lock out other jog sources */
 	    joint->kb_jog_active = 1;
 	    /* and let it go */
-	    joint->free_tp_enable = 1;
+	    joint->free_tp.enable = 1;
 	    SET_JOINT_ERROR_FLAG(joint, 0);
 	    /* clear joint homed flag(s) if we don't have forward kins.
 	       Otherwise, a transition into coordinated mode will incorrectly
@@ -801,6 +805,7 @@ check_stuff ( "before command_handler()" );
 	    if (joint == 0) {
 		break;
 	    }
+	    //FIXME-AJ: this command is used for teleop too, check for TELEOP mode, etc..
 	    /* must be in free mode and enabled */
 	    if (GET_MOTION_COORD_FLAG()) {
 		reportError(_("Can't jog joint in coordinated mode."));
@@ -831,21 +836,23 @@ check_stuff ( "before command_handler()" );
 		break;
 	    }
 	    /*! \todo FIXME-- use 'goal' instead */
-	    joint->free_pos_cmd = emcmotCommand->offset;
+	    joint->free_tp.pos_cmd = emcmotCommand->offset;
 	    /* don't jog past limits */
 	    refresh_jog_limits(joint);
-	    if (joint->free_pos_cmd > joint->max_jog_limit) {
-		joint->free_pos_cmd = joint->max_jog_limit;
+	    if (joint->free_tp.pos_cmd > joint->max_jog_limit) {
+		joint->free_tp.pos_cmd = joint->max_jog_limit;
 	    }
-	    if (joint->free_pos_cmd < joint->min_jog_limit) {
-		joint->free_pos_cmd = joint->min_jog_limit;
+	    if (joint->free_tp.pos_cmd < joint->min_jog_limit) {
+		joint->free_tp.pos_cmd = joint->min_jog_limit;
 	    }
 	    /* set velocity of jog */
-	    joint->free_vel_lim = fabs(emcmotCommand->vel);
+	    joint->free_tp.max_vel = fabs(emcmotCommand->vel);
+	    /* use max joint accel */
+	    joint->free_tp.max_acc = joint->acc_limit;
 	    /* lock out other jog sources */
 	    joint->kb_jog_active = 1;
 	    /* and let it go */
-	    joint->free_tp_enable = 1;
+	    joint->free_tp.enable = 1;
 	    SET_JOINT_ERROR_FLAG(joint, 0);
 	    /* clear joint homed flag(s) if we don't have forward kins.
 	       Otherwise, a transition into coordinated mode will incorrectly
@@ -1256,7 +1263,7 @@ check_stuff ( "before command_handler()" );
                 reportError(_("homing sequence already in progress"));
             } else {
                 /* abort any movement (jog, etc) that is in progress */
-                joint->free_tp_enable = 0;
+                joint->free_tp.enable = 0;
                 
                 /* prime the homing state machine */
                 joint->home_state = HOME_START;
@@ -1447,41 +1454,6 @@ check_stuff ( "before command_handler()" );
 		break;
 	    } else {
 		SET_MOTION_ERROR_FLAG(0);
-	    }
-	    break;
-
-	case EMCMOT_SET_TELEOP_VECTOR:
-	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_TELEOP_VECTOR");
-	    if (!GET_MOTION_TELEOP_FLAG() || !GET_MOTION_ENABLE_FLAG()) {
-		reportError
-		    (_("need to be enabled, in teleop mode for teleop move"));
-	    } else {
-		double velmag;
-		emcmotDebug->teleop_data.desiredVel = emcmotCommand->pos;
-		pmCartMag(&emcmotDebug->teleop_data.desiredVel.tran, &velmag);
-		if (fabs(emcmotDebug->teleop_data.desiredVel.a) > velmag) {
-		    velmag = fabs(emcmotDebug->teleop_data.desiredVel.a);
-		}
-		if (fabs(emcmotDebug->teleop_data.desiredVel.b) > velmag) {
-		    velmag = fabs(emcmotDebug->teleop_data.desiredVel.b);
-		}
-		if (fabs(emcmotDebug->teleop_data.desiredVel.c) > velmag) {
-		    velmag = fabs(emcmotDebug->teleop_data.desiredVel.c);
-		}
-		if (velmag > emcmotConfig->limitVel) {
-		    pmCartScalMult(&emcmotDebug->teleop_data.desiredVel.tran,
-			emcmotConfig->limitVel / velmag,
-			&emcmotDebug->teleop_data.desiredVel.tran);
-		    emcmotDebug->teleop_data.desiredVel.a *=
-			emcmotConfig->limitVel / velmag;
-		    emcmotDebug->teleop_data.desiredVel.b *=
-			emcmotConfig->limitVel / velmag;
-		    emcmotDebug->teleop_data.desiredVel.c *=
-			emcmotConfig->limitVel / velmag;
-		}
-		/* flag that all joints need to be homed, if any joint is
-		   jogged individually later */
-		rehomeAll = 1;
 	    }
 	    break;
 
