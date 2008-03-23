@@ -340,7 +340,7 @@ def soft_limits():
         if abs(x) > 1e30: return 0
         return x
 
-    ax = s.axis
+    ax = s.joint
     return (
         to_internal_units([fudge(ax[i]['min_position_limit']) for i in range(3)]),
         to_internal_units([fudge(ax[i]['max_position_limit']) for i in range(3)]))
@@ -824,7 +824,7 @@ class LivePlotter:
             if vars.metric.get(): m = m * 25.4
             vupdate(vars.maxvel_speed, float(int(600 * m)/10.0))
             root_window.tk.call("update_maxvel_slider")
-        vupdate(vars.override_limits, self.stat.axis[0]['override_limits'])
+        vupdate(vars.override_limits, self.stat.joint[0]['override_limits'])
         on_any_limit = 0
         for i, l in enumerate(self.stat.limit):
             if self.stat.axis_mask & (1<<i) and l:
@@ -2902,6 +2902,9 @@ def units(s, d=1.0):
 
 random_toolchanger = int(inifile.find("EMCIO", "RANDOM_TOOLCHANGER") or 0)
 vars.emcini.set(sys.argv[2])
+axiscount = int(inifile.find("TRAJ", "AXES"))
+jointcount = int(inifile.find("KINS", "JOINTS"))
+jointnames = "012345678"[:jointcount]
 open_directory = inifile.find("DISPLAY", "PROGRAM_PREFIX")
 vars.machine.set(inifile.find("EMC", "MACHINE"))
 extensions = inifile.findall("FILTER", "PROGRAM_EXTENSION")
@@ -2979,7 +2982,7 @@ else:
     root_window.tk.eval("${pane_top}.jogspeed.l1 configure -text in/min")
     root_window.tk.eval("${pane_top}.maxvel.l1 configure -text in/min")
 root_window.tk.eval(u"${pane_top}.ajogspeed.l1 configure -text deg/min")
-homing_order_defined = inifile.find("AXIS_0", "HOME_SEQUENCE") is not None
+homing_order_defined = inifile.find("JOINT_0", "HOME_SEQUENCE") is not None
 
 if homing_order_defined:
     widgets.homebutton.configure(text=_("Home All"), command="home_all_axes")
@@ -3475,10 +3478,10 @@ forget(widgets.spinoverridef,
 has_limit_switch = 0
 for j in range(9):
     try:
-        if hal.pin_has_writer("axis.%d.neg-lim-sw-in" % j):
+        if hal.pin_has_writer("joint.%d.neg-lim-sw-in" % j):
             has_limit_switch=1
             break
-        if hal.pin_has_writer("axis.%d.pos-lim-sw-in" % j):
+        if hal.pin_has_writer("joint.%d.pos-lim-sw-in" % j):
             has_limit_switch=1
             break
     except NameError, detail:

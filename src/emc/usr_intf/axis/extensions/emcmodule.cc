@@ -330,6 +330,7 @@ static PyMemberDef Stat_members[] = {
     {(char*)"linear_units", T_DOUBLE, O(motion.traj.linearUnits), READONLY},
     {(char*)"angular_units", T_DOUBLE, O(motion.traj.angularUnits), READONLY},
     {(char*)"cycle_time", T_DOUBLE, O(motion.traj.cycleTime), READONLY},
+    {(char*)"joints", T_INT, O(motion.traj.joints), READONLY},
     {(char*)"axes", T_INT, O(motion.traj.axes), READONLY},
     {(char*)"axis_mask", T_INT, O(motion.traj.axis_mask), READONLY},
     {(char*)"motion_mode", T_INT, O(motion.traj.mode), READONLY},
@@ -446,19 +447,19 @@ static PyObject *Stat_actual(pyStatChannel *s) {
 }
 
 static PyObject *Stat_joint_position(pyStatChannel *s) {
-    PyObject *res = PyTuple_New(EMC_AXIS_MAX);
-    for(int i=0; i<EMC_AXIS_MAX; i++) {
+    PyObject *res = PyTuple_New(EMCMOT_MAX_JOINTS);
+    for(int i=0; i<EMCMOT_MAX_JOINTS; i++) {
         PyTuple_SetItem(res, i,
-                PyFloat_FromDouble(s->status.motion.axis[i].output));
+                PyFloat_FromDouble(s->status.motion.joint[i].output));
     }
     return res;
 }
 
 static PyObject *Stat_joint_actual(pyStatChannel *s) {
-    PyObject *res = PyTuple_New(EMC_AXIS_MAX);
-    for(int i=0; i<EMC_AXIS_MAX; i++) {
+    PyObject *res = PyTuple_New(EMCMOT_MAX_JOINTS);
+    for(int i=0; i<EMCMOT_MAX_JOINTS; i++) {
         PyTuple_SetItem(res, i,
-                PyFloat_FromDouble(s->status.motion.axis[i].input));
+                PyFloat_FromDouble(s->status.motion.joint[i].input));
     }
     return res;
 }
@@ -492,10 +493,10 @@ static PyObject *Stat_limit(pyStatChannel *s) {
     PyObject *res = PyTuple_New(sz);
     for(int i = 0; i < sz; i++) {
         int v = 0;
-        if(s->status.motion.axis[i].minHardLimit) v |= 1;
-        if(s->status.motion.axis[i].maxHardLimit) v |= 2;
-        if(s->status.motion.axis[i].minSoftLimit) v |= 4;
-        if(s->status.motion.axis[i].maxSoftLimit) v |= 8;
+        if(s->status.motion.joint[i].minHardLimit) v |= 1;
+        if(s->status.motion.joint[i].maxHardLimit) v |= 2;
+        if(s->status.motion.joint[i].minSoftLimit) v |= 4;
+        if(s->status.motion.joint[i].maxSoftLimit) v |= 8;
         PyTuple_SET_ITEM(res, i, PyInt_FromLong(v));
     }
     return res;
@@ -505,7 +506,7 @@ static PyObject *Stat_homed(pyStatChannel *s) {
     int sz = NUM_AXES;
     PyObject *res = PyTuple_New(sz);
     for(int i = 0; i < sz; i++) {
-        PyTuple_SET_ITEM(res, i, PyInt_FromLong(s->status.motion.axis[i].homed));
+        PyTuple_SET_ITEM(res, i, PyInt_FromLong(s->status.motion.joint[i].homed));
     }
     return res;
 }
@@ -529,10 +530,10 @@ static void dict_add(PyObject *d, const char *name, double v) {
     Py_XDECREF(o);
 }
 #define F(x) F2(#x, x)
-#define F2(y,x) dict_add(res, y, s->status.motion.axis[axisno].x)
-static PyObject *Stat_axis_one(pyStatChannel *s, int axisno) {
+#define F2(y,x) dict_add(res, y, s->status.motion.joint[jointno].x)
+static PyObject *Stat_joint_one(pyStatChannel *s, int jointno) {
     PyObject *res = PyDict_New();
-    F(axisType);
+    F(jointType);
     F(units);
     F(backlash);
     F2("min_position_limit", minPositionLimit);
@@ -559,10 +560,10 @@ static PyObject *Stat_axis_one(pyStatChannel *s, int axisno) {
 #undef F
 #undef F2
 
-static PyObject *Stat_axis(pyStatChannel *s) {
-    PyObject *res = PyTuple_New(EMC_AXIS_MAX);
-    for(int i=0; i<EMC_AXIS_MAX; i++) {
-        PyTuple_SetItem(res, i, Stat_axis_one(s, i));
+static PyObject *Stat_joint(pyStatChannel *s) {
+    PyObject *res = PyTuple_New(EMCMOT_MAX_JOINTS);
+    for(int i=0; i<EMCMOT_MAX_JOINTS; i++) {
+        PyTuple_SetItem(res, i, Stat_joint_one(s, i));
     }
     return res;
 }
@@ -622,13 +623,13 @@ static PyObject *Stat_tool_table(pyStatChannel *s) {
 }
 
 // XXX io.tool.toolTable
-// XXX EMC_AXIS_STAT motion.axis[]
+// XXX EMC_JOINT_STAT motion.joint[]
 
 static PyGetSetDef Stat_getsetlist[] = {
     {(char*)"actual_position", (getter)Stat_actual},
     {(char*)"ain", (getter)Stat_ain},
     {(char*)"aout", (getter)Stat_aout},
-    {(char*)"axis", (getter)Stat_axis},
+    {(char*)"joint", (getter)Stat_joint},
     {(char*)"din", (getter)Stat_din},
     {(char*)"dout", (getter)Stat_dout},
     {(char*)"gcodes", (getter)Stat_activegcodes},
@@ -980,24 +981,24 @@ static PyObject *emcabort(pyCommandChannel *s, PyObject *o) {
 }
 
 static PyObject *override_limits(pyCommandChannel *s, PyObject *o) {
-    EMC_AXIS_OVERRIDE_LIMITS m;
-    m.axis = 0; // same number for all
+    EMC_JOINT_OVERRIDE_LIMITS m;
+    m.joint = 0; // same number for all
     emcSendCommand(s, m);
     Py_INCREF(Py_None);
     return Py_None;
 }
 
 static PyObject *home(pyCommandChannel *s, PyObject *o) {
-    EMC_AXIS_HOME m;
-    if(!PyArg_ParseTuple(o, "i", &m.axis)) return NULL;
+    EMC_JOINT_HOME m;
+    if(!PyArg_ParseTuple(o, "i", &m.joint)) return NULL;
     emcSendCommand(s, m);
     Py_INCREF(Py_None);
     return Py_None;
 }
 
 static PyObject *unhome(pyCommandChannel *s, PyObject *o) {
-    EMC_AXIS_UNHOME m;
-    if(!PyArg_ParseTuple(o, "i", &m.axis)) return NULL;
+    EMC_JOINT_UNHOME m;
+    if(!PyArg_ParseTuple(o, "i", &m.joint)) return NULL;
     emcSendCommand(s, m);
     Py_INCREF(Py_None);
     return Py_None;
@@ -1006,7 +1007,6 @@ static PyObject *unhome(pyCommandChannel *s, PyObject *o) {
 // jog(JOG_STOP, axis) 
 // jog(JOG_CONTINUOUS, axis, speed) 
 // jog(JOG_INCREMENT, axis, speed, increment)
-
 static PyObject *jog(pyCommandChannel *s, PyObject *o) {
     int fn;
     int axis;
@@ -1021,7 +1021,7 @@ static PyObject *jog(pyCommandChannel *s, PyObject *o) {
                 (unsigned long)PyTuple_Size(o));
             return NULL;
         }
-        EMC_AXIS_ABORT abort;
+        EMC_JOG_STOP abort;
         abort.axis = axis;
         emcSendCommand(s, abort);
     } else if(fn == LOCAL_JOG_CONTINUOUS) {
@@ -1031,7 +1031,7 @@ static PyObject *jog(pyCommandChannel *s, PyObject *o) {
                 (unsigned long)PyTuple_Size(o));
             return NULL;
         }
-        EMC_AXIS_JOG cont;
+        EMC_JOG_CONT cont;
         cont.axis = axis;
         cont.vel = vel;
         emcSendCommand(s, cont);
@@ -1043,7 +1043,7 @@ static PyObject *jog(pyCommandChannel *s, PyObject *o) {
             return NULL;
         }
 
-        EMC_AXIS_INCR_JOG incr;
+        EMC_JOG_INCR incr;
         incr.axis = axis;
         incr.vel = vel;
         incr.incr = inc;
@@ -1143,23 +1143,9 @@ static PyObject *set_traj_mode(pyCommandChannel *s, PyObject *o) {
     return Py_None;
 }
 
-static PyObject *set_teleop_vector(pyCommandChannel *s, PyObject *o) {
-    EMC_TRAJ_SET_TELEOP_VECTOR mo;
-
-    mo.vector.a = mo.vector.b = mo.vector.c = 0.;
-
-    if(!PyArg_ParseTuple(o, "ddd|ddd", &mo.vector.tran.x, &mo.vector.tran.y, &mo.vector.tran.z, &mo.vector.a, &mo.vector.b, &mo.vector.c))
-        return NULL;
-
-    emcSendCommand(s, mo);
-
-    Py_INCREF(Py_None);
-    return Py_None;
-}
-
 static PyObject *set_min_limit(pyCommandChannel *s, PyObject *o) {
-    EMC_AXIS_SET_MIN_POSITION_LIMIT m;
-    if(!PyArg_ParseTuple(o, "id", &m.axis, &m.limit))
+    EMC_JOINT_SET_MIN_POSITION_LIMIT m;
+    if(!PyArg_ParseTuple(o, "id", &m.joint, &m.limit))
         return NULL;
 
     emcSendCommand(s, m);
@@ -1169,8 +1155,8 @@ static PyObject *set_min_limit(pyCommandChannel *s, PyObject *o) {
 }
 
 static PyObject *set_max_limit(pyCommandChannel *s, PyObject *o) {
-    EMC_AXIS_SET_MAX_POSITION_LIMIT m;
-    if(!PyArg_ParseTuple(o, "id", &m.axis, &m.limit))
+    EMC_JOINT_SET_MAX_POSITION_LIMIT m;
+    if(!PyArg_ParseTuple(o, "id", &m.joint, &m.limit))
         return NULL;
 
     emcSendCommand(s, m);
@@ -1262,7 +1248,6 @@ static PyMemberDef Command_members[] = {
 static PyMethodDef Command_methods[] = {
     {"debug", (PyCFunction)debug, METH_VARARGS},
     {"teleop_enable", (PyCFunction)teleop, METH_VARARGS},
-    {"teleop_vector", (PyCFunction)set_teleop_vector, METH_VARARGS},
     {"traj_mode", (PyCFunction)set_traj_mode, METH_VARARGS},
     {"wait_complete", (PyCFunction)wait_complete, METH_VARARGS},
     {"state", (PyCFunction)state, METH_VARARGS},
@@ -2141,8 +2126,8 @@ initlinuxcnc(void) {
     PyModule_AddObject(m, "tool", (PyObject*)&ToolResultType);
     PyModule_AddObject(m, "version", PyString_FromString(PACKAGE_VERSION));
 
-    ENUMX(4, EMC_AXIS_LINEAR);
-    ENUMX(4, EMC_AXIS_ANGULAR);
+    ENUMX(4, EMC_LINEAR);
+    ENUMX(4, EMC_ANGULAR);
 
     ENUMX(9, EMC_TASK_INTERP_IDLE);
     ENUMX(9, EMC_TASK_INTERP_READING);

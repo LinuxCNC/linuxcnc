@@ -267,6 +267,7 @@ HEADERS := \
     config.h \
     emc/ini/emcIniFile.hh \
     emc/ini/iniaxis.hh \
+    emc/ini/inijoint.hh \
     emc/ini/initool.hh \
     emc/ini/initraj.hh \
     emc/ini/inihal.hh \
@@ -943,6 +944,7 @@ motmod-objs += emc/motion/motion.o
 motmod-objs += emc/motion/command.o
 motmod-objs += emc/motion/control.o
 motmod-objs += emc/motion/homing.o
+motmod-objs += emc/motion/simple_tp.o
 motmod-objs += emc/motion/emcmotutil.o
 motmod-objs += emc/motion/stashf.o
 motmod-objs += emc/motion/dbuf.o

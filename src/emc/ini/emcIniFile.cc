@@ -33,17 +33,17 @@
 #include "emcIniFile.hh"
 
 
-IniFile::StrIntPair         EmcIniFile::axisTypeMap[] = {
-    {"LINEAR", EMC_AXIS_LINEAR},
-    {"ANGULAR", EMC_AXIS_ANGULAR},
+IniFile::StrIntPair         EmcIniFile::jointTypeMap[] = {
+    {"LINEAR", EMC_LINEAR},
+    {"ANGULAR", EMC_ANGULAR},
     { NULL, 0 },
 };
 
 EmcIniFile::ErrorCode
-EmcIniFile::Find(EmcAxisType *result,
+EmcIniFile::Find(EmcJointType *result,
                  const char *tag, const char *section, int num)
 {
-    return(IniFile::Find((int *)result, axisTypeMap, tag, section, num));
+    return(IniFile::Find((int *)result, jointTypeMap, tag, section, num));
 }
 
 

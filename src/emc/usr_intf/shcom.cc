@@ -415,7 +415,7 @@ double convertAngularUnits(double u)
 }
 
 // polarities for axis jogging, from ini file
-static int jogPol[EMC_AXIS_MAX];
+static int jogPol[EMCMOT_MAX_JOINTS];
 
 int sendDebug(int level)
 {
@@ -539,9 +539,9 @@ int sendMdi()
 
 int sendOverrideLimits(int axis)
 {
-    EMC_AXIS_OVERRIDE_LIMITS lim_msg;
+    EMC_JOINT_OVERRIDE_LIMITS lim_msg;
 
-    lim_msg.axis = axis;	// neg means off, else on for all
+    lim_msg.joint = axis;	// neg means off, else on for all
     emcCommandSend(lim_msg);
     if (emcWaitType == EMC_WAIT_RECEIVED) {
 	return emcCommandWaitReceived();
@@ -551,93 +551,32 @@ int sendOverrideLimits(int axis)
 
     return 0;
 }
-static int axisJogging = -1;
+static int axisJogging[EMCMOT_MAX_AXIS] = {0,};
 
 int sendJogStop(int axis)
 {
-    EMC_AXIS_ABORT emc_axis_abort_msg;
+    EMC_JOG_STOP emc_jog_stop_msg;
     
-    // in case of TELEOP mode we really need to send an TELEOP_VECTOR message
-    // not a simple AXIS_ABORT, as more than one axis would be moving
-    // (hint TELEOP mode is for nontrivial kinematics)
-    EMC_TRAJ_SET_TELEOP_VECTOR emc_set_teleop_vector;
+    emc_jog_stop_msg.axis = axis;
+    emcCommandSend(emc_jog_stop_msg);
 
-    if (axis < 0 || axis >= EMC_AXIS_MAX) {
-	return -1;
-    }
-
-    if (emcStatus->motion.traj.mode != EMC_TRAJ_MODE_TELEOP) {
-	emc_axis_abort_msg.axis = axis;
-	emcCommandSend(emc_axis_abort_msg);
-
-	if (emcWaitType == EMC_WAIT_RECEIVED) {
-	    return emcCommandWaitReceived();
-	} else if (emcWaitType == EMC_WAIT_DONE) {
-	    return emcCommandWaitDone();
-	}
-
-	axisJogging = -1;
-    }
-    else {
-        ZERO_EMC_POSE(emc_set_teleop_vector.vector);
-	emcCommandSend(emc_set_teleop_vector);
-
-	if (emcWaitType == EMC_WAIT_RECEIVED) {
-	    return emcCommandWaitReceived();
-	} else if (emcWaitType == EMC_WAIT_DONE) {
-	    return emcCommandWaitDone();
-	}
-	// \todo FIXME - should remember a list of jogging axes, and remove the last one
-	axisJogging = -1;
-	
-    }
+    axisJogging[axis] = 0;
     return 0;
 }
 
 int sendJogCont(int axis, double speed)
 {
-    EMC_AXIS_JOG emc_axis_jog_msg;
-    EMC_TRAJ_SET_TELEOP_VECTOR emc_set_teleop_vector;
+    EMC_JOG_CONT emc_jog_cont_msg;
 
-    if (axis < 0 || axis >= EMC_AXIS_MAX) {
-	return -1;
+    if (0 == jogPol[axis]) {
+        speed = -speed;
     }
 
-    if (emcStatus->motion.traj.mode != EMC_TRAJ_MODE_TELEOP) {
-	if (0 == jogPol[axis]) {
-	    speed = -speed;
-	}
+    emc_jog_cont_msg.axis = axis;
+    emc_jog_cont_msg.vel = speed / 60.0;
+    emcCommandSend(emc_jog_cont_msg);
 
-	emc_axis_jog_msg.axis = axis;
-	emc_axis_jog_msg.vel = speed / 60.0;
-	emcCommandSend(emc_axis_jog_msg);
-    } else {
-        ZERO_EMC_POSE(emc_set_teleop_vector.vector);
-
-	switch (axis) {
-	case 0:
-	    emc_set_teleop_vector.vector.tran.x = speed / 60.0;
-	    break;
-	case 1:
-	    emc_set_teleop_vector.vector.tran.y = speed / 60.0;
-	    break;
-	case 2:
-	    emc_set_teleop_vector.vector.tran.z = speed / 60.0;
-	    break;
-	case 3:
-	    emc_set_teleop_vector.vector.a = speed / 60.0;
-	    break;
-	case 4:
-	    emc_set_teleop_vector.vector.b = speed / 60.0;
-	    break;
-	case 5:
-	    emc_set_teleop_vector.vector.c = speed / 60.0;
-	    break;
-	}
-	emcCommandSend(emc_set_teleop_vector);
-    }
-
-    axisJogging = axis;
+    axisJogging[axis] = 1;
     if (emcWaitType == EMC_WAIT_RECEIVED) {
 	return emcCommandWaitReceived();
     } else if (emcWaitType == EMC_WAIT_DONE) {
@@ -649,27 +588,23 @@ int sendJogCont(int axis, double speed)
 
 int sendJogIncr(int axis, double speed, double incr)
 {
-    EMC_AXIS_INCR_JOG emc_axis_incr_jog_msg;
-
-    if (axis < 0 || axis >= EMC_AXIS_MAX) {
-	return -1;
-    }
+    EMC_JOG_INCR emc_jog_incr_msg;
 
     if (0 == jogPol[axis]) {
 	speed = -speed;
     }
 
-    emc_axis_incr_jog_msg.axis = axis;
-    emc_axis_incr_jog_msg.vel = speed / 60.0;
-    emc_axis_incr_jog_msg.incr = incr;
-    emcCommandSend(emc_axis_incr_jog_msg);
+    emc_jog_incr_msg.axis = axis;
+    emc_jog_incr_msg.vel = speed / 60.0;
+    emc_jog_incr_msg.incr = incr;
+    emcCommandSend(emc_jog_incr_msg);
 
     if (emcWaitType == EMC_WAIT_RECEIVED) {
 	return emcCommandWaitReceived();
     } else if (emcWaitType == EMC_WAIT_DONE) {
 	return emcCommandWaitDone();
     }
-    axisJogging = -1;
+    axisJogging[axis] = 1;
 
     return 0;
 }
@@ -893,12 +828,12 @@ int sendAbort()
     return 0;
 }
 
-int sendHome(int axis)
+int sendHome(int joint)
 {
-    EMC_AXIS_HOME emc_axis_home_msg;
+    EMC_JOINT_HOME emc_joint_home_msg;
 
-    emc_axis_home_msg.axis = axis;
-    emcCommandSend(emc_axis_home_msg);
+    emc_joint_home_msg.joint = joint;
+    emcCommandSend(emc_joint_home_msg);
     if (emcWaitType == EMC_WAIT_RECEIVED) {
 	return emcCommandWaitReceived();
     } else if (emcWaitType == EMC_WAIT_DONE) {
@@ -908,12 +843,12 @@ int sendHome(int axis)
     return 0;
 }
 
-int sendUnHome(int axis)
+int sendUnHome(int joint)
 {
-    EMC_AXIS_UNHOME emc_axis_home_msg;
+    EMC_JOINT_UNHOME emc_joint_home_msg;
 
-    emc_axis_home_msg.axis = axis;
-    emcCommandSend(emc_axis_home_msg);
+    emc_joint_home_msg.joint = joint;
+    emcCommandSend(emc_joint_home_msg);
     if (emcWaitType == EMC_WAIT_RECEIVED) {
 	return emcCommandWaitReceived();
     } else if (emcWaitType == EMC_WAIT_DONE) {
@@ -1180,13 +1115,13 @@ int sendToolSetOffset(int toolno, double zoffset, double xoffset,
     return 0;
 }
 
-int sendAxisSetBacklash(int axis, double backlash)
+int sendJointSetBacklash(int joint, double backlash)
 {
-    EMC_AXIS_SET_BACKLASH emc_axis_set_backlash_msg;
+    EMC_JOINT_SET_BACKLASH emc_joint_set_backlash_msg;
 
-    emc_axis_set_backlash_msg.axis = axis;
-    emc_axis_set_backlash_msg.backlash = backlash;
-    emcCommandSend(emc_axis_set_backlash_msg);
+    emc_joint_set_backlash_msg.joint = joint;
+    emc_joint_set_backlash_msg.backlash = backlash;
+    emcCommandSend(emc_joint_set_backlash_msg);
     if (emcWaitType == EMC_WAIT_RECEIVED) {
 	return emcCommandWaitReceived();
     } else if (emcWaitType == EMC_WAIT_DONE) {
@@ -1196,17 +1131,17 @@ int sendAxisSetBacklash(int axis, double backlash)
     return 0;
 }
 
-int sendAxisEnable(int axis, int val)
+int sendJointEnable(int joint, int val)
 {
-    EMC_AXIS_ENABLE emc_axis_enable_msg;
-    EMC_AXIS_DISABLE emc_axis_disable_msg;
+    EMC_JOINT_ENABLE emc_joint_enable_msg;
+    EMC_JOINT_DISABLE emc_joint_disable_msg;
 
     if (val) {
-	emc_axis_enable_msg.axis = axis;
-	emcCommandSend(emc_axis_enable_msg);
+	emc_joint_enable_msg.joint = joint;
+	emcCommandSend(emc_joint_enable_msg);
     } else {
-	emc_axis_disable_msg.axis = axis;
-	emcCommandSend(emc_axis_disable_msg);
+	emc_joint_disable_msg.joint = joint;
+	emcCommandSend(emc_joint_disable_msg);
     }
     if (emcWaitType == EMC_WAIT_RECEIVED) {
 	return emcCommandWaitReceived();
@@ -1217,13 +1152,13 @@ int sendAxisEnable(int axis, int val)
     return 0;
 }
 
-int sendAxisLoadComp(int axis, const char *file, int type)
+int sendJointLoadComp(int joint, const char *file, int type)
 {
-    EMC_AXIS_LOAD_COMP emc_axis_load_comp_msg;
+    EMC_JOINT_LOAD_COMP emc_joint_load_comp_msg;
 
-    strcpy(emc_axis_load_comp_msg.file, file);
-    emc_axis_load_comp_msg.type = type;
-    emcCommandSend(emc_axis_load_comp_msg);
+    strcpy(emc_joint_load_comp_msg.file, file);
+    emc_joint_load_comp_msg.type = type;
+    emcCommandSend(emc_joint_load_comp_msg);
     if (emcWaitType == EMC_WAIT_RECEIVED) {
 	return emcCommandWaitReceived();
     } else if (emcWaitType == EMC_WAIT_DONE) {
@@ -1311,9 +1246,9 @@ int iniLoad(const char *filename)
 	// not found, use default
     }
 
-    for (t = 0; t < EMC_AXIS_MAX; t++) {
+    for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
 	jogPol[t] = 1;		// set to default
-	sprintf(displayString, "AXIS_%d", t);
+	sprintf(displayString, "JOINT_%d", t);
 	if (NULL != (inistring =
 		     inifile.Find("JOGGING_POLARITY", displayString)) &&
 	    1 == sscanf(inistring, "%d", &i) && i == 0) {

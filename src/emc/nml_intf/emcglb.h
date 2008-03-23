@@ -24,8 +24,6 @@
 extern "C" {
 #endif
 
-#define EMC_AXIS_MAX EMCMOT_MAX_AXIS
-
 #define EMC_MAX_DIO EMCMOT_MAX_DIO
 #define EMC_MAX_AIO EMCMOT_MAX_AIO
 
@@ -55,11 +53,10 @@ extern "C" {
 
     extern char tool_table_file[LINELEN];
 
+    extern double AXIS_WORLD_HOME[EMCMOT_MAX_AXIS];
+
     extern double traj_default_velocity;
     extern double traj_max_velocity;
-
-    extern double axis_max_velocity[EMC_AXIS_MAX];
-    extern double axis_max_acceleration[EMC_AXIS_MAX];
 
     extern struct EmcPose tool_change_position;
     extern unsigned char have_tool_change_position;
@@ -69,6 +66,27 @@ extern "C" {
 
     extern int emcGetArgs(int argc, char *argv[]);
     extern void emcInitGlobals();
+
+typedef struct JointConfig_t {
+    int Inited;
+    unsigned char Type;   // non-zero means joint called init
+    double Units;
+    double MaxVel;
+    double MaxAccel;
+    double MinLimit;
+    double MaxLimit;
+} JointConfig_t;
+
+typedef struct AxisConfig_t {
+    int Inited;
+    unsigned char Type;
+    double MaxVel;
+    double MaxAccel;
+    double MinLimit;
+    double MaxLimit;
+} AxisConfig_t;
+
+    extern AxisConfig_t AxisConfig[EMCMOT_MAX_AXIS];
 
 #ifdef __cplusplus
 }				/* matches extern "C" at top */

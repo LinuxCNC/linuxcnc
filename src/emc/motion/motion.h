@@ -78,6 +78,7 @@ to another.
 #include "cubic.h"		/* CUBIC_STRUCT, CUBIC_COEFF */
 #include "emcmotcfg.h"		/* EMCMOT_MAX_JOINTS */
 #include "kinematics.h"
+#include "simple_tp.h"
 #include "rtapi_limits.h"
 #include <stdarg.h>
 
@@ -104,7 +105,7 @@ extern "C" {
 
     typedef enum {
 	EMCMOT_ABORT = 1,	/* abort all motion */
-	EMCMOT_AXIS_ABORT,	/* abort one axis */ //FIXME-AJ: replace command name to EMCMOT_JOINT_ABORT
+	EMCMOT_JOINT_ABORT,	/* abort one axis */
 	EMCMOT_ENABLE,		/* enable servos for active joints */
 	EMCMOT_DISABLE,		/* disable servos for active joints */
 	EMCMOT_ENABLE_AMPLIFIER,	/* enable amp outputs */
@@ -137,10 +138,6 @@ extern "C" {
 	EMCMOT_JOG_ABS,		/* absolute jog */
 	EMCMOT_SET_LINE,	/* queue up a linear move */
 	EMCMOT_SET_CIRCLE,	/* queue up a circular move */
-	EMCMOT_SET_TELEOP_VECTOR,	/* Move at a given velocity but in
-					   world cartesian coordinates, not
-					   in joint space like EMCMOT_JOG_* */
-
 	EMCMOT_CLEAR_PROBE_FLAGS,	/* clears probeTripped flag */
 	EMCMOT_PROBE,		/* go to pos, stop if probe trips, record
 				   trip pos */
@@ -157,7 +154,7 @@ extern "C" {
 	EMCMOT_SET_JOINT_ACC_LIMIT,	/* set the max joint accel */
 	EMCMOT_SET_ACC,		/* set the max accel for moves (tooltip) */
 	EMCMOT_SET_TERM_COND,	/* set termination condition (stop, blend) */
-	EMCMOT_SET_NUM_AXES,	/* set the number of joints */ //FIXME-AJ: function needs to get renamed
+	EMCMOT_SET_NUM_JOINTS,	/* set the number of joints */
 	EMCMOT_SET_WORLD_HOME,	/* set pose for world home */
 	EMCMOT_SET_HOMING_PARAMS,	/* sets joint homing parameters */
 	EMCMOT_SET_DEBUG,       /* sets the debug level */
@@ -223,7 +220,7 @@ extern "C" {
 	int id;			/* id for motion */
 	int termCond;		/* termination condition */
 	double tolerance;	/* tolerance for path deviation in CONTINUOUS mode */
-	int axis;		/* which index to use for below */ //FIXME-AJ: replace with joint
+	int joint;		/* which index to use for below */
 	double scale;		/* velocity scale or spindle_speed scale arg */
 	double offset;		/* input, output, or home offset arg */
 	double home;		/* joint home position */
@@ -520,10 +517,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 	double ferror;		/* following error */
 	double ferror_limit;	/* limit depends on speed */
 	double ferror_high_mark;	/* max following error */
-	double free_pos_cmd;	/* position command for free mode TP */
-	double free_vel_lim;	/* velocity limit for free mode TP */
-	int free_tp_enable;	/* if zero, joint stops ASAP */
-	int free_tp_active;	/* if non-zero, move in progress */
+	simple_tp_t free_tp;	/* planner for free mode motion */
 	int kb_jog_active;	/* non-zero during a keyboard jog */
 	int wheel_jog_active;	/* non-zero during a wheel jog */
 
