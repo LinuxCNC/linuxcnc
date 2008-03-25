@@ -56,6 +56,37 @@ static double ztrans(setup_pointer settings, double z) {
     return z;
 }
 
+static double sf[9];
+static int sf_valid = 0;
+
+void maybe_STRAIGHT_FEED(double x, double y, double z, double a, double b, double c, double u, double v, double w) {
+    if(sf_valid) {
+        STRAIGHT_FEED(sf[0], sf[1], sf[2], sf[3], sf[4], sf[5], sf[6], sf[7], sf[8]);
+    }
+    sf[0] = x;
+    sf[1] = y;
+    sf[2] = z;
+    sf[3] = a;
+    sf[4] = b;
+    sf[5] = c;
+    sf[6] = u;
+    sf[7] = v;
+    sf[8] = w;
+    sf_valid = 1;
+}
+
+void replace_STRAIGHT_FEED(double x, double y, double z, double a, double b, double c, double u, double v, double w) {
+    sf_valid = 0;
+    STRAIGHT_FEED(x, y, z, a, b, c, u, v, w);
+}
+
+void flush_STRAIGHT_FEED(void) {
+    if(sf_valid)
+        STRAIGHT_FEED(sf[0], sf[1], sf[2], sf[3], sf[4], sf[5], sf[6], sf[7], sf[8]);
+
+    sf_valid = 0;
+}
+
 /****************************************************************************/
 
 /*! convert_arc
@@ -564,6 +595,7 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
   int plane = settings->plane;
 
 /* find basic arc data: center_x, center_y, and turn */
+  flush_STRAIGHT_FEED();
 
   if(settings->plane == CANON_PLANE_XZ) {
     start[0] = settings->program_x;
@@ -1458,6 +1490,7 @@ int Interp::convert_cutter_compensation_off(setup_pointer settings)      //!< po
 #ifdef DEBUG_EMC
   COMMENT("interpreter: cutter radius compensation off");
 #endif
+  flush_STRAIGHT_FEED();
   if(settings->cutter_comp_side != OFF && settings->cutter_comp_radius > 0.0) {
       settings->current_x = settings->program_x;
       settings->current_y = settings->program_y;
@@ -3435,7 +3468,6 @@ int Interp::convert_straight_comp1(int move,     //!< either G_0 or G_1
   }
   return INTERP_OK;
 }
-
 /****************************************************************************/
 
 /*! convert_straight_comp2
@@ -3532,6 +3564,7 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
   double theta;
   double p[3];  /* programmed endpoint */
   double c[2];  /* current */
+  int concave;
 
   if(settings->plane == CANON_PLANE_XZ) {
       p[0] = px;
@@ -3562,6 +3595,7 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
           STRAIGHT_TRAVERSE(xtrans(settings, end[0]), py, ztrans(settings, end[1]),
                             AA_end, BB_end, CC_end, u_end, v_end, w_end);
       } else if(settings->plane == CANON_PLANE_XY) {
+          flush_STRAIGHT_FEED();
           STRAIGHT_TRAVERSE(end[0], end[1], pz,
                             AA_end, BB_end, CC_end, u_end, v_end, w_end);
       }
@@ -3580,6 +3614,7 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
                                        AA_end, BB_end, CC_end,
                                        u_end, v_end, w_end,
                                        block, settings);
+          flush_STRAIGHT_FEED();
           STRAIGHT_FEED(end[0], end[1], pz,
                         AA_end, BB_end, CC_end, u_end, v_end, w_end);
       }
@@ -3609,8 +3644,24 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
     mid[0] = (start[0] + (radius * cos(alpha + gamma)));
     mid[1] = (start[1] + (radius * sin(alpha + gamma)));
 
-    CHK(((beta < -small) || (beta > (M_PIl + small))),
-        NCE_CONCAVE_CORNER_WITH_CUTTER_RADIUS_COMP);
+    if ((beta < -small) || (beta > (M_PIl + small))) {
+        double retreat;
+        // half the angle of the inside corner
+        double halfcorner = (beta + M_PIl) / 2.0;
+        CHKF((halfcorner == 0.0), (_("Zero degree inside corner is invalid for cutter compensation")));
+        retreat = radius / tan(halfcorner);
+        // move back along the compensated path
+        // this should replace the endpoint of the previous move
+        mid[0] = c[0] + retreat * cos(theta + gamma);
+        mid[1] = c[1] + retreat * sin(theta + gamma);
+        concave = 1;
+    } else {
+        concave = 0;
+        mid[0] = (start[0] + (radius * cos(alpha + gamma)));
+        mid[1] = (start[1] + (radius * sin(alpha + gamma)));
+    }
+        
+
     if (move == G_0) {
       if(settings->plane == CANON_PLANE_XZ) {
           STRAIGHT_TRAVERSE(xtrans(settings, end[0]), py, ztrans(settings, end[1]),
@@ -3622,7 +3673,7 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
       }
     }
     else if (move == G_1) {
-      if (beta > small) {       /* ARC NEEDED */
+      if (!concave && (beta > small)) {       /* ARC NEEDED */
         if(settings->plane == CANON_PLANE_XZ) {
             if (settings->feed_mode == INVERSE_TIME)
               inverse_time_rate_as(start[0], start[1],
@@ -3645,13 +3696,20 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
                                    AA_end, BB_end, CC_end,
                                    u_end, v_end, w_end,
                                    block, settings);
+            flush_STRAIGHT_FEED();
             ARC_FEED(mid[0], mid[1], start[0], start[1],
                      ((side == LEFT) ? -1 : 1), settings->current_z,
                      AA_end, BB_end, CC_end, u_end, v_end, w_end);
-            STRAIGHT_FEED(end[0], end[1], p[2],
+            maybe_STRAIGHT_FEED(end[0], end[1], p[2],
                           AA_end, BB_end, CC_end, u_end, v_end, w_end);
         }
       } else {
+         if (concave) {
+             // retreat!
+             // we want to replace the endpoint of the previous move with this one.
+             // that's the same as just discarding the previous move and issuing this one instead.
+             replace_STRAIGHT_FEED(mid[0], mid[1], settings->current_z, AA_end, BB_end, CC_end, u_end, v_end, w_end);
+         }
          if(settings->plane == CANON_PLANE_XZ) {
             if (settings->feed_mode == INVERSE_TIME)
               inverse_time_rate_straight(end[0], p[2], end[1],
@@ -3666,7 +3724,7 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
                                          AA_end, BB_end, CC_end,
                                          u_end, v_end, w_end,
                                          block, settings);
-            STRAIGHT_FEED(end[0], end[1], p[2],
+            maybe_STRAIGHT_FEED(end[0], end[1], p[2],
                           AA_end, BB_end, CC_end, u_end, v_end, w_end);
          }
       }
