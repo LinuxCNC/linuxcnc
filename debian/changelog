@@ -4,8 +4,9 @@ emc2 (1:2.2.5~cvs) unstable; urgency=low
     in emc2
   * added m7i43_hm2, a driver for the Mesa 7i43 board with HostMot2
     firmware
+  * axis: numeric keypad fix in prior version was incomplete
 
- -- Sebastian Kuzminsky <seb@highlab.com>  Fri, 21 Mar 2008 19:54:23 -0600
+ -- Jeff Epler <jepler@sds2.com>  Wed, 26 Mar 2008 08:01:13 -0500
 
 emc2 (1:2.2.4) unstable; urgency=low
 
