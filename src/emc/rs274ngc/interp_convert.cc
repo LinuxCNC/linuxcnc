@@ -56,35 +56,56 @@ static double ztrans(setup_pointer settings, double z) {
     return z;
 }
 
-static double sf[9];
-static int sf_valid = 0;
+typedef enum previous_move_type {LINE, ARC};
 
-void maybe_STRAIGHT_FEED(double x, double y, double z, double a, double b, double c, double u, double v, double w) {
-    if(sf_valid) {
-        STRAIGHT_FEED(sf[0], sf[1], sf[2], sf[3], sf[4], sf[5], sf[6], sf[7], sf[8]);
-    }
-    sf[0] = x;
-    sf[1] = y;
-    sf[2] = z;
-    sf[3] = a;
-    sf[4] = b;
-    sf[5] = c;
-    sf[6] = u;
-    sf[7] = v;
-    sf[8] = w;
-    sf_valid = 1;
+typedef struct previous_move {
+    previous_move_type type;
+    int valid;
+    // only for lines
+    double x, y, z, len;
+    // only for arcs
+    int turn;
+    double end1, end2, center1, center2, end3, cy;
+    // for both
+    double a, b, c, u, v, w;
+};
+
+static previous_move pm;
+
+void save_line(double x, double y, double z, double a, double b, double c, double u, double v, double w, double len) {
+    pm.type = LINE;
+    pm.valid = 1;
+    pm.x = x;
+    pm.y = y;
+    pm.z = z;
+    pm.a = a;
+    pm.b = b;
+    pm.c = c;
+    pm.u = u;
+    pm.v = v;
+    pm.w = w;
+    pm.len = len;
 }
 
-void replace_STRAIGHT_FEED(double x, double y, double z, double a, double b, double c, double u, double v, double w) {
-    sf_valid = 0;
-    STRAIGHT_FEED(x, y, z, a, b, c, u, v, w);
-}
-
-void flush_STRAIGHT_FEED(void) {
-    if(sf_valid)
-        STRAIGHT_FEED(sf[0], sf[1], sf[2], sf[3], sf[4], sf[5], sf[6], sf[7], sf[8]);
-
-    sf_valid = 0;
+void save_arc(double end1, double end2, double center1, double center2,
+              int turn,
+              double end3,
+              double a, double b, double c,
+              double u, double v, double w) {
+    pm.type = ARC;
+    pm.valid = 1;
+    pm.end1 = end1;
+    pm.end2 = end2;
+    pm.center1 = center1;
+    pm.center2 = center2;
+    pm.turn = turn;
+    pm.end3 = end3;
+    pm.a = a;
+    pm.b = b;
+    pm.c = c;
+    pm.u = u;
+    pm.v = v;
+    pm.w = w;
 }
 
 /****************************************************************************/
@@ -509,6 +530,8 @@ int Interp::convert_arc_comp1(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
         inverse_time_rate_arc(current[0], current[1],
                               current[2], center[0], center[1], turn,
                               end[0], end[1], end[2], block, settings);
+      save_arc(end[0], end[1], center[0], center[1], turn, end[2],
+               AA_end, BB_end, CC_end, u_end, v_end, w_end);
       ARC_FEED(end[0], end[1], center[0], center[1], turn, end[2],
                AA_end, BB_end, CC_end, u_end, v_end, w_end);
       settings->current_x = end[0];
@@ -595,7 +618,6 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
   int plane = settings->plane;
 
 /* find basic arc data: center_x, center_y, and turn */
-  flush_STRAIGHT_FEED();
 
   if(settings->plane == CANON_PLANE_XZ) {
     start[0] = settings->program_x;
@@ -641,10 +663,13 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
   delta = atan2(center[1] - start[1], center[0] - start[0]);
   alpha = (move == G_3) ? (delta - M_PI_2l) : (delta + M_PI_2l);
   beta = (side == LEFT) ? (theta - alpha) : (alpha - theta);
-  beta = (beta > (1.5 * M_PIl)) ? (beta - (2 * M_PIl)) :
-    (beta < -M_PI_2l) ? (beta + (2 * M_PIl)) : beta;
+
+  // normalize beta -90 to +270?
+  beta = (beta > (1.5 * M_PIl)) ? (beta - (2 * M_PIl)) : (beta < -M_PI_2l) ? (beta + (2 * M_PIl)) : beta;
+
 
   if (((side == LEFT) && (move == G_3)) || ((side == RIGHT) && (move == G_2))) {
+      // we are cutting inside the arc
     gamma = atan2((center[1] - end[1]), (center[0] - end[0]));
     CHK((arc_radius <= tool_radius),
         NCE_TOOL_RADIUS_NOT_LESS_THAN_ARC_RADIUS_WITH_COMP);
@@ -652,6 +677,7 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
     gamma = atan2((end[1] - center[1]), (end[0] - center[0]));
     delta = (delta + M_PIl);
   }
+
 
   if(settings->plane == CANON_PLANE_XZ) {
     settings->program_x = end[0];
@@ -665,11 +691,23 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
   end[0] = (end[0] + (tool_radius * cos(gamma))); /* end_x reset actual */
   end[1] = (end[1] + (tool_radius * sin(gamma))); /* end_y reset actual */
 
-/* check if extra arc needed and insert if so */
+  if ((beta < -small) || (beta > (M_PIl + small))) {
+      // convex
+      double cy = arc_radius * sin(beta - M_PI_2l);
+      double toward_nominal = cy - tool_radius;
+      double dist_from_center = arc_radius + tool_radius;
+      double angle_from_center = theta + M_PIl + asin(toward_nominal / dist_from_center);
 
-  CHK(((beta < -small) || (beta > (M_PIl + small))),
-      NCE_CONCAVE_CORNER_WITH_CUTTER_RADIUS_COMP);
-  if (beta > small) {           /* two arcs needed */
+      mid[0] = center[0] + dist_from_center * cos(angle_from_center);
+      mid[1] = center[1] + dist_from_center * sin(angle_from_center);
+
+      // XXX assuming XY
+      STRAIGHT_FEED( mid[0], mid[1], end[2], AA_end, BB_end, CC_end, u, v, w);
+      save_arc(end[0], end[1], center[0], center[1], turn, end[2],
+               AA_end, BB_end, CC_end, u, v, w);
+      ARC_FEED(end[0], end[1], center[0], center[1], turn, end[2],
+               AA_end, BB_end, CC_end, u, v, w);
+  } else if (beta > small) {           /* convex, two arcs needed */
     mid[0] = (start[0] + (tool_radius * cos(delta)));
     mid[1] = (start[1] + (tool_radius * sin(delta)));
     if (settings->feed_mode == INVERSE_TIME)
@@ -683,13 +721,16 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
       ARC_FEED(ztrans(settings, end[1]), xtrans(settings, end[0]), ztrans(settings, center[1]), xtrans(settings, center[0]),
                -turn, end[2], AA_end, BB_end, CC_end, u, v, w);
     } else if (settings->plane == CANON_PLANE_XY) {
+        //      flush_STRAIGHT_FEED();
       ARC_FEED(mid[0], mid[1], start[0], start[1], ((side == LEFT) ? -1 : 1),
                current[2],
+               AA_end, BB_end, CC_end, u, v, w);
+      save_arc(end[0], end[1], center[0], center[1], turn, end[2],
                AA_end, BB_end, CC_end, u, v, w);
       ARC_FEED(end[0], end[1], center[0], center[1], turn, end[2],
                AA_end, BB_end, CC_end, u, v, w);
     }
-  } else {                      /* one arc needed */
+  } else {                      /* convex, one arc needed */
     if (settings->feed_mode == INVERSE_TIME)
       inverse_time_rate_arc(current[0], current[1],
                             current[2], center[0], center[1], turn,
@@ -698,6 +739,9 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
       ARC_FEED(ztrans(settings, end[1]), xtrans(settings, end[0]), ztrans(settings, center[1]), xtrans(settings, center[0]),
                -turn, end[2], AA_end, BB_end, CC_end, u, v, w);
     } else if (settings->plane == CANON_PLANE_XY) {
+        //      flush_STRAIGHT_FEED();
+      save_arc(end[0], end[1], center[0], center[1], turn, end[2],
+               AA_end, BB_end, CC_end, u, v, w);
       ARC_FEED(end[0], end[1], center[0], center[1], turn, end[2],
                AA_end, BB_end, CC_end, u, v, w);
     }
@@ -1490,7 +1534,7 @@ int Interp::convert_cutter_compensation_off(setup_pointer settings)      //!< po
 #ifdef DEBUG_EMC
   COMMENT("interpreter: cutter radius compensation off");
 #endif
-  flush_STRAIGHT_FEED();
+  //  flush_STRAIGHT_FEED();
   if(settings->cutter_comp_side != OFF && settings->cutter_comp_radius > 0.0) {
       settings->current_x = settings->program_x;
       settings->current_y = settings->program_y;
@@ -3444,6 +3488,8 @@ int Interp::convert_straight_comp1(int move,     //!< either G_0 or G_1
                                     AA_end, BB_end, CC_end,
                                     u_end, v_end, w_end,
                                     block, settings);
+       save_line(c[0], c[1], p[2],
+                 AA_end, BB_end, CC_end, u_end, v_end, w_end, distance);
        STRAIGHT_FEED(c[0], c[1], p[2],
                      AA_end, BB_end, CC_end, u_end, v_end, w_end);
     }
@@ -3595,7 +3641,7 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
           STRAIGHT_TRAVERSE(xtrans(settings, end[0]), py, ztrans(settings, end[1]),
                             AA_end, BB_end, CC_end, u_end, v_end, w_end);
       } else if(settings->plane == CANON_PLANE_XY) {
-          flush_STRAIGHT_FEED();
+          //          flush_STRAIGHT_FEED();
           STRAIGHT_TRAVERSE(end[0], end[1], pz,
                             AA_end, BB_end, CC_end, u_end, v_end, w_end);
       }
@@ -3614,7 +3660,9 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
                                        AA_end, BB_end, CC_end,
                                        u_end, v_end, w_end,
                                        block, settings);
-          flush_STRAIGHT_FEED();
+          //          flush_STRAIGHT_FEED();
+          save_line(end[0], end[1], pz,
+                    AA_end, BB_end, CC_end, u_end, v_end, w_end, hypot(end[1] - c[1], end[0] - c[0]));
           STRAIGHT_FEED(end[0], end[1], pz,
                         AA_end, BB_end, CC_end, u_end, v_end, w_end);
       }
@@ -3645,15 +3693,6 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
     mid[1] = (start[1] + (radius * sin(alpha + gamma)));
 
     if ((beta < -small) || (beta > (M_PIl + small))) {
-        double retreat;
-        // half the angle of the inside corner
-        double halfcorner = (beta + M_PIl) / 2.0;
-        CHKF((halfcorner == 0.0), (_("Zero degree inside corner is invalid for cutter compensation")));
-        retreat = radius / tan(halfcorner);
-        // move back along the compensated path
-        // this should replace the endpoint of the previous move
-        mid[0] = c[0] + retreat * cos(theta + gamma);
-        mid[1] = c[1] + retreat * sin(theta + gamma);
         concave = 1;
     } else {
         concave = 0;
@@ -3696,19 +3735,50 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
                                    AA_end, BB_end, CC_end,
                                    u_end, v_end, w_end,
                                    block, settings);
-            flush_STRAIGHT_FEED();
+            //            flush_STRAIGHT_FEED();
             ARC_FEED(mid[0], mid[1], start[0], start[1],
                      ((side == LEFT) ? -1 : 1), settings->current_z,
                      AA_end, BB_end, CC_end, u_end, v_end, w_end);
-            maybe_STRAIGHT_FEED(end[0], end[1], p[2],
+
+            save_line(end[0], end[1], p[2], 
+                      AA_end, BB_end, CC_end, 
+                      u_end, v_end, w_end, 
+                      hypot(mid[1] - end[1], mid[0] - end[0]));
+
+            STRAIGHT_FEED(end[0], end[1], p[2],
                           AA_end, BB_end, CC_end, u_end, v_end, w_end);
         }
       } else {
          if (concave) {
-             // retreat!
-             // we want to replace the endpoint of the previous move with this one.
-             // that's the same as just discarding the previous move and issuing this one instead.
-             replace_STRAIGHT_FEED(mid[0], mid[1], settings->current_z, AA_end, BB_end, CC_end, u_end, v_end, w_end);
+             // retreat!  back up along some of the previous move.
+
+             if (pm.type == LINE) {
+                 double retreat;
+                 // half the angle of the inside corner
+                 double halfcorner = (beta + M_PIl) / 2.0;
+                 CHKF((halfcorner == 0.0), (_("Zero degree inside corner is invalid for cutter compensation")));
+                 retreat = radius / tan(halfcorner);
+                 // move back along the compensated path
+                 // this should replace the endpoint of the previous move
+                 mid[0] = c[0] + retreat * cos(theta + gamma);
+                 mid[1] = c[1] + retreat * sin(theta + gamma);
+                 // we actually want to move the previous line's endpoint here.  That's the same as 
+                 // discarding that line and doing this one instead.
+                 STRAIGHT_FEED(mid[0], mid[1], settings->current_z, AA_end, BB_end, CC_end, u_end, v_end, w_end);
+             } else {
+                 double previous_radius = hypot(pm.center2 - pm.end2, pm.center1 - pm.end1);
+                 double end_dir = atan2(pm.center2 - pm.end2, pm.center1 - pm.end1);
+                 double base_dir = atan2(start[1] - p[1], start[0] - p[0]);
+                 double alpha = base_dir - end_dir;
+                 double baseline = (previous_radius - radius) * sin(alpha);
+
+                 double alen =  baseline - radius;
+                 double angle_from_center = base_dir + M_PIl - asin(alen / previous_radius);
+
+                 mid[0] = pm.center1 + previous_radius * cos(angle_from_center);
+                 mid[1] = pm.center2 + previous_radius * sin(angle_from_center);
+                 STRAIGHT_FEED(mid[0], mid[1], settings->current_z, AA_end, BB_end, CC_end, u_end, v_end, w_end);
+             }
          }
          if(settings->plane == CANON_PLANE_XZ) {
             if (settings->feed_mode == INVERSE_TIME)
@@ -3724,7 +3794,11 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
                                          AA_end, BB_end, CC_end,
                                          u_end, v_end, w_end,
                                          block, settings);
-            maybe_STRAIGHT_FEED(end[0], end[1], p[2],
+            save_line(end[0], end[1], p[2],
+                      AA_end, BB_end, CC_end, 
+                      u_end, v_end, w_end, 
+                      hypot(mid[1] - end[1], mid[0] - end[0]));
+            STRAIGHT_FEED(end[0], end[1], p[2],
                           AA_end, BB_end, CC_end, u_end, v_end, w_end);
          }
       }
