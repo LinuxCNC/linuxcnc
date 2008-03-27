@@ -30,6 +30,10 @@
 #include "interp_internal.hh"
 
 #include "units.h"
+#ifndef r2d
+#define r2d(r) ((r)*180.0/M_PI)
+#endif
+
 
 // lathe tools have strange origin points that are not at
 // the center of the radius.  This means that the point that
@@ -65,7 +69,7 @@ typedef struct previous_move {
     double x, y, z, len;
     // only for arcs
     int turn;
-    double end1, end2, center1, center2, end3, cy;
+    double end1, end2, center1, center2, end3;
     // for both
     double a, b, c, u, v, w;
 };
@@ -692,11 +696,22 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
   end[1] = (end[1] + (tool_radius * sin(gamma))); /* end_y reset actual */
 
   if ((beta < -small) || (beta > (M_PIl + small))) {
-      // convex
+      // concave
       double cy = arc_radius * sin(beta - M_PI_2l);
-      double toward_nominal = cy - tool_radius;
-      double dist_from_center = arc_radius + tool_radius;
-      double angle_from_center = theta + M_PIl + asin(toward_nominal / dist_from_center);
+      double toward_nominal;
+      double dist_from_center;
+      double angle_from_center;
+
+      if (((side == LEFT) && (move == G_3)) || ((side == RIGHT) && (move == G_2))) {
+          // tool is inside the arc
+          dist_from_center = arc_radius - tool_radius; 
+          toward_nominal = cy + tool_radius;
+          angle_from_center = theta - asin(toward_nominal / dist_from_center);
+      } else {
+          dist_from_center = arc_radius + tool_radius; 
+          toward_nominal = cy - tool_radius;
+          angle_from_center = theta + M_PIl + asin(toward_nominal / dist_from_center);
+      }          
 
       mid[0] = center[0] + dist_from_center * cos(angle_from_center);
       mid[1] = center[1] + dist_from_center * sin(angle_from_center);
@@ -3769,11 +3784,21 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
                  double previous_radius = hypot(pm.center2 - pm.end2, pm.center1 - pm.end1);
                  double end_dir = atan2(pm.center2 - pm.end2, pm.center1 - pm.end1);
                  double base_dir = atan2(start[1] - p[1], start[0] - p[0]);
-                 double alpha = base_dir - end_dir;
-                 double baseline = (previous_radius - radius) * sin(alpha);
+                 double alpha;
+                 double baseline, alen, angle_from_center;
 
-                 double alen =  baseline - radius;
-                 double angle_from_center = base_dir + M_PIl - asin(alen / previous_radius);
+                 if((pm.turn == 1 && side == LEFT) || (pm.turn == -1 && side == RIGHT)) {
+                     // tool is inside the arc
+                     alpha = base_dir + M_PIl - end_dir;
+                     baseline = (previous_radius + radius) * sin(alpha);
+                     alen =  baseline - radius;
+                     angle_from_center = base_dir - asin(alen / previous_radius);
+                 } else {
+                     alpha = base_dir - end_dir;
+                     baseline = (previous_radius - radius) * sin(alpha);
+                     alen =  baseline - radius;
+                     angle_from_center = base_dir + M_PIl - asin(alen / previous_radius);
+                 }
 
                  mid[0] = pm.center1 + previous_radius * cos(angle_from_center);
                  mid[1] = pm.center2 + previous_radius * sin(angle_from_center);
