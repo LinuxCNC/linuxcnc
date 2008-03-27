@@ -689,9 +689,15 @@ void do_homing(void)
 		/* plan a move to home position */
 		joint->free_pos_cmd = joint->home;
 		/* do the move at max speed */
-		/*! \todo FIXME - should this be search_vel? or another user
-		   specified speed? or is a rapid OK? */
-		joint->free_vel_lim = joint->vel_limit;
+		/* if home_vel is set (>0) then we use that, otherwise we rapid there */
+		if (joint->home_final_vel > 0) {
+		    joint->free_vel_lim = fabs(joint->home_final_vel);
+		    /* clamp on max vel for this joint */
+		    if (joint->free_vel_lim > joint->vel_limit)
+			joint->free_vel_lim = joint->vel_limit;
+		} else { 
+		    joint->free_vel_lim = joint->vel_limit;
+		}
 		/* start the move */
 		joint->free_tp_enable = 1;
 		joint->home_state = HOME_FINAL_MOVE_WAIT;

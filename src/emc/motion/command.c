@@ -521,6 +521,7 @@ check_stuff ( "before command_handler()" );
 	    }
 	    joint->home_offset = emcmotCommand->offset;
 	    joint->home = emcmotCommand->home;
+	    joint->home_final_vel = emcmotCommand->home_final_vel;
 	    joint->home_search_vel = emcmotCommand->search_vel;
 	    joint->home_latch_vel = emcmotCommand->latch_vel;
 	    joint->home_flags = emcmotCommand->flags;

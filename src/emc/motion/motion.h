@@ -215,6 +215,7 @@ extern "C" {
 	double scale;		/* velocity scale or spindle_speed scale arg */
 	double offset;		/* input, output, or home offset arg */
 	double home;		/* joint home position */
+	double home_final_vel;	/* joint velocity for moving from OFFSET to HOME */
 	double search_vel;	/* home search velocity */
 	double latch_vel;	/* home latch velocity */
 	int flags;		/* homing config flags, other boolean args */
@@ -455,6 +456,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 	double min_ferror;	/* zero speed following error limit */
 	double max_ferror;	/* max speed following error limit */
 	double home_search_vel;	/* dir/spd to look for home switch */
+	double home_final_vel;  /* speed to travel from OFFSET to HOME position */
 	double home_latch_vel;	/* dir/spd to latch switch/index pulse */
 	double home_offset;	/* dir/dist from switch to home point */
 	double home;		/* joint coordinate of home point */

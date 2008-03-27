@@ -49,6 +49,7 @@
   FERROR <float>               maximum following error, scaled to max vel
   MIN_FERROR <float>           minimum following error
   HOME <float>                 home position (where to go after home)
+  HOME_FINAL_VEL <float>       speed to move from HOME_OFFSET to HOME location (at the end of homing)
   HOME_OFFSET <float>          home switch/index pulse location
   HOME_SEARCH_VEL <float>      homing speed, search phase
   HOME_LATCH_VEL <float>       homing speed, latch phase
@@ -90,6 +91,7 @@ static int loadAxis(int axis, EmcIniFile *axisIniFile)
     double home;
     double search_vel;
     double latch_vel;
+    double home_final_vel; // moving from OFFSET to HOME
     bool use_index;
     bool ignore_limits;
     bool is_shared;
@@ -196,6 +198,8 @@ static int loadAxis(int axis, EmcIniFile *axisIniFile)
         axisIniFile->Find(&search_vel, "HOME_SEARCH_VEL", axisString);
         latch_vel = 0;	                // default
         axisIniFile->Find(&latch_vel, "HOME_LATCH_VEL", axisString);
+        home_final_vel = -1;	                // default (rapid)
+        axisIniFile->Find(&home_final_vel, "HOME_FINAL_VEL", axisString);
         is_shared = false;	        // default
         axisIniFile->Find(&is_shared, "HOME_IS_SHARED", axisString);
         use_index = false;	        // default
@@ -208,7 +212,7 @@ static int loadAxis(int axis, EmcIniFile *axisIniFile)
         axisIniFile->Find(&volatile_home, "VOLATILE_HOME", axisString);
 
         // issue NML message to set all params
-        if (0 != emcAxisSetHomingParams(axis, home, offset, search_vel,
+        if (0 != emcAxisSetHomingParams(axis, home, offset, home_final_vel, search_vel,
                                         latch_vel, (int)use_index, (int)ignore_limits,
                                         (int)is_shared, sequence, volatile_home)) {
             if (EMC_DEBUG & EMC_DEBUG_CONFIG) {

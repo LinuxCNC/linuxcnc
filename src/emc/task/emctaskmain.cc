@@ -1516,6 +1516,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	retval = emcAxisSetHomingParams(set_homing_params_msg->axis,
 					set_homing_params_msg->home,
 					set_homing_params_msg->offset,
+					set_homing_params_msg->home_final_vel,
 					set_homing_params_msg->search_vel,
 					set_homing_params_msg->latch_vel,
 					set_homing_params_msg->use_index,

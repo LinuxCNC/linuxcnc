@@ -2875,6 +2875,7 @@ void EMC_AXIS_SET_HOMING_PARAMS::update(CMS * cms)
     EMC_AXIS_CMD_MSG::update(cms);
     cms->update(home);
     cms->update(offset);
+    cms->update(home_final_vel);
     cms->update(search_vel);
     cms->update(latch_vel);
     cms->update(use_index);

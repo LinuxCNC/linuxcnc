@@ -397,7 +397,7 @@ extern int emcAxisSetMinOutputLimit(int axis, double limit);
 extern int emcAxisSetMaxOutputLimit(int axis, double limit);
 extern int emcAxisSetFerror(int axis, double ferror);
 extern int emcAxisSetMinFerror(int axis, double ferror);
-extern int emcAxisSetHomingParams(int axis, double home, double offset,
+extern int emcAxisSetHomingParams(int axis, double home, double offset, double home_final_vel,
 				  double search_vel, double latch_vel,
 				  int use_index, int ignore_limits,
 				  int is_shared, int home_sequence, int volatile_home);

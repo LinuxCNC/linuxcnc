@@ -223,7 +223,7 @@ int emcAxisSetMinFerror(int axis, double ferror)
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
-int emcAxisSetHomingParams(int axis, double home, double offset,
+int emcAxisSetHomingParams(int axis, double home, double offset, double home_final_vel,
 			   double search_vel, double latch_vel,
 			   int use_index, int ignore_limits, int is_shared,
 			   int sequence,int volatile_home)
@@ -236,6 +236,7 @@ int emcAxisSetHomingParams(int axis, double home, double offset,
     emcmotCommand.axis = axis;
     emcmotCommand.home = home;
     emcmotCommand.offset = offset;
+    emcmotCommand.home_final_vel = home_final_vel;
     emcmotCommand.search_vel = search_vel;
     emcmotCommand.latch_vel = latch_vel;
     emcmotCommand.flags = 0;

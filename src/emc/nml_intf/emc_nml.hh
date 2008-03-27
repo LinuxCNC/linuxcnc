@@ -271,6 +271,7 @@ class EMC_AXIS_SET_HOMING_PARAMS:public EMC_AXIS_CMD_MSG {
 
     double home;
     double offset;
+    double home_final_vel;
     double search_vel;
     double latch_vel;
     int use_index;
