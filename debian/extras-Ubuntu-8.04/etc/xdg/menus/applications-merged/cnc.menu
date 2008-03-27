@@ -1,0 +1,14 @@
+<!DOCTYPE Menu PUBLIC "-//freedesktop//DTD Menu 0.8//EN"
+ "http://www.freedesktop.org/standards/menu-spec/menu-0.8.dtd">
+<Menu>
+<Name>Applications</Name>
+<Menu>
+<Name>CNC</Name>
+<AppDir>/usr/share/applications</AppDir>
+<DirectoryDir>/usr/share/desktop-directories</DirectoryDir>
+<Directory>cnc.directory</Directory>
+<Include>
+<Category>X-CNC</Category>
+</Include>
+</Menu>
+</Menu>

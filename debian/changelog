@@ -1,4 +1,4 @@
-emc2 (1:2.3.0~alpha) unstable; urgency=low
+emc2 (1:2.3.0~alpha1) unstable; urgency=low
 
   [ Sebastian Kuzminsky ]
   * minor improvements for teach-in.py
@@ -9,7 +9,10 @@ emc2 (1:2.3.0~alpha) unstable; urgency=low
   * sanity checks for M66 input indexes (prevents a possible segfault on task)
   * put RS274NGC_STARTUP_CODE in [RS274NGC]
 
- -- Alex Joni <juve@juve-desktop>  Sun, 23 Mar 2008 14:26:32 +0200
+  [ Alex Joni ]
+  * build against hardy package
+
+ -- Alex Joni <alex_joni@users.sourceforge.net>  Thu, 27 Mar 2008 19:31:23 +0200
 
 emc2 (1:2.2.0) unstable; urgency=low
 
