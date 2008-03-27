@@ -22,10 +22,6 @@
 
 #ifdef MODULE
 #include <linux/string.h>
-#ifdef RTAI
-#include "rtai.h"
-#include "rtai_sched.h"
-#endif
 #else
 #include <stdio.h>
 #include <string.h>
