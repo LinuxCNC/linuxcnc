@@ -410,8 +410,8 @@ void UpdateSizesOfConvVarNameTable( void );
 #define debug_printf rtl_printf
 #endif
 
-#if defined( RTAI ) && defined( MODULE )
-#define debug_printf rt_printk
+#if defined( RTAPI )
+#define debug_printf rtapi_print
 #endif
 
 #ifndef MODULE
