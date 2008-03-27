@@ -57,9 +57,11 @@ usr/bin/rs274
 @MODULE_PATH@/logic@MODULE_EXT@
 @MODULE_PATH@/lowpass@MODULE_EXT@
 @MODULE_PATH@/lut5@MODULE_EXT@
+@MODULE_PATH@/m7i43_hm2@MODULE_EXT@
 @MODULE_PATH@/maj3@MODULE_EXT@
 @MODULE_PATH@/match8@MODULE_EXT@
 @MODULE_PATH@/maxkins@MODULE_EXT@
+@MODULE_PATH@/mesa7i43_gpio@MODULE_EXT@
 @MODULE_PATH@/minmax@MODULE_EXT@
 @MODULE_PATH@/modmath@MODULE_EXT@
 @MODULE_PATH@/motmod@MODULE_EXT@
@@ -564,6 +566,7 @@ usr/share/man/man9/threads.9
 usr/share/man/man9/threadtest.9
 usr/share/man/man9/timedelay.9
 usr/share/man/man9/timedelta.9
+usr/share/man/man9/timedelay.9
 usr/share/man/man9/toggle.9
 usr/share/man/man9/tripodkins.9
 usr/share/man/man9/tristate_bit.9
