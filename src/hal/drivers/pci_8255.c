@@ -123,7 +123,7 @@ static int export(char *prefix, struct port *inst, int ioaddr, int dir) {
     r = hal_export_funct(buf, (void(*)(void *inst, long))write, inst, 0, 0, comp_id);
     if(r != 0) return r;
 
-    rtapi_print_msg(RTAPI_MSG_ERR, "registering %s ... %x %x\n", prefix,
+    rtapi_print_msg(RTAPI_MSG_DBG, "registering %s ... %x %x\n", prefix,
 	(dir&3) | ((dir & 0xc) << 1) | 0x80, ioaddr);
 
     WRITE((dir&3) | ((dir & 0xc) << 1) | 0x80, ioaddr, 3);
@@ -243,7 +243,7 @@ int get_count(void) {
 static int extra_setup(void) {
     int byte;
 
-    rtapi_print_msg(RTAPI_MSG_ERR, "requesting I/O region 0x%x\n",
+    rtapi_print_msg(RTAPI_MSG_DBG, "requesting I/O region 0x%x\n",
 			io[extra_arg]);
     if(!rtapi_request_region(io[extra_arg], 16, "pci_8255")) {
 	// set this I/O port to 0 so that EXTRA_CLEANUP does not release the IO
@@ -266,7 +266,7 @@ static void extra_cleanup(void) {
 #if 0
     int i;
     for(i=0; i < MAX && io[i]; i++) {
-        rtapi_print_msg(RTAPI_MSG_ERR, "releasing I/O region 0x%x\n",
+        rtapi_print_msg(RTAPI_MSG_DBG, "releasing I/O region 0x%x\n",
 			io[i]);
         rtapi_release_region(io[i], 16);
     }
@@ -285,7 +285,7 @@ static void write(struct port *inst, long period) {
             if(t) byte |= 1 << i;
         }
         WRITE(byte, ioaddr, 2);
-	if(first) rtapi_print_msg(RTAPI_MSG_ERR, "write: 2a %02x\n", byte);
+	if(first) rtapi_print_msg(RTAPI_MSG_DBG, "write: 2a %02x\n", byte);
     } else if((p & 5) == 4) {
         int byte = 0;
         for(i=0; i<4; i++) {
@@ -293,7 +293,7 @@ static void write(struct port *inst, long period) {
             if(t) byte |= 1 << i;
         }
         WRITE(byte, ioaddr, 2);
-	if(first) rtapi_print_msg(RTAPI_MSG_ERR, "write: 2b %02x\n", byte);
+	if(first) rtapi_print_msg(RTAPI_MSG_DBG, "write: 2b %02x\n", byte);
     } else if((p & 5) == 1) {
         int byte = 0;
         for(i=4; i<8; i++) {
@@ -301,7 +301,7 @@ static void write(struct port *inst, long period) {
             if(t) byte |= 1 << i;
         }
         WRITE(byte, ioaddr, 2);
-	if(first) rtapi_print_msg(RTAPI_MSG_ERR, "write: 2c %02x\n", byte);
+	if(first) rtapi_print_msg(RTAPI_MSG_DBG, "write: 2c %02x\n", byte);
     }
 
     if((p & 2) == 0) {
@@ -311,7 +311,7 @@ static void write(struct port *inst, long period) {
             if(t) byte |= 1 << i;
         }
         WRITE(byte, ioaddr, 1);
-	if(first) rtapi_print_msg(RTAPI_MSG_ERR, "write: 1 %02x\n", byte);
+	if(first) rtapi_print_msg(RTAPI_MSG_DBG, "write: 1 %02x\n", byte);
     }
 
     if((p & 8) == 0) {
@@ -321,7 +321,7 @@ static void write(struct port *inst, long period) {
             if(t) byte |= 1 << i;
         }
         WRITE(byte, ioaddr, 0);
-	if(first) rtapi_print_msg(RTAPI_MSG_ERR, "write: 0 %02x\n", byte);
+	if(first) rtapi_print_msg(RTAPI_MSG_DBG, "write: 0 %02x\n", byte);
     }
     first = 0;
 }
