@@ -59,12 +59,17 @@ Séquence de prise d'origine
 
 \lang french
 La figure 
-\begin_inset LatexCommand \ref{fig: Séquences de prise d'origine possibles}
+\begin_inset LatexCommand \ref{fig: SÃ©quences de prise d'origine}
 
 \end_inset 
 
  montre les quatre séquences de prise d'origine possibles, avec les variables
- de configuration associées.
+ de configuration associées 
+\begin_inset LatexCommand \ref{cap:Variables sÃ©quences de POM}
+
+\end_inset 
+
+.
  Une description détaillée de ces paramètres sera faite au chapitre suivant.
 \layout Standard
 
@@ -72,6 +77,7 @@ La figure
 \lang english
 
 \begin_inset Float figure
+placement H
 wide false
 collapsed false
 
@@ -94,11 +100,11 @@ collapsed false
 
 \lang french
 
-\begin_inset LatexCommand \label{fig: Séquences de prise d'origine possibles}
+\begin_inset LatexCommand \label{fig: SÃ©quences de prise d'origine}
 
 \end_inset 
 
-Séquences de prise d'origine possibles
+ Les séquences de POM possibles
 \end_inset 
 
 
@@ -111,9 +117,295 @@ Configuration
 
 
 \lang french
-Il y a six éléments d'information qui définissent le déroulement de la séquence
- de prise d'origine.
- Ils sont définis dans la section [AXIS] du fichier ini.
+Il y a six combinaisons possibles des variables qui définissent le déroulement
+ de la séquence de prise d'origine.
+ EIles sont définies dans la section [AXIS] du fichier ini.
+\layout Standard
+
+
+\lang english
+
+\begin_inset Float table
+placement H
+wide false
+collapsed false
+
+\layout Standard
+\align center 
+
+\lang english
+
+\begin_inset  Tabular
+<lyxtabular version="3" rows="6" columns="4">
+<features>
+<column alignment="center" valignment="top" leftline="true" width="0">
+<column alignment="center" valignment="top" leftline="true" width="0">
+<column alignment="center" valignment="top" leftline="true" width="0">
+<column alignment="center" valignment="top" leftline="true" rightline="true" width="0">
+<row topline="true" bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\lang english
+SEARCH_VEL
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\lang english
+LATCH_VEL
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\lang english
+USE_INDEX
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\lang english
+Type de séquence
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\lang english
+nonzero
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\lang english
+nonzero
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\lang english
+NO
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\lang english
+Switch-seulement
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\lang english
+nonzero
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\lang english
+nonzero
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\lang english
+YES
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\lang english
+Switch + Index
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\lang english
+0
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\lang english
+nonzero
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\lang english
+YES
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\lang english
+Index-seulement
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\lang english
+0
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\lang english
+0
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\lang english
+NO
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\lang english
+Aucun
+\end_inset 
+</cell>
+</row>
+<row topline="true" bottomline="true">
+<cell multicolumn="1" alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\lang english
+Autres combinaisons
+\end_inset 
+</cell>
+<cell multicolumn="2" alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+<cell multicolumn="2" alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\lang english
+Erreur
+\end_inset 
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset 
+
+
+\layout Caption
+
+
+\lang english
+
+\begin_inset LatexCommand \label{cap:Variables sÃ©quences de POM}
+
+\end_inset 
+
+ Combinaisons des variables de la POM
+\end_inset 
+
+
 \layout Subsubsection
 
 

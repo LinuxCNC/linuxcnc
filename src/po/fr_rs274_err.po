@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fr_rs274_err\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-03-17 01:44+0100\n"
+"POT-Creation-Date: 2008-03-29 15:55+0100\n"
 "PO-Revision-Date: 2008-03-17 17:43+0100\n"
 "Last-Translator: Francis Tisserant <ftissera@free.fr>\n"
 "Language-Team: french <gnomefr@traduc.org>\n"
@@ -82,17 +82,17 @@ msgstr "(%s) impossible en mode auto avec l'interpreteur en attente"
 msgid "can't do that (%s) in MDI mode"
 msgstr "Commande (%s) impossible en mode MDI"
 
-#: emc/task/emctaskmain.cc:1903
+#: emc/task/emctaskmain.cc:1904
 #, c-format
 msgid "can't open %s"
 msgstr "Impossible d'ouvrir %s "
 
-#: emc/task/emctaskmain.cc:3006
+#: emc/task/emctaskmain.cc:3011
 #, c-format
 msgid "Minimum Software Limit on axis %d exceeded."
 msgstr "Limite logicielle minimale de l'axe %d depassee"
 
-#: emc/task/emctaskmain.cc:3015
+#: emc/task/emctaskmain.cc:3020
 #, c-format
 msgid "Maximum Software Limit on axis %d exceeded."
 msgstr "Limite logicielle maximale sur l'axe %d depassee"
@@ -106,12 +106,12 @@ msgstr ""
 "Le rayon de fin d'arc differe de celui de debut: start=(%c%.4f,%c%.4f) "
 "center=(%c%.4f,%c%.4f) end=(%c%.4f,%c%.4f) r1=%.4f r2=%.4f"
 
-#: emc/rs274ngc/interp_convert.cc:1543
+#: emc/rs274ngc/interp_convert.cc:1545
 #, c-format
 msgid "G%d.1 with no D word"
 msgstr "G%d.1 sans mot D"
 
-#: emc/rs274ngc/interp_convert.cc:1556
+#: emc/rs274ngc/interp_convert.cc:1558
 #, c-format
 msgid "G%d requires D word to be a whole number"
 msgstr "G%d exige que le mot D soit un nombre entier"
@@ -408,7 +408,9 @@ msgstr "Point courant identique au point final de l'arc"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:98
 msgid "Cutter gouging with cutter radius comp"
-msgstr "La compensation de rayon d'outil provoque une interference de l'outil avec la piece"
+msgstr ""
+"La compensation de rayon d'outil provoque une interference de l'outil avec "
+"la piece"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:99
 msgid "D word with no g41 or g42"
@@ -990,7 +992,8 @@ msgstr "Impossible de changer de plan avec la compensation de rayon d'outil"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:245
 msgid "Cutter radius compensation allowed only in XY, XZ planes"
-msgstr "Compensation de rayon d'outil permise seulement dans les plans XY et XZ"
+msgstr ""
+"Compensation de rayon d'outil permise seulement dans les plans XY et XZ"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:247
 msgid "P word missing with G76"
@@ -1090,4 +1093,3 @@ msgstr "La fin"
 #: emc/rs274ngc/rs274ngc_pre.cc:738
 msgid "Queue is not empty after tool change"
 msgstr "La queue n'est pas vide apres changement d'outil"
-
