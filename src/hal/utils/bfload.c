@@ -125,6 +125,22 @@ Programming sequence:
 /* I/O registers */
 #define CTRL_STAT_OFFSET	0x0054	/* 9030 GPIO register (region 1) */
 
+
+//
+// the LAS?BRD registers are in the PLX 9030
+// HostMot2 firmware needs the #READY bit (0x2) set in order to work, but
+// some older eeproms on the 5i20 (and maybe other cards) dont set them
+// right, but we can detect the problem and fix it up
+//
+
+#define LAS0BRD_OFFSET 0x28
+#define LAS1BRD_OFFSET 0x2C
+#define LAS2BRD_OFFSET 0x30
+#define LAS3BRD_OFFSET 0x34
+
+#define LASxBRD_READY 0x2
+
+
  /* bit number in 9030 GPIO register */
 #define GPIO_3_MASK		(1<<11)	/* GPIO 3 */
 #define DONE_MASK		(1<<11)	/* GPIO 3 */
@@ -344,6 +360,34 @@ static int program_5i20_fpga(struct board_info *bd, struct bitfile_chunk *ch)
 	    bd->upci_devnum, 2 );
 	goto cleanup1;
     }
+
+
+    //
+    // fix up LASxBRD READY if needed
+    //
+    {
+        int offsets[] = { LAS0BRD_OFFSET, LAS1BRD_OFFSET, LAS2BRD_OFFSET, LAS3BRD_OFFSET };
+        int i;
+
+        printf("checking #READY in EEPROM:\n" );
+
+        for (i = 0; i < 4; i ++) {
+            __u32 val;
+            int offset = offsets[i];
+
+            val = upci_read_u32(ctrl_region, offset);
+            printf("    LAS%dBRD (0x%04x): 0x%08x", i, offset, val);
+            if (val & LASxBRD_READY) {
+                printf(" ok\n");
+            } else {
+                printf("    *** #READY is OFF, i'll fix it for you just this once but you should upgrade your ancient EEPROM\n");
+                val |= LASxBRD_READY;
+                upci_write_u32(ctrl_region, offset, val);
+            }
+        }
+    }
+
+
     printf("Resetting FPGA...\n" );
     /* read current state of register */
     status = upci_read_u32(ctrl_region, CTRL_STAT_OFFSET);
