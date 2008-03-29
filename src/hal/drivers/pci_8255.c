@@ -60,7 +60,7 @@ static int export(char *prefix, struct port *inst, int ioaddr, int dir) {
     int r = 0;
     int i;
     hal_pin_dir_t direction;
-    int sz = sizeof(struct state);
+    int sz = sizeof(struct port);
     memset(inst, 0, sz);
     inst->dir_ = dir;
     inst->ioaddr = ioaddr;
