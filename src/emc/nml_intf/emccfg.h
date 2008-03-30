@@ -45,11 +45,11 @@ extern "C" {
 /* default traverse rate, in user units per second */
 #define DEFAULT_TRAJ_MAX_VELOCITY 10.0
 
-/* default axis traverse rate, in user units per second */
-#define DEFAULT_AXIS_MAX_VELOCITY 1.0
+/* default joint velocity, in user units per second */
+#define DEFAULT_JOINT_MAX_VELOCITY 1.0
 
-/* default axis acceleration, in user units per second per second */
-#define DEFAULT_AXIS_MAX_ACCELERATION 1.0
+/* default joint acceleration, in user units per second per second */
+#define DEFAULT_JOINT_MAX_ACCELERATION 1.0
 
 #ifdef __cplusplus
 }				/* matches extern "C" at top */

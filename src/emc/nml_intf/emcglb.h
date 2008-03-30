@@ -24,7 +24,11 @@
 extern "C" {
 #endif
 
-#define EMC_AXIS_MAX EMCMOT_MAX_AXIS
+#define EMC_JOINT_MAX EMCMOT_MAX_JOINTS
+//FIXME-AJ: for now disable EMC_AXIS_MAX so we can find all spots where it's needed,
+// and fix them if they really meant joints
+//#define EMC_AXIS_MAX EMCMOT_MAX_AXIS
+
 
 #define EMC_MAX_DIO EMCMOT_MAX_DIO
 #define EMC_MAX_AIO EMCMOT_MAX_AIO
@@ -54,6 +58,12 @@ extern "C" {
     extern int emc_task_interp_max_len;
 
     extern char tool_table_file[LINELEN];
+    extern double JOINT_MAX_VELOCITY[EMC_JOINT_MAX];
+    extern double JOINT_MAX_ACCELERATION[EMC_JOINT_MAX];
+
+//FIXME-AJ: figure these out (which ones are used by canon)
+    extern double AXIS_MAX_VELOCITY[EMC_JOINT_MAX];
+    extern double AXIS_MAX_ACCELERATION[EMC_JOINT_MAX];
 
     extern double traj_default_velocity;
     extern double traj_max_velocity;
