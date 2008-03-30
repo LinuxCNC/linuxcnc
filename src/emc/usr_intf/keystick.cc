@@ -62,8 +62,8 @@ static char error_string[NML_ERROR_LEN] = "";
 static int emcCommandSerialNumber = 0;
 
 // NML messages
-static EMC_AXIS_HOME emc_axis_home_msg;
-static EMC_AXIS_ABORT emc_axis_abort_msg;
+static EMC_JOINT_HOME emc_joint_home_msg;
+static EMC_JOINT_ABORT emc_joint_abort_msg;
 static EMC_AXIS_JOG emc_axis_jog_msg;
 static EMC_AXIS_INCR_JOG emc_axis_incr_jog_msg;
 static EMC_TRAJ_SET_SCALE emc_traj_set_scale_msg;
@@ -645,35 +645,35 @@ static void printStatus()
       mvwaddstr(window, 8, 61, "Incr:             ");
 
       strcpy(scratch_string, "--X--");
-      if (emcStatus->motion.axis[0].minHardLimit)
+      if (emcStatus->motion.joint[0].minHardLimit)
         scratch_string[0] = '*';
-      if (emcStatus->motion.axis[0].minSoftLimit)
+      if (emcStatus->motion.joint[0].minSoftLimit)
         scratch_string[1] = '*';
-      if (emcStatus->motion.axis[0].maxSoftLimit)
+      if (emcStatus->motion.joint[0].maxSoftLimit)
         scratch_string[3] = '*';
-      if (emcStatus->motion.axis[0].maxHardLimit)
+      if (emcStatus->motion.joint[0].maxHardLimit)
         scratch_string[4] = '*';
       mvwaddstr(window, 10, 27, scratch_string);
 
       strcpy(scratch_string, "--Y--");
-      if (emcStatus->motion.axis[1].minHardLimit)
+      if (emcStatus->motion.joint[1].minHardLimit)
         scratch_string[0] = '*';
-      if (emcStatus->motion.axis[1].minSoftLimit)
+      if (emcStatus->motion.joint[1].minSoftLimit)
         scratch_string[1] = '*';
-      if (emcStatus->motion.axis[1].maxSoftLimit)
+      if (emcStatus->motion.joint[1].maxSoftLimit)
         scratch_string[3] = '*';
-      if (emcStatus->motion.axis[1].maxHardLimit)
+      if (emcStatus->motion.joint[1].maxHardLimit)
         scratch_string[4] = '*';
       mvwaddstr(window, 10, 47, scratch_string);
 
       strcpy(scratch_string, "--Z--");
-      if (emcStatus->motion.axis[2].minHardLimit)
+      if (emcStatus->motion.joint[2].minHardLimit)
         scratch_string[0] = '*';
-      if (emcStatus->motion.axis[2].minSoftLimit)
+      if (emcStatus->motion.joint[2].minSoftLimit)
         scratch_string[1] = '*';
-      if (emcStatus->motion.axis[2].maxSoftLimit)
+      if (emcStatus->motion.joint[2].maxSoftLimit)
         scratch_string[3] = '*';
-      if (emcStatus->motion.axis[2].maxHardLimit)
+      if (emcStatus->motion.joint[2].maxHardLimit)
         scratch_string[4] = '*';
       mvwaddstr(window, 10, 67, scratch_string);
 
@@ -801,15 +801,15 @@ static void printStatus()
         sprintf(lube_level_string,    "     LUBE LOW     ");
 
       sprintf(home_string, "    --- HOMED     ");
-      if (emcStatus->motion.axis[0].homed)
+      if (emcStatus->motion.joint[0].homed)
         {
           home_string[4] = 'X';
         }
-      if (emcStatus->motion.axis[1].homed)
+      if (emcStatus->motion.joint[1].homed)
         {
           home_string[5] = 'Y';
         }
-      if (emcStatus->motion.axis[2].homed)
+      if (emcStatus->motion.joint[2].homed)
         {
           home_string[6] = 'Z';
         }
@@ -1261,8 +1261,8 @@ static void idleHandler()
   // key up for jogs
   if (axisJogging != AXIS_NONE && keyup_count == 0)
     {
-      emc_axis_abort_msg.axis = axisIndex(axisJogging);
-      emcCommandSend(emc_axis_abort_msg);
+      emc_joint_abort_msg.joint = axisIndex(axisJogging);
+      emcCommandSend(emc_joint_abort_msg);
       axisJogging = AXIS_NONE;
     }
 
@@ -2249,8 +2249,8 @@ int main(int argc, char *argv[])
         case KEY_HOME:          // home selected axis
           if (oldch != ch)
             {
-              emc_axis_home_msg.axis = axisIndex(axisSelected);
-              emcCommandSend(emc_axis_home_msg);
+              emc_joint_home_msg.joint = axisIndex(axisSelected);
+              emcCommandSend(emc_joint_home_msg);
             }
           break;
 
