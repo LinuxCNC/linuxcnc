@@ -732,7 +732,7 @@ int usrmotLoadComp(int joint, const char *file, int type)
     int ret = 0;
     emcmot_command_t emcmotCommand;
 
-    /* check axis range */
+    /* check joint range */
     if (joint < 0 || joint >= EMCMOT_MAX_JOINTS) {
 	fprintf(stderr, "joint out of range for compensation\n");
 	return -1;
@@ -766,7 +766,7 @@ int usrmotLoadComp(int joint, const char *file, int type)
     		emcmotCommand.comp_forward = fwd;
     		emcmotCommand.comp_reverse = rev;		
 	    }
-	    emcmotCommand.axis = joint;
+	    emcmotCommand.joint = joint;
 	    emcmotCommand.command = EMCMOT_SET_JOINT_COMP;
 	    ret |= usrmotWriteEmcmotCommand(&emcmotCommand);
 	}

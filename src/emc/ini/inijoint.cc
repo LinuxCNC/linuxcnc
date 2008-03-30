@@ -104,7 +104,7 @@ static int loadJoint(int joint, EmcIniFile *jointIniFile)
     
     try {
         // set joint type
-        jointType = EMC_LINEAR;	// default
+        jointType = EMC_JOINT_LINEAR;	// default
         jointIniFile->Find(&jointType, "TYPE", jointString);
 
         if (0 != emcJointSetJoint(joint, jointType)) {
@@ -115,7 +115,7 @@ static int loadJoint(int joint, EmcIniFile *jointIniFile)
         }
 
         // set units
-        if(jointType == EMC_LINEAR){
+        if(jointType == EMC_JOINT_LINEAR){
             units = emcTrajGetLinearUnits();
             jointIniFile->FindLinearUnits(&units, "UNITS", jointString);
         }else{

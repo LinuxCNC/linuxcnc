@@ -94,7 +94,7 @@ extern "C" {
 
     typedef enum {
 	EMCMOT_ABORT = 1,	/* abort all motion */
-	EMCMOT_AXIS_ABORT,	/* abort one axis */ //FIXME-AJ: replace command name to EMCMOT_JOINT_ABORT
+	EMCMOT_JOINT_ABORT,	/* abort one axis */
 	EMCMOT_ENABLE,		/* enable servos for active joints */
 	EMCMOT_DISABLE,		/* disable servos for active joints */
 	EMCMOT_ENABLE_AMPLIFIER,	/* enable amp outputs */
@@ -208,7 +208,7 @@ extern "C" {
 	int id;			/* id for motion */
 	int termCond;		/* termination condition */
 	double tolerance;	/* tolerance for path deviation in CONTINUOUS mode */
-	int axis;		/* which index to use for below */ //FIXME-AJ: replace with joint
+	int joint;		/* which index to use for below */
 	double scale;		/* velocity scale or spindle_speed scale arg */
 	double offset;		/* input, output, or home offset arg */
 	double home;		/* joint home position */

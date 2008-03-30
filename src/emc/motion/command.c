@@ -360,12 +360,12 @@ check_stuff ( "before command_handler()" );
 	
 	/* ...and process command */
 
-	/* Many commands uses "command->axis" to indicate which joint they
+	/* Many commands uses "command->joint" to indicate which joint they
 	   wish to operate on.  This code eliminates the need to copy
-	   command->axis to "joint_num", limit check it, and then set "joint"
+	   command->joint to "joint_num", limit check it, and then set "joint"
 	   to point to the joint data.  All the individual commands need to do
 	   is verify that "joint" is non-zero. */
-	joint_num = emcmotCommand->axis;
+	joint_num = emcmotCommand->joint;
 	if (joint_num >= 0 && joint_num < num_joints) {
 	    /* valid joint, point to it's data */
 	    joint = &joints[joint_num];
@@ -419,13 +419,13 @@ check_stuff ( "before command_handler()" );
 	    emcmotStatus->paused = 0;
 	    break;
 
-	case EMCMOT_AXIS_ABORT: //FIXME-AJ: rename
+	case EMCMOT_JOINT_ABORT:
 	    /* abort one joint */
 	    /* can happen at any time */
 	    /* this command stops a single joint.  It is only usefull
 	       in free mode, so in coord or teleop mode it does
 	       nothing. */
-	    rtapi_print_msg(RTAPI_MSG_DBG, "AXIS_ABORT");
+	    rtapi_print_msg(RTAPI_MSG_DBG, "JOINT_ABORT");
 	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
 	    if (GET_MOTION_TELEOP_FLAG()) {
 		/* do nothing in teleop mode */

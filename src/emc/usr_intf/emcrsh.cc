@@ -1750,20 +1750,20 @@ static cmdResponseType getRelActPos(char *s, connectionRecType *context)
 static cmdResponseType getJointPos(char *s, connectionRecType *context)
 {
   char *pJointPos = "JOINT_POS";
-  int axis, i;
+  int joint, i;
   char buf[16];
   
-  if (s == NULL) axis = -1; // Return all axes
-  else axis = atoi(s);
-  if (axis == -1) {
+  if (s == NULL) joint = -1; // Return all axes
+  else joint = atoi(s);
+  if (joint == -1) {
     strcpy(context->outBuf, pJointPos);
     for (i=0; i<6; i++) {
-      sprintf(buf, " %f", emcStatus->motion.axis[i].input);
+      sprintf(buf, " %f", emcStatus->motion.joint[i].input);
       strcat(context->outBuf, buf);
       }
     }
   else
-    sprintf(context->outBuf, "%s %d %f", pJointPos, axis, emcStatus->motion.axis[axis].input);
+    sprintf(context->outBuf, "%s %d %f", pJointPos, joint, emcStatus->motion.joint[joint].input);
   
   return rtNoError;
 }
@@ -1810,21 +1810,21 @@ static cmdResponseType getJointLimit(char *s, connectionRecType *context)
 {
   char *pJointLimit = "JOINT_LIMIT";
   char buf[16];
-  int axis, i;
+  int joint, i;
   
   if (s == NULL) {
     strcpy(context->outBuf, pJointLimit);
     for (i=0; i<6; i++) {
-      if (emcStatus->motion.axis[i].minHardLimit)
+      if (emcStatus->motion.joint[i].minHardLimit)
         strcpy(buf, " MINHARD");
       else
-        if (emcStatus->motion.axis[i].minSoftLimit)
+        if (emcStatus->motion.joint[i].minSoftLimit)
 	  strcpy(buf, " MINSOFT");
 	else
-	  if (emcStatus->motion.axis[i].maxSoftLimit)
+	  if (emcStatus->motion.joint[i].maxSoftLimit)
 	    strcpy(buf, " MAXSOFT");
 	  else
-	    if (emcStatus->motion.axis[i].maxHardLimit)
+	    if (emcStatus->motion.joint[i].maxHardLimit)
 	      strcpy(buf, " MAXHARD");
 	    else strcpy(buf, "OK");
       strcat(context->outBuf, buf);
@@ -1832,20 +1832,20 @@ static cmdResponseType getJointLimit(char *s, connectionRecType *context)
     }
   else
     {
-      axis = atoi(s);
-      if (emcStatus->motion.axis[axis].minHardLimit)
+      joint = atoi(s);
+      if (emcStatus->motion.joint[joint].minHardLimit)
         strcpy(buf, "MINHARD");
       else
-        if (emcStatus->motion.axis[axis].minSoftLimit)
+        if (emcStatus->motion.joint[joint].minSoftLimit)
 	  strcpy(buf, "MINSOFT");
 	else
-	  if (emcStatus->motion.axis[axis].maxSoftLimit)
+	  if (emcStatus->motion.joint[joint].maxSoftLimit)
 	    strcpy(buf, "MAXSOFT");
 	  else
-	    if (emcStatus->motion.axis[axis].maxHardLimit)
+	    if (emcStatus->motion.joint[joint].maxHardLimit)
 	      strcpy(buf, "MAXHARD");
 	    else strcpy(buf, "OK");
-      sprintf(context->outBuf, "%s %d %s", pJointLimit, axis, buf);
+      sprintf(context->outBuf, "%s %d %s", pJointLimit, joint, buf);
     }
   return rtNoError;
 }
@@ -1854,22 +1854,22 @@ static cmdResponseType getJointFault(char *s, connectionRecType *context)
 {
   char *pJointFault = "JOINT_LIMIT";
   char buf[16];
-  int axis, i;
+  int joint, i;
   
   if (s == NULL) {
     strcpy(context->outBuf, pJointFault);
     for (i=0; i<6; i++) {
-      if (emcStatus->motion.axis[i].fault)
+      if (emcStatus->motion.joint[i].fault)
         strcat(context->outBuf, " FAULT");
       else strcat(context->outBuf, " OK");
       }
     }
   else {
-      axis = atoi(s);
-      if (emcStatus->motion.axis[axis].fault)
+      joint = atoi(s);
+      if (emcStatus->motion.joint[joint].fault)
         strcpy(buf, "FAULT");
       else strcpy(buf, "OK");
-      sprintf(context->outBuf, "%s %d %s", pJointFault, axis, buf);
+      sprintf(context->outBuf, "%s %d %s", pJointFault, joint, buf);
     }
   return rtNoError;
 }
@@ -1878,7 +1878,7 @@ static cmdResponseType getOverrideLimits(char *s, connectionRecType *context)
 {
   char *pOverrideLimits = "OVERRIDE_LIMITS %s";
   
-  sprintf(context->outBuf, pOverrideLimits, emcStatus->motion.axis[0].overrideLimits);
+  sprintf(context->outBuf, pOverrideLimits, emcStatus->motion.joint[0].overrideLimits);
   return rtNoError;
 }
 
@@ -1886,22 +1886,22 @@ static cmdResponseType getJointHomed(char *s, connectionRecType *context)
 {
   char *pJointHomed = "JOINT_HOMED";
   char buf[16];
-  int axis, i;
+  int joint, i;
   
   if (s == NULL) {
     strcpy(context->outBuf, pJointHomed);
     for (i=0; i<6; i++) {
-      if (emcStatus->motion.axis[i].homed)
+      if (emcStatus->motion.joint[i].homed)
         strcat(context->outBuf, " YES");
       else strcat(context->outBuf, " NO");
       }
     }
   else {
-      axis = atoi(s);
-      if (emcStatus->motion.axis[axis].homed)
+      joint = atoi(s);
+      if (emcStatus->motion.joint[joint].homed)
         strcpy(buf, "YES");
       else strcpy(buf, "NO");
-      sprintf(context->outBuf, "%s %d %s", pJointHomed, axis, buf);
+      sprintf(context->outBuf, "%s %d %s", pJointHomed, joint, buf);
     }
   return rtNoError;
 }
@@ -1974,26 +1974,26 @@ static cmdResponseType getJointType(char *s, connectionRecType *context)
 {
   char *pJointType = "JOINT_TYPE";
   char buf[16];
-  int axis, i;
+  int joint, i;
   
   if (s == NULL) {
     strcpy(context->outBuf, pJointType);
     for (i=0; i<6; i++) {
-      switch (emcStatus->motion.axis[i].axisType) {
-        case EMC_AXIS_LINEAR: strcat(context->outBuf, " LINEAR"); break;
-	case EMC_AXIS_ANGULAR: strcat(context->outBuf, " ANGULAR"); break;
+      switch (emcStatus->motion.joint[i].jointType) {
+        case EMC_JOINT_LINEAR: strcat(context->outBuf, " LINEAR"); break;
+	case EMC_JOINT_ANGULAR: strcat(context->outBuf, " ANGULAR"); break;
 	default: strcat(context->outBuf, "CUSTOM");
 	}
       }
     }
   else {
-      axis = atoi(s);
-      switch (emcStatus->motion.axis[axis].axisType) {
-        case EMC_AXIS_LINEAR: strcpy(buf, " LINEAR"); break;
-	case EMC_AXIS_ANGULAR: strcpy(buf, " ANGULAR"); break;
+      joint = atoi(s);
+      switch (emcStatus->motion.joint[joint].jointType) {
+        case EMC_JOINT_LINEAR: strcpy(buf, " LINEAR"); break;
+	case EMC_JOINT_ANGULAR: strcpy(buf, " ANGULAR"); break;
 	default: strcpy(buf, "CUSTOM");
 	}
-      sprintf(context->outBuf, "%s %d %s", pJointType, axis, buf);
+      sprintf(context->outBuf, "%s %d %s", pJointType, joint, buf);
     }
   return rtNoError;
 }
@@ -2002,31 +2002,31 @@ static cmdResponseType getJointUnits(char *s, connectionRecType *context)
 {
   char *pJointUnits = "JOINT_UNITS";
   char buf[16];
-  int axis, i;
+  int joint, i;
   
   if (s == NULL) {
     strcpy(context->outBuf, pJointUnits);
     for (i=0; i<6; i++) {
-      switch (emcStatus->motion.axis[i].axisType) {
-        case EMC_AXIS_LINEAR: 
-	  if (CLOSE(emcStatus->motion.axis[i].units, 1.0, LINEAR_CLOSENESS))
+      switch (emcStatus->motion.joint[i].jointType) {
+        case EMC_JOINT_LINEAR: 
+	  if (CLOSE(emcStatus->motion.joint[i].units, 1.0, LINEAR_CLOSENESS))
 	    strcat(context->outBuf, " MM");
 	  else 
-	    if (CLOSE(emcStatus->motion.axis[i].units, INCH_PER_MM,
+	    if (CLOSE(emcStatus->motion.joint[i].units, INCH_PER_MM,
 	      LINEAR_CLOSENESS)) strcat(context->outBuf, " INCH");
 	    else
-	      if (CLOSE(emcStatus->motion.axis[i].units, CM_PER_MM,
+	      if (CLOSE(emcStatus->motion.joint[i].units, CM_PER_MM,
 	        LINEAR_CLOSENESS)) strcat(context->outBuf, " CM");
 	      else strcat(context->outBuf, " CUSTOM");
 	  break;
-	case EMC_AXIS_ANGULAR:
-	  if (CLOSE(emcStatus->motion.axis[i].units, 1.0, ANGULAR_CLOSENESS))
+	case EMC_JOINT_ANGULAR:
+	  if (CLOSE(emcStatus->motion.joint[i].units, 1.0, ANGULAR_CLOSENESS))
 	    strcat(context->outBuf, " DEG");
 	  else
-  	    if (CLOSE(emcStatus->motion.axis[i].units, RAD_PER_DEG, ANGULAR_CLOSENESS))
+  	    if (CLOSE(emcStatus->motion.joint[i].units, RAD_PER_DEG, ANGULAR_CLOSENESS))
 	      strcat(context->outBuf, " RAD");
 	    else
-	      if (CLOSE(emcStatus->motion.axis[i].units, GRAD_PER_DEG, ANGULAR_CLOSENESS))
+	      if (CLOSE(emcStatus->motion.joint[i].units, GRAD_PER_DEG, ANGULAR_CLOSENESS))
 	        strcat(context->outBuf, " GRAD");
 	      else strcat(context->outBuf, " CUSTOM");
 	  break;
@@ -2035,32 +2035,32 @@ static cmdResponseType getJointUnits(char *s, connectionRecType *context)
       }
     }
   else {
-      axis = atoi(s);
-      switch (emcStatus->motion.axis[axis].axisType) {
-        case EMC_AXIS_LINEAR: 
-	  if (CLOSE(emcStatus->motion.axis[axis].units, 1.0, LINEAR_CLOSENESS))
+      joint = atoi(s);
+      switch (emcStatus->motion.joint[joint].jointType) {
+        case EMC_JOINT_LINEAR: 
+	  if (CLOSE(emcStatus->motion.joint[joint].units, 1.0, LINEAR_CLOSENESS))
 	    strcpy(buf, "MM");
 	  else 
-	    if (CLOSE(emcStatus->motion.axis[axis].units, INCH_PER_MM,
+	    if (CLOSE(emcStatus->motion.joint[joint].units, INCH_PER_MM,
 	      LINEAR_CLOSENESS)) strcpy(buf, "INCH");
 	    else
-	      if (CLOSE(emcStatus->motion.axis[axis].units, CM_PER_MM,
+	      if (CLOSE(emcStatus->motion.joint[joint].units, CM_PER_MM,
 	        LINEAR_CLOSENESS)) strcpy(buf, "CM");
 	      else strcpy(buf, "CUSTOM");
 	  break;
-	case EMC_AXIS_ANGULAR:
-	  if (CLOSE(emcStatus->motion.axis[axis].units, 1.0, ANGULAR_CLOSENESS))
+	case EMC_JOINT_ANGULAR:
+	  if (CLOSE(emcStatus->motion.joint[joint].units, 1.0, ANGULAR_CLOSENESS))
 	    strcpy(buf, "DEG");
 	  else
-  	    if (CLOSE(emcStatus->motion.axis[axis].units, RAD_PER_DEG, ANGULAR_CLOSENESS))
+  	    if (CLOSE(emcStatus->motion.joint[joint].units, RAD_PER_DEG, ANGULAR_CLOSENESS))
 	      strcpy(buf, "RAD");
 	    else
-	      if (CLOSE(emcStatus->motion.axis[axis].units, GRAD_PER_DEG, ANGULAR_CLOSENESS))
+	      if (CLOSE(emcStatus->motion.joint[joint].units, GRAD_PER_DEG, ANGULAR_CLOSENESS))
 	        strcpy(buf, "GRAD");
 	      else strcpy(buf, "CUSTOM");
 	  break;
 	default: strcpy(buf, "CUSTOM");
-      sprintf(context->outBuf, "%s %d %s", pJointUnits, axis, buf);
+      sprintf(context->outBuf, "%s %d %s", pJointUnits, joint, buf);
       }
     }
   return rtNoError;

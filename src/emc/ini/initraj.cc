@@ -43,7 +43,7 @@
 
   calls:
 
-  emcTrajSetAxes(int axes);
+  emcTrajSetJoints(int joints);
   emcTrajSetUnits(double linearUnits, double angularUnits);
   emcTrajSetCycleTime(double cycleTime);
   emcTrajSetVelocity(double vel);
@@ -71,27 +71,27 @@ static int loadTraj(EmcIniFile *trajInifile)
     trajInifile->EnableExceptions(EmcIniFile::ERR_CONVERSION);
 
     try{
-	int axes = 0;
-	int axismask = 0;
+	int joints = 0;
+	int jointmask = 0;
 	const char *coord = trajInifile->Find("COORDINATES", "TRAJ");
 	if(coord) {
-	    if(strchr(coord, 'x') || strchr(coord, 'X')) axismask |= 1;
-	    if(strchr(coord, 'y') || strchr(coord, 'Y')) axismask |= 2;
-	    if(strchr(coord, 'z') || strchr(coord, 'Z')) axismask |= 4;
-	    if(strchr(coord, 'a') || strchr(coord, 'A')) axismask |= 8;
-	    if(strchr(coord, 'b') || strchr(coord, 'B')) axismask |= 16;
-	    if(strchr(coord, 'c') || strchr(coord, 'C')) axismask |= 32;
-	    if(strchr(coord, 'u') || strchr(coord, 'U')) axismask |= 64;
-	    if(strchr(coord, 'v') || strchr(coord, 'V')) axismask |= 128;
-	    if(strchr(coord, 'w') || strchr(coord, 'W')) axismask |= 256;
+	    if(strchr(coord, 'x') || strchr(coord, 'X')) jointmask |= 1;
+	    if(strchr(coord, 'y') || strchr(coord, 'Y')) jointmask |= 2;
+	    if(strchr(coord, 'z') || strchr(coord, 'Z')) jointmask |= 4;
+	    if(strchr(coord, 'a') || strchr(coord, 'A')) jointmask |= 8;
+	    if(strchr(coord, 'b') || strchr(coord, 'B')) jointmask |= 16;
+	    if(strchr(coord, 'c') || strchr(coord, 'C')) jointmask |= 32;
+	    if(strchr(coord, 'u') || strchr(coord, 'U')) jointmask |= 64;
+	    if(strchr(coord, 'v') || strchr(coord, 'V')) jointmask |= 128;
+	    if(strchr(coord, 'w') || strchr(coord, 'W')) jointmask |= 256;
 	} else {
-	    axismask = 1 | 2 | 4;		// default: XYZ machine
+	    jointmask = 1 | 2 | 4;		// default: XYZ machine
 	}
-	trajInifile->Find(&axes, "AXES", "TRAJ");
+	trajInifile->Find(&joints, "JOINTS", "TRAJ");
 
-        if (0 != emcTrajSetAxes(axes, axismask)) {
+        if (0 != emcTrajSetJoints(joints, jointmask)) {
             if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-                rcs_print("bad return value from emcTrajSetAxes\n");
+                rcs_print("bad return value from emcTrajSetJoints\n");
             }
             return -1;
         }

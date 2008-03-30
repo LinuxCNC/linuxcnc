@@ -76,6 +76,9 @@
   emcAxisLoadComp(int axis, const char * file);
   */
 
+//FIXME-AJ: comment out
+#if 0
+
 static int loadAxis(int axis, EmcIniFile *axisIniFile)
 {
     char axisString[16];
@@ -382,3 +385,4 @@ int dumpAxis(int axis, const char *filename, EMC_AXIS_STAT * status)
 {
     return 0;
 }
+#endif

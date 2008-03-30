@@ -901,20 +901,20 @@ static int sendAbort()
 
 static int sendOverrideLimits()
 {
-  EMC_AXIS_OVERRIDE_LIMITS lim_msg;
+  EMC_JOINT_OVERRIDE_LIMITS lim_msg;
 
-  lim_msg.axis = 0;             // same number for all
+  lim_msg.joint = 0;             // same number for all
   lim_msg.serial_number = ++emcCommandSerialNumber;
   emcCommandBuffer->write(lim_msg);
 
   return 0;
 }
 
-static int sendJogStop(int axis)
+static int sendJogStop(int joint)
 {
-  EMC_AXIS_ABORT emc_axis_abort_msg;
+  EMC_JOINT_ABORT emc_joint_abort_msg;
 
-  if (axis < 0 || axis >= XEMC_NUM_AXES) {
+  if (joint < 0 || joint >= XEMC_NUM_AXES) {
     return -1;
   }
 
@@ -923,9 +923,9 @@ static int sendJogStop(int axis)
     return 0;
   }
 
-  emc_axis_abort_msg.serial_number = ++emcCommandSerialNumber;
-  emc_axis_abort_msg.axis = axisJogging;
-  emcCommandBuffer->write(emc_axis_abort_msg);
+  emc_joint_abort_msg.serial_number = ++emcCommandSerialNumber;
+  emc_joint_abort_msg.joint = axisJogging;
+  emcCommandBuffer->write(emc_joint_abort_msg);
 
   axisJogging = -1;
 
@@ -988,13 +988,13 @@ static int sendJogIncr(int axis, double speed, double incr)
   return 0;
 }
 
-static int sendHome(int axis)
+static int sendHome(int joint)
 {
-  EMC_AXIS_HOME emc_axis_home_msg;
+  EMC_JOINT_HOME emc_joint_home_msg;
 
-  emc_axis_home_msg.serial_number = ++emcCommandSerialNumber;
-  emc_axis_home_msg.axis = axis;
-  emcCommandBuffer->write(emc_axis_home_msg);
+  emc_joint_home_msg.serial_number = ++emcCommandSerialNumber;
+  emc_joint_home_msg.joint = joint;
+  emcCommandBuffer->write(emc_joint_home_msg);
 
   return 0;
 }
@@ -3708,22 +3708,22 @@ void timeoutCB(XtPointer clientdata, XtIntervalId *id)
 
     // FIXME: We are only displaying the HighMark, it would be nice to
     // see the current ferror also.
-    if (emcStatus->motion.axis[activeAxis].ferrorHighMark !=
+    if (emcStatus->motion.joint[activeAxis].ferrorHighMark !=
         oldAxisFerror[activeAxis]) {
-      sprintf(string, "%.3f", emcStatus->motion.axis[activeAxis].ferrorHighMark);
+      sprintf(string, "%.3f", emcStatus->motion.joint[activeAxis].ferrorHighMark);
       setLabel(diagnosticsFerror, string);
       redraw = 1;
 
-      oldAxisFerror[activeAxis] = emcStatus->motion.axis[activeAxis].ferrorHighMark;
+      oldAxisFerror[activeAxis] = emcStatus->motion.joint[activeAxis].ferrorHighMark;
     }
   }
 
-  if (emcStatus->motion.axis[0].overrideLimits &&
+  if (emcStatus->motion.joint[0].overrideLimits &&
       1 != oldOverrideLimits) {
     setColor(limCommand, pixelRed, 0);
     oldOverrideLimits = 1;
   }
-  else if (! emcStatus->motion.axis[0].overrideLimits &&
+  else if (! emcStatus->motion.joint[0].overrideLimits &&
            0 != oldOverrideLimits) {
     setColor(limCommand, pixelWhite, 0);
     oldOverrideLimits = 0;
@@ -4137,21 +4137,21 @@ void timeoutCB(XtPointer clientdata, XtIntervalId *id)
 
   // set label colors: do red for limit first
   for (t = 0; t < XEMC_NUM_AXES; t++) {
-    if (emcStatus->motion.axis[t].minHardLimit ||
-        emcStatus->motion.axis[t].minSoftLimit ||
-        emcStatus->motion.axis[t].maxSoftLimit ||
-        emcStatus->motion.axis[t].maxHardLimit) {
+    if (emcStatus->motion.joint[t].minHardLimit ||
+        emcStatus->motion.joint[t].minSoftLimit ||
+        emcStatus->motion.joint[t].maxSoftLimit ||
+        emcStatus->motion.joint[t].maxHardLimit) {
       if (posColor[t] != pixelRed) {
         setColor(posLabel[t], pixelRed, 1);
         posColor[t] = pixelRed;
       }
     }
-    else if (emcStatus->motion.axis[t].homed &&
+    else if (emcStatus->motion.joint[t].homed &&
              posColor[t] != pixelGreen) {
       setColor(posLabel[t], pixelGreen, 1);
       posColor[t] = pixelGreen;
     }
-    else if (! emcStatus->motion.axis[t].homed &&
+    else if (! emcStatus->motion.joint[t].homed &&
              posColor[t] != pixelYellow) {
       setColor(posLabel[t], pixelYellow, 1);
       posColor[t] = pixelYellow;
