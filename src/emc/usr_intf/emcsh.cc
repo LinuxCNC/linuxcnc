@@ -157,19 +157,19 @@
   Loads the tool table specified by <file>
 
   emc_home 0 | 1 | 2 | ...
-  Homes the indicated axis.
+  Homes the indicated joint.
 
   emc_unhome 0 | 1 | 2 | ...
-  Unhomes the indicated axis.
+  Unhomes the indicated joint.
 
   emc_jog_stop 0 | 1 | 2 | ...
-  Stop the axis jog
+  Stop the joint jog
 
   emc_jog 0 | 1 | 2 | ... <speed>
-  Jog the indicated axis at <speed>; sign of speed is direction
+  Jog the indicated joint at <speed>; sign of speed is direction
 
   emc_jog_incr 0 | 1 | 2 | ... <speed> <incr>
-  Jog the indicated axis by increment <incr> at the <speed>; sign of
+  Jog the indicated joint by increment <incr> at the <speed>; sign of
   speed is direction
 
   emc_feed_override {<percent>}
@@ -259,10 +259,10 @@
 
   emc_joint_units <joint>
   Returns "inch", "mm", "cm", or "deg", "rad", "grad", or "custom",
-  for the corresponding native units of the specified axis. The type
-  of the axis (linear or angular) is used to resolve which type of units
+  for the corresponding native units of the specified joint. The type
+  of the joint (linear or angular) is used to resolve which type of units
   are returned. The units are obtained heuristically, based on the
-  EMC_AXIS_STAT::units numerical value of user units per mm or deg.
+  EMC_JOINT_STAT::units numerical value of user units per mm or deg.
   For linear joints, something close to 0.03937 is deemed "inch",
   1.000 is "mm", 0.1 is "cm", otherwise it's "custom".
   For angular joints, something close to 1.000 is deemed "deg",
@@ -1467,7 +1467,7 @@ static int emc_joint_pos(ClientData clientdata,
 			 Tcl_Interp * interp, int objc,
 			 Tcl_Obj * CONST objv[])
 {
-    int axis;
+    int joint;
     Tcl_Obj *posobj;
 
     CHECKEMC
@@ -1480,8 +1480,8 @@ static int emc_joint_pos(ClientData clientdata,
 	updateStatus();
     }
 
-    if (TCL_OK == Tcl_GetIntFromObj(0, objv[1], &axis)) {
-	posobj = Tcl_NewDoubleObj(emcStatus->motion.axis[axis].input);
+    if (TCL_OK == Tcl_GetIntFromObj(0, objv[1], &joint)) {
+	posobj = Tcl_NewDoubleObj(emcStatus->motion.joint[joint].input);
     } else {
 	setresult(interp,"emc_joint_pos: bad integer argument");
 	return TCL_ERROR;
@@ -1563,21 +1563,21 @@ static int emc_joint_limit(ClientData clientdata,
     }
 
     if (TCL_OK == Tcl_GetIntFromObj(0, objv[1], &joint)) {
-	if (joint < 0 || joint >= EMC_AXIS_MAX) {
+	if (joint < 0 || joint >= EMC_JOINT_MAX) {
 	    setresult(interp,"emc_joint_limit: joint out of bounds");
 	    return TCL_ERROR;
 	}
 
-	if (emcStatus->motion.axis[joint].minHardLimit) {
+	if (emcStatus->motion.joint[joint].minHardLimit) {
 	    setresult(interp,"minhard");
 	    return TCL_OK;
-	} else if (emcStatus->motion.axis[joint].minSoftLimit) {
+	} else if (emcStatus->motion.joint[joint].minSoftLimit) {
 	    setresult(interp,"minsoft");
 	    return TCL_OK;
-	} else if (emcStatus->motion.axis[joint].maxSoftLimit) {
+	} else if (emcStatus->motion.joint[joint].maxSoftLimit) {
 	    setresult(interp,"maxsoft");
 	    return TCL_OK;
-	} else if (emcStatus->motion.axis[joint].maxHardLimit) {
+	} else if (emcStatus->motion.joint[joint].maxHardLimit) {
 	    setresult(interp,"maxsoft");
 	    return TCL_OK;
 	} else {
@@ -1607,12 +1607,12 @@ static int emc_joint_fault(ClientData clientdata,
     }
 
     if (TCL_OK == Tcl_GetIntFromObj(0, objv[1], &joint)) {
-	if (joint < 0 || joint >= EMC_AXIS_MAX) {
+	if (joint < 0 || joint >= EMC_JOINT_MAX) {
 	    setresult(interp,"emc_joint_fault: joint out of bounds");
 	    return TCL_ERROR;
 	}
 
-	if (emcStatus->motion.axis[joint].fault) {
+	if (emcStatus->motion.joint[joint].fault) {
 	    setresult(interp,"fault");
 	    return TCL_OK;
 	} else {
@@ -1639,7 +1639,7 @@ static int emc_override_limit(ClientData clientdata,
 	    updateStatus();
 	}
 	// motion overrides all axes at same time, so just reference index 0
-	obj = Tcl_NewIntObj(emcStatus->motion.axis[0].overrideLimits);
+	obj = Tcl_NewIntObj(emcStatus->motion.joint[0].overrideLimits);
 	Tcl_SetObjResult(interp, obj);
 	return TCL_OK;
     }
@@ -1685,12 +1685,12 @@ static int emc_joint_homed(ClientData clientdata,
     }
 
     if (TCL_OK == Tcl_GetIntFromObj(0, objv[1], &joint)) {
-	if (joint < 0 || joint >= EMC_AXIS_MAX) {
+	if (joint < 0 || joint >= EMC_JOINT_MAX) {
 	    setresult(interp,"emc_joint_homed: joint out of bounds");
 	    return TCL_ERROR;
 	}
 
-	if (emcStatus->motion.axis[joint].homed) {
+	if (emcStatus->motion.joint[joint].homed) {
 	    setresult(interp,"homed");
 	    return TCL_OK;
 	} else {
@@ -1732,40 +1732,40 @@ static int emc_mdi(ClientData clientdata,
 static int emc_home(ClientData clientdata,
 		    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
 {
-    int axis;
+    int joint;
 
     CHECKEMC
     if (objc != 2) {
-	setresult(interp,"emc_home: need axis");
+	setresult(interp,"emc_home: need joint");
 	return TCL_ERROR;
     }
 
-    if (TCL_OK == Tcl_GetIntFromObj(0, objv[1], &axis)) {
-	sendHome(axis);
+    if (TCL_OK == Tcl_GetIntFromObj(0, objv[1], &joint)) {
+	sendHome(joint);
 	return TCL_OK;
     }
 
-    setresult(interp,"emc_home: need axis as integer, 0..");
+    setresult(interp,"emc_home: need joint as integer, 0..");
     return TCL_ERROR;
 }
 
 static int emc_unhome(ClientData clientdata,
 		    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
 {
-    int axis;
+    int joint;
 
     CHECKEMC
     if (objc != 2) {
-	setresult(interp,"emc_unhome: need axis");
+	setresult(interp,"emc_unhome: need joint");
 	return TCL_ERROR;
     }
 
-    if (TCL_OK == Tcl_GetIntFromObj(0, objv[1], &axis)) {
-	sendUnHome(axis);
+    if (TCL_OK == Tcl_GetIntFromObj(0, objv[1], &joint)) {
+	sendUnHome(joint);
 	return TCL_OK;
     }
 
-    setresult(interp,"emc_unhome: need axis as integer, 0..");
+    setresult(interp,"emc_unhome: need joint as integer, 0..");
     return TCL_ERROR;
 }
 
@@ -1773,20 +1773,20 @@ static int emc_jog_stop(ClientData clientdata,
 			Tcl_Interp * interp, int objc,
 			Tcl_Obj * CONST objv[])
 {
-    int axis;
+    int joint;
 
     CHECKEMC
     if (objc != 2) {
-	setresult(interp,"emc_jog_stop: need axis");
+	setresult(interp,"emc_jog_stop: need joint");
 	return TCL_ERROR;
     }
 
-    if (0 != Tcl_GetIntFromObj(0, objv[1], &axis)) {
-	setresult(interp,"emc_jog_stop: need axis as integer, 0..");
+    if (0 != Tcl_GetIntFromObj(0, objv[1], &joint)) {
+	setresult(interp,"emc_jog_stop: need joint as integer, 0..");
 	return TCL_ERROR;
     }
 
-    if (0 != sendJogStop(axis)) {
+    if (0 != sendJogStop(joint)) {
 	setresult(interp,"emc_jog_stop: can't send jog stop msg");
 	return TCL_OK;
     }
@@ -1797,17 +1797,17 @@ static int emc_jog_stop(ClientData clientdata,
 static int emc_jog(ClientData clientdata,
 		   Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
 {
-    int axis;
+    int joint;
     double speed;
 
     CHECKEMC
     if (objc != 3) {
-	setresult(interp,"emc_jog: need axis and speed");
+	setresult(interp,"emc_jog: need joint and speed");
 	return TCL_ERROR;
     }
 
-    if (0 != Tcl_GetIntFromObj(0, objv[1], &axis)) {
-	setresult(interp,"emc_jog: need axis as integer, 0..");
+    if (0 != Tcl_GetIntFromObj(0, objv[1], &joint)) {
+	setresult(interp,"emc_jog: need joint as integer, 0..");
 	return TCL_ERROR;
     }
     if (0 != Tcl_GetDoubleFromObj(0, objv[2], &speed)) {
@@ -1815,7 +1815,7 @@ static int emc_jog(ClientData clientdata,
 	return TCL_ERROR;
     }
 
-    if (0 != sendJogCont(axis, speed)) {
+    if (0 != sendJogCont(joint, speed)) {
 	setresult(interp,"emc_jog: can't jog");
 	return TCL_OK;
     }
@@ -1827,18 +1827,18 @@ static int emc_jog_incr(ClientData clientdata,
 			Tcl_Interp * interp, int objc,
 			Tcl_Obj * CONST objv[])
 {
-    int axis;
+    int joint;
     double speed;
     double incr;
 
     CHECKEMC
     if (objc != 4) {
-	setresult(interp,"emc_jog_incr: need axis, speed, and increment");
+	setresult(interp,"emc_jog_incr: need joint, speed, and increment");
 	return TCL_ERROR;
     }
 
-    if (0 != Tcl_GetIntFromObj(0, objv[1], &axis)) {
-	setresult(interp,"emc_jog_incr: need axis as integer, 0..");
+    if (0 != Tcl_GetIntFromObj(0, objv[1], &joint)) {
+	setresult(interp,"emc_jog_incr: need joint as integer, 0..");
 	return TCL_ERROR;
     }
     if (0 != Tcl_GetDoubleFromObj(0, objv[2], &speed)) {
@@ -1850,7 +1850,7 @@ static int emc_jog_incr(ClientData clientdata,
 	return TCL_ERROR;
     }
 
-    if (0 != sendJogIncr(axis, speed, incr)) {
+    if (0 != sendJogIncr(joint, speed, incr)) {
 	setresult(interp,"emc_jog_incr: can't jog");
 	return TCL_OK;
     }
@@ -2240,16 +2240,16 @@ static int emc_joint_type(ClientData clientdata,
     }
 
     if (TCL_OK == Tcl_GetIntFromObj(0, objv[1], &joint)) {
-	if (joint < 0 || joint >= EMC_AXIS_MAX) {
+	if (joint < 0 || joint >= EMC_JOINT_MAX) {
 	    setresult(interp,"emc_joint_type: joint out of bounds");
 	    return TCL_ERROR;
 	}
 
-	switch (emcStatus->motion.axis[joint].axisType) {
-	case EMC_AXIS_LINEAR:
+	switch (emcStatus->motion.joint[joint].jointType) {
+	case EMC_JOINT_LINEAR:
 	    setresult(interp,"linear");
 	    break;
-	case EMC_AXIS_ANGULAR:
+	case EMC_JOINT_ANGULAR:
 	    setresult(interp,"angular");
 	    break;
 	default:
@@ -2281,28 +2281,28 @@ static int emc_joint_units(ClientData clientdata,
     }
 
     if (TCL_OK == Tcl_GetIntFromObj(0, objv[1], &joint)) {
-	if (joint < 0 || joint >= EMC_AXIS_MAX) {
+	if (joint < 0 || joint >= EMC_JOINT_MAX) {
 	    setresult(interp,"emc_joint_units: joint out of bounds");
 	    return TCL_ERROR;
 	}
 
-	switch (emcStatus->motion.axis[joint].axisType) {
-	case EMC_AXIS_LINEAR:
+	switch (emcStatus->motion.joint[joint].jointType) {
+	case EMC_JOINT_LINEAR:
 	    /* try mm */
-	    if (CLOSE(emcStatus->motion.axis[joint].units, 1.0,
+	    if (CLOSE(emcStatus->motion.joint[joint].units, 1.0,
 		      LINEAR_CLOSENESS)) {
 		setresult(interp,"mm");
 		return TCL_OK;
 	    }
 	    /* now try inch */
 	    else if (CLOSE
-		     (emcStatus->motion.axis[joint].units, INCH_PER_MM,
+		     (emcStatus->motion.joint[joint].units, INCH_PER_MM,
 		      LINEAR_CLOSENESS)) {
 		setresult(interp,"inch");
 		return TCL_OK;
 	    }
 	    /* now try cm */
-	    else if (CLOSE(emcStatus->motion.axis[joint].units, CM_PER_MM,
+	    else if (CLOSE(emcStatus->motion.joint[joint].units, CM_PER_MM,
 			   LINEAR_CLOSENESS)) {
 		setresult(interp,"cm");
 		return TCL_OK;
@@ -2312,23 +2312,23 @@ static int emc_joint_units(ClientData clientdata,
 	    return TCL_OK;
 	    break;
 
-	case EMC_AXIS_ANGULAR:
+	case EMC_JOINT_ANGULAR:
 	    /* try degrees */
-	    if (CLOSE(emcStatus->motion.axis[joint].units, 1.0,
+	    if (CLOSE(emcStatus->motion.joint[joint].units, 1.0,
 		      ANGULAR_CLOSENESS)) {
 		setresult(interp,"deg");
 		return TCL_OK;
 	    }
 	    /* now try radians */
 	    else if (CLOSE
-		     (emcStatus->motion.axis[joint].units, RAD_PER_DEG,
+		     (emcStatus->motion.joint[joint].units, RAD_PER_DEG,
 		      ANGULAR_CLOSENESS)) {
 		setresult(interp,"rad");
 		return TCL_OK;
 	    }
 	    /* now try grads */
 	    else if (CLOSE
-		     (emcStatus->motion.axis[joint].units, GRAD_PER_DEG,
+		     (emcStatus->motion.joint[joint].units, GRAD_PER_DEG,
 		      ANGULAR_CLOSENESS)) {
 		setresult(interp,"grad");
 		return TCL_OK;
@@ -2940,67 +2940,67 @@ static int emc_motion_command_status(ClientData clientdata,
     return TCL_OK;
 }
 
-static int emc_axis_backlash(ClientData clientdata,
+static int emc_joint_backlash(ClientData clientdata,
 			     Tcl_Interp * interp, int objc,
 			     Tcl_Obj * CONST objv[])
 {
     Tcl_Obj *valobj;
-    int axis;
+    int joint;
     double backlash;
 
-    // syntax is emc_axis_backlash <axis> {<backlash>}
+    // syntax is emc_joint_backlash <joint> {<backlash>}
     // if <backlash> is not specified, returns current value,
     // otherwise, sets backlash to specified value
 
     CHECKEMC
     // check number of args supplied
     if ((objc < 2) || (objc > 3)) {
-	setresult(interp,"emc_axis_backlash: need <axis> {<backlash>}");
+	setresult(interp,"emc_joint_backlash: need <joint> {<backlash>}");
 	return TCL_ERROR;
     }
-    // get axis number
-    if (0 != Tcl_GetIntFromObj(0, objv[1], &axis) ||
-	axis < 0 || axis >= EMC_AXIS_MAX) {
-	setresult(interp,"emc_axis_backlash: need axis as integer, 0..EMC_AXIS_MAX-1");
+    // get joint number
+    if (0 != Tcl_GetIntFromObj(0, objv[1], &joint) ||
+	joint < 0 || joint >= EMC_JOINT_MAX) {
+	setresult(interp,"emc_joint_backlash: need joint as integer, 0..EMC_JOINT_MAX-1");
 	return TCL_ERROR;
     }
     // test for get or set
     if (objc == 2) {
 	// want to get present value
-	valobj = Tcl_NewDoubleObj(emcStatus->motion.axis[axis].backlash);
+	valobj = Tcl_NewDoubleObj(emcStatus->motion.joint[joint].backlash);
 	Tcl_SetObjResult(interp, valobj);
 	return TCL_OK;
     } else {
 	// want to set new value
 	if (0 != Tcl_GetDoubleFromObj(0, objv[2], &backlash)) {
-	    setresult(interp,"emc_axis_backlash: need backlash as real number");
+	    setresult(interp,"emc_joint_backlash: need backlash as real number");
 	    return TCL_ERROR;
 	}
 	// write it out
-	sendAxisSetBacklash(axis, backlash);
+	sendAxisSetBacklash(joint, backlash);
 	return TCL_OK;
     }
 }
 
-static int emc_axis_enable(ClientData clientdata,
+static int emc_joint_enable(ClientData clientdata,
 			   Tcl_Interp * interp, int objc,
 			   Tcl_Obj * CONST objv[])
 {
-    int axis;
+    int joint;
     int val;
     Tcl_Obj *enobj;
 
-    // syntax is emc_axis_output <axis> {0 | 1}
+    // syntax is emc_joint_output <joint> {0 | 1}
 
     CHECKEMC
     if (objc < 2) {
-	setresult(interp,"emc_axis_enable: need <axis>");
+	setresult(interp,"emc_joint_enable: need <joint>");
 	return TCL_ERROR;
     }
 
-    if (0 != Tcl_GetIntFromObj(0, objv[1], &axis) ||
-	axis < 0 || axis >= EMC_AXIS_MAX) {
-	setresult(interp,"emc_axis_enable: need axis as integer, 0..EMC_AXIS_MAX-1");
+    if (0 != Tcl_GetIntFromObj(0, objv[1], &joint) ||
+	joint < 0 || joint >= EMC_JOINT_MAX) {
+	setresult(interp,"emc_joint_enable: need joint as integer, 0..EMC_JOINT_MAX-1");
 	return TCL_ERROR;
     }
 
@@ -3008,49 +3008,49 @@ static int emc_axis_enable(ClientData clientdata,
 	if (emcUpdateType == EMC_UPDATE_AUTO) {
 	    updateStatus();
 	}
-	enobj = Tcl_NewIntObj(emcStatus->motion.axis[axis].enabled);
+	enobj = Tcl_NewIntObj(emcStatus->motion.joint[joint].enabled);
 	Tcl_SetObjResult(interp, enobj);
 	return TCL_OK;
     }
     // else we were given 0 or 1 to enable/disable it
     if (0 != Tcl_GetIntFromObj(0, objv[2], &val)) {
-	setresult(interp,"emc_axis_enable: need 0, 1 for disable, enable");
+	setresult(interp,"emc_joint_enable: need 0, 1 for disable, enable");
 	return TCL_ERROR;
     }
 
-    sendAxisEnable(axis, val);
+    sendAxisEnable(joint, val);
     return TCL_OK;
 }
 
-static int emc_axis_load_comp(ClientData clientdata,
+static int emc_joint_load_comp(ClientData clientdata,
 			      Tcl_Interp * interp, int objc,
 			      Tcl_Obj * CONST objv[])
 {
-    int axis, type;
+    int joint, type;
     char file[256];
 
     CHECKEMC
-    // syntax is emc_axis_load_comp <axis> <file>
+    // syntax is emc_joint_load_comp <joint> <file>
 
     if (objc != 4) {
-	setresult(interp,"emc_axis_load_comp: need <axis> <file> <type>");
+	setresult(interp,"emc_joint_load_comp: need <joint> <file> <type>");
 	return TCL_ERROR;
     }
 
-    if (0 != Tcl_GetIntFromObj(0, objv[1], &axis) ||
-	axis < 0 || axis >= EMC_AXIS_MAX) {
-	setresult(interp,"emc_axis_load_comp: need axis as integer, 0..EMC_AXIS_MAX-1");
+    if (0 != Tcl_GetIntFromObj(0, objv[1], &joint) ||
+	joint < 0 || joint >= EMC_JOINT_MAX) {
+	setresult(interp,"emc_joint_load_comp: need joint as integer, 0..EMC_JOINT_MAX-1");
 	return TCL_ERROR;
     }
     // copy objv[1] to file arg, to make sure it's not modified
     strcpy(file, Tcl_GetStringFromObj(objv[2], 0));
 
     if (0 != Tcl_GetIntFromObj(0, objv[3], &type)) {
-	setresult(interp,"emc_axis_load_comp: <type> must be an int");
+	setresult(interp,"emc_joint_load_comp: <type> must be an int");
     }
 
     // now write it out
-    sendAxisLoadComp(axis, file, type);
+    sendAxisLoadComp(joint, file, type);
     return TCL_OK;
 }
 
@@ -3739,13 +3739,13 @@ int Linuxcnc_Init(Tcl_Interp * interp)
 			 emc_motion_command_status, (ClientData) NULL,
 			 (Tcl_CmdDeleteProc *) NULL);
 
-    Tcl_CreateObjCommand(interp, "emc_axis_backlash", emc_axis_backlash,
+    Tcl_CreateObjCommand(interp, "emc_joint_backlash", emc_joint_backlash,
 			 (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
 
-    Tcl_CreateObjCommand(interp, "emc_axis_load_comp", emc_axis_load_comp,
+    Tcl_CreateObjCommand(interp, "emc_joint_load_comp", emc_joint_load_comp,
 			 (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
 
-    Tcl_CreateObjCommand(interp, "emc_axis_enable", emc_axis_enable,
+    Tcl_CreateObjCommand(interp, "emc_joint_enable", emc_joint_enable,
 			 (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
 
     Tcl_CreateObjCommand(interp, "emc_teleop_enable", emc_teleop_enable,
