@@ -54,5 +54,7 @@ void emcInitGlobals()
 
     for (t = 0; t < EMC_JOINT_MAX; t++) {
 	JOINT_MAX_VELOCITY[t] = DEFAULT_JOINT_MAX_VELOCITY;
+	//FIXME-AJ: temp hack
+	AXIS_MAX_VELOCITY[t] = DEFAULT_JOINT_MAX_VELOCITY;
     }
 }
