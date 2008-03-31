@@ -78,6 +78,7 @@ static double localEmcJointUnits[EMCMOT_MAX_JOINTS];
 
 //things referring to axes
 //FIXME-AJ: put EMC_MAX_AXES back, joints for now to be able to compile
+//FIXME-AJ: see if needed
 static double localEmcAxisUnits[EMC_JOINT_MAX];
 
 // axes and joints are numbered 0..NUM-1
@@ -290,6 +291,8 @@ int emcJointSetMaxVelocity(int joint, double vel)
     }
 
     JOINT_MAX_VELOCITY[joint] = vel;
+    //FIXME-AJ: need functions for setting the AXIS_MAX_VEL (either from the ini, or from kins..)
+    AXIS_MAX_VELOCITY[joint] = vel;
 
     emcmotCommand.command = EMCMOT_SET_JOINT_VEL_LIMIT;
     emcmotCommand.joint = joint;
@@ -307,6 +310,8 @@ int emcJointSetMaxAcceleration(int joint, double acc)
 	acc = 0.0;
     }
     JOINT_MAX_ACCELERATION[joint] = acc;
+    //FIXME-AJ: need functions for setting the AXIS_MAX_ACCEL (either from the ini, or from kins..)
+    AXIS_MAX_ACCELERATION[joint] = acc;    
     emcmotCommand.command = EMCMOT_SET_JOINT_ACC_LIMIT;
     emcmotCommand.joint = joint;
     emcmotCommand.acc = acc;
@@ -495,7 +500,8 @@ int emcJointUnhome(int joint)
 	return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
-int emcJointJog(int joint, double vel)
+//FIXME-AJ: fix this while fixing teleop jogging (and all jogging altogether)
+int emcAxisJog(int joint, double vel)
 {
     if (joint < 0 || joint >= EMCMOT_MAX_JOINTS) {
 	return 0;
@@ -514,7 +520,8 @@ int emcJointJog(int joint, double vel)
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
-int emcJointIncrJog(int joint, double incr, double vel)
+//FIXME-AJ: fix this while fixing teleop jogging (and all jogging altogether)
+int emcAxisIncrJog(int joint, double incr, double vel)
 {
     if (joint < 0 || joint >= EMCMOT_MAX_JOINTS) {
 	return 0;
@@ -534,7 +541,8 @@ int emcJointIncrJog(int joint, double incr, double vel)
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
-int emcJointAbsJog(int joint, double pos, double vel)
+//FIXME-AJ: fix this while fixing teleop jogging (and all jogging altogether)
+int emcAxisAbsJog(int joint, double pos, double vel)
 {
     if (joint < 0 || joint >= EMCMOT_MAX_JOINTS) {
 	return 0;
@@ -665,8 +673,7 @@ static double localEmcTrajLinearUnits = 1.0;
 static double localEmcTrajAngularUnits = 1.0;
 static int localEmcTrajMotionId = 0;
 
-//FIXME-AJ: emcTrajSetJoints?
-int emcTrajSetAxes(int joints, int jointmask)
+int emcTrajSetJoints(int joints, int jointmask)
 {
     if(joints == 0) {
 	if(jointmask & 256) joints = 9;
@@ -687,7 +694,7 @@ int emcTrajSetAxes(int joints, int jointmask)
 
     localEmcTrajJoints = joints;
     localEmcTrajJointMask = jointmask;
-    emcmotCommand.command = EMCMOT_SET_NUM_AXES;
+    emcmotCommand.command = EMCMOT_SET_NUM_JOINTS;
     emcmotCommand.joint = joints;
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
@@ -1284,7 +1291,7 @@ int emcPositionSave() {
 int emcMotionInit()
 {
     int r1, r2, r3, r4;
-    int axis, joint;
+    int joint;//,axis;
 
     r1 = emcTrajInit(); // we want to check Traj first, the sane defaults for units are there
     // it also determines the number of existing joints, and axes
