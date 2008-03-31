@@ -502,18 +502,18 @@ check_stuff ( "before command_handler()" );
 	    }
 	    break;
 
-	case EMCMOT_SET_NUM_AXES: //FIXME-AJ: we'll want to rename this to EMCMOT_SET_NUM_JOINTS
+	case EMCMOT_SET_NUM_JOINTS:
 	    /* set the global NUM_JOINTS, which must be between 1 and
 	       EMCMOT_MAX_JOINTS, inclusive */
 	    /* this sets a global - I hate globals - hopefully this can be
 	       moved into the config structure, or dispensed with completely */
-	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_NUM_AXES");
-	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", emcmotCommand->axis);
-	    if (( emcmotCommand->axis <= 0 ) ||
-		( emcmotCommand->axis > EMCMOT_MAX_JOINTS )) {
+	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_NUM_JOINTS");
+	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", emcmotCommand->joint);
+	    if (( emcmotCommand->joint <= 0 ) ||
+		( emcmotCommand->joint > EMCMOT_MAX_JOINTS )) {
 		break;
 	    }
-	    num_joints = emcmotCommand->axis;
+	    num_joints = emcmotCommand->joint;
 	    emcmotConfig->numJoints = num_joints;
 	    break;
 

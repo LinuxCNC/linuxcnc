@@ -146,7 +146,7 @@ extern "C" {
 	EMCMOT_SET_JOINT_ACC_LIMIT,	/* set the max joint accel */
 	EMCMOT_SET_ACC,		/* set the max accel for moves (tooltip) */
 	EMCMOT_SET_TERM_COND,	/* set termination condition (stop, blend) */
-	EMCMOT_SET_NUM_AXES,	/* set the number of joints */ //FIXME-AJ: function needs to get renamed
+	EMCMOT_SET_NUM_JOINTS,	/* set the number of joints */
 	EMCMOT_SET_WORLD_HOME,	/* set pose for world home */
 	EMCMOT_SET_HOMING_PARAMS,	/* sets joint homing parameters */
 	EMCMOT_SET_DEBUG,       /* sets the debug level */
