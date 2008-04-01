@@ -696,7 +696,6 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
   // normalize beta -90 to +270?
   beta = (beta > (1.5 * M_PIl)) ? (beta - (2 * M_PIl)) : (beta < -M_PI_2l) ? (beta + (2 * M_PIl)) : beta;
 
-
   if (((side == LEFT) && (move == G_3)) || ((side == RIGHT) && (move == G_2))) {
       // we are cutting inside the arc
     gamma = atan2((center[1] - end[1]), (center[0] - end[0]));
@@ -722,37 +721,52 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
 
   if ((beta < -small) || (beta > (M_PIl + small))) {
       // concave
-      double cy = arc_radius * sin(beta - M_PI_2l);
-      double toward_nominal;
-      double dist_from_center;
-      double angle_from_center;
-
-      if (((side == LEFT) && (move == G_3)) || ((side == RIGHT) && (move == G_2))) {
-          // tool is inside the arc
-          dist_from_center = arc_radius - tool_radius; 
-          toward_nominal = cy + tool_radius;
-          angle_from_center = theta - asin(toward_nominal / dist_from_center);
-      } else {
-          dist_from_center = arc_radius + tool_radius; 
-          toward_nominal = cy - tool_radius;
-          angle_from_center = theta + M_PIl + asin(toward_nominal / dist_from_center);
-      }          
-
-      mid[0] = center[0] + dist_from_center * cos(angle_from_center);
-      mid[1] = center[1] + dist_from_center * sin(angle_from_center);
-
-      // XXX assuming XY
+      if (pm.type == LINE) {
+          // line->arc
+          double cy = arc_radius * sin(beta - M_PI_2l);
+          double toward_nominal;
+          double dist_from_center;
+          double angle_from_center;
+          
+          if (((side == LEFT) && (move == G_3)) || ((side == RIGHT) && (move == G_2))) {
+              // tool is inside the arc
+              dist_from_center = arc_radius - tool_radius; 
+              toward_nominal = cy + tool_radius;
+              if(move == G_3) {
+                  angle_from_center = theta + asin(toward_nominal / dist_from_center);
+              } else {
+                  angle_from_center = theta - asin(toward_nominal / dist_from_center);
+              }
+          } else {
+              dist_from_center = arc_radius + tool_radius; 
+              toward_nominal = cy - tool_radius;
+              if(move == G_3) {
+                  angle_from_center = theta + M_PIl - asin(toward_nominal / dist_from_center);
+              } else {
+                  angle_from_center = theta + M_PIl + asin(toward_nominal / dist_from_center);
+              }
+              
+          }          
+          
+          mid[0] = center[0] + dist_from_center * cos(angle_from_center);
+          mid[1] = center[1] + dist_from_center * sin(angle_from_center);
+          // XXX assuming XY
 #if LOOKAHEAD
-      update_endpoint(mid[0], mid[1]);
+          update_endpoint(mid[0], mid[1]);
 #else
-      STRAIGHT_FEED( mid[0], mid[1], end[2], AA_end, BB_end, CC_end, u, v, w);
+          STRAIGHT_FEED( mid[0], mid[1], end[2], AA_end, BB_end, CC_end, u, v, w);
 #endif
+      } else {
+          // arc->arc
+      }
+
       save_arc(end[0], end[1], center[0], center[1], turn, end[2],
                AA_end, BB_end, CC_end, u, v, w);
 #if !LOOKAHEAD
       ARC_FEED(end[0], end[1], center[0], center[1], turn, end[2],
                AA_end, BB_end, CC_end, u, v, w);
 #endif
+
   } else if (beta > small) {           /* convex, two arcs needed */
     mid[0] = (start[0] + (tool_radius * cos(delta)));
     mid[1] = (start[1] + (tool_radius * sin(delta)));
@@ -3544,8 +3558,10 @@ int Interp::convert_straight_comp1(int move,     //!< either G_0 or G_1
                                     block, settings);
        save_line(c[0], c[1], p[2],
                  AA_end, BB_end, CC_end, u_end, v_end, w_end, distance);
+#if !LOOKAHEAD
        STRAIGHT_FEED(c[0], c[1], p[2],
                      AA_end, BB_end, CC_end, u_end, v_end, w_end);
+#endif
     }
   } else
     ERM(NCE_BUG_CODE_NOT_G0_OR_G1);
@@ -3814,9 +3830,9 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
         }
       } else {
          if (concave) {
-             // retreat!  back up along some of the previous move.
-
              if (pm.type == LINE) {
+                 // line->line
+
                  double retreat;
                  // half the angle of the inside corner
                  double halfcorner = (beta + M_PIl) / 2.0;
@@ -3834,27 +3850,58 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
                  STRAIGHT_FEED(mid[0], mid[1], settings->current_z, AA_end, BB_end, CC_end, u_end, v_end, w_end);
 #endif
              } else {
-                 double previous_radius = hypot(pm.center2 - pm.end2, pm.center1 - pm.end1);
-                 double end_dir = atan2(pm.center2 - pm.end2, pm.center1 - pm.end1);
-                 double base_dir = atan2(start[1] - p[1], start[0] - p[0]);
-                 double alpha;
-                 double baseline, alen, angle_from_center;
+                 // arc->line
+                 // beware: the arc we saved is the compensated one.
+
+                 double oldrad = hypot(pm.center2 - pm.end2, pm.center1 - pm.end1);
+                 double oldrad_uncomp;
+
+                 // new line's direction
+                 double base_dir = atan2(p[1] - start[1], p[0] - start[0]);
+                 double theta = (pm.turn == 1) ? base_dir + M_PI_2l : base_dir - M_PI_2l;
+
+                 double phi = atan2(pm.center2 - start[1], pm.center1 - start[0]);
+                 double alpha = theta - phi;
 
                  if((pm.turn == 1 && side == LEFT) || (pm.turn == -1 && side == RIGHT)) {
                      // tool is inside the arc
-                     alpha = base_dir + M_PIl - end_dir;
-                     baseline = (previous_radius + radius) * sin(alpha);
-                     alen =  baseline - radius;
-                     angle_from_center = base_dir - asin(alen / previous_radius);
+                     oldrad_uncomp = oldrad + radius;
                  } else {
-                     alpha = base_dir - end_dir;
-                     baseline = (previous_radius - radius) * sin(alpha);
-                     alen =  baseline - radius;
-                     angle_from_center = base_dir + M_PIl - asin(alen / previous_radius);
+                     oldrad_uncomp = oldrad - radius;
                  }
 
-                 mid[0] = pm.center1 + previous_radius * cos(angle_from_center);
-                 mid[1] = pm.center2 + previous_radius * sin(angle_from_center);
+
+                 // distance to old arc center perpendicular to the new line
+                 double d = oldrad_uncomp * cos(alpha);
+                 double d2;
+                 if((pm.turn == 1 && side == LEFT) || (pm.turn == -1 && side == RIGHT)) {
+                     d2 = d - radius;
+                 } else {
+                     d2 = d + radius;
+                 }
+                 
+                 double angle_from_center;
+
+                 if((pm.turn == 1 && side == LEFT) || (pm.turn == -1 && side == RIGHT)) {
+                     if(pm.turn == 1) 
+                         angle_from_center = - acos(d2/oldrad) + theta + M_PIl;
+                     else
+                         angle_from_center = acos(d2/oldrad) + theta + M_PIl;
+                 } else {
+                     if(pm.turn == 1) 
+                         angle_from_center = acos(d2/oldrad) + theta + M_PIl;
+                     else
+                         angle_from_center = - acos(d2/oldrad) + theta + M_PIl;
+                 }
+
+                 mid[0] = pm.center1 + oldrad * cos(angle_from_center);
+                 mid[1] = pm.center2 + oldrad * sin(angle_from_center);
+
+                 if(0) printf("c %g,%g d2 %g acos %g oldrad %g oldrad_uncomp %g base_dir %g theta %g phi %g alpha %g d %g d2 %g angle_from_center %g\n",
+                              pm.center1, pm.center2, d2, r2d(acos(d2/oldrad)), oldrad, 
+                              oldrad_uncomp, r2d(base_dir), r2d(theta), r2d(phi), r2d(alpha),
+                              d, d2, r2d(angle_from_center));
+                 
 #if LOOKAHEAD
                  update_endpoint(mid[0], mid[1]);
 #else
