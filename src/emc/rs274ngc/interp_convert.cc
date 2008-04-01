@@ -30,11 +30,15 @@
 #include "interp_internal.hh"
 
 #include "units.h"
-#ifndef r2d
-#define r2d(r) ((r)*180.0/M_PI)
+#ifndef R2D
+#define R2D(r) ((r)*180.0/M_PI)
+#endif
+#ifndef SQ
+#define SQ(a) ((a)*(a))
 #endif
 
 #define LOOKAHEAD 1
+
 
 // lathe tools have strange origin points that are not at
 // the center of the radius.  This means that the point that
@@ -719,7 +723,12 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
   end[0] = (end[0] + (tool_radius * cos(gamma))); /* end_x reset actual */
   end[1] = (end[1] + (tool_radius * sin(gamma))); /* end_y reset actual */
 
-  if ((beta < -small) || (beta > (M_PIl + small))) {
+
+  if (beta < -small || 
+      beta > M_PIl + small ||
+      // nasty detection for convex corner on tangent arcs       
+      (fabs(beta - M_PIl) < small && pm.type == ARC && turn == pm.turn && 
+       ((side == RIGHT && turn == 1) || (side == LEFT && turn == -1)))) {
       // concave
       if (pm.type == LINE) {
           // line->arc
@@ -758,6 +767,35 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
 #endif
       } else {
           // arc->arc
+
+          double oldrad = hypot(pm.center2 - pm.end2, pm.center1 - pm.end1);
+          double newrad;
+          if (((side == LEFT) && (move == G_3)) || ((side == RIGHT) && (move == G_2))) {
+              // inside the arc
+              newrad = arc_radius - tool_radius;
+          } else {
+              newrad = arc_radius + tool_radius;
+          }
+              
+          double arc_cc = hypot(pm.center2 - center[1], pm.center1 - center[0]);
+          double pullback = acos((SQ(oldrad) + SQ(arc_cc) - SQ(newrad)) / (2 * oldrad * arc_cc));
+          if(0) printf("oldrad %g arc_cc %g newrad %g pullback %g\n", oldrad, arc_cc, newrad, R2D(pullback));
+          double cc_dir = atan2(center[1] - pm.center2, center[0] - pm.center1);
+          double dir;
+          
+          if(pm.turn == -1)
+              dir = cc_dir + pullback;
+          else
+              dir = cc_dir - pullback;
+
+          mid[0] = pm.center1 + oldrad * cos(dir);
+          mid[1] = pm.center2 + oldrad * sin(dir);
+          
+#if LOOKAHEAD
+          update_endpoint(mid[0], mid[1]);
+#else
+          STRAIGHT_FEED( mid[0], mid[1], end[2], AA_end, BB_end, CC_end, u, v, w);
+#endif
       }
 
       save_arc(end[0], end[1], center[0], center[1], turn, end[2],
@@ -3898,9 +3936,9 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
                  mid[1] = pm.center2 + oldrad * sin(angle_from_center);
 
                  if(0) printf("c %g,%g d2 %g acos %g oldrad %g oldrad_uncomp %g base_dir %g theta %g phi %g alpha %g d %g d2 %g angle_from_center %g\n",
-                              pm.center1, pm.center2, d2, r2d(acos(d2/oldrad)), oldrad, 
-                              oldrad_uncomp, r2d(base_dir), r2d(theta), r2d(phi), r2d(alpha),
-                              d, d2, r2d(angle_from_center));
+                              pm.center1, pm.center2, d2, R2D(acos(d2/oldrad)), oldrad, 
+                              oldrad_uncomp, R2D(base_dir), R2D(theta), R2D(phi), R2D(alpha),
+                              d, d2, R2D(angle_from_center));
                  
 #if LOOKAHEAD
                  update_endpoint(mid[0], mid[1]);
