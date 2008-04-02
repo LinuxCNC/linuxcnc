@@ -779,14 +779,23 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
               
           double arc_cc = hypot(pm.center2 - center[1], pm.center1 - center[0]);
           double pullback = acos((SQ(oldrad) + SQ(arc_cc) - SQ(newrad)) / (2 * oldrad * arc_cc));
-          if(0) printf("oldrad %g arc_cc %g newrad %g pullback %g\n", oldrad, arc_cc, newrad, R2D(pullback));
           double cc_dir = atan2(center[1] - pm.center2, center[0] - pm.center1);
           double dir;
           
-          if(pm.turn == -1)
-              dir = cc_dir + pullback;
-          else
-              dir = cc_dir - pullback;
+          if((side==LEFT && pm.turn==1) || (side==RIGHT && pm.turn==-1)) {
+              // inside the previous arc
+              if(turn == 1) 
+                  dir = cc_dir + pullback;
+              else
+                  dir = cc_dir - pullback;
+          } else {
+              if(turn == 1)
+                  dir = cc_dir - pullback;
+              else
+                  dir = cc_dir + pullback;
+          }
+
+          if(0) printf("seqno %d old %g,%g new %g,%g oldrad %g arc_cc %g newrad %g pullback %g cc_dir %g dir %g\n", settings->sequence_number, pm.center1, pm.center2, center[0], center[1], oldrad, arc_cc, newrad, R2D(pullback), R2D(cc_dir), R2D(dir));
 
           mid[0] = pm.center1 + oldrad * cos(dir);
           mid[1] = pm.center2 + oldrad * sin(dir);
