@@ -421,8 +421,54 @@ static void usage(void) {
 
 
 // try to execute a new-style programming command
-int try_program_command(const char *cmd) {
-    errmsg(__func__, "new-style command-lines are not supported yet\n");
+// new style is: CardType[:CardID]=FileName
+int try_program_command(char *cmd) {
+    char *filename;
+
+    char *device_type;
+    char *device_id;
+
+    struct stat stat_buf;
+    int r;
+
+    printf("trying to parse '%s' as a new-style command-line...\n", cmd);
+
+    // first parse out the filename
+    filename = strchr(cmd, '=');
+    if (filename == NULL) return -1;
+    *filename = '\0';
+    filename ++;
+
+    r = stat(filename, &stat_buf);
+    if (r != 0) {
+        errmsg(__func__, "error stating '%s': %s\n", filename, strerror(errno));
+        return -1;
+    }
+
+
+    // parse out the device id
+    device_id = strchr(cmd, ':');
+    if (device_id != NULL) {
+        *device_id = '\0';
+        device_id ++;
+    }
+    if (*device_id == '\0') {
+        device_id = NULL;
+    }
+
+    device_type = cmd;
+    if (*device_type == '\0') {
+        errmsg(__func__, "no device type specified\n");
+        return -1;
+    }
+
+    if (device_id != NULL) {
+        printf("should program %s:%s with %s\n", device_type, device_id, filename);
+    } else {
+        printf("should program %s with %s\n", device_type, filename);
+    }
+    printf("but new-style command-lines are not supported yet\n");
+
     return -1;
 }
 
