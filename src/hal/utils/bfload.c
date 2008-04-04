@@ -173,6 +173,11 @@ Programming sequence:
 
 /************************************************************************/
 
+
+//
+// this data structure describes a board we know how to program
+//
+
 struct board_info {
     char *board_type;
     char *chip_type;
@@ -185,22 +190,63 @@ struct board_info {
     int (*program_funct) (struct board_info *bd, struct bitfile_chunk *ch);
 };
 
-static void errmsg(const char *funct, const char *fmt, ...);
-static int parse_cmdline(unsigned argc, char *argv[]);
+
+//
+// these are the functions that actually program the FPGA
+//
+
 static int program_5i20_fpga(struct board_info *bd, struct bitfile_chunk *ch);
 static int program_5i22_fpga(struct board_info *bd, struct bitfile_chunk *ch);
+
+
+// 
+// this array describes all the boards we know how to program
+//
+
+struct board_info board_info_table[] = {
+
+    {
+        .board_type = "5i20",
+        .chip_type = "2s200pq208",
+        .vendor_id = 0x10B5,
+        .device_id = 0x9030,
+        .ss_vendor_id = 0x10B5,
+        .ss_device_id = 0x3131,
+        .fpga_pci_region = 5,
+        .upci_devnum = 0,
+        .program_funct = program_5i20_fpga
+    },
+
+    {
+        .board_type = "5i22-1M",
+        .chip_type = "3s1000fg320",
+        .vendor_id = 0x10B5,
+        .device_id = 0x9054,
+        .ss_vendor_id = 0x10B5,
+        .ss_device_id = 0x3132,
+        .fpga_pci_region = 3,
+        .upci_devnum = 0,
+        .program_funct = program_5i22_fpga
+    },
+
+    {
+        .board_type = "5i22-1.5M",
+        .chip_type = "3s1500fg320",
+        .vendor_id = 0x10B5,
+        .device_id = 0x9054,
+        .ss_vendor_id = 0x10B5,
+        .ss_device_id = 0x3131,
+        .fpga_pci_region = 3,
+        .upci_devnum = 0,
+        .program_funct = program_5i22_fpga
+    }
+
+};
+
+static void errmsg(const char *funct, const char *fmt, ...);
+static int parse_cmdline(unsigned argc, char *argv[]);
 static __u8 bit_reverse (__u8 data);
 static int write_fpga_ram(struct board_info *bd, struct bitfile_chunk *ch);
-
-struct board_info board_info_table[] =
-    {
-	{ "5i20", "2s200pq208",
-	   0x10B5, 0x9030, 0x10B5, 0x3131, 5, 0, program_5i20_fpga },
-	{ "5i22-1M", "3s1000fg320",
-	   0x10B5, 0x9054, 0x10B5, 0x3132, 3, 0, program_5i22_fpga },
-	{ "5i22-1.5M", "3s1500fg320",
-	   0x10B5, 0x9054, 0x10B5, 0x3131, 3, 0, program_5i22_fpga }
-    };
 
 /* globals to pass data from command line parser to main */
 static char *config_file_name;
