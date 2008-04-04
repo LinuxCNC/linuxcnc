@@ -396,24 +396,42 @@ static void errmsg(const char *funct, const char *fmt, ...)
     fprintf(stderr, "\n");
 }
 
+
+static void usage(void) {
+    printf("\n");
+    printf("bfload <filename> [<card>]\n");
+    printf("\n");
+    printf("    <filename> - name of bitfile\n");
+    printf("    <cardnum>  - card number (default is 0)\n");
+    printf("\n");
+    printf("Loads an FPGA configuration from a bitfile into a\n");
+    printf("Mesa 5i20 or 5i22 FPGA.  If the bitfile contains HAL driver\n");
+    printf("config data, writes that data to the FPGA's RAM.\n");
+    printf("The type of card is deduced from the FPGA type info in the bitfile.\n");
+    printf("Card types are numbered independently\n");
+    printf("\n");
+}
+
+
 static int parse_cmdline(unsigned argc, char *argv[])
 {
-    if ((argc == 2) && (strcmp(argv[1], "list") == 0)) {
-        list_devices();
-        exit(0);
+    if (argc == 2) {
+        if (strcmp(argv[1], "list") == 0) {
+            list_devices();
+            exit(EC_OK);
+        }
+
+        else if (strcmp(argv[1], "help") == 0) {
+            usage();
+            exit(EC_OK);
+        }
     }
 
     if ((argc != 2) && (argc != 3)) {
-	printf("\nbfload <filename> [<card>]\n\n");
-	printf("    <filename> - name of bitfile\n");
-	printf("    <cardnum>  - card number (default is 0)\n\n");
-	printf("Loads an FPGA configuration from a bitfile into a\n");
-	printf("Mesa 5i20 or 5i22 FPGA.  If the bitfile contains HAL driver\n");
-	printf("config data, writes that data to the FPGA's RAM.\n");
-	printf("The type of card is deduced from the FPGA type info in the bitfile.\n");
-	printf("Card types are numbered independently\n\n");
-	exit(EC_BADCL);
+        usage();
+        exit(EC_BADCL);
     }
+
     config_file_name = argv[1];
     card_number = 0;
     if ( argc == 3 ) {
