@@ -108,15 +108,22 @@ Programming sequence:
 *************************************************************************/
 
 //#define _GNU_SOURCE /* getline() */
-#include <stdlib.h>
-#include <stdio.h>
+
+#include <errno.h>
 #include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
-#include <sys/types.h>
 #include <unistd.h>
+
+#include <sys/stat.h>
+#include <sys/types.h>
+
 #include <linux/types.h>
+
 #include "upci.h"
 #include "bitfile.h"
+
 
 /************************************************************************/
 #define MASK(x)			(1<<(x))	/* gets a bit in position (x) */
@@ -413,8 +420,19 @@ static void usage(void) {
 }
 
 
+// try to execute a new-style programming command
+int try_program_command(const char *cmd) {
+    errmsg(__func__, "new-style command-lines are not supported yet\n");
+    return -1;
+}
+
+
 static int parse_cmdline(unsigned argc, char *argv[])
 {
+    struct stat stat_buf;
+    int r;
+
+
     if (argc == 2) {
         if (strcmp(argv[1], "list") == 0) {
             list_devices();
@@ -429,26 +447,53 @@ static int parse_cmdline(unsigned argc, char *argv[])
 
     if ((argc != 2) && (argc != 3)) {
         usage();
-        exit(EC_BADCL);
+        return -1;
     }
 
-    config_file_name = argv[1];
-    card_number = 0;
-    if ( argc == 3 ) {
-	if (sscanf(argv[2], "%d", &card_number) != 1) {
-	    errmsg(__func__,"bad card number: %s", argv[2]);
-	    return -1;
-	}
+
+    //
+    // try to detect if it's a new-style or old-style command-line
+    // old style is: FileName [CardNum]
+    // new style is: CardType[:CardID]=FileName
+    //
+
+    r = stat(argv[1], &stat_buf);
+    if (r == 0) {
+        // looks like an old-style command-line
+        config_file_name = argv[1];
+        card_number = 0;
+        if ( argc == 3 ) {
+            if (sscanf(argv[2], "%d", &card_number) != 1) {
+                errmsg(__func__,"bad card number: %s", argv[2]);
+                return -1;
+            }
+        }
+        if (card_number > 15) {
+            errmsg(__func__,"card number %d out of range (range is 0 to 15)", card_number);
+            return -1;
+        }
+        return 0;
+    } else if (errno != ENOENT) {
+        errmsg(__func__, "error stating '%s': %s\n", argv[1], strerror(errno));
+        return -1;
     }
-    if (card_number > 15) {
-	errmsg(__func__,"card number %d out of range (range is 0 to 15)", card_number);
-	return -1;
+
+    //
+    // if we get here it doesnt look like an old-style command-line
+    // (or the file was missing or misspelled)
+    //
+
+    r = try_program_command(argv[1]);
+    if (r != 0) {
+        usage();
+        return -1;
     }
+
     return 0;
 }
 
-/* program FPGA on PCI board 'devnum', with data from bitfile chunk 'ch' */
 
+/* program FPGA on PCI board 'devnum', with data from bitfile chunk 'ch' */
 
 static int program_5i20_fpga(struct board_info *bd, struct bitfile_chunk *ch)
 {
