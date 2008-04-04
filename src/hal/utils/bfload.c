@@ -351,6 +351,7 @@ int main(int argc, char *argv[])
     return 0;
 }
 
+
 void list_devices(void) {
     int r;
     int pci_index;
@@ -391,6 +392,7 @@ void list_devices(void) {
     exit(EC_OK);
 }
 
+
 /************************************************************************/
 
 static void errmsg(const char *funct, const char *fmt, ...)
@@ -420,9 +422,21 @@ static void usage(void) {
 }
 
 
+int program(char *device_type, char *device_id, char *filename) {
+    if (device_id != NULL) {
+        printf("should program %s (%s) with %s\n", device_type, device_id, filename);
+    } else {
+        printf("should program %s with %s\n", device_type, filename);
+    }
+    printf("but new-style command-lines are not supported yet\n");
+
+    return -1;
+}
+
+
 // try to execute a new-style programming command
 // new style is: CardType[:CardID]=FileName
-int try_program_command(char *cmd) {
+int parse_program_command(char *cmd) {
     char *filename;
 
     char *device_type;
@@ -451,9 +465,9 @@ int try_program_command(char *cmd) {
     if (device_id != NULL) {
         *device_id = '\0';
         device_id ++;
-    }
-    if (*device_id == '\0') {
-        device_id = NULL;
+        if (*device_id == '\0') {
+            device_id = NULL;
+        }
     }
 
     device_type = cmd;
@@ -462,14 +476,7 @@ int try_program_command(char *cmd) {
         return -1;
     }
 
-    if (device_id != NULL) {
-        printf("should program %s:%s with %s\n", device_type, device_id, filename);
-    } else {
-        printf("should program %s with %s\n", device_type, filename);
-    }
-    printf("but new-style command-lines are not supported yet\n");
-
-    return -1;
+    return program(device_type, device_id, filename);
 }
 
 
@@ -529,7 +536,7 @@ static int parse_cmdline(unsigned argc, char *argv[])
     // (or the file was missing or misspelled)
     //
 
-    r = try_program_command(argv[1]);
+    r = parse_program_command(argv[1]);
     if (r != 0) {
         usage();
         return -1;
