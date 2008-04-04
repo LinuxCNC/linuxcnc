@@ -243,6 +243,7 @@ struct board_info board_info_table[] = {
 
 };
 
+
 static void errmsg(const char *funct, const char *fmt, ...);
 static int parse_cmdline(unsigned argc, char *argv[]);
 static __u8 bit_reverse (__u8 data);
@@ -343,6 +344,46 @@ int main(int argc, char *argv[])
     return 0;
 }
 
+void list_devices(void) {
+    int r;
+    int pci_index;
+
+    int num_pci_devices;
+    int num_boards;
+
+    r = upci_scan_bus();
+    if (r < 0) {
+        errmsg(__func__,"upci error scanning bus");
+        exit(EC_SYS);
+    }
+
+    num_pci_devices = r;
+    num_boards = sizeof(board_info_table) / sizeof(struct board_info);
+
+    // printf("%d pci devices, %d known boards\n", num_pci_devices, num_boards);
+
+    for (pci_index = 0; pci_index < num_pci_devices; pci_index ++) {
+        struct upci_dev_info p;
+        int board_index;
+
+        upci_get_device_info(&p, pci_index);
+
+        // see if this pci device is in the board table
+        for (board_index = 0; board_index < num_boards; board_index ++) {
+            struct board_info *board = &board_info_table[board_index];
+
+            if (board->vendor_id != p.vendor_id) continue;
+            if (board->device_id != p.device_id) continue;
+            if (board->ss_vendor_id != p.ss_vendor_id) continue;
+            if (board->ss_device_id != p.ss_device_id) continue;
+
+            printf("%s at PCI %02x:%02x.%x\n", board->board_type, p.bus, p.dev, p.func);
+        }
+    }
+
+    exit(EC_OK);
+}
+
 /************************************************************************/
 
 static void errmsg(const char *funct, const char *fmt, ...)
@@ -357,6 +398,11 @@ static void errmsg(const char *funct, const char *fmt, ...)
 
 static int parse_cmdline(unsigned argc, char *argv[])
 {
+    if ((argc == 2) && (strcmp(argv[1], "list") == 0)) {
+        list_devices();
+        exit(0);
+    }
+
     if ((argc != 2) && (argc != 3)) {
 	printf("\nbfload <filename> [<card>]\n\n");
 	printf("    <filename> - name of bitfile\n");
