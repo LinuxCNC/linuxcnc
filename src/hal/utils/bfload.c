@@ -451,6 +451,7 @@ static void usage(void) {
 int program(char *device_type, char *device_id, char *filename) {
     struct bitfile *bf;
     struct board_info *board;
+    int board_num;
 
     int num_boards;
     int i;
@@ -476,11 +477,17 @@ int program(char *device_type, char *device_id, char *filename) {
     printf("    chip_type '%s'\n", board->chip_type);
     printf("    PCI ID %04x:%04x %04x:%04x\n", board->vendor_id, board->device_id, board->ss_vendor_id, board->ss_vendor_id);
 
-    if (device_id != NULL) {
-        printf("should program %s (%s) with %s\n", device_type, device_id, filename);
+    if (device_id == NULL) {
+        board_num = 0;
     } else {
-        printf("should program %s with %s\n", device_type, filename);
+        char *endp;
+        board_num = strtol(device_id, &endp, 0);
+        if (*endp != '\0') {
+            printf("error parsing board number from '%s'\n", device_id);
+            return -1;
+        }
     }
+    printf("should program %s (%d) with %s\n", device_type, board_num, filename);
     printf("but new-style command-lines are not supported yet\n");
 
     return -1;
