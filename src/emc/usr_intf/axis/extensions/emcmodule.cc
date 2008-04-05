@@ -1016,8 +1016,8 @@ static PyObject *jog(pyCommandChannel *s, PyObject *o) {
                 (unsigned long)PyTuple_Size(o));
             return NULL;
         }
-        EMC_JOINT_ABORT abort;
-        abort.joint = axis;
+        EMC_JOG_STOP abort;
+        abort.axis = axis;
         emcSendCommand(s, abort);
     } else if(fn == LOCAL_JOG_CONTINUOUS) {
         if(PyTuple_Size(o) != 3) {
@@ -1026,7 +1026,7 @@ static PyObject *jog(pyCommandChannel *s, PyObject *o) {
                 (unsigned long)PyTuple_Size(o));
             return NULL;
         }
-        EMC_AXIS_JOG cont;
+        EMC_JOG_CONT cont;
         cont.axis = axis;
         cont.vel = vel;
         emcSendCommand(s, cont);
@@ -1038,7 +1038,7 @@ static PyObject *jog(pyCommandChannel *s, PyObject *o) {
             return NULL;
         }
 
-        EMC_AXIS_INCR_JOG incr;
+        EMC_JOG_INCR incr;
         incr.axis = axis;
         incr.vel = vel;
         incr.incr = inc;
@@ -1253,7 +1253,6 @@ static PyMemberDef Command_members[] = {
 static PyMethodDef Command_methods[] = {
     {"debug", (PyCFunction)debug, METH_VARARGS},
     {"teleop_enable", (PyCFunction)teleop, METH_VARARGS},
-    {"teleop_vector", (PyCFunction)set_teleop_vector, METH_VARARGS},
     {"traj_mode", (PyCFunction)set_traj_mode, METH_VARARGS},
     {"wait_complete", (PyCFunction)wait_complete, METH_VARARGS},
     {"state", (PyCFunction)state, METH_VARARGS},
