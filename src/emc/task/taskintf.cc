@@ -740,13 +740,6 @@ int emcTrajSetMode(int mode)
     }
 }
 
-int emcTrajSetTeleopVector(EmcPose vel)
-{
-    emcmotCommand.command = EMCMOT_SET_TELEOP_VECTOR;
-    emcmotCommand.pos = vel;
-    return usrmotWriteEmcmotCommand(&emcmotCommand);
-}
-
 int emcTrajSetVelocity(double vel, double ini_maxvel)
 {
     int retval;
