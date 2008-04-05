@@ -63,9 +63,9 @@ static int emcCommandSerialNumber = 0;
 
 // NML messages
 static EMC_JOINT_HOME emc_joint_home_msg;
-static EMC_JOINT_ABORT emc_joint_abort_msg;
-static EMC_AXIS_JOG emc_axis_jog_msg;
-static EMC_AXIS_INCR_JOG emc_axis_incr_jog_msg;
+static EMC_JOG_STOP emc_jog_stop_msg;
+static EMC_JOG_CONT emc_jog_cont_msg;
+static EMC_JOG_INCR emc_jog_incr_msg;
 static EMC_TRAJ_SET_SCALE emc_traj_set_scale_msg;
 static EMC_TRAJ_ABORT emc_traj_abort_msg;
 static EMC_SPINDLE_ON emc_spindle_on_msg;
@@ -1261,8 +1261,8 @@ static void idleHandler()
   // key up for jogs
   if (axisJogging != AXIS_NONE && keyup_count == 0)
     {
-      emc_joint_abort_msg.joint = axisIndex(axisJogging);
-      emcCommandSend(emc_joint_abort_msg);
+      emc_jog_stop_msg.axis = axisIndex(axisJogging);
+      emcCommandSend(emc_jog_stop_msg);
       axisJogging = AXIS_NONE;
     }
 
@@ -2072,24 +2072,24 @@ int main(int argc, char *argv[])
             {
               if (jogMode == JOG_INCREMENTAL)
                 {
-                  emc_axis_incr_jog_msg.axis = axisIndex(AXIS_X);
+                  emc_jog_incr_msg.axis = axisIndex(AXIS_X);
                   if (xJogPol)
-                    emc_axis_incr_jog_msg.vel = jogSpeed / 60.0;
+                    emc_jog_incr_msg.vel = jogSpeed / 60.0;
                   else
-                    emc_axis_incr_jog_msg.vel = - jogSpeed / 60.0;
-                  emc_axis_incr_jog_msg.incr = jogIncrement;
-                  emcCommandSend(emc_axis_incr_jog_msg);
+                    emc_jog_incr_msg.vel = - jogSpeed / 60.0;
+                  emc_jog_incr_msg.incr = jogIncrement;
+                  emcCommandSend(emc_jog_incr_msg);
                   // don't set axisJogging, since key up will abort
                 }
               else
                 {
                   jogMode = JOG_CONTINUOUS;
-                  emc_axis_jog_msg.axis = axisIndex(AXIS_X);
+                  emc_jog_cont_msg.axis = axisIndex(AXIS_X);
                   if (xJogPol)
-                    emc_axis_jog_msg.vel = jogSpeed / 60.0;
+                    emc_jog_cont_msg.vel = jogSpeed / 60.0;
                   else
-                    emc_axis_jog_msg.vel = - jogSpeed / 60.0;
-                  emcCommandSend(emc_axis_jog_msg);
+                    emc_jog_cont_msg.vel = - jogSpeed / 60.0;
+                  emcCommandSend(emc_jog_cont_msg);
                   axisJogging = AXIS_X;
                 }
               axisSelected = AXIS_X;
@@ -2102,24 +2102,24 @@ int main(int argc, char *argv[])
             {
               if (jogMode == JOG_INCREMENTAL)
                 {
-                  emc_axis_incr_jog_msg.axis = axisIndex(AXIS_X);
+                  emc_jog_incr_msg.axis = axisIndex(AXIS_X);
                   if (xJogPol)
-                    emc_axis_incr_jog_msg.vel = - jogSpeed / 60.0;
+                    emc_jog_incr_msg.vel = - jogSpeed / 60.0;
                   else
-                    emc_axis_incr_jog_msg.vel = jogSpeed / 60.0;
-                  emc_axis_incr_jog_msg.incr = jogIncrement;
-                  emcCommandSend(emc_axis_incr_jog_msg);
+                    emc_jog_incr_msg.vel = jogSpeed / 60.0;
+                  emc_jog_incr_msg.incr = jogIncrement;
+                  emcCommandSend(emc_jog_incr_msg);
                   // don't set axisJogging, since key up will abort
                 }
               else
                 {
                   jogMode = JOG_CONTINUOUS;
-                  emc_axis_jog_msg.axis = axisIndex(AXIS_X);
+                  emc_jog_cont_msg.axis = axisIndex(AXIS_X);
                   if (xJogPol)
-                    emc_axis_jog_msg.vel = - jogSpeed / 60.0;
+                    emc_jog_cont_msg.vel = - jogSpeed / 60.0;
                   else
-                    emc_axis_jog_msg.vel = jogSpeed / 60.0;
-                  emcCommandSend(emc_axis_jog_msg);
+                    emc_jog_cont_msg.vel = jogSpeed / 60.0;
+                  emcCommandSend(emc_jog_cont_msg);
                   axisJogging = AXIS_X;
                 }
               axisSelected = AXIS_X;
@@ -2132,24 +2132,24 @@ int main(int argc, char *argv[])
             {
               if (jogMode == JOG_INCREMENTAL)
                 {
-                  emc_axis_incr_jog_msg.axis = axisIndex(AXIS_Y);
+                  emc_jog_incr_msg.axis = axisIndex(AXIS_Y);
                   if (yJogPol)
-                    emc_axis_incr_jog_msg.vel = jogSpeed / 60.0;
+                    emc_jog_incr_msg.vel = jogSpeed / 60.0;
                   else
-                    emc_axis_incr_jog_msg.vel = - jogSpeed / 60.0;
-                  emc_axis_incr_jog_msg.incr = jogIncrement;
-                  emcCommandSend(emc_axis_incr_jog_msg);
+                    emc_jog_incr_msg.vel = - jogSpeed / 60.0;
+                  emc_jog_incr_msg.incr = jogIncrement;
+                  emcCommandSend(emc_jog_incr_msg);
                   // don't set axisJogging, since key up will abort
                 }
               else
                 {
                   jogMode = JOG_CONTINUOUS;
-                  emc_axis_jog_msg.axis = axisIndex(AXIS_Y);
+                  emc_jog_cont_msg.axis = axisIndex(AXIS_Y);
                   if (yJogPol)
-                    emc_axis_jog_msg.vel = jogSpeed / 60.0;
+                    emc_jog_cont_msg.vel = jogSpeed / 60.0;
                   else
-                    emc_axis_jog_msg.vel = - jogSpeed / 60.0;
-                  emcCommandSend(emc_axis_jog_msg);
+                    emc_jog_cont_msg.vel = - jogSpeed / 60.0;
+                  emcCommandSend(emc_jog_cont_msg);
                   axisJogging = AXIS_Y;
                 }
               axisSelected = AXIS_Y;
@@ -2162,24 +2162,24 @@ int main(int argc, char *argv[])
             {
               if (jogMode == JOG_INCREMENTAL)
                 {
-                  emc_axis_incr_jog_msg.axis = axisIndex(AXIS_Y);
+                  emc_jog_incr_msg.axis = axisIndex(AXIS_Y);
                   if (yJogPol)
-                    emc_axis_incr_jog_msg.vel = - jogSpeed / 60.0;
+                    emc_jog_incr_msg.vel = - jogSpeed / 60.0;
                   else
-                    emc_axis_incr_jog_msg.vel = jogSpeed / 60.0;
-                  emc_axis_incr_jog_msg.incr = jogIncrement;
-                  emcCommandSend(emc_axis_incr_jog_msg);
+                    emc_jog_incr_msg.vel = jogSpeed / 60.0;
+                  emc_jog_incr_msg.incr = jogIncrement;
+                  emcCommandSend(emc_jog_incr_msg);
                   // don't set axisJogging, since key up will abort
                 }
               else
                 {
                   jogMode = JOG_CONTINUOUS;
-                  emc_axis_jog_msg.axis = axisIndex(AXIS_Y);
+                  emc_jog_cont_msg.axis = axisIndex(AXIS_Y);
                   if (yJogPol)
-                    emc_axis_jog_msg.vel = - jogSpeed / 60.0;
+                    emc_jog_cont_msg.vel = - jogSpeed / 60.0;
                   else
-                    emc_axis_jog_msg.vel = jogSpeed / 60.0;
-                  emcCommandSend(emc_axis_jog_msg);
+                    emc_jog_cont_msg.vel = jogSpeed / 60.0;
+                  emcCommandSend(emc_jog_cont_msg);
                   axisJogging = AXIS_Y;
                 }
               axisSelected = AXIS_Y;
@@ -2192,24 +2192,24 @@ int main(int argc, char *argv[])
             {
               if (jogMode == JOG_INCREMENTAL)
                 {
-                  emc_axis_incr_jog_msg.axis = axisIndex(AXIS_Z);
+                  emc_jog_incr_msg.axis = axisIndex(AXIS_Z);
                   if (zJogPol)
-                    emc_axis_incr_jog_msg.vel = jogSpeed / 60.0;
+                    emc_jog_incr_msg.vel = jogSpeed / 60.0;
                   else
-                    emc_axis_incr_jog_msg.vel = - jogSpeed / 60.0;
-                  emc_axis_incr_jog_msg.incr = jogIncrement;
-                  emcCommandSend(emc_axis_incr_jog_msg);
+                    emc_jog_incr_msg.vel = - jogSpeed / 60.0;
+                  emc_jog_incr_msg.incr = jogIncrement;
+                  emcCommandSend(emc_jog_incr_msg);
                   // don't set axisJogging, since key up will abort
                 }
               else
                 {
                   jogMode = JOG_CONTINUOUS;
-                  emc_axis_jog_msg.axis = axisIndex(AXIS_Z);
+                  emc_jog_cont_msg.axis = axisIndex(AXIS_Z);
                   if (zJogPol)
-                    emc_axis_jog_msg.vel = jogSpeed / 60.0;
+                    emc_jog_cont_msg.vel = jogSpeed / 60.0;
                   else
-                    emc_axis_jog_msg.vel = - jogSpeed / 60.0;
-                  emcCommandSend(emc_axis_jog_msg);
+                    emc_jog_cont_msg.vel = - jogSpeed / 60.0;
+                  emcCommandSend(emc_jog_cont_msg);
                   axisJogging = AXIS_Z;
                 }
               axisSelected = AXIS_Z;
@@ -2222,24 +2222,24 @@ int main(int argc, char *argv[])
             {
               if (jogMode == JOG_INCREMENTAL)
                 {
-                  emc_axis_incr_jog_msg.axis = axisIndex(AXIS_Z);
+                  emc_jog_incr_msg.axis = axisIndex(AXIS_Z);
                   if (zJogPol)
-                    emc_axis_incr_jog_msg.vel = - jogSpeed / 60.0;
+                    emc_jog_incr_msg.vel = - jogSpeed / 60.0;
                   else
-                    emc_axis_incr_jog_msg.vel = jogSpeed / 60.0;
-                  emc_axis_incr_jog_msg.incr = jogIncrement;
-                  emcCommandSend(emc_axis_incr_jog_msg);
+                    emc_jog_incr_msg.vel = jogSpeed / 60.0;
+                  emc_jog_incr_msg.incr = jogIncrement;
+                  emcCommandSend(emc_jog_incr_msg);
                   // don't set axisJogging, since key up will abort
                 }
               else
                 {
                   jogMode = JOG_CONTINUOUS;
-                  emc_axis_jog_msg.axis = axisIndex(AXIS_Z);
+                  emc_jog_cont_msg.axis = axisIndex(AXIS_Z);
                   if (zJogPol)
-                    emc_axis_jog_msg.vel = - jogSpeed / 60.0;
+                    emc_jog_cont_msg.vel = - jogSpeed / 60.0;
                   else
-                    emc_axis_jog_msg.vel = jogSpeed / 60.0;
-                  emcCommandSend(emc_axis_jog_msg);
+                    emc_jog_cont_msg.vel = jogSpeed / 60.0;
+                  emcCommandSend(emc_jog_cont_msg);
                   axisJogging = AXIS_Z;
                 }
               axisSelected = AXIS_Z;

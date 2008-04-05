@@ -1339,82 +1339,44 @@ static int sendAbort()
     return emcCommandSend(task_abort_msg);
 }
 
+static int axisJogging[EMC_AXIS_MAX] = {0,};
 
-static int sendJogStop(int joint)
+int sendJogStop(int axis)
 {
-    EMC_JOINT_ABORT emc_joint_abort_msg;
+    EMC_JOG_STOP emc_jog_stop_msg;
     
-    // in case of TELEOP mode we really need to send an TELEOP_VECTOR message
-    // not a simple AXIS_ABORT, as more than one joint would be moving
-    // (hint TELEOP mode is for nontrivial kinematics)
-    EMC_TRAJ_SET_TELEOP_VECTOR emc_set_teleop_vector;
+    emc_jog_stop_msg.axis = axis;
+    emcCommandBuffer->write(emc_jog_stop_msg);
 
-    if ((emcStatus->task.state != EMC_TASK_STATE_ON) || (emcStatus->task.mode != EMC_TASK_MODE_MANUAL))
-	return -1;
-
-    if (joint < 0 || joint >= EMC_JOINT_MAX) {
-	return -1;
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+        return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+        return emcCommandWaitDone(emcCommandSerialNumber);
     }
 
-    if (emcStatus->motion.traj.mode != EMC_TRAJ_MODE_TELEOP) {
-	emc_joint_abort_msg.joint = joint;
-	return emcCommandSend(emc_joint_abort_msg);
-    } else {
-        ZERO_EMC_POSE(emc_set_teleop_vector.vector);
-	return emcCommandSend(emc_set_teleop_vector);
-    }
+    axisJogging[axis] = 0;
+    return 0;
 }
 
-static int sendJogCont(int axis, double speed)
+int sendJogCont(int axis, double speed)
 {
-    EMC_AXIS_JOG emc_axis_jog_msg;
-    EMC_TRAJ_SET_TELEOP_VECTOR emc_set_teleop_vector;
+    EMC_JOG_CONT emc_jog_cont_msg;
 
-    if (emcStatus->task.state != EMC_TASK_STATE_ON) {
-	return -1;
-    }
-
-    if (axis < 0 || axis >= EMC_JOINT_MAX) {
-	return -1;
+    if (0 == jogPol[axis]) {
+        speed = -speed;
     }
 
     sendManual();
 
-    if (emcStatus->motion.traj.mode != EMC_TRAJ_MODE_TELEOP) {
-	emc_axis_jog_msg.axis = axis;
-	emc_axis_jog_msg.vel = speed / 60.0;
-	return emcCommandSend(emc_axis_jog_msg);
-    } else {
-        ZERO_EMC_POSE(emc_set_teleop_vector.vector);
-
-	switch (axis) {
-	case 0:
-	    emc_set_teleop_vector.vector.tran.x = speed / 60.0;
-	    break;
-	case 1:
-	    emc_set_teleop_vector.vector.tran.y = speed / 60.0;
-	    break;
-	case 2:
-	    emc_set_teleop_vector.vector.tran.z = speed / 60.0;
-	    break;
-	case 3:
-	    emc_set_teleop_vector.vector.a = speed / 60.0;
-	    break;
-	case 4:
-	    emc_set_teleop_vector.vector.b = speed / 60.0;
-	    break;
-	case 5:
-	    emc_set_teleop_vector.vector.c = speed / 60.0;
-	    break;
-	}
-	return emcCommandSend(emc_set_teleop_vector);
-    }
+    emc_jog_cont_msg.axis = axis;
+    emc_jog_cont_msg.vel = speed / 60.0;
+    axisJogging[axis] = 1;
+    return emcCommandSend(emc_jog_cont_msg);
 }
 
-
-static int sendJogInc(int axis, double speed, double inc)
+int sendJogInc(int axis, double speed, double incr)
 {
-    EMC_AXIS_INCR_JOG emc_axis_jog_msg;
+    EMC_JOG_INCR emc_jog_incr_msg;
 
     if (emcStatus->task.state != EMC_TASK_STATE_ON) {
 	return -1;
@@ -1426,14 +1388,21 @@ static int sendJogInc(int axis, double speed, double inc)
     sendManual();
 
     if (emcStatus->motion.traj.mode == EMC_TRAJ_MODE_TELEOP)
-    	return -1;
+        return -1;
 
-    emc_axis_jog_msg.axis = axis;
-    emc_axis_jog_msg.vel = speed / 60.0;
-    emc_axis_jog_msg.incr = inc;
-    return emcCommandSend(emc_axis_jog_msg);
+    if (0 == jogPol[axis]) {
+	speed = -speed;
+    }
+
+    emc_jog_incr_msg.axis = axis;
+    emc_jog_incr_msg.vel = speed / 60.0;
+    emc_jog_incr_msg.incr = incr;
+
+    axisJogging[axis] = 1;
+    return emcCommandSend(emc_jog_incr_msg);
+
+    return 0;
 }
-
 
 static int sendFeedOverride(double override)
 {
