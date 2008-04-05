@@ -302,10 +302,13 @@ int main(int argc, char *argv[])
 	errmsg(__func__,"command line error" );
 	return EC_BADCL;
     }
+
     bf = open_bitfile_or_die(config_file_name);
+
     /* chunk 'b' has the target device */
     ch = bitfile_find_chunk(bf, 'b', 0);
     chip = (char *)(ch->body);
+
     /* scan board specs table looking for a board that uses
 	the chip for which this bitfile was targeted */
     tablesize = sizeof(board_info_table) / sizeof(struct board_info);
@@ -318,11 +321,14 @@ int main(int argc, char *argv[])
 	    return EC_FILE;
 	}
     }
+
     /* copy board data from table to local struct */
     board = board_info_table[n];
     printf ( "Board type:      %s\n", board.board_type );
+
     /* chunk 'e' has the bitstream */
     ch = bitfile_find_chunk(bf, 'e', 0);
+
     /* now deal with the hardware */
     printf ( "Searching for board...\n" );
     retval = upci_scan_bus();
@@ -330,11 +336,13 @@ int main(int argc, char *argv[])
 	errmsg(__func__,"PCI bus data missing" );
 	return EC_SYS;
     }
+
     info.vendor_id = board.vendor_id;
     info.device_id = board.device_id;
     info.ss_vendor_id = board.ss_vendor_id;
     info.ss_device_id = board.ss_device_id;
     info.instance = card_number;
+
     /* find the matching device */
     board.upci_devnum = upci_find_device(&info);
     if ( board.upci_devnum < 0 ) {
@@ -342,13 +350,16 @@ int main(int argc, char *argv[])
 	    board.board_type, info.instance );
 	return EC_HDW;
     }
+
     upci_print_device_info(board.upci_devnum);
+
     printf ( "Loading configuration into %s board...\n", board.board_type );
     retval = board.program_funct(&board, ch);
     if ( retval != 0 ) {
 	errmsg(__func__, "configuration did not load");
 	return EC_HDW;
     }
+
     /* do we need to HAL driver data to the FGPA RAM? */
     ch = bitfile_find_chunk(bf, 'r', 0);
     if ( ch != NULL ) {
@@ -360,6 +371,7 @@ int main(int argc, char *argv[])
 	    return EC_HDW;
 	}
     }
+
     upci_reset();
     printf( "Finished!\n" );
     return 0;
