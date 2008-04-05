@@ -417,7 +417,6 @@ extern int emcTrajSetJoints(int joints, int jointmask);
 extern int emcTrajSetUnits(double linearUnits, double angularUnits);
 extern int emcTrajSetCycleTime(double cycleTime);
 extern int emcTrajSetMode(int axes);
-extern int emcTrajSetTeleopVector(EmcPose vel);
 extern int emcTrajSetVelocity(double vel, double ini_maxvel);
 extern int emcTrajSetAcceleration(double acc);
 extern int emcTrajSetMaxVelocity(double vel);
