@@ -450,6 +450,7 @@ static void usage(void) {
 
 int program(char *device_type, char *device_id, char *filename) {
     struct bitfile *bf;
+    char *bitfile_chip;
     struct bitfile_chunk *ch;
     struct board_info *board;
     int board_num;
@@ -458,9 +459,19 @@ int program(char *device_type, char *device_id, char *filename) {
     int num_boards;
     int i, r;
 
+
+    // 
+    // open the bitfile
+    //
+
     bf = open_bitfile_or_die(filename);
 
-    // find device_type:device_id
+
+    //
+    // look up the device type that the caller requested in our table of
+    // known device types
+    // 
+
     num_boards = sizeof(board_info_table) / sizeof(struct board_info);
     board = NULL;
     for (i = 0; i < num_boards; i ++) {
@@ -474,10 +485,21 @@ int program(char *device_type, char *device_id, char *filename) {
         return -1;
     }
 
-    printf("found board:\n");
-    printf("    board_type '%s'\n", board->board_type);
-    printf("    chip_type '%s'\n", board->chip_type);
-    printf("    PCI ID %04x:%04x %04x:%04x\n", board->vendor_id, board->device_id, board->ss_vendor_id, board->ss_vendor_id);
+    // chunk 'b' has the bitfile's target device, the chip type it's for
+    ch = bitfile_find_chunk(bf, 'b', 0);
+    bitfile_chip = (char *)(ch->body);
+    if (strcmp(board->chip_type, bitfile_chip) != 0) {
+        printf("chip type incompatibility\n");
+        printf("bitfile '%s' is for chip type '%s'\n", filename, bitfile_chip);
+        printf("device type '%s' has chip type '%s'\n", device_type, board->chip_type);
+        return EC_BADCL;
+    }
+
+
+    // 
+    // which board of this type?
+    // FIXME: this function from here down assumes PCI
+    //
 
     if (device_id == NULL) {
         board_num = 0;
