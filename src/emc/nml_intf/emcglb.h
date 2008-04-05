@@ -26,7 +26,7 @@ extern "C" {
 #define EMC_JOINT_MAX EMCMOT_MAX_JOINTS
 //FIXME-AJ: for now disable EMC_AXIS_MAX so we can find all spots where it's needed,
 // and fix them if they really meant joints
-//#define EMC_AXIS_MAX EMCMOT_MAX_AXIS
+#define EMC_AXIS_MAX EMCMOT_MAX_AXIS
 
 
 #define EMC_MAX_DIO EMCMOT_MAX_DIO

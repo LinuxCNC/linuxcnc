@@ -80,16 +80,17 @@ class PM_CARTESIAN;
 #define EMC_JOINT_ENABLE_TYPE                         ((NMLTYPE) 121)
 #define EMC_JOINT_DISABLE_TYPE                        ((NMLTYPE) 122)
 #define EMC_JOINT_HOME_TYPE                           ((NMLTYPE) 123)
-#define EMC_JOINT_UNHOME_TYPE                         ((NMLTYPE) 135)
-#define EMC_AXIS_JOG_TYPE                            ((NMLTYPE) 124) //FIXME-AJ: tbd with jmk
-#define EMC_AXIS_INCR_JOG_TYPE                       ((NMLTYPE) 125) //FIXME-AJ: tbd with jmk
-#define EMC_AXIS_ABS_JOG_TYPE                        ((NMLTYPE) 126) //FIXME-AJ: tbd with jmk
+#define EMC_JOG_CONT_TYPE                             ((NMLTYPE) 124)
+#define EMC_JOG_INCR_TYPE                             ((NMLTYPE) 125)
+#define EMC_JOG_ABS_TYPE                              ((NMLTYPE) 126)
 #define EMC_JOINT_ACTIVATE_TYPE                       ((NMLTYPE) 127)
 #define EMC_JOINT_DEACTIVATE_TYPE                     ((NMLTYPE) 128)
 #define EMC_JOINT_OVERRIDE_LIMITS_TYPE                ((NMLTYPE) 129)
 #define EMC_JOINT_LOAD_COMP_TYPE                      ((NMLTYPE) 131)
 // gap because of deleted message type (EMC_AXIS_ALTER_TYPE)
 #define EMC_JOINT_SET_BACKLASH_TYPE                   ((NMLTYPE) 134)
+#define EMC_JOINT_UNHOME_TYPE                         ((NMLTYPE) 135)
+#define EMC_JOG_STOP_TYPE                             ((NMLTYPE) 136)
 
 #define EMC_JOINT_STAT_TYPE                          ((NMLTYPE) 199)
 
@@ -132,7 +133,7 @@ class PM_CARTESIAN;
 #define EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG_TYPE       ((NMLTYPE) 228)
 #define EMC_TRAJ_PROBE_TYPE                          ((NMLTYPE) 229)
 #define EMC_TRAJ_SET_TELEOP_ENABLE_TYPE              ((NMLTYPE) 230)
-#define EMC_TRAJ_SET_TELEOP_VECTOR_TYPE              ((NMLTYPE) 231)
+/* gap because of removed message EMC_TRAJ_SET_TELEOP_VECTOR (now handled by regular jog commands) */
 #define EMC_TRAJ_SET_SPINDLESYNC_TYPE                ((NMLTYPE) 232)
 #define EMC_TRAJ_SET_SPINDLE_SCALE_TYPE              ((NMLTYPE) 233)
 #define EMC_TRAJ_SET_FO_ENABLE_TYPE                  ((NMLTYPE) 234)

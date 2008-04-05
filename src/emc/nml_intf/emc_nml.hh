@@ -375,10 +375,10 @@ class EMC_JOINT_UNHOME:public EMC_JOINT_CMD_MSG {
     void update(CMS * cms);
 };
 
-class EMC_AXIS_JOG:public EMC_AXIS_CMD_MSG {
+class EMC_JOG_CONT:public EMC_AXIS_CMD_MSG {
   public:
-    EMC_AXIS_JOG():EMC_AXIS_CMD_MSG(EMC_AXIS_JOG_TYPE,
-				    sizeof(EMC_AXIS_JOG)) {
+    EMC_JOG_CONT():EMC_AXIS_CMD_MSG(EMC_JOG_CONT_TYPE,
+				    sizeof(EMC_JOG_CONT)) {
     };
 
     // For internal NML/CMS use only.
@@ -387,10 +387,10 @@ class EMC_AXIS_JOG:public EMC_AXIS_CMD_MSG {
     double vel;
 };
 
-class EMC_AXIS_INCR_JOG:public EMC_AXIS_CMD_MSG {
+class EMC_JOG_INCR:public EMC_AXIS_CMD_MSG {
   public:
-    EMC_AXIS_INCR_JOG():EMC_AXIS_CMD_MSG(EMC_AXIS_INCR_JOG_TYPE,
-					 sizeof(EMC_AXIS_INCR_JOG)) {
+    EMC_JOG_INCR():EMC_AXIS_CMD_MSG(EMC_JOG_INCR_TYPE,
+					 sizeof(EMC_JOG_INCR)) {
     };
 
     // For internal NML/CMS use only.
@@ -400,10 +400,10 @@ class EMC_AXIS_INCR_JOG:public EMC_AXIS_CMD_MSG {
     double vel;
 };
 
-class EMC_AXIS_ABS_JOG:public EMC_AXIS_CMD_MSG {
+class EMC_JOG_ABS:public EMC_AXIS_CMD_MSG {
   public:
-    EMC_AXIS_ABS_JOG():EMC_AXIS_CMD_MSG(EMC_AXIS_ABS_JOG_TYPE,
-					sizeof(EMC_AXIS_ABS_JOG)) {
+    EMC_JOG_ABS():EMC_AXIS_CMD_MSG(EMC_JOG_ABS_TYPE,
+					sizeof(EMC_JOG_ABS)) {
     };
 
     // For internal NML/CMS use only.
@@ -411,6 +411,16 @@ class EMC_AXIS_ABS_JOG:public EMC_AXIS_CMD_MSG {
 
     double pos;
     double vel;
+};
+
+class EMC_JOG_STOP:public EMC_AXIS_CMD_MSG {
+  public:
+    EMC_JOG_STOP():EMC_AXIS_CMD_MSG(EMC_JOG_STOP_TYPE,
+				    sizeof(EMC_JOG_STOP)) {
+    };
+
+    // For internal NML/CMS use only.
+    void update(CMS * cms);
 };
 
 class EMC_JOINT_ACTIVATE:public EMC_JOINT_CMD_MSG {
@@ -914,19 +924,6 @@ class EMC_TRAJ_SET_TELEOP_ENABLE:public EMC_TRAJ_CMD_MSG {
     void update(CMS * cms);
 
     int enable;
-};
-
-class EMC_TRAJ_SET_TELEOP_VECTOR:public EMC_TRAJ_CMD_MSG {
-  public:
-    EMC_TRAJ_SET_TELEOP_VECTOR():EMC_TRAJ_CMD_MSG
-	(EMC_TRAJ_SET_TELEOP_VECTOR_TYPE,
-	 sizeof(EMC_TRAJ_SET_TELEOP_VECTOR)) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-
-    EmcPose vector;
 };
 
 class EMC_TRAJ_PROBE:public EMC_TRAJ_CMD_MSG {
