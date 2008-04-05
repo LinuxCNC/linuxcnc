@@ -450,6 +450,7 @@ static void usage(void) {
 
 int program(char *device_type, char *device_id, char *filename) {
     struct bitfile *bf;
+    struct bitfile_chunk *ch;
     struct board_info *board;
     int board_num;
     struct upci_dev_info info;
@@ -515,9 +516,36 @@ int program(char *device_type, char *device_id, char *filename) {
 
     upci_print_device_info(board->upci_devnum);
 
-    printf("but new-style command-lines are not supported yet\n");
 
-    return -1;
+    //
+    // program the board with the bitfile
+    //
+
+    /* chunk 'e' has the bitstream */
+    ch = bitfile_find_chunk(bf, 'e', 0);
+
+    printf ("Loading configuration %s into %s:%d board...\n", filename, device_type, board_num);
+    r = board->program_funct(board, ch);
+    if (r != 0) {
+	errmsg(__func__, "configuration did not load");
+	return EC_HDW;
+    }
+
+    /* do we need to HAL driver data to the FGPA RAM? */
+    // HostMot2 does not use this 
+    ch = bitfile_find_chunk(bf, 'r', 0);
+    if (ch != NULL) {
+	printf ("Writing data to FPGA RAM\n");
+	r = write_fpga_ram(board, ch);
+	if (r != 0) {
+	    errmsg(__func__, "RAM data could not be loaded");
+	    return EC_HDW;
+	}
+    }
+
+    upci_reset();
+    printf("Finished!\n");
+    exit(0);
 }
 
 
