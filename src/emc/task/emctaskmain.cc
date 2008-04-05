@@ -321,10 +321,10 @@ static EMC_JOINT_DISABLE *disable_msg;
 static EMC_JOINT_ENABLE *enable_msg;
 static EMC_JOINT_HOME *home_msg;
 static EMC_JOINT_UNHOME *unhome_msg;
-static EMC_AXIS_JOG *jog_msg;
-static EMC_JOINT_ABORT *joint_abort_msg;
-static EMC_AXIS_INCR_JOG *incr_jog_msg;
-static EMC_AXIS_ABS_JOG *abs_jog_msg;
+static EMC_JOG_CONT *jog_cont_msg;
+static EMC_JOG_STOP *jog_stop_msg;
+static EMC_JOG_INCR *jog_incr_msg;
+static EMC_JOG_ABS *jog_abs_msg;
 static EMC_JOINT_SET_BACKLASH *set_backlash_msg;
 static EMC_JOINT_SET_HOMING_PARAMS *set_homing_params_msg;
 static EMC_JOINT_SET_FERROR *set_ferror_msg;
@@ -779,13 +779,13 @@ static int emcTaskPlan(void)
 	    case EMC_JOINT_SET_MIN_FERROR_TYPE:
 	    case EMC_JOINT_SET_MAX_POSITION_LIMIT_TYPE:
 	    case EMC_JOINT_SET_MIN_POSITION_LIMIT_TYPE:
-	    case EMC_JOINT_ABORT_TYPE:
 	    case EMC_JOINT_HALT_TYPE:
 	    case EMC_JOINT_HOME_TYPE:
 	    case EMC_JOINT_UNHOME_TYPE:
-	    case EMC_AXIS_JOG_TYPE:
-	    case EMC_AXIS_INCR_JOG_TYPE:
-	    case EMC_AXIS_ABS_JOG_TYPE:
+	    case EMC_JOG_CONT_TYPE:
+	    case EMC_JOG_INCR_TYPE:
+	    case EMC_JOG_ABS_TYPE:
+	    case EMC_JOG_STOP_TYPE:
 	    case EMC_JOINT_OVERRIDE_LIMITS_TYPE:
 	    case EMC_TRAJ_PAUSE_TYPE:
 	    case EMC_TRAJ_RESUME_TYPE:
@@ -825,7 +825,6 @@ static int emcTaskPlan(void)
 	    case EMC_AUX_INPUT_WAIT_TYPE:
 	    case EMC_TRAJ_RIGID_TAP_TYPE:
 	    case EMC_TRAJ_SET_TELEOP_ENABLE_TYPE:
-	    case EMC_TRAJ_SET_TELEOP_VECTOR_TYPE:
 	    case EMC_SET_DEBUG_TYPE:
 		retval = emcTaskIssueCommand(emcCommand);
 		break;
@@ -1485,26 +1484,26 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	retval = emcJointUnhome(unhome_msg->joint);
 	break;
 
-    case EMC_AXIS_JOG_TYPE:
-	jog_msg = (EMC_AXIS_JOG *) cmd;
-	retval = emcAxisJog(jog_msg->axis, jog_msg->vel);
+    case EMC_JOG_CONT_TYPE:
+	jog_cont_msg = (EMC_JOG_CONT *) cmd;
+	retval = emcJogCont(jog_cont_msg->axis, jog_cont_msg->vel);
 	break;
 
-    case EMC_JOINT_ABORT_TYPE:
-	joint_abort_msg = (EMC_JOINT_ABORT *) cmd;
-	retval = emcJointAbort(joint_abort_msg->joint);
+    case EMC_JOG_STOP_TYPE:
+	jog_stop_msg = (EMC_JOG_STOP *) cmd;
+	retval = emcJogStop(jog_stop_msg->axis);
 	break;
 
-    case EMC_AXIS_INCR_JOG_TYPE:
-	incr_jog_msg = (EMC_AXIS_INCR_JOG *) cmd;
-	retval = emcAxisIncrJog(incr_jog_msg->axis,
-				incr_jog_msg->incr, incr_jog_msg->vel);
+    case EMC_JOG_INCR_TYPE:
+	jog_incr_msg = (EMC_JOG_INCR *) cmd;
+	retval = emcJogIncr(jog_incr_msg->axis,
+			    jog_incr_msg->incr, jog_incr_msg->vel);
 	break;
 
-    case EMC_AXIS_ABS_JOG_TYPE:
-	abs_jog_msg = (EMC_AXIS_ABS_JOG *) cmd;
-	retval = emcAxisAbsJog(abs_jog_msg->axis,
-			       abs_jog_msg->pos, abs_jog_msg->vel);
+    case EMC_JOG_ABS_TYPE:
+	jog_abs_msg = (EMC_JOG_ABS *) cmd;
+	retval = emcJogAbs(jog_abs_msg->axis,
+	                   jog_abs_msg->pos, jog_abs_msg->vel);
 	break;
 
     case EMC_JOINT_SET_BACKLASH_TYPE:
@@ -1717,12 +1716,6 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	} else {
 	    retval = emcTrajSetMode(EMC_TRAJ_MODE_FREE);
 	}
-	break;
-
-    case EMC_TRAJ_SET_TELEOP_VECTOR_TYPE:
-	retval =
-	    emcTrajSetTeleopVector(((EMC_TRAJ_SET_TELEOP_VECTOR *) cmd)->
-				   vector);
 	break;
 
     case EMC_MOTION_SET_AOUT_TYPE:
@@ -2113,7 +2106,6 @@ static int emcTaskCheckPostconditions(NMLmsg * cmd)
     case EMC_TRAJ_RIGID_TAP_TYPE:
     case EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG_TYPE:
     case EMC_TRAJ_SET_TELEOP_ENABLE_TYPE:
-    case EMC_TRAJ_SET_TELEOP_VECTOR_TYPE:
     case EMC_TRAJ_SET_FO_ENABLE_TYPE:
     case EMC_TRAJ_SET_FH_ENABLE_TYPE:
     case EMC_TRAJ_SET_SO_ENABLE_TYPE:

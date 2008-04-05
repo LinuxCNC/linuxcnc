@@ -497,67 +497,76 @@ int emcJointUnhome(int joint)
 	return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
-//FIXME-AJ: fix this while fixing teleop jogging (and all jogging altogether)
-int emcAxisJog(int joint, double vel)
+int emcJogCont(int nr, double vel)
 {
-    if (joint < 0 || joint >= EMCMOT_MAX_JOINTS) {
+    if (nr < 0 || nr >= EMCMOT_MAX_JOINTS) {
 	return 0;
     }
 
-    if (vel > JOINT_MAX_VELOCITY[joint]) {
-	vel = JOINT_MAX_VELOCITY[joint];
-    } else if (vel < -JOINT_MAX_VELOCITY[joint]) {
-	vel = -JOINT_MAX_VELOCITY[joint];
+    if (vel > JOINT_MAX_VELOCITY[nr]) {
+	vel = JOINT_MAX_VELOCITY[nr];
+    } else if (vel < -JOINT_MAX_VELOCITY[nr]) {
+	vel = -JOINT_MAX_VELOCITY[nr];
     }
 
     emcmotCommand.command = EMCMOT_JOG_CONT;
-    emcmotCommand.joint = joint;
+    emcmotCommand.joint = nr;
     emcmotCommand.vel = vel;
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
-//FIXME-AJ: fix this while fixing teleop jogging (and all jogging altogether)
-int emcAxisIncrJog(int joint, double incr, double vel)
+int emcJogIncr(int nr, double incr, double vel)
 {
-    if (joint < 0 || joint >= EMCMOT_MAX_JOINTS) {
+    if (nr < 0 || nr >= EMCMOT_MAX_JOINTS) {
 	return 0;
     }
 
-    if (vel > JOINT_MAX_VELOCITY[joint]) {
-	vel = JOINT_MAX_VELOCITY[joint];
-    } else if (vel < -JOINT_MAX_VELOCITY[joint]) {
-	vel = -JOINT_MAX_VELOCITY[joint];
+    if (vel > JOINT_MAX_VELOCITY[nr]) {
+	vel = JOINT_MAX_VELOCITY[nr];
+    } else if (vel < -JOINT_MAX_VELOCITY[nr]) {
+	vel = -JOINT_MAX_VELOCITY[nr];
     }
 
     emcmotCommand.command = EMCMOT_JOG_INCR;
-    emcmotCommand.joint = joint;
+    emcmotCommand.joint = nr;
     emcmotCommand.vel = vel;
     emcmotCommand.offset = incr;
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
-//FIXME-AJ: fix this while fixing teleop jogging (and all jogging altogether)
-int emcAxisAbsJog(int joint, double pos, double vel)
+int emcJogAbs(int nr, double pos, double vel)
 {
-    if (joint < 0 || joint >= EMCMOT_MAX_JOINTS) {
+    if (nr < 0 || nr >= EMCMOT_MAX_JOINTS) {
 	return 0;
     }
 
-    if (vel > JOINT_MAX_VELOCITY[joint]) {
-	vel = JOINT_MAX_VELOCITY[joint];
-    } else if (vel < -JOINT_MAX_VELOCITY[joint]) {
-	vel = -JOINT_MAX_VELOCITY[joint];
+    if (vel > JOINT_MAX_VELOCITY[nr]) {
+	vel = JOINT_MAX_VELOCITY[nr];
+    } else if (vel < -JOINT_MAX_VELOCITY[nr]) {
+	vel = -JOINT_MAX_VELOCITY[nr];
     }
 
     emcmotCommand.command = EMCMOT_JOG_ABS;
-    emcmotCommand.joint = joint;
+    emcmotCommand.joint = nr;
     emcmotCommand.vel = vel;
     emcmotCommand.offset = pos;
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
+
+int emcJogStop(int nr)
+{
+    if (nr < 0 || nr >= EMCMOT_MAX_JOINTS) {
+	return 0;
+    }
+    emcmotCommand.command = EMCMOT_JOINT_ABORT;
+    emcmotCommand.joint = nr;
+
+    return usrmotWriteEmcmotCommand(&emcmotCommand);
+}
+
 
 int emcJointLoadComp(int joint, const char *file, int type)
 {
