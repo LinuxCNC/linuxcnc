@@ -911,11 +911,11 @@ static int sendOverrideLimits()
   return 0;
 }
 
-static int sendJogStop(int joint)
+static int sendJogStop(int axis)
 {
-  EMC_JOINT_ABORT emc_joint_abort_msg;
+  EMC_JOG_STOP emc_jog_stop_msg;
 
-  if (joint < 0 || joint >= XEMC_NUM_AXES) {
+  if (axis < 0 || axis >= XEMC_NUM_AXES) {
     return -1;
   }
 
@@ -924,9 +924,9 @@ static int sendJogStop(int joint)
     return 0;
   }
 
-  emc_joint_abort_msg.serial_number = ++emcCommandSerialNumber;
-  emc_joint_abort_msg.joint = axisJogging;
-  emcCommandBuffer->write(emc_joint_abort_msg);
+  emc_jog_stop_msg.serial_number = ++emcCommandSerialNumber;
+  emc_jog_stop_msg.axis = axisJogging;
+  emcCommandBuffer->write(emc_jog_stop_msg);
 
   axisJogging = -1;
 
@@ -935,7 +935,7 @@ static int sendJogStop(int joint)
 
 static int sendJogCont(int axis, double speed)
 {
-  EMC_AXIS_JOG emc_axis_jog_msg;
+  EMC_JOG_CONT emc_jog_cont_msg;
 
   if (axis < 0 || axis >= XEMC_NUM_AXES) {
     return -1;
@@ -950,10 +950,10 @@ static int sendJogCont(int axis, double speed)
     speed = -speed;
   }
 
-  emc_axis_jog_msg.serial_number = ++emcCommandSerialNumber;
-  emc_axis_jog_msg.axis = axis;
-  emc_axis_jog_msg.vel = speed / 60.0;
-  emcCommandBuffer->write(emc_axis_jog_msg);
+  emc_jog_cont_msg.serial_number = ++emcCommandSerialNumber;
+  emc_jog_cont_msg.axis = axis;
+  emc_jog_cont_msg.vel = speed / 60.0;
+  emcCommandBuffer->write(emc_jog_cont_msg);
 
   axisJogging = axis;
 
@@ -962,7 +962,7 @@ static int sendJogCont(int axis, double speed)
 
 static int sendJogIncr(int axis, double speed, double incr)
 {
-  EMC_AXIS_INCR_JOG emc_axis_incr_jog_msg;
+  EMC_JOG_INCR emc_jog_incr_msg;
 
   if (axis < 0 || axis >= XEMC_NUM_AXES) {
     return -1;
@@ -977,11 +977,11 @@ static int sendJogIncr(int axis, double speed, double incr)
     speed = -speed;
   }
 
-  emc_axis_incr_jog_msg.serial_number = ++emcCommandSerialNumber;
-  emc_axis_incr_jog_msg.axis = axis;
-  emc_axis_incr_jog_msg.vel = speed / 60.0;
-  emc_axis_incr_jog_msg.incr = jogIncrement;
-  emcCommandBuffer->write(emc_axis_incr_jog_msg);
+  emc_jog_incr_msg.serial_number = ++emcCommandSerialNumber;
+  emc_jog_incr_msg.axis = axis;
+  emc_jog_incr_msg.vel = speed / 60.0;
+  emc_jog_incr_msg.incr = jogIncrement;
+  emcCommandBuffer->write(emc_jog_incr_msg);
 
   // don't flag incremental jogs as jogging an axis-- we can
   // allow multiple incremental jogs since we don't need a key release
