@@ -662,7 +662,7 @@ check_stuff ( "before command_handler()" );
 	    if (joint == 0) {
 		break;
 	    }
-
+	    //FIXME-AJ: this command is used for teleop too, check for TELEOP mode, etc..
 	    /* must be in free mode and enabled */
 	    if (GET_MOTION_COORD_FLAG()) {
 		reportError(_("Can't jog joint in coordinated mode."));
@@ -728,7 +728,7 @@ check_stuff ( "before command_handler()" );
 	    if (joint == 0) {
 		break;
 	    }
-
+	    //FIXME-AJ: this command is used for teleop too, check for TELEOP mode, etc..
 	    /* must be in free mode and enabled */
 	    if (GET_MOTION_COORD_FLAG()) {
 		reportError(_("Can't jog joint in coordinated mode."));
@@ -802,6 +802,7 @@ check_stuff ( "before command_handler()" );
 	    if (joint == 0) {
 		break;
 	    }
+	    //FIXME-AJ: this command is used for teleop too, check for TELEOP mode, etc..
 	    /* must be in free mode and enabled */
 	    if (GET_MOTION_COORD_FLAG()) {
 		reportError(_("Can't jog joint in coordinated mode."));
@@ -1428,41 +1429,6 @@ check_stuff ( "before command_handler()" );
 		break;
 	    } else {
 		SET_MOTION_ERROR_FLAG(0);
-	    }
-	    break;
-
-	case EMCMOT_SET_TELEOP_VECTOR:
-	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_TELEOP_VECTOR");
-	    if (!GET_MOTION_TELEOP_FLAG() || !GET_MOTION_ENABLE_FLAG()) {
-		reportError
-		    (_("need to be enabled, in teleop mode for teleop move"));
-	    } else {
-		double velmag;
-		emcmotDebug->teleop_data.desiredVel = emcmotCommand->pos;
-		pmCartMag(&emcmotDebug->teleop_data.desiredVel.tran, &velmag);
-		if (fabs(emcmotDebug->teleop_data.desiredVel.a) > velmag) {
-		    velmag = fabs(emcmotDebug->teleop_data.desiredVel.a);
-		}
-		if (fabs(emcmotDebug->teleop_data.desiredVel.b) > velmag) {
-		    velmag = fabs(emcmotDebug->teleop_data.desiredVel.b);
-		}
-		if (fabs(emcmotDebug->teleop_data.desiredVel.c) > velmag) {
-		    velmag = fabs(emcmotDebug->teleop_data.desiredVel.c);
-		}
-		if (velmag > emcmotConfig->limitVel) {
-		    pmCartScalMult(&emcmotDebug->teleop_data.desiredVel.tran,
-			emcmotConfig->limitVel / velmag,
-			&emcmotDebug->teleop_data.desiredVel.tran);
-		    emcmotDebug->teleop_data.desiredVel.a *=
-			emcmotConfig->limitVel / velmag;
-		    emcmotDebug->teleop_data.desiredVel.b *=
-			emcmotConfig->limitVel / velmag;
-		    emcmotDebug->teleop_data.desiredVel.c *=
-			emcmotConfig->limitVel / velmag;
-		}
-		/* flag that all joints need to be homed, if any joint is
-		   jogged individually later */
-		rehomeAll = 1;
 	    }
 	    break;
 
