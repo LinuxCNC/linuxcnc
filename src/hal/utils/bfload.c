@@ -260,6 +260,31 @@ static int write_fpga_ram(struct board_info *bd, struct bitfile_chunk *ch);
 static char *config_file_name;
 static int card_number;
 
+
+struct bitfile *open_bitfile_or_die(const char *filename) {
+    struct bitfile *bf;
+    int r;
+
+    printf ( "Reading '%s'...\n", filename);
+
+    bf = bitfile_read(filename);
+    if (bf == NULL) {
+	errmsg(__func__, "reading bitstream file '%s'", filename );
+	exit(EC_FILE);
+    }
+
+    r = bitfile_validate_xilinx_info(bf);
+    if (r != 0) {
+	errmsg(__func__, "not a valid Xilinx bitfile");
+	exit(EC_FILE);
+    }
+
+    bitfile_print_xilinx_info(bf);
+
+    return bf;
+}
+
+
 /***********************************************************************/
 
 int main(int argc, char *argv[])
@@ -277,18 +302,7 @@ int main(int argc, char *argv[])
 	errmsg(__func__,"command line error" );
 	return EC_BADCL;
     }
-    printf ( "Reading '%s'...\n", config_file_name);
-    bf = bitfile_read(config_file_name);
-    if ( bf == NULL ) {
-	errmsg(__func__,"reading bitstream file '%s'", config_file_name );
-	return EC_FILE;
-    }
-    retval = bitfile_validate_xilinx_info(bf);
-    if ( retval != 0 ) {
-	errmsg(__func__,"not a valid Xilinx bitfile" );
-	return EC_FILE;
-    }
-    bitfile_print_xilinx_info(bf);
+    bf = open_bitfile_or_die(config_file_name);
     /* chunk 'b' has the target device */
     ch = bitfile_find_chunk(bf, 'b', 0);
     chip = (char *)(ch->body);
@@ -423,6 +437,10 @@ static void usage(void) {
 
 
 int program(char *device_type, char *device_id, char *filename) {
+    struct bitfile *bf;
+
+    bf = open_bitfile_or_die(filename);
+
     if (device_id != NULL) {
         printf("should program %s (%s) with %s\n", device_type, device_id, filename);
     } else {
