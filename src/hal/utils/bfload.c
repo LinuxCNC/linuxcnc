@@ -452,9 +452,10 @@ int program(char *device_type, char *device_id, char *filename) {
     struct bitfile *bf;
     struct board_info *board;
     int board_num;
+    struct upci_dev_info info;
 
     int num_boards;
-    int i;
+    int i, r;
 
     bf = open_bitfile_or_die(filename);
 
@@ -487,7 +488,33 @@ int program(char *device_type, char *device_id, char *filename) {
             return -1;
         }
     }
-    printf("should program %s (%d) with %s\n", device_type, board_num, filename);
+
+
+    //
+    // find the PCI board
+    //
+
+    r = upci_scan_bus();
+    if (r < 0) {
+	errmsg(__func__, "PCI bus data missing");
+	return EC_SYS;
+    }
+
+    info.vendor_id = board->vendor_id;
+    info.device_id = board->device_id;
+    info.ss_vendor_id = board->ss_vendor_id;
+    info.ss_device_id = board->ss_device_id;
+    info.instance = board_num;
+
+    board->upci_devnum = upci_find_device(&info);
+    if (board->upci_devnum < 0) {
+	errmsg(__func__, "%s board #%d not found",
+	    device_type, board_num);
+	return EC_HDW;
+    }
+
+    upci_print_device_info(board->upci_devnum);
+
     printf("but new-style command-lines are not supported yet\n");
 
     return -1;
