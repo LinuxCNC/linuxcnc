@@ -395,18 +395,18 @@ extern int emcJointSetMaxAcceleration(int joint, double acc);
 
 extern int emcJointInit(int joint);
 extern int emcJointHalt(int joint);
-extern int emcJointAbort(int joint);
 extern int emcJointEnable(int joint);
 extern int emcJointDisable(int joint);
 extern int emcJointHome(int joint);
 extern int emcJointUnhome(int joint);
-extern int emcAxisJog(int joint, double vel);
-extern int emcAxisIncrJog(int joint, double incr, double vel);
-extern int emcAxisAbsJog(int joint, double pos, double vel);
 extern int emcJointActivate(int joint);
 extern int emcJointDeactivate(int joint);
 extern int emcJointOverrideLimits(int joint);
 extern int emcJointLoadComp(int joint, const char *file, int type);
+extern int emcJogStop(int nr);
+extern int emcJogCont(int nr, double vel);
+extern int emcJogIncr(int nr, double incr, double vel);
+extern int emcJogAbs(int nr, double pos, double vel);
 
 
 extern int emcJointUpdate(EMC_JOINT_STAT stat[], int numJoints);
