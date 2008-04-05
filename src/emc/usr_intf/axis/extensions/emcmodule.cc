@@ -1028,8 +1028,8 @@ static PyObject *jog(pyCommandChannel *s, PyObject *o) {
                 (unsigned long)PyTuple_Size(o));
             return NULL;
         }
-        EMC_JOINT_ABORT abort;
-        abort.joint = axis;
+        EMC_JOG_STOP abort;
+        abort.axis = axis;
         abort.serial_number = next_serial(s);
         s->c->write(abort);
         emcWaitCommandReceived(s->serial, s->s);
@@ -1040,7 +1040,7 @@ static PyObject *jog(pyCommandChannel *s, PyObject *o) {
                 (unsigned long)PyTuple_Size(o));
             return NULL;
         }
-        EMC_AXIS_JOG cont;
+        EMC_JOG_CONT cont;
         cont.axis = axis;
         cont.vel = vel;
         cont.serial_number = next_serial(s);
@@ -1054,7 +1054,7 @@ static PyObject *jog(pyCommandChannel *s, PyObject *o) {
             return NULL;
         }
 
-        EMC_AXIS_INCR_JOG incr;
+        EMC_JOG_INCR incr;
         incr.axis = axis;
         incr.vel = vel;
         incr.incr = inc;
@@ -1276,7 +1276,6 @@ static PyMemberDef Command_members[] = {
 static PyMethodDef Command_methods[] = {
     {"debug", (PyCFunction)debug, METH_VARARGS},
     {"teleop_enable", (PyCFunction)teleop, METH_VARARGS},
-    {"teleop_vector", (PyCFunction)set_teleop_vector, METH_VARARGS},
     {"traj_mode", (PyCFunction)set_traj_mode, METH_VARARGS},
     {"wait_complete", (PyCFunction)wait_complete, METH_NOARGS},
     {"state", (PyCFunction)state, METH_VARARGS},
