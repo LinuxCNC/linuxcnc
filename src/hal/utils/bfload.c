@@ -261,7 +261,7 @@ static char *config_file_name;
 static int card_number;
 
 
-struct bitfile *open_bitfile_or_die(const char *filename) {
+struct bitfile *open_bitfile_or_die(char *filename) {
     struct bitfile *bf;
     int r;
 
@@ -450,8 +450,31 @@ static void usage(void) {
 
 int program(char *device_type, char *device_id, char *filename) {
     struct bitfile *bf;
+    struct board_info *board;
+
+    int num_boards;
+    int i;
 
     bf = open_bitfile_or_die(filename);
+
+    // find device_type:device_id
+    num_boards = sizeof(board_info_table) / sizeof(struct board_info);
+    board = NULL;
+    for (i = 0; i < num_boards; i ++) {
+        if (strcmp(board_info_table[i].board_type, device_type) == 0) {
+            board = &board_info_table[i];
+            break;
+        }
+    }
+    if (board == NULL) {
+        printf("board type '%s' is unknown\n", device_type);
+        return -1;
+    }
+
+    printf("found board:\n");
+    printf("    board_type '%s'\n", board->board_type);
+    printf("    chip_type '%s'\n", board->chip_type);
+    printf("    PCI ID %04x:%04x %04x:%04x\n", board->vendor_id, board->device_id, board->ss_vendor_id, board->ss_vendor_id);
 
     if (device_id != NULL) {
         printf("should program %s (%s) with %s\n", device_type, device_id, filename);
