@@ -22,6 +22,7 @@
 
 // Forward class declarations
 class EMC_JOINT_STAT;
+class EMC_AXIS_STAT;
 class EMC_TRAJ_STAT;
 class EMC_MOTION_STAT;
 class EMC_TASK_STAT;
@@ -92,7 +93,8 @@ class PM_CARTESIAN;
 #define EMC_JOINT_UNHOME_TYPE                         ((NMLTYPE) 135)
 #define EMC_JOG_STOP_TYPE                             ((NMLTYPE) 136)
 
-#define EMC_JOINT_STAT_TYPE                          ((NMLTYPE) 199)
+#define EMC_JOINT_STAT_TYPE                          ((NMLTYPE) 198)
+#define EMC_AXIS_STAT_TYPE                           ((NMLTYPE) 199)
 
 // NML for EMC_TRAJ
 
@@ -376,6 +378,15 @@ extern int emcOperatorText(int id, const char *fmt, ...);
 // print note to operator
 extern int emcOperatorDisplay(int id, const char *fmt, ...);
 
+// implementation functions for EMC_AXIS types
+
+extern int emcAxisSetUnits(int axis, double units);
+extern int emcAxisSetMinPositionLimit(int axis, double limit);
+extern int emcAxisSetMaxPositionLimit(int axis, double limit);
+extern int emcAxisSetMaxVelocity(int axis, double vel);
+extern int emcAxisSetMaxAcceleration(int axis, double acc);
+
+
 // implementation functions for EMC_JOINT types
 
 extern int emcJointSetJoint(int joint, unsigned char jointType);
@@ -590,8 +601,8 @@ extern EMC_MOTION_STAT *emcMotionStatus;
 
 // values for EMC_JOINT_SET_JOINT, jointType
 enum EmcJointType {
-    EMC_JOINT_LINEAR             = 1,
-    EMC_JOINT_ANGULAR            = 2,
+    EMC_LINEAR             = 1,
+    EMC_ANGULAR            = 2,
 };
 
 /**

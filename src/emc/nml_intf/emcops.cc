@@ -21,7 +21,7 @@
 EMC_JOINT_STAT::EMC_JOINT_STAT():
 EMC_JOINT_STAT_MSG(EMC_JOINT_STAT_TYPE, sizeof(EMC_JOINT_STAT))
 {
-    jointType = EMC_JOINT_LINEAR;
+    jointType = EMC_LINEAR;
     units = 1.0;
     backlash = 0.0;
     maxError = 0.0;
