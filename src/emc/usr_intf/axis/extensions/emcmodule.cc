@@ -1013,7 +1013,6 @@ static PyObject *unhome(pyCommandChannel *s, PyObject *o) {
 // jog(JOG_STOP, axis) 
 // jog(JOG_CONTINUOUS, axis, speed) 
 // jog(JOG_INCREMENT, axis, speed, increment)
-//FIXME-AJ: clean up when jogging is decided/fixed
 static PyObject *jog(pyCommandChannel *s, PyObject *o) {
     int fn;
     int axis;
