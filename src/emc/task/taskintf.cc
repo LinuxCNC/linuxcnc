@@ -56,8 +56,7 @@ static emcmot_command_t emcmotCommand;
 
 static int emcmotTrajInited = 0;	// non-zero means traj called init
 static int emcmotJointsInited[EMCMOT_MAX_JOINTS] = { 0 };	// non-zero means joint called init
-//FIXME-AJ: EMC_AXES_MAX here
-static int emcmotAxesInited[EMCMOT_MAX_JOINTS] = { 0 };	// non-zero means joint called init
+static int emcmotAxesInited[EMC_AXIS_MAX] = { 0 };	// non-zero means joint called init
 
 __attribute__ ((unused))
 static int emcmotIoInited = 0;	// non-zero means io called init
@@ -77,9 +76,8 @@ static double localEmcMaxAcceleration = DBL_MAX;
 static double localEmcJointUnits[EMCMOT_MAX_JOINTS];
 
 //things referring to axes
-//FIXME-AJ: put EMC_MAX_AXES back, joints for now to be able to compile
 //FIXME-AJ: see if needed
-static double localEmcAxisUnits[EMC_JOINT_MAX];
+static double localEmcAxisUnits[EMC_AXIS_MAX];
 
 // axes and joints are numbered 0..NUM-1
 
@@ -288,8 +286,6 @@ int emcJointSetMaxVelocity(int joint, double vel)
     }
 
     JOINT_MAX_VELOCITY[joint] = vel;
-    //FIXME-AJ: need functions for setting the AXIS_MAX_VEL (either from the ini, or from kins..)
-    AXIS_MAX_VELOCITY[joint] = vel;
 
     emcmotCommand.command = EMCMOT_SET_JOINT_VEL_LIMIT;
     emcmotCommand.joint = joint;
@@ -314,6 +310,108 @@ int emcJointSetMaxAcceleration(int joint, double acc)
     emcmotCommand.acc = acc;
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
+
+/**********************************************************************************************
+*   functions involving carthesian Axes (X,Y,Z,A,B,C,U,V,W)                                   *
+**********************************************************************************************/
+    
+int emcAxisSetMinPositionLimit(int axis, double limit)
+{
+    if (axis < 0 || axis >= EMC_AXIS_MAX) {
+	return 0;
+    }
+
+//FIXME-AJ: doing nothing atm, figure out where these should go (motion? TP?, canon only?)
+#if 0
+    emcmotCommand.command = EMCMOT_SET_AXIS_POSITION_LIMITS;
+    emcmotCommand.joint = axis;
+    emcmotCommand.maxLimit = saveMaxLimit[axis];
+    emcmotCommand.minLimit = limit;
+    saveMinLimit[axis] = limit;
+
+#ifdef ISNAN_TRAP
+    if (isnan(emcmotCommand.maxLimit) || isnan(emcmotCommand.minLimit)) {
+	printf("isnan error in emcAxisSetMinPosition\n");
+	return -1;
+    }
+#endif
+
+    return usrmotWriteEmcmotCommand(&emcmotCommand);
+#endif
+    return 0;
+}
+
+int emcAxisSetMaxPositionLimit(int axis, double limit)
+{
+    if (axis < 0 || axis >= EMCMOT_MAX_JOINTS) {
+	return 0;
+    }
+
+//FIXME-AJ: doing nothing atm, figure out where these should go (motion? TP?, canon only?)
+#if 0
+    emcmotCommand.command = EMCMOT_SET_POSITION_LIMITS;
+    emcmotCommand.joint = axis;
+    emcmotCommand.minLimit = saveMinLimit[axis];
+    emcmotCommand.maxLimit = limit;
+    saveMaxLimit[axis] = limit;
+
+#ifdef ISNAN_TRAP
+    if (isnan(emcmotCommand.maxLimit) || isnan(emcmotCommand.minLimit)) {
+	printf("isnan error in emcAxisSetMaxPosition\n");
+	return -1;
+    }
+#endif
+
+    return usrmotWriteEmcmotCommand(&emcmotCommand);
+#endif
+    return 0;
+}
+
+
+int emcAxisSetMaxVelocity(int axis, double vel)
+{
+    if (axis < 0 || axis >= EMC_AXIS_MAX) {
+	return 0;
+    }
+
+    if (vel < 0.0) {
+	vel = 0.0;
+    }
+
+    AXIS_MAX_VELOCITY[axis] = vel;
+
+    //FIXME-AJ: need to see if we want to send these to motion
+    // disabled for now
+#if 0
+    emcmotCommand.command = EMCMOT_SET_AXIS_VEL_LIMIT;
+    emcmotCommand.joint = axis;
+    emcmotCommand.vel = vel;
+    return usrmotWriteEmcmotCommand(&emcmotCommand);
+#endif
+    return 0;
+}
+
+int emcAxisSetMaxAcceleration(int axis, double acc)
+{
+
+    if (axis < 0 || axis >= EMC_AXIS_MAX) {
+	return 0;
+    }
+    if (acc < 0.0) {
+	acc = 0.0;
+    }
+    AXIS_MAX_ACCELERATION[axis] = acc;    
+    //FIXME-AJ: need to see if we want to send these to motion
+    // disabled for now
+#if 0
+    emcmotCommand.command = EMCMOT_SET_JOINT_ACC_LIMIT;
+    emcmotCommand.joint = joint;
+    emcmotCommand.acc = acc;
+    return usrmotWriteEmcmotCommand(&emcmotCommand);
+#endif
+    return 0;
+}
+
 
 /* This function checks to see if any joint or the traj has
    been inited already.  At startup, if none have been inited,
@@ -357,13 +455,11 @@ int emcJointInit(int joint)
     return retval;
 }
 
-//FIXME-AJ: disable for now
-#if 0
 int emcAxisInit(int axis)
 {
     int retval = 0;
-    // FIXME-AJ: actually EMC_AXIS_MAX
-    if (axis < 0 || axis >= EMC_JOINT_MAX) {
+
+    if (axis < 0 || axis >= EMC_AXIS_MAX) {
 	return 0;
     }
     // init emcmot interface
@@ -379,7 +475,6 @@ int emcAxisInit(int axis)
     }
     return retval;
 }
-#endif
 
 int emcJointHalt(int joint)
 {
