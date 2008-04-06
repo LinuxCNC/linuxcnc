@@ -17,12 +17,9 @@
 #include "emc.hh"		// EMC_AXIS_STAT
 
 /* initializes axis modules from ini file */
-//FIXME-AJ: disable for now
-#if 0
 extern int iniAxis(int axis, const char *filename);
 
 /* dump axis stat to ini file */
 extern int dumpAxis(int axis, const char *filename,
 		    EMC_AXIS_STAT * status);
-#endif
 #endif

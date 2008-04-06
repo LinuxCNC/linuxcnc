@@ -34,8 +34,8 @@
 
 
 IniFile::StrIntPair         EmcIniFile::jointTypeMap[] = {
-    {"LINEAR", EMC_JOINT_LINEAR},
-    {"ANGULAR", EMC_JOINT_ANGULAR},
+    {"LINEAR", EMC_LINEAR},
+    {"ANGULAR", EMC_ANGULAR},
     { NULL, 0 },
 };
 
