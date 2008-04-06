@@ -1980,8 +1980,8 @@ static cmdResponseType getJointType(char *s, connectionRecType *context)
     strcpy(context->outBuf, pJointType);
     for (i=0; i<6; i++) {
       switch (emcStatus->motion.joint[i].jointType) {
-        case EMC_JOINT_LINEAR: strcat(context->outBuf, " LINEAR"); break;
-	case EMC_JOINT_ANGULAR: strcat(context->outBuf, " ANGULAR"); break;
+        case EMC_LINEAR: strcat(context->outBuf, " LINEAR"); break;
+	case EMC_ANGULAR: strcat(context->outBuf, " ANGULAR"); break;
 	default: strcat(context->outBuf, "CUSTOM");
 	}
       }
@@ -1989,8 +1989,8 @@ static cmdResponseType getJointType(char *s, connectionRecType *context)
   else {
       joint = atoi(s);
       switch (emcStatus->motion.joint[joint].jointType) {
-        case EMC_JOINT_LINEAR: strcpy(buf, " LINEAR"); break;
-	case EMC_JOINT_ANGULAR: strcpy(buf, " ANGULAR"); break;
+        case EMC_LINEAR: strcpy(buf, " LINEAR"); break;
+	case EMC_ANGULAR: strcpy(buf, " ANGULAR"); break;
 	default: strcpy(buf, "CUSTOM");
 	}
       sprintf(context->outBuf, "%s %d %s", pJointType, joint, buf);
@@ -2008,7 +2008,7 @@ static cmdResponseType getJointUnits(char *s, connectionRecType *context)
     strcpy(context->outBuf, pJointUnits);
     for (i=0; i<6; i++) {
       switch (emcStatus->motion.joint[i].jointType) {
-        case EMC_JOINT_LINEAR: 
+        case EMC_LINEAR: 
 	  if (CLOSE(emcStatus->motion.joint[i].units, 1.0, LINEAR_CLOSENESS))
 	    strcat(context->outBuf, " MM");
 	  else 
@@ -2019,7 +2019,7 @@ static cmdResponseType getJointUnits(char *s, connectionRecType *context)
 	        LINEAR_CLOSENESS)) strcat(context->outBuf, " CM");
 	      else strcat(context->outBuf, " CUSTOM");
 	  break;
-	case EMC_JOINT_ANGULAR:
+	case EMC_ANGULAR:
 	  if (CLOSE(emcStatus->motion.joint[i].units, 1.0, ANGULAR_CLOSENESS))
 	    strcat(context->outBuf, " DEG");
 	  else
@@ -2037,7 +2037,7 @@ static cmdResponseType getJointUnits(char *s, connectionRecType *context)
   else {
       joint = atoi(s);
       switch (emcStatus->motion.joint[joint].jointType) {
-        case EMC_JOINT_LINEAR: 
+        case EMC_LINEAR: 
 	  if (CLOSE(emcStatus->motion.joint[joint].units, 1.0, LINEAR_CLOSENESS))
 	    strcpy(buf, "MM");
 	  else 
@@ -2048,7 +2048,7 @@ static cmdResponseType getJointUnits(char *s, connectionRecType *context)
 	        LINEAR_CLOSENESS)) strcpy(buf, "CM");
 	      else strcpy(buf, "CUSTOM");
 	  break;
-	case EMC_JOINT_ANGULAR:
+	case EMC_ANGULAR:
 	  if (CLOSE(emcStatus->motion.joint[joint].units, 1.0, ANGULAR_CLOSENESS))
 	    strcpy(buf, "DEG");
 	  else

@@ -2277,10 +2277,10 @@ static int emc_joint_type(ClientData clientdata,
 	}
 
 	switch (emcStatus->motion.joint[joint].jointType) {
-	case EMC_JOINT_LINEAR:
+	case EMC_LINEAR:
 	    Tcl_SetResult(interp, "linear", TCL_VOLATILE);
 	    break;
-	case EMC_JOINT_ANGULAR:
+	case EMC_ANGULAR:
 	    Tcl_SetResult(interp, "angular", TCL_VOLATILE);
 	    break;
 	default:
@@ -2322,7 +2322,7 @@ static int emc_joint_units(ClientData clientdata,
 	}
 
 	switch (emcStatus->motion.joint[joint].jointType) {
-	case EMC_JOINT_LINEAR:
+	case EMC_LINEAR:
 	    /* try mm */
 	    if (CLOSE(emcStatus->motion.joint[joint].units, 1.0,
 		      LINEAR_CLOSENESS)) {
@@ -2347,7 +2347,7 @@ static int emc_joint_units(ClientData clientdata,
 	    return TCL_OK;
 	    break;
 
-	case EMC_JOINT_ANGULAR:
+	case EMC_ANGULAR:
 	    /* try degrees */
 	    if (CLOSE(emcStatus->motion.joint[joint].units, 1.0,
 		      ANGULAR_CLOSENESS)) {

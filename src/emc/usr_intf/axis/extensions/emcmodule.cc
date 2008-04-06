@@ -2016,8 +2016,8 @@ initemc(void) {
     PyModule_AddObject(m, "tool", (PyObject*)&ToolResultType);
     PyModule_AddObject(m, "version", PyString_FromString(PACKAGE_VERSION));
 
-    ENUMX(4, EMC_JOINT_LINEAR);
-    ENUMX(4, EMC_JOINT_ANGULAR);
+    ENUMX(4, EMC_LINEAR);
+    ENUMX(4, EMC_ANGULAR);
 
     ENUMX(9, EMC_TASK_INTERP_IDLE);
     ENUMX(9, EMC_TASK_INTERP_READING);
