@@ -410,6 +410,8 @@ static int checkInterpList(NML_INTERP_LIST * il, EMC_STAT * stat)
 			     operator_error_msg->error);
 	    break;
 
+//FIXME-AJ: investigate removing these tests. it seems odd to test only a few.
+//otoh, they are busted. they check axis limits, but refer joints
 	case EMC_TRAJ_LINEAR_MOVE_TYPE:
 	    if (linear_move->end.tran.x >
 		stat->motion.joint[0].maxPositionLimit) {
