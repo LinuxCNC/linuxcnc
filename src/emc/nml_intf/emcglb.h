@@ -58,10 +58,12 @@ extern "C" {
     extern int emc_task_interp_max_len;
 
     extern char tool_table_file[LINELEN];
+
+// JOINT_MAX_* are used to send limits to motion
     extern double JOINT_MAX_VELOCITY[EMC_JOINT_MAX];
     extern double JOINT_MAX_ACCELERATION[EMC_JOINT_MAX];
 
-//FIXME-AJ: figure these out (which ones are used by canon)
+// AXIS_MAX_* are used by canon
     extern double AXIS_MAX_VELOCITY[EMC_JOINT_MAX];
     extern double AXIS_MAX_ACCELERATION[EMC_JOINT_MAX];
 
