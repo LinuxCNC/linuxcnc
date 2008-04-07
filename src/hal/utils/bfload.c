@@ -388,6 +388,7 @@ int main(int argc, char *argv[])
 }
 
 
+// NOTE: can only list PCI devices, no EPP devices
 void list_devices(void) {
     int r;
     int pci_index;
@@ -404,8 +405,6 @@ void list_devices(void) {
     num_pci_devices = r;
     num_boards = sizeof(board_info_table) / sizeof(struct board_info);
 
-    // printf("%d pci devices, %d known boards\n", num_pci_devices, num_boards);
-
     for (pci_index = 0; pci_index < num_pci_devices; pci_index ++) {
         struct upci_dev_info p;
         int board_index;
@@ -416,6 +415,7 @@ void list_devices(void) {
         for (board_index = 0; board_index < num_boards; board_index ++) {
             struct board_info *board = &board_info_table[board_index];
 
+            if (board->io_type != IO_TYPE_PCI) continue;
             if (board->io.pci.vendor_id != p.vendor_id) continue;
             if (board->io.pci.device_id != p.device_id) continue;
             if (board->io.pci.ss_vendor_id != p.ss_vendor_id) continue;
@@ -458,13 +458,12 @@ static void usage(void) {
 }
 
 
+int program_pci_board(struct board_info *board, char *device_id, struct bitfile *bf);
 int program(char *device_type, char *device_id, char *filename) {
     struct bitfile *bf;
     char *bitfile_chip;
     struct bitfile_chunk *ch;
     struct board_info *board;
-    int board_num;
-    struct upci_dev_info info;
 
     int num_boards;
     int i, r;
@@ -507,9 +506,38 @@ int program(char *device_type, char *device_id, char *filename) {
 
 
     // 
-    // which board of this type?
-    // FIXME: this function from here down assumes PCI
+    // At this point the program has identified the board type (it's in
+    // "board") and read in the bitfile (it's in "bf").
     //
+    // Next we need to parse the device_id to find out *which* board of the
+    // required type we're supposed to program.
+    //
+
+    r = 0;
+    switch (board->io_type) {
+        case IO_TYPE_PCI:
+            r = program_pci_board(board, device_id, bf);
+            break;
+
+        default:
+            printf("don't know how to parse %s device id '%s'\n", board->board_type, device_id);
+            return -1;
+    }
+    if (r != 0) {
+        return -1;
+    }
+
+    printf("it worked!\n");
+    exit(0);
+}
+
+
+int program_pci_board(struct board_info *board, char *device_id, struct bitfile *bf) {
+    struct bitfile_chunk *ch;
+    int board_num;
+    struct upci_dev_info info;
+    int r;
+
 
     if (device_id == NULL) {
         board_num = 0;
@@ -518,7 +546,7 @@ int program(char *device_type, char *device_id, char *filename) {
         board_num = strtol(device_id, &endp, 0);
         if (*endp != '\0') {
             printf("error parsing board number from '%s'\n", device_id);
-            return -1;
+            return EC_BADCL;
         }
     }
 
@@ -542,7 +570,7 @@ int program(char *device_type, char *device_id, char *filename) {
     board->io.pci.upci_devnum = upci_find_device(&info);
     if (board->io.pci.upci_devnum < 0) {
 	errmsg(__func__, "%s board #%d not found",
-	    device_type, board_num);
+	    board->board_type, board_num);
 	return EC_HDW;
     }
 
@@ -556,7 +584,7 @@ int program(char *device_type, char *device_id, char *filename) {
     /* chunk 'e' has the bitstream */
     ch = bitfile_find_chunk(bf, 'e', 0);
 
-    printf ("Loading configuration %s into %s:%d board...\n", filename, device_type, board_num);
+    printf ("Loading configuration %s into %s:%d board...\n", bf->filename, board->board_type, board_num);
     r = board->program_funct(board, ch);
     if (r != 0) {
 	errmsg(__func__, "configuration did not load");
@@ -576,8 +604,8 @@ int program(char *device_type, char *device_id, char *filename) {
     }
 
     upci_reset();
-    printf("Finished!\n");
-    exit(0);
+    
+    return 0;
 }
 
 
