@@ -268,6 +268,15 @@ struct board_info board_info_table[] = {
 
     {
         .board_type = "7i43",
+        .chip_type = "3s200tq144",
+        .io_type = IO_TYPE_EPP,
+        .io.epp.io_addr = 0x378,
+        .io.epp.io_addr_hi = 0x778,
+        .program_funct = program_7i43_fpga
+    },
+
+    {
+        .board_type = "7i43",
         .chip_type = "3s400tq144",
         .io_type = IO_TYPE_EPP,
         .io.epp.io_addr = 0x378,
@@ -484,6 +493,7 @@ int program(char *device_type, char *device_id, char *filename) {
     struct bitfile_chunk *ch;
     struct board_info *board;
 
+    int found_device_type;
     int num_boards;
     int i, r;
 
@@ -494,6 +504,10 @@ int program(char *device_type, char *device_id, char *filename) {
 
     bf = open_bitfile_or_die(filename);
 
+    // chunk 'b' has the bitfile's target device, the chip type it's for
+    ch = bitfile_find_chunk(bf, 'b', 0);
+    bitfile_chip = (char *)(ch->body);
+
 
     //
     // look up the device type that the caller requested in our table of
@@ -502,25 +516,24 @@ int program(char *device_type, char *device_id, char *filename) {
 
     num_boards = sizeof(board_info_table) / sizeof(struct board_info);
     board = NULL;
+    found_device_type = 0;
     for (i = 0; i < num_boards; i ++) {
         if (strcmp(board_info_table[i].board_type, device_type) == 0) {
-            board = &board_info_table[i];
-            break;
+            found_device_type = 1;
+            if (strcmp(board_info_table[i].chip_type, bitfile_chip) == 0) {
+                board = &board_info_table[i];
+                break;
+            }
         }
     }
-    if (board == NULL) {
+    if (!found_device_type) {
         printf("board type '%s' is unknown\n", device_type);
         return -1;
     }
-
-    // chunk 'b' has the bitfile's target device, the chip type it's for
-    ch = bitfile_find_chunk(bf, 'b', 0);
-    bitfile_chip = (char *)(ch->body);
-    if (strcmp(board->chip_type, bitfile_chip) != 0) {
+    if (board == NULL) {
         printf("chip type incompatibility\n");
-        printf("bitfile '%s' is for chip type '%s'\n", filename, bitfile_chip);
-        printf("device type '%s' has chip type '%s'\n", device_type, board->chip_type);
-        return EC_BADCL;
+        printf("board type '%s' is not available with bitfile's FPGA type '%s'\n", device_type, bitfile_chip);
+        return -1;
     }
 
 
