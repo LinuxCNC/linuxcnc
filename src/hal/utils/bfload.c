@@ -188,12 +188,19 @@ Programming sequence:
 struct board_info {
     char *board_type;
     char *chip_type;
-    unsigned short vendor_id;
-    unsigned short device_id;
-    unsigned short ss_vendor_id;
-    unsigned short ss_device_id;
-    int fpga_pci_region;
-    int upci_devnum;
+
+    enum { IO_TYPE_PCI } io_type;
+    union {
+        struct {
+            unsigned short vendor_id;
+            unsigned short device_id;
+            unsigned short ss_vendor_id;
+            unsigned short ss_device_id;
+            int fpga_pci_region;
+            int upci_devnum;
+        } pci;
+    } io;
+
     int (*program_funct) (struct board_info *bd, struct bitfile_chunk *ch);
 };
 
@@ -215,36 +222,39 @@ struct board_info board_info_table[] = {
     {
         .board_type = "5i20",
         .chip_type = "2s200pq208",
-        .vendor_id = 0x10B5,
-        .device_id = 0x9030,
-        .ss_vendor_id = 0x10B5,
-        .ss_device_id = 0x3131,
-        .fpga_pci_region = 5,
-        .upci_devnum = 0,
+        .io_type = IO_TYPE_PCI,
+        .io.pci.vendor_id = 0x10B5,
+        .io.pci.device_id = 0x9030,
+        .io.pci.ss_vendor_id = 0x10B5,
+        .io.pci.ss_device_id = 0x3131,
+        .io.pci.fpga_pci_region = 5,
+        .io.pci.upci_devnum = 0,
         .program_funct = program_5i20_fpga
     },
 
     {
         .board_type = "5i22-1M",
         .chip_type = "3s1000fg320",
-        .vendor_id = 0x10B5,
-        .device_id = 0x9054,
-        .ss_vendor_id = 0x10B5,
-        .ss_device_id = 0x3132,
-        .fpga_pci_region = 3,
-        .upci_devnum = 0,
+        .io_type = IO_TYPE_PCI,
+        .io.pci.vendor_id = 0x10B5,
+        .io.pci.device_id = 0x9054,
+        .io.pci.ss_vendor_id = 0x10B5,
+        .io.pci.ss_device_id = 0x3132,
+        .io.pci.fpga_pci_region = 3,
+        .io.pci.upci_devnum = 0,
         .program_funct = program_5i22_fpga
     },
 
     {
         .board_type = "5i22-1.5M",
         .chip_type = "3s1500fg320",
-        .vendor_id = 0x10B5,
-        .device_id = 0x9054,
-        .ss_vendor_id = 0x10B5,
-        .ss_device_id = 0x3131,
-        .fpga_pci_region = 3,
-        .upci_devnum = 0,
+        .io_type = IO_TYPE_PCI,
+        .io.pci.vendor_id = 0x10B5,
+        .io.pci.device_id = 0x9054,
+        .io.pci.ss_vendor_id = 0x10B5,
+        .io.pci.ss_device_id = 0x3131,
+        .io.pci.fpga_pci_region = 3,
+        .io.pci.upci_devnum = 0,
         .program_funct = program_5i22_fpga
     }
 
@@ -337,21 +347,21 @@ int main(int argc, char *argv[])
 	return EC_SYS;
     }
 
-    info.vendor_id = board.vendor_id;
-    info.device_id = board.device_id;
-    info.ss_vendor_id = board.ss_vendor_id;
-    info.ss_device_id = board.ss_device_id;
+    info.vendor_id = board.io.pci.vendor_id;
+    info.device_id = board.io.pci.device_id;
+    info.ss_vendor_id = board.io.pci.ss_vendor_id;
+    info.ss_device_id = board.io.pci.ss_device_id;
     info.instance = card_number;
 
     /* find the matching device */
-    board.upci_devnum = upci_find_device(&info);
-    if ( board.upci_devnum < 0 ) {
+    board.io.pci.upci_devnum = upci_find_device(&info);
+    if ( board.io.pci.upci_devnum < 0 ) {
 	errmsg(__func__, "%s board #%d not found",
 	    board.board_type, info.instance );
 	return EC_HDW;
     }
 
-    upci_print_device_info(board.upci_devnum);
+    upci_print_device_info(board.io.pci.upci_devnum);
 
     printf ( "Loading configuration into %s board...\n", board.board_type );
     retval = board.program_funct(&board, ch);
@@ -406,10 +416,10 @@ void list_devices(void) {
         for (board_index = 0; board_index < num_boards; board_index ++) {
             struct board_info *board = &board_info_table[board_index];
 
-            if (board->vendor_id != p.vendor_id) continue;
-            if (board->device_id != p.device_id) continue;
-            if (board->ss_vendor_id != p.ss_vendor_id) continue;
-            if (board->ss_device_id != p.ss_device_id) continue;
+            if (board->io.pci.vendor_id != p.vendor_id) continue;
+            if (board->io.pci.device_id != p.device_id) continue;
+            if (board->io.pci.ss_vendor_id != p.ss_vendor_id) continue;
+            if (board->io.pci.ss_device_id != p.ss_device_id) continue;
 
             printf("%s at PCI %02x:%02x.%x\n", board->board_type, p.bus, p.dev, p.func);
         }
@@ -523,20 +533,20 @@ int program(char *device_type, char *device_id, char *filename) {
 	return EC_SYS;
     }
 
-    info.vendor_id = board->vendor_id;
-    info.device_id = board->device_id;
-    info.ss_vendor_id = board->ss_vendor_id;
-    info.ss_device_id = board->ss_device_id;
+    info.vendor_id = board->io.pci.vendor_id;
+    info.device_id = board->io.pci.device_id;
+    info.ss_vendor_id = board->io.pci.ss_vendor_id;
+    info.ss_device_id = board->io.pci.ss_device_id;
     info.instance = board_num;
 
-    board->upci_devnum = upci_find_device(&info);
-    if (board->upci_devnum < 0) {
+    board->io.pci.upci_devnum = upci_find_device(&info);
+    if (board->io.pci.upci_devnum < 0) {
 	errmsg(__func__, "%s board #%d not found",
 	    device_type, board_num);
 	return EC_HDW;
     }
 
-    upci_print_device_info(board->upci_devnum);
+    upci_print_device_info(board->io.pci.upci_devnum);
 
 
     //
@@ -693,16 +703,16 @@ static int program_5i20_fpga(struct board_info *bd, struct bitfile_chunk *ch)
 
     printf("Opening PCI regions...\n");
     /* open regions for access */
-    ctrl_region = upci_open_region(bd->upci_devnum, 1);
+    ctrl_region = upci_open_region(bd->io.pci.upci_devnum, 1);
     if ( ctrl_region < 0 ) {
 	errmsg(__func__, "could not open device %d, region %d (5i20 control port)",
-	    bd->upci_devnum, 1 );
+	    bd->io.pci.upci_devnum, 1 );
 	goto cleanup0;
     }
-    data_region = upci_open_region(bd->upci_devnum, 2);
+    data_region = upci_open_region(bd->io.pci.upci_devnum, 2);
     if ( data_region < 0 ) {
 	errmsg(__func__, "could not open device %d, region %d (5i20 data port)",
-	    bd->upci_devnum, 2 );
+	    bd->io.pci.upci_devnum, 2 );
 	goto cleanup1;
     }
 
@@ -817,16 +827,16 @@ static int program_5i22_fpga(struct board_info *bd, struct bitfile_chunk *ch)
 
     printf("Opening PCI regions...\n");
     /* open regions for access */
-    ctrl_region = upci_open_region(bd->upci_devnum, 1);
+    ctrl_region = upci_open_region(bd->io.pci.upci_devnum, 1);
     if ( ctrl_region < 0 ) {
 		errmsg(__func__, "could not open device %d, region %d (5i22 control port)",
-		    bd->upci_devnum, 1 );
+		    bd->io.pci.upci_devnum, 1 );
 		goto cleanup22_0;
     }
-    data_region = upci_open_region(bd->upci_devnum, 2);
+    data_region = upci_open_region(bd->io.pci.upci_devnum, 2);
     if ( data_region < 0 ) {
 		errmsg(__func__, "could not open device %d, region %d (5i22 data port)",
-		    bd->upci_devnum, 2 );
+		    bd->io.pci.upci_devnum, 2 );
 		goto cleanup22_1;
     }
     printf("Resetting FPGA...\n" );
@@ -921,11 +931,11 @@ static int write_fpga_ram(struct board_info *bd, struct bitfile_chunk *ch)
     int mem_region, n;
     __u32 data;
 
-    printf("Opening PCI region %d...\n", bd->fpga_pci_region);
-    mem_region = upci_open_region(bd->upci_devnum, bd->fpga_pci_region);
+    printf("Opening PCI region %d...\n", bd->io.pci.fpga_pci_region);
+    mem_region = upci_open_region(bd->io.pci.upci_devnum, bd->io.pci.fpga_pci_region);
     if ( mem_region < 0 ) {
 	errmsg(__func__, "could not open device %d, region %d (FPGA memory)",
-	    bd->upci_devnum, bd->fpga_pci_region );
+	    bd->io.pci.upci_devnum, bd->io.pci.fpga_pci_region );
 	return -1;
     }
     printf("Writing data to FPGA...\n");
