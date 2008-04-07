@@ -111,11 +111,13 @@ Programming sequence:
 
 #include <errno.h>
 #include <stdarg.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
+#include <sys/io.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 
@@ -189,7 +191,7 @@ struct board_info {
     char *board_type;
     char *chip_type;
 
-    enum { IO_TYPE_PCI } io_type;
+    enum { IO_TYPE_PCI, IO_TYPE_EPP } io_type;
     union {
         struct {
             unsigned short vendor_id;
@@ -199,6 +201,11 @@ struct board_info {
             int fpga_pci_region;
             int upci_devnum;
         } pci;
+
+        struct {
+            uint16_t io_addr;
+            uint16_t io_addr_hi;
+        } epp;
     } io;
 
     int (*program_funct) (struct board_info *bd, struct bitfile_chunk *ch);
@@ -211,6 +218,7 @@ struct board_info {
 
 static int program_5i20_fpga(struct board_info *bd, struct bitfile_chunk *ch);
 static int program_5i22_fpga(struct board_info *bd, struct bitfile_chunk *ch);
+static int program_7i43_fpga(struct board_info *board, struct bitfile_chunk *ch);
 
 
 // 
@@ -256,6 +264,15 @@ struct board_info board_info_table[] = {
         .io.pci.fpga_pci_region = 3,
         .io.pci.upci_devnum = 0,
         .program_funct = program_5i22_fpga
+    },
+
+    {
+        .board_type = "7i43",
+        .chip_type = "3s400tq144",
+        .io_type = IO_TYPE_EPP,
+        .io.epp.io_addr = 0x378,
+        .io.epp.io_addr_hi = 0x778,
+        .program_funct = program_7i43_fpga
     }
 
 };
@@ -459,6 +476,8 @@ static void usage(void) {
 
 
 int program_pci_board(struct board_info *board, char *device_id, struct bitfile *bf);
+int program_epp_board(struct board_info *board, char *device_id, struct bitfile *bf);
+
 int program(char *device_type, char *device_id, char *filename) {
     struct bitfile *bf;
     char *bitfile_chip;
@@ -517,6 +536,10 @@ int program(char *device_type, char *device_id, char *filename) {
     switch (board->io_type) {
         case IO_TYPE_PCI:
             r = program_pci_board(board, device_id, bf);
+            break;
+
+        case IO_TYPE_EPP:
+            r = program_epp_board(board, device_id, bf);
             break;
 
         default:
@@ -605,6 +628,75 @@ int program_pci_board(struct board_info *board, char *device_id, struct bitfile 
 
     upci_reset();
     
+    return 0;
+}
+
+
+int program_epp_board(struct board_info *board, char *device_id, struct bitfile *bf) {
+    struct bitfile_chunk *ch;
+    int r;
+
+    // this snippet of code is nasty
+    // i hate doing text parsing in c
+    if (device_id == NULL) {
+        // use default io addr for parallel port
+    } else {
+        // Format: io_addr[,io_addr_lo]
+        char *endp;
+        char *endp2;
+
+        board->io.epp.io_addr = strtol(device_id, &endp, 0);
+        if (endp == device_id) {
+            printf("cannot parse EPP address from '%s'\n", device_id);
+            return EC_BADCL;
+        }
+        if (*endp == '\0') {
+            board->io.epp.io_addr_hi = board->io.epp.io_addr + 0x400;
+        } else {
+            if (*endp != ',') {
+                printf("cannot parse EPP address from '%s'\n", device_id);
+                return EC_BADCL;
+            }
+            endp ++;
+            if (*endp == '\0') {
+                board->io.epp.io_addr_hi = board->io.epp.io_addr + 0x400;
+            } else {
+                board->io.epp.io_addr_hi = strtol(endp, &endp2, 0);
+                if (*endp2 != '\0') {
+                    printf("cannot parse EPP address from '%s'\n", device_id);
+                    return EC_BADCL;
+                }
+            }
+        }
+    }
+    printf("%s board at 0x%04x,0x%04x\n", board->board_type, board->io.epp.io_addr, board->io.epp.io_addr_hi);
+
+
+    // get access the the parport i/o addresses
+    iopl(3);
+
+
+    //
+    // program the board with the bitfile
+    //
+
+    /* chunk 'e' has the bitstream */
+    ch = bitfile_find_chunk(bf, 'e', 0);
+
+    printf(
+        "Loading configuration %s into %s:0x%04x,0x%04x board...\n",
+        bf->filename,
+        board->board_type,
+        board->io.epp.io_addr,
+        board->io.epp.io_addr_hi
+    );
+    r = board->program_funct(board, ch);
+    if (r != 0) {
+	errmsg(__func__, "configuration did not load");
+	return EC_HDW;
+    }
+
+
     return 0;
 }
 
@@ -920,6 +1012,12 @@ static int program_5i22_fpga(struct board_info *bd, struct bitfile_chunk *ch)
 cleanup22_1:
     upci_close_region(ctrl_region);
 cleanup22_0:
+    return -1;
+}
+
+
+static int program_7i43_fpga(struct board_info *board, struct bitfile_chunk *ch) {
+    printf("7i43 programming is not implemented yet\n");
     return -1;
 }
 
