@@ -349,7 +349,10 @@ int main(int argc, char *argv[])
 	the chip for which this bitfile was targeted */
     tablesize = sizeof(board_info_table) / sizeof(struct board_info);
     n = 0;
-    while ( strcmp(board_info_table[n].chip_type, chip ) != 0 ) {
+    while (
+        (board_info_table[n].io_type != IO_TYPE_PCI)
+        || (strcmp(board_info_table[n].chip_type, chip ) != 0)
+    ) {
 	n++;
 	if ( n >= tablesize ) {
 	    errmsg(__func__,"bitfile is targeted for a '%s' FPGA,\n"
