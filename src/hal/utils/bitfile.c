@@ -75,6 +75,7 @@ struct bitfile *bitfile_new(void)
 	errmsg(__func__,"malloc failure");
 	return NULL;
     }
+    bf->filename = NULL;
     /* standard header */
     for ( n = 0 ; n < BITFILE_HEADERLEN ; n++ ) {
 	bf->header[n] = header[n];
@@ -91,6 +92,10 @@ struct bitfile *bitfile_new(void)
 void bitfile_free(struct bitfile *bf)
 {
     int n;
+
+    if (bf->filename != NULL) {
+        free(bf->filename);
+    }
 
     for ( n = 0 ; n < BITFILE_MAXCHUNKS ; n++ ) {
 	if ( bf->chunks[n].body != NULL ) {
@@ -202,6 +207,14 @@ struct bitfile *bitfile_read(char *fname)
 	errmsg(__func__,"more than %d chunks", BITFILE_MAXCHUNKS);
 	goto cleanup1;
     }
+
+    // save the filename
+    bf->filename = strdup(fname);
+    if (bf->filename == NULL) {
+        errmsg(__func__, "out of memory\n");
+        goto cleanup1;
+    }
+
     /* done */
     close (fd);
     return bf;
