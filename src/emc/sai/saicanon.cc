@@ -1235,4 +1235,5 @@ double GET_EXTERNAL_TOOL_LENGTH_XOFFSET()
 }
 
 void FINISH(void) {
+    PRINT0("FINISH()\n");
 }
