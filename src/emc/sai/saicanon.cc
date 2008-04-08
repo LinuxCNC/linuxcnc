@@ -1233,3 +1233,6 @@ double GET_EXTERNAL_TOOL_LENGTH_XOFFSET()
 {
     return _tool_xoffset;
 }
+
+void FINISH(void) {
+}

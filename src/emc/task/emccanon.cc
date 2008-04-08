@@ -1905,11 +1905,6 @@ void UNCLAMP_AXIS(CANON_AXIS axis)
 
 /* Program Functions */
 
-void STOP(void)
-{
-    flush_segments();
-}
-
 void PROGRAM_STOP()
 {
     /* 

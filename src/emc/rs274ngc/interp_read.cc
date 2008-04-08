@@ -3217,8 +3217,10 @@ int Interp::read_text(
     }
     strcpy(line, raw_line);
     CHP(close_and_downcase(line));
-    if ((line[0] == '%') && (line[1] == 0) && (_setup.percent_flag == ON))
-      return INTERP_ENDFILE;
+    if ((line[0] == '%') && (line[1] == 0) && (_setup.percent_flag == ON)) {
+        FINISH();
+        return INTERP_ENDFILE;
+    }
   } else {
     CHK((strlen(command) >= LINELEN), NCE_COMMAND_TOO_LONG);
     strcpy(raw_line, command);
