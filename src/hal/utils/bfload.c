@@ -123,6 +123,7 @@ Programming sequence:
 
 #include <linux/types.h>
 
+#include "epp.h"
 #include "upci.h"
 #include "bitfile.h"
 
@@ -202,10 +203,7 @@ struct board_info {
             int upci_devnum;
         } pci;
 
-        struct {
-            uint16_t io_addr;
-            uint16_t io_addr_hi;
-        } epp;
+        struct epp epp;
     } io;
 
     int (*program_funct) (struct board_info *bd, struct bitfile_chunk *ch);
@@ -689,7 +687,10 @@ int program_epp_board(struct board_info *board, char *device_id, struct bitfile 
 
 
     // get access the the parport i/o addresses
-    iopl(3);
+    if (iopl(3) != 0) {
+        printf("error getting I/O port access: %s\n", strerror(errno));
+        return EC_SYS;
+    }
 
 
     //
@@ -1032,9 +1033,121 @@ cleanup22_0:
 }
 
 
+// returns TRUE if the FPGA reset, FALSE on error
+static int m7i43_cpld_reset(struct board_info *board) {
+    uint8_t byte;
+
+    // select the control register
+    epp_addr8(&board->io.epp, 1);
+
+    // bring the Spartan3's PROG_B line low for 1 us (the specs require 300-500 ns or longer)
+    epp_write(&board->io.epp, 0x00);
+    // nanosleep(1 * 1000);
+    sleep(1);
+
+    // bring the Spartan3's PROG_B line high and wait for 2 ms before sending firmware (required by spec)
+    epp_write(&board->io.epp, 0x01);
+    // nanosleep(2 * 1000 * 1000);
+    sleep(1);
+
+    // make sure the FPGA is not asserting its DONE bit
+    byte = epp_read(&board->io.epp);
+    if ((byte & 0x01) != 0) {
+        printf("error: DONE is not low after CPLD reset!\n");
+        return 0;
+    }
+
+    return 1;
+}
+
+
+// this function resets the FPGA *only* if it's currently configured with the HostMot2 firmware
+static void m7i43_hm2_reset(struct board_info *board) {
+    epp_addr16(&board->io.epp, 0x7F7F);
+    epp_write(&board->io.epp, 0x5A);
+}
+
+
+// returns FPGA size in K-gates
+static int m7i43_cpld_get_fpga_size(struct board_info *board) {
+    uint8_t byte;
+
+    //  select data register
+    epp_addr8(&board->io.epp, 0);
+
+    byte = epp_read(&board->io.epp);
+    if ((byte & 0x01) == 0x01) {
+        return 400;
+    } else {
+        return 200;
+    }
+}
+
+
+static int m7i43_cpld_send_firmware(struct board_info *board, struct bitfile_chunk *ch) {
+    int i;
+    uint8_t *dp;
+
+    // select the CPLD's data address
+    epp_addr8(&board->io.epp, 0);
+
+    dp = ch->body;
+    for (i = 0; i < ch->len; i ++) {
+        epp_write(&board->io.epp, bit_reverse(*dp));
+        dp ++;
+    }
+
+    // see if it worked
+    if (epp_check_for_timeout(&board->io.epp)) {
+        printf("EPP Timeout while sending firmware!\n");
+        return 0;
+    }
+
+    return 1;
+}
+
+
 static int program_7i43_fpga(struct board_info *board, struct bitfile_chunk *ch) {
-    printf("7i43 programming is not implemented yet\n");
-    return -1;
+    int fpga_size;
+
+
+    //
+    // set up the parport for EPP
+    //
+
+    outb(0x80, board->io.epp.io_addr_hi + ECP_CONTROL_HIGH_OFFSET); // select EPP mode in ECR
+    epp_write_control(&board->io.epp, 0x04);                         // set control lines and input mode
+
+    epp_clear_timeout(&board->io.epp);
+
+
+    // 
+    // reset the FPGA, then send appropriate firmware
+    //
+
+    m7i43_hm2_reset(board);
+
+    if (!m7i43_cpld_reset(board)) {
+        printf("error resetting FPGA, aborting load\n");
+        return -1;
+    }
+
+    fpga_size = m7i43_cpld_get_fpga_size(board);
+    if (
+        ((strcmp(board->chip_type, "3s400tq144") == 0) && (fpga_size == 400))
+        || ((strcmp(board->chip_type, "3s200tq144") == 0) && (fpga_size == 200))
+    ) {
+        if (!m7i43_cpld_send_firmware(board, ch)) {
+            printf("error sending FPGA firmware\n");
+            return -1;
+        }
+        return 0;
+    } else {
+        printf("FPGA part mismatch\n");
+        printf("The selected board reports fpga chip size %d K gates\n", fpga_size);
+        printf("The requested firmware is for the other 7i43 FPGA\n");
+        return -1;
+    }
 }
 
 
