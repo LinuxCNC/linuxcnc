@@ -1042,13 +1042,11 @@ static int m7i43_cpld_reset(struct board_info *board) {
 
     // bring the Spartan3's PROG_B line low for 1 us (the specs require 300-500 ns or longer)
     epp_write(&board->io.epp, 0x00);
-    // nanosleep(1 * 1000);
-    sleep(1);
+    usleep(1);
 
     // bring the Spartan3's PROG_B line high and wait for 2 ms before sending firmware (required by spec)
     epp_write(&board->io.epp, 0x01);
-    // nanosleep(2 * 1000 * 1000);
-    sleep(1);
+    usleep(2 * 1000);
 
     // make sure the FPGA is not asserting its DONE bit
     byte = epp_read(&board->io.epp);
