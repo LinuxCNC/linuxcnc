@@ -744,7 +744,7 @@ void CLAMP_AXIS(CANON_AXIS axis)
         (axis == CANON_AXIS_C) ? "CANON_AXIS_C" : "UNKNOWN");}
 
 void COMMENT(char *s)
-{PRINT1("COMMENT(\"%s\")\n", s);}
+{}
 
 void DISABLE_ADAPTIVE_FEED()
 {PRINT0("DISABLE_ADAPTIVE_FEED()\n");}
@@ -1232,4 +1232,8 @@ double GET_EXTERNAL_TOOL_LENGTH_ZOFFSET()
 double GET_EXTERNAL_TOOL_LENGTH_XOFFSET()
 {
     return _tool_xoffset;
+}
+
+void FINISH(void) {
+    PRINT0("FINISH()\n");
 }
