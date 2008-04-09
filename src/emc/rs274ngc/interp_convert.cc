@@ -65,7 +65,7 @@ static double ztrans(setup_pointer settings, double z) {
     return z;
 }
 
-typedef enum previous_move_type {LINE, ARC};
+typedef enum previous_move_type {TRAVERSE, FEED, ARC};
 
 typedef struct previous_move {
     previous_move_type type;
@@ -81,8 +81,23 @@ typedef struct previous_move {
 
 static previous_move pm;
 
-void save_line(double x, double y, double z, double a, double b, double c, double u, double v, double w, double len) {
-    pm.type = LINE;
+void save_feed(double x, double y, double z, double a, double b, double c, double u, double v, double w, double len) {
+    pm.type = FEED;
+    pm.valid = 1;
+    pm.x = x;
+    pm.y = y;
+    pm.z = z;
+    pm.a = a;
+    pm.b = b;
+    pm.c = c;
+    pm.u = u;
+    pm.v = v;
+    pm.w = w;
+    pm.len = len;
+}
+
+void save_traverse(double x, double y, double z, double a, double b, double c, double u, double v, double w, double len) {
+    pm.type = TRAVERSE;
     pm.valid = 1;
     pm.x = x;
     pm.y = y;
@@ -123,8 +138,10 @@ void issue_savedmove(void) {
     if(pm.type == ARC) {
         ARC_FEED(pm.end1, pm.end2, pm.center1, pm.center2, pm.turn, pm.end3,
                  pm.a, pm.b, pm.c, pm.u, pm.v, pm.w);
-    } else {
+    } else if(pm.type == FEED) {
         STRAIGHT_FEED(pm.x, pm.y, pm.z, pm.a, pm.b, pm.c, pm.u, pm.v, pm.w);
+    } else {
+        STRAIGHT_TRAVERSE(pm.x, pm.y, pm.z, pm.a, pm.b, pm.c, pm.u, pm.v, pm.w);
     }
 }
 
@@ -565,8 +582,10 @@ int Interp::convert_arc_comp1(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
                               end[0], end[1], end[2], block, settings);
       save_arc(end[0], end[1], center[0], center[1], turn, end[2],
                AA_end, BB_end, CC_end, u_end, v_end, w_end);
+#if !LOOKAHEAD
       ARC_FEED(end[0], end[1], center[0], center[1], turn, end[2],
                AA_end, BB_end, CC_end, u_end, v_end, w_end);
+#endif
       settings->current_x = end[0];
       settings->current_y = end[1];
       settings->current_z = end[2];
@@ -730,7 +749,7 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
       (fabs(beta - M_PIl) < small && pm.type == ARC && turn == pm.turn && 
        ((side == RIGHT && turn == 1) || (side == LEFT && turn == -1)))) {
       // concave
-      if (pm.type == LINE) {
+      if (pm.type != ARC) {
           // line->arc
           double cy = arc_radius * sin(beta - M_PI_2l);
           double toward_nominal;
@@ -3584,8 +3603,12 @@ int Interp::convert_straight_comp1(int move,     //!< either G_0 or G_1
          STRAIGHT_TRAVERSE(xtrans(settings, c[0]), p[2], ztrans(settings, c[1]),
                            AA_end, BB_end, CC_end, u_end, v_end, w_end);
      } else if(settings->plane == CANON_PLANE_XY) {
+         save_traverse(c[0], c[1], p[2],
+                       AA_end, BB_end, CC_end, u_end, v_end, w_end, distance);
+#if !LOOKAHEAD
          STRAIGHT_TRAVERSE(c[0], c[1], p[2],
                            AA_end, BB_end, CC_end, u_end, v_end, w_end);
+#endif
      }
   }
   else if (move == G_1) {
@@ -3603,7 +3626,7 @@ int Interp::convert_straight_comp1(int move,     //!< either G_0 or G_1
                                     AA_end, BB_end, CC_end,
                                     u_end, v_end, w_end,
                                     block, settings);
-       save_line(c[0], c[1], p[2],
+       save_feed(c[0], c[1], p[2],
                  AA_end, BB_end, CC_end, u_end, v_end, w_end, distance);
 #if !LOOKAHEAD
        STRAIGHT_FEED(c[0], c[1], p[2],
@@ -3759,8 +3782,15 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
                             AA_end, BB_end, CC_end, u_end, v_end, w_end);
       } else if(settings->plane == CANON_PLANE_XY) {
           //          flush_STRAIGHT_FEED();
+#if LOOKAHEAD
+          issue_savedmove();
+#endif
+          save_traverse(end[0], end[1], pz,
+                    AA_end, BB_end, CC_end, u_end, v_end, w_end, hypot(end[1] - c[1], end[0] - c[0]));
+#if !LOOKAHEAD
           STRAIGHT_TRAVERSE(end[0], end[1], pz,
                             AA_end, BB_end, CC_end, u_end, v_end, w_end);
+#endif
       }
     } else if (move == G_1) {
       if(settings->plane == CANON_PLANE_XZ) {
@@ -3780,7 +3810,7 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
 #if LOOKAHEAD
           issue_savedmove();
 #endif
-          save_line(end[0], end[1], pz,
+          save_feed(end[0], end[1], pz,
                     AA_end, BB_end, CC_end, u_end, v_end, w_end, hypot(end[1] - c[1], end[0] - c[0]));
 #if !LOOKAHEAD
           STRAIGHT_FEED(end[0], end[1], pz,
@@ -3866,7 +3896,7 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
                      ((side == LEFT) ? -1 : 1), settings->current_z,
                      AA_end, BB_end, CC_end, u_end, v_end, w_end);
 
-            save_line(end[0], end[1], p[2], 
+            save_feed(end[0], end[1], p[2], 
                       AA_end, BB_end, CC_end, 
                       u_end, v_end, w_end, 
                       hypot(mid[1] - end[1], mid[0] - end[0]));
@@ -3877,7 +3907,7 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
         }
       } else {
          if (concave) {
-             if (pm.type == LINE) {
+             if (pm.type != ARC) {
                  // line->line
 
                  double retreat;
@@ -3973,7 +4003,7 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
 #if LOOKAHEAD
             issue_savedmove();
 #endif
-            save_line(end[0], end[1], p[2],
+            save_feed(end[0], end[1], p[2],
                       AA_end, BB_end, CC_end, 
                       u_end, v_end, w_end, 
                       hypot(mid[1] - end[1], mid[0] - end[0]));
