@@ -54,3 +54,10 @@ int epp_clear_timeout(struct epp *epp) {
     return !epp_check_for_timeout(epp);
 }
 
+
+void epp_init(struct epp *epp) {
+    outb(0x80, epp->io_addr_hi + ECP_CONTROL_HIGH_OFFSET);  // select EPP mode in ECR
+    epp_write_control(epp, 0x04);                           // set control lines and input mode
+    epp_clear_timeout(epp);
+}
+

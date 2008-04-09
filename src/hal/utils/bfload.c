@@ -1109,14 +1109,8 @@ static int program_7i43_fpga(struct board_info *board, struct bitfile_chunk *ch)
     int fpga_size;
 
 
-    //
     // set up the parport for EPP
-    //
-
-    outb(0x80, board->io.epp.io_addr_hi + ECP_CONTROL_HIGH_OFFSET); // select EPP mode in ECR
-    epp_write_control(&board->io.epp, 0x04);                         // set control lines and input mode
-
-    epp_clear_timeout(&board->io.epp);
+    epp_init(&board->io.epp);
 
 
     // 

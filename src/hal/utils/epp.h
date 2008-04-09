@@ -19,6 +19,7 @@ struct epp {
 };
 
 
+void epp_init(struct epp *epp);
 void epp_addr8(struct epp *epp, uint8_t addr);
 void epp_addr16(struct epp *epp, uint16_t addr);
 void epp_write(struct epp *epp, uint8_t val);
