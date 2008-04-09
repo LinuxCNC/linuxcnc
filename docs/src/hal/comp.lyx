@@ -1830,11 +1830,11 @@ sincos.<num>.sin
 
 component sincos;
 \newline 
-pin out float sin_ out;
+pin out float sin_;
 \newline 
-pin out float cos_ out;
+pin out float cos_;
 \newline 
-pin in float theta in;
+pin in float theta;
 \newline 
 function _;
 \newline 
