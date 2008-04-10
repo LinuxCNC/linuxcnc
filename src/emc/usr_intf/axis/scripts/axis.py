@@ -3615,6 +3615,9 @@ if sys.argv[1] != "-ini":
 
 inifile = emc.ini(sys.argv[2])
 vars.emcini.set(sys.argv[2])
+axiscount = int(inifile.find("TRAJ", "AXES"))
+jointcount = int(inifile.find("TRAJ", "JOINTS"))
+jointnames = "012345678"[:jointcount]
 open_directory = inifile.find("DISPLAY", "PROGRAM_PREFIX")
 vars.machine.set(inifile.find("EMC", "MACHINE"))
 extensions = inifile.findall("FILTER", "PROGRAM_EXTENSION")
