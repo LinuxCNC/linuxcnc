@@ -107,6 +107,7 @@ proc node_clicked {} {
 
     set node [$tree selection get]
     if {$node == ""} return
+    set node [lindex $node 0]
 
     $tree selection set $node
     $tree see $node
@@ -341,7 +342,7 @@ proc wait_and_see {node {wait 10}} {
     global tree
     set yv [$tree yview]
     if {![winfo viewable $tree] || [lindex $yv 0] == [lindex $yv 1]} {
-        after $wait wait_and_see $node [expr $wait*2]
+        after $wait [list wait_and_see $node [expr $wait*2]]
     } else {
         $tree see $node
         $tree xview moveto 0.0
