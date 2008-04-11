@@ -198,22 +198,20 @@ int main(int argc, char **argv)
     errorcount = 0;
     /* HAL init is OK, let's process the command(s) */
     if (srcfile == NULL) {
-	/* the remaining command line args are parts of the command */
-	/* copy them to a long string for variable replacement */
-	raw_buf[0] = '\0';
-        n = optind;
-	while (n < argc) {
-	    strncat(raw_buf, argv[n++], MAX_CMD_LEN);
-	    strncat(raw_buf, " ", MAX_CMD_LEN);
-	}
-
-        halcmd_set_filename("<commandline>");
-        halcmd_set_linenumber(0);
-
-	retval = halcmd_parse_line(raw_buf);
-	if (retval != 0) {
-	    errorcount++;
-	}
+#ifndef NO_INI
+        if(halcmd_inifile) {
+            fprintf(stderr, "-i may only be used together with -f\n");
+            errorcount++;
+        }
+#endif
+        if(errorcount == 0) {
+            halcmd_set_filename("<commandline>");
+            halcmd_set_linenumber(0);
+            retval = halcmd_parse_cmd(&argv[optind]);
+            if (retval != 0) {
+                errorcount++;
+            }
+        }
     } else {
 	/* read command line(s) from 'srcfile' */
 	while (get_input(srcfile, raw_buf, MAX_CMD_LEN)) {
