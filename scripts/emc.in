@@ -68,7 +68,7 @@ DEBUG_FILE=$(mktemp /tmp/emc.debug.XXXXXX)
 PRINT_FILE=$(mktemp /tmp/emc.print.XXXXXX)
 
 program_available () {
-    type -path $1 > /dev/null 2>&1
+    type -path "$1" > /dev/null 2>&1
 }
 
 usage () {
@@ -101,14 +101,14 @@ do
 	d)
 		# enable echoing of script and command output
 		if tty -s; then
-		    DEBUG_FILE=/dev/tty
+		    DEBUG_FILE=/dev/fd/2
 		    echo "Debug mode on" >$DEBUG_FILE
 		fi
 		set -x;;
 	v)
 		# enable printing of verbose messages
 		if tty -s; then
-		    PRINT_FILE=/dev/tty
+		    PRINT_FILE=/dev/fd/1
 		    echo "Verbose mode on" >$PRINT_FILE
 		fi;;
 	l)
@@ -136,16 +136,22 @@ function ErrorCheck () {
 
     if [ $result -ne 0 ]; then
         if tty -s || [ -z "$DISPLAY" ] ; then
-            case $DEBUG_FILE in
-            /dev/tty) rm -f $HOME/emc_debug.txt;;
-            *) cp $DEBUG_FILE $HOME/emc_debug.txt
-            esac
-            case $PRINT_FILE in
-            /dev/tty) rm -f $HOME/emc_print.txt;;
-            *) cp $PRINT_FILE $HOME/emc_print.txt
-            esac
+            if [ -f $DEBUG_FILE ]; then
+                cp $DEBUG_FILE $HOME/emc_debug.txt
+            else
+                echo "(debug information was sent to stderr)" \
+                    > $HOME/emc_debug.txt
+            fi
+
+            if [ -f $PRINT_FILE ]; then
+                cp $PRINT_FILE $HOME/emc_print.txt
+            else
+                echo "(print information was sent to stdout)" \
+                    > $HOME/emc_print.txt
+            fi
+
             echo "\
-EMC terminated with an error.  You can find more information in the log files
+EMC terminated with an error.  You can find more information in the log:
     $HOME/emc_debug.txt
 and
     $HOME/emc_print.txt
@@ -164,10 +170,11 @@ trap ErrorCheck EXIT
 # 1.3. INIFILE                           find inifile to use                   #
 ################################################################################
 
-if [ ! -z $1 ]; then
-    case $1 in
-      /*) INIFILE=$1 ;;
-      *)  INIFILE=`pwd`/$1;;
+if [ ! -z "$1" ]; then
+    case "$1" in
+      -)  USE_LAST_INIFILE=1;;
+      /*) INIFILE="$1" ;;
+      *)  INIFILE="`pwd`/$1";;
     esac
     shift
 fi
@@ -218,8 +225,8 @@ if [ ! -n "$INIFILE" ] ; then
 fi
 
 # delete directories from path, save name only
-INI_NAME=${INIFILE##*/}
-INI_DIR=${INIFILE%/*}
+INI_NAME="${INIFILE##*/}"
+INI_DIR="${INIFILE%/*}"
 
 echo "Machine configuration directory is '$INI_DIR'"
 echo "Machine configuration file is '$INI_NAME'"
@@ -227,7 +234,7 @@ echo "Machine configuration file is '$INI_NAME'"
 # make sure ini file exists (the tcl script just did this, so we could 
 # eliminate this test, but it does no harm)
 
-if [ ! -f $INIFILE ] ; then
+if [ ! -f "$INIFILE" ] ; then
     echo "Could not find ini file '$INIFILE'"
     exit -1
 fi
@@ -242,7 +249,7 @@ retval=
 function GetFromIniQuiet {
     #$1 var name   $2 - section name
     name=$1
-    retval=`$INIVAR -ini $INIFILE -var $1 -sec $2 2> /dev/null`
+    retval=`$INIVAR -ini "$INIFILE" -var $1 -sec $2 2> /dev/null`
     if [ ! -n "$1" ] ; then
 	exit -1
     fi
@@ -252,7 +259,7 @@ function GetFromIniQuiet {
 function GetFromIni {
     #$1 var name   $2 - section name
     name=$1
-    retval=`$INIVAR -ini $INIFILE -var $1 -sec $2 2>>$DEBUG_FILE`
+    retval=`$INIVAR -ini "$INIFILE" -var $1 -sec $2 2>>$DEBUG_FILE`
     if [ ! -n "$1" ] ; then
 	echo "Can't find variable $1 in section [$2] of file $INIFILE."
 	exit -1
@@ -389,7 +396,7 @@ function Cleanup() {
         echo "lockfile still not removed"
     fi
 
-    SHUTDOWN=`$INIVAR -ini $INIFILE -var SHUTDOWN -sec HAL 2> /dev/null`
+    SHUTDOWN=`$INIVAR -ini "$INIFILE" -var SHUTDOWN -sec HAL 2> /dev/null`
     if [ -n "$SHUTDOWN" ]; then
 	echo "Running HAL shutdown script"
 	$HALCMD -f $SHUTDOWN
@@ -468,7 +475,7 @@ trap 'Cleanup ; exit 0' SIGINT SIGTERM
 # go to the dir where the ini file is
 # either configs/<specific-config> when run-in-place, or
 # /usr/local/share/emc/configs/<specific-config> (wherever it was installed)
-cd $INI_DIR
+cd "$INI_DIR"
 
 # Create the lock file
 touch $LOCKFILE
@@ -476,8 +483,8 @@ touch $LOCKFILE
 ################################################################################
 # 4.1. pop up intro graphic
 ################################################################################
-img=`$INIVAR -ini $INIFILE -var INTRO_GRAPHIC -sec DISPLAY 2>>$DEBUG_FILE`
-imgtime=`$INIVAR -ini $INIFILE -var INTRO_TIME -sec DISPLAY 2>>$DEBUG_FILE`
+img=`$INIVAR -ini "$INIFILE" -var INTRO_GRAPHIC -sec DISPLAY 2>>$DEBUG_FILE`
+imgtime=`$INIVAR -ini "$INIFILE" -var INTRO_TIME -sec DISPLAY 2>>$DEBUG_FILE`
 if [ "$imgtime" = "" ] ; then
   imgtime=5
 fi
@@ -498,8 +505,8 @@ if ! program_available $EMCSERVER; then
     Cleanup
     exit 1
 fi
-export INI_FILE_NAME=$INIFILE
-$EMCSERVER -ini $INIFILE &
+export INI_FILE_NAME="$INIFILE"
+$EMCSERVER -ini "$INIFILE" &
 sleep 1
 
 # 4.3.2. Start REALTIME
@@ -521,7 +528,7 @@ if ! program_available $EMCIO ; then
     Cleanup
     exit 1
 fi
-$HALCMD loadusr -Wn iocontrol $EMCIO -ini $INIFILE
+$HALCMD loadusr -Wn iocontrol $EMCIO -ini "$INIFILE"
 
 # 4.3.5. Run halui in background, if necessary
 if [ -n "$HALUI" ] ; then
@@ -531,27 +538,27 @@ if [ -n "$HALUI" ] ; then
 	Cleanup
 	exit 1
     fi
-    $HALCMD loadusr -Wn halui $HALUI -ini $INIFILE
+    $HALCMD loadusr -Wn halui $HALUI -ini "$INIFILE"
 fi
 
 # 4.3.6. execute HALCMD config files (if any)
 # get first config file name from ini file
 NUM=1
-CFGFILE=`$INIVAR -ini $INIFILE -var HALFILE -sec HAL -num $NUM 2> /dev/null`
+CFGFILE=`$INIVAR -ini "$INIFILE" -var HALFILE -sec HAL -num $NUM 2> /dev/null`
 while [ -n "$CFGFILE" ] ; do
-    if ! $HALCMD -i $INIFILE -f $CFGFILE ; then
+    if ! $HALCMD -i "$INIFILE" -f $CFGFILE ; then
 	Cleanup
 	exit -1
     fi
     # get next config file name from ini file
     NUM=$(($NUM+1))
-    CFGFILE=`$INIVAR -ini $INIFILE -var HALFILE -sec HAL -num $NUM 2> /dev/null`
+    CFGFILE=`$INIVAR -ini "$INIFILE" -var HALFILE -sec HAL -num $NUM 2> /dev/null`
 done
 
 # 4.3.7. execute discrete HAL commands from ini file (if any)
 # get first command from ini file
 NUM=1
-HALCOMMAND=`$INIVAR -ini $INIFILE -var HALCMD -sec HAL -num $NUM 2> /dev/null`
+HALCOMMAND=`$INIVAR -ini "$INIFILE" -var HALCMD -sec HAL -num $NUM 2> /dev/null`
 while [ -n "$HALCOMMAND" ] ; do
     if [ -n "$HALCOMMAND" ] ; then
 	echo "Running HAL command: $HALCOMMAND" >>$PRINT_FILE
@@ -563,7 +570,7 @@ while [ -n "$HALCOMMAND" ] ; do
     fi
     # get next command from ini file
     NUM=$(($NUM+1))
-    HALCOMMAND=`$INIVAR -ini $INIFILE -var HALCMD -sec HAL -num $NUM 2> /dev/null`
+    HALCOMMAND=`$INIVAR -ini "$INIFILE" -var HALCMD -sec HAL -num $NUM 2> /dev/null`
 done
 
 # 4.3.8. start the realtime stuff ticking
@@ -576,7 +583,7 @@ if ! program_available $EMCTASK ; then
     Cleanup
     exit 1
 fi
-$EMCTASK -ini $INIFILE &
+$EMCTASK -ini "$INIFILE" &
 
 #export some common directories, used by some of the GUI's
 export EMC2_TCL_DIR=$EMC2_TCL_DIR
@@ -599,7 +606,7 @@ case $EMCDISPLAY in
 	Cleanup
 	exit 1
     fi
-    $EMC2_TCL_DIR/$EMCDISPLAY.tcl -ini $INIFILE $EMCDISPLAYARGS
+    $EMC2_TCL_DIR/$EMCDISPLAY.tcl -ini "$INIFILE" $EMCDISPLAYARGS
     result=$?
   ;;
   dummy)
@@ -614,9 +621,9 @@ case $EMCDISPLAY in
 	exit 1
     fi
     if [ ! -z "$DISPLAY" ]; then
-        xterm -xrm 'XTerm*metaSendsEscape:false' -ls -e keystick -ini $INIFILE
+        xterm -xrm 'XTerm*metaSendsEscape:false' -ls -e keystick -ini "$INIFILE"
     else
-        keystick -ini $INIFILE
+        keystick -ini "$INIFILE"
     fi
     result=$?
   ;;
@@ -627,7 +634,7 @@ case $EMCDISPLAY in
         Cleanup
         exit 1
     fi
-    $EMCDISPLAY -ini $INIFILE $EMCDISPLAYARGS $EXTRA_ARGS
+    $EMCDISPLAY -ini "$INIFILE" $EMCDISPLAYARGS $EXTRA_ARGS
     result=$?
   ;;
 esac
