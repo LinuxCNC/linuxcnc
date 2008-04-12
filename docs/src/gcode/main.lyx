@@ -7009,8 +7009,19 @@ G61.1
 G64 P-
 \family default 
  for continuous mode with optional tolerance.
+
+ G61 visits the programmed point exactly, even though that means 
+ temporarily coming to a complete stop.  G64 without P means to keep the 
+ best speed possible, no matter how far away from the programmed point 
+ you end up.  G64 P- means that it should slow down as required to keep 
+ no more than P- away from the programmed endpoint.  In addition, when 
+ you activate G64 P- it turns on the "naive cam detector"; when 
+ there are a series of G1 moves that are less than P- away from being 
+ colinear, they are collapsed into a single linear move.  This improves 
+ contouring performance by simplifying the path.
+
  It is OK to program for the mode that is already active.
- See Section 
+ See also Section 
 \begin_inset LatexCommand \ref{sub:Path-Control-Mode}
 
 \end_inset 
