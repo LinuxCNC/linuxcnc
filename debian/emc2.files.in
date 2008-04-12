@@ -466,6 +466,7 @@ etc/X11/app-defaults/TkEmc
 etc/X11/app-defaults/XEmc
 usr/share/man/man1/axis-remote.1
 usr/share/man/man1/axis.1
+usr/share/man/man1/bfload.1
 usr/share/man/man1/comp.1
 usr/share/man/man1/emc.1
 usr/share/man/man1/hal_input.1
