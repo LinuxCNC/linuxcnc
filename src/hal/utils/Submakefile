@@ -75,7 +75,7 @@ USERSRCS += $(M5I20CFGSRCS)
 	@$(CXX) $(LDFLAGS) -o $@ $^
 TARGETS += ../bin/m5i20cfg
 
-BFLOADSRCS := hal/utils/bfload.c hal/utils/upci.c hal/utils/bitfile.c
+BFLOADSRCS := hal/utils/bfload.c hal/utils/epp.c hal/utils/upci.c hal/utils/bitfile.c
 USERSRCS += $(BFLOADSRCS)
 ../bin/bfload: $(call TOOBJS, $(BFLOADSRCS))
 	$(ECHO) Linking $(notdir $@)

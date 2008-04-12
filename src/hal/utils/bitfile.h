@@ -76,6 +76,7 @@ struct bitfile_chunk {
 #define BITFILE_HEADERLEN 13
 
 struct bitfile {
+    char *filename;
     unsigned char header[BITFILE_HEADERLEN];
     int num_chunks;
     struct bitfile_chunk chunks[BITFILE_MAXCHUNKS];

@@ -108,15 +108,25 @@ Programming sequence:
 *************************************************************************/
 
 //#define _GNU_SOURCE /* getline() */
-#include <stdlib.h>
-#include <stdio.h>
+
+#include <errno.h>
 #include <stdarg.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
-#include <sys/types.h>
 #include <unistd.h>
+
+#include <sys/io.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+
 #include <linux/types.h>
+
+#include "epp.h"
 #include "upci.h"
 #include "bitfile.h"
+
 
 /************************************************************************/
 #define MASK(x)			(1<<(x))	/* gets a bit in position (x) */
@@ -124,6 +134,22 @@ Programming sequence:
 
 /* I/O registers */
 #define CTRL_STAT_OFFSET	0x0054	/* 9030 GPIO register (region 1) */
+
+
+//
+// the LAS?BRD registers are in the PLX 9030
+// HostMot2 firmware needs the #READY bit (0x2) set in order to work, but
+// some older eeproms on the 5i20 (and maybe other cards) dont set them
+// right, but we can detect the problem and fix it up
+//
+
+#define LAS0BRD_OFFSET 0x28
+#define LAS1BRD_OFFSET 0x2C
+#define LAS2BRD_OFFSET 0x30
+#define LAS3BRD_OFFSET 0x34
+
+#define LASxBRD_READY 0x2
+
 
  /* bit number in 9030 GPIO register */
 #define GPIO_3_MASK		(1<<11)	/* GPIO 3 */
@@ -157,38 +183,141 @@ Programming sequence:
 
 /************************************************************************/
 
+
+//
+// this data structure describes a board we know how to program
+//
+
 struct board_info {
     char *board_type;
     char *chip_type;
-    unsigned short vendor_id;
-    unsigned short device_id;
-    unsigned short ss_vendor_id;
-    unsigned short ss_device_id;
-    int fpga_pci_region;
-    int upci_devnum;
+
+    enum { IO_TYPE_PCI, IO_TYPE_EPP } io_type;
+    union {
+        struct {
+            unsigned short vendor_id;
+            unsigned short device_id;
+            unsigned short ss_vendor_id;
+            unsigned short ss_device_id;
+            int fpga_pci_region;
+            int upci_devnum;
+        } pci;
+
+        struct epp epp;
+    } io;
+
     int (*program_funct) (struct board_info *bd, struct bitfile_chunk *ch);
 };
 
-static void errmsg(const char *funct, const char *fmt, ...);
-static int parse_cmdline(unsigned argc, char *argv[]);
+
+//
+// these are the functions that actually program the FPGA
+//
+
 static int program_5i20_fpga(struct board_info *bd, struct bitfile_chunk *ch);
 static int program_5i22_fpga(struct board_info *bd, struct bitfile_chunk *ch);
+static int program_7i43_fpga(struct board_info *board, struct bitfile_chunk *ch);
+
+
+// 
+// this array describes all the boards we know how to program
+//
+
+struct board_info board_info_table[] = {
+
+    {
+        .board_type = "5i20",
+        .chip_type = "2s200pq208",
+        .io_type = IO_TYPE_PCI,
+        .io.pci.vendor_id = 0x10B5,
+        .io.pci.device_id = 0x9030,
+        .io.pci.ss_vendor_id = 0x10B5,
+        .io.pci.ss_device_id = 0x3131,
+        .io.pci.fpga_pci_region = 5,
+        .io.pci.upci_devnum = 0,
+        .program_funct = program_5i20_fpga
+    },
+
+    {
+        .board_type = "5i22-1M",
+        .chip_type = "3s1000fg320",
+        .io_type = IO_TYPE_PCI,
+        .io.pci.vendor_id = 0x10B5,
+        .io.pci.device_id = 0x9054,
+        .io.pci.ss_vendor_id = 0x10B5,
+        .io.pci.ss_device_id = 0x3132,
+        .io.pci.fpga_pci_region = 3,
+        .io.pci.upci_devnum = 0,
+        .program_funct = program_5i22_fpga
+    },
+
+    {
+        .board_type = "5i22-1.5M",
+        .chip_type = "3s1500fg320",
+        .io_type = IO_TYPE_PCI,
+        .io.pci.vendor_id = 0x10B5,
+        .io.pci.device_id = 0x9054,
+        .io.pci.ss_vendor_id = 0x10B5,
+        .io.pci.ss_device_id = 0x3131,
+        .io.pci.fpga_pci_region = 3,
+        .io.pci.upci_devnum = 0,
+        .program_funct = program_5i22_fpga
+    },
+
+    {
+        .board_type = "7i43",
+        .chip_type = "3s200tq144",
+        .io_type = IO_TYPE_EPP,
+        .io.epp.io_addr = 0x378,
+        .io.epp.io_addr_hi = 0x778,
+        .program_funct = program_7i43_fpga
+    },
+
+    {
+        .board_type = "7i43",
+        .chip_type = "3s400tq144",
+        .io_type = IO_TYPE_EPP,
+        .io.epp.io_addr = 0x378,
+        .io.epp.io_addr_hi = 0x778,
+        .program_funct = program_7i43_fpga
+    }
+
+};
+
+
+static void errmsg(const char *funct, const char *fmt, ...);
+static int parse_cmdline(unsigned argc, char *argv[]);
 static __u8 bit_reverse (__u8 data);
 static int write_fpga_ram(struct board_info *bd, struct bitfile_chunk *ch);
-
-struct board_info board_info_table[] =
-    {
-	{ "5i20", "2s200pq208",
-	   0x10B5, 0x9030, 0x10B5, 0x3131, 5, 0, program_5i20_fpga },
-	{ "5i22-1M", "3s1000fg320",
-	   0x10B5, 0x9054, 0x10B5, 0x3132, 3, 0, program_5i22_fpga },
-	{ "5i22-1.5M", "3s1500fg320",
-	   0x10B5, 0x9054, 0x10B5, 0x3131, 3, 0, program_5i22_fpga }
-    };
 
 /* globals to pass data from command line parser to main */
 static char *config_file_name;
 static int card_number;
+
+
+struct bitfile *open_bitfile_or_die(char *filename) {
+    struct bitfile *bf;
+    int r;
+
+    printf ( "Reading '%s'...\n", filename);
+
+    bf = bitfile_read(filename);
+    if (bf == NULL) {
+	errmsg(__func__, "reading bitstream file '%s'", filename );
+	exit(EC_FILE);
+    }
+
+    r = bitfile_validate_xilinx_info(bf);
+    if (r != 0) {
+	errmsg(__func__, "not a valid Xilinx bitfile");
+	exit(EC_FILE);
+    }
+
+    bitfile_print_xilinx_info(bf);
+
+    return bf;
+}
+
 
 /***********************************************************************/
 
@@ -207,26 +336,21 @@ int main(int argc, char *argv[])
 	errmsg(__func__,"command line error" );
 	return EC_BADCL;
     }
-    printf ( "Reading '%s'...\n", config_file_name);
-    bf = bitfile_read(config_file_name);
-    if ( bf == NULL ) {
-	errmsg(__func__,"reading bitstream file '%s'", config_file_name );
-	return EC_FILE;
-    }
-    retval = bitfile_validate_xilinx_info(bf);
-    if ( retval != 0 ) {
-	errmsg(__func__,"not a valid Xilinx bitfile" );
-	return EC_FILE;
-    }
-    bitfile_print_xilinx_info(bf);
+
+    bf = open_bitfile_or_die(config_file_name);
+
     /* chunk 'b' has the target device */
     ch = bitfile_find_chunk(bf, 'b', 0);
     chip = (char *)(ch->body);
+
     /* scan board specs table looking for a board that uses
 	the chip for which this bitfile was targeted */
     tablesize = sizeof(board_info_table) / sizeof(struct board_info);
     n = 0;
-    while ( strcmp(board_info_table[n].chip_type, chip ) != 0 ) {
+    while (
+        (board_info_table[n].io_type != IO_TYPE_PCI)
+        || (strcmp(board_info_table[n].chip_type, chip ) != 0)
+    ) {
 	n++;
 	if ( n >= tablesize ) {
 	    errmsg(__func__,"bitfile is targeted for a '%s' FPGA,\n"
@@ -234,11 +358,14 @@ int main(int argc, char *argv[])
 	    return EC_FILE;
 	}
     }
+
     /* copy board data from table to local struct */
     board = board_info_table[n];
     printf ( "Board type:      %s\n", board.board_type );
+
     /* chunk 'e' has the bitstream */
     ch = bitfile_find_chunk(bf, 'e', 0);
+
     /* now deal with the hardware */
     printf ( "Searching for board...\n" );
     retval = upci_scan_bus();
@@ -246,25 +373,30 @@ int main(int argc, char *argv[])
 	errmsg(__func__,"PCI bus data missing" );
 	return EC_SYS;
     }
-    info.vendor_id = board.vendor_id;
-    info.device_id = board.device_id;
-    info.ss_vendor_id = board.ss_vendor_id;
-    info.ss_device_id = board.ss_device_id;
+
+    info.vendor_id = board.io.pci.vendor_id;
+    info.device_id = board.io.pci.device_id;
+    info.ss_vendor_id = board.io.pci.ss_vendor_id;
+    info.ss_device_id = board.io.pci.ss_device_id;
     info.instance = card_number;
+
     /* find the matching device */
-    board.upci_devnum = upci_find_device(&info);
-    if ( board.upci_devnum < 0 ) {
+    board.io.pci.upci_devnum = upci_find_device(&info);
+    if ( board.io.pci.upci_devnum < 0 ) {
 	errmsg(__func__, "%s board #%d not found",
 	    board.board_type, info.instance );
 	return EC_HDW;
     }
-    upci_print_device_info(board.upci_devnum);
+
+    upci_print_device_info(board.io.pci.upci_devnum);
+
     printf ( "Loading configuration into %s board...\n", board.board_type );
     retval = board.program_funct(&board, ch);
     if ( retval != 0 ) {
 	errmsg(__func__, "configuration did not load");
 	return EC_HDW;
     }
+
     /* do we need to HAL driver data to the FGPA RAM? */
     ch = bitfile_find_chunk(bf, 'r', 0);
     if ( ch != NULL ) {
@@ -276,10 +408,53 @@ int main(int argc, char *argv[])
 	    return EC_HDW;
 	}
     }
+
     upci_reset();
     printf( "Finished!\n" );
     return 0;
 }
+
+
+// NOTE: can only list PCI devices, no EPP devices
+void list_devices(void) {
+    int r;
+    int pci_index;
+
+    int num_pci_devices;
+    int num_boards;
+
+    r = upci_scan_bus();
+    if (r < 0) {
+        errmsg(__func__,"upci error scanning bus");
+        exit(EC_SYS);
+    }
+
+    num_pci_devices = r;
+    num_boards = sizeof(board_info_table) / sizeof(struct board_info);
+
+    for (pci_index = 0; pci_index < num_pci_devices; pci_index ++) {
+        struct upci_dev_info p;
+        int board_index;
+
+        upci_get_device_info(&p, pci_index);
+
+        // see if this pci device is in the board table
+        for (board_index = 0; board_index < num_boards; board_index ++) {
+            struct board_info *board = &board_info_table[board_index];
+
+            if (board->io_type != IO_TYPE_PCI) continue;
+            if (board->io.pci.vendor_id != p.vendor_id) continue;
+            if (board->io.pci.device_id != p.device_id) continue;
+            if (board->io.pci.ss_vendor_id != p.ss_vendor_id) continue;
+            if (board->io.pci.ss_device_id != p.ss_device_id) continue;
+
+            printf("%s at PCI %02x:%02x.%x\n", board->board_type, p.bus, p.dev, p.func);
+        }
+    }
+
+    exit(EC_OK);
+}
+
 
 /************************************************************************/
 
@@ -293,36 +468,393 @@ static void errmsg(const char *funct, const char *fmt, ...)
     fprintf(stderr, "\n");
 }
 
-static int parse_cmdline(unsigned argc, char *argv[])
-{
-    if ((argc != 2) && (argc != 3)) {
-	printf("\nbfload <filename> [<card>]\n\n");
-	printf("    <filename> - name of bitfile\n");
-	printf("    <cardnum>  - card number (default is 0)\n\n");
-	printf("Loads an FPGA configuration from a bitfile into a\n");
-	printf("Mesa 5i20 or 5i22 FPGA.  If the bitfile contains HAL driver\n");
-	printf("config data, writes that data to the FPGA's RAM.\n");
-	printf("The type of card is deduced from the FPGA type info in the bitfile.\n");
-	printf("Card types are numbered independently\n\n");
-	exit(EC_BADCL);
+
+static void usage(void) {
+    printf("usage:\n");
+    printf("    bfload help\n");
+    printf("    bfload list\n");
+    printf("    bfload BoardType[:BoardIdentifier]=BitFile\n");
+    printf("    bfload <filename> [<card>]\n");
+    printf("\n");
+    printf("help: Show this usage information.\n");
+    printf("\n");
+    printf("list: List PCI Anything I/O boards detected on this system.\n");
+    printf("\n");
+    printf("The 'BoardType[:BoardIdentifier]=BitFile' command-line format is the\n");
+    printf("prefered way to program an FPGA:\n");
+    printf("    BoardType is one of the supported board types.\n");
+    printf("    BoardIdentifier specifies which board of that type to program.\n");
+    printf("      The format depends on the board type.  For PCI boards it's an\n");
+    printf("      integer specifying the N'th board of that type (default 0).  For EPP\n");
+    printf("      boards it's 'IOAddr[,IOAddrHigh]' (default is '0x378', IOAddrHigh\n");
+    printf("      defaults to IOAddr + 0x400).\n");
+    printf("    BitFile is the FPGA program to send.\n");
+    printf("\n");
+    printf("The '<filename> [<card>]' command-line format is deprecated and will be\n");
+    printf("removed in a future version of bfload:\n");
+    printf("    <filename> - name of bitfile\n");
+    printf("    <cardnum>  - card number (default is 0)\n");
+    printf("\n");
+    printf("Loads an FPGA configuration from a bitfile into a\n");
+    printf("Mesa 5i20 or 5i22 FPGA.  If the bitfile contains HAL driver\n");
+    printf("config data, writes that data to the FPGA's RAM.\n");
+    printf("The type of card is deduced from the FPGA type info in the bitfile.\n");
+    printf("Card types are numbered independently\n");
+    printf("\n");
+}
+
+
+int program_pci_board(struct board_info *board, char *device_id, struct bitfile *bf);
+int program_epp_board(struct board_info *board, char *device_id, struct bitfile *bf);
+
+int program(char *device_type, char *device_id, char *filename) {
+    struct bitfile *bf;
+    char *bitfile_chip;
+    struct bitfile_chunk *ch;
+    struct board_info *board;
+
+    int found_device_type;
+    int num_boards;
+    int i, r;
+
+
+    // 
+    // open the bitfile
+    //
+
+    bf = open_bitfile_or_die(filename);
+
+    // chunk 'b' has the bitfile's target device, the chip type it's for
+    ch = bitfile_find_chunk(bf, 'b', 0);
+    bitfile_chip = (char *)(ch->body);
+
+
+    //
+    // look up the device type that the caller requested in our table of
+    // known device types
+    // 
+
+    num_boards = sizeof(board_info_table) / sizeof(struct board_info);
+    board = NULL;
+    found_device_type = 0;
+    for (i = 0; i < num_boards; i ++) {
+        if (strcmp(board_info_table[i].board_type, device_type) == 0) {
+            found_device_type = 1;
+            if (strcmp(board_info_table[i].chip_type, bitfile_chip) == 0) {
+                board = &board_info_table[i];
+                break;
+            }
+        }
     }
-    config_file_name = argv[1];
-    card_number = 0;
-    if ( argc == 3 ) {
-	if (sscanf(argv[2], "%d", &card_number) != 1) {
-	    errmsg(__func__,"bad card number: %s", argv[2]);
-	    return -1;
+    if (!found_device_type) {
+        printf("board type '%s' is unknown\n", device_type);
+        return -1;
+    }
+    if (board == NULL) {
+        printf("chip type incompatibility\n");
+        printf("board type '%s' is not available with bitfile's FPGA type '%s'\n", device_type, bitfile_chip);
+        return -1;
+    }
+
+
+    // 
+    // At this point the program has identified the board type (it's in
+    // "board") and read in the bitfile (it's in "bf").
+    //
+    // Next we need to parse the device_id to find out *which* board of the
+    // required type we're supposed to program.
+    //
+
+    r = 0;
+    switch (board->io_type) {
+        case IO_TYPE_PCI:
+            r = program_pci_board(board, device_id, bf);
+            break;
+
+        case IO_TYPE_EPP:
+            r = program_epp_board(board, device_id, bf);
+            break;
+
+        default:
+            printf("don't know how to parse %s device id '%s'\n", board->board_type, device_id);
+            return -1;
+    }
+    if (r != 0) {
+        return -1;
+    }
+
+    printf("it worked!\n");
+    exit(0);
+}
+
+
+int program_pci_board(struct board_info *board, char *device_id, struct bitfile *bf) {
+    struct bitfile_chunk *ch;
+    int board_num;
+    struct upci_dev_info info;
+    int r;
+
+
+    if (device_id == NULL) {
+        board_num = 0;
+    } else {
+        char *endp;
+        board_num = strtol(device_id, &endp, 0);
+        if (*endp != '\0') {
+            printf("error parsing board number from '%s'\n", device_id);
+            return EC_BADCL;
+        }
+    }
+
+
+    //
+    // find the PCI board
+    //
+
+    r = upci_scan_bus();
+    if (r < 0) {
+	errmsg(__func__, "PCI bus data missing");
+	return EC_SYS;
+    }
+
+    info.vendor_id = board->io.pci.vendor_id;
+    info.device_id = board->io.pci.device_id;
+    info.ss_vendor_id = board->io.pci.ss_vendor_id;
+    info.ss_device_id = board->io.pci.ss_device_id;
+    info.instance = board_num;
+
+    board->io.pci.upci_devnum = upci_find_device(&info);
+    if (board->io.pci.upci_devnum < 0) {
+	errmsg(__func__, "%s board #%d not found",
+	    board->board_type, board_num);
+	return EC_HDW;
+    }
+
+    upci_print_device_info(board->io.pci.upci_devnum);
+
+
+    //
+    // program the board with the bitfile
+    //
+
+    /* chunk 'e' has the bitstream */
+    ch = bitfile_find_chunk(bf, 'e', 0);
+
+    printf ("Loading configuration %s into %s:%d board...\n", bf->filename, board->board_type, board_num);
+    r = board->program_funct(board, ch);
+    if (r != 0) {
+	errmsg(__func__, "configuration did not load");
+	return EC_HDW;
+    }
+
+    /* do we need to HAL driver data to the FGPA RAM? */
+    // HostMot2 does not use this 
+    ch = bitfile_find_chunk(bf, 'r', 0);
+    if (ch != NULL) {
+	printf ("Writing data to FPGA RAM\n");
+	r = write_fpga_ram(board, ch);
+	if (r != 0) {
+	    errmsg(__func__, "RAM data could not be loaded");
+	    return EC_HDW;
 	}
     }
-    if (card_number > 15) {
-	errmsg(__func__,"card number %d out of range (range is 0 to 15)", card_number);
-	return -1;
-    }
+
+    upci_reset();
+    
     return 0;
 }
 
-/* program FPGA on PCI board 'devnum', with data from bitfile chunk 'ch' */
 
+int program_epp_board(struct board_info *board, char *device_id, struct bitfile *bf) {
+    struct bitfile_chunk *ch;
+    int r;
+
+    // this snippet of code is nasty
+    // i hate doing text parsing in c
+    if (device_id == NULL) {
+        // use default io addr for parallel port
+    } else {
+        // Format: io_addr[,io_addr_lo]
+        char *endp;
+        char *endp2;
+
+        board->io.epp.io_addr = strtol(device_id, &endp, 0);
+        if (endp == device_id) {
+            printf("cannot parse EPP address from '%s'\n", device_id);
+            return EC_BADCL;
+        }
+        if (*endp == '\0') {
+            board->io.epp.io_addr_hi = board->io.epp.io_addr + 0x400;
+        } else {
+            if (*endp != ',') {
+                printf("cannot parse EPP address from '%s'\n", device_id);
+                return EC_BADCL;
+            }
+            endp ++;
+            if (*endp == '\0') {
+                board->io.epp.io_addr_hi = board->io.epp.io_addr + 0x400;
+            } else {
+                board->io.epp.io_addr_hi = strtol(endp, &endp2, 0);
+                if (*endp2 != '\0') {
+                    printf("cannot parse EPP address from '%s'\n", device_id);
+                    return EC_BADCL;
+                }
+            }
+        }
+    }
+    printf("%s board at 0x%04x,0x%04x\n", board->board_type, board->io.epp.io_addr, board->io.epp.io_addr_hi);
+
+
+    // get access the the parport i/o addresses
+    if (iopl(3) != 0) {
+        printf("error getting I/O port access: %s\n", strerror(errno));
+        return EC_SYS;
+    }
+
+
+    //
+    // program the board with the bitfile
+    //
+
+    /* chunk 'e' has the bitstream */
+    ch = bitfile_find_chunk(bf, 'e', 0);
+
+    printf(
+        "Loading configuration %s into %s:0x%04x,0x%04x board...\n",
+        bf->filename,
+        board->board_type,
+        board->io.epp.io_addr,
+        board->io.epp.io_addr_hi
+    );
+    r = board->program_funct(board, ch);
+    if (r != 0) {
+	errmsg(__func__, "configuration did not load");
+	return EC_HDW;
+    }
+
+
+    return 0;
+}
+
+
+// try to execute a new-style programming command
+// new style is: CardType[:CardID]=FileName
+int parse_program_command(char *cmd) {
+    char *filename;
+
+    char *device_type;
+    char *device_id;
+
+    struct stat stat_buf;
+    int r;
+
+    printf("trying to parse '%s' as a new-style command-line...\n", cmd);
+
+    // first parse out the filename
+    filename = strchr(cmd, '=');
+    if (filename == NULL) return -1;
+    *filename = '\0';
+    filename ++;
+
+    r = stat(filename, &stat_buf);
+    if (r != 0) {
+        errmsg(__func__, "error stating '%s': %s\n", filename, strerror(errno));
+        return -1;
+    }
+
+
+    // parse out the device id
+    device_id = strchr(cmd, ':');
+    if (device_id != NULL) {
+        *device_id = '\0';
+        device_id ++;
+        if (*device_id == '\0') {
+            device_id = NULL;
+        }
+    }
+
+    device_type = cmd;
+    if (*device_type == '\0') {
+        errmsg(__func__, "no device type specified\n");
+        return -1;
+    }
+
+    return program(device_type, device_id, filename);
+}
+
+
+static int parse_cmdline(unsigned argc, char *argv[])
+{
+    struct stat stat_buf;
+    int r;
+
+
+    if (argc == 2) {
+        if (strcmp(argv[1], "list") == 0) {
+            list_devices();
+            exit(EC_OK);
+        }
+
+        else if (strcmp(argv[1], "help") == 0) {
+            usage();
+            exit(EC_OK);
+        }
+    }
+
+    if ((argc != 2) && (argc != 3)) {
+        usage();
+        return -1;
+    }
+
+
+    //
+    // try to detect if it's a new-style or old-style command-line
+    // old style is: FileName [CardNum]
+    // new style is: CardType[:CardID]=FileName
+    //
+
+    r = stat(argv[1], &stat_buf);
+    if (r == 0) {
+        // looks like an old-style command-line
+        printf("\n");
+        printf("WARNING: You're using the old-style command-line.  This is deprecated, and\n");
+        printf("support for it will go away in a future version of bfload!\n");
+        printf("Run 'bfload help' to learn about the new-style command-line.\n");
+        printf("\n");
+        sleep(4);
+        config_file_name = argv[1];
+        card_number = 0;
+        if ( argc == 3 ) {
+            if (sscanf(argv[2], "%d", &card_number) != 1) {
+                errmsg(__func__,"bad card number: %s", argv[2]);
+                return -1;
+            }
+        }
+        if (card_number > 15) {
+            errmsg(__func__,"card number %d out of range (range is 0 to 15)", card_number);
+            return -1;
+        }
+        return 0;
+    } else if (errno != ENOENT) {
+        errmsg(__func__, "error stating '%s': %s\n", argv[1], strerror(errno));
+        return -1;
+    }
+
+    //
+    // if we get here it doesnt look like an old-style command-line
+    // (or the file was missing or misspelled)
+    //
+
+    r = parse_program_command(argv[1]);
+    if (r != 0) {
+        return -1;
+    }
+
+    return 0;
+}
+
+
+/* program FPGA on PCI board 'devnum', with data from bitfile chunk 'ch' */
 
 static int program_5i20_fpga(struct board_info *bd, struct bitfile_chunk *ch)
 {
@@ -332,18 +864,46 @@ static int program_5i20_fpga(struct board_info *bd, struct bitfile_chunk *ch)
 
     printf("Opening PCI regions...\n");
     /* open regions for access */
-    ctrl_region = upci_open_region(bd->upci_devnum, 1);
+    ctrl_region = upci_open_region(bd->io.pci.upci_devnum, 1);
     if ( ctrl_region < 0 ) {
 	errmsg(__func__, "could not open device %d, region %d (5i20 control port)",
-	    bd->upci_devnum, 1 );
+	    bd->io.pci.upci_devnum, 1 );
 	goto cleanup0;
     }
-    data_region = upci_open_region(bd->upci_devnum, 2);
+    data_region = upci_open_region(bd->io.pci.upci_devnum, 2);
     if ( data_region < 0 ) {
 	errmsg(__func__, "could not open device %d, region %d (5i20 data port)",
-	    bd->upci_devnum, 2 );
+	    bd->io.pci.upci_devnum, 2 );
 	goto cleanup1;
     }
+
+
+    //
+    // fix up LASxBRD READY if needed
+    //
+    {
+        int offsets[] = { LAS0BRD_OFFSET, LAS1BRD_OFFSET, LAS2BRD_OFFSET, LAS3BRD_OFFSET };
+        int i;
+
+        printf("checking #READY in EEPROM:\n" );
+
+        for (i = 0; i < 4; i ++) {
+            __u32 val;
+            int offset = offsets[i];
+
+            val = upci_read_u32(ctrl_region, offset);
+            printf("    LAS%dBRD (0x%04x): 0x%08x", i, offset, val);
+            if (val & LASxBRD_READY) {
+                printf(" ok\n");
+            } else {
+                printf("    *** #READY is OFF, i'll fix it for you just this once but you should upgrade your ancient EEPROM\n");
+                val |= LASxBRD_READY;
+                upci_write_u32(ctrl_region, offset, val);
+            }
+        }
+    }
+
+
     printf("Resetting FPGA...\n" );
     /* read current state of register */
     status = upci_read_u32(ctrl_region, CTRL_STAT_OFFSET);
@@ -428,16 +988,16 @@ static int program_5i22_fpga(struct board_info *bd, struct bitfile_chunk *ch)
 
     printf("Opening PCI regions...\n");
     /* open regions for access */
-    ctrl_region = upci_open_region(bd->upci_devnum, 1);
+    ctrl_region = upci_open_region(bd->io.pci.upci_devnum, 1);
     if ( ctrl_region < 0 ) {
 		errmsg(__func__, "could not open device %d, region %d (5i22 control port)",
-		    bd->upci_devnum, 1 );
+		    bd->io.pci.upci_devnum, 1 );
 		goto cleanup22_0;
     }
-    data_region = upci_open_region(bd->upci_devnum, 2);
+    data_region = upci_open_region(bd->io.pci.upci_devnum, 2);
     if ( data_region < 0 ) {
 		errmsg(__func__, "could not open device %d, region %d (5i22 data port)",
-		    bd->upci_devnum, 2 );
+		    bd->io.pci.upci_devnum, 2 );
 		goto cleanup22_1;
     }
     printf("Resetting FPGA...\n" );
@@ -497,6 +1057,116 @@ cleanup22_0:
 }
 
 
+// returns TRUE if the FPGA reset, FALSE on error
+static int m7i43_cpld_reset(struct board_info *board) {
+    uint8_t byte;
+
+    // select the control register
+    epp_addr8(&board->io.epp, 1);
+
+    // bring the Spartan3's PROG_B line low for 1 us (the specs require 300-500 ns or longer)
+    epp_write(&board->io.epp, 0x00);
+    usleep(1);
+
+    // bring the Spartan3's PROG_B line high and wait for 2 ms before sending firmware (required by spec)
+    epp_write(&board->io.epp, 0x01);
+    usleep(2 * 1000);
+
+    // make sure the FPGA is not asserting its DONE bit
+    byte = epp_read(&board->io.epp);
+    if ((byte & 0x01) != 0) {
+        printf("error: DONE is not low after CPLD reset!\n");
+        return 0;
+    }
+
+    return 1;
+}
+
+
+// this function resets the FPGA *only* if it's currently configured with the HostMot2 firmware
+static void m7i43_hm2_reset(struct board_info *board) {
+    epp_addr16(&board->io.epp, 0x7F7F);
+    epp_write(&board->io.epp, 0x5A);
+}
+
+
+// returns FPGA size in K-gates
+static int m7i43_cpld_get_fpga_size(struct board_info *board) {
+    uint8_t byte;
+
+    //  select data register
+    epp_addr8(&board->io.epp, 0);
+
+    byte = epp_read(&board->io.epp);
+    if ((byte & 0x01) == 0x01) {
+        return 400;
+    } else {
+        return 200;
+    }
+}
+
+
+static int m7i43_cpld_send_firmware(struct board_info *board, struct bitfile_chunk *ch) {
+    int i;
+    uint8_t *dp;
+
+    // select the CPLD's data address
+    epp_addr8(&board->io.epp, 0);
+
+    dp = ch->body;
+    for (i = 0; i < ch->len; i ++) {
+        epp_write(&board->io.epp, bit_reverse(*dp));
+        dp ++;
+    }
+
+    // see if it worked
+    if (epp_check_for_timeout(&board->io.epp)) {
+        printf("EPP Timeout while sending firmware!\n");
+        return 0;
+    }
+
+    return 1;
+}
+
+
+static int program_7i43_fpga(struct board_info *board, struct bitfile_chunk *ch) {
+    int fpga_size;
+
+
+    // set up the parport for EPP
+    epp_init(&board->io.epp);
+
+
+    // 
+    // reset the FPGA, then send appropriate firmware
+    //
+
+    m7i43_hm2_reset(board);
+
+    if (!m7i43_cpld_reset(board)) {
+        printf("error resetting FPGA, aborting load\n");
+        return -1;
+    }
+
+    fpga_size = m7i43_cpld_get_fpga_size(board);
+    if (
+        ((strcmp(board->chip_type, "3s400tq144") == 0) && (fpga_size == 400))
+        || ((strcmp(board->chip_type, "3s200tq144") == 0) && (fpga_size == 200))
+    ) {
+        if (!m7i43_cpld_send_firmware(board, ch)) {
+            printf("error sending FPGA firmware\n");
+            return -1;
+        }
+        return 0;
+    } else {
+        printf("FPGA part mismatch\n");
+        printf("The selected board reports fpga chip size %d K gates\n", fpga_size);
+        printf("The requested firmware is for the other 7i43 FPGA\n");
+        return -1;
+    }
+}
+
+
 /* the fpga was originally designed to be programmed serially... even
    though we are doing it using a parallel interface, the bit ordering
    is based on the serial interface, and the data needs to be reversed
@@ -532,11 +1202,11 @@ static int write_fpga_ram(struct board_info *bd, struct bitfile_chunk *ch)
     int mem_region, n;
     __u32 data;
 
-    printf("Opening PCI region %d...\n", bd->fpga_pci_region);
-    mem_region = upci_open_region(bd->upci_devnum, bd->fpga_pci_region);
+    printf("Opening PCI region %d...\n", bd->io.pci.fpga_pci_region);
+    mem_region = upci_open_region(bd->io.pci.upci_devnum, bd->io.pci.fpga_pci_region);
     if ( mem_region < 0 ) {
 	errmsg(__func__, "could not open device %d, region %d (FPGA memory)",
-	    bd->upci_devnum, bd->fpga_pci_region );
+	    bd->io.pci.upci_devnum, bd->io.pci.fpga_pci_region );
 	return -1;
     }
     printf("Writing data to FPGA...\n");
