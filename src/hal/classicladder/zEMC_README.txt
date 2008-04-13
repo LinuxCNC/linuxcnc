@@ -12,6 +12,7 @@ arrays.c:
 --- copy GeneralParams into GeneralParamsMirror (in user code only) so config window displays proper info
 
 Calc.c:
+--- removed define for module and RTAI
 --- removed and moved period calculation to module_hal.c
 --- changed inputCountrol pin of old timers to be always true so it behaves as previous old timers. check out-CalcTypeTimer()
 
@@ -37,6 +38,9 @@ config_gtk.c:
 --- removed define for hardware.h
 --- added #ifndef HAL_SUPPORT around any code for direct I/O to hide it from configue window
 --- modified to show number of s32 in and out pins 
+
+drawing.c:
+--- added colour to variable names for input (red) and output (blue) in section display drawing area
 
 edit.c
 --- added two calls to check for hal signal names (see GetElementPropertiesForStatusBar ) one for I, Q, and B variables and another for W variables in expressions 
@@ -65,11 +69,12 @@ spy_vars_gtk.c:
 --- made integer window toggle from symbol names to variable names when section display window button is toggled.
 --- added colours to variables to diffientiate between in,out and internal variables
 --- if the number of words defined is less then number of words normally displayed the window adjusts
---- displays 15 word variables now.
+--- displays max 15 word variables now.
   
 symbols_gtk.c:
 --- changed to show HAL signals in comment slot
 --- added messages to statusbar when window toggled
+--- change to have only one editable line (gets rid of mass of blank line)
 
 SUBMAKEFILE:
 --- completely different for EMC. This makefile is for the user program only. 
