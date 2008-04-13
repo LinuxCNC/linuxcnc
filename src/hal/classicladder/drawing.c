@@ -230,6 +230,23 @@ void DrawElement(GdkPixmap * DrawPixmap,int x,int y,int Width,int Height,StrElem
 	GdkGC * TheGc;
 	GdkColor DynaGdkColor;
 	GdkGC * DynaGcOn;
+	GdkGC * Blue;
+	GdkGC * Red;
+        DynaGdkColor.pixel = 0xFF0000;
+	DynaGdkColor.red = 0xFF;
+	DynaGdkColor.green = 0x00;
+	DynaGdkColor.blue = 0x00;
+	Red = gdk_gc_new(DrawPixmap);
+	gdk_gc_set_foreground(Red,&DynaGdkColor);
+
+       
+        DynaGdkColor.pixel = 0x0000FF;
+	DynaGdkColor.red = 0x00;
+	DynaGdkColor.green = 0x00;
+	DynaGdkColor.blue = 0xFF;
+	Blue = gdk_gc_new(DrawPixmap);
+	gdk_gc_set_foreground(Blue,&DynaGdkColor);
+
 	DynaGdkColor.pixel = 0xFF22FF;
 	DynaGdkColor.red = 0xFF;
 	DynaGdkColor.green = 0x22;
@@ -748,9 +765,12 @@ void DrawElement(GdkPixmap * DrawPixmap,int x,int y,int Width,int Height,StrElem
 		switch(Element.Type)
 		{
 			case ELE_INPUT:
-			case ELE_INPUT_NOT:
+			case ELE_INPUT_NOT:				
 			case ELE_RISING_INPUT:
 			case ELE_FALLING_INPUT:
+				strcpy(BufTxt,CreateVarName(Element.VarType,Element.VarNum));
+				DrawTextGTK2( DrawPixmap, Red, x, y+HeiDiv4+1, Width, -1, BufTxt );
+				break;
 			case ELE_OUTPUT:
 			case ELE_OUTPUT_NOT:
 			case ELE_OUTPUT_SET:
@@ -760,7 +780,7 @@ void DrawElement(GdkPixmap * DrawPixmap,int x,int y,int Width,int Height,StrElem
 				gdk_draw_text(DrawPixmap, drawing_area->style->font, drawing_area->style->black_gc,
 								x+WidDiv4,y+HeiDiv4-2,BufTxt,strlen(BufTxt));
 #else
-				DrawTextGTK2( DrawPixmap, drawing_area->style->black_gc, x, y+HeiDiv4+1, Width, -1, BufTxt );
+				DrawTextGTK2( DrawPixmap, Blue, x, y+HeiDiv4+1, Width, -1, BufTxt );
 #endif
 				break;
 			case ELE_OUTPUT_JUMP:
