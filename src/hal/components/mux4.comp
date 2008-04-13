@@ -1,7 +1,7 @@
 component mux4 "Select from one of four input values";
 pin in bit sel0;
 pin in bit sel1 """\
-Together, these determine which \\fBin\\fN\\fR value is copied to \\fBout\\fR.
+Together, these determine which \\fBin\\fIN\\fR value is copied to \\fBout\\fR.
 """;
 pin out float out """\
 Follows the value of one of the \\fBin\\fIN\\fR values according to the two \\fBsel\\fN values
