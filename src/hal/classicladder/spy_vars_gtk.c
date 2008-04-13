@@ -166,7 +166,7 @@ void BoolVarsWindowInitGtk()
 	GtkTooltips * WidgetTooltips[ NBR_TYPE_BOOLS_SPY ];
 	
 	SpyBoolVarsWindow = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_title ((GtkWindow *)SpyBoolVarsWindow, "Spy bools vars");
+	gtk_window_set_title ((GtkWindow *)SpyBoolVarsWindow, "Bool (on/off) vars");
 	vboxmain = gtk_vbox_new (FALSE, 0);
 	gtk_container_add (GTK_CONTAINER (SpyBoolVarsWindow), vboxmain);
 	gtk_widget_show (vboxmain);
