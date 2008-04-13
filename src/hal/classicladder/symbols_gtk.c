@@ -55,13 +55,14 @@ void DisplaySymbols( void )
 
 	for ( ScanSymb=0; ScanSymb<NBR_SYMBOLS; ScanSymb++ )
 	{
-		// Acquire an iterator
-		gtk_list_store_append( ListStore, &iter );
+		if(SymbolArray[ ScanSymb ].VarName [0] =='\0')  {break;}
+		
 		if(SymbolArray[ ScanSymb ].VarName [0] =='%')
 			{snprintf(Tempbuf, LGT_SYMBOL_COMMENT, "%s",ConvVarNameToHalSigName(SymbolArray[ ScanSymb ].VarName));
 		}else{ snprintf(Tempbuf,LGT_SYMBOL_COMMENT, "%s",SymbolArray[ ScanSymb ].Comment);}
 
 	// fill the element
+		gtk_list_store_append( ListStore, &iter );
 		gtk_list_store_set( ListStore, &iter,
 					NUM_ARRAY, ScanSymb,
                     VAR_NAME, SymbolArray[ ScanSymb ].VarName,
@@ -69,6 +70,14 @@ void DisplaySymbols( void )
                     COMMENT, Tempbuf,
                     -1);
 	}
+snprintf(Tempbuf,LGT_SYMBOL_COMMENT, " ");
+gtk_list_store_append( ListStore, &iter );
+		gtk_list_store_set( ListStore, &iter,
+					NUM_ARRAY, ScanSymb,
+                    VAR_NAME, SymbolArray[ ScanSymb ].VarName,
+                    SYMBOL, SymbolArray[ ScanSymb ].Symbol,
+                    COMMENT, Tempbuf,
+                    -1);
 }
 
 /* The callback for the editing of text in our GtkTreeView */
