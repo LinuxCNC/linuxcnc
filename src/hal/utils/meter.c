@@ -549,15 +549,15 @@ static char *data_value(int type, void *valptr)
 	    value_str = "TRUE";
 	break;
     case HAL_FLOAT:
-	snprintf(buf, 14, "%.7g", (double)*((float *) valptr));
+	snprintf(buf, 14, "%.7g", (double)*((hal_float_t *) valptr));
 	value_str = buf;
 	break;
     case HAL_S32:
-	snprintf(buf, 24, "%10ld", *((signed long *) valptr));
+	snprintf(buf, 24, "%10ld", (long)*((hal_s32_t *) valptr));
 	value_str = buf;
 	break;
     case HAL_U32:
-	snprintf(buf, 24, "%10lu (0x%08lX)", *((unsigned long *) valptr),
+	snprintf(buf, 24, "%10lu (0x%08lX)", (unsigned long)*((hal_u32_t *) valptr),
 	    *((unsigned long *) valptr));
 	value_str = buf;
 	break;
