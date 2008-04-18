@@ -56,13 +56,13 @@ static void home_start_move(emcmot_joint_t * joint, double vel)
     /* set up a long move */
     joint_range = joint->max_pos_limit - joint->min_pos_limit;
     if (vel > 0.0) {
-	joint->free_pos_cmd = joint->pos_cmd + 2.0 * joint_range;
+	joint->free_tp.pos_cmd = joint->pos_cmd + 2.0 * joint_range;
     } else {
-	joint->free_pos_cmd = joint->pos_cmd - 2.0 * joint_range;
+	joint->free_tp.pos_cmd = joint->pos_cmd - 2.0 * joint_range;
     }
-    joint->free_vel_lim = fabs(vel);
+    joint->free_tp.max_vel = fabs(vel);
     /* start the move */
-    joint->free_tp_enable = 1;
+    joint->free_tp.enable = 1;
 }
 
 /* 'home_do_moving_checks()' is called from states where the machine
@@ -84,9 +84,9 @@ static void home_do_moving_checks(emcmot_joint_t * joint)
 	}
     }
     /* check for reached end of move */
-    if (!joint->free_tp_active) {
+    if (!joint->free_tp.active) {
 	/* reached end of move without hitting switch */
-	joint->free_tp_enable = 0;
+	joint->free_tp.enable = 0;
 	reportError(_("end of move in home state %d"), joint->home_state);
 	joint->home_state = HOME_ABORT;
 	immediate_state = 1;
@@ -138,7 +138,7 @@ void do_homing_sequence(void)
 	    joint = &joints[i];
 	    if(joint->home_sequence == home_sequence) {
 		/* start this joint */
-	        joint->free_tp_enable = 0;
+	        joint->free_tp.enable = 0;
 		joint->home_state = HOME_START;
 		seen++;
 	    }
@@ -252,7 +252,7 @@ void do_homing(void)
 		SET_JOINT_HOMED_FLAG(joint, 0);
 		SET_JOINT_AT_HOME_FLAG(joint, 0);
 		/* stop any existing motion */
-		joint->free_tp_enable = 0;
+		joint->free_tp.enable = 0;
 		/* reset delay counter */
 		joint->home_pause_timer = 0;
 		/* figure out exactly what homing sequence is needed */
@@ -307,7 +307,7 @@ void do_homing(void)
 		   location where the home switch is already tripped. It
 		   starts a move away from the switch. */
 		/* is the joint still moving? */
-		if (joint->free_tp_active) {
+		if (joint->free_tp.active) {
 		    /* yes, reset delay, wait until joint stops */
 		    joint->home_pause_timer = 0;
 		    break;
@@ -333,7 +333,7 @@ void do_homing(void)
 		/* are we off home switch yet? */
 		if (! home_sw_active) {
 		    /* yes, stop motion */
-		    joint->free_tp_enable = 0;
+		    joint->free_tp.enable = 0;
 		    /* begin initial search */
 		    joint->home_state = HOME_INITIAL_SEARCH_START;
 		    immediate_state = 1;
@@ -348,7 +348,7 @@ void do_homing(void)
 		   fairly fast, because once the switch is found another
 		   slower move will be used to set the exact home position. */
 		/* is the joint already moving? */
-		if (joint->free_tp_active) {
+		if (joint->free_tp.active) {
 		    /* yes, reset delay, wait until joint stops */
 		    joint->home_pause_timer = 0;
 		    break;
@@ -381,7 +381,7 @@ void do_homing(void)
 		/* have we hit home switch yet? */
 		if (home_sw_active) {
 		    /* yes, stop motion */
-		    joint->free_tp_enable = 0;
+		    joint->free_tp.enable = 0;
 		    /* go to next step */
 		    joint->home_state = HOME_SET_COARSE_POSITION;
 		    immediate_state = 1;
@@ -403,7 +403,7 @@ void do_homing(void)
 		   motor position */
 		joint->pos_cmd += offset;
 		joint->pos_fb += offset;
-		joint->free_pos_cmd += offset;
+		joint->free_tp.curr_pos += offset;
 		joint->motor_offset -= offset;
 		/* The next state depends on the signs of 'search_vel' and
 		   'latch_vel'.  If they are the same, that means we must
@@ -429,7 +429,7 @@ void do_homing(void)
 		   move that will back off of the switch in preparation for a
 		   final slow move that captures the exact switch location. */
 		/* is the joint already moving? */
-		if (joint->free_tp_active) {
+		if (joint->free_tp.active) {
 		    /* yes, reset delay, wait until joint stops */
 		    joint->home_pause_timer = 0;
 		    break;
@@ -463,7 +463,7 @@ void do_homing(void)
 		/* are we off home switch yet? */
 		if (! home_sw_active) {
 		    /* yes, stop motion */
-		    joint->free_tp_enable = 0;
+		    joint->free_tp.enable = 0;
 		    /* begin final search */
 		    joint->home_state = HOME_RISE_SEARCH_START;
 		    immediate_state = 1;
@@ -477,7 +477,7 @@ void do_homing(void)
 		   point where the home switch trips.  It moves at
 		   'latch_vel' and looks for a rising edge on the switch */
 		/* is the joint already moving? */
-		if (joint->free_tp_active) {
+		if (joint->free_tp.active) {
 		    /* yes, reset delay, wait until joint stops */
 		    joint->home_pause_timer = 0;
 		    break;
@@ -518,7 +518,7 @@ void do_homing(void)
 			break;
 		    } else {
 			/* no index pulse, stop motion */
-			joint->free_tp_enable = 0;
+			joint->free_tp.enable = 0;
 			/* go to next step */
 			joint->home_state = HOME_SET_SWITCH_POSITION;
 			immediate_state = 1;
@@ -533,7 +533,7 @@ void do_homing(void)
 		   point where the home switch releases.  It moves at
 		   'latch_vel' and looks for a falling edge on the switch */
 		/* is the joint already moving? */
-		if (joint->free_tp_active) {
+		if (joint->free_tp.active) {
 		    /* yes, reset delay, wait until joint stops */
 		    joint->home_pause_timer = 0;
 		    break;
@@ -574,7 +574,7 @@ void do_homing(void)
 			break;
 		    } else {
 			/* no index pulse, stop motion */
-			joint->free_tp_enable = 0;
+			joint->free_tp.enable = 0;
 			/* go to next step */
 			joint->home_state = HOME_SET_SWITCH_POSITION;
 			immediate_state = 1;
@@ -595,7 +595,7 @@ void do_homing(void)
 		   motor position */
 		joint->pos_cmd += offset;
 		joint->pos_fb += offset;
-		joint->free_pos_cmd += offset;
+		joint->free_tp.curr_pos += offset;
 		joint->motor_offset -= offset;
 		/* next state */
 		joint->home_state = HOME_FINAL_MOVE_START;
@@ -610,7 +610,7 @@ void do_homing(void)
 		   reset its counter to zero and clear the enable when the
 		   next index pulse arrives. */
 		/* is the joint already moving? */
-		if (joint->free_tp_active) {
+		if (joint->free_tp.active) {
 		    /* yes, reset delay, wait until joint stops */
 		    joint->home_pause_timer = 0;
 		    break;
@@ -632,7 +632,7 @@ void do_homing(void)
 		   motor position */
 		joint->pos_cmd += offset;
 		joint->pos_fb += offset;
-		joint->free_pos_cmd += offset;
+		joint->free_tp.curr_pos += offset;
 		joint->motor_offset -= offset;
 		/* set the index enable */
 		joint->index_enable = 1;
@@ -667,7 +667,7 @@ void do_homing(void)
 		   enable when it does */
 		if ( joint->index_enable == 0 ) {
 		    /* yes, stop motion */
-		    joint->free_tp_enable = 0;
+		    joint->free_tp.enable = 0;
 		    /* go to next step */
 		    joint->home_state = HOME_SET_INDEX_POSITION;
 		    immediate_state = 1;
@@ -686,7 +686,7 @@ void do_homing(void)
 		joint->pos_fb = joint->motor_pos_fb -
 		    (joint->backlash_filt + joint->motor_offset);
 		joint->pos_cmd = joint->pos_fb;
-		joint->free_pos_cmd = joint->pos_fb;
+		joint->free_tp.curr_pos = joint->pos_fb;
 		/* next state */
 		joint->home_state = HOME_FINAL_MOVE_START;
 		immediate_state = 1;
@@ -698,7 +698,7 @@ void do_homing(void)
 		   which is not neccessarily the position of the home switch
 		   or index pulse. */
 		/* is the joint already moving? */
-		if (joint->free_tp_active) {
+		if (joint->free_tp.active) {
 		    /* yes, reset delay, wait until joint stops */
 		    joint->home_pause_timer = 0;
 		    break;
@@ -711,8 +711,7 @@ void do_homing(void)
 		}
 		joint->home_pause_timer = 0;
 		/* plan a move to home position */
-		joint->free_pos_cmd = joint->home;
-		/* do the move at max speed */
+		joint->free_tp.pos_cmd = joint->home;
 		/* if home_vel is set (>0) then we use that, otherwise we rapid there */
 		if (joint->home_final_vel > 0) {
 		    joint->free_vel_lim = fabs(joint->home_final_vel);
@@ -723,7 +722,7 @@ void do_homing(void)
 		    joint->free_vel_lim = joint->vel_limit;
 		}
 		/* start the move */
-		joint->free_tp_enable = 1;
+		joint->free_tp.enable = 1;
 		joint->home_state = HOME_FINAL_MOVE_WAIT;
 		break;
 
@@ -733,9 +732,9 @@ void do_homing(void)
 		   arrives at the final location. If the move hits a limit
 		   before it arrives, the home is aborted. */
 		/* have we arrived (and stopped) at home? */
-		if (!joint->free_tp_active) {
+		if (!joint->free_tp.active) {
 		    /* yes, stop motion */
-		    joint->free_tp_enable = 0;
+		    joint->free_tp.enable = 0;
 		    /* we're finally done */
 		    joint->home_state = HOME_LOCK;
 		    immediate_state = 1;
@@ -786,7 +785,7 @@ void do_homing(void)
 		SET_JOINT_HOMING_FLAG(joint, 0);
 		SET_JOINT_HOMED_FLAG(joint, 0);
 		SET_JOINT_AT_HOME_FLAG(joint, 0);
-		joint->free_tp_enable = 0;
+		joint->free_tp.enable = 0;
 		joint->home_state = HOME_IDLE;
 		joint->index_enable = 0;
 		immediate_state = 1;
