@@ -53,7 +53,7 @@ Parport
 Parport est un pilote pour le port parallèle traditionnel des PC.
  Le port dispose d'un total de 17 broches physiques.
  Le port parallèle originel a divisé ces broches en trois groupes: données,
- contrôle et état.
+ contrôles et états.
  Le groupe 
 \begin_inset Quotes eld
 \end_inset 
@@ -66,7 +66,7 @@ données
 \begin_inset Quotes eld
 \end_inset 
 
-contrôle
+contrôles
 \begin_inset Quotes erd
 \end_inset 
 
@@ -74,7 +74,7 @@ contrôle
 \begin_inset Quotes eld
 \end_inset 
 
-état
+états
 \begin_inset Quotes erd
 \end_inset 
 
@@ -82,20 +82,20 @@ contrôle
 \layout Standard
 
 Au début des années 1990, le port parallèle bidirectionnel est arrivé, ce
- qui permet à l'utilisateur d'ajuster le groupe des données comme étant
+ qui a permis à l'utilisateur d'ajuster le groupe des données comme étant
  des sorties ou comme étant des entrées.
  Le pilote de HAL supporte le port bidirectionnel et permet à l'utilisateur
- de configurer le groupe des données en entrée ou en sortie.
- Si il est configuré en sortie, un port fournit un total de 12 sorties et
- 5 entrées.
- Si il est configuré en entrée, il fournit 4 sorties et 13 entrées.
+ de configurer le groupe des données en entrées ou en sorties.
+ Si il est configuré en sorties, un port fournit un total de 12 sorties
+ et 5 entrées.
+ Si il est configuré en entrées, il fournit 4 sorties et 13 entrées.
  
 \layout Standard
 
 Dans certains ports parallèles, les broches du groupe contrôle sont des
  collecteurs ouverts, ils peuvent aussi être mis à l'état bas par une porte
  extérieure.
- Sur une carte avec les broches de contrôle en collecteur ouvert, le mode
+ Sur une carte avec les broches de contrôle en collecteurs ouverts, le mode
  
 \begin_inset Quotes eld
 \end_inset 
@@ -105,8 +105,8 @@ x
 \end_inset 
 
  de HAL permet un usage plus flexible avec 8 sorties dédiées, 5 entrées
- dédiées et 4 broches en collecteur ouvert.
- Dans d'autres ports parallèles, les broches du groupe contrôle sont en
+ dédiées et 4 broches en collecteurs ouverts.
+ Dans d'autres ports parallèles, les broches du groupe contrôles sont en
  push-pull et ne peuvent pas être utilisées comme des entrées.
 \begin_inset Foot
 collapsed false
@@ -122,7 +122,7 @@ x
 \begin_inset Quotes erd
 \end_inset 
 
- sont effectivement en collecteur ouvert (OC).
+ sont effectivement en collecteurs ouverts (OC).
  Si elles n'y sont pas, 
 \bar under 
 elles ne peuvent pas être utilisées comme des entrées
@@ -208,10 +208,10 @@ Aucune autre combinaison n'est supportée.
 \end_inset 
 
  montre deux diagrammes, un montre le pilote quand le groupe de données
- est configuré en sortie et le second le montre configuré en entrée.
+ est configuré en sorties et le second le montre configuré en entrées.
 \layout Standard
 
-Le pilote parport peut contrôler au maximum 8 ports (défini par MAX_PORTS
+Le pilote parport peut contrôler au maximum 8 ports (définis par MAX_PORTS
  dans le fichier hal_parport.c).
  Les ports sont numérotés à partir de zéro.
 \layout Subsection
@@ -222,8 +222,8 @@ Installation
 loadrt hal_parport cfg="<config-string>"
 \layout Standard
 
-La chaine config-string représente l'adresse hexadécimale du port, suivie,
- optionnellement, par une direction, le tout répété pour chaque port.
+La chaine config-string représente l'adresse hexadécimale du port, suivie
+ optionnellement par une direction, le tout répété pour chaque port.
  Les directions sont 
 \begin_inset Quotes eld
 \end_inset 
@@ -288,7 +288,7 @@ bien connue
 \begin_inset Quotes erd
 \end_inset 
 
-, comme 0278 ou 0378 qui sont typiquement configurées dans le BIOS.
+, comme 0x278 ou 0x378 qui sont typiquement configurées dans le BIOS.
  Les adresses des cartes sur bus PCI sont habituellement trouvées avec 
 \begin_inset Quotes eld
 \end_inset 
@@ -407,10 +407,11 @@ Pour chaque broche de sortie physique, le pilote crée une simple pin de
 parport.0.pin-14-out
 \family default 
 .
- Les pins 2 jusqu'à 9 font partie du groupe donnée est sont des pins de
- sortie si le port est défini comme un port de sortie (par défaut en sortie).
+ Les pins 2 jusqu'à 9 font partie du groupe données, elles sont des pins
+ de sortie si le port est défini comme un port de sorties (par défaut en
+ sortie).
  Les broches 1, 14, 16 et 17 sont des sorties dans tous les modes.
- Ces pin de HAL contrôlent l'état des pins physiques correspondantes.
+ Ces pins de HAL contrôlent l'état des pins physiques correspondantes.
 \layout Standard
 
 Pour chaque pin d'entrée physique, le pilote crée deux pins de HAL, par
@@ -425,7 +426,7 @@ parport.0.pin-12-in-not
 .
  Les pins 10, 11, 12, 13 et 15 sont toujours des sorties.
  Les pins 2 jusqu'à 9 sont des pins d'entrée seulement si le port est défini
- comme un port d'entrée.
+ comme un port d'entrées.
  Une pin de HAL 
 \family typewriter 
 -in
@@ -436,9 +437,9 @@ parport.0.pin-12-in-not
 \family typewriter 
 -in-not
 \family default 
- est invertsée, elle est FAUSSE si la pin physique est haute.
- En connectant un signal à l'une ou l'autre, l'utilisateur peut décider
- de l'état de l'entrée.
+ est inversée, elle est FAUSSE si la pin physique est haute.
+ En connectant un signal à l'une ou à l'autre, l'utilisateur peut décider
+ de la logique de l'entrée.
  En mode 
 \begin_inset Quotes eld
 \end_inset 
@@ -722,7 +723,7 @@ Si le kernel Linux affiche un message similaire à:
 parport: PnPBIOS parport detected.
 \layout Standard
 
-quand le module parport_pc est chargé, avec la commande: 
+Quand le module parport_pc est chargé, avec la commande: 
 \family typewriter 
 sudo modprobe -a parport_pc; sudo rmmod parport_pc,
 \family default 
