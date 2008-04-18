@@ -22,6 +22,7 @@
 #include "rtapi_math.h"
 #include "tp.h"
 #include "tc.h"
+#include "simple_tp.h"
 #include "motion_debug.h"
 #include "config.h"
 
@@ -775,7 +776,7 @@ static void set_operating_mode(void)
 	    joint_data = &(emcmot_hal_data->joint[joint_num]);
 	    joint = &joints[joint_num];
 	    /* disable free mode planner */
-	    joint->free_tp_enable = 0;
+	    joint->free_tp.enable = 0;
 	    /* drain coord mode interpolators */
 	    cubicDrain(&(joint->cubic));
 	    if (GET_JOINT_ACTIVE_FLAG(joint)) {
@@ -808,7 +809,7 @@ static void set_operating_mode(void)
 	    joint_data = &(emcmot_hal_data->joint[joint_num]);
 	    joint = &joints[joint_num];
 
-	    joint->free_pos_cmd = joint->pos_cmd;
+	    joint->free_tp.pos_cmd = joint->pos_cmd;
 	    if (GET_JOINT_ACTIVE_FLAG(joint)) {
 		SET_JOINT_ENABLE_FLAG(joint, 1);
 		SET_JOINT_HOMING_FLAG(joint, 0);
@@ -856,7 +857,7 @@ static void set_operating_mode(void)
 			/* point to joint data */
 			joint = &joints[joint_num];
 			/* update free planner positions */
-			joint->free_pos_cmd = joint->pos_cmd;
+			joint->free_tp.pos_cmd = joint->pos_cmd;
 		    }
 		}
 	    }
@@ -892,9 +893,9 @@ static void set_operating_mode(void)
 		    /* point to joint data */
 		    joint = &joints[joint_num];
 		    /* set joint planner pos cmd to current location */
-		    joint->free_pos_cmd = joint->pos_cmd;
+		    joint->free_tp.pos_cmd = joint->pos_cmd;
 		    /* but it can stay disabled until a move is required */
-		    joint->free_tp_enable = 0;
+		    joint->free_tp.enable = 0;
 		}
 		SET_MOTION_COORD_FLAG(0);
 		SET_MOTION_TELEOP_FLAG(0);
@@ -982,7 +983,7 @@ static void handle_jogwheels(void)
 	    continue;
 	}
 	/* calc target position for jog */
-	pos = joint->free_pos_cmd + distance;
+	pos = joint->free_tp.pos_cmd + distance;
 	/* don't jog past limits */
 	refresh_jog_limits(joint);
 	if (pos > joint->max_jog_limit) {
@@ -1010,13 +1011,14 @@ static void handle_jogwheels(void)
 		pos = joint->pos_cmd - stop_dist;
 	    }
 	}
-        /* set target position and use full velocity */
-        joint->free_pos_cmd = pos;
-        joint->free_vel_lim = joint->vel_limit;
+        /* set target position and use full velocity and accel */
+        joint->free_tp.pos_cmd = pos;
+        joint->free_tp.max_vel = joint->vel_limit;
+        joint->free_tp.max_acc = joint->acc_limit;
 	/* lock out other jog sources */
 	joint->wheel_jog_active = 1;
         /* and let it go */
-        joint->free_tp_enable = 1;
+        joint->free_tp.enable = 1;
 	SET_JOINT_ERROR_FLAG(joint, 0);
 	/* clear joint homed flag(s) if we don't have forward kins.
 	   Otherwise, a transition into coordinated mode will incorrectly
@@ -1036,7 +1038,7 @@ static void get_pos_cmds(long period)
     static int interpolationCounter = 0;
 #endif
     double old_pos_cmd;
-    double max_dv, tiny_dp, pos_err, vel_req, vel_lim;
+    double vel_lim;
 
     /* used in teleop mode to compute the max accell requested */
     double accell_mag;
@@ -1048,12 +1050,6 @@ static void get_pos_cmds(long period)
     switch ( emcmotStatus->motion_state) {
     case EMCMOT_MOTION_FREE:
 	/* in free mode, each joint is planned independently */
-	/* Each joint has a very simple "trajectory planner".  If the planner
-	   is enabled (free_tp_enable), then it moves toward free_pos_cmd at
-	   free_vel_lim, obeying the joint's accel and velocity limits, and
-	   stopping when it gets there.  If it is not enabled, it stops as
-	   quickly as possible, again obeying the accel limit.  When
-	   disabled, free_pos_cmd is set to the current position. */
 	/* initial value for flag, if needed it will be cleared below */
 	SET_MOTION_INPOS_FLAG(1);
 	for (joint_num = 0; joint_num < num_joints; joint_num++) {
@@ -1063,83 +1059,33 @@ static void get_pos_cmds(long period)
 		joint->acc_limit = emcmotStatus->acc;
 	    //AJ: only need to worry about free mode if joint is active
 	    if (GET_JOINT_ACTIVE_FLAG(joint)) {
-		joint->free_tp_active = 0;
-		/* compute max change in velocity per servo period */
-		max_dv = joint->acc_limit * servo_period;
-		/* compute a tiny position range, to be treated as zero */
-		tiny_dp = max_dv * servo_period * 0.001;
-		/* calculate desired velocity */
-		if (joint->free_tp_enable) {
-		    /* planner enabled, request a velocity that tends to drive
-		       pos_err to zero, but allows for stopping without position
-		       overshoot */
-		    pos_err = joint->free_pos_cmd - joint->pos_cmd;
-		    /* positive and negative errors require some sign flipping to
-		       avoid sqrt(negative) */
-		    if (pos_err > tiny_dp) {
-			vel_req =
-			    -max_dv + sqrt(2.0 * joint->acc_limit * pos_err +
-			    max_dv * max_dv);
-			/* mark joint active */
-			joint->free_tp_active = 1;
-		    } else if (pos_err < -tiny_dp) {
-			vel_req =
-			    max_dv - sqrt(-2.0 * joint->acc_limit * pos_err +
-			    max_dv * max_dv);
-			/* mark joint active */
-			joint->free_tp_active = 1;
-		    } else {
-			/* within 'tiny_dp' of desired pos, no need to move */
-			vel_req = 0.0;
-		    }
-		} else {
-		    /* planner disabled, request zero velocity */
-		    vel_req = 0.0;
-		    /* and set command to present position to avoid movement when
-		       next enabled */
-		    joint->free_pos_cmd = joint->pos_cmd;
-		}
-		/* if we move at all, clear AT_HOME flag */
-		if (joint->free_tp_active) {
-		    SET_JOINT_AT_HOME_FLAG(joint, 0);
-		}
+		/* compute joint velocity limit */
                 if ( joint->home_state == HOME_IDLE ) {
-                    /* velocity limit = planner limit * global scale factor */
+                    /* velocity limit = joint limit * global scale factor */
                     /* the global factor is used for feedrate override */
-                    vel_lim = joint->free_vel_lim * emcmotStatus->net_feed_scale;
+                    vel_lim = joint->vel_limit * emcmotStatus->net_feed_scale;
                 } else {
                     /* except if homing, when we ignore FO */
-                    vel_lim = joint->free_vel_lim;
+                    vel_lim = joint->vel_limit;
                 }
 		/* must not be greater than the joint physical limit */
 		if (vel_lim > joint->vel_limit) {
 		    vel_lim = joint->vel_limit;
 		}
-		/* limit velocity request */
-		if (vel_req > vel_lim) {
-		    vel_req = vel_lim;
-		} else if (vel_req < -vel_lim) {
-		    vel_req = -vel_lim;
+		/* set limits in free TP */
+		joint->free_tp.max_vel = vel_lim;
+		joint->free_tp.max_acc = joint->acc_limit;
+		/* execute free TP */
+		simple_tp_update(&(joint->free_tp), servo_period );
+		/* if we move at all, clear AT_HOME flag */
+		if (joint->free_tp.active) {
+		    SET_JOINT_AT_HOME_FLAG(joint, 0);
 		}
-		/* ramp velocity toward request at joint accel limit */
-		if (vel_req > joint->vel_cmd + max_dv) {
-		    joint->vel_cmd += max_dv;
-		} else if (vel_req < joint->vel_cmd - max_dv) {
-		    joint->vel_cmd -= max_dv;
-		} else {
-		    joint->vel_cmd = vel_req;
-		}
-		/* check for still moving */
-		if (joint->vel_cmd != 0.0) {
-		    /* yes, mark joint active */
-		    joint->free_tp_active = 1;
-		}
-		/* integrate velocity to get new position */
-		joint->pos_cmd += joint->vel_cmd * servo_period;
-		/* copy to coarse_pos */
-		joint->coarse_pos = joint->pos_cmd;
+		/* copy free TP output to pos_cmd and coarse_pos */
+		joint->pos_cmd = joint->free_tp.curr_pos;
+		joint->coarse_pos = joint->free_tp.curr_pos;
 		/* update joint status flag and overall status flag */
-		if ( joint->free_tp_active ) {
+		if ( joint->free_tp.active ) {
 		    /* active TP means we're moving, so not in position */
 		    SET_JOINT_INPOS_FLAG(joint, 0);
 		    SET_MOTION_INPOS_FLAG(0);
@@ -1787,7 +1733,7 @@ static void output_to_hal(void)
         int i;
         double v2 = 0.0;
         for(i=0; i<num_joints; i++)
-            if(GET_JOINT_ACTIVE_FLAG(&(joints[i])) && joints[i].free_tp_active)
+            if(GET_JOINT_ACTIVE_FLAG(&(joints[i])) && joints[i].free_tp.active)
                 v2 += joints[i].vel_cmd * joints[i].vel_cmd;
         if(v2 > 0.0)
             emcmotStatus->current_vel = (*emcmot_hal_data->current_vel) = sqrt(v2);
@@ -1800,7 +1746,7 @@ static void output_to_hal(void)
        to one of the debug parameters.  You can also comment out these lines
        and copy elsewhere if you want to observe an automatic variable that
        isn't in scope here. */
-    emcmot_hal_data->debug_bit_0 = joints[1].free_tp_active;
+    emcmot_hal_data->debug_bit_0 = joints[1].free_tp.active;
     emcmot_hal_data->debug_bit_1 = emcmotStatus->enables_new & AF_ENABLED;
     emcmot_hal_data->debug_float_0 = emcmotStatus->net_feed_scale;
     emcmot_hal_data->debug_float_1 = emcmotStatus->spindleRevs;
@@ -1841,7 +1787,6 @@ static void output_to_hal(void)
 	*(joint_data->amp_enable) = GET_JOINT_ENABLE_FLAG(joint);
 	*(joint_data->index_enable) = joint->index_enable;
 	*(joint_data->homing) = GET_JOINT_HOMING_FLAG(joint);
-
 	*(joint_data->coarse_pos_cmd) = joint->coarse_pos;
 	*(joint_data->joint_vel_cmd) = joint->vel_cmd;
 	*(joint_data->backlash_corr) = joint->backlash_corr;

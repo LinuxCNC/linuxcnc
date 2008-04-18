@@ -730,6 +730,7 @@ motmod-objs += emc/motion/motion.o
 motmod-objs += emc/motion/command.o 
 motmod-objs += emc/motion/control.o 
 motmod-objs += emc/motion/homing.o 
+motmod-objs += emc/motion/simple_tp.o 
 motmod-objs += emc/motion/emcmotglb.o 
 motmod-objs += emc/motion/emcmotutil.o 
 motmod-objs += libnml/posemath/_posemath.o
