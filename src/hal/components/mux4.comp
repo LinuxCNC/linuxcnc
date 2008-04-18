@@ -4,7 +4,7 @@ pin in bit sel1 """\
 Together, these determine which \\fBin\\fIN\\fR value is copied to \\fBout\\fR.
 """;
 pin out float out """\
-Follows the value of one of the \\fBin\\fIN\\fR values according to the two \\fBsel\\fN values
+Follows the value of one of the \\fBin\\fIN\\fR values according to the two \\fBsel\\fR values
 .RS
 .TP
 \\fBsel1=FALSE\\fR, \\fBsel0=FALSE\\fR
