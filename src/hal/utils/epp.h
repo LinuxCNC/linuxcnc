@@ -25,6 +25,7 @@
 #include <sys/io.h>
 
 
+#define EPP_SPP_DATA_OFFSET (0)
 #define EPP_STATUS_OFFSET   (1)
 #define EPP_CONTROL_OFFSET  (2)
 #define EPP_ADDRESS_OFFSET  (3)
@@ -32,7 +33,7 @@
 
 #define ECP_CONFIG_A_HIGH_OFFSET  (0)
 #define ECP_CONFIG_B_HIGH_OFFSET  (1)
-#define ECP_CONTROL_HIGH_OFFSET   (2)
+#define ECP_ECR_OFFSET            (2)
 
 
 struct epp {

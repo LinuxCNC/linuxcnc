@@ -33,6 +33,10 @@ void epp_addr16(struct epp *epp, uint16_t addr) {
     outb((addr >> 8),     epp->io_addr + EPP_ADDRESS_OFFSET);
 }
 
+void epp_write_spp_data(struct epp *epp, uint8_t val) {
+    outb(val, epp->io_addr + EPP_SPP_DATA_OFFSET);
+}
+
 void epp_write(struct epp *epp, uint8_t val) {
     outb(val, epp->io_addr + EPP_DATA_OFFSET);
 }
@@ -51,6 +55,10 @@ void epp_write_status(struct epp *epp, uint8_t status_byte) {
 
 void epp_write_control(struct epp *epp, uint8_t control_byte) {
     outb(control_byte, epp->io_addr + EPP_CONTROL_OFFSET);
+}
+
+void epp_write_ecr(struct epp *epp, uint8_t ecr_byte) {
+    outb(ecr_byte, epp->io_addr_hi + ECP_ECR_OFFSET);
 }
 
 int epp_check_for_timeout(struct epp *epp) {
@@ -78,8 +86,9 @@ int epp_clear_timeout(struct epp *epp) {
 
 
 void epp_init(struct epp *epp) {
-    outb(0x80, epp->io_addr_hi + ECP_CONTROL_HIGH_OFFSET);  // select EPP mode in ECR
-    epp_write_control(epp, 0x04);                           // set control lines and input mode
+    epp_write_spp_data(epp, 0);    // zero the port's data lines
+    epp_write_ecr(epp, 0x95);      // select EPP mode, disable interrupts & dma, reset the ECP FIFO (unused)
+    epp_write_control(epp, 0x04);  // set control lines and input mode
     epp_clear_timeout(epp);
 }
 
