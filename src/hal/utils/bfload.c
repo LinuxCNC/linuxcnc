@@ -661,7 +661,11 @@ int parse_program_command(char *cmd) {
 
     // first parse out the filename
     filename = strchr(cmd, '=');
-    if (filename == NULL) return -1;
+    if (filename == NULL) {
+        errmsg(__func__, "error parsing program command '%s'\n", cmd);
+        return EC_BADCL;
+    }
+
     *filename = '\0';
     filename ++;
 
