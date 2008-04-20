@@ -374,6 +374,8 @@ static int num_axes = 3; //number of axes, taken from the ini [TRAJ] section
 static double maxFeedOverride=1;
 static double minSpindleOverride=1.0;// no variation allowed by default (old behaviour)
 static double maxSpindleOverride=1.0;// the real values come from the ini
+static EMC_TASK_MODE_ENUM halui_old_mode = EMC_TASK_MODE_MANUAL;
+static int halui_sent_mdi = 0;
 
 // the NML channels to the EMC task
 static RCS_CMD_CHANNEL *emcCommandBuffer = 0;
@@ -988,15 +990,24 @@ int sendMdiCmd(char *mdi)
 {
     EMC_TASK_PLAN_EXECUTE emc_task_plan_execute_msg;
 
+    if (emcStatus->task.mode != EMC_TASK_MODE_MDI) {
+	halui_old_mode = emcStatus->task.mode;
+	sendMdi();
+    }
     strcpy(emc_task_plan_execute_msg.command, mdi);
     emc_task_plan_execute_msg.serial_number = ++emcCommandSerialNumber;
     emcCommandBuffer->write(emc_task_plan_execute_msg);
-    return emcCommandWaitDone(emcCommandSerialNumber);
+    halui_sent_mdi = 1;
+    return emcCommandWaitReceived(emcCommandSerialNumber);
 }
 
 static int sendMdiCommand(int n)
 {
-    return sendMdi() || sendMdiCmd(mdi_commands[n]) || sendManual();
+    int r1,r2;
+    halui_old_mode = emcStatus->task.mode;
+    r1 = sendMdi();
+    r2 = sendMdiCmd(mdi_commands[n]);
+    return r1 || r2;
 }
 
 
@@ -1785,6 +1796,19 @@ static void modify_hal_pins()
 	*(halui_data->estop_is_activated)=0;
     }
 
+    if (halui_sent_mdi) { // we have an ongoing MDI command
+	if (emcStatus->status == 1) { //which seems to have finished
+	    halui_sent_mdi = 0;
+	    switch (halui_old_mode) {
+		case EMC_TASK_MODE_MANUAL: sendManual();break;
+		case EMC_TASK_MODE_MDI: break;
+		case EMC_TASK_MODE_AUTO: sendAuto();break;
+		default: sendManual();break;
+	    }
+	}
+    }
+	
+
     if (emcStatus->task.mode == EMC_TASK_MODE_MANUAL) {
 	*(halui_data->mode_is_manual)=1;
     } else {
@@ -1846,26 +1870,24 @@ static void modify_hal_pins()
 	*(halui_data->joint_has_fault[joint]) = emcStatus->motion.axis[joint].fault;
     }
 
-	//sigh..
-    //i guess support for UVW isnt complete yet
-	*(halui_data->axis_pos_commanded[0]) = emcStatus->motion.traj.position.tran.x;	
+    *(halui_data->axis_pos_commanded[0]) = emcStatus->motion.traj.position.tran.x;	
     *(halui_data->axis_pos_commanded[1]) = emcStatus->motion.traj.position.tran.y;	
     *(halui_data->axis_pos_commanded[2]) = emcStatus->motion.traj.position.tran.z;
     *(halui_data->axis_pos_commanded[3]) = emcStatus->motion.traj.position.a;
     *(halui_data->axis_pos_commanded[4]) = emcStatus->motion.traj.position.b;
     *(halui_data->axis_pos_commanded[5]) = emcStatus->motion.traj.position.c;
-    //*(halui_data->axis_pos_commanded[6]) = emcStatus->motion.traj.position.tran.u;
-    //*(halui_data->axis_pos_commanded[7]) = emcStatus->motion.traj.position.tran.v;
-    //*(halui_data->axis_pos_commanded[8]) = emcStatus->motion.traj.position.tran.w;
-	*(halui_data->axis_pos_feedback[0]) = emcStatus->motion.traj.actualPosition.tran.x;	
+    *(halui_data->axis_pos_commanded[6]) = emcStatus->motion.traj.position.u;
+    *(halui_data->axis_pos_commanded[7]) = emcStatus->motion.traj.position.v;
+    *(halui_data->axis_pos_commanded[8]) = emcStatus->motion.traj.position.w;
+    *(halui_data->axis_pos_feedback[0]) = emcStatus->motion.traj.actualPosition.tran.x;	
     *(halui_data->axis_pos_feedback[1]) = emcStatus->motion.traj.actualPosition.tran.y;	
     *(halui_data->axis_pos_feedback[2]) = emcStatus->motion.traj.actualPosition.tran.z;
     *(halui_data->axis_pos_feedback[3]) = emcStatus->motion.traj.actualPosition.a;
     *(halui_data->axis_pos_feedback[4]) = emcStatus->motion.traj.actualPosition.b;
     *(halui_data->axis_pos_feedback[5]) = emcStatus->motion.traj.actualPosition.c;
-    //*(halui_data->axis_pos_feedback[6]) = emcStatus->motion.traj.actualPosition.tran.u;
-    //*(halui_data->axis_pos_feedback[7]) = emcStatus->motion.traj.actualPosition.tran.v;
-    //*(halui_data->axis_pos_feedback[8]) = emcStatus->motion.traj.actualPosition.tran.w;
+    *(halui_data->axis_pos_feedback[6]) = emcStatus->motion.traj.actualPosition.u;
+    *(halui_data->axis_pos_feedback[7]) = emcStatus->motion.traj.actualPosition.v;
+    *(halui_data->axis_pos_feedback[8]) = emcStatus->motion.traj.actualPosition.w;
 
     *(halui_data->joint_is_homed[num_axes]) = emcStatus->motion.axis[*(halui_data->joint_selected)].homed;
     *(halui_data->joint_on_soft_min_limit[num_axes]) = emcStatus->motion.axis[*(halui_data->joint_selected)].minSoftLimit;
