@@ -5,12 +5,13 @@ emc2 (1:2.2.5~cvs) unstable; urgency=low
   * added m7i43_hm2, a driver for the Mesa 7i43 board with HostMot2
     firmware
   * axis: numeric keypad fix in prior version was incomplete
-  * various documentation improvements 
+  * various documentation improvements
   * stepconf: do not allow axis acceleration to be set to zero during an axis
     test (SF#1938763)
   * last move no longer discarded if it's a G1 and the file ends with % (SF#1937281)
+  * add a workaround which fixes pyvcp for hardy
 
- -- Jeff Epler <jepler@unpythonic.net>  Wed,  9 Apr 2008 13:31:20 -0500
+ -- Alex Joni <alex_joni@users.sourceforge.net>  Sun, 13 Apr 2008 15:38:34 +0300
 
 emc2 (1:2.2.4) unstable; urgency=low
 
