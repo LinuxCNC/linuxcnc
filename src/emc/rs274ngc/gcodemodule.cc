@@ -360,6 +360,7 @@ void SET_SPINDLE_SPEED(double rpm) {}
 void ORIENT_SPINDLE(double d, int i) {}
 void PROGRAM_STOP() {}
 void PROGRAM_END() {}
+void FINISH() {}
 void PALLET_SHUTTLE() {}
 void CHANGE_TOOL(int tool) {}
 void SELECT_TOOL(int tool) {}

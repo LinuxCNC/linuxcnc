@@ -649,11 +649,6 @@ int emcTaskPlanExecute(const char *command)
 	return 0;
     }
 
-    if (!strcmp(the_command_name, "STOP")) {
-	STOP();
-	return 0;
-    }
-
     if (!strcmp(the_command_name, "SPINDLE_RETRACT")) {
 	SPINDLE_RETRACT();
 	return 0;
