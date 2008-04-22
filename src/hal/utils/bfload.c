@@ -456,9 +456,9 @@ int program(char *device_type, char *device_id, char *filename) {
     board = NULL;
     found_device_type = 0;
     for (i = 0; i < num_boards; i ++) {
-        if (strcmp(board_info_table[i].board_type, device_type) == 0) {
+        if (strcasecmp(board_info_table[i].board_type, device_type) == 0) {
             found_device_type = 1;
-            if (strcmp(board_info_table[i].chip_type, bitfile_chip) == 0) {
+            if (strcasecmp(board_info_table[i].chip_type, bitfile_chip) == 0) {
                 board = &board_info_table[i];
                 break;
             }
