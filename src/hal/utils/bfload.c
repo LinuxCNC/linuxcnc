@@ -618,10 +618,19 @@ int program_epp_board(struct board_info *board, char *device_id, struct bitfile 
 
 
     // get access the the parport i/o addresses
+    if (seteuid(0) != 0) {
+        printf("error setting euid: %s\n", strerror(errno));
+        printf("you have to be root or bfload has to be setuid root\n");
+        return EC_SYS;
+    }
+
     if (iopl(3) != 0) {
         printf("error getting I/O port access: %s\n", strerror(errno));
         return EC_SYS;
     }
+
+    // drop privilege
+    seteuid(getuid());
 
 
     //
