@@ -1323,7 +1323,7 @@ class LivePlotter:
             s = o.colors[s]
             return [int(x * 255) for x in s + (a,)]
 
-        self.logger = emc.positionlogger(self.stat,
+        self.logger = emc.positionlogger(emc.stat(),
             C('backplotjog'),
             C('backplottraverse'),
             C('backplotfeed'),
