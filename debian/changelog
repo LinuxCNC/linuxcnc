@@ -11,8 +11,9 @@ emc2 (1:2.2.5~cvs) unstable; urgency=low
   * last move no longer discarded if it's a G1 and the file ends with % (SF#1937281)
   * add a workaround which fixes pyvcp for hardy
   * backport fix for  #1929461 - halui stops reading inputs during a MDI
+  * Fix a bug that caused backplot to freeze during linear moves
 
- -- Alex Joni <alex_joni@users.sourceforge.net>  Mon, 21 Apr 2008 21:48:18 +0300
+ -- Jeff Epler <jepler@unpythonic.net>  Fri, 25 Apr 2008 12:59:25 -0500
 
 emc2 (1:2.2.4) unstable; urgency=low
 
