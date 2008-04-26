@@ -2,7 +2,7 @@
 Encoding=UTF-8
 Version=
 Type=Application
-Exec=/usr/bin/mozilla-firefox /usr/share/doc/emc2/gcode.html
+Exec=/usr/bin/x-www-browser /usr/share/doc/emc2/gcode.html
 Icon=gnome-help
 X-GNOME-DocPath=
 Terminal=false
