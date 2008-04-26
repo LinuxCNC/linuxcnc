@@ -118,7 +118,7 @@ subst rules.in > rules; chmod +x rules
 if [ -f extras-$DISTRIB_NAME/emc2.files ]; then
     subst emc2.files.in $DRIVERS extras-$DISTRIB_NAME/emc2.files > $EMC2_PACKAGE_NAME.files
 else
-    subst emc2.files.in $DRIVERS > emc2-$TARGET.files
+    subst emc2.files.in $DRIVERS > $EMC2_PACKAGE_NAME.files
 fi
 
 rm -f ../build-stamp
