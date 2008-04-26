@@ -145,7 +145,7 @@ endif
 
 # Compilation options.  Perhaps some of these should come from Makefile.inc?
 OPT := -O2 $(call cc-option,-fno-strict-aliasing) $(call cc-option,-fno-stack-protector)
-DEBUG := -g -Wall
+DEBUG := -g -Wall $(call cc-option,-Wno-write-strings)
 CFLAGS := $(INCLUDE) $(OPT) $(DEBUG) -DULAPI $(call cc-option, -Wdeclaration-after-statement) $(BITOPS_DEFINE)
 CXXFLAGS := $(INCLUDE) $(OPT) $(DEBUG) -DULAPI $(BITOPS_DEFINE)
 
