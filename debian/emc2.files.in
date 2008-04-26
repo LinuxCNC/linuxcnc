@@ -471,6 +471,7 @@ etc/X11/app-defaults/TkEmc
 etc/X11/app-defaults/XEmc
 usr/share/man/man1/axis-remote.1
 usr/share/man/man1/axis.1
+usr/share/man/man1/bfload.1
 usr/share/man/man1/comp.1
 usr/share/man/man1/emc.1
 usr/share/man/man1/hal_input.1
@@ -669,6 +670,7 @@ usr/share/locale/pt_BR/LC_MESSAGES/axis.mo
 usr/share/locale/ro/LC_MESSAGES/axis.mo
 usr/share/locale/ru/LC_MESSAGES/axis.mo
 usr/share/locale/se/LC_MESSAGES/axis.mo
+usr/share/locale/zh_CN/LC_MESSAGES/axis.mo
 usr/share/doc/emc2/EMC2_User_Manual.pdf
 usr/share/doc/emc2/EMC2_User_Manual_fr.pdf
 usr/share/doc/emc2/EMC2_Integrator_Manual.pdf
