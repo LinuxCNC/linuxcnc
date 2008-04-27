@@ -287,13 +287,14 @@
 #include "hal.h"		/* HAL public API decls */
 
 #define MAX_CHAN 8
-
+#define STRINGIZE(x) #x
+#define MAX_CHAN_STR STRINGIZE(MAX_CHAN)
 /* module information */
 MODULE_AUTHOR("John Kasunich");
 MODULE_DESCRIPTION("Frequency Generator for EMC HAL");
 MODULE_LICENSE("GPL");
 int step_type[MAX_CHAN] = { -1, -1, -1, -1, -1, -1, -1, -1 };
-RTAPI_MP_ARRAY_INT(step_type, 8, "stepping types for up to 8 channels");
+RTAPI_MP_ARRAY_INT(step_type, MAX_CHAN, "stepping types for up to "MAX_CHAN_STR" channels");
 
 /***********************************************************************
 *                STRUCTURES AND GLOBAL VARIABLES                       *
