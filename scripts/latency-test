@@ -59,7 +59,7 @@ net sl timedelta.0.max => lat.sl
 net sj timedelta.0.jitter => lat.sj
 net st timedelta.0.out => lat.st
 waitusr lat
-loadusr -w sh latexit.sh
+loadusr -w bash latexit.sh
 EOF
 
 cat > lat.xml <<EOF
@@ -102,7 +102,7 @@ net bl timedelta.0.max => lat.bl
 net bj timedelta.0.jitter => lat.bj
 net bt timedelta.0.out => lat.bt
 waitusr lat
-loadusr -w sh latexit.sh
+loadusr -w bash latexit.sh
 EOF
 
 cat > lat.xml <<EOF
