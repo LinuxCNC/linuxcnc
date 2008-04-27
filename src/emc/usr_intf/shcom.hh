@@ -12,9 +12,6 @@
 * Copyright (c) 2007 All rights reserved.
 *
 * Last change:
-* $Revision$
-* $Author$
-* $Date$
 ********************************************************************/
 
 #ifndef SHCOM_HH

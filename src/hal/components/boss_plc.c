@@ -2,12 +2,6 @@
  *
  * Copyright (C) 2007 Peter G. Vavaroutsos <pete AT vavaroutsos DOT com>
  *
- * $RCSfile$
- * $Author$
- * $Locker$
- * $Revision$
- * $State$
- * $Date$
  *
  * This module is a hard coded PLC for use on a Bridgeport Boss.
  *

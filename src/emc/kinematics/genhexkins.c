@@ -11,9 +11,6 @@
 * Copyright (c) 2004 All rights reserved.
 *
 * Last change:
-* $Revision$
-* $Author$
-* $Date$
 *******************************************************************
 
   These are the forward and inverse kinematic functions for a class of

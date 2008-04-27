@@ -11,9 +11,6 @@
 * Copyright (c) 2004 All rights reserved.
 *
 * Last change:
-* $Revision$
-* $Author$
-* $Date$
 ********************************************************************/
 #ifndef CUBIC_H
 #define CUBIC_H

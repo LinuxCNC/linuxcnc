@@ -9,9 +9,6 @@
 * Copyright (c) 2003 All rights reserved.
 *
 * Last change: 
-# $Revision$
-* $Author$
-* $Date$
 ********************************************************************/
 
 /** This is the driver for an ISA (PC104) encoder reading board.

@@ -13,9 +13,6 @@
 * Copyright (c) 2004 All rights reserved.
 *
 * Last change:
-* $Revision$
-* $Author$
-* $Date$
 ********************************************************************/
 #ifndef INTERP_LIST_HH
 #define INTERP_LIST_HH

@@ -10,9 +10,6 @@
 * Copyright (c) 2004 All rights reserved.
 *
 * Last change: 
-* $Revision$
-* $Author$
-* $Date$
 ********************************************************************/
 #ifndef TCP_OPTS_HH
 #define TCP_OPTS_HH

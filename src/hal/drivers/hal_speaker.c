@@ -11,9 +11,6 @@
 * Copyright (c) 2003, 2006 All rights reserved.
 *
 * Last change: 
-# $Revision$
-* $Author$
-* $Date$
 ********************************************************************/
 
 /* 

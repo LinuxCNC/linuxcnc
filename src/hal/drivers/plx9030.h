@@ -2,12 +2,6 @@
  *
  * Copyright (C) 2005 Peter G. Vavaroutsos <pete AT vavaroutsos DOT com>
  *
- * $RCSfile$
- * $Author$
- * $Locker$
- * $Revision$
- * $State$
- * $Date$
  *
  * Hardware register defines for the PLX 9030 PCI target chip.
  *

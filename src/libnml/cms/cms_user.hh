@@ -10,9 +10,6 @@
 * Copyright (c) 2004 All rights reserved.
 *
 * Last change: 
-* $Revision$
-* $Author$
-* $Date$
 ********************************************************************/
 #ifndef CMS_USER_HH
 #define CMS_USER_HH

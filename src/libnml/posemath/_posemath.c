@@ -12,9 +12,6 @@
 * Copyright (c) 2004 All rights reserved.
 *
 * Last change: 
-* $Revision$
-* $Author$
-* $Date$
 ********************************************************************/
 
 #if defined(PM_PRINT_ERROR) && defined(rtai)

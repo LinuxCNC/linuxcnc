@@ -11,9 +11,6 @@
 * Copyright (c) 2007 All rights reserved.
 *
 * Last change:
-* $Revision$
-* $Author$
-* $Date$
 ********************************************************************/
 
 #ifdef __cplusplus

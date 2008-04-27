@@ -10,9 +10,6 @@
 * Copyright (c) 2004 All rights reserved.
 *
 * Last change: 
-* $Revision$
-* $Author$
-* $Date$
 ********************************************************************/
 
 #include "cms.hh"		/* enum CMS_STATUS */

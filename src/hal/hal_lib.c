@@ -15,9 +15,6 @@
 * Copyright (c) 2003 All rights reserved.
 *
 * Last change: 
-# $Revision$
-* $Author$
-* $Date$
 ********************************************************************/
 
 /** Copyright (C) 2003 John Kasunich

@@ -12,9 +12,6 @@
 * Copyright (c) 2004 All rights reserved.
 *
 * Last change: 
-* $Revision$
-* $Author$
-* $Date$
 ********************************************************************/
 
 extern int verbose_nml_error_messages;

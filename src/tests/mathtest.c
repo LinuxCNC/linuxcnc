@@ -10,8 +10,6 @@
 * Copyright (c) 2004 All rights reserved.
 *
 * Last change: 
-* $Author$
-* $Date$
 ********************************************************************/
 /*
 * This program is free software; you can redistribute it and/or modify

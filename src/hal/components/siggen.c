@@ -10,9 +10,6 @@
 * Copyright (c) 2003 All rights reserved.
 *
 * Last change: 
-# $Revision$
-* $Author$
-* $Date$
 ********************************************************************/
 /** This file, 'siggen.c', is a HAL component that generates square,
     triangle, sine, cosine, and sawtooth waves.  I expect that it 

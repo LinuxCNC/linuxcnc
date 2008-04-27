@@ -3,12 +3,6 @@
  * Copyright (C) 2003 John Kasunich <jmkasunich AT users DOT sourceforge DOT net>
  * Copyright (C) 2007 Peter G. Vavaroutsos <pete AT vavaroutsos DOT com>
  *
- * $RCSfile$
- * $Author$
- * $Locker$
- * $Revision$
- * $State$
- * $Date$
  *
  ******************************************************************************
  *

@@ -9,9 +9,6 @@
 * Copyright 2005 All rights reserved.
 *
 * Last change:
-* $Revision$
-* $Author$
-* $Date$
 ********************************************************************/
 
 #include <unistd.h>

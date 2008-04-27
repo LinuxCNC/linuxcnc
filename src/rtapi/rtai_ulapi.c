@@ -12,9 +12,6 @@
 * Copyright (c) 2004 All rights reserved.
 *
 * Last change: 
-# $Revision$
-* $Author$
-* $Date$
 ********************************************************************/
 
 /** This file, 'rtai_ulapi.c', implements the non-realtime portion of

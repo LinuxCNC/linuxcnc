@@ -9,9 +9,6 @@
 * Copyright (c) 2003 All rights reserved.
 *
 * Last change: 
-# $Revision$
-* $Author$
-* $Date$
 ********************************************************************/
 /** This file, 'freqgen.c', is a HAL component that generates step
     pulses at a specific frequency in software.  The maximum step

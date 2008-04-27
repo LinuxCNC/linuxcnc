@@ -13,9 +13,6 @@
 * Copyright (c) 2004 All rights reserved.
 *
 * Last change:
-* $Revision$
-* $Author$
-* $Date$
 ********************************************************************/
 #ifndef USRMOTINTF_H
 #define USRMOTINTF_H

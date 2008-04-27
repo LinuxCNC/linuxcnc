@@ -9,9 +9,6 @@
 * Copyright (c) 2006 All rights reserved.
 *
 * Last change: 
-# $Revision$
-* $Author$
-* $Date$
 ********************************************************************/
 /** This file, 'pwmgen.c', is a HAL component that generates
     Pulse Width Modulation or Pulse Density Modulation signals in

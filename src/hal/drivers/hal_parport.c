@@ -9,9 +9,6 @@
 * Copyright (c) 2003 All rights reserved.
 *
 * Last change: 
-# $Revision$
-* $Author$
-* $Date$
 ********************************************************************/
 
 /** This file, 'hal_parport.c', is a HAL component that provides a

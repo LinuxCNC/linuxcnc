@@ -2,12 +2,6 @@
  *
  * Copyright (C) 2005 Peter C. Wallace <pcw AT mesanet DOT com>
  *
- * $RCSfile$
- * $Author$
- * $Locker$
- * $Revision$
- * $State$
- * $Date$
  *
  ******************************************************************************
  *

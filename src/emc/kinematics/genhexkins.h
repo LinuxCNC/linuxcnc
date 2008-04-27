@@ -11,9 +11,6 @@
 * Copyright (c) 2004 All rights reserved.
 *
 * Last change:
-* $Revision$
-* $Author$
-* $Date$
 *******************************************************************
 
   This is the header file to accompany genhexkins.c.  This header file is used

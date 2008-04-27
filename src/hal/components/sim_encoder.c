@@ -9,9 +9,6 @@
 * Copyright (c) 2006 All rights reserved.
 *
 * Last change: 
-# $Revision$
-* $Author$
-* $Date$
 ********************************************************************/
 /** This file, 'sim_encoder.c', is a HAL component that simulates 
     a quadrature encoder with an index pulse.  It "rotates" at a

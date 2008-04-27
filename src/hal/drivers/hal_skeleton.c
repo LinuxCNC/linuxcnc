@@ -10,9 +10,6 @@
 * Copyright (c) 2003 All rights reserved.
 *
 * Last change: 
-# $Revision$
-* $Author$
-* $Date$
 ********************************************************************/
 
 /** This file, 'hal_skeleton.c', is a example that shows how

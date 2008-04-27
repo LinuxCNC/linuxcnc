@@ -1,4 +1,3 @@
-/* $Id$ */
 
 /*
  * Togl - a Tk OpenGL widget

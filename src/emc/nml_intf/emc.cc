@@ -15,9 +15,6 @@
 * Copyright (c) 2004 All rights reserved.
 *
 * Last change:
-* $Revision$
-* $Author$
-* $Date$
 ********************************************************************/
 
 // Include all NML, CMS, and RCS classes and functions

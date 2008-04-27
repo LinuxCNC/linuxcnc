@@ -2,12 +2,6 @@
  *
  * Copyright (C) 2007 Peter G. Vavaroutsos <pete AT vavaroutsos DOT com>
  *
- * $RCSfile$
- * $Author$
- * $Locker$
- * $Revision$
- * $State$
- * $Date$
  *
  * This module implements a biquad IIR filter.
  *

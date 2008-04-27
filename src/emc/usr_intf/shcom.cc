@@ -12,9 +12,6 @@
 * Copyright (c) 2006 All rights reserved.
 *
 * Last change:
-* $Revision$
-* $Author$
-* $Date$
 ********************************************************************/
 
 #include <stdio.h>

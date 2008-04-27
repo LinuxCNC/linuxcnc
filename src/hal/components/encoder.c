@@ -10,9 +10,6 @@
 * Copyright (c) 2003 All rights reserved.
 *
 * Last change: 
-# $Revision$
-* $Author$
-* $Date$
 ********************************************************************/
 /** This file, 'encoder.c', is a HAL component that provides software
     based counting of quadrature encoder signals.  The maximum count

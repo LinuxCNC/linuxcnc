@@ -10,9 +10,6 @@
 * Copyright (c) 2004 All rights reserved.
 *
 * Last change: 
-* $Revision$
-* $Author$
-* $Date$
 ********************************************************************/
 #ifndef RCS_STAT_HH
 #define RCS_STAT_HH

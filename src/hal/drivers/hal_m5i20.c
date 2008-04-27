@@ -2,12 +2,6 @@
  *
  * Copyright (C) 2005 Peter G. Vavaroutsos <pete AT vavaroutsos DOT com>
  *
- * $RCSfile$
- * $Author$
- * $Locker$
- * $Revision$
- * $State$
- * $Date$
  *
  * This is the driver for the Mesa Electronics 5i20 board.
  * The board includes a user programable FPGA. This driver

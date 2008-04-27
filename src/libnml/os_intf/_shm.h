@@ -14,9 +14,6 @@
 * Copyright (c) 2004 All rights reserved.
 *
 * Last change: 
-* $Revision$
-* $Author$
-* $Date$
 ********************************************************************/
 #ifndef _SHAREDMEM_H
 #define _SHAREDMEM_H

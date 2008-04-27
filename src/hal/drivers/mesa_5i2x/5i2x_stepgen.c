@@ -2,12 +2,6 @@
 
 Copyright (C) 2007 John Kasunich <jmkasunich AT sourceforge DOT net>
 
-$RCSfile$
-$Author$
-$Locker$
-$Revision$
-$State$
-$Date$
 
 This is the driver for hardware step generation on the Mesa
 Electronics 5i20 board.  It works pretty much like the software

@@ -9,9 +9,6 @@
 * Copyright (c) 2004 All rights reserved.
 *
 * Last change: 
-# $Revision$
-* $Author$
-* $Date$
 ********************************************************************/
 /** This file, 'encoder_ratio.c', is a HAL component that can be used
     to synchronize two axes (like an "electronic gear").  It counts

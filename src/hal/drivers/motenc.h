@@ -2,12 +2,6 @@
  *
  * Copyright (C) 2005 Peter G. Vavaroutsos <pete AT vavaroutsos DOT com>
  *
- * $RCSfile$
- * $Author$
- * $Locker$
- * $Revision$
- * $State$
- * $Date$
  *
  * Hardware register defines for Vital Systems MOTENC-100 board.
  * The board includes an 8 channel quadrature decoder, 8 analog inputs,

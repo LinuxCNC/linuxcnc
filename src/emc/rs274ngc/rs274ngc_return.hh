@@ -10,9 +10,6 @@
 * Copyright (c) 2004 All rights reserved.
 *
 * Last change:
-* $Revision$
-* $Author$
-* $Date$
 ********************************************************************/
 #ifndef RS274NGC_RETURN_H
 #define RS274NGC_RETURN_H

@@ -2,12 +2,6 @@
  *
  * Copyright (C) 2007 Peter G. Vavaroutsos <pete AT vavaroutsos DOT com>
  *
- * $RCSfile$
- * $Author$
- * $Locker$
- * $Revision$
- * $State$
- * $Date$
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of version 2.1 of the GNU General

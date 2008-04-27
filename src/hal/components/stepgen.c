@@ -9,9 +9,6 @@
 * Copyright (c) 2003-2007 All rights reserved.
 *
 * Last change: 
-# $Revision$
-* $Author$
-* $Date$
 ********************************************************************/
 /** This file, 'stepgen.c', is a HAL component that provides software
     based step pulse generation.  The maximum step rate will depend

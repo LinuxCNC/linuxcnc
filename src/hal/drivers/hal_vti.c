@@ -11,9 +11,6 @@
 * see below for additional notes
 *
 * Last change:
-* $Revision$
-* $Author$
-* $Date$
 ********************************************************************/
 
 /** This is the driver for Vigilant Technologies (VTI) ENCDAC controller.

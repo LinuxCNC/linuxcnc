@@ -1,5 +1,4 @@
         
-Version: $Id$
 
 
 			Introduction
@@ -208,11 +207,7 @@ reserved for use in conjunction with the Brain Dead Install project.
 
 There are certain special CVS keywords that can be used inside a document.
 However, it is a bad habit to include information that clutters the source
-file. One such example is the $Log directive; that information is stored in
-the CVS server on SourceForge, and can easily be viewed with the web interface.
-Some other fields are encouraged e.g. $Revision, $Author and $Date.  These
-keywords all require a trailing $, but we don't want to put it there in
-this file, for obvious reasons.
+file.  Their use in emc is strongly discouraged.
 
 
 			C++ Conventions

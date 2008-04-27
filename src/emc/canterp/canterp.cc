@@ -9,9 +9,6 @@
 * Copyright (c) 2005 All rights reserved.
 *
 * Last change: 
-# $Revision$
-* $Author$
-* $Date$
 ********************************************************************/
 /*
   canterp.cc

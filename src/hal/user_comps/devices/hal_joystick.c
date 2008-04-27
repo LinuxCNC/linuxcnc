@@ -8,9 +8,6 @@
 * Copyright (c) 2006 All rights reserved.
 *
 * Last change: 
-# $Revision$
-* $Author$
-* $Date$
 ********************************************************************/
 
 /** 'hal_joystick.c', is a user space driver that allows  HAL pins to

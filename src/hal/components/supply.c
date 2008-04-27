@@ -9,9 +9,6 @@
 * Copyright (c) 2004 All rights reserved.
 *
 * Last change: 
-# $Revision$
-* $Author$
-* $Date$
 ********************************************************************/
 /** This file, 'supply.c', is a HAL component supplying HAL pins preset
     to useful values like TRUE and 1.0.  I expect that it will mostly

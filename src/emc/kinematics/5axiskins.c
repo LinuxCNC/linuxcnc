@@ -11,9 +11,6 @@
 * Copyright (c) 2007 Chris Radek
 *
 * Last change:
-* $Revision$
-* $Author$
-* $Date$
 ********************************************************************/
 
 #include "kinematics.h"		/* these decls */

@@ -3,12 +3,6 @@
  * Copyright (C) 2005 Peter G. Vavaroutsos <pete AT vavaroutsos DOT com>
  * License: GPL Version 2
  *
- * $RCSfile$
- * $Author$
- * $Locker$
- * $Revision$
- * $State$
- * $Date$
  *
  * This is the driver for the Vital Systems MOTENC-100 board.
  * The board includes 8 quadrature decoders, 8 analog inputs,

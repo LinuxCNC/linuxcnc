@@ -9,9 +9,6 @@
 * Copyright (c) 2003 All rights reserved.
 *
 * Last change: 
-# $Revision$
-* $Author$
-* $Date$
 ********************************************************************/
 /** This file, 'pid.c', is a HAL component that provides Proportional/
     Integeral/Derivative control loops.  It is a realtime component.

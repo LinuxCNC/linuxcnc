@@ -2,12 +2,6 @@
 
 Copyright (C) 2007 John Kasunich <jmkasunich AT sourceforge DOT net>
 
-$RCSfile$
-$Author$
-$Locker$
-$Revision$
-$State$
-$Date$
 
 This is the driver the General Purpose I/O pins on the Mesa Electronics
 5i2x boards.  It configures the I/O as defined by data stored in the

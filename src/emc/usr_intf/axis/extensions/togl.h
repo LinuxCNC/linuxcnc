@@ -1,4 +1,3 @@
-/* $Id$ */
 
 /*
  * Togl - a Tk OpenGL widget
@@ -6,83 +5,6 @@
  * Copyright (C) 1996-1998  Brian Paul and Ben Bederson
  * See the LICENSE-Togl file for copyright details.
  */
-
-
-/*
- * $Log$
- * Revision 1.1  2006/08/09 22:56:56  jepler
- * AXIS is now a part of EMC2, not a separate source download.
- *
- * Revision 1.1  2004/11/29 17:11:09  jepler
- * Build python module _togl, to beat broken togl from pyopengl
- *
- * Revision 1.1  2003/02/14 20:18:20  mcfletch
- * Switch to TOGL 1.6 (from CVS) which should support Tk 8.4 (and earlier versions as well)
- *
- * Revision 1.20  2001/01/29 18:11:53  brianp
- * Jonas Beskow's changes to use Tcl/Tk stub interface
- *
- * Revision 1.19  2000/05/12 00:28:12  thiessen
- * first Macintosh port
- *
- * Revision 1.18  1998/10/14 01:26:51  brianp
- * added Togl_SetTimerFunc(), bumped version to 1.6
- *
- * Revision 1.17  1997/11/15 04:14:37  brianp
- * changed version to 1.5
- *
- * Revision 1.16  1997/11/15 02:58:48  brianp
- * added Togl_TkWin() per Glenn Lewis
- *
- * Revision 1.15  1997/10/01 02:49:45  brianp
- * added SGI stereo functions from Ben Evans
- *
- * Revision 1.14  1997/08/26 02:05:19  brianp
- * added Togl_ResetDefaultCallbacks() and Togl_ClientData() (Greg Couch)
- *
- * Revision 1.13  1997/08/26 01:35:41  brianp
- * added Togl_Set*Func() functions from Matthias Ott
- *
- * Revision 1.12  1997/08/22 02:48:25  brianp
- * added WIN32 header stuff.  changed Togl version to 1.4.
- *
- * Revision 1.11  1997/04/11 01:37:22  brianp
- * added Togl_TimerFunc() and related code from Elmar Gerwalin
- *
- * Revision 1.10  1997/02/16 10:03:33  brianp
- * removed GL/glx.h include, added X11/Xlib.h include
- *
- * Revision 1.9  1997/02/16 01:25:34  brianp
- * added new overlay and EPS functions from Miguel A. De Riera Pasenau
- *
- * Revision 1.8  1996/12/13 21:24:41  brianp
- * added Togl_DestroyFunc() contributed by scotter@iname.com
- *
- * Revision 1.7  1996/11/14 00:49:54  brianp
- * added Togl_Get/SetClientData() functions
- *
- * Revision 1.6  1996/11/05 02:40:12  brianp
- * added Togl_Configure() and Togl_UnloadBitmapFont()
- *
- * Revision 1.5  1996/10/25 03:44:06  brianp
- * updated version to 1.2
- *
- * Revision 1.4  1996/10/24 01:20:17  brianp
- * added overlay constants and functions
- *
- * Revision 1.3  1996/10/24 00:13:34  brianp
- * added const qualifier to many function parameters
- *
- * Revision 1.2  1996/10/23 23:28:06  brianp
- * updated version to 1.1
- * added TOGL_BITMAP_* constants
- * added Togl_LoadBitmapFont()
- *
- * Revision 1.1  1996/10/23 23:15:27  brianp
- * Initial revision
- *
- */
-
 
 #ifndef TOGL_H
 #define TOGL_H

@@ -10,9 +10,6 @@
 * Copyright (c) 2005 All rights reserved.
 *
 * Last change:
-* $Revision$
-* $Author$
-* $Date$
 *
 * This file declares the public interpreter return values. An
 * interpreter may extend this list with return values that are

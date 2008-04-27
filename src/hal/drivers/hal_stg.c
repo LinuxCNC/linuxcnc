@@ -9,9 +9,6 @@
 * see below for aditional notes
 *
 * Last change: 
-* $Revision$
-* $Author$
-* $Date$
 ********************************************************************/
 
 /** This is the driver for Servo-To-Go Model I & II board.
