@@ -1,4 +1,4 @@
-emc2 (1:2.2.5~cvs) unstable; urgency=low
+emc2 (1:2.2.5) unstable; urgency=low
 
   * Include license statement for the 'Togl' software, which is incorporated
     in emc2
@@ -14,7 +14,7 @@ emc2 (1:2.2.5~cvs) unstable; urgency=low
   * Fix a bug that caused backplot to freeze during linear moves
   * add serbian translation for AXIS/stepconf
 
- -- Joni <juve@hardy>  Sun, 27 Apr 2008 21:11:23 +0300
+ -- Jeff Epler <jepler@unpythonic.net>  Sun, 27 Apr 2008 14:39:40 -0500
 
 emc2 (1:2.2.4) unstable; urgency=low
 
