@@ -90,6 +90,7 @@
    against the code in the shared memory area.  If they don't match,
    the rtapi_init() call will faill.
 */
+static char rev[] = "$Revision$";	/* magically updated by CVS */
 static char *rev_str;
 static unsigned int rev_code;
 
