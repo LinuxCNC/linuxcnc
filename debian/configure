@@ -69,7 +69,7 @@ case $TARGET in
 	KERNEL_HEADERS=libpth-dev
 	DRIVERS=
         EXTRA_FILES="usr/bin/rtapi_app"
-	EXTRA_BUILD=lyx-qt
+	EXTRA_BUILD=lyx-qt,tetex-extra
 	if test "$DISTRIB_NAME" = "Ubuntu-8.04" ; then 
 	    EXTRA_BUILD=lyx
 	fi
@@ -78,20 +78,19 @@ case $TARGET in
     ;;
     2.6.12-magma)
         KERNEL_HEADERS="$KERNEL_HEADERS,gcc-3.4"
-	EXTRA_BUILD="lyx-qt"
+	EXTRA_BUILD="lyx-qt,tetex-extra"
     ;;
     2.6.15-magma)
         KERNEL_HEADERS="$KERNEL_HEADERS,gcc-4.0"
-	EXTRA_BUILD="lyx-qt"
+	EXTRA_BUILD="lyx-qt,tetex-extra"
     ;;
     2.6.22.6-magma)
         KERNEL_HEADERS="$KERNEL_HEADERS"
-        EXTRA_BUILD="texlive-extra-utils"
-	EXTRA_BUILD="lyx-qt"
+	EXTRA_BUILD="lyx-qt,texlive-extra-utils"
     ;;
     2.6.24-16-rtai)
         KERNEL_HEADERS="$KERNEL_HEADERS,gcc-4.2"
-	EXTRA_BUILD="lyx"
+	EXTRA_BUILD="lyx,texlive-extra-utils"
     ;;
     *)
 	echo "your kernel '$TARGET' is not known. There might be needed dependencies which won't get set automatically."

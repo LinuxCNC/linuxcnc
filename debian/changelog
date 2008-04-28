@@ -1,3 +1,9 @@
+emc2 (1:2.2.6~cvs) hardy; urgency=low
+
+  * Fix FTBFS on hardy (texlive-extra-utils)
+
+ -- Jeff Epler <jepler@unpythonic.net>  Mon, 28 Apr 2008 11:47:39 -0500
+
 emc2 (1:2.2.5) unstable; urgency=low
 
   * Include license statement for the 'Togl' software, which is incorporated
