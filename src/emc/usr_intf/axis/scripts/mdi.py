@@ -16,6 +16,11 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+'''Manual Data Input - issue a single line of g-code to the running system
+
+mdi.py may be specified on the commandline, e.g.,
+        bin/mdi configs/sim/emc.nml g0 x0
+'''
 import sys, os
 import emc
 
