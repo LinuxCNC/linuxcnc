@@ -3186,7 +3186,7 @@ int Interp::read_text(
     if (fgets(raw_line, LINELEN, inport) == NULL) {
       if(_setup.skipping_to_sub)
       {
-        setError("EOF in file:%s seeking o-word: o%d from line: %d",
+        setError("EOF in file:%s seeking o-word: o<%s> from line: %d",
                  _setup.filename,
                  _setup.skipping_to_sub,
                  _setup.skipping_start);
