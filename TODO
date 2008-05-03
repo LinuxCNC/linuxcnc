@@ -1,3 +1,11 @@
+TODO for the joints_axes branch
+
+* clean up joints/axes throughout the whole code (lots of parts already done)
+* define a unified jogging way (both for joints and axes)
+* implement joint-limits for carthesian moves (requires simulating the speed in userspace)
+* update configs
+(and many other probably..)
+
 THINGS THAT ARE DESIRABLE FOR THE NEXT MAJOR RELEASE (EMC-2.4)
 
 TODO     sort out axis/joints issues: 
