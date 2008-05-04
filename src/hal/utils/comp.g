@@ -459,7 +459,18 @@ static int comp_id;
             else:
                 print >>f, "    r = export(\"%s\", 0);" % \
                         to_hal(removeprefix(comp_name, "hal_"))
-        else:
+        elif options.get("count_function"):
+            print >>f, "    for(i=0; i<count; i++) {"
+            print >>f, "        char buf[HAL_NAME_LEN + 2];"
+            print >>f, "        rtapi_snprintf(buf, HAL_NAME_LEN, " \
+                                        "\"%s.%%d\", i);" % \
+                    to_hal(removeprefix(comp_name, "hal_"))
+            if has_personality:
+                print >>f, "        r = export(buf, i, personality[i%16]);"
+            else:
+                print >>f, "        r = export(buf, i);"
+	    print >>f, "    }"
+	else:
             print >>f, "    if(count && names[0]) {"
             print >>f, "        rtapi_print_msg(RTAPI_MSG_ERR," \
                             "\"count= and names= are mutually exclusive\\n\");"
@@ -700,9 +711,9 @@ def document(filename, outfilename):
                     print >>f, ".B loadrt %s" % comp_name,
             else:
                 if has_personality:
-                    print >>f, ".B loadrt %s [count=\\fIN\\fB] [personality=\\fIP,P,...\\fB]" % comp_name,
+                    print >>f, ".B loadrt %s [count=\\fIN\\fB|names=\\fIname1\\fB[,\\fIname2...\\fB]] [personality=\\fIP,P,...\\fB]" % comp_name,
                 else:
-                    print >>f, ".B loadrt %s [count=\\fIN\\fB]" % comp_name,
+                    print >>f, ".B loadrt %s [count=\\fIN\\fB|names=\\fIname1\\fB[,\\fIname2...\\fB]]" % comp_name,
             for type, name, default, doc in modparams:
                 print >>f, "[%s=\\fIN\\fB]" % name,
             print >>f
