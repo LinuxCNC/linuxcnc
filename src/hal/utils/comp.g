@@ -229,6 +229,7 @@ def prologue(f):
 #include "rtapi.h"
 #include "rtapi_app.h"
 #include "rtapi_string.h"
+#include "rtapi_errno.h"
 #include "hal.h"
 
 static int comp_id;
@@ -431,10 +432,12 @@ static int comp_id;
             print >>f, "    return export(prefix, arg);"
             print >>f, "}"   
         if not options.get("singleton") and not options.get("count_function") :
-            print >>f, "static int count = %s;" \
+            print >>f, "static int default_count=%s, count=0;" \
                 % options.get("default_count", 1)
+            print >>f, "char *names[16] = {0,};"
             if not options.get("userspace"):
                 print >>f, "RTAPI_MP_INT(count, \"number of %s\");" % comp_name
+                print >>f, "RTAPI_MP_ARRAY_STRING(names, 16, \"names of %s\");" % comp_name
 
         if has_personality:
             print >>f, "static int personality[16] = {0,};"
@@ -457,17 +460,34 @@ static int comp_id;
                 print >>f, "    r = export(\"%s\", 0);" % \
                         to_hal(removeprefix(comp_name, "hal_"))
         else:
-            print >>f, "    for(i=0; i<count; i++) {"
-            print >>f, "        char buf[HAL_NAME_LEN + 2];"
-            print >>f, "        rtapi_snprintf(buf, HAL_NAME_LEN, " \
+            print >>f, "    if(count && names[0]) {"
+            print >>f, "        rtapi_print_msg(RTAPI_MSG_ERR," \
+                            "\"count= and names= are mutually exclusive\\n\");"
+            print >>f, "        return -EINVAL;"
+            print >>f, "    }"
+            print >>f, "    if(!count && !names[0]) count = default_count;"
+            print >>f, "    if(count) {"
+            print >>f, "        for(i=0; i<count; i++) {"
+            print >>f, "            char buf[HAL_NAME_LEN + 2];"
+            print >>f, "            rtapi_snprintf(buf, HAL_NAME_LEN, " \
                                         "\"%s.%%d\", i);" % \
                     to_hal(removeprefix(comp_name, "hal_"))
             if has_personality:
                 print >>f, "        r = export(buf, i, personality[i%16]);"
             else:
                 print >>f, "        r = export(buf, i);"
-            print >>f, "        if(r != 0) break;"
+            print >>f, "            if(r != 0) break;"
+            print >>f, "       }"
+            print >>f, "    } else {"
+            print >>f, "        for(i=0; names[i]; i++) {"
+            if has_personality:
+                print >>f, "        r = export(names[i], i, personality[i%16]);"
+            else:
+                print >>f, "        r = export(names[i], i);"
+            print >>f, "            if(r != 0) break;"
+            print >>f, "       }"
             print >>f, "    }"
+
         if options.get("constructable") and not options.get("singleton"):
             print >>f, "    hal_set_constructor(comp_id, export_1);"
         print >>f, "    if(r) {"
@@ -477,7 +497,7 @@ static int comp_id;
         print >>f, "    } else {"
         print >>f, "        hal_ready(comp_id);"
         print >>f, "    }"
-        print >>f, "    return r;";
+        print >>f, "    return r;"
         print >>f, "}"
 
         print >>f
