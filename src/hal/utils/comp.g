@@ -331,9 +331,13 @@ static int comp_id;
         print >>f, "static void extra_cleanup(void);"
 
     if not options.get("no_convenience_defines"):
+        print >>f, "#undef TRUE"
         print >>f, "#define TRUE (1)"
+        print >>f, "#undef FALSE"
         print >>f, "#define FALSE (0)"
+        print >>f, "#undef true"
         print >>f, "#define true (1)"
+        print >>f, "#undef false"
         print >>f, "#define false (0)"
 
     print >>f
@@ -537,11 +541,16 @@ static int comp_id;
 
     print >>f
     if not options.get("no_convenience_defines"):
+        print >>f, "#undef FUNCTION"
         print >>f, "#define FUNCTION(name) static void name(struct state *inst, long period)"
+        print >>f, "#undef EXTRA_SETUP"
         print >>f, "#define EXTRA_SETUP() static int extra_setup(struct state *inst, long extra_arg)"
+        print >>f, "#undef EXTRA_CLEANUP"
         print >>f, "#define EXTRA_CLEANUP() static void extra_cleanup(void)"
+        print >>f, "#undef fperiod"
         print >>f, "#define fperiod (period * 1e-9)"
         for name, type, array, dir, value, personality in pins:
+            print >>f, "#undef %s" % to_c(name)
             if array:
                 if dir == 'in':
                     print >>f, "#define %s(i) (0+*(inst->%s[i]))" % (to_c(name), to_c(name))
@@ -553,20 +562,25 @@ static int comp_id;
                 else:
                     print >>f, "#define %s (*inst->%s)" % (to_c(name), to_c(name))
         for name, type, array, dir, value, personality in params:
+            print >>f, "#undef %s" % to_c(name)
             if array:
                 print >>f, "#define %s(i) (inst->%s[i])" % (to_c(name), to_c(name))
             else:
                 print >>f, "#define %s (inst->%s)" % (to_c(name), to_c(name))
 
         for type, name, array, value in variables:
+            print >>f, "#undef %s" % name
             print >>f, "#define %s (inst->%s)" % (name, name)
 
         if has_data:
+            print >>f, "#undef data"
             print >>f, "#define data (*(%s*)&(inst->_data))" % options['data']
         if has_personality:
+            print >>f, "#undef personality"
             print >>f, "#define personality (inst->_personality)"
 
         if options.get("userspace"):
+            print >>f, "#undef FOR_ALL_INSTS"
             print >>f, "#define FOR_ALL_INSTS() for(inst = first_inst; inst; inst = inst->_next)"    
     print >>f
     print >>f
