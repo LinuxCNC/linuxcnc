@@ -2609,5 +2609,3 @@ static void print_help_commands(void)
     printf("  start, stop         Start/stop realtime threads\n");
     printf("  quit, exit          Exit from halcmd\n");
 }
-
-

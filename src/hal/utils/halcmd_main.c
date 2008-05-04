@@ -43,6 +43,7 @@
 #include "../hal_priv.h"
 #include "halcmd.h"
 #include "halcmd_commands.h"
+#include "halcmd_completion.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -61,6 +62,7 @@
 static int get_input(FILE *srcfile, char *buf, size_t bufsize);
 static void print_help_general(int showR);
 static int release_HAL_mutex(void);
+static int propose_completion(char *fragment);
 
 
 /***********************************************************************
@@ -89,7 +91,7 @@ int main(int argc, char **argv)
     /* start parsing the command line, options first */
     n = 1;
     while(1) {
-        c = getopt(argc, argv, "+Rfi:kqQsvVh");
+        c = getopt(argc, argv, "+Rc:fi:kqQsvVh");
         if(c == -1) break;
         switch(c) {
             case 'R':
@@ -136,6 +138,11 @@ int main(int argc, char **argv)
 	    case 'f':
                 filemode = 1;
 		break;
+	    case 'c':
+                halcmd_startup();
+                propose_completion(optarg);
+                halcmd_shutdown();
+                exit(0);
 #ifndef NO_INI
 	    case 'i':
 		/* -i = allow reading 'setp' values from an ini file */
@@ -297,7 +304,24 @@ static int release_HAL_mutex(void)
 
 }
 
+static char **completion_callback(const char *text, hal_generator_func cb) {
+    int state = 0;
+    char *s = 0;
+    do {
+        s = cb(text, state);
+        if(s) printf("%s\n", s);
+        state = 1;
+    } while(s);
+    return NULL;
+}
 
+static int propose_completion(char *fragment) {
+    int sp=0, len=strlen(fragment), i=0;
+    for(; i<len; i++) if(fragment[i] == ' ') sp = i;
+    if(sp) sp++;
+    halcmd_completer(fragment+sp, sp, len, completion_callback, fragment);
+    return 0;
+}
 
 static void print_help_general(int showR)
 {

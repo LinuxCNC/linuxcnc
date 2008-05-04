@@ -101,9 +101,9 @@ static char *table_generator(const char *text, int state) {
     return NULL;
 }
 
-static char **completion_matches_table(const char *text, const char **table) {
+static char **completion_matches_table(const char *text, const char **table, hal_completer_func func) {
     string_table = table;
-    return rl_completion_matches(text, table_generator);
+    return func(text, table_generator);
 }
 
 static hal_type_t match_type = -1;
@@ -437,23 +437,23 @@ static inline int isskip(int ch) {
     return isspace(ch) || ch == '=' || ch == '<' || ch == '>';
 }
 
-char *nextword(char *s) {
+static char *nextword(char *s) {
     s = strchr(s, ' ');
     if(!s) return NULL;
     return s+1;
 }
 
-char **completer(const char *text, int start, int end) {
+char **halcmd_completer(const char *text, int start, int end, hal_completer_func func, char *buffer) {
     int i;
     char **result = NULL;
 
     if(start == 0)
-        return completion_matches_table(text, command_table);
+        return completion_matches_table(text, command_table, func);
 
     for(i=0, argno=0; i<start; i++) {
-        if(isskip(rl_line_buffer[i])) {
+        if(isskip(buffer[i])) {
             argno++;
-            while(i<start && isskip(rl_line_buffer[i])) i++;
+            while(i<start && isskip(buffer[i])) i++;
         }
     }
 
@@ -463,111 +463,111 @@ char **completer(const char *text, int start, int end) {
 
     rtapi_mutex_get(&(hal_data->mutex));
 
-    if(startswith(rl_line_buffer, "delsig ") && argno == 1) {
-        result = rl_completion_matches(text, signal_generator);
-    } else if(startswith(rl_line_buffer, "linkps ") && argno == 1) {
-        result = rl_completion_matches(text, pin_generator);
-    } else if(startswith(rl_line_buffer, "linkps ") && argno == 2) {
-        check_match_type_pin(rl_line_buffer + 7);
-        result = rl_completion_matches(text, signal_generator);
-    } else if(startswith(rl_line_buffer, "net ") && argno == 1) {
-        result = rl_completion_matches(text, signal_generator);
-    } else if(startswith(rl_line_buffer, "net ") && argno == 2) {
-        check_match_type_signal(nextword(rl_line_buffer));
-        result = rl_completion_matches(text, pin_generator);
-    } else if(startswith(rl_line_buffer, "net ") && argno > 2) {
-        check_match_type_signal(nextword(rl_line_buffer));
+    if(startswith(buffer, "delsig ") && argno == 1) {
+        result = func(text, signal_generator);
+    } else if(startswith(buffer, "linkps ") && argno == 1) {
+        result = func(text, pin_generator);
+    } else if(startswith(buffer, "linkps ") && argno == 2) {
+        check_match_type_pin(buffer + 7);
+        result = func(text, signal_generator);
+    } else if(startswith(buffer, "net ") && argno == 1) {
+        result = func(text, signal_generator);
+    } else if(startswith(buffer, "net ") && argno == 2) {
+        check_match_type_signal(nextword(buffer));
+        result = func(text, pin_generator);
+    } else if(startswith(buffer, "net ") && argno > 2) {
+        check_match_type_signal(nextword(buffer));
         if(match_type == -1) {
-            check_match_type_pin(nextword(nextword(rl_line_buffer)));
+            check_match_type_pin(nextword(nextword(buffer)));
             if(match_direction == HAL_IN) match_direction = -1;
         }
-        result = rl_completion_matches(text, pin_generator);
-    } else if(startswith(rl_line_buffer, "linksp ") && argno == 1) {
-        result = rl_completion_matches(text, signal_generator);
-    } else if(startswith(rl_line_buffer, "linksp ") && argno == 2) {
-        check_match_type_signal(rl_line_buffer + 7);
-        result = rl_completion_matches(text, pin_generator);
-    } else if(startswith(rl_line_buffer, "linkpp ") && argno == 1) {
-        result = rl_completion_matches(text, pin_generator);
-    } else if(startswith(rl_line_buffer, "linkpp ") && argno == 2) {
-        check_match_type_pin(rl_line_buffer + 7);
-        result = rl_completion_matches(text, pin_generator);
-    } else if(startswith(rl_line_buffer, "unlinkp ") && argno == 1) {
-        result = rl_completion_matches(text, pin_generator);
-    } else if(startswith(rl_line_buffer, "setp ") && argno == 1) {
-        result = rl_completion_matches(text, setp_generator);
-    } else if(startswith(rl_line_buffer, "sets ") && argno == 1) {
-        result = rl_completion_matches(text, signal_generator);
-    } else if(startswith(rl_line_buffer, "ptype ") && argno == 1) {
-        result = rl_completion_matches(text, getp_generator);
-    } else if(startswith(rl_line_buffer, "getp ") && argno == 1) {
-        result = rl_completion_matches(text, getp_generator);
-    } else if(startswith(rl_line_buffer, "stype ") && argno == 1) {
-        result = rl_completion_matches(text, signal_generator);
-    } else if(startswith(rl_line_buffer, "gets ") && argno == 1) {
-        result = rl_completion_matches(text, signal_generator);
-    } else if(startswith(rl_line_buffer, "show ") && argno == 1) {
-        result = completion_matches_table(text, show_table);
-    } else if(startswith(rl_line_buffer, "list pin") && argno == 2) {
-        result = rl_completion_matches(text, pin_generator);
-    } else if(startswith(rl_line_buffer, "list sig") && argno == 2) {
-        result = rl_completion_matches(text, signal_generator);
-    } else if(startswith(rl_line_buffer, "list param") && argno == 2) {
-        result = rl_completion_matches(text, parameter_generator);
-    } else if(startswith(rl_line_buffer, "list funct") && argno == 2) {
-        result = rl_completion_matches(text, funct_generator);
-    } else if(startswith(rl_line_buffer, "list thread") && argno == 2) {
-        result = rl_completion_matches(text, thread_generator);
-    } else if(startswith(rl_line_buffer, "show pin") && argno == 2) {
-        result = rl_completion_matches(text, pin_generator);
-    } else if(startswith(rl_line_buffer, "show sig") && argno == 2) {
-        result = rl_completion_matches(text, signal_generator);
-    } else if(startswith(rl_line_buffer, "show param") && argno == 2) {
-        result = rl_completion_matches(text, parameter_generator);
-    } else if(startswith(rl_line_buffer, "show funct") && argno == 2) {
-        result = rl_completion_matches(text, funct_generator);
-    } else if(startswith(rl_line_buffer, "show thread") && argno == 2) {
-        result = rl_completion_matches(text, thread_generator);
-    } else if(startswith(rl_line_buffer, "save ") && argno == 1) {
-        result = completion_matches_table(text, save_table);
-    } else if(startswith(rl_line_buffer, "list ") && argno == 1) {
-        result = completion_matches_table(text, list_table);
-    } else if(startswith(rl_line_buffer, "status ") && argno == 1) {
-        result = completion_matches_table(text, status_table);
-    } else if(startswith(rl_line_buffer, "newsig ") && argno == 2) {
-        result = completion_matches_table(text, pintype_table);
-    } else if(startswith(rl_line_buffer, "lock ") && argno == 1) {
-        result = completion_matches_table(text, lock_table);
-    } else if(startswith(rl_line_buffer, "unlock ") && argno == 1) {
-        result = completion_matches_table(text, unlock_table);
-    } else if(startswith(rl_line_buffer, "addf ") && argno == 1) {
-        result = rl_completion_matches(text, funct_generator);
-    } else if(startswith(rl_line_buffer, "addf ") && argno == 2) {
-        result = rl_completion_matches(text, thread_generator);
-    } else if(startswith(rl_line_buffer, "delf ") && argno == 1) {
-        result = rl_completion_matches(text, funct_generator);
-    } else if(startswith(rl_line_buffer, "delf ") && argno == 2) {
-        result = rl_completion_matches(text, thread_generator);
-    } else if(startswith(rl_line_buffer, "help ") && argno == 1) {
-        result = completion_matches_table(text, command_table);
-    } else if(startswith(rl_line_buffer, "unloadusr ") && argno == 1) {
-        result = rl_completion_matches(text, usrcomp_generator);
-    } else if(startswith(rl_line_buffer, "waitusr ") && argno == 1) {
-        result = rl_completion_matches(text, usrcomp_generator);
-    } else if(startswith(rl_line_buffer, "unloadrt ") && argno == 1) {
-        result = rl_completion_matches(text, rtcomp_generator);
-    } else if(startswith(rl_line_buffer, "unload ") && argno == 1) {
-        result = rl_completion_matches(text, comp_generator);
-    } else if(startswith(rl_line_buffer, "source ") && argno == 1) {
+        result = func(text, pin_generator);
+    } else if(startswith(buffer, "linksp ") && argno == 1) {
+        result = func(text, signal_generator);
+    } else if(startswith(buffer, "linksp ") && argno == 2) {
+        check_match_type_signal(buffer + 7);
+        result = func(text, pin_generator);
+    } else if(startswith(buffer, "linkpp ") && argno == 1) {
+        result = func(text, pin_generator);
+    } else if(startswith(buffer, "linkpp ") && argno == 2) {
+        check_match_type_pin(buffer + 7);
+        result = func(text, pin_generator);
+    } else if(startswith(buffer, "unlinkp ") && argno == 1) {
+        result = func(text, pin_generator);
+    } else if(startswith(buffer, "setp ") && argno == 1) {
+        result = func(text, setp_generator);
+    } else if(startswith(buffer, "sets ") && argno == 1) {
+        result = func(text, signal_generator);
+    } else if(startswith(buffer, "ptype ") && argno == 1) {
+        result = func(text, getp_generator);
+    } else if(startswith(buffer, "getp ") && argno == 1) {
+        result = func(text, getp_generator);
+    } else if(startswith(buffer, "stype ") && argno == 1) {
+        result = func(text, signal_generator);
+    } else if(startswith(buffer, "gets ") && argno == 1) {
+        result = func(text, signal_generator);
+    } else if(startswith(buffer, "show ") && argno == 1) {
+        result = completion_matches_table(text, show_table, func);
+    } else if(startswith(buffer, "list pin") && argno == 2) {
+        result = func(text, pin_generator);
+    } else if(startswith(buffer, "list sig") && argno == 2) {
+        result = func(text, signal_generator);
+    } else if(startswith(buffer, "list param") && argno == 2) {
+        result = func(text, parameter_generator);
+    } else if(startswith(buffer, "list funct") && argno == 2) {
+        result = func(text, funct_generator);
+    } else if(startswith(buffer, "list thread") && argno == 2) {
+        result = func(text, thread_generator);
+    } else if(startswith(buffer, "show pin") && argno == 2) {
+        result = func(text, pin_generator);
+    } else if(startswith(buffer, "show sig") && argno == 2) {
+        result = func(text, signal_generator);
+    } else if(startswith(buffer, "show param") && argno == 2) {
+        result = func(text, parameter_generator);
+    } else if(startswith(buffer, "show funct") && argno == 2) {
+        result = func(text, funct_generator);
+    } else if(startswith(buffer, "show thread") && argno == 2) {
+        result = func(text, thread_generator);
+    } else if(startswith(buffer, "save ") && argno == 1) {
+        result = completion_matches_table(text, save_table, func);
+    } else if(startswith(buffer, "list ") && argno == 1) {
+        result = completion_matches_table(text, list_table, func);
+    } else if(startswith(buffer, "status ") && argno == 1) {
+        result = completion_matches_table(text, status_table, func);
+    } else if(startswith(buffer, "newsig ") && argno == 2) {
+        result = completion_matches_table(text, pintype_table, func);
+    } else if(startswith(buffer, "lock ") && argno == 1) {
+        result = completion_matches_table(text, lock_table, func);
+    } else if(startswith(buffer, "unlock ") && argno == 1) {
+        result = completion_matches_table(text, unlock_table, func);
+    } else if(startswith(buffer, "addf ") && argno == 1) {
+        result = func(text, funct_generator);
+    } else if(startswith(buffer, "addf ") && argno == 2) {
+        result = func(text, thread_generator);
+    } else if(startswith(buffer, "delf ") && argno == 1) {
+        result = func(text, funct_generator);
+    } else if(startswith(buffer, "delf ") && argno == 2) {
+        result = func(text, thread_generator);
+    } else if(startswith(buffer, "help ") && argno == 1) {
+        result = completion_matches_table(text, command_table, func);
+    } else if(startswith(buffer, "unloadusr ") && argno == 1) {
+        result = func(text, usrcomp_generator);
+    } else if(startswith(buffer, "waitusr ") && argno == 1) {
+        result = func(text, usrcomp_generator);
+    } else if(startswith(buffer, "unloadrt ") && argno == 1) {
+        result = func(text, rtcomp_generator);
+    } else if(startswith(buffer, "unload ") && argno == 1) {
+        result = func(text, comp_generator);
+    } else if(startswith(buffer, "source ") && argno == 1) {
         rtapi_mutex_give(&(hal_data->mutex));
         // leaves rl_attempted_completion_over = 0 to complete from filesystem
         return 0;
-    } else if(startswith(rl_line_buffer, "loadusr ") && argno < 3) {
+    } else if(startswith(buffer, "loadusr ") && argno < 3) {
         rtapi_mutex_give(&(hal_data->mutex));
         // leaves rl_attempted_completion_over = 0 to complete from filesystem
-        return rl_completion_matches(text, loadusr_generator);
-    } else if(startswith(rl_line_buffer, "loadrt ") && argno == 1) {
-        result = rl_completion_matches(text, loadrt_generator);
+        return func(text, loadusr_generator);
+    } else if(startswith(buffer, "loadrt ") && argno == 1) {
+        result = func(text, loadrt_generator);
     }
 
     rtapi_mutex_give(&(hal_data->mutex));
@@ -576,8 +576,12 @@ char **completer(const char *text, int start, int end) {
     return result;
 }
 
+static char **rlcompleter(const char *text, int start, int end) {
+    return halcmd_completer(text, start, end, rl_completion_matches, rl_line_buffer);
+}
+
 void halcmd_init_readline() {
     rl_readline_name = "halcmd";
-    rl_attempted_completion_function = completer;
+    rl_attempted_completion_function = rlcompleter;
 }
 

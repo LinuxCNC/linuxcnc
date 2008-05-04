@@ -45,5 +45,8 @@
 #include <readline/history.h>
 
 extern void halcmd_init_readline();
+typedef char *(hal_generator_func)(const char *, int);
+typedef char**(hal_completer_func)(const char *, hal_generator_func);
+extern char **hal_completer(const char *text, int start, int end, hal_completer_func func, char *buffer);
 
 #endif
