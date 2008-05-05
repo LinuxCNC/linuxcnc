@@ -1,6 +1,9 @@
 #LyX 1.3 created this file. For more info see http://www.lyx.org/
 \lyxformat 221
 \textclass book
+\begin_preamble
+\usepackage{a4}
+\end_preamble
 \language english
 \inputencoding default
 \fontscheme bookman
@@ -9,7 +12,7 @@
 \paperfontsize default
 \spacing single 
 \papersize Default
-\paperpackage a4wide
+\paperpackage a4
 \use_geometry 0
 \use_amsmath 0
 \use_natbib 0
@@ -100,6 +103,19 @@ Axis
  Additional linear axes parallel to X, Y, and Z are called U, V, and W respectiv
 ely.
  Angular axes like rotary tables are referred to as A, B, and C.
+\layout Description
+
+Axis
+\begin_inset LatexCommand \index{GUI}
+
+\end_inset 
+
+ One of the Graphical User Interfaces available to users of EMC2.
+ Features the modern use of menus and mouse buttons while automating and
+ hiding some of the more traditional EMC2 controls.
+ It is the only open-source interface that displays the entire tool path
+ as soon as a file is opened.
+ 
 \layout Description
 
 Backlash
@@ -208,6 +224,31 @@ CNC
 \end_inset 
 
 .
+\layout Description
+
+Comp
+\begin_inset LatexCommand \index{comp}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \label{comp}
+
+\end_inset 
+
+ A tool used to build, compile and install EMC2 HAL components.
+\layout Description
+
+Configuration(n) A directory containing a set of configuration files.
+ Custom configurations are normally saved in the users home/emc2/configs
+ directory.
+ These files include EMC's traditional INI file and HAL files.
+ A configuration may also contain several general files that describe tools,
+ parameters, and NML connections.
+\layout Description
+
+Configuration(v) The task of setting up EMC2 so that it matches the hardware
+ on a machine tool.
 \layout Description
 
 Coordinate\SpecialChar ~
@@ -335,7 +376,7 @@ Encoder
 \end_inset 
 
  A device to measure position.
- Usually a machanical-optical device, which outputs a quadrature signal.
+ Usually a mechanical-optical device, which outputs a quadrature signal.
  The signal can be counted by special hardware, or directly by the parport
  with emc2.
 \layout Description
@@ -447,6 +488,35 @@ General A type of interface that allows communications between a computer
 EMC An application that presents a graphical screen to the machine operator
  allowing manipulation of machine and the corresponding controlling program.
 \end_deeper 
+\layout Description
+
+HAL
+\begin_inset LatexCommand \index{HAL}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \label{HAL}
+
+\end_inset 
+
+ 
+\series bold 
+H
+\series default 
+ardware 
+\series bold 
+A
+\series default 
+bstraction 
+\series bold 
+L
+\series default 
+ayer.
+ At the highest level, it is simply a way to allow a number of building
+ blocks to be loaded and interconnected to assemble a complex system.
+ Many of the building blocks are drivers for hardware devices.
+ However, HAL can do more than just configure hardware drivers.
 \layout Description
 
 Home
@@ -669,6 +739,11 @@ Units
  The linear and angular units used for part programs.
 \layout Description
 
+Python General-purpose, very high-level programming language.
+ Used in EMC2 for the Axis GUI, the Stepconf configuration tool, and several
+ G-code programming scripts.
+\layout Description
+
 Rapid
 \begin_inset LatexCommand \index{rapid}
 
@@ -847,6 +922,24 @@ Spindle
  On a lathe, the spindle holds the workpiece.
 \layout Description
 
+Spindle\SpecialChar ~
+Speed\SpecialChar ~
+Override A manual, operator controlled change in the rate at
+ which the tool rotates while cutting.
+ Often used to allow the operator to adjust for chatter caused by the cutter's
+ teeth.
+ Spindle\SpecialChar ~
+Speed\SpecialChar ~
+Override assume that the EMC2 software has been configured
+ to control spindle speed.
+\layout Description
+
+Stepconf An EMC2 configuration wizard.
+ It is able to handle many step-and-direction motion command based machines.
+ Writes a full configuration after the user answers a few questions about
+ the computer and machine to be run with.
+\layout Description
+
 Stepper\SpecialChar ~
 Motor
 \begin_inset LatexCommand \index{stepper motor}
@@ -892,13 +985,13 @@ Tcl/Tk
 
 \end_inset 
 
- A scripting language and graphical widget toolkit with which EMC's most
- popular GUI's 
+ A scripting language and graphical widget toolkit with which several of
+ the EMC's GUI's 
 \begin_inset LatexCommand \ref{GUI}
 
 \end_inset 
 
- were written.
+ and selection wizards were written.
 \layout Description
 
 Units
