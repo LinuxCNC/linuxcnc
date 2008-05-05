@@ -1777,8 +1777,6 @@ param r float value = 1.0;
 \newline 
 function _;
 \newline 
-option extra_setup yes;
-\newline 
 ;;
 \newline 
 FUNCTION(_) { out = value; }
