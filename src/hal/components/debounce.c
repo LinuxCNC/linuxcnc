@@ -53,11 +53,14 @@
 #include "hal.h"		/* HAL public API decls */
 
 /* module information */
+#define MAX_GROUP 8
+#define STRINGIZE(x) #x
+#define MAX_GROUP_STR STRINGIZE(MAX_GROUP)
 MODULE_AUTHOR("John Kasunich");
 MODULE_DESCRIPTION("Debounce filter for EMC HAL");
 MODULE_LICENSE("GPL");
-static char *cfg = "1";		/* config string, default = 1 filter */
-RTAPI_MP_STRING(cfg, "config string");
+int cfg[MAX_GROUP] = {0,};
+RTAPI_MP_ARRAY_INT(cfg,MAX_GROUP,"Group size for up to "MAX_GROUP_STR" groups");
 
 /***********************************************************************
 *                STRUCTURES AND GLOBAL VARIABLES                       *
@@ -96,7 +99,6 @@ static int num_filters;		/* number of individual filters */
 *                  LOCAL FUNCTION DECLARATIONS                         *
 ************************************************************************/
 
-static int parse_group_size(char *cp);
 static int export_filter(int num, debounce_t * addr, int group_num);
 static int export_group(int num, debounce_group_t * addr, int group_size);
 static void debounce(void *arg, long period);
@@ -105,64 +107,27 @@ static void debounce(void *arg, long period);
 *                       INIT AND EXIT CODE                             *
 ************************************************************************/
 
-#define MAX_GROUP 8
-#define MAX_TOK (MAX_GROUP)
 #define MAX_GROUP_SIZE 50
 
 int rtapi_app_main(void)
 {
-    char *cp;
-    char *tokens[MAX_TOK];
-    int group_size[MAX_GROUP];
-    int n, retval;
+    int retval, n;
 
-    /* test for config string */
-    if (cfg == 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR, "DEBOUNCE: ERROR: no config string\n");
-	return -1;
-    }
-    /* point to config string */
-    cp = cfg;
-    /* break it into tokens */
-    for (n = 0; n < MAX_TOK; n++) {
-	/* strip leading whitespace */
-	while ((*cp != '\0') && (isspace(*cp)))
-	    cp++;
-	/* mark beginning of token */
-	tokens[n] = cp;
-	/* find end of token */
-	while ((*cp != '\0') && (!isspace(*cp)))
-	    cp++;
-	/* mark end of this token, prepare to search for next one */
-	if (*cp != '\0') {
-	    *cp = '\0';
-	    cp++;
-	}
-    }
-    /* mark all groups unused */
-    for (n = 0; n < MAX_GROUP; n++) {
-	group_size[n] = 0;
-    }
-    /* parse config string, results in group_size[] array */
+    /* count number of groups and filters */
     num_groups = 0;
     num_filters = 0;
-    n = 0;
-    while ((num_groups < MAX_GROUP) && (n < MAX_TOK)) {
-	if (tokens[n][0] != '\0') {
-	    /* something here, is it a valid group size type? */
-	    group_size[num_groups] = parse_group_size(tokens[n]);
-	    if ((group_size[num_groups] < 1)
-		|| (group_size[num_groups] > MAX_GROUP_SIZE)) {
-		rtapi_print_msg(RTAPI_MSG_ERR,
-		    "DEBOUNCE: ERROR: bad group size '%s'\n", tokens[n]);
-		return -1;
-	    }
-	    num_filters += group_size[num_groups];
-	    num_groups++;
-	}
-	n++;
+
+    while ((num_groups < MAX_GROUP) && (cfg[num_groups] != 0)) {
+        if ((cfg[num_groups] < 1)
+            || (cfg[num_groups] > MAX_GROUP_SIZE)) {
+            rtapi_print_msg(RTAPI_MSG_ERR,
+                "DEBOUNCE: ERROR: bad group size '%d'\n", cfg[num_groups]);
+            return -1;
+        }
+        num_filters += cfg[num_groups];
+        num_groups++;
     }
-    /* OK, now we've parsed everything */
+    /* OK, now we've counted everything */
     if (num_groups == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "DEBOUNCE: ERROR: no channels configured\n");
@@ -186,7 +151,7 @@ int rtapi_app_main(void)
     /* export group data */
     for (n = 0; n < num_groups; n++) {
 	/* export all vars */
-	retval = export_group(n, &(group_array[n]), group_size[n]);
+	retval = export_group(n, &(group_array[n]), cfg[n]);
 	if (retval != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"DEBOUNCE: ERROR: group %d export failed\n", n);
@@ -267,31 +232,6 @@ static void debounce(void *arg, long period)
 /***********************************************************************
 *                   LOCAL FUNCTION DEFINITIONS                         *
 ************************************************************************/
-
-static int parse_group_size(char *cp)
-{
-    int result;
-
-    if (*cp == '\0') {
-	return -1;
-    }
-    /* initial value */
-    result = 0;
-    /* parse digits */
-    while (*cp != '\0') {
-	/* if char is a decimal digit, add it to result */
-	if ((*cp >= '0') && (*cp <= '9')) {
-	    result *= 10;
-	    result += *cp - '0';
-	} else {
-	    /* not a valid digit */
-	    return -1;
-	}
-	/* next char */
-	cp++;
-    }
-    return result;
-}
 
 static int export_group(int num, debounce_group_t * addr, int group_size)
 {
