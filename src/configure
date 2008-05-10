@@ -8392,6 +8392,10 @@ cat >>confdefs.h <<\_ACEOF
 #define HAVE_READLINE
 _ACEOF
 
+else
+    { { echo "$as_me:$LINENO: error: Required library 'readline' missing." >&5
+echo "$as_me: error: Required library 'readline' missing." >&2;}
+   { (exit 1); exit 1; }; }
 fi
 
 
