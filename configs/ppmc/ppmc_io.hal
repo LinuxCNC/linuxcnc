@@ -46,15 +46,15 @@ linksp Ahome => axis.3.home-sw-in
 
 
 # connect index pulses to motion controller
-# do these when index pulsing is figured out
+# uncomment if you have encoder index signals
 newsig Xindex bit
 newsig Yindex  bit
 newsig Zindex bit
-#linksp Xindex <= ppmc.0.encoder.00.index
+#linksp Xindex <= ppmc.0.encoder.00.index-enable
 #linksp Xindex => axis.0.index-enable
-#linksp Yindex <= ppmc.0.encoder.01.index
+#linksp Yindex <= ppmc.0.encoder.01.index-enable
 #linksp Yindex => axis.1.index-enable
-#linksp Zindex <= ppmc.0.encoder.02.index
+#linksp Zindex <= ppmc.0.encoder.02.index-enable
 #linksp Zindex => axis.2.index-enable
 
 #
