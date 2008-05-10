@@ -566,8 +566,6 @@ endif
 # Subdirectory: rtapi/examples (unneeded?)
 
 # Subdirectory: hal/components
-obj-$(CONFIG_BLOCKS) += blocks.o
-blocks-objs := hal/components/blocks.o $(MATHSTUB)
 obj-$(CONFIG_BOSS_PLC) += boss_plc.o
 boss_plc-objs := hal/components/boss_plc.o $(MATHSTUB)
 obj-$(CONFIG_DEBOUNCE) += debounce.o
@@ -761,7 +759,6 @@ ifneq "$(BUILD_SYS)" "sim"
 ../rtlib/rtapi$(MODULE_EXT): $(addprefix objects/rt,$(rtapi-objs))
 endif
 ../rtlib/classicladder_rt$(MODULE_EXT): $(addprefix objects/rt,$(classicladder_rt-objs))
-../rtlib/blocks$(MODULE_EXT): $(addprefix objects/rt,$(blocks-objs))
 ../rtlib/boss_plc$(MODULE_EXT): $(addprefix objects/rt,$(boss_plc-objs))
 ../rtlib/debounce$(MODULE_EXT): $(addprefix objects/rt,$(debounce-objs))
 ../rtlib/encoder$(MODULE_EXT): $(addprefix objects/rt,$(encoder-objs))
