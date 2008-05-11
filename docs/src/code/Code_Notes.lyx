@@ -143,6 +143,17 @@ axis
 POSE A pose is a fully specified position in 3-D Cartesian space.
  In the EMC2 motion controller, when we refer to a pose we mean an EmcPose
  structure, containing three linear coordinates and three angular ones.
+\layout Section
+
+Architecture overview
+\layout Standard
+
+There are four components contained in the EMC2 Arhitecture: a motion controller
+ (EMCMOT), a discrete IO controller (EMCIO), a task executor which coordinates
+ them (EMCTASK) and several text-mode and graphical User Interfaces.
+ Each of them will be described in the current document, both from the design
+ point of view and from the developers point of view (where to find needed
+ data, how to easily extend/modify things, etc.).
 \layout Chapter
 
 Motion Controller
@@ -1182,6 +1193,16 @@ home_latch_vel
  The default value is zero.
 \layout Subsubsection
 
+home_final_vel
+\layout Standard
+
+'home_final_vel' is also a member of the joint structure.
+ It specifies the speed that EMC uses when it makes its move from HOME_OFFSET
+ to the HOME position.
+ If the HOME_FINAL_VEL is missing from the ini file, then the maximum joint
+ speed is used to make this move.
+\layout Subsubsection
+
 home_ignore_limits
 \layout Standard
 
@@ -1288,6 +1309,15 @@ clearpage
 \layout Section
 
 Backlash and Screw Error Compensation
+\layout Chapter
+
+Task controller (EMCTASK)
+\layout Chapter
+
+IO controller (EMCIO)
+\layout Chapter
+
+User Interfaces
 \layout Chapter
 
 libnml
@@ -1832,4 +1862,39 @@ NMLmsg is the base class from which all message classes are derived.
  in the NML constructor at some point.
  By virtue of the linked lists NML creates, it is able to select cms pointer
  that is passed to the formatter and therefor which buffer is to be used.
+\layout Section
+
+Adding custom NML commands
+\layout Standard
+
+EMC2 is pretty awsome, but some parts need some tweaking.
+ As you know communication is done through NML channels, the data sent through
+ souch a channel is one of the classes defined in emc.hh (implemented in
+ emc.cc).
+ If somebody needs a message type that doesn't exist, he should follow these
+ steps to add a new one.
+ (The Message I added in the example is called EMC_IO_GENERIC (inherits
+ EMC_IO_CMD_MSG (inherits RCS_CMD_MSG)))
+\layout Enumerate
+
+add the definition of the EMC_IO_GENERIC class to emc2/src/emc/nml_intf/emc.hh
+\layout Enumerate
+
+add the type define: #define EMC_IO_GENERIC_TYPE ((NMLTYPE) 1605) - (I chose
+ 1605, because it was available) to emc2/src/emc/nml_intf/emc.hh
+\layout Enumerate
+
+add case EMC_IO_GENERIC_TYPE to emcFormat in emc2/src/emc/nml_intf/emc.cc
+\layout Enumerate
+
+add case EMC_IO_GENERIC_TYPE to emc_symbol_lookup in emc2/src/emc/nml_intf/emc.cc
+\layout Enumerate
+
+add EMC_IO_GENERIC::update function to emc2/src/emc/nml_intf/emc.cc 
+\layout Standard
+
+recompile, and the new message should be there.
+ The next part is to send such messages from somewhere, and receive them
+ in another place, and do some stuff with it.
+ 
 \the_end
