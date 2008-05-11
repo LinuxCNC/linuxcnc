@@ -1,5 +1,6 @@
 emc2 (1:2.2.6~cvs) hardy; urgency=low
 
+  * fix hal_input manpage
   * Fix FTBFS on hardy (texlive-extra-utils)
   * (incompatible change) make debounce cfg= match the documentation 
     If you use a debounce component with multiple groups (e.g., cfg="3 3")
