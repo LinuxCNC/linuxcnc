@@ -30,6 +30,7 @@ import textwrap
 
 import gtk
 import gtk.glade
+import gobject
 import gnome.ui
 
 import xml.dom.minidom
@@ -451,14 +452,16 @@ class Data:
     def write_one_axis(self, file, num, letter, type, all_homes):
 	order = "1203"
 	def get(s): return self[letter + s]
+        scale = get("scale")
+        vel = min(get("maxvel"), .95 * 1e9 / self.ideal_period() / scale)
 	print >>file
 	print >>file, "[AXIS_%d]" % num
 	print >>file, "TYPE = %s" % type
 	print >>file, "HOME = %s" % get("homepos")
-	print >>file, "MAX_VELOCITY = %s" % get("maxvel")
+	print >>file, "MAX_VELOCITY = %s" % vel
 	print >>file, "MAX_ACCELERATION = %s" % get("maxacc")
 	print >>file, "STEPGEN_MAXACCEL = %s" % (1.25 * get("maxacc"))
-	print >>file, "SCALE = %s" % get("scale")
+	print >>file, "SCALE = %s" % scale
 	if num == 3:
 	    print >>file, "FERROR = 1"
 	    print >>file, "MIN_FERROR = .25"
@@ -1269,7 +1272,6 @@ class App:
             w[axis + "scale"].set_text("%.1f" % scale)
             self.widgets.druid1.set_buttons_sensitive(1,1,1,1)
             w[axis + "axistest"].set_sensitive(1)
-            print "set sensitive"
 	except (ValueError, ZeroDivisionError): # Some entries not numbers or not valid
 	    w[axis + "acctime"].set_text("")
 	    w[axis + "accdist"].set_text("")
