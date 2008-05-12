@@ -1333,7 +1333,6 @@ class App:
             w[axis + "scale"].set_text("%.1f" % scale)
             self.widgets.druid1.set_buttons_sensitive(1,1,1,1)
             w[axis + "axistest"].set_sensitive(1)
-            print "set sensitive"
 	except (ValueError, ZeroDivisionError): # Some entries not numbers or not valid
 	    w[axis + "acctime"].set_text("")
 	    w[axis + "accdist"].set_text("")
