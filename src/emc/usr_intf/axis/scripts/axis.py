@@ -25,6 +25,11 @@ import string
 BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
 sys.path.insert(0, os.path.join(BASE, "lib", "python"))
 
+# otherwise, on hardy the user is shown spurious "[application] closed
+# unexpectedly" messages but denied the ability to actually "report [the]
+# problem"
+sys.excepthook = sys.__excepthook__
+
 import gettext;
 gettext.install("axis", localedir=os.path.join(BASE, "share", "locale"), unicode=True)
 r_ = gettext.translation("rs274_err", localedir=os.path.join(BASE, "share", "locale"), fallback=True).ugettext
