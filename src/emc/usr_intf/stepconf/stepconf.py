@@ -457,7 +457,7 @@ class Data:
 	print >>file, "HOME = %s" % get("homepos")
 	print >>file, "MAX_VELOCITY = %s" % get("maxvel")
 	print >>file, "MAX_ACCELERATION = %s" % get("maxacc")
-	print >>file, "STEPGEN_MAXACCEL = %s" % (1.05 * get("maxacc"))
+	print >>file, "STEPGEN_MAXACCEL = %s" % (1.25 * get("maxacc"))
 	print >>file, "SCALE = %s" % get("scale")
 	if num == 3:
 	    print >>file, "FERROR = 1"
