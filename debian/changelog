@@ -2,11 +2,18 @@ emc2 (1:2.2.6~cvs) hardy; urgency=low
 
   * fix hal_input manpage
   * Fix FTBFS on hardy (texlive-extra-utils)
-  * (incompatible change) make debounce cfg= match the documentation 
+  * (incompatible change) make debounce cfg= match the documentation
     If you use a debounce component with multiple groups (e.g., cfg="3 3")
     this must be changed to use commas instead of spaces: (e.g., cfg=3,3)
+  * stepconf: fix spurious "application closed unexpectedly" messages
+    (for this and other stepconf bugfixes, re-run stepconf and re-save your
+    configuration file)
+  * stepconf: fix "following error" messages when the requested step rate
+    cannot be attained
+  * stepconf: fix "following error" messages due to insufficient "stepgen
+    headroom" 
 
- -- Jeff Epler <jepler@platte>  Tue, 06 May 2008 21:04:12 -0500
+ -- Jeff Epler <jepler@unpythonic.net>  Mon, 12 May 2008 16:05:36 -0500
 
 emc2 (1:2.2.5) unstable; urgency=low
 
