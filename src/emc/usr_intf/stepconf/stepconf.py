@@ -489,14 +489,16 @@ class Data:
     def write_one_axis(self, file, num, letter, type, all_homes):
 	order = "1203"
 	def get(s): return self[letter + s]
-	print >>file
+        scale = get("scale")
+        vel = min(get("maxvel"), .95 * 1e9 / self.ideal_period() / scale)
+        print >>file
 	print >>file, "[AXIS_%d]" % num
 	print >>file, "TYPE = %s" % type
 	print >>file, "HOME = %s" % get("homepos")
-	print >>file, "MAX_VELOCITY = %s" % get("maxvel")
+	print >>file, "MAX_VELOCITY = %s" % vel
 	print >>file, "MAX_ACCELERATION = %s" % get("maxacc")
 	print >>file, "STEPGEN_MAXACCEL = %s" % (1.25 * get("maxacc"))
-	print >>file, "SCALE = %s" % get("scale")
+	print >>file, "SCALE = %s" % scale
 	if num == 3:
 	    print >>file, "FERROR = 1"
 	    print >>file, "MIN_FERROR = .25"
