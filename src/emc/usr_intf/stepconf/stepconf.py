@@ -34,6 +34,11 @@ import gnome.ui
 
 import xml.dom.minidom
 
+# otherwise, on hardy the user is shown spurious "[application] closed
+# unexpectedly" messages but denied the ability to actually "report [the]
+# problem"
+sys.excepthook = sys.__excepthook__
+
 BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
 LOCALEDIR = os.path.join(BASE, "share", "locale")
 import gettext;
@@ -1133,6 +1138,7 @@ class App:
 	w[axis + "latchdir"].set_sensitive(homes)
 
 	w[axis + "steprev"].grab_focus()
+	gobject.idle_add(lambda: self.update_pps(axis))
 
     def axis_done(self, axis):
 	d = self.data
@@ -1263,7 +1269,8 @@ class App:
             w[axis + "scale"].set_text("%.1f" % scale)
             self.widgets.druid1.set_buttons_sensitive(1,1,1,1)
             w[axis + "axistest"].set_sensitive(1)
-	except ValueError: # Some entries not numbers or not valid
+            print "set sensitive"
+	except (ValueError, ZeroDivisionError): # Some entries not numbers or not valid
 	    w[axis + "acctime"].set_text("")
 	    w[axis + "accdist"].set_text("")
 	    w[axis + "hz"].set_text("")
