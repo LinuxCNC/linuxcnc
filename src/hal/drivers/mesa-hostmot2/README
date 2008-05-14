@@ -1,0 +1,191 @@
+
+This driver will support the HostMot2 firmware on the following boards:
+
+    EPP:
+    
+        7i43 (Xilinx Spartan 3, 200 K or 400 K gates (can query which from the CPLD))
+
+
+    PCI:
+
+        5i20 (Xilinx Spartan 2, 200 K gates, PLX 9030, Subsystem ID 3131)
+        5i22-1 (Xilinx Spartan 3, 1.0 M gates, PLX 9054, Subsystem ID 3314)
+        5i22-1.5 (Xilinx Spartan 3, 1.5 M gates, PLX 9054, Subsystem ID 3313)
+        5i23 (Xilinx Spartan 3, 400 K gates, PLX 9054, Subsystem ID 3315)
+
+
+    PC/104-Plus:
+
+        4i65 (Xilinx Spartan 2, 200 K gates, PLX 9030, Subsystem ID 3132)
+        4i68 (Xilinx Spartan 3, 400 K gates, PLX 9054, Subsystem ID 3311 (was 3133))
+
+
+
+
+Watchdog:
+
+    Timeout is set by the watchdog.timeout_ns parameter.  It's a u32,
+    which makes a maximum timeout 4,294,967,295 ns, or about 4.3 seconds.
+
+
+
+
+Architecture:
+
+    program boards with desired firmware before loading the driver,
+    using the "bfload" userspace utility
+
+
+    load the hostmot2 module, it does nothing but export a couple of kernel
+    functions for the low-level drivers to use
+
+
+    load the low-level driver(s) for the board-type(s) you want to use
+    (hm2_7i43 and/or hm2_5i20)
+
+
+    the board-driver setup does this:
+
+        find the board(s)
+
+        for each board found:
+
+            initialize an hm2_lowlevel_io_t (llio)
+
+            pass it to the hm2_register() function (in the hostmot2
+            driver), which does this:
+
+                allocate a hostmot2_t struct to hold this running instance
+                of the hostmot2 firmare, add the hm2_lowlevel_io_t to it
+
+                call llio to read the idrom header into the hm2_t
+
+                parse & validate the idrom header
+
+                call llio to read the MDs into a buffer in the hm2_t
+
+                call an hm2 function to parse the MDs
+
+                    validate each MD, skipping unknown ones & failing
+                    the load if any invalid MDs are found
+
+                    FIXME: ok down to here
+
+                    exports the HAL pins, params, and functs:
+                    hm2.<BoardType>.<BoardNum>.<FeatureType>.<FeatureNum>.<PinOrParamName>
+
+                    calls llio write to configure the functions
+                    found
+
+                call llio to read the PDs into a buffer in the hm2_t
+
+                parse the PDs
+
+                    call llio write to configure the io pins
+
+                register this hm2 instance
+
+
+    the per-instance HAL-exported functions are generic hm2 functions that
+    use board-specific i/o functions (hm2_lowlevel_io_t).  Each generic
+    hm2 function is exported to HAL once for each hm2 instance that can
+    use it.  Each HAL function is the same hm2 function with different
+    hostmot2_t's for arguments.
+
+
+    At runtime, it will eventually be desirable to use the TranslationRAM
+    to map all the on-board registers to be consecutive, and do a single
+    bulk transfer to read all the stuff into the driver.  Not sure if TRAM
+    is right for the writing.  Also, some funcs are currently read/write,
+    that may have to change: pet_watchdog and stepgen_update
+
+        m7i43-hm2.pet-watchdog (R/W)
+        m7i43-hm2.gpio-read (R)
+        m7i43-hm2.encoder-update-counters (R)
+
+        m7i43-hm2.pwmgen-update (W)
+        m7i43-hm2.stepgen-update (R/W)
+        m7i43-hm2.gpio-write (W)
+
+        Read:
+
+            encoder_update_counters
+
+            stepgen_update (R/W)
+
+            gpio_read
+
+            pet_watchdog (R/W)
+
+        Write:
+
+            pwmgen_update
+
+            stepgen_update (R/W)
+
+            gpio_update_ddr
+
+            gpio_write
+
+            pet_watchdog (R/W)
+
+
+    Efficient reading means reading registers that are consecutive all
+    together, directly into their destinations in a struct.  It's one
+    thing to do this on a per-register basis, and much harder to do in
+    a global way using the TRAM.
+
+    The win of doing it this way is that you save yourself some addressing
+    cycles on EPP, and you save some function calls at runtime.
+
+    Currently hm2 does this:
+
+        read MDs
+
+        parse MDs
+
+            for each MD
+
+                allocate an array of instances (each entry in the array
+                describes one instance, each instance has a "hw" part
+                and a "hal" part)
+
+
+    For per-register it would look like this instead:
+
+        read MDs
+
+        parse MDs
+
+            for each MD
+
+                allocate an array of of instance-hal objects (each entry
+                in the array contains one instance's hal info, like the
+                hal part in the old scheme)
+
+                for each register:
+
+                    allocate an array of instance-hw -register objects
+                    (each entry contains a buffer for reading the
+                    register (for one-per-function) or registers (for
+                    one-per-instance))
+
+        Yum, could make the "allocate a register buffer" function
+        smart: have it allocate space for each request contiguously
+        in a larger buffer and set the TRAM...  MMmmm, yeesssss...
+        <rubs hands together>
+
+
+Jeffry Molanus' driver:
+
+    nicely puts all I/O code in the kernel, no special user-space tool needed
+
+    load board-specific driver
+
+    discover board
+
+    allow programming firmware by writing to /dev/anyio_program (close sends it, no error reporting)
+
+    allow read/write access to the board's local bus via /dev/anyio (BROKEN!)
+
+

@@ -1,0 +1,11 @@
+
+0.1 (released 2008-05-13)
+
+    Split m7i43_hm2 0.4 into a generic hostmot2 driver and a low-level I/O
+    driver for the 7i43 (called hm2_7i43).  Moved the firmware loading
+    on the 7i43 from the kernel driver to userspace, by extending the
+    bfload program.
+
+    Wrote a new driver that plugs the 5i20 board into the hostmot2 driver.
+    Firmware loading on the 5i20 was already supported by bfload.
+

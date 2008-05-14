@@ -634,6 +634,20 @@ hal_speaker-objs := hal/drivers/hal_speaker.o $(MATHSTUB)
 obj-$(CONFIG_HAL_SKELETON) += hal_skeleton.o
 hal_skeleton-objs := hal/drivers/hal_skeleton.o $(MATHSTUB)
 
+obj-$(CONFIG_HOSTMOT2) += hostmot2.o hm2_7i43.o hm2_5i20.o
+hostmot2-objs :=                          \
+    hal/drivers/mesa-hostmot2/hostmot2.o  \
+    hal/drivers/mesa-hostmot2/ioport.o    \
+    hal/drivers/mesa-hostmot2/encoder.o   \
+    hal/drivers/mesa-hostmot2/pwmgen.o    \
+    hal/drivers/mesa-hostmot2/stepgen.o   \
+    hal/drivers/mesa-hostmot2/watchdog.o  \
+    hal/drivers/mesa-hostmot2/pins.o      \
+    hal/drivers/mesa-hostmot2/tram.o      \
+    $(MATHSTUB)
+hm2_7i43-objs := hal/drivers/mesa-hostmot2/hm2_7i43.o $(MATHSTUB)
+hm2_5i20-objs := hal/drivers/mesa-hostmot2/hm2_5i20.o $(MATHSTUB)
+
 ifneq "$(filter 2.6.%, $(kernelvers))" ""
 obj-$(CONFIG_PROBE_PARPORT) += probe_parport.o
 probe_parport-objs := hal/drivers/probe_parport.o $(MATHSTUB)

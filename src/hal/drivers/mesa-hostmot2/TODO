@@ -1,0 +1,274 @@
+
+
+bfload
+
+    add "bfload reset"
+
+    5i22 has wrong subdevice ids?
+
+    add support for all the other PCI cards
+
+    epp via the pci card doesnt work, epp via the onboard port works
+
+    use pciutils-dev instead of upci?  upci seems to be working fine
+
+
+
+
+translation ram (tram):
+
+    just do it
+
+    need to deal with the "strobe" bit
+
+
+
+
+encoders:
+
+    use shielded encoder wires!
+
+
+    performance:
+
+        my motor shaft is spinning at 8K rpm, which is 133.33333 revs per second
+
+        The encoder has 256 lines, so 1024 transitions per revolution, so 136533 transitions per second
+
+        sampling at twice that would mean ~300 Ksamples/sec
+
+        with the "quad filter" set to 3 clocks, the low-level input needs about 1 Msample/sec.
+
+        with the "quad filter" set to 15 clocks, the low-level input needs about 5 Msample/sec.
+
+        it's actually running at 50 MHz, so that shouldnt be a problem...
+
+        The firmware is storing the quadrature count in a 16-bit register, which I'm reading about every ms (1 KHz)
+
+        at 140K transitions/second, that should be max 140 counts per reading, which is *fine*
+
+
+    How is encoder.XX.velocity computed?
+
+
+    missing stuff:
+
+        fancy velocity computation
+
+        pins:
+
+            velocity
+
+            reset
+
+            index-enable
+
+        parameters:
+
+            max-index-vel (optional)
+
+            velocity-resolution (optional)
+
+        functions:
+
+            CDI just has a read()
+
+
+
+
+pwmgen:
+
+    how to set pwm rate in firmware?
+
+    Add support for different pdm mode (selected by the pwm-freq parameter...)
+
+    what should the hal pwmgen scale parameter do exactly?  same as the software hal component: output = (val / scale) + offset
+
+
+
+
+ioport:
+
+    move inverted output from driver to fpga 
+
+
+
+
+stepgen:
+
+    the software stepgen uses float seconds for the timing, but that cuts
+    off at like 100 ns, shouldnt it be u32 seconds instead?  or wait,
+    is it float nanoseconds?
+
+    position commanding is very much hacked right now...
+
+    support maxvel
+
+    support maxaccel
+
+    support other stepping modes
+
+    support velocity control
+
+
+
+
+watchdog:
+
+    what's the cause of a watchdog bite?  on epp it's probably because
+    the cable broken and was now replaced (io_error).  on pci i dont
+    know why it would happen...  scheduling latency larger than watchdog
+    timeout perhaps?
+
+    what's the proper driver response to a watchdog bite?  The io_error
+    (if that's what it was) may have occurred at any time during a read
+    or a write, so the hardware is in an unknown state.  The proper
+    thing to do is probably to completely re-initialize the hardware.
+    Ie, write all register buffers.
+
+        hm2_read_idrom
+        hm2_read_pin_descriptors
+        hm2_read_module_descriptors
+
+        hm2_parse_module_descriptors:
+
+            hm2_ioport_process_md:
+                hm2_register_tram_region(data_reg)
+                ddr_reg = kmalloc
+                written_ddr = kmalloc
+                alt_source_reg = kmalloc
+                open_drain_reg = kmalloc
+                output_invert_reg = kmalloc
+                initialize all ioport regs to 0  // inputs, from primary source (ioport), not inverted
+
+            hm2_encoder_process_md():
+                hal = hal_malloc
+                hm2_register_tram_region(counter_reg)
+                prev_counter = kmalloc
+                control_reg = kmalloc
+                export_to_hal
+                init_hal_objects
+                control_reg = STATIC_INIT
+
+            hm2_watchdog_process_md(): 
+                hal = hal_malloc
+                status_reg = kmalloc
+                reset_reg = kmalloc
+                timer_reg = kmalloc
+                export_to_hal
+                init_hal_objects
+                reset_reg = STATIC_INIT
+                status_reg = STATIC_INIT
+
+        hm2_tram_alloc()
+
+        hm2_configure_pins
+            set pin source & dir based on enabled function instances  // updates alt_source_reg and ddr_reg
+
+        hm2_export_gpio
+            pin.hal = hal_malloc
+            export_to_hal
+            init_hal_objects
+
+        hm2_force_write
+            hm2_encoder_force_write:
+                llio->write(control_reg)
+
+            hm2_watchdog_force_write
+                hal.timeout -> timer_reg
+                llio->write(timer_reg)
+                llio->write(status_reg)  // clear watchdog bit bit
+
+            hm2_ioport_force_write
+                hm2_ioport_force_write_ddr
+                    llio->write(ioport.ddr_reg)
+                llio->write(ioport.data_write_reg)
+                llio->write(ioport.alt_source_reg)
+                llio->write(ioport.open_drain_reg)
+                llio->write(ioport.output_invert_reg)
+
+
+        hm2_tram_read
+
+        hm2_gpio_process_read
+
+        hm2_encoder_tram_init
+            prev_counter = counter_reg
+
+        hm2_encoder_process_read 
+
+
+        hm2_gpio_process_write
+
+        hm2_tram_write  // dont process but write
+
+
+        watchdog recovery AND io_error recovery:
+            hm2_force_read()   // read all off-TRAM register buffers from FPGA, update state of driver & HAL
+            hm2_force_write()  // update all off-TRAM register buffers from driver state & HAL, write to FPGA
+
+            // NOTE: on-TRAM register buffers will be automatically read & written as hm2_write() starts back up, that's prolly ok
+
+
+
+
+7i43:
+
+    can't get it to work with the pci card parport...
+
+
+5i20:
+
+    turn hm2_5i20 driver into a generic PCI driver: hm2_anyio_pci
+
+
+
+
+issues with the 2006-02-06 firmware:
+
+    svst4_4:
+
+        don't know what to do with this MD (LEDs?):
+
+            m7i43_hm2: Module Descriptor 6 at 0x0488:
+            m7i43_hm2:     General Function Tag: 128 ((unknown-gtag-128))
+            m7i43_hm2:     Version: 0
+            m7i43_hm2:     Clock Tag: 1
+            m7i43_hm2:     Instances: 1
+            m7i43_hm2:     Base Address: 0x0200
+            m7i43_hm2:     -- Num Registers: 1
+            m7i43_hm2:     Register Stride: 0x00000100
+            m7i43_hm2:     -- Instance Stride: 0x00000004
+            m7i43_hm2:     -- Multiple Registers: 0x00000000
+
+
+
+
+planned milestones:
+
+    1.0
+
+        add support for all other PCI cards
+
+            IOPort connector names for the still-unsupported cards:
+                4I65: P1,P3,P4
+                4I68: P1,P2,P4
+                5I22: P2,P3,P4,P5
+                5I23: P2,P3,P4
+
+        add optional tram support
+
+        add DMA support for PCI cards with TRAM
+
+        llios should support multiple boards each
+
+        complete support for encoder
+
+        complete support for pwmgen
+
+        complete support for stepgen
+
+        complete support for gpios
+
+        complete support for watchdog
+
