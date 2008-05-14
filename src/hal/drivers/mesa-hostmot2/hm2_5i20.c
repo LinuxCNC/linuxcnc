@@ -18,23 +18,7 @@
 //
 
 
-#include <asm/delay.h>
-#include <asm/io.h>
-#include <asm/system.h>
-#include <asm/uaccess.h>
-
-#include <linux/autoconf.h>
-#include <linux/cdev.h>
-#include <linux/fs.h>
-#include <linux/init.h>
-#include <linux/interrupt.h>
-#include <linux/ioport.h>
-#include <linux/module.h>
-#include <linux/moduleparam.h>
 #include <linux/pci.h>
-#include <linux/proc_fs.h>
-#include <linux/types.h>
-#include <linux/version.h>
 
 #include "rtapi.h"
 #include "rtapi_app.h"
@@ -52,9 +36,9 @@ MODULE_DESCRIPTION("Driver for HostMot2 on the 5i20 Mesa Anything I/O board");
 MODULE_SUPPORTED_DEVICE("Mesa-AnythingIO-5i20");
 
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,22)
-    #error "Kernel version not supported, 2.6.22 and later only" 
-#endif
+// #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,22)
+//     #error "Kernel version not supported, 2.6.22 and later only" 
+// #endif
 
 
 static char *config[HM2_5I20_MAX_BOARDS];
