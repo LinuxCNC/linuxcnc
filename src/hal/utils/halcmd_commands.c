@@ -849,6 +849,7 @@ int do_gets_cmd(char *name)
 static int get_type(char ***patterns) {
     char *typestr = 0;
     if(!(*patterns)) return -1;
+    if(!(*patterns)[0]) return -1;
     if((*patterns)[0][0] != '-' || (*patterns)[0][1] != 't') return -1;
     if((*patterns)[0][2]) {
 	typestr = &(*patterns)[0][2];
