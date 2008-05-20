@@ -35,10 +35,27 @@ import gnome.ui
 
 import xml.dom.minidom
 
+import traceback
+
 # otherwise, on hardy the user is shown spurious "[application] closed
 # unexpectedly" messages but denied the ability to actually "report [the]
 # problem"
-sys.excepthook = sys.__excepthook__
+def excepthook(exc_type, exc_obj, exc_tb):
+    try:
+        w = app.widgets.window1
+    except NameError:
+        w = None
+    lines = traceback.format_exception(exc_type, exc_obj, exc_tb)
+    m = gtk.MessageDialog(w,
+                gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+                gtk.MESSAGE_ERROR, gtk.BUTTONS_OK,
+                _("Stepconf encountered an error.  The following "
+                "information may be useful in troubleshooting:\n\n")
+                + "".join(lines))
+    m.show()
+    m.run()
+    m.destroy()
+sys.excepthook = excepthook
 
 BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
 LOCALEDIR = os.path.join(BASE, "share", "locale")
@@ -444,13 +461,14 @@ class Data:
             pps = max(xhz, yhz, zhz)
         else:
             pps = max(xhz, zhz)
-	base_period = 1e9 / pps
+	base_period = 1.05 * 1e9 / pps
 	if base_period > 100000: base_period = 100000
         if base_period < self.minperiod(): base_period = self.minperiod()
         return int(base_period)
 
     def write_one_axis(self, file, num, letter, type, all_homes):
 	order = "1203"
+
 	def get(s): return self[letter + s]
         scale = get("scale")
         vel = min(get("maxvel"), .95 * 1e9 / self.ideal_period() / scale)
@@ -458,7 +476,12 @@ class Data:
 	print >>file, "[AXIS_%d]" % num
 	print >>file, "TYPE = %s" % type
 	print >>file, "HOME = %s" % get("homepos")
+<<<<<<< stepconf.py
+        vel = min(get("maxvel"), .95 * self.maxhz() / get("scale"))
 	print >>file, "MAX_VELOCITY = %s" % vel
+=======
+	print >>file, "MAX_VELOCITY = %s" % vel
+>>>>>>> 1.11.2.23
 	print >>file, "MAX_ACCELERATION = %s" % get("maxacc")
 	print >>file, "STEPGEN_MAXACCEL = %s" % (1.25 * get("maxacc"))
 	print >>file, "SCALE = %s" % scale
@@ -1255,6 +1278,8 @@ class App:
 	d = self.data
 	def get(n): return float(w[axis + n].get_text())
 
+        minperiod = int(1.05 * d.maxhz())
+        maxhz = int(1e9 / minperiod)
 	try:
 	    pitch = get("leadscrew")
 	    if d.units == 1 or axis == 'a': pitch = 1./pitch
@@ -1267,6 +1292,13 @@ class App:
 	    w[axis + "acctime"].set_text("%.4f" % acctime)
 	    w[axis + "accdist"].set_text("%.4f" % accdist)
 	    w[axis + "hz"].set_text("%.1f" % pps)
+            if pps > maxhz:
+                w[axis + "hz"].modify_text(gtk.STATE_NORMAL,
+                            gtk.gdk.color_parse("#ff0000"))
+            else:
+                w[axis + "hz"].modify_text(gtk.STATE_NORMAL,
+                            gtk.gdk.color_parse("#000000"))
+                
 	    scale = self.data[axis + "scale"] = (1.0 * pitch * get("steprev")
 		* get("microstep") * (get("pulleynum") / get("pulleyden")))
             w[axis + "scale"].set_text("%.1f" % scale)
@@ -1323,7 +1355,7 @@ class App:
         steptime = self.widgets.steptime.get_value()
         stepspace = self.widgets.stepspace.get_value()
         latency = self.widgets.latency.get_value()
-        minperiod = int(latency + steptime + stepspace + 5000)
+        minperiod = int(1.05 * (latency + steptime + stepspace + 5000))
         maxhz = int(1e9 / minperiod)
 
         self.widgets.baseperiod.set_text("%s ns" % minperiod)
