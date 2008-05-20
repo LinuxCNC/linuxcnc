@@ -11,9 +11,11 @@ emc2 (1:2.2.6~cvs) hardy; urgency=low
   * stepconf: fix "following error" messages when the requested step rate
     cannot be attained
   * stepconf: fix "following error" messages due to insufficient "stepgen
-    headroom" 
+    headroom"
+  * stepconf: if an exception is encountered, show it to the user in a message
+    box. 
 
- -- Jeff Epler <jepler@unpythonic.net>  Mon, 12 May 2008 16:05:36 -0500
+ -- Jeff Epler <jepler@platte>  Mon, 19 May 2008 21:41:54 -0500
 
 emc2 (1:2.2.5) unstable; urgency=low
 
