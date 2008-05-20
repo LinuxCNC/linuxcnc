@@ -35,10 +35,27 @@ import gnome.ui
 
 import xml.dom.minidom
 
+import traceback
+
 # otherwise, on hardy the user is shown spurious "[application] closed
 # unexpectedly" messages but denied the ability to actually "report [the]
 # problem"
-sys.excepthook = sys.__excepthook__
+def excepthook(exc_type, exc_obj, exc_tb):
+    try:
+        w = app.widgets.window1
+    except NameError:
+        w = None
+    lines = traceback.format_exception(exc_type, exc_obj, exc_tb)
+    m = gtk.MessageDialog(w,
+                gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+                gtk.MESSAGE_ERROR, gtk.BUTTONS_OK,
+                _("Stepconf encountered an error.  The following "
+                "information may be useful in troubleshooting:\n\n")
+                + "".join(lines))
+    m.show()
+    m.run()
+    m.destroy()
+sys.excepthook = excepthook
 
 BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
 LOCALEDIR = os.path.join(BASE, "share", "locale")
