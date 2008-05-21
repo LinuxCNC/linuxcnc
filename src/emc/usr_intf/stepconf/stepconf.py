@@ -742,7 +742,7 @@ class Data:
 	    print >>file
 	    if PHB not in inputs:
 		print >>file, "setp encoder.0.position-scale %f"\
-		     % (1. / 2 / int(self.spindlecpr))
+		     % self.spindlecpr
 		print >>file, "setp encoder.0.counter-mode 1"
 	    else:
 		print >>file, "setp encoder.0.position-scale %f" \
