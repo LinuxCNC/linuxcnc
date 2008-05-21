@@ -43,6 +43,7 @@
 #include <signal.h>
 #include <ctype.h>
 #include <string.h>
+#include <unistd.h>	/* getopt() */
 
 #include "config.h"
 #include "rtapi.h"		/* RTAPI realtime OS API */
@@ -98,11 +99,34 @@ int main(int argc, gchar * argv[])
     int retval;
     int num_samples = SCOPE_NUM_SAMPLES_DEFAULT;
     void *shm_base;
+    char *ifilename = ".scope.cfg";
+    char *ofilename = ".scope.cfg";
 
     /* process and remove any GTK specific command line args */
     gtk_init(&argc, &argv);
     /* process halscope command line args (if any) here */
-    if(argc > 1) num_samples = atoi(argv[1]);
+
+
+    while(1) {
+        int c;
+        c = getopt(argc, argv, "hi:o:");
+        if(c == -1) break;
+        switch(c) {
+         case 'h':
+            rtapi_print_msg(RTAPI_MSG_ERR,
+            "Usage:\n  halscope [-h] [-i infile] [-o outfile]"
+            " [num_samples]\n");
+            return -1;
+            break;
+         case 'i':
+            ifilename = optarg;
+            break;
+         case 'o':
+            ofilename = optarg;
+            break;
+        }
+    }
+    if(argc > optind) num_samples = atoi(argv[argc-1]);
     if(num_samples <= 0)
 	num_samples = SCOPE_NUM_SAMPLES_DEFAULT;
 
@@ -173,12 +197,12 @@ int main(int argc, gchar * argv[])
     /* show the window */
     gtk_widget_show(ctrl_usr->main_win);
     /* read the saved config file */
-    read_config_file(".scope.cfg");
+    read_config_file(ifilename);
     /* arrange for periodic call of heartbeat() */
     gtk_timeout_add(100, heartbeat, NULL);
     /* enter the main loop */
     gtk_main();
-    write_config_file(".scope.cfg");
+    write_config_file(ofilename);
 
     return (0);
 }
