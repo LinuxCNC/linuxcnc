@@ -92,7 +92,7 @@ int main(int argc, char * argv[])
     int axis_exported[MAX_AXIS];
     int button_exported[MAX_BUTTON];
     hal_js_t *js_data;
-    const char *device, *prefix;
+    const char *device, *comp_name, *prefix;
     char name[HAL_NAME_LEN + 2];
     struct stat sb;
     int devmajor, devminor, chardev;
@@ -102,6 +102,7 @@ int main(int argc, char * argv[])
     done = 0;
     /* parse command line */
     device = "/dev/input/js0";
+    comp_name = "hal_joystick";
     prefix = "joystick.0";
 
     n = 1;
@@ -112,6 +113,7 @@ int main(int argc, char * argv[])
 	} else if ( strcmp ("-p", argv[n]) == 0 ) {
 	    n++;
 	    prefix = argv[n];
+	    comp_name = argv[n];
 	} else {
 	    printf ( "Unknown option: '%s'\n", argv[n] );
 	    printf ( "Usage: hal_joystick [-d <device>] [-p <prefix>]\n" );
@@ -146,10 +148,7 @@ int main(int argc, char * argv[])
         return -1;
     }
     /* STEP 2: initialise the hal component */
-    /* create a unique module name, to allow for multiple joysticks */
-    /* (each joystick needs its own instance of this program) */
-    snprintf(name, HAL_NAME_LEN-1, "hal_joystick-%d", getpid());
-    comp_id = hal_init(name);
+    comp_id = hal_init(comp_name);
     if (comp_id < 0) {
 	printf( "ERROR: hal_init() failed\n");
 	return -1;
@@ -173,6 +172,7 @@ int main(int argc, char * argv[])
 	button_exported[n] = 0;
     }
     /* STEP 4: go into the main loop */
+    hal_ready(comp_id);
     while ( !done ) {
 	/* use select to wait for joystick action or a timeout */
 	FD_ZERO(&fds);

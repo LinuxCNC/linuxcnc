@@ -40,7 +40,11 @@ button or trigger.
 use \fIdevice\fR as the joystick device (default is /dev/input/js0).
 .TP
 \fB-p\fR \fIprefix\fR
-use \fIprefix\fR for the HAL pin names (default is "joystick.0").
+use \fIprefix\fR for the HAL pin names (default is "joystick.0").  Note that 
+changing the prefix also changes the component name from its default of 
+"hal_joystick" to the new prefix.  If you are loading hal_joystick with
+"halcmd loadusr -W", you will need to use the -Wn variant, and specify
+the new prefix as the component name.
 .SH USAGE
 \fBhal_joystick\fR runs forever until interrupted with SIGINT or SIGTERM.
 Normally it would be invoked as \fBhal_joystick &\fR to run in the background.
