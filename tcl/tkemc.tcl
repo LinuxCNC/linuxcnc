@@ -2569,3 +2569,7 @@ proc tkemc_abort {} {
 
 updateStatus
 
+set temp [emc_ini "USER_COMMAND_FILE" "DISPLAY"]
+if [file exists $temp] {
+  source $temp
+}
