@@ -14,6 +14,7 @@ emc2 (1:2.2.6~cvs) hardy; urgency=low
     headroom"
   * stepconf: if an exception is encountered, show it to the user in a message
     box. 
+  * hal_ax5214h: driver fixes from Dave Brink
 
  -- Jeff Epler <jepler@platte>  Mon, 19 May 2008 21:41:54 -0500
 

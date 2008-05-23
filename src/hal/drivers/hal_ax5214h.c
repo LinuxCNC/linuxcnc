@@ -576,7 +576,7 @@ static int export_board(int boardnum, board_t * board)
     msg = rtapi_get_msg_level();
     rtapi_set_msg_level(RTAPI_MSG_WARN);
     retval = 0;
-    config = 0;
+    config = 0x80;
     dir = board->dir_bits & 0x01;
     retval += export_port ( boardnum, 0, &(board->port_1A[0]), 8, dir );
     if ( dir == 0 ) {
@@ -598,7 +598,7 @@ static int export_board(int boardnum, board_t * board)
 	config |= 0x08;
     }
     board->port1config = config;
-    config = 0;
+    config = 0x80;
     
     dir = board->dir_bits & 0x10;
     retval += export_port ( boardnum, 24, &(board->port_2A[0]), 8, dir );
@@ -623,14 +623,14 @@ static int export_board(int boardnum, board_t * board)
     board->port2config = config;
     /* initialize hardware - all outputs high 
         (since outputs are active low) */
+    outb(board->port1config, board->base_addr+3);
     outb(0xff, board->base_addr+0);
     outb(0xff, board->base_addr+1);
     outb(0xff, board->base_addr+2);
-    outb(board->port1config, board->base_addr+3);
+    outb(board->port2config, board->base_addr+7);
     outb(0xff, board->base_addr+4);
     outb(0xff, board->base_addr+5);
     outb(0xff, board->base_addr+6);
-    outb(board->port2config, board->base_addr+7);
     /* restore saved message level */
     rtapi_set_msg_level(msg);
     return retval;
