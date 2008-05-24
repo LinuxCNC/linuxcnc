@@ -698,7 +698,7 @@ class Data:
 	    print >>file
 	    if PHB not in inputs:
 		print >>file, "setp encoder.0.position-scale %f"\
-		     % (1. / 2 / int(self.spindlecpr))
+		     % self.spindlecpr
 		print >>file, "setp encoder.0.counter-mode 1"
 	    else:
 		print >>file, "setp encoder.0.position-scale %f" \
@@ -708,7 +708,7 @@ class Data:
 	    print >>file, "net spindle-index-enable encoder.0.index-enable <=> motion.spindle-index-enable"
 	    print >>file, "net spindle-phase-a encoder.0.phase-A"
 	    print >>file, "net spindle-phase-b encoder.0.phase-B"
-	    print >>file, "net spindle-phase-index encoder.0.phase-Z"
+	    print >>file, "net spindle-index encoder.0.phase-Z"
 
 
 	if probe:
