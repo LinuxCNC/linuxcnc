@@ -1586,6 +1586,11 @@ set opstopbutton [button $programframe.opstop -text [msgcat::mc "Optional Stop"]
 set opstopbuttonbg [$opstopbutton cget -background]
 set opstopbuttonabg [$opstopbutton cget -activebackground]
 
+set homedcolor   green
+set unhomedcolor yellow
+set opstopcolor  darkgreen
+set limitcolor   red
+
 pack $programframe -side top -anchor w -fill both -expand true
 pack $programopenbutton $programrunbutton $programpausebutton $programresumebutton $programstepbutton $programverifybutton $opstopbutton -side left -fill both -expand true
 
@@ -2114,6 +2119,7 @@ proc updateStatus {} {
     global motionhb motioncmd motionnum motionstatus
     global oldstatusstring jogSpeed
     global axiscoordmap
+    global homedcolor unhomedcolor opstopcolor limitcolor
 
     # force an update of error log
     set thisError [emc_error]
@@ -2361,117 +2367,117 @@ proc updateStatus {} {
     # FIXME-- use for loop for these
 
     if {[emc_joint_limit 0] != "ok"} {
-        $pos0l config -foreground red
-        $pos0d config -foreground red
+        $pos0l config -foreground $limitcolor
+        $pos0d config -foreground $limitcolor
     } elseif {[emc_joint_homed 0] == "homed"} {
-        $pos0l config -foreground green
-        $pos0d config -foreground green
+        $pos0l config -foreground $homedcolor
+        $pos0d config -foreground $homedcolor
     } else {
-        $pos0l config -foreground yellow
-        $pos0d config -foreground yellow
+        $pos0l config -foreground $unhomedcolor
+        $pos0d config -foreground $unhomedcolor
     }
 
     if {[emc_joint_limit 1] != "ok"} {
-        $pos1l config -foreground red
-        $pos1d config -foreground red
+        $pos1l config -foreground $limitcolor
+        $pos1d config -foreground $limitcolor
     } elseif {[emc_joint_homed 1] == "homed"} {
-        $pos1l config -foreground green
-        $pos1d config -foreground green
+        $pos1l config -foreground $homedcolor
+        $pos1d config -foreground $homedcolor
     } else {
-        $pos1l config -foreground yellow
-        $pos1d config -foreground yellow
+        $pos1l config -foreground $unhomedcolor
+        $pos1d config -foreground $unhomedcolor
     }
 
     if {[emc_joint_limit 2] != "ok"} {
-        $pos2l config -foreground red
-        $pos2d config -foreground red
+        $pos2l config -foreground $limitcolor
+        $pos2d config -foreground $limitcolor
     } elseif {[emc_joint_homed 2] == "homed"} {
-        $pos2l config -foreground green
-        $pos2d config -foreground green
+        $pos2l config -foreground $homedcolor
+        $pos2d config -foreground $homedcolor
     } else {
-        $pos2l config -foreground yellow
-        $pos2d config -foreground yellow
+        $pos2l config -foreground $unhomedcolor
+        $pos2d config -foreground $unhomedcolor
     }
 
     if {[emc_joint_limit 3] != "ok"} {
-        $pos3l config -foreground red
-        $pos3d config -foreground red
+        $pos3l config -foreground $limitcolor
+        $pos3d config -foreground $limitcolor
     } elseif {[emc_joint_homed 3] == "homed"} {
-        $pos3l config -foreground green
-        $pos3d config -foreground green
+        $pos3l config -foreground $homedcolor
+        $pos3d config -foreground $homedcolor
     } else {
-        $pos3l config -foreground yellow
-        $pos3d config -foreground yellow
+        $pos3l config -foreground $unhomedcolor
+        $pos3d config -foreground $unhomedcolor
     }
 
     if {[emc_joint_limit 4] != "ok"} {
-        $pos4l config -foreground red
-        $pos4d config -foreground red
+        $pos4l config -foreground $limitcolor
+        $pos4d config -foreground $limitcolor
     } elseif {[emc_joint_homed 4] == "homed"} {
-        $pos4l config -foreground green
-        $pos4d config -foreground green
+        $pos4l config -foreground $homedcolor
+        $pos4d config -foreground $homedcolor
     } else {
-        $pos4l config -foreground yellow
-        $pos4d config -foreground yellow
+        $pos4l config -foreground $unhomedcolor
+        $pos4d config -foreground $unhomedcolor
     }
 
     if {[emc_joint_limit 5] != "ok"} {
-        $pos5l config -foreground red
-        $pos5d config -foreground red
+        $pos5l config -foreground $limitcolor
+        $pos5d config -foreground $limitcolor
     } elseif {[emc_joint_homed 5] == "homed"} {
-        $pos5l config -foreground green
-        $pos5d config -foreground green
+        $pos5l config -foreground $homedcolor
+        $pos5d config -foreground $homedcolor
     } else {
-        $pos5l config -foreground yellow
-        $pos5d config -foreground yellow
+        $pos5l config -foreground $unhomedcolor
+        $pos5d config -foreground $unhomedcolor
     }
 
     if {[emc_joint_limit 6] != "ok"} {
-        $pos6l config -foreground red
-        $pos6d config -foreground red
+        $pos6l config -foreground $limitcolor
+        $pos6d config -foreground $limitcolor
     } elseif {[emc_joint_homed 6] == "homed"} {
-        $pos6l config -foreground green
-        $pos6d config -foreground green
+        $pos6l config -foreground $homedcolor
+        $pos6d config -foreground $homedcolor
     } else {
-        $pos6l config -foreground yellow
-        $pos6d config -foreground yellow
+        $pos6l config -foreground $unhomedcolor
+        $pos6d config -foreground $unhomedcolor
     }
 
     if {[emc_joint_limit 7] != "ok"} {
-        $pos7l config -foreground red
-        $pos7d config -foreground red
+        $pos7l config -foreground $limitcolor
+        $pos7d config -foreground $limitcolor
     } elseif {[emc_joint_homed 7] == "homed"} {
-        $pos7l config -foreground green
-        $pos7d config -foreground green
+        $pos7l config -foreground $homedcolor
+        $pos7d config -foreground $homedcolor
     } else {
-        $pos7l config -foreground yellow
-        $pos7d config -foreground yellow
+        $pos7l config -foreground $unhomedcolor
+        $pos7d config -foreground $unhomedcolor
     }
     
     if {[emc_joint_limit 8] != "ok"} {
-        $pos8l config -foreground red
-        $pos8d config -foreground red
+        $pos8l config -foreground $limitcolor
+        $pos8d config -foreground $limitcolor
     } elseif {[emc_joint_homed 8] == "homed"} {
-        $pos8l config -foreground green
-        $pos8d config -foreground green
+        $pos8l config -foreground $homedcolor
+        $pos8d config -foreground $homedcolor
     } else {
-        $pos8l config -foreground yellow
-        $pos8d config -foreground yellow
+        $pos8l config -foreground $unhomedcolor
+        $pos8d config -foreground $unhomedcolor
     }
     
-    # color the limit override button red if active
+    # color the limit override button $limitcolor if active
     if {[emc_override_limit]} {
-        $limoridebutton config -background red
-        $limoridebutton config -activebackground red
+        $limoridebutton config -background $limitcolor
+        $limoridebutton config -activebackground $limitcolor
     } else {
         $limoridebutton config -background $limoridebuttonbg
         $limoridebutton config -activebackground $limoridebuttonabg
     }
 
-    # color the optional stop button green if active
+    # color the optional stop button opstopcolor if active
     if {[emc_optional_stop]} {
-        $opstopbutton config -background darkgreen
-        $opstopbutton config -activebackground darkgreen
+        $opstopbutton config -background       $opstopcolor
+        $opstopbutton config -activebackground $opstopcolor
     } else {
         $opstopbutton config -background $opstopbuttonbg
         $opstopbutton config -activebackground $opstopbuttonabg
