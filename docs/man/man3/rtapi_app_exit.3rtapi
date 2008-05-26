@@ -1,0 +1,27 @@
+.TH rtapi_app_exit "3rtapi" "2008-05-26" "EMC Documentation" "HAL"
+.SH NAME
+
+rtapi_app_exit \- User-provided function to shut down a component
+
+.SH SYNTAX
+.HP
+void \fBrtapi_app_exit\fR(void) { \fI...\fR }
+.SH ARGUMENTS
+None
+
+.SH DESCRIPTION
+The body of \fBrtapi_app_exit\fR, which is provided by the component author,
+generally consists of a call to rtapi_exit or hal_exit, preceded by other
+:omponent-specific shutdown code.
+
+.SH RETURN CODE
+None.
+
+.SH REALTIME CONSIDERATIONS
+Called automatically by the rtapi infrastructure in an initialization (not
+realtime) context.
+
+.SH SEE ALSO
+\fBrtapi_app_main(3rtapi)\fR,
+\fBrtapi_exit(3rtapi)\fR,
+\fBhal_exit(3hal)\fR

@@ -1,7 +1,7 @@
 .TH hal_add_funct_to_thread "3hal" "2006-10-12" "EMC Documentation" "HAL"
 .SH NAME
 
-hal_add_funct_to_thread \- one-line description of hal_add_funct_to_thread
+hal_add_funct_to_thread \- cause a function to be executed at regular intervals
 
 .SH SYNTAX
 .HP
