@@ -1,0 +1,5 @@
+loadrt and2                 # default count of 1 still works
+loadrt mux2 names=m.q,m.r   # new names= works
+loadrt or2 count=3          # count= still works
+list funct
+list pin
