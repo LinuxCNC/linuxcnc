@@ -5,6 +5,7 @@ emc2 (1:2.3.0~alpha1) unstable; urgency=low
   * G38.x extensions allow for smart & fast probing
   * M66 now reads analog inputs aswell
   * [add bugfixes from the 2.2.x branch here, before release]
+  * added drivers for Mesa Electronics' HostMot2 firmware on the 5i20 and 7i43 boards
   * added a driver for Mesa Electronics' 7i43 FPGA I/O board
   * sanity checks for M66 input indexes (prevents a possible segfault on task)
   * put RS274NGC_STARTUP_CODE in [RS274NGC]
