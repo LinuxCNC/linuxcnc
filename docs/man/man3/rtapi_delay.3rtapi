@@ -1,7 +1,7 @@
 .TH rtapi_delay "3rtapi" "2006-10-12" "EMC Documentation" "RTAPI"
 .SH NAME
 
-rtapi_delay \- one-line description of rtapi_delay
+rtapi_delay \- Busy-loop for short delays
 
 .SH SYNTAX
 .HP
