@@ -1,4 +1,11 @@
 
+0.2 (released 2008-05-25)
+
+    Improved load-time sanity checking.
+
+    Improved handling of "zero instances enabled" situations.
+
+
 0.1 (released 2008-05-13)
 
     Split m7i43_hm2 0.4 into a generic hostmot2 driver and a low-level I/O

@@ -1,10 +1,31 @@
 
 
+misc:
+
+    It's starting to feel like it's ready for some kind of module
+    abstraction...  To standardize the semantics and make it easier to
+    think about.  Pull out the common code.
+
+
+    add sample configs in configs/mesa-hostmot2
+
+        use env vars to choose board type?
+        http://www.linuxcnc.org/docs/devel/html/man/man1/halcmd.1.html#SUBSTITUTION
+
+
+    where do the firmwares belong?
+
+
+    add support for the 5i22 next
+
+
+
+
 bfload
 
     add "bfload reset"
 
-    5i22 has wrong subdevice ids?
+    5i22 has wrong subdevice ids?  SWP says it works on his 1.5M board
 
     add support for all the other PCI cards
 

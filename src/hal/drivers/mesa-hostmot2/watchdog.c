@@ -83,6 +83,11 @@ int hm2_watchdog_parse_md(hostmot2_t *hm2, int md_index) {
     hm2_module_descriptor_t *md = &hm2->md[md_index];
     int r;
 
+
+    // 
+    // some standard sanity checks
+    //
+
     if (!hm2_md_is_consistent(hm2, md_index, 0, 3, 4, 0)) {
         ERR("inconsistent Module Descriptor!\n");
         return -EINVAL;
@@ -90,15 +95,26 @@ int hm2_watchdog_parse_md(hostmot2_t *hm2, int md_index) {
 
     if (hm2->watchdog.num_instances != 0) {
         ERR(
-            "Module Descriptor contains duplicate %s (inconsistent firmware), not loading driver\n",
+            "found duplicate Module Descriptor for %s (inconsistent firmware), not loading driver\n",
             hm2_get_general_function_name(md->gtag)
         );
         return -EINVAL;
     }
 
+
+    // 
+    // special sanity checks for watchdog
+    //
+
     if (md->instances != 1) {
         WARN("MD declares %d watchdogs!  only using the first one...\n", md->instances);
     }
+
+
+    // 
+    // looks good, start initializing
+    // 
+
 
     hm2->watchdog.num_instances = 1;
 
@@ -250,6 +266,8 @@ void hm2_watchdog_cleanup(hostmot2_t *hm2) {
 // (timeout_ns * (1 s/1e9 ns) * clock_hz) - 1 = timer_counts
 void hm2_watchdog_force_write(hostmot2_t *hm2) {
     u64 tmp;
+
+    if (hm2->watchdog.num_instances != 1) return;
 
     tmp = (hm2->watchdog.instance[0].hal.param.timeout_ns * ((double)hm2->watchdog.clock_frequency / (double)(1000 * 1000 * 1000))) - 1;
     if (tmp < 0x80000000) {

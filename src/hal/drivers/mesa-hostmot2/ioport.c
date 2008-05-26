@@ -35,6 +35,11 @@ int hm2_ioport_parse_md(hostmot2_t *hm2, int md_index) {
     hm2_module_descriptor_t *md = &hm2->md[md_index];
     int i, r;
 
+
+    // 
+    // some standard sanity checks
+    //
+
     if (!hm2_md_is_consistent(hm2, md_index, 0, 5, 4, 0x001F)) {
         ERR("inconsistent Module Descriptor!\n");
         return -EINVAL;
@@ -42,11 +47,16 @@ int hm2_ioport_parse_md(hostmot2_t *hm2, int md_index) {
 
     if (hm2->ioport.num_instances != 0) {
         ERR(
-            "Module Descriptor contains duplicate %s (inconsistent firmware), not loading driver\n",
+            "found duplicate Module Descriptor for %s (inconsistent firmware), not loading driver\n",
             hm2_get_general_function_name(md->gtag)
         );
         return -EINVAL;
     }
+
+
+    // 
+    // special sanity check for io_ports
+    // 
 
     if (hm2->idrom.io_ports != md->instances) {
         ERR(
@@ -58,6 +68,7 @@ int hm2_ioport_parse_md(hostmot2_t *hm2, int md_index) {
     }
 
     hm2->ioport.num_instances = md->instances;
+
 
     hm2->ioport.clock_frequency = md->clock_freq;
     hm2->ioport.version = md->version;

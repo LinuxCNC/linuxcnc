@@ -231,6 +231,7 @@ static void hm2_stepgen_force_write_pulse_width_time(hostmot2_t *hm2) {
 
 
 void hm2_stepgen_force_write(hostmot2_t *hm2) {
+    if (hm2->stepgen.num_instances == 0) return;
     hm2_stepgen_force_write_mode(hm2);
     hm2_stepgen_force_write_dir_setup_time(hm2);
     hm2_stepgen_force_write_dir_hold_time(hm2);
@@ -256,10 +257,10 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
     hm2_module_descriptor_t *md = &hm2->md[md_index];
     int r;
 
-    if (hm2->config.num_stepgens == 0) {
-        INFO("num_stepgens=0, skipping stepgen MD\n");
-        return 0;
-    }
+
+    // 
+    // some standard sanity checks
+    //
 
     if (!hm2_md_is_consistent(hm2, md_index, 0, 10, 4, 0x01FF)) {
         ERR("inconsistent Module Descriptor!\n");
@@ -268,24 +269,38 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
 
     if (hm2->stepgen.num_instances != 0) {
         ERR(
-            "Module Descriptor contains duplicate %s (inconsistent firmware), not loading driver\n",
+            "found duplicate Module Descriptor for %s (inconsistent firmware), not loading driver\n",
             hm2_get_general_function_name(md->gtag)
         );
         return -EINVAL;
     }
 
-    if (hm2->config.num_stepgens == -1) {
-        hm2->stepgen.num_instances = md->instances;
-    } else if (hm2->config.num_stepgens > md->instances) {
+    if (hm2->config.num_stepgens > md->instances) {
         ERR(
             "config.num_stepgens=%d, but only %d are available, not loading driver\n",
             hm2->config.num_stepgens,
             md->instances
         );
-        return -1;
+        return -EINVAL;
+    }
+
+    if (hm2->config.num_stepgens == 0) {
+        INFO("num_stepgens=0, skipping stepgen MD\n");
+        return 0;
+    }
+
+
+    // 
+    // looks good, start initializing
+    // 
+
+
+    if (hm2->config.num_stepgens == -1) {
+        hm2->stepgen.num_instances = md->instances;
     } else {
         hm2->stepgen.num_instances = hm2->config.num_stepgens;
     }
+
 
     hm2->stepgen.instance = (hm2_stepgen_instance_t *)hal_malloc(hm2->stepgen.num_instances * sizeof(hm2_stepgen_instance_t));
     if (hm2->stepgen.instance == NULL) {

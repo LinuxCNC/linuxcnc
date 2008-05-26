@@ -34,6 +34,8 @@
 void hm2_pwmgen_force_write(hostmot2_t *hm2) {
     int i;
 
+    if (hm2->pwmgen.num_instances == 0) return;
+
     for (i = 0; i < hm2->pwmgen.num_instances; i ++) {
         hm2->pwmgen.pwm_mode_reg[i] = hm2->pwmgen.instance[i].pwm_width_select;
         hm2->pwmgen.pwm_mode_reg[i] |= hm2->pwmgen.instance[i].pwm_mode_select << 2;
@@ -124,10 +126,10 @@ int hm2_pwmgen_parse_md(hostmot2_t *hm2, int md_index) {
     hm2_module_descriptor_t *md = &hm2->md[md_index];
     int r;
 
-    if (hm2->config.num_pwmgens == 0) {
-        INFO("num_pwmgens=0, skipping pwmgen MD\n");
-        return 0;
-    }
+
+    // 
+    // some standard sanity checks
+    //
 
     if (!hm2_md_is_consistent(hm2, md_index, 0, 5, 4, 0x0003)) {
         ERR("inconsistent Module Descriptor!\n");
@@ -136,24 +138,38 @@ int hm2_pwmgen_parse_md(hostmot2_t *hm2, int md_index) {
 
     if (hm2->pwmgen.num_instances != 0) {
         ERR(
-            "Module Descriptor contains duplicate %s (inconsistent firmware), not loading driver\n",
+            "found duplicate Module Descriptor for %s (inconsistent firmware), not loading driver\n",
             hm2_get_general_function_name(md->gtag)
         );
         return -EINVAL;
     }
 
-    if (hm2->config.num_pwmgens == -1) {
-        hm2->pwmgen.num_instances = md->instances;
-    } else if (hm2->config.num_pwmgens > md->instances) {
+    if (hm2->config.num_pwmgens > md->instances) {
         ERR(
             "config.num_pwmgens=%d, but only %d are available, not loading driver\n",
             hm2->config.num_pwmgens,
             md->instances
         );
-        return -1;
+        return -EINVAL;
+    }
+
+    if (hm2->config.num_pwmgens == 0) {
+        INFO("num_pwmgens=0, skipping pwmgen MD\n");
+        return 0;
+    }
+
+
+    // 
+    // looks good, start initializing
+    // 
+
+
+    if (hm2->config.num_pwmgens == -1) {
+        hm2->pwmgen.num_instances = md->instances;
     } else {
         hm2->pwmgen.num_instances = hm2->config.num_pwmgens;
     }
+
 
     hm2->pwmgen.instance = (hm2_pwmgen_instance_t *)hal_malloc(hm2->pwmgen.num_instances * sizeof(hm2_pwmgen_instance_t));
     if (hm2->pwmgen.instance == NULL) {

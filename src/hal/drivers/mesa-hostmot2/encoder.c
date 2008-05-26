@@ -35,10 +35,10 @@ int hm2_encoder_parse_md(hostmot2_t *hm2, int md_index) {
     hm2_module_descriptor_t *md = &hm2->md[md_index];
     int r;
 
-    if (hm2->config.num_encoders == 0) {
-        INFO("num_encoders=0, skipping encoder MD\n");
-        return 0;
-    }
+
+    // 
+    // some standard sanity checks
+    //
 
     if (!hm2_md_is_consistent(hm2, md_index, 2, 5, 4, 0x0003)) {
         ERR("inconsistent Module Descriptor!\n");
@@ -47,24 +47,38 @@ int hm2_encoder_parse_md(hostmot2_t *hm2, int md_index) {
 
     if (hm2->encoder.num_instances != 0) {
         ERR(
-            "Module Descriptor contains duplicate %s (inconsistent firmware), not loading driver\n",
+            "found duplicate Module Descriptor for %s (inconsistent firmware), not loading driver\n",
             hm2_get_general_function_name(md->gtag)
         );
         return -EINVAL;
     }
 
-    if (hm2->config.num_encoders == -1) {
-        hm2->encoder.num_instances = md->instances;
-    } else if (hm2->config.num_encoders > md->instances) {
+    if (hm2->config.num_encoders > md->instances) {
         ERR(
             "config.num_encoders=%d, but only %d are available, not loading driver\n",
             hm2->config.num_encoders,
             md->instances
         );
-        return -1;
+        return -EINVAL;
+    }
+
+    if (hm2->config.num_encoders == 0) {
+        INFO("num_encoders=0, skipping encoder MD\n");
+        return 0;
+    }
+
+
+    // 
+    // looks good, start initializing
+    // 
+
+
+    if (hm2->config.num_encoders == -1) {
+        hm2->encoder.num_instances = md->instances;
     } else {
         hm2->encoder.num_instances = hm2->config.num_encoders;
     }
+
 
     hm2->encoder.instance = (hm2_encoder_instance_t *)hal_malloc(hm2->encoder.num_instances * sizeof(hm2_encoder_instance_t));
     if (hm2->encoder.instance == NULL) {
@@ -161,6 +175,7 @@ fail0:
 
 
 void hm2_encoder_force_write(hostmot2_t *hm2) {
+    if (hm2->encoder.num_instances == 0) return;
     hm2->llio->write(hm2->llio, hm2->encoder.latch_control_addr, hm2->encoder.control_reg, (hm2->encoder.num_instances * sizeof(u32)));
 }
 
