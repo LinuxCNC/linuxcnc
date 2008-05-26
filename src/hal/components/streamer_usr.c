@@ -208,7 +208,7 @@ int main(int argc, char **argv)
     }
     line = 1;
     fifo = shmem_ptr;
-    data = (shmem_data_t *)(fifo+1);
+    data = fifo->data;
     while ( fgets(buf, BUF_SIZE, stdin) ) {
 	/* calculate _next_ value for in */
 	tmpin = fifo->in;

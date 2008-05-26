@@ -227,7 +227,7 @@ int main(int argc, char **argv)
 	goto out;
     }
     fifo = shmem_ptr;
-    data = (shmem_data_t *)(fifo+1);
+    data = fifo->data;
     while ( samples != 0 ) {
 	while ( fifo->in == fifo->out ) {
             /* fifo empty, sleep for 10mS */

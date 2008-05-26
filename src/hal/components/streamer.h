@@ -22,6 +22,13 @@
    space and RT parts.  They are _not_ in HAL shared memory.
 */
 
+typedef union {
+    float f;
+    char  b;
+    hal_s32_t s;
+    hal_u32_t u;
+} shmem_data_t;
+
 typedef struct {
     unsigned int magic;
     volatile unsigned int in;
@@ -30,14 +37,8 @@ typedef struct {
     int num_pins;
     unsigned long last_sample;
     hal_type_t type[MAX_PINS];
+    shmem_data_t data[];
 } fifo_t;
-
-typedef union {
-    float f;
-    char  b;
-    hal_s32_t s;
-    hal_u32_t u;
-} shmem_data_t;
 
 /* this struct lives in HAL shared memory */
 
