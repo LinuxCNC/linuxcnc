@@ -213,7 +213,7 @@ int main(int argc, char **argv)
 	goto out;
     }
     /* now use data in fifo structure to calculate proper shmem size */
-    size = sizeof(fifo_t) + fifo->num_pins * fifo->depth * sizeof(shmem_data_t);
+    size = sizeof(fifo_t) + (1+fifo->num_pins) * fifo->depth * sizeof(shmem_data_t);
     /* close shmem, re-open with proper size */
     rtapi_shmem_delete(shmem_id, comp_id);
     shmem_id = rtapi_shmem_new(SAMPLER_SHMEM_KEY+channel, comp_id, size);
