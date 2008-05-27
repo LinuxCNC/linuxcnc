@@ -643,6 +643,18 @@ static void flush_segments(void) {
     chained_points().clear();
 }
 
+static void get_last_pos(double &lx, double &ly, double &lz) {
+    if(chained_points().empty()) {
+        lx = canonEndPoint.x;
+        ly = canonEndPoint.y;
+        lz = canonEndPoint.z;
+    } else {
+        struct pt &pos = chained_points().back();
+        lx = pos.x;
+        ly = pos.y;
+        lz = pos.z;
+    }
+}
 
 static bool
 linkable(double x, double y, double z, 
@@ -1081,6 +1093,28 @@ void SELECT_MOTION_MODE(CANON_MOTION_MODE mode)
 
 /* Machining Functions */
 
+static double chord_deviation(double sx, double sy, double ex, double ey, double cx, double cy, int rotation, double &mx, double &my) {
+    double th1 = atan2(sy-cy, sx-cx),
+           th2 = atan2(ey-cy, ex-cx),
+           r = hypot(sy-cy, sx-cx);
+
+    if(rotation < 0) {
+        if(th2 >= th1) th2 -= 2*M_PI;
+    } else {
+        if(th2 <= th1) th2 += 2*M_PI;
+    }
+
+    double included = fabs(th2 - th1);
+    double mid = (th2 + th1) / 2;
+    mx = cx + r * cos(mid);
+    my = cy + r * sin(mid);
+    double dev = r * (1 - cos(included/2));
+    fprintf(stderr, "chord_deviation\n\tsx=%f sy=%f\n\tex=%f ey=%f\n\tcx=%f cy=%f\n\tr=%f th1=%f th2=%f\n\tincluded=%f mid=%f dev=%f tol=%f\n",
+            sx, sy, ex, ey, cx, cy,
+            r, th1, th2, included, mid, dev, canonMotionTolerance);
+    return dev;
+}
+
 void ARC_FEED(double first_end, double second_end,
 	      double first_axis, double second_axis, int rotation,
 	      double axis_end_point, 
@@ -1095,7 +1129,41 @@ void ARC_FEED(double first_end, double second_end,
     double radius, angle, theta1, theta2, helical_length, axis_len;
     double tcircle, taxial, tmax, thelix, ta, tb, tc, da, db, dc;
     double tu, tv, tw, du, dv, dw;
-    
+    double mx, my;
+
+    double lx, ly, lz;
+
+    get_last_pos(lx, ly, lz);
+
+    if( (activePlane == CANON_PLANE_XY)
+            && canonMotionMode == CANON_CONTINUOUS
+            && chord_deviation(lx, ly,
+                FROM_PROG_LEN(first_end)+programOrigin.x+wrapOrigin.x,
+                FROM_PROG_LEN(second_end)+programOrigin.y+wrapOrigin.y,
+                FROM_PROG_LEN(first_axis)+programOrigin.x+wrapOrigin.x,
+                FROM_PROG_LEN(second_axis)+programOrigin.x+wrapOrigin.x,
+                rotation, mx, my) < canonMotionTolerance) {
+        fprintf(stderr, "Converted\n");
+        double x = FROM_PROG_LEN(first_end) + programOrigin.x + wrapOrigin.x,
+               y = FROM_PROG_LEN(second_end) + programOrigin.y + wrapOrigin.y,
+               z = FROM_PROG_LEN(axis_end_point) + programOrigin.z + wrapOrigin.z,
+               a_ = FROM_PROG_ANG(a) + programOrigin.a + wrapOrigin.a,
+               b_ = FROM_PROG_ANG(b) + programOrigin.b + wrapOrigin.b,
+               c_ = FROM_PROG_ANG(c) + programOrigin.c + wrapOrigin.c,
+               u_ = FROM_PROG_LEN(u) + programOrigin.u + wrapOrigin.u,
+               v_ = FROM_PROG_LEN(v) + programOrigin.v + wrapOrigin.v,
+               w_ = FROM_PROG_LEN(w) + programOrigin.w + wrapOrigin.w;
+        see_segment(mx, my,
+                (lz + z)/2, 
+                (canonEndPoint.a + a_)/2, 
+                (canonEndPoint.b + b_)/2, 
+                (canonEndPoint.c + c_)/2, 
+                (canonEndPoint.u + u_)/2, 
+                (canonEndPoint.v + v_)/2, 
+                (canonEndPoint.w + w_)/2);
+        see_segment(x, y, z, a_, b_, c_, u_, v_, w_);
+        return;
+    }
     //ini_maxvel = max vel defined by various ini constraints
     //circ_maxvel = max vel defined by ini constraints in the circle plane (XY, YZ or XZ)
     //axial_maxvel = max vel defined by ini constraints in the axial direction (Z, X or Y)
