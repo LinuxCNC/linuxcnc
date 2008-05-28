@@ -136,6 +136,11 @@ static CANON_PLANE activePlane = CANON_PLANE_XY;
 
 static int feed_mode = 0;
 
+/* Tool length offset is saved here */
+static double currentXToolOffset = 0.0;
+static double currentZToolOffset = 0.0;
+static double currentWToolOffset = 0.0;
+
 static double offset_x(double x) {
     return x + programOrigin.x + wrapOrigin.x + currentXToolOffset;
 }
@@ -209,35 +214,32 @@ static double unoffset_w(double w) {
 }
 
 static CANON_POSITION offset_pos(const CANON_POSITION &pos) {
-    CANON_POSITION res = {
-        offset_x(pos.x),
-        offset_y(pos.y),
-        offset_z(pos.z),
-        offset_a(pos.a),
-        offset_b(pos.b),
-        offset_c(pos.c),
-        offset_u(pos.u),
-        offset_v(pos.v),
-        offset_w(pos.w),
-    }
+    CANON_POSITION res;
+    res.x = offset_x(pos.x);
+    res.y = offset_y(pos.y);
+    res.z = offset_z(pos.z);
+    res.a = offset_a(pos.a);
+    res.b = offset_b(pos.b);
+    res.c = offset_c(pos.c);
+    res.u = offset_u(pos.u);
+    res.v = offset_v(pos.v);
+    res.w = offset_w(pos.w);
     return res;
 }
 
 static CANON_POSITION unoffset_pos(const CANON_POSITION &pos) {
-    CANON_POSITION res = {
-        unoffset_x(pos.x),
-        unoffset_y(pos.y),
-        unoffset_z(pos.z),
-        unoffset_a(pos.a),
-        unoffset_b(pos.b),
-        unoffset_c(pos.c),
-        unoffset_u(pos.u),
-        unoffset_v(pos.v),
-        unoffset_w(pos.w),
-    }
+    CANON_POSITION res;
+    res.x = unoffset_x(res.x);
+    res.y = unoffset_y(res.y);
+    res.z = unoffset_z(res.z);
+    res.a = unoffset_a(res.a);
+    res.b = unoffset_b(res.b);
+    res.c = unoffset_c(res.c);
+    res.u = unoffset_u(res.u);
+    res.v = unoffset_v(res.v);
+    res.w = unoffset_w(res.w);
     return res;
 }
-
 
 /*
   canonEndPoint is the last programmed end point, stored in case it's
@@ -291,108 +293,6 @@ static double canonMotionTolerance = 0.0;
 
 /* Spindle speed is saved here */
 static double spindleSpeed = 0.0;
-static double offset_x(double x) {
-    return x + programOrigin.x + wrapOrigin.x + currentXToolOffset;
-}
-
-static double offset_y(double y) {
-    return y + programOrigin.y + wrapOrigin.y;
-}
-
-static double offset_z(double z) {
-    return z + programOrigin.z + wrapOrigin.z + currentZToolOffset;
-}
-
-static double offset_a(double a) {
-    return a + programOrigin.a + wrapOrigin.a;
-}
-
-static double offset_b(double b) {
-    return b + programOrigin.b + wrapOrigin.b;
-}
-
-static double offset_c(double c) {
-    return c + programOrigin.c + wrapOrigin.c;
-}
-
-static double offset_u(double u) {
-    return u + programOrigin.u + wrapOrigin.u;
-}
-
-static double offset_v(double v) {
-    return v + programOrigin.v + wrapOrigin.v;
-}
-
-static double offset_w(double w) {
-    return w + programOrigin.w + wrapOrigin.w + currentWToolOffset;
-}
-
-static double unoffset_x(double x) {
-    return x - programOrigin.x - wrapOrigin.x - currentXToolOffset;
-}
-
-static double unoffset_y(double y) {
-    return y - programOrigin.y - wrapOrigin.y;
-}
-
-static double unoffset_z(double z) {
-    return z - programOrigin.z - wrapOrigin.z - currentZToolOffset;
-}
-
-static double unoffset_a(double a) {
-    return a - programOrigin.a - wrapOrigin.a;
-}
-
-static double unoffset_b(double b) {
-    return b - programOrigin.b - wrapOrigin.b;
-}
-
-static double unoffset_c(double c) {
-    return c - programOrigin.c - wrapOrigin.c;
-}
-
-static double unoffset_u(double u) {
-    return u - programOrigin.u - wrapOrigin.u;
-}
-
-static double unoffset_v(double v) {
-    return v - programOrigin.v - wrapOrigin.v;
-}
-
-static double unoffset_w(double w) {
-    return w - programOrigin.w - wrapOrigin.w - currentWToolOffset;
-}
-
-static CANON_POSITION offset_pos(const CANON_POSITION &pos) {
-    CANON_POSITION res = {
-        offset_x(pos.x),
-        offset_y(pos.y),
-        offset_z(pos.z),
-        offset_a(pos.a),
-        offset_b(pos.b),
-        offset_c(pos.c),
-        offset_u(pos.u),
-        offset_v(pos.v),
-        offset_w(pos.w),
-    }
-    return res;
-}
-
-static CANON_POSITION unoffset_pos(const CANON_POSITION &pos) {
-    CANON_POSITION res = {
-        unoffset_x(pos.x),
-        unoffset_y(pos.y),
-        unoffset_z(pos.z),
-        unoffset_a(pos.a),
-        unoffset_b(pos.b),
-        unoffset_c(pos.c),
-        unoffset_u(pos.u),
-        unoffset_v(pos.v),
-        unoffset_w(pos.w),
-    }
-    return res;
-}
-
 
 /* Prepped tool is saved here */
 static int preppedTool = 0;
@@ -402,11 +302,6 @@ static bool optional_program_stop = ON; //set enabled by default (previous EMC b
 
 /* optional block delete */
 static bool block_delete = ON; //set enabled by default (previous EMC behaviour)
-
-/* Tool length offset is saved here */
-static double currentXToolOffset = 0.0;
-static double currentZToolOffset = 0.0;
-static double currentWToolOffset = 0.0;
 
 /*
   Feed rate is saved here; values are in mm/sec or deg/sec.
