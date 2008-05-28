@@ -1109,9 +1109,6 @@ static double chord_deviation(double sx, double sy, double ex, double ey, double
     mx = cx + r * cos(mid);
     my = cy + r * sin(mid);
     double dev = r * (1 - cos(included/2));
-    fprintf(stderr, "chord_deviation\n\tsx=%f sy=%f\n\tex=%f ey=%f\n\tcx=%f cy=%f\n\tr=%f th1=%f th2=%f\n\tincluded=%f mid=%f dev=%f tol=%f\n",
-            sx, sy, ex, ey, cx, cy,
-            r, th1, th2, included, mid, dev, canonMotionTolerance);
     return dev;
 }
 
@@ -1143,7 +1140,6 @@ void ARC_FEED(double first_end, double second_end,
                 FROM_PROG_LEN(first_axis)+programOrigin.x+wrapOrigin.x,
                 FROM_PROG_LEN(second_axis)+programOrigin.x+wrapOrigin.x,
                 rotation, mx, my) < canonMotionTolerance) {
-        fprintf(stderr, "Converted\n");
         double x = FROM_PROG_LEN(first_end) + programOrigin.x + wrapOrigin.x,
                y = FROM_PROG_LEN(second_end) + programOrigin.y + wrapOrigin.y,
                z = FROM_PROG_LEN(axis_end_point) + programOrigin.z + wrapOrigin.z,
