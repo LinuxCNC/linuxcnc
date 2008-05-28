@@ -3,8 +3,7 @@ n100	(Author Ray Henry 10-Feb-2000)
 n101	g20
 n102	g0 x0 y0 z0 f30
 n103	x1 y1(start xy circle)
-n104	g17 g02 x2 y2 rsqrt[0.5]
-n105	x1 y1 r[-1*sqrt[0.5]]
+n104	g17 g02 i.5 j.5
 n106	g0 z.1 (add xy lettering)
 n107	y1.75
 n108	z0
@@ -21,8 +20,7 @@ n118	y1.5 x1.8
 n119	y1.25
 n120	g0 x0 y0 z0
 n121	x1 z1(start xz circle)
-n122	g18 g02 x2 z2 rsqrt[0.5]
-n123	x1 z1 r[-1*sqrt[0.5]]
+n122	g18 g02 i.5 k.5
 n124	g0 y.1 (add xz lettering)
 n125	z1.75
 n126	y0
@@ -38,8 +36,7 @@ n135	z1.25 x1.6
 n136	x2
 n137	g0 x0 y0 z0
 n138	y1 z1 (start yz circle)
-n139	g19 g02 y2 z2 rsqrt[0.5]
-n140	y1 z1 r[-1*sqrt[0.5]]
+n139	g19 g02 j.5 k.5
 n141	g0 x.1 (add yz lettering)
 n142	z1.75
 n143	x0
