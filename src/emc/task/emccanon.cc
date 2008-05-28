@@ -102,6 +102,7 @@ static PM_QUATERNION quat(1, 0, 0, 0);
 
 static void flush_segments(void);
 
+
 /*
   These decls were from the old 3-axis canon.hh, and refer functions
   defined here that are used for convenience but no longer have decls
@@ -135,9 +136,117 @@ static CANON_PLANE activePlane = CANON_PLANE_XY;
 
 static int feed_mode = 0;
 
+static double offset_x(double x) {
+    return x + programOrigin.x + wrapOrigin.x + currentXToolOffset;
+}
+
+static double offset_y(double y) {
+    return y + programOrigin.y + wrapOrigin.y;
+}
+
+static double offset_z(double z) {
+    return z + programOrigin.z + wrapOrigin.z + currentZToolOffset;
+}
+
+static double offset_a(double a) {
+    return a + programOrigin.a + wrapOrigin.a;
+}
+
+static double offset_b(double b) {
+    return b + programOrigin.b + wrapOrigin.b;
+}
+
+static double offset_c(double c) {
+    return c + programOrigin.c + wrapOrigin.c;
+}
+
+static double offset_u(double u) {
+    return u + programOrigin.u + wrapOrigin.u;
+}
+
+static double offset_v(double v) {
+    return v + programOrigin.v + wrapOrigin.v;
+}
+
+static double offset_w(double w) {
+    return w + programOrigin.w + wrapOrigin.w + currentWToolOffset;
+}
+
+static double unoffset_x(double x) {
+    return x - programOrigin.x - wrapOrigin.x - currentXToolOffset;
+}
+
+static double unoffset_y(double y) {
+    return y - programOrigin.y - wrapOrigin.y;
+}
+
+static double unoffset_z(double z) {
+    return z - programOrigin.z - wrapOrigin.z - currentZToolOffset;
+}
+
+static double unoffset_a(double a) {
+    return a - programOrigin.a - wrapOrigin.a;
+}
+
+static double unoffset_b(double b) {
+    return b - programOrigin.b - wrapOrigin.b;
+}
+
+static double unoffset_c(double c) {
+    return c - programOrigin.c - wrapOrigin.c;
+}
+
+static double unoffset_u(double u) {
+    return u - programOrigin.u - wrapOrigin.u;
+}
+
+static double unoffset_v(double v) {
+    return v - programOrigin.v - wrapOrigin.v;
+}
+
+static double unoffset_w(double w) {
+    return w - programOrigin.w - wrapOrigin.w - currentWToolOffset;
+}
+
+static CANON_POSITION offset_pos(const CANON_POSITION &pos) {
+    CANON_POSITION res = {
+        offset_x(pos.x),
+        offset_y(pos.y),
+        offset_z(pos.z),
+        offset_a(pos.a),
+        offset_b(pos.b),
+        offset_c(pos.c),
+        offset_u(pos.u),
+        offset_v(pos.v),
+        offset_w(pos.w),
+    }
+    return res;
+}
+
+static CANON_POSITION unoffset_pos(const CANON_POSITION &pos) {
+    CANON_POSITION res = {
+        unoffset_x(pos.x),
+        unoffset_y(pos.y),
+        unoffset_z(pos.z),
+        unoffset_a(pos.a),
+        unoffset_b(pos.b),
+        unoffset_c(pos.c),
+        unoffset_u(pos.u),
+        unoffset_v(pos.v),
+        unoffset_w(pos.w),
+    }
+    return res;
+}
+
+
 /*
   canonEndPoint is the last programmed end point, stored in case it's
   needed for subsequent calculations. It's in absolute frame, mm units.
+
+  note that when segments are queued for the naive cam detector that the
+  canonEndPoint may not be the last programmed endpoint.  get_last_pos()
+  retrieves the xyz position after the last of the queued segments.  these
+  are also in absolute frame, mm units.
   */
 static CANON_POSITION canonEndPoint;
 static void canonUpdateEndPoint(double x, double y, double z, 
@@ -182,6 +291,108 @@ static double canonMotionTolerance = 0.0;
 
 /* Spindle speed is saved here */
 static double spindleSpeed = 0.0;
+static double offset_x(double x) {
+    return x + programOrigin.x + wrapOrigin.x + currentXToolOffset;
+}
+
+static double offset_y(double y) {
+    return y + programOrigin.y + wrapOrigin.y;
+}
+
+static double offset_z(double z) {
+    return z + programOrigin.z + wrapOrigin.z + currentZToolOffset;
+}
+
+static double offset_a(double a) {
+    return a + programOrigin.a + wrapOrigin.a;
+}
+
+static double offset_b(double b) {
+    return b + programOrigin.b + wrapOrigin.b;
+}
+
+static double offset_c(double c) {
+    return c + programOrigin.c + wrapOrigin.c;
+}
+
+static double offset_u(double u) {
+    return u + programOrigin.u + wrapOrigin.u;
+}
+
+static double offset_v(double v) {
+    return v + programOrigin.v + wrapOrigin.v;
+}
+
+static double offset_w(double w) {
+    return w + programOrigin.w + wrapOrigin.w + currentWToolOffset;
+}
+
+static double unoffset_x(double x) {
+    return x - programOrigin.x - wrapOrigin.x - currentXToolOffset;
+}
+
+static double unoffset_y(double y) {
+    return y - programOrigin.y - wrapOrigin.y;
+}
+
+static double unoffset_z(double z) {
+    return z - programOrigin.z - wrapOrigin.z - currentZToolOffset;
+}
+
+static double unoffset_a(double a) {
+    return a - programOrigin.a - wrapOrigin.a;
+}
+
+static double unoffset_b(double b) {
+    return b - programOrigin.b - wrapOrigin.b;
+}
+
+static double unoffset_c(double c) {
+    return c - programOrigin.c - wrapOrigin.c;
+}
+
+static double unoffset_u(double u) {
+    return u - programOrigin.u - wrapOrigin.u;
+}
+
+static double unoffset_v(double v) {
+    return v - programOrigin.v - wrapOrigin.v;
+}
+
+static double unoffset_w(double w) {
+    return w - programOrigin.w - wrapOrigin.w - currentWToolOffset;
+}
+
+static CANON_POSITION offset_pos(const CANON_POSITION &pos) {
+    CANON_POSITION res = {
+        offset_x(pos.x),
+        offset_y(pos.y),
+        offset_z(pos.z),
+        offset_a(pos.a),
+        offset_b(pos.b),
+        offset_c(pos.c),
+        offset_u(pos.u),
+        offset_v(pos.v),
+        offset_w(pos.w),
+    }
+    return res;
+}
+
+static CANON_POSITION unoffset_pos(const CANON_POSITION &pos) {
+    CANON_POSITION res = {
+        unoffset_x(pos.x),
+        unoffset_y(pos.y),
+        unoffset_z(pos.z),
+        unoffset_a(pos.a),
+        unoffset_b(pos.b),
+        unoffset_c(pos.c),
+        unoffset_u(pos.u),
+        unoffset_v(pos.v),
+        unoffset_w(pos.w),
+    }
+    return res;
+}
+
 
 /* Prepped tool is saved here */
 static int preppedTool = 0;
@@ -1135,20 +1346,20 @@ void ARC_FEED(double first_end, double second_end,
     if( (activePlane == CANON_PLANE_XY)
             && canonMotionMode == CANON_CONTINUOUS
             && chord_deviation(lx, ly,
-                FROM_PROG_LEN(first_end)+programOrigin.x+wrapOrigin.x,
+                FROM_PROG_LEN(first_end)+programOrigin.x+wrapOrigin.x+currentXToolOffset,
                 FROM_PROG_LEN(second_end)+programOrigin.y+wrapOrigin.y,
-                FROM_PROG_LEN(first_axis)+programOrigin.x+wrapOrigin.x,
+                FROM_PROG_LEN(first_axis)+programOrigin.x+wrapOrigin.x+currentXToolOffset,
                 FROM_PROG_LEN(second_axis)+programOrigin.x+wrapOrigin.x,
                 rotation, mx, my) < canonMotionTolerance) {
-        double x = FROM_PROG_LEN(first_end) + programOrigin.x + wrapOrigin.x,
+        double x = FROM_PROG_LEN(first_end) + programOrigin.x + wrapOrigin.x + currentXToolOffset,
                y = FROM_PROG_LEN(second_end) + programOrigin.y + wrapOrigin.y,
-               z = FROM_PROG_LEN(axis_end_point) + programOrigin.z + wrapOrigin.z,
+               z = FROM_PROG_LEN(axis_end_point) + programOrigin.z + wrapOrigin.z + currentZToolOffset,
                a_ = FROM_PROG_ANG(a) + programOrigin.a + wrapOrigin.a,
                b_ = FROM_PROG_ANG(b) + programOrigin.b + wrapOrigin.b,
                c_ = FROM_PROG_ANG(c) + programOrigin.c + wrapOrigin.c,
                u_ = FROM_PROG_LEN(u) + programOrigin.u + wrapOrigin.u,
                v_ = FROM_PROG_LEN(v) + programOrigin.v + wrapOrigin.v,
-               w_ = FROM_PROG_LEN(w) + programOrigin.w + wrapOrigin.w;
+               w_ = FROM_PROG_LEN(w) + programOrigin.w + wrapOrigin.w + currentWToolOffset;
         see_segment(mx, my,
                 (lz + z)/2, 
                 (canonEndPoint.a + a_)/2, 
