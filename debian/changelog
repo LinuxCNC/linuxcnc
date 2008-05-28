@@ -1,19 +1,19 @@
 emc2 (1:2.3.0~alpha1) unstable; urgency=low
 
-  [ Sebastian Kuzminsky ]
   * minor improvements for teach-in.py
   * G38.x extensions allow for smart & fast probing
-  * M66 now reads analog inputs aswell
-  * [add bugfixes from the 2.2.x branch here, before release]
-  * added drivers for Mesa Electronics' HostMot2 firmware on the 5i20 and 7i43 boards
+  * M66 now reads analog inputs as well
+  * added drivers for Mesa Electronics' HostMot2 firmware on the
+    5i20 and 7i43 boards
   * added a driver for Mesa Electronics' 7i43 FPGA I/O board
   * sanity checks for M66 input indexes (prevents a possible segfault on task)
   * put RS274NGC_STARTUP_CODE in [RS274NGC]
-
-  [ Alex Joni ]
   * build against hardy package
+  * eliminate requirement for unnecessary endpoint respecification for
+    full circles (G2/G3 with only I/J/K words will give full circles)
+  * [add bugfixes from the 2.2.x branch here, before release]
 
- -- Alex Joni <alex_joni@users.sourceforge.net>  Thu, 27 Mar 2008 19:31:23 +0200
+ -- Chris Radek <chris@timeguy.com>  Wed, 28 May 2008 11:02:23 -0500
 
 emc2 (1:2.2.0) unstable; urgency=low
 
