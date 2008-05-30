@@ -3,7 +3,7 @@
 *               Joystick driver for HAL
 *
 * Author: John Kasunich
-* License: GPL Version 2.1
+* License: GPL2
 *
 * Copyright (c) 2006 All rights reserved.
 *
