@@ -213,6 +213,7 @@ static double unoffset_w(double w) {
     return w - programOrigin.w - wrapOrigin.w - currentWToolOffset;
 }
 
+#if 0 // not yet used; uncomment if you want it
 static CANON_POSITION offset_pos(const CANON_POSITION &pos) {
     CANON_POSITION res;
     res.x = offset_x(pos.x);
@@ -226,7 +227,21 @@ static CANON_POSITION offset_pos(const CANON_POSITION &pos) {
     res.w = offset_w(pos.w);
     return res;
 }
+#endif
 
+static void offset_pos(double &x, double &y, double &z, double &a, double &b, double &c, double &u, double &v, double &w) {
+    x = offset_x(x);
+    y = offset_y(y);
+    z = offset_z(z);
+    a = offset_a(a);
+    b = offset_b(b);
+    c = offset_c(c);
+    u = offset_u(u);
+    v = offset_v(v);
+    w = offset_w(w);
+}
+
+#if 0 // not yet used; uncomment if you want it
 static CANON_POSITION unoffset_pos(const CANON_POSITION &pos) {
     CANON_POSITION res;
     res.x = unoffset_x(res.x);
@@ -240,6 +255,65 @@ static CANON_POSITION unoffset_pos(const CANON_POSITION &pos) {
     res.w = unoffset_w(res.w);
     return res;
 }
+#endif
+
+#if 0 // not yet used; uncomment if you want it
+static void unoffset_pos(double &x, double &y, double &z, double &a, double &b, double &c, double &u, double &v, double &w) {
+    x = unoffset_x(x);
+    y = unoffset_y(y);
+    z = unoffset_z(z);
+    a = unoffset_a(a);
+    b = unoffset_b(b);
+    c = unoffset_c(c);
+    u = unoffset_u(u);
+    v = unoffset_v(v);
+    w = unoffset_w(w);
+}
+#endif
+
+// for c in "xyzabcuvw": print "    %s = offset_%s(%s)" % (c,c,c)
+
+static void from_prog(double &x, double &y, double &z, double &a, double &b, double &c, double &u, double &v, double &w) {
+    x = FROM_PROG_LEN(x);
+    y = FROM_PROG_LEN(y);
+    z = FROM_PROG_LEN(z);
+    a = FROM_PROG_ANG(a);
+    b = FROM_PROG_ANG(b);
+    c = FROM_PROG_ANG(c);
+    u = FROM_PROG_LEN(u);
+    v = FROM_PROG_LEN(v);
+    w = FROM_PROG_LEN(w);
+}
+
+#if 0 // not yet used; uncomment if you want it
+static void to_ext(double &x, double &y, double &z, double &a, double &b, double &c, double &u, double &v, double &w) {
+    x = TO_EXT_LEN(x);
+    y = TO_EXT_LEN(y);
+    z = TO_EXT_LEN(z);
+    a = TO_EXT_ANG(a);
+    b = TO_EXT_ANG(b);
+    c = TO_EXT_ANG(c);
+    u = TO_EXT_LEN(u);
+    v = TO_EXT_LEN(v);
+    w = TO_EXT_LEN(w);
+}
+#endif
+
+static EmcPose to_ext_pose(double x, double y, double z, double a, double b, double c, double u, double v, double w) {
+    EmcPose result;
+    result.tran.x = TO_EXT_LEN(x);
+    result.tran.y = TO_EXT_LEN(y);
+    result.tran.z = TO_EXT_LEN(z);
+    result.a = TO_EXT_ANG(a);
+    result.b = TO_EXT_ANG(b);
+    result.c = TO_EXT_ANG(c);
+    result.u = TO_EXT_LEN(u);
+    result.v = TO_EXT_LEN(v);
+    result.w = TO_EXT_LEN(w);
+    return result;
+}
+
+
 
 /*
   canonEndPoint is the last programmed end point, stored in case it's
@@ -883,62 +957,24 @@ void STRAIGHT_TRAVERSE(double x, double y, double z,
                        double u, double v, double w)
 {
     double vel, acc;
-    EMC_TRAJ_LINEAR_MOVE linearMoveMsg;
-    linearMoveMsg.feed_mode = 0;
-
-    // convert to mm units
-    x = FROM_PROG_LEN(x);
-    y = FROM_PROG_LEN(y);
-    z = FROM_PROG_LEN(z);
-    a = FROM_PROG_ANG(a);
-    b = FROM_PROG_ANG(b);
-    c = FROM_PROG_ANG(c);
-    u = FROM_PROG_LEN(u);
-    v = FROM_PROG_LEN(v);
-    w = FROM_PROG_LEN(w);
-
-    x += programOrigin.x + wrapOrigin.x;
-    y += programOrigin.y + wrapOrigin.y;
-    z += programOrigin.z + wrapOrigin.z;
-    a += programOrigin.a + wrapOrigin.a;
-    b += programOrigin.b + wrapOrigin.b;
-    c += programOrigin.c + wrapOrigin.c;
-    u += programOrigin.u + wrapOrigin.u;
-    v += programOrigin.v + wrapOrigin.v;
-    w += programOrigin.w + wrapOrigin.w;
-
-    x += currentXToolOffset;
-    z += currentZToolOffset;
-    w += currentWToolOffset;
-
-    periodic_reduce(x,y,z,a,b,c,u,v,w);
-
-    // now x, y, z, and b are in absolute mm or degree units
-    linearMoveMsg.end.tran.x = TO_EXT_LEN(x);
-    linearMoveMsg.end.tran.y = TO_EXT_LEN(y);
-    linearMoveMsg.end.tran.z = TO_EXT_LEN(z);
-
-    // fill in the orientation
-    linearMoveMsg.end.a = TO_EXT_ANG(a);
-    linearMoveMsg.end.b = TO_EXT_ANG(b);
-    linearMoveMsg.end.c = TO_EXT_ANG(c);
-
-    linearMoveMsg.end.u = TO_EXT_LEN(u);
-    linearMoveMsg.end.v = TO_EXT_LEN(v);
-    linearMoveMsg.end.w = TO_EXT_LEN(w);
-
-    linearMoveMsg.type = EMC_MOTION_TYPE_TRAVERSE;
 
     flush_segments();
+
+    EMC_TRAJ_LINEAR_MOVE linearMoveMsg;
+
+    linearMoveMsg.feed_mode = 0;
+    linearMoveMsg.type = EMC_MOTION_TYPE_TRAVERSE;
+
+    from_prog(x,y,z,a,b,c,u,v,w);
+    offset_pos(x,y,z,a,b,c,u,v,w);
+    periodic_reduce(x,y,z,a,b,c,u,v,w);
 
     vel = getStraightVelocity(x, y, z, a, b, c, u, v, w);
     acc = getStraightAcceleration(x, y, z, a, b, c, u, v, w);
 
+    linearMoveMsg.end = to_ext_pose(x,y,z,u,v,w,a,b,c);
     linearMoveMsg.vel = linearMoveMsg.ini_maxvel = toExtVel(vel);
     linearMoveMsg.acc = toExtAcc(acc);
-
-    linearMoveMsg.type = EMC_MOTION_TYPE_TRAVERSE;
-
 
     int old_feed_mode = feed_mode;
     if(feed_mode)
@@ -960,31 +996,9 @@ void STRAIGHT_FEED(double x, double y, double z,
     EMC_TRAJ_LINEAR_MOVE linearMoveMsg;
     linearMoveMsg.feed_mode = feed_mode;
 
-    // convert to mm units
-    x = FROM_PROG_LEN(x);
-    y = FROM_PROG_LEN(y);
-    z = FROM_PROG_LEN(z);
-    a = FROM_PROG_ANG(a);
-    b = FROM_PROG_ANG(b);
-    c = FROM_PROG_ANG(c);
-    u = FROM_PROG_LEN(u);
-    v = FROM_PROG_LEN(v);
-    w = FROM_PROG_LEN(w);
-
-    x += programOrigin.x + wrapOrigin.x;
-    y += programOrigin.y + wrapOrigin.y;
-    z += programOrigin.z + wrapOrigin.z;
-    a += programOrigin.a + wrapOrigin.a;
-    b += programOrigin.b + wrapOrigin.b;
-    c += programOrigin.c + wrapOrigin.c;
-    u += programOrigin.u + wrapOrigin.u;
-    v += programOrigin.v + wrapOrigin.v;
-    w += programOrigin.w + wrapOrigin.w;
-
-    x += currentXToolOffset;
-    z += currentZToolOffset;
-    w += currentWToolOffset;
-
+    from_prog(x,y,z,a,b,c,u,v,w);
+    offset_pos(x,y,z,a,b,c,u,v,w);
+    periodic_reduce(x,y,z,a,b,c,u,v,w);
     see_segment(x, y, z, a, b, c, u, v, w);
 }
 
@@ -993,22 +1007,11 @@ void RIGID_TAP(double x, double y, double z)
 {
     double ini_maxvel, vel, acc;
     EMC_TRAJ_RIGID_TAP rigidTapMsg;
+    double unused=0;
 
-    // convert to mm units
-    x = FROM_PROG_LEN(x);
-    y = FROM_PROG_LEN(y);
-    z = FROM_PROG_LEN(z);
-    
-    x += programOrigin.x + wrapOrigin.x;
-    y += programOrigin.y + wrapOrigin.y;
-    z += programOrigin.z + wrapOrigin.z;
-
-    x += currentXToolOffset;
-    z += currentZToolOffset;
-
-    rigidTapMsg.pos.tran.x = TO_EXT_LEN(x);
-    rigidTapMsg.pos.tran.y = TO_EXT_LEN(y);
-    rigidTapMsg.pos.tran.z = TO_EXT_LEN(z);
+    from_prog(x,y,z,unused,unused,unused,unused,unused,unused);
+    offset_pos(x,y,z,unused,unused,unused,unused,unused,unused);
+    periodic_reduce(x,y,z,unused,unused,unused,unused,unused,unused);
 
     vel = getStraightVelocity(x, y, z, 
                               canonEndPoint.a, canonEndPoint.b, canonEndPoint.c, 
@@ -1019,6 +1022,10 @@ void RIGID_TAP(double x, double y, double z)
                                   canonEndPoint.a, canonEndPoint.b, canonEndPoint.c,
                                   canonEndPoint.u, canonEndPoint.v, canonEndPoint.w);
     
+    rigidTapMsg.pos = to_ext_pose(x,y,z,
+                                 canonEndPoint.a, canonEndPoint.b, canonEndPoint.c,
+                                 canonEndPoint.u, canonEndPoint.v, canonEndPoint.w);
+
     rigidTapMsg.vel = toExtVel(vel);
     rigidTapMsg.ini_maxvel = toExtVel(ini_maxvel);
     rigidTapMsg.acc = toExtAcc(acc);
@@ -1045,44 +1052,9 @@ void STRAIGHT_PROBE(double x, double y, double z,
     double ini_maxvel, vel, acc;
     EMC_TRAJ_PROBE probeMsg;
 
-    // convert to mm units
-    x = FROM_PROG_LEN(x);
-    y = FROM_PROG_LEN(y);
-    z = FROM_PROG_LEN(z);
-    a = FROM_PROG_ANG(a);
-    b = FROM_PROG_ANG(b);
-    c = FROM_PROG_ANG(c);
-    u = FROM_PROG_LEN(u);
-    v = FROM_PROG_LEN(v);
-    w = FROM_PROG_LEN(w);
-
-    x += programOrigin.x + wrapOrigin.x;
-    y += programOrigin.y + wrapOrigin.y;
-    z += programOrigin.z + wrapOrigin.z;
-    a += programOrigin.a + wrapOrigin.a;
-    b += programOrigin.b + wrapOrigin.b;
-    c += programOrigin.c + wrapOrigin.c;
-    u += programOrigin.u + wrapOrigin.u;
-    v += programOrigin.v + wrapOrigin.v;
-    w += programOrigin.w + wrapOrigin.w;
-
-    x += currentXToolOffset;
-    z += currentZToolOffset;
-    w += currentWToolOffset;
-
-    // now x, y, z, and b are in absolute mm or degree units
-    probeMsg.pos.tran.x = TO_EXT_LEN(x);
-    probeMsg.pos.tran.y = TO_EXT_LEN(y);
-    probeMsg.pos.tran.z = TO_EXT_LEN(z);
-
-    // fill in the orientation
-    probeMsg.pos.a = TO_EXT_ANG(a);
-    probeMsg.pos.b = TO_EXT_ANG(b);
-    probeMsg.pos.c = TO_EXT_ANG(c);
-
-    probeMsg.pos.u = TO_EXT_LEN(u);
-    probeMsg.pos.v = TO_EXT_LEN(v);
-    probeMsg.pos.w = TO_EXT_LEN(w);
+    from_prog(x,y,z,a,b,c,u,v,w);
+    offset_pos(x,y,z,a,b,c,u,v,w);
+    periodic_reduce(x,y,z,a,b,c,u,v,w);
 
     flush_segments();
 
@@ -1110,6 +1082,9 @@ void STRAIGHT_PROBE(double x, double y, double z,
 
     probeMsg.type = EMC_MOTION_TYPE_PROBING;
     probeMsg.probe_type = probe_type;
+
+    probeMsg.pos = to_ext_pose(x,y,z,a,b,c,u,v,w);
+
     if(vel && acc) 
         interp_list.append(probeMsg);
     canonUpdateEndPoint(x, y, z, a, b, c, u, v, w);
@@ -1215,6 +1190,12 @@ static double chord_deviation(double sx, double sy, double ex, double ey, double
     mx = cx + r * cos(mid);
     my = cy + r * sin(mid);
     double dev = r * (1 - cos(included/2));
+    fprintf(stderr, "chord_deviation\n\tsx=%f sy=%f\n\tex=%f ey=%f\n\tcx=%f cy=%f\n"
+                    "\tr=%f th1=%f th2=%f\n\tincluded=%f mid=%f dev=%f tol=%f\n",
+                    sx, sy, ex, ey, cx, cy,
+                    r, th1, th2, included, mid, dev,
+                    canonMotionTolerance);
+
     return dev;
 }
 
@@ -1241,29 +1222,20 @@ void ARC_FEED(double first_end, double second_end,
     if( (activePlane == CANON_PLANE_XY)
             && canonMotionMode == CANON_CONTINUOUS
             && chord_deviation(lx, ly,
-                FROM_PROG_LEN(first_end)+programOrigin.x+wrapOrigin.x+currentXToolOffset,
-                FROM_PROG_LEN(second_end)+programOrigin.y+wrapOrigin.y,
-                FROM_PROG_LEN(first_axis)+programOrigin.x+wrapOrigin.x+currentXToolOffset,
-                FROM_PROG_LEN(second_axis)+programOrigin.x+wrapOrigin.x,
+                offset_x(FROM_PROG_LEN(first_end)), offset_y(FROM_PROG_LEN(second_end)),
+                offset_x(FROM_PROG_LEN(first_axis)), offset_y(FROM_PROG_LEN(second_axis)),
                 rotation, mx, my) < canonMotionTolerance) {
-        double x = FROM_PROG_LEN(first_end) + programOrigin.x + wrapOrigin.x + currentXToolOffset,
-               y = FROM_PROG_LEN(second_end) + programOrigin.y + wrapOrigin.y,
-               z = FROM_PROG_LEN(axis_end_point) + programOrigin.z + wrapOrigin.z + currentZToolOffset,
-               a_ = FROM_PROG_ANG(a) + programOrigin.a + wrapOrigin.a,
-               b_ = FROM_PROG_ANG(b) + programOrigin.b + wrapOrigin.b,
-               c_ = FROM_PROG_ANG(c) + programOrigin.c + wrapOrigin.c,
-               u_ = FROM_PROG_LEN(u) + programOrigin.u + wrapOrigin.u,
-               v_ = FROM_PROG_LEN(v) + programOrigin.v + wrapOrigin.v,
-               w_ = FROM_PROG_LEN(w) + programOrigin.w + wrapOrigin.w + currentWToolOffset;
+        double x=FROM_PROG_LEN(first_end), y=FROM_PROG_LEN(second_end), z=FROM_PROG_LEN(axis_end_point);
+        offset_pos(x, y, z, a, b, c, u, v, w);
         see_segment(mx, my,
                 (lz + z)/2, 
-                (canonEndPoint.a + a_)/2, 
-                (canonEndPoint.b + b_)/2, 
-                (canonEndPoint.c + c_)/2, 
-                (canonEndPoint.u + u_)/2, 
-                (canonEndPoint.v + v_)/2, 
-                (canonEndPoint.w + w_)/2);
-        see_segment(x, y, z, a_, b_, c_, u_, v_, w_);
+                (canonEndPoint.a + a)/2, 
+                (canonEndPoint.b + b)/2, 
+                (canonEndPoint.c + c)/2, 
+                (canonEndPoint.u + u)/2, 
+                (canonEndPoint.v + v)/2, 
+                (canonEndPoint.w + w)/2);
+        see_segment(x, y, z, a, b, c, u, v, w);
         return;
     }
     //ini_maxvel = max vel defined by various ini constraints
@@ -1273,23 +1245,9 @@ void ARC_FEED(double first_end, double second_end,
     linearMoveMsg.feed_mode = feed_mode;
     circularMoveMsg.feed_mode = feed_mode;
     flush_segments();
-    /* In response to  Bugs item #1274108 - rotary axis moves when coordinate
-       offsets used with A. Original code failed to include programOrigin on
-       rotary moves. */
-    a = FROM_PROG_ANG(a);
-    b = FROM_PROG_ANG(b);
-    c = FROM_PROG_ANG(c);
-    a += programOrigin.a + wrapOrigin.a;
-    b += programOrigin.b + wrapOrigin.b;
-    c += programOrigin.c + wrapOrigin.c;
 
-    u = FROM_PROG_LEN(u);
-    v = FROM_PROG_LEN(v);
-    w = FROM_PROG_LEN(w);
-    u += programOrigin.u + wrapOrigin.u;
-    v += programOrigin.v + wrapOrigin.v;
-    w += programOrigin.w + wrapOrigin.w;
-    w += currentWToolOffset;
+    double unused=0;
+    offset_pos(unused, unused, unused, a, b, c, u, v, w);
 
     da = fabs(canonEndPoint.a - a);
     db = fabs(canonEndPoint.b - b);
@@ -1316,15 +1274,12 @@ void ARC_FEED(double first_end, double second_end,
     case CANON_PLANE_XY:
 
 	// offset and align args properly
-	end.tran.x = first_end + programOrigin.x + wrapOrigin.x;
-	end.tran.y = second_end + programOrigin.y + wrapOrigin.y;
-	end.tran.z = axis_end_point + programOrigin.z + wrapOrigin.z;
-	end.tran.x += currentXToolOffset;
-	end.tran.z += currentZToolOffset;
-	center.x = first_axis + programOrigin.x + wrapOrigin.x;
-        center.x += currentXToolOffset;
-	center.y = second_axis + programOrigin.y + wrapOrigin.y;
-	center.z = end.tran.z;
+	end.tran.x = offset_x(first_end);
+	end.tran.y = offset_y(second_end);
+	end.tran.z = offset_z(axis_end_point);
+	center.x = offset_x(first_axis);
+	center.y = offset_y(second_axis);
+	center.z = offset_z(end.tran.z);
 	normal.x = 0.0;
 	normal.y = 0.0;
 	normal.z = 1.0;
@@ -1351,16 +1306,13 @@ void ARC_FEED(double first_end, double second_end,
     case CANON_PLANE_YZ:
 
 	// offset and align args properly
-	end.tran.y = first_end + programOrigin.y + wrapOrigin.y;
-	end.tran.z = second_end + programOrigin.z + wrapOrigin.z;
-	end.tran.x = axis_end_point + programOrigin.x + wrapOrigin.x;
-	end.tran.x += currentXToolOffset;
-	end.tran.z += currentZToolOffset;
+	end.tran.y = offset_y(first_end);
+	end.tran.z = offset_z(second_end);
+	end.tran.x = offset_x(axis_end_point);
 
-	center.y = first_axis + programOrigin.y + wrapOrigin.y;
-	center.z = second_axis + programOrigin.z + wrapOrigin.z;
-	center.z += currentZToolOffset;
-	center.x = end.tran.x;
+	center.y = offset_y(first_axis);
+	center.z = offset_z(second_axis);
+	center.x = offset_x(end.tran.x);
 	normal.y = 0.0;
 	normal.z = 0.0;
 	normal.x = 1.0;
@@ -1388,17 +1340,13 @@ void ARC_FEED(double first_end, double second_end,
     case CANON_PLANE_XZ:
 
 	// offset and align args properly
-	end.tran.z = first_end + programOrigin.z + wrapOrigin.z;
-	end.tran.x = second_end + programOrigin.x + wrapOrigin.x;
-	end.tran.y = axis_end_point + programOrigin.y + wrapOrigin.y;
-	end.tran.x += currentXToolOffset;
-	end.tran.z += currentZToolOffset;
+	end.tran.z = offset_z(first_end);
+	end.tran.x = offset_x(second_end);
+	end.tran.y = offset_y(axis_end_point);
 
-	center.z = first_axis + programOrigin.z + wrapOrigin.z;
-	center.z += currentZToolOffset;
-	center.x = second_axis + programOrigin.x + wrapOrigin.x;
-	center.x += currentXToolOffset;
-	center.y = end.tran.y;
+	center.z = offset_z(first_axis);
+	center.x = offset_x(second_axis);
+	center.y = offset_y(end.tran.y);
 	normal.z = 0.0;
 	normal.x = 0.0;
 	normal.y = 1.0;
@@ -1760,15 +1708,7 @@ void CHANGE_TOOL(int slot)
         acc = getStraightAcceleration(x, y, z, a, b, c,
                                       canonEndPoint.u, canonEndPoint.v, canonEndPoint.w);
 
-	linearMoveMsg.end.tran.x = TO_EXT_LEN(x);
-	linearMoveMsg.end.tran.y = TO_EXT_LEN(y);
-	linearMoveMsg.end.tran.z = TO_EXT_LEN(z);
-	linearMoveMsg.end.a = TO_EXT_ANG(a);
-	linearMoveMsg.end.b = TO_EXT_ANG(b);
-	linearMoveMsg.end.c = TO_EXT_ANG(c);
-        linearMoveMsg.end.u = TO_EXT_LEN(canonEndPoint.u);
-        linearMoveMsg.end.v = TO_EXT_LEN(canonEndPoint.v);
-        linearMoveMsg.end.w = TO_EXT_LEN(canonEndPoint.w);
+        linearMoveMsg.end = to_ext_pose(x, y, z, a, b, c, canonEndPoint.u, canonEndPoint.v, canonEndPoint.w);
 
         linearMoveMsg.vel = linearMoveMsg.ini_maxvel = toExtVel(vel);
         linearMoveMsg.acc = toExtAcc(acc);
@@ -2298,17 +2238,17 @@ CANON_POSITION GET_EXTERNAL_POSITION()
     canonEndPoint.w = FROM_EXT_LEN(pos.w);
 
     // now calculate position in program units, for interpreter
-    position.x = TO_PROG_LEN(canonEndPoint.x - programOrigin.x - currentXToolOffset - wrapOrigin.x);
-    position.y = TO_PROG_LEN(canonEndPoint.y - programOrigin.y - wrapOrigin.y);
-    position.z = TO_PROG_LEN(canonEndPoint.z - programOrigin.z - currentZToolOffset - wrapOrigin.z);
+    position.x = TO_PROG_LEN(unoffset_x(canonEndPoint.x));
+    position.y = TO_PROG_LEN(unoffset_y(canonEndPoint.y));
+    position.z = TO_PROG_LEN(unoffset_z(canonEndPoint.z));
 
-    position.a = TO_PROG_ANG(canonEndPoint.a - programOrigin.a - wrapOrigin.a);
-    position.b = TO_PROG_ANG(canonEndPoint.b - programOrigin.b - wrapOrigin.b);
-    position.c = TO_PROG_ANG(canonEndPoint.c - programOrigin.c - wrapOrigin.c);
+    position.a = TO_PROG_ANG(unoffset_a(canonEndPoint.a));
+    position.b = TO_PROG_ANG(unoffset_b(canonEndPoint.b));
+    position.c = TO_PROG_ANG(unoffset_c(canonEndPoint.c));
 
-    position.u = TO_PROG_LEN(canonEndPoint.u - programOrigin.u - wrapOrigin.u);
-    position.v = TO_PROG_LEN(canonEndPoint.v - programOrigin.v - wrapOrigin.v);
-    position.w = TO_PROG_LEN(canonEndPoint.w - programOrigin.w - currentWToolOffset - wrapOrigin.w);
+    position.u = TO_PROG_LEN(unoffset_u(canonEndPoint.u));
+    position.v = TO_PROG_LEN(unoffset_v(canonEndPoint.v));
+    position.w = TO_PROG_LEN(unoffset_w(canonEndPoint.w));
 
     return position;
 }
@@ -2337,20 +2277,17 @@ CANON_POSITION GET_EXTERNAL_PROBE_POSITION()
     pos.w = FROM_EXT_LEN(pos.w);
 
     // now calculate position in program units, for interpreter
-    position.x = TO_PROG_LEN(pos.tran.x - programOrigin.x - wrapOrigin.x);
-    position.y = TO_PROG_LEN(pos.tran.y - programOrigin.y - wrapOrigin.y);
-    position.z = TO_PROG_LEN(pos.tran.z - programOrigin.z - wrapOrigin.z);
-    position.x -= TO_PROG_LEN(currentXToolOffset);
-    position.z -= TO_PROG_LEN(currentZToolOffset);
+    position.x = TO_PROG_LEN(unoffset_x(pos.tran.x));
+    position.y = TO_PROG_LEN(unoffset_y(pos.tran.y));
+    position.z = TO_PROG_LEN(unoffset_z(pos.tran.z));
 
-    position.a = TO_PROG_ANG(pos.a - programOrigin.a - wrapOrigin.a);
-    position.b = TO_PROG_ANG(pos.b - programOrigin.b - wrapOrigin.b);
-    position.c = TO_PROG_ANG(pos.c - programOrigin.c - wrapOrigin.c);
+    position.a = TO_PROG_ANG(unoffset_a(pos.a));
+    position.b = TO_PROG_ANG(unoffset_b(pos.b));
+    position.c = TO_PROG_ANG(unoffset_c(pos.c));
 
-    position.u = TO_PROG_LEN(pos.u - programOrigin.u - wrapOrigin.u);
-    position.v = TO_PROG_LEN(pos.v - programOrigin.v - wrapOrigin.v);
-    position.w = TO_PROG_LEN(pos.w - programOrigin.w - wrapOrigin.w);
-    position.w -= TO_PROG_LEN(currentWToolOffset);
+    position.u = TO_PROG_LEN(unoffset_u(pos.u));
+    position.v = TO_PROG_LEN(unoffset_v(pos.v));
+    position.w = TO_PROG_LEN(unoffset_w(pos.w));
 
     if (probefile != NULL) {
 	if (last_probed_position != position) {
