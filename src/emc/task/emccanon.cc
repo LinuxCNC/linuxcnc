@@ -119,18 +119,12 @@ extern void CANON_ERROR(const char *fmt, ...);
   When it's applied to positions, convert positions to mm units first
   and then add programOrigin.
 
-  wrapOrigin is an additional offset for axes which wrap around (typically,
-  rotational axes)
-
   Units are then converted from mm to external units, as reported by
   the GET_EXTERNAL_LENGTH_UNITS() function.
   */
 static CANON_POSITION programOrigin(0.0, 0.0, 0.0, 
                                     0.0, 0.0, 0.0,
                                     0.0, 0.0, 0.0);
-static CANON_POSITION wrapOrigin(0.0, 0.0, 0.0, 
-                                 0.0, 0.0, 0.0,
-                                 0.0, 0.0, 0.0);
 static CANON_UNITS lengthUnits = CANON_UNITS_MM;
 static CANON_PLANE activePlane = CANON_PLANE_XY;
 
@@ -142,75 +136,75 @@ static double currentZToolOffset = 0.0;
 static double currentWToolOffset = 0.0;
 
 static double offset_x(double x) {
-    return x + programOrigin.x + wrapOrigin.x + currentXToolOffset;
+    return x + programOrigin.x + currentXToolOffset;
 }
 
 static double offset_y(double y) {
-    return y + programOrigin.y + wrapOrigin.y;
+    return y + programOrigin.y;
 }
 
 static double offset_z(double z) {
-    return z + programOrigin.z + wrapOrigin.z + currentZToolOffset;
+    return z + programOrigin.z + currentZToolOffset;
 }
 
 static double offset_a(double a) {
-    return a + programOrigin.a + wrapOrigin.a;
+    return a + programOrigin.a;
 }
 
 static double offset_b(double b) {
-    return b + programOrigin.b + wrapOrigin.b;
+    return b + programOrigin.b;
 }
 
 static double offset_c(double c) {
-    return c + programOrigin.c + wrapOrigin.c;
+    return c + programOrigin.c;
 }
 
 static double offset_u(double u) {
-    return u + programOrigin.u + wrapOrigin.u;
+    return u + programOrigin.u;
 }
 
 static double offset_v(double v) {
-    return v + programOrigin.v + wrapOrigin.v;
+    return v + programOrigin.v;
 }
 
 static double offset_w(double w) {
-    return w + programOrigin.w + wrapOrigin.w + currentWToolOffset;
+    return w + programOrigin.w + currentWToolOffset;
 }
 
 static double unoffset_x(double x) {
-    return x - programOrigin.x - wrapOrigin.x - currentXToolOffset;
+    return x - programOrigin.x - currentXToolOffset;
 }
 
 static double unoffset_y(double y) {
-    return y - programOrigin.y - wrapOrigin.y;
+    return y - programOrigin.y ;
 }
 
 static double unoffset_z(double z) {
-    return z - programOrigin.z - wrapOrigin.z - currentZToolOffset;
+    return z - programOrigin.z  - currentZToolOffset;
 }
 
 static double unoffset_a(double a) {
-    return a - programOrigin.a - wrapOrigin.a;
+    return a - programOrigin.a ;
 }
 
 static double unoffset_b(double b) {
-    return b - programOrigin.b - wrapOrigin.b;
+    return b - programOrigin.b ;
 }
 
 static double unoffset_c(double c) {
-    return c - programOrigin.c - wrapOrigin.c;
+    return c - programOrigin.c ;
 }
 
 static double unoffset_u(double u) {
-    return u - programOrigin.u - wrapOrigin.u;
+    return u - programOrigin.u ;
 }
 
 static double unoffset_v(double v) {
-    return v - programOrigin.v - wrapOrigin.v;
+    return v - programOrigin.v ;
 }
 
 static double unoffset_w(double w) {
-    return w - programOrigin.w - wrapOrigin.w - currentWToolOffset;
+    return w - programOrigin.w  - currentWToolOffset;
 }
 
 #if 0 // not yet used; uncomment if you want it
@@ -412,17 +406,17 @@ static void send_origin_msg(void) {
        read-ahead time */
     EMC_TRAJ_SET_ORIGIN set_origin_msg;
 
-    set_origin_msg.origin.tran.x = TO_EXT_LEN(programOrigin.x + wrapOrigin.x);
-    set_origin_msg.origin.tran.y = TO_EXT_LEN(programOrigin.y + wrapOrigin.y);
-    set_origin_msg.origin.tran.z = TO_EXT_LEN(programOrigin.z + wrapOrigin.z);
+    set_origin_msg.origin.tran.x = TO_EXT_LEN(programOrigin.x );
+    set_origin_msg.origin.tran.y = TO_EXT_LEN(programOrigin.y );
+    set_origin_msg.origin.tran.z = TO_EXT_LEN(programOrigin.z );
 
-    set_origin_msg.origin.a = TO_EXT_ANG(programOrigin.a + wrapOrigin.a);
-    set_origin_msg.origin.b = TO_EXT_ANG(programOrigin.b + wrapOrigin.b);
-    set_origin_msg.origin.c = TO_EXT_ANG(programOrigin.c + wrapOrigin.c);
+    set_origin_msg.origin.a = TO_EXT_ANG(programOrigin.a);
+    set_origin_msg.origin.b = TO_EXT_ANG(programOrigin.b);
+    set_origin_msg.origin.c = TO_EXT_ANG(programOrigin.c);
 
-    set_origin_msg.origin.u = TO_EXT_LEN(programOrigin.u + wrapOrigin.u);
-    set_origin_msg.origin.v = TO_EXT_LEN(programOrigin.v + wrapOrigin.v);
-    set_origin_msg.origin.w = TO_EXT_LEN(programOrigin.w + wrapOrigin.w);
+    set_origin_msg.origin.u = TO_EXT_LEN(programOrigin.u);
+    set_origin_msg.origin.v = TO_EXT_LEN(programOrigin.v);
+    set_origin_msg.origin.w = TO_EXT_LEN(programOrigin.w);
 
     interp_list.append(set_origin_msg);
 }
@@ -896,62 +890,6 @@ void FINISH() {
     flush_segments();
 }
 
-static bool reduce_one(double &v, double e, double o, double &w, double period) {
-    if(period == 0) return false;
-
-    // make v the target position before program and wrap origins were added
-    v = v - o - w;
-    if(v > period || v < -period) {
-        v = v + o + w;
-        // target position is more than +- 1 rev; don't second-guess gcode
-        return false;
-    }
-
-    e = e - o;
-    // make e the current position before program origin was added
-    double revs = v / period;
-    double erevs = e / period;
-
-    // compute new offset, an integer number of revolutions
-    double neww = round(erevs - revs) * period;
-
-    v = v + o + neww;
-    if(neww != 1) {
-        w = neww;
-        return true;
-    }
-    return false;
-}
-
-static void periodic_reduce(double &x, double &y, double &z,
-                            double &a, double &b, double &c,
-                            double &u, double &v, double &w)
-{
-    if(x != canonEndPoint.x && !IS_PERIODIC(0)) return;
-    if(y != canonEndPoint.y && !IS_PERIODIC(1)) return;
-    if(z != canonEndPoint.z && !IS_PERIODIC(2)) return;
-    if(a != canonEndPoint.a && !IS_PERIODIC(3)) return;
-    if(b != canonEndPoint.b && !IS_PERIODIC(4)) return;
-    if(c != canonEndPoint.c && !IS_PERIODIC(5)) return;
-    if(u != canonEndPoint.u && !IS_PERIODIC(6)) return;
-    if(v != canonEndPoint.v && !IS_PERIODIC(7)) return;
-    if(w != canonEndPoint.w && !IS_PERIODIC(8)) return;
-
-    int changed = 0;
-    changed += reduce_one(x, canonEndPoint.x, programOrigin.x, wrapOrigin.x, AXIS_PERIOD(0));
-    changed += reduce_one(y, canonEndPoint.y, programOrigin.y, wrapOrigin.y, AXIS_PERIOD(1));
-    changed += reduce_one(z, canonEndPoint.z, programOrigin.z, wrapOrigin.z, AXIS_PERIOD(2));
-    changed += reduce_one(a, canonEndPoint.a, programOrigin.a, wrapOrigin.a, AXIS_PERIOD(3));
-    changed += reduce_one(b, canonEndPoint.b, programOrigin.b, wrapOrigin.b, AXIS_PERIOD(4));
-    changed += reduce_one(c, canonEndPoint.c, programOrigin.c, wrapOrigin.c, AXIS_PERIOD(5));
-    changed += reduce_one(u, canonEndPoint.u, programOrigin.u, wrapOrigin.u, AXIS_PERIOD(6));
-    changed += reduce_one(v, canonEndPoint.v, programOrigin.v, wrapOrigin.v, AXIS_PERIOD(7));
-    changed += reduce_one(w, canonEndPoint.w, programOrigin.w, wrapOrigin.w, AXIS_PERIOD(8));
-
-    if(changed)
-        send_origin_msg();
-}
-
 void STRAIGHT_TRAVERSE(double x, double y, double z,
 		       double a, double b, double c,
                        double u, double v, double w)
@@ -967,7 +905,6 @@ void STRAIGHT_TRAVERSE(double x, double y, double z,
 
     from_prog(x,y,z,a,b,c,u,v,w);
     offset_pos(x,y,z,a,b,c,u,v,w);
-    periodic_reduce(x,y,z,a,b,c,u,v,w);
 
     vel = getStraightVelocity(x, y, z, a, b, c, u, v, w);
     acc = getStraightAcceleration(x, y, z, a, b, c, u, v, w);
@@ -998,7 +935,6 @@ void STRAIGHT_FEED(double x, double y, double z,
 
     from_prog(x,y,z,a,b,c,u,v,w);
     offset_pos(x,y,z,a,b,c,u,v,w);
-    periodic_reduce(x,y,z,a,b,c,u,v,w);
     see_segment(x, y, z, a, b, c, u, v, w);
 }
 
@@ -1011,7 +947,6 @@ void RIGID_TAP(double x, double y, double z)
 
     from_prog(x,y,z,unused,unused,unused,unused,unused,unused);
     offset_pos(x,y,z,unused,unused,unused,unused,unused,unused);
-    periodic_reduce(x,y,z,unused,unused,unused,unused,unused,unused);
 
     vel = getStraightVelocity(x, y, z, 
                               canonEndPoint.a, canonEndPoint.b, canonEndPoint.c, 
@@ -1054,7 +989,6 @@ void STRAIGHT_PROBE(double x, double y, double z,
 
     from_prog(x,y,z,a,b,c,u,v,w);
     offset_pos(x,y,z,a,b,c,u,v,w);
-    periodic_reduce(x,y,z,a,b,c,u,v,w);
 
     flush_segments();
 
@@ -2109,15 +2043,6 @@ void INIT_CANON()
     programOrigin.u = 0.0;
     programOrigin.v = 0.0;
     programOrigin.w = 0.0;
-    wrapOrigin.x = 0.0;
-    wrapOrigin.y = 0.0;
-    wrapOrigin.z = 0.0;
-    wrapOrigin.a = 0.0;
-    wrapOrigin.b = 0.0;
-    wrapOrigin.c = 0.0;
-    wrapOrigin.u = 0.0;
-    wrapOrigin.v = 0.0;
-    wrapOrigin.w = 0.0;
     activePlane = CANON_PLANE_XY;
     canonEndPoint.x = 0.0;
     canonEndPoint.y = 0.0;
