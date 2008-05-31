@@ -887,7 +887,7 @@ static int doLoadRt(char *mod_name, char *args[], connectionRecType *context)
         argv[m++] = args[n++];
     }
     argv[m++] = NULL;
-    retval = do_loadusr_cmd(argv);
+//    retval = do_loadusr_cmd(argv);
 #else
     static char *rtmod_dir = EMC2_RTLIB_DIR;
     struct stat stat_buf;
