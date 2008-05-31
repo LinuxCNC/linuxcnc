@@ -749,7 +749,7 @@ class Data:
 	    print >>file, "net tool-number iocontrol.0.tool-prep-number => hal_manualtoolchange.number"
 
 	else:
-	    print >>file, "net tool-change-loopback iocontrol.0.tool-change => icontrol.0.tool-changed"
+	    print >>file, "net tool-change-loopback iocontrol.0.tool-change => iocontrol.0.tool-changed"
 	print >>file, "net tool-prepare-loopback iocontrol.0.tool-prepare => iocontrol.0.tool-prepared"
 
         if self.pyvcp:

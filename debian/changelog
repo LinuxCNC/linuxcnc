@@ -5,6 +5,7 @@ emc2 (1:2.2.6~cvs) hardy; urgency=low
   * (incompatible change) make debounce cfg= match the documentation
     If you use a debounce component with multiple groups (e.g., cfg="3 3")
     this must be changed to use commas instead of spaces: (e.g., cfg=3,3)
+  * hal_ax5214h: driver fixes from Dave Brink
   * stepconf: fix spurious "application closed unexpectedly" messages
     (for this and other stepconf bugfixes, re-run stepconf and re-save your
     configuration file)
@@ -13,10 +14,11 @@ emc2 (1:2.2.6~cvs) hardy; urgency=low
   * stepconf: fix "following error" messages due to insufficient "stepgen
     headroom"
   * stepconf: if an exception is encountered, show it to the user in a message
-    box. 
-  * hal_ax5214h: driver fixes from Dave Brink
+    box.
+  * stepconf: fix non-working configuration if "Onscreen prompt for tool
+    change" was disabled
 
- -- Jeff Epler <jepler@platte>  Mon, 19 May 2008 21:41:54 -0500
+ -- Jeff Epler <jepler@unpythonic.net>  Sat, 31 May 2008 10:50:37 -0500
 
 emc2 (1:2.2.5) unstable; urgency=low
 
