@@ -56,6 +56,8 @@
 #define MAX_NAME_LENGTH         20
 #define MAX_PRIORITY_LENGTH     12
 #define MAX_STR_LENGTH          20
+#define MAX_KEY_LENGTH          12
+#define SOCK_DELAY              0.005
 
 typedef enum { unmm, uncm, unInch, unEncoder } unitType;
 
@@ -74,7 +76,7 @@ typedef enum {
   wtString, wtTitle, wtHbar, wtVbar, wtIcon, wtScroller, wtFrame, wtNum} widgetType;
 
 typedef enum {
-  kmExclusive, kmShared} keyModeType;
+  kmShared, kmExclusive} keyModeType;
 
 typedef enum {
   rmConnect, rmSuccess, rmHuh, rmListen, rmIgnore, rmKey, rmMenuEvent, rmUnknown} respMsgType;
@@ -119,7 +121,7 @@ typedef struct widgetDef {
 } widgetDef;
 
 typedef struct keyDef {
-  char key;
+  char key[MAX_KEY_LENGTH];
   keyModeType mode;
   keyType Action;
 } keyDef;
@@ -195,8 +197,8 @@ widgetDef widgets[] = {
   { "main",    "m7",  wtString, 15, 1, " Idle"},           // 10
   { "main",    "m8",  wtString, 1, 1, "<no program>"},     // 11
   { "main",    "m9",  wtString, 15, 3, "  100"},           // 12
-  { "main",    "m10", wtString, 1, 4, "Jog "},             // 13
-  { "main",    "m11", wtString, 6, 4, "Cont"},             // 14
+  { "main",    "m10", wtString, 1, 4, "    "},             // 13
+  { "main",    "m11", wtString, 6, 4, "    "},             // 14
   { "main",    "m12", wtHbar,   11, 4, "0"},               // 15
 
   { "open",    "o1",  wtString, 1, 1, "3D_Chips"},         // 16
@@ -218,34 +220,34 @@ widgetDef widgets[] = {
 #define KEY_COUNT 28
 
 keyDef keys[] = {
-  { 'L', kmShared, ktLeftPress },    // Left Arrow
-  { 'l', kmShared, ktLeftRelease },
-  { 'R', kmShared, ktRightPress },   // Right Arrow
-  { 'r', kmShared, ktRightRelease },
-  { 'F', kmShared, ktUpPress },      // Up Arrow
-  { 'f', kmShared, ktUpRelease },
-  { 'B', kmShared, ktDownPress },    // Down Arrow
-  { 'b', kmShared, ktDownRelease },
-  { 'M', kmShared, ktMenuPress },    // Menu
-  { 'm', kmShared, ktMenuRelease },
-  { 'S', kmShared, ktStartPress },   // Start
-  { 's', kmShared, ktStartRelease },
-  { 'P', kmShared, ktPausePress },   // Pause / Resume
-  { 'p', kmShared, ktPauseRelease },
-  { 'A', kmShared, ktStopPress },    // Stop - Abort
-  { 'a', kmShared, ktStopRelease },
-  { 'I', kmShared, ktStepPress },    // Step - Increment
-  { 'i', kmShared, ktStepRelease },
-  { 'T', kmShared, ktTestPress },    // Test
-  { 't', kmShared, ktTestRelease },
-  { 'H', kmShared, ktHelpPress },    // Help
-  { 'h', kmShared, ktHelpRelease },
-  { 'U', kmShared, ktNextPress },    // Next
-  { 'u', kmShared, ktNextRelease },
-  { 'D', kmShared, ktPrevPress },    // Previous
-  { 'd', kmShared, ktPrevRelease },
-  { 'E', kmShared, ktEnterPress },   // Enter
-  { 'e', kmShared, ktEnterRelease }
+  { "Left", kmShared, ktLeftPress },        // Left Arrow
+  { "LeftUp", kmShared, ktLeftRelease },
+  { "Right", kmShared, ktRightPress },      // Right Arrow
+  { "RightUp", kmShared, ktRightRelease },
+  { "Up", kmShared, ktUpPress },            // Up Arrow
+  { "UpUp", kmShared, ktUpRelease },
+  { "Down", kmShared, ktDownPress },        // Down Arrow
+  { "DownUp", kmShared, ktDownRelease },
+  { "Escape", kmExclusive, ktMenuPress },   // Menu
+  { "EscapeUp", kmExclusive, ktMenuRelease },
+  { "Run", kmShared, ktStartPress },        // Start
+  { "RunUp", kmShared, ktStartRelease },
+  { "Pause", kmShared, ktPausePress },      // Pause / Resume
+  { "PauseUp", kmShared, ktPauseRelease },
+  { "Stop", kmShared, ktStopPress },        // Stop - Abort
+  { "StopUp", kmShared, ktStopRelease },
+  { "Step", kmShared, ktStepPress },        // Step - Increment
+  { "StepUp", kmShared, ktStepRelease },
+  { "Test", kmShared, ktTestPress },        // Test
+  { "TestUp", kmShared, ktTestRelease },
+  { "Help", kmShared, ktHelpPress },        // Help
+  { "HelpUp", kmShared, ktHelpRelease },
+  { "Next", kmShared, ktNextPress },        // Next
+  { "NextUp", kmShared, ktNextRelease },
+  { "Prev", kmShared, ktPrevPress },        // Previous
+  { "PrevUp", kmShared, ktPrevRelease },
+  { "Enter", kmExclusive, ktEnterPress },   // Enter
+  { "EnterUp", kmExclusive, ktEnterRelease }
 };
 
 int sockfd = -1;
@@ -253,6 +255,7 @@ int err;
 int len;
 char *testMsg = "hello\n";
 char buffer[255];
+char sockStr[1024];
 char *bufptr;
 int screensInitialized = -1;
 screenType curScreen = stStartup;
@@ -264,7 +267,7 @@ char programName[25] = "<none>";
 int totalSteps;
 runType runStatus = rsIdle;
 unitType units = unmm;
-double conversion = 25.4;
+double conversion = 1.0;
 float jogSpeed = 20.0;
 jogModeType jogMode = jtCont;
 int jogging = 0;
@@ -330,6 +333,13 @@ int preciseSleep(double sleepTime)
   return(0);
 }
 
+int sockSendStr(int fd, char *string)
+{
+  preciseSleep(SOCK_DELAY);
+  return sockSend(fd, string, strlen(string));
+}
+
+
 static char *extractFileName(char *s)
 {
   int i, len, start;
@@ -349,12 +359,13 @@ static char *widgetSetStr(int widgetNo, char *newStr, char *oldStr)
 {
   if (strcmp(newStr, oldStr) == 0) return newStr;
 
-  sockPrintf(sockfd, "widget_set %s %s %d %d {%s}\n", 
+  sprintf(sockStr, "widget_set %s %s %d %d {%s}\n", 
     widgets[widgetNo].screenName,
     widgets[widgetNo].widgetName,
     widgets[widgetNo].x,
     widgets[widgetNo].y,
     newStr);
+  sockSendStr(sockfd, sockStr);
   return newStr;
 }
 
@@ -365,47 +376,53 @@ static int widgetSetHbar(int widgetNo, int newVal, int oldVal)
   if (oldVal == newVal) return newVal;
 
   sprintf(numBuf, "%d", newVal);
-  sockPrintf(sockfd, "widget_set %s %s %d %d %s\n", 
+  sprintf(sockStr, "widget_set %s %s %d %d %s\n", 
     widgets[widgetNo].screenName,
     widgets[widgetNo].widgetName,
     widgets[widgetNo].x,
     widgets[widgetNo].y, 
     numBuf);
+  sockSendStr(sockfd, sockStr);
   return newVal;
 }
 
 static void intScreenSet(char *screen, char *attr,  int value)
 {
   if (value != -1) {
-    sockPrintf(sockfd, "screen_set %s %s %d\n", screen, attr, value);
+    sprintf(sockStr, "screen_set %s %s %d\n", screen, attr, value);
+    sockSendStr(sockfd, sockStr);
     }
 }
 
 static void strScreenSet(char *screen, char *attr, char *s)
 {
   if (s != "") {
-    sockPrintf(sockfd, "screen_set %s %s %s\n", screen, attr, s);
+    sprintf(sockStr, "screen_set %s %s %s\n", screen, attr, s);
+    sockSendStr(sockfd, sockStr);
     }
 }
 
 static void heartbeatScreenSet(char *screen, heartbeatType hb)
 {
   if (hb != hbIgnore) {
-    sockPrintf(sockfd, "screen_set %s %s %s\n", screen, attrs[4], hbStrs[hb]);
+    sprintf(sockStr, "screen_set %s %s %s\n", screen, attrs[4], hbStrs[hb]);
+    sockSendStr(sockfd, sockStr);
     }
 }
 
 static void backlightScreenSet(char *screen, backlightType bl)
 {
   if (bl != blIgnore) {
-    sockPrintf(sockfd, "screen_set %s %s %s\n", screen, attrs[5], blStrs[bl]);
+    sprintf(sockStr, "screen_set %s %s %s\n", screen, attrs[5], blStrs[bl]);
+    sockSendStr(sockfd, sockStr);
     }
 }
 
 static void cursorScreenSet(char *screen, cursorType cu)
 {
   if (cu != cuIgnore) {
-    sockPrintf(sockfd, "screen_set %s %s %s\n", screen, attrs[8], cuStrs[cu]);
+    sprintf(sockStr, "screen_set %s %s %s\n", screen, attrs[8], cuStrs[cu]);
+    sockSendStr(sockfd, sockStr);
     }
 }
 
@@ -414,7 +431,8 @@ static int createScreens()
   int i;
 
   for (i=0;i<SCREEN_COUNT;i++) {
-    sockPrintf(sockfd, "screen_add %s\n", screens[i].name);
+    sprintf(sockStr, "screen_add %s\n", screens[i].name);
+    sockSendStr(sockfd, sockStr);
     intScreenSet(screens[i].name, attrs[1], screens[i].wid);
     intScreenSet(screens[i].name, attrs[2], screens[i].hgt);
     strScreenSet(screens[i].name, attrs[3], screens[i].priority);
@@ -434,8 +452,9 @@ static int createWidgets()
   int i;
 
   for (i=0; i<WIDGET_COUNT; i++) {
-    sockPrintf(sockfd, "widget_add %s %s %s\n", widgets[i].screenName,
+    sprintf(sockStr, "widget_add %s %s %s\n", widgets[i].screenName,
       widgets[i].widgetName, typeStrs[widgets[i].type]);
+    sockSendStr(sockfd, sockStr);
     switch (widgets[i].type) {
       case wtString:
         widgetSetStr(i, widgets[i].text, ""); 
@@ -459,7 +478,8 @@ static int createKeys()
   int i;
 
   for (i=0; i<KEY_COUNT; i++) {
-    sockPrintf(sockfd, "client_add_key %s %c\n", keyModes[keys[i].mode], keys[i].key);
+    sprintf(sockStr, "client_add_key %s %s\n", keyModes[keys[i].mode], keys[i].key);
+    sockSendStr(sockfd, sockStr);
     }
   return(0);
 }
@@ -483,8 +503,10 @@ static int loadFiles()
       if (strstr(entry->d_name, "ngc") != NULL) {
         strncpy(namebuf, entry->d_name, (strlen(entry->d_name)<24)?strlen(entry->d_name)-4:24);
         namebuf[strlen(entry->d_name) - 4] = '\0';
-        sockPrintf(sockfd, "menu_add_item open %s action {%s}\n", namebuf, namebuf);
-        sockPrintf(sockfd, "menu_set_item open %s -menu_result quit\n", namebuf);
+        sprintf(sockStr, "menu_add_item open %s action {%s}\n", namebuf, namebuf);
+        sockSendStr(sockfd, sockStr);
+        sprintf(sockStr, "menu_set_item open %s -menu_result quit\n", namebuf);
+        sockSendStr(sockfd, sockStr);
         }
       }
     }
@@ -493,81 +515,84 @@ static int loadFiles()
 
 static void menuSetInt(char *menu, char *item, int value)
 {
-  sockPrintf(sockfd, "menu_set_item %s %s -value {%d}\n", menu, item, value);
+  sprintf(sockStr, "menu_set_item %s %s -value {%d}\n", menu, item, value);
+  sockSendStr(sockfd, sockStr);
 }
 
 static void menuSetMin(char *menu, char *item, int value)
 {
-  sockPrintf(sockfd, "menu_set_item %s %s -minvalue {%d}\n", menu, item, value);
+  sprintf(sockStr, "menu_set_item %s %s -minvalue {%d}\n", menu, item, value);
+  sockSendStr(sockfd, sockStr);
 }
 
 static void menuSetMax(char *menu, char *item, int value)
 {
-  sockPrintf(sockfd, "menu_set_item %s %s -maxvalue {%d}\n", menu, item, value);
+  sprintf(sockStr, "menu_set_item %s %s -maxvalue {%d}\n", menu, item, value);
+  sockSendStr(sockfd, sockStr);
 }
 
 static int createMenus()
 {
-  sockSendString(sockfd, "client_set name {Main Menu}\n");
-  sockSendString(sockfd, "menu_add_item {} File menu {File}\n");
-  sockSendString(sockfd, "menu_add_item File open menu {Open}\n");
-  sockSendString(sockfd, "menu_add_item File reload action {Reload}\n");
-  sockSendString(sockfd, "menu_add_item File delete action {Delete}\n");
+  sockSendStr(sockfd, "client_set name {Main Menu}\n");
+  sockSendStr(sockfd, "menu_add_item {} File menu {File}\n");
+  sockSendStr(sockfd, "menu_add_item File open menu {Open}\n");
+  sockSendStr(sockfd, "menu_add_item File reload action {Reload}\n");
+  sockSendStr(sockfd, "menu_add_item File delete action {Delete}\n");
 
-  sockSendString(sockfd, "menu_add_item {} View menu {View}\n");
-  sockSendString(sockfd, 
+  sockSendStr(sockfd, "menu_add_item {} View menu {View}\n");
+  sockSendStr(sockfd, 
     "menu_add_item View units_ring ring {Units} -strings {mm\tcm\tinch}\n");
-  sockSendString(sockfd, 
+  sockSendStr(sockfd, 
     "menu_add_item View coord_ring ring {Coord} -strings {abs\trel}\n");
 
-  sockSendString(sockfd, "menu_add_item {} Run menu {Run}\n");
-  sockSendString(sockfd, "menu_add_item Run feed_slider slider {Feed Override} -mintext {0} -maxtext {125} -value {50}\n");
-  sockSendString(sockfd, "menu_add_item Run laser_slider slider {Laser Override} -mintext {0} -maxtext {100} -value {50}\n");
+  sockSendStr(sockfd, "menu_add_item {} Run menu {Run}\n");
+  sockSendStr(sockfd, "menu_add_item Run feed_slider slider {Feed Override} -mintext {0} -maxtext {125} -value {50}\n");
+  sockSendStr(sockfd, "menu_add_item Run laser_slider slider {Laser Override} -mintext {0} -maxtext {100} -value {50}\n");
 
-  sockSendString(sockfd, "menu_add_item {} Jog menu {Jog}\n");
-  sockSendString(sockfd, "menu_add_item Jog jog_speed numeric {Speed}\n");
-  sockSendString(sockfd, "menu_add_item Jog jog_mode ring {Mode} -strings {Cont\t1.0\t0.1\t0.01\t0.001}\n");
+  sockSendStr(sockfd, "menu_add_item {} Jog menu {Jog}\n");
+  sockSendStr(sockfd, "menu_add_item Jog jog_speed numeric {Speed}\n");
+  sockSendStr(sockfd, "menu_add_item Jog jog_mode ring {Mode} -strings {Cont\t1.0\t0.1\t0.01\t0.001}\n");
 
-  sockSendString(sockfd, "menu_add_item {} setup menu {Setup}\n");
+  sockSendStr(sockfd, "menu_add_item {} setup menu {Setup}\n");
 
-  sockSendString(sockfd, "menu_add_item setup display menu {Main Display}\n");
-  sockSendString(sockfd, "menu_add_item display posdisplay action {Positions}\n");
-  sockSendString(sockfd, "menu_add_item display sumdisplay action {Summary}\n");
-  sockSendString(sockfd, "menu_set_item display posdisplay -next _quit_\n");
-  sockSendString(sockfd, "menu_set_item display sumdisplay -next _quit_\n");
+  sockSendStr(sockfd, "menu_add_item setup display menu {Main Display}\n");
+  sockSendStr(sockfd, "menu_add_item display posdisplay action {Positions}\n");
+  sockSendStr(sockfd, "menu_add_item display sumdisplay action {Summary}\n");
+  sockSendStr(sockfd, "menu_set_item display posdisplay -next _quit_\n");
+  sockSendStr(sockfd, "menu_set_item display sumdisplay -next _quit_\n");
 
-  sockSendString(sockfd, "menu_add_item setup netname alpha {Network Name}\n");
-  sockSendString(sockfd, "menu_add_item setup tcpip menu {TCP/IP}\n");
-  sockSendString(sockfd, "menu_add_item tcpip addrtype ring {Addr Type} -strings {Auto\tManual}\n");
-  sockSendString(sockfd, "menu_add_item tcpip address ip {IP Address} -v6 false -value {192.168.1.250}\n");
-  sockSendString(sockfd, "menu_add_item tcpip netmask ip {Subnet mask} -v6 false -value {255.255.255.0}\n");
-  sockSendString(sockfd, "menu_add_item tcpip gateway ip {Gateway} -v6 false -value {192.168.1.1}\n");
-  sockSendString(sockfd, "menu_add_item tcpip dns1 ip {Primary DNS} -v6 false -value {192.168.1.1}\n");
-  sockSendString(sockfd, "menu_add_item tcpip dns2 ip {Secondary DNS} -v6 false -value {0.0.0.0}\n");
+  sockSendStr(sockfd, "menu_add_item setup netname alpha {Network Name}\n");
+  sockSendStr(sockfd, "menu_add_item setup tcpip menu {TCP/IP}\n");
+  sockSendStr(sockfd, "menu_add_item tcpip addrtype ring {Addr Type} -strings {Auto\tManual}\n");
+  sockSendStr(sockfd, "menu_add_item tcpip address ip {IP Address} -v6 false -value {192.168.1.250}\n");
+  sockSendStr(sockfd, "menu_add_item tcpip netmask ip {Subnet mask} -v6 false -value {255.255.255.0}\n");
+  sockSendStr(sockfd, "menu_add_item tcpip gateway ip {Gateway} -v6 false -value {192.168.1.1}\n");
+  sockSendStr(sockfd, "menu_add_item tcpip dns1 ip {Primary DNS} -v6 false -value {192.168.1.1}\n");
+  sockSendStr(sockfd, "menu_add_item tcpip dns2 ip {Secondary DNS} -v6 false -value {0.0.0.0}\n");
 
-  sockSendString(sockfd, "menu_add_item setup passwords menu {Set Passwords}\n");
-  sockSendString(sockfd, "menu_add_item passwords connect alpha {Connect}\n");
-  sockSendString(sockfd, "menu_add_item passwords enable alpha {Enable}\n");
-  sockSendString(sockfd, "menu_set_item passwords connect -password_char {*}\n");
-  sockSendString(sockfd, "menu_set_item passwords enable -password_char {*}\n");
+  sockSendStr(sockfd, "menu_add_item setup passwords menu {Set Passwords}\n");
+  sockSendStr(sockfd, "menu_add_item passwords connect alpha {Connect}\n");
+  sockSendStr(sockfd, "menu_add_item passwords enable alpha {Enable}\n");
+  sockSendStr(sockfd, "menu_set_item passwords connect -password_char {*}\n");
+  sockSendStr(sockfd, "menu_set_item passwords enable -password_char {*}\n");
 
-  sockSendString(sockfd, "menu_add_item setup language menu {Set Language}\n");
-  sockSendString(sockfd, "menu_add_item language english action {English}\n");
-  sockSendString(sockfd, "menu_add_item language spanish action {Espanol}\n");
-  sockSendString(sockfd, "menu_add_item language french action {Francais}\n");
-  sockSendString(sockfd, "menu_add_item language german action {Deutch}\n");
-  sockSendString(sockfd, "menu_add_item language italian action {Italiano}\n");
+  sockSendStr(sockfd, "menu_add_item setup language menu {Set Language}\n");
+  sockSendStr(sockfd, "menu_add_item language english action {English}\n");
+  sockSendStr(sockfd, "menu_add_item language spanish action {Espanol}\n");
+  sockSendStr(sockfd, "menu_add_item language french action {Francais}\n");
+  sockSendStr(sockfd, "menu_add_item language german action {Deutch}\n");
+  sockSendStr(sockfd, "menu_add_item language italian action {Italiano}\n");
 
-  sockSendString(sockfd, "menu_add_item {} utility menu {Utilities}\n");
-  sockSendString(sockfd, "menu_add_item utility home ring {Home} -strings {all\tX\tY\tZ}\n");
-  sockSendString(sockfd, "menu_add_item utility limits ring {Limits} -strings {On\tOff}\n");
-  sockSendString(sockfd, "menu_add_item utility laser ring {Laser} -strings {Off\tOn}\n");
+  sockSendStr(sockfd, "menu_add_item {} utility menu {Utilities}\n");
+  sockSendStr(sockfd, "menu_add_item utility home ring {Home} -strings {all\tX\tY\tZ}\n");
+  sockSendStr(sockfd, "menu_add_item utility limits ring {Limits} -strings {On\tOff}\n");
+  sockSendStr(sockfd, "menu_add_item utility laser ring {Laser} -strings {Off\tOn}\n");
 
   loadFiles();
   menuSetInt("Jog", "jog_speed", 25);
   menuSetMin("Jog", "jog_speed", 0);
   menuSetMax("Jog", "jog_speed", 100);
-  sockSendString(sockfd, "menu_set_main {}\n");
+  sockSendStr(sockfd, "menu_set_main {}\n");
   return(0);
 }
 
@@ -623,13 +648,13 @@ static menuEventType lookupEvent(char *s)
   return i;
 }
 
-static keyType lookupKey(char key)
+static keyType lookupKey(char *s)
 {
   keyType i = ktLeftPress;
   int temp;
 
   while (i < KEY_COUNT) {
-    if (key == keys[i].key) return i;
+    if (strcmp(keys[i].key, s) == 0) return i;
     temp = i;
     temp++;
     i = (keyType) temp;
@@ -671,6 +696,10 @@ static int openProgram(char *s)
 
 static void displayJogMode(jogModeType mode)
 {
+  if (emcStatus->task.mode != EMC_TASK_MODE_MANUAL) {
+    widgetSetStr(JOGMODE_WIDGET, "    ", "");
+    return;
+    }
   switch (mode) {
     case jtCont: widgetSetStr(JOGMODE_WIDGET, "Cont", ""); break;
     case jtStep1: 
@@ -697,7 +726,7 @@ static void displayJogMode(jogModeType mode)
       else
         widgetSetStr(JOGMODE_WIDGET, "0.001", "");
       break;
-    default: widgetSetStr(JOGMODE_WIDGET, "Cont", "");
+    default: widgetSetStr(JOGMODE_WIDGET, "    ", "");
     }
 }
 
@@ -851,18 +880,19 @@ static void parseConnect()
       }
     pch = strtok(NULL, delims);
     }
-//  sockSendString(sockfd, "info\n");
+//  sockSendStr(sockfd, "info\n");
 }
 
 static int jog(int axis, float speed)
 {
   float stepSize;
 
+  if (emcStatus->task.mode != EMC_TASK_MODE_MANUAL) return 0;
   if (units == unmm) stepSize = 10.0;
   else stepSize = 1.0;
   if ((axis < 0) || (axis > 5)) return -1;
-  if (runStatus == rsIdle) {
-    sendManual();
+//  if (runStatus == rsIdle) {
+//    sendManual();
     switch (jogMode) {
       case jtCont: 
         if (jogging == 1) {  // toggle if driver does not support key down / key up
@@ -879,19 +909,22 @@ static int jog(int axis, float speed)
       case jtStep0001: return sendJogIncr(axis, speed, (stepSize/1000.0)/conversion); break;
       default: return -1;
       }
-    }
-  else return 0;
+//    }
+//  else return 0;
 }
 
 static int jogStop(int axis)
 {
+  if (emcStatus->task.mode != EMC_TASK_MODE_MANUAL) return 0;
   if ((axis < 0) || (axis > 5)) return -1;
+  jogging = 0;
+  if (jogMode != jtCont) return 0;
   return sendJogStop(axis);
 }
 
 static int leftKey()
 {
-  return jog(0, -jogSpeed);
+    return jog(0, jogSpeed);
 }
 
 static int leftKeyRelease()
@@ -901,7 +934,7 @@ static int leftKeyRelease()
 
 static int rightKey()
 {
-  return jog(0, jogSpeed);
+  return jog(0, -jogSpeed);
 }
 
 static int rightKeyRelease()
@@ -911,7 +944,7 @@ static int rightKeyRelease()
 
 static int upKey()
 {
-  return jog(1, jogSpeed);
+  return jog(1, -jogSpeed);
 }
 
 static int upKeyRelease()
@@ -921,7 +954,7 @@ static int upKeyRelease()
 
 static int downKey()
 {
-  return jog(1, -jogSpeed);
+  return jog(1, jogSpeed);
 }
 
 static int downKeyRelease()
@@ -956,14 +989,25 @@ static int stepKey()
   return sendProgramStep();
 }
 
+static int toggleMode()
+
+{
+  switch (emcStatus->task.mode) {
+    case EMC_TASK_MODE_MANUAL: sendAuto(); break;
+    case EMC_TASK_MODE_AUTO: sendManual(); break;
+    case EMC_TASK_MODE_MDI: sendAuto(); break;
+    }
+  return 0;
+}
+
 static int nextKey()
 {
   int temp;
 
-  if (curScreen == stMain) {
+  if ((curScreen == stMain) && (emcStatus->task.mode == EMC_TASK_MODE_MANUAL)) {
     temp = jogMode;
-    temp++;
-    temp %= 5;
+    temp--;
+    if (temp < 0) temp = 4;
     menuSetInt("Jog", "jog_mode", temp);
     jogMode = (jogModeType) temp;
     displayJogMode(jogMode);
@@ -975,10 +1019,10 @@ static int prevKey()
 {
   int temp;
 
-  if (curScreen == stMain) {
+  if ((curScreen == stMain) && (emcStatus->task.mode == EMC_TASK_MODE_MANUAL)) {
     temp = jogMode;
-    temp--;
-    if (temp < 0) temp = 4;
+    temp++;
+    temp %= 5;
     menuSetInt("Jog", "jog_mode", temp);
     jogMode = (jogModeType) temp;
     displayJogMode(jogMode);
@@ -1039,7 +1083,9 @@ static int doKey(keyType k)
       stepKey();
       break;
     case ktStepRelease: break;
-    case ktTestPress: break;
+    case ktTestPress: 
+      toggleMode();
+      break;
     case ktTestRelease: break;
     case ktHelpPress: break;
     case ktHelpRelease: break;
@@ -1070,25 +1116,25 @@ static int parseLine()
     case rmSuccess: ; break;
     case rmHuh:
       pch = strtok(NULL, delims);
-      printf("Error: %s\n", pch); 
+//      printf("Error: %s\n", pch); 
       break;
     case rmListen:
       pch = strtok(NULL, delims);
-      printf("listening to %s\n", pch); 
+//      printf("listening to %s\n", pch); 
       curScreen = lookupScreen(pch);
       break;
     case rmIgnore: 
       pch = strtok(NULL, delims);
-      printf("ignoring %s\n", pch); 
+//      printf("ignoring %s\n", pch); 
       break;
     case rmKey: 
       pch = strtok(NULL, delims);
-      printf("key entered %s\n", pch);
-      doKey(lookupKey(pch[0]));
+//      printf("key entered %s\n", pch);
+      doKey(lookupKey(pch));
       break;
     case rmMenuEvent: 
       pch = strtok(NULL, delims);
-      printf("menuevent %s\n", pch);
+//      printf("menuevent %s\n", pch);
       doMenuEvent(pch);
       break;
     case rmUnknown: printf("unknown command %s\n", buffer);
@@ -1170,12 +1216,16 @@ static void slowLoop()
         strcpy(status, widgetSetStr(STATUSWIDGET, "Pause", status));
         runStatus = rsPause;
         break;
-      default: 
-        strcpy(status, widgetSetStr(STATUSWIDGET, " Idle", status));
-        if (runStatus != rsIdle) {
-          widgetSetStr(JOG_WIDGET, "Jog ", "");
-          displayJogMode(jogMode);
+      default:
+        if (emcStatus->task.mode == EMC_TASK_MODE_MANUAL) {          
+          strcpy(status, widgetSetStr(STATUSWIDGET, "  Man", status));
+            widgetSetStr(JOG_WIDGET, "Jog ", "");
           }
+        else {
+          strcpy(status, widgetSetStr(STATUSWIDGET, " Idle", status));
+            widgetSetStr(JOG_WIDGET, "    ", "");
+          }
+        displayJogMode(jogMode);
         runStatus = rsIdle;
         break;
     }
@@ -1268,7 +1318,7 @@ static int sockMain()
   else { 
     sendEstopReset();
     sendMachineOn();
-    sockSendString(sockfd, "hello\n");
+    sockSendStr(sockfd, "hello\n");
     while ((len = sockRecvString(sockfd, buffer, sizeof(buffer) - 1)) >= 0) {
       if (len == 0) {
         preciseSleep(0.01);
@@ -1292,7 +1342,8 @@ static void initMain()
     saveEmcCommandSerialNumber = 0;
     emcTimeout = 0.0;
     emcUpdateType = EMC_UPDATE_AUTO;
-    linearUnitConversion = LINEAR_UNITS_MM; 
+    linearUnitConversion = LINEAR_UNITS_INCH;
+    units = unInch; 
     angularUnitConversion = ANGULAR_UNITS_AUTO;
     emcCommandBuffer = 0;
     emcStatusBuffer = 0;

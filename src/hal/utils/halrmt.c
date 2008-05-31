@@ -62,6 +62,7 @@
 #include <netinet/in.h>
 #include <sys/uio.h>
 #include <pthread.h>
+#include <fnmatch.h>
 
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "hal.h"		/* HAL public API decls */
@@ -149,7 +150,7 @@ typedef enum {
   hcEcho, hcVerbose, hcEnable, hcConfig, hcCommMode, hcCommProt,
   hcComps, hcPins, hcPinVals, hcSigs, hcSigVals, hcParams, hcParamVals, hcFuncts, hcThreads,
   hcComp, hcPin, hcPinVal, hcSig, hcSigVal, hcParam, hcParamVal, hcFunct, hcThread,
-  hcLoadRt, hcUnloadRt, hcLoadUsr, hcLinkps, hcLinksp, hcLinkpp, hcUnlinkp,
+  hcLoadRt, hcUnload, hcLoadUsr, hcLinkps, hcLinksp, hcLinkpp, hcNet, hcUnlinkp,
   hcLock, hcUnlock, hcNewSig, hcDelSig, hcSetP, hcSetS, hcAddF, hcDelF,
   hcSave, hcStart, hcStop, hcUnknown
   } halCommandType;
@@ -163,7 +164,7 @@ const char *halCommands[] = {
   "ECHO", "VERBOSE", "ENABLE", "CONFIG", "COMM_MODE", "COMM_PROT",
   "COMPS", "PINS", "PINVALS", "SIGNALS", "SIGVALS", "PARAMS", "PARAMVALS", "FUNCTS", "THREADS",
   "COMP", "PIN", "PINVAL", "SIGNAL", "SIGVAL", "PARAM", "PARAMVAL", "FUNCT", "THREAD",
-  "LOADRT", "UNLOADRT", "LOADUSR", "LINKPS", "LINKSP", "LINKPP", "UNLINKP",
+  "LOADRT", "UNLOAD", "LOADUSR", "LINKPS", "LINKSP", "LINKPP", "NET", "UNLINKP",
   "LOCK", "UNLOCK", "NEWSIG", "DELSIG", "SETP", "SETS", "ADDF", "DELF",
   "SAVE", "START", "STOP", ""};
 
@@ -227,6 +228,92 @@ static void sockWriteError(const char *nakStr, connectionRecType *context)
     sprintf(context->outBuf, "%s", nakStr);
   sockWrite(context);
 }
+
+pid_t hal_systemv_nowait(char *const argv[], connectionRecType *context) {
+    pid_t pid;
+    int n;
+    const char *nakStr = "SET LOADRT NAK";
+
+    /* now we need to fork, and then exec .... */
+    /* disconnect from the HAL shmem area before forking */
+    hal_exit(comp_id);
+    comp_id = 0;
+    /* now the fork() */
+    pid = fork();
+    if ( pid < 0 ) {
+	/* fork failed */
+//	halcmd_error("fork() failed\n");
+	/* reconnect to the HAL shmem area */
+	comp_id = hal_init(comp_name);
+	if (comp_id < 0) {
+	    fprintf(stderr, "halcmd: hal_init() failed after fork: %d\n",
+                    comp_id );
+	    exit(-1);
+	}
+        hal_ready(comp_id);
+	return -1;
+    }
+    if ( pid == 0 ) {
+	/* child process */
+	/* print debugging info if "very verbose" (-V) */
+        for(n=0; argv[n] != NULL; n++) {
+	    rtapi_print_msg(RTAPI_MSG_DBG, "%s ", argv[n] );
+	}
+	rtapi_print_msg(RTAPI_MSG_DBG, "\n" );
+        /* call execv() to invoke command */
+	execvp(argv[0], argv);
+	/* should never get here */
+//	halcmd_error("execv(%s) failed\n", argv[0] );
+        sprintf(errorStr, "execv(%s) failed", argv[0]);
+        sockWriteError(nakStr, context);
+	exit(1);
+    }
+    /* parent process */
+    /* reconnect to the HAL shmem area */
+    comp_id = hal_init(comp_name);
+
+    return pid;
+}
+
+int hal_systemv(char *const argv[], connectionRecType *context) {
+    pid_t pid;
+    int status;
+    int retval;
+    const char *nakStr = "SET LOADRT NAK";
+
+    /* do the fork */
+    pid = hal_systemv_nowait(argv, context);
+    /* this is the parent process, wait for child to end */
+    retval = waitpid ( pid, &status, 0 );
+    retval = 0;
+    if (comp_id < 0) {
+	fprintf(stderr, "halcmd: hal_init() failed after systemv: %d\n", comp_id );
+	exit(-1);
+    }
+    hal_ready(comp_id);
+    /* check result of waitpid() */
+    if ( retval < 0 ) {
+//	halcmd_error("waitpid(%d) failed: %s\n", pid, strerror(errno) );
+        sprintf(errorStr, "waitpid(%d) failed: %s", pid, strerror(errno));
+        sockWriteError(nakStr, context);
+	return -1;
+    }
+    if ( WIFEXITED(status) == 0 ) {
+//	halcmd_error("child did not exit normally\n");
+        sprintf(errorStr, "child did not exit normally");
+        sockWriteError(nakStr, context);
+	return -1;
+    }
+    retval = WEXITSTATUS(status);
+    if ( retval != 0 ) {
+//	halcmd_error("exit value: %d\n", retval );
+        sprintf(errorStr, "exit value: %d", retval);
+        sockWriteError(nakStr, context);
+	return -1;
+    }
+    return 0;
+}
+
 
 /***********************************************************************
 *                   LOCAL FUNCTION DEFINITIONS                         *
@@ -376,6 +463,144 @@ static int doLinkpp(char *first_pin_name, char *second_pin_name, connectionRecTy
       }
     return retval;
 }
+
+int doLinkPS(char *pin, char *sig, connectionRecType *context)
+{
+    int retval;
+    const char *nakStr = "SET NET NAK";
+
+    retval = hal_link(pin, sig);
+    if (retval == 0) {
+	/* print success message */
+//        halcmd_info("Pin '%s' linked to signal '%s'\n", pin, sig);
+          sprintf(errorStr, "Pin '%s' linked to signal '%s'", pin, sig);
+          sockWriteError(nakStr, context);
+    } else {
+//        halcmd_error("link failed\n");
+          sprintf(errorStr, "link failed");
+          sockWriteError(nakStr, context);
+    }
+    return retval;
+}
+
+
+static int preflightNet(char *signal, hal_sig_t *sig, char *pins[], connectionRecType *context) 
+{
+    int i, type=-1, writers=0, bidirs=0, pincnt=0;
+    const char *nakStr = "SET NET NAK";
+
+    /* if signal already exists, use its info */
+    if (sig) {
+	type = sig->type;
+	writers = sig->writers;
+	bidirs = sig->bidirs;
+    }
+
+    for(i=0; pins[i] && *pins[i]; i++) {
+        hal_pin_t *pin = 0;
+        pin = halpr_find_pin_by_name(pins[i]);
+        if(!pin) {
+//            halcmd_error("pin '%s' does not exist\n", pins[i]);
+            sprintf(errorStr, "pin '%s' does not exist", pins[i]);
+            sockWriteError(nakStr, context);
+            return HAL_NOTFND;
+        }
+        if(SHMPTR(pin->signal) == sig) {
+	     /* Already on this signal */
+	    pincnt++;
+	    continue;
+	} else if(pin->signal != 0) {
+//            halcmd_error("pin '%s' was already linked\n", pin->name);
+            sprintf(errorStr, "pin '%s' was already linked", pin->name);
+            sockWriteError(nakStr, context);
+            return HAL_INVAL;
+	}
+	if (type == -1) {
+	    /* no pre-existing type, use this pin's type */
+	    type = pin->type;
+	}
+        if(type != pin->type) {
+//            halcmd_error("Type mismatch on pin '%s'\n", pin->name);
+            sprintf(errorStr, "Type mismatch on pin '%s'", pin->name);
+            sockWriteError(nakStr, context);
+            return HAL_INVAL;
+        }
+        if(pin->dir == HAL_OUT) {
+            if(writers || bidirs) {
+//                halcmd_error("Signal '%s' can not add OUT pin '%s'\n", signal, pin->name);
+            sprintf(errorStr, "Signal '%s' can not add OUT pin '%s'", signal, pin->name);
+            sockWriteError(nakStr, context);
+                return HAL_INVAL;
+            }
+            writers++;
+        }
+	if(pin->dir == HAL_IO) {
+            if(writers) {
+//                halcmd_error("Signal '%s' can not add I/O pin '%s'\n", signal, pin->name);
+                sprintf(errorStr, "Signal '%s' can not add I/O pin '%s'", signal, pin->name);
+                sockWriteError(nakStr, context);
+                return HAL_INVAL;
+            }
+            bidirs++;
+        }
+        pincnt++;
+    }
+    if(pincnt)
+        return HAL_SUCCESS;
+//    halcmd_error("'net' requires at least one pin, none given\n");
+    sprintf(errorStr, "'net' requires at least one pin, none given");
+    sockWriteError(nakStr, context);
+    return HAL_INVAL;
+}
+
+
+int doNet(char *signal, char *pins[], connectionRecType *context) 
+{
+    hal_sig_t *sig;
+    int i, retval;
+    const char *nakStr = "SET NET NAK";
+
+    rtapi_mutex_get(&(hal_data->mutex));
+    /* see if signal already exists */
+    sig = halpr_find_sig_by_name(signal);
+
+    /* verify that everything matches up (pin types, etc) */
+    retval = preflightNet(signal, sig, pins, context);
+    if(retval != HAL_SUCCESS) {
+        rtapi_mutex_give(&(hal_data->mutex));
+        return retval;
+    }
+
+    {
+	hal_pin_t *pin = halpr_find_pin_by_name(signal);
+	if(pin) {
+//	    halcmd_error("Signal name '%s' must not be the same as a pin.\n", signal);
+            sprintf(errorStr, "Signal name '%s' must not be the same as a pin.", signal);
+            sockWriteError(nakStr, context);
+	    rtapi_mutex_give(&(hal_data->mutex));
+	    return HAL_BADVAR;
+	}
+    }
+    if(!sig) {
+        /* Create the signal with the type of the first pin */
+        hal_pin_t *pin = halpr_find_pin_by_name(pins[0]);
+        rtapi_mutex_give(&(hal_data->mutex));
+        if(!pin) {
+            return HAL_NOTFND;
+        }
+        retval = hal_signal_new(signal, pin->type);
+    } else {
+	/* signal already exists */
+        rtapi_mutex_give(&(hal_data->mutex));
+    }
+    /* add pins to signal */
+    for(i=0; retval == HAL_SUCCESS && pins[i] && *pins[i]; i++) {
+        retval = doLinkPS(pins[i], signal, context);
+    }
+
+    return retval;
+}
+
 
 static int doLink(char *pin, char *sig, connectionRecType *context)
 {
@@ -644,130 +869,99 @@ static int doStop(connectionRecType *context)
 
 static int doLoadRt(char *mod_name, char *args[], connectionRecType *context)
 {
-    /* note: these are static so that the various searches can
-       be skipped for subsequent commands */
-    static char *rtmod_dir = EMC2_BIN_DIR "/rtapi_app";
-    struct stat stat_buf;
-    char mod_path[MAX_CMD_LEN+1];
-    char *cp1;
-    char *argv[MAX_TOK+1];
     char arg_string[MAX_CMD_LEN+1];
-    int n, m, retval, status;
+    int m=0, n=0, retval;
     hal_comp_t *comp;
-    pid_t pid;
+    char *argv[MAX_TOK+3];
+    char *cp1;
     const char *nakStr = "SET LOADRT NAK";
 
+#if defined(RTAPI_SIM)
+    argv[m++] = "-Wn";
+    argv[m++] = mod_name;
+    argv[m++] = EMC2_BIN_DIR "/rtapi_app";
+    argv[m++] = "load";
+    argv[m++] = mod_name;
+    /* loop thru remaining arguments */
+    while ( args[n] && args[n][0] != '\0' ) {
+        argv[m++] = args[n++];
+    }
+    argv[m++] = NULL;
+    retval = do_loadusr_cmd(argv);
+#else
+    static char *rtmod_dir = EMC2_RTLIB_DIR;
+    struct stat stat_buf;
+    char mod_path[MAX_CMD_LEN+1];
+
     if (hal_get_lock()&HAL_LOCK_LOAD) {
-      sprintf(errorStr,  "HAL:%d: ERROR: HAL is locked, loading of modules is not permitted", 
-	linenumber);
+      sprintf(errorStr,  "HAL is locked, loading of modules is not permitted");
       sockWriteError(nakStr, context);
-      return HAL_PERM;
-      }
-    if ((strlen(rtmod_dir)+strlen(mod_name)+5) > MAX_CMD_LEN) {
-      sprintf(errorStr, "HAL:%d: ERROR: Module path too long", linenumber);
+	return HAL_PERM;
+    }
+    if ( (strlen(rtmod_dir)+strlen(mod_name)+5) > MAX_CMD_LEN ) {
+      sprintf(errorStr, "Module path too long");
       sockWriteError(nakStr, context);
-      return -1;
-      }
+	return -1;
+    }
+
     /* make full module name '<path>/<name>.o' */
     strcpy (mod_path, rtmod_dir);
     strcat (mod_path, "/");
     strcat (mod_path, mod_name);
     strcat (mod_path, MODULE_EXT);
     /* is there a file with that name? */
-    if (stat(mod_path, &stat_buf) != 0 ) {
+    if ( stat(mod_path, &stat_buf) != 0 ) {
         /* can't find it */
-      sprintf(errorStr, "HAL:%d: ERROR: Can't find module '%s' in %s", 
-	linenumber, mod_name, rtmod_dir);
+      sprintf(errorStr, "Can't find module '%s' in %s", mod_name, rtmod_dir);
       sockWriteError(nakStr, context);
-      return -1;
-      }
-    /* now we need to fork, and then exec insmod.... */
-    /* disconnect from the HAL shmem area before forking */
-    hal_exit(comp_id);
-    comp_id = 0;
-    /* now the fork() */
-    pid = fork();
-    if (pid < 0) {
-      sprintf(errorStr, "HAL:%d: ERROR: loadrt fork() failed", linenumber);
-      sockWriteError(nakStr, context);
-	/* reconnect to the HAL shmem area */
-      comp_id = hal_init(comp_name);
-      if (comp_id < 0) {
-        sprintf(errorStr, "halrmt: hal_init() failed after fork: %d", comp_id);
+        return -1;
+    }
+    
+    // TODO - FIXME - remove test after 2.2.x when blocks isn't functional anymore
+    if (strncmp(mod_name, "blocks", 6) == 0) {
+	//usign RTAPI_MSG_ERR as that is the default warning level for halcmd
+        sprintf(errorStr, "blocks is depricated, use the subcomponents generated by 'comp' instead");
         sockWriteError(nakStr, context);
-        exit(-1);
-	}
-      hal_ready(comp_id);
-      return -1;
-      }
-    if (pid == 0) {
-	/* this is the child process - prepare to exec() insmod */
-      argv[0] = EMC2_BIN_DIR "/emc_module_helper";
-      argv[1] = "insert";
-      argv[2] = mod_path;
-      /* loop thru remaining arguments */
-      n = 0;
-      m = 3;
-      while (args[n][0] != '\0') {
+    }
+
+    argv[0] = EMC2_BIN_DIR "/emc_module_helper";
+    argv[1] = "insert";
+    argv[2] = mod_path;
+    /* loop thru remaining arguments */
+    n = 0;
+    m = 3;
+    while ( args[n] && args[n][0] != '\0' ) {
         argv[m++] = args[n++];
-        }
-      /* add a NULL to terminate the argv array */
-      argv[m] = NULL;
-      /* print debugging info if "very verbose" (-V) */
-      rtapi_print_msg(RTAPI_MSG_DBG, "%s %s %s ", argv[0], argv[1], argv[2] );
-      n = 3;
-      while (argv[n] != NULL) {
-        rtapi_print_msg(RTAPI_MSG_DBG, "%s ", argv[n++]);
-        }
-      rtapi_print_msg(RTAPI_MSG_DBG, "\n");
-        /* call execv() to invoke insmod */
-      execv(argv[0], argv);
-      /* should never get here */
-      sprintf(errorStr, "HAL:%d: ERROR: execv(%s) failed", linenumber, argv[0] );
-      sockWriteError(nakStr, context);
-      exit(1);
-      }
-    /* this is the parent process, wait for child to end */
-    retval = waitpid (pid, &status, 0);
-    /* reconnect to the HAL shmem area */
-    comp_id = hal_init(comp_name);
-    if (comp_id < 0) {
-      sprintf(errorStr, "halcmd: hal_init() failed after loadrt: %d", comp_id);
-      sockWriteError(nakStr, context);
-      exit(-1);
-      }
-    hal_ready(comp_id);
-    /* check result of waitpid() */
-    if (retval < 0) {
-      sprintf(errorStr, "HAL:%d: ERROR: waitpid(%d) failed", linenumber, pid);
-      sockWriteError(nakStr, context);
-      return -1;
-      }
-    if (WIFEXITED(status) == 0) {
-      sprintf(errorStr, "HAL:%d: ERROR: child did not exit normally", linenumber);
-      sockWriteError(nakStr, context);
-      return -1;
-      }
-    retval = WEXITSTATUS(status);
-    if (retval != 0) {
-      sprintf(errorStr, "HAL:%d: ERROR: insmod failed, returned %d", linenumber, retval );
-      sockWriteError(nakStr, context);
-      return -1;
-      }
+    }
+    /* add a NULL to terminate the argv array */
+    argv[m] = NULL;
+/*    sprintf(context->outBuf, "Setup argv %s %s %s", argv[0], argv[1], argv[2]);
+    sockWrite(context);
+    return 0; */
+
+
+    retval = hal_systemv(argv, context);
+#endif
+
+    if ( retval != 0 ) {
+        sprintf(errorStr, "insmod failed, returned %d", retval);
+        sockWriteError(nakStr, context);
+	return -1;
+    }
     /* make the args that were passed to the module into a single string */
     n = 0;
     arg_string[0] = '\0';
-    while ( args[n][0] != '\0' ) {
-      strncat(arg_string, args[n++], MAX_CMD_LEN);
-      strncat(arg_string, " ", MAX_CMD_LEN);
-      }
+    while ( args[n] && args[n][0] != '\0' ) {
+	strncat(arg_string, args[n++], MAX_CMD_LEN);
+	strncat(arg_string, " ", MAX_CMD_LEN);
+    }
     /* allocate HAL shmem for the string */
-    cp1 = hal_malloc(strlen(arg_string) + 1);
-    if (cp1 == NULL) {
-      sprintf(errorStr, "HAL:%d: ERROR: failed to allocate memory for module args", linenumber);
+    cp1 = hal_malloc(strlen(arg_string)+1);
+    if ( cp1 == NULL ) {
+      sprintf(errorStr, "failed to allocate memory for module args");
       sockWriteError(nakStr, context);
-      return -1;
-      }
+	return -1;
+    }
     /* copy string to shmem */
     strcpy (cp1, arg_string);
     /* get mutex before accessing shared data */
@@ -775,15 +969,16 @@ static int doLoadRt(char *mod_name, char *args[], connectionRecType *context)
     /* search component list for the newly loaded component */
     comp = halpr_find_comp_by_name(mod_name);
     if (comp == 0) {
-      rtapi_mutex_give(&(hal_data->mutex));
-      sprintf(errorStr, "HAL:%d: ERROR: module '%s' not loaded", linenumber, mod_name);
-      sockWriteError(nakStr, context);
-      return HAL_INVAL;
-      }
+	rtapi_mutex_give(&(hal_data->mutex));
+        sprintf(errorStr, "module '%s' not loaded", mod_name);
+        sockWriteError(nakStr, context);
+	return HAL_INVAL;
+    }
     /* link args to comp struct */
     comp->insmod_args = SHMOFF(cp1);
     rtapi_mutex_give(&(hal_data->mutex));
     /* print success message */
+//    halcmd_info("Realtime module '%s' loaded\n", mod_name);
     return 0;
 }
 
@@ -838,17 +1033,19 @@ static int doDelsig(char *mod_name, connectionRecType *context)
     return retval1;
 }
 
-static int doUnloadRt(char *mod_name)
+static int doUnload(char *mod_name, connectionRecType *context)
 {
     int next, retval, retval1, n, all;
     hal_comp_t *comp;
     char comps[64][HAL_NAME_LEN+1];
+    const char *nakStr = "SET UNLOAD NAK";
 
     /* check for "all" */
-    if (strcmp(mod_name, "all" ) == 0)
-      all = 1;
-    else
-      all = 0;
+    if ( strcmp(mod_name, "all" ) == 0 ) {
+	all = 1;
+    } else {
+	all = 0;
+    }
     /* build a list of component(s) to unload */
     n = 0;
     rtapi_mutex_get(&(hal_data->mutex));
@@ -858,7 +1055,7 @@ static int doUnloadRt(char *mod_name)
 	if ( comp->type == 1 ) {
 	    /* found a realtime component */
 	    if ( all || ( strcmp(mod_name, comp->name) == 0 )) {
-		/* we want to unload this component, remember it's name */
+		/* we want to unload this component, remember its name */
 		if ( n < 63 ) {
 		    strncpy(comps[n++], comp->name, HAL_NAME_LEN );
 		}
@@ -871,8 +1068,9 @@ static int doUnloadRt(char *mod_name)
     comps[n][0] = '\0';
     if ( !all && ( comps[0][0] == '\0' )) {
 	/* desired component not found */
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL:%d: ERROR: component '%s' is not loaded\n", linenumber, mod_name);
+//	halcmd_error("component '%s' is not loaded\n", mod_name);
+        sprintf(errorStr, "component '%s' is not loaded", mod_name);
+        sockWriteError(nakStr, context);
 	return -1;
     }
     /* we now have a list of components, unload them */
@@ -889,9 +1087,10 @@ static int doUnloadRt(char *mod_name)
 	    retval1 = retval;
 	}
     }
-    if (retval1 != HAL_SUCCESS) {
-	rtapi_print_msg(RTAPI_MSG_ERR, "HAL:%d: ERROR: unloadrt failed\n", linenumber);
-    }
+/*    if (retval1 != HAL_SUCCESS) {
+        sprintf(errorStr, "unloadrt failed");
+        sockWriteError(nakStr, context);
+      } */
     return retval1;
 }
 
@@ -2208,11 +2407,12 @@ int commandGet(connectionRecType *context)
     case hcFunct: ret = getFunct(strtok(NULL, delims), context); break;
     case hcThread: ret = getThread(strtok(NULL, delims), context); break;
     case hcLoadRt: ;
-    case hcUnloadRt: ; 
+    case hcUnload: ; 
     case hcLoadUsr: ; 
     case hcLinkps: ;
     case hcLinksp: ; 
     case hcLinkpp: ;
+    case hcNet: ;
     case hcUnlinkp: ;
     case hcLock: ;
     case hcUnlock: ;
@@ -2339,17 +2539,27 @@ static cmdResponseType setCommProt(char *s, connectionRecType *context)
 static cmdResponseType setLoadRt(char *s, connectionRecType *context)
 {
   char *pch;
+  char *args[MAX_TOK+3];
+  int i;
   
+  if (s == '\0') return rtCustomHandledError;
+  i = 0;
   pch = strtok(NULL, delims);
-  if (doLoadRt(pch, &s, context) == 0)
+  while (pch != NULL) {
+    args[i] = pch;
+    pch = strtok(NULL, delims);
+    i++;
+    } 
+  args[i] = '\0';
+  if (doLoadRt(s, args, context) == 0)
     return rtNoError;
   else
     return rtCustomHandledError;
 }
 
-static cmdResponseType setUnloadRt(char *s, connectionRecType *context)
+static cmdResponseType setUnload(char *s, connectionRecType *context)
 {
-  if (doUnloadRt(s) == 0)
+  if (doUnload(s, context) == 0)
     return rtNoError;
   else
     return rtCustomHandledError;
@@ -2357,7 +2567,11 @@ static cmdResponseType setUnloadRt(char *s, connectionRecType *context)
 
 static cmdResponseType setLoadUsr(char *s, connectionRecType *context)
 {
-  if (doLoadUsr(&s) == 0)
+  char *argv[MAX_TOK+1];
+
+  argv[0] = s;
+  argv[1] = "\0";
+  if (doLoadUsr(argv) == 0)
     return rtNoError;
   else
     return rtCustomHandledError;
@@ -2388,6 +2602,26 @@ static cmdResponseType setLinkpp(char *p1, char *p2, connectionRecType *context)
     return rtNoError;
   else
     return rtCustomHandledError;
+}
+
+static cmdResponseType setNet(char *p1, connectionRecType *context)
+{
+  char *argv[MAX_TOK];
+  int i;
+  char *pch;
+
+  if (p1 == NULL) return rtStandardError;
+  i = 0;
+  pch = strtok(NULL, delims);
+  while (pch != NULL) {
+    argv[i] = pch;
+    i++;
+    }
+  if (i ==0) return rtStandardError;
+  else 
+    if (doNet(p1, argv, context) == 0)
+      return rtNoError;
+    else return rtCustomHandledError;
 }
 
 static cmdResponseType setUnlink(char *s, connectionRecType *context)
@@ -2554,11 +2788,12 @@ int commandSet(connectionRecType *context)
     case hcFunct: break;
     case hcThread: break;
     case hcLoadRt: ret = setLoadRt(tokens[0], context); break;
-    case hcUnloadRt: ret = setUnloadRt(tokens[0], context); break;
+    case hcUnload: ret = setUnload(tokens[0], context); break;
     case hcLoadUsr: ret = setLoadUsr(tokens[0], context); break;
     case hcLinkps: setLinkps(tokens[0], tokens[1], context); break;
     case hcLinksp: setLinksp(tokens[0], tokens[1], context); break; 
     case hcLinkpp: setLinkpp(tokens[0], tokens[1], context); break;
+    case hcNet:    setNet(tokens[0], context); break;
     case hcUnlinkp: setUnlink(tokens[0], context); break;
     case hcLock: setLock(tokens[0], context); break;
     case hcUnlock: setUnlock(tokens[0], context); break;;
@@ -2699,6 +2934,7 @@ static int helpSet(connectionRecType *context)
   strcat(context->outBuf, "    Loadrt\n\r");
   strcat(context->outBuf, "    Loadusr <name> [<param 1> .. <param n>]\n\r");
   strcat(context->outBuf, "    Lock <command>\n\r");
+  strcat(context->outBuf, "    Net <signal name> [<pin 1 name> .. <pin n name>\n\r");
   strcat(context->outBuf, "    NewSig <signal name>\n\r");
   strcat(context->outBuf, "    Save [<hal type> [<file name>]]\n\r");
   strcat(context->outBuf, "    Setp <pin name>\n\r");
