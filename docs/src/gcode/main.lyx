@@ -7023,7 +7023,7 @@ G64 P-
  from a straight line is less than the G64 P- tolerance the arc is broken
  into two lines (from start of arc to midpoint, and from midpoint to end).
  those lines are then subject to the naive cam algorithm for lines.
- Thus, line-arc, arc-arc, and arc-line cases as well as line-line benifit
+ Thus, line-arc, arc-arc, and arc-line cases as well as line-line benefit
  from the 
 \begin_inset Quotes eld
 \end_inset 
