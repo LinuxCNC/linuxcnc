@@ -10,7 +10,7 @@ function _ nofp;
 description """
 .B lut5
 constructs an arbitrary logic function with up to 5 inputs using a
-\\fBl\\fRook-\\fBu\\fRp \\fBt\\fRable.  The function is specified by the HAL pin
+\\fBl\\fRook-\\fBu\\fRp \\fBt\\fRable.  The function is specified by
 \\fBfunction\\fR.  The necessary value for \\fBfunction\\fR can be determined
 by writing the truth table, and computing the sum of the \\fBweights\\fR for
 which the output value should be \\fRTRUE\\fR.
