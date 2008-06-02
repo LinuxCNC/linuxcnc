@@ -2,7 +2,14 @@
 
 import re
 import sys
-import subprocess
+
+try:
+    import subprocess
+except ImportError:
+    # Older Python versions don't have the subprocess module.  In this case, we
+    # don't filter the warnings.
+    import os
+    os.execv(sys.argv[1], sys.argv[1:])
 
 undefined_warning = re.compile('WARNING: "(.*?)" \[.*?\] undefined!')
 duplicate_warning = re.compile("WARNING: [^ ]*: '(.*?)' exported twice. Previous.*")
@@ -31,6 +38,6 @@ for line in kbuild.stderr:
     m = duplicate_warning.match(line)
     if m and m.group(1) in permitted_duplicates: continue
 
-    sys.stdout.write(line)
+    sys.stderr.write(line)
 
 raise SystemExit, kbuild.wait()
