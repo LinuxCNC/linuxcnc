@@ -291,6 +291,11 @@ setup_menu_accel .menu.view end [_ "Display _MM"]
 setup_menu_accel .menu.view end [_ "S_how program"]
 
 .menu.view add checkbutton \
+	-variable show_rapids \
+	-command toggle_show_rapids
+setup_menu_accel .menu.view end [_ "Show program r_apids"]
+
+.menu.view add checkbutton \
 	-variable show_live_plot \
 	-command toggle_show_live_plot
 setup_menu_accel .menu.view end [_ "Sho_w live plot"]

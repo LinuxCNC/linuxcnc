@@ -585,7 +585,10 @@ class MyOpengl(Opengl):
         glMatrixMode(GL_MODELVIEW)
 
         if vars.show_program.get() and program is not None:
-            glCallList(program)
+            if vars.show_rapids.get() and norapids is not None:
+                glCallList(norapids)
+            else:
+                glCallList(program)
             if highlight is not None: glCallList(highlight)
 
             if vars.show_extents.get():
@@ -1188,7 +1191,7 @@ def scroll_up(event):
 def scroll_down(event):
     t.yview_scroll(2, "units")
 
-select_program = program = highlight = None
+select_program = program = highlight = norapids = None
 
 def make_cone():
     global cone_program
@@ -1283,10 +1286,15 @@ def make_selection_list(g):
     glEndList()
 
 def make_main_list(g):
-    global program
+    global program, norapids
     if program is None: program = glGenLists(1)
     glNewList(program, GL_COMPILE)
-    g.draw(0)
+    g.draw(0, True)
+    glEndList()
+
+    if norapids is None: norapids = glGenLists(1)
+    glNewList(norapids, GL_COMPILE)
+    g.draw(0, False)
     glEndList()
 
 import array
@@ -1638,13 +1646,14 @@ class AxisCanon(GLCanon):
             glEnd()
 
 
-    def draw(self, for_selection=0):
+    def draw(self, for_selection=0, include_traverse=True):
         self.progress.nextphase(len(self.traverse) + len(self.feed) + len(self.dwells) + len(self.arcfeed))
 
-        glEnable(GL_LINE_STIPPLE)
-        glColor3f(*self.colors['traverse'])
-        self.draw_lines(self.traverse, for_selection)
-        glDisable(GL_LINE_STIPPLE)
+        if include_traverse:
+            glEnable(GL_LINE_STIPPLE)
+            glColor3f(*self.colors['traverse'])
+            self.draw_lines(self.traverse, for_selection)
+            glDisable(GL_LINE_STIPPLE)
 
         glColor3f(*self.colors['straight_feed'])
         self.draw_lines(self.feed, for_selection, len(self.traverse))
@@ -2721,6 +2730,10 @@ class TclCommands(nf.TclCommands):
     def redraw(*ignored):
         o.tkRedraw()
 
+    def toggle_show_rapids(*event):
+        ap.putpref("show_rapids", vars.show_rapids.get())
+        o.tkRedraw()
+
     def toggle_show_program(*event):
         ap.putpref("show_program", vars.show_program.get())
         o.tkRedraw()
@@ -3011,6 +3024,7 @@ vars = nf.Variables(root_window,
     ("show_machine_limits", IntVar),
     ("show_machine_speed", IntVar),
     ("show_distance_to_go", IntVar),
+    ("show_rapids", IntVar),
     ("feedrate", IntVar),
     ("spindlerate", IntVar),
     ("tool", StringVar),
@@ -3038,6 +3052,7 @@ vars.emctop_command.set(os.path.join(os.path.dirname(sys.argv[0]), "emctop"))
 vars.highlight_line.set(-1)
 vars.running_line.set(-1)
 vars.show_program.set(ap.getpref("show_program", True))
+vars.show_rapids.set(ap.getpref("show_rapids", True))
 vars.show_live_plot.set(ap.getpref("show_live_plot", True))
 vars.show_tool.set(ap.getpref("show_tool", True))
 vars.show_extents.set(ap.getpref("show_extents", True))
