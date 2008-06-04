@@ -68,6 +68,9 @@ static int emcmotion_initialized = 0;	// non-zero means both
 static unsigned long localMotionHeartbeat = 0;
 static int localMotionCommandType = 0;
 static int localMotionEchoSerialNumber = 0;
+
+static int localSpindleMode = 0;
+
 /* FIXME axes or joints? */
 static unsigned char localEmcAxisAxisType[EMCMOT_MAX_JOINTS];
 static double localEmcAxisUnits[EMCMOT_MAX_JOINTS];
@@ -1287,11 +1290,20 @@ int emcMotionHalt()
     return (r1 == 0 && r2 == 0 && r3 == 0 && r4 == 0) ? 0 : -1;
 }
 
+int emcSpindleSetMode(int mode)
+{
+    localSpindleMode = mode; 
+    //mode = 0, spindle stops on abort
+    //mode = 1, spindle keeps running on abort
+    //FIXME: maybe add other modes / or replace completely with run-levels.. 
+    return 0;
+}
+
 int emcMotionAbort()
 {
     int r1;
     int r2;
-    int r3;
+    int r3 = 0;
     int t;
 
     r1 = -1;
@@ -1302,7 +1314,9 @@ int emcMotionAbort()
     }
 
     r2 = emcTrajAbort();
-    r3 = emcSpindleAbort();
+    //FIXME-AJ: stop spindle on abort
+    if (localSpindleMode == 0)
+	r3 = emcSpindleAbort();
 
     return (r1 == 0 && r2 == 0 && r3 == 0) ? 0 : -1;
 }

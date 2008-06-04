@@ -2724,6 +2724,7 @@ static int iniLoad(const char *filename)
     const char *inistring;
     char version[LINELEN], machine[LINELEN];
     double saveDouble;
+    int emcSpindleMode;
 
     // open it
     if (inifile.Open(filename) == false) {
@@ -2802,6 +2803,18 @@ static int iniLoad(const char *filename)
 	// not found, using default
 	rcs_print("[TASK] CYCLE_TIME not found in %s; using default %f\n",
 		  filename, EMC_TASK_CYCLE_TIME);
+    }
+
+    if (NULL != (inistring = inifile.Find("SPINDLE_MODE", "EMCIO"))) {
+	// convert to int, and apply
+	if (1 == sscanf(inistring, "%d", &emcSpindleMode)) {
+	    rcs_print
+		("using [IO] SPINDLE_MODE = (%d)\n",
+		 emcSpindleMode);
+	    emcSpindleSetMode(emcSpindleMode);
+	}
+    } else {
+	// not found, default is ok
     }
 
     // close it

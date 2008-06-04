@@ -555,6 +555,7 @@ extern int emcSpindleBrakeEngage();
 extern int emcSpindleEnable();
 extern int emcSpindleDisable();
 
+extern int emcSpindleSetMode(int mode); //determines if Spindle needs to reset on abort
 extern int emcSpindleSetForwardIndex(int index);
 extern int emcSpindleSetReverseIndex(int index);
 extern int emcSpindleSetDecreaseIndex(int index);
