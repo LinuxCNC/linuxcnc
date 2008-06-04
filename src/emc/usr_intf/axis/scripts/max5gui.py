@@ -33,7 +33,7 @@ class HalToolCylinder(CylinderZ):
 	self.comp = comp
 
     def coords(self):
-        return -self.comp.tool_length, 4, 0, 5
+        return -self.comp.tool_length, self.comp.tool_radius, 0, self.comp.tool_radius
 
 c = hal.component("max5gui")
 # table
@@ -50,6 +50,7 @@ c.newpin("joint4", hal.HAL_FLOAT, hal.HAL_IN)
 c.newpin("joint5", hal.HAL_FLOAT, hal.HAL_IN)
 
 c.newpin("tool_length", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("tool_radius", hal.HAL_FLOAT, hal.HAL_IN)
 c.ready()
 
 pivot_len=100
@@ -65,6 +66,8 @@ tool = Collection([
 	])
 
 tool = Translate([tool], 0, 0, 45)
+tool = Color([1,0,0,0], [tool] )
+
 
 spindle = Collection([
 	tool,
@@ -95,6 +98,8 @@ brotary = Collection([
 
 brotary = HalRotate([brotary],c,"joint3",1,0,-1,0)
 
+brotary = Color([0,1,0,0], [brotary] )
+
 brotary = Collection([
 	brotary,
 	# rotary table base - under rotating part
@@ -117,6 +122,8 @@ zslide = Translate([zslide], 0, 0,200)
 
 zslide = HalTranslate([zslide],c,"joint2",0,0,1)
 
+zslide = Color([1,1,0,0], [zslide] )
+
 column = Collection([
 	zslide,
 	# main part of slide
@@ -127,6 +134,7 @@ column = Collection([
 	Box(-23, 227, 315, 23, 273, 375)
 	])
 
+column = Color([0,0,1,0], [column] )
 
 work = Capture()
 crotary = Collection([
@@ -137,6 +145,7 @@ crotary = Collection([
         ])
 
 crotary = HalRotate([crotary],c,"joint4",1,0,0,1)
+crotary = Color([1,0,1,0], [crotary] )
 
 crotary = Collection([
 	crotary,
@@ -162,6 +171,8 @@ table = Collection([
 	])
 
 table = HalTranslate([table],c,"joint0",1,0,0)
+table = Color([0,1,1,0], [table] )
+
 
 saddle = Collection([
 	table,
@@ -170,6 +181,7 @@ saddle = Collection([
 	])
 
 saddle = HalTranslate([saddle],c,"joint1",0,1,0)
+saddle = Color([1,1,0,0], [saddle] )
 
 base = Collection([
 	saddle,
@@ -186,6 +198,8 @@ base = Collection([
 	Box(-50, 275, 25, 50, 300, 50),
 	])
 
+base = Color([0,0,1,0], [base] )
+
 model = Collection([column, base])
 
-main(model, tooltip, work, 1500)
+main(model, tooltip, work, 500)
