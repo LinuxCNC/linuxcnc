@@ -37,17 +37,15 @@ class HalToolCylinder(CylinderZ):
 
 c = hal.component("max5gui")
 # table
-c.newpin("joint0", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("table", hal.HAL_FLOAT, hal.HAL_IN)
 # saddle
-c.newpin("joint1", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("saddle", hal.HAL_FLOAT, hal.HAL_IN)
 # head vertical slide
-c.newpin("joint2", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("head", hal.HAL_FLOAT, hal.HAL_IN)
 # head tilt
-c.newpin("joint3", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("tilt", hal.HAL_FLOAT, hal.HAL_IN)
 # rotary table
-c.newpin("joint4", hal.HAL_FLOAT, hal.HAL_IN)
-# wtf?
-c.newpin("joint5", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("rotate", hal.HAL_FLOAT, hal.HAL_IN)
 
 c.newpin("tool_length", hal.HAL_FLOAT, hal.HAL_IN)
 c.newpin("tool_radius", hal.HAL_FLOAT, hal.HAL_IN)
@@ -96,7 +94,7 @@ brotary = Collection([
 	CylinderY(-161, 50, -185, 50),
         ])
 
-brotary = HalRotate([brotary],c,"joint3",1,0,-1,0)
+brotary = HalRotate([brotary],c,"tilt",1,0,-1,0)
 
 brotary = Color([0,1,0,0], [brotary] )
 
@@ -120,7 +118,7 @@ zslide = Collection([
 # slide at 200 mm above benchtop
 zslide = Translate([zslide], 0, 0,200)
 
-zslide = HalTranslate([zslide],c,"joint2",0,0,1)
+zslide = HalTranslate([zslide],c,"head",0,0,1)
 
 zslide = Color([1,1,0,0], [zslide] )
 
@@ -140,11 +138,13 @@ work = Capture()
 crotary = Collection([
 	work,
 	CylinderZ(130, 50, 150, 50),
+	# center marker
+	CylinderZ(150, 3, 170, 1),
 	# can't see a cylinder turn, so stick a lump on one side
 	Box( 40,-5, 131, 54, 5, 149)
         ])
 
-crotary = HalRotate([crotary],c,"joint4",1,0,0,1)
+crotary = HalRotate([crotary],c,"rotate",1,0,0,-1)
 crotary = Color([1,0,1,0], [crotary] )
 
 crotary = Collection([
@@ -170,7 +170,7 @@ table = Collection([
 	Box(150, -23, 52, 210, 23, 98)
 	])
 
-table = HalTranslate([table],c,"joint0",1,0,0)
+table = HalTranslate([table],c,"table",-1,0,0)
 table = Color([0,1,1,0], [table] )
 
 
@@ -180,7 +180,7 @@ saddle = Collection([
 	Box(-53,-53, 44, 53, 53, 81),
 	])
 
-saddle = HalTranslate([saddle],c,"joint1",0,1,0)
+saddle = HalTranslate([saddle],c,"saddle",0,-1,0)
 saddle = Color([1,1,0,0], [saddle] )
 
 base = Collection([
