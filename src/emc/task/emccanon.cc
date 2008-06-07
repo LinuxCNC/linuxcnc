@@ -909,7 +909,7 @@ void STRAIGHT_TRAVERSE(double x, double y, double z,
     vel = getStraightVelocity(x, y, z, a, b, c, u, v, w);
     acc = getStraightAcceleration(x, y, z, a, b, c, u, v, w);
 
-    linearMoveMsg.end = to_ext_pose(x,y,z,u,v,w,a,b,c);
+    linearMoveMsg.end = to_ext_pose(x,y,z,a,b,c,u,v,w);
     linearMoveMsg.vel = linearMoveMsg.ini_maxvel = toExtVel(vel);
     linearMoveMsg.acc = toExtAcc(acc);
 
