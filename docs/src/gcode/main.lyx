@@ -9184,7 +9184,7 @@ M65
  Turn off digital output immediately
 \layout Section
 
-M66: Digital Input Control
+M66: Digital and Analog Input Control
 \begin_inset LatexCommand \label{sec:M66:}
 
 \end_inset 
