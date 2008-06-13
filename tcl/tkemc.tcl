@@ -172,6 +172,7 @@ if {[string length $temp] == 0} {
     set temp 0.200
 }
 set displayCycleTime [expr {int($temp * 1000 + 0.5)}]
+set syncDelayTime    $displayCycleTime ;#increasing improves slider behavior
 
 # set the debounce time for key repeats
 set debounceTime 150
@@ -2078,7 +2079,7 @@ proc updateStatus {} {
     global jointlabel0 jointlabel1 jointlabel2 jointlabel3 jointlabel4 jointlabel5 jointlabel6 jointlabel7 jointlabel8
     global worldlabel0 worldlabel1 worldlabel2 worldlabel3 worldlabel4 worldlabel5 worldlabel6 worldlabel7 worldlabel8
     global lastjointworld lastactcmd lastcoords
-    global displayCycleTime
+    global displayCycleTime syncDelayTime
     global mistbutton floodbutton spindlebutton brakebutton
     global modeInDisplay
     global estoplabel modelabel mistlabel floodlabel lubelabel spindlelabel brakelabel
@@ -2488,7 +2489,7 @@ proc updateStatus {} {
     # do me
     if {$realfeedoverride != $feedoverride && $syncingFeedOverride == 0} {
         set syncingFeedOverride 1
-        after $displayCycleTime syncFeedOverride
+        after $syncDelayTime syncFeedOverride
     }
 
     # set the spindle override
@@ -2496,7 +2497,7 @@ proc updateStatus {} {
     # do me
     if {$realspindleoverride != $spindleoverride && $syncingSpindleOverride == 0} {
         set syncingSpindleOverride 1
-        after $displayCycleTime syncSpindleOverride
+        after $syncDelayTime syncSpindleOverride
     }
 
 
