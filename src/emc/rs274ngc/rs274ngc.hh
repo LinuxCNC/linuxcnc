@@ -9,7 +9,6 @@
 *    
 * Copyright (c) 2004 All rights reserved.
 *
-* Last change:
 ********************************************************************/
 #ifndef RS274NGC_HH
 #define RS274NGC_HH
@@ -237,6 +236,12 @@ private:
  int convert_cycle_yz(int motion, block_pointer block,
                             setup_pointer settings);
  int convert_cycle_zx(int motion, block_pointer block,
+                            setup_pointer settings);
+ int convert_cycle_uv(int motion, block_pointer block,
+                            setup_pointer settings);
+ int convert_cycle_vw(int motion, block_pointer block,
+                            setup_pointer settings);
+ int convert_cycle_wu(int motion, block_pointer block,
                             setup_pointer settings);
  int convert_distance_mode(int g_code, setup_pointer settings);
  int convert_dwell(double time);

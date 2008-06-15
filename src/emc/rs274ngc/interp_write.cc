@@ -9,7 +9,6 @@
 *    
 * Copyright (c) 2004 All rights reserved.
 *
-* Last change:
 ********************************************************************/
 #include <unistd.h>
 #include <stdio.h>
@@ -78,9 +77,26 @@ int Interp::write_g_codes(block_pointer block,   //!< pointer to a block of RS27
   gez[0] = settings->sequence_number;
   gez[1] = settings->motion_mode;
   gez[2] = ((block == NULL) ? -1 : block->g_modes[0]);
-  gez[3] =
-    (settings->plane == CANON_PLANE_XY) ? G_17 :
-    (settings->plane == CANON_PLANE_XZ) ? G_18 : G_19;
+  switch(settings->plane) {
+  case CANON_PLANE_XY:
+      gez[3] = G_17;
+      break;
+  case CANON_PLANE_XZ:
+      gez[3] = G_18;
+      break;
+  case CANON_PLANE_YZ:
+      gez[3] = G_19;
+      break;
+  case CANON_PLANE_UV:
+      gez[3] = G_17_1;
+      break;
+  case CANON_PLANE_UW:
+      gez[3] = G_18_1;
+      break;
+  case CANON_PLANE_VW:
+      gez[3] = G_19_1;
+      break;
+  }
   gez[4] =
     (settings->cutter_comp_side == RIGHT) ? G_42 :
     (settings->cutter_comp_side == LEFT) ? G_41 : G_40;

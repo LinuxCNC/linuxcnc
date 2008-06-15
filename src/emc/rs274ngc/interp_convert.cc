@@ -9,7 +9,6 @@
 *    
 * Copyright (c) 2004 All rights reserved.
 *
-* Last change:
 ********************************************************************/
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -2775,6 +2774,15 @@ int Interp::convert_set_plane(int g_code,        //!< must be G_17, G_18, or G_1
   } else if (g_code == G_19) {
     SELECT_PLANE(CANON_PLANE_YZ);
     settings->plane = CANON_PLANE_YZ;
+  } else if (g_code == G_17_1) {
+    SELECT_PLANE(CANON_PLANE_UV);
+    settings->plane = CANON_PLANE_UV;
+  } else if (g_code == G_18_1) {
+    SELECT_PLANE(CANON_PLANE_UW);
+    settings->plane = CANON_PLANE_UW;
+  } else if (g_code == G_19_1) {
+    SELECT_PLANE(CANON_PLANE_VW);
+    settings->plane = CANON_PLANE_VW;
   } else
     ERM(NCE_BUG_CODE_NOT_G17_G18_OR_G19);
   return INTERP_OK;

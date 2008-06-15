@@ -9,7 +9,6 @@
 *    
 * Copyright (c) 2004 All rights reserved.
 *
-* Last change:
 ********************************************************************/
 // #INDENT-OFF*
 
@@ -267,6 +266,14 @@ const char * _rs274ngc_errors[] = {
 /* 236 */ _("Q word missing with g73"), // convert_cycle_xy, convert_cycle_yz, convert_cycle_zx
 /* 237 */ _("Digital input selected out of bounds"),
 /* 238 */ _("Analog input selected out of bounds"),
-/* 239 */ _("Unknown error"), // dummy
+
+/* 239 */ _("W value unspecified in UV plane canned cycle"), // convert_cycle_uv
+/* 240 */ _("U value unspecified in VW plane canned cycle"), // convert_cycle_vw
+/* 241 */ _("V value unspecified in UW plane canned cycle"), // convert_cycle_wu
+/* 242 */ _("R less than W in cycle in UV plane"), // convert_cycle_uv
+/* 243 */ _("R less than U in cycle in VW plane"), // convert_cycle_vw
+/* 244 */ _("R less than V in cycle in UW plane"), // convert_cycle_wu
+
+/* 245 */ _("Unknown error"), // dummy
 _("The End")};
 // *INDENT-ON*

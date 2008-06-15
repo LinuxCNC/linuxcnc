@@ -9,7 +9,6 @@
 *    
 * Copyright (c) 2004 All rights reserved.
 *
-* Last change:
 ********************************************************************/
 #ifndef CANON_HH
 #define CANON_HH
@@ -61,6 +60,9 @@ typedef int CANON_PLANE;
 #define CANON_PLANE_XY 1
 #define CANON_PLANE_YZ 2
 #define CANON_PLANE_XZ 3
+#define CANON_PLANE_UV 4
+#define CANON_PLANE_VW 5
+#define CANON_PLANE_UW 6
 
 typedef int CANON_UNITS;
 #define CANON_UNITS_INCHES 1
