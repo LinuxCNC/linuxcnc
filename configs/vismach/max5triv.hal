@@ -15,8 +15,9 @@ loadrt not count=5
 loadusr -W -n max5gui ../../src/emc/usr_intf/axis/scripts/max5gui.py
 
 # set a visible tool
-setp max5gui.tool_length 35
 setp max5gui.tool_radius 3
+# get tool length from motion controller
+#net tool-len motion.tooloffset.z
 
 # add motion controller functions to servo thread
 addf motion-command-handler servo-thread

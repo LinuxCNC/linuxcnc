@@ -33,7 +33,7 @@ class HalToolCylinder(CylinderZ):
 	self.comp = comp
 
     def coords(self):
-        return -self.comp.tool_length, self.comp.tool_radius, 0, self.comp.tool_radius
+        return (45, self.comp.tool_radius, -self.comp.tool_length, self.comp.tool_radius)
 
 c = hal.component("max5gui")
 # table
@@ -63,7 +63,6 @@ tool = Collection([
 	HalToolCylinder(c),
 	])
 
-tool = Translate([tool], 0, 0, 45)
 tool = Color([1,0,0,0], [tool] )
 
 
