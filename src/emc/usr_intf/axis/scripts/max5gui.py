@@ -139,7 +139,7 @@ crotary = Collection([
 	work,
 	CylinderZ(130, 50, 150, 50),
 	# center marker
-	CylinderZ(150, 3, 170, 1),
+	#CylinderZ(150, 3, 170, 1),
 	# can't see a cylinder turn, so stick a lump on one side
 	Box( 40,-5, 131, 54, 5, 149)
         ])
