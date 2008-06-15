@@ -54,10 +54,9 @@ static inline long extend(long old, int newlow, int nbits) {
 	return candidate1;
 }
 
-static inline void EPP_DIR_WRITE(void) { outb(0x24, ioaddr+2);  }
-static inline void EPP_DIR_READ(void) { outb(0x4, ioaddr+2); }
+static inline void EPP_DIR_WRITE(void) { }
+static inline void EPP_DIR_READ(void) { }
 static inline void ADDR(int w) {
-    EPP_DIR_WRITE();
     outb(w, ioaddr+3);
 }
 
