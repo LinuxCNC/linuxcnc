@@ -122,7 +122,7 @@ set nodenames {Components Pins Parameters Signals Functions Threads}
 
 # searchnames is the real name to be used to reference
 set searchnames {comp pin param sig funct thread}
-set signodes {X Y Z A "Spindle"}
+set signodes {X Y Z A B C U V W "Spindle"}
 
 set treenodes ""
 proc refreshHAL {} {
