@@ -1052,7 +1052,7 @@ static PyObject *jog(pyCommandChannel *s, PyObject *o) {
         if(PyTuple_Size(o) != 2) {
             PyErr_Format( PyExc_TypeError,
                 "jog(JOG_STOP, ...) takes 2 arguments (%lu given)",
-                PyTuple_Size(o));
+                (unsigned long)PyTuple_Size(o));
             return NULL;
         }
         EMC_AXIS_ABORT abort;
@@ -1064,7 +1064,7 @@ static PyObject *jog(pyCommandChannel *s, PyObject *o) {
         if(PyTuple_Size(o) != 3) {
             PyErr_Format( PyExc_TypeError,
                 "jog(JOG_CONTINUOUS, ...) takes 3 arguments (%lu given)",
-                PyTuple_Size(o));
+                (unsigned long)PyTuple_Size(o));
             return NULL;
         }
         EMC_AXIS_JOG cont;
@@ -1077,7 +1077,7 @@ static PyObject *jog(pyCommandChannel *s, PyObject *o) {
         if(PyTuple_Size(o) != 4) {
             PyErr_Format( PyExc_TypeError,
                 "jog(JOG_INCREMENT, ...) takes 4 arguments (%lu given)",
-                PyTuple_Size(o));
+                (unsigned long)PyTuple_Size(o));
             return NULL;
         }
 
@@ -1414,8 +1414,8 @@ static void rotate_z(double pt[3], double a) {
     double theta = a * M_PI / 180;
     double c = cos(theta), s = sin(theta);
     double tx, ty;
-    tx = pt[0] * c + pt[1] * s;
-    ty = pt[0] * s - pt[1] * c;
+    tx = pt[0] * c - pt[1] * s;
+    ty = pt[0] * s + pt[1] * c;
 
     pt[0] = tx; pt[1] = ty;
 }
@@ -1424,8 +1424,8 @@ static void rotate_y(double pt[3], double a) {
     double theta = a * M_PI / 180;
     double c = cos(theta), s = sin(theta);
     double tx, tz;
-    tx = pt[0] * c + pt[2] * s;
-    tz = pt[0] * s - pt[2] * c;
+    tx = pt[0] * c - pt[2] * s;
+    tz = pt[0] * s + pt[2] * c;
 
     pt[0] = tx; pt[2] = tz;
 }
@@ -1468,9 +1468,9 @@ static void line9(const double p1[9], const double p2[9]) {
             fabs(p2[3] - p1[3]),
             fabs(p2[4] - p1[4]),
             fabs(p2[5] - p1[5]));
-        int st = max(10, dc/10);
+        int st = (int)ceil(max(10, dc/10));
         int i;
-        printf("dc=%f st=%d\n", dc, st);
+
         for(i=1; i<=st; i++) {
             double t = i * 1.0 / st;
             double v = 1.0 - t;
@@ -1490,7 +1490,7 @@ static void line9b(const double p1[9], const double p2[9]) {
             fabs(p2[3] - p1[3]),
             fabs(p2[4] - p1[4]),
             fabs(p2[5] - p1[5]));
-        int st = max(10, dc/10);
+        int st = (int)ceil(max(10, dc/10));
         int i;
         printf("dc=%f st=%d\n", dc, st);
 
@@ -1700,7 +1700,7 @@ static PyObject *Logger_start(pyPositionLogger *s, PyObject *o) {
             double p[3];
             vertex9(pt, p);
             double x = p[0], y = p[1], z = p[2];
-            double ry = pt[4], rz = pt[5];
+            double ry = -pt[4], rz = pt[5];
 
             struct color c = s->colors[colornum];
             struct logger_point *op = &s->p[s->npts-1];
