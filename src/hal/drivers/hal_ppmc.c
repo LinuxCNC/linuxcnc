@@ -715,6 +715,10 @@ int rtapi_app_main(void)
 		/* and free the block */
 		kfree(bus);
 	    }
+            /* if ioports were requested, release them */
+	    if(port_registration[busnum])
+                rtapi_release_region(port_addr[busnum], 8);
+            port_registration[busnum] = 0;
 	}
 	/* disconnect from HAL */
 	hal_exit(comp_id);
