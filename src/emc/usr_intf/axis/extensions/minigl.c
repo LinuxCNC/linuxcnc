@@ -627,49 +627,6 @@ static PyObject *pyglRenderMode( PyObject *s, PyObject *o) {
     return Py_None;
 }
 
-static PyObject *pydraw_lines(PyObject *s, PyObject *o) {
-    PyListObject *li;
-    int for_selection = 0;
-    int i;
-    int first = 1;
-    int nl = -1, n;
-    double lx=0, ly=0, lz=0;
-    double p1[3], p2[3];
-
-    if(!PyArg_ParseTuple(o, "O!|i:draw_lines",
-			    &PyList_Type, &li, &for_selection))
-        return NULL;
-
-    for(i=0; i<PyList_GET_SIZE(li); i++) {
-        PyObject *it = PyList_GET_ITEM(li, i);
-        PyObject *dummy1, *dummy2, *dummy3;
-        if(!PyArg_ParseTuple(it, "i(ddd)(ddd)|OOO", &n,
-                    p1, p1+1, p1+2, p2, p2+1, p2+2, &dummy1, &dummy2, &dummy3)) {
-            if(!first) glEnd();
-            return NULL;
-        }
-        
-        if(first || p1[0] != lx || p1[1] != ly || p1[2] != lz 
-                || (for_selection && n != nl)) {
-            if(!first) glEnd();
-            if(for_selection && n != nl) {
-                glLoadName(n);
-                nl = n;
-            }
-            glBegin(GL_LINE_STRIP);
-            glVertex3dv(p1);
-            first = 0;
-        }
-        glVertex3dv(p2);
-        lx = p2[0]; ly = p2[1], lz = p2[2];
-    }
-
-    if(!first) glEnd();
-
-    Py_INCREF(Py_None);
-    return Py_None;
-}
-
 /*
 glSelectBuffer
 */
@@ -758,7 +715,6 @@ METH(gluUnProject, "map window coordinates to object coordinates"),
 METH(glBitmap, "draw a bitmap"),
 METH(glReadPixels, "read pixels"),
 
-METH(draw_lines, "Draw a bunch of lines in the 'rs274.glcanon' format"),
 
 #undef METH
 {NULL, NULL, 0, 0},

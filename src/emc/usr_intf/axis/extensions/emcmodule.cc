@@ -1051,7 +1051,7 @@ static PyObject *jog(pyCommandChannel *s, PyObject *o) {
     if(fn == LOCAL_JOG_STOP) {
         if(PyTuple_Size(o) != 2) {
             PyErr_Format( PyExc_TypeError,
-                "jog(JOG_STOP, ...) takes 2 arguments (%d given)",
+                "jog(JOG_STOP, ...) takes 2 arguments (%lu given)",
                 PyTuple_Size(o));
             return NULL;
         }
@@ -1063,7 +1063,7 @@ static PyObject *jog(pyCommandChannel *s, PyObject *o) {
     } else if(fn == LOCAL_JOG_CONTINUOUS) {
         if(PyTuple_Size(o) != 3) {
             PyErr_Format( PyExc_TypeError,
-                "jog(JOG_CONTINUOUS, ...) takes 3 arguments (%d given)",
+                "jog(JOG_CONTINUOUS, ...) takes 3 arguments (%lu given)",
                 PyTuple_Size(o));
             return NULL;
         }
@@ -1076,7 +1076,7 @@ static PyObject *jog(pyCommandChannel *s, PyObject *o) {
     } else if(fn == LOCAL_JOG_INCREMENT) {
         if(PyTuple_Size(o) != 4) {
             PyErr_Format( PyExc_TypeError,
-                "jog(JOG_INCREMENT, ...) takes 4 arguments (%d given)",
+                "jog(JOG_INCREMENT, ...) takes 4 arguments (%lu given)",
                 PyTuple_Size(o));
             return NULL;
         }
@@ -1409,6 +1409,183 @@ static PyTypeObject Error_Type = {
 };
 
 #include <GL/gl.h>
+
+static void rotate_z(double pt[3], double a) {
+    double theta = a * M_PI / 180;
+    double c = cos(theta), s = sin(theta);
+    double tx, ty;
+    tx = pt[0] * c + pt[1] * s;
+    ty = pt[0] * s - pt[1] * c;
+
+    pt[0] = tx; pt[1] = ty;
+}
+
+static void rotate_y(double pt[3], double a) {
+    double theta = a * M_PI / 180;
+    double c = cos(theta), s = sin(theta);
+    double tx, tz;
+    tx = pt[0] * c + pt[2] * s;
+    tz = pt[0] * s - pt[2] * c;
+
+    pt[0] = tx; pt[2] = tz;
+}
+
+static void translate(double pt[3], const double off[3]) {
+    pt[0] += off[0];
+    pt[1] += off[1];
+    pt[2] += off[2];
+}
+
+static void vertex9(const double pt[9], double p[3]) {
+    p[0] = pt[6];
+    p[1] = pt[7];
+    p[2] = pt[8];
+
+    rotate_y(p, pt[4]);
+    rotate_z(p, pt[5]);
+    translate(p, pt);
+
+    if(0) printf("vertex9 % 8.4f % 8.4f % 8.4f\n\t% 8.4f % 8.4f % 8.4f\n\t% 8.4f % 8.4f % 8.4f\n\t\t\t% 8.4f % 8.4f % 8.4f\n",
+        pt[0], pt[1], pt[2],
+        pt[3], pt[4], pt[5],
+        pt[6], pt[7], pt[8],
+        p[0], p[1], p[2]);
+}
+
+
+static void glvertex9(const double pt[9]) {
+    double p[3];
+    vertex9(pt, p);
+    glVertex3dv(p);
+}
+
+#define max(a,b) ((a) < (b) ? (b) : (a))
+#define max3(a,b,c) (max((a),max((b),(c))))
+
+static void line9(const double p1[9], const double p2[9]) {
+    if(p1[3] != p2[3] || p1[4] != p2[4] || p1[5] != p2[5]) {
+        double dc = max3(
+            abs(p2[3] - p1[3]),
+            abs(p2[4] - p1[4]),
+            abs(p2[5] - p1[5]));
+        int st = max(10, dc/10);
+        int i;
+        printf("dc=%f st=%d\n", dc, st);
+        for(i=1; i<=st; i++) {
+            double t = i * 1.0 / st;
+            double v = 1.0 - t;
+            double pt[9];
+            int i;
+            for(i=0; i<9; i++) { pt[i] = t * p2[i] + v * p1[i]; }
+            glvertex9(pt);
+        }
+    } else {
+        glvertex9(p2);
+    }
+}
+static void line9b(const double p1[9], const double p2[9]) {
+    glvertex9(p1);
+    if(p1[3] != p2[3] || p1[4] != p2[4] || p1[5] != p2[5]) {
+        double dc = max3(
+            abs(p2[3] - p1[3]),
+            abs(p2[4] - p1[4]),
+            abs(p2[5] - p1[5]));
+        int st = max(10, dc/10);
+        int i;
+        printf("dc=%f st=%d\n", dc, st);
+
+        for(i=1; i<=st; i++) {
+            double t = i * 1.0 / st;
+            double v = 1.0 - t;
+            double pt[9];
+            int i;
+            for(i=0; i<9; i++) { pt[i] = t * p2[i] + v * p1[i]; }
+            glvertex9(pt);
+            if(i != st)
+                glvertex9(pt);
+        }
+    } else {
+        glvertex9(p2);
+    }
+}
+
+static PyObject *pyline9(PyObject *s, PyObject *o) {
+    double pt1[9], pt2[9];
+
+    if(!PyArg_ParseTuple(o, "(ddddddddd)(ddddddddd):line9",
+            &pt1[0], &pt1[1], &pt1[2],
+            &pt1[3], &pt1[4], &pt1[5],
+            &pt1[6], &pt1[7], &pt1[8],
+            &pt2[0], &pt2[1], &pt2[2],
+            &pt2[3], &pt2[4], &pt2[5],
+            &pt2[6], &pt2[7], &pt2[8]))
+        return NULL;
+
+    line9b(pt1, pt2);
+
+    Py_RETURN_NONE;
+}
+
+static PyObject *pyvertex9(PyObject *s, PyObject *o) {
+    double pt1[9], pt[3];
+    if(!PyArg_ParseTuple(o, "(ddddddddd):vertex9",
+            &pt1[0], &pt1[1], &pt1[2],
+            &pt1[3], &pt1[4], &pt1[5],
+            &pt1[6], &pt1[7], &pt1[8]))
+        return NULL;
+
+    vertex9(pt, pt1);
+    return Py_BuildValue("(ddd)", &pt[0], &pt[1], &pt[2]);
+}
+
+static PyObject *pydraw_lines(PyObject *s, PyObject *o) {
+    PyListObject *li;
+    int for_selection = 0;
+    int i;
+    int first = 1;
+    int nl = -1, n;
+    double p1[9], p2[9], pl[9];
+
+    if(!PyArg_ParseTuple(o, "O!|i:draw_lines",
+			    &PyList_Type, &li, &for_selection))
+        return NULL;
+
+    for(i=0; i<PyList_GET_SIZE(li); i++) {
+        PyObject *it = PyList_GET_ITEM(li, i);
+        PyObject *dummy1, *dummy2, *dummy3;
+        if(!PyArg_ParseTuple(it, "i(ddddddddd)(ddddddddd)|OOO", &n,
+                    p1+0, p1+1, p1+2,
+                    p1+3, p1+4, p1+5,
+                    p1+6, p1+7, p1+8,
+                    p2+0, p2+1, p2+2,
+                    p2+3, p2+4, p2+5,
+                    p2+6, p2+7, p2+8,
+                    &dummy1, &dummy2, &dummy3)) {
+            if(!first) glEnd();
+            return NULL;
+        }
+        
+        if(first || !memcmp(p1, pl, sizeof(p1))
+                || (for_selection && n != nl)) {
+            if(!first) glEnd();
+            if(for_selection && n != nl) {
+                glLoadName(n);
+                nl = n;
+            }
+            glBegin(GL_LINE_STRIP);
+            glvertex9(p1);
+            first = 0;
+        }
+        line9(p1, p2);
+        memcpy(pl, p2, sizeof(p1));
+    }
+
+    if(!first) glEnd();
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 struct color {
     unsigned char r, g, b, a;
     bool operator==(const color &o) const {
@@ -1421,6 +1598,7 @@ struct color {
 
 struct logger_point {
     float x, y, z;
+    float ry, rz;
     struct color c;
 };
 
@@ -1505,13 +1683,24 @@ static PyObject *Logger_start(pyPositionLogger *s, PyObject *o) {
         if(s->st->c->valid() && s->st->c->peek() == EMC_STAT_TYPE) {
             EMC_STAT *status = static_cast<EMC_STAT*>(s->st->c->get_address());
             int colornum = 2;
-            double x, y, z;
             colornum = status->motion.traj.motion_type;
             if(colornum < 0 || colornum > NUMCOLORS) colornum = 0;
 
-            x = status->motion.traj.position.tran.x - status->task.toolOffset.tran.x;
-            y = status->motion.traj.position.tran.y - status->task.toolOffset.tran.y;
-            z = status->motion.traj.position.tran.z - status->task.toolOffset.tran.z;
+            double pt[9] = {
+                status->motion.traj.position.tran.x - status->task.toolOffset.tran.x,
+                status->motion.traj.position.tran.y - status->task.toolOffset.tran.y,
+                status->motion.traj.position.tran.z - status->task.toolOffset.tran.z,
+                status->motion.traj.position.a - status->task.toolOffset.a,
+                status->motion.traj.position.b - status->task.toolOffset.b,
+                status->motion.traj.position.c - status->task.toolOffset.c,
+                status->motion.traj.position.u - status->task.toolOffset.u,
+                status->motion.traj.position.v - status->task.toolOffset.v,
+                status->motion.traj.position.w - status->task.toolOffset.w};
+
+            double p[3];
+            vertex9(pt, p);
+            double x = p[0], y = p[1], z = p[2];
+            double ry = pt[4], rz = pt[5];
 
             struct color c = s->colors[colornum];
             struct logger_point *op = &s->p[s->npts-1];
@@ -1549,18 +1738,21 @@ static PyObject *Logger_start(pyPositionLogger *s, PyObject *o) {
                     {
                     struct logger_point &np = s->p[s->npts+1];
                     np.x = x; np.y = y; np.z = z;
+                    np.ry = ry; np.rz = rz;
                     np.c = c;
                     }
                     s->npts += 2;
                 } else {
                     struct logger_point &np = s->p[s->npts];
                     np.x = x; np.y = y; np.z = z;
+                    np.ry = ry; np.rz = rz;
                     np.c = c;
                     s->npts++;
                 }
             } else {
                 struct logger_point &np = s->p[s->npts-1];
                 np.x = x; np.y = y; np.z = z;
+                np.ry = ry; np.rz = rz;
             }
         }
         nanosleep(&ts, NULL);
@@ -1610,11 +1802,13 @@ static PyObject *Logger_last(pyPositionLogger *s, PyObject *o) {
         Py_INCREF(Py_None);
         result = Py_None;
     } else {
-        result = PyTuple_New(3);
+        result = PyTuple_New(5);
         struct logger_point &p = s->p[s->lpts-1];
         PyTuple_SET_ITEM(result, 0, PyFloat_FromDouble(p.x));
         PyTuple_SET_ITEM(result, 1, PyFloat_FromDouble(p.y));
         PyTuple_SET_ITEM(result, 2, PyFloat_FromDouble(p.z));
+        PyTuple_SET_ITEM(result, 3, PyFloat_FromDouble(p.ry));
+        PyTuple_SET_ITEM(result, 4, PyFloat_FromDouble(p.rz));
     }
     UNLOCK();
     return result;
@@ -1685,7 +1879,12 @@ static PyTypeObject PositionLoggerType = {
 };
 
 static PyMethodDef emc_methods[] = {
+#define METH(name, doc) { #name, (PyCFunction) py##name, METH_VARARGS, doc }
+METH(draw_lines, "Draw a bunch of lines in the 'rs274.glcanon' format"),
+METH(line9, "Draw a single line in the 'rs274.glcanon' format; assumes glBegin(GL_LINES)"),
+METH(vertex9, "Get the 3d location for a 9d point"),
     {NULL}
+#undef METH
 };
 
 /* ENUM defines an integer constant with the same name as the C constant.

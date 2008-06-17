@@ -898,12 +898,14 @@ class MyOpengl(Opengl):
                                2 ) * .5
             else:
                 cone_scale = 1
+            ry, rz = pos[3:5]
             pos = to_internal_units(pos[:3])
             glPushMatrix()
             glTranslatef(*pos)
-            if s.axis_mask & (1<<3):
-                glRotatef(s.position[3], 1, 0, 0)
-
+#            if s.axis_mask & (1<<3):
+#                glRotatef(s.position[3], 1, 0, 0)
+            glRotatef(rz, 0, 0, 1);
+            glRotatef(ry, 0, 1, 0);
             glEnable(GL_BLEND)
             glEnable(GL_CULL_FACE);
             glBlendFunc(GL_ONE, GL_CONSTANT_ALPHA);
@@ -1598,7 +1600,7 @@ class AxisCanon(GLCanon):
         if self.aborted: raise KeyboardInterrupt
 
     def draw_lines(self, lines, for_selection, j=0):
-        return draw_lines(lines, for_selection)
+        return emc.draw_lines(lines, for_selection)
 
     def draw_dwells(self, dwells, for_selection, j0=0):
         delta = .015625

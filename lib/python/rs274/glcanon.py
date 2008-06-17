@@ -30,7 +30,7 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         self.dwells = []; self.dwells_append = self.dwells.append
         self.choice = None
         self.feedrate = 1
-        self.lo = (0,0,0)
+        self.lo = (0,) * 9
         self.first_move = True
         self.offset_x = self.offset_y = self.offset_z = 0
         self.text = text
@@ -91,8 +91,8 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
             self.max_extents_notool = [max(x), max(y), max(z)]
 
     def tool_offset(self, zo, xo, wo):
-        x, y, z = self.lo
-        self.lo = (x - xo + self.xo, y, z - zo + self.zo)
+        x, y, z, a, b, c, u, v, w = self.lo
+        self.lo = (x - xo + self.xo, y, z - zo + self.zo, a, b, c, u, v, w - wo + self.wo)
         self.xo = xo
         self.zo = zo
         self.wo = wo
@@ -110,10 +110,19 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         self.offset_x = offset_x
         self.offset_y = offset_y
         self.offset_z = offset_z
+        self.offset_a = offset_a
+        self.offset_b = offset_b
+        self.offset_c = offset_c
+        self.offset_u = offset_u
+        self.offset_v = offset_v
+        self.offset_w = offset_w
 
     def straight_traverse(self, x,y,z, a,b,c, u, v, w):
         if self.suppress: return
-        l = (x + self.offset_x,y + self.offset_y,z + self.offset_z)
+        l = (x + self.offset_x,y + self.offset_y,z + self.offset_z,
+             a + self.offset_a, b + self.offset_b, c + self.offset_c,
+             u + self.offset_u, v + self.offset_v, w + self.offset_w,
+        )
         if not self.first_move:
                 self.traverse_append((self.lineno, self.lo, l, self.xo, self.zo))
         self.first_move = False
@@ -136,14 +145,17 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
 
     def straight_arcsegment(self, x,y,z, a,b,c, u, v, w):
         self.first_move = False
-        l = (x,y,z)
+        l = (x,y,z,a,b,c,u,v,w)
         self.arcfeed_append((self.lineno, self.lo, l, self.feedrate, self.xo, self.zo))
         self.lo = l
 
     def straight_feed(self, x,y,z, a,b,c, u, v, w):
         if self.suppress: return
         self.first_move = False
-        l = (x + self.offset_x,y + self.offset_y,z + self.offset_z)
+        l = (x + self.offset_x,y + self.offset_y,z + self.offset_z,
+             a + self.offset_a, b + self.offset_b, c + self.offset_c,
+             u + self.offset_u, v + self.offset_v, w + self.offset_w,
+        )
         self.feed_append((self.lineno, self.lo, l, self.feedrate, self.xo, self.zo))
         self.lo = l
     straight_probe = straight_feed
@@ -205,10 +217,9 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
             coords.append(line[2])
         for line in self.feed:
             if line[0] != lineno: continue
-            glVertex3fv(line[1])
-            glVertex3fv(line[2])
-            coords.append(line[1])
-            coords.append(line[2])
+            line9(line[1], line[2]);
+            coords.append(line[1][:3])
+            coords.append(line[2][:3])
         for line in self.dwells:
             if line[0] != lineno: continue
             self.draw_dwells([(line[0], c) + line[2:]], 2)
