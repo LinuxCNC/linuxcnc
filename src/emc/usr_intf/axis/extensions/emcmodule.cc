@@ -1465,9 +1465,9 @@ static void glvertex9(const double pt[9]) {
 static void line9(const double p1[9], const double p2[9]) {
     if(p1[3] != p2[3] || p1[4] != p2[4] || p1[5] != p2[5]) {
         double dc = max3(
-            abs(p2[3] - p1[3]),
-            abs(p2[4] - p1[4]),
-            abs(p2[5] - p1[5]));
+            fabs(p2[3] - p1[3]),
+            fabs(p2[4] - p1[4]),
+            fabs(p2[5] - p1[5]));
         int st = max(10, dc/10);
         int i;
         printf("dc=%f st=%d\n", dc, st);
@@ -1487,9 +1487,9 @@ static void line9b(const double p1[9], const double p2[9]) {
     glvertex9(p1);
     if(p1[3] != p2[3] || p1[4] != p2[4] || p1[5] != p2[5]) {
         double dc = max3(
-            abs(p2[3] - p1[3]),
-            abs(p2[4] - p1[4]),
-            abs(p2[5] - p1[5]));
+            fabs(p2[3] - p1[3]),
+            fabs(p2[4] - p1[4]),
+            fabs(p2[5] - p1[5]));
         int st = max(10, dc/10);
         int i;
         printf("dc=%f st=%d\n", dc, st);
