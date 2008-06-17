@@ -33,7 +33,7 @@ class HalToolCylinder(CylinderZ):
 	self.comp = comp
 
     def coords(self):
-        return (0, self.comp.tool_radius, self.comp.tool_length, self.comp.tool_radius)
+        return (0, self.comp["tool-radius"], self.comp["tool-length"], self.comp["tool-radius"])
 
 c = hal.component("mahogui")
 # table
@@ -48,8 +48,8 @@ c.newpin("arotate", hal.HAL_FLOAT, hal.HAL_IN)
 # rotary table
 c.newpin("brotate", hal.HAL_FLOAT, hal.HAL_IN)
 
-c.newpin("tool_length", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("tool_radius", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("tool-length", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("tool-radius", hal.HAL_FLOAT, hal.HAL_IN)
 c.ready()
 
 pivot_len=100
@@ -60,7 +60,7 @@ for setting in sys.argv[1:]: exec setting
 tooltip = Capture()
 
 tool = Collection([
-	HalTranslate([tooltip], c, "tool_length", 0, 0, 1),
+	HalTranslate([tooltip], c, "tool-length", 0, 0, 1),
 	HalToolCylinder(c),
 	])
 
