@@ -644,6 +644,7 @@ hostmot2-objs :=                          \
     hal/drivers/mesa-hostmot2/watchdog.o  \
     hal/drivers/mesa-hostmot2/pins.o      \
     hal/drivers/mesa-hostmot2/tram.o      \
+    hal/drivers/mesa-hostmot2/raw.o       \
     $(MATHSTUB)
 hm2_7i43-objs := hal/drivers/mesa-hostmot2/hm2_7i43.o $(MATHSTUB)
 hm2_5i20-objs := hal/drivers/mesa-hostmot2/hm2_5i20.o $(MATHSTUB)

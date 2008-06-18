@@ -316,8 +316,6 @@ void hm2_ioport_force_write(hostmot2_t *hm2) {
     int size = hm2->ioport.num_instances * sizeof(u32);
 
     hm2_ioport_force_write_ddr(hm2);
-
-    hm2->llio->write(hm2->llio, hm2->ioport.data_addr,          hm2->ioport.data_write_reg,    size);
     hm2->llio->write(hm2->llio, hm2->ioport.alt_source_addr,    hm2->ioport.alt_source_reg,    size);
     hm2->llio->write(hm2->llio, hm2->ioport.open_drain_addr,    hm2->ioport.open_drain_reg,    size);
     hm2->llio->write(hm2->llio, hm2->ioport.output_invert_addr, hm2->ioport.output_invert_reg, size);
@@ -355,6 +353,20 @@ void hm2_ioport_write(hostmot2_t *hm2) {
 
     if (need_update_ddr) {
         hm2_ioport_force_write_ddr(hm2);
+    }
+}
+
+
+
+
+//
+// initialize the tram write registers
+//
+
+void hm2_ioport_gpio_tram_write_init(hostmot2_t *hm2) {
+    int port;
+    for (port = 0; port < hm2->ioport.num_instances; port ++) {
+        hm2->ioport.data_write_reg[port] = 0;
     }
 }
 

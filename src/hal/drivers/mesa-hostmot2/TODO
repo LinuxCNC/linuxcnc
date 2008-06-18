@@ -9,11 +9,8 @@ misc:
 
     add sample configs in configs/mesa-hostmot2
 
-        use env vars to choose board type?
-        http://www.linuxcnc.org/docs/devel/html/man/man1/halcmd.1.html#SUBSTITUTION
 
-
-    where do the firmwares belong?
+    add firmwares in /usr/share/emc/firmware/
 
 
     add support for the 5i22 next
@@ -39,6 +36,8 @@ bfload
 translation ram (tram):
 
     just do it
+
+    then do dma
 
     need to deal with the "strobe" bit
 
@@ -123,6 +122,10 @@ stepgen:
 
     position commanding is very much hacked right now...
 
+    setting .scale to 1600 (1600 steps/rev) and then commanding position
+    to 1600 revs causes chaos, it runs in the wrong direction, some
+    overflow bug not handled there...
+
     support maxvel
 
     support maxaccel
@@ -136,106 +139,14 @@ stepgen:
 
 watchdog:
 
-    what's the cause of a watchdog bite?  on epp it's probably because
-    the cable broken and was now replaced (io_error).  on pci i dont
-    know why it would happen...  scheduling latency larger than watchdog
-    timeout perhaps?
-
-    what's the proper driver response to a watchdog bite?  The io_error
-    (if that's what it was) may have occurred at any time during a read
-    or a write, so the hardware is in an unknown state.  The proper
-    thing to do is probably to completely re-initialize the hardware.
-    Ie, write all register buffers.
-
-        hm2_read_idrom
-        hm2_read_pin_descriptors
-        hm2_read_module_descriptors
-
-        hm2_parse_module_descriptors:
-
-            hm2_ioport_process_md:
-                hm2_register_tram_region(data_reg)
-                ddr_reg = kmalloc
-                written_ddr = kmalloc
-                alt_source_reg = kmalloc
-                open_drain_reg = kmalloc
-                output_invert_reg = kmalloc
-                initialize all ioport regs to 0  // inputs, from primary source (ioport), not inverted
-
-            hm2_encoder_process_md():
-                hal = hal_malloc
-                hm2_register_tram_region(counter_reg)
-                prev_counter = kmalloc
-                control_reg = kmalloc
-                export_to_hal
-                init_hal_objects
-                control_reg = STATIC_INIT
-
-            hm2_watchdog_process_md(): 
-                hal = hal_malloc
-                status_reg = kmalloc
-                reset_reg = kmalloc
-                timer_reg = kmalloc
-                export_to_hal
-                init_hal_objects
-                reset_reg = STATIC_INIT
-                status_reg = STATIC_INIT
-
-        hm2_tram_alloc()
-
-        hm2_configure_pins
-            set pin source & dir based on enabled function instances  // updates alt_source_reg and ddr_reg
-
-        hm2_export_gpio
-            pin.hal = hal_malloc
-            export_to_hal
-            init_hal_objects
-
-        hm2_force_write
-            hm2_encoder_force_write:
-                llio->write(control_reg)
-
-            hm2_watchdog_force_write
-                hal.timeout -> timer_reg
-                llio->write(timer_reg)
-                llio->write(status_reg)  // clear watchdog bit bit
-
-            hm2_ioport_force_write
-                hm2_ioport_force_write_ddr
-                    llio->write(ioport.ddr_reg)
-                llio->write(ioport.data_write_reg)
-                llio->write(ioport.alt_source_reg)
-                llio->write(ioport.open_drain_reg)
-                llio->write(ioport.output_invert_reg)
-
-
-        hm2_tram_read
-
-        hm2_gpio_process_read
-
-        hm2_encoder_tram_init
-            prev_counter = counter_reg
-
-        hm2_encoder_process_read 
-
-
-        hm2_gpio_process_write
-
-        hm2_tram_write  // dont process but write
-
-
-        watchdog recovery AND io_error recovery:
-            hm2_force_read()   // read all off-TRAM register buffers from FPGA, update state of driver & HAL
-            hm2_force_write()  // update all off-TRAM register buffers from driver state & HAL, write to FPGA
-
-            // NOTE: on-TRAM register buffers will be automatically read & written as hm2_write() starts back up, that's prolly ok
-
 
 
 
 7i43:
 
     can't get it to work with the pci card parport...
+
+    test with the 400K board again
 
 
 5i20:

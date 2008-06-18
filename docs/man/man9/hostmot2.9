@@ -69,7 +69,7 @@ This config string is passed to and parsed by the hostmot2 driver when
 the board-driver registers a HostMot2 instance.  The format of the config
 string is:
 
-.B [num_encoders=\fIN\fB] [num_pwmgens=\fIN\fB] [num_stepgens=\fIN\fB]
+.B [num_encoders=\fIN\fB] [num_pwmgens=\fIN\fB] [num_stepgens=\fIN\fB] [enable_raw]
 .RS 4
 .TP
 \fBnum_encoders\fR [default: -1]
@@ -86,6 +86,10 @@ pwmgens available in the firmware, the board will fail to register.
 Only enable the first N stepgens.  If N is -1, all stepgens are enabled.
 If N is 0, no stepgens are enabled.  If N is greater than the number of
 stepgens available in the firmware, the board will fail to register.
+.TP
+\fBenable_raw\fR
+If specified, this turns on a raw access mode, whereby a user can peek and
+poke the firmware from HAL.  See Raw Mode below.
 .RE
 
 
@@ -257,6 +261,29 @@ Functions:
 
 pet_watchdog(): Calling this function resets the watchdog timer and
 postpones the watchdog biting until timeout_ns nanoseconds later.
+
+
+.SH Raw Mode
+
+If the "enable_raw" config keyword is specified, Raw mode is enabled.
+Raw mode lets a user peek and poke the firmware from HAL.
+
+Pins:
+
+(u32 in) read_address: The bottom 16 bits of this is used as the address
+to read from.
+
+(u32 out) read_data: Each time the hm2_read() function is called, this
+pin is updated with the value at .read_address.
+
+(u32 in) write_address: The bottom 16 bits of this is used as the address
+to write to.
+
+(u32 in) write_data: This is the value to write to .write_address.
+
+(bit in) write_strobe: Each time the hm2_write() function is called, this
+pin is examined.  If it is True, then value in .write_data is written
+to the address in .write_address, and .write_strobe is set back to False.
 
 
 .SH FUNCTIONS

@@ -83,6 +83,8 @@ static void hm2_read(void *void_hm2, long period) {
     hm2_ioport_gpio_process_tram_read(hm2);
     hm2_encoder_process_tram_read(hm2);
     hm2_stepgen_process_tram_read(hm2, period);
+
+    hm2_raw_read(hm2);
 }
 
 
@@ -106,6 +108,8 @@ static void hm2_write(void *void_hm2, long period) {
     hm2_watchdog_write(hm2);  // in case the user has written to the watchdog.timeout_ns param
     hm2_pwmgen_write(hm2);    // update pwmgen registers if needed 
     hm2_stepgen_write(hm2);   // update stepgen registers if needed 
+
+    hm2_raw_write(hm2);
 }
 
 
@@ -152,6 +156,7 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
     hm2->config.num_encoders = -1;
     hm2->config.num_pwmgens = -1;
     hm2->config.num_stepgens = -1;
+    hm2->config.enable_raw = 0;
 
     DBG("parsing config string \"%s\"\n", config_string);
 
@@ -165,12 +170,19 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
         if (strncmp(token, "num_encoders=", 13) == 0) {
             token += 13;
             hm2->config.num_encoders = simple_strtol(token, &endp, 0);
+
         } else if (strncmp(token, "num_pwmgens=", 12) == 0) {
             token += 12;
             hm2->config.num_pwmgens = simple_strtol(token, &endp, 0);
+
         } else if (strncmp(token, "num_stepgens=", 13) == 0) {
             token += 13;
             hm2->config.num_stepgens = simple_strtol(token, &endp, 0);
+
+        } else if (strncmp(token, "enable_raw", 10) == 0) {
+            token += 10;
+            hm2->config.enable_raw = 1;
+
         } else {
             ERR("invalid token in config string: \"%s\"\n", token);
             return -EINVAL;
@@ -181,6 +193,7 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
     DBG("    num_encoders=%d\n", hm2->config.num_encoders);
     DBG("    num_pwmgens=%d\n",  hm2->config.num_pwmgens);
     DBG("    num_stepgens=%d\n", hm2->config.num_stepgens);
+    DBG("    enable_raw=%d\n",   hm2->config.enable_raw);
 
     return 0;
 }
@@ -766,6 +779,16 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
     }
 
 
+    // 
+    // the "raw" interface lets you peek and poke the HostMot2 registers from HAL
+    //
+
+    r = hm2_raw_setup(hm2);
+    if (r != 0) {
+        goto fail1;
+    }
+
+
     //
     // At this point, all non-TRAM register buffers have been initialized
     // and all HAL objects have been allocated and exported to HAL.
@@ -808,6 +831,7 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
     //
 
     // set gpio output pins (tho there should be none yet) based on their HAL objects
+    hm2_ioport_gpio_tram_write_init(hm2);
     hm2_ioport_gpio_prepare_tram_write(hm2);
 
     // tell stepgen not to move

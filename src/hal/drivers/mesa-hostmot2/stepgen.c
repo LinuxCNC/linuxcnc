@@ -68,6 +68,7 @@ void hm2_stepgen_process_tram_read(hostmot2_t *hm2, long period) {
         *(hm2->stepgen.instance[i].hal.pin.counts) += counts_delta;
         *(hm2->stepgen.instance[i].hal.pin.position_fb) = *(hm2->stepgen.instance[i].hal.pin.counts) / hm2->stepgen.instance[i].hal.param.position_scale;
         *(hm2->stepgen.instance[i].hal.pin.velocity_fb) = pos_delta / hm2->stepgen.instance[i].hal.param.position_scale / fperiod;
+        *(hm2->stepgen.instance[i].hal.pin.accumulator) = acc;
 
         hm2->stepgen.instance[i].prev_accumulator = hm2->stepgen.accumulator_reg[i];
     }
@@ -409,7 +410,12 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
                 goto fail5;
             }
 
-            rtapi_snprintf(name, HAL_NAME_LEN, "%s.stepgen.%02d.rate", hm2->llio->name, i);
+
+            //
+            // some pins for debugging
+            //
+
+            rtapi_snprintf(name, HAL_NAME_LEN, "%s.stepgen.%02d.debug.rate", hm2->llio->name, i);
             r = hal_pin_u32_new(name, HAL_OUT, &(hm2->stepgen.instance[i].hal.pin.rate), hm2->llio->comp_id);
             if (r != HAL_SUCCESS) {
                 ERR("error adding pin '%s', aborting\n", name);
@@ -417,13 +423,22 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
                 goto fail5;
             }
 
-            rtapi_snprintf(name, HAL_NAME_LEN, "%s.stepgen.%02d.error", hm2->llio->name, i);
+            rtapi_snprintf(name, HAL_NAME_LEN, "%s.stepgen.%02d.debug.accumulator", hm2->llio->name, i);
+            r = hal_pin_u32_new(name, HAL_OUT, &(hm2->stepgen.instance[i].hal.pin.accumulator), hm2->llio->comp_id);
+            if (r != HAL_SUCCESS) {
+                ERR("error adding pin '%s', aborting\n", name);
+                r = -ENOMEM;
+                goto fail5;
+            }
+
+            rtapi_snprintf(name, HAL_NAME_LEN, "%s.stepgen.%02d.debug.error", hm2->llio->name, i);
             r = hal_pin_float_new(name, HAL_OUT, &(hm2->stepgen.instance[i].hal.pin.error), hm2->llio->comp_id);
             if (r != HAL_SUCCESS) {
                 ERR("error adding pin '%s', aborting\n", name);
                 r = -ENOMEM;
                 goto fail5;
             }
+
 
             // parameters
             rtapi_snprintf(name, HAL_NAME_LEN, "%s.stepgen.%02d.position-scale", hm2->llio->name, i);

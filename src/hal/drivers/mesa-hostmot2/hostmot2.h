@@ -28,7 +28,7 @@
 #include "hostmot2-lowlevel.h"
 
 
-#define HM2_VERSION "0.2"
+#define HM2_VERSION "0.3"
 #define HM2_NAME    "hm2"
 
 #define PRINT_NO_LL(level, fmt, args...)  rtapi_print_msg(level, HM2_NAME ": " fmt, ## args);
@@ -332,6 +332,7 @@ typedef struct {
 
             // these are just for debugging for now, i'll remove them later
             hal_u32_t *rate;
+            hal_u32_t *accumulator;
             hal_float_t *error;
         } pin;
 
@@ -436,6 +437,27 @@ typedef struct {
 
 
 // 
+// raw peek/poke access
+//
+
+typedef struct {
+    struct {
+        struct {
+            hal_u32_t *read_address;
+            hal_u32_t *write_address;
+
+            hal_u32_t *read_data;
+            hal_u32_t *write_data;
+
+            hal_bit_t *write_strobe;
+        } pin;
+    } hal;
+} hm2_raw_t;
+
+
+
+
+// 
 // this struct hold an entry in our Translation RAM region list
 //
 
@@ -460,6 +482,7 @@ typedef struct {
         int num_encoders;
         int num_pwmgens;
         int num_stepgens;
+        int enable_raw;
     } config;
 
     char config_name[HM2_CONFIGNAME_LENGTH + 1];
@@ -488,6 +511,8 @@ typedef struct {
     hm2_stepgen_t stepgen;
     hm2_ioport_t ioport;
     hm2_watchdog_t watchdog;
+
+    hm2_raw_t *raw;
 
     struct list_head list;
 } hostmot2_t;
@@ -551,6 +576,7 @@ void hm2_ioport_cleanup(hostmot2_t *hm2);
 void hm2_ioport_force_write(hostmot2_t *hm2);
 void hm2_ioport_write(hostmot2_t *hm2);
 void hm2_ioport_print_module(int msg_level, hostmot2_t *hm2);
+void hm2_ioport_gpio_tram_write_init(hostmot2_t *hm2);
 
 int hm2_ioport_gpio_export_hal(hostmot2_t *hm2);
 void hm2_ioport_gpio_process_tram_read(hostmot2_t *hm2);
@@ -604,12 +630,24 @@ void hm2_stepgen_process_tram_read(hostmot2_t *hm2, long period);
 
 // 
 // watchdog functions
+// 
 
 int hm2_watchdog_parse_md(hostmot2_t *hm2, int md_index);
 void hm2_watchdog_print_module(int msg_level, hostmot2_t *hm2);
 void hm2_watchdog_cleanup(hostmot2_t *hm2);
 void hm2_watchdog_write(hostmot2_t *hm2);
 void hm2_watchdog_force_write(hostmot2_t *hm2);
+
+
+
+
+// 
+// the raw interface lets you peek and poke the hostmot2 instance from HAL
+//
+
+int hm2_raw_setup(hostmot2_t *hm2);
+void hm2_raw_read(hostmot2_t *hm2);
+void hm2_raw_write(hostmot2_t *hm2);
 
 
 
