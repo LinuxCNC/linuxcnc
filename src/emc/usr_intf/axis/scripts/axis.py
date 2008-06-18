@@ -585,7 +585,7 @@ class MyOpengl(Opengl):
         glMatrixMode(GL_MODELVIEW)
 
         if vars.show_program.get() and program is not None:
-            if vars.show_rapids.get() and norapids is not None:
+            if not vars.show_rapids.get() and norapids is not None:
                 glCallList(norapids)
             else:
                 glCallList(program)
