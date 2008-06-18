@@ -39,22 +39,21 @@ class ArcsToSegmentsMixin:
 
     def arc_feed(self, x1, y1, cx, cy, rot, z1, a, b, c, u, v, w):
         if self.plane == 1:
-            f = n = [x1+self.offset_x,y1+self.offset_y,z1+self.offset_z, a, b, c, 0, 0, 0]
+            f = n = [x1+self.offset_x,y1+self.offset_y,z1+self.offset_z, a, b, c, u, v, w]
             cx=cx+self.offset_x
             cy=cy+self.offset_y
             xyz = [0,1,2]
         elif self.plane == 3:
-            f = n = [y1+self.offset_x,z1+self.offset_y,x1+self.offset_z, a, b, c, 0, 0, 0]
+            f = n = [y1+self.offset_x,z1+self.offset_y,x1+self.offset_z, a, b, c, u, v, w]
             cx=cx+self.offset_z
             cy=cy+self.offset_x
             xyz = [2,0,1]
         else:
-            f = n = [z1+self.offset_x,x1+self.offset_y,y1+self.offset_z, a, b, c, 0, 0, 0]
+            f = n = [z1+self.offset_x,x1+self.offset_y,y1+self.offset_z, a, b, c, u, v, w]
             cx=cx+self.offset_y
             cy=cy+self.offset_z
             xyz = [1,2,0]
-        ox, oy, oz = self.lo
-        o = [ox, oy, oz, 0, 0, 0, 0, 0, 0]
+        o = self.lo[:]
         theta1 = math.atan2(o[xyz[1]]-cy, o[xyz[0]]-cx)
         theta2 = math.atan2(n[xyz[1]]-cy, n[xyz[0]]-cx)
         rad = math.hypot(o[xyz[0]]-cx, o[xyz[1]]-cy)
