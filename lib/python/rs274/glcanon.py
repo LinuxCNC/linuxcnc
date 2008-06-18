@@ -17,6 +17,8 @@
 
 from rs274 import Translated, ArcsToSegmentsMixin
 from minigl import *
+import emc
+
 def glColor3fv(args): glColor3f(*args)
 def glVertex3fv(args): glVertex3f(*args)
 
@@ -217,7 +219,7 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
             coords.append(line[2])
         for line in self.feed:
             if line[0] != lineno: continue
-            line9(line[1], line[2]);
+            emc.line9(line[1], line[2]);
             coords.append(line[1][:3])
             coords.append(line[2][:3])
         for line in self.dwells:
