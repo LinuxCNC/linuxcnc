@@ -227,6 +227,9 @@ color_names = [
     'cone',
 ]   
 
+def joints_mode():
+    return s.motion_mode == emc.TRAJ_MODE_FREE and s.kinematics_type != emc.KINEMATICS_IDENTITY
+
 def parse_color(c):
     if c == "": return (1,0,0)
     return tuple([i/65535. for i in root_window.winfo_rgb(c)])
@@ -960,7 +963,7 @@ class MyOpengl(Opengl):
             homed.insert(1, 0)
             limit.insert(1, 0)
 
-        if s.kinematics_type == emc.KINEMATICS_IDENTITY or s.motion_mode != emc.TRAJ_MODE_FREE:
+        if not joints_mode():
             if vars.display_type.get():
                 positions = s.position
             else:
@@ -1000,7 +1003,7 @@ class MyOpengl(Opengl):
         else:
             # N.B. no conversion here because joint positions are unitless
             posstrs = ["  %s:% 9.4f" % i for i in
-                zip(jointnames, s.joint_actual_position)]
+                zip(range(num_joints), s.joint_actual_position)]
 
         maxlen = max([len(p) for p in posstrs])
         pixel_width = max([int(o.tk.call("font", "measure", coordinate_font, p))
@@ -1850,6 +1853,7 @@ widgets = nf.Widgets(root_window,
     ("mdi_command", Entry, tabs_mdi + ".command"),
     ("code_text", Text, tabs_mdi + ".gcodes"),
 
+    ("axes", Radiobutton, tabs_manual + ".axes"),
     ("axis_x", Radiobutton, tabs_manual + ".axes.axisx"),
     ("axis_y", Radiobutton, tabs_manual + ".axes.axisy"),
     ("axis_z", Radiobutton, tabs_manual + ".axes.axisz"),
@@ -1859,6 +1863,18 @@ widgets = nf.Widgets(root_window,
     ("axis_u", Radiobutton, tabs_manual + ".axes.axisu"),
     ("axis_v", Radiobutton, tabs_manual + ".axes.axisv"),
     ("axis_w", Radiobutton, tabs_manual + ".axes.axisw"),
+
+    ("joints", Radiobutton, tabs_manual + ".joints"),
+    ("joint_0", Radiobutton, tabs_manual + ".joints.joint0"),
+    ("joint_1", Radiobutton, tabs_manual + ".joints.joint1"),
+    ("joint_2", Radiobutton, tabs_manual + ".joints.joint2"),
+    ("joint_3", Radiobutton, tabs_manual + ".joints.joint3"),
+    ("joint_4", Radiobutton, tabs_manual + ".joints.joint4"),
+    ("joint_5", Radiobutton, tabs_manual + ".joints.joint5"),
+    ("joint_6", Radiobutton, tabs_manual + ".joints.joint6"),
+    ("joint_7", Radiobutton, tabs_manual + ".joints.joint7"),
+    ("joint_8", Radiobutton, tabs_manual + ".joints.joint8"),
+    ("joint_9", Radiobutton, tabs_manual + ".joints.joint9"),
 
     ("jogincr", Entry, tabs_manual + ".jogf.jog.jogincr"),
     ("override", Checkbutton, tabs_manual + ".jogf.override"),
@@ -1903,8 +1919,12 @@ widgets = nf.Widgets(root_window,
 
 def activate_axis(i, force=0):
     if not force and not manual_ok(): return
-    if i >= axiscount: return
-    axis = getattr(widgets, "axis_%s" % "xyzabcuvw"[i])
+    if joints_mode():
+        if i >= num_joints: return
+        axis = getattr(widgets, "joint_%d" % i)
+    else:
+        if not s.axis_mask & (1<<i): return
+        axis = getattr(widgets, "axis_%s" % "xyzabcuvw"[i])
     axis.focus()
     axis.invoke()
 
@@ -2176,7 +2196,7 @@ def get_jog_speed(a):
 def run_warn():
     warnings = []
     if o.g:
-        for i in range(min(axiscount, 3)): # Does not enforce angle limits
+        for i in range(3): # Does not enforce angle limits
             if not(s.axis_mask & (1<<i)): continue
             if o.g.min_extents_notool[i] < machine_limit_min[i]:
                 warnings.append(_("Program exceeds machine minimum on axis %s")
@@ -2833,7 +2853,7 @@ class TclCommands(nf.TclCommands):
     def touch_off(event=None, new_axis_value = None):
         global system
         if not manual_ok(): return
-        if s.motion_mode == emc.TRAJ_MODE_FREE and s.kinematics_type != emc.KINEMATICS_IDENTITY: return
+        if joints_mode(): return
         offset_axis = "xyzabcuvw".index(vars.current_axis.get())
         if new_axis_value is None:
             new_axis_value, system = prompt_touchoff(_("Touch Off"),
@@ -2979,7 +2999,8 @@ class TclCommands(nf.TclCommands):
     	comp['jog.w'] = vars.current_axis.get() == "w"
 
     def set_joint_mode(*args):
-        c.teleop_enable(vars.joint_mode.get())
+        joint_mode = vars.joint_mode.get()
+        c.teleop_enable(joint_mode)
 
     def save_gcode(*args):
         if not loaded_file: return
@@ -3254,7 +3275,6 @@ def set_tabs(e):
     t.configure(tabs="%d right" % (e.width - 2))
 
 import sys, getopt
-axiscount = 3
 machine_limit_min = [-1] * 9
 machine_limit_max = [1] * 9
 
@@ -3272,8 +3292,6 @@ if sys.argv[1] != "-ini":
 
 inifile = emc.ini(sys.argv[2])
 vars.emcini.set(sys.argv[2])
-axiscount = int(inifile.find("TRAJ", "AXES"))
-jointnames = "012345678"[:axiscount]
 open_directory = inifile.find("DISPLAY", "PROGRAM_PREFIX")
 vars.machine.set(inifile.find("EMC", "MACHINE"))
 extensions = inifile.findall("FILTER", "PROGRAM_EXTENSION")
@@ -3349,20 +3367,24 @@ root_window.tk.call("setup_menu_accel", widgets.unhomemenu, "end", _("Unhome All
 s = emc.stat();
 s.poll()
 while s.axes == 0:
+    print "waiting for s.axes"
     time.sleep(.01)
     s.poll()
 
+live_axis_count = 0
 for i,j in enumerate("XYZABCUVW"):
     if s.axis_mask & (1<<i) == 0: continue
+    live_axis_count += 1
     widgets.homemenu.add_command(command=lambda i=i: commands.home_axis_number(i))
     widgets.unhomemenu.add_command(command=lambda i=i: commands.unhome_axis_number(i))
     root_window.tk.call("setup_menu_accel", widgets.homemenu, "end",
             _("Home Axis _%s") % j)
     root_window.tk.call("setup_menu_accel", widgets.unhomemenu, "end",
             _("Unhome Axis _%s") % j)
+num_joints = int(inifile.find("TRAJ", "JOINTS") or live_axis_count)
 
 astep_size = step_size = 1
-for a in range(axiscount):
+for a in range(9):
     if s.axis_mask & (1<<a) == 0: continue
     section = "AXIS_%d" % a
     unit = inifile.find(section, "UNITS") or lu
@@ -3431,12 +3453,16 @@ for i in range(9):
     if s.axis_mask & (1<<i): continue
     c = getattr(widgets, "axis_%s" % ("xyzabcuvw"[i]))
     c.grid_forget()
+for i in range(num_joints, 9):
+    c = getattr(widgets, "joint_%d" % i)
+    
 if s.axis_mask & 56 == 0:
     widgets.ajogspeed.grid_forget()
 c = emc.command()
 e = emc.error_channel()
 
 widgets.preview_frame.pack_propagate(0)
+
 o = MyOpengl(widgets.preview_frame, width=400, height=300, double=1, depth=1)
 o.last_line = 1
 o.pack(fill="both", expand=1)
@@ -3552,14 +3578,23 @@ _tk_seticon.seticon(widgets.about_window, icon)
 _tk_seticon.seticon(widgets.help_window, icon)
 
 vars.kinematics_type.set(s.kinematics_type)
+def balance_ja():
+    w = max(widgets.axes.winfo_reqwidth(), widgets.joints.winfo_reqwidth())
+    h = max(widgets.axes.winfo_reqheight(), widgets.joints.winfo_reqheight())
+    widgets.axes.configure(width=w, height=h)
+    widgets.joints.configure(width=w, height=h)
 if s.kinematics_type != emc.KINEMATICS_IDENTITY:
     c.teleop_enable(0)
     vars.joint_mode.set(0)
+    widgets.joints.grid_propagate(0)
+    widgets.axes.grid_propagate(0)
+    root_window.after_idle(balance_ja)
 else:
     widgets.menu_view.delete("end")
     widgets.menu_view.delete("end")
     widgets.menu_view.delete("end")
     root_window.bind("$", "")
+
 
 if lathe:
     root_window.after_idle(commands.set_view_y)

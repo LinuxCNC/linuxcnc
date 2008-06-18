@@ -838,6 +838,153 @@ grid $_tabs_manual.axes.axisz \
 	-row 0 \
 	-padx 4
 
+frame $_tabs_manual.joints
+
+radiobutton $_tabs_manual.joints.joint0 \
+	-anchor w \
+	-padx 0 \
+	-selectcolor #4864ab \
+	-value x \
+	-variable current_axis \
+	-width 2 \
+        -text 0 \
+        -command axis_activated
+
+radiobutton $_tabs_manual.joints.joint1 \
+	-anchor w \
+	-padx 0 \
+	-selectcolor #4864ab \
+	-value y \
+	-variable current_axis \
+	-width 2 \
+        -text 1 \
+        -command axis_activated
+
+radiobutton $_tabs_manual.joints.joint2 \
+	-anchor w \
+	-padx 0 \
+	-selectcolor #4864ab \
+	-value z \
+	-variable current_axis \
+	-width 2 \
+        -text 2 \
+        -command axis_activated
+
+radiobutton $_tabs_manual.joints.joint3 \
+	-anchor w \
+	-padx 0 \
+	-selectcolor #4864ab \
+	-value a \
+	-variable current_axis \
+	-width 2 \
+        -text 3 \
+        -command axis_activated
+
+radiobutton $_tabs_manual.joints.joint4 \
+	-anchor w \
+	-padx 0 \
+	-selectcolor #4864ab \
+	-value b \
+	-variable current_axis \
+	-width 2 \
+        -text 4 \
+        -command axis_activated
+
+radiobutton $_tabs_manual.joints.joint5 \
+	-anchor w \
+	-padx 0 \
+	-selectcolor #4864ab \
+	-value c \
+	-variable current_axis \
+	-width 2 \
+        -text 5 \
+        -command axis_activated
+
+
+radiobutton $_tabs_manual.joints.joint6 \
+	-anchor w \
+	-padx 0 \
+	-selectcolor #4864ab \
+	-value u \
+	-variable current_axis \
+	-width 2 \
+        -text 6 \
+        -command axis_activated
+
+radiobutton $_tabs_manual.joints.joint7 \
+	-anchor w \
+	-padx 0 \
+	-selectcolor #4864ab \
+	-value v \
+	-variable current_axis \
+	-width 2 \
+        -text 7 \
+        -command axis_activated
+
+radiobutton $_tabs_manual.joints.joint8 \
+	-anchor w \
+	-padx 0 \
+	-selectcolor #4864ab \
+	-value w \
+	-variable current_axis \
+	-width 2 \
+        -text 8 \
+        -command axis_activated
+
+# Grid widget $_tabs_manual.joints.joint0
+grid $_tabs_manual.joints.joint0 \
+	-column 0 \
+	-row 0 \
+	-padx 4
+
+# Grid widget $_tabs_manual.joints.joint1
+grid $_tabs_manual.joints.joint1 \
+	-column 1 \
+	-row 0 \
+	-padx 4
+
+# Grid widget $_tabs_manual.joints.joint2
+grid $_tabs_manual.joints.joint2 \
+	-column 2 \
+	-row 0 \
+	-padx 4
+
+# Grid widget $_tabs_manual.joints.joint3
+grid $_tabs_manual.joints.joint3 \
+	-column 0 \
+	-row 1 \
+	-padx 4
+
+# Grid widget $_tabs_manual.joints.joint4
+grid $_tabs_manual.joints.joint4 \
+	-column 1 \
+	-row 1 \
+	-padx 4
+
+# Grid widget $_tabs_manual.joints.joint5
+grid $_tabs_manual.joints.joint5 \
+	-column 2 \
+	-row 1 \
+	-padx 4
+
+# Grid widget $_tabs_manual.joints.joint6
+grid $_tabs_manual.joints.joint6 \
+	-column 0 \
+	-row 2 \
+	-padx 4
+
+# Grid widget $_tabs_manual.joints.joint7
+grid $_tabs_manual.joints.joint7 \
+	-column 1 \
+	-row 2 \
+	-padx 4
+
+# Grid widget $_tabs_manual.joints.joint8
+grid $_tabs_manual.joints.joint8 \
+	-column 2 \
+	-row 2 \
+	-padx 4
+
 frame $_tabs_manual.jogf
 frame $_tabs_manual.jogf.jog
 
@@ -1768,26 +1915,14 @@ proc set_mode_from_tab {} {
 
 proc joint_mode_switch {args} {
     if {$::motion_mode != $::TRAJ_MODE_FREE || $::kinematics_type == $::KINEMATICS_IDENTITY} {
-        $::_tabs_manual.axes.axisx configure -text X
-        $::_tabs_manual.axes.axisy configure -text Y
-        $::_tabs_manual.axes.axisz configure -text Z
-        $::_tabs_manual.axes.axisa configure -text A
-        $::_tabs_manual.axes.axisb configure -text B
-        $::_tabs_manual.axes.axisc configure -text C
-        $::_tabs_manual.axes.axisu configure -text U
-        $::_tabs_manual.axes.axisv configure -text V
-        $::_tabs_manual.axes.axisw configure -text W
+        grid forget $::_tabs_manual.axes
+        grid $::_tabs_manual.joints -column 1 -row 0 -padx 0 -pady 0 -sticky w
+        setup_widget_accel $::_tabs_manual.axis [_ Joint:]
     } else {
-        $::_tabs_manual.axes.axisx configure -text 0
-        $::_tabs_manual.axes.axisy configure -text 1
-        $::_tabs_manual.axes.axisz configure -text 2
-        $::_tabs_manual.axes.axisa configure -text 3
-        $::_tabs_manual.axes.axisb configure -text 4
-        $::_tabs_manual.axes.axisc configure -text 5
-        $::_tabs_manual.axes.axisu configure -text 6
-        $::_tabs_manual.axes.axisv configure -text 7
-        $::_tabs_manual.axes.axisw configure -text 8
-    }
+        grid forget $::_tabs_manual.joints
+        grid $::_tabs_manual.axes -column 1 -row 0 -padx 0 -pady 0 -sticky w
+        setup_widget_accel $::_tabs_manual.axis [_ Axis:]
+    }    
 }
 
 proc queue_update_state {args} { 
@@ -1910,7 +2045,20 @@ proc size_combobox_to_entries c {
     $c configure -width $sz
 }
 
+proc size_label_to_strings {w args} {
+    set fo [$w cget -font]
+    set wi [font measure $fo 0]
+    set sz 4
+    foreach i args {
+        set li [expr ([font measure $fo $i] + $wi - 1)/$wi]
+        if {$li > $sz} { set sz $li }
+    }
+    $w configure -width $sz
+}
+
+
 size_combobox_to_entries $_tabs_manual.jogf.jog.jogincr
+size_label_to_strings $_tabs_manual.axis [_ Joint:] [_ Axis:]
 
 proc setval {vel max_speed} {
     if {$vel == $max_speed} { return 1 }
