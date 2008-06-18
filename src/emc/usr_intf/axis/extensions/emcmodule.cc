@@ -1445,11 +1445,6 @@ static void vertex9(const double pt[9], double p[3]) {
     rotate_z(p, pt[5]);
     translate(p, pt);
 
-    if(0) printf("vertex9 % 8.4f % 8.4f % 8.4f\n\t% 8.4f % 8.4f % 8.4f\n\t% 8.4f % 8.4f % 8.4f\n\t\t\t% 8.4f % 8.4f % 8.4f\n",
-        pt[0], pt[1], pt[2],
-        pt[3], pt[4], pt[5],
-        pt[6], pt[7], pt[8],
-        p[0], p[1], p[2]);
 }
 
 
@@ -1492,7 +1487,6 @@ static void line9b(const double p1[9], const double p2[9]) {
             fabs(p2[5] - p1[5]));
         int st = (int)ceil(max(10, dc/10));
         int i;
-        printf("dc=%f st=%d\n", dc, st);
 
         for(i=1; i<=st; i++) {
             double t = i * 1.0 / st;
@@ -1564,8 +1558,7 @@ static PyObject *pydraw_lines(PyObject *s, PyObject *o) {
             if(!first) glEnd();
             return NULL;
         }
-        
-        if(first || !memcmp(p1, pl, sizeof(p1))
+        if(first || memcmp(p1, pl, sizeof(p1))
                 || (for_selection && n != nl)) {
             if(!first) glEnd();
             if(for_selection && n != nl) {
