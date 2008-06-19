@@ -132,9 +132,12 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
 
     def rigid_tap(self, x, y, z):
         if self.suppress: return
-        l = (x + self.offset_x,y + self.offset_y,z + self.offset_z)
+        l = (x + self.offset_x,y + self.offset_y,z + self.offset_z,
+             self.lo[3], self.lo[4], self.lo[5],
+             self.lo[6], self.lo[7], self.lo[8], 
+        )
         self.feed_append((self.lineno, self.lo, l, self.feedrate, self.xo, self.zo))
-        self.dwells_append((self.lineno, self.colors['dwell'], x,y,z, 0))
+        self.dwells_append((self.lineno, self.colors['dwell'], x + self.offset_x, y + self.offset_y, z + self.offset_z, 0))
         self.feed_append((self.lineno, l, self.lo, self.feedrate, self.xo, self.zo))
 
     def arc_feed(self, *args):
