@@ -1,4 +1,10 @@
 
+0.3 (released 2008-06-17)
+
+    Added support for Raw mode (lets you peek & poke the hostmot2 firmware
+    from HAL).
+
+
 0.2 (released 2008-05-25)
 
     Improved load-time sanity checking.
