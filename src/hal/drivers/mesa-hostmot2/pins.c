@@ -90,24 +90,26 @@ static void hm2_print_pin_descriptors(int msg_level, hostmot2_t *hm2) {
         PRINT(msg_level, "    pin %d:\n", i);
         PRINT(
             msg_level,
-            "        Secondary Pin: 0x%02X (%s, %s)\n",
-            hm2->pin[i].sec_pin,
-            hm2_get_pin_secondary_name(&hm2->pin[i]),
-            ((hm2->pin[i].sec_pin & 0x80) ? "Output" : "Input")
-        );
-        PRINT(
-            msg_level,
-            "        Secondary Tag: 0x%02X (%s)\n",
-            hm2->pin[i].sec_tag,
-            hm2_get_general_function_name(hm2->pin[i].sec_tag)
-        );
-        PRINT(msg_level, "        Secondary Unit: 0x%02X\n", hm2->pin[i].sec_unit);
-        PRINT(
-            msg_level,
             "        Primary Tag: 0x%02X (%s)\n",
             hm2->pin[i].primary_tag,
             hm2_get_general_function_name(hm2->pin[i].primary_tag)
         );
+        if (hm2->pin[i].sec_tag != 0) {
+            PRINT(
+                msg_level,
+                "        Secondary Tag: 0x%02X (%s)\n",
+                hm2->pin[i].sec_tag,
+                hm2_get_general_function_name(hm2->pin[i].sec_tag)
+            );
+            PRINT(msg_level, "        Secondary Unit: 0x%02X\n", hm2->pin[i].sec_unit);
+            PRINT(
+                msg_level,
+                "        Secondary Pin: 0x%02X (%s, %s)\n",
+                hm2->pin[i].sec_pin,
+                hm2_get_pin_secondary_name(&hm2->pin[i]),
+                ((hm2->pin[i].sec_pin & 0x80) ? "Output" : "Input")
+            );
+        }
     }
 }
 
