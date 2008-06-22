@@ -17,8 +17,9 @@ emc2 (1:2.2.6~cvs) hardy; urgency=low
     box.
   * stepconf: fix non-working configuration if "Onscreen prompt for tool
     change" was disabled
+  * hal_ppmc: handle faster clock frequency for UPC 3.1 boards
 
- -- Jeff Epler <jepler@unpythonic.net>  Sat, 31 May 2008 10:50:37 -0500
+ -- Jeff Epler <jepler@unpythonic.net>  Sun, 22 Jun 2008 18:08:02 -0500
 
 emc2 (1:2.2.5) unstable; urgency=low
 
