@@ -320,6 +320,11 @@ setp pid.3.Igain 0.6
 setp pid.3.Dgain 0.2
 setp pid.3.deadband 0.4
 
+# prevent integrator windup at the beginning of an orient
+# after running the spindle for a long time.  The error is
+# very high before the first index happens.
+setp pid.3.maxerrorI 200.0
+
 # limit outputs, we don't want to go fast during orient
 setp pid.3.maxoutput 100
 
@@ -540,8 +545,8 @@ newsig work-air-blast bit
 linksp work-air-blast ax5214h.0.out-18
 newsig mist-coolant bit
 linksp mist-coolant ax5214h.0.out-17
-newsig flood-coolant bit
-linksp flood-coolant ax5214h.0.out-16
+
+net coolant-flood iocontrol.0.coolant-flood ax5214h.0.out-16
 
 # magazine indexing
 linksp magazine-position mod-dir.0.actual
@@ -868,8 +873,4 @@ linkps classicladder.0.out-28 spindle-do-orient
 # B14 = tool change preconditions ready
 # B15 = cycle midpoint
 # B16 = tool cycle start
-
- 
-
-
 

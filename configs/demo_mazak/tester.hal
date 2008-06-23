@@ -68,7 +68,7 @@ linksp tool-unclamped led.tool-unclamped
 
 
 
-loadusr halmeter -s sig magazine-position
+#loadusr halmeter -s sig magazine-position
 
 quit
 # the following are signals that we might later want to hook
