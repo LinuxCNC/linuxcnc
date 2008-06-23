@@ -18,6 +18,7 @@ import rs274.OpenGLTk, Tkinter, signal
 from minigl import *
 from math import *
 
+
 class Collection(object):
     def __init__(self, parts):
 	self.parts = parts
@@ -43,6 +44,18 @@ class Translate(Collection):
     def apply(self):
 	glPushMatrix()
 	glTranslatef(*self.where)
+
+    def unapply(self):
+	glPopMatrix()
+
+class Scale(Collection):
+    def __init__(self, parts, x, y, z):
+	self.parts = parts
+	self.scaleby = x, y, z
+
+    def apply(self):
+	glPushMatrix()
+	glScalef(*self.scaleby)
 
     def unapply(self):
 	glPopMatrix()
@@ -292,9 +305,102 @@ class Sphere(CoordsBase):
 	# need to translate the whole thing to x,y,z
 	glPushMatrix()
 	glTranslatef(x,y,z)
-	# the cylinder starts out at the origin
+	# the sphere starts out at the origin
 	gluSphere(self.q, r, 32, 16)
 	glPopMatrix()
+
+# triangular plate in XY plane
+# specify the corners Z values for each side
+class TriangleXY(CoordsBase):
+    def draw(self):
+	x1, y1, x2, y2, x3, y3, z1, z2 = self.coords()
+	x12 = x1-x2
+	y12 = y1-y2
+	x13 = x1-x3
+	y13 = y1-y3
+	cross = x12*y13 - x13*y12
+	if cross < 0:
+	    tmp = x2
+	    x2 = x3
+	    x3 = tmp
+	    tmp = y2
+	    y2 = y3
+	    y3 = tmp
+        if z1 > z2:
+	    tmp = z1
+	    z1 = z2
+	    z2 = tmp
+	x12 = x1-x2
+	y12 = y1-y2
+	x23 = x2-x3
+	y23 = y2-y3
+	x31 = x3-x1
+	y31 = y3-y1
+        glBegin(GL_QUADS)
+	# side 1-2
+	h = hypot(x12,y12)
+        glNormal3f(-y12/h,x12/h,0)
+        glVertex3f(x1, y1, z1)
+        glVertex3f(x2, y2, z1)
+        glVertex3f(x2, y2, z2)
+        glVertex3f(x1, y1, z2)
+	# side 2-3
+	h = hypot(x23,y23)
+        glNormal3f(-y23/h,x23/h,0)
+        glVertex3f(x2, y2, z1)
+        glVertex3f(x3, y3, z1)
+        glVertex3f(x3, y3, z2)
+        glVertex3f(x2, y2, z2)
+	# side 3-1
+	h = hypot(x31,y31)
+        glNormal3f(-y31/h,x31/h,0)
+        glVertex3f(x3, y3, z1)
+        glVertex3f(x1, y1, z1)
+        glVertex3f(x1, y1, z2)
+        glVertex3f(x3, y3, z2)
+        glEnd()
+        glBegin(GL_TRIANGLES)
+	# upper face
+        glNormal3f(0,0,1)
+        glVertex3f(x1, y1, z2)
+        glVertex3f(x2, y2, z2)
+        glVertex3f(x3, y3, z2)
+	# lower face
+        glNormal3f(0,0,-1)
+        glVertex3f(x1, y1, z1)
+        glVertex3f(x3, y3, z1)
+        glVertex3f(x2, y2, z1)
+        glEnd()
+
+# triangular plate in XZ plane
+class TriangleXZ(TriangleXY):
+    def coords(self):
+	x1, z1, x2, z2, x3, z3, y1, y2 = TriangleXY.coords(self)
+	return x1, z1, x2, z2, x3, z3, -y1, -y2
+    
+    def draw(self):
+	glPushMatrix()
+	glRotatef(90,1,0,0)
+	# create the triangle in XY plane
+	TriangleXY.draw(self)
+	# bottom cap
+	glPopMatrix()
+
+# triangular plate in YZ plane
+class TriangleYZ(TriangleXY):
+    def coords(self):
+	y1, z1, y2, z2, y3, z3, x1, x2 = TriangleXY.coords(self)
+	return z1, y1, z2, y2, z3, y3, -x1, -x2
+    
+    def draw(self):
+	glPushMatrix()
+	glRotatef(90,0,-1,0)
+	# create the triangle in XY plane
+	TriangleXY.draw(self)
+	# bottom cap
+	glPopMatrix()
+
+	
 
 # six coordinate version - specify each side of the box
 class Box(CoordsBase):
@@ -315,7 +421,7 @@ class Box(CoordsBase):
 
         glBegin(GL_QUADS)
 	# bottom face
-        glNormal3f(0,0,1)
+        glNormal3f(0,0,-1)
         glVertex3f(x2, y1, z1)
         glVertex3f(x1, y1, z1)
         glVertex3f(x1, y2, z1)
@@ -345,7 +451,7 @@ class Box(CoordsBase):
         glVertex3f(x1, y2, z2)
         glVertex3f(x1, y2, z1)
 	# top face
-        glNormal3f(0,0,-1)
+        glNormal3f(0,0,1)
         glVertex3f(x1, y2, z2)
         glVertex3f(x1, y1, z2)
         glVertex3f(x2, y1, z2)
@@ -521,7 +627,7 @@ class O(rs274.OpenGLTk.Opengl):
         glLightfv(GL_LIGHT0+1, GL_AMBIENT, (.0,.0,.0,0))
         glLightfv(GL_LIGHT0+1, GL_DIFFUSE, (.0,.0,.4,0))
         glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, (1,1,1,0))
-	glEnable(GL_CULL_FACE)
+	glDisable(GL_CULL_FACE)
         glEnable(GL_LIGHTING)
         glEnable(GL_LIGHT0)
         glEnable(GL_LIGHT0+1)
