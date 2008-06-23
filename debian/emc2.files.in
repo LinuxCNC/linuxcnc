@@ -532,6 +532,9 @@ usr/share/man/man9/estop_latch.9
 usr/share/man/man9/flipflop.9
 usr/share/man/man9/freqgen.9
 usr/share/man/man9/genhexkins.9
+usr/share/man/man9/hm2_5i20.9
+usr/share/man/man9/hm2_7i43.9
+usr/share/man/man9/hostmot2.9
 usr/share/man/man9/hypot.9
 usr/share/man/man9/integ.9
 usr/share/man/man9/kins.9
