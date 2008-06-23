@@ -1914,7 +1914,7 @@ proc set_mode_from_tab {} {
 }
 
 proc joint_mode_switch {args} {
-    if {$::motion_mode != $::TRAJ_MODE_FREE || $::kinematics_type == $::KINEMATICS_IDENTITY} {
+    if {$::motion_mode == $::TRAJ_MODE_FREE && $::kinematics_type != $::KINEMATICS_IDENTITY} {
         grid forget $::_tabs_manual.axes
         grid $::_tabs_manual.joints -column 1 -row 0 -padx 0 -pady 0 -sticky w
         setup_widget_accel $::_tabs_manual.axis [_ Joint:]
