@@ -65,6 +65,7 @@ usr/bin/rs274
 @MODULE_PATH@/mult2@MODULE_EXT@
 @MODULE_PATH@/mux2@MODULE_EXT@
 @MODULE_PATH@/mux4@MODULE_EXT@
+@MODULE_PATH@/mux8@MODULE_EXT@
 @MODULE_PATH@/not@MODULE_EXT@
 @MODULE_PATH@/offset@MODULE_EXT@
 @MODULE_PATH@/oneshot@MODULE_EXT@
@@ -91,6 +92,7 @@ usr/bin/rs274
 @MODULE_PATH@/timedelay@MODULE_EXT@
 @MODULE_PATH@/timedelta@MODULE_EXT@
 @MODULE_PATH@/toggle@MODULE_EXT@
+@MODULE_PATH@/toggle2nist@MODULE_EXT@
 @MODULE_PATH@/tripodkins@MODULE_EXT@
 @MODULE_PATH@/tristate_bit@MODULE_EXT@
 @MODULE_PATH@/tristate_float@MODULE_EXT@
@@ -369,6 +371,16 @@ etc/emc2/sample-configs/univstep/univstep_motion.hal
 etc/emc2/sample-configs/univstep/univstep_servo.hal
 etc/emc2/sample-configs/univstep/univstep.tbl
 etc/emc2/sample-configs/univstep/univstep.var
+etc/emc2/sample-configs/vismach/README
+etc/emc2/sample-configs/vismach/emc.nml
+etc/emc2/sample-configs/vismach/max5kins.hal
+etc/emc2/sample-configs/vismach/max5kins.ini
+etc/emc2/sample-configs/vismach/max5kins.tbl
+etc/emc2/sample-configs/vismach/max5kins.var
+etc/emc2/sample-configs/vismach/max5triv.hal
+etc/emc2/sample-configs/vismach/max5triv.ini
+etc/emc2/sample-configs/vismach/max5triv.tbl
+etc/emc2/sample-configs/vismach/max5triv.var
 etc/emc2/sample-configs/vti/core_servo.hal
 etc/emc2/sample-configs/vti/emc.nml
 etc/emc2/sample-configs/vti/README
@@ -433,6 +445,7 @@ usr/share/emc/ncfiles/holecircle.py
 usr/share/emc/ncfiles/involute.py
 usr/share/emc/ncfiles/lathe_pawn.ngc
 usr/share/emc/ncfiles/lathecomp.ngc
+usr/share/emc/ncfiles/mmount.ngc
 usr/share/emc/ncfiles/skeleton.ngc
 usr/share/emc/ncfiles/smartprobe.ngc
 usr/share/emc/ncfiles/spiral.ngc
@@ -538,6 +551,7 @@ usr/share/man/man9/motion.9
 usr/share/man/man9/mult2.9
 usr/share/man/man9/mux2.9
 usr/share/man/man9/mux4.9
+usr/share/man/man9/mux8.9
 usr/share/man/man9/not.9
 usr/share/man/man9/offset.9
 usr/share/man/man9/oneshot.9
@@ -565,6 +579,7 @@ usr/share/man/man9/timedelay.9
 usr/share/man/man9/timedelta.9
 usr/share/man/man9/timedelay.9
 usr/share/man/man9/toggle.9
+usr/share/man/man9/toggle2nist.9
 usr/share/man/man9/tripodkins.9
 usr/share/man/man9/tristate_bit.9
 usr/share/man/man9/tristate_float.9
@@ -668,6 +683,7 @@ usr/share/locale/pt_BR/LC_MESSAGES/axis.mo
 usr/share/locale/ro/LC_MESSAGES/axis.mo
 usr/share/locale/ru/LC_MESSAGES/axis.mo
 usr/share/locale/se/LC_MESSAGES/axis.mo
+usr/share/locale/sr/LC_MESSAGES/axis.mo
 usr/share/locale/zh_CN/LC_MESSAGES/axis.mo
 usr/share/doc/emc2/EMC2_User_Manual.pdf
 usr/share/doc/emc2/EMC2_User_Manual_fr.pdf
