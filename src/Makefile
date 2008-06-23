@@ -435,7 +435,10 @@ install-dirs:
 		$(DESTDIR)$(tcldir)/msgs \
 		$(DESTDIR)$(localedir)/de/LC_MESSAGES \
 		$(DESTDIR)$(datadir)/axis/images \
-		$(DESTDIR)$(datadir)/axis/tcl		
+		$(DESTDIR)$(datadir)/axis/tcl		\
+		$(DESTDIR)/$(prefix)/share/emc/firmware/mesa-hostmot2/5i20  \
+		$(DESTDIR)/$(prefix)/share/emc/firmware/mesa-hostmot2/7i43
+
 install-kernel-indep: install-dirs
 	$(FILE) ../docs/man/man1/*.1 $(DESTDIR)$(mandir)/man1
 	$(FILE) $(filter-out %/skeleton.3hal, $(wildcard ../docs/man/man3/*.3hal)) $(DESTDIR)$(mandir)/man3
@@ -467,6 +470,8 @@ install-kernel-indep: install-dirs
 	$(FILE) ../tcl/scripts/balloon.tcl ../tcl/scripts/emchelp.tcl $(DESTDIR)$(tcldir)/scripts
 	$(EXE) ../tcl/scripts/Set_Coordinates.tcl $(DESTDIR)$(tcldir)/scripts
 	$(FILE) ../share/emc/stepconf.glade $(DESTDIR)$(prefix)/share/emc
+	$(FILE) hal/drivers/mesa-hostmot2/firmware/5i20/*.BIT $(DESTDIR)$(prefix)/share/emc/firmware/mesa-hostmot2/5i20/
+	$(FILE) hal/drivers/mesa-hostmot2/firmware/7i43/*.BIT $(DESTDIR)$(prefix)/share/emc/firmware/mesa-hostmot2/7i43/
 
 ifeq ($(BUILD_PYTHON),yes)
 install-kernel-indep: install-python
