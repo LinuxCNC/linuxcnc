@@ -16,7 +16,6 @@ usr/bin/rs274
 @MODULE_PATH@/at_pid@MODULE_EXT@
 @MODULE_PATH@/biquad@MODULE_EXT@
 @MODULE_PATH@/blend@MODULE_EXT@
-@MODULE_PATH@/blocks@MODULE_EXT@
 @MODULE_PATH@/boss_plc@MODULE_EXT@
 @MODULE_PATH@/charge_pump@MODULE_EXT@
 @MODULE_PATH@/clarke2@MODULE_EXT@
@@ -492,7 +491,6 @@ usr/share/man/man9/at_pid.9
 usr/share/man/man9/axis.9
 usr/share/man/man9/biquad.9
 usr/share/man/man9/blend.9
-usr/share/man/man9/blocks.9
 usr/share/man/man9/charge_pump.9
 usr/share/man/man9/clarke2.9
 usr/share/man/man9/clarke3.9
