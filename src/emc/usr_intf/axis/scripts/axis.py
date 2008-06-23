@@ -2273,12 +2273,13 @@ class TclCommands(nf.TclCommands):
 
             mf = vars.max_speed.get()
             #print o.g.traverse[0]
-            g0 = sum(dist(l[1], l[2]) for l in o.g.traverse)
-            g1 = (sum(dist(l[1], l[2]) for l in o.g.feed) +
-                sum(dist(l[1], l[2]) for l in o.g.arcfeed))
-            gt = (sum(dist(l[1], l[2])/min(mf, l[3]) for l in o.g.feed) +
-                sum(dist(l[1], l[2])/min(mf, l[3])  for l in o.g.arcfeed) +
-                sum(dist(l[1], l[2])/mf  for l in o.g.traverse) +
+
+            g0 = sum(dist(l[1][:3], l[2][:3]) for l in o.g.traverse)
+            g1 = (sum(dist(l[1][:3], l[2][:3]) for l in o.g.feed) +
+                sum(dist(l[1][:3], l[2][:3]) for l in o.g.arcfeed))
+            gt = (sum(dist(l[1][:3], l[2][:3])/min(mf, l[3]) for l in o.g.feed) +
+                sum(dist(l[1][:3], l[2][:3])/min(mf, l[3])  for l in o.g.arcfeed) +
+                sum(dist(l[1][:3], l[2][:3])/mf  for l in o.g.traverse) +
                 o.g.dwell_time
                 )
  
