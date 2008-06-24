@@ -737,6 +737,55 @@ class Color(Collection):
     def unapply(self):
         glPopAttrib()
 
+class AsciiSTL:
+    def __init__(self, filename=None, data=None):
+        if data is None:
+            data = open(filename, "r")
+        elif isinstance(data, str):
+            data = str.split("\n")
+        self.list = None
+        t = []
+        n = [0,0,0]
+        self.d = d = []
+        for line in data:
+            if line.find("normal") != -1:
+                line = line.split()
+                x, y, z = map(float, line[-3:])
+                n = [x,y,z] 
+            elif line.find("vertex") != -1:
+                line = line.split()
+                x, y, z = map(float, line[-3:])
+                t.append([x,y,z])
+                if len(t) == 3:
+                    if n == [0,0,0]:
+                        dx1 = t[1][0] - t[0][0]
+                        dy1 = t[1][1] - t[0][1]
+                        dz1 = t[1][2] - t[0][2]
+                        dx2 = t[2][0] - t[0][0]
+                        dy2 = t[2][1] - t[0][1]
+                        dz2 = t[2][2] - t[0][2]
+                        n = [y1*z2 - y2*z1, z1*x2 - z2*x1, y1*x2 - y2*x1]
+                    d.append((n, t))
+                    t = []
+                    n = [0,0,0]
+
+    def draw(self):
+        if self.list is None:
+            # OpenGL isn't ready yet in __init__ so the display list
+            # is created during the first draw
+            self.list = glGenLists(1)
+            glNewList(self.list, GL_COMPILE_AND_EXECUTE)
+            glBegin(GL_TRIANGLES)
+            for n, t in self.d:
+                glNormal3f(*n)
+                glVertex3f(*t[0])
+                glVertex3f(*t[1])
+                glVertex3f(*t[2])
+            glEnd()
+            glEndList()
+            del self.d
+        else:
+            glCallList(self.list)
 
 def main(model, tool, work, size=10, hud=0):
     app = Tkinter.Tk()
