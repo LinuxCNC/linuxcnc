@@ -1697,6 +1697,9 @@ class AxisCanon(GLCanon):
     def get_tlo_is_along_w(self):
         return s.tlo_is_along_w
 
+    def get_block_delete(self):
+        return s.block_delete
+
 progress_re = re.compile("^FILTER_PROGRESS=(\\d*)$")
 def filter_program(program_filter, infilename, outfilename):
     import subprocess
@@ -2242,6 +2245,11 @@ class TclCommands(nf.TclCommands):
         c.set_optional_stop(vars.optional_stop.get())
     def toggle_block_delete(event=None):
         c.set_block_delete(vars.block_delete.get())
+        ensure_mode(emc.MODE_MANUAL)
+        s.poll()
+        o.tkRedraw()
+        reload_file(False)
+
 
     def gcode_properties(event=None):
         props = {}

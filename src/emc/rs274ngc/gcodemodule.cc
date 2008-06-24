@@ -369,7 +369,21 @@ void PALLET_SHUTTLE() {}
 void CHANGE_TOOL(int tool) {}
 void SELECT_TOOL(int tool) {}
 void OPTIONAL_PROGRAM_STOP() {}
-bool GET_BLOCK_DELETE() { return 0; }
+
+extern bool GET_BLOCK_DELETE(void) { 
+    int bd = 0;
+    if(interp_error) return 0;
+    PyObject *result =
+        PyObject_CallMethod(callback, "get_block_delete", "");
+    if(result == NULL) {
+        interp_error++;
+    } else {
+        bd = PyObject_IsTrue(result);
+    }
+    Py_XDECREF(result);
+    return bd;
+}
+
 void DISABLE_FEED_OVERRIDE() {}
 void DISABLE_FEED_HOLD() {}
 void ENABLE_FEED_HOLD() {}
