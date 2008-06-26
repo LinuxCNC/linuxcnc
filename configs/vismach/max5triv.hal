@@ -12,7 +12,7 @@ loadrt wcomp count=5
 loadrt not count=5
 
 # load the vismach model
-loadusr -W -n max5gui ../../src/emc/usr_intf/axis/scripts/max5gui.py
+loadusr -W max5gui
 
 # set a visible tool
 setp max5gui.tool-radius 3
