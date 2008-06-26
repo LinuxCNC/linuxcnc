@@ -123,7 +123,7 @@ Configuring EMC2
 \layout Standard
 
 
-\begin_inset Include \input{config/copy_and_run.lyx}
+\begin_inset Include \include{config/copy_and_run.lyx}
 preview false
 
 \end_inset 
