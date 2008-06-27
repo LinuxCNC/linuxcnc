@@ -542,25 +542,11 @@ G92
  Offsets
 \layout Standard
 
-G92 is the most misunderstood and maligned part of EMC programming.
- The way that it works has changed just a bit from the early days to the
+The way that it works has changed just a bit from the early days to the
  current releases.
- This change has confused many users.
  It should be thought of as a temporary offset that is applied to all other
  offsets.
  
-\layout Standard
-
-In response to criticism of it, Ray Henry studied it by comparing the way
- the interpreter authors expected it to work and the way that it worked
- on his Grizzly minimill.
- The following quoted paragraphs are extracted from his paper which is available
- in several text formats in the dropbox at 
-\begin_inset LatexCommand \url{http://www.linuxcnc.org}
-
-\end_inset 
-
-.
 \layout Subsection
 
 The G92 commands
@@ -693,7 +679,9 @@ So if the X axis is currently showing 2.0000 as its position a G92 x0 will
 G92 Cautions
 \layout Standard
 
-Sometimes the values of a G92 offset get stuck in the VAR file.
+Sometimes the values of a G92 offset will remain in the VAR file.
+ This can happen when a file is aborted during processing that has G92 offsets
+ in effect.
  When this happens reset or a startup will cause them to become active again.
  The variables are named 
 \layout Quote
@@ -736,9 +724,8 @@ Sometimes the values of a G92 offset get stuck in the VAR file.
 
 where 5211 is the X axis offset and so on.
  If you are seeing unexpected positions as the result of a commanded move,
- or even unexpected numbers in the position displays when you start up,
- look at these variables in the VAR file and see if they contain values.
- If they do, set them to zeros and the problems should go away.
+ or unexpected numbers in the position displays when you start up, issue
+ a G92.1 in the MDI widow the problems should go away.
 \layout Quote
 
 With these tests we can see that reset returns g92 to the condition that
