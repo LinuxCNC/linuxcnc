@@ -18,7 +18,7 @@
 
 /* You should have received a copy of the GNU Lesser General Public */
 /* License along with this library; if not, write to the Free Software */
-/* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA */
+/* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA */ 
 
 #include <gtk/gtk.h>
 #include <stdio.h>
@@ -230,23 +230,6 @@ void DrawElement(GdkPixmap * DrawPixmap,int x,int y,int Width,int Height,StrElem
 	GdkGC * TheGc;
 	GdkColor DynaGdkColor;
 	GdkGC * DynaGcOn;
-	GdkGC * Blue;
-	GdkGC * Red;
-        DynaGdkColor.pixel = 0xFF0000;
-	DynaGdkColor.red = 0xFF;
-	DynaGdkColor.green = 0x00;
-	DynaGdkColor.blue = 0x00;
-	Red = gdk_gc_new(DrawPixmap);
-	gdk_gc_set_foreground(Red,&DynaGdkColor);
-
-       
-        DynaGdkColor.pixel = 0x0000FF;
-	DynaGdkColor.red = 0x00;
-	DynaGdkColor.green = 0x00;
-	DynaGdkColor.blue = 0xFF;
-	Blue = gdk_gc_new(DrawPixmap);
-	gdk_gc_set_foreground(Blue,&DynaGdkColor);
-
 	DynaGdkColor.pixel = 0xFF22FF;
 	DynaGdkColor.red = 0xFF;
 	DynaGdkColor.green = 0x22;
@@ -765,12 +748,9 @@ void DrawElement(GdkPixmap * DrawPixmap,int x,int y,int Width,int Height,StrElem
 		switch(Element.Type)
 		{
 			case ELE_INPUT:
-			case ELE_INPUT_NOT:				
+			case ELE_INPUT_NOT:
 			case ELE_RISING_INPUT:
 			case ELE_FALLING_INPUT:
-				strcpy(BufTxt,CreateVarName(Element.VarType,Element.VarNum));
-				DrawTextGTK2( DrawPixmap, Red, x, y+HeiDiv4+1, Width, -1, BufTxt );
-				break;
 			case ELE_OUTPUT:
 			case ELE_OUTPUT_NOT:
 			case ELE_OUTPUT_SET:
@@ -780,7 +760,7 @@ void DrawElement(GdkPixmap * DrawPixmap,int x,int y,int Width,int Height,StrElem
 				gdk_draw_text(DrawPixmap, drawing_area->style->font, drawing_area->style->black_gc,
 								x+WidDiv4,y+HeiDiv4-2,BufTxt,strlen(BufTxt));
 #else
-				DrawTextGTK2( DrawPixmap, Blue, x, y+HeiDiv4+1, Width, -1, BufTxt );
+				DrawTextGTK2( DrawPixmap, drawing_area->style->black_gc, x, y+HeiDiv4+1, Width, -1, BufTxt );
 #endif
 				break;
 			case ELE_OUTPUT_JUMP:
@@ -971,17 +951,16 @@ void DrawCurrentElementEdited( int AddPosiY )
 {
 	if ( EditDatas.CurrentElementSizeX>0 && EditDatas.CurrentElementSizeY>0 )
 	{
-		int Left = (EditDatas.CurrentElementPosiX-EditDatas.CurrentElementSizeX+1)*InfosGene->BlockWidth +OFFSET_X;
-		int Top = EditDatas.CurrentElementPosiY*InfosGene->BlockHeight +AddPosiY +OFFSET_Y;
-		int Width = EditDatas.CurrentElementSizeX*InfosGene->BlockWidth;
-		int Height = EditDatas.CurrentElementSizeY*InfosGene->BlockHeight;
 		GdkColor DynaGdkColor;
 		GdkGC * DynaGcColor;
 		DynaGdkColor.pixel = 0xFF3030;
 		DynaGdkColor.red = 0xFF;
 		DynaGdkColor.green = 0x30;
 		DynaGdkColor.blue = 0x30;
-
+		int Left = (EditDatas.CurrentElementPosiX-EditDatas.CurrentElementSizeX+1)*InfosGene->BlockWidth +OFFSET_X;
+		int Top = EditDatas.CurrentElementPosiY*InfosGene->BlockHeight +AddPosiY +OFFSET_Y;
+		int Width = EditDatas.CurrentElementSizeX*InfosGene->BlockWidth;
+		int Height = EditDatas.CurrentElementSizeY*InfosGene->BlockHeight;
 		DynaGcColor = gdk_gc_new( pixmap );
 		gdk_gc_set_foreground( DynaGcColor, &DynaGdkColor );
 		gdk_draw_rectangle( pixmap, DynaGcColor, FALSE, Left, Top, Width, Height );
