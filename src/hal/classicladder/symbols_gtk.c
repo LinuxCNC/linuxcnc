@@ -55,11 +55,26 @@ void DisplaySymbols( void )
 
 	for ( ScanSymb=0; ScanSymb<NBR_SYMBOLS; ScanSymb++ )
 	{
-		if(SymbolArray[ ScanSymb ].VarName [0] =='\0')  {break;}
+		if(SymbolArray[ ScanSymb ].VarName [0] =='\0')  {
+
+                snprintf(Tempbuf,LGT_SYMBOL_COMMENT, " ");
+                gtk_list_store_append( ListStore, &iter );
+		gtk_list_store_set( ListStore, &iter,
+		    NUM_ARRAY, ScanSymb,
+                    VAR_NAME, SymbolArray[ ScanSymb].VarName,
+                    SYMBOL, SymbolArray[ ScanSymb ].Symbol,
+                    COMMENT, Tempbuf,-1);
+		return;
+								}
 		
-		if(SymbolArray[ ScanSymb ].VarName [0] =='%')
-			{snprintf(Tempbuf, LGT_SYMBOL_COMMENT, "%s",ConvVarNameToHalSigName(SymbolArray[ ScanSymb ].VarName));
-		}else{ snprintf(Tempbuf,LGT_SYMBOL_COMMENT, "%s",SymbolArray[ ScanSymb ].Comment);}
+	switch(SymbolArray[ ScanSymb ].VarName [1]) {
+		case 'I':case 'Q':case 'W':
+			snprintf(Tempbuf, LGT_SYMBOL_COMMENT, "%s",ConvVarNameToHalSigName(SymbolArray[ ScanSymb ].VarName));
+		break;
+		default:
+			snprintf(Tempbuf,LGT_SYMBOL_COMMENT, "%s",SymbolArray[ ScanSymb ].Comment);
+		break;
+						}
 
 	// fill the element
 		gtk_list_store_append( ListStore, &iter );
@@ -70,18 +85,12 @@ void DisplaySymbols( void )
                     COMMENT, Tempbuf,
                     -1);
 	}
-snprintf(Tempbuf,LGT_SYMBOL_COMMENT, " ");
-gtk_list_store_append( ListStore, &iter );
-		gtk_list_store_set( ListStore, &iter,
-					NUM_ARRAY, ScanSymb,
-                    VAR_NAME, SymbolArray[ ScanSymb ].VarName,
-                    SYMBOL, SymbolArray[ ScanSymb ].Symbol,
-                    COMMENT, Tempbuf,
-                    -1);
+
 }
 
 /* The callback for the editing of text in our GtkTreeView */
 /* data=column number */
+// added a call to DisplaySymbols() so window updates right away
 void Callback_TextEdited(GtkCellRendererText *cell, gchar *path_string,
 		      gchar *new_text, gpointer data) {
 
@@ -141,6 +150,7 @@ void Callback_TextEdited(GtkCellRendererText *cell, gchar *path_string,
 			InfosGene->AskConfirmationToQuit = TRUE;
 			break;
 	}
+DisplaySymbols();
 }
 
 
