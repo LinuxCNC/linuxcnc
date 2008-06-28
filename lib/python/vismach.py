@@ -791,6 +791,8 @@ def main(model, tool, work, size=10, hud=0):
     app = Tkinter.Tk()
 
     t = O(app, double=1, depth=1)
+    # we want to be able to see the model from all angles
+    t.set_latitudelimits(-180, 180)
 
     #there's probably a better way of doing this
     global HUD

@@ -34,7 +34,7 @@ def glRotateScene(w, s, xcenter, ycenter, zcenter, x, y, mousex, mousey):
         else:
             return a
 
-    lat = min(0, max(-90, w.lat + (y - mousey) * .5))
+    lat = min(w.maxlat, max(w.minlat, w.lat + (y - mousey) * .5))
     lon = (w.lon + (x - mousex) * .5) % 360
 
     glMatrixMode(GL_MODELVIEW)
@@ -263,6 +263,8 @@ http://www.yorvic.york.ac.uk/~mjh/
         self.bind('<B3-Motion>', self.tkScale)
 
         self.lat = 0
+        self.minlat = -90
+        self.maxlat = 0
         self.lon = 0
 
     def help(self):
@@ -322,6 +324,21 @@ http://www.yorvic.york.ac.uk/~mjh/
         self.xcenter = x
         self.ycenter = y
         self.zcenter = z
+
+        self.tkRedraw()
+
+
+    def set_latitudelimits(self, minlat, maxlat):
+        """Set the new "latitude" limits for rotations."""
+
+        if maxlat > 180:
+            return
+        if minlat < -180:
+            return
+        if maxlat <= minlat:
+            return
+        self.maxlat = maxlat
+        self.minlat = minlat
 
         self.tkRedraw()
 
