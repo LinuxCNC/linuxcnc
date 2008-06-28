@@ -1422,6 +1422,7 @@ HOME_SEARCH_VEL
 0.0
 \series default 
  Initial homing velocity in machine units per escond.
+ Sign denotes direction of travel.
  A value of zero means assume that the current location is the home position
  for the machine.
  If your machine has no home switches you will want to leave this value
@@ -1438,7 +1439,16 @@ HOME_LATCH_VEL\SpecialChar ~
 \series bold 
 0.0
 \series default 
- Final homing velocity in machine units per second.
+ Homing velocity in machine units per second to the home switch latch position.
+ Sign denotes direction of travel.
+\layout Description
+
+HOME_FINAL_VEL\SpecialChar ~
+=\SpecialChar ~
+0.0 Velocity in machine units per second from home latch position
+ to home position.
+ If left at 0 or not included in the axis rapid velocity is used.
+ Must be a positive number.
 \layout Description
 
 HOME_USE_INDEX\SpecialChar ~
@@ -1462,8 +1472,8 @@ HOME_IGNORE_LIMITS\SpecialChar ~
 =\SpecialChar ~
 NO
 \series default 
- Some machines use a limit switch as a home switch.
- This variable should be set to yes if you machine does this.
+ Some machines use a single switch as a home switch and limit switch.
+ This variable should be set to yes if the machine configured this way.
 \layout Subsubsection
 
 Servo-related items
