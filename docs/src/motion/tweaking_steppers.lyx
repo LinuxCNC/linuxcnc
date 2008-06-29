@@ -24,7 +24,10 @@
 \papersides 1
 \paperpagestyle default
 
-\layout Subsection
+\layout Chapter
+
+Stepper Tuning
+\layout Section
 
 Getting the most out of Software Stepping
 \layout Standard
@@ -46,7 +49,7 @@ loads the CPU
 
 This chapter has some steps that can help you get the best results from
  software generated steps.
-\layout Subsubsection
+\layout Subsection
 
 Run a Latency Test
 \layout Standard
@@ -204,7 +207,7 @@ Note that if you get high numbers, there may be ways to improve them.
  But a $5 used Matrox video card solved the problem - EMC does not require
  bleeding edge hardware.
  
-\layout Subsubsection
+\layout Subsection
 
 Figure out what your drives expect
 \layout Standard
@@ -310,7 +313,7 @@ Step happens on rising edge
 
 Once you find the numbers, write them down too - you need them in the next
  step.
-\layout Subsubsection
+\layout Subsection
 
 Choose your BASE_PERIOD
 \layout Standard
@@ -411,7 +414,7 @@ In this case, sppose you started at 25uS, trying to get to 13uS, but you
 What is the maximum step rate? Remember, two periods to make a step.
  You settled on 16uS for the period, so a step takes 32uS.
  That works out to a not bad 31,250 steps per second.
-\layout Subsubsection
+\layout Subsection
 
 Use steplen, stepspace, dirsetup, and/or dirhold
 \layout Standard
@@ -464,7 +467,7 @@ The 11uS latency number used in this example is very good.
  the top step rate for both the Xylotex and the Gecko will be lower.
  But the same formulas apply for calculating the optimum BASE_PERIOD, and
  for tweaking dirhold or other step generator parameters.
-\layout Subsubsection
+\layout Subsection
 
 No Guessing!
 \layout Standard
