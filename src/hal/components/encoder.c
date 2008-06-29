@@ -111,6 +111,7 @@ typedef struct {
     __s32 index_count;		/* c:rw captured index count */
     hal_s32_t *count;		/* c:w captured binary count value */
     hal_float_t *pos;		/* c:w scaled position (floating point) */
+    hal_float_t *pos_interp;	/* c:w scaled and interpolated position (float) */
     hal_float_t *vel;		/* c:w scaled velocity (floating point) */
     hal_float_t pos_scale;	/* c:r parameter: scaling factor for pos */
     float old_scale;		/* c:rw stored scale value */
@@ -333,7 +334,9 @@ static void update(void *arg, long period)
 
 
 /* if no edges in 100mS time, force vel to zero */
-#define TIMEOUT 100000000
+/* changed to 1 second - low ppr needs a longer time */
+/* FIXME - this shouldn't be a hard coded number */
+#define TIMEOUT 1000000000
 
 static void capture(void *arg, long period)
 {
@@ -342,7 +345,7 @@ static void capture(void *arg, long period)
     int n;
     __s32 delta_counts;
     __u32 delta_time;
-    double vel;
+    double vel, interp;
 
     cntr = arg;
     for (n = 0; n < num_chan; n++) {
@@ -391,6 +394,7 @@ static void capture(void *arg, long period)
 	}
 	/* process data from update() */
 	if ( buf->count_detected ) {
+	    /* one or more counts in the last period */
 	    buf->count_detected = 0;
 	    delta_counts = buf->raw_count - cntr->raw_count;
 	    delta_time = buf->timestamp - cntr->timestamp;
@@ -410,9 +414,15 @@ static void capture(void *arg, long period)
 		if ( delta_time < TIMEOUT ) {
 		    /* not to long, estimate vel if a count arrived now */
 		    vel = ( cntr->scale ) / (delta_time * 1e-9);
+		    /* make vel positive, even if scale is negative */
+		    if ( vel < 0.0 ) vel = -vel;
 		    /* use lesser of estimate and previous value */
+		    /* use sign of previous value, magnitude of estimate */
 		    if ( vel < *(cntr->vel) ) {
 			*(cntr->vel) = vel;
+		    }
+		    if ( -vel > *(cntr->vel) ) {
+			*(cntr->vel) = -vel;
 		    }
 		} else {
 		    /* its been a long time, stop estimating */
@@ -428,6 +438,10 @@ static void capture(void *arg, long period)
 	*(cntr->count) = cntr->raw_count - cntr->index_count;
 	/* scale count to make floating point position */
 	*(cntr->pos) = *(cntr->count) * cntr->scale;
+	/* add interpolation value */
+	delta_time = timebase - cntr->timestamp;
+	interp = *(cntr->vel) * (delta_time * 1e-9);
+	*(cntr->pos_interp) = *(cntr->pos) + interp;
 	/* move on to next channel */
 	cntr++;
     }
@@ -494,6 +508,12 @@ static int export_counter(int num, counter_t * addr)
     /* export pin for scaled position captured by capture() */
     rtapi_snprintf(buf, HAL_NAME_LEN, "encoder.%d.position", num);
     retval = hal_pin_float_new(buf, HAL_OUT, &(addr->pos), comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    /* export pin for scaled and interpolated position captured by capture() */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "encoder.%d.pos-interp", num);
+    retval = hal_pin_float_new(buf, HAL_OUT, &(addr->pos_interp), comp_id);
     if (retval != 0) {
 	return retval;
     }
