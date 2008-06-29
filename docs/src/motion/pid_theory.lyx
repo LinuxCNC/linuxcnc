@@ -24,7 +24,10 @@
 \papersides 1
 \paperpagestyle default
 
-\layout Subsection
+\layout Chapter
+
+PID Tuning
+\layout Section
 
 PID Controller
 \layout Standard
@@ -57,7 +60,7 @@ Unlike simpler control algorithms, the PID controller can adjust process
  stable control in cases where a simple proportional control would either
  have a steady-state error or would cause the process to oscillate).
  
-\layout Subsubsection
+\layout Subsection
 
 Control loop basics
 \layout Standard
@@ -124,7 +127,7 @@ Some control systems arrange PID controllers in cascades or networks.
  frequency drive) directly managing the speed based on a proportional input.
  This "slave" input is fed by the "master" controllers' output, which is
  controlling based upon a related variable.
-\layout Subsubsection
+\layout Subsection
 
 Theory
 \layout Standard
@@ -185,7 +188,7 @@ More technically, a PID loop can be characterized as a filter applied to
  value.
  If the values are chosen incorrectly, the controlled process input can
  oscillate, and the process output may never stay at the setpoint.
-\layout Subsubsection
+\layout Subsection
 
 Loop Tuning
 \layout Standard
