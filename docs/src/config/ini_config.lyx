@@ -388,9 +388,9 @@ Units The units (of length or angle) specified in the inifile for
 INI Variable Definitions
 \layout Subsection
 
-
-\color black
 [EMC] Section
+\color black
+ 
 \begin_inset LatexCommand \label{sub:[EMC]-Section}
 
 \end_inset 
@@ -485,9 +485,9 @@ G90
  by g-code interpreted earlier in the session.
 \layout Subsection
 
-
-\color black
 [DISPLAY] Section
+\color black
+ 
 \begin_inset LatexCommand \label{sub:[DISPLAY]-Section}
 
 \end_inset 
@@ -639,9 +639,9 @@ OPEN_FILE\SpecialChar ~
  AXIS starts
 \layout Subsection
 
-
-\color black
 [EMCMOT] Section
+\color black
+ 
 \begin_inset LatexCommand \label{sub:[EMCMOT]-Section}
 
 \end_inset 
@@ -909,9 +909,9 @@ example2.hal
  for more information.
 \layout Subsection
 
-
-\color black
 [TRAJ] Section
+\color black
+ 
 \begin_inset LatexCommand \label{sub:[TRAJ]-Section}
 
 \end_inset 
@@ -1157,9 +1157,9 @@ This assumes there was no movement of the machine while powered off.
  emc is started.
 \layout Subsection
 
-
-\color black
 [AXIS_<num>] Section
+\color black
+ 
 \begin_inset LatexCommand \label{sub:[AXIS]-Section}
 
 \end_inset 
