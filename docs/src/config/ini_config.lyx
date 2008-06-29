@@ -280,7 +280,7 @@ Related parts of an ini file are separated into sections.
 \layout Itemize
 
 [EMC] general information (
-\begin_inset LatexCommand \ref{sub:[EMC]-Section}
+\begin_inset LatexCommand \ref{sub:[EMC]-section}
 
 \end_inset 
 
@@ -288,7 +288,7 @@ Related parts of an ini file are separated into sections.
 \layout Itemize
 
 [DISPLAY] settings related to the graphical user interface (
-\begin_inset LatexCommand \ref{sub:[DISPLAY]-Section}
+\begin_inset LatexCommand \ref{sub:[DISPLAY]-section}
 
 \end_inset 
 
@@ -296,7 +296,7 @@ Related parts of an ini file are separated into sections.
 \layout Itemize
 
 [RS274NGC] settings used by the g-code interpreter (
-\begin_inset LatexCommand \ref{sub:[RS274NGC]-Section}
+\begin_inset LatexCommand \ref{sub:[RS274NGC]-section}
 
 \end_inset 
 
@@ -304,7 +304,7 @@ Related parts of an ini file are separated into sections.
 \layout Itemize
 
 [EMCMOT] settings used by the realtime motion controller (
-\begin_inset LatexCommand \ref{sub:[EMCMOT]-Section}
+\begin_inset LatexCommand \ref{sub:[EMCMOT]-section}
 
 \end_inset 
 
@@ -320,7 +320,7 @@ Related parts of an ini file are separated into sections.
 \layout Itemize
 
 [TASK] settings used by the task controller (
-\begin_inset LatexCommand \ref{sub:[TASK]-Section}
+\begin_inset LatexCommand \ref{sub:[TASK]-section}
 
 \end_inset 
 
@@ -328,7 +328,7 @@ Related parts of an ini file are separated into sections.
 \layout Itemize
 
 [TRAJ] additional settings used by the realtime motion controller (
-\begin_inset LatexCommand \ref{sub:[TRAJ]-Section}
+\begin_inset LatexCommand \ref{sub:[TRAJ]-section}
 
 \end_inset 
 
@@ -337,7 +337,7 @@ Related parts of an ini file are separated into sections.
 
 [AXIS_0] ...
  [AXIS_n] individual axis variables (
-\begin_inset LatexCommand \ref{sub:[AXIS]-Section}
+\begin_inset LatexCommand \ref{sub:[AXIS]-section}
 
 \end_inset 
 
@@ -393,10 +393,10 @@ Units The units (of length or angle) specified in the inifile for
 INI Variable Definitions
 \layout Subsection
 
-
-\color black
 [EMC] Section
-\begin_inset LatexCommand \label{sub:[EMC]-Section}
+\color black
+ 
+\begin_inset LatexCommand \label{sub:[EMC]-section}
 
 \end_inset 
 
@@ -462,10 +462,10 @@ Controller
  long.
 \layout Subsection
 
-
-\color black
 [DISPLAY] Section
-\begin_inset LatexCommand \label{sub:[DISPLAY]-Section}
+\color black
+ 
+\begin_inset LatexCommand \label{sub:[DISPLAY]-section}
 
 \end_inset 
 
@@ -617,7 +617,7 @@ OPEN_FILE\SpecialChar ~
 \layout Subsection
 
 [RS274NGC] Section 
-\begin_inset LatexCommand \label{sub:[RS274NGC]-Section}
+\begin_inset LatexCommand \label{sub:[RS274NGC]-section}
 
 \end_inset 
 
@@ -662,10 +662,10 @@ G90 A string of NC codes that the interpreter is initialized with.
  by g-code interpreted earlier in the session.
 \layout Subsection
 
-
-\color black
 [EMCMOT] Section
-\begin_inset LatexCommand \label{sub:[EMCMOT]-Section}
+\color black
+ 
+\begin_inset LatexCommand \label{sub:[EMCMOT]-section}
 
 \end_inset 
 
@@ -815,8 +815,8 @@ SERVO_PERIOD
 .
 \layout Subsection
 
-[TASK] Section
-\begin_inset LatexCommand \label{sub:[TASK]-Section}
+[TASK] Section 
+\begin_inset LatexCommand \label{sub:[TASK]-section}
 
 \end_inset 
 
@@ -845,7 +845,7 @@ CYCLE_TIME\SpecialChar ~
  There is usually no need to change this number.
 \layout Subsection
 
-[HAL] section
+[HAL] section 
 \begin_inset LatexCommand \label{sub:[HAL]-section}
 
 \end_inset 
@@ -932,10 +932,10 @@ example2.hal
  for more information.
 \layout Subsection
 
-
-\color black
 [TRAJ] Section
-\begin_inset LatexCommand \label{sub:[TRAJ]-Section}
+\color black
+ 
+\begin_inset LatexCommand \label{sub:[TRAJ]-section}
 
 \end_inset 
 
@@ -1180,10 +1180,10 @@ This assumes there was no movement of the machine while powered off.
  emc is started.
 \layout Subsection
 
-
-\color black
 [AXIS_<num>] Section
-\begin_inset LatexCommand \label{sub:[AXIS]-Section}
+\color black
+ 
+\begin_inset LatexCommand \label{sub:[AXIS]-section}
 
 \end_inset 
 
@@ -1380,7 +1380,7 @@ ies.
  
 \layout Subsubsection
 
-Homing-related items
+Homing-related items 
 \begin_inset LatexCommand \label{sub:Homing-related-items}
 
 \end_inset 
