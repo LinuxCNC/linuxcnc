@@ -341,7 +341,7 @@ Number of hal inputs bit pins
 
 \layout Standard
 
-50
+15
 \end_inset 
 </cell>
 </row>
@@ -367,7 +367,7 @@ Number of hal output bit pins
 
 \layout Standard
 
-50
+15
 \end_inset 
 </cell>
 </row>
