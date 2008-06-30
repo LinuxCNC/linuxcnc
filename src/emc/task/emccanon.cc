@@ -918,23 +918,21 @@ void SET_MOTION_CONTROL_MODE(CANON_MOTION_MODE mode, double tolerance)
 
     flush_segments();
 
-    if ((mode != canonMotionMode) || (FROM_PROG_LEN(tolerance) != canonMotionTolerance)) {
-	canonMotionMode = mode;
-	canonMotionTolerance =  FROM_PROG_LEN(tolerance);
+    canonMotionMode = mode;
+    canonMotionTolerance =  FROM_PROG_LEN(tolerance);
 
-	switch (mode) {
-	case CANON_CONTINUOUS:
-	    setTermCondMsg.cond = EMC_TRAJ_TERM_COND_BLEND;
-	    setTermCondMsg.tolerance = TO_EXT_LEN(canonMotionTolerance);
-	    break;
+    switch (mode) {
+    case CANON_CONTINUOUS:
+        setTermCondMsg.cond = EMC_TRAJ_TERM_COND_BLEND;
+        setTermCondMsg.tolerance = TO_EXT_LEN(canonMotionTolerance);
+        break;
 
-	default:
-	    setTermCondMsg.cond = EMC_TRAJ_TERM_COND_STOP;
-	    break;
-	}
-
-	interp_list.append(setTermCondMsg);
+    default:
+        setTermCondMsg.cond = EMC_TRAJ_TERM_COND_STOP;
+        break;
     }
+
+    interp_list.append(setTermCondMsg);
 }
 
 CANON_MOTION_MODE GET_MOTION_CONTROL_MODE()
