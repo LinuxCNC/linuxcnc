@@ -19,6 +19,7 @@ emc2 (1:2.2.6~cvs) hardy; urgency=low
     change" was disabled
   * hal_ppmc: handle faster clock frequency for UPC 3.1 boards
   * software encoder counter: fix problem with negative velocity outputs
+  * Fix handling of G61/G64 after Machine Off (SF#2006736)
 
  -- Jeff Epler <jepler@unpythonic.net>  Sun, 22 Jun 2008 18:08:02 -0500
 
