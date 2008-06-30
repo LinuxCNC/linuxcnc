@@ -413,9 +413,15 @@ static void capture(void *arg, long period)
 		if ( delta_time < TIMEOUT ) {
 		    /* not to long, estimate vel if a count arrived now */
 		    vel = ( cntr->scale ) / (delta_time * 1e-9);
+		    /* make vel positive, even if scale is negative */
+		    if ( vel < 0.0 ) vel = -vel;
 		    /* use lesser of estimate and previous value */
+		    /* use sign of previous value, magnitude of estimate */
 		    if ( vel < *(cntr->vel) ) {
 			*(cntr->vel) = vel;
+		    }
+		    if ( -vel > *(cntr->vel) ) {
+			*(cntr->vel) = -vel;
 		    }
 		} else {
 		    /* its been a long time, stop estimating */
