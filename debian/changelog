@@ -11,6 +11,11 @@ emc2 (1:2.3.0~alpha1) unstable; urgency=low
   * build against hardy package
   * eliminate requirement for unnecessary endpoint respecification for
     full circles (G2/G3 with only I/J/K words will give full circles)
+  * added 'vismach' directory to sample configs, with max5 configuration
+  * vismach improvements: trianglar plate and triangle mesh primitives,
+    and ability to view model from all angles
+  * added interpolated position to software encoder counter - allows
+    threading with low ppr spindle encoder
   * [add bugfixes from the 2.2.x branch here, before release]
 
  -- Chris Radek <chris@timeguy.com>  Wed, 28 May 2008 11:02:23 -0500
