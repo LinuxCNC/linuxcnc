@@ -2370,35 +2370,22 @@ vars.show_distance_to_go.set(1)
 
 \layout Subsection
 
-External Editor
+External Editor.
 \layout Standard
 
-By defining 
-\family typewriter 
-[DISPLAY]EDITOR
-\family default 
-, the menu options File > Edit...
+The menu options File > Edit...
  and File > Edit Tool Table...
- become available.
- Useful values include 
+ become available after defining the editor in the ini section [DISPLAY].
+ Useful values include EDITOR=gedit and EDITOR=gnome-terminal -e vim.
+
 \family typewriter 
-EDITOR=gedit
-\family default 
- and 
-\family typewriter 
-EDITOR=gnome-terminal -e vim
-\family default 
-.
+ For more information, see the Integrators Manual.
 \layout Subsection
 
 Virtual Control Panel
 \layout Standard
 
-AXIS can display a pyVCP xml file in the right-hand pane.
- For more information, see section 
-\begin_inset LatexCommand \ref{sec:pyvcp-with-axis}
-
-\end_inset 
-
-.
+AXIS can display a custom virtual control panel in the right-hand pane.
+ You can program buttons, indicators, data displays and more.
+ For more information, see the Integrators Manual.
 \the_end
