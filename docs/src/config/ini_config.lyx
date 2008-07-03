@@ -572,55 +572,10 @@ MAX_SPINDLE_OVERRIDE\SpecialChar ~
  1.0 means 100% of the programmed spindle speed
 \layout Description
 
-DEFAULT_LINEAR_VELOCITY\SpecialChar ~
-=\SpecialChar ~
-.25 The default velocity for linear jogs, in machine
- units per second.
- Only in the AXIS user interface.
-\layout Description
-
-MAX_LINEAR_VELOCITY\SpecialChar ~
-=\SpecialChar ~
-1.0 The maximum velocity for linear jogs, in machine
- units per second.
- Only in the AXIS user interface.
-\layout Description
-
-DEFAULT_ANGULAR_VELOCITY\SpecialChar ~
-=\SpecialChar ~
-.25 The default velocity for angular jogs, in machine
- units per second.
- Only in the AXIS user interface.
-\layout Description
-
-MAX_ANGULAR_VELOCITY\SpecialChar ~
-=\SpecialChar ~
-1.0 The maximum velocity for angular jogs, in machine
- units per second.
- Only in the AXIS user interface.
-\layout Description
-
 PROGRAM_PREFIX\SpecialChar ~
 =\SpecialChar ~
 ~/emc2/nc_files The default location for g-code files and
  the location for user-defined M-codes
-\layout Description
-
-INCREMENTS\SpecialChar ~
-=\SpecialChar ~
-1\SpecialChar ~
-mm,\SpecialChar ~
-.5\SpecialChar ~
-mm,\SpecialChar ~
-\SpecialChar \ldots{}
- Defines the increments available for incremental jogs.
- See section 
-\begin_inset LatexCommand \ref{DISPLAY-INCREMENTS}
-
-\end_inset 
-
- for more information.
- Only in the AXIS user interface
 \layout Description
 
 INTRO_GRAPHIC\SpecialChar ~
@@ -631,12 +586,64 @@ emc2.gif The image shown on the splash screen
 INTRO_TIME\SpecialChar ~
 =\SpecialChar ~
 5 The maximum time to show the splash screen
+\layout Subsubsection
+
+AXIS Interface
+\layout Standard
+
+If your using the Axis interface the following can be used with it only.
+\layout Description
+
+DEFAULT_LINEAR_VELOCITY\SpecialChar ~
+=\SpecialChar ~
+.25 The default velocity for linear jogs, in machine
+ units per second.
+ 
+\layout Description
+
+MAX_LINEAR_VELOCITY\SpecialChar ~
+=\SpecialChar ~
+1.0 The maximum velocity for linear jogs, in machine
+ units per second.
+ 
+\layout Description
+
+DEFAULT_ANGULAR_VELOCITY\SpecialChar ~
+=\SpecialChar ~
+.25 The default velocity for angular jogs, in machine
+ units per second.
+ 
+\layout Description
+
+MAX_ANGULAR_VELOCITY\SpecialChar ~
+=\SpecialChar ~
+1.0 The maximum velocity for angular jogs, in machine
+ units per second.
+ 
+\layout Description
+
+INCREMENTS = 1 mm, .5 in, ...
+ Defines the increments available for incremental jogs.
+ The INCREMENTS can be used to override the default.
+ The values can be decimal numbers (e.g., 0.1000) or fractional numbers (e.g.,
+ 1/16), optionally followed by a unit (cm, mm, um, inch, in or mil).
+ If a unit is not specified the machine unit is assumed.
+ Metric and imperial distances may be mixed: INCREMENTS = 1 inch, 1 mil,
+ 1 cm, 1 mm, 1 um is a valid entry.
 \layout Description
 
 OPEN_FILE\SpecialChar ~
 =\SpecialChar ~
 /full/path/to/file.ngc The file to show in the preview plot when
  AXIS starts
+\layout Description
+
+EDITOR\SpecialChar ~
+=\SpecialChar ~
+gedit The editor to use when selecting File > Edit or File Edit Tool
+ Table from the AXIS menu.
+ This must be configured for these menu items to work.
+ Another valid entry is gnome-terminal -e vim.
 \layout Subsection
 
 [EMCMOT] Section
