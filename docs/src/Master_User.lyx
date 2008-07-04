@@ -105,7 +105,7 @@ Introduction
 \layout Standard
 
 
-\begin_inset Include \include{common/emc2_introduction.lyx}
+\begin_inset Include \include{common/user_intro.lyx}
 preview false
 
 \end_inset 
