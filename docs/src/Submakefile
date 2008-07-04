@@ -36,6 +36,7 @@ DOC_SRCS := \
 	common/GPLD_Copyright.lyx \
 	common/Glossary.lyx \
 	common/emc2_introduction.lyx \
+	common/user_intro.lyx \
 	config/ini_config.lyx \
 	config/ini_config_fr.lyx \
 	config/ini_homing.lyx \
@@ -82,6 +83,7 @@ DOC_SRCS := \
 	motion/kinematics.lyx \
 	motion/pid_theory.lyx \
 	motion/tweaking_steppers.lyx \
+	examples/spindle.lyx \
 	Master_HAL.lyx \
 	Master_HAL_fr.lyx
 
