@@ -83,6 +83,7 @@ DOC_SRCS := \
 	motion/kinematics.lyx \
 	motion/pid_theory.lyx \
 	motion/tweaking_steppers.lyx \
+	examples/spindle.lyx \
 	Master_HAL.lyx \
 	Master_HAL_fr.lyx
 
