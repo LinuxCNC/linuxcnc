@@ -214,6 +214,8 @@ $(filter objects/ladder_%.xml,$(DOC_TARGETS_XML)): objects/ladder_%.xml: $(DOC_S
 	$(call lyx2xml,ladder,$*,$<)
 $(filter objects/motion_%.xml,$(DOC_TARGETS_XML)): objects/motion_%.xml: $(DOC_SRCDIR)/motion/%.lyx $(XMLDEP)
 	$(call lyx2xml,motion,$*,$<)
+$(filter objects/examples_%.xml,$(DOC_TARGETS_XML)): objects/examples_%.xml: $(DOC_SRCDIR)/examples/%.lyx $(XMLDEP)
+	$(call lyx2xml,examples,$*,$<)
 $(filter objects/quickstart_%.xml,$(DOC_TARGETS_XML)): objects/quickstart_%.xml: $(DOC_SRCDIR)/quickstart/%.lyx $(XMLDEP)
 	$(call lyx2xml,quickstart,$*,$<)
 
