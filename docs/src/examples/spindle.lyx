@@ -24,10 +24,10 @@
 \papersides 1
 \paperpagestyle default
 
-\layout Section
+\layout Chapter
 
 Spindle Speed Control
-\layout Subsection
+\layout Section
 
 0-10v Spindle Speed
 \layout Standard
@@ -63,7 +63,7 @@ net spindle-speed-scale motion.spindle-speed-out => scale.0.in
 \layout Standard
 
 net spindle-speed-DAC scale.0.out => <your DAC pin name>
-\layout Subsection
+\layout Section
 
 PWM Spindle Speed
 \layout Standard
@@ -96,6 +96,9 @@ setp pwmgen.0.scale 1800 # Change to your spindle's top speed in RPM
 This assumes that the spindle controller's response to PWM is simple: 0%
  PWM gives 0RPM, 10% PWM gives 180 RPM, etc.
  If there is a minimum PWM required to get the spindle to turn, follow the
- example in the nist-lathe sample conï¬guration to use a scale component.
+ example in the nist-lathe sample configuration to use a scale component.
  
+\layout Section
+
+Spindle Feedback
 \the_end
