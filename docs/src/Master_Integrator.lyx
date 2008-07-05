@@ -331,6 +331,18 @@ preview false
 
 
 \layout Part
+
+Hardware Examples
+\layout Standard
+
+
+\begin_inset Include \include{examples/spindle.lyx}
+preview false
+
+\end_inset 
+
+
+\layout Part
 \start_of_appendix 
 Glossary
 \layout Standard
