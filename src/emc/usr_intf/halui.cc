@@ -147,8 +147,8 @@ DONE: - joint:
 WIP:
    halui.axis.0.pos-commanded          float //cartesian position, commanded
    halui.axis.0.pos-feedback           float //cartesian position, actual
-   ..
-
+   halui.axis.0.pos-relative           float //cartesian position, relative
+   ...
 
 DONE - jogging:
    halui.jog.speed                     float //set jog speed
@@ -275,6 +275,8 @@ struct halui_str {
 
     hal_float_t *axis_pos_commanded[EMCMOT_MAX_AXIS+1]; //status pin for commanded cartesian position
     hal_float_t *axis_pos_feedback[EMCMOT_MAX_AXIS+1]; //status pin for actual cartesian position
+    hal_float_t *axis_pos_relative[EMCMOT_MAX_AXIS+1]; //status pin for relative cartesian position
+
 
     hal_float_t *jog_speed;	//pin for setting the jog speed (halui internal)
     hal_bit_t *jog_minus[EMCMOT_MAX_JOINTS+1];	//pin to jog in positive direction
@@ -774,6 +776,8 @@ int halui_hal_init(void)
 	retval =  hal_pin_float_newf(HAL_OUT, &(halui_data->axis_pos_commanded[axis]), comp_id, "halui.axis.%d.pos-commanded", axis);
     if (retval != HAL_SUCCESS) return retval;
 	retval =  hal_pin_float_newf(HAL_OUT, &(halui_data->axis_pos_feedback[axis]), comp_id, "halui.axis.%d.pos-feedback", axis);
+    if (retval != HAL_SUCCESS) return retval;
+	retval =  hal_pin_float_newf(HAL_OUT, &(halui_data->axis_pos_relative[axis]), comp_id, "halui.axis.%d.pos-relative", axis);
     if (retval != HAL_SUCCESS) return retval;
     }
 
@@ -1885,6 +1889,15 @@ static void modify_hal_pins()
     *(halui_data->axis_pos_feedback[6]) = emcStatus->motion.traj.actualPosition.u;
     *(halui_data->axis_pos_feedback[7]) = emcStatus->motion.traj.actualPosition.v;
     *(halui_data->axis_pos_feedback[8]) = emcStatus->motion.traj.actualPosition.w;
+    *(halui_data->axis_pos_relative[0]) = emcStatus->motion.traj.actualPosition.tran.x - emcStatus->task.origin.tran.x;	
+    *(halui_data->axis_pos_relative[1]) = emcStatus->motion.traj.actualPosition.tran.y - emcStatus->task.origin.tran.y;	
+    *(halui_data->axis_pos_relative[2]) = emcStatus->motion.traj.actualPosition.tran.z - emcStatus->task.origin.tran.y;
+    *(halui_data->axis_pos_relative[3]) = emcStatus->motion.traj.actualPosition.a - emcStatus->task.origin.a;
+    *(halui_data->axis_pos_relative[4]) = emcStatus->motion.traj.actualPosition.b - emcStatus->task.origin.b;
+    *(halui_data->axis_pos_relative[5]) = emcStatus->motion.traj.actualPosition.c - emcStatus->task.origin.c;
+    *(halui_data->axis_pos_relative[6]) = emcStatus->motion.traj.actualPosition.u - emcStatus->task.origin.u;
+    *(halui_data->axis_pos_relative[7]) = emcStatus->motion.traj.actualPosition.v - emcStatus->task.origin.v;
+    *(halui_data->axis_pos_relative[8]) = emcStatus->motion.traj.actualPosition.w - emcStatus->task.origin.w;
 
     *(halui_data->joint_is_homed[num_axes]) = emcStatus->motion.axis[*(halui_data->joint_selected)].homed;
     *(halui_data->joint_on_soft_min_limit[num_axes]) = emcStatus->motion.axis[*(halui_data->joint_selected)].minSoftLimit;
