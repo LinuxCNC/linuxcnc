@@ -248,7 +248,7 @@ There are four main components to the EMC2 software: a motion controller
 
  (Hardware Abstraction Layer) which allows simple reconfiguration of EMC2
  without the need of recompiling.
-\layout Subsection
+\layout Section
 
 Graphical User Interfaces
 \begin_inset LatexCommand \label{sub:Graphical-User-Interfaces}
@@ -515,7 +515,7 @@ As you begin to work with the EMC2 program, you will need to place yourself
  You will need some information right up front here so that the following
  pages will make sense to you.
  
-\layout Subsection
+\layout Section
 
 Modes of Operation
 \begin_inset LatexCommand \label{sub:Modes-of-Operation}
@@ -623,7 +623,7 @@ The AXIS user interface removes some of the distinctions between Auto and
  the other modes by making Auto-commands available at most times.
  It also blurs the distinction between Manual and MDI because some Manual
  commands like Touch Off are actually implemented by sending MDI commands.
-\layout Subsection
+\layout Section
 
 Information Display 
 \begin_inset LatexCommand \label{sub:Information-Display}
@@ -703,7 +703,7 @@ As you work your way through this text, you will be learning, bit by bit,
  While you are learning about setting up and running a minimill here, you
  will be thinking of other applications and other capabilities.
  These are the topics of the other linuxcnc.org handbooks
-\layout Subsection
+\layout Section
 
 Units
 \begin_inset LatexCommand \index{units}
