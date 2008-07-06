@@ -99,5 +99,41 @@ This assumes that the spindle controller's response to PWM is simple: 0%
  example in the nist-lathe sample configuration to use a scale component.
 \layout Section
 
-Lathe Spindle Feedback
+Spindle Feedback
+\layout Standard
+
+Add this section
+\layout Section
+
+Spindle Enable
+\layout Standard
+
+If you need a spindle enable signal link your output pin to motion.spindle-on.
+ To link these pins to a parallel port pin put something like the following
+ in your .hal file making sure you pick the pin that is connected to your
+ control device.
+\layout Standard
+
+net spindle-enable motion.spindle-on => parport.0.pin-14-out
+\layout Section
+
+Spindle Direction
+\layout Standard
+
+If you have direction control of your spindle the hal pins motion.spindle-forward
+ and motion.spindle-reverse are controlled by M3 and M4.
+ S must be set to a positive non zero value for M3/4 to turn on spindle
+ motion.
+ 
+\layout Standard
+
+To link these pins to a parallel port pin put something like the following
+ in your .hal file making sure you pick the pin that is connected to your
+ control device.
+\layout Standard
+
+net spindle-fwd motion.spindle-forward -> parport.0.pin-16-out
+\layout Standard
+
+net spindle-rev motion.spindle-reverse => parport.0.pin-17-out
 \the_end
