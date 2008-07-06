@@ -52,7 +52,7 @@ Introduction
 
 \layout Standard
 
-The focus of this book is on using EMC.
+The focus of this manual is on using EMC.
  It is intended to be used once EMC is installed and configured.
  For information on installing and configuration of EMC see the Integrator
  Manual.
@@ -69,7 +69,7 @@ The Big CNC Picture
 The term CNC has taken on a lot of different meanings over the years.
  In the early days CNC replaced the hands of a skilled machinist with motors
  that followed commands in much the same way that the machinist turned the
- handwheels.
+ hand wheels.
  From these early machines, a language of machine tool control has grown.
  This language is called RS274 and several standard variants of it have
  been put forward.
@@ -93,7 +93,7 @@ More recently the language of CNC has been hidden behind or side-stepped
 
 Conversational
 \begin_inset Foot
-collapsed true
+collapsed false
 
 \layout Standard
 
@@ -238,7 +238,7 @@ Figure
 There are four main components to the EMC2 software: a motion controller
  (EMCMOT), a discrete I/O controller (EMCIO), a task executor which coordinates
  them (EMCTASK), and a collection of text-based or graphical user interfaces.
- An EMC2 capable of running a minimill must start some version of all four
+ An EMC2 capable of running a mini mill must start some version of all four
  of these components in order to completely control it.
  Each component is briefly described below.
  In addition there is a layer called HAL
@@ -492,11 +492,11 @@ We learn from experience, if at all.
 
 
 \begin_inset Note
-collapsed true
+collapsed false
 
 \layout Standard
 
-As of 2007/10/07, the only google hits for this phrase are in emc2 documentation
+As of 2007/10/07, the only google hits for this phrase are in EMC2 documentation
 \end_inset 
 
  Broken tools, gouged vices, and scars are the evidence of lessons taught.
@@ -570,7 +570,7 @@ jog X at 25 inches per minute.
 \begin_inset Quotes erd
 \end_inset 
 
- These are roughly equivalent to flipping a switch or turning the handwheel
+ These are roughly equivalent to flipping a switch or turning the hand wheel
  for an axis.
  These commands are normally handled on one of the graphical interfaces
  by pressing a button with the mouse or holding down a key on the keyboard.
@@ -687,8 +687,8 @@ Commanded
 \layout Standard
 
 These may all be exactly the same if no offsets have been applied and there
- is no deadband set in the INI file.
- Deadband is a small distance which is assumed to be close enough -- perhaps
+ is no dead band set in the INI file.
+ Dead band is a small distance which is assumed to be close enough -- perhaps
  one stepper pulse or one encoder count.
  
 \layout Standard
@@ -700,7 +700,7 @@ It is also important to see any messages or error codes sent by the EMC2.
 
 As you work your way through this text, you will be learning, bit by bit,
  how to set up and run a machine with your copy of the EMC2 software.
- While you are learning about setting up and running a minimill here, you
+ While you are learning about setting up and running a mini mill here, you
  will be thinking of other applications and other capabilities.
  These are the topics of the other linuxcnc.org handbooks
 \layout Section
