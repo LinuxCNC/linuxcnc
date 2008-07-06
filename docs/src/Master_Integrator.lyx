@@ -342,6 +342,15 @@ preview false
 \end_inset 
 
 
+\layout Standard
+
+
+\begin_inset Include \include{examples/mpg.lyx}
+preview false
+
+\end_inset 
+
+
 \layout Part
 \start_of_appendix 
 Glossary
