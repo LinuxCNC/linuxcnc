@@ -48,7 +48,7 @@ One of the problems users often complained about EMC was installing the
 
 
 \begin_inset Foot
-collapsed true
+collapsed false
 
 \layout Standard
 
@@ -218,7 +218,7 @@ EMC2 install script
 
 \layout Standard
 
-We also provide a simple script to install emc2 on Ubuntu for users with
+We also provide a simple script to install EMC2 on Ubuntu for users with
  an existing installation of Ubuntu.
  It  runs the commands explained in 
 \begin_inset LatexCommand \ref{sec:Manual-installing-using}
@@ -288,7 +288,7 @@ The following few section will describe how to install EMC2 on Ubuntu 6.06
 \begin_inset Quotes eld
 \end_inset 
 
-Dapper Dreake
+Dapper Drake
 \begin_inset Quotes erd
 \end_inset 
 
@@ -315,7 +315,7 @@ $ sudo sh -c 'echo "deb-src http://www.linuxcnc.org/emc2/ dapper emc2.2" >>/etc/
 /sources.list'
 \layout Standard
 
-Then update & get emc2.
+Then update & get EMC2.
 \layout LyX-Code
 
 
@@ -325,15 +325,15 @@ $ sudo apt-get update
 $ sudo apt-get install emc2
 \layout Standard
 
-This command will install the emc2 package along with all dependencies
+This command will install the EMC2 package along with all dependencies
 \begin_inset Foot
-collapsed true
+collapsed false
 
 \layout Standard
 
 The dependencies are one of the nicest thing in Debian based distributions.
  They assure you have everything installed that you need.
- In the case of emc2 it's even a RT-patched kernel, and all needed libraries.
+ In the case of EMC2 it's even a RT-patched kernel, and all needed libraries.
 \end_inset 
 
 .
