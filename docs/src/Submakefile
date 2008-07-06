@@ -35,6 +35,7 @@ DOC_SRCS := \
 	Master_User_fr.lyx \
 	common/GPLD_Copyright.lyx \
 	common/Glossary.lyx \
+	common/userforeword.lyx \
 	common/integrator_intro.lyx \
 	common/user_intro.lyx \
 	config/ini_config.lyx \
