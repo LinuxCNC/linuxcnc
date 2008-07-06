@@ -8133,6 +8133,14 @@ See Section
  for an overview of coordinate systems.
 \layout Standard
 
+See Section 
+\begin_inset LatexCommand \ref{sec:G92-Offsets}
+
+\end_inset 
+
+ for more information on Offsets.
+\layout Standard
+
 To make the current point have the coordinates you want (without motion),
  program 
 \family typewriter 
