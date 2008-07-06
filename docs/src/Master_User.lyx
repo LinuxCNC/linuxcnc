@@ -101,6 +101,18 @@ Contents
 
 \layout Part
 
+Foreword
+\layout Standard
+
+
+\begin_inset Include \include{common/userforeword.lyx}
+preview false
+
+\end_inset 
+
+
+\layout Part
+
 Introduction
 \layout Standard
 
