@@ -540,6 +540,11 @@ G92
 \end_inset 
 
  Offsets
+\begin_inset LatexCommand \label{sec:G92-Offsets}
+
+\end_inset 
+
+
 \layout Standard
 
 The way that it works has changed just a bit from the early days to the
