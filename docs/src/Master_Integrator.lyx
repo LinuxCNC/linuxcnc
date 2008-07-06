@@ -138,6 +138,15 @@ Configuration
 \layout Standard
 
 
+\begin_inset Include \include{config/stepconf.lyx}
+preview false
+
+\end_inset 
+
+
+\layout Standard
+
+
 \begin_inset Include \include{config/ini_config.lyx}
 preview false
 

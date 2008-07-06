@@ -46,7 +46,7 @@ The EMC is configured with human readable text files.
  All of these files can be read and edited in any of the common text file
  editors available with most any Linux distribution.
 \begin_inset Foot
-collapsed true
+collapsed false
 
 \layout Standard
 
@@ -59,7 +59,7 @@ Don't confuse a text editor with a word processor.
 \end_inset 
 
  You'll need to be a bit careful when you edit these files.
- Some mistakes will cause the startup to fail.
+ Some mistakes will cause the start up to fail.
  These files are read whenever the software starts up.
  Some of them are read repeatedly while the CNC is running.
  
@@ -142,7 +142,7 @@ NML
  This file saves user specific information and is created to save the name
  of the directory when the user first selects an EMC configuration.
 \begin_inset Foot
-collapsed true
+collapsed false
 
 \layout Standard
 
@@ -276,7 +276,7 @@ Related parts of an ini file are separated into sections.
  A section line looks like [THIS_SECTION].
  The name of the section is enclosed in brackets.
  The order of sections is unimportant.
- The following sections are used by emc:
+ The following sections are used by EMC:
 \layout Itemize
 
 [EMC] general information (
@@ -303,7 +303,7 @@ Related parts of an ini file are separated into sections.
 )
 \layout Itemize
 
-[EMCMOT] settings used by the realtime motion controller (
+[EMCMOT] settings used by the real time motion controller (
 \begin_inset LatexCommand \ref{sub:[EMCMOT]-section}
 
 \end_inset 
@@ -327,7 +327,7 @@ Related parts of an ini file are separated into sections.
 )
 \layout Itemize
 
-[TRAJ] additional settings used by the realtime motion controller (
+[TRAJ] additional settings used by the real time motion controller (
 \begin_inset LatexCommand \ref{sub:[TRAJ]-section}
 
 \end_inset 
@@ -359,7 +359,7 @@ A variable line is made up of a variable name, an equals sign(=), and a
  value.
  
 \color black
-Everything from the first non-whitespace character after the = up to the
+Everything from the first non-white space character after the = up to the
  end of the line is passed as the value, so you can embed spaces in string
  symbols if you want to or need to.
  A variable name is often called a keyword.
@@ -381,7 +381,7 @@ Definitions
 \layout Description
 
 Machine\SpecialChar ~
-Units The units (of length or angle) specified in the inifile for
+Units The units (of length or angle) specified in the ini file for
  a particular axis
 \layout Section
 
@@ -525,7 +525,7 @@ POSITION_FEEDBACK\SpecialChar ~
 =\SpecialChar ~
 ACTUAL The coordinate value (COMMANDED or ACTUAL) to show
  when the user interface starts.
- The COMMANDED position is the ideal position requested by emc.
+ The COMMANDED position is the ideal position requested by EMC.
  The ACTUAL position is the feedback position of the motors.
 \layout Description
 
@@ -647,7 +647,7 @@ RS274NGC_STARTUP_CODE
 G21\SpecialChar ~
 G90 A string of NC codes that the interpreter is initialized with.
  This is not a substitute for specifying modal g-codes at the top of each
- ngc file, beacause the modal codes of machines differ, and may be changed
+ ngc file, because the modal codes of machines differ, and may be changed
  by g-code interpreted earlier in the session.
 \layout Subsection
 
@@ -728,7 +728,7 @@ Choosing a BASE_PERIOD that is too low can lead to the
 \begin_inset Quotes eld
 \end_inset 
 
-Unexpected realtime delay
+Unexpected real time delay
 \begin_inset Quotes erd
 \end_inset 
 
@@ -849,13 +849,13 @@ CYCLE_TIME\SpecialChar ~
 
 HALFILE\SpecialChar ~
 =\SpecialChar ~
-example.hal Execute the file 'example.hal' at startup.
+example.hal Execute the file 'example.hal' at start up.
  If 
 \series bold 
 HALFILE
 \series default 
  is specified multiple times, the files are executed in the order they appear
- in the inifile.
+ in the ini file.
  Almost all configurations will have at least one 
 \series bold 
 HALFILE
@@ -865,7 +865,7 @@ HALFILE
 \family typewriter 
 core_stepper.hal
 \family default 
-) and one which specifies the machine pinout (
+) and one which specifies the machine pin out (
 \family typewriter 
 xxx_pinout.hal
 \family default 
@@ -884,7 +884,7 @@ Execute 'command' as a single hal command.
 HAL
 \series default 
  is specified multiple times, the commands are executed in the order they
- appear in the inifile.
+ appear in the ini file.
  
 \series bold 
 HAL
@@ -898,12 +898,12 @@ HALFILE
 
 SHUTDOWN\SpecialChar ~
 =\SpecialChar ~
-shutdown.hal Execute the file 'shutdown.hal' when emc is exiting.
+shutdown.hal Execute the file 'shutdown.hal' when EMC is exiting.
  Depending on the hardware drivers used, this may make it possible to set
- outputs to defined values when emc is exited normally.
+ outputs to defined values when EMC is exited normally.
  However, because there is no guarantee this file will be executed (for
  instance, in the case of a computer crash) it is not a replacement for
- a proper physical estop chain or other protections against software failure.
+ a proper physical e-stop chain or other protections against software failure.
 \layout Description
 
 POSTGUI_HALFILE\SpecialChar ~
@@ -1108,7 +1108,7 @@ teleop
 \begin_inset Quotes erd
 \end_inset 
 
- (cartesian space) jogs, in machine units per second per second.
+ (Cartesian space) jogs, in machine units per second per second.
  
 \layout Description
 
@@ -1157,7 +1157,7 @@ position.txt If set to a non-empty value, the joint positions
  are stored between runs in this file.
  This allows the machine to start with the same coordinates it had on shutdown.
 \begin_inset Foot
-collapsed true
+collapsed false
 
 \layout Standard
 
@@ -1166,7 +1166,7 @@ This assumes there was no movement of the machine while powered off.
 \end_inset 
 
  If unset, joint positions are not stored and will begin at 0 each time
- emc is started.
+ EMC is started.
 \layout Subsection
 
 [AXIS_<num>] Section
@@ -1410,7 +1410,7 @@ HOME_SEARCH_VEL
 \series bold 
 0.0
 \series default 
- Initial homing velocity in machine units per escond.
+ Initial homing velocity in machine units per second.
  Sign denotes direction of travel.
  A value of zero means assume that the current location is the home position
  for the machine.
@@ -1473,17 +1473,7 @@ Servo-related items
 
 \layout Standard
 
-The following items are for servo-based systems and servo-like systems including
- the univstep board from Pico Systems.
-\begin_inset Foot
-collapsed true
-
-\layout Standard
-
-Refer to the the EMC2_Integrator_Manual for further information about servo
- systems and PID control.
-\end_inset 
-
+The following items are for servo-based systems and servo-like systems.
  This description assumes that the units of output from the PID component
  are volts.
 \layout Description
@@ -1592,7 +1582,7 @@ FF0\SpecialChar ~
 \noun default 
  
 \color black
-The 0-th order feedforward gain.
+The 0th order feed forward gain.
  This number is multiplied by the commanded position, resulting in a contributio
 n to the computed voltage for the motor amplifier.
  The units on the FF0 gain are volts per machine unit, e.g., 
@@ -1619,7 +1609,7 @@ FF1\SpecialChar ~
 \noun default 
  
 \color black
-The 1st order feedforward gain.
+The 1st order feed forward gain.
  This number is multiplied by the change in commanded position per second,
  resulting in a contribution to the computed voltage for the motor amplifier.
  The units on the FF1 gain are volts per machine unit per second, e.g., 
@@ -1646,7 +1636,7 @@ FF2\SpecialChar ~
 \noun default 
  
 \color black
-The 2nd order feedforward gain.
+The 2nd order feed forward gain.
  This number is multiplied by the change in commanded position per second
  per second, resulting in a contribution to the computed voltage for the
  motor amplifier.
@@ -1719,7 +1709,7 @@ amplifier[volts]=(output[\frac{mm}{sec}]-offset[\frac{mm}{sec}])/250\frac{mm}{se
  If the DAC is linearized, this offset is normally 0.0.
  
 \newline 
-The scale and offset can be used to linearize the DACs as well, resulting
+The scale and offset can be used to linearize the DAC as well, resulting
  in values that reflect the combined effects of amplifier gain, DAC non-linearit
 y, DAC units, etc.
  To do this, follow this procedure: 
@@ -1728,7 +1718,7 @@ y, DAC units, etc.
 
 
 \color black
-Build a calibration table for the output, driving the DACs with a desired
+Build a calibration table for the output, driving the DAC with a desired
  voltage and measuring the result.
  See table\SpecialChar ~
 
