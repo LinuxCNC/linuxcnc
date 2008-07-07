@@ -24,9 +24,14 @@ license "GPL";
 ;;
 FUNCTION(_) {
     hal_float_t temp_in = speed_in;
+    hal_float_t sign=1;
     /* Assume that the output device is scaled so that gear 1 is "Pass-through" */
     /* the other gear(s) need to be scaled by the relative scale for that gear */
     if (scale2 < 1) scale2 = 1;
+    if (temp_in < 0) {
+	sign = -1;
+	temp_in = -temp_in;
+    }
     if(sel) {		/* gear 2 */
     	if (temp_in < min2) temp_in = min2;
     	else if (temp_in > max2) temp_in = max2;
@@ -37,5 +42,5 @@ FUNCTION(_) {
     	else if (temp_in > max1) temp_in = max1;
 	dir_out = dir_in;
     }
-    speed_out = temp_in;
+    speed_out = sign*temp_in;
 }
