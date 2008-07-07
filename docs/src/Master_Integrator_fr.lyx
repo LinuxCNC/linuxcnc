@@ -102,7 +102,7 @@ Introduction
 \layout Standard
 
 
-\begin_inset Include \include{common/emc2_introduction.lyx}
+\begin_inset Include \include{common/integrator_intro.lyx}
 preview false
 
 \end_inset 
