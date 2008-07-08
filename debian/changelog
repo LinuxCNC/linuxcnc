@@ -20,6 +20,9 @@ emc2 (1:2.2.6~cvs) hardy; urgency=low
   * hal_ppmc: handle faster clock frequency for UPC 3.1 boards
   * software encoder counter: fix problem with negative velocity outputs
   * Fix handling of G61/G64 after Machine Off (SF#2006736)
+  * new realtime component: gearchange.  selects between two scale factors,
+    two min and max speed limits, and optionally reverses direction of spindle
+  * new realtime component: invert - outputs the inverse of a float (1/x)
 
  -- Jeff Epler <jepler@unpythonic.net>  Sun, 22 Jun 2008 18:08:02 -0500
 
