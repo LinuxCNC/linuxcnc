@@ -16,6 +16,9 @@ emc2 (1:2.3.0~alpha1) unstable; urgency=low
     and ability to view model from all angles
   * added interpolated position to software encoder counter - allows
     threading with low ppr spindle encoder
+  * new realtime component: gearchange.  selects between two scale factors,
+    two min and max speed limits, and optionally reverses direction of spindle
+  * new realtime component: invert - outputs the inverse of a float (1/x)
   * [add bugfixes from the 2.2.x branch here, before release]
 
  -- Chris Radek <chris@timeguy.com>  Wed, 28 May 2008 11:02:23 -0500
