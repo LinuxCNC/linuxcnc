@@ -50,7 +50,6 @@
 	filename common/emc2-intro.png
 	lyxscale 80
 	scale 50
-	keepAspectRatio
 
 \end_inset 
 
@@ -101,7 +100,7 @@ Contents
 
 \layout Part
 
-Foreword
+Preface
 \layout Standard
 
 

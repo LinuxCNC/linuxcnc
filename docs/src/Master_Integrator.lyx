@@ -252,6 +252,15 @@ preview false
 \layout Standard
 
 
+\begin_inset Include \include{hal/components.lyx}
+preview false
+
+\end_inset 
+
+
+\layout Standard
+
+
 \begin_inset Include \include{hal/rtcomps.lyx}
 preview false
 

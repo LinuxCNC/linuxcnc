@@ -1,0 +1,590 @@
+#LyX 1.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 221
+\textclass article
+\language english
+\inputencoding auto
+\fontscheme default
+\graphics default
+\paperfontsize default
+\papersize Default
+\paperpackage a4
+\use_geometry 0
+\use_amsmath 0
+\use_natbib 0
+\use_numerical_citations 0
+\paperorientation portrait
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\defskip medskip
+\quotes_language english
+\quotes_times 2
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+
+\layout Section
+
+HAL Components
+\layout Subsection
+
+Commands and Userspace Components
+\layout Standard
+
+Some of these will have expanded descriptions from the man pages.
+ Some will have limited descriptions.
+ All of the components have man pages.
+ From this list you know what components exist and can use man n name to
+ get additional information.
+ For example in a terminal window type 
+\family typewriter 
+\series bold 
+man 1 axis 
+\family default 
+\series default 
+to view the information in the man page.
+\layout Subsubsection
+
+axis.1
+\layout Subsubsection
+
+axis-remote.1
+\layout Subsubsection
+
+bfload.1
+\layout Subsubsection
+
+comp.1
+\layout Subsubsection
+
+emc.1
+\layout Subsubsection
+
+emc.1.in
+\layout Subsubsection
+
+halcmd.1
+\layout Subsubsection
+
+hal_input.1
+\layout Subsubsection
+
+hal_joystick.1
+\layout Subsubsection
+
+halmeter.1
+\layout Subsubsection
+
+halrun.1
+\layout Subsubsection
+
+halsampler.1
+\layout Subsubsection
+
+halstreamer.1
+\layout Subsubsection
+
+halui.1
+\layout Subsubsection
+
+io.1
+\layout Subsubsection
+
+iocontrol.1
+\layout Subsubsection
+
+pyvcp.1
+\layout Subsection
+
+API Calls
+\layout Subsubsection
+
+hal_add_funct_to_thread.3hal
+\layout Subsubsection
+
+hal_bit_t.3hal
+\layout Subsubsection
+
+hal_create_thread.3hal
+\layout Subsubsection
+
+hal_del_funct_from_thread.3hal
+\layout Subsubsection
+
+hal_exit.3hal
+\layout Subsubsection
+
+hal_export_funct.3hal
+\layout Subsubsection
+
+hal_float_t.3hal
+\layout Subsubsection
+
+hal_get_lock.3hal
+\layout Subsubsection
+
+hal_init.3hal
+\layout Subsubsection
+
+hal_link.3hal
+\layout Subsubsection
+
+hal_malloc.3hal
+\layout Subsubsection
+
+hal_param_bit_new.3hal
+\layout Subsubsection
+
+hal_param_bit_newf.3hal
+\layout Subsubsection
+
+hal_param_float_new.3hal
+\layout Subsubsection
+
+hal_param_float_newf.3hal
+\layout Subsubsection
+
+hal_param_new.3hal
+\layout Subsubsection
+
+hal_param_s32_new.3hal
+\layout Subsubsection
+
+hal_param_s32_newf.3hal
+\layout Subsubsection
+
+hal_param_u32_new.3hal
+\layout Subsubsection
+
+hal_param_u32_newf.3hal
+\layout Subsubsection
+
+hal_pin_bit_new.3hal 
+\layout Subsubsection
+
+hal_pin_bit_newf.3hal
+\layout Subsubsection
+
+hal_pin_float_new.3hal
+\layout Subsubsection
+
+hal_pin_float_newf.3hal
+\layout Subsubsection
+
+hal_pin_new.3hal
+\layout Subsubsection
+
+hal_pin_s32_new.3hal
+\layout Subsubsection
+
+hal_pin_s32_newf.3hal
+\layout Subsubsection
+
+hal_pin_u32_new.3hal
+\layout Subsubsection
+
+hal_pin_u32_newf.3hal
+\layout Subsubsection
+
+hal_ready.3hal
+\layout Subsubsection
+
+hal_s32_t.3hal
+\layout Subsubsection
+
+hal_set_constructor.3hal
+\layout Subsubsection
+
+hal_set_lock.3hal
+\layout Subsubsection
+
+hal_signal_delete.3hal
+\layout Subsubsection
+
+hal_signal_new.3hal
+\layout Subsubsection
+
+hal_start_threads.3hal
+\layout Subsubsection
+
+hal_type_t.3hal
+\layout Subsubsection
+
+hal_u32_t.3hal
+\layout Subsubsection
+
+hal_unlink.3hal
+\layout Subsubsection
+
+intro.3hal 
+\layout Subsection
+
+RTAPI Calls
+\layout Subsubsection
+
+intro.3rtapi
+\layout Subsubsection
+
+rtapi_clock_set_period.3rtapi
+\layout Subsubsection
+
+rtapi_delay.3rtapi
+\layout Subsubsection
+
+rtapi_delay_max.3rtapi
+\layout Subsubsection
+
+rtapi_exit.3rtapi
+\layout Subsubsection
+
+rtapi_get_clocks.3rtapi
+\layout Subsubsection
+
+rtapi_get_msg_level.3rtapi
+\layout Subsubsection
+
+rtapi_get_time.3rtapi
+\layout Subsubsection
+
+rtapi_inb.3rtapi
+\layout Subsubsection
+
+rtapi_init.3rtapi
+\layout Subsubsection
+
+rtapi_module_param.3rtapi
+\layout Subsubsection
+
+rtapi_mutex.3rtapi
+\layout Subsubsection
+
+rtapi_outb.3rtapi
+\layout Subsubsection
+
+rtapi_print.3rtapi
+\layout Subsubsection
+
+rtapi_prio.3rtapi
+\layout Subsubsection
+
+rtapi_prio_highest.3rtapi
+\layout Subsubsection
+
+rtapi_prio_lowest.3rtapi e Components and Kernel Modules
+\layout Subsubsection
+
+rtapi_prio_next_higher.3rtapi
+\layout Subsubsection
+
+rtapi_prio_next_lower.3rtapi
+\layout Subsubsection
+
+rtapi_region.3rtapi
+\layout Subsubsection
+
+rtapi_release_region.3rtapi
+\layout Subsubsection
+
+rtapi_request_region.3rtapi
+\layout Subsubsection
+
+rtapi_set_msg_level.3rtapi
+\layout Subsubsection
+
+rtapi_shmem.3rtapi
+\layout Subsubsection
+
+rtapi_shmem_delete.3rtapi
+\layout Subsubsection
+
+rtapi_shmem_getptr.3rtapi
+\layout Subsubsection
+
+rtapi_shmem_new.3rtapi
+\layout Subsubsection
+
+rtapi_snprintf.3rtapi
+\layout Subsubsection
+
+rtapi_task_new.3rtapi
+\layout Subsubsection
+
+rtapi_task_pause.3rtapi
+\layout Subsubsection
+
+rtapi_task_resume.3rtapi
+\layout Subsubsection
+
+rtapi_task_start.3rtapi
+\layout Subsubsection
+
+rtapi_task_wait.3rtapi 
+\layout Subsection
+
+Realtime components and kernel modules
+\layout Standard
+
+Some of these will have expanded descriptions from the man pages.
+ Some will have limited descriptions.
+ All of the components have man pages.
+ From this list you know what components exist and can use man n name to
+ get additional information.
+\layout Subsubsection
+
+abs.9
+\layout Subsubsection
+
+and2.9
+\layout Subsubsection
+
+at_pid.9
+\layout Subsubsection
+
+axis.9
+\layout Subsubsection
+
+biquad.9
+\layout Subsubsection
+
+blend.9
+\layout Subsubsection
+
+blocks.9
+\layout Subsubsection
+
+charge_pump.9
+\layout Subsubsection
+
+clarke2.9
+\layout Subsubsection
+
+clarke3.9
+\layout Subsubsection
+
+clarkeinv.9
+\layout Subsubsection
+
+classicladder.9
+\layout Subsubsection
+
+comp.9
+\layout Subsubsection
+
+constant.9
+\layout Subsubsection
+
+conv_bit_s32.9
+\layout Subsubsection
+
+conv_bit_u32.9
+\layout Subsubsection
+
+conv_float_s32.9
+\layout Subsubsection
+
+conv_float_u32.9
+\layout Subsubsection
+
+conv_s32_bit.9
+\layout Subsubsection
+
+conv_s32_float.9
+\layout Subsubsection
+
+conv_s32_u32.9
+\layout Subsubsection
+
+conv_u32_bit.9
+\layout Subsubsection
+
+conv_u32_float.9
+\layout Subsubsection
+
+conv_u32_s32.9
+\layout Subsubsection
+
+counter.9
+\layout Subsubsection
+
+ddt.9
+\layout Subsubsection
+
+deadzone.9
+\layout Subsubsection
+
+debounce.9
+\layout Subsubsection
+
+edge.9
+\layout Subsubsection
+
+encoder.9
+\layout Subsubsection
+
+encoder_ratio.9
+\layout Subsubsection
+
+estop_latch.9
+\layout Subsubsection
+
+flipflop.9
+\layout Subsubsection
+
+freqgen.9
+\layout Subsubsection
+
+genhexkins.9
+\layout Subsubsection
+
+hypot.9
+\layout Subsubsection
+
+integ.9
+\layout Subsubsection
+
+kins.9
+\layout Subsubsection
+
+knob2float.9
+\layout Subsubsection
+
+limit1.9
+\layout Subsubsection
+
+limit2.9
+\layout Subsubsection
+
+limit3.9
+\layout Subsubsection
+
+logic.9 
+\layout Subsubsection
+
+lowpass.9
+\layout Subsubsection
+
+lut5.9
+\layout Subsubsection
+
+m7i43_hm2.9
+\layout Subsubsection
+
+maj3.9
+\layout Subsubsection
+
+match8.9
+\layout Subsubsection
+
+minmax.9
+\layout Subsubsection
+
+motion.9
+\layout Subsubsection
+
+mult2.9
+\layout Subsubsection
+
+mux2.9
+\layout Subsubsection
+
+mux4.9
+\layout Subsubsection
+
+not.9
+\layout Subsubsection
+
+offset.9
+\layout Subsubsection
+
+oneshot.9
+\layout Subsubsection
+
+or2.9
+\layout Subsubsection
+
+pid.9
+\layout Subsubsection
+
+pluto_servo.9
+\layout Subsubsection
+
+pluto_step.9
+\layout Subsubsection
+
+pwmgen.9
+\layout Subsubsection
+
+rotatekins.9
+\layout Subsubsection
+
+sample_hold.9
+\layout Subsubsection
+
+sampler.9
+\layout Subsubsection
+
+scale.9
+\layout Subsubsection
+
+select8.9
+\layout Subsubsection
+
+serport.9
+\layout Subsubsection
+
+siggen.9
+\layout Subsubsection
+
+sim_encoder.9
+\layout Subsubsection
+
+stepgen.9
+\layout Subsubsection
+
+steptest.9
+\layout Subsubsection
+
+streamer.9
+\layout Subsubsection
+
+sum2.9
+\layout Subsubsection
+
+supply.9
+\layout Subsubsection
+
+threads.9
+\layout Subsubsection
+
+threadtest.9
+\layout Subsubsection
+
+timedelta.9
+\layout Subsubsection
+
+toggle.9
+\layout Subsubsection
+
+tripodkins.9
+\layout Subsubsection
+
+tristate_bit.9
+\layout Subsubsection
+
+tristate_float.9
+\layout Subsubsection
+
+trivkins.9
+\layout Subsubsection
+
+updown.9
+\layout Subsubsection
+
+wcomp.9
+\layout Subsubsection
+
+weighted_sum.9
+\layout Subsubsection
+
+xor2.9 
+\the_end
