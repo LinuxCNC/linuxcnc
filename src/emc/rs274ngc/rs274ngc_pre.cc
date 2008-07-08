@@ -391,6 +391,11 @@ int Interp::init()
               _setup.use_lazy_close = atol(inistring);
           }
 
+          if(NULL != (inistring = inifile.Find("WIZARD_ROOT", "WIZARD")))
+          {
+              realpath(inistring, _setup.wizard_root);
+          }
+
           if(NULL != (inistring = inifile.Find("PROGRAM_PREFIX", "DISPLAY")))
           {
 	    // found it
