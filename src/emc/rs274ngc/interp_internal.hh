@@ -442,6 +442,7 @@ typedef struct setup_struct
   int use_lazy_close;                // wait until next open before closing
                                      // the input file
   int lazy_closing;                  // close has been called
+  char wizard_root[PATH_MAX];
 }
 setup;
 
