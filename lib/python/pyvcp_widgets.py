@@ -917,7 +917,37 @@ class pyvcp_led(Canvas):
 
 
 
+# -------------------------------------------
 
+class pyvcp_rectled(Canvas):
+
+    """ (indicator) a LED 
+        color is on_color when halpin is 1, off_color when halpin is 0 """
+    n=0
+    def __init__(self,master,pycomp, halpin=None,      
+                    off_color="red",on_color="green",height=10,width=30,**kw):
+        Canvas.__init__(self,master,width=width,height=height,bd=2)
+        self.off_color=off_color
+        self.on_color=on_color
+        self.oh=self.create_rectangle(1,1,width,height)
+        self.state=0
+        self.itemconfig(self.oh,fill=off_color)
+        if halpin == None:
+            halpin = "led."+str(pyvcp_led.n)
+        
+        self.halpin=halpin
+        pycomp.newpin(halpin, HAL_BIT, HAL_IN)
+        pyvcp_led.n+=1
+
+    def update(self,pycomp):
+        newstate = pycomp[self.halpin]
+        if newstate != self.state:
+            if newstate == 1:
+                self.itemconfig(self.oh,fill=self.on_color)
+                self.state=1
+            else:
+                self.itemconfig(self.oh,fill=self.off_color) 
+                self.state=0
 # -------------------------------------------
 
 
