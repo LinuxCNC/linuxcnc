@@ -1,11 +1,12 @@
 #LyX 1.3 created this file. For more info see http://www.lyx.org/
 \lyxformat 221
-\textclass article
+\textclass book
 \language english
 \inputencoding auto
 \fontscheme default
 \graphics default
 \paperfontsize default
+\spacing single 
 \papersize Default
 \paperpackage a4
 \use_geometry 0
@@ -23,10 +24,10 @@
 \papersides 1
 \paperpagestyle default
 
-\layout Section
+\layout Chapter
 
 HAL Components
-\layout Subsection
+\layout Section
 
 Commands and Userspace Components
 \layout Standard
@@ -43,58 +44,58 @@ man 1 axis
 \family default 
 \series default 
 to view the information in the man page.
-\layout Subsubsection
+\layout Subsection
 
 axis.1
-\layout Subsubsection
+\layout Subsection
 
 axis-remote.1
-\layout Subsubsection
+\layout Subsection
 
 bfload.1
-\layout Subsubsection
+\layout Subsection
 
 comp.1
-\layout Subsubsection
+\layout Subsection
 
 emc.1
-\layout Subsubsection
+\layout Subsection
 
 emc.1.in
-\layout Subsubsection
+\layout Subsection
 
 halcmd.1
-\layout Subsubsection
+\layout Subsection
 
 hal_input.1
-\layout Subsubsection
+\layout Subsection
 
 hal_joystick.1
-\layout Subsubsection
+\layout Subsection
 
 halmeter.1
-\layout Subsubsection
+\layout Subsection
 
 halrun.1
-\layout Subsubsection
+\layout Subsection
 
 halsampler.1
-\layout Subsubsection
+\layout Subsection
 
 halstreamer.1
-\layout Subsubsection
+\layout Subsection
 
 halui.1
-\layout Subsubsection
+\layout Subsection
 
 io.1
-\layout Subsubsection
+\layout Subsection
 
 iocontrol.1
-\layout Subsubsection
+\layout Subsection
 
 pyvcp.1
-\layout Subsection
+\layout Section
 
 API Calls
 \layout Subsubsection
@@ -127,199 +128,199 @@ hal_init.3hal
 \layout Subsubsection
 
 hal_link.3hal
-\layout Subsubsection
+\layout Subsection
 
 hal_malloc.3hal
-\layout Subsubsection
+\layout Subsection
 
 hal_param_bit_new.3hal
-\layout Subsubsection
+\layout Subsection
 
 hal_param_bit_newf.3hal
-\layout Subsubsection
+\layout Subsection
 
 hal_param_float_new.3hal
-\layout Subsubsection
+\layout Subsection
 
 hal_param_float_newf.3hal
-\layout Subsubsection
+\layout Subsection
 
 hal_param_new.3hal
-\layout Subsubsection
+\layout Subsection
 
 hal_param_s32_new.3hal
-\layout Subsubsection
+\layout Subsection
 
 hal_param_s32_newf.3hal
-\layout Subsubsection
+\layout Subsection
 
 hal_param_u32_new.3hal
-\layout Subsubsection
+\layout Subsection
 
 hal_param_u32_newf.3hal
-\layout Subsubsection
+\layout Subsection
 
 hal_pin_bit_new.3hal 
-\layout Subsubsection
+\layout Subsection
 
 hal_pin_bit_newf.3hal
-\layout Subsubsection
+\layout Subsection
 
 hal_pin_float_new.3hal
-\layout Subsubsection
+\layout Subsection
 
 hal_pin_float_newf.3hal
-\layout Subsubsection
+\layout Subsection
 
 hal_pin_new.3hal
-\layout Subsubsection
+\layout Subsection
 
 hal_pin_s32_new.3hal
-\layout Subsubsection
+\layout Subsection
 
 hal_pin_s32_newf.3hal
-\layout Subsubsection
+\layout Subsection
 
 hal_pin_u32_new.3hal
-\layout Subsubsection
+\layout Subsection
 
 hal_pin_u32_newf.3hal
-\layout Subsubsection
+\layout Subsection
 
 hal_ready.3hal
-\layout Subsubsection
+\layout Subsection
 
 hal_s32_t.3hal
-\layout Subsubsection
+\layout Subsection
 
 hal_set_constructor.3hal
-\layout Subsubsection
+\layout Subsection
 
 hal_set_lock.3hal
-\layout Subsubsection
+\layout Subsection
 
 hal_signal_delete.3hal
-\layout Subsubsection
+\layout Subsection
 
 hal_signal_new.3hal
-\layout Subsubsection
+\layout Subsection
 
 hal_start_threads.3hal
-\layout Subsubsection
+\layout Subsection
 
 hal_type_t.3hal
-\layout Subsubsection
+\layout Subsection
 
 hal_u32_t.3hal
-\layout Subsubsection
+\layout Subsection
 
 hal_unlink.3hal
-\layout Subsubsection
+\layout Subsection
 
 intro.3hal 
-\layout Subsection
+\layout Section
 
 RTAPI Calls
-\layout Subsubsection
+\layout Subsection
 
 intro.3rtapi
-\layout Subsubsection
+\layout Subsection
 
 rtapi_clock_set_period.3rtapi
-\layout Subsubsection
+\layout Subsection
 
 rtapi_delay.3rtapi
-\layout Subsubsection
+\layout Subsection
 
 rtapi_delay_max.3rtapi
-\layout Subsubsection
+\layout Subsection
 
 rtapi_exit.3rtapi
-\layout Subsubsection
+\layout Subsection
 
 rtapi_get_clocks.3rtapi
-\layout Subsubsection
+\layout Subsection
 
 rtapi_get_msg_level.3rtapi
-\layout Subsubsection
+\layout Subsection
 
 rtapi_get_time.3rtapi
-\layout Subsubsection
+\layout Subsection
 
 rtapi_inb.3rtapi
-\layout Subsubsection
+\layout Subsection
 
 rtapi_init.3rtapi
-\layout Subsubsection
+\layout Subsection
 
 rtapi_module_param.3rtapi
-\layout Subsubsection
+\layout Subsection
 
 rtapi_mutex.3rtapi
-\layout Subsubsection
+\layout Subsection
 
 rtapi_outb.3rtapi
-\layout Subsubsection
+\layout Subsection
 
 rtapi_print.3rtapi
-\layout Subsubsection
+\layout Subsection
 
 rtapi_prio.3rtapi
-\layout Subsubsection
+\layout Subsection
 
 rtapi_prio_highest.3rtapi
-\layout Subsubsection
+\layout Subsection
 
 rtapi_prio_lowest.3rtapi e Components and Kernel Modules
-\layout Subsubsection
+\layout Subsection
 
 rtapi_prio_next_higher.3rtapi
-\layout Subsubsection
+\layout Subsection
 
 rtapi_prio_next_lower.3rtapi
-\layout Subsubsection
+\layout Subsection
 
 rtapi_region.3rtapi
-\layout Subsubsection
+\layout Subsection
 
 rtapi_release_region.3rtapi
-\layout Subsubsection
+\layout Subsection
 
 rtapi_request_region.3rtapi
-\layout Subsubsection
+\layout Subsection
 
 rtapi_set_msg_level.3rtapi
-\layout Subsubsection
+\layout Subsection
 
 rtapi_shmem.3rtapi
-\layout Subsubsection
+\layout Subsection
 
 rtapi_shmem_delete.3rtapi
-\layout Subsubsection
+\layout Subsection
 
 rtapi_shmem_getptr.3rtapi
-\layout Subsubsection
+\layout Subsection
 
 rtapi_shmem_new.3rtapi
-\layout Subsubsection
+\layout Subsection
 
 rtapi_snprintf.3rtapi
-\layout Subsubsection
+\layout Subsection
 
 rtapi_task_new.3rtapi
-\layout Subsubsection
+\layout Subsection
 
 rtapi_task_pause.3rtapi
-\layout Subsubsection
+\layout Subsection
 
 rtapi_task_resume.3rtapi
-\layout Subsubsection
+\layout Subsection
 
 rtapi_task_start.3rtapi
-\layout Subsubsection
+\layout Subsection
 
 rtapi_task_wait.3rtapi 
-\layout Subsection
+\layout Section
 
 Realtime components and kernel modules
 \layout Standard
@@ -329,262 +330,262 @@ Some of these will have expanded descriptions from the man pages.
  All of the components have man pages.
  From this list you know what components exist and can use man n name to
  get additional information.
-\layout Subsubsection
+\layout Subsection
 
 abs.9
-\layout Subsubsection
+\layout Subsection
 
 and2.9
-\layout Subsubsection
+\layout Subsection
 
 at_pid.9
-\layout Subsubsection
+\layout Subsection
 
 axis.9
-\layout Subsubsection
+\layout Subsection
 
 biquad.9
-\layout Subsubsection
+\layout Subsection
 
 blend.9
-\layout Subsubsection
+\layout Subsection
 
 blocks.9
-\layout Subsubsection
+\layout Subsection
 
 charge_pump.9
-\layout Subsubsection
+\layout Subsection
 
 clarke2.9
-\layout Subsubsection
+\layout Subsection
 
 clarke3.9
-\layout Subsubsection
+\layout Subsection
 
 clarkeinv.9
-\layout Subsubsection
+\layout Subsection
 
 classicladder.9
-\layout Subsubsection
+\layout Subsection
 
 comp.9
-\layout Subsubsection
+\layout Subsection
 
 constant.9
-\layout Subsubsection
+\layout Subsection
 
 conv_bit_s32.9
-\layout Subsubsection
+\layout Subsection
 
 conv_bit_u32.9
-\layout Subsubsection
+\layout Subsection
 
 conv_float_s32.9
-\layout Subsubsection
+\layout Subsection
 
 conv_float_u32.9
-\layout Subsubsection
+\layout Subsection
 
 conv_s32_bit.9
-\layout Subsubsection
+\layout Subsection
 
 conv_s32_float.9
-\layout Subsubsection
+\layout Subsection
 
 conv_s32_u32.9
-\layout Subsubsection
+\layout Subsection
 
 conv_u32_bit.9
-\layout Subsubsection
+\layout Subsection
 
 conv_u32_float.9
-\layout Subsubsection
+\layout Subsection
 
 conv_u32_s32.9
-\layout Subsubsection
+\layout Subsection
 
 counter.9
-\layout Subsubsection
+\layout Subsection
 
 ddt.9
-\layout Subsubsection
+\layout Subsection
 
 deadzone.9
-\layout Subsubsection
+\layout Subsection
 
 debounce.9
-\layout Subsubsection
+\layout Subsection
 
 edge.9
-\layout Subsubsection
+\layout Subsection
 
 encoder.9
-\layout Subsubsection
+\layout Subsection
 
 encoder_ratio.9
-\layout Subsubsection
+\layout Subsection
 
 estop_latch.9
-\layout Subsubsection
+\layout Subsection
 
 flipflop.9
-\layout Subsubsection
+\layout Subsection
 
 freqgen.9
-\layout Subsubsection
+\layout Subsection
 
 genhexkins.9
-\layout Subsubsection
+\layout Subsection
 
 hypot.9
-\layout Subsubsection
+\layout Subsection
 
 integ.9
-\layout Subsubsection
+\layout Subsection
 
 kins.9
-\layout Subsubsection
+\layout Subsection
 
 knob2float.9
-\layout Subsubsection
+\layout Subsection
 
 limit1.9
-\layout Subsubsection
+\layout Subsection
 
 limit2.9
-\layout Subsubsection
+\layout Subsection
 
 limit3.9
-\layout Subsubsection
+\layout Subsection
 
 logic.9 
-\layout Subsubsection
+\layout Subsection
 
 lowpass.9
-\layout Subsubsection
+\layout Subsection
 
 lut5.9
-\layout Subsubsection
+\layout Subsection
 
 m7i43_hm2.9
-\layout Subsubsection
+\layout Subsection
 
 maj3.9
-\layout Subsubsection
+\layout Subsection
 
 match8.9
-\layout Subsubsection
+\layout Subsection
 
 minmax.9
-\layout Subsubsection
+\layout Subsection
 
 motion.9
-\layout Subsubsection
+\layout Subsection
 
 mult2.9
-\layout Subsubsection
+\layout Subsection
 
 mux2.9
-\layout Subsubsection
+\layout Subsection
 
 mux4.9
-\layout Subsubsection
+\layout Subsection
 
 not.9
-\layout Subsubsection
+\layout Subsection
 
 offset.9
-\layout Subsubsection
+\layout Subsection
 
 oneshot.9
-\layout Subsubsection
+\layout Subsection
 
 or2.9
-\layout Subsubsection
+\layout Subsection
 
 pid.9
-\layout Subsubsection
+\layout Subsection
 
 pluto_servo.9
-\layout Subsubsection
+\layout Subsection
 
 pluto_step.9
-\layout Subsubsection
+\layout Subsection
 
 pwmgen.9
-\layout Subsubsection
+\layout Subsection
 
 rotatekins.9
-\layout Subsubsection
+\layout Subsection
 
 sample_hold.9
-\layout Subsubsection
+\layout Subsection
 
 sampler.9
-\layout Subsubsection
+\layout Subsection
 
 scale.9
-\layout Subsubsection
+\layout Subsection
 
 select8.9
-\layout Subsubsection
+\layout Subsection
 
 serport.9
-\layout Subsubsection
+\layout Subsection
 
 siggen.9
-\layout Subsubsection
+\layout Subsection
 
 sim_encoder.9
-\layout Subsubsection
+\layout Subsection
 
 stepgen.9
-\layout Subsubsection
+\layout Subsection
 
 steptest.9
-\layout Subsubsection
+\layout Subsection
 
 streamer.9
-\layout Subsubsection
+\layout Subsection
 
 sum2.9
-\layout Subsubsection
+\layout Subsection
 
 supply.9
-\layout Subsubsection
+\layout Subsection
 
 threads.9
-\layout Subsubsection
+\layout Subsection
 
 threadtest.9
-\layout Subsubsection
+\layout Subsection
 
 timedelta.9
-\layout Subsubsection
+\layout Subsection
 
 toggle.9
-\layout Subsubsection
+\layout Subsection
 
 tripodkins.9
-\layout Subsubsection
+\layout Subsection
 
 tristate_bit.9
-\layout Subsubsection
+\layout Subsection
 
 tristate_float.9
-\layout Subsubsection
+\layout Subsection
 
 trivkins.9
-\layout Subsubsection
+\layout Subsection
 
 updown.9
-\layout Subsubsection
+\layout Subsection
 
 wcomp.9
-\layout Subsubsection
+\layout Subsection
 
 weighted_sum.9
-\layout Subsubsection
+\layout Subsection
 
 xor2.9 
 \the_end
