@@ -222,7 +222,7 @@ conv_u32_s32.9 = Convert a value from u32 to s32
 \layout List
 \labelwidthstring 00.00.0000
 
-counter.9 = counts input pulses (DEPRECATED)
+counter.9 = counts input pulses (deprecated)
 \layout List
 \labelwidthstring 00.00.0000
 
@@ -230,7 +230,7 @@ ddt.9 = Compute the derivative of the input function
 \layout List
 \labelwidthstring 00.00.0000
 
-deadzone.9 = 
+deadzone.9 = Return the center if within the threshold
 \layout List
 \labelwidthstring 00.00.0000
 
