@@ -1,4 +1,4 @@
-component deadzone;
+component deadzone "Return the center if within the threshold";
 param rw float center = 0.0 "The center of the dead zone";
 param rw float threshhold = 1.0 "The dead zone is \\fBcenter\\fR \\(+- (\\fBthreshhold\\fR/2)";
 pin in float in;
