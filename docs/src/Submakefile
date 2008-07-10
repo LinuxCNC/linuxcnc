@@ -21,6 +21,7 @@ ifeq ($(BUILD_DOCS),yes)
 DOC_SRCS := \
 	code/Code_Notes.lyx \
 	code/Style_Guide.lyx \
+	code/NML_Messages.lyx \
 	gui/axis.lyx \
 	gui/axis_fr.lyx \
 	gui/halui.lyx \
