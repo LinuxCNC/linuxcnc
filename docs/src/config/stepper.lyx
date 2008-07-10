@@ -45,15 +45,24 @@ Basic configurations for a stepper based system
 Introduction
 \layout Standard
 
-This chapter describes some of the more common settings that users want
- to change when setting up EMC2.
+The preferred way to set up a standard stepper machine is with the Step
+ Configuration Wizard.
+ 
+\begin_inset LatexCommand \ref{sec:Step-by-Step}
+
+\end_inset 
+
+
+\layout Standard
+
+This chapter describes some of the more common settings for manually setting
+ up a stepper based system.
  Because of the various possibilities of configuring EMC2, it is very hard
  to document them all, and keep this document relatively short.
  
 \layout Standard
 
-The most common EMC2 usage (as reported by our users) is for stepper based
- systems.
+The most common EMC2 usage is for stepper based systems.
  These systems are using stepper motors with drives that accept step & direction
  signals.
  
