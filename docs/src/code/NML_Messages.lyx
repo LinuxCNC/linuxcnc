@@ -1,0 +1,194 @@
+#LyX 1.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 221
+\textclass book
+\language english
+\inputencoding auto
+\fontscheme default
+\graphics default
+\paperfontsize default
+\spacing single 
+\papersize letterpaper
+\paperpackage a4
+\use_geometry 0
+\use_amsmath 0
+\use_natbib 0
+\use_numerical_citations 0
+\paperorientation portrait
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation skip
+\defskip medskip
+\quotes_language english
+\quotes_times 2
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+
+\layout Chapter
+
+NML Messages
+\layout Section
+
+EMC_OPERATOR_ERROR_TYPE 
+\layout Standard
+
+Description: 
+\family roman 
+\series medium 
+\shape up 
+\size normal 
+\emph off 
+\bar no 
+\noun off 
+\color none
+textual error message to the operator
+\family default 
+\series default 
+\shape default 
+\size default 
+\emph default 
+\bar default 
+\noun default 
+\color default
+ Type: 11
+\layout Standard
+
+Written From: emccanon.cc, iosh.cc Read From: emctaskmain.cc, emcsh.cc
+\layout Standard
+
+Parameter, Type: error, char[LINELEN]
+\layout Section
+
+EMC_OPERATOR_TEXT_TYPE
+\layout Standard
+
+Description: textual information message to the operator.
+ Type 12
+\layout Standard
+
+Written From: 
+\family roman 
+\series medium 
+\shape up 
+\size normal 
+\emph off 
+\bar no 
+\noun off 
+\color none
+emctaskmain.cc
+\family default 
+\series default 
+\shape default 
+\size default 
+\emph default 
+\bar default 
+\noun default 
+\color default
+ Read From: 
+\family roman 
+\series medium 
+\shape up 
+\size normal 
+\emph off 
+\bar no 
+\noun off 
+\color none
+emctaskmain.cc, emcsh.cc
+\layout Standard
+
+Parameter, Type: 
+\family roman 
+\series medium 
+\shape up 
+\size normal 
+\emph off 
+\bar no 
+\noun off 
+\color none
+text
+\family default 
+\series default 
+\shape default 
+\size default 
+\emph default 
+\bar default 
+\noun default 
+\color default
+, 
+\family roman 
+\series medium 
+\shape up 
+\size normal 
+\emph off 
+\bar no 
+\noun off 
+\color none
+char[LINELEN]
+\layout Section
+
+EMC_OPERATOR_DISPLAY_TYPE
+\layout Standard
+
+Description: URL or filename of a document to display.
+ Type 13
+\layout Standard
+
+Written From: n/a Read From: 
+\family roman 
+\series medium 
+\shape up 
+\size normal 
+\emph off 
+\bar no 
+\noun off 
+\color none
+emctaskmain.cc, emcsh.cc
+\layout Standard
+
+Parameter, Type: 
+\family roman 
+\series medium 
+\shape up 
+\size normal 
+\emph off 
+\bar no 
+\noun off 
+\color none
+display
+\family default 
+\series default 
+\shape default 
+\size default 
+\emph default 
+\bar default 
+\noun default 
+\color default
+, 
+\family roman 
+\series medium 
+\shape up 
+\size normal 
+\emph off 
+\bar no 
+\noun off 
+\color none
+char[LINELEN]
+\layout Section
+
+EMC_NULL_TYPE
+\layout Standard
+
+Description: 
+\layout Standard
+
+Written From: 
+\layout Section
+
+EMC_SET_DEBUG_TYPE
+\layout Standard
+
+Description: 
+\layout Standard
+
+Written From: 
+\the_end
