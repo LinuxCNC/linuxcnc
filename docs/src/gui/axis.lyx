@@ -2373,7 +2373,8 @@ EDITOR=gedit
 EDITOR=gnome-terminal -e vim
 \family default 
 .
- For more information, see the Integrators Manual.
+ For more information, see the DISPLAY section of the INI Configuration
+ Chapter in the Integrators Manual.
 \layout Subsection
 
 Virtual Control Panel
