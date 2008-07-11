@@ -68,6 +68,11 @@ Position in encoder counts.
 \fBencoder.\fIN\fB.position\fR float out
 Position in scaled units (see \fBposition-scale\fR)
 .TP
+\fBencoder.\fIN\fB.position-interpolated\fR float out
+Position in scaled units, interpolated between
+encoder counts.  Only valid when velocity is approximately constant, do not
+use for position control.
+.TP
 \fBencoder.\fIN\fB.velocity\fR float out
 Velocity in scaled units per second.  \fBencoder\fR uses an algorithm that
 greatly reduces quantization noise as compared to simply differentiating

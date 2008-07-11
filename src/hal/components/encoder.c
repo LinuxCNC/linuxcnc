@@ -512,7 +512,7 @@ static int export_counter(int num, counter_t * addr)
 	return retval;
     }
     /* export pin for scaled and interpolated position captured by capture() */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "encoder.%d.pos-interp", num);
+    rtapi_snprintf(buf, HAL_NAME_LEN, "encoder.%d.position-interpolated", num);
     retval = hal_pin_float_new(buf, HAL_OUT, &(addr->pos_interp), comp_id);
     if (retval != 0) {
 	return retval;
