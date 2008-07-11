@@ -18,6 +18,7 @@ emc2 (1:2.2.6~cvs) hardy; urgency=low
   * stepconf: fix non-working configuration if "Onscreen prompt for tool
     change" was disabled
   * hal_ppmc: handle faster clock frequency for UPC 3.1 boards
+  * hal_ppmc: correctly return IO regions at exit
   * software encoder counter: fix problem with negative velocity outputs
   * Fix handling of G61/G64 after Machine Off (SF#2006736)
   * new realtime component: gearchange.  selects between two scale factors,
