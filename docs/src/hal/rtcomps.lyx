@@ -1375,6 +1375,36 @@ encoder.<chan>.count
 encoder.<chan>.position
 \family default 
  -- See canonical encoder interface.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(float) 
+\noun default 
+encoder.<chan>.position-interpolated
+\family default 
+ -- See below.
+\layout Standard
+
+The pin 
+\family typewriter 
+position-interpolated
+\family default 
+ attempts to interpolate between encoder counts, based on the most recently
+ measured velocity.
+ It should not be used for position control, since its value is incorrect
+ at low speeds, during direction reversals, and during speed changes.
+ However, it allows a low ppr encoder (including a one pulse per revolution
+ 
+\begin_inset Quotes eld
+\end_inset 
+
+encoder
+\begin_inset Quotes erd
+\end_inset 
+
+) to be used for lathe threading, and may have other uses as well.
 \layout Subsection
 
 Parameters
