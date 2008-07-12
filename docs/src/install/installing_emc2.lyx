@@ -125,33 +125,7 @@ Ubuntu is released regularly and predictably; a new release is made every
 The Ubuntu community is entirely committed to the principles of free software
  development; we encourage people to use open source software, improve it
  and pass it on.
-\layout Section
-
-EMC Download Page
 \layout Standard
-
-You will find the most recent releases of EMC2 announced on www.linuxcnc.org.
- The releases of EMC2 will be done in two ways (sources and binary package).
- The sources (described in the Developers Handbook) consist of a tarball
- (emc2-<version>.tar.gz), which you should download and unpack into your home
- directory.
-\layout Standard
-
-This document (oriented towards the end-user) will only try to explain how
- to install the binary package on the Ubuntu distribution
-\begin_inset Foot
-collapsed false
-
-\layout Standard
-
-For information regarding other Linux variants, check the Developers Handbook
- or ask for help on the emc-developers 
-\begin_inset LatexCommand \htmlurl[mailing list]{http://sourceforge.net/mail/?group_id=6744}
-
-\end_inset 
-
-.
-\end_inset 
 
 .
 \layout Section
@@ -169,23 +143,13 @@ EMC2 Live CD
 
 \layout Standard
 
-The EMC2 team now has a custom Live-CD based on Ubuntu 6.06 that will let
- you try out EMC2 before installing, and it's also the easiest way to install
- Ubuntu and EMC2 together.
+The EMC2 team now has a custom Live-CD based on Ubuntu 6.06 and 8.04 that
+ will let you try out EMC2 before installing, and it's also the easiest
+ way to install Ubuntu and EMC2 together.
 \layout Standard
 
-Just download the 
-\begin_inset LatexCommand \url[ISO]{http://linuxcnc.org/iso/emc2-ubuntu6.06-desktop-i386.iso}
-
-\end_inset 
-
- (
-\begin_inset LatexCommand \url[EU Mirror]{http://dsplabs.utt.ro/~juve/emc/}
-
-\end_inset 
-
-) and burn it to a CD.
- (The MD5SUM of the CD is to be determined)
+Just download the ISO from www.linuxcnc.org and burn it to a CD.
+ 
 \layout Standard
 
 When you boot the CD on your machine, you can see and experiment with the
@@ -202,7 +166,19 @@ This install gives you all the benefits of the community-supported Ubuntu
  distribution as well as being automatically configured for EMC2.
  As new Ubuntu updates or EMC2 releases are made, the Update manager will
  let you know and allow you to easily upgrade.
- 
+\layout Section
+
+Other Methods
+\layout Standard
+
+You will find information about other install methods on the following web
+ sites.
+\layout Standard
+
+http://www.linuxcnc.org (Home of EMC2)
+\layout Standard
+
+http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl (User maintained Wiki EMC2 site)
 \layout Section
 
 
