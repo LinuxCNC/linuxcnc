@@ -789,7 +789,64 @@ class pyvcp_s32(Label):
             dummy = "%(b)"+self.format
             self.v.set( str( dummy  % {'b':newvalue} ) )
 
-  
+class pyvcp_timer(Label):
+    """ (indicator) shows elapsed time as HH:MM:SS
+    two pins - run and reset
+    time advances whenever run is true
+    time holds whenever run is false
+    time resets to zero on a rising edge of reset
+    """
+    n=0
+    def __init__(self,master,pycomp,halpin=None,**kw):
+        self.v = StringVar()
+        Label.__init__(self,master,textvariable=self.v,**kw)
+        if halpin == None:
+            halpin = "timer."+str(pyvcp_timer.n)
+        pyvcp_timer.n += 1
+        self.halpins=[]
+        c_halpin=halpin+".reset"
+        pycomp.newpin(c_halpin, HAL_BIT, HAL_IN)
+        self.halpins.append(c_halpin)
+        c_halpin=halpin+".run"
+        pycomp.newpin(c_halpin, HAL_BIT, HAL_IN)
+        self.halpins.append(c_halpin)
+
+        self.resetvalue=0
+        self.runvalue=0
+	# starttime is the time of the last rising edge of 'run'
+	self.starttime=0
+	# basetime is the sum of all prior 'run=1' periods
+	self.basetime=0
+	self.currtime=0
+        self.v.set( "00:00:00")
+
+
+    def update(self,pycomp):    
+	resetvalue = pycomp[self.halpins[0]]
+        runvalue = pycomp[self.halpins[1]]
+        if resetvalue != self.resetvalue:
+            self.resetvalue=resetvalue
+	    if resetvalue == 1:
+		self.basetime=0
+		self.starttime=time.time()
+	if runvalue != self.runvalue:
+	    self.runvalue=runvalue
+	    if runvalue == 1:
+		# rising edge
+		self.starttime = time.time()
+	    else:
+		# falling edge
+		self.basetime += time.time() - self.starttime
+	if runvalue == 1:
+	    total=self.basetime + time.time() - self.starttime
+	else:
+	    total=self.basetime
+	hr = int(total / 3600)
+	remainder = total - hr*3600
+	mn = int(remainder / 60)
+	sec = int(remainder - mn*60)
+	self.v.set( str( "%02d:%02d:%02d" % (hr,mn,sec) ) )
+
 
 # -------------------------------------------
 
