@@ -29,10 +29,13 @@
 NML Messages
 \layout Section
 
+EMC_OPERATOR
+\layout Subsection
+
 EMC_OPERATOR_ERROR_TYPE 
 \layout Standard
 
-Description: 
+Description, NML Type: 
 \family roman 
 \series medium 
 \shape up 
@@ -50,20 +53,28 @@ textual error message to the operator
 \bar default 
 \noun default 
 \color default
- Type: 11
+, 11
 \layout Standard
 
-Written From: emccanon.cc, iosh.cc Read From: emctaskmain.cc, emcsh.cc
+Obs: sh.cc
+\layout Standard
+
+Written From: emccanon.cc, iosh.cc 
+\layout Standard
+
+Read From: emctaskmain.cc, emcsh.cc
 \layout Standard
 
 Parameter, Type: error, char[LINELEN]
-\layout Section
+\layout Subsection
 
 EMC_OPERATOR_TEXT_TYPE
 \layout Standard
 
-Description: textual information message to the operator.
- Type 12
+Description, NML Type: textual information message to the operator, 12
+\layout Standard
+
+Obs: sh.cc
 \layout Standard
 
 Written From: 
@@ -84,7 +95,10 @@ emctaskmain.cc
 \bar default 
 \noun default 
 \color default
- Read From: 
+ 
+\layout Standard
+
+Read From: 
 \family roman 
 \series medium 
 \shape up 
@@ -124,16 +138,21 @@ text
 \noun off 
 \color none
 char[LINELEN]
-\layout Section
+\layout Subsection
 
 EMC_OPERATOR_DISPLAY_TYPE
 \layout Standard
 
-Description: URL or filename of a document to display.
- Type 13
+Description, NML Type: URL or filename of a document to display, 13
 \layout Standard
 
-Written From: n/a Read From: 
+Obs: not used, only read
+\layout Standard
+
+Written From: n/a 
+\layout Standard
+
+Read From: 
 \family roman 
 \series medium 
 \shape up 
@@ -178,17 +197,311 @@ char[LINELEN]
 EMC_NULL_TYPE
 \layout Standard
 
-Description: 
+Description, NML Type: Used to reset serial number to original, 21
 \layout Standard
 
-Written From: 
+Written From: thisQuit (emcsh.cc)
+\layout Standard
+
+Read From: emctaskmain.cc
+\layout Standard
+
+Parameter, Type: n/a
 \layout Section
 
 EMC_SET_DEBUG_TYPE
 \layout Standard
 
-Description: 
+Description, NML Type: Sets debug level, 22
+\layout Standard
+
+Written From: emcIoSetDebug (iotaskintf.cc), sendDebug (emcsh.cc)
+\layout Standard
+
+Read From: emctaskmain.cc, ioControl.cc
+\layout Standard
+
+Parameter, Type: debug, int
+\layout Section
+
+EMC_SYSTEM_CMD_TYPE
+\layout Standard
+
+Description, NML Type: Execute a system command, 30
+\layout Standard
+
+Written From: user_defined_add_m_code (emctask.cc)
+\layout Standard
+
+Read From: emcSystemCmd (emctaskmain.cc)
+\layout Standard
+
+Parameter, Type: string, char[LINELEN]
+\layout Section
+
+EMC_AXIS
+\layout Subsection
+
+EMC_AXIS_SET_AXIS_TYPE
+\layout Standard
+
+Description, NML Type: axis type to linear or angular, 101
+\layout Standard
+
+Obs: not used
+\layout Standard
+
+Written From: n/a
+\layout Standard
+
+Read From: n/a
+\layout Standard
+
+Parameter, Type: [axis (in EMC_AXIS_CMD_MSG), int] [axisType, unsigned char]
+\layout Subsection
+
+EMC_AXIS_SET_UNITS_TYPE
+\layout Standard
+
+Description, NML Type: Units conversion factor, 102
+\layout Standard
+
+Obs: not used
+\layout Standard
+
+Written From: n/a
+\layout Standard
+
+Read From: n/a
+\layout Standard
+
+Parameter, Type: [axis (in EMC_AXIS_CMD_MSG), int] [units, double]
+\layout Subsection
+
+EMC_AXIS_SET_GAINS_TYPE
+\layout Standard
+
+Description, NML Type: Set the PID gains, 103
+\layout Standard
+
+Obs: currently not used in emc2, needs to go to HAL
+\layout Standard
+
+Written From: n/a
+\layout Standard
+
+Read From: emctaskmain.cc
+\layout Standard
+
+Parameter, Type: [axis (in EMC_AXIS_CMD_MSG), int] [p, double] [i, double]
+ [d, double] [ff0, double] [ff1, double] [ff2, double] [backlash, double]
+ [ bias, double] [maxError, double] [deadband,?]
+\layout Subsection
+
+EMC_AXIS_SET_CYCLE_TIME_TYPE
+\layout Standard
+
+Description, NML Type: Cycle time for the servo task, 104
+\layout Standard
+
+Written From: n/a
+\layout Standard
+
+Read From: emctaskmain.cc
+\layout Standard
+
+Parameter, Type: [axis (in EMC_AXIS_CMD_MSG), int] [cycleTime, double]
+\layout Subsection
+
+EMC_AXIS_SET_INPUT_SCALE_TYPE
+\layout Standard
+
+Description, NML Type: Scale factor and offset for the position input, 105
+\layout Standard
+
+Obs: currently if 0'ed, used only directly from iniaxis
+\layout Standard
+
+Written From: n/a
+\layout Standard
+
+Read From: emcTaskIssueCommand (emctaskmain.cc) calls emcAxisSetInputScale
+ (minimill|bridgeporttaskintf.cc) which sends EMCMOT_SET_INPUT_SCALE
+\layout Standard
+
+Parameter, Type: [axis (in EMC_AXIS_CMD_MSG), int] [scale, double] [offset,
+ double]
+\layout Subsection
+
+EMC_AXIS_SET_OUTPUT_SCALE_TYPE
+\layout Standard
+
+Description, NML Type: Scale factor and offset for the position output,
+ 106
+\layout Standard
+
+Obs: currently if 0'ed, used only directly from iniaxis
+\layout Standard
+
+Written From: n/a
+\layout Standard
+
+Read From: emcTaskIssueCommand (emctaskmain.cc)
+\layout Standard
+
+Parameter, Type: [axis (in EMC_AXIS_CMD_MSG), int] [scale, double] [offset,
+ double]
+\layout Subsection
+
+EMC_AXIS_SET_MIN_POSITION_LIMIT_TYPE
+\layout Standard
+
+Description, NML Type: Sets min limit, 107
+\layout Standard
+
+Obs: also handled by iniaxis which directly calls emcAxisSetMinPositionLimit
+\layout Standard
+
+Written From: n/a
+\layout Standard
+
+Read From: emcTaskIssueCommand (emctaskmain.cc) calls emcAxisSetMinPositionLimit
+ (taskintf.cc) which sends EMCMOT_SET_POSITION_LIMITS
+\layout Standard
+
+Parameter, Type: [axis (in EMC_AXIS_CMD_MSG), int] [limit, double]
+\layout Subsection
+
+EMC_AXIS_SET_MAX_POSITION_LIMIT_TYPE
+\layout Standard
+
+Description, NML Type: Sets max limit, 108
+\layout Standard
+
+Obs: also handled by iniaxis which directly calls emcAxisSetMaxPositionLimit
+\layout Standard
+
+Written From: n/a
+\layout Standard
+
+Read From: emcTaskIssueCommand (emctaskmain.cc) calls emcAxisSetMaxPositionLimit
+ (taskintf.cc) which sends EMCMOT_SET_POSITION_LIMITS
+\layout Standard
+
+Parameter, Type: [axis (in EMC_AXIS_CMD_MSG), int] [limit, double]
+\layout Subsection
+
+EMC_AXIS_SET_MIN_OUTPUT_LIMIT_TYPE
+\layout Standard
+
+Description, NML Type: -, 109
+\layout Standard
+
+Obs: not used
+\layout Standard
+
+Written From: n/a
+\layout Standard
+
+Read From: n/a
+\layout Standard
+
+Parameter, Type: [axis (in EMC_AXIS_CMD_MSG), int] [limit, double]
+\layout Subsection
+
+EMC_AXIS_SET_MAX_OUTPUT_LIMIT_TYPE
+\layout Standard
+
+Description, NML Type: -, 110
+\layout Standard
+
+Obs: not used
+\layout Standard
+
+Written From: n/a
+\layout Standard
+
+Read From: n/a
+\layout Standard
+
+Parameter, Type: [axis (in EMC_AXIS_CMD_MSG), int] [limit, double]
+\layout Subsection
+
+EMC_AXIS_SET_FERROR_TYPE
+\layout Standard
+
+Description, NML Type: Sets max following error, 111
+\layout Standard
+
+Obs: also handled by iniaxis which directly calls emcAxisSetFerror
+\layout Standard
+
+Written From: n/a
+\layout Standard
+
+Read From: emcTaskIssueCommand (emctaskmain.cc) calls emcAxisSetFerror (taskintf.c
+c) which sends EMCMOT_SET_MAX_FERROR
+\layout Standard
+
+Parameter, Type: [axis (in EMC_AXIS_CMD_MSG), int] [ferror, double]
+\layout Standard
+
+Description, NML Type: 
 \layout Standard
 
 Written From: 
+\layout Standard
+
+Read From:
+\layout Standard
+
+Parameter, Type:
+\layout Standard
+
+Description, NML Type: 
+\layout Standard
+
+Written From: 
+\layout Standard
+
+Read From:
+\layout Standard
+
+Parameter, Type:
+\layout Standard
+
+Description, NML Type: 
+\layout Standard
+
+Written From: 
+\layout Standard
+
+Read From:
+\layout Standard
+
+Parameter, Type:
+\layout Standard
+
+Description, NML Type: 
+\layout Standard
+
+Written From: 
+\layout Standard
+
+Read From:
+\layout Standard
+
+Parameter, Type:
+\layout Standard
+
+Description, NML Type: 
+\layout Standard
+
+Written From: 
+\layout Standard
+
+Read From:
+\layout Standard
+
+Parameter, Type:
 \the_end
