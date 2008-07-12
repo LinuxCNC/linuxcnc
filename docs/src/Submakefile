@@ -68,6 +68,7 @@ DOC_SRCS := \
 	hal/halmodule.lyx \
 	hal/intro.lyx \
 	hal/intro_fr.lyx \
+	hal/pyvcp.lyx \
 	hal/rtcomps.lyx \
 	hal/rtcomps_fr.lyx \
 	hal/tools.lyx \
