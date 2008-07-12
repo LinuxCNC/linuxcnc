@@ -49,6 +49,7 @@ from Tkinter import *
 from hal import *
 import math
 import bwidget
+import time
 
 # -------------------------------------------
 
