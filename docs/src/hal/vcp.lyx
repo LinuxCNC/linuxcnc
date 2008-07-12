@@ -40,7 +40,7 @@ Virtual Control Panels
 Introduction
 \layout Standard
 
-Traditional machine control panels are large sheets of steel with pushbuttons,
+Traditional machine control panels are large sheets of steel with push buttons,
  knobs, lights and sometimes meters mounted on them.
  They have many advantages - the buttons are far more rugged than a computer
  keyboard, and large enough that you can usually operate the correct one
@@ -59,7 +59,7 @@ A Virtual Control Panel (VCP) is a window on the computer screen with buttons,
  Likewise, a VCP LED lights up when a HAL pin goes true, just like a physical
  indicator lamp wired to an output pin on an I/O card.
  Virtual control panels are not intended to replace physical panels - sometimes
- there is just no substiture for a big rugged oil-tight pushbutton.
+ there is just no substitute for a big rugged oil-tight push button.
  But virtual panels can be used for testing or monitoring things that don't
  require physical buttons and lights, to temporarily replace real I/O devices
  while debugging ladder logic, or perhaps to simulate a physical panel before
@@ -139,7 +139,7 @@ For a list of widgets and their tags and options, see the widget reference
  below.
 \layout Standard
 
-Once you have created your panel, connecting HAL signals to and form the
+Once you have created your panel, connecting HAL signals to and from the
  pyVCP pins is done with 'halcmd linksp' as usual.
  If you are new to HAL, the HAL Tutorial
 \begin_inset LatexCommand \ref{cha:HAL-Tutorial}
@@ -206,7 +206,7 @@ spindle-speed
 
 , and set the maximum value of the bar to 5000 (see widget reference below
  for all options).
- To make AXIS aware of this file, and call it at startup, we need to specify
+ To make AXIS aware of this file, and call it at start up, we need to specify
  the following in the [DISPLAY] section of the .ini file:
 \layout LyX-Code
 
@@ -237,7 +237,7 @@ spindle_to_pyvcp.hal
 linksp spindle-rpm-filtered  pyvcp.spindle-speed
 \layout Standard
 
-assuming that a singlal called 
+assuming that a signal called 
 \begin_inset Quotes eld
 \end_inset 
 
@@ -316,7 +316,8 @@ HAL signals come in two variants, BIT and FLOAT.
 Syntax
 \layout Standard
 
-Each widget is described briefly, followed by the markup used, and a screenshot.
+Each widget is described briefly, followed by the markup used, and a screen
+ shot.
  All tags inside the main widget tag are optional.
 \layout Subsubsection
 
@@ -338,7 +339,7 @@ and
 \layout Standard
 
 When the attribute-based syntax is used, the following rules are used to
- turn the attribute's value into a Python value:
+ turn the attributes value into a Python value:
 \layout Enumerate
 
 If the first character of the attribute is one of the following, it is evaluated
@@ -356,7 +357,7 @@ If the string is accepted by float(), the value is treated as floating-point
 Otherwise, the string is accepted as a string.
 \layout Standard
 
-When the tag-based syntax is used, the text within the tag is always evalued
+When the tag-based syntax is used, the text within the tag is always evaluated
  as a Python expression.
 \layout Standard
 
@@ -635,7 +636,7 @@ Spinbox controls a FLOAT pin.
 
 <spinbox>
 \newline 
-    <halpin>"my-spibox"</halpin>
+    <halpin>"my-spinbox"</halpin>
 \newline 
     <min_>-12</min_>
 \newline 
@@ -730,7 +731,7 @@ Containers are widgets that contain other widgets.
 Hbox
 \layout Standard
 
-Use a Hbox when you want to stack widgets horizontally next to eachother.
+Use a Hbox when you want to stack widgets horizontally next to each other.
 \layout LyX-Code
 
 <hbox>
@@ -767,7 +768,7 @@ Inside a Hbox, you can use the
 \family typewriter 
 <boxexpand expand=""/>
 \family default 
- tags to choose how items in the box behave when the window is resized.
+ tags to choose how items in the box behave when the window is re-sized.
  For details of how fill, anchor, and expand behave, refer to the Tk 
 \family typewriter 
 pack
@@ -832,7 +833,7 @@ Inside a Hbox, you can use the
 \family typewriter 
 <boxexpand expand=""/>
 \family default 
- tags to choose how items in the box behave when the window is resized.
+ tags to choose how items in the box behave when the window is re-sized.
  For details of how fill, anchor, and expand behave, refer to the Tk 
 \family typewriter 
 pack
@@ -1222,7 +1223,7 @@ The contents can consist of attributes that describe the block, or other
  blocks that nest inside it.
 \layout Standard
 
-A attribute's format is
+A attributes format is
 \layout LyX-Code
 
 
