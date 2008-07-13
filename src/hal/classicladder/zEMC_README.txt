@@ -38,6 +38,7 @@ config_gtk.c:
 --- removed define for hardware.h
 --- added #ifndef HAL_SUPPORT around any code for direct I/O to hide it from configue window
 --- modified to show number of s32 in and out pins 
+--- modified modbus page to put debug level on a line by it's self and added options for read hold register, write register and write registers
 
 drawing.c:
 --- added colour to variable names for input (red) and output (blue) in section display drawing area
@@ -63,6 +64,12 @@ Module_hal.c:
 ---  new program based on original module adds hal support/pins initialization of realtime code etc.
 --- added code to refresh rungs at period rate unless period less then 1 MS then it waits till at least 1 MS has passed
 
+protocol_modbus_master.c
+--- added code for modbus functions 3, 6 and 16 (read holding register, write single register, write mulitple registers)
+
+protocol_modbus_master.h
+--- added defines for same
+
 spy_vars_gtk.c:
 --- changed to be able to toggle vars windows (one, the other, both , both close) by clicking the button.
 --- added messages to statusbar when window toggled
@@ -74,7 +81,7 @@ spy_vars_gtk.c:
 symbols_gtk.c:
 --- changed to show HAL signals in comment slot
 --- added messages to statusbar when window toggled
---- change to have only one editable line (gets rid of mass of blank line)
+--- change to have only one editable line (gets rid of mass of blank lines)
 
 SUBMAKEFILE:
 --- completely different for EMC. This makefile is for the user program only. 
