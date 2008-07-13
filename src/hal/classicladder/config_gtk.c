@@ -21,7 +21,7 @@
 /* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA */
 
 // modified for EMC 
-// Chris Morley Feb 08
+// Chris Morley July 08
 
 #include <gtk/gtk.h>
 #include <stdio.h>
@@ -58,7 +58,7 @@ GtkWidget *OutputDeviceParam[ NBR_OUTPUTS_CONF ];
 GtkWidget *OutputFlagParam[ NBR_OUTPUTS_CONF ];
 
 #ifdef MODBUS_IO_MASTER
-static char * ModbusReqType[] = { "Inputs", "Coils", /* TODO: "WriteRegs", "ReadRegs",*/ NULL };
+static char * ModbusReqType[] = { "ReadINPUTS   fnct- 2", "WriteCOILS     fnct-15", "ReadREGS      fnct- 4", "WriteREG(S)   fnct-6/16","ReadHOLD      fnct- 3",NULL };
 #define NBR_MODBUS_PARAMS 6
 GtkWidget *ModbusParamEntry[ NBR_MODBUS_MASTER_REQ ][ NBR_MODBUS_PARAMS ];
 GtkWidget *SerialPortEntry;
@@ -479,7 +479,7 @@ GtkWidget * CreateModbusModulesIO( void )
 	vbox = gtk_vbox_new (FALSE, 0);
 	gtk_widget_show (vbox);
 
-	for (NumLine=-2; NumLine<NBR_MODBUS_MASTER_REQ; NumLine++ )
+	for (NumLine=-3; NumLine<NBR_MODBUS_MASTER_REQ; NumLine++ )
 	{
 		hbox[NumLine+2] = gtk_hbox_new (FALSE, 0);
 		gtk_container_add (GTK_CONTAINER (vbox), hbox[NumLine+2]);
@@ -489,7 +489,7 @@ GtkWidget * CreateModbusModulesIO( void )
 		{
 			switch( NumLine )
 			{
-				case -2:
+				case -3:
 				{
 					if ( NumObj==0 )
 					{
@@ -525,8 +525,16 @@ gtk_editable_set_editable( GTK_EDITABLE(SerialSpeedEntry), FALSE);
 						sprintf( BuffValue, "%d", ModbusTimeInterFrame );
 						gtk_entry_set_text( GTK_ENTRY(PauseInterFrameEntry), BuffValue );
 //TODO: configplc file written by hand for now...
-gtk_editable_set_editable( GTK_EDITABLE(PauseInterFrameEntry), FALSE);
+gtk_editable_set_editable( GTK_EDITABLE(PauseInterFrameEntry), TRUE);
 						
+					}
+					break;
+				}
+				case -2:
+				{
+					if ( NumObj==0 )
+					{
+
 						DebugLevelLabel = gtk_label_new( "Debug level" );
 						gtk_box_pack_start(GTK_BOX (hbox[ NumLine+2 ]), DebugLevelLabel, FALSE, FALSE, 0);
 						gtk_widget_show( DebugLevelLabel );
@@ -548,6 +556,7 @@ gtk_editable_set_editable( GTK_EDITABLE(PauseInterFrameEntry), FALSE);
 					gtk_widget_show( *IOParamLabel );
 					break;
 				}
+				
 				default:
 				{
 					pConf = &ModbusMasterReq[ NumLine ];
@@ -561,7 +570,7 @@ gtk_editable_set_editable( GTK_EDITABLE(PauseInterFrameEntry), FALSE);
 							*IOParamDevice = gtk_combo_new( );
 							gtk_combo_set_value_in_list( GTK_COMBO(*IOParamDevice), TRUE /*val*/, FALSE /*ok_if_empty*/ );
 							gtk_combo_set_popdown_strings( GTK_COMBO(*IOParamDevice), ItemsDevices );
-							gtk_widget_set_usize( *IOParamDevice,120,0 );
+							gtk_widget_set_usize( *IOParamDevice,185,0 );
 							gtk_box_pack_start ( GTK_BOX (hbox[NumLine+2]), *IOParamDevice, FALSE, FALSE, 0 );
 							gtk_widget_show ( *IOParamDevice );
 					        	gtk_entry_set_text((GtkEntry*)((GtkCombo *)*IOParamDevice)->entry, ModbusReqType[ ValueToDisplay ]);
