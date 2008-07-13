@@ -203,7 +203,7 @@ int PrepPureModbusAskForCurrentReq( unsigned char * AskFrame )
 				AskFrame[ FrameSize++ ] = (unsigned char)NbrEles>>8;
 				AskFrame[ FrameSize++ ] = (unsigned char)NbrEles;
 				Value = GetVarForModbus( &ModbusMasterReq[ CurrentReq ], FirstEle );
-				printf("INFO MODBUS writing: WORD value =%d \n",Value);
+//				printf("INFO MODBUS writing: WORD value =%d \n",Value);
 				AskFrame[ FrameSize++ ] = Value>>8;
 				AskFrame[ FrameSize++ ] = Value;
 			}	
@@ -220,7 +220,7 @@ int PrepPureModbusAskForCurrentReq( unsigned char * AskFrame )
 				for (i=0; i <NbrEles; i++)
 				{
 				int Value = GetVarForModbus( &ModbusMasterReq[ CurrentReq ], FirstEle +i );
-				printf("INFO MODBUS writing: WORD value =%d \n",Value);
+//				printf("INFO MODBUS writing: WORD value =%d \n",Value);
 				AskFrame[ FrameSize++ ] = Value>>8;
 				AskFrame[ FrameSize++ ] = Value;
 				}
@@ -610,13 +610,13 @@ void SetVarFromModbus( StrModbusMasterReq * ModbusReq, int ModbusNum, int Value 
 	{
 		case MODBUS_REQ_INPUTS_READ:
 			// here we are in a separate thread: do not call the function calling some gtk functions for refresh
-//			WriteVar( VAR_PHYS_INPUT, VarNum, Value );
+
 			VarArray[NBR_BITS+VarNum] = Value;
 			InfosGene->CmdRefreshVarsBits = TRUE;
 			break;
 		case MODBUS_REQ_REGISTERS_READ:                case MODBUS_REQ_HOLD_READ:
-			/* lacking some %IWxxxx variables for now */
-printf("WORD number= %d VALUE =%d \n",VarNum,Value);
+
+//printf("INFO    WORD number= %d VALUE =%d \n",VarNum,Value);
 			VarWordArray[VarNum] = Value ;
 			break;
 	}
@@ -635,7 +635,6 @@ int GetVarForModbus( StrModbusMasterReq * ModbusReq, int ModbusNum )
 			break;
 		case MODBUS_REQ_REGISTERS_WRITE:
 			return ReadVar( VAR_MEM_WORD, VarNum );
-			/* lacking some %QWxxxx variables for now */
 			break;
 	}
 	return 0;
