@@ -44,7 +44,7 @@ int ModbusTimeOutReceipt;
 int ModbusTimeAfterTransmit;
 
 /* TEMP!!! put this variable in global config instead ? */
-int ModbusEleOffset = 1;
+int ModbusEleOffset = 0;
 int ModbusDebugLevel = 3; //1;
 
 int CurrentReq;
@@ -131,6 +131,9 @@ int PrepPureModbusAskForCurrentReq( unsigned char * AskFrame )
 			if ( ModbusMasterReq[ CurrentReq ].NbrModbusElements==1 )
 				FunctionCode = MODBUS_FC_WRITE_REG; 
 			break;
+		case MODBUS_REQ_HOLD_READ:
+			FunctionCode = MODBUS_FC_READ_HOLD_REGS;
+			break;
 	}
 	if ( FunctionCode>0 )
 	{
@@ -138,19 +141,25 @@ int PrepPureModbusAskForCurrentReq( unsigned char * AskFrame )
 		CurrentFuncCode = FunctionCode;
 		switch( FunctionCode )
 		{
-			case MODBUS_FC_READ_INPUTS:
+			case MODBUS_FC_READ_INPUTS://2
 				AskFrame[ FrameSize++ ] = (unsigned char)FirstEle>>8;
 				AskFrame[ FrameSize++ ] = (unsigned char)FirstEle;
 				AskFrame[ FrameSize++ ] = (unsigned char)NbrEles>>8;
 				AskFrame[ FrameSize++ ] = (unsigned char)NbrEles;
 				break;
-			case MODBUS_FC_READ_INPUT_REGS:
+			case MODBUS_FC_READ_INPUT_REGS://4
 				AskFrame[ FrameSize++ ] = (unsigned char)FirstEle>>8;
 				AskFrame[ FrameSize++ ] = (unsigned char)FirstEle;
 				AskFrame[ FrameSize++ ] = (unsigned char)NbrEles>>8;
 				AskFrame[ FrameSize++ ] = (unsigned char)NbrEles;
 				break;
-			case MODBUS_FC_FORCE_COIL:
+			case MODBUS_FC_READ_HOLD_REGS://3
+				AskFrame[ FrameSize++ ] = (unsigned char)FirstEle>>8;
+				AskFrame[ FrameSize++ ] = (unsigned char)FirstEle;
+				AskFrame[ FrameSize++ ] = (unsigned char)NbrEles>>8;
+				AskFrame[ FrameSize++ ] = (unsigned char)NbrEles;
+				break;
+			case MODBUS_FC_FORCE_COIL://5
 			{
 				int BitValue = GetVarForModbus( &ModbusMasterReq[ CurrentReq ], FirstEle );
 				BitValue = (BitValue!=0)?MODBUS_BIT_ON:MODBUS_BIT_OFF;
@@ -160,7 +169,7 @@ int PrepPureModbusAskForCurrentReq( unsigned char * AskFrame )
 				AskFrame[ FrameSize++ ] = (unsigned char)BitValue;
 				break;
 			}
-			case MODBUS_FC_FORCE_COILS:
+			case MODBUS_FC_FORCE_COILS://15
 			{
 				int NbrRealBytes = (NbrEles+7)/8;
 				int ScanEle = 0;
@@ -186,12 +195,37 @@ int PrepPureModbusAskForCurrentReq( unsigned char * AskFrame )
 				}
 				break;
 			}
-			case MODBUS_FC_WRITE_REG:
-//TODO and TEST !
+			case MODBUS_FC_WRITE_REG:/*(function 6 */
+			{
+				int Value;
+				AskFrame[ FrameSize++ ] = (unsigned char)FirstEle>>8;
+				AskFrame[ FrameSize++ ] = (unsigned char)FirstEle;
+				AskFrame[ FrameSize++ ] = (unsigned char)NbrEles>>8;
+				AskFrame[ FrameSize++ ] = (unsigned char)NbrEles;
+				Value = GetVarForModbus( &ModbusMasterReq[ CurrentReq ], FirstEle );
+				printf("INFO MODBUS writing: WORD value =%d \n",Value);
+				AskFrame[ FrameSize++ ] = Value>>8;
+				AskFrame[ FrameSize++ ] = Value;
+			}	
+			break;
+
+			case MODBUS_FC_WRITE_REGS: /*function 16 */
+			{
+				int i ;
+				AskFrame[ FrameSize++ ] = (unsigned char)FirstEle>>8;
+				AskFrame[ FrameSize++ ] = (unsigned char)FirstEle;
+				AskFrame[ FrameSize++ ] = (unsigned char)NbrEles>>8;
+				AskFrame[ FrameSize++ ] = (unsigned char)NbrEles;
+				AskFrame[ FrameSize++ ] = (unsigned char)NbrEles*2;
+				for (i=0; i <NbrEles; i++)
+				{
+				int Value = GetVarForModbus( &ModbusMasterReq[ CurrentReq ], FirstEle +i );
+				printf("INFO MODBUS writing: WORD value =%d \n",Value);
+				AskFrame[ FrameSize++ ] = Value>>8;
+				AskFrame[ FrameSize++ ] = Value;
+				}
 				break;
-			case MODBUS_FC_WRITE_REGS:
-//TODO and TEST !
-				break;
+			}
 		}
 	}
 	return FrameSize;
@@ -218,11 +252,12 @@ char TreatPureModbusResponse( unsigned char * RespFrame, int SizeFrame )
 	
 			int FirstEle = ModbusMasterReq[ CurrentReq ].FirstModbusElement-ModbusEleOffset;
 			int NbrEles = ModbusMasterReq[ CurrentReq ].NbrModbusElements;
+
 			if ( FirstEle<0 )
 				FirstEle = 0;
 			switch( RespFrame[ 0 ] )
 			{
-				case MODBUS_FC_READ_INPUTS:
+				case MODBUS_FC_READ_INPUTS://function code 2
 				{
 					int NbrRealBytes = RespFrame[1];
 					// validity request verify 
@@ -250,25 +285,51 @@ char TreatPureModbusResponse( unsigned char * RespFrame, int SizeFrame )
 						cError = 0;
 					}
 				}
-				case MODBUS_FC_READ_INPUT_REGS:
+				case MODBUS_FC_READ_INPUT_REGS://4
 //TODO and TEST !
 					break;
-				case MODBUS_FC_FORCE_COIL:
+				case MODBUS_FC_READ_HOLD_REGS:    //3
+				{
+					int i;
+					int NbrBytes = RespFrame[1]/2;
+
+//printf("number of bytes %d\n",NbrBytes);
+					for (i=0; i <NbrBytes; i++) 
+					{
+						int hivalue=(RespFrame[2+(i*2)]<<8);
+						int lovalue=( RespFrame[3+(i*2)]);
+						int value=hivalue | lovalue;
+//printf("hivalue= %d   lowvalue= %d\n",hivalue,lovalue);
+						SetVarFromModbus( &ModbusMasterReq[ CurrentReq ], FirstEle+i, value );
+					}
+						cError = 0;
+				
+					break;
+				}	
+				case MODBUS_FC_FORCE_COIL://function 5
 					if ( ((RespFrame[1]<<8) | RespFrame[2])==FirstEle && SizeFrame>=1+2 )
 						cError = 0;
 					break;
-				case MODBUS_FC_FORCE_COILS:
+				case MODBUS_FC_FORCE_COILS://function 15
 					if ( ((RespFrame[1]<<8) | RespFrame[2])==FirstEle && SizeFrame>=1+2+2 )
 					{
 						if ( ((RespFrame[3]<<8) | RespFrame[4])==NbrEles )
 							cError = 0;
 					}
 					break;
-				case MODBUS_FC_WRITE_REG:
-//TODO and TEST !
+				case MODBUS_FC_WRITE_REG://function 6
+					if ( ((RespFrame[1]<<8) | RespFrame[2])==FirstEle && SizeFrame>=1+2+2 )
+					{
+					cError=0;
+					}
+						
 					break;
-				case MODBUS_FC_WRITE_REGS:
-//TODO and TEST !
+				case MODBUS_FC_WRITE_REGS: //function 16
+					if ( ((RespFrame[1]<<8) | RespFrame[2])==FirstEle && SizeFrame>=1+2+2 )
+					{
+						if ( ((RespFrame[3]<<8) | RespFrame[4])==NbrEles )
+							cError = 0;
+					}
 					break;
 			}
 		}
@@ -283,7 +344,7 @@ int GetModbusResponseLenghtToReceive( void )
 	if ( CurrentReq!=-1 )
 	{
 		int NbrEles = ModbusMasterReq[ CurrentReq ].NbrModbusElements;
-		LgtResp++;
+		LgtResp++;//for function code
 		switch( CurrentFuncCode )
 		{
 				case MODBUS_FC_READ_INPUTS:
@@ -293,19 +354,22 @@ int GetModbusResponseLenghtToReceive( void )
 					LgtResp = LgtResp + NbrRealBytes;
 				}
 				case MODBUS_FC_READ_INPUT_REGS:
-//TODO and TEST !
+					LgtResp = LgtResp + (NbrEles*2)+1;  //2 bytes per data and 1 byte for number of datas (max 125)
+					break;
+				case MODBUS_FC_READ_HOLD_REGS:
+					LgtResp = LgtResp + (NbrEles*2)+1;  //2 bytes per data and 1 byte for number of datas (max 125)
 					break;
 				case MODBUS_FC_FORCE_COIL:
-					LgtResp = LgtResp+4;
+					LgtResp = LgtResp+4;// 2 bytes for address 2 for data
 					break;
 				case MODBUS_FC_FORCE_COILS:
-					LgtResp = LgtResp+4;
+					LgtResp = LgtResp+4;// 2 bytes for address 2 for data
 					break;
 				case MODBUS_FC_WRITE_REG:
-//TODO and TEST !
+					LgtResp = LgtResp+4; // 2 bytes for address 2 for data
 					break;
 				case MODBUS_FC_WRITE_REGS:
-//TODO and TEST !
+					LgtResp = LgtResp + (NbrEles*2)+2;  //testing 2 bytes per data and 1 byte for number of datas (max 125)
 					break;
 		}
 	}
@@ -550,9 +614,10 @@ void SetVarFromModbus( StrModbusMasterReq * ModbusReq, int ModbusNum, int Value 
 			VarArray[NBR_BITS+VarNum] = Value;
 			InfosGene->CmdRefreshVarsBits = TRUE;
 			break;
-		case MODBUS_REQ_REGISTERS_READ:
-//TODO:
+		case MODBUS_REQ_REGISTERS_READ:                case MODBUS_REQ_HOLD_READ:
 			/* lacking some %IWxxxx variables for now */
+printf("WORD number= %d VALUE =%d \n",VarNum,Value);
+			VarWordArray[VarNum] = Value ;
 			break;
 	}
 }
@@ -569,7 +634,7 @@ int GetVarForModbus( StrModbusMasterReq * ModbusReq, int ModbusNum )
 			return ReadVar( VAR_PHYS_OUTPUT, VarNum );
 			break;
 		case MODBUS_REQ_REGISTERS_WRITE:
-//TODO:
+			return ReadVar( VAR_MEM_WORD, VarNum );
 			/* lacking some %QWxxxx variables for now */
 			break;
 	}
