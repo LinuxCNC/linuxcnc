@@ -92,7 +92,7 @@ Configuration
 
 There are six pieces of information that determine exactly how the home
  sequence behaves.
- They are defined in an [AXIS] section of the inifile.
+ They are defined in an [AXIS] section of the ini file.
 \layout Standard
 
 
@@ -480,7 +480,7 @@ L is zero, and the entire search/latch stage was skipped).
  and a rapid move is the quickest way to finish the homing sequence.
  
 \begin_inset Foot
-collapsed true
+collapsed false
 
 \layout Standard
 

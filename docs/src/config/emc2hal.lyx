@@ -43,7 +43,7 @@ iocontrol(1)
 motion (realtime)
 \layout Standard
 
-These pins, parameters, and functions are created by the realtime 
+These pins, parameters, and functions are created by the real time 
 \family typewriter 
 motmod
 \family default 
@@ -216,7 +216,7 @@ motion.motion-enabled TRUE when motion is enabled
 motion.servo.last-period The number of CPU cycles between invocations of the
  servo thread.
  Typically, this number divided by the CPU speed gives the time in seconds,
- and can be used to determine whether the realtime motion controller is
+ and can be used to determine whether the real time motion controller is
  meeting its timing constraints
 \layout Description
 
@@ -253,13 +253,13 @@ Generally, these functions are both added to the servo-thread in the order
 motion-command-handler Processes motion commands coming from user space
 \layout Description
 
-motion-controller Runs the emc motion controller
+motion-controller Runs the EMC motion controller
 \layout Section
 
 axis.N (realtime)
 \layout Standard
 
-These pins and parameters are created by the realtime 
+These pins and parameters are created by the real time 
 \family typewriter 
 motmod
 \family default 
@@ -396,8 +396,8 @@ jog-counts
 
 axis.N.jog-vel-mode\SpecialChar ~
 IN\SpecialChar ~
-bit When FALSE (the default), the jogwheel operates in
- position mode.
+bit When FALSE (the default), the jog wheel operates
+ in position mode.
  The axis will move exactly jog-scale units for each count, regardless of
  how long that might take.
  When TRUE, the wheel operates in velocity mode - motion stops when the
@@ -539,7 +539,7 @@ iocontrol.0.coolant-flood TRUE when flood coolant is requested
 iocontrol.0.coolant-mist TRUE when mist coolant is requested
 \layout Description
 
-iocontrol.0.emc-enable-in Should be driven FALSE when an external estop condition
+iocontrol.0.emc-enable-in Should be driven FALSE when an external e-stop condition
  exists
 \layout Description
 
@@ -566,9 +566,9 @@ iocontrol.0.tool-prepared Should be driven TRUE when a tool prepare is completed
  
 \layout Description
 
-iocontrol.0.user-enable-out FALSE when an internal estop condition exists
+iocontrol.0.user-enable-out FALSE when an internal e-stop condition exists
 \layout Description
 
-iocontrol.0.user-request-enable TRUE when the user has requested that estop
+iocontrol.0.user-request-enable TRUE when the user has requested that e-stop
  be cleared
 \the_end

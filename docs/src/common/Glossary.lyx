@@ -32,7 +32,7 @@ A listing of terms and what they mean.
  installers, and developers.
  
 \begin_inset Note
-collapsed true
+collapsed false
 
 \layout Standard
 
@@ -220,8 +220,8 @@ Machine
  A Coordinate Measuring Machine is used to make many accurate measurements
  on parts.
  These machines can be used to create CAD data for parts where no drawings
- can be found, when a hand-made prototype needs to be digitized for moldmaking,
- or to check the accuracy of machined or molded parts.
+ can be found, when a hand-made prototype needs to be digitized for mold
+ making, or to check the accuracy of machined or molded parts.
  
 \layout Description
 
@@ -335,9 +335,9 @@ Encoder
 \end_inset 
 
  A device to measure position.
- Usually a machanical-optical device, which outputs a quadrature signal.
+ Usually a mechanical-optical device, which outputs a quadrature signal.
  The signal can be counted by special hardware, or directly by the parport
- with emc2.
+ with EMC2.
 \layout Description
 
 Feed
@@ -375,7 +375,7 @@ Feedback
 
 \end_inset 
 
- A method (e.g., quadrature encoder signals) by which emc receives information
+ A method (e.g., quadrature encoder signals) by which EMC receives information
  about the position of motors
 \layout Description
 
@@ -589,7 +589,7 @@ units
 \end_inset 
 
  The linear and angular units used for machine configuration.
- These units are used in the inifile.
+ These units are used in the ini file.
  HAL pins and parameters are also generally in machine units.
 \layout Description
 

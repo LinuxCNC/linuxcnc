@@ -120,7 +120,7 @@ The other remedies are to decrease one or more of: the BASE_PERIOD (setting
 \layout Standard
 
 If no valid combination of BASE_PERIOD, INPUT_SCALE, and MAX_VELOCITY is
- acceptable, then hardware step generation (such as with the emc2-supported
+ acceptable, then hardware step generation (such as with the EMC2-supported
  Universal Stepper Controller)
 \layout Section
 
@@ -137,8 +137,8 @@ Pinout
 
 \layout Standard
 
-One of the majour flaws in EMC was that you couldn't specify the pinout
- without recompiling the source code.
+One of the major flaws in EMC was that you couldn't specify the pinout without
+ recompiling the source code.
  EMC2 is far more flexible, and now (thanks to the Hardware Abstraction
  Layer) you can easily specify which signal goes where.
  (read the 
@@ -161,7 +161,7 @@ As it is described in the HAL Introduction and tutorial, we have signals,
 
 The ones relevant for our pinout are
 \begin_inset Foot
-collapsed true
+collapsed false
 
 \layout Standard
 
@@ -175,7 +175,7 @@ signals: Xstep, Xdir & Xen
 \newline 
 pins: parport.0.pin-XX-out & parport.0.pin-XX-in 
 \begin_inset Foot
-collapsed true
+collapsed false
 
 \layout Standard
 
@@ -194,7 +194,7 @@ Depending on what you have chosen in your ini file you are using either
  standard_pinout.hal or xylotex_pinout.hal.
  These are two files that instruct the HAL how to link the various signals
  & pins.
- Furtheron we'll investigate the standard_pinout.hal.
+ Further on we'll investigate the standard_pinout.hal.
 \layout Subsection
 
 
@@ -249,7 +249,7 @@ The Parport driver gets loaded (see
 The read & write functions of the parport driver get assigned to the Base
  thread 
 \begin_inset Foot
-collapsed true
+collapsed false
 
 \layout Standard
 
@@ -263,7 +263,7 @@ the fastest thread in the EMC2 setup, usually the code gets executed every
 The step & direction signals for axes X,Y,Z get linked to pins on the parport
 \layout Enumerate
 
-Further IO signals get connected (estop loopback, toolchanger loopback)
+Further IO signals get connected (e-stop loopback, toolchanger loopback)
 \layout Enumerate
 
 A spindle On signal gets defined and linked to a parport pin
@@ -301,7 +301,7 @@ linksp Xstep parport.0.pin-02-out
 linksp Xdir  parport.0.pin-03-out
 \layout Standard
 
-or basicly any other numbers you like.
+or basically any other numbers you like.
  
 \layout Standard
 
@@ -418,10 +418,10 @@ linksp Xen parport.0.pin-08-out
 You can either have one single pin that enables all drives, or several,
  depending on the setup you have.
  Note however that usually when one axis faults, all the other ones will
- be disabled aswell, so having only one signal / pin is perfectly safe.
+ be disabled as well, so having only one signal / pin is perfectly safe.
 \layout Subsection
 
-Adding an external ESTOP
+Adding an external E-STOP
 \begin_inset LatexCommand \index{ESTOP}
 
 \end_inset 
@@ -434,15 +434,15 @@ As you can see in
 
 \end_inset 
 
- by default the stepper configuration assumes no external ESTOP button.
+ by default the stepper configuration assumes no external E-STOP button.
  
 \begin_inset Foot
-collapsed true
+collapsed false
 
 \layout Standard
 
-An extensive explanation of hooking up ESTOP circuitry is explained in the
- wiki.linuxcnc.org and in the Integrator Manual
+An extensive explanation of hooking up E-STOP circuitry is explained in
+ the wiki.linuxcnc.org and in the Integrator Manual
 \end_inset 
 
 
@@ -460,19 +460,19 @@ with
 linkpp parport.0.pin-01-in iocontrol.0.emc-enable-in
 \layout Standard
 
-This assumes an ESTOP switch connected to pin 01 on the parport.
+This assumes an E-STOP switch connected to pin 01 on the parport.
  As long as the switch will stay pushed
 \begin_inset Foot
-collapsed true
+collapsed false
 
 \layout Standard
 
-make sure you use a maintained switch for ESTOP.
+make sure you use a maintained switch for E-STOP.
 \end_inset 
 
-, EMC2 will be in the ESTOP state.
- When the external button gets released EMC2 will imediately switch to the
- ESTOP-RESET state, and all you need to do is switch to Machine On
+, EMC2 will be in the E-STOP state.
+ When the external button gets released EMC2 will immediately switch to
+ the E-STOP-RESET state, and all you need to do is switch to Machine On
 \begin_inset LatexCommand \index{machine on}
 
 \end_inset 

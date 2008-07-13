@@ -298,7 +298,7 @@ Related parts of an ini file are separated into sections.
 [RS274NGC] settings used by the g-code interpreter
 \layout Itemize
 
-[EMCMOT] settings used by the realtime motion controller (
+[EMCMOT] settings used by the real time motion controller (
 \begin_inset LatexCommand \ref{sub:[EMCMOT]-Section}
 
 \end_inset 
@@ -322,7 +322,7 @@ Related parts of an ini file are separated into sections.
 )
 \layout Itemize
 
-[TRAJ] additional settings used by the realtime motion controller (
+[TRAJ] additional settings used by the real time motion controller (
 \begin_inset LatexCommand \ref{sub:[TRAJ]-Section}
 
 \end_inset 

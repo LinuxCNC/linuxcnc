@@ -37,10 +37,10 @@
 Running EMC
 \layout Section
 
-Invoking emc
+Invoking EMC
 \layout Standard
 
-After installation, emc2 starts just like any other piece of Linux software:
+After installation, EMC2 starts just like any other piece of Linux software:
  run it from the terminal by issuing the command 
 \family typewriter 
 emc
@@ -52,7 +52,7 @@ Configuration Selector
 \layout Standard
 
 By default, the Configuration Selector dialog is shown when you first run
- emc.
+ EMC.
  Your own personalized configurations are shown at the top of the list,
  followed by sample configurations.
 \begin_inset Foot
@@ -145,7 +145,7 @@ no
 \begin_inset Quotes erd
 \end_inset 
 
-, emc may start but will behave strangely--for instance, offsets entered
+, EMC may start but will behave strangely--for instance, offsets entered
  with Touch Off will be cleared unexpectedly.
 \layout Standard
 

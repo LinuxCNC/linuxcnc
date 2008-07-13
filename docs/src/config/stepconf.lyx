@@ -122,10 +122,10 @@ Units Choose Inch or mm.
 
 Driver\SpecialChar ~
 Characteristics If you have one of the stepper drivers listed in the
- pulldown box, choose it.
- Otherwise, find the 4 timing values in your driver's datasheet and enter
+ pull down box, choose it.
+ Otherwise, find the 4 timing values in your driver's data sheet and enter
  them.
- If the datasheet gives a value in microseconds, multiply by 1000.
+ If the data sheet gives a value in microseconds, multiply by 1000.
  For example, enter 4.5us as 4500.
 \begin_deeper 
 \layout Standard
@@ -210,7 +210,7 @@ Parallel Port Setup Page
 
 \layout Standard
 
-For each pin, choose the signal which matches your parallel port pinout.
+For each pin, choose the signal which matches your parallel port pin out.
  Turn on the 
 \begin_inset Quotes eld
 \end_inset 
@@ -219,7 +219,7 @@ invert
 \begin_inset Quotes erd
 \end_inset 
 
- checkbox if the signal is inverted (0V for true/active, 5V for false/inactive).
+ check box if the signal is inverted (0V for true/active, 5V for false/inactive).
 \layout Description
 
 Output\SpecialChar ~
@@ -377,7 +377,7 @@ Location The position the machine moves to after completing the homing
 Table\SpecialChar ~
 Travel The range of travel that gcode programs must not exceed.
  The home location must be inside the Table Travel.
- In particular, having Home Location exactly equal to one of the Tabel Travel
+ In particular, having Home Location exactly equal to one of the Table Travel
  values is incorrect configuration
 \layout Description
 
