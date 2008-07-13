@@ -45,7 +45,7 @@ int ModbusTimeAfterTransmit;
 
 /* TEMP!!! put this variable in global config instead ? */
 int ModbusEleOffset = 0;
-int ModbusDebugLevel = 3; //1;
+int ModbusDebugLevel = 0; //1;
 
 int CurrentReq;
 int InvoqIdentifHeaderIP;
