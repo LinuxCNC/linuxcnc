@@ -27,8 +27,8 @@
 #endif
 
 #define CL_PRODUCT_NAME "ClassicLadder"
-#define CL_RELEASE_VER_STRING "0.7.124"
-#define CL_RELEASE_DATE_STRING "2 January 2008"
+#define CL_RELEASE_VER_STRING "0.7.124-EMC"
+#define CL_RELEASE_DATE_STRING "2 MAR 2008"
 
 // defaults values
 #define NBR_RUNGS_DEF 100
@@ -423,3 +423,4 @@ void UpdateSizesOfConvVarNameTable( void );
 extern int compId;
 #endif
 extern int nogui;
+extern int nomodbus;
