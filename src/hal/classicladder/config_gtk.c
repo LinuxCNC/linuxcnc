@@ -452,10 +452,15 @@ void GetIOSettings( char ForInputs )
 	}
 }
 #endif
+
+// changes made so if there is no modbus config file loaded, then the modbus page says so
+// moved debug level to its own line to narrow up the window
+// need to make the params list scrollable
+
 #ifdef MODBUS_IO_MASTER
 GtkWidget * CreateModbusModulesIO( void )
 {
-	static char * Labels[] = { "Slave Address", "TypeAccess", "1st Modbus Ele.", "Nbr Modbus Ele.", "Logic", "1st %I/%Q Mapped" };
+	static char * Labels[] = { "Slave Address", "TypeAccess", "1st Modbus Ele.", "Nbr Modbus Ele.", "Logic", "1st I,Q,or W Mapped" };
 	GtkWidget *vbox;
 	GtkWidget *hbox[ NBR_MODBUS_MASTER_REQ+2 ];
 	int NumObj;
@@ -470,6 +475,15 @@ GtkWidget * CreateModbusModulesIO( void )
 	GtkWidget *PauseInterFrameLabel;
 	GtkWidget *DebugLevelLabel;
 
+	if(nomodbus) 
+	{
+	vbox = gtk_vbox_new (FALSE, 0);
+	gtk_widget_show (vbox);
+	SerialPortLabel = gtk_label_new( "\n  To use modbus you must specify a modbus configure file\n                        when loading classicladder use: \n \n loadusr classicladder myprogram.clp --config=myconfigfile  " );
+	gtk_box_pack_start(GTK_BOX (vbox), SerialPortLabel, FALSE, FALSE, 0);
+	gtk_widget_show( SerialPortLabel );	
+	return vbox;
+	}
 	do
 	{
 		ItemsDevices = g_list_append( ItemsDevices, ModbusReqType[ ScanDev++ ] );
@@ -501,7 +515,7 @@ GtkWidget * CreateModbusModulesIO( void )
 						gtk_widget_show ( SerialPortEntry );
 						gtk_entry_set_text( GTK_ENTRY(SerialPortEntry), ModbusSerialPortNameUsed );
 //TODO: configplc file written by hand for now...
-gtk_editable_set_editable( GTK_EDITABLE(SerialPortEntry), FALSE);
+gtk_editable_set_editable( GTK_EDITABLE(SerialPortEntry), TRUE);
 						
 						SerialSpeedLabel = gtk_label_new( "Serial speed" );
 						gtk_box_pack_start(GTK_BOX (hbox[ NumLine+2 ]), SerialSpeedLabel, FALSE, FALSE, 0);
@@ -513,7 +527,7 @@ gtk_editable_set_editable( GTK_EDITABLE(SerialPortEntry), FALSE);
 						sprintf( BuffValue, "%d", ModbusSerialSpeed );
 						gtk_entry_set_text( GTK_ENTRY(SerialSpeedEntry), BuffValue );
 //TODO: configplc file written by hand for now...
-gtk_editable_set_editable( GTK_EDITABLE(SerialSpeedEntry), FALSE);
+gtk_editable_set_editable( GTK_EDITABLE(SerialSpeedEntry), TRUE);
 						
 						PauseInterFrameLabel = gtk_label_new( "Pause Inter-Frame" );
 						gtk_box_pack_start(GTK_BOX (hbox[ NumLine+2 ]), PauseInterFrameLabel, FALSE, FALSE, 0);
@@ -701,7 +715,7 @@ void GetSettings( void )
 	GetIOSettings( 0/*ForInputs*/ );
 #endif
 #ifdef MODBUS_IO_MASTER
-	GetModbusModulesIOSettings( );
+if(!nomodbus) {GetModbusModulesIOSettings( );}
 #endif
 #ifndef RT_SUPPORT
 //	ConfigHardware( );
