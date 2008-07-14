@@ -20,9 +20,6 @@
 /* License along with this library; if not, write to the Free Software */
 /* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA */
 
-// modified for EMC 
-// Chris Morley July 08
-
 #include <gtk/gtk.h>
 #include <stdio.h>
 #include <string.h>
@@ -35,18 +32,13 @@
 #include "config_gtk.h"
 
 #ifdef OLD_TIMERS_MONOS_SUPPORT
-#define NBR_OBJECTS 15
-#else
 #define NBR_OBJECTS 13
+#else
+#define NBR_OBJECTS 11
 #endif
 GtkWidget *LabelParam[ NBR_OBJECTS ],*ValueParam[ NBR_OBJECTS ];
-#ifndef HAL_SUPPORT
-static char * Devices[] = { "None", "DirectPortAccess",
-#ifdef COMEDI_SUPPORT
-"/dev/comedi0", "/dev/comedi1", "/dev/comedi2", "/dev/comedi3",
-#endif
- NULL };
-#endif
+
+
 
 #define NBR_IO_PARAMS 6
 GtkWidget *InputParamEntry[ NBR_INPUTS_CONF ][ NBR_IO_PARAMS ];
@@ -58,7 +50,7 @@ GtkWidget *OutputDeviceParam[ NBR_OUTPUTS_CONF ];
 GtkWidget *OutputFlagParam[ NBR_OUTPUTS_CONF ];
 
 #ifdef MODBUS_IO_MASTER
-static char * ModbusReqType[] = { "ReadINPUTS   fnct- 2", "WriteCOILS     fnct-15", "ReadREGS      fnct- 4", "WriteREG(S)   fnct-6/16","ReadHOLD      fnct- 3",NULL };
+static char * ModbusReqType[] = { "Read_INPUTS  fnct- 2", "Write_COIL(S)  fnct-5/15", "Read_REGS     fnct- 4", "Write_REG(S)  fnct-6/16","Read_HOLD    fnct- 3",NULL };
 #define NBR_MODBUS_PARAMS 6
 GtkWidget *ModbusParamEntry[ NBR_MODBUS_MASTER_REQ ][ NBR_MODBUS_PARAMS ];
 GtkWidget *SerialPortEntry;
@@ -145,14 +137,6 @@ GtkWidget * CreateGeneralParametersPage( void )
 				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_monostables );
 				break;
 #endif
-			case 13:
-				sprintf( BuffLabel, "Nbr.S32in (current alloc=%d)", InfosGene->GeneralParams.SizesInfos.nbr_s32in );
-				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_s32in );
-				break;
-			case 14:
-				sprintf( BuffLabel, "Nbr.S32out (current alloc=%d)", InfosGene->GeneralParams.SizesInfos.nbr_s32out );
-				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_s32out );
-				break;
 			default:
 				sprintf( BuffLabel, "???" );
 				sprintf( BuffValue, "???" );
@@ -171,7 +155,7 @@ GtkWidget * CreateGeneralParametersPage( void )
 		gtk_widget_show (ValueParam[NumObj]);
 		gtk_entry_set_text( GTK_ENTRY(ValueParam[NumObj]), BuffValue);
 
-//		gtk_editable_set_editable( GTK_EDITABLE(ValueParam[NumObj]), (NumObj==0)?TRUE:FALSE);
+		gtk_editable_set_editable( GTK_EDITABLE(ValueParam[NumObj]),FALSE);
 	}
 	return vbox;
 }
@@ -219,153 +203,9 @@ void GetGeneralParameters( void )
 	TheValue = GetOneGeneralInfo( 12 );
 	GeneralParamsMirror.SizesInfos.nbr_monostables = TheValue;
 #endif
-	TheValue = GetOneGeneralInfo( 13 );
-	GeneralParamsMirror.SizesInfos.nbr_s32in = TheValue;
-	TheValue = GetOneGeneralInfo( 14 );
- 	GeneralParamsMirror.SizesInfos.nbr_s32out = TheValue;
-}
-#ifndef HAL_SUPPORT
-GtkWidget * CreateIOConfPage( char ForInputs )
-{
-	static char * Labels[] = { "First %", "Type", "PortAdr/SubDev", "First Channel", "Nbr Channels", "Logic" };
-	GtkWidget *vbox;
-	GtkWidget *hbox[ (ForInputs?NBR_INPUTS_CONF:NBR_OUTPUTS_CONF)+1   +30];
-	int NumObj;
-	int NumLine;
-	GList * ItemsDevices = NULL;
-	int ScanDev = 0;
-	StrIOConf * pConf;
-	GtkWidget *InputParamLabel[ NBR_IO_PARAMS];
-	GtkWidget *OutputParamLabel[ NBR_IO_PARAMS ];
-int testpack;
-
-	do
-	{
-		ItemsDevices = g_list_append( ItemsDevices, Devices[ ScanDev++ ] );
-	}
-	while( Devices[ ScanDev ] );
-
-	vbox = gtk_vbox_new (FALSE, 0);
-	gtk_widget_show (vbox);
-
-	for (NumLine=-1; NumLine<(ForInputs?NBR_INPUTS_CONF:NBR_OUTPUTS_CONF); NumLine++ )
-	{
-		hbox[NumLine+1] = gtk_hbox_new (FALSE, 0);
-		gtk_container_add (GTK_CONTAINER (vbox), hbox[NumLine+1]);
-		
-		gtk_widget_show (hbox[NumLine+1]);
-		for (NumObj=0; NumObj<NBR_IO_PARAMS; NumObj++)
-		{
-			if ( NumLine==-1 )
-			{
-				GtkWidget **IOParamLabel = ForInputs?&InputParamLabel[ NumObj ]:&OutputParamLabel[ NumObj ];
-				if ( NumObj==0 )
-					*IOParamLabel = gtk_label_new( ForInputs?"1st %I mapped":"1st %Q mapped" );
-				else
-					*IOParamLabel = gtk_label_new( Labels[ NumObj ] );
-				gtk_widget_set_usize(*IOParamLabel,NumObj==1?130:90,0);
-				gtk_box_pack_start(GTK_BOX (hbox[ NumLine+1 ]), *IOParamLabel, FALSE, FALSE, 0);
-				gtk_widget_show( *IOParamLabel );
-			}
-			else
-			{
-				char BuffValue[ 30 ];
-				if ( ForInputs )
-					pConf = &InfosGene->InputsConf[ NumLine ];
-				else
-					pConf = &InfosGene->OutputsConf[ NumLine ];
-
-				switch( NumObj )
-				{
-					/* For devices */
-					case 1:
-					{
-						int ValueToDisplay = pConf->DeviceType;
-						if ( pConf->FirstClassicLadderIO==-1 )
-						{
-							ValueToDisplay = 0;
-						}
-						else
-						{
-							if ( ValueToDisplay==DEVICE_TYPE_DIRECT_ACCESS )
-								ValueToDisplay = 1;
-							if ( ValueToDisplay>=DEVICE_TYPE_COMEDI )
-								ValueToDisplay = ValueToDisplay-DEVICE_TYPE_COMEDI+2;
-						}
-						{
-							GtkWidget **IOParamDevice = ForInputs?&InputDeviceParam[ NumLine ]:&OutputDeviceParam[ NumLine ];
-							*IOParamDevice = gtk_combo_new( );
-							gtk_combo_set_value_in_list( GTK_COMBO(*IOParamDevice), TRUE /*val*/, FALSE /*ok_if_empty*/ );
-							gtk_combo_set_popdown_strings( GTK_COMBO(*IOParamDevice), ItemsDevices );
-							gtk_widget_set_usize( *IOParamDevice,130,0 );
-							gtk_box_pack_start ( GTK_BOX (hbox[NumLine+1]), *IOParamDevice, FALSE, FALSE, 0 );
-							gtk_widget_show ( *IOParamDevice );
-					        	gtk_entry_set_text((GtkEntry*)((GtkCombo *)*IOParamDevice)->entry,Devices[ ValueToDisplay ]);
-						}
-						break;
-					}
-					/* For flags */
-					case 5:
-					{
-						GtkWidget **IOParamFlag = ForInputs?&InputFlagParam[ NumLine ]:&OutputFlagParam[ NumLine ];
-						*IOParamFlag = gtk_check_button_new_with_label( "Inverted" );
-						gtk_widget_set_usize( *IOParamFlag,90,0 );
-						gtk_box_pack_start( GTK_BOX (hbox[NumLine+1]), *IOParamFlag, FALSE, FALSE, 0 );
-						gtk_widget_show ( *IOParamFlag );
-						if ( pConf->FlagInverted )
-							gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON( *IOParamFlag ), TRUE );
-						break;
-					}
-					/* For numbers */
-					default:
-					{
-						switch( NumObj )
-						{
-							case 0:
-								if ( pConf->FirstClassicLadderIO==-1 )
-									strcpy( BuffValue, "" );
-								else
-									sprintf( BuffValue, "%d", pConf->FirstClassicLadderIO );
-								break;
-							case 2:
-								if ( pConf->DeviceType==DEVICE_TYPE_DIRECT_ACCESS )
-									sprintf( BuffValue, "%X", pConf->SubDevOrAdr );
-								else
-									sprintf( BuffValue, "%d", pConf->SubDevOrAdr );
-								break;
-							case 3:
-								sprintf( BuffValue, "%d", pConf->FirstChannel ); break;
-							case 4:
-								sprintf( BuffValue, "%d", pConf->NbrConsecutivesChannels ); break;
-						}
-						{
-							GtkWidget **IOParamEntry = ForInputs?&InputParamEntry[ NumLine ][ NumObj ]:&OutputParamEntry[ NumLine ][ NumObj ];
-							*IOParamEntry = gtk_entry_new( );
-							gtk_widget_set_usize( *IOParamEntry,90,0 );
-							gtk_box_pack_start( GTK_BOX (hbox[NumLine+1]), *IOParamEntry, FALSE, FALSE, 0 );
-							gtk_widget_show ( *IOParamEntry );
-							gtk_entry_set_text( GTK_ENTRY(*IOParamEntry), BuffValue );
-						}
-						break;
-					}
-				}
-			}
-		}//for (NumObj=0;
-	}
-
-//TODO: I've not found how to not have all the hbox vertically expanded...?
-for(testpack=0; testpack<30; testpack++)
-{		
-		hbox[(ForInputs?NBR_INPUTS_CONF:NBR_OUTPUTS_CONF)+1+testpack] = gtk_hbox_new (FALSE, 0);
-		gtk_container_add (GTK_CONTAINER (vbox), hbox[(ForInputs?NBR_INPUTS_CONF:NBR_OUTPUTS_CONF)+1+testpack]);
-//gtk_box_pack_start(GTK_BOX(vbox), hbox[ (ForInputs?NBR_INPUTS_CONF:NBR_OUTPUTS_CONF)+1+testpack ], TRUE, TRUE, 0);
-		gtk_widget_show (hbox[(ForInputs?NBR_INPUTS_CONF:NBR_OUTPUTS_CONF)+1+testpack]);
 }
 
-	
-	return vbox;
-}
-#endif
+
 int ConvComboToNum( char * text, char ** list )
 {
 	int Value = 0;
@@ -380,87 +220,10 @@ int ConvComboToNum( char * text, char ** list )
 	return Value;
 }
 
-// we don't want this function if using EMC
-#ifndef HAL_SUPPORT 
-void GetIOSettings( char ForInputs )
-{
-	int NumObj;
-	int NumLine;
-	StrIOConf * pConf;
-	int ComboVal;
-	GtkWidget **IOParamDevice;
-	GtkWidget **IOParamEntry;
-	GtkWidget **IOParamFlag;
-	char * text;
-	for (NumLine=0; NumLine<(ForInputs?NBR_INPUTS_CONF:NBR_OUTPUTS_CONF); NumLine++ )
-	{
-		if ( ForInputs )
-			pConf = &InfosGene->InputsConf[ NumLine ];
-		else
-			pConf = &InfosGene->OutputsConf[ NumLine ];
-
-		pConf->FirstClassicLadderIO = -1;
-		pConf->FlagInverted = 0;
-
-		IOParamDevice = ForInputs?&InputDeviceParam[ NumLine ]:&OutputDeviceParam[ NumLine ];
-		ComboVal = ConvComboToNum( (char *)gtk_entry_get_text((GtkEntry *)((GtkCombo *)*IOParamDevice)->entry), Devices );
-		if ( ComboVal>0 )
-		{
-			int FirstIO = -1;
-			if ( ComboVal==1 )
-				pConf->DeviceType = DEVICE_TYPE_DIRECT_ACCESS;
-			else
-				pConf->DeviceType = DEVICE_TYPE_COMEDI+ComboVal-2;
-			IOParamFlag = ForInputs?&InputFlagParam[ NumLine ]:&OutputFlagParam[ NumLine ];
-			if ( gtk_toggle_button_get_active ( GTK_TOGGLE_BUTTON( *IOParamFlag ) ) )
-				pConf->FlagInverted = 1;
-			for (NumObj=0; NumObj<NBR_IO_PARAMS; NumObj++)
-			{
-				IOParamEntry = ForInputs?&InputParamEntry[ NumLine ][ NumObj ]:&OutputParamEntry[ NumLine ][ NumObj ];
-				switch( NumObj )
-				{
-					case 0:
-						text = (char *)gtk_entry_get_text((GtkEntry *)*IOParamEntry);
-						FirstIO = atoi( text );
-						break;
-					case 2:
-						text = (char *)gtk_entry_get_text((GtkEntry *)*IOParamEntry);
-						if ( pConf->DeviceType==DEVICE_TYPE_DIRECT_ACCESS )
-							sscanf( text, "%X", &pConf->SubDevOrAdr );
-						else
-							pConf->SubDevOrAdr = atoi( text );
-						break;
-					case 3:
-						text = (char *)gtk_entry_get_text((GtkEntry *)*IOParamEntry);
-						pConf->FirstChannel = atoi( text );
-						break;
-					case 4:
-						text = (char *)gtk_entry_get_text((GtkEntry *)*IOParamEntry);
-						pConf->NbrConsecutivesChannels = atoi( text );
-						break;
-				}
-			}
-			/* verify if not overflowing */
-			if ( FirstIO+pConf->NbrConsecutivesChannels>( ForInputs?NBR_PHYS_INPUTS:NBR_PHYS_OUTPUTS ) )
-			{
-				printf("Error in I/O conf: overflow for Ixx or Qxx mapping detected...\n" );
-				FirstIO = -1;
-			}
-			/* done at the end, do not forget multi-task ! */
-			pConf->FirstClassicLadderIO = FirstIO;
-		}//if ( ComboVal>0 )
-	}
-}
-#endif
-
-// changes made so if there is no modbus config file loaded, then the modbus page says so
-// moved debug level to its own line to narrow up the window
-// need to make the params list scrollable
-
 #ifdef MODBUS_IO_MASTER
 GtkWidget * CreateModbusModulesIO( void )
 {
-	static char * Labels[] = { "Slave Address", "TypeAccess", "1st Modbus Ele.", "Nbr Modbus Ele.", "Logic", "1st I,Q,or W Mapped" };
+	static char * Labels[] = { "Slave Address", "TypeAccess", "1st Modbus Ele.", "Nbr of Ele", "Logic", "1st I/Q/W Mapped" };
 	GtkWidget *vbox;
 	GtkWidget *hbox[ NBR_MODBUS_MASTER_REQ+2 ];
 	int NumObj;
@@ -475,15 +238,16 @@ GtkWidget * CreateModbusModulesIO( void )
 	GtkWidget *PauseInterFrameLabel;
 	GtkWidget *DebugLevelLabel;
 
-	if(nomodbus) 
-	{
-	vbox = gtk_vbox_new (FALSE, 0);
-	gtk_widget_show (vbox);
-	SerialPortLabel = gtk_label_new( "\n  To use modbus you must specify a modbus configure file\n                        when loading classicladder use: \n \n loadusr classicladder myprogram.clp --config=myconfigfile  " );
-	gtk_box_pack_start(GTK_BOX (vbox), SerialPortLabel, FALSE, FALSE, 0);
-	gtk_widget_show( SerialPortLabel );	
-	return vbox;
-	}
+ 	if(nomodbus) 
+            {
+             vbox = gtk_vbox_new (FALSE, 0);
+              gtk_widget_show (vbox);
+              SerialPortLabel = gtk_label_new( "\n  To use modbus you must specify a modbus configure file\n                        when loading classicladder use: \n \n loadusr classicladder myprogram.clp --config=myconfigfile  " );
+              gtk_box_pack_start(GTK_BOX (vbox), SerialPortLabel, FALSE, FALSE, 0);
+              gtk_widget_show( SerialPortLabel );     
+              return vbox;
+             }
+
 	do
 	{
 		ItemsDevices = g_list_append( ItemsDevices, ModbusReqType[ ScanDev++ ] );
@@ -493,7 +257,7 @@ GtkWidget * CreateModbusModulesIO( void )
 	vbox = gtk_vbox_new (FALSE, 0);
 	gtk_widget_show (vbox);
 
-	for (NumLine=-3; NumLine<NBR_MODBUS_MASTER_REQ; NumLine++ )
+	for (NumLine=-2; NumLine<NBR_MODBUS_MASTER_REQ; NumLine++ )
 	{
 		hbox[NumLine+2] = gtk_hbox_new (FALSE, 0);
 		gtk_container_add (GTK_CONTAINER (vbox), hbox[NumLine+2]);
@@ -503,7 +267,7 @@ GtkWidget * CreateModbusModulesIO( void )
 		{
 			switch( NumLine )
 			{
-				case -3:
+				case -2:
 				{
 					if ( NumObj==0 )
 					{
@@ -521,7 +285,7 @@ gtk_editable_set_editable( GTK_EDITABLE(SerialPortEntry), TRUE);
 						gtk_box_pack_start(GTK_BOX (hbox[ NumLine+2 ]), SerialSpeedLabel, FALSE, FALSE, 0);
 						gtk_widget_show( SerialSpeedLabel );
 						SerialSpeedEntry = gtk_entry_new( );
-						gtk_widget_set_usize( SerialSpeedEntry,90,0 );
+						gtk_widget_set_usize( SerialSpeedEntry,70,0 );
 						gtk_box_pack_start( GTK_BOX (hbox[NumLine+2]), SerialSpeedEntry, FALSE, FALSE, 0 );
 						gtk_widget_show ( SerialSpeedEntry );
 						sprintf( BuffValue, "%d", ModbusSerialSpeed );
@@ -533,7 +297,7 @@ gtk_editable_set_editable( GTK_EDITABLE(SerialSpeedEntry), TRUE);
 						gtk_box_pack_start(GTK_BOX (hbox[ NumLine+2 ]), PauseInterFrameLabel, FALSE, FALSE, 0);
 						gtk_widget_show( PauseInterFrameLabel );
 						PauseInterFrameEntry = gtk_entry_new( );
-						gtk_widget_set_usize( PauseInterFrameEntry,90,0 );
+						gtk_widget_set_usize( PauseInterFrameEntry,50,0 );
 						gtk_box_pack_start( GTK_BOX (hbox[NumLine+2]), PauseInterFrameEntry, FALSE, FALSE, 0 );
 						gtk_widget_show ( PauseInterFrameEntry );
 						sprintf( BuffValue, "%d", ModbusTimeInterFrame );
@@ -541,19 +305,11 @@ gtk_editable_set_editable( GTK_EDITABLE(SerialSpeedEntry), TRUE);
 //TODO: configplc file written by hand for now...
 gtk_editable_set_editable( GTK_EDITABLE(PauseInterFrameEntry), TRUE);
 						
-					}
-					break;
-				}
-				case -2:
-				{
-					if ( NumObj==0 )
-					{
-
-						DebugLevelLabel = gtk_label_new( "Debug level" );
+						DebugLevelLabel = gtk_label_new( "Debug" );
 						gtk_box_pack_start(GTK_BOX (hbox[ NumLine+2 ]), DebugLevelLabel, FALSE, FALSE, 0);
 						gtk_widget_show( DebugLevelLabel );
 						DebugLevelEntry = gtk_entry_new( );
-						gtk_widget_set_usize( DebugLevelEntry,70,0 );
+						gtk_widget_set_usize( DebugLevelEntry,25,0 );
 						gtk_box_pack_start( GTK_BOX (hbox[NumLine+2]), DebugLevelEntry, FALSE, FALSE, 0 );
 						gtk_widget_show ( DebugLevelEntry );
 						sprintf( BuffValue, "%d", ModbusDebugLevel );
@@ -563,14 +319,29 @@ gtk_editable_set_editable( GTK_EDITABLE(PauseInterFrameEntry), TRUE);
 				}
 				case -1:
 				{
+					int length;
 					GtkWidget **IOParamLabel = &ModbusParamLabel[ NumObj ];
+					switch( NumObj )
+							{ 
+					
+								case 0:
+								case 5:
+									length=120;
+									break;
+								case 1:
+									length=185;
+									break;
+								default:
+									length=100;
+							}
+					
 					*IOParamLabel = gtk_label_new( Labels[ NumObj ] );
-					gtk_widget_set_usize(*IOParamLabel,(NumObj<=1 || NumObj==5)?120:100,0);
+
+					gtk_widget_set_usize(*IOParamLabel,length,0);
 					gtk_box_pack_start(GTK_BOX (hbox[ NumLine+2 ]), *IOParamLabel, FALSE, FALSE, 0);
 					gtk_widget_show( *IOParamLabel );
 					break;
 				}
-				
 				default:
 				{
 					pConf = &ModbusMasterReq[ NumLine ];
@@ -588,6 +359,8 @@ gtk_editable_set_editable( GTK_EDITABLE(PauseInterFrameEntry), TRUE);
 							gtk_box_pack_start ( GTK_BOX (hbox[NumLine+2]), *IOParamDevice, FALSE, FALSE, 0 );
 							gtk_widget_show ( *IOParamDevice );
 					        	gtk_entry_set_text((GtkEntry*)((GtkCombo *)*IOParamDevice)->entry, ModbusReqType[ ValueToDisplay ]);
+							gtk_editable_set_editable( GTK_EDITABLE((GtkEntry*)((GtkCombo *)*IOParamDevice)->entry),FALSE);
+							
 							break;
 						}
 						/* For flags */
@@ -604,26 +377,30 @@ gtk_editable_set_editable( GTK_EDITABLE(PauseInterFrameEntry), TRUE);
 						}
 						/* For numbers/strings */
 						default:
-						{
+						{int length=100;
 							switch( NumObj )
-							{
+							{ 
 								case 0:
 									strcpy( BuffValue, pConf->SlaveAdr );
+									length=120;
 									break;
 								case 2:
 									sprintf( BuffValue, "%d", pConf->FirstModbusElement );
+									length=100;
 									break;
 								case 3:
 									sprintf( BuffValue, "%d", pConf->NbrModbusElements );
+									length=100;
 									break;
 								case 5:
 									sprintf( BuffValue, "%d", pConf->OffsetVarMapped );
+									length=120;
 									break;
 							}
 							{
 								GtkWidget **IOParamEntry = &ModbusParamEntry[ NumLine ][ NumObj ];
 								*IOParamEntry = gtk_entry_new( );
-								gtk_widget_set_usize( *IOParamEntry,(NumObj<=1 || NumObj==5)?120:100,0 );
+								gtk_widget_set_usize( *IOParamEntry,length,0 );
 								gtk_box_pack_start( GTK_BOX (hbox[NumLine+2]), *IOParamEntry, FALSE, FALSE, 0 );
 								gtk_widget_show ( *IOParamEntry );
 								gtk_entry_set_text( GTK_ENTRY(*IOParamEntry), BuffValue );
@@ -659,9 +436,11 @@ void GetModbusModulesIOSettings( void )
 				case 0:
 					text = (char *)gtk_entry_get_text((GtkEntry *)*IOParamEntry);
 					strcpy( BuffValue, text );
+				//	printf("buff-%s\n",BuffValue);
 					break;
 				case 1:
 					pConf->TypeReq = ConvComboToNum( (char *)gtk_entry_get_text((GtkEntry *)((GtkCombo *)*IOParamEntry)->entry), ModbusReqType );
+				//	printf("buff-%s\n",(char *)gtk_entry_get_text((GtkEntry *)((GtkCombo *)*IOParamEntry)->entry));
 					break;
 				case 2:
 					text = (char *)gtk_entry_get_text((GtkEntry *)*IOParamEntry);
@@ -682,13 +461,45 @@ void GetModbusModulesIOSettings( void )
 			}
 		}//for (NumObj=0; 
 		/* verify if not overflowing */
-		if ( pConf->OffsetVarMapped+pConf->NbrModbusElements>( (pConf->TypeReq==MODBUS_REQ_INPUTS_READ)?NBR_PHYS_INPUTS:NBR_PHYS_OUTPUTS ) )
+		//TODO much more error checking for word variable (s32in and s32out)
+		switch( pConf->TypeReq )
 		{
-			printf("Error in I/O modbus conf: overflow for Ixx or Qxx mapping detected...\n" );
-			strcpy( BuffValue, "" );
+			case	MODBUS_REQ_INPUTS_READ :
+				if ( pConf->OffsetVarMapped+pConf->NbrModbusElements>= NBR_PHYS_INPUTS )
+				{
+					printf("Error in I/O modbus conf: asking to map more modbus inputs then there are I Variables.\n" );
+					strcpy( BuffValue, "" );
+				}
+				break;
+
+			case MODBUS_REQ_COILS_WRITE :
+				if ( pConf->OffsetVarMapped+pConf->NbrModbusElements>= NBR_PHYS_OUTPUTS )
+				{
+					printf("Error in I/O modbus conf: asking to map more modbus coils then there are Q Variables.\n" );
+					strcpy( BuffValue, "" );
+				}
+				break;
+
+			case	MODBUS_REQ_REGISTERS_READ :
+				if ( pConf->OffsetVarMapped+pConf->NbrModbusElements>= NBR_WORDS )
+				{
+					printf("Error in I/O modbus conf: asking to map more modbus registers then there are W Variables.\n" );
+					strcpy( BuffValue, "" );
+				}
+
+				break;
+
+			case	 MODBUS_REQ_REGISTERS_WRITE :
+				if ( pConf->OffsetVarMapped+pConf->NbrModbusElements>= NBR_WORDS )
+				{
+					printf("Error in I/O modbus conf: asking to map more modbus registers then there are W Variables.\n" );
+					strcpy( BuffValue, "" );
+				}
+				break;
 		}
 		/* done at the end, do not forget multi-task ! */
 		/* the first char is tested to determine a valid request => paranoia mode ;-) */
+		//printf("buffvalue1=%s buffvalue0=%d \n",&BuffValue[ 1 ],BuffValue[ 0 ]);
 		strcpy( &pConf->SlaveAdr[ 1 ], &BuffValue[ 1 ] );
 		pConf->SlaveAdr[ 0 ] = BuffValue[ 0 ];
 	}//for (NumLine=0; 
@@ -704,16 +515,10 @@ void GetModbusModulesIOSettings( void )
 }
 #endif
 
-// we dont want to change general parameters from user program -only when loading realtime
-// we also dont want calls to get IO settings in EMC (we use HAL instead)
-// configHardware is not used in EMC
 void GetSettings( void )
 {
-	//GetGeneralParameters( );
-#ifndef HAL_SUPPORT
-	GetIOSettings( 1/*ForInputs*/ );
-	GetIOSettings( 0/*ForInputs*/ );
-#endif
+	GetGeneralParameters( );
+	
 #ifdef MODBUS_IO_MASTER
 if(!nomodbus) {GetModbusModulesIOSettings( );}
 #endif
@@ -723,7 +528,6 @@ if(!nomodbus) {GetModbusModulesIOSettings( );}
 #endif
 }
 
-// we don't want to show physical input/ouput if using EMC in this function
 void OpenConfigWindowGtk()
 {
 	GtkWidget *nbook;
@@ -735,12 +539,10 @@ void OpenConfigWindowGtk()
 	nbook = gtk_notebook_new( );
 	gtk_notebook_append_page( GTK_NOTEBOOK(nbook), CreateGeneralParametersPage( ),
 				 gtk_label_new ("Period/Sizes") );
-#ifndef HAL_SUPPORT 
-	gtk_notebook_append_page( GTK_NOTEBOOK(nbook), CreateIOConfPage( 1/*ForInputs*/ ),
-				 gtk_label_new ("Physical Inputs") );
-	gtk_notebook_append_page( GTK_NOTEBOOK(nbook), CreateIOConfPage( 0/*ForInputs*/ ),
-				 gtk_label_new ("Physical Outputs") );
-#endif 
+	//gtk_notebook_append_page( GTK_NOTEBOOK(nbook), CreateIOConfPage( 1/*ForInputs*/ ),
+	//			 gtk_label_new ("Physical Inputs") );
+	//gtk_notebook_append_page( GTK_NOTEBOOK(nbook), CreateIOConfPage( 0/*ForInputs*/ ),
+	//			 gtk_label_new ("Physical Outputs") );
 #ifdef MODBUS_IO_MASTER
 	gtk_notebook_append_page( GTK_NOTEBOOK(nbook), CreateModbusModulesIO( ),
 				 gtk_label_new ("Modbus distributed I/O") );
