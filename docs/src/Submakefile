@@ -88,6 +88,7 @@ DOC_SRCS := \
 	examples/misc.lyx \
 	examples/mpg.lyx \
 	examples/gcode.lyx \
+	quickstart/stepper_quickstart.lyx \
 	Master_HAL.lyx \
 	Master_HAL_fr.lyx
 
