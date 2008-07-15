@@ -87,6 +87,7 @@ DOC_SRCS := \
 	examples/spindle.lyx \
 	examples/misc.lyx \
 	examples/mpg.lyx \
+	examples/gcode.lyx \
 	Master_HAL.lyx \
 	Master_HAL_fr.lyx
 
