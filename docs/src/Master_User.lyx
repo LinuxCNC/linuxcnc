@@ -188,6 +188,15 @@ Extra Features
 \layout Standard
 
 
+\begin_inset Include \include{examples/gcode.lyx}
+preview false
+
+\end_inset 
+
+
+\layout Standard
+
+
 \begin_inset Include \include{gui/image-to-gcode.lyx}
 preview false
 
