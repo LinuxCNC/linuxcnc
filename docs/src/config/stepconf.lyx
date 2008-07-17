@@ -1293,7 +1293,7 @@ The CPU isn't the only factor in determining latency.
 To run the test, from Applications/Accessories/Terminal (Ubuntu) open a
  shell and run the following command: 
 \layout Standard
-
+\added_space_top smallskip \added_space_bottom smallskip 
 emc2$ 
 \family typewriter 
 \series bold 
