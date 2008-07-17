@@ -19,6 +19,7 @@
 /* You should have received a copy of the GNU Lesser General Public */
 /* License along with this library; if not, write to the Free Software */
 /* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA */
+//Chris Morley July 08
 
 #include <gtk/gtk.h>
 #include <stdio.h>
@@ -32,9 +33,9 @@
 #include "config_gtk.h"
 
 #ifdef OLD_TIMERS_MONOS_SUPPORT
-#define NBR_OBJECTS 13
+#define NBR_OBJECTS 15
 #else
-#define NBR_OBJECTS 11
+#define NBR_OBJECTS 13
 #endif
 GtkWidget *LabelParam[ NBR_OBJECTS ],*ValueParam[ NBR_OBJECTS ];
 
@@ -137,6 +138,15 @@ GtkWidget * CreateGeneralParametersPage( void )
 				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_monostables );
 				break;
 #endif
+			case 13:
+				sprintf( BuffLabel, "Nbr.S32in (current alloc=%d)", InfosGene->GeneralParams.SizesInfos.nbr_s32in );
+				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_s32in );
+				break;
+			case 14:
+				sprintf( BuffLabel, "Nbr.S32out (current alloc=%d)", InfosGene->GeneralParams.SizesInfos.nbr_s32out );
+				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_s32out );
+				break;
+
 			default:
 				sprintf( BuffLabel, "???" );
 				sprintf( BuffValue, "???" );
@@ -154,7 +164,7 @@ GtkWidget * CreateGeneralParametersPage( void )
 		gtk_box_pack_start (GTK_BOX (hbox[NumObj]), ValueParam[NumObj], FALSE, FALSE, 0);
 		gtk_widget_show (ValueParam[NumObj]);
 		gtk_entry_set_text( GTK_ENTRY(ValueParam[NumObj]), BuffValue);
-
+// make all the entries non editable for EMC
 		gtk_editable_set_editable( GTK_EDITABLE(ValueParam[NumObj]),FALSE);
 	}
 	return vbox;
@@ -242,7 +252,8 @@ GtkWidget * CreateModbusModulesIO( void )
             {
              vbox = gtk_vbox_new (FALSE, 0);
               gtk_widget_show (vbox);
-              SerialPortLabel = gtk_label_new( "\n  To use modbus you must specify a modbus configure file\n                        when loading classicladder use: \n \n loadusr classicladder myprogram.clp --config=myconfigfile  " );
+              SerialPortLabel = gtk_label_new( "\n  To use modbus you must specify a modbus configure file\n"
+		"                        when loading classicladder use: \n \n loadusr classicladder myprogram.clp --config=myconfigfile  " );
               gtk_box_pack_start(GTK_BOX (vbox), SerialPortLabel, FALSE, FALSE, 0);
               gtk_widget_show( SerialPortLabel );     
               return vbox;
@@ -433,41 +444,42 @@ void GetModbusModulesIOSettings( void )
 			IOParamEntry = &ModbusParamEntry[ NumLine ][ NumObj ];
 			switch( NumObj )
 			{
-				case 0:
+				case 0://slave address
 					text = (char *)gtk_entry_get_text((GtkEntry *)*IOParamEntry);
 					strcpy( BuffValue, text );
 				//	printf("buff-%s\n",BuffValue);
 					break;
-				case 1:
+				case 1://type of request
 					pConf->TypeReq = ConvComboToNum( (char *)gtk_entry_get_text((GtkEntry *)((GtkCombo *)*IOParamEntry)->entry), ModbusReqType );
 				//	printf("buff-%s\n",(char *)gtk_entry_get_text((GtkEntry *)((GtkCombo *)*IOParamEntry)->entry));
 					break;
-				case 2:
+				case 2://first element address
 					text = (char *)gtk_entry_get_text((GtkEntry *)*IOParamEntry);
 					pConf->FirstModbusElement = atoi( text );
 					break;
-				case 3:
+				case 3://number of reqested items
 					text = (char *)gtk_entry_get_text((GtkEntry *)*IOParamEntry);
 					pConf->NbrModbusElements = atoi( text );
 					break;
-				case 4:
+				case 4://invert logic?
 					if ( gtk_toggle_button_get_active ( GTK_TOGGLE_BUTTON( *IOParamEntry ) ) )
 						pConf->LogicInverted = 1;
 					break;
-				case 5:
+				case 5:// first classicladder variable map location
 					text = (char *)gtk_entry_get_text((GtkEntry *)*IOParamEntry);
 					pConf->OffsetVarMapped = atoi( text );
 					break;
 			}
 		}//for (NumObj=0; 
 		/* verify if not overflowing */
-		//TODO much more error checking for word variable (s32in and s32out)
+		//TODO much more error checking for word variable. (s32 in and out are mapped on
+		//     top of word variables, in first, then out, then regular words).
 		switch( pConf->TypeReq )
 		{
 			case	MODBUS_REQ_INPUTS_READ :
 				if ( pConf->OffsetVarMapped+pConf->NbrModbusElements>= NBR_PHYS_INPUTS )
 				{
-					printf("Error in I/O modbus conf: asking to map more modbus inputs then there are I Variables.\n" );
+					printf("Error in I/O modbus configure table: Asking to map more modbus inputs then there are I Variables.\n" );
 					strcpy( BuffValue, "" );
 				}
 				break;
@@ -475,24 +487,29 @@ void GetModbusModulesIOSettings( void )
 			case MODBUS_REQ_COILS_WRITE :
 				if ( pConf->OffsetVarMapped+pConf->NbrModbusElements>= NBR_PHYS_OUTPUTS )
 				{
-					printf("Error in I/O modbus conf: asking to map more modbus coils then there are Q Variables.\n" );
+					printf("Error in I/O modbus configure table: Asking to map more modbus coils then there are Q Variables.\n" );
 					strcpy( BuffValue, "" );
 				}
 				break;
 
 			case	MODBUS_REQ_REGISTERS_READ :
+			case    MODBUS_REQ_HOLD_READ :
 				if ( pConf->OffsetVarMapped+pConf->NbrModbusElements>= NBR_WORDS )
 				{
-					printf("Error in I/O modbus conf: asking to map more modbus registers then there are W Variables.\n" );
+					printf("Error in I/O modbus configure table: Asking to map more modbus registers then there are W Variables.\n" );
 					strcpy( BuffValue, "" );
 				}
-
+				if ( pConf->OffsetVarMapped< NBR_S32IN )
+				{
+					printf("Error in I/O modbus configure table: Cannot map modbus READ elements onto S32 in Variables.\n" );
+					strcpy( BuffValue, "" );
+				}
 				break;
 
 			case	 MODBUS_REQ_REGISTERS_WRITE :
 				if ( pConf->OffsetVarMapped+pConf->NbrModbusElements>= NBR_WORDS )
 				{
-					printf("Error in I/O modbus conf: asking to map more modbus registers then there are W Variables.\n" );
+					printf("Error in I/O modbus configure table: Asking to map more modbus registers then there are W Variables.\n" );
 					strcpy( BuffValue, "" );
 				}
 				break;
