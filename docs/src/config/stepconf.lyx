@@ -1290,12 +1290,17 @@ The CPU isn't the only factor in determining latency.
  test.
 \layout Standard
 
-To run the test, simply open a shell and type 
+To run the test, from Applications/Accessories/Terminal (Ubuntu) open a
+ shell and run the following command: emc2$ 
 \family typewriter 
+\series bold 
 latency-test
 \family default 
-.
- You should see something like this:
+\series default 
+ 
+\layout Standard
+
+You should see something like this:
 \layout Standard
 \align center 
 
