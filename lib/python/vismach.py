@@ -22,6 +22,7 @@ from math import *
 class Collection(object):
     def __init__(self, parts):
 	self.parts = parts
+	self.vol = 0
 
     def traverse(self):
 	for p in self.parts:
@@ -35,6 +36,20 @@ class Collection(object):
 		p.traverse()
 	    if hasattr(p, "unapply"):
 		p.unapply()
+
+    def volume(self):
+	if hasattr(self, "vol") and self.vol != 0:
+	    vol = self.vol
+	else:
+	    vol = sum(part.volume() for part in self.parts)
+	#print "Collection.volume", vol
+	return vol
+
+    # a collection consisting of overlapping parts will have an incorrect
+    # volume, because overlapping volumes will be counted twice.  If the
+    # correct volume is known, it can be set using this method
+    def set_volume(self,vol):
+	self.vol = vol;
 
 class Translate(Collection):
     def __init__(self, parts, x, y, z):
@@ -236,6 +251,14 @@ class CylinderX(CoordsBase):
 	glPopMatrix()
 	glPopMatrix()
 
+    def volume(self):
+	x1, r1, x2, r2 = self.coords()
+	# actually a frustum of a cone
+	vol = 3.1415927/3.0 * abs(x1-x2)*(r1*r1+r1*r2+r2*r2)
+	#print "CylinderX.volume", vol
+	return vol
+
+
 # give endpoint Y values and radii
 # resulting cylinder is on the Y axis
 class CylinderY(CoordsBase):
@@ -272,6 +295,14 @@ class CylinderY(CoordsBase):
 	glPopMatrix()
 	glPopMatrix()
 
+    def volume(self):
+	y1, r1, y2, r2 = self.coords()
+	# actually a frustum of a cone
+	vol = 3.1415927/3.0 * abs(y1-y2)*(r1*r1+r1*r2+r2*r2)
+	#print "CylinderY.volume", vol
+	return vol
+
+
 class CylinderZ(CoordsBase):
     def draw(self):
 	z1, r1, z2, r2 = self.coords()
@@ -298,6 +329,13 @@ class CylinderZ(CoordsBase):
 	glPopMatrix()
 	glPopMatrix()
 
+    def volume(self):
+	z1, r1, z2, r2 = self.coords()
+	# actually a frustum of a cone
+	vol = 3.1415927/3.0 * abs(z1-z2)*(r1*r1+r1*r2+r2*r2)
+	#print "CylinderZ.volume", vol
+	return vol
+
 # give center and radius
 class Sphere(CoordsBase):
     def draw(self):
@@ -308,6 +346,13 @@ class Sphere(CoordsBase):
 	# the sphere starts out at the origin
 	gluSphere(self.q, r, 32, 16)
 	glPopMatrix()
+
+    def volume(self):
+	x, y, z, r = self.coords()
+	vol = 1.3333333*3.1415927*r*r*r
+	#print "Sphere.volume", vol
+	return vol
+
 
 # triangular plate in XY plane
 # specify the corners Z values for each side
@@ -372,6 +417,20 @@ class TriangleXY(CoordsBase):
         glVertex3f(x2, y2, z1)
         glEnd()
 
+    def volume(self):
+	x1, y1, x2, y2, x3, y3, z1, z2 = self.coords()
+	# compute pts 2 and 3 relative to 1 (puts pt1 at origin)
+	x2 = x2-x1
+	x3 = x3-x1
+	y2 = y2-y1
+	y3 = y3-y1
+	# compute area of triangle
+	area = 0.5*abs(x2*y3 - x3*y2)
+	thk = abs(z1-z2)
+	vol = area*thk
+	#print "TriangleXY.volume = area * thickness)",vol, area, thk
+	return vol
+
 # triangular plate in XZ plane
 class TriangleXZ(TriangleXY):
     def coords(self):
@@ -385,6 +444,11 @@ class TriangleXZ(TriangleXY):
 	TriangleXY.draw(self)
 	# bottom cap
 	glPopMatrix()
+
+    def volume(self):
+	vol = TriangleXY.volume(self)
+	#print " TriangleXZ.volume",vol
+	return vol
 
 # triangular plate in YZ plane
 class TriangleYZ(TriangleXY):
@@ -400,7 +464,11 @@ class TriangleYZ(TriangleXY):
 	# bottom cap
 	glPopMatrix()
 
-	
+    def volume(self):
+	vol = TriangleXY.volume(self)
+	#print " TriangleYZ.volume",vol
+	return vol
+
 
 # six coordinate version - specify each side of the box
 class Box(CoordsBase):
@@ -458,6 +526,13 @@ class Box(CoordsBase):
         glVertex3f(x2, y2, z2)
         glEnd()
 
+    def volume(self):
+        x1, y1, z1, x2, y2, z2 = self.coords()
+        vol = abs((x1-x2)*(y1-y2)*(z1-z2))
+	#print "Box.volume", vol
+	return vol
+
+
 # specify the width in X and Y, and the height in Z
 # the box is centered on the origin
 class BoxCentered(Box):
@@ -480,6 +555,9 @@ class Capture(object):
 
     def capture(self):
 	self.t = glGetDoublev(GL_MODELVIEW_MATRIX)
+	
+    def volume(self):
+	return 0.0
 
 # function to invert a transform matrix
 # based on http://steve.hollasch.net/cgindex/math/matrix/afforthinv.c
