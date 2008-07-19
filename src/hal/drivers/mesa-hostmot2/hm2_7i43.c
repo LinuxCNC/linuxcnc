@@ -60,18 +60,6 @@ module_param_array(config, charp, &num_config_strings, S_IRUGO);
 MODULE_PARM_DESC(config, "config string for 7i43 boards (see hostmot2(9) manpage)");
 
 
-#if 0
-int num_encoders = -1;
-RTAPI_MP_INT(num_encoders, "Defaults to -1, which means \"use all the encoder instances the\nfirmware has\".  If num_encoders is smaller than the number of encoder\ninstances present in the firmware, only the first num_encoders instances\nare enabled; all later encoder instances are disabled and their I/O pins\nbecome digital I/O pins.");
-
-int num_pwmgens = -1;
-RTAPI_MP_INT(num_pwmgens, "Defaults to -1, which means \"use all the pwmgen instances the\nfirmware has\".  If num_pwmgens is smaller than the number of pwmgen\ninstances present in the firmware, only the first num_pwmgens instances\nare enabled; all later pwmgen instances are disabled and their I/O pins\nbecome digital I/O pins.");
-
-int num_stepgens = -1;
-RTAPI_MP_INT(num_stepgens, "Defaults to -1, which means \"use all the stepgen instances the\nfirmware has\".  If num_stepgens is smaller than the number of stepgen\ninstances present in the firmware, only the first num_stepgens instances\nare enabled; all later stepgen instances are disabled and their I/O pins\nbecome digital I/O pins.");
-#endif
-
-
 
 
 //

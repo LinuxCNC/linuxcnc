@@ -54,7 +54,7 @@ struct hm2_lowlevel_io_struct {
     int comp_id;
 
     // on success these two return TRUE (not zero)
-    // on failure they return FALSE (0) and set *self->io_error (below)
+    // on failure they return FALSE (0) and set *self->io_error (below) to TRUE
     int (*read)(hm2_lowlevel_io_t *self, u32 addr, void *buffer, int size);
     int (*write)(hm2_lowlevel_io_t *self, u32 addr, void *buffer, int size);
 
