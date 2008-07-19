@@ -239,13 +239,13 @@ char TreatPureModbusResponse( unsigned char * RespFrame, int SizeFrame )
 
 	if ( RespFrame[ 0 ]&MODBUS_FC_EXCEPTION_BIT )
 	{
-		printf("EXCEPTION RECEIVED:%X (Excep=%X)\n", RespFrame[ 0 ], RespFrame[ 1 ]);
+		printf("ERROR CLASSICLADDER- MODBUS-EXCEPTION RECEIVED:%X (Excep=%X)\n", RespFrame[ 0 ], RespFrame[ 1 ]);
 	}
 	else
 	{
 		if ( RespFrame[0]!=CurrentFuncCode )
 		{
-			printf("FUNCTION CODE RECEIVED DO NOT CORRESPOND TO ASK!\n");
+			printf("ERROR CLASSICLADDER-  MODBUS -Function code received from slave was not the same as requested!\n");
 		}
 		else
 		{
@@ -285,21 +285,18 @@ char TreatPureModbusResponse( unsigned char * RespFrame, int SizeFrame )
 						cError = 0;
 					}
 				}
-				case MODBUS_FC_READ_INPUT_REGS://4
+				case MODBUS_FC_READ_INPUT_REGS://function 4
 //TODO and TEST !
 					break;
-				case MODBUS_FC_READ_HOLD_REGS:    //3
+				case MODBUS_FC_READ_HOLD_REGS: //function 3
 				{
 					int i;
 					int NbrBytes = RespFrame[1]/2;
-
-//printf("number of bytes %d\n",NbrBytes);
 					for (i=0; i <NbrBytes; i++) 
 					{
 						int hivalue=(RespFrame[2+(i*2)]<<8);
 						int lovalue=( RespFrame[3+(i*2)]);
 						int value=hivalue | lovalue;
-//printf("hivalue= %d   lowvalue= %d\n",hivalue,lovalue);
 						SetVarFromModbus( &ModbusMasterReq[ CurrentReq ], FirstEle+i, value );
 					}
 						cError = 0;
@@ -374,7 +371,7 @@ int GetModbusResponseLenghtToReceive( void )
 		}
 	}
 	if ( ModbusDebugLevel>=3 )
-		printf("Length we should receive=%d (+3)\n",LgtResp);
+		printf("INFO CLASSICLADDER- MODBUS Length we should receive=%d (+3)\n",LgtResp);
 	return LgtResp;
 }
 
@@ -508,7 +505,7 @@ int ModbusMasterAsk( unsigned char * SlaveAddressIP, unsigned char * Question )
 		if ( ModbusDebugLevel>=1 )
 		{
 			int DebugFrame;
-			printf("Modbus I/O module to send: Lgt=%d <- ", LgtAskFrame );
+			printf("INFO CLASSICLADDER-  Modbus I/O module to send: Lgt=%d <- ", LgtAskFrame );
 			for( DebugFrame=0; DebugFrame<LgtAskFrame; DebugFrame++ )
 			{
 				printf("%X ", Question[ DebugFrame ] );
@@ -525,7 +522,7 @@ char TreatModbusMasterResponse( unsigned char * Response, int LgtResponse )
 	char RepOk = FALSE;
 	if ( ModbusDebugLevel>=1 )
 	{
-		printf("Modbus I/O module received: Lgt=%d -> ", LgtResponse );
+		printf("INFO CLASSICLADDER-   Modbus I/O module received: Lgt=%d -> ", LgtResponse );
 		for( DebugFrame=0; DebugFrame<LgtResponse; DebugFrame++ )
 		{
 			printf("%X ", Response[ DebugFrame ] );
@@ -555,7 +552,7 @@ char TreatModbusMasterResponse( unsigned char * Response, int LgtResponse )
 				}
 				else
 				{
-					printf("CRC error: calc=%x, frame=%x\n", CalcCRC, (Response[ LgtResponse-2 ]<<8)|Response[ LgtResponse-1 ] );
+					printf("ERROR CLASSICLADDER- MODBUS CRC error: calc=%x, frame=%x\n", CalcCRC, (Response[ LgtResponse-2 ]<<8)|Response[ LgtResponse-1 ] );
 				}
 			}
 			else
@@ -578,13 +575,13 @@ char TreatModbusMasterResponse( unsigned char * Response, int LgtResponse )
 			}
 			else
 			{
-				printf("INCORRECT RESPONSE RECEIVED!!!\n");
+				printf("ERROR CLASSICLADDER-  MODBUS-INCORRECT RESPONSE RECEIVED FROM SLAVE!!!\n");
 				ErrorCnt++;
 			}
 		}
 		else
 		{
-			printf("LOW LEVEL ERROR IN RESPONSE!!!\n");
+			printf("ERROR CLASSICLADDER-  MODBUS-LOW LEVEL ERROR IN RESPONSE!!!\n");
 			ErrorCnt++;
 		}
 		if ( ErrorCnt>=3 )
@@ -614,9 +611,8 @@ void SetVarFromModbus( StrModbusMasterReq * ModbusReq, int ModbusNum, int Value 
 			VarArray[NBR_BITS+VarNum] = Value;
 			InfosGene->CmdRefreshVarsBits = TRUE;
 			break;
-		case MODBUS_REQ_REGISTERS_READ:                case MODBUS_REQ_HOLD_READ:
 
-//printf("INFO    WORD number= %d VALUE =%d \n",VarNum,Value);
+		case MODBUS_REQ_REGISTERS_READ:                case MODBUS_REQ_HOLD_READ:
 			VarWordArray[VarNum] = Value ;
 			break;
 	}
@@ -633,6 +629,7 @@ int GetVarForModbus( StrModbusMasterReq * ModbusReq, int ModbusNum )
 		case MODBUS_REQ_COILS_WRITE:
 			return ReadVar( VAR_PHYS_OUTPUT, VarNum );
 			break;
+
 		case MODBUS_REQ_REGISTERS_WRITE:
 			return ReadVar( VAR_MEM_WORD, VarNum );
 			break;
