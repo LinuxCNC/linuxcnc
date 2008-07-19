@@ -22,6 +22,7 @@
 /* You should have received a copy of the GNU Lesser General Public */
 /* License along with this library; if not, write to the Free Software */
 /* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA */
+// Chris Morley July 08 (EMC)
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -45,7 +46,7 @@
 
 #include "classicladder.h"
 #include "global.h"
-////#include "protocol_modbus_master.h"
+
 #include "socket_modbus_master.h"
 #include "protocol_modbus_master.h"
 #include "serial_common.h"
@@ -104,7 +105,7 @@ void InitSocketModbusMaster( )
 	if (Error)
 #endif
 	{
-		printf("Failed to create thread I/O modbus master...\n");
+		printf("ERROR CLASSICLADDER-   Failed to create thread I/O modbus master...\n");
 		CloseSocketModbusMaster( );
 	}
 	else
@@ -116,7 +117,7 @@ void InitSocketModbusMaster( )
 				Error = -1;
 		}
 		if ( Error!=-1 )
-		printf("INFO CLASSICLADDER---I/O modbus master (%s) init ok !\n", ModbusSerialPortNameUsed[ 0 ]!='\0'?"Serial":"Ethernet");
+		printf("INFO CLASSICLADDER-  I/O modbus master (%s) init ok !\n", ModbusSerialPortNameUsed[ 0 ]!='\0'?"Serial":"Ethernet");
 	}
 }
 
@@ -240,41 +241,37 @@ int SendSocketModbusMaster( char * SlaveAdr, int NumPort, char * Frame, int LgtF
 	if ( VerifyTcpConnection( SlaveAdr ) )
 	{
 		if( ModbusDebugLevel>=2 )
-			printf("Sending frame to I/O module...\n");
+			printf("INFO CLASSICLADDER-   Sending frame to I/O module...\n");
 		/* Send the modbus frame */
 		LgtSend = send(client_s, Frame, LgtFrame, 0);
 		if ( LgtSend==LgtFrame )
 			Status = 0;
 		else
-		printf("FAILED TO SEND ON SOCKET !!!(LgtSend=%d)\n",LgtSend);
+		printf("ERROR CLASSICLADDER-  FAILED TO SEND ON SOCKET !!!(LgtSend=%d)\n",LgtSend);
 	}
 	return Status;
 }
 
 int WaitRespSocketModbusMaster( char * Buff, int BuffSize, int TimeOutResponseMilliSecs )
 {
-	int ResponseSize = 0;
-	if ( ClientSocketOpened )
-	{
-int recep_descrip;
-fd_set myset;
-struct timeval tv;
-FD_ZERO( &myset);
-// add descrip to survey and set time-out wanted !
-FD_SET( client_s, &myset );
-tv.tv_sec = 0; //seconds
-tv.tv_usec = TimeOutResponseMilliSecs*1000; //micro-seconds
-recep_descrip = select( 16, &myset, NULL, NULL, &tv );
-if ( recep_descrip>0 )
-{
-		int bytesRcvd;
-		if( ModbusDebugLevel>=2 )
-			printf("waiting I/O module response...\n");
-		if ((bytesRcvd = recv(client_s, Buff, BuffSize, 0)) > 0)
-			ResponseSize = bytesRcvd;
+		int ResponseSize = 0;	
+		int recep_descrip;
+		fd_set myset;
+		struct timeval tv;
 
-}
-	}
+		FD_ZERO( &myset);
+		// add descrip to survey and set time-out wanted !
+		FD_SET( client_s, &myset );
+		tv.tv_sec = 0; //seconds
+		tv.tv_usec = TimeOutResponseMilliSecs*1000; //micro-seconds
+		recep_descrip = select( 16, &myset, NULL, NULL, &tv );
+		if ( recep_descrip>0 )
+		{
+		int bytesRcvd;
+		if( ModbusDebugLevel>=2 )   {printf("INFO CLASSICLADDER   waiting for slave response...\n");}
+		if ((bytesRcvd = recv(client_s, Buff, BuffSize, 0)) > 0)    {ResponseSize = bytesRcvd;}
+		}
+	
 	return ResponseSize;
 }
 
@@ -322,7 +319,9 @@ void SocketModbusMasterLoop( void )
 	{
 // TODO: added for XENO... not found why required for now...
 // (task suspended otherwise with the watchdog, seen with dmesg!)
-DoPauseMilliSecs( 10 );
+// removing this next line for EMC- we don't use XENO
+
+//		DoPauseMilliSecs( 10 );
 
 		if (InfosGene->LadderState!=STATE_RUN)
 		{
@@ -348,7 +347,7 @@ DoPauseMilliSecs( 10 );
 				{
 					// usefull for USB-RS485 dongle...
 					if( ModbusDebugLevel>=3 )
-						printf("Little delay here...\n");
+						printf("INFO CLASSICLADDER- after transmit delay now...\n");
 					DoPauseMilliSecs( ModbusTimeAfterTransmit );
 				}
 				
@@ -358,7 +357,7 @@ DoPauseMilliSecs( 10 );
 					ResponseSize = SerialReceive( ResponseFrame, 800 );
 				NbrFrames++;
 				if ( ResponseSize==0 )
-					printf("NO RESPONSE (Errs=%d/%d) !!!!????\n", ++CptErrors, NbrFrames);
+					printf("ERROR CLASSICLADDER-  MODBUS NO RESPONSE (Errs=%d/%d) !?\n", ++CptErrors, NbrFrames);
 				if ( !TreatModbusMasterResponse( (unsigned char *)ResponseFrame, ResponseSize ) )
 				{
 					// trouble? => flush all (perhaps we can receive now responses for old asks
