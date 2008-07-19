@@ -26,9 +26,13 @@
 #include "canon.hh"
 
 typedef struct setup_struct setup;
+#ifndef JAVA_DIAG_APPLET
 typedef setup *setup_pointer;
+#endif
 typedef struct block_struct block;
+#ifndef JAVA_DIAG_APPLET
 typedef block *block_pointer;
+#endif
 
 typedef bool ON_OFF;
 

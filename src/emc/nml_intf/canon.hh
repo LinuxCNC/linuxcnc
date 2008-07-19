@@ -125,6 +125,7 @@ struct CANON_VECTOR {
 };
 
 struct CANON_POSITION {
+#ifndef JAVA_DIAG_APPLET
     CANON_POSITION() {
     } 
     CANON_POSITION(double _x, double _y, double _z,
@@ -150,6 +151,8 @@ struct CANON_POSITION {
                a != o.a || b != o.b || c != o.c ||
                u != o.u || v != o.v || w != o.v);
     }
+#endif
+
     double x, y, z, a, b, c, u, v, w;
 };
 
