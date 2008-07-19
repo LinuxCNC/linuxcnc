@@ -1,34 +1,142 @@
 
 
-misc:
+next steps:
+
+    work on bfload
+
+        just shell out to setpci for Config-space access for now
+
+        add the Arty fix to 2.2 and TRUNK
+
+
+    clean the tree:
+
+        deprecate m7i43_hm2 and mesa7i43_gpio in TRUNK
+
+        merge hostmot2 into 2.2
+
+        deprecate m7i43_hm2 in 2.2
+
+
+    on driver unload, it should stop all the motors and "safe" the
+    gpios....  The watchdog already sort of does this.  document this
+    behavior
+
+
+    add support for the 5i22 next
+
 
     It's starting to feel like it's ready for some kind of module
     abstraction...  To standardize the semantics and make it easier to
     think about.  Pull out the common code.
 
 
-    add sample configs in configs/mesa-hostmot2
 
 
-    add firmwares in /usr/share/emc/firmware/
+clean the tree:
+
+    Here's what's in our trees currently:
+
+        2.2:
+
+            driver: hal_m5i20
+            boards supported: 5i20
+            firmware source: eeprom or userspace utility run before driver load
+            firmware notes: old hostmot, various flavors
+            other notes: widely used
+
+            driver: hal_5i2x
+            boards supported: 5i20; 5i22 support planned?
+            firmware source: eeprom or userspace
+            firmware notes: not sure, a fork off the old hostmot code?
+            other notes: development stalled?
+
+            driver: m7i43_hm2
+            boards supported: 7i43
+            firmware source: compiled into driver, sent to board at insmod time
+            firmware notes: hostmot2, various flavors, supported by Mesa
+            other notes: in maintenance mode, new development continued in
+            mesa-hostmot2 in TRUNK (see below)
 
 
-    add support for the 5i22 next
+        TRUNK:
+
+            TRUNK has all drivers in 2.2, plus these two:
+
+            driver: mesa7i43-gpio
+            boards supported: 7i43
+            firmware source: compiled into driver, sent to board at insmod time
+            firmware notes: 48 gpio
+            other notes: development ended
+
+            driver: mesa-hostmot2
+            boards supported: 7i43, 5i20
+            firmware source: eeprom or userspace
+            firmware notes: hostmot2, various flavors, supported by Mesa
+            other notes: actively developed with support from Mesa, all AnyIO
+            boards will be supported by end of summer
+
+
+    Here's what I think we should do:
+
+        2.2:
+
+            * Add the hostmot2 driver 2.2.6.  driver, firmware, bfload
+
+            * Deprecate m7i43_hm2 in 2.2.  They get to stay through the
+              lifetime of 2.2, but they won't be in 2.3 or 3.0 or whatever
+              comes next.  Users should switch to hostmot2 and hm2_7i43.
+
+
+        TRUNK:
+
+            * Deprecate m7i43_hm2, and mesa7i43-gpio in TRUNK.
+              Remove them in 6 months or a year or so.
 
 
 
 
 bfload
 
-    add "bfload reset"
+    prolly dont need to fix upci now (use libpciaccess instead), but
+    here's the proposed fix:
+
+        add "upci_cfg_read_u8(int devnum, __u32 offset)" and "upci_cfg_write_u8(int devnum, __u32 offset, __u8 data)" 
+        (and the versions for other data sizes)
+
+        remove cfg_info from dev_info
+
+
+    add "board in use" safety checks:
+
+        > >>If bfload can determine whether the device's pci regions are in use, it
+        > >>could avoid programming while another hardware driver is using the
+        > >>device.  Is this possible with any of the pci interface libraries you're
+        > >>looking at?
+        > >
+        > >Good idea!
+        > >
+        > >It's not a feature of the pci libraries, but you can check if
+        > >/sys/devices/pci*/$(DOMAIN):$(BUS):$(DEVICE).$(FUNCTION)/driver exists,
+        > >indicating that a kernel driver has claimed the PCI device.
+        > >
+        > >For EPP, not so much...
+        >
+        > I'd think that a scan of /proc/ioports correlated with detected (or
+        > command-line-supplied) card addresses would tell you which cards are in
+        > use.  This should also work for the parallel port, if the driver
+        > correctly uses io_request_region().
+
+        Of course.  I'll add these checks to bfload.
+
+
+    add "bfload reset"?
 
     5i22 has wrong subdevice ids?  SWP says it works on his 1.5M board
 
     add support for all the other PCI cards
 
     epp via the pci card doesnt work, epp via the onboard port works
-
-    use pciutils-dev instead of upci?  upci seems to be working fine
 
 
 
@@ -151,6 +259,9 @@ watchdog:
 
 5i20:
 
+    stepgen doesnt work?!  No matter what I write to the Rate register,
+    i get no steps on the IO Pins and the Accumulator doesnt change.
+
     turn hm2_5i20 driver into a generic PCI driver: hm2_anyio_pci
 
 
@@ -203,4 +314,34 @@ planned milestones:
         complete support for gpios
 
         complete support for watchdog
+
+
+
+
+wishlist:
+
+    add an anyio layer in the kernel similar to the parport layer
+
+        1. load anyio_manager
+
+        2. load anyio_{7i43,5i20,etc}
+
+        3. lls find their boards, make files in /proc or /sys to accept
+           firmware
+
+        4. userspace cats the right firmware to the right board
+
+        5. ll receives fw, programs board, registers it with anyio_manager
+
+        6. load hl driver
+
+        7. it connects to anyio_manager and lists all the boards
+
+        8. hl makes HAL objects for each board
+
+        9. hl calls hal_ready
+
+        multiple HLs is a non-issue if each HL can recognize "this is my
+        firmware, I'll use this board" vs. "oops, I dunno what this is,
+        skip it"
 
