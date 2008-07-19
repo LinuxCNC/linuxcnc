@@ -438,6 +438,12 @@ private:
  int write_settings(setup_pointer settings);
 
   // O_word stuff
+
+ int Interp::findFile( // ARGUMENTS
+		     char *direct,  // the directory to start looking in
+		     char *target,  // the name of the file to find
+		     char *foundFileDirect); // where to store the result
+
  int control_save_offset(    /* ARGUMENTS                   */
   int line,                  /* (o-word) line number        */
   block_pointer block,       /* pointer to a block of RS274/NGC instructions */

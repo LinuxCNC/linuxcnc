@@ -19,6 +19,7 @@
 #include <ctype.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <dirent.h>
 #include "rs274ngc.hh"
 #include "rs274ngc_return.hh"
 #include "interp_return.hh"
@@ -27,6 +28,59 @@
 //========================================================================
 // Functions for control stuff (O-words)
 //========================================================================
+
+/*
+  Given the root of a directory tree and a file name,
+  find the path to the file, if any.
+*/
+
+int Interp::findFile( // ARGUMENTS
+		     char *direct,  // the directory to start looking in
+		     char *target,  // the name of the file to find
+		     char *foundFileDirect) // where to store the result
+{
+    FILE *file;
+    DIR *aDir;
+    struct dirent *aFile;
+    char targetPath[PATH_MAX+1];
+
+    snprintf(targetPath, PATH_MAX, "%s/%s", direct, target);
+
+    file = fopen(targetPath, "r");
+
+    if(file)
+    {
+        strncpy(foundFileDirect, direct, PATH_MAX);
+        fclose(file);
+        return INTERP_OK;
+    }
+
+    aDir = opendir(direct);
+
+    if(!aDir)
+    {
+	return NCE_FILE_NOT_OPEN;
+    }
+
+    while((aFile = readdir(aDir)))
+    {
+        if(aFile->d_type == DT_DIR &&
+           (0 != strcmp(aFile->d_name, "..")) &&
+           (0 != strcmp(aFile->d_name, ".")))
+        {
+            char path[PATH_MAX+1];
+            snprintf(path, PATH_MAX, "%s/%s", direct, aFile->d_name);
+            if(INTERP_OK == findFile(path, target, foundFileDirect))
+            {
+	        closedir(aDir);
+                return INTERP_OK;
+            }
+        }
+    }
+    closedir(aDir);
+    return NCE_FILE_NOT_OPEN;
+}
+
 
 /************************************************************************/
 /*
@@ -115,9 +169,12 @@ int Interp::control_back_to( /* ARGUMENTS                       */
 {
   static char name[] = "control_back_to";
   int i;
-  char newFileName[LINELEN+1];
+  char newFileName[PATH_MAX+1];
+  char foundPlace[PATH_MAX+1];
+  char tmpFileName[PATH_MAX+1];
   FILE *newFP;
 
+  foundPlace[0] = 0;
   logDebug("Entered:%s", name);
   for(i=0; i<settings->oword_labels; i++)
     {
@@ -167,10 +224,29 @@ int Interp::control_back_to( /* ARGUMENTS                       */
   // look for a new file
   logDebug("settings->program_prefix:%s:", settings->program_prefix);
   //sprintf(newFileName, "%s/o%d.ngc", settings->program_prefix, line);
+
+  // first look in the prefix place
+
   sprintf(newFileName, "%s/%s.ngc", settings->program_prefix, block->o_name);
 
   newFP = fopen(newFileName, "r");
   logDebug("fopen: |%s|", newFileName);
+
+  // if not found, search the wizard tree
+  if(!newFP)
+  {
+      int ret;
+      sprintf(tmpFileName, "%s.ngc", block->o_name);
+      ret = findFile(settings->wizard_root, tmpFileName, foundPlace);
+
+      if(INTERP_OK == ret)
+      {
+	  // create the long name
+          sprintf(newFileName, "%s/%s",
+		  foundPlace, tmpFileName);
+          newFP = fopen(newFileName, "r");
+      }
+  }
 
   if(newFP)
   {
@@ -597,6 +673,11 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
       if((settings->skipping_o) &&
 	 (0 != strcmp(settings->skipping_o, block->o_name)))
 	{
+	  //!!!KL -- the if conditions here say that we were skipping
+	  //!!!KL but that the target o_name is not ours.
+	  //!!!KL so we should continue skipping -- that's not what
+	  //!!!KL the code below says.
+#if 0
 	  // we were not skipping -- start skipping
           logDebug("start skipping forward: [%s] in 'elseif'",
 	      block->o_name);
@@ -604,6 +685,12 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	  settings->skipping_o = strdup(block->o_name);
           settings->skipping_start = settings->sequence_number;
           return INTERP_OK;
+#else
+	  // we were skipping -- continue skipping
+          logDebug("continue skipping forward: [%s] in 'elseif'",
+	      block->o_name);
+          return INTERP_OK;
+#endif
 	}
 
       // we were skipping
@@ -615,6 +702,9 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 		   "skipping forward: [%s] in 'elseif'",
 	      block->o_name);
 	  //settings->skipping_0 = block->o_number;
+          if(settings->skipping_o)free(settings->skipping_o);
+          settings->skipping_o = strdup(block->o_name);
+          settings->skipping_start = settings->sequence_number;
           return INTERP_OK;
 	}
       

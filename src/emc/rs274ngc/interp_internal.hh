@@ -372,13 +372,13 @@ typedef struct setup_struct
   int feed_mode;                // G_93 (inverse time) or G_94 units/min
   ON_OFF feed_override;         // whether feed override is enabled
   double feed_rate;             // feed rate in current units/min
-  char filename[LINELEN];    // name of currently open NC code file
+  char filename[PATH_MAX];      // name of currently open NC code file
   FILE *file_pointer;           // file pointer for open NC code file
   ON_OFF flood;                 // whether flood coolant is on
   int tool_offset_index;        // for use with tool length offsets
   CANON_UNITS length_units;     // millimeters or inches
   int line_length;              // length of line last read
-  char linetext[LINELEN];    // text of most recent line read
+  char linetext[LINELEN];       // text of most recent line read
   ON_OFF mist;                  // whether mist coolant is on
   int motion_mode;              // active G-code for motion
   int origin_index;             // active origin (1=G54 to 9=G59.3)

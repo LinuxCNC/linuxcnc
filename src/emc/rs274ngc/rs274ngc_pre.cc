@@ -391,11 +391,15 @@ int Interp::init()
               _setup.use_lazy_close = atol(inistring);
           }
 
+	  _setup.wizard_root[0] = 0;
           if(NULL != (inistring = inifile.Find("WIZARD_ROOT", "WIZARD")))
           {
+	    printf("inistring:%s:\n", inistring);
               realpath(inistring, _setup.wizard_root);
           }
+          printf("_setup.wizard_root:%s:\n", _setup.wizard_root);
 
+	  _setup.program_prefix[0] = 0;
           if(NULL != (inistring = inifile.Find("PROGRAM_PREFIX", "DISPLAY")))
           {
 	    // found it
@@ -407,6 +411,7 @@ int Interp::init()
           {
 	      logDebug("PROGRAM_PREFIX not found");
           }
+          printf("_setup.program_prefix:%s:\n", _setup.program_prefix);
 
 
           // close it
@@ -1407,7 +1412,7 @@ int Interp::ini_load(const char *filename)
 
     logDebug("Opened inifile:%s:", filename);
 
-#if 1
+
     if (NULL != (inistring = inifile.Find("PARAMETER_FILE", "RS274NGC"))) {
 	// found it
 	strncpy(_parameter_file_name, inistring, LINELEN);
@@ -1416,19 +1421,6 @@ int Interp::ini_load(const char *filename)
 	// not found, leave RS274NGC_PARAMETER_FILE alone
         logDebug("did not find PARAMETER_FILE");
     }
-#endif
-
-#if 0    
-    if (NULL != (inistring = inifile.Find("PROGRAM_PREFIX", "DISPLAY"))) {
-	// found it
-        realpath(inistring, _setup.program_prefix);
-        logDebug("inistring:%s: prefix:%s:", inistring, _setup.program_prefix);
-    } else {
-	// not found
-        logDebug("inistring not found");
-    }
-#endif
-
 
     // close it
     inifile.Close();
