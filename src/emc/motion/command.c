@@ -1551,7 +1551,7 @@ check_stuff ( "before command_handler()" );
 
 	}			/* end of: command switch */
 	if (emcmotStatus->commandStatus != EMCMOT_COMMAND_OK) {
-	    rtapi_print_msg(RTAPI_MSG_DBG, "ERRROR: %d",
+	    rtapi_print_msg(RTAPI_MSG_DBG, "ERROR: %d",
 		emcmotStatus->commandStatus);
 	}
 	rtapi_print_msg(RTAPI_MSG_DBG, "\n");
