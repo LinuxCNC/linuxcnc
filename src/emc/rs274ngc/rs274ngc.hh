@@ -439,7 +439,7 @@ private:
 
   // O_word stuff
 
- int Interp::findFile( // ARGUMENTS
+ int findFile( // ARGUMENTS
 		     char *direct,  // the directory to start looking in
 		     char *target,  // the name of the file to find
 		     char *foundFileDirect); // where to store the result
