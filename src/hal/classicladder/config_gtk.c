@@ -51,7 +51,7 @@ GtkWidget *OutputDeviceParam[ NBR_OUTPUTS_CONF ];
 GtkWidget *OutputFlagParam[ NBR_OUTPUTS_CONF ];
 
 #ifdef MODBUS_IO_MASTER
-static char * ModbusReqType[] = { "Read_INPUTS  fnct- 2", "Write_COIL(S)  fnct-5/15", "Read_REGS     fnct- 4", "Write_REG(S)  fnct-6/16","Read_HOLD    fnct- 3",NULL };
+static char * ModbusReqType[] = { "Read_INPUTS  fnct- 2", "Write_COIL(S)  fnct-5/15", "Read_REGS     fnct- 4", "Write_REG(S)  fnct-6/16","Read_HOLD    fnct- 3","Slave_echo    fnct- 8",NULL };
 #define NBR_MODBUS_PARAMS 6
 GtkWidget *ModbusParamEntry[ NBR_MODBUS_MASTER_REQ ][ NBR_MODBUS_PARAMS ];
 GtkWidget *SerialPortEntry;
@@ -419,7 +419,7 @@ gtk_editable_set_editable( GTK_EDITABLE(PauseInterFrameEntry), TRUE);
 							break;
 						}
 					}
-				}//default:
+				}//default: bracket
 			}
 		}
 	}
@@ -501,7 +501,7 @@ void GetModbusModulesIOSettings( void )
 				}
 				if ( pConf->OffsetVarMapped< NBR_S32IN )
 				{
-					printf("Error in I/O modbus configure table: Cannot map modbus READ elements onto S32 in Variables.\n" );
+					printf("Error in I/O modbus configure table: Cannot map modbus READ registers onto S32 in Variables.\n" );
 					strcpy( BuffValue, "" );
 				}
 				break;
