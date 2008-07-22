@@ -18,7 +18,7 @@
 
 /* You should have received a copy of the GNU Lesser General Public */
 /* License along with this library; if not, write to the Free Software */
-/* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA */ 
+/* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA */
 
 #include <gtk/gtk.h>
 #include <stdio.h>
@@ -228,20 +228,49 @@ void DrawElement(GdkPixmap * DrawPixmap,int x,int y,int Width,int Height,StrElem
 	int HeiDiv4 = Height/4;
 	GdkGC * DynaGcOff;
 	GdkGC * TheGc;
+	
 	GdkColor DynaGdkColor;
+        GdkColor DynaGdkColor1;
+  	GdkColor DynaGdkColor2;
+        GdkColor DynaGdkColor3;
 	GdkGC * DynaGcOn;
+
+// This is black:
+ 	DynaGdkColor3.pixel = 0x000000;
+	DynaGdkColor3.red = 0x00;
+	DynaGdkColor3.green = 0x00;
+	DynaGdkColor3.blue = 0x00;
+
+// Red colour for text of input objects
+// to make them standout better
+        DynaGdkColor1.pixel = 0xFF0000;
+	DynaGdkColor1.red = 0xFF;
+	DynaGdkColor1.green = 0x00;
+	DynaGdkColor1.blue = 0x00;
+
+// Blue colour for text of output objects	
+        DynaGdkColor2.pixel = 0x0000FF;
+	DynaGdkColor2.red = 0x00;
+	DynaGdkColor2.green = 0x00;
+	DynaGdkColor2.blue = 0xFF;
+
+// Pink for 'power on' lines 	
 	DynaGdkColor.pixel = 0xFF22FF;
 	DynaGdkColor.red = 0xFF;
 	DynaGdkColor.green = 0x22;
 	DynaGdkColor.blue = 0xFF;
-
+	
 	DynaGcOn = gdk_gc_new(DrawPixmap);
+
 	gdk_gc_set_foreground(DynaGcOn,&DynaGdkColor);
 	#ifdef THICK_LINE_ELE_ACTIVATED
 	gdk_gc_set_line_attributes(DynaGcOn, THICK_LINE_ELE_ACTIVATED,
 		GDK_LINE_SOLID, GDK_CAP_BUTT, GDK_JOIN_MITER);
 	#endif
+
+// for 'power off' lines
 	DynaGcOff = drawing_area->style->black_gc;
+
 	/* State with color */
 	TheGc = drawing_area->style->black_gc;
 	if ( (DrawingOption==DRAW_NORMAL) && (!EditDatas.ModeEdit) && (Element.DynamicState) )
@@ -748,19 +777,30 @@ void DrawElement(GdkPixmap * DrawPixmap,int x,int y,int Width,int Height,StrElem
 		switch(Element.Type)
 		{
 			case ELE_INPUT:
-			case ELE_INPUT_NOT:
+			case ELE_INPUT_NOT:				
 			case ELE_RISING_INPUT:
 			case ELE_FALLING_INPUT:
+				strcpy(BufTxt,CreateVarName(Element.VarType,Element.VarNum));
+				gdk_gc_set_foreground(DynaGcOn,&DynaGdkColor1);//color this text red
+				DrawTextGTK2( DrawPixmap, DynaGcOn, x, y+HeiDiv4+1, Width, -1, BufTxt );
+				gdk_gc_set_foreground(DynaGcOn,&DynaGdkColor3);//change color back to black
+	
+				break;
 			case ELE_OUTPUT:
 			case ELE_OUTPUT_NOT:
 			case ELE_OUTPUT_SET:
 			case ELE_OUTPUT_RESET:
+				
 				strcpy(BufTxt,CreateVarName(Element.VarType,Element.VarNum));
+				
 #ifndef GTK2
 				gdk_draw_text(DrawPixmap, drawing_area->style->font, drawing_area->style->black_gc,
 								x+WidDiv4,y+HeiDiv4-2,BufTxt,strlen(BufTxt));
 #else
-				DrawTextGTK2( DrawPixmap, drawing_area->style->black_gc, x, y+HeiDiv4+1, Width, -1, BufTxt );
+				gdk_gc_set_foreground(DynaGcOn,&DynaGdkColor2); //color text blue
+				DrawTextGTK2( DrawPixmap, DynaGcOn, x, y+HeiDiv4+1, Width, -1, BufTxt );
+				gdk_gc_set_foreground(DynaGcOn,&DynaGdkColor3);//back to black
+	
 #endif
 				break;
 			case ELE_OUTPUT_JUMP:
@@ -951,12 +991,12 @@ void DrawCurrentElementEdited( int AddPosiY )
 {
 	if ( EditDatas.CurrentElementSizeX>0 && EditDatas.CurrentElementSizeY>0 )
 	{
-		GdkColor DynaGdkColor;
-		GdkGC * DynaGcColor;
 		int Left = (EditDatas.CurrentElementPosiX-EditDatas.CurrentElementSizeX+1)*InfosGene->BlockWidth +OFFSET_X;
 		int Top = EditDatas.CurrentElementPosiY*InfosGene->BlockHeight +AddPosiY +OFFSET_Y;
 		int Width = EditDatas.CurrentElementSizeX*InfosGene->BlockWidth;
 		int Height = EditDatas.CurrentElementSizeY*InfosGene->BlockHeight;
+		GdkColor DynaGdkColor;
+		GdkGC * DynaGcColor;
 		DynaGdkColor.pixel = 0xFF3030;
 		DynaGdkColor.red = 0xFF;
 		DynaGdkColor.green = 0x30;
