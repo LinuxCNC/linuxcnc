@@ -139,7 +139,7 @@ typedef struct plc_sizeinfo_s {
 /* for complex elements using many blocks : only one block
    is "alive", others are marked as UNUSABLE */
 #define ELE_UNUSABLE 99
-
+#define ELE_NO_DEFAULT_NAME 255
 
 /* used only for edit */
 #define EDIT_CNX_WITH_TOP 100
