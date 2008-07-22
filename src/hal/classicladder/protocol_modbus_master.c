@@ -134,6 +134,9 @@ int PrepPureModbusAskForCurrentReq( unsigned char * AskFrame )
 		case MODBUS_REQ_HOLD_READ:
 			FunctionCode = MODBUS_FC_READ_HOLD_REGS;
 			break;
+		case MODBUS_REQ_DIAGNOSTICS:
+			FunctionCode = MODBUS_FC_DIAGNOSTICS;
+			break;
 	}
 	if ( FunctionCode>0 )
 	{
@@ -226,6 +229,12 @@ int PrepPureModbusAskForCurrentReq( unsigned char * AskFrame )
 				}
 				break;
 			}
+			case MODBUS_FC_DIAGNOSTICS://8
+				AskFrame[ FrameSize++ ] = 0;//sub function number for echo
+				AskFrame[ FrameSize++ ] = 0;//sub function number for echo
+				AskFrame[ FrameSize++ ] = 12>>8;// two bytes of data
+				AskFrame[ FrameSize++ ] = 12;// to echo
+				break;
 		}
 	}
 	return FrameSize;
@@ -239,7 +248,7 @@ char TreatPureModbusResponse( unsigned char * RespFrame, int SizeFrame )
 
 	if ( RespFrame[ 0 ]&MODBUS_FC_EXCEPTION_BIT )
 	{
-		printf("ERROR CLASSICLADDER- MODBUS-EXCEPTION RECEIVED:%X (Excep=%X)\n", RespFrame[ 0 ], RespFrame[ 1 ]);
+		printf("ERROR CLASSICLADDER-  MODBUS-EXCEPTION RECEIVED:%X (Excep=%X)\n", RespFrame[ 0 ], RespFrame[ 1 ]);
 	}
 	else
 	{
@@ -286,8 +295,6 @@ char TreatPureModbusResponse( unsigned char * RespFrame, int SizeFrame )
 					}
 				}
 				case MODBUS_FC_READ_INPUT_REGS://function 4
-//TODO and TEST !
-					break;
 				case MODBUS_FC_READ_HOLD_REGS: //function 3
 				{
 					int i;
@@ -316,9 +323,7 @@ char TreatPureModbusResponse( unsigned char * RespFrame, int SizeFrame )
 					break;
 				case MODBUS_FC_WRITE_REG://function 6
 					if ( ((RespFrame[1]<<8) | RespFrame[2])==FirstEle && SizeFrame>=1+2+2 )
-					{
-					cError=0;
-					}
+					{	cError=0;	}
 						
 					break;
 				case MODBUS_FC_WRITE_REGS: //function 16
@@ -326,6 +331,15 @@ char TreatPureModbusResponse( unsigned char * RespFrame, int SizeFrame )
 					{
 						if ( ((RespFrame[3]<<8) | RespFrame[4])==NbrEles )
 							cError = 0;
+					}
+					break;
+				case MODBUS_FC_DIAGNOSTICS://function 8
+					if ( ((RespFrame[3]<<8) | RespFrame[4])== ((12<<8)|12))
+					{	
+					printf("INFO CLASSICLADDER---Echo back from slave #%s is correct.",ModbusMasterReq[ CurrentReq ].SlaveAdr);
+					cError = 0;
+					}else{
+					printf("ERROR CLASSICLADDER-  MODBUS -Echo back from slave #%s is WRONG",ModbusMasterReq[ CurrentReq ].SlaveAdr);
 					}
 					break;
 			}
