@@ -18,3 +18,4 @@ void EditElementInThePage(double x,double y);
 char * GetLadderElePropertiesForStatusBar(double x,double y);
 char * ConvVarNameToHalSigName (char *);
 char * FirstVariableInArithm(char *);
+int SetDefaultVariableType(int NumElement);

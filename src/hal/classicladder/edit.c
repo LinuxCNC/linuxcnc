@@ -132,6 +132,7 @@ void LoadElementProperties(StrElement * Element)
 		switch(Element->Type)
 		{
 			case ELE_INPUT:
+				
 			case ELE_INPUT_NOT:
 			case ELE_RISING_INPUT:
 			case ELE_FALLING_INPUT:
@@ -459,6 +460,7 @@ void SaveElementProperties()
 					{
 						EditDatas.ElementUnderEdit->VarType = VarTypeEntered;
 						EditDatas.ElementUnderEdit->VarNum = VarNumEntered;
+					printf("was here\n");
 					}
 				}
 				else
@@ -533,7 +535,8 @@ void SaveElementProperties()
 				break;
 		}
 		/* display back to show what we have really understand... */
-		LoadElementProperties(EditDatas.ElementUnderEdit);
+
+		LoadElementProperties (EditDatas.ElementUnderEdit);
 	}
 }
 
@@ -1165,6 +1168,13 @@ void EditElementInRung(double x,double y)
 						}
 						SetUsedStateFunctionBlock( NumElement, EditDatas.Rung.Element[RungX][RungY].VarNum, TRUE );
 					}
+					// if the area was free before then set the default variable letter based on edit type
+					if (EditDatas.Rung.Element[RungX][RungY].Type == ELE_FREE)
+					{    int defaultvarname= SetDefaultVariableType(NumElement); 
+  						if (defaultvarname!=ELE_NO_DEFAULT_NAME)
+						{   EditDatas.Rung.Element[RungX][RungY].VarType =defaultvarname ;   }
+					}
+
 					EditDatas.Rung.Element[RungX][RungY].Type = NumElement;
 					CheckForAllocatingArithmExpr(RungX,RungY);
 				}
@@ -1190,7 +1200,8 @@ void EditElementInRung(double x,double y)
 				EditDatas.Rung.Element[ScanX++][RungY].Type = ELE_CONNECTION;
 			}
 		}
-//printf("current type = %d\n",EditDatas.Rung.Element[RungX][RungY].Type);
+// printf("current type = %d\n",EditDatas.Rung.Element[RungX][RungY].Type);
+// if (EditDatas.Rung.Element[RungX][RungY].Type == ELE_FREE)  {printf("is free\n");}
 		LoadElementProperties(&EditDatas.Rung.Element[RungX][RungY]);
 		EditDatas.ElementUnderEdit = &EditDatas.Rung.Element[RungX][RungY];
 		// infos used to display the "selected element" box
@@ -1230,4 +1241,24 @@ char * GetLadderElePropertiesForStatusBar(double x,double y)
 	}
 	return "";
 }
-
+// this sets the variable type based on the type of edit-element (NumElement) being used  
+int SetDefaultVariableType(int NumElement)
+{
+	switch  ( NumElement)
+	{
+			case ELE_INPUT:
+			case ELE_INPUT_NOT:
+			case ELE_RISING_INPUT:
+			case ELE_FALLING_INPUT:
+					 return 50; //letter I
+			break;
+			case ELE_OUTPUT:
+			case ELE_OUTPUT_NOT:
+			case ELE_OUTPUT_SET:
+			case ELE_OUTPUT_RESET:
+			 		return 60; //letter Q
+		break;
+		default:;
+	}
+return ELE_NO_DEFAULT_NAME;
+}
