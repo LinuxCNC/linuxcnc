@@ -210,6 +210,7 @@ error:
 
 void rtapi_app_exit(void) {
 	ClassicLadder_FreeAll( FALSE);
+	hal_exit(compId);
 }
 
 // this function copies any requested (from the cmd line) changes to ladder element amounts to GeneralParamsMirror
