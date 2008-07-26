@@ -444,64 +444,413 @@ c) which sends EMCMOT_SET_MAX_FERROR
 \layout Standard
 
 Parameter, Type: [axis (in EMC_AXIS_CMD_MSG), int] [ferror, double]
+\layout Subsection
+
+EMC_AXIS_SET_HOMING_VEL_TYPE
 \layout Standard
 
-Description, NML Type: 
+Description, NML Type: ,112
 \layout Standard
 
-Written From: 
+Obs: in EMC2 those are SET_HOMING_PARAMS double home; double offset; double
+ search_vel; double latch_vel; int use_index;
 \layout Standard
 
-Read From:
+Written From: n/a
 \layout Standard
 
-Parameter, Type:
+Read From: n/a
 \layout Standard
 
-Description, NML Type: 
+Parameter, Type: [axis (in EMC_AXIS_CMD_MSG), int] [ferror, double]
 \layout Standard
 
-Written From: 
+Obs: in EMC2 those are SET_HOMING_PARAMS double home; double offset; double
+ search_vel; double latch_vel; int use_index; int ignore_limits
+\layout Subsection
+
+EMC_AXIS_SET_HOME_TYPE
 \layout Standard
 
-Read From:
+Description, NML Type: , 113
 \layout Standard
 
-Parameter, Type:
-\layout Standard
-
-Description, NML Type: 
-\layout Standard
-
-Written From: 
-\layout Standard
-
-Read From:
-\layout Standard
-
-Parameter, Type:
-\layout Standard
-
-Description, NML Type: 
-\layout Standard
-
-Written From: 
+Written From: n/a
 \layout Standard
 
 Read From:
 \layout Standard
 
-Parameter, Type:
+Parameter, Type:[axis (in EMC_AXIS_CMD_MSG), int] [homingVel, double]
+\layout Subsection
+
+EMC_AXIS_SET_HOME_OFFSET_TYPE
 \layout Standard
 
-Description, NML Type: 
+Description, NML Type: ,114
 \layout Standard
 
-Written From: 
+Written From: n/a
 \layout Standard
 
 Read From:
 \layout Standard
 
-Parameter, Type:
+Parameter, Type:[axis (in EMC_AXIS_CMD_MSG), int] [home, double]
+\layout Subsection
+
+EMC_AXIS_SET_MIN_FERROR_TYPE
+\layout Standard
+
+Description, NML Type: sets min following error, 115
+\layout Standard
+
+Obs: also handled by iniaxis which directly calls emcAxisSetMinFerror
+\layout Standard
+
+Written From: n/a
+\layout Standard
+
+Read From: emcTaskIssueCommand (emctaskmain.cc) calls emcAxisSetMinFerror
+ (taskintf.cc) which sends EMCMOT_SET_MIN_FERROR
+\layout Standard
+
+Parameter, Type: [axis (in EMC_AXIS_CMD_MSG), int] [offset, double]
+\layout Subsection
+
+EMC_AXIS_SET_MAX_VELOCITY_TYPE
+\layout Standard
+
+Description, NML Type: sets max.
+ velocity, 116
+\layout Standard
+
+Obs: not used
+\layout Standard
+
+Written From: n/a
+\layout Standard
+
+Read From: n/a
+\layout Standard
+
+Parameter, Type: [axis (in EMC_AXIS_CMD_MSG), int] [vel, double]
+\layout Subsection
+
+EMC_AXIS_INIT_TYPE
+\layout Standard
+
+Description, NML Type: , 118
+\layout Standard
+
+Obs: not used
+\layout Standard
+
+Written From: n/a
+\layout Standard
+
+Read From: n/a
+\layout Standard
+
+Parameter, Type: [axis (in EMC_AXIS_CMD_MSG), int] 
+\layout Subsection
+
+EMC_AXIS_HALT_TYPE
+\layout Standard
+
+Description, NML Type: , 119
+\layout Standard
+
+Obs: not used, only read
+\layout Standard
+
+Written From: n/a
+\layout Standard
+
+Read From: emcTaskIssueCommand (emctaskmain.cc) calls emcAxisHalt (taskintf.cc)
+\layout Standard
+
+Parameter, Type: [axis (in EMC_AXIS_CMD_MSG), int] 
+\layout Subsection
+
+EMC_AXIS_ABORT_TYPE
+\layout Standard
+
+Description, NML Type: aborts motion on an axis (e.g.
+ GUI jogs), 120
+\layout Standard
+
+Obs: used from the GUI when stopping a manual jog
+\layout Standard
+
+Written From: sendJogStop (emcsh.cc)
+\layout Standard
+
+Read From: emcTaskIssueCommand (emctaskmain.cc) calls emcAxisAbort (taskintf.cc)
+ which sends EMCMOT_AXIS_ABORT
+\layout Standard
+
+Parameter, Type: [axis (in EMC_AXIS_CMD_MSG), int] 
+\layout Subsection
+
+EMC_AXIS_ENABLE_TYPE
+\layout Standard
+
+Description, NML Type: enables axis, 121
+\layout Standard
+
+Obs: not used from tkemc & mini
+\layout Standard
+
+Written From: sendAxisEnable (emcsh.cc)
+\layout Standard
+
+Read From: emcTaskIssueCommand (emctaskmain.cc) calls emcAxisEnable (taskintf.cc)
+ which sends EMCMOT_ENABLE_AMPLIFIER
+\layout Standard
+
+Parameter, Type: [axis (in EMC_AXIS_CMD_MSG), int] 
+\layout Subsection
+
+EMC_AXIS_DISABLE_TYPE
+\layout Standard
+
+Description, NML Type: disable axis, 122
+\layout Standard
+
+Obs: not used from tkemc & mini
+\layout Standard
+
+Written From: sendAxisDisable (emcsh.cc)
+\layout Standard
+
+Read From: emcTaskIssueCommand (emctaskmain.cc) calls emcAxisDisable (taskintf.cc)
+ which sends EMCMOT_DISABLE_AMPLIFIER
+\layout Standard
+
+Parameter, Type: [axis (in EMC_AXIS_CMD_MSG), int] 
+\layout Subsection
+
+EMC_AXIS_HOME_TYPE
+\layout Standard
+
+Description, NML Type: home an axis at current position, 123
+\layout Standard
+
+Obs: used from tkemc & mini through emc_home
+\layout Standard
+
+Written From: sendHome (emcsh.cc)
+\layout Standard
+
+Read From: emcTaskIssueCommand (emctaskmain.cc) calls emcAxisHome (taskintf.cc)
+ which sends EMCMOT_HOME
+\layout Standard
+
+Parameter, Type: [axis (in EMC_AXIS_CMD_MSG), int] 
+\layout Subsection
+
+EMC_AXIS_JOG_TYPE
+\layout Standard
+
+Description, NML Type: jogs an axis continuosly, 124
+\layout Standard
+
+Obs: used on jogging
+\layout Standard
+
+Written From: sendJogCont (emcsh.cc)
+\layout Standard
+
+Read From: emcTaskIssueCommand (emctaskmain.cc) calls emcAxisJog (taskintf.cc)
+ which sends EMCMOT_JOG_CONT
+\layout Standard
+
+Parameter, Type: [axis (in EMC_AXIS_CMD_MSG), int] [vel, double]
+\layout Subsection
+
+EMC_AXIS_INCR_JOG_TYPE
+\layout Standard
+
+Description, NML Type: jogs an axis with an increment, 125
+\layout Standard
+
+Obs: used on jogging
+\layout Standard
+
+Written From: sendJogIncr (emcsh.cc)
+\layout Standard
+
+Read From: emcTaskIssueCommand (emctaskmain.cc) calls emcAxisIncrJog (taskintf.cc)
+ which sends EMCMOT_JOG_INCR
+\layout Standard
+
+Parameter, Type: [axis (in EMC_AXIS_CMD_MSG), int] [incr, double] [vel,
+ double]
+\layout Subsection
+
+EMC_AXIS_ABS_JOG_TYPE
+\layout Standard
+
+Description, NML Type: jogs an axis with an absolute value, 126
+\layout Standard
+
+Obs: not used, only read
+\layout Standard
+
+Written From: m/a
+\layout Standard
+
+Read From: emcTaskIssueCommand (emctaskmain.cc) calls emcAxisAbsJog (taskintf.cc)
+ which sends EMCMOT_JOG_ABS
+\layout Standard
+
+Parameter, Type: [axis (in EMC_AXIS_CMD_MSG), int] [pos, double] [vel, double]
+\layout Subsection
+
+EMC_AXIS_ACTIVATE_TYPE
+\layout Standard
+
+Description, NML Type: , 127
+\layout Standard
+
+Obs: not used
+\layout Standard
+
+Written From: n/a
+\layout Standard
+
+Read From: n/a
+\layout Standard
+
+Parameter, Type: [axis (in EMC_AXIS_CMD_MSG), int] 
+\layout Subsection
+
+EMC_AXIS_DEACTIVATE_TYPE
+\layout Standard
+
+Description, NML Type: , 128
+\layout Standard
+
+Obs: not used
+\layout Standard
+
+Written From: n/a
+\layout Standard
+
+Read From: n/a
+\layout Standard
+
+Parameter, Type: [axis (in EMC_AXIS_CMD_MSG), int] 
+\layout Subsection
+
+EMC_AXIS_OVERRIDE_LIMITS_TYPE
+\layout Standard
+
+Description, NML Type: overrides min/max limits during homing, 129
+\layout Standard
+
+Obs: used from tkemc & mini through emc_override_limit
+\layout Standard
+
+Written From: sendOverrideLimits (emcsh.cc)
+\layout Standard
+
+Read From: emcTaskIssueCommand (emctaskmain.cc) calls emcAxisOverrideLimits
+ (taskintf.cc) which sends EMCMOT_OVERRIDE_LIMITS
+\layout Standard
+
+Parameter, Type: [axis (in EMC_AXIS_CMD_MSG), int] 
+\layout Subsection
+
+EMC_AXIS_SET_OUTPUT_TYPE
+\layout Standard
+
+Description, NML Type: sets an DAC output value, 130
+\layout Standard
+
+Obs: currently not used in emc2, needs to go to HAL
+\layout Standard
+
+Written From: sendAxisSetOutput (emcsh.cc)
+\layout Standard
+
+Read From: emcTaskIssueCommand (emctaskmain.cc) calls emcAxisSetOutput (taskintf.c
+c) which sends EMCMOT_DAC_OUT
+\layout Standard
+
+Parameter, Type: [axis (in EMC_AXIS_CMD_MSG), int] [output, double]
+\layout Subsection
+
+EMC_AXIS_LOAD_COMP_TYPE
+\layout Standard
+
+Description, NML Type: loads compensation values from a file, 131
+\layout Standard
+
+Obs: currently usrmotLoadComp if 0'ed in emc2
+\layout Standard
+
+Written From: sendAxisLoadComp (emcsh.cc)
+\layout Standard
+
+Read From: emcTaskIssueCommand (emctaskmain.cc) calls emcAxisLoadComp (minimill|b
+ridgeporttaskintf.cc) which calls usrmotLoadComp
+\layout Standard
+
+Parameter, Type: [axis (in EMC_AXIS_CMD_MSG), int] [file, char[LINELEN]]
+\layout Subsection
+
+EMC_AXIS_ALTER_TYPE
+\layout Standard
+
+Description, NML Type: loads the alter value to modify the axis position,
+ 132
+\layout Standard
+
+Written From: sendAxisAlter (emcsh.cc)
+\layout Standard
+
+Read From: emcTaskIssueCommand (emctaskmain.cc) calls emcAxisAlter (taskintf.cc)
+ which calls usrmotAlter
+\layout Standard
+
+Parameter, Type: [axis (in EMC_AXIS_CMD_MSG), int] [alter, double]
+\layout Subsection
+
+EMC_AXIS_SET_STEP_PARAMS_TYPE
+\layout Standard
+
+Description, NML Type: was used to set step related params, 133
+\layout Standard
+
+Obs: currently not used in emc2, needs to go to HAL (maybe directly from
+ the ini, not through NML)
+\layout Standard
+
+Written From: n/a
+\layout Standard
+
+Read From: emcTaskIssueCommand (emctaskmain.cc) calls emcAxisSetStepParams
+ (taskintf.cc) which sends EMCMOT_SET_STEP_PARAMS
+\layout Standard
+
+Parameter, Type: [axis (in EMC_AXIS_CMD_MSG), int] [setup_time, double]
+ [hold_time, double]
+\layout Subsection
+
+EMC_AXIS_STAT_TYPE
+\layout Standard
+
+Description, NML Type: status for axis, not sent as a message but used as
+ is, 199
+\layout Standard
+
+Written From: n/a
+\layout Standard
+
+Read From: n/a
+\layout Standard
+
+Parameter, Type: a HUGE load of params
 \the_end
