@@ -381,6 +381,7 @@ class Data:
 	print >>file
 	print >>file, "[DISPLAY]"
 	print >>file, "DISPLAY = axis"
+	print >>file, "EDITOR = gedit"
 	print >>file, "POSITION_OFFSET = RELATIVE"
 	print >>file, "POSITION_FEEDBACK = ACTUAL"
 	print >>file, "MAX_FEED_OVERRIDE = 1.2"
