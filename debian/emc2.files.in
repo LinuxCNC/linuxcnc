@@ -446,6 +446,7 @@ usr/share/emc/ncfiles/M101
 usr/share/emc/ncfiles/M102.c
 usr/share/emc/ncfiles/arcspiral.ngc
 usr/share/emc/ncfiles/cds.ngc
+usr/share/emc/ncfiles/comp-g1.ngc
 usr/share/emc/ncfiles/comp.ngc
 usr/share/emc/ncfiles/comp311.ngc
 usr/share/emc/ncfiles/comp311_2.ngc
@@ -457,6 +458,7 @@ usr/share/emc/ncfiles/g76.ngc
 usr/share/emc/ncfiles/gridprobe.ngc
 usr/share/emc/ncfiles/holecircle.py
 usr/share/emc/ncfiles/involute.py
+usr/share/emc/ncfiles/lathe-g76.ngc
 usr/share/emc/ncfiles/lathe_pawn.ngc
 usr/share/emc/ncfiles/lathecomp.ngc
 usr/share/emc/ncfiles/mmount.ngc
