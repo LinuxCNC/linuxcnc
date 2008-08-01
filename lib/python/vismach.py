@@ -470,6 +470,114 @@ class TriangleYZ(TriangleXY):
 	return vol
 
 
+class ArcX(CoordsBase):
+    def draw(self):
+	x1, x2, r1, r2, a1, a2, steps = self.coords()
+	if x1 > x2:
+	    tmp = x1
+	    x1 = x2
+	    x2 = tmp
+	if r1 > r2:
+	    tmp = r1
+	    r1 = r2
+	    r2 = tmp
+	while a1 > a2:
+	    a2 = a2 + 360
+	astep = ((a2-a1)/steps)*(pi/180)
+	a1rads = a1 * (pi/180)
+	# positive X end face
+	glBegin(GL_QUAD_STRIP)
+	glNormal3f(1,0,0)
+	n = 0
+	while n <= steps:
+	    angle = a1rads+n*astep
+	    s = sin(angle)
+	    c = cos(angle)
+	    glVertex3f(x2, r1*s, r1*c)
+	    glVertex3f(x2, r2*s, r2*c)
+	    n = n + 1
+
+	glEnd()
+	# negative X end face
+	glBegin(GL_QUAD_STRIP)
+	glNormal3f(-1,0,0)
+	n = 0
+	while n <= steps:
+	    angle = a1rads+n*astep
+	    s = sin(angle)
+	    c = cos(angle)
+	    glVertex3f(x1, r1*s, r1*c)
+	    glVertex3f(x1, r2*s, r2*c)
+	    n = n + 1
+	glEnd()
+	# inner diameter
+	glBegin(GL_QUAD_STRIP)
+	n = 0
+	while n <= steps:
+	    angle = a1rads+n*astep
+	    s = sin(angle)
+	    c = cos(angle)
+	    glNormal3f(0,-s, -c)
+	    glVertex3f(x1, r1*s, r1*c)
+	    glVertex3f(x2, r1*s, r1*c)
+	    n = n + 1
+	glEnd()
+	# outer diameter
+	glBegin(GL_QUAD_STRIP)
+	n = 0
+	while n <= steps:
+	    angle = a1rads+n*astep
+	    s = sin(angle)
+	    c = cos(angle)
+	    glNormal3f(0, s, c)
+	    glVertex3f(x1, r2*s, r2*c)
+	    glVertex3f(x2, r2*s, r2*c)
+	    n = n + 1
+	glEnd()
+	# end plates
+	glBegin(GL_QUADS)
+	# first end plate
+	angle = a1 * (pi/180)
+	s = sin(angle)
+	c = cos(angle)
+	glNormal3f(0, -c, s)
+	glVertex3f(x1, r2*s, r2*c)
+	glVertex3f(x2, r2*s, r2*c)
+	glVertex3f(x2, r1*s, r1*c)
+	glVertex3f(x1, r1*s, r1*c)
+	# other end
+	angle = a2 * (pi/180)	
+	s = sin(angle)
+	c = cos(angle)
+	glNormal3f(0, c, -s)
+	glVertex3f(x1, r2*s, r2*c)
+	glVertex3f(x2, r2*s, r2*c)
+	glVertex3f(x2, r1*s, r1*c)
+	glVertex3f(x1, r1*s, r1*c)
+	glEnd()
+
+    def volume(self):
+	x1, x2, r1, r2, a1, a2, steps = self.coords()
+	if x1 > x2:
+	    tmp = x1
+	    x1 = x2
+	    x2 = tmp
+	if r1 > r2:
+	    tmp = r1
+	    r1 = r2
+	    r2 = tmp
+	while a1 > a2:
+	    a2 = a2 + 360
+	height = x2 - x1
+	angle = a2 - a1
+	area = (angle/360.0)*pi*(r2*r2-r1*r1)
+	vol = area * height
+	#print "Arc.volume = angle * area * height",vol, angle, area, height
+	return vol
+	
+
+
+
 # six coordinate version - specify each side of the box
 class Box(CoordsBase):
     def draw(self):
