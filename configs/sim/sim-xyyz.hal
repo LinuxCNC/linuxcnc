@@ -47,7 +47,7 @@ net Yacc <= ddt.3.out
 net Zvel ddt.4.out => ddt.5.in hypot.1.in0
 net Zacc <= ddt.5.out
 
-net XYvel hypot.0.out => hypot.1.in0
+net XYvel hypot.0.out => hypot.1.in1
 net XYZvel <= hypot.1.out
 
 # estop loopback
