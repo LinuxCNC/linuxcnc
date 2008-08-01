@@ -117,7 +117,7 @@ void InitSocketModbusMaster( )
 				Error = -1;
 		}
 		if ( Error!=-1 )
-		printf("INFO CLASSICLADDER-  I/O modbus master (%s) init ok !\n", ModbusSerialPortNameUsed[ 0 ]!='\0'?"Serial":"Ethernet");
+		printf("INFO CLASSICLADDER---I/O modbus master (%s) init ok !\n", ModbusSerialPortNameUsed[ 0 ]!='\0'?"Serial":"Ethernet");
 	}
 }
 
@@ -268,7 +268,7 @@ int WaitRespSocketModbusMaster( char * Buff, int BuffSize, int TimeOutResponseMi
 		if ( recep_descrip>0 )
 		{
 		int bytesRcvd;
-		if( ModbusDebugLevel>=2 )   {printf("INFO CLASSICLADDER   waiting for slave response...\n");}
+		if( ModbusDebugLevel>=2 )   {printf("INFO CLASSICLADDER-   waiting for slave response...\n");}
 		if ((bytesRcvd = recv(client_s, Buff, BuffSize, 0)) > 0)    {ResponseSize = bytesRcvd;}
 		}
 	

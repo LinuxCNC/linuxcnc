@@ -100,12 +100,12 @@ void HandlerSignalInterrupt( int signal_id )
 
 void display_help (void)
 {
-	printf("Usage: classicladder [OPTIONS] [PATH]\n"
-			"Start classicladder PLC with an optional project path e.g. myplc\n"
+	printf("Usage: loadusr classicladder [OPTIONS] [PATH]\n"
+			"Start classicladder PLC with an optional project path and program to load. e.g. plcdirectory/ladderprogram.clp\n"
 			"\n"			
-			"           --nogui             do not create the GUI\n"
+			"           --nogui              do not create the GUI\n"
 			"-p port    --modbus_port=port   port to use for modbus server\n"
-			"-c file    --config=file        read PLC configuration from file\n"
+			"-c file    --config=file        read MODBUS configuration from designated file\n"
 			);
 	hal_exit(compId); // add for emc
 	exit(0);
@@ -162,7 +162,7 @@ void process_options (int argc, char *argv[])
 //for EMC: do_exit
 static void do_exit(int unused) {
 		hal_exit(compId);
-		printf("error intializing classicladder user module\n");
+		printf("ERROR CLASSICLADDER-   Error intializing classicladder user module.\n");
 		exit(0);
 }
 void DoPauseMilliSecs( int Time )
@@ -220,7 +220,7 @@ int main( int   argc, char *argv[] )
 		}		
 			
 		if (nogui==TRUE) {
-			 rtapi_print("***No ladder GUI*** Realtime runs till HAL closes***\n");
+			 rtapi_print("INFO CLASSICLADDER-   No ladder GUI requested-Realtime runs till HAL closes.\n");
 			ClassicLadder_InitAllDatas( );
 			ProjectLoadedOk = LoadProjectFiles( CurrentProjectFileName );
 			InfosGene->LadderState = STATE_RUN;
@@ -242,13 +242,13 @@ int main( int   argc, char *argv[] )
 				InfosGene->LadderState = STATE_RUN;
 				hal_ready(compId);
 				gtk_main();
-				rtapi_print("Ladder GUI closed. Realtime runs till HAL closes\n");
+				rtapi_print("INFO CLASSICLADDER-   Ladder GUI closed. Realtime runs till HAL closes\n");
 				ClassicLadder_FreeAll(TRUE);
 				hal_exit(compId);
 				return 0;
 			}		
 	}
-	 rtapi_print("Ladder memory allocation error\n");
+	 rtapi_print("ERROR CLASSICLADDER-   Ladder memory allocation error\n");
 	ClassicLadder_FreeAll(TRUE);
 	hal_exit(compId);		
 	return 0;
