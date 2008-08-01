@@ -24,10 +24,12 @@ classicladder.c:
 classicladder.h:
 --- small amount added. Add definitions for HAL s32 pins and For HAL support.
 --- changed define for symbols comment length from 30 to 50 for long signal names
+--- added external variable nomodbus
 
 classicladder gtk.c:
 --- removed define for hardware.h
 --- changed gtk_exit(0) to gtk_main_quit in function QuitAppliGtk() so program returns to where we called gtk_main in 
+
 classicladder.c
 --- run/stop and reset buttons send messages to statusbar
 
@@ -38,37 +40,41 @@ config_gtk.c:
 --- removed define for hardware.h
 --- added #ifndef HAL_SUPPORT around any code for direct I/O to hide it from configue window
 --- modified to show number of s32 in and out pins 
---- modified modbus page to put debug level on a line by it's self and added options for read hold register, write register and write registers
+--- modified modbus page to put debug level on a line by it's self and added options for read hold register, write register(s) and echo
+--- if no modbus config is loaded then the modbus config page tells you this, otherwise it displays normally.
 
 drawing.c:
 --- added colour to variable names for input (red) and output (blue) in section display drawing area
 
 edit.c
 --- added two calls to check for hal signal names (see GetElementPropertiesForStatusBar ) one for I, Q, and B variables and another for W variables in expressions 
+--- added code to default the variable name to I or Q for simple in or out elements
 
 edit.h
 --- added prototype for ConvVarNameToHalSigName()
---- added prototype for FirstVariableInArithm();
+--- added prototype for FirstVariableInArithm()
+--- added prototype for SetDefaultVariableType()
 
 file.c
 --- modified not to load info into GeneralParamsMirror because only realtime can do that
---- 
+
 emc_mods.c and emc_mods.h:
-----added Jeffs function to check for HAL signal names (called by function GetElementPropertiesForStatusBar in edit.c) 
+--- added Jeffs function to check for HAL signal names (called by function GetElementPropertiesForStatusBar in edit.c) 
 --- added function to check the first variable in an expression, for a HAL signal (called by function GetElementPropertiesForStatusBar in edit.c) 
 
 manager.c:
----added small amount INCLUDE for HAL/RTAPI support.
+--- added small amount INCLUDE for HAL/RTAPI support.
 
 Module_hal.c:
----  new program based on original module adds hal support/pins initialization of realtime code etc.
+--- new program based on original module adds hal support/pins initialization of realtime code etc.
 --- added code to refresh rungs at period rate unless period less then 1 MS then it waits till at least 1 MS has passed
 
 protocol_modbus_master.c
---- added code for modbus functions 3, 6 and 16 (read holding register, write single register, write mulitple registers)
+--- added code for modbus functions 3, 6,16, and 8 (read holding register, write single register, write mulitple registers, echo)
+--- changed ModbusEleOffset=1 to =0 (not to modbus standard but easier and fairly common)
 
 protocol_modbus_master.h
---- added defines for same
+--- added defines for same as above
 
 spy_vars_gtk.c:
 --- changed to be able to toggle vars windows (one, the other, both , both close) by clicking the button.
