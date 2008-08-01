@@ -203,12 +203,10 @@ int PrepPureModbusAskForCurrentReq( unsigned char * AskFrame )
 				int Value;
 				AskFrame[ FrameSize++ ] = (unsigned char)FirstEle>>8;
 				AskFrame[ FrameSize++ ] = (unsigned char)FirstEle;
-				AskFrame[ FrameSize++ ] = (unsigned char)NbrEles>>8;
-				AskFrame[ FrameSize++ ] = (unsigned char)NbrEles;
 				Value = GetVarForModbus( &ModbusMasterReq[ CurrentReq ], FirstEle );
 //				printf("INFO MODBUS writing: WORD value =%d \n",Value);
 				AskFrame[ FrameSize++ ] = Value>>8;
-				AskFrame[ FrameSize++ ] = Value;
+				AskFrame[ FrameSize++ ] = Value-((Value>>8)*256);
 			}	
 			break;
 
@@ -225,15 +223,15 @@ int PrepPureModbusAskForCurrentReq( unsigned char * AskFrame )
 				int Value = GetVarForModbus( &ModbusMasterReq[ CurrentReq ], FirstEle +i );
 //				printf("INFO MODBUS writing: WORD value =%d \n",Value);
 				AskFrame[ FrameSize++ ] = Value>>8;
-				AskFrame[ FrameSize++ ] = Value;
+				AskFrame[ FrameSize++ ] = Value-((Value>>8)*256);
 				}
 				break;
 			}
 			case MODBUS_FC_DIAGNOSTICS://8
 				AskFrame[ FrameSize++ ] = 0;//sub function number for echo
 				AskFrame[ FrameSize++ ] = 0;//sub function number for echo
-				AskFrame[ FrameSize++ ] = 12>>8;// two bytes of data
-				AskFrame[ FrameSize++ ] = 12;// to echo
+				AskFrame[ FrameSize++ ] = 257>>8;// two bytes of hard coded data
+				AskFrame[ FrameSize++ ] = 257-((257>>8)*256);// to echo
 				break;
 		}
 	}
@@ -248,13 +246,13 @@ char TreatPureModbusResponse( unsigned char * RespFrame, int SizeFrame )
 
 	if ( RespFrame[ 0 ]&MODBUS_FC_EXCEPTION_BIT )
 	{
-		printf("ERROR CLASSICLADDER-  MODBUS-EXCEPTION RECEIVED:%X (Excep=%X)\n", RespFrame[ 0 ], RespFrame[ 1 ]);
+		printf("ERROR CLASSICLADDER-     MODBUS-EXCEPTION RECEIVED:%X (Excep=%X)\n", RespFrame[ 0 ], RespFrame[ 1 ]);
 	}
 	else
 	{
 		if ( RespFrame[0]!=CurrentFuncCode )
 		{
-			printf("ERROR CLASSICLADDER-  MODBUS -Function code received from slave was not the same as requested!\n");
+			printf("ERROR CLASSICLADDER-    MODBUS -Function code received from slave was not the same as requested!\n");
 		}
 		else
 		{
@@ -322,7 +320,7 @@ char TreatPureModbusResponse( unsigned char * RespFrame, int SizeFrame )
 					}
 					break;
 				case MODBUS_FC_WRITE_REG://function 6
-					if ( ((RespFrame[1]<<8) | RespFrame[2])==FirstEle && SizeFrame>=1+2+2 )
+					if ( ((RespFrame[1]<<8) | RespFrame[2])==FirstEle && SizeFrame==1+2+2 )
 					{	cError=0;	}
 						
 					break;
@@ -334,12 +332,12 @@ char TreatPureModbusResponse( unsigned char * RespFrame, int SizeFrame )
 					}
 					break;
 				case MODBUS_FC_DIAGNOSTICS://function 8
-					if ( ((RespFrame[3]<<8) | RespFrame[4])== ((12<<8)|12))
+					if ( ((RespFrame[3]<<8) | RespFrame[4])== 257 )
 					{	
-					printf("INFO CLASSICLADDER---Echo back from slave #%s is correct.",ModbusMasterReq[ CurrentReq ].SlaveAdr);
+					printf("INFO CLASSICLADDER-   MODBUS -Echo back from slave #%s is correct (data=257).\n",ModbusMasterReq[ CurrentReq ].SlaveAdr);
 					cError = 0;
 					}else{
-					printf("ERROR CLASSICLADDER-  MODBUS -Echo back from slave #%s is WRONG",ModbusMasterReq[ CurrentReq ].SlaveAdr);
+					printf("ERROR CLASSICLADDER-    MODBUS -Echo back from slave #%s is WRONG.\n",ModbusMasterReq[ CurrentReq ].SlaveAdr);
 					}
 					break;
 			}
@@ -380,12 +378,15 @@ int GetModbusResponseLenghtToReceive( void )
 					LgtResp = LgtResp+4; // 2 bytes for address 2 for data
 					break;
 				case MODBUS_FC_WRITE_REGS:
-					LgtResp = LgtResp + (NbrEles*2)+2;  //testing 2 bytes per data and 1 byte for number of datas (max 125)
+					LgtResp = LgtResp + (NbrEles*2)+2;  //testing 2 bytes per data and 2 bytes for number of datas (max 125)
+					break;
+				case MODBUS_FC_DIAGNOSTICS://modbus function 8
+					LgtResp = LgtResp+4;// 2 bytes for sub code 2 for data
 					break;
 		}
 	}
 	if ( ModbusDebugLevel>=3 )
-		printf("INFO CLASSICLADDER- MODBUS Length we should receive=%d (+3)\n",LgtResp);
+		printf("INFO CLASSICLADDER-   MODBUS Length we should receive=%d (+3)\n",LgtResp);
 	return LgtResp;
 }
 
@@ -519,7 +520,7 @@ int ModbusMasterAsk( unsigned char * SlaveAddressIP, unsigned char * Question )
 		if ( ModbusDebugLevel>=1 )
 		{
 			int DebugFrame;
-			printf("INFO CLASSICLADDER-  Modbus I/O module to send: Lgt=%d <- ", LgtAskFrame );
+			printf("INFO CLASSICLADDER-   Modbus I/O module to send: Lgt=%d <- ", LgtAskFrame );
 			for( DebugFrame=0; DebugFrame<LgtAskFrame; DebugFrame++ )
 			{
 				printf("%X ", Question[ DebugFrame ] );
@@ -566,7 +567,7 @@ char TreatModbusMasterResponse( unsigned char * Response, int LgtResponse )
 				}
 				else
 				{
-					printf("ERROR CLASSICLADDER- MODBUS CRC error: calc=%x, frame=%x\n", CalcCRC, (Response[ LgtResponse-2 ]<<8)|Response[ LgtResponse-1 ] );
+					printf("ERROR CLASSICLADDER-   MODBUS CRC error: calc=%x, frame=%x\n", CalcCRC, (Response[ LgtResponse-2 ]<<8)|Response[ LgtResponse-1 ] );
 				}
 			}
 			else
@@ -589,13 +590,13 @@ char TreatModbusMasterResponse( unsigned char * Response, int LgtResponse )
 			}
 			else
 			{
-				printf("ERROR CLASSICLADDER-  MODBUS-INCORRECT RESPONSE RECEIVED FROM SLAVE!!!\n");
+				printf("ERROR CLASSICLADDER-   MODBUS-INCORRECT RESPONSE RECEIVED FROM SLAVE!!!\n");
 				ErrorCnt++;
 			}
 		}
 		else
 		{
-			printf("ERROR CLASSICLADDER-  MODBUS-LOW LEVEL ERROR IN RESPONSE!!!\n");
+			printf("ERROR CLASSICLADDER-   MODBUS-LOW LEVEL ERROR IN RESPONSE!!!\n");
 			ErrorCnt++;
 		}
 		if ( ErrorCnt>=3 )
