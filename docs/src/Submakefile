@@ -33,10 +33,11 @@ DOC_SRCS := \
 	Master_Integrator_fr.lyx \
 	Master_User.lyx \
 	Master_User_fr.lyx \
-	common/GPLD_Copyright.lyx \
 	common/Glossary.lyx \
+	common/GPLD_Copyright.lyx \
 	common/userforeword.lyx \
 	common/integrator_intro.lyx \
+	common/machining_center.lyx \
 	common/user_intro.lyx \
 	config/ini_config.lyx \
 	config/ini_config_fr.lyx \
