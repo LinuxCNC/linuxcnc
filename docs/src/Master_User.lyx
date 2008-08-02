@@ -158,6 +158,15 @@ Using EMC
 \layout Standard
 
 
+\begin_inset Include \include{common/machining_center.lyx}
+preview false
+
+\end_inset 
+
+
+\layout Standard
+
+
 \begin_inset Include \include{gcode/main.lyx}
 preview false
 
