@@ -322,9 +322,6 @@ A machining center has an optional program stop switch.
 
 .
  
-\layout Standard
-
-xxx
 \layout Section
 
 Control and Data Components
@@ -1652,7 +1649,7 @@ Tool Orientations
 
 
 \begin_inset Graphics
-	filename /home/jet/emc2-trunk/docs/src/gcode/cutting_orientation2.png
+	filename lathe_tool.png
 	scale 50
 
 \end_inset 
