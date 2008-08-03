@@ -29,7 +29,7 @@
 
 \layout Chapter
 
-Stepconf: Configure EMC2 for Step & Direction CNC Machines
+Stepconf Wizard
 \layout Standard
 
 EMC2 is capable of controlling a wide range of machinery using many different
@@ -44,6 +44,7 @@ parallel port
 step & direction
 \series default 
  signals.
+ Stepconf is installed when you install EMC2 and is in the CNC menu.
 \layout Section
 
 Step by Step Instructions
@@ -64,6 +65,7 @@ Basic Information
 
 
 \begin_inset Float figure
+placement H
 wide false
 collapsed false
 
@@ -131,16 +133,17 @@ Characteristics If you have one of the stepper drivers listed in the
 \layout Standard
 
 Additional signal conditioning or isolation such as optocouplers and RC
- filters can impose timing constraints of their own, in addition to those
- of the driver.
- 
+ filters on break out boards can impose timing constraints of their own,
+ in addition to those of the driver.
+ You may find it necessary to add some time to the drive requirements to
+ allow for this.
 \end_deeper 
 \layout Description
 
 Latency\SpecialChar ~
 Test\SpecialChar ~
 Result Enter the result of the Latency Test here.
- (see section 
+ To run a latency test see section (
 \begin_inset LatexCommand \ref{sec:Latency-Test}
 
 \end_inset 
@@ -150,15 +153,14 @@ Result Enter the result of the Latency Test here.
 
 Max\SpecialChar ~
 Step\SpecialChar ~
-Rate
+Rate Stepconf automatically calculates the Max Step Rate based on
+ the driver characteristics entered and the latency test results.
 \layout Description
 
 Min\SpecialChar ~
 Base\SpecialChar ~
-Period Based on the Driver Characteristics and Latency Test Result,
- Stepconf automatically determines the minimum usable BASE_PERIOD, and the
- step rate that is possible at that BASE_PERIOD.
- 
+Period Stepconf automatically determines the Min Base Period based
+ on the driver characteristics entered and latency test result.
 \layout Description
 
 Onscreen\SpecialChar ~
@@ -185,6 +187,7 @@ Parallel Port Setup
 
 
 \begin_inset Float figure
+placement H
 wide false
 collapsed false
 
@@ -229,6 +232,19 @@ presets Automatically set pins 2 through 9 according to the
  (Direction on pins 3, 5, 7, 9).
 \layout Description
 
+Inputs\SpecialChar ~
+and\SpecialChar ~
+Outputs If the input or output is not used set the option to 
+\begin_inset Quotes eld
+\end_inset 
+
+Unused
+\begin_inset Quotes erd
+\end_inset 
+
+.
+\layout Description
+
 Include\SpecialChar ~
 custom\SpecialChar ~
 HAL\SpecialChar ~
@@ -252,6 +268,14 @@ Panel
 panel.xml
 \family default 
  will be displayed on the right-hand side of the main AXIS window.
+ This will not create a PyVCP panel but will create the blank file in the
+ config folder.
+ To create a PyVCP panel see section (
+\begin_inset LatexCommand \ref{cha:Virtual-Control-Panels}
+
+\end_inset 
+
+).
 \layout Subsection
 
 Axis Configuration
@@ -264,6 +288,7 @@ Axis Configuration
 
 
 \begin_inset Float figure
+placement H
 wide false
 collapsed false
 
@@ -464,6 +489,17 @@ BASE_PERIOD
 \series default 
 , and values above 20000Hz may lead to slow response time or even lockups
  (the fastest usable pulse rate varies from computer to computer)
+\layout Description
+
+Test\SpecialChar ~
+this\SpecialChar ~
+axis This will open a window to allow testing for each axis.
+ See section (
+\begin_inset LatexCommand \ref{sec:Testing-Each-Axis}
+
+\end_inset 
+
+)
 \layout Subsection
 
 Spindle Configuration
@@ -476,6 +512,7 @@ Spindle Configuration
 
 
 \begin_inset Float figure
+placement H
 wide false
 collapsed false
 
@@ -589,15 +626,12 @@ and\SpecialChar ~
 2 The generated configuration file uses a simple linear
  relationship to determine the PWM value for a given RPM value.
  If the values are not known, they can be determined.
- See the section 
-\begin_inset Quotes eld
+ For more information see section (
+\begin_inset LatexCommand \ref{sec:Determining-Spindle-Calibration}
+
 \end_inset 
 
-Determining Spindle Calibration
-\begin_inset Quotes erd
-\end_inset 
-
- below.
+)
 \layout Subsubsection
 
 Spindle-synchronized motion (lathe threading)
@@ -699,7 +733,7 @@ SPINDLE A
 \series bold 
 BASE_PERIOD
 \series default 
- setting (TODO)
+ setting (TO DO)
 \end_inset 
 
 
@@ -725,8 +759,8 @@ Apply
  Later, you can re-run this program and tweak the settings you entered before.
 \layout Section
 
-Finding Velocity and Acceleration
-\begin_inset LatexCommand \label{sec:Finding-Velocity-and}
+Testing Each Axis
+\begin_inset LatexCommand \label{sec:Testing-Each-Axis}
 
 \end_inset 
 
@@ -735,6 +769,7 @@ Finding Velocity and Acceleration
 
 
 \begin_inset Float figure
+placement H
 wide false
 collapsed false
 
@@ -1347,7 +1382,7 @@ In the example above, latency-test only ran for a few seconds.
  particular action.
  For instance, one Intel motherboard worked pretty well most of the time,
  but every 64 seconds it had a very bad 300uS latency.
- Fortunately that was fixable (see 
+ Fortunately that was fixable see (
 \begin_inset LatexCommand \htmlurl["Fixing Dapper SMI Issues"]{http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?FixingDapperSMIIssues}
 
 \end_inset 
@@ -1408,6 +1443,7 @@ Invert
 
 
 \begin_inset Float figure
+placement H
 wide false
 collapsed false
 
@@ -1437,6 +1473,7 @@ Wiring Normally Closed switches in series (simplified diagram)
 
 
 \begin_inset Float figure
+placement H
 wide false
 collapsed false
 
