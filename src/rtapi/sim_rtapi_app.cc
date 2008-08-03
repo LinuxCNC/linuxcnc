@@ -28,6 +28,7 @@
 #include <vector>
 #include <string>
 #include <map>
+#include <algorithm>
 #include <sys/time.h>
 #include <time.h>
 
