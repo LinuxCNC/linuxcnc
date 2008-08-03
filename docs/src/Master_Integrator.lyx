@@ -264,12 +264,9 @@ preview false
 \layout Standard
 
 
-\begin_inset Note
-collapsed false
+\begin_inset Include \include{hal/components.lyx}
+preview false
 
-\layout Standard
-
-add hal/components.lyx
 \end_inset 
 
 
