@@ -43,6 +43,9 @@
 \papersides 1
 \paperpagestyle headings
 
+\layout Part
+
+User Manual
 \layout Title
 
 
@@ -100,7 +103,7 @@ Contents
 
 \layout Part
 
-Preface
+Foreword
 \layout Standard
 
 
@@ -236,6 +239,9 @@ preview false
 \end_inset 
 
 
+\layout Part
+
+Index
 \layout Standard
 
 

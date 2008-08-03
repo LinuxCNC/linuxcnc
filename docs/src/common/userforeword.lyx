@@ -24,6 +24,9 @@
 \papersides 1
 \paperpagestyle default
 
+\layout Title
+
+Foreword
 \layout Standard
 
 EMC2 is modular and flexible.
