@@ -31,6 +31,7 @@
 #include <algorithm>
 #include <sys/time.h>
 #include <time.h>
+#include <stdlib.h>
 
 #include "config.h"
 
