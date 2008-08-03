@@ -265,6 +265,11 @@ Input is case insensitive, except in comments, i.e., any letter outside a
 \layout Section
 
 Line Number
+\begin_inset LatexCommand \index{Line Number}
+
+\end_inset 
+
+
 \layout Standard
 
 A line number is the letter N followed by an integer (with no sign) between
@@ -278,6 +283,11 @@ A line number is the letter N followed by an integer (with no sign) between
 \layout Section
 
 Word
+\begin_inset LatexCommand \index{Word}
+
+\end_inset 
+
+
 \layout Standard
 
 A word is a letter other than N followed by a real value.
@@ -1754,6 +1764,11 @@ G80 M5 (stop motion)
 \layout Subsection
 
 Messages
+\begin_inset LatexCommand \index{Messages}
+
+\end_inset 
+
+
 \begin_inset LatexCommand \label{sub:Messages}
 
 \end_inset 
@@ -1795,6 +1810,11 @@ MSG,
 \layout Subsection
 
 Probe Logging
+\begin_inset LatexCommand \index{Probe Logging}
+
+\end_inset 
+
+
 \begin_inset LatexCommand \label{sub:Probe-Logging}
 
 \end_inset 
@@ -1854,6 +1874,11 @@ The message
 \layout Subsection
 
 Debugging messages
+\begin_inset LatexCommand \index{Debug}
+
+\end_inset 
+
+
 \begin_inset LatexCommand \label{sub:Debugging-messages}
 
 \end_inset 
@@ -2080,6 +2105,11 @@ Non-modal
 \layout Section
 
 Modal Groups
+\begin_inset LatexCommand \index{Modal Groups}
+
+\end_inset 
+
+
 \begin_inset LatexCommand \label{sec:Modal-Groups}
 
 \end_inset 
@@ -2171,57 +2201,7 @@ Group 1
 
 \layout Standard
 
-G0
-\begin_inset LatexCommand \index{G0}
-
-\end_inset 
-
- G1
-\begin_inset LatexCommand \index{G1}
-
-\end_inset 
-
- G2
-\begin_inset LatexCommand \index{G2}
-
-\end_inset 
-
- G3
-\begin_inset LatexCommand \index{G3}
-
-\end_inset 
-
- G33
-\begin_inset LatexCommand \index{G33}
-
-\end_inset 
-
- G38.x
-\begin_inset LatexCommand \index{G38.2}
-
-\end_inset 
-
-
-\begin_inset LatexCommand \index{G38.x}
-
-\end_inset 
-
- G73
-\begin_inset LatexCommand \index{G73}
-
-\end_inset 
-
- G80
-\begin_inset LatexCommand \index{G80}
-
-\end_inset 
-
- G81
-\begin_inset LatexCommand \index{G81}
-
-\end_inset 
-
-
+G0 G1 G2 G3 G33 G38.x G73 G80 G81
 \end_inset 
 </cell>
 </row>
@@ -2238,47 +2218,7 @@ G0
 
 \layout Standard
 
-G82
-\begin_inset LatexCommand \index{G82}
-
-\end_inset 
-
- G83
-\begin_inset LatexCommand \index{G83}
-
-\end_inset 
-
- G84
-\begin_inset LatexCommand \index{G84}
-
-\end_inset 
-
- G85
-\begin_inset LatexCommand \index{G85}
-
-\end_inset 
-
- G86
-\begin_inset LatexCommand \index{G86}
-
-\end_inset 
-
- G87
-\begin_inset LatexCommand \index{G87}
-
-\end_inset 
-
- G88
-\begin_inset LatexCommand \index{G88}
-
-\end_inset 
-
- G89
-\begin_inset LatexCommand \index{G89}
-
-\end_inset 
-
-
+G82 G83 G84 G85 G86 G87 G88 G89
 \end_inset 
 </cell>
 </row>
@@ -2296,22 +2236,7 @@ Plane selection
 
 \layout Standard
 
-G17
-\begin_inset LatexCommand \index{G17}
-
-\end_inset 
-
- G18
-\begin_inset LatexCommand \index{G18}
-
-\end_inset 
-
- G19
-\begin_inset LatexCommand \index{G19}
-
-\end_inset 
-
-
+G17, G18, G19
 \end_inset 
 </cell>
 </row>
@@ -2329,17 +2254,7 @@ Distance Mode
 
 \layout Standard
 
-G90
-\begin_inset LatexCommand \index{G90}
-
-\end_inset 
-
- G91
-\begin_inset LatexCommand \index{G91}
-
-\end_inset 
-
-
+G90, G91
 \end_inset 
 </cell>
 </row>
@@ -2357,17 +2272,7 @@ Feed Rate Mode
 
 \layout Standard
 
-G93
-\begin_inset LatexCommand \index{G93}
-
-\end_inset 
-
-, G94
-\begin_inset LatexCommand \index{G94}
-
-\end_inset 
-
-
+G93, G94
 \end_inset 
 </cell>
 </row>
@@ -2385,17 +2290,7 @@ Units
 
 \layout Standard
 
-G20
-\begin_inset LatexCommand \index{G20}
-
-\end_inset 
-
-, G21
-\begin_inset LatexCommand \index{G21}
-
-\end_inset 
-
-
+G20, G21
 \end_inset 
 </cell>
 </row>
@@ -2413,32 +2308,7 @@ Cutter Radius Compensation
 
 \layout Standard
 
-G40
-\begin_inset LatexCommand \index{G40}
-
-\end_inset 
-
-, G41
-\begin_inset LatexCommand \index{G41}
-
-\end_inset 
-
-, G42
-\begin_inset LatexCommand \index{G42}
-
-\end_inset 
-
-, G41.1
-\begin_inset LatexCommand \index{G41.1}
-
-\end_inset 
-
-, G42.1
-\begin_inset LatexCommand \index{G42.1}
-
-\end_inset 
-
-
+G40, G41, G42, G41.1, G42.1
 \end_inset 
 </cell>
 </row>
@@ -2456,22 +2326,7 @@ Tool Length Offset
 
 \layout Standard
 
-G43
-\begin_inset LatexCommand \index{G43}
-
-\end_inset 
-
-, G43.1
-\begin_inset LatexCommand \index{G43.1}
-
-\end_inset 
-
-, G49
-\begin_inset LatexCommand \index{G49}
-
-\end_inset 
-
-
+G43, G43.1, G49
 \end_inset 
 </cell>
 </row>
@@ -2489,17 +2344,7 @@ Return Mode in Canned Cycles
 
 \layout Standard
 
-G98
-\begin_inset LatexCommand \index{G98}
-
-\end_inset 
-
-, G99
-\begin_inset LatexCommand \index{G99}
-
-\end_inset 
-
-
+G98, G99
 \end_inset 
 </cell>
 </row>
@@ -2517,32 +2362,7 @@ Coordinate System Selection
 
 \layout Standard
 
-G54
-\begin_inset LatexCommand \index{G54}
-
-\end_inset 
-
-, G55
-\begin_inset LatexCommand \index{G55}
-
-\end_inset 
-
-, G56
-\begin_inset LatexCommand \index{G56}
-
-\end_inset 
-
-, G57
-\begin_inset LatexCommand \index{G57}
-
-\end_inset 
-
-, G58
-\begin_inset LatexCommand \index{G58}
-
-\end_inset 
-
-,
+G54, G55, G56, G57, G58
 \end_inset 
 </cell>
 </row>
@@ -2559,27 +2379,7 @@ G54
 
 \layout Standard
 
-G59
-\begin_inset LatexCommand \index{G59}
-
-\end_inset 
-
-, G59.1
-\begin_inset LatexCommand \index{G59.1}
-
-\end_inset 
-
-, G59.2
-\begin_inset LatexCommand \index{G59.2}
-
-\end_inset 
-
-, G59.3
-\begin_inset LatexCommand \index{G59.3}
-
-\end_inset 
-
-
+G59, G59.1, G59.2, G59.3
 \end_inset 
 </cell>
 </row>
@@ -2597,32 +2397,7 @@ Stopping
 
 \layout Standard
 
-M0
-\begin_inset LatexCommand \index{M0}
-
-\end_inset 
-
-, M1
-\begin_inset LatexCommand \index{M1}
-
-\end_inset 
-
-, M2
-\begin_inset LatexCommand \index{M2}
-
-\end_inset 
-
-, M30
-\begin_inset LatexCommand \index{M30}
-
-\end_inset 
-
-, M60
-\begin_inset LatexCommand \index{M60}
-
-\end_inset 
-
-
+M0, M1, M2, M30, M60
 \end_inset 
 </cell>
 </row>
@@ -2640,12 +2415,7 @@ Tool Change
 
 \layout Standard
 
-M6
-\begin_inset LatexCommand \index{M6}
-
-\end_inset 
-
-
+M6 Tn
 \end_inset 
 </cell>
 </row>
@@ -2663,22 +2433,7 @@ Spindle Turning
 
 \layout Standard
 
-M3
-\begin_inset LatexCommand \index{M3}
-
-\end_inset 
-
-, M4
-\begin_inset LatexCommand \index{M4}
-
-\end_inset 
-
-, M5
-\begin_inset LatexCommand \index{M5}
-
-\end_inset 
-
-
+M3, M4, M5
 \end_inset 
 </cell>
 </row>
@@ -2696,22 +2451,7 @@ Coolant
 
 \layout Standard
 
-M7
-\begin_inset LatexCommand \index{M7}
-
-\end_inset 
-
-, M8
-\begin_inset LatexCommand \index{M8}
-
-\end_inset 
-
-, M9
-\begin_inset LatexCommand \index{M9}
-
-\end_inset 
-
-.
+M7, M8, M9.
  Special case:
 \end_inset 
 </cell>
@@ -2747,17 +2487,7 @@ Override Switches
 
 \layout Standard
 
-M48
-\begin_inset LatexCommand \index{M48}
-
-\end_inset 
-
-, M49
-\begin_inset LatexCommand \index{M49}
-
-\end_inset 
-
-
+M48, M49
 \end_inset 
 </cell>
 </row>
@@ -2801,32 +2531,7 @@ Group 0
 
 \layout Standard
 
-G4
-\begin_inset LatexCommand \index{G4}
-
-\end_inset 
-
-, G10
-\begin_inset LatexCommand \index{G10}
-
-\end_inset 
-
-, G28
-\begin_inset LatexCommand \index{G28}
-
-\end_inset 
-
-, G30
-\begin_inset LatexCommand \index{G30}
-
-\end_inset 
-
-, G53
-\begin_inset LatexCommand \index{G53}
-
-\end_inset 
-
-
+G4, G10 G28, G30, G53
 \end_inset 
 </cell>
 </row>
@@ -2843,27 +2548,7 @@ G4
 
 \layout Standard
 
-G92
-\begin_inset LatexCommand \index{G92}
-
-\end_inset 
-
-, G92.1
-\begin_inset LatexCommand \index{G92.1}
-
-\end_inset 
-
-, G92.2
-\begin_inset LatexCommand \index{G92.2}
-
-\end_inset 
-
-, G92.3
-\begin_inset LatexCommand \index{G92.3}
-
-\end_inset 
-
-
+G92, G92.1, G92.2, G92.3
 \end_inset 
 </cell>
 </row>
@@ -2880,12 +2565,7 @@ G92
 
 \layout Standard
 
-M100
-\begin_inset LatexCommand \index{M100..199}
-
-\end_inset 
-
- to M199
+M100 to M199
 \end_inset 
 </cell>
 </row>
@@ -5822,11 +5502,6 @@ the requested linear motion exceeds machine velocity limits due to the spindle
 \layout Section
 
 G38.x
-\begin_inset LatexCommand \index{G38.2}
-
-\end_inset 
-
-
 \begin_inset LatexCommand \index{G38.x}
 
 \end_inset 
