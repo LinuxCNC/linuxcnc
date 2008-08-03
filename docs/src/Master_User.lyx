@@ -43,6 +43,9 @@
 \papersides 1
 \paperpagestyle headings
 
+\layout Part
+
+User Manual
 \layout Title
 
 
@@ -56,7 +59,7 @@
 
 
 \newline 
-V2.2 User Handbook
+V2.2 User Manual
 \layout Author
 \added_space_top medskip 
 The EMC Team
@@ -237,6 +240,9 @@ preview false
 \end_inset 
 
 
+\layout Part
+
+Index
 \layout Standard
 
 

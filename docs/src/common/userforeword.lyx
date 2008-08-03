@@ -1,6 +1,6 @@
 #LyX 1.3 created this file. For more info see http://www.lyx.org/
 \lyxformat 221
-\textclass article
+\textclass book
 \language english
 \inputencoding auto
 \fontscheme default
@@ -24,6 +24,9 @@
 \papersides 1
 \paperpagestyle default
 
+\layout Title
+
+Foreword
 \layout Standard
 
 EMC2 is modular and flexible.
