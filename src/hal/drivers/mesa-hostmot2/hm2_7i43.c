@@ -175,6 +175,25 @@ static int hm2_7i43_epp_clear_timeout(hm2_7i43_t *board) {
 }
 
 
+//
+// misc generic helper functions
+//
+
+// FIXME: this is bogus
+static void hm2_7i43_nanosleep(unsigned long int nanoseconds) {
+    long int max_ns_delay;
+
+    max_ns_delay = rtapi_delay_max();
+
+    while (nanoseconds > max_ns_delay) {
+        rtapi_delay(max_ns_delay);
+        nanoseconds -= max_ns_delay;
+    }
+
+    rtapi_delay(nanoseconds);
+}
+
+
 
 
 // 
@@ -209,6 +228,8 @@ int hm2_7i43_read(hm2_lowlevel_io_t *this, u32 addr, void *buffer, int size) {
 }
 
 
+
+
 int hm2_7i43_write(hm2_lowlevel_io_t *this, u32 addr, void *buffer, int size) {
     int bytes_remaining = size;
     hm2_7i43_t *board = this->private;
@@ -234,6 +255,110 @@ int hm2_7i43_write(hm2_lowlevel_io_t *this, u32 addr, void *buffer, int size) {
     }
 
     return 1;
+}
+
+
+
+
+int hm2_7i43_program_fpga(hm2_lowlevel_io_t *this, const bitfile_t *bitfile) {
+    int orig_debug_epp = debug_epp;  // we turn off EPP debugging for this part...
+    hm2_7i43_t *board = this->private;
+    int64_t start_time, end_time;
+    int i;
+    void *firmware = bitfile->e.data;
+
+
+    //
+    // send the firmware
+    //
+
+    debug_epp = 0;
+    start_time = rtapi_get_time();
+
+    // select the CPLD's data address
+    hm2_7i43_epp_addr8(0, board);
+
+    for (i = 0; i < (bitfile->e.size & ~0x3); i += 4, firmware += 4) {
+        hm2_7i43_epp_write32(*(u32 *)firmware, board);
+    }
+
+    for (; i < bitfile->e.size; i ++, firmware ++) {
+        hm2_7i43_epp_write(*(u8 *)firmware, board);
+    }
+
+    end_time = rtapi_get_time();
+    debug_epp = orig_debug_epp;
+
+
+    // see if it worked
+    if (hm2_7i43_epp_check_for_timeout(board)) {
+        THIS_ERR("EPP Timeout while sending firmware!\n");
+        return -EIO;
+    }
+
+
+    //
+    // brag about how fast it was
+    //
+
+    {
+        uint32_t duration_ns;
+
+        duration_ns = (uint32_t)(end_time - start_time);
+
+        THIS_INFO(
+            "%d bytes of firmware sent (%u KB/s)\n",
+            bitfile->e.size,
+            (uint32_t)(((double)bitfile->e.size / ((double)duration_ns / (double)(1000 * 1000 * 1000))) / 1024)
+        );
+    }
+
+
+    return 0;
+}
+
+
+
+
+// return 0 if the board has been reset, -errno if not
+int hm2_7i43_reset(hm2_lowlevel_io_t *this) {
+    hm2_7i43_t *board = this->private;
+    uint8_t byte;
+
+
+    //
+    // this resets the FPGA *only* if it's currently configured with the
+    // HostMot2 or GPIO firmware
+    //
+
+    hm2_7i43_epp_addr16(0x7F7F, board);
+    hm2_7i43_epp_write(0x5A, board);
+
+
+    // 
+    // this code resets the FPGA *only* if the CPLD is in charge of the
+    // parallel port
+    //
+
+    // select the control register
+    hm2_7i43_epp_addr8(1, board);
+
+    // bring the Spartan3's PROG_B line low for 1 us (the specs require 300-500 ns or longer)
+    hm2_7i43_epp_write(0x00, board);
+    hm2_7i43_nanosleep(1000);
+
+    // bring the Spartan3's PROG_B line high and wait for 2 ms before sending firmware (required by spec)
+    hm2_7i43_epp_write(0x01, board);
+    hm2_7i43_nanosleep(2 * 1000 * 1000);
+
+    // make sure the FPGA is not asserting its /DONE bit
+    byte = hm2_7i43_epp_read(board);
+    if ((byte & 0x01) != 0) {
+        LL_ERR("/DONE is not low after CPLD reset!\n");
+        return -EIO;
+    }
+
+    return 0;
 }
 
 
@@ -313,13 +438,40 @@ static int hm2_7i43_setup(void) {
 
         snprintf(board[i].llio.name, HAL_NAME_LEN, "%s.%d", HM2_LLIO_NAME, num_boards);
         board[i].llio.comp_id = comp_id;
+
         board[i].llio.read = hm2_7i43_read;
         board[i].llio.write = hm2_7i43_write;
-        board[i].llio.private = &board[i];
+        board[i].llio.program_fpga = hm2_7i43_program_fpga;
+        board[i].llio.reset = hm2_7i43_reset;
+
         board[i].llio.num_ioport_connectors = 2;
         board[i].llio.ioport_connector_name[0] = "P4";
         board[i].llio.ioport_connector_name[1] = "P3";
+
+        board[i].llio.private = &board[i];
+
         this = &board[i].llio;
+
+
+        //
+        // now we want to detect if this 7i43 has the big FPGA or the small one
+        // 3s200tq144 for the small board
+        // 3s400tq144 for the big
+        //
+
+        // make sure the CPLD is in charge of the parallel port
+        hm2_7i43_reset(&board[i].llio);
+
+        //  select CPLD data register
+        hm2_7i43_epp_addr8(0, &board[i]);
+
+        if (hm2_7i43_epp_read(&board[i]) & 0x01) {
+            board[i].llio.fpga_part_number = "3s400tq144";
+        } else {
+            board[i].llio.fpga_part_number = "3s200tq144";
+        }
+        THIS_INFO("detected FPGA '%s'\n", board[i].llio.fpga_part_number);
+
 
         r = hm2_register(&board[i].llio, config[i]);
         if (r != 0) {

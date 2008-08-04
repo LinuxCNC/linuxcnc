@@ -22,8 +22,13 @@
 #endif
 
 
+#include <linux/device.h>
+#include <linux/firmware.h>
+
 #include "rtapi.h"
 #include "hal.h"
+
+#include "bitfile.h"
 
 
 #define LL_PRINT(level, fmt, args...)   rtapi_print_msg(level, HM2_LLIO_NAME ": " fmt, ## args);
@@ -40,6 +45,9 @@
 #define THIS_DBG(fmt, args...)            rtapi_print_msg(RTAPI_MSG_DBG,  "%s: " fmt, this->name, ## args);
 
 
+#define ANYIO_MAX_IOPORT_CONNECTORS (8)
+
+
 
 
 // 
@@ -53,10 +61,15 @@ struct hm2_lowlevel_io_struct {
     char name[HAL_NAME_LEN];
     int comp_id;
 
+    // these two are required
     // on success these two return TRUE (not zero)
     // on failure they return FALSE (0) and set *self->io_error (below) to TRUE
     int (*read)(hm2_lowlevel_io_t *self, u32 addr, void *buffer, int size);
     int (*write)(hm2_lowlevel_io_t *self, u32 addr, void *buffer, int size);
+
+    // these two are optional
+    int (*program_fpga)(hm2_lowlevel_io_t *self, const bitfile_t *bitfile);
+    int (*reset)(hm2_lowlevel_io_t *self);
 
     // 
     // This is a HAL parameter allocated and added to HAL by hostmot2.
@@ -78,7 +91,11 @@ struct hm2_lowlevel_io_struct {
 
     // the names of the io port connectors on this board
     int num_ioport_connectors;
-    const char *ioport_connector_name[8];  // no more than 8 connectors yet...
+    const char *ioport_connector_name[ANYIO_MAX_IOPORT_CONNECTORS];
+
+    // the part number of the FPGA on this board
+    // optional, enhances firmware sanity checking if present
+    const char *fpga_part_number;
 
     void *private;  // for the low-level driver to hang their struct on
 };

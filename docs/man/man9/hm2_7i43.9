@@ -4,11 +4,11 @@
 .ns
 .TP \\$1
 ..
-
 .SH NAME
 
 hm2_7i43 \- RTAI driver for the Mesa Electronics 7i43 EPP Anything IO board with HostMot2 firmware.
 .SH SYNOPSIS
+
 .HP
 .B loadrt hm2_7i43 [ioaddr=\fIN\fB] [ioaddr_hi=\fIN\fB] [epp_wide=\fIN\fB] [config=\fI"str"\fB] [debug_epp=\fIN\fB]
 .RS 4
@@ -44,12 +44,11 @@ can be used to power the 7i43, but not to talk to it.  USB communication
 with the 7i43 will not be supported any time soon, since USB has poor
 real-time qualities.
 
-The driver assumes that the board is already configured with the HostMot2
-firmware.  The board might get its configuration from its EEPROM, or
-the bfload(1) program can be used to send a firmware image from the PC
-to the 7i43 board.
-
-
+The driver programs the board's FPGA with firmware when it registers
+the board with the hostmot2 driver.  The old bfload(1) firmware loading
+method is not used anymore.  Instead the firmware to load is specified
+in the \fBconfig\fR modparam, as described in the hostmot2(9) manpage,
+in the \fIconfig modparam\fR section.
 .SH Jumper settings
 
 To send the FPGA configuration from the PC, the board must be configured
@@ -59,8 +58,6 @@ must both be down, ie toward the USB connector.
 The board must be configured to power on whether or not the USB interface
 is active.  This is done by setting jumper W7 up, ie away from the edge
 of the board.
-
-
 .SH Communicating with the board
 
 The 7i43 communicates with the EMC computer over EPP, the Enhanced
@@ -74,15 +71,9 @@ inform HAL of this condition.  When the driver detects an EPP timeout,
 it sets io_error to True and stops communicating with the 7i43 board.
 Setting io_error back to False makes the driver start trying to
 communicate with the 7i43 again.
-
-
 .SH SEE ALSO
 
 hostmot2(9)
-.br
-bfload(1)
-
-
 .SH LICENSE
 
 GPL

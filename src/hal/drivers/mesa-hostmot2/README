@@ -176,16 +176,6 @@ Architecture:
         <rubs hands together>
 
 
-Jeffry Molanus' driver:
-
-    nicely puts all I/O code in the kernel, no special user-space tool needed
-
-    load board-specific driver
-
-    discover board
-
-    allow programming firmware by writing to /dev/anyio_program (close sends it, no error reporting)
-
-    allow read/write access to the board's local bus via /dev/anyio (BROKEN!)
+Some inspiration taken from Jeffry Molanus' driver (U. Twente).
 
 

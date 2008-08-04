@@ -69,17 +69,129 @@ static struct pci_device_id hm2_5i20_pci_tbl[] = {
 MODULE_DEVICE_TABLE(pci, hm2_5i20_pci_tbl);
 
 
-static int hm2_5i20_read(hm2_lowlevel_io_t *self, u32 addr, void *buffer, int size) {
-    hm2_5i20_t *this = self->private;
-    memcpy(buffer, (this->base + addr), size);
+
+
+// 
+// these are the "low-level I/O" functions exported up
+//
+
+static int hm2_5i20_read(hm2_lowlevel_io_t *this, u32 addr, void *buffer, int size) {
+    hm2_5i20_t *board = this->private;
+    memcpy(buffer, (board->base + addr), size);
     return 1;  // success
 }
 
-static int hm2_5i20_write(hm2_lowlevel_io_t *self, u32 addr, void *buffer, int size) {
-    hm2_5i20_t *this = self->private;
-    memcpy((this->base + addr), buffer, size);
+static int hm2_5i20_write(hm2_lowlevel_io_t *this, u32 addr, void *buffer, int size) {
+    hm2_5i20_t *board = this->private;
+    memcpy((board->base + addr), buffer, size);
     return 1;  // success
 }
+
+
+static int hm2_5i20_program_fpga(hm2_lowlevel_io_t *this, const bitfile_t *bitfile) {
+    hm2_5i20_t *board = this->private;
+    int i;
+    u32 status, control;
+
+    // set /WRITE low for data transfer, and turn on LED
+    status = inl(board->ctrl_base_addr + CTRL_STAT_OFFSET);
+    control = status & ~_WRITE_MASK & ~_LED_MASK;
+    outl(control, board->ctrl_base_addr + CTRL_STAT_OFFSET);
+
+    // program the FPGA
+    for (i = 0; i < bitfile->e.size; i ++) {
+        outb(bitfile->e.data[i], board->data_base_addr);
+    }
+
+    // all bytes transferred, make sure FPGA is all set up now
+    status = inl(board->ctrl_base_addr + CTRL_STAT_OFFSET);
+    if (!(status & _INIT_MASK)) {
+	// /INIT goes low on CRC error
+	THIS_ERR("FPGA asserted /INIT: CRC error\n");
+        goto fail;
+    }
+    if (!(status & DONE_MASK)) {
+	THIS_ERR("FPGA did not assert DONE\n");
+	goto fail;
+    }
+
+    // turn off write enable and LED
+    control = status | _WRITE_MASK | _LED_MASK;
+    outl(control, board->ctrl_base_addr + CTRL_STAT_OFFSET);
+
+    THIS_INFO("Successfully programmed %u bytes\n", bitfile->e.size);
+    return 0;
+
+
+fail:
+    // set /PROGRAM low (reset device), /WRITE high and LED off
+    status = inl(board->ctrl_base_addr + CTRL_STAT_OFFSET);
+    control = status & ~_PROGRAM_MASK;
+    control |= _WRITE_MASK | _LED_MASK;
+    outl(control, board->ctrl_base_addr + CTRL_STAT_OFFSET);
+    return -EIO;
+}
+
+
+static int hm2_5i20_reset(hm2_lowlevel_io_t *this) {
+    hm2_5i20_t *board = this->private;
+    u32 status;
+    u32 control;
+
+    status = inl(board->ctrl_base_addr + CTRL_STAT_OFFSET);
+
+    // set /PROGRAM bit low to reset the FPGA
+    control = status & ~_PROGRAM_MASK;
+
+    // set /WRITE and /LED high (idle state)
+    control |= _WRITE_MASK | _LED_MASK;
+
+    // and write it back
+    outl(control, board->ctrl_base_addr + CTRL_STAT_OFFSET);
+
+    // verify that /INIT and DONE went low
+    status = inl(board->ctrl_base_addr + CTRL_STAT_OFFSET);
+    if (status & (DONE_MASK | _INIT_MASK)) {
+	THIS_ERR(
+            "FPGA did not reset: /INIT = %d, DONE = %d\n",
+	    (status & _INIT_MASK ? 1 : 0),
+            (status & DONE_MASK ? 1 : 0)
+        );
+	return -EIO;
+    }
+
+    // set /PROGRAM high, let FPGA come out of reset
+    control = status | _PROGRAM_MASK;
+    outl(control, board->ctrl_base_addr + CTRL_STAT_OFFSET);
+
+    // wait for /INIT to go high when it finishes clearing memory
+    // This should take no more than 100uS.  If we assume each PCI read
+    // takes 30nS (one PCI clock), that is 3300 reads.  Reads actually
+    // take several clocks, but even at a microsecond each, 3.3mS is not
+    // an excessive timeout value
+    {
+        int count = 3300;
+
+        do {
+            status = inl(board->ctrl_base_addr + CTRL_STAT_OFFSET);
+            if (status & _INIT_MASK) break;
+        } while (count-- > 0);
+
+        if (count == 0) {
+            THIS_ERR("FPGA did not come out of /INIT");
+            return -EIO;
+        }
+    }
+
+    return 0;
+}
+
+
+
+
+// 
+// misc internal functions
+//
 
 
 static int hm2_5i20_probe(struct pci_dev *dev, const struct pci_device_id *id) {
@@ -93,23 +205,56 @@ static int hm2_5i20_probe(struct pci_dev *dev, const struct pci_device_id *id) {
         return -EINVAL;
     }
 
+    // NOTE: this enables the board's BARs -- this fixes the Arty bug
     if (pci_enable_device(dev)) {
         LL_WARN("skipping 5i20 at %s, failed to enable PCI device\n", pci_name(dev));
         return -ENODEV;
     }
 
+
     board = &hm2_5i20_board[num_boards];
+    this = &board->llio;
+    snprintf(board->llio.name, HAL_NAME_LEN, "%s.%d", HM2_LLIO_NAME, num_boards);
 
-    //
-    // region 5 is 64K mem (32 bit)
+    THIS_INFO("discovered 5i20 at %s\n", pci_name(dev));
+
+
+    // 
+    // get a hold of the IO resources we'll need later
     //
 
+    // FIXME: should request_region here
+    board->ctrl_base_addr = pci_resource_start(dev, 1);
+    board->data_base_addr = pci_resource_start(dev, 2);
+
+    // BAR 5 is 64K mem (32 bit)
     board->len = pci_resource_len(dev, 5);
     board->base = ioremap_nocache(pci_resource_start(dev, 5), board->len);
     if (board->base == NULL) {
-        LL_WARN("skipping 5i20 at %s, could not map in FPGA address space\n", pci_name(dev));
-        pci_disable_device(dev);
-        return -ENODEV;
+        THIS_ERR("could not map in FPGA address space\n");
+        r = -ENODEV;
+        goto fail0;
+    }
+
+
+    //
+    // fix up LASxBRD READY if needed
+    //
+    {
+        int offsets[] = { LAS0BRD_OFFSET, LAS1BRD_OFFSET, LAS2BRD_OFFSET, LAS3BRD_OFFSET };
+        int i;
+
+        for (i = 0; i < 4; i ++) {
+            u32 val;
+            int addr = board->ctrl_base_addr + offsets[i];
+
+            val = inl(addr);
+            if (!(val & LASxBRD_READY)) {
+                THIS_INFO("LAS%dBRD #READY is off, enabling now\n", i);
+                val |= LASxBRD_READY;
+                outl(val, addr);
+            }
+        }
     }
 
 
@@ -117,30 +262,41 @@ static int hm2_5i20_probe(struct pci_dev *dev, const struct pci_device_id *id) {
 
     pci_set_drvdata(dev, board);
 
-    snprintf(board->llio.name, HAL_NAME_LEN, "%s.%d", HM2_LLIO_NAME, num_boards);
     board->llio.comp_id = comp_id;
-    board->llio.read = hm2_5i20_read;
-    board->llio.write = hm2_5i20_write;
     board->llio.private = board;
+
     board->llio.num_ioport_connectors = 3;
     board->llio.ioport_connector_name[0] = "P2";
     board->llio.ioport_connector_name[1] = "P3";
     board->llio.ioport_connector_name[2] = "P4";
-    this = &board->llio;
+
+    board->llio.fpga_part_number = "2s200pq208";
+
+    board->llio.read = hm2_5i20_read;
+    board->llio.write = hm2_5i20_write;
+    board->llio.program_fpga = hm2_5i20_program_fpga;
+    board->llio.reset = hm2_5i20_reset;
 
     r = hm2_register(&board->llio, config[num_boards]);
     if (r != 0) {
-        LL_WARN("skipping 5i20 at %s, board fails HM2 registration\n", pci_name(dev));
-        pci_disable_device(dev);
-        board->dev = NULL;
-        pci_set_drvdata(dev, NULL);
-        return r;
+        THIS_ERR("board fails HM2 registration\n");
+        goto fail1;
     }
 
     THIS_INFO("found 5i20 board at %s with HostMot2 firmware\n", pci_name(dev));
 
     num_boards ++;
     return 0;
+
+
+fail1:
+    pci_set_drvdata(dev, NULL);
+    iounmap(board->base);
+    board->base = NULL;
+
+fail0:
+    pci_disable_device(dev);
+    return r;
 }
 
 
@@ -154,7 +310,7 @@ static void hm2_5i20_remove(struct pci_dev *dev) {
         if (board->dev == dev) {
             THIS_INFO("dropping 5i20 at %s\n", pci_name(dev));
 
-            hm2_unregister(&(board->llio));
+            hm2_unregister(&board->llio);
 
             // Unmap board memory
             if (board->base != NULL) {

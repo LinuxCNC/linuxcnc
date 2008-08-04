@@ -2,20 +2,9 @@
 
 next steps:
 
-    work on bfload
+    firmware loading
 
-        just shell out to setpci for Config-space access for now
-
-        add the Arty fix to 2.2 and TRUNK
-
-
-    clean the tree:
-
-        deprecate m7i43_hm2 and mesa7i43_gpio in TRUNK
-
-        merge hostmot2 into 2.2
-
-        deprecate m7i43_hm2 in 2.2
+        default firmware?
 
 
     on driver unload, it should stop all the motors and "safe" the
@@ -28,12 +17,16 @@ next steps:
 
     It's starting to feel like it's ready for some kind of module
     abstraction...  To standardize the semantics and make it easier to
-    think about.  Pull out the common code.
+    think about.  Pull out the common code.  pins are special
 
 
 
 
 clean the tree:
+
+    Is the driver stable enough for this now?  The one remaining invasive
+    change I might want to do is the anyio layer between the firmware
+    drivers like hostmot2 and the llio drivers (see Wishlist at bottom).
 
     Here's what's in our trees currently:
 
@@ -92,51 +85,6 @@ clean the tree:
 
             * Deprecate m7i43_hm2, and mesa7i43-gpio in TRUNK.
               Remove them in 6 months or a year or so.
-
-
-
-
-bfload
-
-    prolly dont need to fix upci now (use libpciaccess instead), but
-    here's the proposed fix:
-
-        add "upci_cfg_read_u8(int devnum, __u32 offset)" and "upci_cfg_write_u8(int devnum, __u32 offset, __u8 data)" 
-        (and the versions for other data sizes)
-
-        remove cfg_info from dev_info
-
-
-    add "board in use" safety checks:
-
-        > >>If bfload can determine whether the device's pci regions are in use, it
-        > >>could avoid programming while another hardware driver is using the
-        > >>device.  Is this possible with any of the pci interface libraries you're
-        > >>looking at?
-        > >
-        > >Good idea!
-        > >
-        > >It's not a feature of the pci libraries, but you can check if
-        > >/sys/devices/pci*/$(DOMAIN):$(BUS):$(DEVICE).$(FUNCTION)/driver exists,
-        > >indicating that a kernel driver has claimed the PCI device.
-        > >
-        > >For EPP, not so much...
-        >
-        > I'd think that a scan of /proc/ioports correlated with detected (or
-        > command-line-supplied) card addresses would tell you which cards are in
-        > use.  This should also work for the parallel port, if the driver
-        > correctly uses io_request_region().
-
-        Of course.  I'll add these checks to bfload.
-
-
-    add "bfload reset"?
-
-    5i22 has wrong subdevice ids?  SWP says it works on his 1.5M board
-
-    add support for all the other PCI cards
-
-    epp via the pci card doesnt work, epp via the onboard port works
 
 
 
@@ -234,6 +182,9 @@ stepgen:
     to 1600 revs causes chaos, it runs in the wrong direction, some
     overflow bug not handled there...
 
+    moving and then changing .scale from 1600 to 800 causes it to spin...
+    and at 800 it doesnt track the follow-the-leader net properly
+
     support maxvel
 
     support maxaccel
@@ -255,6 +206,8 @@ watchdog:
     can't get it to work with the pci card parport...
 
     test with the 400K board again
+
+    needs to support multiple boards
 
 
 5i20:
@@ -301,7 +254,7 @@ planned milestones:
 
         add optional tram support
 
-        add DMA support for PCI cards with TRAM
+        add DMA support for PCI cards with TRAM & the 7i43
 
         llios should support multiple boards each
 
@@ -324,22 +277,19 @@ wishlist:
 
         1. load anyio_manager
 
-        2. load anyio_{7i43,5i20,etc}
+        2. load low-level board drivers: anyio_{7i43,5i20|pci,etc}
 
-        3. lls find their boards, make files in /proc or /sys to accept
-           firmware
+        3. llios find their boards & registers with the anyio layer
 
-        4. userspace cats the right firmware to the right board
+        4. anyio layer fetches firmware & programs the board
 
-        5. ll receives fw, programs board, registers it with anyio_manager
+        6. load high-level firmware driver
 
-        6. load hl driver
+        7. it connects to anyio_manager and allocates the boards it wants
 
-        7. it connects to anyio_manager and lists all the boards
+        8. hostmot2 makes HAL objects for each board
 
-        8. hl makes HAL objects for each board
-
-        9. hl calls hal_ready
+        9. hostmot calls hal_ready
 
         multiple HLs is a non-issue if each HL can recognize "this is my
         firmware, I'll use this board" vs. "oops, I dunno what this is,

@@ -4,14 +4,14 @@
 .ns
 .TP \\$1
 ..
-
 .SH NAME
 
 hostmot2 \- RTAI driver for the Mesa Electronics HostMot2 firmware.
 .SH SYNOPSIS
+
 .HP
 .B loadrt hostmot2 [debug_idrom=\fIN\fB] [debug_module_descriptors=\fIN\fB] [debug_pin_descriptors=\fIN\fB] [debug_modules=\fIN\fB]
-.RS 4
+.RS
 .TP
 \fBdebug_idrom\fR [default: 0]
 Developer/debug use only!  Enable debug logging of the HostMot2
@@ -43,8 +43,6 @@ The HostMot2 firmware provides encoders, PWM generators, step/dir
 generators, and general purpose I/O pins (GPIOs).  These things are
 called "Modules".  The firmware is configured, at firmware compile time,
 to provide zero or more instances of each of these four Modules.
-
-
 .SH Board I/O Pins
 
 The HostMot2 firmware runs on an FPGA board.  The board interfaces with
@@ -60,8 +58,6 @@ the board's pins are used by the Module instances.
 The user can disable Module instances at board-driver load time, by
 specifying a hostmot2 config string modparam.  Any pins which belong to
 Module instances that have been disabled automatically become GPIOs.
-
-
 .SH config modparam
 
 The board-driver modules accept a config string modparam at load time.
@@ -69,30 +65,49 @@ This config string is passed to and parsed by the hostmot2 driver when
 the board-driver registers a HostMot2 instance.  The format of the config
 string is:
 
-.B [num_encoders=\fIN\fB] [num_pwmgens=\fIN\fB] [num_stepgens=\fIN\fB] [enable_raw]
-.RS 4
+.B [firmware=\fIF\fB] [num_encoders=\fIN\fB] [num_pwmgens=\fIN\fB] [num_stepgens=\fIN\fB] [enable_raw]
+.RS
 .TP
-\fBnum_encoders\fR [default: -1]
+\fBfirmware\fR [optional]
+Load the firmware specified by F into the FPGA on this board.  If no
+"\fBfirmware=\fIF\fR" string is specified, the FPGA will not be
+programmed, and had better have a valid configuration already.
+.P
+.RS
+The requested firmware F is fetched by udev.  udev searches for the
+firmware in the system's firmware search path, usually /lib/firmware.
+F typically has the form "hm2/<BoardType>/file.bit"; a typical value
+for F might be "hm2/5i20/SVST8_4.BIT".  If EMC2 is installed by the
+Debian package (.deb), then the firmware files are already installed
+in /lib/firmware.  If EMC2 is compiled from CVS and configured for
+run-in-place, then the user must symlink the hostmot2 firmware into
+/lib/firmware manually, by a command like this:
+.P
+.RS
+\fBsudo ln -s $HOME/emc2-sandbox/src/hal/drivers/mesa-hostmot2/firmware
+/lib/firmware/hm2\fR
+.RE
+.RE
+.TP
+\fBnum_encoders\fR [optional, default: -1]
 Only enable the first N encoders.  If N is -1, all encoders are enabled.
 If N is 0, no encoders are enabled.  If N is greater than the number of
 encoders available in the firmware, the board will fail to register.
 .TP
-\fBnum_pwmgens\fR [default: -1]
+\fBnum_pwmgens\fR [optional, default: -1]
 Only enable the first N pwmgens.  If N is -1, all pwmgens are enabled.
 If N is 0, no pwmgens are enabled.  If N is greater than the number of
 pwmgens available in the firmware, the board will fail to register.
 .TP
-\fBnum_stepgens\fR [default: -1]
+\fBnum_stepgens\fR [optional, default: -1]
 Only enable the first N stepgens.  If N is -1, all stepgens are enabled.
 If N is 0, no stepgens are enabled.  If N is greater than the number of
 stepgens available in the firmware, the board will fail to register.
 .TP
-\fBenable_raw\fR
+\fBenable_raw\fR [optional]
 If specified, this turns on a raw access mode, whereby a user can peek and
 poke the firmware from HAL.  See Raw Mode below.
 .RE
-
-
 .SH encoder
 
 Very basic support, more to come.  This is what's implemented so far:
@@ -118,8 +133,6 @@ Parameters:
 
 (float r/w) scale: Converts from 'count' units to 'position' units.
 (Like CDI.)
-
-
 .SH pwmgen
 
 Very basic support, more to come.  This is what's implemented so far:
@@ -156,8 +169,6 @@ to the software pwmgen component.  This parameter may be changed at
 runtime, but most of the time you probably want to set it at startup and
 then leave it alone.  Accepted values are 1 (PWM on Out0 and Direction
 on Out1) and 2 (Up on Out0 and Down on Out1).
-
-
 .SH stepgen
 
 Very basic support.  This is what's implemented so far:
@@ -201,8 +212,6 @@ a step begins, in seconds.
 
 (float r/w) dirhold: Minimum duration of stable Direction signal after
 a step ends, in seconds.
-
-
 .SH General Purpose I/O
 
 I/O Pins on the board which are not used by one of the Module instances
@@ -229,8 +238,6 @@ is an input, and writes to the "out" HAL pin have no effect.
 the board's I/O pin will be the inverse of the value written to HAL's
 "out" pin.  (This corresponds to the 'invert' parameter in the CDI for
 Digital Output.)
-
-
 .SH Watchdog
 
 The HostMot2 firmware may include a watchdog Module; if it does,
@@ -261,8 +268,6 @@ Functions:
 
 pet_watchdog(): Calling this function resets the watchdog timer and
 postpones the watchdog biting until timeout_ns nanoseconds later.
-
-
 .SH Raw Mode
 
 If the "enable_raw" config keyword is specified, Raw mode is enabled.
@@ -284,8 +289,6 @@ to write to.
 (bit in) write_strobe: Each time the hm2_write() function is called, this
 pin is examined.  If it is True, then value in .write_data is written
 to the address in .write_address, and .write_strobe is set back to False.
-
-
 .SH FUNCTIONS
 .TP
 \fBhm2_<BoardType>.<BoardNum>.read\fR
@@ -296,16 +299,12 @@ Write all outputs.
 .TP
 \fBhm2_<BoardType>.<BoardNum>.pet-watchdog\fR
 Pet the watchdog to keep it from biting us for a while.
-
-
 .SH SEE ALSO
 
 hm2_7i43(9)
 .br
 hm2_5i20(9)
 .br
-bfload(1)
-
 .SH LICENSE
 
 GPL

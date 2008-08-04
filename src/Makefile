@@ -436,8 +436,8 @@ install-dirs:
 		$(DESTDIR)$(localedir)/de/LC_MESSAGES \
 		$(DESTDIR)$(datadir)/axis/images \
 		$(DESTDIR)$(datadir)/axis/tcl		\
-		$(DESTDIR)/$(prefix)/share/emc/firmware/mesa-hostmot2/5i20  \
-		$(DESTDIR)/$(prefix)/share/emc/firmware/mesa-hostmot2/7i43
+		$(DESTDIR)/lib/firmware/hm2/5i20  \
+		$(DESTDIR)/lib/firmware/hm2/7i43
 
 install-kernel-indep: install-dirs
 	$(FILE) ../docs/man/man1/*.1 $(DESTDIR)$(mandir)/man1
@@ -470,8 +470,8 @@ install-kernel-indep: install-dirs
 	$(FILE) ../tcl/scripts/balloon.tcl ../tcl/scripts/emchelp.tcl $(DESTDIR)$(tcldir)/scripts
 	$(EXE) ../tcl/scripts/Set_Coordinates.tcl $(DESTDIR)$(tcldir)/scripts
 	$(FILE) ../share/emc/stepconf.glade $(DESTDIR)$(prefix)/share/emc
-	$(FILE) hal/drivers/mesa-hostmot2/firmware/5i20/*.BIT $(DESTDIR)$(prefix)/share/emc/firmware/mesa-hostmot2/5i20/
-	$(FILE) hal/drivers/mesa-hostmot2/firmware/7i43/*.BIT $(DESTDIR)$(prefix)/share/emc/firmware/mesa-hostmot2/7i43/
+	$(FILE) hal/drivers/mesa-hostmot2/firmware/5i20/*.BIT $(DESTDIR)/lib/firmware/hm2/5i20/
+	$(FILE) hal/drivers/mesa-hostmot2/firmware/7i43/*.BIT $(DESTDIR)/lib/firmware/hm2/7i43/
 
 ifeq ($(BUILD_PYTHON),yes)
 install-kernel-indep: install-python
@@ -650,6 +650,7 @@ hostmot2-objs :=                          \
     hal/drivers/mesa-hostmot2/pins.o      \
     hal/drivers/mesa-hostmot2/tram.o      \
     hal/drivers/mesa-hostmot2/raw.o       \
+    hal/drivers/mesa-hostmot2/bitfile.o   \
     $(MATHSTUB)
 hm2_7i43-objs := hal/drivers/mesa-hostmot2/hm2_7i43.o $(MATHSTUB)
 hm2_5i20-objs := hal/drivers/mesa-hostmot2/hm2_5i20.o $(MATHSTUB)

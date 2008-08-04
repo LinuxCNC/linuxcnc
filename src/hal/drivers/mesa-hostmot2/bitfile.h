@@ -16,53 +16,37 @@
 //    along with this program; if not, write to the Free Software
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
-
-#ifndef RTAPI
-#error This is a realtime component only!
-#endif
-
-
-#define HM2_7I43_VERSION "0.2"
-
-#define HM2_LLIO_NAME "hm2_7i43"
-
-
-
-
-// 
-// EPP stuff
-// 
-
-#define HM2_7I43_EPP_STATUS_OFFSET   (1)
-#define HM2_7I43_EPP_CONTROL_OFFSET  (2)
-#define HM2_7I43_EPP_ADDRESS_OFFSET  (3)
-#define HM2_7I43_EPP_DATA_OFFSET     (4)
-
-#define HM2_7I43_ECP_CONFIG_A_HIGH_OFFSET  (0)
-#define HM2_7I43_ECP_CONFIG_B_HIGH_OFFSET  (1)
-#define HM2_7I43_ECP_CONTROL_HIGH_OFFSET   (2)
-
-
-#define HM2_7I43_ADDR_AUTOINCREMENT (0x8000)
-
-#define HM2_7I43_MAX_BOARDS (4)
-
-
-
-
 //
-// The Mesa 7i43 struct
+//    The code in this file is based on bfload by John Kasunich and
+//    m5i20cfg by Peter C. Wallace.  See src/hal/util/bitfile.h for some
+//    good comments on the bitfile format.
 //
+
+
+#ifndef __BITFILE_H
+#define __BITFILE_H
+
+
+
 
 typedef struct {
-    unsigned int ioaddr;
-    void *io_region1;
+    int size;
+    unsigned char *data;  // a pointer into the "parent" struct firmware
+} bitfile_chunk_t;
 
-    unsigned int ioaddr_hi;
-    void *io_region2;
 
-    int epp_wide;
+typedef struct {
+    bitfile_chunk_t a, b, c, d, e;
+} bitfile_t;
 
-    hm2_lowlevel_io_t llio;
-} hm2_7i43_t;
+
+
+
+int bitfile_parse_and_verify(const struct firmware *fw, bitfile_t *bitfile);
+void bitfile_reverse_bits_of_chunk(bitfile_chunk_t *chunk);
+
+
+
+
+#endif  // __BITFILE_H
 

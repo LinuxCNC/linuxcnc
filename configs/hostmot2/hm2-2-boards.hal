@@ -13,8 +13,8 @@
 #     HM2_BOARD_0 and HM2_BOARD_1 are the board types, ie "7i43" or "5i20".
 #         The two board types must be different.
 #
-#     HM2_FIRMWARE_0 and HM2_FIRMWARE_1 are the full-path filenames of the
-#         firmware .BIT files to use
+#     HM2_CONFIG_0 and HM2_CONFIG_1 are the hostmot2 config strings for the
+#         two boards (see the hostmot2(9) manpage for the format)
 #
 
 
@@ -28,19 +28,11 @@ loadrt probe_parport
 # it just waits for low-level drivers to register boards
 loadrt hostmot2 debug_idrom=1 debug_module_descriptors=1 debug_pin_descriptors=1 debug_modules=1
 
-
-# program the first board's FPGA with the chosen firmware
-loadusr -w bfload $(HM2_BOARD_0)=$(HM2_FIRMWARE_0)
-
-# load the low-level driver for the first board-type
-# this will register the board with the hostmot2 driver loaded above,
-# and it'll show up in HAL
-loadrt hm2_$(HM2_BOARD_0) # config="enable_raw num_stepgens=2"
-
-
-# program the second board's FPGA and load the low-level driver
-loadusr -w bfload $(HM2_BOARD_1)=$(HM2_FIRMWARE_1)
-loadrt hm2_$(HM2_BOARD_1) # config="enable_raw num_stepgens=2"
+# load the low-level drivers for the boards
+# this will load the boards' firmware and register them with the hostmot2
+# driver loaded above, and they'll show up in HAL
+loadrt hm2_$(HM2_BOARD_0) config="$(HM2_CONFIG_0)"
+loadrt hm2_$(HM2_BOARD_1) config="$(HM2_CONFIG_1)"
 
 
 

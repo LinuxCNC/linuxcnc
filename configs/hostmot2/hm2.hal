@@ -6,7 +6,8 @@
 #
 #     HM2_BOARD is board type, ie "7i43" or "5i20"
 #
-#     HM2_FIRMWARE is the full-path filename of the firmware .BIT file to use
+#     HM2_CONFIG is the hostmot2 config string to use (see the hostmot2(9)
+#         manpage for a description of this string)
 #
 
 
@@ -20,13 +21,10 @@ loadrt probe_parport
 # it just waits for low-level drivers to register boards
 loadrt hostmot2 debug_idrom=1 debug_module_descriptors=1 debug_pin_descriptors=1 debug_modules=1
 
-# program the board's FPGA with the chosen firmware
-loadusr -w bfload $(HM2_BOARD)=$(HM2_FIRMWARE)
-
-# load the low-level driver for the chosen board
-# this will register the board with the hostmot2 driver loaded above,
-# and it'll show up in HAL
-loadrt hm2_$(HM2_BOARD) # config="enable_raw num_stepgens=2"
+# load the low-level driver for the board
+# this will load the board's firmware and register it with the hostmot2
+# driver loaded above, and it'll show up in HAL
+loadrt hm2_$(HM2_BOARD) config="$(HM2_CONFIG)"
 
 
 

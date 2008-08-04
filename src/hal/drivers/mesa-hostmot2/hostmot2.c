@@ -18,6 +18,7 @@
 //
 
 #include <linux/slab.h>
+#include <linux/ctype.h>
 
 #include "rtapi.h"
 #include "rtapi_app.h"
@@ -26,7 +27,8 @@
 
 #include "hal.h"
 
-#include "hal/drivers/mesa-hostmot2/hostmot2.h"
+#include "hostmot2.h"
+#include "bitfile.h"
 
 
 
@@ -157,6 +159,9 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
     hm2->config.num_pwmgens = -1;
     hm2->config.num_stepgens = -1;
     hm2->config.enable_raw = 0;
+    hm2->config.firmware = NULL;
+
+    if (config_string == NULL) return 0;
 
     DBG("parsing config string \"%s\"\n", config_string);
 
@@ -183,6 +188,9 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
             token += 10;
             hm2->config.enable_raw = 1;
 
+        } else if (strncmp(token, "firmware=", 9) == 0) {
+            hm2->config.firmware = token + 9;
+
         } else {
             ERR("invalid token in config string: \"%s\"\n", token);
             return -EINVAL;
@@ -194,6 +202,7 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
     DBG("    num_pwmgens=%d\n",  hm2->config.num_pwmgens);
     DBG("    num_stepgens=%d\n", hm2->config.num_stepgens);
     DBG("    enable_raw=%d\n",   hm2->config.enable_raw);
+    DBG("    firmware=%s\n",   hm2->config.firmware ? hm2->config.firmware : "(NULL)");
 
     return 0;
 }
@@ -332,9 +341,9 @@ static int hm2_read_idrom(hostmot2_t *hm2) {
         return -EINVAL;
     }
 
-    if (hm2->idrom.io_ports != (hm2->llio->num_ioport_connectors)) {
+    if (hm2->idrom.io_ports != hm2->llio->num_ioport_connectors) {
         ERR(
-            "IDROM IOPorts is %d but llio num_ioport_connectors is %d (inconsistent firmware), aborting driver load\n",
+            "IDROM IOPorts is %d but llio num_ioport_connectors is %d, driver and firmware are inconsistent, aborting driver load\n",
             hm2->idrom.io_ports,
             hm2->llio->num_ioport_connectors
         );
@@ -612,82 +621,119 @@ static void hm2_print_modules(int msg_level, hostmot2_t *hm2) {
 //
 
 
+static void hm2_release_device(struct device *dev) {
+    // nothing to do here
+    PRINT_NO_LL(RTAPI_MSG_DBG, "releasing struct device for %s\n", dev->bus_id);
+}
+
+
 EXPORT_SYMBOL_GPL(hm2_register);
+
 int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
     int r;
     hostmot2_t *hm2;
 
 
-    PRINT_NO_LL(RTAPI_MSG_DBG, "attempting to register %s with config \"%s\"\n", llio->name, config_string);
-
-
     // 
-    // export a parameter to deal with communication errors
+    // first a pile of sanity checks
+    //
+
+    if (llio == NULL) {
+        PRINT_NO_LL(RTAPI_MSG_ERR, "NULL llio passed in\n");
+        return -EINVAL;
+    }
+
+
+    //
+    // verify llio->name
     //
 
     {
-        int r;
-        char name[HAL_NAME_LEN + 2];
+        int i;
 
-        llio->io_error = (hal_bit_t *)hal_malloc(sizeof(hal_bit_t));
-        if (llio->io_error == NULL) {
-            PRINT_NO_LL(RTAPI_MSG_ERR, "out of memory!\n");
-            return -ENOMEM; 
+        for (i = 0; i < HAL_NAME_LEN; i ++) {
+            if (llio->name[i] == '\0') break;
+            if (!isprint(llio->name[i])) {
+                PRINT_NO_LL(RTAPI_MSG_ERR, "invalid llio name passed in (contains non-printable character)\n");
+                return -EINVAL;
+            }
         }
-
-        (*llio->io_error) = 0;
-
-        rtapi_snprintf(name, HAL_NAME_LEN, "%s.io_error", llio->name);
-        r = hal_param_bit_new(name, HAL_RW, llio->io_error, llio->comp_id);
-        if (r != HAL_SUCCESS) {
-            PRINT_NO_LL(RTAPI_MSG_ERR, "error adding param '%s', aborting\n", name);
+        if (i == HAL_NAME_LEN) {
+            PRINT_NO_LL(RTAPI_MSG_ERR, "invalid llio name passed in (not NULL terminated)\n");
+            return -EINVAL;
+        }
+        if (i == 0) {
+            PRINT_NO_LL(RTAPI_MSG_ERR, "invalid llio name passed in (zero length)\n");
             return -EINVAL;
         }
     }
 
 
+    //
+    // verify llio ioport connector names
     // 
-    // read & verify FPGA firmware IOCookie
-    // 
+
+    if ((llio->num_ioport_connectors < 1) || (llio->num_ioport_connectors > ANYIO_MAX_IOPORT_CONNECTORS)) {
+        PRINT_NO_LL(RTAPI_MSG_ERR, "");
+        return -EINVAL;
+    }
 
     {
-        uint32_t cookie;
+        int port;
 
-        if (!llio->read(llio, HM2_ADDR_IOCOOKIE, &cookie, 4)) {
-            PRINT_NO_LL(RTAPI_MSG_ERR, "%s: error reading hm2 cookie\n", llio->name); 
-            return -EIO;
-        }
+        for (port = 0; port < llio->num_ioport_connectors; port ++) {
+            int i;
 
-        if (cookie != HM2_IOCOOKIE) {
-            PRINT_NO_LL(RTAPI_MSG_ERR, "%s: invalid cookie, got 0x%08X, expected 0x%08X\n", llio->name, cookie, HM2_IOCOOKIE); 
-            PRINT_NO_LL(RTAPI_MSG_ERR, "%s: FPGA failed to initialize, or unexpected firmware?\n", llio->name); 
-            return -EINVAL;
-        }
-    }
+            if (llio->ioport_connector_name[port] == NULL) {
+                PRINT_NO_LL(RTAPI_MSG_ERR, "llio ioport connector name %d is NULL\n", port);
+                return -EINVAL;
+            }
 
-
-    // 
-    // read & verify FPGA firmware ConfigName
-    // 
-
-    {
-        char name[9];  // read 8, plus 1 for the NULL
-
-        if (!llio->read(llio, HM2_ADDR_CONFIGNAME, name, 8)) {
-            PRINT_NO_LL(RTAPI_MSG_ERR, "%s: error reading HM2 Config Name\n", llio->name);
-            return -EIO;
-        }
-        name[8] = '\0';
-
-        if (strncmp(name, HM2_CONFIGNAME, 9) != 0) {
-            PRINT_NO_LL(RTAPI_MSG_ERR, "%s: invalid config name, got '%s', expected '%s'\n", llio->name, name, HM2_CONFIGNAME); 
-            return -EINVAL;
+            for (i = 0; i < HAL_NAME_LEN; i ++) {
+                if (llio->ioport_connector_name[port][i] == '\0') break;
+                if (!isprint(llio->ioport_connector_name[port][i])) {
+                    PRINT_NO_LL(RTAPI_MSG_ERR, "invalid llio ioport connector name %d passed in (contains non-printable character)\n", port);
+                    return -EINVAL;
+                }
+            }
+            if (i == HAL_NAME_LEN) {
+                PRINT_NO_LL(RTAPI_MSG_ERR, "invalid llio ioport connector name %d passed in (not NULL terminated)\n", port);
+                return -EINVAL;
+            }
+            if (i == 0) {
+                PRINT_NO_LL(RTAPI_MSG_ERR, "invalid llio ioport connector name %d passed in (zero length)\n", port);
+                return -EINVAL;
+            }
         }
     }
 
 
     // 
-    // looks like HostMot2 alright, let's try to initalize it
+    // verify llio functions
+    // 
+
+    if (llio->read == NULL) {
+        PRINT_NO_LL(RTAPI_MSG_ERR, "NULL llio->read passed in\n");
+        return -EINVAL;
+    }
+
+    if (llio->write == NULL) {
+        PRINT_NO_LL(RTAPI_MSG_ERR, "NULL llio->write passed in\n");
+        return -EINVAL;
+    }
+
+    // NOTE: reset and program_fpga may be NULL
+
+
+    if (config_string == NULL) {
+        PRINT_NO_LL(RTAPI_MSG_DBG, "attempting to register %s\n", llio->name);
+    } else {
+        PRINT_NO_LL(RTAPI_MSG_DBG, "attempting to register %s with config \"%s\"\n", llio->name, config_string);
+    }
+
+
+    // 
+    // make a hostmot2_t struct to represent this device
     //
 
     hm2 = kmalloc(sizeof(hostmot2_t), GFP_KERNEL);
@@ -703,6 +749,7 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
     INIT_LIST_HEAD(&hm2->tram_read_entries);
     INIT_LIST_HEAD(&hm2->tram_write_entries);
 
+    // tentatively add it to the hm2 list
     list_add_tail(&hm2->list, &hm2_list);
 
 
@@ -714,6 +761,169 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
     if (r != 0) {
         goto fail0;
     }
+
+
+    //
+    // if programming of the fpga is supported by the board and the user
+    // requested a firmware file, fetch it from userspace and program
+    // the board
+    //
+
+    if ((llio->program_fpga != NULL) && (hm2->config.firmware != NULL)) {
+        const struct firmware *fw;
+        bitfile_t bitfile;
+        struct device dev;
+
+        // check firmware name length
+        if (strlen(hm2->config.firmware) > FIRMWARE_NAME_MAX) {
+            ERR("requested firmware name '%s' is too long (max length is %d)\n", hm2->config.firmware, FIRMWARE_NAME_MAX);
+            r = -ENAMETOOLONG;
+            goto fail0;
+        }
+
+        memset(&dev, '\0', sizeof(dev));
+        strncpy(dev.bus_id, hm2->llio->name, BUS_ID_SIZE);
+        dev.bus_id[BUS_ID_SIZE - 1] = '\0';
+        dev.release = hm2_release_device;
+        r = device_register(&dev);
+        if (r != 0) {
+            ERR("error with device_register\n");
+            goto fail0;
+        }
+
+        r = request_firmware(&fw, hm2->config.firmware, &dev);
+        device_unregister(&dev);
+        if (r == -ENOENT) {
+            ERR("firmware %s not found\n", hm2->config.firmware);
+            ERR("install the package containing the firmware, or link your RIP sandbox into /lib/firmware manually\n");
+            goto fail0;
+        }
+        if (r != 0) {
+            ERR("request for firmware %s failed, aborting hm2_register (r=%d)\n", hm2->config.firmware, r);
+            goto fail0;
+        }
+
+        r = bitfile_parse_and_verify(fw, &bitfile);
+        if (r != 0) {
+            ERR("firmware %s fails verification, aborting hm2_register\n", hm2->config.firmware);
+            release_firmware(fw);
+            goto fail0;
+        }
+
+        INFO("relevant bitfile info:\n");
+        INFO("    Part Name: %s\n", bitfile.b.data);
+        INFO("    FPGA Config: %d bytes\n", bitfile.e.size);
+
+        if (llio->fpga_part_number == NULL) {
+            WARN("llio did not provide an FPGA part number, cannot verify firmware part number\n");
+        } else {
+            if (strcmp(llio->fpga_part_number, bitfile.b.data) != 0) {
+                ERR(
+                    "board has FPGA '%s', but the firmware in %s is for FPGA '%s'\n",
+                    llio->fpga_part_number,
+                    hm2->config.firmware,
+                    bitfile.b.data
+                );
+                release_firmware(fw);
+                r = -EINVAL;
+                goto fail0;
+            }
+        }
+
+        bitfile_reverse_bits_of_chunk(&bitfile.e);
+
+        if (llio->reset != NULL) {
+            r = llio->reset(llio);
+            if (r != 0) {
+                release_firmware(fw);
+                ERR("failed to reset fpga, aborting hm2_register\n");
+                goto fail0;
+            }
+        }
+
+        r = llio->program_fpga(llio, &bitfile);
+        release_firmware(fw);
+        if (r != 0) {
+            ERR("failed to program fpga, aborting hm2_register\n");
+            goto fail0;
+        }
+    }
+
+
+    // 
+    // export a parameter to deal with communication errors
+    //
+
+    {
+        int r;
+        char name[HAL_NAME_LEN + 2];
+
+        llio->io_error = (hal_bit_t *)hal_malloc(sizeof(hal_bit_t));
+        if (llio->io_error == NULL) {
+            ERR("out of memory!\n");
+            r = -ENOMEM;
+            goto fail0;
+        }
+
+        (*llio->io_error) = 0;
+
+        rtapi_snprintf(name, HAL_NAME_LEN, "%s.io_error", llio->name);
+        r = hal_param_bit_new(name, HAL_RW, llio->io_error, llio->comp_id);
+        if (r != HAL_SUCCESS) {
+            ERR("error adding param '%s', aborting\n", name);
+            r = -EINVAL;
+            goto fail0;
+        }
+    }
+
+
+    // 
+    // read & verify FPGA firmware IOCookie
+    // 
+
+    {
+        uint32_t cookie;
+
+        if (!llio->read(llio, HM2_ADDR_IOCOOKIE, &cookie, 4)) {
+            ERR("error reading hm2 cookie\n"); 
+            r = -EIO;
+            goto fail0;
+        }
+
+        if (cookie != HM2_IOCOOKIE) {
+            ERR("invalid cookie, got 0x%08X, expected 0x%08X\n", cookie, HM2_IOCOOKIE); 
+            ERR("FPGA failed to initialize, or unexpected firmware?\n"); 
+            r = -EINVAL;
+            goto fail0;
+        }
+    }
+
+
+    // 
+    // read & verify FPGA firmware ConfigName
+    // 
+
+    {
+        char name[9];  // read 8, plus 1 for the NULL
+
+        if (!llio->read(llio, HM2_ADDR_CONFIGNAME, name, 8)) {
+            ERR("error reading HM2 Config Name\n");
+            r = -EIO;
+            goto fail0;
+        }
+        name[8] = '\0';
+
+        if (strncmp(name, HM2_CONFIGNAME, 9) != 0) {
+            ERR("invalid config name, got '%s', expected '%s'\n", name, HM2_CONFIGNAME); 
+            r = -EINVAL;
+            goto fail0;
+        }
+    }
+
+
+    // 
+    // Looks like HostMot2 alright, go ahead an initialize it
+    // 
 
 
     // 

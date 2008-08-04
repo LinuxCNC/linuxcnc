@@ -16,11 +16,11 @@ generators, etc.  The user must decide which firmware to send to which
 board.
 
 When emc2 is installed as a package on the computer, the firmware files
-are installed in some well-known location in the the public part of the
-computer's filesystem.  When emc2 is compiled from source and run-in-place
-(RIP), the firmare files are located in the user's sandbox, usually in
-a random user-chosen directory.  The user may have several different
-sandboxes, each using RIP.
+are installed in some well-known location in the the public part of
+the computer's filesystem (typically /lib/firmware/hm2).  When emc2
+is compiled from source and run-in-place (RIP), the firmware files are
+located in the user's sandbox, usually in a random user-chosen directory.
+The user may have several different sandboxes, each using RIP.
 
 
 There are two reasonable-seeming ways to send the firmware to the boards:
@@ -65,13 +65,10 @@ via the normal kernel driver, or via a separate userspace utility.
     helper doesnt know to look in the user's sandbox.
 
     RIP with the standard userspace helper would thus require that the
-    user symlink their sandbox's firmware directory into /lib/firmware.
-    And that they remember to move the symlink when they switch to a
-    different RIP sandbox.  And remember to remove the symlink before
-    installing a .deb that installs its firmware there.  This would
-    violate the system's integrity by placing files in the public
-    part of the filesystem without going through the package manager.
-    In other words, it would be a mess.
+    user symlink their sandboxes' firmware directories into /lib/firmware.
+    This would violate the system's integrity by placing files in the
+    public part of the filesystem without going through the package
+    manager.
 
     udev is flexible, and it's possible to provide alternate
     firmware helper scripts to handle loading firmwares from
