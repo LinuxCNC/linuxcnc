@@ -43,6 +43,9 @@
 \papersides 1
 \paperpagestyle headings
 
+\layout Part
+
+Integrators Manual
 \layout Title
 
 
@@ -56,7 +59,7 @@
 
 
 \newline 
-V2.3 Integrators Handbook
+V2.3 Integrators Manual
 \layout Author
 \added_space_top medskip 
 The EMC Team
@@ -414,6 +417,9 @@ preview false
 \end_inset 
 
 
+\layout Part
+
+Index
 \layout Standard
 
 
