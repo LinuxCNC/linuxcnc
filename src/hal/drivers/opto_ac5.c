@@ -247,11 +247,11 @@ static int Device_ExportDigitalInPinsParametersFunctions(board_data_t *this, int
 			if ((this->port[portnum].mask & mask)==0)//physical input?
 			{
 			// Pins.
-			rtapi_snprintf(name, HAL_NAME_LEN, "opto_ac5.%d.port%d.in-%02d", boardId, portnum, channel);
+			rtapi_snprintf(name, HAL_NAME_LEN, "opto-ac5.%d.port%d.in-%02d", boardId, portnum, channel);
 			if((halError = hal_pin_bit_new(name, HAL_OUT, &(this->port[portnum].io[channel].pValue), comp_id)) != 0)
 			    break;
 
-			rtapi_snprintf(name, HAL_NAME_LEN, "opto_ac5.%d.port%d.in-%02d-not", boardId, portnum, channel);
+			rtapi_snprintf(name, HAL_NAME_LEN, "opto-ac5.%d.port%d.in-%02d-not", boardId, portnum, channel);
 			if((halError = hal_pin_bit_new(name, HAL_OUT, &(this->port[portnum].io[channel].pValueNot), comp_id)) != 0)
 			    break;
 
@@ -267,7 +267,7 @@ static int Device_ExportDigitalInPinsParametersFunctions(board_data_t *this, int
 
     // Export functions.
     if(!halError){
-	rtapi_snprintf(name, HAL_NAME_LEN, "opto_ac5.%d.digital-read", boardId);
+	rtapi_snprintf(name, HAL_NAME_LEN, "opto-ac5.%d.digital-read", boardId);
 	halError = hal_export_funct(name, Device_DigitalInRead, this, 0, 0, comp_id);
     }
 
@@ -300,12 +300,12 @@ static int Device_ExportDigitalOutPinsParametersFunctions(board_data_t *this, in
 			if ((this->port[portnum].mask & mask)!=0)//phyical output?
 			{
 			// Pins.
-			rtapi_snprintf(name, HAL_NAME_LEN, "opto_ac5.%d.port%d.out-%02d", boardId, portnum, channel);
+			rtapi_snprintf(name, HAL_NAME_LEN, "opto-ac5.%d.port%d.out-%02d", boardId, portnum, channel);
 			if((halError = hal_pin_bit_new(name, HAL_IN, &(this->port[portnum].io[channel].pValue), comp_id)) != 0)
 			    break;
 
 			// Parameters.
-			rtapi_snprintf(name, HAL_NAME_LEN, "opto_ac5.%d.port%d.out-%02d-invert", boardId, portnum, channel);
+			rtapi_snprintf(name, HAL_NAME_LEN, "opto-ac5.%d.port%d.out-%02d-invert", boardId, portnum, channel);
 			if((halError = hal_param_bit_new(name, HAL_RW, &(this->port[portnum].io[channel].invert), comp_id)) != 0)
 			    break;
 
@@ -321,18 +321,18 @@ static int Device_ExportDigitalOutPinsParametersFunctions(board_data_t *this, in
 		portnum=0;
 		for(channel = 0; channel < 2; channel++)
 		{
-			rtapi_snprintf(name, HAL_NAME_LEN, "opto_ac5.%d.led%d", boardId, channel+portnum);
+			rtapi_snprintf(name, HAL_NAME_LEN, "opto-ac5.%d.led%d", boardId, channel+portnum);
 			if((halError = hal_pin_bit_new(name, HAL_IN, &(this->port[portnum].io[24].pValue), comp_id)) != 0)
 			    break;
 
-			rtapi_snprintf(name, HAL_NAME_LEN, "opto_ac5.%d.led%d", boardId, channel+portnum+1);
+			rtapi_snprintf(name, HAL_NAME_LEN, "opto-ac5.%d.led%d", boardId, channel+portnum+1);
 			if((halError = hal_pin_bit_new(name, HAL_IN, &(this->port[portnum].io[25].pValue), comp_id)) != 0)
 			    break;
 			portnum++;
 		}
     // Export functions.
     if(!halError){
-	rtapi_snprintf(name, HAL_NAME_LEN, "opto_ac5.%d.digital-write", boardId);
+	rtapi_snprintf(name, HAL_NAME_LEN, "opto-ac5.%d.digital-write", boardId);
 	halError = hal_export_funct(name, Device_DigitalOutWrite, this, 0, 0, comp_id);
     }
 
