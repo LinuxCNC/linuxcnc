@@ -638,6 +638,8 @@ obj-$(CONFIG_HAL_SPEAKER) += hal_speaker.o
 hal_speaker-objs := hal/drivers/hal_speaker.o $(MATHSTUB)
 obj-$(CONFIG_HAL_SKELETON) += hal_skeleton.o
 hal_skeleton-objs := hal/drivers/hal_skeleton.o $(MATHSTUB)
+obj-$(CONFIG_OPTO_AC5) += opto_ac5.o
+opto_ac5-objs := hal/drivers/opto_ac5.o $(MATHSTUB)
 
 obj-$(CONFIG_HOSTMOT2) += hostmot2.o hm2_7i43.o hm2_5i20.o
 hostmot2-objs :=                          \
@@ -811,6 +813,7 @@ endif
 ../rtlib/hal_ppmc$(MODULE_EXT): $(addprefix objects/rt,$(hal_ppmc-objs))
 ../rtlib/hal_skeleton$(MODULE_EXT): $(addprefix objects/rt,$(hal_skeleton-objs))
 ../rtlib/hal_speaker$(MODULE_EXT): $(addprefix objects/rt,$(hal_speaker-objs))
+../rtlib/opto_ac5$(MODULE_EXT): $(addprefix objects/rt,$(opto_ac5-objs))
 ../rtlib/scope_rt$(MODULE_EXT): $(addprefix objects/rt,$(scope_rt-objs))
 ../rtlib/hal_lib$(MODULE_EXT): $(addprefix objects/rt,$(hal_lib-objs))
 ../rtlib/motmod$(MODULE_EXT): $(addprefix objects/rt,$(motmod-objs))
