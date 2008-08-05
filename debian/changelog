@@ -1,5 +1,6 @@
 emc2 (1:2.2.6~cvs) hardy; urgency=low
 
+  [ Jeff Epler ]
   * fix hal_input manpage
   * Fix FTBFS on hardy (texlive-extra-utils)
   * (incompatible change) make debounce cfg= match the documentation
@@ -17,6 +18,7 @@ emc2 (1:2.2.6~cvs) hardy; urgency=low
     box.
   * stepconf: fix non-working configuration if "Onscreen prompt for tool
     change" was disabled
+  * stepconf: allow entry of step and direction timings up to 500000ns
   * hal_ppmc: handle faster clock frequency for UPC 3.1 boards
   * hal_ppmc: correctly return IO regions at exit
   * software encoder counter: fix problem with negative velocity outputs
@@ -28,7 +30,7 @@ emc2 (1:2.2.6~cvs) hardy; urgency=low
     smooth jog wheel action
   * added hostmot2 driver for 5i20 and 7i43
 
- -- Jeff Epler <jepler@unpythonic.net>  Sun, 22 Jun 2008 18:08:02 -0500
+ -- jepler <jepler@unpythonic.net>  Thu, 31 Jul 2008 09:36:54 -0500
 
 emc2 (1:2.2.5) unstable; urgency=low
 
