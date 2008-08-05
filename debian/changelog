@@ -24,6 +24,8 @@ emc2 (1:2.2.6~cvs) hardy; urgency=low
   * new realtime component: gearchange.  selects between two scale factors,
     two min and max speed limits, and optionally reverses direction of spindle
   * new realtime component: invert - outputs the inverse of a float (1/x)
+  * new realtime component: ilowpass - scale and low-pass on integer values to
+    smooth jog wheel action
   * added hostmot2 driver for 5i20 and 7i43
 
  -- Jeff Epler <jepler@unpythonic.net>  Sun, 22 Jun 2008 18:08:02 -0500
