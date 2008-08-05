@@ -1,0 +1,65 @@
+.\"
+.TH OPTO_ac5 "9" "2008-08-04" "EMC Documentation" "HAL Component" 
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+opto_ac5 \- PCI to relay rack adapter card
+.SH SYNOPSIS
+\fBloadrt opto_ac5  [configport0=ox\fIN\fB] [configport1=0x\fIN\fB] 
+
+.SH DESCRIPTION
+
+These pins and parameters are created by the realtime \fBopto_ac5\fR module. Each period, the opto_ac5 driver reads the inputs, and then writes the outputs.
+The configport0 and configport1 variables are used to configure the two ports of each card. The first 24 bits of a 32 bit number represent the 24 i/o points of each port.
+The last two bits are used for 2 of the 4 on board LEDS.
+The driver will automatically set the bits for the LEDS.
+True bits represent output points. 
+So for 12 inputs and 12 outputs would be represented by (in binary) 111111111111000000000000 which is fff000 in hexadecimal. 
+That is the number you would use Eg. loadrt opto_ac5 config0=0xfff000
+
+If no configport variable is specified the default configuration is 12 inputs then 12 outputs.
+
+Boardnumber can be 0 to 3 
+
+Portnumber can be 0 or 1. Port 0 is closes to the card bracket.
+
+.SH PINS
+
+.TP
+\fBopto_ac5.[\fIBOARDNUMBER\fB\fR].\fBport[\fIPORTNUMBER\fB\fR].\fBin-[\fIPINNUMBER\fB\fR] IN bit 
+Connect a hal bit signal to this pin to read an i/o point from the card.
+The PINNUMBER represents the position in the relay rack. 
+
+.TP
+\fBopto_ac5.[\fIBOARDNUMBER\fB\fR].\fBport[\fIPORTNUMBER\fB\fR].\fBout-[\fIPINNUMBER\fB\fR] OUT bit  
+Connect a hal bit signal to this pin to write to an i/o point of the card.
+The PINNUMBER represents the position in the relay rack.
+
+.TP
+\fBopto_ac5.[\fIBOARDNUMBER\fB\fR].\fBled[\fINUMBER\fB\fR] OUT bit 
+Turns one of the on board LEDS on/off. LEDS are numbered 0 to 3.
+
+.SH PARAMETERS
+
+None.
+
+.SH FUNCTIONS
+
+.TP
+\fBopto_ac5.0.digital-read
+Add this to a thread to Read all the input points.
+
+.TP
+\fBopto_ac5.0.digital-write
+Add this to a thread to write all the output points and LEDS.
+
+.SH BUGS
+All boards are loaded with the same port config as the first board
+
+.SH SEE ALSO
+
+http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?OptoPciAc5
