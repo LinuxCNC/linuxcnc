@@ -62,6 +62,7 @@ usr/bin/teach-in
 @MODULE_PATH@/genhexkins@MODULE_EXT@
 @MODULE_PATH@/hal_lib@MODULE_EXT@
 @MODULE_PATH@/hypot@MODULE_EXT@
+@MODULE_PATH@/ilowpass@MODULE_EXT@
 @MODULE_PATH@/integ@MODULE_EXT@
 @MODULE_PATH@/invert@MODULE_EXT@
 @MODULE_PATH@/knob2float@MODULE_EXT@
@@ -534,6 +535,7 @@ usr/share/man/man9/hm2_5i20.9
 usr/share/man/man9/hm2_7i43.9
 usr/share/man/man9/hostmot2.9
 usr/share/man/man9/hypot.9
+usr/share/man/man9/ilowpass.9
 usr/share/man/man9/integ.9
 usr/share/man/man9/invert.9
 usr/share/man/man9/kins.9
