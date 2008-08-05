@@ -1,0 +1,99 @@
+5I20 IO CONNECTIONS
+
+IONAME	USERNAME	IC PIN 		P2 PIN		
+
+IO0/GCLK0		96/80		1	
+IO1			94		3	
+IO2			89		5	
+IO3			87		7	
+IO4			84		9	
+IO5			82		11
+IO6			75		13
+IO7			73		15
+IO8			70		17	
+IO9			68		19	
+IO10			63		21	
+IO11			61		23
+IO12			59		25
+IO13			57		27	
+IO14			48		29	
+IO15			46		31
+IO16			44		33
+IO17			42		35
+IO18			37		37
+IO19			35		39
+IO20			33		41	
+IO21			30		43	
+IO22			27		45	
+IO23			23		47		
+PWR					49
+
+IONAME	USERNAME	IC PIN 		P3 PIN	
+
+IO24			95		1
+IO25			90		3
+IO26			88		5
+IO27			86		7
+IO28			83		9
+IO29			81		11
+IO30			74		13
+IO31			71		15	
+IO32			69		17
+IO33			67		19
+IO34			62		21
+IO35			60		23
+IO36			58		25
+IO37			49		27
+IO38			47		29
+IO39			45		31
+IO40			43		33
+IO41			41		35
+IO42			36		37
+IO43			34		39
+IO44			31		41
+IO45			29		43
+IO46			24		45
+IO47			22		47
+PWR					49
+
+IONAME	USERNAME	IC PIN 		P4 PIN	
+
+IO48/GCLK1		181/77		1
+IO49			187		3
+IO50			188		5
+IO51			189		7
+IO52			191		9
+IO53			192		11
+IO54			193		13
+IO55			194		15
+IO56			195		17
+IO57			199		19
+IO58			200		21
+IO59			201		23
+IO60			202		25
+IO61			203		27
+IO62			204		29
+IO63			205		31
+IO64			206		33
+IO65			3		35
+IO66			4		37
+IO67			5		39
+IO68			6		41
+IO69			7		43
+IO70			8		45
+IO71			9		47
+PWR					49
+
+GND			All even pins	
+
+LED CONNECTIONS:
+
+LED0,CR8		10
+LED1,CR7		14
+LED2,CR6		15
+LED3,CR5		16
+LED4,CR4		17
+LED5,CR3		18
+LED6,CR2		20
+LED7,CR1		21
+
