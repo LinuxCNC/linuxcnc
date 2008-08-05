@@ -10,17 +10,16 @@ the firmware to the Anything I/O board at startup, using a communication
 mechanism very similar to the mechanism it uses to communicate with the
 firmware during normal operation later.
 
-Each board has several possible firmwares it can run, each providing
-different combinations of quadrature counters, PWM generators, step/dir
-generators, etc.  The user must decide which firmware to send to which
-board.
+Each board has several possible HostMot2 firmwares it can run, each
+providing different combinations of quadrature counters, PWM generators,
+step/dir generators, etc.  The user must decide which firmware to run
+on which board.
 
-When emc2 is installed as a package on the computer, the firmware files
-are installed in some well-known location in the the public part of
-the computer's filesystem (typically /lib/firmware/hm2).  When emc2
-is compiled from source and run-in-place (RIP), the firmware files are
-located in the user's sandbox, usually in a random user-chosen directory.
-The user may have several different sandboxes, each using RIP.
+When emc2 is installed as a Debian package, the firmware files are
+installed in /lib/firmware/hm2.  When emc2 is compiled from source and
+run-in-place (RIP), the firmware files are located in the user's sandbox,
+usually in a random user-chosen directory.  The user may have several
+different sandboxes, each using RIP.
 
 
 There are two reasonable-seeming ways to send the firmware to the boards:
@@ -38,8 +37,11 @@ via the normal kernel driver, or via a separate userspace utility.
     The default solution would of course be to use this existing
     infrastructure to accomplish firmware loading.  The driver would
     accept a modparam string where the user specified the firmware to
-    load on each board.  udev would deliver the requested firmware and
-    the driver would program the FPGA.
+    load on each board.  If the user did not specify a firmware name, the
+    driver would not try to program the FPGA, or it might use a default
+    one.  A typical firmware name might be "hm2/7i43/SVST4_4S.BIT".
+    udev would deliver the requested firmware and the driver would
+    program the FPGA.
 
     There are several reasons this solution would be desirable:
 
@@ -70,12 +72,14 @@ via the normal kernel driver, or via a separate userspace utility.
     public part of the filesystem without going through the package
     manager.
 
-    udev is flexible, and it's possible to provide alternate
-    firmware helper scripts to handle loading firmwares from
-    other places.  Some documentation on how to do this is here:
-    <http://reactivated.net/writing_udev_rules.html>.  This would mean
-    installing a custom udev rule in /etc/udev/rules.d (emc2 already
-    does this, to tweak the permissions of rtai fifos) and installing a
+    One way to avoid that problem would be to tweak udev to allow
+    kernel drivers to specify absolute paths to the firmware
+    they want.  udev is flexible, and it's possible to provide
+    alternate firmware helper scripts to handle loading firmwares
+    from other places.  Some documentation on how to do this is here:
+    <http://reactivated.net/writing_udev_rules.html>.  This would require
+    installing a custom udev rule in /etc/udev/rules.d (emc2 already does
+    this, to tweak the permissions of the rtai fifos) and installing a
     custom firmware helper.
 
     The driver's firmware modparam would specify the absolute path to
@@ -89,11 +93,15 @@ via the normal kernel driver, or via a separate userspace utility.
     So absolute firmware paths are basically infeasible.  Custom udev
     firmware helpers can't help with this, it's a kernel limitation.
 
+    The firmware name length limitation also affects the "symlink
+    sandboxes into /lib/firmware" solution.  The sample firmware name
+    given above is 21 characters, leaving just 8 characters for the name
+    of the sandbox-symlink.  Tight but not impossible.
 
-    Thus the only way to do in-kernel firmware loading (as of 2.6.24)
-    is to install emc2 via the .deb, or to symlink the user's active
-    RIP sandbox into /lib/firmware.  This is unseemly to your humble
-    correspondent.
+
+    Thus the only way to do in-kernel firmware loading (as of Linux
+    2.6.24) is to install emc2 via the .deb, or to symlink the user's
+    active RIP sandboxes into /lib/firmware.
 
 
 2.  userspace utility (bfload) loads firmware
@@ -110,11 +118,11 @@ via the normal kernel driver, or via a separate userspace utility.
         practice, but it smells bad.
 
         EPP I/O must be done "manually" with ins and outs, since the
-        standard parport driver is unsuitable for use with RTAI.
+        standard Linux parport driver is unsuitable for use with RTAI.
 
-        Properly initializing the PCI boards requires access to the PCI
-        Config space and the board's normal BARs.  Userspace PCI access
-        is via one of several libraries:
+        Properly initializing the PCI boards requires access to both the
+        PCI Config space and the board's normal BARs (both memory and IO).
+        Userspace PCI access is via one of several libraries:
 
             upci (the current emc2 PCI access library) supports IO and
             Memory BAR access but lacks PCI Config space access
@@ -132,18 +140,25 @@ via the normal kernel driver, or via a separate userspace utility.
 
     The PCI access issue can be fixed a couple of ways:
 
-        use upci and libpci together (gross)
+        Use upci and libpci together (gross).
 
-        merge upci into libpci or libpciaccess (clean) and fork the
+        Merge upci into libpci or libpciaccess (clean) and fork the
         result into our tree to support old distros without the new
-        upstream library (gross)
+        upstream library (gross).
 
-        shell out to setpci where needed
+        Shell out to setpci where needed.  This would only be sensible
+        for very simple situations where no feedback is required (such as
+        the current situation).  This solution is slightly complicated by
+        the fact that system(3) explicitly clears the setuid bit before
+        running the shell.  bfload would have to reimplement system()
+        without this safety feature, calling fork and exec manually.
 
 
-    The current Config-space access requirements are modest, so for
-    now I've chosen to shell out to setpci.  This would quickly become
-    untenable if the access requirement grew more demanding, but it
-    works ok for now.
+
+
+So the implemented solution is firmware loading from kernel space.
+RIP users must symlink their sandboxes' firmware directories into
+/lib/firmware and everything works fine.  This is documented in the
+hostmot2 man page.
 
 
