@@ -50,10 +50,12 @@ usr/bin/teach-in
 @MODULE_PATH@/flipflop@MODULE_EXT@
 @MODULE_PATH@/freqgen@MODULE_EXT@
 @MODULE_PATH@/gantrykins@MODULE_EXT@
+@MODULE_PATH@/gearchange@MODULE_EXT@
 @MODULE_PATH@/genhexkins@MODULE_EXT@
 @MODULE_PATH@/hal_lib@MODULE_EXT@
 @MODULE_PATH@/hypot@MODULE_EXT@
 @MODULE_PATH@/integ@MODULE_EXT@
+@MODULE_PATH@/invert@MODULE_EXT@
 @MODULE_PATH@/knob2float@MODULE_EXT@
 @MODULE_PATH@/limit1@MODULE_EXT@
 @MODULE_PATH@/limit2@MODULE_EXT@
@@ -418,6 +420,7 @@ usr/share/emc/ncfiles/M101
 usr/share/emc/ncfiles/M102.c
 usr/share/emc/ncfiles/arcspiral.ngc
 usr/share/emc/ncfiles/cds.ngc
+usr/share/emc/ncfiles/comp-g1.ngc
 usr/share/emc/ncfiles/comp.ngc
 usr/share/emc/ncfiles/comp311.ngc
 usr/share/emc/ncfiles/comp311_2.ngc
@@ -514,9 +517,11 @@ usr/share/man/man9/encoder_ratio.9
 usr/share/man/man9/estop_latch.9
 usr/share/man/man9/flipflop.9
 usr/share/man/man9/freqgen.9
+usr/share/man/man9/gearchange.9
 usr/share/man/man9/genhexkins.9
 usr/share/man/man9/hypot.9
 usr/share/man/man9/integ.9
+usr/share/man/man9/invert.9
 usr/share/man/man9/kins.9
 usr/share/man/man9/knob2float.9
 usr/share/man/man9/limit1.9
