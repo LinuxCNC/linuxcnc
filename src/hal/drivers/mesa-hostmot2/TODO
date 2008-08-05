@@ -1,0 +1,297 @@
+
+
+next steps:
+
+    firmware loading
+
+        default firmware?
+
+
+    on driver unload, it should stop all the motors and "safe" the
+    gpios....  The watchdog already sort of does this.  document this
+    behavior
+
+
+    add support for the 5i22 next
+
+
+    It's starting to feel like it's ready for some kind of module
+    abstraction...  To standardize the semantics and make it easier to
+    think about.  Pull out the common code.  pins are special
+
+
+
+
+clean the tree:
+
+    Is the driver stable enough for this now?  The one remaining invasive
+    change I might want to do is the anyio layer between the firmware
+    drivers like hostmot2 and the llio drivers (see Wishlist at bottom).
+
+    Here's what's in our trees currently:
+
+        2.2:
+
+            driver: hal_m5i20
+            boards supported: 5i20
+            firmware source: eeprom or userspace utility run before driver load
+            firmware notes: old hostmot, various flavors
+            other notes: widely used
+
+            driver: hal_5i2x
+            boards supported: 5i20; 5i22 support planned?
+            firmware source: eeprom or userspace
+            firmware notes: not sure, a fork off the old hostmot code?
+            other notes: development stalled?
+
+            driver: m7i43_hm2
+            boards supported: 7i43
+            firmware source: compiled into driver, sent to board at insmod time
+            firmware notes: hostmot2, various flavors, supported by Mesa
+            other notes: in maintenance mode, new development continued in
+            mesa-hostmot2 in TRUNK (see below)
+
+
+        TRUNK:
+
+            TRUNK has all drivers in 2.2, plus these two:
+
+            driver: mesa7i43-gpio
+            boards supported: 7i43
+            firmware source: compiled into driver, sent to board at insmod time
+            firmware notes: 48 gpio
+            other notes: development ended
+
+            driver: mesa-hostmot2
+            boards supported: 7i43, 5i20
+            firmware source: eeprom or userspace
+            firmware notes: hostmot2, various flavors, supported by Mesa
+            other notes: actively developed with support from Mesa, all AnyIO
+            boards will be supported by end of summer
+
+
+    Here's what I think we should do:
+
+        2.2:
+
+            * Add the hostmot2 driver 2.2.6.  driver, firmware, bfload
+
+            * Deprecate m7i43_hm2 in 2.2.  They get to stay through the
+              lifetime of 2.2, but they won't be in 2.3 or 3.0 or whatever
+              comes next.  Users should switch to hostmot2 and hm2_7i43.
+
+
+        TRUNK:
+
+            * Deprecate m7i43_hm2, and mesa7i43-gpio in TRUNK.
+              Remove them in 6 months or a year or so.
+
+
+
+
+translation ram (tram):
+
+    just do it
+
+    then do dma
+
+    need to deal with the "strobe" bit
+
+
+
+
+encoders:
+
+    use shielded encoder wires!
+
+
+    performance:
+
+        my motor shaft is spinning at 8K rpm, which is 133.33333 revs per second
+
+        The encoder has 256 lines, so 1024 transitions per revolution, so 136533 transitions per second
+
+        sampling at twice that would mean ~300 Ksamples/sec
+
+        with the "quad filter" set to 3 clocks, the low-level input needs about 1 Msample/sec.
+
+        with the "quad filter" set to 15 clocks, the low-level input needs about 5 Msample/sec.
+
+        it's actually running at 50 MHz, so that shouldnt be a problem...
+
+        The firmware is storing the quadrature count in a 16-bit register, which I'm reading about every ms (1 KHz)
+
+        at 140K transitions/second, that should be max 140 counts per reading, which is *fine*
+
+
+    How is encoder.XX.velocity computed?
+
+
+    missing stuff:
+
+        fancy velocity computation
+
+        pins:
+
+            velocity
+
+            reset
+
+            index-enable
+
+        parameters:
+
+            max-index-vel (optional)
+
+            velocity-resolution (optional)
+
+        functions:
+
+            CDI just has a read()
+
+
+
+
+pwmgen:
+
+    how to set pwm rate in firmware?
+
+    Add support for different pdm mode (selected by the pwm-freq parameter...)
+
+    what should the hal pwmgen scale parameter do exactly?  same as the software hal component: output = (val / scale) + offset
+
+
+
+
+ioport:
+
+    move inverted output from driver to fpga 
+
+
+
+
+stepgen:
+
+    the software stepgen uses float seconds for the timing, but that cuts
+    off at like 100 ns, shouldnt it be u32 seconds instead?  or wait,
+    is it float nanoseconds?
+
+    position commanding is very much hacked right now...
+
+    setting .scale to 1600 (1600 steps/rev) and then commanding position
+    to 1600 revs causes chaos, it runs in the wrong direction, some
+    overflow bug not handled there...
+
+    moving and then changing .scale from 1600 to 800 causes it to spin...
+    and at 800 it doesnt track the follow-the-leader net properly
+
+    support maxvel
+
+    support maxaccel
+
+    support other stepping modes
+
+    support velocity control
+
+
+
+
+watchdog:
+
+
+
+
+7i43:
+
+    can't get it to work with the pci card parport...
+
+    test with the 400K board again
+
+    needs to support multiple boards
+
+
+5i20:
+
+    stepgen doesnt work?!  No matter what I write to the Rate register,
+    i get no steps on the IO Pins and the Accumulator doesnt change.
+
+    turn hm2_5i20 driver into a generic PCI driver: hm2_anyio_pci
+
+
+
+
+issues with the 2006-02-06 firmware:
+
+    svst4_4:
+
+        don't know what to do with this MD (LEDs?):
+
+            m7i43_hm2: Module Descriptor 6 at 0x0488:
+            m7i43_hm2:     General Function Tag: 128 ((unknown-gtag-128))
+            m7i43_hm2:     Version: 0
+            m7i43_hm2:     Clock Tag: 1
+            m7i43_hm2:     Instances: 1
+            m7i43_hm2:     Base Address: 0x0200
+            m7i43_hm2:     -- Num Registers: 1
+            m7i43_hm2:     Register Stride: 0x00000100
+            m7i43_hm2:     -- Instance Stride: 0x00000004
+            m7i43_hm2:     -- Multiple Registers: 0x00000000
+
+
+
+
+planned milestones:
+
+    1.0
+
+        add support for all other PCI cards
+
+            IOPort connector names for the still-unsupported cards:
+                4I65: P1,P3,P4
+                4I68: P1,P2,P4
+                5I22: P2,P3,P4,P5
+                5I23: P2,P3,P4
+
+        add optional tram support
+
+        add DMA support for PCI cards with TRAM & the 7i43
+
+        llios should support multiple boards each
+
+        complete support for encoder
+
+        complete support for pwmgen
+
+        complete support for stepgen
+
+        complete support for gpios
+
+        complete support for watchdog
+
+
+
+
+wishlist:
+
+    add an anyio layer in the kernel similar to the parport layer
+
+        1. load anyio_manager
+
+        2. load low-level board drivers: anyio_{7i43,5i20|pci,etc}
+
+        3. llios find their boards & registers with the anyio layer
+
+        4. anyio layer fetches firmware & programs the board
+
+        6. load high-level firmware driver
+
+        7. it connects to anyio_manager and allocates the boards it wants
+
+        8. hostmot2 makes HAL objects for each board
+
+        9. hostmot calls hal_ready
+
+        multiple HLs is a non-issue if each HL can recognize "this is my
+        firmware, I'll use this board" vs. "oops, I dunno what this is,
+        skip it"
+

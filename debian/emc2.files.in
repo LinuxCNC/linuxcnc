@@ -1,6 +1,14 @@
 etc/emc2/Makefile.modinc
 etc/init.d/realtime
 etc/emc2/rtapi.conf
+lib/firmware/hm2/5i20/SV12.BIT
+lib/firmware/hm2/5i20/SVST2_8.BIT
+lib/firmware/hm2/5i20/SVST8_4.BIT
+lib/firmware/hm2/7i43/SV8B.BIT
+lib/firmware/hm2/7i43/SV8S.BIT
+lib/firmware/hm2/7i43/SVST4_4B.BIT
+lib/firmware/hm2/7i43/SVST4_4S.BIT
+lib/firmware/hm2/7i43/SVST4_6B.BIT
 usr/bin/emc
 usr/bin/emcmkdesktop
 usr/bin/latency-test
@@ -187,6 +195,9 @@ etc/emc2/sample-configs/hexapod-sim/hexapod.tbl
 etc/emc2/sample-configs/hexapod-sim/hexapod.var
 etc/emc2/sample-configs/hexapod-sim/minitetra.ini
 etc/emc2/sample-configs/hexapod-sim/README
+etc/emc2/sample-configs/hostmot2/README
+etc/emc2/sample-configs/hostmot2/hm2.hal
+etc/emc2/sample-configs/hostmot2/hm2-2-boards.hal
 etc/emc2/sample-configs/lathe-pluto/axis_manualtoolchange.hal
 etc/emc2/sample-configs/lathe-pluto/emc.nml
 etc/emc2/sample-configs/lathe-pluto/emc.tbl
@@ -519,6 +530,9 @@ usr/share/man/man9/flipflop.9
 usr/share/man/man9/freqgen.9
 usr/share/man/man9/gearchange.9
 usr/share/man/man9/genhexkins.9
+usr/share/man/man9/hm2_5i20.9
+usr/share/man/man9/hm2_7i43.9
+usr/share/man/man9/hostmot2.9
 usr/share/man/man9/hypot.9
 usr/share/man/man9/integ.9
 usr/share/man/man9/invert.9

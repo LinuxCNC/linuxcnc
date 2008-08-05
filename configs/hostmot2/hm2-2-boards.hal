@@ -1,0 +1,246 @@
+
+#
+# This is a simple sample HAL config file for the hostmot2 driver.
+#
+# It lets you drive two hm2 boards of different kinds (for example one 5i20
+# and one 7i43).
+#
+# It wont work with two boards of the same kind, though that setup is
+# straightforward to do.
+#
+# it is configured with environment variables:
+#
+#     HM2_BOARD_0 and HM2_BOARD_1 are the board types, ie "7i43" or "5i20".
+#         The two board types must be different.
+#
+#     HM2_CONFIG_0 and HM2_CONFIG_1 are the hostmot2 config strings for the
+#         two boards (see the hostmot2(9) manpage for the format)
+#
+
+
+# components
+loadrt pid num_chan=4 
+
+# only the 7i43 needs this, but it doesnt hurt the others
+loadrt probe_parport
+
+# first load the hostmot2 driver, this doesnt do anything by itself, 
+# it just waits for low-level drivers to register boards
+loadrt hostmot2 debug_idrom=1 debug_module_descriptors=1 debug_pin_descriptors=1 debug_modules=1
+
+# load the low-level drivers for the boards
+# this will load the boards' firmware and register them with the hostmot2
+# driver loaded above, and they'll show up in HAL
+loadrt hm2_$(HM2_BOARD_0) config="$(HM2_CONFIG_0)"
+loadrt hm2_$(HM2_BOARD_1) config="$(HM2_CONFIG_1)"
+
+
+
+
+#
+# set up the watchdogs
+#
+
+setp hm2_$(HM2_BOARD_0).0.watchdog.timeout_ns 10000000
+setp hm2_$(HM2_BOARD_1).0.watchdog.timeout_ns 10000000
+
+
+
+#
+# set up the encoders, encoder position becomes pid's feedback
+#
+
+setp  hm2_$(HM2_BOARD_0).0.encoder.00.scale  -1024
+setp  hm2_$(HM2_BOARD_0).0.encoder.01.scale  -2048
+setp  hm2_$(HM2_BOARD_0).0.encoder.02.scale  -2048
+
+net  motor-00-position  hm2_$(HM2_BOARD_0).0.encoder.00.position =>  pid.0.feedback
+net  motor-01-position  hm2_$(HM2_BOARD_0).0.encoder.01.position =>  pid.1.feedback
+
+
+
+
+#
+# let the pid outputs drive the pwm generators
+#
+
+setp  hm2_$(HM2_BOARD_0).0.pwmgen.00.scale .0002442002
+setp  hm2_$(HM2_BOARD_0).0.pwmgen.01.scale .0002442002
+setp  hm2_$(HM2_BOARD_0).0.pwmgen.02.scale .0002442002
+
+net  pid-00-command  pid.0.output  =>  hm2_$(HM2_BOARD_0).0.pwmgen.00.value
+net  pid-01-command  pid.1.output  =>  hm2_$(HM2_BOARD_0).0.pwmgen.01.value
+
+
+
+
+#
+# PID config
+#
+
+setp pid.0.Pgain      2.0
+setp pid.0.Igain      0.0
+setp pid.0.Dgain      0.0
+
+setp pid.0.FF0        0
+setp pid.0.FF1        0
+setp pid.0.FF2        0
+setp pid.0.bias       0
+setp pid.0.deadband   0.0005
+setp pid.0.maxoutput  0
+
+
+setp pid.1.Pgain      2.0
+setp pid.1.Igain      0.0
+setp pid.1.Dgain      0.0
+
+setp pid.1.FF0        0
+setp pid.1.FF1        0
+setp pid.1.FF2        0
+setp pid.1.bias       0
+setp pid.1.deadband   0.0005
+setp pid.1.maxoutput  0
+
+
+
+
+#
+# board 0 stepgen
+#
+
+setp hm2_$(HM2_BOARD_0).0.stepgen.00.dirsetup        0.0000002
+setp hm2_$(HM2_BOARD_0).0.stepgen.00.dirhold         0.0000002
+
+setp hm2_$(HM2_BOARD_0).0.stepgen.00.steplen         0.000040
+setp hm2_$(HM2_BOARD_0).0.stepgen.00.stepspace       0.000040
+
+setp hm2_$(HM2_BOARD_0).0.stepgen.00.position-scale  1600
+
+
+setp hm2_$(HM2_BOARD_0).0.stepgen.01.dirsetup        0.0000002
+setp hm2_$(HM2_BOARD_0).0.stepgen.01.dirhold         0.0000002
+
+setp hm2_$(HM2_BOARD_0).0.stepgen.01.steplen         0.000040
+setp hm2_$(HM2_BOARD_0).0.stepgen.01.stepspace       0.000040
+
+setp hm2_$(HM2_BOARD_0).0.stepgen.01.position-scale  1600
+
+
+#setp hm2_$(HM2_BOARD_0).0.stepgen.02.dirsetup 0.0000002
+#setp hm2_$(HM2_BOARD_0).0.stepgen.02.dirhold  0.0000002
+#
+#setp hm2_$(HM2_BOARD_0).0.stepgen.02.steplen  0.000040
+#setp hm2_$(HM2_BOARD_0).0.stepgen.02.stepspace  0.000040
+#
+#setp hm2_$(HM2_BOARD_0).0.stepgen.02.position-scale  1600
+
+
+#setp hm2_$(HM2_BOARD_0).0.stepgen.03.dirsetup 0.0000002
+#setp hm2_$(HM2_BOARD_0).0.stepgen.03.dirhold  0.0000002
+#
+#setp hm2_$(HM2_BOARD_0).0.stepgen.03.steplen  0.000040
+#setp hm2_$(HM2_BOARD_0).0.stepgen.03.stepspace  0.000040
+#
+#setp hm2_$(HM2_BOARD_0).0.stepgen.03.position-scale  1600
+
+
+
+
+#
+# board 1 stepgen
+#
+
+setp hm2_$(HM2_BOARD_1).0.stepgen.00.dirsetup        0.0000002
+setp hm2_$(HM2_BOARD_1).0.stepgen.00.dirhold         0.0000002
+
+setp hm2_$(HM2_BOARD_1).0.stepgen.00.steplen         0.000040
+setp hm2_$(HM2_BOARD_1).0.stepgen.00.stepspace       0.000040
+
+setp hm2_$(HM2_BOARD_1).0.stepgen.00.position-scale  1600
+
+
+setp hm2_$(HM2_BOARD_1).0.stepgen.01.dirsetup        0.0000002
+setp hm2_$(HM2_BOARD_1).0.stepgen.01.dirhold         0.0000002
+
+setp hm2_$(HM2_BOARD_1).0.stepgen.01.steplen         0.000040
+setp hm2_$(HM2_BOARD_1).0.stepgen.01.stepspace       0.000040
+
+setp hm2_$(HM2_BOARD_1).0.stepgen.01.position-scale  1600
+
+
+#setp hm2_$(HM2_BOARD_1).0.stepgen.02.dirsetup 0.0000002
+#setp hm2_$(HM2_BOARD_1).0.stepgen.02.dirhold  0.0000002
+#
+#setp hm2_$(HM2_BOARD_1).0.stepgen.02.steplen  0.000040
+#setp hm2_$(HM2_BOARD_1).0.stepgen.02.stepspace  0.000040
+#
+#setp hm2_$(HM2_BOARD_1).0.stepgen.02.position-scale  1600
+
+
+#setp hm2_$(HM2_BOARD_1).0.stepgen.03.dirsetup 0.0000002
+#setp hm2_$(HM2_BOARD_1).0.stepgen.03.dirhold  0.0000002
+#
+#setp hm2_$(HM2_BOARD_1).0.stepgen.03.steplen  0.000040
+#setp hm2_$(HM2_BOARD_1).0.stepgen.03.stepspace  0.000040
+#
+#setp hm2_$(HM2_BOARD_1).0.stepgen.03.position-scale  1600
+
+
+
+
+#
+# stepper 0 & 1 and servos 0 & 1 clone servo 2's position
+#
+
+net follow-the-leader hm2_$(HM2_BOARD_0).0.encoder.02.position
+net follow-the-leader => pid.0.command
+net follow-the-leader => pid.1.command
+net follow-the-leader => hm2_$(HM2_BOARD_0).0.stepgen.00.position-cmd
+net follow-the-leader => hm2_$(HM2_BOARD_0).0.stepgen.01.position-cmd
+net follow-the-leader => hm2_$(HM2_BOARD_1).0.stepgen.00.position-cmd
+net follow-the-leader => hm2_$(HM2_BOARD_1).0.stepgen.01.position-cmd
+
+
+
+
+#
+# enable
+#
+
+newsig  Enable  bit
+sets    Enable  FALSE
+net     Enable  =>  pid.0.enable pid.1.enable hm2_$(HM2_BOARD_0).0.pwmgen.00.enable hm2_$(HM2_BOARD_0).0.pwmgen.01.enable
+
+
+
+
+#
+# realtime threads & functions
+#
+
+loadrt threads   name1=main fp1=1 period1=1000000
+
+
+addf hm2_$(HM2_BOARD_0).0.pet_watchdog  main
+addf hm2_$(HM2_BOARD_1).0.pet_watchdog  main
+
+addf hm2_$(HM2_BOARD_0).0.read          main
+addf hm2_$(HM2_BOARD_1).0.read          main
+
+addf pid.0.do-pid-calcs                 main
+addf pid.1.do-pid-calcs                 main
+
+addf hm2_$(HM2_BOARD_0).0.write         main
+addf hm2_$(HM2_BOARD_1).0.write         main
+
+
+
+
+#
+# ok, all set up
+#
+
+start
+
+sets Enable 1
+

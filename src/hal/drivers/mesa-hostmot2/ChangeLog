@@ -1,0 +1,47 @@
+
+0.4 (released 2008-08-03)
+
+    Moved firmware loading from userspace to the kernel.  The low-level
+    I/O drivers (hm2_5i20 & hm2_7i43) register a "program_fpga()"
+    function with the hostmot2 driver, and request a firmware file in
+    their config string.  The hostmot2 driver fetches the firmware with
+    request_firmware()/udev, validates the bitfile, and feeds it to the
+    llio's program_fpga() function.
+
+    hm2_5i20 and hm2_7i43 now supply a program_fpga() function, used by
+    the high-level firmware driver to program them when they register.
+
+    hm2_5i20:
+
+	Improved board-detection-time error handling.
+
+	Added the LASxBRD #READY fix from bfload.
+
+    hm2_7i43:
+
+	Now detects the board's FPGA (needed for firmware programming).
+
+
+0.3 (released 2008-06-17)
+
+    Added support for Raw mode (lets you peek & poke the hostmot2 firmware
+    from HAL).
+
+
+0.2 (released 2008-05-25)
+
+    Improved load-time sanity checking.
+
+    Improved handling of "zero instances enabled" situations.
+
+
+0.1 (released 2008-05-13)
+
+    Split m7i43_hm2 0.4 into a generic hostmot2 driver and a low-level I/O
+    driver for the 7i43 (called hm2_7i43).  Moved the firmware loading
+    on the 7i43 from the kernel driver to userspace, by extending the
+    bfload program.
+
+    Wrote a new driver that plugs the 5i20 board into the hostmot2 driver.
+    Firmware loading on the 5i20 was already supported by bfload.
+

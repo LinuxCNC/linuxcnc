@@ -429,7 +429,10 @@ install-dirs:
 		$(DESTDIR)$(tcldir)/msgs \
 		$(DESTDIR)$(localedir)/de/LC_MESSAGES \
 		$(DESTDIR)$(datadir)/axis/images \
-		$(DESTDIR)$(datadir)/axis/tcl		
+		$(DESTDIR)$(datadir)/axis/tcl     \
+		$(DESTDIR)/lib/firmware/hm2/5i20  \
+		$(DESTDIR)/lib/firmware/hm2/7i43
+
 install-kernel-indep: install-dirs
 	$(FILE) ../docs/man/man1/*.1 $(DESTDIR)$(mandir)/man1
 	$(FILE) $(filter-out %/skeleton.3hal, $(wildcard ../docs/man/man3/*.3hal)) $(DESTDIR)$(mandir)/man3
@@ -461,6 +464,8 @@ install-kernel-indep: install-dirs
 	$(FILE) ../tcl/scripts/balloon.tcl ../tcl/scripts/emchelp.tcl $(DESTDIR)$(tcldir)/scripts
 	$(EXE) ../tcl/scripts/Set_Coordinates.tcl $(DESTDIR)$(tcldir)/scripts
 	$(FILE) ../share/emc/stepconf.glade $(DESTDIR)$(prefix)/share/emc/stepconf.glade
+	$(FILE) hal/drivers/mesa-hostmot2/firmware/5i20/*.BIT $(DESTDIR)/lib/firmware/hm2/5i20/
+	$(FILE) hal/drivers/mesa-hostmot2/firmware/7i43/*.BIT $(DESTDIR)/lib/firmware/hm2/7i43/
 
 ifeq ($(BUILD_PYTHON),yes)
 install-kernel-indep: install-python
@@ -632,6 +637,21 @@ obj-$(CONFIG_HAL_SPEAKER) += hal_speaker.o
 hal_speaker-objs := hal/drivers/hal_speaker.o $(MATHSTUB)
 obj-$(CONFIG_HAL_SKELETON) += hal_skeleton.o
 hal_skeleton-objs := hal/drivers/hal_skeleton.o $(MATHSTUB)
+obj-$(CONFIG_HOSTMOT2) += hostmot2.o hm2_7i43.o hm2_5i20.o
+hostmot2-objs :=                          \
+    hal/drivers/mesa-hostmot2/hostmot2.o  \
+    hal/drivers/mesa-hostmot2/ioport.o    \
+    hal/drivers/mesa-hostmot2/encoder.o   \
+    hal/drivers/mesa-hostmot2/pwmgen.o    \
+    hal/drivers/mesa-hostmot2/stepgen.o   \
+    hal/drivers/mesa-hostmot2/watchdog.o  \
+    hal/drivers/mesa-hostmot2/pins.o      \
+    hal/drivers/mesa-hostmot2/tram.o      \
+    hal/drivers/mesa-hostmot2/raw.o       \
+    hal/drivers/mesa-hostmot2/bitfile.o   \
+    $(MATHSTUB)
+hm2_7i43-objs := hal/drivers/mesa-hostmot2/hm2_7i43.o $(MATHSTUB)
+hm2_5i20-objs := hal/drivers/mesa-hostmot2/hm2_5i20.o $(MATHSTUB)
 
 ifneq "$(filter 2.6.%, $(kernelvers))" ""
 obj-$(CONFIG_PROBE_PARPORT) += probe_parport.o

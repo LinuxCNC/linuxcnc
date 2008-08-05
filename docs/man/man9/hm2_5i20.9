@@ -1,0 +1,35 @@
+.TH HM2_5I20 "9" "2008-05-13" "EMC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+hm2_5i20 \- RTAI driver for the Mesa Electronics 5i20 EPP Anything IO board with HostMot2 firmware.
+.SH SYNOPSIS
+
+.HP
+.B loadrt hm2_5i20 [config=\fI"str"\fB]
+.RS 4
+.TP
+\fBconfig\fR [default: ""]
+HostMot2 config string, described in the hostmot2(9) manpage.
+.RE
+.SH DESCRIPTION
+
+hm2_5i20 is an RTAI device driver that interfaces the Mesa 5i20 board with
+the HostMot2 firmware to the EMC2 HAL.
+
+The driver programs the board's FPGA with firmware when it registers
+the board with the hostmot2 driver.  The old bfload(1) firmware loading
+method is not used anymore.  Instead the firmware to load is specified
+in the \fBconfig\fR modparam, as described in the hostmot2(9) manpage,
+in the \fIconfig modparam\fR section.
+.SH SEE ALSO
+
+hostmot2(9)
+.SH LICENSE
+
+GPL

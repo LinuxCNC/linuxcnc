@@ -1,0 +1,14 @@
+
+Here are some quick and dirty HAL config files for hostmot2.
+
+This is what I use for my driver testing.  I don't have a machine to run
+them on, I just have some little servos and steppers on my workbench.
+Both HAL files set up one servo as a simple MPG, and slave all other
+motors to it.  So this is more an example of naming schemes and HAL
+objects than it is a configuration for a machine.
+
+I run one or the other of these HAL files with "halcmd -f".  Both expect
+to find some information in environment variables, so this needs to be
+set up before you can load the HAL files.  The environment variables
+are described in comments at the top of each .hal file.
+
