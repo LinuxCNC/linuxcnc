@@ -1263,7 +1263,7 @@ A machine can be operated without home switches.
 Minimum Limit + Home X
 \series default 
  in the pinout).
- If the machine has no home switches, or the limit switches cannot be used
+ If the machine has no limit switches, or the limit switches cannot be used
  as home switches for another reason, then the machine must be homed 
 \begin_inset Quotes eld
 \end_inset 
