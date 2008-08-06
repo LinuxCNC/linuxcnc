@@ -18,10 +18,20 @@
 //
 
 
+//
+//  NOTE: This driver is deprecated, and will be removed in the future!
+//      All users are encouraged to transition to the hostmot2 driver,
+//      which is being actively developed!
+//
+
+
 component m7i43_hm2 """RTAI driver for the Mesa Electronics 7i43 EPP Anything IO board with HostMot2 firmware.""";
 
 
 description """
+NOTE: This driver is deprecated, and will be removed in the future!
+All users are encouraged to transition to the hostmot2 driver, which is being actively developed!
+
 m7i43_hm2 is an RTAI device driver that interfaces the Mesa 7i43 board with
 the HostMot2 firmware to the EMC2 HAL.  Both the 200K and the 400K FPGAs
 are supported.
@@ -2376,6 +2386,10 @@ static void m7i43_cleanup(void) {
 static int m7i43_setup(void) {
     int r;
 
+
+    PRINT(RTAPI_MSG_ERR, "NOTE: This driver is deprecated, and will be removed in the future!\n");
+    PRINT(RTAPI_MSG_ERR, "    All users are encouraged to transition to the hostmot2 driver,\n");
+    PRINT(RTAPI_MSG_ERR, "    which is being actively developed!\n");
 
     PRINT(RTAPI_MSG_INFO, "loading Mesa 7i43 HostMot2 driver version %s\n", M7I43_HM2_VERSION);
 
