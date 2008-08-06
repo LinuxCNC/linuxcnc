@@ -44,47 +44,50 @@ clean the tree:
             firmware notes: not sure, a fork off the old hostmot code?
             other notes: development stalled?
 
-            driver: m7i43_hm2
+            driver: hostmot2
+            boards supported: 5i20, 7i43
+            firmware source: request_firmware()/udev
+            firmware notes: hostmot2, various flavors, supported by Mesa
+            other notes: actively developed, all AnyIO boards will be supported by end of summer
+
+            driver: m7i43_hm2 DEPRECATED!
             boards supported: 7i43
             firmware source: compiled into driver, sent to board at insmod time
             firmware notes: hostmot2, various flavors, supported by Mesa
-            other notes: in maintenance mode, new development continued in
-            mesa-hostmot2 in TRUNK (see below)
+            other notes: in maintenance mode, new development continued in hostmot2 in TRUNK (see below)
 
 
         TRUNK:
 
-            TRUNK has all drivers in 2.2, plus these two:
+            driver: hal_m5i20
+            boards supported: 5i20
+            firmware source: eeprom or userspace utility run before driver load
+            firmware notes: old hostmot, various flavors
+            other notes: widely used
 
-            driver: mesa7i43-gpio
+            driver: hal_5i2x
+            boards supported: 5i20; 5i22 support planned?
+            firmware source: eeprom or userspace
+            firmware notes: not sure, a fork off the old hostmot code?
+            other notes: development stalled?
+
+            driver: hostmot2
+            boards supported: 5i20, 7i43
+            firmware source: request_firmware()/udev
+            firmware notes: hostmot2, various flavors, supported by Mesa
+            other notes: actively developed, all AnyIO boards will be supported by end of summer
+
+            driver: mesa7i43-gpio DEPRECATED!
             boards supported: 7i43
             firmware source: compiled into driver, sent to board at insmod time
             firmware notes: 48 gpio
             other notes: development ended
 
-            driver: mesa-hostmot2
-            boards supported: 7i43, 5i20
-            firmware source: eeprom or userspace
+            driver: m7i43_hm2 DEPRECATED!
+            boards supported: 7i43
+            firmware source: compiled into driver, sent to board at insmod time
             firmware notes: hostmot2, various flavors, supported by Mesa
-            other notes: actively developed with support from Mesa, all AnyIO
-            boards will be supported by end of summer
-
-
-    Here's what I think we should do:
-
-        2.2:
-
-            * Add the hostmot2 driver 2.2.6.  driver, firmware, bfload
-
-            * Deprecate m7i43_hm2 in 2.2.  They get to stay through the
-              lifetime of 2.2, but they won't be in 2.3 or 3.0 or whatever
-              comes next.  Users should switch to hostmot2 and hm2_7i43.
-
-
-        TRUNK:
-
-            * Deprecate m7i43_hm2, and mesa7i43-gpio in TRUNK.
-              Remove them in 6 months or a year or so.
+            other notes: in maintenance mode, new development continued in hostmot2 in TRUNK (see below)
 
 
 
