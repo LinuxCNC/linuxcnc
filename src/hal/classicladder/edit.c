@@ -460,7 +460,6 @@ void SaveElementProperties()
 					{
 						EditDatas.ElementUnderEdit->VarType = VarTypeEntered;
 						EditDatas.ElementUnderEdit->VarNum = VarNumEntered;
-					printf("was here\n");
 					}
 				}
 				else
