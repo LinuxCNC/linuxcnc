@@ -1,0 +1,26 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<pyvcp>
+  <vbox>
+     <label><text>"Spindle Gear Control"</text></label>
+     <hbox>
+	<label><text>"High"</text></label>
+	<led>
+		<halpin>"highgear-led"</halpin>
+		<size>20</size>
+	</led>
+     </hbox>
+     <hbox>
+	<label><text>"Low"</text></label>
+	<led>
+		<halpin>"lowgear-led"</halpin>
+		<size>20</size>
+	</led>
+     </hbox>
+	<vbox>
+		<button>
+			<text>"Change Gears"</text>
+			<halpin>"gearchange-button"</halpin>
+		</button>
+	</vbox>
+</vbox>
+</pyvcp>
