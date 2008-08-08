@@ -65,8 +65,11 @@ typedef struct {
 
 static Driver_t				driver;
 
-// in case driver is loaded with no port config the default
+// in case no portconfig is given when loading driver
 // sets 12 inputs then 12 outputs per port and sets leds (bit 31,32) for output
+// could define more variables so the ports of extra cards could be configured differently but
+// I doubt if anyone will use more then one card
+
 static unsigned long		portconfig0 = 0Xc0fff000;
 RTAPI_MP_LONG(portconfig0, "port 0 i/o configuration number");
 static unsigned long		portconfig1 = 0Xc0fff000;
@@ -94,7 +97,7 @@ int rtapi_app_main(void)
     pDev = NULL;
     for ( n = 0 ; n < MAX_BOARDS ; n++ ) 
     {
-	// Find a opto22 pci ac5 card.
+	// Find a M5I20 card.
 	pDev = pci_find_device(opto22_VENDOR_ID, opto22_pci_AC5_DEVICE_ID, pDev);
 	if ( pDev == NULL ) { /* no more boards */break;}
 	
@@ -114,7 +117,7 @@ int rtapi_app_main(void)
 	pboard->slot = PCI_SLOT(pDev->devfn);
 	pboard->num = n;
 	rtapi_print("INFO OPTO_AC5--- Board %d detected in PCI Slot: %2x\n", pboard->num, pboard->slot);
-	/* region 0 is the 32 bit memory mapped I/O region that we want*/
+	/* region 0 is the 32 bit memory mapped I/O region */
 	pboard->len = pci_resource_len(pDev, 0);
 	pboard->base = ioremap_nocache(pci_resource_start(pDev, 0), pboard->len);
 	if ( pboard->base == NULL ) {
@@ -124,7 +127,7 @@ int rtapi_app_main(void)
 	    return -1;
 	} else {
 	 	    rtapi_print(
-		"INFO OPTO_AC5--- board %u mapped to %08lx, Len = %ld\n",
+		"INFO OPTO_AC5--- board %d mapped to %08lx, Len = %ld\n",
 		pboard->num, (long)pboard->base,(long)pboard->len);
 		}
 	// Initialize device.
@@ -167,8 +170,8 @@ void rtapi_app_exit(void)
 		if ( driver.boards[n] != NULL)
 		 {
 			rtapi_print ("INFO OPTO_AC5--- board %i driver removed.\n",n);
-			writel(0Xc0000000, driver.boards[n]->base + (DATA_WRITE_OFFSET_0));
-			writel(0Xc0000000, driver.boards[n]->base + (DATA_WRITE_OFFSET_1));
+			writel(0XC0FFFFFF, driver.boards[n]->base + (DATA_WRITE_OFFSET_0));
+			writel(0XC0FFFFFF, driver.boards[n]->base + (DATA_WRITE_OFFSET_1));
 		   	// Unmap board memory
 			if ( driver.boards[n]->base != NULL ) 
 			{
@@ -189,7 +192,9 @@ static int Device_Init(board_data_t *pboard)
 {
 
  // Initialize hardware.
-	// make sure last two bits are set for output so leds will work 
+// portconfig[0 or 1] are either the default number from global or mapped from the command line 
+// make sure last two bits are set for output so leds will work 
+
 	if ((portconfig0 & 0x80000000) ==0) { 	portconfig0 |=0x80000000;	}
 	if ((portconfig0 & 0x40000000) ==0) { 	portconfig0 |=0x40000000;	}
 	if ((portconfig1 & 0x80000000) ==0) { 	portconfig1 |=0x80000000;	}
@@ -230,7 +235,8 @@ static int Device_ExportPinsParametersFunctions(board_data_t *this, int componen
 }
 
 // we check each ports mask (port[portnum].mask) against a mask bit to see which of the 24 points of i/o are inputs (a false bit is an input)
-// then export HAL pins mapped to the propoer io structure
+// then export HAL pins mapped to the proper io structure
+// HAL pin numbers represent position in an opto22 relay rack (eg. pin 00 is position 0)
 // this way you can configure the i/o in any way for all the 24 points of each port
 
 static int Device_ExportDigitalInPinsParametersFunctions(board_data_t *this, int comp_id, int boardId)
@@ -281,8 +287,9 @@ static int Device_ExportDigitalInPinsParametersFunctions(board_data_t *this, int
 
 
 // we check each ports mask (port[portnum].mask) against a mask bit to see which of the 24 points of i/o are outputs (a true bit is an output)
-// then export HAL pins mapped to the propoer io structure
+// then export HAL pins mapped to the proper io structure
 // this way you can configure the i/o in any way for all the 24 points of each port
+// HAL pin numbers represent position in an opto22 relay rack (eg. pin 00 is position 0)
 // the LEDS are bits 31 and 32 of the portmask but are mapped to 24 and 25 of the i0 structure
 
 static int Device_ExportDigitalOutPinsParametersFunctions(board_data_t *this, int comp_id, int boardId)
@@ -311,7 +318,7 @@ static int Device_ExportDigitalOutPinsParametersFunctions(board_data_t *this, in
 
 			// Init pin.
 			*(this->port[portnum].io[channel].pValue) = 0;
-			this->port[portnum].io[channel].invert = 1;
+			this->port[portnum].io[channel].invert = 0;
 		   	}
 			mask <<=1;
 		   }
@@ -345,12 +352,13 @@ static int Device_ExportDigitalOutPinsParametersFunctions(board_data_t *this, in
 }
 
 // here we read inputs from board
-// we read the current data (variable 'pins')of the first port. Then for each of the 24 points
+// we read the current data (variable 'pins') of the first port. Then for each of the 24 points
 // we compare to the mask of the first port to see which of the 24 io points are inputs (the bits that are false)
 // if it is an input then check 'pins' against the mask to see if input bit is true
-// update the HAL pin and not pin accoringly. shift the mask then do the next point (of 24)
+// update the HAL pin and not-pin accoringly. shift the mask then do the next point (of 24 io points)
 // after all pins done-increase 'portnum' to 1 set offset to the offset for port1
 // then do it all again on the second port
+
 static void
 Device_DigitalInRead(void *arg, long period)
 {
@@ -388,8 +396,9 @@ Device_DigitalInRead(void *arg, long period)
 // then check the OUT HAL pins to see if output should be on and if it should - OR the bit (using 'mask') to the variable 'pins' 
 // then set 'mask' to the last bit (32) and check the HAL led pin to see if true- OR the bit to 'pins' if it is
 // set 'mask to second to second to last bit (31) do the same
+// have to remember that a 1 sent to the hardware turns an output OFF
 // finally write the variable 'pins' to the boards first port
-// reset offset to the next port offset increase portnum for port 1
+// reset offset to the next port offset, increase portnum for port 1
 // then do it all again on the second port
 
 static void
@@ -413,8 +422,8 @@ Device_DigitalOutWrite(void *arg, long period)
 				if ((pboard->port[portnum].mask & mask) !=0) //is it an output?
 				{
 			 	   // add mask to pins if HAL pin + invert =true.
-				    if(( *(pDigital->pValue) && !(pDigital->invert) ) ||
-				       (!*(pDigital->pValue) &&  (pDigital->invert) ))
+				    if( (!*(pDigital->pValue) && !(pDigital->invert) ) ||
+				       ( *(pDigital->pValue) &&  (pDigital->invert) ))
 					 {	pins |= mask;	    }
 				}
 	   			 mask <<=1; // shift mask
