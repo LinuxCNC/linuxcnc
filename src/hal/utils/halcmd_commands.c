@@ -543,7 +543,7 @@ int do_newsig_cmd(char *name, char *type)
 	retval = hal_signal_new(name, HAL_BIT);
     } else if (strcasecmp(type, "float") == 0) {
 	retval = hal_signal_new(name, HAL_FLOAT);
-    } else if (strcasecmp(type, "u16") == 0) {
+    } else if (strcasecmp(type, "u32") == 0) {
 	retval = hal_signal_new(name, HAL_U32);
     } else if (strcasecmp(type, "s32") == 0) {
 	retval = hal_signal_new(name, HAL_S32);
