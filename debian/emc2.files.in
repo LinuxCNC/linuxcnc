@@ -363,6 +363,15 @@ etc/emc2/sample-configs/stg/stg_io.hal
 etc/emc2/sample-configs/stg/stg_motion.hal
 etc/emc2/sample-configs/stg/stg.tbl
 etc/emc2/sample-configs/stg/stg.var
+etc/emc2/sample-configs/tormach/custom.hal
+etc/emc2/sample-configs/tormach/custom_postgui.hal
+etc/emc2/sample-configs/tormach/emc.nml
+etc/emc2/sample-configs/tormach/emc.var
+etc/emc2/sample-configs/tormach/pcnc-1100.hal
+etc/emc2/sample-configs/tormach/pcnc-1100.ini
+etc/emc2/sample-configs/tormach/pcnc-1100.xml
+etc/emc2/sample-configs/tormach/README
+etc/emc2/sample-configs/tormach/tool.tbl
 etc/emc2/sample-configs/univpwm/emc.nml
 etc/emc2/sample-configs/univpwm/README
 etc/emc2/sample-configs/univpwm/univpwm.ini

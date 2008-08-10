@@ -1,6 +1,5 @@
 emc2 (1:2.2.6~cvs) hardy; urgency=low
 
-  [ Jeff Epler ]
   * fix hal_input manpage
   * Fix FTBFS on hardy (texlive-extra-utils)
   * (incompatible change) make debounce cfg= match the documentation
@@ -29,8 +28,9 @@ emc2 (1:2.2.6~cvs) hardy; urgency=low
   * new realtime component: ilowpass - scale and low-pass on integer values to
     smooth jog wheel action
   * added hostmot2 driver for 5i20 and 7i43
+  * added sample configuration for the Tormach PCNC 1100 
 
- -- jepler <jepler@unpythonic.net>  Thu, 31 Jul 2008 09:36:54 -0500
+ -- Jeff Epler <jepler@unpythonic.net>  Sun, 10 Aug 2008 09:30:15 -0500
 
 emc2 (1:2.2.5) unstable; urgency=low
 
