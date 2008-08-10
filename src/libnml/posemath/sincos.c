@@ -24,6 +24,10 @@
 
 #include "config.h"
 
+#if defined(RTAPI) && !defined(SIM)
+#undef HAVE_SINCOS
+#endif
+
 #ifndef HAVE_SINCOS
 
 #include "rtapi_math.h"
