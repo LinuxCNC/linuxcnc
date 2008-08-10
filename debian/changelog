@@ -1,4 +1,4 @@
-emc2 (1:2.2.6~cvs) hardy; urgency=low
+emc2 (1:2.2.6) hardy; urgency=low
 
   * fix hal_input manpage
   * Fix FTBFS on hardy (texlive-extra-utils)
