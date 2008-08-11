@@ -115,6 +115,32 @@ static void hm2_write(void *void_hm2, long period) {
 }
 
 
+static void hm2_read_gpio(void *void_hm2, long period) {
+    hostmot2_t *hm2 = void_hm2;
+
+    // if there are comm problems, wait for the user to fix it
+    if ((*hm2->llio->io_error) != 0) return;
+
+    // if the watchdog has bit, wait for the user to reset it
+    if ((hm2->watchdog.num_instances == 1) && (*hm2->watchdog.instance[0].hal.pin.has_bit != 0)) return;
+
+    hm2_ioport_gpio_read(hm2);
+}
+
+
+static void hm2_write_gpio(void *void_hm2, long period) {
+    hostmot2_t *hm2 = void_hm2;
+
+    // if there are comm problems, wait for the user to fix it
+    if ((*hm2->llio->io_error) != 0) return;
+
+    // if the watchdog has bit, wait for the user to reset it
+    if ((hm2->watchdog.num_instances == 1) && (*hm2->watchdog.instance[0].hal.pin.has_bit != 0)) return;
+
+    hm2_ioport_gpio_write(hm2);
+}
+
+
 
 
 // 
@@ -1098,6 +1124,31 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
         r = hal_export_funct(name, hm2_write, hm2, 1, 0, hm2->llio->comp_id);
         if (r != 0) {
             ERR("error %d exporting write function %s\n", r, name);
+            r = -EINVAL;
+            goto fail1;
+        }
+    }
+
+
+    //
+    // if the llio claims to be threadsafe, export the gpio read/write functions
+    //
+
+    if (hm2->llio->threadsafe) {
+        char name[HAL_NAME_LEN + 2];
+
+        rtapi_snprintf(name, HAL_NAME_LEN, "%s.read_gpio", hm2->llio->name);
+        r = hal_export_funct(name, hm2_read_gpio, hm2, 1, 0, hm2->llio->comp_id);
+        if (r != 0) {
+            ERR("error %d exporting gpio_read function %s\n", r, name);
+            r = -EINVAL;
+            goto fail1;
+        }
+
+        rtapi_snprintf(name, HAL_NAME_LEN, "%s.write_gpio", hm2->llio->name);
+        r = hal_export_funct(name, hm2_write_gpio, hm2, 1, 0, hm2->llio->comp_id);
+        if (r != 0) {
+            ERR("error %d exporting gpio_write function %s\n", r, name);
             r = -EINVAL;
             goto fail1;
         }

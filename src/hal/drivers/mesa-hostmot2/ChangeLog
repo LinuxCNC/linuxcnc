@@ -1,4 +1,11 @@
 
+0.5 (released 2008-08-10)
+
+    The llios now export a "threadsafe" flag.  If it's set, hostmot2
+    exports an additional pair of functions to read & write just the
+    gpios.  The 5i20 supports this, but the 7i43 does not.
+
+
 0.4 (released 2008-08-03)
 
     Moved firmware loading from userspace to the kernel.  The low-level

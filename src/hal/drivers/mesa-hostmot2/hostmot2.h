@@ -28,7 +28,7 @@
 #include "hostmot2-lowlevel.h"
 
 
-#define HM2_VERSION "0.4"
+#define HM2_VERSION "0.5"
 #define HM2_NAME    "hm2"
 
 #define PRINT_NO_LL(level, fmt, args...)  rtapi_print_msg(level, HM2_NAME ": " fmt, ## args);
@@ -582,6 +582,9 @@ void hm2_ioport_gpio_tram_write_init(hostmot2_t *hm2);
 int hm2_ioport_gpio_export_hal(hostmot2_t *hm2);
 void hm2_ioport_gpio_process_tram_read(hostmot2_t *hm2);
 void hm2_ioport_gpio_prepare_tram_write(hostmot2_t *hm2);
+
+void hm2_ioport_gpio_read(hostmot2_t *hm2);
+void hm2_ioport_gpio_write(hostmot2_t *hm2);
 
 
 

@@ -214,6 +214,8 @@ static int hm2_5i20_probe(struct pci_dev *dev, const struct pci_device_id *id) {
 
     board = &hm2_5i20_board[num_boards];
     this = &board->llio;
+    memset(this, 0, sizeof(hm2_lowlevel_io_t));
+
     snprintf(board->llio.name, HAL_NAME_LEN, "%s.%d", HM2_LLIO_NAME, num_boards);
 
     THIS_INFO("discovered 5i20 at %s\n", pci_name(dev));
@@ -271,6 +273,8 @@ static int hm2_5i20_probe(struct pci_dev *dev, const struct pci_device_id *id) {
     board->llio.ioport_connector_name[2] = "P4";
 
     board->llio.fpga_part_number = "2s200pq208";
+
+    board->llio.threadsafe = 1;
 
     board->llio.read = hm2_5i20_read;
     board->llio.write = hm2_5i20_write;

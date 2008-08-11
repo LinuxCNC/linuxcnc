@@ -71,6 +71,9 @@ inform HAL of this condition.  When the driver detects an EPP timeout,
 it sets io_error to True and stops communicating with the 7i43 board.
 Setting io_error back to False makes the driver start trying to
 communicate with the 7i43 again.
+
+Access to the EPP bus is not threadsafe: only one realtime thread may
+access the EPP bus.
 .SH SEE ALSO
 
 hostmot2(9)

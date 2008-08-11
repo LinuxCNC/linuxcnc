@@ -299,6 +299,14 @@ Write all outputs.
 .TP
 \fBhm2_<BoardType>.<BoardNum>.pet-watchdog\fR
 Pet the watchdog to keep it from biting us for a while.
+.TP
+\fBhm2_<BoardType>.<BoardNum>.read_gpio\fR
+Read the GPIO input pins. (This function is not available on the 7i43
+due to limitations of the EPP bus.)
+.TP
+\fBhm2_<BoardType>.<BoardNum>.write_gpio\fR
+Write the GPIO control registers and output pins.  (This function is
+not available on the 7i43 due to limitations of the EPP bus.)
 .SH SEE ALSO
 
 hm2_7i43(9)

@@ -432,3 +432,60 @@ void hm2_ioport_gpio_prepare_tram_write(hostmot2_t *hm2) {
     }
 }
 
+
+void hm2_ioport_gpio_read(hostmot2_t *hm2) {
+    int port;
+    int port_pin;
+
+    hm2->llio->read(
+        hm2->llio,
+        hm2->ioport.data_addr,
+        hm2->ioport.data_read_reg,
+        hm2->ioport.num_instances * sizeof(u32)
+    );
+
+    for (port = 0; port < hm2->ioport.num_instances; port ++) {
+        for (port_pin = 0; port_pin < hm2->idrom.port_width; port_pin ++) {
+            int io_pin = (port * hm2->idrom.port_width) + port_pin;
+            hal_bit_t bit;
+
+            if (hm2->pin[io_pin].gtag != HM2_GTAG_IOPORT) continue;
+            if (hm2->pin[io_pin].instance->hal.param.is_output) continue;
+
+            bit = (hm2->ioport.data_read_reg[port] >> port_pin) & 0x1;
+            *hm2->pin[io_pin].instance->hal.pin.in = bit;
+            *hm2->pin[io_pin].instance->hal.pin.in_not = !bit;
+        }
+    }
+}
+
+
+void hm2_ioport_gpio_write(hostmot2_t *hm2) {
+    int port;
+    int port_pin;
+
+    hm2_ioport_write(hm2);  // this updates the config registers that need it
+
+    for (port = 0; port < hm2->ioport.num_instances; port ++) {
+        for (port_pin = 0; port_pin < hm2->idrom.port_width; port_pin ++) {
+            int io_pin = (port * hm2->idrom.port_width) + port_pin;
+            hal_bit_t out;
+
+            if (hm2->pin[io_pin].gtag != HM2_GTAG_IOPORT) continue;
+            if (!hm2->pin[io_pin].instance->hal.param.is_output) continue;
+
+            out = *(hm2->pin[io_pin].instance->hal.pin.out) ^ hm2->pin[io_pin].instance->hal.param.invert_output;
+            hm2->ioport.data_write_reg[port] &= ~(1 << port_pin);   // zero the bit
+            hm2->ioport.data_write_reg[port] |= (out << port_pin);  // and set it as appropriate
+        }
+    }
+
+    hm2->llio->write(
+        hm2->llio,
+        hm2->ioport.data_addr,
+        hm2->ioport.data_write_reg,
+        hm2->ioport.num_instances * sizeof(u32)
+    );
+}
+
+
