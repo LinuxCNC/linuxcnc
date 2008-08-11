@@ -8,8 +8,6 @@
 * System: Linux
 *    
 * Copyright (c) 2004 All rights reserved.
-*
-* Last change: 
 ********************************************************************/
 /*
    sincos.c
@@ -20,6 +18,10 @@
 */
 
 #include "config.h"
+
+#if defined(RTAPI) && !defined(SIM)
+#undef HAVE_SINCOS
+#endif
 
 #ifndef HAVE_SINCOS
 
