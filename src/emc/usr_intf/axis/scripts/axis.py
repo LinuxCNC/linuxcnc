@@ -262,6 +262,57 @@ def from_internal_linear_unit(v, unit=None):
     lu = (unit or 1) * 25.4
     return v*lu
 
+class Notification(Tkinter.Frame):
+    def __init__(self, master):
+        self.widgets = []
+        self.cache = []
+        Tkinter.Frame.__init__(self, master)
+
+    def clear(self):
+        print "clear"
+        while self.widgets:
+            self.remove(self.widgets[0])
+
+    def clear_one(self):
+        print "clear_one"
+        if self.widgets:
+            self.remove(self.widgets[0])
+
+
+    def add(self, iconname, message):
+        self.place(relx=1, rely=1, anchor="se")
+        iconname = self.tk.call("load_image", "std_" + iconname)
+        close = self.tk.call("load_image", "close", "notification-close")
+        if len(self.widgets) > 10:
+            self.remove(self.widgets[0])
+        if self.cache:
+            frame, icon, text, button = widgets = self.cache.pop()
+            icon.configure(image=iconname)
+            text.configure(text=message)
+        else:
+            frame = Tkinter.Frame(self)
+            icon = Tkinter.Label(frame, image=iconname)
+            text = Tkinter.Label(frame, text=message, wraplength=300, justify="left")
+            button = Tkinter.Button(frame, image=close,
+                command=lambda: self.remove(widgets))
+            widgets = frame, icon, text, button
+            text.pack(side="left")
+            icon.pack(side="left")
+            button.pack(side="left")
+        frame.pack(side="top", anchor="e")
+        self.widgets.append(widgets)
+
+    def remove(self, widgets):
+        print "before remove", len(self.widgets), widgets in self.widgets
+        self.widgets.remove(widgets)
+        if len(self.cache) < 10:
+            widgets[0].pack_forget()
+            self.cache.append(widgets)
+        else:
+            widgets[0].destroy()
+        print "after remove", len(self.widgets)
+        if len(self.widgets) == 0:
+            self.place_forget()
 
 class MyOpengl(Opengl):
     def __init__(self, *args, **kw):
@@ -1381,11 +1432,10 @@ class LivePlotter:
         if error: 
             kind, text = error
             if kind in (emc.NML_ERROR, emc.OPERATOR_ERROR):
-                root_window.tk.call("nf_dialog", ".error",
-                                    _("AXIS error"), text, "error",0,_("OK"))
-            else: # TEXT, DISPLAY
-                result = root_window.tk.call("nf_dialog", ".error",
-                                    _("AXIS Message"), text, "info", 0, _("OK"))
+                icon = "error"
+            else:
+                icon = "info"
+            notifications.add(icon, text)
         self.error_after = self.win.after(20, self.error_task)
 
     def update(self):
@@ -3475,6 +3525,11 @@ widgets.preview_frame.pack_propagate(0)
 o = MyOpengl(widgets.preview_frame, width=400, height=300, double=1, depth=1)
 o.last_line = 1
 o.pack(fill="both", expand=1)
+
+notifications = Notification(o)
+
+root_window.bind("<space>", lambda event: notifications.clear_one())
+root_window.bind("<Control-space>", lambda event: notifications.clear())
 
 root_window.bind("<Key-F3>", pane_top + ".tabs raise manual")
 root_window.bind("<Key-F5>", pane_top + ".tabs raise mdi")
