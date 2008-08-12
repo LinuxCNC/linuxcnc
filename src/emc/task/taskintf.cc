@@ -773,27 +773,27 @@ static double localEmcTrajLinearUnits = 1.0;
 static double localEmcTrajAngularUnits = 1.0;
 static int localEmcTrajMotionId = 0;
 
-int emcTrajSetJoints(int joints, int jointmask)
+int emcTrajSetJoints(int joints, int axismask)
 {
-    if(joints == 0) {
-	if(jointmask & 256) joints = 9;
-	else if(jointmask & 128) joints = 8;
-	else if(jointmask & 64) joints = 7;
-	else if(jointmask & 32) joints = 6;
-	else if(jointmask & 16) joints = 5;
-	else if(jointmask & 8) joints = 4;
-	else if(jointmask & 4) joints = 3;
-	else if(jointmask & 2) joints = 2;
-	else if(jointmask & 1) joints = 1;
+    if(joints == 0) { //FIXME-AJ: trivkins?
+	if(axismask & 256) joints = 9;
+	else if(axismask & 128) joints = 8;
+	else if(axismask & 64) joints = 7;
+	else if(axismask & 32) joints = 6;
+	else if(axismask & 16) joints = 5;
+	else if(axismask & 8) joints = 4;
+	else if(axismask & 4) joints = 3;
+	else if(axismask & 2) joints = 2;
+	else if(axismask & 1) joints = 1;
     }
-    if (joints <= 0 || joints > EMCMOT_MAX_JOINTS || jointmask >= (1<<joints)) {
-	rcs_print("emcTrajSetAxes failing: joints=%d jointmask=%x\n",
-		joints, jointmask);
+    if (joints <= 0 || joints > EMCMOT_MAX_JOINTS) { //FIXME-AJ: figure out jointmask/axismask || axismask >= (1<<joints)) {
+	rcs_print("emcTrajSetAxes failing: joints=%d axismask=%x\n",
+		joints, axismask);
 	return -1;
     }
 
     localEmcTrajJoints = joints;
-    localEmcTrajJointMask = jointmask;
+    localEmcTrajJointMask = axismask;
     emcmotCommand.command = EMCMOT_SET_NUM_JOINTS;
     emcmotCommand.joint = joints;
     return usrmotWriteEmcmotCommand(&emcmotCommand);
