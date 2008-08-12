@@ -1,5 +1,6 @@
 emc2 (1:2.3.0~alpha1) unstable; urgency=low
 
+  * fix G33 moves without feedrate (SF#2011311)
   * minor improvements for teach-in.py
   * G38.x extensions allow for smart & fast probing
   * M66 now reads analog inputs as well
