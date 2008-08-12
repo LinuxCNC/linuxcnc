@@ -781,9 +781,9 @@ void DrawElement(GdkPixmap * DrawPixmap,int x,int y,int Width,int Height,StrElem
 			case ELE_RISING_INPUT:
 			case ELE_FALLING_INPUT:
 				strcpy(BufTxt,CreateVarName(Element.VarType,Element.VarNum));
-				gdk_gc_set_foreground(DynaGcOn,&DynaGdkColor1);//color this text red
-				DrawTextGTK2( DrawPixmap, DynaGcOn, x, y+HeiDiv4+1, Width, -1, BufTxt );
-				gdk_gc_set_foreground(DynaGcOn,&DynaGdkColor3);//change color back to black
+				gdk_gc_set_foreground(DynaGcOff,&DynaGdkColor1);//color this text red
+				DrawTextGTK2( DrawPixmap, DynaGcOff, x, y+HeiDiv4+1, Width, -1, BufTxt );
+				gdk_gc_set_foreground(DynaGcOff,&DynaGdkColor3);//change color back to black
 	
 				break;
 			case ELE_OUTPUT:
@@ -797,9 +797,9 @@ void DrawElement(GdkPixmap * DrawPixmap,int x,int y,int Width,int Height,StrElem
 				gdk_draw_text(DrawPixmap, drawing_area->style->font, drawing_area->style->black_gc,
 								x+WidDiv4,y+HeiDiv4-2,BufTxt,strlen(BufTxt));
 #else
-				gdk_gc_set_foreground(DynaGcOn,&DynaGdkColor2); //color text blue
-				DrawTextGTK2( DrawPixmap, DynaGcOn, x, y+HeiDiv4+1, Width, -1, BufTxt );
-				gdk_gc_set_foreground(DynaGcOn,&DynaGdkColor3);//back to black
+				gdk_gc_set_foreground(DynaGcOff,&DynaGdkColor2); //color text blue
+				DrawTextGTK2( DrawPixmap, DynaGcOff, x, y+HeiDiv4+1, Width, -1, BufTxt );
+				gdk_gc_set_foreground(DynaGcOff,&DynaGdkColor3);//back to black
 	
 #endif
 				break;
