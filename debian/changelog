@@ -1,8 +1,8 @@
 emc2 (1:2.2.7~cvs) hardy; urgency=low
 
-  * (note changes here)
+  * stepconf: fix "negative SCALE" problem reported by Christopher Purcell
 
- -- Jeff Epler <jepler@unpythonic.net>  Sun, 10 Aug 2008 09:30:15 -0500
+ -- Jeff Epler <jepler@unpythonic.net>  Fri, 15 Aug 2008 18:48:11 -0500
 
 emc2 (1:2.2.6) hardy; urgency=low
 

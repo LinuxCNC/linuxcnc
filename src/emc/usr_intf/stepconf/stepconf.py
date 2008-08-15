@@ -471,7 +471,7 @@ class Data:
 	order = "1203"
 	def get(s): return self[letter + s]
         scale = get("scale")
-        vel = min(get("maxvel"), .95 * 1e9 / self.ideal_period() / scale)
+        vel = min(get("maxvel"), abs(.95 * 1e9 / self.ideal_period() / scale))
 	print >>file
 	print >>file, "[AXIS_%d]" % num
 	print >>file, "TYPE = %s" % type
