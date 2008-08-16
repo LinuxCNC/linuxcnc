@@ -1,4 +1,10 @@
 
+released 2008-08-15
+    hostmot2 0.4.1
+
+    Merge stepgen fix from TRUNK.
+
+
 0.4 (released 2008-08-03)
 
     Moved firmware loading from userspace to the kernel.  The low-level

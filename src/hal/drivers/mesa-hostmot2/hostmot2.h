@@ -28,7 +28,7 @@
 #include "hostmot2-lowlevel.h"
 
 
-#define HM2_VERSION "0.4"
+#define HM2_VERSION "0.4.1"
 #define HM2_NAME    "hm2"
 
 #define PRINT_NO_LL(level, fmt, args...)  rtapi_print_msg(level, HM2_NAME ": " fmt, ## args);

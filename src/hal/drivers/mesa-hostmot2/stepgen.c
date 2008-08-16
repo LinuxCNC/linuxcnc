@@ -231,6 +231,20 @@ static void hm2_stepgen_force_write_pulse_width_time(hostmot2_t *hm2) {
 }
 
 
+static void hm2_stepgen_force_write_master_dds(hostmot2_t *hm2) {
+    int i;
+    u32 val = 0xffffffff;
+    for (i = 0; i < hm2->stepgen.num_instances; i ++) {
+        hm2->llio->write(
+            hm2->llio,
+            hm2->stepgen.master_dds_addr,
+            &val,
+            sizeof(u32)
+        );
+    }
+}
+
+
 void hm2_stepgen_force_write(hostmot2_t *hm2) {
     if (hm2->stepgen.num_instances == 0) return;
     hm2_stepgen_force_write_mode(hm2);
@@ -238,6 +252,7 @@ void hm2_stepgen_force_write(hostmot2_t *hm2) {
     hm2_stepgen_force_write_dir_hold_time(hm2);
     hm2_stepgen_force_write_pulse_width_time(hm2);
     hm2_stepgen_force_write_pulse_idle_width(hm2);
+    hm2_stepgen_force_write_master_dds(hm2);
 }
 
 
@@ -322,6 +337,7 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
     hm2->stepgen.pulse_idle_width_addr = md->base_address + (6 * md->register_stride);
     hm2->stepgen.table_sequence_data_setup_addr = md->base_address + (7 * md->register_stride);
     hm2->stepgen.table_sequence_length_addr = md->base_address + (8 * md->register_stride);
+    hm2->stepgen.master_dds_addr = md->base_address + (9 * md->register_stride);
 
     r = hm2_register_tram_write_region(hm2, hm2->stepgen.step_rate_addr, (hm2->stepgen.num_instances * sizeof(u32)), &hm2->stepgen.step_rate_reg);
     if (r < 0) {
