@@ -28,6 +28,11 @@
 \layout Chapter
 
 Canned Cycles
+\begin_inset LatexCommand \index{Canned Cycles}
+
+\end_inset 
+
+
 \layout Standard
 
 Canned Cycles G81 through G89 have been implemented for milling.
@@ -120,15 +125,15 @@ In addition, for each repeat as specified by L, one or two moves are made
  already at the R position.
 \layout Section
 
-G80 
-\layout Standard
-
-G80
-\begin_inset LatexCommand \index{G80}
+G80 Cancel Cycle
+\begin_inset LatexCommand \index{G80 Cancle Cycle}
 
 \end_inset 
 
- turns off all motion.
+
+\layout Standard
+
+G80 turns off all motion.
  You should think of it as the off position on a rotary switch where the
  other positions are the different possible motion modes.
  In the EMC interpreter, G80 is one of the modal codes so any other code
@@ -271,15 +276,15 @@ These should serve as a reminder that you need to write in a new motion
  word.
 \layout Section
 
-G81 Cycle 
-\layout Standard
-
-The G81
-\begin_inset LatexCommand \index{G81}
+G81 Drill Cycle
+\begin_inset LatexCommand \index{G81 Drill Cycle}
 
 \end_inset 
 
- cycle is intended for drilling.
+
+\layout Standard
+
+The G81 cycle is intended for drilling.
 \layout Standard
 
 0.
@@ -473,15 +478,15 @@ Since this plot starts with (0, 0, 0), the interpreter adds the initial
 Example 5 - Relative position R > Z
 \layout Section
 
-G82 Cycle 
-\layout Standard
-
-The G82
-\begin_inset LatexCommand \index{G82}
+G82 Drill Dwell Cycle
+\begin_inset LatexCommand \index{G82 Drill Dwell Cycle}
 
 \end_inset 
 
- cycle is intended for drilling.
+ 
+\layout Standard
+
+The G82 cycle is intended for drilling.
 \layout Standard
 
 0.
@@ -510,15 +515,15 @@ Would be equivalent to example 2 above with a dwell added at the bottom
  of the hole.
 \layout Section
 
-G83 Cycle
-\layout Standard
-
-The G83
-\begin_inset LatexCommand \index{G82}
+G83 Chip Breaking Drill Cycle
+\begin_inset LatexCommand \index{G83 Chip Breaking Drill Cycle}
 
 \end_inset 
 
- cycle is intended for deep drilling or milling with chip breaking.
+
+\layout Standard
+
+The G83 cycle is intended for deep drilling or milling with chip breaking.
  The dwell in this cycle causes any long stringers (which are common when
  drilling in aluminum) to be cut off.
  This cycle takes a Q value which represents a "delta" increment along the
@@ -570,15 +575,15 @@ I find this command very handy for many of my deep drilling projects.
  Each peck pulls the drill tip up to R0.2 after moving Q0.05.
 \layout Section
 
-G84 Cycle
-\layout Standard
-
-The G84
-\begin_inset LatexCommand \index{G84}
+G84 Tapping Cycle
+\begin_inset LatexCommand \index{G84 Tapping Cycle}
 
 \end_inset 
 
- cycle is intended for right-hand tapping.
+
+\layout Standard
+
+The G84 cycle is intended for right-hand tapping.
 \layout Standard
 
 0.
@@ -617,12 +622,12 @@ The G84
  Start the spindle clockwise.
 \layout Section
 
-G85
-\begin_inset LatexCommand \index{G85}
+G85 Boring Cycle
+\begin_inset LatexCommand \index{G85 Boring Cycle}
 
 \end_inset 
 
- Cycle
+
 \layout Standard
 
 The G85 cycle is intended for boring or reaming.
@@ -645,12 +650,12 @@ The G85 cycle is intended for boring or reaming.
  the hole at feed rate rather than rapid.
 \layout Section
 
-G86
-\begin_inset LatexCommand \index{G86}
+G86 Dwell Boring Cycle
+\begin_inset LatexCommand \index{G86 Dwell Boring Cycle}
 
 \end_inset 
 
- Cycle
+
 \layout Standard
 
 The G86 cycle is intended for boring.
@@ -689,12 +694,12 @@ The G86 cycle is intended for boring.
  value R.
 \layout Section
 
-G87
-\begin_inset LatexCommand \index{G87}
+G87 Back Boring Cycle
+\begin_inset LatexCommand \index{G87 Back Boring Cycle}
 
 \end_inset 
 
- Cycle
+
 \layout Standard
 
 The G87 cycle is intended for back boring.
@@ -954,15 +959,15 @@ This canned cycle assumes spindle orientation which has not been implemented
  to the successful insertion of the tool through the hole to be backbored.
 \layout Section
 
-G88 Cycle
-\layout Standard
-
-The G88
-\begin_inset LatexCommand \index{G88}
+G88 Boring Cycle
+\begin_inset LatexCommand \index{G88 Boring Cycle}
 
 \end_inset 
 
- cycle is intended for boring.
+
+\layout Standard
+
+The G88 cycle is intended for boring.
  This cycle uses a P value, where P specifies the number of seconds to dwell.
 \layout Standard
 
@@ -993,15 +998,15 @@ The G88
  We will attempt to clarify that step in this procedure.
 \layout Section
 
-G89 Cycle
-\layout Standard
-
-The G89
-\begin_inset LatexCommand \index{G89}
+G89 Boring Cycle
+\begin_inset LatexCommand \index{G89 Boring Cycle}
 
 \end_inset 
 
- cycle is intended for boring.
+
+\layout Standard
+
+The G89 cycle is intended for boring.
  This cycle uses a P value, where P specifies the number of seconds to dwell.
 \layout Standard
 
@@ -1023,125 +1028,65 @@ The G89
  rather than rapid.
 \layout Section
 
-G98 G99
-\layout Standard
-
-G98
-\begin_inset LatexCommand \index{G98}
-
-\end_inset 
-
- - initial level return in canned cycles 
-\layout Standard
-
-G99
-\begin_inset LatexCommand \index{G99}
-
-\end_inset 
-
- - R value return in canned cycles 
-\layout Standard
-
-These codes are treated together because they behave very much alike. You
- will recall that when Z is above R the preparatory move is from the current
- location to the X, Y values.
- If G98 is not specified, then the canned cycle will return to the R value
- rather than the Z value that was used on the approach.
-\layout Standard
-
-
-\begin_inset Minipage
-position 1
-inner_position 0
-height "0pt"
-width "60col%"
-collapsed false
-
-\layout Standard
-
-N01 G0 X1 Y2 Z3 
-\layout Standard
-
-N02 G90 G81 X4 Y5 Z-0.6 R1.8
-\layout Standard
-
-Adding G98 to the second line above means that the return move will be to
- the value of OLD_Z since it is higher that the R value specified.
-\end_inset 
-
-
-\hfill 
-
-\begin_inset Minipage
-position 1
-inner_position 0
-height "0pt"
-width "40col%"
-collapsed false
-
-\layout Standard
-\added_space_top 0.3cm \added_space_bottom 0.3cm \align center 
-
-\begin_inset Graphics
-	filename G81ret.png
-	width 2in
-
-\end_inset 
-
+G98 Cycle Return
+\begin_inset LatexCommand \index{G98 Cycle Return}
 
 \end_inset 
 
 
 \layout Standard
 
-Neither code will have any affect when incremental moves with a positive
- R value are specified because the R value is added to OLD_Z and that result
- is used as the initial level for a G98.
+Program a G98 and the canned cycle will use the Z position prior to the
+ canned cycle as the Z return position if it is higher than the R value
+ specified in the cycle.
+ If it is lower then the R value will be used.
+ The R word has different meanings in absolute distance mode and incremental
+ distance mode.
+\layout Standard
+
+Example
+\layout Standard
+
+G0 X1 Y2 Z3 
+\layout Standard
+
+G90 G98 G81 X4 Y5 Z-0.6 R1.8
+\layout Standard
+
+The G98 to the second line above means that the return move will be to the
+ value of Z in the first line since it is higher that the R value specified.
+ 
+\layout Section
+
+G99 Cycle Return
+\begin_inset LatexCommand \index{G99 Cycle Return}
+
+\end_inset 
+
+
+\layout Standard
+
+Program a G99 and the canned cycle will use the R value as the Z return
+ position.
+ 
+\layout Section
+
+G91 with G98-99
+\begin_inset LatexCommand \index{G91 with G98-99}
+
+\end_inset 
+
+
+\layout Standard
+
+Neither G98 or G99 will have any affect when in incremental distance mode
+ (G91) and a positive R value is specified because the R value is added
+ to OLD_Z and that result is used as the initial level for a G98.
  The same value is the computed R value so G99 will also return to the same
  place.
- 
-\layout Standard
-
-
-\begin_inset Minipage
-position 1
-inner_position 0
-height "0pt"
-width "60col%"
-collapsed false
-
-\layout Standard
-\align left 
-When the value of R is less than OLD_Z and incremental distance mode is
- turned on, G98 will return the tool to the value of OLD_Z.
- Under those conditions G99 will retract the tool to OLD_Z plus the negative
- R value.
+ When the value of R is less than OLD_Z and incremental distance mode is
+ turned on, G99 will retract the tool to OLD_Z plus the negative R value.
  The return will be below OLD_Z.
-\end_inset 
-
-
-\hfill 
-
-\begin_inset Minipage
-position 1
-inner_position 0
-height "0pt"
-width "40col%"
-collapsed false
-
-\layout Standard
-\added_space_top 0.3cm \added_space_bottom 0.3cm \align center 
-
-\begin_inset Graphics
-	filename G81g98d.png
-	width 2in
-
-\end_inset 
-
-
-\end_inset 
-
-
 \layout Section
 
 Why use a canned cycle?
