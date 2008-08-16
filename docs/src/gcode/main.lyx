@@ -6309,31 +6309,6 @@ naive cam detector
  
 \layout Section
 
-G80
-\begin_inset LatexCommand \index{G80}
-
-\end_inset 
-
-: Cancel Modal Motion
-\begin_inset LatexCommand \label{sec:G80:-Cancel-Modal}
-
-\end_inset 
-
-
-\layout Standard
-
-Program 
-\family typewriter 
-G80
-\family default 
- to ensure no axis motion will occur.
- It is an error if: 
-\layout Itemize
-
-Axis words are programmed when G80 is active, unless a modal group 0 G code
- is programmed which uses axis words.
-\layout Section
-
 G76
 \begin_inset LatexCommand \index{G76}
 
@@ -6715,6 +6690,31 @@ G76 canned cycle
 \end_inset 
 
 
+\layout Section
+
+G80
+\begin_inset LatexCommand \index{G80}
+
+\end_inset 
+
+: Cancel Modal Motion
+\begin_inset LatexCommand \label{sec:G80:-Cancel-Modal}
+
+\end_inset 
+
+
+\layout Standard
+
+Program 
+\family typewriter 
+G80
+\family default 
+ to ensure no axis motion will occur.
+ It is an error if: 
+\layout Itemize
+
+Axis words are programmed when G80 is active, unless a modal group 0 G code
+ is programmed which uses axis words.
 \layout Section
 
 G81
