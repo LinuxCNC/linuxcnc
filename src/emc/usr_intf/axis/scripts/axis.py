@@ -314,6 +314,12 @@ class Notification(Tkinter.Frame):
         if len(self.widgets) == 0:
             self.place_forget()
 
+def soft_limits():
+    ax = s.axis
+    return (
+        [ax[i]['min_position_limit'] for i in range(3)],
+        [ax[i]['max_position_limit'] for i in range(3)])
+
 class MyOpengl(Opengl):
     def __init__(self, *args, **kw):
         self.after_id = None
@@ -631,6 +637,8 @@ class MyOpengl(Opengl):
 
 
     def redraw(self):
+        machine_limit_min, machine_limit_max = soft_limits()
+
         if self.select_event:
             self.select(self.select_event)
             self.select_event = None
@@ -2249,6 +2257,7 @@ def get_jog_speed(a):
 def run_warn():
     warnings = []
     if o.g:
+        machine_limit_min, machine_limit_max = soft_limits()
         for i in range(3): # Does not enforce angle limits
             if not(s.axis_mask & (1<<i)): continue
             if o.g.min_extents_notool[i] < machine_limit_min[i]:
@@ -3334,8 +3343,6 @@ def set_tabs(e):
     t.configure(tabs="%d right" % (e.width - 2))
 
 import sys, getopt
-machine_limit_min = [-1] * 9
-machine_limit_max = [1] * 9
 
 open_directory = "programs"
 
@@ -3448,9 +3455,6 @@ for a in range(9):
     section = "AXIS_%d" % a
     unit = inifile.find(section, "UNITS") or lu
     unit = units(unit) * 25.4
-    if a < 3:
-        machine_limit_min[a] = float(inifile.find(section, "MIN_LIMIT")) / unit
-        machine_limit_max[a] = float(inifile.find(section, "MAX_LIMIT")) / unit
     f = inifile.find(section, "SCALE") or inifile.find(section, "INPUT_SCALE") or "8000"
     try:
         f = abs(float(f.split()[0]))
