@@ -870,7 +870,7 @@ static int doStop(connectionRecType *context)
 static int doLoadRt(char *mod_name, char *args[], connectionRecType *context)
 {
     char arg_string[MAX_CMD_LEN+1];
-    int m=0, n=0, retval;
+    int m=0, n=0, retval=0;
     hal_comp_t *comp;
     char *argv[MAX_TOK+3];
     char *cp1;
