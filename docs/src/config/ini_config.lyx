@@ -1778,27 +1778,7 @@ The maximum value for the output of the PID compensation that is written
  to the motor amplifier, in volts.
  The computed output value is clamped to this limit.
  The limit is applied before scaling to raw output units.
- 
-\layout Description
-
-
-\color black
-MIN_OUTPUT\SpecialChar ~
-=\SpecialChar ~
--10 
-\series bold 
-\noun on 
-\color default
-(hal)
-\series default 
-\noun default 
- 
-\color black
-The minimum value for the output of the PID compensation that is written
- to the motor amplifier, in volts.
- The computed output value is clamped to this limit.
- The limit is applied before scaling to raw output units.
- 
+ The value is applied symmetrically to both the plus and the minus side.
 \layout Standard
 
 
