@@ -1213,6 +1213,33 @@ PyObject *set_teleop_vector(pyCommandChannel *s, PyObject *o) {
     return Py_None;
 }
 
+static PyObject *set_min_limit(pyCommandChannel *s, PyObject *o) {
+    EMC_AXIS_SET_MIN_POSITION_LIMIT m;
+    if(!PyArg_ParseTuple(o, "id", &m.axis, &m.limit))
+        return NULL;
+
+    m.serial_number = next_serial(s);
+    s->c->write(m);
+    emcWaitCommandReceived(s->serial, s->s);
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+
+static PyObject *set_max_limit(pyCommandChannel *s, PyObject *o) {
+    EMC_AXIS_SET_MAX_POSITION_LIMIT m;
+    if(!PyArg_ParseTuple(o, "id", &m.axis, &m.limit))
+        return NULL;
+
+    m.serial_number = next_serial(s);
+    s->c->write(m);
+    emcWaitCommandReceived(s->serial, s->s);
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 
 PyObject *wait_complete(pyCommandChannel *s, PyObject *o) {
     return PyInt_FromLong(emcWaitCommandComplete(s->serial, s->s));
@@ -1250,6 +1277,8 @@ static PyMethodDef Command_methods[] = {
     {"auto", (PyCFunction)emcauto, METH_VARARGS},
     {"set_optional_stop", (PyCFunction)optional_stop, METH_VARARGS},
     {"set_block_delete", (PyCFunction)block_delete, METH_VARARGS},
+    {"set_min_limit", (PyCFunction)set_min_limit, METH_VARARGS},
+    {"set_max_limit", (PyCFunction)set_max_limit, METH_VARARGS},
     {NULL}
 };
 
