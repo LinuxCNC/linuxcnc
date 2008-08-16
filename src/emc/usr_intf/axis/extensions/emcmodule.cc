@@ -156,7 +156,7 @@ static PyMethodDef Ini_methods[] = {
     {NULL}
 };
 
-PyTypeObject Ini_Type = {
+static PyTypeObject Ini_Type = {
     PyObject_HEAD_INIT(NULL)
     0,                      /*ob_size*/
     "emc.ini",              /*tp_name*/
@@ -663,7 +663,7 @@ static PyGetSetDef Stat_getsetlist[] = {
     {NULL}
 };
 
-PyTypeObject Stat_Type = {
+static PyTypeObject Stat_Type = {
     PyObject_HEAD_INIT(NULL)
     0,                      /*ob_size*/
     "emc.stat",             /*tp_name*/
@@ -1159,7 +1159,7 @@ static PyObject *emcauto(pyCommandChannel *s, PyObject *o) {
     return Py_None;
 }
 
-PyObject *debug(pyCommandChannel *s, PyObject *o) {
+static PyObject *debug(pyCommandChannel *s, PyObject *o) {
     EMC_SET_DEBUG d;
 
     if(!PyArg_ParseTuple(o, "i", &d.debug)) return NULL;
@@ -1171,7 +1171,7 @@ PyObject *debug(pyCommandChannel *s, PyObject *o) {
     return Py_None;
 }
 
-PyObject *teleop(pyCommandChannel *s, PyObject *o) {
+static PyObject *teleop(pyCommandChannel *s, PyObject *o) {
     EMC_TRAJ_SET_TELEOP_ENABLE en;
 
     if(!PyArg_ParseTuple(o, "i", &en.enable)) return NULL;
@@ -1184,7 +1184,7 @@ PyObject *teleop(pyCommandChannel *s, PyObject *o) {
     return Py_None;
 }
 
-PyObject *set_traj_mode(pyCommandChannel *s, PyObject *o) {
+static PyObject *set_traj_mode(pyCommandChannel *s, PyObject *o) {
     EMC_TRAJ_SET_MODE mo;
 
     if(!PyArg_ParseTuple(o, "i", &mo.mode)) return NULL;
@@ -1197,7 +1197,7 @@ PyObject *set_traj_mode(pyCommandChannel *s, PyObject *o) {
     return Py_None;
 }
 
-PyObject *set_teleop_vector(pyCommandChannel *s, PyObject *o) {
+static PyObject *set_teleop_vector(pyCommandChannel *s, PyObject *o) {
     EMC_TRAJ_SET_TELEOP_VECTOR mo;
 
     mo.vector.a = mo.vector.b = mo.vector.c = 0.;
@@ -1241,7 +1241,7 @@ static PyObject *set_max_limit(pyCommandChannel *s, PyObject *o) {
 }
 
 
-PyObject *wait_complete(pyCommandChannel *s, PyObject *o) {
+static PyObject *wait_complete(pyCommandChannel *s, PyObject *o) {
     return PyInt_FromLong(emcWaitCommandComplete(s->serial, s->s));
 }
 
@@ -1282,7 +1282,7 @@ static PyMethodDef Command_methods[] = {
     {NULL}
 };
 
-PyTypeObject Command_Type = {
+static PyTypeObject Command_Type = {
     PyObject_HEAD_INIT(NULL)
     0,                      /*ob_size*/
     "emc.command",          /*tp_name*/
