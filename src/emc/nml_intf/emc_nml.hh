@@ -209,32 +209,6 @@ class EMC_AXIS_SET_MAX_POSITION_LIMIT:public EMC_AXIS_CMD_MSG {
     double limit;
 };
 
-class EMC_AXIS_SET_MIN_OUTPUT_LIMIT:public EMC_AXIS_CMD_MSG {
-  public:
-    EMC_AXIS_SET_MIN_OUTPUT_LIMIT():EMC_AXIS_CMD_MSG
-	(EMC_AXIS_SET_MIN_OUTPUT_LIMIT_TYPE,
-	 sizeof(EMC_AXIS_SET_MIN_OUTPUT_LIMIT)) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-
-    double limit;
-};
-
-class EMC_AXIS_SET_MAX_OUTPUT_LIMIT:public EMC_AXIS_CMD_MSG {
-  public:
-    EMC_AXIS_SET_MAX_OUTPUT_LIMIT():EMC_AXIS_CMD_MSG
-	(EMC_AXIS_SET_MAX_OUTPUT_LIMIT_TYPE,
-	 sizeof(EMC_AXIS_SET_MAX_OUTPUT_LIMIT)) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-
-    double limit;
-};
-
 class EMC_AXIS_SET_FERROR:public EMC_AXIS_CMD_MSG {
   public:
     EMC_AXIS_SET_FERROR():EMC_AXIS_CMD_MSG(EMC_AXIS_SET_FERROR_TYPE,

@@ -65,8 +65,6 @@ class PM_CARTESIAN;
 
 #define EMC_AXIS_SET_MIN_POSITION_LIMIT_TYPE         ((NMLTYPE) 107)
 #define EMC_AXIS_SET_MAX_POSITION_LIMIT_TYPE         ((NMLTYPE) 108)
-#define EMC_AXIS_SET_MIN_OUTPUT_LIMIT_TYPE           ((NMLTYPE) 109)
-#define EMC_AXIS_SET_MAX_OUTPUT_LIMIT_TYPE           ((NMLTYPE) 110)
 #define EMC_AXIS_SET_FERROR_TYPE                     ((NMLTYPE) 111)
 #define EMC_AXIS_SET_HOMING_PARAMS_TYPE              ((NMLTYPE) 112)
 // gap because of deleted message types
