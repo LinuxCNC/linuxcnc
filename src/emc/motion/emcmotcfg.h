@@ -45,16 +45,6 @@
 /* seconds to delay between comm retries */
 #define DEFAULT_EMCMOT_COMM_WAIT 0.010
 
-/* default cycle time for trajectory calculations; cycle time
-   for emcmot.c main loop will be this times the interpolation rate */
-#if defined(rtlinux) || defined(rtai)
-#define DEFAULT_TRAJ_CYCLE_TIME  0.010
-#define DEFAULT_SERVO_CYCLE_TIME 0.001
-#else
-#define DEFAULT_TRAJ_CYCLE_TIME  0.200
-#define DEFAULT_SERVO_CYCLE_TIME 0.020
-#endif
-
 /* initial velocity, accel used for coordinated moves */
 #define DEFAULT_VELOCITY 1.0
 #define DEFAULT_ACCELERATION 10.0
@@ -63,10 +53,6 @@
 #define DEFAULT_MAX_LIMIT 1000
 #define DEFAULT_MIN_LIMIT -1000
 
-/* output clamps before scaling */
-#define DEFAULT_MAX_OUTPUT 10.0
-#define DEFAULT_MIN_OUTPUT -10.0
-
 /* size of motion queue
  * a TC_STRUCT is about 512 bytes so this queue is
  * about a megabyte.  */
@@ -74,22 +60,5 @@
 
 /* max following error */
 #define DEFAULT_MAX_FERROR 100
-
-/* PID gains */
-#define DEFAULT_P_GAIN 0.0
-#define DEFAULT_I_GAIN 0.0
-#define DEFAULT_D_GAIN 0.0
-#define DEFAULT_FF0_GAIN 0.0
-#define DEFAULT_FF1_GAIN 0.0
-#define DEFAULT_FF2_GAIN 0.0
-#define DEFAULT_BACKLASH 0.0
-#define DEFAULT_BIAS 0.0
-#define DEFAULT_MAX_ERROR 0.0
-
-/* input, output scales */
-#define DEFAULT_INPUT_SCALE 1.0
-#define DEFAULT_INPUT_OFFSET 0.0
-#define DEFAULT_OUTPUT_SCALE 1.0
-#define DEFAULT_OUTPUT_OFFSET 0.0
 
 #endif
