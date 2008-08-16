@@ -40,8 +40,8 @@ Man pages are automatically generated manual pages in most cases.
  Man pages are usually available for most programs and commands in Linux.
 \layout Standard
 
-To view a man page open up open up a terminal window by going to Applications,
- Accessories, Terminal.
+To view a man page open up a terminal window by going to Applications, Accessori
+es, Terminal.
  For example if you wanted to find out something about the find command
  in the terminal window type:
 \layout Standard
