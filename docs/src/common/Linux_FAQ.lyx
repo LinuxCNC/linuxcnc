@@ -1,0 +1,244 @@
+#LyX 1.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 221
+\textclass book
+\language english
+\inputencoding auto
+\fontscheme default
+\graphics default
+\paperfontsize default
+\spacing single 
+\papersize Default
+\paperpackage a4
+\use_geometry 0
+\use_amsmath 0
+\use_natbib 0
+\use_numerical_citations 0
+\paperorientation portrait
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation skip
+\defskip smallskip
+\quotes_language english
+\quotes_times 2
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+
+\layout Chapter
+
+Linux FAQ
+\layout Standard
+
+These are some basic Linux commands and techniques for new to Linux users.
+ More complete information can be found on the web or by using the man pages.
+\layout Section
+
+Man Pages
+\layout Standard
+
+Man pages are automatically generated manual pages in most cases.
+ Man pages are usually available for most programs and commands in Linux.
+\layout Standard
+
+To view a man page open up open up a terminal window by going to Applications,
+ Accessories, Terminal.
+ For example if you wanted to find out something about the find command
+ in the terminal window type:
+\layout Standard
+
+
+\family typewriter 
+\series bold 
+man find
+\layout Standard
+
+Use the Page Up and Page Down keys to view the man page and the Q key to
+ quit viewing.
+\layout Section
+
+Editing a Root File
+\layout Standard
+
+Editing some root files can have bad results.
+ Be careful when editing root files.
+ You can open and view most root files normally but they will open in 
+\begin_inset Quotes eld
+\end_inset 
+
+read only
+\begin_inset Quotes erd
+\end_inset 
+
+ mode.
+\layout Subsection
+
+The Command Line Way
+\layout Standard
+
+Open up Applications, Accessories, Terminal.
+\layout Standard
+
+In the terminal window type
+\layout Standard
+
+
+\family typewriter 
+\series bold 
+sudo gedit
+\layout Standard
+
+Open the file with File, Open then edit
+\layout Subsection
+
+The GUI Way
+\layout Enumerate
+
+Right click on the desktop and select Create Launcher
+\layout Enumerate
+
+Type a name in like sudo edit
+\layout Enumerate
+
+Type 
+\family typewriter 
+\series bold 
+gksudo 
+\begin_inset Quotes eld
+\end_inset 
+
+gnome-open %u
+\begin_inset Quotes erd
+\end_inset 
+
+
+\family default 
+\series default 
+ as the command and save the launcher to your desktop
+\layout Enumerate
+
+Drag a file onto your launcher to open and edit
+\layout Section
+
+Terminal Commands
+\layout Subsection
+
+Working Directory
+\layout Standard
+
+To find out the path to the present working directory in the terminal window
+ type:
+\layout Standard
+
+~$ 
+\family typewriter 
+\series bold 
+pwd
+\layout Subsection
+
+Changing Directories
+\layout Standard
+
+To move up one level in the terminal window type:
+\layout Standard
+
+~$
+\family typewriter 
+\series bold 
+ cd ..
+\layout Standard
+
+To move down to the emc2/configs subdirectory in the terminal window type:
+\layout Standard
+
+~$ 
+\family typewriter 
+\series bold 
+cd emc2/configs
+\layout Subsection
+
+Listing files in a directory
+\layout Standard
+
+To view a list of all the files and subdirectories in the terminal window
+ type:
+\layout Standard
+
+~$ 
+\family typewriter 
+\series bold 
+dir
+\layout Standard
+
+or 
+\layout Standard
+
+~$ 
+\family typewriter 
+\series bold 
+ls
+\layout Subsection
+
+Finding a File
+\layout Standard
+
+The find command can be a bit confusing to a new Linux user.
+ The basic syntax is:
+\layout Standard
+
+~$ 
+\family typewriter 
+\series bold 
+find starting-directory parameters actions
+\layout Standard
+
+For example to find all the .ini files in your emc2 directory you first need
+ to use the pwd command to find out the directory.
+ Open a new terminal window and type:
+\layout Standard
+
+~$ 
+\family typewriter 
+\series bold 
+pwd
+\layout Standard
+
+might return the following result
+\layout Standard
+
+~$ /home/joe
+\layout Standard
+
+With this information put the command together like this:
+\layout Standard
+
+~$ 
+\family typewriter 
+\series bold 
+find /home/joe/emc2 -name *.ini -print
+\layout Standard
+
+The -name is the name of the file your looking for and the -print tells
+ it to print out the result to the terminal window.
+ The *.ini tells find to return all files that have the .ini extension.
+ 
+\layout Subsection
+
+Searching for Text
+\layout Standard
+
+~$ 
+\family typewriter 
+\series bold 
+grep -i -r 'text to search for' *
+\family default 
+\series default 
+ 
+\layout Standard
+
+To find all the files that contain the 'text to search for' in the current
+ directory and all the subdirectories below the current while ignoring the
+ case.
+ The -i is for ignore case and the -r is for recursive (include all subdirectori
+es in the search).
+ The * is a wild card for search all files.
+\the_end
