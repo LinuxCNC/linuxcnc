@@ -1,4 +1,19 @@
 
+released 2008-08-17
+    hostmot2 0.7
+
+    Give HAL interfaces to all IO pins, not just the full GPIOs.  IO pins
+    used by active module instances have restricted interfaces.
+
+    Improved IO Port handling.  Support open-drain pins.
+
+    Updated README to reflect reality.
+
+    Report firmware timestamp when loading.
+
+    Improved config string parsing.
+
+
 released 2008-08-15
     hostmot2 0.6
 

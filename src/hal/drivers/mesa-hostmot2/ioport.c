@@ -120,11 +120,27 @@ int hm2_ioport_parse_md(hostmot2_t *hm2, int md_index) {
         goto fail3;
     }
 
+    // this one's not a real register
+    hm2->ioport.written_open_drain = (u32 *)kmalloc(hm2->ioport.num_instances * sizeof(u32), GFP_KERNEL);
+    if (hm2->ioport.written_open_drain == NULL) {
+        ERR("out of memory!\n");
+        r = -ENOMEM;
+        goto fail4;
+    }
+
     hm2->ioport.output_invert_reg = (u32 *)kmalloc(hm2->ioport.num_instances * sizeof(u32), GFP_KERNEL);
     if (hm2->ioport.output_invert_reg == NULL) {
         ERR("out of memory!\n");
         r = -ENOMEM;
-        goto fail4;
+        goto fail5;
+    }
+
+    // this one's not a real register
+    hm2->ioport.written_output_invert = (u32 *)kmalloc(hm2->ioport.num_instances * sizeof(u32), GFP_KERNEL);
+    if (hm2->ioport.written_output_invert == NULL) {
+        ERR("out of memory!\n");
+        r = -ENOMEM;
+        goto fail6;
     }
 
 
@@ -133,17 +149,25 @@ int hm2_ioport_parse_md(hostmot2_t *hm2, int md_index) {
     //
 
     for (i = 0; i < hm2->ioport.num_instances; i ++) {
-        hm2->ioport.ddr_reg[i] = 0;           // all are inputs
-        hm2->ioport.written_ddr[i] = 0;       // we're starting out in sync
-        hm2->ioport.alt_source_reg[i] = 0;    // they're all gpios
-        hm2->ioport.open_drain_reg[i] = 0;    // none are open drain
-        hm2->ioport.output_invert_reg[i] = 0; // none are output-inverted
+        hm2->ioport.ddr_reg[i] = 0;                // all are inputs
+        hm2->ioport.written_ddr[i] = 0;            // we're starting out in sync
+        hm2->ioport.alt_source_reg[i] = 0;         // they're all gpios
+        hm2->ioport.open_drain_reg[i] = 0;         // none are open drain
+        hm2->ioport.written_open_drain[i] = 0;     // starting out in sync
+        hm2->ioport.output_invert_reg[i] = 0;      // none are output-inverted
+        hm2->ioport.written_output_invert[i] = 0;  // starting out in sync 
     }
 
     // we can't export this one to HAL yet, because some pins may be allocated to other modules
 
     return hm2->ioport.num_instances;
 
+
+fail6:
+    kfree(hm2->ioport.output_invert_reg);
+
+fail5:
+    kfree(hm2->ioport.written_open_drain);
 
 fail4:
     kfree(hm2->ioport.open_drain_reg);
@@ -171,7 +195,9 @@ void hm2_ioport_cleanup(hostmot2_t *hm2) {
     if (hm2->ioport.written_ddr != NULL) kfree(hm2->ioport.written_ddr);
     if (hm2->ioport.alt_source_reg != NULL) kfree(hm2->ioport.alt_source_reg);
     if (hm2->ioport.open_drain_reg != NULL) kfree(hm2->ioport.open_drain_reg);
+    if (hm2->ioport.written_open_drain!= NULL) kfree(hm2->ioport.written_open_drain);
     if (hm2->ioport.output_invert_reg != NULL) kfree(hm2->ioport.output_invert_reg);
+    if (hm2->ioport.written_output_invert != NULL) kfree(hm2->ioport.written_output_invert);
 }
 
 
@@ -184,94 +210,135 @@ int hm2_ioport_gpio_export_hal(hostmot2_t *hm2) {
     for (i = 0; i < hm2->num_pins; i ++) {
         int port = i / hm2->idrom.port_width;
 
-        if (hm2->pin[i].gtag != HM2_GTAG_IOPORT) {
-            continue;
-        }
-
+        // all pins get *some* gpio HAL presence
         hm2->pin[i].instance = (hm2_gpio_instance_t *)hal_malloc(sizeof(hm2_gpio_instance_t));
         if (hm2->pin[i].instance == NULL) {
             ERR("out of memory!\n");
             return -ENOMEM;
         }
 
-        // pins
-        r = hal_pin_bit_newf(
-            HAL_OUT,
-            &(hm2->pin[i].instance->hal.pin.in),
-            hm2->llio->comp_id,
-            "%s.gpio.%s.%03d.in",
-            hm2->llio->name,
-            hm2->llio->ioport_connector_name[port],
-            i
-        );
-        if (r != HAL_SUCCESS) {
-            ERR("error %d adding gpio pin, aborting\n", r);
-            return -EINVAL;
-        }
 
-        r = hal_pin_bit_newf(
-            HAL_OUT,
-            &(hm2->pin[i].instance->hal.pin.in_not),
-            hm2->llio->comp_id,
-            "%s.gpio.%s.%03d.in_not",
-            hm2->llio->name,
-            hm2->llio->ioport_connector_name[port],
-            i
-        );
-        if (r != HAL_SUCCESS) {
-            ERR("error %d adding gpio pin, aborting\n", r);
-            return -EINVAL;
-        }
+        //
+        // it's a full GPIO or it's an input for some other module
+        //
 
-        r = hal_pin_bit_newf(
-            HAL_IN,
-            &(hm2->pin[i].instance->hal.pin.out),
-            hm2->llio->comp_id,
-            "%s.gpio.%s.%03d.out",
-            hm2->llio->name,
-            hm2->llio->ioport_connector_name[port],
-            i
-        );
-        if (r != HAL_SUCCESS) {
-            ERR("error %d adding gpio pin, aborting\n", r);
-            return -EINVAL;
-        }
+        if (
+            (hm2->pin[i].gtag == HM2_GTAG_IOPORT)
+            || (hm2->pin[i].direction == HM2_PIN_DIR_IS_INPUT)
+        ) {
 
-        // parameters
-        r = hal_param_bit_newf(
-            HAL_RW,
-            &(hm2->pin[i].instance->hal.param.is_output),
-            hm2->llio->comp_id,
-            "%s.gpio.%s.%03d.is_output",
-            hm2->llio->name,
-            hm2->llio->ioport_connector_name[port],
-            i
-        );
-        if (r != HAL_SUCCESS) {
-            ERR("error %d adding gpio param, aborting\n", r);
-            return -EINVAL;
-        }
+            // pins
+            r = hal_pin_bit_newf(
+                HAL_OUT,
+                &(hm2->pin[i].instance->hal.pin.in),
+                hm2->llio->comp_id,
+                "%s.gpio.%s.%03d.in",
+                hm2->llio->name,
+                hm2->llio->ioport_connector_name[port],
+                i
+            );
+            if (r != HAL_SUCCESS) {
+                ERR("error %d adding gpio pin, aborting\n", r);
+                return -EINVAL;
+            }
 
-        r = hal_param_bit_newf(
-            HAL_RW,
-            &(hm2->pin[i].instance->hal.param.invert_output),
-            hm2->llio->comp_id,
-            "%s.gpio.%s.%03d.invert_output",
-            hm2->llio->name,
-            hm2->llio->ioport_connector_name[port],
-            i
-        );
-        if (r != HAL_SUCCESS) {
-            ERR("error %d adding gpio param, aborting\n", r);
-            return -EINVAL;
+            r = hal_pin_bit_newf(
+                HAL_OUT,
+                &(hm2->pin[i].instance->hal.pin.in_not),
+                hm2->llio->comp_id,
+                "%s.gpio.%s.%03d.in_not",
+                hm2->llio->name,
+                hm2->llio->ioport_connector_name[port],
+                i
+            );
+            if (r != HAL_SUCCESS) {
+                ERR("error %d adding gpio pin, aborting\n", r);
+                return -EINVAL;
+            }
         }
 
 
-        // initialize
-        hm2_set_pin_direction(hm2, i, HM2_PIN_DIR_IS_INPUT);
-        *(hm2->pin[i].instance->hal.pin.out) = 0;
-        hm2->pin[i].instance->hal.param.is_output = 0;
-        hm2->pin[i].instance->hal.param.invert_output = 0;
+        //
+        // it's a full GPIO or it's an output for some other module
+        //
+
+        if (
+            (hm2->pin[i].gtag == HM2_GTAG_IOPORT)
+            || (hm2->pin[i].direction == HM2_PIN_DIR_IS_OUTPUT)
+        ) {
+
+            r = hal_param_bit_newf(
+                HAL_RW,
+                &(hm2->pin[i].instance->hal.param.invert_output),
+                hm2->llio->comp_id,
+                "%s.gpio.%s.%03d.invert_output",
+                hm2->llio->name,
+                hm2->llio->ioport_connector_name[port],
+                i
+            );
+            if (r != HAL_SUCCESS) {
+                ERR("error %d adding gpio param, aborting\n", r);
+                return -EINVAL;
+            }
+
+            r = hal_param_bit_newf(
+                HAL_RW,
+                &(hm2->pin[i].instance->hal.param.is_opendrain),
+                hm2->llio->comp_id,
+                "%s.gpio.%s.%03d.is_opendrain",
+                hm2->llio->name,
+                hm2->llio->ioport_connector_name[port],
+                i
+            );
+            if (r != HAL_SUCCESS) {
+                ERR("error %d adding gpio param, aborting\n", r);
+                return -EINVAL;
+            }
+
+            hm2->pin[i].instance->hal.param.invert_output = 0;
+            hm2->pin[i].instance->hal.param.is_opendrain = 0;
+        }
+
+
+        //
+        // it's a full GPIO
+        //
+
+        if (hm2->pin[i].gtag == HM2_GTAG_IOPORT) {
+
+            r = hal_pin_bit_newf(
+                HAL_IN,
+                &(hm2->pin[i].instance->hal.pin.out),
+                hm2->llio->comp_id,
+                "%s.gpio.%s.%03d.out",
+                hm2->llio->name,
+                hm2->llio->ioport_connector_name[port],
+                i
+            );
+            if (r != HAL_SUCCESS) {
+                ERR("error %d adding gpio pin, aborting\n", r);
+                return -EINVAL;
+            }
+
+            *(hm2->pin[i].instance->hal.pin.out) = 0;
+
+            // parameters
+            r = hal_param_bit_newf(
+                HAL_RW,
+                &(hm2->pin[i].instance->hal.param.is_output),
+                hm2->llio->comp_id,
+                "%s.gpio.%s.%03d.is_output",
+                hm2->llio->name,
+                hm2->llio->ioport_connector_name[port],
+                i
+            );
+            if (r != HAL_SUCCESS) {
+                ERR("error %d adding gpio param, aborting\n", r);
+                return -EINVAL;
+            }
+
+            hm2->pin[i].instance->hal.param.is_output = 0;
+        }
     }
 
     return 0;
@@ -312,47 +379,99 @@ static void hm2_ioport_force_write_ddr(hostmot2_t *hm2) {
 }
 
 
+static void hm2_ioport_force_write_output_invert(hostmot2_t *hm2) {
+    int size = hm2->ioport.num_instances * sizeof(u32);
+    hm2->llio->write(hm2->llio, hm2->ioport.output_invert_addr, hm2->ioport.output_invert_reg, size);
+    memcpy(hm2->ioport.written_output_invert, hm2->ioport.output_invert_reg, size);
+}
+
+
+static void hm2_ioport_force_write_open_drain(hostmot2_t *hm2) {
+    int size = hm2->ioport.num_instances * sizeof(u32);
+    hm2->llio->write(hm2->llio, hm2->ioport.open_drain_addr, hm2->ioport.open_drain_reg, size);
+    memcpy(hm2->ioport.written_open_drain, hm2->ioport.open_drain_reg, size);
+}
+
+
+void hm2_ioport_update(hostmot2_t *hm2) {
+    int port;
+    int port_pin;
+
+    for (port = 0; port < hm2->ioport.num_instances; port ++) {
+        for (port_pin = 0; port_pin < hm2->idrom.port_width; port_pin ++) {
+            int io_pin = (port * hm2->idrom.port_width) + port_pin;
+
+            if (hm2->pin[io_pin].gtag == HM2_GTAG_IOPORT) {
+                if (hm2->pin[io_pin].instance->hal.param.is_output) {
+                    hm2->pin[io_pin].direction = HM2_PIN_DIR_IS_OUTPUT;
+                } else {
+                    hm2->pin[io_pin].direction = HM2_PIN_DIR_IS_INPUT;
+                }
+            }
+
+            if (hm2->pin[io_pin].direction == HM2_PIN_DIR_IS_OUTPUT) {
+                hm2->ioport.ddr_reg[port] |= (1 << port_pin);  // set the bit in the ddr register
+
+                // Open Drain Register
+                if (hm2->pin[io_pin].instance->hal.param.is_opendrain) {
+                    hm2->ioport.open_drain_reg[port] |= (1 << port_pin);  // set the bit in the open drain register
+                } else {
+                    hm2->ioport.open_drain_reg[port] &= ~(1 << port_pin);  // clear the bit in the open drain register
+                }
+
+                // Invert Output Register
+                if (hm2->pin[io_pin].instance->hal.param.invert_output) {
+                    hm2->ioport.output_invert_reg[port] |= (1 << port_pin);  // set the bit in the output invert register
+                } else {
+                    hm2->ioport.output_invert_reg[port] &= ~(1 << port_pin);  // clear the bit in the output invert register
+                }
+            } else {
+                hm2->ioport.open_drain_reg[port] &= ~(1 << port_pin);  // clear the bit in the open drain register
+                hm2->ioport.ddr_reg[port] &= ~(1 << port_pin);  // clear the bit in the ddr register
+                // it doesnt matter what the Invert Output register says
+            }
+        }
+    }
+}
+
+
 void hm2_ioport_force_write(hostmot2_t *hm2) {
     int size = hm2->ioport.num_instances * sizeof(u32);
 
+    hm2_ioport_update(hm2);
+
     hm2_ioport_force_write_ddr(hm2);
+    hm2_ioport_force_write_output_invert(hm2);
+    hm2_ioport_force_write_open_drain(hm2);
+
     hm2->llio->write(hm2->llio, hm2->ioport.alt_source_addr,    hm2->ioport.alt_source_reg,    size);
-    hm2->llio->write(hm2->llio, hm2->ioport.open_drain_addr,    hm2->ioport.open_drain_reg,    size);
-    hm2->llio->write(hm2->llio, hm2->ioport.output_invert_addr, hm2->ioport.output_invert_reg, size);
 }
 
 
 void hm2_ioport_write(hostmot2_t *hm2) {
     int port;
-    int port_pin;
 
-    int io_pin;
-
-    int need_update_ddr = 0;
-
-
-    //
-    // update ioport variables
-    //
+    hm2_ioport_update(hm2);
 
     for (port = 0; port < hm2->ioport.num_instances; port ++) {
-        for (port_pin = 0; port_pin < hm2->idrom.port_width; port_pin ++) {
-            io_pin = (port * hm2->idrom.port_width) + port_pin;
-            if (hm2->pin[io_pin].gtag != HM2_GTAG_IOPORT) continue;
-
-            if (hm2->pin[io_pin].instance->hal.param.is_output) {
-                hm2->ioport.ddr_reg[port] |= (1 << port_pin);  // set the bit in the ddr register
-            } else {
-                hm2->ioport.ddr_reg[port] &= ~(1 << port_pin);  // clear the bit in the ddr register
-            }
-        }
         if (hm2->ioport.written_ddr[port] != hm2->ioport.ddr_reg[port]) {
-            need_update_ddr = 1;
+            hm2_ioport_force_write_ddr(hm2);
+            break;
         }
     }
 
-    if (need_update_ddr) {
-        hm2_ioport_force_write_ddr(hm2);
+    for (port = 0; port < hm2->ioport.num_instances; port ++) {
+        if (hm2->ioport.written_open_drain[port] != hm2->ioport.open_drain_reg[port]) {
+            hm2_ioport_force_write_open_drain(hm2);
+            break;
+        }
+    }
+
+    for (port = 0; port < hm2->ioport.num_instances; port ++) {
+        if (hm2->ioport.written_output_invert[port] != hm2->ioport.output_invert_reg[port]) {
+            hm2_ioport_force_write_output_invert(hm2);
+            break;
+        }
     }
 }
 
@@ -391,8 +510,7 @@ void hm2_ioport_gpio_process_tram_read(hostmot2_t *hm2) {
             int io_pin = (port * hm2->idrom.port_width) + port_pin;
             hal_bit_t bit;
 
-            if (hm2->pin[io_pin].gtag != HM2_GTAG_IOPORT) continue;
-            if (hm2->pin[io_pin].instance->hal.param.is_output) continue;
+            if (hm2->pin[io_pin].direction != HM2_PIN_DIR_IS_INPUT) continue;
 
             bit = (hm2->ioport.data_read_reg[port] >> port_pin) & 0x1;
             *hm2->pin[io_pin].instance->hal.pin.in = bit;
@@ -420,14 +538,11 @@ void hm2_ioport_gpio_prepare_tram_write(hostmot2_t *hm2) {
     for (port = 0; port < hm2->ioport.num_instances; port ++) {
         for (port_pin = 0; port_pin < hm2->idrom.port_width; port_pin ++) {
             int io_pin = (port * hm2->idrom.port_width) + port_pin;
-            hal_bit_t out;
 
             if (hm2->pin[io_pin].gtag != HM2_GTAG_IOPORT) continue;
-            if (!hm2->pin[io_pin].instance->hal.param.is_output) continue;
 
-            out = *(hm2->pin[io_pin].instance->hal.pin.out) ^ hm2->pin[io_pin].instance->hal.param.invert_output;
             hm2->ioport.data_write_reg[port] &= ~(1 << port_pin);   // zero the bit
-            hm2->ioport.data_write_reg[port] |= (out << port_pin);  // and set it as appropriate
+            hm2->ioport.data_write_reg[port] |= (*(hm2->pin[io_pin].instance->hal.pin.out) << port_pin);  // and set it as appropriate
         }
     }
 }
@@ -444,13 +559,13 @@ void hm2_ioport_gpio_read(hostmot2_t *hm2) {
         hm2->ioport.num_instances * sizeof(u32)
     );
 
+    // FIXME: this block duplicates code in hm2_ioport_gpio_process_tram_read()
     for (port = 0; port < hm2->ioport.num_instances; port ++) {
         for (port_pin = 0; port_pin < hm2->idrom.port_width; port_pin ++) {
             int io_pin = (port * hm2->idrom.port_width) + port_pin;
             hal_bit_t bit;
 
-            if (hm2->pin[io_pin].gtag != HM2_GTAG_IOPORT) continue;
-            if (hm2->pin[io_pin].instance->hal.param.is_output) continue;
+            if (hm2->pin[io_pin].direction != HM2_PIN_DIR_IS_INPUT) continue;
 
             bit = (hm2->ioport.data_read_reg[port] >> port_pin) & 0x1;
             *hm2->pin[io_pin].instance->hal.pin.in = bit;
@@ -464,19 +579,17 @@ void hm2_ioport_gpio_write(hostmot2_t *hm2) {
     int port;
     int port_pin;
 
-    hm2_ioport_write(hm2);  // this updates the config registers that need it
+    hm2_ioport_write(hm2);  // this updates any config registers that need it
 
+    // FIXME: this block duplicates code in hm2_ioport_gpio_prepare_tram_write()
     for (port = 0; port < hm2->ioport.num_instances; port ++) {
         for (port_pin = 0; port_pin < hm2->idrom.port_width; port_pin ++) {
             int io_pin = (port * hm2->idrom.port_width) + port_pin;
-            hal_bit_t out;
 
             if (hm2->pin[io_pin].gtag != HM2_GTAG_IOPORT) continue;
-            if (!hm2->pin[io_pin].instance->hal.param.is_output) continue;
 
-            out = *(hm2->pin[io_pin].instance->hal.pin.out) ^ hm2->pin[io_pin].instance->hal.param.invert_output;
             hm2->ioport.data_write_reg[port] &= ~(1 << port_pin);   // zero the bit
-            hm2->ioport.data_write_reg[port] |= (out << port_pin);  // and set it as appropriate
+            hm2->ioport.data_write_reg[port] |= (*(hm2->pin[io_pin].instance->hal.pin.out) << port_pin);  // and set it as appropriate
         }
     }
 

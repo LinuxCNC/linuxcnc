@@ -96,15 +96,19 @@ static int bitfile_parse_and_verify_chunk(const struct firmware *fw, bitfile_t *
 
     switch (tag) {
         case 'a':
+            // Design name
             return bitfile_do_small_chunk(fw, &bitfile->a, i);
 
         case 'b':
+            // Part ID
             return bitfile_do_small_chunk(fw, &bitfile->b, i);
 
         case 'c':
+            // Design date
             return bitfile_do_small_chunk(fw, &bitfile->c, i);
 
         case 'd':
+            // Design time
             return bitfile_do_small_chunk(fw, &bitfile->d, i);
 
         case 'e':

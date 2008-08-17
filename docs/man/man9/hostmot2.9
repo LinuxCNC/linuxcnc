@@ -47,7 +47,7 @@ to provide zero or more instances of each of these four Modules.
 
 The HostMot2 firmware runs on an FPGA board.  The board interfaces with
 the computer via PCI or EPP, and interfaces with motion control hardware
-such as servos and stepper motors via I/O pins on the boards.
+such as servos and stepper motors via I/O pins on the board.
 
 Each I/O pin can be configured, at board-driver load time, to serve
 one of two purposes: either as a particular I/O pin of a particular
@@ -58,6 +58,14 @@ the board's pins are used by the Module instances.
 The user can disable Module instances at board-driver load time, by
 specifying a hostmot2 config string modparam.  Any pins which belong to
 Module instances that have been disabled automatically become GPIOs.
+
+All IO pins have some HAL presence, whether they belong to an active
+module instance or are full GPIOs.  GPIOs can be changed (at run-time)
+between inputs, normal outputs, and open drains, and have a flexible
+HAL interface.  IO pins that belongs to active module instances are
+constrained by the requirements of the owning module, and have a more
+limited interface in the HAL .  This is described in the General Purpose
+I/O section below.
 .SH config modparam
 
 The board-driver modules accept a config string modparam at load time.
@@ -214,30 +222,57 @@ a step begins, in seconds.
 a step ends, in seconds.
 .SH General Purpose I/O
 
-I/O Pins on the board which are not used by one of the Module instances
-above are exported to HAL as GPIO pins.  GPIO pins have names like
+I/O pins on the board which are not used by a module instance are exported
+to HAL as full GPIO pins.  Full GPIO pins can be configured at run-time
+to be inputs, outputs, or open drains, and have a HAL interface that
+exposes this flexibility.  IO pins that are owned by an active module
+instance are constrained by the requirements of the owning module,
+and have a restricted HAL interface.
+
+GPIOs have names like
 "hm2_<BoardType>.<BoardNum>.gpio.<PortName>.<PinNum>".  PinNum is a
 three-digit number.  PortName and PinNum correspond to the I/O Pin info
 as given in Mesa Electronics' manual for the board.
 
-Each GPIO has the following HAL Pins:
+Each GPIO can have the following HAL Pins:
 
 (bit out) in & in_not: State (normal and inverted) of the hardware
-input pin.  (Like CDI for Digital Input).
+input pin.  This follows the Canonical Device Interface for Digital Input.
+Only full GPIO pins and IO pins used as inputs by active module instances
+have these pins.
 
 (bit in) out: Value to be written (possibly inverted) to the hardware
-output pin.  (Like the CDI for Digital Output.)
+output pin.  This follows the Canonical Device Interface for Digital
+Output.  Only full GPIO pins have this pin.
 
-Each GPIO has the following Parameters:
+Each GPIO can have the following Parameters:
 
-(bin r/w) is_output: If set to 1, the GPIO is an output, and the values
-of the "in" and "in_not" HAL pins are undefined.  If set to 0, the GPIO
-is an input, and writes to the "out" HAL pin have no effect.
+(bit r/w) is_output: If set to 0, the GPIO is an input.  The IO pin is
+put in a high-impedance state (pulled up to 5V), to be driven by other
+devices.  The logic value on the IO pin is available in the "in" and
+"in_not" HAL pins.  Writes to the "out" HAL pin have no effect.  If this
+parameter is set to 1, the GPIO is an output; its behavior then depends
+on the "is_opendrain" parameter.  Only full GPIO pins have this parameter.
 
-(bin r/w) invert_output: If set to 1, the value that will appear on
-the board's I/O pin will be the inverse of the value written to HAL's
-"out" pin.  (This corresponds to the 'invert' parameter in the CDI for
-Digital Output.)
+(bit r/w) is_opendrain: This parameter only has an effect if the
+"is_output" parameter is true.  If this parameter is false, the GPIO
+behaves as a normal output pin: the IO pin on the connector is driven
+to the value specified by the "out" HAL pin (possibly inverted), and the
+value of the "in" and "in_not" HAL pins is undefined.  If this parameter
+is true, the GPIO behaves as an open-drain pin.  Writing 0 to the "out"
+HAL pin drives the IO pin low, writing 1 to the "out" HAL pin puts the
+IO pin in a high-impedance state.  In this high-impedance state the IO
+pin floats (pulled up to 5V), and other devices can drive the value; the
+resulting value on the IO pin is available on the "in" and "in_not" pins.
+Only full GPIO pins and IO pins used as outputs by active module instances
+have this parameter.
+
+(bit r/w) invert_output: This parameter only has an effect if the
+"is_output" parameter is true.  If this parameter is true, the output
+value of the GPIO will be the inverse of the value on the "out" HAL pin.
+This corresponds to the 'invert' parameter in the Canonical Device
+Interface for Digital Output.  Only full GPIO pins and IO pins used as
+outputs by active module instances have this parameter.
 .SH Watchdog
 
 The HostMot2 firmware may include a watchdog Module; if it does,

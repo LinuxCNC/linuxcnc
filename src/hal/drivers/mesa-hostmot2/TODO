@@ -2,9 +2,18 @@
 
 next steps:
 
-    firmware loading
+    include .PIN files as docs
 
-        default firmware?
+        JMK suggested auto-generating man pages from the PIN files...
+
+
+    add missing stepgen pins, general stepgen work
+
+
+    cradek wants encoder index support (i mailed pcw)
+
+
+    better sample configs, maybe move my test scripts there, document better
 
 
     on driver unload, it should stop all the motors and "safe" the
@@ -100,6 +109,12 @@ translation ram (tram):
 
     need to deal with the "strobe" bit
 
+    currently the driver takes advantage of the fact that the module
+    instances are contiguous in hm2 register space.  Things'll have
+    to change to support non-contiguous access.  Could make a smart
+    "allocate a register buffer" function smart: have it allocate space
+    for each request contiguously in a larger buffer and set the TRAM
+
 
 
 
@@ -168,12 +183,12 @@ pwmgen:
 
 ioport:
 
-    move inverted output from driver to fpga 
-
 
 
 
 stepgen:
+
+    velocity_fb is broken: http://emergent.unpy.net/files/sandbox/hm2-step-scoped2.png
 
     the software stepgen uses float seconds for the timing, but that cuts
     off at like 100 ns, shouldnt it be u32 seconds instead?  or wait,
@@ -196,6 +211,10 @@ stepgen:
 
     support velocity control
 
+    support smaller stepgens - most dont need 6 pins...
+
+        config="stepgen="off,on:width=2"
+
 
 
 
@@ -214,9 +233,6 @@ watchdog:
 
 
 5i20:
-
-    stepgen doesnt work?!  No matter what I write to the Rate register,
-    i get no steps on the IO Pins and the Accumulator doesnt change.
 
     turn hm2_5i20 driver into a generic PCI driver: hm2_anyio_pci
 

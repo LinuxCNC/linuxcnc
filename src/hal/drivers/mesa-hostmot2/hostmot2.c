@@ -197,6 +197,10 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
 
         token = strsep(&config_string, " ");
         if (token == NULL) break;
+        if (token[0] == '\0') {
+            if ((config_string == NULL) || (config_string[0] == '\0')) break;
+            continue;
+        }
 
         if (strncmp(token, "num_encoders=", 13) == 0) {
             token += 13;
@@ -836,7 +840,8 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
             goto fail0;
         }
 
-        INFO("relevant bitfile info:\n");
+        INFO("firmware %s:\n", hm2->config.firmware);
+        INFO("    %s %s %s\n", bitfile.a.data, bitfile.c.data, bitfile.d.data);
         INFO("    Part Name: %s\n", bitfile.b.data);
         INFO("    FPGA Config: %d bytes\n", bitfile.e.size);
 
@@ -878,6 +883,7 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
 
     // 
     // export a parameter to deal with communication errors
+    // NOTE: this is really only useful for EPP boards, PCI doesnt use it
     //
 
     {
@@ -986,7 +992,6 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
     // allocate memory for the PC's copy of the HostMot2's registers
     //
 
-    // FIXME: this allocates memory, need to free it if hm2_register fails later
     r = hm2_allocate_tram_regions(hm2);
     if (r < 0) {
         ERR("error allocating memory for HostMot2 registers\n");

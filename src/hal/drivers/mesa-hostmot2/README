@@ -30,10 +30,36 @@ Watchdog:
 
 
 
-Architecture:
+Pins, IOPorts, and GPIOs:
 
-    program boards with desired firmware before loading the driver,
-    using the "bfload" userspace utility
+    Pins are the little pieces of metal at the connectors that carry
+    signals.  Pins are described by the Pin Descriptor array in the
+    firmware.  Each pin has a Pin Descriptor (PD).  Each pin is connected
+    to one or two module instances: an IOPort instance and (optionally)
+    some instance of some other module.  The IOPort is considered the
+    "primary" user of the pin, and the other module instance (if any)
+    is considered the secondary user.  The PD specifies which module
+    (if any) is the secondary user of this pin, which instance of that
+    module, which of the module instance's pins it is, and whether the
+    module instance uses the pin as an input or an output.  (See the
+    hostmot2 register map for the specifics.)  The IOPort instance that
+    is the primary user has a register that selects whether the pin is
+    driven by the primary or the secondary user.  This setting is chosen
+    by the user at module load time, by specifying the config string.
+
+    IOPorts are instances of the IOPort Module.  Each IOPort instance
+    governs the pins on one I/O connector (24 pins per connector).
+
+    GPIOs are the HAL representations of pins.  Not all pins will have a
+    corresponding GPIO, and not all GPIOs look the same.  For example,
+    pins that are governed by a module instance may be configured (by
+    that module instance) as either input or output, and that setting
+    is not changeable by the user and not exported to HAL.
+
+
+
+
+Architecture:
 
 
     load the hostmot2 module, it does nothing but export a couple of kernel
@@ -41,7 +67,7 @@ Architecture:
 
 
     load the low-level driver(s) for the board-type(s) you want to use
-    (hm2_7i43 and/or hm2_5i20)
+    (hm2_7i43 and/or hm2_5i20), giving each a config string modparam
 
 
     the board-driver setup does this:
@@ -58,122 +84,81 @@ Architecture:
                 allocate a hostmot2_t struct to hold this running instance
                 of the hostmot2 firmare, add the hm2_lowlevel_io_t to it
 
-                call llio to read the idrom header into the hm2_t
+                parse the config string
+
+                fetch the specified firmware, call the llio to program the fpga
+
+                call llio to read the IDROM header, Pin Descriptors,
+                and Module Descriptors into the hm2_t
 
                 parse & validate the idrom header
 
-                call llio to read the MDs into a buffer in the hm2_t
+                parse the MDs: walk the list of MDs read, calling
+                the module drivers to validate each one (skip unknown
+                MDs, and fail the load if any invalid MDs are found).
+                Each module driver does this:
 
-                call an hm2 function to parse the MDs
+                    verify MD is consistent (ie, all MD fields match
+                    expected values)
 
-                    validate each MD, skipping unknown ones & failing
-                    the load if any invalid MDs are found
+                    verify this is the first MD of this GTAG (type)
+                    we've seen (ie, there can be only one encoder MD,
+                    one pwmgen MD, etc)
 
-                    FIXME: ok down to here
+                    Do any module-specific sanity checks
 
-                    exports the HAL pins, params, and functs:
-                    hm2.<BoardType>.<BoardNum>.<FeatureType>.<FeatureNum>.<PinOrParamName>
+                    Initialize the module structure in the hm2
 
-                    calls llio write to configure the functions
-                    found
+                    register tram read/write regions
 
-                call llio to read the PDs into a buffer in the hm2_t
+                    allocate an initialize all non-tram register buffers
+                    and any extra memory the module driver needs
 
-                parse the PDs
+                    export HAL objects, initialize pin & param values
+                    (FIXME: ioport can't do it here)
 
-                    call llio write to configure the io pins
+                    return number of module instances actually used
 
-                register this hm2 instance
+                Allocate tram buffers (based on module-drivers'
+                registrations from the previous step)
+
+                Configure the pins owned by the active module instances (source & direction)
+
+                export & initialize gpio HAL objects (hm2->pin)
+
+                set up the raw interface, if enabled (export & initialize Raw HAL objects)
+
+                hm2_force_write (tell all module-drivers to write
+                their internal representation out to the hardware; this
+                completely configures the non-tram parts of the hardware)
+
+                read the tram, tell each module driver to initialize its
+                read-tram structures, then tell each one to process the
+                (same) read-tram buffer
+
+                tell each module driver to initialize its write-tram
+                structures, then tell each one to prepare a tram write,
+                then write the tram
+
+                export the main read/write functions
+
+                if the llio claims to be threadsafe, export the gpio
+                read/write functions
 
 
-    the per-instance HAL-exported functions are generic hm2 functions that
-    use board-specific i/o functions (hm2_lowlevel_io_t).  Each generic
-    hm2 function is exported to HAL once for each hm2 instance that can
-    use it.  Each HAL function is the same hm2 function with different
-    hostmot2_t's for arguments.
+    FIXME: ok down to here
+
+
+    the per-board HAL-exported read/write functions are generic hm2
+    functions that use board-specific i/o functions (hm2_lowlevel_io_t).
+    Each generic hm2 function is exported to HAL once for each hm2
+    instance that can use it.  Each HAL function is the same hm2 function
+    with different hostmot2_t's for arguments.
 
 
     At runtime, it will eventually be desirable to use the TranslationRAM
     to map all the on-board registers to be consecutive, and do a single
-    bulk transfer to read all the stuff into the driver.  Not sure if TRAM
-    is right for the writing.  Also, some funcs are currently read/write,
-    that may have to change: pet_watchdog and stepgen_update
-
-        m7i43-hm2.pet-watchdog (R/W)
-        m7i43-hm2.gpio-read (R)
-        m7i43-hm2.encoder-update-counters (R)
-
-        m7i43-hm2.pwmgen-update (W)
-        m7i43-hm2.stepgen-update (R/W)
-        m7i43-hm2.gpio-write (W)
-
-        Read:
-
-            encoder_update_counters
-
-            stepgen_update (R/W)
-
-            gpio_read
-
-            pet_watchdog (R/W)
-
-        Write:
-
-            pwmgen_update
-
-            stepgen_update (R/W)
-
-            gpio_update_ddr
-
-            gpio_write
-
-            pet_watchdog (R/W)
-
-
-    Efficient reading means reading registers that are consecutive all
-    together, directly into their destinations in a struct.  It's one
-    thing to do this on a per-register basis, and much harder to do in
-    a global way using the TRAM.
-
-    The win of doing it this way is that you save yourself some addressing
-    cycles on EPP, and you save some function calls at runtime.
-
-    Currently hm2 does this:
-
-        read MDs
-
-        parse MDs
-
-            for each MD
-
-                allocate an array of instances (each entry in the array
-                describes one instance, each instance has a "hw" part
-                and a "hal" part)
-
-
-    For per-register it would look like this instead:
-
-        read MDs
-
-        parse MDs
-
-            for each MD
-
-                allocate an array of of instance-hal objects (each entry
-                in the array contains one instance's hal info, like the
-                hal part in the old scheme)
-
-                for each register:
-
-                    allocate an array of instance-hw -register objects
-                    (each entry contains a buffer for reading the
-                    register (for one-per-function) or registers (for
-                    one-per-instance))
-
-        Yum, could make the "allocate a register buffer" function
-        smart: have it allocate space for each request contiguously
-        in a larger buffer and set the TRAM...  MMmmm, yeesssss...
-        <rubs hands together>
+    bulk transfer to read all the stuff into the driver.
 
 
 Some inspiration taken from Jeffry Molanus' driver (U. Twente).

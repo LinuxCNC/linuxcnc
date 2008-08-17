@@ -143,6 +143,7 @@ typedef struct {
 
         struct {
             hal_bit_t is_output;
+            hal_bit_t is_opendrain;
             hal_bit_t invert_output;
         } param;
 
@@ -157,8 +158,18 @@ typedef struct {
     u8 sec_unit;
     u8 primary_tag;
 
-    // these are how the driver keeps track of them
-    int gtag;  // the actual function using this pin
+
+    //
+    // below here is how the driver keeps track of each pin
+    //
+
+    // the actual function using this pin
+    int gtag;
+
+    // either HM2_PIN_DIR_IS_INPUT or HM2_PIN_DIR_IS_OUTPUT
+    // if gtag != gpio, how the owning module instance configured it at load-time
+    // if gtag == gpio, this gets copied from the .is_output parameter
+    int direction;
 
     // if the driver decides to make this pin a gpio, it'll allocate the
     // instance struct to manage it, otherwise instance is NULL
@@ -299,16 +310,18 @@ typedef struct {
 
     u32 ddr_addr;
     u32 *ddr_reg;
-    u32 *written_ddr;  // FIXME: not a register, but a copy of the most recently written ddr
+    u32 *written_ddr;  // not a register, but a copy of the most recently written value
 
     u32 alt_source_addr;
     u32 *alt_source_reg;
 
     u32 open_drain_addr;
     u32 *open_drain_reg;
+    u32 *written_open_drain;  // not a register, but a copy of the most recently written value
 
     u32 output_invert_addr;
     u32 *output_invert_reg;
+    u32 *written_output_invert;  // not a register, but a copy of the most recently written value
 
     u32 clock_frequency;
     u8 version;
