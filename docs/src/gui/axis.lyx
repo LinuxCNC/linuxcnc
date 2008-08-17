@@ -355,7 +355,13 @@ Toolbar buttons
 From left to right, the toolbar buttons are:
 \layout Enumerate
 
-Toggle 
+
+\begin_inset Graphics
+	filename images/tool_estop.gif
+
+\end_inset 
+
+ Toggle 
 \begin_inset Quotes eld
 \end_inset 
 
@@ -371,7 +377,13 @@ Emergency Stop
 )
 \layout Enumerate
 
-Toggle machine power
+
+\begin_inset Graphics
+	filename images/tool_power.gif
+
+\end_inset 
+
+ Toggle machine power
 \begin_inset LatexCommand \index{machine on}
 
 \end_inset 
@@ -379,31 +391,85 @@ Toggle machine power
 
 \layout Enumerate
 
-Open a file
+
+\begin_inset Graphics
+	filename images/tool_open.gif
+
+\end_inset 
+
+ Open a file
 \layout Enumerate
 
-Reload the opened file
+
+\begin_inset Graphics
+	filename images/tool_reload.gif
+
+\end_inset 
+
+ Reload the opened file
 \layout Enumerate
 
-Run the program
+
+\begin_inset Graphics
+	filename images/tool_run.gif
+
+\end_inset 
+
+ Run the program
 \layout Enumerate
 
-Run the next line of the program
+
+\begin_inset Graphics
+	filename images/tool_step.gif
+
+\end_inset 
+
+ Run the next line of the program
 \layout Enumerate
 
-Pause the program
+
+\begin_inset Graphics
+	filename images/tool_pause.gif
+
+\end_inset 
+
+ Pause the program
 \layout Enumerate
 
-Stop the program
+
+\begin_inset Graphics
+	filename images/tool_stop.gif
+
+\end_inset 
+
+ Stop the program
 \layout Enumerate
 
-Zoom In
+
+\begin_inset Graphics
+	filename images/tool_zoomin.gif
+
+\end_inset 
+
+ Zoom In
 \layout Enumerate
 
-Zoom Out
+
+\begin_inset Graphics
+	filename images/tool_zoomout.gif
+
+\end_inset 
+
+ Zoom Out
 \layout Enumerate
 
-Preset view 
+
+\begin_inset Graphics
+	filename images/tool_axis_z.gif
+
+\end_inset 
+
+ Top view 
 \begin_inset Quotes eld
 \end_inset 
 
@@ -414,7 +480,13 @@ Z
 
 \layout Enumerate
 
-Preset view 
+
+\begin_inset Graphics
+	filename images/tool_axis_z2.gif
+
+\end_inset 
+
+ Top view 
 \begin_inset Quotes eld
 \end_inset 
 
@@ -425,7 +497,13 @@ Rotated Z
 
 \layout Enumerate
 
-Preset view 
+
+\begin_inset Graphics
+	filename images/tool_axis_x.gif
+
+\end_inset 
+
+ Front view 
 \begin_inset Quotes eld
 \end_inset 
 
@@ -436,7 +514,13 @@ X
 
 \layout Enumerate
 
-Preset view 
+
+\begin_inset Graphics
+	filename images/tool_axis_y.gif
+
+\end_inset 
+
+ Side view 
 \begin_inset Quotes eld
 \end_inset 
 
@@ -447,7 +531,13 @@ Y
 
 \layout Enumerate
 
-Preset view 
+
+\begin_inset Graphics
+	filename images/tool_axis_p.gif
+
+\end_inset 
+
+ Perspective view 
 \begin_inset Quotes eld
 \end_inset 
 
@@ -458,7 +548,22 @@ P
 
 \layout Enumerate
 
-Clear backplot
+
+\begin_inset Graphics
+	filename images/tool_rotate.gif
+
+\end_inset 
+
+ Rotate view, use left mouse button to rotate
+\layout Enumerate
+
+
+\begin_inset Graphics
+	filename images/tool_clear.gif
+
+\end_inset 
+
+ Clear live backplot
 \layout Subsection
 
 Graphical Program Display Area
