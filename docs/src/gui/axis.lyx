@@ -349,13 +349,239 @@ Commanded
  position)
 \layout Subsection
 
+Menu Items
+\layout Subsubsection
+
+File
+\layout Paragraph
+
+Open...
+ 
+\layout Standard
+
+Opens a standard dialog box to open a g code file to load in AXIS.
+ If you have configured EMC to use a filter program you can also open it
+ up.
+ See the Integrators manual for more information on filter programs.
+\layout Paragraph
+
+Edit...
+\layout Standard
+
+Edit will open the current g code file for editing if you have an editor
+ configured in your ini file.
+ See the Integrators Manual for more information on specificing an editor
+ to use.
+\layout Paragraph
+
+Reload
+\layout Standard
+
+Reload will reload the current g code file.
+ If you edited it you must reload it for the changes to take affect.
+ If you stop a file and want to start from the beginning then reload the
+ file.
+ The toolbar reload is the same as the menu.
+\layout Paragraph
+
+Save gcode as...
+\layout Paragraph
+
+Properties
+\layout Paragraph
+
+Edit tool table...
+\layout Paragraph
+
+Reload tool table
+\layout Paragraph
+
+Ladder editor
+\layout Paragraph
+
+Quit
+\layout Subsubsection
+
+Machine
+\layout Paragraph
+
+Toggle Emergency Stop F1
+\layout Paragraph
+
+Toggle Machine Power F2
+\layout Paragraph
+
+Set next line
+\layout Standard
+
+This is used to start a program from a line.
+ Select the line you want to start from then select Set next line from the
+ menu and then Run from the tool bar.
+\layout Paragraph
+
+Run Program
+\layout Paragraph
+
+Step
+\layout Paragraph
+
+Pause
+\layout Paragraph
+
+Resume
+\layout Paragraph
+
+Stop
+\layout Paragraph
+
+Stop at M1
+\layout Paragraph
+
+Skip lines with 
+\begin_inset Quotes eld
+\end_inset 
+
+/
+\begin_inset Quotes erd
+\end_inset 
+
+
+\layout Paragraph
+
+Clear MDI history
+\layout Paragraph
+
+Copy from MDI history
+\layout Paragraph
+
+Paste to MDI history
+\layout Paragraph
+
+Calibration
+\layout Standard
+
+This is a servo testing pop up widow for each axis.
+ After making changes and testing them it can save them to your .ini file.
+\layout Paragraph
+
+Show HAL Configuration
+\layout Paragraph
+
+HAL Meter
+\layout Paragraph
+
+HAL Scope
+\layout Paragraph
+
+Show EMC Status
+\layout Paragraph
+
+Set Debug Level
+\layout Paragraph
+
+Homing
+\layout Paragraph
+
+Unhoming
+\layout Paragraph
+
+Zero Coordinate System
+\layout Subsubsection
+
+View
+\layout Paragraph
+
+Top View
+\layout Paragraph
+
+Rotated Top View
+\layout Paragraph
+
+Side View
+\layout Paragraph
+
+Front View
+\layout Paragraph
+
+Perspective View
+\layout Paragraph
+
+Display Inches
+\layout Paragraph
+
+Display MM
+\layout Paragraph
+
+Show Program
+\layout Paragraph
+
+Show Program Rapids
+\layout Paragraph
+
+Show Live Plot
+\layout Paragraph
+
+Show Tool
+\layout Paragraph
+
+Show Extents
+\layout Paragraph
+
+Show Machine Limits
+\layout Paragraph
+
+Show Velocity
+\layout Paragraph
+
+Show Distance to Go
+\layout Paragraph
+
+Clear Live Plot
+\layout Standard
+
+\SpecialChar \textcompwordmark{}
+
+\layout Paragraph
+
+Show Commanded Position
+\layout Paragraph
+
+Show Actual Position
+\layout Standard
+
+
+\hfill 
+
+\layout Paragraph
+
+Show Machine Position
+\layout Paragraph
+
+Show Relative Postion
+\layout Subsubsection
+
+Help
+\layout Paragraph
+
+About
+\layout Paragraph
+
+Quick Reference
+\layout Subsection
+
 Toolbar buttons
 \layout Standard
 
 From left to right, the toolbar buttons are:
 \layout Enumerate
 
-Toggle 
+
+\begin_inset Graphics
+	filename images/tool_estop.gif
+
+\end_inset 
+
+ Toggle 
 \begin_inset Quotes eld
 \end_inset 
 
@@ -371,7 +597,13 @@ Emergency Stop
 )
 \layout Enumerate
 
-Toggle machine power
+
+\begin_inset Graphics
+	filename images/tool_power.gif
+
+\end_inset 
+
+ Toggle machine power
 \begin_inset LatexCommand \index{machine on}
 
 \end_inset 
@@ -379,31 +611,85 @@ Toggle machine power
 
 \layout Enumerate
 
-Open a file
+
+\begin_inset Graphics
+	filename images/tool_open.gif
+
+\end_inset 
+
+ Open a file
 \layout Enumerate
 
-Reload the opened file
+
+\begin_inset Graphics
+	filename images/tool_reload.gif
+
+\end_inset 
+
+ Reload the opened file
 \layout Enumerate
 
-Run the program
+
+\begin_inset Graphics
+	filename images/tool_run.gif
+
+\end_inset 
+
+ Run the program
 \layout Enumerate
 
-Run the next line of the program
+
+\begin_inset Graphics
+	filename images/tool_step.gif
+
+\end_inset 
+
+ Run the next line of the program
 \layout Enumerate
 
-Pause the program
+
+\begin_inset Graphics
+	filename images/tool_pause.gif
+
+\end_inset 
+
+ Pause the program
 \layout Enumerate
 
-Stop the program
+
+\begin_inset Graphics
+	filename images/tool_stop.gif
+
+\end_inset 
+
+ Stop the program
 \layout Enumerate
 
-Zoom In
+
+\begin_inset Graphics
+	filename images/tool_zoomin.gif
+
+\end_inset 
+
+ Zoom In
 \layout Enumerate
 
-Zoom Out
+
+\begin_inset Graphics
+	filename images/tool_zoomout.gif
+
+\end_inset 
+
+ Zoom Out
 \layout Enumerate
 
-Preset view 
+
+\begin_inset Graphics
+	filename images/tool_axis_z.gif
+
+\end_inset 
+
+ Top view 
 \begin_inset Quotes eld
 \end_inset 
 
@@ -411,10 +697,16 @@ Z
 \begin_inset Quotes erd
 \end_inset 
 
-
+ 
 \layout Enumerate
 
-Preset view 
+
+\begin_inset Graphics
+	filename images/tool_axis_z2.gif
+
+\end_inset 
+
+ Top view 
 \begin_inset Quotes eld
 \end_inset 
 
@@ -422,10 +714,16 @@ Rotated Z
 \begin_inset Quotes erd
 \end_inset 
 
-
+ 
 \layout Enumerate
 
-Preset view 
+
+\begin_inset Graphics
+	filename images/tool_axis_x.gif
+
+\end_inset 
+
+ Front view 
 \begin_inset Quotes eld
 \end_inset 
 
@@ -436,7 +734,13 @@ X
 
 \layout Enumerate
 
-Preset view 
+
+\begin_inset Graphics
+	filename images/tool_axis_y.gif
+
+\end_inset 
+
+ Side view 
 \begin_inset Quotes eld
 \end_inset 
 
@@ -444,10 +748,16 @@ Y
 \begin_inset Quotes erd
 \end_inset 
 
-
+ 
 \layout Enumerate
 
-Preset view 
+
+\begin_inset Graphics
+	filename images/tool_axis_p.gif
+
+\end_inset 
+
+ Perspective view 
 \begin_inset Quotes eld
 \end_inset 
 
@@ -455,10 +765,25 @@ P
 \begin_inset Quotes erd
 \end_inset 
 
-
+ 
 \layout Enumerate
 
-Clear backplot
+
+\begin_inset Graphics
+	filename images/tool_rotate.gif
+
+\end_inset 
+
+ Rotate view, use left mouse button to rotate
+\layout Enumerate
+
+
+\begin_inset Graphics
+	filename images/tool_clear.gif
+
+\end_inset 
+
+ Clear backplot
 \layout Subsection
 
 Graphical Program Display Area
@@ -1795,7 +2120,7 @@ MDI>
 \family default 
 .
  When a blank line is entered, the machine's current position is shown.
- When a command is entered, it is sent to emc to be executed.
+ When a command is entered, it is sent to EMC to be executed.
  A sample session of mdi is shown in Figure 
 \begin_inset LatexCommand \ref{cap:MDI-Session}
 
