@@ -385,21 +385,41 @@ Reload will reload the current g code file.
 \layout Paragraph
 
 Save gcode as...
+\layout Standard
+
+Save the current file with a new name.
 \layout Paragraph
 
 Properties
+\layout Standard
+
+Properties of the current loaded g code file.
 \layout Paragraph
 
 Edit tool table...
+\layout Standard
+
+Same as Edit if you have defined an editor you can open the tool table and
+ edit it.
 \layout Paragraph
 
 Reload tool table
+\layout Standard
+
+After editing the tool table you must reload it.
 \layout Paragraph
 
 Ladder editor
+\layout Standard
+
+If you have enabled Classic Ladder you can edit it from here.
+ See the Integrators Manual on setting up Classic Ladder
 \layout Paragraph
 
 Quit
+\layout Standard
+
+Pretty much what it does.
 \layout Subsubsection
 
 Machine
@@ -417,24 +437,46 @@ Set next line
 This is used to start a program from a line.
  Select the line you want to start from then select Set next line from the
  menu and then Run from the tool bar.
+ Use with caution as this will move the tool to the expected position before
+ the line first then it will execute the rest of the code.
 \layout Paragraph
 
 Run Program
+\layout Standard
+
+Run a program.
 \layout Paragraph
 
 Step
+\layout Standard
+
+Single step through a program.
 \layout Paragraph
 
 Pause
+\layout Standard
+
+Pause a program.
 \layout Paragraph
 
 Resume
+\layout Standard
+
+Resume running from a pause.
 \layout Paragraph
 
 Stop
+\layout Standard
+
+Stop a running program.
 \layout Paragraph
 
 Stop at M1
+\layout Standard
+
+If you have a M1 in your g code and this is checked program execution will
+ stop on the M1 line.
+ Press Resume to continue.
 \layout Paragraph
 
 Skip lines with 
@@ -446,15 +488,27 @@ Skip lines with
 \end_inset 
 
 
+\layout Standard
+
+If a line begins with / and this is checked it will skip that line.
 \layout Paragraph
 
 Clear MDI history
+\layout Standard
+
+Clears the MDI history window.
 \layout Paragraph
 
 Copy from MDI history
+\layout Standard
+
+Copies the MDI history to the clipboard
 \layout Paragraph
 
 Paste to MDI history
+\layout Standard
+
+Paste from the clipboard to the MDI history window
 \layout Paragraph
 
 Calibration
@@ -480,12 +534,21 @@ Set Debug Level
 \layout Paragraph
 
 Homing
+\layout Standard
+
+Home any or all axis.
 \layout Paragraph
 
 Unhoming
+\layout Standard
+
+Unhome any or all axis.
 \layout Paragraph
 
 Zero Coordinate System
+\layout Standard
+
+Zero work offsets.
 \layout Subsubsection
 
 View
@@ -537,21 +600,12 @@ Show Distance to Go
 \layout Paragraph
 
 Clear Live Plot
-\layout Standard
-
-\SpecialChar \textcompwordmark{}
-
 \layout Paragraph
 
 Show Commanded Position
 \layout Paragraph
 
 Show Actual Position
-\layout Standard
-
-
-\hfill 
-
 \layout Paragraph
 
 Show Machine Position
@@ -567,6 +621,9 @@ About
 \layout Paragraph
 
 Quick Reference
+\layout Standard
+
+Keyboard shortcut keys.
 \layout Subsection
 
 Toolbar buttons
@@ -783,7 +840,7 @@ P
 
 \end_inset 
 
- Clear backplot
+ Clear live backplot
 \layout Subsection
 
 Graphical Program Display Area
