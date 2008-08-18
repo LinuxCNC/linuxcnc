@@ -406,19 +406,6 @@ class EMC_AXIS_OVERRIDE_LIMITS:public EMC_AXIS_CMD_MSG {
     void update(CMS * cms);
 };
 
-class EMC_AXIS_SET_OUTPUT:public EMC_AXIS_CMD_MSG {
-  public:
-    EMC_AXIS_SET_OUTPUT():EMC_AXIS_CMD_MSG(EMC_AXIS_SET_OUTPUT_TYPE,
-					   sizeof(EMC_AXIS_SET_OUTPUT)) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-
-    double output;		// value for output, in physical units
-    // (volts)
-};
-
 class EMC_AXIS_LOAD_COMP:public EMC_AXIS_CMD_MSG {
   public:
     EMC_AXIS_LOAD_COMP():EMC_AXIS_CMD_MSG(EMC_AXIS_LOAD_COMP_TYPE,
@@ -433,24 +420,6 @@ class EMC_AXIS_LOAD_COMP:public EMC_AXIS_CMD_MSG {
               // type != 0 means nom, forw_trim, rev_trim triplets
 };
 
-
-/**
- * Set the step parameters.
- * This command sets the setup time of the direction signal,
- * and the hold time of the step signal.
- */
-class EMC_AXIS_SET_STEP_PARAMS:public EMC_AXIS_CMD_MSG {
-  public:
-    EMC_AXIS_SET_STEP_PARAMS():EMC_AXIS_CMD_MSG
-	(EMC_AXIS_SET_STEP_PARAMS_TYPE, sizeof(EMC_AXIS_SET_STEP_PARAMS)) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-
-    double setup_time;
-    double hold_time;
-};
 
 // AXIS status base class
 class EMC_AXIS_STAT_MSG:public RCS_STAT_MSG {
@@ -485,20 +454,12 @@ class EMC_AXIS_STAT:public EMC_AXIS_STAT_MSG {
     double maxError;
     double deadband;
     double cycleTime;
-    double inputScale;
-    double inputOffset;
-    double outputScale;
-    double outputOffset;
     double minPositionLimit;
     double maxPositionLimit;
-    double minOutputLimit;
-    double maxOutputLimit;
     double maxFerror;
     double minFerror;
     /*! \todo FIXME - homingVel has been superceded */
     double homingVel;
-    double setup_time;
-    double hold_time;
     double homeOffset;
 
     // dynamic status

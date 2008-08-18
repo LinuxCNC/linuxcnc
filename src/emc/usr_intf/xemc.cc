@@ -3321,8 +3321,6 @@ static void calibDoDone(int done)
     backlash = emcStatus->motion.axis[activeAxis].backlash;
     bias = emcStatus->motion.axis[activeAxis].bias;
     maxError = emcStatus->motion.axis[activeAxis].maxError;
-    outputScale = emcStatus->motion.axis[activeAxis].outputScale;
-    outputOffset = emcStatus->motion.axis[activeAxis].outputOffset;
 
     XtVaGetValues(calibCycleTime, XtNstring, &str1, NULL);
     XtVaGetValues(calibPGain, XtNstring, &str2, NULL);
@@ -3456,11 +3454,6 @@ static void settingsMenuSelect(Widget w, XtPointer client_data, XtPointer call_d
     XtVaSetValues(calibBias, XtNstring, string, NULL);
     sprintf(string, "%f", emcStatus->motion.axis[activeAxis].maxError);
     XtVaSetValues(calibMaxError, XtNstring, string, NULL);
-
-    sprintf(string, "%f", emcStatus->motion.axis[activeAxis].outputScale);
-    XtVaSetValues(calibOutputScale, XtNstring, string, NULL);
-    sprintf(string, "%f", emcStatus->motion.axis[activeAxis].outputOffset);
-    XtVaSetValues(calibOutputOffset, XtNstring, string, NULL);
 
     sprintf(string, "%f", emcStatus->motion.axis[activeAxis].maxFerror);
     XtVaSetValues(calibFerror, XtNstring, string, NULL);

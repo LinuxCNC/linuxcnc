@@ -86,10 +86,8 @@ class PM_CARTESIAN;
 #define EMC_AXIS_ACTIVATE_TYPE                       ((NMLTYPE) 127)
 #define EMC_AXIS_DEACTIVATE_TYPE                     ((NMLTYPE) 128)
 #define EMC_AXIS_OVERRIDE_LIMITS_TYPE                ((NMLTYPE) 129)
-#define EMC_AXIS_SET_OUTPUT_TYPE                     ((NMLTYPE) 130)
 #define EMC_AXIS_LOAD_COMP_TYPE                      ((NMLTYPE) 131)
 // gap because of deleted message type (EMC_AXIS_ALTER_TYPE)
-#define EMC_AXIS_SET_STEP_PARAMS_TYPE                ((NMLTYPE) 133)
 #define EMC_AXIS_SET_BACKLASH_TYPE                   ((NMLTYPE) 134)
 
 #define EMC_AXIS_STAT_TYPE                           ((NMLTYPE) 199)

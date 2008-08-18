@@ -3025,40 +3025,6 @@ static int emc_axis_backlash(ClientData clientdata,
     }
 }
 
-static int emc_axis_set_output(ClientData clientdata,
-			       Tcl_Interp * interp, int objc,
-			       Tcl_Obj * CONST objv[])
-{
-    int axis;
-    double output;
-
-    // syntax is emc_axis_output <axis> <output>
-
-    if (objc != 3) {
-	Tcl_SetResult(interp, "emc_axis_set_output: need <axis> <output>",
-		      TCL_VOLATILE);
-	return TCL_ERROR;
-    }
-
-    if (0 != Tcl_GetIntFromObj(0, objv[1], &axis) ||
-	axis < 0 || axis >= EMC_AXIS_MAX) {
-	Tcl_SetResult(interp,
-		      "emc_axis_set_output: need axis as integer, 0..EMC_AXIS_MAX-1",
-		      TCL_VOLATILE);
-	return TCL_ERROR;
-    }
-
-    if (0 != Tcl_GetDoubleFromObj(0, objv[2], &output)) {
-	Tcl_SetResult(interp,
-		      "emc_axis_set_output: need output as real number",
-		      TCL_VOLATILE);
-	return TCL_ERROR;
-    }
-    // now write it out
-    sendAxisSetOutput(axis, output);
-    return TCL_OK;
-}
-
 static int emc_axis_enable(ClientData clientdata,
 			   Tcl_Interp * interp, int objc,
 			   Tcl_Obj * CONST objv[])
@@ -3738,10 +3704,6 @@ int Tcl_AppInit(Tcl_Interp * interp)
 
     Tcl_CreateObjCommand(interp, "emc_axis_backlash", emc_axis_backlash,
 			 (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
-
-    Tcl_CreateObjCommand(interp, "emc_axis_set_output",
-			 emc_axis_set_output, (ClientData) NULL,
-			 (Tcl_CmdDeleteProc *) NULL);
 
     Tcl_CreateObjCommand(interp, "emc_axis_load_comp", emc_axis_load_comp,
 			 (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);

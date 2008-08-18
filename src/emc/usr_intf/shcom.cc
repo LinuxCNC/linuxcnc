@@ -1227,23 +1227,6 @@ int sendAxisSetBacklash(int axis, double backlash)
     return 0;
 }
 
-int sendAxisSetOutput(int axis, double output)
-{
-    EMC_AXIS_SET_OUTPUT emc_axis_set_output_msg;
-
-    emc_axis_set_output_msg.axis = axis;
-    emc_axis_set_output_msg.output = output;
-    emc_axis_set_output_msg.serial_number = ++emcCommandSerialNumber;
-    emcCommandBuffer->write(emc_axis_set_output_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived(emcCommandSerialNumber);
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone(emcCommandSerialNumber);
-    }
-
-    return 0;
-}
-
 int sendAxisEnable(int axis, int val)
 {
     EMC_AXIS_ENABLE emc_axis_enable_msg;
