@@ -1728,7 +1728,7 @@ Tangent
 \layout Section
 
 Comments
-\begin_inset LatexCommand \index{comment}
+\begin_inset LatexCommand \index{Comments}
 
 \end_inset 
 
@@ -1835,7 +1835,12 @@ Often, general logging is more useful than probe logging.
  Using general logging, the format of the output data can be controlled.
 \layout Subsection
 
-General logging
+General Logging
+\begin_inset LatexCommand \index{General Logging}
+
+\end_inset 
+
+
 \begin_inset LatexCommand \label{sub:General-logging}
 
 \end_inset 
@@ -1873,8 +1878,8 @@ The message
  open.
 \layout Subsection
 
-Debugging messages
-\begin_inset LatexCommand \index{Debug}
+Debugging Messages
+\begin_inset LatexCommand \index{Debugging Messages}
 
 \end_inset 
 
@@ -2609,6 +2614,11 @@ O-
 \layout Chapter
 
 Order of Execution
+\begin_inset LatexCommand \index{Order of Execution}
+
+\end_inset 
+
+
 \begin_inset LatexCommand \label{sec:Order-of-Execution}
 
 \end_inset 
@@ -2697,6 +2707,11 @@ stop (M0, M1, M2, M30, M60).
 \layout Chapter
 
 G-Code Best Practices
+\begin_inset LatexCommand \index{Best Practices}
+
+\end_inset 
+
+
 \layout Section
 
 Use an appropriate decimal precision
@@ -2811,6 +2826,11 @@ preview false
 \layout Chapter
 
 G Codes
+\begin_inset LatexCommand \index{G Codes}
+
+\end_inset 
+
+
 \layout Standard
 
 G codes of the RS274/NGC language are shown in Table 5 and described following
@@ -2968,6 +2988,11 @@ H number
 \layout Section
 
 Quick Reference Table
+\begin_inset LatexCommand \index{G Code Table}
+
+\end_inset 
+
+
 \layout Standard
 
 
@@ -6134,41 +6159,6 @@ G54
 
 \end_inset 
 
-
-\begin_inset LatexCommand \index{G55}
-
-\end_inset 
-
-
-\begin_inset LatexCommand \index{G56}
-
-\end_inset 
-
-
-\begin_inset LatexCommand \index{G57}
-
-\end_inset 
-
-
-\begin_inset LatexCommand \index{G58}
-
-\end_inset 
-
-
-\begin_inset LatexCommand \index{G59}
-
-\end_inset 
-
-
-\begin_inset LatexCommand \index{G59.1}
-
-\end_inset 
-
-
-\begin_inset LatexCommand \index{G59.2}
-
-\end_inset 
-
  to G59.3
 \begin_inset LatexCommand \index{G59.3}
 
@@ -8485,7 +8475,12 @@ M65
  Turn off digital output immediately
 \layout Section
 
-M66: Digital and Analog Input Control
+M66:
+\begin_inset LatexCommand \index{M66}
+
+\end_inset 
+
+ Digital and Analog Input Control
 \begin_inset LatexCommand \label{sec:M66:}
 
 \end_inset 
@@ -8508,12 +8503,7 @@ M66 P- E- L- Q-
  It is an error if they are both missing.
 \layout Description
 
-M66
-\begin_inset LatexCommand \index{M66}
-
-\end_inset 
-
- Wait on an input
+M66 Wait on an input
 \layout Itemize
 
 The P-word specifies the digital input number.
@@ -8547,7 +8537,7 @@ The L-word specifies the wait type:
 
 
 \begin_inset Note
-collapsed true
+collapsed false
 
 \layout Standard
 
@@ -8662,7 +8652,12 @@ Other words are used on a line with an O- word
 Comments are used on a line with an O-word
 \layout Section
 
-Subroutines: 
+Subroutines:
+\begin_inset LatexCommand \index{Subroutines}
+
+\end_inset 
+
+ 
 \begin_inset Quotes eld
 \end_inset 
 
@@ -8823,7 +8818,12 @@ return values
  Subroutines may also change the value of global named parameters.
 \layout Section
 
-Looping: 
+Looping:
+\begin_inset LatexCommand \index{Looping}
+
+\end_inset 
+
+ 
 \begin_inset Quotes eld
 \end_inset 
 
@@ -8945,7 +8945,12 @@ while
  If it is false, it exits the loop.
 \layout Section
 
-Conditional: 
+Conditional:
+\begin_inset LatexCommand \index{Conditional}
+
+\end_inset 
+
+ 
 \begin_inset Quotes eld
 \end_inset 
 
@@ -9013,6 +9018,11 @@ O102 endif
 \layout Section
 
 Indirection
+\begin_inset LatexCommand \index{Indirection}
+
+\end_inset 
+
+
 \layout Standard
 
 The O-number may be given by a parameter or calculation.
@@ -9048,6 +9058,11 @@ In O-words, Parameters (section
 \layout Section
 
 Calling Files
+\begin_inset LatexCommand \index{Calling Files}
+
+\end_inset 
+
+
 \layout Standard
 
 To call a file name the file the same as your call and include a sub and
@@ -9087,6 +9102,11 @@ Other Codes
 \layout Section
 
 F: Set Feed Rate
+\begin_inset LatexCommand \index{Feed Rate}
+
+\end_inset 
+
+
 \begin_inset LatexCommand \label{sub:F:-Set-Feed}
 
 \end_inset 
@@ -9115,6 +9135,11 @@ F-
 \layout Section
 
 S: Set Spindle Speed
+\begin_inset LatexCommand \index{Spindle Speed}
+
+\end_inset 
+
+
 \begin_inset LatexCommand \label{sub:S:-Set-Spindle}
 
 \end_inset 
@@ -9158,6 +9183,11 @@ G84
 \layout Section
 
 T: Select Tool
+\begin_inset LatexCommand \index{Select Tool}
+
+\end_inset 
+
+
 \begin_inset LatexCommand \label{sub:T:-Select-Tool}
 
 \end_inset 
