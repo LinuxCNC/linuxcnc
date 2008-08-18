@@ -742,6 +742,7 @@ class Hud(object):
 		glDepthMask(GL_FALSE)
 		glDisable(GL_LIGHTING)
 		glEnable(GL_BLEND)
+		glEnable(GL_NORMALIZE)
 		glBlendFunc(GL_ONE, GL_CONSTANT_ALPHA)
 		glColor3f(0.2,0,0)
 		glBlendColor(0,0,0,0.5) #rgba
@@ -928,7 +929,7 @@ class AsciiSTL:
         if data is None:
             data = open(filename, "r")
         elif isinstance(data, str):
-            data = str.split("\n")
+            data = data.split("\n")
         self.list = None
         t = []
         n = [0,0,0]
@@ -972,6 +973,65 @@ class AsciiSTL:
             del self.d
         else:
             glCallList(self.list)
+
+class AsciiOBJ:
+    def __init__(self, filename=None, data=None):
+        if data is None:
+            data = open(filename, "r")
+        elif isinstance(data, str):
+            data = data.split("\n")
+
+        self.v = v = []
+        self.vn = vn = []
+        self.f = f = []
+        for line in data:
+            if line.startswith("#"): continue
+            if line.startswith("vn"):
+                vn.append([float(w) for w in line.split()[1:]])
+            elif line.startswith("v"):
+                v.append([float(w) for w in line.split()[1:]])
+            elif line.startswith("f"):
+                f.append(self.parse_face(line))
+
+        print v[:5]
+        print vn[:5]
+        print f[:5]
+
+        self.list = None
+
+
+    def parse_int(self, i):
+        if i == '': return None
+        return int(i)
+
+    def parse_slash(self, word):
+        return [self.parse_int(i) for i in word.split("/")]
+
+    def parse_face(self, line):
+        return [self.parse_slash(w) for w in line.split()[1:]]
+
+    def draw(self):
+        if self.list is None:
+            # OpenGL isn't ready yet in __init__ so the display list
+            # is created during the first draw
+            self.list = glGenLists(1)
+            glNewList(self.list, GL_COMPILE_AND_EXECUTE)
+            glDisable(GL_CULL_FACE)
+            glBegin(GL_TRIANGLES)
+            print "obj", len(self.f)
+            for f in self.f:
+                for v, t, n in f:
+                    if n:
+                        glNormal3f(*self.vn[n-1])
+                    glVertex3f(*self.v[v-1])
+            glEnd()
+            glEndList()
+            del self.v
+            del self.vn
+            del self.f
+        else:
+            glCallList(self.list)
+
 
 def main(model, tool, work, size=10, hud=0):
     app = Tkinter.Tk()
