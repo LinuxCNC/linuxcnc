@@ -345,9 +345,11 @@ typedef struct {
             hal_bit_t *enable;
 
             // these are just for debugging for now, i'll remove them later
-            hal_u32_t *rate;
-            hal_u32_t *accumulator;
-            hal_float_t *error;
+            struct {
+                hal_u32_t *rate;
+                hal_u32_t *accumulator;
+                hal_float_t *error;
+            } debug;
         } pin;
 
         struct {

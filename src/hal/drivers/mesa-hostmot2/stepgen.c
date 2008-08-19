@@ -68,7 +68,7 @@ void hm2_stepgen_process_tram_read(hostmot2_t *hm2, long period) {
         *(hm2->stepgen.instance[i].hal.pin.counts) += counts_delta;
         *(hm2->stepgen.instance[i].hal.pin.position_fb) = *(hm2->stepgen.instance[i].hal.pin.counts) / hm2->stepgen.instance[i].hal.param.position_scale;
         *(hm2->stepgen.instance[i].hal.pin.velocity_fb) = pos_delta / hm2->stepgen.instance[i].hal.param.position_scale / fperiod;
-        *(hm2->stepgen.instance[i].hal.pin.accumulator) = acc;
+        *(hm2->stepgen.instance[i].hal.pin.debug.accumulator) = acc;
 
         hm2->stepgen.instance[i].prev_accumulator = hm2->stepgen.accumulator_reg[i];
     }
@@ -98,8 +98,8 @@ void hm2_stepgen_prepare_tram_write(hostmot2_t *hm2, long period) {
         }
 
         // debug
-        *(hm2->stepgen.instance[i].hal.pin.rate) = hm2->stepgen.step_rate_reg[i];
-        *(hm2->stepgen.instance[i].hal.pin.error) = error;
+        *(hm2->stepgen.instance[i].hal.pin.debug.rate) = hm2->stepgen.step_rate_reg[i];
+        *(hm2->stepgen.instance[i].hal.pin.debug.error) = error;
     }
 }
 
@@ -240,16 +240,13 @@ static void hm2_stepgen_force_write_pulse_width_time(hostmot2_t *hm2) {
 
 
 static void hm2_stepgen_force_write_master_dds(hostmot2_t *hm2) {
-    int i;
     u32 val = 0xffffffff;
-    for (i = 0; i < hm2->stepgen.num_instances; i ++) {
-        hm2->llio->write(
-            hm2->llio,
-            hm2->stepgen.master_dds_addr,
-            &val,
-            sizeof(u32)
-        );
-    }
+    hm2->llio->write(
+        hm2->llio,
+        hm2->stepgen.master_dds_addr,
+        &val,
+        sizeof(u32)
+    );
 }
 
 
@@ -448,7 +445,7 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
             //
 
             rtapi_snprintf(name, HAL_NAME_LEN, "%s.stepgen.%02d.debug.rate", hm2->llio->name, i);
-            r = hal_pin_u32_new(name, HAL_OUT, &(hm2->stepgen.instance[i].hal.pin.rate), hm2->llio->comp_id);
+            r = hal_pin_u32_new(name, HAL_OUT, &(hm2->stepgen.instance[i].hal.pin.debug.rate), hm2->llio->comp_id);
             if (r != HAL_SUCCESS) {
                 ERR("error adding pin '%s', aborting\n", name);
                 r = -ENOMEM;
@@ -456,7 +453,7 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
             }
 
             rtapi_snprintf(name, HAL_NAME_LEN, "%s.stepgen.%02d.debug.accumulator", hm2->llio->name, i);
-            r = hal_pin_u32_new(name, HAL_OUT, &(hm2->stepgen.instance[i].hal.pin.accumulator), hm2->llio->comp_id);
+            r = hal_pin_u32_new(name, HAL_OUT, &(hm2->stepgen.instance[i].hal.pin.debug.accumulator), hm2->llio->comp_id);
             if (r != HAL_SUCCESS) {
                 ERR("error adding pin '%s', aborting\n", name);
                 r = -ENOMEM;
@@ -464,7 +461,7 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
             }
 
             rtapi_snprintf(name, HAL_NAME_LEN, "%s.stepgen.%02d.debug.error", hm2->llio->name, i);
-            r = hal_pin_float_new(name, HAL_OUT, &(hm2->stepgen.instance[i].hal.pin.error), hm2->llio->comp_id);
+            r = hal_pin_float_new(name, HAL_OUT, &(hm2->stepgen.instance[i].hal.pin.debug.error), hm2->llio->comp_id);
             if (r != HAL_SUCCESS) {
                 ERR("error adding pin '%s', aborting\n", name);
                 r = -ENOMEM;
@@ -584,7 +581,7 @@ void hm2_stepgen_print_module(int msg_level, hostmot2_t *hm2) {
     PRINT(msg_level, "    master_dds_addr: 0x%04X\n", hm2->stepgen.master_dds_addr);
     for (i = 0; i < hm2->stepgen.num_instances; i ++) {
         PRINT(msg_level, "    instance %d:\n", i);
-        PRINT(msg_level, "        enable = %d\n", hm2->stepgen.instance[i].hal.pin.enable);
+        PRINT(msg_level, "        enable = %d\n", *hm2->stepgen.instance[i].hal.pin.enable);
         PRINT(msg_level, "        hw:\n");
         PRINT(msg_level, "            step_rate = 0x%08X\n", hm2->stepgen.step_rate_reg[i]);
         PRINT(msg_level, "            accumulator = 0x%08X\n", hm2->stepgen.accumulator_reg[i]);
