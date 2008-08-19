@@ -1761,7 +1761,7 @@ G80 M5 (stop motion)
 
 .
  Comments do not cause a machining center to do anything.
-\layout Subsection
+\layout Section
 
 Messages
 \begin_inset LatexCommand \index{Messages}
@@ -1807,7 +1807,7 @@ MSG,
  Messages should be displayed on the message display device.
  Comments not containing messages need not be displayed there.
  
-\layout Subsection
+\layout Section
 
 Probe Logging
 \begin_inset LatexCommand \index{Probe Logging}
@@ -1833,7 +1833,7 @@ A comment can also be used to specify a file for the results of G38.x probing.
 
 Often, general logging is more useful than probe logging.
  Using general logging, the format of the output data can be controlled.
-\layout Subsection
+\layout Section
 
 General Logging
 \begin_inset LatexCommand \index{General Logging}
@@ -1846,20 +1846,20 @@ General Logging
 \end_inset 
 
 
-\layout Subsubsection
+\layout Subsection
 
 (LOGOPEN,filename)
 \layout Standard
 
 Opens the named log file.
  If the file already exists, it is truncated.
-\layout Subsubsection
+\layout Subsection
 
 (LOGCLOSE)
 \layout Standard
 
 If the log file is open, it is closed.
-\layout Subsubsection
+\layout Subsection
 
 (LOG,\SpecialChar \ldots{}
 )
@@ -1876,7 +1876,7 @@ The message
 
  is expanded as described below and then written to the log file if it is
  open.
-\layout Subsection
+\layout Section
 
 Debugging Messages
 \begin_inset LatexCommand \index{Debugging Messages}
@@ -1907,7 +1907,7 @@ Comments that look like:
 (print, rest of comment)
 \family default 
  are output to stderr with special handling for parameters.
-\layout Subsection
+\layout Section
 
 Parameters in special comments
 \layout Standard
@@ -2206,7 +2206,7 @@ Group 1
 
 \layout Standard
 
-G0 G1 G2 G3 G33 G38.x G73 G80 G81
+G0 G1 G2 G3 G33 G38.x G73 G76 G80 G81
 \end_inset 
 </cell>
 </row>
@@ -2699,7 +2699,8 @@ home (G28, G30) or change coordinate system data (G10) or set axis offsets
  
 \layout Enumerate
 
-perform motion (G0 to G3, G33, G80 to G89), as modified (possibly) by G53.
+perform motion (G0 to G3, G33, G73, G76, G80 to G89), as modified (possibly)
+ by G53.
  
 \layout Enumerate
 
