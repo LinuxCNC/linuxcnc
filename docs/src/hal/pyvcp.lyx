@@ -95,7 +95,7 @@ The layout of a pyVCP panel is specified with an XML file that contains
 If you place this text in a file called tiny.xml, and run 
 \layout LyX-Code
 
-pyvcp -c mypanel tiny.xml
+halrun -I loadusr pyvcp -c mypanel tiny.xml
 \layout Standard
 
 pyVCP will create the panel for you, which includes two widgets, a Label
