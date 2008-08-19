@@ -342,6 +342,7 @@ typedef struct {
             hal_s32_t *counts;
             hal_float_t *position_fb;
             hal_float_t *velocity_fb;
+            hal_bit_t *enable;
 
             // these are just for debugging for now, i'll remove them later
             hal_u32_t *rate;

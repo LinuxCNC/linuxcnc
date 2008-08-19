@@ -7,7 +7,7 @@ next steps:
         JMK suggested auto-generating man pages from the PIN files...
 
 
-    add missing stepgen pins, general stepgen work
+    stepgen
 
 
     cradek wants encoder index support (i mailed pcw)
@@ -189,10 +189,6 @@ ioport:
 stepgen:
 
     velocity_fb is broken: http://emergent.unpy.net/files/sandbox/hm2-step-scoped2.png
-
-    the software stepgen uses float seconds for the timing, but that cuts
-    off at like 100 ns, shouldnt it be u32 seconds instead?  or wait,
-    is it float nanoseconds?
 
     position commanding is very much hacked right now...
 

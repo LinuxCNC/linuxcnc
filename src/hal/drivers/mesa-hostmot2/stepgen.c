@@ -84,12 +84,20 @@ void hm2_stepgen_prepare_tram_write(hostmot2_t *hm2, long period) {
     for (i = 0; i < hm2->stepgen.num_instances; i ++) {
         double error = *(hm2->stepgen.instance[i].hal.pin.position_fb) - *(hm2->stepgen.instance[i].hal.pin.position_cmd);
 
-        // FIXME: this deadband is bogus
-        if (fabs(error) < 0.0005) {
+        if (*(hm2->stepgen.instance[i].hal.pin.enable) == 0) {
+            // this stepgen instance is disabled
             hm2->stepgen.step_rate_reg[i] = 0;
         } else {
-            hm2->stepgen.step_rate_reg[i] = -1 * error * hm2->stepgen.instance[i].hal.param.position_scale / fperiod;
+            // this stepgen instance is enabled
+            // FIXME: this deadband is bogus
+            if (fabs(error) < 0.0005) {
+                hm2->stepgen.step_rate_reg[i] = 0;
+            } else {
+                hm2->stepgen.step_rate_reg[i] = -1 * error * hm2->stepgen.instance[i].hal.param.position_scale / fperiod;
+            }
         }
+
+        // debug
         *(hm2->stepgen.instance[i].hal.pin.rate) = hm2->stepgen.step_rate_reg[i];
         *(hm2->stepgen.instance[i].hal.pin.error) = error;
     }
@@ -426,6 +434,14 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
                 goto fail5;
             }
 
+            rtapi_snprintf(name, HAL_NAME_LEN, "%s.stepgen.%02d.enable", hm2->llio->name, i);
+            r = hal_pin_bit_new(name, HAL_IN, &(hm2->stepgen.instance[i].hal.pin.enable), hm2->llio->comp_id);
+            if (r != HAL_SUCCESS) {
+                ERR("error adding pin '%s', aborting\n", name);
+                r = -ENOMEM;
+                goto fail5;
+            }
+
 
             //
             // some pins for debugging
@@ -502,6 +518,7 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
             *(hm2->stepgen.instance[i].hal.pin.counts) = 0;
             *(hm2->stepgen.instance[i].hal.pin.position_fb) = 0.0;
             *(hm2->stepgen.instance[i].hal.pin.velocity_fb) = 0.0;
+            *(hm2->stepgen.instance[i].hal.pin.enable) = 0;
 
             hm2->stepgen.instance[i].hal.param.position_scale = 1.0;
 
@@ -567,6 +584,7 @@ void hm2_stepgen_print_module(int msg_level, hostmot2_t *hm2) {
     PRINT(msg_level, "    master_dds_addr: 0x%04X\n", hm2->stepgen.master_dds_addr);
     for (i = 0; i < hm2->stepgen.num_instances; i ++) {
         PRINT(msg_level, "    instance %d:\n", i);
+        PRINT(msg_level, "        enable = %d\n", hm2->stepgen.instance[i].hal.pin.enable);
         PRINT(msg_level, "        hw:\n");
         PRINT(msg_level, "            step_rate = 0x%08X\n", hm2->stepgen.step_rate_reg[i]);
         PRINT(msg_level, "            accumulator = 0x%08X\n", hm2->stepgen.accumulator_reg[i]);
