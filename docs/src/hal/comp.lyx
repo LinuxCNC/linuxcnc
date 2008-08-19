@@ -600,7 +600,7 @@ x_y_z_
 
 \layout Standard
 
-x_y_z
+x_y_z_
 \end_inset 
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
@@ -1289,6 +1289,8 @@ u32
 s32
 \family default 
 , etc.
+\newline 
+Access to array variables uses square brackets.
 \end_deeper 
 \layout Standard
 
