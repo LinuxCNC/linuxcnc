@@ -44,7 +44,18 @@ The output of the PID loop, which goes to some actuator such as a motor.
 \fBpid.\fIN\fB.enable\fR bit in
 When true, enables the PID calculations.  When false, \fBoutput\fR is zero,
 and all internal integrators, etc, are reset.
-
+.TP
+\fBpid.\fIN\fB.saturated\fR bit out
+When true, the current PID output is saturated.  That is,
+.RS 12
+\fBoutput\fR = \(+- \fBmaxoutput\fR.
+.RE
+.TP
+\fBpid.\fIN\fB.saturated-s\fR float out
+.TQ
+\fBpid.\fIN\fB.saturated-count\fR s32 out
+When true, the output of PID was continually saturated for this many seconds
+(\fBsaturated-s\fR) or periods (\fBsaturated-count\fR).
 .SH PARAMETERS
 .TP
 \fBpid.\fIN\fB.Pgain\fR float rw

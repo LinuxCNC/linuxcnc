@@ -179,6 +179,10 @@ typedef struct {
     hal_float_t *ff2gain;	/* pin: feedforward 2nd derivative */
     hal_float_t maxoutput;	/* param: limit for PID output */
     hal_float_t *output;	/* pin: the output value */
+    hal_bit_t   *saturated;	/* pin: TRUE when the output is saturated */
+    hal_float_t *saturated_s;  /* pin: the time the output has been saturated */
+    hal_s32_t   *saturated_count;
+			       /* pin: the time the output has been saturated */
 } hal_pid_t;
 
 /* pointer to array of pid_t structs in shared memory, 1 per loop */
@@ -363,6 +367,18 @@ static void calc_pid(void *arg, long period)
     }
     /* write final output value to output pin */
     *(pid->output) = tmp1;
+
+    /* set 'saturated' outputs */
+    if(pid->limit_state) { 
+        *(pid->saturated) = 1;
+        *(pid->saturated_s) += period * 1e-9;
+        if(*(pid->saturated_count) != 2147483647)
+            *(pid->saturated_count) ++;
+    } else {
+        *(pid->saturated) = 0;
+        *(pid->saturated_s) = 0;
+        *(pid->saturated_count) = 0;
+    }
     /* done */
 }
 
@@ -405,6 +421,21 @@ static int export_pid(int num, hal_pid_t * addr)
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "pid.%d.output", num);
     retval = hal_pin_float_new(buf, HAL_OUT, &(addr->output), comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "pid.%d.saturated", num);
+    retval = hal_pin_bit_new(buf, HAL_OUT, &(addr->saturated), comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "pid.%d.saturated-s", num);
+    retval = hal_pin_float_new(buf, HAL_OUT, &(addr->saturated_s), comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "pid.%d.saturated-count", num);
+    retval = hal_pin_s32_new(buf, HAL_OUT, &(addr->saturated_count), comp_id);
     if (retval != 0) {
 	return retval;
     }
