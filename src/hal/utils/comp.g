@@ -303,7 +303,7 @@ static int comp_id;
 
     for type, name, array, value in variables:
         if array:
-            print >>f, "    %s %s[%d]\n" % (type, name, array)
+            print >>f, "    %s %s[%d];\n" % (type, name, array)
         else:
             print >>f, "    %s %s;\n" % (type, name)
     if has_data:
