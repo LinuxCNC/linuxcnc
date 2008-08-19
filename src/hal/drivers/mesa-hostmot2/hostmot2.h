@@ -355,20 +355,20 @@ typedef struct {
         struct {
             hal_float_t position_scale;
 
-            hal_float_t steplen;
-            hal_float_t stepspace;
-            hal_float_t dirsetup;
-            hal_float_t dirhold;
+            hal_u32_t steplen;
+            hal_u32_t stepspace;
+            hal_u32_t dirsetup;
+            hal_u32_t dirhold;
         } param;
 
     } hal;
 
     u32 prev_accumulator;
 
-    float written_steplen;
-    float written_stepspace;
-    float written_dirsetup;
-    float written_dirhold;
+    u32 written_steplen;
+    u32 written_stepspace;
+    u32 written_dirsetup;
+    u32 written_dirhold;
 } hm2_stepgen_instance_t;
 
 

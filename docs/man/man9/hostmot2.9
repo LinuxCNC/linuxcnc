@@ -198,7 +198,7 @@ Pins:
 (float input) position_cmd: Target of stepper motion, in arbitrary
 position units.
 
-(float output) counts: Feedback position in counts (number of steps).
+(s32 output) counts: Feedback position in counts (number of steps).
 
 (float output) position-fb: Feedback position in arbitrary position units
 (counts / position_scale).
@@ -214,15 +214,16 @@ Parameters:
 (float r/w) position_scale: Converts from counts to position units.
 position = counts / position_scale
 
-(float r/w) steplen: Duration of the step signal, in seconds.
+(u32 r/w) steplen: Duration of the step signal, in nanoseconds.
 
-(float r/w) stepspace: Minimum interval between step signals, in seconds.
+(u32 r/w) stepspace: Minimum interval between step signals, in
+nanoseconds.
 
-(float r/w) dirsetup: Minimum duration of stable Direction signal before
-a step begins, in seconds.
+(u32 r/w) dirsetup: Minimum duration of stable Direction signal before
+a step begins, in nanoseconds.
 
-(float r/w) dirhold: Minimum duration of stable Direction signal after
-a step ends, in seconds.
+(u32 r/w) dirhold: Minimum duration of stable Direction signal after a
+step ends, in nanoseconds.
 .SH General Purpose I/O
 
 I/O pins on the board which are not used by a module instance are exported
