@@ -1,4 +1,18 @@
 
+released 2008-08-19
+    hostmot2 0.8
+
+    Changed the stepgen timing parameters from "float seconds" to
+    "u32 nanoseconds".  This breaks existing configs that use stepgen!
+
+    Added an "enable" pin for stepgen.
+
+    Fixed a harmless buglet in the Master DDS stepgen fix that went
+    into 0.6.
+
+    Segregated the stepgen debug pins to make things clearer.
+
+
 released 2008-08-17
     hostmot2 0.7
 
