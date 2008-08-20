@@ -1757,7 +1757,7 @@ G80 M5 (stop motion)
 
 .
  Comments do not cause a machining center to do anything.
-\layout Subsection
+\layout Section
 
 Messages
 \begin_inset LatexCommand \index{Messages}
@@ -1803,7 +1803,7 @@ MSG,
  Messages should be displayed on the message display device.
  Comments not containing messages need not be displayed there.
  
-\layout Subsection
+\layout Section
 
 Probe Logging
 \begin_inset LatexCommand \index{Probe Logging}
@@ -1829,7 +1829,7 @@ A comment can also be used to specify a file for the results of G38.2 probing.
 
 Often, general logging is more useful than probe logging.
  Using general logging, the format of the output data can be controlled.
-\layout Subsection
+\layout Section
 
 Debugging messages
 \begin_inset LatexCommand \index{Debug}
@@ -1860,7 +1860,7 @@ Comments that look like:
 (print, rest of comment)
 \family default 
  are output to stderr with special handling for parameters.
-\layout Subsection
+\layout Section
 
 Parameters in special comments
 \layout Standard
@@ -5852,48 +5852,8 @@ See Section
  
 \layout Section
 
-G54
-\begin_inset LatexCommand \index{G54}
-
-\end_inset 
-
-
-\begin_inset LatexCommand \index{G55}
-
-\end_inset 
-
-
-\begin_inset LatexCommand \index{G56}
-
-\end_inset 
-
-
-\begin_inset LatexCommand \index{G57}
-
-\end_inset 
-
-
-\begin_inset LatexCommand \index{G58}
-
-\end_inset 
-
-
-\begin_inset LatexCommand \index{G59}
-
-\end_inset 
-
-
-\begin_inset LatexCommand \index{G59.1}
-
-\end_inset 
-
-
-\begin_inset LatexCommand \index{G59.2}
-
-\end_inset 
-
- to G59.3
-\begin_inset LatexCommand \index{G59.3}
+G54 to G59.3
+\begin_inset LatexCommand \index{G54-G59.3}
 
 \end_inset 
 
@@ -6440,17 +6400,7 @@ Axis words are programmed when G80 is active, unless a modal group 0 G code
  is programmed which uses axis words.
 \layout Section
 
-G81
-\begin_inset LatexCommand \index{G81}
-
-\end_inset 
-
- to G89
-\begin_inset LatexCommand \index{G89}
-
-\end_inset 
-
-: Canned Cycles
+Canned Cycles
 \begin_inset LatexCommand \label{sub:G81-to-G89:}
 
 \end_inset 
@@ -6485,14 +6435,20 @@ Rotational axis words are allowed in canned cycles, but it is better to
  omit them.
  If rotational axis words are used, the numbers must be the same as the
  current position numbers so that the rotational axes do not move.
+\layout Subsection
+
+Common Words
 \layout Standard
 
-All canned cycles use X, Y, R, and Z numbers in the NC code.
+All canned cycles use X, Y, R, and Z words in the NC code.
  These numbers are used to determine X, Y, R, and Z positions.
  The R (usually meaning retract) position is along the axis perpendicular
  to the currently selected plane (Z-axis for XY-plane, X-axis for YZ-plane,
  Y-axis for XZ-plane).
  Some canned cycles use additional arguments.
+\layout Subsection
+
+Sticky Words
 \layout Standard
 
 For canned cycles, we will call a number 
@@ -6508,7 +6464,7 @@ sticky
  lines.
  Sticky numbers keep their value on the rest of the lines if they are not
  explicitly programmed to be different.
- The R number is always sticky.
+ The R word is always sticky.
 \layout Standard
 
 In incremental distance mode: when the XY-plane is selected, X, Y, and R
@@ -6517,6 +6473,9 @@ In incremental distance mode: when the XY-plane is selected, X, Y, and R
  the YZ or XZ-plane is selected, treatment of the axis words is analogous.
  In absolute distance mode, the X, Y, R, and Z numbers are absolute positions
  in the current coordinate system.
+\layout Subsection
+
+Repeat Cycle
 \layout Standard
 
 The L number is optional and represents the number of repeats.
@@ -6557,6 +6516,9 @@ When
  and Y positions (on the first go-around) or to the X and Y positions at
  the end of the previous go-around (on the repetitions).
  The R and Z positions do not change during the repeats.
+\layout Subsection
+
+Retract Mode
 \layout Standard
 
 The height of the retract move at the end of each repeat (called 
@@ -6580,6 +6542,9 @@ G98
 \end_inset 
 
 
+\layout Subsection
+
+Canned Cycle Errors
 \layout Standard
 
 It is an error if: 
@@ -6660,7 +6625,7 @@ a straight traverse of the Z-axis only to the R position, if it is not already
 If the XZ or YZ plane is active, the preliminary and in-between motions
  are analogous.
  
-\layout Subsection
+\layout Section
 
 G81
 \begin_inset LatexCommand \index{G81}
@@ -6813,7 +6778,7 @@ a feed parallel to the Z-axis to (13,17, 4.2)
 \layout Enumerate
 
 a traverse parallel to the Z-axis to (13,17,4.8) 
-\layout Subsection
+\layout Section
 
 G82
 \begin_inset LatexCommand \index{G82}
@@ -6849,7 +6814,7 @@ Dwell for the P number of seconds.
 \layout Enumerate
 
 Retract the Z-axis at traverse rate to clear Z.
-\layout Subsection
+\layout Section
 
 G83
 \begin_inset LatexCommand \index{G83}
@@ -6913,7 +6878,7 @@ It is an error if:
 \layout Itemize
 
 the Q number is negative or zero.
-\layout Subsection
+\layout Section
 
 G73
 \begin_inset LatexCommand \index{G73}
@@ -6972,7 +6937,7 @@ It is an error if:
 \layout Itemize
 
 the Q number is negative or zero.
-\layout Subsection
+\layout Section
 
 G84
 \begin_inset LatexCommand \index{G84}
@@ -6995,7 +6960,7 @@ This code is currently unimplemented in EMC2.
 \end_inset 
 
 
-\layout Subsection
+\layout Section
 
 G85
 \begin_inset LatexCommand \index{G85}
@@ -7030,7 +6995,7 @@ Move the Z-axis only at the current feed rate to the Z position.
 
 Retract the Z-axis at the current feed rate to clear Z.
  
-\layout Subsection
+\layout Section
 
 G86
 \begin_inset LatexCommand \index{G86}
@@ -7081,7 +7046,7 @@ The spindle must be turning before this cycle is used.
 \layout Itemize
 
 the spindle is not turning before this cycle is executed.
-\layout Subsection
+\layout Section
 
 G87
 \begin_inset LatexCommand \index{G87}
@@ -7098,7 +7063,7 @@ G87
 
 This code is currently unimplemented in EMC2.
  It is accepted, but the behavior is undefined.
-\layout Subsection
+\layout Section
 
 G88
 \begin_inset LatexCommand \index{G88}
@@ -7115,7 +7080,7 @@ G88
 
 This code is currently unimplemented in EMC2.
  It is accepted, but the behavior is undefined.
-\layout Subsection
+\layout Section
 
 G89
 \begin_inset LatexCommand \index{G89}
@@ -7155,7 +7120,7 @@ Dwell for the P number of seconds.
 
 Retract the Z-axis at the current feed rate to clear Z.
  
-\layout Subsection
+\layout Section
 
 G90
 \begin_inset LatexCommand \index{G90}
