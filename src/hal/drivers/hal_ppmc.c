@@ -1630,7 +1630,7 @@ static int export_UxC_digout(slot_data_t *slot, bus_data_t *bus)
 	    return retval;
 	}
 	/* export parameter for inversion */
-	rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.dout.%02d.invert",
+	rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.dout.%02d-invert",
 	    bus->busnum, bus->last_digout);
 	retval = hal_param_bit_new(buf, HAL_RW, &(slot->digout[n].invert), comp_id);
 	if (retval != 0) {
