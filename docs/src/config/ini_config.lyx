@@ -1358,9 +1358,11 @@ nally smaller following errors for slower speeds.
  how outputs are applied.
  They can usually be set via trial-and-error since there are only two possibilit
 ies.
- The EMCMOT utility program USRMOT can be used to set these interactively
- and verify their results so that the proper values can be put in the INI
- file with a minimum of trouble.
+ The EMC2 Servo Axis Calibration utility program (in the AXIS interface
+ menu Machine/Calibration and in TkEMC it is under Setting/Calibration)
+ can be used to set these and more interactively and verify their results
+ so that the proper values can be put in the INI file with a minimum of
+ trouble.
  
 \layout Subsubsection
 
