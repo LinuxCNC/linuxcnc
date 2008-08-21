@@ -4844,19 +4844,9 @@ float
 \noun on 
 bit
 \noun default 
-) ppmc.<port>.out.<channel>.invert 
+) ppmc.<port>.out.<channel>-invert 
 \family default 
 -- Inverts a digital output, see canonical digital output.
-\begin_inset Foot
-collapsed false
-
-\layout Standard
-
-In a future version this will be changed from .invert to -invert to better
- match the HAL canonical bit interface
-\end_inset 
-
-
 \layout Subsection
 
 Functions
