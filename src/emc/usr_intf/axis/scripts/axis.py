@@ -163,6 +163,8 @@ help1 = [
     (_("Wheel Button"), _("Rotate view")),
     (_("Rotate Wheel"), _("Zoom view")),
     (_("Control+Left Button"), _("Zoom view")),
+    ("", ""),
+    (_("Space, Ctrl-Space"), _("Clear notifications")),
 ]
 help2 = [
     ("F3", _("Manual control")),
