@@ -354,6 +354,7 @@ typedef struct {
 
         struct {
             hal_float_t position_scale;
+            hal_float_t maxvel;
 
             hal_u32_t steplen;
             hal_u32_t stepspace;
@@ -362,6 +363,11 @@ typedef struct {
         } param;
 
     } hal;
+
+    // HM2 tracks stepper position with 32 bits of sub-step
+    // precision.  This holds the top 16 of those bits, in the
+    // bottom 16 bits of the u32.
+    u32 counts_fractional;
 
     u32 prev_accumulator;
 
@@ -460,12 +466,13 @@ typedef struct {
     struct {
         struct {
             hal_u32_t *read_address;
-            hal_u32_t *write_address;
-
             hal_u32_t *read_data;
-            hal_u32_t *write_data;
 
+            hal_u32_t *write_address;
+            hal_u32_t *write_data;
             hal_bit_t *write_strobe;
+
+            hal_bit_t *dump_state;
         } pin;
     } hal;
 } hm2_raw_t;
@@ -553,6 +560,8 @@ int hm2_md_is_consistent(
 const char *hm2_get_general_function_name(int gtag);
 
 const char *hm2_hz_to_mhz(u32 freq_hz);
+
+void hm2_print_modules(int msg_level, hostmot2_t *hm2);
 
 
 

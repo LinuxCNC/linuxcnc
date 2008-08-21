@@ -635,7 +635,7 @@ static void hm2_cleanup(hostmot2_t *hm2) {
 
 
 
-static void hm2_print_modules(int msg_level, hostmot2_t *hm2) {
+void hm2_print_modules(int msg_level, hostmot2_t *hm2) {
     hm2_encoder_print_module(msg_level, hm2);
     hm2_pwmgen_print_module(msg_level, hm2);
     hm2_stepgen_print_module(msg_level, hm2);

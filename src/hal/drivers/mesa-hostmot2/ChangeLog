@@ -1,4 +1,18 @@
 
+released 2008-08-21
+    hostmot2 0.9
+
+    Fixed stepgen.stepspace, it was not getting set correctly on the FPGA.
+
+    Fixed stepgen.position-fb, it was not getting set reported correctly
+    to HAL.
+
+    Added stepgen.maxvel.
+
+    Added raw.dump_state, a way to cause hostmot2 to dump its internal
+    state to the syslog.
+
+
 released 2008-08-19
     hostmot2 0.8
 
