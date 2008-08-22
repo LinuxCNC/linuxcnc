@@ -619,7 +619,7 @@ static int handle_motion(GtkWidget *widget, GdkEventButton *event, gpointer data
 }
 
 #define TIPFORMAT "<tt>f(% 8.5f) = % 8.5f</tt>"
-static void update_readout(void) {
+void update_readout(void) {
     scope_vert_t *vert = &(ctrl_usr->vert);
     char tip[512];
     GdkRectangle r = {vert->readout_label->allocation.x,

@@ -300,5 +300,4 @@ int set_trigger_mode(int mode);
 int set_run_mode(int mode);
 void prepare_scope_restart(void);
 void log_popup(int);
-
 #endif /* HALSC_USR_H */

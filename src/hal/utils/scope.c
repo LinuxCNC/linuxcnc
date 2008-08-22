@@ -95,14 +95,15 @@ static void rm_stop_button_clicked(GtkWidget * widget, gpointer * gdata);
 /***********************************************************************
 *                        MAIN() FUNCTION                               *
 ************************************************************************/
+static void *shm_base;
+
 
 int main(int argc, gchar * argv[])
 {
     int retval;
     int num_samples = SCOPE_NUM_SAMPLES_DEFAULT;
-    void *shm_base;
-    char *ifilename = ".scope.cfg";
-    char *ofilename = ".scope.cfg";
+    char *ifilename = "autosave.halscope";
+    char *ofilename = "autosave.halscope";
 
     /* process and remove any GTK specific command line args */
     gtk_init(&argc, &argv);
@@ -436,6 +437,79 @@ static void about(int junk) {
             NULL);
 }
 
+static char *halscope_suffix(GtkFileSelection *fs) {
+    static char buf[256];
+    int len;
+    char *suffix;
+    strncpy(buf, gtk_file_selection_get_filename(GTK_FILE_SELECTION(fs)), 
+            sizeof(buf)-10);
+    len = strlen(buf);
+
+    suffix = strstr(buf, ".halscope");
+    if(!suffix || suffix != buf + len - 9) strcat(buf, ".halscope");
+    return buf;
+}    
+
+static void do_open_configuration(GtkWidget *w, GtkFileSelection *fs) {
+    int n;
+    for (n = 0; n < 16; n++) {
+	ctrl_usr->chan[n].data_source_type = -1;
+        ctrl_usr->chan[n].data_len = 0;
+        ctrl_usr->vert.data_offset[n] = -1;
+    }
+    read_config_file(halscope_suffix(fs));
+    channel_changed();
+    refresh_display();
+}
+
+static void open_configuration(int junk) {
+    GtkWidget *filew;
+    filew = gtk_file_selection_new("Open Configuration File:" );
+    gtk_signal_connect (GTK_OBJECT (filew), "destroy",
+        (GtkSignalFunc) gtk_widget_destroy, &filew);
+    gtk_signal_connect (GTK_OBJECT (GTK_FILE_SELECTION (filew)->ok_button),
+                        "clicked", (GtkSignalFunc) do_open_configuration, filew );
+    //link ok to destroy, otherwise the window stays open
+    gtk_signal_connect_object (GTK_OBJECT (GTK_FILE_SELECTION
+                                            (filew)->ok_button),
+                               "clicked", (GtkSignalFunc) gtk_widget_destroy,
+                               GTK_OBJECT (filew));
+    gtk_signal_connect_object (GTK_OBJECT (GTK_FILE_SELECTION
+                                            (filew)->cancel_button),
+                               "clicked", (GtkSignalFunc) gtk_widget_destroy,
+                               GTK_OBJECT (filew));
+    gtk_file_selection_set_select_multiple(GTK_FILE_SELECTION(filew), FALSE);
+    gtk_file_selection_hide_fileop_buttons (GTK_FILE_SELECTION(filew) );
+    gtk_file_selection_complete(GTK_FILE_SELECTION(filew), "*.halscope");
+    gtk_dialog_run(GTK_DIALOG(filew));
+}
+
+static void do_save_configuration(GtkWidget *w, GtkFileSelection *fs) {
+    write_config_file(halscope_suffix(fs));
+}
+
+
+static void save_configuration(int junk) {
+    GtkWidget *filew;
+    filew = gtk_file_selection_new("Open Configuration File:" );
+    gtk_signal_connect (GTK_OBJECT (filew), "destroy",
+        (GtkSignalFunc) gtk_widget_destroy, &filew);
+    gtk_signal_connect (GTK_OBJECT (GTK_FILE_SELECTION (filew)->ok_button),
+                        "clicked", (GtkSignalFunc) do_save_configuration, filew );
+    //link ok to destroy, otherwise the window stays open
+    gtk_signal_connect_object (GTK_OBJECT (GTK_FILE_SELECTION
+                                            (filew)->ok_button),
+                               "clicked", (GtkSignalFunc) gtk_widget_destroy,
+                               GTK_OBJECT (filew));
+    gtk_signal_connect_object (GTK_OBJECT (GTK_FILE_SELECTION
+                                            (filew)->cancel_button),
+                               "clicked", (GtkSignalFunc) gtk_widget_destroy,
+                               GTK_OBJECT (filew));
+    gtk_file_selection_set_select_multiple(GTK_FILE_SELECTION(filew), FALSE);
+    gtk_file_selection_hide_fileop_buttons (GTK_FILE_SELECTION(filew) );
+    gtk_dialog_run(GTK_DIALOG(filew));
+}
+
 
 static void define_menubar(GtkWidget *vboxtop) {
     GtkWidget *file_rootmenu, *help_rootmenu;
@@ -454,15 +528,13 @@ static void define_menubar(GtkWidget *vboxtop) {
     fileopenconfiguration = gtk_menu_item_new_with_mnemonic("_Open Configuration...");
     gtk_menu_append(GTK_MENU(filemenu), fileopenconfiguration);
     gtk_signal_connect_object(GTK_OBJECT(fileopenconfiguration), "activate", 
-            GTK_SIGNAL_FUNC(menuitem_response), "file/open configuration");
-    gtk_widget_set_sensitive(GTK_WIDGET(fileopenconfiguration), FALSE); // XXX
+            GTK_SIGNAL_FUNC(open_configuration), 0);
     gtk_widget_show(fileopenconfiguration);
     
     filesaveconfiguration = gtk_menu_item_new_with_mnemonic("_Save Configuration...");
     gtk_menu_append(GTK_MENU(filemenu), filesaveconfiguration);
     gtk_signal_connect_object(GTK_OBJECT(filesaveconfiguration), "activate", 
-            GTK_SIGNAL_FUNC(menuitem_response), "file/save configuration");
-    gtk_widget_set_sensitive(GTK_WIDGET(filesaveconfiguration), FALSE); // XXX
+            GTK_SIGNAL_FUNC(save_configuration), 0);
     gtk_widget_show(filesaveconfiguration);
 
     gtk_menu_append(GTK_MENU(filemenu), sep1);
