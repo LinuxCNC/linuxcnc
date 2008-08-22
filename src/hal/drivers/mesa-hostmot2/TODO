@@ -2,6 +2,9 @@
 
 next steps:
 
+    stepgen overshoots with high maxaccel
+
+
     include .PIN files as docs
 
         JMK suggested auto-generating man pages from the PIN files...

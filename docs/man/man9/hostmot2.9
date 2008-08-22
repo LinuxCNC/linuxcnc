@@ -206,6 +206,9 @@ position units.
 (float output) velocity-fb: Feedback velocity in arbitrary position
 units per second.
 
+(float output) velocity-cmd: Commanded velocity in arbitrary position
+units per second.
+
 (bit input) enable: Enables output steps.  When false, no steps are
 generated.
 
@@ -215,6 +218,9 @@ Parameters:
 position = counts / position_scale
 
 (float r/w) maxvel: Maximum speed, in position units per second.
+
+(float r/w) maxaccel: Maximum acceleration, in position units per second
+per second.
 
 (u32 r/w) steplen: Duration of the step signal, in nanoseconds.
 
@@ -353,6 +359,8 @@ not available on the 7i43 due to limitations of the EPP bus.)
 hm2_7i43(9)
 .br
 hm2_5i20(9)
+.br
+Mesa's documentation for the Anything I/O boards, at <http://www.mesanet.com>
 .br
 .SH LICENSE
 
