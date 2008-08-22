@@ -339,22 +339,17 @@ typedef struct {
 
         struct {
             hal_float_t *position_cmd;
+            hal_float_t *velocity_cmd;
             hal_s32_t *counts;
             hal_float_t *position_fb;
             hal_float_t *velocity_fb;
             hal_bit_t *enable;
-
-            // these are just for debugging for now, i'll remove them later
-            struct {
-                hal_u32_t *rate;
-                hal_u32_t *accumulator;
-                hal_float_t *error;
-            } debug;
         } pin;
 
         struct {
             hal_float_t position_scale;
             hal_float_t maxvel;
+            hal_float_t maxaccel;
 
             hal_u32_t steplen;
             hal_u32_t stepspace;
@@ -408,9 +403,10 @@ typedef struct {
     u32 pulse_idle_width_addr;
     u32 *pulse_idle_width_reg;
 
-    // FIXME: these are not supported yet
+    // FIXME: these two are not supported yet
     u32 table_sequence_data_setup_addr;
     u32 table_sequence_length_addr;
+
     u32 master_dds_addr;
 } hm2_stepgen_t;
 

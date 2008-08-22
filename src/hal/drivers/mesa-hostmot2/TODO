@@ -7,9 +7,6 @@ next steps:
         JMK suggested auto-generating man pages from the PIN files...
 
 
-    stepgen
-
-
     cradek wants encoder index support (i mailed pcw)
 
 
@@ -188,20 +185,12 @@ ioport:
 
 stepgen:
 
-    velocity_fb is broken: http://emergent.unpy.net/files/sandbox/hm2-step-scoped2.png
-
-    position commanding is very much hacked right now...
-
     setting .scale to 1600 (1600 steps/rev) and then commanding position
     to 1600 revs causes chaos, it runs in the wrong direction, some
     overflow bug not handled there...
 
     moving and then changing .scale from 1600 to 800 causes it to spin...
     and at 800 it doesnt track the follow-the-leader net properly
-
-    support maxvel
-
-    support maxaccel
 
     support other stepping modes
 

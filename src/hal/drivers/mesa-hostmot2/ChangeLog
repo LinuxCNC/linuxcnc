@@ -1,4 +1,16 @@
 
+released 2008-08-22
+    hostmot2 0.10
+
+    Added stepgen.maxaccel.
+
+    This version of the stepgen position controller and velocity slewing
+    code is the least broken one yet.
+
+    Added stepgen.velocity_cmd (not writable, just for peeking at what
+    the velocity slewing code is doing).
+
+
 released 2008-08-21
     hostmot2 0.9
 
