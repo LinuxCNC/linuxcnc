@@ -64,8 +64,6 @@ typedef struct {
     GtkWidget *disp_area;
     GdkGC *disp_context;
     GtkWidget *state_label;
-    GtkWidget *log_button;
-    GtkWidget *log_label;
     GtkWidget *record_button;
     GtkWidget *record_label;
     GtkWidget *zoom_slider;
@@ -301,5 +299,6 @@ int set_trigger_polarity(int setting);
 int set_trigger_mode(int mode);
 int set_run_mode(int mode);
 void prepare_scope_restart(void);
+void log_popup(int);
 
 #endif /* HALSC_USR_H */

@@ -65,7 +65,6 @@
 static void init_horiz_window(void);
 static void init_acquire_function(void);
 static void acquire_popup(GtkWidget * widget, gpointer gdata);
-static void log_popup(void);
 
 static void dialog_realtime_not_loaded(void);
 static void dialog_realtime_not_linked(void);
@@ -173,17 +172,6 @@ static void init_horiz_window(void)
     gtk_signal_connect(GTK_OBJECT(horiz->record_button), "clicked",
 	GTK_SIGNAL_FUNC(acquire_popup), NULL);
     gtk_widget_show(horiz->record_button);
-    /* fifth column - log to file button */
-    horiz->log_button =
-	gtk_button_new_with_label("log to\nfile..");
-    horiz->log_label = (GTK_BIN(horiz->log_button))->child;
-    gtk_label_size_to_fit(GTK_LABEL(horiz->log_label),
-	"log to\nfile..");
-    gtk_box_pack_end(GTK_BOX(hbox), horiz->log_button, FALSE, FALSE, 0);
-    /* activate the log menu if button is clicked */
-    gtk_signal_connect(GTK_OBJECT(horiz->log_button), "clicked",
-	GTK_SIGNAL_FUNC(log_popup), NULL);
-    gtk_widget_show(horiz->log_button);
     /* lower region, graphical status display */
     gtk_hseparator_new_in_box(ctrl_usr->horiz_info_win, 0);
     hbox =
@@ -791,7 +779,7 @@ void file_ok_sel( GtkWidget        *w,
     //gtk_widget_destroy( w);
 }
 
-static void log_popup(void)
+void log_popup(int junk)
 {
     //generic selection dialog, straight from the gtk tutorial
     GtkWidget *filew;

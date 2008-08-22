@@ -4,34 +4,36 @@
     uses GTK 1.2 or 2.0 for the GUI code.
 */
 
-/** Copyright (C) 2003 John Kasunich
-                       <jmkasunich AT users DOT sourceforge DOT net>
-*/
+static char *license = \
+"              Copyright (C) 2003 John Kasunich\n\
+                       <jmkasunich AT users DOT sourceforge DOT net>\n\
+\n\
+    This program is free software; you can redistribute it and/or\n\
+    modify it under the terms of version 2 of the GNU General\n\
+    Public License as published by the Free Software Foundation.\n\
+    This library is distributed in the hope that it will be useful,\n\
+    but WITHOUT ANY WARRANTY; without even the implied warranty of\n\
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n\
+    GNU General Public License for more details.\n\
+\n\
+    You should have received a copy of the GNU General Public\n\
+    License along with this library; if not, write to the Free Software\n\
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111 USA\n\
+\n\
+    THE AUTHORS OF THIS LIBRARY ACCEPT ABSOLUTELY NO LIABILITY FOR\n\
+    ANY HARM OR LOSS RESULTING FROM ITS USE.  IT IS _EXTREMELY_ UNWISE\n\
+    TO RELY ON SOFTWARE ALONE FOR SAFETY.  Any machinery capable of\n\
+    harming persons must have provisions for completely removing power\n\
+    from all motors, etc, before persons enter any danger area.  All\n\
+    machinery must be designed to comply with local and national safety\n\
+    codes, and the authors of this software can not, and do not, take\n\
+    any responsibility for such compliance.\n\
+\n\
+\n\
+    This code was written as part of the EMC HAL project.  For more\n\
+    information, go to www.linuxcnc.org.\n\
+";
 
-/** This program is free software; you can redistribute it and/or
-    modify it under the terms of version 2 of the GNU General
-    Public License as published by the Free Software Foundation.
-    This library is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public
-    License along with this library; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111 USA
-
-    THE AUTHORS OF THIS LIBRARY ACCEPT ABSOLUTELY NO LIABILITY FOR
-    ANY HARM OR LOSS RESULTING FROM ITS USE.  IT IS _EXTREMELY_ UNWISE
-    TO RELY ON SOFTWARE ALONE FOR SAFETY.  Any machinery capable of
-    harming persons must have provisions for completely removing power
-    from all motors, etc, before persons enter any danger area.  All
-    machinery must be designed to comply with local and national safety
-    codes, and the authors of this software can not, and do not, take
-    any responsibility for such compliance.
-
-    This code was written as part of the EMC HAL project.  For more
-    information, go to www.linuxcnc.org.
-*/
 #ifndef ULAPI
 #error This is a user mode component only!
 #endif
@@ -422,11 +424,105 @@ static void init_usr_control_struct(void *shmem)
     /* done */
 }
 
+static void menuitem_response(gchar *string) {
+    printf("%s\n", string);
+}
+
+static void about(int junk) {
+    gtk_show_about_dialog(GTK_WINDOW(ctrl_usr->main_win),
+            "copyright", "Copyright (C) 2003 John Kasunich",
+            "license", license,
+            "website", "http://www.linuxcnc.org/",
+            NULL);
+}
+
+
+static void define_menubar(GtkWidget *vboxtop) {
+    GtkWidget *file_rootmenu, *help_rootmenu;
+    GtkWidget *menubar, *filemenu, 
+              *fileopenconfiguration, *filesaveconfiguration, 
+              *fileopendatafile, *filesavedatafile,
+              *filequit, *sep1, *sep2;
+    GtkWidget *helpmenu, *helpabout;
+    GtkWidget *vbox;
+
+    filemenu = gtk_menu_new();
+    helpmenu = gtk_menu_new();
+    sep1 = gtk_separator_menu_item_new();
+    sep2 = gtk_separator_menu_item_new();
+
+    fileopenconfiguration = gtk_menu_item_new_with_mnemonic("_Open Configuration...");
+    gtk_menu_append(GTK_MENU(filemenu), fileopenconfiguration);
+    gtk_signal_connect_object(GTK_OBJECT(fileopenconfiguration), "activate", 
+            GTK_SIGNAL_FUNC(menuitem_response), "file/open configuration");
+    gtk_widget_set_sensitive(GTK_WIDGET(fileopenconfiguration), FALSE); // XXX
+    gtk_widget_show(fileopenconfiguration);
+    
+    filesaveconfiguration = gtk_menu_item_new_with_mnemonic("_Save Configuration...");
+    gtk_menu_append(GTK_MENU(filemenu), filesaveconfiguration);
+    gtk_signal_connect_object(GTK_OBJECT(filesaveconfiguration), "activate", 
+            GTK_SIGNAL_FUNC(menuitem_response), "file/save configuration");
+    gtk_widget_set_sensitive(GTK_WIDGET(filesaveconfiguration), FALSE); // XXX
+    gtk_widget_show(filesaveconfiguration);
+
+    gtk_menu_append(GTK_MENU(filemenu), sep1);
+    gtk_widget_show(sep1);
+    
+    fileopendatafile = gtk_menu_item_new_with_mnemonic("O_pen Data File...");
+    gtk_menu_append(GTK_MENU(filemenu), fileopendatafile);
+    gtk_signal_connect_object(GTK_OBJECT(fileopendatafile), "activate", 
+            GTK_SIGNAL_FUNC(menuitem_response), "file/open datafile");
+    gtk_widget_set_sensitive(GTK_WIDGET(fileopendatafile), FALSE); // XXX
+    gtk_widget_show(fileopendatafile);
+    
+    filesavedatafile = gtk_menu_item_new_with_mnemonic("S_ave Data File...");
+    gtk_menu_append(GTK_MENU(filemenu), filesavedatafile);
+    gtk_signal_connect_object(GTK_OBJECT(filesavedatafile), "activate", 
+            GTK_SIGNAL_FUNC(log_popup), 0);
+    gtk_widget_show(filesavedatafile);
+    
+    gtk_menu_append(GTK_MENU(filemenu), sep2);
+    gtk_widget_show(sep2);
+
+    filequit = gtk_menu_item_new_with_mnemonic("_Quit");
+    gtk_menu_append(GTK_MENU(filemenu), filequit);
+    gtk_signal_connect_object(GTK_OBJECT(filequit), "activate", 
+            GTK_SIGNAL_FUNC(quit), 0);
+    gtk_widget_show(filequit);
+
+    helpabout = gtk_menu_item_new_with_mnemonic("_About Halscope");
+    gtk_menu_append(GTK_MENU(helpmenu), helpabout);
+    gtk_signal_connect_object(GTK_OBJECT(helpabout), "activate",
+            GTK_SIGNAL_FUNC(about), 0);
+    gtk_widget_show(helpabout);
+
+    file_rootmenu = gtk_menu_item_new_with_mnemonic("_File");
+    gtk_widget_show(file_rootmenu);
+    gtk_menu_item_set_submenu(GTK_MENU_ITEM(file_rootmenu),filemenu);
+
+    help_rootmenu = gtk_menu_item_new_with_mnemonic("_Help");
+    gtk_widget_show(help_rootmenu);
+    gtk_menu_item_set_submenu(GTK_MENU_ITEM(help_rootmenu),helpmenu);
+
+    vbox = gtk_vbox_new(FALSE, 0);
+    gtk_container_add(GTK_CONTAINER(vboxtop), vbox);
+    gtk_widget_show(vbox);
+
+    menubar = gtk_menu_bar_new();
+    gtk_box_pack_start(GTK_BOX(vbox), menubar, FALSE, FALSE, 2);
+    gtk_widget_show(menubar);
+
+    gtk_menu_bar_append(GTK_MENU_BAR(menubar), file_rootmenu);
+    gtk_menu_bar_append(GTK_MENU_BAR(menubar), help_rootmenu);
+}
+
 /** 'define_scope_windows()' defines the overall layout of the main
     window.  It does not connect signals or load content into the
     windows - it only creates the windows (actually each "window" is
     either an hbox or vbox).  The layout is as shown below:
 
+    **************************************************************
+    * menubar                                                    *
     **************************************************************
     *                horiz_info_win              *  run  * trig  *
     **********************************************  mode * info  *
@@ -454,24 +550,35 @@ static void init_usr_control_struct(void *shmem)
 
 static void define_scope_windows(void)
 {
-    GtkWidget *hbox, *vboxleft, *vboxright, *hboxright;
+    GtkWidget *vbox, *hbox, *vboxtop, *vboxbottom, *vboxleft, *vboxright, *hboxright;
 
-    /* create main window, set it's size */
+    /* create main window, set its size */
     ctrl_usr->main_win = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     /* set the minimum size */
-//    gtk_widget_set_usize(GTK_WIDGET(ctrl_usr->main_win), 500, 350);
+    gtk_widget_set_usize(GTK_WIDGET(ctrl_usr->main_win), 500, 350);
     /* allow the user to expand it */
     gtk_window_set_policy(GTK_WINDOW(ctrl_usr->main_win), FALSE, TRUE, FALSE);
     /* set main window title */
     gtk_window_set_title(GTK_WINDOW(ctrl_usr->main_win), "HAL Oscilloscope");
 
-    /* top level - one big hbox */
+    /* top level - big vbox, menu above, everything else below */
+    vbox = gtk_vbox_new(FALSE, 0);
+    gtk_container_set_border_width(GTK_CONTAINER(vbox), 0);
+    gtk_container_add(GTK_CONTAINER(ctrl_usr->main_win), vbox);
+    gtk_widget_show(vbox);
+
+    vboxtop = gtk_hbox_new_in_box(FALSE, 0, 0, vbox, FALSE, FALSE, 0);
+    vboxbottom = gtk_hbox_new_in_box(FALSE, 0, 0, vbox, TRUE, TRUE, 0);
+
+    /* one big hbox for everything under the menu */
     hbox = gtk_hbox_new(FALSE, 0);
     gtk_container_set_border_width(GTK_CONTAINER(hbox), 0);
     /* add the hbox to the main window */
-    gtk_container_add(GTK_CONTAINER(ctrl_usr->main_win), hbox);
+    gtk_container_add(GTK_CONTAINER(vboxbottom), hbox);
     gtk_widget_show(hbox);
     /* end of top level */
+
+    define_menubar(vboxtop);
 
     /* second level of windows */
     vboxleft = gtk_vbox_new_in_box(FALSE, 0, 0, hbox, TRUE, TRUE, 0);
