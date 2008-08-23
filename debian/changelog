@@ -1,5 +1,6 @@
 emc2 (1:2.2.7~cvs) hardy; urgency=low
 
+  * allow emc2-sim to be built on 8.04
   * stepconf: fix "negative SCALE" problem reported by Christopher Purcell
   * comp: fix bad C code generated from variable array declarations such as
     'variable double output[8];' 
