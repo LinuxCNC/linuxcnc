@@ -29,17 +29,6 @@
 Stepper Configurations
 \layout Section
 
-Install EMC
-\layout Standard
-
-Using the Live CD install Ubuntu and EMC see section (
-\begin_inset LatexCommand \ref{sec:EMC2-Ubuntu-Live-CD}
-
-\end_inset 
-
-)
-\layout Section
-
 Latency Test
 \layout Standard
 
