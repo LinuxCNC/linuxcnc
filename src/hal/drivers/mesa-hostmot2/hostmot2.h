@@ -188,6 +188,17 @@ typedef struct {
 // encoders
 //
 
+#define HM2_ENCODER_FILTER              (1<<11)
+#define HM2_ENCODER_COUNTER_MODE        (1<<10)
+#define HM2_ENCODER_INDEX_MASK          (1<<9)
+#define HM2_ENCODER_INDEX_MASK_POLARITY (1<<8)
+#define HM2_ENCODER_INDEX_JUSTONCE      (1<<6)
+#define HM2_ENCODER_CLEAR_INDEX         (1<<5)
+#define HM2_ENCODER_INDEX_POLARITY      (1<<3)
+#define HM2_ENCODER_MASK  (HM2_ENCODER_FILTER | HM2_ENCODER_COUNTER_MODE | \
+        HM2_ENCODER_INDEX_MASK | HM2_ENCODER_INDEX_MASK_POLARITY | \
+        HM2_ENCODER_INDEX_JUSTONCE | HM2_ENCODER_CLEAR_INDEX | \
+        HM2_ENCODER_INDEX_POLARITY)
 typedef struct {
 
     struct {
@@ -196,12 +207,17 @@ typedef struct {
             hal_s32_t *count;
             hal_float_t *position;
             // hal_float_t *velocity;
-            // hal_bit_t *reset;
-            // hal_bit_t *index_enable;
+            hal_bit_t *reset;
+            hal_bit_t *index_enable;
         } pin;
 
         struct {
             hal_float_t scale;
+            hal_bit_t index_invert;
+            hal_bit_t index_mask;
+            hal_bit_t index_mask_invert;
+            hal_bit_t counter_mode;
+            hal_bit_t filter;
             // hal_float_t max_index_vel;
             // hal_float_t velocity_resolution;
         } param;
@@ -209,6 +225,7 @@ typedef struct {
     } hal;
 
     u32 prev_counter;
+    u32 prev_control;
 
 } hm2_encoder_instance_t;
 
@@ -218,6 +235,7 @@ typedef struct {
 
     hm2_encoder_instance_t *instance;
 
+    u32 stride;
     u32 clock_frequency;
     u8 version;
 
