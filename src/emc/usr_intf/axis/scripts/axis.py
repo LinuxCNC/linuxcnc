@@ -271,12 +271,10 @@ class Notification(Tkinter.Frame):
         Tkinter.Frame.__init__(self, master)
 
     def clear(self):
-        print "clear"
         while self.widgets:
             self.remove(self.widgets[0])
 
     def clear_one(self):
-        print "clear_one"
         if self.widgets:
             self.remove(self.widgets[0])
 
@@ -305,14 +303,12 @@ class Notification(Tkinter.Frame):
         self.widgets.append(widgets)
 
     def remove(self, widgets):
-        print "before remove", len(self.widgets), widgets in self.widgets
         self.widgets.remove(widgets)
         if len(self.cache) < 10:
             widgets[0].pack_forget()
             self.cache.append(widgets)
         else:
             widgets[0].destroy()
-        print "after remove", len(self.widgets)
         if len(self.widgets) == 0:
             self.place_forget()
 
