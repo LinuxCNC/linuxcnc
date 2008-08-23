@@ -585,6 +585,7 @@ usr/share/man/man9/mux4.9
 usr/share/man/man9/mux8.9
 usr/share/man/man9/not.9
 usr/share/man/man9/offset.9
+usr/share/man/man9/opto_ac5.9
 usr/share/man/man9/oneshot.9
 usr/share/man/man9/or2.9
 usr/share/man/man9/pid.9
@@ -658,6 +659,7 @@ usr/share/axis/images/cbd0.gif
 usr/share/axis/images/cbd1.gif
 usr/share/axis/images/cbn0.gif
 usr/share/axis/images/cbn1.gif
+usr/share/axis/images/close.gif
 usr/share/axis/images/downarrow.xbm
 usr/share/axis/images/leftarrow.xbm
 usr/share/axis/images/rba0.gif
