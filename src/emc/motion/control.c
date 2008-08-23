@@ -1066,6 +1066,8 @@ static void get_pos_cmds(long period)
 	for (joint_num = 0; joint_num < num_joints; joint_num++) {
 	    /* point to joint struct */
 	    joint = &joints[joint_num];
+	    if(joint->acc_limit > emcmotStatus->acc)
+		joint->acc_limit = emcmotStatus->acc;
 	    //AJ: only need to worry about free mode if joint is active
 	    if (GET_JOINT_ACTIVE_FLAG(joint)) {
 		joint->free_tp_active = 0;
