@@ -285,13 +285,22 @@ void hm2_encoder_process_tram_read(hostmot2_t *hm2) {
         control = hm2->encoder.control_reg[i] & HM2_ENCODER_MASK;
         prev_control = instance->prev_control & 0xffff;
 
+        // FIXME: maybe hm2_encoder_t should have u16 *prev_count, *prev_timestamp instead of u32 *prev_counter
+        prev_count = hm2->encoder.instance[i].prev_counter & 0x0000ffff;
+        prev_timestamp = (hm2->encoder.instance[i].prev_counter >> 16) & 0x0000ffff;
+
         if((prev_control & HM2_ENCODER_CLEAR_INDEX)
                 && !(control & HM2_ENCODER_CLEAR_INDEX)) {
-            ERR("encoder %d: control register indicated index seen: %04x -> %04x\n",
-                    i, prev_control, control)
             (*instance->hal.pin.index_enable) = 0;
+            *(hm2->encoder.instance[i].hal.pin.count) = prev_count = 0;
             prev_control &= ~HM2_ENCODER_CLEAR_INDEX;
         }
+
+        count_diff = (s32)count - (s32)prev_count;
+
+        if (count_diff > 32768) count_diff -= 65536;
+        if (count_diff < -32768) count_diff += 65536;
+        *(hm2->encoder.instance[i].hal.pin.count) += count_diff;
 
         do_flag(&control, *instance->hal.pin.index_enable,
                         HM2_ENCODER_CLEAR_INDEX | HM2_ENCODER_INDEX_JUSTONCE);
@@ -307,22 +316,11 @@ void hm2_encoder_process_tram_read(hostmot2_t *hm2) {
                                             HM2_ENCODER_FILTER);
         
         if(control != prev_control ) {
-            ERR("encoder %d: writing control register from %04x -> %04x\n",
-                    i, prev_control, control)
             hm2->llio->write(hm2->llio,
                 hm2->encoder.latch_control_addr + i * hm2->encoder.stride,
                 &control, sizeof(u32));
             instance->prev_control = control;
         }
-
-        // FIXME: maybe hm2_encoder_t should have u16 *prev_count, *prev_timestamp instead of u32 *prev_counter
-        prev_count = hm2->encoder.instance[i].prev_counter & 0x0000ffff;
-        prev_timestamp = (hm2->encoder.instance[i].prev_counter >> 16) & 0x0000ffff;
-
-        count_diff = (s32)count - (s32)prev_count;
-        if (count_diff > 32768) count_diff -= 65536;
-        if (count_diff < -32768) count_diff += 65536;
-        *(hm2->encoder.instance[i].hal.pin.count) += count_diff;
 
         if (hm2->encoder.instance[i].hal.param.scale == 0.0) {
             WARN("encoder %d has invalid scale 0.0, setting to 1.0\n", i);
