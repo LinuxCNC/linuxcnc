@@ -1891,7 +1891,7 @@ static void modify_hal_pins()
     *(halui_data->axis_pos_feedback[8]) = emcStatus->motion.traj.actualPosition.w;
     *(halui_data->axis_pos_relative[0]) = emcStatus->motion.traj.actualPosition.tran.x - emcStatus->task.origin.tran.x;	
     *(halui_data->axis_pos_relative[1]) = emcStatus->motion.traj.actualPosition.tran.y - emcStatus->task.origin.tran.y;	
-    *(halui_data->axis_pos_relative[2]) = emcStatus->motion.traj.actualPosition.tran.z - emcStatus->task.origin.tran.y;
+    *(halui_data->axis_pos_relative[2]) = emcStatus->motion.traj.actualPosition.tran.z - emcStatus->task.origin.tran.z;
     *(halui_data->axis_pos_relative[3]) = emcStatus->motion.traj.actualPosition.a - emcStatus->task.origin.a;
     *(halui_data->axis_pos_relative[4]) = emcStatus->motion.traj.actualPosition.b - emcStatus->task.origin.b;
     *(halui_data->axis_pos_relative[5]) = emcStatus->motion.traj.actualPosition.c - emcStatus->task.origin.c;
