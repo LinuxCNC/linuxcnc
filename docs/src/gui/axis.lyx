@@ -2252,10 +2252,20 @@ axis-remote --help
 ).
 \layout Section
 
-hal_manualtoolchange: Prompt the user to exchange tools
+Manual Tool Change
+\begin_inset LatexCommand \index{Manual Tool Change}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \label{sec:Manual-Tool-Change}
+
+\end_inset 
+
+
 \layout Standard
 
-AXIS includes a userspace hal component called 
+EMC2 includes a userspace hal component called 
 \begin_inset Quotes eld
 \end_inset 
 
@@ -2284,6 +2294,8 @@ configs/sim/axis_manualtoolchange.hal
 \layout Standard
 
 hal_manualtoolchange can be used even when AXIS is not used as the GUI.
+ This component is most useful if you have presettable tools and you use
+ the tool table.
 \layout Standard
 
 
