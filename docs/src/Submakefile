@@ -218,6 +218,22 @@ endef
 
 XMLDEP := $(DOC_SRCDIR)/lyxtree.py $(DOC_SRCDIR)/lyxparser.py
 
+SUBXML := \
+    $(filter objects/hal_%.xml, $(DOC_TARGETS_XML)) \
+    $(filter objects/code_%.xml, $(DOC_TARGETS_XML)) \
+    $(filter objects/common_%.xml, $(DOC_TARGETS_XML)) \
+    $(filter objects/config_%.xml, $(DOC_TARGETS_XML)) \
+    $(filter objects/gcode_%.xml, $(DOC_TARGETS_XML)) \
+    $(filter objects/gui_%.xml, $(DOC_TARGETS_XML)) \
+    $(filter objects/install_%.xml, $(DOC_TARGETS_XML)) \
+    $(filter objects/ladder_%.xml, $(DOC_TARGETS_XML)) \
+    $(filter objects/motion_%.xml, $(DOC_TARGETS_XML)) \
+    $(filter objects/examples_%.xml, $(DOC_TARGETS_XML)) \
+    $(filter objects/quickstart_%.xml, $(DOC_TARGETS_XML))
+
+$(filter-out $(SUBXML),$(DOC_TARGETS_XML)): objects/%.xml: $(DOC_SRCDIR)/%.lyx $(XMLDEP)
+	python $(DOC_SRCDIR)/lyxtree.py --imagedir=$(DOC_DIR)/html -o objects/$*.xml $<
+
 $(filter objects/hal_%.xml,$(DOC_TARGETS_XML)): objects/hal_%.xml: $(DOC_SRCDIR)/hal/%.lyx $(XMLDEP)
 	$(call lyx2xml,hal,$*,$<)
 $(filter objects/code_%.xml,$(DOC_TARGETS_XML)): objects/code_%.xml: $(DOC_SRCDIR)/code/%.lyx $(XMLDEP)
