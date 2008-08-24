@@ -107,8 +107,8 @@ DOC_TARGETS_XML:=$(patsubst $(DOC_DIR)/html/%.html, objects/%.xml,\
 
 MAN_HTML_TARGETS := $(patsubst $(DOC_DIR)/man/%, $(DOC_DIR)/html/man/%.html, $(MAN_SRCS))
 PDF_TARGETS := $(addprefix $(DOC_DIR)/,HAL_User_Manual.pdf EMC2_User_Manual.pdf EMC2_Developer_Manual.pdf \
-    EMC2_Integrator_Manual.pdf EMC2_Manual_Pages.pdf EMC2_User_Manual_fr.pdf HAL_User_Manual_fr.pdf \
-    EMC2_Integrator_Manual_fr.pdf EMC2_Getting_Started.pdf)
+	EMC2_Integrator_Manual.pdf EMC2_Manual_Pages.pdf EMC2_User_Manual_fr.pdf HAL_User_Manual_fr.pdf \
+	EMC2_Integrator_Manual_fr.pdf EMC2_Getting_Started.pdf)
 
 HTML_TARGETS := $(DOC_TARGETS_HTML) $(MAN_HTML_TARGETS) $(DOC_DIR)/html/index.html $(DOC_DIR)/html/index_fr.html $(DOC_DIR)/html/xref.html $(DOC_DIR)/html/xref_fr.html
 
