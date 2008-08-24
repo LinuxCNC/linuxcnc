@@ -27,6 +27,11 @@
 \layout Chapter
 
 Linux FAQ
+\begin_inset LatexCommand \index{Linux FAQ}
+
+\end_inset 
+
+
 \layout Standard
 
 These are some basic Linux commands and techniques for new to Linux users.
@@ -34,6 +39,11 @@ These are some basic Linux commands and techniques for new to Linux users.
 \layout Section
 
 Man Pages
+\begin_inset LatexCommand \index{Man Pages}
+
+\end_inset 
+
+
 \layout Standard
 
 Man pages are automatically generated manual pages in most cases.
@@ -57,6 +67,11 @@ Use the Page Up and Page Down keys to view the man page and the Q key to
 \layout Section
 
 Editing a Root File
+\begin_inset LatexCommand \index{Editing a Root File}
+
+\end_inset 
+
+
 \layout Standard
 
 Editing some root files can have bad results.
@@ -73,6 +88,11 @@ read only
 \layout Subsection
 
 The Command Line Way
+\begin_inset LatexCommand \index{sudo gedit}
+
+\end_inset 
+
+
 \layout Standard
 
 Open up Applications, Accessories, Terminal.
@@ -91,6 +111,11 @@ Open the file with File, Open then edit
 \layout Subsection
 
 The GUI Way
+\begin_inset LatexCommand \index{gksudo}
+
+\end_inset 
+
+
 \layout Enumerate
 
 Right click on the desktop and select Create Launcher
@@ -123,6 +148,16 @@ Terminal Commands
 \layout Subsection
 
 Working Directory
+\begin_inset LatexCommand \index{Working Directory}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \index{pwd}
+
+\end_inset 
+
+
 \layout Standard
 
 To find out the path to the present working directory in the terminal window
@@ -136,6 +171,16 @@ pwd
 \layout Subsection
 
 Changing Directories
+\begin_inset LatexCommand \index{Changing Directories}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \index{cd}
+
+\end_inset 
+
+
 \layout Standard
 
 To move up one level in the terminal window type:
@@ -157,6 +202,21 @@ cd emc2/configs
 \layout Subsection
 
 Listing files in a directory
+\begin_inset LatexCommand \index{Listing files in a directory}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \index{dir}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \index{ls}
+
+\end_inset 
+
+
 \layout Standard
 
 To view a list of all the files and subdirectories in the terminal window
@@ -179,6 +239,16 @@ ls
 \layout Subsection
 
 Finding a File
+\begin_inset LatexCommand \index{Finding a File}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \index{find}
+
+\end_inset 
+
+
 \layout Standard
 
 The find command can be a bit confusing to a new Linux user.
@@ -224,6 +294,16 @@ The -name is the name of the file your looking for and the -print tells
 \layout Subsection
 
 Searching for Text
+\begin_inset LatexCommand \index{Searching for Text}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \index{grep}
+
+\end_inset 
+
+
 \layout Standard
 
 ~$ 

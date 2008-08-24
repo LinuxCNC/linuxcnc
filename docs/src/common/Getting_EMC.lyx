@@ -30,6 +30,11 @@ Getting EMC2
 \layout Section
 
 Download the Software
+\begin_inset LatexCommand \index{Download the Software}
+
+\end_inset 
+
+
 \layout Standard
 
 Download the Live CD from 
@@ -41,6 +46,11 @@ Download the Live CD from
 \layout Section
 
 Multi-session Download
+\begin_inset LatexCommand \index{Multi-session Download}
+
+\end_inset 
+
+
 \layout Standard
 
 If the file is too large to download in one session because of a bad or
@@ -55,6 +65,11 @@ wget
 \layout Subsection
 
 Linux
+\begin_inset LatexCommand \index{wget}
+
+\end_inset 
+
+
 \layout Standard
 
 Open a terminal window.
@@ -148,6 +163,11 @@ Type the wget command into the window and press enter as above.
 \layout Section
 
 Burning the CD
+\begin_inset LatexCommand \index{Burning the CD}
+
+\end_inset 
+
+
 \layout Standard
 
 EMC2 is distributed as CD image files, called ISOs.
@@ -157,6 +177,11 @@ EMC2 is distributed as CD image files, called ISOs.
 \layout Subsection
 
 Linux
+\begin_inset LatexCommand \index{md5sum}
+
+\end_inset 
+
+
 \layout Standard
 
 Before burning a CD, it is highly recommended that you verify the md5 sum
@@ -249,6 +274,11 @@ Open Infra Recorder, and select the 'Actions' menu, then 'Burn image'.
 \layout Section
 
 Installing EMC2
+\begin_inset LatexCommand \index{Installing EMC2}
+
+\end_inset 
+
+
 \layout Standard
 
 With the Live CD in the CD/DVD drive shut down the computer then turn the
@@ -264,6 +294,11 @@ With the Live CD in the CD/DVD drive shut down the computer then turn the
 \layout Section
 
 Updates to EMC2
+\begin_inset LatexCommand \index{Updates to EMC2}
+
+\end_inset 
+
+
 \layout Standard
 
 With the normal install the Update Manager will notify you of updates to
