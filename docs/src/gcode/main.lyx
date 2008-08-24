@@ -7768,6 +7768,22 @@ M6
 \end_inset 
 
 
+\layout Subsection
+
+Manual Tool Change
+\layout Standard
+
+If the hal component hal_manualtoolchange is loaded M6 will stop the spindle
+ and prompt the user to change the tool.
+ For more information on hal_manualtoolchange see Section (
+\begin_inset LatexCommand \ref{sec:Manual-Tool-Change}
+
+\end_inset 
+
+)
+\layout Subsection
+
+Tool Changer
 \layout Standard
 
 To change a tool in the spindle from the tool currently in the spindle to
