@@ -39,6 +39,7 @@ DOC_SRCS := \
 	common/GPLD_Copyright.lyx \
 	common/userforeword.lyx \
 	common/integrator_intro.lyx \
+	common/Linux_FAQ.lyx \
 	common/machining_center.lyx \
 	common/user_intro.lyx \
 	config/ini_config.lyx \
