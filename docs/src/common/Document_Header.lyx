@@ -41,7 +41,7 @@
 \quotes_times 2
 \papercolumns 1
 \papersides 1
-\paperpagestyle headings
+\paperpagestyle default
 
 \layout Title
 
@@ -51,7 +51,7 @@
 	lyxscale 80
 	scale 50
 	keepAspectRatio
-	BoundingBox 0bp 0bp 800bp 600bp
+	BoundingBox 0bp 0bp 800bp 300bp
 	rotateOrigin center
 
 \end_inset 
@@ -61,7 +61,7 @@
 \added_space_top medskip 
 The EMC Team
 \layout Standard
-\added_space_top 1in 
+\added_space_top medskip 
 This handbook is a work in progress.
  If you are able to help with writing, editing, or graphic preparation please
  contact any member of the writing team or join and send an email to emc-users@l
@@ -70,7 +70,7 @@ ists.sourceforge.net.
 \added_space_top smallskip \align center 
 Copyright (c) 2000-8 LinuxCNC.org
 \layout Standard
-\added_space_top smallskip \line_top \line_bottom \noindent 
+\added_space_top smallskip \line_top \line_bottom \pagebreak_bottom \noindent 
 Permission is granted to copy, distribute and/or modify this document under
  the terms of the GNU Free Documentation License, Version 1.1 or any later
  version published by the Free Software Foundation; with no Invariant Sections,

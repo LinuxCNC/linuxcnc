@@ -25,9 +25,12 @@
 \papersides 2
 \paperpagestyle default
 
-\layout Section*
+\layout Chapter
 
-Handbook Copyright Terms
+Legal Section
+\layout Section
+
+Copyright Terms
 \layout Quotation
 
 Copyright (c) 2000 LinuxCNC.org
@@ -46,14 +49,8 @@ Permission is granted to copy, distribute and/or modify this document under
  59 Temple Place, Suite 330, Boston, MA 02111-1307
 \layout Section
 
-GNU Free Documentation License Version 1.1, March 2000
+GNU General Public License
 \layout Standard
-
-Copyright (C) 2000 Free Software Foundation, Inc.
- 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA Everyone is permitted
- to copy and distribute verbatim copies of this license document, but changing
- it is not allowed.
-\layout Subsection
 
 GNU Free Documentation License Version 1.1, March 2000
 \layout Standard
