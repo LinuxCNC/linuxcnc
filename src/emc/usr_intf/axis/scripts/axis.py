@@ -958,14 +958,27 @@ class MyOpengl(Opengl):
                                2 ) * .5
             else:
                 cone_scale = 1
-            ry, rz = pos[3:5]
+            rx, ry, rz = pos[3:6]
             pos = to_internal_units(pos[:3])
             glPushMatrix()
             glTranslatef(*pos)
 #            if s.axis_mask & (1<<3):
 #                glRotatef(s.position[3], 1, 0, 0)
-            glRotatef(rz, 0, 0, 1);
-            glRotatef(ry, 0, 1, 0);
+            sign = 1
+            for ch in geometry:
+                if ch == '-':
+                    print "sign"
+                    sign = -1
+                elif ch == 'A':
+                    glRotatef(rx*sign, 1, 0, 0)
+                    sign = 1
+                elif ch == 'B':
+                    print ry, sign
+                    glRotatef(ry*sign, 0, 1, 0)
+                    sign = 1
+                elif ch == 'C':
+                    glRotatef(rz*sign, 0, 0, 1)
+                    sign = 1
             glEnable(GL_BLEND)
             glEnable(GL_CULL_FACE);
             glBlendFunc(GL_ONE, GL_CONSTANT_ALPHA);
@@ -1416,6 +1429,7 @@ class LivePlotter:
             C('backplotarc'),
             C('backplottoolchange'),
             C('backplotprobing'),
+            geometry
         )
         o.after_idle(lambda: thread.start_new_thread(self.logger.start, (.01,)))
 
@@ -1662,7 +1676,7 @@ class AxisCanon(GLCanon):
         if self.aborted: raise KeyboardInterrupt
 
     def draw_lines(self, lines, for_selection, j=0):
-        return emc.draw_lines(lines, for_selection)
+        return emc.draw_lines(geometry, lines, for_selection)
 
     def draw_dwells(self, dwells, for_selection, j0=0):
         delta = .015625
@@ -3366,6 +3380,10 @@ max_feed_override = float(inifile.find("DISPLAY", "MAX_FEED_OVERRIDE"))
 max_spindle_override = float(inifile.find("DISPLAY", "MAX_SPINDLE_OVERRIDE") or max_feed_override)
 max_feed_override = int(max_feed_override * 100 + 0.5)
 max_spindle_override = int(max_spindle_override * 100 + 0.5)
+
+geometry = inifile.find("DISPLAY", "GEOMETRY") or "XYZBCUVW"
+geometry = re.split(" *(-?[XYZABCUVW])", geometry.upper())
+geometry = "".join(reversed(geometry))
 
 jog_speed = (
     inifile.find("DISPLAY", "DEFAULT_LINEAR_VELOCITY")

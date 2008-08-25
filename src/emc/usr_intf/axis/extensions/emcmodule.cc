@@ -1451,34 +1451,58 @@ static void rotate_y(double pt[3], double a) {
     pt[0] = tx; pt[2] = tz;
 }
 
-static void translate(double pt[3], const double off[3]) {
-    pt[0] += off[0];
-    pt[1] += off[1];
-    pt[2] += off[2];
-}
+static void rotate_x(double pt[3], double a) {
+    double theta = a * M_PI / 180;
+    double c = cos(theta), s = sin(theta);
+    double tx, tz;
+    tx = pt[1] * c - pt[2] * s;
+    tz = pt[1] * s + pt[2] * c;
 
-static void vertex9(const double pt[9], double p[3]) {
-    p[0] = pt[6];
-    p[1] = pt[7];
-    p[2] = pt[8];
-
-    rotate_y(p, pt[4]);
-    rotate_z(p, pt[5]);
-    translate(p, pt);
-
+    pt[1] = tx; pt[2] = tz;
 }
 
 
-static void glvertex9(const double pt[9]) {
+
+static void translate(double pt[3], double ox, double oy, double oz) {
+    pt[0] += ox;
+    pt[1] += oy;
+    pt[2] += oz;
+}
+
+static void vertex9(const double pt[9], double p[3], const char *geometry) {
+    double sign = 1;
+
+    p[0] = 0;
+    p[1] = 0;
+    p[2] = 0;
+
+    for(; *geometry; geometry++) {
+        switch(*geometry) {
+            case '-': sign = -1; break;
+            case 'X': translate(p, pt[0] * sign, 0, 0); sign=1; break;
+            case 'Y': translate(p, 0, pt[1] * sign, 0); sign=1; break;
+            case 'Z': translate(p, 0, 0, pt[2] * sign); sign=1; break;
+            case 'U': translate(p, pt[6] * sign, 0, 0); sign=1; break;
+            case 'V': translate(p, 0, pt[7] * sign, 0); sign=1; break;
+            case 'W': translate(p, 0, 0, pt[8] * sign); sign=1; break;
+            case 'A': rotate_x(p, pt[3] * sign); sign=1; break;
+            case 'B': rotate_y(p, pt[4] * sign); sign=1; break;
+            case 'C': rotate_z(p, pt[5] * sign); sign=1; break;
+        }
+    }
+}
+
+
+static void glvertex9(const double pt[9], const char *geometry) {
     double p[3];
-    vertex9(pt, p);
+    vertex9(pt, p, geometry);
     glVertex3dv(p);
 }
 
 #define max(a,b) ((a) < (b) ? (b) : (a))
 #define max3(a,b,c) (max((a),max((b),(c))))
 
-static void line9(const double p1[9], const double p2[9]) {
+static void line9(const double p1[9], const double p2[9], const char *geometry) {
     if(p1[3] != p2[3] || p1[4] != p2[4] || p1[5] != p2[5]) {
         double dc = max3(
             fabs(p2[3] - p1[3]),
@@ -1493,14 +1517,14 @@ static void line9(const double p1[9], const double p2[9]) {
             double pt[9];
             int i;
             for(i=0; i<9; i++) { pt[i] = t * p2[i] + v * p1[i]; }
-            glvertex9(pt);
+            glvertex9(pt, geometry);
         }
     } else {
-        glvertex9(p2);
+        glvertex9(p2, geometry);
     }
 }
-static void line9b(const double p1[9], const double p2[9]) {
-    glvertex9(p1);
+static void line9b(const double p1[9], const double p2[9], const char *geometry) {
+    glvertex9(p1, geometry);
     if(p1[3] != p2[3] || p1[4] != p2[4] || p1[5] != p2[5]) {
         double dc = max3(
             fabs(p2[3] - p1[3]),
@@ -1515,19 +1539,21 @@ static void line9b(const double p1[9], const double p2[9]) {
             double pt[9];
             int i;
             for(i=0; i<9; i++) { pt[i] = t * p2[i] + v * p1[i]; }
-            glvertex9(pt);
+            glvertex9(pt, geometry);
             if(i != st)
-                glvertex9(pt);
+                glvertex9(pt, geometry);
         }
     } else {
-        glvertex9(p2);
+        glvertex9(p2, geometry);
     }
 }
 
 static PyObject *pyline9(PyObject *s, PyObject *o) {
     double pt1[9], pt2[9];
+    const char *geometry;
 
-    if(!PyArg_ParseTuple(o, "(ddddddddd)(ddddddddd):line9",
+    if(!PyArg_ParseTuple(o, "s(ddddddddd)(ddddddddd):line9",
+            &geometry,
             &pt1[0], &pt1[1], &pt1[2],
             &pt1[3], &pt1[4], &pt1[5],
             &pt1[6], &pt1[7], &pt1[8],
@@ -1536,20 +1562,22 @@ static PyObject *pyline9(PyObject *s, PyObject *o) {
             &pt2[6], &pt2[7], &pt2[8]))
         return NULL;
 
-    line9b(pt1, pt2);
+    line9b(pt1, pt2, geometry);
 
     Py_RETURN_NONE;
 }
 
 static PyObject *pyvertex9(PyObject *s, PyObject *o) {
     double pt1[9], pt[3];
-    if(!PyArg_ParseTuple(o, "(ddddddddd):vertex9",
+    char *geometry;
+    if(!PyArg_ParseTuple(o, "s(ddddddddd):vertex9",
+            &geometry,
             &pt1[0], &pt1[1], &pt1[2],
             &pt1[3], &pt1[4], &pt1[5],
             &pt1[6], &pt1[7], &pt1[8]))
         return NULL;
 
-    vertex9(pt, pt1);
+    vertex9(pt, pt1, geometry);
     return Py_BuildValue("(ddd)", &pt[0], &pt[1], &pt[2]);
 }
 
@@ -1560,9 +1588,10 @@ static PyObject *pydraw_lines(PyObject *s, PyObject *o) {
     int first = 1;
     int nl = -1, n;
     double p1[9], p2[9], pl[9];
+    char *geometry;
 
-    if(!PyArg_ParseTuple(o, "O!|i:draw_lines",
-			    &PyList_Type, &li, &for_selection))
+    if(!PyArg_ParseTuple(o, "sO!|i:draw_lines",
+			    &geometry, &PyList_Type, &li, &for_selection))
         return NULL;
 
     for(i=0; i<PyList_GET_SIZE(li); i++) {
@@ -1587,10 +1616,10 @@ static PyObject *pydraw_lines(PyObject *s, PyObject *o) {
                 nl = n;
             }
             glBegin(GL_LINE_STRIP);
-            glvertex9(p1);
+            glvertex9(p1, geometry);
             first = 0;
         }
-        line9(p1, p2);
+        line9(p1, p2, geometry);
         memcpy(pl, p2, sizeof(p1));
     }
 
@@ -1612,7 +1641,7 @@ struct color {
 
 struct logger_point {
     float x, y, z;
-    float ry, rz;
+    float rx, ry, rz;
     struct color c;
 };
 
@@ -1624,6 +1653,7 @@ typedef struct {
     struct logger_point *p;
     struct color colors[NUMCOLORS];
     bool exit, clear, changed;
+    char *geometry;
     pyStatChannel *st;
 } pyPositionLogger;
 
@@ -1647,29 +1677,33 @@ static void LOCK() { pthread_mutex_lock(&mutex); }
 static void UNLOCK() { pthread_mutex_unlock(&mutex); }
 
 static int Logger_init(pyPositionLogger *self, PyObject *a, PyObject *k) {
+    char *geometry;
     struct color *c = self->colors;
     self->p = (logger_point*)malloc(0);
     self->npts = self->mpts = 0;
     self->exit = self->clear = 0;
     self->changed = 1;
     self->st = 0;
-    if(!PyArg_ParseTuple(a, "O!(BBBB)(BBBB)(BBBB)(BBBB)(BBBB)(BBBB)",
+    if(!PyArg_ParseTuple(a, "O!(BBBB)(BBBB)(BBBB)(BBBB)(BBBB)(BBBB)s",
             &Stat_Type, &self->st,
             &c[0].r,&c[0].g, &c[0].b, &c[0].a,
             &c[1].r,&c[1].g, &c[1].b, &c[1].a,
             &c[2].r,&c[2].g, &c[2].b, &c[2].a,
             &c[3].r,&c[3].g, &c[3].b, &c[3].a,
             &c[4].r,&c[4].g, &c[4].b, &c[4].a,
-            &c[5].r,&c[5].g, &c[5].b, &c[5].a
+            &c[5].r,&c[5].g, &c[5].b, &c[5].a,
+            &geometry
             ))
         return -1;
     Py_INCREF(self->st);
+    self->geometry = strdup(geometry);
     return 0;
 }
 
 static void Logger_dealloc(pyPositionLogger *s) {
     free(s->p);
     Py_XDECREF(s->st);
+    free(s->geometry);
     PyObject_Del(s);
 }
 
@@ -1712,9 +1746,9 @@ static PyObject *Logger_start(pyPositionLogger *s, PyObject *o) {
                 status->motion.traj.position.w - status->task.toolOffset.w};
 
             double p[3];
-            vertex9(pt, p);
+            vertex9(pt, p, s->geometry);
             double x = p[0], y = p[1], z = p[2];
-            double ry = -pt[4], rz = pt[5];
+            double rx = pt[3], ry = -pt[4], rz = pt[5];
 
             struct color c = s->colors[colornum];
             struct logger_point *op = &s->p[s->npts-1];
@@ -1747,26 +1781,27 @@ static PyObject *Logger_start(pyPositionLogger *s, PyObject *o) {
                     {
                     struct logger_point &np = s->p[s->npts];
                     np.x = op->x; np.y = op->y; np.z = op->z;
+                    np.rx = rx; np.ry = ry; np.rz = rz;
                     np.c = c;
                     }
                     {
                     struct logger_point &np = s->p[s->npts+1];
                     np.x = x; np.y = y; np.z = z;
-                    np.ry = ry; np.rz = rz;
+                    np.rx = rx; np.ry = ry; np.rz = rz;
                     np.c = c;
                     }
                     s->npts += 2;
                 } else {
                     struct logger_point &np = s->p[s->npts];
                     np.x = x; np.y = y; np.z = z;
-                    np.ry = ry; np.rz = rz;
+                    np.rx = rx; np.ry = ry; np.rz = rz;
                     np.c = c;
                     s->npts++;
                 }
             } else {
                 struct logger_point &np = s->p[s->npts-1];
                 np.x = x; np.y = y; np.z = z;
-                np.ry = ry; np.rz = rz;
+                np.rx = rx; np.ry = ry; np.rz = rz;
             }
         }
         nanosleep(&ts, NULL);
@@ -1816,13 +1851,14 @@ static PyObject *Logger_last(pyPositionLogger *s, PyObject *o) {
         Py_INCREF(Py_None);
         result = Py_None;
     } else {
-        result = PyTuple_New(5);
+        result = PyTuple_New(6);
         struct logger_point &p = s->p[s->lpts-1];
         PyTuple_SET_ITEM(result, 0, PyFloat_FromDouble(p.x));
         PyTuple_SET_ITEM(result, 1, PyFloat_FromDouble(p.y));
         PyTuple_SET_ITEM(result, 2, PyFloat_FromDouble(p.z));
-        PyTuple_SET_ITEM(result, 3, PyFloat_FromDouble(p.ry));
-        PyTuple_SET_ITEM(result, 4, PyFloat_FromDouble(p.rz));
+        PyTuple_SET_ITEM(result, 3, PyFloat_FromDouble(p.rx));
+        PyTuple_SET_ITEM(result, 4, PyFloat_FromDouble(p.ry));
+        PyTuple_SET_ITEM(result, 5, PyFloat_FromDouble(p.rz));
     }
     UNLOCK();
     return result;
