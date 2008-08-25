@@ -373,7 +373,7 @@ static void calc_pid(void *arg, long period)
         *(pid->saturated) = 1;
         *(pid->saturated_s) += period * 1e-9;
         if(*(pid->saturated_count) != 2147483647)
-            *(pid->saturated_count) ++;
+            (*pid->saturated_count) ++;
     } else {
         *(pid->saturated) = 0;
         *(pid->saturated_s) = 0;
