@@ -967,13 +967,11 @@ class MyOpengl(Opengl):
             sign = 1
             for ch in geometry:
                 if ch == '-':
-                    print "sign"
                     sign = -1
                 elif ch == 'A':
                     glRotatef(rx*sign, 1, 0, 0)
                     sign = 1
                 elif ch == 'B':
-                    print ry, sign
                     glRotatef(ry*sign, 0, 1, 0)
                     sign = 1
                 elif ch == 'C':
