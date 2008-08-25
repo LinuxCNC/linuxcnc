@@ -663,18 +663,10 @@ bit
 \layout Itemize
 
 when the pin halui.mdi-command-<nr> is activated halui will try to send the
- MDI command defined in the ini 
-\begin_inset Foot
-collapsed true
-
-\layout Standard
-
-This will not always succeed, depending on the operating mode emc2 is in
+ MDI command defined in the ini.
+ This will not always succeed, depending on the operating mode emc2 is in
  (e.g.
  while in AUTO halui can't successfully send MDI commands).
-\end_inset 
-
-
 \layout Section
 
 Case - Studies
