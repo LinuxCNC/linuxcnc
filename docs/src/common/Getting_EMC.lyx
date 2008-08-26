@@ -105,6 +105,13 @@ wget -r -c http://www.linuxcnc.org/hardy/ubuntu-8.04-desktop-emc2-aj07-i386.iso
 \layout Standard
 
 To stop a download use Ctrl-C or close the terminal window.
+\layout Standard
+
+After the download is complete you will find a new directory called www.linuxcnc.o
+rg or something similar.
+ In the subdirectory under the above directory you will find the ISO CD
+ image file.
+ Next is burning the CD.
 \layout Subsection
 
 Windows
@@ -171,7 +178,7 @@ Burning the CD
 \layout Standard
 
 EMC2 is distributed as CD image files, called ISOs.
- To install EMC2, you first need to burn its ISO file onto a CD.
+ To install EMC2, you first need to burn the ISO file onto a CD.
  You need a working CD/DVD burner and an 80 minute (700 Mb) CD for this.
  If the CD writing fails, try writing at a slower burn speed
 \layout Subsection
@@ -211,6 +218,7 @@ md5sum ubuntu-8.04-desktop-emc2-aj07-i386.iso
 \layout Standard
 
 The md5sum should print out a single line after calculating the hash.
+ On slower computers this might take a minute or two.
 \layout Standard
 
 
@@ -242,6 +250,9 @@ Select the write speed.
 \layout Enumerate
 
 Start the burning process.
+\layout Enumerate
+
+If a choose a filename for the disc image window pops up just pick ok.
 \layout Subsection
 
 Windows
