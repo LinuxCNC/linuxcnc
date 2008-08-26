@@ -1065,17 +1065,16 @@ class pyvcp_button(Button):
         self.bind("<ButtonPress>", self.pressed)
         self.bind("<ButtonRelease>", self.released) 
         pyvcp_button.n += 1    
+	self.pycomp = pycomp
 
     def pressed(self,event):
-        # "the button was pressed"
-        self.state=1     
+	self.pycomp[self.halpin]=1
 
     def released(self,event):
-        # the button was released
-        self.state=0
+	self.pycomp[self.halpin]=0
 
     def update(self,pycomp):
-        pycomp[self.halpin]=self.state
+        pass
 
 
 
