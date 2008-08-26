@@ -551,39 +551,39 @@ class pyvcp_vbox(Frame):
     """
     def __init__(self,master,pycomp,bd=0,relief=FLAT):
         Frame.__init__(self,master,bd=bd,relief=relief)
-	self.fill = 'x'
-	self.side = 'top'
-	self.anchor = 'center'
-	self.expand = 'yes'
+        self.fill = 'x'
+        self.side = 'top'
+        self.anchor = 'center'
+        self.expand = 'yes'
 
     def update(self,pycomp): 
         pass
 
     def add(self, container, widget):
-	if isinstance(widget, pyvcp_boxexpand):
-	    self.expand = widget.expand
-	    return
-	if isinstance(widget, pyvcp_boxfill):
-	    self.fill = widget.fill
-	    return
-	if isinstance(widget, pyvcp_boxanchor):
-	    self.anchor = widget.anchor
-	    return
-	widget.pack(side=self.side, anchor=self.anchor, fill=self.fill, expand=self.expand)
+        if isinstance(widget, pyvcp_boxexpand):
+            self.expand = widget.expand
+            return
+        if isinstance(widget, pyvcp_boxfill):
+            self.fill = widget.fill
+            return
+        if isinstance(widget, pyvcp_boxanchor):
+            self.anchor = widget.anchor
+            return
+        widget.pack(side=self.side, anchor=self.anchor, fill=self.fill, expand=self.expand)
 
 class pyvcp_boxfill:
     def __init__(self, master, pycomp, fill):
-	self.fill = fill
+        self.fill = fill
     def update(self, pycomp): pass
 
 class pyvcp_boxanchor:
     def __init__(self, master, pycomp, anchor):
-	self.anchor = anchor
+        self.anchor = anchor
     def update(self, pycomp): pass
 
 class pyvcp_boxexpand:
     def __init__(self, master, pycomp, expand):
-	self.expand = expand
+        self.expand = expand
     def update(self, pycomp): pass
 
 # -------------------------------------------
@@ -598,25 +598,25 @@ class pyvcp_hbox(Frame):
     """
     def __init__(self,master,pycomp,bd=0,relief=FLAT):
         Frame.__init__(self,master,bd=bd,relief=relief)
-	self.fill = 'y'
-	self.side = 'left'
-	self.anchor = 'center'
-	self.expand = 'yes'
+        self.fill = 'y'
+        self.side = 'left'
+        self.anchor = 'center'
+        self.expand = 'yes'
 
     def update(self,pycomp): 
         pass
 
     def add(self, container, widget):
-	if isinstance(widget, pyvcp_boxexpand):
-	    self.expand = widget.expand
-	    return
-	if isinstance(widget, pyvcp_boxfill):
-	    self.fill = widget.fill
-	    return
-	if isinstance(widget, pyvcp_boxanchor):
-	    self.anchor = widget.anchor
-	    return
-	widget.pack(side=self.side, anchor=self.anchor, fill=self.fill)
+        if isinstance(widget, pyvcp_boxexpand):
+            self.expand = widget.expand
+            return
+        if isinstance(widget, pyvcp_boxfill):
+            self.fill = widget.fill
+            return
+        if isinstance(widget, pyvcp_boxanchor):
+            self.anchor = widget.anchor
+            return
+        widget.pack(side=self.side, anchor=self.anchor, fill=self.fill)
 
 class pyvcp_labelframe(LabelFrame):
     """
@@ -628,28 +628,28 @@ class pyvcp_labelframe(LabelFrame):
     def update(self,pycomp):
         pass
     def add(self, container, widget):
-	widget.pack(side="top", fill="both", expand="yes")
+        widget.pack(side="top", fill="both", expand="yes")
 
 class pyvcp_tabs(bwidget.NoteBook):
     def __init__(self, master, pycomp, cnf={}, **kw):
-	self.names = kw.pop("names", [])
-	self.idx = 0
-	self._require(master)
-	Widget.__init__(self, master, "NoteBook", cnf, kw)
+        self.names = kw.pop("names", [])
+        self.idx = 0
+        self._require(master)
+        Widget.__init__(self, master, "NoteBook", cnf, kw)
 
     def update(self, pycomp): pass
 
     def add(self, container, child):
-	child.pack(side="top", fill="both", anchor="ne")
-	if self.idx == 1:
-	    self.raise_page(self.names[0])
+        child.pack(side="top", fill="both", anchor="ne")
+        if self.idx == 1:
+            self.raise_page(self.names[0])
 
     def getcontainer(self):
-	if len(self.names) < self.idx:
-	    self.names.append("Tab-%d" % self.idx)
-	name = self.names[self.idx]
-	self.idx += 1
-	return self.insert("end", name, text=name)
+        if len(self.names) < self.idx:
+            self.names.append("Tab-%d" % self.idx)
+        name = self.names[self.idx]
+        self.idx += 1
+        return self.insert("end", name, text=name)
 
 # -------------------------------------------
 
@@ -814,39 +814,39 @@ class pyvcp_timer(Label):
 
         self.resetvalue=0
         self.runvalue=0
-	# starttime is the time of the last rising edge of 'run'
-	self.starttime=0
-	# basetime is the sum of all prior 'run=1' periods
-	self.basetime=0
-	self.currtime=0
+        # starttime is the time of the last rising edge of 'run'
+        self.starttime=0
+        # basetime is the sum of all prior 'run=1' periods
+        self.basetime=0
+        self.currtime=0
         self.v.set( "00:00:00")
 
 
     def update(self,pycomp):    
-	resetvalue = pycomp[self.halpins[0]]
+        resetvalue = pycomp[self.halpins[0]]
         runvalue = pycomp[self.halpins[1]]
         if resetvalue != self.resetvalue:
             self.resetvalue=resetvalue
-	    if resetvalue == 1:
-		self.basetime=0
-		self.starttime=time.time()
-	if runvalue != self.runvalue:
-	    self.runvalue=runvalue
-	    if runvalue == 1:
-		# rising edge
-		self.starttime = time.time()
-	    else:
-		# falling edge
-		self.basetime += time.time() - self.starttime
-	if runvalue == 1:
-	    total=self.basetime + time.time() - self.starttime
-	else:
-	    total=self.basetime
-	hr = int(total / 3600)
-	remainder = total - hr*3600
-	mn = int(remainder / 60)
-	sec = int(remainder - mn*60)
-	self.v.set( str( "%02d:%02d:%02d" % (hr,mn,sec) ) )
+            if resetvalue == 1:
+                self.basetime=0
+                self.starttime=time.time()
+        if runvalue != self.runvalue:
+            self.runvalue=runvalue
+            if runvalue == 1:
+                # rising edge
+                self.starttime = time.time()
+            else:
+                # falling edge
+                self.basetime += time.time() - self.starttime
+        if runvalue == 1:
+            total=self.basetime + time.time() - self.starttime
+        else:
+            total=self.basetime
+        hr = int(total / 3600)
+        remainder = total - hr*3600
+        mn = int(remainder / 60)
+        sec = int(remainder - mn*60)
+        self.v.set( str( "%02d:%02d:%02d" % (hr,mn,sec) ) )
 
 
 # -------------------------------------------
@@ -1065,13 +1065,13 @@ class pyvcp_button(Button):
         self.bind("<ButtonPress>", self.pressed)
         self.bind("<ButtonRelease>", self.released) 
         pyvcp_button.n += 1    
-	self.pycomp = pycomp
+        self.pycomp = pycomp
 
     def pressed(self,event):
-	self.pycomp[self.halpin]=1
+        self.pycomp[self.halpin]=1
 
     def released(self,event):
-	self.pycomp[self.halpin]=0
+        self.pycomp[self.halpin]=0
 
     def update(self,pycomp):
         pass
@@ -1139,45 +1139,45 @@ class pyvcp_scale(Scale):
 
 class pyvcp_table(Frame):
     def __init__(self, master, pycomp, flexible_rows=[], flexible_columns=[], uniform_columns="", uniform_rows=""):
-	Frame.__init__(self, master)
-	for r in flexible_rows:
-	    self.grid_rowconfigure(r, weight=1)
-	for c in flexible_columns:
-	    self.grid_columnconfigure(c, weight=1)
+        Frame.__init__(self, master)
+        for r in flexible_rows:
+            self.grid_rowconfigure(r, weight=1)
+        for c in flexible_columns:
+            self.grid_columnconfigure(c, weight=1)
 
         for i, r in enumerate(uniform_rows):
             self.grid_rowconfigure(i+1, uniform=r)
         for i, c in enumerate(uniform_columns):
             self.grid_columnconfigure(i+1, uniform=c)
 
-	self._r = self._c = 0
-	self.occupied = {}
-	self.span = (1,1)
-	self.sticky = "ne"
+        self._r = self._c = 0
+        self.occupied = {}
+        self.span = (1,1)
+        self.sticky = "ne"
 
     def add(self, container, child):
-	if isinstance(child, pyvcp_tablerow):
-	    self._r += 1
-	    self._c = 1
-	    return
-	elif isinstance(child, pyvcp_tablespan):
-	    self.span = child.span
-	    return
-	elif isinstance(child, pyvcp_tablesticky):
-	    self.sticky = child.sticky
-	    return
-	r, c = self._r, self._c
-	while self.occupied.has_key((r, c)):
-	    c = c + 1
-	rs, cs = self.span
-	child.grid(row=r, column=c, rowspan=rs, columnspan=cs,
-			sticky=self.sticky)
-	for ri in range(r, r+rs):
-	    for ci in range(c, c+cs):
-		self.occupied[ri,ci] = True
+        if isinstance(child, pyvcp_tablerow):
+            self._r += 1
+            self._c = 1
+            return
+        elif isinstance(child, pyvcp_tablespan):
+            self.span = child.span
+            return
+        elif isinstance(child, pyvcp_tablesticky):
+            self.sticky = child.sticky
+            return
+        r, c = self._r, self._c
+        while self.occupied.has_key((r, c)):
+            c = c + 1
+        rs, cs = self.span
+        child.grid(row=r, column=c, rowspan=rs, columnspan=cs,
+                        sticky=self.sticky)
+        for ri in range(r, r+rs):
+            for ci in range(c, c+cs):
+                self.occupied[ri,ci] = True
 
-	self.span = 1,1
-	self._c = c+cs
+        self.span = 1,1
+        self._c = c+cs
 
     def update(self, pycomp): pass
 
@@ -1187,12 +1187,12 @@ class pyvcp_tablerow:
 
 class pyvcp_tablespan:
     def __init__(self, master, pycomp, rows=1, columns=1):
-	self.span = rows, columns
+        self.span = rows, columns
     def update(self, pycomp): pass
 
 class pyvcp_tablesticky:
     def __init__(self, master, pycomp, sticky):
-	self.sticky = sticky
+        self.sticky = sticky
     def update(self, pycomp): pass
     
 class pyvcp_include(Frame):
@@ -1294,8 +1294,8 @@ elements = []
 __all__ = []
 for _key in globals().keys():
     if _key.startswith("pyvcp_"):
-	elements.append(_key[6:])
-	__all__.append(_key)
+        elements.append(_key[6:])
+        __all__.append(_key)
 
 if __name__ == '__main__':
     print "You can't run pyvcp_widgets.py by itself..."
