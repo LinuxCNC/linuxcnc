@@ -1762,7 +1762,7 @@ set manual [concat [winfo children $_tabs_manual.axes] \
     $_tabs_manual.spindlef.cw $_tabs_manual.spindlef.ccw \
     $_tabs_manual.spindlef.stop $_tabs_manual.spindlef.brake \
     $_tabs_manual.flood $_tabs_manual.mist $_tabs_mdi.command \
-    $_tabs_mdi.go]
+    $_tabs_mdi.go $_tabs_mdi.history]
 
 proc disable_group {ws} { foreach w $ws { $w configure -state disabled } }
 proc enable_group {ws} { foreach w $ws { $w configure -state normal } }
