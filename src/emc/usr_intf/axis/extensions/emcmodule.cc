@@ -876,7 +876,7 @@ static PyObject *state(pyCommandChannel *s, PyObject *o) {
         case EMC_TASK_STATE_OFF:
             break;
         default:
-            PyErr_Format(PyExc_ValueError,"Spindle direction should be STATE_ESTOP, STATE_ESTOP_RESET, STATE_ON, or STATE_OFF");
+            PyErr_Format(PyExc_ValueError,"Machine state should be STATE_ESTOP, STATE_ESTOP_RESET, STATE_ON, or STATE_OFF");
             return NULL;
     }
     m.serial_number = next_serial(s);
