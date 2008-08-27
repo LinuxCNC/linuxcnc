@@ -3486,10 +3486,20 @@ for a in range(9):
             if a < 3: step_size = astep_size = step_size_tmp
             else: astep_size = step_size_tmp
 
-if step_size != 1:
+if inifile.find("DISPLAY", "MIN_LINEAR_VELOCITY"):
+    root_window.tk.call("set_slider_min", float(inifile.find("DISPLAY", "MIN_LINEAR_VELOCITY")))
+    print "using min speed", float(inifile.find("DISPLAY", "MIN_LINEAR_VELOCITY"))
+elif inifile.find("DISPLAY", "MIN_VELOCITY"):
+    root_window.tk.call("set_slider_min", float(inifile.find("DISPLAY", "MIN_VELOCITY")))
+elif step_size != 1:
     root_window.tk.call("set_slider_min", step_size*30)
-if astep_size != 1:
+if inifile.find("DISPLAY", "MIN_ANGULAR_VELOCITY"):
+    root_window.tk.call("set_aslider_min", float(inifile.find("DISPLAY", "MIN_ANGULAR_VELOCITY")))
+elif inifile.find("DISPLAY", "MIN_VELOCITY"):
+    root_window.tk.call("set_aslider_min", float(inifile.find("DISPLAY", "MIN_VELOCITY")))
+elif astep_size != 1:
     root_window.tk.call("set_aslider_min", astep_size*30)
+
 increments = inifile.find("DISPLAY", "INCREMENTS")
 if increments:
     if "," in increments:
