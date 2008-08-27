@@ -3490,13 +3490,13 @@ if inifile.find("DISPLAY", "MIN_LINEAR_VELOCITY"):
     root_window.tk.call("set_slider_min", float(inifile.find("DISPLAY", "MIN_LINEAR_VELOCITY"))*60)
     print "using min speed", float(inifile.find("DISPLAY", "MIN_LINEAR_VELOCITY"))
 elif inifile.find("DISPLAY", "MIN_VELOCITY"):
-    root_window.tk.call("set_slider_min", float(inifile.find("DISPLAY", "MIN_VELOCITY")))
+    root_window.tk.call("set_slider_min", float(inifile.find("DISPLAY", "MIN_VELOCITY"))*60)
 elif step_size != 1:
     root_window.tk.call("set_slider_min", step_size*30)
 if inifile.find("DISPLAY", "MIN_ANGULAR_VELOCITY"):
     root_window.tk.call("set_aslider_min", float(inifile.find("DISPLAY", "MIN_ANGULAR_VELOCITY"))*60)
 elif inifile.find("DISPLAY", "MIN_VELOCITY"):
-    root_window.tk.call("set_aslider_min", float(inifile.find("DISPLAY", "MIN_VELOCITY")))
+    root_window.tk.call("set_aslider_min", float(inifile.find("DISPLAY", "MIN_VELOCITY"))*60)
 elif astep_size != 1:
     root_window.tk.call("set_aslider_min", astep_size*30)
 
