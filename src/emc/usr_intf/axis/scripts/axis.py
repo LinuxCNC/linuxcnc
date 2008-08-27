@@ -1455,7 +1455,7 @@ class LivePlotter:
             else:
                 icon = "info"
             notifications.add(icon, text)
-        self.error_after = self.win.after(20, self.error_task)
+        self.error_after = self.win.after(200, self.error_task)
 
     def update(self):
         if not self.running.get():
@@ -1475,7 +1475,7 @@ class LivePlotter:
         limits = soft_limits()
 
         if (self.logger.npts != self.lastpts
-                or self.stat.actual_position != o.last_limits
+                or limits != o.last_limits
                 or self.stat.actual_position != o.last_position
                 or self.stat.joint_actual_position != o.last_joint_position
                 or self.stat.homed != o.last_homed
