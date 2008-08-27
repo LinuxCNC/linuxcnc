@@ -346,6 +346,7 @@ class MyOpengl(Opengl):
         self.last_homed = None
         self.last_origin = None
         self.last_tool = None
+        self.last_limits = None
         self.g = None
         self.set_eyepoint(5.)
         self.get_resources()
@@ -1470,8 +1471,11 @@ class LivePlotter:
         self.win.set_current_line(self.stat.id)
 
         speed = self.stat.current_vel
- 
+
+        limits = soft_limits()
+
         if (self.logger.npts != self.lastpts
+                or self.stat.actual_position != o.last_limits
                 or self.stat.actual_position != o.last_position
                 or self.stat.joint_actual_position != o.last_joint_position
                 or self.stat.homed != o.last_homed
@@ -1481,6 +1485,7 @@ class LivePlotter:
                 or self.stat.motion_mode != o.last_motion_mode
                 or abs(speed - self.last_speed) > .01):
             o.redraw_soon()
+            o.last_limits = limits
             o.last_limit = self.stat.limit
             o.last_homed = self.stat.homed
             o.last_position = self.stat.actual_position
