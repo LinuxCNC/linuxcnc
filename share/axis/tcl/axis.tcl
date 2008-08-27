@@ -1487,7 +1487,7 @@ pack ${pane_bottom}.t.sb \
 frame ${pane_top}.ajogspeed
 label ${pane_top}.ajogspeed.l0 -text [_ "Jog Speed:"]
 label ${pane_top}.ajogspeed.l1
-scale ${pane_top}.ajogspeed.s -bigincrement 0 -from .06 -to 1 -resolution .010 -showvalue 0 -variable ajog_slider_val -command update_ajog_slider_vel -orient h -takefocus 0
+scale ${pane_top}.ajogspeed.s -bigincrement 0 -from .06 -to 1 -resolution .020 -showvalue 0 -variable ajog_slider_val -command update_ajog_slider_vel -orient h -takefocus 0
 label ${pane_top}.ajogspeed.l -textv jog_aspeed -width 6 -anchor e
 pack ${pane_top}.ajogspeed.l0 -side left
 pack ${pane_top}.ajogspeed.l -side left
@@ -1500,7 +1500,7 @@ bind . <greater> [regsub %W [bind Scale <Right>] ${pane_top}.ajogspeed.s]
 frame ${pane_top}.jogspeed
 label ${pane_top}.jogspeed.l0 -text [_ "Jog Speed:"]
 label ${pane_top}.jogspeed.l1
-scale ${pane_top}.jogspeed.s -bigincrement 0 -from .06 -to 1 -resolution .010 -showvalue 0 -variable jog_slider_val -command update_jog_slider_vel -orient h -takefocus 0
+scale ${pane_top}.jogspeed.s -bigincrement 0 -from .06 -to 1 -resolution .020 -showvalue 0 -variable jog_slider_val -command update_jog_slider_vel -orient h -takefocus 0
 label ${pane_top}.jogspeed.l -textv jog_speed -width 6 -anchor e
 pack ${pane_top}.jogspeed.l0 -side left
 pack ${pane_top}.jogspeed.l -side left
