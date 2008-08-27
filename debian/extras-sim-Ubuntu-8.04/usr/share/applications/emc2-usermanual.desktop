@@ -1,12 +1,15 @@
 [Desktop Entry]
-Encoding=UTF-8
 Version=
+Encoding=UTF-8
+Name=EMC2 Getting Started
 Type=Application
-Exec=/usr/bin/evince /usr/share/doc/emc2/EMC2_User_Manual.pdf
+Exec=/usr/bin/evince /usr/share/doc/emc2/EMC2_Getting_Started.pdf
 Icon=gnome-help
 X-GNOME-DocPath=
 Terminal=false
-Name=EMC2 User Manual
 Comment=The EMC2 User Manual. All you need to know to get started.
 StartupNotify=false
 Categories=X-CNC;
+Name[en_US]=EMC2 Getting Started
+GenericName[en_US]=
+Comment[en_US]=The EMC2 Getting Started Guide, the place to start.

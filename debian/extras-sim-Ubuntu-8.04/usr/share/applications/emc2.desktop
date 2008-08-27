@@ -1,12 +1,14 @@
 [Desktop Entry]
-Encoding=UTF-8
 Version=
+Encoding=UTF-8
+Name=EMC2
 Type=Application
 Exec=/usr/bin/emc
 Icon=emc2icon
 X-GNOME-DocPath=
 Terminal=false
-Name=EMC2
 Comment=The Enhanced Machine Controller
 StartupNotify=false
 Categories=X-CNC;
+GenericName[en_US]=
+Comment[en_US]=The Enhanced Machine Controller
