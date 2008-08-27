@@ -295,6 +295,9 @@ Related parts of an ini file are separated into sections.
 )
 \layout Itemize
 
+[FILTER] settings input filter programs ()
+\layout Itemize
+
 [RS274NGC] settings used by the g-code interpreter
 \layout Itemize
 
@@ -396,7 +399,7 @@ INI Variable Definitions
 \end_inset 
 
 
-\begin_inset LatexCommand \index{EMC (inifile section)}
+\begin_inset LatexCommand \index{ini [EMC] Section}
 
 \end_inset 
 
@@ -493,7 +496,7 @@ G90
 \end_inset 
 
 
-\begin_inset LatexCommand \index{DISPLAY (inifile section)}
+\begin_inset LatexCommand \index{ini [DISPLAY] Section}
 
 \end_inset 
 
@@ -646,6 +649,71 @@ gedit The editor to use when selecting File > Edit or File Edit Tool
  Another valid entry is gnome-terminal -e vim.
 \layout Subsection
 
+[FILTER] Section 
+\begin_inset LatexCommand \label{sub:[FILTER]-Section}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \index{ini [FILTER] Section}
+
+\end_inset 
+
+
+\layout Standard
+
+AXIS has the ability to send loaded files through a filter program.
+ This filter can do any desired task: Something as simple as making sure
+ the file ends with M2, or something as complicated as detecting whether
+ the input is a depth image, and generating g-code to mill the shape it
+ defines.
+ The [FILTER] section of the ini file controls how filters work.
+ First, for each type of file, write a PROGRAM_EXTENSION line.
+ Then, specify the program to execute for each type of file.
+ This program is given the name of the input file as its first argument,
+ and must write rs274ngc code to standard output.
+ This output is what will be displayed in the text area, previewed in the
+ display area, and executed by emc when Run.
+ The following lines add support for the image-to-gcode converter included
+ with emc2:
+\layout Standard
+
+PROGRAM_EXTENSION = .png,.gif Greyscale Depth Image
+\layout Standard
+
+png = image-to-gcode
+\layout Standard
+
+gif = image-to-gcode
+\layout Standard
+
+It is also possible to specify an interpreter:
+\layout Standard
+
+PROGRAM_EXTENSION = .py Python Script
+\layout Standard
+
+py = python
+\layout Standard
+
+In this way, any Python script can be opened, and its output is treated
+ as g-code.
+ One such example script is available at nc_files/holecircle.py.
+ This script creates g-code for drilling a series of holes along the circumferen
+ce of a circle.
+\layout Standard
+
+If the environment variable AXIS_PROGRESS_BAR is set, then lines written
+ to stderr of the form
+\layout Standard
+
+FILTER_PROGRESS=%d
+\layout Standard
+
+will set the AXIS progress bar to the given percentage.
+ This feature should be used by any filter that runs for a long time.
+\layout Subsection
+
 [EMCMOT] Section
 \color black
  
@@ -654,7 +722,7 @@ gedit The editor to use when selecting File > Edit or File Edit Tool
 \end_inset 
 
 
-\begin_inset LatexCommand \index{EMCMOT (inifile section)}
+\begin_inset LatexCommand \index{ini [EMCMOT] Section}
 
 \end_inset 
 
@@ -805,7 +873,7 @@ SERVO_PERIOD
 \end_inset 
 
 
-\begin_inset LatexCommand \index{TASK (inifile section)}
+\begin_inset LatexCommand \index{ini [TASK] Section}
 
 \end_inset 
 
@@ -1172,7 +1240,7 @@ This assumes there was no movement of the machine while powered off.
 \end_inset 
 
 
-\begin_inset LatexCommand \index{AXIS (inifile section)}
+\begin_inset LatexCommand \index{ini [AXIS] Section}
 
 \end_inset 
 
@@ -2208,7 +2276,7 @@ If specified, it should also be 1% to 10% larger than the axis MAX_VELOCITY.
 \end_inset 
 
 
-\begin_inset LatexCommand \index{EMCIO (inifile section)}
+\begin_inset LatexCommand \index{ini [EMCIO] Section}
 
 \end_inset 
 
