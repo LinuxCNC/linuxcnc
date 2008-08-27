@@ -2702,6 +2702,7 @@ class TclCommands(nf.TclCommands):
             widgets.mdi_command.selection_range(0, "end")
 
     def send_mdi(*event):
+        if not manual_ok(): return
         global mdi_history_index, mdi_history_save_filename
         command = vars.mdi_command.get()
         if command != "":
