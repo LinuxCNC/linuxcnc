@@ -315,8 +315,8 @@ class Notification(Tkinter.Frame):
 def soft_limits():
     ax = s.axis
     return (
-        [ax[i]['min_position_limit'] for i in range(3)],
-        [ax[i]['max_position_limit'] for i in range(3)])
+        to_internal_units([ax[i]['min_position_limit'] for i in range(3)]),
+        to_internal_units([ax[i]['max_position_limit'] for i in range(3)]))
 
 class MyOpengl(Opengl):
     def __init__(self, *args, **kw):
