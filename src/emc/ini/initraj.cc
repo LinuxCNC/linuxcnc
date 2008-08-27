@@ -136,7 +136,7 @@ static int loadTraj(EmcIniFile *trajInifile)
             return -1;
         }
 
-        acc = 1.0;
+        acc = 1e99; // let the axis values apply
         trajInifile->Find(&acc, "DEFAULT_ACCELERATION", "TRAJ");
 
         if (0 != emcTrajSetAcceleration(acc)) {
@@ -146,7 +146,7 @@ static int loadTraj(EmcIniFile *trajInifile)
             return -1;
         }
 
-        acc = 1.0;
+        acc = 1e99; // let the axis values apply
         trajInifile->Find(&acc, "MAX_ACCELERATION", "TRAJ");
 
         if (0 != emcTrajSetMaxAcceleration(acc)) {
