@@ -74,6 +74,15 @@ Linux
 
 Open a terminal window.
  In Ubuntu it is Applications/Accessories/Terminal.
+ Note that actual file names may change so you might have to go to 
+\begin_inset LatexCommand \url{http://www.linuxcnc.org/}
+
+\end_inset 
+
+ and follow the Download link to get the actual file name.
+ In most browsers you can right click on the link and select Copy Link Location
+ or similar then paste the link into the terminal window with a right mouse
+ click and select Paste.
 \layout Standard
 
 To get the Ubuntu 8.04 Hardy Heron version copy this in the terminal window
@@ -105,6 +114,13 @@ wget -r -c http://www.linuxcnc.org/hardy/ubuntu-8.04-desktop-emc2-aj07-i386.iso
 \layout Standard
 
 To stop a download use Ctrl-C or close the terminal window.
+\layout Standard
+
+After the download is complete you will find a new directory called www.linuxcnc.o
+rg or something similar.
+ In the subdirectory under the above directory you will find the ISO CD
+ image file.
+ Next is burning the CD.
 \layout Subsection
 
 Windows
@@ -171,7 +187,7 @@ Burning the CD
 \layout Standard
 
 EMC2 is distributed as CD image files, called ISOs.
- To install EMC2, you first need to burn its ISO file onto a CD.
+ To install EMC2, you first need to burn the ISO file onto a CD.
  You need a working CD/DVD burner and an 80 minute (700 Mb) CD for this.
  If the CD writing fails, try writing at a slower burn speed
 \layout Subsection
@@ -211,6 +227,7 @@ md5sum ubuntu-8.04-desktop-emc2-aj07-i386.iso
 \layout Standard
 
 The md5sum should print out a single line after calculating the hash.
+ On slower computers this might take a minute or two.
 \layout Standard
 
 
@@ -242,6 +259,9 @@ Select the write speed.
 \layout Enumerate
 
 Start the burning process.
+\layout Enumerate
+
+If a choose a file name for the disc image window pops up just pick OK.
 \layout Subsection
 
 Windows
@@ -273,8 +293,8 @@ Insert a blank CD in the drive and select Do nothing or Cancel if an auto-run
 Open Infra Recorder, and select the 'Actions' menu, then 'Burn image'.
 \layout Section
 
-Installing EMC2
-\begin_inset LatexCommand \index{Installing EMC2}
+Testing EMC2
+\begin_inset LatexCommand \index{Testing EMC2}
 
 \end_inset 
 
@@ -286,11 +306,39 @@ With the Live CD in the CD/DVD drive shut down the computer then turn the
  This will boot the computer from the Live CD.
  Once the computer has booted up you can try out EMC2 without installing
  it.
- You can not create custom configurations unless you install EMC2.
- If you like what you see, just click the Install icon on the desktop, answer
+ You can not create custom configurations or modify most system settings
+ like screen resolution unless you install EMC2.
+ 
+\layout Standard
+
+To try out EMC2 from the Applications/CNC menu pick EMC2.
+ Then select a sim configuration to try out.
+ 
+\layout Standard
+
+To see if your computer is suitable for software step pulse generation run
+ the Latency Test as outlined in Section (
+\begin_inset LatexCommand \ref{sec:Latency-Test}
+
+\end_inset 
+
+)
+\layout Section
+
+Installing EMC2
+\begin_inset LatexCommand \index{Installing EMC2}
+
+\end_inset 
+
+
+\layout Standard
+
+If you like what you see, just click the Install icon on the desktop, answer
  a few questions (your name, timezone, password) and the install completes
  in a few minutes.
  Make sure you write down the name you used and the password.
+ Once the install process is complete and you go on line the update manager
+ will pop up and allow you to upgrade to the latest stable version of EMC2
 \layout Section
 
 Updates to EMC2
@@ -302,6 +350,6 @@ Updates to EMC2
 \layout Standard
 
 With the normal install the Update Manager will notify you of updates to
- EMC2 and Ubuntu and allow you to easily upgrade with no Linux knowledge
- needed.
+ EMC2 and Ubuntu when you go on line and allow you to easily upgrade with
+ no Linux knowledge needed.
 \the_end
