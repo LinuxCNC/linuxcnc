@@ -390,7 +390,7 @@ Units The units (of length or angle) specified in the ini file for
 
 \end_inset 
 
-INI Variable Definitions
+INI Section Variables
 \layout Subsection
 
 [EMC] Section
@@ -584,6 +584,12 @@ DEFAULT_LINEAR_VELOCITY\SpecialChar ~
  
 \layout Description
 
+MIN_VELOCITY\SpecialChar ~
+=\SpecialChar ~
+.01 The aproximate lowest value the jog slider.
+ 
+\layout Description
+
 MAX_LINEAR_VELOCITY\SpecialChar ~
 =\SpecialChar ~
 1.0 The maximum velocity for linear jogs, in machine
@@ -591,11 +597,21 @@ MAX_LINEAR_VELOCITY\SpecialChar ~
  
 \layout Description
 
+MIN_LINEAR_VELOCITY\SpecialChar ~
+=\SpecialChar ~
+.01 The aproximate lowest value the jog slider.
+\layout Description
+
 DEFAULT_ANGULAR_VELOCITY\SpecialChar ~
 =\SpecialChar ~
 .25 The default velocity for angular jogs, in machine
  units per second.
  
+\layout Description
+
+MIN_ANGULAR_VELOCITY\SpecialChar ~
+=\SpecialChar ~
+.01 The aproximate lowest value the jog slider.
 \layout Description
 
 MAX_ANGULAR_VELOCITY\SpecialChar ~
@@ -693,12 +709,7 @@ PARAMETER_FILE
 =\SpecialChar ~
 file.var The file which contains the parameters used by the interpreter
  (saved between runs).
- Described in 
-\begin_inset LatexCommand \ref{sub:Parameters}
-
-\end_inset 
-
-.
+ 
 \layout Description
 
 
