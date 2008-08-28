@@ -313,10 +313,14 @@ class Notification(Tkinter.Frame):
             self.place_forget()
 
 def soft_limits():
+    def fudge(x):
+        if abs(x) > 1e30: return 0
+        return x
+
     ax = s.axis
     return (
-        to_internal_units([ax[i]['min_position_limit'] for i in range(3)]),
-        to_internal_units([ax[i]['max_position_limit'] for i in range(3)]))
+        to_internal_units([fudge(ax[i]['min_position_limit']) for i in range(3)]),
+        to_internal_units([fudge(ax[i]['max_position_limit']) for i in range(3)]))
 
 class MyOpengl(Opengl):
     def __init__(self, *args, **kw):
