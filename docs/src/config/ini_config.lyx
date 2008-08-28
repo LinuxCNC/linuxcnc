@@ -295,10 +295,15 @@ Related parts of an ini file are separated into sections.
 )
 \layout Itemize
 
-[FILTER] settings input filter programs ()
+[FILTER] settings input filter programs (
+\begin_inset LatexCommand \ref{sub:[FILTER]-Section}
+
+\end_inset 
+
+)
 \layout Itemize
 
-[RS274NGC] settings used by the g-code interpreter
+[RS274NGC] settings used by the g-code interpreter ()
 \layout Itemize
 
 [EMCMOT] settings used by the real time motion controller (
@@ -388,7 +393,7 @@ Units The units (of length or angle) specified in the ini file for
 
 \end_inset 
 
-INI Variable Definitions
+INI Section Variables
 \layout Subsection
 
 [EMC] Section
@@ -458,34 +463,6 @@ Controller
  most graphical interfaces.
  You can put whatever you want here as long as you make it a single line
  long.
-\layout Description
-
-
-\color black
-RS274NGC_STARTUP_CODE
-\begin_inset LatexCommand \index{RS274NGC STARTUP CODE}
-
-\end_inset 
-
-\SpecialChar ~
-
-\series bold 
-=
-\series default 
-\SpecialChar ~
-
-\series bold 
-G21
-\series default 
-\SpecialChar ~
-
-\series bold 
-G90
-\series default 
- A string of NC codes that the interpreter is initialized with.
- This is not a substitute for specifying modal g-codes at the top of each
- ngc file, because the modal codes of machines differ, and may be changed
- by g-code interpreted earlier in the session.
 \layout Subsection
 
 [DISPLAY] Section
@@ -676,24 +653,34 @@ AXIS has the ability to send loaded files through a filter program.
  display area, and executed by emc when Run.
  The following lines add support for the image-to-gcode converter included
  with emc2:
-\layout Standard
+\layout Description
 
-PROGRAM_EXTENSION = .png,.gif Greyscale Depth Image
-\layout Standard
+PROGRAM_EXTENSION\SpecialChar ~
+=\SpecialChar ~
+.png,.gif Greyscale Depth Image
+\layout Description
 
-png = image-to-gcode
-\layout Standard
+png\SpecialChar ~
+=\SpecialChar ~
+image-to-gcode
+\layout Description
 
-gif = image-to-gcode
+gif\SpecialChar ~
+=\SpecialChar ~
+image-to-gcode
 \layout Standard
 
 It is also possible to specify an interpreter:
-\layout Standard
+\layout Description
 
-PROGRAM_EXTENSION = .py Python Script
-\layout Standard
+PROGRAM_EXTENSION\SpecialChar ~
+=\SpecialChar ~
+.py Python Script
+\layout Description
 
-py = python
+py\SpecialChar ~
+=\SpecialChar ~
+python
 \layout Standard
 
 In this way, any Python script can be opened, and its output is treated
@@ -707,11 +694,50 @@ If the environment variable AXIS_PROGRESS_BAR is set, then lines written
  to stderr of the form
 \layout Standard
 
+
+\family typewriter 
+\series bold 
 FILTER_PROGRESS=%d
 \layout Standard
 
 will set the AXIS progress bar to the given percentage.
  This feature should be used by any filter that runs for a long time.
+\layout Subsection
+
+[RS274NGC] Section 
+\begin_inset LatexCommand \label{sub:[RS274NGC]-Section}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \index{INI [RS274NGC] Section}
+
+\end_inset 
+
+
+\layout Description
+
+PARAMETER_FILE\SpecialChar ~
+=\SpecialChar ~
+file.var The file which contains the parameters used by the
+ interpreter (saved between runs).
+ 
+\layout Description
+
+
+\color black
+RS274NGC_STARTUP_CODE
+\begin_inset LatexCommand \index{RS274NGC STARTUP CODE}
+
+\end_inset 
+
+\SpecialChar ~
+=\SpecialChar ~
+G21\SpecialChar ~
+G90 A string of NC codes that the interpreter is initialized with.
+ This is not a substitute for specifying modal g-codes at the top of each
+ ngc file, because the modal codes of machines differ, and may be changed
+ by g-code interpreted earlier in the session.
 \layout Subsection
 
 [EMCMOT] Section
