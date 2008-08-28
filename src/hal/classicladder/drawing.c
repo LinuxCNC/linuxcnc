@@ -115,9 +115,9 @@ void DrawTextWithOffsetGTK2( GdkPixmap * DrawPixmap, GdkGC * GcRef, int BaseX, i
 	pango_layout_set_width( playout, Width*PANGO_SCALE );
 
 //	FontDesc = pango_font_description_from_string( "Andale Mono 8" );
-	FontDesc = pango_font_description_from_string( "Courier New 8" );
+//	FontDesc = pango_font_description_from_string( "Courier New 8" );
 //	FontDesc = pango_font_description_from_string( "Lucida Bright 8" );
-//	FontDesc = pango_font_description_from_string( "Lucida Sans 8" );
+	FontDesc = pango_font_description_from_string( "Lucida Sans 10" );
 	pango_layout_set_font_description( playout, FontDesc );
 	pango_font_description_free( FontDesc );
 
