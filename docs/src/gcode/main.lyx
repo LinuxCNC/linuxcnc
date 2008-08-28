@@ -2998,7 +2998,7 @@ Quick Reference Table
 
 
 \begin_inset  Tabular
-<lyxtabular version="3" rows="45" columns="4">
+<lyxtabular version="3" rows="46" columns="4">
 <features>
 <column alignment="center" valignment="top" leftline="true" width="0">
 <column alignment="center" valignment="top" leftline="true" width="0">
@@ -3811,6 +3811,45 @@ P
 
 
 \begin_inset LatexCommand \ref{sub:G61,-G61.1,-G64:}
+
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+G73
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Drilling Cycle with Chip Breaking
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+R L Q
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset LatexCommand \ref{sub:G73:-Drilling-Cycle}
 
 \end_inset 
 
