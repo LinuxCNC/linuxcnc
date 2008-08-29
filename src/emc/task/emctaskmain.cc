@@ -1817,6 +1817,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
     case EMC_TASK_ABORT_TYPE:
 	// abort everything
 	emcTaskAbort();
+        emcSpindleAbort(1);
 	retval = 0;
 	break;
 
@@ -1839,6 +1840,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 
 		// abort everything
 		emcTaskAbort();
+                emcSpindleAbort(0);
 
 		// without emcTaskPlanClose(), a new run command resumes at
 		// aborted line-- feature that may be considered later
@@ -2173,6 +2175,7 @@ static int emcTaskExecute(void)
 
 	// abort everything
 	emcTaskAbort();
+        emcSpindleAbort(1);
 
 	// without emcTaskPlanClose(), a new run command resumes at
 	// aborted line-- feature that may be considered later
@@ -2906,6 +2909,7 @@ int main(int argc, char *argv[])
 		}
 		emcTrajDisable();
 		emcTaskAbort();
+                emcSpindleAbort(1);
 		emcTaskPlanSynch();
 	    }
 	    if (emcStatus->io.coolant.mist) {
@@ -2933,6 +2937,7 @@ int main(int argc, char *argv[])
 	    if (!taskAborted) {
 		// abort everything
 		emcTaskAbort();
+                emcSpindleAbort(1);
 		// without emcTaskPlanClose(), a new run command resumes at
 		// aborted line-- feature that may be considered later
 		{

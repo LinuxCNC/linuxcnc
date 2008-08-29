@@ -1314,9 +1314,6 @@ int emcMotionAbort()
     }
 
     r2 = emcTrajAbort();
-    //FIXME-AJ: stop spindle on abort
-    if (localSpindleMode == 0)
-	r3 = emcSpindleAbort();
 
     return (r1 == 0 && r2 == 0 && r3 == 0) ? 0 : -1;
 }
@@ -1374,9 +1371,12 @@ int emcMotionSetDout(unsigned char index, unsigned char start,
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
-int emcSpindleAbort()
+int emcSpindleAbort(int force)
 {
-    return emcSpindleOff();
+    if(force || localSpindleMode == 0)
+        return emcSpindleOff();
+    else
+        return 0;
 }
 
 int emcSpindleOn(double speed, double css_factor, double offset)
