@@ -3568,6 +3568,7 @@ notifications = Notification(o)
 
 root_window.bind("<space>", lambda event: notifications.clear_one())
 root_window.bind("<Control-space>", lambda event: notifications.clear())
+widgets.mdi_command.bind("<Control-space>", lambda event: notifications.clear())
 
 root_window.bind("<Key-F3>", pane_top + ".tabs raise manual")
 root_window.bind("<Key-F5>", pane_top + ".tabs raise mdi")
