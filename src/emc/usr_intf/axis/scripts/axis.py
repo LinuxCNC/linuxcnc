@@ -505,7 +505,7 @@ class MyOpengl(Opengl):
         highlight = glGenLists(1)
         glNewList(highlight, GL_COMPILE)
         if line is not None and self.g is not None:
-            x, y, z = self.g.highlight(line)
+            x, y, z = self.g.highlight(line, geometry)
             self.set_centerpoint(x, y, z)
         elif self.g is not None:
             x = (self.g.min_extents[0] + self.g.max_extents[0])/2

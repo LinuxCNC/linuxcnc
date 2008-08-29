@@ -202,7 +202,7 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
                 ol = l2
             glEnd()
 
-    def highlight(self, lineno):
+    def highlight(self, lineno, geometry):
         glLineWidth(3)
         c = self.colors['selected']
         glColor3f(*c)
@@ -210,17 +210,17 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         coords = []
         for line in self.traverse:
             if line[0] != lineno: continue
-            emc.line9(line[1], line[2]);
+            emc.line9(geometry, line[1], line[2])
             coords.append(line[1][:3])
             coords.append(line[2][:3])
         for line in self.arcfeed:
             if line[0] != lineno: continue
-            emc.line9(line[1], line[2]);
+            emc.line9(geometry, line[1], line[2])
             coords.append(line[1][:3])
             coords.append(line[2][:3])
         for line in self.feed:
             if line[0] != lineno: continue
-            emc.line9(line[1], line[2]);
+            emc.line9(geometry, line[1], line[2])
             coords.append(line[1][:3])
             coords.append(line[2][:3])
         for line in self.dwells:
