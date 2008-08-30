@@ -156,6 +156,15 @@ preview false
 \end_inset 
 
 
+\layout Standard
+
+
+\begin_inset Include \include{gui/keystick.lyx}
+preview false
+
+\end_inset 
+
+
 \layout Part
 
 Using EMC2
