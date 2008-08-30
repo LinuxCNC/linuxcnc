@@ -93,7 +93,8 @@ Using
 \layout Standard
 
 Keystick is very simple to use.
- In the MDI Mode you simply start typing the g code and it show up.
+ In the MDI Mode you simply start typing the g code and it shows up in the
+ bottom text area.
  The 
 \begin_inset Quotes eld
 \end_inset 
