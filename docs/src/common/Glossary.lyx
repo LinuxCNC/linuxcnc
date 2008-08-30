@@ -694,7 +694,7 @@ RTAI
 \end_inset 
 
  Real Time Application Interface, see 
-\begin_inset LatexCommand \url[http://www.aero.polimi.it/~rtai/]{http://www.aero.polimi.it/~rtai/}
+\begin_inset LatexCommand \url{https://www.rtai.org/}
 
 \end_inset 
 
@@ -713,7 +713,7 @@ RTLINUX
 \end_inset 
 
  See 
-\begin_inset LatexCommand \url[http://www.rtlinux.org]{http://www.rtlinux.org}
+\begin_inset LatexCommand \url{http://www.rtlinux.org}
 
 \end_inset 
 
