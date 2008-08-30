@@ -44,6 +44,11 @@ Man Pages
 \end_inset 
 
 
+\begin_inset LatexCommand \label{sec:Man-Pages}
+
+\end_inset 
+
+
 \layout Standard
 
 Man pages are automatically generated manual pages in most cases.
@@ -68,6 +73,11 @@ Use the Page Up and Page Down keys to view the man page and the Q key to
 
 Editing a Root File
 \begin_inset LatexCommand \index{Editing a Root File}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \label{sec:Editing-a-Root-File}
 
 \end_inset 
 
@@ -145,6 +155,16 @@ Drag a file onto your launcher to open and edit
 \layout Section
 
 Terminal Commands
+\begin_inset LatexCommand \index{Terminal Commands}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \label{sec:Terminal-Commands}
+
+\end_inset 
+
+
 \layout Subsection
 
 Working Directory

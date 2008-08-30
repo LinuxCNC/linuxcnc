@@ -52,9 +52,16 @@ Introduction
 
 \layout Standard
 
-The focus of this manual is on installing and configuring EMC.
+For normal stepper based installations see the Getting Started Guide.
  Once EMC is installed and configured see the User Manual for information
  on using EMC.
+\layout Standard
+
+The Integrator Manual scope is on more complex machines, configurations
+ and installations.
+ As the system integrator your task is bringing together all the component
+ subsystems into a whole and ensuring that those subsystems function together.
+ EMC being one of the subsystems.
  
 \layout Section
 
