@@ -52,28 +52,16 @@ Introduction
 
 \layout Standard
 
-As the system integrator your task is bringing together the component subsystems
- into a whole and ensuring that those subsystems function together.
- The focus of this manual is on installing and configuring EMC and integrating
- EMC with your machine.
- For more information look in the man pages, the EMC Wiki pages or ask questions
- on the EMC IRC channel or the EMC mailing list.
-\layout Standard
-
-
-\begin_inset Note
-collapsed false
-
-\layout Standard
-
-add links and ref to how man pages work
-\end_inset 
-
-
-\layout Standard
-
-Once EMC is installed and configured see the User Manual for information
+For normal stepper based installations see the Getting Started Guide.
+ Once EMC is installed and configured see the User Manual for information
  on using EMC.
+\layout Standard
+
+The Integrator Manual scope is on more complex machines, configurations
+ and installations.
+ As the system integrator your task is bringing together all the component
+ subsystems into a whole and ensuring that those subsystems function together.
+ EMC being one of the subsystems.
  
 \layout Section
 

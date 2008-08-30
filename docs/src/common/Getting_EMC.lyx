@@ -29,6 +29,66 @@
 Getting EMC2
 \layout Section
 
+Getting Help
+\begin_inset LatexCommand \index{Getting Help}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \label{sec:Getting-Help}
+
+\end_inset 
+
+
+\layout Standard
+
+There are several ways to get help installing and configuring EMC.
+\layout Standard
+
+On the EMC IRC channel.
+ 
+\layout Standard
+
+The simplest way to get on the IRC is to use the embedded java client on
+ this page 
+\begin_inset LatexCommand \url{http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl}
+
+\end_inset 
+
+.
+ 
+\layout Standard
+
+Some IRC etiquette:
+\layout Standard
+
+Ask specific questions...
+\layout Standard
+
+Have some patience when waiting for an answer, sometimes it takes a while
+ to formulate an answer or everyone might be busy working or something.
+\layout Standard
+
+Set up your IRC account with your unique name so people will know who you
+ are.
+\layout Standard
+
+The EMC Users Mailing List at 
+\begin_inset LatexCommand \url{http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl}
+
+\end_inset 
+
+.
+\layout Standard
+
+The user maintained EMC Wiki site at 
+\begin_inset LatexCommand \url{http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl}
+
+\end_inset 
+
+ contains a wealth of information and tips.
+\layout Section
+
 Download the Software
 \begin_inset LatexCommand \index{Download the Software}
 
