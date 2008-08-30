@@ -35,7 +35,7 @@ A listing of terms and what they mean.
  installers, and developers.
  
 \begin_inset Note
-collapsed true
+collapsed false
 
 \layout Standard
 
@@ -71,19 +71,9 @@ Screw
 
 \end_inset 
 
- A type of lead-screw 
-\begin_inset LatexCommand \ref{Leadscrew}
-
-\end_inset 
-
- that uses an acme thread form.
+ A type of lead-screw that uses an acme thread form.
  Acme threads have somewhat lower friction and wear than simple triangular
- threads, but ball-screws 
-\begin_inset LatexCommand \ref{Ballscrew}
-
-\end_inset 
-
- are lower yet.
+ threads, but ball-screws are lower yet.
  Most manual machine tools use acme lead-screws.
 \layout Description
 
@@ -129,12 +119,7 @@ Backlash
 \end_inset 
 
  The amount of "play" or lost motion that occurs when direction is reversed
- in a lead screw 
-\begin_inset LatexCommand \ref{Leadscrew}
-
-\end_inset 
-
-.
+ in a lead screw.
  or other mechanical motion driving system.
  It can result from nuts that are loose on leadscrews, slippage in belts,
  cable slack, "wind-up" in rotary couplings, and other places where the
@@ -175,18 +160,9 @@ Screw
 \end_inset 
 
  A type of lead-screw that uses small hardened steel balls between the nut
- 
-\begin_inset LatexCommand \ref{Ballnut}
-
-\end_inset 
-
  and screw to reduce friction.
- Ball-screws have very low friction and backlash 
-\begin_inset LatexCommand \ref{Backlash}
-
-\end_inset 
-
-, but are usually quite expensive.
+ Ball-screws have very low friction and backlash, but are usually quite
+ expensive.
 \layout Description
 
 Ball\SpecialChar ~
@@ -218,12 +194,7 @@ CNC
  Computer Numerical Control.
  The general term used to refer to computer control of machinery.
  Instead of a human operator turning cranks to move a cutting tool, CNC
- uses a computer and motors to move the tool, based on a part program 
-\begin_inset LatexCommand \ref{PartProgram}
-
-\end_inset 
-
-.
+ uses a computer and motors to move the tool, based on a part program .
 \layout Description
 
 Comp
@@ -318,12 +289,7 @@ EMC
 \end_inset 
 
  The Enhanced Machine Controller.
- Initially a NIST 
-\begin_inset LatexCommand \ref{NIST}
-
-\end_inset 
-
- project.
+ Initially a NIST project.
  EMC is able to run a wide range of motion devices.
 \layout Description
 
@@ -337,13 +303,8 @@ EMCIO
 
 \end_inset 
 
- The module within EMC
-\begin_inset LatexCommand \ref{EMC}
-
-\end_inset 
-
- that handles general purpose I/O, unrelated to the actual motion of the
- axes.
+ The module within EMC that handles general purpose I/O, unrelated to the
+ actual motion of the axes.
 \layout Description
 
 EMCMOT
@@ -356,12 +317,7 @@ EMCMOT
 
 \end_inset 
 
- The module within EMC 
-\begin_inset LatexCommand \ref{EMC}
-
-\end_inset 
-
- that handles the actual motion of the cutting tool.
+ The module within EMC that handles the actual motion of the cutting tool.
  It runs as a real-time program and directly controls the motors.
 \layout Description
 
@@ -457,12 +413,7 @@ G-Code
 \end_inset 
 
  The generic term used to refer to the most common part programming language.
- There are several dialects of G-code, EMC uses RS274/NGC 
-\begin_inset LatexCommand \ref{RS274NGC}
-
-\end_inset 
-
-.
+ There are several dialects of G-code, EMC uses RS274/NGC.
 \layout Description
 
 GUI
@@ -544,12 +495,8 @@ file
 
 \end_inset 
 
- A text file that contains most of the information that configures EMC 
-\begin_inset LatexCommand \ref{EMC}
-
-\end_inset 
-
- for a particular machine
+ A text file that contains most of the information that configures EMC for
+ a particular machine
 \layout Description
 
 Joint\SpecialChar ~
@@ -563,14 +510,8 @@ Coordinates
 
 \end_inset 
 
- These specify the angles between the individual joints of the machine.\SpecialChar ~
-See
- also Kinematics
-\begin_inset LatexCommand \ref{Kinematics}
-
-\end_inset 
-
-
+ These specify the angles between the individual joints of the machine.
+ See also Kinematics
 \layout Description
 
 Jog
@@ -588,12 +529,7 @@ kernel-space
 
 \end_inset 
 
- See real-time 
-\begin_inset LatexCommand \ref{real-time}
-
-\end_inset 
-
-.
+ See real-time.
 \layout Description
 
 Kinematics
@@ -606,16 +542,7 @@ Kinematics
 
 \end_inset 
 
- The position relationship between world coordinates 
-\begin_inset LatexCommand \ref{World_Coordinates}
-
-\end_inset 
-
- and joint coordinates 
-\begin_inset LatexCommand \ref{Joint_Coordinates}
-
-\end_inset 
-
+ The position relationship between world coordinates and joint coordinates
  of a machine.
  There are two types of kinematics.
  Forward kinematics is used to calculate world coordinates from joint coordinate
@@ -638,18 +565,9 @@ Lead-screw
 
  An screw that is rotated by a motor to move a table or other part of a
  machine.
- Lead-screws are usually either ball-screws 
-\begin_inset LatexCommand \ref{Ballscrew}
-
-\end_inset 
-
- or acme screws 
-\begin_inset LatexCommand \ref{AcmeScrew}
-
-\end_inset 
-
-, although conventional triangular threaded screws may be used where accuracy
- and long life are not as important as low cost.
+ Lead-screws are usually either ball-screws or acme screws, although conventiona
+l triangular threaded screws may be used where accuracy and long life are
+ not as important as low cost.
 \layout Description
 
 Machine\SpecialChar ~
@@ -675,12 +593,7 @@ MDI
 
  Manual Data Input.
  This is a mode of operation where the controller executes single lines
- of G-code 
-\begin_inset LatexCommand \ref{G-Code}
-
-\end_inset 
-
- as they are typed by the operator.
+ of G-code as they are typed by the operator.
 \layout Description
 
 NIST
@@ -722,12 +635,7 @@ Program
 \end_inset 
 
  A description of a part, in a language that the controller can understand.
- For EMC, that language is RS-274/NGC, commonly known as G-code 
-\begin_inset LatexCommand \ref{G-Code}
-
-\end_inset 
-
-.
+ For EMC, that language is RS-274/NGC, commonly known as G-code.
 \layout Description
 
 Program\SpecialChar ~
@@ -771,17 +679,7 @@ Real-time
 
  Software that is intended to meet very strict timing deadlines.
  Under Linux, in order to meet these requirements it is necessary to install
- RTAI 
-\begin_inset LatexCommand \ref{RTAI}
-
-\end_inset 
-
- or RTLINUX 
-\begin_inset LatexCommand \ref{RTLINUX}
-
-\end_inset 
-
- and build the software to run in those special environments.
+ RTAI or RTLINUX and build the software to run in those special environments.
  For this reason real-time software runs in kernel-space.
 \layout Description
 
@@ -801,12 +699,7 @@ RTAI
 \end_inset 
 
 , one of two real-time extensions for Linux that EMC can use to achieve
- real-time 
-\begin_inset LatexCommand \ref{real-time}
-
-\end_inset 
-
- performance.
+ real-time performance.
 \layout Description
 
 RTLINUX
@@ -825,12 +718,7 @@ RTLINUX
 \end_inset 
 
 , one of two real-time extensions for Linux that EMC can use to achieve
- real-time 
-\begin_inset LatexCommand \ref{real-time}
-
-\end_inset 
-
- performance.
+ real-time performance.
 \layout Description
 
 RTAPI 
@@ -838,17 +726,7 @@ RTAPI
 
 \end_inset 
 
-A portable interface to real-time operating systems including RTAI
-\begin_inset LatexCommand \ref{RTAI}
-
-\end_inset 
-
- and RTLINUX
-\begin_inset LatexCommand \ref{RTLINUX}
-
-\end_inset 
-
-
+A portable interface to real-time operating systems including RTAI and RTLINUX
 \layout Description
 
 RS-274/NGC
@@ -861,17 +739,7 @@ RS-274/NGC
 
 \end_inset 
 
- The formal name for the language used by EMC 
-\begin_inset LatexCommand \ref{EMC}
-
-\end_inset 
-
- part programs 
-\begin_inset LatexCommand \ref{PartProgram}
-
-\end_inset 
-
-.
+ The formal name for the language used by EMC part programs.
  See Chapter 
 \begin_inset LatexCommand \ref{cha:Language-Overview}
 
@@ -967,12 +835,8 @@ TASK
 
 \end_inset 
 
- The module within EMC 
-\begin_inset LatexCommand \ref{EMC}
-
-\end_inset 
-
- that coordinates the overall execution and interprets the part program.
+ The module within EMC that coordinates the overall execution and interprets
+ the part program.
 \layout Description
 
 Tcl/Tk
@@ -986,12 +850,7 @@ Tcl/Tk
 \end_inset 
 
  A scripting language and graphical widget toolkit with which several of
- the EMC's GUI's 
-\begin_inset LatexCommand \ref{GUI}
-
-\end_inset 
-
- and selection wizards were written.
+ the EMC's GUI's and selection wizards were written.
 \layout Description
 
 Units
