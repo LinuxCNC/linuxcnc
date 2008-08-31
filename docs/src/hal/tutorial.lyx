@@ -40,6 +40,18 @@
 \end_inset 
 
 HAL Tutorial
+\layout Standard
+
+
+\begin_inset Note
+collapsed false
+
+\layout Standard
+
+this needs a rewrite to remove freqgen and add stepgen
+\end_inset 
+
+
 \layout Section
 
 
@@ -1204,9 +1216,22 @@ halrun
 Installing the components
 \layout Standard
 
+
+\begin_inset Note
+collapsed false
+
+\layout Standard
+
+wow this section needs a rewrite...
+ out with freqgen in with stepgen...
+\end_inset 
+
+
+\layout Standard
+
 Now we are going to load the step pulse generator component.
  For a detailed description of this component refer to section 
-\begin_inset LatexCommand \ref{sec:Freqgen}
+\begin_inset LatexCommand \ref{sec:Stepgen}
 
 \end_inset 
 
