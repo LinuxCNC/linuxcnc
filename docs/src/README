@@ -1,3 +1,7 @@
+Adding files:
+The submakefile, docs.xml and index.tmpl must be updated to add a file to the documents.
+
+
 Notes on EMC2 documentation:
 
 The main EMC2 makefile can optionally build the documentation from lyx and
