@@ -1824,7 +1824,7 @@ Probe Logging
 
 A comment can also be used to specify a file for the results of G38.x probing.
  See section 
-\begin_inset LatexCommand \ref{sub:G38.x:-Straight-Probe}
+\begin_inset LatexCommand \ref{sub:G38.2:-Straight-Probe}
 
 \end_inset 
 
@@ -3420,7 +3420,7 @@ n/a
 \layout Standard
 
 
-\begin_inset LatexCommand \ref{sub:G38.x:-Straight-Probe}
+\begin_inset LatexCommand \ref{sub:G38.2:-Straight-Probe}
 
 \end_inset 
 
@@ -5542,7 +5542,7 @@ G38.x Straight Probe
 \end_inset 
 
 
-\begin_inset LatexCommand \label{sub:G38.x:-Straight-Probe}
+\begin_inset LatexCommand \label{sub:G38.2:-Straight-Probe}
 
 \end_inset 
 
