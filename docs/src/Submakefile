@@ -36,6 +36,7 @@ DOC_SRCS := \
 	Master_User.lyx \
 	Master_User_fr.lyx \
 	common/Document_Header.lyx \
+	common/Getting_EMC.lyx \
 	common/Glossary.lyx \
 	common/GPLD_Copyright.lyx \
 	common/userforeword.lyx \
