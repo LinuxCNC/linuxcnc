@@ -1,6 +1,7 @@
 <docs>
 <docgroup lang="en">
-<doc name="common_emc2_introduction" title="Introduction to EMC2"/>
+<doc name="common_user_intro" title="Introduction to EMC2"/>
+<doc name="common_Getting_EMC" title="Getting EMC2"/>
 <doc name="install_compiling_emc2" title="Compiling EMC2"/>
 <doc name="install_installing_emc2" title="Installing EMC2"/>
 

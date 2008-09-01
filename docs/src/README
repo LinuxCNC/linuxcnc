@@ -1,6 +1,9 @@
 Adding files:
 The submakefile, docs.xml and index.tmpl must be updated to add a file to the documents.
 
+docs.xml is used to create the "previous" and "next" buttons at the top of each individual html document. 
+it should generally match the order of the index.tmpl
+
 
 Notes on EMC2 documentation:
 
