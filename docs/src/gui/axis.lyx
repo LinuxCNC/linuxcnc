@@ -34,6 +34,21 @@
 \papersides 2
 \paperpagestyle default
 
+\layout Standard
+
+
+\begin_inset Note
+collapsed false
+
+\layout Standard
+
+2.3.x To Do List
+\layout Standard
+
+finish menu descriptions
+\end_inset 
+
+
 \layout Chapter
 
 AXIS
