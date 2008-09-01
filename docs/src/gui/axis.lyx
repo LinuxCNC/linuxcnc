@@ -34,6 +34,21 @@
 \papersides 2
 \paperpagestyle default
 
+\layout Standard
+
+
+\begin_inset Note
+collapsed false
+
+\layout Standard
+
+2.2.x To Do List
+\layout Standard
+
+finish menu descriptions
+\end_inset 
+
+
 \layout Chapter
 
 AXIS
@@ -347,6 +362,272 @@ Commanded
 \end_inset 
 
  position)
+\layout Subsection
+
+Menu Items
+\layout Subsubsection
+
+File
+\layout Subsubsection
+
+Open...
+ 
+\layout Standard
+
+Opens a standard dialog box to open a g code file to load in AXIS.
+ If you have configured EMC to use a filter program you can also open it
+ up.
+ See the Integrators manual for more information on filter programs.
+\layout Subsubsection
+
+Edit...
+\layout Standard
+
+Edit will open the current g code file for editing if you have an editor
+ configured in your ini file.
+ See the Integrators Manual for more information on specificing an editor
+ to use.
+\layout Subsubsection
+
+Reload
+\layout Standard
+
+Reload will reload the current g code file.
+ If you edited it you must reload it for the changes to take affect.
+ If you stop a file and want to start from the beginning then reload the
+ file.
+ The toolbar reload is the same as the menu.
+\layout Subsubsection
+
+Save gcode as...
+\layout Standard
+
+Save the current file with a new name.
+\layout Subsubsection
+
+Properties
+\layout Standard
+
+Properties of the current loaded g code file.
+\layout Subsubsection
+
+Edit tool table...
+\layout Standard
+
+Same as Edit if you have defined an editor you can open the tool table and
+ edit it.
+\layout Subsubsection
+
+Reload tool table
+\layout Standard
+
+After editing the tool table you must reload it.
+\layout Subsubsection
+
+Ladder editor
+\layout Standard
+
+If you have enabled Classic Ladder you can edit it from here.
+ See the Integrators Manual on setting up Classic Ladder
+\layout Subsubsection
+
+Quit
+\layout Standard
+
+Pretty much what it does.
+\layout Subsubsection
+
+Machine
+\layout Subsubsection
+
+Toggle Emergency Stop F1
+\layout Subsubsection
+
+Toggle Machine Power F2
+\layout Subsubsection
+
+Set next line
+\layout Standard
+
+This is used to start a program from a line.
+ Select the line you want to start from then select Set next line from the
+ menu and then Run from the tool bar.
+ Use with caution as this will move the tool to the expected position before
+ the line first then it will execute the rest of the code.
+\layout Subsubsection
+
+Run Program
+\layout Subsubsection
+
+Run a program.
+\layout Subsubsection
+
+Step
+\layout Standard
+
+Single step through a program.
+\layout Subsubsection
+
+Pause
+\layout Standard
+
+Pause a program.
+\layout Subsubsection
+
+Resume
+\layout Standard
+
+Resume running from a pause.
+\layout Subsubsection
+
+Stop
+\layout Standard
+
+Stop a running program.
+\layout Subsubsection
+
+Stop at M1
+\layout Standard
+
+If you have a M1 in your g code and this is checked program execution will
+ stop on the M1 line.
+ Press Resume to continue.
+\layout Subsubsection
+
+Skip lines with "/"
+\layout Standard
+
+If a line begins with / and this is checked it will skip that line.
+\layout Subsubsection
+
+Clear MDI history
+\layout Standard
+
+Clears the MDI history window.
+\layout Subsubsection
+
+Copy from MDI history
+\layout Standard
+
+Copies the MDI history to the clipboard
+\layout Subsubsection
+
+Paste to MDI history
+\layout Standard
+
+Paste from the clipboard to the MDI history window
+\layout Subsubsection
+
+Calibration
+\layout Standard
+
+This is a servo testing pop up widow for each axis.
+ After making changes and testing them it can save them to your .ini file.
+\layout Subsubsection
+
+Show HAL Configuration
+\layout Standard
+
+This brings up the HAL Show window.
+\layout Subsubsection
+
+HAL Meter
+\layout Subsubsection
+
+HAL Scope
+\layout Subsubsection
+
+Show EMC Status
+\layout Subsubsection
+
+Set Debug Level
+\layout Subsubsection
+
+Homing
+\layout Standard
+
+Home any or all axis.
+\layout Subsubsection
+
+Zero Coordinate System
+\layout Standard
+
+Zero work offsets.
+\layout Subsubsection
+
+View
+\layout Subsubsection
+
+Top View
+\layout Subsubsection
+
+Rotated Top View
+\layout Subsubsection
+
+Side View
+\layout Subsubsection
+
+Front View
+\layout Subsubsection
+
+Perspective View
+\layout Subsubsection
+
+Display Inches
+\layout Subsubsection
+
+Display MM
+\layout Subsubsection
+
+Show Program
+\layout Subsubsection
+
+Show Program Rapids
+\layout Subsubsection
+
+Show Live Plot
+\layout Subsubsection
+
+Show Tool
+\layout Subsubsection
+
+Show Extents
+\layout Subsubsection
+
+Show Machine Limits
+\layout Subsubsection
+
+Show Velocity
+\layout Subsubsection
+
+Show Distance to Go
+\layout Subsubsection
+
+Clear Live Plot
+\layout Subsubsection
+
+Show Commanded Position
+\layout Subsubsection
+
+Show Actual Position
+\layout Subsubsection
+
+Show Machine Position
+\layout Subsubsection
+
+Show Relative Postion
+\layout Subsubsection
+
+Help
+\layout Subsubsection
+
+About AXIS
+\layout Subsubsection
+
+Quick Reference
+\layout Standard
+
+Keyboard shortcut keys.
 \layout Subsection
 
 Toolbar buttons
