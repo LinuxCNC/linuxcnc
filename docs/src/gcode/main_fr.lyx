@@ -115,7 +115,7 @@ Avec EMC, le cas de la machine à portique XYYZ avec deux moteurs pour un
 \layout Subsubsection
 
 Axes linéaires primaires
-\begin_inset LatexCommand \index{axes linéaires primaires}
+\begin_inset LatexCommand \index{axes lineaires primaires}
 
 \end_inset 
 
@@ -127,7 +127,7 @@ Les axes X, Y et Z produisent des mouvements linéaires dans trois directions,
 \layout Subsubsection
 
 Axes linéaires secondaires
-\begin_inset LatexCommand \index{axes linéaires secondaires}
+\begin_inset LatexCommand \index{axes lineaires secondaires}
 
 \end_inset 
 
@@ -256,7 +256,7 @@ Un centre d'usinage est équipé de boutons de réglage de la vitesse d'avance
  les vitesses nécessaires pour la broche et l'avance travail, il peut ainsi
  augmenter ou réduire les vitesses programmées.
  Voir la section 
-\begin_inset LatexCommand \ref{sub:-Interaction-vitesses}
+\begin_inset LatexCommand \ref{cap:Selecteur de configuration pour EMC2}
 
 \end_inset 
 
@@ -292,7 +292,7 @@ Bouton d'arrêt optionnel du programme
 \end_inset 
 
  
-\begin_inset LatexCommand \label{sub:-arrêt-optionnel}
+\begin_inset LatexCommand \label{sub:-arret-optionnel}
 
 \end_inset 
 
@@ -301,7 +301,7 @@ Bouton d'arrêt optionnel du programme
 
 Un centre d'usinage peut être équipé d'un bouton d'arrêt du programme.
  Voir la section 
-\begin_inset LatexCommand \ref{sub:-Interaction-arrêts-optionnels}
+\begin_inset LatexCommand \ref{sub:-Interaction-arrets-optionnels}
 
 \end_inset 
 
@@ -343,7 +343,7 @@ Si les parallèlismes sont particuliers, le constructeur du système devra
 \layout Subsection
 
 Point contrôlé
-\begin_inset LatexCommand \label{sub:-Point-contrôlé}
+\begin_inset LatexCommand \label{sub:-Point-controle}
 
 \end_inset 
 
@@ -372,7 +372,7 @@ Le point contrôlé est le point dont la position et la vitesse de déplacement
 \layout Subsection
 
 Mouvement linéaire coordonné
-\begin_inset LatexCommand \label{sub:-Mouvement-linéaire-coordonné}
+\begin_inset LatexCommand \label{sub:-Mouvement-lineaire-coordonne}
 
 \end_inset 
 
@@ -485,7 +485,7 @@ Une temporisation peut être commandée (ex: pour immobiliser tous les axes)
  pendant une durée spécifique.
  La broche n'est pas arrêtée pendant une temporisation! Sans s'occuper du
  mode de contrôle de trajectoire (voir la section 
-\begin_inset LatexCommand \ref{sub:Modes-de-contrôle-trajectoires}
+\begin_inset LatexCommand \ref{sub:Modes-de-controle-trajectoires}
 
 \end_inset 
 
@@ -494,7 +494,7 @@ Une temporisation peut être commandée (ex: pour immobiliser tous les axes)
 \layout Subsection
 
 Unités
-\begin_inset LatexCommand \index{unités}
+\begin_inset LatexCommand \index{unites}
 
 \end_inset 
 
@@ -589,7 +589,7 @@ Les boutons des correcteurs de vitesses peuvent être activés (ils fonctionnent
 \layout Subsection
 
 Modes de contrôle de trajectoire
-\begin_inset LatexCommand \label{sub:Modes-de-contrôle-trajectoires}
+\begin_inset LatexCommand \label{sub:Modes-de-controle-trajectoires}
 
 \end_inset 
 
@@ -608,7 +608,7 @@ e: (1) mode arrêt exact, (2) mode trajectoire exacte ou (3) mode trajectoire
  légèrement arrondis pour que la vitesse soit maintenue (sans dépasser la
  tolérance, si elle est spécifiée).
  Voir la section 
-\begin_inset LatexCommand \ref{sub:G61,-G61.1,-G64:-Types-contrôle-trajectoire}
+\begin_inset LatexCommand \ref{sub:G61,-G61.1,-G64:-Modes-controle-trajectoire}
 
 \end_inset 
 
@@ -673,12 +673,12 @@ Effacement de block
 
 \family typewriter 
 Bouton d'arrêt optionnel du programme
-\begin_inset LatexCommand \label{sub:-Interaction-arrêts-optionnels}
+\begin_inset LatexCommand \label{sub:-Interaction-arrets-optionnels}
 
 \end_inset 
 
 
-\begin_inset LatexCommand \index{Arrêts optionnels}
+\begin_inset LatexCommand \index{Arrets optionnels}
 
 \end_inset 
 
@@ -1536,7 +1536,7 @@ La colonne ORIENTATION donne l'orientation de l'outil de tour, comme illustré
 .
  La croix rouge correspond au point contrôlé.
  Voir 
-\begin_inset LatexCommand \ref{sub:-Point-contrôlé}
+\begin_inset LatexCommand \ref{sub:-Point-controle}
 
 \end_inset 
 
@@ -1578,12 +1578,12 @@ Orientations des outils de tour
 \layout Section
 
 Paramètres
-\begin_inset LatexCommand \index{paramètres}
+\begin_inset LatexCommand \index{parametres}
 
 \end_inset 
 
 
-\begin_inset LatexCommand \label{sub:-Paramètres}
+\begin_inset LatexCommand \label{sub:-Parametres}
 
 \end_inset 
 
@@ -1609,7 +1609,7 @@ collapsed false
 \layout Caption
 
 Paramètres utilisés par l'interpréteur RS274NGC 
-\begin_inset LatexCommand \label{cap:Paramètres-interpréteur}
+\begin_inset LatexCommand \label{cap:Parametres-interpreteur}
 
 \end_inset 
 
@@ -1953,7 +1953,7 @@ Résultat de M66 - Surveillance d'entrée
 \layout Standard
 
 Le format d'un fichier de paramètres est visible dans la table 
-\begin_inset LatexCommand \ref{cap:Format-fichier-de-paramètres}
+\begin_inset LatexCommand \ref{cap:Format-fichier-de-parametres}
 
 \end_inset 
 
@@ -1964,7 +1964,7 @@ Le format d'un fichier de paramètres est visible dans la table
  Il est important qu'il y ait une ligne vide (sans espace ni tabulation),
  avant les données.
  La ligne d'en-tête montrée dans ce tableau 
-\begin_inset LatexCommand \ref{cap:Format-fichier-de-paramètres}
+\begin_inset LatexCommand \ref{cap:Format-fichier-de-parametres}
 
 \end_inset 
 
@@ -1984,7 +1984,7 @@ Chaque ligne du fichier contient le numéro d'index d'un paramètre dans la
  l'intérieur de l'interpréteur, mais le point décimal n'est pas exigé dans
  le fichier.
  Le format des paramètres visible dans le tableau 
-\begin_inset LatexCommand \ref{cap:Format-fichier-de-paramètres}
+\begin_inset LatexCommand \ref{cap:Format-fichier-de-parametres}
 
 \end_inset 
 
@@ -2009,7 +2009,7 @@ collapsed false
 \layout Caption
 
 Format d'un fichier de paramètres
-\begin_inset LatexCommand \label{cap:Format-fichier-de-paramètres}
+\begin_inset LatexCommand \label{cap:Format-fichier-de-parametres}
 
 \end_inset 
 
@@ -2117,7 +2117,7 @@ Systèmes de coordonnées
 \end_inset 
 
 
-\begin_inset LatexCommand \label{sub:-Systèmes-de-coordonnées}
+\begin_inset LatexCommand \label{sub:-Systemes-de-coordonnees}
 
 \end_inset 
 
@@ -2132,7 +2132,7 @@ Vous pouvez définir le décalage d'origine de neuf systèmes de coordonnées
  programme en utilisant G10 L2 Pn (n étant le numéro du système de coordonnées),
  avec des valeurs pour les axes en coordonnées absolues.
  Voir la section 
-\begin_inset LatexCommand \ref{sub:G10:-Coordonnées-pièce}
+\begin_inset LatexCommand \ref{sub:G10:-Coordonnees-piece}
 
 \end_inset 
 
@@ -2176,7 +2176,7 @@ G59.2
 G59.3
 \family default 
  (Voir la section 
-\begin_inset LatexCommand \ref{sub:G54-à-G59.3:}
+\begin_inset LatexCommand \ref{sub:G54-a-G59.3:}
 
 \end_inset 
 
@@ -3050,7 +3050,7 @@ Si un nombre utilisé dans le langage RS274/NGC est proche d'une valeur entière
 \layout Subsection
 
 Paramètres numérotés
-\begin_inset LatexCommand \label{sub:-Paramètres-numérotés}
+\begin_inset LatexCommand \label{sub:-Parametres-numerotes}
 
 \end_inset 
 
@@ -3113,7 +3113,7 @@ Le caractère
 \layout Subsection
 
 Paramètres nommés
-\begin_inset LatexCommand \label{sub:-Paramètres-nommés}
+\begin_inset LatexCommand \label{sub:-Parametres-nommes}
 
 \end_inset 
 
@@ -3229,7 +3229,7 @@ Une expression est un groupe de caractères commençant avec le crochet gauche
 \layout Subsection
 
 Opérateurs binaires
-\begin_inset LatexCommand \label{sub:-Opérateurs-binaires}
+\begin_inset LatexCommand \label{sub:-Operateurs-binaires}
 
 \end_inset 
 
@@ -3307,7 +3307,7 @@ LE
 
 Les opérations binaires sont divisées en plusieurs groupes selon leur précédence.
  (voir la table 
-\begin_inset LatexCommand \ref{cap:Précédence-des-opérateurs}
+\begin_inset LatexCommand \ref{cap:Precedence-des-operateurs}
 
 \end_inset 
 
@@ -3358,12 +3358,12 @@ collapsed false
 \layout Caption
 
 Précédence des opérateurs
-\begin_inset LatexCommand \label{cap:Précédence-des-opérateurs}
+\begin_inset LatexCommand \label{cap:Precedence-des-operateurs}
 
 \end_inset 
 
 
-\begin_inset LatexCommand \index{Précédence des opérateurs}
+\begin_inset LatexCommand \index{Precedence des operateurs}
 
 \end_inset 
 
@@ -3496,7 +3496,7 @@ basse
 \layout Subsection
 
 Fonctions
-\begin_inset LatexCommand \label{sub:-Opérations-unaires}
+\begin_inset LatexCommand \label{sub:-Operations-unaires}
 
 \end_inset 
 
@@ -3921,8 +3921,6 @@ Tangente
 \end_inset 
 
 
-\layout Standard
-
 \layout Section
 
 Commentaires
@@ -4011,7 +4009,7 @@ Un commentaire peut aussi être utilisé pour spécifier le fichier de log
 \layout Subsection
 
 Log général
-\begin_inset LatexCommand \label{sub:-Log-général}
+\begin_inset LatexCommand \label{sub:-Log-general}
 
 \end_inset 
 
@@ -4057,7 +4055,7 @@ Le message
 \layout Subsection
 
 Messsages de déboguage
-\begin_inset LatexCommand \label{sub:-Messages-déboguage}
+\begin_inset LatexCommand \label{sub:-Messages-deboguage}
 
 \end_inset 
 
@@ -5268,7 +5266,7 @@ G0
 \end_inset 
 
 : Interpolation linéaire en vitesse rapide
-\begin_inset LatexCommand \label{sec:G0:-Interpolation-linéaire}
+\begin_inset LatexCommand \label{sec:G0:-Interpolation-lineaire}
 
 \end_inset 
 
@@ -5361,7 +5359,7 @@ G1
 \end_inset 
 
 : Interpolation linéaire en vitesse travail
-\begin_inset LatexCommand \label{sec:G1:-Interpolation-linéaire}
+\begin_inset LatexCommand \label{sec:G1:-Interpolation-lineaire}
 
 \end_inset 
 
@@ -5685,7 +5683,7 @@ G33
 \end_inset 
 
 : Mouvement avec broche synchronisée
-\begin_inset LatexCommand \label{sec:G33,-G33.1:-Broche-synchronisée}
+\begin_inset LatexCommand \label{sec:G33,-G33.1:-Broche-synchronisee}
 
 \end_inset 
 
@@ -5825,7 +5823,7 @@ G10
 \end_inset 
 
 : Établissement du système de coordonnées pièce
-\begin_inset LatexCommand \label{sub:G10:-Coordonnées-pièce}
+\begin_inset LatexCommand \label{sub:G10:-Coordonnees-piece}
 
 \end_inset 
 
@@ -5833,7 +5831,7 @@ G10
 \layout Standard
 
 Le langage RS274/NGC utilise les systèmes de coordonnées décrits à la section
-\begin_inset LatexCommand \ref{sub:-Systèmes-de-coordonnées}
+\begin_inset LatexCommand \ref{sub:-Systemes-de-coordonnees}
 
 \end_inset 
 
@@ -5939,7 +5937,7 @@ Programmer G17 pour choisir le plan de travail XY, G18 pour choisir le plan
 \end_inset 
 
  et 
-\begin_inset LatexCommand \ref{sub:G81-à-G89:}
+\begin_inset LatexCommand \ref{sub:-Choix-du-plan-de-travail}
 
 \end_inset 
 
@@ -6058,7 +6056,7 @@ G38.x
 \end_inset 
 
 
-\begin_inset LatexCommand \index{G38.x}
+\begin_inset LatexCommand \index{G38.5}
 
 \end_inset 
 
@@ -6694,7 +6692,7 @@ G53 est utilisé alors que la compensation de rayon d'outil est active.
 \layout Standard
 
 Voir la section 
-\begin_inset LatexCommand \ref{sub:-Systèmes-de-coordonnées}
+\begin_inset LatexCommand \ref{sub:-Systemes-de-coordonnees}
 
 \end_inset 
 
@@ -6748,7 +6746,7 @@ G54
 \end_inset 
 
 : Choix du système de coordonnées
-\begin_inset LatexCommand \label{sub:G54-à-G59.3:}
+\begin_inset LatexCommand \label{sub:G54-a-G59.3:}
 
 \end_inset 
 
@@ -6805,7 +6803,7 @@ Un de ces G-codes est utilisé alors que la compensation de rayon d'outil
 \layout Standard
 
 Voir la section 
-\begin_inset LatexCommand \ref{sub:-Systèmes-de-coordonnées}
+\begin_inset LatexCommand \ref{sub:-Systemes-de-coordonnees}
 
 \end_inset 
 
@@ -6828,7 +6826,7 @@ G61
 \end_inset 
 
 : Types de contrôle de trajectoire
-\begin_inset LatexCommand \label{sub:G61,-G61.1,-G64:-Types-contrôle-trajectoire}
+\begin_inset LatexCommand \label{sub:G61,-G61.1,-G64:-Modes-controle-trajectoire}
 
 \end_inset 
 
@@ -6850,7 +6848,7 @@ G64 P-
  pour le mode trajectoire continue avec tolérance optionnelle.
  Ce n'est pas une erreur de programmer un mode déjà actif.
  Voir la section 
-\begin_inset LatexCommand \ref{sub:Modes-de-contrôle-trajectoires}
+\begin_inset LatexCommand \ref{sub:Modes-de-controle-trajectoires}
 
 \end_inset 
 
@@ -6888,7 +6886,7 @@ G76
 \end_inset 
 
 : Cycle de filetage préprogrammé
-\begin_inset LatexCommand \label{sec:G76:-Filetage-préprogrammé}
+\begin_inset LatexCommand \label{sec:G76:-Filetage-preprogramme}
 
 \end_inset 
 
@@ -7191,7 +7189,7 @@ G73, G81
 \end_inset 
 
 : Cycles préprogrammés
-\begin_inset LatexCommand \label{sub:G81-à-G89:}
+\begin_inset LatexCommand \label{sub:G81-a-G89:}
 
 \end_inset 
 
@@ -7469,7 +7467,7 @@ G81
 \end_inset 
 
 : Cycle de perçage
-\begin_inset LatexCommand \label{sub:G81:-Cycle-de-perçage}
+\begin_inset LatexCommand \label{sub:G81:-Cycle-de-percage}
 
 \end_inset 
 
@@ -7632,7 +7630,7 @@ G82
 \end_inset 
 
 : Cycle de perçage avec temporisation
-\begin_inset LatexCommand \label{sub:G82:-Cycle-de-perçage}
+\begin_inset LatexCommand \label{sub:G82:-Cycle-de-percage}
 
 \end_inset 
 
@@ -7672,7 +7670,7 @@ G83
 \end_inset 
 
 : Cycle de perçage avec débourrage
-\begin_inset LatexCommand \label{sub:G83:-Perçage-avec-débourrage}
+\begin_inset LatexCommand \label{sub:G83:-Percage-avec-debourrage}
 
 \end_inset 
 
@@ -7739,7 +7737,7 @@ G73
 \end_inset 
 
 : Cycle de perçage avec brise copeaux
-\begin_inset LatexCommand \label{sub:G73:-Perçage-avec-brise-copeaux}
+\begin_inset LatexCommand \label{sub:G73:-Percage-avec-brise-copeaux}
 
 \end_inset 
 
@@ -7803,7 +7801,7 @@ G84
 \end_inset 
 
 : Cycle de taraudage à droite
-\begin_inset LatexCommand \label{sub:G84:-Taraudage-à-droite}
+\begin_inset LatexCommand \label{sub:G84:-Taraudage-a-droite}
 
 \end_inset 
 
@@ -7823,7 +7821,7 @@ G85
 \end_inset 
 
 : Cycle d'alésage, sans temporisation, retrait en vitesse travail
-\begin_inset LatexCommand \label{sub:G85:-Alésage-retrait-travail}
+\begin_inset LatexCommand \label{sub:G85:-Alesage-retrait-travail}
 
 \end_inset 
 
@@ -7858,7 +7856,7 @@ G86
 \end_inset 
 
 : Cycle d'alésage, arrêt de broche, retrait en vitesse rapide
-\begin_inset LatexCommand \label{sub:G86:-Alésage-retrait-rapide}
+\begin_inset LatexCommand \label{sub:G86:-Alesage-retrait-rapide}
 
 \end_inset 
 
@@ -7946,7 +7944,7 @@ G89
 \end_inset 
 
 : Cycle d'alésage, temporisation, retrait en vitesse travail
-\begin_inset LatexCommand \label{sub:G89:-Alésage-temporisation}
+\begin_inset LatexCommand \label{sub:G89:-Alesage-temporisation}
 
 \end_inset 
 
@@ -8012,7 +8010,7 @@ G90
  En mode absolu, les valeurs d'axes X, Y, Z, A, B, C représentent les positions
  dans le système de coordonnées courant.
  Les exceptions à cette règle sont décrites dans la section 
-\begin_inset LatexCommand \ref{sub:G81-à-G89:}
+\begin_inset LatexCommand \ref{sub:G81-a-G89:}
 
 \end_inset 
 
@@ -8069,7 +8067,7 @@ G92
 \layout Standard
 
 Voir la section 
-\begin_inset LatexCommand \ref{sub:-Systèmes-de-coordonnées}
+\begin_inset LatexCommand \ref{sub:-Systemes-de-coordonnees}
 
 \end_inset 
 
@@ -8849,7 +8847,7 @@ M51 P0
  Quand il est inhibé, le potentiomètre de correction de vitesse de broche
  n'a plus aucune influence et la broche tournera à la vitesse programmée,
  en utilisant le mot S comme décrit dans la section 
-\begin_inset LatexCommand \ref{sub:S:-Réglage-broche}
+\begin_inset LatexCommand \ref{sub:S:-Reglage-broche}
 
 \end_inset 
 
@@ -8862,7 +8860,7 @@ M52
 \end_inset 
 
 : Contrôle de vitesse adaptative
-\begin_inset LatexCommand \label{sec:M52:-Contrôle-vitesse-adaptative}
+\begin_inset LatexCommand \label{sec:M52:-Controle-vitesse-adaptative}
 
 \end_inset 
 
@@ -8910,7 +8908,7 @@ M53
 \end_inset 
 
 : Contrôle de coupure de vitesse
-\begin_inset LatexCommand \label{sec:M53:-Contrôle-coupure-vitesse}
+\begin_inset LatexCommand \label{sec:M53:-Controle-coupure-vitesse}
 
 \end_inset 
 
@@ -8951,7 +8949,7 @@ M53
 \layout Section
 
 M62 à M65: Contrôle de sortie digitale
-\begin_inset LatexCommand \label{sec:M62-à-M65:}
+\begin_inset LatexCommand \label{sec:M62-a-M65:}
 
 \end_inset 
 
@@ -9117,7 +9115,7 @@ M100 à M199
 \end_inset 
 
 : Commandes définies par l'utilisateur
-\begin_inset LatexCommand \label{sec:M100-à-M199:}
+\begin_inset LatexCommand \label{sec:M100-a-M199:}
 
 \end_inset 
 
@@ -9528,7 +9526,7 @@ Calcul des valeurs dans les mots O
 \layout Standard
 
 Dans les mots O-, les paramètres (section 
-\begin_inset LatexCommand \ref{sub:-Paramètres-numérotés}
+\begin_inset LatexCommand \ref{sub:-Parametres-numerotes}
 
 \end_inset 
 
@@ -9538,7 +9536,7 @@ Dans les mots O-, les paramètres (section
 \end_inset 
 
 ), les opérateurs binaires (section 
-\begin_inset LatexCommand \ref{sub:-Opérateurs-binaires}
+\begin_inset LatexCommand \ref{sub:-Operateurs-binaires}
 
 \end_inset 
 
@@ -9554,7 +9552,7 @@ Autres Codes
 \layout Section
 
 F: Réglage de la vitesse travail
-\begin_inset LatexCommand \label{sub:F:-Réglage-vitesse}
+\begin_inset LatexCommand \label{sub:F:-Reglage-vitesse}
 
 \end_inset 
 
@@ -9582,7 +9580,7 @@ F-
 \layout Section
 
 S: Réglage de la vitesse de rotation de la broche
-\begin_inset LatexCommand \label{sub:S:-Réglage-broche}
+\begin_inset LatexCommand \label{sub:S:-Reglage-broche}
 
 \end_inset 
 
@@ -9608,7 +9606,7 @@ La valeur de S est négative.
 \layout Standard
 
 Comme décrit dans la section 
-\begin_inset LatexCommand \ref{sub:G84:-Taraudage-à-droite}
+\begin_inset LatexCommand \ref{sub:G84:-Taraudage-a-droite}
 
 \end_inset 
 
@@ -9684,7 +9682,7 @@ Sur certaines machines, le carrousel se déplace lorsque le mot T est programmé,
 \layout Chapter
 
 Ordre d'exécution
-\begin_inset LatexCommand \label{sec:Ordre-d'exécution}
+\begin_inset LatexCommand \label{sec:Ordre-d'execution}
 
 \end_inset 
 
@@ -9853,7 +9851,7 @@ Ne pas mettre trop de choses sur une ligne
 \layout Standard
 
 Ignorer le contenu de la section 
-\begin_inset LatexCommand \ref{sec:Ordre-d'exécution}
+\begin_inset LatexCommand \ref{sec:Ordre-d'execution}
 
 \end_inset 
 

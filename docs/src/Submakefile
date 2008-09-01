@@ -23,6 +23,7 @@ DOC_SRCS := \
 	code/Style_Guide.lyx \
 	code/NML_Messages.lyx \
 	Getting_Started.lyx \
+        Getting_Started_fr.lyx \
 	gui/axis.lyx \
 	gui/axis_fr.lyx \
 	gui/halui.lyx \
@@ -38,10 +39,13 @@ DOC_SRCS := \
 	Master_User_fr.lyx \
 	common/Document_Header.lyx \
 	common/Getting_EMC.lyx \
+        common/Getting_EMC_fr.lyx \
 	common/GPLD_Copyright.lyx \
 	common/Glossary.lyx \
 	common/integrator_intro.lyx \
+	common/integrator_intro_fr.lyx \
 	common/Linux_FAQ.lyx \
+	common/Linux_FAQ_fr.lyx \
 	common/machining_center.lyx \
 	common/userforeword.lyx \
 	common/user_intro.lyx \
@@ -76,6 +80,7 @@ DOC_SRCS := \
 	hal/intro.lyx \
 	hal/intro_fr.lyx \
 	hal/pyvcp.lyx \
+	hal/pyvcp_fr.lyx \
 	hal/rtcomps.lyx \
 	hal/rtcomps_fr.lyx \
 	hal/tools.lyx \
@@ -83,7 +88,6 @@ DOC_SRCS := \
 	hal/tutorial.lyx \
 	hal/tutorial_fr.lyx \
 	hal/vcp.lyx \
-	hal/vcp_fr.lyx \
 	install/compiling_emc2.lyx \
 	install/compiling_emc2_fr.lyx \
 	install/installing_emc2.lyx \
@@ -99,6 +103,7 @@ DOC_SRCS := \
 	examples/mpg.lyx \
 	examples/gcode.lyx \
 	quickstart/stepper_quickstart.lyx \
+	quickstart/stepper_quickstart_fr.lyx \
 	Master_HAL.lyx \
 	Master_HAL_fr.lyx
 
@@ -163,6 +168,8 @@ $(DOC_DIR)/EMC2_Manual_Pages.pdf: $(MAN_SRCS) objects/var-PDF_MAN_ORDER
 		| ps2pdf - $@
 		
 $(DOC_DIR)/EMC2_Getting_Started.pdf: $(DOC_SRCDIR)/Getting_Started.pdf
+	@ln -f $< $@
+$(DOC_DIR)/EMC2_Getting_Started_fr.pdf: $(DOC_SRCDIR)/Getting_Started_fr.pdf
 	@ln -f $< $@
 $(DOC_DIR)/HAL_User_Manual.pdf: $(DOC_SRCDIR)/Master_HAL.pdf
 	@ln -f $< $@

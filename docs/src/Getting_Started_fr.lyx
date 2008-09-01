@@ -1,0 +1,119 @@
+#LyX 1.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 221
+\textclass book
+\begin_preamble
+\usepackage[plainpages=false,pdfpagelabels,colorlinks=true,linkcolor=blue]{hyperref}
+\pagenumbering{roman}
+\let\myTOC\tableofcontents
+\renewcommand\tableofcontents{%
+\myTOC
+\clearpage
+\pagenumbering{arabic}
+}
+\renewcommand{\l@section}{\@dottedtocline{1}{1.5em}{3.2em}}
+\renewcommand{\l@subsection}{\@dottedtocline{2}{3.2em}{4.9em}}
+\end_preamble
+\language english
+\inputencoding default
+\fontscheme bookman
+\graphics default
+\float_placement !!h
+\paperfontsize 10
+\spacing single 
+\papersize letterpaper
+\paperpackage a4
+\use_geometry 1
+\use_amsmath 0
+\use_natbib 0
+\use_numerical_citations 0
+\paperorientation portrait
+\paperwidth 8.5in
+\paperheight 11in
+\leftmargin 1in
+\topmargin 1in
+\rightmargin 0.8in
+\bottommargin 0.6in
+\secnumdepth 5
+\tocdepth 3
+\paragraph_separation skip
+\defskip medskip
+\quotes_language english
+\quotes_times 2
+\papercolumns 1
+\papersides 1
+\paperpagestyle headings
+
+\layout Part
+
+V2.3 Guide de démarrage
+\layout Standard
+
+
+\begin_inset Include \include{common/Document_Header.lyx}
+preview false
+
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset LatexCommand \tableofcontents{}
+
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset Include \include{common/Getting_EMC_fr.lyx}
+preview false
+
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset Include \include{quickstart/stepper_quickstart_fr.lyx}
+preview false
+
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset Include \include{config/stepconf_fr.lyx}
+preview false
+
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset Include \include{common/Linux_FAQ_fr.lyx}
+preview false
+
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset Include \include{common/GPLD_Copyright.lyx}
+preview false
+
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset LatexCommand \printindex{}
+
+\end_inset 
+
+
+\the_end

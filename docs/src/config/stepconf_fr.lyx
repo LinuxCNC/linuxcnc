@@ -62,7 +62,7 @@ step & direction
 \layout Section
 
 Instructions pas à pas
-\begin_inset LatexCommand \label{sec:pas à pas}
+\begin_inset LatexCommand \label{sec:pas a pas}
 
 \end_inset 
 
@@ -206,7 +206,7 @@ d'outil Si cette case est cochée, EMC va faire
 \layout Subsection
 
 Réglage du port parallèle
-\begin_inset LatexCommand \label{sub:Réglage du port parallèle}
+\begin_inset LatexCommand \label{sub:Reglage du port parallele}
 
 \end_inset 
 
@@ -221,7 +221,7 @@ collapsed false
 \layout Caption
 
 Page de réglage du port parallèle
-\begin_inset LatexCommand \label{cap:Réglage du port parallèle}
+\begin_inset LatexCommand \label{cap:Reglage du port parallele}
 
 \end_inset 
 
@@ -413,12 +413,12 @@ Accélération\SpecialChar ~
 maximum Les valeurs correctes pour ces deux entrées ne peuvent
  être déterminées que par l'expérimentation.
  Consultez 
-\begin_inset LatexCommand \ref{sub:Définir la vitesse maximum}
+\begin_inset LatexCommand \ref{sub:Definir la vitesse maximum}
 
 \end_inset 
 
  pour définir la vitesse et 
-\begin_inset LatexCommand \ref{sub:Définir l'accélération maximum}
+\begin_inset LatexCommand \ref{sub:Definir l'acceleration maximum}
 
 \end_inset 
 
@@ -628,7 +628,7 @@ Contrôle de la vitesse de broche
 \end_inset 
 
 
-\begin_inset LatexCommand \label{sub:Contrôle de la vitesse de broche}
+\begin_inset LatexCommand \label{sub:Controle de la vitesse de broche}
 
 \end_inset 
 
@@ -673,7 +673,7 @@ et\SpecialChar ~
 \layout Subsubsection
 
 Mouvement avec broche synchronisée (filetage sur tour, taraudage rigide)
-\begin_inset LatexCommand \label{sub:Mouvement avec broche synchronisée}
+\begin_inset LatexCommand \label{sub:Mouvement avec broche synchronisee}
 
 \end_inset 
 
@@ -786,7 +786,7 @@ BASE_PERIOD est requise.
 \layout Subsection
 
 Configuration machine complète
-\begin_inset LatexCommand \label{sub:Configuration machine complète}
+\begin_inset LatexCommand \label{sub:Configuration machine complete}
 
 \end_inset 
 
@@ -807,7 +807,7 @@ Appliquer
 \layout Section
 
 Définir la vitesse et l'accélération
-\begin_inset LatexCommand \label{sec:Définir la vitesse et l'accélération}
+\begin_inset LatexCommand \label{sec:Definir la vitesse et l'acceleration}
 
 \end_inset 
 
@@ -822,7 +822,7 @@ collapsed false
 \layout Caption
 
 Fenêtre du test d'axe
-\begin_inset LatexCommand \label{cap:Fenêtre du test d'axe}
+\begin_inset LatexCommand \label{cap:Fenetre du test d'axe}
 
 \end_inset 
 
@@ -877,7 +877,7 @@ Tester cet axe
 \layout Subsection
 
 Définir la vitesse maximum
-\begin_inset LatexCommand \label{sub:Définir la vitesse maximum}
+\begin_inset LatexCommand \label{sub:Definir la vitesse maximum}
 
 \end_inset 
 
@@ -957,7 +957,7 @@ Une fois que vous avez trouvé une vitesse à laquelle l'axe ne perd plus
 \layout Subsection
 
 Définir l'accélération maximum
-\begin_inset LatexCommand \label{sub:Définir l'accélération maximum}
+\begin_inset LatexCommand \label{sub:Definir l'acceleration maximum}
 
 \end_inset 
 
@@ -976,7 +976,7 @@ Avec la vitesse maximale que vous avez trouvé à l'étape précédente, entrez
 \layout Section
 
 Définir la calibration de la broche
-\begin_inset LatexCommand \label{sec:Définir la calibration de la broche}
+\begin_inset LatexCommand \label{sec:Definir la calibration de la broche}
 
 \end_inset 
 
@@ -1559,7 +1559,7 @@ collapsed false
 \layout Caption
 
 
-\begin_inset LatexCommand \label{cap:Câblage NC}
+\begin_inset LatexCommand \label{cap:Cablage NC}
 
 \end_inset 
 
@@ -1588,7 +1588,7 @@ collapsed false
 \layout Caption
 
 
-\begin_inset LatexCommand \label{cap:Câblage NO}
+\begin_inset LatexCommand \label{cap:Cablage NO}
 
 \end_inset 
 

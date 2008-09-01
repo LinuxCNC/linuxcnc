@@ -212,7 +212,7 @@ collapsed false
 \layout Caption
 
 
-\begin_inset LatexCommand \label{fig:décalages-ilots}
+\begin_inset LatexCommand \label{fig:decalages-ilots}
 
 \end_inset 
 
@@ -243,7 +243,7 @@ Le décalage d'origine est utilisé pour séparer le point de référence de
  le programme restant le même.
  Un cas typique d'utilisation de cette fonctionnalité, pour usiner huit
  ilots identiques sur la même pièce est illustré sur la figure 
-\begin_inset LatexCommand \ref{fig:décalages-ilots}
+\begin_inset LatexCommand \ref{fig:decalages-ilots}
 
 \end_inset 
 
@@ -360,7 +360,7 @@ Une fois que les valeurs sont assignées, un appel de G55 dans une ligne
  Elles agissent sur toutes les lignes de g-code du programme après qu'une
  ait été rencontrée.
  Voyons le programme qui pourrait être écrit à l'aide de la figure
-\begin_inset LatexCommand \ref{fig:décalages-ilots}
+\begin_inset LatexCommand \ref{fig:decalages-ilots}
 
 \end_inset 
 

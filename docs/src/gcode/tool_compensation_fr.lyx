@@ -327,7 +327,7 @@ Des mouvements sur l'axe Z peuvent avoir lieu pendant que le contour est
  Des portions du contour peuvent être franchies avec l'axe Z en retrait
  au dessus de la pièce pendant la poursuite du parcour et jusqu'au point
  où l'usinage doit reprendre, l'axe Z plongera de nouveau en position.
- Ces dégagement de zones non usinées peuvent être faits en vitesse travail
+ Ces dégagements de zones non usinées peuvent être faits en vitesse travail
  (G1), en rapide (G0), en vitesse inverse du temps (G93) ou en avance en
  unités par minute (G94) toutes peuvent être utilisées avec la compensation
  de rayon d'outil.
@@ -353,9 +353,9 @@ Pour activer la compensation de rayon d'outil, programmer soit, G41 (pour
 Pour désactiver la compensation de rayon d'outil, programmer G40.
 \layout Itemize
 
-Si G40, G41, ou G42 est programmé dans la même ligne qu'un mouvement d'axe,
- la compensation de rayon sera activée ou désactivée avant que le mouvement
- ne soit fait.
+Si un G40, G41, ou G42 est programmé dans la même ligne qu'un mouvement
+ d'axe, la compensation de rayon sera activée ou désactivée avant que le
+ mouvement ne soit fait.
  Pour que le mouvement s'effectue en premier, il doit être programmé séparément
  et avant.
 \layout Subsubsection*
@@ -365,7 +365,7 @@ La valeur de D
 
 L'interpréteur actuel requiert une valeur D sur chaque ligne contenant un
  mot G41 ou G42.
- La nombre D doit être un entier positif.
+ Le nombre D doit être un entier positif.
  Il représente le numéro de slot de l'outil, dont le rayon (la moitié du
  diamètre d'outil indiqué dans la table d'outils) sera compensé.
  Il peut aussi être égal à zéro, dans ce cas, la valeur du rayon sera aussi
@@ -396,7 +396,7 @@ Fichiers d'outils
  pour savoir comment remplir ces fichiers.
 \layout Subsubsection*
 
-Deux type de contour
+Deux types de contour
 \layout Standard
 
 L'interpréteur contrôle la compensation pour deux types de contour:
@@ -427,7 +427,7 @@ Lorsque le contour est sur le profil du matériau, c'est ce tracé qui est
  Pour un contour sur le profil du matériau, la valeur du diamètre dans la
  table d'outils correspond au diamètre réel de l'outil courant.
  Cette valeur dans la table doit être positive.
- Le code NC pour ce type de contour reste toujours le même à l'excéption
+ Le code NC pour ce type de contour reste toujours le même à l'exception
  du diamètre de l'outil (actuel ou nominal).
  
 \layout Standard
@@ -438,8 +438,16 @@ Exemple 1 :
 Voici un programme NC qui usine le matériau en suivant le profil d'un des
  triangles de la figure précédente.
  Dans cet exemple, la compensation de rayon est celle du rayon actuel de
- l'outil, soit 0.5 .
- La valeur pour le diamètre dans la table d'outil est de 1.0 .
+ l'outil, soit 0.5
+\begin_inset Quotes erd
+\end_inset 
+
+.
+ La valeur pour le diamètre dans la table d'outil est de 1.0
+\begin_inset Quotes erd
+\end_inset 
+
+ .
 \layout Standard
 
 
@@ -790,14 +798,14 @@ collapsed false
 \layout Standard
 
 Si le premier mouvement après que la compensation de rayon d'outil a été
- activée est un arc, l'arc qui sera généré est dérivé d'un arc auxiliaire
- qui, a son centre identique à celui du point central programmé, passe par
+ activée est un arc, l'arc qui sera généré est dérivé d'un arc auxiliaire,
+ qui a son centre identique à celui du point central programmé, passe par
  le point final de l'arc programmé et, est tangent à l'outil à son emplacement
  courant.
  Si l'arc auxiliaire ne peut pas être construit, une erreur sera signalée.
  L'arc généré déplacera l'outil pour qu'il reste tangeant à l'arc auxiliaire
  pendant tout le mouvement.
- C'est montré sur la figure 10.
+ C'est ce que montre sur la figure 10.
 \layout Standard
 
 Indépendamment du fait que le premier déplacement est une droite ou un arc,
@@ -809,7 +817,7 @@ n de rayon d'outil, mais leur utilisation serait vraiment très inhabituelle.
 \layout Standard
 
 Après les mouvements d'entrée en compensation de rayon d'outil, l'interpréteur
- maintiendra l'outil tangent au contour programmé et du côté approprié.
+ maintiendra l'outil tangeant au contour programmé et du côté approprié.
  Si un angle aigü se trouve dans le chemin, un arc est inséré pour tourner
  autour de l'angle.
  Le rayon de cet arc sera de la moitiè du diamètre de l'outil donné dans
@@ -829,7 +837,7 @@ Programmation des mouvements d'entrée
 En général, un mouvement d'alignement et deux mouvements d'entrée sont demandés
  pour commencer la compensation correctement.
  Cependant, si le contour programmé comporte des pointes et des angles aigüs,
- un seul mouvement d'entré (plus, éventuellement, un mouvement de pré-entrée)
+ un seul mouvement d'entrée (plus, éventuellement, un mouvement de pré-entrée)
  est demandé.
  La méthode générale, qui fonctionne dans toutes les situations, est décrite
  en premier.
@@ -865,11 +873,11 @@ t.
 En premier, choisir un point A sur le contour où il convient d'attacher
  un arc d'entrée.
  Spécifier un arc à l'extérieur du contour qui commence au point B et s'achève
- au point A, tangent au contour (et aller dans la même direction que celle
+ au point A, tangeant au contour (et aller dans la même direction que celle
  prévue pour tourner autour du contour).
  Le rayon doit être supérieur à la moitié du diamètre donné dans la table
  d'outils.
- Ensuite, tirer une ligne tangente à l'arc, du point B au point C, placé
+ Ensuite, tirer une ligne tangeante à l'arc, du point B au point C, placé
  de telle sorte que la ligne BC fasse plus d'un rayon de long.
 \layout Standard
 \added_space_bottom 0.3cm \align left 
@@ -944,7 +952,7 @@ Premièrement, choisir un angle aigü, par exemple D.
  Dans notre exemple nous maintiendrons l'outil à gauche du profil et nous
  avancerons vers F.
  Prolonger la ligne FD (si le segment suivant du contour est un arc, prolonger
- la tangente à l'arc FD depuis D) pour diviser la surface extérieure au
+ la tangeante à l'arc FD depuis D) pour diviser la surface extérieure au
  contour proche de D en deux parties.
  S'assurer que le centre de l'outil est actuellement dans la partie du même
  côté de la ligne prolongée que le matériau.
@@ -1010,7 +1018,7 @@ Autres points où est exécutée la compensation de rayon d'outil
 Le jeu complet de fonctions canoniques comprend des fonctions qui activent
  et désactivent la compensation de rayon d'outil, de sorte qu'elle puisse
  être activée quand le contrôleur exécute une de ces fonctions.
- Dans l'interpréteur, cependant, ces commandes ne sont pas utilisées.
+ Dans l'interpréteur cependant, ces commandes ne sont pas utilisées.
  La compensation est assurée par l'interpréteur et reflétée dans les sorties
  des commandes, c'est l'interpréteur qui continuera à diriger les mouvements
  du centre de l'outil.
@@ -1032,16 +1040,15 @@ L'interpréteur permet que les mouvements d'entrée et de sortie soient des
 Données relatives à la compensation de rayon d'outil:
 \layout Standard
 
-L'interpréteur du modèle de machine conserve trois données pour la compensation
- de rayon d'outil: Le réglage lui même (gauche, droite ou arrêt), program_x,
- et program_y.
+L'interpréteur conserve trois données pour la compensation de rayon d'outil:
+ Le réglage lui même (gauche, droite ou arrêt), program_x et program_y.
  Les deux dernières représentent les positions en X et en Y données dans
  le code NC quand la compensation est active.
  Quand elle est désactivée, les deux entrées sont fixées à de très petites
  valeurs (10 e-20 ) dont la valeur symbolique (dans un #define) est "unknown".
- L'interpréteur du modèle de machine utilise, les items current_x et current_y
- qui représentent, le centre de la pointe de l'outil (dans le système de
- coordonnées courant), à tous moments.
+ L'interpréteur utilise, les items current_x et current_y qui représentent,
+ le centre de la pointe de l'outil (dans le système de coordonnées courant),
+ à tout moment.
 \layout Subsection*
 
 Exemples de Jon Elson
@@ -1056,17 +1063,17 @@ Toutes les informations spécifiques au système se réfèrent au programme
  dans l'étau, une sorte de platine.
  J'installe une recharge de stylo à ressort dans la broche.
  C'est une recharge standard de stylo à bille en métal avec un ressort,
- dans un emballage de 1/2" de diamètre.
+ dans un corps de 12mm de diamètre.
  Elle à un ressort pour la faire rentrer dans le corps du stylo, et un 'collet'
  à l'arrière qui permet à la pointe de se rétracter malgrès le ressort,
- mais qui la laisse centrée à quelques centièmes de pouce près.
+ mais qui la laisse centrée à quelques dixièmes près.
  Je charge le programme avec l'outil zéro sélectionné, et il trace une ligne
  à l'extérieur de la pièce.
  (voir la figure suivante) Alors, je sélectionne un outil avec le diamètre
  de l'outil que j'envisage d'utiliser et je lance le programme une nouvelle
  fois.
  (Noter que la coordonnée Z dans le programme ne doit pas être changée pour
- éviter de plonger le stylo au travers du plateau;-) Maintenant, je dois
+ éviter de plonger le stylo au travers du plateau ;-) Maintenant, je dois
  voir si la compensation G41 ou G42 que je spécifie passe sur le côté voulu
  de la pièce.
  Sinon, je modifie avec la compensation du côté opposé, et j'édite la compensati
@@ -1079,7 +1086,7 @@ on opposée dans le programme, puis j'essaye à nouveau.
  Si vous avez la moindre concavité où deux lignes se rencontrent à moins
  de 180 degrés avec un outil de taille définies, EMC va s'arrêter là, avec
  un message d'erreur.
- Même si le gougeage est de .0001" de profondeur.
+ Même si le gougeage est de .001mm de profondeur.
  Alors, je fais toujours l'approche sur le mouvement d'entrée et le mouvement
  de sortie juste sur un coin de la pièce, en fournissant un angle de plus
  de 180 degrés, afin qu'EMC ne hurle pas.

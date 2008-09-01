@@ -461,7 +461,7 @@ Roughing depth per pass
  Aucune des passes d'ébauche n'usinera plus près de la partie finale que
  Roughing Offset.
  La figure 
-\begin_inset LatexCommand \ref{cap:Passes d'ébauche}
+\begin_inset LatexCommand \ref{cap:Passes d'ebauche}
 
 \end_inset 
 
@@ -478,7 +478,7 @@ collapsed false
 \layout Caption
 
 Passes d'ébauche
-\begin_inset LatexCommand \label{cap:Passes d'ébauche}
+\begin_inset LatexCommand \label{cap:Passes d'ebauche}
 
 \end_inset 
 

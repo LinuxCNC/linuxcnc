@@ -75,7 +75,7 @@ collapsed false
 \layout Caption
 
 Fenêtre d'AXIS
-\begin_inset LatexCommand \label{cap:Fenêtre d'AXIS}
+\begin_inset LatexCommand \label{cap:Fenetre d'AXIS}
 
 \end_inset 
 
@@ -123,7 +123,7 @@ sim/axis.ini
 \layout Standard
 
 Quand vous démarrez AXIS, une fenêtre telle que celle de la figure 
-\begin_inset LatexCommand \ref{cap:Fenêtre d'AXIS}
+\begin_inset LatexCommand \ref{cap:Fenetre d'AXIS}
 
 \end_inset 
 
@@ -637,7 +637,7 @@ Les
  coordonnées sont indiquées.
  Au milieu, la différence entre ces valeurs de coordonnées est visible.
  Sur la figure 
-\begin_inset LatexCommand \ref{cap:Fenêtre d'AXIS}
+\begin_inset LatexCommand \ref{cap:Fenetre d'AXIS}
 
 \end_inset 
 
@@ -919,7 +919,7 @@ En continu
 Le réglage du fichier .ini 
 \family typewriter 
 [DISPLAY]INCREMENTS
-\begin_inset LatexCommand \label{Incréments du jog}
+\begin_inset LatexCommand \label{Increments du jog}
 
 \end_inset 
 

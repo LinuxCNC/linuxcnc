@@ -129,7 +129,7 @@ preview false
 \end_inset 
 
 
-\begin_inset Include \include{hal/vcp_fr.lyx}
+\begin_inset Include \include{hal/pyvcp_fr.lyx}
 preview false
 
 \end_inset 

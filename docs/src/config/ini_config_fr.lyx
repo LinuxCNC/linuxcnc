@@ -372,7 +372,7 @@ Certaines de ces variables sont utilisées par EMC.
 \layout Section
 
 
-\begin_inset LatexCommand \label{sub:Détails fichier INI}
+\begin_inset LatexCommand \label{sub:Details fichier INI}
 
 \end_inset 
 
@@ -2121,7 +2121,7 @@ input\_ scale & = & 2000\frac{impulsions}{tour}*10\frac{tours}{pouce}\\
 \layout Subsubsection
 
 Variables relatives aux moteurs pas à pas
-\begin_inset LatexCommand \label{sub:Variables relatives aux moteurs pas à pas}
+\begin_inset LatexCommand \label{sub:Variables relatives aux moteurs pas a pas}
 
 \end_inset 
 

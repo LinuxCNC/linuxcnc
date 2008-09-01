@@ -59,13 +59,13 @@ Séquence de prise d'origine
 
 \lang french
 La figure 
-\begin_inset LatexCommand \ref{fig: SÃ©quences de prise d'origine}
+\begin_inset LatexCommand \ref{fig: Sequences de prise d'origine}
 
 \end_inset 
 
  montre les quatre séquences de prise d'origine possibles, avec les variables
  de configuration associées 
-\begin_inset LatexCommand \ref{cap:Variables sÃ©quences de POM}
+\begin_inset LatexCommand \ref{cap:Variables sequences de POM}
 
 \end_inset 
 
@@ -75,6 +75,11 @@ La figure
 
 
 \lang english
+
+\begin_inset LatexCommand \ref{fig: Sequences de prise d'origine}
+
+\end_inset 
+
 
 \begin_inset Float figure
 placement H
@@ -100,7 +105,7 @@ collapsed false
 
 \lang french
 
-\begin_inset LatexCommand \label{fig: SÃ©quences de prise d'origine}
+\begin_inset LatexCommand \label{fig: Sequences de prise d'origine}
 
 \end_inset 
 
@@ -398,7 +403,7 @@ Erreur
 
 \lang english
 
-\begin_inset LatexCommand \label{cap:Variables sÃ©quences de POM}
+\begin_inset LatexCommand \label{cap:Variables sequences de POM}
 
 \end_inset 
 
@@ -410,9 +415,7 @@ Erreur
 
 
 \lang french
-HOME_SEARCH_VEL\SpecialChar ~
-=\SpecialChar ~
-0
+HOME_SEARCH_VEL = 0
 \begin_inset LatexCommand \index{HOME SEARCH VEL}
 
 \end_inset 
@@ -481,7 +484,7 @@ Une valeur égale à zéro indique qu'il n'y a pas de contact d'origine machine,
 
 
 \lang french
-HOME_LATCH_VEL=0
+HOME_LATCH_VEL = 0
 \begin_inset LatexCommand \index{HOME LATCH VEL}
 
 \end_inset 
@@ -581,9 +584,7 @@ HOME_LATCH_VEL
 
 
 \lang french
-HOME_IGNORE_LIMITS\SpecialChar ~
-=\SpecialChar ~
-YES/NO
+HOME_IGNORE_LIMITS = YES/NO
 \begin_inset LatexCommand \index{HOME IGNORE LIMITS}
 
 \end_inset 
@@ -606,9 +607,7 @@ Peut contenir les valeurs YES ou NO.
 
 
 \lang french
-HOME_USE_INDEX\SpecialChar ~
-=\SpecialChar ~
-YES/NO
+HOME_USE_INDEX = YES/NO
 \begin_inset LatexCommand \index{HOME USE INDEX}
 
 \end_inset 
