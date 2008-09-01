@@ -128,8 +128,8 @@ static CANON_POSITION programOrigin(0.0, 0.0, 0.0,
 static CANON_UNITS lengthUnits = CANON_UNITS_MM;
 static CANON_PLANE activePlane = CANON_PLANE_XY;
 
-static int old_feed_mode = 0;
 static int feed_mode = 0;
+static int synched = 0;
 
 /* Tool length offset is saved here */
 static double currentXToolOffset = 0.0;
@@ -807,7 +807,7 @@ static void flush_segments(void) {
     linearMoveMsg.acc = toExtAcc(acc);
 
     linearMoveMsg.type = EMC_MOTION_TYPE_FEED;
-    if ((vel && acc) || feed_mode) { //in the case of feed_mode != 0 (that means synched to the spindle) we don't need a feedrate : e.g. G33 without F-word
+    if ((vel && acc) || synched) {
         int save = interp_list.get_next_line_number();
         interp_list.set_line_number(line_no);
         interp_list.append(linearMoveMsg);
@@ -1089,8 +1089,7 @@ void START_SPEED_FEED_SYNCH(double feed_per_revolution, bool velocity_mode)
     spindlesyncMsg.feed_per_revolution = TO_EXT_LEN(FROM_PROG_LEN(feed_per_revolution));
     spindlesyncMsg.velocity_mode = velocity_mode;
     interp_list.append(spindlesyncMsg);
-    old_feed_mode = feed_mode;
-    feed_mode = 1;
+    synched = 1;
 }
 
 void STOP_SPEED_FEED_SYNCH()
@@ -1100,7 +1099,7 @@ void STOP_SPEED_FEED_SYNCH()
     spindlesyncMsg.feed_per_revolution = 0.0;
     spindlesyncMsg.velocity_mode = false;
     interp_list.append(spindlesyncMsg);
-    feed_mode = old_feed_mode;
+    synched = 0;
 }
 
 void SELECT_MOTION_MODE(CANON_MOTION_MODE mode)
