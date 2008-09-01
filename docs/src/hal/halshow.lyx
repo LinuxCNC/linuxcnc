@@ -42,6 +42,15 @@ As we will soon see, this ability of HAL to document itself is one key to
  
 \layout Subsection
 
+Starting Halshow
+\layout Standard
+
+Halshow is in the AXIS menu under Machine/Show Hal Configuration.
+\layout Standard
+
+Halshow is in the TkEMC menu under Scripts/Hal Show.
+\layout Subsection
+
 Hal Tree Area
 \layout Standard
 
