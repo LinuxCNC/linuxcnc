@@ -38,7 +38,7 @@ Introduction
 \layout Standard
 
 Un des problèmes les plus souvent évoqués par les utilisateurs à propos
- d'EMC a été qu'il ne s'installait pas de lui-même.
+ d'EMC2 a été qu'il ne s'installait pas de lui-même.
  Il fallait qu'ils récupèrent les sources, les compilent eux-mêmes, essaient
  d'appliquer un noyau Linux patché RT, etc.
  Les développeurs d'EMC2 ont donc choisi une distribution standard appelée
@@ -236,11 +236,16 @@ Pour l'utiliser vous devez:
 \layout Itemize
 
 Charger le script depuis 
-\begin_inset LatexCommand \url{http://linuxcnc.org/dapper/emc2-install.sh}
+\begin_inset LatexCommand \url[Script pour Dapper]{http://linuxcnc.org/dapper/emc2-install.sh}
 
 \end_inset 
 
- (Pour Ubuntu 6.06)
+ (Pour Ubuntu 6.06) ou 
+\begin_inset LatexCommand \url[Script pour Hardy Heron]{http://linuxcnc.org/hardy/emc2-install.sh}
+
+\end_inset 
+
+ (Pour Ubuntu 8.04)
 \layout Itemize
 
 Le sauver sur votre bureau.

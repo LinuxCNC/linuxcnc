@@ -49,6 +49,7 @@ DOC_SRCS := \
 	common/machining_center.lyx \
 	common/userforeword.lyx \
 	common/user_intro.lyx \
+	common/user_intro_fr.lyx \
 	config/ini_config.lyx \
 	config/ini_config_fr.lyx \
 	config/ini_homing.lyx \

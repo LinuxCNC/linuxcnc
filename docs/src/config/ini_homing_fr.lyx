@@ -24,17 +24,17 @@
 \papersides 1
 \paperpagestyle default
 
-\layout Section
+\layout Chapter
 
 
-\lang english
+\lang french
 
 \begin_inset LatexCommand \label{sec:Prises-d'origine}
 
 \end_inset 
 
-Prises d'origine
-\layout Subsection
+Prise d'origine
+\layout Section
 
 
 \lang french
@@ -74,7 +74,7 @@ La figure
 \layout Standard
 
 
-\lang english
+\lang french
 
 \begin_inset LatexCommand \ref{fig: Sequences de prise d'origine}
 
@@ -89,7 +89,7 @@ collapsed false
 \layout Standard
 \align center 
 
-\lang english
+\lang french
 
 \begin_inset Graphics
 	filename emc2-motion-homing-diag.eps
@@ -128,7 +128,7 @@ Il y a six combinaisons possibles des variables qui définissent le déroulement
 \layout Standard
 
 
-\lang english
+\lang french
 
 \begin_inset Float table
 placement H
@@ -138,7 +138,7 @@ collapsed false
 \layout Standard
 \align center 
 
-\lang english
+\lang french
 
 \begin_inset  Tabular
 <lyxtabular version="3" rows="6" columns="4">
@@ -154,7 +154,7 @@ collapsed false
 \layout Standard
 
 
-\lang english
+\lang french
 SEARCH_VEL
 \end_inset 
 </cell>
@@ -164,7 +164,7 @@ SEARCH_VEL
 \layout Standard
 
 
-\lang english
+\lang french
 LATCH_VEL
 \end_inset 
 </cell>
@@ -174,7 +174,7 @@ LATCH_VEL
 \layout Standard
 
 
-\lang english
+\lang french
 USE_INDEX
 \end_inset 
 </cell>
@@ -184,7 +184,7 @@ USE_INDEX
 \layout Standard
 
 
-\lang english
+\lang french
 Type de séquence
 \end_inset 
 </cell>
@@ -196,7 +196,7 @@ Type de séquence
 \layout Standard
 
 
-\lang english
+\lang french
 nonzero
 \end_inset 
 </cell>
@@ -206,7 +206,7 @@ nonzero
 \layout Standard
 
 
-\lang english
+\lang french
 nonzero
 \end_inset 
 </cell>
@@ -216,7 +216,7 @@ nonzero
 \layout Standard
 
 
-\lang english
+\lang french
 NO
 \end_inset 
 </cell>
@@ -226,7 +226,7 @@ NO
 \layout Standard
 
 
-\lang english
+\lang french
 Switch-seulement
 \end_inset 
 </cell>
@@ -238,7 +238,7 @@ Switch-seulement
 \layout Standard
 
 
-\lang english
+\lang french
 nonzero
 \end_inset 
 </cell>
@@ -248,7 +248,7 @@ nonzero
 \layout Standard
 
 
-\lang english
+\lang french
 nonzero
 \end_inset 
 </cell>
@@ -258,7 +258,7 @@ nonzero
 \layout Standard
 
 
-\lang english
+\lang french
 YES
 \end_inset 
 </cell>
@@ -268,7 +268,7 @@ YES
 \layout Standard
 
 
-\lang english
+\lang french
 Switch + Index
 \end_inset 
 </cell>
@@ -280,7 +280,7 @@ Switch + Index
 \layout Standard
 
 
-\lang english
+\lang french
 0
 \end_inset 
 </cell>
@@ -290,7 +290,7 @@ Switch + Index
 \layout Standard
 
 
-\lang english
+\lang french
 nonzero
 \end_inset 
 </cell>
@@ -300,7 +300,7 @@ nonzero
 \layout Standard
 
 
-\lang english
+\lang french
 YES
 \end_inset 
 </cell>
@@ -310,7 +310,7 @@ YES
 \layout Standard
 
 
-\lang english
+\lang french
 Index-seulement
 \end_inset 
 </cell>
@@ -322,7 +322,7 @@ Index-seulement
 \layout Standard
 
 
-\lang english
+\lang french
 0
 \end_inset 
 </cell>
@@ -332,7 +332,7 @@ Index-seulement
 \layout Standard
 
 
-\lang english
+\lang french
 0
 \end_inset 
 </cell>
@@ -342,7 +342,7 @@ Index-seulement
 \layout Standard
 
 
-\lang english
+\lang french
 NO
 \end_inset 
 </cell>
@@ -352,7 +352,7 @@ NO
 \layout Standard
 
 
-\lang english
+\lang french
 Aucun
 \end_inset 
 </cell>
@@ -364,7 +364,7 @@ Aucun
 \layout Standard
 
 
-\lang english
+\lang french
 Autres combinaisons
 \end_inset 
 </cell>
@@ -388,7 +388,7 @@ Autres combinaisons
 \layout Standard
 
 
-\lang english
+\lang french
 Erreur
 \end_inset 
 </cell>
@@ -401,7 +401,7 @@ Erreur
 \layout Caption
 
 
-\lang english
+\lang french
 
 \begin_inset LatexCommand \label{cap:Variables sequences de POM}
 
@@ -724,8 +724,6 @@ HOME_SEARCH_VEL
  Puisque l'axe est maintenant référencé, il n'y a plus de risque pour la
  machine, un mouvement rapide est donc la façon la plus rapide de finir
  la séquence de prise d'origine.
-\lang english
-
 \begin_inset Foot
 collapsed false
 

@@ -37,7 +37,7 @@
 \layout Chapter
 
 
-\begin_inset LatexCommand \label{premiere-section}
+\begin_inset LatexCommand \label{first-section}
 
 \end_inset 
 
@@ -52,22 +52,14 @@ Introduction
 
 \layout Standard
 
-Pour les installations basées sur des moteurs pas à pas lisez le Guide du
- débutant.
- Si EMC est installé et configuré lisez le manuel de l'utilisateur pour
- plus d'informations sur son utilisation.
-\layout Standard
-
-Le manuel de l'intégrateur est plutôt orienté vers des machines plus complexes,
- leur configuration et leur installation.
- Comme intégrateur système votre tâche consiste à réunir entre eux des sous-syst
-èmes et à garantir que ces sous-sytèmes fonctionnent ensembles.
- EMC est un de ces sous-sytèmes.
- 
+Le manuel de l'utilisateur est centré sur l'utilisation d'EMC.
+ Il est plutôt destiné aux lecteurs ayant déjà installé et configuré EMC2.
+ Toute l'information sur l'installation et la configuration se trouve dans
+ le manuel de l'intégrateur.
 \layout Section
 
 Vue d'ensemble de la CNC
-\begin_inset LatexCommand \label{sec:Vue-d'ensemble}
+\begin_inset LatexCommand \label{sec:Vue-d'ensemble-de-la-CNC}
 
 \end_inset 
 
@@ -180,7 +172,7 @@ conversationelle
 \layout Section
 
 Système d'exploitation de l'ordinateur
-\begin_inset LatexCommand \label{sec:Systeme-d'exploitation}
+\begin_inset LatexCommand \label{sec:Le-systeme-d'exploitation}
 
 \end_inset 
 
@@ -207,7 +199,7 @@ Le code d'EMC2 peut être compilé sur la plupart des distributions GNU-Linux
  dans le monde entier.
  Installer EMC2 cette distribution est extrêmement simple, voir la section
  
-\begin_inset LatexCommand \ref{sec:EMC2-Ubuntu-Live-CD}
+\begin_inset LatexCommand \ref{sec:Le live CD d'EMC2}
 
 \end_inset 
 
@@ -221,182 +213,8 @@ EMC2 ne fonctionne pas sur les systèmes d'exploitation Microsoft (TM).
  meilleures du système d'exploitation Linux.
 \layout Section
 
-Histoire du logiciel
-\begin_inset LatexCommand \label{sec:Histoire-du-log}
-
-\end_inset 
-
-
-\layout Standard
-
-Le code d'EMC a été créé par la division des systèmes intelligents, à l'institut
- national des standards et des technologies des Etats Unis.
- Trouvées couramment et depuis longtemps sur le web sous le nom de NIST
-\begin_inset LatexCommand \index{NIST}
-
-\end_inset 
-
- , voici quelques informations donnant une meilleure compréhension des raisons
- essentielles des liens entre ce logiciel et le NIST.
-\layout Quotation
-
-Une part de notre collaboration (le NIST) avec le groupe d'utilisateurs
- OMAC
-\begin_inset LatexCommand \index{OMAC}
-
-\end_inset 
-
- , a consisté à écrire des logiciels implémentants le contrôle temps réel
- d'équipements, tels que machines-outils, robots et machines de mesure de
- coordonnées.
- L'objectif de ce développement de logiciels est double: premièrement, fournir
- des implémentations logicielles complètes de tous les modules OMAC dans
- le but de valider la programmation d'interfaces; et deuxièmement, fournir
- un véhicule pour transférer le contrôle de ces technologies aux petites
- et moyennes industries via les extensions de partenariat industriel du
- NIST.
- Le logiciel EMC est basé sur le système de contrôle temps réel du NIST
- (RCS
-\begin_inset LatexCommand \index{RCS}
-
-\end_inset 
-
-) Sa méthodologie et sa programmation utilisent les bibliothèques RCS du
- NIST.
- La bibliothèque RCS facilite le portage du code du contrôleur sur des plateform
-es Unix et Microsoft variées, produisant une interface programmée (API)
- neutre par rapport au système d'exploitation et ses resources comme la
- mémoire partagée, les sémaphores et les horloges.
- La bibliothèque RCS implémente aussi un modèle de communication, le Neutral
- Manufacturing Language, qui autorise le processus de contrôle à lire et
- écrire des structures de données C++ au travers d'un environnement simple
- et homogène ou d'un environnement hétérogène mis en réseau.
- Le logiciel EMC est écrit en C et en C++, il a été porté sur les systèmes
- d'exploitation PC Linux, Windows NT et Sun Solaris.
- Quand il fonctionne sur les équipements actuels, une version temps réel
- de Linux est utilisée pour permettre les taux de calculs déterministes
- requis (200 microsecondes typiquement).
- Le logiciel peut être entièrement lancé en mode simulation, moteurs machine
- à l'arrêt.
- Ceci permet à un parc complet de machines d'être créé et réglé sur le PC
- et dans l'environnement de l'intégrateur.
- 
-\layout Standard
-
-EMC a été installé sur ne nombreuses machines, certaines avec servomoteurs,
- d'autres des moteurs pas à pas.
- Voici un échantillonnage des plus anciennes applications.
- 
-\layout Itemize
-
-3-axes Bridgeport
-\begin_inset LatexCommand \index{Bridgeport}
-
-\end_inset 
-
-, fraiseuse à genouillère du Shaver Engineering.
- La machine utilise des servomoteurs à balais avec codeurs pour le contrôle
- de position et une interface compatible I/O OPTO-22 interfacée sur le port
- parallèle du PC pour les entrées/sorties de la broche, lubrifiant, graissage
- centralisé et système d'arrêt d'urgence.
- 
-\layout Itemize
-
-3-axes fraiseuse d'établis, machine utilisée pour le développement de prototypes.
- La machine utilise des servomoteurs à balais et codeurs.
- Le contrôle de la broche est fait grâce au mouvements d'un quatrième axe.
- La machine usine des pièces en cire.
- 
-\layout Itemize
-
-4-axes Kearney & Trecker, centre d'usinage horizontal chez General Motors
- Powertrain de Pontiac, MI.
- Cette machine est le précurseur des machines tout logiciel pour lesquelles
- EMC utilise une carte contrôleur de mouvement externe.
- 
-\layout Standard
-
-Après ces premiers tests, Jon Elson a trouvé des notes de Shaver Engineering
- et a remplacé le contrôleur Allen Bradley 7300, de la taille d'un réfrigérateur
-, sur sa Bridgeport et avec EMC tournant sur une distribution de Linux Red
- Hat 5.2.
- Il a été emballé par les résultats et a parlé du logiciel sur plusieurs
- newsgroups.
- Il utilise toujours cette installation et a produit plusieurs cartes supportées
- par le logiciel.
- 
-\layout Standard
-
-Ces premières applications ont vite été connues du monde entier.
- Il est maintenant utilisé pour contrôler différents types de machines.
- Plus récemment la compagnie Sherline
-\begin_inset LatexCommand \index{Sherline}
-
-\end_inset 
-
- 
-\begin_inset LatexCommand \url{http://www.sherline.com}
-
-\end_inset 
-
- à publié la première version de sa fraiseuse CNC.
- Elle utilise une version standard d'EMC.
- 
-\layout Standard
-
-Les fichiers du code source pour compiler le contrôleur sont disponibles
- dans le dépot 
-\begin_inset LatexCommand \index{CVS}
-
-\end_inset 
-
- sur 
-\begin_inset LatexCommand \url{http://cvs.linuxcnc.org}
-
-\end_inset 
-
-.
- Ils sont disponibles à la lecture ou au téléchargement.
- Le code source d'EMC2 (avec quelques exceptions
-\begin_inset Foot
-collapsed true
-
-\layout Standard
-
-Certaines parties d'EMC2 sont fournies sous license 
-\begin_inset Quotes eld
-\end_inset 
-
-Lesser
-\begin_inset Quotes erd
-\end_inset 
-
- GPL (LPGL), qui lui permet d'être utilisé dans des logiciels propriétaires
- sous réserve de l'observation de certaines restrictions.
-\end_inset 
-
-) est fourni sous GNU General Public License (GPL).
- La GPL
-\begin_inset LatexCommand \index{GPL}
-
-\end_inset 
-
- controle les termes sous lesquels EMC2 peut être modifié et distribué.
- C'est fait pour protéger les droits de gens comme vous, d'utiliser, étudier,
- adapter, améliorer et redistribuer ce logiciel librement, maintenant et
- dans le futur.
- Pour lire à propos de vos droits d'utilisateur d'EMC2 et les termes sous
- lesquels il vous est permis de distribuer n'importe quelles modifications
- que vous auriez pu faire, voyez la licence GPL complète à 
-\begin_inset LatexCommand \url{http://www.gnu.org/copyleft/gpl.html}
-
-\end_inset 
-
-.
-\layout Section
-
 Comment marche EMC2
-\begin_inset LatexCommand \label{sec:Comment-EMC2-marche}
+\begin_inset LatexCommand \label{sec:Comment-marche-EMC2}
 
 \end_inset 
 
@@ -482,7 +300,7 @@ Il y a quatre composants dans le logiciel EMC2: un controleur de mouvement
  (la couche d'abstraction matériel), qui permet la configuration simple
  d'EMC2 sans qu'il soit besoin de le recompiler.
  
-\layout Subsection
+\layout Section
 
 Interfaces utilisateur graphiques
 \begin_inset LatexCommand \label{sub:Interfaces-utilisateur-graphiques}
@@ -563,7 +381,7 @@ Une GUI basée sur OpenGL, avec prévisualisation du G-Code, appelée AXIS
 
 \begin_inset Float figure
 wide false
-collapsed true
+collapsed false
 
 \layout Standard
 \align center 
@@ -590,7 +408,7 @@ L'interface graphique AXIS
 
 \begin_inset Float figure
 wide false
-collapsed true
+collapsed false
 
 \layout Standard
 \align center 
@@ -614,7 +432,7 @@ L'interface graphique Keystick
 
 \begin_inset Float figure
 wide false
-collapsed true
+collapsed false
 
 \layout Standard
 \align center 
@@ -641,7 +459,7 @@ L'interface graphique Mini
 
 \begin_inset Float figure
 wide false
-collapsed true
+collapsed false
 
 \layout Standard
 \align center 
@@ -668,7 +486,7 @@ L'interface graphique TkEmc
 
 \begin_inset Float figure
 wide false
-collapsed true
+collapsed false
 
 \layout Standard
 \added_space_top smallskip \added_space_bottom smallskip \align center 
@@ -703,195 +521,44 @@ Tkemc et Mini peuvent tourner sous Linux, Mac et Microsoft Windows si le
  Les instructions pour installer et configurer une telle connection entre
  un MAC ou une machine Micosoft et un PC sur lequel tourne EMC2 se trouvent
  dans le manuel de l'intégrateur.
-\layout Subsection
+\layout Section
 
-Contrôleur de mouvement EMCMOT 
-\begin_inset LatexCommand \label{sub:Controleur-de-mouvement-EMCMOT}
-
-\end_inset 
-
-
-\layout Standard
-
-Le contrôleur de mouvement gère l'échantillonage de position des axes à
- contrôler, calcule le prochain point sur la trajectoire, calcule l'interpolatio
-n entre ces points sur la trajectoire et calcule les valeurs de sortie vers
- les moteurs.
- Pour un système à servomoteurs, la sortie est basée sur un algorithme de
- régulation PID en boucle fermée.
- Pour un système à moteurs pas à pas, les calculs se font en boucle ouverte
- et les impulsions sont envoyées aux moteurs en cumulant leurs positions
- jusqu'à une impulsion de plus que leur position commandée.
- Le contrôleur de mouvement gère les limites logicielles programmables,
- il gère également l'interface des interrupteurs de fins de course et ceux
- des origines machine.
-\layout Standard
-
-Le contrôleur de mouvement est écrit pour être assez générique.
- Des fichiers d'initialisation (avec la mêm syntaxe que les fichiers INI
- de Microsoft Windows 
-\begin_inset LatexCommand \index{INI}
-
-\end_inset 
-
- ) sont utilisés pour configurer les différents paramètres tels que le nombre
- et le type d'axes (par exemple: linéaire ou rotatif), les facteurs d'échelle
- des differents capteurs (par exemple: codeurs, compteurs) et unités machine
- 
-\begin_inset LatexCommand \index{unites}
-
-\end_inset 
-
- (par exemple: millimètres, pouces), le gain des servo, les temps de cycle
- du planificateur de trajectoire et d'autres paramètres du système.
- Les cinématiques complexes pour les robots peuvent être codées en C selon
- une autre interface remplaçant les routines des cinématiques de machines
- cartésiennes à 3 axes.
- 
-\layout Subsection
-
-Contrôleur d'entrées/sorties discrètes EMCIO
-\begin_inset LatexCommand \index{EMCIO}
-
-\end_inset 
-
- 
-\begin_inset LatexCommand \label{sub:Controleur-d'entrees-sorties}
+Penser comme un opérateur sur CNC
+\begin_inset LatexCommand \label{sec:Penser-operateur}
 
 \end_inset 
 
 
 \layout Standard
 
-Le contrôleur d'entrées/sorties est hautement spécifique à la machine, il
- n'est en général pas personalisable par la technique du fichier INI utilisée
- pour le plus générique contrôleur de mouvement.
- Toutefois, depuis qu'EMC2 utilise HAL, la reconfiguration du sous-sytème
- d'entrées/sorties est devenu vraiment très puissant et flexible.
- EMC2 contient un module automate programmable (similaire à un automate
- matériel PLC
-\begin_inset LatexCommand \index{PLC}
-
+Ce manuel ne prétend pas vous apprendre à utiliser un tour ou une fraiseuse.
+ Devenir un opérateur expérimenté prends beaucoup de temps et demande beaucoup
+ de travail.
+ Un auteur a dit une fois, 
+\begin_inset Quotes eld
 \end_inset 
 
-) il peut être utilisé pour des scénarios très complexes comme des changeurs
- d'outils etc.
- 
-\layout Standard
-
-Dans EMC2 il y a seulement un gros controleur d'entrées/sorties, lequel
- fournit le support pour tous les types d'actions et de contrôle matériel.
- Toutes ses sorties et entrées sont des HAL pins (plus à ce sujet plus tard),
- vous pouvez donc utiliser ce sous-ensemble pour l'ajuster à votre matériel
- et tout le nécessaire pour votre application.
-\layout Subsection
-
-Coordinateur de tâches EMCTASK
-\begin_inset LatexCommand \index{EMCTASK}
-
-\end_inset 
-
- 
-\begin_inset LatexCommand \label{sub:Coordinateur-de-taches}
-
-\end_inset 
-
-
-\layout Standard
-
-
-\begin_inset Float figure
-wide false
-collapsed false
-
-\layout Caption
-
-
-\begin_inset LatexCommand \label{fig:Diagramme-de-process}
-
-\end_inset 
-
-Diagramme de process d'EMC2
-\layout Standard
-\align center 
-
-\begin_inset Graphics
-	filename whatpc.png
-	keepAspectRatio
-
-\end_inset 
-
-
-\end_inset 
-
-
-\layout Standard
-
-Le coordinateur de l'exécution des tâches est responsable de l'interprétation
- du G-code et du M-code du programme, lequel ne varie pas beaucoup d'une
- machine à l'autre.
- Un programme en G-code est conçu pour travailler comme un opérateur pourrait
- travailler.
- Le mouvement ou les tours de manivelle étant codés dans des blocs.
- Si un opérateur veux que sa machine se déplace de 1 pouce dans la direction
- +X avec une vitesse fixe, il doit tourner lentement sa manivelle de cinq
- tours en sens horaire et en 20 secondes.
- Pour obtenir un mouvement équivalent, cet opérateur programmera sur sa
- machine CNC le bloc de code suivant:
-\layout LyX-Code
-
-G1 F3 X1.000
-\layout Standard
-
-G1 signifie que l'outil se déplacera selon la vitesse d'avance programmée,
- au contraire d'une avance en vitesse aussi rapide que possible (G0 est
- la commande pour un mouvement en vitesse rapide, utilisée lors des déplacements
- en dehors de la matière qui doivent durer le moins longtemps possible puisque
- non productifs).
- Le F3 signifie que le déplacement doit se faire à 3 pouces par minute,
- ou 3 millimètres par minute si on travaille en unités métriques! Le X1.000
- (en supposant que l'axe X démarre de zéro) demande que l'outil se déplace
- d'un pouce dans la direction de X positive.
- Vous aurez beaucoup de lecture à propos du G-code dans les chapitres sur
- la programmation.
-\layout Standard
-
-La figure 
-\begin_inset LatexCommand \ref{fig:Diagramme-de-process}
-
-\end_inset 
-
- est un diagramme bloc montrant comment ordinateur avec EMC2 est utilisé
- pour contrôler une machine avec un programme en G-code
-\begin_inset LatexCommand \index{G-code}
-
+Nous apprenons de l'expérience, si on l'a  toute
+\begin_inset Quotes erd
 \end_inset 
 
 .
- Un G-code peut être envoyé en l'entrant au clavier dans la zone de données
- manuelles (MDI)
-\begin_inset LatexCommand \index{MDI}
-
-\end_inset 
-
- (Machine Device Interface) ou, il peut être envoyé à partir d'un fichier
- quand la machine est en mode Auto
-\begin_inset LatexCommand \index{Auto}
-
-\end_inset 
-
- .
- Ces choix sont faits par l'opérateur et entrés en utilisant une des interfaces
- utilisateur disponibles.
+ Les outils cassés, les étaux attaqués et les cicatrices sont les preuves
+ des leçons apprises.
+ Une belle finition, des tolérances serrées et la prudence pendant le travail
+ sont les preuves des leçons retenues.
+ Aucune machine, aucun programme ne peut remplacer l'expérience humaine.
  
 \layout Standard
 
-Le G-code est envoyé à l'interpréteur qui compare le nouveau bloc avec les
- données qu'il a reçu précédemment.
- Il connait alors les besoins pour effectuer le mouvement ou pour positionner
- les sorties ou les entrées du système et envoyer les blocs de commandes
- au planificateur de mouvement et au contrôleur de tâches.
-\layout Subsection
+Maintenant que vous commencez à  travailler avec le programme EMC2, vous
+ devez vous placer dans la peau d'un opérateur.
+ Vous devez être  dans le rôle de quelqu'un qui a la charge d'une machine.
+ C'est une machine qui attendra vos commandes puis qui exécutera les ordres
+ que vous lui donnerez.
+ Dans ces pages nous donnerons les explications qui vous aideront à devenir
+ un bon opérateur de fraiseuse avec EMC2.
+\layout Section
 
 Modes opératoires
 \begin_inset LatexCommand \label{sub:Modes-operatoires}
@@ -1003,7 +670,7 @@ L'interface utilisateur graphique AXIS supprime certaines distinctions entre
  Il rend également floue la distinction entre Manuel et MDI parce que certaines
  commandes manuelles comme Toucher, sont également implémentées en envoyant
  une commande MDI.
-\layout Subsection
+\layout Section
 
 Informations affichées 
 \begin_inset LatexCommand \label{sub:Informations-affichees}
@@ -1085,24 +752,10 @@ Vous modifierez votre façon de travailler avec ces petits textes, vous apprendre
 z, petit à petit, comment ajuster et faire fonctionner votre machine avec
  le logiciel EMC2.
  Pendant que vous apprendrez à affiner les réglages, que vous travaillerez
- ici avec votre mini fraiseuse, vous penserez à d'autres applications et
- à d'autres possibilités.
+ avec votre mini fraiseuse, vous penserez à d'autres applications et à d'autres
+ possibilités.
  Ce seront les sujets d'autres manuels de linuxcnc.org.
 \layout Section
-
-Penser comme un intégrateur
-\begin_inset LatexCommand \label{sec:Penser-integrateur}
-
-\end_inset 
-
-
-\layout Standard
-
-La tâche principale d'un intégrateur consiste à imaginer comment connecter
- un PC sur lequel fonctionnera EMC2 avec une machine et à configurer le
- logiciel pour qu'il pilote correctement la machine.
- 
-\layout Subsection
 
 Unités
 \begin_inset LatexCommand \index{unites}

@@ -85,7 +85,7 @@ collapsed false
 \layout Caption
 
 Page d'informations sur la machine
-\begin_inset LatexCommand \label{cap:Page informations sur la machine}
+\begin_inset LatexCommand \label{cap:Page informations machine}
 
 \end_inset 
 
@@ -1269,7 +1269,7 @@ limite soft
 
 
 \begin_inset Note
-collapsed true
+collapsed false
 
 \layout Standard
 

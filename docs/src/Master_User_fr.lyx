@@ -98,7 +98,21 @@ Permission is granted to copy, distribute and/or modify this document under
 
 \layout Part
 
-Introduction et Installation d'EMC2
+Introduction 
+\layout Standard
+
+
+\lang english
+
+\begin_inset Include \include{common/user_intro_fr.lyx}
+preview false
+
+\end_inset 
+
+
+\layout Part
+
+Installation d'EMC2
 \layout Standard
 
 

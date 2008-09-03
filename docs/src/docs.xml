@@ -48,8 +48,8 @@
 </docgroup>
 
 <docgroup lang="fr">
+<doc name="common_user_intro_fr" title="Introduction à EMC2"/>
 <doc name="common_Getting_EMC_fr" title="Où trouver EMC2"/>
-<doc name="common_Getting_Started_fr" title="Bien débuter avec EMC2"/>
 <doc name="install_compiling_emc2_fr" title="Comment compiler EMC2"/>
 <doc name="install_installing_emc2_fr" title="Comment installer EMC2"/>
 
