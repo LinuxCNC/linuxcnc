@@ -615,7 +615,7 @@ int Interp::convert_cycle(int motion,    //!< a g-code between G_81 and G_89, a 
   int status;
 
   CHKS((settings->feed_rate == 0.0), "Cannot feed with zero feed rate");
-  CHKS((settings->feed_mode != UNITS_PER_MINUTE), "Cannot feed in canned cycles except in feed-per-minute mode");
+  CHKS((settings->feed_mode == INVERSE_TIME), "Cannot use inverse time feed with canned cycles");
 
   plane = settings->plane;
   if (block->r_flag == OFF) {
