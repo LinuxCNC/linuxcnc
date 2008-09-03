@@ -325,6 +325,11 @@ setup_menu_accel .menu.view end [_ "Show v_elocity"]
 	-command toggle_show_distance_to_go
 setup_menu_accel .menu.view end [_ "Show _distance to go"]
 
+.menu.view add checkbutton \
+	-variable dro_large_font \
+	-command toggle_dro_large_font
+setup_menu_accel .menu.view end [_ "La_rge coordinate font"]
+
 .menu.view add command \
 	-accelerator [_ "Ctrl-K"] \
 	-command clear_live_plot

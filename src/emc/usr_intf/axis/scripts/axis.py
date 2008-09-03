@@ -2876,6 +2876,11 @@ class TclCommands(nf.TclCommands):
         ap.putpref("show_distance_to_go", vars.show_distance_to_go.get())
         o.tkRedraw()
 
+    def toggle_dro_large_font(*event):
+        ap.putpref("dro_large_font", vars.dro_large_font.get())
+        get_coordinate_font(vars.dro_large_font.get())
+        o.tkRedraw()
+
     def clear_live_plot(*ignored):
         live_plotter.clear()
 
@@ -3139,6 +3144,7 @@ vars = nf.Variables(root_window,
     ("show_machine_limits", IntVar),
     ("show_machine_speed", IntVar),
     ("show_distance_to_go", IntVar),
+    ("dro_large_font", IntVar),
     ("show_rapids", IntVar),
     ("feedrate", IntVar),
     ("spindlerate", IntVar),
@@ -3174,6 +3180,7 @@ vars.show_extents.set(ap.getpref("show_extents", True))
 vars.show_machine_limits.set(ap.getpref("show_machine_limits", True))
 vars.show_machine_speed.set(ap.getpref("show_machine_speed", True))
 vars.show_distance_to_go.set(ap.getpref("show_distance_to_go", False))
+vars.dro_large_font.set(ap.getpref("dro_large_font", False))
 vars.touch_off_system.set("P1  G54")
 
 
@@ -3565,6 +3572,24 @@ o = MyOpengl(widgets.preview_frame, width=400, height=300, double=1, depth=1)
 o.last_line = 1
 o.pack(fill="both", expand=1)
 
+
+# Find font for coordinate readout and get metrics
+def get_coordinate_font(large):
+    global coordinate_font
+    global coordinate_linespace
+    global fontbase
+
+    if large:
+        coordinate_font = "-*-lucidatypewriter-medium-r-*-*-20-*-*-*-*-*-*-1"
+    else:
+        coordinate_font = "9x15"
+    coordinate_font_metrics = o.tk.call("font", "metrics", coordinate_font).split()
+    linespace_index = coordinate_font_metrics.index("-linespace")
+    coordinate_linespace = int(coordinate_font_metrics[linespace_index+1])
+    
+    fontbase = int(o.tk.call(o._w, "loadbitmapfont", coordinate_font))
+
+
 notifications = Notification(o)
 
 root_window.bind("<space>", lambda event: notifications.clear_one())
@@ -3617,13 +3642,8 @@ if hal_present == 1 :
 
 make_cone()
 
-# Find font for coordinate readout and get metrics
-coordinate_font = o.option_get("font", "Coordinate_Font") or "9x15"
-coordinate_font_metrics = o.tk.call("font", "metrics", coordinate_font).split()
-linespace_index = coordinate_font_metrics.index("-linespace")
-coordinate_linespace = int(coordinate_font_metrics[linespace_index+1])
+get_coordinate_font(vars.dro_large_font.get())
 
-fontbase = int(o.tk.call(o._w, "loadbitmapfont", coordinate_font))
 live_plotter = LivePlotter(o)
 live_plotter.start()
 hershey = Hershey()
