@@ -3574,6 +3574,7 @@ o.pack(fill="both", expand=1)
 
 
 # Find font for coordinate readout and get metrics
+font_cache = {}
 def get_coordinate_font(large):
     global coordinate_font
     global coordinate_linespace
@@ -3587,8 +3588,11 @@ def get_coordinate_font(large):
     linespace_index = coordinate_font_metrics.index("-linespace")
     coordinate_linespace = int(coordinate_font_metrics[linespace_index+1])
     
-    fontbase = int(o.tk.call(o._w, "loadbitmapfont", coordinate_font))
-
+    if coordinate_font not in font_cache:
+        font_cache[coordinate_font] = fontbase = int(o.tk.call(o._w, "loadbitmapfont", coordinate_font))
+    else:
+        fontbase = font_cache[coordinate_font]
+    print "now using fontbase", fontbase
 
 notifications = Notification(o)
 
