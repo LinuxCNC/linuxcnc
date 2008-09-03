@@ -1695,6 +1695,7 @@ class AxisCanon(GLCanon):
             if for_selection == 1:
                 glLoadName(l)
                 glBegin(GL_LINES)
+            if lathe: axis = 1
             if axis == 0:
                 glVertex3f(x-delta,y-delta,z)
                 glVertex3f(x+delta,y+delta,z)
