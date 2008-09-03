@@ -4,16 +4,16 @@
 \begin_preamble
 \usepackage[plainpages=false,pdfpagelabels,colorlinks=true,linkcolor=blue]{hyperref}
 \end_preamble
-\language english
+\language french
 \inputencoding default
 \fontscheme bookman
 \graphics default
 \float_placement !!h
 \paperfontsize 10
 \spacing single 
-\papersize Custom
+\papersize letterpaper
 \paperpackage a4
-\use_geometry 1
+\use_geometry 0
 \use_amsmath 0
 \use_natbib 0
 \use_numerical_citations 0
@@ -25,14 +25,14 @@
 \rightmargin 0.6in
 \bottommargin 0.6in
 \secnumdepth 5
-\tocdepth 5
+\tocdepth 3
 \paragraph_separation skip
 \defskip smallskip
-\quotes_language english
+\quotes_language french
 \quotes_times 2
 \papercolumns 1
 \papersides 2
-\paperpagestyle default
+\paperpagestyle headings
 
 \layout Chapter
 
@@ -41,7 +41,7 @@
 
 \end_inset 
 
-The Enhanced Machine Control
+EMC = Enhanced Machine Control
 \layout Section
 
 Introduction
@@ -52,10 +52,12 @@ Introduction
 
 \layout Standard
 
-Le manuel de l'utilisateur est centré sur l'utilisation d'EMC.
- Il est plutôt destiné aux lecteurs ayant déjà installé et configuré EMC2.
- Toute l'information sur l'installation et la configuration se trouve dans
- le manuel de l'intégrateur.
+Ce document est centré sur l'utilisation d'EMC2, il est plutôt destiné aux
+ lecteurs l'ayant déjà installé et configuré.
+ Quelques informations sur l'installation sont données dans les chapitres
+ suivants.
+ La documentation complète sur l'installation et la configuration se trouve
+ dans le manuel de l'intégrateur.
 \layout Section
 
 Vue d'ensemble de la CNC
@@ -67,9 +69,9 @@ Vue d'ensemble de la CNC
 \layout Standard
 
 Le terme CNC a pris beaucoup de sens différents au cours des années.
- Dans les débuts, la CNC a remplacé les mains de l'opérateur par des moteurs,
- lesquels suivaient des commandes reproduisant au mieux les mouvements d'un
- opérateur tournant les manivelles.
+ Dans les débuts, la CNC a consisté à remplacer les mains de l'opérateur
+ par des moteurs, lesquels suivaient des commandes reproduisant au mieux
+ les mouvements d'un opérateur tournant les manivelles.
  De ces premières machines, un langage de contrôle de l'outil est né, puis
  a grandi.
  Ce langage est appellé RS274 dont différentes variantes ont été proposées.
@@ -141,8 +143,8 @@ Pourquoi ai-je besoin de savoir celà?
 \begin_inset Quotes erd
 \end_inset 
 
- La réponse est que dans sa forme actuelle EMC2 ne peut utiliser directement,
- pour l'usinage, ni un fichier non converti issu d'une DAO, ni aucune image.
+ La réponse est que dans sa forme actuelle EMC2 ne peut pas utiliser directement
+, pour l'usinage, un fichier non converti issu d'une DAO, ni aucune image.
  EMC2 utilise une variante du premier langage CNC nommée RS274NGC.
  (pour Next Generation Controller).
  Toutes les commandes passées à EMC2 doivent l'être dans une forme reconnue
@@ -151,18 +153,18 @@ Pourquoi ai-je besoin de savoir celà?
  graphique ou de dessin, vous devez également utiliser un programme capable
  de convertir le format du fichier de sortie de ce programme en un autre
  fichier dans le format reconnu et accepté par l'interpréteur d'EMC2.
- Il existe plusieurs programmes commerciaux effectuant cette conversion.
+ Il existe plusieurs programmes commerciaux effectuant cette tâche.
  Au moins un convertisseur (Ace) a été mis sous un type de copyright le
  rendant disponible au public.
 \layout Standard
 
 Il y a eux de récentes discussions à propos de l'écriture d'une interface
  
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 conversationelle
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
  ou géomètrique, permettant à l'opérateur d'entrer les programmes plus ou
@@ -194,10 +196,10 @@ Le code d'EMC2 peut être compilé sur la plupart des distributions GNU-Linux
 
 .
  Ubuntu est la distribution la plus appréciée par les utilisateurs de Linux
- novices elle est considérée comme étant trés facile à utiliser.
+ novices, elle est considérée comme étant trés facile à utiliser.
  En plus de celà, il existe pour elle un grand nombre de sites d'entraide
  dans le monde entier.
- Installer EMC2 cette distribution est extrêmement simple, voir la section
+ Installer EMC2 sur cette distribution est extrêmement simple, voir la section
  
 \begin_inset LatexCommand \ref{sec:Le live CD d'EMC2}
 
@@ -209,7 +211,7 @@ Le code d'EMC2 peut être compilé sur la plupart des distributions GNU-Linux
 EMC2 ne fonctionne pas sur les systèmes d'exploitation Microsoft (TM).
  La raison en est qu'EMC2 requiert un environnement temps réel pour son
  planificateur de mouvements et ses générateurs de pas.
- En plus, il bénéficie de l'excellente stabilité et des performances nettement
+ Il bénéficie aussi de l'excellente stabilité et des performances nettement
  meilleures du système d'exploitation Linux.
 \layout Section
 
@@ -277,11 +279,12 @@ La figure
 
  contrôle les interfaces de puissance des moteurs pas à pas en leur envoyant
  des signaux au travers du port parallèle.
- Ces signaux (impulsions) font que la puissance est fournie aux moteurs.
+ Ces signaux (impulsionnels) font que la puissance adéquate est fournie
+ aux moteurs.
  EMC2 peut également contrôler des servomoteurs via une interface de puissance
  pour servomoteurs ou utiliser le port parallèle étendu connecté à une carte
  de contrôle externe.
- Quand nous examinerons chacun des composants qui forment un système EMC2
+ Quand nous examinerons chacun des composants qui forment un système EMC2,
  nous nous référerons à cette machine typique.
 \layout Standard
 
@@ -289,15 +292,15 @@ Il y a quatre composants dans le logiciel EMC2: un controleur de mouvement
  (EMCMOT), un contrôleur d'entrées/sorties discrètes (EMCIO), un coordinateur
  d'exécution des tâches (EMCTASK) et une bibliothèque d'interfaces utilisateur,
  tant graphiques que textuelles.
- EMC2, pour prendre le contrôle complet d'une mini fraiseuse doit démarrer,
- un de chacun, de ces quatre composants.
+ EMC2, pour prendre le contrôle complet d'une fraiseuse, il doit lancer
+ chacun de ces quatre composants.
  Chaque composant sera brièvement décrit ci-dessous.
  En plus, il existe une couche appelée HAL
 \begin_inset LatexCommand \index{HAL}
 
 \end_inset 
 
- (la couche d'abstraction matériel), qui permet la configuration simple
+ (la couche d'abstraction du matériel), qui permet la configuration simple
  d'EMC2 sans qu'il soit besoin de le recompiler.
  
 \layout Section
@@ -598,19 +601,19 @@ Quand EMC2 fonctionne, il existe trois différents modes majeurs pour entrer
 
 En mode manuel, chaque commande est entrée séparément.
  En termes humains une commande manuelle pourrait être 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 active l'arrosage
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
  ou 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 jog l'axe X à 250 millimètres par minute.
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
  C'est en gros équivalent à basculer un interrupteur ou à tourner la manivelle
@@ -683,8 +686,8 @@ Informations affichées
 Quand EMC2 fonctionne, chacun de ses modules maintient la conversation avec
  les autres et avec l'interface graphique.
  C'est à la charge de l'affichage de sélectionner quel flux d'information
- l'opérateur doit voir et de l'arranger sur son écran pour le rendre facile
- à comprendre par l'opérateur.
+ l'opérateur doit voir et de l'arranger sur son écran pour lui rendre facile
+ à comprendre.
  Le point le plus important de l'affichage est peut être la possibilité
  de voir le fonctionnement interne d'EMC2.
  Vous devrez garder un oeil sur le mode d'affichage.
@@ -744,8 +747,8 @@ Elles sont toutes exactement les mêmes si aucun décalage n'a été appliqué
 Il est également important de voir tous les messages ou les codes d'erreur
  envoyés par EMC2.
  Ceux-ci sont utilisés pour demander que l'opérateur change l'outil, pour
- décrire les problèmes dans les programmes G-code ou dire pourquoi la machine
- s'est arrêtée.
+ décrire les problèmes dans les programmes G-code ou indiquer pourquoi la
+ machine s'est arrêtée.
 \layout Standard
 
 Vous modifierez votre façon de travailler avec ces petits textes, vous apprendre

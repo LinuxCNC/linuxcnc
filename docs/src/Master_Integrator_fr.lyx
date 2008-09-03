@@ -13,7 +13,7 @@
 \renewcommand{\l@section}{\@dottedtocline{1}{1.5em}{3.2em}}
 \renewcommand{\l@subsection}{\@dottedtocline{2}{3.2em}{4.9em}}
 \end_preamble
-\language frenchb
+\language french
 \inputencoding default
 \fontscheme bookman
 \graphics default
@@ -36,8 +36,8 @@
 \secnumdepth 5
 \tocdepth 3
 \paragraph_separation skip
-\defskip medskip
-\quotes_language english
+\defskip smallskip
+\quotes_language french
 \quotes_times 2
 \papercolumns 1
 \papersides 1
@@ -56,7 +56,7 @@
 
 
 \newline 
-Manuel de l'intégrateur V2.2
+Manuel de l'intégrateur V2.3
 \layout Author
 \added_space_top medskip 
 The EMC Team

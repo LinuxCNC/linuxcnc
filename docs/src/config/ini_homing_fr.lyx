@@ -1,13 +1,13 @@
 #LyX 1.3 created this file. For more info see http://www.lyx.org/
 \lyxformat 221
 \textclass book
-\language frenchb
+\language french
 \inputencoding default
-\fontscheme default
+\fontscheme bookman
 \graphics default
-\paperfontsize default
+\paperfontsize 10
 \spacing single 
-\papersize Default
+\papersize letterpaper
 \paperpackage a4
 \use_geometry 0
 \use_amsmath 0
@@ -15,17 +15,16 @@
 \use_numerical_citations 0
 \paperorientation portrait
 \secnumdepth 5
-\tocdepth 5
-\paragraph_separation indent
-\defskip medskip
-\quotes_language english
+\tocdepth 3
+\paragraph_separation skip
+\defskip smallskip
+\quotes_language french
 \quotes_times 2
 \papercolumns 1
-\papersides 1
-\paperpagestyle default
+\papersides 2
+\paperpagestyle headings
 
 \layout Chapter
-
 
 
 \begin_inset LatexCommand \label{sec:Prises-d'origine}
@@ -35,10 +34,8 @@
 Prise d'origine
 \layout Section
 
-
 Vue d'ensemble
 \layout Standard
-
 
 La prise d'origine semble assez simple, il suffit de déplacer chaque axe
  à un emplacement connu et de positionner l'ensemble des variables internes
@@ -48,10 +45,8 @@ La prise d'origine semble assez simple, il suffit de déplacer chaque axe
  
 \layout Subsection
 
-
 Séquence de prise d'origine
 \layout Standard
-
 
 La figure 
 \begin_inset LatexCommand \ref{fig: Sequences de prise d'origine}
@@ -69,7 +64,6 @@ La figure
 \layout Standard
 
 
-
 \begin_inset LatexCommand \ref{fig: Sequences de prise d'origine}
 
 \end_inset 
@@ -83,7 +77,6 @@ collapsed false
 \layout Standard
 \align center 
 
-
 \begin_inset Graphics
 	filename emc2-motion-homing-diag.eps
 	width 7in
@@ -96,7 +89,6 @@ collapsed false
 \layout Standard
 
 
-
 \begin_inset LatexCommand \label{fig: Sequences de prise d'origine}
 
 \end_inset 
@@ -107,16 +99,13 @@ collapsed false
 
 \layout Subsection
 
-
 Configuration
 \layout Standard
-
 
 Il y a six combinaisons possibles des variables qui définissent le déroulement
  de la séquence de prise d'origine.
  EIles sont définies dans la section [AXIS] du fichier ini.
 \layout Standard
-
 
 
 \begin_inset Float table
@@ -126,7 +115,6 @@ collapsed false
 
 \layout Standard
 \align center 
-
 
 \begin_inset  Tabular
 <lyxtabular version="3" rows="6" columns="4">
@@ -141,7 +129,6 @@ collapsed false
 
 \layout Standard
 
-
 SEARCH_VEL
 \end_inset 
 </cell>
@@ -149,7 +136,6 @@ SEARCH_VEL
 \begin_inset Text
 
 \layout Standard
-
 
 LATCH_VEL
 \end_inset 
@@ -159,7 +145,6 @@ LATCH_VEL
 
 \layout Standard
 
-
 USE_INDEX
 \end_inset 
 </cell>
@@ -167,7 +152,6 @@ USE_INDEX
 \begin_inset Text
 
 \layout Standard
-
 
 Type de séquence
 \end_inset 
@@ -179,7 +163,6 @@ Type de séquence
 
 \layout Standard
 
-
 nonzero
 \end_inset 
 </cell>
@@ -188,7 +171,6 @@ nonzero
 
 \layout Standard
 
-
 nonzero
 \end_inset 
 </cell>
@@ -196,7 +178,6 @@ nonzero
 \begin_inset Text
 
 \layout Standard
-
 
 NO
 \end_inset 
@@ -205,7 +186,6 @@ NO
 \begin_inset Text
 
 \layout Standard
-
 
 Switch-seulement
 \end_inset 
@@ -217,7 +197,6 @@ Switch-seulement
 
 \layout Standard
 
-
 nonzero
 \end_inset 
 </cell>
@@ -226,7 +205,6 @@ nonzero
 
 \layout Standard
 
-
 nonzero
 \end_inset 
 </cell>
@@ -234,7 +212,6 @@ nonzero
 \begin_inset Text
 
 \layout Standard
-
 
 YES
 \end_inset 
@@ -243,7 +220,6 @@ YES
 \begin_inset Text
 
 \layout Standard
-
 
 Switch + Index
 \end_inset 
@@ -255,7 +231,6 @@ Switch + Index
 
 \layout Standard
 
-
 0
 \end_inset 
 </cell>
@@ -263,7 +238,6 @@ Switch + Index
 \begin_inset Text
 
 \layout Standard
-
 
 nonzero
 \end_inset 
@@ -273,7 +247,6 @@ nonzero
 
 \layout Standard
 
-
 YES
 \end_inset 
 </cell>
@@ -281,7 +254,6 @@ YES
 \begin_inset Text
 
 \layout Standard
-
 
 Index-seulement
 \end_inset 
@@ -293,7 +265,6 @@ Index-seulement
 
 \layout Standard
 
-
 0
 \end_inset 
 </cell>
@@ -302,7 +273,6 @@ Index-seulement
 
 \layout Standard
 
-
 0
 \end_inset 
 </cell>
@@ -310,7 +280,6 @@ Index-seulement
 \begin_inset Text
 
 \layout Standard
-
 
 NO
 \end_inset 
@@ -319,7 +288,6 @@ NO
 \begin_inset Text
 
 \layout Standard
-
 
 Aucun
 \end_inset 
@@ -330,7 +298,6 @@ Aucun
 \begin_inset Text
 
 \layout Standard
-
 
 Autres combinaisons
 \end_inset 
@@ -354,7 +321,6 @@ Autres combinaisons
 
 \layout Standard
 
-
 Erreur
 \end_inset 
 </cell>
@@ -367,7 +333,6 @@ Erreur
 \layout Caption
 
 
-
 \begin_inset LatexCommand \label{cap:Variables sequences de POM}
 
 \end_inset 
@@ -378,7 +343,6 @@ Erreur
 
 \layout Subsubsection
 
-
 HOME_SEARCH_VEL = 0
 \begin_inset LatexCommand \index{HOME SEARCH VEL}
 
@@ -386,7 +350,6 @@ HOME_SEARCH_VEL = 0
 
 
 \layout Standard
-
 
 Vitesse de la phase initiale de prise d'origine, c'est la recherche du contact
  d'origine machine.
@@ -437,13 +400,11 @@ HOME_SEARCH_VEL
  est trop basse, la prise d'origine peut durer très longtemps.
 \layout Standard
 
-
 Une valeur égale à zéro indique qu'il n'y a pas de contact d'origine machine,
  dans ce cas, les phases de recherche de ce contact seront occultées.
  La valeur par défaut est zéro.
  
 \layout Subsubsection
-
 
 HOME_LATCH_VEL = 0
 \begin_inset LatexCommand \index{HOME LATCH VEL}
@@ -452,7 +413,6 @@ HOME_LATCH_VEL = 0
 
 
 \layout Standard
-
 
 Spécifie la vitesse et la direction utilisée par le mobile pendant la dernière
  phase de la prise d'origine, c'est la recherche précise du contact d'origine
@@ -542,7 +502,6 @@ HOME_LATCH_VEL
  La valeur par défaut est zéro.
 \layout Subsubsection
 
-
 HOME_IGNORE_LIMITS = YES/NO
 \begin_inset LatexCommand \index{HOME IGNORE LIMITS}
 
@@ -550,7 +509,6 @@ HOME_IGNORE_LIMITS = YES/NO
 
 
 \layout Standard
-
 
 Peut contenir les valeurs YES ou NO.
  Cette variable détermine si EMC doit ignorer les fins de course de limites
@@ -563,7 +521,6 @@ Peut contenir les valeurs YES ou NO.
  
 \layout Subsubsection
 
-
 HOME_USE_INDEX = YES/NO
 \begin_inset LatexCommand \index{HOME USE INDEX}
 
@@ -571,7 +528,6 @@ HOME_USE_INDEX = YES/NO
 
 
 \layout Standard
-
 
 Spécifie si une impulsion d'index doit être prise en compte (cas de règles
  de mesure ou de codeurs de positions).
@@ -598,7 +554,6 @@ HOME_LATCH_VEL
  La valeur par défaut est NO.
 \layout Subsubsection
 
-
 HOME_OFFSET
 \begin_inset LatexCommand \index{HOME OFFSET}
 
@@ -606,7 +561,6 @@ HOME_OFFSET
 
 
 \layout Standard
-
 
 Contient l'emplacement du point d'origine ou de l'impulsion d'index, en
  coordonnées relatives.
@@ -625,7 +579,6 @@ HOME_OFFSET
  La valeur par défaut est zéro.
 \layout Subsubsection
 
-
 HOME
 \begin_inset LatexCommand \index{HOME}
 
@@ -633,7 +586,6 @@ HOME
 
 
 \layout Standard
-
 
 C'est la position sur laquelle ira le mobile à la fin de la séquence de
  prise d'origine.
@@ -650,7 +602,7 @@ HOME_OFFSET
 \begin_inset Quotes eld
 \end_inset 
 
-HOME", c'est le point final de la séquence de prise d'origine.
+HOME, c'est le point final de la séquence de prise d'origine.
  La valeur par défaut est zéro.
  Notez que même si ce paramètre est égal à la valeur de 
 \begin_inset Quotes eld
@@ -681,7 +633,6 @@ collapsed false
 
 \layout Standard
 
-
 La distinction entre l'origine machine et le décalage d'origine n'est pas
  aussi claire que je le voudrais.
  J'envisage de faire un petit dessin et un exemple pour la clarifier.
@@ -689,7 +640,6 @@ La distinction entre l'origine machine et le décalage d'origine n'est pas
 
 
 \layout Subsubsection
-
 
 HOME_IS_SHARED
 \begin_inset LatexCommand \index{HOME IS SHARED}
@@ -699,7 +649,6 @@ HOME_IS_SHARED
 
 \layout Standard
 
-
 Si cet axe n'a pas un contact d'origine séparé des autres, mais plusieurs
  contacts câblés sur la même broche, mettez cette valeur à 1 pour éviter
  de commencer la prise d'origine si un de ces contacts partagés est déjà
@@ -708,7 +657,6 @@ Si cet axe n'a pas un contact d'origine séparé des autres, mais plusieurs
  est déjà attaqué.
 \layout Subsubsection
 
-
 HOME_SEQUENCE
 \begin_inset LatexCommand \index{HOME SEQUENCE}
 
@@ -716,7 +664,6 @@ HOME_SEQUENCE
 
 
 \layout Standard
-
 
 Utilisé pour définir l'ordre des séquences 
 \begin_inset Quotes eld

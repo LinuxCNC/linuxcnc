@@ -5,16 +5,16 @@
 \usepackage[plainpages=false,pdfpagelabels,colorlinks=true,linkcolor=blue]{hyperref}
 \title{The EMC2 RS274NGC Interpreter}
 \end_preamble
-\language frenchb
+\language french
 \inputencoding default
 \fontscheme bookman
 \graphics default
-\float_placement !h
+\float_placement !!h
 \paperfontsize 10
 \spacing single 
-\papersize Custom
+\papersize letterpaper
 \paperpackage a4
-\use_geometry 1
+\use_geometry 0
 \use_amsmath 0
 \use_natbib 0
 \use_numerical_citations 0
@@ -26,14 +26,14 @@
 \rightmargin 0.6in
 \bottommargin 0.6in
 \secnumdepth 5
-\tocdepth 5
+\tocdepth 3
 \paragraph_separation skip
 \defskip smallskip
-\quotes_language english
+\quotes_language french
 \quotes_times 2
 \papercolumns 1
 \papersides 2
-\paperpagestyle default
+\paperpagestyle headings
 
 \layout Chapter
 

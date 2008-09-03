@@ -1,28 +1,28 @@
 #LyX 1.3 created this file. For more info see http://www.lyx.org/
 \lyxformat 221
 \textclass book
-\language frenchb
+\language french
 \inputencoding default
-\fontscheme default
+\fontscheme bookman
 \graphics default
-\paperfontsize default
+\paperfontsize 10
 \spacing single 
-\papersize Default
+\papersize letterpaper
 \paperpackage a4
 \use_geometry 0
 \use_amsmath 0
 \use_natbib 0
 \use_numerical_citations 0
 \paperorientation portrait
-\secnumdepth 3
+\secnumdepth 5
 \tocdepth 3
 \paragraph_separation skip
-\defskip medskip
-\quotes_language english
+\defskip smallskip
+\quotes_language french
 \quotes_times 2
 \papercolumns 1
-\papersides 1
-\paperpagestyle default
+\papersides 2
+\paperpagestyle headings
 
 \layout Section
 

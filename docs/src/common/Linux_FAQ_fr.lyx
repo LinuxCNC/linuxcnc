@@ -1,13 +1,14 @@
 #LyX 1.3 created this file. For more info see http://www.lyx.org/
 \lyxformat 221
 \textclass book
-\language english
-\inputencoding auto
+\language french
+\inputencoding default
 \fontscheme default
 \graphics default
+\float_placement !!h
 \paperfontsize default
 \spacing single 
-\papersize Default
+\papersize letterpaper
 \paperpackage a4
 \use_geometry 0
 \use_amsmath 0
@@ -18,10 +19,10 @@
 \tocdepth 3
 \paragraph_separation skip
 \defskip smallskip
-\quotes_language english
+\quotes_language french
 \quotes_times 2
 \papercolumns 1
-\papersides 1
+\papersides 2
 \paperpagestyle default
 
 \layout Chapter
@@ -36,8 +37,12 @@ FAQ Linux
 
 Voici quelques commandes et techniques de base pour l'utilisateur débutant
  sous Linux.
- Beaucoup d'autres informations peuvent être trouvées sur le site web ou
- dans les man pages.
+ Beaucoup d'autres informations peuvent être trouvées sur 
+\begin_inset LatexCommand \htmlurl[le site web]{http://www.linuxcnc.org/}
+
+\end_inset 
+
+ ou dans les man pages.
 \layout Section
 
 Les Man Pages
@@ -59,10 +64,18 @@ Les Man pages sont des pages de manuel générées automatiquement le plus
  de Linux.
 \layout Standard
 
-Pour visualiser une man page ouvrez un terminal depuis Applications, Accessoires
-, Terminal.
+Pour visualiser une man page ouvrez un terminal depuis Applications > Accessoire
+s > Terminal.
  Par exemple si vous voulez trouver quelques choses concernant la commande
- find, tapez alors dans le terminal:
+ 
+\begin_inset Quotes fld
+\end_inset 
+
+find
+\begin_inset Quotes frd
+\end_inset 
+
+, tapez alors dans le terminal:
 \layout Standard
 
 
@@ -71,8 +84,31 @@ Pour visualiser une man page ouvrez un terminal depuis Applications, Accessoires
 man find
 \layout Standard
 
-Utilisez les touches Vers le haut et Vers le bas pour faire défiler le texte
- et la touche Q pour quitter.
+Utilisez les touches 
+\begin_inset Quotes fld
+\end_inset 
+
+Vers le haut
+\begin_inset Quotes frd
+\end_inset 
+
+ et 
+\begin_inset Quotes fld
+\end_inset 
+
+Vers le bas
+\begin_inset Quotes frd
+\end_inset 
+
+ pour faire défiler le texte et la touche 
+\begin_inset Quotes fld
+\end_inset 
+
+Q
+\begin_inset Quotes frd
+\end_inset 
+
+ pour quitter.
 \layout Section
 
 Editer un fichier en root
@@ -88,10 +124,10 @@ Editer un fichier en root
 
 \layout Standard
 
-Editer certains fichiers du système en root peut donner des résultats innatendus
+Editer certains fichiers du système en root peut donner des résultats inattendus
 ! Soyez trés vigilant quand vous éditez en root.
  Vous pouvez ouvrir et lire de nombreux fichiers systèmes appartenant au
- root mais ils sont en mode lecture seule.
+ root qui sont en mode lecture seule.
 \layout Subsection
 
 A la ligne de commande
@@ -102,7 +138,7 @@ A la ligne de commande
 
 \layout Standard
 
-Ouvrir un terminal depuis Applications, Accessoires, Terminal.
+Ouvrir un terminal depuis Applications > Accessoires > Terminal.
 \layout Standard
 
 Dans ce terminal, tapez:
@@ -128,7 +164,23 @@ En mode graphique
 Faites un click droit sur le bureau et choisissez Créer un lanceur.
 \layout Enumerate
 
-Tapez un nom tel que sudo edit.
+Tapez un nom tel que 
+\begin_inset Quotes fld
+\end_inset 
+
+éditeur, dans la zone 
+\begin_inset Quotes fld
+\end_inset 
+
+Nom
+\begin_inset Quotes frd
+\end_inset 
+
+
+\begin_inset Quotes frd
+\end_inset 
+
+.
 \layout Enumerate
 
 Entrez
@@ -145,10 +197,19 @@ gnome-open %u
 
 \family default 
 \series default 
- comme commande et sauvez ce nouveau lanceur sur votre bureau.
+ dans la zone 
+\begin_inset Quotes fld
+\end_inset 
+
+Commande
+\begin_inset Quotes frd
+\end_inset 
+
+ et validez.
 \layout Enumerate
 
-Glissez un fichier et déposez le sur votre lanceur pour l'ouvrir et l'éditer.
+Glissez un fichier et déposez le sur votre lanceur, il s'ouvrira alors dans
+ l'éditeur.
 \layout Section
 
 Commandes du terminal
@@ -266,8 +327,15 @@ Trouver un fichier
 
 \layout Standard
 
-La commande find peut être un peu déroutante pour le nouvel utilisateur
- de Linux.
+La commande 
+\begin_inset Quotes fld
+\end_inset 
+
+find
+\begin_inset Quotes frd
+\end_inset 
+
+ peut être un peu déroutante pour le nouvel utilisateur de Linux.
  La syntaxe de base est:
 \layout Standard
 
@@ -277,8 +345,16 @@ La commande find peut être un peu déroutante pour le nouvel utilisateur
 find répertoire_de_départ paramètres actions
 \layout Standard
 
-Par exemple pour trouver tous les fichiers .ini dans votre répertoire emc2
- utilisez d'abord la commande pwd pour trouver le répertoire courant.
+Par exemple, pour trouver tous les fichiers .ini dans votre répertoire emc2
+ utilisez d'abord la commande 
+\begin_inset Quotes fld
+\end_inset 
+
+pwd
+\begin_inset Quotes frd
+\end_inset 
+
+ pour trouver le répertoire courant.
  Ouvrez un nouveau terminal et tapez:
 \layout Standard
 
@@ -288,10 +364,10 @@ Par exemple pour trouver tous les fichiers .ini dans votre répertoire emc2
 pwd
 \layout Standard
 
-il vous retourne par exemple le résultat suivant:
+il vous est retourné par exemple le résultat suivant:
 \layout Standard
 
-~$ /home/joe
+~$ /home/robert
 \layout Standard
 
 Avec cette information vous pouvez taper, par exemple, la commande:
@@ -300,7 +376,7 @@ Avec cette information vous pouvez taper, par exemple, la commande:
 ~$ 
 \family typewriter 
 \series bold 
-find /home/joe/emc2 -name *.ini -print
+find /home/robert/emc2 -name *.ini -print
 \layout Standard
 
 Le -name est le nom de fichier que vous recherchez et le -print indique
@@ -338,5 +414,13 @@ Pour trouver tous les fichiers contenant le texte 'texte à rechercher' dans
  le répertoire courant et tous ses sous-répertoires et en ignorant la casse.
  Le paramètre -i demande d'ignorer la casse et le -r demande une recherche
  récursive (qui inclus tous les sous-répertoires dans la recherche).
- Le caractère * est un jocker indiquant 'tous les fichiers'.
+ Le caractère * est un jocker indiquant 
+\begin_inset Quotes fld
+\end_inset 
+
+tous les fichiers
+\begin_inset Quotes frd
+\end_inset 
+
+.
 \the_end

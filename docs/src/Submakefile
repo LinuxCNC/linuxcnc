@@ -38,6 +38,7 @@ DOC_SRCS := \
 	Master_User.lyx \
 	Master_User_fr.lyx \
 	common/Document_Header.lyx \
+	common/Document_Header_fr.lyx \
 	common/Getting_EMC.lyx \
         common/Getting_EMC_fr.lyx \
 	common/GPLD_Copyright.lyx \
@@ -117,7 +118,7 @@ DOC_TARGETS_XML:=$(patsubst $(DOC_DIR)/html/%.html, objects/%.xml,\
 MAN_HTML_TARGETS := $(patsubst $(DOC_DIR)/man/%, $(DOC_DIR)/html/man/%.html, $(MAN_SRCS))
 PDF_TARGETS := $(addprefix $(DOC_DIR)/,HAL_User_Manual.pdf EMC2_User_Manual.pdf EMC2_Developer_Manual.pdf \
 	EMC2_Integrator_Manual.pdf EMC2_Manual_Pages.pdf EMC2_User_Manual_fr.pdf HAL_User_Manual_fr.pdf \
-	EMC2_Integrator_Manual_fr.pdf EMC2_Getting_Started.pdf)
+	EMC2_Integrator_Manual_fr.pdf EMC2_Getting_Started.pdf EMC2_Getting_Started_fr.pdf)
 
 HTML_TARGETS := $(DOC_TARGETS_HTML) $(MAN_HTML_TARGETS) $(DOC_DIR)/html/index.html $(DOC_DIR)/html/index_fr.html $(DOC_DIR)/html/xref.html $(DOC_DIR)/html/xref_fr.html
 
@@ -319,6 +320,8 @@ docclean:
 	-rm -f $(DOC_DIR)/EMC2_Developer_Manual.pdf
 	-rm -f $(DOC_DIR)/EMC2_Integrator_Manual.pdf
 	-rm -f $(DOC_DIR)/EMC2_Integrator_Manual_fr.pdf
+	-rm -f $(DOC_DIR)/EMC2_Getting_Started.pdf
+	-rm -f $(DOC_DIR)/EMC2_Getting_Started_fr.pdf
 	-rm -f $(DOC_SRCDIR)/*.d
 	-rm -f $(DOC_SRCDIR)/*.pdf
 	-rm -f $(DOC_TARGETS_HTML) $(DOC_DIR)/html/xref*.html $(DOC_DIR)/html/index*.html $(DOC_DIR)/*.png $(DOC_DIR)/man/*.png

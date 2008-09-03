@@ -1,28 +1,29 @@
 #LyX 1.3 created this file. For more info see http://www.lyx.org/
 \lyxformat 221
 \textclass book
-\language english
+\language french
 \inputencoding auto
-\fontscheme default
+\fontscheme bookman
 \graphics default
-\paperfontsize default
+\float_placement !!h
+\paperfontsize 10
 \spacing single 
-\papersize Default
+\papersize letterpaper
 \paperpackage a4
 \use_geometry 0
 \use_amsmath 0
 \use_natbib 0
 \use_numerical_citations 0
 \paperorientation portrait
-\secnumdepth 3
+\secnumdepth 5
 \tocdepth 3
 \paragraph_separation skip
 \defskip smallskip
-\quotes_language english
+\quotes_language french
 \quotes_times 2
 \papercolumns 1
-\papersides 1
-\paperpagestyle default
+\papersides 2
+\paperpagestyle headings
 
 \layout Chapter
 
@@ -43,7 +44,7 @@ Trouver de l'aide
 \layout Standard
 
 Il y a plusieurs manières de trouver de l'aide pour installer et configurer
- EMC.
+ EMC2.
 \layout Standard
 
 Sur le canal IRC d'EMC.
@@ -75,7 +76,7 @@ Réglez votre compte IRC avec un unique nom de sorte que les gens sachent
  qui vous êtes.
 \layout Standard
 
-La liste de diffusion des utilisateurs d'EMC à 
+La liste de diffusion des utilisateurs d'EMC2 à 
 \begin_inset LatexCommand \url{https://lists.sourceforge.net/lists/listinfo/emc-users}
 
 \end_inset 
@@ -83,7 +84,7 @@ La liste de diffusion des utilisateurs d'EMC à
 .
 \layout Standard
 
-Le Wiki d'EMC, site maintenu par les utilsateurs à 
+Le Wiki d'EMC, site maintenu par les utilisateurs à 
 \begin_inset LatexCommand \url{http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl}
 
 \end_inset 
@@ -181,7 +182,7 @@ Pour stopper un téléchargement utilisez Ctrl-C ou fermer la fenêtre du terminal.
 Après que le téléchargement soit terminé vous trouverez un nouveau répertoire
  appelé www.linuxcnc.org ou quelque chose de similaire.
  Dans ce répertoire vous trouverez l'image ISO du CD.
- Il ne vous restera plus qu'a la graver.
+ Il ne vous restera plus qu'à la graver.
 \layout Subsection
 
 Sous Windows
@@ -214,7 +215,7 @@ Program Files
 \backslash 
 GnuWin32
 \backslash 
-bin si c'est le cas, tappez la commande:
+bin si c'est le cas, tapez la commande:
 \layout Standard
 
 
@@ -302,7 +303,7 @@ La commande md5sum doit retourner une simple ligne après le calcul de la
 91c5abb84386091e0ff056e9ebc40fdb ubuntu-8.04-desktop-emc2-aj07-i386.iso
 \layout Standard
 
-Il reste a comparer avec la somme md5 fournie sur la page de téléchargement
+Il reste à comparer avec la somme md5 fournie sur la page de téléchargement
  d'EMC2.
 \layout Standard
 
@@ -315,7 +316,7 @@ Inserez un CD vierge dans votre graveur.
  Fermez la, elle ne sera pas utilisée.
 \layout Enumerate
 
-Naviguez jusqu'au répéertoire contenant l'image ISO.
+Naviguez jusqu'au répertoire contenant l'image ISO.
 \layout Enumerate
 
 Faites un click droit sur le fichier de l'image ISO et choisissez Graver
@@ -403,8 +404,8 @@ Installer EMC2
 \layout Standard
 
 Si vous aimez ce que vous voyez, cliquez juste sur l'icône Install se trouvant
- sur le bureau, répondez à qualques questions (votre nom, votre fuseau horaire,
- le mot de passe) et faîtes une installation complète en quelques minutes.
+ sur le bureau, répondez à quelques questions (votre nom, votre fuseau horaire,
+ le mot de passe) et faites une installation complète en quelques minutes.
  Notez bien le mot de passe indiqué et le nom d'utilisateur.
  Une fois l'installation compléte et que vous êtes connecté, le gestionnaire
  de mises à jour vous proposera d'effectuer une mise à jour vers la dernière

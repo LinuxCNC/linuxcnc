@@ -4,41 +4,32 @@
 \begin_preamble
 \usepackage[plainpages=false,pdfpagelabels,colorlinks=true,linkcolor=blue]{hyperref}
 \end_preamble
-\language frenchb
+\language french
 \inputencoding auto
-\fontscheme pslatex
+\fontscheme bookman
 \graphics default
-\paperfontsize default
+\paperfontsize 10
 \spacing single 
-\papersize Default
+\papersize letterpaper
 \paperpackage a4
 \use_geometry 0
 \use_amsmath 0
 \use_natbib 0
 \use_numerical_citations 0
 \paperorientation portrait
-\secnumdepth 3
+\secnumdepth 5
 \tocdepth 3
-\paragraph_separation indent
-\defskip medskip
-\quotes_language english
+\paragraph_separation skip
+\defskip smallskip
+\quotes_language french
 \quotes_times 2
 \papercolumns 1
-\papersides 1
-\paperpagestyle default
+\papersides 2
+\paperpagestyle headings
 
 \layout Chapter
 
-Stepconf: Assistant à la configuration d'EMC2 pour machines CNC de type
- 
-\begin_inset Quotes eld
-\end_inset 
-
-Step & Direction
-\begin_inset Quotes erd
-\end_inset 
-
-
+Stepconf: Assistant de configuration d'EMC2
 \layout Standard
 
 Ce chapitre décrit certains des paramètres les plus communs que les utilisateurs
@@ -80,7 +71,7 @@ Informations sur la machine
 
 \begin_inset Float figure
 wide false
-collapsed false
+collapsed true
 
 \layout Caption
 
@@ -111,19 +102,19 @@ de\SpecialChar ~
 la\SpecialChar ~
 machine Choisissez un nom pour votre machine.
  Utilisez uniquement des lettres, des chiffres ou 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 -
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
  et 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 _
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
 .
@@ -244,8 +235,15 @@ Page de réglage du port parallèle
 
 Pour chacune des pins, choisir le signal qui correspond au brochage de votre
  port parallèle.
- Cochez la case "inverser'' si le signal est inversé (0V pour vrai / actif,
- 5V pour faux / inactif).
+ Cochez la case 
+\begin_inset Quotes fld
+\end_inset 
+
+inverser
+\begin_inset Quotes frd
+\end_inset 
+
+ si le signal est inversé (0V pour vrai / actif, 5V pour faux / inactif).
 \layout Description
 
 Sorties\SpecialChar ~
@@ -261,11 +259,11 @@ de\SpecialChar ~
 HAL\SpecialChar ~
 personnalisée Vous permet d'ajouter une personnalisa
 tion de hal dans le fichier 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 custom.hal
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
  après l'exécution de Stepconf.
@@ -288,13 +286,13 @@ PyVCP\SpecialChar ~
 personnalisé
 \series default 
  Si coché, le panneau de contrôle PyVCP 
-\begin_inset Quotes eld
+\family typewriter 
+
+\begin_inset Quotes fld
 \end_inset 
 
-
-\family typewriter 
 panel.xml
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
 
@@ -313,7 +311,7 @@ Configuration des axes
 
 \begin_inset Float figure
 wide false
-collapsed false
+collapsed true
 
 \layout Caption
 
@@ -352,11 +350,11 @@ Micropas\SpecialChar ~
 du\SpecialChar ~
 pilote Le nombre de micropas produits par le pilote.
  Entrez 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 2
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
  pour le demipas.
@@ -367,11 +365,11 @@ des\SpecialChar ~
 poulies Si votre machine dispose de poulies entre le moteur et la
  vis, entrez ici le nombre de dents de chacune d'elles.
  Pour un entraînement direct, entrez 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 1:1
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
 .
@@ -382,21 +380,21 @@ de\SpecialChar ~
 la\SpecialChar ~
 vis Entrez ici le pas de la vis.
  Si vous avez choisi le 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 pouce
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
  comme unité, entrez le nombre de filets par pouce (exemple, entrez 8 pour
  8TPI).
  Si vous avez choisi le 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 mm
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
 , entrez la taille du filet en millimètres (exemple, entrez 2 pour un pas
@@ -489,11 +487,11 @@ Dégagement\SpecialChar ~
 du\SpecialChar ~
 contact\SpecialChar ~
 d'origine Choisissez 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 Identique
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
  pour que la machine reparte en arrière pour dégager le contact, puis revienne
@@ -502,11 +500,11 @@ Identique
  est acquise.
 \newline 
 Choisissez 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 Opposition
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
  pour que la machine reparte en arrière à très petite vitesse jusqu'au dégagemen
@@ -565,7 +563,7 @@ Configuration de la broche
 
 \begin_inset Float figure
 wide false
-collapsed false
+collapsed true
 
 \layout Caption
 
@@ -592,27 +590,27 @@ Page configuration de la broche
 \layout Standard
 
 Ces options ne sont accessibles que quand 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 PWM broche
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
 , 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 Phase A codeur broche
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
  ou 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
- index broche
-\begin_inset Quotes erd
+index broche
+\begin_inset Quotes frd
 \end_inset 
 
  sont configurés sur le 
@@ -636,11 +634,11 @@ Contrôle de la vitesse de broche
 \layout Standard
 
 Si 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 PWM broche
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
  apparaît dans le réglage du port parallèle, les informations suivantes
@@ -650,8 +648,16 @@ PWM broche
 Fréquence\SpecialChar ~
 PWM La fréquence porteuse du signal PWM (modulation de largeur
  d'impulsions) du moteur de broche.
- Entrez `` 0'' pour le mode PDM (modulation de densité d'impulsions), qui
- est très utile pour générer une tension de consigne analogique.
+ Entrez 
+\begin_inset Quotes fld
+\end_inset 
+
+0
+\begin_inset Quotes frd
+\end_inset 
+
+ pour le mode PDM (modulation de densité d'impulsions), qui est très utile
+ pour générer une tension de consigne analogique.
  Reportez-vous à la documentation de votre variateur de broche pour la valeur
  appropriée.
  
@@ -668,7 +674,15 @@ et\SpecialChar ~
  relation linéaire pour déterminer la valeur PWM correspondante à une vitesse
  de rotation.
  Si les valeurs ne sont pas connues, elles peuvent être déterminées.
- Voir la section "Ajuster la vitesse de broche'' ci-dessous.
+ Voir la section 
+\begin_inset Quotes fld
+\end_inset 
+
+Ajuster la vitesse de broche
+\begin_inset Quotes frd
+\end_inset 
+
+ ci-dessous.
  
 \layout Subsubsection
 
@@ -694,11 +708,11 @@ sée sur un tour.
 Index\SpecialChar ~
 codeur\SpecialChar ~
 broche également appelé 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 PPR broche
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
 , c'est une impulsion produite à chaque tour de broche.
@@ -722,19 +736,19 @@ broche (optionnel) C'est une seconde suite d'impulsions, générées
 \layout Standard
 
 Si 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 Phase A codeur broche
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
  et 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 Index broche
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
  apparaissent dans le réglage des broches du port, l'information suivante
@@ -817,7 +831,7 @@ Définir la vitesse et l'accélération
 
 \begin_inset Float figure
 wide false
-collapsed false
+collapsed true
 
 \layout Caption
 
@@ -1374,11 +1388,11 @@ Ils chargent le processeur
 Le temps de latence est le temps nécessaire au PC pour arrêter ce qu'il
  est en train de faire pour répondre à une requête externe.
  Dans notre cas, la requête est le 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 battement de coeur
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
  périodique qui sert de référence pour les impulsions de pas.
@@ -1424,7 +1438,15 @@ latency-test
 
 \layout Standard
 
-Pendant que le test est en cours d'exécution, il faut "abuser" de l'ordinateur.
+Pendant que le test est en cours d'exécution, il faut 
+\begin_inset Quotes fld
+\end_inset 
+
+abuser
+\begin_inset Quotes frd
+\end_inset 
+
+ de l'ordinateur.
  Déplacez les fenêtres sur l'écran.
  Connectez vous à l'Internet.
  Copiez quelques gros fichiers sur le disque dur.
@@ -1463,7 +1485,7 @@ Dans cet exemple de test de latence il n'a fallu que quelques secondes pour
  Par exemple, une carte mère Intel marchait très bien la plupart du temps,
  mais toutes les 64 secondes elle avait une très mauvaise latence de 300µs.
  Heureusement, il existe un correctif (voir 
-\begin_inset LatexCommand \htmlurl["Fixing Dapper SMI Issues\]{http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?FixingDapperSMIIssues}
+\begin_inset LatexCommand \htmlurl[Fixing Dapper SMI Issues]{http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?FixingDapperSMIIssues}
 
 \end_inset 
 
@@ -1543,7 +1565,7 @@ Inverser
 
 \begin_inset Float figure
 wide false
-collapsed false
+collapsed true
 
 \layout Standard
 \align center 
@@ -1572,7 +1594,7 @@ Câblage de contacts NC en série (schéma simplifié)
 
 \begin_inset Float figure
 wide false
-collapsed false
+collapsed true
 
 \layout Standard
 \align center 

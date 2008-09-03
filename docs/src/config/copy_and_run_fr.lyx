@@ -4,16 +4,16 @@
 \begin_preamble
 \usepackage[plainpages=false,pdfpagelabels,colorlinks=true,linkcolor=blue]{hyperref}
 \end_preamble
-\language frenchb
+\language french
 \inputencoding default
 \fontscheme bookman
 \graphics default
-\float_placement !tbph
-\paperfontsize default
+\float_placement !!h
+\paperfontsize 10
 \spacing single 
 \papersize letterpaper
 \paperpackage a4
-\use_geometry 1
+\use_geometry 0
 \use_amsmath 0
 \use_natbib 0
 \use_numerical_citations 0
@@ -22,15 +22,15 @@
 \topmargin 1in
 \rightmargin 0.8in
 \bottommargin 0.8in
-\secnumdepth 1
-\tocdepth 5
+\secnumdepth 5
+\tocdepth 3
 \paragraph_separation skip
 \defskip smallskip
-\quotes_language english
+\quotes_language french
 \quotes_times 2
 \papercolumns 1
-\papersides 1
-\paperpagestyle default
+\papersides 2
+\paperpagestyle headings
 
 \layout Chapter
 
@@ -70,8 +70,15 @@ collapsed false
 
 Etant donné que chaque exemple de configuration utilise un type différent
  d'interface matérielle, la plupart ne fonctionneront pas sur votre système.
- Les configurations listées dans la catégorie "Sim'' (simulation) fonctionneront
- toutes, même sans matériel raccordé.
+ Les configurations listées dans la catégorie 
+\begin_inset Quotes fld
+\end_inset 
+
+Sim
+\begin_inset Quotes frd
+\end_inset 
+
+ (simulation) fonctionneront toutes, même sans matériel raccordé.
 \end_inset 
 
 Figure 
@@ -116,11 +123,11 @@ Cliquez dans la liste, sur les différentes configurations pour afficher
  Double-cliquez sur une configuration ou cliquez OK pour démarrer EMC2 avec
  cette configuration.
  Cochez la case 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 Créer un raccourci sur le bureau
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
  puis cliquez OK pour ajouter une icône sur le bureau d'Ubuntu.
@@ -132,30 +139,30 @@ Quand vous choisissez un exemple de configuration dans le sélecteur, un
  dialogue vous demandera si vous voulez en faire une copie dans votre répertoire
  home.
  Si vous répondez oui, un dossier 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 emc2
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
  autorisé en écriture sera créé, il contiendra un jeu de fichiers que vous
  pourrez éditer pour les adapter à vos besoins.
  Si vous répondez 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 non
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
 , emc démarrera mais pourra se comporter de façon étrange, par exemple,
  les décalages d'origine pièce entrés avec la commande 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 Toucher
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
  ne seront pas pris en compte, ce comportement est lié à ce moment, à l'absence
@@ -189,19 +196,19 @@ Les étapes suivantes dans la configuration
 \layout Standard
 
 Si votre machine est pilotée avec des signaux de type: 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 pas et direction
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
  (step/dir) via le port parallèle du PC, lisez le chapitre 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 Stepconf
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
 .
@@ -210,11 +217,11 @@ Stepconf
  exactement à votre matériel.
  Pour cela, faites en une copie dans votre répertoire home (voir chapitre:
  1.2) et passez à la lecture du chapitre 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 INI Configuration
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
 .

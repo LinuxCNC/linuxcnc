@@ -2,15 +2,15 @@
 \lyxformat 221
 \textclass book
 \begin_preamble
-\usepackage{a4}
+
 \end_preamble
-\language frenchb
+\language french
 \inputencoding default
 \fontscheme bookman
 \graphics default
 \paperfontsize 10
 \spacing single 
-\papersize Default
+\papersize letterpaper
 \paperpackage a4
 \use_geometry 0
 \use_amsmath 0
@@ -18,10 +18,10 @@
 \use_numerical_citations 0
 \paperorientation portrait
 \secnumdepth 5
-\tocdepth 5
+\tocdepth 3
 \paragraph_separation skip
 \defskip smallskip
-\quotes_language english
+\quotes_language french
 \quotes_times 2
 \papercolumns 1
 \papersides 2

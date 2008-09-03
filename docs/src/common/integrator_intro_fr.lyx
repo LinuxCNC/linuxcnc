@@ -4,16 +4,16 @@
 \begin_preamble
 \usepackage[plainpages=false,pdfpagelabels,colorlinks=true,linkcolor=blue]{hyperref}
 \end_preamble
-\language english
+\language french
 \inputencoding default
 \fontscheme bookman
 \graphics default
 \float_placement !!h
 \paperfontsize 10
 \spacing single 
-\papersize Custom
+\papersize letterpaper
 \paperpackage a4
-\use_geometry 1
+\use_geometry 0
 \use_amsmath 0
 \use_natbib 0
 \use_numerical_citations 0
@@ -25,10 +25,10 @@
 \rightmargin 0.6in
 \bottommargin 0.6in
 \secnumdepth 5
-\tocdepth 5
+\tocdepth 3
 \paragraph_separation skip
 \defskip smallskip
-\quotes_language english
+\quotes_language french
 \quotes_times 2
 \papercolumns 1
 \papersides 2
@@ -41,7 +41,7 @@
 
 \end_inset 
 
-The Enhanced Machine Control
+EMC le Enhanced Machine Control
 \layout Section
 
 Introduction
@@ -61,8 +61,8 @@ Pour les installations basées sur des moteurs pas à pas lisez le Guide du
 Le manuel de l'intégrateur est plutôt orienté vers des machines plus complexes,
  leur configuration et leur installation.
  Comme intégrateur système votre tâche consiste à réunir entre eux des sous-syst
-èmes et à garantir que ces sous-sytèmes fonctionnent ensembles.
- EMC est un de ces sous-sytèmes.
+èmes et à garantir que ces sous-systèmes fonctionnent ensembles.
+ EMC est un de ces sous-systèmes.
  
 \layout Section
 
@@ -80,7 +80,7 @@ Le terme CNC a pris beaucoup de sens différents au cours des années.
  opérateur tournant les manivelles.
  De ces premières machines, un langage de contrôle de l'outil est né, puis
  a grandi.
- Ce langage est appellé RS274 dont différentes variantes ont été proposées.
+ Ce langage est appelé RS274 dont différentes variantes ont été proposées.
  Des ajouts lui ont été apportés par les fabricants de machines-outils et
  de contrôleurs pour répondre aux besoins spécifiques de leurs machines.
  Pour qu'une machine puisse changer d'outil pendant l'exécution d'un programme
@@ -89,7 +89,7 @@ Le terme CNC a pris beaucoup de sens différents au cours des années.
  nécessaire d'avoir les commandes permettant de gérer ce type de matériel.
  Comme tous les langages, RS274 a évolué au fil du temps.
  Actuellement plusieurs dialectes existent.
- En général, chaque fabricant de machines-outils essaye de rester cohérent
+ En général, chaque fabricant de machines-outils essaie de rester cohérent
  avec ses lignes de produits mais il arrive que des commandes produisent
  des effets complétement différents d'une machine à une autre.
 \layout Standard
@@ -120,7 +120,7 @@ Un fabricant de machines, Hurco, clame avoir seul les droits de l'usage
  limites, ou les caractéristiques de cette géomètrie.
 \layout Standard
 
-L'usage du Dessin Assisté par Ordinateur a également eux un impact sur les
+L'usage du Dessin Assisté par Ordinateur a également eu un impact sur les
  langages de programmation CNC.
  Les dessins réalisés en DAO étant sauvegardés sous forme de listes de données
  avec les variables associées à chaque géomètrie, ces listes sont facilement
@@ -155,7 +155,7 @@ Pourquoi ai-je besoin de savoir celà?
  (pour Next Generation Controller).
  Toutes les commandes passées à EMC2 doivent l'être dans une forme reconnue
  par son interpréteur RS274NGC.
- Ce qui signifie que si vous voulez usiner une pièce déssinée dans un programme
+ Ce qui signifie que si vous voulez usiner une pièce dessinée dans un programme
  graphique ou de dessin, vous devez également utiliser un programme capable
  de convertir le format du fichier de sortie de ce programme en un autre
  fichier dans le format reconnu et accepté par l'interpréteur d'EMC2.
@@ -164,12 +164,12 @@ Pourquoi ai-je besoin de savoir celà?
  rendant disponible au public.
 \layout Standard
 
-Il y a eux de récentes discussions à propos de l'écriture d'une interface
+Il y a eu de récentes discussions à propos de l'écriture d'une interface
  
 \begin_inset Quotes eld
 \end_inset 
 
-conversationelle
+conversationnelle
 \begin_inset Quotes erd
 \end_inset 
 
@@ -231,7 +231,15 @@ Histoire du logiciel
 
 Le code d'EMC a été créé par la division des systèmes intelligents, à l'institut
  national des standards et des technologies des Etats Unis.
- Trouvées couramment et depuis longtemps sur le web sous le nom de NIST
+ Faciles à trouver et depuis longtemps sur le web sous le nom de 
+\begin_inset Quotes fld
+\end_inset 
+
+NIST
+\begin_inset Quotes frd
+\end_inset 
+
+
 \begin_inset LatexCommand \index{NIST}
 
 \end_inset 
@@ -265,7 +273,7 @@ Une part de notre collaboration (le NIST) avec le groupe d'utilisateurs
  NIST.
  La bibliothèque RCS facilite le portage du code du contrôleur sur des plateform
 es Unix et Microsoft variées, produisant une interface programmée (API)
- neutre par rapport au système d'exploitation et ses resources comme la
+ neutre par rapport au système d'exploitation et ses ressources comme la
  mémoire partagée, les sémaphores et les horloges.
  La bibliothèque RCS implémente aussi un modèle de communication, le Neutral
  Manufacturing Language, qui autorise le processus de contrôle à lire et
@@ -283,7 +291,7 @@ es Unix et Microsoft variées, produisant une interface programmée (API)
  
 \layout Standard
 
-EMC a été installé sur ne nombreuses machines, certaines avec servomoteurs,
+EMC a été installé sur de nombreuses machines, certaines avec servomoteurs,
  d'autres des moteurs pas à pas.
  Voici un échantillonnage des plus anciennes applications.
  
@@ -304,7 +312,7 @@ EMC a été installé sur ne nombreuses machines, certaines avec servomoteurs,
 
 3-axes fraiseuse d'établis, machine utilisée pour le développement de prototypes.
  La machine utilise des servomoteurs à balais et codeurs.
- Le contrôle de la broche est fait grâce au mouvements d'un quatrième axe.
+ Le contrôle de la broche est fait grâce aux mouvements d'un quatrième axe.
  La machine usine des pièces en cire.
  
 \layout Itemize
@@ -312,7 +320,7 @@ EMC a été installé sur ne nombreuses machines, certaines avec servomoteurs,
 4-axes Kearney & Trecker, centre d'usinage horizontal chez General Motors
  Powertrain de Pontiac, MI.
  Cette machine est le précurseur des machines tout logiciel pour lesquelles
- EMC utilise une carte contrôleur de mouvement externe.
+ EMC utilise une carte contrôleur de mouvements externe.
  
 \layout Standard
 
@@ -339,7 +347,7 @@ Ces premières applications ont vite été connues du monde entier.
 
 \end_inset 
 
- à publié la première version de sa fraiseuse CNC.
+ a publié la première version de sa fraiseuse CNC.
  Elle utilise une version standard d'EMC.
  
 \layout Standard
@@ -479,7 +487,7 @@ Il y a quatre composants dans le logiciel EMC2: un controleur de mouvement
 
 \end_inset 
 
- (la couche d'abstraction matériel), qui permet la configuration simple
+ (la couche d'abstraction du matériel), qui permet la configuration simple
  d'EMC2 sans qu'il soit besoin de le recompiler.
  
 \layout Subsection
@@ -728,7 +736,7 @@ n entre ces points sur la trajectoire et calcule les valeurs de sortie vers
 \layout Standard
 
 Le contrôleur de mouvement est écrit pour être assez générique.
- Des fichiers d'initialisation (avec la mêm syntaxe que les fichiers INI
+ Des fichiers d'initialisation (avec la même syntaxe que les fichiers INI
  de Microsoft Windows 
 \begin_inset LatexCommand \index{INI}
 
@@ -764,7 +772,7 @@ Contrôleur d'entrées/sorties discrètes EMCIO
 \layout Standard
 
 Le contrôleur d'entrées/sorties est hautement spécifique à la machine, il
- n'est en général pas personalisable par la technique du fichier INI utilisée
+ n'est en général pas personnalisable par la technique du fichier INI utilisée
  pour le plus générique contrôleur de mouvement.
  Toutefois, depuis qu'EMC2 utilise HAL, la reconfiguration du sous-sytème
  d'entrées/sorties est devenu vraiment très puissant et flexible.
@@ -833,7 +841,7 @@ Le coordinateur de l'exécution des tâches est responsable de l'interprétation
  Un programme en G-code est conçu pour travailler comme un opérateur pourrait
  travailler.
  Le mouvement ou les tours de manivelle étant codés dans des blocs.
- Si un opérateur veux que sa machine se déplace de 1 pouce dans la direction
+ Si un opérateur veut que sa machine se déplace de 1 pouce dans la direction
  +X avec une vitesse fixe, il doit tourner lentement sa manivelle de cinq
  tours en sens horaire et en 20 secondes.
  Pour obtenir un mouvement équivalent, cet opérateur programmera sur sa
@@ -954,7 +962,7 @@ jog l'axe X à 250 millimètres par minute.
  utilisés pour charger ou lancer l'exécution complète d'un programme de
  G-codes stocké dans un fichier.
  En mode d'entrée de données manuelles (MDI) l'opérateur peut saisir un
- bloc de codes est dire à la machine de l'exécuter en pressant la touche
+ bloc de codes et dire à la machine de l'exécuter en pressant la touche
  <Return> ou <Entrée> du clavier.
 \layout Standard
 
@@ -1128,7 +1136,7 @@ Vaut-il mieux travailler en pouces, en pieds, en centimètres, millimètres
 \end_inset 
 
  Plusieurs réponses sont possibles à cette question mais la meilleure est
- que ça marchera mieux dans l'unité avec laquelle vous avez choisi de configuré
+ que ça marchera mieux dans l'unité avec laquelle vous avez choisi de configurer
  la machine.
  
 \layout Standard

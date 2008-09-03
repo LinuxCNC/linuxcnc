@@ -4,16 +4,16 @@
 \begin_preamble
 \usepackage[plainpages=false,pdfpagelabels,colorlinks=true,linkcolor=blue]{hyperref}
 \end_preamble
-\language frenchb
+\language french
 \inputencoding default
 \fontscheme bookman
 \graphics default
-\float_placement !htbp
-\paperfontsize default
+\float_placement !!h
+\paperfontsize 10
 \spacing single 
 \papersize letterpaper
 \paperpackage a4
-\use_geometry 1
+\use_geometry 0
 \use_amsmath 1
 \use_natbib 0
 \use_numerical_citations 0
@@ -22,15 +22,15 @@
 \topmargin 1in
 \rightmargin 0.8in
 \bottommargin 0.8in
-\secnumdepth 1
-\tocdepth 5
+\secnumdepth 5
+\tocdepth 3
 \paragraph_separation skip
 \defskip smallskip
-\quotes_language english
+\quotes_language french
 \quotes_times 2
 \papercolumns 1
-\papersides 1
-\paperpagestyle default
+\papersides 2
+\paperpagestyle headings
 
 \layout Chapter
 
@@ -71,13 +71,6 @@ r, avec des boutons, des galvanomètres, des potentiomètres, des interrupteurs,
  par exemple, pendant la phase de déboguage du programme.
  Ou pour simuler un panneau de contrôle physique avant qu'il ne soit fabriqué,
  câblé et raccordé à une carte d'entrée/sortie.
-\layout Standard
-
-Actuellement il y a deux implémentations de VCP dans EMC2: L'ancien, simplement
- nommé VCP, qui utilise les widgets de GTK et le nouveau appelé pyVCP, qui
- utilise les widgets Tkinter.
- VCP n'est plus recommandé, il ne doit plus être utilisé, il sera supprimé
- dans l'avenir.
 \layout Section
 
 pyVCP
@@ -1037,280 +1030,4 @@ n2 rows'"/>
     <label text="M (cell 3,4)"/>
 \newline 
 </table> 
-\layout Section
-
-VCP: Un petit exemple
-\layout Standard
-
-NOTE: VCP n'est plus conseillé et ne devrait plus faire l'objet de nouveaux
- développements ou de widgets supplémentaires.
- Il est fortement recommandé d'utiliser pyVCP.
- Cependant, pyVCP ne sera mis à jour que pour la publication de la version
- 2.2 et VCP est en version 2.1.
- Ce qui signifie que tant que des utilisateurs utilisent encore VCP, nous
- ne pouvons pas simplement l'arrêter.
-\begin_inset Foot
-collapsed false
-
-\layout Standard
-
-Un traducteur .vcp vers .xml qui prend un fichier VCP et le converti en pyVCP
- utilisable est sur ma liste 
-\begin_inset Quotes eld
-\end_inset 
-
-à faire
-\begin_inset Quotes erd
-\end_inset 
-
-.
- Il permettrait aux utilisateurs de VCP de migrer facilement vers pyVCP.
- Si un tel traducteur est écrit, VCP pourra être retiré à partir des versions
- 2.2.
-\end_inset 
-
-
-\layout Standard
-
-Placer les lignes suivantes dans un fichier nommé 
-\family typewriter 
-tiny.vcp
-\family default 
-:
-\layout LyX-Code
-
-vcp { 
-\newline 
- main-window { 
-\newline 
-   box { 
-\newline 
-     button { 
-\newline 
-       halpin = vcp.pushbutton 
-\newline 
-       label { text = "Pressez moi" } 
-\newline 
-     } 
-\newline 
-     LED { 
-\newline 
-       halpin = vcp.light 
-\newline 
-     } 
-\newline 
-   } 
-\newline 
- }
-\newline 
-}
-\layout Standard
-
-Le fichier ci-dessus, décrit un minuscule panneau de contrôle virtuel, avec
- un bouton poussoir et une lampe.
- Pour voir à quoi il ressemble, il faut démarrer HAL:
-\layout LyX-Code
-
-$
-\series bold 
- halrun
-\layout Standard
-
-Ensuite il faut charger halvcp et lui passer le nom de notre fichier .vcp:
-\layout LyX-Code
-
-halcmd: 
-\series bold 
-loadusr halvcp tiny.vcp
-\series default 
-
-\newline 
-halcmd:
-\layout Standard
-
-Il peut y avoir quelques messages affichés pendant que halvcp ouvre le fichier
- tiny.vcp, mais pour finir, il devrait y avoir une petite fenêtre sur votre
- écran, avec un bouton et une LED.
- Il devrait ressembler à la figure 
-\begin_inset LatexCommand \ref{fig:l'Ã©cran-de-tiny.vcp}
-
-\end_inset 
-
-.
-\layout Standard
-
-
-\begin_inset Float figure
-wide false
-collapsed false
-
-\layout Standard
-\align center 
-
-\begin_inset Graphics
-	filename tinyvcp_fr.png
-	rotateOrigin center
-
-\end_inset 
-
-
-\layout Caption
-
-
-\begin_inset LatexCommand \label{fig:l'Ã©cran-de-tiny.vcp}
-
-\end_inset 
-
-L'écran de tiny.vcp
-\end_inset 
-
-
-\layout Standard
-
-Donc, nous avons un bouton et un voyant à LED, mais ils ne sont connectés
- à rien, de sorte que rien ne se passe quand vous appuyez sur le bouton.
- Cependant, la LED et le bouton ont tous les deux des pins HAL associées
- avec eux, pour les voir:
-\layout LyX-Code
-
-halcmd: 
-\series bold 
-show pin
-\layout LyX-Code
-
-Component Pins:
-\newline 
-Owner  Type  Dir     Value      Name
-\newline 
- 03    bit   IN      FALSE      vcp.light
-\newline 
- 03    bit   OUT     FALSE      vcp.pushbutton
-\newline 
-halcmd:
-\layout Standard
-
-Pour que quelque chose se produise, il faut connecter un signal HAL entre
- le bouton et la lampe:
-\layout LyX-Code
-
-halcmd
-\series bold 
-:
-\series default 
- 
-\series bold 
-newsig jumper bit
-\newline 
-
-\series default 
-halcmd:
-\series bold 
- linksp jumper vcp.pushbutton
-\newline 
-
-\series default 
-halcmd:
-\series bold 
- linksp jumper vcp.light
-\newline 
-
-\series default 
-halcmd:
-\series bold 
- show sig
-\newline 
-
-\series default 
-Signals:
-\newline 
-Type      Value      Name
-\newline 
-bit       FALSE      jumper
-\newline 
-                         ==> vcp.light
-\newline 
-                         <== vcp.pushbutton
-\newline 
-halcmd:
-\layout Standard
-
-Maintenant pressez le bouton et la LED doit s'allumer!
-\layout Section
-
-VCP: Un autre petit exemple avec EMC
-\layout Standard
-
-Placer les lignes suivantes dans un fichier nommé 
-\family typewriter 
-estop.vcp
-\family default 
-:
-\layout LyX-Code
-
-vcp { 
-\newline 
-   main-window { 
-\newline 
-      toggle { halpin = vcp.estop } 
-\newline 
-   }
-\newline 
-}
-\layout Standard
-
-Dans votre fichier .hal, enlevez tout ce qui est lié avec 
-\family typewriter 
-iocontrol.0.emc-enable-in
-\family default 
- et ajoutez-y les lignes suivantes:
-\layout LyX-Code
-
-loadusr -W halvcp estop.vcp
-\newline 
-newsig estop bit
-\newline 
-linkps vcp.estop => estop
-\newline 
-linkps estop => iocontrol.0.emc-enable-in
-\layout Standard
-
-Maintenant, quand vous démarrez votre machine, le bouton d'arrêt d'urgence
- de l'interface graphique est désactivé, il est remplacé par le bouton d'arrêt
- d'urgence du panneau VCP.
-\layout Section
-
-Syntaxe VCP
-\layout Subsection
-
-Block
-\layout Standard
-
-Le format de block est le suivant:
-\layout LyX-Code
-
-balise { 
-\emph on 
-contenu
-\emph default 
- }
-\layout Standard
-
-Le contenu peut se composer d'attributs qui décrivent le block, ou d'autres
- blocks imbriqués dedans.
-\layout Standard
-
-Le format des attributs est
-\layout LyX-Code
-
-
-\emph on 
-nom
-\emph default 
- = 
-\emph on 
-valeur
-\layout Standard
-
-Les noms des attributs acceptables pour chaque block, dépendent dela balise
- block et seront listés ultérieurement.
 \the_end
