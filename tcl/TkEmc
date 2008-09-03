@@ -1,3 +1,5 @@
+! $Id$
+
 ! Set the colors for the main screen
 *top*background: blue
 *top*foreground: white
@@ -19,12 +21,19 @@
 ! tool offset
 *top*settings*tooloffsetsetting*background: gray
 *top*settings*tooloffsetsetting*foreground: black
-! jog speed
+
+! feed override
 *top*controls*oride*top*value*background: gray
 *top*controls*oride*top*value*foreground: black
-! feed override
-*top*controls*feed*top*value*background: gray
-*top*controls*feed*top*value*foreground: black
+
 ! spindle override
 *top*controls*soride*top*value*background: gray
 *top*controls*soride*top*value*foreground: black
+
+! linear jog override
+*top*controls*left*linearjog*top*value*background: gray
+*top*controls*left*linearjog*top*value*foreground: black
+
+! angular jog override
+*top*controls*left*angularjog*top*value*background: gray
+*top*controls*left*angularjog*top*value*foreground: black

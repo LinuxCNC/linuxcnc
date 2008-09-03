@@ -687,7 +687,7 @@ proc toggleJogIncrement {} {
 
 # given axis, determines speed and cont v. incr and jogs it neg
 proc jogNeg {axis} {
-    global activeAxis jogSpeed jogType jogIncrement axiscoordmap
+    global activeAxis jogType jogIncrement axiscoordmap
 
     set activeAxis $axis
 
@@ -696,17 +696,20 @@ proc jogNeg {axis} {
     } else {
 	set axisToJog $axis
     }
-
+    switch $::jogAxisType($axisToJog) {
+      linear  {set speed $::linearJogSpeed}
+      angular {set speed $::angularJogSpeed}
+    }
     if {$jogType == "continuous"} {
-        emc_jog $axisToJog -$jogSpeed
+        emc_jog $axisToJog -$speed
     } else {
-        emc_jog_incr $axisToJog -$jogSpeed $jogIncrement
+        emc_jog_incr $axisToJog -$speed $jogIncrement
     }
 }
 
 # given axis, determines speed and cont v. incr and jogs it pos
 proc jogPos {axis} {
-    global activeAxis jogSpeed jogType jogIncrement axiscoordmap
+    global activeAxis jogType jogIncrement axiscoordmap
 
     set activeAxis $axis
     
@@ -715,11 +718,15 @@ proc jogPos {axis} {
     } else {
 	set axisToJog $axis
     }
+    switch $::jogAxisType($axisToJog) {
+      linear  {set speed $::linearJogSpeed}
+      angular {set speed $::angularJogSpeed}
+    }
 
     if {$jogType == "continuous"} {
-        emc_jog $axisToJog $jogSpeed
+        emc_jog $axisToJog $speed
     } else {
-        emc_jog_incr $axisToJog $jogSpeed $jogIncrement
+        emc_jog_incr $axisToJog $speed $jogIncrement
     }
 }
 
@@ -993,19 +1000,54 @@ if {  [emc_kinematics_type] == 1 } {
     set poslabel8 $jointlabel8
 }    
 
-# read the default jog speed
-set temp [emc_ini "DEFAULT_VELOCITY" "TRAJ"]
-if {[string length $temp] == 0} {
-    set temp 1
+# process ini file settings for jog speed -- angular and linear
+# use TRAJ settings only
+set vitems "DEFAULT_VELOCITY DEFAULT_ANGULAR_VELOCITY DEFAULT_LINEAR_VELOCITY\
+                MAX_VELOCITY     MAX_ANGULAR_VELOCITY     MAX_LINEAR_VELOCITY"
+foreach item $vitems {
+  set temp [emc_ini "$item" "TRAJ"]
+  if {"$temp" != ""} {set tempini($item) $temp}
+}      
+if [info exists tempini(DEFAULT_LINEAR_VELOCITY)] {
+  set temp     $tempini(DEFAULT_LINEAR_VELOCITY)
+} elseif [info exists tempini(DEFAULT_VELOCITY)] {
+  set temp           $tempini(DEFAULT_VELOCITY)
+} else {
+  set temp 1
 }
-set jogSpeed [expr {int($temp * 60 + 0.5)}]
+set ::linearJogSpeed [expr int($temp * 60 + 0.5)] ;# units/minute
 
-# read the max jog speed
-set temp [emc_ini "MAX_VELOCITY" "TRAJ"]
-if {[string length $temp] == 0} {
-    set temp 1
+if [info exists tempini(MAX_LINEAR_VELOCITY)] {
+  set temp     $tempini(MAX_LINEAR_VELOCITY)
+} elseif [info exists tempini(MAX_VELOCITY)] {
+  set temp           $tempini(MAX_VELOCITY)
+} else {
+  set temp 1
 }
-set maxJogSpeed [expr {int($temp * 60 + 0.5)}]
+set ::linearJogSpeedMax [expr int($temp * 60 + 0.5)] ;# units/minute
+
+if [info exists tempini(DEFAULT_ANGULAR_VELOCITY)] {
+  set temp     $tempini(DEFAULT_ANGULAR_VELOCITY)
+  set ::angularJogSpeed [expr {int($temp * 60 + 0.5)}] ;# units/minute
+}
+# no angular jog slider if no DEFAULT_ANGULAR_VELOCITY
+if [info exists ::angularJogSpeed] {
+  if [info exists tempini(MAX_ANGULAR_VELOCITY)] {
+    set temp     $tempini(MAX_ANGULAR_VELOCITY)
+    set ::angularJogSpeedMax [expr {int($temp * 60 + 0.5)}] ;# units/minute
+  } else {
+    set ::angularJogSpeedMax $::angularJogSpeed
+  }
+}
+
+foreach axis {0 1 2 3 4 5 6 7 8} {
+  set temp [emc_ini "TYPE" "AXIS_$axis"]
+  switch $temp {
+    LINEAR  {set ::jogAxisType($axis) linear}
+    ANGULAR {set ::jogAxisType($axis) angular}
+  }
+}
+unset vitems tempini ;# remove clutter
 
 set jogType continuous
 set jogIncrement 0.0010
@@ -1336,24 +1378,38 @@ proc popupAxisOffset {axis} {
     .axisoffset.input.entry select range 0 end
 }
 
-proc incrJogSpeed {} {
-    global jogSpeed maxJogSpeed
-
-    if {$jogSpeed < $maxJogSpeed} {
-        set jogSpeed [expr {int($jogSpeed + 1.5)}]
+proc incrJogSpeed {axistype} {
+    switch $axistype {
+      linear  {
+        if {$::linearJogSpeed < $::linearJogSpeedMax} {
+            set ::linearJogSpeed [expr {int($::linearJogSpeed + 1.5)}]
+        }
+      }
+      angular {
+        if {$::angularJogSpeed < $::angularJogSpeedMax} {
+            set ::angularJogSpeed [expr {int($::angularJogSpeed + 1.5)}]
+        }
+      }
     }
 }
 
-proc decrJogSpeed {} {
-    global jogSpeed
-
-    if {$jogSpeed > 1} {
-        set jogSpeed [expr {int($jogSpeed - 0.5)}]
+proc decrJogSpeed {axistype} {
+    switch $axistype {
+      linear  {
+        if {$::linearJogSpeed > 1} {
+            set ::linearJogSpeed [expr {int($::linearJogSpeed - 0.5)}]
+        }
+      }
+      angular {
+        if {$::angularJogSpeed > 1} {
+            set ::angularJogSpeed [expr {int($::angularJogSpeed - 0.5)}]
+        }
+      }
     }
 }
 
-proc popupJogSpeed {} {
-    global jogSpeed maxJogSpeed popupJogSpeedEntry
+proc popupJogSpeed {axistype} {
+    global maxJogSpeed popupJogSpeedEntry
 
     if {[winfo exists .jogspeedpopup]} {
         wm deiconify .jogspeedpopup
@@ -1365,19 +1421,26 @@ proc popupJogSpeed {} {
     wm title .jogspeedpopup [msgcat::mc "Set Jog Speed"]
 
     # initialize value to current jog speed
-    set popupJogSpeedEntry $jogSpeed
+    switch $axistype {
+      linear  {set popupJogSpeedEntry $::linearJogSpeed
+               set item ::linearJogSpeed
+      }
+      angular {set popupJogSpeedEntry $::angularJogSpeed
+               set item ::angularJogSpeed
+      }
+    }
 
     frame .jogspeedpopup.input
     label .jogspeedpopup.input.label -text [msgcat::mc "Set jog speed:"]
     entry .jogspeedpopup.input.entry -textvariable popupJogSpeedEntry -width 20
     frame .jogspeedpopup.buttons
-    button .jogspeedpopup.buttons.ok -text [msgcat::mc "OK"] -default active -command {set jogSpeed $popupJogSpeedEntry; destroy .jogspeedpopup}
+    button .jogspeedpopup.buttons.ok -text [msgcat::mc "OK"] -default active -command "set $item \$popupJogSpeedEntry; destroy .jogspeedpopup"
     button .jogspeedpopup.buttons.cancel -text [msgcat::mc "Cancel"] -command "destroy .jogspeedpopup"
     pack .jogspeedpopup.input.label .jogspeedpopup.input.entry -side left
     pack .jogspeedpopup.input -side top
     pack .jogspeedpopup.buttons -side bottom -fill x -pady 2m
     pack .jogspeedpopup.buttons.ok .jogspeedpopup.buttons.cancel -side left -expand 1
-    bind .jogspeedpopup <Return> {set jogSpeed $popupJogSpeedEntry; destroy .jogspeedpopup}
+    bind .jogspeedpopup <Return> "set $item \$popupJogSpeedEntry; destroy .jogspeedpopup"
 
     focus .jogspeedpopup.input.entry
     .jogspeedpopup.input.entry select range 0 end
@@ -1433,13 +1496,13 @@ proc popupSoride {} {
     label .soridepopup.input.label -text [msgcat::mc "Set spindle speed override:"]
     entry .soridepopup.input.entry -textvariable popupSorideEntry -width 20
     frame .soridepopup.buttons
-    button .soridepopup.buttons.ok -text [msgcat::mc "OK"] -default active -command {set spindleoverride $popupSorideEntry; emc_spindle_override $spindleoverride; destroy .oridepopup}
+    button .soridepopup.buttons.ok -text [msgcat::mc "OK"] -default active -command {set spindleoverride $popupSorideEntry; emc_spindle_override $spindleoverride; destroy .soridepopup}
     button .soridepopup.buttons.cancel -text [msgcat::mc "Cancel"] -command "destroy .soridepopup"
     pack .soridepopup.input.label .soridepopup.input.entry -side left
     pack .soridepopup.input -side top
     pack .soridepopup.buttons -side bottom -fill x -pady 2m
     pack .soridepopup.buttons.ok .soridepopup.buttons.cancel -side left -expand 1
-    bind .soridepopup <Return> {set speedoverride $popupSorideEntry; emc_spindle_override $spindleoverride; destroy .soridepopup}
+    bind .soridepopup <Return> {set spindleoverride $popupSorideEntry; emc_spindle_override $spindleoverride; destroy .soridepopup}
 
     focus .soridepopup.input.entry
     .soridepopup.input.entry select range 0 end
@@ -1472,60 +1535,105 @@ if {[string length $temp] == 0} {
 }
 set maxSpindleOverride [expr {int($temp * 100 + 0.5)}]
 
-set controls [frame $top.controls]
-pack $controls -side top -anchor w
+set controls [frame $top.controls -relief ridge -bd 3]
+pack $controls -side top -anchor w -fill x -expand 1
 
-set feed [frame $controls.feed]
-set feedtop [frame $feed.top]
-set feedbottom [frame $feed.bottom]
-set feedlabel [label $feedtop.label -text [msgcat::mc "Axis Speed:"] -width 18]
-set feedvalue [label $feedtop.value -textvariable jogSpeed -width 6]
-set feedscale [scale $feedbottom.scale -length 200 -from 0 -to $maxJogSpeed -variable jogSpeed -orient horizontal -showvalue 0 -takefocus 0]
+set lcontrols [frame $controls.left -relief ridge -bd 3]
+pack $lcontrols -side left -anchor w -fill x -expand 1
 
-pack $feed -side left
-pack $feedtop -side top
-pack $feedbottom -side top
-pack $feedlabel -side left
-pack $feedvalue -side left -padx 2m ; # don't bump against label
-pack $feedscale -side top
+set rcontrols [frame $controls.right]
+pack $rcontrols -side left -anchor w -fill x -expand 1
 
-bind $feedlabel <ButtonPress-1> {popupJogSpeed}
-bind $feedlabel <ButtonPress-3> {popupJogSpeed}
-bind $feedvalue <ButtonPress-1> {popupJogSpeed}
-bind $feedvalue <ButtonPress-3> {popupJogSpeed}
+set linearjog [frame $lcontrols.linearjog]
+set linearjogtop [frame $linearjog.top]
+set linearjogbottom [frame $linearjog.bottom]
+set linearjoglabel [label $linearjogtop.label \
+               -text [msgcat::mc "Linear Jog Speed"] ]
+set linearjoglabelunits [label $linearjogtop.units \
+                        -textvariable unitsetting -width 6 -anchor e]
+set linearjoglabelunitssuffix [label $linearjogtop.suffix -text "/min:"]
+set linearjogvalue [label $linearjogtop.value \
+                   -textvariable ::linearJogSpeed -width 6]
+set linearjogscale [scale $linearjogbottom.scale \
+               -from 0 -to $::linearJogSpeedMax -variable ::linearJogSpeed \
+               -orient horizontal -showvalue 0 -takefocus 0]
 
-set oride [frame $controls.oride]
+
+pack $linearjog       -side top  -fill x -expand 1
+pack $linearjogtop    -side top  -fill x -expand 1
+pack $linearjogbottom -side top  -fill x -expand 1
+
+pack $linearjoglabel  -side left
+pack $linearjoglabelunits -side left
+pack $linearjoglabelunitssuffix -side left
+pack $linearjogvalue -side right -padx 1m ; # don't bump against label
+pack $linearjogscale -side top -fill x -expand 1
+
+bind $linearjoglabel <ButtonPress-1> {popupJogSpeed linear}
+bind $linearjoglabel <ButtonPress-3> {popupJogSpeed linear}
+bind $linearjogvalue <ButtonPress-1> {popupJogSpeed linear}
+bind $linearjogvalue <ButtonPress-3> {popupJogSpeed linear}
+
+if [info exists ::angularJogSpeed] {
+  set angularjog [frame $lcontrols.angularjog]
+  set angularjogtop [frame $angularjog.top]
+  set angularjogbottom [frame $angularjog.bottom]
+  set angularjoglabel [label $angularjogtop.label \
+                 -text [msgcat::mc "Angular Jog Speed (deg)/min:"] ]
+  set angularjogvalue [label $angularjogtop.value \
+                      -textvariable ::angularJogSpeed -width 6]
+  set angularjogscale [scale $angularjogbottom.scale \
+               -from 0 -to $::angularJogSpeedMax -variable ::angularJogSpeed \
+               -orient horizontal -showvalue 0 -takefocus 0]
+
+  pack $angularjog       -side top -fill x -expand 1
+  pack $angularjogtop    -side top -fill x -expand 1
+  pack $angularjogbottom -side top -fill x -expand 1
+
+  pack $angularjoglabel -side left
+  pack $angularjogvalue -side right -padx 1m ; # don't bump against label
+  pack $angularjogscale -side top -fill x -expand 1
+
+  bind $angularjoglabel <ButtonPress-1> {popupJogSpeed angular}
+  bind $angularjoglabel <ButtonPress-3> {popupJogSpeed angular}
+  bind $angularjogvalue <ButtonPress-1> {popupJogSpeed angular}
+  bind $angularjogvalue <ButtonPress-3> {popupJogSpeed angular}
+}
+
+set oride [frame $rcontrols.oride]
 set oridetop [frame $oride.top]
 set oridebottom [frame $oride.bottom]
-set oridelabel [label $oridetop.label -text [msgcat::mc "Feed Override:"] -width 20]
+set oridelabel [label $oridetop.label -text [msgcat::mc "Feed Override:"] ]
 set oridevalue [label $oridetop.value -textvariable realfeedoverride -width 6]
-set oridescale [scale $oridebottom.scale -length 200 -from 1 -to $maxFeedOverride -variable feedoverride -orient horizontal -showvalue 0 -command {emc_feed_override} -takefocus 0]
+set oridescale [scale $oridebottom.scale  -from 1 -to $maxFeedOverride -variable feedoverride -orient horizontal -showvalue 0 -command {emc_feed_override} -takefocus 0]
 
-pack $oride -side left
-pack $oridetop -side top
-pack $oridebottom -side top
+pack $oride       -side top -fill x -expand 1
+pack $oridetop    -side top -fill x -expand 1
+pack $oridebottom -side top -fill x -expand 1
+
 pack $oridelabel -side left
-pack $oridevalue -side left -padx 2m ; # don't bump against label
-pack $oridescale -side top
+pack $oridevalue -side right -padx 1m ; # don't bump against label
+pack $oridescale -side top -fill x -expand 1
 
 bind $oridelabel <ButtonPress-1> {popupOride}
 bind $oridelabel <ButtonPress-3> {popupOride}
 bind $oridevalue <ButtonPress-1> {popupOride}
 bind $oridevalue <ButtonPress-3> {popupOride}
 
-set soride [frame $controls.soride]
+set soride [frame $rcontrols.soride]
 set soridetop [frame $soride.top]
 set soridebottom [frame $soride.bottom]
-set soridelabel [label $soridetop.label -text [msgcat::mc "Spindle speed Override:"] -width 20]
+set soridelabel [label $soridetop.label -text [msgcat::mc "Spindle speed Override:"] ]
 set soridevalue [label $soridetop.value -textvariable realspindleoverride -width 6]
-set soridescale [scale $soridebottom.scale -length 200 -from $minSpindleOverride -to $maxSpindleOverride -variable spindleoverride -orient horizontal -showvalue 0 -command {emc_spindle_override} -takefocus 0]
+set soridescale [scale $soridebottom.scale  -from $minSpindleOverride -to $maxSpindleOverride -variable spindleoverride -orient horizontal -showvalue 0 -command {emc_spindle_override} -takefocus 0]
 
-pack $soride -side left
-pack $soridetop -side top
-pack $soridebottom -side top
+pack $soride       -side top -fill x -expand 1
+pack $soridetop    -side top -fill x -expand 1
+pack $soridebottom -side top -fill x -expand 1
+
 pack $soridelabel -side left
-pack $soridevalue -side left -padx 2m ; # don't bump against label
-pack $soridescale -side top
+pack $soridevalue -side right -padx 1m ; # don't bump against label
+pack $soridescale -side top -fill x -expand 1
 
 bind $soridelabel <ButtonPress-1> {popupSoride}
 bind $soridelabel <ButtonPress-3> {popupSoride}
@@ -1639,8 +1747,10 @@ bind ManualBindings <KeyPress-8> {axisSelect 8}
 bind ManualBindings <KeyPress-at> {toggleCmdAct}
 bind ManualBindings <KeyPress-numbersign> {toggleRelAbs}
 bind ManualBindings <KeyPress-dollar> {toggleJointWorld}
-bind ManualBindings <KeyPress-comma> {decrJogSpeed}
-bind ManualBindings <KeyPress-period> {incrJogSpeed}
+bind ManualBindings <KeyPress-comma> {decrJogSpeed linear}
+bind ManualBindings <KeyPress-period> {incrJogSpeed linear}
+bind ManualBindings <KeyPress-semicolon>  {decrJogSpeed angular}
+bind ManualBindings <KeyPress-apostrophe> {incrJogSpeed angular}
 bind ManualBindings <KeyPress-c> {toggleJogType}
 bind ManualBindings <KeyPress-i> {toggleJogIncrement}
 bind ManualBindings <KeyPress-x> {axisSelect 0}
@@ -2118,7 +2228,7 @@ proc updateStatus {} {
     global taskhb taskcmd tasknum taskstatus
     global iohb iocmd ionum iostatus
     global motionhb motioncmd motionnum motionstatus
-    global oldstatusstring jogSpeed
+    global oldstatusstring
     global axiscoordmap
     global homedcolor unhomedcolor opstopcolor limitcolor
 
@@ -2502,7 +2612,10 @@ proc updateStatus {} {
 
 
     # temporary fix for 0 jog speed problem
-    if {$jogSpeed <= 0} {set jogSpeed .000001}
+    if {$::linearJogSpeed  <= 0} {set ::linearJogSpeed  .000001}
+    if {[info exists ::angularJogSpeed] && $::angularJogSpeed <= 0} {
+      set ::angularJogSpeed .000001
+    }
 
     # fill in the program codes
     set programcodestring [emc_program_codes]
