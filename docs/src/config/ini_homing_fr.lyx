@@ -27,7 +27,6 @@
 \layout Chapter
 
 
-\lang french
 
 \begin_inset LatexCommand \label{sec:Prises-d'origine}
 
@@ -37,12 +36,10 @@ Prise d'origine
 \layout Section
 
 
-\lang french
 Vue d'ensemble
 \layout Standard
 
 
-\lang french
 La prise d'origine semble assez simple, il suffit de déplacer chaque axe
  à un emplacement connu et de positionner l'ensemble des variables internes
  d'EMC en conséquence.
@@ -52,12 +49,10 @@ La prise d'origine semble assez simple, il suffit de déplacer chaque axe
 \layout Subsection
 
 
-\lang french
 Séquence de prise d'origine
 \layout Standard
 
 
-\lang french
 La figure 
 \begin_inset LatexCommand \ref{fig: Sequences de prise d'origine}
 
@@ -74,7 +69,6 @@ La figure
 \layout Standard
 
 
-\lang french
 
 \begin_inset LatexCommand \ref{fig: Sequences de prise d'origine}
 
@@ -89,7 +83,6 @@ collapsed false
 \layout Standard
 \align center 
 
-\lang french
 
 \begin_inset Graphics
 	filename emc2-motion-homing-diag.eps
@@ -103,7 +96,6 @@ collapsed false
 \layout Standard
 
 
-\lang french
 
 \begin_inset LatexCommand \label{fig: Sequences de prise d'origine}
 
@@ -116,19 +108,16 @@ collapsed false
 \layout Subsection
 
 
-\lang french
 Configuration
 \layout Standard
 
 
-\lang french
 Il y a six combinaisons possibles des variables qui définissent le déroulement
  de la séquence de prise d'origine.
  EIles sont définies dans la section [AXIS] du fichier ini.
 \layout Standard
 
 
-\lang french
 
 \begin_inset Float table
 placement H
@@ -138,7 +127,6 @@ collapsed false
 \layout Standard
 \align center 
 
-\lang french
 
 \begin_inset  Tabular
 <lyxtabular version="3" rows="6" columns="4">
@@ -154,7 +142,6 @@ collapsed false
 \layout Standard
 
 
-\lang french
 SEARCH_VEL
 \end_inset 
 </cell>
@@ -164,7 +151,6 @@ SEARCH_VEL
 \layout Standard
 
 
-\lang french
 LATCH_VEL
 \end_inset 
 </cell>
@@ -174,7 +160,6 @@ LATCH_VEL
 \layout Standard
 
 
-\lang french
 USE_INDEX
 \end_inset 
 </cell>
@@ -184,7 +169,6 @@ USE_INDEX
 \layout Standard
 
 
-\lang french
 Type de séquence
 \end_inset 
 </cell>
@@ -196,7 +180,6 @@ Type de séquence
 \layout Standard
 
 
-\lang french
 nonzero
 \end_inset 
 </cell>
@@ -206,7 +189,6 @@ nonzero
 \layout Standard
 
 
-\lang french
 nonzero
 \end_inset 
 </cell>
@@ -216,7 +198,6 @@ nonzero
 \layout Standard
 
 
-\lang french
 NO
 \end_inset 
 </cell>
@@ -226,7 +207,6 @@ NO
 \layout Standard
 
 
-\lang french
 Switch-seulement
 \end_inset 
 </cell>
@@ -238,7 +218,6 @@ Switch-seulement
 \layout Standard
 
 
-\lang french
 nonzero
 \end_inset 
 </cell>
@@ -248,7 +227,6 @@ nonzero
 \layout Standard
 
 
-\lang french
 nonzero
 \end_inset 
 </cell>
@@ -258,7 +236,6 @@ nonzero
 \layout Standard
 
 
-\lang french
 YES
 \end_inset 
 </cell>
@@ -268,7 +245,6 @@ YES
 \layout Standard
 
 
-\lang french
 Switch + Index
 \end_inset 
 </cell>
@@ -280,7 +256,6 @@ Switch + Index
 \layout Standard
 
 
-\lang french
 0
 \end_inset 
 </cell>
@@ -290,7 +265,6 @@ Switch + Index
 \layout Standard
 
 
-\lang french
 nonzero
 \end_inset 
 </cell>
@@ -300,7 +274,6 @@ nonzero
 \layout Standard
 
 
-\lang french
 YES
 \end_inset 
 </cell>
@@ -310,7 +283,6 @@ YES
 \layout Standard
 
 
-\lang french
 Index-seulement
 \end_inset 
 </cell>
@@ -322,7 +294,6 @@ Index-seulement
 \layout Standard
 
 
-\lang french
 0
 \end_inset 
 </cell>
@@ -332,7 +303,6 @@ Index-seulement
 \layout Standard
 
 
-\lang french
 0
 \end_inset 
 </cell>
@@ -342,7 +312,6 @@ Index-seulement
 \layout Standard
 
 
-\lang french
 NO
 \end_inset 
 </cell>
@@ -352,7 +321,6 @@ NO
 \layout Standard
 
 
-\lang french
 Aucun
 \end_inset 
 </cell>
@@ -364,7 +332,6 @@ Aucun
 \layout Standard
 
 
-\lang french
 Autres combinaisons
 \end_inset 
 </cell>
@@ -388,7 +355,6 @@ Autres combinaisons
 \layout Standard
 
 
-\lang french
 Erreur
 \end_inset 
 </cell>
@@ -401,7 +367,6 @@ Erreur
 \layout Caption
 
 
-\lang french
 
 \begin_inset LatexCommand \label{cap:Variables sequences de POM}
 
@@ -414,7 +379,6 @@ Erreur
 \layout Subsubsection
 
 
-\lang french
 HOME_SEARCH_VEL = 0
 \begin_inset LatexCommand \index{HOME SEARCH VEL}
 
@@ -424,7 +388,6 @@ HOME_SEARCH_VEL = 0
 \layout Standard
 
 
-\lang french
 Vitesse de la phase initiale de prise d'origine, c'est la recherche du contact
  d'origine machine.
  Une valeur différente de zéro indique à EMC la présence d'un contact d'origine
@@ -475,7 +438,6 @@ HOME_SEARCH_VEL
 \layout Standard
 
 
-\lang french
 Une valeur égale à zéro indique qu'il n'y a pas de contact d'origine machine,
  dans ce cas, les phases de recherche de ce contact seront occultées.
  La valeur par défaut est zéro.
@@ -483,7 +445,6 @@ Une valeur égale à zéro indique qu'il n'y a pas de contact d'origine machine,
 \layout Subsubsection
 
 
-\lang french
 HOME_LATCH_VEL = 0
 \begin_inset LatexCommand \index{HOME LATCH VEL}
 
@@ -493,7 +454,6 @@ HOME_LATCH_VEL = 0
 \layout Standard
 
 
-\lang french
 Spécifie la vitesse et la direction utilisée par le mobile pendant la dernière
  phase de la prise d'origine, c'est la recherche précise du contact d'origine
  machine, si il existe et de l'emplacement de l'impulsion d'index, si elle
@@ -583,7 +543,6 @@ HOME_LATCH_VEL
 \layout Subsubsection
 
 
-\lang french
 HOME_IGNORE_LIMITS = YES/NO
 \begin_inset LatexCommand \index{HOME IGNORE LIMITS}
 
@@ -593,7 +552,6 @@ HOME_IGNORE_LIMITS = YES/NO
 \layout Standard
 
 
-\lang french
 Peut contenir les valeurs YES ou NO.
  Cette variable détermine si EMC doit ignorer les fins de course de limites
  d'axe.
@@ -606,7 +564,6 @@ Peut contenir les valeurs YES ou NO.
 \layout Subsubsection
 
 
-\lang french
 HOME_USE_INDEX = YES/NO
 \begin_inset LatexCommand \index{HOME USE INDEX}
 
@@ -616,7 +573,6 @@ HOME_USE_INDEX = YES/NO
 \layout Standard
 
 
-\lang french
 Spécifie si une impulsion d'index doit être prise en compte (cas de règles
  de mesure ou de codeurs de positions).
  Si cette variable est vraie (HOME_USE_INDEX = YES), EMC fera l'acquisition
@@ -643,7 +599,6 @@ HOME_LATCH_VEL
 \layout Subsubsection
 
 
-\lang french
 HOME_OFFSET
 \begin_inset LatexCommand \index{HOME OFFSET}
 
@@ -653,7 +608,6 @@ HOME_OFFSET
 \layout Standard
 
 
-\lang french
 Contient l'emplacement du point d'origine ou de l'impulsion d'index, en
  coordonnées relatives.
  Il peut aussi être traité comme le décalage entre le point d'origine machine
@@ -672,7 +626,6 @@ HOME_OFFSET
 \layout Subsubsection
 
 
-\lang french
 HOME
 \begin_inset LatexCommand \index{HOME}
 
@@ -682,7 +635,6 @@ HOME
 \layout Standard
 
 
-\lang french
 C'est la position sur laquelle ira le mobile à la fin de la séquence de
  prise d'origine.
  Après avoir détecté le contact d'origine, avoir ajusté les coordonnées
@@ -730,7 +682,6 @@ collapsed false
 \layout Standard
 
 
-\lang french
 La distinction entre l'origine machine et le décalage d'origine n'est pas
  aussi claire que je le voudrais.
  J'envisage de faire un petit dessin et un exemple pour la clarifier.
@@ -740,7 +691,6 @@ La distinction entre l'origine machine et le décalage d'origine n'est pas
 \layout Subsubsection
 
 
-\lang french
 HOME_IS_SHARED
 \begin_inset LatexCommand \index{HOME IS SHARED}
 
@@ -750,7 +700,6 @@ HOME_IS_SHARED
 \layout Standard
 
 
-\lang french
 Si cet axe n'a pas un contact d'origine séparé des autres, mais plusieurs
  contacts câblés sur la même broche, mettez cette valeur à 1 pour éviter
  de commencer la prise d'origine si un de ces contacts partagés est déjà
@@ -760,7 +709,6 @@ Si cet axe n'a pas un contact d'origine séparé des autres, mais plusieurs
 \layout Subsubsection
 
 
-\lang french
 HOME_SEQUENCE
 \begin_inset LatexCommand \index{HOME SEQUENCE}
 
@@ -770,7 +718,6 @@ HOME_SEQUENCE
 \layout Standard
 
 
-\lang french
 Utilisé pour définir l'ordre des séquences 
 \begin_inset Quotes eld
 \end_inset 
