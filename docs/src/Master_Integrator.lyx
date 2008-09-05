@@ -378,9 +378,9 @@ preview false
 
 \layout Part
 
-FAQ
+Appendices 
 \layout Standard
-
+\start_of_appendix 
 
 \begin_inset Include \include{common/Linux_FAQ.lyx}
 preview false
@@ -388,9 +388,6 @@ preview false
 \end_inset 
 
 
-\layout Part
-
-Glossary
 \layout Standard
 
 
@@ -402,11 +399,6 @@ preview false
 
 \layout Standard
 
-\layout Part
-
-Legal Section
-\layout Standard
-
 
 \begin_inset Include \include{common/GPLD_Copyright.lyx}
 preview false
@@ -414,9 +406,6 @@ preview false
 \end_inset 
 
 
-\layout Part
-
-Index
 \layout Standard
 
 

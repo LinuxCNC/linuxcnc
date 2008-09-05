@@ -247,10 +247,10 @@ preview false
 
 
 \layout Part
-\start_of_appendix 
-Glossary 
-\layout Standard
 
+Appendices 
+\layout Standard
+\start_of_appendix 
 
 \begin_inset Include \include{common/Glossary.lyx}
 preview false
@@ -258,9 +258,6 @@ preview false
 \end_inset 
 
 
-\layout Part
-
-Legal Section
 \layout Standard
 
 
@@ -270,9 +267,6 @@ preview false
 \end_inset 
 
 
-\layout Part
-
-Index
 \layout Standard
 
 
