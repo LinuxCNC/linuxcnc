@@ -50,12 +50,13 @@ tr.head td, tr.head th { background: black; color: white; }
 <TR> <TD> <A HREF="gcode_main.html#sec:G0:-Rapid-Linear">G0</A> <TD> <TD> Rapid motion </TR>
 <TR> <TD> <A HREF="gcode_main.html#sec:G1:-Linear-Motion">G1</A> <TD> <TD> Coordinated motion ("Straight feed") </TR>
 <TR> <TD> <A HREF="gcode_main.html#sub:G2,-G3:-Arc">G2</A>, <A HREF="gcode_main.html#sub:G2,-G3:-Arc">G3</A> <TD> I J K or R <TD> Coordinated helical motion ("Arc feed") CW or CCW </TR>
-<TR> <TD> <A HREF="gcode_main.html#sub:G38.2:-Straight-Probe">G38.2&hellip;G38.5</A> <TD> <TD> Straight Probe </TR>
+<TR> <TD> <A HREF="gcode_main.html#sub:G38.2:-Straight-Probe">G38.2&hellip;G38.5</A> <TD> <TD> Straight probe </TR>
 <TR> <TD> <A HREF="gcode_main.html#sec:G80:-Cancel-Modal">G80</A> <TD> <TD> Cancel motion mode  </TR>
-<TR> <TD> <A HREF="gcode_main.html#sub:G81:-Drilling-Cycle">G81</A> <TD> R L P <TD> Drilling Cycle </TR>
-<TR> <TD> <A HREF="gcode_main.html#sub:G81-to-G89:">G73, G82&hellip;G89</A> <TD> R L P Q <TD> Other canned cycles </TR>
+<TR> <TD> <A HREF="gcode_main.html#sub:G81:-Drilling-Cycle">G81</A>, <A HREF="gcode_main.html#sub:G82:-Drilling-Cycle">G82</A> <TD> R L (P) <TD> Drilling cycle without (with) dwell </TR>
+<TR> <TD> <A HREF="gcode_main.html#sub:G83:-Peck-Drilling">G83</A>, <A HREF="gcode_main.html#sub:G73:-Drilling-Cycle">G73</A> <TD> R L Q <TD> Peck and Chip-break drilling cycles </TR>
+<TR> <TD> <A HREF="gcode_main.html#sub:G85:-Boring,-No">G85</A>, <A HREF="gcode_main.html#sub:G89:-Boring,-Dwell,">G89</A> <TD> R L (P) <TD> Boring cycle without (with) dwell </TR>
 <TR> <TD> <A HREF="gcode_main.html#sec:G33,-G33.1:-Spindle-Synchronized">G33</A> <TD> K <TD> Spindle-synchronized motion </TR>
-<TR> <TD> <A HREF="gcode_main.html#sec:G33,-G33.1:-Spindle-Synchronized">G33.1</A> <TD> K <TD> Rigid Tapping </TR>
+<TR> <TD> <A HREF="gcode_main.html#sec:G33,-G33.1:-Spindle-Synchronized">G33.1</A> <TD> K <TD> Rigid tapping </TR>
 <TR> <TD> <A HREF="gcode_main.html#sec:G76:-Threading-Canned">G76</A> <TD> P Z I J R K Q H L E<TD> Multipass lathe threading cycle </TR>
 <TR> <TH COLSPAN=3>Plane Selection (affects G2, G3, G81&hellip;G89, G40&hellip;G42)</TR>
 <TR> <TD> <A HREF="gcode_main.html#sub:G17,-G18,-G19:">G17</A> <TD> <TD> Select XY plane </TR>
