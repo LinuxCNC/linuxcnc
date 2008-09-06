@@ -1,53 +1,77 @@
+README for Document Writers
 
-DISCLAIMER
-----------
+Creating new master lyx documents.
 
-   THE AUTHORS OF THIS LIBRARY ACCEPT ABSOLUTELY NO LIABILITY FOR
-    ANY HARM OR LOSS RESULTING FROM ITS USE.  IT IS _EXTREMELY_ UNWISE
-    TO RELY ON SOFTWARE ALONE FOR SAFETY.  Any machinery capable of
-    harming persons must have provisions for completely removing power
-    from all motors, etc, before persons enter any danger area.  All
-    machinery must be designed to comply with local and national safety
-    codes, and the authors of this software can not, and do not, take
-    any responsibility for such compliance.
+In Layout/Document...
+  Layout tab, Document_class: book
+  
+  Preamble tab, add \usepackage{tocbibind} after first line
 
 
-Mission Statement
------------------
 
-EMC2 is an offshoot of the original NIST Enhanced Machine
-Controller.  The new version is (primarily) a GPL'd project.
-The major goals are:
+A Note on using Lyx
+-------------------
 
-1)  Make the project more friendly to new developers.  This
-    means a simpler build process, as well as other changes
-    listed below. (DONE)
+By adding a package to the preamble it is possible to include the 
+TOC starting page in the TOC itself.  That way it will appear in
+the side bar of the PDF readers and allow the user to click back
+to where they last were when they clicked on a TOC entry.
 
-2)  Reduce complexity by eliminating support for platforms
-    other than Linux on x86, with either RTAI or RTLinux for
-    realtime. (DONE)
+That line is \usepackage{tocbibind} and it seems to work fine right
+below the line that colors and creates the TOC links.
 
-3)  Incorporate a Hardware Abstraction Layer that makes the
-    realtime code more modular and allows pins and I/O devices
-    to be reconfigured easily. (DONE)
+It is also possible to add other references to the TOC for things 
+like sections or chapters that are not numbered (chapter*) by including
+and ERT (Evil Red Text) while running the Lyx GUI itself.  An example
+this is shown below.  What it does is add the user handbook Foreward
+to the TOC when the first line of userforward.lyx has been changed
+to an unnumbered chapter.
 
-4)  Add some of the features that were discussed at the 2003
-    NAMES show on EMC Monday - these include rigid tapping
-    and single point threading, improved contouring, a built-
-    in PLC using ClassicLadder, and others. (mostly DONE, yet
-    new features will constantly be added)
+The line is listed below.  You'd need to change "Forword" for your
+own entry's name.  This ERT should be added before the
+lines that insert a file or create a new heading you wish to add.
+The ERT is Insert/TeX on the lyx menu.
+
+\addcontentsline{toc}{chapter}{\protect\numberline{}Foreword}
+
+This line is optional and adds a page title... 
+It also looks like we need to modify the header variable that is 
+used for the top of each page to reflect the new info.  This can
+be done by placing the following ERT immediately before the item
+to be added.
+
+\markboth{Foreword}{Foreword}
+
+Change "Foreword" to the name you wish to show at the top of the page .
 
 
-The Build Process
------------------
+Note on common title page common/Document_Header.lyx
+---------------------------------------------------
 
-Refer to the file 'docs/INSTALL' for information about building and 
-running the software.
-    
+It is possible to use the same include file for all books that use 
+this frontmatter file.
 
-Directory Layout
-----------------
+What we do is first define a box and include the book's title in
+it.  This must be done before Document_Header.lyx is included in 
+the new master doc.  This is done with a single ERT that looks like 
+this.
 
-The directory tree for EMC2 is documented in 'directory.map' in the
-top level directory.
+   \newsavebox{\titleadd}
+
+   \sbox{\titleadd} {\Huge \bf Getting Started}
+
+Fontsize is chosen with the \Huge but could be smaller using in 
+decending order;
+   huge
+   LARGE
+   Large
+   large
+   
+The \bf sets the usage of boldfont.
+
+Replace "Getting Started" with the name chosen for the new book.
+
+There is an ERT added into Document_Header.lyx in the title 
+definition that calls up the box created in the master doc.
+
 
