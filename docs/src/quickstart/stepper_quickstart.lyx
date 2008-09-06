@@ -27,17 +27,10 @@
 \layout Chapter
 
 Stepper Configurations
-\layout Section
-
-Install EMC
 \layout Standard
 
-Using the Live CD install Ubuntu and EMC see section (
-\begin_inset LatexCommand \ref{sec:EMC2-Ubuntu-Live-CD}
-
-\end_inset 
-
-)
+This section assumes you have done a standard install from the Live CD.
+ For more complex installations see the Integrators Manual.
 \layout Section
 
 Latency Test
@@ -981,6 +974,7 @@ Leadscrew Pitch
 
 \layout Standard
 
+X
 \end_inset 
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
@@ -1025,6 +1019,7 @@ Leadscrew Pitch
 
 \layout Standard
 
+Y
 \end_inset 
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
@@ -1069,6 +1064,7 @@ Leadscrew Pitch
 
 \layout Standard
 
+Z
 \end_inset 
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
@@ -1113,6 +1109,7 @@ Leadscrew Pitch
 
 \layout Standard
 
+A
 \end_inset 
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">

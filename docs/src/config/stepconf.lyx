@@ -339,12 +339,7 @@ panel.xml
  will be displayed on the right-hand side of the main AXIS window.
  This will not create a PyVCP panel but will create the blank file in the
  config folder.
- To create a PyVCP panel see section (
-\begin_inset LatexCommand \ref{cha:Virtual-Control-Panels}
-
-\end_inset 
-
-).
+ To create a PyVCP panel see the PyVCP section of the Integrators Manual.
 \layout Subsection
 
 Axis Configuration
