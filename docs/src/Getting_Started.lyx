@@ -43,9 +43,25 @@
 \papersides 1
 \paperpagestyle headings
 
-\layout Part
+\layout Standard
 
-V2.2 Getting Started Guide
+\layout Standard
+
+
+\begin_inset ERT
+status Open
+
+\layout Standard
+
+\backslash 
+addcontentsline{toc}{chapter}{
+\backslash 
+protect
+\backslash 
+numberline{}Cover}
+\end_inset 
+
+
 \layout Standard
 
 
