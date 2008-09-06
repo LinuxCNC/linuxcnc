@@ -723,20 +723,9 @@ Home
  or the HOME key, the selected axis will be homed.
  Depending on your configuration, this may just set the axis value to be
  the absolute position 0.0, or it may make the machine move to a specific
- home location through use of 
-\begin_inset Quotes eld
-\end_inset 
-
-home switches
-\begin_inset Quotes erd
-\end_inset 
-
- (see section 
-\begin_inset LatexCommand \ref{sec:Homing}
-
-\end_inset 
-
- for more information on homing)
+ home location through use of home switches.
+ See the Homing section in the Integrators Manual for more information on
+ homing.
 \layout Standard
 
 By pressing 

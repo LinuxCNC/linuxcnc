@@ -1350,12 +1350,7 @@ home switches
 \end_inset 
 
 .
- See section 
-\begin_inset LatexCommand \ref{sec:Homing}
-
-\end_inset 
-
- for more information on homing.
+ See Homing section of the Integrators Manual for more information on homing.
 \layout Standard
 
 By pressing 
