@@ -78,23 +78,6 @@ preview false
 \layout Standard
 
 
-\begin_inset ERT
-status Collapsed
-
-\layout Standard
-
-\backslash 
-addcontentsline{toc}{chapter}{
-\backslash 
-protect
-\backslash 
-numberline{}Contents}
-\end_inset 
-
-
-\layout Standard
-
-
 \begin_inset Include \include{common/Getting_EMC.lyx}
 preview false
 
