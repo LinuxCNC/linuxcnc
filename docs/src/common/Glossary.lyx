@@ -666,12 +666,7 @@ RS-274/NGC
 \end_inset 
 
  The formal name for the language used by EMC part programs.
- See Chapter 
-\begin_inset LatexCommand \ref{cha:Language-Overview}
-
-\end_inset 
-
-
+ 
 \layout Description
 
 Servo\SpecialChar ~

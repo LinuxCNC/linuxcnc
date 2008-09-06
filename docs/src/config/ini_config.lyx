@@ -102,12 +102,7 @@ parameters
 
 ) for use by the interpreter.
  These values are saved from one run to another.
- See section 
-\begin_inset LatexCommand \ref{sub:Parameters}
-
-\end_inset 
-
-.
+ See the Parameters section of the G Code Manual.
 \layout Description
 
 TBL
@@ -116,12 +111,7 @@ TBL
 \end_inset 
 
  The tbl file saves tool information.
- See section 
-\begin_inset LatexCommand \ref{sub:Tool-File}
-
-\end_inset 
-
-.
+ See Tool File section of the G Code Manual.
 \layout Description
 
 NML
@@ -806,12 +796,8 @@ BASE_PERIOD
 \series default 
  shown above gives an absolute maximum step rate of 20000 steps per second.
  50000ns is a fairly conservative value.
- The smallest usable value is related to the Latency Test result (
-\begin_inset LatexCommand \ref{sec:Latency-Test}
-
-\end_inset 
-
-), the necessary step length, and the processor speed.
+ The smallest usable value is related to the Latency Test result , the necessary
+ step length, and the processor speed.
 \newline 
 Choosing a BASE_PERIOD that is too low can lead to the 
 \begin_inset Quotes eld
@@ -822,6 +808,7 @@ Unexpected real time delay
 \end_inset 
 
  message, lockups, or spontaneous reboots.
+ 
 \layout Description
 
 SERVO_PERIOD
