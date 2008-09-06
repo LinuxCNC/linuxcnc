@@ -33,4 +33,36 @@ to be added.
 
 \markboth{Foreword}{Foreword}
 
-Change "Foreword" to the name you wish to show.
+Change "Foreword" to the name you wish to show at the top of the page .
+
+
+Note on common title page common/Document_Header.lyx
+---------------------------------------------------
+
+It is possible to use the same include file for all books that use 
+this frontmatter file.
+
+What we do is first define a box and include the book's title in
+it.  This must be done before Document_Header.lyx is included in 
+the new master doc.  This is done with a single ERT that looks like 
+this.
+
+   \newsavebox{\titleadd}
+
+   \sbox{\titleadd} {\Huge \bf Getting Started}
+
+Fontsize is chosen with the \Huge but could be smaller using in 
+decending order;
+   huge
+   LARGE
+   Large
+   large
+   
+The \bf sets the usage of boldfont.
+
+Replace "Getting Started" with the name chosen for the new book.
+
+There is an ERT added into Document_Header.lyx in the title 
+definition that calls up the box created in the master doc.
+
+
