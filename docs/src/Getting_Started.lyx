@@ -61,9 +61,6 @@ numberline{}Cover}
 \end_inset 
 
 
-\layout Standard
-
-
 \begin_inset Include \include{common/Document_Header.lyx}
 preview false
 
@@ -75,6 +72,23 @@ preview false
 
 \begin_inset LatexCommand \tableofcontents{}
 
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+addcontentsline{toc}{chapter}{
+\backslash 
+protect
+\backslash 
+numberline{}Contents}
 \end_inset 
 
 
