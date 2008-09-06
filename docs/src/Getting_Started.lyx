@@ -52,19 +52,6 @@ status Collapsed
 \layout Standard
 
 \backslash 
-markboth{Cover}{Cover}
-\end_inset 
-
-
-\layout Standard
-
-
-\begin_inset ERT
-status Collapsed
-
-\layout Standard
-
-\backslash 
 addcontentsline{toc}{chapter}{
 \backslash 
 protect
