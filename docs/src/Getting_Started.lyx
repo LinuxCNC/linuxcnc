@@ -61,6 +61,12 @@ numberline{}Cover}
 \end_inset 
 
 
+\layout Title
+
+V2.2 Getting Started Guide
+\layout Standard
+
+
 \begin_inset Include \include{common/Document_Header.lyx}
 preview false
 
