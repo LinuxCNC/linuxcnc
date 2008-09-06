@@ -61,9 +61,31 @@ numberline{}Cover}
 \end_inset 
 
 
-\layout Title
+\layout Standard
 
-V2.2 Getting Started Guide
+
+\begin_inset ERT
+status Open
+
+\layout Standard
+
+\backslash 
+newsavebox{
+\backslash 
+titleadd}
+\layout Standard
+
+\backslash 
+sbox{
+\backslash 
+titleadd} {
+\backslash 
+Huge 
+\backslash 
+bf Getting Started}
+\end_inset 
+
+
 \layout Standard
 
 

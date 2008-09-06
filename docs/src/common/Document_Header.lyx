@@ -43,13 +43,27 @@
 \papersides 1
 \paperpagestyle default
 
-\layout Standard
-\align center 
+\layout Title
+
 
 \begin_inset Graphics
 	filename emc2-intro.png
 	scale 50
 
+\end_inset 
+
+
+\newline 
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+usebox{
+\backslash 
+titleadd}
 \end_inset 
 
 
