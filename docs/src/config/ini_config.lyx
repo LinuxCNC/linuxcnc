@@ -990,7 +990,7 @@ example2.hal
 \emph default 
  Execute 'example2.hal' after the GUI has created its HAL pins.
  See section 
-\begin_inset LatexCommand \ref{sub:Physical-jog-wheels}
+\begin_inset LatexCommand \ref{cha:Virtual-Control-Panels}
 
 \end_inset 
 
@@ -2321,12 +2321,8 @@ TOOL_TABLE\SpecialChar ~
 \series bold 
 tool.tbl
 \series default 
- The file which contains tool information, described in 
-\begin_inset LatexCommand \ref{sub:Tool-File}
-
-\end_inset 
-
-
+ The file which contains tool information.
+ For more information see the G Code Manual.
 \layout Description
 
 TOOL_CHANGE_POSITION\SpecialChar ~

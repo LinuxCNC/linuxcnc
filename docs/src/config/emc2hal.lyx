@@ -65,12 +65,7 @@ float When adaptive feed is enabled with
 M52\SpecialChar ~
 P1
 \family default 
- (See section 
-\begin_inset LatexCommand \ref{sec:M52:-Adaptive-Feed-Control}
-
-\end_inset 
-
-), the commanded velocity is multiplied by this value.
+ (See the G Code Manual), the commanded velocity is multiplied by this value.
  This effect is multiplicative with the NML-level feed override value and
  
 \series bold 
@@ -114,12 +109,8 @@ bit When Feed Stop Control is enabled with
 M53\SpecialChar ~
 P1
 \family default 
- (See section 
-\begin_inset LatexCommand \ref{sec:M53:-Feed-Stop-Control}
-
-\end_inset 
-
-), and this bit is TRUE, the feed rate is set to 0.
+ (See the G Code Manual), and this bit is TRUE, the feed rate is set to
+ 0.
 \layout Description
 
 motion.motion-inpos\SpecialChar ~

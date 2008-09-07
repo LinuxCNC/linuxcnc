@@ -1206,7 +1206,7 @@ Installing the components
 
 Now we are going to load the step pulse generator component.
  For a detailed description of this component refer to section 
-\begin_inset LatexCommand \ref{sec:Freqgen}
+\begin_inset LatexCommand \ref{sec:Stepgen}
 
 \end_inset 
 
