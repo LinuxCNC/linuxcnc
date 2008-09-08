@@ -3,6 +3,7 @@
 \textclass book
 \begin_preamble
 \usepackage[plainpages=false,pdfpagelabels,colorlinks=true,linkcolor=blue]{hyperref}
+\usepackage{tocbibind}
 \pagenumbering{roman}
 \let\myTOC\tableofcontents
 \renewcommand\tableofcontents{%
@@ -23,7 +24,7 @@
 \papersize letterpaper
 \paperpackage a4
 \use_geometry 1
-\use_amsmath 0
+\use_amsmath 1
 \use_natbib 0
 \use_numerical_citations 0
 \paperorientation portrait
@@ -36,16 +37,55 @@
 \secnumdepth 5
 \tocdepth 3
 \paragraph_separation skip
-\defskip smallskip
+\defskip medskip
 \quotes_language french
 \quotes_times 2
 \papercolumns 1
 \papersides 1
 \paperpagestyle headings
 
-\layout Part
+\layout Standard
 
-V2.3 Guide de démarrage
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+addcontentsline{toc}{chapter}{
+\backslash 
+protect
+\backslash 
+numberline{}Cover}
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset ERT
+status Open
+
+\layout Standard
+
+\backslash 
+newsavebox{
+\backslash 
+titleadd}
+\layout Standard
+
+\backslash 
+sbox{
+\backslash 
+titleadd} {
+\backslash 
+Huge 
+\backslash 
+bf Guide de démarrage}
+\end_inset 
+
+
 \layout Standard
 
 
