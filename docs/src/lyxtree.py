@@ -79,7 +79,10 @@ class LyxTreeMaker:
 	dummy_inset = 1
 	k = tokens[0]
 	if len(tokens) > 1: v = tokens[1]
-	if k == 'LatexCommand':
+        if k == 'ERT':
+	    dummy_inset = 'ert'
+            self.push('ert')
+	elif k == 'LatexCommand':
 	    if v.startswith("\\label{"):
 		self.add('label', id=v[7:-1])
 	    elif v.startswith("\\index{"):

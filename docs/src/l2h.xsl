@@ -407,4 +407,6 @@ table { border-collapse: collapse; margin-left: auto; margin-right: auto; }
 
 <xsl:template match="inset[@data='Note']"/>
 
+<xsl:template match="ert"/>
+
 </xsl:stylesheet>
