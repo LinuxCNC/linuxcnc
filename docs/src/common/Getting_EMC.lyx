@@ -60,14 +60,14 @@ The simplest way to get on the IRC is to use the embedded java client on
 \layout Standard
 
 Some IRC etiquette:
-\layout Standard
+\layout Itemize
 
 Ask specific questions...
-\layout Standard
+\layout Itemize
 
 Have some patience when waiting for an answer, sometimes it takes a while
  to formulate an answer or everyone might be busy working or something.
-\layout Standard
+\layout Itemize
 
 Set up your IRC account with your unique name so people will know who you
  are.
@@ -398,7 +398,25 @@ If you like what you see, just click the Install icon on the desktop, answer
  in a few minutes.
  Make sure you write down the name you used and the password.
  Once the install process is complete and you go on line the update manager
- will pop up and allow you to upgrade to the latest stable version of EMC2
+ will pop up and allow you to upgrade to the latest stable version of EMC2.
+\layout Section
+
+AXIS Interface
+\layout Standard
+
+The AXIS interface is one of the interfaces to choose from.
+ It can be configured to add a Virtural Control Panel to customize the interface
+ to suit your needs.
+\layout Standard
+
+
+\begin_inset Graphics
+	filename axis.png
+	scale 50
+
+\end_inset 
+
+
 \layout Section
 
 Updates to EMC2
