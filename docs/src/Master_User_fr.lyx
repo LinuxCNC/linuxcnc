@@ -3,6 +3,7 @@
 \textclass book
 \begin_preamble
 \usepackage[plainpages=false,pdfpagelabels,colorlinks=true,linkcolor=blue]{hyperref}
+\usepackage{tocbibind}
 \pagenumbering{roman}
 \let\myTOC\tableofcontents
 \renewcommand\tableofcontents{%
@@ -14,7 +15,7 @@
 \renewcommand{\l@subsection}{\@dottedtocline{2}{3.2em}{4.9em}}
 \end_preamble
 \language french
-\inputencoding auto
+\inputencoding default
 \fontscheme bookman
 \graphics default
 \float_placement !!h
@@ -22,7 +23,7 @@
 \spacing single 
 \papersize letterpaper
 \paperpackage a4
-\use_geometry 0
+\use_geometry 1
 \use_amsmath 0
 \use_natbib 0
 \use_numerical_citations 0
@@ -50,15 +51,14 @@
 	filename common/emc2-intro.png
 	lyxscale 80
 	scale 50
-	keepAspectRatio
 
 \end_inset 
 
 
 \newline 
-Manuel de l'utilisateur V2.3
+V2.3 Manuel de l'utilisateur
 \layout Author
-
+\added_space_top medskip 
 The EMC Team
 \layout Standard
 
@@ -67,16 +67,16 @@ The EMC Team
 \SpecialChar ~
 
 \layout Standard
-\added_space_top 1in \added_space_bottom 1in 
+\added_space_top 1in 
 This handbook is a work in progress.
  If you are able to help with writing, editing, or graphic preparation please
  contact any member of the writing team or join and send an email to emc-users@l
 ists.sourceforge.net.
 \layout Standard
-\align center 
+\added_space_top 1in \align center 
 Copyright (c) 2000-7 LinuxCNC.org
 \layout Standard
-\added_space_top 0.5in \line_top \line_bottom \noindent 
+\added_space_top 0.5in \line_top \noindent 
 Permission is granted to copy, distribute and/or modify this document under
  the terms of the GNU Free Documentation License, Version 1.1 or any later
  version published by the Free Software Foundation; with no Invariant Sections,
@@ -96,13 +96,47 @@ Permission is granted to copy, distribute and/or modify this document under
 \end_inset 
 
 
-\layout Part
-
-Introduction 
 \layout Standard
 
 
-\lang english
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+markboth{Avant-propos}{Avant-propos}
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset Include \include{common/userforeword_fr.lyx}
+preview false
+
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+addcontentsline{toc}{chapter}{
+\backslash 
+protect
+\backslash 
+numberline{}Avant-propos}
+\end_inset 
+
+
+\layout Standard
+
 
 \begin_inset Include \include{common/user_intro_fr.lyx}
 preview false
@@ -110,9 +144,6 @@ preview false
 \end_inset 
 
 
-\layout Part
-
-Installation d'EMC2
 \layout Standard
 
 
@@ -131,16 +162,8 @@ preview false
 \end_inset 
 
 
-\layout Part
-\paragraph_spacing single 
-
-
-\lang english
-Configurer EMC2
 \layout Standard
 
-
-\lang english
 
 \begin_inset Include \include{config/copy_and_run_fr.lyx}
 preview false
@@ -151,8 +174,6 @@ preview false
 \layout Standard
 
 
-\lang english
-
 \begin_inset Include \include{config/stepconf_fr.lyx}
 preview false
 
@@ -161,8 +182,6 @@ preview false
 
 \layout Standard
 
-
-\lang english
 
 \begin_inset Include \include{config/ini_config_fr.lyx}
 preview false
@@ -173,8 +192,6 @@ preview false
 \layout Standard
 
 
-\lang english
-
 \begin_inset Include \include{config/ini_homing_fr.lyx}
 preview false
 
@@ -183,8 +200,6 @@ preview false
 
 \layout Standard
 
-
-\lang english
 
 \begin_inset Include \include{hal/intro_fr.lyx}
 preview false
@@ -195,8 +210,6 @@ preview false
 \layout Standard
 
 
-\lang english
-
 \begin_inset Include \include{hal/tutorial_fr.lyx}
 preview false
 
@@ -206,17 +219,12 @@ preview false
 \layout Standard
 
 
-\lang english
-
 \begin_inset Include \include{hal/drivers_fr.lyx}
 preview false
 
 \end_inset 
 
 
-\layout Part
-
-Utilisation d'EMC2
 \layout Standard
 
 
@@ -229,8 +237,6 @@ preview false
 \layout Standard
 
 
-\lang english
-
 \begin_inset Include \include{gcode/main_fr.lyx}
 preview false
 
@@ -239,8 +245,6 @@ preview false
 
 \layout Standard
 
-
-\lang english
 
 \begin_inset Include \include{gcode/coordinates_fr.lyx}
 preview false
@@ -251,9 +255,16 @@ preview false
 \layout Standard
 
 
-\lang english
-
 \begin_inset Include \include{gcode/mill_canned_fr.lyx}
+preview false
+
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset Include \include{examples/gcode_fr.lyx}
 preview false
 
 \end_inset 
@@ -268,13 +279,10 @@ preview false
 \end_inset 
 
 
-\layout Chapter
-
-Section légale
 \layout Standard
 
 
-\begin_inset Include \input{common/GPLD_Copyright.lyx}
+\begin_inset Include \include{common/GPLD_Copyright.lyx}
 preview false
 
 \end_inset 

@@ -287,7 +287,7 @@ preview false
 
 \layout Part
 
-Tuning
+Réglage
 \layout Section
 
 Tuning servo systems
@@ -314,7 +314,7 @@ preview false
 
 \layout Part
 
-Logique machine
+Machine logique
 \layout Standard
 
 
@@ -328,6 +328,31 @@ preview false
 
 
 \begin_inset Include \include{ladder/classic_ladder.lyx}
+preview false
+
+\end_inset 
+
+
+\layout Part
+
+
+\lang english
+Exemples matériel
+\layout Standard
+
+
+
+\begin_inset Include \include{examples/spindle_fr.lyx}
+preview false
+
+\end_inset 
+
+
+\layout Standard
+
+
+
+\begin_inset Include \include{examples/mpg_fr.lyx}
 preview false
 
 \end_inset 

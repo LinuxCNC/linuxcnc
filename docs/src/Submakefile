@@ -49,6 +49,7 @@ DOC_SRCS := \
 	common/Linux_FAQ_fr.lyx \
 	common/machining_center.lyx \
 	common/userforeword.lyx \
+	common/userforeword_fr.lyx \
 	common/user_intro.lyx \
 	common/user_intro_fr.lyx \
 	config/ini_config.lyx \
@@ -101,9 +102,13 @@ DOC_SRCS := \
 	motion/pid_theory.lyx \
 	motion/tweaking_steppers.lyx \
 	examples/spindle.lyx \
+	examples/spindle_fr.lyx \
 	examples/misc.lyx \
+	examples/misc_fr.lyx \
 	examples/mpg.lyx \
+	examples/mpg_fr.lyx \
 	examples/gcode.lyx \
+	examples/gcode_fr.lyx \
 	quickstart/stepper_quickstart.lyx \
 	quickstart/stepper_quickstart_fr.lyx \
 	Master_HAL.lyx \

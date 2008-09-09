@@ -1,0 +1,280 @@
+#LyX 1.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 221
+\textclass book
+\language french
+\inputencoding auto
+\fontscheme bookman
+\graphics default
+\paperfontsize 10
+\spacing single 
+\papersize Default
+\paperpackage a4
+\use_geometry 0
+\use_amsmath 0
+\use_natbib 0
+\use_numerical_citations 0
+\paperorientation portrait
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation skip
+\defskip medskip
+\quotes_language french
+\quotes_times 2
+\papercolumns 1
+\papersides 1
+\paperpagestyle headings
+
+\layout Chapter
+
+Manivelle (MPG)
+\layout Standard
+
+Cet exemple explique comment relier une manivelle facile à trouver aujourd'hui
+ sur le marché.
+ Cet exemple utilisera la manivelle MPG3 avec une carte d'interface C22
+ de chez CNC4PC et un second port parallèle placé sur un slot PCI.
+ Cet exemple donnera trois axes avec chacuns trois incréments de pas: 0.1,
+ 0.01, 0.001.
+\layout Section
+
+Deuxième port parallèle
+\layout Standard
+
+Dans cet exemple nous utiliserons un deuxième port parallèle placé dans
+ un slot PCI et raccordé à la manivelle (MPG).
+ Pour trouver l'adresse de ce port parallèle, ouvrez un terminal et tapez:
+\layout Standard
+
+
+\family typewriter 
+\series bold 
+lspci -v
+\layout Standard
+
+Vous devriez voir quelques choses comme çà:
+\layout List
+\labelwidthstring 00.00.0000
+
+0000:00:10.0 Communication controller: NetMos Technology PCI 1 port parallel
+ adapter (rev 01) 
+\layout List
+\labelwidthstring 00.00.0000
+
+Subsystem: LSI Logic / Symbios Logic: Unknown device 0010 
+\layout List
+\labelwidthstring 00.00.0000
+
+Flags: medium devsel, IRQ 11 
+\layout List
+\labelwidthstring 00.00.0000
+
+I/O ports at a800 [size=8] 
+\layout List
+\labelwidthstring 00.00.0000
+
+I/O ports at ac00 [size=8] 
+\layout List
+\labelwidthstring 00.00.0000
+
+I/O ports at b000 [size=8] 
+\layout List
+\labelwidthstring 00.00.0000
+
+I/O ports at b400 [size=8] 
+\layout List
+\labelwidthstring 00.00.0000
+
+I/O ports at b800 [size=8] 
+\layout List
+\labelwidthstring 00.00.0000
+
+I/O ports at bc00 [size=16]
+\layout Standard
+
+Dans notre cas l'adresse était la première, nous avons donc modifié le fichier
+ .hal pour passer de
+\layout Standard
+
+
+\family typewriter 
+\series bold 
+loadrt hal_parport cfg=0x378
+\layout Standard
+
+à
+\layout Standard
+
+
+\family typewriter 
+\series bold 
+loadrt hal_parport cfg="0x378 0xa800 in"
+\layout Standard
+
+Notez les guillemets obligatoires encadrant les adresses.
+\layout Standard
+
+Nous avons également ajouté:
+\layout Standard
+
+
+\family typewriter 
+\series bold 
+addf parport.1.read base-thread addf parport.1.write base-thread
+\layout Standard
+
+de sorte que le second port parallèle soit lu et écrit.
+\layout Section
+
+Les connections dans HAL
+\layout Standard
+
+Dans votre fichier 
+\begin_inset Quotes fld
+\end_inset 
+
+custom.hal
+\begin_inset Quotes frd
+\end_inset 
+
+ ou autre fichier .hal ajoutez ce qui suit en vérifiant bien que les composants
+ mux4 ou encoder ne soient pas déjà utilisés.
+ Si c'était le cas vous auriez juste à augmenter les numéros de ces composants.
+\layout Standard
+
+
+\family typewriter 
+\series bold 
+# Manivelle de jog
+\layout Standard
+
+
+\family typewriter 
+\series bold 
+loadrt encoder num_chan=1
+\layout Standard
+
+
+\family typewriter 
+\series bold 
+loadrt mux4 count=1
+\layout Standard
+
+
+\family typewriter 
+\series bold 
+addf encoder.capture-position servo-thread
+\layout Standard
+
+
+\family typewriter 
+\series bold 
+addf encoder.update-counters base-thread
+\layout Standard
+
+
+\family typewriter 
+\series bold 
+addf mux4.0 servo-thread
+\layout Standard
+
+
+\family typewriter 
+\series bold 
+setp encoder.0.x4-mode 0
+\layout Standard
+
+
+\family typewriter 
+\series bold 
+setp mux4.0.in0 0.1
+\layout Standard
+
+
+\family typewriter 
+\series bold 
+setp mux4.0.in1 0.01
+\layout Standard
+
+
+\family typewriter 
+\series bold 
+setp mux4.0.in2 0.001
+\layout Standard
+
+
+\family typewriter 
+\series bold 
+net scale1 mux4.0.sel0 <= parport.1.pin-09-in
+\layout Standard
+
+
+\family typewriter 
+\series bold 
+net scale2 mux4.0.sel1 <= parport.1.pin-10-in
+\layout Standard
+
+
+\family typewriter 
+\series bold 
+net pend-scale axis.0.jog-scale <= mux4.0.out
+\layout Standard
+
+
+\family typewriter 
+\series bold 
+net pend-scale axis.1.jog-scale
+\layout Standard
+
+
+\family typewriter 
+\series bold 
+net pend-scale axis.2.jog-scale
+\layout Standard
+
+
+\family typewriter 
+\series bold 
+net mpg-a encoder.0.phase-A <= parport.1.pin-02-in
+\layout Standard
+
+
+\family typewriter 
+\series bold 
+net mpg-b encoder.0.phase-B <= parport.1.pin-03-in
+\layout Standard
+
+
+\family typewriter 
+\series bold 
+net mpg-x axis.0.jog-enable <= parport.1.pin-04-in
+\layout Standard
+
+
+\family typewriter 
+\series bold 
+net mpg-y axis.1.jog-enable <= parport.1.pin-05-in
+\layout Standard
+
+
+\family typewriter 
+\series bold 
+net mpg-z axis.2.jog-enable <= parport.1.pin-06-in
+\layout Standard
+
+
+\family typewriter 
+\series bold 
+net pend-counts axis.0.jog-counts <= encoder.0.counts
+\layout Standard
+
+
+\family typewriter 
+\series bold 
+net pend-counts axis.1.jog-counts
+\layout Standard
+
+
+\family typewriter 
+\series bold 
+net pend-counts axis.2.jog-counts
+\the_end
