@@ -1,3 +1,17 @@
+/********************************************************************
+* Description: emc_nml.hh
+*   Declarations for EMC NML vocabulary
+*
+*   Derived from a work by Fred Proctor & Will Shackleford
+*
+* Author:
+* License: GPL Version 2
+* System: Linux
+*
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change:
+********************************************************************/
 #ifndef EMC_NML_HH
 #define EMC_NML_HH
 #include "emc.hh"
