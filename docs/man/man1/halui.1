@@ -43,12 +43,12 @@ folder as the ini, so it makes sense to run halui from that folder.
 When run, \fBhalui\fR will export a large number of pins. A user can connect
 those to his physical knobs & switches & leds, and when a change is noticed
 halui triggers an appropriate event.
-.TP
+
 \fBhalui\fR expects the signals to be debounced, so if needed (bad knob contact) connect the physical button to a HAL debounce filter first.
 
 .SH EXPORTED PINS
 
-\fBmachine\fR
+.SS machine
 .TP 
 \fIhalui.machine.on\fR
 pin for setting machine On
@@ -58,8 +58,24 @@ pin for setting machine Off
 .TP 
 \fIhalui.machine.is-on\fR
 pin for machine is On/Off
+.\" .SS motion
+.\" .TP
+.\" \fIhalui.motion.velocity\fR
+.\" current cartesian machine velocity
+.\" .TP
+.\" \fIhalui.motion.distance-to-go\fR
+.\" current cartesian distance to go in current move
+.SS axis
 .TP
-\fBestop\fR
+\fIhalui.axis.#.pos-commanded\fR
+Commanded axis position in machine coordinates
+.TP
+\fIhalui.axis.#.pos-feedback\fR
+Feedback axis position in machine coordinates
+.TP
+\fIhalui.axis.#.pos-relative\fR
+Commanded axis position in relative coordinates
+.SS estop
 .TP
 \fIhalui.estop.activate\fR
 pin for setting Estop (emc internal) On
@@ -69,8 +85,7 @@ pin for resetting Estop (emc internal) Off
 .TP
 \fIhalui.estop.is-activated\fR
 pin for displaying Estop state (emc internal) On/Off
-.TP
-\fBmode\fR
+.SS mode
 .TP
 \fIhalui.mode.manual\fR
 pin for requesting manual mode
@@ -101,8 +116,7 @@ pin for requesting joint by joint jog mode
 .TP
 \fIhalui.mode.is_joint\fR
 pin showing joint by joint jog mode is on
-.TP
-\fBmist, flood, lube\fR
+.SS coolant, lubrication
 .TP
 \fIhalui.mist.on\fR
 pin for starting mist
@@ -130,8 +144,7 @@ pin for stoping lube
 .TP
 \fIhalui.lube.is-on\fR
 pin for lube is on
-.TP
-\fBspindle\fR
+.SS spindle
 .TP
 \fIhalui.spindle.start\fR
 pin for starting the spindle
@@ -159,13 +172,12 @@ pin for deactivating the spindle brake
 .TP
 \fIhalui.spindle.brake-is-on\fR
 status pin that tells us if brake is on
+.SS joint
 .TP
-\fBjoint\fR
-.TP
-\fIhalui.joint.x.home\fR
+\fIhalui.joint.#.home\fR
 pin for homing the specific joint (x = 0..7)
 .TP
-\fIhalui.joint.x.is-homed\fR
+\fIhalui.joint.#.is-homed\fR
 status pin telling that the joint is homed (x = 0..7)
 .TP
 \fIhalui.joint.selected.home\fR
@@ -174,19 +186,19 @@ pin for homing the selected joint
 \fIhalui.joint.selected.is-homed\fR
 status pin telling that the selected joint is homed
 .TP
-\fIhalui.joint.x.on-soft-min-limit\fR
+\fIhalui.joint.#.on-soft-min-limit\fR
 status pin telling that the joint is on the negative software limit (x=0..7, selected)
 .TP
-\fIhalui.joint.x.on-soft-max-limit\fR
+\fIhalui.joint.#.on-soft-max-limit\fR
 status pin telling that the joint is on the positive software limit (x=0..7, selected)
 .TP
-\fIhalui.joint.x.on-hard-min-limit\fR
+\fIhalui.joint.#.on-hard-min-limit\fR
 status pin telling that the joint is on the negative hardware limit (x=0..7, selected)
 .TP
-\fIhalui.joint.x.on-hard-max-limit\fR
+\fIhalui.joint.#.on-hard-max-limit\fR
 status pin telling that the joint is on the positive hardware limit (x=0..7, selected)
 .TP
-\fIhalui.joint.x.has-fault\fR
+\fIhalui.joint.#.has-fault\fR
 status pin telling that the joint has a fault (x = 0..7, selected)
 .TP
 \fIhalui.joint.select\fR
@@ -195,13 +207,12 @@ select joint (value = 0..7)
 \fIhalui.joint.selected\fR
 selected joint (value = 0..7)
 .TP
-\fIhalui.joint.x.select\fR
+\fIhalui.joint.#.select\fR
 pins for selecting a joint (x = 0..7)
 .TP
-\fIhalui.joint.x.is-selected\fR
+\fIhalui.joint.#.is-selected\fR
 status pin that a joint is selected (x = 0..7)
-.TP
-\fBjogging\fR
+.SS jogging
 .TP
 \fIhalui.jog.speed\fR
 pin for setting jog speed. will be used for minus/plus jogging.
@@ -223,16 +234,14 @@ pin for jogging the selected axis in negative direction at the halui.jog.speed v
 .TP
 \fIhalui.jog.selected.plus\fR
 pin for jogging the selected axis in positive direction at the halui.jog.speed velocity
-.TP
-\fBtool\fR
+.SS tool
 .TP
 \fIhalui.tool.number\fR
 current selected tool
 .TP
 \fIhalui.tool.length-offset\fR
 current applied tool-length-offset
-.TP
-\fBprogram\fR
+.SS program
 .TP
 \fIhalui.program.is-idle\fR
 status pin telling that no program is running
@@ -258,13 +267,10 @@ pin for stepping in a program
 \fIhalui.program.stop\fR
 pin for stopping a program 
 (note: this pin does the same thing as halui.abort)
-.TP
-\fBgeneral\fR
-.TP
+.SS general
 \fIhalui.abort\fR
 pin to send an abort message (clears out most errors)
-.TP
-\fBfeed-override\fR
+.SS feed override
 .TP
 \fIhalui.feed-override.value\fR
 current Feed Override value
@@ -280,8 +286,7 @@ pin for increasing the FO (+=scale)
 .TP
 \fIhalui.feed-override.decrease\fR
 pin for decreasing the FO (-=scale)
-.TP
-\fBspindle-override\fR
+.SS spindle override
 .TP
 \fIhalui.spindle-override.value\fR
 current FO value
