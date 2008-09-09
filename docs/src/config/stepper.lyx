@@ -47,12 +47,8 @@ Introduction
 
 The preferred way to set up a standard stepper machine is with the Step
  Configuration Wizard.
- (see section
-\begin_inset LatexCommand \ref{sec:Step-by-Step}
-
-\end_inset 
-
-)
+ See the Getting Started Guide for more information on the Step Configuration
+ Wizard.
 \layout Standard
 
 This chapter describes some of the more common settings for manually setting
