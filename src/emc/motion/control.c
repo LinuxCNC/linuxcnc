@@ -1779,10 +1779,10 @@ static void output_to_hal(void)
     
     emcmot_hal_data->program_line = emcmotStatus->id;
     if(GET_MOTION_COORD_FLAG()) {
-        emcmot_hal_data->current_vel = emcmotStatus->current_vel;
+        *(emcmot_hal_data->current_vel) = emcmotStatus->current_vel;
     } else if(GET_MOTION_TELEOP_FLAG()) {
         PmCartesian t = emcmotDebug->teleop_data.currentVel.tran;
-        emcmotStatus->current_vel = emcmot_hal_data->current_vel = sqrt(t.x * t.x + t.y * t.y + t.z * t.z);
+        emcmotStatus->current_vel = (*emcmot_hal_data->current_vel) = sqrt(t.x * t.x + t.y * t.y + t.z * t.z);
     } else {
         int i;
         double v2 = 0.0;
@@ -1790,9 +1790,9 @@ static void output_to_hal(void)
             if(GET_JOINT_ACTIVE_FLAG(&(joints[i])) && joints[i].free_tp_active)
                 v2 += joints[i].vel_cmd * joints[i].vel_cmd;
         if(v2 > 0.0)
-            emcmotStatus->current_vel = emcmot_hal_data->current_vel = sqrt(v2);
+            emcmotStatus->current_vel = (*emcmot_hal_data->current_vel) = sqrt(v2);
         else
-            emcmotStatus->current_vel = emcmot_hal_data->current_vel = 0.0;
+            emcmotStatus->current_vel = (*emcmot_hal_data->current_vel) = 0.0;
     }
 
     /* These params can be used to examine any internal variable. */

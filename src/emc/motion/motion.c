@@ -382,7 +382,7 @@ static int init_hal_io(void)
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "motion.current-vel");
     retval =
-	hal_param_float_new(buf, HAL_RO, &(emcmot_hal_data->current_vel),
+	hal_pin_float_new(buf, HAL_OUT, &(emcmot_hal_data->current_vel),
 	mot_comp_id);
     if (retval != 0) {
 	return retval;
