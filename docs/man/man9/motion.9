@@ -86,8 +86,12 @@ Should be driven TRUE if the positive limit switch for this joint is tripped.
 When adaptive feed is enabled with M52 P1, the commanded velocity is multiplied by this value. This effect is multiplicative with the NML-level feed override value and motion.feed-hold.
 
 .TP
-(not yet implemented) motion.analog-in-\fINN\fR IN float 
+\fBmotion.analog-in-\fINN\fR IN float 
 These pins are used by M66 Enn wait-for-input mode.
+
+.TP
+\fBmotion.current-vel\fR
+Current cartesian velocity
 
 .TP
 \fBmotion.digital-in-\fINN\fR IN bit 
@@ -96,6 +100,10 @@ These pins are used by M66 Pnn wait-for-input mode.
 .TP
 \fBmotion.digital-out-\fINN\fR OUT bit 
 These pins are controlled by the M62 through M65 words.
+
+.TP
+\fBmotion.distance-to-go\fR OUT float
+Distance remaining in the current move
 
 .TP
 \fBmotion.enable\fR IN bit 
@@ -265,10 +273,6 @@ TRUE when motion has encountered an error, such as exceeding a soft limit
 .TP
 \fBmotion.coord-mode\fR 
 TRUE when motion is in "coordinated mode", as opposed to "teleop mode"
-
-.TP
-\fBmotion.current-vel\fR
-
 
 .TP
 \fBmotion.debug-\fI*\fR 
