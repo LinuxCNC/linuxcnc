@@ -29,7 +29,7 @@
 \quotes_language french
 \quotes_times 2
 \papercolumns 1
-\papersides 2
+\papersides 1
 \paperpagestyle headings
 
 \layout Chapter
@@ -58,7 +58,7 @@ HAL
  est le sigle de Hardware Abstraction Layer, le terme Anglais pour Couche
  d'Abstraction Matériel
 \begin_inset Foot
-collapsed true
+collapsed false
 
 \layout Standard
 
@@ -398,15 +398,15 @@ Physical_Pin
 : (Broche physique) La plupart des interfaces d'entrées/sorties ont des
  broches physiques réelles pour leur connection avec l'extérieur, par exemple,
  les broches du port parallèle.
- Pour éviter la confusion, elles sont appelées "physical pins".
+ Pour éviter la confusion, elles sont appelées "physical_pins".
  Ce sont des repères pour faire penser au monde physique réel.
 \begin_inset Note
-collapsed true
+collapsed false
 
 \layout Standard
 
 Vous vous demandez peut être quelle relation il y a entre les HAL_pins,
- les Physical pin et les éléments extérieurs comme les codeurs ou une carte
+ les Physical_pins et les éléments extérieurs comme les codeurs ou une carte
  stg.
  Nous avons ici, affaire à des interfaces de type translation/conversion
  de données.

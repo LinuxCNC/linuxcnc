@@ -205,7 +205,7 @@ preview false
 \layout Standard
 
 
-\begin_inset Include \include{hal/comp.lyx}
+\begin_inset Include \include{hal/comp_fr.lyx}
 preview false
 
 \end_inset 
@@ -214,7 +214,7 @@ preview false
 \layout Standard
 
 
-\begin_inset Include \include{hal/halmodule.lyx}
+\begin_inset Include \include{hal/halmodule_fr.lyx}
 preview false
 
 \end_inset 
@@ -250,7 +250,7 @@ preview false
 \layout Standard
 
 
-\begin_inset Include \include{gui/halui.lyx}
+\begin_inset Include \include{gui/halui_fr.lyx}
 preview false
 
 \end_inset 

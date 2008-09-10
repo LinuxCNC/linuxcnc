@@ -3,6 +3,7 @@
 \textclass book
 \begin_preamble
 \usepackage[plainpages=false,pdfpagelabels,colorlinks=true,linkcolor=blue]{hyperref}
+\usepackage{tocbibind}
 \end_preamble
 \language french
 \inputencoding default
@@ -34,37 +35,55 @@
 \papersides 1
 \paperpagestyle headings
 
-\layout Title
-\added_space_bottom medskip 
-Le manuel de HAL (Hardware Abstraction Layer)
-\newline 
+\layout Standard
 
-\layout Author
 
-The EMC Team
+\begin_inset ERT
+status Open
+
 \layout Standard
-\added_space_bottom 1in 
-This handbook is a work in progress.
- If you are able to help with writing, editing, or graphic preparation please
- contact any member of the writing team or join and send an email to emc-users@l
-ists.sourceforge.net.
+
+\backslash 
+addcontentsline{toc}{chapter}{
+\backslash 
+protect
+\backslash 
+numberline{}Couverture}
+\end_inset 
+
+
 \layout Standard
-\align center 
-Copyright (c) 2000-6 LinuxCNC.org
+
+
+\begin_inset ERT
+status Open
+
 \layout Standard
-\added_space_top 0.5in \line_top \line_bottom \noindent 
-Permission is granted to copy, distribute and/or modify this document under
- the terms of the GNU Free Documentation License, Version 1.1 or any later
- version published by the Free Software Foundation; with no Invariant Sections,
- no Front-Cover Texts, and one Back-Cover Text: "This HAL Handbook is the
- product of several authors writing for linuxCNC.org.
- As you find it to be of value in your work, we invite you to contribute
- to its revision and growth." A copy of the license is included in the section
- entitled "GNU Free Documentation License".
- If you do not find the license you may order a copy from Free Software
- Foundation, Inc.
- 59 Temple Place, Suite 330 Boston, MA 02111-1307 
+
+\backslash 
+newsavebox{
+\backslash 
+titleadd}
 \layout Standard
+
+\backslash 
+sbox{
+\backslash 
+titleadd} {
+\backslash 
+Huge 
+\backslash 
+bf Guide de l'utilisateur de HAL}
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset Include \include{common/Document_Header_fr.lyx}
+preview false
+
+\end_inset 
 
 
 \begin_inset LatexCommand \tableofcontents{}
@@ -72,9 +91,6 @@ Permission is granted to copy, distribute and/or modify this document under
 \end_inset 
 
 
-\layout Part
-
-Introduction et tutoriel
 \layout Standard
 
 
@@ -93,9 +109,6 @@ preview false
 \end_inset 
 
 
-\layout Part
-
-Documentation de HAL
 \layout Standard
 
 
@@ -135,13 +148,10 @@ preview false
 \end_inset 
 
 
-\layout Part
-
-Programmer HAL
 \layout Standard
 
 
-\begin_inset Include \include{hal/comp.lyx}
+\begin_inset Include \include{hal/comp_fr.lyx}
 preview false
 
 \end_inset 
@@ -150,19 +160,16 @@ preview false
 \layout Standard
 
 
-\begin_inset Include \include{hal/halmodule.lyx}
+\begin_inset Include \include{hal/halmodule_fr.lyx}
 preview false
 
 \end_inset 
 
 
-\layout Chapter
-\start_of_appendix 
-Section légale
 \layout Standard
 
 
-\begin_inset Include \input{common/GPLD_Copyright.lyx}
+\begin_inset Include \include{common/GPLD_Copyright.lyx}
 preview false
 
 \end_inset 

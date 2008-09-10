@@ -4,7 +4,7 @@
 \begin_preamble
 \usepackage[plainpages=false,pdfpagelabels,colorlinks=true,linkcolor=blue]{hyperref}
 \end_preamble
-\language frenchb
+\language french
 \inputencoding default
 \fontscheme bookman
 \graphics default
@@ -29,7 +29,7 @@
 \quotes_language french
 \quotes_times 2
 \papercolumns 1
-\papersides 2
+\papersides 1
 \paperpagestyle headings
 
 \layout Chapter
@@ -629,7 +629,7 @@ collapsed false
 
 Ã partir de la version 2.0, la plupart des pilotes de HAL ne correspondent
  plus tout à fait à l'interface canonique décrite ici.
- Dans le version 2.1, les pilotes seront modifiés pour correspondre à ces
+ Dans la version 2.1, les pilotes seront modifiés pour correspondre à ces
  spécifications.
 \end_inset 
 
