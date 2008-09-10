@@ -2066,7 +2066,7 @@ def jogspeed_continuous():
 
 def jogspeed_incremental(dir=1):
     global jogincr_index_last
-    jogincr_size = root_window.call(widgets.jogincr._w, "list", "size")
+    jogincr_size = int(root_window.call(widgets.jogincr._w, "list", "size"))
     # pdb.set_trace()
     cursel = root_window.call(widgets.jogincr._w, "curselection")
     if cursel == "":
@@ -2077,13 +2077,13 @@ def jogspeed_incremental(dir=1):
         if cursel > 0:
             # If it was "Continous" just before, then don't change last jog increment!
             jogincr_index_last += 1
-        if jogincr_index_last >= int(jogincr_size):
-            jogincr_index_last = 1
+        if jogincr_index_last >= jogincr_size:
+            jogincr_index_last = jogincr_size - 1
     else:
         if cursel > 0:
             jogincr_index_last -= 1
         if jogincr_index_last < 1:
-            jogincr_index_last = int(jogincr_size) - 1
+            jogincr_index_last = 1
     root_window.call(widgets.jogincr._w, "select", jogincr_index_last)   
     set_hal_jogincrement()
 
