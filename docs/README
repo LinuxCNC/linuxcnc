@@ -1,5 +1,14 @@
 README for Document Writers
 
+Creating new master lyx documents.
+
+In Layout/Document...
+  Layout tab, Document_class: book
+  
+  Preamble tab, add \usepackage{tocbibind} after first line
+
+
+
 A Note on using Lyx
 -------------------
 
