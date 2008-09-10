@@ -71,6 +71,35 @@ Use the Page Up and Page Down keys to view the man page and the Q key to
  quit viewing.
 \layout Section
 
+List Modules
+\layout Standard
+
+Sometimes when troubleshooting you need to get a list of modules that are
+ loaded.
+ In a terminal window type:
+\layout Standard
+
+
+\family typewriter 
+\series bold 
+lsmod
+\layout Standard
+
+If you want to send the output from lsmod to a text file in a terminal window
+ type:
+\layout Standard
+
+
+\family typewriter 
+\series bold 
+lsmod > mymod.txt
+\layout Standard
+
+The resulting text file will be located in the home directory if you did
+ not change directories when you opened up the terminal window and it will
+ be named mymod.txt or what ever you named it.
+\layout Section
+
 Editing a Root File
 \begin_inset LatexCommand \index{Editing a Root File}
 
