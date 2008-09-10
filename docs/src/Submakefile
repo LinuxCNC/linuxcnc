@@ -23,7 +23,7 @@ DOC_SRCS := \
 	code/Style_Guide.lyx \
 	code/NML_Messages.lyx \
 	Getting_Started.lyx \
-        Getting_Started_fr.lyx \
+	Getting_Started_fr.lyx \
 	gui/axis.lyx \
 	gui/axis_fr.lyx \
 	gui/halui.lyx \
@@ -40,7 +40,7 @@ DOC_SRCS := \
 	common/Document_Header.lyx \
 	common/Document_Header_fr.lyx \
 	common/Getting_EMC.lyx \
-        common/Getting_EMC_fr.lyx \
+	common/Getting_EMC_fr.lyx \
 	common/GPLD_Copyright.lyx \
 	common/Glossary.lyx \
 	common/integrator_intro.lyx \
