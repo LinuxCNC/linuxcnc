@@ -3,6 +3,7 @@
 \textclass book
 \begin_preamble
 \usepackage[plainpages=false,pdfpagelabels,colorlinks=true,linkcolor=blue]{hyperref}
+\usepackage{tocbibind}
 \pagenumbering{roman}
 \let\myTOC\tableofcontents
 \renewcommand\tableofcontents{%
@@ -23,7 +24,7 @@
 \papersize letterpaper
 \paperpackage a4
 \use_geometry 1
-\use_amsmath 0
+\use_amsmath 1
 \use_natbib 0
 \use_numerical_citations 0
 \paperorientation portrait
@@ -36,58 +37,64 @@
 \secnumdepth 5
 \tocdepth 3
 \paragraph_separation skip
-\defskip smallskip
+\defskip medskip
 \quotes_language french
 \quotes_times 2
 \papercolumns 1
 \papersides 1
 \paperpagestyle headings
 
-\layout Title
+\layout Standard
 
 
-\begin_inset Graphics
-	filename common/emc2-intro.png
-	lyxscale 80
-	scale 50
-	keepAspectRatio
+\begin_inset ERT
+status Open
+
+\layout Standard
+
+\backslash 
+addcontentsline{toc}{chapter}{
+\backslash 
+protect
+\backslash 
+numberline{}Couverture}
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset ERT
+status Open
+
+\layout Standard
+
+\backslash 
+newsavebox{
+\backslash 
+titleadd}
+\layout Standard
+
+\backslash 
+sbox{
+\backslash 
+titleadd} {
+\backslash 
+Huge 
+\backslash 
+bf Manuel de l'intégrateur V2.3}
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset Include \include{common/Document_Header_fr.lyx}
+preview false
 
 \end_inset 
 
 
-\newline 
-Manuel de l'intégrateur V2.3
-\layout Author
-\added_space_top medskip 
-The EMC Team
-\layout Standard
-
-\SpecialChar ~
-\SpecialChar ~
-\SpecialChar ~
-
-\layout Standard
-\added_space_top 1in 
-This handbook is a work in progress.
- If you are able to help with writing, editing, or graphic preparation please
- contact any member of the writing team or join and send an email to emc-users@l
-ists.sourceforge.net.
-\layout Standard
-\added_space_top 1in \align center 
-Copyright (c) 2000-7 LinuxCNC.org
-\layout Standard
-\added_space_top 0.5in \line_top \line_bottom \noindent 
-Permission is granted to copy, distribute and/or modify this document under
- the terms of the GNU Free Documentation License, Version 1.1 or any later
- version published by the Free Software Foundation; with no Invariant Sections,
- no Front-Cover Texts, and one Back-Cover Text: "This EMC Handbook is the
- product of several authors writing for linuxCNC.org.
- As you find it to be of value in your work, we invite you to contribute
- to its revision and growth." A copy of the license is included in the section
- entitled "GNU Free Documentation License".
- If you do not find the license you may order a copy from Free Software
- Foundation, Inc.
- 59 Temple Place, Suite 330 Boston, MA 02111-1307 
 \layout Standard
 
 
@@ -96,9 +103,6 @@ Permission is granted to copy, distribute and/or modify this document under
 \end_inset 
 
 
-\layout Part
-
-Introduction
 \layout Standard
 
 
@@ -108,9 +112,6 @@ preview false
 \end_inset 
 
 
-\layout Part
-
-Installation
 \layout Standard
 
 
@@ -129,9 +130,6 @@ preview false
 \end_inset 
 
 
-\layout Part
-
-Configuration
 \layout Standard
 
 
@@ -159,9 +157,6 @@ preview false
 \end_inset 
 
 
-\layout Part
-
-Spécifications de HAL
 \layout Standard
 
 
@@ -225,9 +220,6 @@ preview false
 \end_inset 
 
 
-\layout Part
-
-EMC en relation avec HAL
 \layout Standard
 
 
@@ -273,9 +265,6 @@ preview false
 \end_inset 
 
 
-\layout Part
-
-Advanced topics
 \layout Standard
 
 
@@ -285,36 +274,24 @@ preview false
 \end_inset 
 
 
-\layout Part
-
-Réglage
-\layout Section
-
-Tuning servo systems
 \layout Standard
 
 
-\begin_inset Include \input{motion/pid_theory.lyx}
+\begin_inset Include \include{motion/pid_theory.lyx}
 preview false
 
 \end_inset 
 
 
-\layout Section
-
-Tuning stepper systems
 \layout Standard
 
 
-\begin_inset Include \input{motion/tweaking_steppers.lyx}
+\begin_inset Include \include{motion/tweaking_steppers.lyx}
 preview false
 
 \end_inset 
 
 
-\layout Part
-
-Machine logique
 \layout Standard
 
 
@@ -333,13 +310,7 @@ preview false
 \end_inset 
 
 
-\layout Part
-
-
-\lang english
-Exemples matériel
 \layout Standard
-
 
 
 \begin_inset Include \include{examples/spindle_fr.lyx}
@@ -351,32 +322,25 @@ preview false
 \layout Standard
 
 
-
 \begin_inset Include \include{examples/mpg_fr.lyx}
 preview false
 
 \end_inset 
 
 
-\layout Chapter
-\start_of_appendix 
-Glossary of Common Terms Used in the EMC Documents
 \layout Standard
 
 
-\begin_inset Include \input{common/Glossary.lyx}
+\begin_inset Include \include{common/Glossary.lyx}
 preview false
 
 \end_inset 
 
 
-\layout Chapter
-
-Séction légale
 \layout Standard
 
 
-\begin_inset Include \input{common/GPLD_Copyright.lyx}
+\begin_inset Include \include{common/GPLD_Copyright.lyx}
 preview false
 
 \end_inset 

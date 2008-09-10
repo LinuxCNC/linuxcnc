@@ -48,7 +48,7 @@
 
 
 \begin_inset ERT
-status Collapsed
+status Open
 
 \layout Standard
 
@@ -57,7 +57,7 @@ addcontentsline{toc}{chapter}{
 \backslash 
 protect
 \backslash 
-numberline{}Cover}
+numberline{}Couverture}
 \end_inset 
 
 
