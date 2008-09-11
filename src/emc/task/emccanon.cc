@@ -1460,9 +1460,6 @@ void SPINDLE_RETRACT_TRAVERSE()
     /*! \todo FIXME-- unimplemented */
 }
 
-/* 0 is off, -1 is CCW, 1 is CW; used as flag if settting speed again */
-static int spindleOn = 0;
-
 void SET_SPINDLE_MODE(double css_max) {
     css_maximum = css_max;
 }
@@ -1486,8 +1483,6 @@ void START_SPINDLE_CLOCKWISE()
 	css_numerator = 0;
     }
     interp_list.append(emc_spindle_on_msg);
-
-    spindleOn = 1;
 }
 
 void START_SPINDLE_COUNTERCLOCKWISE()
@@ -1511,8 +1506,6 @@ void START_SPINDLE_COUNTERCLOCKWISE()
 
 
     interp_list.append(emc_spindle_on_msg);
-
-    spindleOn = -1;
 }
 
 void SET_SPINDLE_SPEED(double r)
@@ -1520,12 +1513,24 @@ void SET_SPINDLE_SPEED(double r)
     // speed is in RPMs everywhere
     spindleSpeed = r;
 
-    // check if we need to resend command
-    if (spindleOn == 1) {
-	START_SPINDLE_CLOCKWISE();
-    } else if (spindleOn == -1) {
-	START_SPINDLE_COUNTERCLOCKWISE();
+    EMC_SPINDLE_SPEED emc_spindle_speed_msg;
+
+    flush_segments();
+
+    if(css_maximum) {
+	if(lengthUnits == CANON_UNITS_INCHES) 
+	    css_numerator = 12 / (2 * M_PI) * spindleSpeed;
+	else
+	    css_numerator = 1000 / (2 * M_PI) * spindleSpeed;
+	emc_spindle_speed_msg.speed = css_maximum;
+	emc_spindle_speed_msg.factor = css_numerator;
+	emc_spindle_speed_msg.xoffset = TO_EXT_LEN(currentXToolOffset);
+    } else {
+	emc_spindle_speed_msg.speed = spindleSpeed;
+	css_numerator = 0;
     }
+    interp_list.append(emc_spindle_speed_msg);
+    
 }
 
 void STOP_SPINDLE_TURNING()
@@ -1535,8 +1540,6 @@ void STOP_SPINDLE_TURNING()
     flush_segments();
 
     interp_list.append(emc_spindle_off_msg);
-
-    spindleOn = 0;
 }
 
 void SPINDLE_RETRACT()
@@ -1593,12 +1596,12 @@ void USE_TOOL_LENGTH_OFFSET(double xoffset, double zoffset, double woffset)
     set_offset_msg.offset.v = 0.0;
     set_offset_msg.offset.w = TO_EXT_LEN(currentWToolOffset);
 
-    if(css_maximum && spindleOn) {
-	EMC_SPINDLE_ON emc_spindle_on_msg;
-	emc_spindle_on_msg.speed = css_maximum;
-	emc_spindle_on_msg.factor = css_numerator;
-	emc_spindle_on_msg.xoffset = TO_EXT_LEN(currentXToolOffset);
-	interp_list.append(emc_spindle_on_msg);
+    if(css_maximum) {
+	EMC_SPINDLE_SPEED emc_spindle_speed_msg;
+	emc_spindle_speed_msg.speed = css_maximum;
+	emc_spindle_speed_msg.factor = css_numerator;
+	emc_spindle_speed_msg.xoffset = TO_EXT_LEN(currentXToolOffset);
+	interp_list.append(emc_spindle_speed_msg);
     }
     interp_list.append(set_offset_msg);
 }

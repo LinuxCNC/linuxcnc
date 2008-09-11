@@ -1379,6 +1379,29 @@ int emcSpindleAbort(int force)
         return 0;
 }
 
+int emcSpindleSpeed(double speed, double css_factor, double offset)
+{
+
+    if (emcmotStatus.spindle.speed == 0)
+	return 0; //spindle stopped, not updating speed
+
+    emcmotCommand.command = EMCMOT_SPINDLE_ON;
+
+    if ((emcmotStatus.spindle.speed < 0) && (speed > 0)) {
+	emcmotCommand.vel = speed * -1;
+	emcmotCommand.ini_maxvel = css_factor * -1; 
+	emcmotCommand.acc = offset; 
+	return usrmotWriteEmcmotCommand(&emcmotCommand);
+    } else if ((emcmotStatus.spindle.speed > 0) && (speed > 0)) {
+	emcmotCommand.vel = speed;
+	emcmotCommand.ini_maxvel = css_factor; 
+	emcmotCommand.acc = offset; 
+	return usrmotWriteEmcmotCommand(&emcmotCommand);
+    }
+    
+    return -1; //can't have negative speeds
+}
+
 int emcSpindleOn(double speed, double css_factor, double offset)
 {
 

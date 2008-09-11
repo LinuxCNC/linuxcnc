@@ -774,7 +774,7 @@ int tpRunCycle(TP_STRUCT * tp, long period)
         double pos_error;
 
         if(tc->velocity_mode) {
-            pos_error = emcmotStatus->spindleSpeedIn * tc->uu_per_rev;
+            pos_error = fabs(emcmotStatus->spindleSpeedIn) * tc->uu_per_rev;
             if(nexttc) pos_error -= nexttc->progress; /* ?? */
             if(!tp->aborting)
                 tc->reqvel = pos_error;

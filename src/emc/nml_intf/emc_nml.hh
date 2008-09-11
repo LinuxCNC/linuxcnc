@@ -1719,6 +1719,19 @@ class EMC_SPINDLE_ABORT:public EMC_SPINDLE_CMD_MSG {
     void update(CMS * cms);
 };
 
+class EMC_SPINDLE_SPEED:public EMC_SPINDLE_CMD_MSG {
+  public:
+    EMC_SPINDLE_SPEED():EMC_SPINDLE_CMD_MSG(EMC_SPINDLE_SPEED_TYPE,
+					    sizeof(EMC_SPINDLE_SPEED)) {
+    };
+
+    // For internal NML/CMS use only.
+    void update(CMS * cms);
+    double speed;   // commanded speed in RPMs or maximum speed for CSS
+    double factor;  // Zero for constant RPM.  numerator of speed for CSS
+    double xoffset; // X axis offset compared to center of rotation, for CSS
+};
+
 class EMC_SPINDLE_ON:public EMC_SPINDLE_CMD_MSG {
   public:
     EMC_SPINDLE_ON():EMC_SPINDLE_CMD_MSG(EMC_SPINDLE_ON_TYPE,

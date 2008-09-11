@@ -219,6 +219,7 @@ class PM_CARTESIAN;
 #define EMC_SPINDLE_BRAKE_ENGAGE_TYPE                ((NMLTYPE) 1313)
 #define EMC_SPINDLE_ENABLE_TYPE                      ((NMLTYPE) 1314)
 #define EMC_SPINDLE_DISABLE_TYPE                     ((NMLTYPE) 1315)
+#define EMC_SPINDLE_SPEED_TYPE                       ((NMLTYPE) 1316)
 
 #define EMC_SPINDLE_STAT_TYPE                        ((NMLTYPE) 1399)
 
@@ -538,6 +539,7 @@ extern int emcAuxUpdate(EMC_AUX_STAT * stat);
 extern int emcSpindleInit();
 extern int emcSpindleHalt();
 extern int emcSpindleAbort(int force);
+extern int emcSpindleSpeed(double speed, double factor, double xoffset);
 extern int emcSpindleOn(double speed, double factor, double xoffset);
 extern int emcSpindleOff();
 extern int emcSpindleForward();

@@ -331,6 +331,7 @@ static EMC_TRAJ_SET_SPINDLESYNC *emcTrajSetSpindlesyncMsg;
 //static EMC_MOTION_SET_AOUT *emcMotionSetAoutMsg;
 //static EMC_MOTION_SET_DOUT *emcMotionSetDoutMsg;
 
+static EMC_SPINDLE_SPEED *spindle_speed_msg;
 static EMC_SPINDLE_ON *spindle_on_msg;
 static EMC_TOOL_PREPARE *tool_prepare_msg;
 static EMC_TOOL_LOAD_TOOL_TABLE *load_tool_table_msg;
@@ -631,6 +632,7 @@ static int emcTaskPlan(void)
 	    case EMC_TRAJ_SET_FO_ENABLE_TYPE:
 	    case EMC_TRAJ_SET_FH_ENABLE_TYPE:
 	    case EMC_TRAJ_SET_SO_ENABLE_TYPE:
+	    case EMC_SPINDLE_SPEED_TYPE:
 	    case EMC_SPINDLE_ON_TYPE:
 	    case EMC_SPINDLE_OFF_TYPE:
 	    case EMC_SPINDLE_BRAKE_RELEASE_TYPE:
@@ -723,6 +725,7 @@ static int emcTaskPlan(void)
 		case EMC_TRAJ_SET_FO_ENABLE_TYPE:
 	        case EMC_TRAJ_SET_FH_ENABLE_TYPE:
 		case EMC_TRAJ_SET_SO_ENABLE_TYPE:
+		case EMC_SPINDLE_SPEED_TYPE:
 		case EMC_SPINDLE_ON_TYPE:
 		case EMC_SPINDLE_OFF_TYPE:
 		case EMC_SPINDLE_BRAKE_RELEASE_TYPE:
@@ -1023,6 +1026,7 @@ interpret_again:
 		case EMC_TRAJ_SET_FO_ENABLE_TYPE:
 	        case EMC_TRAJ_SET_FH_ENABLE_TYPE:
 		case EMC_TRAJ_SET_SO_ENABLE_TYPE:
+		case EMC_SPINDLE_SPEED_TYPE:
 		case EMC_SPINDLE_ON_TYPE:
 		case EMC_SPINDLE_OFF_TYPE:
 		case EMC_SPINDLE_BRAKE_RELEASE_TYPE:
@@ -1199,6 +1203,7 @@ interpret_again:
 	    case EMC_TRAJ_SET_FO_ENABLE_TYPE:
 	    case EMC_TRAJ_SET_FH_ENABLE_TYPE:
 	    case EMC_TRAJ_SET_SO_ENABLE_TYPE:
+	    case EMC_SPINDLE_SPEED_TYPE:
 	    case EMC_SPINDLE_ON_TYPE:
 	    case EMC_SPINDLE_OFF_TYPE:
 	    case EMC_SPINDLE_BRAKE_RELEASE_TYPE:
@@ -1326,6 +1331,7 @@ static int emcTaskCheckPreconditions(NMLmsg * cmd)
     case EMC_COOLANT_MIST_OFF_TYPE:
     case EMC_COOLANT_FLOOD_ON_TYPE:
     case EMC_COOLANT_FLOOD_OFF_TYPE:
+    case EMC_SPINDLE_SPEED_TYPE:
     case EMC_SPINDLE_ON_TYPE:
     case EMC_SPINDLE_OFF_TYPE:
 	return EMC_TASK_EXEC_WAITING_FOR_MOTION_AND_IO;
@@ -1730,6 +1736,11 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 
 	// IO commands
 
+    case EMC_SPINDLE_SPEED_TYPE:
+	spindle_speed_msg = (EMC_SPINDLE_SPEED *) cmd;
+	retval = emcSpindleSpeed(spindle_speed_msg->speed, spindle_speed_msg->factor, spindle_speed_msg->xoffset);
+	break;
+
     case EMC_SPINDLE_ON_TYPE:
 	spindle_on_msg = (EMC_SPINDLE_ON *) cmd;
 	retval = emcSpindleOn(spindle_on_msg->speed, spindle_on_msg->factor, spindle_on_msg->xoffset);
@@ -2084,6 +2095,7 @@ static int emcTaskCheckPostconditions(NMLmsg * cmd)
     case EMC_TOOL_UNLOAD_TYPE:
     case EMC_TOOL_LOAD_TOOL_TABLE_TYPE:
     case EMC_TOOL_SET_OFFSET_TYPE:
+    case EMC_SPINDLE_SPEED_TYPE:
     case EMC_SPINDLE_ON_TYPE:
     case EMC_SPINDLE_OFF_TYPE:
     case EMC_COOLANT_MIST_ON_TYPE:
