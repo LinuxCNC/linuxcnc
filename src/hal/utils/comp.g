@@ -48,6 +48,7 @@ parser Hal:
       | "variable" NAME {{ NAME1=NAME; }} NAME OptSimpleArray OptAssign ";" {{ variable(NAME1, NAME, OptSimpleArray, OptAssign) }}
       | "option" NAME OptValue ";"   {{ option(NAME, OptValue) }}
       | "see_also" String ";"   {{ see_also(String) }}
+      | "notes" String ";"   {{ notes(String) }}
       | "description" String ";"   {{ description(String) }}
       | "license" String ";"   {{ license(String) }}
       | "author" String ";"   {{ author(String) }}
@@ -155,6 +156,9 @@ def author(doc):
 
 def see_also(doc):
     docs.append(('see_also', doc));
+
+def notes(doc):
+    docs.append(('notes', doc));
 
 def type2type(type):
     # When we start warning about s32/u32 this is where the warning goes
@@ -816,6 +820,11 @@ def document(filename, outfilename):
     doc = finddoc('see_also')    
     if doc and doc[1]:
         print >>f, ".SH SEE ALSO\n"
+        print >>f, "%s" % doc[1]
+
+    doc = finddoc('notes')    
+    if doc and doc[1]:
+        print >>f, ".SH NOTES\n"
         print >>f, "%s" % doc[1]
 
     doc = finddoc('author')    
