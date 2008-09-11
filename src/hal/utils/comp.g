@@ -319,7 +319,7 @@ static int comp_id;
         print >>f, "#include <stdlib.h>"
 
     print >>f, "struct state *inst=0;"
-    print >>f, "struct state *first_inst=0;"
+    print >>f, "struct state *first_inst=0, *last_inst=0;"
     
     print >>f
     for name, fp in functions:
@@ -425,8 +425,9 @@ static int comp_id;
         print >>f, "    r = hal_export_funct(buf, (void(*)(void *inst, long))%s, inst, %s, 0, comp_id);" % (
             to_c(name), int(fp))
         print >>f, "    if(r != 0) return r;"
-    print >>f, "    inst->_next = first_inst;"
-    print >>f, "    first_inst = inst;"
+    print >>f, "    if(last_inst) last_inst->_next = inst;"
+    print >>f, "    last_inst = inst;"
+    print >>f, "    if(!first_inst) first_inst = inst;"
     print >>f, "    return 0;"
     print >>f, "}"
 
@@ -450,6 +451,14 @@ static int comp_id;
         if has_personality:
             print >>f, "static int personality[16] = {0,};"
             print >>f, "RTAPI_MP_ARRAY_INT(personality, 16, \"personality of each %s\");" % comp_name
+        if not options.get("singleton"):
+            for name, fp in functions:
+                print >>f, "void all_%s(void *ignore, long period) {" % name
+                print >>f, "    struct state *inst;"
+                print >>f, "    for(inst = first_inst; inst; inst = inst->_next) {"
+                print >>f, "        %s(inst, period);" % name;
+                print >>f, "    }"
+                print >>f, "}"
         print >>f, "int rtapi_app_main(void) {"
         print >>f, "    int r = 0;"
         if not options.get("singleton"):
@@ -509,6 +518,14 @@ static int comp_id;
 
         if options.get("constructable") and not options.get("singleton"):
             print >>f, "    hal_set_constructor(comp_id, export_1);"
+        if not options.get("singleton"):
+            for name, fp in functions:
+                print >>f, "    if(r == 0) {"
+                print >>f, "        hal_export_funct(\"%s\", (void(*)(void *inst, long))all_%s, 0, %s, 0, comp_id);" % (
+                    to_hal(removeprefix(comp_name, "hal_"))
+                            + "." + (to_hal(name + "-all").lstrip("-")),
+                    to_c(name), int(fp))
+                print >>f, "    }"
         print >>f, "    if(r) {"
 	if options.get("extra_cleanup"):
             print >>f, "    extra_cleanup();"
@@ -669,6 +686,16 @@ def finddocs(section=None, name=None):
                 (name == None or name == item[1])):
                     yield item
 
+def to_hal_man_unnumbered(s):
+    s = "%s.%s" % (comp_name, s)
+    s = s.replace("_", "-")
+    s = s.rstrip("-")
+    s = s.rstrip(".")
+    s = re.sub("#+", lambda m: "\\fI" + "M" * len(m.group(0)) + "\\fB", s)
+    # s = s.replace("-", "\\-")
+    return s
+
+
 def to_hal_man(s):
     if options.get("singleton"):
         s = "%s.%s" % (comp_name, s)
@@ -764,6 +791,9 @@ def document(filename, outfilename):
         print >>f, ".SH FUNCTIONS"
         for _, name, fp, doc in finddocs('funct'):
             print >>f, ".TP"
+            if not options.get("singleton"):
+                print >>f, "\\fB%s\\fR" % to_hal_man_unnumbered("all")
+                print >>f, ".TQ"
             print >>f, "\\fB%s\\fR" % to_hal_man(name),
             if fp:
                 print >>f, "(uses floating-point)"
