@@ -1,9 +1,18 @@
 component wcomp "Window comparator";
 pin out bit out "True if in is between min and max";
+pin out bit over "True if in is greater than max";
+pin out bit under "True if in is less than min";
 pin in float in;
-param rw float min_;
-param rw float max_;
+param rw float min_ "Low boundary for comparison";
+param rw float max_ "High boundary for comparison";
+notes "Note that if min = max, strange things happen.";
+
 function _;
 license "GPL";
 ;;
-FUNCTION(_) { float tmp = in; out = min_ < tmp && tmp < max_; }
+FUNCTION(_) { 
+float tmp = in;
+  under = (tmp <= min_);
+  over = (tmp >= max_);
+  out = !(over || under);
+}
