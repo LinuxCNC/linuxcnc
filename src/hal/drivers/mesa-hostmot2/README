@@ -161,6 +161,15 @@ Architecture:
     bulk transfer to read all the stuff into the driver.
 
 
-Some inspiration taken from Jeffry Molanus' driver (U. Twente).
+Shout outs:
+
+    Thanks to Peter Wallace at Mesa Electronics for supporting the
+    development of this driver.
+
+    Thanks to John M Kasunich, Steven W Padnos, Jeff Epler, and Paul
+    Corner for help with RTAI and EMC2 internals, and everything else.
+
+    Thanks to Jeffry Molanus (U. Twente) for the anyio driver, it provided
+    some early inspiration.
 
 

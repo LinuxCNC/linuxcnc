@@ -1,4 +1,10 @@
 
+released 2008-09-11
+    hostmot2 0.11
+
+    This fixes a bug in pwmgen so that .scale works as expected.
+
+
 released 2008-08-22
     hostmot2 0.10
 

@@ -4,6 +4,10 @@ next steps:
 
     stepgen overshoots with high maxaccel
 
+        cleanup
+
+        look at pluto_step 
+
 
     include .PIN files as docs
 
@@ -172,11 +176,12 @@ encoders:
 
 pwmgen:
 
-    how to set pwm rate in firmware?
+    Add support for changing PWM rate (by monkeying with master dds).
 
-    Add support for different pdm mode (selected by the pwm-freq parameter...)
+    Add support for changing PWM duty-cycle width.  It's currently 12
+    bits wide, but 9 to 11 bits are also available.
 
-    what should the hal pwmgen scale parameter do exactly?  same as the software hal component: output = (val / scale) + offset
+    Add support for other PDM mode etc.
 
 
 
@@ -301,4 +306,10 @@ wishlist:
         multiple HLs is a non-issue if each HL can recognize "this is my
         firmware, I'll use this board" vs. "oops, I dunno what this is,
         skip it"
+
+
+    abstract the EPP code into a proper EMC2 (or RTAI) parport driver
+
+
+    abstract the stepgen code into an EMC2 library
 

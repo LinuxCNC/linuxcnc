@@ -254,9 +254,9 @@ int hm2_pwmgen_parse_md(hostmot2_t *hm2, int md_index) {
 
             // these are the fields of the PWM Mode Register that are not exposed to HAL
             // FIXME: let the user choose some of these bits?
-            hm2->pwmgen.instance[i].pwm_width_select = 0x3;
-            hm2->pwmgen.instance[i].pwm_mode_select = 0;
-            hm2->pwmgen.instance[i].pwm_double_buffered = 1;
+            hm2->pwmgen.instance[i].pwm_width_select = 0x3;  // 12 bits
+            hm2->pwmgen.instance[i].pwm_mode_select = 0;     // straight (not sawtooth)
+            hm2->pwmgen.instance[i].pwm_double_buffered = 1; // enable double buffer mode
         }
     }
 
@@ -342,12 +342,14 @@ void hm2_pwmgen_prepare_tram_write(hostmot2_t *hm2) {
     int i;
 
     for (i = 0; i < hm2->pwmgen.num_instances; i ++) {
-        float val;
+        float duty_cycle;
 
-        // FIXME
-        val = fabs(*(hm2->pwmgen.instance[i].hal.pin.value));
-        if (val > 1.0) val = 1.0;
-        hm2->pwmgen.pwm_value_reg[i] = val / hm2->pwmgen.instance[i].hal.param.scale;
+        duty_cycle = fabs(*(hm2->pwmgen.instance[i].hal.pin.value)) / hm2->pwmgen.instance[i].hal.param.scale;
+        if (duty_cycle > 1.0) duty_cycle = 1.0;
+
+        // duty_cycle goes from 0.0 to 1.0, and needs to be puffed out to 12 bits
+        hm2->pwmgen.pwm_value_reg[i] = duty_cycle * (float)((1 << 12) - 1);
+
         hm2->pwmgen.pwm_value_reg[i] <<= 16;
         if (*(hm2->pwmgen.instance[i].hal.pin.value) < 0) {
             hm2->pwmgen.pwm_value_reg[i] |= (1 << 31);

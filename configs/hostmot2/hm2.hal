@@ -55,10 +55,6 @@ net  motor-01-position  hm2_$(HM2_BOARD).0.encoder.01.position =>  pid.1.feedbac
 # let the pid outputs drive the pwm generators
 #
 
-setp  hm2_$(HM2_BOARD).0.pwmgen.00.scale .0002442002
-setp  hm2_$(HM2_BOARD).0.pwmgen.01.scale .0002442002
-setp  hm2_$(HM2_BOARD).0.pwmgen.02.scale .0002442002
-
 net  pid-00-command  pid.0.output  =>  hm2_$(HM2_BOARD).0.pwmgen.00.value
 net  pid-01-command  pid.1.output  =>  hm2_$(HM2_BOARD).0.pwmgen.01.value
 
@@ -107,6 +103,9 @@ setp hm2_$(HM2_BOARD).0.stepgen.00.stepspace       40000
 
 setp hm2_$(HM2_BOARD).0.stepgen.00.position-scale  1600
 
+setp hm2_$(HM2_BOARD).0.stepgen.00.maxaccel        0.5
+setp hm2_$(HM2_BOARD).0.stepgen.00.maxvel          0.5
+
 
 setp hm2_$(HM2_BOARD).0.stepgen.01.dirsetup        200
 setp hm2_$(HM2_BOARD).0.stepgen.01.dirhold         200
@@ -115,6 +114,9 @@ setp hm2_$(HM2_BOARD).0.stepgen.01.steplen         40000
 setp hm2_$(HM2_BOARD).0.stepgen.01.stepspace       40000
 
 setp hm2_$(HM2_BOARD).0.stepgen.01.position-scale  1600
+
+setp hm2_$(HM2_BOARD).0.stepgen.01.maxaccel        10
+setp hm2_$(HM2_BOARD).0.stepgen.01.maxvel          10
 
 
 #setp hm2_$(HM2_BOARD).0.stepgen.02.dirsetup 200
@@ -178,6 +180,24 @@ addf hm2_$(HM2_BOARD).0.read          main
 addf pid.0.do-pid-calcs               main
 addf pid.1.do-pid-calcs               main
 addf hm2_$(HM2_BOARD).0.write         main
+
+
+
+
+#
+# my steppers need open collector outputs
+# 
+# I determined the pins to switch to open drain by looking at the hm2 pin
+# report in the dmesg output
+#
+
+# stepgen.00 step & dir
+setp hm2_$(HM2_BOARD).0.gpio.P4.048.is_opendrain 1
+setp hm2_$(HM2_BOARD).0.gpio.P4.049.is_opendrain 1
+
+# stepgen.01 step & dir
+setp hm2_$(HM2_BOARD).0.gpio.P4.054.is_opendrain 1
+setp hm2_$(HM2_BOARD).0.gpio.P4.055.is_opendrain 1
 
 
 
