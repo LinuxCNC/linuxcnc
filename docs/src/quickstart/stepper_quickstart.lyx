@@ -50,8 +50,12 @@ Drive timing is in nano seconds.
  If your unsure about the timing many popular drives are included in the
  stepper configuration wizard.
  Note some newer Gecko drives have different timing than the original one.
- A list is also on the user maintained EMC wiki site of more drives at http://wi
-ki.linuxcnc.org.
+ A list is also on the user maintained EMC wiki site of more drives at 
+\begin_inset LatexCommand \url{http://wiki.linuxcnc.org}
+
+\end_inset 
+
+.
 \layout Standard
 
 
