@@ -1964,16 +1964,6 @@ class EMC_LUBE_CMD_MSG:public RCS_CMD_MSG {
     void update(CMS * cms);
 };
 
-class EMC_LUBE_ABORT:public EMC_LUBE_CMD_MSG {
-  public:
-    EMC_LUBE_ABORT():EMC_LUBE_CMD_MSG(EMC_LUBE_ABORT_TYPE,
-				      sizeof(EMC_LUBE_ABORT)) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-};
-
 class EMC_LUBE_ON:public EMC_LUBE_CMD_MSG {
   public:
     EMC_LUBE_ON():EMC_LUBE_CMD_MSG(EMC_LUBE_ON_TYPE, sizeof(EMC_LUBE_ON)) {

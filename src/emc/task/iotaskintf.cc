@@ -342,15 +342,6 @@ int emcCoolantFloodOff()
     return 0;
 }
 
-int emcLubeAbort()
-{
-    EMC_LUBE_ABORT lubeAbortMsg;
-
-    sendCommand(&lubeAbortMsg);
-
-    return 0;
-}
-
 int emcLubeOn()
 {
     EMC_LUBE_ON lubeOnMsg;
