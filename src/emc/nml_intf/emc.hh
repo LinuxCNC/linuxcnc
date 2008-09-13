@@ -237,7 +237,7 @@ class PM_CARTESIAN;
 
 // EMC_LUBE type declarations
 
-#define EMC_LUBE_INIT_TYPE                           ((NMLTYPE) 1501)
+/* removed #define EMC_LUBE_INIT_TYPE                           ((NMLTYPE) 1501) */
 #define EMC_LUBE_HALT_TYPE                           ((NMLTYPE) 1502)
 #define EMC_LUBE_ABORT_TYPE                          ((NMLTYPE) 1503)
 #define EMC_LUBE_ON_TYPE                             ((NMLTYPE) 1504)
@@ -585,7 +585,6 @@ extern int emcCoolantUpdate(EMC_COOLANT_STAT * stat);
 
 // implementation functions for EMC_LUBE types
 
-extern int emcLubeInit();
 extern int emcLubeHalt();
 extern int emcLubeAbort();
 extern int emcLubeOn();

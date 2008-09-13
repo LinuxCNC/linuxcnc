@@ -701,10 +701,6 @@ static int emc_io_get_command(ClientData clientdata,
 	Tcl_SetResult(interp, "emc_aux_estop_off", TCL_VOLATILE);
 	break;
 
-    case EMC_LUBE_INIT_TYPE:
-	Tcl_SetResult(interp, "emc_lube_init", TCL_VOLATILE);
-	break;
-
     case EMC_LUBE_HALT_TYPE:
 	Tcl_SetResult(interp, "emc_lube_halt", TCL_VOLATILE);
 	break;
