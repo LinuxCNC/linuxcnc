@@ -26,15 +26,15 @@
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
 #include "hal.h"
 
-struct {
-    hal_float_t a2, a3, d3, d4;
+struct haldata {
+    hal_float_t *a2, *a3, *d3, *d4;
 } *haldata = 0;
 
 
-#define PUMA_A2 (haldata->a2)
-#define PUMA_A3 (haldata->a3)
-#define PUMA_D3 (haldata->d3)
-#define PUMA_D4 (haldata->d4)
+#define PUMA_A2 (*(haldata->a2))
+#define PUMA_A3 (*(haldata->a3))
+#define PUMA_D3 (*(haldata->d3))
+#define PUMA_D4 (*(haldata->d4))
 
 
 int kinematicsForward(const double * joint,
@@ -348,18 +348,18 @@ int rtapi_app_main(void) {
     comp_id = hal_init("pumakins");
     if (comp_id < 0) return comp_id;
     
-    haldata = hal_malloc(sizeof(*haldata));
+    haldata = hal_malloc(sizeof(struct haldata));
     if (!haldata) goto error;
+
+    if((res = hal_pin_float_new("pumakins.A2", HAL_IO, &(haldata->a2), comp_id)) != HAL_SUCCESS) goto error;
+    if((res = hal_pin_float_new("pumakins.A3", HAL_IO, &(haldata->a3), comp_id)) != HAL_SUCCESS) goto error;
+    if((res = hal_pin_float_new("pumakins.D3", HAL_IO, &(haldata->d3), comp_id)) != HAL_SUCCESS) goto error;
+    if((res = hal_pin_float_new("pumakins.D4", HAL_IO, &(haldata->d4), comp_id)) != HAL_SUCCESS) goto error;
+    
     PUMA_A2 = DEFAULT_PUMA560_A2;
     PUMA_A3 = DEFAULT_PUMA560_A3;
     PUMA_D3 = DEFAULT_PUMA560_D3;
     PUMA_D4 = DEFAULT_PUMA560_D4;
-
-    if((res = hal_param_float_new("pumakins.A2", HAL_RW, &haldata->a2, comp_id)) != HAL_SUCCESS) goto error;
-    if((res = hal_param_float_new("pumakins.A3", HAL_RW, &haldata->a3, comp_id)) != HAL_SUCCESS) goto error;
-    if((res = hal_param_float_new("pumakins.D3", HAL_RW, &haldata->d3, comp_id)) != HAL_SUCCESS) goto error;
-    if((res = hal_param_float_new("pumakins.D4", HAL_RW, &haldata->d4, comp_id)) != HAL_SUCCESS) goto error;
-    
     hal_ready(comp_id);
     return 0;
     
