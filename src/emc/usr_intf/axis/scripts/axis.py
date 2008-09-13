@@ -3606,8 +3606,33 @@ root_window.bind("<Key-F5>", "+" + tabs_mdi + ".command selection range 0 end")
 
 init()
 
+#right click menu for the program
+def rClicker(e):
+    
+    def select_run_from(e):
+	commands.set_next_line()
+
+    #if no line is selected drop out
+    if vars.highlight_line.get() == -1 :
+	return
+    nclst=[
+        ('        ',None),   #
+        (' ------ ',None),   #
+	(_('Start from here'), lambda e=e: select_run_from(e)),
+        ]
+    rmenu = Tkinter.Menu(None, tearoff=0, takefocus=0)
+    cas = {}
+    for (txt, cmd) in nclst:
+        if txt == ' ------ ':
+            rmenu.add_separator()
+        else: rmenu.add_command(label=txt, command=cmd)
+    rmenu.entryconfigure(0, label = "AXIS", state = 'disabled')
+    rmenu.tk_popup(e.x_root-3, e.y_root+3,entry="0")
+    return "break"
+
 t = widgets.text
 t.bind("<Configure>", set_tabs)
+t.bind('<Button-3>', rClicker) #allow right-click to select start from line
 t.tag_configure("lineno", foreground="#808080")
 t.tag_configure("executing", background="#804040", foreground="#ffffff")
 if args:
