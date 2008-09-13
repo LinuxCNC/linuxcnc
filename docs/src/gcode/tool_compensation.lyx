@@ -51,7 +51,7 @@ Tool compensation can cause problems for the best of nc code programmers.
  offsets can be made durring a production run that allow for variation in
  tool size, or for minor deviation from the programmed distances and size.
  And these changes can be made without the operator having to search through
- and cange numbers in a program file.
+ and change numbers in a program file.
 \layout Standard
 
 Throughout this unit you will find ocasional references to cannonical functions
