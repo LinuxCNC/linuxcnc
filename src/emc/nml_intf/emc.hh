@@ -227,7 +227,7 @@ class PM_CARTESIAN;
 
 /* removed #define EMC_COOLANT_INIT_TYPE                        ((NMLTYPE) 1401) */
 /* removed #define EMC_COOLANT_HALT_TYPE                        ((NMLTYPE) 1402) */
-#define EMC_COOLANT_ABORT_TYPE                       ((NMLTYPE) 1403)
+/* removed #define EMC_COOLANT_ABORT_TYPE                       ((NMLTYPE) 1403) */
 #define EMC_COOLANT_MIST_ON_TYPE                     ((NMLTYPE) 1404)
 #define EMC_COOLANT_MIST_OFF_TYPE                    ((NMLTYPE) 1405)
 #define EMC_COOLANT_FLOOD_ON_TYPE                    ((NMLTYPE) 1406)

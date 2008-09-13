@@ -926,14 +926,6 @@ int main(int argc, char *argv[])
 		emcioStatus.status = RCS_ERROR;
 	    break;
 
-	case EMC_COOLANT_ABORT_TYPE:
-	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_COOLANT_ABORT\n");
-	    emcioStatus.coolant.mist = 0;
-	    emcioStatus.coolant.flood = 0;
-	    *(iocontrol_data->coolant_mist) = 0;
-	    *(iocontrol_data->coolant_flood) = 0;
-	    break;
-
 	case EMC_COOLANT_MIST_ON_TYPE:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_COOLANT_MIST_ON\n");
 	    emcioStatus.coolant.mist = 1;
