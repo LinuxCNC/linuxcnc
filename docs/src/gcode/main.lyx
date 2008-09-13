@@ -5952,6 +5952,12 @@ G42.1 D- L-
 .
  The D word specifies the cutter diameter.
  The L word specifies the cutter orientation, and defaults to 0 if unspecified.
+ For more information on cutter orientation see Section (
+\begin_inset LatexCommand \ref{cap:Tool-Orientations}
+
+\end_inset 
+
+).
 \layout Standard
 
 It is an error if:
