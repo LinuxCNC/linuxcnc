@@ -990,14 +990,6 @@ int main(int argc, char *argv[])
 	    // but that means task needs to be rewritten/rethinked
 	    break;
 	    
-	case EMC_LUBE_HALT_TYPE:
-	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_LUBE_HALT\n");
-	    emcioStatus.lube.on = 0;
-	    //get the lube-level from hal
-	    emcioStatus.lube.level = *(iocontrol_data->lube_level);
-	    *(iocontrol_data->lube) = 0;
-	    break;
-
 	case EMC_LUBE_ABORT_TYPE:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_LUBE_ABORT\n");
 	    emcioStatus.lube.on = 0;
