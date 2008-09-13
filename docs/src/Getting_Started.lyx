@@ -3,7 +3,6 @@
 \textclass book
 \begin_preamble
 \usepackage[plainpages=false,pdfpagelabels,colorlinks=true,linkcolor=blue]{hyperref}
-\usepackage{tocbibind}
 \pagenumbering{roman}
 \let\myTOC\tableofcontents
 \renewcommand\tableofcontents{%
@@ -46,6 +45,8 @@
 
 \layout Standard
 
+\layout Standard
+
 
 \begin_inset ERT
 status Open
@@ -58,31 +59,6 @@ addcontentsline{toc}{chapter}{
 protect
 \backslash 
 numberline{}Cover}
-\end_inset 
-
-
-\layout Standard
-
-
-\begin_inset ERT
-status Open
-
-\layout Standard
-
-\backslash 
-newsavebox{
-\backslash 
-titleadd}
-\layout Standard
-
-\backslash 
-sbox{
-\backslash 
-titleadd}{
-\backslash 
-Huge 
-\backslash 
-bf V2.2 Getting Started}
 \end_inset 
 
 
