@@ -1887,16 +1887,6 @@ class EMC_COOLANT_CMD_MSG:public RCS_CMD_MSG {
     void update(CMS * cms);
 };
 
-class EMC_COOLANT_HALT:public EMC_COOLANT_CMD_MSG {
-  public:
-    EMC_COOLANT_HALT():EMC_COOLANT_CMD_MSG(EMC_COOLANT_HALT_TYPE,
-					   sizeof(EMC_COOLANT_HALT)) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-};
-
 class EMC_COOLANT_ABORT:public EMC_COOLANT_CMD_MSG {
   public:
     EMC_COOLANT_ABORT():EMC_COOLANT_CMD_MSG(EMC_COOLANT_ABORT_TYPE,
