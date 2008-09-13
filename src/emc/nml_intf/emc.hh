@@ -573,9 +573,6 @@ extern int emcSpindleUpdate(EMC_SPINDLE_STAT * stat);
 
 // implementation functions for EMC_COOLANT types
 
-extern int emcCoolantInit();
-extern int emcCoolantHalt();
-extern int emcCoolantAbort();
 extern int emcCoolantMistOn();
 extern int emcCoolantMistOff();
 extern int emcCoolantFloodOn();
