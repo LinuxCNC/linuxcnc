@@ -779,7 +779,9 @@ int usrmotLoadComp(int joint, const char *file, int type)
 
 int usrmotPrintComp(int joint)
 {
-/* FIXME-AJ:reenable this in the next commit */
+/* FIXME-AJ: comp isn't in shmem atm
+  it's in the joint struct, which is only in shmem when STRUCTS_IN_SHM is defined,
+  currently only usrmot uses usrmotPrintComp - might go away */
 return -1;
 /* currently disabled */
 #if 0
