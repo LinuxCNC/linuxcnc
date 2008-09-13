@@ -1837,7 +1837,7 @@ proc update_state {args} {
         {.menu.file "Edit _tool table..."}
 
     state  {$task_state == $STATE_ON && $interp_state == $INTERP_IDLE} \
-        {.menu.machine "Homin_g" "_Zero coordinate system"}
+        {.menu.machine "Homin_g" "_Unhoming" "_Zero coordinate system"}
 
     relief {$interp_state != $INTERP_IDLE} .toolbar.program_run
     state  {$task_state == $STATE_ON && $taskfile != ""} \
