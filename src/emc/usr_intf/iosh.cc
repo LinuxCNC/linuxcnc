@@ -665,10 +665,6 @@ static int emc_io_get_command(ClientData clientdata,
 	Tcl_SetResult(interp, "emc_spindle_brake_engage", TCL_VOLATILE);
 	break;
 */
-    case EMC_COOLANT_INIT_TYPE:
-	Tcl_SetResult(interp, "emc_coolant_init", TCL_VOLATILE);
-	break;
-
     case EMC_COOLANT_HALT_TYPE:
 	Tcl_SetResult(interp, "emc_coolant_halt", TCL_VOLATILE);
 	break;
