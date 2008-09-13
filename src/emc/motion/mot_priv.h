@@ -85,7 +85,7 @@ typedef struct {
     hal_float_t *spindle_revs;
     hal_float_t *adaptive_feed;	/* RPI: adaptive feedrate, 0.0 to 1.0 */
     hal_bit_t *feed_hold;	/* RPI: set TRUE to stop motion */
-    hal_bit_t motion_enabled;	/* RPA: motion enable for all joints */
+    hal_bit_t *motion_enabled;	/* RPI: motion enable for all joints */
     hal_bit_t in_position;	/* RPA: all joints are in position */
     hal_bit_t *inpos_output;	/* WPI: all joints are in position (used to power down steppers for example) */
     hal_bit_t coord_mode;	/* RPA: TRUE if coord, FALSE if free */

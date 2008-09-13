@@ -340,7 +340,7 @@ static int init_hal_io(void)
     /* export machine wide hal parameters */
     rtapi_snprintf(buf, HAL_NAME_LEN, "motion.motion-enabled");
     retval =
-	hal_param_bit_new(buf, HAL_RO, &(emcmot_hal_data->motion_enabled),
+	hal_pin_bit_new(buf, HAL_IN, &(emcmot_hal_data->motion_enabled),
 	mot_comp_id);
     if (retval != 0) {
 	return retval;
@@ -561,7 +561,7 @@ static int init_hal_io(void)
     
     /*! \todo FIXME - these don't really need initialized, since they are written
        with data from the emcmotStatus struct */
-    emcmot_hal_data->motion_enabled = 0;
+    *(emcmot_hal_data->motion_enabled) = 0;
     emcmot_hal_data->in_position = 0;
     *(emcmot_hal_data->inpos_output) = 0;
     emcmot_hal_data->coord_mode = 0;

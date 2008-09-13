@@ -1754,7 +1754,7 @@ static void output_to_hal(void)
     static int old_motion_index=0, old_hal_index=0;
 
     /* output machine info to HAL for scoping, etc */
-    emcmot_hal_data->motion_enabled = GET_MOTION_ENABLE_FLAG();
+    *(emcmot_hal_data->motion_enabled) = GET_MOTION_ENABLE_FLAG();
     emcmot_hal_data->in_position = GET_MOTION_INPOS_FLAG();
     *(emcmot_hal_data->inpos_output) = emcmot_hal_data->in_position;
     emcmot_hal_data->coord_mode = GET_MOTION_COORD_FLAG();
