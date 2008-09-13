@@ -527,20 +527,22 @@ def LyxGraphicsFixer(d, srcdir, destdir):
 	destfile = os.path.join(destdir, base + oext)
 
 	if not (os.path.exists(destfile) and mtime(destfile) > mtime(srcfile)):
+	    tempdestfile = os.path.join(destdir, "tmp_%s" % os.getpid() + base + oext)
 	    if ext == oext:
-		shutil.copy(srcfile, destfile)
+		shutil.copy(srcfile, tempdestfile)
 	    else:
-		print >>sys.stderr, "# convert", base,
+		print >>sys.stderr, "# convert", base, srcfile, tempdestfile
 		retval = os.spawnvp(os.P_WAIT, 'convert',
 			['convert',
 			    '-density', '96',
 			    '-resize', '1000x9999>',
-			    srcfile, destfile])	
+			    srcfile, tempdestfile])	
 		if retval:
 		    print >>sys.stderr, " ->", retval
 		else:
 		    print >>sys.stderr
-		if not os.path.exists(destfile): raise RuntimeError, "convert failed"
+		if not os.path.exists(tempdestfile): raise RuntimeError, "convert failed"
+	    os.rename(tempdestfile, destfile)
 
 	w, h = getoutput(['identify', '-format', '%w %h', destfile]).split()
 	n.setAttribute('src', base + oext)
@@ -582,6 +584,7 @@ EquationTemplate = """
 def EquationProcess(v0, outdir):
     v = EquationTemplate % v0
     ref = sha.new(v).hexdigest()
+    tfn = os.path.join(outdir, "tmp_%s" % os.getpid() + ref + ".png")
     fn = os.path.join(outdir, ref + ".png")
     if not os.path.exists(fn):
 	print "# Formatting equation %s\n#\t%s" % (ref, repr(v0)[:70])
@@ -605,7 +608,8 @@ def EquationProcess(v0, outdir):
 	finally:
 	    os.chdir(od) 
 
-	shutil.copy(fp, fn)
+	shutil.copy(fp, tfn)
+	os.rename(tfn, fn)
 	shutil.rmtree(d)
     w, h = getoutput(['identify', '-format', '%w %h', fn]).split()
     return ref, w, h
