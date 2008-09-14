@@ -5,6 +5,11 @@ firmware and example host-side source code is available from Mesa
 Electronics.)
 
 
+The "src/" directory contains the new, unified VHDL source code.
+The board directories ("5i20/", "7i43/", etc) contain the pre-compiled
+firmware binaries and the old deprecated VHDL source code.
+
+
 All contents are Copyright (C) 2007-2008, Peter C. Wallace, Mesa
 Electronics <http://www.mesanet.com>
 
