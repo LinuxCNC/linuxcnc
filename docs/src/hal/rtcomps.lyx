@@ -1650,7 +1650,7 @@ For a position loop, 'command' and 'feedback' are in position units.
  
 \layout Standard
 
-Each loop has two other pins which are used to monitor or control the general
+Each loop has two pins which are used to monitor or control the general
  operation of the component.
  
 \layout Itemize
@@ -1691,6 +1691,38 @@ pid.<loopnum>.enable
 .enable
 \family default 
  is true, the loop operates normally.
+\layout Standard
+
+Pins used to report saturation.
+ Saturation occurs when the output of the PID block is at its maximum or
+ minimum limit.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(bit)
+\family default 
+\noun default 
+ pid.<loopnum>.saturated -- True when output is saturated.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(float)
+\family default 
+\noun default 
+ pid.<loopnum>.saturated_s -- The time the output has been saturated.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(s32)
+\family default 
+\noun default 
+ pid.<loopnum>.saturated_count -- The time the output has been saturated.
 \layout Subsection
 
 Parameters
