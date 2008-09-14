@@ -1,8 +1,0 @@
-SOURCE		HostMot2 VHDL source      
-readme      	This File
-regmap      	HostMot2 register map
-sv12.pin    	12 Axis servo motor configuration pinout
-sv12.bit   	Bit file for 12 axis servo motor configuration
-svst8_4.pin 	8 Axis servo motor + 4 Axis step motor configuration pinout
-svst8_4.bit	Bit file for 8+4 servo/step configuration
-
