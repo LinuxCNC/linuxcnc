@@ -259,7 +259,6 @@ planned milestones:
         add support for all other PCI cards
 
             IOPort connector names for the still-unsupported cards:
-                4I65: P1,P3,P4
                 4I68: P1,P2,P4
                 5I22: P2,P3,P4,P5
                 5I23: P2,P3,P4
