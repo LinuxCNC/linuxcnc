@@ -1,4 +1,13 @@
 
+released 2008-09-14
+    hm2_5i20 0.4
+
+    Add support for the 4i65 Anything I/O board (in the now mis-named
+    hm2_5i20 driver).  The 4i65 just like the 5i20, except the PCI
+    Subsystem Device ID is different and the first I/O connector is
+    named P1 instead of P2.
+
+
 released 2008-09-11
     hostmot2 0.11
 

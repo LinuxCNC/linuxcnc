@@ -18,7 +18,7 @@
 //
 
 
-#define HM2_5I20_VERSION "0.3"
+#define HM2_5I20_VERSION "0.4"
 
 #define HM2_LLIO_NAME "hm2_5i20"
 

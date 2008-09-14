@@ -4,6 +4,8 @@
 #
 # it is configured with environment variables:
 #
+#     HM2_DRIVER is driver to try to load ie "hm2_7i43" or "hm2_5i20"
+#
 #     HM2_BOARD is board type, ie "7i43" or "5i20"
 #
 #     HM2_CONFIG is the hostmot2 config string to use (see the hostmot2(9)
@@ -24,7 +26,7 @@ loadrt hostmot2 debug_idrom=1 debug_module_descriptors=1 debug_pin_descriptors=1
 # load the low-level driver for the board
 # this will load the board's firmware and register it with the hostmot2
 # driver loaded above, and it'll show up in HAL
-loadrt hm2_$(HM2_BOARD) config="$(HM2_CONFIG)"
+loadrt $(HM2_DRIVER) config="$(HM2_CONFIG)"
 
 
 
