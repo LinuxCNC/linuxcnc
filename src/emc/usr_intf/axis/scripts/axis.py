@@ -2012,6 +2012,9 @@ def activate_axis(i, force=0):
 def set_first_line(lineno):
     global program_start_line
     program_start_line = lineno
+    t.tag_remove("ignored", "0.0", "end")
+    if lineno > 0:
+        t.tag_add("ignored", "0.0", "%d.end" % (lineno-1))
 
 def parse_increment(jogincr):
     if jogincr.endswith("mm"):
@@ -2640,6 +2643,7 @@ class TclCommands(nf.TclCommands):
         ensure_mode(emc.MODE_AUTO)
         c.auto(emc.AUTO_RUN, program_start_line)
         program_start_line = 0
+        t.tag_remove("ignored", "0.0", "end")
         o.set_highlight_line(None)
 
     def task_step(*event):
@@ -3633,6 +3637,7 @@ def rClicker(e):
 t = widgets.text
 t.bind("<Configure>", set_tabs)
 t.bind('<Button-3>', rClicker) #allow right-click to select start from line
+t.tag_configure("ignored", background="#ffffff", foreground="#808080")
 t.tag_configure("lineno", foreground="#808080")
 t.tag_configure("executing", background="#804040", foreground="#ffffff")
 if args:
