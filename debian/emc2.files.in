@@ -80,6 +80,7 @@ usr/bin/rs274
 @MODULE_PATH@/not@MODULE_EXT@
 @MODULE_PATH@/offset@MODULE_EXT@
 @MODULE_PATH@/oneshot@MODULE_EXT@
+@MODULE_PATH@/opto_ac5@MODULE_EXT@
 @MODULE_PATH@/or2@MODULE_EXT@
 @MODULE_PATH@/pid@MODULE_EXT@
 @MODULE_PATH@/pumakins@MODULE_EXT@
@@ -712,12 +713,15 @@ usr/share/locale/de/LC_MESSAGES/rs274_err.mo
 usr/share/locale/hu/LC_MESSAGES/axis.mo
 usr/share/locale/it/LC_MESSAGES/axis.mo
 usr/share/locale/it/LC_MESSAGES/rs274_err.mo
+usr/share/locale/pl/LC_MESSAGES/axis.mo
 usr/share/locale/pt_BR/LC_MESSAGES/axis.mo
 usr/share/locale/ro/LC_MESSAGES/axis.mo
 usr/share/locale/ru/LC_MESSAGES/axis.mo
 usr/share/locale/se/LC_MESSAGES/axis.mo
 usr/share/locale/sr/LC_MESSAGES/axis.mo
 usr/share/locale/zh_CN/LC_MESSAGES/axis.mo
+usr/share/doc/emc2/EMC2_Getting_Started.pdf
+usr/share/doc/emc2/EMC2_Getting_Started_fr.pdf
 usr/share/doc/emc2/EMC2_User_Manual.pdf
 usr/share/doc/emc2/EMC2_User_Manual_fr.pdf
 usr/share/doc/emc2/EMC2_Integrator_Manual.pdf
