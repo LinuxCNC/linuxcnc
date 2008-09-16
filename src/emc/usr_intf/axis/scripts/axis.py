@@ -1584,7 +1584,6 @@ def ensure_mode(m, *p):
     s.poll()
     if s.task_mode == m or s.task_mode in p: return True
     if running(do_poll=False): return False
-    c.wait_complete()
     c.mode(m)
     c.wait_complete()
     return True
@@ -1848,6 +1847,7 @@ def open_file_guts(f, filtered = False):
         # causes a var file write, but nukes important settings like
         # TLO.
         ensure_mode(emc.MODE_MDI)
+        c.wait_complete()
         ensure_mode(emc.MODE_AUTO)
         c.wait_complete()
         c.program_open(f)
@@ -2327,6 +2327,7 @@ class TclCommands(nf.TclCommands):
         c.set_optional_stop(vars.optional_stop.get())
     def toggle_block_delete(event=None):
         c.set_block_delete(vars.block_delete.get())
+        c.wait_complete()
         ensure_mode(emc.MODE_MANUAL)
         s.poll()
         o.tkRedraw()
@@ -2943,6 +2944,7 @@ class TclCommands(nf.TclCommands):
             for i, a in enumerate("XYZABCUVW"):
                 if s.axis_mask & (1<<i): clear_command += " %c0" % a
         c.mdi(clear_command)
+        c.wait_complete()
         ensure_mode(emc.MODE_MANUAL)
         s.poll()
         o.tkRedraw()
@@ -2977,6 +2979,7 @@ class TclCommands(nf.TclCommands):
 
         offset_command = "G10 L2 %s %c[%.12f-[%f*[%s]]]\n" % (system.split()[0], vars.current_axis.get(), p0, scale, new_axis_value)
         c.mdi(offset_command)
+        c.wait_complete()
         ensure_mode(emc.MODE_MANUAL)
         s.poll()
         o.tkRedraw()
