@@ -380,6 +380,22 @@ static int hm2_read_idrom(hostmot2_t *hm2) {
         return -EINVAL;
     }
 
+    if (hm2->idrom.clock_low < 1e6) {
+        ERR(
+            "IDROM ClockLow is %d, that's too low, aborting driver load\n",
+            hm2->idrom.clock_low
+        );
+        return -EINVAL;
+    }
+
+    if (hm2->idrom.clock_high < 1e6) {
+        ERR(
+            "IDROM ClockHigh is %d, that's too low, aborting driver load\n",
+            hm2->idrom.clock_low
+        );
+        return -EINVAL;
+    }
+
     if (debug_idrom) {
         hm2_print_idrom(RTAPI_MSG_INFO, hm2);
     }
