@@ -303,6 +303,18 @@ preview false
 
 \layout Part
 
+Special Drivers
+\layout Standard
+
+
+\begin_inset Include \include{hal/opto22.lyx}
+preview false
+
+\end_inset 
+
+
+\layout Part
+
 Advanced topics
 \layout Standard
 
