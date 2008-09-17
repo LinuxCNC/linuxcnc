@@ -8689,6 +8689,54 @@ F200
 O102 endif
 \layout Section
 
+Repete
+\begin_inset LatexCommand \index{Repete}
+
+\end_inset 
+
+
+\layout Standard
+
+The 
+\begin_inset Quotes eld
+\end_inset 
+
+repeat
+\begin_inset Quotes erd
+\end_inset 
+
+ will execute the statements inside of the repete/endrepeat the specificed
+ number of times.
+ The example shows how you might mill a diagonal series of shapes starting
+ at the present position.
+\layout LyX-Code
+
+(Mill 5 diagonal shapes)
+\layout LyX-Code
+
+G91 (Incremental mode)
+\layout LyX-Code
+
+O103 repeat [5]
+\layout LyX-Code
+
+...
+ (insert milling code here)
+\layout LyX-Code
+
+G0 X1 Y1 (diagonal move to next position)
+\layout LyX-Code
+
+O103 endrepeat
+\layout LyX-Code
+
+G90 (Absolute mode)
+\layout LyX-Code
+
+\layout LyX-Code
+
+\layout Section
+
 Indirection
 \begin_inset LatexCommand \index{Indirection}
 
