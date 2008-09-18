@@ -1727,32 +1727,6 @@ class EMC_SPINDLE_OFF:public EMC_SPINDLE_CMD_MSG {
     void update(CMS * cms);
 };
 
-class EMC_SPINDLE_FORWARD:public EMC_SPINDLE_CMD_MSG {
-  public:
-    EMC_SPINDLE_FORWARD():EMC_SPINDLE_CMD_MSG(EMC_SPINDLE_FORWARD_TYPE,
-					      sizeof(EMC_SPINDLE_FORWARD))
-    {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-
-    double speed;		// commanded speed in RPMs
-};
-
-class EMC_SPINDLE_REVERSE:public EMC_SPINDLE_CMD_MSG {
-  public:
-    EMC_SPINDLE_REVERSE():EMC_SPINDLE_CMD_MSG(EMC_SPINDLE_REVERSE_TYPE,
-					      sizeof(EMC_SPINDLE_REVERSE))
-    {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-
-    double speed;		// commanded speed in RPMs
-};
-
 class EMC_SPINDLE_STOP:public EMC_SPINDLE_CMD_MSG {
   public:
     EMC_SPINDLE_STOP():EMC_SPINDLE_CMD_MSG(EMC_SPINDLE_STOP_TYPE,

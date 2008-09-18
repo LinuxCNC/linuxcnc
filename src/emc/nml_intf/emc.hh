@@ -209,8 +209,8 @@ class PM_CARTESIAN;
 /* removed #define EMC_SPINDLE_ABORT_TYPE                       ((NMLTYPE) 1303) */
 #define EMC_SPINDLE_ON_TYPE                          ((NMLTYPE) 1304)
 #define EMC_SPINDLE_OFF_TYPE                         ((NMLTYPE) 1305)
-#define EMC_SPINDLE_FORWARD_TYPE                     ((NMLTYPE) 1306)
-#define EMC_SPINDLE_REVERSE_TYPE                     ((NMLTYPE) 1307)
+/* removed #define EMC_SPINDLE_FORWARD_TYPE                     ((NMLTYPE) 1306) */
+/* removed #define EMC_SPINDLE_REVERSE_TYPE                     ((NMLTYPE) 1307) */
 #define EMC_SPINDLE_STOP_TYPE                        ((NMLTYPE) 1308)
 #define EMC_SPINDLE_INCREASE_TYPE                    ((NMLTYPE) 1309)
 #define EMC_SPINDLE_DECREASE_TYPE                    ((NMLTYPE) 1310)
