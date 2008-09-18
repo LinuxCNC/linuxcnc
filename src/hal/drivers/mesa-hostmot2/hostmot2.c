@@ -391,7 +391,7 @@ static int hm2_read_idrom(hostmot2_t *hm2) {
     if (hm2->idrom.clock_high < 1e6) {
         ERR(
             "IDROM ClockHigh is %d, that's too low, aborting driver load\n",
-            hm2->idrom.clock_low
+            hm2->idrom.clock_high
         );
         return -EINVAL;
     }

@@ -2,6 +2,9 @@
 
 next steps:
 
+    document raw.dump_state
+
+
     stepgen overshoots with high maxaccel
 
         cleanup
