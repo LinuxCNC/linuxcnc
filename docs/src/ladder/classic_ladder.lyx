@@ -35,6 +35,11 @@
 \layout Chapter
 
 Classic Ladder
+\layout Standard
+
+This chapter is under construction at the moment.
+ If you happen to view it the rest is on the way...
+ Sept 18 2008.
 \layout Section
 
 Introduction
@@ -165,12 +170,12 @@ collapsed false
 
 Default Variable Count
 \layout Standard
-
+\align center 
 
 \begin_inset  Tabular
 <lyxtabular version="3" rows="14" columns="3">
 <features>
-<column alignment="center" valignment="top" leftline="true" width="0">
+<column alignment="left" valignment="top" leftline="true" width="0">
 <column alignment="center" valignment="top" leftline="true" width="0">
 <column alignment="center" valignment="top" leftline="true" rightline="true" width="0">
 <row topline="true" bottomline="true">
@@ -547,9 +552,6 @@ Number of S32 outputs
 
 \layout Standard
 
-Table: ClassicLadder realtime component options
-\layout Standard
-
 If you do not configure the number of ladder objects classicladder will
  use the default values.
  Objects of most interest are numPhysInputs, numPhysOutputs, numS32in, and
@@ -564,19 +566,34 @@ Changing these numbers will change the number of HAL bit pins available.
 \layout Standard
 
 For example (you don't need all of these to change just a few):
-\layout Standard
+\layout LyX-Code
 
 loadrt classicladder_rt numRungs=12 numBits=100 numWords=10 numTimers=10
  numMonostables=10 numCounters=10 numPhysInputs=10 numPhysOutputs=10 numArithmEx
 pr=100 numSections=4 numSymbols=200 numS32in=5 numS32out=5
 \layout Standard
 
-to load the default number of objects: loadrt classicladder_rt
+To load the default number of objects: 
+\layout LyX-Code
+
+loadrt classicladder_rt
+\layout Standard
+
+
+\begin_inset Note
+collapsed false
+
+\layout Standard
+
+see if this belongs in a different place like specs or something...
+\end_inset 
+
+
 \layout Standard
 
 The speed of the thread that classicladder is running in directly effects
  the responsiveness to inputs and outputs.
- If you can turn a switch on and off faster then classicladder can notice
+ If you can turn a switch on and off faster than classicladder can notice
  it then you may need to speed up the thread.
  The fastest that Classicladder can refresh the rungs is one microsecond.
  You can put it in a faster thread but it will not update any faster.
@@ -590,48 +607,82 @@ Loading the ClassicLadder user module
 \layout Standard
 
 There are options while loading the user module:
-\layout Standard
+\layout LyX-Code
 
 * --nogui 
 \backslash 
-menuseparator starts classicladder (while loading a ladder program if specified)
- with no GUI.
- * --modbus_port=port 
-\backslash 
-menuseparator sets up the modbus port number for modbus server over ethernet.
- * --config=file 
-\backslash 
-menuseparator sets up the classicladder for modbus master over serial or
- ethernet.
+menuseparator 
 \layout Standard
 
-The other thing you can do while loading the user module is specify a ladder
- program to load.
- ladder programs are specified by the .clp ending.
+Starts classicladder (while loading a ladder program if specified) with
+ no GUI.
+ 
+\layout LyX-Code
+
+* --modbus_port=port 
+\backslash 
+menuseparator 
 \layout Standard
 
-for examples:
+Sets up the modbus port number for modbus server over ethernet.
+ 
+\layout LyX-Code
+
+* --config=file 
+\backslash 
+menuseparator 
 \layout Standard
+
+Sets up the classicladder for modbus master over serial or ethernet.
+\layout LyX-Code
 
 * loadusr -w classicladder --nogui myladder.clp
 \layout Standard
 
-loads the classicladder user module, ladder program myladder and displays
+Specify a ladder program to load.
+ Ladder programs are specified by the .clp ending.
+\layout Standard
+
+For example:
+\layout LyX-Code
+
+* loadusr -w classicladder myladder.clp
+\layout Standard
+
+Loads the classicladder user module, ladder program myladder and displays
  nothing.
- * loadusr -w classicladder myladder.clp
+ 
+\layout LyX-Code
+
+* loadusr -w classicladder
 \layout Standard
 
-loads the classicladder user module, ladder program myladder and starts
+Loads the classicladder user module, ladder program myladder and starts
  the classicladder GUI.
- * loadusr -w classicladder
+ 
+\layout LyX-Code
+
+* loadusr -w classicladder config=mymodbus myladder.clp
 \layout Standard
 
-loads the classicladder user module, starts the GUI but loads no new laddder
+Loads the classicladder user module, starts the GUI but loads no new laddder
  program, an existing program (if present) will be displayed.
- * loadusr -w classicladder config=mymodbus myladder.clp
+ 
 \layout Standard
 
-loads the classicladder user module, loads and initalize modbus master config
+
+\begin_inset Note
+collapsed false
+
+\layout Standard
+
+where is the code?
+\end_inset 
+
+
+\layout Standard
+
+Loads the classicladder user module, loads and initalize modbus master config
  mymodbus, loads ladder program myladder then starts the classicladder GUI
  and modbus master.
 \layout Standard
@@ -653,7 +704,7 @@ The Section Display window
 Most of the buttons are self explanitory:
 \layout Standard
 
-the vars button is for looking at variables, toggle it to display one, the
+The vars button is for looking at variables, toggle it to display one, the
  other, both, then none of the windows.
 \layout Standard
 
@@ -691,7 +742,16 @@ You might notice that there is a line under the ladder program display that
  
 \layout Standard
 
+
+\begin_inset Note
+collapsed false
+
+\layout Standard
+
 Figure: ClassicLadder Section Display window 1.4.2 The Section Manager window
+\end_inset 
+
+
 \layout Standard
 
 This window allows you to name, create or delete sections and choose what
@@ -699,7 +759,16 @@ This window allows you to name, create or delete sections and choose what
  This is also how you name a subroutine for call coils.
 \layout Standard
 
+
+\begin_inset Note
+collapsed false
+
+\layout Standard
+
 Figure: ClassicLadder Section Manager window
+\end_inset 
+
+
 \layout Subsection
 
 The Variable Windows
@@ -892,11 +961,20 @@ IEC TIMERS
 
 Represent new count down timers! - Timers have 2 contacts.
  I-for input Q- output There are three modes - TON, TOF, TP.
- TON : when timer input is held true, sets output true after countdown is
- done and as long as timer input is still true.
- TOF : when timer input is held true, sets output true till the input is
- false then the timer counts down and sets output false.
- TP : when timer input is pulsed true or held true timer sets output true
+\layout Standard
+
+TON : When timer input is true countdown begins and continues as long as
+ input remains true.
+ After countdown is done and as long as timer input is still true the output
+ will be true.
+ 
+\layout Standard
+
+TOF : When timer input is true, sets output true.
+ When the input is false the timer counts down then sets output false.
+\layout Standard
+
+TP : When timer input is pulsed true or held true timer sets output true
  till timer counts down.
  (one-shot) The time intervals can be set in multiples of 100ms, seconds,
  or minutes.
