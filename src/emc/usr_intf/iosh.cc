@@ -657,10 +657,6 @@ static int emc_io_get_command(ClientData clientdata,
 	Tcl_SetResult(interp, "emc_coolant_flood_off", TCL_VOLATILE);
 	break;
 
-    case EMC_AUX_ABORT_TYPE:
-	Tcl_SetResult(interp, "emc_aux_abort", TCL_VOLATILE);
-	break;
-
     case EMC_AUX_ESTOP_ON_TYPE:
 	Tcl_SetResult(interp, "emc_aux_estop_on", TCL_VOLATILE);
 	break;
