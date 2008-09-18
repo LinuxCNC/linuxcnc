@@ -8689,8 +8689,8 @@ F200
 O102 endif
 \layout Section
 
-Repete
-\begin_inset LatexCommand \index{Repete}
+Repeat
+\begin_inset LatexCommand \index{Repeat}
 
 \end_inset 
 
@@ -8705,7 +8705,7 @@ repeat
 \begin_inset Quotes erd
 \end_inset 
 
- will execute the statements inside of the repete/endrepeat the specificed
+ will execute the statements inside of the repeat/endrepeat the specificed
  number of times.
  The example shows how you might mill a diagonal series of shapes starting
  at the present position.
