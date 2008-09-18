@@ -1545,15 +1545,6 @@ class EMC_AUX_CMD_MSG:public RCS_CMD_MSG {
     void update(CMS * cms);
 };
 
-class EMC_AUX_INIT:public EMC_AUX_CMD_MSG {
-  public:
-    EMC_AUX_INIT():EMC_AUX_CMD_MSG(EMC_AUX_INIT_TYPE, sizeof(EMC_AUX_INIT)) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-};
-
 class EMC_AUX_HALT:public EMC_AUX_CMD_MSG {
   public:
     EMC_AUX_HALT():EMC_AUX_CMD_MSG(EMC_AUX_HALT_TYPE, sizeof(EMC_AUX_HALT)) {

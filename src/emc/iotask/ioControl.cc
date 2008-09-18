@@ -950,13 +950,6 @@ int main(int argc, char *argv[])
 	    *(iocontrol_data->coolant_flood) = 0;
 	    break;
 
-	case EMC_AUX_INIT_TYPE:
-	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_AUX_INIT\n");
-	    hal_init_pins(); //init default (safe) pin values
-	    emcioStatus.aux.estop = 1;	// this should get modified by the loopback
-	    *(iocontrol_data->user_enable_out) = 0; //don't enable on AUX_INIT
-	    break;
-
 	case EMC_AUX_HALT_TYPE:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_AUX_HALT\n");
 	    emcioStatus.aux.estop = 1;  // this should get modified by the loopback

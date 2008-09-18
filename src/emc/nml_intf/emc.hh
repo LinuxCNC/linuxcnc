@@ -190,7 +190,7 @@ class PM_CARTESIAN;
 
 // EMC_AUX type declarations
 
-#define EMC_AUX_INIT_TYPE                             ((NMLTYPE) 1201)
+/* removed #define EMC_AUX_INIT_TYPE                             ((NMLTYPE) 1201) */
 #define EMC_AUX_HALT_TYPE                             ((NMLTYPE) 1202)
 #define EMC_AUX_ABORT_TYPE                            ((NMLTYPE) 1203)
 #define EMC_AUX_DIO_WRITE_TYPE                        ((NMLTYPE) 1204)
