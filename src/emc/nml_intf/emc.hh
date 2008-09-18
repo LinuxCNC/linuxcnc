@@ -205,7 +205,7 @@ class PM_CARTESIAN;
 // EMC_SPINDLE type declarations
 
 /* removed #define EMC_SPINDLE_INIT_TYPE                        ((NMLTYPE) 1301) */
-#define EMC_SPINDLE_HALT_TYPE                        ((NMLTYPE) 1302)
+/* removed #define EMC_SPINDLE_HALT_TYPE                        ((NMLTYPE) 1302) */
 #define EMC_SPINDLE_ABORT_TYPE                       ((NMLTYPE) 1303)
 #define EMC_SPINDLE_ON_TYPE                          ((NMLTYPE) 1304)
 #define EMC_SPINDLE_OFF_TYPE                         ((NMLTYPE) 1305)
