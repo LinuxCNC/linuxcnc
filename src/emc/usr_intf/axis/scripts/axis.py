@@ -3472,9 +3472,13 @@ root_window.tk.call("setup_menu_accel", widgets.unhomemenu, "end", _("Unhome All
 
 s = emc.stat();
 s.poll()
+statfail=0
 while s.axes == 0:
     print "waiting for s.axes"
     time.sleep(.01)
+    statfail+=1
+    if statfail > 500:
+        raise SystemExit, "Invalid configuration of axes is preventing EMC from starting"
     s.poll()
 
 live_axis_count = 0
@@ -3600,7 +3604,6 @@ def get_coordinate_font(large):
         font_cache[coordinate_font] = fontbase = int(o.tk.call(o._w, "loadbitmapfont", coordinate_font))
     else:
         fontbase = font_cache[coordinate_font]
-    print "now using fontbase", fontbase
 
 notifications = Notification(o)
 
