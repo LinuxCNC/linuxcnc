@@ -1545,19 +1545,6 @@ class EMC_AUX_CMD_MSG:public RCS_CMD_MSG {
     void update(CMS * cms);
 };
 
-class EMC_AUX_DIO_WRITE:public EMC_AUX_CMD_MSG {
-  public:
-    EMC_AUX_DIO_WRITE():EMC_AUX_CMD_MSG(EMC_AUX_DIO_WRITE_TYPE,
-					sizeof(EMC_AUX_DIO_WRITE)) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-
-    int index;
-    int value;
-};
-
 class EMC_AUX_AIO_WRITE:public EMC_AUX_CMD_MSG {
   public:
     EMC_AUX_AIO_WRITE():EMC_AUX_CMD_MSG(EMC_AUX_AIO_WRITE_TYPE,

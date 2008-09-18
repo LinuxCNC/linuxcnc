@@ -2664,13 +2664,6 @@ void CLEAR_MOTION_OUTPUT_BIT(int index)
 */
 void SET_AUX_OUTPUT_BIT(int index)
 {
-/* we're gonna use the EMC_MOTION_SET_DOUT for now
-  EMC_AUX_DIO_WRITE dio_msg;
-
-  dio_msg.index = index;
-  dio_msg.value = 1;
-
-  interp_list.append(dio_msg); */
 
   EMC_MOTION_SET_DOUT dout_msg;
 
@@ -2697,13 +2690,6 @@ void SET_AUX_OUTPUT_BIT(int index)
 */
 void CLEAR_AUX_OUTPUT_BIT(int index)
 {
-/* we're gonna use the EMC_MOTION_SET_DOUT for now
-  EMC_AUX_DIO_WRITE dio_msg;
-
-  dio_msg.index = index;
-  dio_msg.value = 0;
-
-  interp_list.append(dio_msg);*/
   EMC_MOTION_SET_DOUT dout_msg;
 
   flush_segments();
