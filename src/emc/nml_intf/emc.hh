@@ -218,7 +218,7 @@ class PM_CARTESIAN;
 #define EMC_SPINDLE_BRAKE_RELEASE_TYPE               ((NMLTYPE) 1312)
 #define EMC_SPINDLE_BRAKE_ENGAGE_TYPE                ((NMLTYPE) 1313)
 /* removed #define EMC_SPINDLE_ENABLE_TYPE                      ((NMLTYPE) 1314) */
-#define EMC_SPINDLE_DISABLE_TYPE                     ((NMLTYPE) 1315)
+/* removed #define EMC_SPINDLE_DISABLE_TYPE                     ((NMLTYPE) 1315) */
 #define EMC_SPINDLE_SPEED_TYPE                       ((NMLTYPE) 1316)
 
 #define EMC_SPINDLE_STAT_TYPE                        ((NMLTYPE) 1399)
