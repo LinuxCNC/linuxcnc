@@ -1689,16 +1689,6 @@ class EMC_SPINDLE_CMD_MSG:public RCS_CMD_MSG {
     void update(CMS * cms);
 };
 
-class EMC_SPINDLE_ABORT:public EMC_SPINDLE_CMD_MSG {
-  public:
-    EMC_SPINDLE_ABORT():EMC_SPINDLE_CMD_MSG(EMC_SPINDLE_ABORT_TYPE,
-					    sizeof(EMC_SPINDLE_ABORT)) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-};
-
 class EMC_SPINDLE_SPEED:public EMC_SPINDLE_CMD_MSG {
   public:
     EMC_SPINDLE_SPEED():EMC_SPINDLE_CMD_MSG(EMC_SPINDLE_SPEED_TYPE,

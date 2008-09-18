@@ -611,10 +611,6 @@ static int emc_io_get_command(ClientData clientdata,
 	Tcl_SetResult(interp, "emc_tool_unload", TCL_VOLATILE);
 	break;
 /* FIXME: uncomment for now, bring back later
-    case EMC_SPINDLE_ABORT_TYPE:
-	Tcl_SetResult(interp, "emc_spindle_abort", TCL_VOLATILE);
-	break;
-
     case EMC_SPINDLE_ON_TYPE:
 	sprintf(string, "emc_spindle_on %f",
 		((EMC_SPINDLE_ON *) emcioCommand)->speed);
