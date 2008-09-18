@@ -1984,38 +1984,45 @@ bind . <Control-Tab> {
     break
 }
 
-# any key that causes an entry action should not continue to perform a
-# binding on "."
-foreach b [bind Entry] {
-    switch -glob $b {
-        <Shift-Key-*> - <Control-Key-*> -
-        <Meta-Key-*> - <Alt-Key-*> {
-            bind Entry $b {+if {[%W cget -state] == "normal"} break}
-        }
+# any key that causes an entry or spinbox action should not continue to perform
+# a binding on "."
+foreach c {Entry Spinbox} {
+        foreach b [bind $c] {
+            switch -glob $b {
+                <Shift-Key-*> - <Control-Key-*> -
+                <Meta-Key-*> - <Alt-Key-*> {
+                    bind $c $b {+if {[%W cget -state] == "normal"} break}
+                }
+            }
     }
-}
-foreach b { Left Right
-        Up Down Prior Next Home
-        Left Right Up Down 
-        Prior Next Home 
-        End } {
-    bind Entry <KeyPress-$b> {+if {[%W cget -state] == "normal"} break}
-    bind Entry <KeyRelease-$b> {+if {[%W cget -state] == "normal"} break}
-}
-bind Entry <Control-KeyPress-Home> {+if {[%W cget -state] == "normal"} break}
-bind Entry <Control-KeyRelease-Home> {+if {[%W cget -state] == "normal"} break}
-bind Entry <Control-KeyPress-KP_Home> {+if {[%W cget -state] == "normal"} break}
-bind Entry <Control-KeyRelease-KP_Home> {+if {[%W cget -state] == "normal"} break}
-set bb [bind Entry <KeyPress>]
-foreach k { Left Right Up Down Prior Next
-            Home End } {
-    set b [bind Entry <$k>]
-    if {$b == {}} { set b $bb }
-    bind Entry <KeyPress-KP_$k> "if {%A == \"\"} { $b } { $bb; break }"
-    bind Entry <KeyRelease-KP_$k> {+if {[%W cget -state] == "normal"} break}
-}
 
-bind Entry <Key> {+if {[%W cget -state] == "normal" && [string length %A]} break}
+    foreach b { Left Right
+            Up Down Prior Next Home
+            Left Right Up Down 
+            Prior Next Home 
+            End } {
+        bind $c <KeyPress-$b> {+if {[%W cget -state] == "normal"} break}
+        bind $c <KeyRelease-$b> {+if {[%W cget -state] == "normal"} break}
+    }
+    bind $c <Control-KeyPress-Home> {+if {[%W cget -state] == "normal"} break}
+    bind $c <Control-KeyRelease-Home> {+if {[%W cget -state] == "normal"} \
+                                                                        break}
+    bind $c <Control-KeyPress-KP_Home> {+if {[%W cget -state] == "normal"} \
+                                                                        break}
+    bind $c <Control-KeyRelease-KP_Home> {+if {[%W cget -state] == "normal"} \
+                                                                        break}
+    set bb [bind $c <KeyPress>]
+    foreach k { Left Right Up Down Prior Next
+                Home End } {
+        set b [bind $c <$k>]
+        if {$b == {}} { set b $bb }
+        bind $c <KeyPress-KP_$k> "if {%A == \"\"} { $b } { $bb; break }"
+        bind $c <KeyRelease-KP_$k> {+if {[%W cget -state] == "normal"} break}
+    }
+
+    bind $c <Key> {+if {[%W cget -state] == "normal" && [string length %A]} \
+                                                                        break}
+}
 
 proc is_continuous {} {
     expr {"[$::_tabs_manual.jogf.jog.jogincr get]" == [_ "Continuous"]}
@@ -2154,6 +2161,8 @@ bind . <Configure> { if {"%W" == "."} {
 
 bind . <Alt-v> [bind all <Alt-Key>]
 bind . <Alt-v> {+break}
+
+bind . <Key-Return> {focus .}
 
 wm withdraw .about
 wm withdraw .keys

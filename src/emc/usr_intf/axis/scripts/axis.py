@@ -2717,7 +2717,7 @@ class TclCommands(nf.TclCommands):
             widgets.mdi_command.selection_range(0, "end")
 
     def send_mdi(*event):
-        if not manual_ok(): return
+        if not manual_ok(): return "break"
         global mdi_history_index, mdi_history_save_filename
         command = vars.mdi_command.get()
         if command != "":
@@ -2749,6 +2749,7 @@ class TclCommands(nf.TclCommands):
             c.mdi(command)
             o.tkRedraw()
             commands.mdi_history_write_to_file(mdi_history_save_filename, history_size)
+        return "break"
 
     # write out mdi history file (history_size equal to -1 will delete history)
     def mdi_history_write_to_file(file_name, history_size):
