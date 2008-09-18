@@ -611,10 +611,6 @@ static int emc_io_get_command(ClientData clientdata,
 	Tcl_SetResult(interp, "emc_tool_unload", TCL_VOLATILE);
 	break;
 /* FIXME: uncomment for now, bring back later
-    case EMC_SPINDLE_INIT_TYPE:
-	Tcl_SetResult(interp, "emc_spindle_init", TCL_VOLATILE);
-	break;
-
     case EMC_SPINDLE_HALT_TYPE:
 	Tcl_SetResult(interp, "emc_spindle_halt", TCL_VOLATILE);
 	break;
