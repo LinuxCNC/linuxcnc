@@ -950,12 +950,6 @@ int main(int argc, char *argv[])
 	    *(iocontrol_data->coolant_flood) = 0;
 	    break;
 
-	case EMC_AUX_HALT_TYPE:
-	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_AUX_HALT\n");
-	    emcioStatus.aux.estop = 1;  // this should get modified by the loopback
-	    *(iocontrol_data->user_enable_out) = 0; //disable on AUX_HALT
-	    break;
-
 	case EMC_AUX_ABORT_TYPE:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_AUX_ABORT\n");
 	    emcioStatus.aux.estop = 1;  // this should get modified by the loopback
