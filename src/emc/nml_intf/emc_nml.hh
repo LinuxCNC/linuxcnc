@@ -1787,16 +1787,6 @@ class EMC_SPINDLE_BRAKE_ENGAGE:public EMC_SPINDLE_CMD_MSG {
     void update(CMS * cms);
 };
 
-class EMC_SPINDLE_ENABLE:public EMC_SPINDLE_CMD_MSG {
-  public:
-    EMC_SPINDLE_ENABLE():EMC_SPINDLE_CMD_MSG(EMC_SPINDLE_ENABLE_TYPE,
-					     sizeof(EMC_SPINDLE_ENABLE)) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-};
-
 class EMC_SPINDLE_DISABLE:public EMC_SPINDLE_CMD_MSG {
   public:
     EMC_SPINDLE_DISABLE():EMC_SPINDLE_CMD_MSG(EMC_SPINDLE_DISABLE_TYPE,
