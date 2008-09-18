@@ -621,10 +621,6 @@ static int emc_io_get_command(ClientData clientdata,
 	Tcl_SetResult(interp, "emc_spindle_off", TCL_VOLATILE);
 	break;
 
-    case EMC_SPINDLE_STOP_TYPE:
-	Tcl_SetResult(interp, "emc_spindle_stop", TCL_VOLATILE);
-	break;
-
     case EMC_SPINDLE_INCREASE_TYPE:
 	Tcl_SetResult(interp, "emc_spindle_increase", TCL_VOLATILE);
 	break;
