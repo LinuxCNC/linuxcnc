@@ -255,12 +255,15 @@ class LyxTreeMaker:
             self.push('preamble', data=tokens[0])
         else:
             self.push('preamble', data=str(tokens))
-	self.parser.start_verbatim("\\end_preamble")
+        self.parser.start_verbatim("\\end_preamble")
 
     def handle_special_char(self, ch):
 	if ch == '\\-': ch = u'-'
-	if ch == '\\ldots{}': ch = u'\N{horizontal ellipsis}'
+	elif ch == '\\menuseparator': ch = u'\N{white right-pointing triangle}'
+	elif ch == '\\ldots{}': ch = u'\N{horizontal ellipsis}'
 	elif ch == '~': ch = u'\N{no-break space}'
+        else:
+            print >>sys.stderr, "unknown special char", repr(ch)
 	self.text(ch)
 
     def do_SpecialChar(self, tokens):
