@@ -7655,6 +7655,7 @@ In units per revolution mode, an F word is interpreted to mean the controlled
  point should move a certain number of inches per revolution of the spindle,
  depending on what length units are being used and which axis or axes are
  moving.
+ G95 is not suitable for threading, for threading use G33 or G76.
 \layout Standard
 
 In inverse time feed rate mode, an F word means the move should be completed
