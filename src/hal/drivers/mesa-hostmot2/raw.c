@@ -84,7 +84,7 @@ int hm2_raw_setup(hostmot2_t *hm2) {
     }
 
     rtapi_snprintf(name, HAL_NAME_LEN, "%s.raw.dump_state", hm2->llio->name);
-    r = hal_pin_bit_new(name, HAL_IN, &(hm2->raw->hal.pin.dump_state), hm2->llio->comp_id);
+    r = hal_pin_bit_new(name, HAL_IO, &(hm2->raw->hal.pin.dump_state), hm2->llio->comp_id);
     if (r != HAL_SUCCESS) {
         ERR("error adding pin '%s', aborting\n", name);
         return -EINVAL;

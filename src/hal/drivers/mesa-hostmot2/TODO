@@ -2,8 +2,6 @@
 
 next steps:
 
-    document raw.dump_state
-
 
     stepgen overshoots with high maxaccel
 
@@ -17,9 +15,6 @@ next steps:
     include .PIN files as docs
 
         JMK suggested auto-generating man pages from the PIN files...
-
-
-    cradek wants encoder index support (i mailed pcw)
 
 
     better sample configs, maybe move my test scripts there, document better
@@ -184,11 +179,13 @@ encoders:
 
         fancy velocity computation
 
+        index mask support
+
         pins:
 
             velocity
 
-            optional: a, b, index (available in the control register, which is not currently getting read)
+            optional: a, b, index (available in the control register, which is getting read via fake-TRAM each cycle)
 
         parameters:
 
@@ -226,12 +223,11 @@ stepgen:
     to 1600 revs causes chaos, it runs in the wrong direction, some
     overflow bug not handled there...
 
-    moving and then changing .scale from 1600 to 800 causes it to spin...
-    and at 800 it doesnt track the follow-the-leader net properly
+    test different steps-pre-rev on different stepgen instances
 
     support other stepping modes
 
-    support velocity control
+    support velocity control?
 
     support smaller stepgens - most dont need 6 pins...
 
@@ -257,6 +253,15 @@ watchdog:
 5i20:
 
     turn hm2_5i20 driver into a generic PCI driver: hm2_anyio_pci
+
+
+
+
+how to configure the firmware?
+
+    Currently the llios take a "config" modparam (one for each board),
+    which they pass to hm2_register().  hm2_register() does a bunch of
+    gross string parsing...
 
 
 

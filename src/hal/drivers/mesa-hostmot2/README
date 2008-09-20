@@ -78,8 +78,9 @@ Architecture:
 
             initialize an hm2_lowlevel_io_t (llio)
 
-            pass it to the hm2_register() function (in the hostmot2
-            driver), which does this:
+            pass the llio and the board's config string to the
+            hm2_register() function (in the hostmot2 driver), which
+            does this:
 
                 allocate a hostmot2_t struct to hold this running instance
                 of the hostmot2 firmare, add the hm2_lowlevel_io_t to it

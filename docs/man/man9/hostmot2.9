@@ -141,8 +141,8 @@ set to 0.  (Like CDI.)
 
 (bit in/out) index-enable: When this pin is set to True, the count and
 position are reset to zero on the next Index (Phase-Z) pulse.  At the
-same time, index-enable is reset to zero to indicate that the rising
-edge has occurred.  (Like CDI.)
+same time, index-enable is reset to zero to indicate that the pulse
+has occurred.  (Like CDI.)
 
 Parameters:
 
@@ -151,13 +151,13 @@ Parameters:
 
 (bit r/w) index_invert: If set to True, the rising edge of the Index
 input pin triggers the Index event (if index-enable is True).  If set
-to False, the falling edge triggers.  FIXME: I think.
+to False, the falling edge triggers.
 
 (bit r/w) index_mask: ?? 
 
 (bit r/w) index_mask_invert: ?? 
 
-(bit r/w) counter_mode: Set to False (the default) for quadrature.
+(bit r/w) counter_mode: Set to False (the default) for Quadrature.
 Set to True for Up/Down.
 
 (bit r/w) filter: If set to True (the default), the quadrature counter
@@ -343,8 +343,10 @@ pet_watchdog(): Calling this function resets the watchdog timer and
 postpones the watchdog biting until timeout_ns nanoseconds later.
 .SH Raw Mode
 
-If the "enable_raw" config keyword is specified, Raw mode is enabled.
-Raw mode lets a user peek and poke the firmware from HAL.
+If the "enable_raw" config keyword is specified, some extra debugging
+options are made available to HAL.  With Raw mode enabled, a user may
+peek and poke the firmware from HAL, and may dump the internal state of
+the hostmot2 driver to the syslog.
 
 Pins:
 
@@ -362,6 +364,10 @@ to write to.
 (bit in) write_strobe: Each time the hm2_write() function is called, this
 pin is examined.  If it is True, then value in .write_data is written
 to the address in .write_address, and .write_strobe is set back to False.
+
+(bit in/out) dump_state: This pin is normally False.  If it gets set to
+True the hostmot2 driver will write its representation of the board's
+internal state to the syslog, and set the pin back to False.
 .SH FUNCTIONS
 .TP
 \fBhm2_<BoardType>.<BoardNum>.read\fR
