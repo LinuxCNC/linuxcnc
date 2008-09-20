@@ -19,7 +19,7 @@
 \paperorientation portrait
 \secnumdepth 3
 \tocdepth 3
-\paragraph_separation indent
+\paragraph_separation skip
 \defskip medskip
 \quotes_language english
 \quotes_times 2
@@ -87,6 +87,7 @@ Basic Information Page
 
 \begin_inset Graphics
 	filename stepconf-basic.png
+	scale 70
 
 \end_inset 
 
@@ -254,6 +255,7 @@ Parallel Port Setup Page
 
 \begin_inset Graphics
 	filename stepconf-pinout.png
+	scale 70
 
 \end_inset 
 
@@ -340,6 +342,23 @@ panel.xml
  This will not create a PyVCP panel but will create the blank file in the
  config folder.
  To create a PyVCP panel see the PyVCP section of the Integrators Manual.
+\layout Standard
+
+
+\series bold 
+Charge Pump
+\begin_inset LatexCommand \index{Charge Pump}
+
+\end_inset 
+
+ 
+\series default 
+If your driver board requires a charge pump signal simply select Charge
+ Pump from the drop down list for the output pin you wish to connect to
+ your charge pump input.
+ The charge pump output is connected to the base thread by Stepconf.
+ The charge pump output will be about 1/2 of the maximum step rate shown
+ on the Basic Machine Configuration page.
 \layout Subsection
 
 Axis Configuration
@@ -374,6 +393,7 @@ Axis Configuration Page
 
 \begin_inset Graphics
 	filename stepconf-axis.png
+	scale 70
 
 \end_inset 
 
@@ -980,6 +1000,7 @@ Axis Test Window
 
 \begin_inset Graphics
 	filename stepconf-test.png
+	scale 70
 
 \end_inset 
 
@@ -1583,6 +1604,7 @@ You should see something like this:
 
 \begin_inset Graphics
 	filename latency.png
+	scale 70
 
 \end_inset 
 
