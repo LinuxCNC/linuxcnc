@@ -7303,12 +7303,12 @@ G92.3
  
 \layout Section
 
-G93, G94, G95: Set Feed Rate Mod
+G93, G94, G95: Set Feed Rate Mode
 \begin_inset LatexCommand \index{G93, G94, G95: Set Feed Rate Mod}
 
 \end_inset 
 
-e
+
 \begin_inset LatexCommand \label{sub:G93,-G94:-Set}
 
 \end_inset 
@@ -7333,6 +7333,7 @@ In units per revolution mode, an F word is interpreted to mean the controlled
  point should move a certain number of inches per revolution of the spindle,
  depending on what length units are being used and which axis or axes are
  moving.
+ G95 is not suitable for threading, for threading use G33 or G76.
 \layout Standard
 
 In inverse time feed rate mode, an F word means the move should be completed
