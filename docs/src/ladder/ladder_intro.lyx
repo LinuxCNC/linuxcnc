@@ -90,7 +90,7 @@ The most common components of ladder are contacts (inputs), these usually
 
 the NO contact 
 \begin_inset Graphics
-	filename ladder_action_load.png
+	filename images/ladder_action_load.png
 
 \end_inset 
 
@@ -99,7 +99,7 @@ the NO contact
 
 the NC contact 
 \begin_inset Graphics
-	filename ladder_action_loadbar.png
+	filename images/ladder_action_loadbar.png
 
 \end_inset 
 
@@ -108,7 +108,7 @@ the NC contact
 
 the coil (output) 
 \begin_inset Graphics
-	filename ladder_action_out.png
+	filename images/ladder_action_out.png
 
 \end_inset 
 
@@ -127,7 +127,7 @@ The ladder consists of one or more rungs.
 
 This example is the simplest rung: 
 \begin_inset Graphics
-	filename example_link_contact_coil.png
+	filename images/example_link_contact_coil.png
 
 \end_inset 
 

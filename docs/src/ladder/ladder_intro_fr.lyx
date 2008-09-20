@@ -94,7 +94,7 @@ Les composants les plus communs du Ladder sont les contacts (entrées), ceux-ci
 
 Le contact NO 
 \begin_inset Graphics
-	filename ladder_action_load.png
+	filename images/ladder_action_load.png
 
 \end_inset 
 
@@ -103,7 +103,7 @@ Le contact NO
 
 Le contact NC 
 \begin_inset Graphics
-	filename ladder_action_loadbar.png
+	filename images/ladder_action_loadbar.png
 
 \end_inset 
 
@@ -112,7 +112,7 @@ Le contact NC
 
 La bobine (sortie) 
 \begin_inset Graphics
-	filename ladder_action_out.png
+	filename images/ladder_action_out.png
 
 \end_inset 
 
@@ -133,7 +133,7 @@ L'échelle se compose d'un ou plusieurs échelons.
 
 Cet exemple est un simple échelon: 
 \begin_inset Graphics
-	filename example_link_contact_coil.png
+	filename images/example_link_contact_coil.png
 
 \end_inset 
 

@@ -22,7 +22,7 @@
 \topmargin 1in
 \rightmargin 0.8in
 \bottommargin 0.8in
-\secnumdepth 2
+\secnumdepth 3
 \tocdepth 5
 \paragraph_separation skip
 \defskip smallskip
@@ -35,6 +35,11 @@
 \layout Chapter
 
 Classic Ladder
+\begin_inset LatexCommand \index{Classic Ladder}
+
+\end_inset 
+
+
 \layout Standard
 
 This chapter is under construction at the moment.
@@ -128,36 +133,58 @@ Classicladder version 7.124 has been adapted for EMC 2.3x.
 Languages
 \layout Standard
 
-
-\begin_inset Note
-collapsed false
-
-\layout Standard
-
-this doesn't quite fit or read correctly
-\end_inset 
-
-
-\layout Standard
-
 The most common language used when working with ClassicLadder is 'ladder'.
- ClassicLadder also supports sequential (Grafcet) function chart.
+ ClassicLadder also supports Sequential Function Chart (Grafcet).
+\layout Section
+
+Components
 \layout Standard
 
-There are 2 components belonging to ClassicLadder: a realtime part, and
- a userspace part (including a GUI).
- 
-\layout Section
+There are 2 components to ClassicLadder: 
+\layout Itemize
+
+The realtime module classicladder_rt
+\layout Itemize
+
+The userspace module (including a GUI) classicladder
+\layout Subsection
 
 Realtime Module
 \layout Standard
 
 Loading the ClassicLadder realtime module (classicladder_rt) is possible
  from a halfile, or directly using a halcmd instruction.
+ You must add two lines to your .hal file for Classicladder to function.
+ The first line loads real time the classicladder module.
+ The second line adds the function classicladder.0.refresh to the servo thread.
+ This line makes classicladder update at the servo thread rate.
+\layout LyX-Code
+
+loadrt classicladder_rt
+\layout LyX-Code
+
+addf classicladder.0.refresh servo-thread
 \layout Standard
 
-It is possible to configure the number of each ladder object while loading
- the classicladder realtime module
+The speed of the thread that classicladder is running in directly effects
+ the responsiveness to inputs and outputs.
+ If you can turn a switch on and off faster than classicladder can notice
+ it then you may need to speed up the thread.
+ The fastest that Classicladder can refresh the rungs is one microsecond.
+ You can put it in a faster thread but it will not update any faster.
+ If you put it in a slower then one microsecond thread then classicladder
+ will update the rungs slower.
+ The current refresh rate will be displayed on the config page, it is rounded
+ to microseconds.
+\layout Subsection
+
+Variables
+\layout Standard
+
+It is possible to configure the number of each type of ladder object while
+ loading the classicladder realtime module.
+ If you do not configure the number of ladder objects classicladder will
+ use the default values.
 \layout Standard
 
 
@@ -552,9 +579,7 @@ Number of S32 outputs
 
 \layout Standard
 
-If you do not configure the number of ladder objects classicladder will
- use the default values.
- Objects of most interest are numPhysInputs, numPhysOutputs, numS32in, and
+Objects of most interest are numPhysInputs, numPhysOutputs, numS32in, and
  numS32out.
 \layout Standard
 
@@ -577,97 +602,46 @@ To load the default number of objects:
 \layout LyX-Code
 
 loadrt classicladder_rt
-\layout Standard
-
-
-\begin_inset Note
-collapsed false
-
-\layout Standard
-
-see if this belongs in a different place like specs or something...
-\end_inset 
-
-
-\layout Standard
-
-The speed of the thread that classicladder is running in directly effects
- the responsiveness to inputs and outputs.
- If you can turn a switch on and off faster than classicladder can notice
- it then you may need to speed up the thread.
- The fastest that Classicladder can refresh the rungs is one microsecond.
- You can put it in a faster thread but it will not update any faster.
- If you put it in a slower then one microsecond thread then classicladder
- will update the rungs slower.
- The current refresh rate will be displayed on the config page, it is rounded
- to microseconds.
 \layout Section
 
 Loading the ClassicLadder user module
 \layout Standard
 
-There are options while loading the user module:
+To load the user module:
 \layout LyX-Code
 
-* --nogui 
-\backslash 
-menuseparator 
+loadusr -w classicladder
 \layout Standard
 
-Starts classicladder (while loading a ladder program if specified) with
- no GUI.
- 
+To load a ladder file:
 \layout LyX-Code
 
-* --modbus_port=port 
-\backslash 
-menuseparator 
+loadusr -w classicladder myladder.clp
 \layout Standard
 
-Sets up the modbus port number for modbus server over ethernet.
- 
+To load the user module without the GUI:
 \layout LyX-Code
 
-* --config=file 
-\backslash 
-menuseparator 
+loadusr -w classicladder --nogui
+\layout Standard
+
+To load the user module with the modbus port number for modbus server over
+ ethernet: 
+\layout LyX-Code
+
+loadusr -w classicladder --modbus_port=port
+\layout Standard
+
+To load the user module with a config file:
+\layout LyX-Code
+
+loadusr -w classicladder --config=file
 \layout Standard
 
 Sets up the classicladder for modbus master over serial or ethernet.
 \layout LyX-Code
 
-* loadusr -w classicladder --nogui myladder.clp
-\layout Standard
-
-Specify a ladder program to load.
- Ladder programs are specified by the .clp ending.
-\layout Standard
-
-For example:
-\layout LyX-Code
-
-* loadusr -w classicladder myladder.clp
-\layout Standard
-
-Loads the classicladder user module, ladder program myladder and displays
- nothing.
- 
-\layout LyX-Code
-
-* loadusr -w classicladder
-\layout Standard
-
-Loads the classicladder user module, ladder program myladder and starts
- the classicladder GUI.
- 
-\layout LyX-Code
-
-* loadusr -w classicladder config=mymodbus myladder.clp
-\layout Standard
-
-Loads the classicladder user module, starts the GUI but loads no new laddder
- program, an existing program (if present) will be displayed.
- 
+loadusr -w classicladder --nogui myladder.clp
 \layout Standard
 
 
@@ -676,19 +650,19 @@ collapsed false
 
 \layout Standard
 
-where is the code?
+what does 
+\backslash 
+menuseperator do?
 \end_inset 
 
 
 \layout Standard
 
-Loads the classicladder user module, loads and initalize modbus master config
- mymodbus, loads ladder program myladder then starts the classicladder GUI
- and modbus master.
-\layout Standard
-
 If you first load ladder program with the --nogui option then load classicladder
  again with no options the gui will display the last loaded ladder program.
+\layout Standard
+
+In AXIS you can load the GUI from File/Ladder Editor...
 \layout Section
 
 ClassicLadder GUI
@@ -698,7 +672,70 @@ If you load classicladder with the GUI it will display two windows: section
  display, and section manager.
 \layout Subsection
 
-The Section Display window
+Sections Manager
+\layout Standard
+
+When you first start up Classicladder you get an empty Sections Manager
+ window.
+\layout Standard
+
+
+\begin_inset Float figure
+placement H
+wide false
+collapsed false
+
+\layout Caption
+
+Sections Manager Default Window
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename images/Default_Sections_Manager.png
+	scale 70
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Standard
+
+This window allows you to name, create or delete sections and choose what
+ language that section uses.
+ This is also how you name a subroutine for call coils.
+\layout Subsection
+
+Section Display
+\layout Standard
+
+When you first start up Classicladder you get an empty Section Display window.
+\layout Standard
+
+
+\begin_inset Float figure
+placement H
+wide false
+collapsed false
+
+\layout Caption
+
+Section Display Default Window
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename images/Default_Section_Display.png
+	scale 70
+
+\end_inset 
+
+
+\end_inset 
+
+
 \layout Standard
 
 Most of the buttons are self explanitory:
@@ -740,35 +777,6 @@ You might notice that there is a line under the ladder program display that
  The ladder program will still work properly, to fix it erase the codes
  with the editor and save the program.
  
-\layout Standard
-
-
-\begin_inset Note
-collapsed false
-
-\layout Standard
-
-Figure: ClassicLadder Section Display window 1.4.2 The Section Manager window
-\end_inset 
-
-
-\layout Standard
-
-This window allows you to name, create or delete sections and choose what
- language that section uses.
- This is also how you name a subroutine for call coils.
-\layout Standard
-
-
-\begin_inset Note
-collapsed false
-
-\layout Standard
-
-Figure: ClassicLadder Section Manager window
-\end_inset 
-
-
 \layout Subsection
 
 The Variable Windows
@@ -779,10 +787,31 @@ This are two variable windows: bool and signed interger.
  one, the other, both, then none of the windows.
 \layout Standard
 
-bool variable window
+
+\begin_inset Float figure
+placement H
+wide false
+collapsed false
+
+\layout Caption
+
+Bool Variables Default Window
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename images/Default_Variables_Window.png
+	scale 70
+
+\end_inset 
+
+
+\end_inset 
+
+
 \layout Standard
 
-It displays some of all the bool (on/off) variable data .
+The Bool window displays some of all the bool (on/off) variable data .
  Notice all variable start with the % sign.
  The %I variable represents HAL input bit pins.
  The %Q represents the relay coil and HAL output bit pins.
@@ -796,7 +825,28 @@ It displays some of all the bool (on/off) variable data .
  %I, and %Q variables when classicladder is running.
 \layout Standard
 
-signed integers variable window
+
+\begin_inset Float figure
+placement H
+wide false
+collapsed false
+
+\layout Caption
+
+Signed Integers Variable window
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename images/Default_Signed_Integer_Variables.png
+	scale 70
+
+\end_inset 
+
+
+\end_inset 
+
+
 \layout Standard
 
 This displays word variables.
@@ -817,6 +867,30 @@ This displays word variables.
 Symbol Window
 \layout Standard
 
+
+\begin_inset Float figure
+placement H
+wide false
+collapsed false
+
+\layout Caption
+
+Symbol Names window
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename images/Default_Symbols_names.png
+	scale 70
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Standard
+
 This is a list of 'symbol' names to use instead of variable names to be
  displayed in the section window when the 'display symbols' check box is
  checked.
@@ -835,6 +909,30 @@ This is a list of 'symbol' names to use instead of variable names to be
 The Editor window
 \layout Standard
 
+
+\begin_inset Float figure
+placement H
+wide false
+collapsed false
+
+\layout Caption
+
+Editor Window
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename images/Editor.png
+	scale 70
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Standard
+
 Starting from the top left image:
 \layout Standard
 
@@ -851,43 +949,73 @@ Starting from the top left image:
  JUMP COIL, CALL COIL, OPERATE
 \layout Standard
 
-Figure: ClassicLadder Editor window
-\layout Standard
-
 A short description of each of the buttons:
-\layout Standard
+\layout Itemize
 
-* The SELECTOR ARROW button allows you to select existing objects and modify
+The SELECTOR ARROW button allows you to select existing objects and modify
  the information.
  * The ERASER erases an object.
- * The N.O.
+ 
+\layout Itemize
+
+The N.O.
  CONTACT is a normally open contact.
  It can be an extenal HAL-pin (%I) input contact, an internal-bit coil (%B)
  contact or a external coil (%Q) contact.
  The Hal-pin input contact is closed when the HAL-pin is true.
  The coil contacts are closed when the coresponding coil is active (%Q2
  contact closes when %Q2 coil is active).
- * The N.C.
+ 
+\layout Itemize
+
+The N.C.
  CONTACT is a normally closed contact.
  It is the same as the n.o.
  contact except that the contact is open when the hal-pin is true or the
  coil is active.
- * The RISING-EDGE CONTACT is a contact that is closed when the HAL-pin
- goes from False to true, or the coil from not-active to active.
- * The FALLING-EDGE CONTACT is a contact that is closed when the HAL-pin
- goes from true to false or the coil from active to not.
- * The HORIZONTAL CONNECTION connects the 'signal' to objects horizontally.
- * The VERTICAL CONNECTION connects the 'signal' to objects vertically.
- * The HORIZONTAL-RUNNING CONNECTION is a quick way to connect a long run
- of 'signal wire' horizontally.
- * The TIMER is a Timer Module.
- * The MONOSTABLE is monostable module (one-shot) * The COUNTER is a counter
- module.
- * The COMPARE button allows you to compare variable to values or other
- variables.
+\layout Itemize
+
+The RISING-EDGE CONTACT is a contact that is closed when the HAL-pin goes
+ from False to true, or the coil from not-active to active.
+ 
+\layout Itemize
+
+The FALLING-EDGE CONTACT is a contact that is closed when the HAL-pin goes
+ from true to false or the coil from active to not.
+ 
+\layout Itemize
+
+The HORIZONTAL CONNECTION connects the 'signal' to objects horizontally.
+ 
+\layout Itemize
+
+The VERTICAL CONNECTION connects the 'signal' to objects vertically.
+ 
+\layout Itemize
+
+The HORIZONTAL-RUNNING CONNECTION is a quick way to connect a long run of
+ 'signal wire' horizontally.
+ 
+\layout Itemize
+
+The TIMER is a Timer Module.
+ 
+\layout Itemize
+
+The MONOSTABLE is monostable module (one-shot) 
+\layout Itemize
+
+The COUNTER is a counter module.
+ 
+\layout Itemize
+
+The COMPARE button allows you to compare variable to values or other variables.
  (eg %W1<=5 or %W1=%W2) Compare cannot be placed in the right most side
  of the section display.
- * The OPERATE button allows you to assign values to variables.
+ 
+\layout Itemize
+
+The OPERATE button allows you to assign values to variables.
  (eg %W2=7 or %W1=%W2) OPERATE funtions can only be placed at the right
  most side of the section display.
 \layout Section
@@ -919,16 +1047,34 @@ g number.
  contact would be on.
  If %Q1 coil is 'energized' then %Q1 N.O.
  contact would be on (and HAL pin classicladder.0.out-01 would be true.)
-\layout Standard
+\layout Itemize
 
-- N.O.
- CONTACTS - (Normally Open switches.) When the variable is false the switch
- is off - N.C.
- CONTACTS - (Normally Closed.) When the variable is false the switch is on
- - RISING EDGE CONTACTS - When the variable changes from false to true,
- the switch is PULSED on.
- - FALLING EDGE CONTACTS - When the variable changes from true to false,
- the switch is PULSED on.
+N.O.
+ CONTACT 
+\begin_inset Graphics
+	filename images/ladder_action_load.png
+
+\end_inset 
+
+ (Normally Open) When the variable is false the switch is off.
+\layout Itemize
+
+N.C.
+ CONTACT 
+\begin_inset Graphics
+	filename images/ladder_action_loadbar.png
+
+\end_inset 
+
+ (Normally Closed) When the variable is false the switch is on.
+\layout Itemize
+
+RISING EDGE CONTACT - When the variable changes from false to true, the
+ switch is PULSED on.
+\layout Itemize
+
+FALLING EDGE CONTACT - When the variable changes from true to false, the
+ switch is PULSED on.
 \layout Subsection
 
 TIMERS
@@ -937,23 +1083,61 @@ TIMERS
 Represent count down timers! 
 \layout Standard
 
-- Timers have 4 contacts.
- E-for enable (input) D-for done (output) C -for continue R-for running
- (output) - E (input) -enable -will start the timer when true.
- The timer count resets when the E input goes false.
- - R (output) -running -will be true will the count is running.
- - C (input) -continue -is not used in EMC for legasy reasons so is always
- forced true.
- - D (output) -done -will be true when the count is Done and will stay true
- till the input goes false.
- - The timer base can be multiples of milliseconds, seconds, or minutes.
+Timers have 4 contacts.
+ 
+\layout Itemize
+
+E-for enable (input) 
+\layout Itemize
+
+D-for done (output) 
+\layout Itemize
+
+C -for continue 
+\layout Itemize
+
+R-for running (output) - 
+\layout Itemize
+
+E (input) -enable -will start the timer when true.
+ 
 \layout Standard
 
-- There are also Variables for timers that can be read and/or written to
- in compare or operate blocks.
- Txx,R : Timer xx running (boolean, read only) Txx,D : Timer xx done (boolean,
- read only) Txx,V : Timer xx current value (integer, read only) Txx,P :
- Timer xx preset (integer, read or write)
+The timer count resets when the E input goes false.
+ 
+\layout Standard
+
+R (output) -running -will be true will the count is running.
+\layout Standard
+
+C (input) -continue -is not used in EMC for legasy reasons so is always
+ forced true.
+ 
+\layout Standard
+
+D (output) -done -will be true when the count is Done and will stay true
+ till the input goes false.
+ 
+\layout Standard
+
+The timer base can be multiples of milliseconds, seconds, or minutes.
+\layout Standard
+
+There are also Variables for timers that can be read and/or written to in
+ compare or operate blocks.
+ 
+\layout Itemize
+
+Txx,R : Timer xx running (boolean, read only) 
+\layout Itemize
+
+Txx,D : Timer xx done (boolean, read only) 
+\layout Itemize
+
+Txx,V : Timer xx current value (integer, read only) 
+\layout Itemize
+
+Txx,P : Timer xx preset (integer, read or write)
 \layout Subsection
 
 IEC TIMERS
@@ -986,22 +1170,37 @@ MONOSTABLES
 Represent one-shot timer 
 \layout Standard
 
-- Monos have 2 contacts I and R.
- - I (input) -input -will start the mono timer running.
- - R (output) -running -will be true while timer is running.
- - The I contact is rising edge sensitive meaning it starts the timer only
- when changing from false to true (or off to on).
- - While the timer is running the I contact can change with no effect to
- the running timer.
- - R will be true and stay true till the timer finishes counting to zero.
- - The timer base can be multiples of milliseconds, seconds, or minutes.
+Monostables have 2 contacts I and R.
+ 
+\layout Itemize
+
+I (input) -input -will start the mono timer running.
+ 
+\layout Itemize
+
+R (output) -running -will be true while timer is running.
 \layout Standard
 
-- There are also Variables for monostables that can be read and/or written
+The I contact is rising edge sensitive meaning it starts the timer only
+ when changing from false to true (or off to on).
+ While the timer is running the I contact can change with no effect to the
+ running timer.
+ R will be true and stay true till the timer finishes counting to zero.
+ The timer base can be multiples of milliseconds, seconds, or minutes.
+\layout Standard
+
+There are also Variables for monostables that can be read and/or written
  to in compare or operate blocks.
- Mxx,R : Monostable xx running (boolean, read only) Mxx,V : Monostable xx
- current value (integer, read only) Mxx,P : Monostable xx preset (integer,
- read or write)
+ 
+\layout Itemize
+
+Mxx,R : Monostable xx running (boolean, read only) 
+\layout Itemize
+
+Mxx,V : Monostable xx current value (integer, read only) 
+\layout Itemize
+
+Mxx,P : Monostable xx preset (integer, read or write)
 \layout Subsection
 
 COUNTERS
@@ -1011,28 +1210,63 @@ COUNTERS
  
 \layout Standard
 
-- There are 7 contacts: - R (input) -reset -will reset the count to 0.
- - P (input) -preset -will set the count to the preset number assigned from
+- There are 7 contacts: 
+\layout Itemize
+
+R (input) -reset -will reset the count to 0.
+\layout Itemize
+
+P (input) -preset -will set the count to the preset number assigned from
  the edit menu.
- - U (input) -up count -will add one to the count.
- - D (input) -down count -will subtract one from the count.
- - E (output) -under flow -will be true when the count rolls over from 0
- to 9999.
- - D (output) -done -will be true when the count equals the preset.
- - F (output) -overflow -will be true when the count rolls over from 9999
- to 0.
- - The up and down count contacts are edge sensitive meaning they only count
- when the contact changes from false to true (or off to on if you rather).
- - The range is 0 to 9999.
+\layout Itemize
+
+U (input) -up count -will add one to the count.
+ 
+\layout Itemize
+
+D (input) -down count -will subtract one from the count.
+ 
+\layout Itemize
+
+E (output) -under flow -will be true when the count rolls over from 0 to
+ 9999.
+\layout Itemize
+
+D (output) -done -will be true when the count equals the preset.
+ 
+\layout Itemize
+
+F (output) -overflow -will be true when the count rolls over from 9999 to
+ 0.
  
 \layout Standard
 
-- There are also Variables for counters that can be read and/or written
- to in compare or operate blocks.
- Cxx,D : Counter xx done (boolean, read only) Cxx,E : Counter xx empty overflow
- (boolean, read only) Cxx,F : Counter xx full overflow (boolean, read only)
- Cxx,V : Counter xx current value (integer, read or write) Cxx,P : Counter
- xx preset (integer, read or write)
+The up and down count contacts are edge sensitive meaning they only count
+ when the contact changes from false to true (or off to on if you rather).
+\layout Standard
+
+The range is 0 to 9999.
+ 
+\layout Standard
+
+There are also Variables for counters that can be read and/or written to
+ in compare or operate blocks.
+ 
+\layout Itemize
+
+Cxx,D : Counter xx done (boolean, read only) 
+\layout Itemize
+
+Cxx,E : Counter xx empty overflow (boolean, read only) 
+\layout Itemize
+
+Cxx,F : Counter xx full overflow (boolean, read only) 
+\layout Itemize
+
+Cxx,V : Counter xx current value (integer, read or write) 
+\layout Itemize
+
+Cxx,P : Counter xx preset (integer, read or write)
 \layout Subsection
 
 COMPARE
@@ -1050,7 +1284,9 @@ COMPARE
  eg ABS(%W2)=1, MOY(%W1,%W2)<3.
  - There is a list of Variables down the page that can be used for reading
  writing to ladder objects.
- - an example might be : %W1<2*%C0.V meaning: Is word variable #1 less then
+\layout Standard
+
+an example might be : %W1<2*%C0.V meaning: Is word variable #1 less then
  2 times the current value of counter #0 ?
 \layout Subsection
 
@@ -1067,70 +1303,58 @@ OPERATE
 COILS
 \layout Standard
 
-- represent relay coils.
+Coils represent relay coils.
  They are controlled by the variable letter and number assigned to them.
  
 \layout Standard
 
-- The variable letter can be B or Q and the number can be up to a three
- digit number eg.
+The variable letter can be B or Q and the number can be up to a three digit
+ number eg.
  %Q3, or %B123.
- - Q coils control HAL out pins.
+ Q coils control HAL out pins.
  eg if &Q15 is 'energized' then HAL pin classicladder.0.out-15 will be true.
- - N.O.
+ B coils are internal coils used to control program flow.
+\layout Itemize
+
+N.O.
  COIL -(a relay coil.) When coil is 'energized' it"s N.O.
- contact will be closed (on, true, etc) - N.C.
+ contact will be closed (on, true, etc)
+\layout Itemize
+
+N.C.
  COIL -(a relay coil that inverses its contacts.) When coil is 'energized'
  it"s N.O.
- contact will be open (off, false, etc) - SET COIL -(a relay coil with latching
- contacts) When coil is 'energized' it's N.O.
+ contact will be open (off, false, etc) 
+\layout Itemize
+
+SET COIL -(a relay coil with latching contacts) When coil is 'energized'
+ it's N.O.
  contact will be latched closed.
- - RESET COIL -(a relay coil with latching contacts) When coil is 'energized'
+ 
+\layout Itemize
+
+RESET COIL -(a relay coil with latching contacts) When coil is 'energized'
  It's N.0.
  contact will be latched open.
- ***WARNING*** if you use a N.C.
+ 
+\layout Itemize
+
+JUMP COIL -(a "goto" coil) when coil is 'energized' ladder program jumps
+ to a rung (in the CURRENT section) -jump points are designated by a rung
+ label.
+ (Add rung labels in the section display, top left label box) 
+\layout Itemize
+
+CALL COIL -(a "gosub" coil) when coil is 'energized' program jumps to a
+ subroutine section designated by a subroutine number -subroutines are designate
+d SR0 to SR9 (designate them in the section manager)
+\layout Standard
+
+***WARNING*** if you use a N.C.
  contact with a N.C.
  coil the logic will work (when the coil is energized the contact will be
- closed) but that is really hard to follow! - JUMP COIL -(a "goto" coil)
- when coil is 'energized' ladder program jumps to a rung (in the CURRENT
- section) -jump points are designated by a rung label.
- (Add rung labels in the section display, top left label box) - CALL COIL
- -(a "gosub" coil) when coil is 'energized' program jumps to a subroutine
- section designated by a subroutine number -subroutines are designated SR0
- to SR9 (designate them in the section manager)
-\layout Section
-
-ClassicLadder Variables
-\layout Standard
-
-These Variables are used in COMPARE or OPERATE to get information about,
- or change specs of, ladder objects Such as changing a counter preset, or
- seeing if the a timer is done running.
- List of variables :
-\layout Standard
-
-Bxxx : Bit memory xxx (boolean) Wxxx : Word memory xxx (32 bits signed integer)
- can be HAL s32 in and out pins if loaded with realtime module Txx,R : Timer
- xx running (boolean, user read only) Txx,D : Timer xx done (boolean, user
- read only) Txx,V : Timer xx current value (integer, user read only) Txx,P
- : Timer xx preset (integer) Mxx,R : Monostable xx running (boolean) Mxx,V
- : Monostable xx current value (integer, user read only) Mxx,P : Monostable
- xx preset (integer) Cxx,D : Counter xx done (boolean, user read only) Cxx,E
- : Counter xx empty overflow (boolean, user read only) Cxx,F : Counter xx
- full overflow (boolean, user read only) Cxx,V : Counter xx current value
- (integer) Cxx,P : Counter xx preset (integer) Ixxx : Physical input xxx
- (boolean) - HAL input bit - Qxxx : Physical output xxx (boolean) - HAL
- output bit - Xxxx : Activity of step xxx (sequential language) Xxxx,V :
- Time of activity in seconds of step xxx (sequential language)
-\layout Standard
-
-* Indexed or vectored variables 
-\layout Standard
-
-These are variables indexed by another variable.
- Some might call this vectored variables.
- Example: %W0[%W4] => if %W4 equals 23 it corresponds to %W23 
-\layout Section
+ closed) but that is really hard to follow!
+\layout Subsubsection
 
 JUMP COIL
 \layout Standard
@@ -1151,7 +1375,7 @@ Go ahead and add a comment in the comment section.
 
 When placing a JUMP COIL add it in the right most position and change the
  label to the rung you want to JUMP to.
-\layout Section
+\layout Subsubsection
 
 CALL COIL
 \layout Standard
@@ -1180,6 +1404,79 @@ Now you can add a CALL COIL to your program.
 Remember to change the label to the subroutine number you choose before.
 \layout Section
 
+ClassicLadder Variables
+\layout Standard
+
+These Variables are used in COMPARE or OPERATE to get information about,
+ or change specs of, ladder objects Such as changing a counter preset, or
+ seeing if the a timer is done running.
+ 
+\layout Standard
+
+List of variables :
+\layout Itemize
+
+Bxxx : Bit memory xxx (boolean) 
+\layout Itemize
+
+Wxxx : Word memory xxx (32 bits signed integer) can be HAL s32 in and out
+ pins if loaded with realtime module 
+\layout Itemize
+
+Txx,R : Timer xx running (boolean, user read only) 
+\layout Itemize
+
+Txx,D : Timer xx done (boolean, user read only) 
+\layout Itemize
+
+Txx,V : Timer xx current value (integer, user read only) 
+\layout Itemize
+
+Txx,P : Timer xx preset (integer) 
+\layout Itemize
+
+Mxx,R : Monostable xx running (boolean) 
+\layout Itemize
+
+Mxx,V : Monostable xx current value (integer, user read only) 
+\layout Itemize
+
+Mxx,P : Monostable xx preset (integer) 
+\layout Itemize
+
+Cxx,D : Counter xx done (boolean, user read only) 
+\layout Itemize
+
+Cxx,E : Counter xx empty overflow (boolean, user read only) 
+\layout Itemize
+
+Cxx,F : Counter xx full overflow (boolean, user read only) 
+\layout Itemize
+
+Cxx,V : Counter xx current value (integer) 
+\layout Itemize
+
+Cxx,P : Counter xx preset (integer) Ixxx : Physical input xxx (boolean)
+ - HAL input bit - 
+\layout Itemize
+
+Qxxx : Physical output xxx (boolean) - HAL output bit - 
+\layout Itemize
+
+Xxxx : Activity of step xxx (sequential language) 
+\layout Itemize
+
+Xxxx,V : Time of activity in seconds of step xxx (sequential language)
+\layout Standard
+
+* Indexed or vectored variables 
+\layout Standard
+
+These are variables indexed by another variable.
+ Some might call this vectored variables.
+ Example: %W0[%W4] => if %W4 equals 23 it corresponds to %W23 
+\layout Section
+
 GRAFCET Programming
 \layout Standard
 
@@ -1189,24 +1486,36 @@ GRAFCET Programming
  Sequential programs do not work alone-there is always a ladder program
  as well that controls the variables.
  Here are the basic rules governing sequential programs:
-\layout Standard
+\layout Itemize
 
-* Rule 1 : Initial situation - The initial situation is characterized by
- the initial steps which are by definition in the active state at the beginning
+Rule 1 : Initial situation - The initial situation is characterized by the
+ initial steps which are by definition in the active state at the beginning
  of the operation.There shall be at least one initial step.
- * Rule 2 : R2, Clearing of a transition - A transition is either enabled
- or disabled.
+ 
+\layout Itemize
+
+Rule 2 : R2, Clearing of a transition - A transition is either enabled or
+ disabled.
  It is said to be enabled when all immediately preceding steps linked to
  its corresponding transition symbol are active, otherwise it is disabled.
  A transition cannot be cleared unless: it is enabled, and its associated
  transition condition is true.
- * Rule 3 : R3, Evolution of active steps - The clearing of a transition
- simultaneously leads to the active state of the immediately following step(s)
- and to the inactive state of the immediately preceding step(s).
- * Rule 4 : R4, Simultaneous clearing of transitions - All simultaneous
- cleared transitions are simultaneously cleared.
- * Rule 5 : R5, Simultaneous activation and deactivation of a step - If
- during operation, a step is simultaneously activated and deactivated, priority
+ 
+\layout Itemize
+
+Rule 3 : R3, Evolution of active steps - The clearing of a transition simultaneo
+usly leads to the active state of the immediately following step(s) and
+ to the inactive state of the immediately preceding step(s).
+ 
+\layout Itemize
+
+Rule 4 : R4, Simultaneous clearing of transitions - All simultaneous cleared
+ transitions are simultaneously cleared.
+ 
+\layout Itemize
+
+Rule 5 : R5, Simultaneous activation and deactivation of a step - If during
+ operation, a step is simultaneously activated and deactivated, priority
  is given to the activation.
 \layout Standard
 
@@ -1215,21 +1524,42 @@ This is the SEQUENTIAL editor window Starting from the top left image: Selector
  and Transition Transition Link-Downside , Transition Link-Upside Pass-through
  Link-Downside , Pass-through Link-Upside Jump Link Comment Box [show sequential
  program]
-\layout Standard
+\layout Itemize
 
-* ORDINARY STEP-has a unique number for each one * STARTING STEP-a sequential
- program must have one.
- This is where the program will start * TRANSITION-This shows the variable
- that must be true for control to pass through to the next step * STEP AND
- TRANSITION -Combined for convience * TRANSITION LINK-DOWNSIDE-splits the
- logic flow to one of two possible lines based on which of the next steps
- is true first (Think OR logic) * TRANSITION LINK=UPSIDE-combines two (OR)
- logic lines back in to one * PASS-THROUGH LINK-DOWNSIDE-splits the logic
- flow to two lines that BOTH must be true to continue (Think AND logic)
- * PASS-THROUGH LINK-UPSIDE-combines two concurrent (AND logic) logic lines
- back together * JUMP LINK-connects steps that are not underneath each other
- such as connecting the last step to the first * COMMENT BOX used to add
- comments
+ORDINARY STEP-has a unique number for each one 
+\layout Itemize
+
+STARTING STEP-a sequential program must have one.
+ This is where the program will start.
+\layout Itemize
+
+TRANSITION-This shows the variable that must be true for control to pass
+ through to the next step.
+\layout Itemize
+
+STEP AND TRANSITION -Combined for convience
+\layout Itemize
+
+TRANSITION LINK-DOWNSIDE-splits the logic flow to one of two possible lines
+ based on which of the next steps is true first (Think OR logic) 
+\layout Itemize
+
+TRANSITION LINK=UPSIDE-combines two (OR) logic lines back in to one 
+\layout Itemize
+
+PASS-THROUGH LINK-DOWNSIDE-splits the logic flow to two lines that BOTH
+ must be true to continue (Think AND logic) 
+\layout Itemize
+
+PASS-THROUGH LINK-UPSIDE-combines two concurrent (AND logic) logic lines
+ back together
+\layout Itemize
+
+JUMP LINK-connects steps that are not underneath each other such as connecting
+ the last step to the first 
+\layout Itemize
+
+COMMENT BOX used to add comments
 \layout Standard
 
 To use links you must have steps already placed , select the type of link
@@ -1251,16 +1581,16 @@ With sequential programming: The variable %Xxxx (eg.
 Modbus
 \layout Subsection
 
-modbus config file
+Modbus Config File
 \layout Standard
 
 The file signals classicladder to initialize the modbus protocol and can
  set some communication settings For TCP (ethernet) do not specify anything
  for MODBUS_MASTER_SERIAL_PORT= .
  [show config file sample]
-\layout Standard
+\layout Subsection
 
-2.2 Modbus master
+Modbus master
 \layout Standard
 
 The modbus master can use serial or ethernet ports.
@@ -1345,6 +1675,228 @@ ClassicLadder has a Modbus/TCP server integrated.
  You must load a config file (even if it's blank) to intialize the slave.
 \layout Section
 
+Setting up Classicladder
+\layout Standard
+
+In this section we will cover the steps needed to add Classicladder to a
+ stepconf generated config.
+\layout Subsection
+
+Add the Modules
+\layout Standard
+
+For Classicladder to work you must first add the modules.
+ This is done by adding a couple of lines to the custom.hal file.
+ 
+\layout Standard
+
+This line loads the real time module:
+\layout LyX-Code
+
+loadrt classicladder_rt
+\layout Standard
+
+This line adds the classicladder funtion to the servo thread:
+\layout LyX-Code
+
+addf classicladder.0.refresh servo-thread
+\layout Standard
+
+Now start up your config and select File/Ladder Editor...
+ to open up the Classicladder GUI.
+ You should see a blank Section Display and Sections Manager window as shown
+ above.
+ In the Section Display window open the Editor.
+ In the Editor window select Insert.
+ Now a Properties window pops up and the Section Display shows a grid.
+ The grid is one rung of ladder.
+ The rung can contain branches.
+ A simple rung has one input, a connecter line and one output.
+\layout Standard
+
+
+\begin_inset Float figure
+placement H
+wide false
+collapsed false
+
+\layout Caption
+
+Section Display with Grid
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename images/Section_Display_Grid.png
+	scale 70
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Standard
+
+Now click on the N.O.
+ Input in the Editor Window.
+\layout Standard
+
+
+\begin_inset Float figure
+placement H
+wide false
+collapsed false
+
+\layout Caption
+
+Editor Window
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename images/Editor_N.O.Input.png
+	scale 70
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Standard
+
+Now click in the upper left grid to place the N.O.
+ Input into the ladder.
+\layout Standard
+
+
+\begin_inset Float figure
+placement H
+wide false
+collapsed false
+
+\layout Caption
+
+Section Display with Input
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename images/Section_Display_Build01.png
+	scale 70
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Standard
+
+Repeat the above steps to add a N.O.
+ Output to the upper right grid and use the Horizantal Connection to connect
+ the two.
+ It should look like the following.
+ If not use the Eraser to remove unwanted sections.
+\layout Standard
+
+
+\begin_inset Float figure
+placement H
+wide false
+collapsed false
+
+\layout Caption
+
+Section Display with Rung
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename images/Section_Display_Build02.png
+	scale 70
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Standard
+
+Now click on the Ok button in the Editor window.
+ Now your Section Display should look like this.
+\layout Standard
+
+
+\begin_inset Float figure
+placement H
+wide false
+collapsed false
+
+\layout Caption
+
+Section Display Finished
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename images/Section_Display_Build03.png
+	scale 70
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Standard
+
+To save the new file select Save As and give it a name.
+ The .clp extension will be added automaticly.
+ It should default to the running config directory as the place to save
+ it.
+\layout Standard
+
+
+\begin_inset Float figure
+placement H
+wide false
+collapsed false
+
+\layout Caption
+
+Save As Dialog
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename images/SaveAs.png
+	scale 75
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Standard
+
+The last step is to add the line to your custom.hal file that will load your
+ newly saved ladder.
+ Close your EMC2 session and add this line to your custom.hal file.
+\layout LyX-Code
+
+loadusr -w classicladder --nogui MyLadder.clp
+\layout Standard
+
+Now if you start up your EMC2 config your ladder program will be running
+ as well.
+ Now if you select File/Ladder Editor...
+ your program you created will show up in the Section Display window.
+\layout Section
+
 Ladder Example
 \layout Standard
 
@@ -1386,10 +1938,4 @@ This is a sequential program when the program is first started step one
  4 active and step 2 inactive step 3 is active and waiting for %B2 to be
  true step 4 is active and is waiting for %B3 to be true WOW that was quite
  a mouth full!! [display sequential program]
-\layout Standard
-
-index * ClassicLadder
-\layout Standard
-
-Footnotes
 \the_end
