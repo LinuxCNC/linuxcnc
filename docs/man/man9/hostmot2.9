@@ -125,8 +125,7 @@ Instance is a two-digit number that corresponds to the HostMot2 encoder
 instance number.  There are 'num_encoders' instances, starting with 00.
 
 In HM2, each encoder uses three input IO pins: A, B, and Index (sometimes
-also known as Z).  Index is currently not used, this will be fixed in
-the nearish future.
+also known as Z).
 
 Each encoder instance has the following pins and parameters:
 
@@ -137,10 +136,35 @@ Pins:
 
 (float out) position: Encoder position (count / scale).  (Like CDI.)
 
+(bit in) reset: When this pin is TRUE, the count and position pins are
+set to 0.  (Like CDI.)
+
+(bit in/out) index-enable: When this pin is set to True, the count and
+position are reset to zero on the next Index (Phase-Z) pulse.  At the
+same time, index-enable is reset to zero to indicate that the rising
+edge has occurred.  (Like CDI.)
+
 Parameters:
 
 (float r/w) scale: Converts from 'count' units to 'position' units.
 (Like CDI.)
+
+(bit r/w) index_invert: If set to True, the rising edge of the Index
+input pin triggers the Index event (if index-enable is True).  If set
+to False, the falling edge triggers.  FIXME: I think.
+
+(bit r/w) index_mask: ?? 
+
+(bit r/w) index_mask_invert: ?? 
+
+(bit r/w) counter_mode: Set to False (the default) for quadrature.
+Set to True for Up/Down.
+
+(bit r/w) filter: If set to True (the default), the quadrature counter
+needs 15 clocks to register a change on any of the three input lines
+(any pulse shorter than this is rejected as noise).  If set to False,
+the quadrature counter needs only 3 clocks to register a change.  FIXME:
+filter clock rate is not controllable yet, but it will be soon.
 .SH pwmgen
 
 Very basic support, more to come.  This is what's implemented so far:
@@ -188,7 +212,7 @@ instance number.  There are 'num_stepgens' instances, starting with 00.
 Currently only Step/Dir output and Position-mode control is supported.
 
 Each stepgen allocates 6 IO pins, but only uses two: Step and Direction
-outputs.
+outputs.  This will be fixed in the future.
 
 The stepgen representation is modeled on the stepgen software component.
 Each stepgen instance has the following pins and parameters:
@@ -217,10 +241,12 @@ Parameters:
 (float r/w) position_scale: Converts from counts to position units.
 position = counts / position_scale
 
-(float r/w) maxvel: Maximum speed, in position units per second.
+(float r/w) maxvel: Maximum speed, in position units per second.  If set
+to 0, the driver will choose the maximum velocity based on steplen
+and stepspace.
 
 (float r/w) maxaccel: Maximum acceleration, in position units per second
-per second.
+per second.  If set to 0, the driver will not limit its acceleration.
 
 (u32 r/w) steplen: Duration of the step signal, in nanoseconds.
 

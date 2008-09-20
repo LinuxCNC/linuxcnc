@@ -43,9 +43,9 @@ setp hm2_$(HM2_BOARD).0.watchdog.timeout_ns 10000000
 # set up the encoders, encoder position becomes pid's feedback
 #
 
-setp  hm2_$(HM2_BOARD).0.encoder.00.scale  -1024
-setp  hm2_$(HM2_BOARD).0.encoder.01.scale  -2048
-setp  hm2_$(HM2_BOARD).0.encoder.02.scale  -2048
+setp  hm2_$(HM2_BOARD).0.encoder.00.scale  -1024  # cw with negative scale: increasing position
+setp  hm2_$(HM2_BOARD).0.encoder.01.scale  2048   # cw with positive scale: increasing position
+setp  hm2_$(HM2_BOARD).0.encoder.02.scale  2048   # cw with positive scale: increasing position
 
 net  motor-00-position  hm2_$(HM2_BOARD).0.encoder.00.position =>  pid.0.feedback
 net  motor-01-position  hm2_$(HM2_BOARD).0.encoder.01.position =>  pid.1.feedback
@@ -54,11 +54,14 @@ net  motor-01-position  hm2_$(HM2_BOARD).0.encoder.01.position =>  pid.1.feedbac
 
 
 #
-# let the pid outputs drive the pwm generators
+# set up the pwmgens, let the pid outputs drive the pwm generators
 #
 
 net  pid-00-command  pid.0.output  =>  hm2_$(HM2_BOARD).0.pwmgen.00.value
 net  pid-01-command  pid.1.output  =>  hm2_$(HM2_BOARD).0.pwmgen.01.value
+
+setp  hm2_$(HM2_BOARD).0.pwmgen.00.scale  1.0   # positive value, positive scale: cw
+setp  hm2_$(HM2_BOARD).0.pwmgen.01.scale  -1.0  # positive value, negative scale: cw
 
 
 
@@ -115,10 +118,10 @@ setp hm2_$(HM2_BOARD).0.stepgen.01.dirhold         200
 setp hm2_$(HM2_BOARD).0.stepgen.01.steplen         40000
 setp hm2_$(HM2_BOARD).0.stepgen.01.stepspace       40000
 
-setp hm2_$(HM2_BOARD).0.stepgen.01.position-scale  1600
+setp hm2_$(HM2_BOARD).0.stepgen.01.position-scale  -1600
 
 setp hm2_$(HM2_BOARD).0.stepgen.01.maxaccel        10
-setp hm2_$(HM2_BOARD).0.stepgen.01.maxvel          10
+setp hm2_$(HM2_BOARD).0.stepgen.01.maxvel          0
 
 
 #setp hm2_$(HM2_BOARD).0.stepgen.02.dirsetup 200

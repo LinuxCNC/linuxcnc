@@ -1,4 +1,23 @@
 
+released 2008-09-20
+    hm2 0.12
+
+    Fixed a bug in stepgen: negative values for .position_scale now work.
+    Thanks to Eric Johnson for discovering, reporting, and helping to
+    debug this.
+
+    Fixed a bug in in pwmgen: negative values for .scale now work.
+
+    Cleaned up encoder driver some.  Added new encoder features to
+    manpage.
+
+    Now accepts stepgen.maxaccel = 0, which means "don't limit
+    acceleration at all".
+
+    Switched to the latest firmware VHDL source code from Peter Wallace
+    at Mesa Electronics.
+
+
 released 2008-09-14
     hm2_5i20 0.4
 

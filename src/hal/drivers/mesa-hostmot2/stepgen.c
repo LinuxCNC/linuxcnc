@@ -46,9 +46,14 @@ void hm2_stepgen_process_tram_read(hostmot2_t *hm2, long l_period_ns) {
         float pos_delta;
 
         // those tricky users are always trying to get us to divide by zero
-        if (fabs(hm2->stepgen.instance[i].hal.param.position_scale) < 1e-10) {
-            WARN("stepgen %d position_scale is too small, resetting to 1\n", i);
-            hm2->stepgen.instance[i].hal.param.position_scale = 1.0;
+        if (fabs(hm2->stepgen.instance[i].hal.param.position_scale) < 1e-6) {
+            if (hm2->stepgen.instance[i].hal.param.position_scale >= 0.0) {
+                hm2->stepgen.instance[i].hal.param.position_scale = 1.0;
+                WARN("stepgen %d position_scale is too close to 0, resetting to 1.0\n", i);
+            } else {
+                hm2->stepgen.instance[i].hal.param.position_scale = -1.0;
+                WARN("stepgen %d position_scale is too close to 0, resetting to -1.0\n", i);
+            }
         }
 
         // the HM2 Accumulator is a 16.16 bit fixed-point representation of the stepper position
@@ -62,7 +67,7 @@ void hm2_stepgen_process_tram_read(hostmot2_t *hm2, long l_period_ns) {
         }
         *(hm2->stepgen.instance[i].hal.pin.counts) += counts_delta;
         hm2->stepgen.instance[i].counts_fractional = acc & 0xFFFF;
-        *(hm2->stepgen.instance[i].hal.pin.position_fb) = (float)*(hm2->stepgen.instance[i].hal.pin.counts) / hm2->stepgen.instance[i].hal.param.position_scale;
+        *(hm2->stepgen.instance[i].hal.pin.position_fb) = (float)(*hm2->stepgen.instance[i].hal.pin.counts) / hm2->stepgen.instance[i].hal.param.position_scale;
 
         // get sub-step accurate position delta for velocity smoothing
         pos_delta = (acc - hm2->stepgen.instance[i].prev_accumulator) / 65536.0;
@@ -92,16 +97,27 @@ static void hm2_stepgen_instance_prepare_tram_write(hostmot2_t *hm2, long l_peri
     counts_cmd = *s->hal.pin.position_cmd * s->hal.param.position_scale;
     count_pos_error = *s->hal.pin.counts - counts_cmd;
 
-    // FIXME: maxvel & maxaccel must be > 0
 
-    // maxvel may not be faster than 1 step per (steplen+stepspace) seconds
+    // maxvel must be >= 0.0, and may not be faster than 1 step per (steplen+stepspace) seconds
     {
         float min_ns_per_step = s->hal.param.steplen + s->hal.param.stepspace;
         float max_steps_per_s = 1.0e9 / min_ns_per_step;
-        float max_pos_per_s = max_steps_per_s / s->hal.param.position_scale;
+        float max_pos_per_s = max_steps_per_s / fabs(s->hal.param.position_scale);
         if (s->hal.param.maxvel > max_pos_per_s) {
             s->hal.param.maxvel = max_pos_per_s;
+        } else if (s->hal.param.maxvel < 0.0) {
+            WARN("stepgen.%02d.maxvel < 0, setting to its absolute value\n", i);
+            s->hal.param.maxvel = fabs(s->hal.param.maxvel);
+        } else if (s->hal.param.maxvel == 0.0) {
+            WARN("stepgen.%02d.maxvel == 0.0, setting to the fastest supported by the current timing parameters\n", i);
+            s->hal.param.maxvel = max_pos_per_s;
         }
+    }
+
+    // maxaccel may not be negative
+    if (s->hal.param.maxaccel < 0.0) {
+        WARN("stepgen.%02d.maxaccel < 0, setting to its absolute value\n", i);
+        s->hal.param.maxaccel = fabs(s->hal.param.maxaccel);
     }
 
     if (count_pos_error == 0) {
@@ -111,7 +127,11 @@ static void hm2_stepgen_instance_prepare_tram_write(hostmot2_t *hm2, long l_peri
         float position_at_stop;
         float pos_error_at_stop;
 
-        seconds_until_stop = fabs(*s->hal.pin.velocity_cmd) / s->hal.param.maxaccel;
+        if (s->hal.param.maxaccel > 0.0) {
+            seconds_until_stop = fabs(*s->hal.pin.velocity_cmd) / s->hal.param.maxaccel;
+        } else {
+            seconds_until_stop = f_period_s;
+        }
 
         position_at_stop = *s->hal.pin.position_fb;
         position_at_stop += *s->hal.pin.velocity_cmd * seconds_until_stop;
@@ -124,19 +144,37 @@ static void hm2_stepgen_instance_prepare_tram_write(hostmot2_t *hm2, long l_peri
         pos_error_at_stop = position_at_stop - *s->hal.pin.position_cmd;
 
         if (pos_error_at_stop * pos_error > 0) {
-            // not there yet, accelerate at top rate (will get clipped later if needed)
+            // haven't reached decel phase yet, accelerate at top rate (vel will get clipped later if needed)
             if (pos_error > 0) {
-                *s->hal.pin.velocity_cmd -= s->hal.param.maxaccel * f_period_s;
+                if (s->hal.param.maxaccel > 0.0) {
+                    *s->hal.pin.velocity_cmd -= s->hal.param.maxaccel * f_period_s;
+                } else {
+                    *s->hal.pin.velocity_cmd = -1.0 * s->hal.param.maxvel;
+                }
             } else {
-                *s->hal.pin.velocity_cmd += s->hal.param.maxaccel * f_period_s;
+                if (s->hal.param.maxaccel > 0.0) {
+                    *s->hal.pin.velocity_cmd += s->hal.param.maxaccel * f_period_s;
+                } else {
+                    *s->hal.pin.velocity_cmd = s->hal.param.maxvel;
+                }
             }
         } else {
             // oh shit i'm gonna overshoot!
             // FIXME: this should be proportional to pos_error
             if (pos_error > 0) {
-                *s->hal.pin.velocity_cmd = -1.0 * s->hal.param.maxaccel * (seconds_until_stop - f_period_s);
+                if (s->hal.param.maxaccel > 0.0) {
+                    *s->hal.pin.velocity_cmd = -1.0 * s->hal.param.maxaccel * (seconds_until_stop - f_period_s);
+                } else {
+                    // FIXME
+                    *s->hal.pin.velocity_cmd = 0.0;
+                }
             } else {
-                *s->hal.pin.velocity_cmd = s->hal.param.maxaccel * (seconds_until_stop - f_period_s);
+                if (s->hal.param.maxaccel > 0.0) {
+                    *s->hal.pin.velocity_cmd = s->hal.param.maxaccel * (seconds_until_stop - f_period_s);
+                } else {
+                    // FIXME
+                    *s->hal.pin.velocity_cmd = 0.0;
+                }
             }
         }
     }

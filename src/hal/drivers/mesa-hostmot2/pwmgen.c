@@ -342,16 +342,18 @@ void hm2_pwmgen_prepare_tram_write(hostmot2_t *hm2) {
     int i;
 
     for (i = 0; i < hm2->pwmgen.num_instances; i ++) {
-        float duty_cycle;
+        float scaled_value;
+        float abs_duty_cycle;
 
-        duty_cycle = fabs(*(hm2->pwmgen.instance[i].hal.pin.value)) / hm2->pwmgen.instance[i].hal.param.scale;
-        if (duty_cycle > 1.0) duty_cycle = 1.0;
+        scaled_value = *hm2->pwmgen.instance[i].hal.pin.value / hm2->pwmgen.instance[i].hal.param.scale;
+
+        abs_duty_cycle = fabs(scaled_value);
+        if (abs_duty_cycle > 1.0) abs_duty_cycle = 1.0;
 
         // duty_cycle goes from 0.0 to 1.0, and needs to be puffed out to 12 bits
-        hm2->pwmgen.pwm_value_reg[i] = duty_cycle * (float)((1 << 12) - 1);
-
+        hm2->pwmgen.pwm_value_reg[i] = abs_duty_cycle * (float)((1 << 12) - 1);
         hm2->pwmgen.pwm_value_reg[i] <<= 16;
-        if (*(hm2->pwmgen.instance[i].hal.pin.value) < 0) {
+        if (scaled_value < 0) {
             hm2->pwmgen.pwm_value_reg[i] |= (1 << 31);
         }
     }

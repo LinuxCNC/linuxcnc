@@ -28,7 +28,7 @@
 #include "hostmot2-lowlevel.h"
 
 
-#define HM2_VERSION "0.11"
+#define HM2_VERSION "0.12"
 #define HM2_NAME    "hm2"
 
 #define PRINT_NO_LL(level, fmt, args...)  rtapi_print_msg(level, HM2_NAME ": " fmt, ## args);
@@ -195,10 +195,12 @@ typedef struct {
 #define HM2_ENCODER_INDEX_JUSTONCE      (1<<6)
 #define HM2_ENCODER_CLEAR_INDEX         (1<<5)
 #define HM2_ENCODER_INDEX_POLARITY      (1<<3)
+
 #define HM2_ENCODER_MASK  (HM2_ENCODER_FILTER | HM2_ENCODER_COUNTER_MODE | \
         HM2_ENCODER_INDEX_MASK | HM2_ENCODER_INDEX_MASK_POLARITY | \
         HM2_ENCODER_INDEX_JUSTONCE | HM2_ENCODER_CLEAR_INDEX | \
         HM2_ENCODER_INDEX_POLARITY)
+
 typedef struct {
 
     struct {

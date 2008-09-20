@@ -7,6 +7,8 @@ next steps:
 
     stepgen overshoots with high maxaccel
 
+        velocity_cmd should be renamed to velocity_fb probably 
+
         cleanup
 
         look at pluto_step 
@@ -34,6 +36,30 @@ next steps:
     It's starting to feel like it's ready for some kind of module
     abstraction...  To standardize the semantics and make it easier to
     think about.  Pull out the common code.  pins are special
+
+        module drivers are expected to export the following functions:
+
+            parse_md(): deal with the MD & modparam config info, make
+                HAL representation, allocate memory for registers,
+                request TRAM entries
+
+            write(): check if FPGA registers need to be written with
+                new information from HAL (or from within the driver),
+                and if so write them
+
+            force_write(): write the FPGA registers with current values
+
+            process_initial_tram_read(): TRAM registers have first value,
+                any data-dependent driver initialization should happen now
+
+            prepare_initial_tram_write(): set TRAM register values to
+                initialize the FPGA
+
+            prepare_tram_write(): set TRAM registers as appropriate
+
+            process_tram_read(): handle new values in TRAM registers
+
+            debug_print(): show internal state
 
 
 
@@ -154,15 +180,15 @@ encoders:
 
     missing stuff:
 
+        expose filter rate to HAL (cooked prolly)
+
         fancy velocity computation
 
         pins:
 
             velocity
 
-            reset
-
-            index-enable
+            optional: a, b, index (available in the control register, which is not currently getting read)
 
         parameters:
 
