@@ -340,6 +340,16 @@ The -name is the name of the file your looking for and the -print tells
  it to print out the result to the terminal window.
  The *.ini tells find to return all files that have the .ini extension.
  
+\layout Standard
+
+To find all the files in the directory named and all the subdirectories
+ under that add the -L option to the find command like this:
+\layout Standard
+
+
+\family typewriter 
+\series bold 
+~$ find -L /home/joe/emc2 -name *.ini -print
 \layout Subsection
 
 Searching for Text
