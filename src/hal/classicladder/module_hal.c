@@ -107,26 +107,27 @@ void HalWrites32Outputs(void) {
 // calculations. This function runs at the period rate of the thread
 // that you added it to.
 // period, leftover, t0,and t1 are in nanoseconds. 
-// This function first checks to see if at least 1 micosecond has gone by
+// This function first checks to see if at least 1 millisecond has gone by
 // if the period is under 1 MS then if will not refresh rungs yet but 
 // will keep track of how many NS were left over. Does this each period
 // till at least 1 MS has occured, if more then 1 MS then keeps track of
 // leftover NS for accuracy. Bottom line is you can run classiclader in
-// a thread faster than 1 microsecond but it will not refresh the rungs
-// any faster (it can be slower though).
+// a thread faster than 1 millisecond but it will not refresh the rungs
+// any faster (it can be slower though). If your refresh is too slow and 
+// your timer are using multiples of 100 microseconds they might not be accurate.
 // t0 and t1 are for keeping track of how long the refresh of sections, 
-// and HAL pins take (it is displayed in the 'section display' GUI). 
+// and HAL pins take (it is displayed in the 'section display' GUI (in microseconds). 
 
 static void hal_task(void *arg, long period) 
 {
-	unsigned long t0, t1,microseconds;
+	unsigned long t0, t1,milliseconds;
  	static unsigned long leftover=0;
          leftover += period;
-	 microseconds= leftover / 1000000;
+	 milliseconds= leftover / 1000000;
 	leftover %= 1000000;
 
-	if (microseconds >= 1) {
-	InfosGene->GeneralParams.PeriodicRefreshMilliSecs=microseconds;
+	if (milliseconds >= 1) {
+	InfosGene->GeneralParams.PeriodicRefreshMilliSecs=milliseconds;
 	*hal_state = InfosGene->LadderState;
 	t0 = rtapi_get_time();
 		if (InfosGene->LadderState==STATE_RUN)
