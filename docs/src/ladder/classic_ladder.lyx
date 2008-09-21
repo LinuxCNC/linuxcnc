@@ -22,7 +22,7 @@
 \topmargin 1in
 \rightmargin 0.8in
 \bottommargin 0.8in
-\secnumdepth 1
+\secnumdepth 3
 \tocdepth 5
 \paragraph_separation skip
 \defskip smallskip
@@ -531,44 +531,38 @@ Loading the ClassicLadder user module
 There are options while loading the user module:
 \layout Itemize
 
---help \SpecialChar \menuseparator
- displays basically this list then exits
+--help displays basically this list then exits
 \layout Itemize
 
---version \SpecialChar \menuseparator
- displays the...
+--version displays the...
  version ...surprise!! then exits
 \layout Itemize
 
---nogui \SpecialChar \menuseparator
- starts classicladder (while loading a ladder program if specified)
+--nogui starts classicladder (while loading a ladder program if specified)
  with no GUI.
 \layout Itemize
 
---modbus_port=port \SpecialChar \menuseparator
- sets up the modbus port number (EMC doesn't use it)
+--modbus_port=port sets up the modbus port number (EMC doesn't use it)
 \layout Itemize
 
---config=file \SpecialChar \menuseparator
- sets up the number of the each ladder object ( only if there
+--config=file Sets up the number of the each ladder object ( only if there
  is no realtime support.In EMC you load this with the realtime module-I'll
  get to this in a minute) 
+\layout Itemize
+
+-w Used when ClassicLadder is used with a HAL file and not loaded with EMC.
+ It tells HAL not to close down the HAL environment until ClassicLadder
+ is finished.
 \layout Standard
 
-Unfortunately as of EMC 2.1.x, --version and --help do not exit HAL properly.
- Really only --nogui is any use to you.
- Use the GUI when setting up your system then change it to --nogui when
- running.
+Use the GUI when setting up your system then change it to --nogui when running.
  The only other thing you can do while loading the user module is specify
  a ladder program to load.
  ladder programs are specified by the .clp ending.
  
-\layout Standard
-
-for examples: 
 \layout Itemize
 
-loadusr -w classicladder --nogui myladder.clp
+loadusr classicladder --nogui myladder.clp
 \begin_deeper 
 \layout Standard
 
@@ -577,7 +571,7 @@ loads the classicladder user module, ladder program myladder and displays
 \end_deeper 
 \layout Itemize
 
-loadusr -w classicladder myladder.clp
+loadusr classicladder myladder.clp
 \begin_deeper 
 \layout Standard
 
@@ -586,7 +580,7 @@ loads the classicladder user module, ladder program myladder and starts
 \end_deeper 
 \layout Itemize
 
-loadusr -w classicladder
+loadusr classicladder
 \begin_deeper 
 \layout Standard
 
@@ -595,7 +589,6 @@ loads the classicladder user module, starts the GUI but loads no laddder
 \end_deeper 
 \layout Standard
 
-*** you can only use this after loading a ladder program previously ***
 \layout Section
 
 ClassicLadder GUI
@@ -636,16 +629,11 @@ The %I variable represents HAL input bit pins.
  The %B represents an internal relay coil or internal contact.
 \layout Standard
 
-There is a quirk that the word variables list will not display the symbols
- unless the check-box in the section manager is checked and you miss-edit
- the coresponding variable.
- Meaning erase the numbers after the %W and press return-if there is a symbol
- for that number you erased and the display symbols check-box in the section
- display is checked it will show it.
 \layout Standard
 
 
 \begin_inset Float figure
+placement H
 wide false
 collapsed false
 
@@ -657,6 +645,7 @@ ClassicLadder Var window
 
 \begin_inset Graphics
 	filename vars.png
+	scale 75
 
 \end_inset 
 
@@ -681,6 +670,10 @@ The symbols button will display an editable list of symbols for the variables
  
 \layout Standard
 
+The symbols window will display the HAL signal names if present for %I,
+ %Q and %W variables.
+\layout Standard
+
 The quit button will only shut down the display-the ladder program will
  still run in the back ground.
  
@@ -692,6 +685,7 @@ The check box at the top right allows you to select whether variable names
 
 
 \begin_inset Float figure
+placement H
 wide false
 collapsed false
 
@@ -703,6 +697,7 @@ ClassicLadder Section Display window
 
 \begin_inset Graphics
 	filename section_display.png
+	scale 75
 
 \end_inset 
 
@@ -721,6 +716,7 @@ This window allows you to name, create or delete sections.
 
 
 \begin_inset Float figure
+placement H
 wide false
 collapsed false
 
@@ -732,6 +728,7 @@ ClassicLadder Section Manager window
 
 \begin_inset Graphics
 	filename sections_manager.png
+	scale 75
 
 \end_inset 
 
@@ -770,6 +767,7 @@ JUMP COIL, CALL COIL, OPERATE
 
 
 \begin_inset Float figure
+placement H
 wide false
 collapsed false
 
@@ -781,6 +779,7 @@ ClassicLadder Editor window
 
 \begin_inset Graphics
 	filename editor.png
+	scale 75
 
 \end_inset 
 
@@ -961,7 +960,7 @@ JUMP COILs should be placed as the last coil of a rung because of a bug.
  If there are coils after the JUMP COIL (in the same rung) they will be
  updated even if the JUMP COIL is true.
 \begin_inset Foot
-collapsed true
+collapsed false
 
 \layout Standard
 
