@@ -603,6 +603,7 @@ void GetModbusModulesIOSettings( void )
 
 void GetSettings( void )
 {
+#ifndef HAL_SUPPORT
 	GetIOSettings( 1/*ForInputs*/ );
 	GetIOSettings( 0/*ForInputs*/ );
 #ifdef USE_MODBUS
@@ -610,6 +611,7 @@ void GetSettings( void )
 #endif
 #ifndef RT_SUPPORT
 	ConfigHardware( );
+#endif
 #endif
 }
 
