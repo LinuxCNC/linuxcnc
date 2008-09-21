@@ -184,6 +184,8 @@ error:
 
 void rtapi_app_exit(void) {
 	ClassicLadderFreeAll( );
+        hal_exit(compId);
+	rtapi_print("INFO CLASSICLADDER-   Realtime module unloaded and closed.\n");
 }
 
 void CopySizesInfosFromModuleParams( void )
