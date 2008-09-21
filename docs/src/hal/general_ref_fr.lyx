@@ -622,18 +622,6 @@ ppmc.0.write
 \end_inset 
 
 Périphériques d'interfaces canoniques
-\begin_inset Foot
-collapsed false
-
-\layout Standard
-
-Ã partir de la version 2.0, la plupart des pilotes de HAL ne correspondent
- plus tout à fait à l'interface canonique décrite ici.
- Dans la version 2.1, les pilotes seront modifiés pour correspondre à ces
- spécifications.
-\end_inset 
-
- 
 \layout Standard
 
 Les sections qui suivent expliquent les pins, paramètres et functions qui

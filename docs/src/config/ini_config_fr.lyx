@@ -1305,14 +1305,46 @@ FERROR est le maximum d'erreurs de suivi tolérable, en unités machine.
 s et comment les résultats sont appliqués aux sorties.
  Elles peuvent généralement être réglées par tâtonnement car il n'y a que
  deux possibilités.
- Le programme utilitaire USRMOT peut être utilisé pour les ajuster intéractiveme
-nt et vérifier les résultats, de sorte que les valeurs puissent être mises
+ L'utilitaire de calibration peut être utilisé pour les ajuster intéractivement
+ et vérifier les résultats, de sorte que les valeurs puissent être mises
  dans le fichier INI avec un minimum de difficultés.
- 
+ Cet utilitaire est accessible dans Axis depuis le menu 
+\begin_inset Quotes fld
+\end_inset 
+
+Machine
+\begin_inset Quotes frd
+\end_inset 
+
+ puis 
+\begin_inset Quotes fld
+\end_inset 
+
+Calibration
+\begin_inset Quotes frd
+\end_inset 
+
+ et dans TkEMC depuis le menu 
+\begin_inset Quotes fld
+\end_inset 
+
+Réglages
+\begin_inset Quotes frd
+\end_inset 
+
+ puis 
+\begin_inset Quotes fld
+\end_inset 
+
+Calibration
+\begin_inset Quotes frd
+\end_inset 
+
+.
 \layout Subsubsection
 
-Variables relatives aux prises d'origine
-\begin_inset LatexCommand \label{sub:Variables relatives aux prises d'origine}
+Variables relatives aux origines machine
+\begin_inset LatexCommand \label{sub:Variables relatives aux origines}
 
 \end_inset 
 
@@ -1363,8 +1395,8 @@ NO Certaines machines utilisent une limite d'axe comme
  machine.
 \layout Subsubsection
 
-Variables relatives aux servo
-\begin_inset LatexCommand \label{sub:Variables relatives aux servo}
+Variables relatives aux servomoteurs
+\begin_inset LatexCommand \label{sub:Variables relatives aux servomoteurs}
 
 \end_inset 
 
