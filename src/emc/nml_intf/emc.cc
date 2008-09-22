@@ -1728,25 +1728,14 @@ void EMC_AXIS_STAT::update(CMS * cms)
     EMC_AXIS_STAT_MSG::update(cms);
     cms->update(axisType);
     cms->update(units);
-    cms->update(p);
-    cms->update(i);
-    cms->update(d);
-    cms->update(ff0);
-    cms->update(ff1);
-    cms->update(ff2);
     cms->update(backlash);
-    cms->update(bias);
     cms->update(maxError);
     cms->update(deadband);
-    cms->update(cycleTime);
     cms->update(minPositionLimit);
     cms->update(maxPositionLimit);
     cms->update(maxFerror);
     cms->update(minFerror);
     /*! \todo FIXME - homingVel has been superceded */
-    cms->update(homingVel);
-    cms->update(homeOffset);
-    cms->update(setpoint);
     cms->update(ferrorCurrent);
     cms->update(ferrorHighMark);
     cms->update(output);
@@ -1761,8 +1750,6 @@ void EMC_AXIS_STAT::update(CMS * cms)
     cms->update(minHardLimit);
     cms->update(maxHardLimit);
     cms->update(overrideLimits);
-    cms->update(scale);
-
 }
 
 /*

@@ -457,29 +457,15 @@ class EMC_AXIS_STAT:public EMC_AXIS_STAT_MSG {
     // configuration parameters
     unsigned char axisType;	// EMC_AXIS_LINEAR, EMC_AXIS_ANGULAR
     double units;		// units per mm, deg for linear, angular
-    double p;
-    double i;
-    double d;
-    double ff0;
-    double ff1;
-    double ff2;
     double backlash;
-    double bias;
     double maxError;
     double deadband;
-    double cycleTime;
     double minPositionLimit;
     double maxPositionLimit;
     double maxFerror;
     double minFerror;
-    /*! \todo FIXME - homingVel has been superceded */
-    double homingVel;
-    double homeOffset;
 
     // dynamic status
-    /*! \todo FIXME - is this the position cmd from control to PID, or
-       something else? */
-    double setpoint;		// input to axis controller
     double ferrorCurrent;	// current following error
     double ferrorHighMark;	// magnitude of max following error
     /*! \todo FIXME - is this really position, or the DAC output? */
@@ -494,9 +480,7 @@ class EMC_AXIS_STAT:public EMC_AXIS_STAT_MSG {
     unsigned char maxSoftLimit;	// non-zero means max soft limit exceeded
     unsigned char minHardLimit;	// non-zero means min hard limit exceeded
     unsigned char maxHardLimit;	// non-zero means max hard limit exceeded
-    unsigned char overrideLimits;	// non-zero means limits are
-    // overridden
-    double scale;		// velocity scale
+    unsigned char overrideLimits; // non-zero means limits are overridden
 };
 
 // declarations for EMC_TRAJ classes

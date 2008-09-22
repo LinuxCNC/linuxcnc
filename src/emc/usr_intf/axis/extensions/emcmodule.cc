@@ -542,24 +542,13 @@ static PyObject *Stat_axis_one(pyStatChannel *s, int axisno) {
     PyObject *res = PyDict_New();
     F(axisType);
     F(units);
-    F(p);
-    F(i);
-    F(d);
-    F(ff0);
-    F(ff1);
-    F(ff2);
     F(backlash);
-    F(bias);
     F2("max_error", maxError);
     F(deadband);
-    F2("cycle_type", cycleTime);
     F2("min_position_limit", minPositionLimit);
     F2("max_position_limit", maxPositionLimit);
     F2("max_ferror", maxFerror);
     F2("min_ferror", minFerror);
-    F2("homing_vel", homingVel);
-    F2("home_offset", homeOffset);
-    F(setpoint);
     F2("ferror_current", ferrorCurrent);
     F2("ferror_highmark", ferrorHighMark);
     F(output);
@@ -574,7 +563,6 @@ static PyObject *Stat_axis_one(pyStatChannel *s, int axisno) {
     F2("min_hard_limit", minHardLimit);
     F2("max_hard_limit", maxHardLimit);
     F2("override_limits", overrideLimits);
-    F(scale);
     return res;
 }
 #undef F

@@ -463,12 +463,6 @@ static void printStatus()
 
       sprintf(scratch_string, "%10.3f", emcStatus->motion.traj.scale);
       mvwaddstr(window, 12, 28, scratch_string);
-      sprintf(scratch_string, "%10.3f", emcStatus->motion.axis[0].scale);
-      mvwaddstr(window, 13, 28, scratch_string);
-      sprintf(scratch_string, "%10.3f", emcStatus->motion.axis[1].scale);
-      mvwaddstr(window, 14, 28, scratch_string);
-      sprintf(scratch_string, "%10.3f", emcStatus->motion.axis[2].scale);
-      mvwaddstr(window, 15, 28, scratch_string);
 
       sprintf(scratch_string, "%10.3f%10.3f",
               emcStatus->motion.traj.velocity, emcStatus->motion.traj.maxVelocity);

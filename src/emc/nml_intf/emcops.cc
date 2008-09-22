@@ -23,20 +23,11 @@ EMC_AXIS_STAT_MSG(EMC_AXIS_STAT_TYPE, sizeof(EMC_AXIS_STAT))
 {
     axisType = EMC_AXIS_LINEAR;
     units = 1.0;
-    p = 0.0;
-    i = 0.0;
-    d = 0.0;
-    ff0 = 0.0;
-    ff1 = 0.0;
-    ff2 = 0.0;
     backlash = 0.0;
-    bias = 0.0;
     maxError = 0.0;
-    cycleTime = 1.0;
     minPositionLimit = -1.0;
     maxPositionLimit = 1.0;
     maxFerror = 1.0;
-    homingVel = 1.0;
     ferrorCurrent = 0.0;
     ferrorHighMark = 0.0;
     output = 0.0;
@@ -49,7 +40,6 @@ EMC_AXIS_STAT_MSG(EMC_AXIS_STAT_TYPE, sizeof(EMC_AXIS_STAT))
     maxSoftLimit = 0;
     minHardLimit = 0;
     maxHardLimit = 0;
-    scale = 0.0;
 }
 
 EMC_TRAJ_STAT::EMC_TRAJ_STAT():

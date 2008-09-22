@@ -1150,18 +1150,6 @@ static int sendLoadToolTable(const char *file)
   return 0;
 }
 
-static int sendAxisSetFerror(int axis, double ferror)
-{
-  EMC_AXIS_SET_FERROR emc_axis_set_ferror_msg;
-
-  emc_axis_set_ferror_msg.axis = axis;
-  emc_axis_set_ferror_msg.ferror = ferror;
-  emc_axis_set_ferror_msg.serial_number = ++emcCommandSerialNumber;
-  emcCommandBuffer->write(emc_axis_set_ferror_msg);
-
-  return 0;
-}
-
 // paths to awk and xgraph, using to plot logs
 // fill these in for your system, if these are not in user's path
 #define AWK_PATH "awk"
@@ -3120,8 +3108,6 @@ static String settingsMenuEntryNames[] = {
   "-",
   "[@] Actual Position",
   "[@] Commanded Position",
-  "-",
-  "Calibration...",
   NULL
 };
 
@@ -3249,162 +3235,10 @@ static void viewMenuSelect(Widget w, XtPointer client_data, XtPointer call_data)
   }
 }
 
-// calibration dialog
-
-static Widget calibShell = NULL;
-static Widget calibForm = NULL;
-static Widget calibLabel = NULL;
-static Widget calibCycleTimeLabel = NULL;
-static Widget calibCycleTime = NULL;
-static Widget calibPGainLabel = NULL;
-static Widget calibPGain = NULL;
-static Widget calibIGainLabel = NULL;
-static Widget calibIGain = NULL;
-static Widget calibDGainLabel = NULL;
-static Widget calibDGain = NULL;
-static Widget calibFF0GainLabel = NULL;
-static Widget calibFF0Gain = NULL;
-static Widget calibFF1GainLabel = NULL;
-static Widget calibFF1Gain = NULL;
-static Widget calibFF2GainLabel = NULL;
-static Widget calibFF2Gain = NULL;
-static Widget calibBacklashLabel = NULL;
-static Widget calibBacklash = NULL;
-static Widget calibBiasLabel = NULL;
-static Widget calibBias = NULL;
-static Widget calibMaxErrorLabel = NULL;
-static Widget calibMaxError = NULL;
-static Widget calibOutputScaleLabel = NULL;
-static Widget calibOutputScale = NULL;
-static Widget calibOutputOffsetLabel = NULL;
-static Widget calibOutputOffset = NULL;
-static Widget calibFerrorLabel = NULL;
-static Widget calibFerror = NULL;
-static Widget calibDone = NULL;
-static Widget calibCancel = NULL;
-
-static int calibReturnIsDone = 1;
-static Pixel calibFormBorderColor;
-static void calibDoDone(int done);
-static void calibDoneCB(Widget w, XtPointer client_data, XtPointer call_data);
-static void calibCancelCB(Widget w, XtPointer client_data, XtPointer call_data);
-static void calibReturnAction(Widget w, XEvent *event, String *params, Cardinal *num_params);
-static void calibTabAction(Widget w, XEvent *event, String *params, Cardinal *num_params);
-
-static void calibDoDone(int done)
-{
-  int iserror = 0;
-  String str1, str2, str3, str4, str5, str6, str7, str8, str9, str10, str11, str12, str13;
-  double cycleTime;
-  double p;
-  double i;
-  double d;
-  double ff0;
-  double ff1;
-  double ff2;
-  double bias;
-  double backlash;
-  double maxError;
-  double outputScale;
-  double outputOffset;
-  double ferror;
-
-  if (done) {
-    // get current values for rest of gains
-    cycleTime = emcStatus->motion.axis[activeAxis].cycleTime;
-    p = emcStatus->motion.axis[activeAxis].p;
-    i = emcStatus->motion.axis[activeAxis].i;
-    d = emcStatus->motion.axis[activeAxis].d;
-    ff0 = emcStatus->motion.axis[activeAxis].ff0;
-    ff1 = emcStatus->motion.axis[activeAxis].ff1;
-    ff2 = emcStatus->motion.axis[activeAxis].ff2;
-    backlash = emcStatus->motion.axis[activeAxis].backlash;
-    bias = emcStatus->motion.axis[activeAxis].bias;
-    maxError = emcStatus->motion.axis[activeAxis].maxError;
-
-    XtVaGetValues(calibCycleTime, XtNstring, &str1, NULL);
-    XtVaGetValues(calibPGain, XtNstring, &str2, NULL);
-    XtVaGetValues(calibIGain, XtNstring, &str3, NULL);
-    XtVaGetValues(calibDGain, XtNstring, &str4, NULL);
-    XtVaGetValues(calibFF0Gain, XtNstring, &str5, NULL);
-    XtVaGetValues(calibFF1Gain, XtNstring, &str6, NULL);
-    XtVaGetValues(calibFF2Gain, XtNstring, &str7, NULL);
-    XtVaGetValues(calibBacklash, XtNstring, &str8, NULL);
-    XtVaGetValues(calibBias, XtNstring, &str9, NULL);
-    XtVaGetValues(calibMaxError, XtNstring, &str10, NULL);
-    XtVaGetValues(calibOutputScale, XtNstring, &str11, NULL);
-    XtVaGetValues(calibOutputOffset, XtNstring, &str12, NULL);
-    XtVaGetValues(calibFerror, XtNstring, &str13, NULL);
-
-    if (1 == sscanf(str1, "%lf", &cycleTime) &&
-        1 == sscanf(str2, "%lf", &p) &&
-        1 == sscanf(str3, "%lf", &i) &&
-        1 == sscanf(str4, "%lf", &d) &&
-        1 == sscanf(str5, "%lf", &ff0) &&
-        1 == sscanf(str6, "%lf", &ff1) &&
-        1 == sscanf(str7, "%lf", &ff2) &&
-        1 == sscanf(str8, "%lf", &backlash) &&
-        1 == sscanf(str9, "%lf", &bias) &&
-        1 == sscanf(str10, "%lf", &maxError) &&
-        1 == sscanf(str11, "%lf", &outputScale) &&
-        1 == sscanf(str12, "%lf", &outputOffset) &&
-        1 == sscanf(str13, "%lf", &ferror)) {
-      sendAxisSetFerror(activeAxis, ferror);
-    }
-    else {
-      iserror = 1;
-    }
-  }
-
-  calibReturnIsDone = 1;
-  XtPopdown(calibShell);
-
-  if (iserror) {
-    popupError("Bad gain values");
-  }
-}
-
-static void calibDoneCB(Widget w, XtPointer client_data, XtPointer call_data)
-{
-  calibDoDone(1);
-}
-
-static void calibCancelCB(Widget w, XtPointer client_data, XtPointer call_data)
-{
-  calibDoDone(0);
-}
-
-static void calibReturnAction(Widget w, XEvent *event, String *params, Cardinal *num_params)
-{
-  if (calibReturnIsDone) {
-    calibDoDone(1);
-  }
-  else {
-    calibDoDone(0);
-  }
-}
-
-static void calibTabAction(Widget w, XEvent *event, String *params, Cardinal *num_params)
-{
-  if (calibReturnIsDone) {
-    setBorderColor(calibDone, calibFormBorderColor);
-    setBorderColor(calibCancel, pixelRed);
-    calibReturnIsDone = 0;
-  }
-  else {
-    setBorderColor(calibDone, pixelRed);
-    setBorderColor(calibCancel, calibFormBorderColor);
-    calibReturnIsDone = 1;
-  }
-}
-
-
 // menu select functions
 
 static void settingsMenuSelect(Widget w, XtPointer client_data, XtPointer call_data)
 {
-  char string[256];             // FIXME-- hardcoded value
-
   switch ((long) client_data) {
   case 0:                       // Relative
     coords = COORD_RELATIVE;
@@ -3422,45 +3256,6 @@ static void settingsMenuSelect(Widget w, XtPointer client_data, XtPointer call_d
 
   case 4:                       // Commanded
     posDisplay = POS_DISPLAY_CMD;
-    break;
-
-    // case 5 is separator
-
-  case 6:                       // Calibration...
-
-    sprintf(string, "Axis %d Calibration", activeAxis);
-    XtVaSetValues(calibLabel, XtNlabel, string, NULL);
-
-    sprintf(string, "%f", emcStatus->motion.axis[activeAxis].cycleTime);
-    XtVaSetValues(calibCycleTime, XtNstring, string, NULL);
-
-    sprintf(string, "%f", emcStatus->motion.axis[activeAxis].p);
-    XtVaSetValues(calibPGain, XtNstring, string, NULL);
-    sprintf(string, "%f", emcStatus->motion.axis[activeAxis].i);
-    XtVaSetValues(calibIGain, XtNstring, string, NULL);
-    sprintf(string, "%f", emcStatus->motion.axis[activeAxis].d);
-    XtVaSetValues(calibDGain, XtNstring, string, NULL);
-
-    sprintf(string, "%f", emcStatus->motion.axis[activeAxis].ff0);
-    XtVaSetValues(calibFF0Gain, XtNstring, string, NULL);
-    sprintf(string, "%f", emcStatus->motion.axis[activeAxis].ff1);
-    XtVaSetValues(calibFF1Gain, XtNstring, string, NULL);
-    sprintf(string, "%f", emcStatus->motion.axis[activeAxis].ff2);
-    XtVaSetValues(calibFF2Gain, XtNstring, string, NULL);
-
-    sprintf(string, "%f", emcStatus->motion.axis[activeAxis].backlash);
-    XtVaSetValues(calibBacklash, XtNstring, string, NULL);
-    sprintf(string, "%f", emcStatus->motion.axis[activeAxis].bias);
-    XtVaSetValues(calibBias, XtNstring, string, NULL);
-    sprintf(string, "%f", emcStatus->motion.axis[activeAxis].maxError);
-    XtVaSetValues(calibMaxError, XtNstring, string, NULL);
-
-    sprintf(string, "%f", emcStatus->motion.axis[activeAxis].maxFerror);
-    XtVaSetValues(calibFerror, XtNstring, string, NULL);
-
-    dialogPopup(NULL, calibShell, NULL);
-    // trap window kill
-    XSetWMProtocols(XtDisplay(topLevel), XtWindow(calibShell), &killAtom, 1);
     break;
 
   default:
@@ -4474,11 +4269,6 @@ static void diagnosticsShellProtocols(Widget w, XEvent *event, String *string, C
   XtPopdown(diagnosticsShell);
 }
 
-static void calibShellProtocols(Widget w, XEvent *event, String *string, Cardinal *c)
-{
-  XtPopdown(calibShell);
-}
-
 static void helpXemcProtocols(Widget w, XEvent *event, String *string, Cardinal *c)
 {
   XtPopdown(helpXemcShell);
@@ -4508,8 +4298,6 @@ static XtActionsRec actionsTable[] =
   {"fileQuitReturnAction", fileQuitReturnAction},
   {"fileQuitTabAction", fileQuitTabAction},
   {"diagnosticsReturnAction", diagnosticsReturnAction},
-  {"calibReturnAction", calibReturnAction},
-  {"calibTabAction", calibTabAction},
   {"toolSetOffsetUpAction", toolSetOffsetUpAction},
   {"toolSetOffsetReturnAction", toolSetOffsetReturnAction},
   {"toolSetOffsetTabAction", toolSetOffsetTabAction},
@@ -4533,7 +4321,6 @@ static XtActionsRec actionsTable[] =
   {"feedOverrideShellProtocols", feedOverrideShellProtocols},
   {"varFileShellProtocols", varFileShellProtocols},
   {"diagnosticsShellProtocols", diagnosticsShellProtocols},
-  {"calibShellProtocols", calibShellProtocols},
   {"helpXemcProtocols", helpXemcProtocols},
   {"helpAboutProtocols", helpAboutProtocols},
   {"errorShellProtocols", errorShellProtocols}
@@ -5289,279 +5076,6 @@ int main(int argc, char **argv)
 
   XtAddCallback(diagnosticsDone, XtNcallback, diagnosticsDoneCB, NULL);
 
-  // calibration shell
-
-  calibShell =
-    XtVaCreatePopupShell("calibShell",
-                         topLevelShellWidgetClass,
-                         topLevel,
-                         XtNallowShellResize, True,
-                         NULL);
-
-  calibForm =
-    XtVaCreateManagedWidget("calibForm",
-                            formWidgetClass,
-                            calibShell,
-                            NULL);
-
-  calibLabel =
-    XtVaCreateManagedWidget("calibLabel",
-                            labelWidgetClass,
-                            calibForm,
-                            XtNborderWidth, 0,
-                            NULL);
-
-  calibCycleTimeLabel =
-    XtVaCreateManagedWidget("calibCycleTimeLabel",
-                            labelWidgetClass,
-                            calibForm,
-                            XtNfromVert, calibLabel,
-                            XtNborderWidth, 0,
-                            NULL);
-
-  calibCycleTime =
-    XtVaCreateManagedWidget("calibCycleTime",
-                            asciiTextWidgetClass,
-                            calibForm,
-                            XtNeditType, XawtextEdit,
-                            XtNfromVert, calibLabel,
-                            XtNfromHoriz, calibCycleTimeLabel,
-                            NULL);
-
-  calibPGainLabel =
-    XtVaCreateManagedWidget("calibPGainLabel",
-                            labelWidgetClass,
-                            calibForm,
-                            XtNfromVert, calibCycleTimeLabel,
-                            XtNborderWidth, 0,
-                            NULL);
-
-  calibPGain =
-    XtVaCreateManagedWidget("calibPGain",
-                            asciiTextWidgetClass,
-                            calibForm,
-                            XtNeditType, XawtextEdit,
-                            XtNfromVert, calibCycleTimeLabel,
-                            XtNfromHoriz, calibPGainLabel,
-                            NULL);
-
-  calibIGainLabel =
-    XtVaCreateManagedWidget("calibIGainLabel",
-                            labelWidgetClass,
-                            calibForm,
-                            XtNfromVert, calibPGainLabel,
-                            XtNborderWidth, 0,
-                            NULL);
-
-  calibIGain =
-    XtVaCreateManagedWidget("calibIGain",
-                            asciiTextWidgetClass,
-                            calibForm,
-                            XtNeditType, XawtextEdit,
-                            XtNfromVert, calibPGainLabel,
-                            XtNfromHoriz, calibIGainLabel,
-                            NULL);
-
-  calibDGainLabel =
-    XtVaCreateManagedWidget("calibDGainLabel",
-                            labelWidgetClass,
-                            calibForm,
-                            XtNfromVert, calibIGainLabel,
-                            XtNborderWidth, 0,
-                            NULL);
-
-  calibDGain =
-    XtVaCreateManagedWidget("calibDGain",
-                            asciiTextWidgetClass,
-                            calibForm,
-                            XtNeditType, XawtextEdit,
-                            XtNfromVert, calibIGainLabel,
-                            XtNfromHoriz, calibDGainLabel,
-                            NULL);
-
-  calibFF0GainLabel =
-    XtVaCreateManagedWidget("calibFF0GainLabel",
-                            labelWidgetClass,
-                            calibForm,
-                            XtNfromVert, calibDGainLabel,
-                            XtNborderWidth, 0,
-                            NULL);
-
-  calibFF0Gain =
-    XtVaCreateManagedWidget("calibFF0Gain",
-                            asciiTextWidgetClass,
-                            calibForm,
-                            XtNeditType, XawtextEdit,
-                            XtNfromVert, calibDGainLabel,
-                            XtNfromHoriz, calibFF0GainLabel,
-                            NULL);
-
-  calibFF1GainLabel =
-    XtVaCreateManagedWidget("calibFF1GainLabel",
-                            labelWidgetClass,
-                            calibForm,
-                            XtNfromVert, calibFF0GainLabel,
-                            XtNborderWidth, 0,
-                            NULL);
-
-  calibFF1Gain =
-    XtVaCreateManagedWidget("calibFF1Gain",
-                            asciiTextWidgetClass,
-                            calibForm,
-                            XtNeditType, XawtextEdit,
-                            XtNfromVert, calibFF0GainLabel,
-                            XtNfromHoriz, calibFF1GainLabel,
-                            NULL);
-
-  calibFF2GainLabel =
-    XtVaCreateManagedWidget("calibFF2GainLabel",
-                            labelWidgetClass,
-                            calibForm,
-                            XtNfromVert, calibFF1GainLabel,
-                            XtNborderWidth, 0,
-                            NULL);
-
-  calibFF2Gain =
-    XtVaCreateManagedWidget("calibFF2Gain",
-                            asciiTextWidgetClass,
-                            calibForm,
-                            XtNeditType, XawtextEdit,
-                            XtNfromVert, calibFF1GainLabel,
-                            XtNfromHoriz, calibFF2GainLabel,
-                            NULL);
-
-  calibBacklashLabel =
-    XtVaCreateManagedWidget("calibBacklashLabel",
-                            labelWidgetClass,
-                            calibForm,
-                            XtNfromVert, calibFF2GainLabel,
-                            XtNborderWidth, 0,
-                            NULL);
-
-
-  calibBacklash =
-    XtVaCreateManagedWidget("calibBacklash",
-                            asciiTextWidgetClass,
-                            calibForm,
-                            XtNeditType, XawtextEdit,
-                            XtNstring, string,
-                            XtNfromVert, calibFF2GainLabel,
-                            XtNfromHoriz, calibBacklashLabel,
-                            NULL);
-
-  calibBiasLabel =
-    XtVaCreateManagedWidget("calibBiasLabel",
-                            labelWidgetClass,
-                            calibForm,
-                            XtNfromVert, calibBacklashLabel,
-                            XtNborderWidth, 0,
-                            NULL);
-
-
-  calibBias =
-    XtVaCreateManagedWidget("calibBias",
-                            asciiTextWidgetClass,
-                            calibForm,
-                            XtNeditType, XawtextEdit,
-                            XtNstring, string,
-                            XtNfromVert, calibBacklashLabel,
-                            XtNfromHoriz, calibBiasLabel,
-                            NULL);
-
-  calibMaxErrorLabel =
-    XtVaCreateManagedWidget("calibMaxErrorLabel",
-                            labelWidgetClass,
-                            calibForm,
-                            XtNfromVert, calibBiasLabel,
-                            XtNborderWidth, 0,
-                            NULL);
-
-
-  calibMaxError =
-    XtVaCreateManagedWidget("calibMaxError",
-                            asciiTextWidgetClass,
-                            calibForm,
-                            XtNeditType, XawtextEdit,
-                            XtNstring, string,
-                            XtNfromVert, calibBiasLabel,
-                            XtNfromHoriz, calibMaxErrorLabel,
-                            NULL);
-
-  calibOutputScaleLabel =
-    XtVaCreateManagedWidget("calibOutputScaleLabel",
-                            labelWidgetClass,
-                            calibForm,
-                            XtNfromVert, calibMaxErrorLabel,
-                            XtNborderWidth, 0,
-                            NULL);
-
-
-  calibOutputScale =
-    XtVaCreateManagedWidget("calibOutputScale",
-                            asciiTextWidgetClass,
-                            calibForm,
-                            XtNeditType, XawtextEdit,
-                            XtNstring, string,
-                            XtNfromVert, calibMaxErrorLabel,
-                            XtNfromHoriz, calibOutputScaleLabel,
-                            NULL);
-
-  calibOutputOffsetLabel =
-    XtVaCreateManagedWidget("calibOutputOffsetLabel",
-                            labelWidgetClass,
-                            calibForm,
-                            XtNfromVert, calibOutputScaleLabel,
-                            XtNborderWidth, 0,
-                            NULL);
-
-
-  calibOutputOffset =
-    XtVaCreateManagedWidget("calibOutputOffset",
-                            asciiTextWidgetClass,
-                            calibForm,
-                            XtNeditType, XawtextEdit,
-                            XtNstring, string,
-                            XtNfromVert, calibOutputScaleLabel,
-                            XtNfromHoriz, calibOutputOffsetLabel,
-                            NULL);
-
-  calibFerrorLabel =
-    XtVaCreateManagedWidget("calibFerrorLabel",
-                            labelWidgetClass,
-                            calibForm,
-                            XtNfromVert, calibOutputOffsetLabel,
-                            XtNborderWidth, 0,
-                            NULL);
-
-
-  calibFerror =
-    XtVaCreateManagedWidget("calibFerror",
-                            asciiTextWidgetClass,
-                            calibForm,
-                            XtNeditType, XawtextEdit,
-                            XtNstring, string,
-                            XtNfromVert, calibOutputOffsetLabel,
-                            XtNfromHoriz, calibFerrorLabel,
-                            NULL);
-
-  calibDone =
-    XtVaCreateManagedWidget("calibDone",
-                            commandWidgetClass,
-                            calibForm,
-                            XtNfromVert, calibFerrorLabel,
-                            NULL);
-
-  calibCancel =
-    XtVaCreateManagedWidget("calibCancel",
-                            commandWidgetClass,
-                            calibForm,
-                            XtNfromVert, calibFerrorLabel,
-                            XtNfromHoriz, calibDone,
-                            NULL);
-
-  XtAddCallback(calibDone, XtNcallback, calibDoneCB, NULL);
-  XtAddCallback(calibCancel, XtNcallback, calibCancelCB, NULL);
-
   helpXemcShell =
     XtVaCreatePopupShell("helpXemcShell",
                          topLevelShellWidgetClass,
@@ -6161,9 +5675,6 @@ int main(int argc, char **argv)
 
   getBorderColor(toolSetOffsetForm, &toolSetOffsetFormBorderColor);
   setBorderColor(toolSetOffsetDone, pixelRed);
-
-  getBorderColor(calibForm, &calibFormBorderColor);
-  setBorderColor(calibDone, pixelRed);
 
   // set labels for dynamic labels we can't init in timeoutCB
   sprintf(string, "%d", jogSpeed);

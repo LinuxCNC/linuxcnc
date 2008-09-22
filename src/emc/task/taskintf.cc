@@ -566,12 +566,8 @@ int emcAxisUpdate(EMC_AXIS_STAT stat[], int numAxes)
 	    stat[axis].maxPositionLimit = joint->max_pos_limit;
 	    stat[axis].minFerror = joint->min_ferror;
 	    stat[axis].maxFerror = joint->max_ferror;
-/*! \todo FIXME - should all homing config params be included here? */
-	    stat[axis].homeOffset = joint->home_offset;
 	}
-	stat[axis].setpoint = joint->pos_cmd;
-	/*! \todo FIXME - output is the DAC output, now part of HAL */
-	stat[axis].output = 0.0;
+	stat[axis].output = joint->pos_cmd;
 	stat[axis].input = joint->pos_fb;
 
 	if (get_emcmot_debug_info) {
