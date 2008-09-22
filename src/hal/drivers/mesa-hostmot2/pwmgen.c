@@ -330,7 +330,12 @@ void hm2_pwmgen_print_module(int msg_level, hostmot2_t *hm2) {
     for (i = 0; i < hm2->pwmgen.num_instances; i ++) {
         PRINT(msg_level, "    instance %d:\n", i);
         PRINT(msg_level, "        hw:\n");
-        PRINT(msg_level, "            pwm_val = 0x%08X\n", hm2->pwmgen.pwm_value_reg[i]);
+        PRINT(msg_level,
+            "            pwm_val = 0x%08X (%s%d)\n",
+            hm2->pwmgen.pwm_value_reg[i],
+            ((hm2->pwmgen.pwm_value_reg[i] & 0x80000000) ? "-" : ""),
+            ((hm2->pwmgen.pwm_value_reg[i]>>16) & 0x7fff)
+        );
         PRINT(msg_level, "            pwm_mode = 0x%08X\n", hm2->pwmgen.pwm_mode_reg[i]);
     }
 }
