@@ -885,8 +885,8 @@ CANON_MOTION_MODE motion_mode;
 void SET_MOTION_CONTROL_MODE(CANON_MOTION_MODE mode, double tolerance) { _motion_mode = mode; }
 void SET_MOTION_CONTROL_MODE(double tolerance) { }
 
-int GET_EXTERNAL_DIGITAL_INPUT(int index) { return 1; }
-double GET_EXTERNAL_ANALOG_INPUT(int index) { return 1.0; }
+int GET_EXTERNAL_DIGITAL_INPUT(int index, int def) { return def; }
+double GET_EXTERNAL_ANALOG_INPUT(int index, double def) { return def; }
 int WAIT(int index, int input_type, int wait_type, int timeout) { return 0; }
 
 /* Returns the system feed rate */

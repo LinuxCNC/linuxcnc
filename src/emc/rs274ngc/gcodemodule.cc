@@ -488,8 +488,8 @@ int GET_EXTERNAL_TLO_IS_ALONG_W(void) {
     return is_along_w;
 }
 
-int GET_EXTERNAL_DIGITAL_INPUT(int index) { return 1; }
-double GET_EXTERNAL_ANALOG_INPUT(int index) { return 1.0; }
+int GET_EXTERNAL_DIGITAL_INPUT(int index, int def) { return def; }
+double GET_EXTERNAL_ANALOG_INPUT(int index, double def) { return def; }
 int WAIT(int index, int input_type, int wait_type, int timeout) { return 0;}
 
 void user_defined_function(int num, double arg1, double arg2) {

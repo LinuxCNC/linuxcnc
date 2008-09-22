@@ -843,10 +843,12 @@ extern int GET_EXTERNAL_ADAPTIVE_FEED_ENABLE();
 extern int GET_EXTERNAL_FEED_HOLD_ENABLE();
 
 // Functions to query digital/analog Inputs
-extern int GET_EXTERNAL_DIGITAL_INPUT(int index);
+/* def is a default value which should be returned by canon functions
+   that can't actually read external hardware - simulators and such */
+extern int GET_EXTERNAL_DIGITAL_INPUT(int index, int def);
 /* returns current value of the digital input selected by index.*/
 
-extern double GET_EXTERNAL_ANALOG_INPUT(int index);
+extern double GET_EXTERNAL_ANALOG_INPUT(int index, double def);
 /* returns current value of the analog input selected by index.*/
 
 // Returns the mask of axes present in the system

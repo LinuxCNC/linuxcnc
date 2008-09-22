@@ -2553,7 +2553,7 @@ CANON_PLANE GET_EXTERNAL_PLANE()
 }
 
 /* returns current value of the digital input selected by index.*/
-int GET_EXTERNAL_DIGITAL_INPUT(int index)
+int GET_EXTERNAL_DIGITAL_INPUT(int index, int def)
 {
     if ((index < 0) || (index >= EMC_MAX_DIO))
 	return -1;
@@ -2567,7 +2567,7 @@ int GET_EXTERNAL_DIGITAL_INPUT(int index)
     return (emcStatus->motion.synch_di[index] != 0) ? 1 : 0;
 }
 
-double GET_EXTERNAL_ANALOG_INPUT(int index)
+double GET_EXTERNAL_ANALOG_INPUT(int index, double def)
 {
 /* returns current value of the analog input selected by index.*/
 //#ifdef INPUT_DEBUG
