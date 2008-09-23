@@ -443,6 +443,9 @@ typedef struct setup_struct
                                      // the input file
   int lazy_closing;                  // close has been called
   char wizard_root[PATH_MAX];
+  int tool_change_at_g30;
+  int tool_change_quill_up;
+  int tool_change_with_spindle_on;
 }
 setup;
 

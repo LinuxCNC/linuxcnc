@@ -3759,10 +3759,65 @@ to this one.
 int Interp::convert_tool_change(setup_pointer settings)  //!< pointer to machine settings
 {
   static char name[] = "convert_tool_change";
+
   if (settings->selected_tool_slot < 0) 
     ERM(NCE_TXX_MISSING_FOR_M6);
-  STOP_SPINDLE_TURNING();
+  if (!settings->tool_change_with_spindle_on) 
+      STOP_SPINDLE_TURNING();
+
+  if (settings->tool_change_quill_up) {
+      double up_z;
+      double discard;
+      find_relative(0., 0., 0., 0., 0., 0., 0., 0., 0., 
+                    &discard, &discard, &up_z,
+                    &discard, &discard, &discard, 
+                    &discard, &discard, &discard,
+                    settings);
+      STRAIGHT_TRAVERSE(settings->current_x, settings->current_y, up_z,
+                        settings->AA_current, settings->BB_current, settings->CC_current,
+                        settings->u_current, settings->v_current, settings->w_current);
+      settings->current_z = up_z;
+  }
+
+  if (settings->tool_change_at_g30) {
+      double end_x;
+      double end_y;
+      double end_z;
+      double AA_end;
+      double BB_end;
+      double CC_end;
+      double u_end;
+      double v_end;
+      double w_end;
+
+      find_relative(USER_TO_PROGRAM_LEN(settings->parameters[5181]),
+                    USER_TO_PROGRAM_LEN(settings->parameters[5182]),
+                    USER_TO_PROGRAM_LEN(settings->parameters[5183]),
+                    USER_TO_PROGRAM_ANG(settings->parameters[5184]),
+                    USER_TO_PROGRAM_ANG(settings->parameters[5185]),
+                    USER_TO_PROGRAM_ANG(settings->parameters[5186]),
+                    USER_TO_PROGRAM_LEN(settings->parameters[5187]),
+                    USER_TO_PROGRAM_LEN(settings->parameters[5188]),
+                    USER_TO_PROGRAM_LEN(settings->parameters[5189]),
+                    &end_x, &end_y, &end_z,
+                    &AA_end, &BB_end, &CC_end, 
+                    &u_end, &v_end, &w_end, settings);
+      STRAIGHT_TRAVERSE(end_x, end_y, end_z,
+                        AA_end, BB_end, CC_end,
+                        u_end, v_end, w_end);
+      settings->current_x = end_x;
+      settings->current_y = end_y;
+      settings->current_z = end_z;
+      settings->AA_current = AA_end;
+      settings->BB_current = BB_end;
+      settings->CC_current = CC_end;
+      settings->u_current = u_end;
+      settings->v_current = v_end;
+      settings->w_current = w_end;
+  }
+
   CHANGE_TOOL(settings->selected_tool_slot);
+  
   settings->current_slot = settings->selected_tool_slot;
   settings->spindle_turning = CANON_STOPPED;
   // tool change can move the controlled point.  reread it:

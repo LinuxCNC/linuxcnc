@@ -356,6 +356,9 @@ int Interp::init()
   // the default log file
   strcpy(&_setup.log_file[0], "emc_log");
   _setup.loggingLevel = 0;
+  _setup.tool_change_at_g30 = 0;
+  _setup.tool_change_quill_up = 0;
+  _setup.tool_change_with_spindle_on = 0;
 
   // not clear -- but this is fn is called a second time without an INI.
   if(NULL == iniFileName)
@@ -374,6 +377,10 @@ int Interp::init()
       else
       {
           const char *inistring;
+
+          inifile.Find(&_setup.tool_change_at_g30, "TOOL_CHANGE_AT_G30", "EMCIO");
+          inifile.Find(&_setup.tool_change_quill_up, "TOOL_CHANGE_QUILL_UP", "EMCIO");
+          inifile.Find(&_setup.tool_change_with_spindle_on, "TOOL_CHANGE_WITH_SPINDLE_ON", "EMCIO");
 
           if(NULL != (inistring = inifile.Find("LOG_LEVEL", "RS274NGC")))
           {
