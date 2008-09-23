@@ -109,7 +109,6 @@ static void hm2_stepgen_instance_prepare_tram_write(hostmot2_t *hm2, long l_peri
             WARN("stepgen.%02d.maxvel < 0, setting to its absolute value\n", i);
             s->hal.param.maxvel = fabs(s->hal.param.maxvel);
         } else if (s->hal.param.maxvel == 0.0) {
-            WARN("stepgen.%02d.maxvel == 0.0, setting to the fastest supported by the current timing parameters\n", i);
             s->hal.param.maxvel = max_pos_per_s;
         }
     }

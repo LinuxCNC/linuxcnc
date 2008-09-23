@@ -28,7 +28,7 @@
 #include "hostmot2-lowlevel.h"
 
 
-#define HM2_VERSION "0.12"
+#define HM2_VERSION "0.13"
 #define HM2_NAME    "hm2"
 
 #define PRINT_NO_LL(level, fmt, args...)  rtapi_print_msg(level, HM2_NAME ": " fmt, ## args);
@@ -274,10 +274,13 @@ typedef struct {
         struct {
             hal_float_t scale;
             hal_s32_t output_type;
-            int32_t written_output_type;
         } param;
 
     } hal;
+
+    // this keeps track of the output_type that we've told the FPGA, so we
+    // know if we need to update it
+    int32_t written_output_type;
 
     // these make up the fields of the PWM Mode Register, but they don't appear in the HAL
     // (hal.output_type affects a field here too)
@@ -287,12 +290,33 @@ typedef struct {
 } hm2_pwmgen_instance_t;
 
 
+// these hal params affect all pwmgen instances
+typedef struct {
+    struct {
+        hal_u32_t frequency;
+
+        // number of bits of resolution of the PWM Value Registers
+        // (this is set as a function of hal->param.frequency)
+        u32 bits;
+    } param;
+} hm2_pwmgen_module_global_t;
+
+
 typedef struct {
     int num_instances;
     hm2_pwmgen_instance_t *instance;
 
     u32 clock_frequency;
     u8 version;
+
+
+    // module-global HAL objects...
+    hm2_pwmgen_module_global_t *hal;
+
+    // this keeps track of the most recent hal->param.frequency that we've
+    // told the FPGA about, so we know if we need to update it
+    u32 written_frequency;
+
 
     u32 pwm_value_addr;
     u32 *pwm_value_reg;

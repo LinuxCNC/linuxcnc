@@ -201,6 +201,23 @@ to the software pwmgen component.  This parameter may be changed at
 runtime, but most of the time you probably want to set it at startup and
 then leave it alone.  Accepted values are 1 (PWM on Out0 and Direction
 on Out1) and 2 (Up on Out0 and Down on Out1).
+
+In addition to the per-pwmgen HAL Parameters listed above, there are a
+couple of HAL Parameter that affect all the pwmgens:
+
+(u32 rw) frequency: This specifies the PWM frequency, in Hz, of all
+the pwmgen instances.  Its effective range is from 1 Hz up to 193 KHz.
+Note that the max frequency is determined by the ClockHigh frequency
+of the Anything IO board; the 5i20 and 7i43 both have a 100 MHz clock,
+resulting in a 193 KHz max PWM frequency.  Other boards may have different
+clocks, resulting in different max PWM frequencies.  If the user attempts
+to set the frequency too high, it will be clipped to the max supported
+frequency of the board.  pwmgen frequencies below about 5 Hz are not
+terribly accurate, but above 5 Hz they're pretty close.
+
+(u32 ro) bits: This informs the user how many bits of resolution are used
+for the pwmgens' duty cycles.  This is a function of pwmgen.frequency.
+Values range between 9 and 12, inclusive.
 .SH stepgen
 
 Very basic support.  This is what's implemented so far:
@@ -242,8 +259,8 @@ Parameters:
 position = counts / position_scale
 
 (float r/w) maxvel: Maximum speed, in position units per second.  If set
-to 0, the driver will choose the maximum velocity based on steplen
-and stepspace.
+to 0, the driver will choose the maximum velocity based on the values of
+steplen and stepspace (at the time that maxvel was set to 0).
 
 (float r/w) maxaccel: Maximum acceleration, in position units per second
 per second.  If set to 0, the driver will not limit its acceleration.

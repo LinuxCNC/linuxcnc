@@ -1,4 +1,15 @@
 
+released 2008-09-22
+    hm2 0.13
+
+    Fixed a cut-n-paste error that could make pwmgens not work properly.
+
+    Added a pwmgen.frequency parameter, which lets the user control the
+    pwmgen frequency from about 1 Hz up to about 193 KHz (on the 5i20
+    and 7i43).  Also added pwmgen.bits, a read-only parameter showing
+    number of bits of resolution of the pwmgen duty cycle.
+
+
 released 2008-09-20
     hm2 0.12
 
