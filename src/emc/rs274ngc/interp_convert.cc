@@ -3762,8 +3762,10 @@ int Interp::convert_tool_change(setup_pointer settings)  //!< pointer to machine
 
   if (settings->selected_tool_slot < 0) 
     ERM(NCE_TXX_MISSING_FOR_M6);
-  if (!settings->tool_change_with_spindle_on) 
+  if (!settings->tool_change_with_spindle_on) {
       STOP_SPINDLE_TURNING();
+      settings->spindle_turning = CANON_STOPPED;
+  }
 
   if (settings->tool_change_quill_up) {
       double up_z;
@@ -3819,7 +3821,6 @@ int Interp::convert_tool_change(setup_pointer settings)  //!< pointer to machine
   CHANGE_TOOL(settings->selected_tool_slot);
   
   settings->current_slot = settings->selected_tool_slot;
-  settings->spindle_turning = CANON_STOPPED;
   // tool change can move the controlled point.  reread it:
   settings->toolchange_flag = ON; 
   return INTERP_OK;
