@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: it_axis\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2008-09-11 22:19+0200\n"
-"PO-Revision-Date: 2008-09-12 22:16+0200\n"
+"PO-Revision-Date: 2008-09-22 17:10+0200\n"
 "Last-Translator: Francesco Marletta <francesco.marletta@tiscali.it>\n"
 "Language-Team: Italian <tp@lists.linux.it>\n"
 "MIME-Version: 1.0\n"
@@ -247,7 +247,6 @@ msgid "Reload program"
 msgstr "Ricarica programma"
 
 #: emc/usr_intf/axis/scripts/axis.py:180
-#, fuzzy
 msgid "Control-S"
 msgstr "Control-S"
 
@@ -339,7 +338,7 @@ msgstr "Utensile %d sconosciuto"
 #: emc/usr_intf/axis/scripts/axis.py:1540
 #, python-format
 msgid "Tool %(tool)d, offset %(zo)g, diameter %(dia)g"
-msgstr "Utensile %(tool)d, offset·%(zo)g, diametro %(dia)g"
+msgstr "Utensile %(tool)d, offset %(zo)g, diametro %(dia)g"
 
 #: emc/usr_intf/axis/scripts/axis.py:1542
 #, python-format
@@ -391,7 +390,6 @@ msgstr ""
 #: emc/usr_intf/axis/scripts/axis.py:2041
 #: emc/usr_intf/axis/scripts/axis.py:3329 ../share/axis/tcl/axis.tcl:1025
 #: ../share/axis/tcl/axis.tcl:1027 ../share/axis/tcl/axis.tcl:2021
-#, fuzzy
 msgid "Continuous"
 msgstr "Movimento continuo"
 
@@ -490,7 +488,7 @@ msgid ""
 "%(size)s bytes\n"
 "%(lines)s gcode lines"
 msgstr ""
-"%(size)s·bytes\n"
+"%(size)s bytes\n"
 "%(lines)s linee gcode"
 
 #: emc/usr_intf/axis/scripts/axis.py:2354
@@ -519,7 +517,7 @@ msgstr "%d seconds"
 #: emc/usr_intf/axis/scripts/axis.py:2386
 #, python-format
 msgid "%(a)f to %(b)f = %(diff)f %(units)s"
-msgstr "%(a)f a %(b)f·= %(diff)f %(units)s"
+msgstr "%(a)f a %(b)f = %(diff)f %(units)s"
 
 #: emc/usr_intf/axis/scripts/axis.py:2387
 msgid "G-Code Properties"
@@ -546,7 +544,7 @@ msgstr "Contatto"
 #: emc/usr_intf/axis/scripts/axis.py:2954
 #, python-format
 msgid "Enter %s coordinate relative to workpiece:"
-msgstr "Inserire %s·coordinate relative al pezzo:"
+msgstr "Inserire %s coordinate relative al pezzo:"
 
 #: emc/usr_intf/axis/scripts/axis.py:3115
 msgid "Error saving file"
@@ -619,7 +617,7 @@ msgstr "%s: Image to gcode (dall'immagine al codice G)"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:499
 msgid "Image to gcode"
-msgstr "Image·to·gcode (dall'immagine al codice G)"
+msgstr "Image to gcode (dall'immagine al codice G)"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:509
 #, python-format
@@ -730,9 +728,8 @@ msgid "Extend Image Border"
 msgstr "Estendi Bordo Immagine"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:648
-#, fuzzy
 msgid "Pixel Size (Units)"
-msgstr "Grandezza pixel"
+msgstr "Grandezza pixel (Unità)"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:649
 msgid "Depth (units)"
@@ -743,7 +740,6 @@ msgid "Tolerance (units)"
 msgstr "Tolleranza (unità)"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:651
-#, fuzzy
 msgid "Stepover (pixels)"
 msgstr "Passo Y (pixels)"
 
@@ -772,22 +768,18 @@ msgid "Safety Height (units)"
 msgstr "Altezza di sicurezza (unità)"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:658
-#, fuzzy
 msgid "Scan Pattern"
 msgstr "Schema di scansione"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:659
-#, fuzzy
 msgid "Scan Direction"
 msgstr "Direzione scansione"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:660
-#, fuzzy
 msgid "Lace Bounding"
-msgstr "Lace bounding"
+msgstr "Lace Bounding"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:661
-#, fuzzy
 msgid "Contact Angle (degrees)"
 msgstr "Angolo contatto (gradi)"
 
@@ -797,7 +789,7 @@ msgstr "Rotazione Mandrino (giri/min)"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:663
 msgid "Roughing offset (units, 0=no roughing)"
-msgstr "Offset Sgrossatura  (unita',·0=senza sgrossatura)"
+msgstr "Offset Sgrossatura  (unita', 0=senza sgrossatura)"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:664
 msgid "Roughing depth per pass (units)"
@@ -805,7 +797,7 @@ msgstr "Altezza sgrossatura per passata (unita')"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:731
 msgid "image-to-gcode: User pressed cancel"
-msgstr "image-to-gcode:·Utente·ha premuto·cancella"
+msgstr "image-to-gcode: Utente ha premuto cancella"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:744
 msgid "Depth images"
@@ -852,13 +844,12 @@ msgid "_Reload"
 msgstr "_Ricarica"
 
 #: ../share/axis/tcl/axis.tcl:57
-#, fuzzy
 msgid "Ctrl-S"
 msgstr "Ctrl-S"
 
 #: ../share/axis/tcl/axis.tcl:59
 msgid "_Save gcode as..."
-msgstr "_Salva·gcode·come..."
+msgstr "_Salva gcode come..."
 
 #: ../share/axis/tcl/axis.tcl:63
 msgid "_Properties..."
@@ -897,9 +888,8 @@ msgid "_Run program"
 msgstr "Esegui prog_ramma"
 
 #: ../share/axis/tcl/axis.tcl:112
-#, fuzzy
 msgid "S_tep"
-msgstr "Una riga per vol_ta"
+msgstr "Una riga alla vol_ta"
 
 #: ../share/axis/tcl/axis.tcl:117
 msgid "_Pause"
@@ -927,7 +917,7 @@ msgstr "Ctrl-M"
 
 #: ../share/axis/tcl/axis.tcl:144
 msgid "Clear MDI h_istory"
-msgstr "Cancella stor_ia·MDI·"
+msgstr "Cancella stor_ia MDI "
 
 #: ../share/axis/tcl/axis.tcl:146
 msgid "Ctrl-H"
@@ -974,13 +964,12 @@ msgid "Homin_g"
 msgstr "A_zzeramento"
 
 #: ../share/axis/tcl/axis.tcl:188
-#, fuzzy
 msgid "_Unhoming"
 msgstr "_Dis-Azzeramento"
 
 #: ../share/axis/tcl/axis.tcl:192
 msgid "_Zero coordinate system"
-msgstr "Sistema coordinate·_Zero"
+msgstr "Sistema coordinate _Zero"
 
 #: ../share/axis/tcl/axis.tcl:196
 msgid "P1  G5_4"
@@ -1008,7 +997,7 @@ msgstr "P6  G5_9"
 
 #: ../share/axis/tcl/axis.tcl:220
 msgid "P7  G59._1"
-msgstr "P7··G59._1"
+msgstr "P7  G59._1"
 
 #: ../share/axis/tcl/axis.tcl:224
 msgid "P8  G59._2"
@@ -1175,12 +1164,10 @@ msgid "Stop program execution [ESC]"
 msgstr "Ferma esecuzione programma [ESC]"
 
 #: ../share/axis/tcl/axis.tcl:496
-#, fuzzy
 msgid "Zoom in"
 msgstr "Ingrandisci"
 
 #: ../share/axis/tcl/axis.tcl:504
-#, fuzzy
 msgid "Zoom out"
 msgstr "Riduci"
 
@@ -1226,7 +1213,6 @@ msgid "Axis:"
 msgstr "Axis:"
 
 #: ../share/axis/tcl/axis.tcl:1035
-#, fuzzy
 msgid "Home Axis"
 msgstr "Azzera Asse"
 
@@ -1588,23 +1574,23 @@ msgstr "Limite Massimo + Home X"
 
 #: emc/usr_intf/stepconf/stepconf.py:135
 msgid "Maximum Limit + Home Y"
-msgstr "Limite Massimo + Home·Y"
+msgstr "Limite Massimo + Home Y"
 
 #: emc/usr_intf/stepconf/stepconf.py:136
 msgid "Maximum Limit + Home Z"
-msgstr "Limite Massimo + Home·Z"
+msgstr "Limite Massimo + Home Z"
 
 #: emc/usr_intf/stepconf/stepconf.py:136
 msgid "Maximum Limit + Home A"
-msgstr "Limite Massimo + Home·A"
+msgstr "Limite Massimo + Home A"
 
 #: emc/usr_intf/stepconf/stepconf.py:137
 msgid "Both Limit + Home X"
-msgstr "Entrambi i Limiti +·Home X"
+msgstr "Entrambi i Limiti + Home X"
 
 #: emc/usr_intf/stepconf/stepconf.py:137
 msgid "Both Limit + Home Y"
-msgstr "Entrambi·i·Limiti + Home Y"
+msgstr "Entrambi i Limiti + Home Y"
 
 #: emc/usr_intf/stepconf/stepconf.py:138
 msgid "Both Limit + Home Z"
@@ -1620,7 +1606,7 @@ msgstr "Limite Minimo X"
 
 #: emc/usr_intf/stepconf/stepconf.py:139
 msgid "Minimum Limit Y"
-msgstr "Limite·Minimo·Y"
+msgstr "Limite Minimo Y"
 
 #: emc/usr_intf/stepconf/stepconf.py:140
 msgid "Minimum Limit Z"
@@ -1628,7 +1614,7 @@ msgstr "Limite Minimo Z"
 
 #: emc/usr_intf/stepconf/stepconf.py:140
 msgid "Minimum Limit A"
-msgstr "Limite·Minimo·A"
+msgstr "Limite Minimo A"
 
 #: emc/usr_intf/stepconf/stepconf.py:141
 msgid "Maximum Limit X"
@@ -1656,16 +1642,15 @@ msgstr "Entrambi i limiti Y"
 
 #: emc/usr_intf/stepconf/stepconf.py:144
 msgid "Both Limit Z"
-msgstr "Entrambi·i·limiti·Z"
+msgstr "Entrambi i limiti Z"
 
 #: emc/usr_intf/stepconf/stepconf.py:144
 msgid "Both Limit A"
 msgstr "Entrambi i limiti A"
 
 #: emc/usr_intf/stepconf/stepconf.py:145
-#, fuzzy
 msgid "All limits"
-msgstr "Tutti i file"
+msgstr "Tutti i limiti"
 
 #: emc/usr_intf/stepconf/stepconf.py:145
 msgid "All home"
@@ -1685,7 +1670,7 @@ msgstr "Digital in 2"
 
 #: emc/usr_intf/stepconf/stepconf.py:146
 msgid "Digital in 3"
-msgstr "Digital· n 3"
+msgstr "Digital  n 3"
 
 #: emc/usr_intf/stepconf/stepconf.py:172
 msgid "my-mill"
@@ -1701,8 +1686,8 @@ msgid ""
 "Saving this configuration file will discard configuration changes made "
 "outside stepconf."
 msgstr ""
-"Salvare questo file di·configurazione eliminera' i cambi "
-"alla·configurazione fatti fuori da stepconf."
+"Salvare questo file di configurazione eliminera' i cambi "
+"alla configurazione fatti fuori da stepconf."
 
 #: emc/usr_intf/stepconf/stepconf.py:333
 msgid "Continue? "
@@ -1731,7 +1716,7 @@ msgid ""
 "The contents of this file will not be overwritten when you run stepconf "
 "again."
 msgstr ""
-"Includi qui·il tuo pannello PyVCP.\n"
+"Includi qui il tuo pannello PyVCP.\n"
 "Il contenuto di questo file non sarà sovrascritto quando si userà ancora "
 "stepconf."
 
@@ -1746,8 +1731,8 @@ msgid ""
 "# starts\n"
 "# This file will not be overwritten when you run stepconf again"
 msgstr ""
-"#·I comandi di questo file verrano eseguiti dopo l'avvio della GUI AXIS "
-"(incluso il·panello PyVCP)\n"
+"# I comandi di questo file verrano eseguiti dopo l'avvio della GUI AXIS "
+"(incluso il panello PyVCP)\n"
 "# \n"
 "# Questo file non verra' sovrascritto quando verra' eseguito di nuovo "
 "stepconf"
@@ -1764,7 +1749,7 @@ msgstr "Generato da stepconf a %s"
 #: emc/usr_intf/stepconf/stepconf.py:908
 #, python-format
 msgid "%s Axis Configuration"
-msgstr "Configurazione  %s·Axis"
+msgstr "Configurazione Asse %s"
 
 #: emc/usr_intf/stepconf/stepconf.py:957
 msgid "Quit Stepconf and discard changes?"
@@ -1842,8 +1827,8 @@ msgid ""
 "This program creates configuration files (.ini and .hal) for \"step and "
 "direction\" milling machines and lathes connected to the PC parallel port."
 msgstr ""
-"Questo·programma crea files di configurazione (.ini·e .hal) per fresatrici "
-"\"step e·direzione\" e torni connessi alla porta parallela del PC."
+"Questo programma crea files di configurazione (.ini e .hal) per fresatrici "
+"\"step e direzione\" e torni connessi alla porta parallela del PC."
 
 #: emc/usr_intf/stepconf/stepconf.glade:68
 msgid "Create a _new configuration"
@@ -1968,7 +1953,7 @@ msgstr "Periodo Base Min:"
 
 #: emc/usr_intf/stepconf/stepconf.glade:983
 msgid "Max step rate:"
-msgstr "Max·velocita' step:"
+msgstr "Max velocita' step:"
 
 #: emc/usr_intf/stepconf/stepconf.glade:1011
 msgid ""
@@ -1980,12 +1965,12 @@ msgid ""
 "can impose timing constraints of their own, in addition to those of the "
 "driver."
 msgstr ""
-"Caratteristiche del driver·:·"
+"Caratteristiche del driver : "
 "(Moltiplicare per 1000 i tempi specificati in µs o microsecondi)\n"
 "\n"
 "Elementi addizionali per il condizionamento o isolamento del segnale come \n"
 "accoppiatori ottici e filtri RC possono dare vincoli temporali propri,"
-" in·aggiunta a quelli del driver."
+" in aggiunta a quelli del driver."
 
 #: emc/usr_intf/stepconf/stepconf.glade:1157
 msgid "Test Now"
@@ -2045,7 +2030,7 @@ msgstr "Pi_n 17:"
 
 #: emc/usr_intf/stepconf/stepconf.glade:1944
 msgid "Outputs (PC to Mill):"
-msgstr "Outputs (PC·verso·Fresatrice):"
+msgstr "Outputs (PC verso Fresatrice):"
 
 #: emc/usr_intf/stepconf/stepconf.glade:1972
 msgid "Pin 1_0:"
@@ -2073,26 +2058,24 @@ msgstr "Inputs (Fresatrice a PC):"
 
 #: emc/usr_intf/stepconf/stepconf.glade:2221
 #: emc/usr_intf/stepconf/stepconf.glade:2249
-#, fuzzy
 msgid "Invert"
-msgstr "Inverti immagine"
+msgstr "Inverti"
 
 #: emc/usr_intf/stepconf/stepconf.glade:2811
 msgid "_Sherline Outputs"
-msgstr "Outputs _Sherline"
+msgstr "Outputs tipo _Sherline"
 
 #: emc/usr_intf/stepconf/stepconf.glade:2831
 msgid "_Xylotex Outputs"
-msgstr "Outputs _Xylotex"
+msgstr "Outputs tipo _Xylotex"
 
 #: emc/usr_intf/stepconf/stepconf.glade:2850
 msgid "Output pinout presets:"
 msgstr "Presets pinout output:"
 
 #: emc/usr_intf/stepconf/stepconf.glade:2966
-#, fuzzy
 msgid "Include custom _HAL configuration"
-msgstr "Includi Configurazione _HAL personalizzata"
+msgstr "Includi configurazione _HAL personalizzata"
 
 #: emc/usr_intf/stepconf/stepconf.glade:2988
 msgid "Include custom Py_VCP Panel"
@@ -2124,7 +2107,7 @@ msgstr "_Velocita' Massima:"
 
 #: emc/usr_intf/stepconf/stepconf.glade:3189
 msgid "Maximum _Acceleration:"
-msgstr "·_Accelerazione Massima:"
+msgstr "_Accelerazione Massima:"
 
 #: emc/usr_intf/stepconf/stepconf.glade:3218
 msgid "Time to accelerate to max speed:"
@@ -2140,11 +2123,11 @@ msgstr "Velocità impulsi alla massima velocità:"
 
 #: emc/usr_intf/stepconf/stepconf.glade:3523
 msgid "_Home location:"
-msgstr "Posizione· _Home:"
+msgstr "Posizione _Home:"
 
 #: emc/usr_intf/stepconf/stepconf.glade:3552
 msgid "Home _Switch location:"
-msgstr "Posizione _Switch·Home:"
+msgstr "Posizione _Switch Home:"
 
 #: emc/usr_intf/stepconf/stepconf.glade:3581
 msgid "Home Sear_ch velocity:"
@@ -2193,7 +2176,7 @@ msgstr "Prova questo asse"
 
 #: emc/usr_intf/stepconf/stepconf.glade:4152
 msgid "Axis SCALE"
-msgstr "SCALA Axis"
+msgstr "SCALA Asse"
 
 #: emc/usr_intf/stepconf/stepconf.glade:4220
 msgid "Spindle Configuration"
@@ -2209,7 +2192,7 @@ msgstr "Velocità 1:"
 
 #: emc/usr_intf/stepconf/stepconf.glade:4300
 msgid "PWM 1:"
-msgstr "PWM·1:"
+msgstr "PWM 1:"
 
 #: emc/usr_intf/stepconf/stepconf.glade:4328
 msgid "Speed 2:"
@@ -2217,7 +2200,7 @@ msgstr "Velocità 2:"
 
 #: emc/usr_intf/stepconf/stepconf.glade:4356
 msgid "PWM 2:"
-msgstr "PWM·2:"
+msgstr "PWM 2:"
 
 #: emc/usr_intf/stepconf/stepconf.glade:4384
 msgid "PWM Rate:"
@@ -2229,11 +2212,11 @@ msgstr "Cicli per giro:"
 
 #: emc/usr_intf/stepconf/stepconf.glade:4609
 msgid "Enter 0 Hz for \"PDM\" mode"
-msgstr "Inserisci·0·Hz·per modo·\"PDM\"·"
+msgstr "Inserisci 0 Hz per modo \"PDM\" "
 
 #: emc/usr_intf/stepconf/stepconf.glade:4649
 msgid "Machine configuration complete"
-msgstr "Configurazione macchina·completa"
+msgstr "Configurazione macchina completa"
 
 #: emc/usr_intf/stepconf/stepconf.glade:4650
 msgid ""
@@ -2252,20 +2235,20 @@ msgid ""
 "thorough latency test as described on the linuxcnc.org wiki: \n"
 " http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?TroubleShooting"
 msgstr ""
-"Tutte le·informazioni necessarie sono state raccolte.··Clicca·\"Applica"
-"\"·per·scrivere·il·file di configurazione·sul·disco.\n"
-"Se avverti blocchi ·mentre·gira·emc,·e' necessario·decrescere·la·velocita' "
-"massima··che ha l'·effetto·di·incrementare·BASE_PERIOD.\n"
+"Tutte le informazioni necessarie sono state raccolte.  Clicca \"Applica"
+"\" per scrivere il file di configurazione sul disco.\n"
+"Se avverti dei blocchi mentre gira EMC, e' necessario decrementare la velocita' "
+"massima che ha l' effetto di incrementare BASE_PERIOD.\n"
 "\n"
-"Se noti una perdita di passi·lost·steps·mentre gira emc,"
-"·prima·verifica·che·siano ·stati immessi·i·giusti·tempi·per·i "
-"tuoi·stepper·drivers.·Se questo non risolveil·problema,·allora rieffettua il "
-"latency·test·come descritto sulinuxcnc.org·wiki:\n"
-"·http;//wiki.linuxcnc.org/cgi-bin/emcinfo.pl?TroubleShooting\n"
+"Se noti una perdita di passi mentre gira EMC,"
+" prima verifica che siano stati immessi i giusti tempi per i "
+"tuoi stepper drivers. Se questo non risolve il problema, allora rieffettua il "
+"latency test come descritto su linuxcnc.org wiki:\n"
+" http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?TroubleShooting\n"
 "\n"
-"Se appare spesso il messaggio·\"Unexpected·Realtime·Delay\","
-"·rieffettua·il·latency test come·descritto·su·on·the·linuxcnc.org·wiki:·\n"
-"·http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?TroubleShooting"
+"Se appare spesso il messaggio \"Unexpected Realtime Delay\","
+" rieffettua il latency test come descritto su on the linuxcnc.org wiki: \n"
+" http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?TroubleShooting"
 
 #: emc/usr_intf/stepconf/stepconf.glade:4740
 msgid "Velocity:"
