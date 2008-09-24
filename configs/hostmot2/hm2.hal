@@ -63,6 +63,9 @@ net  pid-01-command  pid.1.output  =>  hm2_$(HM2_BOARD).0.pwmgen.01.value
 setp  hm2_$(HM2_BOARD).0.pwmgen.00.scale  1.0   # positive value, positive scale: cw
 setp  hm2_$(HM2_BOARD).0.pwmgen.01.scale  -1.0  # positive value, negative scale: cw
 
+# this pwm frequency is appropriate for the Mesa 7i30
+setp hm2_$(HM2_BOARD).0.pwmgen.frequency 40000
+
 
 
 
