@@ -123,6 +123,26 @@ do
 done
 shift $(($OPTIND-1))
 
+case "@KERNEL_VERS@" in
+"") ;;
+*)
+    if [ `uname -r` != "@KERNEL_VERS@" ]; then
+        if tty -s; then
+            echo "EMC2 requires the real-time kernel @KERNEL_VERS@ to run."
+            echo "Before running EMC2, reboot and choose this kernel at the boot menu."
+        else
+            @WISH@ <<EOF
+                wm wi .
+                tk_messageBox -type ok \
+                    -title EMC2 -icon error -title "Realtime Kernel Required" \
+                    -message {EMC2 requires the real-time kernel @KERNEL_VERS@ to run.  Before running EMC2, reboot and choose this kernel at the boot menu.}
+                exit
+EOF
+        fi
+        exit
+    fi
+esac
+
 if ! tty -s; then
     exec 2>> $DEBUG_FILE
     exec >> $PRINT_FILE
