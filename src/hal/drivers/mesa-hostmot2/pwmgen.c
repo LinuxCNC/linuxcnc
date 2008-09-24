@@ -474,6 +474,18 @@ void hm2_pwmgen_prepare_tram_write(hostmot2_t *hm2) {
         float scaled_value;
         float abs_duty_cycle;
 
+        // Normally the PWM & Dir IO pins of the pwmgen instance keep doing
+        // their thing even if the enable bit is low.  This is because the
+        // downstream equipment *should* ignore PWM & Dir if /Enable is
+        // high (this is how it handles bootup & watchdog bites).
+        // However, there apparently is equipment that does not behave this
+        // way, and that benefits from having PWM & Dir go low when /Enable
+        // goes high.  So...
+        if (*hm2->pwmgen.instance[i].hal.pin.enable == 0) {
+            hm2->pwmgen.pwm_value_reg[i] = 0;
+            continue;
+        }
+
         scaled_value = *hm2->pwmgen.instance[i].hal.pin.value / hm2->pwmgen.instance[i].hal.param.scale;
 
         abs_duty_cycle = fabs(scaled_value);
