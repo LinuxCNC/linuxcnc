@@ -508,12 +508,21 @@ imgtime=`$INIVAR -ini "$INIFILE" -var INTRO_TIME -sec DISPLAY 2>>$DEBUG_FILE`
 if [ "$imgtime" = "" ] ; then
   imgtime=5
 fi
-if [ "$img" != "" ] ; then
-  if [ -x $EMC2_TCL_DIR/bin/popimage -a ! -z "$DISPLAY" ] ; then
-    $EMC2_TCL_DIR/bin/popimage $EMC2_IMAGEDIR/$img $imgtime &
-  fi
+if [ -e "$img" ]; then
+    true
+elif [ -e "$INI_DIR/$img" ]; then
+    img="$INI_DIR/$img"
+elif [ -e "$EMC2_IMAGEDIR/$img" ]; then
+    img="$EMC2_IMAGEDIR/$img"
+else
+    img=
 fi
-
+if [ "$img" != "" ] ; then
+    if [ -x $EMC2_TCL_DIR/bin/popimage ] ; then
+        $EMC2_TCL_DIR/bin/popimage $img $imgtime &
+    fi
+fi
+ 
 ################################################################################
 # 4.2. Now we can finally start loading EMC
 ################################################################################
