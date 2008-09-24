@@ -223,6 +223,10 @@ stepgen:
     to 1600 revs causes chaos, it runs in the wrong direction, some
     overflow bug not handled there...
 
+    if a stepgen is stepping, and you set its .enable to 0 it stops
+    instantly (which is good).  But if you then set its .enable to 1,
+    it resumes at its previous velocity (which is bad).
+
     test different steps-pre-rev on different stepgen instances
 
     support other stepping modes
