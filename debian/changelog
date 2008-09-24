@@ -1,12 +1,13 @@
 emc2 (1:2.2.7~cvs) hardy; urgency=low
 
+  * pop up a message when the right kernel isn't running
   * allow emc2-sim to be built on 8.04
   * stepconf: fix "negative SCALE" problem reported by Christopher Purcell
   * comp: fix bad C code generated from variable array declarations such as
-    'variable double output[8];' 
-  * documentation improvments 
+    'variable double output[8];'
+  * documentation improvments
 
- -- Jeff Epler <jepler@unpythonic.net>  Mon, 18 Aug 2008 21:29:29 -0500
+ -- Jeff Epler <jepler@unpythonic.net>  Tue, 23 Sep 2008 20:21:40 -0500
 
 emc2 (1:2.2.6) hardy; urgency=low
 
