@@ -268,7 +268,7 @@ preview false
 \layout Standard
 
 
-\begin_inset Include \include{motion/kinematics.lyx}
+\begin_inset Include \include{motion/kinematics_fr.lyx}
 preview false
 
 \end_inset 
@@ -277,7 +277,7 @@ preview false
 \layout Standard
 
 
-\begin_inset Include \include{motion/pid_theory.lyx}
+\begin_inset Include \include{motion/pid_theory_fr.lyx}
 preview false
 
 \end_inset 
@@ -286,7 +286,7 @@ preview false
 \layout Standard
 
 
-\begin_inset Include \include{motion/tweaking_steppers.lyx}
+\begin_inset Include \include{motion/tweaking_steppers_fr.lyx}
 preview false
 
 \end_inset 

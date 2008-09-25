@@ -34,7 +34,7 @@
 
 \layout Chapter
 
-Création de composants de l'espace utilisateur Python avec le module 'hal'
+Création de composants de l'espace utilisateur Python avec les modules 'hal'
 \layout Section
 
 Utilisation de base
@@ -365,7 +365,7 @@ Once all the pins and parameters have been created, call the
  method.
 \layout Subsection
 
-Changing the prefix
+Changer le préfixe
 \layout Standard
 
 The prefix can be changed by calling the 

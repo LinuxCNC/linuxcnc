@@ -2272,6 +2272,32 @@ TOOL_CHANGE_POSITION\SpecialChar ~
 =\SpecialChar ~
 0\SpecialChar ~
 0\SpecialChar ~
-2 Spécifies la position XYZ ou le mobile se déplacera
- lors d'un appel d'outil.
+2 Quand trois digits sont utilisés, spécifie la position
+ XYZ ou le mobile se déplacera en prévision du changement d'outil.
+ Si six digits sont utilisés, spécifie l'emplacement ou sera envoyé le mobile
+ avant le changement d'outil sur une machine de type XYZABC.
+ Les variables relatives au changement d'outil peuvent être combinées, par
+ exemple en combinant TOOL_CHANGE_POSITION avec TOOL_CHANGE_QUILL_UP il
+ est possible de déplacer d'abord Z puis X et Y.
+\layout Description
+
+TOOL_CHANGE_WITH_SPINDLE_ON\SpecialChar ~
+=\SpecialChar ~
+1 Avec cette valeur à 1, la broche reste en
+ marche pendant le changement d'outil.
+ Particulièrement utile sur les tours.
+\layout Description
+
+TOOL_CHANGE_QUILL_UP\SpecialChar ~
+=\SpecialChar ~
+1 Avec cette valeur à 1, l'axe Z sera déplacé sur son
+ origine machine avant le changement d'outil.
+ C'est l'équivalent d'un G0 G53 Z0.
+\layout Description
+
+TOOL_CHANGE_AT_G30\SpecialChar ~
+=\SpecialChar ~
+1 Avec cette valeur à 1, le mobile sera envoyé sur un
+ point de référence prédéfini par G30 dans les paramètres 5181-5186.
+ Pour plus de détails sur les paramètres de G30 voir le Manuel du G-code.
 \the_end

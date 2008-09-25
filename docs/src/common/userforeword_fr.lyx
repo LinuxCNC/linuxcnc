@@ -36,7 +36,7 @@ EMC2 est souple et modulaire.
  ne plongiez dedans pour vous faire votre propre idée.
 \layout Standard
 
-EMC à débuté à l'institut national des standards et des technologies des
+EMC a débuté à l'institut national des standards et des technologies des
  Etats Unis, le NIST.
  Il a mûri comme un logiciel fonctionnant sur le système d'exploitation
  Unix.
@@ -67,7 +67,7 @@ Eric S.
  interfaces.
 \layout Quote
 
-* Règle de clartée: La Clarté vaut mieux que l'ingéniosité.
+* Règle de clarté: La Clarté vaut mieux que l'ingéniosité.
 \layout Quote
 
 * Règle de composition: Concevoir des programmes qui peuvent être reliés
@@ -109,7 +109,7 @@ Modularité
 
 La règle de 
 \series bold 
-clartée
+clarté
 \series default 
  est essentielle.
  EMC2 est en perpétuelle évolution, il n'est pas terminé et ne le sera jamais.
