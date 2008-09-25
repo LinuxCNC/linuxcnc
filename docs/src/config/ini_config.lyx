@@ -2348,5 +2348,31 @@ TOOL_CHANGE_POSITION\SpecialChar ~
 0\SpecialChar ~
 2
 \series default 
- Specifies the XYZ location to move to when performing a tool change.
+ Specifies the XYZ location to move to when performing a tool change if
+ three digits are used.
+ Specifies the XYZABC location when 6 digits are used.
+ Tool Changes can be combined.
+ For example if you combine the quill up with change position you can move
+ the Z first then the X and Y.
+\layout Description
+
+TOOL_CHANGE_WITH_SPINDLE_ON\SpecialChar ~
+=\SpecialChar ~
+1 The spindle will be left on during the tool
+ change when the value is 1.
+ Useful for lathes mostly.
+\layout Description
+
+TOOL_CHANGE_QUILL_UP\SpecialChar ~
+=\SpecialChar ~
+1 The Z axis will be moved to machine zero prior to
+ the tool change when the value is 1.
+ This is the same as issuing a G0 G53 Z0.
+\layout Description
+
+TOOL_CHANGE_AT_G30\SpecialChar ~
+=\SpecialChar ~
+1 The machine is moved to reference point defined by
+ parameters 5181-5186 for G30 if the value is 1.
+ For more information on G30 and Parameters see the G Code Manual.
 \the_end
