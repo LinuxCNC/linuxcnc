@@ -50,29 +50,31 @@ Halui
 Introduction
 \layout Standard
 
-Halui is a HAL based user interface for EMC, it connects HAL pins to NML
- commands.
- Most of the functionality (buttons, indicators etc.) that is provided by
- a traditional GUI (mini, Axis, etc.), is provided by HAL pins in Halui.
+Halui est une interface utilisateur pour EMC s'appuyant sur HAL, elle connecte
+ les pins de HAL à des commandes NML.
+ La plupart des fonctionnalités (boutons, indicateurs etc.) utilisées par
+ les interfaces graphiques traditionnelles (mini, Axis, etc.), sont fournies
+ par des pins de HAL dans Halui.
 \layout Standard
 
-The easiest way to use halui is to modify your ini file to include
+La façon la plus facile pour utiliser halui est de modifier votre dossier
+ d'ini pour inclure
 \layout LyX-Code
 
 HALUI = halui
 \layout Standard
 
-in the [HAL] section.
+dans la section [HAL].
 \layout Standard
 
-An alternate way to invoke it (especially when using a stepconf generated
- config file) is to include
+Une solution alternative pour l'invoquer (surtout si vous générez la config
+ avec stepconf) est d'inclure
 \layout LyX-Code
 
 loadusr halui -ini /path/to/inifile.ini
 \layout Standard
 
-in your custom.hal file.
+dans votre fichier custom.hal.
 \layout Section
 
 
@@ -83,7 +85,7 @@ in your custom.hal file.
 Nomenclature des pins d'Halui
 \layout Subsection
 
-Machine
+Marche machine
 \layout Itemize
 
 (
@@ -92,7 +94,7 @@ Machine
 bit
 \family default 
 \noun default 
-) halui.machine.on - pin for requestiong machine on
+) halui.machine.on - pin de requête de marche machine
 \layout Itemize
 
 (
@@ -101,7 +103,7 @@ bit
 bit
 \family default 
 \noun default 
-) halui.machine.off - pin for requesting machine off
+) halui.machine.off - pin de requête d'arrêt machine
 \layout Itemize
 
 (
@@ -110,7 +112,7 @@ bit
 bit
 \family default 
 \noun default 
-) halui.machine.is-on - indicates machine on
+) halui.machine.is-on - indique que la machine est en marche
 \layout Subsection
 
 Arrêt d'urgence (E-Stop)
@@ -122,7 +124,7 @@ Arrêt d'urgence (E-Stop)
 bit
 \family default 
 \noun default 
-) halui.estop.activate - pin for requesting E-Stop
+) halui.estop.activate - pin de requête d'arrêt d'urgence (E-Stop)
 \layout Itemize
 
 (
@@ -131,7 +133,8 @@ bit
 bit
 \family default 
 \noun default 
-) halui.estop.reset - pin for requesting E-Stop reset
+) halui.estop.reset - pin de requête de relâchement de l'arrêt d'urgence (E-Stop
+ reset)
 \layout Itemize
 
 (
@@ -140,10 +143,10 @@ bit
 bit
 \family default 
 \noun default 
-) halui.estop.is-activated - indicates E-stop reset
+) halui.estop.is-activated - indique si l'arrêt d'urgence est actif
 \layout Subsection
 
-Mode
+Mode de fonctionnement
 \layout Itemize
 
 (
@@ -152,7 +155,7 @@ Mode
 bit
 \family default 
 \noun default 
-) halui.mode.manual - pin for requesting manual mode
+) halui.mode.manual - pin de requête du mode manuel
 \layout Itemize
 
 (
@@ -161,7 +164,7 @@ bit
 bit
 \family default 
 \noun default 
-) halui.mode.is_manual - indicates manual mode is on
+) halui.mode.is_manual - indique si le mode manuel est actif
 \layout Itemize
 
 (
@@ -170,7 +173,7 @@ bit
 bit
 \family default 
 \noun default 
-) halui.mode.auto - pin for requesting auto mode
+) halui.mode.auto - pin de requête du mode auto
 \layout Itemize
 
 (
@@ -179,7 +182,7 @@ bit
 bit
 \family default 
 \noun default 
-) halui.mode.is_auto - indicates auto mode is on
+) halui.mode.is_auto - indique si le mode auto est actif
 \layout Itemize
 
 (
@@ -188,7 +191,7 @@ bit
 bit
 \family default 
 \noun default 
-) halui.mode.mdi - pin for requesting mdi mode
+) halui.mode.mdi - pin de requête du mode données manuelles
 \layout Itemize
 
 (
@@ -197,7 +200,7 @@ bit
 bit
 \family default 
 \noun default 
-) halui.mode.is_mdi - indicates mdi mode is on
+) halui.mode.is_mdi - indique si le mode données manuelles est actif
 \layout Subsection
 
 Brouillard, arrosage, lubrifiant (Mist, Flood, Lube) 
@@ -209,7 +212,7 @@ Brouillard, arrosage, lubrifiant (Mist, Flood, Lube)
 bit
 \family default 
 \noun default 
-) halui.mist.on - pin for requesting mist on
+) halui.mist.on - pin de requête du brouillard
 \layout Itemize
 
 (
@@ -218,7 +221,7 @@ bit
 bit
 \family default 
 \noun default 
-) halui.mist.is-on - indicates mist is on
+) halui.mist.is-on - indique si le brouillard est actif
 \layout Itemize
 
 (
@@ -227,7 +230,7 @@ bit
 bit
 \family default 
 \noun default 
-) halui.flood.on - pin for requesting flood on
+) halui.flood.on - pin de requête d'arrosage
 \layout Itemize
 
 (
@@ -236,7 +239,7 @@ bit
 bit
 \family default 
 \noun default 
-) halui.flood.is-on - indicates flood is on
+) halui.flood.is-on - indique si l'arrosage est actif
 \layout Itemize
 
 (
@@ -245,7 +248,7 @@ bit
 bit
 \family default 
 \noun default 
-) halui.lube.on - pin for requesting lube on
+) halui.lube.on - pin de requête de graissage
 \layout Itemize
 
 (
@@ -254,7 +257,7 @@ bit
 bit
 \family default 
 \noun default 
-) halui.lube.is-on - indicates lube is on
+) halui.lube.is-on - indique si le graissage est actif
 \layout Subsection
 
 Broche (Spindle)
@@ -266,7 +269,7 @@ Broche (Spindle)
 bit
 \family default 
 \noun default 
-) halui.spindle.start - starts the spindle
+) halui.spindle.start - Marche de la broche
 \layout Itemize
 
 (
@@ -275,7 +278,7 @@ bit
 bit
 \family default 
 \noun default 
-) halui.spindle.stop - stops the spindle
+) halui.spindle.stop - Arrêt de la broche
 \layout Itemize
 
 (
@@ -284,7 +287,7 @@ bit
 bit
 \family default 
 \noun default 
-) halui.spindle.forward - starts the spindle with CW motion
+) halui.spindle.forward - Marche broche en sens horaire
 \layout Itemize
 
 (
@@ -293,7 +296,7 @@ bit
 bit
 \family default 
 \noun default 
-) halui.spindle.reverse - starts the spindle with a CCW motion
+) halui.spindle.reverse - Marche broche en sens anti-horaire
 \layout Itemize
 
 (
@@ -302,7 +305,7 @@ bit
 bit
 \family default 
 \noun default 
-) halui.spindle.increase - increases spindle speed
+) halui.spindle.increase - Augmente la vitesse de broche
 \layout Itemize
 
 (
@@ -311,7 +314,7 @@ bit
 bit
 \family default 
 \noun default 
-) halui.spindle.decrease - decreases spindle speed
+) halui.spindle.decrease - Diminue la vitesse de broche
 \layout Itemize
 
 (
@@ -320,7 +323,7 @@ bit
 bit
 \family default 
 \noun default 
-) halui.spindle.brake-on - pin for activating spindle-brake
+) halui.spindle.brake-on - pin d'activation du frein de broche
 \layout Itemize
 
 (
@@ -329,7 +332,7 @@ bit
 bit
 \family default 
 \noun default 
-) halui.spindle.brake-off - pin for deactivating spindle/brake
+) halui.spindle.brake-off - pin de désactivation du frein de broche
 \layout Itemize
 
 (
@@ -338,13 +341,13 @@ bit
 bit
 \family default 
 \noun default 
-) halui.spindle.brake-is-on - indicates brake is on
+) halui.spindle.brake-is-on - indique si le frein est actif
 \layout Subsection
 
 Joints 
 \layout Standard
 
-<channel> is a number between 0 and 7 and 'selected'.
+<channel> est un nombre compris entre 0 et 7, ou 'selected'.
 \layout Itemize
 
 (
@@ -353,7 +356,8 @@ Joints
 bit
 \family default 
 \noun default 
-) halui.joint.<channel>.home - pin for homing the specific joint 
+) halui.joint.<channel>.home - pin pour la prise d'origine d'un joint spécifique
+ 
 \layout Itemize
 
 (
@@ -362,8 +366,8 @@ bit
 bit
 \family default 
 \noun default 
-) halui.joint.<channel>.on-min-limit-soft - status pin telling joint is at
- the negative software limit
+) halui.joint.<channel>.on-min-limit-soft - pin de status indiquant que le
+ joint est sur sa limite logicielle négative
 \layout Itemize
 
 (
@@ -372,8 +376,8 @@ bit
 bit
 \family default 
 \noun default 
-) halui.joint.<channel>.on-max-limit-soft - status pin telling joint is at
- the positive software limit
+) halui.joint.<channel>.on-max-limit-soft - pin de status indiquant que le
+ joint est sur sa limite logicielle positive
 \layout Itemize
 
 (
@@ -382,8 +386,8 @@ bit
 bit
 \family default 
 \noun default 
-) halui.joint.<channel>.on-min-limit-hard - status pin telling joint is on
- the negative hardware limit switch
+) halui.joint.<channel>.on-min-limit-hard - pin de status indiquant que le
+ joint est sur son fin de course de limite négative
 \layout Itemize
 
 (
@@ -392,8 +396,8 @@ bit
 bit
 \family default 
 \noun default 
-) halui.joint.<channel>.on-max-limit-hard - status pin telling joint is on
- the positive hardware limit switch
+) halui.joint.<channel>.on-max-limit-hard - pin de status indiquant que le
+ joint est sur son fin de course de limite positive
 \layout Itemize
 
 (
@@ -402,7 +406,8 @@ bit
 bit
 \family default 
 \noun default 
-) halui.joint.<channel>.fault - status pin telling the joint has a fault
+) halui.joint.<channel>.fault - pin de status indiquant que le joint est en
+ défaut
 \layout Itemize
 
 (
@@ -411,28 +416,28 @@ bit
 bit
 \family default 
 \noun default 
-) halui.joint.<channel>.homed - status pin telling that the joint is homed
+) halui.joint.<channel>.homed - pin de status indiquant que le joint est référencé
 \layout Subsection
 
 Jogging
 \layout Standard
 
-<channel> is a number between 0 and 7 and 'selected'.
+<channel> est un nombre compris entre 0 et 7, ou 'selected'.
 \layout Itemize
 
 (
 \noun on 
 float
 \noun default 
-) halui.jog.speed - set jog speed
+) halui.jog.speed - positionne la vitesse de jog
 \layout Itemize
 
 (
 \noun on 
 float
 \noun default 
-) halui.jog-deadband - deadband for analog jogging (smaller jogging speed
- requests are not performed)
+) halui.jog-deadband - bande morte pour le jogging analogique (les petites
+ vitesses de jog sont sans effet)
 \layout Itemize
 
 (
@@ -441,7 +446,7 @@ float
 bit
 \family default 
 \noun default 
-) halui.jog.<channel>.minus - jog in negative direction
+) halui.jog.<channel>.minus - jog dans en direction négative
 \layout Itemize
 
 (
@@ -450,126 +455,131 @@ bit
 bit
 \family default 
 \noun default 
-) halui.jog.<channel>.plus - jog in positive direction
+) halui.jog.<channel>.plus - jog en direction positive
 \layout Itemize
 
 (
 \noun on 
 bit
 \noun default 
-) halui.jog.<channel>.analog - analog velocity input for jogging (usefull with
- joysticks or other analog devices)
+) halui.jog.<channel>.analog - entrée analogique de vitesse de jog (utilisé
+ avec les joysticks ou autres matériels analogiques)
 \layout Subsection
 
-Sélection d'un joint (Selecting a joint)
+Sélection d'un joint
 \layout Itemize
 
 (
 \noun on 
 u32
 \noun default 
-) halui.joint.select - select joint (0..7) - internal halui
+) halui.joint.select - sélectionne le joint (0..7) - internal halui
 \layout Itemize
 
 (
 \noun on 
 u32
 \noun default 
-) halui.joint.selected - selected joint (0..7) - internal halui
+) halui.joint.selected - joint (0..7) sélectionné - internal halui
 \layout Itemize
 
 (
 \noun on 
 bit
 \noun default 
-) halui.joint.x.select bit - pins for selecting a joint - internal halui
+) halui.joint.x.select bit - pins pour sélectinner un joint - internal halui
 \layout Itemize
 
 (
 \noun on 
 bit
 \noun default 
-) halui.joint.x.is-selected bit - status pin a joint is selected - internal
- halui
+) halui.joint.x.is-selected bit - pin de status indiquant un joint sélectionné
+ - internal halui
 \layout Subsection
 
-Survitesse d'avance (Feed override)
+Correcteur de vitesse d'avance (Feed override)
 \layout Itemize
 
 (
 \noun on 
 float
 \noun default 
-) halui.feed-override.value - current FO value
+) halui.feed-override.value - Valeur de la correction courante de vitesse
+ d'avance
 \layout Itemize
 
 (
 \noun on 
 float
 \noun default 
-) halui.feed-override.scale - pin for setting the scale on changing the FO
+) halui.feed-override.scale - pin pour positionner l'échelle des corrections
+ possibles
 \layout Itemize
 
 (
 \noun on 
 s32
 \noun default 
-) halui.feed-override.counts - counts from an encoder for example to change
- FO
+) halui.feed-override.counts - comptage depuis un codeur, par exemple pour
+ modifier la correction de vitesse d'avance
 \layout Itemize
 
 (
 \noun on 
 bit
 \noun default 
-) halui.feed-override.increase - pin for increasing the FO (+=scale)
+) halui.feed-override.increase - pin pour augmenter la correction (+=scale)
 \layout Itemize
 
 (
 \noun on 
 bit
 \noun default 
-) halui.feed-override.decrease - pin for decreasing the FO (-=scale)
+) halui.feed-override.decrease - pin pour diminuer la correction (-=scale)
 \layout Subsection
 
-Survitesse de broche (Spindle override)
+Correcteur de vitesse de broche (Spindle override)
 \layout Itemize
 
 (
 \noun on 
 float
 \noun default 
-) halui.spindle-override.value - current SO value
+) halui.spindle-override.value - Valeur courante de la correction de vitesse
+ de broche
 \layout Itemize
 
 (
 \noun on 
 float
 \noun default 
-) halui.spindle-override.scale - pin for setting the scale on changing the
- SO
+) halui.spindle-override.scale - pin pour positionner l'échelle des corrections
+ de vitesse de broche possibles
 \layout Itemize
 
 (
 \noun on 
 s32
 \noun default 
-) halui.spindle-override.counts - counts from an encoder for example to change
- SO
+) halui.spindle-override.counts - comptage depuis un codeur, par exemple pour
+ modifier la correction de vitesse de broche
 \layout Itemize
 
 (
 \noun on 
 bit
 \noun default 
-) halui.spindle-override.increase - pin for increasing the SO (+=scale)
+) halui.spindle-override.increase - pin pour augmenter la correction de vitesse
+ de broche (+=scale)
 \layout Itemize
 
 (
 \noun on 
 bit
 \noun default 
-) halui.spindle-override.decrease - pin for decreasing the SO (-=scale)
+) halui.spindle-override.decrease - pin pour diminuer la correction de vitesse
+ de broche (-=scale)
 \layout Subsection
 
 Outil (Tool)
@@ -579,14 +589,14 @@ Outil (Tool)
 \noun on 
 u32
 \noun default 
-) halui.tool.number - indicates current selected tool
+) halui.tool.number - indique l'outil courant sélectionné
 \layout Itemize
 
 (
 \noun on 
 float
 \noun default 
-) halui.tool.length-offset - indicates current applied tool-length-offset
+) halui.tool.length-offset - indique la correction de longueur d'outil appliquée
 \layout Subsection
 
 Programme
@@ -662,37 +672,39 @@ Général
 \noun on 
 bit
 \noun default 
-) halui.abort - pin to send an abort message (clears out most errors)
+) halui.abort - pin pour envoyer un message d'abandon (efface les autres
+ messages d'erreur)
 \layout Subsection
 
-MDI
+Données manuelles (MDI)
 \layout Standard
 
-Sometimes the user wants to add more complicated tasks to be performed by
- the activation of a HAL pin.
- This is possible using the following MDI commands scheme:
+Il arrive que l'utilisateur veuille ajouter des tâches plus complexes devant
+ être effectuées par l'activation d'une pin de HAL.
+ C'est possible en utilisant le schéma de commandes en données manuelles
+ (MDI) suivant:
 \layout Itemize
 
-a MDI_COMMAND is added to the ini (in the section [HALUI]) (e.g.
- [HALUI] MDI_COMMAND = G0 X0
+Une MDI_COMMAND est ajoutée dans la section [HALUI] du fichier ini, par
+ exemple [HALUI] MDI_COMMAND = G0 X0
 \layout Itemize
 
-when halui starts it will read/detect the MDI_COMMAND fields in the ini,
- and export pins of type (
+Quand halui démarre il va lire/détecter le champ MDI_COMMAND dans le fichier
+ ini et exporter les pins de type (
 \family typewriter 
 \noun on 
 bit
 \family default 
 \noun default 
-) halui.mdi-command-<nr> (<nr> is a number from 00 to the number of MDI_COMMAND's
- found in the ini)
+) halui.mdi-command-<nr> (<nr> est un nombre compris entre 00 et le nombre
+ de MDI_COMMAND trouvées dans le fichier ini)
 \layout Itemize
 
-when the pin halui.mdi-command-<nr> is activated halui will try to send the
- MDI command defined in the ini.
- This will not always succeed, depending on the operating mode emc2 is in
- (e.g.
- while in AUTO halui can't successfully send MDI commands).
+Quand la pin halui.mdi-command-<nr> est activée, halui va essayer d'envoyer
+ au MDI la commande définie dans le fichier ini.
+ Ca ne fonctionnera pas toujours avec succés, selon dans quel mode de fonctionne
+ment se trouve emc2, par exemple, tant qu'il est en AUTO halui ne peut pas
+ envoyer de commande MDI.
 \layout Section
 
 Cas d'étude

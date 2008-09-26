@@ -27,6 +27,7 @@ DOC_SRCS := \
 	gui/axis.lyx \
 	gui/axis_fr.lyx \
 	gui/halui.lyx \
+	gui/halui_fr.lyx \
 	gui/keystick.lyx \
 	gui/mini.lyx \
 	gui/tkemc.lyx \
@@ -72,7 +73,9 @@ DOC_SRCS := \
 	gcode/tool_compensation.lyx \
 	gcode/tool_compensation_fr.lyx \
 	hal/comp.lyx \
+	hal/comp_fr.lyx \
 	hal/components.lyx \
+	hal/components_fr.lyx \
 	hal/drivers.lyx \
 	hal/drivers_fr.lyx \
 	hal/general_ref.lyx \
@@ -80,6 +83,7 @@ DOC_SRCS := \
 	hal/halshow.lyx \
 	hal/halshow_fr.lyx \
 	hal/halmodule.lyx \
+	hal/halmodule_fr.lyx \
 	hal/intro.lyx \
 	hal/intro_fr.lyx \
 	hal/pyvcp.lyx \

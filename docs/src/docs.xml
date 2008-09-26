@@ -57,6 +57,7 @@
 <doc name="config_ini_config_fr" title="La configuration en détail"/>
 <doc name="config_ini_homing_fr" title="Configuration des prises d'origine"/>
 <doc name="config_emc2hal_fr" title="Interface entre HAL et EMC2"/>
+<doc name="config_stepper_fr" title="Configuration des moteurs pas à pas"/>
 
 <doc name="gcode_main_fr" title="Le langage RS274NGC"/>
 <doc name="gcode_coordinates_fr" title="Les systèmes de coordonnées"/>
@@ -74,8 +75,12 @@
 <doc name="hal_vcp_fr" title="Panneau de contrôle virtuel (pyvcp)"/>
 <doc name="hal_drivers_fr" title="Les pilotes matériels"/>
 <doc name="hal_rtcomps_fr" title="Les composants temps réel"/>
-
+<doc name="hal_comp_fr" title="Comp: un outil pour créer des composants de HAL"/>
+<doc name="hal_halmodule_fr" title="Créer des composants de l'espace utilisateur Python avec les modules 'hal'"/>
 <doc name="ladder_ladder_intro_fr" title="Introduction au langage Ladder"/>
+
+<doc name="motion_kinematics_fr" title="Cinématiques dans EMC2"/>
+<doc name="motion_pid_theory_fr" title="Théorie du PID"/>
 
 <doc name="xref_fr" title="Index général"/>
 </docgroup>

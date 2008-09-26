@@ -9689,7 +9689,7 @@ Ordre d'exécution
 
 \layout Standard
 
-L'ordre d'exécution des éléments d'une ligne est essentielle à la sécurité
+L'ordre d'exécution des éléments d'une ligne est essentiel à la sécurité
  et l'efficacité d'une machine.
  Les éléments sont exécutés dans l'ordre indiqué ci-dessous, si ils se trouvent
  sur la même ligne.

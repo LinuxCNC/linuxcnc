@@ -34,15 +34,16 @@
 
 \layout Chapter
 
-Création de composants de l'espace utilisateur Python avec les modules 'hal'
+Création de composants de l'espace utilisateur Python avec les modules de
+ 'hal'
 \layout Section
 
 Utilisation de base
 \layout Standard
 
 Un composant de l'espace utilisateur commence par créer ses pins et ses
- paramètres, puis il entre dans une boucle de laquelle il va piloter périodiquem
-ent toutes ses sorties en fonction de ses entrées.
+ paramètres, puis il entre dans une boucle de laquelle il va positionner
+ périodiquement toutes ses sorties en fonction de ses entrées.
  Le composant suivant, un passe-tout, copie la valeur vue sur ses pins d'entrée
  (
 \family typewriter 
