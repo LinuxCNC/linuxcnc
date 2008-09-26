@@ -64,13 +64,28 @@ static int readToolChange(IniFile *toolInifile)
     if (NULL !=
 	(inistring = toolInifile->Find("TOOL_CHANGE_POSITION", "EMCIO"))) {
 	/* found an entry */
-        if (6 == sscanf(inistring, "%lf %lf %lf %lf %lf %lf",
+        if (9 == sscanf(inistring, "%lf %lf %lf %lf %lf %lf %lf %lf %lf",
+                        &TOOL_CHANGE_POSITION.tran.x,
+                        &TOOL_CHANGE_POSITION.tran.y,
+                        &TOOL_CHANGE_POSITION.tran.z,
+                        &TOOL_CHANGE_POSITION.a,
+                        &TOOL_CHANGE_POSITION.b,
+                        &TOOL_CHANGE_POSITION.c,
+                        &TOOL_CHANGE_POSITION.u,
+                        &TOOL_CHANGE_POSITION.v,
+                        &TOOL_CHANGE_POSITION.w)) {
+            HAVE_TOOL_CHANGE_POSITION=1;
+            retval=0;
+        } else if (6 == sscanf(inistring, "%lf %lf %lf %lf %lf %lf",
                         &TOOL_CHANGE_POSITION.tran.x,
                         &TOOL_CHANGE_POSITION.tran.y,
                         &TOOL_CHANGE_POSITION.tran.z,
                         &TOOL_CHANGE_POSITION.a,
                         &TOOL_CHANGE_POSITION.b,
                         &TOOL_CHANGE_POSITION.c)) {
+	    TOOL_CHANGE_POSITION.u = 0.0;
+	    TOOL_CHANGE_POSITION.v = 0.0;
+	    TOOL_CHANGE_POSITION.w = 0.0;
             HAVE_TOOL_CHANGE_POSITION = 1;
             retval = 0;
         } else if (3 == sscanf(inistring, "%lf %lf %lf",
@@ -78,9 +93,12 @@ static int readToolChange(IniFile *toolInifile)
                                &TOOL_CHANGE_POSITION.tran.y,
                                &TOOL_CHANGE_POSITION.tran.z)) {
 	    /* read them OK */
-	    TOOL_CHANGE_POSITION.a = 0.0;	// not supporting ABC for now
+	    TOOL_CHANGE_POSITION.a = 0.0;
 	    TOOL_CHANGE_POSITION.b = 0.0;
 	    TOOL_CHANGE_POSITION.c = 0.0;
+	    TOOL_CHANGE_POSITION.u = 0.0;
+	    TOOL_CHANGE_POSITION.v = 0.0;
+	    TOOL_CHANGE_POSITION.w = 0.0;
 	    HAVE_TOOL_CHANGE_POSITION = 1;
 	    retval = 0;
 	} else {

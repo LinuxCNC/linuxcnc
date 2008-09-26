@@ -1624,7 +1624,7 @@ void CHANGE_TOOL(int slot)
      * is called.  */
     
     if (HAVE_TOOL_CHANGE_POSITION) {
-        double vel, acc, x, y, z, a, b, c;
+        double vel, acc, x, y, z, a, b, c, u, v, w;
 
         x = FROM_EXT_LEN(TOOL_CHANGE_POSITION.tran.x);
         y = FROM_EXT_LEN(TOOL_CHANGE_POSITION.tran.y);
@@ -1632,15 +1632,15 @@ void CHANGE_TOOL(int slot)
         a = FROM_EXT_ANG(TOOL_CHANGE_POSITION.a);
         b = FROM_EXT_ANG(TOOL_CHANGE_POSITION.b);
         c = FROM_EXT_ANG(TOOL_CHANGE_POSITION.c);
+        u = FROM_EXT_LEN(TOOL_CHANGE_POSITION.u);
+        v = FROM_EXT_LEN(TOOL_CHANGE_POSITION.v);
+        w = FROM_EXT_LEN(TOOL_CHANGE_POSITION.w);
 
-        // XXX for now, don't move uvw for a tool change
 
-        vel = getStraightVelocity(x, y, z, a, b, c, 
-                                  canonEndPoint.u, canonEndPoint.v, canonEndPoint.w);
-        acc = getStraightAcceleration(x, y, z, a, b, c,
-                                      canonEndPoint.u, canonEndPoint.v, canonEndPoint.w);
+        vel = getStraightVelocity(x, y, z, a, b, c, u, v, w);
+        acc = getStraightAcceleration(x, y, z, a, b, c, u, v, w);
 
-        linearMoveMsg.end = to_ext_pose(x, y, z, a, b, c, canonEndPoint.u, canonEndPoint.v, canonEndPoint.w);
+        linearMoveMsg.end = to_ext_pose(x, y, z, a, b, c, u, v, w);
 
         linearMoveMsg.vel = linearMoveMsg.ini_maxvel = toExtVel(vel);
         linearMoveMsg.acc = toExtAcc(acc);
@@ -1657,8 +1657,7 @@ void CHANGE_TOOL(int slot)
 	if(old_feed_mode)
 	    START_SPEED_FEED_SYNCH(currentLinearFeedRate, 1);
 
-        canonUpdateEndPoint(x, y, z, a, b, c, 
-                            canonEndPoint.u, canonEndPoint.v, canonEndPoint.w);
+        canonUpdateEndPoint(x, y, z, a, b, c, u, v, w);
     }
 
     /* regardless of optional moves above, we'll always send a load tool
