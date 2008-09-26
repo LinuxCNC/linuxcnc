@@ -204,6 +204,8 @@ pwmgen:
 
     test pdm mode
 
+    enable doesnt get written right, needs a written_enable
+
 
 
 
