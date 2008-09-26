@@ -200,25 +200,31 @@ of -1.0 to +1.0 inclusive.
 the software pwmgen component.  This parameter may be changed at runtime,
 but most of the time you probably want to set it at startup and then
 leave it alone.  Accepted values are 1 (PWM on Out0 and Direction on
-Out1), 2 (Up on Out0 and Down on Out1), and 3 (PDM mode, PWM on Out0
+Out1), 2 (Up on Out0 and Down on Out1), and 3 (PDM mode, PDM on Out0
 and Dir on Out1).
 
 In addition to the per-pwmgen HAL Parameters listed above, there are a
 couple of HAL Parameter that affect all the pwmgens:
 
-(u32 rw) frequency: This specifies the PWM frequency, in Hz, of all
-the pwmgen instances.  Its effective range is from 1 Hz up to 193 KHz.
-Note that the max frequency is determined by the ClockHigh frequency
-of the Anything IO board; the 5i20 and 7i43 both have a 100 MHz clock,
-resulting in a 193 KHz max PWM frequency.  Other boards may have different
-clocks, resulting in different max PWM frequencies.  If the user attempts
-to set the frequency too high, it will be clipped to the max supported
-frequency of the board.  pwmgen frequencies below about 5 Hz are not
-terribly accurate, but above 5 Hz they're pretty close.
+(u32 rw) pwm_frequency: This specifies the PWM frequency, in Hz, of
+all the pwmgen instances running in the PWM modes (modes 1 and 2).
+Its effective range is from 1 Hz up to 193 KHz.  Note that the max
+frequency is determined by the ClockHigh frequency of the Anything
+IO board; the 5i20 and 7i43 both have a 100 MHz clock, resulting in
+a 193 KHz max PWM frequency.  Other boards may have different clocks,
+resulting in different max PWM frequencies.  If the user attempts to set
+the frequency too high, it will be clipped to the max supported frequency
+of the board.  Frequencies below about 5 Hz are not terribly accurate,
+but above 5 Hz they're pretty close.
 
-(u32 ro) bits: This informs the user how many bits of resolution are used
-for the pwmgens' duty cycles.  This is a function of pwmgen.frequency.
-Values range between 9 and 12, inclusive.
+(u32 rw) pdm_frequency: This specifies the PDM frequency, in Hz, of
+all the pwmgen instances running in PDM mode (mode 3).  Its effective
+range is from 1 Hz up to just over 24 KHz.  Note that the max frequency
+is determined by the ClockHigh frequency of the Anything IO board;
+the 5i20 and 7i43 both have a 100 MHz clock, resulting in a 24 KHz max
+PDM frequency.  Other boards may have different clocks, resulting in
+different max PDM frequencies.  If the user attempts to set the frequency
+too high, it will be clipped to the max supported frequency of the board.
 .SH stepgen
 
 Very basic support.  This is what's implemented so far:
