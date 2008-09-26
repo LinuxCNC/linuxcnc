@@ -247,13 +247,16 @@ void hm2_pwmgen_force_write(hostmot2_t *hm2) {
     hm2->llio->write(hm2->llio, hm2->pwmgen.pwm_mode_addr, hm2->pwmgen.pwm_mode_reg, (hm2->pwmgen.num_instances * sizeof(u32)));
     hm2->llio->write(hm2->llio, hm2->pwmgen.enable_addr, &hm2->pwmgen.enable_reg, sizeof(u32));
     hm2->llio->write(hm2->llio, hm2->pwmgen.pwmgen_master_rate_dds_addr, &hm2->pwmgen.pwmgen_master_rate_dds_reg, sizeof(u32));
+    hm2->llio->write(hm2->llio, hm2->pwmgen.pdmgen_master_rate_dds_addr, &hm2->pwmgen.pdmgen_master_rate_dds_reg, sizeof(u32));
 
     if ((*hm2->llio->io_error) != 0) return;
 
     for (i = 0; i < hm2->pwmgen.num_instances; i ++) {
         hm2->pwmgen.instance[i].written_output_type = hm2->pwmgen.instance[i].hal.param.output_type;
     }
+
     hm2->pwmgen.written_pwm_frequency = hm2->pwmgen.hal->param.pwm_frequency;
+    hm2->pwmgen.written_pdm_frequency = hm2->pwmgen.hal->param.pdm_frequency;
 }
 
 
