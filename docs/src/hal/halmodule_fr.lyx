@@ -40,17 +40,19 @@ Création de composants de l'espace utilisateur Python avec les modules 'hal'
 Utilisation de base
 \layout Standard
 
-A userspace component begins by creating its pins and parameters, then enters
- a loop which will periodically drive all the outputs from the inputs.
- The following component copies the value seen on its input pin (
+Un composant de l'espace utilisateur commence par créer ses pins et ses
+ paramètres, puis il entre dans une boucle de laquelle il va piloter périodiquem
+ent toutes ses sorties en fonction de ses entrées.
+ Le composant suivant, un passe-tout, copie la valeur vue sur ses pins d'entrée
+ (
 \family typewriter 
 passthrough.in
 \family default 
-) to its output pin (
+) vers ses pins de sortie (
 \family typewriter 
 passthrough.out
 \family default 
-) approximately once per second.
+) approximativement une fois par seconde.
 \layout LyX-Code
 
 #!/usr/bin/python
@@ -78,24 +80,32 @@ except KeyboardInterrupt:
     raise SystemExit
 \layout Standard
 
-Copy the above listing into a file named 
-\begin_inset Quotes eld
+Copier le listing précédent dans un fichier nommé 
+\begin_inset Quotes fld
 \end_inset 
 
 passthrough
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
-, make it executable (
+, le rendre exécutable par un 
 \family typewriter 
-chmod +x), 
+
+\begin_inset Quotes fld
+\end_inset 
+
+chmod +x
+\begin_inset Quotes frd
+\end_inset 
+
+ 
 \family default 
-and place it on your 
+et le placer dans son 
 \family typewriter 
 $PATH
 \family default 
 .
- Then try it out:
+ On peut alors l'essayer en faisant:
 \layout LyX-Code
 
 $ halrun
@@ -128,32 +138,33 @@ Owner  Type  Dir     Value      Name
 Composants de l'espace utilisateur et délais
 \layout Standard
 
-If you typed 
-\begin_inset Quotes eld
+Si vous tapez rapidement 
+\begin_inset Quotes fld
 \end_inset 
 
 show pin
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
- quickly, you may see that 
+, vous pourrez voir que 
 \family typewriter 
 passthrough.out
 \family default 
- still had its old value of 0.
- This is because of the call to 'time.sleep(1)', which makes the assignment
- to the output pin occur at most once per second.
- Because this is a userspace component, the actual delay between assignments
- can be much longer--for instance, if the memory used by the passthrough
- component is swapped to disk, the assignment could be delayed until that
- memory is swapped back in.
+ conserve un moment son ancienne valeur de 0.
+ Ceci est dû à l'appel de la fonction 'time.sleep(1)', qui fait que les pins
+ de sortie changent d'état, au plus, une fois par seconde.
+ Parceque ce composant appartient à l'espace utilisateur, ce délai peut
+ apparaître plus long, par exemple si la mémoire utilisée par le composant
+ passthrough est échangée avec le disque dur, le délai peut être allongé
+ jusqu'au raffraîchissement de la mémoire.
 \layout Standard
 
-Thus, userspace components are suitable for user-interactive elements such
- as control panels (delays in the range of milliseconds are not noticed,
- and longer delays are acceptable), but not for sending step pulses to a
- stepper driver board (delays must always be in the range of microseconds,
- no matter what).
+Ces composants de l'espace utilisateur conviennent parfaitement pour des
+ éléments tels que des panneaux de contrôle pour lesquels des délais de
+ l'ordre de quelques millisecondes sont imperceptibles.
+ Ils ne conviennent pas, en revanche, pour envoyer des impulsions de pas
+ vers une carte de pilotage de périphériques pour lesquelles les délais
+ doivent rester de l'ordre de quelques microsecondes, dans tous les cas).
 \layout Section
 
 Créer les pins et les paramètres
@@ -162,23 +173,23 @@ Créer les pins et les paramètres
 h = hal.component("passthrough")
 \layout Standard
 
-The component itself is created by a call to the constructor '
+Le composant lui-même est créé par l'appel du constructeur '
 \family typewriter 
 hal.component
 \family default 
 '.
- The arguments are the HAL component name and (optionally) the prefix used
- for pin and parameter names.
- If the prefix is not specified, the component name is used.
+ Les arguments sont le nom du composant HAL et optionnellement, le préfixe
+ utilisé pour les noms de pin et de paramètre.
+ Si le préfixe n'est pas spécifié, le nom du composant est utilisé.
 \layout LyX-Code
 
 h.newpin("in", hal.HAL_FLOAT, hal.HAL_IN)
 \layout Standard
 
-Then pins are created by calls to methods on the component object.
- The arguments are: pin name suffix, pin type, and pin direction.
- For parameters, the arguments are: parameter name suffix, parameter type,
- and parameter direction.
+Puis les pins sont créées par appels des méthodes sur l'objet composant.
+ Les arguments sont: pin nom suffixe, type de pin et direction de la pin.
+ Pour les paramètres, les arguments sont: paramètre nom suffixe, type de
+ paramètre et direction du paramètre.
 \layout Standard
 
 
@@ -208,7 +219,7 @@ HAL Option Names
 
 
 \series bold 
-Pin and Parameter Types:
+Types de Pin et Paramètre:
 \end_inset 
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
@@ -252,7 +263,7 @@ HAL_U32
 
 
 \series bold 
-Pin Directions:
+Directions des pins:
 \end_inset 
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
@@ -295,7 +306,7 @@ HAL_IO
 
 
 \series bold 
-Parameter Directions:
+Directions des paramètres:
 \end_inset 
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
@@ -339,16 +350,16 @@ HAL_RW
 
 \layout Standard
 
-The full pin or parameter name is formed by joining the prefix and the suffix
- with a 
-\begin_inset Quotes eld
+Le nom complet d'une pin ou d'un paramètre est formé en joignant le préfixe
+ avec le suffixe par un 
+\begin_inset Quotes fld
 \end_inset 
 
 .
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
-, so in the example the pin created is called 
+, comme dans l'exemple où la pin créée est appelée 
 \family typewriter 
 passthrough.in
 \family default 
@@ -358,165 +369,164 @@ passthrough.in
 h.ready()
 \layout Standard
 
-Once all the pins and parameters have been created, call the 
+Une fois toutes les pins et les paramètres créés, la méthode 
 \family typewriter 
-.ready()
+.ready() est appelée
 \family default 
- method.
+.
 \layout Subsection
 
 Changer le préfixe
 \layout Standard
 
-The prefix can be changed by calling the 
+Le préfixe peut être changé en appelant la méthode 
 \family typewriter 
 .setprefix()
 \family default 
- method.
- The current prefix can be retrieved by calling the 
+.
+ Le préfixe courant peut être retrouvé en appelant la méthode 
 \family typewriter 
 .getprefix()
 \family default 
- method.
+.
 \layout Section
 
 Lire et écrire les pins et les paramètres
 \layout Standard
 
-For pins and parameters which are also proper Python identifiers, the value
- may be accessed or set using the attribute syntax:
+Pour les pins et les paramètres qui sont aussi des identifiants Python,
+ la valeur est accessible ou ajustable en utilisant la syntaxe des attributs
+ suivante:
 \layout LyX-Code
 
 h.out = h.in
 \layout Standard
 
-For all pins, whether or not they are also proper Python identifiers, the
- value may be accessed or set using the subscript syntax:
+Pour les pins et les paramètres qui sont aussi des identifiants Python,
+ la valeur est accessible ou ajustable en utilisant la syntaxe de sous-script
+ suivante:
 \layout LyX-Code
 
 h['out'] = h['in']
 \layout Subsection
 
-Driving output (HAL_OUT) pins
+Pilotage des pins de sortie (HAL_OUT)
 \layout Standard
 
-Periodically, usually in response to a timer, all HAL_OUT pins should be
- 
-\begin_inset Quotes eld
+Périodiquement, habituellement dans le temps de réponse de l'horloge, toutes
+ les pins HAL_OUT doivent être 
+\begin_inset Quotes fld
 \end_inset 
 
-driven
-\begin_inset Quotes erd
+pilotées
+\begin_inset Quotes frd
 \end_inset 
 
- by assigning them a new value.
- This should be done whether or not the value is different than the last
- one assigned.
- When a pin is connected to a signal, its old output value is not copied
- into the signal, so the proper value will only appear on the signal once
- the component assigns a new value.
+ en leur assignant une nouvelle valeur.
+ Ceci doit être fait que la valeur soit différente ou non de la valeur précédemm
+ent assignée.
+ Quand la pin est connectée au signal, l'ancienne valeur de sortie n'est
+ pas copiée vers le signal, la valeur correcte n'apparaîtra donc sur le
+ signal qu'une fois que le composant lui aura assigné une nouvelle valeur.
 \layout Subsection
 
-Driving bidirectional (HAL_IO) pins
+Pilotage des pins bidirectionelles (HAL_IO)
 \layout Standard
 
-The above rule does not apply to bidirectional pins.
- Instead, a bidirectional pin should only be driven by the component when
- the component wishes to change the value.
- For instance, in the canonical encoder interface, the encoder component
- only sets the 
+La règle mentionnée ci-dessus ne s'applique pas aux pins bidirectionnelles.
+ Au lieux de celà, une pin bidirectionnelle doit seulement être pilotée
+ par le composant et quand le composant souhaîte changer sa valeur.
+ Par exemple, dans l'interface codeur, le composant codeur positionne seulement
+ la pin 
 \series bold 
 index-enable
 \series default 
- pin to 
+ à 
 \series bold 
 FALSE
 \series default 
- (when an index pulse is seen and the old value is 
+ quand une impulsion d'index est vue et que l'ancienne valeur est 
 \series bold 
 TRUE
 \series default 
-), but never sets it to 
+, mais ne la positionne jamais à 
 \series bold 
 TRUE
 \series default 
 .
- Repeatedly driving the pin 
+ Piloter répétitivement la pin à 
 \series bold 
 FALSE
 \series default 
- might cause the other connected component to act as though another index
- pulse had been seen.
+ pourrait faire qu'un autre composant connecté agisse comme si une nouvelle
+ impulsion d'index avait été vue.
 \layout Section
 
 Quitter
 \layout Standard
 
-A 
-\begin_inset Quotes eld
+Une requête 
+\family typewriter 
+
+\begin_inset Quotes fld
 \end_inset 
 
-
-\family typewriter 
 halcmd unload
 \family default 
 
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
- request for the component is delivered as a 
+ pour le composant est délivrée comme une exception 
 \family typewriter 
 KeyboardInterrupt
 \family default 
- exception.
- When an unload request arrives, the process should either exit in a short
- time, or call the 
+.
+ Quand une requête de déchargement arrive, le processus doit quitter dans
+ un court laps de temps ou appeler la méthode 
 \family typewriter 
 .exit()
 \family default 
- method on the component if substantial work (such as reading or writing
- files) must be done to complete the shutdown process.
+ sur le composant si un travail substentiel, comme la lecture ou l'écriture
+ de fichiers, doit être fourni pour terminer le processus d'arrêt.
 \layout Section
 
 Idées de projets
 \layout Itemize
 
-Create an external control panel with buttons, switches, and indicators.
- Connect everything to a microcontroller, and connect the microcontroller
- to the PC using a serial interface.
- Python has a very capable serial interface module called 
+Créer un panneau de contrôle extérieur avec boutons poussoirs, interrupteurs
+ et voyants.
+ Connecter le tout à un microcontrolleur et raccorder le microcontrolleur
+ à un PC en utilisant une liaison série.
+ Python est vraiment capable d'interfacer une liaison série grâce à son
+ module 
 \begin_inset LatexCommand \url[pyserial]{http://pyserial.sourceforge.net/}
 
 \end_inset 
 
- (Ubuntu package name 
-\begin_inset Quotes eld
+ (Paquet 
+\begin_inset Quotes fld
 \end_inset 
 
-python-serial
-\begin_inset Quotes erd
-\end_inset 
-
-, in the universe repository)
+python-serial,dans les dépots universe d'Ubuntu)
 \layout Itemize
 
-Attach a 
+Relier un module d'affichage à LCD 
 \begin_inset LatexCommand \url[LCDProc]{http://lcdproc.omnipotent.net/}
 
 \end_inset 
 
--compatible LCD module and use it to display a digital readout with information
- of your choice (Ubuntu package name 
-\begin_inset Quotes eld
+ et l'utiliser pour afficher les informations de votre choix (Paquet 
+\begin_inset Quotes fld
 \end_inset 
 
 lcdproc
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
-, in the universe repository)
+, dans les dépots universe d'Ubuntu)
 \layout Itemize
 
-Create a virtual control panel using any GUI library supported by Python
- (gtk, qt, wxwindows, etc)
+Créer un panneau de contrôle virtuel utilisant n'importe quelle librairie
+ d'interface graphique supportée par Python (gtk, qt, wxwindows, etc)
 \the_end
