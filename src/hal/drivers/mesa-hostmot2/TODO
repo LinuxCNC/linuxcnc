@@ -202,12 +202,7 @@ encoders:
 
 pwmgen:
 
-    Add support for changing PWM rate (by monkeying with master dds).
-
-    Add support for changing PWM duty-cycle width.  It's currently 12
-    bits wide, but 9 to 11 bits are also available.
-
-    Add support for other PDM mode etc.
+    test pdm mode
 
 
 

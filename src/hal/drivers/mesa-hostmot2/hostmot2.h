@@ -281,23 +281,14 @@ typedef struct {
     // this keeps track of the output_type that we've told the FPGA, so we
     // know if we need to update it
     int32_t written_output_type;
-
-    // these make up the fields of the PWM Mode Register, but they don't appear in the HAL
-    // (hal.output_type affects a field here too)
-    int pwm_width_select;
-    int pwm_mode_select;
-    int pwm_double_buffered;
 } hm2_pwmgen_instance_t;
 
 
 // these hal params affect all pwmgen instances
 typedef struct {
     struct {
-        hal_u32_t frequency;
-
-        // number of bits of resolution of the PWM Value Registers
-        // (this is set as a function of hal->param.frequency)
-        u32 bits;
+        hal_u32_t pwm_frequency;
+        hal_u32_t pdm_frequency;
     } param;
 } hm2_pwmgen_module_global_t;
 
@@ -313,9 +304,13 @@ typedef struct {
     // module-global HAL objects...
     hm2_pwmgen_module_global_t *hal;
 
-    // this keeps track of the most recent hal->param.frequency that we've
-    // told the FPGA about, so we know if we need to update it
-    u32 written_frequency;
+    // these keep track of the most recent hal->param.p{d,w}m_frequency
+    // that we've told the FPGA about, so we know if we need to update it
+    u32 written_pwm_frequency;
+    u32 written_pdm_frequency;
+
+    // number of bits of resolution of the PWM signal (PDM is fixed at 12 bits)
+    int pwm_bits;
 
 
     u32 pwm_value_addr;
