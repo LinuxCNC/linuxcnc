@@ -1897,6 +1897,14 @@ Ladder Examples
 \layout Subsection
 
 External E-Stop
+\layout Comment
+
+This example is not complete yet!
+\layout Standard
+
+The External E-Stop example is in the /config/classicladder/cl-estop folder.
+ It uses a pyVCP panel to simulate the external componets.
+ 
 \layout Standard
 
 To interface an external E-Stop to EMC and have the external E-Stop work
@@ -1905,7 +1913,17 @@ To interface an external E-Stop to EMC and have the external E-Stop work
  
 \layout Standard
 
-First we add ClassicLadder to our custom.hal file by adding these two lines:
+First we have to open the E-Stop loop in the main hal file by commenting
+ out by adding the # as shown or removing the following lines.
+\layout LyX-Code
+
+# net estop-out <= iocontrol.0.user-enable-out
+\layout LyX-Code
+
+# net estop-out => iocontrol.0.emc-enable-in
+\layout Standard
+
+Next we add ClassicLadder to our custom.hal file by adding these two lines:
 \layout LyX-Code
 
 loadrt classicladder_rt
