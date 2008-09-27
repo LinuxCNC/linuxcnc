@@ -1117,6 +1117,7 @@ void EditElementInRung(double x,double y)
 	if ( ConvertDoublesToRungCoor( x, y, &RungX, &RungY )
 		&& (EditDatas.NumElementSelectedInToolBar!=-1) )
 	{
+                 //printf ("x:%f Y:%f xx%f yy%f rungX=%d rungY=%d\n",x,y,x-RungX*InfosGene->BlockWidth, y-RungY*InfosGene->BlockHeight, RungX, RungY);
 		/* check for "unusable" blocks */
 		if (EditDatas.NumElementSelectedInToolBar==EDIT_POINTER || EditDatas.NumElementSelectedInToolBar==EDIT_ERASER )
 			CheckForBlocksOfBigElement( &EditDatas.Rung, &RungX,&RungY );
@@ -1137,12 +1138,15 @@ void EditElementInRung(double x,double y)
 			{
 				/* the blocks other than the "alive" are now free... */
 				CleanForBigElement(EditDatas.Rung.Element[RungX][RungY].Type,RungX,RungY,ELE_FREE);
-				EditDatas.Rung.Element[RungX][RungY].DynamicOutput = 0;
-//v0.7.124				EditDatas.Rung.Element[RungX][RungY].Type = NumElement;
-				EditDatas.Rung.Element[RungX][RungY].Type = ELE_FREE;
-			}
-			else
-			{
+			        EditDatas.Rung.Element[RungX][RungY].DynamicOutput = 0;
+                                if (((x-RungX*InfosGene->BlockWidth)>=0) && ((x-RungX*InfosGene->BlockWidth)<=15) 
+                                   && (EditDatas.Rung.Element[RungX][RungY].ConnectedWithTop))
+				      {			                   
+				            EditDatas.Rung.Element[RungX][RungY].ConnectedWithTop = 0;
+			              }else{
+				           EditDatas.Rung.Element[RungX][RungY].Type = ELE_FREE;
+			                   }
+			}else{
 				if (VerifyRulesForElement(NumElement,RungX,RungY))
 				{
 					/* the blocks other than the "alive" are now free... */
