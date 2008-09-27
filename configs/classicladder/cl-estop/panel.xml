@@ -1,0 +1,28 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- 
+Include your PyVCP panel here.
+The contents of this file will not be overwritten when you run stepconf again.
+-->
+<pyvcp>
+<vbox>
+<label><text>"E-Stop Demo"</text></label>
+<led>
+    <halpin>"py-es-status"</halpin>
+    <size>50</size>
+    <on_color>"green"</on_color>
+    <off_color>"red"</off_color>
+</led>
+<button>
+    <halpin>"py-estop"</halpin>
+    <text>"E-Stop"</text>
+</button>
+
+</vbox>
+
+<button>
+    <halpin>"py-reset"</halpin>
+    <text>"Reset"</text>
+</button>
+
+
+</pyvcp>

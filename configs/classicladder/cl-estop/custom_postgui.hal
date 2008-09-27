@@ -1,0 +1,27 @@
+# Include your customized HAL commands here
+# The commands in this file are run after the AXIS GUI (including PyVCP panel)
+# starts
+# This file will not be overwritten when you run stepconf again
+
+# External E-Stop pyVCP button for external use a normally closed contact
+loadrt not count=1
+addf not.0 servo-thread
+
+# The not changes the normally open pyVCP button to normally closed
+net nc-gui-estop not.0.in <= pyvcp.py-estop
+net ext-estop classicladder.0.in-00 <= not.0.out
+
+# Request E-Stop Enable from EMC
+net estop-all-ok iocontrol.0.emc-enable-in <= classicladder.0.out-00
+
+# Request E-Stop Enable from pyVCP or external source
+net ext-estop-reset classicladder.0.in-03 <= pyvcp.py-reset
+
+# This line resets the E-Stop from EMC
+net emc-reset-estop iocontrol.0.user-request-enable => classicladder.0.in-02
+
+# This line enables EMC to unlatch the E-Stop in classicladder
+net emc-estop iocontrol.0.user-enable-out => classicladder.0.in-01
+
+# This line turns on the green indicator when out of E-Stop
+net estop-all-ok => pyvcp.py-es-status
