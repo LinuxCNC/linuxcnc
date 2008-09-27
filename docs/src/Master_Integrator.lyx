@@ -367,6 +367,15 @@ preview false
 \end_inset 
 
 
+\layout Standard
+
+
+\begin_inset Include \include{ladder/ladder_examples.lyx}
+preview false
+
+\end_inset 
+
+
 \layout Part
 
 Hardware Examples

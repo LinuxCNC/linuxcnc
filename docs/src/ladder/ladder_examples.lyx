@@ -1,0 +1,320 @@
+#LyX 1.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 221
+\textclass book
+\begin_preamble
+\usepackage[plainpages=false,pdfpagelabels,colorlinks=true,linkcolor=blue]{hyperref}
+\end_preamble
+\language english
+\inputencoding default
+\fontscheme bookman
+\graphics default
+\float_placement !htbp
+\paperfontsize default
+\spacing single 
+\papersize letterpaper
+\paperpackage a4
+\use_geometry 1
+\use_amsmath 1
+\use_natbib 0
+\use_numerical_citations 0
+\paperorientation portrait
+\leftmargin 1in
+\topmargin 1in
+\rightmargin 0.8in
+\bottommargin 0.8in
+\secnumdepth 3
+\tocdepth 5
+\paragraph_separation skip
+\defskip smallskip
+\quotes_language english
+\quotes_times 2
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+
+\layout Section
+
+Ladder Examples
+\layout Subsection
+
+External E-Stop
+\layout Standard
+
+The External E-Stop example is in the /config/classicladder/cl-estop folder.
+ It uses a pyVCP panel to simulate the external componets.
+ 
+\layout Standard
+
+To interface an external E-Stop to EMC and have the external E-Stop work
+ together with the internal E-Stop requires a couple of connections through
+ ClassicLadder.
+ 
+\layout Standard
+
+First we have to open the E-Stop loop in the main hal file by commenting
+ out by adding the pound sign as shown or removing the following lines.
+\layout LyX-Code
+
+# net estop-out <= iocontrol.0.user-enable-out
+\layout LyX-Code
+
+# net estop-out => iocontrol.0.emc-enable-in
+\layout Standard
+
+Next we add ClassicLadder to our custom.hal file by adding these two lines:
+\layout LyX-Code
+
+loadrt classicladder_rt
+\layout LyX-Code
+
+addf classicladder.0.refresh servo-thread
+\layout Standard
+
+Next we run our config and build the ladder as shown here.
+\layout Standard
+
+
+\begin_inset Float figure
+placement H
+wide false
+collapsed false
+
+\layout Caption
+
+E-Stop Section Display
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename images/EStop_Section_Display.png
+	scale 70
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Standard
+
+After building the ladder select Save As and save the ladder as estop.clp
+\layout Standard
+
+Now add the following line to your custom.hal file.
+\layout LyX-Code
+
+# Load the ladder
+\layout LyX-Code
+
+loadusr classicladder --nogui estop.clp
+\layout Standard
+
+I/O assignments
+\layout Itemize
+
+%I0 = Input from the pyVCP panel simulated E-Stop (the checkbox)
+\layout Itemize
+
+%I1 = Input from EMC's E-Stop
+\layout Itemize
+
+%I2 = Input from EMC's E-Stop Reset Pulse
+\layout Itemize
+
+%I3 = Input from the pyVCP panel reset button
+\layout Itemize
+
+%Q0 = Ouput to EMC to enable
+\layout Itemize
+
+%Q1 = Output to external driver board enable pin (use a N/C output if your
+ board had a disable pin)
+\layout Standard
+
+Next we add the following lines to the custom_postgui.hal file
+\layout LyX-Code
+
+# E-Stop example using pyVCP buttons to simulate external componets
+\layout LyX-Code
+
+\layout LyX-Code
+
+# The pyVCP checkbutton simulates a normally closed external E-Stop
+\layout LyX-Code
+
+net ext-estop classicladder.0.in-00 <= pyvcp.py-estop
+\layout LyX-Code
+
+\layout LyX-Code
+
+# Request E-Stop Enable from EMC
+\layout LyX-Code
+
+net estop-all-ok iocontrol.0.emc-enable-in <= classicladder.0.out-00
+\layout LyX-Code
+
+\layout LyX-Code
+
+# Request E-Stop Enable from pyVCP or external source
+\layout LyX-Code
+
+net ext-estop-reset classicladder.0.in-03 <= pyvcp.py-reset
+\layout LyX-Code
+
+\layout LyX-Code
+
+# This line resets the E-Stop from EMC
+\layout LyX-Code
+
+net emc-reset-estop iocontrol.0.user-request-enable => classicladder.0.in-02
+\layout LyX-Code
+
+\layout LyX-Code
+
+# This line enables EMC to unlatch the E-Stop in classicladder
+\layout LyX-Code
+
+net emc-estop iocontrol.0.user-enable-out => classicladder.0.in-01
+\layout LyX-Code
+
+\layout LyX-Code
+
+# This line turns on the green indicator when out of E-Stop
+\layout LyX-Code
+
+net estop-all-ok => pyvcp.py-es-status
+\layout Standard
+
+Next we add the following lines to the panel.xml file.
+ Note you have to open it with the text editor not the default html viewer.
+\layout LyX-Code
+
+<pyvcp>
+\layout LyX-Code
+
+<vbox>
+\layout LyX-Code
+
+<label><text>"E-Stop Demo"</text></label>
+\layout LyX-Code
+
+<led>
+\layout LyX-Code
+
+<halpin>"py-es-status"</halpin>
+\layout LyX-Code
+
+<size>50</size>
+\layout LyX-Code
+
+<on_color>"green"</on_color>
+\layout LyX-Code
+
+<off_color>"red"</off_color>
+\layout LyX-Code
+
+</led>
+\layout LyX-Code
+
+<checkbutton>
+\layout LyX-Code
+
+<halpin>"py-estop"</halpin>
+\layout LyX-Code
+
+<text>"E-Stop"</text>
+\layout LyX-Code
+
+</checkbutton>
+\layout LyX-Code
+
+</vbox>
+\layout LyX-Code
+
+<button>
+\layout LyX-Code
+
+<halpin>"py-reset"</halpin>
+\layout LyX-Code
+
+<text>"Reset"</text>
+\layout LyX-Code
+
+</button>
+\layout LyX-Code
+
+</pyvcp>
+\layout Standard
+
+Now start up your config and it should look like this.
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Caption
+
+AXIS E-Stop
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename images/axis_cl-estop.png
+	scale 70
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Standard
+
+Note that in this example like in real life you must clear the remote E-Stop
+ (simulated by the checkbox) before the AXIS E-Stop or the external Reset
+ will put you in OFF mode.
+ If the E-Stop in the AXIS screen was pressed you must press it again to
+ clear it.
+ You cannot reset from the external after you do an E-Stop in AXIS.
+\layout Subsection
+
+Tool Turrent
+\layout Standard
+
+This is a program for one type of tool turret.
+ The turret has a home switch at tool position 1 and another another switch
+ to tell you when the turret is in a lockable position.
+ To keep track of the actual tool number one must count how many positions
+ past home you are.
+ We will use ClassicLadder's counter block '$CO'.The counter is preset to
+ 1 when RESET is true.
+ The counter is increased by one on the rising edge of INDEX.
+ We then 'COMPARE' the counter value (%C0.V) to the tool number we want (in
+ the example only checks for tool 1 and 2 are shown).
+ We also 'OPERATE' the counter value to a word variable (%W0) that (you
+ can assume) is mapped on to a S32 out HAL pin so you can let some other
+ HAL component know what the current tool number is.
+ In the real world another S32 (in) pin would be used to get the requested
+ tool number from EMC.You would have to load ClassicLadder's real time module
+ specifying that you want S32 in and out pins.
+ See 'loading options' above.
+ [display turret sample]
+\layout Section
+
+Sequential Example
+\layout Standard
+
+This is a sequential program when the program is first started step one
+ is active then when %B0 is true then steps 2 and 3 are then active and
+ step one is inactive then when %B1 and/or %B2 are true, step 4 and/or 5
+ are active and step 2 and/or 3 are inactive Then when either %B3 OR %B4
+ are true, step 6 is true and steps 4 and 5 are inactive then when %B5 is
+ true step 1 is active and step 6 is inactive and it all starts again As
+ shown the sequence has been: %B0 was true making step 2 and 3 active then
+ %B1 became true (and still is-see the pink line through %B1) making step
+ 4 active and step 2 inactive step 3 is active and waiting for %B2 to be
+ true step 4 is active and is waiting for %B3 to be true WOW that was quite
+ a mouth full!! [display sequential program]
+\the_end
