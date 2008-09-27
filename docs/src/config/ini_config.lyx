@@ -2348,9 +2348,10 @@ TOOL_CHANGE_POSITION\SpecialChar ~
 0\SpecialChar ~
 2
 \series default 
- Specifies the XYZ location to move to when performing a tool change if
+ Specifies the X Y Z location to move to when performing a tool change if
  three digits are used.
- Specifies the XYZABC location when 6 digits are used.
+ Specifies the X Y Z A B C location when 6 digits are used.
+ Specifies the X Y Z A B C U V W location when 9 digits are used.
  Tool Changes can be combined.
  For example if you combine the quill up with change position you can move
  the Z first then the X and Y.
