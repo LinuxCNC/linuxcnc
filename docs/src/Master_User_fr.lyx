@@ -24,7 +24,7 @@
 \papersize letterpaper
 \paperpackage a4
 \use_geometry 1
-\use_amsmath 1
+\use_amsmath 0
 \use_natbib 0
 \use_numerical_citations 0
 \paperorientation portrait
@@ -48,7 +48,7 @@
 
 
 \begin_inset ERT
-status Open
+status Collapsed
 
 \layout Standard
 
@@ -65,7 +65,7 @@ numberline{}Couverture}
 
 
 \begin_inset ERT
-status Open
+status Collapsed
 
 \layout Standard
 

@@ -48,7 +48,7 @@
 
 
 \begin_inset ERT
-status Open
+status Collapsed
 
 \layout Standard
 
@@ -65,7 +65,7 @@ numberline{}Couverture}
 
 
 \begin_inset ERT
-status Open
+status Collapsed
 
 \layout Standard
 
@@ -103,6 +103,9 @@ preview false
 \end_inset 
 
 
+\layout Part
+
+Introduction
 \layout Standard
 
 
@@ -112,6 +115,9 @@ preview false
 \end_inset 
 
 
+\layout Part
+
+Installation d'EMC2
 \layout Standard
 
 
@@ -130,6 +136,9 @@ preview false
 \end_inset 
 
 
+\layout Part
+
+Configuration d'EMC2
 \layout Standard
 
 
@@ -157,6 +166,9 @@ preview false
 \end_inset 
 
 
+\layout Part
+
+Spécificités de HAL
 \layout Standard
 
 
@@ -220,6 +232,9 @@ preview false
 \end_inset 
 
 
+\layout Part
+
+Relations entre EMC2 et HAL
 \layout Standard
 
 
@@ -265,10 +280,25 @@ preview false
 \end_inset 
 
 
+\layout Part
+
+Notions de cinématique
 \layout Standard
 
 
 \begin_inset Include \include{motion/kinematics_fr.lyx}
+preview false
+
+\end_inset 
+
+
+\layout Part
+
+Les réglages
+\layout Standard
+
+
+\begin_inset Include \include{motion/tweaking_steppers_fr.lyx}
 preview false
 
 \end_inset 
@@ -283,15 +313,9 @@ preview false
 \end_inset 
 
 
-\layout Standard
+\layout Part
 
-
-\begin_inset Include \include{motion/tweaking_steppers_fr.lyx}
-preview false
-
-\end_inset 
-
-
+La logique en Ladder
 \layout Standard
 
 
@@ -310,6 +334,9 @@ preview false
 \end_inset 
 
 
+\layout Part
+
+Exemples d'utilisation de matériel
 \layout Standard
 
 
@@ -328,6 +355,9 @@ preview false
 \end_inset 
 
 
+\layout Part
+
+Appendices 
 \layout Standard
 
 

@@ -41,7 +41,7 @@
 \quotes_times 2
 \papercolumns 1
 \papersides 1
-\paperpagestyle default
+\paperpagestyle headings
 
 \layout Title
 
@@ -56,7 +56,7 @@
 \newline 
 
 \begin_inset ERT
-status Open
+status Collapsed
 
 \layout Standard
 
@@ -72,10 +72,10 @@ titleadd}
 The EMC Team
 \layout Standard
 \added_space_top medskip 
-This handbook is a work in progress.
- If you are able to help with writing, editing, or graphic preparation please
- contact any member of the writing team or join and send an email to emc-users@l
-ists.sourceforge.net.
+Ce manuel est un travail en évolution.
+ Si vous avez envie d'aider dans sa rédaction, son édition ou à la préparation
+ des graphiques, merci de contacter un membre de l'équipe de documentation
+ en envoyant un email à emc-users@lists.sourceforge.net.
 \layout Standard
 \added_space_top smallskip \align center 
 Copyright (c) 2000-8 LinuxCNC.org

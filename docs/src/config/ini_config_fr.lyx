@@ -2273,12 +2273,13 @@ TOOL_CHANGE_POSITION\SpecialChar ~
 0\SpecialChar ~
 0\SpecialChar ~
 2 Quand trois digits sont utilisés, spécifie la position
- XYZ ou le mobile se déplacera en prévision du changement d'outil.
+ XYZ ou le mobile sera déplacé pour le changement d'outil.
  Si six digits sont utilisés, spécifie l'emplacement ou sera envoyé le mobile
- avant le changement d'outil sur une machine de type XYZABC.
- Les variables relatives au changement d'outil peuvent être combinées, par
- exemple en combinant TOOL_CHANGE_POSITION avec TOOL_CHANGE_QUILL_UP il
- est possible de déplacer d'abord Z puis X et Y.
+ pour réaliser le changement d'outil sur une machine de type XYZABC et de
+ même, sur une machine de type XYZABCUVW lorsque 9 digits sont utilisés.
+ Les variables relatives à la position du changement d'outil peuvent être
+ combinées, par exemple; en combinant TOOL_CHANGE_POSITION avec TOOL_CHANGE_QUIL
+L_UP il est possible de déplacer d'abord Z puis X et Y.
 \layout Description
 
 TOOL_CHANGE_WITH_SPINDLE_ON\SpecialChar ~
