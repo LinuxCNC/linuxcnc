@@ -251,6 +251,7 @@ Now start up your config and it should look like this.
 
 
 \begin_inset Float figure
+placement H
 wide false
 collapsed false
 
@@ -280,7 +281,46 @@ Note that in this example like in real life you must clear the remote E-Stop
  You cannot reset from the external after you do an E-Stop in AXIS.
 \layout Subsection
 
+Timer/Operate Example
+\layout Standard
+
+In this example we are using the Operate block to assign a value to the
+ timer preset based on if an input is on or off.
+\layout Standard
+
+
+\begin_inset Float figure
+placement H
+wide false
+collapsed false
+
+\layout Caption
+
+Timer/Operate Example
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename images/Tmr_Section_Display.png
+	scale 70
+	keepAspectRatio
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Standard
+
+In this case %I0 is true so the timer preset value is 10.
+ If %I0 was false the timer preset would be 5.
+\layout Subsection
+
 Tool Turrent
+\layout Comment
+
+This Example is not complete yet.
 \layout Standard
 
 This is a program for one type of tool turret.
@@ -304,6 +344,9 @@ This is a program for one type of tool turret.
 \layout Section
 
 Sequential Example
+\layout Comment
+
+This Example is not complete yet.
 \layout Standard
 
 This is a sequential program when the program is first started step one

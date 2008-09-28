@@ -43,8 +43,14 @@ Classic Ladder
 \layout Standard
 
 This chapter is under construction at the moment.
- If you happen to view it the rest is on the way...
- Sept 18 2008.
+ Almost done Sept 28 2008.
+\layout Comment
+
+At this time there is a bug or two.
+ The Save button in the Section Display window does not work, you have to
+ use the Save As button.
+ To erase a vertical branch the eraser does not work, you have to click
+ on the vertical branch a second time to erase it.
 \layout Section
 
 Introduction
@@ -170,7 +176,7 @@ The speed of the thread that ClassicLadder is running in directly effects
  the responsiveness to inputs and outputs.
  If you can turn a switch on and off faster than ClassicLadder can notice
  it then you may need to speed up the thread.
- The fastest that ClassicLadder can refresh the rungs is one microsecond.
+ The fastest that ClassicLadder can refresh the rungs is one millisecond.
  You can put it in a faster thread but it will not update any faster.
  If you put it in a slower then one microsecond thread then ClassicLadder
  will update the rungs slower.
@@ -200,7 +206,7 @@ Default Variable Count
 \align center 
 
 \begin_inset  Tabular
-<lyxtabular version="3" rows="14" columns="3">
+<lyxtabular version="3" rows="15" columns="3">
 <features>
 <column alignment="left" valignment="top" leftline="true" width="0">
 <column alignment="center" valignment="top" leftline="true" width="0">
@@ -324,6 +330,32 @@ Number of timers
 \layout Standard
 
 (numTimers)
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+10
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Number of timers IEC
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+(numTimersIec)
 \end_inset 
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
@@ -641,7 +673,7 @@ loadusr classicladder --config=file
 Sets up the ClassicLadder for modbus master over serial or ethernet.
 \layout LyX-Code
 
-loadusr classicladder --nogui myladder.clp
+loadusr classicladder --config=my modbusfile --nogui myladder.clp
 \layout Standard
 
 To use ClassicLadder with HAL without EMC.
@@ -756,9 +788,16 @@ The check box at the top right allows you to select whether variable names
 \layout Standard
 
 You might notice that there is a line under the ladder program display that
- reads '%TM0: Preset=5 Base=Secs Mode= TON' That is the status bar that
- gives you info about elements of the ladder program that you click on in
- the display window.
+ reads 
+\begin_inset Quotes eld
+\end_inset 
+
+Project failed to load...
+\begin_inset Quotes erd
+\end_inset 
+
+ That is the status bar that gives you info about elements of the ladder
+ program that you click on in the display window.
  This status line will now display HAL signal names for variables %I, %Q
  and the first %W (in an equation) You might see some funny labels, such
  as (103) in the rungs.
@@ -1081,37 +1120,17 @@ Timers have 4 contacts.
  
 \layout Itemize
 
-E-for enable (input) 
+E = enable (input) - starts timer when true, resets when goes false
 \layout Itemize
 
-D-for done (output) 
+D = done (output) - true when timer times out and as long as E remains true
 \layout Itemize
 
-C -for continue 
+C = continue (input) - is not used in EMC for legacy reasons so is always
+ forced true
 \layout Itemize
 
-R-for running (output) - 
-\layout Itemize
-
-E (input) -enable -will start the timer when true.
- 
-\layout Standard
-
-The timer count resets when the E input goes false.
- 
-\layout Standard
-
-R (output) -running -will be true will the count is running.
-\layout Standard
-
-C (input) -continue -is not used in EMC for legacy reasons so is always
- forced true.
- 
-\layout Standard
-
-D (output) -done -will be true when the count is Done and will stay true
- till the input goes false.
- 
+R = running (output) - true when timer is running
 \layout Standard
 
 The timer base can be multiples of milliseconds, seconds, or minutes.
@@ -1122,16 +1141,16 @@ There are also Variables for timers that can be read and/or written to in
  
 \layout Itemize
 
-Txx,R : Timer xx running (Boolean, read only) 
+%Txx.R : Timer xx running (Boolean, read only) 
 \layout Itemize
 
-Txx,D : Timer xx done (Boolean, read only) 
+%Txx.D : Timer xx done (Boolean, read only) 
 \layout Itemize
 
-Txx,V : Timer xx current value (integer, read only) 
+%Txx.V : Timer xx current value (integer, read only) 
 \layout Itemize
 
-Txx,P : Timer xx preset (integer, read or write)
+%Txx.P : Timer xx preset (integer, read or write)
 \layout Subsection
 
 IEC TIMERS
@@ -1156,6 +1175,20 @@ TP : When timer input is pulsed true or held true timer sets output true
  till timer counts down.
  (one-shot) The time intervals can be set in multiples of 100ms, seconds,
  or minutes.
+\layout Standard
+
+There are also Variables for IEC timers that can be read and/or written
+ to in compare or operate blocks.
+ 
+\layout Itemize
+
+%TMxxx.Q timer done (Boolean, read write)
+\layout Itemize
+
+%TMxxx.P timer preset (read write)
+\layout Itemize
+
+%TMxxx.V timer value (read write)
 \layout Subsection
 
 MONOSTABLES
@@ -1188,13 +1221,13 @@ There are also Variables for monostables that can be read and/or written
  
 \layout Itemize
 
-Mxx,R : Monostable xx running (Boolean, read only) 
+%Mxx.R : Monostable xx running (Boolean, read only) 
 \layout Itemize
 
-Mxx,V : Monostable xx current value (integer, read only) 
+%Mxx.V : Monostable xx current value (integer, read only) 
 \layout Itemize
 
-Mxx,P : Monostable xx preset (integer, read or write)
+%Mxx.P : Monostable xx preset (integer, read or write)
 \layout Subsection
 
 COUNTERS
@@ -1248,19 +1281,19 @@ There are also Variables for counters that can be read and/or written to
  
 \layout Itemize
 
-Cxx,D : Counter xx done (Boolean, read only) 
+%Cxx.D : Counter xx done (Boolean, read only) 
 \layout Itemize
 
-Cxx,E : Counter xx empty overflow (Boolean, read only) 
+%Cxx.E : Counter xx empty overflow (Boolean, read only) 
 \layout Itemize
 
-Cxx,F : Counter xx full overflow (Boolean, read only) 
+%Cxx.F : Counter xx full overflow (Boolean, read only) 
 \layout Itemize
 
-Cxx,V : Counter xx current value (integer, read or write) 
+%Cxx.V : Counter xx current value (integer, read or write) 
 \layout Itemize
 
-Cxx,P : Counter xx preset (integer, read or write)
+%Cxx.P : Counter xx preset (integer, read or write)
 \layout Subsection
 
 COMPARE
@@ -1287,11 +1320,18 @@ an example might be : %W1<2*%C0.V meaning: Is word variable #1 less then
 OPERATE
 \layout Standard
 
-- For Arithmetic assignment.
+For Arithmetic assignment.
  eg assign this number (or evaluated number) to this variable %xxx there
  are two math functions MINI and MAXI that check a variable for maximum
- (0x80000000) and minimum values (0x05FFFFFFF) (think signed values) and
+ (0x80000000) and minimum values (0x07FFFFFFF) (think signed values) and
  keeps them from going beyond.
+\layout Standard
+
+For Example to assign a value of 10 to the timer preset of timer 0 the syntax
+ would be:
+\layout LyX-Code
+
+%TM0.P=10
 \layout Subsection
 
 COILS
@@ -1410,59 +1450,68 @@ These Variables are used in COMPARE or OPERATE to get information about,
 List of variables :
 \layout Itemize
 
-Bxxx : Bit memory xxx (Boolean) 
+%Bxxx : Bit memory xxx (Boolean) 
 \layout Itemize
 
-Wxxx : Word memory xxx (32 bits signed integer) can be HAL s32 in and out
+%Wxxx : Word memory xxx (32 bits signed integer) can be HAL s32 in and out
  pins if loaded with real time module 
 \layout Itemize
 
-Txx,R : Timer xx running (Boolean, user read only) 
+%Txx.R : Timer xx running (Boolean, user read only) 
 \layout Itemize
 
-Txx,D : Timer xx done (Boolean, user read only) 
+%Txx.D : Timer xx done (Boolean, user read only) 
 \layout Itemize
 
-Txx,V : Timer xx current value (integer, user read only) 
+%Txx.V : Timer xx current value (integer, user read only) 
 \layout Itemize
 
-Txx,P : Timer xx preset (integer) 
+%Txx.P : Timer xx preset (integer) 
 \layout Itemize
 
-Mxx,R : Monostable xx running (Boolean) 
+%TMxxx.Q : Timer xxx done (Boolean, read write)
 \layout Itemize
 
-Mxx,V : Monostable xx current value (integer, user read only) 
+%TMxxx.P : Timer xxx preset (integer, read write)
 \layout Itemize
 
-Mxx,P : Monostable xx preset (integer) 
+%TMxxx.V : Timer xxx value (integer, read write)
 \layout Itemize
 
-Cxx,D : Counter xx done (Boolean, user read only) 
+%Mxx.R : Monostable xx running (Boolean) 
 \layout Itemize
 
-Cxx,E : Counter xx empty overflow (Boolean, user read only) 
+%Mxx.V : Monostable xx current value (integer, user read only) 
 \layout Itemize
 
-Cxx,F : Counter xx full overflow (Boolean, user read only) 
+%Mxx.P : Monostable xx preset (integer) 
 \layout Itemize
 
-Cxx,V : Counter xx current value (integer) 
+%Cxx.D : Counter xx done (Boolean, user read only) 
 \layout Itemize
 
-Cxx,P : Counter xx preset (integer) 
+%Cxx.E : Counter xx empty overflow (Boolean, user read only) 
 \layout Itemize
 
-Ixxx : Physical input xxx (Boolean) - HAL input bit - 
+%Cxx.F : Counter xx full overflow (Boolean, user read only) 
 \layout Itemize
 
-Qxxx : Physical output xxx (Boolean) - HAL output bit - 
+%Cxx.V : Counter xx current value (integer) 
 \layout Itemize
 
-Xxxx : Activity of step xxx (sequential language) 
+%Cxx.P : Counter xx preset (integer) 
 \layout Itemize
 
-Xxxx,V : Time of activity in seconds of step xxx (sequential language)
+%Ixxx : Physical input xxx (Boolean) - HAL input bit - 
+\layout Itemize
+
+%Qxxx : Physical output xxx (Boolean) - HAL output bit - 
+\layout Itemize
+
+%Xxxx : Activity of step xxx (sequential language) 
+\layout Itemize
+
+%Xxxx.V : Time of activity in seconds of step xxx (sequential language)
 \layout Standard
 
 * Indexed or vectored variables 
@@ -1666,8 +1715,8 @@ ClassicLadder has a Modbus/TCP server integrated.
  Default port is 9502, standard 502 requires that the application has been
  launched with root privileges.
  List of Modbus functions code supported are: 1, 2, 3, 4, 5, 6, 15 and 16.
- Modbus bits and words correspondence table is actually user settable and
- correspond directly to the %B and %W variables.
+ Modbus bits and words correspondence table is not user settable and correspond
+ directly to the %B and %W variables.
  You must load a config file (even if it's blank) to initialize the slave.
 \layout Section
 
@@ -1675,7 +1724,7 @@ Setting up ClassicLadder
 \layout Standard
 
 In this section we will cover the steps needed to add ClassicLadder to a
- Stepconf generated config.
+ Stepconf Wizard generated config.
 \layout Subsection
 
 Add the Modules
@@ -1703,7 +1752,7 @@ Now start up your config and select File/Ladder Editor...
  You should see a blank Section Display and Sections Manager window as shown
  above.
  In the Section Display window open the Editor.
- In the Editor window select Insert.
+ In the Editor window select Modify.
  Now a Properties window pops up and the Section Display shows a grid.
  The grid is one rung of ladder.
  The rung can contain branches.
