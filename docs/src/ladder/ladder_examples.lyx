@@ -318,7 +318,7 @@ In this case %I0 is true so the timer preset value is 10.
 \layout Subsection
 
 Tool Turrent
-\layout Comment
+\layout Itemize
 
 This Example is not complete yet.
 \layout Standard
@@ -341,10 +341,10 @@ This is a program for one type of tool turret.
  specifying that you want S32 in and out pins.
  See 'loading options' above.
  [display turret sample]
-\layout Section
+\layout Subsection
 
 Sequential Example
-\layout Comment
+\layout Itemize
 
 This Example is not complete yet.
 \layout Standard
