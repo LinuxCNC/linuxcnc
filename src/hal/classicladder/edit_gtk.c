@@ -63,9 +63,9 @@ char * ToolBarToolTipsTextLadder[ ][NBR_ELE_TOOLBAR_X_MAX] =
             { { "Current Object\nSelector", "Eraser", NULL, NULL },
               { "N.O. Input", "N.C. Input", "Rising Edge\n Input", "Falling Edge\n Input" },
               { "Horizontal\nConnection", "Vertical\nConnection", "Long Horizontal\nConnection", NULL },
-              { "Timer IEC Block", "Counter Block", "Compare\n Variable", NULL },
+              { "Timer IEC Block", "Counter Block",  "Variable\nComparison", NULL },
 #ifdef OLD_TIMERS_MONOS_SUPPORT
-              { "Old Timer Block", "Old Monostable Block", NULL, NULL },
+              { "Old Timer Block", "Monostable Block", NULL, NULL },
 #endif
               { "N.O. Output", "N.C. Output", "Set Output", "Reset Output" },
               { "Jump Coil", "Call Coil", "Variable\nAssignment", NULL },
