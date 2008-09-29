@@ -270,6 +270,7 @@ int tpAddRigidTap(TP_STRUCT *tp, EmcPose end, double vel, double ini_maxvel,
 
     pmLineInit(&line_xyz, start_xyz, end_xyz);
 
+    tc.sync_accel = 0;
     tc.cycle_time = tp->cycleTime;
     tc.coords.rigidtap.reversal_target = line_xyz.tmag;
 
@@ -369,6 +370,7 @@ int tpAddLine(TP_STRUCT * tp, EmcPose end, int type, double vel, double ini_maxv
     pmLineInit(&line_uvw, start_uvw, end_uvw);
     pmLineInit(&line_abc, start_abc, end_abc);
 
+    tc.sync_accel = 0;
     tc.cycle_time = tp->cycleTime;
 
     if (!line_xyz.tmag_zero) 
@@ -471,6 +473,7 @@ int tpAddCircle(TP_STRUCT * tp, EmcPose end,
     helix_length = pmSqrt(pmSq(circle.angle * circle.radius) +
                           pmSq(helix_z_component));
 
+    tc.sync_accel = 0;
     tc.cycle_time = tp->cycleTime;
     tc.target = helix_length;
     tc.progress = 0.0;
@@ -575,6 +578,7 @@ int tpRunCycle(TP_STRUCT * tp, long period)
     static double spindleoffset;
     static int waiting = 0;
     double save_vel;
+    static double revs;
 
     emcmotStatus->tcqlen = tcqLen(&tp->queue);
     tc = tcqItem(&tp->queue, 0, period);
@@ -613,6 +617,9 @@ int tpRunCycle(TP_STRUCT * tp, long period)
     }
 
     if (tc->motion_type == TC_RIGIDTAP) {
+        static double old_spindlepos;
+        double new_spindlepos = emcmotStatus->spindleRevs;
+
         switch (tc->coords.rigidtap.state) {
         case TAPPING:
             if (tc->progress >= tc->coords.rigidtap.reversal_target) {
@@ -622,11 +629,11 @@ int tpRunCycle(TP_STRUCT * tp, long period)
             }
             break;
         case REVERSING:
-            if (tc->reqvel == 0.0) {
+            if (new_spindlepos < old_spindlepos) {
                 PmPose start, end;
                 PmLine *aux = &tc->coords.rigidtap.aux_xyz;
                 // we've stopped, so set a new target at the original position
-                tc->coords.rigidtap.spindlerevs_at_reversal = emcmotStatus->spindleRevs;
+                tc->coords.rigidtap.spindlerevs_at_reversal = new_spindlepos + spindleoffset;
                 
                 pmLinePoint(&tc->coords.rigidtap.xyz, tc->progress, &start);
                 end = tc->coords.rigidtap.xyz.start;
@@ -637,6 +644,7 @@ int tpRunCycle(TP_STRUCT * tp, long period)
 
                 tc->coords.rigidtap.state = RETRACTION;
             }
+            old_spindlepos = new_spindlepos;
             break;
         case RETRACTION:
             if (tc->progress >= tc->coords.rigidtap.reversal_target) {
@@ -645,7 +653,7 @@ int tpRunCycle(TP_STRUCT * tp, long period)
             }
             break;
         case FINAL_REVERSAL:
-            if (tc->reqvel == 0.0) {
+            if (new_spindlepos > old_spindlepos) {
                 PmPose start, end;
                 PmLine *aux = &tc->coords.rigidtap.aux_xyz;
                 pmLinePoint(aux, tc->progress, &start);
@@ -658,6 +666,7 @@ int tpRunCycle(TP_STRUCT * tp, long period)
                 
                 tc->coords.rigidtap.state = FINAL_PLACEMENT;
             }
+            old_spindlepos = new_spindlepos;
             break;
         case FINAL_PLACEMENT:
             // this is a regular move now, it'll stop at target above.
@@ -678,6 +687,8 @@ int tpRunCycle(TP_STRUCT * tp, long period)
             /* passed index, start the move */
             emcmotStatus->spindleSync = 1;
             waiting=0;
+            tc->sync_accel=1;
+            revs=0;
         }
     }
 
@@ -770,8 +781,8 @@ int tpRunCycle(TP_STRUCT * tp, long period)
 
 
     if(tc->synchronized) {
-        double revs;
         double pos_error;
+        double oldrevs = revs;
 
         if(tc->velocity_mode) {
             pos_error = fabs(emcmotStatus->spindleSpeedIn) * tc->uu_per_rev;
@@ -779,6 +790,7 @@ int tpRunCycle(TP_STRUCT * tp, long period)
             if(!tp->aborting)
                 tc->reqvel = pos_error;
         } else {
+            double spindle_vel, target_vel;
             if(tc->motion_type == TC_RIGIDTAP && 
                (tc->coords.rigidtap.state == RETRACTION || 
                 tc->coords.rigidtap.state == FINAL_REVERSAL))
@@ -790,7 +802,18 @@ int tpRunCycle(TP_STRUCT * tp, long period)
             pos_error = (revs - spindleoffset) * tc->uu_per_rev - tc->progress;
             if(nexttc) pos_error -= nexttc->progress;
 
-            tc->reqvel = pos_error/tc->cycle_time/2.0;
+            tc->reqvel = pos_error/tc->cycle_time;
+            if(tc->sync_accel) {
+                // detect when velocities match, and move the target accordingly.
+                // acceleration will abruptly stop and we will be on our new target.
+                spindle_vel = (revs - oldrevs)/tc->cycle_time;
+                target_vel = spindle_vel * tc->uu_per_rev;
+                if(tc->currentvel >= target_vel) {
+                    // move target so as to drive pos_error to 0 next cycle
+                    spindleoffset = oldrevs - tc->progress/tc->uu_per_rev;
+                    tc->sync_accel = 0;
+                }
+            }
         }
         tc->feed_override = 1.0;
         if(tc->reqvel < 0.0) tc->reqvel = 0.0;

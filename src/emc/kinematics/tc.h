@@ -88,6 +88,7 @@ typedef struct {
     int velocity_mode;	    // TRUE if spindle sync is in velocity mode, FALSE if in position mode
     double uu_per_rev;      // for sync, user units per rev (e.g. 0.0625 for 16tpi)
     double vel_at_blend_start;
+    int sync_accel;         // we're accelerating up to sync with the spindle
     unsigned char enables;  // Feed scale, etc, enable bits for this move
 } TC_STRUCT;
 
