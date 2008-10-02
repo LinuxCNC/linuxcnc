@@ -60,7 +60,7 @@ static short int ToolBarElementsLadder[ ][NBR_ELE_TOOLBAR_X_MAX] =
               {ELE_OUTPUT_JUMP, ELE_OUTPUT_CALL , ELE_OUTPUT_OPERATE , 0} ,
               {-1,-1}/*end*/ };
 char * ToolBarToolTipsTextLadder[ ][NBR_ELE_TOOLBAR_X_MAX] =
-            { { "Current Object\nSelector", "Eraser", NULL, NULL },
+            { { "Object\nSelector", "Eraser", NULL, NULL },
               { "N.O. Input", "N.C. Input", "Rising Edge\n Input", "Falling Edge\n Input" },
               { "Horizontal\nConnection", "Vertical\nConnection", "Long Horizontal\nConnection", NULL },
               { "Timer IEC Block", "Counter Block",  "Variable\nComparison", NULL },
