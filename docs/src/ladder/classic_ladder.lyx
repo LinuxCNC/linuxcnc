@@ -967,19 +967,32 @@ Editor Window
 \layout Standard
 
 Starting from the top left image:
-\layout Standard
+\layout Enumerate
 
-1.
- SELECTOR ARROW, ERASER 2.
- N.O., N.C.
- , RISING-EDGE ,FALLING-EDGE CONTACTS.
- 3.
- HORIZONTAL, VERTICAL , HORIZONTAL RUNNING-CONNECTIONS 4.
- TIMER, MONOSTABLE, COUNTER, COMPARE 5.
- N.O.
- COIL, N.C.
- COIL, SET COIL, RESET COIL 6.
- JUMP COIL, CALL COIL, OPERATE
+Object Selector, Eraser
+\layout Enumerate
+
+N.O.
+ Input, N.C.
+ Input, Rising Edge Input , Falling Edge Input
+\layout Enumerate
+
+Horizontal Connection, Vertical Connection , Long Horizontal Connection
+\layout Enumerate
+
+Timer IEC Block, Counter Block, Compare Variable
+\layout Enumerate
+
+Old Timer Block, Old Monostable Block (These have been replaced by the IEC
+ Timer)
+\layout Enumerate
+
+COILS - N.O.
+ Output, N.C.
+ Output, Set Output, Reset Output
+\layout Enumerate
+
+Jump Coil, Call Coil, Variable Assignment
 \layout Standard
 
 A short description of each of the buttons:
@@ -987,7 +1000,10 @@ A short description of each of the buttons:
 
 The SELECTOR ARROW button allows you to select existing objects and modify
  the information.
- * The ERASER erases an object.
+ 
+\layout Itemize
+
+The ERASER erases an object.
  
 \layout Itemize
 
@@ -1029,6 +1045,9 @@ The VERTICAL CONNECTION connects the 'signal' to objects vertically.
 The HORIZONTAL-RUNNING CONNECTION is a quick way to connect a long run of
  'signal wire' horizontally.
  
+\layout Itemize
+
+The IEC TIMER replaces the TIMER and the MONSTABLE.
 \layout Itemize
 
 The TIMER is a Timer Module.
@@ -1110,10 +1129,63 @@ FALLING EDGE CONTACT - When the variable changes from true to false, the
  switch is PULSED on.
 \layout Subsection
 
+IEC TIMERS
+\layout Standard
+
+Represent new count down timers! IEC Timers replace Timers and Monostables.
+\layout Standard
+
+IEC Timers have 2 contacts.
+ 
+\layout Itemize
+
+I = input 
+\layout Itemize
+
+Q = output 
+\layout Standard
+
+There are three modes - TON, TOF, TP.
+\layout Itemize
+
+TON : When timer input is true countdown begins and continues as long as
+ input remains true.
+ After countdown is done and as long as timer input is still true the output
+ will be true.
+ 
+\layout Itemize
+
+TOF : When timer input is true, sets output true.
+ When the input is false the timer counts down then sets output false.
+\layout Itemize
+
+TP : When timer input is pulsed true or held true timer sets output true
+ till timer counts down.
+ (one-shot) 
+\layout Standard
+
+The time intervals can be set in multiples of 100ms, seconds, or minutes.
+\layout Standard
+
+There are also Variables for IEC timers that can be read and/or written
+ to in compare or operate blocks.
+ 
+\layout Itemize
+
+%TMxxx.Q timer done (Boolean, read write)
+\layout Itemize
+
+%TMxxx.P timer preset (read write)
+\layout Itemize
+
+%TMxxx.V timer value (read write)
+\layout Subsection
+
 TIMERS
 \layout Standard
 
-Represent count down timers! 
+Represent count down timers.
+ This is depreacated and replaced by IEC Timers.
 \layout Standard
 
 Timers have 4 contacts.
@@ -1153,48 +1225,12 @@ There are also Variables for timers that can be read and/or written to in
 %Txx.P : Timer xx preset (integer, read or write)
 \layout Subsection
 
-IEC TIMERS
-\layout Standard
-
-Represent new count down timers! - Timers have 2 contacts.
- I-for input Q- output There are three modes - TON, TOF, TP.
-\layout Standard
-
-TON : When timer input is true countdown begins and continues as long as
- input remains true.
- After countdown is done and as long as timer input is still true the output
- will be true.
- 
-\layout Standard
-
-TOF : When timer input is true, sets output true.
- When the input is false the timer counts down then sets output false.
-\layout Standard
-
-TP : When timer input is pulsed true or held true timer sets output true
- till timer counts down.
- (one-shot) The time intervals can be set in multiples of 100ms, seconds,
- or minutes.
-\layout Standard
-
-There are also Variables for IEC timers that can be read and/or written
- to in compare or operate blocks.
- 
-\layout Itemize
-
-%TMxxx.Q timer done (Boolean, read write)
-\layout Itemize
-
-%TMxxx.P timer preset (read write)
-\layout Itemize
-
-%TMxxx.V timer value (read write)
-\layout Subsection
-
 MONOSTABLES
 \layout Standard
 
-Represent one-shot timer 
+Represent are one-shot timers.
+ This is depreacated and replaced by IEC Timers.
+ 
 \layout Standard
 
 Monostables have 2 contacts I and R.
@@ -1299,7 +1335,7 @@ There are also Variables for counters that can be read and/or written to
 COMPARE
 \layout Standard
 
-- for arithmetic comparison.
+For arithmetic comparison.
  eg Is variable %XXX = to this number (or evaluated number) 
 \layout Standard
 
@@ -1313,22 +1349,25 @@ COMPARE
  writing to ladder objects.
 \layout Standard
 
-an example might be : %W1<2*%C0.V meaning: Is word variable #1 less then
- 2 times the current value of counter #0 ?
+For example if you want to find out if word variable #1 is less than 2 times
+ the current value of counter #0 the syntax would be:
+\layout LyX-Code
+
+%W1<2*%C0.V
 \layout Subsection
 
 OPERATE
 \layout Standard
 
-For Arithmetic assignment.
+For variable assignment.
  eg assign this number (or evaluated number) to this variable %xxx there
  are two math functions MINI and MAXI that check a variable for maximum
  (0x80000000) and minimum values (0x07FFFFFFF) (think signed values) and
  keeps them from going beyond.
 \layout Standard
 
-For Example to assign a value of 10 to the timer preset of timer 0 the syntax
- would be:
+For example to assign a value of 10 to the timer preset of IEC Timer 0 the
+ syntax would be:
 \layout LyX-Code
 
 %TM0.P=10
