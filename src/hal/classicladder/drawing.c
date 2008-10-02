@@ -720,9 +720,9 @@ void DrawElement(GdkPixmap * DrawPixmap,int x,int y,int Width,int Height,StrElem
 								x+WidDiv3*2,y+HeiDiv2, x+Width,y+HeiDiv2);
 #ifndef GTK2
 			gdk_draw_text(DrawPixmap, drawing_area->style->font, drawing_area->style->black_gc,
-						x+WidDiv4-(Width*2)+3,y+HeiDiv4-1,"COMPARE",strlen("COMPARE"));
+						x+WidDiv4-(Width*2)+3,y+HeiDiv4-1,"COMPARISON",strlen("COMPARISON"));
 #else
-			DrawTextGTK2( DrawPixmap, drawing_area->style->black_gc, x+WidDiv4-(Width*2)+3, y+HeiDiv4+1, -1, -1, "COMPARE" );
+			DrawTextGTK2( DrawPixmap, drawing_area->style->black_gc, x+WidDiv4-(Width*2)+3, y+HeiDiv4+1, -1, -1, "COMPARISON" );
 #endif
 			/* arithmetic expression */
 			if (!EditDatas.ModeEdit)
@@ -754,9 +754,9 @@ void DrawElement(GdkPixmap * DrawPixmap,int x,int y,int Width,int Height,StrElem
 								x+WidDiv3*2,y+HeiDiv2, x+Width,y+HeiDiv2);
 #ifndef GTK2
 			gdk_draw_text(DrawPixmap, drawing_area->style->font, drawing_area->style->black_gc,
-						x+WidDiv4-(Width*2)+3,y+HeiDiv4-1,"OPERATE",strlen("OPERATE"));
+						x+WidDiv4-(Width*2)+3,y+HeiDiv4-1,"ASSIGNMENT",strlen("ASSIGNMENT"));
 #else
-			DrawTextGTK2( DrawPixmap, drawing_area->style->black_gc, x+WidDiv4-(Width*2)+3, y+HeiDiv4+1, -1, -1, "OPERATE" );
+			DrawTextGTK2( DrawPixmap, drawing_area->style->black_gc, x+WidDiv4-(Width*2)+3, y+HeiDiv4+1, -1, -1, "ASSIGNMENT" );
 #endif
 			/* arithmetic expression */
 			if (!EditDatas.ModeEdit)
