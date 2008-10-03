@@ -1,40 +1,277 @@
-/** This file, 'halrmt.c', is a HAL component that provides a simple
-    telnet interface to the EMC2 HAL.  It is a user space component.
-*/
+/********************************************************************
+* Description: halrmt.cc
+*   Simple telnet interface to EMC2 HAL commands (halcmd)
+*
+*   Derived from work by jmkasunich
+*
+*   Other contributers:
+*     Alex Joni
+*
+* Author: Eric H. Johnson
+* License: GPL Version 2
+* System: Linux
+*
+* Copyright (c) 2006-2008 All rights reserved.
+*
+* Last change:
+********************************************************************/
 
-/** Copyright (C) 2006 Eric H. Johnson 
-    Derived from work by John Kasunich
-                       <jmkasunich AT users DOT sourceforge DOT net>
+/*******************************************************************
+  Using halrmt:
 
-    Other contributers:
-                       Alex Joni
-                       <alex_joni AT users DOT sourceforge DOT net>
- */
+  halrmt {-- --port <port number> --name <server name> --connectpw <password>
+             --enablepw <password> --sessions <max sessions> -ini<inifile>}
 
-/** This program is free software; you can redistribute it and/or
-    modify it under the terms of version 2.1 of the GNU General
-    Public License as published by the Free Software Foundation.
-    This library is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+  With -- --port Waits for socket connections (Telnet) on specified socket, without port
+            uses default port 5007.
+  With -- --name <server name> Sets the server name to specified name for Hello.
+  With -- --connectpw <password> Sets the connection password to 'password'. Default EMC
+  With -- --enablepw <password> Sets the enable password to 'password'. Default EMCTOO
+  With -- --sessions <max sessions> Sets the maximum number of simultaneous connextions
+            to max sessions. Default is no limit (-1).
+  With -- -ini <inifile>, uses inifile instead of emc.ini. 
 
-    You should have received a copy of the GNU General Public
-    License along with this library; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111 USA
+  There are six commands supported, Where the commands set and get contain HAL
+  specific sub-commands based on the commands supported by halcmd. Commands and 
+  most parameters are not case sensitive. The exceptions are passwords, 
+  file paths and text strings.
+  
+  The supported commands are as follows:
+  
+  ==> HELLO <==
+  
+  Hello <password> <cleint> <version>
+  If a valid password was entered the server will respond with
+  
+  HELLO ACK <Server Name> <Server Version>
+  
+  Where server name and server version are looked up from the implementation.
+  if an invalid password or any other syntax error occurs then the server 
+  responds with:
+  
+  HELLO NAK
+  
+  ==> Get <==
+  
+  The get command includes one of the hal sub-commands, described below and
+  zero or more additional parameters. 
+  
+  ==> Set <==
+  
+  The set command inclides one of the hal sub-commands, described below and
+  one or more additional parameters.
+  
+  ==> Quit <==
+  
+  The quit command disconnects the associated socket connection.
+  
+  ==> Shutdown <==
+  
+  The shutdown command tells EMC to shutdown before quitting the connection. This
+  command may only be issued if the Hello has been successfully negotiated and the
+  connection has control of the CNC (see enable sub-command below). This command
+  has no parameters.
+  
+  ==> Help <==
+  
+  The help command will return help information in text format over the telnet
+  connection. If no parameters are specified, it will itemize the available commands.
+  If a command is specified, it will provide usage information for the specified
+  command. Help will respond regardless of whether a "Hello" has been
+  successsfully negotiated.
+  
+  
+  HAL sub-commands:
+  
+  echo on | off
+  With get will return the current echo state, with set, sets the echo
+  state. When echo is on, all commands will be echoed upon receipt. This
+  state is local to each connection.
+  
+  verbose on | off
+  With get will return the current verbose state, with set, sets the
+  verbose state. When in verbose mode is on, all set commands return
+  positive acknowledgement in the form SET <COMMAND> ACK. In addition,
+  text error messages will be issued when in verbose mode. This state
+  is local to each connection.
+  
+  enable <pwd> | off
+  With get will return On or Off to indicate whether the current connection
+  is enabled to perform control functions. With set and a valid password,
+  the current connection is enabled for control functions. "OFF" may not
+  be used as a password and disables control functions for this connection.
 
-    THE AUTHORS OF THIS LIBRARY ACCEPT ABSOLUTELY NO LIABILITY FOR
-    ANY HARM OR LOSS RESULTING FROM ITS USE.  IT IS _EXTREMELY_ UNWISE
-    TO RELY ON SOFTWARE ALONE FOR SAFETY.  Any machinery capable of
-    harming persons must have provisions for completely removing power
-    from all motors, etc, before persons enter any danger area.  All
-    machinery must be designed to comply with local and national safety
-    codes, and the authors of this software can not, and do not, take
-    any responsibility for such compliance.
+  config [TBD]
+  
+  comm_mode ascii | binary
+  With get, will return the current communications mode. With set, will
+  set the communications mode to the specified mode. The binary protocol 
+  is TBD.
+  
+  comm_prot <version no>
+  With get, returns the current protocol version used by the server,
+  with set, sets the server to use the specified protocol version,
+  provided it is lower than or equal to the highest version number
+  supported by the server implementation.
 
-    This code was written as part of the EMC HAL project.  For more
-    information, go to www.linuxcnc.org.
-*/
+  Comps [<substring>]
+
+  Get only, returns all components beginning with the specified substring. 
+  If no substring is specified then it returns all components.
+
+  Pins [<substring>]
+
+  Get only, returns all information about all pins beginning with the
+  specified substring. If no substring is specified then it returns all pins.
+
+  PinVals [<substring>]
+
+  Get only, returns only value information about all pins beginning with the
+  specified substring. If no substring is specified then it returns all pins.
+
+  Signals [<substring>]
+
+  Get only, returns all information about all signals beginning with the
+  specified substring. If no substring is specified then it returns all signals.
+
+  SigVals [<substring>]
+
+  Get only, returns only value information about all signals beginning with the
+  specified substring. If no substring is specified then it returns all pins.
+
+  Params [<substring>]
+
+  Get only, returns all information about all parameters beginning with the
+  specified substring. If no substring is specified then it returns all 
+  parameters.
+
+  ParamVals [<substring>]
+
+  Get only, returns only value information about all parameters beginning with the
+  specified substring. If no substring is specified then it returns all pins
+  parameters.
+
+  Functs [<substring>]
+
+  Get only, returns all information about all functions beginning with the
+  specified substring. If no substring is specified then it returns all 
+  functions.
+  
+  Threads
+
+  Get only, returns all information about all functions.
+ 
+  Comp <name>
+
+  Get only, returns the component matching the specified name.
+
+  Pin <name>
+
+  Get only, returns all information about the pin matching the specified 
+  name.
+
+  PinVal <name>
+
+  Get only, returns the value of the pin matching the specified name.
+
+  Sig <name>
+
+  Get only, returns all information about the pin matching the specified 
+  name.
+
+  SigVal <name>
+
+  Get only, returns just the value of the signal matching the specified
+  name.
+  
+  Param <name>
+
+  Get only, returns all information about the parameter matching the 
+  specified name.
+
+  ParamVal <name>
+
+  Get only, returns just the value of the parameter matching the specified
+  name.
+
+  Funct <name>
+
+  Get only, returns all information about the parameter matching the 
+  specified name.
+
+  Thread <name>
+
+  Get only, returns all information about the thread matching the 
+  specified name.
+
+  LoadRt <name>
+
+  Set only, loads the real time executable specified by name.
+
+  Unload <name>
+
+  Set only, unloads the executable specified by name.
+
+  LoadUsr <name>
+
+  Set only, loads the user executable specified by name.
+
+  Linkps <pin name> <signal name>
+
+  Set only, links the specified pin to the specified signal.
+
+  Linksp <signal name> <pin name>
+
+  Set only, links the specified signal to the specified pin.
+
+  Linkpp <pin name 1> <pin name 2>
+
+  Set only, links the pin specified by pin 1 with the pin specified by pin 2.
+
+  Net <net list>
+
+  Set only, nets the specified net list.
+
+  Unlinkp <pin name 1> <pin name 2>
+
+  Set only, unlinks the specified pins
+
+  Lock
+
+  Unlock
+
+  NewSig <name> <type>
+
+  Set only, creates the signal specified by name and of type specified by type.
+
+  DelSig <name>
+
+  Set only, deletes the signal specified by name.
+
+  SetP <name> <value>
+
+  Set only, sets the parameter specified by name to the value specified by value.
+
+  SetS <name> <value>
+
+  Set only, sets the signal specified by name to the value specified by value.
+
+  AddF <name> <thread> [<parameters>]
+
+  Set only, adds the function specified by name, to the thread specified by
+  thread, with the optional parameters specified by parameters.
+
+  DelF <name>
+
+  Set only, deletes the function specified by name.
+
+  Save 
+
+  Start
+
+  Stop
+
+****************************************************************************/
 
 #ifndef ULAPI
 #error This is a user mode component only!
@@ -63,6 +300,7 @@
 #include <sys/uio.h>
 #include <pthread.h>
 #include <fnmatch.h>
+#include <getopt.h>
 
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "hal.h"		/* HAL public API decls */
@@ -115,6 +353,12 @@ int scriptmode = 0;	/* used to make output "script friendly" (suppress headers) 
 int prompt_mode = 0;	/* when getting input from stdin, print a prompt */
 char comp_name[HAL_NAME_LEN];	/* name for this instance of halrmt */
 
+char pwd[16] = "EMC\0";              // Connect password
+char enablePWD[16] = "EMCTOO\0";     // Enable password
+char serverName[24] = "EMCNETSVR\0"; // Server name written in hello response
+int sessions = 0;                    // Number of open sessions
+int maxSessions = -1;                // Maximum number of sessions to allow
+
 typedef struct {  
   int cliSock;
   char hostName[80];
@@ -130,7 +374,7 @@ typedef struct {
   char progName[256];} connectionRecType;
 
 
-int halSocket = 5006;
+int port = 5006;
 char errorStr[256];
 
 int server_sockfd, client_sockfd;
@@ -158,6 +402,13 @@ typedef enum {
 typedef enum {
   rtNoError, rtHandledNoError, rtStandardError, rtCustomError, rtCustomHandledError
   } cmdResponseType;  
+
+struct option longopts[] = {
+  {"port", 1, NULL, 'p'},
+  {"name", 1, NULL, 'n'},
+  {"sessions", 1, NULL, 's'},
+  {"connectpw", 1, NULL, 'w'},
+  {"enablepw", 1, NULL, 'e'}};
 
 const char *commands[] = {"HELLO", "SET", "GET", "QUIT", "SHUTDOWN", "HELP", ""};
 const char *halCommands[] = {
@@ -205,7 +456,7 @@ static int initSockets()
   server_sockfd = socket(AF_INET, SOCK_STREAM, 0);
   server_address.sin_family = AF_INET;
   server_address.sin_addr.s_addr = htonl(INADDR_ANY);
-  server_address.sin_port = htons(halSocket);
+  server_address.sin_port = htons(port);
   server_len = sizeof(server_address);
   bind(server_sockfd, (struct sockaddr *)&server_address, server_len);
   listen(server_sockfd, 5);
@@ -2178,11 +2429,11 @@ static halCommandType lookupHalCommand(char *s)
  static int commandHello(connectionRecType *context)
 {
   char *pch;
-  const char *password = "EMC";
+//  const char *password = "EMC";
   
   pch = strtok(NULL, delims);
   if (pch == NULL) return -1;
-  if (strcmp(pch, password) != 0) return -1;
+  if (strcmp(pch, pwd) != 0) return -1;
   pch = strtok(NULL, delims);
   if (pch == NULL) return -1;
   strcpy(context->hostName, pch);  
@@ -2250,56 +2501,83 @@ static cmdResponseType getCommProt(char *s, connectionRecType *context)
 
 static cmdResponseType getComps(char *s, connectionRecType *context)
 {
-  getCompInfo("", context);
+  if (s == NULL) 
+    getCompInfo("", context);
+  else
+    getCompInfo(s, context);
   return rtHandledNoError;
 }
 
 static cmdResponseType getPins(char *s, connectionRecType *context)
 {
-  getPinInfo("", 0, context);
+  if (s == NULL) 
+   getPinInfo("", 0, context);
+  else 
+    getPinInfo(s, 0, context);
   return rtHandledNoError;
 }
 
 static cmdResponseType getPinVals(char *s, connectionRecType *context)
 
 {
-  getPinInfo("", 1, context);
+  if (s == NULL)
+    getPinInfo("", 1, context);
+  else
+    getPinInfo(s, 1, context);
   return rtHandledNoError;
 }
 
 static cmdResponseType getSignals(char *s, connectionRecType *context)
 {
-  getSigInfo("", 0, context);
+  if (s == NULL)
+    getSigInfo("", 0, context);
+  else
+    getSigInfo(s, 0, context);
   return rtHandledNoError;
 }
 
 static cmdResponseType getSignalVals(char *s, connectionRecType *context)
 {
-  getSigInfo("", 1, context);
+  if (s == NULL)
+    getSigInfo("", 1, context);
+  else
+    getSigInfo(s, 1, context);
   return rtHandledNoError;
 }
 
 static cmdResponseType getParams(char *s, connectionRecType *context)
 {
-  getParamInfo("", 0, context);
+  if (s == NULL)
+    getParamInfo("", 0, context);
+  else
+    getParamInfo(s, 0, context);
   return rtHandledNoError;
 }
 
 static cmdResponseType getParamVals(char *s, connectionRecType *context)
 {
-  getParamInfo("", 1, context);
+  if (s == NULL) 
+    getParamInfo("", 1, context);
+  else
+    getParamInfo(s, 1, context);
   return rtHandledNoError;
 }
 
 static cmdResponseType getFuncts(char *s, connectionRecType *context)
 {
-  getFunctInfo("", context);
+  if (s == NULL)
+    getFunctInfo("", context);
+  else
+    getFunctInfo(s, context);
   return rtHandledNoError;
 }
 
 static cmdResponseType getThreads(char *s, connectionRecType *context)
 {
-  getThreadInfo("", context);
+  if (s == NULL)
+    getThreadInfo("", context);
+  else
+    getThreadInfo(s, context);
   return rtHandledNoError;
 }
 
@@ -2388,15 +2666,15 @@ int commandGet(connectionRecType *context)
     case hcConfig: ret = getConfig(pch, context); break;
     case hcCommMode: ret = getCommMode(pch, context); break;
     case hcCommProt: ret = getCommProt(pch, context); break;
-    case hcComps: ret = getComps(pch, context); break;
-    case hcPins: ret = getPins(pch, context); break;
+    case hcComps: ret = getComps(strtok(NULL, delims), context); break;
+    case hcPins: ret = getPins(strtok(NULL, delims), context); break;
     case hcPinVals: ret = getPinVals(pch, context); break;
-    case hcSigs: ret = getSignals(pch, context); break;
-    case hcSigVals: ret = getSignalVals(pch, context); break;
-    case hcParams: ret = getParams(pch, context); break;
-    case hcParamVals: ret = getParamVals(pch, context); break;
-    case hcFuncts: ret = getFuncts(pch, context); break;
-    case hcThreads: ret = getThreads(pch, context); break;
+    case hcSigs: ret = getSignals(strtok(NULL, delims), context); break;
+    case hcSigVals: ret = getSignalVals(strtok(NULL, delims), context); break;
+    case hcParams: ret = getParams(strtok(NULL, delims), context); break;
+    case hcParamVals: ret = getParamVals(strtok(NULL, delims), context); break;
+    case hcFuncts: ret = getFuncts(strtok(NULL, delims), context); break;
+    case hcThreads: ret = getThreads(strtok(NULL, delims), context); break;
     case hcComp: ret = getComp(strtok(NULL, delims), context); break;
     case hcPin: ret = getPin(strtok(NULL, delims), context); break;
     case hcPinVal: ret = getPinVal(strtok(NULL, delims), context); break;
@@ -2493,22 +2771,18 @@ static cmdResponseType setVerbose(char *s, connectionRecType *context)
 
 static cmdResponseType setEnable(char *s, connectionRecType *context)
 {
-   char *enablePWD = "EMCTOO";
-  
-   switch (checkOnOff(s)) {
-     case -1: 
-       if (strcmp(s, enablePWD) == 0) {
-//         enable = true;
-	 enabledConn = context->cliSock;
-//	 printf("Enabled Context = %d This context = %d\n", enabledConn, connId);
-         return rtNoError;
-	 }
-       else return rtStandardError;
-     case 1: 
-//       enable = false;
-       enabledConn = -1;
+   if (strcmp(s, enablePWD) == 0) {
+     enabledConn = context->cliSock;
+     context->enabled = 1;
+     return rtNoError;
      }
-   return rtNoError;
+   else 
+     if (checkOnOff(s) == 1) {
+       context->enabled = 0;
+       enabledConn = -1;
+       return rtNoError;
+       }
+     else return rtStandardError;
 }
 
 static cmdResponseType setConfig(char *s, connectionRecType *context)
@@ -2925,24 +3199,24 @@ static int helpSet(connectionRecType *context)
   strcat(context->outBuf, "    Enable <Pwd | Off>\n\r");
   strcat(context->outBuf, "    Verbose <On | Off>\n\r\n\r");
   strcat(context->outBuf, "  The set commands requiring control enabled are:\n\r");
-  strcat(context->outBuf, "    Addf <function name>\n\r");
+  strcat(context->outBuf, "    Addf <function name> <threadname> [<parameters>]\n\r");
   strcat(context->outBuf, "    Delf <function name>\n\r");
   strcat(context->outBuf, "    DelSig <signal name>\n\r");
   strcat(context->outBuf, "    Linkpp <pin name> <pin name>\n\r");
   strcat(context->outBuf, "    Linkps <pin name> <signal name>\n\r");
   strcat(context->outBuf, "    Linksp <signal name> <pin name>\n\r");
-  strcat(context->outBuf, "    Loadrt\n\r");
+  strcat(context->outBuf, "    Loadrt <name>\n\r");
   strcat(context->outBuf, "    Loadusr <name> [<param 1> .. <param n>]\n\r");
   strcat(context->outBuf, "    Lock <command>\n\r");
   strcat(context->outBuf, "    Net <signal name> [<pin 1 name> .. <pin n name>\n\r");
-  strcat(context->outBuf, "    NewSig <signal name>\n\r");
+  strcat(context->outBuf, "    NewSig <signal name> <signal type>\n\r");
   strcat(context->outBuf, "    Save [<hal type> [<file name>]]\n\r");
-  strcat(context->outBuf, "    Setp <pin name>\n\r");
-  strcat(context->outBuf, "    Sets <signal name>\n\r");
+  strcat(context->outBuf, "    Setp <pin name> <value>\n\r");
+  strcat(context->outBuf, "    Sets <signal name> <value>\n\r");
   strcat(context->outBuf, "    Start\n\r");
   strcat(context->outBuf, "    Stop\n\r");
   strcat(context->outBuf, "    Unlink <pin name>\n\r");
-  strcat(context->outBuf, "    Unloadrt\n\r");
+  strcat(context->outBuf, "    Unload <name>\n\r");
   strcat(context->outBuf, "    Unlock <command>\n\r");
   
   sockWrite(context);
@@ -3014,18 +3288,20 @@ int parseCommand(connectionRecType *context)
 {
   int ret = 0;
   char *pch;
+  char s[64];
   static char *helloNakStr = "HELLO NAK\r\n";
-  static char *helloAckStr = "HELLO ACK EMCNETSVR 1.0\r\n";
+  static char *helloAckStr = "HELLO ACK %s 1.1\r\n";
   static char *setNakStr = "SET NAK\r\n";
     
   pch = strtok(context->inBuf, delims);
+  sprintf(s, helloAckStr, serverName);
   if (pch != NULL) {
     strupr(pch);
     switch (lookupToken(pch)) {
       case cmdHello: 
         if (commandHello(context) == -1)
           write(context->cliSock, helloNakStr, strlen(helloNakStr));
-        else write(context->cliSock, helloAckStr, strlen(helloAckStr));
+        else write(context->cliSock, s, strlen(s));
         break;
       case cmdGet: 
         ret = commandGet(context);
@@ -3139,14 +3415,25 @@ int main(int argc, char **argv)
 {
     int n, fd;
     int keep_going, retval, errorcount;
+    int opt;
     char *cp1, *filename = NULL;
     FILE *srcfile = NULL;
 
     /* set default level of output - 'quiet' */
     rtapi_set_msg_level(RTAPI_MSG_ERR);
     /* set default for other options */
+    // process halrmt command line args
+    while((opt = getopt_long(argc, argv, "e:n:p:s:w:", longopts, NULL)) != -1) {
+      switch(opt) {
+        case 'e': strncpy(enablePWD, optarg, strlen(optarg) + 1); break;
+        case 'n': strncpy(serverName, optarg, strlen(optarg) + 1); break;
+        case 'p': sscanf(optarg, "%d", &port); break;
+        case 's': sscanf(optarg, "%d", &maxSessions); break;
+        case 'w': strncpy(pwd, optarg, strlen(optarg) + 1); break;
+        }
+      }
     keep_going = 0;
-    /* start parsing the command line, options first */
+    /* start parsing halcmd options */
     n = 1;
     while ((n < argc) && (argv[n][0] == '-')) {
 	cp1 = argv[n++];
@@ -3251,12 +3538,6 @@ int main(int argc, char **argv)
 	    }
 	}
     }
-    /* don't print prompt in script mode (this may change later) */
-//    if (scriptmode != 0) {
-//        prompt_mode = 0;
-//    }
-    /* register signal handlers - if the process is killed
-       we need to call hal_exit() to free the shared memory */
     signal(SIGINT, quit);
     signal(SIGTERM, quit);
     signal(SIGPIPE, SIG_IGN);

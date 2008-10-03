@@ -9,7 +9,7 @@
 * License: GPL Version 2
 * System: Linux
 *
-* Copyright (c) 2006 All rights reserved.
+* Copyright (c) 2006-2008 All rights reserved.
 *
 * Last change:
 ********************************************************************/
@@ -29,6 +29,8 @@
 #include <netinet/in.h>
 #include <pthread.h>
 
+#include <getopt.h>
+
 #include "rcs.hh"
 #include "posemath.h"		// PM_POSE, TO_RAD
 #include "emc.hh"		// EMC NML
@@ -43,12 +45,16 @@
 /*
   Using emcrsh:
 
-  emcrsh {<Port No>} {-- -name <server name> -ini<inifile>}
+  emcrsh {-- --port <port number> --name <server name> --connectpw <password>
+             --enablepw <password> --sessions <max sessions> -ini<inifile>}
 
-  Without Port No, it waits for socket connections (Telnet) on socket 2007, with port
-  number, waits for socket connection on the specified port.
-  
-  With -- -name <server name> Sets the server name to specified name for Hello.
+  With -- --port Waits for socket connections (Telnet) on specified socket, without port
+            uses default port 5007.
+  With -- --name <server name> Sets the server name to specified name for Hello.
+  With -- --connectpw <password> Sets the connection password to 'password'. Default EMC
+  With -- --enablepw <password> Sets the enable password to 'password'. Default EMCTOO
+  With -- --sessions <max sessions> Sets the maximum number of simultaneous connextions
+            to max sessions. Default is no limit (-1).
   With -- -ini <inifile>, uses inifile instead of emc.ini. 
 
   There are six commands supported, Where the commands set and get contain EMC
@@ -447,6 +453,7 @@ typedef struct {
   char outBuf[4096];
   char progName[256];} connectionRecType;
 
+int port = 5007;
 int server_sockfd, client_sockfd;
 socklen_t server_len, client_len;
 struct sockaddr_in server_address;
@@ -455,6 +462,11 @@ bool useSockets = true;
 int tokenIdx;
 const char *delims = " \n\r\0";
 int enabledConn = -1;
+char pwd[16] = "EMC\0";
+char enablePWD[16] = "EMCTOO\0";
+char serverName[24] = "EMCNETSVR\0";
+int sessions = 0;
+int maxSessions = -1;
 
 const char *setCommands[] = {
   "ECHO", "VERBOSE", "ENABLE", "CONFIG", "COMM_MODE", "COMM_PROT", "INIFILE", "PLAT", "INI", "DEBUG",
@@ -472,6 +484,13 @@ const char *setCommands[] = {
   "SPINDLE_OVERRIDE", "OPTIONAL_STOP", ""};
 
 const char *commands[] = {"HELLO", "SET", "GET", "QUIT", "SHUTDOWN", "HELP", ""};
+
+struct option longopts[] = {
+  {"port", 1, NULL, 'p'},
+  {"name", 1, NULL, 'n'},
+  {"sessions", 1, NULL, 's'},
+  {"connectpw", 1, NULL, 'w'},
+  {"enablepw", 1, NULL, 'e'}};
 
 /* static char *skipWhite(char *s)
 {
@@ -522,7 +541,7 @@ static int initSockets()
   server_sockfd = socket(AF_INET, SOCK_STREAM, 0);
   server_address.sin_family = AF_INET;
   server_address.sin_addr.s_addr = htonl(INADDR_ANY);
-  server_address.sin_port = htons(5007);
+  server_address.sin_port = htons(port);
   server_len = sizeof(server_address);
   bind(server_sockfd, (struct sockaddr *)&server_address, server_len);
   listen(server_sockfd, 5);
@@ -560,11 +579,10 @@ static setCommandType lookupSetCommand(char *s)
 static int commandHello(connectionRecType *context)
 {
   char *pch;
-  char *password = "EMC";
   
   pch = strtok(NULL, delims);
   if (pch == NULL) return -1;
-  if (strcmp(pch, password) != 0) return -1;
+  if (strcmp(pch, pwd) != 0) return -1;
   pch = strtok(NULL, delims);
   if (pch == NULL) return -1;
   strcpy(context->hostName, pch);  
@@ -720,23 +738,19 @@ static cmdResponseType setVerbose(char *s, connectionRecType *context)
 
 static cmdResponseType setEnable(char *s, connectionRecType *context)
 {
-   char *enablePWD = "EMCTOO";
   
-   switch (checkOnOff(s)) {
-     case -1: 
-       if (strcmp(s, enablePWD) == 0) {
-//         enable = true;
-	 enabledConn = context->cliSock;
-	 context->enabled = true;
-//	 printf("Enabled Context = %d This context = %d\n", enabledConn, connId);
-         return rtNoError;
-	 }
-       else return rtStandardError;
-     case 1: 
+   if (strcmp(s, enablePWD) == 0) {
+     enabledConn = context->cliSock;
+     context->enabled = true;
+     return rtNoError;
+     }
+   else 
+     if (checkOnOff(s) == 1) {
        context->enabled = false;
        enabledConn = -1;
-     }
-   return rtNoError;
+       return rtNoError;
+       }
+     else return rtStandardError;
 }
 
 static cmdResponseType setConfig(char *s, connectionRecType *context)
@@ -2582,18 +2596,20 @@ int parseCommand(connectionRecType *context)
 {
   int ret = 0;
   char *pch;
+  char s[64];
   static char *helloNakStr = "HELLO NAK\r\n";
-  static char *helloAckStr = "HELLO ACK EMCNETSVR 1.0\r\n";
+  static char *helloAckStr = "HELLO ACK %s 1.1\r\n";
   static char *setNakStr = "SET NAK\r\n";
     
   pch = strtok(context->inBuf, delims);
+  sprintf(s, helloAckStr, serverName);
   if (pch != NULL) {
     strupr(pch);
     switch (lookupToken(pch)) {
       case cmdHello: 
         if (commandHello(context) == -1)
           write(context->cliSock, helloNakStr, strlen(helloNakStr));
-        else write(context->cliSock, helloAckStr, strlen(helloAckStr));
+        else write(context->cliSock, s, strlen(s));
         break;
       case cmdGet: 
         ret = commandGet(context);
@@ -2664,6 +2680,7 @@ void *readClient(void *arg)
                close(context->cliSock);
                free(context);
 	       pthread_exit((void *)0);
+               sessions--;
               }
 	    j = 0;
 	}
@@ -2685,9 +2702,14 @@ int sockMain()
       client_sockfd = accept(server_sockfd,
         (struct sockaddr *)&client_address, &client_len);
       if (client_sockfd < 0) exit(0);
-      res = pthread_create(&thrd, NULL, readClient, (void *)NULL);
-      if (res != 0)
+      sessions++;
+      if ((maxSessions == -1) || (sessions <= maxSessions))
+        res = pthread_create(&thrd, NULL, readClient, (void *)NULL);
+      else res = -1;
+      if (res != 0) {
         close(client_sockfd);
+        sessions--;
+        }
      }
     return 0;
 }
@@ -2715,9 +2737,21 @@ static void initMain()
 
 int main(int argc, char *argv[])
 {
+    int opt;
 
     initMain();
-    // process command line args
+    // process local command line args
+    while((opt = getopt_long(argc, argv, "e:n:p:s:w:", longopts, NULL)) != -1) {
+      switch(opt) {
+        case 'e': strncpy(enablePWD, optarg, strlen(optarg) + 1); break;
+        case 'n': strncpy(serverName, optarg, strlen(optarg) + 1); break;
+        case 'p': sscanf(optarg, "%d", &port); break;
+        case 's': sscanf(optarg, "%d", &maxSessions); break;
+        case 'w': strncpy(pwd, optarg, strlen(optarg) + 1); break;
+        }
+      }
+
+    // process emc command line args
     if (emcGetArgs(argc, argv) != 0) {
 	rcs_print_error("error in argument list\n");
 	exit(1);
@@ -2737,15 +2771,10 @@ int main(int argc, char *argv[])
     emcCommandSerialNumber = emcStatus->echo_serial_number;
     saveEmcCommandSerialNumber = emcStatus->echo_serial_number;
 
-    // attach our quit function to exit
-//    Tcl_CreateExitHandler(thisQuit, (ClientData) 0);
-
     // attach our quit function to SIGINT
     signal(SIGINT, sigQuit);
 
-    // TclX_Main(argc, argv, Tcl_AppInit);
     if (useSockets) sockMain();
-//    else Tk_Main(argc, argv, Tcl_AppInit);
 
     return 0;
 }
