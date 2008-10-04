@@ -852,13 +852,14 @@ void DrawGrid( int PosiY )
     int x,y;
     GdkColor DynaGdkColor;
     GdkGC * DynaGcOn;
-    DynaGdkColor.pixel = 0xF4F4F4;
-    DynaGdkColor.red = 0xF4;
-    DynaGdkColor.green = 0xF4;
-    DynaGdkColor.blue = 0xF4;
-
+    DynaGdkColor.pixel = 0xA0D0D0;
+    DynaGdkColor.red = 0xA0;
+    DynaGdkColor.green = 0xD0;
+    DynaGdkColor.blue = 0xD0;
+    
     DynaGcOn = gdk_gc_new(pixmap);
     gdk_gc_set_foreground(DynaGcOn,&DynaGdkColor);
+
     for(x=InfosGene->BlockWidth; x<RUNG_WIDTH*InfosGene->BlockWidth; x=x+InfosGene->BlockWidth)
     {
         gdk_draw_line(pixmap, DynaGcOn,
