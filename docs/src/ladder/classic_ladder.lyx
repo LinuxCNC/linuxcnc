@@ -100,19 +100,40 @@ In the next chapters the main components of ClassicLadder will be described.
 Starting ClassicLadder
 \layout Standard
 
-There are 2 components belonging to ClassicLadder: a realtime part, and
- a userspace part (along with a GUI).
+There are 2 components belonging to ClassicLadder:
+\layout Itemize
+
+The realtime module = classicladder_rt
+\layout Itemize
+
+The userspace module (along with a GUI) = classicladder
 \layout Subsection
 
-Loading the ClassicLadder realtime module
+Realtime Module
 \layout Standard
 
 Loading the ClassicLadder realtime module (classicladder_rt) is possible
  from a halfile, or directly using a halcmd instruction.
+ You must add two lines to your .hal file for ClassicLadder to function.
+ The first line loads real time the ClassicLadder module.
+ The second line adds the function classicladder.0.refresh to the servo thread.
+ This makes ClassicLadder update at the servo thread rate.
+ 
+\layout LyX-Code
+
+loadrt classicladder_rt addf
+\layout LyX-Code
+
+classicladder.0.refresh servo-thread 
+\layout Subsection
+
+Variables
 \layout Standard
 
-It is possible to configure the number of each ladder object while loading
- the classicladder realtime module
+It is possible to configure the number of each type of ladder object while
+ loading the classicladder realtime module.
+ If you do not configure the number of ladder objects ClassicLadder will
+ use the default values.
 \layout Standard
 
 
@@ -528,6 +549,18 @@ numArithmExpr=100 numSections=4 numSymbols=200
 Loading the ClassicLadder user module
 \layout Standard
 
+
+\begin_inset Note
+collapsed false
+
+\layout Standard
+
+need to finish updating this section
+\end_inset 
+
+
+\layout Standard
+
 There are options while loading the user module:
 \layout Itemize
 
@@ -592,6 +625,18 @@ loads the classicladder user module, starts the GUI but loads no laddder
 \layout Section
 
 ClassicLadder GUI
+\layout Standard
+
+
+\begin_inset Note
+collapsed false
+
+\layout Standard
+
+This section needs to be updated
+\end_inset 
+
+
 \layout Standard
 
 If you load classicladder with the GUI it will display three windows: vars,
