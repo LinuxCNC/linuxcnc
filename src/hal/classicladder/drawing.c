@@ -958,9 +958,7 @@ void DrawGrid( int PosiY )
 
 	DynaGcOn = gdk_gc_new(pixmap);
 	gdk_gc_set_foreground(DynaGcOn,&DynaGdkColor);
-	gdk_gc_set_line_attributes(DynaGcOn, 2,
-        GDK_LINE_SOLID, GDK_CAP_BUTT, GDK_JOIN_MITER);
-
+	
 	for(x=InfosGene->BlockWidth; x<RUNG_WIDTH*InfosGene->BlockWidth; x=x+InfosGene->BlockWidth)
 	{
 		gdk_draw_line(pixmap, DynaGcOn,
