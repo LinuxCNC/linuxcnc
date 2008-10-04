@@ -62,7 +62,7 @@ AXIS
 
 \end_inset 
 
- is a graphical front-end for emc2 which features a live preview and backplot.
+ is a graphical front-end for EMC2 which features a live preview and backplot.
  It is written in Python
 \begin_inset LatexCommand \index{Python}
 
@@ -114,7 +114,7 @@ AXIS Window
 Getting Started
 \layout Standard
 
-To select AXIS as the front-end for emc2, edit the .ini file.
+To select AXIS as the front-end for EMC2, edit the .ini file.
  In the section 
 \family typewriter 
 [DISPLAY]
@@ -129,7 +129,7 @@ DISPLAY
 DISPLAY = axis
 \layout Standard
 
-Then, start emc2 and select that ini file.
+Then, start EMC2 and select that ini file.
  The sample configuration 
 \family typewriter 
 sim/axis.ini
@@ -148,7 +148,7 @@ When you start AXIS, a window like the one in Figure
 A typical session with AXIS
 \layout Enumerate
 
-Start emc and select a configuration file.
+Start EMC and select a configuration file.
 \layout Enumerate
 
 Clear the 
@@ -365,6 +365,11 @@ Commanded
 \layout Subsection
 
 Menu Items
+\layout Standard
+
+Some menu items might be greyed out depending on how you have your .ini file
+ configured.
+ For more information on configuration see the Integrators Manual.
 \layout Subsubsection
 
 File
@@ -385,7 +390,7 @@ Edit...
 
 Edit will open the current g code file for editing if you have an editor
  configured in your ini file.
- See the Integrators Manual for more information on specificing an editor
+ See the Integrators Manual for more information on specifying an editor
  to use.
 \layout Subsubsection
 
@@ -427,7 +432,7 @@ After editing the tool table you must reload it.
 Ladder editor
 \layout Standard
 
-If you have enabled Classic Ladder you can edit it from here.
+If you have loaded Classic Ladder you can edit it from here.
  See the Integrators Manual on setting up Classic Ladder
 \layout Subsubsection
 
@@ -615,7 +620,7 @@ Show Actual Position
 Show Machine Position
 \layout Subsubsection
 
-Show Relative Postion
+Show Relative Position
 \layout Subsubsection
 
 Help
@@ -2118,7 +2123,7 @@ emctop
 \begin_inset Quotes erd
 \end_inset 
 
- which shows some of the details of emc's state.
+ which shows some of the details of EMC's state.
  You can run this program by invoking 
 \noun on 
 Machine > Show EMC Status
@@ -2163,7 +2168,7 @@ mdi
 \begin_inset Quotes erd
 \end_inset 
 
- which allows text-mode entry of MDI commands to a running emc session.
+ which allows text-mode entry of MDI commands to a running EMC session.
  You can run this program by opening a terminal and typing
 \layout LyX-Code
 
@@ -2176,8 +2181,8 @@ MDI>
 \family default 
 .
  When a blank line is entered, the machine's current position is shown.
- When a command is entered, it is sent to emc to be executed.
- A sample session of mdi is shown in Figure 
+ When a command is entered, it is sent to EMC to be executed.
+ A sample session of MDI is shown in Figure 
 \begin_inset LatexCommand \ref{cap:MDI-Session}
 
 \end_inset 
@@ -2354,11 +2359,7 @@ pydoc <module name>
  These modules include:
 \layout Itemize
 
-
-\family typewriter 
-emc
-\family default 
- provides access to the emc command, status, and error channels
+emc provides access to the EMC command, status, and error channels
 \layout Itemize
 
 
@@ -2398,7 +2399,7 @@ minigl
 
 To use these modules in your own scripts, you must ensure that the directory
  where they reside is on Python's module path.
- When running an installed version of emc2, this should happen automatically.
+ When running an installed version of EMC2, this should happen automatically.
  When running 
 \begin_inset Quotes eld
 \end_inset 
@@ -2519,7 +2520,7 @@ PROGRAM_EXTENSION
  This program is given the name of the input file as its first argument,
  and must write rs274ngc code to standard output.
  This output is what will be displayed in the text area, previewed in the
- display area, and executed by emc when 
+ display area, and executed by EMC when 
 \begin_inset Quotes eld
 \end_inset 
 
@@ -2536,7 +2537,7 @@ image-to-gcode
 \begin_inset Quotes erd
 \end_inset 
 
- converter included with emc2:
+ converter included with EMC2:
 \layout LyX-Code
 
 [FILTER]
