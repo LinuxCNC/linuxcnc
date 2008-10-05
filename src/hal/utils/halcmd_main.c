@@ -211,7 +211,7 @@ int main(int argc, char **argv)
             errorcount++;
         }
 #endif
-        if(errorcount == 0) {
+        if(errorcount == 0 && argc > optind) {
             halcmd_set_filename("<commandline>");
             halcmd_set_linenumber(0);
             retval = halcmd_parse_cmd(&argv[optind]);
