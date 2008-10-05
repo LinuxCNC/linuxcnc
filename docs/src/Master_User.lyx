@@ -43,9 +43,25 @@
 \papersides 1
 \paperpagestyle headings
 
-\layout Part
+\layout Standard
 
-User Manual
+
+\begin_inset ERT
+status Open
+
+\layout Standard
+
+\backslash 
+addcontentsline{toc}{chapter}{Cover}
+\end_inset 
+
+
+\layout Title
+
+2.2 User Manual
+\layout Author
+
+The EMC Team
 \layout Title
 
 
@@ -58,28 +74,17 @@ User Manual
 \end_inset 
 
 
-\newline 
-V2.2 User Manual
-\layout Author
-\added_space_top medskip 
-The EMC Team
 \layout Standard
 
-\SpecialChar ~
-\SpecialChar ~
-\SpecialChar ~
-
-\layout Standard
-\added_space_top 1in 
 This handbook is a work in progress.
  If you are able to help with writing, editing, or graphic preparation please
  contact any member of the writing team or join and send an email to emc-users@l
 ists.sourceforge.net.
 \layout Standard
-\added_space_top 1in \align center 
+\align center 
 Copyright (c) 2000-7 LinuxCNC.org
 \layout Standard
-\added_space_top 0.5in \line_top \line_bottom \noindent 
+\line_top \line_bottom \noindent 
 Permission is granted to copy, distribute and/or modify this document under
  the terms of the GNU Free Documentation License, Version 1.1 or any later
  version published by the Free Software Foundation; with no Invariant Sections,
@@ -91,9 +96,6 @@ Permission is granted to copy, distribute and/or modify this document under
  If you do not find the license you may order a copy from Free Software
  Foundation, Inc.
  59 Temple Place, Suite 330 Boston, MA 02111-13
-\layout Part
-
-Contents
 \layout Standard
 
 
@@ -102,9 +104,19 @@ Contents
 \end_inset 
 
 
-\layout Part
+\layout Standard
 
-Foreword
+
+\begin_inset ERT
+status Open
+
+\layout Standard
+
+\backslash 
+addcontentsline{toc}{chapter}{Contents}
+\end_inset 
+
+
 \layout Standard
 
 
@@ -114,9 +126,19 @@ preview false
 \end_inset 
 
 
-\layout Part
+\layout Standard
 
-Introduction
+
+\begin_inset ERT
+status Open
+
+\layout Standard
+
+\backslash 
+addcontentsline{toc}{chapter}{Forword}
+\end_inset 
+
+
 \layout Standard
 
 
@@ -216,18 +238,9 @@ preview false
 \end_inset 
 
 
-\layout Standard
-
-
-\begin_inset Include \include{gui/image-to-gcode.lyx}
-preview false
-
-\end_inset 
-
-
 \layout Part
-\start_of_appendix 
-Glossary
+
+Other
 \layout Standard
 
 
@@ -237,9 +250,6 @@ preview false
 \end_inset 
 
 
-\layout Part
-
-Legal Section
 \layout Standard
 
 
@@ -249,9 +259,6 @@ preview false
 \end_inset 
 
 
-\layout Part
-
-Index
 \layout Standard
 
 
@@ -260,4 +267,20 @@ Index
 \end_inset 
 
 
+\layout Standard
+
+
+\begin_inset ERT
+status Open
+
+\layout Standard
+
+\backslash 
+addcontentsline{toc}{chapter}{Index}
+\end_inset 
+
+
+\layout Standard
+\align center 
+The End
 \the_end

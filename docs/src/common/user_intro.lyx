@@ -36,15 +36,20 @@
 
 \layout Chapter
 
+Introduction
+\begin_inset LatexCommand \label{cha:Introduction}
+
+\end_inset 
+
 
 \begin_inset LatexCommand \label{first-section}
 
 \end_inset 
 
-The Enhanced Machine Control
+
 \layout Section
 
-Introduction
+This Manual
 \begin_inset LatexCommand \label{sec:Introduction}
 
 \end_inset 
@@ -54,8 +59,10 @@ Introduction
 
 The focus of this manual is on using EMC.
  It is intended to be used once EMC is installed and configured.
- For information on installing and configuration of EMC see the Integrator
- Manual.
+ For standard installations see the Getting Started Guide for step by step
+ instructions to get you up and going.
+ For detailed information on installation and configuration of EMC see the
+ Integrator Manual.
 \layout Section
 
 The Big CNC Picture

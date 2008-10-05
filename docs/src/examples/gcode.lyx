@@ -80,6 +80,19 @@ This program demonstrates how to measure tool lengths automatically using
  a switch hooked to the probe input.
  This is useful for machines without tool holders, where the length of a
  tool is different every time it is inserted.
+\layout Subsection
+
+Hole Probe
+\layout Standard
+
+File Name: probe-hole.ngc
+\layout Standard
+
+Description: Finding the Center and Diameter of a hole.
+\layout Standard
+
+The program demonstrates how to find the center of a hole, measure the hole
+ diameter and record the results.
 \layout Section
 
 Cutter Compensation
