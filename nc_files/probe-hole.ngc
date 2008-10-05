@@ -1,0 +1,56 @@
+(For this code to yield accurate results, the probe shank must be well-aligned with the Z-axis,)
+(the cross section of the probe tip at its widest point must be very circular, )
+(and the probe tip radius i.e., the radius of the circular cross section must be known precisely.)
+(If the probe tip radius is known only approximately but the other conditions hold, the location )
+(of the hole center will still be accurate, but the hole diameter will not.)
+
+(An entry of the form <description of number> is meant to be replaced by an actual number that)
+(matches the description of number. After this section of code has executed, the X-value of the)
+(center will be in parameter 1041, the Y-value of the center in parameter 1022,)
+(and the diameter in parameter 1034.)
+(In addition, the diameter parallel to the X-axis will be in parameter 1024,)
+(the diameter parallel to the Y-axis in parameter 1014,)
+(and the difference which is an indicator of circularity in parameter 1035.)
+(The probe tip will be in the hole at the XY center of the hole.)
+
+(The example does not include a tool change to put a probe in the spindle.)
+(Add the tool change code at the beginning, if needed.)
+
+(Note that this code will not function until you replace <description of number> with a number)
+
+(probe to find center and diameter of circular hole)
+(This program will not run as given here. You have to)
+(insert numbers in place of <description of number>.)
+(Delete lines N020, N030, and N040 when you do that.)
+G0 Z <Z-value of retracted position> F <feed rate>
+#1001=<nominal X-value of hole center>
+#1002=<nominal Y-value of hole center>
+#1003=<some Z-value inside the hole>
+#1004=<probe tip radius>
+#1005=[<nominal hole diameter>/2.0 - #1004]
+G0 X#1001 Y#1002 (move above nominal hole center)
+G0 Z#1003 (move into hole - to be cautious, substitute G1 for G0 here)
+G38.2 X[#1001 + #1005] (probe +X side of hole)
+#1011=#5061 (save results)
+G0 X#1001 Y#1002 (back to center of hole)
+G38.2 X[#1001 - #1005] (probe -X side of hole)
+#1021=[[#1011 + #5061] / 2.0] (find pretty good X-value of hole center)
+G0 X#1021 Y#1002 (back to center of hole)
+G38.2 Y[#1002 + #1005] (probe +Y side of hole)
+#1012=#5062 (save results)
+G0 X#1021 Y#1002 (back to center of hole)
+G38.2 Y[#1002 - #1005] (probe -Y side of hole)
+#1022=[[#1012 + #5062] / 2.0] (find very good Y-value of hole center)
+#1014=[#1012 - #5062 + [2 * #1004]] (find hole diameter in Y-direction)
+G0 X#1021 Y#1022 (back to center of hole)
+G38.2 X[#1021 + #1005] (probe +X side of hole)
+#1031=#5061 (save results)
+G0 X#1021 Y#1022 (back to center of hole)
+G38.2 X[#1021 - #1005] (probe -X side of hole)
+#1041=[[#1031 + #5061] / 2.0] (find very good X-value of hole center)
+#1024=[#1031 - #5061 + [2 * #1004]] (find hole diameter in X-direction)
+#1034=[[#1014 + #1024] / 2.0] (find average hole diameter)
+#1035=[#1024 - #1014] (find difference in hole diameters)
+G0 X#1041 Y#1022 (back to center of hole)
+M2 (that's all, folks)
+Table 6. Code to Probe Hole
