@@ -698,6 +698,7 @@ Spindle Configuration Page
 
 \begin_inset Graphics
 	filename stepconf-spindle.png
+	scale 70
 
 \end_inset 
 
@@ -1604,7 +1605,6 @@ You should see something like this:
 
 \begin_inset Graphics
 	filename latency.png
-	scale 70
 
 \end_inset 
 
@@ -1643,12 +1643,19 @@ In the example above, latency-test only ran for a few seconds.
  particular action.
  For instance, one Intel motherboard worked pretty well most of the time,
  but every 64 seconds it had a very bad 300uS latency.
- Fortunately that was fixable see (
+ Fortunately that was fixable.
+ 
+\layout Standard
+
+For the latest information on fixing SMI issues goto:
+\layout Standard
+
+
 \begin_inset LatexCommand \htmlurl["Fixing SMI Issues"]{http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?FixingSMIIssues}
 
 \end_inset 
 
-)
+
 \layout Standard
 
 So, what do the results mean? If your Max Jitter number is less than about

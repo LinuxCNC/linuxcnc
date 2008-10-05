@@ -41,9 +41,7 @@
 \quotes_times 2
 \papercolumns 1
 \papersides 1
-\paperpagestyle headings
-
-\layout Standard
+\paperpagestyle default
 
 \layout Standard
 
@@ -54,28 +52,66 @@ status Open
 \layout Standard
 
 \backslash 
-addcontentsline{toc}{chapter}{
-\backslash 
-protect
-\backslash 
-numberline{}Cover}
+addcontentsline{toc}{chapter}{Cover}
+\end_inset 
+
+
+\layout Title
+
+2.2 Getting Started Guide
+\layout Author
+
+The EMC Team
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename common/emc2-intro.png
+	scale 60
+
 \end_inset 
 
 
 \layout Standard
 
-
-\begin_inset Include \include{common/Document_Header.lyx}
-preview false
-
-\end_inset 
-
-
+This handbook is a work in progress.
+ If you are able to help with writing, editing, or graphic preparation please
+ contact any member of the writing team or join and send an email to emc-users@l
+ists.sourceforge.net.
+\layout Standard
+\align center 
+Copyright (c) 2000-8 LinuxCNC.org
+\layout Standard
+\line_top \line_bottom \noindent 
+Permission is granted to copy, distribute and/or modify this document under
+ the terms of the GNU Free Documentation License, Version 1.1 or any later
+ version published by the Free Software Foundation; with no Invariant Sections,
+ no Front-Cover Texts, and one Back-Cover Text: "This EMC Handbook is the
+ product of several authors writing for linuxCNC.org.
+ As you find it to be of value in your work, we invite you to contribute
+ to its revision and growth." A copy of the license is included in the section
+ entitled "GNU Free Documentation License".
+ If you do not find the license you may order a copy from Free Software
+ Foundation, Inc.
+ 59 Temple Place, Suite 330 Boston, MA 02111-1307 
 \layout Standard
 
 
 \begin_inset LatexCommand \tableofcontents{}
 
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset ERT
+status Open
+
+\layout Standard
+
+\backslash 
+addcontentsline{toc}{chapter}{Contents}
 \end_inset 
 
 
@@ -118,9 +154,13 @@ preview false
 \layout Standard
 
 
-\begin_inset Include \include{common/GPLD_Copyright.lyx}
-preview false
+\begin_inset ERT
+status Open
 
+\layout Standard
+
+\backslash 
+markboth{Index}{Index}
 \end_inset 
 
 
@@ -132,4 +172,55 @@ preview false
 \end_inset 
 
 
+\layout Standard
+
+
+\begin_inset ERT
+status Open
+
+\layout Standard
+
+\backslash 
+addcontentsline{toc}{chapter}{Index}
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset ERT
+status Open
+
+\layout Standard
+
+\backslash 
+markboth{Legal Section}{Legal Section}
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset Include \include{common/GPLD_Copyright.lyx}
+preview false
+
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset ERT
+status Open
+
+\layout Standard
+
+\backslash 
+addcontentsline{toc}{chapter}{Legal Section}
+\end_inset 
+
+
+\layout Standard
+
+The End
 \the_end

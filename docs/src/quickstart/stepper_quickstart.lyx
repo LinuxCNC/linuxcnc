@@ -16,8 +16,8 @@
 \paperorientation portrait
 \secnumdepth 3
 \tocdepth 3
-\paragraph_separation indent
-\defskip medskip
+\paragraph_separation skip
+\defskip smallskip
 \quotes_language english
 \quotes_times 2
 \papercolumns 1
@@ -36,6 +36,13 @@ This section assumes you have done a standard install from the Live CD.
 Latency Test
 \layout Standard
 
+The Latency Test tells you if your hardware might cause a problem when running
+ real time.
+ Some hardware can tie up the processor and cause lateness in responding
+ to requests.
+ 
+\layout Standard
+
 Follow the instructions in section (
 \begin_inset LatexCommand \ref{sec:Latency-Test}
 
@@ -49,19 +56,22 @@ Machine Information
 
 Gather the information about each axis of your machine.
 \layout Standard
-\added_space_bottom medskip 
+
 Drive timing is in nano seconds.
  If your unsure about the timing many popular drives are included in the
  stepper configuration wizard.
  Note some newer Gecko drives have different timing than the original one.
- A list is also on the user maintained EMC wiki site of more drives at 
+ A list is also on the user maintained EMC wiki site of more drives at:
+\layout Standard
+\added_space_bottom medskip 
+
 \begin_inset LatexCommand \url{http:wiki.linuscnc.org}
 
 \end_inset 
 
-.
-\layout Standard
 
+\layout Standard
+\align center 
 
 \begin_inset  Tabular
 <lyxtabular version="3" rows="4" columns="6">
@@ -270,7 +280,7 @@ Pinout Information
 Gather the information about the connections from your machine to the PC
  parallel port.
 \layout Standard
-
+\align center 
 
 \begin_inset  Tabular
 <lyxtabular version="3" rows="13" columns="6">
@@ -911,7 +921,7 @@ Gather information on steps and gearing.
  The result of this is steps per user unit which is used for SCALE in the
  .ini file.
 \layout Standard
-
+\align center 
 
 \begin_inset  Tabular
 <lyxtabular version="3" rows="5" columns="6">
