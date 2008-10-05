@@ -108,7 +108,7 @@ int rtapi_init(const char *modname)
     /* get shared memory block from OS and save its address */
     errno = 0;
     rtapi_data = rtai_malloc(RTAPI_KEY, sizeof(rtapi_data_t));
-    if (rtapi_data == NULL) {
+    if (rtapi_data == NULL || rtapi_data == -1) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "RTAPI: ERROR: could not open shared memory (errno=%d)\n", errno);
 	return RTAPI_NOMEM;
