@@ -43,22 +43,8 @@
 \papersides 1
 \paperpagestyle default
 
-\layout Title
-
-
-\begin_inset Graphics
-	filename emc2-intro.png
-	lyxscale 80
-	scale 50
-	keepAspectRatio
-	BoundingBox 0bp 0bp 800bp 300bp
-	rotateOrigin center
-
-\end_inset 
-
-
 \layout Author
-\added_space_top medskip 
+
 The EMC Team
 \layout Standard
 \added_space_top medskip 

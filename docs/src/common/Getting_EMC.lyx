@@ -50,19 +50,45 @@ On the EMC IRC channel.
 \layout Standard
 
 The simplest way to get on the IRC is to use the embedded java client on
- this page 
+ this page:
+\layout Standard
+
+
 \begin_inset LatexCommand \url{http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl}
 
 \end_inset 
 
-.
- 
+
 \layout Standard
 
 Some IRC etiquette:
 \layout Itemize
 
 Ask specific questions...
+ Avoid 
+\begin_inset Quotes eld
+\end_inset 
+
+Can someone help me?
+\begin_inset Quotes erd
+\end_inset 
+
+, 
+\begin_inset Quotes eld
+\end_inset 
+
+It won't run
+\begin_inset Quotes erd
+\end_inset 
+
+ type of questions...
+ 
+\layout Itemize
+
+If your really new to all this think a bit about your question before typing
+ it.
+ Make sure you give enough information so someone could solve your question.
+ 
 \layout Itemize
 
 Have some patience when waiting for an answer, sometimes it takes a while
@@ -70,23 +96,32 @@ Have some patience when waiting for an answer, sometimes it takes a while
 \layout Itemize
 
 Set up your IRC account with your unique name so people will know who you
- are.
+ are or if you log on via the java client use the same name every time you
+ log in.
+ This helps people remember who you are and if you have been on before many
+ will remember the past discussions which saves time on both ends.
 \layout Standard
 
-The EMC Users Mailing List at 
+The EMC Users Mailing List at:
+\layout Standard
+
+
 \begin_inset LatexCommand \url{http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl}
 
 \end_inset 
 
-.
+
 \layout Standard
 
-The user maintained EMC Wiki site at 
+The user maintained EMC Wiki site contains a wealth of information and tips:
+\layout Standard
+
+
 \begin_inset LatexCommand \url{http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl}
 
 \end_inset 
 
- contains a wealth of information and tips.
+ 
 \layout Section
 
 Download the Software
@@ -97,12 +132,18 @@ Download the Software
 
 \layout Standard
 
-Download the Live CD from 
+Download the Live CD from:
+\layout Standard
+
+
 \begin_inset LatexCommand \url{http://www.linuxcnc.org/}
 
 \end_inset 
 
- and follow the Download link.
+ 
+\layout Standard
+
+and follow the Download link.
 \layout Section
 
 Multi-session Download
@@ -407,8 +448,9 @@ AXIS Interface
 The AXIS interface is one of the interfaces to choose from.
  It can be configured to add a Virtural Control Panel to customize the interface
  to suit your needs.
+ AXIS is the defaut user interface.
 \layout Standard
-
+\align center 
 
 \begin_inset Graphics
 	filename axis.png
@@ -430,4 +472,9 @@ Updates to EMC2
 With the normal install the Update Manager will notify you of updates to
  EMC2 and Ubuntu when you go on line and allow you to easily upgrade with
  no Linux knowledge needed.
+ If you installed the Ubuntu 6.06 version do not upgrade to Ubuntu 8.04, the
+ upgrade will break the EMC install.
+ If you want to upgrade to 8.04 from 6.06 a clean install from the LiveCD
+ is needed.
+ It is ok to upgrade EMC when asked to.
 \the_end
