@@ -100,6 +100,19 @@ This program shows an example of how to measure tool lengths automatically
  tool is different every time it is inserted.
 \layout Subsection
 
+Hole Probe
+\layout Standard
+
+File Name: probe-hole.ngc
+\layout Standard
+
+Description: Finding the Center and Diameter of a hole.
+\layout Standard
+
+The program demonstrates how to find the center of a hole, measure the hole
+ diameter and record the results.
+\layout Subsection
+
 Cutter Compensation
 \layout Standard
 
