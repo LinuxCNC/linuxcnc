@@ -1,6 +1,8 @@
 emc2 (1:2.2.7~cvs) hardy; urgency=low
 
   * pop up a message when the right kernel isn't running
+  * halcmd will now show an error message instead of segfaulting when
+    inadequate locked memory is available
   * allow emc2-sim to be built on 8.04
   * stepconf: fix "negative SCALE" problem reported by Christopher Purcell
   * comp: fix bad C code generated from variable array declarations such as
