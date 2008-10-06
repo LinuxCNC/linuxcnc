@@ -1,4 +1,17 @@
 
+released 2008-10-05
+    hm2 0.14
+
+    Added support for PDM mode to the pwmgen driver.  Renamed pwmgen.frequency
+    to pwmgen.pwm_frequency; added pwmgen.pdm_frequency.
+
+    pwmgen now zeroes the output pins (PWM & Dir, or PDM & Dir, or UP & Down
+    depending on output-type) when the .enable HAL pin is low.
+
+    Added support for the final pwmgen mode: PWM & Dir with outputs swapped,
+    for locked antiphase.  .output-type=4
+
+
 released 2008-09-22
     hm2 0.13
 

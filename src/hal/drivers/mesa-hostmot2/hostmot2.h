@@ -28,7 +28,7 @@
 #include "hostmot2-lowlevel.h"
 
 
-#define HM2_VERSION "0.13"
+#define HM2_VERSION "0.14"
 #define HM2_NAME    "hm2"
 
 #define PRINT_NO_LL(level, fmt, args...)  rtapi_print_msg(level, HM2_NAME ": " fmt, ## args);
@@ -262,6 +262,11 @@ typedef struct {
 // pwmgen
 // 
 
+#define HM2_PWMGEN_OUTPUT_TYPE_PWM          1  // this is the same value that the software pwmgen component uses
+#define HM2_PWMGEN_OUTPUT_TYPE_UP_DOWN      2  // this is the same value that the software pwmgen component uses
+#define HM2_PWMGEN_OUTPUT_TYPE_PDM          3  // software pwmgen does not support pdm as an output type
+#define HM2_PWMGEN_OUTPUT_TYPE_PWM_SWAPPED  4  // software pwmgen does not support pwm/swapped output type because it doesnt need to 
+
 typedef struct {
 
     struct {
@@ -280,7 +285,11 @@ typedef struct {
 
     // this keeps track of the output_type that we've told the FPGA, so we
     // know if we need to update it
-    int32_t written_output_type;
+    s32 written_output_type;
+
+    // this keeps track of the enable bit for this instance that we've told
+    // the FPGA, so we know if we need to update it
+    s32 written_enable;
 } hm2_pwmgen_instance_t;
 
 

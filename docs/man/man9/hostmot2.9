@@ -167,8 +167,6 @@ the quadrature counter needs only 3 clocks to register a change.  FIXME:
 filter clock rate is not controllable yet, but it will be soon.
 .SH pwmgen
 
-Very basic support, more to come.  This is what's implemented so far:
-
 pwmgens have names like "hm2_<BoardType>.<BoardNum>.pwmgen.<Instance>".
 Instance is a two-digit number that corresponds to the HostMot2 pwmgen
 instance number.  There are 'num_pwmgens' instances, starting with 00.
@@ -179,8 +177,9 @@ Out1.
 The function of the Out0 and Out1 IO pins varies with output-type
 parameter (see below).
 
-The pwmgen representation is modeled on the pwmgen software component.
-Each pwmgen instance has the following pins and parameters:
+The pwmgen representation is modeled on the pwmgen software component
+as far as possible.  Each pwmgen instance has the following pins and
+parameters:
 
 Pins:
 
@@ -198,33 +197,39 @@ of -1.0 to +1.0 inclusive.
 
 (s32 rw) output-type: This emulates the output_type load-time argument to
 the software pwmgen component.  This parameter may be changed at runtime,
-but most of the time you probably want to set it at startup and then
-leave it alone.  Accepted values are 1 (PWM on Out0 and Direction on
-Out1), 2 (Up on Out0 and Down on Out1), and 3 (PDM mode, PDM on Out0
-and Dir on Out1).
+but most of the time you probably want to set it at startup and then leave
+it alone.  Accepted values are 1 (PWM on Out0 and Direction on Out1), 2
+(Up on Out0 and Down on Out1), 3 (PDM mode, PDM on Out0 and Dir on Out1),
+and 4 (Direction on Out0 and PWM on Out1, "for locked antiphase").
 
-In addition to the per-pwmgen HAL Parameters listed above, there are a
-couple of HAL Parameter that affect all the pwmgens:
+In addition to the per-instance HAL Parameters listed above, there are
+a couple of HAL Parameters that affect all the pwmgen instances:
 
-(u32 rw) pwm_frequency: This specifies the PWM frequency, in Hz, of
-all the pwmgen instances running in the PWM modes (modes 1 and 2).
-Its effective range is from 1 Hz up to 193 KHz.  Note that the max
-frequency is determined by the ClockHigh frequency of the Anything
-IO board; the 5i20 and 7i43 both have a 100 MHz clock, resulting in
-a 193 KHz max PWM frequency.  Other boards may have different clocks,
-resulting in different max PWM frequencies.  If the user attempts to set
-the frequency too high, it will be clipped to the max supported frequency
-of the board.  Frequencies below about 5 Hz are not terribly accurate,
-but above 5 Hz they're pretty close.
+(u32 rw) pwm_frequency: This specifies the PWM frequency, in Hz, of all
+the pwmgen instances running in the PWM modes (modes 1 and 2).  This is
+the frequency of the variable-duty-cycle wave.  Its effective range is
+from 1 Hz up to 193 KHz.  Note that the max frequency is determined by the
+ClockHigh frequency of the Anything IO board; the 5i20 and 7i43 both have
+a 100 MHz clock, resulting in a 193 KHz max PWM frequency.  Other boards
+may have different clocks, resulting in different max PWM frequencies.
+If the user attempts to set the frequency too high, it will be clipped
+to the max supported frequency of the board.  Frequencies below about
+5 Hz are not terribly accurate, but above 5 Hz they're pretty close.
 
 (u32 rw) pdm_frequency: This specifies the PDM frequency, in Hz, of
-all the pwmgen instances running in PDM mode (mode 3).  Its effective
-range is from 1 Hz up to just over 24 KHz.  Note that the max frequency
-is determined by the ClockHigh frequency of the Anything IO board;
-the 5i20 and 7i43 both have a 100 MHz clock, resulting in a 24 KHz max
-PDM frequency.  Other boards may have different clocks, resulting in
-different max PDM frequencies.  If the user attempts to set the frequency
-too high, it will be clipped to the max supported frequency of the board.
+all the pwmgen instances running in PDM mode (mode 3).  This is the
+"pulse slot frequency"; the frequency at which the pdm generator in the
+AnyIO board chooses whether to emit a pulse or a space.  Each pulse (and
+space) in the PDM pulse train has a duration of 1/pdm_frequency seconds.
+For example, setting the pdm_frequency to 2e6 (2 MHz) and the duty cycle
+to 50% results in a 1 MHz square wave, identical to a 1 MHz PWM signal
+with 50% duty cycle.  The effective range of this parameter is from
+about 1525 Hz up to just under 100 MHz.  Note that the max frequency
+is determined by the ClockHigh frequency of the Anything IO board; the
+5i20 and 7i43 both have a 100 MHz clock, resulting in a 100 Mhz max PDM
+frequency.  Other boards may have different clocks, resulting in different
+max PDM frequencies.  If the user attempts to set the frequency too high,
+it will be clipped to the max supported frequency of the board.
 .SH stepgen
 
 Very basic support.  This is what's implemented so far:

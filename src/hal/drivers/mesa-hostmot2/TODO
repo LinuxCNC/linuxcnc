@@ -202,9 +202,7 @@ encoders:
 
 pwmgen:
 
-    test pdm mode
-
-    enable doesnt get written right, needs a written_enable
+    feature complete!  no known bugs!
 
 
 
