@@ -56,48 +56,61 @@ Nom du fichier: useful-subroutines.ngc
 Decription: Programme pour fraiser une rainure avec utilisation des paramètres.
 \layout Subsection
 
-Relevé d'une grille de points à la sonde de mesure
+Palpage d'une grille rectangulaire de points
 \layout Standard
 
 Nom du fichier: gridprobe.ngc
 \layout Standard
 
-Description: Mesure de points à la sonde
+Description: Relevé d'une grille rectangulaire de points au palpeur.
 \layout Standard
 
-Ce programme sonde de manière répétitive, en suivant une grille régulière
+Ce programme palpe de manière répétitive, en suivant une grille régulière
  en XY et écrit les points mesurés dans le fichier 'probe-results.txt' situé
  dans le même répertoire que le fichier .ini.
 \layout Subsection
 
-Amélioration du relevé d'une grille de points à la sonde de mesure
+Amélioration du palpage d'une grille rectangulaire de points
 \layout Standard
 
 Nom du fichier: smartprobe.ngc
 \layout Standard
 
-Description: Mesure de points à la sonde
+Description: Relevé d'une grille rectangulaire de points à la sonde.
 \layout Standard
 
 Ce programme est une amélioration du précédent.
- Il sonde de manière répétitive, en suivant une grille régulière en XY et
+ Il palpe de manière répétitive, en suivant une grille régulière en XY et
  écrit les points mesurés dans le fichier 'probe-results.txt' situé dans
  le même répertoire que le fichier .ini.
 \layout Subsection
 
-Sonde de mesure de longueur d'outil
+Mesure de longueur d'outil
 \layout Standard
 
 Nom du fichier: tool-lenght-probe.ngc
 \layout Standard
 
-Description: Mesure automatique de la longueur de l'outil
+Description: Mesure automatique de la longueur de l'outil.
 \layout Standard
 
 Ce programme donne un exemple de la mesure automatique de longueur d'outil
- en utilisant un interrupteur raccordé à l'entrée sonde.
+ en utilisant un contact raccordé à l'entrée sonde.
  C'est très pratique pour une machine sur laquelle la longueur des outils
  est différente à chaque montage.
+\layout Subsection
+
+Mesure d'un alésage au palpeur
+\layout Standard
+
+Nom du fichier: probe-hole.ngc
+\layout Standard
+
+Description: Mesure le centre et le diamètre d'un alésage.
+\layout Standard
+
+Ce programme montre comment trouver le centre d'un alésage, comment calculer
+ son diamètre et enregistrer les mesures du palpeur dans un fichier.
 \layout Subsection
 
 Compensation de rayon d'outil

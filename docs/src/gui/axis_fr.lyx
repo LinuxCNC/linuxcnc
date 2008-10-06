@@ -137,7 +137,7 @@ Lancez emc et sélectionnez un fichier de configuration.
 \layout Enumerate
 
 Relâchez le bouton d'arrêt d'urgence 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 A/U
@@ -146,18 +146,18 @@ A/U
 \end_inset 
 
 
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
  et mettez la machine en marche.
 \layout Enumerate
 
 Faites les prises d'origine machine 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 POM
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
  pour chacun des axes.
@@ -174,15 +174,15 @@ Bridez le brut à usiner sur la table.
 \layout Enumerate
 
 Faites les prises d'origine pièce 
-\begin_inset Quotes sld
+\begin_inset Quotes fld
 \end_inset 
 
 POP
-\begin_inset Quotes srd
+\begin_inset Quotes frd
 \end_inset 
 
  de chacun des axes avec le jog et en utilisant le bouton 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 Toucher
@@ -191,7 +191,7 @@ Toucher
 \end_inset 
 
 
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
 .
@@ -213,11 +213,11 @@ La fenêtre d'AXIS contient les éléments suivants:
 
 Un espace d'affichage qui montre une pré-visualisation du fichier chargé
  (dans ce cas, 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 axis.ngc
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
 ), ainsi que la position courante du point programmé par la machine CNC
@@ -228,11 +228,11 @@ axis.ngc
 .
  Plus tard, cette zone affichera le cheminement de l'outil déplacé par la
  machine CNC, cette zone est appelée le chemin d'outil (
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 backplot
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
 )
@@ -243,7 +243,7 @@ Une barre de menus, une barre d'outils, des curseurs et des onglets permettent
 \layout Itemize
 
 L'onglet 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 Contrôle manuel
@@ -252,7 +252,7 @@ Contrôle manuel
 \end_inset 
 
 
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
 , qui permet de faire des mouvements d'axe, de mettre la broche en rotation
@@ -260,14 +260,14 @@ Contrôle manuel
 \layout Itemize
 
 L'onglet 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 Données manuelles
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
- (aussi appelée MDI
+ (aussi appelé MDI
 \begin_inset LatexCommand \index{Données manuelles}
 
 \end_inset 
@@ -277,7 +277,7 @@ Données manuelles
 \layout Itemize
 
 Les curseurs 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 Correcteurs de vitesse
@@ -286,7 +286,7 @@ Correcteurs de vitesse
 \end_inset 
 
 
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
 , qui permettent d'augmenter ou de diminuer la vitesse de la fonction concernée.
@@ -298,7 +298,7 @@ Une zone de textes qui affiche le G-code du fichier chargé.
 Une barre d'état qui affiche l'état de la machine.
  Dans cette capture d'écran, la machine est en marche, aucun outil n'est
  monté, la position affichée est 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 relative
@@ -307,11 +307,11 @@ relative
 \end_inset 
 
 
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
  à l'origine machine (par opposition à une position 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 absolue
@@ -320,11 +320,11 @@ absolue
 \end_inset 
 
 
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
 ) et 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 actuelle
@@ -333,11 +333,11 @@ actuelle
 \end_inset 
 
 
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
  (par opposition à une position 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 commandée
@@ -346,10 +346,19 @@ commandée
 \end_inset 
 
 
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
 )
+\layout Subsection
+
+Menu Items
+\layout Standard
+
+SousSection en cours de rédaction - To Do List
+\layout Standard
+
+finish menu descriptions
 \layout Subsection
 
 Boutons de la barre d'outils
@@ -359,22 +368,34 @@ Signification des boutons, de gauche à droite:
 \layout Enumerate
 
 
-\begin_inset Quotes eld
+\begin_inset Graphics
+	filename images/tool_estop.gif
+
+\end_inset 
+
+ 
+\begin_inset Quotes fld
 \end_inset 
 
 Arrêt d'urgence
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
- (A/U
+ (A/U) en Anglais (E-Stop)
 \begin_inset LatexCommand \index{Arrêt d'urgence}
 
 \end_inset 
 
-)
+
 \layout Enumerate
 
-Marche/Arrêt machine
+
+\begin_inset Graphics
+	filename images/tool_power.gif
+
+\end_inset 
+
+ Marche/Arrêt puissance machine 
 \begin_inset LatexCommand \index{Marche/Arrêt}
 
 \end_inset 
@@ -382,86 +403,179 @@ Marche/Arrêt machine
 
 \layout Enumerate
 
-Ouvrir fichier G-code
+
+\begin_inset Graphics
+	filename images/tool_open.gif
+
+\end_inset 
+
+ Ouvrir un fichier 
 \layout Enumerate
 
-Recharger le fichier courant
+
+\begin_inset Graphics
+	filename images/tool_reload.gif
+
+\end_inset 
+
+ Recharger le fichier courant
 \layout Enumerate
 
-Exécution du programme
+
+\begin_inset Graphics
+	filename images/tool_run.gif
+
+\end_inset 
+
+ Exécuter le programme
 \layout Enumerate
 
-Exécuter un seul pas de programme
+
+\begin_inset Graphics
+	filename images/tool_step.gif
+
+\end_inset 
+
+ Exécuter un seul pas de programme
 \layout Enumerate
 
-Pause/Reprise
+
+\begin_inset Graphics
+	filename images/tool_pause.gif
+
+\end_inset 
+
+ Pause/Reprise
 \layout Enumerate
 
-Stopper l'exécution du programme
+
+\begin_inset Graphics
+	filename images/tool_stop.gif
+
+\end_inset 
+
+ Stopper l'exécution du programme
 \layout Enumerate
 
-Zoom plus
+
+\begin_inset Graphics
+	filename images/tool_zoomin.gif
+
+\end_inset 
+
+ Zoom plus
 \layout Enumerate
 
-Zoom moins
+
+\begin_inset Graphics
+	filename images/tool_zoomout.gif
+
+\end_inset 
+
+ Zoom moins
 \layout Enumerate
 
-Vue prédéfinie 
-\begin_inset Quotes eld
+
+\begin_inset Graphics
+	filename images/tool_axis_z.gif
+
+\end_inset 
+
+ Vue prédéfinie 
+\begin_inset Quotes fld
 \end_inset 
 
 Z
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
  (vue de dessus)
 \layout Enumerate
 
-Vue prédéfinie
-\begin_inset Quotes eld
+
+\begin_inset Graphics
+	filename images/tool_axis_z2.gif
+
+\end_inset 
+
+ Vue prédéfinie 
+\begin_inset Quotes fld
 \end_inset 
 
 Z basculée
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
 
 \layout Enumerate
 
-Vue prédéfinie
-\begin_inset Quotes eld
+
+\begin_inset Graphics
+	filename images/tool_axis_x.gif
+
+\end_inset 
+
+ Vue prédéfinie 
+\begin_inset Quotes fld
 \end_inset 
 
 X
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
  (vue de côté)
 \layout Enumerate
 
-Vue prédéfinie
-\begin_inset Quotes eld
+
+\begin_inset Graphics
+	filename images/tool_axis_y.gif
+
+\end_inset 
+
+ Vue prédéfinie 
+\begin_inset Quotes fld
 \end_inset 
 
 Y
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
- (vue de face)
+ (vue de face) 
 \layout Enumerate
 
-Vue prédéfinie
-\begin_inset Quotes eld
+
+\begin_inset Graphics
+	filename images/tool_axis_p.gif
+
+\end_inset 
+
+ Vue prédéfinie 
+\begin_inset Quotes fld
 \end_inset 
 
 P
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
  (vue en perspective)
 \layout Enumerate
 
-Rafraîchi le tracé du chemin d'outil
+
+\begin_inset Graphics
+	filename images/tool_rotate.gif
+
+\end_inset 
+
+ Orienter la vue avec le bouton gauche de la souris
+\layout Enumerate
+
+
+\begin_inset Graphics
+	filename images/tool_clear.gif
+
+\end_inset 
+
+ Rafraîchir le tracé du chemin d'outil
 \layout Subsection
 
 Zones d'affichage graphique du programme
@@ -491,40 +605,40 @@ L'affichage des coordonnées est situé en haut à gauche de l'écran graphique.
 \layout Standard
 
 Pour interpréter correctement ces valeurs, référez vous à l'indicateur 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 Position:
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
  de la barre d'état.
  Si la position est 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 Absolue
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
 , alors les valeurs affichées sont exprimées en coordonnées machine.
  Si la position est 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 Relative
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
 , alors les valeurs affichées sont exprimées en coordonnées relatives à
  la pièce.
  Quand les coordonnées affichées sont relatives, une marque d'origine de
  couleur cyan est visible pour représenter 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 l'origine machine
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
  (
@@ -536,11 +650,11 @@ l'origine machine
 
 ).
  Si la position est 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 Commandée
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
 , alors il s'agit de la position à atteindre -- par exemple, les coordonnées
@@ -550,11 +664,11 @@ G0
 \family default 
 .
  Si la position est 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 Actuelle
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
 , alors il s'agit de la position à laquelle la machine vient de se déplacer.
@@ -562,19 +676,19 @@ Actuelle
  morte, résolution d'encodeur ou taille de pas.
  Par exemple, si vous demandez un mouvement à X 0.08 à votre fraiseuse, mais
  un pas du moteur fait 0.03, alors la position 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 Commandée
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
  sera de 0.08 mais la position 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 Actuelle
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
  sera de 0.06 (2 pas) ou 0.09 (3 pas).
@@ -606,11 +720,11 @@ G1
 G4
 \family default 
 ) sont représentés par une petite marque 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 X
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
 .
@@ -625,11 +739,11 @@ Etendues du programme
 \layout Standard
 
 Les 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 étendues
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
  du programme sont visibles pour chacun des axes.
@@ -645,11 +759,11 @@ Les
 \layout Standard
 
 Quand une coordonnée excède une 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 soft limits
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
  établie dans le fichier .ini, la dimension correspondante est affichée dans
@@ -670,11 +784,11 @@ Le cône d'outil
 \layout Standard
 
 L'emplacement de la pointe de l'outil est indiqué par le 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 cône d'outil
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
 .
@@ -684,7 +798,7 @@ cône d'outil
 
 Quand un outil est chargé, (par exemple dans le MDI, avec la commande 
 \family typewriter 
-T1M6
+T1 M6
 \family default 
 ), le cône passe de cônique à cylindrique, il indique alors le diamètre
  de l'outil lu dans le fichier de la table d'outil.
@@ -713,11 +827,11 @@ En déplaçant la souris avec son bouton gauche appuyé, la vue est glissée
 \layout Standard
 
 En déplaçant la souris avec le bouton 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 Maj
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
  enfoncé, ou en glissant avec la molette de la souris appuyée, la vue est
@@ -729,16 +843,24 @@ Maj
 
 En tournant la molette de la souris ou en glissant la souris avec son bouton
  droit enfoncé ou encore en glissant la souris avec son bouton gauche enfoncé
- et la touche Ctrl appuyée, le tracé sera zoomé en plus ou en moins.
+ et la touche 
+\begin_inset Quotes fld
+\end_inset 
+
+Ctrl
+\begin_inset Quotes frd
+\end_inset 
+
+ appuyée, le tracé sera zoomé en plus ou en moins.
 \layout Standard
 
 En cliquant sur une des icônes de vue pré-définie de la barre d'outils,
  ou en pressant la touche 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 V
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
 , cette vue est sélectionnée.
@@ -791,11 +913,11 @@ Contrôle manuel
 
 Quand la machine est en marche mais qu'aucun programme n'est exécuté, les
  éléments graphiques de l'onglet 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 Contrôle manuel
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
  peuvent être utilisés pour actionner le centre d'usinage ou mettre en marche
@@ -809,21 +931,21 @@ Quand la machine n'est pas en marche ou quand un programme est en cours
 Certains des éléments décrits plus bas ne sont pas disponibles sur toutes
  les machines.
  Quand AXIS détecte qu'une 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 pin
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
  particulière n'est pas connectée dans le fichier HAL, l'élément correspondant
  de l'onglet Contrôle manuel est supprimé.
  Par exemple, si la 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 pin HAL
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
  
@@ -831,11 +953,11 @@ pin HAL
 motion.spindle-brake
 \family default 
  n'est pas connectée, alors le bouton 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 Frein de broche
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
  n'apparaîtra pas sur l'écran.
@@ -847,49 +969,49 @@ AXIS_NO_AUTOCONFIGURE
 \layout Subsubsection
 
 Le groupe 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 Axes
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
 
 \layout Standard
 
-Les cases à cocher du groupe
-\begin_inset Quotes eld
+Les cases à cocher du groupe 
+\begin_inset Quotes fld
 \end_inset 
 
 Axes
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
  permettent de choisir l'axe de la machine à actionner manuellement.
  Cette action s'appelle le 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 jog
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
 .
  Premièrement sélectionnez l'axe à actionner en cochant sa case.
  Puis cliquez le bouton 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 +
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
  ou 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 -
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
  selon le sens de déplacement souhaité.
@@ -899,11 +1021,11 @@ jog
 \layout Standard
 
 Si 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 En continu
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
  est sélectionné, le mouvement continuera tant que la touche ou le bouton
@@ -940,11 +1062,11 @@ INCREMENTS = 10 um, 50 um, 0.1mm, 0.5mm, 1mm, 5mm, 10 mm
 \layout Standard
 
 Pour les utilisateurs préférant les unités 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 impériales
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
 , un bon réglage pourrait être:
@@ -967,20 +1089,20 @@ INCREMENTS = 1 inch, 1 mil, 1 cm, 1 mm, 1 um
 
 Si votre machine a une séquence de prise d'origines machine définie, le
  bouton 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 POM générale
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
  ou les touches Ctrl+origine lanceront cette séquence.
  Autrement, le bouton sera lu 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 Origine machine
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
 , et enverra l'axe courant à sa position d'origine.
@@ -989,11 +1111,11 @@ Origine machine
  Selon votre configuration, la POM peut ajuster la valeur de la position
  de l'axe comme étant la position absolue 0.0, ou elle peut faire déplacer
  la machine vers une position d'origine spécifiée et avec l'usage de 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 capteurs d'origine
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
 .
@@ -1006,19 +1128,19 @@ capteurs d'origine
 \layout Standard
 
 Si le bouton 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 Toucher
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
  ou la touche Fin sont appuyés, le décalage d'origine pièce 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 G54
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
  de l'axe actif prendra la valeur spécifiée dans le champ de la boite de
@@ -1058,11 +1180,11 @@ Toucher
 \layout Standard
 
 La case à cocher 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 Mouvement temporaire hors limites
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
  permet un déplacement temporaire de la machine hors des limites physiques.
@@ -1072,11 +1194,11 @@ Mouvement temporaire hors limites
 \layout Subsubsection
 
 Le groupe 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 Broche
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
 
@@ -1098,11 +1220,11 @@ Les boutons de la première rangée permettent de sélectionner la direction
 \layout Subsubsection
 
 Le groupe 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 Arrosage
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
 
@@ -1114,19 +1236,19 @@ Arrosage
 \layout Standard
 
 Ces deux boutons permettent d'activer le 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 Brouillard
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
  et l'
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 Arrosage
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
  ou de les désactiver.
@@ -1137,7 +1259,7 @@ Arrosage
 Données manuelles
 \layout Standard
 
-L'onglet d'entrée de données manuelles (encore appelées MDI
+L'onglet d'entrée de données manuelles (encore appelé MDI
 \begin_inset LatexCommand \index{MDI}
 
 \end_inset 
@@ -1181,19 +1303,19 @@ Commandes MDI
 
 Ce champ permet la saisie d'une ligne de commande à exécuter.
  La commande sera exécutée par l'appui de la touche 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 Entrée
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
  ou un clic du bouton 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 Envoi
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
 .
@@ -1203,28 +1325,28 @@ G-Codes actifs
 \layout Standard
 
 Ce champ affiche les 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 codes modaux
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
  actuellement actifs dans l'interpréteur.
  Par exemple, 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 G54
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
  indique que le décalage d'origine 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 G54
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
  sera appliqué à toutes les coordonnées qui seront entrées.
@@ -1261,11 +1383,11 @@ En déplaçant ce curseur, la vitesse programmée de la broche peut être modifiée.
  Par exemple, si un programme requiert une vitesse à F8000 et que le curseur
  est placé sur 80%, alors la fréquence de rotation résultante sera de 6400.
  Cet élément n'apparaît que si la 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 HAL pin
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
  
@@ -1785,11 +1907,11 @@ emctop: Affichage de l'état d'EMC
 \layout Standard
 
 AXIS inclut un programme appelé 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 emctop
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
  qui affiche en détail l'état d'emc.
@@ -1826,15 +1948,15 @@ Le nom de chaque entrée est affiché dans la colonne de gauche.
  Si la valeur a changé récemment, elle s'affiche en surbrillance rouge.
 \layout Section
 
-mdi: Interface d'entrée de texte (MDI)
+mdi: Entrée de données en texte (MDI)
 \layout Standard
 
 AXIS inclut un programme appelé 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 mdi
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
 , il permet d'envoyer des commandes à la session d'EMC2 en cours, sous forme
@@ -1900,11 +2022,11 @@ axis-remote: Commande à distance de l'interface graphique d'AXIS
 \layout Standard
 
 AXIS inclut un programme appelé 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 axis-remote
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
  qui permet d'envoyer certaines commandes vers l'application AXIS fonctionnant
@@ -1932,11 +2054,11 @@ hal_manualtoolchange: Dialogue de changement manuel d'outil
 \layout Standard
 
 AXIS inclut un composant Hall appelé 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 hal_manualtoolchange
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
 , il ouvre une fenêtre d'appel d'outil (Figure 
@@ -2005,15 +2127,15 @@ AXIS
 
  qui peuvent être très utiles.
  Pour des informations complètes sur ces modules, faites: 
-\begin_inset Quotes eld
+\family typewriter 
+
+\begin_inset Quotes fld
 \end_inset 
 
-
-\family typewriter 
 pydoc <nom du module>
 \family default 
 
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
  ou lisez son code source.
@@ -2066,11 +2188,11 @@ Pour utiliser ces modules dans vos propres scripts, assurez-vous que le
  répertoire où ils se trouvent est dans le chemin d'accès des modules Python.
  Avec une version installée d'EMC2, ça se fera automatiquement.
  Avec une version installée en 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 in-place
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
 , ça peut être fait avec l'aide de: 
@@ -2098,11 +2220,11 @@ LATHE = 1
 \layout Standard
 
 L'axe 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 Y
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
  ne sera pas visible dans l'affichage des coordonnées, la vue sera modifiée
@@ -2112,11 +2234,11 @@ Y
 \layout Standard
 
 La touche 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 V
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
  agit alors sur le zoom pour afficher le tracé complet du fichier chargé.
@@ -2154,11 +2276,11 @@ Filtres de programme
 \layout Standard
 
 AXIS a la capacité d'envoyer des fichiers chargés à travers un 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 filtre de programme
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
 .
@@ -2186,20 +2308,20 @@ PROGRAM_EXTENSION
  Les lignes de cette sortie s'affichent alors dans la zone texte, le chemin
  d'outil résultant est visible dans la zone graphique, enfin il sera exécuté
  quand emc recevra la commande 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 Exécuter le programme
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
 .
  Les lignes suivantes fournissent la possibilité d'utiliser 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 image-to-gcode
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
 , le convertisseur d'images fourni avec EMC2:
@@ -2229,8 +2351,8 @@ De cette manière, n'importe quel script Python pourra être ouvert et sa
 nc_files/holecircle.py
 \family default 
 .
- Ce script crée le g-code pour percer une série de trous selon la circonférence
- d'un cercle.
+ Ce script crée le g-code pour percer une série de trous suivant un arc
+ de cercle.
 \layout Standard
 
 
@@ -2277,11 +2399,11 @@ Les couleurs de la plupart des éléments de l'interface utilisateur d'AXIS
 axis_light_background
 \family default 
  modifie les couleurs de la fenêtre du chemin d'outil sur le modèle 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 lignes noires et fond blanc
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
 , il sert aussi de référence des éléments configurables dans l'écran graphique.
@@ -2302,19 +2424,19 @@ Les bureaux graphiques modernes effectuent certains réglages dans la base
 \layout Standard
 
 ce qui entraînera la construction des options au niveau 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 widgetDefault
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
 , de sorte que les ressources X (qui sont elles, au niveau 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 userDefault
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
 ) puissent l'emporter.
@@ -2331,11 +2453,11 @@ Manivelle de jog
 Pour accroître l'interaction d'AXIS avec une manivelle de jog physique,
  l'axe actif courant sélectionné dans l'interface graphique est aussi reporté
  sur une 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 pin Hal
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
  avec un nom comme 
@@ -2356,11 +2478,11 @@ FALSE
 \layout Standard
 
 Après qu'AXIS ait créé ces 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 HAL pins
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
 , il exécute le fichier hal déclaré avec: 
