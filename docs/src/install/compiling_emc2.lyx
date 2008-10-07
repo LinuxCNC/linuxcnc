@@ -27,38 +27,46 @@
 
 \layout Chapter
 
-Compiling EMC2 from source
+Compiling from Source
 \layout Section
 
 Introduction
 \layout Standard
 
-The third hurdle that you face when you begin to set up the EMC2 is getting
- and installing the EMC2 software itself.
+The third hurdle that you face when you begin to set up the EMC2 manually
+ is getting and installing the EMC2 software itself.
  All of EMC2 has been placed on cvs.linuxcnc.org in a concurrent versioning
  (CVS) repository.
  EMC2 is also available as a precompiled package (for various platforms)
  for download from that site.
- 
+ Again the easiest install is the Live-CD.
 \layout Standard
 
 Installation can be a daunting task to people new to Linux.
  The hardest part is getting the Real Time Linux patch up and running.
  After that, installing EMC is pretty easy.
  With that said, we recently provided a completely new experience for users,
- they only need to install Ubuntu (a very friendly linux distribution),
+ they only need to install Ubuntu (a very friendly Linux distribution),
  then run a single install script, and they already should have the Real
  Time part and EMC2 working.
- Information how to access this can be found on the www.linuxcnc.org page
- under Download.
+ 
 \layout Section
 
 EMC Download Page
 \layout Standard
 
-You will find the most recent releases of EMC2 announced on www.linuxcnc.org.
- The releases of EMC2 will be done in two ways (sources and binary package).
- The sources (described furtheron) consist of a tarball (emc2-version.tar.gz),
+You will find the most recent releases of EMC2 announced on the Download
+ page at:
+\begin_inset LatexCommand \url{http://www.linuxcnc.org/index.php}
+
+\end_inset 
+
+
+\layout Standard
+
+The releases of EMC2 will be done in three ways the Live-CD, sources and
+ binary package.
+ The sources (described further on) consist of a tarball (emc2-version.tar.gz),
  which you should download and unpack into your home directory.
 \layout Section
 
@@ -88,7 +96,7 @@ Released
 \series default 
  is available in several forms, including .debs for Ubuntu and source tarballs
  for local compilation.
- There will be a debian repository which will always have the latest released
+ There will be a Debian repository which will always have the latest released
  version (and thus allows for easy upgrades from one stable release to the
  next).
  
@@ -128,7 +136,7 @@ Testing
 Testing
 \series default 
  is available primarily as a tag in CVS, although for convenience of testers,
- a "testing" debian repository and/or tarballs may also be available.
+ a "testing" Debian repository and/or tarballs may also be available.
  The EMC Board of Directors will decide when "Testing" is worthy of becoming
  "Released".
  This is a formal decision, made by motion and voting on the board mailing
@@ -156,7 +164,7 @@ TRUNK
 "Testing"
 \series default 
  tag will be moved.
- This is an informal decision, made by concensus of lead developers, usually
+ This is an informal decision, made by consensus of lead developers, usually
  on IRC.
  Development will immediately continue, and 
 \series bold 
@@ -190,7 +198,8 @@ Once you have it, extract it to your home folder:
 \layout LyX-Code
 
 $ cd ~/
-\newline 
+\layout LyX-Code
+
 $ tar xzvf emc2-version.tar.gz
 \layout Standard
 
@@ -200,23 +209,6 @@ Next you'll need to decide what kind of install you want.
 
 Installed Like most other software on Linux, the files are placed in system
  directories, and is automatically available to all users of that computer.
-\begin_inset Foot
-collapsed false
-
-\layout Standard
-
-The pre-built packages for Ubuntu Linux use the 
-\begin_inset Quotes eld
-\end_inset 
-
-installed
-\begin_inset Quotes erd
-\end_inset 
-
- method
-\end_inset 
-
-
 \layout Description
 
 Run-in-place All the files for EMC2 are kept inside the 
@@ -226,13 +218,28 @@ emc2
  directory.
  This is useful for trying out EMC2, especially when there is another version
  of EMC2 already installed on the system.
+\layout Standard
+
+The pre-built packages for Ubuntu Linux use the 
+\begin_inset Quotes eld
+\end_inset 
+
+Installed
+\begin_inset Quotes erd
+\end_inset 
+
+ method
 \layout Subsection
 
 Downloading the CVS version
 \layout Standard
 
-If you wish to use the TRUNK version of emc2, please follow the instructions
- on our wiki to obtain the source code: 
+If you wish to use the TRUNK version of EMC2 or the latest branch version
+ of EMC2, please follow the instructions on our wiki site to obtain the
+ source code: 
+\layout Standard
+
+
 \begin_inset LatexCommand \url{http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?CVS}
 
 \end_inset 
@@ -243,19 +250,20 @@ If you wish to use the TRUNK version of emc2, please follow the instructions
 Installed
 \layout Standard
 
-EMC2 followes the standard way of compiling linux software.
+EMC2 follows the standard way of compiling Linux software.
  To compile it simply go to the sources folder:
 \layout LyX-Code
 
-$ cd ~/emc2/src
+~$ cd ~/emc2/src
 \layout Standard
 
 and issue these commands:
 \layout LyX-Code
 
-$ ./configure
-\newline 
-$ make && sudo make install
+~/emc2/src$ ./configure
+\layout LyX-Code
+
+~/emc2/src$ make && sudo make install
 \layout Standard
 
 To run it simply type 'emc'.
@@ -275,21 +283,24 @@ If you want only to test the software before installing it, or if you're
  in this example.
 \layout LyX-Code
 
-$ cd ~/emc2/src
+~$ cd ~/emc2/src
 \layout Standard
 
 and issue these commands:
 \layout LyX-Code
 
-$ ./configure --enable-run-in-place
-\newline 
-$ make && sudo make setuid
+~/emc2/src$ ./configure --enable-run-in-place
+\layout LyX-Code
+
+~/emc2/src$ make && sudo make setuid
 \layout Standard
 
-In a shell session where you want to use the run-in-place version of emc
-\begin_inset Foot
-collapsed true
+In a shell session where you want to use the run-in-place version of EMC,
+ execute
+\layout LyX-Code
 
+~/emc2/src$ .
+ ~/emc2/scripts/emc-environment
 \layout Standard
 
 By putting this command in a shell start-up script, such as 
@@ -297,13 +308,18 @@ By putting this command in a shell start-up script, such as
 ~/.bash_profile
 \family default 
 , you do not need to manually run it in each terminal window.
+\layout Standard
+
+
+\begin_inset Note
+collapsed false
+
+\layout Standard
+
+find or make a reference to shell start up scripts
 \end_inset 
 
-, execute
-\layout LyX-Code
 
-$ .
- ~/emc2/scripts/emc-environment
 \layout Standard
 
 Until you close that terminal, it will be set up so that the programs and
@@ -312,13 +328,13 @@ Until you close that terminal, it will be set up so that the programs and
  After that you can run EMC2 by issuing:
 \layout LyX-Code
 
-$ emc
+~/emc2/src$ emc
 \layout Section
 
 Simulator
 \layout Standard
 
-To install EMC2 on a system without a realtime kernel, add 
+To install EMC2 on a system without a real time kernel, add 
 \family typewriter 
 --enable-simulator
 \family default 
@@ -326,12 +342,21 @@ To install EMC2 on a system without a realtime kernel, add
 \family typewriter 
 configure
 \family default 
- commandline.
+ command line.
  In this mode, EMC2 runs as a purely userspace program.
- No hardware can be controlled and realtime scheduling is not guaranteed,
+ No hardware can be controlled and real time scheduling is not guaranteed,
  but the other features of HAL, EMC and its various user interfaces are
  available.
- When using 
+ 
+\begin_inset Note
+collapsed false
+
+\layout Standard
+
+is the following line incorrect or is it in the wrong section???
+\end_inset 
+
+When using 
 \family typewriter 
 --enable-run-in-place
 \family default 
@@ -339,7 +364,7 @@ configure
 \family typewriter 
 sudo make setuid
 \family default 
- step is unneeded.
+ step is not needed.
 \layout Section
 
 Editing and Recompiling
@@ -351,13 +376,16 @@ You may need to recompile the EMC2 code for a number of reasons.
  To recompile, do the following:
 \layout LyX-Code
 
-$ cd ~/emc2/src
-\newline 
-$ make && sudo make install # for run-installed
-\newline 
-$ make && sudo make setuid  # for run-in-place
-\newline 
-$ make                      # for run-in-place, simulator
+~$ cd ~/emc2/src
+\layout LyX-Code
+
+~/emc2/src$ make && sudo make install # for run-installed
+\layout LyX-Code
+
+~/emc2/src$ make && sudo make setuid  # for run-in-place
+\layout LyX-Code
+
+~/emc2/src$ make                      # for run-in-place, simulator
 \layout Standard
 
 The build process is smart enough to only rebuild things that are affected

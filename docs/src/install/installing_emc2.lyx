@@ -48,7 +48,7 @@ One of the problems users often complained about EMC was installing the
 
 
 \begin_inset Foot
-collapsed false
+collapsed true
 
 \layout Standard
 
@@ -125,9 +125,6 @@ Ubuntu is released regularly and predictably; a new release is made every
 The Ubuntu community is entirely committed to the principles of free software
  development; we encourage people to use open source software, improve it
  and pass it on.
-\layout Standard
-
-.
 \layout Section
 
 
@@ -173,6 +170,9 @@ Other Methods
 
 You will find information about other install methods on the following web
  sites.
+ These methods are only needed if you have special needs or you just have
+ to have the bleeding edge version.
+ 
 \layout Standard
 
 http://www.linuxcnc.org (Home of EMC2)
@@ -286,7 +286,10 @@ First add the repository to /etc/apt/sources.list:
 \size scriptsize 
 $ sudo sh -c 'echo "deb http://www.linuxcnc.org/emc2/ dapper emc2.2" >>/etc/apt/sou
 rces.list;'
-\newline 
+\layout LyX-Code
+
+
+\size scriptsize 
 $ sudo sh -c 'echo "deb-src http://www.linuxcnc.org/emc2/ dapper emc2.2" >>/etc/apt
 /sources.list'
 \layout Standard
@@ -297,7 +300,10 @@ Then update & get EMC2.
 
 \size scriptsize 
 $ sudo apt-get update
-\newline 
+\layout LyX-Code
+
+
+\size scriptsize 
 $ sudo apt-get install emc2
 \layout Standard
 
@@ -324,6 +330,9 @@ You might get warnings that the packages are from an untrusted source (this
 
 \size scriptsize 
 $ gpg --keyserver pgpkeys.mit.edu --recv-key BC92B87F
-\newline 
+\layout LyX-Code
+
+
+\size scriptsize 
 $ gpg -a --export BC92B87F | sudo apt-key add -
 \the_end
