@@ -2420,9 +2420,10 @@ class TclCommands(nf.TclCommands):
         if line == -1: return
         selection.set_value(t.get("%d.8" % line, "%d.end" % line))
 
-    def set_next_line(*args):
+    def task_run_line(*args):
         line = vars.highlight_line.get()
         if line != -1: set_first_line(line)
+        commands.task_run()
 
     def reload_tool_table(*args):
         c.load_tool_table()
@@ -2679,6 +2680,8 @@ class TclCommands(nf.TclCommands):
             c.auto(emc.AUTO_PAUSE)
 
     def task_stop(*event):
+        if s.task_mode == emc.MODE_AUTO and vars.running_line.get() != 0:
+            o.set_highlight_line(vars.running_line.get())
         c.abort()
 
     def mdi_up_cmd(*args):
@@ -3621,7 +3624,7 @@ init()
 def rClicker(e):
     
     def select_run_from(e):
-	commands.set_next_line()
+	commands.task_run_line()
 
     #if no line is selected drop out
     if vars.highlight_line.get() == -1 :
@@ -3629,7 +3632,7 @@ def rClicker(e):
     nclst=[
         ('        ',None),   #
         (' ------ ',None),   #
-	(_('Start from here'), lambda e=e: select_run_from(e)),
+	(_('Run from here'), lambda e=e: select_run_from(e)),
         ]
     rmenu = Tkinter.Menu(None, tearoff=0, takefocus=0)
     cas = {}

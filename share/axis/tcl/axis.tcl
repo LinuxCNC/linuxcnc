@@ -98,13 +98,13 @@ setup_menu_accel .menu.machine end [_ "Toggle _Machine Power"]
 .menu.machine add separator
 
 .menu.machine add command \
-	-command set_next_line
-setup_menu_accel .menu.machine end [_ "Set _next line"]
-
-.menu.machine add command \
 	-accelerator R \
 	-command task_run
 setup_menu_accel .menu.machine end [_ "_Run program"]
+
+.menu.machine add command \
+	-command task_run_line
+setup_menu_accel .menu.machine end [_ "Ru_n from selected line"]
 
 .menu.machine add command \
 	-accelerator T \
@@ -1857,8 +1857,9 @@ proc update_state {args} {
                 .toolbar.program_stop
     state  {$::has_ladder} {.menu.file "_Ladder Editor..."}
 
-    state {$interp_state == $INTERP_IDLE && $highlight_line != -1} \
-                {.menu.machine "Set _next line"}
+    state {$task_state == $STATE_ON \
+            && $interp_state == $INTERP_IDLE && $highlight_line != -1} \
+                {.menu.machine "Ru_n from selected line"}
 
     state {$::task_state == $::STATE_ON && $::interp_state == $::INTERP_IDLE\
             && $spindledir != 0} \
