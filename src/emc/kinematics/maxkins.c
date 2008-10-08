@@ -41,14 +41,14 @@ int kinematicsForward(const double *joints,
     double xyr = hypot(joints[0], joints[1]);
     double xytheta = atan2(joints[1], joints[0]) + d2r(joints[5]);
 
-    // V correction
-    double zv = pos->v * sin(d2r(joints[4]));
-    double xv = pos->v * cos(d2r(joints[4]));
+    // U correction
+    double zv = joints[6] * sin(d2r(joints[4]));
+    double xv = joints[6] * cos(d2r(joints[4]));
 
-    // U correction is always in joint 1 only
+    // V correction is always in joint 1 only
 
     pos->tran.x = xyr * cos(xytheta) + xb - xv;
-    pos->tran.y = xyr * sin(xytheta) + joints[6];
+    pos->tran.y = xyr * sin(xytheta) - joints[7];
     pos->tran.z = joints[2] - zb + zv + haldata->pivot_length;
 
     pos->a = joints[3];
@@ -74,14 +74,14 @@ int kinematicsInverse(const EmcPose * pos,
     double xyr = hypot(pos->tran.x, pos->tran.y);
     double xytheta = atan2(pos->tran.y, pos->tran.x) - d2r(pos->c);
 
-    // V correction
-    double zv = pos->v * sin(d2r(pos->b));
-    double xv = pos->v * cos(d2r(pos->b));
+    // U correction
+    double zv = pos->u * sin(d2r(pos->b));
+    double xv = pos->u * cos(d2r(pos->b));
 
-    // U correction is always in joint 1 only
+    // V correction is always in joint 1 only
 
     joints[0] = xyr * cos(xytheta) - xb + xv;
-    joints[1] = xyr * sin(xytheta) - pos->u;
+    joints[1] = xyr * sin(xytheta) + pos->v;
     joints[2] = pos->tran.z + zb + zv - haldata->pivot_length;
 
     joints[3] = pos->a;
