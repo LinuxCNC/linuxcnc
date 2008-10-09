@@ -93,6 +93,105 @@ Description: Finding the Center and Diameter of a hole.
 
 The program demonstrates how to find the center of a hole, measure the hole
  diameter and record the results.
+ The example does not include a tool change to put a probe in the spindle.
+ Add the tool change code at the beginning, if needed.
+\layout Standard
+
+Note that this code will not function until you replace <description of
+ number> with a number.
+ 
+\layout LyX-Code
+
+G0 Z <Z-value of retracted position> F <feed rate> 
+\layout LyX-Code
+
+#1001=<nominal X-value of hole center> 
+\layout LyX-Code
+
+#1002=<nominal Y-value of hole center> 
+\layout LyX-Code
+
+#1003=<some Z-value inside the hole> 
+\layout LyX-Code
+
+#1004=<probe tip radius> 
+\layout LyX-Code
+
+#1005=[<nominal hole diameter>/2.0 - #1004] 
+\layout LyX-Code
+
+G0 X#1001 Y#1002 (move above nominal hole center) 
+\layout LyX-Code
+
+G0 Z#1003 (move into hole - to be cautious, substitute G1 for G0 here) 
+\layout LyX-Code
+
+G38.2 X[#1001 + #1005] (probe +X side of hole) 
+\layout LyX-Code
+
+#1011=#5061 (save results) G0 X#1001 Y#1002 (back to center of hole) 
+\layout LyX-Code
+
+G38.2 X[#1001 - #1005] (probe -X side of hole) 
+\layout LyX-Code
+
+#1021=[[#1011 + #5061] / 2.0] (find pretty good X-value of hole center) 
+\layout LyX-Code
+
+G0 X#1021 Y#1002 (back to center of hole) 
+\layout LyX-Code
+
+G38.2 Y[#1002 + #1005] (probe +Y side of hole) 
+\layout LyX-Code
+
+#1012=#5062 (save results) 
+\layout LyX-Code
+
+G0 X#1021 Y#1002 (back to center of hole) 
+\layout LyX-Code
+
+G38.2 Y[#1002 - #1005] (probe -Y side of hole) 
+\layout LyX-Code
+
+#1022=[[#1012 + #5062] / 2.0] (find very good Y-value of hole center) 
+\layout LyX-Code
+
+#1014=[#1012 - #5062 + [2 * #1004]] (find hole diameter in Y-direction)
+ 
+\layout LyX-Code
+
+G0 X#1021 Y#1022 (back to center of hole) 
+\layout LyX-Code
+
+G38.2 X[#1021 + #1005] (probe +X side of hole) 
+\layout LyX-Code
+
+#1031=#5061 (save results) 
+\layout LyX-Code
+
+G0 X#1021 Y#1022 (back to center of hole) 
+\layout LyX-Code
+
+G38.2 X[#1021 - #1005] (probe -X side of hole) 
+\layout LyX-Code
+
+#1041=[[#1031 + #5061] / 2.0] (find very good X-value of hole center) 
+\layout LyX-Code
+
+#1024=[#1031 - #5061 + [2 * #1004]] (find hole diameter in X-direction)
+ 
+\layout LyX-Code
+
+#1034=[[#1014 + #1024] / 2.0] (find average hole diameter) 
+\layout LyX-Code
+
+#1035=[#1024 - #1014] (find difference in hole diameters) 
+\layout LyX-Code
+
+G0 X#1041 Y#1022 (back to center of hole) 
+\layout LyX-Code
+
+M2 (end of program) 
 \layout Section
 
 Cutter Compensation
