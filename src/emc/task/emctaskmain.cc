@@ -1828,7 +1828,8 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
     case EMC_TASK_ABORT_TYPE:
 	// abort everything
 	emcTaskAbort();
-        emcSpindleAbort(1);
+        emcIoAbort();
+        emcSpindleAbort();
 	retval = 0;
 	break;
 
@@ -1849,9 +1850,8 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	        also near end of main, when aborting on subordinate errors,
 	        and in emcTaskExecute() */
 
-		// abort everything
+		// abort motion
 		emcTaskAbort();
-                emcSpindleAbort(0);
 
 		// without emcTaskPlanClose(), a new run command resumes at
 		// aborted line-- feature that may be considered later
@@ -2187,7 +2187,8 @@ static int emcTaskExecute(void)
 
 	// abort everything
 	emcTaskAbort();
-        emcSpindleAbort(1);
+        emcIoAbort();
+        emcSpindleAbort();
 
 	// without emcTaskPlanClose(), a new run command resumes at
 	// aborted line-- feature that may be considered later
@@ -2725,7 +2726,6 @@ static int iniLoad(const char *filename)
     const char *inistring;
     char version[LINELEN], machine[LINELEN];
     double saveDouble;
-    int emcSpindleMode;
 
     // open it
     if (inifile.Open(filename) == false) {
@@ -2804,18 +2804,6 @@ static int iniLoad(const char *filename)
 	// not found, using default
 	rcs_print("[TASK] CYCLE_TIME not found in %s; using default %f\n",
 		  filename, EMC_TASK_CYCLE_TIME);
-    }
-
-    if (NULL != (inistring = inifile.Find("SPINDLE_MODE", "EMCIO"))) {
-	// convert to int, and apply
-	if (1 == sscanf(inistring, "%d", &emcSpindleMode)) {
-	    rcs_print
-		("using [IO] SPINDLE_MODE = (%d)\n",
-		 emcSpindleMode);
-	    emcSpindleSetMode(emcSpindleMode);
-	}
-    } else {
-	// not found, default is ok
     }
 
     // close it
@@ -2921,7 +2909,8 @@ int main(int argc, char *argv[])
 		}
 		emcTrajDisable();
 		emcTaskAbort();
-                emcSpindleAbort(1);
+                emcIoAbort();
+                emcSpindleAbort();
 		emcTaskPlanSynch();
 	    }
 	    if (emcStatus->io.coolant.mist) {
@@ -2949,7 +2938,8 @@ int main(int argc, char *argv[])
 	    if (!taskAborted) {
 		// abort everything
 		emcTaskAbort();
-                emcSpindleAbort(1);
+                emcIoAbort();
+                emcSpindleAbort();
 		// without emcTaskPlanClose(), a new run command resumes at
 		// aborted line-- feature that may be considered later
 		{

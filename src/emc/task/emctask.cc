@@ -113,7 +113,6 @@ int emcTaskHalt()
 int emcTaskAbort()
 {
     emcMotionAbort();
-    emcIoAbort();
 
     // clear out the pending command
     emcTaskCommand = 0;
@@ -159,7 +158,6 @@ int emcTaskSetMode(int mode)
 	// go to mdi mode
 	emcTrajSetMode(EMC_TRAJ_MODE_COORD);
 	emcTaskAbort();
-        emcSpindleAbort(0);
 	emcTaskPlanSynch();
 	mdiOrAuto = EMC_TASK_MODE_MDI;
 	break;
@@ -168,7 +166,6 @@ int emcTaskSetMode(int mode)
 	// go to auto mode
 	emcTrajSetMode(EMC_TRAJ_MODE_COORD);
 	emcTaskAbort();
-        emcSpindleAbort(0);
 	emcTaskPlanSynch();
 	mdiOrAuto = EMC_TASK_MODE_AUTO;
 	break;
@@ -189,15 +186,16 @@ int emcTaskSetState(int state)
     switch (state) {
     case EMC_TASK_STATE_OFF:
         emcMotionAbort();
-        emcSpindleAbort(0);
 	// turn the machine servos off-- go into READY state
+        emcSpindleAbort();
 	for (t = 0; t < emcStatus->motion.traj.axes; t++) {
 	    emcAxisDisable(t);
 	}
 	emcTrajDisable();
 	emcLubeOff();
 	emcTaskAbort();
-        emcSpindleAbort(1);
+        emcIoAbort();
+        emcSpindleAbort();
         //	emcAxisUnhome(-2); // only those joints which are volatile_home
 	emcTaskPlanSynch();
 	break;
@@ -216,13 +214,14 @@ int emcTaskSetState(int state)
 	emcAuxEstopOff();
 	emcLubeOff();
 	emcTaskAbort();
-        emcSpindleAbort(1);
+        emcIoAbort();
+        emcSpindleAbort();
 	emcTaskPlanSynch();
 	break;
 
     case EMC_TASK_STATE_ESTOP:
         emcMotionAbort();
-        emcSpindleAbort(1);
+        emcSpindleAbort();
 	// go into estop-- do both IO estop and machine servos off
 	emcAuxEstopOn();
 	for (t = 0; t < emcStatus->motion.traj.axes; t++) {
@@ -231,7 +230,8 @@ int emcTaskSetState(int state)
 	emcTrajDisable();
 	emcLubeOff();
 	emcTaskAbort();
-        emcSpindleAbort(1);
+        emcIoAbort();
+        emcSpindleAbort();
         //	emcAxisUnhome(-2); // only those joints which are volatile_home
 	emcTaskPlanSynch();
 	break;
@@ -482,7 +482,7 @@ int emcTaskUpdate(EMC_TASK_STAT * stat)
 
     if(oldstate == EMC_TASK_STATE_ON && oldstate != stat->state) {
 	emcTaskAbort();
-        emcSpindleAbort(1);
+        emcSpindleAbort();
     }
 
     // execState set in main
