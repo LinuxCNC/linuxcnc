@@ -81,7 +81,7 @@ This program demonstrates how to measure tool lengths automatically using
  This is useful for machines without tool holders, where the length of a
  tool is different every time it is inserted.
 \layout Subsection
-
+\pagebreak_top 
 Hole Probe
 \layout Standard
 
