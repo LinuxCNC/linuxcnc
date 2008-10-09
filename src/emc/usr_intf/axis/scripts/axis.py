@@ -1581,6 +1581,7 @@ def manual_ok(do_poll=True):
 # If emc is not already in one of the modes given, switch it to the first
 # mode
 def ensure_mode(m, *p):
+    print "ensure_mode"
     s.poll()
     if s.task_mode == m or s.task_mode in p: return True
     if running(do_poll=False): return False
@@ -2687,6 +2688,7 @@ class TclCommands(nf.TclCommands):
         if s.task_mode == emc.MODE_AUTO and vars.running_line.get() != 0:
             o.set_highlight_line(vars.running_line.get())
         c.abort()
+        c.wait_complete()
 
     def mdi_up_cmd(*args):
         if args and args[0].char: return   # e.g., for KP_Up with numlock on
@@ -2846,11 +2848,13 @@ class TclCommands(nf.TclCommands):
         commands.mdi_history_write_to_file(mdi_history_save_filename, -1)
 
     def ensure_manual(*event):
+        print "ensure_manual"
         if not manual_ok(): return
         ensure_mode(emc.MODE_MANUAL)
         commands.set_joint_mode()
 
     def ensure_mdi(*event):
+        print "ensure_mdi"
         if not manual_ok(): return
         ensure_mode(emc.MODE_MDI)
 
@@ -3108,6 +3112,7 @@ class TclCommands(nf.TclCommands):
     	comp['jog.w'] = vars.current_axis.get() == "w"
 
     def set_joint_mode(*args):
+        print "set_joint_mode"
         joint_mode = vars.joint_mode.get()
         c.teleop_enable(joint_mode)
 
