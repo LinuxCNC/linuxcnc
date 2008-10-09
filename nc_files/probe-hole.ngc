@@ -21,7 +21,6 @@
 (probe to find center and diameter of circular hole)
 (This program will not run as given here. You have to)
 (insert numbers in place of <description of number>.)
-(Delete lines N020, N030, and N040 when you do that.)
 G0 Z <Z-value of retracted position> F <feed rate>
 #1001=<nominal X-value of hole center>
 #1002=<nominal Y-value of hole center>
@@ -52,5 +51,4 @@ G38.2 X[#1021 - #1005] (probe -X side of hole)
 #1034=[[#1014 + #1024] / 2.0] (find average hole diameter)
 #1035=[#1024 - #1014] (find difference in hole diameters)
 G0 X#1041 Y#1022 (back to center of hole)
-M2 (that's all, folks)
-Table 6. Code to Probe Hole
+M2 (program end)
