@@ -1781,10 +1781,14 @@ progress_re = re.compile("^FILTER_PROGRESS=(\\d*)$")
 def filter_program(program_filter, infilename, outfilename):
     import subprocess
     outfile = open(outfilename, "w")
+    infilename_q = infilename.replace("'", "'\\''")
     env = dict(os.environ)
     env['AXIS_PROGRESS_BAR'] = '1'
-    p = subprocess.Popen([program_filter, infilename], stdin=subprocess.PIPE,
-                        stdout=outfile, stderr=subprocess.PIPE, env=env)
+    p = subprocess.Popen(["sh", "-c", "%s '%s'" % (program_filter, infilename_q)],
+                          stdin=subprocess.PIPE,
+                          stdout=outfile,
+                          stderr=subprocess.PIPE,
+                          env=env)
     p.stdin.close()  # No input for you
     progress = Progress(1, 100)
     progress.set_text(_("Filtering..."))
