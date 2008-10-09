@@ -1651,7 +1651,7 @@ static void compute_screw_comp(void)
         v_max = 0.5 * joint->vel_limit * emcmotStatus->net_feed_scale;
         a_max = 0.5 * joint->acc_limit;
         v = joint->backlash_vel;
-        if (joint->backlash_corr >= 0.0) {
+        if (joint->backlash_corr >= joint->backlash_filt) {
             s_to_go = joint->backlash_corr - joint->backlash_filt; /* abs val */
             if (s_to_go > 0) {
                 // off target, need to move
