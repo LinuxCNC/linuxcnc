@@ -483,6 +483,7 @@ int emcTaskUpdate(EMC_TASK_STAT * stat)
     if(oldstate == EMC_TASK_STATE_ON && oldstate != stat->state) {
 	emcTaskAbort();
         emcSpindleAbort();
+        emcIoAbort();
     }
 
     // execState set in main
