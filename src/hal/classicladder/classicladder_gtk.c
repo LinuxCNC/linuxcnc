@@ -944,7 +944,7 @@ void RungWindowInitGtk()
     gtk_signal_connect( GTK_OBJECT(RungWindow), "delete_event",
     (GtkSignalFunc)RungWindowDeleteEvent, 0 );
 
-    gtk_window_set_default_size ((GtkWindow *)RungWindow,950,600);
+    gtk_window_set_default_size ((GtkWindow *)RungWindow,640,480);
     gtk_widget_show (RungWindow);
 
     GetTheSizesForRung();
