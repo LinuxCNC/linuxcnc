@@ -1197,10 +1197,17 @@ void EditElementInRung(double x,double y)
 			/* apply the new element */
 			if (NumElement==EDIT_ERASER)
 			{
-				/* the blocks other than the "alive" are now free... */
+                                /* the blocks other than the "alive" are now free... */
 				CleanForBigElement(EditDatas.Rung.Element[RungX][RungY].Type,RungX,RungY,ELE_FREE);
-				EditDatas.Rung.Element[RungX][RungY].DynamicOutput = 0;
-				EditDatas.Rung.Element[RungX][RungY].Type = NumElement;
+			        EditDatas.Rung.Element[RungX][RungY].DynamicOutput = 0;
+                                if (((x-RungX*InfosGene->BlockWidth)>=0) && ((x-RungX*InfosGene->BlockWidth)<=15) 
+                                   && (EditDatas.Rung.Element[RungX][RungY].ConnectedWithTop))
+				      {			                   
+				            EditDatas.Rung.Element[RungX][RungY].ConnectedWithTop = 0;
+			              }else{
+				           EditDatas.Rung.Element[RungX][RungY].Type = ELE_FREE;
+			                   }
+				
 			}
 			else
 			{
