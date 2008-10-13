@@ -282,6 +282,14 @@ void SET_FEED_MODE(int mode) {
 #endif
 }
 
+void CHANGE_TOOL(int tool) {
+    maybe_new_line();
+    if(interp_error) return;
+    PyObject *result = 
+        PyObject_CallMethod(callback, "change_tool", "i", tool);
+    if(result == NULL) interp_error ++;
+    Py_XDECREF(result);
+}
 
 /* XXX: This needs to be re-thought.  Sometimes feed rate is not in linear
  * units--e.g., it could be inverse time feed mode.  in that case, it's wrong
@@ -366,7 +374,6 @@ void PROGRAM_STOP() {}
 void PROGRAM_END() {}
 void FINISH() {}
 void PALLET_SHUTTLE() {}
-void CHANGE_TOOL(int tool) {}
 void SELECT_TOOL(int tool) {}
 void OPTIONAL_PROGRAM_STOP() {}
 

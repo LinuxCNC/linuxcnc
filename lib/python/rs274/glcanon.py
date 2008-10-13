@@ -45,6 +45,7 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         self.xo = self.zo = self.wo = 0
         self.dwell_time = 0
         self.suppress = 0
+        self.skip_entry_rapids = 0
 
     def message(self, message): pass
 
@@ -104,6 +105,9 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
     def comment(self, arg): pass
     def select_plane(self, arg): pass
 
+    def change_tool(self, arg):
+        self.first_move = True
+        
     def get_tool(self, tool):
         return tool, .75, .0625
 
@@ -127,11 +131,11 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         )
         if not self.first_move:
                 self.traverse_append((self.lineno, self.lo, l, self.xo, self.zo))
-        self.first_move = False
         self.lo = l
 
     def rigid_tap(self, x, y, z):
         if self.suppress: return
+        self.first_move = False
         l = (x + self.offset_x,y + self.offset_y,z + self.offset_z,
              self.lo[3], self.lo[4], self.lo[5],
              self.lo[6], self.lo[7], self.lo[8], 
@@ -142,6 +146,7 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
 
     def arc_feed(self, *args):
         if self.suppress: return
+        self.first_move = False
         self.in_arc = True
         try:
             ArcsToSegmentsMixin.arc_feed(self, *args)
@@ -156,6 +161,7 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
 
     def straight_feed(self, x,y,z, a,b,c, u, v, w):
         if self.suppress: return
+        self.first_move = False
         self.first_move = False
         l = (x + self.offset_x,y + self.offset_y,z + self.offset_z,
              a + self.offset_a, b + self.offset_b, c + self.offset_c,
