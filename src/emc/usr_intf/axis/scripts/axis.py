@@ -2543,6 +2543,7 @@ class TclCommands(nf.TclCommands):
 
             size = [(a-b) for a, b in zip(o.g.max_extents, o.g.min_extents)]
             size = sqrt(size[0] **2 + size[1] ** 2 + size[2] ** 2)
+            if size > 1e99: size = 5. # in case there are no moves in the preview
             w = o.winfo_width()
             h = o.winfo_height()
             fovx = o.fovy * w / h
