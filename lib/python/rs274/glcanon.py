@@ -93,6 +93,7 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
             self.max_extents_notool = [max(x), max(y), max(z)]
 
     def tool_offset(self, zo, xo, wo):
+        self.first_move = True
         x, y, z, a, b, c, u, v, w = self.lo
         self.lo = (x - xo + self.xo, y, z - zo + self.zo, a, b, c, u, v, w - wo + self.wo)
         self.xo = xo
