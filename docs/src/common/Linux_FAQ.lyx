@@ -380,4 +380,27 @@ To find all the files that contain the 'text to search for' in the current
  The -i is for ignore case and the -r is for recursive (include all subdirectori
 es in the search).
  The * is a wild card for search all files.
+\layout Section
+
+Hardware Problems
+\layout Subsection
+
+Monitor Resolution
+\layout Standard
+
+During installation Ubuntu attempts to detect the monitor settings.
+ If this fails you are left with a generic monitor with a maximum resolution
+ of 800x600.
+ 
+\layout Standard
+
+Instructions for fixing this are located here:
+\layout Standard
+
+
+\begin_inset LatexCommand \url{https://help.ubuntu.com/community/FixVideoResolutionHowto}
+
+\end_inset 
+
+
 \the_end
