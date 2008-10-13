@@ -16,8 +16,8 @@
 \paperorientation portrait
 \secnumdepth 3
 \tocdepth 3
-\paragraph_separation indent
-\defskip medskip
+\paragraph_separation skip
+\defskip smallskip
 \quotes_language english
 \quotes_times 2
 \papercolumns 1
@@ -27,6 +27,11 @@
 \layout Chapter
 
 HAL Components
+\begin_inset LatexCommand \label{cha:HAL-Components}
+
+\end_inset 
+
+
 \layout Section
 
 Commands and Userspace Components
@@ -115,6 +120,18 @@ pyvcp.1 = Virtual Control Panel for EMC2
 \layout Section
 
 Realtime components and kernel modules
+\layout Standard
+
+
+\begin_inset Note
+collapsed false
+
+\layout Standard
+
+finish index entries JT
+\end_inset 
+
+
 \layout Standard
 
 Some of these will have expanded descriptions from the man pages.
@@ -342,33 +359,67 @@ mult2.9 = Product of two inputs
 \layout List
 \labelwidthstring 00.00.0000
 
-mux2.9 = Select from one of two input values
+mux2.9
+\begin_inset LatexCommand \index{mux2.9}
+
+\end_inset 
+
+ = Select from one of two input values
 \layout List
 \labelwidthstring 00.00.0000
 
-mux4.9 = Select from one of four input values
+mux4.9
+\begin_inset LatexCommand \index{mux4.9}
+
+\end_inset 
+
+ = Select from one of four input values
 \layout List
 \labelwidthstring 00.00.0000
 
-not.9 = Inverter
+not.9
+\begin_inset LatexCommand \index{not.9}
+
+\end_inset 
+
+ = Inverter
 \layout List
 \labelwidthstring 00.00.0000
 
-offset.9 = Adds an offset to an input, and subtracts it from the feedback
- value
+offset.9
+\begin_inset LatexCommand \index{offset.9}
+
+\end_inset 
+
+ = Adds an offset to an input, and subtracts it from the feedback value
 \layout List
 \labelwidthstring 00.00.0000
 
-oneshot.9 = one-shot pulse generator
+oneshot.9
+\begin_inset LatexCommand \index{oneshot.9 }
+
+\end_inset 
+
+= one-shot pulse generator
 \layout List
 \labelwidthstring 00.00.0000
 
-or2.9 = Two-input OR gate
+or2.9
+\begin_inset LatexCommand \index{or2.9}
+
+\end_inset 
+
+ = Two-input OR gate
 \layout List
 \labelwidthstring 00.00.0000
 
-pid.9 = proportional/integral/derivative controller, for more information
- see 
+pid.9
+\begin_inset LatexCommand \index{pid.9}
+
+\end_inset 
+
+ = proportional/integral/derivative controller, for more information see
+ 
 \begin_inset LatexCommand \ref{sec:PID}
 
 \end_inset 

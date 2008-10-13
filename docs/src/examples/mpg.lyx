@@ -130,6 +130,17 @@ Hook it up in HAL
 In your custom.hal file or other .hal file add the following making sure you
  don't have mux4 or an encoder already in use.
  If you do just increase the counts and change the reference number.
+ More information about mux4 and encoder can be found here 
+\begin_inset LatexCommand \ref{cha:HAL-Components}
+
+\end_inset 
+
+ and here 
+\begin_inset LatexCommand \ref{sec:Encoder}
+
+\end_inset 
+
+.
 \layout Standard
 
 
