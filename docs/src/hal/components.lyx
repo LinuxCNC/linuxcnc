@@ -27,6 +27,11 @@
 \layout Chapter
 
 HAL Components
+\begin_inset LatexCommand \label{cha:HAL-Components}
+
+\end_inset 
+
+
 \layout Section
 
 Commands and Userspace Components
@@ -122,6 +127,10 @@ Some of these will have expanded descriptions from the man pages.
  All of the components have man pages.
  From this list you know what components exist and can use man n name to
  get additional information.
+ For example to find the man page for abs.9 open a terminal window and type:
+\layout LyX-Code
+
+man abs.9
 \layout List
 \labelwidthstring 00.00.0000
 
@@ -334,7 +343,7 @@ minmax.9 = Track the minimum and maximum values of the input to the outputs
 \layout List
 \labelwidthstring 00.00.0000
 
-motion.9 = accepts NML motion commands, interacts with HAL in realtime
+motion.9 = Accepts NML motion commands, interacts with HAL in realtime
 \layout List
 \labelwidthstring 00.00.0000
 
@@ -342,11 +351,22 @@ mult2.9 = Product of two inputs
 \layout List
 \labelwidthstring 00.00.0000
 
-mux2.9 = Select from one of two input values
+mux2.9
+\begin_inset LatexCommand \index{mux2.9}
+
+\end_inset 
+
+ = Select from one of two input values based on the status of the sel bit.
 \layout List
 \labelwidthstring 00.00.0000
 
-mux4.9 = Select from one of four input values
+mux4.9
+\begin_inset LatexCommand \index{mux4.9}
+
+\end_inset 
+
+ = Select from one of four input values based on the status of the two sel
+ bits.
 \layout List
 \labelwidthstring 00.00.0000
 
@@ -363,7 +383,7 @@ oneshot.9 = one-shot pulse generator
 \layout List
 \labelwidthstring 00.00.0000
 
-or2.9 = Two-input OR gate
+or2.9 = two-input OR gate
 \layout List
 \labelwidthstring 00.00.0000
 

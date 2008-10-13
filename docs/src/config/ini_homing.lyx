@@ -16,8 +16,8 @@
 \paperorientation portrait
 \secnumdepth 3
 \tocdepth 3
-\paragraph_separation indent
-\defskip medskip
+\paragraph_separation skip
+\defskip smallskip
 \quotes_language english
 \quotes_times 2
 \papercolumns 1
@@ -26,12 +26,12 @@
 
 \layout Section
 
-
+Homing
 \begin_inset LatexCommand \label{sec:Homing}
 
 \end_inset 
 
-Homing
+
 \layout Subsection
 
 Overview
@@ -39,11 +39,104 @@ Overview
 
 Homing seems simple enough - just move each joint to a known location, and
  set EMC's internal variables accordingly.
- However, different machines have different requirements, and homing is
- actually quite complicated.
+ However, different machines have different requirements, and homing can
+ be quite complicated.
+ When specifying the direction of travel for the axis by using a positive
+ or negative number for SEARCH_VEL and LATCH_VEL the machine will move in
+ the same direction as when you do a + or - jog in manual control.
+ For example if you press the + key to move toward your home switch and
+ you have a typical configuration then both SEARCH_VEL and LATCH_VEL will
+ be positive numbers for that axis.
 \layout Subsection
 
 Homing Sequence
+\begin_inset LatexCommand \index{Homing Sequence}
+
+\end_inset 
+
+
+\layout Standard
+
+In figure 
+\begin_inset LatexCommand \ref{fig:Typical-Homing-Sequence}
+
+\end_inset 
+
+ you can see the sequence of a typical homing scenario when both SEARCH_VEL
+ and LATCH_VEL are the same sign (positive or negative number).
+ Notice that typical switches will have two different points where the switch
+ will change states the 
+\begin_inset Quotes eld
+\end_inset 
+
+tripped
+\begin_inset Quotes erd
+\end_inset 
+
+ point and the 
+\begin_inset Quotes eld
+\end_inset 
+
+reset
+\begin_inset Quotes erd
+\end_inset 
+
+ point.
+ Normally you have to travel past the reset point to get to the trip point
+ and you have to travel past the tripped point to reach the reset point.
+\layout Standard
+
+
+\begin_inset Float figure
+placement H
+wide false
+collapsed false
+
+\layout Caption
+
+Typical Homing Sequence
+\begin_inset LatexCommand \label{fig:Typical-Homing-Sequence}
+
+\end_inset 
+
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename Images/homestd6.jpg
+	scale 70
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Enumerate
+
+The axis moves toward the home switch at search velocity as defined by SEARCH_VE
+L in the [AXIS_n] section of the ini file.
+ Usually there is some overshoot as depicted in the figure.
+ Search velocity is usually fast enough so you won't fall asleep waiting
+ for the axis to traverse from one side to the other, but not so fast that
+ damage could be done.
+\layout Enumerate
+
+The axis moves in the reverse direction until the home switch changes state
+ (off to on or on to off) plus a little to clear the switch.
+\layout Enumerate
+
+The axis moves toward the home switch at latch velocity as defined by LATCH_VEL
+ in the [AXIS_n] section of the ini file.
+ Usually this is at a much lower speed than search velocity to get a more
+ accurate position.
+ When the switch changes state if a home offset is defined it is applied.
+\layout Enumerate
+
+The axis moves to the home position.
+ Usually the home location is not at the switch to prevent false tripping
+ of the switch.
 \layout Standard
 
 Figure 
@@ -59,20 +152,9 @@ Figure
 
 
 \begin_inset Float figure
+placement H
 wide false
 collapsed false
-
-\layout Standard
-\align center 
-
-\begin_inset Graphics
-	filename emc2-motion-homing-diag.eps
-	width 7in
-	height 9in
-	keepAspectRatio
-
-\end_inset 
-
 
 \layout Caption
 
@@ -82,12 +164,27 @@ collapsed false
 \end_inset 
 
 Homing Sequences
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename emc2-motion-homing-diag.eps
+	scale 70
+
+\end_inset 
+
+
 \end_inset 
 
 
 \layout Subsection
 
-Configuration
+Homing Configuration
+\begin_inset LatexCommand \index{Homing Configuration}
+
+\end_inset 
+
+
 \layout Standard
 
 There are six pieces of information that determine exactly how the home
@@ -97,6 +194,7 @@ There are six pieces of information that determine exactly how the home
 
 
 \begin_inset Float table
+placement H
 wide false
 collapsed false
 
@@ -344,8 +442,7 @@ The default value is zero.
  
 \layout Standard
 
-If 'HOME_SEARCH_VEL' is non-zero, then EMC assumes that there is a home
- switch.
+If HOME_SEARCH_VEL is non-zero, then EMC assumes that there is a home switch.
  It begins by checking whether the home switch is already tripped.
  If so, it backs off the switch at HOME_SEARCH_VEL (the direction of the
  back-off is opposite the sign of HOME_SEARCH_VEL).
@@ -478,8 +575,10 @@ L is zero, and the entire search/latch stage was skipped).
  This final move will be made at the joint's maximum velocity.
  Since the axis is now homed, there should be no risk of crashing the machine,
  and a rapid move is the quickest way to finish the homing sequence.
- 
-\begin_inset Foot
+\layout Standard
+
+
+\begin_inset Note
 collapsed false
 
 \layout Standard
@@ -530,6 +629,20 @@ HOME ALL
  If HOME_SEQUENCE is -1 or not specified then this joint will not be homed
  by the HOME ALL sequence.
  HOME_SEQUENCE numbers start with 0 and there may be no unused numbers.
+\layout Standard
+
+
+\begin_inset Note
+collapsed false
+
+\layout Standard
+
+is a 
+\backslash 
+clearpage needed for some reason? JT
+\end_inset 
+
+
 \layout Standard
 
 
