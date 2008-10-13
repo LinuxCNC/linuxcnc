@@ -45,7 +45,6 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         self.xo = self.zo = self.wo = 0
         self.dwell_time = 0
         self.suppress = 0
-        self.skip_entry_rapids = 0
 
     def message(self, message): pass
 
@@ -161,7 +160,6 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
 
     def straight_feed(self, x,y,z, a,b,c, u, v, w):
         if self.suppress: return
-        self.first_move = False
         self.first_move = False
         l = (x + self.offset_x,y + self.offset_y,z + self.offset_z,
              a + self.offset_a, b + self.offset_b, c + self.offset_c,
