@@ -88,6 +88,13 @@ static const double tiny = 1e-10;
 #define FROM_PROG_LEN(prog) ((prog) * (lengthUnits == CANON_UNITS_INCHES ? 25.4 : lengthUnits == CANON_UNITS_CM ? 10.0 : 1.0))
 #define FROM_PROG_ANG(prog) (prog)
 
+/* macros for converting between user units (ini file) and program units (g code) */
+#define USER_TO_PROGRAM_LEN(u) (TO_PROG_LEN(FROM_EXT_LEN(u)))
+#define PROGRAM_TO_USER_LEN(p) (TO_EXT_LEN(FROM_PROG_LEN(p)))
+
+#define USER_TO_PROGRAM_ANG(u) (TO_PROG_ANG(FROM_EXT_ANG(u)))
+#define PROGRAM_TO_USER_ANG(p) (TO_EXT_ANG(FROM_PROG_ANG(p)))
+
 /* Certain axes are periodic.  Hardcode this for now */
 #define IS_PERIODIC(axisnum) \
     ((axisnum) == 3 || (axisnum) == 4 || (axisnum) == 5)
@@ -1384,13 +1391,13 @@ void ARC_FEED(double first_end, double second_end,
 	linearMoveMsg.end.tran.z = TO_EXT_LEN(end.tran.z);
 
 	// fill in the orientation
-	linearMoveMsg.end.a = TO_EXT_ANG(a);
-	linearMoveMsg.end.b = TO_EXT_ANG(b);
-	linearMoveMsg.end.c = TO_EXT_ANG(c);
+	linearMoveMsg.end.a = PROGRAM_TO_USER_ANG(a);
+	linearMoveMsg.end.b = PROGRAM_TO_USER_ANG(b);
+	linearMoveMsg.end.c = PROGRAM_TO_USER_ANG(c);
 
-	linearMoveMsg.end.u = TO_EXT_LEN(u);
-	linearMoveMsg.end.v = TO_EXT_LEN(v);
-	linearMoveMsg.end.w = TO_EXT_LEN(w);
+	linearMoveMsg.end.u = PROGRAM_TO_USER_LEN(u);
+	linearMoveMsg.end.v = PROGRAM_TO_USER_LEN(v);
+	linearMoveMsg.end.w = PROGRAM_TO_USER_LEN(w);
 
         linearMoveMsg.type = EMC_MOTION_TYPE_ARC;
         linearMoveMsg.vel = toExtVel(vel);
@@ -1416,13 +1423,13 @@ void ARC_FEED(double first_end, double second_end,
             circularMoveMsg.turn = rotation;
 
 	// fill in the orientation
-	circularMoveMsg.end.a = TO_EXT_ANG(a);
-	circularMoveMsg.end.b = TO_EXT_ANG(b);
-	circularMoveMsg.end.c = TO_EXT_ANG(c);
-
-	circularMoveMsg.end.u = TO_EXT_LEN(u);
-	circularMoveMsg.end.v = TO_EXT_LEN(v);
-	circularMoveMsg.end.w = TO_EXT_LEN(w);
+	circularMoveMsg.end.a = PROGRAM_TO_USER_ANG(a);
+	circularMoveMsg.end.b = PROGRAM_TO_USER_ANG(b);
+	circularMoveMsg.end.c = PROGRAM_TO_USER_ANG(c);
+                             
+	circularMoveMsg.end.u = PROGRAM_TO_USER_LEN(u);
+	circularMoveMsg.end.v = PROGRAM_TO_USER_LEN(v);
+	circularMoveMsg.end.w = PROGRAM_TO_USER_LEN(w);
 
         circularMoveMsg.type = EMC_MOTION_TYPE_ARC;
 
