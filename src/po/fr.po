@@ -11,7 +11,7 @@ msgstr ""
 "Project-Id-Version: fr\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2008-09-09 14:53+0200\n"
-"PO-Revision-Date: 2008-09-21 15:09+0200\n"
+"PO-Revision-Date: 2008-10-15 19:24+0200\n"
 "Last-Translator: Francis Tisserant <ftissera@free.fr>\n"
 "Language-Team: french <gnomefr@traduc.org>\n"
 "MIME-Version: 1.0\n"
@@ -621,7 +621,7 @@ msgstr "Créer un raccourci sur le bureau"
 
 #: ../tcl/bin/tkbackplot.tcl:113
 msgid "TkEmc BackPlot"
-msgstr "Chemin d'outil TkEmc"
+msgstr "Parcours d'outil TkEmc"
 
 #: ../tcl/bin/tkbackplot.tcl:128
 msgid "SETUP"
@@ -718,7 +718,7 @@ msgstr "Information"
 
 #: ../tcl/mini.tcl:926
 msgid "Backplot"
-msgstr "Chemin d'outil"
+msgstr "Parcours d'outil"
 
 #: ../tcl/mini.tcl:928
 msgid "Editor"
@@ -1540,7 +1540,7 @@ msgstr "Diagnostiques..."
 
 #: ../tcl/tkemc.tcl:790
 msgid "Backplot..."
-msgstr "Chemin d'outil..."
+msgstr "Parcours d'outil..."
 
 #: ../tcl/tkemc.tcl:796
 msgid "Testing..."

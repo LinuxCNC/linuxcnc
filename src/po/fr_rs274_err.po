@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fr_rs274_err\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-09-13 14:05+0200\n"
-"PO-Revision-Date: 2008-09-21 14:15+0200\n"
+"POT-Creation-Date: 2008-10-15 19:17+0200\n"
+"PO-Revision-Date: 2008-10-15 19:54+0200\n"
 "Last-Translator: Francis Tisserant <ftissera@free.fr>\n"
 "Language-Team: french <gnomefr@traduc.org>\n"
 "MIME-Version: 1.0\n"
@@ -19,31 +19,31 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: KBabel 1.11.2\n"
 
-#: emc/task/emctaskmain.cc:397 emc/task/emctaskmain.cc:436
+#: emc/task/emctaskmain.cc:406 emc/task/emctaskmain.cc:445
 msgid "exceeds +X limit"
 msgstr "limite +X depassee"
 
-#: emc/task/emctaskmain.cc:403 emc/task/emctaskmain.cc:442
+#: emc/task/emctaskmain.cc:412 emc/task/emctaskmain.cc:451
 msgid "exceeds +Y limit"
 msgstr "limite +Y depassee"
 
-#: emc/task/emctaskmain.cc:409 emc/task/emctaskmain.cc:448
+#: emc/task/emctaskmain.cc:418 emc/task/emctaskmain.cc:457
 msgid "exceeds +Z limit"
 msgstr "limite +Z depassee"
 
-#: emc/task/emctaskmain.cc:415 emc/task/emctaskmain.cc:454
+#: emc/task/emctaskmain.cc:424 emc/task/emctaskmain.cc:463
 msgid "exceeds -X limit"
 msgstr "limite -X depassee"
 
-#: emc/task/emctaskmain.cc:421 emc/task/emctaskmain.cc:460
+#: emc/task/emctaskmain.cc:430 emc/task/emctaskmain.cc:469
 msgid "exceeds -Y limit"
 msgstr "limite -Y depassee"
 
-#: emc/task/emctaskmain.cc:427 emc/task/emctaskmain.cc:466
+#: emc/task/emctaskmain.cc:436 emc/task/emctaskmain.cc:475
 msgid "exceeds -Z limit"
 msgstr "limite -Z depassee"
 
-#: emc/task/emctaskmain.cc:583
+#: emc/task/emctaskmain.cc:592
 #, c-format
 msgid ""
 "command (%s) cannot be executed until the machine is out of E-stop and "
@@ -52,47 +52,47 @@ msgstr ""
 "La commande (%s) ne peut etre executee tant que la machine n'est pas sortie "
 "de l'arret d'urgence et mise en marche"
 
-#: emc/task/emctaskmain.cc:694
+#: emc/task/emctaskmain.cc:703
 #, c-format
 msgid "can't do that (%s) in manual mode"
 msgstr "Commande (%s) impossible en mode manuel"
 
-#: emc/task/emctaskmain.cc:793
+#: emc/task/emctaskmain.cc:802
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter idle"
 msgstr "(%s) impossible en mode auto avec l'interpreteur inactif"
 
-#: emc/task/emctaskmain.cc:854
+#: emc/task/emctaskmain.cc:863
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter reading"
 msgstr "(%s) impossible en mode auto avec l'interpreteur en lecture"
 
-#: emc/task/emctaskmain.cc:1077
+#: emc/task/emctaskmain.cc:1086
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter paused"
 msgstr "(%s) impossible en mode auto avec l'interpreteur en pause"
 
-#: emc/task/emctaskmain.cc:1140
+#: emc/task/emctaskmain.cc:1149
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter waiting"
 msgstr "(%s) impossible en mode auto avec l'interpreteur en attente"
 
-#: emc/task/emctaskmain.cc:1255
+#: emc/task/emctaskmain.cc:1264
 #, c-format
 msgid "can't do that (%s) in MDI mode"
 msgstr "Commande (%s) impossible en mode MDI"
 
-#: emc/task/emctaskmain.cc:1903
+#: emc/task/emctaskmain.cc:1912
 #, c-format
 msgid "can't open %s"
 msgstr "Impossible d'ouvrir %s "
 
-#: emc/task/emctaskmain.cc:3027
+#: emc/task/emctaskmain.cc:3036
 #, c-format
 msgid "Minimum Software Limit on axis %d exceeded."
 msgstr "Limite logicielle minimale de l'axe %d depassee"
 
-#: emc/task/emctaskmain.cc:3036
+#: emc/task/emctaskmain.cc:3045
 #, c-format
 msgid "Maximum Software Limit on axis %d exceeded."
 msgstr "Limite logicielle maximale sur l'axe %d depassee"
@@ -992,7 +992,8 @@ msgstr "Impossible de changer de plan avec la compensation de rayon d'outil"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:241
 msgid "Cutter radius compensation allowed only in XY, XZ planes"
-msgstr "Compensation de rayon d'outil permise seulement dans les plans XY et XZ"
+msgstr ""
+"Compensation de rayon d'outil permise seulement dans les plans XY et XZ"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:243
 msgid "P word missing with G76"
@@ -1113,7 +1114,6 @@ msgstr "Erreur inconnue"
 msgid "The End"
 msgstr "La fin"
 
-#: emc/rs274ngc/rs274ngc_pre.cc:745
+#: emc/rs274ngc/rs274ngc_pre.cc:752
 msgid "Queue is not empty after tool change"
 msgstr "La queue n'est pas vide apres changement d'outil"
-
