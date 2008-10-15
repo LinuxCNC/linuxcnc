@@ -116,6 +116,15 @@ static int done;
 static int emctask_shutdown(void);
 static int pseudoMdiLineNumber = -1;
 
+static int all_homed(void) {
+    for(int i=0; i<9; i++) {
+        unsigned int mask = 1<<i;
+        if((emcStatus->motion.traj.axis_mask & mask) && !emcStatus->motion.axis[i].homed)
+            return 0;
+    }
+    return 1;
+}
+
 static void emctask_quit(int sig)
 {
     // set main's done flag
@@ -1840,7 +1849,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	if (emcStatus->task.mode == EMC_TASK_MODE_AUTO &&
 	    emcStatus->task.interpState != EMC_TASK_INTERP_IDLE &&
 	    mode_msg->mode != EMC_TASK_MODE_AUTO) {
-	    emcOperatorError(0, "Can't switch mode while mode is AUTO and interpreter is not IDLE\n");
+	    emcOperatorError(0, "Can't switch mode while mode is AUTO and interpreter is not IDLE");
 	} else { // we can honour the modeswitch
 	    if (mode_msg->mode == EMC_TASK_MODE_MANUAL &&
 		emcStatus->task.mode != EMC_TASK_MODE_MANUAL) {
@@ -1911,6 +1920,11 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	stepping = 0;
 	steppingWait = 0;
 	execute_msg = (EMC_TASK_PLAN_EXECUTE *) cmd;
+        if (!all_homed()) {
+            emcOperatorError(0, "Can't issue MDI command when not homed");
+            retval = -1;
+            break;
+        }
 	if (execute_msg->command[0] != 0) {
 	    if (emcStatus->task.mode == EMC_TASK_MODE_MDI) {
 		interp_list.set_line_number(--pseudoMdiLineNumber);
@@ -1942,6 +1956,11 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	break;
 
     case EMC_TASK_PLAN_RUN_TYPE:
+        if (!all_homed()) {
+            emcOperatorError(0, "Can't run a program when not homed");
+            retval = -1;
+            break;
+        }
 	stepping = 0;
 	steppingWait = 0;
 	if (!taskplanopen && emcStatus->task.file[0] != 0) {
