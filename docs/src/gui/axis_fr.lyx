@@ -48,7 +48,7 @@ AXIS
 \end_inset 
 
  est une interface utilisateur graphique pour emc2, il offre un aperçu permanent
- du tracé de la pièce et du cheminement de l'outil.
+ du parcours de l'outil.
  Il est écrit en Python
 \begin_inset LatexCommand \index{Python}
 
@@ -166,7 +166,7 @@ POM
 Chargez un fichier d'usinage.
 \layout Enumerate
 
-Utilisez l'écran de tracé du chemin d'outil pour vérifier que le programme
+Utilisez l'affichage du parcours d'outil pour vérifier que le programme
  est correct.
 \layout Enumerate
 
@@ -226,8 +226,8 @@ axis.ngc
 \end_inset 
 
 .
- Plus tard, cette zone affichera le cheminement de l'outil déplacé par la
- machine CNC, cette zone est appelée le chemin d'outil (
+ Plus tard, cette zone affichera le parcours de l'outil déplacé par la machine
+ CNC, cette zone est appelée le parcours d'outil (
 \begin_inset Quotes fld
 \end_inset 
 
@@ -427,7 +427,7 @@ Arrêt d'urgence
 
 \end_inset 
 
- Exécuter le programme
+ Départ cycle
 \layout Enumerate
 
 
@@ -436,7 +436,7 @@ Arrêt d'urgence
 
 \end_inset 
 
- Exécuter un seul pas de programme
+ Cycle en pas à pas
 \layout Enumerate
 
 
@@ -575,7 +575,7 @@ P
 
 \end_inset 
 
- Rafraîchir le tracé du chemin d'outil
+ Rafraîchir le parcours d'outil
 \layout Subsection
 
 Zones d'affichage graphique du programme
@@ -694,7 +694,7 @@ Actuelle
  sera de 0.06 (2 pas) ou 0.09 (3 pas).
 \layout Subsubsection
 
-Vue du chemin d'outil
+Vue du parcours d'outil
 \begin_inset LatexCommand \index{Chemin d'outil}
 
 \end_inset 
@@ -702,8 +702,8 @@ Vue du chemin d'outil
 
 \layout Standard
 
-Quand un fichier est chargé, une vue du chemin d'outil qu'il produira est
- visible dans la zone graphique.
+Quand un fichier est chargé, une vue du parcours d'outil qu'il produira
+ est visible dans la zone graphique.
  Les mouvements en vitesse rapide (tels ceux produits par une commande 
 \family typewriter 
 G0
@@ -715,7 +715,7 @@ G0
 G1
 \family default 
 ) sont affichés en lignes continues blanches.
- Les arrêts (tels ceux produits par la commande 
+ Les arrêts temporisés (tels ceux produits par la commande 
 \family typewriter 
 G4
 \family default 
@@ -817,8 +817,8 @@ Quand la machine se déplace, elle laisse une trace appelée le tracé d'outil.
 Interaction avec l'affichage
 \layout Standard
 
-Par un clic gauche sur une portion du chemin d'outil, la ligne sous la souris
- passe en surbrillance à la fois dans le graphique et dans le texte.
+Par un clic gauche sur une portion du parcours d'outil, la ligne sous la
+ souris passe en surbrillance à la fois dans le graphique et dans le texte.
  Un clic droit dans une zone vide enlève la surbrillance.
 \layout Standard
 
@@ -2305,7 +2305,7 @@ PROGRAM_EXTENSION
  puis, spécifier le programme à exécuter pour chaque type de fichier.
  Ce programme reçoit comme argument le nom du fichier d'entrée, il doit
  produire le code selon le standard rs274ngc, en sortie.
- Les lignes de cette sortie s'affichent alors dans la zone texte, le chemin
+ Les lignes de cette sortie s'affichent alors dans la zone texte, le parcours
  d'outil résultant est visible dans la zone graphique, enfin il sera exécuté
  quand emc recevra la commande 
 \begin_inset Quotes fld
@@ -2398,7 +2398,7 @@ Les couleurs de la plupart des éléments de l'interface utilisateur d'AXIS
 \family typewriter 
 axis_light_background
 \family default 
- modifie les couleurs de la fenêtre du chemin d'outil sur le modèle 
+ modifie les couleurs de la fenêtre du parcours d'outil sur le modèle 
 \begin_inset Quotes fld
 \end_inset 
 

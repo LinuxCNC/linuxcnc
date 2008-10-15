@@ -161,8 +161,8 @@ Broche
 
 \layout Standard
 
-Un centre d'usinage est équipé d'une broche qui maintient l'outil coupant,
- la sonde de mesure et d'autres outils.
+Un centre d'usinage est équipé d'une broche qui maintient un outil coupant,
+ un palpeur ou d'autres outils.
  La broche peut tourner dans les deux sens.
  Elle peut être conçue pour tourner à vitesse constante mais réglable.
  Excepté sur les machines dont la broche est montée sur un axe rotatif,
@@ -4001,7 +4001,7 @@ Log des mesures
 Un commentaire peut aussi être utilisé pour spécifier le fichier de log
  des résultats des mesures faites avec G38.x .
  Voir la section 
-\begin_inset LatexCommand \ref{sub:G38.2:-Sonde-de-mesure}
+\begin_inset LatexCommand \ref{sub:G38.2:-Palpeur}
 
 \end_inset 
 
@@ -6060,8 +6060,8 @@ G38.x
 
 \end_inset 
 
-: Sonde de mesure
-\begin_inset LatexCommand \label{sub:G38.2:-Sonde-de-mesure}
+: Palpeur
+\begin_inset LatexCommand \label{sub:G38.2:-Palpeur}
 
 \end_inset 
 
@@ -6111,9 +6111,9 @@ G38.5
 axes
 \family default 
 \emph default 
- pour effectuer une mesure à la sonde.
+ pour effectuer une mesure au palpeur.
  Au moins un mot d'axe est obligatoire, les autres sont optionnels.
- L'outil dans la broche doit être une sonde.
+ L'outil dans la broche doit être un palpeur.
 \layout Standard
 
 C'est une erreur si:
@@ -6131,22 +6131,22 @@ La compensation de rayon d'outil est active.
 La vitesse travail est à zéro.
 \layout Itemize
 
-La sonde est déjà au contact de la cible.
+Le palpeur est déjà au contact de la cible.
 \layout Standard
 
 En réponse à cette commande, la machine déplace le point contrôlé (qui est
- la pointe de la sonde), en ligne droite, à la vitesse actuelle, vers le
- point programmé, en mode vitesse inverse du temps; la vitesse est telle,
- que le mouvement depuis le point courant jusqu'au point programmé, prendra
- le temps spécifié.
+ la pointe ou la boule du palpeur), en ligne droite, à la vitesse actuelle,
+ vers le point programmé, en mode vitesse inverse du temps; la vitesse est
+ telle, que le mouvement depuis le point courant jusqu'au point programmé,
+ prendra le temps spécifié.
  Le mouvement s'arrête lorsque le point programmé est atteint, ou quand
- l'entrée de la sonde bascule dans l'état attendu
+ l'entrée du palpeur bascule dans l'état attendu
 \begin_inset Foot
-collapsed true
+collapsed false
 
 \layout Standard
 
-En réalité, le mouvement continue légérement après que l'état de la sonde
+En réalité, le mouvement continue légérement après que l'état du palpeur
  ait basculé, à cause des contraintes d'accélération/décélération de la
  machine.
 \end_inset 
@@ -6364,7 +6364,7 @@ Non
 \layout Standard
 
 Après une mesure réussie, les paramètres 5061 à 5069 contiendront les coordonnée
-s de l'emplacement du point contrôlé lors du changement d'état de la sonde.
+s de l'emplacement du point contrôlé lors du changement d'état du palpeur.
  Après une mesure manquée, ils contiendront les coordonnées du point programmé.
  Le paramètre 5070 est mis à 1 si la mesure est réussie et à 0 si elle est
  manquée.
@@ -9996,7 +9996,7 @@ Ces codes ne sont pas définis dans RS274NGC.
 G38.2
 \layout Standard
 
-La pointe de la sonde n'est pas rétractée après un mouvement G38.2.
+La pointe du palpeur n'est pas rétractée après un mouvement G38.2.
  Ce mouvement de retrait sera peut être ajouté dans de futures versions
  d'emc2.
 \layout Subsection

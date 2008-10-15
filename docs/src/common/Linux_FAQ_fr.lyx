@@ -423,4 +423,32 @@ tous les fichiers
 \end_inset 
 
 .
+\layout Section
+
+
+Problémes matériels
+\layout Subsection
+
+
+Résolution du moniteur
+\layout Standard
+
+
+Lors de l'installation d'Ubuntu les réglages du moniteur sont détectés.
+ Il peut arriver que ça fonctionne mal et que la résolution ne soit que
+ celle d'un moniteur générique en 800x600.
+ 
+\layout Standard
+
+
+Pour résoudre ce cas, suivez les instructions données ici:
+\layout Standard
+
+
+
+\begin_inset LatexCommand \url{https://help.ubuntu.com/community/FixVideoResolutionHowto}
+
+\end_inset 
+
+
 \the_end

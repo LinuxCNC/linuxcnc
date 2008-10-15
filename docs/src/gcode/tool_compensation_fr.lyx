@@ -218,8 +218,8 @@ virtualiser
 \layout Standard
 
 Le problème est pour donner à la machine la trajectoire exacte où l'outil
- doit usiner, sur le côté intérieur d'un chemin imaginaire, ou sur le côté
- extérieur.
+ doit usiner, sur le côté intérieur d'un parcours imaginaire, ou sur le
+ côté extérieur.
  Comme ces trajectoires ne sont pas nécessairement fermées (même si elles
  peuvent l'être), il est quasiment impossible à la machine de connaître
  de quel côté du profil elle doit compenser l'outil.
@@ -281,10 +281,10 @@ collapsed false
 \layout Standard
 
 Dans les deux exemples, le triangle gris représente le matériau restant
- après usinage et la ligne extérieure représente le chemin suivi par le
+ après usinage et la ligne extérieure représente le parcours suivi par le
  centre de l'outil.
  Dans les deux cas le triangle gris est conservé.
- Le parcour de gauche (avec les coins arrondis) est le chemin généralement
+ Le parcour de gauche (avec les coins arrondis) est le parcours généralement
  interprété.
  Dans la méthode de droite (celle marquée Not this way), l'outil ne reste
  pas en contact avec les angles vifs du triangle gris.
@@ -410,7 +410,7 @@ L'interpréteur contrôle la compensation pour deux types de contour:
 
 2) Le contour donné dans le code NC correspond à la trajectoire suivie par
  le centre d'un outil de rayon nominal.
- Nous l'appellerons "contour sur le chemin d'outil".
+ Nous l'appellerons "contour sur le parcours d'outil".
 \layout Standard
 
 L'interpréteur ne dispose d'aucun paramètre pour déterminer quel type de
@@ -484,16 +484,16 @@ Avec ce programme, l'outil suit cette trajectoire: un mouvement d'entrée,
  programmés, ils sont générés automatiquement.
 \layout Subsubsection*
 
-Contour sur le chemin d'outil
+Contour sur le parcours d'outil
 \layout Standard
 
-Lorsque le contour est sur le chemin d'outil, la trajectoire décrite dans
- le programme correspond au chemin que devra suivre le centre de l'outil.
+Lorsque le contour est sur le parcours d'outil, la trajectoire décrite dans
+ le programme correspond au parcours que devra suivre le centre de l'outil.
  Le bord de l'outil, à un rayon de là, (excepté durant les mouvements d'entrée)
  suivra la géométrie de la pièce.
  La trajectoire peut être créée manuellement ou par un post-processeur,
  selon la pièce qui doit être réalisée.
- Pour l'interpréteur, le chemin d'outil doit être tel que le bord de l'outil
+ Pour l'interpréteur, le parcours d'outil doit être tel que le bord de l'outil
  reste en contact avec la géométrie de la pièce, comme montré à gauche de
  la figure 7.
  Si une trajectoire du genre de celle montrée sur la droite de la figure
@@ -502,7 +502,7 @@ Lorsque le contour est sur le chemin d'outil, la trajectoire décrite dans
 ent si un outil en dessous de son diamètre nominal est utilisé.
 \layout Standard
 
-Pour un contour sur le chemin d'outil, la valeur pour le diamètre de l'outil
+Pour un contour sur le parcours d'outil, la valeur pour le diamètre de l'outil
  dans la table d'outils devra être un petit nombre positif si l'outil sélectionn
 é est légérement surdimensionné.
  La valeur du diamètre sera un petit nombre négatif si l'outil est légérement
@@ -513,11 +513,12 @@ Pour un contour sur le chemin d'outil, la valeur pour le diamètre de l'outil
  d'outil doit être à zéro.
 \layout Standard
 
-Exemple de contour sur le chemin d'outil
+Exemple de contour sur le parcours d'outil
 \layout Standard
 
 Supposons que le diamètre de l'outil courant monté dans la broche est de
- 0.97 et le diamètre utilisé en générant le chemin d'outil a été de 1.0 .
+ 0.97 et le diamètre utilisé en générant le parcours d'outil a été de 1.0
+ .
  Alors la valeur de diamètre dans la table d'outils pour cet outil est de
  -0.03.
  Voici un programme NC qui va usiner l'extérieur d'un triangle de la figure
@@ -533,13 +534,13 @@ N0020 G41 G1 Y3.5 (active la compensation et premier mouvement d'entrée)
 \newline 
 N0030 G3 X2 Y2.5 I1 (deuxième mouvement d'entrée)
 \newline 
-N0040 G2 X2.5 Y2 J-0.5 (usinage le long de l'arc en haut du chemin d'outil)
+N0040 G2 X2.5 Y2 J-0.5 (usinage le long de l'arc en haut du parcours d'outil)
 \newline 
-N0050 G1 Y-1 (usinage le long du côté droit du chemin d'outil)
+N0050 G1 Y-1 (usinage le long du côté droit du parcours d'outil)
 \newline 
 N0060 G2 X2 Y-1.5 I-0.5 (usinage de l'arc en bas à droite)
 \newline 
-N0070 G1 X-2 (usinage de la base du chemin d'outil)
+N0070 G1 X-2 (usinage de la base du parcours d'outil)
 \newline 
 N0080 G2 X-2.3 Y-0.6 J0.5 (usinage de l'arc en bas à gauche)
 \newline 
@@ -552,8 +553,8 @@ N0110 G40 (désactive la compensation)
 
 Avec ce programme, l'outil suit cette trajectoire: un mouvement d'alignement,
  deux mouvements d'entrée, puis il suit une trajectoire légérement intérieure
- au chemin d'outil montré sur la figure 7 en tournant en sens horaire autour
- de la pièce.
+ au parcours d'outil montré sur la figure 7 en tournant en sens horaire
+ autour de la pièce.
  Cette compensation est à droite de la trajectoire programmée, même si c'est
  G41 qui est programmé, en raison de la valeur négative du diamètre.
 \layout Subsubsection*
@@ -689,7 +690,7 @@ En particulier, l'interpréteur traite les coins concaves et les arcs concaves
  maintenu tangent avec le contour dans ces situations.
  Cette détection de défaut, ne limite pas les formes qui peuvent être usinées,
  mais elle requiert que le programmeur précise la forme exacte à usiner
- (ou le chemin d'outil qui doit être suivi) et non une approximation.
+ (ou le parcours d'outil qui doit être suivi) et non une approximation.
  A cet égart, l'interpréteur utilisé par EMC diffère des interpréteurs utilisés
  dans beaucoup d'autres contrôleurs, qui passent ces erreurs sous silence
  et laissent l'outil interférer avec la partie finie de la pièce (gouging)
@@ -818,7 +819,7 @@ n de rayon d'outil, mais leur utilisation serait vraiment très inhabituelle.
 
 Après les mouvements d'entrée en compensation de rayon d'outil, l'interpréteur
  maintiendra l'outil tangeant au contour programmé et du côté approprié.
- Si un angle aigü se trouve dans le chemin, un arc est inséré pour tourner
+ Si un angle aigü se trouve dans le parcours, un arc est inséré pour tourner
  autour de l'angle.
  Le rayon de cet arc sera de la moitiè du diamètre de l'outil donné dans
  la table d'outils.
@@ -928,11 +929,11 @@ collapsed false
 
 Dans cet exemple, l'arc AB et la ligne BC sont très larges, ce n'est pas
  nécessaire.
- Pour un contour sur chemin d'outil, le rayon de l'arc AB demande juste
+ Pour un contour sur parcours d'outil, le rayon de l'arc AB demande juste
  à être légérement plus grand que la variation maximale du rayon de l'outil
  par rapport à son rayon nominal.
- Egalement, pour un contour sur chemin d'outil, le côté choisi pour la compensat
-ion doit être celui utilisé si l'outil est surdimensionné.
+ Egalement, pour un contour sur parcours d'outil, le côté choisi pour la
+ compensation doit être celui utilisé si l'outil est surdimensionné.
  Comme mentionné précédemment, si l'outil est sousdimensionné, l'interpréteur
  basculera de l'autre côté.
 \layout Subsubsection*
@@ -981,8 +982,8 @@ N0010 G41 G1 X2 Y2 (active la compensation et fait le mouvement d'entrée)
  
 \layout Standard
 
-Cette méthode fonctionnera également avec avec un angle aigü sur un contour
- sur chemin d'outil, si l'outil est surdimensionné, mais elle échouera si
+Cette méthode fonctionnera également avec un angle aigü sur un contour sur
+ parcours d'outil, si l'outil est surdimensionné, mais elle échouera si
  il est sousdimensionné.
 \end_inset 
 
