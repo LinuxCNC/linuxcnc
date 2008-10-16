@@ -209,12 +209,14 @@ void refresh_jog_limits(emcmot_joint_t *joint)
 }
 
 /* inRange() returns non-zero if the position lies within the joint
-   limits, or 0 if not */
-static int inRange(EmcPose pos)
+   limits, or 0 if not.  It also reports an error for each joint limit
+   violation.  It's possible to get more than one violation per move. */
+static int inRange(EmcPose pos, int id, char *move_type)
 {
     double joint_pos[EMCMOT_MAX_JOINTS];
     int joint_num;
     emcmot_joint_t *joint;
+    int in_range = 1;
 
     /* fill in all joints with 0 */
     for (joint_num = 0; joint_num < num_joints; joint_num++) {
@@ -232,14 +234,27 @@ static int inRange(EmcPose pos)
 	    /* if joint is not active, don't even look at its limits */
 	    continue;
 	}
-	if ((joint_pos[joint_num] > joint->max_pos_limit) ||
-	    (joint_pos[joint_num] < joint->min_pos_limit)) {
-	    return 0;		/* can't move further past limit */
+	if (joint_pos[joint_num] > joint->max_pos_limit) {
+            in_range = 0;
+            if (id > 0)
+                reportError("%s move on line %d would exceed joint %d's positive limit",
+                            move_type, id, joint_num);
+            else
+                reportError("%s move in MDI would exceed joint %d's positive limit",
+                            move_type, joint_num);
+        }
+
+        if (joint_pos[joint_num] < joint->min_pos_limit) {
+	    in_range = 0;
+            if (id > 0)
+                reportError("%s move on line %d would exceed joint %d's negative limit",
+                            move_type, id, joint_num);
+            else
+                reportError("%s move in MDI would exceed joint %d's negative limit",
+                            move_type, joint_num);
 	}
     }
-
-    /* okay to move */
-    return 1;
+    return in_range;
 }
 
 /* clearHomes() will clear the homed flags for joints that have moved
@@ -835,12 +850,7 @@ check_stuff ( "before command_handler()" );
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_COMMAND;
 		SET_MOTION_ERROR_FLAG(1);
 		break;
-	    } else if (!inRange(emcmotCommand->pos)) {
-		if(emcmotCommand->id > 0)
-		    reportError("linear move on line %d would exceed limits",
-			    emcmotCommand->id);
-		else
-		    reportError("linear move in MDI would exceed limits");
+	    } else if (!inRange(emcmotCommand->pos, emcmotCommand->id, "Linear")) {
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_PARAMS;
 		tpAbort(&emcmotDebug->queue);
 		SET_MOTION_ERROR_FLAG(1);
@@ -880,12 +890,7 @@ check_stuff ( "before command_handler()" );
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_COMMAND;
 		SET_MOTION_ERROR_FLAG(1);
 		break;
-	    } else if (!inRange(emcmotCommand->pos)) {
-		if(emcmotCommand->id > 0)
-		    reportError("circular move on line %d would exceed limits",
-			emcmotCommand->id);
-		else
-		    reportError("circular move in MDI would exceed limits");
+	    } else if (!inRange(emcmotCommand->pos, emcmotCommand->id, "Circular")) {
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_PARAMS;
 		tpAbort(&emcmotDebug->queue);
 		SET_MOTION_ERROR_FLAG(1);
@@ -1288,12 +1293,7 @@ check_stuff ( "before command_handler()" );
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_COMMAND;
 		SET_MOTION_ERROR_FLAG(1);
 		break;
-	    } else if (!inRange(emcmotCommand->pos)) {
-		if(emcmotCommand->id > 0)
-		    reportError("probe move on line %d would exceed limits",
-			    emcmotCommand->id);
-		else
-		    reportError("probe move in MDI would exceed limits");
+	    } else if (!inRange(emcmotCommand->pos, emcmotCommand->id, "Probe")) {
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_PARAMS;
 		tpAbort(&emcmotDebug->queue);
 		SET_MOTION_ERROR_FLAG(1);
@@ -1355,12 +1355,7 @@ check_stuff ( "before command_handler()" );
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_COMMAND;
 		SET_MOTION_ERROR_FLAG(1);
 		break;
-	    } else if (!inRange(emcmotCommand->pos)) {
-		if(emcmotCommand->id > 0)
-		    reportError("rigid tap move on line %d would exceed limits",
-			    emcmotCommand->id);
-		else
-		    reportError("rigid tap move in MDI would exceed limits");
+	    } else if (!inRange(emcmotCommand->pos, emcmotCommand->id, "Rigid tap")) {
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_PARAMS;
 		tpAbort(&emcmotDebug->queue);
 		SET_MOTION_ERROR_FLAG(1);
