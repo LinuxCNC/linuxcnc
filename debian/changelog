@@ -8,6 +8,7 @@ emc2 (1:2.2.7~cvs) hardy; urgency=low
   * comp: fix bad C code generated from variable array declarations such as
     'variable double output[8];'
   * documentation improvments
+  * axis: "touch off" of rotary axis on metric machine
 
  -- Jeff Epler <jepler@unpythonic.net>  Tue, 23 Sep 2008 20:21:40 -0500
 

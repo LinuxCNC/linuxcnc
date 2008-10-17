@@ -2793,10 +2793,11 @@ class TclCommands(nf.TclCommands):
         pos = to_internal_units(pos)
         p0 = pos[offset_axis]
 
-        if vars.metric.get(): scale = 1/25.4
+        linear_axis = vars.current_axis.get() in "xyzuvw"
+        if linear_axis and vars.metric.get(): scale = 1/25.4
         else: scale = 1
 
-        if 210 in s.gcodes:
+        if linear_axis and 210 in s.gcodes:
             scale *= 25.4
             p0 *= 25.4
 
