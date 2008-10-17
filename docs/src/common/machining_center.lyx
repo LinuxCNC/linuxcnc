@@ -906,7 +906,7 @@ Sample Tool File (mill format)
 
 
 \layout Standard
-
+\align center 
 
 \begin_inset  Tabular
 <lyxtabular version="3" rows="6" columns="5">
@@ -1293,7 +1293,7 @@ Sample Tool File (lathe format)
 
 
 \layout Standard
-
+\align center 
 
 \begin_inset  Tabular
 <lyxtabular version="3" rows="4" columns="9">
@@ -1646,7 +1646,7 @@ Tool Orientations
 
 
 \layout Standard
-
+\align center 
 
 \begin_inset Graphics
 	filename lathe_tool.png
