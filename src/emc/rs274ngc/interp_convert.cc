@@ -2589,14 +2589,16 @@ int Interp::convert_setup_tool(block_pointer block, setup_pointer settings) {
 
     is_near_int(&toolnum, block->p_number);
 
-    if(block->r_flag) settings->tool_table[toolnum].diameter = PROGRAM_TO_USER_LEN(block->r_number) * 2.;
-    if(block->z_flag) settings->tool_table[toolnum].zoffset = PROGRAM_TO_USER_LEN(block->z_number);
     if(block->q_number != -1.0) {
         CHKS((!is_near_int(&q, block->q_number)), "Q number in G10 is not an integer");
+        CHKS((block->x_flag && q == 0), "Cannot have an X tool offset with orientation 0");
+        CHKS((q > 9), "Invalid tool orientation");
         settings->tool_table[toolnum].orientation = q;
     }
-
     CHKS((block->x_flag && !settings->tool_table[toolnum].orientation), "Cannot have an X tool offset with orientation 0");
+
+    if(block->r_flag) settings->tool_table[toolnum].diameter = PROGRAM_TO_USER_LEN(block->r_number) * 2.;
+    if(block->z_flag) settings->tool_table[toolnum].zoffset = PROGRAM_TO_USER_LEN(block->z_number);
     if(block->x_flag) settings->tool_table[toolnum].xoffset = PROGRAM_TO_USER_LEN(block->x_number);
 
     if(settings->tool_table[toolnum].orientation) 
