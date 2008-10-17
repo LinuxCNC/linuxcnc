@@ -2597,6 +2597,8 @@ int Interp::convert_setup_tool(block_pointer block, setup_pointer settings) {
     }
     CHKS((block->x_flag && !settings->tool_table[toolnum].orientation), "Cannot have an X tool offset with orientation 0");
 
+    settings->tool_table[toolnum].id = toolnum;
+
     if(block->r_flag) settings->tool_table[toolnum].diameter = PROGRAM_TO_USER_LEN(block->r_number) * 2.;
     if(block->z_flag) settings->tool_table[toolnum].zoffset = PROGRAM_TO_USER_LEN(block->z_number);
     if(block->x_flag) settings->tool_table[toolnum].xoffset = PROGRAM_TO_USER_LEN(block->x_number);
