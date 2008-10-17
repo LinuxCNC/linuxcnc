@@ -1489,9 +1489,13 @@ class EMC_TOOL_SET_OFFSET:public EMC_TOOL_CMD_MSG {
     // For internal NML/CMS use only.
     void update(CMS * cms);
 
-    int tool;
-    double length;
+    int    id;
+    double zoffset;
+    double xoffset;
     double diameter;
+    double frontangle;
+    double backangle;
+    int    orientation;
 };
 
 // EMC_TOOL status base class

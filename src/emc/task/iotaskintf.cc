@@ -399,13 +399,19 @@ int emcToolLoadToolTable(const char *file)
     return 0;
 }
 
-int emcToolSetOffset(int tool, double length, double diameter)
+int emcToolSetOffset(int id, double zoffset, double xoffset, 
+                     double diameter, double frontangle, double backangle,
+                     int orientation)
 {
     EMC_TOOL_SET_OFFSET toolSetOffsetMsg;
 
-    toolSetOffsetMsg.tool = tool;
-    toolSetOffsetMsg.length = length;
-    toolSetOffsetMsg.diameter = diameter;
+    toolSetOffsetMsg.id = id;                  
+    toolSetOffsetMsg.zoffset = zoffset;        
+    toolSetOffsetMsg.xoffset = xoffset;        
+    toolSetOffsetMsg.diameter = diameter;      
+    toolSetOffsetMsg.frontangle = frontangle;  
+    toolSetOffsetMsg.backangle = backangle;    
+    toolSetOffsetMsg.orientation = orientation;
 
     sendCommand(&toolSetOffsetMsg);
 

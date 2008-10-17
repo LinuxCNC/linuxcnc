@@ -515,7 +515,9 @@ extern int emcToolPrepare(int tool);
 extern int emcToolLoad();
 extern int emcToolUnload();
 extern int emcToolLoadToolTable(const char *file);
-extern int emcToolSetOffset(int tool, double length, double diameter);
+extern int emcToolSetOffset(int id, double zoffset, double xoffset,
+                            double diameter, double frontangle,
+                            double backangle, int orientation);
 
 extern int emcToolSetToolTableFile(const char *file);
 

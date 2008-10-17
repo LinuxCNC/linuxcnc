@@ -162,8 +162,8 @@ struct CANON_POSITION {
 
 struct CANON_TOOL_TABLE {
     int id;
-    double xoffset;
     double zoffset;
+    double xoffset;
     double diameter;
     double frontangle;
     double backangle;

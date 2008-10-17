@@ -385,9 +385,14 @@ static int saveToolTable(const char *filename,
     int pocket;
     FILE *fp;
     const char *name;
+    int lathe_style = 0;
 
-    fprintf(stderr,"I thought saveToolTable wasn't used.  Please report.\n");
-    return 0;
+    for(pocket=1; pocket <= CANON_TOOL_MAX; pocket++) {
+        if(toolTable[pocket].orientation != 0) {
+            lathe_style = 1;
+            break;
+        }
+    }
 
     // check filename
     if (filename[0] == 0) {
@@ -402,19 +407,30 @@ static int saveToolTable(const char *filename,
 	// can't open file
 	return -1;
     }
-    // write header
-    fprintf(fp, "POC\tFMS\tLEN\t\tDIAM\n");
 
-    for (pocket = 1; pocket <= CANON_TOOL_MAX; pocket++) {
-	fprintf(fp, "%d\t%d\t%f\t%f\n",
-		pocket,
-		toolTable[pocket].id,
-		toolTable[pocket].zoffset, toolTable[pocket].diameter);
+    if(lathe_style) {
+        fprintf(fp, "POCKET\tFMS\tZOFFSET\tXOFFSET\tDIA\tFRONT\tBACK\tORIENT\n\n");
+        for (pocket = 1; pocket <= CANON_TOOL_MAX; pocket++) {
+            if (toolTable[pocket].id)
+                fprintf(fp, "%d\t%d\t%f\t%f\t%f\t%f\t%f\t%d\n",
+                        pocket,
+                        toolTable[pocket].id,
+                        toolTable[pocket].zoffset, toolTable[pocket].xoffset, toolTable[pocket].diameter,
+                        toolTable[pocket].frontangle, toolTable[pocket].backangle, 
+                        toolTable[pocket].orientation);
+        }
+    } else {
+        fprintf(fp, "POCKET\tFMS\tLENGTH\tDIA\n\n");
+        for (pocket = 1; pocket <= CANON_TOOL_MAX; pocket++) {
+            if (toolTable[pocket].id)
+                fprintf(fp, "%d\t%d\t%f\t%f\n",
+                        pocket,
+                        toolTable[pocket].id,
+                        toolTable[pocket].zoffset, toolTable[pocket].diameter);
+        }
     }
 
-    // close the file
     fclose(fp);
-
     return 0;
 }
 
@@ -911,17 +927,32 @@ int main(int argc, char *argv[])
 		emcioStatus.status = RCS_ERROR;
 	    break;
 
-	case EMC_TOOL_SET_OFFSET_TYPE:
-	    rtapi_print_msg(RTAPI_MSG_DBG,
-			    "EMC_TOOL_SET_OFFSET length=%lf diameter=%lf\n",
-			    ((EMC_TOOL_SET_OFFSET *) emcioCommand)->length,
-			    ((EMC_TOOL_SET_OFFSET *) emcioCommand)->diameter);
-	    emcioStatus.tool.
-		toolTable[((EMC_TOOL_SET_OFFSET *) emcioCommand)->tool].
-		zoffset = ((EMC_TOOL_SET_OFFSET *) emcioCommand)->length;
-	    emcioStatus.tool.
-		toolTable[((EMC_TOOL_SET_OFFSET *) emcioCommand)->tool].
-		diameter = ((EMC_TOOL_SET_OFFSET *) emcioCommand)->diameter;
+	case EMC_TOOL_SET_OFFSET_TYPE: 
+            {
+                int i, o;
+                double z, x, d, f, b;
+
+                i = ((EMC_TOOL_SET_OFFSET *) emcioCommand)->id;
+                z = ((EMC_TOOL_SET_OFFSET *) emcioCommand)->zoffset;
+                x = ((EMC_TOOL_SET_OFFSET *) emcioCommand)->xoffset;
+                d = ((EMC_TOOL_SET_OFFSET *) emcioCommand)->diameter;
+                f = ((EMC_TOOL_SET_OFFSET *) emcioCommand)->frontangle;
+                b = ((EMC_TOOL_SET_OFFSET *) emcioCommand)->backangle;
+                o = ((EMC_TOOL_SET_OFFSET *) emcioCommand)->orientation;
+
+                rtapi_print_msg(RTAPI_MSG_DBG,
+                                "EMC_TOOL_SET_OFFSET id=%d zoffset=%lf, xoffset=%lf, diameter=%lf,"
+                                " frontangle=%lf, backangle=%lf, orientation=%d\n",
+                                i, z, x, d, f, b, o);
+
+                emcioStatus.tool.toolTable[i].id = i;
+                emcioStatus.tool.toolTable[i].zoffset = z;
+                emcioStatus.tool.toolTable[i].xoffset = x;
+                emcioStatus.tool.toolTable[i].diameter = d;
+                emcioStatus.tool.toolTable[i].frontangle = f;
+                emcioStatus.tool.toolTable[i].backangle = b;
+                emcioStatus.tool.toolTable[i].orientation = o;
+            }
 	    if (0 != saveToolTable(TOOL_TABLE_FILE, emcioStatus.tool.toolTable))
 		emcioStatus.status = RCS_ERROR;
 	    break;

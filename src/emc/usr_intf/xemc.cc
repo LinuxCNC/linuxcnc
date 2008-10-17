@@ -752,13 +752,15 @@ static int sendMdi()
   return 0;
 }
 
-static int sendToolSetOffset(int tool, double length, double diameter)
+static int sendToolSetOffset(int id, double zoffset, double diameter)
 {
   EMC_TOOL_SET_OFFSET emc_tool_set_offset_msg;
 
-  emc_tool_set_offset_msg.tool = tool;
-  emc_tool_set_offset_msg.length = length;
+  emc_tool_set_offset_msg.id = id;
+  emc_tool_set_offset_msg.zoffset = zoffset;
   emc_tool_set_offset_msg.diameter = diameter;
+  emc_tool_set_offset_msg.orientation = 0; // mill style tool table
+
   emc_tool_set_offset_msg.serial_number = ++emcCommandSerialNumber;
   emcCommandBuffer->write(emc_tool_set_offset_msg);
 

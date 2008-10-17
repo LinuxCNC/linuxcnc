@@ -1823,9 +1823,13 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 
     case EMC_TOOL_SET_OFFSET_TYPE:
 	emc_tool_set_offset_msg = (EMC_TOOL_SET_OFFSET *) cmd;
-	retval = emcToolSetOffset(emc_tool_set_offset_msg->tool,
-				  emc_tool_set_offset_msg->length,
-				  emc_tool_set_offset_msg->diameter);
+	retval = emcToolSetOffset(emc_tool_set_offset_msg->id,
+                                  emc_tool_set_offset_msg->zoffset,
+                                  emc_tool_set_offset_msg->xoffset,
+                                  emc_tool_set_offset_msg->diameter,
+                                  emc_tool_set_offset_msg->frontangle,
+                                  emc_tool_set_offset_msg->backangle,
+                                  emc_tool_set_offset_msg->orientation);
 	break;
 
 	// task commands

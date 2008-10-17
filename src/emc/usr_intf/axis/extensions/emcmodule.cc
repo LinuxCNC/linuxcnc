@@ -876,7 +876,9 @@ static PyObject *state(pyCommandChannel *s, PyObject *o) {
 
 static PyObject *tool_offset(pyCommandChannel *s, PyObject *o) {
     EMC_TOOL_SET_OFFSET m;
-    if(!PyArg_ParseTuple(o, "idd", &m.tool, &m.length, &m.diameter)) return NULL;
+    if(!PyArg_ParseTuple(o, "idddddi", &m.id, &m.zoffset, &m.xoffset, &m.diameter, 
+                         &m.frontangle, &m.backangle, &m.orientation)) 
+        return NULL;
     m.serial_number = next_serial(s);
     s->c->write(m);
     emcWaitCommandReceived(s->serial, s->s);

@@ -1416,10 +1416,13 @@ void EMC_TOOL_SET_OFFSET::update(CMS * cms)
 {
 
     EMC_TOOL_CMD_MSG::update(cms);
-    cms->update(tool);
-    cms->update(length);
+    cms->update(id);
+    cms->update(zoffset);
+    cms->update(xoffset);
     cms->update(diameter);
-
+    cms->update(frontangle);
+    cms->update(backangle);
+    cms->update(orientation);
 }
 
 /*
