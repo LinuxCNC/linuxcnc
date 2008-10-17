@@ -265,6 +265,7 @@ private:
  int convert_probe(block_pointer block, int g_code, setup_pointer settings);
  int convert_retract_mode(int g_code, setup_pointer settings);
  int convert_setup(block_pointer block, setup_pointer settings);
+ int convert_setup_tool(block_pointer block, setup_pointer settings);
  int convert_set_plane(int g_code, setup_pointer settings);
  int convert_speed(block_pointer block, setup_pointer settings);
      int convert_spindle_mode(block_pointer block, setup_pointer settings);

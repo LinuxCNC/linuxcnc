@@ -1576,26 +1576,28 @@ void USE_NO_SPINDLE_FORCE(void)
 
 /* Tool Functions */
 
+/* this is called with distances in external (machine) units */
 void SET_TOOL_TABLE_ENTRY(int id, double zoffset, double xoffset, double diameter,
                           double frontangle, double backangle, int orientation) {
     EMC_TOOL_SET_OFFSET o;
     flush_segments();
     o.id = id;
-    o.zoffset = TO_EXT_LEN(FROM_PROG_LEN(zoffset));
-    o.xoffset = TO_EXT_LEN(FROM_PROG_LEN(xoffset));
-    o.diameter = TO_EXT_LEN(FROM_PROG_LEN(diameter));
+    o.zoffset = zoffset;
+    o.xoffset = xoffset;
+    o.diameter = diameter;
     o.frontangle = frontangle;
     o.backangle = backangle;
     o.orientation = orientation;
     interp_list.append(o);
 }
 
+/* this is called with distances in external (machine) units */
 void SET_TOOL_TABLE_ENTRY(int id, double zoffset, double diameter) {
     EMC_TOOL_SET_OFFSET o;
     flush_segments();
     o.id = id;
-    o.zoffset = TO_EXT_LEN(FROM_PROG_LEN(zoffset));
-    o.diameter = TO_EXT_LEN(FROM_PROG_LEN(diameter));
+    o.zoffset = zoffset;
+    o.diameter = diameter;
     o.orientation = 0;
     interp_list.append(o);
 }
@@ -2135,15 +2137,14 @@ void CANON_ERROR(const char *fmt, ...)
   Returns the tool table structure associated with pocket. Note that
   pocket can run from 0 (by definition, no tool), to pocket CANON_TOOL_MAX - 1.
 
-  The value from emc status is in user units. We need to convert these
-  to interpreter units, by calling FROM_EXT_LEN() to get them to mm, and
-  then switching on lengthUnits.
+  Tool table is always in machine units.
+
   */
 CANON_TOOL_TABLE GET_EXTERNAL_TOOL_TABLE(int pocket)
 {
     CANON_TOOL_TABLE retval;
 
-    if (pocket < 0 || pocket >= CANON_TOOL_MAX) {
+    if (pocket < 1 || pocket >= CANON_TOOL_MAX) {
 	retval.id = 0;
         retval.xoffset = 0.0;
 	retval.zoffset = 0.0;
@@ -2153,12 +2154,6 @@ CANON_TOOL_TABLE GET_EXTERNAL_TOOL_TABLE(int pocket)
         retval.orientation = 0;
     } else {
 	retval = emcStatus->io.tool.toolTable[pocket];
-
-	// convert from user to program units
-        retval.xoffset = retval.xoffset;
-	retval.zoffset = retval.zoffset;
-	retval.diameter = retval.diameter;
-        // leave the angles alone
     }
 
     return retval;

@@ -88,10 +88,10 @@ int Interp::check_g_codes(block_pointer block,   //!< pointer to a block to be c
     CHK((block->p_number == -1.0), NCE_DWELL_TIME_MISSING_WITH_G4);
   } else if (mode0 == G_10) {
     p_int = (int) (block->p_number + 0.0001);
-    CHK((block->l_number != 2), NCE_LINE_WITH_G10_DOES_NOT_HAVE_L2);
-    CHK((((block->p_number + 0.0001) - p_int) > 0.0002),
-        NCE_P_VALUE_NOT_AN_INTEGER_WITH_G10_L2);
-    CHK(((p_int < 1) || (p_int > 9)), NCE_P_VALUE_OUT_OF_RANGE_WITH_G10_L2);
+    CHKS((block->l_number != 2 && block->l_number != 1), "Line with G10 does not have L1 or L2");
+    CHKS((((block->p_number + 0.0001) - p_int) > 0.0002),  "P value not an integer with G10");
+    CHKS(((block->l_number == 2 && ((p_int < 1) || (p_int > 9)))), "P value out of range with G10 L2");
+    CHKS(((block->l_number == 1 && ((p_int < 1) || (p_int > CANON_TOOL_MAX)))), "P value out of range with G10 L1");
   } else if (mode0 == G_28) {
   } else if (mode0 == G_30) {
   } else if (mode0 == G_28_1 || mode0 == G_30_1) {
@@ -232,7 +232,6 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
   int motion;
 
   motion = block->motion_to_be;
-#ifndef LATHE
   if (block->a_flag != OFF) {
     CHK(((block->g_modes[1] > G_80) && (block->g_modes[1] < G_90)),
         NCE_CANNOT_PUT_AN_A_IN_CANNED_CYCLE);
@@ -245,10 +244,6 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
     CHK(((block->g_modes[1] > G_80) && (block->g_modes[1] < G_90)),
         NCE_CANNOT_PUT_A_C_IN_CANNED_CYCLE);
   }
-#else
-  CHK(((block->g_modes[1] > G_80) && (block->g_modes[1] < G_90)),
-	NCE_CANNED_CYCLES_NOT_SUPPORTED);
-#endif
   if (block->d_flag == ON) {
     CHKS(((block->g_modes[7] != G_41) && (block->g_modes[7] != G_42) &&
         (block->g_modes[7] != G_41_1) && (block->g_modes[7] != G_42_1) &&
@@ -325,9 +320,9 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
   }
 
   if (block->q_number != -1.0) {
-      CHK((motion != G_83) && (motion != G_73) && (block->user_m != 1) && (motion != G_76) &&
-	    (block->m_modes[5] != 66), 
-            NCE_Q_WORD_WITH_NO_G83_OR_M66);
+      CHKS((motion != G_83) && (motion != G_73) && (block->user_m != 1) && (motion != G_76) &&
+          (block->m_modes[5] != 66) && (block->g_modes[0] != G_10), 
+          "Q word with no g code that uses it");
   }
 
   if (block->e_flag == ON) {
@@ -337,7 +332,8 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
   if (block->r_flag == ON) {
     CHK(((motion != G_2) && (motion != G_3) && (motion != G_76) &&
          ((motion < G_81) || (motion > G_89)) && (motion != G_73) && 
-         (block->g_modes[7] != G_41_1) && (block->g_modes[7] != G_42_1)),
+         (block->g_modes[7] != G_41_1) && (block->g_modes[7] != G_42_1) &&
+         (block->g_modes[0] != G_10)),
         NCE_R_WORD_WITH_NO_G_CODE_THAT_USES_IT);
   }
 

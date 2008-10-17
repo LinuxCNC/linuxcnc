@@ -2381,7 +2381,10 @@ int Interp::convert_modal_0(int code,    //!< G code, must be from group 0
   int status;
 
   if (code == G_10) {
-    CHP(convert_setup(block, settings));
+      if(block->l_number == 1)
+          CHP(convert_setup_tool(block, settings));
+      else
+          CHP(convert_setup(block, settings));
   } else if ((code == G_28) || (code == G_30)) {
     CHP(convert_home(code, block, settings));
   } else if ((code == G_28_1) || (code == G_30_1)) {
@@ -2575,6 +2578,41 @@ int Interp::convert_retract_mode(int g_code,     //!< g_code being executed (mus
   } else
     ERM(NCE_BUG_CODE_NOT_G98_OR_G99);
   return INTERP_OK;
+}
+
+// G10 L1 P[tool number] R[radius] X[x offset] Z[z offset] Q[orientation]
+
+int Interp::convert_setup_tool(block_pointer block, setup_pointer settings) {
+    static char name[] = "convert_setup_tool";
+    int toolnum;
+    int q;
+
+    is_near_int(&toolnum, block->p_number);
+
+    if(block->r_flag) settings->tool_table[toolnum].diameter = PROGRAM_TO_USER_LEN(block->r_number) * 2.;
+    if(block->z_flag) settings->tool_table[toolnum].zoffset = PROGRAM_TO_USER_LEN(block->z_number);
+    if(block->q_number != -1.0) {
+        CHKS((!is_near_int(&q, block->q_number)), "Q number in G10 is not an integer");
+        settings->tool_table[toolnum].orientation = q;
+    }
+
+    CHKS((block->x_flag && !settings->tool_table[toolnum].orientation), "Cannot have an X tool offset with orientation 0");
+    if(block->x_flag) settings->tool_table[toolnum].xoffset = PROGRAM_TO_USER_LEN(block->x_number);
+
+    if(settings->tool_table[toolnum].orientation) 
+        SET_TOOL_TABLE_ENTRY(settings->tool_table[toolnum].id,
+                             settings->tool_table[toolnum].zoffset,
+                             settings->tool_table[toolnum].xoffset,
+                             settings->tool_table[toolnum].diameter,
+                             settings->tool_table[toolnum].frontangle,
+                             settings->tool_table[toolnum].backangle,
+                             settings->tool_table[toolnum].orientation);
+    else
+        SET_TOOL_TABLE_ENTRY(settings->tool_table[toolnum].id,
+                             settings->tool_table[toolnum].zoffset,
+                             settings->tool_table[toolnum].diameter);
+        
+    return INTERP_OK;
 }
 
 /****************************************************************************/
