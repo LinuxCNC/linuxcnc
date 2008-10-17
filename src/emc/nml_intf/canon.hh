@@ -483,6 +483,9 @@ extern void USE_SPINDLE_FORCE();
 extern void USE_NO_SPINDLE_FORCE();
 
 /* Tool Functions */
+extern void SET_TOOL_TABLE_ENTRY(int id, double zoffset, double diameter);
+extern void SET_TOOL_TABLE_ENTRY(int id, double zoffset, double xoffset, double diameter,
+                                 double frontangle, double backangle, int orientation);
 extern void USE_TOOL_LENGTH_OFFSET(double xoffset, double zoffset, double woffset);
 
 extern void CHANGE_TOOL(int slot);	/* slot is slot number */

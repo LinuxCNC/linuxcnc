@@ -1576,6 +1576,30 @@ void USE_NO_SPINDLE_FORCE(void)
 
 /* Tool Functions */
 
+void SET_TOOL_TABLE_ENTRY(int id, double zoffset, double xoffset, double diameter,
+                          double frontangle, double backangle, int orientation) {
+    EMC_TOOL_SET_OFFSET o;
+    flush_segments();
+    o.id = id;
+    o.zoffset = TO_EXT_LEN(FROM_PROG_LEN(zoffset));
+    o.xoffset = TO_EXT_LEN(FROM_PROG_LEN(xoffset));
+    o.diameter = TO_EXT_LEN(FROM_PROG_LEN(diameter));
+    o.frontangle = frontangle;
+    o.backangle = backangle;
+    o.orientation = orientation;
+    interp_list.append(o);
+}
+
+void SET_TOOL_TABLE_ENTRY(int id, double zoffset, double diameter) {
+    EMC_TOOL_SET_OFFSET o;
+    flush_segments();
+    o.id = id;
+    o.zoffset = TO_EXT_LEN(FROM_PROG_LEN(zoffset));
+    o.diameter = TO_EXT_LEN(FROM_PROG_LEN(diameter));
+    o.orientation = 0;
+    interp_list.append(o);
+}
+
 /*
   EMC has no tool length offset. To implement it, we save it here,
   and apply it when necessary

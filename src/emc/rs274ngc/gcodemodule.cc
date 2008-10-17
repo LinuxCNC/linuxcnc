@@ -346,6 +346,13 @@ void COMMENT(char *comment) {
     Py_XDECREF(result);
 }
 
+void SET_TOOL_TABLE_ENTRY(int id, double zoffset, double xoffset, double diameter,
+                          double frontangle, double backangle, int orientation) {
+}
+
+void SET_TOOL_TABLE_ENTRY(int id, double zoffset, double diameter) {
+}
+
 void USE_TOOL_LENGTH_OFFSET(double xoffset, double zoffset, double woffset) {
     tool_zoffset = zoffset; tool_xoffset = xoffset; tool_woffset = woffset;
     maybe_new_line();

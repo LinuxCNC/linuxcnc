@@ -711,6 +711,13 @@ void USE_NO_SPINDLE_FORCE()
 {PRINT0("USE_NO_SPINDLE_FORCE()\n");}
 
 /* Tool Functions */
+void SET_TOOL_TABLE_ENTRY(int id, double zoffset, double xoffset, double diameter,
+                          double frontangle, double backangle, int orientation) {
+}
+
+void SET_TOOL_TABLE_ENTRY(int id, double zoffset, double diameter) {
+}
+
 void USE_TOOL_LENGTH_OFFSET(double xoffset, double zoffset, double woffset) 
 {
     _tool_xoffset = xoffset;
