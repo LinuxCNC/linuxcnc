@@ -100,6 +100,10 @@ static int emcTaskNoDelay = 0;
 // this is set when transferring trajectory data from userspace to kernel
 // space, annd reset otherwise.
 static int emcTaskEager = 0;
+
+static int no_force_homing = 0; // forces the user to home first before allowing MDI and Program run
+//can be overriden by [TRAJ]NO_FORCE_HOMING=1
+
 static double EMC_TASK_CYCLE_TIME_ORIG = 0.0;
 
 // delay counter
@@ -1924,7 +1928,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	stepping = 0;
 	steppingWait = 0;
 	execute_msg = (EMC_TASK_PLAN_EXECUTE *) cmd;
-        if (!all_homed()) {
+        if (!all_homed() && !no_force_homing) { //!no_force_homing = force homing before MDI
             emcOperatorError(0, "Can't issue MDI command when not homed");
             retval = -1;
             break;
@@ -1960,7 +1964,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	break;
 
     case EMC_TASK_PLAN_RUN_TYPE:
-        if (!all_homed()) {
+        if (!all_homed() && !no_force_homing) { //!no_force_homing = force homing before Auto
             emcOperatorError(0, "Can't run a program when not homed");
             retval = -1;
             break;
@@ -2827,6 +2831,28 @@ static int iniLoad(const char *filename)
 	// not found, using default
 	rcs_print("[TASK] CYCLE_TIME not found in %s; using default %f\n",
 		  filename, EMC_TASK_CYCLE_TIME);
+    }
+
+
+    if (NULL != (inistring = inifile.Find("NO_FORCE_HOMING", "TRAJ"))) {
+	if (1 == sscanf(inistring, "%d", &no_force_homing)) {
+	    // found it
+	    // if it's <= 0.0, then set it 0 so that homing is required before MDI or Auto
+	    if (no_force_homing <= 0) {
+		no_force_homing = 0;
+	    }
+	} else {
+	    // found, but invalid
+	    no_force_homing = 0;
+	    rcs_print
+		("invalid [TRAJ] NO_FORCE_HOMING in %s (%s); using default %d\n",
+		 filename, inistring, no_force_homing);
+	}
+    } else {
+	// not found, using default
+	no_force_homing = 0;
+	rcs_print("[TRAJ] NO_FORCE_HOMING not found in %s; using default %d\n",
+		  filename, no_force_homing);
     }
 
     // close it
