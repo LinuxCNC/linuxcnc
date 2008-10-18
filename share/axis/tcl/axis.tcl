@@ -2077,13 +2077,10 @@ proc size_menubutton_to_entries {w} {
     for {set i 0} {$i <= [$m index end]} {incr i} {
         set type [$m type $i]
         if {$type == "separator" || $type == "tearoff"} continue
-        puts "smte $type"
         set text [$m entrycget $i -label]
         set li [expr ([font measure $fo $text] + $wi - 1)/$wi]
-        puts [list $text $li]
         if {$li > $sz} { set sz $li }
     }
-    puts "-> $sz"
     $w configure -width $sz
 }
 
