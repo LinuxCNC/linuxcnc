@@ -30,6 +30,11 @@
 \layout Chapter
 
 Stepconf Wizard
+\begin_inset LatexCommand \label{cha:Stepconf-Wizard}
+
+\end_inset 
+
+
 \begin_inset LatexCommand \index{Stepconf Wizard}
 
 \end_inset 
