@@ -2996,7 +2996,11 @@ class TclCommands(nf.TclCommands):
         ensure_mode(emc.MODE_MDI)
         s.poll()
 
-        pos = [(a-b) for a, b in zip(s.position , s.tool_offset)]
+        if system.split()[0] == "T":
+            pos = [(a-b-origin) for a, b, origin in zip(s.position, s.tool_offset, s.origin)]
+        else:
+            pos = [(a-b) for a, b in zip(s.position, s.tool_offset)]
+
         pos = to_internal_units(pos)
         p0 = pos[offset_axis]
 
@@ -3004,18 +3008,24 @@ class TclCommands(nf.TclCommands):
         if linear_axis and vars.metric.get(): scale = 1/25.4
         else: scale = 1
 
+        old_tool = to_internal_linear_unit(s.tool_offset[offset_axis])
+
         if linear_axis and 210 in s.gcodes:
             scale *= 25.4
             p0 *= 25.4
+            old_tool *= 25.4
 
         if system.split()[0] == "T":
-            old_tool = s.tool_offset[offset_axis]
-            offset_command = "G10 L1 P%d %c[%.12f+[%12f-[%f*[%s]]]]\n" % (current_tool[0], vars.current_axis.get(), p0, old_tool, scale, new_axis_value)
+            offset_command = "G10 L1 P%d %c[%.12f+[%.12f-[%f*[%s]]]]" % (current_tool[0], vars.current_axis.get(), p0, old_tool, scale, new_axis_value)
+            c.mdi(offset_command)
+            c.wait_complete()
+            c.mdi("G43")
+            c.wait_complete()
         else:
-            offset_command = "G10 L2 %s %c[%.12f-[%f*[%s]]]\n" % (system.split()[0], vars.current_axis.get(), p0, scale, new_axis_value)
+            offset_command = "G10 L2 %s %c[%.12f-[%f*[%s]]]" % (system.split()[0], vars.current_axis.get(), p0, scale, new_axis_value)
+            c.mdi(offset_command)
+            c.wait_complete()
 
-        c.mdi(offset_command)
-        c.wait_complete()
         ensure_mode(emc.MODE_MANUAL)
         s.poll()
         o.tkRedraw()
