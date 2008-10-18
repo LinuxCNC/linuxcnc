@@ -38,6 +38,21 @@ These are some basic Linux commands and techniques for new to Linux users.
  More complete information can be found on the web or by using the man pages.
 \layout Section
 
+Automatic Login
+\layout Standard
+
+When you install EMC2 with the Ubuntu LiveCD the default is to have to log
+ in each time you turn the computer on.
+ To enable automatic login go to System/Administration/Login Window.
+ If it is a fresh install the Login Window might take a second or three
+ to pop up.
+ You will have to have your password that you used for the install to gain
+ acess to the Login Window Preferences window.
+ In the Security tab check off Enable Automatic Login and pick a user name
+ from the list (that would be you).
+ 
+\layout Section
+
 Man Pages
 \begin_inset LatexCommand \index{Man Pages}
 
@@ -59,11 +74,8 @@ To view a man page open up a terminal window by going to Applications, Accessori
 es, Terminal.
  For example if you wanted to find out something about the find command
  in the terminal window type:
-\layout Standard
+\layout LyX-Code
 
-
-\family typewriter 
-\series bold 
 man find
 \layout Standard
 
@@ -77,21 +89,15 @@ List Modules
 Sometimes when troubleshooting you need to get a list of modules that are
  loaded.
  In a terminal window type:
-\layout Standard
+\layout LyX-Code
 
-
-\family typewriter 
-\series bold 
 lsmod
 \layout Standard
 
 If you want to send the output from lsmod to a text file in a terminal window
  type:
-\layout Standard
+\layout LyX-Code
 
-
-\family typewriter 
-\series bold 
 lsmod > mymod.txt
 \layout Standard
 
@@ -113,7 +119,9 @@ Editing a Root File
 
 \layout Standard
 
-Editing some root files can have bad results.
+When you open the file browser and you see the Owner of the file is root
+ you must do extra steps to edit that file.
+ Editing some root files can have bad results.
  Be careful when editing root files.
  You can open and view most root files normally but they will open in 
 \begin_inset Quotes eld
@@ -137,12 +145,9 @@ The Command Line Way
 Open up Applications, Accessories, Terminal.
 \layout Standard
 
-In the terminal window type
-\layout Standard
+In the terminal window type:
+\layout LyX-Code
 
-
-\family typewriter 
-\series bold 
 sudo gedit
 \layout Standard
 
@@ -211,11 +216,8 @@ Working Directory
 
 To find out the path to the present working directory in the terminal window
  type:
-\layout Standard
+\layout LyX-Code
 
-~$ 
-\family typewriter 
-\series bold 
 pwd
 \layout Subsection
 
@@ -233,20 +235,20 @@ Changing Directories
 \layout Standard
 
 To move up one level in the terminal window type:
+\layout LyX-Code
+
+cd ..
 \layout Standard
 
-~$
-\family typewriter 
-\series bold 
- cd ..
+To move up two levels in the terminal window type:
+\layout LyX-Code
+
+cd ../..
 \layout Standard
 
 To move down to the emc2/configs subdirectory in the terminal window type:
-\layout Standard
+\layout LyX-Code
 
-~$ 
-\family typewriter 
-\series bold 
 cd emc2/configs
 \layout Subsection
 
@@ -270,20 +272,14 @@ Listing files in a directory
 
 To view a list of all the files and subdirectories in the terminal window
  type:
-\layout Standard
+\layout LyX-Code
 
-~$ 
-\family typewriter 
-\series bold 
 dir
 \layout Standard
 
 or 
-\layout Standard
+\layout LyX-Code
 
-~$ 
-\family typewriter 
-\series bold 
 ls
 \layout Subsection
 
@@ -302,37 +298,28 @@ Finding a File
 
 The find command can be a bit confusing to a new Linux user.
  The basic syntax is:
-\layout Standard
+\layout LyX-Code
 
-~$ 
-\family typewriter 
-\series bold 
 find starting-directory parameters actions
 \layout Standard
 
 For example to find all the .ini files in your EMC2 directory you first need
  to use the pwd command to find out the directory.
  Open a new terminal window and type:
-\layout Standard
+\layout LyX-Code
 
-~$ 
-\family typewriter 
-\series bold 
 pwd
 \layout Standard
 
 might return the following result
-\layout Standard
+\layout LyX-Code
 
-~$ /home/joe
+/home/joe
 \layout Standard
 
 With this information put the command together like this:
-\layout Standard
+\layout LyX-Code
 
-~$ 
-\family typewriter 
-\series bold 
 find /home/joe/emc2 -name *.ini -print
 \layout Standard
 
@@ -344,11 +331,8 @@ The -name is the name of the file your looking for and the -print tells
 
 To find all the files in the directory named and all the subdirectories
  under that add the -L option to the find command like this:
-\layout Standard
+\layout LyX-Code
 
-~$ 
-\family typewriter 
-\series bold 
 find -L /home/joe/emc2 -name *.ini -print
 \layout Subsection
 
@@ -363,15 +347,9 @@ Searching for Text
 \end_inset 
 
 
-\layout Standard
+\layout LyX-Code
 
-~$ 
-\family typewriter 
-\series bold 
-grep -i -r 'text to search for' *
-\family default 
-\series default 
- 
+grep -i -r 'text to search for' * 
 \layout Standard
 
 To find all the files that contain the 'text to search for' in the current
@@ -383,6 +361,16 @@ es in the search).
 \layout Section
 
 Hardware Problems
+\layout Subsection
+
+Hardware Info
+\layout Standard
+
+To find out what hardware is connected to your motherboard in a terminal
+ window type:
+\layout LyX-Code
+
+lspci -v
 \layout Subsection
 
 Monitor Resolution
