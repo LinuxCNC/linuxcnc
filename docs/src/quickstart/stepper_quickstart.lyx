@@ -27,17 +27,59 @@
 \layout Chapter
 
 Stepper Configurations
+\layout Standard
+
+This section assumes you have done a standard install from the Live CD.
+ After installation it is recommended that you connect the computer to the
+ Internet and wait for the update manager to pop up and get the latest updates
+ for EMC and Ubuntu before continuing.
+ For more complex installations see the Integrators Manual.
 \layout Section
 
 Latency Test
 \layout Standard
 
-Follow the instructions in section (
+
+\begin_inset Note
+collapsed false
+
+\layout Standard
+
+expand this just a bit JT
+\end_inset 
+
+
+\layout Standard
+
+The Latency Test determines how late your computer processor is in responding
+ to a request.
+ Some hardware can interrupt the processing which could cause missed steps
+ when running a CNC machine.
+ This is the first thing you need to do.
+ Follow the instructions in section (
 \begin_inset LatexCommand \ref{sec:Latency-Test}
 
 \end_inset 
 
 ) to run the latency test.
+\layout Section
+
+Sherline and Xylotex
+\begin_inset LatexCommand \label{sec:Sherline-and-Xylotex}
+
+\end_inset 
+
+
+\layout Standard
+
+If you have a Sherline or Xylotex you can skip the following sections and
+ go straight to the Stepper Config Wizard in Section (
+\begin_inset LatexCommand \ref{cha:Stepconf-Wizard}
+
+\end_inset 
+
+).
+ EMC has provided quick setup for the Sherline and Xylotex machines.
 \layout Section
 \pagebreak_top 
 Machine Information
