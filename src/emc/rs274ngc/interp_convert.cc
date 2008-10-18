@@ -2589,6 +2589,12 @@ int Interp::convert_setup_tool(block_pointer block, setup_pointer settings) {
 
     is_near_int(&toolnum, block->p_number);
 
+    CHKS((block->y_flag || block->a_flag || block->b_flag || block->c_flag ||
+          block->u_flag || block->v_flag), "Invalid axis specified for G10 L1");
+
+    CHKS((GET_EXTERNAL_TLO_IS_ALONG_W() && block->z_flag), "Found Z but expected W in G10 L1");
+    CHKS((!GET_EXTERNAL_TLO_IS_ALONG_W() && block->w_flag), "Found W but expected Z in G10 L1");
+
     if(block->q_number != -1.0) {
         CHKS((!is_near_int(&q, block->q_number)), "Q number in G10 is not an integer");
         CHKS((block->x_flag && q == 0), "Cannot have an X tool offset with orientation 0");
@@ -2600,7 +2606,11 @@ int Interp::convert_setup_tool(block_pointer block, setup_pointer settings) {
     settings->tool_table[toolnum].id = toolnum;
 
     if(block->r_flag) settings->tool_table[toolnum].diameter = PROGRAM_TO_USER_LEN(block->r_number) * 2.;
+
     if(block->z_flag) settings->tool_table[toolnum].zoffset = PROGRAM_TO_USER_LEN(block->z_number);
+    else
+    if(block->w_flag) settings->tool_table[toolnum].zoffset = PROGRAM_TO_USER_LEN(block->w_number);
+
     if(block->x_flag) settings->tool_table[toolnum].xoffset = PROGRAM_TO_USER_LEN(block->x_number);
 
     if(settings->tool_table[toolnum].orientation) 
