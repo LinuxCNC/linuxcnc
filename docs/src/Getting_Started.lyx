@@ -68,7 +68,7 @@ The EMC Team
 \begin_inset Graphics
 	filename common/emc2-intro.png
 	lyxscale 80
-	scale 60
+	scale 50
 
 \end_inset 
 
@@ -222,6 +222,6 @@ addcontentsline{toc}{chapter}{Legal Section}
 
 
 \layout Standard
-
+\align center 
 The End
 \the_end

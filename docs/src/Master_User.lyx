@@ -62,8 +62,8 @@ addcontentsline{toc}{chapter}{Cover}
 \layout Author
 
 The EMC Team
-\layout Title
-
+\layout Standard
+\align center 
 
 \begin_inset Graphics
 	filename common/emc2-intro.png
@@ -242,12 +242,38 @@ preview false
 
 \layout Part
 
-Other
+Index etc.
 \layout Standard
 
 
 \begin_inset Include \include{common/Glossary.lyx}
 preview false
+
+\end_inset 
+
+
+\layout Standard
+
+\layout Standard
+
+
+\begin_inset ERT
+status Open
+
+\layout Standard
+
+\backslash 
+markboth{Index}{Index}
+\end_inset 
+
+
+\layout Chapter*
+
+Index
+\layout Standard
+
+
+\begin_inset LatexCommand \printindex{}
 
 \end_inset 
 
@@ -261,7 +287,20 @@ status Open
 \layout Standard
 
 \backslash 
-addcontentsline{toc}{chapter}{Glossary}
+addcontentsline{toc}{chapter}{Index}
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset ERT
+status Open
+
+\layout Standard
+
+\backslash 
+markboth{Legal Section}{Legal Section}
 \end_inset 
 
 
@@ -283,28 +322,7 @@ status Open
 \layout Standard
 
 \backslash 
-addcontentsline{toc}{chapter}{Copyright}
-\end_inset 
-
-
-\layout Standard
-
-
-\begin_inset LatexCommand \printindex{}
-
-\end_inset 
-
-
-\layout Standard
-
-
-\begin_inset ERT
-status Open
-
-\layout Standard
-
-\backslash 
-addcontentsline{toc}{chapter}{Index}
+addcontentsline{toc}{chapter}{Legal Section}
 \end_inset 
 
 
