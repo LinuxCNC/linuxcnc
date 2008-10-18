@@ -1233,17 +1233,29 @@ POSITION_FILE\SpecialChar ~
 position.txt If set to a non-empty value, the joint positions
  are stored between runs in this file.
  This allows the machine to start with the same coordinates it had on shutdown.
-\begin_inset Foot
-collapsed false
-
-\layout Standard
-
-This assumes there was no movement of the machine while powered off.
- It helps on smaller machines without home switches.
-\end_inset 
-
+ This assumes there was no movement of the machine while powered off.
  If unset, joint positions are not stored and will begin at 0 each time
  EMC is started.
+ This can help on smaller machines without home switches.
+\layout Description
+
+NO_FORCE_HOMING\SpecialChar ~
+=\SpecialChar ~
+1 The default behavior is for EMC to force the user to home
+ the machine before any MDI command or a program is run.
+ Normally jogging only is allowed before homing.
+ Setting NO_FORCE_HOMING = 1 allows the user to make MDI moves and run programs
+ without homing the machine first.
+ 
+\layout Standard
+
+
+\series bold 
+Warning
+\series default 
+: Using this will allow the machine to run past soft limits while in operation
+ and is not generally desirable to allow this.
+ 
 \layout Subsection
 
 [AXIS_<num>] Section
