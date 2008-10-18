@@ -2069,6 +2069,23 @@ proc size_label_to_strings {w args} {
     $w configure -width $sz
 }
 
+proc size_menubutton_to_entries {w} {
+    set m $w.menu
+    set fo [$w cget -font]
+    set wi [font measure $fo 0]
+    set sz 4
+    for {set i 0} {$i <= [$m index end]} {incr i} {
+        set type [$m type $i]
+        if {$type == "separator" || $type == "tearoff"} continue
+        puts "smte $type"
+        set text [$m entrycget $i -label]
+        set li [expr ([font measure $fo $text] + $wi - 1)/$wi]
+        puts [list $text $li]
+        if {$li > $sz} { set sz $li }
+    }
+    puts "-> $sz"
+    $w configure -width $sz
+}
 
 size_combobox_to_entries $_tabs_manual.jogf.jog.jogincr
 size_label_to_strings $_tabs_manual.axis [_ Joint:] [_ Axis:]

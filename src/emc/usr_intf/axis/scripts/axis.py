@@ -2143,7 +2143,7 @@ class _prompt_float:
                 aspect=500)
         v.set(default)
         self.e = e = Entry(t, textvariable=v)
-        f = Tkinter.Frame(t)
+        self.buttons = f = Tkinter.Frame(t)
         self.ok = Tkinter.Button(f, text=_("OK"), command=self.do_ok, width=10,height=1,padx=0,pady=.25, default="active")
         self.cancel = Tkinter.Button(f, text=_("Cancel"), command=self.do_cancel, width=10,height=1,padx=0,pady=.25, default="normal")
         v.trace("w", self.check_valid)
@@ -2239,11 +2239,21 @@ def prompt_float(title, text, default):
     t = _prompt_float(title, text, default)
     return t.run()
 
-systems = ['P1  G54', 'P2  G55', 'P3  G56', 'P4  G57', 'P5  G58',
-            'P6  G59', 'P7  G59.1', 'P8  G59.2', 'P9  G59.3']
+all_systems = ['P1  G54', 'P2  G55', 'P3  G56', 'P4  G57', 'P5  G58',
+            'P6  G59', 'P7  G59.1', 'P8  G59.2', 'P9  G59.3',
+            _('T    Tool Table')]
 
 class _prompt_touchoff(_prompt_float):
     def __init__(self, title, text, default, defaultsystem):
+        systems = all_systems[:]
+        if s.tlo_is_along_w:
+            tool_offset_axes = "w"
+        elif lathe and current_tool and current_tool.orientation:
+            tool_offset_axes = "xz"
+        else:
+            tool_offset_axes = "z"
+        if current_tool is None or vars.current_axis.get() not in tool_offset_axes:
+            del systems[-1]
         _prompt_float.__init__(self, title, text, default)
         t = self.t
         f = Frame(t)
@@ -2251,9 +2261,19 @@ class _prompt_touchoff(_prompt_float):
         c.set(defaultsystem)
         l = Label(f, text=_("Coordinate System:"))
         mb = OptionMenu(f, c, *systems)
+        mb.tk.call("size_menubutton_to_entries", mb)
+        mb.configure(takefocus=1)
         l.pack(side="left") 
         mb.pack(side="left")
         f.pack(side="top") 
+        self.buttons.tkraise()
+        print mb
+        for i in [1,2,3,4,5,6,7,8,9]:
+            t.bind("<Alt-KeyPress-%s>" % i, lambda event, system=systems[i-1]: c.set(system))
+        if not (current_tool is None or vars.current_axis.get() not in tool_offset_axes):
+            t.bind("<Alt-t>", lambda event: c.set(systems[9]))
+            t.bind("<Alt-0>", lambda event: c.set(systems[9]))
+
     def result(self):
         if self.u.get(): return self.v.get(), self.c.get()
         return None, None
@@ -2988,7 +3008,12 @@ class TclCommands(nf.TclCommands):
             scale *= 25.4
             p0 *= 25.4
 
-        offset_command = "G10 L2 %s %c[%.12f-[%f*[%s]]]\n" % (system.split()[0], vars.current_axis.get(), p0, scale, new_axis_value)
+        if system.split()[0] == "T":
+            old_tool = s.tool_offset[offset_axis]
+            offset_command = "G10 L1 P%d %c[%.12f+[%12f-[%f*[%s]]]]\n" % (current_tool[0], vars.current_axis.get(), p0, old_tool, scale, new_axis_value)
+        else:
+            offset_command = "G10 L2 %s %c[%.12f-[%f*[%s]]]\n" % (system.split()[0], vars.current_axis.get(), p0, scale, new_axis_value)
+
         c.mdi(offset_command)
         c.wait_complete()
         ensure_mode(emc.MODE_MANUAL)
