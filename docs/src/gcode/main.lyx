@@ -2998,7 +2998,7 @@ Quick Reference Table
 
 
 \begin_inset  Tabular
-<lyxtabular version="3" rows="46" columns="4">
+<lyxtabular version="3" rows="47" columns="4">
 <features>
 <column alignment="center" valignment="top" leftline="true" width="0">
 <column alignment="center" valignment="top" leftline="true" width="0">
@@ -3161,7 +3161,46 @@ I J K or R
 
 \layout Standard
 
-G10
+G10 L1
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Set Tool Table Entry
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+P R X Z
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset LatexCommand \ref{sec:G10-L1-Set-Tool-Table}
+
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+G10 L2
 \end_inset 
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
@@ -5220,8 +5259,36 @@ For a dwell, program G4 P- .
 the P number is negative.
 \layout Section
 
-G10 Set Coordinate System
-\begin_inset LatexCommand \index{G10 Set Coordinate System}
+G10 L1 Set Tool Table
+\begin_inset LatexCommand \index{G10 L1 Set Tool Table}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \label{sec:G10-L1-Set-Tool-Table}
+
+\end_inset 
+
+
+\layout Standard
+
+Set a tool table entry.
+ 
+\layout Standard
+
+G10 L1 P[tool number] R[radius] X[offset] Z[offset] Q[orientation]
+\layout Standard
+
+For more information on tool orientation see figure (
+\begin_inset LatexCommand \ref{cap:Tool-Orientations}
+
+\end_inset 
+
+)
+\layout Section
+
+G10 L2 Set Coordinate System
+\begin_inset LatexCommand \index{G10 L2 Set Coordinate System}
 
 \end_inset 
 
