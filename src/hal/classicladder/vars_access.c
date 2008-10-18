@@ -128,10 +128,25 @@ void WriteVar(int TypeVar,int NumVar,int Value)
 #endif
 		case VAR_TIMER_PRESET:
 			TimerArray[NumVar].Preset = Value * TimerArray[NumVar].Base;
-            break;
+                        break;
 		case VAR_MONOSTABLE_PRESET:
 			MonostableArray[NumVar].Preset = Value * MonostableArray[NumVar].Base;
-            break;
+                        break;
+                case VAR_COUNTER_DONE:
+			CounterArray[NumVar].OutputDone = Value;
+			break;
+		case VAR_COUNTER_EMPTY:
+			CounterArray[NumVar].OutputEmpty = Value;
+			break;
+		case VAR_COUNTER_FULL:
+			CounterArray[NumVar].OutputFull = Value;
+			break;
+                case VAR_COUNTER_PRESET:
+			CounterArray[NumVar].Preset = Value;
+                        break;
+                case VAR_COUNTER_VALUE:
+			CounterArray[NumVar].Value = Value;
+			break;
 		default:
 			debug_printf("!!! Error : Type (=%d) not found in WriteVar()\n", TypeVar);
 			break;
