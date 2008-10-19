@@ -44,8 +44,27 @@
 \papersides 1
 \paperpagestyle headings
 
+\layout Standard
+
+
+\begin_inset ERT
+status Open
+
+\layout Standard
+
+\backslash 
+addcontentsline{toc}{chapter}{Cover}
+\end_inset 
+
+
 \layout Title
 
+V2.3 Integrators Manual
+\layout Author
+
+The EMC Team
+\layout Standard
+\align center 
 
 \begin_inset Graphics
 	filename common/emc2-intro.png
@@ -56,25 +75,14 @@
 \end_inset 
 
 
-\newline 
-V2.3 Integrators Manual
-\layout Author
-\added_space_top medskip 
-The EMC Team
 \layout Standard
-
-\SpecialChar ~
-\SpecialChar ~
-\SpecialChar ~
-
-\layout Standard
-\added_space_top 1in 
+\added_space_top 0.75in 
 This handbook is a work in progress.
  If you are able to help with writing, editing, or graphic preparation please
  contact any member of the writing team or join and send an email to emc-users@l
 ists.sourceforge.net.
 \layout Standard
-\added_space_top 1in \align center 
+\added_space_top 0.5in \align center 
 Copyright (c) 2000-7 LinuxCNC.org
 \layout Standard
 \added_space_top 0.5in \line_top \line_bottom \noindent 
@@ -432,6 +440,23 @@ preview false
 
 \begin_inset LatexCommand \printindex{}
 
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset ERT
+status Open
+
+\layout Standard
+
+\backslash 
+addcontentsline{toc}{chapter}{
+\backslash 
+protect
+\backslash 
+numberline{}Index}
 \end_inset 
 
 

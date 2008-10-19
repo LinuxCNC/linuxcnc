@@ -26,14 +26,11 @@
 
 \layout Chapter
 
-Diagnostics
+Common Error Messages
 \layout Section
 
-Common Error Messages
-\layout Subsection
-
 Following Error
-\layout Subsubsection
+\layout Subsection
 
 Stepper Systems
 \layout Standard
@@ -42,7 +39,7 @@ The concept of a following error is funny when talking about stepper motors.
  Since they are an open loop system, there is no position feedback to let
  you know if you actually are out of range.
  EMC calculates if it can keep up with the motion called for and if not
- then it gives a followling error.
+ then it gives a following error.
  Following errors usually are the result of one of the following on stepper
  systems.
 \layout Itemize
