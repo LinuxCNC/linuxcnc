@@ -215,11 +215,11 @@ class Data:
 	self.pin16 = PWM
 	self.pin17 = AMP
 
-	self.pin10 = BOTH_HOME_X
-	self.pin11 = BOTH_HOME_Y
-	self.pin12 = BOTH_HOME_Z
-	self.pin13 = BOTH_HOME_A
-	self.pin15 = PROBE
+	self.pin10 = UNUSED_INPUT
+	self.pin11 = UNUSED_INPUT
+	self.pin12 = UNUSED_INPUT
+	self.pin13 = UNUSED_INPUT
+	self.pin15 = UNUSED_INPUT
 
 	self.xsteprev = 200
 	self.xmicrostep = 2
@@ -483,8 +483,16 @@ class Data:
         pps = leadscrew * steprev * microstep * (pulleynum/pulleyden) * maxvel
         return abs(pps)
 
+    def doublestep(self):
+        return self.steptime < 5000
+
     def minperiod(self):
-        return self.latency + self.steptime + self.stepspace + 5000
+        if self.doublestep():
+            return max(self.latency + self.steptime + self.stepspace + 5000,
+                        4*self.steptime)
+        else:
+            return self.latency + max(self.steptime, self.stepspace)
+
     def maxhz(self):
         return 1e9 / self.minperiod()
 
@@ -594,7 +602,10 @@ class Data:
 	print >>file
 	print >>file, "setp stepgen.%d.position-scale [AXIS_%d]SCALE" % (num, axnum)
 	print >>file, "setp stepgen.%d.steplen 1" % num
-	print >>file, "setp stepgen.%d.stepspace 0" % num
+        if self.doublestep():
+            print >>file, "setp stepgen.%d.stepspace 0" % num
+        else:
+            print >>file, "setp stepgen.%d.stepspace 1" % num
 	print >>file, "setp stepgen.%d.dirhold %d" % (num, self.dirhold + lat)
 	print >>file, "setp stepgen.%d.dirsetup %d" % (num, self.dirsetup + lat)
 	print >>file, "setp stepgen.%d.maxaccel [AXIS_%d]STEPGEN_MAXACCEL" % (num, axnum)
@@ -647,8 +658,9 @@ class Data:
 	if p == UNUSED_OUTPUT: return
 	if i: print >>file, "setp parport.0.pin-%02d-out-invert 1" % num
 	print >>file, "net %s => parport.0.pin-%02d-out" % (p, num)
-        if p in (XSTEP, YSTEP, ZSTEP, ASTEP):
-            print >>file, "setp parport.0.pin-%02d-out-reset 1" % num
+        if self.doublestep():
+            if p in (XSTEP, YSTEP, ZSTEP, ASTEP):
+                print >>file, "setp parport.0.pin-%02d-out-reset 1" % num
 
     def write_halfile(self, base):
 	inputs = set((self.pin10,self.pin11,self.pin12,self.pin13,self.pin15))
@@ -666,7 +678,8 @@ class Data:
 	print >>file, "loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD traj_period_nsec=[EMCMOT]SERVO_PERIOD key=[EMCMOT]SHMEM_KEY num_joints=[TRAJ]AXES"
 	print >>file, "loadrt probe_parport"
 	print >>file, "loadrt hal_parport cfg=%s" % self.ioaddr
-        print >>file, "setp parport.0.reset-time %d" % self.steptime
+        if self.doublestep():
+            print >>file, "setp parport.0.reset-time %d" % self.steptime
 	encoder = PHA in inputs
 	counter = PHB not in inputs
 	probe = PROBE in inputs
@@ -698,7 +711,8 @@ class Data:
 	if pump: print >>file, "addf charge-pump base-thread"
 	if pwm: print >>file, "addf pwmgen.make-pulses base-thread"
 	print >>file, "addf parport.0.write base-thread"
-	print >>file, "addf parport.0.reset base-thread"
+        if self.doublestep():
+            print >>file, "addf parport.0.reset base-thread"
 
 	print >>file
 	print >>file, "addf stepgen.capture-position servo-thread"
@@ -1024,7 +1038,7 @@ class App:
 	    [4000, 500, 20000, 1000],     # Gecko
 	    [500,  4000, 4000, 1000],     # L297   XXX active low
 	    [1000, 2000, 1000, 1000],     # PMDX-150
-	    [1000, 6000, 24000, 20000],   # Sherline  XXX find proper values
+	    [22000, 22000, 100000, 100000], # Sherline  XXX find proper values
 	    [1000, 2000, 200, 200],       # Xylotex
 	    [1000, 1000, 1000, 200000],   # Parker-Compumotor oem750
 	]
@@ -1401,12 +1415,12 @@ class App:
 	gtk.main_quit()
 
     def on_calculate_ideal_period(self, *args):
-        steptime = self.widgets.steptime.get_value()
-        stepspace = self.widgets.stepspace.get_value()
-        latency = self.widgets.latency.get_value()
-        minperiod = int(latency + steptime + stepspace + 5000)
+        self.data.steptime = self.widgets.steptime.get_value()
+        self.data.stepspace = self.widgets.stepspace.get_value()
+        self.data.latency = self.widgets.latency.get_value()
+        minperiod = self.data.minperiod()
         maxhz = int(1e9 / minperiod)
-
+        if not self.data.doublestep(): maxhz /= 2
         self.widgets.baseperiod.set_text("%s ns" % minperiod)
         self.widgets.maxsteprate.set_text("%s Hz" % maxhz)
 
@@ -1477,7 +1491,7 @@ class App:
         steptime = self.widgets.steptime.get_value()
         stepspace = self.widgets.stepspace.get_value()
         latency = self.widgets.latency.get_value()
-        minperiod = int(latency + steptime + stepspace + 5000)
+        minperiod = self.data.minperiod()
 
         if period < minperiod:
             period = minperiod
@@ -1499,7 +1513,6 @@ class App:
 
 	    addf stepgen.make-pulses fast
 	    addf parport.0.write fast
-	    addf parport.0.reset fast
 
 	    addf stepgen.capture-position slow
 	    addf steptest.0 slow
@@ -1511,8 +1524,6 @@ class App:
 	    net fb stepgen.0.position-fb => steptest.0.position-fb
 
 	    setp parport.0.pin-%(steppin)02d-out-reset 1
-	    setp parport.0.reset-time %(resettime)d
-	    setp stepgen.0.stepspace 0
 	    setp stepgen.0.steplen 1
 	    setp stepgen.0.dirhold %(dirhold)d
 	    setp stepgen.0.dirsetup %(dirsetup)d
@@ -1529,8 +1540,16 @@ class App:
 	    'dirsetup': data.dirsetup + data.latency,
 	    'onestep': abs(1. / data[axis + "scale"]),
 	    'scale': data[axis + "scale"],
-	    'resettime': data['steptime']
 	})
+
+        if data.doublestep():
+            halrun.write("""
+                setp parport.0.reset-time %d
+                setp stepgen.0.stepspace 0
+                addf parport.0.reset fast
+            """ % {
+                'resettime': data['steptime']
+            })
 	amp = data.find_output(AMP)
 	if amp:
 	    halrun.write("setp parport.0.pin-%(enablepin)02d-out 1\n"
