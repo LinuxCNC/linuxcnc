@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fr_rs274_err\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-10-15 19:17+0200\n"
+"POT-Creation-Date: 2008-10-19 12:10+0200\n"
 "PO-Revision-Date: 2008-10-15 19:54+0200\n"
 "Last-Translator: Francis Tisserant <ftissera@free.fr>\n"
 "Language-Team: french <gnomefr@traduc.org>\n"
@@ -19,31 +19,31 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: KBabel 1.11.2\n"
 
-#: emc/task/emctaskmain.cc:406 emc/task/emctaskmain.cc:445
+#: emc/task/emctaskmain.cc:410 emc/task/emctaskmain.cc:449
 msgid "exceeds +X limit"
 msgstr "limite +X depassee"
 
-#: emc/task/emctaskmain.cc:412 emc/task/emctaskmain.cc:451
+#: emc/task/emctaskmain.cc:416 emc/task/emctaskmain.cc:455
 msgid "exceeds +Y limit"
 msgstr "limite +Y depassee"
 
-#: emc/task/emctaskmain.cc:418 emc/task/emctaskmain.cc:457
+#: emc/task/emctaskmain.cc:422 emc/task/emctaskmain.cc:461
 msgid "exceeds +Z limit"
 msgstr "limite +Z depassee"
 
-#: emc/task/emctaskmain.cc:424 emc/task/emctaskmain.cc:463
+#: emc/task/emctaskmain.cc:428 emc/task/emctaskmain.cc:467
 msgid "exceeds -X limit"
 msgstr "limite -X depassee"
 
-#: emc/task/emctaskmain.cc:430 emc/task/emctaskmain.cc:469
+#: emc/task/emctaskmain.cc:434 emc/task/emctaskmain.cc:473
 msgid "exceeds -Y limit"
 msgstr "limite -Y depassee"
 
-#: emc/task/emctaskmain.cc:436 emc/task/emctaskmain.cc:475
+#: emc/task/emctaskmain.cc:440 emc/task/emctaskmain.cc:479
 msgid "exceeds -Z limit"
 msgstr "limite -Z depassee"
 
-#: emc/task/emctaskmain.cc:592
+#: emc/task/emctaskmain.cc:596
 #, c-format
 msgid ""
 "command (%s) cannot be executed until the machine is out of E-stop and "
@@ -52,47 +52,47 @@ msgstr ""
 "La commande (%s) ne peut etre executee tant que la machine n'est pas sortie "
 "de l'arret d'urgence et mise en marche"
 
-#: emc/task/emctaskmain.cc:703
+#: emc/task/emctaskmain.cc:707
 #, c-format
 msgid "can't do that (%s) in manual mode"
 msgstr "Commande (%s) impossible en mode manuel"
 
-#: emc/task/emctaskmain.cc:802
+#: emc/task/emctaskmain.cc:806
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter idle"
 msgstr "(%s) impossible en mode auto avec l'interpreteur inactif"
 
-#: emc/task/emctaskmain.cc:863
+#: emc/task/emctaskmain.cc:867
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter reading"
 msgstr "(%s) impossible en mode auto avec l'interpreteur en lecture"
 
-#: emc/task/emctaskmain.cc:1086
+#: emc/task/emctaskmain.cc:1090
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter paused"
 msgstr "(%s) impossible en mode auto avec l'interpreteur en pause"
 
-#: emc/task/emctaskmain.cc:1149
+#: emc/task/emctaskmain.cc:1153
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter waiting"
 msgstr "(%s) impossible en mode auto avec l'interpreteur en attente"
 
-#: emc/task/emctaskmain.cc:1264
+#: emc/task/emctaskmain.cc:1268
 #, c-format
 msgid "can't do that (%s) in MDI mode"
 msgstr "Commande (%s) impossible en mode MDI"
 
-#: emc/task/emctaskmain.cc:1912
+#: emc/task/emctaskmain.cc:1920
 #, c-format
 msgid "can't open %s"
 msgstr "Impossible d'ouvrir %s "
 
-#: emc/task/emctaskmain.cc:3036
+#: emc/task/emctaskmain.cc:3066
 #, c-format
 msgid "Minimum Software Limit on axis %d exceeded."
 msgstr "Limite logicielle minimale de l'axe %d depassee"
 
-#: emc/task/emctaskmain.cc:3045
+#: emc/task/emctaskmain.cc:3075
 #, c-format
 msgid "Maximum Software Limit on axis %d exceeded."
 msgstr "Limite logicielle maximale sur l'axe %d depassee"

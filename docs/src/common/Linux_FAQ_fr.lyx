@@ -425,14 +425,23 @@ tous les fichiers
 .
 \layout Section
 
-
 Problémes matériels
 \layout Subsection
 
+Informations sur le matériel
+\layout Standard
+
+
+Pour voir la liste du matériel utilisé par votre carte mère, tapez la commande
+ suivante dans un terminal:
+\layout LyX-Code
+
+
+lspci -v
+\layout Subsection
 
 Résolution du moniteur
 \layout Standard
-
 
 Lors de l'installation d'Ubuntu les réglages du moniteur sont détectés.
  Il peut arriver que ça fonctionne mal et que la résolution ne soit que
@@ -440,10 +449,8 @@ Lors de l'installation d'Ubuntu les réglages du moniteur sont détectés.
  
 \layout Standard
 
-
 Pour résoudre ce cas, suivez les instructions données ici:
 \layout Standard
-
 
 
 \begin_inset LatexCommand \url{https://help.ubuntu.com/community/FixVideoResolutionHowto}
