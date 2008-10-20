@@ -418,10 +418,13 @@ static int saveToolTable(const char *filename,
     }
 
     if(lathe_style) {
-        fprintf(fp, "POCKET\tFMS\tZOFFSET\tXOFFSET\tDIA\tFRONT\tBACK\tORIENT\tCOMMENT\n\n");
+        fprintf(fp, "%6s%4s%11s%11s%11s%12s%12s%7s  %s\n\n",
+                "POCKET", "FMS", "ZOFFSET", "XOFFSET",
+                "DIAMETER", "FRONTANGLE", "BACKANGLE", "ORIENT", 
+                "COMMENT");
         for (pocket = 1; pocket <= CANON_TOOL_MAX; pocket++) {
             if (toolTable[pocket].id)
-                fprintf(fp, "%d\t%d\t%f\t%f\t%f\t%f\t%f\t%d\t%s\n",
+                fprintf(fp, "%6d%4d%+11f%+11f%11f%+12f%+12f%7d  %s\n",
                         pocket,
                         toolTable[pocket].id,
                         toolTable[pocket].zoffset, toolTable[pocket].xoffset, toolTable[pocket].diameter,
@@ -429,10 +432,11 @@ static int saveToolTable(const char *filename,
                         toolTable[pocket].orientation, ttcomments[pocket]);
         }
     } else {
-        fprintf(fp, "POCKET\tFMS\tLENGTH\tDIA\tCOMMENT\n\n");
+        fprintf(fp, "%7s%4s%11s%11s  %s\n\n",
+                "POCKET", "FMS", "LENGTH", "DIAMETER", "COMMENT");
         for (pocket = 1; pocket <= CANON_TOOL_MAX; pocket++) {
             if (toolTable[pocket].id)
-                fprintf(fp, "%d\t%d\t%f\t%f\t%s\n",
+                fprintf(fp, "%7d%4d%+11f%11f  %s\n",
                         pocket,
                         toolTable[pocket].id,
                         toolTable[pocket].zoffset, toolTable[pocket].diameter,
