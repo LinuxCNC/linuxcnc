@@ -58,7 +58,7 @@ tool = Collection([HalTranslate([tooltip], c, "tool_length", 0,0,-1),
 tool = Translate([tool], 0, 0, -pivot_len-150)
 
 tool = Collection([tool,
-                   CylinderY(100,75, 10,75),
+                   CylinderY(-100,75, -10,75),
                    CylinderY(-50,60,50,60),
                    ])
 
@@ -66,7 +66,7 @@ tool = Collection([tool,
 tool = HalRotate([tool],c,"joint4",1,0,-1,0)
 
 wrist = Collection([tool,
-                    CylinderY(-100,75, -10,75),
+                    CylinderY(100,75, 10,75),
                     Box(-50,-100,0, 50,-25,100),
                     Box(-100,-100,100, 100,100,150),
                     CylinderZ(150,75, 200, 75)

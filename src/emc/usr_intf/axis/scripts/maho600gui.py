@@ -109,7 +109,7 @@ angleplate = Collection([
 	# this is what holds the A axis rotary table
 	# horizontal plate
 	Box( -18, -12, -9, 0, -10, 9),
-	CylinderY ( 12, 9, 10, 9),
+	CylinderY (-12, 9, -10, 9),
 	# vertical plate
 	Box( -18, -10, -9, -12, 7, 9)
         ])
@@ -118,9 +118,9 @@ brotary = Collection([
 	angleplate,
 	# this is the round part on which the angle plate and 2nd rotary
 	# are mounted
-	CylinderY(13, 9, 12, 9),
+	CylinderY(-13, 9, -12, 9),
 	# center marker
-	CylinderY(12, 0.5, 0, 0.01),
+	CylinderY(-12, 0.5, 0, 0.01),
 	# can't see a cylinder turn, so stick a lump on one side
 	Box( -0.5, -13, 10, 0.5, -12, 9)
         ])

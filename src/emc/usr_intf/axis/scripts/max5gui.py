@@ -90,7 +90,7 @@ head = Collection([
 brotary = Collection([
 	head,
 	# rotating part of rotary table
-	CylinderY(-161, 50, -185, 50),
+	CylinderY(161, 50, 185, 50),
         ])
 
 brotary = HalRotate([brotary],c,"tilt",1,0,-1,0)

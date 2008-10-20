@@ -279,7 +279,7 @@ class CylinderY(CoordsBase):
 	# GL creates cylinders along Z, so need to rotate
 	z1 = y1
 	z2 = y2
-	glRotatef(90,1,0,0)
+	glRotatef(-90,1,0,0)
 	# need to translate the whole thing to z1
 	glTranslatef(0,0,z1)
 	# the cylinder starts out at Z=0
