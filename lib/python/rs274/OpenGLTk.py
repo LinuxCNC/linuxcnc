@@ -45,8 +45,10 @@ def glRotateScene(w, s, xcenter, ycenter, zcenter, x, y, mousex, mousey):
     glLoadIdentity()
     tx, ty, tz = mat[12:15]
     glTranslatef(tx, ty, tz)
-    glRotatef(snap(lat), 1., 0., 0.)
-    glRotatef(snap(lon), 0., 0., 1.)
+    print "using rotation vectors", w.rotation_vectors
+    print lat, lon
+    glRotatef(snap(lat), *w.rotation_vectors[0])
+    glRotatef(snap(lon), *w.rotation_vectors[1])
     glTranslatef(-xcenter, -ycenter, -zcenter)
     w.lat = lat
     w.lon = lon
@@ -208,6 +210,7 @@ University of York, UK
 http://www.yorvic.york.ac.uk/~mjh/
 """
 
+    rotation_vectors = [(1.,0.,0.), (0., 0., 1.)]
     def __init__(self, master=None, cnf={}, **kw):
         """\
         Create an opengl widget.
