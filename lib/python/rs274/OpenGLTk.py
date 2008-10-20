@@ -45,8 +45,6 @@ def glRotateScene(w, s, xcenter, ycenter, zcenter, x, y, mousex, mousey):
     glLoadIdentity()
     tx, ty, tz = mat[12:15]
     glTranslatef(tx, ty, tz)
-    print "using rotation vectors", w.rotation_vectors
-    print lat, lon
     glRotatef(snap(lat), *w.rotation_vectors[0])
     glRotatef(snap(lon), *w.rotation_vectors[1])
     glTranslatef(-xcenter, -ycenter, -zcenter)

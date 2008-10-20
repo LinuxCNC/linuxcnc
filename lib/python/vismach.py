@@ -798,7 +798,6 @@ class O(rs274.OpenGLTk.Opengl):
 	self.hud = Hud()
 
     def set_viewangle(self, lat, lon):
-        print "set_viewangle", lat, lon
         self.lat = lat
         self.lon = lon
         rs274.OpenGLTk.glRotateScene(self, 0.5, self.xcenter, self.ycenter, self.zcenter, 0, 0, 0, 0)
