@@ -797,6 +797,13 @@ class O(rs274.OpenGLTk.Opengl):
 	#does not show HUD by default
 	self.hud = Hud()
 
+    def set_viewangle(self, lat, lon):
+        print "set_viewangle", lat, lon
+        self.lat = lat
+        self.lon = lon
+        rs274.OpenGLTk.glRotateScene(self, 0.5, self.xcenter, self.ycenter, self.zcenter, 0, 0, 0, 0)
+        self.tkRedraw()
+
     def zoomin(self, event):
         self.distance = self.distance / 1.1
         self.tkRedraw()
@@ -1033,12 +1040,16 @@ class AsciiOBJ:
             glCallList(self.list)
 
 
-def main(model, tool, work, size=10, hud=0):
+def main(model, tool, work, size=10, hud=0, rotation_vectors=None, lat=0, lon=0):
     app = Tkinter.Tk()
 
     t = O(app, double=1, depth=1)
+    # set which axes to rotate around
+    if rotation_vectors: t.rotation_vectors = rotation_vectors
     # we want to be able to see the model from all angles
     t.set_latitudelimits(-180, 180)
+    # set starting viewpoint if desired
+    t.after(100, lambda: t.set_viewangle(lat, lon))
 
     #there's probably a better way of doing this
     global HUD
