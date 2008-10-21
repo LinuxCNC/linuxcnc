@@ -1933,6 +1933,11 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
             retval = -1;
             break;
         }
+        if (emcStatus->task.mode != EMC_TASK_MODE_MDI) {
+            emcOperatorError(0, "Must be in MDI mode to issue MDI command");
+            retval = -1;
+            break;
+        }
 	if (execute_msg->command[0] != 0) {
 	    if (emcStatus->task.mode == EMC_TASK_MODE_MDI) {
 		interp_list.set_line_number(--pseudoMdiLineNumber);
