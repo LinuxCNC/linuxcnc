@@ -532,7 +532,7 @@ The number widget displays the value of a FLOAT signal.
 \newline 
     <halpin>"my-number"</halpin>
 \newline 
-    <font>('Helvetica',50)</font>
+    <font>("Helvetica",50)</font>
 \newline 
     <format>"+4.3f"</format>
 \newline 
@@ -549,13 +549,13 @@ The number widget displays the value of a FLOAT signal.
 \layout Standard
 
 <font> is a Tkinter font type and size specification.
- Note that on Ubuntu 6.06 'Helvetica' is not available in sizes above ca
+ Note that on Ubuntu 6.06 "Helvetica" is not available in sizes above ca
  40 or 50.
- One font that will show up to at least size 200 is 'courier 10 pitch',
+ One font that will show up to at least size 200 is "courier 10 pitch",
  so for a really big Number widget you could specify:
 \layout LyX-Code
 
-<font>('courier 10 pitch',100)</font>
+<font>("courier 10 pitch",100)</font>
 \layout Standard
 
 <format> is a 'C-style' format specified that determines how the number
@@ -645,7 +645,7 @@ Spinbox controls a FLOAT pin.
 \newline 
     <format>"2.3f"</format>
 \newline 
-    <font>('Arial',30)</font>
+    <font>("Arial",30)</font>
 \newline 
 </spinbox>
 \layout Standard
@@ -867,7 +867,7 @@ A label is a piece of text on your panel.
 \newline 
     <text>"This is a Label:"</text>
 \newline 
-    <font>('Helvetica',20)</font>
+    <font>("Helvetica",20)</font>
 \newline 
 </label> 
 \layout Standard
