@@ -867,6 +867,14 @@ class Data:
 
     def save(self):
 	base = os.path.expanduser("~/emc2/configs/%s" % self.machinename)
+	ncfiles = os.path.expanduser("~/emc2/nc_files")
+	if not os.path.exists(ncfiles):
+            makedirs(ncfiles)
+            examples = os.path.join(BASE, "share", "emc", "ncfiles")
+            if not os.path.exists(examples):
+                examples = os.path.join(BASE, "nc_files")
+            if os.path.exists(examples):
+                os.symlink(examples, os.path.join(ncfiles, "examples"))
 	makedirs(base)
 
 	self.md5sums = []
