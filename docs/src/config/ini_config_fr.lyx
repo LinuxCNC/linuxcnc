@@ -1091,21 +1091,34 @@ Accélération maximale pour les axes, exprimée en unités machine par seconde
 POSITION_FILE\SpecialChar ~
 =\SpecialChar ~
 position.txt Si réglée à une valeur non vide, les positions
- des articulations sont enregistrées dans ce fichier.
- Cela permet donc de redémarrer avec les mêmes coordonnées que lors de l'arrêt
-\begin_inset Foot
-collapsed false
-
-\layout Standard
-
-Cela suppose, que hors puissance, la machine ne fera aucun mouvement pendant
- tout son arrêt.
+ des axes (joins) sont enregistrées dans ce fichier.
+ Cela permet donc de redémarrer avec les mêmes coordonnées que lors de l'arrêt,
+ ce qui suppose, que hors puissance, la machine ne fera aucun mouvement
+ pendant tout son arrêt.
  C'est utile pour les petites machines sans contact d'origine machine.
-\end_inset 
-
- .
  Si vide, les positions ne seront pas enregistrées et commenceront à 0 à
  chaque fois qu'EMC démarrera.
+\layout Description
+
+NO_FORCE_HOMING\SpecialChar ~
+=\SpecialChar ~
+1 EMC oblige implicitement l'utilisateur à référencer la
+ machine par une prise d'origine machine avant de pouvoir lancer un programme
+ ou exécuter une commande dans le MDI, seuls les mouvements de Jog sont
+ autorisés avant les prises d'origines.
+ Mettre NO_FORCE_HOMING = 1 permet à l'utilisateur averti de s'affranchir
+ de cette restriction de sécurité lors de la phase de mise au point de la
+ machine.
+ 
+\layout Standard
+
+
+\series bold 
+Attention
+\series default 
+: NO_FORCE_HOMING mise à 1 permettra à la machine de franchir les limites
+ logicielles pendant les mouvements ce qui n'est pas souhaîtable pour un
+ fonctionnement normal! 
 \layout Subsection
 
 
@@ -1389,8 +1402,8 @@ NO Si l'encodeur utilisé pour cet axe fournit une impulsion
 
 HOME_IGNORE_LIMITS\SpecialChar ~
 =\SpecialChar ~
-NO Certaines machines utilisent une limite d'axe comme
- contact d'origine machine.
+NO Certaines machines utilisent un seul et même contact
+ comme limite d'axe et origine machine de l'axe.
  Cette variable devra être positionnée sur yes si c'est le cas de votre
  machine.
 \layout Subsubsection
