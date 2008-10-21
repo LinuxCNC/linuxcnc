@@ -398,7 +398,6 @@ check_stuff ( "before command_handler()" );
 		emcmotDebug->teleop_data.desiredVel.c = 0.0;
 	    } else if (GET_MOTION_COORD_FLAG()) {
 		tpAbort(&emcmotDebug->queue);
-		SET_MOTION_ERROR_FLAG(0);
 	    } else {
 		for (joint_num = 0; joint_num < num_joints; joint_num++) {
 		    /* point to joint struct */
@@ -411,6 +410,7 @@ check_stuff ( "before command_handler()" );
 		    }
 		}
 	    }
+            SET_MOTION_ERROR_FLAG(0);
 	    /* clear joint errors (regardless of mode */	    
 	    for (joint_num = 0; joint_num < num_joints; joint_num++) {
 		/* point to joint struct */

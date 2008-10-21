@@ -2868,7 +2868,6 @@ static EMC_STAT last_emc_status;
   */
 int main(int argc, char *argv[])
 {
-    int taskAborted = 0;	// flag to prevent flurry of task aborts
     int taskPlanError = 0;
     int taskExecuteError = 0;
     double startTime;
@@ -2984,38 +2983,33 @@ int main(int argc, char *argv[])
 	       also in emcTaskExecute()
 	       and in emcTaskIssueCommand() */
 
-	    if (!taskAborted) {
-		// abort everything
-		emcTaskAbort();
-                emcIoAbort();
-                emcSpindleAbort();
-		// without emcTaskPlanClose(), a new run command resumes at
-		// aborted line-- feature that may be considered later
-		{
-		    int was_open = taskplanopen;
-		    emcTaskPlanClose();
-		    if (EMC_DEBUG & EMC_DEBUG_INTERP && was_open) {
-			rcs_print("emcTaskPlanClose() called at %s:%d\n",
-				  __FILE__, __LINE__);
-		    }
-		}
+            // abort everything
+            emcTaskAbort();
+            emcIoAbort();
+            emcSpindleAbort();
+            // without emcTaskPlanClose(), a new run command resumes at
+            // aborted line-- feature that may be considered later
+            {
+                int was_open = taskplanopen;
+                emcTaskPlanClose();
+                if (EMC_DEBUG & EMC_DEBUG_INTERP && was_open) {
+                    rcs_print("emcTaskPlanClose() called at %s:%d\n",
+                              __FILE__, __LINE__);
+                }
+            }
+            
+            // clear out the pending command
+            emcTaskCommand = 0;
+            interp_list.clear();
+            
+            // clear out the interpreter state
+            emcStatus->task.interpState = EMC_TASK_INTERP_IDLE;
+            emcStatus->task.execState = EMC_TASK_EXEC_DONE;
+            stepping = 0;
+            steppingWait = 0;
 
-		// clear out the pending command
-		emcTaskCommand = 0;
-		interp_list.clear();
-
-		// clear out the interpreter state
-		emcStatus->task.interpState = EMC_TASK_INTERP_IDLE;
-		emcStatus->task.execState = EMC_TASK_EXEC_DONE;
-		stepping = 0;
-		steppingWait = 0;
-
-		// now queue up command to resynch interpreter
-		emcTaskQueueCommand(&taskPlanSynchCmd);
-		taskAborted = 1;
-	    }
-	} else {
-	    taskAborted = 0;
+            // now queue up command to resynch interpreter
+            emcTaskQueueCommand(&taskPlanSynchCmd);
 	}
 
 	// update task-specific status
