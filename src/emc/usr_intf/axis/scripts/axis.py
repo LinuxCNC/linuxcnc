@@ -2254,6 +2254,7 @@ class _prompt_touchoff(_prompt_float):
             tool_offset_axes = "z"
         if current_tool is None or vars.current_axis.get() not in tool_offset_axes:
             del systems[-1]
+            if defaultsystem.startswith("T"): defaultsystem = systems[0]
         _prompt_float.__init__(self, title, text, default)
         t = self.t
         f = Frame(t)
@@ -2267,7 +2268,6 @@ class _prompt_touchoff(_prompt_float):
         mb.pack(side="left")
         f.pack(side="top") 
         self.buttons.tkraise()
-        print mb
         for i in [1,2,3,4,5,6,7,8,9]:
             t.bind("<Alt-KeyPress-%s>" % i, lambda event, system=systems[i-1]: c.set(system))
         if not (current_tool is None or vars.current_axis.get() not in tool_offset_axes):
