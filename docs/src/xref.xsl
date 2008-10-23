@@ -34,10 +34,14 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 <xsl:variable name="terms"
     select="document('terms.xml')//terms[@language=$language]"/>
+<xsl:variable name="lang" select="$terms/term[@id='lang']"/>
+<xsl:variable name="docgroup"
+    select="document('docs.xml')//docgroup[@lang=$lang]"/>
 
 <xsl:template match="/">
     <HTML>
     <HEAD>
+    <META http-equiv="content-language" content="{$lang}"/>
     <TITLE><xsl:value-of select="$terms/term[@id='index']"/></TITLE>
     <STYLE TYPE="text/css">
 h1, h2 { background: #c0c0f0; }
@@ -78,11 +82,11 @@ table { border-collapse: collapse; margin-left: auto; margin-right: auto; }
     <BODY>
     <DIV class="nav">
         <xsl:if test="document('docs.xml')//doc[@name=$docname]/preceding-sibling::*[position()=1]">
-            <A HREF="{document('docs.xml')//doc[@name=$docname]/preceding-sibling::*[position()=1]/@name}.html" TITLE="Previous: {document('docs.xml')//doc[@name=$docname]/preceding-sibling::*[position()=1]/@title}">[&lt;-]</A><xsl:text> </xsl:text>
+            <A HREF="{document('docs.xml')//doc[@name=$docname]/preceding-sibling::*[position()=1]/@name}.html" TITLE="{$terms/term[@id='previous']}:: {document('docs.xml')//doc[@name=$docname]/preceding-sibling::*[position()=1]/@title}">[&lt;-]</A><xsl:text> </xsl:text>
         </xsl:if>
-        <A HREF="index.html" TITLE="Up: Documentation Index" >[^]</A><xsl:text> </xsl:text>
+        <A HREF="{$docgroup/@index}" TITLE="{$terms/term[@id='up']}" >[^]</A><xsl:text> </xsl:text>
         <xsl:if test="document('docs.xml')//doc[@name=$docname]/following-sibling::*[position()=1]">
-            <A HREF="{document('docs.xml')//doc[@name=$docname]/following-sibling::*[position()=1]/@name}.html" TITLE="Next: {document('docs.xml')//doc[@name=$docname]/following-sibling::*[position()=1]/@title}">[-&gt;]</A>
+            <A HREF="{document('docs.xml')//doc[@name=$docname]/following-sibling::*[position()=1]/@name}.html" TITLE="{$terms/term[@id='next']}: {document('docs.xml')//doc[@name=$docname]/following-sibling::*[position()=1]/@title}">[-&gt;]</A>
         </xsl:if>
     </DIV>
     <H1>Index</H1>
