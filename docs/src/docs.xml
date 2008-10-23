@@ -1,5 +1,5 @@
 <docs>
-<docgroup lang="en">
+<docgroup lang="en" index="index.html">
 <doc name="common_user_intro" title="Introduction to EMC2"/>
 <doc name="common_Getting_EMC" title="Getting EMC Guide"/>
 <doc name="install_compiling_emc2" title="Compiling EMC2"/>
@@ -47,7 +47,7 @@
 <doc name="xref" title="Cross Reference Index"/>
 </docgroup>
 
-<docgroup lang="fr">
+<docgroup lang="fr" index="index_fr.html">
 <doc name="install_compiling_emc2_fr" title="Comment compiler EMC2"/>
 <doc name="install_installing_emc2_fr" title="Comment installer EMC2"/>
 
