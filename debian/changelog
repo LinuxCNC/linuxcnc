@@ -3,26 +3,104 @@ emc2 (1:2.3.0~alpha1) unstable; urgency=low
   * fix G33 moves without feedrate (SF#2011311)
   * minor improvements for teach-in.py
   * G38.x extensions allow for smart & fast probing
+  * probe protection: abort homing or jogging if the probe trips
+  * (debug,...) (print,...) comments for debugging gcode
+  * (logopen), (log), (logclose) for flexible logging of probed points and
+    probably lots of other uses
+  * PID component's parameters changed to pins, for tuning with a panel
   * M66 now reads analog inputs as well
+  * new simulated machines: 5 axis machines of various configurations
+  * new sample kinematics modules for several 5 axis machine configurations
+  * allow colors in vismach
+  * G73 drill cycle, like G83 but with short chip breaking motion instead of
+    full retraction
+  * new O words: repeat/endrepeat for repeating some lines a specified
+    number of times
   * added drivers for Mesa Electronics' HostMot2 firmware on the
     5i20 and 7i43 boards
   * added a driver for Mesa Electronics' 7i43 FPGA I/O board
-  * sanity checks for M66 input indexes (prevents a possible segfault on task)
+  * AXIS: ability to zero G92 offset from the menu
+  * G28.1, G30.1 set the corresponding reference point to the current position
+  * increase the maximum number of axes (8) and buttons (32) in hal_joystick
+  * keystick:  retry if emcsvr is not ready yet
+  * AXIS: fix very small tool display when the radius was very small
+  * user-configurable number of digital/analog I/O at insmod time
+  * semicolon now denotes a comment in gcode.  the rest of the line after
+    the semicolon is the comment.  no closing character is needed.
+  * rising and falling edge detection in M66
+  * tool length can be along the W axis instead of Z.  This is especially 
+    useful for 5-axis machines and XYZW machines (moving quill and table)
+  * update Classic Ladder to version 7.124
+  * new ability to unhome a joint
+  * named "O" words
+  * permit calling subroutines from MDI
+  * fix "sample every Nth time" function of halscope
   * put RS274NGC_STARTUP_CODE in [RS274NGC]
   * build against hardy package
+  * new HOME_FINAL_VEL setting can be used to slow down the last homing rapid
   * eliminate requirement for unnecessary endpoint respecification for
     full circles (G2/G3 with only I/J/K words will give full circles)
+  * index-only homing for machines with no home switches
+  * new "mux8" eight-way multiplexor component
+  * halui now supports all nine axes
+  * python 2.5 compatibility changes
+  * new "toggle2nist" component for some pendant button configurations
+  * tkemc: allow user command file for customization
+  * extend the "naive cam detector" to handle tiny arcs too
+  * AXIS: allow display of rapids to be disabled
+  * UV/VW/WU (G17.1, G18.1, G19.1) plane canned cycles
+  * AXIS: configurable preview of gcode for multiaxis/rotational machines
+  * AXIS: honor Block Delete in the preview
   * added 'vismach' directory to sample configs, with max5 configuration
   * vismach improvements: trianglar plate and triangle mesh primitives,
     and ability to view model from all angles
   * added interpolated position to software encoder counter - allows
     threading with low ppr spindle encoder
+  * HALUI: new relative position pins show position with active offsets
   * new realtime component: gearchange.  selects between two scale factors,
     two min and max speed limits, and optionally reverses direction of spindle
   * new realtime component: invert - outputs the inverse of a float (1/x)
+  * pyvcp: add rectangular LED widgets
+  * pyvcp: timer widget for things like timing a program run
+  * vismach; new arc primitive
+  * new driver for OPTO22 PCI AC5 adapter card
+  * AXIS: display error messages on the main screen instead of a popup
+  * PID saturation detector output pins for fault/runaway protection
+  * halscope: add a menubar for load/save configurations, logging, help
+  * honor [TRAJ]'s ACCELERATION settings when jogging/homing
+  * pyvcp: fix bug that required you to hold down buttons for them to work
+  * AXIS: configurable minimum jog speed value
+  * tkemc: separate sliders for linear/angular joints
+  * allow FPR/G95 canned cycles
+  * AXIS: optional large DRO font
+  * AXIS: new Polish translation
+  * new distance-to-go and current-velocity HAL pins
+  * AXIS: the jog increment now does not wrap with repeated 'i' keypress;
+    using 'i' and 'I' prevents disaster when you press one too many times.
+  * FPR/G95 now works with the spindle going either direction
+  * AXIS: right clicking in the gcode window lets you "run from here"
+  * several new tool change configuration options: TOOL_CHANGE_WITH_SPINDLE_ON,
+    TOOL_CHANGE_QUILL_UP, TOOL_CHANGE_AT_G30
+  * allow UVW to be specified in the TOOL_CHANGE_POSITION
+  * improve motion synchronization at the beginning of a threading pass.
+  * AXIS: continue to show the line where the program was aborted, in order
+    to make it easier to know where to restart.
+  * allow setting of spindle, coolant, tool, tool length to persist across
+    mode switches, to allow the user to set up the machine properly for a
+    program restart.
+  * AXIS: do not display initial rapid moves after a tool change or
+    tool length offset change.  These were not useful to see and made the
+    preview and extents display less useful.
+  * disallow MDI commands and program execution on an unhomed machine
+    by default.  The old behavior is still available with an INI change.
+  * improve the "move on line N would exceed limits" messages by telling 
+    which limit would be exceeded
+  * G10 L1 commands to set tool offsets, radius, orientation
+  * AXIS: "touch off" can now also set offsets in the tool table
+
   * [add bugfixes from the 2.2.x branch here, before release]
 
- -- Chris Radek <chris@timeguy.com>  Wed, 28 May 2008 11:02:23 -0500
+ -- Chris Radek <chris@timeguy.com>  Wed, 22 Oct 2008 23:21:23 -0500
 
 emc2 (1:2.2.0) unstable; urgency=low
 
