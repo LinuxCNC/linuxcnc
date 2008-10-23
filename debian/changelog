@@ -54,6 +54,7 @@ emc2 (1:2.3.0~alpha1) unstable; urgency=low
   * added 'vismach' directory to sample configs, with max5 configuration
   * vismach improvements: trianglar plate and triangle mesh primitives,
     and ability to view model from all angles
+  * vismach improvement: allow loading of stl models
   * added interpolated position to software encoder counter - allows
     threading with low ppr spindle encoder
   * HALUI: new relative position pins show position with active offsets
