@@ -34,6 +34,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 <xsl:variable name="language" select="//language/@data"/>
 <xsl:variable name="terms"
     select="document('terms.xml')//terms[@language=$language]"/>
+<xsl:variable name="lang" select="$terms/term[@id='lang']"/>
+<xsl:variable name="docgroup"
+    select="document('docs.xml')//docgroup[@lang=$lang]"/>
 <xsl:variable name="doc"
     select="document('docs.xml')//doc[@name=$docname]"/>
 <xsl:variable name="xref"
@@ -42,7 +45,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 <xsl:template match="/">
     <HTML>
     <HEAD>
-    <META http-equiv="content-language" content="{$terms/term[@id='lang']}"/>
+    <META http-equiv="content-language" content="{$lang}"/>
     <TITLE>
 	<xsl:choose>
 	    <xsl:when test="//layout[@class='Title']">
@@ -97,7 +100,7 @@ table { border-collapse: collapse; margin-left: auto; margin-right: auto; }
         <xsl:if test="$doc/preceding-sibling::*[position()=1]">
             <A HREF="{$doc/preceding-sibling::*[position()=1]/@name}.html" TITLE="{$terms/term[@id='previous']}: {$doc/preceding-sibling::*[position()=1]/@title}">[&lt;-]</A><xsl:text> </xsl:text>
         </xsl:if>
-        <A HREF="index.html" TITLE="{$terms/term[@id='up']}" >[^]</A><xsl:text> </xsl:text>
+        <A HREF="{$docgroup/@index}" TITLE="{$terms/term[@id='up']}" >[^]</A><xsl:text> </xsl:text>
         <xsl:if test="$doc/following-sibling::*[position()=1]">
             <A HREF="{$doc/following-sibling::*[position()=1]/@name}.html" TITLE="{$terms/term[@id='next']}: {$doc/following-sibling::*[position()=1]/@title}">[-&gt;]</A>
         </xsl:if>
@@ -140,7 +143,7 @@ table { border-collapse: collapse; margin-left: auto; margin-right: auto; }
     &#xa0;
     <xsl:value-of select="."/>
     <xsl:text> </xsl:text>
-    <a href="#f{$incr}">back</a>
+    <a href="#f{$incr}"><xsl:value-of select="$terms/term[@id='back']"/></a>
     </p>
 </xsl:template>	
 
