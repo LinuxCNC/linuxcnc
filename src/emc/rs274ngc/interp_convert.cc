@@ -3761,50 +3761,32 @@ Side effects:
 
 Called by: convert_m
 
-This function carries out an m6 command, which changes the tool in the
-spindle. The only function call this makes is to the CHANGE_TOOL
-function. The semantics of this function call is that when it is
-completely carried out, the tool that was selected is in the spindle,
-the tool that was in the spindle (if any) is returned to its changer
-slot, the spindle will be stopped (but the spindle speed setting will
-not have changed) and the x, y, z, a, b, and c positions will be the same
-as they were before (although they may have moved around during the
-change).
+This function carries out an M6 command, which changes the tool.
 
-It would be nice to add more flexibility to this function by allowing
-more changes to occur (position changes, for example) as a result of
-the tool change. There are at least two ways of doing this:
+When the CHANGE_TOOL call completes, the specified tool should be
+loaded.  What this means varies by machine.  According to configuration,
+the interpreter may also issue commands to do one or more of the
+following things before calling CHANGE_TOOL:
 
-1. Require that certain machine settings always have a given fixed
-value after a tool change (which may be different from what the value
-was before the change), and record the fixed values somewhere (in the
-world model that is read at initialization, perhaps) so that this
-function can retrieve them and reset any settings that have changed.
-Fixed values could even be hard coded in this function.
+1. stop the spindle
+2. move the quill up (Z to machine zero, like G0 G53 Z0)
+3. move the axes to reference point #2 (like G30)
 
-2. Allow the executor of the CHANGE_TOOL function to change the state
-of the world however it pleases, and have the interpreter read the
-executor's world model after the CHANGE_TOOL function is carried out.
-Implementing this would require a change in other parts of the EMC
-system, since calls to the interpreter would then have to be
-interleaved with execution of the function calls output by the
-interpreter.
-
-There may be other commands in the block that includes the tool change.
-They will be executed in the order described in execute_block.
+Further, the interpreter makes no assumptions about the axis positions
+after the tool change completes.  This state is queried and the internal
+model is resynched before the program continues.  This means CHANGE_TOOL
+itself can also issue motion (and it currently may, according to
+configuration).
 
 This implements the "Next tool in T word" approach to tool selection.
 The tool is selected when the T word is read (and the carousel may
 move at that time) but is changed when M6 is read.
 
 Note that if a different tool is put into the spindle, the current_z
-location setting may be incorrect for a time. It is assumed the
-program will contain an appropriate USE_TOOL_LENGTH_OFFSET command
-near the CHANGE_TOOL command, so that the incorrect setting is only
-temporary.
-
-In [NCMS, page 73, 74] there are three other legal approaches in addition
-to this one.
+location setting will be incorrect. It is assumed the program will
+contain an appropriate USE_TOOL_LENGTH_OFFSET (G43) command before any
+subsequent motion.  It is also assumed that the program will restart the
+spindle and make new entry moves if necessary.
 
 */
 
