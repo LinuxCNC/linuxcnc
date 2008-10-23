@@ -2856,8 +2856,6 @@ static int iniLoad(const char *filename)
     } else {
 	// not found, using default
 	no_force_homing = 0;
-	rcs_print("[TRAJ] NO_FORCE_HOMING not found in %s; using default %d\n",
-		  filename, no_force_homing);
     }
 
     // close it

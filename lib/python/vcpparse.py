@@ -51,7 +51,6 @@ def read_file():
         print "Error: could not open",filename,"!"
 	print detail
         sys.exit(1)
-    print "Creating widgets from",filename,"...",
     # find the pydoc element
     for e in doc.childNodes:
         if e.nodeType == e.ELEMENT_NODE and e.localName == "pyvcp":
@@ -62,7 +61,6 @@ def read_file():
         sys.exit()
     pyvcproot=e
     nodeiterator(pyvcproot,pyvcp0) 
-    print "Done."         
 
 
 
@@ -178,7 +176,6 @@ def create_vcp(master, comp = None, compname="pyvcp"):
             sys.exit(0)
 
     pycomp = comp
-    print "pyVCP:",
     read_file() 
     updater()
     return comp

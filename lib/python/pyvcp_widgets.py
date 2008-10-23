@@ -1216,7 +1216,6 @@ class pyvcp_include(Frame):
             print detail
             sys.exit(1)
 
-        print "Creating widgets from",src,"...",
         # find the pydoc element
         for e in doc.childNodes:
             if e.nodeType == e.ELEMENT_NODE and e.localName == "pyvcp":
@@ -1230,8 +1229,6 @@ class pyvcp_include(Frame):
 
         if prefix is not None:
             pycomp.setprefix(oldprefix)
-
-        print "Done."         
 
     def update(self, pycomp): pass
 

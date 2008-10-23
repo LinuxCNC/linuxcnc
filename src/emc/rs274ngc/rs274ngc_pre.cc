@@ -404,7 +404,7 @@ int Interp::init()
 	    printf("inistring:%s:\n", inistring);
               realpath(inistring, _setup.wizard_root);
           }
-          printf("_setup.wizard_root:%s:\n", _setup.wizard_root);
+          logDebug("_setup.wizard_root:%s:\n", _setup.wizard_root);
 
 	  _setup.program_prefix[0] = 0;
           if(NULL != (inistring = inifile.Find("PROGRAM_PREFIX", "DISPLAY")))
@@ -418,7 +418,7 @@ int Interp::init()
           {
 	      logDebug("PROGRAM_PREFIX not found");
           }
-          printf("_setup.program_prefix:%s:\n", _setup.program_prefix);
+          logDebug("_setup.program_prefix:%s:\n", _setup.program_prefix);
 
 
           // close it
