@@ -26,10 +26,10 @@
 
 \layout Chapter
 
-Entrée de sonde de mesure
+Entrée de palpeur de mesure
 \layout Standard
 
-Pour utiliser une sonde de mesure avec G38 une sonde doit être raccordée
+Pour utiliser une sonde de mesure avec G38 un palpeur doit être raccordé
  à 
 \begin_inset Quotes fld
 \end_inset 
@@ -41,15 +41,15 @@ motion.probe-input
 .
  Dans cet exemple, la broche 15 du port parallèle est utilisée.
  Dans votre fichier .hal ajoutez la ligne suivante.
- Elle doit bien sur être adapté à l'entrée sur laquelle votre sonde est
- raccordée.
+ Elle doit bien sur être adapté à l'entrée sur laquelle votre palpeur est
+ raccordé.
 \layout Standard
 
 net probe-in motion.probe-input <= parport.0.pin-15-in
 \layout Standard
 
 Pour d'autres informations concernant la sonde de mesure voir 
-\begin_inset LatexCommand \ref{sub:G38.2:-Sonde-de-mesure}
+\begin_inset LatexCommand \ref{sub:G38.x:-Palpeur}
 
 \end_inset 
 

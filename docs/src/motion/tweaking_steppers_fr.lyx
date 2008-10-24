@@ -54,12 +54,7 @@ This chapter has some steps that can help you get the best results from
 Effectuer un test de latence
 \layout Standard
 
-The new easy way to run a latency test is described here 
-\begin_inset LatexCommand \ref{sec:Latency-Test}
-
-\end_inset 
-
-.
+The new easy way to run a latency test is described here (??).
 \layout Standard
 
 Latency is how long it takes the PC to stop what it is doing and respond

@@ -251,12 +251,7 @@ deadzone.9 = Retourne le centre si il est dans le seuil
 \labelwidthstring 00.00.0000
 
 debounce.9 = Filtre une entrée digitale bruitée, pour plus de détails voir
- 
-\begin_inset LatexCommand \ref{sec:Debounce}
-
-\end_inset 
-
-
+ (???)
 \layout List
 \labelwidthstring 00.00.0000
 
@@ -265,12 +260,7 @@ edge.9 = Détecteur de front
 \labelwidthstring 00.00.0000
 
 encoder.9 = Comptage logiciel des signaux en quadrature d'un codeur, pour
- plus de détails voir 
-\begin_inset LatexCommand \ref{sec:Encoder}
-
-\end_inset 
-
-
+ plus de détails voir (???)
 \layout List
 \labelwidthstring 00.00.0000
 
@@ -387,12 +377,7 @@ or2.9 = Porte OR (OU) à deux entrées
 \labelwidthstring 00.00.0000
 
 pid.9 = Contrôleur Proportionelle/Intégrale/dérivée, pour plus de détails
- voir 
-\begin_inset LatexCommand \ref{sec:PID}
-
-\end_inset 
-
-
+ voir (???)
 \layout List
 \labelwidthstring 00.00.0000
 
@@ -420,12 +405,7 @@ Pluto-P parallel-port FPGA
 \layout List
 \labelwidthstring 00.00.0000
 
-pwmgen.9 = Générateur logiciel de PWM/PDM, pour plus de détails voir 
-\begin_inset LatexCommand \ref{sec:PWMgen}
-
-\end_inset 
-
-
+pwmgen.9 = Générateur logiciel de PWM/PDM, pour plus de détails voir (???)
 \layout List
 \labelwidthstring 00.00.0000
 
@@ -464,12 +444,7 @@ siggen.9 = Générateur de signal, pour plus de détails voir
 \labelwidthstring 00.00.0000
 
 sim_encoder.9 = Simulation d'un codeur en quadrature, pour plus de détails
- voir 
-\begin_inset LatexCommand \ref{sec:Simulated-Encoder}
-
-\end_inset 
-
-
+ voir (???)
 \layout List
 \labelwidthstring 00.00.0000
 

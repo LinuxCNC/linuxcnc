@@ -608,7 +608,7 @@ e: (1) mode arrêt exact, (2) mode trajectoire exacte ou (3) mode trajectoire
  légèrement arrondis pour que la vitesse soit maintenue (sans dépasser la
  tolérance, si elle est spécifiée).
  Voir la section 
-\begin_inset LatexCommand \ref{sub:G61,-G61.1,-G64:-Modes-controle-trajectoire}
+\begin_inset LatexCommand \ref{sub:G61,-G61.1,-G64:-Controle-trajectoire}
 
 \end_inset 
 
@@ -2029,7 +2029,7 @@ Format d'un fichier de paramètres
 
 \layout Standard
 
-Numéro de paramètre
+Numéro d'index
 \end_inset 
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
@@ -2037,7 +2037,7 @@ Numéro de paramètre
 
 \layout Standard
 
-Valeur du paramètre
+Valeur
 \end_inset 
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
@@ -2132,7 +2132,7 @@ Vous pouvez définir le décalage d'origine de neuf systèmes de coordonnées
  programme en utilisant G10 L2 Pn (n étant le numéro du système de coordonnées),
  avec des valeurs pour les axes en coordonnées absolues.
  Voir la section 
-\begin_inset LatexCommand \ref{sub:G10:-Coordonnees-piece}
+\begin_inset LatexCommand \ref{sub:G10-L2:-Coordonnees-piece}
 
 \end_inset 
 
@@ -3621,7 +3621,7 @@ Fonctions
 \align center 
 
 \begin_inset  Tabular
-<lyxtabular version="3" rows="16" columns="2">
+<lyxtabular version="3" rows="14" columns="2">
 <features>
 <column alignment="center" valignment="top" leftline="true" width="0">
 <column alignment="center" valignment="top" leftline="true" rightline="true" width="0">
@@ -3658,24 +3658,6 @@ ATAN[Y]/[X]
 \layout Standard
 
 Tangente quatre quadrants
-\end_inset 
-</cell>
-</row>
-<row topline="true">
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\layout Standard
-
-ATAN[arg]
-\end_inset 
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\layout Standard
-
-Arc tangente
 \end_inset 
 </cell>
 </row>
@@ -3730,24 +3712,6 @@ ASIN[arg]
 \layout Standard
 
 Arc sinus
-\end_inset 
-</cell>
-</row>
-<row topline="true">
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\layout Standard
-
-ATAN[arg]
-\end_inset 
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\layout Standard
-
-Arc tangente
 \end_inset 
 </cell>
 </row>
@@ -3990,7 +3954,7 @@ MSG
  
 \layout Subsection
 
-Log des mesures
+Enregistrement des mesures
 \begin_inset LatexCommand \label{sub:-Log-des-mesures}
 
 \end_inset 
@@ -3999,9 +3963,9 @@ Log des mesures
 \layout Standard
 
 Un commentaire peut aussi être utilisé pour spécifier le fichier de log
- des résultats des mesures faites avec G38.x .
+ des résultats des mesures faites au palpeur avec G38.x .
  Voir la section 
-\begin_inset LatexCommand \ref{sub:G38.2:-Palpeur}
+\begin_inset LatexCommand \ref{sub:G38.x:-Palpeur}
 
 \end_inset 
 
@@ -4054,7 +4018,7 @@ Le message
  si il est ouvert.
 \layout Subsection
 
-Messsages de déboguage
+Messages de déboguage
 \begin_inset LatexCommand \label{sub:-Messages-deboguage}
 
 \end_inset 
@@ -4373,62 +4337,7 @@ Groupe 1
 
 \layout Standard
 
-G0
-\begin_inset LatexCommand \index{G0}
-
-\end_inset 
-
- G1
-\begin_inset LatexCommand \index{G1}
-
-\end_inset 
-
- G2
-\begin_inset LatexCommand \index{G2}
-
-\end_inset 
-
- G3
-\begin_inset LatexCommand \index{G3}
-
-\end_inset 
-
- G33
-\begin_inset LatexCommand \index{G33}
-
-\end_inset 
-
- G38.x
-\begin_inset LatexCommand \index{G38.2}
-
-\end_inset 
-
-
-\begin_inset LatexCommand \index{G38.x}
-
-\end_inset 
-
- G73
-\begin_inset LatexCommand \index{G73}
-
-\end_inset 
-
- G80
-\begin_inset LatexCommand \index{G80}
-
-\end_inset 
-
- G81
-\begin_inset LatexCommand \index{G81}
-
-\end_inset 
-
- G82
-\begin_inset LatexCommand \index{G82}
-
-\end_inset 
-
-
+G0 G1 G2 G3 G33 G38.x G73 G80 G81 G82
 \end_inset 
 </cell>
 </row>
@@ -4445,42 +4354,7 @@ G0
 
 \layout Standard
 
-G83
-\begin_inset LatexCommand \index{G83}
-
-\end_inset 
-
- G84
-\begin_inset LatexCommand \index{G84}
-
-\end_inset 
-
- G85
-\begin_inset LatexCommand \index{G85}
-
-\end_inset 
-
- G86
-\begin_inset LatexCommand \index{G86}
-
-\end_inset 
-
- G87
-\begin_inset LatexCommand \index{G87}
-
-\end_inset 
-
- G88
-\begin_inset LatexCommand \index{G88}
-
-\end_inset 
-
- G89
-\begin_inset LatexCommand \index{G89}
-
-\end_inset 
-
-
+G83 G84 G85 G86 G87 G88 G89
 \end_inset 
 </cell>
 </row>
@@ -4498,22 +4372,7 @@ Choix du plan de travail
 
 \layout Standard
 
-G17
-\begin_inset LatexCommand \index{G17}
-
-\end_inset 
-
- G18
-\begin_inset LatexCommand \index{G18}
-
-\end_inset 
-
- G19
-\begin_inset LatexCommand \index{G19}
-
-\end_inset 
-
-
+G17 G18 G19
 \end_inset 
 </cell>
 </row>
@@ -4531,17 +4390,7 @@ Mode de déplacements
 
 \layout Standard
 
-G90
-\begin_inset LatexCommand \index{G90}
-
-\end_inset 
-
- G91
-\begin_inset LatexCommand \index{G91}
-
-\end_inset 
-
-
+G90, G91
 \end_inset 
 </cell>
 </row>
@@ -4559,17 +4408,7 @@ Mode de vitesses
 
 \layout Standard
 
-G93
-\begin_inset LatexCommand \index{G93}
-
-\end_inset 
-
-, G94
-\begin_inset LatexCommand \index{G94}
-
-\end_inset 
-
-
+G93, G94
 \end_inset 
 </cell>
 </row>
@@ -4587,17 +4426,7 @@ Unités machine
 
 \layout Standard
 
-G20
-\begin_inset LatexCommand \index{G20}
-
-\end_inset 
-
-, G21
-\begin_inset LatexCommand \index{G21}
-
-\end_inset 
-
-
+G20, G21
 \end_inset 
 </cell>
 </row>
@@ -4615,32 +4444,7 @@ Correcteurs de rayon d'outil
 
 \layout Standard
 
-G40
-\begin_inset LatexCommand \index{G40}
-
-\end_inset 
-
-, G41
-\begin_inset LatexCommand \index{G41}
-
-\end_inset 
-
-, G42
-\begin_inset LatexCommand \index{G42}
-
-\end_inset 
-
-, G41.1
-\begin_inset LatexCommand \index{G41.1}
-
-\end_inset 
-
-, G42.1
-\begin_inset LatexCommand \index{G42.1}
-
-\end_inset 
-
-
+G40, G41, G42, G41.1, G42.1
 \end_inset 
 </cell>
 </row>
@@ -4658,22 +4462,7 @@ Correcteurs de longueur d'outil
 
 \layout Standard
 
-G43
-\begin_inset LatexCommand \index{G43}
-
-\end_inset 
-
-, G43.1
-\begin_inset LatexCommand \index{G43.1}
-
-\end_inset 
-
-, G49
-\begin_inset LatexCommand \index{G49}
-
-\end_inset 
-
-
+G43, G43.1, G49
 \end_inset 
 </cell>
 </row>
@@ -4691,17 +4480,7 @@ Options de retrait des cycles préprogrammés
 
 \layout Standard
 
-G98
-\begin_inset LatexCommand \index{G98}
-
-\end_inset 
-
-, G99
-\begin_inset LatexCommand \index{G99}
-
-\end_inset 
-
-
+G98, G99
 \end_inset 
 </cell>
 </row>
@@ -4719,32 +4498,7 @@ Systèmes de coordonnées
 
 \layout Standard
 
-G54
-\begin_inset LatexCommand \index{G54}
-
-\end_inset 
-
-, G55
-\begin_inset LatexCommand \index{G55}
-
-\end_inset 
-
-, G56
-\begin_inset LatexCommand \index{G56}
-
-\end_inset 
-
-, G57
-\begin_inset LatexCommand \index{G57}
-
-\end_inset 
-
-, G58
-\begin_inset LatexCommand \index{G58}
-
-\end_inset 
-
-,
+G54, G55, G56, G57, G58,
 \end_inset 
 </cell>
 </row>
@@ -4761,27 +4515,7 @@ G54
 
 \layout Standard
 
-G59
-\begin_inset LatexCommand \index{G59}
-
-\end_inset 
-
-, G59.1
-\begin_inset LatexCommand \index{G59.1}
-
-\end_inset 
-
-, G59.2
-\begin_inset LatexCommand \index{G59.2}
-
-\end_inset 
-
-, G59.3
-\begin_inset LatexCommand \index{G59.3}
-
-\end_inset 
-
-
+G59, G59.1, G59.2, G59.3
 \end_inset 
 </cell>
 </row>
@@ -4799,32 +4533,7 @@ Types d'arrêt de programme
 
 \layout Standard
 
-M0
-\begin_inset LatexCommand \index{M0}
-
-\end_inset 
-
-, M1
-\begin_inset LatexCommand \index{M1}
-
-\end_inset 
-
-, M2
-\begin_inset LatexCommand \index{M2}
-
-\end_inset 
-
-, M30
-\begin_inset LatexCommand \index{M30}
-
-\end_inset 
-
-, M60
-\begin_inset LatexCommand \index{M60}
-
-\end_inset 
-
-
+M0, M1, M2, M30, M60
 \end_inset 
 </cell>
 </row>
@@ -4843,11 +4552,6 @@ Appel d'outil
 \layout Standard
 
 M6
-\begin_inset LatexCommand \index{M6}
-
-\end_inset 
-
-
 \end_inset 
 </cell>
 </row>
@@ -4865,22 +4569,7 @@ Types de rotation de la broche
 
 \layout Standard
 
-M3
-\begin_inset LatexCommand \index{M3}
-
-\end_inset 
-
-, M4
-\begin_inset LatexCommand \index{M4}
-
-\end_inset 
-
-, M5
-\begin_inset LatexCommand \index{M5}
-
-\end_inset 
-
-
+M3, M4, M5
 \end_inset 
 </cell>
 </row>
@@ -4898,22 +4587,7 @@ Arrosages
 
 \layout Standard
 
-M7
-\begin_inset LatexCommand \index{M7}
-
-\end_inset 
-
-, M8
-\begin_inset LatexCommand \index{M8}
-
-\end_inset 
-
-, M9
-\begin_inset LatexCommand \index{M9}
-
-\end_inset 
-
-.
+M7, M8, M9.
  Cas spéciaux:
 \end_inset 
 </cell>
@@ -4949,17 +4623,7 @@ Boutons de correction de vitesse
 
 \layout Standard
 
-M48
-\begin_inset LatexCommand \index{M48}
-
-\end_inset 
-
-, M49
-\begin_inset LatexCommand \index{M49}
-
-\end_inset 
-
-
+M48, M49
 \end_inset 
 </cell>
 </row>
@@ -5003,32 +4667,7 @@ Groupe 0
 
 \layout Standard
 
-G4
-\begin_inset LatexCommand \index{G4}
-
-\end_inset 
-
-, G10
-\begin_inset LatexCommand \index{G10}
-
-\end_inset 
-
-, G28
-\begin_inset LatexCommand \index{G28}
-
-\end_inset 
-
-, G30
-\begin_inset LatexCommand \index{G30}
-
-\end_inset 
-
-, G53
-\begin_inset LatexCommand \index{G53}
-
-\end_inset 
-
-
+G4, G10, G28, G30, G53
 \end_inset 
 </cell>
 </row>
@@ -5045,27 +4684,7 @@ G4
 
 \layout Standard
 
-G92
-\begin_inset LatexCommand \index{G92}
-
-\end_inset 
-
-, G92.1
-\begin_inset LatexCommand \index{G92.1}
-
-\end_inset 
-
-, G92.2
-\begin_inset LatexCommand \index{G92.2}
-
-\end_inset 
-
-, G92.3
-\begin_inset LatexCommand \index{G92.3}
-
-\end_inset 
-
-
+G92, G92.1, G92.2, G92.3
 \end_inset 
 </cell>
 </row>
@@ -5082,12 +4701,7 @@ G92
 
 \layout Standard
 
-M100
-\begin_inset LatexCommand \index{M100..199}
-
-\end_inset 
-
- à M199
+M100 à M199
 \end_inset 
 </cell>
 </row>
@@ -5131,6 +4745,218 @@ C'est une erreur d'inclure des mots sans rapport sur une ligne avec le contrôle
 O
 \family default 
 .
+\layout Chapter
+
+Ordre d'exécution
+\begin_inset LatexCommand \label{sec:Ordre-d'execution}
+
+\end_inset 
+
+
+\layout Standard
+
+L'ordre d'exécution des éléments d'une ligne est essentiel à la sécurité
+ et l'efficacité d'une machine.
+ Les éléments sont exécutés dans l'ordre indiqué ci-dessous, si ils se trouvent
+ sur la même ligne.
+\layout Enumerate
+
+Commentaire (message inclu)
+\layout Enumerate
+
+Positionnement du mode de vitesses (G93, G94).
+ 
+\layout Enumerate
+
+Réglage de la vitesse travail (F).
+ 
+\layout Enumerate
+
+Réglage de la vitesse de rotation de la broche (S).
+ 
+\layout Enumerate
+
+Sélection de l'outil (T).
+ 
+\layout Enumerate
+
+Appel d'outil (M6).
+\layout Enumerate
+
+Marche/Arrêt broche (M3, M4, M5).
+\layout Enumerate
+
+Marche/Arrêt arrosages (M7, M8, M9).
+\layout Enumerate
+
+Activation/Inhibition correcteurs de vitesse (M48, M49).
+ 
+\layout Enumerate
+
+Temporisation (G4).
+ 
+\layout Enumerate
+
+Choix du plan de travail (G17, G18, G19).
+ 
+\layout Enumerate
+
+Choix de l'unité de longueur (G20, G21).
+\layout Enumerate
+
+Activation/Désactivation de la compensation de rayon d'outil (G40, G41,
+ G42) 
+\layout Enumerate
+
+Activation/Désactivation de la compensation de longueur d'outil (G43, G49)
+ 
+\layout Enumerate
+
+Sélection du système de coordonnées (G54, G55, G56, G57, G58, G59, G59.1,
+ G59.2, G59.3).
+ 
+\layout Enumerate
+
+Réglage du mode de trajectoire (G61, G61.1, G64)
+\layout Enumerate
+
+Réglage du mode de déplacement (G90, G91).
+ 
+\layout Enumerate
+
+Réglage du type de retrait (G98, G99).
+\layout Enumerate
+
+Prise d'origine machine (G28, G30) ou établissement du système de coordonnées
+ (G10) ou encore, réglage des décalages d'axes (G92, G92.1, G92.2, G94).
+ 
+\layout Enumerate
+
+Effectuer les mouvements (G0 à G3, G33, G80 à G89), tels que modifiés (éventuell
+ement) par G53.
+ 
+\layout Enumerate
+
+Arrêt (M0, M1, M2, M30, M60).
+\layout Chapter
+
+G-Code: Bonnes pratiques
+\layout Section
+
+Utiliser un nombre de décimales approprié
+\layout Standard
+
+Utilisez au plus 3 chiffres après la virgule pour l'usinage en millimètres
+ et au plus 4 chiffres après la virgule pour l'usinage en pouces.
+ En particulier, les contrôles de tolérance des arcs sont faits pour .001
+ et .0001 selon les unités actives.
+ 
+\layout Section
+
+Utiliser les espaces de façon cohérente
+\layout Standard
+
+Le G-code est plus lisible quand au moins un espace apparaît avant les mots.
+ S'il est permis d' insérer des espaces blancs au milieu des chiffres, il
+ faut éviter de le faire.
+\layout Section
+
+Préférer le 
+\begin_inset Quotes eld
+\end_inset 
+
+format centre
+\begin_inset Quotes erd
+\end_inset 
+
+ pour les arcs
+\layout Standard
+
+Les arcs en format centre (qui utilisent 
+\family typewriter 
+I- J- K-
+\family default 
+ au lieu de 
+\family typewriter 
+R-
+\family default 
+) se comportent de façon plus précise que ceux en format rayon, particulièrement
+ pour des angles proche de 180 et 360 degrés.
+\layout Section
+
+Placer les codes modaux importants au début des programmes
+\layout Standard
+
+Lorsque l'exécution correcte de votre programme dépend de paramètres modaux,
+ n'oubliez pas de les mettre au début du programme.
+ Des modes incorrects peuvent provenir d'un programme précédent ou depuis
+ des entrées manuelles.
+\layout Standard
+
+Une bonne mesure préventive consiste à placer la ligne suivante au début
+ de tous les programmes:
+\layout LyX-Code
+
+G17 G21 G40 G49 G54 G80 G90 G94 
+\layout Standard
+
+(plan XY, mode mm, annulation de la compensation de rayon, et de longueur,
+ sytème de coordonnées numéro 1, arrêt des mouvements, déplacements absolus,
+ mode vitesse/minute)
+\layout Standard
+
+Peut-être que le code modal le plus important est le réglage des unités
+ machine.
+ Si les codes G20 ou G21, ne sont pas inclus, selon les machines l'échelle
+ d'usinage sera différente.
+ D'autres valeurs comme le plan de retrait des cycles préprogrammés peuvent
+ être importantes.
+\layout Section
+
+Ne pas mettre trop de choses sur une ligne
+\layout Standard
+
+Ignorer le contenu de la section 
+\begin_inset LatexCommand \ref{sec:Ordre-d'execution}
+
+\end_inset 
+
+ et ne pas écrire de ligne de code qui laisse la moindre ambiguïté.
+ De même, ne pas régler un paramètre et l'utiliser sur la même ligne, même
+ si la sémantique est bien définie.
+ (Exception: Mise à jour d'une variable à une nouvelle valeur, comme 
+\family typewriter 
+#1=[#1+#2
+\family default 
+])
+\layout Section
+
+Ne pas utiliser les numéros de ligne
+\layout Standard
+
+Les numéros de ligne n'apportent rien.
+ Quand des numéros de ligne sont rapportés dans les messages d'erreur, ces
+ numéros font référence aux numéros de lignes à l'intérieur du programme,
+ pas aux valeurs des mots N.
+\layout Section
+
+Lorsque plusieurs systèmes de coordonnées sont déplacés, envisager le mode
+ vitesse inverse du temps
+\layout Standard
+
+Parce que la signification d'un mot F en mètres par minute varie selon les
+ axes à déplacer et parce que la quantité de matière enlevée ne dépend pas
+ que de la vitesse travail, il peut être plus simple d'utiliser G93, vitesse
+ inverse du temps pour atteindre l'enlévement de matière souhaîté.
+\layout Standard
+
+
+\begin_inset Include \input{tool_compensation_fr.lyx}
+preview false
+
+\end_inset 
+
+
 \layout Chapter
 
 G Codes
@@ -5260,8 +5086,1865 @@ H nombre
  
 \layout Section
 
+Table résumée du G-code
+\begin_inset LatexCommand \index{Table du G Code}
+
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset  Tabular
+<lyxtabular version="3" rows="47" columns="4">
+<features>
+<column alignment="center" valignment="top" leftline="true" width="0">
+<column alignment="center" valignment="top" leftline="true" width="0">
+<column alignment="center" valignment="top" leftline="true" width="0">
+<column alignment="center" valignment="top" leftline="true" rightline="true" width="0">
+<row topline="true" bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Codes
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Descriptions
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Paramètres
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Sections
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
 G0
-\begin_inset LatexCommand \index{G0}
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Interpolation linéaire en vitesse rapide
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+n/a
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset LatexCommand \ref{sec:G0:-Interpolation-lineaire}
+
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+G1
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Interpolation linéaire en vitesse travail
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+n/a
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset LatexCommand \ref{sec:G1:-Interpolation-lineaire}
+
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+G2, G3
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Interpolation circulaire en vitesse travail sens horaire, sens anti-horaire
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+I J K or R
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset LatexCommand \ref{sub:-G2,-G3:-Arc}
+
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+G10 L1
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Entrée longueur, rayon, orientation de l'outil dans la table d'outils
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+P R X Z
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset LatexCommand \ref{sec:G10-L1:-Entree-table}
+
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+G10 L2
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Etablissement du système de coordonnées pièce (1 à 9)
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+P X Y Z A B C
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset LatexCommand \ref{sub:G10-L2:-Coordonnees-piece}
+
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+G17, G18, G19
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Choix du plan de travail
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+n/a
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset LatexCommand \ref{sub:G17,-G18,-G19:}
+
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+G20, G21
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Unité machine
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+n/a
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset LatexCommand \ref{sec:G20,-G21:-Unites}
+
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+G28, G30
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Retour à l'origine machine, pièce 
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+n/a
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset LatexCommand \ref{sub:G28,-G30:-Retour}
+
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+G33
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Mouvement synchronisé avec la broche
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+K
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset LatexCommand \ref{sec:G33,-G33.1:-Broche-synchronisee}
+
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+G33.1
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Taraudage rigide
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+K
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset LatexCommand \ref{sec:G33,-G33.1:-Broche-synchronisee}
+
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+G38.2-G38.5
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Mesures au palpeur
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+n/a
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset LatexCommand \ref{sub:G38.x:-Palpeur}
+
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+G40
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Annulation de la compensation de longueur d'outil
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+n/a
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset LatexCommand \ref{sub:G40,-G41,-G42:}
+
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+G41, G42
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Compensation de rayon d'outil 
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+D
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset LatexCommand \ref{sub:G40,-G41,-G42:}
+
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+G41.1, G42.1
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Compensation dynamique de rayon d'outil à gauche, à droite 
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+D L
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset LatexCommand \ref{sub:G40,-G41,-G42:}
+
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+G43
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Compensation de longueur d'outil depuis la table d'outils
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+H
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset LatexCommand \ref{sub:G43,-G49:-Outils}
+
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+G49
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Annulation de la compensation de longueur d'outil
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+I K
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset LatexCommand \ref{sub:G43,-G49:-Outils}
+
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+G53
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Déplacements en coordonnées machine
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+n/a
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset LatexCommand \ref{sub:G53:-Move-in}
+
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+G54-G59
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Choix du système de coordonnées (1 a 9)
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+n/a
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset LatexCommand \ref{sub:G54-a-G59.3:}
+
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+G59.1-G59.3
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Choix du système de coordonnées
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+n/a
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset LatexCommand \ref{sub:G54-a-G59.3:}
+
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+G61, G61.1
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Mode trajectoire exacte, mode arrêt exact
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+n/a
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset LatexCommand \ref{sub:G61,-G61.1,-G64:-Controle-trajectoire}
+
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+G64
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Mode trajectoire continue avec tolérance optionnelle
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+P
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset LatexCommand \ref{sub:G61,-G61.1,-G64:-Controle-trajectoire}
+
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+G73
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Cycle de perçage avec brise copeau
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+R L Q
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset LatexCommand \ref{sub:G73:-Percage-avec-brise-copeaux}
+
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+G76
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Cycle de filetage multipasses préprogrammé (tour)
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+P Z I J R K Q H L E
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset LatexCommand \ref{fig:G76-cycle-de-filetage}
+
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+G80
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Révocation des codes modaux
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+n/a
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset LatexCommand \ref{sec:G80:-Revocation-modaux}
+
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+G81
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Cycle de perçage
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+R L P
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset LatexCommand \ref{sub:G81-a-G89:}
+
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+G82-G89
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Autres cycles preprogrammes
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+R L P Q
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset LatexCommand \ref{sub:G82:-Cycle-de-percage}
+
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+G90, G91
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Types de déplacements 
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+n/a
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset LatexCommand \ref{sub:G90,-G91:-Set}
+
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+G92
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Décalages d'origines avec mise à jour des paramètres
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+X Y Z A B C
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset LatexCommand \ref{sub:G92,-G92.1,-G92.2,}
+
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+G92.1, G92.2
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Annulation des décalages d'origine avec ou sans remise à zéro des paramètres
+ 
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+n/a
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset LatexCommand \ref{sub:G92,-G92.1,-G92.2,}
+
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+G92.3
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Applique le contenu des paramètres aux décalages d'origine
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+n/a
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset LatexCommand \ref{sub:G92,-G92.1,-G92.2,}
+
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+G93, G94, G95
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Modes de vitesses
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+n/a
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset LatexCommand \ref{sub:G93,-G94:-Set}
+
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+G96
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Vitesse de coupe constante (pieds par minute ou metres par minute) 
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+D S
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset LatexCommand \ref{sec:G96,-G97:-Broche}
+
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+G97
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Vitesse en tours par minute
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+n/a
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset LatexCommand \ref{sec:G96,-G97:-Broche}
+
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+G98, G99
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Options de retrait des cycles preprogrammes 
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+n/a
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset LatexCommand \ref{sub:G98,-G99:-Set}
+
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+F, S
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+F=réglage vitesse travail, S=réglage vitesse broche
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+n/a
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset LatexCommand \ref{sub:F:-vitesse}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \ref{sub:S:-broche}
+
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+M0, M1, M2
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Contrôle du programme
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+n/a
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset LatexCommand \ref{sub:M0,-M1,-M2:}
+
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+M3, M4, M5
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Contrôle de la broche 
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+S
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset LatexCommand \ref{sub:M3,-M4,-M5:}
+
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+M6
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Appel d'outil Tn n=numéro d'outil
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+T
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset LatexCommand \ref{sub:M6:-Appel-d'outil}
+
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+M7, M8, M9
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Contrôle arrosage
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+n/a
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset LatexCommand \ref{sub:M7,-M8,-M9:}
+
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+M30, M60
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Pallet Shuttle 
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+n/a
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset LatexCommand \ref{sub:M0,-M1,-M2:}
+
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+M50, M51
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Correcteur de vitesse d'avance travail
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+P
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset LatexCommand \ref{sec:M50:-Correcteur-vitesse-travail}
+
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+M51
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Correcteur de vitesse de broche
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+n/a
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset LatexCommand \ref{sec:M51:-Correcteur-vitesse-broche}
+
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+M52
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Correcteur dynamique de vitesse d'avance
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+P
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset LatexCommand \ref{sec:M52:-Controle-vitesse-adaptative}
+
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+M53
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Vitesse constante
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+P
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset LatexCommand \ref{sub:G53:-Move-in}
+
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+M100-M199
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+M-Codes définis par l'utilisateur
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+P Q
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset LatexCommand \ref{sec:M100-a-M199:}
+
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row topline="true" bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+O
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+O Codes
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+n/a
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset LatexCommand \ref{cha:O-Codes}
+
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset 
+
+
+\layout Section
+
+G0
+\begin_inset LatexCommand \index{G0 Interpolation lineaire rapide}
 
 \end_inset 
 
@@ -5354,7 +7037,7 @@ N2
 \layout Section
 
 G1
-\begin_inset LatexCommand \index{G1}
+\begin_inset LatexCommand \index{G1 Interpolation lineaire travail}
 
 \end_inset 
 
@@ -5417,12 +7100,12 @@ G53
 \layout Section
 
 G2
-\begin_inset LatexCommand \index{G2}
+\begin_inset LatexCommand \index{G2 Interpolation circulaire sens horaire}
 
 \end_inset 
 
 , G3
-\begin_inset LatexCommand \index{G3}
+\begin_inset LatexCommand \index{G3 Interpolation circulaire anti-horaire}
 
 \end_inset 
 
@@ -5672,13 +7355,296 @@ Cela signifie faire un mouvement en arc ou hélicoïdal en sens horaire (vu
  plan XY sinon, ce sera un arc hélicoïdal.
 \layout Section
 
+G4
+\begin_inset LatexCommand \index{G4 Temporisation}
+
+\end_inset 
+
+: Tempo
+\begin_inset LatexCommand \label{sec:G4:-Tempo}
+
+\end_inset 
+
+
+\layout Standard
+
+Pour une tempo, programmer G4 P- .
+ Les axes s'immobiliseront pour une durée de P secondes.
+ C'est une erreur si: 
+\layout Itemize
+
+Le nombre P est négatif.
+\layout Section
+
+G10 L1 Entrée dans la table d'outils
+\begin_inset LatexCommand \index{G10 L1 Entree dans la table d'outils}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \label{sec:G10-L1:-Entree-table}
+
+\end_inset 
+
+
+\layout Standard
+
+Ajuste une entrée dans la table d'outils.
+ 
+\layout Standard
+
+G10 L1 P[Numéro d'outil] R[rayon] X[correcteur en X] Z[correcteur en Z]
+ Q[orientation]
+\layout Standard
+
+Pour connaître l'orientation des outils, se référer à la figure 
+\begin_inset LatexCommand \ref{cap:Orientations-des-outils-de-tour}
+
+\end_inset 
+
+
+\layout Section
+
+G10 L2
+\begin_inset LatexCommand \index{G10 L1 Etablissement coordonnees piece}
+
+\end_inset 
+
+: Établissement du système de coordonnées pièce
+\begin_inset LatexCommand \label{sub:G10-L2:-Coordonnees-piece}
+
+\end_inset 
+
+
+\layout Standard
+
+Le langage RS274/NGC utilise les systèmes de coordonnées décrits à la section
+\begin_inset LatexCommand \ref{sub:-Systemes-de-coordonnees}
+
+\end_inset 
+
+.
+\layout Standard
+
+Pour définir les coordonnées de l'origine d'un système de coordonnées pièce,
+ programmer 
+\family typewriter 
+G10 L2 P-
+\family default 
+ 
+\family typewriter 
+\emph on 
+axes
+\family default 
+\emph default 
+, où l'entier P, compris entre 1 et 9 (correspondance de 
+\family typewriter 
+G54
+\family default 
+ à 
+\family typewriter 
+G59.3
+\family default 
+) et tous les mots d'axes, sont optionnels.
+ Les coordonnées de l'origine du système de coordonnées, spécifié par le
+ nombre P, sont remplacées par les coordonnées des valeurs indiquées (en
+ termes de coordonnées absolues).
+ Seules, les coordonnées pour lesquelles un mot d'axe est inclu sur la ligne,
+ seront remplacées.
+\layout Standard
+
+C'est une erreur si:
+\layout Itemize
+
+Le nombre P n'est pas un entier compris entre 1 et 9.
+\layout Standard
+
+Si des décalages d'origine (créés avec 
+\family typewriter 
+G92
+\family default 
+ ou 
+\family typewriter 
+G92.3
+\family default 
+) sont actifs avant l'utilisation de 
+\family typewriter 
+G10
+\family default 
+, ils restent actifs après.
+\layout Standard
+
+Le système de coordonnées dont l'origine est définie par la commande G10
+ peut être actif ou non au moment de l'exécution de 
+\family typewriter 
+G10
+\family default 
+.
+\layout Standard
+
+Exemple: 
+\family typewriter 
+G10 L2 P1 x 3.5 y 17.2
+\family default 
+ place l'origine du premier système de coordonnées (celui selectionné par
+ G54) au point où X vaut 3.5 et Y vaut 17.2 (en coordonnées absolues).
+ La coordonnée Z de l'origine, ainsi que les coordonnées de tous les axes
+ rotatifs, restent celles qu'elles étaient avant l'exécution de la ligne.
+ 
+\layout Section
+
+G17
+\begin_inset LatexCommand \index{G17 Plan XY}
+
+\end_inset 
+
+, G18
+\begin_inset LatexCommand \index{G18 Plan XZ}
+
+\end_inset 
+
+, G19
+\begin_inset LatexCommand \index{G19 Plan YZ}
+
+\end_inset 
+
+: Choix du plan de travail
+\begin_inset LatexCommand \label{sub:G17,-G18,-G19:}
+
+\end_inset 
+
+
+\layout Standard
+
+Programmer G17 pour choisir le plan de travail XY, G18 pour choisir le plan
+ de travail XZ, ou G19 pour choisir le plan de travail YZ.
+ Les effets provoqués par un changement de plan de travail sont expliqués
+ dans les sections 
+\begin_inset LatexCommand \ref{sub:-G2,-G3:-Arc}
+
+\end_inset 
+
+ et 
+\begin_inset LatexCommand \ref{sub:-Choix-du-plan-de-travail}
+
+\end_inset 
+
+
+\layout Section
+
+G20
+\begin_inset LatexCommand \index{G20 Pouce}
+
+\end_inset 
+
+, G21
+\begin_inset LatexCommand \index{G21 Millimetre}
+
+\end_inset 
+
+: Choix des unités machine
+\begin_inset LatexCommand \label{sec:G20,-G21:-Unites}
+
+\end_inset 
+
+
+\layout Standard
+
+Programmer G20 pour utiliser le pouce comme unité de longueur.
+ Programmer G21 pour utiliser le millimètre.
+\layout Standard
+
+C'est toujours une bonne pratique de programmer soit G20, soit G21, au début
+ d'un programme, avant tout mouvement et de ne plus en changer ailleurs
+ dans le programme.
+ C'est la responsabilité de l'opérateur d'être sûr que toutes les longueurs
+ sont appropriées pour l'utilisation des unités actuelles.
+ 
+\layout Section
+
+G28
+\begin_inset LatexCommand \index{G28 Retour origine machine}
+
+\end_inset 
+
+, G30
+\begin_inset LatexCommand \index{G30 Retour origine piece}
+
+\end_inset 
+
+: Retour à une position absolue prédéfinie
+\begin_inset LatexCommand \label{sub:G28,-G30:-Retour}
+
+\end_inset 
+
+
+\layout Standard
+
+Deux positions sont définies, une par les paramètres 5161-5166 pour 
+\family typewriter 
+G28
+\family default 
+ et une par les paramètres 5181-5186 pour 
+\family typewriter 
+G30
+\family default 
+.
+ Les valeurs de ces paramètres sont en coordonnées absolues et en coordonnées
+ machine.
+\layout Standard
+
+Les commandes G28 et G30 n'utilisent pas de contact d'origine machine pour
+ trouver la position prédéfinie, elles se bornent à effectuer un mouvement
+ en vitesse rapide à la position définie dans les paramètres, ce qui suppose
+ que la prise d'origine machine a déjà été réalisée.
+\layout Standard
+
+Pour le retour d'un ou plusieurs axes sur une position prédéfinie par le
+ biais de la position programmée, programmer 
+\family typewriter 
+G28
+\family default 
+ 
+\family typewriter 
+\emph on 
+axes
+\family default 
+\emph default 
+ (ou utiliser 
+\family typewriter 
+G30
+\family default 
+).
+ La trajectoire est faite par un mouvement rapide depuis la position courante
+ jusqu'à la position programmée, suivi d'un mouvement rapide des axes nommés
+ à la position prédéfinie.
+\layout Standard
+
+Pour le retour de tous les axes à la position prédéfinie sans la position
+ intermédiaire, programmer 
+\family typewriter 
+G28
+\family default 
+ ou 
+\family typewriter 
+G30
+\family default 
+ sans mot d'axe.
+\layout Standard
+
+C'est une erreur si:
+\layout Itemize
+
+La compensation de rayon d'outil est active.
+\layout Section
+
 G33
-\begin_inset LatexCommand \index{G33}
+\begin_inset LatexCommand \index{G33 MVT avec broche synchronisee}
 
 \end_inset 
 
 , G33.1
-\begin_inset LatexCommand \index{G33.1}
+\begin_inset LatexCommand \index{G33.1 Taraudage rigide}
 
 \end_inset 
 
@@ -5796,272 +7762,18 @@ Le mouvement linéaire requis excède les limites de vitesse machine en raison
  de la vitesse de broche.
 \layout Section
 
-G4
-\begin_inset LatexCommand \index{G4}
-
-\end_inset 
-
-: Tempo
-\begin_inset LatexCommand \label{sec:G4:-Tempo}
-
-\end_inset 
-
-
-\layout Standard
-
-Pour une tempo, programmer G4 P- .
- Les axes s'immobiliseront pour une durée de P secondes.
- C'est une erreur si: 
-\layout Itemize
-
-Le nombre P est négatif.
-\layout Section
-
-G10
-\begin_inset LatexCommand \index{G10}
-
-\end_inset 
-
-: Établissement du système de coordonnées pièce
-\begin_inset LatexCommand \label{sub:G10:-Coordonnees-piece}
-
-\end_inset 
-
-
-\layout Standard
-
-Le langage RS274/NGC utilise les systèmes de coordonnées décrits à la section
-\begin_inset LatexCommand \ref{sub:-Systemes-de-coordonnees}
-
-\end_inset 
-
-.
-\layout Standard
-
-Pour définir les coordonnées de l'origine d'un système de coordonnées pièce,
- programmer 
-\family typewriter 
-G10 L2 P-
-\family default 
- 
-\family typewriter 
-\emph on 
-axes
-\family default 
-\emph default 
-, où l'entier P, compris entre 1 et 9 (correspondance de 
-\family typewriter 
-G54
-\family default 
- à 
-\family typewriter 
-G59.3
-\family default 
-) et tous les mots d'axes, sont optionnels.
- Les coordonnées de l'origine du système de coordonnées, spécifié par le
- nombre P, sont remplacées par les coordonnées des valeurs indiquées (en
- termes de coordonnées absolues).
- Seules, les coordonnées pour lesquelles un mot d'axe est inclu sur la ligne,
- seront remplacées.
-\layout Standard
-
-C'est une erreur si:
-\layout Itemize
-
-Le nombre P n'est pas un entier compris entre 1 et 9.
-\layout Standard
-
-Si des décalages d'origine (créés avec 
-\family typewriter 
-G92
-\family default 
- ou 
-\family typewriter 
-G92.3
-\family default 
-) sont actifs avant l'utilisation de 
-\family typewriter 
-G10
-\family default 
-, ils restent actifs après.
-\layout Standard
-
-Le système de coordonnées dont l'origine est définie par la commande G10
- peut être actif ou non au moment de l'exécution de 
-\family typewriter 
-G10
-\family default 
-.
-\layout Standard
-
-Exemple: 
-\family typewriter 
-G10 L2 P1 x 3.5 y 17.2
-\family default 
- place l'origine du premier système de coordonnées (celui selectionné par
- G54) au point où X vaut 3.5 et Y vaut 17.2 (en coordonnées absolues).
- La coordonnée Z de l'origine, ainsi que les coordonnées de tous les axes
- rotatifs, restent celles qu'elles étaient avant l'exécution de la ligne.
- 
-\layout Section
-
-G17
-\begin_inset LatexCommand \index{G17}
-
-\end_inset 
-
-, G18
-\begin_inset LatexCommand \index{G18}
-
-\end_inset 
-
-, G19
-\begin_inset LatexCommand \index{G19}
-
-\end_inset 
-
-: Choix du plan de travail
-\begin_inset LatexCommand \label{sub:G17,-G18,-G19:}
-
-\end_inset 
-
-
-\layout Standard
-
-Programmer G17 pour choisir le plan de travail XY, G18 pour choisir le plan
- de travail XZ, ou G19 pour choisir le plan de travail YZ.
- Les effets provoqués par un changement de plan de travail sont expliqués
- dans les sections 
-\begin_inset LatexCommand \ref{sub:-G2,-G3:-Arc}
-
-\end_inset 
-
- et 
-\begin_inset LatexCommand \ref{sub:-Choix-du-plan-de-travail}
-
-\end_inset 
-
-
-\layout Section
-
-G20
-\begin_inset LatexCommand \index{G20}
-
-\end_inset 
-
-, G21
-\begin_inset LatexCommand \index{G21}
-
-\end_inset 
-
-: Choix des unités machine
-\begin_inset LatexCommand \label{sec:G20,-G21:-Longueur}
-
-\end_inset 
-
-
-\layout Standard
-
-Programmer G20 pour utiliser le pouce comme unité de longueur.
- Programmer G21 pour utiliser le millimètre.
-\layout Standard
-
-C'est toujours une bonne pratique de programmer soit G20, soit G21, au début
- d'un programme, avant tout mouvement et de ne plus en changer ailleurs
- dans le programme.
- C'est la responsabilité de l'opérateur d'être sûr que toutes les longueurs
- sont appropriées pour l'utilisation des unités actuelles.
- 
-\layout Section
-
-G28
-\begin_inset LatexCommand \index{G28}
-
-\end_inset 
-
-, G30
-\begin_inset LatexCommand \index{G30}
-
-\end_inset 
-
-: Retour à une position absolue prédéfinie
-\begin_inset LatexCommand \label{sub:G28,-G30:-Retour}
-
-\end_inset 
-
-
-\layout Standard
-
-Deux positions sont définies, une par les paramètres 5161-5166 pour 
-\family typewriter 
-G28
-\family default 
- et une par les paramètres 5181-5186 pour 
-\family typewriter 
-G30
-\family default 
-.
- Les valeurs de ces paramètres sont en coordonnées absolues et en coordonnées
- machine.
-\layout Standard
-
-Les commandes G28 et G30 n'utilisent pas de contact d'origine machine pour
- trouver la position prédéfinie, elles se bornent à effectuer un mouvement
- en vitesse rapide à la position définie dans les paramètres, ce qui suppose
- que la prise d'origine machine a déjà été réalisée.
-\layout Standard
-
-Pour le retour d'un ou plusieurs axes sur une position prédéfinie par le
- biais de la position programmée, programmer 
-\family typewriter 
-G28
-\family default 
- 
-\family typewriter 
-\emph on 
-axes
-\family default 
-\emph default 
- (ou utiliser 
-\family typewriter 
-G30
-\family default 
-).
- La trajectoire est faite par un mouvement rapide depuis la position courante
- jusqu'à la position programmée, suivi d'un mouvement rapide des axes nommés
- à la position prédéfinie.
-\layout Standard
-
-Pour le retour de tous les axes à la position prédéfinie sans la position
- intermédiaire, programmer 
-\family typewriter 
-G28
-\family default 
- ou 
-\family typewriter 
-G30
-\family default 
- sans mot d'axe.
-\layout Standard
-
-C'est une erreur si:
-\layout Itemize
-
-La compensation de rayon d'outil est active.
-\layout Section
-
 G38.x
-\begin_inset LatexCommand \index{G38.2}
+\begin_inset LatexCommand \index{G38.2 Palpeur}
 
 \end_inset 
 
 
-\begin_inset LatexCommand \index{G38.5}
+\begin_inset LatexCommand \index{G38.5 Palpeur}
 
 \end_inset 
 
-: Palpeur
-\begin_inset LatexCommand \label{sub:G38.2:-Palpeur}
+: Mesure au palpeur
+\begin_inset LatexCommand \label{sub:G38.x:-Palpeur}
 
 \end_inset 
 
@@ -6395,27 +8107,27 @@ filename.txt
 \layout Section
 
 G40
-\begin_inset LatexCommand \index{G40}
+\begin_inset LatexCommand \index{G40 Revocation compensation rayon}
 
 \end_inset 
 
 , G41
-\begin_inset LatexCommand \index{G41}
+\begin_inset LatexCommand \index{G41 Compensation de rayon}
 
 \end_inset 
 
 , G42
-\begin_inset LatexCommand \index{G42}
+\begin_inset LatexCommand \index{G42 Compensation de rayon}
 
 \end_inset 
 
 , G41.1
-\begin_inset LatexCommand \index{G41.1}
+\begin_inset LatexCommand \index{G41.1 Compensation dynamique de rayon}
 
 \end_inset 
 
 , G42.1
-\begin_inset LatexCommand \index{G42.1}
+\begin_inset LatexCommand \index{G42.1 Compensation dynamique de rayon}
 
 \end_inset 
 
@@ -6520,17 +8232,17 @@ La compensation de rayon d'outil est activée alors qu'elle est déjà active.
 \layout Section
 
 G43
-\begin_inset LatexCommand \index{G43}
+\begin_inset LatexCommand \index{G43 Compensation de longueur}
 
 \end_inset 
 
 , G43.1
-\begin_inset LatexCommand \index{G43.1}
+\begin_inset LatexCommand \index{G43.1 Compensation dynamique de longueur}
 
 \end_inset 
 
 , G49
-\begin_inset LatexCommand \index{G49}
+\begin_inset LatexCommand \index{G49 Revocation compensation longueur}
 
 \end_inset 
 
@@ -6608,7 +8320,7 @@ G43.1
 \layout Subsection
 
 G49
-\begin_inset LatexCommand \label{sub:G49}
+\begin_inset LatexCommand \index{G49 Revocation compensation longueur}
 
 \end_inset 
 
@@ -6625,7 +8337,7 @@ Ce n'est pas une erreur de programmer une compensation qui est déjà utilisée.
 \layout Section
 
 G53
-\begin_inset LatexCommand \index{G53}
+\begin_inset LatexCommand \index{G53 Mouvements en absolu}
 
 \end_inset 
 
@@ -6701,47 +8413,47 @@ Voir la section
 \layout Section
 
 G54
-\begin_inset LatexCommand \index{G54}
+\begin_inset LatexCommand \index{G54 Origine piece 1}
 
 \end_inset 
 
 
-\begin_inset LatexCommand \index{G55}
+\begin_inset LatexCommand \index{G55 Origine piece 2}
 
 \end_inset 
 
 
-\begin_inset LatexCommand \index{G56}
+\begin_inset LatexCommand \index{G56 Origine piece 3}
 
 \end_inset 
 
 
-\begin_inset LatexCommand \index{G57}
+\begin_inset LatexCommand \index{G57 Origine piece 4}
 
 \end_inset 
 
 
-\begin_inset LatexCommand \index{G58}
+\begin_inset LatexCommand \index{G58 Origine piece 5}
 
 \end_inset 
 
 
-\begin_inset LatexCommand \index{G59}
+\begin_inset LatexCommand \index{G59 Origine piece 6}
 
 \end_inset 
 
 
-\begin_inset LatexCommand \index{G59.1}
+\begin_inset LatexCommand \index{G59.1 Origine piece 7}
 
 \end_inset 
 
 
-\begin_inset LatexCommand \index{G59.2}
+\begin_inset LatexCommand \index{G59.2 Origine piece 8}
 
 \end_inset 
 
  à G59.3
-\begin_inset LatexCommand \index{G59.3}
+\begin_inset LatexCommand \index{G59.3 Origine piece 9}
 
 \end_inset 
 
@@ -6811,22 +8523,22 @@ Voir la section
 \layout Section
 
 G61
-\begin_inset LatexCommand \index{G61}
+\begin_inset LatexCommand \index{G61 Trajectoire exacte}
 
 \end_inset 
 
 , G61.1
-\begin_inset LatexCommand \index{G61.1}
+\begin_inset LatexCommand \index{G61.1 Arret exact}
 
 \end_inset 
 
 , G64
-\begin_inset LatexCommand \index{G64}
+\begin_inset LatexCommand \index{G64 Trajectoire continue}
 
 \end_inset 
 
 : Types de contrôle de trajectoire
-\begin_inset LatexCommand \label{sub:G61,-G61.1,-G64:-Modes-controle-trajectoire}
+\begin_inset LatexCommand \label{sub:G61,-G61.1,-G64:-Controle-trajectoire}
 
 \end_inset 
 
@@ -6853,35 +8565,79 @@ G64 P-
 \end_inset 
 
  pour une discussion de ces modes.
-\layout Section
+\layout Subsection
 
-G80
-\begin_inset LatexCommand \index{G80}
+G73
+\begin_inset LatexCommand \index{G73 Cycle percage brise copeaux}
 
 \end_inset 
 
-: Révocation des codes modaux
-\begin_inset LatexCommand \label{sec:G80:-Cancel-Modal}
+: Cycle de perçage avec brise copeaux
+\begin_inset LatexCommand \label{sub:G73:-Percage-avec-brise-copeaux}
 
 \end_inset 
 
 
 \layout Standard
 
-Programmer 
+Le cycle 
 \family typewriter 
-G80
+G73
 \family default 
- pour s'assurer qu'aucun mouvement d'axe ne surviendra sans G-code modal.
- C'est une erreur si: 
+ est destiné au perçage profond ou au fraisage avec brise-copeaux.
+ Les retraits, au cours de ce cycle, fragmentent les copeaux longs (qui
+ sont fréquents lors du perçage dans l'aluminum).
+ Ce cycle utilise la valeur Q qui représente un incrément 
+\begin_inset Quotes eld
+\end_inset 
+
+delta
+\begin_inset Quotes erd
+\end_inset 
+
+ le long de l'axe Z.
+ Programmer 
+\family typewriter 
+G73 X- Y- Z- A- B- C- R- L- Q-
+\layout Standard
+
+donnera:
+\layout Enumerate
+
+Un mouvement préliminaire.
+ Comme décrit ici 
+\begin_inset LatexCommand \ref{sub:Mouvement-preliminaire}
+
+\end_inset 
+
+ 
+\layout Enumerate
+
+Un mouvement de l'axe Z seul, en vitesse travail, sur la position la moins
+ profonde entre, un incrément delta, ou la position de Z programmée.
+ 
+\layout Enumerate
+
+Une petite remontée en vitesse rapide.
+ 
+\layout Enumerate
+
+Répétition des étapes 2 et 3 jusqu'à ce que la position programmée de Z
+ soit atteinte à l'étape 2.
+\layout Enumerate
+
+Un mouvement de l'axe Z en vitesse rapide vers le plan de retrait.
+ 
+\layout Standard
+
+C'est une erreur si:
 \layout Itemize
 
-Des mots d'axes sont programmés quand G80 est actif, sans qu'un G-code modal
- du groupe 0 ne soit programmé avec les mots d'axes.
+La valeur de Q est négative ou égale à zéro.
 \layout Section
 
 G76
-\begin_inset LatexCommand \index{G76}
+\begin_inset LatexCommand \index{G76 Cycle filetage multipasses}
 
 \end_inset 
 
@@ -7178,17 +8934,32 @@ G76 cycle de filetage
 
 \layout Section
 
-G73, G81
-\begin_inset LatexCommand \index{G73,G81}
+G80
+\begin_inset LatexCommand \index{G80 Revocation codes modaux}
 
 \end_inset 
 
- à G89
-\begin_inset LatexCommand \index{G89}
+: Révocation des codes modaux
+\begin_inset LatexCommand \label{sec:G80:-Revocation-modaux}
 
 \end_inset 
 
-: Cycles préprogrammés
+
+\layout Standard
+
+Programmer 
+\family typewriter 
+G80
+\family default 
+ pour s'assurer qu'aucun mouvement d'axe ne surviendra sans G-code modal.
+ C'est une erreur si: 
+\layout Itemize
+
+Des mots d'axes sont programmés quand G80 est actif, sans qu'un G-code modal
+ du groupe 0 ne soit programmé avec les mots d'axes.
+\layout Section
+
+G73, G81 à G89: Cycles préprogrammés
 \begin_inset LatexCommand \label{sub:G81-a-G89:}
 
 \end_inset 
@@ -7434,6 +9205,11 @@ La valeur de R est inférieure à celle de X.
 \layout Subsection
 
 Mouvement préliminaire et Intermédiaire
+\begin_inset LatexCommand \label{sub:Mouvement-preliminaire}
+
+\end_inset 
+
+
 \layout Standard
 
 Tout au début de l'exécution d'un cycle préprogrammé, avec le plan courant
@@ -7462,7 +9238,7 @@ Si un des plans XZ ou YZ est actif, le mouvement préliminaire et intermédiaire
 \layout Subsection
 
 G81
-\begin_inset LatexCommand \index{G81}
+\begin_inset LatexCommand \index{G81 Cycle de percage}
 
 \end_inset 
 
@@ -7486,7 +9262,12 @@ G81 X- Y- Z- A- B- C- R- L-
  donnera:
 \layout Enumerate
 
-Un mouvement préliminaire, comme il a été traité ci-dessus.
+Un mouvement préliminaire.
+ Comme décrit ici 
+\begin_inset LatexCommand \ref{sub:Mouvement-preliminaire}
+
+\end_inset 
+
  
 \layout Enumerate
 
@@ -7625,7 +9406,7 @@ Un déplacement en vitesse rapide, parallèle à l'axe Z vers X13, Y17, Z4.8
 \layout Subsection
 
 G82
-\begin_inset LatexCommand \index{G82}
+\begin_inset LatexCommand \index{G82 Cycle de percage avec tempo}
 
 \end_inset 
 
@@ -7650,7 +9431,13 @@ G82 X- Y- Z- A- B- C- R- L- P-
 donnera:
 \layout Enumerate
 
-Un mouvement préliminaire, comme il a été traité ci-dessus.
+Un mouvement préliminaire.
+ Comme décrit ici 
+\begin_inset LatexCommand \ref{sub:Mouvement-preliminaire}
+
+\end_inset 
+
+ 
 \layout Enumerate
 
 Un déplacement de l'axe Z seul en vitesse programmée, vers la position Z
@@ -7665,7 +9452,7 @@ Retrait de l'axe Z en vitesse rapide jusqu'au plan de retrait R.
 \layout Subsection
 
 G83
-\begin_inset LatexCommand \index{G83}
+\begin_inset LatexCommand \index{G83 Cycle de percage avec debourrage}
 
 \end_inset 
 
@@ -7701,7 +9488,12 @@ G83 X- Y- Z- A- B- C- R- L- Q-
 donnera:
 \layout Enumerate
 
-Un mouvement préliminaire, comme décrit précédemment.
+Un mouvement préliminaire.
+ Comme décrit ici 
+\begin_inset LatexCommand \ref{sub:Mouvement-preliminaire}
+
+\end_inset 
+
  
 \layout Enumerate
 
@@ -7731,72 +9523,8 @@ C'est une erreur si:
 La valeur de Q est négative ou égale à zéro.
 \layout Subsection
 
-G73
-\begin_inset LatexCommand \index{G73}
-
-\end_inset 
-
-: Cycle de perçage avec brise copeaux
-\begin_inset LatexCommand \label{sub:G73:-Percage-avec-brise-copeaux}
-
-\end_inset 
-
-
-\layout Standard
-
-Le cycle 
-\family typewriter 
-G73
-\family default 
- est destiné au perçage profond ou au fraisage avec brise-copeaux.
- Les retraits, au cours de ce cycle, fragmentent les copeaux longs (qui
- sont fréquents lors du perçage dans l'aluminum).
- Ce cycle utilise la valeur Q qui représente un incrément 
-\begin_inset Quotes eld
-\end_inset 
-
-delta
-\begin_inset Quotes erd
-\end_inset 
-
- le long de l'axe Z.
- Programmer 
-\family typewriter 
-G73 X- Y- Z- A- B- C- R- L- Q-
-\layout Standard
-
-donnera:
-\layout Enumerate
-
-Un mouvement préliminaire, comme décrit précédemment.
- 
-\layout Enumerate
-
-Un mouvement de l'axe Z seul, en vitesse travail, sur la position la moins
- profonde entre, un incrément delta, ou la position de Z programmée.
- 
-\layout Enumerate
-
-Une petite remontée en vitesse rapide.
- 
-\layout Enumerate
-
-Répétition des étapes 2 et 3 jusqu'à ce que la position programmée de Z
- soit atteinte à l'étape 2.
-\layout Enumerate
-
-Un mouvement de l'axe Z en vitesse rapide vers le plan de retrait.
- 
-\layout Standard
-
-C'est une erreur si:
-\layout Itemize
-
-La valeur de Q est négative ou égale à zéro.
-\layout Subsection
-
 G84
-\begin_inset LatexCommand \index{G84}
+\begin_inset LatexCommand \index{G84 Cycle de taraudage}
 
 \end_inset 
 
@@ -7816,7 +9544,7 @@ G33.1
 \layout Subsection
 
 G85
-\begin_inset LatexCommand \index{G85}
+\begin_inset LatexCommand \index{G85 Cycle d'alesage}
 
 \end_inset 
 
@@ -7838,7 +9566,12 @@ G85
 G85 X- Y- Z- A- B- C- R- L- donnera:
 \layout Enumerate
 
-Un mouvement préliminaire, comme décrit précédemment.
+Un mouvement préliminaire.
+ Comme décrit ici 
+\begin_inset LatexCommand \ref{sub:Mouvement-preliminaire}
+
+\end_inset 
+
  
 \layout Enumerate
 
@@ -7851,7 +9584,7 @@ Retrait de l'axe Z en vitesse travail vers le plan de retrait.
 \layout Subsection
 
 G86
-\begin_inset LatexCommand \index{G86}
+\begin_inset LatexCommand \index{G86 Cycle d'alesage}
 
 \end_inset 
 
@@ -7877,7 +9610,12 @@ G86 X- Y- Z- A- B- C- R- L- P-
 donnera:
 \layout Enumerate
 
-Un mouvement préliminaire, comme décrit précédemment.
+Un mouvement préliminaire.
+ Comme décrit ici 
+\begin_inset LatexCommand \ref{sub:Mouvement-preliminaire}
+
+\end_inset 
+
  
 \layout Enumerate
 
@@ -7905,11 +9643,11 @@ La broche ne tourne pas avant que ce cycle ne soit éxécuté.
 \layout Subsection
 
 G87
-\begin_inset LatexCommand \index{G87}
+\begin_inset LatexCommand \index{G87 Alesage arriere}
 
 \end_inset 
 
-: Back Boring
+: Alésage arrière
 \begin_inset LatexCommand \label{sub:G87:-Back-Boring}
 
 \end_inset 
@@ -7922,7 +9660,7 @@ Ce code n'est pas encore implémenté dans EMC2.
 \layout Subsection
 
 G88
-\begin_inset LatexCommand \index{G88}
+\begin_inset LatexCommand \index{G88 Cycle d'alesage}
 
 \end_inset 
 
@@ -7939,7 +9677,7 @@ Ce code n'est pas encore implémenté dans EMC2.
 \layout Subsection
 
 G89
-\begin_inset LatexCommand \index{G89}
+\begin_inset LatexCommand \index{G89 Cycle d'alesage}
 
 \end_inset 
 
@@ -7965,7 +9703,12 @@ G89 X- Y- Z- A- B- C- R- L- P-
 donnera:
 \layout Enumerate
 
-Un mouvement préliminaire, comme décrit précédemment.
+Un mouvement préliminaire.
+ Comme décrit ici 
+\begin_inset LatexCommand \ref{sub:Mouvement-preliminaire}
+
+\end_inset 
+
  
 \layout Enumerate
 
@@ -7981,12 +9724,12 @@ Retrait de l'axe Z en vitesse travail vers le plan de retrait.
 \layout Subsection
 
 G90
-\begin_inset LatexCommand \index{G90}
+\begin_inset LatexCommand \index{G90 Mode deplacements absolus}
 
 \end_inset 
 
 , G91
-\begin_inset LatexCommand \index{G91}
+\begin_inset LatexCommand \index{G91 Mode deplacements incrementaux}
 
 \end_inset 
 
@@ -8213,17 +9956,17 @@ G92.3
 \layout Section
 
 G93
-\begin_inset LatexCommand \index{G93}
+\begin_inset LatexCommand \index{G93 Mode de vitesse}
 
 \end_inset 
 
 , G94
-\begin_inset LatexCommand \index{G94}
+\begin_inset LatexCommand \index{G94 Mode de vitesse}
 
 \end_inset 
 
 , G95
-\begin_inset LatexCommand \index{G95}
+\begin_inset LatexCommand \index{G95 Mode de vitesse}
 
 \end_inset 
 
@@ -8278,12 +10021,12 @@ Une nouvelle vitesse n'a pas été spécifiée après un passage en G94 ou G95.
 \layout Section
 
 G96
-\begin_inset LatexCommand \index{G96}
+\begin_inset LatexCommand \index{G96 Vitesse de coupe constante}
 
 \end_inset 
 
 , G97
-\begin_inset LatexCommand \index{G97}
+\begin_inset LatexCommand \index{G97 Vitesse de coupe en tr/mn}
 
 \end_inset 
 
@@ -8321,12 +10064,12 @@ Une vitesse est spécifiée en mode G96 et la broche ne tourne pas.
 \layout Section
 
 G98
-\begin_inset LatexCommand \index{G98}
+\begin_inset LatexCommand \index{G98 Retrait sur R}
 
 \end_inset 
 
 , G99
-\begin_inset LatexCommand \index{G99}
+\begin_inset LatexCommand \index{G99 Retrait position initiale}
 
 \end_inset 
 
@@ -8366,32 +10109,32 @@ M Codes
 \layout Section
 
 M0
-\begin_inset LatexCommand \index{M0}
+\begin_inset LatexCommand \index{M0 Arret de programme}
 
 \end_inset 
 
 , M1
-\begin_inset LatexCommand \index{M1}
+\begin_inset LatexCommand \index{M1 Arret de programme}
 
 \end_inset 
 
 , M2
-\begin_inset LatexCommand \index{M2}
+\begin_inset LatexCommand \index{M2 Fin de programme}
 
 \end_inset 
 
 , M30
-\begin_inset LatexCommand \index{M30}
+\begin_inset LatexCommand \index{M30 Fin de programme}
 
 \end_inset 
 
 , M60
-\begin_inset LatexCommand \index{M60}
+\begin_inset LatexCommand \index{M60 Arret de programme}
 
 \end_inset 
 
 : Arrêts de programme
-\begin_inset LatexCommand \label{sub:M0,-M1,-M2,}
+\begin_inset LatexCommand \label{sub:M0,-M1,-M2:}
 
 \end_inset 
 
@@ -8524,17 +10267,17 @@ Plus aucune ligne de code RS274/NGC ne sera exécutée après exécution de
 \layout Section
 
 M3
-\begin_inset LatexCommand \index{M3}
+\begin_inset LatexCommand \index{M3 Broche sens horaire}
 
 \end_inset 
 
 , M4
-\begin_inset LatexCommand \index{M4}
+\begin_inset LatexCommand \index{M4 Broche sens anti-horaire}
 
 \end_inset 
 
 , M5
-\begin_inset LatexCommand \index{M5}
+\begin_inset LatexCommand \index{M5 Arret de broche}
 
 \end_inset 
 
@@ -8595,7 +10338,7 @@ M5
 \layout Section
 
 M6
-\begin_inset LatexCommand \index{M6}
+\begin_inset LatexCommand \index{M6 Appel d'outil}
 
 \end_inset 
 
@@ -8609,7 +10352,7 @@ M6
 
 Pour changer l'outil actuellement dans la broche par un autre, nouvellement
  sélectionné en utilisant le mot T, voir la section 
-\begin_inset LatexCommand \ref{sub:T:-Choix-outil}
+\begin_inset LatexCommand \ref{sub:T:-Appel-d'outil}
 
 \end_inset 
 
@@ -8663,17 +10406,17 @@ Le changement d'outil peut inclure des mouvements d'axes pendant son exécution.
 \layout Section
 
 M7
-\begin_inset LatexCommand \index{M7}
+\begin_inset LatexCommand \index{M7 Goutelettes}
 
 \end_inset 
 
 , M8
-\begin_inset LatexCommand \index{M8}
+\begin_inset LatexCommand \index{M8 Arrosage}
 
 \end_inset 
 
 , M9
-\begin_inset LatexCommand \index{M9}
+\begin_inset LatexCommand \index{M9 Arret d'arrosages}
 
 \end_inset 
 
@@ -8712,7 +10455,7 @@ Il est toujours permis d'utiliser une de ces commandes, que les arrosages
 \layout Section
 
 M48
-\begin_inset LatexCommand \index{M48}
+\begin_inset LatexCommand \index{M48 Controle correcteur de vitesse}
 
 \end_inset 
 
@@ -8723,16 +10466,6 @@ M48
 
 : Contrôle des correcteurs de vitesse
 \begin_inset LatexCommand \label{sub:M48,-M49:-Correcteurs}
-
-\end_inset 
-
-
-\begin_inset LatexCommand \index{M48}
-
-\end_inset 
-
-
-\begin_inset LatexCommand \index{M49}
 
 \end_inset 
 
@@ -8773,17 +10506,12 @@ M49
 \layout Section
 
 M50
-\begin_inset LatexCommand \index{M50}
+\begin_inset LatexCommand \index{M50 Controle correcteur travail}
 
 \end_inset 
 
 : Contrôle du correcteur de vitesse travail
 \begin_inset LatexCommand \label{sec:M50:-Correcteur-vitesse-travail}
-
-\end_inset 
-
-
-\begin_inset LatexCommand \index{M50}
 
 \end_inset 
 
@@ -8812,17 +10540,12 @@ M50 P0
 \layout Section
 
 M51
-\begin_inset LatexCommand \index{M51}
+\begin_inset LatexCommand \index{M51 Controle correcteur broche}
 
 \end_inset 
 
 : Contrôle du correcteur de vitesse broche
 \begin_inset LatexCommand \label{sec:M51:-Correcteur-vitesse-broche}
-
-\end_inset 
-
-
-\begin_inset LatexCommand \index{M51}
 
 \end_inset 
 
@@ -8847,7 +10570,7 @@ M51 P0
  Quand il est inhibé, le potentiomètre de correction de vitesse de broche
  n'a plus aucune influence et la broche tournera à la vitesse programmée,
  en utilisant le mot S comme décrit dans la section 
-\begin_inset LatexCommand \ref{sub:S:-Reglage-broche}
+\begin_inset LatexCommand \ref{sub:S:-broche}
 
 \end_inset 
 
@@ -8855,17 +10578,12 @@ M51 P0
 \layout Section
 
 M52
-\begin_inset LatexCommand \index{M52}
+\begin_inset LatexCommand \index{M52 Controle vitesse adaptative}
 
 \end_inset 
 
 : Contrôle de vitesse adaptative
 \begin_inset LatexCommand \label{sec:M52:-Controle-vitesse-adaptative}
-
-\end_inset 
-
-
-\begin_inset LatexCommand \index{M52}
 
 \end_inset 
 
@@ -8903,17 +10621,12 @@ motion.adaptive-feed
 \layout Section
 
 M53
-\begin_inset LatexCommand \index{M53}
+\begin_inset LatexCommand \index{M53 Controle coupure vitesse}
 
 \end_inset 
 
 : Contrôle de coupure de vitesse
 \begin_inset LatexCommand \label{sec:M53:-Controle-coupure-vitesse}
-
-\end_inset 
-
-
-\begin_inset LatexCommand \index{M53}
 
 \end_inset 
 
@@ -8954,22 +10667,7 @@ M62 à M65: Contrôle de sortie digitale
 \end_inset 
 
 
-\begin_inset LatexCommand \index{M62}
-
-\end_inset 
-
-
-\begin_inset LatexCommand \index{M63}
-
-\end_inset 
-
-
-\begin_inset LatexCommand \index{M64}
-
-\end_inset 
-
-
-\begin_inset LatexCommand \index{M65}
+\begin_inset LatexCommand \index{M62 Controles sortie digitale}
 
 \end_inset 
 
@@ -9022,7 +10720,7 @@ M66: Contrôle d'entrée digitale
 \end_inset 
 
 
-\begin_inset LatexCommand \index{M66}
+\begin_inset LatexCommand \index{M66 Controle entree digitale}
 
 \end_inset 
 
@@ -9056,44 +10754,30 @@ Le mot E spécifie le numéro d'une entrée analogique.
 \layout Itemize
 
 Le mot L spécifie le type d'attente:
-\layout List
-\labelwidthstring 00.00.0000
+\layout Description
 
 0 - WAIT_MODE_IMMEDIATE - pas d'attente, retour immédiat.
  La valeur courante de l'entrée est stockée dans le paramètre #5399
-\layout List
-\labelwidthstring 00.00.0000
+\layout Description
 
 1 - WAIT_MODE_RISE - attente d'un front montant sur l'entrée.
-\layout List
-\labelwidthstring 00.00.0000
+\layout Description
 
 2 - WAIT_MODE_FALL - attente d'un front descendant sur l'entrée.
-\layout List
-\labelwidthstring 00.00.0000
+\layout Description
 
 3 - WAIT_MODE_HIGH - attente d'un état logique HIGH sur l'entrée.
-\layout List
-\labelwidthstring 00.00.0000
+\layout Description
 
 4 - WAIT_MODE_LOW - attente d'un état logique LOW sur l'entrée.
-\layout Standard
-
-
-\begin_inset Note
-collapsed true
-
-\layout Standard
-
-Le type 0 est le seul autorisé pour une entrée analogique.
-\end_inset 
-
-
 \layout Itemize
 
 Le mot Q spécifie le timeout pour l'attente.
  Si le timeout est dépassé, l'attente est interrompue et la variable #5399
  positionnée à -1.
+\layout Itemize
+
+Le type 0 est le seul autorisé pour une entrée analogique.
 \layout Standard
 
 M66 attends un nouvel événement sur l'entrée ou l'arrêt de l'exécution du
@@ -9110,7 +10794,7 @@ e et une digitale).
 \layout Section
 
 M100 à M199
-\begin_inset LatexCommand \index{M100..199}
+\begin_inset LatexCommand \index{M100..199 Mcodes utilisateur}
 
 \end_inset 
 
@@ -9166,7 +10850,7 @@ Un commentaire est utilisé sur une ligne contenant un code O.
 \layout Section
 
 Sous-programmes: 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 sub
@@ -9175,11 +10859,11 @@ sub
 \end_inset 
 
 
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
 , 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 endsub
@@ -9188,11 +10872,11 @@ endsub
 \end_inset 
 
 
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
 , 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 return
@@ -9201,11 +10885,11 @@ return
 \end_inset 
 
 
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
 , 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 call
@@ -9214,7 +10898,7 @@ call
 \end_inset 
 
 
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
 
@@ -9323,7 +11007,7 @@ valeur de retour
 \layout Section
 
 Boucles: 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 do
@@ -9332,11 +11016,11 @@ do
 \end_inset 
 
 
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
 , 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 while
@@ -9345,11 +11029,11 @@ while
 \end_inset 
 
 
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
 , 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 endwhile
@@ -9358,11 +11042,11 @@ endwhile
 \end_inset 
 
 
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
 , 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 break
@@ -9371,11 +11055,11 @@ break
 \end_inset 
 
 
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
 , 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 continue
@@ -9384,7 +11068,7 @@ continue
 \end_inset 
 
 
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
 
@@ -9449,7 +11133,7 @@ while
 \layout Section
 
 Conditionnel: 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 if
@@ -9458,11 +11142,11 @@ if
 \end_inset 
 
 
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
 , 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 else
@@ -9471,11 +11155,11 @@ else
 \end_inset 
 
 
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
 , 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
 endif
@@ -9484,7 +11168,7 @@ endif
 \end_inset 
 
 
-\begin_inset Quotes erd
+\begin_inset Quotes frd
 \end_inset 
 
 
@@ -9511,6 +11195,75 @@ O102 else
 F200
 \newline 
 O102 endif
+\layout LyX-Code
+
+\layout Section
+
+Répétition: 
+\begin_inset Quotes fld
+\end_inset 
+
+Repeat
+\begin_inset Quotes frd
+\end_inset 
+
+
+\begin_inset LatexCommand \index{Repeat}
+
+\end_inset 
+
+
+\layout Standard
+
+La répétition 
+\begin_inset Quotes fld
+\end_inset 
+
+repeat
+\begin_inset Quotes frd
+\end_inset 
+
+, exécutera les blocs contenus entre 
+\begin_inset Quotes fld
+\end_inset 
+
+repeat
+\begin_inset Quotes frd
+\end_inset 
+
+ et 
+\begin_inset Quotes fld
+\end_inset 
+
+endrepeat
+\begin_inset Quotes frd
+\end_inset 
+
+ le nombre de fois spécifié entre crochets.
+ L'exemple suivant montre comment usiner une séries de 5 formes diagonales
+ commençant à la position courante.
+\layout LyX-Code
+
+(Usine 5 formes diagonales)
+\layout LyX-Code
+
+G91 (Mode incrémental)
+\layout LyX-Code
+
+O103 repeat [5]
+\layout LyX-Code
+
+...
+ (inserer le code à usiner ici)
+\layout LyX-Code
+
+G0 X1 Y1 (mouvement en diagonale à la position suivante)
+\layout LyX-Code
+
+O103 endrepeat
+\layout LyX-Code
+
+G90 (Mode absolu)
 \layout Section
 
 Indirection
@@ -9552,7 +11305,7 @@ Autres Codes
 \layout Section
 
 F: Réglage de la vitesse travail
-\begin_inset LatexCommand \label{sub:F:-Reglage-vitesse}
+\begin_inset LatexCommand \label{sub:F:-vitesse}
 
 \end_inset 
 
@@ -9580,7 +11333,7 @@ F-
 \layout Section
 
 S: Réglage de la vitesse de rotation de la broche
-\begin_inset LatexCommand \label{sub:S:-Reglage-broche}
+\begin_inset LatexCommand \label{sub:S:-broche}
 
 \end_inset 
 
@@ -9623,7 +11376,7 @@ cycle préprogrammé G84
 \layout Section
 
 T: Choix de l'outil
-\begin_inset LatexCommand \label{sub:T:-Choix-outil}
+\begin_inset LatexCommand \label{sub:T:-Appel-d'outil}
 
 \end_inset 
 
@@ -9679,218 +11432,6 @@ Sur certaines machines, le carrousel se déplace lorsque le mot T est programmé,
  à placer le mot T pour le prochain outil sur la ligne suivant le changement
  d'outil.
  Cela laisse au carrousel tout le temps pour se positionner.
-\layout Chapter
-
-Ordre d'exécution
-\begin_inset LatexCommand \label{sec:Ordre-d'execution}
-
-\end_inset 
-
-
-\layout Standard
-
-L'ordre d'exécution des éléments d'une ligne est essentiel à la sécurité
- et l'efficacité d'une machine.
- Les éléments sont exécutés dans l'ordre indiqué ci-dessous, si ils se trouvent
- sur la même ligne.
-\layout Enumerate
-
-Commentaire (message inclu)
-\layout Enumerate
-
-Positionnement du mode de vitesses (G93, G94).
- 
-\layout Enumerate
-
-Réglage de la vitesse travail (F).
- 
-\layout Enumerate
-
-Réglage de la vitesse de rotation de la broche (S).
- 
-\layout Enumerate
-
-Sélection de l'outil (T).
- 
-\layout Enumerate
-
-Appel d'outil (M6).
-\layout Enumerate
-
-Marche/Arrêt broche (M3, M4, M5).
-\layout Enumerate
-
-Marche/Arrêt arrosages (M7, M8, M9).
-\layout Enumerate
-
-Activation/Inhibition correcteurs de vitesse (M48, M49).
- 
-\layout Enumerate
-
-Temporisation (G4).
- 
-\layout Enumerate
-
-Choix du plan de travail (G17, G18, G19).
- 
-\layout Enumerate
-
-Choix de l'unité de longueur (G20, G21).
-\layout Enumerate
-
-Activation/Désactivation de la compensation de rayon d'outil (G40, G41,
- G42) 
-\layout Enumerate
-
-Activation/Désactivation de la compensation de longueur d'outil (G43, G49)
- 
-\layout Enumerate
-
-Sélection du système de coordonnées (G54, G55, G56, G57, G58, G59, G59.1,
- G59.2, G59.3).
- 
-\layout Enumerate
-
-Réglage du mode de trajectoire (G61, G61.1, G64)
-\layout Enumerate
-
-Réglage du mode de déplacement (G90, G91).
- 
-\layout Enumerate
-
-Réglage du type de retrait (G98, G99).
-\layout Enumerate
-
-Prise d'origine machine (G28, G30) ou établissement du système de coordonnées
- (G10) ou encore, réglage des décalages d'axes (G92, G92.1, G92.2, G94).
- 
-\layout Enumerate
-
-Effectuer les mouvements (G0 à G3, G33, G80 à G89), tels que modifiés (éventuell
-ement) par G53.
- 
-\layout Enumerate
-
-Arrêt (M0, M1, M2, M30, M60).
-\layout Chapter
-
-G-Code: Bonnes pratiques
-\layout Section
-
-Utiliser un nombre de décimales approprié
-\layout Standard
-
-Utilisez au plus 3 chiffres après la virgule pour l'usinage en millimètres
- et au plus 4 chiffres après la virgule pour l'usinage en pouces.
- En particulier, les contrôles de tolérance des arcs sont faits pour .001
- et .0001 selon les unités actives.
- 
-\layout Section
-
-Utiliser les espaces de façon cohérente
-\layout Standard
-
-Le G-code est plus lisible quand au moins un espace apparaît avant les mots.
- S'il est permis d' insérer des espaces blancs au milieu des chiffres, il
- faut éviter de le faire.
-\layout Section
-
-Préférer le 
-\begin_inset Quotes eld
-\end_inset 
-
-format centre
-\begin_inset Quotes erd
-\end_inset 
-
- pour les arcs
-\layout Standard
-
-Les arcs en format centre (qui utilisent 
-\family typewriter 
-I- J- K-
-\family default 
- au lieu de 
-\family typewriter 
-R-
-\family default 
-) se comportent de façon plus précise que ceux en format rayon, particulièrement
- pour des angles proche de 180 et 360 degrés.
-\layout Section
-
-Placer les codes modaux importants au début des programmes
-\layout Standard
-
-Lorsque l'exécution correcte de votre programme dépend de paramètres modaux,
- n'oubliez pas de les mettre au début du programme.
- Des modes incorrects peuvent provenir d'un programme précédent ou depuis
- des entrées manuelles.
-\layout Standard
-
-Une bonne mesure préventive consiste à placer la ligne suivante au début
- de tous les programmes:
-\layout LyX-Code
-
-G17 G21 G40 G49 G54 G80 G90 G94 
-\layout Standard
-
-(plan XY, mode mm, annulation de la compensation de rayon, et de longueur,
- sytème de coordonnées numéro 1, arrêt des mouvements, déplacements absolus,
- mode vitesse/minute)
-\layout Standard
-
-Peut-être que le code modal le plus important est le réglage des unités
- machine.
- Si les codes G20 ou G21, ne sont pas inclus, selon les machines l'échelle
- d'usinage sera différente.
- D'autres valeurs comme le plan de retrait des cycles préprogrammés peuvent
- être importantes.
-\layout Section
-
-Ne pas mettre trop de choses sur une ligne
-\layout Standard
-
-Ignorer le contenu de la section 
-\begin_inset LatexCommand \ref{sec:Ordre-d'execution}
-
-\end_inset 
-
- et ne pas écrire de ligne de code qui laisse la moindre ambiguïté.
- De même, ne pas régler un paramètre et l'utiliser sur la même ligne, même
- si la sémantique est bien définie.
- (Exception: Mise à jour d'une variable à une nouvelle valeur, comme 
-\family typewriter 
-#1=[#1+#2
-\family default 
-])
-\layout Section
-
-Ne pas utiliser les numéros de ligne
-\layout Standard
-
-Les numéros de ligne n'apportent rien.
- Quand des numéros de ligne sont rapportés dans les messages d'erreur, ces
- numéros font référence aux numéros de lignes à l'intérieur du programme,
- pas aux valeurs des mots N.
-\layout Section
-
-Lorsque plusieurs systèmes de coordonnées sont déplacés, envisager le mode
- vitesse inverse du temps
-\layout Standard
-
-Parce que la signification d'un mot F en mètres par minute varie selon les
- axes à déplacer et parce que la quantité de matière enlevée ne dépend pas
- que de la vitesse travail, il peut être plus simple d'utiliser G93, vitesse
- inverse du temps pour atteindre l'enlévement de matière souhaîté.
-\layout Standard
-
-
-\begin_inset Include \input{tool_compensation_fr.lyx}
-preview false
-
-\end_inset 
-
-
 \layout Chapter
 
 Différences entre le g-code d'EMC2 et le RS274NGC

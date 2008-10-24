@@ -502,10 +502,5 @@ comp
 \family typewriter 
 comp(1)
 \family default 
- manpage or section 
-\begin_inset LatexCommand \ref{sec:Compiling-realtime-components}
-
-\end_inset 
-
- for more information.
+ manpage or section (???) for more information.
 \the_end
