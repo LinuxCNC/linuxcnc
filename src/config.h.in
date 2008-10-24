@@ -25,9 +25,6 @@
 #define MM_PER_INCH 25.4
 #define INCH_PER_MM (1.0/25.4)
 
-#define LINEAR_TOLERANCE 0.0001
-#define ANGULAR_TOLERANCE 0.0001
-
 
 /* Directory for binaries */
 #undef EMC2_BIN_DIR
@@ -44,11 +41,14 @@
 /* Directory for images */
 #undef EMC2_IMAGE_DIR
 
-/* Directory for translation files */
+/* Directory for tcl translation files */
 #undef EMC2_LANG_DIR
 
 /* Directory for nc files */
 #undef EMC2_NCFILES_DIR
+
+/* Directory for po/mo translation files */
+#undef EMC2_PO_DIR
 
 /* Directory of realtime system */
 #undef EMC2_RTLIB_DIR

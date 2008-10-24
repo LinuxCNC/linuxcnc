@@ -479,6 +479,7 @@ if test "xyes" = "x$RUN_IN_PLACE"; then
     EMC2_TCL_DIR=$EMC2_HOME/tcl
     EMC2_TCL_LIB_DIR=$EMC2_HOME/tcl
     EMC2_LANG_DIR=$EMC2_HOME/src/po
+    EMC2_PO_DIR=$EMC2_HOME/share/locale
     EMC2_HELP_DIR=$EMC2_HOME/docs/help
     EMC2_RTLIB_DIR=$EMC2_HOME/rtlib
     EMC2_CONFIG_PATH="~/emc2/configs:$EMC2_HOME/configs"
@@ -491,6 +492,7 @@ else
     EMC2_TCL_DIR=${prefix}/share/emc/tcl
     EMC2_TCL_LIB_DIR=${prefix}/lib/emc/tcl
     EMC2_LANG_DIR=${prefix}/share/emc/tcl/msgs
+    EMC2_PO_DIR=${prefix}/share
     EMC2_HELP_DIR=${prefix}/share/doc/emc2
     case $MODULE_DIR in
         */emc2*) EMC2_RTLIB_DIR=$MODULE_DIR ;;
@@ -507,7 +509,8 @@ AC_DEFINE_UNQUOTED([EMC2_BIN_DIR], "$EMC2_BIN_DIR", [Directory for binaries])
 AC_DEFINE_UNQUOTED([EMC2_TCL_DIR], "$EMC2_TCL_DIR", [Directory for tcl scripts])
 AC_DEFINE_UNQUOTED([EMC2_HELP_DIR], "$EMC2_HELP_DIR", [Directory for help files])
 AC_DEFINE_UNQUOTED([EMC2_RTLIB_DIR], "$EMC2_RTLIB_DIR", [Directory of realtime system])
-AC_DEFINE_UNQUOTED([EMC2_LANG_DIR], "$EMC2_LANG_DIR", [Directory for translation files])
+AC_DEFINE_UNQUOTED([EMC2_LANG_DIR], "$EMC2_LANG_DIR", [Directory for tcl translation files])
+AC_DEFINE_UNQUOTED([EMC2_PO_DIR], "$EMC2_PO_DIR", [Directory for po/mo translation files])
 AC_DEFINE_UNQUOTED([EMC2_CONFIG_DIR], "$EMC2_CONFIG_DIR", [Directory for configuration files])
 AC_DEFINE_UNQUOTED([EMC2_NCFILES_DIR], "$EMC2_NCFILES_DIR", [Directory for nc files])
 AC_DEFINE_UNQUOTED([EMC2_IMAGE_DIR], "$EMC2_IMAGE_DIR", [Directory for images])
@@ -893,16 +896,8 @@ AH_TOP([/********************************************************************
 /* Used in a number of places for sprintf() buffers. */
 #define BUFFERLEN 80
 
-/* Assorted defines used through out the source code. */
-#define ACTIVE_G_CODES 13
-#define ACTIVE_M_CODES 9
-#define ACTIVE_SETTINGS 3
-
 #define MM_PER_INCH 25.4
 #define INCH_PER_MM (1.0/25.4)
-
-#define LINEAR_TOLERANCE 0.0001
-#define ANGULAR_TOLERANCE 0.0001
 ])
 
 AH_VERBATIM([_GNU_SOURCE],
