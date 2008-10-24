@@ -242,7 +242,7 @@ Diagnostics
 \layout Standard
 
 
-\begin_inset Include \include{common/Diagnostics.lyx}
+\begin_inset Include \include{common/Stepper_Diagnostics.lyx}
 preview false
 
 \end_inset 

@@ -407,6 +407,18 @@ preview false
 
 \layout Part
 
+Diagnostics
+\layout Standard
+
+
+\begin_inset Include \include{common/Stepper_Diagnostics.lyx}
+preview false
+
+\end_inset 
+
+
+\layout Part
+
 Appendices 
 \layout Standard
 \start_of_appendix 
