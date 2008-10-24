@@ -860,7 +860,9 @@ void rtapi_wait(void)
 	    if(result == RTE_TMROVRN) {
 		rtapi_print_msg(
 		    error_printed == 0 ? RTAPI_MSG_ERR : RTAPI_MSG_WARN,
-		    "RTAPI: ERROR: Unexpected realtime delay on task %d\n", 
+		    "RTAPI: ERROR: Unexpected realtime delay on task %d\n" 
+		    "This Message will only display once per session.\n"
+		    "Run the Latency Test and resolve before continuing.", 
 		    rtapi_task_self());
 	    } else
 #endif
