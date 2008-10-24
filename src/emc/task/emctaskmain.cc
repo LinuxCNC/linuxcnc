@@ -2880,6 +2880,7 @@ int main(int argc, char *argv[])
 
     bindtextdomain("rs274_err", EMC2_PO_DIR);
     setlocale(LC_MESSAGES,"");
+    setlocale(LC_CTYPE,"");
     textdomain("rs274_err");
 
     // copy command line args
