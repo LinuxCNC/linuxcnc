@@ -139,8 +139,13 @@ For a list of widgets and their tags and options, see the widget reference
 \layout Standard
 
 Once you have created your panel, connecting HAL signals to and from the
- pyVCP pins is done with 'halcmd linksp' as usual.
- If you are new to HAL, the HAL Tutorial
+ pyVCP pins is done with:
+\layout LyX-Code
+
+halcmd linksp 
+\layout Standard
+
+If you are new to HAL, the HAL Tutorial
 \begin_inset LatexCommand \ref{cha:HAL-Tutorial}
 
 \end_inset 
@@ -511,15 +516,7 @@ A radiobutton will set one of a number of BIT pins true.
 
 Note that the HAL pins in the example above will me named my-radio.one, my-radio.t
 wo, and my-radio.three.
- In the image above, 
-\begin_inset Quotes eld
-\end_inset 
-
-three
-\begin_inset Quotes erd
-\end_inset 
-
- is the selected value.
+ In the image above, "three" is the selected value.
 \layout Subsection
 
 Number
@@ -558,7 +555,7 @@ The number widget displays the value of a FLOAT signal.
 <font>("courier 10 pitch",100)</font>
 \layout Standard
 
-<format> is a 'C-style' format specified that determines how the number
+<format> is a "C-style" format specified that determines how the number
  is displayed.
 \layout Subsection
 
@@ -629,8 +626,8 @@ Spinbox
 \layout Standard
 
 Spinbox controls a FLOAT pin.
- You increase or decrease the value of the pin by 'resolution' by either
- pressing on the arrows, or pointing at the spinbox and rolling your mouse-wheel.
+ You increase or decrease the value of the pin by either pressing on the
+ arrows, or pointing at the spinbox and rolling your mouse-wheel.
 \layout LyX-Code
 
 <spinbox>
@@ -779,15 +776,15 @@ pack(3tk)
 .
  By default, 
 \family typewriter 
-fill='y'
+fill="y"
 \family default 
 , 
 \family typewriter 
-anchor='center'
+anchor="center"
 \family default 
 , 
 \family typewriter 
-expand='yes'
+expand="yes"
 \family default 
 .
 \layout Subsection
@@ -844,15 +841,15 @@ pack(3tk)
 .
  By default, 
 \family typewriter 
-fill='x'
+fill="x"
 \family default 
 , 
 \family typewriter 
-anchor='center'
+anchor="center"
 \family default 
 , 
 \family typewriter 
-expand='yes'
+expand="yes"
 \family default 
 .
 \layout Subsection
