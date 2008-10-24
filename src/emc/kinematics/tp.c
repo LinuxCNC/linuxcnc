@@ -787,8 +787,14 @@ int tpRunCycle(TP_STRUCT * tp, long period)
         if(tc->velocity_mode) {
             pos_error = fabs(emcmotStatus->spindleSpeedIn) * tc->uu_per_rev;
             if(nexttc) pos_error -= nexttc->progress; /* ?? */
-            if(!tp->aborting)
+            if(!tp->aborting) {
+                tc->feed_override = emcmotStatus->net_feed_scale;
                 tc->reqvel = pos_error;
+                if(nexttc) {
+                    nexttc->feed_override = emcmotStatus->net_feed_scale;
+                    nexttc->reqvel = pos_error;
+                }
+            }
         } else {
             double spindle_vel, target_vel;
             if(tc->motion_type == TC_RIGIDTAP && 
@@ -814,8 +820,8 @@ int tpRunCycle(TP_STRUCT * tp, long period)
                     tc->sync_accel = 0;
                 }
             }
+            tc->feed_override = 1.0;
         }
-        tc->feed_override = 1.0;
         if(tc->reqvel < 0.0) tc->reqvel = 0.0;
         if(nexttc) {
 	    if (nexttc->synchronized) {
@@ -833,7 +839,7 @@ int tpRunCycle(TP_STRUCT * tp, long period)
 	}
     }
     /* handle pausing */
-    if(tp->pausing && !tc->synchronized) {
+    if(tp->pausing && (!tc->synchronized || tc->velocity_mode)) {
         tc->feed_override = 0.0;
         if(nexttc) {
 	    nexttc->feed_override = 0.0;
