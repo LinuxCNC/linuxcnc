@@ -1000,6 +1000,12 @@ else
    TK_LIBS="$TK_LIBS $TK_LIB_SPEC"
 fi
 
+if ! test -z "$TCL_VERSION" && ! test -z "$TK_VERSION" && ! test "$TCL_VERSION" = "$TK_VERSION" ; then
+    AC_MSG_ERROR([Tcl and Tk versions must be the same, but configure found
+Tcl $TCL_VERSION and Tk $TK_VERSION.  You can use --with-tkConfig= and --with-tclConfig=
+to override the autodetected versions.])
+fi
+
 if test -f $TCL_EXEC_PREFIX/bin/wish$TCL_VERSION; then
     WISH=$TCL_EXEC_PREFIX/bin/wish$TCL_VERSION
 elif test -f $TCL_EXEC_PREFIX/bin/wish; then

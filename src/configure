@@ -6338,6 +6338,16 @@ echo "${ECHO_T}$TKCONFIG found" >&6
    TK_LIBS="$TK_LIBS $TK_LIB_SPEC"
 fi
 
+if ! test -z "$TCL_VERSION" && ! test -z "$TK_VERSION" && ! test "$TCL_VERSION" = "$TK_VERSION" ; then
+    { { echo "$as_me:$LINENO: error: Tcl and Tk versions must be the same, but configure found
+Tcl $TCL_VERSION and Tk $TK_VERSION.  You can use --with-tkConfig= and --with-tclConfig=
+to override the autodetected versions." >&5
+echo "$as_me: error: Tcl and Tk versions must be the same, but configure found
+Tcl $TCL_VERSION and Tk $TK_VERSION.  You can use --with-tkConfig= and --with-tclConfig=
+to override the autodetected versions." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+
 if test -f $TCL_EXEC_PREFIX/bin/wish$TCL_VERSION; then
     WISH=$TCL_EXEC_PREFIX/bin/wish$TCL_VERSION
 elif test -f $TCL_EXEC_PREFIX/bin/wish; then
