@@ -1,0 +1,205 @@
+#LyX 1.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 221
+\textclass book
+\language french
+\inputencoding auto
+\fontscheme bookman
+\graphics default
+\paperfontsize 10
+\spacing single 
+\papersize letterpaper
+\paperpackage a4
+\use_geometry 0
+\use_amsmath 0
+\use_natbib 0
+\use_numerical_citations 0
+\paperorientation portrait
+\secnumdepth 5
+\tocdepth 3
+\paragraph_separation skip
+\defskip smallskip
+\quotes_language french
+\quotes_times 2
+\papercolumns 1
+\papersides 1
+\paperpagestyle headings
+
+\layout Chapter
+
+Messages d'erreur communs
+\layout Section
+
+Erreurs de suivi
+\layout Subsection
+
+Systèmes à moteurs pas à pas
+\layout Standard
+
+Le concept d'erreur de suivi est étrange quand il s'agit de moteurs pas
+ à pas.
+ Etant un système en boucle ouverte, aucune contre réaction ne permet de
+ savoir si le suivi est correct ou non.
+ EMC calcule si il peut maintenir le suivi demandé par une commande, si
+ ce n'est pas possible il stoppe le mouvement et affiche une erreur de suivi.
+ Les erreurs de suivi sur les systèmes pas à pas sont habituellement les
+ suivantes:
+\layout Itemize
+
+FERROR to small - (FERROR trop petit)
+\layout Itemize
+
+MIN_FERROR to small - (MIN_FERROR trop petit)
+\layout Itemize
+
+MAX_VELOCITY to fast - (MAX_VELOCITY trop rapide)
+\layout Itemize
+
+MAX_ACCELERATION to fast - (MAX_ACCELERATION trop rapide)
+\layout Itemize
+
+BASE_PERIOD set to long - (BASE_PERIOD trop longue)
+\layout Standard
+
+Toutes ces erreurs se produisent lorsque l'horloge temps réel n'est pas
+ capable de fournir le nombre de pas nécessaire pour maintenir la vitesse
+ requise par le réglage de la variable BASE_PERIOD.
+ Ce qui peut se produire après la modification d'une de ces variables dans
+ le fichier ini, dans ce cas, revenez à une valeur plus proche de ce qu'elle
+ était et réessayez.
+\layout Section
+
+RTAPI Error
+\layout Standard
+
+
+\begin_inset Note
+collapsed false
+
+\layout Standard
+
+find info on this JT
+\end_inset 
+
+
+\layout Section
+
+Tester
+\layout Subsection
+
+Tester le timing des pas
+\layout Standard
+
+Si un de vos axes vibre, grogne ou fait des petits mouvements dans toutes
+ les directions, c'est révélateur d'un mauvais timing d'impulsions de pas
+ de ce moteur.
+ Les paramètres du pilote matériel sont a vérifier et a ajuster.
+ Il peut aussi y avoir des pertes de pas aux changements de direction.
+ Si le moteur cale complétement, il est aussi possible que les paramètres
+ MAX_ACCELERATION ou MAX_VELOCITY aient des valeurs trop élevées.
+ 
+\layout Standard
+
+Le programme suivant vérifie que la configuration de l'axe Z est correcte.
+ Copiez le programme dans le répertoire de votre emc2/nc_files nommez le
+ 
+\begin_inset Quotes fld
+\end_inset 
+
+TestZ.ngc
+\begin_inset Quotes frd
+\end_inset 
+
+ ou similaire.
+ Initialisez votre machine avec Z = 0.000 sur le dessus de la table.
+ Chargez et lancez le programme.
+ Il va effectuer 200 mouvements d'aller et retour entre 10.00 et 30.00mm.
+ Si vous avez un problème de configuration, la position de l'axe Z affichée
+ à la fin du programme, soit 10.00mm, ne correspondra pas à la position mesurée.
+ Pour tester un autre axe remplacez simplement le Z des G0 par le nouvel
+ axe.
+\layout LyX-Code
+
+( Faite Z=0 au dessus de la table avant de démarrer! )
+\layout LyX-Code
+
+( Ce programme teste les pertes de position en Z )
+\layout LyX-Code
+
+( msg, test 1 de la configuration de l'axe Z ) 
+\layout LyX-Code
+
+G21 #1000=100 ( boucle 100 fois )  
+\layout LyX-Code
+
+( cette boucle comporte un delai après chaque mouvement )
+\layout LyX-Code
+
+( test des réglages d'accélération et de vitesse )
+\layout LyX-Code
+
+o100 while [#1000] 
+\layout LyX-Code
+
+   G0 Z30.000
+\layout LyX-Code
+
+   G4 P0.250 
+\layout LyX-Code
+
+   G0 Z10.000 
+\layout LyX-Code
+
+   G4 P0.250 
+\layout LyX-Code
+
+   #1000 = [#1000 - 1] 
+\layout LyX-Code
+
+o100 endwhile 
+\layout LyX-Code
+
+( msg, test 2 de la configuration de l'axe Z, pressez S pour continuer)
+ 
+\layout LyX-Code
+
+M1 (un arrêt ici)
+\layout LyX-Code
+
+#1000=100 ( boucle 100 fois ) 
+\layout LyX-Code
+
+( Les boucles suivantes n'ont plus de délai en fin de mouvements )
+\layout LyX-Code
+
+( test des 
+\begin_inset Quotes fld
+\end_inset 
+
+hold times
+\begin_inset Quotes frd
+\end_inset 
+
+ de la conf.
+ du pilote et le réglage de max accel ) 
+\layout LyX-Code
+
+o101 while [#1000] 
+\layout LyX-Code
+
+   G0 Z30.000 .
+\layout LyX-Code
+
+   G0 Z10.000 
+\layout LyX-Code
+
+   #1000 = [#1000 - 1] 
+\layout LyX-Code
+
+o101 endwhile 
+\layout LyX-Code
+
+( msg, Fin Z doit être à 10mm au dessus de la table ) 
+\layout LyX-Code
+
+M2
+\the_end

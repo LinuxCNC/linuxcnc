@@ -137,8 +137,6 @@ preview false
 
 \layout Part
 
-
-\lang english
 Utilisation d'EMC2
 \layout Standard
 
@@ -259,8 +257,6 @@ preview false
 
 \layout Part
 
-
-\lang english
 Exemples
 \layout Standard
 
@@ -282,15 +278,11 @@ preview false
 
 \layout Part
 
-
-\lang english
 Diagnostique
 \layout Standard
 
 
-\lang english
-
-\begin_inset Include \include{common/Diagnostics_fr.lyx}
+\begin_inset Include \include{common/Stepper_Diagnostics_fr.lyx}
 preview false
 
 \end_inset 
@@ -298,8 +290,6 @@ preview false
 
 \layout Part
 
-
-\lang english
 Annexes
 \layout Standard
 
