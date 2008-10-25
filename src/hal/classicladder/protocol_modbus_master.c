@@ -523,7 +523,9 @@ int ModbusMasterAsk( unsigned char * SlaveAddressIP, unsigned char * Question )
 			printf("INFO CLASSICLADDER-   Modbus I/O module to send: Lgt=%d <- ", LgtAskFrame );
 			for( DebugFrame=0; DebugFrame<LgtAskFrame; DebugFrame++ )
 			{
-				printf("%X ", Question[ DebugFrame ] );
+                           if (DebugFrame==0) {   printf("(Slave address-%X - ", Question[ DebugFrame]);   
+                           }else{   if (DebugFrame==1) {   printf("Function code-%X ) ", Question[ DebugFrame]);   
+				       }else{            printf("%X ", Question[ DebugFrame ] );     }}
 			}
 			printf("\n");
 		}
@@ -540,7 +542,9 @@ char TreatModbusMasterResponse( unsigned char * Response, int LgtResponse )
 		printf("INFO CLASSICLADDER-   Modbus I/O module received: Lgt=%d -> ", LgtResponse );
 		for( DebugFrame=0; DebugFrame<LgtResponse; DebugFrame++ )
 		{
-			printf("%X ", Response[ DebugFrame ] );
+			if (DebugFrame==0) {   printf("(Slave address-%X - ", Response[ DebugFrame]);   
+                        }else{   if (DebugFrame==1) {   printf("Function code-%X ) ", Response[ DebugFrame]);
+				    }else{            printf("%X ", Response[ DebugFrame ] );     }}
 		}
 		printf("\n");
 	}
