@@ -42,6 +42,7 @@ extern char TmpDirectory[ 400 ];
 
 extern StrGeneralParams GeneralParamsMirror;
 
+#ifdef MODBUS_IO_MASTER
 extern StrModbusMasterReq ModbusMasterReq[ NBR_MODBUS_MASTER_REQ ];
 // if '\0' => IP mode used for I/O modbus modules
 extern char ModbusSerialPortNameUsed[ 30 ];
@@ -50,7 +51,9 @@ extern int ModbusSerialUseRtsToSend;
 extern int ModbusTimeInterFrame;
 extern int ModbusTimeOutReceipt;
 extern int ModbusTimeAfterTransmit;
+extern int ModbusEleOffset;
 extern int ModbusDebugLevel;
+#endif
 
 extern char * ErrorMessageVarParser;
 

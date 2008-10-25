@@ -33,9 +33,9 @@
 #include "config_gtk.h"
 
 #ifdef OLD_TIMERS_MONOS_SUPPORT
-#define NBR_OBJECTS 15
+#define NBR_OBJECTS 16
 #else
-#define NBR_OBJECTS 13
+#define NBR_OBJECTS 14
 #endif
 GtkWidget *LabelParam[ NBR_OBJECTS ],*ValueParam[ NBR_OBJECTS ];
 
@@ -50,6 +50,7 @@ GtkWidget *OutputParamEntry[ NBR_OUTPUTS_CONF ][ NBR_IO_PARAMS ];
 GtkWidget *OutputDeviceParam[ NBR_OUTPUTS_CONF ];
 GtkWidget *OutputFlagParam[ NBR_OUTPUTS_CONF ];
 
+//for modbus input/output page
 #ifdef MODBUS_IO_MASTER
 static char * ModbusReqType[] = { "Read_INPUTS  fnct- 2", "Write_COIL(S)  fnct-5/15", "Read_REGS     fnct- 4", "Write_REG(S)  fnct-6/16","Read_HOLD    fnct- 3","Slave_echo    fnct- 8",NULL };
 #define NBR_MODBUS_PARAMS 6
@@ -58,9 +59,16 @@ GtkWidget *SerialPortEntry;
 GtkWidget *SerialSpeedEntry;
 GtkWidget *PauseInterFrameEntry;
 GtkWidget *DebugLevelEntry;
-#endif
 
+//for modbus configure window
+#define NBR_COM_PARAMS 8
+GtkWidget *EntryComParam[ NBR_COM_PARAMS ];
 GtkWidget *ConfigWindow;
+GtkWidget *DebugButton [ 4 ];
+GtkWidget *OffsetButton[ 1 ];
+GtkWidget *RtsButton   [ 1 ];
+GSList *group;
+#endif
 
 GtkWidget * CreateGeneralParametersPage( void )
 {
@@ -83,70 +91,73 @@ GtkWidget * CreateGeneralParametersPage( void )
 		switch( NumObj )
 		{
 			case 0:
-				sprintf( BuffLabel, "Periodic Refresh Rate (ms)" );
+				sprintf( BuffLabel, "Rung Refresh Rate (milliseconds)" );
 				sprintf( BuffValue, "%d", InfosGene->GeneralParams.PeriodicRefreshMilliSecs );
 				break;
 			case 1:
 				InfoUsed = GetNbrRungsDefined( )*100/InfosGene->GeneralParams.SizesInfos.nbr_rungs;
-				sprintf( BuffLabel, "Nbr.rungs (%d%c used - current alloc=%d)", InfoUsed,'%', InfosGene->GeneralParams.SizesInfos.nbr_rungs );
+				sprintf( BuffLabel, "Number of rungs (%d%c used      ", InfoUsed,'%' );
 				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_rungs );
 				break;
 			case 2:
-				sprintf( BuffLabel, "Nbr.Bits (current alloc=%d)", InfosGene->GeneralParams.SizesInfos.nbr_bits );
+				sprintf( BuffLabel, "Number of Bits                  " );
 				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_bits );
 				break;
 			case 3:
-				sprintf( BuffLabel, "Nbr.Words (current alloc=%d)", InfosGene->GeneralParams.SizesInfos.nbr_words );
+				sprintf( BuffLabel, "Number of Words                 " );
 				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_words );
 				break;
 			case 4:
-				sprintf( BuffLabel, "Nbr.Counters (current alloc=%d)", InfosGene->GeneralParams.SizesInfos.nbr_counters );
+				sprintf( BuffLabel, "Number of Counters              " );
 				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_counters );
 				break;
 			case 5:
-				sprintf( BuffLabel, "Nbr.Timers IEC (current alloc=%d)", InfosGene->GeneralParams.SizesInfos.nbr_timers_iec );
+				sprintf( BuffLabel, "Number of Timers IEC            " );
 				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_timers_iec );
 				break;
 			case 6:
-				sprintf( BuffLabel, "Nbr.Phys.Inputs (current alloc=%d)", InfosGene->GeneralParams.SizesInfos.nbr_phys_inputs );
+				sprintf( BuffLabel, "Number of BIT Inputs HAL pins           " );
 				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_phys_inputs );
 				break;
 			case 7:
-				sprintf( BuffLabel, "Nbr.Phys.Outputs (current alloc=%d)", InfosGene->GeneralParams.SizesInfos.nbr_phys_outputs );
+				sprintf( BuffLabel, "Number of BIT Outputs HAL pins          " );
 				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_phys_outputs );
 				break;
 			case 8:
-				sprintf( BuffLabel, "Nbr.Arithm.Expr. (current alloc=%d)", InfosGene->GeneralParams.SizesInfos.nbr_arithm_expr );
+				sprintf( BuffLabel, "Number of Arithmetic Expresions " );
 				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_arithm_expr );
 				break;
 			case 9:
 				InfoUsed = NbrSectionsDefined( )*100/InfosGene->GeneralParams.SizesInfos.nbr_sections;
-				sprintf( BuffLabel, "Nbr.Sections (%d%c used - current alloc=%d)", InfoUsed,'%', InfosGene->GeneralParams.SizesInfos.nbr_sections );
+				sprintf( BuffLabel, "Number of Sections (%d%c used)   ", InfoUsed,'%' );
 				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_sections );
 				break;
 			case 10:
-				sprintf( BuffLabel, "Nbr.Symbols (current alloc=%d)", InfosGene->GeneralParams.SizesInfos.nbr_symbols );
+				sprintf( BuffLabel, "Number of Symbols                " );
 				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_symbols );
 				break;
 #ifdef OLD_TIMERS_MONOS_SUPPORT
 			case 11:
-				sprintf( BuffLabel, "Nbr.Timers (current alloc=%d)", InfosGene->GeneralParams.SizesInfos.nbr_timers );
+				sprintf( BuffLabel, "Number of Timers                 " );
 				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_timers );
 				break;
 			case 12:
-				sprintf( BuffLabel, "Nbr.Monostables (current alloc=%d)", InfosGene->GeneralParams.SizesInfos.nbr_monostables );
+				sprintf( BuffLabel, "Number of Monostables            " );
 				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_monostables );
 				break;
 #endif
 			case 13:
-				sprintf( BuffLabel, "Nbr.S32in (current alloc=%d)", InfosGene->GeneralParams.SizesInfos.nbr_s32in );
+				sprintf( BuffLabel, "Number of S32in HAL pins             " );
 				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_s32in );
 				break;
 			case 14:
-				sprintf( BuffLabel, "Nbr.S32out (current alloc=%d)", InfosGene->GeneralParams.SizesInfos.nbr_s32out );
+				sprintf( BuffLabel, "Number of S32out HAL pins            " );
 				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_s32out );
 				break;
-
+                        case 15:
+				sprintf( BuffLabel, "Current path/filename" );
+                                sprintf( BuffValue, "Not available yet");
+				break;                                
 			default:
 				sprintf( BuffLabel, "???" );
 				sprintf( BuffValue, "???" );
@@ -160,11 +171,16 @@ GtkWidget * CreateGeneralParametersPage( void )
 
 		/* For numbers */
 		ValueParam[NumObj] = gtk_entry_new();
-		gtk_widget_set_usize((GtkWidget *)ValueParam[NumObj],50,0);
+		if (NumObj==15) {   gtk_widget_set_usize((GtkWidget *)ValueParam[NumObj],150,0);
+                           }else{  
+                                    gtk_widget_set_usize((GtkWidget *)ValueParam[NumObj],50,0);  
+                                }
 		gtk_box_pack_start (GTK_BOX (hbox[NumObj]), ValueParam[NumObj], FALSE, FALSE, 0);
 		gtk_widget_show (ValueParam[NumObj]);
-		gtk_entry_set_text( GTK_ENTRY(ValueParam[NumObj]), BuffValue);
-// make all the entries non editable for EMC
+		/*if (NumObj==15) {gtk_entry_set_text( GTK_ENTRY(ValueParam[NumObj]),InfosGene->FileName);
+                }else{*/
+                gtk_entry_set_text( GTK_ENTRY(ValueParam[NumObj]), BuffValue);
+                // make all the entries non editable for EMC
 		gtk_editable_set_editable( GTK_EDITABLE(ValueParam[NumObj]),FALSE);
 	}
 	return vbox;
@@ -244,9 +260,7 @@ GtkWidget * CreateModbusModulesIO( void )
 	char BuffValue[ 40 ];
 	GtkWidget *ModbusParamLabel[ NBR_MODBUS_PARAMS];	
 	GtkWidget *SerialPortLabel;
-	GtkWidget *SerialSpeedLabel;
-	GtkWidget *PauseInterFrameLabel;
-	GtkWidget *DebugLevelLabel;
+	
 
  	if(nomodbus) 
             {
@@ -268,7 +282,7 @@ GtkWidget * CreateModbusModulesIO( void )
 	vbox = gtk_vbox_new (FALSE, 0);
 	gtk_widget_show (vbox);
 
-	for (NumLine=-2; NumLine<NBR_MODBUS_MASTER_REQ; NumLine++ )
+	for (NumLine=-1; NumLine<NBR_MODBUS_MASTER_REQ; NumLine++ )
 	{
 		hbox[NumLine+2] = gtk_hbox_new (FALSE, 0);
 		gtk_container_add (GTK_CONTAINER (vbox), hbox[NumLine+2]);
@@ -278,56 +292,6 @@ GtkWidget * CreateModbusModulesIO( void )
 		{
 			switch( NumLine )
 			{
-				case -2:
-				{
-					if ( NumObj==0 )
-					{
-						SerialPortLabel = gtk_label_new( "Serial port (blank = IP mode)" );
-						gtk_box_pack_start(GTK_BOX (hbox[ NumLine+2 ]), SerialPortLabel, FALSE, FALSE, 0);
-						gtk_widget_show( SerialPortLabel );
-						SerialPortEntry = gtk_entry_new( );
-						gtk_box_pack_start( GTK_BOX (hbox[NumLine+2]), SerialPortEntry, FALSE, FALSE, 0 );
-						gtk_widget_show ( SerialPortEntry );
-						gtk_entry_set_text( GTK_ENTRY(SerialPortEntry), ModbusSerialPortNameUsed );
-//TODO: configplc file written by hand for now...
-gtk_editable_set_editable( GTK_EDITABLE(SerialPortEntry), TRUE);
-						
-						SerialSpeedLabel = gtk_label_new( "Serial speed" );
-						gtk_box_pack_start(GTK_BOX (hbox[ NumLine+2 ]), SerialSpeedLabel, FALSE, FALSE, 0);
-						gtk_widget_show( SerialSpeedLabel );
-						SerialSpeedEntry = gtk_entry_new( );
-						gtk_widget_set_usize( SerialSpeedEntry,70,0 );
-						gtk_box_pack_start( GTK_BOX (hbox[NumLine+2]), SerialSpeedEntry, FALSE, FALSE, 0 );
-						gtk_widget_show ( SerialSpeedEntry );
-						sprintf( BuffValue, "%d", ModbusSerialSpeed );
-						gtk_entry_set_text( GTK_ENTRY(SerialSpeedEntry), BuffValue );
-//TODO: configplc file written by hand for now...
-gtk_editable_set_editable( GTK_EDITABLE(SerialSpeedEntry), TRUE);
-						
-						PauseInterFrameLabel = gtk_label_new( "Pause Inter-Frame" );
-						gtk_box_pack_start(GTK_BOX (hbox[ NumLine+2 ]), PauseInterFrameLabel, FALSE, FALSE, 0);
-						gtk_widget_show( PauseInterFrameLabel );
-						PauseInterFrameEntry = gtk_entry_new( );
-						gtk_widget_set_usize( PauseInterFrameEntry,50,0 );
-						gtk_box_pack_start( GTK_BOX (hbox[NumLine+2]), PauseInterFrameEntry, FALSE, FALSE, 0 );
-						gtk_widget_show ( PauseInterFrameEntry );
-						sprintf( BuffValue, "%d", ModbusTimeInterFrame );
-						gtk_entry_set_text( GTK_ENTRY(PauseInterFrameEntry), BuffValue );
-//TODO: configplc file written by hand for now...
-gtk_editable_set_editable( GTK_EDITABLE(PauseInterFrameEntry), TRUE);
-						
-						DebugLevelLabel = gtk_label_new( "Debug" );
-						gtk_box_pack_start(GTK_BOX (hbox[ NumLine+2 ]), DebugLevelLabel, FALSE, FALSE, 0);
-						gtk_widget_show( DebugLevelLabel );
-						DebugLevelEntry = gtk_entry_new( );
-						gtk_widget_set_usize( DebugLevelEntry,25,0 );
-						gtk_box_pack_start( GTK_BOX (hbox[NumLine+2]), DebugLevelEntry, FALSE, FALSE, 0 );
-						gtk_widget_show ( DebugLevelEntry );
-						sprintf( BuffValue, "%d", ModbusDebugLevel );
-						gtk_entry_set_text( GTK_ENTRY(DebugLevelEntry), BuffValue );
-					}
-					break;
-				}
 				case -1:
 				{
 					int length;
@@ -433,6 +397,7 @@ void GetModbusModulesIOSettings( void )
 	GtkWidget **IOParamEntry;
 	char * text;
 	char BuffValue[ 40 ];
+
 	for (NumLine=0; NumLine<NBR_MODBUS_MASTER_REQ; NumLine++ )
 	{
 		pConf = &ModbusMasterReq[ NumLine ];
@@ -520,27 +485,221 @@ void GetModbusModulesIOSettings( void )
 		strcpy( &pConf->SlaveAdr[ 1 ], &BuffValue[ 1 ] );
 		pConf->SlaveAdr[ 0 ] = BuffValue[ 0 ];
 	}//for (NumLine=0; 
-
-	text = (char *)gtk_entry_get_text(GTK_ENTRY(SerialPortEntry));
-	strcpy( ModbusSerialPortNameUsed ,text );
-	text = (char *)gtk_entry_get_text(GTK_ENTRY(SerialSpeedEntry));
-	ModbusSerialSpeed = atoi( text );
-	text = (char *)gtk_entry_get_text(GTK_ENTRY(PauseInterFrameEntry));
-	ModbusTimeInterFrame = atoi( text );
-	text = (char *)gtk_entry_get_text(GTK_ENTRY(DebugLevelEntry));
-	ModbusDebugLevel = atoi( text );
 }
 #endif
 
+// These three callback functions will change the global variable as soon as the radio button is changed
+// you don't have to close the window to update them
+ void debug_button_callback (GtkWidget *widget, gint data)
+{
+    if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (DebugButton[0])))  { ModbusDebugLevel = 0; } 
+    if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (DebugButton[1])))  { ModbusDebugLevel = 1; } 
+    if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (DebugButton[2])))  { ModbusDebugLevel = 2; } 
+    if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (DebugButton[3])))  { ModbusDebugLevel = 3; } 
+}
+static void offset_button_callback (GtkWidget *widget, gint data)
+{
+    if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (OffsetButton[0])))  { ModbusEleOffset = 0; } 
+    if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (OffsetButton[1])))  { ModbusEleOffset = 1; } 
+}
+
+static void rts_button_callback (GtkWidget *widget, gint data)
+{
+    if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (RtsButton[0])))  {  ModbusSerialUseRtsToSend = 0; } 
+    if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (RtsButton[1])))  {  ModbusSerialUseRtsToSend = 1; } 
+}
+
+GtkWidget * CreateModbusComParametersPage( void )
+{
+	GtkWidget *vbox;
+	GtkWidget *hbox[ NBR_COM_PARAMS ];
+	GtkWidget *LabelComParam[ NBR_COM_PARAMS ];
+        GSList *group;
+	int NumLine;
+	char BuffLabel[ 50 ];
+	char BuffValue[ 20 ];
+
+        if(nomodbus) 
+            {
+             vbox = gtk_vbox_new (FALSE, 0);
+              gtk_widget_show (vbox);
+              LabelComParam[ 0 ] = gtk_label_new( "\n  To use modbus you must specify a modbus configure file\n"
+		"                        when loading classicladder use: \n \n loadusr classicladder myprogram.clp --config=myconfigfile  " );
+              gtk_box_pack_start(GTK_BOX (vbox),LabelComParam[ 0 ] , FALSE, FALSE, 0);
+              gtk_widget_show( LabelComParam[ 0 ]  );     
+              return vbox;
+             }
+
+	vbox = gtk_vbox_new (FALSE/*homogeneous*/, 0);
+	gtk_widget_show (vbox);
+
+	for( NumLine=0; NumLine<NBR_COM_PARAMS; NumLine++ )
+	{
+		hbox[NumLine] = gtk_hbox_new (FALSE, 0);
+		gtk_container_add (GTK_CONTAINER (vbox), hbox[NumLine]);
+		gtk_widget_show (hbox[NumLine]);
+		switch( NumLine )
+		{
+			case 0:
+				sprintf( BuffLabel, "Serial port (blank = IP mode)" );
+				strcpy( BuffValue, ModbusSerialPortNameUsed );
+				break;
+			case 1:
+				sprintf( BuffLabel, "Serial baud rate" );
+				sprintf( BuffValue, "%d", ModbusSerialSpeed );
+				break;
+                        case 2:
+				sprintf( BuffLabel, "After transmit pause" );
+				sprintf( BuffValue, "%d", ModbusTimeAfterTransmit );
+				break;
+			
+			case 3:
+				sprintf( BuffLabel, "Inter-Frame pause" );
+				sprintf( BuffValue, "%d", ModbusTimeInterFrame );
+				break;
+			case 4:
+				sprintf( BuffLabel, "Request Timeout length" );
+				sprintf( BuffValue, "%d", ModbusTimeOutReceipt );
+				break;
+			case 5:
+				sprintf( BuffLabel, "Use RTS to send" );
+				sprintf( BuffValue, "%d", ModbusSerialUseRtsToSend );
+				break;
+			case 6:
+				sprintf( BuffLabel, "Modbus element offset" );
+				sprintf( BuffValue, "%d", ModbusEleOffset );
+				break;
+			case 7:
+				sprintf( BuffLabel, "Debug level" );
+				sprintf( BuffValue, "%d", ModbusDebugLevel );
+				break;
+		}
+            switch( NumLine )
+		{
+                         case 5:
+                                //RTS label
+                                LabelComParam[NumLine] = gtk_label_new(BuffLabel);
+		                gtk_widget_set_usize( LabelComParam[NumLine],200,0 );
+		                gtk_box_pack_start( GTK_BOX(hbox[NumLine]), LabelComParam[NumLine], FALSE, FALSE, 0 );
+		                gtk_widget_show( LabelComParam[NumLine] ); 
+
+                                //radio buttons
+                                RtsButton[0]= gtk_radio_button_new_with_label (NULL, "NO");
+                                gtk_box_pack_start (GTK_BOX (hbox[NumLine]), RtsButton[0], FALSE, TRUE, 0);
+                                gtk_widget_show (RtsButton[0]);
+                                group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (RtsButton[0]));
+
+                                RtsButton[1]= gtk_radio_button_new_with_label (group, "YES");
+                                gtk_box_pack_start (GTK_BOX (hbox[NumLine]), RtsButton[1], FALSE, TRUE, 0);
+                                gtk_widget_show (RtsButton[1]);
+
+                                //set the active button by the current stste of  ModbusSerialUseRtsToSend
+                                gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (RtsButton[ModbusSerialUseRtsToSend]), TRUE);
+
+                                g_signal_connect (G_OBJECT (RtsButton[0]), "toggled",
+ 	                   	                  G_CALLBACK (rts_button_callback), GINT_TO_POINTER ( 0 ));
+                                g_signal_connect (G_OBJECT (RtsButton[1]), "toggled",
+		                                  G_CALLBACK (rts_button_callback), GINT_TO_POINTER ( 1 ));
+                                break;
+
+                         case 6:
+                                //offset label
+                                LabelComParam[NumLine] = gtk_label_new(BuffLabel);
+		                gtk_widget_set_usize( LabelComParam[NumLine],200,0 );
+		                gtk_box_pack_start( GTK_BOX(hbox[NumLine]), LabelComParam[NumLine], FALSE, FALSE, 0 );
+		                gtk_widget_show( LabelComParam[NumLine] ); 
+
+                                //radio buttons
+                                OffsetButton[0]= gtk_radio_button_new_with_label (NULL, "0");
+                                gtk_box_pack_start (GTK_BOX (hbox[NumLine]), OffsetButton[0], FALSE, TRUE, 0);
+                                gtk_widget_show (OffsetButton[0]);
+                                group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (OffsetButton[0]));
+
+                                OffsetButton[1]= gtk_radio_button_new_with_label (group, "1");
+                                gtk_box_pack_start (GTK_BOX (hbox[NumLine]), OffsetButton[1], FALSE, TRUE, 0);
+                                gtk_widget_show (OffsetButton[1]);
+
+                                gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (OffsetButton[ModbusEleOffset ]), TRUE);
+
+                                g_signal_connect (G_OBJECT (OffsetButton[0]), "toggled",
+ 	                   	                  G_CALLBACK (offset_button_callback), GINT_TO_POINTER ( 0 ));
+                                g_signal_connect (G_OBJECT (OffsetButton[1]), "toggled",
+		                                  G_CALLBACK (offset_button_callback), GINT_TO_POINTER ( 1 ));
+                                break;
+                        
+			case 7:
+                                //Debug label
+                                LabelComParam[NumLine] = gtk_label_new(BuffLabel);
+		                gtk_widget_set_usize( LabelComParam[NumLine],200,0 );
+		                gtk_box_pack_start( GTK_BOX(hbox[NumLine]), LabelComParam[NumLine], FALSE, FALSE, 0 );
+		                gtk_widget_show( LabelComParam[NumLine] ); 
+
+                                //radio buttons
+                                DebugButton[0]= gtk_radio_button_new_with_label (NULL, "QUIET");
+                                gtk_box_pack_start (GTK_BOX (hbox[NumLine]), DebugButton[0], FALSE, TRUE, 0);
+                                gtk_widget_show (DebugButton[0]);
+                                group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (DebugButton[0]));
+
+                                DebugButton[1]= gtk_radio_button_new_with_label (group, "LEVEL 1");
+                                gtk_box_pack_start (GTK_BOX (hbox[NumLine]), DebugButton[1], FALSE, TRUE, 0);
+                                gtk_widget_show (DebugButton[1]);
+ 
+                                DebugButton[2]= gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON (DebugButton[0]),"LEVEL 2");
+                                gtk_box_pack_start (GTK_BOX (hbox[NumLine]), DebugButton[2], FALSE, TRUE, 0);
+                                gtk_widget_show (DebugButton[2]);
+
+                                DebugButton[3]= gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON (DebugButton[0]),"LEVEL 3");
+                                gtk_box_pack_start (GTK_BOX (hbox[NumLine]), DebugButton[3], FALSE, TRUE, 0);
+                                gtk_widget_show (DebugButton[3]);
+
+                                gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (DebugButton[ModbusDebugLevel]), TRUE);
+
+                                g_signal_connect (G_OBJECT (DebugButton[0]), "toggled",
+ 	                   	                  G_CALLBACK (debug_button_callback), GINT_TO_POINTER ( 0 ));
+                                g_signal_connect (G_OBJECT (DebugButton[1]), "toggled",
+		                                  G_CALLBACK (debug_button_callback), GINT_TO_POINTER ( 1 ));
+                                g_signal_connect (G_OBJECT (DebugButton[2]), "toggled",
+		                                  G_CALLBACK (debug_button_callback), GINT_TO_POINTER ( 2 ));
+                                g_signal_connect (G_OBJECT (DebugButton[3]), "toggled",
+		                                  G_CALLBACK (debug_button_callback), GINT_TO_POINTER ( 3 ));
+                           break;
+                default:
+		/* Labels */
+		LabelComParam[NumLine] = gtk_label_new(BuffLabel);
+		gtk_widget_set_usize( LabelComParam[NumLine],200,0 );
+		gtk_box_pack_start( GTK_BOX(hbox[NumLine]), LabelComParam[NumLine], FALSE, FALSE, 0 );
+		gtk_widget_show( LabelComParam[NumLine] );
+
+		/* Values */
+		EntryComParam[NumLine] = gtk_entry_new();
+		gtk_widget_set_usize( EntryComParam[NumLine],125,0 );
+		gtk_box_pack_start( GTK_BOX(hbox[NumLine]), EntryComParam[NumLine], FALSE, FALSE, 0 );
+		gtk_widget_show( EntryComParam[NumLine] );
+		gtk_entry_set_text( GTK_ENTRY(EntryComParam[NumLine]), BuffValue );
+                }
+	}
+	return vbox;
+}
+
+void GetModbusComParameters( void )
+{
+	strcpy( ModbusSerialPortNameUsed, gtk_entry_get_text(GTK_ENTRY( EntryComParam[ 0 ] )));
+	ModbusSerialSpeed = atoi( gtk_entry_get_text(GTK_ENTRY( EntryComParam[ 1 ] )) );
+	ModbusTimeAfterTransmit = atoi( gtk_entry_get_text(GTK_ENTRY( EntryComParam[ 2 ] )) );
+	ModbusTimeInterFrame = atoi( gtk_entry_get_text(GTK_ENTRY( EntryComParam[ 3 ] )) );
+	ModbusTimeOutReceipt = atoi( gtk_entry_get_text(GTK_ENTRY( EntryComParam[ 4 ] )) );
+	
+}
 void GetSettings( void )
 {
 	GetGeneralParameters( );
 	
 #ifdef MODBUS_IO_MASTER
-if(!nomodbus) {GetModbusModulesIOSettings( );}
+if(!nomodbus) {  GetModbusComParameters( );   
+                 GetModbusModulesIOSettings( );   }
 #endif
 #ifndef RT_SUPPORT
-//	ConfigHardware( );
+	ConfigHardware( );
 	InfosGene->AskToConfHard = TRUE;
 #endif
 }
@@ -555,21 +714,22 @@ void OpenConfigWindowGtk()
 
 	nbook = gtk_notebook_new( );
 	gtk_notebook_append_page( GTK_NOTEBOOK(nbook), CreateGeneralParametersPage( ),
-				 gtk_label_new ("Period/Sizes") );
+				 gtk_label_new ("Period/object info") );
 	//gtk_notebook_append_page( GTK_NOTEBOOK(nbook), CreateIOConfPage( 1/*ForInputs*/ ),
 	//			 gtk_label_new ("Physical Inputs") );
 	//gtk_notebook_append_page( GTK_NOTEBOOK(nbook), CreateIOConfPage( 0/*ForInputs*/ ),
 	//			 gtk_label_new ("Physical Outputs") );
 #ifdef MODBUS_IO_MASTER
+        gtk_notebook_append_page( GTK_NOTEBOOK(nbook), CreateModbusComParametersPage( ),
+				 gtk_label_new ("Modbus communication setup") );
 	gtk_notebook_append_page( GTK_NOTEBOOK(nbook), CreateModbusModulesIO( ),
-				 gtk_label_new ("Modbus distributed I/O") );
+				 gtk_label_new ("Modbus  I/O register setup") );
 #endif
 
 	gtk_container_add( GTK_CONTAINER (ConfigWindow), nbook );
 	gtk_widget_show( nbook );
 
 	gtk_window_set_position( GTK_WINDOW(ConfigWindow), GTK_WIN_POS_CENTER );
-//	gtk_window_set_policy( GTK_WINDOW(ConfigWindow), FALSE, FALSE, TRUE );
 	gtk_signal_connect ( GTK_OBJECT(ConfigWindow), "destroy",
                         GTK_SIGNAL_FUNC(GetSettings), NULL );
 
