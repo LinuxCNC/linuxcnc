@@ -382,7 +382,7 @@ EXE=install -m 0755 -o root
 SETUID=install -m 4755 -o root
 NOCVS=$(filter-out %CVS,$(1))
 GLOB=$(call NOCVS,$(wildcard $(1)))
-CONFIGS=$(subst ../configs/,,$(call GLOB,../configs/*))
+CONFIGS=5axis boss classicladder/cl-estop common dallur-thc demo_mazak demo_sim_cl demo_step_cl etch-servo halui_halvcp hexapod-sim hostmot2 lathe-pluto m5i20 max motenc nist-lathe plasma-thc plasma-thc-sim ppmc puma scara sim stepper stepper-gantry stepper-xyza stg tormach univpwm univstep vismach vti
 
 ifeq ($(RUN_IN_PLACE),yes)
 define ERROR_MESSAGE
@@ -480,6 +480,7 @@ install-python: install-dirs
 	$(FILE) ../lib/python/*.py ../lib/python/*.so $(DESTDIR)$(SITEPY)
 	$(FILE) ../lib/python/rs274/*.py $(DESTDIR)$(SITEPY)/rs274
 	$(EXE) ../bin/stepconf ../bin/hal_input ../bin/pyvcp ../bin/axis ../bin/axis-remote ../bin/debuglevel ../bin/emctop ../bin/mdi ../bin/hal_manualtoolchange ../bin/image-to-gcode $(DESTDIR)$(bindir)
+	$(EXE) $(patsubst %.py,../bin/%,$(VISMACH_PY)) $(DESTDIR)$(bindir)
 	$(FILE) emc/usr_intf/axis/etc/axis_light_background $(DESTDIR)$(docsdir)
 	$(FILE) emc/usr_intf/axis/README $(DESTDIR)$(docsdir)/README.axis
 	$(FILE) ../share/axis/images/*.gif ../share/axis/images/*.xbm ../share/axis/images/*.ngc $(DESTDIR)$(datadir)/axis/images
