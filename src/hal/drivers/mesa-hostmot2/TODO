@@ -3,6 +3,11 @@
 next steps:
 
 
+    > Note: Double quotes in hm2_7i43 command took me some time to figure out,
+    > as the config modparam single quotes were getting stripped by Bash. This
+    > might be something to add to "man hostmot2".
+
+
     stepgen overshoots with high maxaccel
 
         velocity_cmd should be renamed to velocity_fb probably 

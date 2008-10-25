@@ -642,7 +642,7 @@ hal_skeleton-objs := hal/drivers/hal_skeleton.o $(MATHSTUB)
 obj-$(CONFIG_OPTO_AC5) += opto_ac5.o
 opto_ac5-objs := hal/drivers/opto_ac5.o $(MATHSTUB)
 
-obj-$(CONFIG_HOSTMOT2) += hostmot2.o hm2_7i43.o hm2_5i20.o
+obj-$(CONFIG_HOSTMOT2) += hostmot2.o hm2_7i43.o hm2_5i20.o hm2_pci.o
 hostmot2-objs :=                          \
     hal/drivers/mesa-hostmot2/hostmot2.o  \
     hal/drivers/mesa-hostmot2/ioport.o    \
@@ -657,6 +657,7 @@ hostmot2-objs :=                          \
     $(MATHSTUB)
 hm2_7i43-objs := hal/drivers/mesa-hostmot2/hm2_7i43.o $(MATHSTUB)
 hm2_5i20-objs := hal/drivers/mesa-hostmot2/hm2_5i20.o $(MATHSTUB)
+hm2_pci-objs  := hal/drivers/mesa-hostmot2/hm2_pci.o  $(MATHSTUB)
 
 ifneq "$(filter 2.6.%, $(kernelvers))" ""
 obj-$(CONFIG_PROBE_PARPORT) += probe_parport.o
