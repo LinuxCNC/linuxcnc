@@ -26,6 +26,7 @@ hal_skeleton
 halstreamer
 halui
 halvcp
+hbmgui
 hexagui
 image-to-gcode
 inivar
@@ -34,8 +35,9 @@ iosh
 jdi
 keystick
 lintini
-max5gui
 m5i20cfg
+maho600gui
+max5gui
 mdi
 milltask
 milltaskcanon
