@@ -247,7 +247,7 @@ int ConvComboToNum( char * text, char ** list )
 }
 
 #ifdef MODBUS_IO_MASTER
-GtkWidget * CreateModbusModulesIO( void )
+GtkWidget * CreateModbusModulesIO( page )
 {
 	static char * Labels[] = { "Slave Address", "TypeAccess", "1st Modbus Ele.", "Nbr of Ele", "Logic", "1st I/Q/W Mapped" };
 	GtkWidget *vbox;
@@ -282,7 +282,7 @@ GtkWidget * CreateModbusModulesIO( void )
 	vbox = gtk_vbox_new (FALSE, 0);
 	gtk_widget_show (vbox);
 
-	for (NumLine=-1; NumLine<NBR_MODBUS_MASTER_REQ; NumLine++ )
+	for (NumLine=(page*16); NumLine<NBR_MODBUS_MASTER_REQ-16+(page*16); NumLine++ )
 	{
 		hbox[NumLine+2] = gtk_hbox_new (FALSE, 0);
 		gtk_container_add (GTK_CONTAINER (vbox), hbox[NumLine+2]);
@@ -292,7 +292,8 @@ GtkWidget * CreateModbusModulesIO( void )
 		{
 			switch( NumLine )
 			{
-				case -1:
+				case 0:
+                                case 16:
 				{
 					int length;
 					GtkWidget **IOParamLabel = &ModbusParamLabel[ NumObj ];
@@ -398,14 +399,15 @@ void GetModbusModulesIOSettings( void )
 	char * text;
 	char BuffValue[ 40 ];
 
-	for (NumLine=0; NumLine<NBR_MODBUS_MASTER_REQ; NumLine++ )
+	for (NumLine=1; NumLine<NBR_MODBUS_MASTER_REQ; NumLine++ )
 	{
+            if (NumLine==16) {continue;}// line 16 is the header label of modbus io register page 2 
 		pConf = &ModbusMasterReq[ NumLine ];
 		strcpy( pConf->SlaveAdr, "" );
 		pConf->LogicInverted = 0;
 
 		for (NumObj=0; NumObj<NBR_IO_PARAMS; NumObj++)
-		{
+		{ 
 			IOParamEntry = &ModbusParamEntry[ NumLine ][ NumObj ];
 			switch( NumObj )
 			{
@@ -710,7 +712,7 @@ void OpenConfigWindowGtk()
 
 	ConfigWindow = gtk_window_new (GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_title( GTK_WINDOW(ConfigWindow), "Config" );
-	gtk_window_set_modal( GTK_WINDOW(ConfigWindow), TRUE );
+	//gtk_window_set_modal( GTK_WINDOW(ConfigWindow), TRUE );
 
 	nbook = gtk_notebook_new( );
 	gtk_notebook_append_page( GTK_NOTEBOOK(nbook), CreateGeneralParametersPage( ),
@@ -722,8 +724,10 @@ void OpenConfigWindowGtk()
 #ifdef MODBUS_IO_MASTER
         gtk_notebook_append_page( GTK_NOTEBOOK(nbook), CreateModbusComParametersPage( ),
 				 gtk_label_new ("Modbus communication setup") );
-	gtk_notebook_append_page( GTK_NOTEBOOK(nbook), CreateModbusModulesIO( ),
-				 gtk_label_new ("Modbus  I/O register setup") );
+	gtk_notebook_append_page( GTK_NOTEBOOK(nbook), CreateModbusModulesIO( 0 ),
+				 gtk_label_new ("Modbus  I/O register setup 1") );
+        gtk_notebook_append_page( GTK_NOTEBOOK(nbook), CreateModbusModulesIO( 1 ),
+				 gtk_label_new ("Modbus  I/O register setup 2") );
 #endif
 
 	gtk_container_add( GTK_CONTAINER (ConfigWindow), nbook );
