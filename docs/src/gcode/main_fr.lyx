@@ -255,8 +255,14 @@ Un centre d'usinage est équipé de boutons de réglage de la vitesse d'avance
  et de la vitesse de rotation de la broche, ils laissent l'opérateur corriger
  les vitesses nécessaires pour la broche et l'avance travail, il peut ainsi
  augmenter ou réduire les vitesses programmées.
- Voir la section 
-\begin_inset LatexCommand \ref{cap:Selecteur de configuration pour EMC2}
+ 
+\begin_inset Include \input{/home/francis/emc2.TRUNK/docs/src/config/copy_and_run_fr.lyx}
+preview false
+
+\end_inset 
+
+Voir la section 
+\begin_inset LatexCommand \ref{cap:Selecteur-de-configuration}
 
 \end_inset 
 
@@ -4472,7 +4478,7 @@ G43, G43.1, G49
 
 \layout Standard
 
-Options de retrait des cycles préprogrammés
+Options plan de retrait 
 \end_inset 
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
@@ -4605,7 +4611,7 @@ M7, M8, M9.
 
 \layout Standard
 
-M7 et M8 peuvent être actifs en même temps
+M7 et M8 peuvent être actifs simultanément
 \end_inset 
 </cell>
 </row>
@@ -5228,7 +5234,7 @@ G2, G3
 
 \layout Standard
 
-Interpolation circulaire en vitesse travail sens horaire, sens anti-horaire
+Interpolation circulaire sens horaire, sens anti-horaire
 \end_inset 
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
@@ -5267,7 +5273,7 @@ G10 L1
 
 \layout Standard
 
-Entrée longueur, rayon, orientation de l'outil dans la table d'outils
+Entrée longueur, rayon, orientation outil dans table d'outils
 \end_inset 
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
@@ -6242,8 +6248,7 @@ G92.1, G92.2
 
 \layout Standard
 
-Annulation des décalages d'origine avec ou sans remise à zéro des paramètres
- 
+Annulation des décalages d'origine 
 \end_inset 
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
@@ -6360,7 +6365,7 @@ G96
 
 \layout Standard
 
-Vitesse de coupe constante (pieds par minute ou metres par minute) 
+Vitesse de coupe constante (IPM ou m/mn) 
 \end_inset 
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
