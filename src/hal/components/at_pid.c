@@ -164,32 +164,32 @@ typedef enum {
 
 
 typedef struct {
-    // Parameters.
-    hal_float_t         deadband;
-    hal_float_t         maxError;       // Limit for error.
-    hal_float_t         maxErrorI;      // Limit for integrated error.
-    hal_float_t         maxErrorD;      // Limit for differentiated error.
-    hal_float_t         maxCmdD;        // Limit for differentiated cmd.
-    hal_float_t         maxCmdDd;       // Limit for 2nd derivative of cmd.
+    // Pins. (former params)
+    hal_float_t         *deadband;
+    hal_float_t         *maxError;       // Limit for error.
+    hal_float_t         *maxErrorI;      // Limit for integrated error.
+    hal_float_t         *maxErrorD;      // Limit for differentiated error.
+    hal_float_t         *maxCmdD;        // Limit for differentiated cmd.
+    hal_float_t         *maxCmdDd;       // Limit for 2nd derivative of cmd.
 
-    hal_float_t         bias;           // Steady state offset.
-    hal_float_t         pGain;          // Proportional gain.
-    hal_float_t         iGain;          // Integral gain.
-    hal_float_t         dGain;          // Derivative gain.
-    hal_float_t         ff0Gain;        // Feedforward proportional.
-    hal_float_t         ff1Gain;        // Feedforward derivative.
-    hal_float_t         ff2Gain;        // Feedforward 2nd derivative.
-    hal_float_t         maxOutput;      // Limit for PID output.
-    hal_float_t         tuneEffort;     // Control effort for limit cycle.
-    hal_u32_t           tuneCycles;
-    hal_u32_t           tuneType;
+    hal_float_t         *bias;           // Steady state offset.
+    hal_float_t         *pGain;          // Proportional gain.
+    hal_float_t         *iGain;          // Integral gain.
+    hal_float_t         *dGain;          // Derivative gain.
+    hal_float_t         *ff0Gain;        // Feedforward proportional.
+    hal_float_t         *ff1Gain;        // Feedforward derivative.
+    hal_float_t         *ff2Gain;        // Feedforward 2nd derivative.
+    hal_float_t         *maxOutput;      // Limit for PID output.
+    hal_float_t         *tuneEffort;     // Control effort for limit cycle.
+    hal_u32_t           *tuneCycles;
+    hal_u32_t           *tuneType;
 
-    hal_float_t         errorI;         // Integrated error.
-    hal_float_t         errorD;         // Differentiated error.
-    hal_float_t         cmdD;           // Differentiated command.
-    hal_float_t         cmdDd;          // 2nd derivative of command.
-    hal_float_t         ultimateGain;   // Calc by auto-tune from limit cycle.
-    hal_float_t         ultimatePeriod; // Calc by auto-tune from limit cycle.
+    hal_float_t         *errorI;         // Integrated error.
+    hal_float_t         *errorD;         // Differentiated error.
+    hal_float_t         *cmdD;           // Differentiated command.
+    hal_float_t         *cmdDd;          // 2nd derivative of command.
+    hal_float_t         *ultimateGain;   // Calc by auto-tune from limit cycle.
+    hal_float_t         *ultimatePeriod; // Calc by auto-tune from limit cycle.
 
     // Pins.
     hal_bit_t           *pEnable;
@@ -320,31 +320,31 @@ static int
 Pid_Init(Pid *this)
 {
     // Init all structure members.
-    this->deadband = 0;
-    this->maxError = 0;
-    this->maxErrorI = 0;
-    this->maxErrorD = 0;
-    this->maxCmdD = 0;
-    this->maxCmdDd = 0;
-    this->errorI = 0;
+    *(this->deadband) = 0;
+    *(this->maxError) = 0;
+    *(this->maxErrorI) = 0;
+    *(this->maxErrorD) = 0;
+    *(this->maxCmdD) = 0;
+    *(this->maxCmdDd) = 0;
+    *(this->errorI) = 0;
     this->prevError = 0;
-    this->errorD = 0;
+    *(this->errorD) = 0;
     this->prevCmd = 0;
     this->limitState = 0;
-    this->cmdD = 0;
-    this->cmdDd = 0;
-    this->bias = 0;
-    this->pGain = 1;
-    this->iGain = 0;
-    this->dGain = 0;
-    this->ff0Gain = 0;
-    this->ff1Gain = 0;
-    this->ff2Gain = 0;
-    this->maxOutput = 0;
+    *(this->cmdD) = 0;
+    *(this->cmdDd) = 0;
+    *(this->bias) = 0;
+    *(this->pGain) = 1;
+    *(this->iGain) = 0;
+    *(this->dGain) = 0;
+    *(this->ff0Gain) = 0;
+    *(this->ff1Gain) = 0;
+    *(this->ff2Gain) = 0;
+    *(this->maxOutput) = 0;
     this->state = STATE_PID;
-    this->tuneCycles = 50;
-    this->tuneEffort = 0.5;
-    this->tuneType = TYPE_PID;
+    *(this->tuneCycles) = 50;
+    *(this->tuneEffort) = 0.5;
+    *(this->tuneType) = TYPE_PID;
 
     return(0);
 }
@@ -397,122 +397,122 @@ Pid_Export(Pid *this, int compId, int id)
         error = hal_pin_bit_new(buf, HAL_IO, &(this->pTuneStart), compId);
     }
 
-    // Export parameters.
+    // Export pins. (former parameters).
     if(!error){
         rtapi_snprintf(buf, HAL_NAME_LEN, "pid.%d.deadband", id);
-        error = hal_param_float_new(buf, HAL_RW, &(this->deadband), compId);
+        error = hal_pin_float_new(buf, HAL_IO, &(this->deadband), compId);
     }
 
     if(!error){
         rtapi_snprintf(buf, HAL_NAME_LEN, "pid.%d.maxerror", id);
-        error = hal_param_float_new(buf, HAL_RW, &(this->maxError), compId);
+        error = hal_pin_float_new(buf, HAL_IO, &(this->maxError), compId);
     }
 
     if(!error){
         rtapi_snprintf(buf, HAL_NAME_LEN, "pid.%d.maxerrorI", id);
-        error = hal_param_float_new(buf, HAL_RW, &(this->maxErrorI), compId);
+        error = hal_pin_float_new(buf, HAL_IO, &(this->maxErrorI), compId);
     }
 
     if(!error){
         rtapi_snprintf(buf, HAL_NAME_LEN, "pid.%d.maxerrorD", id);
-        error = hal_param_float_new(buf, HAL_RW, &(this->maxErrorD), compId);
+        error = hal_pin_float_new(buf, HAL_IO, &(this->maxErrorD), compId);
     }
 
     if(!error){
         rtapi_snprintf(buf, HAL_NAME_LEN, "pid.%d.maxcmdD", id);
-        error = hal_param_float_new(buf, HAL_RW, &(this->maxCmdD), compId);
+        error = hal_pin_float_new(buf, HAL_IO, &(this->maxCmdD), compId);
     }
 
     if(!error){
         rtapi_snprintf(buf, HAL_NAME_LEN, "pid.%d.maxcmdDD", id);
-        error = hal_param_float_new(buf, HAL_RW, &(this->maxCmdDd), compId);
+        error = hal_pin_float_new(buf, HAL_IO, &(this->maxCmdDd), compId);
     }
 
     if(!error){
         rtapi_snprintf(buf, HAL_NAME_LEN, "pid.%d.bias", id);
-        error = hal_param_float_new(buf, HAL_RW, &(this->bias), compId);
+        error = hal_pin_float_new(buf, HAL_IO, &(this->bias), compId);
     }
 
     if(!error){
         rtapi_snprintf(buf, HAL_NAME_LEN, "pid.%d.Pgain", id);
-        error = hal_param_float_new(buf, HAL_RW, &(this->pGain), compId);
+        error = hal_pin_float_new(buf, HAL_IO, &(this->pGain), compId);
     }
 
     if(!error){
         rtapi_snprintf(buf, HAL_NAME_LEN, "pid.%d.Igain", id);
-        error = hal_param_float_new(buf, HAL_RW, &(this->iGain), compId);
+        error = hal_pin_float_new(buf, HAL_IO, &(this->iGain), compId);
     }
 
     if(!error){
         rtapi_snprintf(buf, HAL_NAME_LEN, "pid.%d.Dgain", id);
-        error = hal_param_float_new(buf, HAL_RW, &(this->dGain), compId);
+        error = hal_pin_float_new(buf, HAL_IO, &(this->dGain), compId);
     }
 
     if(!error){
         rtapi_snprintf(buf, HAL_NAME_LEN, "pid.%d.FF0", id);
-        error = hal_param_float_new(buf, HAL_RW, &(this->ff0Gain), compId);
+        error = hal_pin_float_new(buf, HAL_IO, &(this->ff0Gain), compId);
     }
 
     if(!error){
         rtapi_snprintf(buf, HAL_NAME_LEN, "pid.%d.FF1", id);
-        error = hal_param_float_new(buf, HAL_RW, &(this->ff1Gain), compId);
+        error = hal_pin_float_new(buf, HAL_IO, &(this->ff1Gain), compId);
     }
 
     if(!error){
         rtapi_snprintf(buf, HAL_NAME_LEN, "pid.%d.FF2", id);
-        error = hal_param_float_new(buf, HAL_RW, &(this->ff2Gain), compId);
+        error = hal_pin_float_new(buf, HAL_IO, &(this->ff2Gain), compId);
     }
 
     if(!error){
         rtapi_snprintf(buf, HAL_NAME_LEN, "pid.%d.maxoutput", id);
-        error = hal_param_float_new(buf, HAL_RW, &(this->maxOutput), compId);
+        error = hal_pin_float_new(buf, HAL_IO, &(this->maxOutput), compId);
     }
 
     if(!error){
         rtapi_snprintf(buf, HAL_NAME_LEN, "pid.%d.tune-effort", id);
-        error = hal_param_float_new(buf, HAL_RW, &(this->tuneEffort), compId);
+        error = hal_pin_float_new(buf, HAL_IO, &(this->tuneEffort), compId);
     }
 
     if(!error){
         rtapi_snprintf(buf, HAL_NAME_LEN, "pid.%d.tune-cycles", id);
-        error = hal_param_u32_new(buf, HAL_RW, &(this->tuneCycles), compId);
+        error = hal_pin_u32_new(buf, HAL_IO, &(this->tuneCycles), compId);
     }
 
     if(!error){
         rtapi_snprintf(buf, HAL_NAME_LEN, "pid.%d.tune-type", id);
-        error = hal_param_u32_new(buf, HAL_RW, &(this->tuneType), compId);
+        error = hal_pin_u32_new(buf, HAL_IO, &(this->tuneType), compId);
     }
 
     // Export optional parameters.
     if(debug > 0){
         if(!error){
             rtapi_snprintf(buf, HAL_NAME_LEN, "pid.%d.errorI", id);
-            error = hal_param_float_new(buf, HAL_RO, &(this->errorI), compId);
+            error = hal_pin_float_new(buf, HAL_OUT, &(this->errorI), compId);
         }
 
         if(!error){
             rtapi_snprintf(buf, HAL_NAME_LEN, "pid.%d.errorD", id);
-            error = hal_param_float_new(buf, HAL_RO, &(this->errorD), compId);
+            error = hal_pin_float_new(buf, HAL_OUT, &(this->errorD), compId);
         }
 
         if(!error){
             rtapi_snprintf(buf, HAL_NAME_LEN, "pid.%d.commandD", id);
-            error = hal_param_float_new(buf, HAL_RO, &(this->cmdD), compId);
+            error = hal_pin_float_new(buf, HAL_OUT, &(this->cmdD), compId);
         }
 
         if(!error){
             rtapi_snprintf(buf, HAL_NAME_LEN, "pid.%d.commandDD", id);
-            error = hal_param_float_new(buf, HAL_RO, &(this->cmdDd), compId);
+            error = hal_pin_float_new(buf, HAL_OUT, &(this->cmdDd), compId);
         }
 
         if(!error){
             rtapi_snprintf(buf, HAL_NAME_LEN, "pid.%d.ultimate-gain", id);
-            error = hal_param_float_new(buf, HAL_RO, &(this->ultimateGain), compId);
+            error = hal_pin_float_new(buf, HAL_OUT, &(this->ultimateGain), compId);
         }
 
         if(!error){
             rtapi_snprintf(buf, HAL_NAME_LEN, "pid.%d.ultimate-period", id);
-            error = hal_param_float_new(buf, HAL_RO, &(this->ultimatePeriod), compId);
+            error = hal_pin_float_new(buf, HAL_OUT, &(this->ultimatePeriod), compId);
         }
     }
 
@@ -583,9 +583,9 @@ Pid_AutoTune(Pid *this, long period)
         this->cycleAmplitude = 0;
         this->totalTime = 0;
         this->avgAmplitude = 0;
-        this->ultimateGain = 0;
-        this->ultimatePeriod = 0;
-        *this->pOutput = this->bias + fabs(this->tuneEffort);
+        *(this->ultimateGain) = 0;
+        *(this->ultimatePeriod) = 0;
+        *this->pOutput = *(this->bias) + fabs(*(this->tuneEffort));
         break;
 
     case STATE_TUNE_POS:
@@ -604,7 +604,7 @@ Pid_AutoTune(Pid *this, long period)
             }
 
             // Update output so user can ramp effort until movement occurs.
-            *this->pOutput = this->bias - fabs(this->tuneEffort);
+            *this->pOutput = *(this->bias) - fabs(*(this->tuneEffort));
         }else{
             // Check amplitude.
             if(error > this->cycleAmplitude)
@@ -617,34 +617,34 @@ Pid_AutoTune(Pid *this, long period)
             }
 
             // Update output so user can ramp effort until movement occurs.
-            *this->pOutput = this->bias + fabs(this->tuneEffort);
+            *this->pOutput = *(this->bias) + fabs(*(this->tuneEffort));
         }
 
         // Check if the last cycle just ended. This is really the number
         // of half cycles.
-        if(this->cycleCount < this->tuneCycles)
+        if(this->cycleCount < *(this->tuneCycles))
             break;
 
         // Calculate PID.
-        this->ultimateGain = (4.0 * fabs(this->tuneEffort))/(PI * this->avgAmplitude);
-        this->ultimatePeriod = 2.0 * this->totalTime / this->tuneCycles;
-        this->ff0Gain = 0;
-        this->ff2Gain = 0;
+        *(this->ultimateGain) = (4.0 * fabs(*(this->tuneEffort)))/(PI * this->avgAmplitude);
+        *(this->ultimatePeriod) = 2.0 * this->totalTime / *(this->tuneCycles);
+        *(this->ff0Gain) = 0;
+        *(this->ff2Gain) = 0;
 
-        if(this->tuneType == TYPE_PID){
+        if(*(this->tuneType) == TYPE_PID){
             // PID.
-            this->pGain = 0.6 * this->ultimateGain;
-            this->iGain = this->pGain / (this->ultimatePeriod / 2.0);
-            this->dGain = this->pGain * (this->ultimatePeriod / 8.0);
-            this->ff1Gain = 0;
+            *(this->pGain) = 0.6 * *(this->ultimateGain);
+            *(this->iGain) = *(this->pGain) / (*(this->ultimatePeriod) / 2.0);
+            *(this->dGain) = *(this->pGain) * (*(this->ultimatePeriod) / 8.0);
+            *(this->ff1Gain) = 0;
         }else{
             // PI FF1.
-            this->pGain = 0.45 * this->ultimateGain;
-            this->iGain = this->pGain / (this->ultimatePeriod / 1.2);
-            this->dGain = 0;
+            *(this->pGain) = 0.45 * *(this->ultimateGain);
+            *(this->iGain) = *(this->pGain) / (*(this->ultimatePeriod) / 1.2);
+            *(this->dGain) = 0;
 
             // Scaling must be set so PID output is in user units per second.
-            this->ff1Gain = 1;
+            *(this->ff1Gain) = 1;
         }
 
         // Fall through.
@@ -665,7 +665,7 @@ static void
 Pid_CycleEnd(Pid *this)
 {
     this->cycleCount++;
-    this->avgAmplitude += this->cycleAmplitude / this->tuneCycles;
+    this->avgAmplitude += this->cycleAmplitude / *(this->tuneCycles);
     this->cycleAmplitude = 0;
     this->totalTime += this->cyclePeriod * 0.000000001;
     this->cyclePeriod = 0;
@@ -696,13 +696,13 @@ Pid_Refresh(void *arg, long periodNs)
 
     // Check for tuning mode request.
     if(*this->pTuneMode){
-        this->errorI = 0;
+        *(this->errorI) = 0;
         this->prevError = 0;
-        this->errorD = 0;
+        *(this->errorD) = 0;
         this->prevCmd = 0;
         this->limitState = 0;
-        this->cmdD = 0;
-        this->cmdDd = 0;
+        *(this->cmdD) = 0;
+        *(this->cmdDd) = 0;
 
         // Force output to zero.
         *this->pOutput = 0;
@@ -718,67 +718,67 @@ Pid_Refresh(void *arg, long periodNs)
     periodRecip = 1.0 / period;
 
     // Apply error limits.
-    if(this->maxError != 0.0){
-        if(error > this->maxError){
-            error = this->maxError;
-        }else if(error < -this->maxError){
-            error = -this->maxError;
+    if(*(this->maxError) != 0.0){
+        if(error > *(this->maxError)){
+            error = *(this->maxError);
+        }else if(error < -*(this->maxError)){
+            error = -*(this->maxError);
         }
     }
 
     // Apply the deadband.
-    if(error > this->deadband){
-        error -= this->deadband;
-    }else if(error < -this->deadband){
-        error += this->deadband;
+    if(error > *(this->deadband)){
+        error -= *(this->deadband);
+    }else if(error < -*(this->deadband)){
+        error += *(this->deadband);
     }else{
         error = 0;
     }
 
     // Calculate derivative term.
-    this->errorD = (error - this->prevError) * periodRecip;
+    *(this->errorD) = (error - this->prevError) * periodRecip;
     this->prevError = error;
 
     // Apply derivative limits.
-    if(this->maxErrorD != 0.0){
-        if(this->errorD > this->maxErrorD){
-            this->errorD = this->maxErrorD;
-        }else if(this->errorD < -this->maxErrorD){
-            this->errorD = -this->maxErrorD;
+    if(*(this->maxErrorD) != 0.0){
+        if(*(this->errorD) > *(this->maxErrorD)){
+            *(this->errorD) = *(this->maxErrorD);
+        }else if(*(this->errorD) < -*(this->maxErrorD)){
+            *(this->errorD) = -*(this->maxErrorD);
         }
     }
 
     // Calculate derivative of command.
     // Save old value for 2nd derivative calc later.
-    prevCmdD = this->cmdD;
-    this->cmdD = (*this->pCommand - this->prevCmd) * periodRecip;
+    prevCmdD = *(this->cmdD);
+    *(this->cmdD) = (*this->pCommand - this->prevCmd) * periodRecip;
     this->prevCmd = *this->pCommand;
 
     // Apply derivative limits.
-    if(this->maxCmdD != 0.0){
-        if(this->cmdD > this->maxCmdD){
-            this->cmdD = this->maxCmdD;
-        }else if(this->cmdD < -this->maxCmdD){
-            this->cmdD = -this->maxCmdD;
+    if(*(this->maxCmdD) != 0.0){
+        if(*(this->cmdD) > *(this->maxCmdD)){
+            *(this->cmdD) = *(this->maxCmdD);
+        }else if(*(this->cmdD) < -*(this->maxCmdD)){
+            *(this->cmdD) = -*(this->maxCmdD);
         }
     }
 
     // Calculate 2nd derivative of command.
-    this->cmdDd = (this->cmdD - prevCmdD) * periodRecip;
+    *(this->cmdDd) = (*(this->cmdD) - prevCmdD) * periodRecip;
 
     // Apply 2nd derivative limits.
-    if(this->maxCmdDd != 0.0){
-        if(this->cmdDd > this->maxCmdDd){
-            this->cmdDd = this->maxCmdDd;
-        }else if(this->cmdDd < -this->maxCmdDd){
-            this->cmdDd = -this->maxCmdDd;
+    if(*(this->maxCmdDd) != 0.0){
+        if(*(this->cmdDd) > *(this->maxCmdDd)){
+            *(this->cmdDd) = *(this->maxCmdDd);
+        }else if(*(this->cmdDd) < -*(this->maxCmdDd)){
+            *(this->cmdDd) = -*(this->maxCmdDd);
         }
     }
 
     // Check if enabled.
     if(!*this->pEnable){
         // Reset integrator.
-        this->errorI = 0;
+        *(this->errorI) = 0;
 
         // Force output to zero.
         *this->pOutput = 0;
@@ -790,32 +790,32 @@ Pid_Refresh(void *arg, long periodNs)
     // If output is in limit, don't let integrator wind up.
     if(error * this->limitState <= 0.0){
         // Compute integral term.
-        this->errorI += error * period;
+        *(this->errorI) += error * period;
     }
 
     // Apply integrator limits.
-    if(this->maxErrorI != 0.0){
-        if(this->errorI > this->maxErrorI){
-            this->errorI = this->maxErrorI;
-        }else if(this->errorI < -this->maxErrorI){
-            this->errorI = -this->maxErrorI;
+    if(*(this->maxErrorI) != 0.0){
+        if(*(this->errorI) > *(this->maxErrorI)){
+            *(this->errorI) = *(this->maxErrorI);
+        }else if(*(this->errorI) < -*(this->maxErrorI)){
+            *(this->errorI) = -*(this->maxErrorI);
         }
     }
 
     // Calculate the output value.
     output =
-        this->bias + this->pGain * error + this->iGain * this->errorI +
-        this->dGain * this->errorD;
-    output += *this->pCommand * this->ff0Gain + this->cmdD * this->ff1Gain +
-        this->cmdDd * this->ff2Gain;
+        *(this->bias) + *(this->pGain) * error + *(this->iGain) * *(this->errorI) +
+        *(this->dGain) * *(this->errorD);
+    output += *this->pCommand * *(this->ff0Gain) + *(this->cmdD) * *(this->ff1Gain) +
+        *(this->cmdDd) * *(this->ff2Gain);
 
     // Apply output limits.
-    if(this->maxOutput != 0.0){
-        if(output > this->maxOutput){
-            output = this->maxOutput;
+    if(*(this->maxOutput) != 0.0){
+        if(output > *(this->maxOutput)){
+            output = *(this->maxOutput);
             this->limitState = 1;
-        }else if(output < -this->maxOutput){
-            output = -this->maxOutput;
+        }else if(output < -*(this->maxOutput)){
+            output = -*(this->maxOutput);
             this->limitState = -1;
         }else{
             this->limitState = 0;
