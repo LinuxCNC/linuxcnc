@@ -25,7 +25,7 @@
 #include "hal.h"
 
 struct scara_data {
-    hal_float_t d1, d2, d3, d4, d5, d6;
+    hal_float_t *d1, *d2, *d3, *d4, *d5, *d6;
 } *haldata = 0;
 
 /* key dimensions
@@ -64,12 +64,12 @@ struct scara_data {
 		on the value of joint[3].
 */
 
-#define D1 (haldata->d1)
-#define D2 (haldata->d2)
-#define D3 (haldata->d3)
-#define D4 (haldata->d4)
-#define D5 (haldata->d5)
-#define D6 (haldata->d6)
+#define D1 (*(haldata->d1))
+#define D2 (*(haldata->d2))
+#define D3 (*(haldata->d3))
+#define D4 (*(haldata->d4))
+#define D5 (*(haldata->d5))
+#define D6 (*(haldata->d6))
 
 /* joint[0], joint[1] and joint[3] are in degrees and joint[2] is in length units */
 int kinematicsForward(const double * joint,
@@ -213,12 +213,12 @@ int rtapi_app_main(void) {
     D5 = DEFAULT_D5;
     D6 = DEFAULT_D6;
 
-    if((res = hal_param_float_new("scarakins.D1", HAL_RW, &haldata->d1, comp_id)) != HAL_SUCCESS) goto error;
-    if((res = hal_param_float_new("scarakins.D2", HAL_RW, &haldata->d2, comp_id)) != HAL_SUCCESS) goto error;
-    if((res = hal_param_float_new("scarakins.D3", HAL_RW, &haldata->d3, comp_id)) != HAL_SUCCESS) goto error;
-    if((res = hal_param_float_new("scarakins.D4", HAL_RW, &haldata->d4, comp_id)) != HAL_SUCCESS) goto error;
-    if((res = hal_param_float_new("scarakins.D5", HAL_RW, &haldata->d5, comp_id)) != HAL_SUCCESS) goto error;
-    if((res = hal_param_float_new("scarakins.D6", HAL_RW, &haldata->d6, comp_id)) != HAL_SUCCESS) goto error;
+    if((res = hal_pin_float_new("scarakins.D1", HAL_IO, &(haldata->d1), comp_id)) != HAL_SUCCESS) goto error;
+    if((res = hal_pin_float_new("scarakins.D2", HAL_IO, &(haldata->d2), comp_id)) != HAL_SUCCESS) goto error;
+    if((res = hal_pin_float_new("scarakins.D3", HAL_IO, &(haldata->d3), comp_id)) != HAL_SUCCESS) goto error;
+    if((res = hal_pin_float_new("scarakins.D4", HAL_IO, &(haldata->d4), comp_id)) != HAL_SUCCESS) goto error;
+    if((res = hal_pin_float_new("scarakins.D5", HAL_IO, &(haldata->d5), comp_id)) != HAL_SUCCESS) goto error;
+    if((res = hal_pin_float_new("scarakins.D6", HAL_IO, &(haldata->d6), comp_id)) != HAL_SUCCESS) goto error;
     
     hal_ready(comp_id);
     return 0;

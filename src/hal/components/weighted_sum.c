@@ -54,13 +54,13 @@ RTAPI_MP_ARRAY_INT(wsum_sizes, MAX_SUMMERS, "Sizes of up to 8 weighted summers")
 /* Data needed for each bit of a weighted summer */
 typedef struct {
     hal_bit_t *bit;		/* pin: the input bit HAL pin */
-    hal_s32_t weight;		/* parameter: the numeric weight of this pin */
+    hal_s32_t *weight;		/* pin: the numeric weight of this pin */
 } wsum_bit_t;
 
 /* Base data for a weighted summer. */
 typedef struct {
     hal_s32_t *sum;		/* output pin: the calculated sum */
-    hal_s32_t offset;		/* parameter: offset for this summer */
+    hal_s32_t *offset;		/* pin: offset for this summer */
     hal_bit_t *hold;		/* input pin: hold value if 1, update if 0 */
     int num_bits;		/* internal: How many bits are in this summer */
     wsum_bit_t *bits;		/* internal: pointer to the input bits and weights */
@@ -186,10 +186,10 @@ static void process_wsums(void *arg, long period)
 	thissum = &(wsums[n]);
 	if (*(thissum->hold)) continue;
 	else {
-	    running_total = thissum->offset;
+	    running_total = *(thissum->offset);
 	    for (b=0 ; b<thissum->num_bits ; b++) {
 		if (*(thissum->bits[b].bit)) {
-		    running_total += thissum->bits[b].weight;
+		    running_total += *(thissum->bits[b].weight);
 		}
 	    }
 	}
@@ -209,7 +209,7 @@ static int export_wsum(int num, int num_bits, wsum_t *addr, wsum_bit_t *bitaddr)
     rtapi_snprintf(base, HAL_NAME_LEN, "wsum.%d", num);
     /* export pin for offset (input) */
     rtapi_snprintf(buf, HAL_NAME_LEN, "%s.offset", base);
-    retval = hal_param_s32_new(buf, HAL_RW, &(addr->offset), comp_id);
+    retval = hal_pin_s32_new(buf, HAL_IO, &(addr->offset), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "WEIGHTED_SUM: ERROR: '%s' param export failed\n", buf);
@@ -247,18 +247,18 @@ static int export_wsum(int num, int num_bits, wsum_t *addr, wsum_bit_t *bitaddr)
 	    return retval;
 	}
 	rtapi_snprintf(buf, HAL_NAME_LEN, "%s.bit.%d.weight", base, i);
-	retval = hal_param_s32_new(buf, HAL_RW, &(addr->bits[i].weight), comp_id);
+	retval = hal_pin_s32_new(buf, HAL_IO, &(addr->bits[i].weight), comp_id);
 	if (retval != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 	    "WEIGHTED_SUM: ERROR: '%s' param export failed\n", buf);
 	    return retval;
 	}
-	addr->bits[i].weight = w;
+	*(addr->bits[i].weight) = w;
 	w <<= 1;
     }
 
     /* set initial parameter and pin values */
-    addr->offset = 0;
+    *(addr->offset) = 0;
     *(addr->sum) = 0;
     return 0;
 }

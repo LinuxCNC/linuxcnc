@@ -24,7 +24,7 @@
 #endif
 
 struct haldata {
-    hal_float_t pivot_length;
+    hal_float_t *pivot_length;
 } *haldata;
 
 // should not even be called
@@ -34,8 +34,8 @@ int kinematicsForward(const double *joints,
 		      KINEMATICS_INVERSE_FLAGS * iflags)
 {
     // B correction
-    double zb = (haldata->pivot_length + joints[8]) * cos(d2r(joints[4]));
-    double xb = (haldata->pivot_length + joints[8]) * sin(d2r(joints[4]));
+    double zb = (*(haldata->pivot_length) + joints[8]) * cos(d2r(joints[4]));
+    double xb = (*(haldata->pivot_length) + joints[8]) * sin(d2r(joints[4]));
         
     // C correction
     double xyr = hypot(joints[0], joints[1]);
@@ -49,7 +49,7 @@ int kinematicsForward(const double *joints,
 
     pos->tran.x = xyr * cos(xytheta) + xb - xv;
     pos->tran.y = xyr * sin(xytheta) - joints[7];
-    pos->tran.z = joints[2] - zb + zv + haldata->pivot_length;
+    pos->tran.z = joints[2] - zb + zv + *(haldata->pivot_length);
 
     pos->a = joints[3];
     pos->b = joints[4];
@@ -67,8 +67,8 @@ int kinematicsInverse(const EmcPose * pos,
 		      KINEMATICS_FORWARD_FLAGS * fflags)
 {
     // B correction
-    double zb = (haldata->pivot_length + pos->w) * cos(d2r(pos->b));
-    double xb = (haldata->pivot_length + pos->w) * sin(d2r(pos->b));
+    double zb = (*(haldata->pivot_length) + pos->w) * cos(d2r(pos->b));
+    double xb = (*(haldata->pivot_length) + pos->w) * sin(d2r(pos->b));
         
     // C correction
     double xyr = hypot(pos->tran.x, pos->tran.y);
@@ -82,7 +82,7 @@ int kinematicsInverse(const EmcPose * pos,
 
     joints[0] = xyr * cos(xytheta) - xb + xv;
     joints[1] = xyr * sin(xytheta) + pos->v;
-    joints[2] = pos->tran.z + zb + zv - haldata->pivot_length;
+    joints[2] = pos->tran.z + zb + zv - *(haldata->pivot_length);
 
     joints[3] = pos->a;
     joints[4] = pos->b;
@@ -116,10 +116,10 @@ int rtapi_app_main(void) {
 
     haldata = hal_malloc(sizeof(struct haldata));
 
-    result = hal_param_float_new("maxkins.pivot-length", HAL_RW, &(haldata->pivot_length), comp_id);
+    result = hal_pin_float_new("maxkins.pivot-length", HAL_IO, &(haldata->pivot_length), comp_id);
     if(result < 0) goto error;
 
-    haldata->pivot_length = 0.666;
+    *(haldata->pivot_length) = 0.666;
 
     hal_ready(comp_id);
     return 0;

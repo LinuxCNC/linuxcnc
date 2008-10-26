@@ -75,12 +75,12 @@
 #ifdef RTAPI
 #include "hal.h"
 struct {
-    hal_float_t bx, cx, cy;
+    hal_float_t *bx, *cx, *cy;
 } *haldata = 0;
 
-#define Bx (haldata->bx)
-#define Cx (haldata->cx)
-#define Cy (haldata->cy)
+#define Bx (*(haldata->bx))
+#define Cx (*(haldata->cx))
+#define Cy (*(haldata->cy))
 #else
 double Bx, Cx, Cy;
 #endif
@@ -372,9 +372,9 @@ int rtapi_app_main(void) {
     if(!haldata) goto error;
     Bx = Cx = Cy = 1.0;
 
-    if((res = hal_param_float_new("tripodkins.Bx", HAL_RW, &haldata->bx, comp_id)) != HAL_SUCCESS) goto error;
-    if((res = hal_param_float_new("tripodkins.Cx", HAL_RW, &haldata->cx, comp_id)) != HAL_SUCCESS) goto error;
-    if((res = hal_param_float_new("tripodkins.Cy", HAL_RW, &haldata->cy, comp_id)) != HAL_SUCCESS) goto error;
+    if((res = hal_pin_float_new("tripodkins.Bx", HAL_IO, &(haldata->bx), comp_id)) != HAL_SUCCESS) goto error;
+    if((res = hal_pin_float_new("tripodkins.Cx", HAL_IO, &(haldata->cx), comp_id)) != HAL_SUCCESS) goto error;
+    if((res = hal_pin_float_new("tripodkins.Cy", HAL_IO, &(haldata->cy), comp_id)) != HAL_SUCCESS) goto error;
     hal_ready(comp_id);
     return 0;
 

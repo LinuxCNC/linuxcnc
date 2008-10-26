@@ -84,7 +84,7 @@ typedef struct {
     hal_s32_t *curr_depth;	/* pin: current fifo depth */
     hal_bit_t *empty;		/* pin: underrun flag */
     hal_bit_t *enable;		/* pin: enable streaming */
-    hal_s32_t underruns;	/* param: number of underruns */
+    hal_s32_t *underruns;	/* pin: number of underruns */
 } streamer_t;
 
 /* other globals */
@@ -204,7 +204,7 @@ static void update(void *arg, long period)
     tmpout = fifo->out;
     if ( tmpout == tmpin ) {
         /* fifo empty - log it */
-	str->underruns++;
+	*(str->underruns)++;
 	*(str->empty) = 1;
 	*(str->curr_depth) = 0;
 	/* done - output pins retain current values */
@@ -340,18 +340,18 @@ static int init_streamer(int num, fifo_t *tmp_fifo)
 	    "STREAMER: ERROR: 'curr_depth' pin export failed\n");
 	return -EIO;
     }
-    retval = hal_param_s32_newf(HAL_RW, &(str->underruns), comp_id,
+    retval = hal_pin_s32_newf(HAL_IO, &(str->underruns), comp_id,
 	"streamer.%d.underruns", num);
     if (retval != 0 ) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "STREAMER: ERROR: 'underruns' parameter export failed\n");
+	    "STREAMER: ERROR: 'underruns' pin export failed\n");
 	return -EIO;
     }
     /* init the standard pins and params */
     *(str->empty) = 1;
     *(str->enable) = 1;
     *(str->curr_depth) = 0;
-    str->underruns = 0;
+    *(str->underruns) = 0;
     /* HAL pins are right after the streamer_t struct in HAL shmem */
     pptr = (pin_data_t *)(str+1);
     usefp = 0;

@@ -23,7 +23,7 @@
 
 struct haldata {
     hal_float_t *tool_length;
-    hal_float_t pivot_length;
+    hal_float_t *pivot_length;
 } *haldata;
 
 static PmCartesian s2r(double r, double t, double p) {
@@ -42,11 +42,11 @@ int kinematicsForward(const double *joints,
 		      const KINEMATICS_FORWARD_FLAGS * fflags,
 		      KINEMATICS_INVERSE_FLAGS * iflags)
 {
-    PmCartesian r = s2r(haldata->pivot_length + joints[8], joints[5], 180.0 - joints[4]);
+    PmCartesian r = s2r(*(haldata->pivot_length) + joints[8], joints[5], 180.0 - joints[4]);
 
     pos->tran.x = joints[0] + r.x;
     pos->tran.y = joints[1] + r.y;
-    pos->tran.z = joints[2] + haldata->pivot_length + r.z;
+    pos->tran.z = joints[2] + *(haldata->pivot_length) + r.z;
     pos->a = joints[3];
     pos->b = joints[4];
     pos->c = joints[5];
@@ -63,11 +63,11 @@ int kinematicsInverse(const EmcPose * pos,
 		      KINEMATICS_FORWARD_FLAGS * fflags)
 {
 
-    PmCartesian r = s2r(haldata->pivot_length + pos->w, pos->c, 180.0 - pos->b);
+    PmCartesian r = s2r(*(haldata->pivot_length) + pos->w, pos->c, 180.0 - pos->b);
 
     joints[0] = pos->tran.x - r.x;
     joints[1] = pos->tran.y - r.y;
-    joints[2] = pos->tran.z - haldata->pivot_length - r.z;
+    joints[2] = pos->tran.z - *(haldata->pivot_length) - r.z;
     joints[3] = pos->a;
     joints[4] = pos->b;
     joints[5] = pos->c;
@@ -115,10 +115,10 @@ int rtapi_app_main(void) {
 
     result = hal_pin_float_new("5axiskins.tooloffset.z", HAL_IN, &(haldata->tool_length), comp_id);
     if(result < 0) goto error;
-    result = hal_param_float_new("5axiskins.pivot-length", HAL_RW, &(haldata->pivot_length), comp_id);
+    result = hal_pin_float_new("5axiskins.pivot-length", HAL_IO, &(haldata->pivot_length), comp_id);
     if(result < 0) goto error;
 
-    haldata->pivot_length = 250.0;
+    *(haldata->pivot_length) = 250.0;
 
     hal_ready(comp_id);
     return 0;
