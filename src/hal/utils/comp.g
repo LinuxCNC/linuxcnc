@@ -926,7 +926,7 @@ Usage:
 
 def main():
     global require_license
-    require_license = False
+    require_license = True
     mode = PREPROCESS
     outfile = None
     userspace = False
