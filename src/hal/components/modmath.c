@@ -61,9 +61,9 @@ typedef struct {
     hal_bit_t *on_target;	/* output pin: go at desired position */
     hal_s32_t *actual;		/* input pin: actual position */
     hal_s32_t *desired;		/* input pin: desired position */
-    hal_s32_t max_num;		/* parameter: highest value to allow */
-    hal_s32_t min_num;		/* parameter: lowest value to allow */
-    hal_bit_t wrap;		/* parameter: set true if the array is circular, false if linear */
+    hal_s32_t *max_num;		/* input/output pin: highest value to allow */
+    hal_s32_t *min_num;		/* input/output pin: lowest value to allow */
+    hal_bit_t *wrap;		/* input/output pin: set true if the array is circular, false if linear */
 } mod_dir_t;
 
 /* other globals */
@@ -125,22 +125,22 @@ static void mod_dir_funct(void *arg, long period)
 
     /* point to block data */
     mod = (mod_dir_t *) arg;
-    range = mod->max_num - mod->min_num + 1;
+    range = *(mod->max_num) - *(mod->min_num) + 1;
     act = *(mod->actual);
-    if (act>mod->max_num || act < mod->min_num) {
-	act = mod->min_num + ((act-mod->min_num) % (range));
+    if (act > *(mod->max_num) || act < *(mod->min_num)) {
+	act = *(mod->min_num) + ((act-*(mod->min_num)) % (range));
     }
     des = *(mod->desired);
-    if (des>mod->max_num || des < mod->min_num) {
-	des = mod->min_num + ((des-mod->min_num) % (range));
+    if (des > *(mod->max_num) || des < *(mod->min_num)) {
+	des = *(mod->min_num) + ((des-*(mod->min_num)) % (range));
     }
 
     to_go = des-act;
 
-    if ((mod->wrap) && (to_go > range/2)) {
+    if ((*(mod->wrap)) && (to_go > range/2)) {
 	to_go -= range;
     }
-    if ((mod->wrap) && (to_go < -range/2)) {
+    if ((*(mod->wrap)) && (to_go < -range/2)) {
 	to_go += range;
     }
 
@@ -216,23 +216,23 @@ static int export_mod_dir(int num)
 	return retval;
     }
 
-    /* export params for max and min values */
+    /* export pins for max and min values */
     rtapi_snprintf(buf, HAL_NAME_LEN, "mod-dir.%d.min-num", num);
-    retval = hal_param_s32_new(buf, HAL_RW, &(moddir->min_num), comp_id);
+    retval = hal_pin_s32_new(buf, HAL_IO, &(moddir->min_num), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "MODMATH: ERROR: '%s' param export failed\n", buf);
+	    "MODMATH: ERROR: '%s' pin export failed\n", buf);
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "mod-dir.%d.max-num", num);
-    retval = hal_param_s32_new(buf, HAL_RW, &(moddir->max_num), comp_id);
+    retval = hal_pin_s32_new(buf, HAL_IO, &(moddir->max_num), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "MODMATH: ERROR: '%s' param export failed\n", buf);
+	    "MODMATH: ERROR: '%s' pin export failed\n", buf);
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "mod-dir.%d.wrap", num);
-    retval = hal_param_bit_new(buf, HAL_RW, &(moddir->wrap), comp_id);
+    retval = hal_pin_bit_new(buf, HAL_IO, &(moddir->wrap), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "MODMATH: ERROR: '%s' param export failed\n", buf);
@@ -250,10 +250,10 @@ static int export_mod_dir(int num)
     *(moddir->up) = 0;
     *(moddir->down) = 0;
     *(moddir->on_target) = 1;
-    moddir->min_num = 0;
-    moddir->max_num = 15;
+    *(moddir->min_num) = 0;
+    *(moddir->max_num) = 15;
     *(moddir->actual) = 0;
     *(moddir->desired) = 0;
-    moddir->wrap=1;		/* wrap by default */
+    *(moddir->wrap) = 1;		/* wrap by default */
     return 0;
 }
