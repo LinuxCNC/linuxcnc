@@ -407,38 +407,32 @@ static int checkInterpList(NML_INTERP_LIST * il, EMC_STAT * stat)
 	case EMC_TRAJ_LINEAR_MOVE_TYPE:
 	    if (linear_move->end.tran.x >
 		stat->motion.axis[0].maxPositionLimit) {
-		emcOperatorError(0, "%s\n%s", stat->task.command,
-				 _("exceeds +X limit"));
+		emcOperatorError(0, _("%s exceeds +X limit"), stat->task.command);
 		return -1;
 	    }
 	    if (linear_move->end.tran.y >
 		stat->motion.axis[1].maxPositionLimit) {
-		emcOperatorError(0, "%s\n%s", stat->task.command,
-				 _("exceeds +Y limit"));
+		emcOperatorError(0, _("%s exceeds +Y limit"), stat->task.command);
 		return -1;
 	    }
 	    if (linear_move->end.tran.z >
 		stat->motion.axis[2].maxPositionLimit) {
-		emcOperatorError(0, "%s\n%s", stat->task.command,
-				 _("exceeds +Z limit"));
+		emcOperatorError(0, _("%s exceeds +Z limit"), stat->task.command);
 		return -1;
 	    }
 	    if (linear_move->end.tran.x <
 		stat->motion.axis[0].minPositionLimit) {
-		emcOperatorError(0, "%s\n%s", stat->task.command,
-				 _("exceeds -X limit"));
+		emcOperatorError(0, _("%s exceeds -X limit"), stat->task.command);
 		return -1;
 	    }
 	    if (linear_move->end.tran.y <
 		stat->motion.axis[1].minPositionLimit) {
-		emcOperatorError(0, "%s\n%s", stat->task.command,
-				 _("exceeds -Y limit"));
+		emcOperatorError(0, _("%s exceeds -Y limit"), stat->task.command);
 		return -1;
 	    }
 	    if (linear_move->end.tran.z <
 		stat->motion.axis[2].minPositionLimit) {
-		emcOperatorError(0, "%s\n%s", stat->task.command,
-				 _("exceeds -Z limit"));
+		emcOperatorError(0, _("%s exceeds -Z limit"), stat->task.command);
 		return -1;
 	    }
 	    break;
@@ -446,38 +440,32 @@ static int checkInterpList(NML_INTERP_LIST * il, EMC_STAT * stat)
 	case EMC_TRAJ_CIRCULAR_MOVE_TYPE:
 	    if (circular_move->end.tran.x >
 		stat->motion.axis[0].maxPositionLimit) {
-		emcOperatorError(0, "%s\n%s", stat->task.command,
-				 _("exceeds +X limit"));
+		emcOperatorError(0, _("%s exceeds +X limit"), stat->task.command);
 		return -1;
 	    }
 	    if (circular_move->end.tran.y >
 		stat->motion.axis[1].maxPositionLimit) {
-		emcOperatorError(0, "%s\n%s", stat->task.command,
-				 _("exceeds +Y limit"));
+		emcOperatorError(0, _("%s exceeds +Y limit"), stat->task.command);
 		return -1;
 	    }
 	    if (circular_move->end.tran.z >
 		stat->motion.axis[2].maxPositionLimit) {
-		emcOperatorError(0, "%s\n%s", stat->task.command,
-				 _("exceeds +Z limit"));
+		emcOperatorError(0, _("%s exceeds +Z limit"), stat->task.command);
 		return -1;
 	    }
 	    if (circular_move->end.tran.x <
 		stat->motion.axis[0].minPositionLimit) {
-		emcOperatorError(0, "%s\n%s", stat->task.command,
-				 _("exceeds -X limit"));
+		emcOperatorError(0, _("%s exceeds -X limit"), stat->task.command);
 		return -1;
 	    }
 	    if (circular_move->end.tran.y <
 		stat->motion.axis[1].minPositionLimit) {
-		emcOperatorError(0, "%s\n%s", stat->task.command,
-				 _("exceeds -Y limit"));
+		emcOperatorError(0, _("%s exceeds -Y limit"), stat->task.command);
 		return -1;
 	    }
 	    if (circular_move->end.tran.z <
 		stat->motion.axis[2].minPositionLimit) {
-		emcOperatorError(0, "%s\n%s", stat->task.command,
-				 _("exceeds -Z limit"));
+		emcOperatorError(0, _("%s exceeds -Z limit"), stat->task.command);
 		return -1;
 	    }
 	    break;
