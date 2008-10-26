@@ -84,8 +84,8 @@ typedef struct {
     hal_s32_t *curr_depth;	/* pin: current fifo depth */
     hal_bit_t *full;		/* pin: overrun flag */
     hal_bit_t *enable;		/* pin: enable sampling */
-    hal_s32_t overruns;		/* param: number of overruns */
-    hal_s32_t sample_num;	/* param: sample ID / timestamp */
+    hal_s32_t *overruns;	/* pin: number of overruns */
+    hal_s32_t *sample_num;	/* pin: sample ID / timestamp */
 } sampler_t;
 
 /* other globals */
@@ -216,7 +216,7 @@ static void sample(void *arg, long period)
 	}
 	fifo->out = tmpout;
         /* log the overrun */
-	samp->overruns++;
+	*(samp->overruns)++;
 	*(samp->full) = 1;
     } else {
 	*(samp->full) = 0;
@@ -249,7 +249,7 @@ static void sample(void *arg, long period)
 	pptr++;
     }
     /* store sample number at the end of the fifo record */
-    dptr->u = samp->sample_num++;
+    dptr->u = *(samp->sample_num)++;
     /* update fifo pointer */
     fifo->in = newin;
     /* calculate current depth */
@@ -347,14 +347,14 @@ static int init_sampler(int num, fifo_t *tmp_fifo)
 	    "SAMPLEr: ERROR: 'curr_depth' pin export failed\n");
 	return -EIO;
     }
-    retval = hal_param_s32_newf(HAL_RW, &(str->overruns), comp_id,
+    retval = hal_pin_s32_newf(HAL_IO, &(str->overruns), comp_id,
 	"sampler.%d.overruns", num);
     if (retval != 0 ) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "SAMPLER: ERROR: 'overruns' parameter export failed\n");
 	return -EIO;
     }
-    retval = hal_param_s32_newf(HAL_RW, &(str->sample_num), comp_id,
+    retval = hal_pin_s32_newf(HAL_IO, &(str->sample_num), comp_id,
 	"sampler.%d.sample-num", num);
     if (retval != 0 ) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -365,8 +365,8 @@ static int init_sampler(int num, fifo_t *tmp_fifo)
     *(str->full) = 0;
     *(str->enable) = 1;
     *(str->curr_depth) = 0;
-    str->overruns = 0;
-    str->sample_num = 0;
+    *(str->overruns) = 0;
+    *(str->sample_num) = 0;
     /* HAL pins are right after the sampler_t struct in HAL shmem */
     pptr = (pin_data_t *)(str+1);
     usefp = 0;

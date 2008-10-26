@@ -90,8 +90,8 @@ typedef struct {
     hal_bit_t *phaseA;		/* pins for output signals */
     hal_bit_t *phaseB;		/* pins for output signals */
     hal_bit_t *phaseZ;		/* pins for output signals */
-    hal_u32_t ppr;		/* param: pulses per revolution */
-    hal_float_t scale;		/* param: pulses per revolution */
+    hal_u32_t *ppr;		/* pin: pulses per revolution */
+    hal_float_t *scale;		/* pin: pulses per revolution */
     hal_float_t *speed;		/* pin: speed in revs/second */
     float old_scale;		/* internal, used to detect changes */
     float scale_mult;		/* internal, reciprocal of scale */
@@ -233,7 +233,7 @@ static void make_pulses(void *arg, long period)
 		    /* decrement cycle, detect underflow */
 		    if (--(sim_enc->cycle) < 0) {
 			/* cycle underflow, roll over */
-			sim_enc->cycle += sim_enc->ppr;
+			sim_enc->cycle += *(sim_enc->ppr);
 		    }
 		}
 	    } else {
@@ -242,9 +242,9 @@ static void make_pulses(void *arg, long period)
 		    /* state overflow, roll over */
 		    sim_enc->state = 0;
 		    /* increment cycle, detect overflow */
-		    if (++(sim_enc->cycle) >= sim_enc->ppr) {
+		    if (++(sim_enc->cycle) >= *(sim_enc->ppr)) {
 			/* cycle overflow, roll over */
-			sim_enc->cycle -= sim_enc->ppr;
+			sim_enc->cycle -= *(sim_enc->ppr);
 		    }
 		}
 	    }
@@ -303,21 +303,21 @@ static void update_speed(void *arg, long period)
     sim_enc = arg;
     for (n = 0; n < num_chan; n++) {
 	/* check for change in scale value */
-	if ( sim_enc->scale != sim_enc->old_scale ) {
+	if ( *(sim_enc->scale) != sim_enc->old_scale ) {
 	    /* save new scale to detect future changes */
-	    sim_enc->old_scale = sim_enc->scale;
+	    sim_enc->old_scale = *(sim_enc->scale);
 	    /* scale value has changed, test and update it */
-	    if ((sim_enc->scale < 1e-20) && (sim_enc->scale > -1e-20)) {
+	    if ((*(sim_enc->scale) < 1e-20) && (*(sim_enc->scale) > -1e-20)) {
 		/* value too small, divide by zero is a bad thing */
-		sim_enc->scale = 1.0;
+		*(sim_enc->scale) = 1.0;
 	    }
 	    /* we actually want the reciprocal */
-	    sim_enc->scale_mult = 1.0 / sim_enc->scale;
+	    sim_enc->scale_mult = 1.0 / *(sim_enc->scale);
 	}
 	/* convert speed command (user units) to revs/sec */
 	rev_sec = *(sim_enc->speed) * sim_enc->scale_mult;
 	/* convert speed command (revs per sec) to counts/sec */
-	freq = rev_sec * sim_enc->ppr * 4.0;
+	freq = rev_sec * (*(sim_enc->ppr)) * 4.0;
 	/* limit the commanded frequency */
 	if (freq > maxf) {
 	    freq = maxf;
@@ -348,13 +348,13 @@ static int export_sim_enc(int num, sim_enc_t * addr)
     rtapi_set_msg_level(RTAPI_MSG_WARN);
     /* export param variable for pulses per rev */
     rtapi_snprintf(buf, HAL_NAME_LEN, "sim-encoder.%d.ppr", num);
-    retval = hal_param_u32_new(buf, HAL_RW, &(addr->ppr), comp_id);
+    retval = hal_pin_u32_new(buf, HAL_IO, &(addr->ppr), comp_id);
     if (retval != 0) {
 	return retval;
     }
     /* export param variable for scaling */
     rtapi_snprintf(buf, HAL_NAME_LEN, "sim-encoder.%d.scale", num);
-    retval = hal_param_float_new(buf, HAL_RW, &(addr->scale), comp_id);
+    retval = hal_pin_float_new(buf, HAL_IO, &(addr->scale), comp_id);
     if (retval != 0) {
 	return retval;
     }
@@ -381,8 +381,8 @@ static int export_sim_enc(int num, sim_enc_t * addr)
 	return retval;
     }
     /* init parameters */
-    addr->ppr = 100;
-    addr->scale = 1.0;
+    *(addr->ppr) = 100;
+    *(addr->scale) = 1.0;
     /* init internal vars */
     addr->old_scale = 0.0;
     addr->scale_mult = 1.0;
