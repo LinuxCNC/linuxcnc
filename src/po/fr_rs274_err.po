@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fr_rs274_err\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-10-25 12:27+0200\n"
-"PO-Revision-Date: 2008-10-15 19:54+0200\n"
+"POT-Creation-Date: 2008-10-26 14:32+0100\n"
+"PO-Revision-Date: 2008-10-26 15:55+0100\n"
 "Last-Translator: Francis Tisserant <ftissera@free.fr>\n"
 "Language-Team: french <gnomefr@traduc.org>\n"
 "MIME-Version: 1.0\n"
@@ -86,6 +86,21 @@ msgstr "Commande (%s) impossible en mode MDI"
 #, c-format
 msgid "can't open %s"
 msgstr "Impossible d'ouvrir %s "
+
+#: emc/task/emctaskmain.cc:1933
+#, c-format
+msgid "Can't issue MDI command when not homed"
+msgstr "Pas de commande MDI avant la prise d'origine machine"
+
+#: emc/task/emctaskmain.cc:1938
+#, c-format
+msgid "Must be in MDI mode to issue MDI command"
+msgstr "Pas de commande MDI hors du mode MDI"
+
+#: emc/task/emctaskmain.cc:1974
+#, c-format
+msgid "Can't run a program when not homed"
+msgstr "Pas de départ cycle avant la prise d'origine machine"
 
 #: emc/task/emctaskmain.cc:3069
 #, c-format
@@ -992,8 +1007,7 @@ msgstr "Impossible de changer de plan avec la compensation de rayon d'outil"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:241
 msgid "Cutter radius compensation allowed only in XY, XZ planes"
-msgstr ""
-"Compensation de rayon d'outil permise seulement dans les plans XY et XZ"
+msgstr "Compensation de rayon d'outil permise seulement dans les plans XY et XZ"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:243
 msgid "P word missing with G76"
@@ -1117,3 +1131,4 @@ msgstr "La fin"
 #: emc/rs274ngc/rs274ngc_pre.cc:752
 msgid "Queue is not empty after tool change"
 msgstr "La queue n'est pas vide apres changement d'outil"
+

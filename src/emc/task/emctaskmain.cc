@@ -1930,12 +1930,12 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	steppingWait = 0;
 	execute_msg = (EMC_TASK_PLAN_EXECUTE *) cmd;
         if (!all_homed() && !no_force_homing) { //!no_force_homing = force homing before MDI
-            emcOperatorError(0, "Can't issue MDI command when not homed");
+            emcOperatorError(0, _("Can't issue MDI command when not homed"));
             retval = -1;
             break;
         }
         if (emcStatus->task.mode != EMC_TASK_MODE_MDI) {
-            emcOperatorError(0, "Must be in MDI mode to issue MDI command");
+            emcOperatorError(0, _("Must be in MDI mode to issue MDI command"));
             retval = -1;
             break;
         }
@@ -1971,7 +1971,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 
     case EMC_TASK_PLAN_RUN_TYPE:
         if (!all_homed() && !no_force_homing) { //!no_force_homing = force homing before Auto
-            emcOperatorError(0, "Can't run a program when not homed");
+            emcOperatorError(0, _("Can't run a program when not homed"));
             retval = -1;
             break;
         }
