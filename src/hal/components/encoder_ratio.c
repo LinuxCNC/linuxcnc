@@ -124,10 +124,10 @@ typedef struct {
     int slave_increment;	/* internal data */
     float output_scale;		/* internal data */
     hal_float_t *error;		/* error output */
-    hal_u32_t master_ppr;	/* parameter: master encoder PPR */
-    hal_u32_t slave_ppr;	/* parameter: slave encoder PPR */
-    hal_u32_t master_teeth;	/* parameter: master "gear" tooth count */
-    hal_u32_t slave_teeth;	/* parameter: slave "gear" tooth count */
+    hal_u32_t *master_ppr;	/* parameter: master encoder PPR */
+    hal_u32_t *slave_ppr;	/* parameter: slave encoder PPR */
+    hal_u32_t *master_teeth;	/* parameter: master "gear" tooth count */
+    hal_u32_t *slave_teeth;	/* parameter: slave "gear" tooth count */
 } encoder_pair_t;
 
 /* pointer to array of counter_t structs in shmem, 1 per counter */
@@ -315,9 +315,9 @@ static void update(void *arg, long period)
 	}
 	/* update scale factors (only needed if params change, but
 	   it's faster to do it every time than to detect changes.) */
-	pair->master_increment = pair->master_teeth * pair->slave_ppr;
-	pair->slave_increment = pair->slave_teeth * pair->master_ppr;
-	pair->output_scale = pair->master_ppr * pair->slave_ppr * pair->slave_teeth;
+	pair->master_increment = *(pair->master_teeth) * *(pair->slave_ppr);
+	pair->slave_increment = *(pair->slave_teeth) * *(pair->master_ppr);
+	pair->output_scale = *(pair->master_ppr) * *(pair->slave_ppr) * *(pair->slave_teeth);
 	/* move on to next pair */
 	pair++;
     }
@@ -373,24 +373,24 @@ static int export_encoder_pair(int num, encoder_pair_t * addr)
     if (retval != 0) {
 	return retval;
     }
-    /* export parameters for config info() */
+    /* export pins for config info() */
     rtapi_snprintf(buf, HAL_NAME_LEN, "encoder-ratio.%d.master-ppr", num);
-    retval = hal_param_u32_new(buf, HAL_RW, &(addr->master_ppr), comp_id);
+    retval = hal_pin_u32_new(buf, HAL_IO, &(addr->master_ppr), comp_id);
     if (retval != 0) {
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "encoder-ratio.%d.slave-ppr", num);
-    retval = hal_param_u32_new(buf, HAL_RW, &(addr->slave_ppr), comp_id);
+    retval = hal_pin_u32_new(buf, HAL_IO, &(addr->slave_ppr), comp_id);
     if (retval != 0) {
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "encoder-ratio.%d.master-teeth", num);
-    retval = hal_param_u32_new(buf, HAL_RW, &(addr->master_teeth), comp_id);
+    retval = hal_pin_u32_new(buf, HAL_IO, &(addr->master_teeth), comp_id);
     if (retval != 0) {
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "encoder-ratio.%d.slave-teeth", num);
-    retval = hal_param_u32_new(buf, HAL_RW, &(addr->slave_teeth), comp_id);
+    retval = hal_pin_u32_new(buf, HAL_IO, &(addr->slave_teeth), comp_id);
     if (retval != 0) {
 	return retval;
     }
