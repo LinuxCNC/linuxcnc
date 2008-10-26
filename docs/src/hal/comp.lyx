@@ -1193,6 +1193,7 @@ option \SpecialChar \ldots{}
 
 LICENSE Specify the license of the module, for the documentation and for
  the MODULE_LICENSE() module declaration.
+ This declaration is required, GPL is the normal license.
 \layout Description
 
 AUTHOR Specify the author of the module, for the documentation
