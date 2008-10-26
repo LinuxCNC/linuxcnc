@@ -69,7 +69,7 @@ typedef struct {
     unsigned char oldA;		/* previous value of phase A */
     unsigned char reset_on_index;
     unsigned char pad;		/* padding for alignment */
-    hal_s32_t raw_count;	/* parameter: raw binary count value */
+    hal_s32_t *raw_count;	/* pin: raw binary count value */
     hal_bit_t *phaseA;		/* quadrature input */
     hal_bit_t *phaseZ;		/* index pulse input */
     hal_bit_t *index_ena;	/* index enable input */
@@ -77,7 +77,7 @@ typedef struct {
     hal_s32_t *count;		/* captured binary count value */
     hal_float_t *pos;		/* scaled position (floating point) */
     hal_float_t *vel;		/* scaled velocity (floating point) */
-    hal_float_t pos_scale;	/* parameter: scaling factor for pos */
+    hal_float_t *pos_scale;	/* pin: scaling factor for pos */
     float old_scale;		/* stored scale value */
     double scale;		/* reciprocal value used for scaling */
     hal_s32_t last_count;
@@ -142,10 +142,10 @@ int rtapi_app_main(void)
 	counter_array[n].oldZ = 0;
 	counter_array[n].oldA = 0;
 	counter_array[n].reset_on_index = 0;
-	counter_array[n].raw_count = 0;
+	*(counter_array[n].raw_count) = 0;
 	*(counter_array[n].count) = 0;
 	*(counter_array[n].pos) = 0.0;
-	counter_array[n].pos_scale = 1.0;
+	*(counter_array[n].pos_scale) = 1.0;
 	counter_array[n].old_scale = 1.0;
 	counter_array[n].scale = 1.0;
     }
@@ -189,12 +189,12 @@ static void update(void *arg, long period)
     for (cntr = arg, n = 0; n < num_chan; cntr++, n++) {
         // count on rising edge
         if(!cntr->oldA && *cntr->phaseA)
-            cntr->raw_count++;
+            *(cntr->raw_count)++;
         cntr->oldA = *cntr->phaseA;
 
         // reset on rising edge
         if(cntr->reset_on_index && !cntr->oldZ && *cntr->phaseZ) {
-            cntr->last_index_count = cntr->raw_count;
+            cntr->last_index_count = *(cntr->raw_count);
             *(cntr->index_ena) = 0;
         }
         cntr->oldZ = *cntr->phaseZ;
@@ -212,27 +212,27 @@ static void capture(void *arg, long period)
         int counts;
 	if (*(cntr->reset)) {
 	    /* reset is active, reset the counter */
-	    cntr->raw_count = 0;
+	    *(cntr->raw_count) = 0;
             cntr->last_index_count = 0;
             cntr->last_count = 0;
 	}
 	/* capture raw counts to latches */
-        raw_count = cntr->raw_count;
+        raw_count = *(cntr->raw_count);
 	*(cntr->count) = raw_count - cntr->last_index_count;
         counts = (raw_count - cntr->last_count);
         cntr->last_count = raw_count;
 
 	/* check for change in scale value */
-	if ( cntr->pos_scale != cntr->old_scale ) {
+	if ( *(cntr->pos_scale) != cntr->old_scale ) {
 	    /* save new scale to detect future changes */
-	    cntr->old_scale = cntr->pos_scale;
+	    cntr->old_scale = *(cntr->pos_scale);
 	    /* scale value has changed, test and update it */
-	    if ((cntr->pos_scale < 1e-20) && (cntr->pos_scale > -1e-20)) {
+	    if ((*(cntr->pos_scale) < 1e-20) && (*(cntr->pos_scale) > -1e-20)) {
 		/* value too small, divide by zero is a bad thing */
-		cntr->pos_scale = 1.0;
+		*(cntr->pos_scale) = 1.0;
 	    }
 	    /* we actually want the reciprocal */
-	    cntr->scale = 1.0 / cntr->pos_scale;
+	    cntr->scale = 1.0 / *(cntr->pos_scale);
 	}
 	/* scale count to make floating point position */
 	*(cntr->pos) = *(cntr->count) * cntr->scale;
@@ -286,7 +286,7 @@ static int export_counter(int num, counter_t * addr)
     }
     /* export parameter for raw counts */
     rtapi_snprintf(buf, HAL_NAME_LEN, "counter.%d.rawcounts", num);
-    retval = hal_param_s32_new(buf, HAL_RO, &(addr->raw_count), comp_id);
+    retval = hal_pin_s32_new(buf, HAL_OUT, &(addr->raw_count), comp_id);
     if (retval != 0) {
 	return retval;
     }
@@ -310,7 +310,7 @@ static int export_counter(int num, counter_t * addr)
     }
     /* export parameter for scaling */
     rtapi_snprintf(buf, HAL_NAME_LEN, "counter.%d.position-scale", num);
-    retval = hal_param_float_new(buf, HAL_RW, &(addr->pos_scale), comp_id);
+    retval = hal_pin_float_new(buf, HAL_IO, &(addr->pos_scale), comp_id);
     if (retval != 0) {
 	return retval;
     }

@@ -71,16 +71,16 @@ RTAPI_MP_ARRAY_INT(cfg,MAX_GROUP,"Group size for up to "MAX_GROUP_STR" groups");
 typedef struct {
     hal_bit_t *in;		/* pin: input */
     hal_bit_t *out;		/* pin: output */
-    hal_s32_t state;		/* parameter*: internal state */
+    hal_s32_t *state;		/* pin*: internal state */
 } debounce_t;
 
-/*  *note - this parameter is only exported if EXPORT_STATE is defined */
+/*  *note - this pin is only exported if EXPORT_STATE is defined */
 
 /** This structure contains the runtime data for a group of filters */
 
 typedef struct {
     int channels;		/* number of channels in group */
-    hal_s32_t delay;		/* parameter: delay for this group */
+    hal_s32_t *delay;		/* parameter: delay for this group */
     debounce_t *filter_array;	/* pointer to individual filter data */
 } debounce_group_t;
 
@@ -196,8 +196,8 @@ static void debounce(void *arg, long period)
     /* point to filter group */
     group = (debounce_group_t *) arg;
     /* first make sure delay is sane */
-    if (group->delay < 0) {
-	group->delay = 1;
+    if (*(group->delay) < 0) {
+	*(group->delay) = 1;
     }
     /* loop thru filters */
     for (n = 0; n < group->channels; n++) {
@@ -206,18 +206,18 @@ static void debounce(void *arg, long period)
 	/* update this filter */
 	if (*(filter->in)) {
 	    /* input true, is state at threshold? */
-	    if (filter->state < group->delay) {
+	    if (*(filter->state) < *(group->delay)) {
 		/* no, increment */
-		filter->state++;
+		*(filter->state)++;
 	    } else {
 		/* yes, set output */
 		*(filter->out) = 1;
 	    }
 	} else {
 	    /* input false, is state at zero? */
-	    if (filter->state > 0) {
+	    if (*(filter->state) > 0) {
 		/* no, decrement */
-		filter->state--;
+		*(filter->state)--;
 	    } else {
 		/* yes, clear output */
 		*(filter->out) = 0;
@@ -249,9 +249,9 @@ static int export_group(int num, debounce_group_t * addr, int group_size)
 	    "DEBOUNCE: ERROR: hal_malloc() failed\n");
 	return -1;
     }
-    /* export param variable for delay */
+    /* export pin variable for delay */
     rtapi_snprintf(buf, HAL_NAME_LEN, "debounce.%d.delay", num);
-    retval = hal_param_s32_new(buf, HAL_RW, &(addr->delay), comp_id);
+    retval = hal_pin_s32_new(buf, HAL_IO, &(addr->delay), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "DEBOUNCE: ERROR: '%s' param export failed\n", buf);
@@ -266,7 +266,7 @@ static int export_group(int num, debounce_group_t * addr, int group_size)
 	return -1;
     }
     /* set default parameter values */
-    addr->delay = 5;
+    *(addr->delay) = 5;
     addr->channels = group_size;
 
     /* loop to export each filter in group */
@@ -307,10 +307,10 @@ static int export_filter(int num, debounce_t * addr, int group_num)
 #ifdef EXPORT_STATE
     /* export parameter containing internal state */
     rtapi_snprintf(buf, HAL_NAME_LEN, "debounce.%d.%d.state", group_num, num);
-    retval = hal_param_s32_new(buf, HAL_RO, &(addr->state), comp_id);
+    retval = hal_pin_s32_new(buf, HAL_OUT, &(addr->state), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "DEBOUNCE: ERROR: '%s' param export failed\n", buf);
+	    "DEBOUNCE: ERROR: '%s' pin export failed\n", buf);
 	return retval;
     }
 #endif
