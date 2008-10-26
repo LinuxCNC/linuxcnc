@@ -107,18 +107,18 @@ typedef struct {
 
     hal_bit_t *enable;		/* pin for enable signal */
     hal_float_t *value;		/* command value */
-    hal_float_t scale;		/* param: scaling from value to duty cycle */
-    hal_float_t offset;		/* param: offset: this is added to duty cycle */
+    hal_float_t *scale;		/* pin: scaling from value to duty cycle */
+    hal_float_t *offset;	/* pin: offset: this is added to duty cycle */
     float old_scale;		/* stored scale value */
     double scale_recip;		/* reciprocal value used for scaling */
-    hal_float_t pwm_freq;	/* param: (max) output frequency in Hz */
+    hal_float_t *pwm_freq;	/* pin: (max) output frequency in Hz */
     float old_pwm_freq;		/* used to detect changes */
     int periods;		/* number of periods in PWM cycle */
     float periods_recip;	/* reciprocal */
-    hal_bit_t dither_pwm;	/* 0 = pure PWM, 1 = dithered PWM */
-    hal_float_t min_dc;		/* param: minimum duty cycle */
-    hal_float_t max_dc;		/* param: maximum duty cycle */
-    hal_float_t curr_dc;	/* param: current duty cycle */
+    hal_bit_t *dither_pwm;	/* 0 = pure PWM, 1 = dithered PWM */
+    hal_float_t *min_dc;	/* pin: minimum duty cycle */
+    hal_float_t *max_dc;	/* pin: maximum duty cycle */
+    hal_float_t *curr_dc;	/* pin: current duty cycle */
 } pwmgen_t;
 
 /* ptr to array of pwmgen_t structs in shared memory, 1 per channel */
@@ -345,42 +345,42 @@ static void update(void *arg, long period)
 
 	/* validate duty cycle limits, both limits must be between
 	   0.0 and 1.0 (inclusive) and max must be greater then min */
-	if ( pwmgen->max_dc > 1.0 ) {
-	    pwmgen->max_dc = 1.0;
+	if ( *(pwmgen->max_dc) > 1.0 ) {
+	    *(pwmgen->max_dc) = 1.0;
 	}
-	if ( pwmgen->min_dc > pwmgen->max_dc ) {
-	    pwmgen->min_dc = pwmgen->max_dc;
+	if ( *(pwmgen->min_dc) > *(pwmgen->max_dc) ) {
+	    *(pwmgen->min_dc) = *(pwmgen->max_dc);
 	}
-	if ( pwmgen->min_dc < 0.0 ) {
-	    pwmgen->min_dc = 0.0;
+	if ( *(pwmgen->min_dc) < 0.0 ) {
+	    *(pwmgen->min_dc) = 0.0;
 	}
-	if ( pwmgen->max_dc < pwmgen->min_dc ) {
-	    pwmgen->max_dc = pwmgen->min_dc;
+	if ( *(pwmgen->max_dc) < *(pwmgen->min_dc) ) {
+	    *(pwmgen->max_dc) = *(pwmgen->min_dc);
 	}
 	/* do scale calcs only when scale changes */
-	if ( pwmgen->scale != pwmgen->old_scale ) {
+	if ( *(pwmgen->scale) != pwmgen->old_scale ) {
 	    /* get ready to detect future scale changes */
-	    pwmgen->old_scale = pwmgen->scale;
+	    pwmgen->old_scale = *(pwmgen->scale);
 	    /* validate the new scale value */
-	    if ((pwmgen->scale < 1e-20)
-		&& (pwmgen->scale > -1e-20)) {
+	    if ((*(pwmgen->scale) < 1e-20)
+		&& (*(pwmgen->scale) > -1e-20)) {
 		/* value too small, divide by zero is a bad thing */
-		pwmgen->scale = 1.0;
+		*(pwmgen->scale) = 1.0;
 	    }
 	    /* we will need the reciprocal */
-	    pwmgen->scale_recip = 1.0 / pwmgen->scale;
+	    pwmgen->scale_recip = 1.0 / *(pwmgen->scale);
 	}
 	if ( *(pwmgen->enable) == 0 ) {
 	    new_pwm_mode = PWM_DISABLED;
-	} else if ( pwmgen->pwm_freq == 0 ) {
+	} else if ( *(pwmgen->pwm_freq) == 0 ) {
 	    new_pwm_mode = PWM_PDM;
-	} else if ( pwmgen->dither_pwm != 0 ) {
+	} else if ( *(pwmgen->dither_pwm) != 0 ) {
 	    new_pwm_mode = PWM_DITHER;
 	} else {
 	    new_pwm_mode = PWM_PURE;
 	}
 	/* force recalc if max_freq is changed */
-	if ( pwmgen->pwm_freq != pwmgen->old_pwm_freq ) {
+	if ( *(pwmgen->pwm_freq) != pwmgen->old_pwm_freq ) {
 	    pwmgen->pwm_mode = PWM_DISABLED;
 	}
 	/* do the period calcs only when mode or pwm_freq changes */
@@ -388,35 +388,35 @@ static void update(void *arg, long period)
 	    /* disable output during calcs */
 	    pwmgen->pwm_mode = PWM_DISABLED;
 	    /* validate max_freq */
-	    if ( pwmgen->pwm_freq <= 0.0 ) {
+	    if ( *(pwmgen->pwm_freq) <= 0.0 ) {
 		/* zero or negative means PDM mode */
-		pwmgen->pwm_freq = 0.0;
+		*(pwmgen->pwm_freq) = 0.0;
 		pwmgen->period = periodns;
 	    } else {
 		/* positive means PWM mode */
-		if ( pwmgen->pwm_freq < 0.5 ) {
+		if ( *(pwmgen->pwm_freq) < 0.5 ) {
  		    /* min freq is 0.5 Hz (2 billion nsec period) */
-		    pwmgen->pwm_freq = 0.5;
-		} else if ( pwmgen->pwm_freq > ((1e9/2.0) / periodns) ) {
+		    *(pwmgen->pwm_freq) = 0.5;
+		} else if ( *(pwmgen->pwm_freq) > ((1e9/2.0) / periodns) ) {
 		    /* max freq is 2 base periods */
-		    pwmgen->pwm_freq = (1e9/2.0) / periodns;
+		    *(pwmgen->pwm_freq) = (1e9/2.0) / periodns;
 		}
 		if ( new_pwm_mode == PWM_PURE ) {
 		    /* period must be integral multiple of periodns */
-		    pwmgen->periods = (( 1e9 / pwmgen->pwm_freq ) / periodns ) + 0.5;
+		    pwmgen->periods = (( 1e9 / *(pwmgen->pwm_freq) ) / periodns ) + 0.5;
 		    pwmgen->periods_recip = 1.0 / pwmgen->periods;
 		    pwmgen->period = pwmgen->periods * periodns;
 		    /* actual max freq after rounding */
-		    pwmgen->pwm_freq = 1.0e9 / pwmgen->period;
+		    *(pwmgen->pwm_freq) = 1.0e9 / pwmgen->period;
 		} else {
-		    pwmgen->period = 1.0e9 / pwmgen->pwm_freq;
+		    pwmgen->period = 1.0e9 / *(pwmgen->pwm_freq);
 		}
 	    }
 	    /* save freq to detect changes */
-	    pwmgen->old_pwm_freq = pwmgen->pwm_freq;
+	    pwmgen->old_pwm_freq = *(pwmgen->pwm_freq);
 	}
 	/* convert value command to duty cycle */
-	tmpdc = *(pwmgen->value) * pwmgen->scale_recip + pwmgen->offset;
+	tmpdc = *(pwmgen->value) * pwmgen->scale_recip + *(pwmgen->offset);
 	if ( pwmgen->output_type == 0 ) {
 	    /* unidirectional mode, no negative output */
 	    if ( tmpdc < 0.0 ) {
@@ -425,18 +425,18 @@ static void update(void *arg, long period)
 	}
 	/* limit the duty cycle */
 	if (tmpdc >= 0.0) {
-	    if ( tmpdc > pwmgen->max_dc ) {
-		tmpdc = pwmgen->max_dc;
-	    } else if ( tmpdc < pwmgen->min_dc ) {
-		tmpdc = pwmgen->min_dc;
+	    if ( tmpdc > *(pwmgen->max_dc) ) {
+		tmpdc = *(pwmgen->max_dc);
+	    } else if ( tmpdc < *(pwmgen->min_dc) ) {
+		tmpdc = *(pwmgen->min_dc);
 	    }
 	    pwmgen->direction = 0;
 	    outdc = tmpdc;
 	} else {
-	    if ( tmpdc < -pwmgen->max_dc ) {
-		tmpdc = -pwmgen->max_dc;
-	    } else if ( tmpdc > -pwmgen->min_dc ) {
-		tmpdc = -pwmgen->min_dc;
+	    if ( tmpdc < -*(pwmgen->max_dc) ) {
+		tmpdc = -*(pwmgen->max_dc);
+	    } else if ( tmpdc > -*(pwmgen->min_dc) ) {
+		tmpdc = -*(pwmgen->min_dc);
 	    }
 	    pwmgen->direction = 1;
 	    outdc = -tmpdc;
@@ -447,14 +447,14 @@ static void update(void *arg, long period)
 	    pwmgen->high_time = high_periods * periodns;
 	    /* save rounded value to curr_dc param */
 	    if ( tmpdc >= 0 ) {
-		pwmgen->curr_dc = high_periods * pwmgen->periods_recip;
+		*(pwmgen->curr_dc) = high_periods * pwmgen->periods_recip;
 	    } else {
-		pwmgen->curr_dc = -high_periods * pwmgen->periods_recip;
+		*(pwmgen->curr_dc) = -high_periods * pwmgen->periods_recip;
 	    }
 	} else {
 	    pwmgen->high_time = ( pwmgen->period * outdc ) + 0.5;
 	    /* save duty cycle to curr_dc param */
-	    pwmgen->curr_dc = tmpdc;
+	    *(pwmgen->curr_dc) = tmpdc;
 	}
 	/* if using PWM/DIR outputs, set DIR pin */
 	if ( pwmgen->output_type == 1 ) {
@@ -485,37 +485,37 @@ static int export_pwmgen(int num, pwmgen_t * addr, int output_type)
     rtapi_set_msg_level(RTAPI_MSG_WARN);
 
     /* export paramameters */
-    retval = hal_param_float_newf(HAL_RW, &(addr->scale), comp_id,
+    retval = hal_pin_float_newf(HAL_IO, &(addr->scale), comp_id,
 	    "pwmgen.%d.scale", num);
     if (retval != 0) {
 	return retval;
     }
-    retval = hal_param_float_newf(HAL_RW, &(addr->offset), comp_id,
+    retval = hal_pin_float_newf(HAL_IO, &(addr->offset), comp_id,
 	    "pwmgen.%d.offset", num);
     if (retval != 0) {
 	return retval;
     }
-    retval = hal_param_bit_newf(HAL_RW, &(addr->dither_pwm), comp_id,
+    retval = hal_pin_bit_newf(HAL_IO, &(addr->dither_pwm), comp_id,
 	    "pwmgen.%d.dither-pwm", num);
     if (retval != 0) {
 	return retval;
     }
-    retval = hal_param_float_newf(HAL_RW, &(addr->pwm_freq), comp_id,
+    retval = hal_pin_float_newf(HAL_IO, &(addr->pwm_freq), comp_id,
 	    "pwmgen.%d.pwm-freq", num);
     if (retval != 0) {
 	return retval;
     }
-    retval = hal_param_float_newf(HAL_RW, &(addr->min_dc), comp_id,
+    retval = hal_pin_float_newf(HAL_IO, &(addr->min_dc), comp_id,
 	    "pwmgen.%d.min-dc", num);
     if (retval != 0) {
 	return retval;
     }
-    retval = hal_param_float_newf(HAL_RW, &(addr->max_dc), comp_id,
+    retval = hal_pin_float_newf(HAL_IO, &(addr->max_dc), comp_id,
 	    "pwmgen.%d.max-dc", num);
     if (retval != 0) {
 	return retval;
     }
-    retval = hal_param_float_newf(HAL_RO, &(addr->curr_dc), comp_id,
+    retval = hal_pin_float_newf(HAL_OUT, &(addr->curr_dc), comp_id,
 	    "pwmgen.%d.curr-dc", num);
     if (retval != 0) {
 	return retval;
@@ -569,13 +569,14 @@ static int export_pwmgen(int num, pwmgen_t * addr, int output_type)
 	    *(addr->out[DIR_PIN]) = 0;
 	}
     }
-    /* set default parameter values */
-    addr->scale = 1.0;
-    addr->offset = 0.0;
-    addr->dither_pwm = 0;
-    addr->pwm_freq = 0;
-    addr->min_dc = 0.0;
-    addr->max_dc = 1.0;
+    /* set default pin values */
+    *(addr->scale) = 1.0;
+    *(addr->offset) = 0.0;
+    *(addr->dither_pwm) = 0;
+    *(addr->pwm_freq) = 0;
+    *(addr->min_dc) = 0.0;
+    *(addr->max_dc) = 1.0;
+    *(addr->curr_dc) = 0.0;
     /* init other fields */
     addr->period = 50000;
     addr->high_time = 0;
@@ -585,9 +586,8 @@ static int export_pwmgen(int num, pwmgen_t * addr, int output_type)
     addr->output_type = output_type;
     addr->pwm_mode = PWM_DISABLED;
     addr->direction = 0;
-    addr->old_scale = addr->scale + 1.0;
+    addr->old_scale = *(addr->scale) + 1.0;
     addr->old_pwm_freq = -1;
-    addr->curr_dc = 0.0;
     /* restore saved message level */
     rtapi_set_msg_level(msg);
     return 0;
