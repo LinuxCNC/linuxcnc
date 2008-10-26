@@ -56,6 +56,7 @@ static struct cfg_cfg maincfg[] = {
 	{ "MODBUS_MASTER_SERIAL_PORT", TYPE_STRING, (void *) ModbusSerialPortNameUsed },
 	{ "MODBUS_MASTER_SERIAL_SPEED", TYPE_INT, (void *) &ModbusSerialSpeed },
 	{ "MODBUS_MASTER_SERIAL_USE_RTS_TO_SEND", TYPE_INT, (void *) &ModbusSerialUseRtsToSend },
+        { "MODBUS_MASTER_ELEMENT_OFFSET", TYPE_INT, (void *) &ModbusEleOffset },
 	{ "MODBUS_MASTER_TIME_INTER_FRAME", TYPE_INT, (void *) &ModbusTimeInterFrame },
 	{ "MODBUS_MASTER_TIME_OUT_RECEIPT", TYPE_INT, (void *) &ModbusTimeOutReceipt },
 	{ "MODBUS_MASTER_TIME_AFTER_TRANSMIT", TYPE_INT, (void *) &ModbusTimeAfterTransmit },
