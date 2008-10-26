@@ -96,11 +96,11 @@ typedef struct {
     unsigned char state;	/* u:rw quad decode state machine state */
     unsigned char oldZ;		/* u:rw previous value of phase Z */
     unsigned char Zmask;	/* u:rc c:s mask for oldZ, from index-ena */
-    hal_bit_t x4_mode;		/* u:r enables x4 counting (default) */
-    hal_bit_t counter_mode;	/* u:r enables counter mode */
+    hal_bit_t *x4_mode;		/* u:r enables x4 counting (default) */
+    hal_bit_t *counter_mode;	/* u:r enables counter mode */
     atomic buf[2];		/* u:w c:r double buffer for atomic data */
     volatile atomic *bp;	/* u:r c:w ptr to in-use buffer */
-    hal_s32_t raw_counts;	/* u:rw raw count value, in update() only */
+    hal_s32_t *raw_counts;	/* u:rw raw count value, in update() only */
     hal_bit_t *phaseA;		/* u:r quadrature input */
     hal_bit_t *phaseB;		/* u:r quadrature input */
     hal_bit_t *phaseZ;		/* u:r index pulse input */
@@ -113,7 +113,7 @@ typedef struct {
     hal_float_t *pos;		/* c:w scaled position (floating point) */
     hal_float_t *pos_interp;	/* c:w scaled and interpolated position (float) */
     hal_float_t *vel;		/* c:w scaled velocity (floating point) */
-    hal_float_t pos_scale;	/* c:r parameter: scaling factor for pos */
+    hal_float_t *pos_scale;	/* c:r pin: scaling factor for pos */
     float old_scale;		/* c:rw stored scale value */
     double scale;		/* c:rw reciprocal value used for scaling */
     int counts_since_timeout;	/* c:rw used for velocity calcs */
@@ -218,21 +218,21 @@ int rtapi_app_main(void)
 	cntr->state = 0;
 	cntr->oldZ = 0;
 	cntr->Zmask = 0;
-	cntr->x4_mode = 1;
-	cntr->counter_mode = 0;
+	*(cntr->x4_mode) = 1;
+	*(cntr->counter_mode) = 0;
 	cntr->buf[0].count_detected = 0;
 	cntr->buf[1].count_detected = 0;
 	cntr->buf[0].index_detected = 0;
 	cntr->buf[1].index_detected = 0;
 	cntr->bp = &(cntr->buf[0]);
-	cntr->raw_counts = 0;
+	*(cntr->raw_counts) = 0;
 	cntr->raw_count = 0;
 	cntr->timestamp = 0;
 	cntr->index_count = 0;
 	*(cntr->count) = 0;
 	*(cntr->pos) = 0.0;
 	*(cntr->vel) = 0.0;
-	cntr->pos_scale = 1.0;
+	*(cntr->pos_scale) = 1.0;
 	cntr->old_scale = 1.0;
 	cntr->scale = 1.0;
 	cntr->counts_since_timeout = 0;
@@ -289,22 +289,22 @@ static void update(void *arg, long period)
 	    state |= SM_PHASE_B_MASK;
 	}
 	/* look up new state */
-	if ( cntr->counter_mode ) {
+	if ( *(cntr->counter_mode) ) {
 	    state = lut_ctr[state & (SM_LOOKUP_MASK & ~SM_PHASE_B_MASK)];
-	} else if ( cntr->x4_mode ) {
+	} else if ( *(cntr->x4_mode) ) {
 	    state = lut_x4[state & SM_LOOKUP_MASK];
 	} else {
 	    state = lut_x1[state & SM_LOOKUP_MASK];
 	}
 	/* should we count? */
 	if (state & SM_CNT_UP_MASK) {
-	    cntr->raw_counts++;
-	    buf->raw_count = cntr->raw_counts;
+	    *(cntr->raw_counts)++;
+	    buf->raw_count = *(cntr->raw_counts);
 	    buf->timestamp = timebase;
 	    buf->count_detected = 1;
 	} else if (state & SM_CNT_DN_MASK) {
-	    cntr->raw_counts--;
-	    buf->raw_count = cntr->raw_counts;
+	    *(cntr->raw_counts)--;
+	    buf->raw_count = *(cntr->raw_counts);
 	    buf->timestamp = timebase;
 	    buf->count_detected = 1;
 	}
@@ -320,7 +320,7 @@ static void update(void *arg, long period)
 	/* test for index enabled and rising edge on phase Z */
 	if ((state & cntr->Zmask) == 1) {
 	    /* capture counts, reset Zmask */
-	    buf->index_count = cntr->raw_counts;
+	    buf->index_count = *(cntr->raw_counts);
 	    buf->index_detected = 1;
 	    cntr->Zmask = 0;
 	}
@@ -371,16 +371,16 @@ static void capture(void *arg, long period)
 	}
 	/* done interacting with update() */
 	/* check for change in scale value */
-	if ( cntr->pos_scale != cntr->old_scale ) {
+	if ( *(cntr->pos_scale) != cntr->old_scale ) {
 	    /* save new scale to detect future changes */
-	    cntr->old_scale = cntr->pos_scale;
+	    cntr->old_scale = *(cntr->pos_scale);
 	    /* scale value has changed, test and update it */
-	    if ((cntr->pos_scale < 1e-20) && (cntr->pos_scale > -1e-20)) {
+	    if ((*(cntr->pos_scale) < 1e-20) && (*(cntr->pos_scale) > -1e-20)) {
 		/* value too small, divide by zero is a bad thing */
-		cntr->pos_scale = 1.0;
+		*(cntr->pos_scale) = 1.0;
 	    }
 	    /* we actually want the reciprocal */
-	    cntr->scale = 1.0 / cntr->pos_scale;
+	    cntr->scale = 1.0 / *(cntr->pos_scale);
 	}
 	/* check reset input */
 	if (*(cntr->reset)) {
@@ -389,7 +389,7 @@ static void capture(void *arg, long period)
 		running count of edges seen since startup.  The
 		public "count" is the difference between raw_count
 		and index_count, so it will become zero. */
-	    cntr->raw_count = cntr->raw_counts;
+	    cntr->raw_count = *(cntr->raw_counts);
 	    cntr->index_count = cntr->raw_count;
 	}
 	/* process data from update() */
@@ -495,7 +495,7 @@ static int export_counter(int num, counter_t * addr)
     }
     /* export parameter for raw counts */
     rtapi_snprintf(buf, HAL_NAME_LEN, "encoder.%d.rawcounts", num);
-    retval = hal_param_s32_new(buf, HAL_RO, &(addr->raw_counts), comp_id);
+    retval = hal_pin_s32_new(buf, HAL_OUT, &(addr->raw_counts), comp_id);
     if (retval != 0) {
 	return retval;
     }
@@ -523,21 +523,21 @@ static int export_counter(int num, counter_t * addr)
     if (retval != 0) {
 	return retval;
     }
-    /* export parameter for scaling */
+    /* export pin for scaling */
     rtapi_snprintf(buf, HAL_NAME_LEN, "encoder.%d.position-scale", num);
-    retval = hal_param_float_new(buf, HAL_RW, &(addr->pos_scale), comp_id);
+    retval = hal_pin_float_new(buf, HAL_IO, &(addr->pos_scale), comp_id);
     if (retval != 0) {
 	return retval;
     }
-    /* export parameter for x4 mode */
+    /* export pin for x4 mode */
     rtapi_snprintf(buf, HAL_NAME_LEN, "encoder.%d.x4-mode", num);
-    retval = hal_param_bit_new(buf, HAL_RW, &(addr->x4_mode), comp_id);
+    retval = hal_pin_bit_new(buf, HAL_IO, &(addr->x4_mode), comp_id);
     if (retval != 0) {
 	return retval;
     }
-    /* export parameter for counter mode */
+    /* export pin for counter mode */
     rtapi_snprintf(buf, HAL_NAME_LEN, "encoder.%d.counter-mode", num);
-    retval = hal_param_bit_new(buf, HAL_RW, &(addr->counter_mode), comp_id);
+    retval = hal_pin_bit_new(buf, HAL_IO, &(addr->counter_mode), comp_id);
     if (retval != 0) {
 	return retval;
     }
