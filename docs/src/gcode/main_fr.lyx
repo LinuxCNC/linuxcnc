@@ -255,19 +255,6 @@ Un centre d'usinage est équipé de boutons de réglage de la vitesse d'avance
  et de la vitesse de rotation de la broche, ils laissent l'opérateur corriger
  les vitesses nécessaires pour la broche et l'avance travail, il peut ainsi
  augmenter ou réduire les vitesses programmées.
- 
-\begin_inset Include \input{/home/francis/emc2.TRUNK/docs/src/config/copy_and_run_fr.lyx}
-preview false
-
-\end_inset 
-
-Voir la section 
-\begin_inset LatexCommand \ref{cap:Selecteur-de-configuration}
-
-\end_inset 
-
-.
- 
 \layout Subsection
 
 Bouton d'effacement de block

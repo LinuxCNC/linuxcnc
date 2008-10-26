@@ -11,7 +11,7 @@ msgstr ""
 "Project-Id-Version: fr_rs274_err\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2008-10-26 14:32+0100\n"
-"PO-Revision-Date: 2008-10-26 15:55+0100\n"
+"PO-Revision-Date: 2008-10-26 17:12+0100\n"
 "Last-Translator: Francis Tisserant <ftissera@free.fr>\n"
 "Language-Team: french <gnomefr@traduc.org>\n"
 "MIME-Version: 1.0\n"
@@ -81,6 +81,11 @@ msgstr "(%s) impossible en mode auto avec l'interpreteur en attente"
 #, c-format
 msgid "can't do that (%s) in MDI mode"
 msgstr "Commande (%s) impossible en mode MDI"
+
+#: emc/task/emctaskmain.cc:1861
+#, c-format
+msgid "Can't switch mode while mode is AUTO and interpreter is not IDLE"
+msgstr "Impossible de quitter le mode AUTO si l'interpréteur est en charge"
 
 #: emc/task/emctaskmain.cc:1921
 #, c-format

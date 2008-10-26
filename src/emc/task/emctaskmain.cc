@@ -1846,7 +1846,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	if (emcStatus->task.mode == EMC_TASK_MODE_AUTO &&
 	    emcStatus->task.interpState != EMC_TASK_INTERP_IDLE &&
 	    mode_msg->mode != EMC_TASK_MODE_AUTO) {
-	    emcOperatorError(0, "Can't switch mode while mode is AUTO and interpreter is not IDLE");
+	    emcOperatorError(0, _("Can't switch mode while mode is AUTO and interpreter is not IDLE"));
 	} else { // we can honour the modeswitch
 	    if (mode_msg->mode == EMC_TASK_MODE_MANUAL &&
 		emcStatus->task.mode != EMC_TASK_MODE_MANUAL) {
