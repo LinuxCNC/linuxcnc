@@ -13,7 +13,7 @@
  * The following items are exported to the HAL. <id> is
  * the component id number and is formated as "%d".
  *
- *  Parameters:
+ *  Pins (former parameters):
  *        u32       boss_plc.<id>.amp-ready-delay
  *        u32       boss_plc.<id>.brake-on-delay
  *        u32       boss_plc.<id>.brake-off-delay
@@ -259,12 +259,12 @@ typedef enum {
 } SpindleState;
 
 typedef struct {
-    // Parameters.
-    hal_u32_t                   ampReadyDelay;
-    hal_u32_t                   brakeOnDelay;
-    hal_u32_t                   brakeOffDelay;
-    hal_float_t                 spindleLoToHi;
-    hal_float_t                 jogScale[NUM_JOG_SEL];
+    // Pins. (former parameters)
+    hal_u32_t                   *ampReadyDelay;
+    hal_u32_t                   *brakeOnDelay;
+    hal_u32_t                   *brakeOffDelay;
+    hal_float_t                 *spindleLoToHi;
+    hal_float_t                 *jogScale[NUM_JOG_SEL];
 
     // Pins.
     hal_bit_t                   *pCycleStartIn;
@@ -442,14 +442,14 @@ Plc_Init(Plc *this)
     this->lastCycleStart = 1;
 
     // Initialize parameters.
-    this->brakeOffDelay = 500;
-    this->brakeOnDelay = 300;
-    this->ampReadyDelay = 50;
-    this->spindleLoToHi = 500;
+    *(this->brakeOffDelay) = 500;
+    *(this->brakeOnDelay) = 300;
+    *(this->ampReadyDelay) = 50;
+    *(this->spindleLoToHi) = 500;
 
-    this->jogScale[0] = 0.0001;
+    *(this->jogScale[0]) = 0.0001;
     for(i = 1; i < NUM_JOG_SEL; i++){
-        this->jogScale[i] = this->jogScale[i-1] * 10;
+        *(this->jogScale[i]) = *(this->jogScale[i-1]) * 10;
     }
 
     // Initialize timer.
@@ -652,7 +652,7 @@ Plc_ExportAmps(Plc *this, int compId, int id, char *name)
     Amp                         *pAmp;
 
     rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.amp-ready-delay", id);
-    error = hal_param_u32_new(name, HAL_RW, &this->ampReadyDelay, compId);
+    error = hal_pin_u32_new(name, HAL_IO, &this->ampReadyDelay, compId);
 
     pAmp = this->amps;
     for(i = 0; i < NUM_AXIS && !error; i++, pAmp++){
@@ -670,16 +670,16 @@ Plc_ExportSpindle(Plc *this, int compId, int id, char *name)
 
     // Export parameters.
     rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.brake-on-delay", id);
-    error = hal_param_u32_new(name, HAL_RW, &this->brakeOnDelay, compId);
+    error = hal_pin_u32_new(name, HAL_IO, &this->brakeOnDelay, compId);
 
     if(!error){
         rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.brake-off-delay", id);
-        error = hal_param_u32_new(name, HAL_RW, &this->brakeOffDelay, compId);
+        error = hal_pin_u32_new(name, HAL_IO, &this->brakeOffDelay, compId);
     }
 
     if(!error){
         rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.spindle-lo-to-hi", id);
-        error = hal_param_float_new(name, HAL_RW, &this->spindleLoToHi, compId);
+        error = hal_pin_float_new(name, HAL_IO, &this->spindleLoToHi, compId);
     }
 
     // Export optional parameters.
@@ -753,7 +753,7 @@ Plc_ExportJog(Plc *this, int compId, int id, char *name)
     // Export parameters.
     for(i = 0, error = 0; i < NUM_JOG_SEL && !error; i++){
         rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.jog-scale-%d", id, i);
-        error = hal_param_float_new(name, HAL_RW, &this->jogScale[i], compId);
+        error = hal_pin_float_new(name, HAL_IO, &this->jogScale[i], compId);
     }
 
     if(!error){
@@ -854,7 +854,7 @@ Plc_RefreshAmps(Plc *this, long period)
 
     pAmp = this->amps;
     for(i = 0; i < NUM_AXIS; i++, pAmp++){
-        Amp_Refresh(pAmp, period, this->ampReadyDelay);
+        Amp_Refresh(pAmp, period, *(this->ampReadyDelay));
     }
 }
 
@@ -869,7 +869,7 @@ Plc_RefreshSpindle(Plc *this, long period)
         if(!*this->pBrakeEnIn){
             this->spindleState = SS_WAIT_BRAKE_OFF;
             *this->pBrakeEnOut = 0;
-            Timer_SetTimeout(&this->spindleTimer, this->brakeOffDelay);
+            Timer_SetTimeout(&this->spindleTimer, *(this->brakeOffDelay));
             Timer_Enable(&this->spindleTimer, TM_ONE_SHOT);
         }
         break;
@@ -887,9 +887,9 @@ Plc_RefreshSpindle(Plc *this, long period)
 
             this->spindleState = SS_WAIT_ON;
 
-            if(*this->pSpindleSpeedIn > this->spindleLoToHi
+            if(*this->pSpindleSpeedIn > *(this->spindleLoToHi)
               || (*this->pSpindleSpeedIn < 0.0
-                && *this->pSpindleSpeedIn >= -this->spindleLoToHi)){
+                && *this->pSpindleSpeedIn >= -*(this->spindleLoToHi))){
 
                 *this->pSpindleFwdOut = 1;
             }else{
@@ -926,7 +926,7 @@ Plc_RefreshSpindle(Plc *this, long period)
         if(!*this->pSpindleIsOnIn){
             this->spindleState = SS_WAIT_BRAKE_ON;
 
-            Timer_SetTimeout(&this->spindleTimer, this->brakeOnDelay);
+            Timer_SetTimeout(&this->spindleTimer, *(this->brakeOnDelay));
             Timer_Enable(&this->spindleTimer, TM_ONE_SHOT);
         }
         break;
@@ -961,7 +961,7 @@ Plc_RefreshJog(Plc *this, long period)
     // Jog scale.
     for(i = 0; i < NUM_JOG_SEL; i++){
         if(*this->pJogSelIn[i]){
-            *this->pJogScaleOut = this->jogScale[i];
+            *this->pJogScaleOut = *(this->jogScale[i]);
             break;
         }
     }
