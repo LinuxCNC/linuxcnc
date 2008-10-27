@@ -325,7 +325,7 @@ kins_saddle = Collection([
 	saddle,
 	saddle_slides,
 	table_ways,
-	Translate([HalTranslate([kins_table],c,"table",1,0,0)], 0, table_thick+20, 0)
+	Translate([HalTranslate([kins_table],c,"table",-1,0,0)], 0, table_thick+20, 0)
 	])
 
 # origin at center of saddle ways, at floor level
@@ -336,7 +336,7 @@ kins_base = Collection([
 	column_ways,
 	saddleways,
 	Translate([HalTranslate([kins_head],c,"head",0,1,0)],0,20+table_thick,column_center_z-0.5*column_depth-column_head_offset),
-	Translate([HalTranslate([kins_saddle],c,"saddle",0,0,1)],0,0,0)
+	Translate([HalTranslate([kins_saddle],c,"saddle",0,0,-1)],0,0,0)
 	])
 
 model = Collection([kins_base])
