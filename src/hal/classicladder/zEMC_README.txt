@@ -2,7 +2,7 @@ File changes for EMC classicladder 7.124 from original 7.124
 Jan. 2007
 
 arith_eval.c/.h:
---- backported fix from version 7.126 to fix a crash if varible number is not a number
+--- backported fix from version 7.126 to fix a crash if variable number is not a number
 --- changed printf to rtapi_print on line 414
 
 arrays.c:
@@ -42,6 +42,8 @@ config_gtk.c:
 --- modified to show number of s32 in and out pins 
 --- modified modbus page to put debug level on a line by it's self and added options for read hold register, write register(s) and echo
 --- if no modbus config is loaded then the modbus config page tells you this, otherwise it displays normally.
+--- added a communication page for changing com settings radio buttons change settings immediately.
+--- split the i/o page into two pages to improve size of config window
 
 drawing.c:
 --- added colour to variable names for input (red) and output (blue) in section display drawing area
@@ -49,6 +51,7 @@ drawing.c:
 edit.c
 --- added two calls to check for hal signal names (see GetElementPropertiesForStatusBar ) one for I, Q, and B variables and another for W variables in expressions 
 --- added code to default the variable name to I or Q for simple in or out elements
+--- added code for proper erasure of connection-to-top with eraser object.
 
 edit.h
 --- added prototype for ConvVarNameToHalSigName()
@@ -71,7 +74,8 @@ Module_hal.c:
 
 protocol_modbus_master.c
 --- added code for modbus functions 3, 6,16, and 8 (read holding register, write single register, write mulitple registers, echo)
---- changed ModbusEleOffset=1 to =0 (not to modbus standard but easier and fairly common)
+--- changed ModbusEleOffset=1 to =0 (not to modbus standard but easier and fairly common) acn change this in com page now.
+--- improved debug messages so slave address and function code are easily identified
 
 protocol_modbus_master.h
 --- added defines for same as above
