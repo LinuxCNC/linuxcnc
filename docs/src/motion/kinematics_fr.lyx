@@ -22,38 +22,39 @@
 \quotes_language french
 \quotes_times 2
 \papercolumns 1
-\papersides 2
+\papersides 1
 \paperpagestyle default
 
 \layout Chapter
 
-La cinématique dans EMC2 (traduction en cours)
+La cinématique dans EMC2
 \layout Section
 
 Introduction
 \layout Standard
 
-When we talk about 
-\begin_inset LatexCommand \index{CNC machines}
+Habituellement quand nous parlons de machines 
+\begin_inset LatexCommand \index{Machines CNC}
 
 \end_inset 
 
-CNC machines, we usually think about machines that are commanded to move
- to certain locations and perform various tasks.
- In order to have an unified view of the machine space, and to make it fit
- the human point of view over 3D space, most of the machines (if not all)
- use a common coordinate system called the Cartesian Coordinate System.
+CNC, nous pensons à des machines programmées pour effectuer certains mouvements
+ et effectuer diverses tâches.
+ Pour avoir une représentation dans l'espace unifiée de ces machines, nous
+ la faisons correspondre à la vision de l'espace humain en 3D, la pluspart
+ des machines (sinon toutes) utilisent un système de coordonnées courant,
+ le système Cartésien.
 \layout Standard
 
-The Cartesian Coordinate system is composed of 3 axes (X, Y, Z) each perpendicul
-ar to the other 2.
+Le système de coordonnées Cartésiennes est composé de 3 axes (X, Y, Z) chacun
+ perpendiculaire aux 2 autres.
  
 \begin_inset Foot
 collapsed true
 
 \layout Standard
 
-The word 
+Le mot 
 \begin_inset Quotes eld
 \end_inset 
 
@@ -61,72 +62,76 @@ axes
 \begin_inset Quotes erd
 \end_inset 
 
- is also commonly (and wrongly) used when talking about CNC machines, and
- referring to the moving directions of the machine.
+ est aussi communément (et incorrectement) utilisé à propos des machines
+ CNC, il fait référence aux directions des mouvements de la machine.
 \end_inset 
 
 
 \layout Standard
 
-When we talk about a G-code program (RS274NGC) we talk about a number of
- commands (G0, G1, etc.) which have positions as parameters (X- Y- Z-).
- These positions refer exactly to Cartesian positions.
- Part of the EMC2 motion controller is responsible for translating those
- positions into positions which correspond to the machine 
-\begin_inset LatexCommand \index{kinematics}
+Quand nous parlons d'un programme G-code (RS274NGC) nous parlons d'un certain
+ nombre de commandes (G0, G1, etc.) qui ont comme paramètres (X- Y- Z-).
+ Ces positions se référent exactement à des positions Cartésiennes.
+ Une partie du contrôleur de mouvements d'EMC2 est responsable de la translation
+ entre ces positions et les positions correspondantes de la cinématique
+ 
+\begin_inset LatexCommand \index{cinematique}
 
 \end_inset 
 
-kinematics
+ de la machine
 \begin_inset Foot
 collapsed true
 
 \layout Standard
 
-Kinematics: a two way function to transform from Cartesian space to joint
- space
+Cinématique: une fonction à deux voies pour transformer un espace Cartésien
+ en espace à jointures
 \end_inset 
 
 .
 \layout Subsection
 
-Les joints par rapport aux axes
+Les jointures (articulations) par rapport aux axes
 \layout Standard
 
-A joint of a CNC machine is a one of the physical degrees of freedom of
- the machine.
- This might be linear (leadscrews) or rotary (rotary tables, robot arm joints).
- There can be any number of joints on a certain machine.
- For example a typical robot has 6 joints, and a typical simple milling
- machine has only 3.
+Une jointure, pour une machine CNC est un des degrés physiques de liberté
+ de la machine.
+ Elle peut être linéaire (vis à billes) ou rotative (table tournante, jointures
+ d'un bras robotisé).
+ Il peut y avoir n'importe quel nombre de jointures sur une machine.
+ Par exemple, un robot classique dispose de 6 jointures et une fraiseuse
+ classique n'en a que 3.
 \layout Standard
 
-There are certain machines where the joints are layed out to match kinematics
- axes (joint 0 along axis X, joint 1 along axis Y, joint 2 along axis Z),
- and these machines are called 
-\begin_inset LatexCommand \index{Cartesian machines}
+Sur certaines machines, les jointures sont placées de manière à correspondre
+ aux axes cinématiques (jointure 0 le long de l'axe X, jointure 1 le long
+ de l'axe Y et jointure 2 le long de l'axe Z), ces machines sont appelées
+ machines Cartésiennes 
+\begin_inset LatexCommand \index{Machines Cartesiennes}
 
 \end_inset 
 
-Cartesian machines (or machines with 
-\begin_inset LatexCommand \index{Trivial Kinematics}
+ (ou encore machines à cinématiques triviales 
+\begin_inset LatexCommand \index{Cinematique triviale}
 
 \end_inset 
 
-Trivial Kinematics).
- These are the most common machines used in milling, but are not very common
- in other domains of machine control (e.g.
- welding: puma-typed robots).
+).
+ Ce sont les machines les plus courantes parmi les machines-outils mais
+ elles ne sont pas courantes dans d'autres domaines comme les machines de
+ soudage (ex: robots de soudage de type puma).
 \layout Section
 
 Cinématiques triviales
 \layout Standard
 
-As we said there is a group of machines in which each joint is placed along
- one of the Cartesian axes.
- On these machines the mapping from Cartesian space (the G-code program)
- to the joint space (the actual actuators of the machine) is trivial.
- It is a simple 1:1 mapping:
+Comme nous l'avons vu, il y a un groupe de machines sur lesquelles chacun
+ des axes est placé le long d'un des axes Cartésiens.
+ Sur ces machines le passage, du plan de l'espace Cartésien (le programme
+ G-code) au plan de l'espace jointure (l'actuateur actuel de la machine),
+ est trivial.
+ C'est un simple plan 1:1:
 \layout LyX-Code
 
 pos->tran.x = joints[0];
@@ -144,11 +149,12 @@ pos->c = joints[5];
 
 \layout Standard
 
-In the above code snippet one can see how the mapping is done: the X position
- is identical with the joint 0, Y with joint 1 etc.
- The above refers to the direct kinematics (one way of the transformation)
- whereas the next code part refers to the inverse kinematics (or the inverse
- way of the transformation):
+Dans l'extrait de code ci-dessus, nous pouvons voir comment le plan est
+ fait: la position X est identique avec la jointure 0, Y avec la jointure
+ 1 etc.
+ Nous nous référons dans ce cas à une cinématique directe (une transformation
+ avant), tandis que dans l'extrait de code suivant il est fait référence
+ à une cinématique inverse (ou une transformation inverse):
 \layout LyX-Code
 
 joints[0] = pos->tran.x;
@@ -164,31 +170,32 @@ joints[4] = pos->b;
 joints[5] = pos->c;
 \layout Standard
 
-As one can see, it's pretty straightforward to do the transformation for
- a trivial kins (or Cartesian) machine.
- It gets a bit more complicated if the machine is missing one of the axes.
+Comme on peut le voir, c'est assez simple de faire la transformation d'une
+ machine à cinématique banale (ou Cartésienne).
+ Cela devient un peu plus compliqué si il manque un axe à la machine.
 \begin_inset Foot
-collapsed false
+collapsed true
 
 \layout Standard
 
-If a machine (e.g.
- a lathe) is set up with only the axes X,Z & A, and the EMC2 inifile holds
- only these 3 joints defined, then the above matching will be faulty.
- That is because we actually have (joint0=x, joint1=Z, joint2=A) whereas
- the above assumes joint1=Y.
- To make it easily work in EMC2 one needs to define all axes (XYZA), then
- use a simple loopback in HAL for the unused Y axis.
+Si la machine (par exemple un tour) est montée avec seulement les axes X,
+ Z et A et que le fichier d'init d'EMC2 contient uniquement la définition
+ de ces 3 jointures, alors l'assertion précédente est fausse.
+ Parce-que nous avons actuellement (joint0=x, joint1=Z, joint2=A) ce qui
+ suppose que joint1=Y.
+ Pour faire en sorte que cela fonctionne dans EMC2 il suffit de définir
+ tous les axes (XYZA), EMC2 utilisera alors une simple boucle dans HAL pour
+ l'axe Y inutilisé.
 \end_inset 
 
 
 \begin_inset Foot
-collapsed false
+collapsed true
 
 \layout Standard
 
-One other way of making it work, is by changing the matching code and recompilin
-g the software.
+Une autre façon de le faire fonctionner, est de changer le code correspondant
+ et recompiler le logiciel.
 \end_inset 
 
 
@@ -197,17 +204,17 @@ g the software.
 Cinématiques non triviales
 \layout Standard
 
-There can be quite a few types of machine setups (robots: puma, scara; hexapods
- etc.).
- Each of them is set up using linear and rotary joints.
- These joints don't usually match with the Cartesian coordinates, therefor
- there needs to be a kinematics function which does the conversion (actually
- 2 functions: forward and inverse kinematics function).
+Il peut y avoir un certain nombre de types de configurations de machine
+ (robots: puma, scara; hexapodes etc.) Chacun d'eux est mis en place en utilisant
+ des jointures linéaires et rotatives.
+ Ces jointures ne correspondent pas habituellement avec les coordonnées
+ Cartésiennes, cela nécessite une fonction cinématique qui fasse la conversion
+ (en fait 2 fonctions: fonction en  avant et inverse de la cinématique).
 \layout Standard
 
-To illustrate the above, we will analyze a simple kinematics called bipod
- (a simplified version of the tripod, which is a simplified version of the
- hexapod).
+Pour illustrer ce qui précède, nous analyserons une simple cinématique appelée
+ bipode (une version simplifiée du tripode, qui est déjà une version simplifiée
+ de l'hexapode).
  
 \layout Standard
 
@@ -218,7 +225,7 @@ collapsed false
 
 \layout Caption
 
-Bipod setup
+Définir un bipode
 \begin_inset LatexCommand \label{cap:Bipod-setup}
 
 \end_inset 
@@ -239,10 +246,10 @@ Bipod setup
 
 \layout Standard
 
-The Bipod we are talking about is a device that consists of 2 motors placed
- on a wall, from which a device is hanged using some wire.
- The joints in this case are the distances from the motors to the device
- (named AD and BD in figure 
+Le bipode dont nous parlons est un appareil, composé de deux moteurs placés
+ sur un mur, à cet appareil un mobile est suspendu par des fils.
+ Les jointures dans ce cas sont les distances entre le mobile et les moteurs
+ de l'appareil (nommées AD et BD sur la figure 
 \begin_inset LatexCommand \ref{cap:Bipod-setup}
 
 \end_inset 
@@ -250,21 +257,22 @@ The Bipod we are talking about is a device that consists of 2 motors placed
 ).
 \layout Standard
 
-The position of the motors is fixed by convention.
- Motor A is in (0,0), which means that its X coordinate is 0, and its Y
- coordinate is also 0.
- Motor B is placed in (Bx, 0), which means that its X coordinate is Bx.
+La position des moteurs est fixée par convention.
+ Le moteur A est en (0,0), qui signifie que sa coordonnée X est 0 et sa
+ coordonnée Y également 0.
+ Le moteur B est placé en (Bx, 0), se qui veut dire que sa coordonnée X
+ est Bx.
 \layout Standard
 
-Our tooltip will be in point D which gets defined by the distances AD and
- BD, and by the Cartesian coordinates Dx, Dy.
+Notre pointe mobile se trouvera au point D défini par les distances AD et
+ BD, et par les coordonnées Cartésiennes Dx, Dy.
 \layout Standard
 
-The job of the kinematics is to transform from joint lengths (AD, BD) to
- Cartesian coordinates (Dx, Dy) and vice-versa.
+La tâche de la cinématique consistera à transformer les longueurs des jointures
+ en (AD, BD) en coordonnées Cartésiennes (Dx, Dy) et vice-versa.
 \layout Subsection
 
-Forward transformation
+Transformation avant
 \begin_inset LatexCommand \label{sub:Forward-transformation}
 
 \end_inset 
@@ -272,23 +280,24 @@ Forward transformation
 
 \layout Standard
 
-To transform from joint space into Cartesian space we will use some trigonometry
- rules (the right triangles determined by the points (0,0), (Dx,0), (Dx,Dy)
- and the triangle (Dx,0), (Bx,0) and (Dx,Dy).
+Pour effectuer la transformation de l'espace jointure en espace Cartésien
+ nous allons utiliser quelques règles de trigonomètrie (le triangle rectangle
+ déterminé par les points (0,0), (Dx,0), (Dx,Dy) et le triangle rectangle
+ (Dx,0), (Bx,0) et (Dx,Dy).
 \layout Standard
 
-we can easily see that 
+Nous pouvons voir aisément que 
 \begin_inset Formula $AD^{2}=x^{2}+y^{2}$
 \end_inset 
 
-, likewise 
+, de même que 
 \begin_inset Formula $BD^{2}=(Bx-x)^{2}+y^{2}$
 \end_inset 
 
 .
 \layout Standard
 
-If we subtract one from the other we will get:
+Si nous soustrayons l'un de l'autre nous aurons:
 \layout Standard
 
 
@@ -300,7 +309,7 @@ AD^{2}-BD^{2}=x^{2}+y^{2}-x^{2}+2*x*Bx-Bx^{2}-y^{2}\]
 
 \layout Standard
 
-and therefore:
+et par conséquent:
 \layout Standard
 
 
@@ -312,7 +321,7 @@ x=\frac{AD^{2}-BD^{2}+Bx^{2}}{2*Bx}\]
 
 \layout Standard
 
-From there we calculate:
+De là nous calculons:
 \layout Standard
 
 
@@ -324,14 +333,14 @@ y=\sqrt{AD^{2}-x^{2}}\]
 
 \layout Standard
 
-Note that the calculation for y involves the square root of a difference,
- which may not result in a real number.
- If there is no single Cartesian coordinate for this joint position, then
- the position is said to be a singularity.
- In this case, the forward kinematics return -1.
+Noter que le calcul inclus la racine carrée de la différence, mais qu'il
+ n'en résulte pas un nombre réel.
+ Si il n'y a aucune coordonnées Cartésienne pour la position de cette jointure,
+ alors la position est dite singulière.
+ Dans ce cas, la cinématique inverse retourne -1.
 \layout Standard
 
-Translated to actual code:
+Traduction en code:
 \layout LyX-Code
 
 double AD2 = joints[0] * joints[0];
@@ -354,7 +363,7 @@ return 0;
 
 \layout Subsection
 
-Inverse transformation
+Transformation inverse
 \begin_inset LatexCommand \label{sub:Inverse-transformation}
 
 \end_inset 
@@ -362,8 +371,8 @@ Inverse transformation
 
 \layout Standard
 
-The inverse kinematics is lots easier in our example, as we can write it
- directly:
+La cinématique inverse est beaucoup plus simple dans notre exemple, de sorte
+ que nous pouvons l'écrire directement:
 \layout Standard
 
 
@@ -384,7 +393,7 @@ BD=\sqrt{(Bx-x)^{2}+y^{2}}\]
 
 \layout Standard
 
-or translated to actual code:
+ou traduite en code:
 \layout LyX-Code
 
 double x2 = pos->tran.x * pos->tran.x;
@@ -398,12 +407,12 @@ joints[1] = sqrt((Bx - pos->tran.x)*(Bx - pos->tran.x) + y2);
 return 0;
 \layout Section
 
-Implementation details
+Détails d'implémentation
 \layout Standard
 
-A kinematics module is implemented as a HAL component, and is permitted
- to export pins and parameters.
- It consists of several 
+Un module cinématique est implémenté comme un composant de HAL, et il est
+ permis d'exporter ses pins et ses paramètres.
+ Il consiste en quelques fonctions 
 \begin_inset Quotes eld
 \end_inset 
 
@@ -411,7 +420,7 @@ C
 \begin_inset Quotes erd
 \end_inset 
 
- functions (as opposed to HAL functions):
+ (par opposition au fonctions de HAL):
 \layout Itemize
 
 
@@ -421,7 +430,8 @@ ARD_FLAGS *fflags, KINEMATICS_INVERSE_FLAGS *iflags)
 \begin_deeper 
 \layout Standard
 
-Implements the forward kinematics function as described in section 
+Implémente la fonction cinématique avant, comme décrite dans la section
+ 
 \begin_inset LatexCommand \ref{sub:Forward-transformation}
 
 \end_inset 
@@ -437,7 +447,8 @@ VERSE_FLAGS *iflags, KINEMATICS_FORWARD_FLAGS *fflags)
 \begin_deeper 
 \layout Standard
 
-Implements the inverse kinematics function as described in section 
+Implémente la fonction cinématique inverse, comme décrite dans la section
+ 
 \begin_inset LatexCommand \ref{sub:Inverse-transformation}
 
 \end_inset 
@@ -452,7 +463,7 @@ KINEMATICS_TYPE kinematicsType(void)
 \begin_deeper 
 \layout Standard
 
-Returns the kinematics type identifier, typically 
+Retourne l'identificateur de type de la cinématique, typiquement 
 \family typewriter 
 KINEMATICS_BOTH
 \family default 
@@ -467,12 +478,12 @@ int kinematicsHome(EmcPose *world, double *joint, KINEMATICS_FORWARD_FLAGS
 \begin_deeper 
 \layout Standard
 
-The home kinematics function sets all its arguments to their proper values
- at the known home position.
- When called, these should be set, when known, to initial values, e.g., from
- an INI file.
- If the home kinematics can accept arbitrary starting points, these initial
- values should be used.
+La fonction prise d'origine de la cinématique ajuste tous ses arguments
+ à leur propre valeur à une position d'origine connue.
+ Quand elle est appelée, cette position doit être ajustée, quand elle est
+ connue, comme valeurs initiales, par exemple depuis un fichier INI.
+ Si la prise d'origine de la cinématique peut accepter des points de départ
+ arbitraires, ces valeurs initiales doivent être utilisées.
  
 \end_deeper 
 \layout Itemize
@@ -488,19 +499,36 @@ void rtapi_app_exit(void)
 \begin_deeper 
 \layout Standard
 
-These are the standard setup and tear-down functions of RTAPI modules.
+Il s'agit des fonctions standards d'installation et de la désinstallation
+ des modules RTAPI.
 \end_deeper 
 \layout Standard
 
-When they are contained in a single source file, kinematics modules may
- be compiled and installed by 
+Quand ils sont contenus dans un seul fichier source, les modules de la cinématiq
+ue peuvent être compilés et installé par 
 \family typewriter 
+
+\begin_inset Quotes fld
+\end_inset 
+
 comp
 \family default 
+
+\begin_inset Quotes frd
+\end_inset 
+
 .
- See the 
+ Voir la manpage 
 \family typewriter 
+
+\begin_inset Quotes fld
+\end_inset 
+
 comp(1)
+\begin_inset Quotes frd
+\end_inset 
+
+
 \family default 
- manpage or section (???) for more information.
+ pour d'autres informations.
 \the_end
