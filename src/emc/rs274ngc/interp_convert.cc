@@ -3838,9 +3838,11 @@ int Interp::convert_tool_change(setup_pointer settings)  //!< pointer to machine
                     &end_x, &end_y, &end_z,
                     &AA_end, &BB_end, &CC_end, 
                     &u_end, &v_end, &w_end, settings);
+      COMMENT("AXIS,hide");
       STRAIGHT_TRAVERSE(end_x, end_y, end_z,
                         AA_end, BB_end, CC_end,
                         u_end, v_end, w_end);
+      COMMENT("AXIS,show");
       settings->current_x = end_x;
       settings->current_y = end_y;
       settings->current_z = end_z;
