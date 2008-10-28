@@ -8,8 +8,6 @@ newsig unlinked bit
 net dir stepgen.0.dir => sampler.0.pin.0
 net step stepgen.0.step => sampler.0.pin.1
 # parameter values
-setp sampler.0.overruns            0
-setp sampler.0.sample-num            0
 setp sampler.0.tmax            0
 setp stepgen.0.dirhold     00000001
 setp stepgen.0.dirsetup     00000001
