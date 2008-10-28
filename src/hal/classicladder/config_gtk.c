@@ -249,7 +249,7 @@ int ConvComboToNum( char * text, char ** list )
 #ifdef MODBUS_IO_MASTER
 GtkWidget * CreateModbusModulesIO( page )
 {
-	static char * Labels[] = { "Slave Address", "TypeAccess", "1st Modbus Ele.", "Nbr of Ele", "Logic", "1st I/Q/W Mapped" };
+	static char * Labels[] = { "Slave Address", "TypeAccess", "1st Register #", "# of Regs", "Logic", "1st I/Q/W Mapped" };
 	GtkWidget *vbox;
 	GtkWidget *hbox[ NBR_MODBUS_MASTER_REQ+2 ];
 	int NumObj;
@@ -551,16 +551,16 @@ GtkWidget * CreateModbusComParametersPage( void )
 				sprintf( BuffValue, "%d", ModbusSerialSpeed );
 				break;
                         case 2:
-				sprintf( BuffLabel, "After transmit pause" );
+				sprintf( BuffLabel, "After transmit pause - milliseconds" );
 				sprintf( BuffValue, "%d", ModbusTimeAfterTransmit );
 				break;
 			
 			case 3:
-				sprintf( BuffLabel, "Inter-Frame pause" );
+				sprintf( BuffLabel, "After receive pause - milliseconds" );
 				sprintf( BuffValue, "%d", ModbusTimeInterFrame );
 				break;
 			case 4:
-				sprintf( BuffLabel, "Request Timeout length" );
+				sprintf( BuffLabel, "Request Timeout length - milliseconds" );
 				sprintf( BuffValue, "%d", ModbusTimeOutReceipt );
 				break;
 			case 5:
@@ -668,7 +668,7 @@ GtkWidget * CreateModbusComParametersPage( void )
                 default:
 		/* Labels */
 		LabelComParam[NumLine] = gtk_label_new(BuffLabel);
-		gtk_widget_set_usize( LabelComParam[NumLine],200,0 );
+		gtk_widget_set_usize( LabelComParam[NumLine],250,0 );
 		gtk_box_pack_start( GTK_BOX(hbox[NumLine]), LabelComParam[NumLine], FALSE, FALSE, 0 );
 		gtk_widget_show( LabelComParam[NumLine] );
 
