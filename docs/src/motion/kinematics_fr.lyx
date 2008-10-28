@@ -40,8 +40,8 @@ Habituellement quand nous parlons de machines
 
 CNC, nous pensons à des machines programmées pour effectuer certains mouvements
  et effectuer diverses tâches.
- Pour avoir une représentation dans l'espace unifiée de ces machines, nous
- la faisons correspondre à la vision de l'espace humain en 3D, la pluspart
+ Pour avoir une représentation unifiée dans l'espace de ces machines, nous
+ la faisons correspondre à la vision humaine de l'espace en 3D, la plupart
  des machines (sinon toutes) utilisent un système de coordonnées courant,
  le système Cartésien.
 \layout Standard
