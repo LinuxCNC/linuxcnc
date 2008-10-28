@@ -790,10 +790,6 @@ int tpRunCycle(TP_STRUCT * tp, long period)
             if(!tp->aborting) {
                 tc->feed_override = emcmotStatus->net_feed_scale;
                 tc->reqvel = pos_error;
-                if(nexttc) {
-                    nexttc->feed_override = emcmotStatus->net_feed_scale;
-                    nexttc->reqvel = pos_error;
-                }
             }
         } else {
             double spindle_vel, target_vel;
