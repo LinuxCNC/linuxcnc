@@ -298,12 +298,12 @@ static void update(void *arg, long period)
 	}
 	/* should we count? */
 	if (state & SM_CNT_UP_MASK) {
-	    *(cntr->raw_counts)++;
+	    (*cntr->raw_counts)++;
 	    buf->raw_count = *(cntr->raw_counts);
 	    buf->timestamp = timebase;
 	    buf->count_detected = 1;
 	} else if (state & SM_CNT_DN_MASK) {
-	    *(cntr->raw_counts)--;
+	    (*cntr->raw_counts)--;
 	    buf->raw_count = *(cntr->raw_counts);
 	    buf->timestamp = timebase;
 	    buf->count_detected = 1;
