@@ -471,67 +471,71 @@ static int export_pid(int num, hal_pid_t * addr)
     }
     /* export pins (previously parameters) */
     rtapi_snprintf(buf, HAL_NAME_LEN, "pid.%d.deadband", num);
-    retval = hal_pin_float_new(buf, HAL_RW, &(addr->deadband), comp_id);
+    retval = hal_pin_float_new(buf, HAL_IO, &(addr->deadband), comp_id);
     if (retval != 0) {
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "pid.%d.maxerror", num);
-    retval = hal_pin_float_new(buf, HAL_RW, &(addr->maxerror), comp_id);
+    retval = hal_pin_float_new(buf, HAL_IO, &(addr->maxerror), comp_id);
     if (retval != 0) {
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "pid.%d.maxerrorI", num);
-    retval = hal_pin_float_new(buf, HAL_RW, &(addr->maxerror_i), comp_id);
+    retval = hal_pin_float_new(buf, HAL_IO, &(addr->maxerror_i), comp_id);
     if (retval != 0) {
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "pid.%d.maxerrorD", num);
-    retval = hal_pin_float_new(buf, HAL_RW, &(addr->maxerror_d), comp_id);
+    retval = hal_pin_float_new(buf, HAL_IO, &(addr->maxerror_d), comp_id);
     if (retval != 0) {
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "pid.%d.maxcmdD", num);
-    retval = hal_pin_float_new(buf, HAL_RW, &(addr->maxcmd_d), comp_id);
+    retval = hal_pin_float_new(buf, HAL_IO, &(addr->maxcmd_d), comp_id);
     if (retval != 0) {
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "pid.%d.maxcmdDD", num);
-    retval = hal_pin_float_new(buf, HAL_RW, &(addr->maxcmd_dd), comp_id);
+    retval = hal_pin_float_new(buf, HAL_IO, &(addr->maxcmd_dd), comp_id);
     if (retval != 0) {
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "pid.%d.bias", num);
-    retval = hal_pin_float_new(buf, HAL_RW, &(addr->bias), comp_id);
+    retval = hal_pin_float_new(buf, HAL_IO, &(addr->bias), comp_id);
     if (retval != 0) {
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "pid.%d.maxoutput", num);
-    retval = hal_pin_float_new(buf, HAL_RW, &(addr->maxoutput), comp_id);
+    retval = hal_pin_float_new(buf, HAL_IO, &(addr->maxoutput), comp_id);
     if (retval != 0) {
 	return retval;
     }
     /* export optional parameters */
     if (debug > 0) {
 	rtapi_snprintf(buf, HAL_NAME_LEN, "pid.%d.errorI", num);
-	retval = hal_pin_float_new(buf, HAL_RO, &(addr->error_i), comp_id);
+	retval = hal_pin_float_new(buf, HAL_OUT, &(addr->error_i), comp_id);
 	if (retval != 0) {
 	    return retval;
 	}
 	rtapi_snprintf(buf, HAL_NAME_LEN, "pid.%d.errorD", num);
-	retval = hal_pin_float_new(buf, HAL_RO, &(addr->error_d), comp_id);
+	retval = hal_pin_float_new(buf, HAL_OUT, &(addr->error_d), comp_id);
 	if (retval != 0) {
 	    return retval;
 	}
 	rtapi_snprintf(buf, HAL_NAME_LEN, "pid.%d.commandD", num);
-	retval = hal_pin_float_new(buf, HAL_RO, &(addr->cmd_d), comp_id);
+	retval = hal_pin_float_new(buf, HAL_OUT, &(addr->cmd_d), comp_id);
 	if (retval != 0) {
 	    return retval;
 	}
 	rtapi_snprintf(buf, HAL_NAME_LEN, "pid.%d.commandDD", num);
-	retval = hal_pin_float_new(buf, HAL_RO, &(addr->cmd_dd), comp_id);
+	retval = hal_pin_float_new(buf, HAL_OUT, &(addr->cmd_dd), comp_id);
 	if (retval != 0) {
 	    return retval;
 	}
+        *(addr->error_i) = 0.0;
+        *(addr->error_d) = 0.0;
+        *(addr->cmd_d) = 0.0;
+        *(addr->cmd_dd) = 0.0;
     }
     /* init all structure members */
     *(addr->enable) = 0;
@@ -545,13 +549,9 @@ static int export_pid(int num, hal_pid_t * addr)
     *(addr->maxerror_d) = 0.0;
     *(addr->maxcmd_d) = 0.0;
     *(addr->maxcmd_dd) = 0.0;
-    *(addr->error_i) = 0.0;
     addr->prev_error = 0.0;
-    *(addr->error_d) = 0.0;
     addr->prev_cmd = 0.0;
     addr->limit_state = 0.0;
-    *(addr->cmd_d) = 0.0;
-    *(addr->cmd_dd) = 0.0;
     *(addr->bias) = 0.0;
     *(addr->pgain) = 1.0;
     *(addr->igain) = 0.0;
