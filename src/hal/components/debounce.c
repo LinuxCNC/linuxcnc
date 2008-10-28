@@ -208,7 +208,7 @@ static void debounce(void *arg, long period)
 	    /* input true, is state at threshold? */
 	    if (*(filter->state) < *(group->delay)) {
 		/* no, increment */
-		*(filter->state)++;
+		(*filter->state)++;
 	    } else {
 		/* yes, set output */
 		*(filter->out) = 1;
@@ -217,7 +217,7 @@ static void debounce(void *arg, long period)
 	    /* input false, is state at zero? */
 	    if (*(filter->state) > 0) {
 		/* no, decrement */
-		*(filter->state)--;
+		(*filter->state)--;
 	    } else {
 		/* yes, clear output */
 		*(filter->out) = 0;

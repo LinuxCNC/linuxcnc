@@ -216,7 +216,7 @@ static void sample(void *arg, long period)
 	}
 	fifo->out = tmpout;
         /* log the overrun */
-	*(samp->overruns)++;
+	(*samp->overruns)++;
 	*(samp->full) = 1;
     } else {
 	*(samp->full) = 0;
@@ -249,7 +249,7 @@ static void sample(void *arg, long period)
 	pptr++;
     }
     /* store sample number at the end of the fifo record */
-    dptr->u = *(samp->sample_num)++;
+    dptr->u = (*samp->sample_num)++;
     /* update fifo pointer */
     fifo->in = newin;
     /* calculate current depth */

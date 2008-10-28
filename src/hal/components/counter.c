@@ -189,7 +189,7 @@ static void update(void *arg, long period)
     for (cntr = arg, n = 0; n < num_chan; cntr++, n++) {
         // count on rising edge
         if(!cntr->oldA && *cntr->phaseA)
-            *(cntr->raw_count)++;
+            (*cntr->raw_count)++;
         cntr->oldA = *cntr->phaseA;
 
         // reset on rising edge

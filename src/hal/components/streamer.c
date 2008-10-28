@@ -204,7 +204,7 @@ static void update(void *arg, long period)
     tmpout = fifo->out;
     if ( tmpout == tmpin ) {
         /* fifo empty - log it */
-	*(str->underruns)++;
+	(*str->underruns)++;
 	*(str->empty) = 1;
 	*(str->curr_depth) = 0;
 	/* done - output pins retain current values */

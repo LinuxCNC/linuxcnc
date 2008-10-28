@@ -606,9 +606,9 @@ static void make_pulses(void *arg, long period)
 		    freqgen->wd.st0.need_step = 0;
 		    /* count the step */
 		    if (tmp_dir) {
-			*(freqgen->rawcount)--;
+			(*freqgen->rawcount)--;
 		    } else {
-			*(freqgen->rawcount)++;
+			(*freqgen->rawcount)++;
 		    }
 		}
 	    }
@@ -620,9 +620,9 @@ static void make_pulses(void *arg, long period)
 	    /* count the step for feedback */
 	    if (tmp_step) {
 		if (tmp_dir) {
-		    *(freqgen->rawcount)--;
+		    (*freqgen->rawcount)--;
 		} else {
-		    *(freqgen->rawcount)++;
+		    (*freqgen->rawcount)++;
 		}
 	    }
 	} else {
@@ -634,13 +634,13 @@ static void make_pulses(void *arg, long period)
 			freqgen->wd.st2.state = freqgen->wd.st2.cycle_max;
 		    }
 		    /* count the step for feedback */
-		    *(freqgen->rawcount)--;
+		    (*freqgen->rawcount)--;
 		} else {
 		    if (++freqgen->wd.st2.state > freqgen->wd.st2.cycle_max) {
 			freqgen->wd.st2.state = 0;
 		    }
 		    /* count the step for feedback */
-		    *(freqgen->rawcount)++;
+		    (*freqgen->rawcount)++;
 		}
 		/* look up correct output pattern */
 		state = (freqgen->wd.st2.lut)[freqgen->wd.st2.state];
