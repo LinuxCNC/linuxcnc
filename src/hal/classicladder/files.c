@@ -1178,6 +1178,74 @@ char SaveGeneralParameters(char * FileName)
 	return (Okay);
 }
 
+char LoadComParameters(char * FileName)
+{
+	FILE * File;
+	char Okay = FALSE;
+	char Line[300];
+	char * LineOk;
+	File = fopen(FileName,"rt");
+	if (File)
+	{
+		do
+		{
+			LineOk = cl_fgets(Line,300,File);
+			if (LineOk)
+			{
+				char * pParameter;
+				pParameter = "MODBUS_MASTER_SERIAL_PORT=";
+				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
+					 strcpy(ModbusSerialPortNameUsed,&Line[strlen( pParameter) ] );
+                                pParameter = "MODBUS_MASTER_SERIAL_SPEED=";
+				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
+					ModbusSerialSpeed = atoi( &Line[ strlen( pParameter) ] );
+                                pParameter = "MODBUS_ELEMENT_OFFSET=";
+				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
+					ModbusEleOffset = atoi( &Line[ strlen( pParameter) ] );
+				pParameter = "MODBUS_MASTER_SERIAL_USE_RTS_TO_SEND=";
+				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
+					ModbusSerialUseRtsToSend = atoi( &Line[ strlen( pParameter) ] );
+				pParameter = "MODBUS_MASTER_TIME_INTER_FRAME=";
+				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
+					ModbusTimeInterFrame = atoi( &Line[ strlen( pParameter) ] );
+				pParameter = "MODBUS_MASTER_TIME_OUT_RECEIPT=";
+				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
+					ModbusTimeOutReceipt = atoi( &Line[ strlen( pParameter) ] );
+				pParameter = "MODBUS_MASTER_TIME_AFTER_TRANSMIT=";
+				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
+					ModbusTimeAfterTransmit = atoi( &Line[ strlen( pParameter) ] );
+				pParameter = "MODBUS_DEBUG_LEVEL=";
+				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
+					ModbusDebugLevel = atoi( &Line[ strlen( pParameter) ] );
+			}
+		}
+		while(LineOk);
+		fclose(File);
+		Okay = TRUE;
+	}
+	return (Okay);
+}
+
+char SaveComParameters(char * FileName)
+{
+	FILE * File;
+	char Okay = FALSE;
+	File = fopen(FileName,"wt");
+	if (File)
+	{
+		fprintf( File,S_LINE "MODBUS_MASTER_SERIAL_PORT=%s" E_LINE "\n",ModbusSerialPortNameUsed  );
+                fprintf( File,S_LINE "MODBUS_MASTER_SERIAL_SPEED=%d" E_LINE "\n",ModbusSerialSpeed  );
+                fprintf( File,S_LINE "MODBUS_ELEMENT_OFFSET=%d" E_LINE "\n", ModbusEleOffset );
+		fprintf( File,S_LINE "MODBUS_MASTER_SERIAL_USE_RTS_TO_SEND=%d" E_LINE "\n", ModbusSerialUseRtsToSend );
+		fprintf( File,S_LINE "MODBUS_MASTER_TIME_INTER_FRAME=%d" E_LINE "\n", ModbusTimeInterFrame );
+		fprintf( File,S_LINE "MODBUS_MASTER_TIME_OUT_RECEIPT=%d" E_LINE "\n", ModbusTimeOutReceipt );
+		fprintf( File,S_LINE "MODBUS_MASTER_TIME_AFTER_TRANSMIT=%d" E_LINE "\n", ModbusTimeAfterTransmit );
+		fprintf( File,S_LINE "MODBUS_DEBUG_LEVEL=%d" E_LINE "\n", ModbusDebugLevel );
+		fclose(File);
+		Okay = TRUE;
+	}
+	return (Okay);
+}
 void DeleteTheDefaultSection( )
 {
 	RungArray[0].Used = FALSE;
@@ -1196,6 +1264,8 @@ void LoadAllLadderDatas(char * DatasDirectory)
 // this function call is not wanted because in EMC parameters are loaded with the realtime module
 //	sprintf(FileName,"%s/"FILE_PREFIX"general.txt",DatasDirectory);
 //	LoadGeneralParameters( FileName );
+        sprintf(FileName,"%s/"FILE_PREFIX"com_params.txt",DatasDirectory);
+	LoadComParameters( FileName );
 #ifdef OLD_TIMERS_MONOS_SUPPORT
 	sprintf(FileName,"%s/"FILE_PREFIX"timers.csv",DatasDirectory);
 //	printf("Loading timers datas from %s\n",FileName);
@@ -1259,6 +1329,8 @@ void SaveAllLadderDatas(char * DatasDirectory)
 	CleanTmpLadderDirectory( FALSE/*DestroyDir*/ );
 	sprintf(FileName,"%s/"FILE_PREFIX"general.txt",DatasDirectory);
 	SaveGeneralParameters( FileName );
+        sprintf(FileName,"%s/"FILE_PREFIX"com_params.txt",DatasDirectory);
+	SaveComParameters( FileName );
 #ifdef OLD_TIMERS_MONOS_SUPPORT
 	sprintf(FileName,"%s/"FILE_PREFIX"timers.csv",DatasDirectory);
 	SaveTimersParams(FileName,TimerArray);
