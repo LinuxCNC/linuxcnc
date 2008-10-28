@@ -945,7 +945,7 @@ void InitGtkWindows( int argc, char *argv[] )
 	PropertiesInitGtk();
 	ManagerInitGtk( );
 	SymbolsInitGtk( );
-
+        IntConfigWindowGtk( );
 	gtk_timeout_add( TIME_UPDATE_GTK_DISPLAY_MS, PeriodicUpdateDisplay, NULL );
 }
 

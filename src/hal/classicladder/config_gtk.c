@@ -26,6 +26,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "classicladder.h"
+#include "classicladder_gtk.h"
 #include "manager.h"
 #include "edit.h"
 //#include "hardware.h"
@@ -693,26 +694,49 @@ void GetModbusComParameters( void )
 	
 }
 void GetSettings( void )
-{
-	GetGeneralParameters( );
-	
+{	
 #ifdef MODBUS_IO_MASTER
 if(!nomodbus) {  GetModbusComParameters( );   
                  GetModbusModulesIOSettings( );   }
 #endif
 #ifndef RT_SUPPORT
+        GetGeneralParameters( );
 	ConfigHardware( );
 	InfosGene->AskToConfHard = TRUE;
 #endif
 }
 
-void OpenConfigWindowGtk()
+void OpenConfigWindowGtk( void )
 {
-	GtkWidget *nbook;
+	if ( !GTK_WIDGET_VISIBLE( ConfigWindow ) )
+	{ 
+		gtk_widget_show (ConfigWindow);
+		MessageInStatusBar("Openned Configuration window. Press again to update changes and close");
+#ifdef GTK2
+		gtk_window_present( GTK_WINDOW(ConfigWindow) );
+#endif
+	}
+	else
+	{
+                GetSettings();
+		gtk_widget_hide( ConfigWindow );
+		MessageInStatusBar("Updated Modbus configuration");
+	}
+}
+gint ConfigWindowDeleteEvent( GtkWidget * widget, GdkEvent * event, gpointer data )
+{
+        GetSettings();
+	gtk_widget_hide( ConfigWindow );
+	// we do not want that the window be destroyed.
+	return TRUE;
+}
+void IntConfigWindowGtk()
+{
+	
+        GtkWidget *nbook;
 
 	ConfigWindow = gtk_window_new (GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_title( GTK_WINDOW(ConfigWindow), "Config" );
-	//gtk_window_set_modal( GTK_WINDOW(ConfigWindow), TRUE );
 
 	nbook = gtk_notebook_new( );
 	gtk_notebook_append_page( GTK_NOTEBOOK(nbook), CreateGeneralParametersPage( ),
@@ -734,10 +758,8 @@ void OpenConfigWindowGtk()
 	gtk_widget_show( nbook );
 
 	gtk_window_set_position( GTK_WINDOW(ConfigWindow), GTK_WIN_POS_CENTER );
-	gtk_signal_connect ( GTK_OBJECT(ConfigWindow), "destroy",
-                        GTK_SIGNAL_FUNC(GetSettings), NULL );
-
-	gtk_widget_show( ConfigWindow );
+	gtk_signal_connect ( GTK_OBJECT(ConfigWindow), "delete_event",
+                        GTK_SIGNAL_FUNC(ConfigWindowDeleteEvent), NULL );
 }
 
 

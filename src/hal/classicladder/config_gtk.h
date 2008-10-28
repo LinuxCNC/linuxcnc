@@ -1,1 +1,2 @@
 void OpenConfigWindowGtk();
+void IntConfigWindowGtk();
