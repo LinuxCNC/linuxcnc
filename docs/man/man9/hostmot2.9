@@ -34,10 +34,10 @@ Modules used.
 hostmot2 is an RTAI device driver that interfaces the Mesa HostMot2
 firmware to the EMC2 HAL.  This driver by itself does nothing, the boards
 that actually run the firmware require their own drivers before anything
-can happen.  Currently drivers are available for the 5i20 (hm2_5i20) and
-the 7i43 (hm2_7i43).  Drivers for the other Mesa Electronics Anything
-I/O boards are under active development and should be ready sometime
-during the summer of 2008.
+can happen.  Currently drivers are available for the 5i20, 5i22, and 4i65
+(using the hm2_pci module) and the 7i43 (using the hm2_7i43 module).
+Drivers for the other Mesa Electronics Anything I/O boards are under
+active development and should be ready sometime during the fall of 2008.
 
 The HostMot2 firmware provides encoders, PWM generators, step/dir
 generators, and general purpose I/O pins (GPIOs).  These things are
@@ -419,7 +419,7 @@ not available on the 7i43 due to limitations of the EPP bus.)
 
 hm2_7i43(9)
 .br
-hm2_5i20(9)
+hm2_pci(9)
 .br
 Mesa's documentation for the Anything I/O boards, at <http://www.mesanet.com>
 .br

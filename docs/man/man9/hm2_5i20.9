@@ -19,6 +19,9 @@ HostMot2 config string, described in the hostmot2(9) manpage.
 .RE
 .SH DESCRIPTION
 
+NOTE: This driver has been replaced by the hm2_pci driver.  Please switch.
+No changes to HAL files should be needed.
+
 hm2_5i20 is an RTAI device driver that interfaces the Mesa 5i20 (PCI)
 and 4i65 (PC/104-Plus) boards with the HostMot2 firmware to the EMC2 HAL.
 
@@ -29,6 +32,7 @@ in the \fBconfig\fR modparam, as described in the hostmot2(9) manpage,
 in the \fIconfig modparam\fR section.
 .SH SEE ALSO
 
+hm2_pci(9)
 hostmot2(9)
 .SH LICENSE
 

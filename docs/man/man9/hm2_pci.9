@@ -23,6 +23,8 @@ hm2_pci is an RTAI device driver that interfaces the Mesa 5i20 (PCI),
 the 4i65 (PC/104-Plus), and the 5i22 (PCI) boards with the HostMot2
 firmware to the EMC2 HAL.
 
+This driver replaces the hm2_5i20 driver.
+
 The driver programs the board's FPGA with firmware when it registers
 the board with the hostmot2 driver.  The firmware to load is specified
 in the \fBconfig\fR modparam, as described in the hostmot2(9) manpage,

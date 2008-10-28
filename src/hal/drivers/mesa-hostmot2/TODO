@@ -30,9 +30,6 @@ next steps:
     behavior
 
 
-    add support for the 5i22 next
-
-
     It's starting to feel like it's ready for some kind of module
     abstraction...  To standardize the semantics and make it easier to
     think about.  Pull out the common code.  pins are special
@@ -254,9 +251,28 @@ watchdog:
     needs to support multiple boards
 
 
-5i20:
+5i20 & 4i65:
 
-    turn hm2_5i20 driver into a generic PCI driver: hm2_anyio_pci
+    no known issues
+
+
+5i22:
+
+    test with the 1.5M version
+
+
+4i68:
+
+    add support to the hm2_pci driver
+
+    4I68: P1,P2,P4
+
+
+5i23:
+
+    add support to the hm2_pci driver
+
+    5I23: P2,P3,P4
 
 
 
@@ -266,6 +282,36 @@ how to configure the firmware?
     Currently the llios take a "config" modparam (one for each board),
     which they pass to hm2_register().  hm2_register() does a bunch of
     gross string parsing...
+
+    HAL doesnt let you add or remove HAL objects after hal_ready().
+    So the driver's set of HAL objects is determined at module load time,
+    before anything shows up in HAL...  Bummer.  Chris Radek suggested
+    that this might be possible to fix.
+
+    The config of an hm2 board is a structured object:
+
+        typedef struct {
+
+            struct {
+                bool enabled;
+                bool index_enabled;
+                bool index_mask_enabled;
+            } hm2_encoder_config[];
+
+            struct {
+                bool enabled;
+            } hm2_pwmgen_config[];
+
+            struct {
+                bool enabled;
+                uint width;
+            } hm2_stepgen_config[];
+
+            char *firmware;
+
+            bool enable_raw;
+
+        } hm2_config_t;
 
 
 
@@ -295,11 +341,6 @@ planned milestones:
     1.0
 
         add support for all other PCI cards
-
-            IOPort connector names for the still-unsupported cards:
-                4I68: P1,P2,P4
-                5I22: P2,P3,P4,P5
-                5I23: P2,P3,P4
 
         add optional tram support
 

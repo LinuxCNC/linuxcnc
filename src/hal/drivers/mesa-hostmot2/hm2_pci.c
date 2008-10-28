@@ -228,13 +228,65 @@ static void hm2_plx9030_fixup_LASxBRD_READY(hm2_pci_t *board) {
 }
 
 
+
+
 static int hm2_plx9054_program_fpga(hm2_lowlevel_io_t *this, const bitfile_t *bitfile) {
-    return -EIO;
+    hm2_pci_t *board = this->private;
+    int i;
+    u32 status, control;
+
+    // program the FPGA
+    for (i = 0; i < bitfile->e.size; i ++) {
+        outb(bitfile->e.data[i], board->data_base_addr);
+    }
+
+    // all bytes transferred, make sure FPGA is all set up now
+    for (i = 0; i < DONE_WAIT_5I22; i++) {
+        status = inl(board->ctrl_base_addr + CTRL_STAT_OFFSET_5I22);
+        if (status & DONE_MASK_5I22) break;
+    }
+    if (i >= DONE_WAIT_5I22) {
+        THIS_ERR("Error: Not /DONE; programming not completed.\n");
+        return -EIO;
+    }
+
+    return 0;
 }
 
 
 static int hm2_plx9054_reset(hm2_lowlevel_io_t *this) {
-    return -EIO;
+    hm2_pci_t *board = this->private;
+    int i;
+    u32 status, control;
+
+    // set GPIO bits to GPIO function
+    status = inl(board->ctrl_base_addr + CTRL_STAT_OFFSET_5I22);
+    control = status | DONE_ENABLE_5I22 | _PROG_ENABLE_5I22;
+    outl(control, board->ctrl_base_addr + CTRL_STAT_OFFSET_5I22);
+
+    // Turn off /PROGRAM bit and insure that DONE isn't asserted
+    outl(control & ~_PROGRAM_MASK_5I22, board->ctrl_base_addr + CTRL_STAT_OFFSET_5I22);
+
+    status = inl(board->ctrl_base_addr + CTRL_STAT_OFFSET_5I22);
+    if (status & DONE_MASK_5I22) {
+        // Note that if we see DONE at the start of programming, it's most
+        // likely due to an attempt to access the FPGA at the wrong I/O
+        // location.
+        THIS_ERR("/DONE status bit indicates busy at start of programming\n");
+        return -EIO;
+    }
+
+    // turn on /PROGRAM output bit
+    outl(control | _PROGRAM_MASK_5I22, board->ctrl_base_addr + CTRL_STAT_OFFSET_5I22);
+
+    // Delay for at least 100 uS. to allow the FPGA to finish its reset
+    // sequencing.  3300 reads is at least 100 us, could be as long as a
+    // few ms
+    for (i = 0; i < 3300; i++) {
+        status = inl(board->ctrl_base_addr + CTRL_STAT_OFFSET);
+    }
+
+    return 0;
 }
 
 
@@ -345,11 +397,24 @@ static int hm2_pci_probe(struct pci_dev *dev, const struct pci_device_id *id) {
         }
 
         case HM2_PCI_DEV_PLX9054: {
-            THIS_ERR("the PLX9054 family of AnyIO boards is not supported yet\n");
-            r = -EINVAL;
+            // get a hold of the IO resources we'll need later
+            // FIXME: should request_region here
+            board->ctrl_base_addr = pci_resource_start(dev, 1);
+            board->data_base_addr = pci_resource_start(dev, 2);
+
+            // BAR 3 is 64K mem (32 bit)
+            board->len = pci_resource_len(dev, 3);
+            board->base = ioremap_nocache(pci_resource_start(dev,3), board->len);
+            if (board->base == NULL) {
+                THIS_ERR("could not map in FPGA address space\n");
+                r = -ENODEV;
+                goto fail0;
+            }
+
             board->llio.program_fpga = hm2_plx9054_program_fpga;
             board->llio.reset = hm2_plx9054_reset;
-            goto fail0;
+
+            break;
         }
 
         default: {
