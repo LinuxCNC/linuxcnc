@@ -189,7 +189,12 @@ static void do_exit(int unused) {
 void DoPauseMilliSecs( int Time )
 {
 	struct timespec time;
-	time.tv_sec = 0;
+        time.tv_sec = 0;
+        if (Time>=1000) 
+                       {
+                        time.tv_sec=Time/1000;
+                        Time=Time%1000;
+                       }
 	time.tv_nsec = Time*1000000;
 	nanosleep( &time, NULL );
 	//usleep( Time*1000 );
