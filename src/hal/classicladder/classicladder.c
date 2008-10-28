@@ -100,13 +100,30 @@ void HandlerSignalInterrupt( int signal_id )
 
 void display_help (void)
 {
-	printf("Usage: loadusr classicladder [OPTIONS] [PATH]\n"
-			"Start classicladder PLC with an optional project path and program to load. e.g. plcdirectory/ladderprogram.clp\n"
-			"\n"			
-			"           --nogui              do not create the GUI\n"
-			"-p port    --modbus_port=port   port to use for modbus server\n"
-			"-c file    --config=file        read MODBUS configuration from designated file\n"
-			);
+	printf("\nClassicLadder v"CL_RELEASE_VER_STRING"\n"CL_RELEASE_DATE_STRING"\n"
+	       "Copyright (C) 2001-2004 Marc Le Douarain\nmavati@club-internet.fr\n"
+	       "Adapted to EMC\n"
+			"\n"
+	       "ClassicLadder comes with NO WARRANTY\n"
+	       "to the extent permitted by law.\n"
+	       "\n"
+	       "You may redistribute copies of ClassicLadder\n"
+	       "under the terms of the GNU Lesser General Public Licence.\n"
+	       "See the file `lesserGPL.txt' for more information.\n");	
+	
+	printf("This version of Classicladder is adapted for use with EMC and HAL\n"
+               "\nUsage: classicladder [OPTIONS] [PATH]\n"
+	       "eg: loadusr -w classicladder  ladtest.clp\n"
+	       "eg: loadusr -w classicladder  --nogui ladtest.clp\n"
+	       "eg: loadusr -w classicladder  --modmaster ladtest.clp\n"
+               "\n"
+	       "   --nogui            do not create a GUI, only load a configuration\n"
+               "   --config=filename  initilize modbus master I/O & load config file-( deprecated- use --modmaster)\n" 
+               "   --modmaster        initilize modbus master I/O ( modbus config is loaded with other objects )\n" 
+               "   --modbus_port=portnumber  used for modbus slave using TCP ( ethernet )\n"
+               "Please also note that the classicladder realtime module must be loaded first\n"
+               "eg: loadrt classicladder_rt    for default number of ladder objects\n"  
+	                    );
 	hal_exit(compId); // add for emc
 	exit(0);
 }
@@ -124,6 +141,7 @@ void process_options (int argc, char *argv[])
 		static const struct option long_options[] = {
 			{"nogui", no_argument, 0, 'n'},
 			{"config", required_argument, 0, 'c'},
+                        {"modmaster",no_argument,0,'m'},
 			{"modbus_port", required_argument, 0, 'p'},
 			{0, 0, 0, 0},
 		};
@@ -147,6 +165,9 @@ void process_options (int argc, char *argv[])
 			case 'p':
 				ModbusServerPort = atoi( optarg );
 				break;
+                        case 'm':
+                                nomodbus=0;
+                                break;
 			case '?':
 				error = 1;
 				break;
