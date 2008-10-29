@@ -263,16 +263,12 @@ watchdog:
 
 4i68:
 
-    add support to the hm2_pci driver
-
-    4I68: P1,P2,P4
+    test
 
 
 5i23:
 
-    add support to the hm2_pci driver
-
-    5I23: P2,P3,P4
+    test
 
 
 

@@ -1,4 +1,11 @@
 
+released 2008-10-28
+    hm2_pci 0.6
+
+    Added support for the 5i23 and 4i68.  All the PCI, PC-104/Plus,
+    and EPP Anything I/O boards are now supported.  :-)
+
+
 released 2008-10-27
     hm2_pci 0.5
 

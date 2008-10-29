@@ -48,6 +48,11 @@ static int comp_id;
 // FIXME: should probably have a linked list of boards instead of an array
 static hm2_pci_t hm2_pci_board[HM2_PCI_MAX_BOARDS];
 static int num_boards = 0;
+static int num_5i20 = 0;
+static int num_5i22 = 0;
+static int num_5i23 = 0;
+static int num_4i65 = 0;
+static int num_4i68 = 0;
 
 
 static struct pci_device_id hm2_pci_tbl[] = {
@@ -82,6 +87,30 @@ static struct pci_device_id hm2_pci_tbl[] = {
         .device = HM2_PCI_DEV_PLX9054,
         .subvendor = 0x10b5,
         .subdevice = HM2_PCI_SSDEV_5I22_15,
+    },
+
+    // 5i23
+    {
+        .vendor = 0x10b5,
+        .device = HM2_PCI_DEV_PLX9054,
+        .subvendor = 0x10b5,
+        .subdevice = HM2_PCI_SSDEV_5I23,
+    },
+
+    // 4i68 (old SSID)
+    {
+        .vendor = 0x10b5,
+        .device = HM2_PCI_DEV_PLX9054,
+        .subvendor = 0x10b5,
+        .subdevice = HM2_PCI_SSDEV_4I68_OLD,
+    },
+
+    // 4i68 (new SSID)
+    {
+        .vendor = 0x10b5,
+        .device = HM2_PCI_DEV_PLX9054,
+        .subvendor = 0x10b5,
+        .subdevice = HM2_PCI_SSDEV_4I68,
     },
 
     {0,},
@@ -233,7 +262,7 @@ static void hm2_plx9030_fixup_LASxBRD_READY(hm2_pci_t *board) {
 static int hm2_plx9054_program_fpga(hm2_lowlevel_io_t *this, const bitfile_t *bitfile) {
     hm2_pci_t *board = this->private;
     int i;
-    u32 status, control;
+    u32 status;
 
     // program the FPGA
     for (i = 0; i < bitfile->e.size; i ++) {
@@ -322,7 +351,8 @@ static int hm2_pci_probe(struct pci_dev *dev, const struct pci_device_id *id) {
     switch (dev->subsystem_device) {
         case HM2_PCI_SSDEV_5I20: {
             LL_INFO("discovered 5i20 at %s\n", pci_name(dev));
-            snprintf(board->llio.name, HAL_NAME_LEN, "hm2_5i20.%d", num_boards);
+            snprintf(board->llio.name, HAL_NAME_LEN, "hm2_5i20.%d", num_5i20);
+            num_5i20 ++;
             board->llio.num_ioport_connectors = 3;
             board->llio.ioport_connector_name[0] = "P2";
             board->llio.ioport_connector_name[1] = "P3";
@@ -333,7 +363,8 @@ static int hm2_pci_probe(struct pci_dev *dev, const struct pci_device_id *id) {
 
         case HM2_PCI_SSDEV_4I65: {
             LL_INFO("discovered 4i65 at %s\n", pci_name(dev));
-            snprintf(board->llio.name, HAL_NAME_LEN, "hm2_4i65.%d", num_boards);
+            snprintf(board->llio.name, HAL_NAME_LEN, "hm2_4i65.%d", num_4i65);
+            num_4i65 ++;
             board->llio.num_ioport_connectors = 3;
             board->llio.ioport_connector_name[0] = "P1";
             board->llio.ioport_connector_name[1] = "P3";
@@ -342,27 +373,51 @@ static int hm2_pci_probe(struct pci_dev *dev, const struct pci_device_id *id) {
             break;
         }
 
-        case HM2_PCI_SSDEV_5I22_10: {
-            LL_INFO("discovered 5i22-1.0M at %s\n", pci_name(dev));
-            snprintf(board->llio.name, HAL_NAME_LEN, "hm2_5i22.%d", num_boards);
+        case HM2_PCI_SSDEV_5I22_10:
+        case HM2_PCI_SSDEV_5I22_15: {
+            if (dev->subsystem_device == HM2_PCI_SSDEV_5I22_10) {
+                LL_INFO("discovered 5i22-1.0M at %s\n", pci_name(dev));
+                board->llio.fpga_part_number = "3s1000fg320";
+            } else {
+                LL_INFO("discovered 5i22-1.5M at %s\n", pci_name(dev));
+                board->llio.fpga_part_number = "3s1500fg320";
+            }
+            snprintf(board->llio.name, HAL_NAME_LEN, "hm2_5i22.%d", num_5i22);
+            num_5i22 ++;
             board->llio.num_ioport_connectors = 4;
             board->llio.ioport_connector_name[0] = "P2";
             board->llio.ioport_connector_name[1] = "P3";
             board->llio.ioport_connector_name[2] = "P4";
             board->llio.ioport_connector_name[3] = "P5";
-            board->llio.fpga_part_number = "3s1000fg320";
             break;
         }
 
-        case HM2_PCI_SSDEV_5I22_15: {
-            LL_INFO("discovered 5i22-1.5M at %s\n", pci_name(dev));
-            snprintf(board->llio.name, HAL_NAME_LEN, "hm2_5i22.%d", num_boards);
-            board->llio.num_ioport_connectors = 4;
+        case HM2_PCI_SSDEV_5I23: {
+            LL_INFO("discovered 5i23 at %s\n", pci_name(dev));
+            snprintf(board->llio.name, HAL_NAME_LEN, "hm2_5i23.%d", num_5i23);
+            num_5i23 ++;
+            board->llio.num_ioport_connectors = 3;
             board->llio.ioport_connector_name[0] = "P2";
             board->llio.ioport_connector_name[1] = "P3";
             board->llio.ioport_connector_name[2] = "P4";
-            board->llio.ioport_connector_name[3] = "P5";
-            board->llio.fpga_part_number = "3s1500fg320";
+            board->llio.fpga_part_number = "3s400pq208";
+            break;
+        }
+
+        case HM2_PCI_SSDEV_4I68:
+        case HM2_PCI_SSDEV_4I68_OLD: {
+            if (dev->subsystem_device == HM2_PCI_SSDEV_4I68_OLD) {
+                LL_WARN("discovered OLD 4i68 at %s, please consider upgrading your EEPROM\n", pci_name(dev));
+            } else {
+                LL_INFO("discovered 4i68 at %s\n", pci_name(dev));
+            }
+            snprintf(board->llio.name, HAL_NAME_LEN, "hm2_4i68.%d", num_4i68);
+            num_4i68 ++;
+            board->llio.num_ioport_connectors = 3;
+            board->llio.ioport_connector_name[0] = "P1";
+            board->llio.ioport_connector_name[1] = "P2";
+            board->llio.ioport_connector_name[2] = "P4";
+            board->llio.fpga_part_number = "3s400pq208";
             break;
         }
 
