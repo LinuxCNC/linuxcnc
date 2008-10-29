@@ -103,7 +103,6 @@ alias CPHA : std_logic is ModeReg(7);
 signal BitCount : std_logic_vector(5 downto 0);
 signal ClockFF: std_logic; 
 signal SPISreg: std_logic_vector(buswidth-1 downto 0);
-signal Go: std_logic; 
 signal Frame: std_logic; 
 signal Dav: std_logic; 
 signal SPIInLatch: std_logic;
@@ -112,7 +111,7 @@ signal FirstLeadingEdge: std_logic;
 begin 
 
 	aspiinterface: process (clk, readdata, ModeReg, ClockFF, Frame,
-	                        SPISreg, readbitcount, BitcountReg, Go, 
+	                        SPISreg, readbitcount, BitcountReg,
 									Dav, readbitrate, RateDivReg)
 	begin
 		if rising_edge(clk) then
@@ -120,7 +119,6 @@ begin
 			if loaddata = '1' then 
 				SPISreg <= ibus;
 				BitCount <= BitCountReg;
-				Go <= '1';
 				Frame <= '1';
 				Dav <= '0';
 				ClockFF <= '0';
@@ -146,9 +144,6 @@ begin
 					else
 						ClockFF <= '0';
 						BitCount <= BitCount -1;
-						if BitCount(5) = '1' then
-							Go <= '0';						-- go is clear - no more output clocks
-						end if;	
 						if CPHA = '0' then				-- shift out on trailing edge for CPHA = 0 case
 							SPISreg <= SPISreg(30 downto 0) & (SPIInLatch);
 						end if;	
@@ -174,20 +169,20 @@ begin
 		end if;
 		if	readbitcount =  '1' then
 			obus(7 downto 0) <= ModeReg;
-			obus(buswidth -2) <= Go;
 			obus(buswidth -1) <= Dav;			
 		end if;
       if readbitrate =  '1' then
 			obus(DivWidth-1 downto 0) <= RateDivReg;
 		end if;
-		spiclk <= (ClockFF and GO) xor CPOL;
+		spiclk <= ClockFF xor CPOL;
 		spiframe <= not Frame;
 		davout <= Dav;
-		for i in 0 to buswidth -1 loop
-			if i = BitCountReg then
-				spiout <= SPISReg(i);
-			end if;
-		end loop;	
+--		for i in 0 to buswidth -1 loop
+--			if i = BitCountReg then
+--				spiout <= SPISReg(i);
+--			end if;
+--		end loop;	
+		spiout <= SPISReg(conv_integer(BitCountReg(4 downto 0))); -- select the MSB of the current size	
 	end process aspiinterface;
 	
 end Behavioral;

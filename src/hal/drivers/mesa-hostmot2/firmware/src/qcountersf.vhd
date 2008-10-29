@@ -314,6 +314,8 @@ begin
 			if loadccr = '1' then	
 				quaderror <= ibus(15);
 				abmaskpol <= ibus(14);
+				-- latchonprobe (bit 13);
+				-- probepol (bit 12);
 				quadfilter <= ibus(11);
 				countermode <= ibus(10);
 				useindexmask <= ibus(9);

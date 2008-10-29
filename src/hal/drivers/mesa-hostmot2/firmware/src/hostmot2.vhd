@@ -76,14 +76,17 @@ entity HostMot2 is
 	(  
 		ThePinDesc: PinDescType;
 		TheModuleID: ModuleIDType;
-		STEPGENs: integer;
-		QCOUNTERS: integer;
+		StepGens: integer;
+		QCounters: integer;
+		MuxedQCounters: integer;
 		PWMGens: integer;
 		SPIs: integer;
+		BSPIs: integer;
 		SSIs: integer;
 		UARTs: integer;
 		PWMRefWidth: integer;
 		StepGenTableWidth: integer;
+      BSPICSWidth : integer;
 		IDROMType: integer;		
 	   SepClocks: boolean;
 		OneWS: boolean;
@@ -212,12 +215,12 @@ architecture dataflow of HostMot2 is
 -- Quadrature counter related signals
 
 	signal QCounterSel : std_logic;
-	signal LoadQCounter: std_logic_vector(QCOUNTERs-1 downto 0);
-	signal ReadQCounter: std_logic_vector(QCOUNTERs-1 downto 0);
+	signal LoadQCounter: std_logic_vector(QCounters-1 downto 0);
+	signal ReadQCounter: std_logic_vector(QCounters-1 downto 0);
 	
 	signal QCounterCCRSel : std_logic;
-	signal LoadQCounterCCR: std_logic_vector(QCOUNTERs-1 downto 0);
-	signal ReadQCounterCCR: std_logic_vector(QCOUNTERs-1 downto 0);
+	signal LoadQCounterCCR: std_logic_vector(QCounters-1 downto 0);
+	signal ReadQCounterCCR: std_logic_vector(QCounters-1 downto 0);
 
 -- Quadrature counter timestamp reference counter
 
@@ -236,6 +239,36 @@ architecture dataflow of HostMot2 is
 	signal Index: std_logic_vector(QCounters -1 downto 0);
 	signal IndexMask: std_logic_vector(QCounters -1 downto 0);
 
+--- Multiplexed Encoder related signals	
+	signal MuxedQCounterSel : std_logic;
+	signal LoadMuxedQCounter: std_logic_vector(MuxedQCounters-1 downto 0);
+	signal ReadMuxedQCounter: std_logic_vector(MuxedQCounters-1 downto 0);
+	
+	signal MuxedQCounterCCRSel : std_logic;
+	signal LoadMuxedQCounterCCR: std_logic_vector(MuxedQCounters-1 downto 0);
+	signal ReadMuxedQCounterCCR: std_logic_vector(MuxedQCounters-1 downto 0);
+-- Muxed Quadrature counter timestamp reference counter
+
+	signal LoadMuxedTSDiv : std_logic;
+	signal ReadMuxedTSDiv : std_logic;
+	signal ReadMuxedTS : std_logic;
+	signal MuxedTimeStampBus: std_logic_vector(15 downto 0);
+
+-- Muxed Quadrature counter filter rate signals
+	signal LoadMuxedQCountRate : std_logic;
+	signal MuxedQCountFilterRate : std_logic;
+
+	signal PreMuxedQctrSel : std_logic_vector(1 downto 0);
+	signal MuxedQCtrSel : std_logic_vector(1 downto 0);
+	signal MuxedQuadA: std_logic_vector(MuxedQCounters/2 -1 downto 0); -- 2 should be muxdepth constant?
+	signal MuxedQuadB: std_logic_vector(MuxedQCounters/2 -1 downto 0);
+	signal MuxedIndex: std_logic_vector(MuxedQCounters/2 -1 downto 0);
+	signal muxedIndexMask: std_logic_vector(MuxedQCounters/2 -1 downto 0);	
+	signal DemuxedIndexMask: std_logic_vector(MuxedQCounters -1 downto 0);	
+	signal DeMuxedQuadA: std_logic_vector(MuxedQCounters -1 downto 0);
+	signal DeMuxedQuadB: std_logic_vector(MuxedQCounters -1 downto 0);
+	signal DeMuxedIndex: std_logic_vector(MuxedQCounters -1 downto 0);
+	
 -- PWM generator related signals
    signal NumberOfPWMS : integer;
 	signal PWMGenOutA: std_logic_vector(PWMGens -1 downto 0);
@@ -268,38 +301,54 @@ architecture dataflow of HostMot2 is
 	signal SPIFrame: std_logic_vector(SPIs -1 downto 0);
 	signal SPIDAV: std_logic_vector(SPIs -1 downto 0);	
 
---- UARTX interface related signals		
-	signal UARTXDataSel : std_logic;
-	signal UARTXBitrateSel : std_logic;
-	signal UARTXFIFOCountSel : std_logic;
-	signal UARTXModeRegSel : std_logic; 
+--- BSPI interface related signals
+	signal BSPIDataSel : std_logic;	
+	signal BSPIFIFOCountSel : std_logic;
+	signal BSPIDescriptorSel : std_logic;
+	signal LoadBSPIData: std_logic_vector(BSPIs -1 downto 0);
+	signal ReadBSPIData: std_logic_vector(BSPIs -1 downto 0);     
+	signal LoadBSPIDescriptor: std_logic_vector(BSPIs -1 downto 0);
+	signal ReadBSPIFIFOCOunt: std_logic_vector(BSPIs -1 downto 0);
+	signal ClearBSPIFIFO: std_logic_vector(BSPIs -1 downto 0);
+	signal BSPIClk: std_logic_vector(BSPIs -1 downto 0);
+	signal BSPIIn: std_logic_vector(BSPIs -1 downto 0);
+	signal BSPIOut: std_logic_vector(BSPIs -1 downto 0);
+	signal BSPIFrame: std_logic_vector(BSPIs -1 downto 0);
+	type BSPICSType is array(BSPIs-1 downto 0) of std_logic_vector(BSPICSWidth-1 downto 0);
+	signal BSPICS : BSPICSType;
 
-	signal LoadUARTXData: std_logic_vector(UARTs -1 downto 0);
-	signal LoadUARTXBitRate: std_logic_vector(UARTs -1 downto 0);
-	signal LoadUARTXModeReg: std_logic_vector(UARTs -1 downto 0);	
-	signal CLearUARTXFIFO: std_logic_vector(UARTs -1 downto 0);
-	signal ReadUARTXFIFOCount: std_logic_vector(UARTs -1 downto 0);
-	signal ReadUARTXBitrate: std_logic_vector(UARTs -1 downto 0);
-	signal ReadUARTXModeReg: std_logic_vector(UARTs -1 downto 0);
-	signal UARTXFIFOEmpty: std_logic_vector(UARTs -1 downto 0);
+--- UARTX interface related signals		
+	signal UARTTDataSel : std_logic;
+	signal UARTTBitrateSel : std_logic;
+	signal UARTTFIFOCountSel : std_logic;
+	signal UARTTModeRegSel : std_logic; 
+
+	signal LoadUARTTData: std_logic_vector(UARTs -1 downto 0);
+	signal LoadUARTTBitRate: std_logic_vector(UARTs -1 downto 0);
+	signal LoadUARTTModeReg: std_logic_vector(UARTs -1 downto 0);	
+	signal CLearUARTTFIFO: std_logic_vector(UARTs -1 downto 0);
+	signal ReadUARTTFIFOCount: std_logic_vector(UARTs -1 downto 0);
+	signal ReadUARTTBitrate: std_logic_vector(UARTs -1 downto 0);
+	signal ReadUARTTModeReg: std_logic_vector(UARTs -1 downto 0);
+	signal UARTTFIFOEmpty: std_logic_vector(UARTs -1 downto 0);
 	signal UTDrvEn: std_logic_vector(UARTs -1 downto 0);
-	signal UTXData: std_logic_vector(UARTs -1 downto 0);
+	signal UTData: std_logic_vector(UARTs -1 downto 0);
 
 --- UARTR interface related signals	
 	signal UARTRDataSel : std_logic;
 	signal UARTRBitrateSel : std_logic;
 	signal UARTRFIFOCountSel : std_logic;
-	signal UARTRModeSel : std_logic;
+	signal UARTRModeRegSel : std_logic;
 	
 	signal LoadUARTRData: std_logic_vector(UARTs -1 downto 0);
 	signal LoadUARTRBitRate: std_logic_vector(UARTs -1 downto 0);
 	signal ReadUARTRBitrate: std_logic_vector(UARTs -1 downto 0);
 	signal ClearUARTRFIFO: std_logic_vector(UARTs -1 downto 0);
 	signal ReadUARTRFIFOCount: std_logic_vector(UARTs -1 downto 0);
-	signal ReadUARTRMode: std_logic_vector(UARTs -1 downto 0);
-	signal LoadUARTRMode: std_logic_vector(UARTs -1 downto 0);
+	signal ReadUARTRModeReg: std_logic_vector(UARTs -1 downto 0);
+	signal LoadUARTRModeReg: std_logic_vector(UARTs -1 downto 0);
 	signal UARTRFIFOHasData: std_logic_vector(UARTs -1 downto 0);
-	signal URXData: std_logic_vector(UARTs -1 downto 0);			
+	signal URData: std_logic_vector(UARTs -1 downto 0);			
 
 --- Watchdog related signals 
 	signal LoadWDTime : std_logic; 
@@ -322,6 +371,8 @@ architecture dataflow of HostMot2 is
 
 --- LED related signals
 	signal LoadLEDS : std_logic;
+	
+
 
 	function OneOfNdecode(width : integer;ena1 : std_logic;ena2 : std_logic; dec : std_logic_vector) return std_logic_vector is
 	variable result   : std_logic_vector(width-1 downto 0);
@@ -439,94 +490,98 @@ architecture dataflow of HostMot2 is
          int => INT);
 	end generate;
 	
-	makeStepGenPreScaler:  if UseStepGenPreScaler generate
-		StepRategen : entity RateGen port map(
-		 	ibus => ibus,
-  		   obus => obus,
-      	loadbasicrate => LoadStepGenBasicRate,
-      	readbasicrate => ReadStepGenBasicRate,
-			hold => '0',
-      	basicrate => StepGenBasicRate,
-      	clk => clklow);
-		end generate;
+	makestepgens: if StepGens >0 generate
+	
+		makeStepGenPreScaler:  if UseStepGenPreScaler generate
+			StepRategen : entity RateGen port map(
+				ibus => ibus,
+				obus => obus,
+				loadbasicrate => LoadStepGenBasicRate,
+				readbasicrate => ReadStepGenBasicRate,
+				hold => '0',
+				basicrate => StepGenBasicRate,
+				clk => clklow);
+			end generate;
 
-	makestepgens: for i in 0 to StepGens-1 generate
-		usg: if UseStepGenPreScaler generate
-		stepgenx: entity stepgen
-		generic map (
-			buswidth => BusWidth,
-			timersize => 14,			-- = ~480 usec at 33 MHz, ~320 at 50 Mhz 
-			tablewidth => StepGenTableWidth,
-			asize => 48,
-			rsize => 32 
-			)
-		port map (
-			clk => clklow,
-			ibus => ibus,
-			obus 	=>	 obus,
-			loadsteprate => LoadStepGenRate(i),
-			loadaccum => LoadStepGenAccum(i),
-			loadstepmode => LoadStepGenMode(i),
-			loaddirsetuptime => LoadStepGenDSUTime(i),
-			loaddirholdtime => LoadStepGenDHLDTime(i),
-			loadpulseactivetime => LoadStepGenPulseATime(i),
-			loadpulseidletime => LoadStepGenPulseITime(i),
-			loadtable => LoadStepGenTable(i),
-			loadtablemax => LoadStepGenTableMax(i),
- 			readsteprate => ReadStepGenRate(i),
-			readaccum => ReadStepGenAccum(i),
-			readstepmode => ReadStepGenMode(i),
-			readdirsetuptime => ReadStepGenDSUTime(i),
-			readdirholdtime => ReadStepGenDHLDTime(i),
-			readpulseactivetime => ReadStepGenPulseATime(i),
-			readpulseidletime => ReadStepGenPulseITime(i),
-			readtable => ReadStepGenTable(i),
-			readtablemax => ReadStepGenTableMax(i),
-			basicrate => StepGenBasicRate,
-			hold => '0',
-			stout => StepGenOut(i)
-          );
-		end generate usg;
+		generatestepgens: for i in 0 to StepGens-1 generate
+			usg: if UseStepGenPreScaler generate
+			stepgenx: entity stepgen
+			generic map (
+				buswidth => BusWidth,
+				timersize => 14,			-- = ~480 usec at 33 MHz, ~320 at 50 Mhz 
+				tablewidth => StepGenTableWidth,
+				asize => 48,
+				rsize => 32 
+				)
+			port map (
+				clk => clklow,
+				ibus => ibus,
+				obus 	=>	 obus,
+				loadsteprate => LoadStepGenRate(i),
+				loadaccum => LoadStepGenAccum(i),
+				loadstepmode => LoadStepGenMode(i),
+				loaddirsetuptime => LoadStepGenDSUTime(i),
+				loaddirholdtime => LoadStepGenDHLDTime(i),
+				loadpulseactivetime => LoadStepGenPulseATime(i),
+				loadpulseidletime => LoadStepGenPulseITime(i),
+				loadtable => LoadStepGenTable(i),
+				loadtablemax => LoadStepGenTableMax(i),
+				readsteprate => ReadStepGenRate(i),
+				readaccum => ReadStepGenAccum(i),
+				readstepmode => ReadStepGenMode(i),
+				readdirsetuptime => ReadStepGenDSUTime(i),
+				readdirholdtime => ReadStepGenDHLDTime(i),
+				readpulseactivetime => ReadStepGenPulseATime(i),
+				readpulseidletime => ReadStepGenPulseITime(i),
+				readtable => ReadStepGenTable(i),
+				readtablemax => ReadStepGenTableMax(i),
+				basicrate => StepGenBasicRate,
+				hold => '0',
+				stout => StepGenOut(i)
+				);
+			end generate usg;
 		
-		nusg: if not UseStepGenPreScaler generate
-		stepgenx: entity stepgen
-		generic map (
-			buswidth => BusWidth,
-			timersize => 14,			-- = ~480 usec at 33 MHz, ~320 at 50 Mhz 
-			tablewidth => StepGenTableWidth,
-			asize => 48,
-			rsize => 32 			
-			)
-		port map (
-			clk => clklow,
-			ibus => ibus,
-			obus 	=>	 obus,
-			loadsteprate => LoadStepGenRate(i),
-			loadaccum => LoadStepGenAccum(i),
-			loadstepmode => LoadStepGenMode(i),
-			loaddirsetuptime => LoadStepGenDSUTime(i),
-			loaddirholdtime => LoadStepGenDHLDTime(i),
-			loadpulseactivetime => LoadStepGenPulseATime(i),
-			loadpulseidletime => LoadStepGenPulseITime(i),
-			loadtable => LoadStepGenTable(i),
-			loadtablemax => LoadStepGenTableMax(i),
- 			readsteprate => ReadStepGenRate(i),
-			readaccum => ReadStepGenAccum(i),
-			readstepmode => ReadStepGenMode(i),
-			readdirsetuptime => ReadStepGenDSUTime(i),
-			readdirholdtime => ReadStepGenDHLDTime(i),
-			readpulseactivetime => ReadStepGenPulseATime(i),
-			readpulseidletime => ReadStepGenPulseITime(i),
-			readtable => ReadStepGenTable(i),
-			readtablemax => ReadStepGenTableMax(i),
-			basicrate => '1',
-			hold => '0',
-			stout => StepGenOut(i)  -- densely packed starting with I/O bit 0
-         );
-		end generate nusg;
+			nusg: if not UseStepGenPreScaler generate
+			stepgenx: entity stepgen
+			generic map (	
+				buswidth => BusWidth,
+				timersize => 14,			-- = ~480 usec at 33 MHz, ~320 at 50 Mhz 
+				tablewidth => StepGenTableWidth,
+				asize => 48,
+				rsize => 32 			
+				)
+			port map (
+				clk => clklow,
+				ibus => ibus,
+				obus 	=>	 obus,
+				loadsteprate => LoadStepGenRate(i),
+				loadaccum => LoadStepGenAccum(i),
+				loadstepmode => LoadStepGenMode(i),
+				loaddirsetuptime => LoadStepGenDSUTime(i),
+				loaddirholdtime => LoadStepGenDHLDTime(i),
+				loadpulseactivetime => LoadStepGenPulseATime(i),
+				loadpulseidletime => LoadStepGenPulseITime(i),
+				loadtable => LoadStepGenTable(i),
+				loadtablemax => LoadStepGenTableMax(i),
+				readsteprate => ReadStepGenRate(i),
+				readaccum => ReadStepGenAccum(i),
+				readstepmode => ReadStepGenMode(i),
+				readdirsetuptime => ReadStepGenDSUTime(i),
+				readdirholdtime => ReadStepGenDHLDTime(i),
+				readpulseactivetime => ReadStepGenPulseATime(i),
+				readpulseidletime => ReadStepGenPulseITime(i),
+				readtable => ReadStepGenTable(i),
+				readtablemax => ReadStepGenTableMax(i),
+				basicrate => '1',
+				hold => '0',
+				stout => StepGenOut(i)  -- densely packed starting with I/O bit 0
+				);
+			end generate nusg;
 
+		end generate generatestepgens;
 	end generate makestepgens;
 
+	
 	makequadcounters: for i in 0 to QCounters-1 generate
 		qcounterx: entity qcounter 
 		generic map (
@@ -548,8 +603,30 @@ architecture dataflow of HostMot2 is
 			clk =>	clklow
 		);
 	end generate makequadcounters;
+	
+		makemuxedquadcounters: for i in 0 to MuxedQCounters-1 generate
+		qcounterx: entity qcounter 
+		generic map (
+			buswidth => BusWidth
+		)
+		port map (
+			obus => obus,
+			ibus => ibus,
+			quada => DemuxedQuadA(i),
+			quadb => DemuxedQuadB(i),
+			index => DemuxedIndex(i),
+			loadccr => LoadMuxedQcounterCCR(i),
+			readccr => ReadMuxedQcounterCCR(i),
+			readcount => ReadMuxedQcounter(i),
+			countclear => LoadMuxedQcounter(i),
+			timestamp => MuxedTimeStampBus,
+			indexmask => DeMuxedIndexMask(i),
+			filterrate => MuxedQCountFilterRate,
+			clk =>	clklow
+		);
+	end generate makemuxedquadcounters;
 
-	maketqcounterglobals:  if (QCounters >0) generate
+	makeqcounterglobals:  if (QCounters >0) generate
 		timestampx: entity timestamp 
 			port map( 
 				ibus => ibus(15 downto 0),
@@ -562,6 +639,7 @@ architecture dataflow of HostMot2 is
 			);
 				
 			qcountratex: entity qcounterate 
+			generic map (defaultrate => x"800") -- default is clklow divided by 1 for normal counters
 			port map( 
 				ibus => ibus(11 downto 0),
 				loadRate => LoadQCountRate,
@@ -569,6 +647,30 @@ architecture dataflow of HostMot2 is
 				clk => clklow
 			);
 	end generate;
+	
+	makemuxedqcounterglobals:  if (MuxedQCounters >0) generate
+		timestampx: entity timestamp 
+			port map( 
+				ibus => ibus(15 downto 0),
+				obus => obus(15 downto 0),
+				loadtsdiv => LoadTSDiv ,
+				readts => ReadMuxedTS,
+				readtsdiv =>ReadMuxedTSDiv,
+				tscount => MuxedTimeStampBus,
+				clk => clklow
+			);
+				
+			qcountratex: entity qcounterate 
+			generic map (defaultrate => x"002") -- default is clklow divided by 4 (N+2) for muxed counters
+			port map( 									
+				ibus => ibus(11 downto 0),
+				loadRate => LoadMuxedQCountRate,
+				rateout => MuxedQcountFilterRate,
+				clk => clklow
+			);
+			
+	end generate;
+	
 		
 		
 	makepwmref:  if ((PWMGens > 0) or UseIRQLogic) generate
@@ -647,6 +749,30 @@ architecture dataflow of HostMot2 is
 			davout => SPIDAV(i)
 			);
 	end generate;	
+		
+	makeBSPIs: for i in 0 to BSPIs -1 generate
+		bspi: entity BufferedSPI
+		generic map (
+			cswidth => BSPICSWidth)		
+		port map (
+			clk  => clklow,
+			ibus => ibus,
+			obus => obus,
+			addr => A(5 downto 2),
+			hostpush => LoadBSPIData(i),
+			hostpop => ReadBSPIData(i),
+			loaddesc => LoadBSPIDescriptor(i),
+			loadasend => '0',
+			clear => ClearBSPIFIFO(i),
+			readcount => ReadBSPIFIFOCount(i),
+			spiclk => BSPIClk(i),
+			spiin => BSPIIn(i),
+			spiout => BSPIOut(i),
+			spiframe => BSPIFrame(i),
+			spicsout => BSPICS(i)
+			);
+	end generate;	
+	
 
 	makeUARTRs: for i in 0 to UARTs -1 generate
 		auarrx: entity uartr	
@@ -660,11 +786,11 @@ architecture dataflow of HostMot2 is
 			readbitrate => ReadUARTRBitrate(i),
 			clrfifo => ClearUARTRFIFO(i),
 			readfifocount => ReadUARTRFIFOCount(i),
-			loadmode => LoadUARTRMode(i),
-			readmode => ReadUARTRMode(i),
+			loadmode => LoadUARTRModeReg(i),
+			readmode => ReadUARTRModeReg(i),
 			fifohasdata => UARTRFIFOHasData(i),
 			rxmask => UTDrvEn(i),			-- for half duplex rx mask
-			rxdata => URXData(i)
+			rxdata => URData(i)
          );
 	end generate;
 	
@@ -675,17 +801,17 @@ architecture dataflow of HostMot2 is
 			ibus => ibus,
 			obus => obus,
 			addr => A(3 downto 2),
-			pushfifo => LoadUARTXData(i),
-			loadbitrate => LoadUARTXBitRate(i),
-			readbitrate => ReadUARTXBitrate(i),
-			clrfifo => ClearUARTXFIFO(i),
-			readfifocount => ReadUARTXFIFOCount(i),
-			loadmode => LoadUARTXModeReg(i),
-			readmode => ReadUARTXModeReg(i),
-			fifoempty => UARTXFIFOEmpty(i),
+			pushfifo => LoadUARTTData(i),
+			loadbitrate => LoadUARTTBitRate(i),
+			readbitrate => ReadUARTTBitrate(i),
+			clrfifo => ClearUARTTFIFO(i),
+			readfifocount => ReadUARTTFIFOCount(i),
+			loadmode => LoadUARTTModeReg(i),
+			readmode => ReadUARTTModeReg(i),
+			fifoempty => UARTTFIFOEmpty(i),
 			txen => '1',
 			drven => UTDrvEn(i),
-			txdata => UTXData(i)
+			txdata => UTData(i)
          );
 	end generate;
 
@@ -752,64 +878,105 @@ architecture dataflow of HostMot2 is
 			dout => obus
 		); 
 
-		DoPinout: process(QuadA,QuadB,Index,PWMGenOutA,PWMGenOutB,PWMGenOutC,StepGenOut)
+		DoPinout: process(PWMGenOutA,PWMGenOutB,PWMGenOutC,StepGenOut,SPIFrame,SPIOut,SPIClk,
+		                  UTData,UTDrvEn,BSPIFrame,BSPIOut,BSPIClk,BSPICS,IOBits)
 		begin
 			Altdata <= (others => '0');
-			for i in 0 to IOWidth -1 loop
+			for i in 0 to IOWidth -1 loop 
 				case ThePinDesc(i)(15 downto 8) is -- GTag
-					
+					-- all these nasty subranges will go away when pindescs are changed to records
 					when QCountTag => 
-						case ('0' & ThePinDesc(i)(7 downto 0)) is	--secondary pin function, drop MSB
-							when x"01" =>
+						case (ThePinDesc(i)(7 downto 0)) is	--secondary pin function
+							when QCountQAPin =>
 								QuadA(conv_integer(ThePinDesc(i)(23 downto 16))) <= IOBits(i); 
-							when x"02" =>
+							when QCountQBPin =>
 								QuadB(conv_integer(ThePinDesc(i)(23 downto 16))) <= IOBits(i);
-							when x"03" =>
+							when QCountIdxPin =>
 								Index(conv_integer(ThePinDesc(i)(23 downto 16))) <= IOBits(i);
+							when QCountIdxMaskPin =>
+								IndexMask(conv_integer(ThePinDesc(i)(23 downto 16))) <= IOBits(i);
+							when others => null;
+						end case;
+
+					when MuxedQCountTag => 
+						case (ThePinDesc(i)(7 downto 0)) is	--secondary pin function
+							when MuxedQCountQAPin =>
+								MuxedQuadA(conv_integer(ThePinDesc(i)(23 downto 16))) <= IOBits(i); 
+							when MuxedQCountQBPin =>
+								MuxedQuadB(conv_integer(ThePinDesc(i)(23 downto 16))) <= IOBits(i);
+							when MuxedQCountIdxPin =>
+								MuxedIndex(conv_integer(ThePinDesc(i)(23 downto 16))) <= IOBits(i);
+							when MuxedQCountIdxMaskPin =>
+								MuxedIndexMask(conv_integer(ThePinDesc(i)(23 downto 16))) <= IOBits(i);
+							when others => null;
+						end case;
+
+					when MuxedQCountSelTag =>
+						case(ThePinDesc(i)(7 downto 0)) is	--secondary pin function
+							when MuxedQCountSel0Pin =>
+								AltData(i) <= MuxedQCtrSel(0);
+							when MuxedQCountSel1Pin =>
+								AltData(i) <= MuxedQCtrSel(1);
 							when others => null;
 						end case;
 					
 					when PWMTag =>
-						case ('0' & ThePinDesc(i)(6 downto 0)) is	--secondary pin function, drop MSB
-							when x"01" =>
+						case (ThePinDesc(i)(7 downto 0)) is	--secondary pin function
+							when PWMAOutPin =>
 								AltData(i) <= PWMGENOutA(conv_integer(ThePinDesc(i)(23 downto 16))); 
-							when x"02" =>
+							when PWMBDirPin =>
 								AltData(i) <= PWMGENOutB(conv_integer(ThePinDesc(i)(23 downto 16))); 
-							when x"03" =>
+							when PWMCEnaPin =>
 								AltData(i) <= PWMGENOutC(conv_integer(ThePinDesc(i)(23 downto 16))); 
 							when others => null;
 						end case;
+						
 					when StepGenTag =>						
 						AltData(i) <= StepGenOut(conv_integer(ThePinDesc(i)(23 downto 16)))(conv_integer(ThePinDesc(i)(6 downto 0))-1);						
 
-					when UARTTXTag =>
-						case ('0' & ThePinDesc(i)(6 downto 0)) is	--secondary pin function, drop MSB
-							when x"01" =>
-								AltData(i) <= UTXData(conv_integer(ThePinDesc(i)(23 downto 16)));				
-							when x"02" =>
+					when UARTTTag =>
+						case (ThePinDesc(i)(7 downto 0)) is	--secondary pin function
+							when UTDataPin =>
+								AltData(i) <= UTData(conv_integer(ThePinDesc(i)(23 downto 16)));				
+							when UTDrvEnPin =>
 								AltData(i) <= UTDrvEn(conv_integer(ThePinDesc(i)(23 downto 16)));	
 							when others => null;								
 						end case;
 						
-					when UARTRXTag =>
-						if ('0' & ThePinDesc(i)(6 downto 0)) = "01" then
-							URXData(conv_integer(ThePinDesc(i)(23 downto 16))) <= IOBits(i);
+					when UARTRTag =>
+						if (ThePinDesc(i)(7 downto 0)) = URDataPin then
+							URData(conv_integer(ThePinDesc(i)(23 downto 16))) <= IOBits(i);
 						end if;
 						
 					when SPITag =>
-						case ('0' & ThePinDesc(i)(6 downto 0)) is	--secondary pin function, drop MSB
-							when x"01" =>
+						case (ThePinDesc(i)(7 downto 0)) is	--secondary pin function, drop MSB
+							when SPIFramePin =>
 								AltData(i) <= SPIFrame(conv_integer(ThePinDesc(i)(23 downto 16)));				
-							when x"02" =>
+							when SPIOutPin =>
 								AltData(i) <= SPIOut(conv_integer(ThePinDesc(i)(23 downto 16)));				
-							when x"03" =>
+							when SPIClkPin =>
 								AltData(i) <= SPIClk(conv_integer(ThePinDesc(i)(23 downto 16)));				
-							when x"04" =>		
+							when SPIInPin =>		
 								SPIIn(conv_integer(ThePinDesc(i)(23 downto 16))) <= IOBits(i);
 							when others => null;
 						end case;
+						
+					when BSPITag =>
+						case (ThePinDesc(i)(7 downto 0)) is	--secondary pin function, drop MSB
+							when BSPIFramePin =>
+								AltData(i) <= BSPIFrame(conv_integer(ThePinDesc(i)(23 downto 16)));				
+							when BSPIOutPin =>
+								AltData(i) <= BSPIOut(conv_integer(ThePinDesc(i)(23 downto 16)));				
+							when BSPIClkPin =>
+								AltData(i) <= BSPIClk(conv_integer(ThePinDesc(i)(23 downto 16)));				
+							when BSPIInPin =>		
+								BSPIIn(conv_integer(ThePinDesc(i)(23 downto 16))) <= IOBits(i);
+							when others => AltData(i) <= BSPICS(conv_integer(ThePinDesc(i)(23 downto 16)))(conv_integer(ThePinDesc(i)(6 downto 0))-5);
+							-- magic foo, magic foo, what on earth does it do?						
+							-- (this needs to written more clearly!)							
+						end case;
 
---					when SSITag =>
+--					when SSITag =>  not done
 					
 					when others => null;		
 				end case;	
@@ -825,7 +992,34 @@ architecture dataflow of HostMot2 is
 		end if;
 	end process;
 
-
+   MuxedEnc: if  MuxedQCounters > 0 generate
+	
+		EncoderDeMux: process(clklow)
+		begin
+			if rising_edge(clklow) then
+				if MuxedQCountFilterRate = '1' then
+					PreMuxedQCtrSel <= PreMuxedQCtrSel + 1;
+				end if;
+				MuxedQCtrSel <= PreMuxedQCtrSel;
+				for i in 0 to ((MuxedQCounters/2) -1) loop -- just 2 deep for now
+					if PreMuxedQCtrSel(0) = '1' and MuxedQCtrSel(0) = '0' then	-- latch the even inputs	
+						DeMuxedQuadA(2*i) <= MuxedQuadA(i);
+						DeMuxedQuadB(2*i) <= MuxedQuadB(i);
+						DeMuxedIndex(2*i) <= MuxedIndex(i);
+						DeMuxedIndexMask(2*i) <= MuxedIndexMask(i);
+					end if;
+					if PreMuxedQCtrSel(0) = '0' and MuxedQCtrSel(0) = '1' then	-- latch the odd inputs
+						DeMuxedQuadA(2*i+1) <= MuxedQuadA(i);
+						DeMuxedQuadB(2*i+1) <= MuxedQuadB(i);
+						DeMuxedIndex(2*i+1) <= MuxedIndex(i);
+						DeMuxedIndexMask(2*i+1) <= MuxedIndexMask(i);
+					end if;
+				end loop;
+			end if; -- clk
+		end process;
+	end generate;		
+		
+	
 
 	Decode: process(A,write, IDROMWEn, read) 
 	begin	
@@ -940,6 +1134,18 @@ architecture dataflow of HostMot2 is
 			QCounterCCRSel <= '0';
 		end if;
 
+		if A(15 downto 8) = MuxedQCounterAddr then	 --  QCounter select
+			MuxedQCounterSel <= '1';
+		else
+			MuxedQCounterSel <= '0';
+		end if;
+
+		if A(15 downto 8) = QCounterCCRAddr then	 --  QCounter CCR register select
+			MuxedQCounterCCRSel <= '1';
+		else
+			MuxedQCounterCCRSel <= '0';
+		end if;
+
 		if A(15 downto 8) = PWMValAddr then	 --  PWMVal select
 			PWMValSel <= '1';
 		else
@@ -969,29 +1175,47 @@ architecture dataflow of HostMot2 is
 		else
 			SPIBitrateSel <= '0';
 		end if;
-
-		if A(15 downto 8) = UARTXDataAddr then	 --  UART TX data register select
-			UARTXDataSel <= '1';
+		
+		if A(15 downto 8) = BSPIDataAddr then	 --  BSPI data register select
+			BSPIDataSel <= '1';
 		else
-			UARTXDataSel <= '0';
+			BSPIDataSel <= '0';
+		end if;
+		
+		if A(15 downto 8) = BSPIFIFOCountAddr then	 --  BSPI FIFO count register select
+			BSPIFIFOCountSel <= '1';
+		else
+			BSPIFIFOCountSel <= '0';
 		end if;
 
-		if A(15 downto 8) = UARTXFIFOCountAddr then	 --  UART TX FIFO count register select
-			UARTXFIFOCountSel <= '1';
+		if A(15 downto 8) = BSPIDescriptorAddr then	 --  BSPI channel descriptor register select
+			BSPIDescriptorSel <= '1';
 		else
-			UARTXFIFOCountSel <= '0';
+			BSPIDescriptorSel <= '0';
+		end if;
+		
+		if A(15 downto 8) = UARTTDataAddr then	 --  UART TX data register select
+			UARTTDataSel <= '1';
+		else
+			UARTTDataSel <= '0';
 		end if;
 
-		if A(15 downto 8) = UARTXBitrateAddr then	 --  UART TX bit rate register select
-			UARTXBitrateSel <= '1';
+		if A(15 downto 8) = UARTTFIFOCountAddr then	 --  UART TX FIFO count register select
+			UARTTFIFOCountSel <= '1';
 		else
-			UARTXBitrateSel <= '0';
+			UARTTFIFOCountSel <= '0';
 		end if;
 
-		if A(15 downto 8) = UARTXModeRegAddr then	 --  UART TX bit mode register select
-			UARTXModeRegSel <= '1';
+		if A(15 downto 8) = UARTTBitrateAddr then	 --  UART TX bit rate register select
+			UARTTBitrateSel <= '1';
 		else
-			UARTXModeRegSel <= '0';
+			UARTTBitrateSel <= '0';
+		end if;
+
+		if A(15 downto 8) = UARTTModeRegAddr then	 --  UART TX bit mode register select
+			UARTTModeRegSel <= '1';
+		else
+			UARTTModeRegSel <= '0';
 		end if;
 
 
@@ -1013,10 +1237,10 @@ architecture dataflow of HostMot2 is
 			UARTRBitrateSel <= '0';
 		end if;
 
-		if A(15 downto 8) = UARTRModeAddr then	 --  UART RX status register select
-			UARTRModeSel <= '1';
+		if A(15 downto 8) = UARTRModeRegAddr then	 --  UART RX status register select
+			UARTRModeRegSel <= '1';
 		else
-			UARTRModeSel <= '0';
+			UARTRModeRegSel <= '0';
 		end if;
 
 		if A(15 downto 8) = ReadIDAddr and Read = '1' then	 --  
@@ -1117,6 +1341,30 @@ architecture dataflow of HostMot2 is
 		else
 			LoadQCountRate <= '0';
 		end if;
+		
+		if A(15 downto 8) = MuxedTSDivAddr and Write = '1' then	 --  
+			LoadMuxedTSDiv <= '1';
+		else
+			LoadMuxedTSDiv <= '0';
+		end if;
+		if A(15 downto 8) = MuxedTSDivAddr and Read = '1' then	 --  
+			ReadMuxedTSDiv <= '1';
+		else
+			ReadMuxedTSDiv <= '0';
+		end if;
+
+		if A(15 downto 8) = MuxedTSAddr and Read = '1' then	 --  
+			ReadMuxedTS <= '1';
+		else
+			ReadMuxedTS <= '0';
+		end if;
+
+		if A(15 downto 8) = MuxedQCRateAddr and Write = '1' then	 --  
+			LoadMuxedQCountRate <= '1';
+		else
+			LoadMuxedQCountRate <= '0';
+		end if;
+
 
 		if A(15 downto 8) = PWMRateAddr and Write = '1' then	 --  
 			LoadPWMRate <= '1';
@@ -1203,15 +1451,26 @@ architecture dataflow of HostMot2 is
 		end generate;
 
 
-		QCounterDecode: if (QCOUNTERs > 0) generate		
+		QCounterDecode: if (QCounters > 0) generate		
 			QCounterDecodeProcess : process (A,Read,write,QCounterSel, QCounterCCRSel)
 			begin
-				LoadQCounter <= OneOfNDecode(QCOUNTERs,QCounterSel,Write,A(6 downto 2));  -- 32 max
-				ReadQCounter <= OneOfNDecode(QCOUNTERs,QCounterSel,Read,A(6 downto 2));
-				LoadQCounterCCR <= OneOfNDecode(QCOUNTERs,QCounterCCRSel,Write,A(6 downto 2));
-				ReadQCounterCCR <= OneOfNDecode(QCOUNTERs,QCounterCCRSel,Read,A(6 downto 2));
+				LoadQCounter <= OneOfNDecode(QCounters,QCounterSel,Write,A(6 downto 2));  -- 32 max
+				ReadQCounter <= OneOfNDecode(QCounters,QCounterSel,Read,A(6 downto 2));
+				LoadQCounterCCR <= OneOfNDecode(QCounters,QCounterCCRSel,Write,A(6 downto 2));
+				ReadQCounterCCR <= OneOfNDecode(QCounters,QCounterCCRSel,Read,A(6 downto 2));
 			end process QCounterDecodeProcess;
 		end generate;
+
+		MuxedQCounterDecode: if (MuxedQcounters > 0) generate		
+			MuxedQCounterDecodeProcess : process (A,Read,write,MuxedQCounterSel, MuxedQCounterCCRSel)
+			begin
+				LoadMuxedQCounter <= OneOfNDecode(MuxedQCounters,MuxedQCounterSel,Write,A(6 downto 2));  -- 32 max
+				ReadMuxedQCounter <= OneOfNDecode(MuxedQCounters,MuxedQCounterSel,Read,A(6 downto 2));
+				LoadMuxedQCounterCCR <= OneOfNDecode(MuxedQCounters,MuxedQCounterCCRSel,Write,A(6 downto 2));
+				ReadMuxedQCounterCCR <= OneOfNDecode(MuxedQCounters,MuxedQCounterCCRSel,Read,A(6 downto 2));
+			end process MuxedQCounterDecodeProcess;
+		end generate;
+
 
 		PWMDecode: if (PWMGENs > 0) generate		
 			PWMDecodeProcess : process (A,Read,write,PWMValSel, PWMCRSel)
@@ -1233,25 +1492,36 @@ architecture dataflow of HostMot2 is
 			end process SPIDecodeProcess;
 		end generate;
 
-		UARTDecode: if (UARTs > 0) generate		
-			UARTDecodeProcess : process (A,Read,write,UARTXDataSel,UARTXBitRateSel,UARTXModeRegSel,UARTXFIFOCountSel,
-			                             UARTRDataSel,UARTRBitRateSel,UARTRFIFOCountSel,UARTRModeSel)
+		BSPIDecode: if (BSPIs > 0) generate		
+			BSPIDecodeProcess : process (A,Read,write,BSPIDataSel,BSPIFIFOCountSel,BSPIDescriptorSel)
 			begin		
-				LoadUARTXData <= OneOfNDecode(UARTs,UARTXDataSel,Write,A(6 downto 4));
-				LoadUARTXBitRate <= OneOfNDecode(UARTs,UARTXBitRateSel,Write,A(4 downto 2));
-				ReadUARTXBitrate <= OneOfNDecode(UARTs,UARTXBitRateSel,Read,A(4 downto 2));
-				LoadUARTXModeReg <= OneOfNDecode(UARTs,UARTXModeRegSel,Write,A(4 downto 2));
-				ReadUARTXModeReg <= OneOfNDecode(UARTs,UARTXModeRegSel,Read,A(4 downto 2));
-				ClearUARTXFIFO <= OneOfNDecode(UARTs,UARTXFIFOCountSel,Write,A(4 downto 2));
-				ReadUARTXFIFOCount <= OneOfNDecode(UARTs,UARTXFIFOCountSel,Read,A(4 downto 2));
+				LoadBSPIData <= OneOfNDecode(BSPIs,BSPIDataSel,Write,A(7 downto 6)); -- 4 max
+				ReadBSPIData <= OneOfNDecode(BSPIs,BSPIDataSel,Read,A(7 downto 6));
+				LoadBSPIDescriptor<= OneOfNDecode(BSPIs,BSPIDescriptorSel,Write,A(5 downto 2));
+				ReadBSPIFIFOCOunt <= OneOfNDecode(BSPIs,BSPIFIFOCountSel,Read,A(5 downto 2));
+				ClearBSPIFIFO <= OneOfNDecode(BSPIs,BSPIFIFOCountSel,Write,A(5 downto 2));
+			end process BSPIDecodeProcess;
+		end generate;
+
+		UARTDecode: if (UARTs > 0) generate		
+			UARTDecodeProcess : process (A,Read,write,UARTTDataSel,UARTTBitRateSel,UARTTModeRegSel,UARTTFIFOCountSel,
+			                             UARTRDataSel,UARTRBitRateSel,UARTRFIFOCountSel,UARTRModeRegSel)
+			begin		
+				LoadUARTTData <= OneOfNDecode(UARTs,UARTTDataSel,Write,A(6 downto 4));
+				LoadUARTTBitRate <= OneOfNDecode(UARTs,UARTTBitRateSel,Write,A(4 downto 2));
+				ReadUARTTBitrate <= OneOfNDecode(UARTs,UARTTBitRateSel,Read,A(4 downto 2));
+				LoadUARTTModeReg <= OneOfNDecode(UARTs,UARTTModeRegSel,Write,A(4 downto 2));
+				ReadUARTTModeReg <= OneOfNDecode(UARTs,UARTTModeRegSel,Read,A(4 downto 2));
+				ClearUARTTFIFO <= OneOfNDecode(UARTs,UARTTFIFOCountSel,Write,A(4 downto 2));
+				ReadUARTTFIFOCount <= OneOfNDecode(UARTs,UARTTFIFOCountSel,Read,A(4 downto 2));
 
 				LoadUARTRData <= OneOfNDecode(UARTs,UARTRDataSel,Read,A(6 downto 4));
 				LoadUARTRBitRate <= OneOfNDecode(UARTs,UARTRBitRateSel,Write,A(4 downto 2));
 				ReadUARTRBitrate <= OneOfNDecode(UARTs,UARTRBitRateSel,Read,A(4 downto 2));
 				ClearUARTRFIFO <= OneOfNDecode(UARTs,UARTRFIFOCountSel,Write,A(4 downto 2));
 				ReadUARTRFIFOCount <= OneOfNDecode(UARTs,UARTRFIFOCountSel,Read,A(4 downto 2));
-				LoadUARTRMode <= OneOfNDecode(UARTs,UARTRModeSel,Write,A(4 downto 2));
-				ReadUARTRMode <= OneOfNDecode(UARTs,UARTRModeSel,Read,A(4 downto 2));
+				LoadUARTRModeReg <= OneOfNDecode(UARTs,UARTRModeRegSel,Write,A(4 downto 2));
+				ReadUARTRModeReg <= OneOfNDecode(UARTs,UARTRModeRegSel,Read,A(4 downto 2));
 			end process UARTDecodeProcess;
 		end generate;
 

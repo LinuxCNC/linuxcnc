@@ -81,8 +81,8 @@ entity I20HostMot2 is
       -- the PinDesc and ModuleID records in IDParms.vhd and passed through
 		-- to the lower levels. That is, these next two assignments determine
 		-- the modules contained and the pinout of a FPGA firmware configuration 
-		ThePinDesc: PinDescType := PinDesc_SVST8_4;
-		TheModuleID: ModuleIDType := ModuleID_SVST8_4;
+		ThePinDesc: PinDescType := PinDesc_JDosa66;
+		TheModuleID: ModuleIDType := ModuleID_JDosa66;
 		PWMRefWidth: integer := 13;	-- PWM resolution is PWMRefWidth-1 bits 
 		IDROMType: integer := 2;		
 	   SepClocks: boolean := true;
@@ -103,10 +103,10 @@ entity I20HostMot2 is
 		PortWidth: integer := 24;
 		BusWidth: integer := 32;
 		AddrWidth: integer := 16;
-		InstStride0: integer := 4;
-		InstStride1: integer := 16;
-		RegStride0: integer := 256;
-		RegStride1: integer := 4;
+		InstStride0: integer := 4;			-- instance stride 0 = 4 bytes = 1 x 32 bit
+		InstStride1: integer := 64;		-- instance stride 1 = 64 bytes = 16 x 32 bit registers
+		RegStride0: integer := 256;		-- register stride 0 = 256 bytes = 64 x 32 bit registers
+		RegStride1: integer := 4;        -- register stride 1 = 4 bytes - 1 x 32 bit
 		LEDCount: integer := 8
 		);
 	port 
@@ -170,14 +170,18 @@ signal Clk0: STD_LOGIC;
 signal CLK2X: STD_LOGIC;
 
 	-- Extract the number of modules of each type from the ModuleID
-constant STEPGens: integer := NumberOfModules(TheModuleID,StepGenTag);
+constant StepGens: integer := NumberOfModules(TheModuleID,StepGenTag);
 constant QCounters: integer := NumberOfModules(TheModuleID,QCountTag);
+constant MuxedQCounters: integer := NumberOfModules(TheModuleID,MuxedQCountTag);
 constant PWMGens : integer := NumberOfModules(TheModuleID,PWMTag);
 constant SPIs: integer := NumberOfModules(TheModuleID,SPITag);
+constant BSPIs: integer := NumberOfModules(TheModuleID,BSPITag);
 constant SSIs: integer := NumberOfModules(TheModuleID,SSITag);   
-constant UARTs: integer := NumberOfModules(TheModuleID,UARTRXTag);
+constant UARTs: integer := NumberOfModules(TheModuleID,UARTRTag);
 	-- extract the needed Stepgen table width from the max pin# used with a stepgen tag
 constant StepGenTableWidth: integer := MaxPinsPerModule(ThePinDesc,StepGenTag);
+	-- extract how many BSPI CS pins are needed from the max pin# used with a BSPI tag skipping the first 4
+constant BSPICSWidth: integer := MaxPinsPerModule(ThePinDesc,BSPITag)-4;
 	
 begin
 
@@ -235,14 +239,17 @@ ahostmot2: entity HostMot2
 	generic map (
 		thepindesc => ThePinDesc,
 		themoduleid => TheModuleID,
-		stepgens  => STEPGENs,
-		qcounters  => QCOUNTERS,
+		stepgens  => StepGens,
+		qcounters  => QCounters,
+		muxedqcounters => MuxedQCounters,
 		pwmgens  => PWMGens,
 		spis  => SPIs,
+		bspis => BSPIs,
 		ssis  => SSIs,
 		uarts  => UARTs,
 		pwmrefwidth  => PWMRefWidth,
 		stepgentablewidth  => StepGenTableWidth,
+		bspicswidth => BSPICSWidth,
 		idromtype  => IDROMType,		
 	   sepclocks  => SepClocks,
 		onews  => OneWS,
@@ -295,7 +302,7 @@ ahostmot2: entity HostMot2
 		end if;
 	end process LADDrivers;
 
-	BusCycleGen: process (LCLK)				-- added 1 wait state (read/write)
+	BusCycleGen: process (LCLK,ADS, LAD, ReadyFF, A, Burst, LW_RPipe)				-- added 1 wait state (read/write)
 	begin
 		if rising_edge(LCLK) then
 			A <= NextA;								-- always update our latched address

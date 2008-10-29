@@ -81,8 +81,8 @@ entity I22HostMot2 is  -- also for 5I23 and 4I68
       -- the PinDesc and ModuleID records in IDParms.vhd and passed through
 		-- to the lower levels. That is, these next two assignments determine
 		-- the modules contained and the pinout of a FPGA firmware configuration 
-		ThePinDesc: PinDescType := PinDesc_SVST8_8;
-		TheModuleID: ModuleIDType := ModuleID_SVST8_8;
+		ThePinDesc: PinDescType := PinDesc_4xi30;
+		TheModuleID: ModuleIDType := ModuleId_4xi30;
 		PWMRefWidth: integer := 13;		-- PWM resolution is PWMRefWidth-1 bits, MSB is for symmetrical mode 
 		IDROMType: integer := 2;		
 	   SepClocks: boolean := true;
@@ -96,8 +96,8 @@ entity I22HostMot2 is  -- also for 5I23 and 4I68
 		ClockLow: integer := ClockLow22;
 		BoardNameLow : std_Logic_Vector(31 downto 0) := BoardNameMESA;
 		BoardNameHigh : std_Logic_Vector(31 downto 0) := BoardName5I22;
---		FPGASize: integer := 1000;		-- 5I22-1000
-		FPGASize: integer := 1500;		-- 5I22-1500
+		FPGASize: integer := 1000;		-- 5I22-1000
+--		FPGASize: integer := 1500;		-- 5I22-1500
 		FPGAPins: integer := 320;		-- 5I22
 --		FPGASize: integer := 400;		-- 5I23,4I68
 --		FPGAPins: integer := 208;		-- 5I23,4I68
@@ -174,16 +174,19 @@ signal clkfx: std_logic;
 signal clk0: std_logic;
 
 	-- Extract the number of modules of each type from the ModuleID
-constant STEPGens: integer := NumberOfModules(TheModuleID,StepGenTag);
+constant StepGens: integer := NumberOfModules(TheModuleID,StepGenTag);
 constant QCounters: integer := NumberOfModules(TheModuleID,QCountTag);
+constant MuxedQCounters: integer := NumberOfModules(TheModuleID,MuxedQCountTag);
 constant PWMGens : integer := NumberOfModules(TheModuleID,PWMTag);
 constant SPIs: integer := NumberOfModules(TheModuleID,SPITag);
+constant BSPIs: integer := NumberOfModules(TheModuleID,BSPITag);
 constant SSIs: integer := NumberOfModules(TheModuleID,SSITag);   
-constant UARTs: integer := NumberOfModules(TheModuleID,UARTRXTag);
+constant UARTs: integer := NumberOfModules(TheModuleID,UARTRTag);
 	-- extract the needed Stepgen table width from the max pin# used with a stepgen tag
 constant StepGenTableWidth: integer := MaxPinsPerModule(ThePinDesc,StepGenTag);
-	
-	
+	-- extract how many BSPI CS pins are needed from the max pin# used with a BSPI tag skipping the first 4
+constant BSPICSWidth: integer := MaxPinsPerModule(ThePinDesc,BSPITag)-4;
+		
 begin
 
    ClockMult : DCM
@@ -224,19 +227,23 @@ begin
   -- End of DCM_inst instantiation
  
 ahostmot2: entity HostMot2
-	generic map (		stepgens  => STEPGENs,
+	generic map (
 		thepindesc => ThePinDesc,
 		themoduleid => TheModuleID,
-		qcounters  => QCOUNTERS,
+		stepgens  => StepGens,
+		qcounters  => QCounters,
+		muxedqcounters => MuxedQCounters,
 		pwmgens  => PWMGens,
 		spis  => SPIs,
+		bspis => BSPIs,
 		ssis  => SSIs,
 		uarts  => UARTs,
 		pwmrefwidth  => PWMRefWidth,
 		stepgentablewidth  => StepGenTableWidth,
+		bspicswidth => BSPICSWidth,
 		idromtype  => IDROMType,		
 	   sepclocks  => SepClocks,
-		onews  => OneWS, 
+		onews  => OneWS,
 		usestepgenprescaler => UseStepGenPrescaler,
 		useirqlogic  => UseIRQLogic,
 		usewatchdog  => UseWatchDog,

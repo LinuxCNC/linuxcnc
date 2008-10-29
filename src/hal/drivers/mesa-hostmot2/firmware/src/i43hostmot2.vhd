@@ -170,31 +170,38 @@ signal ReConfigreg : std_logic := '0';
 signal fclk : std_logic;
 signal clkfx: std_logic;
 signal clk0: std_logic;
-	
+
 	-- Extract the number of modules of each type from the ModuleID
-constant STEPGens: integer := NumberOfModules(TheModuleID,StepGenTag);
+constant StepGens: integer := NumberOfModules(TheModuleID,StepGenTag);
 constant QCounters: integer := NumberOfModules(TheModuleID,QCountTag);
+constant MuxedQCounters: integer := NumberOfModules(TheModuleID,MuxedQCountTag);
 constant PWMGens : integer := NumberOfModules(TheModuleID,PWMTag);
 constant SPIs: integer := NumberOfModules(TheModuleID,SPITag);
+constant BSPIs: integer := NumberOfModules(TheModuleID,BSPITag);
 constant SSIs: integer := NumberOfModules(TheModuleID,SSITag);   
 constant UARTs: integer := NumberOfModules(TheModuleID,UARTRXTag);
 	-- extract the needed Stepgen table width from the max pin# used with a stepgen tag
 constant StepGenTableWidth: integer := MaxPinsPerModule(ThePinDesc,StepGenTag);
-
+	-- extract how many BSPI CS pins are needed from the max pin# used with a BSPI tag skipping the first 4
+constant BSPICSWidth: integer := MaxPinsPerModule(ThePinDesc,BSPITag)-4;
+	
 begin
 
 ahostmot2: entity HostMot2
 	generic map (
 		thepindesc => ThePinDesc,
 		themoduleid => TheModuleID,
-		stepgens  => STEPGENs,
-		qcounters  => QCOUNTERS,
+		stepgens  => StepGens,
+		qcounters  => QCounters,
+		muxedqcounters > MuxedQCounters,
 		pwmgens  => PWMGens,
 		spis  => SPIs,
+		bspis = BSPIs,
 		ssis  => SSIs,
 		uarts  => UARTs,
 		pwmrefwidth  => PWMRefWidth,
 		stepgentablewidth  => StepGenTableWidth,
+		bspicswidth => BSPICSWidth,
 		idromtype  => IDROMType,		
 	   sepclocks  => SepClocks,
 		onews  => OneWS,

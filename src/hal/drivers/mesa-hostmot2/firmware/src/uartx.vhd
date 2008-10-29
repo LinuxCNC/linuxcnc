@@ -189,6 +189,7 @@ begin
 			if clear = '1' then -- a clear fifo
 				popadd  <= (others => '1');
 				datacounter <= (others => '0');
+				FIFOError <= '0';
 			end if;	
 	
 
@@ -257,7 +258,8 @@ begin
 			end if;
 
 			if loadmode =  '1' then 
-				ModeReg<= ibus(6 downto 0);				 
+				ModeReg(3 downto 0) <= ibus(3 downto 0);
+				ModeReg(6 downto 5) <= ibus(6 downto 5);
 			end if;
 
 		end if; -- clk

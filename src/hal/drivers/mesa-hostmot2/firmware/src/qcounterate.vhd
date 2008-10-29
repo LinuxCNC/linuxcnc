@@ -69,7 +69,8 @@ use ieee.std_logic_unsigned.all;
 -- 
 
 entity qcounterate is
-    port ( ibus : in  std_logic_vector (11 downto 0);
+    generic ( defaultrate : std_logic_vector(11 downto 0));
+	 port ( ibus : in  std_logic_vector (11 downto 0);
            loadrate : in  std_logic;
            rateout : out  std_logic;
 			  clk : in std_logic);
@@ -77,15 +78,14 @@ entity qcounterate is
 end qcounterate;
 
 architecture Behavioral of qcounterate is
-signal rate: std_logic_vector (11 downto 0) := x"800"; 
+signal rate: std_logic_vector (11 downto 0) := defaultrate; -- divides by n+2, 0x800 for divide by 1 
 signal count: std_logic_vector (11 downto 0); 
 alias  countmsb: std_logic is  count(11);
 
 begin
 	arate: process (clk,count)
 	begin
-		if rising_edge(clk) then
-			
+		if rising_edge(clk) then	
 			if countmsb= '0' then 
 				count <= count -1;
 			else
