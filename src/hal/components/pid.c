@@ -532,11 +532,17 @@ static int export_pid(int num, hal_pid_t * addr)
 	if (retval != 0) {
 	    return retval;
 	}
-        *(addr->error_i) = 0.0;
-        *(addr->error_d) = 0.0;
-        *(addr->cmd_d) = 0.0;
-        *(addr->cmd_dd) = 0.0;
+    } else {
+	addr->error_i = (float *) hal_malloc(sizeof(hal_float_t *));
+	addr->error_d = (float *) hal_malloc(sizeof(hal_float_t *));
+	addr->cmd_d = (float *) hal_malloc(sizeof(hal_float_t *));
+	addr->cmd_dd = (float *) hal_malloc(sizeof(hal_float_t *));
     }
+
+    *(addr->error_i) = 0.0;
+    *(addr->error_d) = 0.0;
+    *(addr->cmd_d) = 0.0;
+    *(addr->cmd_dd) = 0.0;
     /* init all structure members */
     *(addr->enable) = 0;
     *(addr->command) = 0;
