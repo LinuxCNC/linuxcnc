@@ -238,12 +238,7 @@ int main( int   argc, char *argv[] )
 
 	if (ClassicLadder_AllocAll())
 	{
-		char ProjectLoadedOk=TRUE;
-		if(!nomodbus) 
-		 {
-			InitSocketServer( 0/*UseUdpMode*/, ModbusServerPort/*PortNbr*/ );
-			InitSocketModbusMaster( );
-		}		
+		char ProjectLoadedOk=TRUE;		
 			
 		if (nogui==TRUE) {
 			 rtapi_print("INFO CLASSICLADDER-   No ladder GUI requested-Realtime runs till HAL closes.\n");
@@ -251,6 +246,11 @@ int main( int   argc, char *argv[] )
 			ProjectLoadedOk = LoadProjectFiles( CurrentProjectFileName );
 			InfosGene->LadderState = STATE_RUN;
 			ClassicLadder_FreeAll(TRUE);
+		if(!nomodbus) 
+		 {
+			InitSocketServer( 0/*UseUdpMode*/, ModbusServerPort/*PortNbr*/ );
+			InitSocketModbusMaster( );
+		}
 			hal_ready(compId);
 			hal_exit(compId);	
 			return 0; 
@@ -265,6 +265,11 @@ int main( int   argc, char *argv[] )
 				UpdateAllGtkWindows();				
 				MessageInStatusBar( ProjectLoadedOk?"Project loaded and running":"Project failed to load...");											
 				if (!ProjectLoadedOk)  {ClassicLadder_InitAllDatas( );}
+                                if(!nomodbus) 
+		 {
+			InitSocketServer( 0/*UseUdpMode*/, ModbusServerPort/*PortNbr*/ );
+			InitSocketModbusMaster( );
+		}
 				InfosGene->LadderState = STATE_RUN;
 				hal_ready(compId);
 				gtk_main();
