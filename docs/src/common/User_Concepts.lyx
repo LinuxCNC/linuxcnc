@@ -1,0 +1,185 @@
+#LyX 1.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 221
+\textclass book
+\language english
+\inputencoding auto
+\fontscheme default
+\graphics default
+\paperfontsize default
+\spacing single 
+\papersize Default
+\paperpackage a4
+\use_geometry 0
+\use_amsmath 0
+\use_natbib 0
+\use_numerical_citations 0
+\paperorientation portrait
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation skip
+\defskip smallskip
+\quotes_language english
+\quotes_times 2
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+
+\layout Chapter
+
+Important Concepts
+\layout Standard
+
+This chapter covers important concepts that should be understood before
+ attempting to run a g code file.
+\layout Section
+
+Trajectory Control
+\layout Subsection
+
+Trajectory Planning
+\layout Standard
+
+Trajectory planning, in general, is the means by which EMC follows the path
+ specified by your G Code program, while still operating within the limits
+ of your machinery.
+ 
+\layout Standard
+
+A G Code program can never be fully obeyed.
+ For example imagine you specify as a single-line program the following
+ move:
+\layout LyX-Code
+
+G1X1F10 (G1 is linear move, X1 is the destination, F10 is the speed)
+\layout Standard
+
+In reality, the whole move can't be made at F10, since the machine must
+ accelerate from a stop, move toward X=1, and then decelerate to stop again.
+ Sometimes part of the move is done at F10, but for many moves, especially
+ short ones, the specified feed rate is never reached at all.
+\layout Standard
+
+The basic acceleration and deceleration described above is not complex and
+ there is no compromise to be made.
+ In the INI file the specified machine constraints such as maximum axis
+ velocity and axis acceleration must be obeyed by the trajectory planner.
+\layout Subsection
+
+Path Following
+\layout Standard
+
+A less straightforward problem is that of path following.
+ When you program a corner in G Code, the trajectory planner can do several
+ things, all of which are right in some cases: it can decelerate to a stop
+ exactly at the coordinates of the corner, and then accelerate in the new
+ direction.
+ It can also do what is called blending, which is to keep the feed rate
+ up while going through the corner, making it necessary to round the corner
+ off in order to obey machine constraints.
+ You can see that there is a tradeoff here: you can slow down to get better
+ path following, or keep the speed up and have worse path following.
+ Depending on the particular cut, the material, the tooling, etc., the programmer
+ may want to compromise differently.
+\layout Subsection
+
+Programming the Planner
+\layout Standard
+
+The trajectory control commands are as follows:
+\layout Description
+
+G61 (exact stop mode) G61 tells the planner to come to an exact stop at
+ every segment's end.
+ This ensures exact path following but the full stops can be harmful to
+ the workpiece or the tooling, depending on the particular cut.
+ 
+\layout Description
+
+G64 (blend without tolerance mode) G64 is just blending and the naive cam
+ detector is not enabled.
+ G64 and G64P0 tell the planner to sacrifice path following accuracy in
+ order to keep the feed rate up.
+ This is necessary for some types of material or tooling where exact stops
+ are harmful, and can work great as long as the programmer is careful to
+ keep in mind that the tool's path will be somewhat more curvy than the
+ program specifies.
+ 
+\layout Description
+
+G64\SpecialChar ~
+Px.xxx (blend tolerance mode) This enables the "naive cam detector" and
+ enables blending with a tolerance.
+ If you are in inch mode and program G64 P0.05, you tell the planner that
+ you want continuous feed, but at programmed corners you want it to slow
+ down enough so that the tool path can stay within 0.05 inches of the programmed
+ path.
+ The exact amount of slowdown depends on the geometry of the programmed
+ corner and the machine constraints, but the only thing the programmer needs
+ to worry about is the tolerance.
+ This gives the programmer complete control over the path following compromise.
+ The blend tolerance can be changed throughout the program as necessary.
+ Beware that a specification of G64 P0 has the same effect as G64 alone
+ (above), which is necessary for backward compatibility for old G Code programs.
+ 
+\layout Description
+
+Blending\SpecialChar ~
+without\SpecialChar ~
+tolerance The controlled point will touch each specified
+ movement at at least one point.
+ The machine will never move at such a speed that it cannot come to an exact
+ stop at the end of the current movement (or next movement, if you pause
+ when blending has already started).
+ The distance from the end point of the move is as large as it needs to
+ be to keep up the best contouring feed.
+\layout Description
+
+Naive\SpecialChar ~
+Cam\SpecialChar ~
+Detector Successive G1 moves that involve only the XYZ axes that
+ deviate less than P- from a straight line are merged into a single straight
+ line.
+ This merged movement replaces the individual G1 movements for the purposes
+ of blending with tolerance.
+ Between successive movements, the controlled point will pass no more than
+ P- from the actual endpoints of the movements.
+ The controlled point will touch at least one point on each movement.
+ The machine will never move at such a speed that it cannot come to an exact
+ stop at the end of the current movement (or next movement, if you pause
+ when blending has already started) 
+\layout Subsection
+
+Planning Moves
+\layout Standard
+
+Make sure moves are "long enough" to suit your machine/material.
+ Principally because of the rule that "the machine will never move at such
+ a speed that it cannot come to a complete stop at the end of the current
+ movement", there is a minimum movement length that will allow the machine
+ to keep up a requested feed rate with a given acceleration setting.
+ 
+\layout Standard
+
+The acceleration and deceleration phase each use half the inifile MAX_ACCELERATI
+ON.
+ In a blend that is an exact reversal, this causes the total axis acceleration
+ to equal the inifile MAX_ACCELERATION.
+ In other cases, the actual machine acceleration is somewhat less than the
+ inifile acceleration 
+\layout Standard
+
+To keep up feed rate, the move must be longer than the distance it takes
+ to accelerate from 0 to the desired feed rate and then stop again.
+ Using A as 1/2 the inifile MAX_ACCELERATION and F as the feed rate *in
+ units per second*, the acceleration time is ta = F/A and the acceleration
+ distance is da = (1/2) * F * ta the deceleration time and distance are
+ the same, making the critical distance d = da + dd = 2*da = F^2 / A.
+ 
+\layout Standard
+
+For example, for a feed rate of 1 inch per second and an acceleration of
+ 10 inch/sec^2, the critical distance is 1^2 / 10 = .1 inch.
+ For a feed rate of .5 inch per second, the critical distance is .5^2 / 10
+ = .025 inch.
+ 
+\the_end
