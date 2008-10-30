@@ -3,7 +3,6 @@
 \textclass book
 \begin_preamble
 \usepackage[plainpages=false,pdfpagelabels,colorlinks=true,linkcolor=blue]{hyperref}
-\usepackage{tocbibind}
 \pagenumbering{roman}
 \let\myTOC\tableofcontents
 \renewcommand\tableofcontents{%
@@ -132,6 +131,15 @@ addcontentsline{toc}{chapter}{Foreword}
 
 
 \begin_inset Include \include{common/user_intro.lyx}
+preview false
+
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset Include \include{common/User_Concepts.lyx}
 preview false
 
 \end_inset 

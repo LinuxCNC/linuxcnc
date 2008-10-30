@@ -3,7 +3,6 @@
 \textclass book
 \begin_preamble
 \usepackage[plainpages=false,pdfpagelabels,colorlinks=true,linkcolor=blue]{hyperref}
-\usepackage{tocbibind}
 \pagenumbering{roman}
 \let\myTOC\tableofcontents
 \renewcommand\tableofcontents{%
