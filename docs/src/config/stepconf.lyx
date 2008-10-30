@@ -1593,15 +1593,9 @@ The CPU isn't the only factor in determining latency.
 
 To run the test, from Applications/Accessories/Terminal (Ubuntu) open a
  shell and run the following command: 
-\layout Standard
-\added_space_top smallskip \added_space_bottom smallskip 
-emc2$ 
-\family typewriter 
-\series bold 
-latency-test
-\family default 
-\series default 
- 
+\layout LyX-Code
+
+latency-test 
 \layout Standard
 
 You should see something like this:
@@ -1625,6 +1619,9 @@ While the test is running, you should "abuse" the computer.
  The idea is to put the PC through its paces while the latency test checks
  to see what the worst case numbers are.
  
+\layout Standard
+
+
 \series bold 
 Do not run EMC2 or Stepconf while the latency test is running.
 \layout Standard

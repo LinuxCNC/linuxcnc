@@ -622,7 +622,7 @@ gedit The editor to use when selecting File > Edit or File Edit Tool
 \end_inset 
 
 
-\begin_inset LatexCommand \index{ini [FILTER] Section}
+\begin_inset LatexCommand \index{INI [FILTER] Section}
 
 \end_inset 
 
@@ -643,34 +643,24 @@ AXIS has the ability to send loaded files through a filter program.
  display area, and executed by emc when Run.
  The following lines add support for the image-to-gcode converter included
  with emc2:
-\layout Description
+\layout LyX-Code
 
-PROGRAM_EXTENSION\SpecialChar ~
-=\SpecialChar ~
-.png,.gif Greyscale Depth Image
-\layout Description
+PROGRAM_EXTENSION = .png,.gif Greyscale Depth Image
+\layout LyX-Code
 
-png\SpecialChar ~
-=\SpecialChar ~
-image-to-gcode
-\layout Description
+png = image-to-gcode
+\layout LyX-Code
 
-gif\SpecialChar ~
-=\SpecialChar ~
-image-to-gcode
+gif = image-to-gcode
 \layout Standard
 
 It is also possible to specify an interpreter:
-\layout Description
+\layout LyX-Code
 
-PROGRAM_EXTENSION\SpecialChar ~
-=\SpecialChar ~
-.py Python Script
-\layout Description
+PROGRAM_EXTENSION = .py Python Script
+\layout LyX-Code
 
-py\SpecialChar ~
-=\SpecialChar ~
-python
+py = python
 \layout Standard
 
 In this way, any Python script can be opened, and its output is treated
@@ -678,6 +668,12 @@ In this way, any Python script can be opened, and its output is treated
  One such example script is available at nc_files/holecircle.py.
  This script creates g-code for drilling a series of holes along the circumferen
 ce of a circle.
+ Many other g-code generators are on the EMC Wiki site 
+\begin_inset LatexCommand \url{http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl}
+
+\end_inset 
+
+.
 \layout Standard
 
 If the environment variable AXIS_PROGRESS_BAR is set, then lines written
@@ -690,7 +686,7 @@ If the environment variable AXIS_PROGRESS_BAR is set, then lines written
 FILTER_PROGRESS=%d
 \layout Standard
 
-will set the AXIS progress bar to the given percentage.
+Sets the AXIS progress bar to the given percentage.
  This feature should be used by any filter that runs for a long time.
 \layout Subsection
 
