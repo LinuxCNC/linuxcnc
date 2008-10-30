@@ -103,6 +103,7 @@ DOC_SRCS := \
 	ladder/ladder_intro.lyx \
 	ladder/ladder_intro_fr.lyx \
 	ladder/classic_ladder.lyx \
+	ladder/ladder_examples.lyx \
 	motion/kinematics.lyx \
 	motion/kinematics_fr.lyx \
 	motion/pid_theory.lyx \
