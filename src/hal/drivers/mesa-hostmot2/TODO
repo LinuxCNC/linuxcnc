@@ -195,21 +195,19 @@ encoders:
 
             velocity-resolution (optional)
 
-        functions:
-
-            CDI just has a read()
-
 
 
 
 pwmgen:
 
-    feature complete!  no known bugs!
+    no known issues
 
 
 
 
 ioport:
+
+    no known issues
 
 
 
@@ -239,6 +237,8 @@ stepgen:
 
 watchdog:
 
+    no known issues
+
 
 
 
@@ -251,7 +251,7 @@ watchdog:
     needs to support multiple boards
 
 
-5i20 & 4i65:
+5i20, 5i23, 4i65, 4i68:
 
     no known issues
 
@@ -259,16 +259,6 @@ watchdog:
 5i22:
 
     test with the 1.5M version
-
-
-4i68:
-
-    test
-
-
-5i23:
-
-    test
 
 
 
@@ -336,28 +326,19 @@ planned milestones:
 
     1.0
 
-        add support for all other PCI cards
-
         add optional tram support
-
-        add DMA support for PCI cards with TRAM & the 7i43
-
-        llios should support multiple boards each
 
         complete support for encoder
 
-        complete support for pwmgen
-
         complete support for stepgen
-
-        complete support for gpios
-
-        complete support for watchdog
 
 
 
 
 wishlist:
+
+    add DMA support for PLX9054
+
 
     add an anyio layer in the kernel similar to the parport layer
 
