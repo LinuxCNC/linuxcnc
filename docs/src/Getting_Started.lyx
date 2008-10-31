@@ -108,6 +108,28 @@ Permission is granted to copy, distribute and/or modify this document under
 \layout Standard
 
 
+\begin_inset ERT
+status Open
+
+\layout Standard
+
+\backslash 
+addcontentsline{toc}{chapter}{Contents}
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset Include \include{common/System_Requirements.lyx}
+preview false
+
+\end_inset 
+
+
+\layout Standard
+
+
 \begin_inset Include \include{common/Getting_EMC.lyx}
 preview false
 
@@ -144,9 +166,13 @@ preview false
 \layout Standard
 
 
-\begin_inset Include \include{common/GPLD_Copyright.lyx}
-preview false
+\begin_inset ERT
+status Open
 
+\layout Standard
+
+\backslash 
+markboth{Index}{Index}
 \end_inset 
 
 
@@ -158,4 +184,29 @@ preview false
 \end_inset 
 
 
+\layout Standard
+
+
+\begin_inset ERT
+status Open
+
+\layout Standard
+
+\backslash 
+addcontentsline{toc}{chapter}{Index}
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset Include \include{common/GPLD_Copyright.lyx}
+preview false
+
+\end_inset 
+
+
+\layout Standard
+\align center 
+The End
 \the_end
