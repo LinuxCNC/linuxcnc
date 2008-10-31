@@ -1,0 +1,114 @@
+#LyX 1.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 221
+\textclass book
+\language english
+\inputencoding auto
+\fontscheme default
+\graphics default
+\paperfontsize default
+\spacing single 
+\papersize Default
+\paperpackage a4
+\use_geometry 0
+\use_amsmath 0
+\use_natbib 0
+\use_numerical_citations 0
+\paperorientation portrait
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation skip
+\defskip smallskip
+\quotes_language english
+\quotes_times 2
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+
+\layout Chapter
+
+Computer
+\layout Section
+
+Minimum Requirements
+\begin_inset LatexCommand \index{inimum Requirements}
+
+\end_inset 
+
+
+\layout Standard
+
+The minimum system to run EMC2 and Ubuntu may vary depending on the exact
+ usage.
+ Stepper systems in general require faster threads to generate step pulses
+ than servo systems.
+ Using the Live-CD you can test the software before committing a computer.
+ Keep in mind that the Latency Test numbers are more important than the
+ processor speed for software step generation.
+ More information on the Latency Test is in Section (
+\begin_inset LatexCommand \ref{sec:Latency-Test}
+
+\end_inset 
+
+).
+\layout Standard
+
+Additional information is on the EMC Wiki site:
+\layout Standard
+
+
+\begin_inset LatexCommand \url{http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?Hardware_Requirements}
+
+\end_inset 
+
+
+\layout Standard
+
+EMC2 and Ubuntu should run reasonably well on a computer with the following
+ minimum hardware specification.
+ These numbers are not the absolute minimum but will give reasonable performance
+ for most stepper systems.
+ 
+\layout Itemize
+
+700 MHz x86 processor (1.2 GHz x86 processor recommended)
+\layout Itemize
+
+384 MB of RAM system memory (512 MB up to 1 GB recommended)
+\layout Itemize
+
+8 GB of disk space
+\layout Itemize
+
+Graphics card capable of 1024x768 resolution
+\layout Itemize
+
+A network or Internet connection (optional but great for updates)
+\layout Itemize
+
+A sound card (optional)
+\layout Section
+
+Problematic Hardware
+\begin_inset LatexCommand \index{Problematic Hardware}
+
+\end_inset 
+
+
+\layout Subsection
+
+Laptops
+\layout Standard
+
+Laptops are not generally suited to real time software step generation.
+ Again a Latency Test ran for an extended time will give you the info you
+ need to determine suitability.
+\layout Subsection
+
+Video Cards
+\layout Standard
+
+If your installation pops up with 800 x 600 screen resolution then most
+ likely Ubuntu does not recognize your video card.
+ On board video many times cause bad real time performance.
+ 
+\the_end
