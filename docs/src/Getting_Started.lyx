@@ -119,6 +119,15 @@ addcontentsline{toc}{chapter}{Contents}
 \layout Standard
 
 
+\begin_inset Include \include{common/System_Requirements.lyx}
+preview false
+
+\end_inset 
+
+
+\layout Standard
+
+
 \begin_inset Include \include{common/Getting_EMC.lyx}
 preview false
 
@@ -205,19 +214,6 @@ markboth{Legal Section}{Legal Section}
 \begin_inset Include \include{common/GPLD_Copyright.lyx}
 preview false
 
-\end_inset 
-
-
-\layout Standard
-
-
-\begin_inset ERT
-status Open
-
-\layout Standard
-
-\backslash 
-addcontentsline{toc}{chapter}{Legal Section}
 \end_inset 
 
 
