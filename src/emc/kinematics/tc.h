@@ -90,6 +90,7 @@ typedef struct {
     double vel_at_blend_start;
     int sync_accel;         // we're accelerating up to sync with the spindle
     unsigned char enables;  // Feed scale, etc, enable bits for this move
+    char atspeed;           // wait for the spindle to be at-speed before starting this move
 } TC_STRUCT;
 
 /* TC_STRUCT functions */

@@ -82,6 +82,7 @@ typedef struct {
     hal_bit_t *probe_input;	/* RPI: probe switch input */
     hal_bit_t *enable;		/* RPI: motion inhibit input */
     hal_bit_t *spindle_index_enable;
+    hal_bit_t *spindle_is_atspeed;
     hal_float_t *spindle_revs;
     hal_float_t *adaptive_feed;	/* RPI: adaptive feedrate, 0.0 to 1.0 */
     hal_bit_t *feed_hold;	/* RPI: set TRUE to stop motion */

@@ -73,10 +73,10 @@ extern int tpSetPos(TP_STRUCT * tp, EmcPose pos);
 extern int tpAddRigidTap(TP_STRUCT * tp, EmcPose end, double vel, double
         ini_maxvel, double acc, unsigned char enables);
 extern int tpAddLine(TP_STRUCT * tp, EmcPose end, int type, double vel, double
-        ini_maxvel, double acc, unsigned char enables);
+                     ini_maxvel, double acc, unsigned char enables, char atspeed);
 extern int tpAddCircle(TP_STRUCT * tp, EmcPose end, PmCartesian center,
         PmCartesian normal, int turn, int type, double vel, double ini_maxvel,
-        double acc, unsigned char enables);
+                       double acc, unsigned char enables, char atspeed);
 extern int tpRunCycle(TP_STRUCT * tp, long period);
 extern int tpPause(TP_STRUCT * tp);
 extern int tpResume(TP_STRUCT * tp);

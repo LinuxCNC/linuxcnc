@@ -284,6 +284,7 @@ int tpAddRigidTap(TP_STRUCT *tp, EmcPose end, double vel, double ini_maxvel,
     tc.maxvel = ini_maxvel;
     tc.id = tp->nextId;
     tc.active = 0;
+    tc.atspeed = 1;
 
     tc.coords.rigidtap.xyz = line_xyz;
     tc.coords.rigidtap.abc = abc;
@@ -324,7 +325,7 @@ int tpAddRigidTap(TP_STRUCT *tp, EmcPose end, double vel, double ini_maxvel,
 // of the previous move to the new end specified here at the
 // currently-active accel and vel settings from the tp struct.
 
-int tpAddLine(TP_STRUCT * tp, EmcPose end, int type, double vel, double ini_maxvel, double acc, unsigned char enables)
+int tpAddLine(TP_STRUCT * tp, EmcPose end, int type, double vel, double ini_maxvel, double acc, unsigned char enables, char atspeed)
 {
     TC_STRUCT tc;
     PmLine line_xyz, line_uvw, line_abc;
@@ -387,6 +388,7 @@ int tpAddLine(TP_STRUCT * tp, EmcPose end, int type, double vel, double ini_maxv
     tc.maxvel = ini_maxvel;
     tc.id = tp->nextId;
     tc.active = 0;
+    tc.atspeed = atspeed;
 
     tc.coords.line.xyz = line_xyz;
     tc.coords.line.uvw = line_uvw;
@@ -425,7 +427,7 @@ int tpAddLine(TP_STRUCT * tp, EmcPose end, int type, double vel, double ini_maxv
 
 int tpAddCircle(TP_STRUCT * tp, EmcPose end,
 		PmCartesian center, PmCartesian normal, int turn, int type,
-                double vel, double ini_maxvel, double acc, unsigned char enables)
+                double vel, double ini_maxvel, double acc, unsigned char enables, char atspeed)
 {
     TC_STRUCT tc;
     PmCircle circle;
@@ -483,6 +485,7 @@ int tpAddCircle(TP_STRUCT * tp, EmcPose end,
     tc.maxvel = ini_maxvel;
     tc.id = tp->nextId;
     tc.active = 0;
+    tc.atspeed = atspeed;
 
     tc.coords.circle.xyz = circle;
     tc.coords.circle.uvw = line_uvw;
@@ -576,7 +579,8 @@ int tpRunCycle(TP_STRUCT * tp, long period)
     EmcPose secondary_before, secondary_after;
     EmcPose primary_displacement, secondary_displacement;
     static double spindleoffset;
-    static int waiting = 0;
+    static int waiting_for_index = 0;
+    static int waiting_for_atspeed = 0;
     double save_vel;
     static double revs;
 
@@ -614,6 +618,123 @@ int tpRunCycle(TP_STRUCT * tp, long period)
         // so get next move
         tc = tcqItem(&tp->queue, 0, period);
         if(!tc) return 0;
+    }
+
+    // now we have the active tc.  get the upcoming one, if there is one.
+    // it's not an error if there isn't another one - we just don't
+    // do blending.  This happens in MDI for instance.
+    if(!emcmotDebug->stepping && tc->blend_with_next) 
+        nexttc = tcqItem(&tp->queue, 1, period);
+    else
+        nexttc = NULL;
+
+    if(!tc->synchronized && nexttc && nexttc->synchronized && !nexttc->velocity_mode) {
+        // we'll have to wait for spindle sync; might as well
+        // stop at the right place (don't blend)
+        tc->blend_with_next = 0;
+        nexttc = NULL;
+    }
+
+    if(nexttc && nexttc->atspeed) {
+        // we'll have to wait for the spindle to be at-speed; might as well
+        // stop at the right place (don't blend), like above
+        tc->blend_with_next = 0;
+        nexttc = NULL;
+    }
+
+    if(tp->aborting) {
+        // an abort message has come
+        if( waiting_for_index ||
+            waiting_for_atspeed || 
+            (tc->currentvel == 0.0 && !nexttc) || 
+            (tc->currentvel == 0.0 && nexttc && nexttc->currentvel == 0.0) ) {
+            tcqInit(&tp->queue);
+            tp->goalPos = tp->currentPos;
+            tp->done = 1;
+            tp->depth = tp->activeDepth = 0;
+            tp->aborting = 0;
+            tp->execId = 0;
+            tp->motionType = 0;
+            tp->synchronized = 0;
+            waiting_for_index = 0;
+            waiting_for_atspeed = 0;
+            emcmotStatus->spindleSync = 0;
+            tpResume(tp);
+            return 0;
+        } else {
+            tc->reqvel = 0.0;
+            if(nexttc) nexttc->reqvel = 0.0;
+        }
+    }
+
+    // this is no longer the segment we were waiting_for_index for
+    if(waiting_for_index && waiting_for_index != tc->id) 
+        waiting_for_index = 0;
+
+    if(waiting_for_atspeed && waiting_for_atspeed != tc->id) 
+        waiting_for_atspeed = 0;
+
+    // check for at-speed before marking the tc active
+    if(waiting_for_atspeed) {
+        if(!emcmotStatus->spindle_is_atspeed) {
+            /* spindle is still not at the right speed: wait */
+            return 0;
+        } else {
+            waiting_for_atspeed = 0;
+        }
+    }
+
+    if(tc->active == 0) {
+        // this means this tc is being read for the first time.
+
+        // wait for atspeed, if motion requested it.  also, force
+        // atspeed check for the start of all spindle synchronized
+        // moves.
+        if((tc->atspeed || (tc->synchronized && !tc->velocity_mode && !emcmotStatus->spindleSync)) && 
+           !emcmotStatus->spindle_is_atspeed) {
+            waiting_for_atspeed = tc->id;
+            return 0;
+        }
+
+        tc->active = 1;
+        tc->currentvel = 0;
+        tp->depth = tp->activeDepth = 1;
+        tp->motionType = tc->canon_motion_type;
+        tc->blending = 0;
+
+        // clamp motion's velocity at TRAJ MAX_VELOCITY (tooltip maxvel)
+        if(tc->maxvel > tp->vLimit) 
+            tc->maxvel = tp->vLimit;
+
+        // honor accel constraint in case we happen to make an acute angle
+        // with the next segment.
+        if(tc->blend_with_next) 
+            tc->maxaccel /= 2.0;
+
+        if(tc->synchronized) {
+            if(!tc->velocity_mode && !emcmotStatus->spindleSync) {
+                // if we aren't already synced, wait
+                waiting_for_index = tc->id;
+                // ask for an index reset
+                emcmotStatus->spindle_index_enable = 1;
+                spindleoffset = 0.0;
+                // don't move: wait
+                return 0;
+            }
+        }
+    }
+
+    if(waiting_for_index) {
+        if(emcmotStatus->spindle_index_enable) {
+            /* haven't passed index yet */
+            return 0;
+        } else {
+            /* passed index, start the move */
+            emcmotStatus->spindleSync = 1;
+            waiting_for_index=0;
+            tc->sync_accel=1;
+            revs=0;
+        }
     }
 
     if (tc->motion_type == TC_RIGIDTAP) {
@@ -675,70 +796,8 @@ int tpRunCycle(TP_STRUCT * tp, long period)
     }
 
 
-    // this is no longer the segment we were waiting for
-    if(waiting && waiting != tc->id) 
-        waiting = 0;
-
-    if(waiting) {
-        if(emcmotStatus->spindle_index_enable) {
-            /* haven't passed index yet */
-            return 0;
-        } else {
-            /* passed index, start the move */
-            emcmotStatus->spindleSync = 1;
-            waiting=0;
-            tc->sync_accel=1;
-            revs=0;
-        }
-    }
-
     if(!tc->synchronized) emcmotStatus->spindleSync = 0;
 
-    // now we have the active tc.  get the upcoming one, if there is one.
-    // it's not an error if there isn't another one - we just don't
-    // do blending.  This happens in MDI for instance.
-    if(!emcmotDebug->stepping && tc->blend_with_next) 
-        nexttc = tcqItem(&tp->queue, 1, period);
-    else
-        nexttc = NULL;
-
-    if(!tc->synchronized && nexttc && nexttc->synchronized && !nexttc->velocity_mode) {
-        // we'll have to wait for spindle sync; might as well
-        // stop at the right place (don't blend)
-        tc->blend_with_next = 0;
-        nexttc = NULL;
-    }
-
-    if(tc->active == 0) {
-        // this means this tc is being read for the first time.
-        
-        tc->currentvel = 0;
-        tp->depth = tp->activeDepth = 1;
-        tp->motionType = tc->canon_motion_type;
-        tc->active = 1;
-        tc->blending = 0;
-
-        // clamp motion's velocity at TRAJ MAX_VELOCITY (tooltip maxvel)
-        if(tc->maxvel > tp->vLimit) 
-            tc->maxvel = tp->vLimit;
-
-        // honor accel constraint in case we happen to make an acute angle
-        // with the next segment.
-        if(tc->blend_with_next) 
-            tc->maxaccel /= 2.0;
-
-        if(tc->synchronized) {
-            if(!tc->velocity_mode && !emcmotStatus->spindleSync) {
-                // if we aren't already synced, wait
-                waiting = tc->id;
-                // ask for an index reset
-                emcmotStatus->spindle_index_enable = 1;
-                spindleoffset = 0.0;
-                // don't move: wait
-                return 0;
-            }
-        }
-    }
 
     if(nexttc && nexttc->active == 0) {
         // this means this tc is being read for the first time.
@@ -756,27 +815,6 @@ int tpRunCycle(TP_STRUCT * tp, long period)
         // above segment or the following one
         if(tc->blend_with_next || nexttc->blend_with_next)
             nexttc->maxaccel /= 2.0;
-    }
-
-    if(tp->aborting) {
-        // an abort message has come
-        if( (tc->currentvel == 0.0 && !nexttc) || 
-            (tc->currentvel == 0.0 && nexttc && nexttc->currentvel == 0.0) ) {
-            tcqInit(&tp->queue);
-            tp->goalPos = tp->currentPos;
-            tp->done = 1;
-            tp->depth = tp->activeDepth = 0;
-            tp->aborting = 0;
-            tp->execId = 0;
-            tp->motionType = 0;
-            tp->synchronized = 0;
-            emcmotStatus->spindleSync = 0;
-            tpResume(tp);
-            return 0;
-        } else {
-            tc->reqvel = 0.0;
-            if(nexttc) nexttc->reqvel = 0.0;
-        }
     }
 
 

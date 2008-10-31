@@ -68,6 +68,7 @@
 #include "emcmotglb.h"
 #include "mot_priv.h"
 #include "rtapi_math.h"
+#include "motion_types.h"
 
 /* debugging functions */
 extern void print_pose ( EmcPose *pos );
@@ -336,6 +337,7 @@ void emcmotCommandHandler(void *arg, long period)
     emcmot_joint_t *joint;
     double tmp1;
     emcmot_comp_entry_t *comp_entry;
+    char issue_atspeed = 0;
     
 check_stuff ( "before command_handler()" );
 
@@ -862,10 +864,18 @@ check_stuff ( "before command_handler()" );
 		SET_MOTION_ERROR_FLAG(1);
 		break;
 	    }
-
+            if(emcmotStatus->atspeed_next_feed && emcmotCommand->motion_type != EMC_MOTION_TYPE_TRAVERSE) {
+                issue_atspeed = 1;
+                emcmotStatus->atspeed_next_feed = 0;
+            }
+            if(emcmotCommand->motion_type == EMC_MOTION_TYPE_TRAVERSE && emcmotStatus->spindle.css_factor) {
+                emcmotStatus->atspeed_next_feed = 1;
+            }
 	    /* append it to the emcmotDebug->queue */
 	    tpSetId(&emcmotDebug->queue, emcmotCommand->id);
-	    if (-1 == tpAddLine(&emcmotDebug->queue, emcmotCommand->pos, emcmotCommand->motion_type, emcmotCommand->vel, emcmotCommand->ini_maxvel, emcmotCommand->acc, emcmotStatus->enables_new)) {
+	    if (-1 == tpAddLine(&emcmotDebug->queue, emcmotCommand->pos, emcmotCommand->motion_type, 
+                                emcmotCommand->vel, emcmotCommand->ini_maxvel, 
+                                emcmotCommand->acc, emcmotStatus->enables_new, issue_atspeed)) {
 		reportError("can't add linear move");
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_BAD_EXEC;
 		tpAbort(&emcmotDebug->queue);
@@ -902,15 +912,18 @@ check_stuff ( "before command_handler()" );
 		SET_MOTION_ERROR_FLAG(1);
 		break;
 	    }
-
+            if(emcmotStatus->atspeed_next_feed) {
+                issue_atspeed = 1;
+                emcmotStatus->atspeed_next_feed = 0;
+            }
 	    /* append it to the emcmotDebug->queue */
 	    tpSetId(&emcmotDebug->queue, emcmotCommand->id);
 	    if (-1 ==
 		tpAddCircle(&emcmotDebug->queue, emcmotCommand->pos,
-		    emcmotCommand->center, emcmotCommand->normal,
-		    emcmotCommand->turn, emcmotCommand->motion_type,
-                    emcmotCommand->vel, emcmotCommand->ini_maxvel,
-                    emcmotCommand->acc, emcmotStatus->enables_new)) {
+                            emcmotCommand->center, emcmotCommand->normal,
+                            emcmotCommand->turn, emcmotCommand->motion_type,
+                            emcmotCommand->vel, emcmotCommand->ini_maxvel,
+                            emcmotCommand->acc, emcmotStatus->enables_new, issue_atspeed)) {
 		reportError("can't add circular move");
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_BAD_EXEC;
 		tpAbort(&emcmotDebug->queue);
@@ -1326,7 +1339,7 @@ check_stuff ( "before command_handler()" );
 
 	    /* append it to the emcmotDebug->queue */
 	    tpSetId(&emcmotDebug->queue, emcmotCommand->id);
-	    if (-1 == tpAddLine(&emcmotDebug->queue, emcmotCommand->pos, emcmotCommand->motion_type, emcmotCommand->vel, emcmotCommand->ini_maxvel, emcmotCommand->acc, emcmotStatus->enables_new)) {
+	    if (-1 == tpAddLine(&emcmotDebug->queue, emcmotCommand->pos, emcmotCommand->motion_type, emcmotCommand->vel, emcmotCommand->ini_maxvel, emcmotCommand->acc, emcmotStatus->enables_new, 0)) {
 		reportError("can't add probe move");
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_BAD_EXEC;
 		tpAbort(&emcmotDebug->queue);
@@ -1371,6 +1384,7 @@ check_stuff ( "before command_handler()" );
 	    /* append it to the emcmotDebug->queue */
 	    tpSetId(&emcmotDebug->queue, emcmotCommand->id);
 	    if (-1 == tpAddRigidTap(&emcmotDebug->queue, emcmotCommand->pos, emcmotCommand->vel, emcmotCommand->ini_maxvel, emcmotCommand->acc, emcmotStatus->enables_new)) {
+                emcmotStatus->atspeed_next_feed = 0; /* rigid tap always waits for spindle to be at-speed */
 		reportError("can't add rigid tap move");
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_BAD_EXEC;
 		tpAbort(&emcmotDebug->queue);
@@ -1445,6 +1459,7 @@ check_stuff ( "before command_handler()" );
 	case EMCMOT_SET_SPINDLE_VEL:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_SPINDLE_VEL");
 	    emcmotStatus->spindle.speed = emcmotCommand->vel;
+            emcmotStatus->atspeed_next_feed = 1;
 	    break;
 	    
 	case EMCMOT_SPINDLE_ON:
@@ -1458,6 +1473,7 @@ check_stuff ( "before command_handler()" );
 		emcmotStatus->spindle.direction = -1;
 	    }
 	    emcmotStatus->spindle.brake = 0; //disengage brake
+            emcmotStatus->atspeed_next_feed = 1;
 	    break;
 
 	case EMCMOT_SPINDLE_OFF:

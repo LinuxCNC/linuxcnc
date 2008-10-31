@@ -18,6 +18,7 @@
 #include "config.h"
 #include "emcglb.h"		// EMC_AXIS_MAX
 #include "nml_type.hh"
+#include "motion_types.h"
 
 // Forward class declarations
 class EMC_AXIS_STAT;
@@ -339,12 +340,6 @@ enum EMC_TRAJ_MODE_ENUM {
     EMC_TRAJ_MODE_COORD = 2,	// coordinated-axis motion,
     EMC_TRAJ_MODE_TELEOP = 3	// velocity based world coordinates motion,
 };
-
-#define EMC_MOTION_TYPE_TRAVERSE 1
-#define EMC_MOTION_TYPE_FEED 2
-#define EMC_MOTION_TYPE_ARC 3
-#define EMC_MOTION_TYPE_TOOLCHANGE 4
-#define EMC_MOTION_TYPE_PROBING 5
 
 // --------------
 // EMC VOCABULARY
