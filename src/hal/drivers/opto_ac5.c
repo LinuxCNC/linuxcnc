@@ -212,7 +212,7 @@ static int Device_Init(board_data_t *pboard)
 
 static int Device_ExportPinsParametersFunctions(board_data_t *this, int componentId, int boardId)
 {
-    int					msgLevel, error;
+    int					msgLevel, error=0;
 
 // This function exports a lot of stuff, which results in a lot of
 // logging if msg_level is at INFO or ALL. So we save the current value
