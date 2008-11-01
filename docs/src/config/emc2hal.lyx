@@ -58,9 +58,7 @@ Pins
 
 \layout Description
 
-motion.adaptive-feed\SpecialChar ~
-IN\SpecialChar ~
-float When adaptive feed is enabled with 
+motion.adaptive-feed (float, in) When adaptive feed is enabled with 
 \family typewriter 
 M52\SpecialChar ~
 P1
@@ -79,22 +77,29 @@ motion.feed-hold
 .
 \layout Description
 
-motion.digital-out-NN\SpecialChar ~
-OUT\SpecialChar ~
-bit These pins are controlled by the 
-\family typewriter 
-M62
-\family default 
- through 
-\family typewriter 
-M65
-\family default 
- words.
+motion.analog-in-00 (float, in) These pins (00, 01, 02, 03 are valid) are
+ controlled by M66.
+ 
 \layout Description
 
-motion.enable\SpecialChar ~
-IN\SpecialChar ~
-bit If this bit is driven FALSE, motion stops, the machine
+motion.current-vel (float, out)
+\layout Description
+
+motion.digital-in-00 (bit, in) These pins (00, 01, 02, 03 are valid) are
+ controlled by M62-65.
+\layout Description
+
+motion.digital-out-00 (bit, out) These pins are controlled by the 
+\family typewriter 
+M62-65
+\family default 
+.
+\layout Description
+
+motion.distance-to-go (float,out)
+\layout Description
+
+motion.enable (bit, in) If this bit is driven FALSE, motion stops, the machine
  is placed in the 
 \begin_inset Quotes eld
 \end_inset 
@@ -107,9 +112,7 @@ machine off
  For normal motion, drive this bit TRUE.
 \layout Description
 
-motion.feed-hold\SpecialChar ~
-IN\SpecialChar ~
-bit When Feed Stop Control is enabled with 
+motion.feed-hold (bit, in) When Feed Stop Control is enabled with 
 \family typewriter 
 M53\SpecialChar ~
 P1
@@ -122,14 +125,13 @@ P1
 ), and this bit is TRUE, the feed rate is set to 0.
 \layout Description
 
-motion.motion-inpos\SpecialChar ~
-OUT\SpecialChar ~
-bit TRUE if the machine is in position.
+motion.motion-enabled (bit, in)
 \layout Description
 
-motion.probe-input\SpecialChar ~
-IN\SpecialChar ~
-bit 
+motion.motion-inpos (bit, in) TRUE if the machine is in position.
+\layout Description
+
+motion.probe-input (bit, in) 
 \family typewriter 
 G38.x
 \family default 
@@ -137,42 +139,45 @@ G38.x
  TRUE for probe contact closed (touching), FALSE for probe contact open.
 \layout Description
 
-motion.spindle-brake\SpecialChar ~
-OUT\SpecialChar ~
-bit TRUE when the spindle brake should be applied
+motion.spindle-brake (bit, out) TRUE when the spindle brake should be applied
 \layout Description
 
-motion.spindle-forward\SpecialChar ~
-OUT\SpecialChar ~
-bit TRUE when the spindle should rotate forward
+motion.spindle-forward (bit, out) TRUE when the spindle should rotate forward.
 \layout Description
 
-motion.spindle-reverse\SpecialChar ~
-OUT\SpecialChar ~
-bit TRUE when the spindle should rotate backward
-\layout Description
-
-motion.spindle-on\SpecialChar ~
-OUT\SpecialChar ~
-bit TRUE when spindle should rotate
-\layout Description
-
-motion.spindle-speed-out\SpecialChar ~
-OUT\SpecialChar ~
-float Desired spindle speed in rotations per minute
-\layout Description
-
-motion.spindle-index-enable\SpecialChar ~
-I/O\SpecialChar ~
-bit For correct operation of spindle synchronized
- moves, this signal must be hooked to the index-enable pin of the spindle
+motion.spindle-index-enable (bit, I/O) For correct operation of spindle synchroni
+zed moves, this signal must be hooked to the index-enable pin of the spindle
  encoder.
 \layout Description
 
-motion.spindle-revs\SpecialChar ~
-IN\SpecialChar ~
-float For correct operation of spindle synchronized
+motion.spindle-is-atspeed-in (bit, in) When set to FALSE will pause motion
+ until spindle reaches new programmed speed at the beginning of a feed move.
+\layout Description
+
+motion.spindle-on (bit, out) TRUE when spindle should rotate
+\layout Description
+
+motion.spindle-reverse (bit, out) TRUE when the spindle should rotate backward
+\layout Description
+
+motion.spindle-revs (float, in) For correct operation of spindle synchronized
  moves, this signal must be hooked to the position pin of the spindle encoder.
+\layout Description
+
+motion.spindle-speed-in (float, in)
+\layout Description
+
+motion.spindle-speed-out (float, out) Desired spindle speed in rotations
+ per minute
+\layout Description
+
+motion.tooloffset.w (float, out)
+\layout Description
+
+motion.tooloffset.x (float, out)
+\layout Description
+
+motion.tooloffset.z (float, out)
 \layout Subsection
 
 Parameters
@@ -182,11 +187,23 @@ Many of these parameters serve as debugging aids, and are subject to change
  or removal at any time.
 \layout Description
 
-motion.coord-error TRUE when motion has encountered an error, such as exceeding
- a soft limit
+motion-command-handler.time (s32, RO)
 \layout Description
 
-motion.coord-mode TRUE when motion is in 
+motion-command-handler.tmax (s32, RW)
+\layout Description
+
+motion-controller.time (s32, RO)
+\layout Description
+
+motion-controller.tmax (s32, RW)
+\layout Description
+
+motion.coord-error (bit, RO) TRUE when motion has encountered an error, such
+ as exceeding a soft limit
+\layout Description
+
+motion.coord-mode (bit, RO) TRUE when motion is in 
 \begin_inset Quotes eld
 \end_inset 
 
@@ -205,42 +222,67 @@ teleop mode
 
 \layout Description
 
-motion.in-position Same as the pin 
+motion.debug-bit-0 (bit, RO) This is used for debugging purposes.
+ 
+\layout Description
+
+motion.debug-bit-1 (bit, RO) This is used for debugging purposes.
+ 
+\layout Description
+
+motion.debug-float-0 (float, RO) This is used for debugging purposes.
+ 
+\layout Description
+
+motion.debug-float-1 (float, RO) This is used for debugging purposes.
+ 
+\layout Description
+
+motion.debug-float-2 (float, RO) This is used for debugging purposes.
+ 
+\layout Description
+
+motion.debug-float-3 (float, RO) This is used for debugging purposes.
+ 
+\layout Description
+
+motion.debug-s32-0 (s32, RO) This is used for debugging purposes.
+ 
+\layout Description
+
+motion.debug-s32-1 (s32, RO) This is used for debugging purposes.
+ 
+\layout Description
+
+motion.in-position (bit, RO) Same as the pin 
 \emph on 
 motion.motion-inpos
 \layout Description
 
-motion.motion-enabled TRUE when motion is enabled
+motion.on-soft-limit (bit, RO)
 \layout Description
 
-motion.servo.last-period The number of CPU cycles between invocations of the
- servo thread.
+motion.program-line (s32, RO)
+\layout Description
+
+motion.servo.last-period (u32, RO) The number of CPU cycles between invocations
+ of the servo thread.
  Typically, this number divided by the CPU speed gives the time in seconds,
  and can be used to determine whether the realtime motion controller is
  meeting its timing constraints
 \layout Description
 
-motion.servo.overruns By noting large differences between successive values
- of 
+motion.servo.last-period-ns (float, RO)
+\layout Description
+
+motion.servo.overruns (u32, RW) By noting large differences between successive
+ values of 
 \emph on 
 motion.servo.last-period
 \emph default 
 , the motion controller can determine that there has probably been a failure
  to meet its timing constraints.
  Each time such a failure is detected, this value is incremented.
-\layout Description
-
-motion.debug-bit-0
-\layout Description
-
-motion.debug-bit-1
-\layout Description
-
-motion.debug-float-0
-\layout Description
-
-motion.debug-float-1 These values are used for debugging purposes.
- 
 \layout Subsection
 
 Functions
