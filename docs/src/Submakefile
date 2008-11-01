@@ -43,6 +43,8 @@ DOC_SRCS := \
 	common/integrator_intro.lyx \
 	common/Linux_FAQ.lyx \
 	common/machining_center.lyx \
+	common/Stepper_Diagnostics.lyx \
+	common/System_Requirements.lyx \
 	common/user_intro.lyx \
 	config/ini_config.lyx \
 	config/ini_config_fr.lyx \

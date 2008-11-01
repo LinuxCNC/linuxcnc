@@ -361,6 +361,15 @@ preview false
 \end_inset 
 
 
+\layout Standard
+
+
+\begin_inset Include \include{ladder/ladder_examples.lyx}
+preview false
+
+\end_inset 
+
+
 \layout Part
 
 Hardware Examples
@@ -384,6 +393,18 @@ preview false
 
 \layout Part
 
+Diagnostics
+\layout Standard
+
+
+\begin_inset Include \include{common/Stepper_Diagnostics.lyx}
+preview false
+
+\end_inset 
+
+
+\layout Part
+
 FAQ
 \layout Standard
 
@@ -396,7 +417,9 @@ preview false
 
 \layout Part
 
-Glossary
+Appendices
+\layout Standard
+\start_of_appendix 
 \layout Standard
 
 
@@ -406,9 +429,6 @@ preview false
 \end_inset 
 
 
-\layout Part
-
-Legal Section
 \layout Standard
 
 
@@ -418,9 +438,6 @@ preview false
 \end_inset 
 
 
-\layout Part
-
-Index
 \layout Standard
 
 
