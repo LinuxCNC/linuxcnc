@@ -28,7 +28,7 @@ emc2 (1:2.3.0~alpha1) unstable; urgency=low
   * semicolon now denotes a comment in gcode.  the rest of the line after
     the semicolon is the comment.  no closing character is needed.
   * rising and falling edge detection in M66
-  * tool length can be along the W axis instead of Z.  This is especially 
+  * tool length can be along the W axis instead of Z.  This is especially
     useful for 5-axis machines and XYZW machines (moving quill and table)
   * update Classic Ladder to version 7.124
   * new ability to unhome a joint
@@ -94,14 +94,21 @@ emc2 (1:2.3.0~alpha1) unstable; urgency=low
     preview and extents display less useful.
   * disallow MDI commands and program execution on an unhomed machine
     by default.  The old behavior is still available with an INI change.
-  * improve the "move on line N would exceed limits" messages by telling 
+  * improve the "move on line N would exceed limits" messages by telling
     which limit would be exceeded
   * G10 L1 commands to set tool offsets, radius, orientation
   * AXIS: "touch off" can now also set offsets in the tool table
+  * converted many pins to parameters for added flexibility.  this does not
+    require any configuration changes because setp works on both.
+  * new motion.spindle-atspeed-in pin can be used to cause motion to
+    wait for the spindle to reach a newly-programmed speed at the
+    beginning of feed moves.
+  * new component "near" which tells whether two values are roughly equal
+    as determined by configurable parameters
 
   * [add bugfixes from the 2.2.x branch here, before release]
 
- -- Chris Radek <chris@timeguy.com>  Wed, 22 Oct 2008 23:21:23 -0500
+ -- Chris Radek <chris@timeguy.com>  Sat,  1 Nov 2008 01:28:46 -0500
 
 emc2 (1:2.2.0) unstable; urgency=low
 
