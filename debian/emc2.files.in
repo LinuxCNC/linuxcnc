@@ -3,7 +3,6 @@ etc/emc2/sample-configs/*/*
 etc/init.d/realtime
 etc/X11/app-defaults/*
 @EXTRA_FILES@
-lib/firmware/hm2/*/*.BIT
 @MODULE_PATH@/*@MODULE_EXT@
 usr/lib/*.so*
 usr/bin/5axisgui
