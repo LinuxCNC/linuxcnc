@@ -418,6 +418,18 @@ preview false
 
 \layout Part
 
+FAQ
+\layout Standard
+
+
+\begin_inset Include \include{common/Linux_FAQ.lyx}
+preview false
+
+\end_inset 
+
+
+\layout Part
+
 Appendices 
 \layout Standard
 \start_of_appendix 
