@@ -121,10 +121,10 @@ Loading the ClassicLadder realtime module (classicladder_rt) is possible
  
 \layout LyX-Code
 
-loadrt classicladder_rt addf
+loadrt classicladder_rt 
 \layout LyX-Code
 
-classicladder.0.refresh servo-thread 
+addf classicladder.0.refresh servo-thread 
 \layout Subsection
 
 Variables
