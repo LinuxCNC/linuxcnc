@@ -82,7 +82,7 @@ motion.analog-in-00 (float, in) These pins (00, 01, 02, 03 are valid) are
  
 \layout Description
 
-motion.current-vel (float, out)
+motion.current-vel (float, out) The current tool velocity
 \layout Description
 
 motion.digital-in-00 (bit, in) These pins (00, 01, 02, 03 are valid) are
@@ -96,7 +96,7 @@ M62-65
 .
 \layout Description
 
-motion.distance-to-go (float,out)
+motion.distance-to-go (float,out) The distance remaining in the current move.
 \layout Description
 
 motion.enable (bit, in) If this bit is driven FALSE, motion stops, the machine
@@ -164,20 +164,27 @@ motion.spindle-revs (float, in) For correct operation of spindle synchronized
  moves, this signal must be hooked to the position pin of the spindle encoder.
 \layout Description
 
-motion.spindle-speed-in (float, in)
+motion.spindle-speed-in (float, in) Feedback of actual speed used by feed
+ per rev.
 \layout Description
 
 motion.spindle-speed-out (float, out) Desired spindle speed in rotations
- per minute
+ per minute.
 \layout Description
 
-motion.tooloffset.w (float, out)
+motion.tooloffset.w (float, out) shows the w offset in effect; it could come
+ from the tool table (g43 active), or it could come from the gcode (g43.1
+ active)
 \layout Description
 
-motion.tooloffset.x (float, out)
+motion.tooloffset.x (float, out) shows the x offset in effect; it could come
+ from the tool table (g43 active), or it could come from the gcode (g43.1
+ active)
 \layout Description
 
-motion.tooloffset.z (float, out)
+motion.tooloffset.z (float, out) shows the z offset in effect; it could come
+ from the tool table (g43 active), or it could come from the gcode (g43.1
+ active)
 \layout Subsection
 
 Parameters
