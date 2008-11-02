@@ -79,13 +79,38 @@ Any of the above can cause the RT pulsing to not be able to keep up with
 RTAPI Error
 \layout Standard
 
+When you get this error:
+\layout Quote
+
+RTAPI: ERROR: Unexpected realtime delay on task n
+\layout Standard
+
+It is usually an indication that the BASE_PERIOD in the [EMCMOT] section
+ of the ini file is set too low.
+ You should run the Latency Test for an extended period of time to see if
+ you have any delays that would cause this problem.
+ 
+\layout Standard
+
+EMC2 tracks the number of CPU cycles between invocations of the real-time
+ thread.
+ If some element of your hardware is causing delays or your realtime threads
+ are set too fast you will get this error.
+ 
+\layout Standard
+
+NOTE: This error is only displayed once per session.
+ If you had your BASE_PERIOD too low you could get hundreds of thousands
+ of error messages per second if more than one was displayed.
+\layout Standard
+
 
 \begin_inset Note
 collapsed false
 
 \layout Standard
 
-find info on this JT
+add link to latency test when that page is done.
 \end_inset 
 
 
