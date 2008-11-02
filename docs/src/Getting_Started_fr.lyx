@@ -106,6 +106,15 @@ Permission is granted to copy, distribute and/or modify this document under
 \layout Standard
 
 
+\begin_inset Include \include{common/System_Requirements_fr.lyx}
+preview false
+
+\end_inset 
+
+
+\layout Standard
+
+
 \begin_inset Include \include{common/Getting_EMC_fr.lyx}
 preview false
 
