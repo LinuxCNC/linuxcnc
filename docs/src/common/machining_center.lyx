@@ -909,7 +909,7 @@ Sample Tool File (mill format)
 
 
 \layout Standard
-
+\align center 
 
 \begin_inset  Tabular
 <lyxtabular version="3" rows="6" columns="5">
@@ -1193,8 +1193,8 @@ Pocket
 \begin_inset Quotes erd
 \end_inset 
 
- column contains an unsigned integer which represents the pocket number
- (slot number) of the tool carousel slot in which the tool is placed.
+ column contains the number (unsigned integer) which represents the pocket
+ number (slot number) of the tool carousel slot in which the tool is placed.
  The entries in this column must all be different.
 \layout Standard
 
@@ -1206,8 +1206,8 @@ FMS
 \begin_inset Quotes erd
 \end_inset 
 
- column contains an unsigned integer which represents a code number for
- the tool.
+ column contains the number (unsigned integer) which represents a code number
+ for the tool.
  The user may use any code for any tool, as long as the codes are unsigned
  integers.
  This is typically the same as the pocket number.

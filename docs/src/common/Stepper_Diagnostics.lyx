@@ -79,13 +79,38 @@ Any of the above can cause the RT pulsing to not be able to keep up with
 RTAPI Error
 \layout Standard
 
+When you get this error:
+\layout Quote
+
+RTAPI: ERROR: Unexpected realtime delay on task n
+\layout Standard
+
+It is usually an indication that the BASE_PERIOD in the [EMCMOT] section
+ of the ini file is set too low.
+ You should run the Latency Test for an extended period of time to see if
+ you have any delays that would cause this problem.
+ 
+\layout Standard
+
+EMC2 tracks the number of CPU cycles between invocations of the real-time
+ thread.
+ If some element of your hardware is causing delays or your realtime threads
+ are set too fast you will get this error.
+ 
+\layout Standard
+
+NOTE: This error is only displayed once per session.
+ If you had your BASE_PERIOD too low you could get hundreds of thousands
+ of error messages per second if more than one was displayed.
+\layout Standard
+
 
 \begin_inset Note
 collapsed false
 
 \layout Standard
 
-find info on this JT
+add link to latency test when that page is done.
 \end_inset 
 
 
@@ -115,77 +140,79 @@ The following program will test the Z axis configuration for proper setup.
  If you have a configuration issue, you will find that the final position
  will not end up 0.500" that the axis window is showing.
  To test another axis just replace the Z with your axis in the G0 lines.
-\layout LyX-Code
+\layout Standard
+
+\layout Standard
 
 ( test program to see if Z axis loses position )
-\layout LyX-Code
+\layout Standard
 
 ( msg, test 1 of Z axis configuration ) 
-\layout LyX-Code
+\layout Standard
 
 G20 #1000=100 ( loop 100 times )  
-\layout LyX-Code
+\layout Standard
 
 ( this loop has delays after moves )
-\layout LyX-Code
+\layout Standard
 
 ( tests acc and velocity settings )
-\layout LyX-Code
+\layout Standard
 
 o100 while [#1000] 
-\layout LyX-Code
+\layout Standard
 
    G0 Z1.000
-\layout LyX-Code
+\layout Standard
 
    G4 P0.250 
-\layout LyX-Code
+\layout Standard
 
-   G0 Z0.500 
-\layout LyX-Code
+G0 Z0.500 
+\layout Standard
 
    G4 P0.250 
-\layout LyX-Code
+\layout Standard
 
    #1000 = [#1000 - 1] 
-\layout LyX-Code
+\layout Standard
 
 o100 endwhile 
-\layout LyX-Code
+\layout Standard
 
 ( msg, test 2 of Z axis configuration S to continue) 
-\layout LyX-Code
+\layout Standard
 
 M1 (stop here)
-\layout LyX-Code
+\layout Standard
 
 #1000=100 ( loop 100 times ) 
-\layout LyX-Code
+\layout Standard
 
 ( the next loop has no delays after moves )
-\layout LyX-Code
+\layout Standard
 
 ( tests direction hold times on driver config and also max accel setting
  ) 
-\layout LyX-Code
+\layout Standard
 
 o101 while [#1000] 
-\layout LyX-Code
+\layout Standard
 
    G0 Z1.000 .
-\layout LyX-Code
+\layout Standard
 
    G0 Z0.500 
-\layout LyX-Code
+\layout Standard
 
    #1000 = [#1000 - 1] 
-\layout LyX-Code
+\layout Standard
 
 o101 endwhile 
-\layout LyX-Code
+\layout Standard
 
 ( msg, Done...Z should be exactly .5" above table ) 
-\layout LyX-Code
+\layout Standard
 
 M2
 \the_end
