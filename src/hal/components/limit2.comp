@@ -11,11 +11,14 @@ license "GPL";
 
 typedef struct { float old_out; } limit2_data;
 
+#ifndef clamp
 static inline double clamp(double v, double sub, double sup) {
     if(v < sub) return sub;
     if(v > sup) return sup;
     return v;
 }
+#endif
+
 FUNCTION(_) {
     double tmp = in;
     double maxdelta = maxv * fperiod;
