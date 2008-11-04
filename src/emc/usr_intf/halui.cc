@@ -284,6 +284,12 @@ struct halui_str {
     hal_float_t *jog_analog[EMCMOT_MAX_JOINTS+1];	//pin for analog jogging (-1..0..1)
     hal_float_t *jog_deadband;	//pin for setting the jog analog deadband (where not to move)
 
+    hal_s32_t *mv_counts;	//pin for the Max Velocity counting
+    hal_float_t *mv_scale;	//scale for the Max Velocity counting
+    hal_float_t *mv_value;	//current Max Velocity value
+    hal_bit_t  *mv_increase;	// pin for increasing the MV (+=scale)
+    hal_bit_t  *mv_decrease;	// pin for decreasing the MV (-=scale)
+
     hal_s32_t *fo_counts;	//pin for the Feed Override counting
     hal_float_t *fo_scale;	//scale for the Feed Override counting
     hal_float_t *fo_value;	//current Feed Override value
@@ -348,6 +354,11 @@ struct local_halui_str {
     hal_bit_t jog_minus[EMCMOT_MAX_JOINTS+1];	//pin to jog in positive direction
     hal_bit_t jog_plus[EMCMOT_MAX_JOINTS+1];	//pin to jog in negative direction
     hal_float_t jog_analog[EMCMOT_MAX_JOINTS+1];	//pin for analog jogging (-1..0..1)
+
+    hal_s32_t mv_counts;	//pin for the Max Velocity counting
+    hal_float_t mv_scale;	//scale for the Max Velocity counting
+    hal_bit_t  mv_increase;	// pin for increasing the MV (+=scale)
+    hal_bit_t  mv_decrease;	// pin for decreasing the MV (-=scale)
         
     hal_s32_t fo_counts;	//pin for the Feed Override counting
     hal_float_t fo_scale;	//scale for the Feed Override counting
@@ -781,6 +792,8 @@ int halui_hal_init(void)
     if (retval != HAL_SUCCESS) return retval;
     }
 
+    retval =  hal_pin_float_newf(HAL_OUT, &(halui_data->mv_value), comp_id, "halui.max-velocity.value"); 
+    if (retval != HAL_SUCCESS) return retval;
     retval =  hal_pin_float_newf(HAL_OUT, &(halui_data->fo_value), comp_id, "halui.feed-override.value"); 
     if (retval != HAL_SUCCESS) return retval;
     retval = hal_pin_u32_newf(HAL_OUT, &(halui_data->joint_selected), comp_id, "halui.joint.selected"); 
@@ -858,6 +871,16 @@ int halui_hal_init(void)
     retval = halui_export_pin_IN_bit(&(halui_data->spindle_brake_on), "halui.spindle.brake-on"); 
     if (retval != HAL_SUCCESS) return retval;
     retval = halui_export_pin_IN_bit(&(halui_data->spindle_brake_off), "halui.spindle.brake-off"); 
+    if (retval != HAL_SUCCESS) return retval;
+
+    retval = halui_export_pin_IN_s32(&(halui_data->mv_counts), "halui.max-velocity.counts");
+    if (retval != HAL_SUCCESS) return retval;
+    *halui_data->mv_counts = 0;
+    retval = halui_export_pin_IN_float(&(halui_data->mv_scale), "halui.max-velocity.scale");
+    if (retval != HAL_SUCCESS) return retval;
+    retval = halui_export_pin_IN_bit(&(halui_data->mv_increase), "halui.max-velocity.increase");
+    if (retval != HAL_SUCCESS) return retval;
+    retval = halui_export_pin_IN_bit(&(halui_data->mv_decrease), "halui.max-velocity.decrease");
     if (retval != HAL_SUCCESS) return retval;
 
     retval = halui_export_pin_IN_s32(&(halui_data->fo_counts), "halui.feed-override.counts");
@@ -1361,6 +1384,16 @@ static int sendFeedOverride(double override)
     return emcCommandWaitReceived(emcCommandSerialNumber);
 }
 
+static int sendMaxVelocity(double velocity)
+{
+    EMC_TRAJ_SET_MAX_VELOCITY mv;
+
+    mv.serial_number = ++emcCommandSerialNumber;
+    mv.velocity = velocity;
+    emcCommandBuffer->write(mv);
+    return emcCommandWaitReceived(emcCommandSerialNumber);
+}
+
 static int sendSpindleOverride(double override)
 {
     EMC_TRAJ_SET_SPINDLE_SCALE emc_traj_set_spindle_scale_msg;
@@ -1629,6 +1662,14 @@ static void check_hal_changes()
     if (check_bit_changed(halui_data->program_stop, &(old_halui_data.program_stop)) != 0)
 	sendAbort();
 
+    //max-velocity stuff
+    counts = *halui_data->mv_counts;
+    if(counts != old_halui_data.mv_counts) {
+        sendMaxVelocity( *halui_data->mv_value + (counts - old_halui_data.mv_counts) *
+                *halui_data->mv_scale);
+        old_halui_data.mv_counts = counts;
+    }
+
     //feed-override stuff
     counts = *halui_data->fo_counts;
     if(counts != old_halui_data.fo_counts) {
@@ -1645,6 +1686,11 @@ static void check_hal_changes()
         old_halui_data.so_counts = counts;
     }
     
+    if (check_bit_changed(halui_data->mv_increase, &(old_halui_data.mv_increase)) != 0)
+        sendFeedOverride(*halui_data->mv_value + *halui_data->mv_scale);
+    if (check_bit_changed(halui_data->mv_decrease, &(old_halui_data.mv_decrease)) != 0)
+        sendFeedOverride(*halui_data->mv_value - *halui_data->mv_scale);
+
     if (check_bit_changed(halui_data->fo_increase, &(old_halui_data.fo_increase)) != 0)
         sendFeedOverride(*halui_data->fo_value + *halui_data->fo_scale);
     if (check_bit_changed(halui_data->fo_decrease, &(old_halui_data.fo_decrease)) != 0)
@@ -1847,6 +1893,7 @@ static void modify_hal_pins()
     *(halui_data->program_os_is_on) = emcStatus->task.optional_stop_state;
     *(halui_data->program_bd_is_on) = emcStatus->task.block_delete_state;
 
+    *(halui_data->mv_value) = emcStatus->motion.traj.maxVelocity;
     *(halui_data->fo_value) = emcStatus->motion.traj.scale; //feedoverride from 0 to 1 for 100%
     *(halui_data->so_value) = emcStatus->motion.traj.spindle_scale; //spindle-speed-override from 0 to 1 for 100%
 

@@ -762,6 +762,16 @@ static PyObject *mode(pyCommandChannel *s, PyObject *o) {
     return Py_None;
 }
 
+static PyObject *maxvel(pyCommandChannel *s, PyObject *o) {
+    EMC_TRAJ_SET_MAX_VELOCITY m;
+    if(!PyArg_ParseTuple(o, "d", &m.velocity)) return NULL;
+    m.serial_number = next_serial(s);
+    s->c->write(m);
+    emcWaitCommandReceived(s->serial, s->s);
+    Py_INCREF(Py_None);
+    return Py_None;
+}    
+
 static PyObject *feedrate(pyCommandChannel *s, PyObject *o) {
     EMC_TRAJ_SET_SCALE m;
     if(!PyArg_ParseTuple(o, "d", &m.scale)) return NULL;
@@ -1242,6 +1252,7 @@ static PyMethodDef Command_methods[] = {
     {"mdi", (PyCFunction)mdi, METH_VARARGS},
     {"mode", (PyCFunction)mode, METH_VARARGS},
     {"feedrate", (PyCFunction)feedrate, METH_VARARGS},
+    {"maxvel", (PyCFunction)maxvel, METH_VARARGS},
     {"spindleoverride", (PyCFunction)spindleoverride, METH_VARARGS},
     {"spindle", (PyCFunction)spindle, METH_VARARGS},
     {"tool_offset", (PyCFunction)tool_offset, METH_VARARGS},

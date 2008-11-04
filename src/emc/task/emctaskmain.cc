@@ -331,6 +331,7 @@ static EMC_AXIS_LOAD_COMP *axis_load_comp_msg;
 //static EMC_AXIS_SET_STEP_PARAMS *set_step_params_msg;
 
 static EMC_TRAJ_SET_SCALE *emcTrajSetScaleMsg;
+static EMC_TRAJ_SET_MAX_VELOCITY *emcTrajSetMaxVelocityMsg;
 static EMC_TRAJ_SET_SPINDLE_SCALE *emcTrajSetSpindleScaleMsg;
 static EMC_TRAJ_SET_VELOCITY *emcTrajSetVelocityMsg;
 static EMC_TRAJ_SET_ACCELERATION *emcTrajSetAccelerationMsg;
@@ -535,6 +536,7 @@ static int emcTaskPlan(void)
 	    case EMC_AXIS_LOAD_COMP_TYPE:
 	    case EMC_AXIS_UNHOME_TYPE:
 	    case EMC_TRAJ_SET_SCALE_TYPE:
+	    case EMC_TRAJ_SET_MAX_VELOCITY_TYPE:
 	    case EMC_TRAJ_SET_SPINDLE_SCALE_TYPE:
 	    case EMC_TRAJ_SET_FO_ENABLE_TYPE:
 	    case EMC_TRAJ_SET_FH_ENABLE_TYPE:
@@ -630,6 +632,7 @@ static int emcTaskPlan(void)
 	    case EMC_TRAJ_RESUME_TYPE:
 	    case EMC_TRAJ_ABORT_TYPE:
 	    case EMC_TRAJ_SET_SCALE_TYPE:
+	    case EMC_TRAJ_SET_MAX_VELOCITY_TYPE:
 	    case EMC_TRAJ_SET_SPINDLE_SCALE_TYPE:
 	    case EMC_TRAJ_SET_FO_ENABLE_TYPE:
 	    case EMC_TRAJ_SET_FH_ENABLE_TYPE:
@@ -723,6 +726,7 @@ static int emcTaskPlan(void)
 		case EMC_TRAJ_RESUME_TYPE:
 		case EMC_TRAJ_ABORT_TYPE:
 		case EMC_TRAJ_SET_SCALE_TYPE:
+		case EMC_TRAJ_SET_MAX_VELOCITY_TYPE:
 		case EMC_TRAJ_SET_SPINDLE_SCALE_TYPE:
 		case EMC_TRAJ_SET_FO_ENABLE_TYPE:
 	        case EMC_TRAJ_SET_FH_ENABLE_TYPE:
@@ -820,6 +824,7 @@ static int emcTaskPlan(void)
 		case EMC_TRAJ_RESUME_TYPE:
 		case EMC_TRAJ_ABORT_TYPE:
 		case EMC_TRAJ_SET_SCALE_TYPE:
+                case EMC_TRAJ_SET_MAX_VELOCITY_TYPE:
 		case EMC_TRAJ_SET_SPINDLE_SCALE_TYPE:
 		case EMC_TRAJ_SET_FO_ENABLE_TYPE:
 		case EMC_TRAJ_SET_FH_ENABLE_TYPE:
@@ -1024,6 +1029,7 @@ interpret_again:
 		case EMC_TRAJ_RESUME_TYPE:
 		case EMC_TRAJ_ABORT_TYPE:
 		case EMC_TRAJ_SET_SCALE_TYPE:
+		case EMC_TRAJ_SET_MAX_VELOCITY_TYPE:
 		case EMC_TRAJ_SET_SPINDLE_SCALE_TYPE:
 		case EMC_TRAJ_SET_FO_ENABLE_TYPE:
 	        case EMC_TRAJ_SET_FH_ENABLE_TYPE:
@@ -1106,6 +1112,7 @@ interpret_again:
 		case EMC_TRAJ_RESUME_TYPE:
 		case EMC_TRAJ_ABORT_TYPE:
 		case EMC_TRAJ_SET_SCALE_TYPE:
+		case EMC_TRAJ_SET_MAX_VELOCITY_TYPE:
 		case EMC_TRAJ_SET_SPINDLE_SCALE_TYPE:
 		case EMC_TRAJ_SET_FO_ENABLE_TYPE:
 	        case EMC_TRAJ_SET_FH_ENABLE_TYPE:
@@ -1201,6 +1208,7 @@ interpret_again:
 	    case EMC_AXIS_SET_MIN_FERROR_TYPE:
 	    case EMC_AXIS_UNHOME_TYPE:
 	    case EMC_TRAJ_SET_SCALE_TYPE:
+	    case EMC_TRAJ_SET_MAX_VELOCITY_TYPE:
 	    case EMC_TRAJ_SET_SPINDLE_SCALE_TYPE:
 	    case EMC_TRAJ_SET_FO_ENABLE_TYPE:
 	    case EMC_TRAJ_SET_FH_ENABLE_TYPE:
@@ -1566,6 +1574,11 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
     case EMC_TRAJ_SET_SCALE_TYPE:
 	emcTrajSetScaleMsg = (EMC_TRAJ_SET_SCALE *) cmd;
 	retval = emcTrajSetScale(emcTrajSetScaleMsg->scale);
+	break;
+
+    case EMC_TRAJ_SET_MAX_VELOCITY_TYPE:
+	emcTrajSetMaxVelocityMsg = (EMC_TRAJ_SET_MAX_VELOCITY *) cmd;
+	retval = emcTrajSetMaxVelocity(emcTrajSetMaxVelocityMsg->velocity);
 	break;
 
     case EMC_TRAJ_SET_SPINDLE_SCALE_TYPE:

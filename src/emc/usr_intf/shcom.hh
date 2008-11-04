@@ -119,6 +119,7 @@ extern int sendAbort();
 extern int sendHome(int axis);
 extern int sendUnHome(int axis);
 extern int sendFeedOverride(double override);
+extern int sendMaxVelocity(double velocity);
 extern int sendSpindleOverride(double override);
 extern int sendTaskPlanInit();
 extern int sendProgramOpen(char *program);

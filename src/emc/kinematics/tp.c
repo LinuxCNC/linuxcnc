@@ -703,7 +703,8 @@ int tpRunCycle(TP_STRUCT * tp, long period)
         tc->blending = 0;
 
         // clamp motion's velocity at TRAJ MAX_VELOCITY (tooltip maxvel)
-        if(tc->maxvel > tp->vLimit) 
+        // except when it's synced to spindle position.
+        if((!tc->synchronized || tc->velocity_mode) && tc->maxvel > tp->vLimit) 
             tc->maxvel = tp->vLimit;
 
         // honor accel constraint in case we happen to make an acute angle
@@ -808,7 +809,8 @@ int tpRunCycle(TP_STRUCT * tp, long period)
         nexttc->blending = 0;
 
         // clamp motion's velocity at TRAJ MAX_VELOCITY (tooltip maxvel)
-        if(nexttc->maxvel > tp->vLimit) 
+        // except when it's synced to spindle position.
+        if((!tc->synchronized || tc->velocity_mode) && tc->maxvel > tp->vLimit) 
             nexttc->maxvel = tp->vLimit;
 
         // honor accel constraint if we happen to make an acute angle with the
