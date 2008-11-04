@@ -109,8 +109,8 @@ int do_lock_cmd(char *command)
 {
     int retval=0;
 
-    /* if command is blank, want to lock everything */
-    if (*command == '\0') {
+    /* if command is blank or "all", want to lock everything */
+    if ((command == NULL) || (strcmp(command, "all") == 0)) {
 	retval = hal_set_lock(HAL_LOCK_ALL);
     } else if (strcmp(command, "none") == 0) {
 	retval = hal_set_lock(HAL_LOCK_NONE);
@@ -133,8 +133,8 @@ int do_unlock_cmd(char *command)
 {
     int retval=0;
 
-    /* if command is blank, want to unlock everything */
-    if (*command == '\0') {
+    /* if command is blank or "all", want to unlock everything */
+    if ((command == NULL) || (strcmp(command, "all") == 0)) {
 	retval = hal_set_lock(HAL_LOCK_NONE);
     } else if (strcmp(command, "all") == 0) {
 	retval = hal_set_lock(HAL_LOCK_NONE);
@@ -963,7 +963,7 @@ int do_status_cmd(char *type)
 	/* must be -Q, don't print anything */
 	return 0;
     }
-    if ((*type == '\0') || (strcmp(type, "all") == 0)) {
+    if ((type == NULL) || (strcmp(type, "all") == 0)) {
 	/* print everything */
 	/* add other status functions here if/when they are defined */
 	print_lock_status();
