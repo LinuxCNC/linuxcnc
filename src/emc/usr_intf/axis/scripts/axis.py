@@ -164,7 +164,7 @@ help1 = [
     (_("Rotate Wheel"), _("Zoom view")),
     (_("Control+Left Button"), _("Zoom view")),
     ("", ""),
-    (_("Space, Ctrl-Space"), _("Clear notifications")),
+    (_("Ctrl-Space"), _("Clear notifications")),
 ]
 help2 = [
     ("F3", _("Manual control")),
@@ -3652,7 +3652,6 @@ def get_coordinate_font(large):
 
 notifications = Notification(o)
 
-root_window.bind("<space>", lambda event: notifications.clear_one())
 root_window.bind("<Control-space>", lambda event: notifications.clear())
 widgets.mdi_command.bind("<Control-space>", lambda event: notifications.clear())
 
