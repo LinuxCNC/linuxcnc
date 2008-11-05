@@ -145,11 +145,12 @@ int tpSetVmax(TP_STRUCT * tp, double vMax, double ini_maxvel)
 
 int tpSetVlimit(TP_STRUCT * tp, double vLimit)
 {
-    if (0 == tp || vLimit <= 0.0) {
-	return -1;
-    }
+    if (!tp) return -1;
 
-    tp->vLimit = vLimit;
+    if (vLimit < 0.) 
+        tp->vLimit = 0.;
+    else
+        tp->vLimit = vLimit;
 
     return 0;
 }
