@@ -175,7 +175,7 @@ struct command commands[] = {
     {"show",    FUNCT(do_show_cmd),    A_ONE | A_OPTIONAL | A_PLUS},
     {"source",  FUNCT(do_source_cmd),  A_ONE},
     {"start",   FUNCT(do_start_cmd),   A_ZERO},
-    {"status",  FUNCT(do_status_cmd),  A_ONE},
+    {"status",  FUNCT(do_status_cmd),  A_ONE | A_OPTIONAL },
     {"stop",    FUNCT(do_stop_cmd),    A_ZERO},
     {"unlinkp", FUNCT(do_unlinkp_cmd), A_ONE },
     {"unload",  FUNCT(do_unload_cmd),  A_ONE },
