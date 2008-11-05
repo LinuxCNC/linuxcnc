@@ -512,7 +512,7 @@ int tpAddCircle(TP_STRUCT * tp, EmcPose end,
     return 0;
 }
 
-void tcRunCycle(TC_STRUCT *tc, double *v, int *on_final_decel) {
+void tcRunCycle(TP_STRUCT *tp, TC_STRUCT *tc, double *v, int *on_final_decel) {
     double discr, maxnewvel, newvel, newaccel=0;
     if(!tc->blending) tc->vel_at_blend_start = tc->currentvel;
 
@@ -535,6 +535,11 @@ void tcRunCycle(TC_STRUCT *tc, double *v, int *on_final_decel) {
         if(newvel > tc->reqvel * tc->feed_override) 
             newvel = tc->reqvel * tc->feed_override;
         if(newvel > tc->maxvel) newvel = tc->maxvel;
+
+        // clamp motion's velocity at TRAJ MAX_VELOCITY (tooltip maxvel)
+        // except when it's synced to spindle position.
+        if((!tc->synchronized || tc->velocity_mode) && newvel > tp->vLimit)
+            newvel = tp->vLimit;
 
         // get resulting acceleration
         newaccel = (newvel - tc->currentvel) / tc->cycle_time;
@@ -702,11 +707,6 @@ int tpRunCycle(TP_STRUCT * tp, long period)
         tp->motionType = tc->canon_motion_type;
         tc->blending = 0;
 
-        // clamp motion's velocity at TRAJ MAX_VELOCITY (tooltip maxvel)
-        // except when it's synced to spindle position.
-        if((!tc->synchronized || tc->velocity_mode) && tc->maxvel > tp->vLimit) 
-            tc->maxvel = tp->vLimit;
-
         // honor accel constraint in case we happen to make an acute angle
         // with the next segment.
         if(tc->blend_with_next) 
@@ -807,11 +807,6 @@ int tpRunCycle(TP_STRUCT * tp, long period)
         tp->depth = tp->activeDepth = 1;
         nexttc->active = 1;
         nexttc->blending = 0;
-
-        // clamp motion's velocity at TRAJ MAX_VELOCITY (tooltip maxvel)
-        // except when it's synced to spindle position.
-        if((!tc->synchronized || tc->velocity_mode) && tc->maxvel > tp->vLimit) 
-            nexttc->maxvel = tp->vLimit;
 
         // honor accel constraint if we happen to make an acute angle with the
         // above segment or the following one
@@ -930,7 +925,7 @@ int tpRunCycle(TP_STRUCT * tp, long period)
     }
 
     primary_before = tcGetPos(tc);
-    tcRunCycle(tc, &primary_vel, &on_final_decel);
+    tcRunCycle(tp, tc, &primary_vel, &on_final_decel);
     primary_after = tcGetPos(tc);
     pmCartCartSub(primary_after.tran, primary_before.tran, 
             &primary_displacement.tran);
@@ -973,7 +968,7 @@ int tpRunCycle(TP_STRUCT * tp, long period)
         nexttc->reqvel = nexttc->feed_override > 0.0 ? 
             ((tc->vel_at_blend_start - primary_vel) / nexttc->feed_override) :
             0.0;
-        tcRunCycle(nexttc, NULL, NULL);
+        tcRunCycle(tp, nexttc, NULL, NULL);
         nexttc->reqvel = save_vel;
 
         secondary_after = tcGetPos(nexttc);
