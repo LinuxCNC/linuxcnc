@@ -382,6 +382,7 @@ static int comp_id, done;				/* component ID, main while loop */
 static int num_axes = 3; //number of axes, taken from the ini [TRAJ] section
 
 static double maxFeedOverride=1;
+static double maxMaxVelocity=1;
 static double minSpindleOverride=1.0;// no variation allowed by default (old behaviour)
 static double maxSpindleOverride=1.0;// the real values come from the ini
 static EMC_TASK_MODE_ENUM halui_old_mode = EMC_TASK_MODE_MANUAL;
@@ -1388,6 +1389,14 @@ static int sendMaxVelocity(double velocity)
 {
     EMC_TRAJ_SET_MAX_VELOCITY mv;
 
+    if (velocity < 0.0) {
+        velocity = 0.0;
+    }
+
+    if (velocity > maxMaxVelocity) {
+        velocity = maxMaxVelocity;
+    }
+
     mv.serial_number = ++emcCommandSerialNumber;
     mv.velocity = velocity;
     emcCommandBuffer->write(mv);
@@ -1454,6 +1463,10 @@ static int iniLoad(const char *filename)
 	// no line at all
         maxFeedOverride =  1.0;
     }
+
+    if(inifile.Find(&maxMaxVelocity, "MAX_VELOCITY", "TRAJ") &&
+       inifile.Find(&maxMaxVelocity, "MAX_VELOCITY", "AXIS_0"))
+        maxMaxVelocity = 1.0;
 
     if (NULL != (inistring = inifile.Find("MIN_SPINDLE_OVERRIDE", "DISPLAY"))) {
 	if (1 == sscanf(inistring, "%lf", &d) && d > 0.0) {
