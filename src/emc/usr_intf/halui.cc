@@ -1687,9 +1687,9 @@ static void check_hal_changes()
     }
     
     if (check_bit_changed(halui_data->mv_increase, &(old_halui_data.mv_increase)) != 0)
-        sendFeedOverride(*halui_data->mv_value + *halui_data->mv_scale);
+        sendMaxVelocity(*halui_data->mv_value + *halui_data->mv_scale);
     if (check_bit_changed(halui_data->mv_decrease, &(old_halui_data.mv_decrease)) != 0)
-        sendFeedOverride(*halui_data->mv_value - *halui_data->mv_scale);
+        sendMaxVelocity(*halui_data->mv_value - *halui_data->mv_scale);
 
     if (check_bit_changed(halui_data->fo_increase, &(old_halui_data.fo_increase)) != 0)
         sendFeedOverride(*halui_data->fo_value + *halui_data->fo_scale);
