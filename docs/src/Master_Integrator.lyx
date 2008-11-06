@@ -143,6 +143,15 @@ Configuration
 \layout Standard
 
 
+\begin_inset Include \include{install/Latency_Test.lyx}
+preview false
+
+\end_inset 
+
+
+\layout Standard
+
+
 \begin_inset Include \include{config/ini_config.lyx}
 preview false
 

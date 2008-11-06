@@ -36,7 +36,7 @@
 
 \layout Chapter
 
-INI Configuration
+INI File
 \layout Section
 
 Files Used for Configuration
@@ -393,7 +393,7 @@ Units The units (of length or angle) specified in the ini file for
 
 \end_inset 
 
-INI Section Variables
+Section Variables
 \layout Subsection
 
 [EMC] Section
