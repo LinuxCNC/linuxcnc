@@ -117,6 +117,16 @@ extern "C" {
 *            PRIVATE HAL DATA STRUCTURES AND DECLARATIONS              *
 ************************************************************************/
 
+/** HAL "data union" structure
+ ** This structure may hold any type of hal data
+*/
+typedef union {
+    hal_bit_t b;
+    hal_s32_t s;
+    hal_s32_t u;
+    hal_float_t f;
+} hal_data_u;
+
 /** HAL "list element" data structure.
     This structure is used to implement generic double linked circular
     lists.  Such lists have the following characteristics:
@@ -199,7 +209,7 @@ typedef struct {
     int data_ptr_addr;		/* address of pin data pointer */
     int owner_ptr;		/* component that owns this pin */
     int signal;			/* signal to which pin is linked */
-    long dummysig;		/* if unlinked, data_ptr points here */
+    hal_data_u dummysig;		/* if unlinked, data_ptr points here */
     hal_type_t type;		/* data type */
     hal_pin_dir_t dir;		/* pin direction */
     char name[HAL_NAME_LEN + 1];	/* pin name */

@@ -575,6 +575,12 @@ int hal_pin_new(const char *name, hal_type_t type, hal_pin_dir_t dir,
 	    "HAL: ERROR: pin_new called before init\n");
 	return HAL_INVAL;
     }
+
+    if (type != HAL_BIT && type != HAL_FLOAT && type != HAL_S32 && type != HAL_U32) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: pin type not one of HAL_BIT, HAL_FLOAT, HAL_S32 or HAL_U32\n");
+	return HAL_INVAL;
+    }
     
     if(dir != HAL_IN && dir != HAL_OUT && dir != HAL_IO) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -622,7 +628,7 @@ int hal_pin_new(const char *name, hal_type_t type, hal_pin_dir_t dir,
     new->type = type;
     new->dir = dir;
     new->signal = 0;
-    new->dummysig = 0;
+    memset(&new->dummysig, 0, sizeof(hal_data_u));
     rtapi_snprintf(new->name, HAL_NAME_LEN, "%s", name);
     /* make 'data_ptr' point to dummy signal */
     *data_ptr_addr = comp->shmem_base + SHMOFF(&(new->dummysig));
@@ -696,12 +702,16 @@ int hal_signal_new(const char *name, hal_type_t type)
     /* allocate memory for the signal value */
     switch (type) {
     case HAL_BIT:
-	data_addr = shmalloc_up(1);
+	data_addr = shmalloc_up(sizeof(hal_bit_t));
 	break;
     case HAL_S32:
+	data_addr = shmalloc_up(sizeof(hal_u32_t));
+	break;
     case HAL_U32:
+	data_addr = shmalloc_up(sizeof(hal_s32_t));
+	break;
     case HAL_FLOAT:
-	data_addr = shmalloc_up(4);
+	data_addr = shmalloc_up(sizeof(hal_float_t));
 	break;
     default:
 	rtapi_mutex_give(&(hal_data->mutex));
@@ -1057,6 +1067,12 @@ int hal_param_new(const char *name, hal_type_t type, hal_param_dir_t dir, void *
     if (hal_data == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: param_new called before init\n");
+	return HAL_INVAL;
+    }
+
+    if (type != HAL_BIT && type != HAL_FLOAT && type != HAL_S32 && type != HAL_U32) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: pin type not one of HAL_BIT, HAL_FLOAT, HAL_S32 or HAL_U32\n");
 	return HAL_INVAL;
     }
 
@@ -2393,7 +2409,7 @@ static void *shmalloc_up(long int size)
 
     /* deal with alignment requirements */
     tmp_bot = hal_data->shmem_bot;
-    if (size >= 8 && __alignof__(long) > 4) {
+    if (size >= 8) {
 	/* align on 8 byte boundary */
 	tmp_bot = (tmp_bot + 7) & (~7);
     } else if (size >= 4) {
@@ -2423,7 +2439,7 @@ static void *shmalloc_dn(long int size)
     /* tentatively allocate memory */
     tmp_top = hal_data->shmem_top - size;
     /* deal with alignment requirements */
-    if (size >= 8 && __alignof__(long) > 4) {
+    if (size >= 8) {
 	/* align on 8 byte boundary */
 	tmp_top &= (~7);
     } else if (size >= 4) {
@@ -2495,7 +2511,7 @@ static hal_pin_t *alloc_pin_struct(void)
 	p->type = 0;
 	p->dir = 0;
 	p->signal = 0;
-	p->dummysig = 0;
+	memset(&p->dummysig, 0, sizeof(hal_data_u));
 	p->name[0] = '\0';
     }
     return p;
@@ -2756,7 +2772,7 @@ static void free_pin_struct(hal_pin_t * pin)
     pin->type = 0;
     pin->dir = 0;
     pin->signal = 0;
-    pin->dummysig = 0;
+    memset(&pin->dummysig, 0, sizeof(hal_data_u));
     pin->name[0] = '\0';
     /* add it to free list */
     pin->next_ptr = hal_data->pin_free_ptr;

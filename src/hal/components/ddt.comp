@@ -19,11 +19,11 @@ component ddt "Compute the derivative of the input function";
 pin in float in;
 pin out float out;
 
-variable float old;
+variable double old;
 
 function _;
 license "GPL";
 ;;
-float tmp = in;
+double tmp = in;
 out = (tmp - old) / (period * 1e-9);
 old = tmp;

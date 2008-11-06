@@ -13,7 +13,7 @@
 #define MAX_STREAMERS		8
 #define MAX_SAMPLERS		8
 #define MAX_PINS 		20
-#define MAX_SHMEM 		64000
+#define MAX_SHMEM 		128000
 #define STREAMER_SHMEM_KEY 	0x48535430
 #define SAMPLER_SHMEM_KEY	0x48534130
 #define FIFO_MAGIC_NUM		0x4649464F
@@ -23,7 +23,7 @@
 */
 
 typedef union {
-    float f;
+    real_t f;
     char  b;
     hal_s32_t s;
     hal_u32_t u;

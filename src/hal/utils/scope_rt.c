@@ -259,6 +259,17 @@ static void capture_sample(void)
 	    dest->d_u32 = *((unsigned long *) (ctrl_rt->data_addr[n]));
 	    dest++;
 	    break;
+	case 8:
+            {
+                ireal_t sample_a, sample_b;
+                do {
+                    sample_a = *((volatile ireal_t *) (ctrl_rt->data_addr[n]));
+                    sample_b = *((volatile ireal_t *) (ctrl_rt->data_addr[n]));
+                } while( sample_a != sample_b );
+                dest->d_ireal = sample_a;
+                dest++;
+            }
+	    break;
 	default:
 	    break;
 	}
@@ -272,12 +283,13 @@ static void capture_sample(void)
     }
 }
 
+// TODO: type-independent way to get high bit
+// #define SIGN_BIT (~(((ireal_t)~(ireal_t)0)>>1))
 static int check_trigger(void)
 {
     static int compare_result = 0;
     int prev_compare_result;
     scope_data_t *value, *level;
-    unsigned long tmp1, tmp2;
 
     /* has user forced trigger? */
     if (ctrl_shm->force_trig != 0) {
@@ -310,22 +322,24 @@ static int check_trigger(void)
 	compare_result = value->d_u8;
 	break;
     case HAL_FLOAT:
+	{
+	ireal_t tmp1, tmp2;
 	/* don't want to use the FPU in this function, so we use */
 	/* a hack - see http://en.wikipedia.org/wiki/IEEE_754 */
 	/* this _only_ works with IEEE-754 floating point numbers */
 	/* and will probably fail for infinities, NANs, etc. */
 	/* OK, here we go! */
-	/* get the value as 32 raw bits (unsigned long) */
-	tmp1 = value->d_u32;
-	/* get the trigger level as 32 raw bits */
-	tmp2 = level->d_u32;
-	/* is the value negative? */
-	if (tmp1 & 0x80000000) {
+	/* get the value as an integer */
+	tmp1 = value->d_ireal;
+	/* get the trigger as an integer */
+	tmp2 = level->d_ireal;
+	/* is the value negative? (highest bit) */
+	if (tmp1 & 0x8000000000000000ull) {
 	    /* yes, is the trigger level negative? */
-	    if (tmp2 & 0x80000000) {
+	    if (tmp2 & 0x8000000000000000ull) {
 		/* yes, make both positive */
-		tmp1 ^= 0x80000000;
-		tmp2 ^= 0x80000000;
+		tmp1 ^= 0x8000000000000000ull;
+		tmp2 ^= 0x8000000000000000ull;
 		/* and compare them as unsigned ints */
 		/* because of negation, we reverse the compare */
 		compare_result = (tmp1 < tmp2);
@@ -335,7 +349,7 @@ static int check_trigger(void)
 	    }
 	} else {
 	    /* value is positive, is trigger level negative? */
-	    if (tmp2 & 0x80000000) {
+	    if (tmp2 & 0x8000000000000000ull) {
 		/* trigger level negative, value positive */
 		compare_result = 1;
 	    } else {
@@ -343,6 +357,7 @@ static int check_trigger(void)
 		/* compare them as unsigned ints */
 		compare_result = (tmp1 > tmp2);
 	    }
+	}
 	}
 	break;
     case HAL_S32:

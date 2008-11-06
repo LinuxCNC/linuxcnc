@@ -290,7 +290,9 @@ typedef enum {
 typedef volatile unsigned char hal_bit_t;
 typedef volatile __u32 hal_u32_t;
 typedef volatile __s32 hal_s32_t;
-typedef volatile float hal_float_t;
+typedef double real_t __attribute__((aligned(8)));
+typedef __u64 ireal_t __attribute__((aligned(8))); // integral type as wide as real_t / hal_float_t
+typedef volatile double hal_float_t __attribute__((aligned(8)));
 
 /***********************************************************************
 *                      "LOCKING" FUNCTIONS                             *

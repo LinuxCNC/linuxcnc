@@ -104,7 +104,7 @@ void refresh_trigger(void)
     scope_trig_t *trig;
     scope_chan_t *chan;
     gchar buf[BUFLEN + 1];
-    float fp_level;
+    double fp_level;
 
     trig = &(ctrl_usr->trig);
     /* display edge */
@@ -134,7 +134,7 @@ void refresh_trigger(void)
     /* apply type specific tweaks to trigger level */
     switch (chan->data_type) {
     case HAL_FLOAT:
-	ctrl_shm->trig_level.d_float = fp_level;
+	ctrl_shm->trig_level.d_real = fp_level;
 	break;
     case HAL_S32:
 	if (fp_level > 2147483647.0) {

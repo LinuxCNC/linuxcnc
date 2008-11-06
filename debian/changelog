@@ -105,10 +105,12 @@ emc2 (1:2.3.0~alpha1) unstable; urgency=low
     beginning of feed moves.
   * new component "near" which tells whether two values are roughly equal
     as determined by configurable parameters
+  * make hal_float a double precision type
 
   * [add bugfixes from the 2.2.x branch here, before release]
 
- -- Chris Radek <chris@timeguy.com>  Sat,  1 Nov 2008 01:28:46 -0500
+
+ -- Jeff Epler <jepler@unpythonic.net>  Wed,  5 Nov 2008 21:36:58 -0600
 
 emc2 (1:2.2.0) unstable; urgency=low
 

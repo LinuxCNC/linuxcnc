@@ -564,7 +564,7 @@ int do_newsig_cmd(char *name, char *type)
 static int set_common(hal_type_t type, void *d_ptr, char *value) {
     // This function assumes that the mutex is held
     int retval = 0;
-    float fval;
+    double fval;
     long lval;
     unsigned long ulval;
     char *cp = value;

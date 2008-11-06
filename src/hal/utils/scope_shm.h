@@ -58,9 +58,10 @@ typedef enum {
 
 typedef union {
     unsigned char d_u8;		/* variable for bit */
-    __u32 d_u32;	/* variable for u32 */
+    __u32 d_u32;		/* variable for u32 */
     __s32 d_s32;		/* variable for s32 */
-    float d_float;		/* variable for float */
+    real_t d_real;		/* variable for float */
+    ireal_t d_ireal;		/* intlike variable for float */
 } scope_data_t;
 
 /** This struct holds control data needed by both realtime and GUI code.

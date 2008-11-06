@@ -330,7 +330,7 @@ void write_sample(FILE *fp, char *label, scope_data_t *dptr, hal_type_t type)
 			};
 			break;
 		case HAL_FLOAT:
-			data_value = dptr->d_float;
+			data_value = dptr->d_real;
 			break;
 		case HAL_S32:
 			data_value = dptr->d_s32;
