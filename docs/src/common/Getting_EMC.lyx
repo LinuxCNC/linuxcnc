@@ -26,26 +26,30 @@
 
 \layout Chapter
 
-Getting EMC2
+Getting Help
+\begin_inset LatexCommand \label{cha:Getting-Help}
+
+\end_inset 
+
+
 \layout Section
 
-Getting Help
+IRC
 \begin_inset LatexCommand \index{Getting Help}
 
 \end_inset 
 
 
-\begin_inset LatexCommand \label{sec:Getting-Help}
+\begin_inset LatexCommand \label{sec:IRC}
 
 \end_inset 
 
 
 \layout Standard
 
-There are several ways to get help installing and configuring EMC.
-\layout Standard
-
-On the EMC IRC channel.
+IRC stands for Internet Relay Chat.
+ It is a live connection to other EMC users.
+ The EMC IRC channel is #emc on freenode.
  
 \layout Standard
 
@@ -100,6 +104,9 @@ Set up your IRC account with your unique name so people will know who you
  log in.
  This helps people remember who you are and if you have been on before many
  will remember the past discussions which saves time on both ends.
+\layout Section
+
+Mailing List
 \layout Standard
 
 The EMC Users Mailing List at:
@@ -111,9 +118,13 @@ The EMC Users Mailing List at:
 \end_inset 
 
 
+\layout Section
+
+EMC Wiki
 \layout Standard
 
-The user maintained EMC Wiki site contains a wealth of information and tips:
+The user maintained EMC Wiki site contains a wealth of information and tips
+ at:
 \layout Standard
 
 
@@ -122,14 +133,12 @@ The user maintained EMC Wiki site contains a wealth of information and tips:
 \end_inset 
 
  
+\layout Chapter
+
+Get EMC2
 \layout Section
 
-Download the Software
-\begin_inset LatexCommand \index{Download the Software}
-
-\end_inset 
-
-
+Normal Download
 \layout Standard
 
 Download the Live CD from:
@@ -165,8 +174,8 @@ wget
  
 \layout Subsection
 
-Linux
-\begin_inset LatexCommand \index{wget}
+Wget Linux
+\begin_inset LatexCommand \index{Wget Linux}
 
 \end_inset 
 
@@ -224,7 +233,12 @@ rg or something similar.
  Next is burning the CD.
 \layout Subsection
 
-Windows
+Wget Windows
+\begin_inset LatexCommand \index{Wget Windows}
+
+\end_inset 
+
+
 \layout Standard
 
 The wget program is also available for Windows from
@@ -280,11 +294,6 @@ Type the wget command into the window and press enter as above.
 \layout Section
 
 Burning the CD
-\begin_inset LatexCommand \index{Burning the CD}
-
-\end_inset 
-
-
 \layout Standard
 
 EMC2 is distributed as CD image files, called ISOs.
@@ -293,12 +302,7 @@ EMC2 is distributed as CD image files, called ISOs.
  If the CD writing fails, try writing at a slower burn speed
 \layout Subsection
 
-Linux
-\begin_inset LatexCommand \index{md5sum}
-
-\end_inset 
-
-
+Burn with Linux
 \layout Standard
 
 Before burning a CD, it is highly recommended that you verify the md5 sum
@@ -365,7 +369,7 @@ Start the burning process.
 If a choose a file name for the disc image window pops up just pick OK.
 \layout Subsection
 
-Windows
+Burn with Windows
 \layout Standard
 
 Before burning a CD, it is highly recommended that you verify the md5 sum
@@ -395,11 +399,6 @@ Open Infra Recorder, and select the 'Actions' menu, then 'Burn image'.
 \layout Section
 
 Testing EMC2
-\begin_inset LatexCommand \index{Testing EMC2}
-
-\end_inset 
-
-
 \layout Standard
 
 With the Live CD in the CD/DVD drive shut down the computer then turn the
@@ -427,11 +426,6 @@ To see if your computer is suitable for software step pulse generation run
 \layout Section
 
 Installing EMC2
-\begin_inset LatexCommand \index{Installing EMC2}
-
-\end_inset 
-
-
 \layout Standard
 
 If you like what you see, just click the Install icon on the desktop, answer
@@ -446,9 +440,9 @@ AXIS Interface
 \layout Standard
 
 The AXIS interface is one of the interfaces to choose from.
- It can be configured to add a Virtural Control Panel to customize the interface
+ It can be configured to add a Virtual Control Panel to customize the interface
  to suit your needs.
- AXIS is the defaut user interface.
+ AXIS is the default user interface and is actively being developed.
 \layout Standard
 \align center 
 
@@ -472,9 +466,11 @@ Updates to EMC2
 With the normal install the Update Manager will notify you of updates to
  EMC2 and Ubuntu when you go on line and allow you to easily upgrade with
  no Linux knowledge needed.
- If you installed the Ubuntu 6.06 version do not upgrade to Ubuntu 8.04, the
- upgrade will break the EMC install.
- If you want to upgrade to 8.04 from 6.06 a clean install from the LiveCD
+ If you want to upgrade to 8.04 from 6.06 a clean install from the Live-CD
  is needed.
- It is ok to upgrade EMC when asked to.
+ It is OK to upgrade EMC when asked to.
+\layout Standard
+
+Warning: Do not upgrade Ubuntu to a new version as it will prevent EMC from
+ running.
 \the_end
