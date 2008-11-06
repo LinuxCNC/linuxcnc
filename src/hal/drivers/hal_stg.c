@@ -186,7 +186,9 @@ typedef struct {
     hal_float_t *pos[MAX_CHANS];		/* scaled position (floating point) */
     hal_float_t pos_scale[MAX_CHANS];		/* parameter: scaling factor for pos */
     hal_bit_t *index_enable[MAX_CHANS];		/* pins for index homing */
-	hal_s32_t check_index[MAX_CHANS];
+    hal_bit_t *index_latch[MAX_CHANS];    /* value of the index latch for the axis */
+//    hal_s32_t check_index[MAX_CHANS];           /* internal marker for two stage index pulse check */
+    hal_bit_t *index_polarity[MAX_CHANS];       /* Polarity of index pulse */
 
 /* dac data */
     hal_float_t *dac_value[MAX_CHANS];		/* value to be written to dac */
@@ -212,6 +214,8 @@ static stg_struct *stg_driver;
 /* other globals */
 static int comp_id;		/* component ID */
 static int outpinnum=0, inputpinnum=0;
+//const int STG_MSG_LEVEL = RTAPI_MSG_ALL;
+const int STG_MSG_LEVEL = RTAPI_MSG_INFO;
 
 #define DATA(x) (base + (2 * x) - (x % 2))	/* Address of Data register 0 */
 #define CTRL(x) (base + (2 * (x+1)) - (x % 2))	/* Address of Control register 0 */
@@ -240,9 +244,13 @@ static unsigned short stg_autodetect(void);
 static int stg_counter_init(int ch);
 static long stg_counter_read(int i);
 static void stg_counter_latch(int i);
-static void stg_select_index_axis(void *arg, unsigned int chan);
-static void stg_reset_index_latch(void *arg, unsigned int chan);
-static unsigned short stg_get_index_pulse_latch(void *arg, unsigned int chan);
+static void stg1_select_index_axis(void *arg, unsigned int chan);
+static void stg1_reset_index_latch(void *arg, unsigned int chan);
+static unsigned short stg1_get_index_pulse_latch(void *arg, unsigned int chan);
+
+static void stg2_reset_all_index_latches( void *arg );
+static void stg2_select_index_axes( void *arg, unsigned char mask );
+static unsigned char stg2_get_all_index_pulse_latches( void *arg );
 
 /* dac related functions */
 static int stg_dac_init(int ch);
@@ -262,6 +270,7 @@ static void stg_dacs_write(void *arg, long period); //writes dac's to the STG
 static void stg_counter_capture(void *arg, long period); //captures encoder counters
 static void stg_di_read(void *arg, long period); //reads digital inputs from the STG
 static void stg_do_write(void *arg, long period); //writes digital outputs to the STG
+//static void stg_debug_print( void *, long );
 
 /***********************************************************************
 *                       INIT AND EXIT CODE                             *
@@ -273,6 +282,10 @@ int rtapi_app_main(void)
 {
     int n, retval, mask, m;
     unsigned char dir_bits;
+  int msg;
+
+  msg = rtapi_get_msg_level();
+  rtapi_set_msg_level( STG_MSG_LEVEL );
 
     /* test for number of channels */
     if ((num_chan <= 0) || (num_chan > MAX_CHAN)) {
@@ -358,9 +371,20 @@ int rtapi_app_main(void)
 	*(stg_driver->count[n]) = 0;
 	stg_driver->offset[n] = 0;
 	*(stg_driver->pos[n]) = 0.0;
+
+    /* By default the index pulse is not processed/used */
 	*(stg_driver->index_enable[n]) = 0;
+
+    /* Default polarity for the index pulse is active high */
+    if( stg_driver->model == 1 )
+    {
+	    *(stg_driver->index_polarity[n]) = 1;
+    }
+
+    /* Default value for the index latch output is false */
+	  *(stg_driver->index_latch[n]) = 0;
+
 	stg_driver->pos_scale[n] = 1.0;
-	stg_driver->check_index[n] = 0;
 
 	/* init counter chip */
 	stg_counter_init(n);
@@ -455,13 +479,31 @@ int rtapi_app_main(void)
     rtapi_print_msg(RTAPI_MSG_INFO,
 	"STG: installed %d digital outputs\n", outpinnum);
 
+  /*
+  retval = hal_export_funct("stg.debug_print", stg_debug_print, stg_driver, 0, 0, comp_id);
+  if (retval != 0)
+  {
+  	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "STG: ERROR: stg.debug_print funct export failed\n");
+   	hal_exit(comp_id);
+   	return -1;
+  }
+  rtapi_print_msg(RTAPI_MSG_INFO,
+   	"STG: installed periodic debug print\n");
+  */
     hal_ready(comp_id);
+
+  /* restore saved message level */
+  rtapi_set_msg_level(msg);
+
     return 0;
 }
 
 void rtapi_app_exit(void)
 {
     hal_exit(comp_id);
+    // FIXME, check for return code ?
+  return;
 }
 
 /***********************************************************************
@@ -470,32 +512,108 @@ void rtapi_app_exit(void)
 
 static void stg_counter_capture(void *arg, long period)
 {
-    stg_struct *stg;
+  stg_struct *stg = arg;
     int n;
+//  int msg;
+  unsigned char mask;
+  unsigned char index_pulse_latches;
 
-    stg = arg;
-    for (n = 0; n < num_chan; n++) {
-	/* check for index-enable = high, set from the outside, we need to reset position based on index pulse */
-	if (*(stg->index_enable[n])) {
-		// if check_index[n] == 0 set up polling for index on axis n
-		if (stg->check_index[n] == 0) {
-			/* select current axis to be reset by index */
-			stg_select_index_axis(arg, n);
-			/* remember axis beeing polled */
-			stg->check_index[n] = 1;
+  if( stg->model == 1 )
+  {
+    /*
+     * STG Model 1, stg1
+     */
+    for( n = 0; n < num_chan; n++ ) 
+    {
+    	/* reset and then select current axes pair to be reset by index
+       *  Because they index polarity is configurable for the stg2 card be select
+       *  even for the odd axes */
+      stg1_select_index_axis(arg, n);
+
+      if (stg1_get_index_pulse_latch(arg, n)) 
+      {
+        *(stg->index_latch[n]) = 1;
+
+      	if ( *(stg->index_enable[n]) == 1 ) 
+        {
+          // read the value without latching, latching was done on index
+          // remember this as an offset, it will be substracted from nominal
+          stg->offset[n] = stg_counter_read(n);
+    			/* set index-enable false, so outside knows we found the index, and reset the position */
+  				*(stg->index_enable[n]) = 0;
+
+          /*
+          msg = rtapi_get_msg_level();
+          rtapi_set_msg_level( STG_MSG_LEVEL );
+          rtapi_print_msg(RTAPI_MSG_DBG, "STG: Index pulse detected on channel %1d\n", n );
+          rtapi_set_msg_level(msg);
+          */
+        } else {
+          /* NOP, no action needed, since the selection of an index pair is just valid until the next
+           *  pair is selected */   
 		} 
-		if (stg->check_index[n] != 0) { // otherwise, we already did that, and we need to see if the index arrived
-			if (stg_get_index_pulse_latch(arg, n)) {
-				//index arrived, we need to clear the index, and substract the position
-				stg->check_index[n] = 0;
-				stg->offset[n] = stg_counter_read(n);	// read the value without latching, latching was done on index
+      } else {
+        *(stg->index_latch[n]) = 0;
+      }
+
+    }
+  } else if( stg->model == 2 )
+  {
+    /*
+     * STG Model 2, stg2
+     */
+
+    // Set IDLEN
+    for( mask = 0, n = 0; n < num_chan; n++ ) 
+    {
+      if( *(stg->index_enable[n]) == 1 )
+      {
+        mask |= ( 1<<n );
+      }
+    }
+    stg2_select_index_axes( arg, mask );
+    
+    // Read all latches
+    index_pulse_latches = stg2_get_all_index_pulse_latches( arg );
+
+    // set or reset index_latch
+    // index-enable reset if needed
+    for( n = 0; n < num_chan; n++ ) 
+    {
+      if( index_pulse_latches & (1<<n) )
+      {
+        *(stg->index_latch[n]) = 1;
+
+      	if ( *(stg->index_enable[n]) == 1 ) 
+        {
+          // read the value without latching, latching was done on index
 														// remember this as an offset, it will be substracted from nominal
+          stg->offset[n] = stg_counter_read(n);
 				/* set index-enable false, so outside knows we found the index, and reset the position */
 				*(stg->index_enable[n]) = 0;
+
+          /*
+          msg = rtapi_get_msg_level();
+          rtapi_set_msg_level( STG_MSG_LEVEL );
+          rtapi_print_msg(RTAPI_MSG_DBG, "STG: Index pulse detected on channel %1d\n", n );
+          rtapi_set_msg_level(msg);
+          */
+        } else {
+          /* NOP, no action needed, since all index latches will be clearer for the next iteration anyway */
+        }
+      } else {
+        *(stg->index_latch[n]) = 0;
 			}
 		}
+    // Reset all latches
+    stg2_reset_all_index_latches( arg );
 		
+  } else {
+    // NOP, only models stg1 and stg2, thus should never be reached */
 	}
+
+  for (n = 0; n < num_chan; n++) 
+  {
 	/* capture raw counts to latches */
 	stg_counter_latch(n);
 	/* read raw count, and substract the offset (determined by indexed homing) */
@@ -512,7 +630,57 @@ static void stg_counter_capture(void *arg, long period)
 	*(stg->pos[n]) = *(stg->count[n]) / stg->pos_scale[n];
     }
     /* done */
+  return;
 }
+
+/* stg_debug_print 
+ *  run this function from a very slow, 
+ *  e.g. 1sec thread and it will give some information 
+ */
+/*
+static void stg_debug_print( void *arg, long period )
+{
+  stg_struct *stg=arg;
+  int msg;
+  static int counter;
+
+  // model 2 encoder index registers
+  unsigned char idlen_reg;
+  unsigned char seldi_reg;
+
+  //model 1 encoder index registers
+  unsigned char intc_reg;
+
+  msg = rtapi_get_msg_level();
+  rtapi_set_msg_level( STG_MSG_LEVEL );
+
+  if( stg->model == 1 ) 
+  {
+		intc_reg = inb(base + INTC);
+    rtapi_print_msg(RTAPI_MSG_DBG, "STG: %04d: IXS1 is %s\n", counter, ( intc_reg & IXS1 ) ? "TRUE" : "FALSE" );    
+    rtapi_print_msg(RTAPI_MSG_DBG, "STG: %04d: IXS0 is %s\n", counter, ( intc_reg & IXS0 ) ? "TRUE" : "FALSE" );
+    rtapi_print_msg(RTAPI_MSG_DBG, "STG: %04d: IXLVL is active %s\n", counter, ( intc_reg & IXLVL ) ? "TRUE" : "FALSE" );
+
+  } else if (stg->model == 2 ) 
+  {
+    idlen_reg = inb( base + IDLEN );
+    seldi_reg = inb( base + SELDI );
+      
+    rtapi_print_msg(RTAPI_MSG_DBG, "STG: %04d: IDLEN is 0x%02x\n", counter, idlen_reg );
+    rtapi_print_msg(RTAPI_MSG_DBG, "STG: %04d: SELDI is 0x%02x\n", counter, seldi_reg );
+
+  } else {
+  // NOP, should never be reached
+  }
+
+  // restore saved message level
+  rtapi_set_msg_level(msg);
+
+  counter++;
+
+  return;
+}
+*/
 
 /* stg_dacs_write() - writes all dac's to the board
     - calls stg_dac_write() */
@@ -536,6 +704,7 @@ static void stg_dacs_write(void *arg, long period)
 	/* write it to the card */	
 	stg_dac_write(i, ncounts);	
     }
+  return;
 }
 
 /* stg_adcs_read() - reads one adc at a time from the board to hal
@@ -583,6 +752,7 @@ static void stg_adcs_read(void *arg, long period)
     /* select the current channel with the mux, and start the conversion */
     stg_adc_start(stg,stg->adc_current_chan);
     /* the next time this function runs, the result should be available */
+  return;
 }
 
 
@@ -608,6 +778,7 @@ static void split_input(unsigned char data, io_pin *dest, int num)
 	mask <<= 1;
 	dest++;
     }
+  return;
 }    
 
 // helper function to extract the data out of HAL and place it into a char
@@ -883,15 +1054,29 @@ static long stg_counter_read(int i)
     return pos.l;
 }
 
-static void stg_select_index_axis(void *arg, unsigned int chan)
+static void stg1_select_index_axis(void *arg, unsigned int channel)
 {
     stg_struct *stg = arg;
     unsigned char byIntc,byAxis;
-	unsigned char byPol=1; //FIXME: make HAL parameter
+  unsigned char byPol = 1;
 
-    if (stg->model == 1){   // routine for Model 1
+  if (stg->model == 1)
+  { 
+    /*
+     * Set polarity to low active if that is requested
+     */
+    if( *(stg->index_polarity[channel]) == 0 ) 
+    {
+      byPol = 0;
+    }
+
+    /* Stg manual p. 21: "The bits are level triggered and cannot be reset if they are active"
+     *  So it is save to reset them and only those which are really active will remain */
+    stg1_reset_index_latch(arg, channel);
+  
+    // routine for Model 1
 		// initialize stuff to poll index pulse
-		byAxis = chan;
+		byAxis = channel;
 		
 		byAxis &= 0x6;						// ignore low bit, we check 2 axes at a time
 		byAxis <<= 3;						// shift into position for IXS1, IXS0
@@ -902,29 +1087,55 @@ static void stg_select_index_axis(void *arg, unsigned int chan)
 		if (byPol != 0)					// is index pulse active high?
 			byIntc |= IXLVL;
 		outb(byIntc, base + INTC);
-		stg_reset_index_latch(arg, chan);
 	}
 }
 
-static void stg_reset_index_latch(void *arg, unsigned int chan)
+static void stg2_select_index_axes( void *arg, unsigned char mask )
 {
-    stg_struct *stg = arg;
-
-    if (stg->model == 1){   // routine for Model 1
-    	inb(base + ODDRST);        //reset index pulse latch for ODD axis
-    	inb(base + BRDTST);        //reset index pulse latch for EVEN axis
-	} else if (stg->model == 2) {
-		//FIXME: reset index latch, write to IDL reg.
-	}
+    /* stg2 manual, p.21
+     *  writing 0 to the corresponding bit disables the index pulse
+     *  writing 1 enables it
+     */
+    outb( mask, base + IDLEN );
+    return;
 }
 
-unsigned char stg_get_current_IRR(void)
+/* Note that for stg1 cards this function will clear the index pulse latches for the two selected axes,
+ */
+static void stg1_reset_index_latch(void *arg, unsigned int channel)
+{
+  stg_struct *stg = arg;
+
+  if (stg->model == 1)
+  {   // routine for Model 1
+   	inb(base + ODDRST);        //reset index pulse latch for ODD axis
+   	inb(base + BRDTST);        //reset index pulse latch for EVEN axis
+  }
+  return;
+}
+
+static void stg2_reset_all_index_latches( void *arg )
+{
+  stg_struct *stg = arg;
+  if( stg->model == 2 )
+  {
+    /*     
+     * stg2 manual p.22, 
+     *  writing 0 to IDL resets the index latch, 
+     *  writing 1 has no effect
+     */
+    outb( 0x00, base + IDL);
+  }
+  return;
+}
+
+unsigned char stg1_get_current_IRR(void)
 {
     outb(base + OCW3, 0x0a);           // IRR on next read
     return inb(base + IRR);
 }
 
-static unsigned short stg_get_index_pulse_latch(void *arg, unsigned int chan)
+static unsigned short stg1_get_index_pulse_latch(void *arg, unsigned int chan)
 {
     // routine for Model 1 board
 
@@ -932,7 +1143,7 @@ static unsigned short stg_get_index_pulse_latch(void *arg, unsigned int chan)
     unsigned char byIRR, byAxisMask;
 
     if (stg->model == 1){   // routine for Model 1
-		byIRR = stg_get_current_IRR();
+		byIRR = stg1_get_current_IRR();
 		byAxisMask = (chan & 1) ? LIXODD : LIXEVN;  // even or odd axis?
 		if (byIRR & byAxisMask)                          // check latched index pulse
 			return 1;
@@ -943,6 +1154,17 @@ static unsigned short stg_get_index_pulse_latch(void *arg, unsigned int chan)
 	}
 	return 0;
 }
+
+static unsigned char stg2_get_all_index_pulse_latches( void *arg )
+{
+  stg_struct *stg = arg;
+  unsigned char indexRegister = 0;
+
+  if( stg-> model == 2 )
+    indexRegister = inb( base + IDL );
+  return indexRegister;
+}
+
 
 /*
   stg_dac_write() - writes a dac channel
@@ -1077,21 +1299,36 @@ static int stg_set_interrupt(short interrupt)
 
 static int stg_init_card()
 {
+  int msg;
 
-    if (base == 0x00) {
-	base = stg_autodetect();
-    }
+  msg = rtapi_get_msg_level();
+  rtapi_set_msg_level( STG_MSG_LEVEL );
 
-    if (model != 0) {
-	stg_driver->model = model; //overrides any detected model, use with caution
+  /*
+   * If both stg card model and base address are set
+   *  then no autodetecting is necessary.
+   * Else we need to autodetect
+   */
+  if ( (model != 0) && (base != 0) )
+  {
+  	stg_driver->model = model;  
+  } else {
+  	base = stg_autodetect();
     }
     
-    if (base == 0x00) {
-	rtapi_print_msg(RTAPI_MSG_ERR, "STG: ERROR: no STG or STG2 card found\n");
+  /*
+   * Now check if the settings for a card a ok
+   */
+  if ( (base == 0x00) || (stg_driver->model == 0) )
+  {
+  	rtapi_print_msg(RTAPI_MSG_ERR, "STG: ERROR: no stg1 or stg2 card could be initialised\n");
 	return -ENODEV;
     }
 
-    if (stg_driver->model == 1) {
+  if (stg_driver->model == 1) {
+    /*
+     * STG1
+     */
 	// initialize INTC as output
 	outb(0x92, base +  MIO_2);
     
@@ -1100,12 +1337,37 @@ static int stg_init_card()
 	outb(0x1a, base + ICW1); // initialize the 82C59 as single chip (STG docs say so:)
 	outb(0x00, base + ICW2); // ICW2 not used, must init it to 0
 	outb(0xff, base + OCW1); // mask off all interrupts
-    } else { //model 2
+    rtapi_print_msg(RTAPI_MSG_INFO,
+      "STG: Initialised stg%1d card at address %x\n", stg_driver->model, base);
+  } else if (stg_driver->model == 2 ) { 
+    /*
+     * STG2
+     */
 	outb(0x8b, base + D_DIR); // initialize CONTRL0 output, BRDTST input
     
-	stg_set_interrupt(5); // initialize it to smthg, we won't use it anyways
+    /* stg2 manual, p.21
+     *  writing 0 to the corresponding bit disables the index pulse
+     *  writing 1 enables it
+     */
+    outb( 0x00, base + IDLEN );
+
+    /* stg2 manual, p.21
+     *  writing 0 to the corresponding bit selects the index pulse to latch the counter
+     *  writing 1 to the corresponding bit selects EXLATCH to latch the counter
+     */
+    outb( 0x00, base + SELDI );
+
+  	stg_set_interrupt(5); // initialize it to something, we won't use it anyways
+    rtapi_print_msg(RTAPI_MSG_INFO,
+      "STG: Initialised stg%1d card at address %x\n", stg_driver->model, base);
+  } else {
+  	rtapi_print_msg(RTAPI_MSG_ERR, "STG: ERROR: The model stg%1d is not correct\n", stg_driver->model );
+  	return -ENODEV;
     }
     
+  /* restore saved message level */
+  rtapi_set_msg_level(msg);
+
     // all ok
     return 0;
 }
@@ -1116,6 +1378,11 @@ unsigned short stg_autodetect()
 
     short i, j, k, ofs;
     unsigned short address;
+  unsigned short retval = 0;
+  int msg;
+
+  msg = rtapi_get_msg_level();
+  rtapi_set_msg_level( STG_MSG_LEVEL );
 
     /* search all possible addresses */
     for (i = 15; i >= 0; i--) {
@@ -1133,21 +1400,35 @@ unsigned short stg_autodetect()
 					   by Q2, Q1, Q0 */
 		}
 	    }
+
 	    if (k == 0x75) {
 		rtapi_print_msg(RTAPI_MSG_INFO,
-		    "STG: found version 1 card at address %x\n", address);
+        "STG: Autodetected stg1 card at address %x\n", address);
 		stg_driver->model=1;
-		return address;	/* SER sequence is 01110101 */
+      retval = address;	/* SER sequence is 01110101 */
+      break;
 	    }
+
 	    if (k == 0x74) {
 		rtapi_print_msg(RTAPI_MSG_INFO,
-		    "STG: found version 2 card at address %x\n", address);
+        "STG: Autodetected stg2 card at address %x\n", address);
 		stg_driver->model=2;
-		return address;
+      retval = address;
+      break;
 	    }
 	//}
     }
-    return (0);
+
+  if ( ( retval == 0 ) || ( stg_driver->model == 0 ) )
+  {
+    rtapi_print_msg(RTAPI_MSG_ERR,
+      "STG: stg_autodetect() did not find any stg1 or stg2 card\n");
+  }
+
+  /* restore saved message level */
+  rtapi_set_msg_level(msg);
+
+  return retval;
 }
 
 /***********************************************************************
@@ -1164,7 +1445,7 @@ static int export_counter(int num, stg_struct *addr)
        of msg_level and restore it later.  If you actually need to log this
        function's actions, change the second line below */
     msg = rtapi_get_msg_level();
-    rtapi_set_msg_level(RTAPI_MSG_WARN);
+    rtapi_set_msg_level( STG_MSG_LEVEL );
 
     /* export pin for counts captured by update() */
     rtapi_snprintf(buf, HAL_NAME_LEN, "stg.%d.counts", num);
@@ -1184,14 +1465,42 @@ static int export_counter(int num, stg_struct *addr)
     if (retval != 0) {
 	return retval;
     }
-    /* export pin for index */
+
+  /* export pin for index homing */
     rtapi_snprintf(buf, HAL_NAME_LEN, "stg.%d.index-enable", num);
     retval = hal_pin_bit_new(buf, HAL_IO, &addr->index_enable[num], comp_id);
     if (retval != 0) {
 	return retval;
     }
+
+  /* export pin for reading the index latch */
+  rtapi_snprintf(buf, HAL_NAME_LEN, "stg.%d.index-latch", num);
+  retval = hal_pin_bit_new(buf, HAL_OUT, &addr->index_latch[num], comp_id);
+  if (retval != 0) {
+    return retval;
+  }
+
+
+  /*
+   * The index polarity is configurable for the stg1 cards only, 
+   *  but not for the stg2 cards
+   */
+  if( addr->model == 1 ) 
+  {
+    /* export read only HAL pin for index pulse polarity */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "stg.%d.index-polarity", num);
+    rtapi_print_msg(RTAPI_MSG_DBG, "STG: Start Exporting %s\n", buf );
+    retval = hal_pin_bit_new(buf, HAL_IN, &addr->index_polarity[num], comp_id);
+    rtapi_print_msg(RTAPI_MSG_DBG, "STG: End Exporting %s\n", buf );
+    if (retval != 0) 
+    {
+      return retval;
+    }
+  }
+
     /* restore saved message level */
     rtapi_set_msg_level(msg);
+
     return 0;
 }
 
@@ -1205,7 +1514,7 @@ static int export_dac(int num, stg_struct *addr)
        of msg_level and restore it later.  If you actually need to log this
        function's actions, change the second line below */
     msg = rtapi_get_msg_level();
-    rtapi_set_msg_level(RTAPI_MSG_WARN);
+    rtapi_set_msg_level( STG_MSG_LEVEL );
 
     /* export pin for voltage received by the board() */
     rtapi_snprintf(buf, HAL_NAME_LEN, "stg.%d.dac-value", num);
@@ -1241,7 +1550,7 @@ static int export_adc(int num, stg_struct *addr)
        of msg_level and restore it later.  If you actually need to log this
        function's actions, change the second line below */
     msg = rtapi_get_msg_level();
-    rtapi_set_msg_level(RTAPI_MSG_WARN);
+    rtapi_set_msg_level( STG_MSG_LEVEL );
 
     /* export pin for voltage received by the board() */
     rtapi_snprintf(buf, HAL_NAME_LEN, "stg.%d.adc-value", num);
@@ -1275,7 +1584,7 @@ static int export_pins(int num, int dir, stg_struct *addr)
        of msg_level and restore it later.  If you actually need to log this
        function's actions, change the second line below */
     msg = rtapi_get_msg_level();
-    rtapi_set_msg_level(RTAPI_MSG_WARN);
+    rtapi_set_msg_level( STG_MSG_LEVEL );
 
     for (i=0; i<8; i++) {
 
@@ -1297,6 +1606,14 @@ static int export_input_pin(int pinnum, io_pin * pin)
 {
     char buf[HAL_NAME_LEN + 2];
     int retval;
+  int msg;
+
+    /* This function exports a lot of stuff, which results in a lot of
+       logging if msg_level is at INFO or ALL. So we save the current value
+       of msg_level and restore it later.  If you actually need to log this
+       function's actions, change the second line below */
+    msg = rtapi_get_msg_level();
+    rtapi_set_msg_level( STG_MSG_LEVEL );
 
     /* export read only HAL pin for input data */
     rtapi_snprintf(buf, HAL_NAME_LEN, "stg.in-%02d", pinnum);
@@ -1310,6 +1627,10 @@ static int export_input_pin(int pinnum, io_pin * pin)
     /* initialize HAL pins */
     *(pin->data) = 0;
     *(pin->io.not) = 1;
+
+    /* restore saved message level */
+    rtapi_set_msg_level(msg);
+
     return retval;
 }
 
@@ -1317,6 +1638,16 @@ static int export_output_pin(int pinnum, io_pin * pin)
 {
     char buf[HAL_NAME_LEN + 2];
     int retval;
+  int msg;
+
+  /*
+   * This function exports a lot of stuff, which results in a lot of
+   *  logging if msg_level is at INFO or ALL. So we save the current value
+   *  of msg_level and restore it later.  If you actually need to log this
+   *  function's actions, change the second line below 
+   */
+  msg = rtapi_get_msg_level();
+  rtapi_set_msg_level( STG_MSG_LEVEL );
 
     /* export read only HAL pin for output data */
     rtapi_snprintf(buf, HAL_NAME_LEN, "stg.out-%02d", pinnum);
@@ -1330,5 +1661,10 @@ static int export_output_pin(int pinnum, io_pin * pin)
     /* initialize HAL pin and param */
     *(pin->data) = 0;
     pin->io.invert = 0;
+
+
+    /* restore saved message level */
+    rtapi_set_msg_level(msg);
+
     return retval;
 }

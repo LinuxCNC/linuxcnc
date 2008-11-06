@@ -109,6 +109,10 @@
 #define ISR        0x409
 #define IMR        0x40b
 
+#define IDLEN      0x409
+#define SELDI      0x40B
+#define IDL        0x40D
+
 /*
  * Some bit masks for various registers for Model 1
  */
