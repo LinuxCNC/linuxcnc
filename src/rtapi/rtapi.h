@@ -10,7 +10,7 @@
 *               realtime and non-realtime code.
 *
 * Author: John Kasunich, Paul Corner
-* License: LGPL Version 2
+* License: LGPL Version 2.1
 *    
 * Copyright (c) 2004 All rights reserved.
 *
