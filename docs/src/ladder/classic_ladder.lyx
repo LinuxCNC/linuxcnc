@@ -100,7 +100,9 @@ In the next chapters the main components of ClassicLadder will be described.
 Starting ClassicLadder
 \layout Standard
 
-There are 2 components belonging to ClassicLadder:
+There are 2 components belonging to ClassicLadder.
+ These must be placed in the main hal file or the Ladder Editor menu will
+ be grayed out.
 \layout Itemize
 
 The realtime module = classicladder_rt
@@ -114,7 +116,7 @@ Realtime Module
 
 Loading the ClassicLadder realtime module (classicladder_rt) is possible
  from a halfile, or directly using a halcmd instruction.
- You must add two lines to your .hal file for ClassicLadder to function.
+ You must add two lines to your main .hal file for ClassicLadder to function.
  The first line loads real time the ClassicLadder module.
  The second line adds the function classicladder.0.refresh to the servo thread.
  This makes ClassicLadder update at the servo thread rate.
@@ -549,43 +551,45 @@ numArithmExpr=100 numSections=4 numSymbols=200
 Loading the ClassicLadder user module
 \layout Standard
 
-
-\begin_inset Note
-collapsed false
-
+Classicladder hal statements must be placed in the main .hal file for the
+ menu to function.
 \layout Standard
 
-need to finish updating this section
-\end_inset 
+To load the user module:
+\layout Quote
 
-
+loadusr classicladder
 \layout Standard
 
-There are options while loading the user module:
-\layout Itemize
+To load a ladder file:
+\layout Quote
 
---help displays basically this list then exits
-\layout Itemize
+loadusr classicladder myladder.clp
+\layout Standard
 
---version displays the...
- version ...surprise!! then exits
-\layout Itemize
+To load the user module without the GUI:
+\layout Quote
 
---nogui starts classicladder (while loading a ladder program if specified)
- with no GUI.
-\layout Itemize
+loadusr classicladder --nogui
+\layout Standard
 
---modbus_port=port sets up the modbus port number (EMC doesn't use it)
-\layout Itemize
+To load the user module with the modbus port number for modbus server over
+ ethernet: 
+\layout Quote
 
---config=file Sets up the number of the each ladder object ( only if there
- is no realtime support.In EMC you load this with the realtime module-I'll
- get to this in a minute) 
-\layout Itemize
+loadusr classicladder --modbus_port=port
+\layout Standard
 
--w Used when ClassicLadder is used with a HAL file and not loaded with EMC.
- It tells HAL not to close down the HAL environment until ClassicLadder
- is finished.
+To load the user module with a config file:
+\layout Quote
+
+loadusr classicladder --config=file
+\layout Standard
+
+Sets up the ClassicLadder for modbus master over serial or ethernet.
+\layout Quote
+
+loadusr classicladder --config=my modbusfile --nogui myladder.clp
 \layout Standard
 
 Use the GUI when setting up your system then change it to --nogui when running.
@@ -593,33 +597,6 @@ Use the GUI when setting up your system then change it to --nogui when running.
  a ladder program to load.
  ladder programs are specified by the .clp ending.
  
-\layout Itemize
-
-loadusr classicladder --nogui myladder.clp
-\begin_deeper 
-\layout Standard
-
-loads the classicladder user module, ladder program myladder and displays
- nothing.
-\end_deeper 
-\layout Itemize
-
-loadusr classicladder myladder.clp
-\begin_deeper 
-\layout Standard
-
-loads the classicladder user module, ladder program myladder and starts
- the classicladder GUI.
-\end_deeper 
-\layout Itemize
-
-loadusr classicladder
-\begin_deeper 
-\layout Standard
-
-loads the classicladder user module, starts the GUI but loads no laddder
- program.
-\end_deeper 
 \layout Standard
 
 \layout Section

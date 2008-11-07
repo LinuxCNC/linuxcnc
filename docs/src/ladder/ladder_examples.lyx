@@ -61,13 +61,19 @@ First we have to open the E-Stop loop in the main hal file by commenting
 # net estop-out => iocontrol.0.emc-enable-in
 \layout Standard
 
-Next we add ClassicLadder to our custom.hal file by adding these two lines:
+Next we add ClassicLadder to our main .hal file by adding these two lines:
+ 
 \layout LyX-Code
 
 loadrt classicladder_rt
 \layout LyX-Code
 
 addf classicladder.0.refresh servo-thread
+\layout Standard
+
+Classicladder must be loaded in the main .hal file or the menu selection
+ will be grayed out.
+ 
 \layout Standard
 
 Next we run our config and build the ladder as shown here.
@@ -100,7 +106,7 @@ E-Stop Section Display
 After building the ladder select Save As and save the ladder as estop.clp
 \layout Standard
 
-Now add the following line to your custom.hal file.
+Now add the following line to your main .hal file.
 \layout LyX-Code
 
 # Load the ladder
@@ -131,7 +137,7 @@ I/O assignments
  board had a disable pin)
 \layout Standard
 
-Next we add the following lines to the custom_postgui.hal file
+Next we add the following lines to the custom_postgui.hal file.
 \layout LyX-Code
 
 # E-Stop example using pyVCP buttons to simulate external componets
