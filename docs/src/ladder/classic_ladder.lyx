@@ -146,7 +146,9 @@ The most common language used when working with ClassicLadder is 'ladder'.
 Components
 \layout Standard
 
-There are 2 components to ClassicLadder: 
+There are 2 components to ClassicLadder.
+ These must be placed in the main .hal file or the Ladder Editor menu will
+ be grayed out.
 \layout Itemize
 
 The real time module classicladder_rt
@@ -160,7 +162,7 @@ Realtime Module
 
 Loading the ClassicLadder real time module (classicladder_rt) is possible
  from a hal file, or directly using a halcmd instruction.
- You must add two lines to your .hal file for ClassicLadder to function.
+ You must add two lines to your main .hal file for ClassicLadder to function.
  The first line loads real time the ClassicLadder module.
  The second line adds the function classicladder.0.refresh to the servo thread.
  This line makes ClassicLadder update at the servo thread rate.
@@ -639,39 +641,43 @@ loadrt classicladder_rt
 Loading the ClassicLadder user module
 \layout Standard
 
+Classicladder hal statements must be placed in the main .hal file for the
+ menu to function.
+\layout Standard
+
 To load the user module:
-\layout LyX-Code
+\layout Quote
 
 loadusr classicladder
 \layout Standard
 
 To load a ladder file:
-\layout LyX-Code
+\layout Quote
 
 loadusr classicladder myladder.clp
 \layout Standard
 
 To load the user module without the GUI:
-\layout LyX-Code
+\layout Quote
 
 loadusr classicladder --nogui
 \layout Standard
 
 To load the user module with the modbus port number for modbus server over
  ethernet: 
-\layout LyX-Code
+\layout Quote
 
 loadusr classicladder --modbus_port=port
 \layout Standard
 
 To load the user module with a config file:
-\layout LyX-Code
+\layout Quote
 
 loadusr classicladder --config=file
 \layout Standard
 
 Sets up the ClassicLadder for modbus master over serial or ethernet.
-\layout LyX-Code
+\layout Quote
 
 loadusr classicladder --config=my modbusfile --nogui myladder.clp
 \layout Standard
@@ -679,7 +685,7 @@ loadusr classicladder --config=my modbusfile --nogui myladder.clp
 To use ClassicLadder with HAL without EMC.
  The -w tells HAL not to close down the HAL invironment until ClassicLadder
  is finished.
-\layout LyX-Code
+\layout Quote
 
 loadusr -w classicladder
 \layout Standard
