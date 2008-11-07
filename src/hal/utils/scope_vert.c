@@ -288,7 +288,7 @@ int set_vert_scale(int setting)
     scope_chan_t *chan;
     GtkAdjustment *adj;
     int chan_num, index;
-    float scale;
+    double scale;
     gchar buf[BUFLEN];
 
     vert = &(ctrl_usr->vert);
@@ -411,7 +411,7 @@ int set_vert_offset(double setting, int ac_coupled)
     return 0;
 }
 
-void format_signal_value(char *buf, int buflen, float value)
+void format_signal_value(char *buf, int buflen, double value)
 {
     char *units;
     int decimals;
@@ -703,7 +703,7 @@ static gboolean dialog_set_offset(int chan_num)
     gchar *title, msg[BUFLEN], *cptr;
     struct offset_data data;
     GtkWidget *label, *button;
-    float tmp;
+    double tmp;
 
     vert = &(ctrl_usr->vert);
     chan = &(ctrl_usr->chan[chan_num - 1]);
@@ -1158,7 +1158,7 @@ static gboolean dialog_select_source(int chan_num)
 	/* set scrolling window to show the highlighted name */
 	/* FIXME - I can't seem to get this to work */
 	adj = vert->adjs[initial_page];
-	adj->value = adj->lower + (adj->upper - adj->lower)*((float)(initial_row)/(float)(max_row+1));
+	adj->value = adj->lower + (adj->upper - adj->lower)*((double)(initial_row)/(double)(max_row+1));
 	gtk_adjustment_value_changed(vert->adjs[initial_page]);
     }
     /* set up a callback function when the window is destroyed */
@@ -1257,7 +1257,7 @@ void channel_changed(void)
     request_display_refresh(1);
 }
 
-void format_scale_value(char *buf, int buflen, float value)
+void format_scale_value(char *buf, int buflen, double value)
 {
     char *units;
     char symbols[] = "pnum KMGT";

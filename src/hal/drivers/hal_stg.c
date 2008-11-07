@@ -687,7 +687,7 @@ static void stg_debug_print( void *arg, long period )
 static void stg_dacs_write(void *arg, long period)
 {    
     stg_struct *stg;
-    float volts;
+    double volts;
     short ncounts, i;
 
     stg=arg;
@@ -732,7 +732,7 @@ static void stg_dacs_write(void *arg, long period)
 static void stg_adcs_read(void *arg, long period)
 {    
     stg_struct *stg;
-    float volts;
+    double volts;
     short ncounts;
     int i;
 

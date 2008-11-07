@@ -219,7 +219,7 @@ typedef struct {
 
         struct {
             hal_float_t *value;
-            float written_value;
+            double written_value;
 
             hal_bit_t *enable;
         } pin;
@@ -331,10 +331,10 @@ typedef struct {
             hal_float_t dirsetup;
             hal_float_t dirhold;
 
-            float written_steplen;
-            float written_stepspace;
-            float written_dirsetup;
-            float written_dirhold;
+            double written_steplen;
+            double written_stepspace;
+            double written_dirsetup;
+            double written_dirhold;
         } param;
 
     } hal;

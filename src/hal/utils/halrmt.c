@@ -905,7 +905,7 @@ static int doNewsig(char *name, char *type, connectionRecType *context)
 static int set_common(hal_type_t type, void *d_ptr, char *value, connectionRecType *context) {
     // This function assumes that the mutex is held
     int retval = 0;
-    float fval;
+    double fval;
     long lval;
     unsigned long ulval;
     char *cp = value;

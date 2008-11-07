@@ -172,7 +172,7 @@ typedef struct {
     hal_float_t				scale;		// Scaling factor for position.
 
     // Private data.
-    float				oldScale;	// Stored scale value.
+    double				oldScale;	// Stored scale value.
     double				scaleRecip;	// Reciprocal value used for scaling.
 } EncoderPinsParams;
 

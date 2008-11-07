@@ -93,8 +93,8 @@ typedef struct {
     hal_u32_t *ppr;		/* pin: pulses per revolution */
     hal_float_t *scale;		/* pin: pulses per revolution */
     hal_float_t *speed;		/* pin: speed in revs/second */
-    float old_scale;		/* internal, used to detect changes */
-    float scale_mult;		/* internal, reciprocal of scale */
+    double old_scale;		/* internal, used to detect changes */
+    double scale_mult;		/* internal, reciprocal of scale */
 } sim_enc_t;
 
 /* ptr to array of sim_enc_t structs in shared memory, 1 per channel */
@@ -104,9 +104,9 @@ static sim_enc_t *sim_enc_array;
 static int comp_id;		/* component ID */
 static long periodns;		/* makepulses function period in nanosec */
 static long old_periodns;	/* used to detect changes in periodns */
-static float periodfp;		/* makepulses function period in seconds */
-static float freqscale;		/* conv. factor from Hz to addval counts */
-static float maxf;		/* max frequency in Hz */
+static double periodfp;		/* makepulses function period in seconds */
+static double freqscale;	/* conv. factor from Hz to addval counts */
+static double maxf;		/* max frequency in Hz */
 
 /***********************************************************************
 *                  LOCAL FUNCTION DECLARATIONS                         *

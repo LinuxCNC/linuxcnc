@@ -86,8 +86,8 @@ static void refresh_horiz_info(void);
 static void refresh_pos_disp(void);
 
 /* helper functions */
-static void format_time_value(char *buf, int buflen, float timeval);
-static void format_freq_value(char *buf, int buflen, float freqval);
+static void format_time_value(char *buf, int buflen, double timeval);
+static void format_freq_value(char *buf, int buflen, double freqval);
 
 /* manipulation functions */
 static gint horiz_press(GtkWidget *widget, GdkEventButton *event);
@@ -481,7 +481,7 @@ static void dialog_realtime_not_linked(void)
     dialog_generic_t dialog;
 
     int next, colwidth, sel_row, n;
-    float period;
+    double period;
     hal_thread_t *thread;
     gchar *strs[2];
     gchar buf[BUFLEN + 1];
@@ -981,7 +981,7 @@ static void rec_len_button(GtkWidget * widget, gpointer gdata)
 static void calc_horiz_scaling(void)
 {
     scope_horiz_t *horiz;
-    float total_rec_time;
+    double total_rec_time;
     long int desired_usec_per_div, actual_usec_per_div;
     int n, decade, sub_decade;
 
@@ -1046,7 +1046,7 @@ static void refresh_horiz_info(void)
     gchar *name;
     static gchar tmp[BUFLEN + 1], rate[BUFLEN + 1], period[BUFLEN + 1];
     static gchar scale[BUFLEN + 1], rec_len[BUFLEN + 1], msg[BUFLEN + 1];
-    float freqval;
+    double freqval;
 
     horiz = &(ctrl_usr->horiz);
     if (horiz->thread_name == NULL) {
@@ -1088,9 +1088,9 @@ static void refresh_pos_disp(void)
     GdkDrawable *w;
     int width, height, depth;
     GdkGC *c;
-    float disp_center, disp_start, disp_end;
-    float rec_start, rec_curr, rec_end;
-    float min, max, span, scale;
+    double disp_center, disp_start, disp_end;
+    double rec_start, rec_curr, rec_end;
+    double min, max, span, scale;
     int pre_trig;
     int rec_line_y, rec_line_left, rec_line_right;
     int box_y_off, box_top, box_bot, box_right, box_left;
@@ -1170,7 +1170,7 @@ static void refresh_pos_disp(void)
     gdk_draw_line(w, c, box_right, box_top, box_right, box_bot);
 }
 
-static void format_time_value(char *buf, int buflen, float timeval)
+static void format_time_value(char *buf, int buflen, double timeval)
 {
     const char *units;
     int decimals;
@@ -1200,7 +1200,7 @@ static void format_time_value(char *buf, int buflen, float timeval)
     snprintf(buf, buflen, "%0.*f %s", decimals, timeval, units);
 }
 
-static void format_freq_value(char *buf, int buflen, float freqval)
+static void format_freq_value(char *buf, int buflen, double freqval)
 {
     const char *units;
     int decimals;
@@ -1235,10 +1235,10 @@ static gint horiz_motion(GtkWidget *widget, GdkEventMotion *event) {
     int motion;
 
     int pre_trig, width;
-    float disp_center, disp_start, disp_end;
-    float rec_start, rec_curr, rec_end;
-    float min, max, span, scale;
-    float newpos; 
+    double disp_center, disp_start, disp_end;
+    double rec_start, rec_curr, rec_end;
+    double min, max, span, scale;
+    double newpos; 
 
     int x, y;
     GdkModifierType state;

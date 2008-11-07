@@ -109,12 +109,12 @@ typedef struct {
     hal_float_t *value;		/* command value */
     hal_float_t *scale;		/* pin: scaling from value to duty cycle */
     hal_float_t *offset;	/* pin: offset: this is added to duty cycle */
-    float old_scale;		/* stored scale value */
+    double old_scale;		/* stored scale value */
     double scale_recip;		/* reciprocal value used for scaling */
     hal_float_t *pwm_freq;	/* pin: (max) output frequency in Hz */
-    float old_pwm_freq;		/* used to detect changes */
+    double old_pwm_freq;	/* used to detect changes */
     int periods;		/* number of periods in PWM cycle */
-    float periods_recip;	/* reciprocal */
+    double periods_recip;	/* reciprocal */
     hal_bit_t *dither_pwm;	/* 0 = pure PWM, 1 = dithered PWM */
     hal_float_t *min_dc;	/* pin: minimum duty cycle */
     hal_float_t *max_dc;	/* pin: maximum duty cycle */
@@ -337,7 +337,7 @@ static void update(void *arg, long period)
     pwmgen_t *pwmgen;
     int n, high_periods;
     unsigned char new_pwm_mode;
-    float tmpdc, outdc;
+    double tmpdc, outdc;
 
     /* update the PWM generators */
     pwmgen = arg;

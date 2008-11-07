@@ -100,7 +100,7 @@ typedef struct {
     hal_float_t *frequency;	/* pin: frequency */
     hal_float_t *amplitude;	/* pin: amplitude */
     hal_float_t *offset;	/* pin: offset */
-    float index;		/* position within output cycle */
+    double index;		/* position within output cycle */
 } hal_siggen_t;
 
 /* pointer to array of siggen_t structs in shared memory, 1 per gen */
@@ -175,7 +175,7 @@ void rtapi_app_exit(void)
 static void calc_siggen(void *arg, long period)
 {
     hal_siggen_t *siggen;
-    float tmp1, tmp2;
+    double tmp1, tmp2;
 
     /* point to the data for this signal generator */
     siggen = arg;

@@ -548,7 +548,7 @@ extern int hal_param_new(const char *name, hal_type_t type, hal_param_dir_t dir,
     and on failure they return a negative error code.
 */
 extern int hal_param_bit_set(const char *name, int value);
-extern int hal_param_float_set(const char *name, float value);
+extern int hal_param_float_set(const char *name, double value);
 extern int hal_param_u32_set(const char *name, unsigned long value);
 extern int hal_param_s32_set(const char *name, signed long value);
 

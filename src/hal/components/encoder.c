@@ -114,7 +114,7 @@ typedef struct {
     hal_float_t *pos_interp;	/* c:w scaled and interpolated position (float) */
     hal_float_t *vel;		/* c:w scaled velocity (floating point) */
     hal_float_t *pos_scale;	/* c:r pin: scaling factor for pos */
-    float old_scale;		/* c:rw stored scale value */
+    double old_scale;		/* c:rw stored scale value */
     double scale;		/* c:rw reciprocal value used for scaling */
     int counts_since_timeout;	/* c:rw used for velocity calcs */
 } counter_t;

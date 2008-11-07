@@ -1393,7 +1393,7 @@ static void write_DACs(slot_data_t *slot)
     int n;
     DAC_t *pg;
     long dc;
-    float volts;
+    double volts;
 
     //    rtapi_print_msg(RTAPI_MSG_INFO, "enter write_DACs()\n");
     /* now do the four individual DACs */
@@ -1437,7 +1437,7 @@ static void write_extraDAC(slot_data_t *slot)
 {
     DAC_t *pg;
     long dc;
-    float volts;
+    double volts;
 
     /* point to the DAC */
     pg = &(slot->extra->dac);

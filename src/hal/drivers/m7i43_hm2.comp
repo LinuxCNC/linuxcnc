@@ -1321,7 +1321,7 @@ static void m7i43_hm2_stepgen_update_times(m7i43_t *board) {
                 if (board->stepgen.instance[i].hw.pulse_idle_width > 0x3FFF) {
                     PRINT(RTAPI_MSG_ERR, "stepgen %d has invalid stepspace, resetting to max\n", i);
                     board->stepgen.instance[i].hw.pulse_idle_width = 0x3FFF;
-                    board->stepgen.instance[i].hal.param.stepspace = (float)board->stepgen.instance[i].hw.pulse_idle_width / board->stepgen.clock_frequency;
+                    board->stepgen.instance[i].hal.param.stepspace = (double)board->stepgen.instance[i].hw.pulse_idle_width / board->stepgen.clock_frequency;
                 }
 
                 m7i43_epp_write32(board->stepgen.instance[i].hw.pulse_idle_width);

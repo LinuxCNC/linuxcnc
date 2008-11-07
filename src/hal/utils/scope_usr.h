@@ -55,10 +55,10 @@ typedef struct {
     gchar *thread_name;		/* name of thread that does sampling */
     long thread_period_ns;	/* period of thread in nano-secs */
     long sample_period_ns;	/* sample period in nano-secs */
-    float sample_period;	/* sample period as a float */
-    float disp_scale;		/* display scale (sec/div) */
+    double sample_period;	/* sample period as a double */
+    double disp_scale;		/* display scale (sec/div) */
     int zoom_setting;		/* setting of zoom slider (1-9) */
-    float pos_setting;		/* setting of position slider (0.0-1.0) */
+    double pos_setting;		/* setting of position slider (0.0-1.0) */
     long x0;
     /* widgets for main window */
     GtkWidget *disp_area;
@@ -90,13 +90,13 @@ typedef struct {
     char *name;			/* name of pin/sig/parameter */
     hal_type_t data_type;	/* data type */
     int data_len;		/* data length */
-    float vert_offset;		/* offset to be applied */
+    double vert_offset;		/* offset to be applied */
     int ac_offset;              /* TRUE if the signal should be AC-coupled */
     int scale_index;		/* scaling (slider setting) */
     int max_index;		/* limits of scale slider */
     int min_index;
-    float scale;		/* scaling (units/div) */
-    float position;		/* vertical pos (0.0-1.0) */
+    double scale;		/* scaling (units/div) */
+    double position;		/* vertical pos (0.0-1.0) */
 } scope_chan_t;
 
 /* this struct holds control data related to vertical control */
@@ -136,8 +136,8 @@ typedef struct {
 
 typedef struct {
     /* general data */
-    float position;		/* horiz position of trigger (0.0-1.0) */
-    float level;		/* setting of level slider (0.0-1.0) */
+    double position;		/* horiz position of trigger (0.0-1.0) */
+    double level;		/* setting of level slider (0.0-1.0) */
     /* widgets for trigger mode window */
     GtkWidget *normal_button;
     GtkWidget *auto_button;
@@ -163,8 +163,8 @@ typedef struct {
     /* general data */
     int width;			/* height in pixels */
     int height;			/* width in pixels */
-    float pixels_per_sample;	/* horizontal scaling */
-    float horiz_offset;		/* offset in pixels */
+    double pixels_per_sample;	/* horizontal scaling */
+    double horiz_offset;		/* offset in pixels */
     int start_sample;		/* first displayable sample */
     int end_sample;		/* last displayable sample */
     /* widgets */
@@ -265,7 +265,7 @@ void invalidate_all_channels(void);
 void channel_changed(void);
 
 
-void format_signal_value(char *buf, int buflen, float value);
+void format_signal_value(char *buf, int buflen, double value);
 
 int read_config_file (char *filename);
 void write_config_file (char *filename);
@@ -289,7 +289,7 @@ int set_active_channel(int chan_num);
 int set_channel_source(int chan, int type, char *name);
 int set_channel_off(int chan_num);
 int set_vert_scale(int setting);
-void format_scale_value(char *buf, int buflen, float value);
+void format_scale_value(char *buf, int buflen, double value);
 int set_vert_pos(double setting);
 int set_vert_offset(double setting, int ac_coupled);
 int set_trigger_source(int chan);

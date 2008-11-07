@@ -122,7 +122,7 @@ typedef struct {
     int raw_error;		/* internal data */
     int master_increment;	/* internal data */
     int slave_increment;	/* internal data */
-    float output_scale;		/* internal data */
+    double output_scale;	/* internal data */
     hal_float_t *error;		/* error output */
     hal_u32_t *master_ppr;	/* parameter: master encoder PPR */
     hal_u32_t *slave_ppr;	/* parameter: slave encoder PPR */

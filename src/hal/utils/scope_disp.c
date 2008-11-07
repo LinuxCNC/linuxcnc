@@ -175,8 +175,8 @@ void refresh_display(void)
     scope_vert_t *vert;
     scope_horiz_t *horiz;
     int depth;
-    float pixels_per_div, pixels_per_sec, overall_record_length;
-    float screen_center_time, screen_start_time, screen_end_time;
+    double pixels_per_div, pixels_per_sec, overall_record_length;
+    double screen_center_time, screen_start_time, screen_end_time;
 
     /* cancel any pending refresh request */
     ctrl_usr->display_refresh_timer = 0;
@@ -401,10 +401,10 @@ void clear_display_window(void)
 void draw_grid(void)
 {
     scope_disp_t *disp;
-    float xscale, yscale;
+    double xscale, yscale;
     int xmajor, xminor, ymajor, yminor;
     int nx, ny, m;
-    float fx, fy;
+    double fx, fy;
     int x, y;
 
     disp = &(ctrl_usr->disp);
@@ -559,7 +559,7 @@ static int handle_scroll(GtkWidget *widget, GdkEventScroll *event, gpointer data
 static void middle_drag(int dx) {
     scope_disp_t *disp = &(ctrl_usr->disp);
     scope_horiz_t *horiz = &(ctrl_usr->horiz);
-    float dt = (dx / disp->pixels_per_sample) / ctrl_shm->rec_len;
+    double dt = (dx / disp->pixels_per_sample) / ctrl_shm->rec_len;
     set_horiz_pos(horiz->pos_setting + 5 * dt);
     refresh_display();
 }

@@ -357,7 +357,7 @@ typedef struct {
     double old_pos_cmd;		/* previous position command (counts) */
     hal_s32_t *count;		/* pin: captured feedback in counts */
     hal_float_t pos_scale;	/* param: steps per position unit */
-    float old_scale;		/* stored scale value */
+    double old_scale;		/* stored scale value */
     double scale_recip;		/* reciprocal value used for scaling */
     hal_float_t *vel_cmd;	/* pin: velocity command (pos units/sec) */
     hal_float_t *pos_cmd;	/* pin: position command (position units) */
@@ -415,12 +415,12 @@ static int comp_id;		/* component ID */
 static int num_chan = 0;	/* number of step generators configured */
 static long periodns;		/* makepulses function period in nanosec */
 static long old_periodns;	/* used to detect changes in periodns */
-static float periodfp;		/* makepulses function period in seconds */
-static float freqscale;		/* conv. factor from Hz to addval counts */
-static float accelscale;	/* conv. Hz/sec to addval cnts/period */
+static double periodfp;		/* makepulses function period in seconds */
+static double freqscale;	/* conv. factor from Hz to addval counts */
+static double accelscale;	/* conv. Hz/sec to addval cnts/period */
 static long old_dtns;		/* update_freq funct period in nsec */
-static float dt;		/* update_freq period in seconds */
-static float recip_dt;		/* recprocal of period, avoids divides */
+static double dt;		/* update_freq period in seconds */
+static double recip_dt;		/* recprocal of period, avoids divides */
 
 /***********************************************************************
 *                  LOCAL FUNCTION DECLARATIONS                         *

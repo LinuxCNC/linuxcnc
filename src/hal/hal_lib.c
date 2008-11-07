@@ -738,7 +738,7 @@ int hal_signal_new(const char *name, hal_type_t type)
     case HAL_U32:
 	*((long *) data_addr) = 0;
     case HAL_FLOAT:
-	*((float *) data_addr) = 0.0;
+	*((real_t *) data_addr) = 0.0;
 	break;
     default:
 	break;
@@ -1164,7 +1164,7 @@ int hal_param_bit_set(const char *name, int value)
     return hal_param_set(name, HAL_BIT, &value);
 }
 
-int hal_param_float_set(const char *name, float value)
+int hal_param_float_set(const char *name, double value)
 {
     return hal_param_set(name, HAL_FLOAT, &value);
 }
@@ -1236,7 +1236,7 @@ int hal_param_set(const char *name, hal_type_t type, void *value_addr)
 	}
 	break;
     case HAL_FLOAT:
-	*((hal_float_t *) (d_ptr)) = *((float *) (value_addr));
+	*((hal_float_t *) (d_ptr)) = *((double *) (value_addr));
 	break;
     case HAL_S32:
 	*((hal_s32_t *) (d_ptr)) = *((signed long *) (value_addr));

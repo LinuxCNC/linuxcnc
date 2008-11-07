@@ -484,7 +484,7 @@ static void vti_counter_capture(void *arg, long period)
 static void vti_dacs_write(void *arg, long period)
 {
     vti_struct *vti;
-    float volts;
+    double volts;
     unsigned short ncounts, i;
 
     vti = arg;

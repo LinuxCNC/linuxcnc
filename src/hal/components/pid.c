@@ -164,10 +164,10 @@ typedef struct {
     hal_float_t *maxcmd_d;	/* pin: limit for differentiated cmd */
     hal_float_t *maxcmd_dd;	/* pin: limit for 2nd derivative of cmd */
     hal_float_t *error_i;	/* opt. pin: integrated error */
-    float prev_error;		/* previous error for differentiator */
+    double prev_error;		/* previous error for differentiator */
     hal_float_t *error_d;	/* opt. pin: differentiated error */
-    float prev_cmd;		/* previous command for differentiator */
-    float limit_state;		/* +1 or -1 if in limit, else 0.0 */
+    double prev_cmd;		/* previous command for differentiator */
+    double limit_state;		/* +1 or -1 if in limit, else 0.0 */
     hal_float_t *cmd_d;		/* opt. pin: differentiated command */
     hal_float_t *cmd_dd;	/* opt. pin: 2nd derivative of command */
     hal_float_t *bias;		/* param: steady state offset */
@@ -256,9 +256,9 @@ void rtapi_app_exit(void)
 static void calc_pid(void *arg, long period)
 {
     hal_pid_t *pid;
-    float tmp1, tmp2;
+    double tmp1, tmp2;
     int enable;
-    float periodfp, periodrecip;
+    double periodfp, periodrecip;
 
     /* point to the data for this PID loop */
     pid = arg;

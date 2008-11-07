@@ -66,7 +66,7 @@ void hm2_pwmgen_handle_pwm_frequency(hostmot2_t *hm2) {
     //
 
     // can we do it with 12 bits?
-    dds = ((float)hm2->pwmgen.hal->param.pwm_frequency * 65536.0 * 4096.0) / (float)hm2->pwmgen.clock_frequency;
+    dds = ((double)hm2->pwmgen.hal->param.pwm_frequency * 65536.0 * 4096.0) / (double)hm2->pwmgen.clock_frequency;
     if (dds < 65536) {
         hm2->pwmgen.pwmgen_master_rate_dds_reg = dds;
         hm2->pwmgen.pwm_bits = 12;
@@ -74,7 +74,7 @@ void hm2_pwmgen_handle_pwm_frequency(hostmot2_t *hm2) {
     }
 
     // try 11 bits
-    dds = ((float)hm2->pwmgen.hal->param.pwm_frequency * 65536.0 * 2048.0) / (float)hm2->pwmgen.clock_frequency;
+    dds = ((double)hm2->pwmgen.hal->param.pwm_frequency * 65536.0 * 2048.0) / (double)hm2->pwmgen.clock_frequency;
     if (dds < 65536) {
         hm2->pwmgen.pwmgen_master_rate_dds_reg = dds;
         hm2->pwmgen.pwm_bits = 11;
@@ -82,7 +82,7 @@ void hm2_pwmgen_handle_pwm_frequency(hostmot2_t *hm2) {
     }
 
     // try 10 bits
-    dds = ((float)hm2->pwmgen.hal->param.pwm_frequency * 65536.0 * 1024.0) / (float)hm2->pwmgen.clock_frequency;
+    dds = ((double)hm2->pwmgen.hal->param.pwm_frequency * 65536.0 * 1024.0) / (double)hm2->pwmgen.clock_frequency;
     if (dds < 65536) {
         hm2->pwmgen.pwmgen_master_rate_dds_reg = dds;
         hm2->pwmgen.pwm_bits = 10;
@@ -90,7 +90,7 @@ void hm2_pwmgen_handle_pwm_frequency(hostmot2_t *hm2) {
     }
 
     // try 9 bits
-    dds = ((float)hm2->pwmgen.hal->param.pwm_frequency * 65536.0 * 512.0) / (float)hm2->pwmgen.clock_frequency;
+    dds = ((double)hm2->pwmgen.hal->param.pwm_frequency * 65536.0 * 512.0) / (double)hm2->pwmgen.clock_frequency;
     if (dds < 65536) {
         hm2->pwmgen.pwmgen_master_rate_dds_reg = dds;
         hm2->pwmgen.pwm_bits = 9;
@@ -100,7 +100,7 @@ void hm2_pwmgen_handle_pwm_frequency(hostmot2_t *hm2) {
     // no joy, lower frequency until it'll work with 9 bits
     // From above:
     //     PWMFreq = (ClockHigh * DDS) / (65536 * 2^PWMBits)
-    hm2->pwmgen.hal->param.pwm_frequency = ((float)hm2->pwmgen.clock_frequency * 65535.0) / (65536.0 * 512.0);
+    hm2->pwmgen.hal->param.pwm_frequency = ((double)hm2->pwmgen.clock_frequency * 65535.0) / (65536.0 * 512.0);
     WARN("max PWM frequency is %d Hz\n", hm2->pwmgen.hal->param.pwm_frequency);
     hm2->pwmgen.pwmgen_master_rate_dds_reg = 65535;
     hm2->pwmgen.pwm_bits = 9;
@@ -152,13 +152,13 @@ void hm2_pwmgen_handle_pdm_frequency(hostmot2_t *hm2) {
     //
 
     // can we do it with 12 bits?
-    dds = ((float)hm2->pwmgen.hal->param.pdm_frequency * 65536.0) / (float)hm2->pwmgen.clock_frequency;
+    dds = ((double)hm2->pwmgen.hal->param.pdm_frequency * 65536.0) / (double)hm2->pwmgen.clock_frequency;
     if (dds == 0) {
         // too slow, set frequency to minimum
         // From above:
         //     PulseFreq = (ClockHigh * DDS) / 65536
         dds = 1;
-        hm2->pwmgen.hal->param.pdm_frequency = ((float)hm2->pwmgen.clock_frequency * (float)dds) / 65536.0;
+        hm2->pwmgen.hal->param.pdm_frequency = ((double)hm2->pwmgen.clock_frequency * (double)dds) / 65536.0;
         WARN("min PDM frequency is %d Hz\n", hm2->pwmgen.hal->param.pdm_frequency);
         hm2->pwmgen.pdmgen_master_rate_dds_reg = 1;
         return;
@@ -173,7 +173,7 @@ void hm2_pwmgen_handle_pdm_frequency(hostmot2_t *hm2) {
     // user wants too much, lower frequency until it'll work with 12 bits
     // From above:
     //     PulseFreq = (ClockHigh * DDS) / 65536
-    hm2->pwmgen.hal->param.pdm_frequency = ((float)hm2->pwmgen.clock_frequency * 65535.0) / 65536.0;
+    hm2->pwmgen.hal->param.pdm_frequency = ((double)hm2->pwmgen.clock_frequency * 65535.0) / 65536.0;
     WARN("max PDM frequency is %d Hz\n", hm2->pwmgen.hal->param.pdm_frequency);
     hm2->pwmgen.pdmgen_master_rate_dds_reg = 65535;
 }
@@ -567,8 +567,8 @@ void hm2_pwmgen_prepare_tram_write(hostmot2_t *hm2) {
     int i;
 
     for (i = 0; i < hm2->pwmgen.num_instances; i ++) {
-        float scaled_value;
-        float abs_duty_cycle;
+        double scaled_value;
+        double abs_duty_cycle;
         int bits;
 
         // Normally the PWM & Dir IO pins of the pwmgen instance keep doing
@@ -594,7 +594,7 @@ void hm2_pwmgen_prepare_tram_write(hostmot2_t *hm2) {
         } else {
             bits = hm2->pwmgen.pwm_bits;
         }
-        hm2->pwmgen.pwm_value_reg[i] = abs_duty_cycle * (float)((1 << bits) - 1);
+        hm2->pwmgen.pwm_value_reg[i] = abs_duty_cycle * (double)((1 << bits) - 1);
         hm2->pwmgen.pwm_value_reg[i] <<= 16;
         if (scaled_value < 0) {
             hm2->pwmgen.pwm_value_reg[i] |= (1 << 31);
