@@ -454,6 +454,7 @@ usr/share/emc/ncfiles/holecircle.py
 usr/share/emc/ncfiles/involute.py
 usr/share/emc/ncfiles/lathe_pawn.ngc
 usr/share/emc/ncfiles/lathecomp.ngc
+usr/share/emc/ncfiles/probe-hole.ngc
 usr/share/emc/ncfiles/skeleton.ngc
 usr/share/emc/ncfiles/spiral.ngc
 usr/share/emc/ncfiles/systems.ngc
@@ -627,6 +628,7 @@ usr/lib/python@PYTHON_VERSION@/site-packages/_togl.so
 usr/lib/python@PYTHON_VERSION@/site-packages/vcpparse.pyc
 usr/lib/python@PYTHON_VERSION@/site-packages/vismach.pyc
 usr/lib/emc/tcl/hal.so
+usr/share/applications/emc2-gettingstarted.desktop
 usr/share/axis/images/axis.ngc
 usr/share/axis/images/banner.gif
 usr/share/axis/images/cba0.gif
@@ -692,6 +694,7 @@ usr/share/locale/ro/LC_MESSAGES/axis.mo
 usr/share/locale/ru/LC_MESSAGES/axis.mo
 usr/share/locale/se/LC_MESSAGES/axis.mo
 usr/share/locale/sr/LC_MESSAGES/axis.mo
+usr/share/doc/emc2/EMC2_Getting_Started.pdf
 usr/share/doc/emc2/EMC2_User_Manual.pdf
 usr/share/doc/emc2/EMC2_User_Manual_fr.pdf
 usr/share/doc/emc2/EMC2_Integrator_Manual.pdf
