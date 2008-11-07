@@ -26,7 +26,7 @@
 
 \layout Chapter
 
-Hardware
+Latency
 \layout Section
 
 Latency Test
@@ -135,74 +135,6 @@ So, what do the results mean? If your Max Jitter number is less than about
 Note that if you get high numbers, there may be ways to improve them.
  Another PC had very bad latency (several milliseconds) when using the onboard
  video.
- But a $5 used Matrox video card solved the problem - EMC does not require
- bleeding edge hardware.
-\layout Section
-
-Base Period
-\layout Standard
-
-BASE_PERIOD is the "heartbeat" of your EMC computer.
- Every period, the software step generator decides if it is time for another
- step pulse.
- A shorter period will allow you to generate more pulses per second, within
- limits.
- But if you go too short, your computer will spend so much time generating
- step pulses that everything else will slow to a crawl, or maybe even lock
- up.
- Latency and stepper drive requirements affect the shortest period you can
- use.
-\layout Standard
-
-The really nasty part about this problem is that it can be very very rare.
- Worst case latencies might only happen a few times a minute, and the odds
- of bad latency happening just as the motor is changing direction are low.
- So you get very rare errors that ruin a part every once in a while and
- are impossible to troubleshoot.
-\layout Standard
-
-The simplest way to avoid this problem is to choose a BASE_PERIOD that is
- the sum of the longest timing requirement of your drive, and the worst
- case latency of your computer.
- This is not always the best choice for example if you are running a drive
- with a 20uS hold time requirement, and your latency test said you have
- a maximum latency of 11uS, then if you set the BASE_PERIOD to 20+11 = 31uS
- and a not-so-nice 16,129 steps per second.
- 
-\layout Standard
-
-The problem is with the 20uS hold time requirement.
- That plus the 11uS latency is what forces us to use a slow 31uS period.
- But the EMC2 software step generator has some parameters that let you increase
- the various time from one period to several.
- For example, if steplen is changed from 1 to 2, then it there will be two
- periods between the beginning and end of the step pulse.
- Likewise, if dirhold is changed from 1 to 3, there will be at least three
- periods between the step pulse and a change of the direction pin.
-\layout Standard
-
-If we can use dirhold to meet the 20uS hold time requirement, then the next
- longest time is the 4.5uS high time.
- Add the 11uS latency to the 4.5uS high time, and you get a minimum period
- of 15.5uS.
- When you try 15.5uS, you find that the computer is sluggish, so you settle
- on 16uS.
- If we leave dirhold at 1 (the default), then the minimum time between step
- and direction is the 16uS period minus the 11uS latency = 5uS, which is
- not enough.
- We need another 15uS.
- Since the period is 16uS, we need one more period.
- So we change dirhold from 1 to 2.
- Now the minimum time from the end of the step pulse to the changing direction
- pin is 5+16=21uS, and we don't have to worry about the drive stepping the
- wrong direction because of latency.
- 
-\layout Standard
-
-For more information on stepgen see Section (
-\begin_inset LatexCommand \ref{sec:Stepgen}
-
-\end_inset 
-
-).
+ But a $5 used video card solved the problem - EMC does not require bleeding
+ edge hardware.
 \the_end

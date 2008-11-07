@@ -58,7 +58,7 @@ addcontentsline{toc}{chapter}{Cover}
 
 \layout Title
 
-Getting Started
+Getting Started Guide V2.3
 \layout Author
 
 The EMC Team
@@ -131,6 +131,15 @@ preview false
 
 
 \begin_inset Include \include{common/Getting_EMC.lyx}
+preview false
+
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset Include \include{install/Latency_Test.lyx}
 preview false
 
 \end_inset 

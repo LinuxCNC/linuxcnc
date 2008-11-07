@@ -36,134 +36,24 @@
 
 \layout Chapter
 
+EMC2
+\layout Standard
 
-\begin_inset LatexCommand \label{first-section}
 
-\end_inset 
-
+\series bold 
+\size largest 
 The Enhanced Machine Control
 \layout Section
 
-Introduction
-\begin_inset LatexCommand \label{sec:Introduction}
-
-\end_inset 
-
-
+This Manual
 \layout Standard
 
 The focus of this manual is on using EMC.
  It is intended to be used once EMC is installed and configured.
- For information on installing and configuration of EMC see the Integrator
- Manual.
-\layout Section
-
-The Big CNC Picture
-\begin_inset LatexCommand \label{sec:The-Big-CNC}
-
-\end_inset 
-
-
-\layout Standard
-
-The term CNC has taken on a lot of different meanings over the years.
- In the early days CNC replaced the hands of a skilled machinist with motors
- that followed commands in much the same way that the machinist turned the
- hand wheels.
- From these early machines, a language of machine tool control has grown.
- This language is called RS274 and several standard variants of it have
- been put forward.
- It has also been expanded by machine tool and control builders in order
- to meet the needs of specific machines.
- If a machine changed tools during a program it needed to have tool change
- commands.
- If it changed pallets in order to load new castings, it had to have commands
- that allowed for these kinds of devices as well.
- Like any language, RS274 has evolved over time.
- Currently there are several dialects.
- In general each machine tool maker has been consistent within their product
- line but different dialects can have commands that cause quite different
- behavior from one machine to another.
-\layout Standard
-
-More recently the language of CNC has been hidden behind or side-stepped
- by several programming schemes that are referred to as 
-\begin_inset Quotes eld
-\end_inset 
-
-Conversational
-\begin_inset Foot
-collapsed false
-
-\layout Standard
-
-One machine tool manufacturer, Hurco, claims to have a right to the use
- of these programming schemes and to the use of the term conversational
- when used in this context.
- 
-\end_inset 
-
- programming languages.
-\begin_inset Quotes erd
-\end_inset 
-
- One common feature of these kinds of programming schemes is the selection
- of a shape or geometry and the addition of values for the corners, limits,
- or features of that geometry.
-\layout Standard
-
-The use of Computer Aided Drafting has also had an effect on the CNC programming
- languages.
- Because CAD drawings are saved as a list or database of geometries and
- variables associated with each, they are available to be interpreted into
- G-Code.
- These interpreters are called CAM (Computer Aided Machining) programs.
-\layout Standard
-
-Like the CAD converters, the rise of drawing programs, like Corel
-\begin_inset Formula $^{\textrm{TM}}$
-\end_inset 
-
- and the whole bunch of paint programs, converters have been written that
- will take a bitmap or raster or vector image and turn it into G-Code that
- can be run with a CNC.
-\layout Standard
-
-You're asking yourself, 
-\begin_inset Quotes eld
-\end_inset 
-
-Why did I want to know this?
-\begin_inset Quotes erd
-\end_inset 
-
- The answer is that the EMC2 as it currently exists does not directly take
- in CAD or any image and run a machine using it.
- The EMC2 uses a variant of the earlier CNC language named RS274NGC.
- (Next Generation Controller).
- All of the commands given to the EMC2 must be in a form that is recognized
- and have meaning to the RS274NGC interpreter.
- This means that if you want to carve parts that were drawn in some graphical
- or drafting program you will also have to find a converter that will transform
- the image or geometry list into commands that are acceptable to the EMC2
- interpreter.
- Several commercial CAD/CAM programs are available to do this conversion.
- At least one converter (Ace) has been written that carries a copyright
- that makes it available to the public.
-\layout Standard
-
-There has been recent talk about writing a 
-\begin_inset Quotes eld
-\end_inset 
-
-conversational
-\begin_inset Quotes erd
-\end_inset 
-
- or geometric interface that would allow an operator to enter programs is
- much the same way that several modern proprietary controls enter programs
- but it isn't in there yet.
- 
+ For standard installations see the Getting Started Guide for step by step
+ instructions to get you up and going.
+ For detailed information on installation and configuration of EMC see the
+ Integrator Manual.
 \layout Section
 
 How EMC2 Works
@@ -186,6 +76,13 @@ The Enhanced Machine Controller (EMC2) is a lot more than just another CNC
  
 \layout Standard
 
+There are four main components to the EMC2 software: a motion controller,
+ a discrete I/O controller, a task executor which coordinates them, and
+ graphical user interfaces.
+ In addition there is a layer called HAL (Hardware Abstraction Layer) which
+ allows configuration of EMC2 without the need of recompiling.
+\layout Standard
+
 
 \begin_inset Float figure
 wide false
@@ -204,6 +101,8 @@ Simple EMC2 Controlled Machine
 
 \begin_inset Graphics
 	filename whatstep1.png
+	lyxscale 70
+	scale 70
 
 \end_inset 
 
@@ -233,21 +132,6 @@ Figure
  an extended parallel port to connect with external control boards.
  As we examine each of the components that make up an EMC2 system we will
  remind the reader of this typical machine.
-\layout Standard
-
-There are four main components to the EMC2 software: a motion controller
- (EMCMOT), a discrete I/O controller (EMCIO), a task executor which coordinates
- them (EMCTASK), and a collection of text-based or graphical user interfaces.
- An EMC2 capable of running a mini mill must start some version of all four
- of these components in order to completely control it.
- Each component is briefly described below.
- In addition there is a layer called HAL
-\begin_inset LatexCommand \index{HAL}
-
-\end_inset 
-
- (Hardware Abstraction Layer) which allows simple reconfiguration of EMC2
- without the need of recompiling.
 \layout Section
 
 Graphical User Interfaces
@@ -263,212 +147,28 @@ A graphical interface is the part of the EMC2 that the machine tool operator
  The EMC2 comes with several types of user interfaces: 
 \layout Itemize
 
-a character-based screen graphics program named keystick
-\begin_inset LatexCommand \index{keystick}
-
-\end_inset 
-
+AXIS an OpenGL-based GUI, with an interactive G-Code previewer.
+ This is the only interface that is still being developed and improved on.
  
-\begin_inset LatexCommand \ref{fig:The Keystick Interface}
-
-\end_inset 
-
-
-\layout Itemize
-
-an X Windows programs named xemc
-\begin_inset LatexCommand \index{xemc}
-
-\end_inset 
-
- 
-\begin_inset LatexCommand \ref{fig:XEMC_Graphical_Interface}
-
-\end_inset 
-
- 
-\layout Itemize
-
-two Tcl/Tk-based GUIs named tkemc
-\begin_inset LatexCommand \index{tkemc}
-
-\end_inset 
-
- 
-\begin_inset LatexCommand \ref{fig:TkEmc_Graphical_Interface}
-
-\end_inset 
-
- and mini
-\begin_inset LatexCommand \index{mini}
-
-\end_inset 
-
- 
-\begin_inset LatexCommand \ref{fig:The Mini Graphical Interface}
-
-\end_inset 
-
-.
- 
-\layout Itemize
-
-an OpenGL-based GUI, with an interactive G-Code previewer, called AXIS
-\begin_inset LatexCommand \index{AXIS}
-
-\end_inset 
-
- 
-\begin_inset LatexCommand \ref{fig:The AXIS Graphical Interface}
-
-\end_inset 
-
-
-\layout Standard
-
-
-\begin_inset Float figure
-wide false
-collapsed false
-
 \layout Standard
 \align center 
 
 \begin_inset Graphics
 	filename axis.png
-	lyxscale 75
-	width 80page%
-	keepAspectRatio
 
 \end_inset 
 
 
-\layout Caption
+\layout Itemize
 
+Keystick a character-based screen graphics program suitable for minimal
+ installations.
+\layout Itemize
 
-\begin_inset LatexCommand \label{fig:The AXIS Graphical Interface}
+Xemc an X Windows program
+\layout Itemize
 
-\end_inset 
-
-The AXIS Graphical Interface
-\end_inset 
-
-
-\begin_inset Float figure
-wide false
-collapsed false
-
-\layout Standard
-\align center 
-
-\begin_inset Graphics
-	filename keystick.png
-
-\end_inset 
-
-
-\layout Caption
-
-
-\begin_inset LatexCommand \label{fig:The Keystick Interface}
-
-\end_inset 
-
-The Keystick interface
-\end_inset 
-
-
-\begin_inset Float figure
-wide false
-collapsed false
-
-\layout Standard
-\align center 
-
-\begin_inset Graphics
-	filename mini.png
-	lyxscale 50
-	width 80page%
-	keepAspectRatio
-
-\end_inset 
-
-
-\layout Caption
-
-
-\begin_inset LatexCommand \label{fig:The Mini Graphical Interface}
-
-\end_inset 
-
-The Mini Graphical Interface
-\end_inset 
-
-
-\begin_inset Float figure
-wide false
-collapsed false
-
-\layout Standard
-\align center 
-
-\begin_inset Graphics
-	filename tkemc.png
-	lyxscale 50
-	width 80page%
-	keepAspectRatio
-
-\end_inset 
-
-
-\layout Caption
-
-
-\begin_inset LatexCommand \label{fig:TkEmc_Graphical_Interface}
-
-\end_inset 
-
-The TkEmc Graphical Interface
-\end_inset 
-
-
-\begin_inset Float figure
-wide false
-collapsed false
-
-\layout Standard
-\added_space_top smallskip \added_space_bottom smallskip \align center 
-
-\begin_inset Graphics
-	filename xemc.png
-	display color
-	width 80page%
-	keepAspectRatio
-
-\end_inset 
-
-
-\layout Caption
-
-
-\begin_inset LatexCommand \label{fig:XEMC_Graphical_Interface}
-
-\end_inset 
-
-The XEMC Graphical Interface
-\end_inset 
-
- 
-\layout Standard
-
-Tkemc and Mini will run on Linux, Mac, and Microsoft Windows if the Tcl/Tk
- programming language has been installed.
- The Mac and Microsoft Windows version can connect to a real-time EMC2 running
- on a Linux machine via a network connection, allowing the monitoring of
- the machine from a remote location.
- Instructions for installing and configuring the connection between a Mac
- or Microsoft Machine and a PC running the EMC2 can be found in the Integrators
- Handbook.
+two Tcl/Tk-based GUIs named tkemc and mini 
 \layout Section
 
 Thinking Like a Machine Operator
@@ -488,15 +188,6 @@ This book will not even pretend that it can teach you to run a mill or a
 
 We learn from experience, if at all.
 \begin_inset Quotes erd
-\end_inset 
-
-
-\begin_inset Note
-collapsed false
-
-\layout Standard
-
-As of 2007/10/07, the only google hits for this phrase are in EMC2 documentation
 \end_inset 
 
  Broken tools, gouged vices, and scars are the evidence of lessons taught.
@@ -623,135 +314,4 @@ The AXIS user interface removes some of the distinctions between Auto and
  the other modes by making Auto-commands available at most times.
  It also blurs the distinction between Manual and MDI because some Manual
  commands like Touch Off are actually implemented by sending MDI commands.
-\layout Section
-
-Information Display 
-\begin_inset LatexCommand \label{sub:Information-Display}
-
-\end_inset 
-
-
-\layout Standard
-
-While an EMC2 is running, each of the modules keeps up a conversation with
- the others and with the graphical display.
- It is up to the display to select from that stream of information what
- the operator needs to see, and to arrange it on the screen in a way that
- makes it easy for the operator to understand.
- Perhaps the most important display is the mode the EMC2 is running in.
- You will want to keep your eye on the mode display.
-\layout Standard
-
-Right up there with knowing what mode is active is consistent display of
- the position of each axis.
- Most of the interfaces will allow the operator to read position based upon
- actual or commanded position as well as machine or relative position.
- 
-\layout Description
-\noindent 
-Machine
-\begin_inset LatexCommand \index{Position: Machine}
-
-\end_inset 
-
- This is the position of an axis relative to the place where it started
- or was homed.
- 
-\layout Description
-\noindent 
-Relative
-\begin_inset LatexCommand \index{Position: Relative}
-
-\end_inset 
-
- This is the position of an axis after work or tool or other offsets have
- been applied.
- 
-\layout Description
-\noindent 
-Actual
-\begin_inset LatexCommand \index{Position: Actual}
-
-\end_inset 
-
- This is the real position of the axis within the machine or relative system.
- 
-\layout Description
-\noindent 
-Commanded
-\begin_inset LatexCommand \index{Position: Commanded}
-
-\end_inset 
-
- This is where the axis is commanded to be.
-\layout Standard
-
-These may all be exactly the same if no offsets have been applied and there
- is no dead band set in the INI file.
- Dead band is a small distance which is assumed to be close enough -- perhaps
- one stepper pulse or one encoder count.
- 
-\layout Standard
-
-It is also important to see any messages or error codes sent by the EMC2.
- These are used to request the operator change a tool, to describe problems
- in G-code programs, or to tell why the machine stopped running.
-\layout Standard
-
-As you work your way through this text, you will be learning, bit by bit,
- how to set up and run a machine with your copy of the EMC2 software.
- While you are learning about setting up and running a mini mill here, you
- will be thinking of other applications and other capabilities.
- These are the topics of the other linuxcnc.org handbooks
-\layout Section
-
-Units
-\begin_inset LatexCommand \index{units}
-
-\end_inset 
-
-
-\begin_inset LatexCommand \label{sub:Units}
-
-\end_inset 
-
-
-\layout Standard
-
-Units can be confusing.
- You might ask, 
-\begin_inset Quotes eld
-\end_inset 
-
-Does it work in inches, feet, centimeters, millimeters, or what?
-\begin_inset Quotes erd
-\end_inset 
-
- There are several possible answers to this question but the best one is
- that it works in the units that you set it to work in.
- 
-\layout Standard
-
-At a machine level, we set each axis's units to some value using an INI
- variable that looks like this.
-\layout LyX-Code
-
-UNITS = inch
-\layout Standard
-
-or
-\layout LyX-Code
-
-UNITS = mm
-\layout Standard
-
-After we have decided upon a value for the units for an axis, we tell the
- EMC2 how may step pulses or encoder pulses it should send or read for each
- unit of distance to be traveled.
- Once we have done this, the EMC2 knows how to count units of distance.
- However it is very important to understand that this counting of distance
- is different from the commanding of distance.
- You can command distance in millimeters or inches without even thinking
- about the units that you defined.
- There are G-codes that allow you to switch easily between metric and imperial.
 \the_end
