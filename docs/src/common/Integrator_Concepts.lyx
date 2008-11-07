@@ -29,6 +29,9 @@
 Important Concepts
 \layout Section
 
+Stepper Systems
+\layout Subsection
+
 Base Period
 \layout Standard
 
@@ -88,7 +91,12 @@ If we can use dirhold to meet the 20uS hold time requirement, then the next
  
 \layout Standard
 
-For more information on stepgen see Section ([sec:Stepgen]).
+For more information on stepgen see Section (
+\begin_inset LatexCommand \ref{sec:Stepgen}
+
+\end_inset 
+
+).
 \layout Standard
 
 \the_end
