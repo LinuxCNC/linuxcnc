@@ -29,7 +29,7 @@ license "GPL";
 #include <rtapi_math.h>
 
 FUNCTION(_) {
-    float tmp = in;
+    double tmp = in;
     if (deadband < 1e-12) deadband = 1e-12;
     if ( tmp > -deadband && tmp <0)
 	out = -1/deadband;

@@ -16,8 +16,8 @@ function _ fp "Update the comparator";
 license "GPL";
 ;;
 FUNCTION(_) {
-    float tmp = in1 - in0;
-    float halfhyst = 0.5 * hyst;
+    double tmp = in1 - in0;
+    double halfhyst = 0.5 * hyst;
 
     if(tmp < -halfhyst) {
 	out = 0;

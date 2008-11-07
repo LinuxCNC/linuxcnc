@@ -33,12 +33,12 @@ license "GPL";
 
 typedef struct {
     long old_counts;
-    float old_out;
+    double old_out;
 } knob2float_data;
 
 FUNCTION(_) {
     long delta_counts;
-    float tmp_out;
+    double tmp_out;
 
     if ( min_out > max_out ) {
 	min_out = max_out;

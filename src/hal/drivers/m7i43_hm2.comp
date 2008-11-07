@@ -1222,7 +1222,7 @@ static void m7i43_hm2_stepgen_update_times(m7i43_t *board) {
                 if (board->stepgen.instance[i].hw.dir_setup_time > 0x3FFF) {
                     PRINT(RTAPI_MSG_ERR, "stepgen %d has invalid dirsetup, resetting to max\n", i);
                     board->stepgen.instance[i].hw.dir_setup_time = 0x3FFF;
-                    board->stepgen.instance[i].hal.param.dirsetup = (float)board->stepgen.instance[i].hw.dir_setup_time / board->stepgen.clock_frequency;
+                    board->stepgen.instance[i].hal.param.dirsetup = (double)board->stepgen.instance[i].hw.dir_setup_time / board->stepgen.clock_frequency;
                 }
 
                 m7i43_epp_write32(board->stepgen.instance[i].hw.dir_setup_time);
@@ -1255,7 +1255,7 @@ static void m7i43_hm2_stepgen_update_times(m7i43_t *board) {
                 if (board->stepgen.instance[i].hw.dir_hold_time > 0x3FFF) {
                     PRINT(RTAPI_MSG_ERR, "stepgen %d has invalid dirhold, resetting to max\n", i);
                     board->stepgen.instance[i].hw.dir_hold_time = 0x3FFF;
-                    board->stepgen.instance[i].hal.param.dirhold = (float)board->stepgen.instance[i].hw.dir_hold_time / board->stepgen.clock_frequency;
+                    board->stepgen.instance[i].hal.param.dirhold = (double)board->stepgen.instance[i].hw.dir_hold_time / board->stepgen.clock_frequency;
                 }
 
                 m7i43_epp_write32(board->stepgen.instance[i].hw.dir_hold_time);
@@ -1288,7 +1288,7 @@ static void m7i43_hm2_stepgen_update_times(m7i43_t *board) {
                 if (board->stepgen.instance[i].hw.pulse_width > 0x3FFF) {
                     PRINT(RTAPI_MSG_ERR, "stepgen %d has invalid steplen, resetting to max\n", i);
                     board->stepgen.instance[i].hw.pulse_width = 0x3FFF;
-                    board->stepgen.instance[i].hal.param.steplen = (float)board->stepgen.instance[i].hw.pulse_width / board->stepgen.clock_frequency;
+                    board->stepgen.instance[i].hal.param.steplen = (double)board->stepgen.instance[i].hw.pulse_width / board->stepgen.clock_frequency;
                 }
 
                 m7i43_epp_write32(board->stepgen.instance[i].hw.pulse_width);
@@ -1483,10 +1483,10 @@ static int hm2_md_parse_stepgen(m7i43_t *board, hm2_module_descriptor_t *m) {
             board->stepgen.instance[i].hal.param.position_scale = 1.0;
 
             // start out slow, let the user speed up if they want
-            board->stepgen.instance[i].hal.param.steplen = (float)0x3FFF / board->stepgen.clock_frequency;
-            board->stepgen.instance[i].hal.param.stepspace = (float)0x3FFF / board->stepgen.clock_frequency;
-            board->stepgen.instance[i].hal.param.dirsetup = (float)0x3FFF / board->stepgen.clock_frequency;
-            board->stepgen.instance[i].hal.param.dirhold = (float)0x3FFF / board->stepgen.clock_frequency;
+            board->stepgen.instance[i].hal.param.steplen = (double)0x3FFF / board->stepgen.clock_frequency;
+            board->stepgen.instance[i].hal.param.stepspace = (double)0x3FFF / board->stepgen.clock_frequency;
+            board->stepgen.instance[i].hal.param.dirsetup = (double)0x3FFF / board->stepgen.clock_frequency;
+            board->stepgen.instance[i].hal.param.dirhold = (double)0x3FFF / board->stepgen.clock_frequency;
             board->stepgen.instance[i].hal.param.written_steplen = 0.0;
             board->stepgen.instance[i].hal.param.written_stepspace = 0.0;
             board->stepgen.instance[i].hal.param.written_dirsetup = 0.0;
@@ -2738,7 +2738,7 @@ FUNCTION(pwmgen_update) {
     // if so update them all
     for (i = 0; i < board.pwmgen.num_instances; i ++) {
         if (*(board.pwmgen.instance[i].hal.pin.value) != board.pwmgen.instance[i].hal.pin.written_value) {
-            float val;
+            double val;
 
             // FIXME
             need_update_value = 1;

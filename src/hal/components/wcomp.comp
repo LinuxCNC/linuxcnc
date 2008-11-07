@@ -11,7 +11,7 @@ function _;
 license "GPL";
 ;;
 FUNCTION(_) { 
-float tmp = in;
+  double tmp = in;
   under = (tmp <= min_);
   over = (tmp >= max_);
   out = !(over || under);

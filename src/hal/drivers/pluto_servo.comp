@@ -177,7 +177,7 @@ typedef struct {
 #define W 14
 #define MASK ((1<<W)-1)
 
-int PWM(int enable, float value, float offset, float scale, float min_dc, float max_dc, int dio0, int dio1, int is_pdm, int is_pwmdir) {
+int PWM(int enable, double value, double offset, double scale, double min_dc, double max_dc, int dio0, int dio1, int is_pdm, int is_pwmdir) {
     int result;
     if(enable == 0) return 0;
 

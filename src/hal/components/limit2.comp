@@ -9,7 +9,7 @@ function _;
 license "GPL";
 ;;
 
-typedef struct { float old_out; } limit2_data;
+typedef struct { double old_out; } limit2_data;
 
 #ifndef clamp
 static inline double clamp(double v, double sub, double sup) {
