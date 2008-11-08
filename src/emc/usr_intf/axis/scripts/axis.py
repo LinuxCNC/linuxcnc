@@ -118,6 +118,7 @@ mdi_history_save_filename= "~/.axis_mdi_history"
 
 feedrate_blackout = 0
 spindlerate_blackout = 0
+maxvel_blackout = 0
 jogincr_index_last = 1
 mdi_history_index= -1
 
@@ -1519,6 +1520,8 @@ class LivePlotter:
             vupdate(vars.spindlerate, int(100 * self.stat.spindlerate + .5))
         if time.time() > feedrate_blackout:
             vupdate(vars.feedrate, int(100 * self.stat.feedrate + .5))
+        if time.time() > maxvel_blackout:
+            vupdate(vars.maxvel_speed, float(int(600 * self.stat.max_velocity)/10.0))
         vupdate(vars.override_limits, self.stat.axis[0]['override_limits'])
         on_any_limit = 0
         for i, l in enumerate(self.stat.limit):
@@ -2427,7 +2430,6 @@ class TclCommands(nf.TclCommands):
         c.spindleoverride(value)
         spindlerate_blackout = time.time() + 1
 
-
     def set_feedrate(newval):
         global feedrate_blackout
         try:
@@ -2436,6 +2438,11 @@ class TclCommands(nf.TclCommands):
         value = value / 100.
         c.feedrate(value)
         feedrate_blackout = time.time() + 1
+
+    def set_maxvel(newval):
+        global maxvel_blackout
+        c.maxvel(float(newval) / 60.)
+        maxvel_blackout = time.time() + 1
 
     def copy_line(*args):
         line = -1
@@ -3212,6 +3219,8 @@ vars = nf.Variables(root_window,
     ("jog_aspeed", DoubleVar),
     ("max_speed", DoubleVar),
     ("max_aspeed", DoubleVar),
+    ("maxvel_speed", DoubleVar),
+    ("max_maxvel", DoubleVar),
     ("joint_mode", IntVar),
     ("motion_mode", IntVar),
     ("kinematics_type", IntVar),
@@ -3478,8 +3487,12 @@ mav = (
     or inifile.find("TRAJ","MAX_VELOCITY")
     or mlv)
 vars.max_aspeed.set(float(mav))
+mv = inifile.find("TRAJ","MAX_VELOCITY") or inifile.find("AXIS_0","MAX_VELOCITY") or 1.0
+vars.maxvel_speed.set(float(mv))
+vars.max_maxvel.set(float(mv))
 root_window.tk.eval("${pane_top}.jogspeed.s set [setval $jog_speed $max_speed]")
 root_window.tk.eval("${pane_top}.ajogspeed.s set [setval $jog_aspeed $max_aspeed]")
+root_window.tk.eval("${pane_top}.maxvel.s set [setval $maxvel_speed $max_maxvel]")
 widgets.feedoverride.configure(to=max_feed_override)
 widgets.spinoverride.configure(to=max_spindle_override)
 emc.nmlfile = os.path.join(os.path.dirname(sys.argv[2]), inifile.find("EMC", "NML_FILE"))
@@ -3499,8 +3512,10 @@ else:
     else: vars.metric.set(0)
 if lu == 1:
     root_window.tk.eval("${pane_top}.jogspeed.l1 configure -text mm/min")
+    root_window.tk.eval("${pane_top}.maxvel.l1 configure -text mm/min")
 else:
     root_window.tk.eval("${pane_top}.jogspeed.l1 configure -text in/min")
+    root_window.tk.eval("${pane_top}.maxvel.l1 configure -text in/min")
 root_window.tk.eval(u"${pane_top}.ajogspeed.l1 configure -text deg/min")
 homing_order_defined = inifile.find("AXIS_0", "HOME_SEQUENCE") is not None
 

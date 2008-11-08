@@ -1514,6 +1514,18 @@ pack ${pane_top}.jogspeed.s -side right
 bind . , [regsub %W [bind Scale <Left>] ${pane_top}.jogspeed.s]
 bind . . [regsub %W [bind Scale <Right>] ${pane_top}.jogspeed.s]
 
+frame ${pane_top}.maxvel
+label ${pane_top}.maxvel.l0 -text [_ "Max Velocity:"]
+label ${pane_top}.maxvel.l1
+scale ${pane_top}.maxvel.s -bigincrement 0 -from .06 -to 1 -resolution .020 -showvalue 0 -variable maxvel_slider_val -command update_maxvel_slider_vel -orient h -takefocus 0
+label ${pane_top}.maxvel.l -textv maxvel_speed -width 6 -anchor e
+pack ${pane_top}.maxvel.l0 -side left
+pack ${pane_top}.maxvel.l -side left
+pack ${pane_top}.maxvel.l1 -side left
+pack ${pane_top}.maxvel.s -side right
+bind . <semicolon> [regsub %W [bind Scale <Left>] ${pane_top}.maxvel.s]
+bind . ' [regsub %W [bind Scale <Right>] ${pane_top}.maxvel.s]
+
 frame ${pane_top}.spinoverride
 
 label ${pane_top}.spinoverride.foentry \
@@ -1699,10 +1711,15 @@ grid ${pane_top}.ajogspeed \
 	-row 5 \
 	-sticky new
 
+grid ${pane_top}.maxvel \
+	-column 0 \
+	-row 6 \
+	-sticky new
+
 # Grid widget .info
 grid .info \
 	-column 0 \
-	-row 5 \
+	-row 6 \
 	-columnspan 2 \
 	-sticky ew
 
@@ -2154,13 +2171,26 @@ proc update_jog_slider_vel {newval} {
     set jog_speed $speed
 }
 
+proc update_maxvel_slider_vel {newval} {
+    global maxvel_speed max_maxvel
+    set max_speed_units [to_internal_linear_unit $max_maxvel]
+    if {$max_speed_units == {None}} return
+    if {$::metric} { set max_speed_units [expr {25.4 * $max_speed_units}] }
+    set speed [val2vel_show $newval $max_speed_units];
+    set maxvel_speed $speed
+    set_maxvel [val2vel $newval $max_speed_units]
+}
+
 proc update_units {args} {
     if {$::metric} {
         ${::pane_top}.jogspeed.l1 configure -text mm/min
+        ${::pane_top}.maxvel.l1 configure -text mm/min
     } else {
         ${::pane_top}.jogspeed.l1 configure -text in/min
+        ${::pane_top}.maxvel.l1 configure -text in/min
     }
     update_jog_slider_vel $::jog_slider_val
+    update_maxvel_slider_vel $::maxvel_slider_val
 }
 
 proc update_ajog_slider_vel {newval} {
