@@ -14,7 +14,7 @@
 #define RS274NGC_HH
 
 /* Size of certain arrays */
-#define ACTIVE_G_CODES 14
+#define ACTIVE_G_CODES 15
 #define ACTIVE_M_CODES 10
 #define ACTIVE_SETTINGS 3
 
@@ -248,6 +248,7 @@ private:
  int convert_cycle_wu(int motion, block_pointer block,
                             setup_pointer settings);
  int convert_distance_mode(int g_code, setup_pointer settings);
+ int convert_ijk_distance_mode(int g_code, setup_pointer settings);
  int convert_dwell(double time);
  int convert_feed_mode(int g_code, setup_pointer settings);
  int convert_feed_rate(block_pointer block, setup_pointer settings);

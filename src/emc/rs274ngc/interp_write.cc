@@ -52,7 +52,7 @@ group 1  - gez[1]  g0, g1, g2, g3, g38.2, g80, g81, g82, g83, g84, g85,
                    g86, g87, g88, g89 - motion
 group 2  - gez[3]  g17, g18, g19 - plane selection
 group 3  - gez[6]  g90, g91 - distance mode
-group 4  - no such group
+group 4  - gez[14] g90.1, g91.1 - IJK distance mode for arcs
 group 5  - gez[7]  g93, g94, g95 - feed rate mode
 group 6  - gez[5]  g20, g21 - units
 group 7  - gez[4]  g40, g41, g42 - cutter radius compensation
@@ -115,6 +115,7 @@ int Interp::write_g_codes(block_pointer block,   //!< pointer to a block of RS27
     (settings->control_mode == CANON_EXACT_PATH) ? G_61 : G_61_1;
   gez[13] =
     (settings->spindle_mode == CONSTANT_RPM) ? G_97 : G_96;
+  gez[14] = (settings->ijk_distance_mode == MODE_ABSOLUTE) ? G_90_1 : G_91_1;
   return INTERP_OK;
 }
 

@@ -480,6 +480,7 @@ int Interp::init()
   _setup.cutter_comp_side = OFF;
 //_setup.cycle values do not need initialization
   _setup.distance_mode = MODE_ABSOLUTE;
+  _setup.ijk_distance_mode = MODE_INCREMENTAL;  // backwards compatability
   _setup.feed_mode = UNITS_PER_MINUTE;
 //_setup.feed_override set in Interp::synch
 //_setup.feed_rate set in Interp::synch

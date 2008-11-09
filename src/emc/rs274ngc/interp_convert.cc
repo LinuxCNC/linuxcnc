@@ -1627,6 +1627,51 @@ int Interp::convert_distance_mode(int g_code,    //!< g_code being executed (mus
 
 /****************************************************************************/
 
+/*! convert_ijk_distance_mode
+
+Returned Value: int
+   If any of the following errors occur, this returns the error shown.
+   Otherwise, it returns INTERP_OK.
+   1. g_code isn't G_90.1 or G_91.1: NCE_BUG_CODE_NOT_G90_OR_G91
+
+Side effects:
+   The interpreter switches the machine settings to indicate the current
+   distance mode for arc centers (absolute or incremental).
+
+   The canonical machine to which commands are being sent does not have
+   an incremental mode, so no command setting the distance mode is
+   generated in this function. A comment function call explaining the
+   change of mode is made (conditionally), however, if there is a change.
+
+Called by: convert_g.
+
+*/
+
+int Interp::convert_ijk_distance_mode(int g_code,    //!< g_code being executed (must be G_90_1 or G_91_1)
+                                 setup_pointer settings)        //!< pointer to machine settings                 
+{
+  static char name[] = "convert_ijk_distance_mode";
+  if (g_code == G_90_1) {
+    if (settings->ijk_distance_mode != MODE_ABSOLUTE) {
+#ifdef DEBUG_EMC
+      COMMENT("interpreter: IJK distance mode changed to absolute");
+#endif
+      settings->ijk_distance_mode = MODE_ABSOLUTE;
+    }
+  } else if (g_code == G_91_1) {
+    if (settings->ijk_distance_mode != MODE_INCREMENTAL) {
+#ifdef DEBUG_EMC
+      COMMENT("interpreter: IJK distance mode changed to incremental");
+#endif
+      settings->ijk_distance_mode = MODE_INCREMENTAL;
+    }
+  } else
+    ERM(NCE_BUG_CODE_NOT_G90_OR_G91);
+  return INTERP_OK;
+}
+
+/****************************************************************************/
+
 /*! convert_dwell
 
 Returned Value: int (INTERP_OK)
@@ -1731,6 +1776,7 @@ Returned Value: int
       convert_coordinate_system
       convert_cutter_compensation
       convert_distance_mode
+      convert_ijk_distance_mode
       convert_dwell
       convert_length_units
       convert_modal_0
@@ -1805,6 +1851,9 @@ int Interp::convert_g(block_pointer block,       //!< pointer to a block of RS27
   }
   if (block->g_modes[3] != -1) {
     CHP(convert_distance_mode(block->g_modes[3], settings));
+  }
+  if (block->g_modes[4] != -1) {
+    CHP(convert_ijk_distance_mode(block->g_modes[4], settings));
   }
   if (block->g_modes[10] != -1) {
     CHP(convert_retract_mode(block->g_modes[10], settings));

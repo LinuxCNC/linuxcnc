@@ -184,7 +184,9 @@ enum SPINDLE_MODE { CONSTANT_RPM, CONSTANT_SURFACE };
 #define G_88   880
 #define G_89   890
 #define G_90   900
+#define G_90_1 901
 #define G_91   910
+#define G_91_1 911
 #define G_92   920
 #define G_92_1 921
 #define G_92_2 922
@@ -369,6 +371,7 @@ typedef struct setup_struct
   double cycle_q;               // q-value for canned cycles
   double cycle_r;               // r-value for canned cycles
   DISTANCE_MODE distance_mode;  // absolute or incremental
+  DISTANCE_MODE ijk_distance_mode;  // absolute or incremental for IJK in arcs
   int feed_mode;                // G_93 (inverse time) or G_94 units/min
   ON_OFF feed_override;         // whether feed override is enabled
   double feed_rate;             // feed rate in current units/min
