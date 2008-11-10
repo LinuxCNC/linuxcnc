@@ -38,6 +38,7 @@
 #include <errno.h>
 #include <termios.h>
 #include <time.h>
+#include <getopt.h>
 
 #include "rcs.hh"
 #include "posemath.h"		// PM_POSE, TO_RAD
@@ -53,11 +54,12 @@
 
 #define DEFAULT_SERVER		"localhost"
 #define DEFAULT_PORT            13666
-#define MAX_NAME_LENGTH         20
+#define MAX_NAME_LENGTH         21
 #define MAX_PRIORITY_LENGTH     12
-#define MAX_STR_LENGTH          20
+#define MAX_STR_LENGTH          21
 #define MAX_KEY_LENGTH          12
 #define SOCK_DELAY              0.005
+#define NETWORK_FILE_DIR        "/etc/network/"
 
 typedef enum { unmm, uncm, unInch, unEncoder } unitType;
 
@@ -90,7 +92,8 @@ typedef enum {
   ktPausePress, ktPauseRelease, ktStopPress, ktStopRelease, ktStepPress, ktStepRelease, 
   ktTestPress, ktTestRelease, ktHelpPress, ktHelpRelease,
   ktNextPress, ktNextRelease, ktPrevPress, ktPrevRelease, 
-  ktEnterPress, ktEnterRelease, ktUnknown} keyType;
+  ktEnterPress, ktEnterRelease, ktUnknown, ktEStopPress, ktEStopRelease,
+  ktPowerPress, ktPowerRelease} keyType;
 
 typedef enum {
   cpVersion, cpProtocol, cpLCD, cpWidth, cpHeight, cpCellWidth, cpCellHeight, cpUnknown
@@ -170,18 +173,21 @@ char connectStrs[][12] = {
   "LCDproc", "protocol", "lcd", "wid", "hgt", "cellwid", "cellhgt", ""};
 
 typedef enum {
-  stStartup, stMain, stOpen, stMain2, stUnknown} screenType;
+  stStartup, stMain, stOpen, stMain2, stStats, stCopy, stCopying, stUnknown} screenType;
 
-#define SCREEN_COUNT 4
+#define SCREEN_COUNT 7
 
 screenDef screens[] = {
   { "startup",     -1, -1, "foreground", hbOff, blIgnore, -1, -1, cuIgnore, -1, -1 },
   { "main",        -1, -1, "background", hbOff, blIgnore, -1, -1, cuIgnore, -1, -1 },
   { "open",        -1, -1, "background", hbOff, blIgnore, -1, -1, cuIgnore, -1, -1 },
-  { "main2",       -1, -1, "background", hbOff, blIgnore, -1, -1, cuIgnore, -1, -1 }
+  { "main2",       -1, -1, "background", hbOff, blIgnore, -1, -1, cuIgnore, -1, -1 },
+  { "stats",       -1, -1, "background", hbOff, blIgnore, -1, -1, cuIgnore, -1, -1 },
+  { "copy",        -1, -1, "background", hbOff, blIgnore, -1, -1, cuIgnore, -1, -1 },
+  { "copying",     -1, -1, "background", hbOff, blIgnore, -1, -1, cuIgnore, -1, -1 }
 };
 
-#define WIDGET_COUNT 29
+#define WIDGET_COUNT 46
 widgetDef widgets[] = {
   { "startup", "su1", wtString, 1, 1, ""},                 // 0
   { "startup", "su2", wtString, 1, 2, "System Starting"},  // 1
@@ -214,10 +220,30 @@ widgetDef widgets[] = {
   { "main2",   "ma6", wtString, 8, 2, "100%"},             // 25
   { "main2",   "ma7", wtString, 8, 3, "100/100%"},         // 26
   { "main2",   "ma8", wtString, 9, 4, "  0"},              // 27
-  { "main2",   "ma9", wtString, 18, 4, "Del"}              // 28
+  { "main2",   "ma9", wtString, 18, 4, "Del"},             // 28
+  
+  { "stats",   "st01", wtString, 1,  1,  "Stat"},          // 29
+  { "stats",   "st02", wtString, 8,  1,  "Used"},          // 30
+  { "stats",   "st03", wtString, 16, 1,  "Free"},          // 31
+  { "stats",   "st04", wtString, 1,  2,  "Disk"},          // 32
+  { "stats",   "st05", wtString, 6,  2,  "0000 MB"},       // 33
+  { "stats",   "st06", wtString, 14, 2,  "0000 MB"},       // 34
+  { "stats",   "st07", wtString, 1,  3,  "Mem"},           // 35
+  { "stats",   "st08", wtString, 6,  3,  "0000 MB"},       // 36
+  { "stats",   "st09", wtString, 14, 3,  "0000 MB"},       // 37
+  { "stats",   "st10", wtString, 1,  4,  "CPU"},           // 38
+  { "stats",   "st11", wtString, 6,  4,  " 100.0%"},       // 39
+  { "stats",   "st12", wtString, 14, 4,  " 100.0%"},        // 40
+
+  { "copy",    "cp01", wtString, 1, 1,   "Copy to thumb drive "}, // 41
+  { "copy",    "cp02", wtString, 1, 3,   " Insert thumb drive "}, // 42
+  { "copy",    "cp03", wtString, 1, 4,   "  then press enter  "}, // 43
+
+  { "copying", "cy01", wtString, 1, 2,   "   Copying files    "}, // 44
+  { "copying", "cy02", wtString, 1, 3,   "    Please wait     "}  // 45
 };
 
-#define KEY_COUNT 28
+#define KEY_COUNT 32
 
 keyDef keys[] = {
   { "Left", kmShared, ktLeftPress },        // Left Arrow
@@ -228,8 +254,10 @@ keyDef keys[] = {
   { "UpUp", kmShared, ktUpRelease },
   { "Down", kmShared, ktDownPress },        // Down Arrow
   { "DownUp", kmShared, ktDownRelease },
-  { "Escape", kmExclusive, ktMenuPress },   // Menu
-  { "EscapeUp", kmExclusive, ktMenuRelease },
+//  { "Escape", kmExclusive, ktMenuPress },   // Menu
+//  { "EscapeUp", kmExclusive, ktMenuRelease },
+  { "Esc", kmExclusive, ktMenuPress },   // Menu
+  { "EscUp", kmExclusive, ktMenuRelease },
   { "Run", kmShared, ktStartPress },        // Start
   { "RunUp", kmShared, ktStartRelease },
   { "Pause", kmShared, ktPausePress },      // Pause / Resume
@@ -247,8 +275,19 @@ keyDef keys[] = {
   { "Prev", kmShared, ktPrevPress },        // Previous
   { "PrevUp", kmShared, ktPrevRelease },
   { "Enter", kmExclusive, ktEnterPress },   // Enter
-  { "EnterUp", kmExclusive, ktEnterRelease }
+  { "EnterUp", kmExclusive, ktEnterRelease },
+  { "EStop", kmShared, ktEStopPress },      // EStop
+  { "EStopUp", kmShared, ktEStopRelease },
+  { "Power", kmShared, ktPowerPress },      // Power
+  { "PowerUp", kmShared, ktPowerRelease }
 };
+
+struct option longopts[] = {
+  {"port", 1, NULL, 'p'},
+  {"driver", 1, NULL, 'd'},
+  {"autostart", 1, NULL, 'a'},
+  {"server", 1, NULL, 's'},
+  {"delay", 1, NULL, 'w'}};
 
 int sockfd = -1;
 int err;
@@ -272,47 +311,13 @@ float jogSpeed = 20.0;
 jogModeType jogMode = jtCont;
 int jogging = 0;
 int feedOverride = 100;
-
-static void thisQuit()
-{
-    EMC_NULL emc_null_msg;
-
-    if (emcStatusBuffer != 0) {
-	// wait until current message has been received
-	emcCommandWaitReceived(emcCommandSerialNumber);
-    }
-
-    if (emcCommandBuffer != 0) {
-	// send null message to reset serial number to original
-	emc_null_msg.serial_number = saveEmcCommandSerialNumber;
-	emcCommandBuffer->write(emc_null_msg);
-    }
-    // clean up NML buffers
-
-    if (emcErrorBuffer != 0) {
-	delete emcErrorBuffer;
-	emcErrorBuffer = 0;
-    }
-
-    if (emcStatusBuffer != 0) {
-	delete emcStatusBuffer;
-	emcStatusBuffer = 0;
-	emcStatus = 0;
-    }
-
-    if (emcCommandBuffer != 0) {
-	delete emcCommandBuffer;
-	emcCommandBuffer = 0;
-    }
-
-    exit(0);
-}
-
-static void sigQuit(int sig)
-{
-  sockClose(sockfd);
-  thisQuit();
-}
+int quitting = 0;
+int copyFrom = 0;
+int autoStart = 0;
+char driver[13];
+int port = DEFAULT_PORT;
+float delay = SOCK_DELAY;
+char server[40];
 
 int preciseSleep(double sleepTime)
 {
@@ -335,7 +340,7 @@ int preciseSleep(double sleepTime)
 
 int sockSendStr(int fd, char *string)
 {
-  preciseSleep(SOCK_DELAY);
+  preciseSleep(delay);
   return sockSend(fd, string, strlen(string));
 }
 
@@ -353,6 +358,21 @@ static char *extractFileName(char *s)
   for (i=start;i<(len-4);i++)
     fname[i-start] = s[i];
   return fname;
+}
+
+static int widgetSetInt(int widgetNo, int newInt, int oldInt)
+
+{
+  if (newInt == oldInt) return newInt;
+
+  sprintf(sockStr, "widget_set %s %s %d %d {%6d}\n",
+    widgets[widgetNo].screenName,
+    widgets[widgetNo].widgetName,
+    widgets[widgetNo].x,
+    widgets[widgetNo].y,
+    newInt);
+  sockSendStr(sockfd, sockStr);
+  return newInt;
 }
 
 static char *widgetSetStr(int widgetNo, char *newStr, char *oldStr)
@@ -398,6 +418,7 @@ static void strScreenSet(char *screen, char *attr, char *s)
 {
   if (s != NULL) {
     sprintf(sockStr, "screen_set %s %s %s\n", screen, attr, s);
+    printf("screen set str: %s\n", sockStr);
     sockSendStr(sockfd, sockStr);
     }
 }
@@ -444,7 +465,18 @@ static int createScreens()
     intScreenSet(screens[i].name, attrs[9], screens[i].cursor_x);
     intScreenSet(screens[i].name, attrs[10], screens[i].cursor_y);
     }
-  return(0);
+  return 0;
+}
+
+static int deleteScreens()
+{
+  int i;
+
+  for (i=0;i<SCREEN_COUNT;i++) {
+    sprintf(sockStr, "screen_del %s\n", screens[i].name);
+    sockSendStr(sockfd, sockStr);
+    }
+  return 0;
 }
 
 static int createWidgets()
@@ -492,7 +524,7 @@ static int loadFiles()
   char namebuf[25];
   
   if ((dp = opendir(EMC2_NCFILES_DIR)) == NULL) {
-    printf("Cannot open directory: %s\n", EMC2_NCFILES_DIR);
+    printf("Cannot open nc files folder: %s\n", EMC2_NCFILES_DIR);
     return -1;
     }
 
@@ -512,6 +544,201 @@ static int loadFiles()
     }
   return 0;
 }
+
+static int copyFiles(int fromUSB)
+{
+  char *usbPath = "/media/usbdisk/nc_files";
+  char *copyToStr = "cp *.nc /media/usbdisk/nc_files/";
+  char *copyFromStr = "cp /media/usbdisk/nc_files/*.nc ./";
+
+  if (opendir(usbPath) == NULL) {
+    printf("Cannot open thumb drive folder: %s\n", usbPath);
+    return -1;
+    }
+
+  if (opendir(EMC2_NCFILES_DIR) == NULL) {
+    printf("Cannot open nc files folder: %s\n", EMC2_NCFILES_DIR);
+    return -1;
+    }
+  chdir(EMC2_NCFILES_DIR);
+
+  if (fromUSB)
+    popen(copyFromStr, "r");
+  else 
+    popen(copyToStr, "r");
+
+  return 0;
+}
+
+static int loadNetworking()
+
+{
+  FILE *f;
+  char *pch;
+  char *delims = " :\n\r\0";
+  char *ipconfigstr = "ifconfig eth0 | grep \"inet addr\"";
+  char *ifacetypestr = "cat /etc/network/interfaces | grep \"iface eth0\"";
+  char *gatewaystr = "netstat -r | grep \"default\"";
+  char *dnsstr = "cat /etc/resolv.conf";
+
+  // Get interface type
+  memset(buffer, '\0', sizeof(buffer));
+  if ((f = popen(ifacetypestr, "r")) != NULL) {
+    if (fread(buffer, sizeof(char), sizeof(buffer), f) > 0) {
+      pch = strtok(buffer, delims);
+      pch = strtok(NULL, delims);
+      pch = strtok(NULL, delims);
+      if (strcmp(pch, "inet") == 0) {
+        pch = strtok(NULL, delims);
+        sprintf(sockStr, "menu_set_item tcpip addrtype -value {%d}\n", 
+          strcmp(pch, "dhcp")?1:0);
+        sockSendStr(sockfd, sockStr);
+        }
+      }
+    pclose(f);
+    } 
+
+  // Get ip address and netmask
+  memset(buffer, '\0', sizeof(buffer));
+  if ((f = popen(ipconfigstr, "r")) != NULL) {
+    if (fread(buffer, sizeof(char), sizeof(buffer), f) > 0) {
+      pch = strtok(buffer, delims);
+      pch = strtok(NULL, delims);
+      if (strcmp(pch, "addr") == 0) {
+        pch = strtok(NULL, delims);
+        sprintf(sockStr, "menu_set_item tcpip address -value {%s}\n", pch);
+        sockSendStr(sockfd, sockStr);
+        pch = strtok(NULL, delims);
+        if (strcmp(pch, "Bcast") == 0) {
+          pch = strtok(NULL, delims);
+          pch = strtok(NULL, delims);
+          if (strcmp(pch, "Mask:") == 0) {
+            pch = strtok(NULL, delims);
+            sprintf(sockStr, "menu_set_item tcpip netmask -value {%s}\n", pch);
+            sockSendStr(sockfd, sockStr);
+            }
+          }
+        }
+      }
+    pclose(f);
+    }
+
+  // Get gateway
+  memset(buffer, '\0', sizeof(buffer));
+  if ((f = popen(gatewaystr, "r")) != NULL) {
+    if (fread(buffer, sizeof(char), sizeof(buffer), f) > 0) {
+      pch = strtok(buffer, delims);
+      if (strcmp(pch, "default") == 0) {
+        pch = strtok(NULL, delims);
+        sprintf(sockStr, "menu_set_item tcpip gateway -value {%s}\n", pch);
+        sockSendStr(sockfd, sockStr);
+        }
+      }
+    pclose(f);
+    }
+
+  // Get DNS servers
+  memset(buffer, '\0', sizeof(buffer));
+  if ((f = popen(dnsstr, "r")) != NULL) {
+    if (fread(buffer, sizeof(char), sizeof(buffer), f) > 0) {
+      pch = strtok(buffer, delims);
+      if (strcmp(pch, "nameserver") == 0) {
+        pch = strtok(NULL, delims);
+        sprintf(sockStr, "menu_set_item tcpip dns1 -value {%s}\n", pch);
+        sockSendStr(sockfd, sockStr);
+        pch = strtok(NULL, delims);
+        if (strcmp(pch, "nameserver") == 0) {
+          pch = strtok(NULL, delims);
+          sprintf(sockStr, "menu_set_item tcpip dns2 -value {%s}\n", pch);
+          sockSendStr(sockfd, sockStr);
+          }
+        }
+      }
+    pclose(f);
+    }
+
+  return 0;
+}
+
+static int getStats()
+{
+  FILE *f;
+  char *pch;
+  char *delims = " k,\n\r\0";
+  char *diskStr = "df | grep \"/dev/hda1\"";
+  char *memStr = "top -n 1 -p 0 | grep \"Mem\"";
+  char *cpuStr = "top -n 1 -p 0 | grep \"Cpu\"";
+  int temp;
+  float tempr;
+  static int diskUsed, diskFree;
+  static int memUsed, memFree;
+  static int cpuUsed, cpuFree;
+
+  memset(buffer, '\0', sizeof(buffer));
+  if ((f = popen(diskStr, "r")) != NULL) {
+    if (fread(buffer, sizeof(char), sizeof(buffer), f) > 0) {
+      pch = strtok(buffer, delims);
+      pch = strtok(NULL, delims);
+      pch = strtok(NULL, delims);
+      temp = atoi(pch);
+      temp >>= 10;
+      diskUsed = widgetSetInt(33, temp, diskUsed);
+      pch = strtok(NULL, delims);
+      temp = atoi(pch);
+      temp >>= 10;
+      diskFree = widgetSetInt(34, temp, diskFree);
+      }
+    pclose(f);
+    } 
+
+  memset(buffer, '\0', sizeof(buffer));
+  if ((f = popen(memStr, "r")) != NULL) {
+    if (fread(buffer, sizeof(char), sizeof(buffer), f) > 0) {
+      pch = strtok(buffer, delims);
+      pch = strtok(NULL, delims);
+      pch = strtok(NULL, delims);
+      pch = strtok(NULL, delims);
+      pch = strtok(NULL, delims);
+      pch = strtok(NULL, delims);
+      temp = atoi(pch);
+      temp >>= 10;
+      memUsed = widgetSetInt(36, temp, memUsed);
+      pch = strtok(NULL, delims);
+      pch = strtok(NULL, delims);
+      pch = strtok(NULL, delims);
+      temp = atoi(pch);
+      temp >>= 10;
+      memFree = widgetSetInt(37, temp, memFree);
+      }
+    pclose(f);
+    } 
+
+  memset(buffer, '\0', sizeof(buffer));
+  if ((f = popen(cpuStr, "r")) != NULL) {
+    if (fread(buffer, sizeof(char), sizeof(buffer), f) > 0) {
+      pch = strtok(buffer, delims);
+      pch = strtok(NULL, delims);
+      pch = strtok(NULL, delims);
+      pch = strtok(NULL, delims);
+      pch = strtok(NULL, delims);
+      pch = strtok(NULL, delims);
+      pch = strtok(NULL, delims);
+      pch = strtok(NULL, delims);
+      pch = strtok(NULL, delims);
+      pch = strtok(NULL, delims);
+      pch = strtok(NULL, delims);
+      sscanf(pch, "%f", &tempr);
+      temp = (int)floor(tempr);
+      cpuUsed = widgetSetInt(40, temp, cpuUsed);
+      temp = 100 - temp;
+      cpuFree = widgetSetInt(39, temp, cpuFree);
+      }
+    pclose(f);
+    } 
+
+  return 0;
+}
+
 
 static void menuSetInt(char *menu, char *item, int value)
 {
@@ -538,12 +765,18 @@ static int createMenus()
   sockSendStr(sockfd, "menu_add_item File open menu {Open}\n");
   sockSendStr(sockfd, "menu_add_item File reload action {Reload}\n");
   sockSendStr(sockfd, "menu_add_item File delete action {Delete}\n");
+  sockSendStr(sockfd, "menu_add_item File import action {Copy Files In}\n");
+  sockSendStr(sockfd, "menu_add_item File export action {Copy Files Out}\n");
+  sockSendStr(sockfd, "menu_set_item File import -next _quit_\n");
+  sockSendStr(sockfd, "menu_set_item File export -next _quit_\n");
 
   sockSendStr(sockfd, "menu_add_item {} View menu {View}\n");
   sockSendStr(sockfd, 
     "menu_add_item View units_ring ring {Units} -strings {mm\tcm\tinch}\n");
   sockSendStr(sockfd, 
     "menu_add_item View coord_ring ring {Coord} -strings {abs\trel}\n");
+  sockSendStr(sockfd, "menu_add_item View stats action {Statistics}\n");
+  sockSendStr(sockfd, "menu_set_item View stats -next _quit_\n");
 
   sockSendStr(sockfd, "menu_add_item {} Run menu {Run}\n");
   sockSendStr(sockfd, "menu_add_item Run feed_slider slider {Feed Override} -mintext {0} -maxtext {125} -value {50}\n");
@@ -563,7 +796,7 @@ static int createMenus()
 
   sockSendStr(sockfd, "menu_add_item setup netname alpha {Network Name}\n");
   sockSendStr(sockfd, "menu_add_item setup tcpip menu {TCP/IP}\n");
-  sockSendStr(sockfd, "menu_add_item tcpip addrtype ring {Addr Type} -strings {Auto\tManual}\n");
+  sockSendStr(sockfd, "menu_add_item tcpip addrtype ring {Addr Type} -strings {dhcp\tstatic}\n");
   sockSendStr(sockfd, "menu_add_item tcpip address ip {IP Address} -v6 false -value {192.168.1.250}\n");
   sockSendStr(sockfd, "menu_add_item tcpip netmask ip {Subnet mask} -v6 false -value {255.255.255.0}\n");
   sockSendStr(sockfd, "menu_add_item tcpip gateway ip {Gateway} -v6 false -value {192.168.1.1}\n");
@@ -601,6 +834,7 @@ static screenType setNewScreen(screenType screenNo)
   static char *background = "background";
   static char *foreground = "foreground";
 
+  printf("Old Screen: %s New Screen: %s\n", screens[curScreen].name, screens[screenNo].name);
   strScreenSet(screens[curScreen].name, attrs[3], background);
   strScreenSet(screens[screenNo].name, attrs[3], foreground);
   return(screenNo);
@@ -684,7 +918,6 @@ static int openProgram(char *s)
   char fname[255];
 
   sprintf(fname, "%s/%s.ngc", EMC2_NCFILES_DIR, s);
-//  sprintf(fname, "../../nc_files/%s.ngc\n", s);
   widgetSetStr(PROG_WIDGET1, s, "");
   widgetSetStr(PROG_WIDGET2, s, "");
   if (sendTaskPlanInit() != 0) return -1;
@@ -735,15 +968,28 @@ static int selectEvent()
   char *pch;
 
   pch = strtok(NULL, delims);
+  printf("menu2: %s pch: %s\n", menu2, pch);
   if (strcmp(menu2, "open") == 0)
     if (openProgram(pch) == -1) {
       printf("Failed to open program\n"); 
       return -1;
       }
+  if (strcmp(pch, "import") == 0) {
+    copyFrom = 1;
+    curScreen = setNewScreen(stCopy);
+    }
+  if (strcmp(pch, "export") == 0) {
+    copyFrom = 0;
+    printf("Exporting files\n");
+    }
   if (strcmp(pch, "posdisplay") == 0)
     curScreen = setNewScreen(stMain);
   if (strcmp(pch, "sumdisplay") == 0)
     curScreen = setNewScreen(stMain2);
+  if (strcmp(pch, "stats") == 0) {
+    getStats();
+    curScreen = setNewScreen(stStats);
+    }
 
   return 0;
 }
@@ -761,17 +1007,17 @@ static int updateEvent()
         case 0: 
           linearUnitConversion = LINEAR_UNITS_MM; 
           units = unmm;
-          conversion = 25.4;
+//          conversion = 25.4;
           break;
         case 1: 
           linearUnitConversion = LINEAR_UNITS_CM; 
           units = uncm;
-          conversion = 2.54;
+//          conversion = 2.54;
           break;
         case 2: 
           linearUnitConversion = LINEAR_UNITS_INCH; 
           units = unInch;
-          conversion = 1.0;
+//          conversion = 1.0;
           break;
         }
     }
@@ -1032,9 +1278,22 @@ static int prevKey()
 
 static int enterKey()
 {
-  sendHome(0);
-  sendHome(1);
-  sendHome(2);
+  switch (curScreen) {
+    case stStartup: break;
+    case stMain:
+      sendHome(0);
+      sendHome(1);
+      sendHome(2);
+      break;
+    case stOpen: break;
+    case stMain2: break;
+    case stStats:
+      setNewScreen(stMain);
+      break;
+    case stCopy: setNewScreen(stCopying); break;
+    case stCopying: copyFiles(copyFrom); break;
+    case stUnknown: break;
+    }
   return 0;
 }
 
@@ -1101,6 +1360,20 @@ static int doKey(keyType k)
       enterKey();
       break;
     case ktEnterRelease: break;
+    case ktEStopPress: 
+      if (emcStatus->task.state == EMC_TASK_STATE_ESTOP)
+        sendEstopReset();
+      else
+        sendEstop();
+      break;
+    case ktEStopRelease: break;
+    case ktPowerPress: 
+      if (emcStatus->task.state == EMC_TASK_STATE_ON)
+        sendMachineOff();
+      else
+        sendMachineOn();
+      break;
+    case ktPowerRelease: break;
     case ktUnknown: ;
     }
   return 0;
@@ -1116,25 +1389,20 @@ static int parseLine()
     case rmSuccess: ; break;
     case rmHuh:
       pch = strtok(NULL, delims);
-//      printf("Error: %s\n", pch); 
       break;
     case rmListen:
       pch = strtok(NULL, delims);
-//      printf("listening to %s\n", pch); 
       curScreen = lookupScreen(pch);
       break;
     case rmIgnore: 
       pch = strtok(NULL, delims);
-//      printf("ignoring %s\n", pch); 
       break;
     case rmKey: 
       pch = strtok(NULL, delims);
-//      printf("key entered %s\n", pch);
       doKey(lookupKey(pch));
       break;
     case rmMenuEvent: 
       pch = strtok(NULL, delims);
-//      printf("menuevent %s\n", pch);
       doMenuEvent(pch);
       break;
     case rmUnknown: printf("unknown command %s\n", buffer);
@@ -1144,7 +1412,7 @@ static int parseLine()
 
 static int startup()
 {
-  return sockConnect(DEFAULT_SERVER, DEFAULT_PORT);
+  return sockConnect(server, port);
 }
 
 static int initScreens()
@@ -1217,14 +1485,24 @@ static void slowLoop()
         runStatus = rsPause;
         break;
       default:
-        if (emcStatus->task.mode == EMC_TASK_MODE_MANUAL) {          
-          strcpy(status, widgetSetStr(STATUSWIDGET, "  Man", status));
-            widgetSetStr(JOG_WIDGET, "Jog ", "");
+        if (emcStatus->task.state == EMC_TASK_STATE_ESTOP) {
+          strcpy(status, widgetSetStr(STATUSWIDGET, "EStop", status));
+          widgetSetStr(JOG_WIDGET, "    ", "");
           }
-        else {
-          strcpy(status, widgetSetStr(STATUSWIDGET, " Idle", status));
+        else
+          if (emcStatus->task.state != EMC_TASK_STATE_ON) {
+            strcpy(status, widgetSetStr(STATUSWIDGET, "  Off", status));
             widgetSetStr(JOG_WIDGET, "    ", "");
-          }
+            }
+          else
+            if (emcStatus->task.mode == EMC_TASK_MODE_MANUAL) {          
+              strcpy(status, widgetSetStr(STATUSWIDGET, "  Man", status));
+              widgetSetStr(JOG_WIDGET, "Jog ", "");
+              }
+            else {
+              strcpy(status, widgetSetStr(STATUSWIDGET, " Idle", status));
+              widgetSetStr(JOG_WIDGET, "    ", "");
+              }
         displayJogMode(jogMode);
         runStatus = rsIdle;
         break;
@@ -1248,6 +1526,13 @@ static void updatePositions()
   int stepPct;
   static int oldPct = 0;
 
+  switch (linearUnitConversion) {
+    case LINEAR_UNITS_INCH: conversion = 1.0; break;
+    case LINEAR_UNITS_MM: conversion = 25.4; break;
+    case LINEAR_UNITS_CM: conversion = 2.54; break;
+    case LINEAR_UNITS_CUSTOM: break;
+    case LINEAR_UNITS_AUTO: break;
+    }
   if (units == unmm)
     sprintf(numStr, "%7.2f", emcStatus->motion.traj.actualPosition.tran.x * conversion);
   else
@@ -1307,6 +1592,43 @@ static void update()
   tics++;
 }
 
+static void thisQuit()
+{
+    EMC_NULL emc_null_msg;
+
+    deleteScreens();
+
+    if (emcStatusBuffer != 0) {
+	// wait until current message has been received
+	emcCommandWaitReceived(emcCommandSerialNumber);
+    }
+
+    if (emcCommandBuffer != 0) {
+	// send null message to reset serial number to original
+	emc_null_msg.serial_number = saveEmcCommandSerialNumber;
+	emcCommandBuffer->write(emc_null_msg);
+    }
+    // clean up NML buffers
+
+    if (emcErrorBuffer != 0) {
+	delete emcErrorBuffer;
+	emcErrorBuffer = 0;
+    }
+
+    if (emcStatusBuffer != 0) {
+	delete emcStatusBuffer;
+	emcStatusBuffer = 0;
+	emcStatus = 0;
+    }
+
+    if (emcCommandBuffer != 0) {
+	delete emcCommandBuffer;
+	emcCommandBuffer = 0;
+    }
+
+    exit(0);
+}
+
 static int sockMain()
 {
 
@@ -1315,25 +1637,39 @@ static int sockMain()
     printf("Unable to open socket\n");
     return -1;
     }
-  else { 
-    sendEstopReset();
-    sendMachineOn();
+  else {
+    if (autoStart) { 
+      sendEstopReset();
+      sendMachineOn();
+      }
     sockSendStr(sockfd, "hello\n");
     while ((len = sockRecvString(sockfd, buffer, sizeof(buffer) - 1)) >= 0) {
       if (len == 0) {
+        if (quitting) break;
         preciseSleep(0.01);
         update();
         }
       else {
         parseLine();
         memset(buffer, 0, sizeof(buffer));
-        if (screensInitialized == -1) 
+        if (screensInitialized == -1) {
           screensInitialized = initScreens();
+          loadNetworking();
+          }
         }
-      } 
+      }
+    thisQuit();      
+    sockClose(sockfd);
     }
   return 0;
 }
+
+static void sigQuit(int sig)
+{
+
+  quitting = 1;
+}
+
 
 static void initMain()
 {
@@ -1358,7 +1694,23 @@ static void initMain()
 
 int main(int argc, char *argv[])
 {
+    int opt;
+
     initMain();
+    printf("emclcd starting\n");
+
+    // process local arguments
+    strncpy(server, DEFAULT_SERVER, strlen(DEFAULT_SERVER) + 1);
+    while((opt = getopt_long(argc, argv, "p:d:a", longopts, NULL)) != -1) {
+      switch(opt) {
+        case 'a': autoStart = 1; break;
+        case 'd': strncpy(driver, optarg, strlen(optarg) + 1); break;
+        case 'p': sscanf(optarg, "%d", &port); break;
+        case 's': strncpy(server, optarg, strlen(optarg) + 1); break;
+        case 'w': sscanf(optarg, "%f", &delay); break;
+        }
+      }
+
     // process command line args
     if (emcGetArgs(argc, argv) != 0) {
 	rcs_print_error("error in argument list\n");
@@ -1378,14 +1730,9 @@ int main(int argc, char *argv[])
     emcCommandSerialNumber = emcStatus->echo_serial_number;
     saveEmcCommandSerialNumber = emcStatus->echo_serial_number;
 
-    // attach our quit function to exit
-//    Tcl_CreateExitHandler(thisQuit, (ClientData) 0);
-
     // attach our quit function to SIGINT
-    signal(SIGINT, sigQuit);
+    signal(SIGTERM, sigQuit);
     sockMain();
-
-    // TclX_Main(argc, argv, Tcl_AppInit);
 
     return 0;
 }
