@@ -77,7 +77,8 @@ install: build
 	-rm debian/tmp/etc/emc2/sample-configs/*/*position*.txt
 	dh_movefiles
 	if [ `find debian/tmp -type f | wc -c` != 0 ]; then \
-		echo "Files exist in debian/tmp, but should not"; \
+		echo "Files exist in debian/tmp, but should not:"; \
+		find debian/tmp -type f; \
 		exit 1; \
 	fi
 
