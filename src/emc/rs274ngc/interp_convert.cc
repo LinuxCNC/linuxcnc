@@ -145,21 +145,45 @@ int Interp::convert_arc(int move,        //!< either G_2 (cw arc) or G_3 (ccw ar
     if (settings->plane == CANON_PLANE_XY) {
       CHK((block->k_flag), NCE_K_WORD_GIVEN_FOR_ARC_IN_XY_PLANE);
       if (block->i_flag == OFF) /* i or j flag on to get here */
-        block->i_number = 0.0;
+	if (settings->ijk_distance_mode == MODE_ABSOLUTE) {
+	  ERF(("%c word missing in absolute center arc", 'I'));
+	} else {
+	  block->i_number = 0.0;
+	}
       else if (block->j_flag == OFF)
-        block->j_number = 0.0;
+	if (settings->ijk_distance_mode == MODE_ABSOLUTE) {
+	  ERF(("%c word missing in absolute center arc", 'J'));
+	} else {
+	  block->j_number = 0.0;
+	}
     } else if (settings->plane == CANON_PLANE_YZ) {
       CHK((block->i_flag), NCE_I_WORD_GIVEN_FOR_ARC_IN_YZ_PLANE);
       if (block->j_flag == OFF) /* j or k flag on to get here */
-        block->j_number = 0.0;
+	if (settings->ijk_distance_mode == MODE_ABSOLUTE) {
+	  ERF(("%c word missing in absolute center arc", 'J'));
+	} else {
+	  block->j_number = 0.0;
+	}
       else if (block->k_flag == OFF)
-        block->k_number = 0.0;
+	if (settings->ijk_distance_mode == MODE_ABSOLUTE) {
+	  ERF(("%c word missing in absolute center arc", 'K'));
+	} else {
+	  block->k_number = 0.0;
+	}
     } else if (settings->plane == CANON_PLANE_XZ) {
       CHK((block->j_flag), NCE_J_WORD_GIVEN_FOR_ARC_IN_XZ_PLANE);
       if (block->i_flag == OFF) /* i or k flag on to get here */
-        block->i_number = 0.0;
+	if (settings->ijk_distance_mode == MODE_ABSOLUTE) {
+	  ERF(("%c word missing in absolute center arc", 'I'));
+	} else {
+	  block->i_number = 0.0;
+	}
       else if (block->k_flag == OFF)
-        block->k_number = 0.0;
+	if (settings->ijk_distance_mode == MODE_ABSOLUTE) {
+	  ERF(("%c word missing in absolute center arc", 'K'));
+	} else {
+	  block->k_number = 0.0;
+	}
     } else
       ERM(NCE_BUG_PLANE_NOT_XY_YZ_OR_XZ);
   } else {
