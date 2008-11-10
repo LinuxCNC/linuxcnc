@@ -5010,6 +5010,19 @@ G18
 G19
 \family default 
  (X-axis, YZ-plane).
+ Planes 
+\family typewriter 
+17.1
+\family default 
+, 
+\family typewriter 
+18.1
+\family default 
+, and 
+\family typewriter 
+19.1
+\family default 
+ are not currently supported.
  If the arc is circular, it lies in a plane parallel to the selected plane.
 \layout Standard
 
@@ -5328,6 +5341,15 @@ G59.3
  the given values (in terms of the unoffset machine coordinate system).
  Only those coordinates for which an axis word is included on the line will
  be set.
+ Being in incremental distance mode (
+\family typewriter 
+G91
+\family default 
+) has no effect on 
+\family typewriter 
+G10 L2
+\family default 
+.
 \layout Standard
 
 It is an error if: 
@@ -5372,7 +5394,7 @@ G54
  and Y; the other coordinates are not changed.
 \layout Section
 
-G17, G18, G19 Plane Selection
+G17, G18, G19, G17.1, G18.1, G19.1 Plane Selection
 \begin_inset LatexCommand \index{G17, G18, G19 Plane Selection}
 
 \end_inset 
@@ -5385,9 +5407,131 @@ G17, G18, G19 Plane Selection
 
 \layout Standard
 
-Program G17 to select the XY-plane, G18 to select the XZ-plane, or G19 to
- select the YZ-plane.
- The effects of having a plane selected are discussed in Section 
+These codes set the current plane as follows:
+\layout Standard
+
+
+\begin_inset  Tabular
+<lyxtabular version="3" rows="6" columns="2">
+<features>
+<column alignment="left" valignment="top" leftline="true" width="0">
+<column alignment="left" valignment="top" leftline="true" rightline="true" width="0">
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+G17
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+XY (default)
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+G18
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+ZX
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+G19
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+YZ
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+G17.1
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+UV
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+G18.1
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+WU
+\end_inset 
+</cell>
+</row>
+<row topline="true" bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+G19.1
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+VW
+\end_inset 
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset 
+
+
+\layout Standard
+
+The effects of having a plane selected are discussed in Section 
 \begin_inset LatexCommand \ref{sub:G2,-G3:-Arc}
 
 \end_inset 
@@ -6823,7 +6967,7 @@ G81
 \family typewriter 
 G89
 \family default 
- have been implemented as described in this section.
+ are described in this section.
  Two examples are given with the description of 
 \family typewriter 
 G81
@@ -6831,11 +6975,19 @@ G81
  below.
 \layout Standard
 
-All canned cycles are performed with respect to the currently selected plane.
- Any of the three planes (XY, YZ, ZX) may be selected.
+All canned cycles are performed with respect to the currently-selected plane.
+ Any of the six planes may be selected.
  Throughout this section, most of the descriptions assume the XY-plane has
  been selected.
- The behavior is always analogous if the YZ or XZ-plane is selected.
+ The behavior is analogous if another plane is selected, and the correct
+ words must be used.
+ For instance, in the 
+\family typewriter 
+G17.1
+\family default 
+ plane, the action of the canned cycle is along W, and the locations or
+ increments are given with U and V.
+ In this case substitute U,V,W for X,Y,Z in the instructions below.
 \layout Standard
 
 Rotational axis words are allowed in canned cycles, but it is better to
@@ -6847,12 +6999,10 @@ Rotational axis words are allowed in canned cycles, but it is better to
 Common Words
 \layout Standard
 
-All canned cycles use X, Y, R, and Z numbers in the NC code.
- These numbers are used to determine X, Y, R, and Z positions.
+All canned cycles use X, Y, R, and Z words.
  The R (usually meaning retract) position is along the axis perpendicular
- to the currently selected plane (Z-axis for XY-plane, X-axis for YZ-plane,
- Y-axis for XZ-plane).
- Some canned cycles use additional arguments.
+ to the currently selected plane (Z-axis for XY-plane, etc.) Some canned
+ cycles use additional arguments.
 \layout Subsection
 
 Sticky Words
@@ -6874,10 +7024,9 @@ sticky
  The R number is always sticky.
 \layout Standard
 
-In incremental distance mode: when the XY-plane is selected, X, Y, and R
- numbers are treated as increments to the current position and Z as an increment
- from the Z-axis position before the move involving Z takes place; when
- the YZ or XZ-plane is selected, treatment of the axis words is analogous.
+In incremental distance mode X, Y, and R numbers are treated as increments
+ from the current position and Z as an increment from the Z-axis position
+ before the move involving Z takes place.
  In absolute distance mode, the X, Y, R, and Z numbers are absolute positions
  in the current coordinate system.
 \layout Standard
@@ -6922,6 +7071,12 @@ When
  determined by adding the given X and Y numbers either to the current X
  and Y positions (on the first go-around) or to the X and Y positions at
  the end of the previous go-around (on the repetitions).
+ Thus, if you program 
+\family typewriter 
+L10
+\family default 
+, you will get 10 cycles.
+ The first cycle will be distance X,Y from the original location.
  The R and Z positions do not change during the repeats.
 \layout Subsection
 
@@ -6975,8 +7130,8 @@ inverse time feed rate is active during a canned cycle,
 or cutter radius compensation is active during a canned cycle.
 \layout Standard
 
-When the XY plane is active, the Z number is sticky, and it is an error
- if: 
+If the XY plane is active, the Z number is sticky, and it is an error if:
+ 
 \layout Itemize
 
 the Z number is missing and the same canned cycle was not already active,
@@ -6986,34 +7141,16 @@ the Z number is missing and the same canned cycle was not already active,
 or the R number is less than the Z number.
 \layout Standard
 
-When the XZ plane is active, the Y number is sticky, and it is an error
- if: 
-\layout Itemize
-
-the Y number is missing and the same canned cycle was not already active,
- 
-\layout Itemize
-
-or the R number is less than the Y number.
-\layout Standard
-
-When the YZ plane is active, the X number is sticky, and it is an error
- if: 
-\layout Itemize
-
-the X number is missing and the same canned cycle was not already active,
- 
-\layout Itemize
-
-or the R number is less than the X number.
+If other planes are active, the error conditions are analogous to the XY
+ conditions above.
 \layout Subsection
 
 Preliminary and In-Between Motion
 \layout Standard
 
-At the very beginning of the execution of any of the canned cycles, with
- the XY-plane selected, if the current Z position is below the R position,
- the Z-axis is traversed to the R position.
+At the very beginning of the execution of any of the canned cycles, if the
+ current Z position is below the R position, the Z-axis is traversed to
+ the R position.
  This happens only once, regardless of the value of L.
 \layout Standard
 
@@ -7029,8 +7166,7 @@ a straight traverse of the Z-axis only to the R position, if it is not already
  
 \layout Standard
 
-If the XZ or YZ plane is active, the preliminary and in-between motions
- are analogous.
+If another plane is active, the preliminary and in-between motions are analogous.
  
 \layout Section
 
@@ -7492,8 +7628,8 @@ To go into absolute distance mode, program
 G90
 \family default 
 .
- In absolute distance mode, axis numbers (X, Y, Z, A, B, C) usually represent
- positions in terms of the currently active coordinate system.
+ In absolute distance mode, axis numbers (X, Y, Z, A, B, C, U, V, W) usually
+ represent positions in terms of the currently active coordinate system.
  Any exceptions to that rule are described explicitly in this Section 
 \begin_inset LatexCommand \ref{sub:G81-to-G89:}
 
@@ -7507,19 +7643,8 @@ To go into incremental distance mode, program
 G91
 \family default 
 .
- In incremental distance mode, axis numbers (X, Y, Z, A, B, C) usually represent
- increments from the current values of the numbers.
-\layout Standard
-
-I and J numbers always represent increments, regardless of the distance
- mode setting.
- K numbers represent increments in all but one usage (see Section 
-\begin_inset LatexCommand \ref{sub:G87:-Back-Boring}
-
-\end_inset 
-
-), where the meaning changes with distance mode.
- 
+ In incremental distance mode, axis numbers usually represent increments
+ from the current coordinate.
 \layout Section
 
 G92, G92.1, G92.2, G92.3 Coordinate System Offsets
@@ -7554,7 +7679,7 @@ See Section
 To make the current point have the coordinates you want (without motion),
  program 
 \family typewriter 
-G92 X- Y- Z- A- B- C- 
+G92 X- Y- Z- A- B- C- U- V- W- 
 \family default 
 , where the axis words contain the axis numbers you want.
  All axis words are optional, except that at least one must be used.
@@ -7570,41 +7695,27 @@ When
 \family typewriter 
 G92
 \family default 
- is executed, the origin of the currently active coordinate system moves.
- To do this, origin offsets are calculated so that the coordinates of the
- current point with respect to the moved origin are as specified on the
- line containing the G92.
- In addition, parameters 5211 to 5216 are set to the X, Y, Z, A, B, and
- C-axis offsets.
- The offset for an axis is the amount the origin must be moved so that the
- coordinate of the controlled point on the axis has the specified value.
+ is executed, the origins of all coordinate systems move.
+ They move such that the value of the current controlled point, in the currently
+ active coordinate system, becomes the specified value.
+ All coordinate systems' origins are offset this same distance.
+ 
 \layout Standard
 
-Here is an example.
- Suppose the current point is at X=4 in the currently specified coordinate
- system and the current X-axis offset is zero, then 
-\family typewriter 
-G92 x7
-\family default 
- sets the X-axis offset to -3, sets parameter 5211 to -3, and causes the
- X-coordinate of the current point to be 7.
-\layout Standard
-
-The axis offsets are always used when motion is specified in absolute distance
- mode using any of the nine coordinate systems (those designated by 
-\family typewriter 
-G54
-\family default 
- - 
-\family typewriter 
-G59.3
-\family default 
-).
- Thus all nine coordinate systems are affected by 
+For example, suppose the current point is at X=4 and there is currently
+ no 
 \family typewriter 
 G92
 \family default 
-.
+ offset active.
+ Then 
+\family typewriter 
+G92 x7
+\family default 
+ is programmed.
+ This moves all origins -3 in X, which causes the current point to become
+ X=7.
+ This -3 is saved in parameter 5211.
 \layout Standard
 
 Being in incremental distance mode has no effect on the action of 
@@ -7614,25 +7725,17 @@ G92
 .
 \layout Standard
 
-Non-zero offsets may be already be in effect when the 
+
+\family typewriter 
+G92
+\family default 
+ offsets may be already be in effect when the 
 \family typewriter 
 G92
 \family default 
  is called.
- If this is the case, the new value of each offset is A+B, where A is what
- the offset would be if the old offset were zero, and B is the old offset.
- For example, after the previous example, the X-value of the current point
- is 7.
- If 
-\family typewriter 
-G92 x9
-\family default 
- is then programmed, the new X-axis offset is -5, which is calculated by
- 
-\family typewriter 
-[[7-9] + -3]
-\family default 
-.
+ If this is the case, the offset is replaced with a new offset that makes
+ the current point become the specified value.
 \layout Standard
 
 To reset axis offsets to zero, program 
@@ -7648,15 +7751,15 @@ G92.2
 \family typewriter 
 G92.1
 \family default 
- sets parameters 5211 to 5216 to zero, whereas 
+ sets parameters 5211 to 5219 to zero, whereas 
 \family typewriter 
 G92.2
 \family default 
  leaves their current values alone.
 \layout Standard
 
-To set the axis offset values to the values given in parameters 5211 to
- 5216, program 
+To set the axis offset to the values saved in parameters 5211 to 5219, program
+ 
 \family typewriter 
 G92.3
 \family default 
@@ -7684,9 +7787,6 @@ G92.3
 \family default 
  near the beginning of the second program.
  That will restore the offsets saved in the first program.
- If other programs are to run between the the program that sets the offsets
- and the one that restores them, make a copy of the parameter file written
- by the first program and use it as the parameter file for the second program.
  
 \layout Section
 
