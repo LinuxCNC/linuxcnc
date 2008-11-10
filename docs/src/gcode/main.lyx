@@ -5308,16 +5308,14 @@ The RS274/NGC language view of coordinate systems is described in Section
 .
 \layout Standard
 
-To set the coordinate values for the origin of a coordinate system, program
- 
+To set the origin of a coordinate system, program 
 \family typewriter 
 G10 L2 P- 
 \emph on 
 axes
 \family default 
 \emph default 
-, where the P number must evaluate to an integer in the range 1 to 9 (correspond
-ing to 
+, where the P number is in the range 1 to 9 (corresponding to 
 \family typewriter 
 G54
 \family default 
@@ -5326,11 +5324,10 @@ G54
 G59.3
 \family default 
 ) and all axis words are optional.
- The coordinates of the origin of the coordinate system specified by the
- P number are reset to the coordinate values given (in terms of the absolute
- coordinate system).
+ The origin of the coordinate system specified by the P number is set to
+ the given values (in terms of the unoffset machine coordinate system).
  Only those coordinates for which an axis word is included on the line will
- be reset.
+ be set.
 \layout Standard
 
 It is an error if: 
@@ -5339,39 +5336,40 @@ It is an error if:
 the P number does not evaluate to an integer in the range 1 to 9.
 \layout Standard
 
-If origin offsets (made by 
+If a 
 \family typewriter 
 G92
 \family default 
- or 
+ origin offset was in effect before 
 \family typewriter 
-G92.3
+G10 L2
 \family default 
-) were in effect before 
+, it will continue to be in effect afterwards.
+\layout Standard
+
+The coordinate system whose origin is set by a 
 \family typewriter 
 G10
 \family default 
- is used, they will continue to be in effect afterwards.
-\layout Standard
-
-The coordinate system whose origin is set by a G10 command may be active
- or inactive at the time the 
+ command may be active or inactive at the time the 
 \family typewriter 
 G10
 \family default 
  is executed.
+ If it is currently active, the new coordinates take effect immediately.
 \layout Standard
 
 Example: 
 \family typewriter 
 G10 L2 P1 x 3.5 y 17.2
 \family default 
- sets the origin of the first coordinate system (the one selected by G54)
- to a point where X is 3.5 and Y is 17.2 (in absolute coordinates).
- The Z coordinate of the origin (and the coordinates for any rotational
- axes) are whatever those coordinates of the origin were before the line
- was executed.
- 
+ sets the origin of the first coordinate system (the one selected by 
+\family typewriter 
+G54
+\family default 
+) to be X=3.5 and Y=17.2.
+ Because only X and Y are specified, the origin point is only moved in X
+ and Y; the other coordinates are not changed.
 \layout Section
 
 G17, G18, G19 Plane Selection
