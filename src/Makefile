@@ -58,7 +58,7 @@ endif
 endif
 
 # list of supported hostmot2 boards
-HM2_BOARDS = 5i20 7i43
+HM2_BOARDS = 4i65 4i68 5i20 5i22 5i23 7i43
 
 # trick dumb editors into knowing what's going on
 .PHONY: entering
