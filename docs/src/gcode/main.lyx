@@ -321,7 +321,7 @@ Words and their meanings
 
 
 \layout Standard
-
+\align center 
 
 \begin_inset  Tabular
 <lyxtabular version="3" rows="26" columns="2">
@@ -996,7 +996,7 @@ Declaration of named global variable
  
 \layout Itemize
 
-Reference to previously declared global varaiable
+Reference to previously declared global variable
 \layout Standard
 
 
@@ -1006,7 +1006,7 @@ Reference to previously declared global varaiable
  
 \layout Itemize
 
-Mixed literal and named params
+Mixed literal and named parameters
 \layout Standard
 
 
@@ -1933,7 +1933,7 @@ Inside the above types of comments, sequences like
 #<named parameter>
 \family default 
  are replaced by the value of the named parameter.
- Remember that named parameters will have whitespace removed from them.
+ Remember that named parameters will have white space removed from them.
  So, 
 \family typewriter 
 #<named parameter>
@@ -2728,7 +2728,7 @@ Use consistent white space
 \layout Standard
 
 G-code is most legible when at least one space appears before words.
- While it is permitted to insert whitespace in the middle of numbers, there
+ While it is permitted to insert white space in the middle of numbers, there
  is no reason to do so.
 \layout Section
 
@@ -2838,7 +2838,7 @@ G codes of the RS274/NGC language are shown in Table 5 and described following
  that.
 \layout Standard
 
-In the command prototypes, the hypen (
+In the command prototypes, the hyphen (
 \family typewriter 
 -
 \family default 
@@ -3481,7 +3481,7 @@ G40
 
 \layout Standard
 
-Cancel Cutter Compenstation
+Cancel Cutter Compensation
 \end_inset 
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
@@ -3520,7 +3520,7 @@ G41, G42
 
 \layout Standard
 
-Cutter Compenstation 
+Cutter Compensation 
 \end_inset 
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
@@ -3598,7 +3598,7 @@ G43
 
 \layout Standard
 
-Use Tool Lenght Offset from Tool Table
+Use Tool Length Offset from Tool Table
 \end_inset 
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
@@ -3637,7 +3637,7 @@ G49
 
 \layout Standard
 
-Cancel Tool Lenght Offset
+Cancel Tool Length Offset
 \end_inset 
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
@@ -3949,7 +3949,7 @@ G80
 
 \layout Standard
 
-Cancle Motion Modes
+Cancel Motion Modes
 \end_inset 
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
@@ -5338,7 +5338,7 @@ G59.3
 \family default 
 ) and all axis words are optional.
  The origin of the coordinate system specified by the P number is set to
- the given values (in terms of the unoffset machine coordinate system).
+ the given values (in terms of the not offset machine coordinate system).
  Only those coordinates for which an axis word is included on the line will
  be set.
  Being in incremental distance mode (
@@ -5819,7 +5819,7 @@ In response to this command, the machine moves the controlled point (which
  The move stops when the programmed point is reached, or when the requested
  change in the probe input takes place
 \begin_inset Foot
-collapsed true
+collapsed false
 
 \layout Standard
 
@@ -6050,7 +6050,7 @@ After successful probing, parameters 5061 to 5069 will be set to the coordinates
  of the location of the controlled point at the time the probe changed state.
  After unsuccessful probing, they are set to the coordinates of the programmed
  point.
- Parameter 5070 is set to 1 if the probe suceeded and 0 if the probe failed.
+ Parameter 5070 is set to 1 if the probe succeeded and 0 if the probe failed.
  If the probe failed, G38.2 and G38.4 will signal an error.
 \layout Standard
 
@@ -6452,7 +6452,7 @@ G64 P-
  P- away from the programmed endpoint.
   In addition, when  you activate G64 P- it turns on the "naive cam detector";
  when there are a series of linear XYZ feed moves at the same feed rate
- that are less than P- away from being colinear, they are collapsed into
+ that are less than P- away from being collinear, they are collapsed into
  a single linear move.
  On G2/3 moves in the G17 (XY) plane when the maximum deviation of an arc
  from a straight line is less than the G64 P- tolerance the arc is broken
@@ -6569,7 +6569,7 @@ The
 \family typewriter 
 R-
 \family default 
- degression value is less than 1.0.
+ digression value is less than 1.0.
 \layout Itemize
 
 All the required words are not specified
@@ -6752,7 +6752,7 @@ The
 \begin_inset Quotes eld
 \end_inset 
 
-depth degression
+depth digression
 \begin_inset Quotes erd
 \end_inset 
 
@@ -6773,7 +6773,7 @@ R2.0
  selects constant area.
  Values between 1.0 and 2.0 select decreasing depth but increasing area.
  Values above 2.0 select decreasing area.
- Beware that unnecessarily high degression values will cause a large number
+ Beware that unnecessarily high digression values will cause a large number
  of passes to be used.
 \layout Standard
 
@@ -7645,6 +7645,25 @@ G91
 .
  In incremental distance mode, axis numbers usually represent increments
  from the current coordinate.
+\layout Section
+
+G90.1, G91.1 Distance Mode (I, J & K)
+\layout Standard
+
+Note: This feature is currently being developed and may not be fully implemented.
+\layout Standard
+
+G90.1 Absolute Distance Mode for I, J & K offsets.
+ 
+\layout Itemize
+
+I and J both must be specified or it is an error
+\layout Standard
+
+G91.1 Incremental Distance Mode for I, J & K offsets.
+\layout Itemize
+
+Returns I, J & K to their normal behaviour.
 \layout Section
 
 G92, G92.1, G92.2, G92.3 Coordinate System Offsets
@@ -8871,7 +8890,7 @@ repeat
 \begin_inset Quotes erd
 \end_inset 
 
- will execute the statements inside of the repeat/endrepeat the specificed
+ will execute the statements inside of the repeat/endrepeat the specified
  number of times.
  The example shows how you might mill a diagonal series of shapes starting
  at the present position.
@@ -9128,9 +9147,6 @@ On some machines, the carousel will move when a T word is programmed, at
  the next tool to be used on the line after a tool change.
  This maximizes the time available for the carousel to move.
  
-\layout Standard
-
-xxxx
 \layout Chapter
 
 Differences between EMC2 gcode and RS274NGC
@@ -9186,7 +9202,7 @@ G84, G87 not implemented
 \layout Standard
 
 G84 and G87 are not currently implemented, but may be added to a future
- release of emc2.
+ release of EMC2.
 \layout Subsection
 
 G28, G30 with axis words
@@ -9216,7 +9232,7 @@ M62, M63 not implemented
 \layout Standard
 
 M62 and M63 are not currently implemented, but may be added to a future
- release of emc2.
+ release of EMC2.
 \layout Section
 
 Differences that do not change the meaning of well-formed RS274NGC programs
@@ -9232,7 +9248,7 @@ G38.2
 \layout Standard
 
 The probe tip is not retracted after a G38.2 movement.
- This retraction move may be added in a future release of emc2.
+ This retraction move may be added in a future release of EMC2.
 \layout Subsection
 
 G38.3\SpecialChar \ldots{}
