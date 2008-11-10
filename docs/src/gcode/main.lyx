@@ -7773,7 +7773,7 @@ You can set axis offsets in one program and use the same offsets in another
 G92
 \family default 
  in the first program.
- This will set parameters 5211 to 5216.
+ This will set parameters 5211 to 5219.
  Do not use 
 \family typewriter 
 G92.1
