@@ -10,6 +10,9 @@
 #
 # it is configured with environment variables:
 #
+#     HM2_DRIVER_0 and HM2_DRIVER_1 are the board types, ie "hm2_7i43" or
+#         "hm2_pci".  The two driver types must be different.
+#
 #     HM2_BOARD_0 and HM2_BOARD_1 are the board types, ie "7i43" or "5i20".
 #         The two board types must be different.
 #
@@ -31,8 +34,8 @@ loadrt hostmot2 debug_idrom=1 debug_module_descriptors=1 debug_pin_descriptors=1
 # load the low-level drivers for the boards
 # this will load the boards' firmware and register them with the hostmot2
 # driver loaded above, and they'll show up in HAL
-loadrt hm2_$(HM2_BOARD_0) config="$(HM2_CONFIG_0)"
-loadrt hm2_$(HM2_BOARD_1) config="$(HM2_CONFIG_1)"
+loadrt $(HM2_DRIVER_0) config="$(HM2_CONFIG_0)"
+loadrt $(HM2_DRIVER_1) config="$(HM2_CONFIG_1)"
 
 
 
@@ -51,8 +54,8 @@ setp hm2_$(HM2_BOARD_1).0.watchdog.timeout_ns 10000000
 #
 
 setp  hm2_$(HM2_BOARD_0).0.encoder.00.scale  -1024
-setp  hm2_$(HM2_BOARD_0).0.encoder.01.scale  -2048
-setp  hm2_$(HM2_BOARD_0).0.encoder.02.scale  -2048
+setp  hm2_$(HM2_BOARD_0).0.encoder.01.scale  2048
+setp  hm2_$(HM2_BOARD_0).0.encoder.02.scale  2048
 
 net  motor-00-position  hm2_$(HM2_BOARD_0).0.encoder.00.position =>  pid.0.feedback
 net  motor-01-position  hm2_$(HM2_BOARD_0).0.encoder.01.position =>  pid.1.feedback
@@ -64,12 +67,14 @@ net  motor-01-position  hm2_$(HM2_BOARD_0).0.encoder.01.position =>  pid.1.feedb
 # let the pid outputs drive the pwm generators
 #
 
-setp  hm2_$(HM2_BOARD_0).0.pwmgen.00.scale .0002442002
-setp  hm2_$(HM2_BOARD_0).0.pwmgen.01.scale .0002442002
-setp  hm2_$(HM2_BOARD_0).0.pwmgen.02.scale .0002442002
-
 net  pid-00-command  pid.0.output  =>  hm2_$(HM2_BOARD_0).0.pwmgen.00.value
 net  pid-01-command  pid.1.output  =>  hm2_$(HM2_BOARD_0).0.pwmgen.01.value
+
+setp  hm2_$(HM2_BOARD_0).0.pwmgen.00.scale 1.0
+setp  hm2_$(HM2_BOARD_0).0.pwmgen.01.scale -1.0
+
+# this pwm frequency is appropriate for the Mesa 7i30
+setp hm2_$(HM2_BOARD_0).0.pwmgen.pwm_frequency 40000
 
 
 
@@ -108,38 +113,38 @@ setp pid.1.maxoutput  0
 # board 0 stepgen
 #
 
-setp hm2_$(HM2_BOARD_0).0.stepgen.00.dirsetup        0.0000002
-setp hm2_$(HM2_BOARD_0).0.stepgen.00.dirhold         0.0000002
+setp hm2_$(HM2_BOARD_0).0.stepgen.00.dirsetup        200
+setp hm2_$(HM2_BOARD_0).0.stepgen.00.dirhold         200
 
-setp hm2_$(HM2_BOARD_0).0.stepgen.00.steplen         0.000040
-setp hm2_$(HM2_BOARD_0).0.stepgen.00.stepspace       0.000040
+setp hm2_$(HM2_BOARD_0).0.stepgen.00.steplen         40000
+setp hm2_$(HM2_BOARD_0).0.stepgen.00.stepspace       40000
 
 setp hm2_$(HM2_BOARD_0).0.stepgen.00.position-scale  1600
 
 
-setp hm2_$(HM2_BOARD_0).0.stepgen.01.dirsetup        0.0000002
-setp hm2_$(HM2_BOARD_0).0.stepgen.01.dirhold         0.0000002
+setp hm2_$(HM2_BOARD_0).0.stepgen.01.dirsetup        200
+setp hm2_$(HM2_BOARD_0).0.stepgen.01.dirhold         200
 
-setp hm2_$(HM2_BOARD_0).0.stepgen.01.steplen         0.000040
-setp hm2_$(HM2_BOARD_0).0.stepgen.01.stepspace       0.000040
+setp hm2_$(HM2_BOARD_0).0.stepgen.01.steplen         40000
+setp hm2_$(HM2_BOARD_0).0.stepgen.01.stepspace       40000
 
 setp hm2_$(HM2_BOARD_0).0.stepgen.01.position-scale  1600
 
 
-#setp hm2_$(HM2_BOARD_0).0.stepgen.02.dirsetup 0.0000002
-#setp hm2_$(HM2_BOARD_0).0.stepgen.02.dirhold  0.0000002
+#setp hm2_$(HM2_BOARD_0).0.stepgen.02.dirsetup 200
+#setp hm2_$(HM2_BOARD_0).0.stepgen.02.dirhold  200
 #
-#setp hm2_$(HM2_BOARD_0).0.stepgen.02.steplen  0.000040
-#setp hm2_$(HM2_BOARD_0).0.stepgen.02.stepspace  0.000040
+#setp hm2_$(HM2_BOARD_0).0.stepgen.02.steplen  40000
+#setp hm2_$(HM2_BOARD_0).0.stepgen.02.stepspace  40000
 #
 #setp hm2_$(HM2_BOARD_0).0.stepgen.02.position-scale  1600
 
 
-#setp hm2_$(HM2_BOARD_0).0.stepgen.03.dirsetup 0.0000002
-#setp hm2_$(HM2_BOARD_0).0.stepgen.03.dirhold  0.0000002
+#setp hm2_$(HM2_BOARD_0).0.stepgen.03.dirsetup 200
+#setp hm2_$(HM2_BOARD_0).0.stepgen.03.dirhold  200
 #
-#setp hm2_$(HM2_BOARD_0).0.stepgen.03.steplen  0.000040
-#setp hm2_$(HM2_BOARD_0).0.stepgen.03.stepspace  0.000040
+#setp hm2_$(HM2_BOARD_0).0.stepgen.03.steplen  40000
+#setp hm2_$(HM2_BOARD_0).0.stepgen.03.stepspace  40000
 #
 #setp hm2_$(HM2_BOARD_0).0.stepgen.03.position-scale  1600
 
@@ -150,38 +155,44 @@ setp hm2_$(HM2_BOARD_0).0.stepgen.01.position-scale  1600
 # board 1 stepgen
 #
 
-setp hm2_$(HM2_BOARD_1).0.stepgen.00.dirsetup        0.0000002
-setp hm2_$(HM2_BOARD_1).0.stepgen.00.dirhold         0.0000002
+setp hm2_$(HM2_BOARD_1).0.stepgen.00.dirsetup        200
+setp hm2_$(HM2_BOARD_1).0.stepgen.00.dirhold         200
 
-setp hm2_$(HM2_BOARD_1).0.stepgen.00.steplen         0.000040
-setp hm2_$(HM2_BOARD_1).0.stepgen.00.stepspace       0.000040
+setp hm2_$(HM2_BOARD_1).0.stepgen.00.steplen         40000
+setp hm2_$(HM2_BOARD_1).0.stepgen.00.stepspace       40000
 
 setp hm2_$(HM2_BOARD_1).0.stepgen.00.position-scale  1600
 
+setp hm2_$(HM2_BOARD_1).0.stepgen.00.maxaccel        0.5
+setp hm2_$(HM2_BOARD_1).0.stepgen.00.maxvel          0.5
 
-setp hm2_$(HM2_BOARD_1).0.stepgen.01.dirsetup        0.0000002
-setp hm2_$(HM2_BOARD_1).0.stepgen.01.dirhold         0.0000002
 
-setp hm2_$(HM2_BOARD_1).0.stepgen.01.steplen         0.000040
-setp hm2_$(HM2_BOARD_1).0.stepgen.01.stepspace       0.000040
+setp hm2_$(HM2_BOARD_1).0.stepgen.01.dirsetup        200
+setp hm2_$(HM2_BOARD_1).0.stepgen.01.dirhold         200
+
+setp hm2_$(HM2_BOARD_1).0.stepgen.01.steplen         40000
+setp hm2_$(HM2_BOARD_1).0.stepgen.01.stepspace       40000
 
 setp hm2_$(HM2_BOARD_1).0.stepgen.01.position-scale  1600
 
+setp hm2_$(HM2_BOARD_1).0.stepgen.01.maxaccel        10
+setp hm2_$(HM2_BOARD_1).0.stepgen.01.maxvel          0
 
-#setp hm2_$(HM2_BOARD_1).0.stepgen.02.dirsetup 0.0000002
-#setp hm2_$(HM2_BOARD_1).0.stepgen.02.dirhold  0.0000002
+
+#setp hm2_$(HM2_BOARD_1).0.stepgen.02.dirsetup 200
+#setp hm2_$(HM2_BOARD_1).0.stepgen.02.dirhold  200
 #
-#setp hm2_$(HM2_BOARD_1).0.stepgen.02.steplen  0.000040
-#setp hm2_$(HM2_BOARD_1).0.stepgen.02.stepspace  0.000040
+#setp hm2_$(HM2_BOARD_1).0.stepgen.02.steplen  40000
+#setp hm2_$(HM2_BOARD_1).0.stepgen.02.stepspace  40000
 #
 #setp hm2_$(HM2_BOARD_1).0.stepgen.02.position-scale  1600
 
 
-#setp hm2_$(HM2_BOARD_1).0.stepgen.03.dirsetup 0.0000002
-#setp hm2_$(HM2_BOARD_1).0.stepgen.03.dirhold  0.0000002
+#setp hm2_$(HM2_BOARD_1).0.stepgen.03.dirsetup 200
+#setp hm2_$(HM2_BOARD_1).0.stepgen.03.dirhold  200
 #
-#setp hm2_$(HM2_BOARD_1).0.stepgen.03.steplen  0.000040
-#setp hm2_$(HM2_BOARD_1).0.stepgen.03.stepspace  0.000040
+#setp hm2_$(HM2_BOARD_1).0.stepgen.03.steplen  40000
+#setp hm2_$(HM2_BOARD_1).0.stepgen.03.stepspace  40000
 #
 #setp hm2_$(HM2_BOARD_1).0.stepgen.03.position-scale  1600
 
@@ -209,7 +220,14 @@ net follow-the-leader => hm2_$(HM2_BOARD_1).0.stepgen.01.position-cmd
 
 newsig  Enable  bit
 sets    Enable  FALSE
-net     Enable  =>  pid.0.enable pid.1.enable hm2_$(HM2_BOARD_0).0.pwmgen.00.enable hm2_$(HM2_BOARD_0).0.pwmgen.01.enable
+net     Enable  =>  pid.0.enable
+net     Enable  =>  pid.1.enable
+net     Enable  =>  hm2_$(HM2_BOARD_0).0.pwmgen.00.enable
+net     Enable  =>  hm2_$(HM2_BOARD_0).0.pwmgen.01.enable
+net     Enable  =>  hm2_$(HM2_BOARD_0).0.stepgen.00.enable
+net     Enable  =>  hm2_$(HM2_BOARD_0).0.stepgen.01.enable
+net     Enable  =>  hm2_$(HM2_BOARD_1).0.stepgen.00.enable
+net     Enable  =>  hm2_$(HM2_BOARD_1).0.stepgen.01.enable
 
 
 
@@ -237,10 +255,24 @@ addf hm2_$(HM2_BOARD_1).0.write         main
 
 
 #
+# the 5i20 & my steppers together need stepgen outputs to be open drain
+#
+
+setp hm2_$(HM2_BOARD_1).0.gpio.P4.048.is_opendrain 1
+setp hm2_$(HM2_BOARD_1).0.gpio.P4.049.is_opendrain 1
+
+setp hm2_$(HM2_BOARD_1).0.gpio.P4.054.is_opendrain 1
+setp hm2_$(HM2_BOARD_1).0.gpio.P4.055.is_opendrain 1
+
+
+
+
+#
 # ok, all set up
 #
 
 start
+
 
 sets Enable 1
 
