@@ -32,8 +32,8 @@
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Sebastian Kuzminsky");
-MODULE_DESCRIPTION("Driver for HostMot2 on the 5i20 Mesa Anything I/O board");
-MODULE_SUPPORTED_DEVICE("Mesa-AnythingIO-5i20");
+MODULE_DESCRIPTION("Driver for HostMot2 on the 5i20 and 4i65 Anything I/O boards from Mesa Electronics");
+MODULE_SUPPORTED_DEVICE("Mesa-AnythingIO-5i20");  // FIXME
 
 
 // #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,22)
@@ -44,7 +44,7 @@ MODULE_SUPPORTED_DEVICE("Mesa-AnythingIO-5i20");
 static char *config[HM2_5I20_MAX_BOARDS];
 static int num_config_strings = HM2_5I20_MAX_BOARDS;
 module_param_array(config, charp, &num_config_strings, S_IRUGO);
-MODULE_PARM_DESC(config, "config string for 5i20 boards (see hostmot2(9) manpage)");
+MODULE_PARM_DESC(config, "config string for the AnyIO boards (see hostmot2(9) manpage)");
 
 
 static int comp_id;
@@ -56,11 +56,21 @@ static int num_boards = 0;
 
 
 static struct pci_device_id hm2_5i20_pci_tbl[] = {
+
+    // 5i20
     {
         .vendor = 0x10b5,
         .device = 0x9030,
         .subvendor = 0x10b5,
         .subdevice = 0x3131,
+    },
+
+    // 4i65
+    {
+        .vendor = 0x10b5,
+        .device = 0x9030,
+        .subvendor = 0x10b5,
+        .subdevice = 0x3132,
     },
 
     {0,},
@@ -201,22 +211,51 @@ static int hm2_5i20_probe(struct pci_dev *dev, const struct pci_device_id *id) {
 
 
     if (num_boards >= HM2_5I20_MAX_BOARDS) {
-        LL_WARN("skipping 5i20 at %s, this driver can only handle %d\n", pci_name(dev), HM2_5I20_MAX_BOARDS);
+        LL_WARN("skipping AnyIO board at %s, this driver can only handle %d\n", pci_name(dev), HM2_5I20_MAX_BOARDS);
         return -EINVAL;
     }
 
     // NOTE: this enables the board's BARs -- this fixes the Arty bug
     if (pci_enable_device(dev)) {
-        LL_WARN("skipping 5i20 at %s, failed to enable PCI device\n", pci_name(dev));
+        LL_WARN("skipping AnyIO board at %s, failed to enable PCI device\n", pci_name(dev));
         return -ENODEV;
     }
 
 
     board = &hm2_5i20_board[num_boards];
     this = &board->llio;
-    snprintf(board->llio.name, HAL_NAME_LEN, "%s.%d", HM2_LLIO_NAME, num_boards);
+    memset(this, 0, sizeof(hm2_lowlevel_io_t));
 
-    THIS_INFO("discovered 5i20 at %s\n", pci_name(dev));
+    switch (dev->subsystem_device) {
+        case 0x3131: {
+            // 5i20
+            THIS_INFO("discovered 5i20 at %s\n", pci_name(dev));
+            snprintf(board->llio.name, HAL_NAME_LEN, "hm2_5i20.%d", num_boards);
+            board->llio.num_ioport_connectors = 3;
+            board->llio.ioport_connector_name[0] = "P2";
+            board->llio.ioport_connector_name[1] = "P3";
+            board->llio.ioport_connector_name[2] = "P4";
+            board->llio.fpga_part_number = "2s200pq208";
+            break;
+        }
+
+        case 0x3132: {
+            // 4i65
+            THIS_INFO("discovered 4i65 at %s\n", pci_name(dev));
+            snprintf(board->llio.name, HAL_NAME_LEN, "hm2_4i65.%d", num_boards);
+            board->llio.num_ioport_connectors = 3;
+            board->llio.ioport_connector_name[0] = "P1";
+            board->llio.ioport_connector_name[1] = "P3";
+            board->llio.ioport_connector_name[2] = "P4";
+            board->llio.fpga_part_number = "2s200pq208";
+            break;
+        }
+
+        default: {
+            LL_ERR("unknown subsystem device id 0x%04x", dev->subsystem_device);
+            return -ENODEV;
+        }
+    }
 
 
     // 
@@ -265,12 +304,7 @@ static int hm2_5i20_probe(struct pci_dev *dev, const struct pci_device_id *id) {
     board->llio.comp_id = comp_id;
     board->llio.private = board;
 
-    board->llio.num_ioport_connectors = 3;
-    board->llio.ioport_connector_name[0] = "P2";
-    board->llio.ioport_connector_name[1] = "P3";
-    board->llio.ioport_connector_name[2] = "P4";
-
-    board->llio.fpga_part_number = "2s200pq208";
+    board->llio.threadsafe = 1;
 
     board->llio.read = hm2_5i20_read;
     board->llio.write = hm2_5i20_write;
@@ -283,7 +317,7 @@ static int hm2_5i20_probe(struct pci_dev *dev, const struct pci_device_id *id) {
         goto fail1;
     }
 
-    THIS_INFO("found 5i20 board at %s with HostMot2 firmware\n", pci_name(dev));
+    THIS_INFO("initialized AnyIO board at %s\n", pci_name(dev));
 
     num_boards ++;
     return 0;
@@ -308,7 +342,7 @@ static void hm2_5i20_remove(struct pci_dev *dev) {
         hm2_lowlevel_io_t *this = &board->llio;
 
         if (board->dev == dev) {
-            THIS_INFO("dropping 5i20 at %s\n", pci_name(dev));
+            THIS_INFO("dropping AnyIO board at %s\n", pci_name(dev));
 
             hm2_unregister(&board->llio);
 
@@ -337,7 +371,7 @@ static struct pci_driver hm2_5i20_driver = {
 int rtapi_app_main(void) {
     int r = 0;
 
-    LL_INFO("loading HostMot2 Mesa 5i20 driver version " HM2_5I20_VERSION "\n");
+    LL_INFO("loading Mesa AnyIO HostMot2 driver version " HM2_5I20_VERSION "\n");
 
     comp_id = hal_init(HM2_LLIO_NAME);
     if (comp_id < 0) return comp_id;

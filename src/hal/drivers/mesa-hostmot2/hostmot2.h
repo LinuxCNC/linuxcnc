@@ -28,7 +28,7 @@
 #include "hostmot2-lowlevel.h"
 
 
-#define HM2_VERSION "0.4.1"
+#define HM2_VERSION "0.14"
 #define HM2_NAME    "hm2"
 
 #define PRINT_NO_LL(level, fmt, args...)  rtapi_print_msg(level, HM2_NAME ": " fmt, ## args);
@@ -143,6 +143,7 @@ typedef struct {
 
         struct {
             hal_bit_t is_output;
+            hal_bit_t is_opendrain;
             hal_bit_t invert_output;
         } param;
 
@@ -157,8 +158,18 @@ typedef struct {
     u8 sec_unit;
     u8 primary_tag;
 
-    // these are how the driver keeps track of them
-    int gtag;  // the actual function using this pin
+
+    //
+    // below here is how the driver keeps track of each pin
+    //
+
+    // the actual function using this pin
+    int gtag;
+
+    // either HM2_PIN_DIR_IS_INPUT or HM2_PIN_DIR_IS_OUTPUT
+    // if gtag != gpio, how the owning module instance configured it at load-time
+    // if gtag == gpio, this gets copied from the .is_output parameter
+    int direction;
 
     // if the driver decides to make this pin a gpio, it'll allocate the
     // instance struct to manage it, otherwise instance is NULL
@@ -177,6 +188,19 @@ typedef struct {
 // encoders
 //
 
+#define HM2_ENCODER_FILTER              (1<<11)
+#define HM2_ENCODER_COUNTER_MODE        (1<<10)
+#define HM2_ENCODER_INDEX_MASK          (1<<9)
+#define HM2_ENCODER_INDEX_MASK_POLARITY (1<<8)
+#define HM2_ENCODER_INDEX_JUSTONCE      (1<<6)
+#define HM2_ENCODER_CLEAR_INDEX         (1<<5)
+#define HM2_ENCODER_INDEX_POLARITY      (1<<3)
+
+#define HM2_ENCODER_MASK  (HM2_ENCODER_FILTER | HM2_ENCODER_COUNTER_MODE | \
+        HM2_ENCODER_INDEX_MASK | HM2_ENCODER_INDEX_MASK_POLARITY | \
+        HM2_ENCODER_INDEX_JUSTONCE | HM2_ENCODER_CLEAR_INDEX | \
+        HM2_ENCODER_INDEX_POLARITY)
+
 typedef struct {
 
     struct {
@@ -185,12 +209,17 @@ typedef struct {
             hal_s32_t *count;
             hal_float_t *position;
             // hal_float_t *velocity;
-            // hal_bit_t *reset;
-            // hal_bit_t *index_enable;
+            hal_bit_t *reset;
+            hal_bit_t *index_enable;
         } pin;
 
         struct {
             hal_float_t scale;
+            hal_bit_t index_invert;
+            hal_bit_t index_mask;
+            hal_bit_t index_mask_invert;
+            hal_bit_t counter_mode;
+            hal_bit_t filter;
             // hal_float_t max_index_vel;
             // hal_float_t velocity_resolution;
         } param;
@@ -198,6 +227,7 @@ typedef struct {
     } hal;
 
     u32 prev_counter;
+    u32 prev_control;
 
 } hm2_encoder_instance_t;
 
@@ -207,6 +237,7 @@ typedef struct {
 
     hm2_encoder_instance_t *instance;
 
+    u32 stride;
     u32 clock_frequency;
     u8 version;
 
@@ -231,6 +262,11 @@ typedef struct {
 // pwmgen
 // 
 
+#define HM2_PWMGEN_OUTPUT_TYPE_PWM          1  // this is the same value that the software pwmgen component uses
+#define HM2_PWMGEN_OUTPUT_TYPE_UP_DOWN      2  // this is the same value that the software pwmgen component uses
+#define HM2_PWMGEN_OUTPUT_TYPE_PDM          3  // software pwmgen does not support pdm as an output type
+#define HM2_PWMGEN_OUTPUT_TYPE_PWM_SWAPPED  4  // software pwmgen does not support pwm/swapped output type because it doesnt need to 
+
 typedef struct {
 
     struct {
@@ -243,17 +279,27 @@ typedef struct {
         struct {
             hal_float_t scale;
             hal_s32_t output_type;
-            int32_t written_output_type;
         } param;
 
     } hal;
 
-    // these make up the fields of the PWM Mode Register, but they don't appear in the HAL
-    // (hal.output_type affects a field here too)
-    int pwm_width_select;
-    int pwm_mode_select;
-    int pwm_double_buffered;
+    // this keeps track of the output_type that we've told the FPGA, so we
+    // know if we need to update it
+    s32 written_output_type;
+
+    // this keeps track of the enable bit for this instance that we've told
+    // the FPGA, so we know if we need to update it
+    s32 written_enable;
 } hm2_pwmgen_instance_t;
+
+
+// these hal params affect all pwmgen instances
+typedef struct {
+    struct {
+        hal_u32_t pwm_frequency;
+        hal_u32_t pdm_frequency;
+    } param;
+} hm2_pwmgen_module_global_t;
 
 
 typedef struct {
@@ -262,6 +308,19 @@ typedef struct {
 
     u32 clock_frequency;
     u8 version;
+
+
+    // module-global HAL objects...
+    hm2_pwmgen_module_global_t *hal;
+
+    // these keep track of the most recent hal->param.p{d,w}m_frequency
+    // that we've told the FPGA about, so we know if we need to update it
+    u32 written_pwm_frequency;
+    u32 written_pdm_frequency;
+
+    // number of bits of resolution of the PWM signal (PDM is fixed at 12 bits)
+    int pwm_bits;
+
 
     u32 pwm_value_addr;
     u32 *pwm_value_reg;
@@ -299,16 +358,18 @@ typedef struct {
 
     u32 ddr_addr;
     u32 *ddr_reg;
-    u32 *written_ddr;  // FIXME: not a register, but a copy of the most recently written ddr
+    u32 *written_ddr;  // not a register, but a copy of the most recently written value
 
     u32 alt_source_addr;
     u32 *alt_source_reg;
 
     u32 open_drain_addr;
     u32 *open_drain_reg;
+    u32 *written_open_drain;  // not a register, but a copy of the most recently written value
 
     u32 output_invert_addr;
     u32 *output_invert_reg;
+    u32 *written_output_invert;  // not a register, but a copy of the most recently written value
 
     u32 clock_frequency;
     u8 version;
@@ -326,33 +387,37 @@ typedef struct {
 
         struct {
             hal_float_t *position_cmd;
+            hal_float_t *velocity_cmd;
             hal_s32_t *counts;
             hal_float_t *position_fb;
             hal_float_t *velocity_fb;
-
-            // these are just for debugging for now, i'll remove them later
-            hal_u32_t *rate;
-            hal_u32_t *accumulator;
-            hal_float_t *error;
+            hal_bit_t *enable;
         } pin;
 
         struct {
             hal_float_t position_scale;
+            hal_float_t maxvel;
+            hal_float_t maxaccel;
 
-            hal_float_t steplen;
-            hal_float_t stepspace;
-            hal_float_t dirsetup;
-            hal_float_t dirhold;
+            hal_u32_t steplen;
+            hal_u32_t stepspace;
+            hal_u32_t dirsetup;
+            hal_u32_t dirhold;
         } param;
 
     } hal;
 
+    // HM2 tracks stepper position with 32 bits of sub-step
+    // precision.  This holds the top 16 of those bits, in the
+    // bottom 16 bits of the u32.
+    u32 counts_fractional;
+
     u32 prev_accumulator;
 
-    float written_steplen;
-    float written_stepspace;
-    float written_dirsetup;
-    float written_dirhold;
+    u32 written_steplen;
+    u32 written_stepspace;
+    u32 written_dirsetup;
+    u32 written_dirhold;
 } hm2_stepgen_instance_t;
 
 
@@ -386,9 +451,10 @@ typedef struct {
     u32 pulse_idle_width_addr;
     u32 *pulse_idle_width_reg;
 
-    // FIXME: these are not supported yet
+    // FIXME: these two are not supported yet
     u32 table_sequence_data_setup_addr;
     u32 table_sequence_length_addr;
+
     u32 master_dds_addr;
 } hm2_stepgen_t;
 
@@ -444,12 +510,13 @@ typedef struct {
     struct {
         struct {
             hal_u32_t *read_address;
-            hal_u32_t *write_address;
-
             hal_u32_t *read_data;
-            hal_u32_t *write_data;
 
+            hal_u32_t *write_address;
+            hal_u32_t *write_data;
             hal_bit_t *write_strobe;
+
+            hal_bit_t *dump_state;
         } pin;
     } hal;
 } hm2_raw_t;
@@ -538,6 +605,8 @@ const char *hm2_get_general_function_name(int gtag);
 
 const char *hm2_hz_to_mhz(u32 freq_hz);
 
+void hm2_print_modules(int msg_level, hostmot2_t *hm2);
+
 
 
 
@@ -582,6 +651,9 @@ void hm2_ioport_gpio_tram_write_init(hostmot2_t *hm2);
 int hm2_ioport_gpio_export_hal(hostmot2_t *hm2);
 void hm2_ioport_gpio_process_tram_read(hostmot2_t *hm2);
 void hm2_ioport_gpio_prepare_tram_write(hostmot2_t *hm2);
+
+void hm2_ioport_gpio_read(hostmot2_t *hm2);
+void hm2_ioport_gpio_write(hostmot2_t *hm2);
 
 
 

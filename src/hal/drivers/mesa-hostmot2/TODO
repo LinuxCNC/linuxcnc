@@ -2,9 +2,27 @@
 
 next steps:
 
-    firmware loading
 
-        default firmware?
+    > Note: Double quotes in hm2_7i43 command took me some time to figure out,
+    > as the config modparam single quotes were getting stripped by Bash. This
+    > might be something to add to "man hostmot2".
+
+
+    stepgen overshoots with high maxaccel
+
+        velocity_cmd should be renamed to velocity_fb probably 
+
+        cleanup
+
+        look at pluto_step 
+
+
+    include .PIN files as docs
+
+        JMK suggested auto-generating man pages from the PIN files...
+
+
+    better sample configs, maybe move my test scripts there, document better
 
 
     on driver unload, it should stop all the motors and "safe" the
@@ -12,12 +30,33 @@ next steps:
     behavior
 
 
-    add support for the 5i22 next
-
-
     It's starting to feel like it's ready for some kind of module
     abstraction...  To standardize the semantics and make it easier to
     think about.  Pull out the common code.  pins are special
+
+        module drivers are expected to export the following functions:
+
+            parse_md(): deal with the MD & modparam config info, make
+                HAL representation, allocate memory for registers,
+                request TRAM entries
+
+            write(): check if FPGA registers need to be written with
+                new information from HAL (or from within the driver),
+                and if so write them
+
+            force_write(): write the FPGA registers with current values
+
+            process_initial_tram_read(): TRAM registers have first value,
+                any data-dependent driver initialization should happen now
+
+            prepare_initial_tram_write(): set TRAM register values to
+                initialize the FPGA
+
+            prepare_tram_write(): set TRAM registers as appropriate
+
+            process_tram_read(): handle new values in TRAM registers
+
+            debug_print(): show internal state
 
 
 
@@ -44,47 +83,50 @@ clean the tree:
             firmware notes: not sure, a fork off the old hostmot code?
             other notes: development stalled?
 
-            driver: m7i43_hm2
+            driver: hostmot2
+            boards supported: 5i20, 7i43
+            firmware source: request_firmware()/udev
+            firmware notes: hostmot2, various flavors, supported by Mesa
+            other notes: actively developed, all AnyIO boards will be supported by end of summer
+
+            driver: m7i43_hm2 DEPRECATED!
             boards supported: 7i43
             firmware source: compiled into driver, sent to board at insmod time
             firmware notes: hostmot2, various flavors, supported by Mesa
-            other notes: in maintenance mode, new development continued in
-            mesa-hostmot2 in TRUNK (see below)
+            other notes: in maintenance mode, new development continued in hostmot2 in TRUNK (see below)
 
 
         TRUNK:
 
-            TRUNK has all drivers in 2.2, plus these two:
+            driver: hal_m5i20
+            boards supported: 5i20
+            firmware source: eeprom or userspace utility run before driver load
+            firmware notes: old hostmot, various flavors
+            other notes: widely used
 
-            driver: mesa7i43-gpio
+            driver: hal_5i2x
+            boards supported: 5i20; 5i22 support planned?
+            firmware source: eeprom or userspace
+            firmware notes: not sure, a fork off the old hostmot code?
+            other notes: development stalled?
+
+            driver: hostmot2
+            boards supported: 5i20, 7i43
+            firmware source: request_firmware()/udev
+            firmware notes: hostmot2, various flavors, supported by Mesa
+            other notes: actively developed, all AnyIO boards will be supported by end of summer
+
+            driver: mesa7i43-gpio DEPRECATED!
             boards supported: 7i43
             firmware source: compiled into driver, sent to board at insmod time
             firmware notes: 48 gpio
             other notes: development ended
 
-            driver: mesa-hostmot2
-            boards supported: 7i43, 5i20
-            firmware source: eeprom or userspace
+            driver: m7i43_hm2 DEPRECATED!
+            boards supported: 7i43
+            firmware source: compiled into driver, sent to board at insmod time
             firmware notes: hostmot2, various flavors, supported by Mesa
-            other notes: actively developed with support from Mesa, all AnyIO
-            boards will be supported by end of summer
-
-
-    Here's what I think we should do:
-
-        2.2:
-
-            * Add the hostmot2 driver 2.2.6.  driver, firmware, bfload
-
-            * Deprecate m7i43_hm2 in 2.2.  They get to stay through the
-              lifetime of 2.2, but they won't be in 2.3 or 3.0 or whatever
-              comes next.  Users should switch to hostmot2 and hm2_7i43.
-
-
-        TRUNK:
-
-            * Deprecate m7i43_hm2, and mesa7i43-gpio in TRUNK.
-              Remove them in 6 months or a year or so.
+            other notes: in maintenance mode, new development continued in hostmot2 in TRUNK (see below)
 
 
 
@@ -96,6 +138,12 @@ translation ram (tram):
     then do dma
 
     need to deal with the "strobe" bit
+
+    currently the driver takes advantage of the fact that the module
+    instances are contiguous in hm2 register space.  Things'll have
+    to change to support non-contiguous access.  Could make a smart
+    "allocate a register buffer" function smart: have it allocate space
+    for each request contiguously in a larger buffer and set the TRAM
 
 
 
@@ -129,15 +177,17 @@ encoders:
 
     missing stuff:
 
+        expose filter rate to HAL (cooked prolly)
+
         fancy velocity computation
+
+        index mask support
 
         pins:
 
             velocity
 
-            reset
-
-            index-enable
+            optional: a, b, index (available in the control register, which is getting read via fake-TRAM each cycle)
 
         parameters:
 
@@ -145,58 +195,49 @@ encoders:
 
             velocity-resolution (optional)
 
-        functions:
-
-            CDI just has a read()
-
 
 
 
 pwmgen:
 
-    how to set pwm rate in firmware?
-
-    Add support for different pdm mode (selected by the pwm-freq parameter...)
-
-    what should the hal pwmgen scale parameter do exactly?  same as the software hal component: output = (val / scale) + offset
+    no known issues
 
 
 
 
 ioport:
 
-    move inverted output from driver to fpga 
+    no known issues
 
 
 
 
 stepgen:
 
-    the software stepgen uses float seconds for the timing, but that cuts
-    off at like 100 ns, shouldnt it be u32 seconds instead?  or wait,
-    is it float nanoseconds?
-
-    position commanding is very much hacked right now...
-
     setting .scale to 1600 (1600 steps/rev) and then commanding position
     to 1600 revs causes chaos, it runs in the wrong direction, some
     overflow bug not handled there...
 
-    moving and then changing .scale from 1600 to 800 causes it to spin...
-    and at 800 it doesnt track the follow-the-leader net properly
+    if a stepgen is stepping, and you set its .enable to 0 it stops
+    instantly (which is good).  But if you then set its .enable to 1,
+    it resumes at its previous velocity (which is bad).
 
-    support maxvel
-
-    support maxaccel
+    test different steps-pre-rev on different stepgen instances
 
     support other stepping modes
 
-    support velocity control
+    support velocity control?
+
+    support smaller stepgens - most dont need 6 pins...
+
+        config="stepgen="off,on:width=2"
 
 
 
 
 watchdog:
+
+    no known issues
 
 
 
@@ -210,12 +251,53 @@ watchdog:
     needs to support multiple boards
 
 
-5i20:
+5i20, 5i23, 4i65, 4i68:
 
-    stepgen doesnt work?!  No matter what I write to the Rate register,
-    i get no steps on the IO Pins and the Accumulator doesnt change.
+    no known issues
 
-    turn hm2_5i20 driver into a generic PCI driver: hm2_anyio_pci
+
+5i22:
+
+    test with the 1.5M version
+
+
+
+
+how to configure the firmware?
+
+    Currently the llios take a "config" modparam (one for each board),
+    which they pass to hm2_register().  hm2_register() does a bunch of
+    gross string parsing...
+
+    HAL doesnt let you add or remove HAL objects after hal_ready().
+    So the driver's set of HAL objects is determined at module load time,
+    before anything shows up in HAL...  Bummer.  Chris Radek suggested
+    that this might be possible to fix.
+
+    The config of an hm2 board is a structured object:
+
+        typedef struct {
+
+            struct {
+                bool enabled;
+                bool index_enabled;
+                bool index_mask_enabled;
+            } hm2_encoder_config[];
+
+            struct {
+                bool enabled;
+            } hm2_pwmgen_config[];
+
+            struct {
+                bool enabled;
+                uint width;
+            } hm2_stepgen_config[];
+
+            char *firmware;
+
+            bool enable_raw;
+
+        } hm2_config_t;
 
 
 
@@ -244,34 +326,19 @@ planned milestones:
 
     1.0
 
-        add support for all other PCI cards
-
-            IOPort connector names for the still-unsupported cards:
-                4I65: P1,P3,P4
-                4I68: P1,P2,P4
-                5I22: P2,P3,P4,P5
-                5I23: P2,P3,P4
-
         add optional tram support
-
-        add DMA support for PCI cards with TRAM & the 7i43
-
-        llios should support multiple boards each
 
         complete support for encoder
 
-        complete support for pwmgen
-
         complete support for stepgen
-
-        complete support for gpios
-
-        complete support for watchdog
 
 
 
 
 wishlist:
+
+    add DMA support for PLX9054
+
 
     add an anyio layer in the kernel similar to the parport layer
 
@@ -294,4 +361,10 @@ wishlist:
         multiple HLs is a non-issue if each HL can recognize "this is my
         firmware, I'll use this board" vs. "oops, I dunno what this is,
         skip it"
+
+
+    abstract the EPP code into a proper EMC2 (or RTAI) parport driver
+
+
+    abstract the stepgen code into an EMC2 library
 

@@ -230,7 +230,7 @@ fail1:
     kfree(hm2->watchdog.status_reg);
 
 fail0:
-    hm2->encoder.num_instances = 0;
+    hm2->watchdog.num_instances = 0;
     return r;
 }
 

@@ -211,13 +211,12 @@ void hm2_set_pin_direction(hostmot2_t *hm2, int pin_number, int direction) {
         return;
     }
 
-    if (direction == HM2_PIN_DIR_IS_INPUT) {
-        hm2->ioport.ddr_reg[ioport_number] &= ~(1 << bit_number);
-    } else if (direction == HM2_PIN_DIR_IS_OUTPUT) {
-        hm2->ioport.ddr_reg[ioport_number] |= (1 << bit_number);
-    } else {
+    if ((direction != HM2_PIN_DIR_IS_INPUT) && (direction != HM2_PIN_DIR_IS_OUTPUT)) {
         WARN("invalid pin direction 0x%08X\n", direction);
+        return;
     }
+
+    hm2->pin[pin_number].direction = direction;
 }
 
 
@@ -281,6 +280,7 @@ static void hm2_pins_allocate(hostmot2_t *hm2, int gtag, int num_instances) {
 
 // sets up all the IOPort instances, return 0 on success, -errno on failure
 void hm2_configure_pins(hostmot2_t *hm2) {
+    int i;
 
     // 
     // the bits in the alt_source register of the ioport function say
@@ -292,7 +292,7 @@ void hm2_configure_pins(hostmot2_t *hm2) {
     // 
     // if a pin is marked as an input in the ddr, it can be used for its
     // function (encoder, say) *and* as a digital input pin without
-    // conflict, but (FIXME) the driver does not yet support this
+    // conflict
     // 
     // Each function instance that is not disabled by the relevant
     // num_<functions> modparam has all its pins marked 1 in the alt_source
@@ -301,12 +301,16 @@ void hm2_configure_pins(hostmot2_t *hm2) {
     // gpios.
     // 
 
+    // everything defaults to GPIO input...
+    for (i = 0; i < hm2->num_pins; i ++) {
+        hm2_set_pin_source(hm2, i, HM2_PIN_SOURCE_IS_PRIMARY);
+        hm2_set_pin_direction(hm2, i, HM2_PIN_DIR_IS_INPUT);
+    }
 
+    // ... then modules get to take what they want
     hm2_pins_allocate(hm2, HM2_GTAG_ENCODER, hm2->encoder.num_instances);
     hm2_pins_allocate(hm2, HM2_GTAG_PWMGEN,  hm2->pwmgen.num_instances);
     hm2_pins_allocate(hm2, HM2_GTAG_STEPGEN, hm2->stepgen.num_instances);
-
-    // anything not allocated remains a gpio input
 }
 
 
