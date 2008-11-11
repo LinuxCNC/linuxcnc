@@ -299,8 +299,8 @@ int Interp::convert_arc2(int move,       //!< either G_2 (cw arc) or G_3 (ccw ar
                         double BB_end,  //!< b-value at end of arc                   
                         double CC_end,  //!< c-value at end of arc                   
                          double u, double v, double w, //!< values at end of arc
-                        double offset1, //!< offset of center from current1          
-                        double offset2) //!< offset of center from current2          
+                        double offset1, //!< center, either abs or offset from current
+                        double offset2)
 {
   static char name[] = "convert_arc2";
   double center1;
@@ -317,8 +317,10 @@ int Interp::convert_arc2(int move,       //!< either G_2 (cw arc) or G_3 (ccw ar
       CHP(arc_data_r(move, plane, *current1, *current2, end1, end2,
                    block->r_number, &center1, &center2, &turn, tolerance));
   } else {
-      CHP(arc_data_ijk(move, plane, *current1, *current2, end1, end2, offset1,
-                     offset2, &center1, &center2, &turn, tolerance));
+      CHP(arc_data_ijk(move, plane, *current1, *current2, end1, end2,
+                       (settings->ijk_distance_mode == MODE_ABSOLUTE),
+                       offset1, offset2,
+                       &center1, &center2, &turn, tolerance));
   }
 
   if (settings->feed_mode == INVERSE_TIME)
@@ -422,6 +424,7 @@ int Interp::convert_arc_comp1(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
   } else {
       CHP(arc_data_comp_ijk(move, plane, side, tool_radius, current[0],
                           current[1], end[0], end[1],
+                          (settings->ijk_distance_mode == MODE_ABSOLUTE),
                           block->i_number, 
                           settings->plane == CANON_PLANE_XZ? block->k_number: block->j_number,
                           &center[0], &center[1], &turn, tolerance));
@@ -615,6 +618,7 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
   } else {
       CHP(arc_data_ijk(move, plane,
                      start[0], start[1], end[0], end[1],
+                     (settings->ijk_distance_mode == MODE_ABSOLUTE),
                      block->i_number,
                      settings->plane == CANON_PLANE_XZ? block->k_number: block->j_number,
                      &center[0], &center[1], &turn, tolerance));

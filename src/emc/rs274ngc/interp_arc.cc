@@ -81,8 +81,9 @@ int Interp::arc_data_comp_ijk(int move,  //!<either G_2 (cw arc) or G_3 (ccw arc
                              double current_y,  //!<second coordinate of current point
                              double end_x,      //!<first coordinate of arc end point
                              double end_y,      //!<second coordinate of arc end point
-                             double i_number,   //!<first coordinate offset of center from current
-                             double j_number,   //!<second coordinate offset of center from current
+                             int ij_absolute,   //!<how to interpret i/j numbers
+                             double i_number,   //!<first coordinate of center (abs or incr)
+                             double j_number,   //!<second coordinate of center (abs or incr)
                              double *center_x,  //!<pointer to first coordinate of center of arc
                              double *center_y,  //!<pointer to second coordinate of center of arc
                              int *turn, //!<pointer to number of full or partial circles CCW
@@ -91,12 +92,19 @@ int Interp::arc_data_comp_ijk(int move,  //!<either G_2 (cw arc) or G_3 (ccw arc
   static char name[] = "arc_data_comp_ijk";
   double arc_radius;
   double radius2;
+  double min_radius = 0.1 * tolerance;	/* smaller than this is treated as zero */
   char a = arc_axis1(plane), b = arc_axis2(plane);
 
-  *center_x = (current_x + i_number);
-  *center_y = (current_y + j_number);
-  arc_radius = hypot(i_number, j_number);
+  if ( ij_absolute ) {
+    *center_x = (i_number);
+    *center_y = (j_number);
+  } else {
+    *center_x = (current_x + i_number);
+    *center_y = (current_y + j_number);
+  }
+  arc_radius = hypot((*center_x - current_x), (*center_y - current_y));
   radius2 = hypot((*center_x - end_x), (*center_y - end_y));
+  CHK(((arc_radius < min_radius) || (radius2 < min_radius)), NCE_ZERO_RADIUS_ARC);
   CHKF((fabs(arc_radius - radius2) > tolerance),
       (_("Radius to end of arc differs from radius to start: "
        "start=(%c%.4f,%c%.4f) center=(%c%.4f,%c%.4f) end=(%c%.4f,%c%.4f) r1=%.4f r2=%.4f"),
@@ -237,8 +245,9 @@ int Interp::arc_data_ijk(int move,       //!< either G_2 (cw arc) or G_3 (ccw ar
                         double current_y,       //!< second coordinate of current point
                         double end_x,   //!< first coordinate of arc end point
                         double end_y,   //!< second coordinate of arc end point
-                        double i_number,        //!< first coordinate offset of center from current
-                        double j_number,        //!< second coordinate offset of center from current
+                        int ij_absolute,        //!<how to interpret i/j numbers
+                        double i_number,        //!<first coordinate of center (abs or incr)
+                        double j_number,        //!<second coordinate of center (abs or incr)
                         double *center_x,       //!< pointer to first coordinate of center of arc
                         double *center_y,       //!< pointer to second coordinate of center of arc
                         int *turn,      //!< pointer to no. of full or partial circles CCW
@@ -247,13 +256,19 @@ int Interp::arc_data_ijk(int move,       //!< either G_2 (cw arc) or G_3 (ccw ar
   static char name[] = "arc_data_ijk";
   double radius;                /* radius to current point */
   double radius2;               /* radius to end point     */
+  double min_radius = 0.1 * tolerance;	/* smaller than this is treated as zero */
   char a = arc_axis1(plane), b = arc_axis2(plane);
 
-  *center_x = (current_x + i_number);
-  *center_y = (current_y + j_number);
+  if ( ij_absolute ) {
+    *center_x = (i_number);
+    *center_y = (j_number);
+  } else {
+    *center_x = (current_x + i_number);
+    *center_y = (current_y + j_number);
+  }
   radius = hypot((*center_x - current_x), (*center_y - current_y));
   radius2 = hypot((*center_x - end_x), (*center_y - end_y));
-  CHK(((radius == 0.0) || (radius2 == 0.0)), NCE_ZERO_RADIUS_ARC);
+  CHK(((radius < min_radius) || (radius2 < min_radius)), NCE_ZERO_RADIUS_ARC);
   CHKF((fabs(radius - radius2) > tolerance),
       (_("Radius to end of arc differs from radius to start: "
        "start=(%c%.4f,%c%.4f) center=(%c%.4f,%c%.4f) end=(%c%.4f,%c%.4f) r1=%.4f r2=%.4f"),
