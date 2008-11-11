@@ -9,6 +9,19 @@ emc2 (1:2.2.7~cvs) hardy; urgency=low
     'variable double output[8];'
   * documentation improvments
   * axis: "touch off" of rotary axis on metric machine
+  * hostmot2: Support all the PCI, PC/104-Plus, and EPP "Anything I/O"
+    boards: 5i20, 5i22, 5i23, 4i65, 4i68, and 7i43.  PCI users should
+    switch from hm2_5i20 to hm2_pci driver.
+  * hostmot2 changes: Config changes required!  pwmgen.scale now works as
+    advertised; stepgen timing params are "u32 ns" instead of "float
+    seconds"; and stepgens now have a .enable pin which needs setting.
+  * hostmot2 feature additions: Added PDM mode for pwmgen; PWM and PDM
+    frequency are now settable by the user; implemented stepgen maxaccel
+    and maxvel; support open-drain GPIOs; all GPIOs now have some
+    representation in HAL (though the ones used by module instances are
+    restricted); encoder improvements.
+  * Lots of hostmot2 bug fixes, mostly with pwmgen and stepgen.  Thanks to
+    all the brave testers!
 
  -- Jeff Epler <jepler@unpythonic.net>  Tue, 23 Sep 2008 20:21:40 -0500
 
