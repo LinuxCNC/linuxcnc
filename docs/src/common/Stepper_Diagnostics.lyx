@@ -27,16 +27,45 @@
 \layout Chapter
 
 Steppers
+\layout Quote
+
+If what you get is not what you expect if you pay attention you get some
+ experience.
+ 
 \layout Standard
 
-If what you get is not what you expect many times you just got some experience.
- Learning from the experience increases your understanding of the whole.
- Diagnosing problems is best done by divide and conquer.
+Diagnosing problems is best done by divide and conquer.
  By this I mean if you can remove 1/2 of the variables from the equation
  each time you will find the problem the fastest.
  In the real world this is not always the case but a good place to start
  usually.
  
+\layout Section
+
+Common Problems
+\layout Subsection
+
+Stepper Moves One Step
+\layout Standard
+
+The most common reason in a new installation for the stepper not to move
+ is the step and direction signals are backwards.
+ If you press the jog foward and backward key and the stepper moves one
+ step each time in the same direction there is your sign.
+\layout Subsection
+
+No Steppers Move
+\layout Standard
+
+Many drives have an enable pin or need a charge pump to enable the output.
+ 
+\layout Subsection
+
+Distance Not Correct
+\layout Standard
+
+If you command the axis to move a specific distance and it does not move
+ that distance then your scale is wrong.
 \layout Section
 
 Error Messages

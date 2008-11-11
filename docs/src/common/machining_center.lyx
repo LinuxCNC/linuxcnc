@@ -1677,7 +1677,7 @@ Parameters
 \layout Standard
 
 In the RS274/NGC language view, a machining center maintains an array of
- 5400 numerical parameters.
+ numerical parameters.
  Many of them have specific uses.
  The parameter array persists over time, even if the machining center is
  powered down.

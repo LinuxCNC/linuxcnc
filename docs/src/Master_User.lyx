@@ -235,6 +235,15 @@ preview false
 \end_inset 
 
 
+\layout Standard
+
+
+\begin_inset Include \include{lathe/lathe-user.lyx}
+preview false
+
+\end_inset 
+
+
 \layout Part
 
 Examples
@@ -246,8 +255,6 @@ preview false
 
 \end_inset 
 
-
-\layout Standard
 
 \layout Part
 
