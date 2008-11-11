@@ -57,6 +57,9 @@ ifneq ($(BUILD_SYS),sim)
 endif
 endif
 
+# list of supported hostmot2 boards
+HM2_BOARDS = 4i65 4i68 5i20 5i22 5i23 7i43
+
 # trick dumb editors into knowing what's going on
 .PHONY: entering
 entering:
@@ -420,7 +423,7 @@ install-dirs:
 		$(DESTDIR)$(sysconfdir)/emc2 $(DESTDIR)$(bindir) \
 		$(DESTDIR)/usr/local/etc/emc2/configs \
 		$(DESTDIR)$(libdir) $(DESTDIR)$(includedir)/emc2 \
-		$(DESTDIR)$(docsdir) $(DESTDIR)$(ncfilesdir) \
+		$(DESTDIR)$(docsdir) $(DESTDIR)$(docsdir)/hostmot2 $(DESTDIR)$(ncfilesdir) \
 		$(DESTDIR)/etc/X11/app-defaults $(DESTDIR)$(tcldir)/bin \
 		$(DESTDIR)$(tcldir)/scripts $(DESTDIR)$(libdir)/emc/tcl \
 		$(DESTDIR)$(mandir)/man1 \
@@ -429,9 +432,14 @@ install-dirs:
 		$(DESTDIR)$(tcldir)/msgs \
 		$(DESTDIR)$(localedir)/de/LC_MESSAGES \
 		$(DESTDIR)$(datadir)/axis/images \
-		$(DESTDIR)$(datadir)/axis/tcl     \
-		$(DESTDIR)/lib/firmware/hm2/5i20  \
-		$(DESTDIR)/lib/firmware/hm2/7i43
+		$(DESTDIR)$(datadir)/axis/tcl
+
+	@for B in ${HM2_BOARDS}; do  \
+		echo making dirs for $$B firmware;  \
+		mkdir -p $(DESTDIR)/lib/firmware/hm2/$$B;  \
+		mkdir -p $(DESTDIR)$(docsdir)/hostmot2/$$B;  \
+	done
+
 
 install-kernel-indep: install-dirs
 	$(FILE) ../docs/man/man1/*.1 $(DESTDIR)$(mandir)/man1
@@ -464,8 +472,12 @@ install-kernel-indep: install-dirs
 	$(FILE) ../tcl/scripts/balloon.tcl ../tcl/scripts/emchelp.tcl $(DESTDIR)$(tcldir)/scripts
 	$(EXE) ../tcl/scripts/Set_Coordinates.tcl $(DESTDIR)$(tcldir)/scripts
 	$(FILE) ../share/emc/stepconf.glade $(DESTDIR)$(prefix)/share/emc/stepconf.glade
-	$(FILE) hal/drivers/mesa-hostmot2/firmware/5i20/*.BIT $(DESTDIR)/lib/firmware/hm2/5i20/
-	$(FILE) hal/drivers/mesa-hostmot2/firmware/7i43/*.BIT $(DESTDIR)/lib/firmware/hm2/7i43/
+
+	@for B in ${HM2_BOARDS}; do  \
+		echo copying hostmot2 firmware files for $$B;  \
+		$(FILE) hal/drivers/mesa-hostmot2/firmware/$$B/*.BIT $(DESTDIR)/lib/firmware/hm2/$$B/;  \
+		$(FILE) hal/drivers/mesa-hostmot2/firmware/$$B/*.PIN $(DESTDIR)$(docsdir)/hostmot2/$$B/;  \
+	done
 
 ifeq ($(BUILD_PYTHON),yes)
 install-kernel-indep: install-python
@@ -637,7 +649,7 @@ obj-$(CONFIG_HAL_SPEAKER) += hal_speaker.o
 hal_speaker-objs := hal/drivers/hal_speaker.o $(MATHSTUB)
 obj-$(CONFIG_HAL_SKELETON) += hal_skeleton.o
 hal_skeleton-objs := hal/drivers/hal_skeleton.o $(MATHSTUB)
-obj-$(CONFIG_HOSTMOT2) += hostmot2.o hm2_7i43.o hm2_5i20.o
+obj-$(CONFIG_HOSTMOT2) += hostmot2.o hm2_7i43.o hm2_pci.o hm2_5i20.o
 hostmot2-objs :=                          \
     hal/drivers/mesa-hostmot2/hostmot2.o  \
     hal/drivers/mesa-hostmot2/ioport.o    \
@@ -651,6 +663,7 @@ hostmot2-objs :=                          \
     hal/drivers/mesa-hostmot2/bitfile.o   \
     $(MATHSTUB)
 hm2_7i43-objs := hal/drivers/mesa-hostmot2/hm2_7i43.o $(MATHSTUB)
+hm2_pci-objs := hal/drivers/mesa-hostmot2/hm2_pci.o $(MATHSTUB)
 hm2_5i20-objs := hal/drivers/mesa-hostmot2/hm2_5i20.o $(MATHSTUB)
 
 ifneq "$(filter 2.6.%, $(kernelvers))" ""

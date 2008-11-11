@@ -1,14 +1,7 @@
 etc/emc2/Makefile.modinc
 etc/init.d/realtime
 etc/emc2/rtapi.conf
-lib/firmware/hm2/5i20/SV12.BIT
-lib/firmware/hm2/5i20/SVST2_8.BIT
-lib/firmware/hm2/5i20/SVST8_4.BIT
-lib/firmware/hm2/7i43/SV8B.BIT
-lib/firmware/hm2/7i43/SV8S.BIT
-lib/firmware/hm2/7i43/SVST4_4B.BIT
-lib/firmware/hm2/7i43/SVST4_4S.BIT
-lib/firmware/hm2/7i43/SVST4_6B.BIT
+lib/firmware/hm2/*/*
 usr/bin/emc
 usr/bin/emcmkdesktop
 usr/bin/latency-test
@@ -434,6 +427,7 @@ usr/share/doc/emc2/LICENSE-Togl
 usr/share/doc/emc2/NEWS
 usr/share/doc/emc2/README
 usr/share/doc/emc2/UPDATING
+usr/share/doc/emc2/hostmot2/*/*
 usr/share/doc/emc2/tkemc.txt
 usr/share/doc/emc2/xemc.txt
 usr/share/emc/ncfiles/3D_Chips.ngc
@@ -543,6 +537,7 @@ usr/share/man/man9/gearchange.9
 usr/share/man/man9/genhexkins.9
 usr/share/man/man9/hm2_5i20.9
 usr/share/man/man9/hm2_7i43.9
+usr/share/man/man9/hm2_pci.9
 usr/share/man/man9/hostmot2.9
 usr/share/man/man9/hypot.9
 usr/share/man/man9/ilowpass.9
