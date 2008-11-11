@@ -4,7 +4,7 @@
 #
 # it is configured with environment variables:
 #
-#     HM2_DRIVER is driver to try to load ie "hm2_7i43" or "hm2_5i20"
+#     HM2_DRIVER is driver to try to load ie "hm2_7i43" or "hm2_pci"
 #
 #     HM2_BOARD is board type, ie "7i43" or "5i20"
 #
