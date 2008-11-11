@@ -106,6 +106,19 @@ Permission is granted to copy, distribute and/or modify this document under
 \layout Standard
 
 
+\begin_inset ERT
+status Open
+
+\layout Standard
+
+\backslash 
+addcontentsline{toc}{chapter}{Table des matières}
+\end_inset 
+
+
+\layout Standard
+
+
 \begin_inset Include \include{common/userforeword_fr.lyx}
 preview false
 

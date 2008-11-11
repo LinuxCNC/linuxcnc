@@ -5260,7 +5260,7 @@ G10 L1
 
 \layout Standard
 
-Entrée longueur, rayon, orientation outil dans table d'outils
+Entre longu., rayon, orientation outil dans table d'outils
 \end_inset 
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
@@ -5299,7 +5299,8 @@ G10 L2
 
 \layout Standard
 
-Etablissement du système de coordonnées pièce (1 à 9)
+Etablissement du système de coord.
+ pièce (1 à 9)
 \end_inset 
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
@@ -5650,7 +5651,8 @@ G41.1, G42.1
 
 \layout Standard
 
-Compensation dynamique de rayon d'outil à gauche, à droite 
+Comp.
+ dynamique de rayon d'outil à gauche, à droite 
 \end_inset 
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
@@ -5689,7 +5691,8 @@ G43
 
 \layout Standard
 
-Compensation de longueur d'outil depuis la table d'outils
+Comp.
+ de longueur d'outil depuis la table d'outils
 \end_inset 
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
@@ -6274,7 +6277,8 @@ G92.3
 
 \layout Standard
 
-Applique le contenu des paramètres aux décalages d'origine
+Appliquer contenu des paramètres aux déc.
+ d'origine
 \end_inset 
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
@@ -7438,11 +7442,11 @@ G54
 G59.3
 \family default 
 ) et tous les mots d'axes, sont optionnels.
- Les coordonnées de l'origine du système de coordonnées, spécifié par le
- nombre P, sont remplacées par les coordonnées des valeurs indiquées (en
- termes de coordonnées absolues).
+ L'origine du système de coordonnées spécifié par le nombre P, est remplacée
+ par les valeurs indiquées (en termes de coordonnées machine non décalées).
  Seules, les coordonnées pour lesquelles un mot d'axe est inclu sur la ligne,
  seront remplacées.
+ Etre en mode incrémental (G91), est sans effet sur G10 L2.
 \layout Standard
 
 C'est une erreur si:
@@ -7451,19 +7455,15 @@ C'est une erreur si:
 Le nombre P n'est pas un entier compris entre 1 et 9.
 \layout Standard
 
-Si des décalages d'origine (créés avec 
+Si un décalage d'origine créé avec 
 \family typewriter 
 G92
 \family default 
- ou 
-\family typewriter 
-G92.3
-\family default 
-) sont actifs avant l'utilisation de 
+ est actif avant la commande 
 \family typewriter 
 G10
 \family default 
-, ils restent actifs après.
+ L2, il reste actif après.
 \layout Standard
 
 Le système de coordonnées dont l'origine est définie par la commande G10
@@ -7472,16 +7472,18 @@ Le système de coordonnées dont l'origine est définie par la commande G10
 G10
 \family default 
 .
+ Si il est actif à ce moment là, les nouvelles coordonnées prennent effet
+ immédiatement.
 \layout Standard
 
 Exemple: 
 \family typewriter 
-G10 L2 P1 x 3.5 y 17.2
+G10 L2 P1 X3.5 Y17.2
 \family default 
  place l'origine du premier système de coordonnées (celui selectionné par
- G54) au point où X vaut 3.5 et Y vaut 17.2 (en coordonnées absolues).
- La coordonnée Z de l'origine, ainsi que les coordonnées de tous les axes
- rotatifs, restent celles qu'elles étaient avant l'exécution de la ligne.
+ G54) au point où X=3.5 et Y=17.2 (en coordonnées absolues).
+ La coordonnée Z de l'origine, ainsi que les coordonnées de tous les autres
+ axes, restent inchangées puisque seuls X et Y étaient spécifiés.
  
 \layout Section
 
@@ -7500,7 +7502,7 @@ G17
 
 \end_inset 
 
-: Choix du plan de travail
+, G17.1, G18.1, G19.1: Choix du plan de travail
 \begin_inset LatexCommand \label{sub:G17,-G18,-G19:}
 
 \end_inset 
@@ -7508,10 +7510,146 @@ G17
 
 \layout Standard
 
-Programmer G17 pour choisir le plan de travail XY, G18 pour choisir le plan
- de travail XZ, ou G19 pour choisir le plan de travail YZ.
- Les effets provoqués par un changement de plan de travail sont expliqués
- dans les sections 
+
+Ces codes sélectionnent le plan courant comme ci-dessous:
+\layout Standard
+
+
+
+\begin_inset  Tabular
+<lyxtabular version="3" rows="6" columns="2">
+<features>
+<column alignment="left" valignment="top" leftline="true" width="0">
+<column alignment="left" valignment="top" leftline="true" rightline="true" width="0">
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+G17
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+XY (par défault)
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+G18
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+ZX
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+G19
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+YZ
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+G17.1
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+UV
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+G18.1
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+WU
+\end_inset 
+</cell>
+</row>
+<row topline="true" bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+G19.1
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+VW
+\end_inset 
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset 
+
+
+\layout Standard
+
+Les différents effets provoqués selon la sélection du plan de travail, sont
+ expliqués dans les sections 
 \begin_inset LatexCommand \ref{sub:-G2,-G3:-Arc}
 
 \end_inset 
@@ -8951,7 +9089,12 @@ Des mots d'axes sont programmés quand G80 est actif, sans qu'un G-code modal
  du groupe 0 ne soit programmé avec les mots d'axes.
 \layout Section
 
-G73, G81 à G89: Cycles préprogrammés
+
+\begin_inset LatexCommand \index{Cycles preprogrammes}
+
+\end_inset 
+
+Les cycles préprogrammés
 \begin_inset LatexCommand \label{sub:G81-a-G89:}
 
 \end_inset 
@@ -8961,24 +9104,25 @@ G73, G81 à G89: Cycles préprogrammés
 
 Les cycles préprogrammés 
 \family typewriter 
-G73, G81
+de G81
 \family default 
  à 
 \family typewriter 
 G89
 \family default 
- sont implémentés comme décrit dans cette section.
- Deux exemples sont donnés avec la description de 
+ sont décrit dans cette section.
+ Deux exemples sont donnés plus bas avec la description de 
 \family typewriter 
 G81.
 \layout Standard
 
 Tous les cycles préprogrammés sont effectués dans le respect du plan de
  travail courant.
- N'importe lequel des trois plans de travail XY, YZ, ZX peut être choisi.
+ N'importe lequel des six plans de travail peut être choisi.
  Dans cette section, la plupart des descriptions supposeront que le plan
  de travail XY est le plan courant.
- Le comportement reste analogue pour les plans de travail YZ ou XZ.
+ Le comportement reste analogue pour les autres plans de travail et les
+ mots corrects doivent être utilisés.
 \layout Standard
 
 Les mots d'axes rotatifs sont autorisés dans les cycles préprogrammés, mais
@@ -8986,15 +9130,27 @@ Les mots d'axes rotatifs sont autorisés dans les cycles préprogrammés, mais
  Si les mots d'axes rotatifs sont utilisés, leurs valeurs doivent rester
  les mêmes que celles de la position courante, de sorte qu'ils ne tournent
  pas.
+\layout Subsection
+
+Mots communs
 \layout Standard
 
-Tous les cycles préprogrammés utilisent X-, Y-, R-, et Z- dans le code NC.
- Ces valeurs sont utilisées pour déterminer les positions de X, Y, R, et
- Z.
+Tous les cycles préprogrammés utilisent les mots X-, Y-, R-, et Z-.
  La position de R- (signifiant rétraction) est perpendiculaire au plan de
  travail courant (axe Z pour le plan XY, axe X pour le plan YZ, axe Y pour
- le plan XZ).
+ le plan XZ, etc.).
  Quelques cycles préprogrammés utilisent des arguments supplémentaires.
+\layout Subsection
+
+Mots 
+\begin_inset Quotes fld
+\end_inset 
+
+sticky
+\begin_inset Quotes frd
+\end_inset 
+
+
 \layout Standard
 
 Dans les cycles préprogrammés, un nombre est appelé 
@@ -9018,7 +9174,7 @@ sticky
 
  conservent leur valeur tant qu'ils ne sont pas explicitement programmés
  avec une nouvelle valeur.
- La valeur de R- est toujours 
+ La valeur de R est toujours 
 \begin_inset Quotes eld
 \end_inset 
 
@@ -9029,12 +9185,9 @@ sticky
 .
 \layout Standard
 
-En mode de déplacements incrémentaux (G91): quand le plan courant est XY,
- les valeurs X-, Y-, est R- sont traitées comme incrémentales à partir de
- la position courante et Z- comme un incrément depuis la position précédent
- le mouvement impliquant l'axe Z.
- Quand le plan YZ ou XZ est le plan courant, le traitement des mots d'axes
- est analogue.
+En mode de déplacements incrémentaux (G91), les valeurs X-, Y-, est R- sont
+ traitées comme des incréments depuis la position courante, Z est un incrément
+ depuis la position de l'axe Z avant le mouvement impliquant l'axe Z.
  En mode de déplacements absolus, les valeurs de X-, Y-, R-, et Z- sont
  des positions absolues dans le système de coordonnées courant.
 \layout Standard
@@ -9045,10 +9198,9 @@ La valeur L- est optionnelle, elle représente le nombre de répétitions.
 \end_inset 
 
  n'est pas permis.
- Si les répétitions sont utilisées, elles le sont normalement en mode de
- déplacements incrémentaux, de sorte que la même séquence de mouvements
- puisse être répétée à plusieurs endroits, égalements espacés, le long d'un
- ligne droite.
+ Si les répétitions sont utilisées, elles le sont normalement en mode incrémenta
+l, de sorte que la même séquence de mouvements puisse être répétée à plusieurs
+ endroits, égalements espacés, le long d'un ligne droite.
  En mode de déplacements absolus, 
 \begin_inset Formula $L>1$
 \end_inset 
@@ -9067,7 +9219,7 @@ faire le même cycle au même endroit, plusieurs fois
 \end_inset 
 
 .
- La valeur de L- n'est pas 
+ La valeur de L n'est pas 
 \begin_inset Quotes eld
 \end_inset 
 
@@ -9076,17 +9228,25 @@ sticky
 \end_inset 
 
 .
+\layout Subsection
+
+Répétition de cycle
 \layout Standard
 
-Avec 
+Quand 
 \begin_inset Formula $L>1$
 \end_inset 
 
  en mode incrémental et XY comme plan courant, les positions X et Y sont
- déterminées en ajoutant les valeurs X- et Y- de la commande à celles de
- la position courante, pour le premier trajet ou, ensuite, à celles de la
- position finale du précédent trajet, pour les répétitions.
- Les valeurs de R- et de Z- ne changent pas durant toutes les répétitions.
+ déterminées en ajoutant les valeurs X et Y de la commande à celles de la
+ position courante, pour le premier trajet ou ensuite, à celles de la position
+ finale du précédent trajet, pour les répétitions.
+ Ainsi, si vous programmez L10, vous obtiendrez 10 cycles.
+ Le premier cycle sera la distance X, Y depuis la position d'origine.
+ Les positions de R- et Z- ne changent pas durant toutes les répétitions.
+\layout Subsection
+
+Mode de retrait
 \layout Standard
 
 La hauteur du mouvement de retrait à la fin de chaque répétition (appellée
@@ -9098,26 +9258,28 @@ plan de retrait
 \begin_inset Quotes erd
 \end_inset 
 
- dans les descriptions suivantes) est déterminée par le passage en mode:
+ dans les descriptions suivantes) est déterminée par le mode de retrait:
  retrait sur la position initiale de Z, si elle est au dessus de la valeur
  de R- et que le mode de retrait est 
 \family typewriter 
-G99
+G9
 \family default 
-, OLD_Z, sinon, à la position de R-.
+8, OLD_Z, sinon, à la position de R-.
  Voir la section 
 \begin_inset LatexCommand \ref{sub:G98,-G99:-Set}
 
 \end_inset 
 
 
+\layout Subsection
+
+Erreurs des cycles préprogrammés
 \layout Standard
 
 C'est une erreur si:
 \layout Itemize
 
 Tous les mots X, Y et Z sont manquants durant un cycle préprogrammé.
- 
 \layout Itemize
 
 Un nombre P est requis mais un nombre P négatif est utilisé.
@@ -9158,42 +9320,8 @@ La valeur de Z est manquante alors qu'un même cycle préprogrammé n'a pas
 La valeur de R est inférieure à celle de Z.
 \layout Standard
 
-Quand le plan XZ est actif, la valeur de Y est 
-\begin_inset Quotes eld
-\end_inset 
-
-sticky
-\begin_inset Quotes erd
-\end_inset 
-
-, et c'est une erreur si:
-\layout Itemize
-
-La valeur de Y est manquante alors qu'un même cycle préprogrammé n'a pas
- encore été activé.
- 
-\layout Itemize
-
-La valeur de R est inférieure à celle de Y.
-\layout Standard
-
-Quand le plan YZ est actif, la valeur de X est 
-\begin_inset Quotes eld
-\end_inset 
-
-sticky
-\begin_inset Quotes erd
-\end_inset 
-
-, et c'est une erreur si:
-\layout Itemize
-
-La valeur de X est manquante alors qu'un même cycle préprogrammé n'a pas
- encore été activé.
- 
-\layout Itemize
-
-La valeur de R est inférieure à celle de X.
+Si un autre plan est actif, les conditions d'erreur sont analogues à celles
+ du plan XY décrites ci-dessus.
 \layout Subsection
 
 Mouvement préliminaire et Intermédiaire
@@ -9224,8 +9352,8 @@ Un déplacement en ligne droite, de l'axe Z seul vers la position de retrait
  
 \layout Standard
 
-Si un des plans XZ ou YZ est actif, le mouvement préliminaire et intermédiaire
- est analogue.
+Si un autre plan est actif, le mouvement préliminaire et intermédiaire est
+ analogue.
  
 \layout Subsection
 
@@ -9635,11 +9763,11 @@ La broche ne tourne pas avant que ce cycle ne soit éxécuté.
 \layout Subsection
 
 G87
-\begin_inset LatexCommand \index{G87 Alesage arriere}
+\begin_inset LatexCommand \index{G87 Alesage inverse}
 
 \end_inset 
 
-: Alésage arrière
+: Alésage inverse
 \begin_inset LatexCommand \label{sub:G87:-Back-Boring}
 
 \end_inset 
@@ -9742,8 +9870,8 @@ Pour se déplacer en mode absolu, programmer
 G90
 \family default 
 .
- En mode absolu, les valeurs d'axes X, Y, Z, A, B, C représentent les positions
- dans le système de coordonnées courant.
+ En mode absolu, les valeurs d'axes X, Y, Z, A, B, C, U, V, W représentent
+ les positions dans le système de coordonnées courant.
  Les exceptions à cette règle sont décrites dans la section 
 \begin_inset LatexCommand \ref{sub:G81-a-G89:}
 
@@ -9757,20 +9885,34 @@ Pour se déplacer en mode incrémental, programmer
 G91
 \family default 
 .
- En mode incrémental, les valeurs d'axes X, Y, Z, A, B, C représentent une
- valeur à ajouter à la position courante.
+ En mode incrémental, les valeurs d'axes représentent un incrément depuis
+ la position courante.
+\layout Section
+
+
+G90.1, G91.1 Mode distance (I, J et K)
 \layout Standard
 
-Les valeurs I et J représentent toujours des incréments, quel que soit le
- mode de déplacement actif.
- La valeur de K représente un incrément à ajouter dans tous les cas sauf
- un (voir la section 
-\begin_inset LatexCommand \ref{sub:G87:-Back-Boring}
 
-\end_inset 
+Note: Cette fonctionnalité est en cours de développement, elle n'est peut
+ être pas totalement implémentée.
+\layout Standard
 
-), dans lequel la signification du mode de déplacement change.
+
+G90.1 Mode distance absolute pour les offsets I, J et K.
  
+\layout Itemize
+
+
+I et J doivent tous les deux être spécifiés ou une erreur se produira.
+\layout Standard
+
+
+G91.1 Mode distance incrémentale pour les offsets I, J et K.
+\layout Itemize
+
+
+Renvoie I, J et K à leur fonctionnement normal.
 \layout Section
 
 G92
@@ -9793,7 +9935,7 @@ G92
 
 \end_inset 
 
-: Décalage d'origine du système de coordonnées
+: Décalage d'origine des systèmes de coordonnées
 \begin_inset LatexCommand \label{sub:G92,-G92.1,-G92.2,}
 
 \end_inset 
@@ -9806,7 +9948,7 @@ Voir la section
 
 \end_inset 
 
- pour une vue générale des systèmes de coordonnées.
+ pour une vision générale des systèmes de coordonnées.
 \layout Standard
 
 Pour donner au point actuel de nouvelles valeurs de coordonnées (sans faire
@@ -9814,7 +9956,7 @@ Pour donner au point actuel de nouvelles valeurs de coordonnées (sans faire
 \family typewriter 
 G92 X- Y- Z- A- B- C-
 \family default 
- , où les mots d'axes contiennent les valeurs souhaîtées.
+ U-, V-, W-, où les mots d'axes contiennent les valeurs souhaîtées.
  Au moins un mot d'axe est obligatoire, les autres sont optionnels.
  Si il n'y a pas de mot d'axe pour un axe donné, les coordonnées de cet
  axe resteront inchangées.
@@ -9828,44 +9970,19 @@ Quand
 \family typewriter 
 G92
 \family default 
- est exécuté, l'origine du système de coordonnées courant est déplacée.
- Pour ce faire, les décalages d'origine sont calculés de sorte que les coordonné
-es du point courant concordent avec l'origine déplacée comme spécifié dans
- la ligne du G92.
- En plus, les paramètres 5211 à 5216 sont positionnés sur le décalage des
- axes X, Y, Z, A, B et C.
- Le décalage d'un axe correspond à la distance dont l'origine doit être
- déplacée afin que la coordonnée du point contrôlé, sur cet axe, ait la
- valeur spécifiée.
- 
+ est exécuté, les origines de tout les systèmes de coordonnées sont déplacées.
+ Elles sont déplacées de la même valeur que le point contrôlé courant l'est,
+ dans le système de coordonnées courant, pour prendre les valeurs spécifiées
+ dans la ligne du G92.
+ Les origines de tous les systèmes de coordonnées sont décalées de la même
+ valeur.
 \layout Standard
 
-Voici un exemple: Supposons que le point courant soit X=4 dans le système
- de coordonnées courant et que le décalage actuel de l'axe X soit à zéro,
- alors 
-\family typewriter 
-G92 x7
-\family default 
- passe le décalage de l'axe X à -3, positionne le paramètre 5211 à -3 et
- positionne la coordonnée en X du point courant à 7.
-\layout Standard
-
-Les décalages d'axes sont toujours utilisés quand un mouvement est spécifié
- en mode de déplacement absolu, en utilisant un des neuf systèmes de coordonnées
- (ceux désignés par 
-\family typewriter 
-G54
-\family default 
- - 
-\family typewriter 
-G59.3
-\family default 
-).
- Ainsi, les neuf systèmes de coordonnées sont affectés par 
-\family typewriter 
-G92
-\family default 
-.
+Un exemple: supposons que le point courant soit à X=4 et qu'aucun décalage
+ G92 ne soit actif.
+ La ligne G92 X7 est programmée, toutes les origines seront décalées de
+ -3 en X, ce qui fera que le point courant deviendra X=7.
+ Ce -3 est sauvegardé dans le paramètre 5211.
 \layout Standard
 
 Le fait d'être en mode de déplacement incrémental est sans effet sur l'action
@@ -9876,25 +9993,14 @@ G92
 .
 \layout Standard
 
-Des décalages non nuls peuvent déjà être actifs quand 
+Des décalages G92 peuvent déjà être actifs quand 
 \family typewriter 
 G92
 \family default 
  est appelé.
- Si c'est le cas, la nouvelle valeur de chaque décalage devient A+B, où
- A est le décalage voulu si l'ancien avait été nul, et B est l'ancien décalage.
- Par exemple, après le précédent exemple, la valeur de X au point courant
- est 7.
- Si 
-\family typewriter 
-G92 x9
-\family default 
- est alors programmé, le nouveau décalage de l'axe X devient -5, qui est
- calculé par 
-\family typewriter 
-[[7-9] + -3]
-\family default 
-.
+ Si c'est le cas, ils sont remplacés par le nouveau, de sorte que la point
+ courant prends valeur spécifiée.
+ 
 \layout Standard
 
 Pour repasser un décalage d'axe à zéro, programmer 
@@ -9910,7 +10016,7 @@ G92.2
 \family typewriter 
 G92.1
 \family default 
- positionne les paramètres 5211 à 5216 à zéro, tandis que 
+ positionne les paramètres 5211 à 5219 à zéro, tandis que 
 \family typewriter 
 G92.2
 \family default 
@@ -9918,7 +10024,7 @@ G92.2
 \layout Standard
 
 Pour positionner des valeurs de décalage d'axes aux valeurs données dans
- les paramètres 5211 à 5216, programmer 
+ les paramètres 5211 à 5219, programmer 
 \family typewriter 
 G92.3
 \family default 
@@ -9931,7 +10037,7 @@ Vous pouvez positionner les décalages d'axes dans un programme et ré-utiliser
 \family typewriter 
 G92
 \family default 
- dans le premier programme, ce qui positionnera les paramètres 5211 à 5216.
+ dans le premier programme, ce qui positionnera les paramètres 5211 à 5219.
  Ne pas utiliser G92.1 dans la suite du premier programme.
  Les valeurs des paramètres seront enregistrées lors de la sortie du premier
  programme et rétablies au chargement du second programme.
@@ -9941,10 +10047,7 @@ G92.3
 \family default 
  vers le début du deuxième programme, ce qui restaurera les décalages d'axes
  enregistrés dans le premier.
- Si d'autres programmes sont lancés entre le programme qui enregistre les
- décalages et celui qui les restaure, faire une copie du fichier de paramètres
- écrit par le premier programme et l'utiliser comme fichier de paramètres
- pour le deuxième programme.
+ 
 \layout Section
 
 G93
@@ -11474,7 +11577,7 @@ G84, G87 non implémentés
 \layout Standard
 
 G84 et G87 ne sont pas actuellement implémentés, mais serons peut être ajoutés
- à de futures versions d'emc2.
+ à de futures versions d'EMC2.
 \layout Subsection
 
 G28, G30 avec des mots d'axes
@@ -11503,7 +11606,7 @@ M62, M63 non implémentés
 \layout Standard
 
 M62 et M63 ne sont pas encore implémentés, mais serons peut être ajoutés
- à de futures versions d'emc2..
+ à de futures versions d'EMC2.
 \layout Subsection
 
 G0 réduit les longs mouvements angulaires pour les rendre inférieurs à un
@@ -11531,7 +11634,7 @@ G38.2
 
 La pointe du palpeur n'est pas rétractée après un mouvement G38.2.
  Ce mouvement de retrait sera peut être ajouté dans de futures versions
- d'emc2.
+ d'EMC2.
 \layout Subsection
 
 G38.3\SpecialChar \ldots{}
