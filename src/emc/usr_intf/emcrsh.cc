@@ -1049,8 +1049,8 @@ static cmdResponseType setOpen(char *s, connectionRecType *context)
   char fileStr[80];
   
   pch = strtok(NULL, "\n\r\0");
-  strcpy(context->progName, pch);
   if (pch == NULL) return rtStandardError;
+  strcpy(context->progName, pch);
   strcpy(fileStr, "../../nc_files/");
   strcat(fileStr, pch);
   if (sendProgramOpen(fileStr) != 0) return rtStandardError;
