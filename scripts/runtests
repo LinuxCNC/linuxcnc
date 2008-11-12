@@ -130,7 +130,7 @@ Usage:
 	tests.
 
     $P -c tests
-	Remove temporary files from an earlier test fun.
+	Remove temporary files from an earlier test run.
 EOF
 }
 
