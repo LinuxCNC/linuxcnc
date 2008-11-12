@@ -477,6 +477,7 @@ static vcp_widget_t *get_child_widget(vcp_widget_t *parent, char *name, token_fi
 	    free_widget(widget);
 	    return NULL;
 	}
+
 	delim = tf_get_token(tf);
 	if ( delim == NULL ) {
 	    printf ( "line %d: unexpected EOF in widget '%s'\n",
@@ -488,6 +489,7 @@ static vcp_widget_t *get_child_widget(vcp_widget_t *parent, char *name, token_fi
 	    if ( get_attrib(widget, item_name, tf) != 0 ) {
 		/* message already printed inside get_attrib() */
 		free_widget(widget);
+                free(delim);
 		return NULL;
 	    }
 	} else if ( delim[0] == '{' ) {
@@ -495,14 +497,17 @@ static vcp_widget_t *get_child_widget(vcp_widget_t *parent, char *name, token_fi
 	    if ( get_child_widget(widget, item_name, tf) == NULL ) {
 		/* message already printed inside get_child_widget() */
 		free_widget(widget);
+                free(delim);
 		return NULL;
 	    }
 	} else {
 	    printf ( "line %d: expected '=' or '{' after '%s'\n",
 			tf->tokenline, item_name );
 	    free_widget(widget);
+            free(delim);
 	    return NULL;
 	}
+        free(delim);
     }
 }
 
