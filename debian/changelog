@@ -1,3 +1,9 @@
+emc2 (1:2.2.8~cvs) hardy; urgency=low
+
+  * Documentation improvements
+
+ -- Jeff Epler <jepler@unpythonic.net>  Tue, 11 Nov 2008 20:48:20 -0600
+
 emc2 (1:2.2.7) hardy; urgency=low
 
   * pop up a message when the right kernel isn't running
@@ -23,7 +29,7 @@ emc2 (1:2.2.7) hardy; urgency=low
   * Lots of hostmot2 bug fixes, mostly with pwmgen and stepgen.  Thanks to
     all the brave testers!
 
- -- Jeff Epler <jepler@unpythonic.net>  Tue, 11 Nov 2008 11:30:55 -0600
+ -- Jeff Epler <jepler@unpythonic.net>  Tue, 11 Nov 2008 20:48:18 -0600
 
 emc2 (1:2.2.6) hardy; urgency=low
 
