@@ -533,10 +533,10 @@ static int export_pid(int num, hal_pid_t * addr)
 	    return retval;
 	}
     } else {
-	addr->error_i = (hal_float_t *) hal_malloc(sizeof(hal_float_t *));
-	addr->error_d = (hal_float_t *) hal_malloc(sizeof(hal_float_t *));
-	addr->cmd_d = (hal_float_t *) hal_malloc(sizeof(hal_float_t *));
-	addr->cmd_dd = (hal_float_t *) hal_malloc(sizeof(hal_float_t *));
+	addr->error_i = (hal_float_t *) hal_malloc(sizeof(hal_float_t));
+	addr->error_d = (hal_float_t *) hal_malloc(sizeof(hal_float_t));
+	addr->cmd_d = (hal_float_t *) hal_malloc(sizeof(hal_float_t));
+	addr->cmd_dd = (hal_float_t *) hal_malloc(sizeof(hal_float_t));
     }
 
     *(addr->error_i) = 0.0;
