@@ -330,6 +330,7 @@ int read_tool_file(  /* ARGUMENTS         */
       if (fgets(buffer, 1000, tool_file_port) == NULL)
         {
           fprintf(stderr, "Bad tool file format\n");
+          fclose(tool_file_port);
           return 1;
         }
       else if (buffer[0] == '\n')

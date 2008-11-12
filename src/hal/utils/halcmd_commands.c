@@ -2171,6 +2171,7 @@ int do_save_cmd(char *type, char *filename)
 	save_threads(dst);
     } else {
 	halcmd_error("Unknown 'save' type '%s'\n", type);
+        if (dst != stdout) fclose(dst);
 	return -1;
     }
     if (dst != stdout) {
