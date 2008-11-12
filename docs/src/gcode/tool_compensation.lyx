@@ -264,6 +264,18 @@ Z axis motion may take place while the contour is being followed in the
  used with cutter radius compensation.
  Under G94, the feed rate will apply to the actual path of the cutter tip,
  not to the programmed contour.
+\layout Standard
+
+
+\begin_inset Note
+collapsed false
+
+\layout Standard
+
+where is figure 7
+\end_inset 
+
+
 \layout Subsubsection*
 
 Programming Instructions

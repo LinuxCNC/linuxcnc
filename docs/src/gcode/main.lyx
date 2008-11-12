@@ -2815,15 +2815,6 @@ Because the meaning of an F-word in feed-per-minute mode varies depending
  on which axes are commanded to move, and because the amount of material
  removed does not depend only on the feed rate, it may be easier to use
  G93 inverse time feed mode to achieve the desired material removal rate.
-\layout Standard
-
-
-\begin_inset Include \input{tool_compensation.lyx}
-preview false
-
-\end_inset 
-
-
 \layout Chapter
 
 G Codes

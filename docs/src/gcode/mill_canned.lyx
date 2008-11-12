@@ -35,6 +35,19 @@ Canned Cycles
 
 \layout Standard
 
+
+\begin_inset Note
+collapsed false
+
+\layout Standard
+
+graphics need to be unsucked and mini pages replaced as it makes the graphics
+ too small to read
+\end_inset 
+
+
+\layout Standard
+
 Canned Cycles G81 through G89 have been implemented for milling.
  This section describes how each cycle has been implemented.
  In addition G80 and G98/G99 are considered here because their primary use
@@ -125,8 +138,8 @@ In addition, for each repeat as specified by L, one or two moves are made
  already at the R position.
 \layout Section
 
-G80 Cancel Cycle
-\begin_inset LatexCommand \index{G80 Cancle Cycle}
+G80
+\begin_inset LatexCommand \index{G80}
 
 \end_inset 
 
@@ -276,8 +289,8 @@ These should serve as a reminder that you need to write in a new motion
  word.
 \layout Section
 
-G81 Drill Cycle
-\begin_inset LatexCommand \index{G81 Drill Cycle}
+G81
+\begin_inset LatexCommand \index{G81}
 
 \end_inset 
 
@@ -478,12 +491,12 @@ Since this plot starts with (0, 0, 0), the interpreter adds the initial
 Example 5 - Relative position R > Z
 \layout Section
 
-G82 Drill Dwell Cycle
-\begin_inset LatexCommand \index{G82 Drill Dwell Cycle}
+G82
+\begin_inset LatexCommand \index{G82}
 
 \end_inset 
 
- 
+
 \layout Standard
 
 The G82 cycle is intended for drilling.
@@ -515,8 +528,8 @@ Would be equivalent to example 2 above with a dwell added at the bottom
  of the hole.
 \layout Section
 
-G83 Chip Breaking Drill Cycle
-\begin_inset LatexCommand \index{G83 Chip Breaking Drill Cycle}
+G83
+\begin_inset LatexCommand \index{G83}
 
 \end_inset 
 
@@ -575,8 +588,8 @@ I find this command very handy for many of my deep drilling projects.
  Each peck pulls the drill tip up to R0.2 after moving Q0.05.
 \layout Section
 
-G84 Tapping Cycle
-\begin_inset LatexCommand \index{G84 Tapping Cycle}
+G84
+\begin_inset LatexCommand \index{G84}
 
 \end_inset 
 
@@ -622,8 +635,8 @@ The G84 cycle is intended for right-hand tapping.
  Start the spindle clockwise.
 \layout Section
 
-G85 Boring Cycle
-\begin_inset LatexCommand \index{G85 Boring Cycle}
+G85
+\begin_inset LatexCommand \index{G85}
 
 \end_inset 
 
@@ -650,8 +663,8 @@ The G85 cycle is intended for boring or reaming.
  the hole at feed rate rather than rapid.
 \layout Section
 
-G86 Dwell Boring Cycle
-\begin_inset LatexCommand \index{G86 Dwell Boring Cycle}
+G86
+\begin_inset LatexCommand \index{G86}
 
 \end_inset 
 
@@ -694,8 +707,8 @@ The G86 cycle is intended for boring.
  value R.
 \layout Section
 
-G87 Back Boring Cycle
-\begin_inset LatexCommand \index{G87 Back Boring Cycle}
+G87
+\begin_inset LatexCommand \index{G87}
 
 \end_inset 
 
@@ -959,8 +972,8 @@ This canned cycle assumes spindle orientation which has not been implemented
  to the successful insertion of the tool through the hole to be backbored.
 \layout Section
 
-G88 Boring Cycle
-\begin_inset LatexCommand \index{G88 Boring Cycle}
+G88
+\begin_inset LatexCommand \index{G88}
 
 \end_inset 
 
@@ -998,8 +1011,8 @@ The G88 cycle is intended for boring.
  We will attempt to clarify that step in this procedure.
 \layout Section
 
-G89 Boring Cycle
-\begin_inset LatexCommand \index{G89 Boring Cycle}
+G89
+\begin_inset LatexCommand \index{G89}
 
 \end_inset 
 
@@ -1028,8 +1041,8 @@ The G89 cycle is intended for boring.
  rather than rapid.
 \layout Section
 
-G98 Cycle Return
-\begin_inset LatexCommand \index{G98 Cycle Return}
+G98
+\begin_inset LatexCommand \index{G98}
 
 \end_inset 
 
@@ -1058,8 +1071,8 @@ The G98 to the second line above means that the return move will be to the
  
 \layout Section
 
-G99 Cycle Return
-\begin_inset LatexCommand \index{G99 Cycle Return}
+G99
+\begin_inset LatexCommand \index{G99}
 
 \end_inset 
 
@@ -1074,6 +1087,18 @@ Program a G99 and the canned cycle will use the R value as the Z return
 G91 with G98-99
 \begin_inset LatexCommand \index{G91 with G98-99}
 
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset Note
+collapsed false
+
+\layout Standard
+
+need a diagram or something to clear this up also compare with 2.2.x
 \end_inset 
 
 

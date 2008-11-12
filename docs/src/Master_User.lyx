@@ -58,7 +58,7 @@ addcontentsline{toc}{chapter}{Cover}
 
 \layout Title
 
-V2.3 User Manual
+User Manual V2.3
 \layout Author
 
 The EMC Team
@@ -74,16 +74,16 @@ The EMC Team
 
 
 \layout Standard
-\added_space_top 0.75in 
+
 This handbook is a work in progress.
  If you are able to help with writing, editing, or graphic preparation please
  contact any member of the writing team or join and send an email to emc-users@l
 ists.sourceforge.net.
 \layout Standard
-\added_space_top 0.5in \align center 
+\align center 
 Copyright (c) 2000-7 LinuxCNC.org
 \layout Standard
-\added_space_top 0.5in \line_top \noindent 
+\line_top \noindent 
 Permission is granted to copy, distribute and/or modify this document under
  the terms of the GNU Free Documentation License, Version 1.1 or any later
  version published by the Free Software Foundation; with no Invariant Sections,
@@ -200,6 +200,15 @@ preview false
 
 
 \begin_inset Include \include{gcode/main.lyx}
+preview false
+
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset Include \include{gcode/tool_compensation.lyx}
 preview false
 
 \end_inset 

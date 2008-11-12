@@ -145,7 +145,7 @@ When you start AXIS, a window like the one in Figure
  is shown.
 \layout Subsection
 
-A typical session with AXIS
+A typical session
 \layout Enumerate
 
 Start EMC and select a configuration file.
@@ -211,7 +211,7 @@ To mill the same file again, return to step 6.
  When you're done, exit AXIS.
 \layout Section
 
-Elements of the AXIS window
+AXIS Display
 \layout Standard
 
 The AXIS window contains the following elements:
@@ -863,7 +863,7 @@ P
  Clear live backplot
 \layout Subsection
 
-Graphical Program Display Area
+Graphical Display Area
 \layout Subsubsection
 
 Coordinate Display
@@ -1031,12 +1031,12 @@ extents
  of the program in each axis are shown.
  At each end, the least or greatest coordinate value is indicated.
  In the middle, the difference between the coordinates is shown.
- In Figure 
+ In Figure (
 \begin_inset LatexCommand \ref{cap:AXIS-Window}
 
 \end_inset 
 
-, the X extent of the file is from -2.05 to 2.09 inches, a total of 4.13 inches.
+), the X extent of the file is from 0.00 to 6.92 inches, a total of 6.92 inches.
 \layout Standard
 
 When some coordinates exceed the 
@@ -1047,13 +1047,38 @@ soft limits
 \begin_inset Quotes erd
 \end_inset 
 
- in the .ini file, the relevant dimension is shown in a different color.
- Here, the maximum limit is exceeded on the X axis:
+ in the .ini file, the relevant dimension is shown in a different color and
+ enclosed by a box.
+ In Figure (
+\begin_inset LatexCommand \ref{cap:Soft-Limit}
+
+\end_inset 
+
+) the maximum soft limit is exceeded on the X axis as indicatated by the
+ box surrounding the coordinate value.
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Caption
+
+Soft Limit
+\begin_inset LatexCommand \label{cap:Soft-Limit}
+
+\end_inset 
+
+
 \layout Standard
 \align center 
 
 \begin_inset Graphics
 	filename axis-outofrange.png
+
+\end_inset 
+
 
 \end_inset 
 
@@ -1093,7 +1118,7 @@ When the machine moves, it leaves a trail called the backplot.
  for circular moves at a feed rate.
 \layout Subsubsection
 
-Interacting with the display
+Interacting
 \layout Standard
 
 By left-clicking on a portion of the preview plot, the line will be highlighted
@@ -1160,7 +1185,7 @@ Current and Selected Lines
 
 \layout Subsection
 
-Text Program Display Area
+Text Display Area
 \layout Standard
 
 By left-clicking a line of the program, the line will be highlighted in
@@ -2123,7 +2148,7 @@ Cycle among preset views
 
 \layout Section
 
-emctop: Show EMC Status
+Show EMC Status
 \layout Standard
 
 AXIS includes a program called 
@@ -2168,7 +2193,7 @@ The name of each item is shown in the left column.
  If the value has recently changed, it is shown on a red background.
 \layout Section
 
-mdi: Text-mode MDI interface
+MDI interface
 \layout Standard
 
 AXIS includes a program called 
@@ -2236,7 +2261,7 @@ MDI>
 
 \layout Section
 
-axis-remote: Send remote commands to the AXIS GUI
+axis-remote
 \layout Standard
 
 AXIS includes a program called 
@@ -2430,23 +2455,16 @@ scripts/emc-environment
 .
 \layout Section
 
-Using AXIS to control a CNC Lathe
-\begin_inset LatexCommand \index{lathe}
-
-\end_inset 
-
-
+Lathe Mode
 \layout Standard
 
 By including the line 
-\layout LyX-Code
+\layout Quote
 
-[DISPLAY]
-\newline 
-LATHE = 1
+LATHE=1
 \layout Standard
 
-in the ini file, AXIS selects lathe mode.
+in the [DISPLAY] section of the ini file, AXIS selects lathe mode.
  The 
 \begin_inset Quotes eld
 \end_inset 
@@ -2497,7 +2515,7 @@ Lathe Mode showing the lathe tool shape
 
 \layout Section
 
-Advanced configuration of AXIS
+Advanced Configuration
 \layout Subsection
 
 Program Filters
@@ -2721,7 +2739,7 @@ After AXIS has created these HAL pins, it executes the halfile named in
 , only one such file may be used.
 \layout Subsection
 
-~/.axisrc
+axisrc
 \begin_inset LatexCommand \index{.axisrc}
 
 \end_inset 
