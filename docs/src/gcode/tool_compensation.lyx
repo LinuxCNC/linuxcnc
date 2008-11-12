@@ -89,10 +89,10 @@ Tool length offsets are given as positive numbers in the tool table.
  The effect of tool length compensation is illustrated in the screen shot
  below.
  Notice that the length of the tool is subtracted from the z setting so
- that the tool tip appears at the programmed setting.  You should note that
- the effect of tool length compensation is immediate when you view the z
- position as a relative coordinate but it does affect actual machine position
- until you program a z move.
+ that the tool tip appears at the programmed setting.
+ You should note that the effect of tool length compensation is immediate
+ when you view the z position as a relative coordinate but it does affect
+ actual machine position until you program a z move.
 \layout Standard
 
 
@@ -268,6 +268,18 @@ Z axis motion may take place while the contour is being followed in the
  used with cutter radius compensation.
  Under G94, the feed rate will apply to the actual path of the cutter tip,
  not to the programmed contour.
+\layout Standard
+
+
+\begin_inset Note
+collapsed false
+
+\layout Standard
+
+where is figure 7
+\end_inset 
+
+
 \layout Subsubsection*
 
 Programming Instructions

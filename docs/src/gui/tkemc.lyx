@@ -94,7 +94,7 @@ TkEMC Window
 Getting Started
 \layout Standard
 
-To select TkEMC as the front-end for emc2, edit the .ini file.
+To select TkEMC as the front-end for EMC2, edit the .ini file.
  In the section 
 \family typewriter 
 [DISPLAY]
@@ -109,7 +109,7 @@ DISPLAY
 DISPLAY = tkemc
 \layout Standard
 
-Then, start emc2 and select that ini file.
+Then, start EMC2 and select that ini file.
  The sample configuration 
 \family typewriter 
 sim/tkemc.ini
@@ -117,7 +117,7 @@ sim/tkemc.ini
  is already configured to use TkEMC as its front-end.
 \layout Standard
 
-When you start emc2 with TkEMC, a window like the one in Figure 
+When you start EMC2 with TkEMC, a window like the one in Figure 
 \begin_inset LatexCommand \ref{cap:TkEMC-Window}
 
 \end_inset 
@@ -128,7 +128,7 @@ When you start emc2 with TkEMC, a window like the one in Figure
 A typical session with TkEMC
 \layout Enumerate
 
-Start emc and select a configuration file.
+Start EMC and select a configuration file.
 \layout Enumerate
 
 Clear the 
@@ -170,7 +170,7 @@ Put the stock to be milled on the table.
 \layout Enumerate
 
 Set the proper offsets for each axis by jogging and either homing again
- or richt-clicking an axis name and entering an offset value.
+ or right-clicking an axis name and entering an offset value.
 \layout Enumerate
 
 Run the program.
@@ -178,7 +178,7 @@ Run the program.
 
 To mill the same file again, return to step 6.
  To mill a different file, return to step 4.
- When you're done, exit emc2.
+ When you're done, exit EMC2.
 \layout Section
 
 Elements of the TkEMC window

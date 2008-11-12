@@ -54,17 +54,6 @@ Much of this chapter quotes from a chapater of the Sherline CNC operators
 wide false
 collapsed false
 
-\layout Standard
-\align center 
-
-\begin_inset Graphics
-	filename mini01.png
-	display color
-	width 80text%
-
-\end_inset 
-
-
 \layout Caption
 
 
@@ -73,6 +62,15 @@ collapsed false
 \end_inset 
 
 The Mini Graphical Interface
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename mini01.png
+
+\end_inset 
+
+
 \end_inset 
 
 
@@ -112,17 +110,6 @@ Screen layout
 wide false
 collapsed false
 
-\layout Standard
-\align center 
-
-\begin_inset Graphics
-	filename mini02.png
-	display color
-	width 80text%
-
-\end_inset 
-
-
 \layout Caption
 
 
@@ -131,6 +118,15 @@ collapsed false
 \end_inset 
 
 Mini Display for a Running EMC
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename mini02.png
+
+\end_inset 
+
+
 \end_inset 
 
 The Mini screen is laid out in several sections.
@@ -361,20 +357,18 @@ This button or pressing <F3> sets the EMC to Manual mode and displays an
 wide false
 collapsed false
 
+\layout Caption
+
+Manual Mode Buttons
 \layout Standard
 \align center 
 
 \begin_inset Graphics
 	filename miniman.png
-	display color
-	width 80text%
 
 \end_inset 
 
 
-\layout Caption
-
-Manual Mode Buttons
 \end_inset 
 
 
@@ -490,20 +484,18 @@ In the auto mode, many of the keyboard keys are bound to controls.
 wide false
 collapsed false
 
+\layout Caption
+
+Auto Mode
 \layout Standard
 \align center 
 
 \begin_inset Graphics
 	filename miniauto.png
-	display color
-	width 80text%
 
 \end_inset 
 
 
-\layout Caption
-
-Auto Mode
 \end_inset 
 
 
@@ -824,20 +816,18 @@ Program Editor
 wide false
 collapsed false
 
+\layout Caption
+
+Mini Text Editor
 \layout Standard
 \align center 
 
 \begin_inset Graphics
 	filename miniedit.png
-	display color
-	width 35text%
 
 \end_inset 
 
 
-\layout Caption
-
-Mini Text Editor
 \end_inset 
 
 
@@ -883,20 +873,18 @@ Backplot
 wide false
 collapsed false
 
+\layout Caption
+
+Mini's Backplotter
 \layout Standard
 \align center 
 
 \begin_inset Graphics
 	filename minibkplot.png
-	display color
-	width 50text%
 
 \end_inset 
 
 
-\layout Caption
-
-Mini's Backplotter
 \end_inset 
 
 Backplot [Backplot] will show the tool path that can be viewed from a chosen
@@ -950,20 +938,18 @@ The tool page is pretty much like the others.
 wide false
 collapsed false
 
+\layout Caption
+
+Mini Tool Display
 \layout Standard
 \align center 
 
 \begin_inset Graphics
 	filename minitool.png
-	display color
-	width 40text%
 
 \end_inset 
 
 
-\layout Caption
-
-Mini Tool Display
 \end_inset 
 
 
@@ -991,20 +977,18 @@ The offset page can be used to display and setup work offsets.
 wide false
 collapsed false
 
+\layout Caption
+
+Mini Offset Display
 \layout Standard
 \align center 
 
 \begin_inset Graphics
 	filename minioffsets.png
-	display color
-	width 40text%
 
 \end_inset 
 
 
-\layout Caption
-
-Mini Offset Display
 \end_inset 
 
 You can also teach using an edgefinder by adding the radius and length to

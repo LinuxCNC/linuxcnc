@@ -322,9 +322,6 @@ A machining center has an optional program stop switch.
 
 .
  
-\layout Standard
-
-xxx
 \layout Section
 
 Control and Data Components
@@ -371,7 +368,7 @@ Clockwise or counterclockwise is from the point of view of the workpiece.
  machine configurations) looks clockwise from the point of view of someone
  standing next to the machine.
 \begin_inset Foot
-collapsed true
+collapsed false
 
 \layout Standard
 
@@ -845,7 +842,7 @@ The lines do not have to be in any particular order.
  
 \layout Standard
 
-In emc, the location of the tool file is specified in the ini file.
+In EMC2, the location of the tool file is specified in the ini file.
  See the Integrator Manual for more details.
 \layout Standard
 

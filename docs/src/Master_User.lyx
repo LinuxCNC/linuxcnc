@@ -58,7 +58,7 @@ addcontentsline{toc}{chapter}{Cover}
 
 \layout Title
 
-2.2 User Manual
+User Manual V2.2
 \layout Author
 
 The EMC Team
@@ -212,6 +212,15 @@ preview false
 
 
 \begin_inset Include \include{gcode/main.lyx}
+preview false
+
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset Include \include{gcode/tool_compensation.lyx}
 preview false
 
 \end_inset 
