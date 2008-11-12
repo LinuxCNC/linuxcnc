@@ -30,8 +30,8 @@ can be run by executing (from the top emc2 directory)
 A subset of the tests can also be run:
 	scripts/runtests tests/xyz tests/a*
 The directories named on the commandline are searched recursively for
-'test.hal' files, and a directory with such a file is assumed to contain a
-regression test or a functional test.
+'test.hal' or 'test.sh' files, and a directory with such a file is
+assumed to contain a regression test or a functional test.
 
 Tests may contain files other than the ones specified below.  For instance,
 when using 'streamer' data as test input, a shell script with
@@ -43,8 +43,9 @@ Regression Tests
 A regression test should consist of these three files:
 	README
 		A human-readable file describing the test
-	test.hal
-		A script that will be executed with halrun -f
+	test.hal *or* test.sh
+		The test script to execute.  test.hal is executed with
+		'halrun -f', test.sh is executed with 'bash -x'
 	expected
 		A file whose contents are compared with the stdout of
 			halrun -f test.hal
@@ -68,8 +69,9 @@ Functional Tests
 A functional test should consist of three files:
 	README
 		A human-readable file describing the test
-	test.hal
-		A script that will be executed with halrun -f
+	test.hal *or* test.sh
+		The test script to execute.  test.hal is executed with
+		'halrun -f', test.sh is executed with 'bash -x'
 	checkresult
 		An executable file (such as a shell or python script)
 		which determines if the stdout of
