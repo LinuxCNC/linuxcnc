@@ -41,7 +41,7 @@ External E-Stop
 \layout Standard
 
 The External E-Stop example is in the /config/classicladder/cl-estop folder.
- It uses a pyVCP panel to simulate the external componets.
+ It uses a pyVCP panel to simulate the external components.
  
 \layout Standard
 
@@ -134,7 +134,7 @@ I/O assignments
 Next we add the following lines to the custom_postgui.hal file
 \layout LyX-Code
 
-# E-Stop example using pyVCP buttons to simulate external componets
+# E-Stop example using pyVCP buttons to simulate external components
 \layout LyX-Code
 
 \layout LyX-Code
@@ -317,7 +317,7 @@ In this case %I0 is true so the timer preset value is 10.
  If %I0 was false the timer preset would be 5.
 \layout Subsection
 
-Tool Turrent
+Tool Turret
 \layout Itemize
 
 This Example is not complete yet.
