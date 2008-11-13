@@ -35,6 +35,12 @@
 \layout Chapter
 
 ClassicLadder 
+\layout Itemize
+
+At this time there is a bug.
+ The Save button in the Section Display window does not work, you have to
+ use the Save As button.
+ 
 \layout Section
 
 Introduction
@@ -97,12 +103,11 @@ The most common language used when working with ClassicLadder is 'ladder'.
 In the next chapters the main components of ClassicLadder will be described.
 \layout Section
 
-Starting ClassicLadder
+Components
 \layout Standard
 
-There are 2 components belonging to ClassicLadder.
- These must be placed in the main hal file or the Ladder Editor menu will
- be grayed out.
+There are 2 components to ClassicLadder.
+ 
 \layout Itemize
 
 The realtime module = classicladder_rt
@@ -111,12 +116,24 @@ The realtime module = classicladder_rt
 The userspace module (along with a GUI) = classicladder
 \layout Subsection
 
+Files
+\layout Standard
+
+Typically classicladder components are placed in the custom.hal file if your
+ working from a Stepconf generated configuration.
+ These must not be placed in the custom_postgui.hal file or the Ladder Editor
+ menu will be grayed out.
+ 
+\layout Standard
+
+Ladder files (.clp) must not contain any blank spaces in the name.
+\layout Subsection
+
 Realtime Module
 \layout Standard
 
 Loading the ClassicLadder realtime module (classicladder_rt) is possible
  from a halfile, or directly using a halcmd instruction.
- You must add two lines to your main .hal file for ClassicLadder to function.
  The first line loads real time the ClassicLadder module.
  The second line adds the function classicladder.0.refresh to the servo thread.
  This makes ClassicLadder update at the servo thread rate.
@@ -127,6 +144,18 @@ loadrt classicladder_rt
 \layout LyX-Code
 
 addf classicladder.0.refresh servo-thread 
+\layout Standard
+
+The speed of the thread that ClassicLadder is running in directly effects
+ the responsiveness to inputs and outputs.
+ If you can turn a switch on and off faster than ClassicLadder can notice
+ it then you may need to speed up the thread.
+ The fastest that ClassicLadder can refresh the rungs is one millisecond.
+ You can put it in a faster thread but it will not update any faster.
+ If you put it in a slower then one microsecond thread then ClassicLadder
+ will update the rungs slower.
+ The current refresh rate will be displayed on the section display, it is
+ rounded to microseconds.
 \layout Subsection
 
 Variables
@@ -551,17 +580,13 @@ numArithmExpr=100 numSections=4 numSymbols=200
 Loading the ClassicLadder user module
 \layout Standard
 
-Classicladder hal statements must be placed in the main .hal file for the
- menu to function.
-\layout Standard
-
 To load the user module:
 \layout Quote
 
 loadusr classicladder
 \layout Standard
 
-To load a ladder file:
+To load a ladder file (filename must not have any spaces):
 \layout Quote
 
 loadusr classicladder myladder.clp
