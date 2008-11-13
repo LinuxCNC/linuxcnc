@@ -34,8 +34,10 @@
 <doc name="hal_rtcomps" title="Realtime Components"/>
 <doc name="hal_comp" title="Comp: a tool for creating HAL components"/>
 <doc name="hal_halmodule" title="Creating Userspace Python Components with the 'hal' module"/>
+
 <doc name="ladder_ladder_intro" title="Ladder Introduction"/>
 <doc name="ladder_classic_ladder" title="ClassicLadder"/>
+<doc name="ladder_ladder_examples" title="Ladder Examples"/>
 
 <doc name="code_Code_Notes" title="Code Notes"/>
 <doc name="code_Style_Guide" title="Style Guide"/>
