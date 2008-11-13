@@ -54,10 +54,11 @@ Canned Cycles G81 through G89 have been implemented for milling.
  is related to canned cycles.
 \layout Standard
 
-All canned cycles are performed with respect to the XY plane With the current
- 3 axis interpreter, no A, B, C-axis motion is allowed during canned cycles
- inverse time feed rate is not allowed cutter radius compensation is not
- allowed Each of the canned cycles defines a new machine motion mode.
+All canned cycles are performed with respect to the XY plane.
+ With the current 3 axis interpreter, no A, B, C-axis motion is allowed
+ during canned cycles.
+ Inverse time feed rate is not allowed with cutter radius compensation.
+ Each of the canned cycles defines a new machine motion mode.
  As a motion mode, they will stay in effect until replaced by another motion
  G word or by G80 as described below.
 \layout Standard
@@ -159,9 +160,6 @@ G80
  The result of the following lines of code is the same.
 \layout Standard
 
-
-\family typewriter 
-\size scriptsize 
 N1000 G90 G81 X1 Y1 Z1.5 R2.8 (absolute distance canned cycle)
 \newline 
 N1001 G80 (turn off canned cycle motion)
@@ -172,9 +170,6 @@ N1002 G0 X0 Y0 Z0 (turn on rapid traverse and move to coordinate home)
 produces the same final position and machine state as 
 \layout Standard
 
-
-\family typewriter 
-\size scriptsize 
 N1000 G90 G81 X1 Y1 Z1.5 R2.8 (absolute distance canned cycle) 
 \newline 
 N1001 G0 X0 Y0 Z0 (turn on rapid traverse and move to coordinate home)
@@ -202,14 +197,11 @@ If a canned cycle is not turned off with G80 or another motion word, the
 position 0
 inner_position 0
 height "0pt"
-width "50col%"
+width "60col%"
 collapsed false
 
 \layout Standard
 \align left 
-
-\family typewriter 
-\size scriptsize 
 N100 G90 G0 X0 Y0 Z0 (coordinate home) 
 \newline 
 N110 G1 X0 G4 P0.1 
@@ -217,11 +209,7 @@ N110 G1 X0 G4 P0.1
 N120 G81 X1 Y0 Z0 R1 (canned drill cycle) 
 \newline 
 N130 X2 
-\layout Standard
-\align left 
-
-\family typewriter 
-\size scriptsize 
+\newline 
 N140 X3 
 \newline 
 N150 X4 
@@ -1097,7 +1085,7 @@ collapsed false
 N01 G0 X1 Y2 Z3 
 \layout Standard
 
-N02 G90 G81 X4 Y5 Z-0.6 R1.8
+N02 G90 G81 X4 Y5 Z-0.6 R1.8 F10
 \layout Standard
 
 Adding G98 to the second line above means that the return move will be to
