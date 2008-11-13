@@ -40,17 +40,12 @@ Classic Ladder
 \end_inset 
 
 
-\layout Standard
-
-This chapter is under construction at the moment.
- Almost done Sept 28 2008.
 \layout Itemize
 
-At this time there is a bug or two.
+At this time there is a bug.
  The Save button in the Section Display window does not work, you have to
  use the Save As button.
- To erase a vertical branch the eraser does not work, you have to click
- on the vertical branch a second time to erase it.
+ 
 \layout Section
 
 Introduction
@@ -147,8 +142,7 @@ Components
 \layout Standard
 
 There are 2 components to ClassicLadder.
- These must be placed in the main .hal file or the Ladder Editor menu will
- be grayed out.
+ 
 \layout Itemize
 
 The real time module classicladder_rt
@@ -157,15 +151,28 @@ The real time module classicladder_rt
 The user space module (including a GUI) classicladder
 \layout Subsection
 
+Files
+\layout Standard
+
+Typically classicladder components are placed in the custom.hal file if your
+ working from a Stepconf generated configuration.
+ These must not be placed in the custom_postgui.hal file or the Ladder Editor
+ menu will be grayed out.
+ 
+\layout Standard
+
+Ladder files (.clp) must not contain any blank spaces in the name.
+\layout Subsection
+
 Realtime Module
 \layout Standard
 
 Loading the ClassicLadder real time module (classicladder_rt) is possible
  from a hal file, or directly using a halcmd instruction.
- You must add two lines to your main .hal file for ClassicLadder to function.
  The first line loads real time the ClassicLadder module.
  The second line adds the function classicladder.0.refresh to the servo thread.
  This line makes ClassicLadder update at the servo thread rate.
+ 
 \layout LyX-Code
 
 loadrt classicladder_rt
@@ -182,8 +189,8 @@ The speed of the thread that ClassicLadder is running in directly effects
  You can put it in a faster thread but it will not update any faster.
  If you put it in a slower then one microsecond thread then ClassicLadder
  will update the rungs slower.
- The current refresh rate will be displayed on the config page, it is rounded
- to microseconds.
+ The current refresh rate will be displayed on the section display, it is
+ rounded to microseconds.
 \layout Subsection
 
 Variables
@@ -1076,6 +1083,18 @@ The COMPARE button allows you to compare variable to values or other variables.
 The OPERATE button allows you to assign values to variables.
  (eg %W2=7 or %W1=%W2) OPERATE functions can only be placed at the right
  most side of the section display.
+\layout Standard
+
+
+\begin_inset Note
+collapsed false
+
+\layout Standard
+
+add config window as it is cool
+\end_inset 
+
+
 \layout Section
 
 Ladder objects
