@@ -125,10 +125,19 @@ P1
 ), and this bit is TRUE, the feed rate is set to 0.
 \layout Description
 
-motion.motion-enabled (bit, in)
+motion.motion-enabled (bit, out) TRUE when in 
+\begin_inset Quotes eld
+\end_inset 
+
+machine on
+\begin_inset Quotes erd
+\end_inset 
+
+ state.
 \layout Description
 
-motion.motion-inpos (bit, in) TRUE if the machine is in position.
+motion.motion-inpos (bit, in) TRUE when the machine is not homing, jogging,
+ or teleoperating.
 \layout Description
 
 motion.probe-input (bit, in) 
@@ -139,22 +148,41 @@ G38.x
  TRUE for probe contact closed (touching), FALSE for probe contact open.
 \layout Description
 
-motion.spindle-brake (bit, out) TRUE when the spindle brake should be applied
+motion.spindle-brake (bit, out) TRUE when the spindle brake should be applied.
 \layout Description
 
 motion.spindle-forward (bit, out) TRUE when the spindle should rotate forward.
 \layout Description
 
 motion.spindle-index-enable (bit, I/O) For correct operation of spindle synchroni
-zed moves, this signal must be hooked to the index-enable pin of the spindle
+zed moves, this pin must be hooked to the index-enable pin of the spindle
  encoder.
+ See also: 
+\emph on 
+motion.spindle-revs
+\emph default 
+.
 \layout Description
 
-motion.spindle-is-atspeed-in (bit, in) When set to FALSE will pause motion
- until spindle reaches new programmed speed at the beginning of a feed move.
+motion.spindle-is-atspeed-in (bit, in) If FALSE at the beginning of a feed
+ move, motion will pause until spindle reaches new programmed speed.
+ Many VFDs have an 
+\begin_inset Quotes eld
+\end_inset 
+
+at speed
+\begin_inset Quotes erd
+\end_inset 
+
+ output.
+ Otherwise, it is easy to generate this signal with the 
+\family typewriter 
+near
+\family default 
+ component, by comparing requested and actual spindle speeds.
 \layout Description
 
-motion.spindle-on (bit, out) TRUE when spindle should rotate
+motion.spindle-on (bit, out) TRUE when spindle should rotate.
 \layout Description
 
 motion.spindle-reverse (bit, out) TRUE when the spindle should rotate backward
@@ -162,28 +190,75 @@ motion.spindle-reverse (bit, out) TRUE when the spindle should rotate backward
 
 motion.spindle-revs (float, in) For correct operation of spindle synchronized
  moves, this signal must be hooked to the position pin of the spindle encoder.
+ The spindle encoder position should be scaled such that spindle-revs increases
+ by 1.0 for each rotation of the spindle in the clockwise (
+\family typewriter 
+M3
+\family default 
+) direction.
 \layout Description
 
-motion.spindle-speed-in (float, in) Feedback of actual speed used by feed
- per rev.
+motion.spindle-speed-in (float, in) Feedback of actual spindle speed in rotations
+ per second.
+ This is used by feed-per-revolution motion (
+\family typewriter 
+G95
+\family default 
+).
+ If your spindle encoder driver does not have a velocity output, you can
+ generate a suitable one by sending the spindle position through a 
+\family typewriter 
+ddt
+\family default 
+ component.
 \layout Description
 
-motion.spindle-speed-out (float, out) Desired spindle speed in rotations
+motion.spindle-speed-out (float, out) Commanded spindle speed in rotations
  per minute.
+ Positive for spindle forward (
+\family typewriter 
+M3
+\family default 
+), negative for spindle reverse (
+\family typewriter 
+M4
+\family default 
+).
 \layout Description
 
 motion.tooloffset.w (float, out) shows the w offset in effect; it could come
- from the tool table (g43 active), or it could come from the gcode (g43.1
+ from the tool table (
+\family typewriter 
+G43
+\family default 
+ active), or it could come from the gcode (
+\family typewriter 
+G43.1
+\family default 
  active)
 \layout Description
 
 motion.tooloffset.x (float, out) shows the x offset in effect; it could come
- from the tool table (g43 active), or it could come from the gcode (g43.1
+ from the tool table (
+\family typewriter 
+G43
+\family default 
+ active), or it could come from the gcode (
+\family typewriter 
+G43.1
+\family default 
  active)
 \layout Description
 
 motion.tooloffset.z (float, out) shows the z offset in effect; it could come
- from the tool table (g43 active), or it could come from the gcode (g43.1
+ from the tool table (
+\family typewriter 
+G43
+\family default 
+ active), or it could come from the gcode (
+\family typewriter 
+G43.1
+\family default 
  active)
 \layout Subsection
 
