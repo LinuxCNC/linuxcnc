@@ -60,7 +60,7 @@ TkEMC
 
  toolkit for the display.
  Being written in TCL makes it very portable (runs on a multitude of platforms).
- A seperate backplot window can be displayed as shown in Figure(
+ A separate backplot window can be displayed as shown in Figure(
 \begin_inset LatexCommand \ref{cap:TkEMC-Window}
 
 \end_inset 

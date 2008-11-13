@@ -223,15 +223,6 @@ preview false
 \end_inset 
 
 
-\layout Standard
-
-
-\begin_inset Include \include{gcode/mill_canned.lyx}
-preview false
-
-\end_inset 
-
-
 \layout Part
 
 Examples
