@@ -15,7 +15,7 @@
     sample rate and then be transferred to a file.  When this realtime
     module is loaded, it creates a fifo in shared memory and begins 
     capturing data from HAL pins to the fifo.  Then, the user space 
-    program 'hal_sampler' is invoked, which reads the fifo and writes
+    program 'halsampler' is invoked, which reads the fifo and writes
     the data to stdout.
 
     Loading:
