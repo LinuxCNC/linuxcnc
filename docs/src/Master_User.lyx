@@ -238,15 +238,6 @@ preview false
 \layout Standard
 
 
-\begin_inset Include \include{gcode/mill_canned.lyx}
-preview false
-
-\end_inset 
-
-
-\layout Standard
-
-
 \begin_inset Include \include{lathe/lathe-user.lyx}
 preview false
 
