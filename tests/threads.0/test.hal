@@ -4,7 +4,8 @@ loadrt threads name1=fast period1=100000 name2=slow period2=1000000
 loadrt threadtest count=1
 loadrt sampler cfg=u depth=4096
 
-linkpp threadtest.0.count sampler.0.pin.0
+net count <= threadtest.0.count
+net count => sampler.0.pin.0
 
 addf threadtest.0.increment fast
 addf sampler.0 fast
