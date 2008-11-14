@@ -309,6 +309,7 @@ Words may begin with any of the letters shown in Table
 
 
 \begin_inset Float table
+placement H
 wide false
 collapsed false
 
@@ -1189,6 +1190,7 @@ The logical operations and modulus are to be performed on any real numbers,
 
 
 \begin_inset Float table
+placement H
 wide false
 collapsed false
 
@@ -1444,6 +1446,7 @@ FUP[-2.8] = -2
 
 
 \begin_inset Float table
+placement H
 wide false
 collapsed false
 
@@ -2147,6 +2150,7 @@ e for two members to be in effect at the same time - like measure in inches
 
 
 \begin_inset Float table
+placement H
 wide false
 collapsed false
 
@@ -2159,7 +2163,7 @@ Modal Groups
 
 
 \layout Standard
-
+\align center 
 
 \begin_inset  Tabular
 <lyxtabular version="3" rows="22" columns="2">
@@ -5400,7 +5404,7 @@ G17, G18, G19, G17.1, G18.1, G19.1 Plane Selection
 
 These codes set the current plane as follows:
 \layout Standard
-
+\align center 
 
 \begin_inset  Tabular
 <lyxtabular version="3" rows="6" columns="2">
@@ -5836,6 +5840,7 @@ probe state changed
 
 
 \begin_inset Float table
+placement H
 wide false
 collapsed false
 
@@ -6886,6 +6891,7 @@ sim/lathe.ini
 
 
 \begin_inset Float figure
+placement H
 wide false
 collapsed false
 
