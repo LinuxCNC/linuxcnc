@@ -1236,7 +1236,7 @@ check_stuff ( "before command_handler()" );
                 break;
             }
 
-            if (joint == NULL) {
+            if (joint_num < 0) {
                 /* we want all or none, so these checks need to all be done first.
                  * but, let's only report the first error.  There might be several,
                  * for instance if a homing sequence is running. */
@@ -1263,7 +1263,7 @@ check_stuff ( "before command_handler()" );
                         }
                     }
                 }
-            } else {
+            } else if (joint_num < num_joints) {
                 /* request was for only one joint */
                 if(GET_JOINT_ACTIVE_FLAG(joint)) {
                     if (GET_JOINT_HOMING_FLAG(joint)) {
@@ -1278,7 +1278,12 @@ check_stuff ( "before command_handler()" );
                 } else {
                     reportError("Cannot unhome inactive joint %d", joint_num);
                 }
+            } else {
+                /* invalid joint number specified */
+                reportError("Cannot unhome invalid joint %d (max %d)", joint_num, (num_joints-1));
+                return;
             }
+
             break;
 
 	case EMCMOT_DISABLE_WATCHDOG:
