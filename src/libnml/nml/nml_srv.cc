@@ -390,15 +390,19 @@ void NML_SUPER_SERVER::add_to_list(NML * _nml)
 	    if (_nml->cms->isserver) {
 		new_nml = _nml;
 		local_port = new NML_SERVER_LOCAL_PORT(new_nml);
+                if (NULL == local_port) {
+                    rcs_print_error("NML_SERVER: Unable to create local port.\n");
+                    return;
+                }
 		local_port->local_channel_reused = 1;
 	    } else {
 		new_nml = new NML(_nml, 1, -1);
 		local_port = new NML_SERVER_LOCAL_PORT(new_nml);
+                if (NULL == local_port) {
+                    rcs_print_error("NML_SERVER: Unable to create local port.\n");
+                    return;
+                }
 		local_port->local_channel_reused = 0;
-	    }
-	    if (NULL == local_port) {
-		rcs_print_error("NML_SERVER: Unable to create local port.\n");
-		return;
 	    }
 	    server->add_local_port(local_port);
 	}
