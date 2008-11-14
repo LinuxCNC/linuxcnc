@@ -173,7 +173,7 @@ MODULE_AUTHOR("Eric Johnson");
 MODULE_DESCRIPTION
     ("Driver for Vigilant Technologies ENCDAC 4 channel controller");
 MODULE_LICENSE("GPL");
-static int num_chan = MAX_CHANS;	/* number of channels - default = 8 */
+static int num_chan = MAX_CHANS;	/* number of channels - default = 4 */
 RTAPI_MP_INT(num_chan, "number of channels");
 static char *dio = "ii";	/* dio config - default = port A&B inputs, port C&D outputs */
 RTAPI_MP_STRING(dio, "dio config string - expects something like IOiooi");
@@ -730,7 +730,7 @@ static long vti_counter_read(int axis)
     static long int lastCount;
 //    static unsigned short lastdac;
     
-    if ((axis > MAX_CHANS) || (axis < 0)) {
+    if ((axis >= MAX_CHANS) || (axis < 0)) {
 	return 0x80000000;	// Return encoder error value
       }
     lastCount = enc_counts[axis];
@@ -767,7 +767,7 @@ static int vti_dac_write(int axis, short value)
 {
     short junk;
     /* write the DAC */
-    if ((axis > MAX_CHANS) || (axis < 0)) {
+    if ((axis >= MAX_CHANS) || (axis < 0)) {
 	return -1;
       }
 
