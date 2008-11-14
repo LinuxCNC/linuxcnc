@@ -192,18 +192,25 @@ REMOTE_READ_REPLY *NML_SERVER_LOCAL_PORT::blocking_read(REMOTE_READ_REQUEST *
     REMOTE_BLOCKING_READ_REQUEST *breq =
 	(REMOTE_BLOCKING_READ_REQUEST *) _req;
     breq->_nml = new NML(nml, 1, -1);
+
     NML *nmlcopy = (NML *) breq->_nml;
+    if (NULL == nmlcopy) {
+	rcs_print_error("NMLserver:blocking_read: NML object is NULL.\n");
+	return ((REMOTE_READ_REPLY *) NULL);
+    }
+
     CMS *cmscopy = nmlcopy->cms;
+    if (NULL == cmscopy) {
+	rcs_print_error("NMLserver:blocking_read: CMS object is NULL.\n");
+	return ((REMOTE_READ_REPLY *) NULL);
+    }
+
     double blocking_timeout = (double) (breq->timeout_millis / 1000.0);
     REMOTE_READ_REPLY *temp_read_reply = new REMOTE_READ_REPLY();
     breq->_reply = temp_read_reply;
     long data_size = (long) cmscopy->max_encoded_message_size;
     temp_read_reply->data = malloc(data_size);
     breq->_data = temp_read_reply->data;
-    if ((NULL == cmscopy) || (NULL == nmlcopy)) {
-	rcs_print_error("NMLserver:blocking_read: CMS object is NULL.\n");
-	return ((REMOTE_READ_REPLY *) NULL);
-    }
     if (NULL != cmscopy->handle_to_global_data) {
 	orig_bytes_moved = cmscopy->handle_to_global_data->total_bytes_moved;
     }
