@@ -309,6 +309,7 @@ Words may begin with any of the letters shown in Table
 
 
 \begin_inset Float table
+placement H
 wide false
 collapsed false
 
@@ -321,7 +322,7 @@ Words and their meanings
 
 
 \layout Standard
-
+\align center 
 
 \begin_inset  Tabular
 <lyxtabular version="3" rows="26" columns="2">
@@ -1187,6 +1188,7 @@ The logical operations and modulus are to be performed on any real numbers,
 
 
 \begin_inset Float table
+placement H
 wide false
 collapsed false
 
@@ -1442,6 +1444,7 @@ FUP[-2.8] = -2
 
 
 \begin_inset Float table
+placement H
 wide false
 collapsed false
 
@@ -2100,6 +2103,7 @@ e for two members to be in effect at the same time - like measure in inches
 
 
 \begin_inset Float table
+placement H
 wide false
 collapsed false
 
@@ -2112,7 +2116,7 @@ Modal Groups
 
 
 \layout Standard
-
+\align center 
 
 \begin_inset  Tabular
 <lyxtabular version="3" rows="22" columns="2">
@@ -6294,6 +6298,7 @@ sim/lathe.ini
 
 
 \begin_inset Float figure
+placement H
 wide false
 collapsed false
 
