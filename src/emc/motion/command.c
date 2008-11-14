@@ -1236,7 +1236,7 @@ check_stuff ( "before command_handler()" );
                 break;
             }
 
-            if (joint_num < 0) {
+            if (joint == NULL) {
                 /* we want all or none, so these checks need to all be done first.
                  * but, let's only report the first error.  There might be several,
                  * for instance if a homing sequence is running. */
