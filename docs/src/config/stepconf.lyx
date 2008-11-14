@@ -55,6 +55,13 @@ step & direction
 \series default 
  signals.
  Stepconf is installed when you install EMC2 and is in the CNC menu.
+\layout Standard
+
+Stepconf places a file in the emc2/config directory to store the choices
+ for each configuration you create.
+ When you change something you need to pick the file that matches your configura
+tion name.
+ The file extension is .stepconf.
 \layout Section
 
 Step by Step Instructions
