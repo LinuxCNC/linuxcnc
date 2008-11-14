@@ -377,7 +377,8 @@ int read_tool_file(  /* ARGUMENTS         */
             fprintf(stderr, "Out of range tool slot number %d\n", slot);  
           else
             fprintf(stderr, "Bad input line \"%s\" in tool file\n", buffer);
-          return 1;
+            fclose(tool_file_port);
+            return 1;
         }
     }
   fclose(tool_file_port);
