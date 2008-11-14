@@ -86,6 +86,8 @@ static void hm2_read(void *void_hm2, long period) {
     hm2_encoder_process_tram_read(hm2);
     hm2_stepgen_process_tram_read(hm2, period);
 
+    hm2_encoder_read(hm2);  // read the latch/ctrl register if we're looking for an index pulse
+
     hm2_raw_read(hm2);
 }
 
@@ -110,6 +112,7 @@ static void hm2_write(void *void_hm2, long period) {
     hm2_watchdog_write(hm2);  // in case the user has written to the watchdog.timeout_ns param
     hm2_pwmgen_write(hm2);    // update pwmgen registers if needed 
     hm2_stepgen_write(hm2);   // update stepgen registers if needed 
+    hm2_encoder_write(hm2);   // update ctrl register if needed 
 
     hm2_raw_write(hm2);
 }

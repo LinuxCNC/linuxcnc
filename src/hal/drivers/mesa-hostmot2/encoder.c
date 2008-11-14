@@ -46,6 +46,8 @@ static void hm2_encoder_update_control_register(hostmot2_t *hm2) {
     for (i = 0; i < hm2->encoder.num_instances; i ++) {
         hm2_encoder_instance_t *e = &hm2->encoder.instance[i];
 
+        hm2->encoder.control_reg[i] = 0;
+
         do_flag(
             &hm2->encoder.control_reg[i],
             *e->hal.pin.index_enable,
@@ -192,7 +194,7 @@ int hm2_encoder_parse_md(hostmot2_t *hm2, int md_index) {
     if (hm2->encoder.instance == NULL) {
         ERR("out of memory!\n");
         r = -ENOMEM;
-        goto fail;
+        goto fail0;
     }
 
     hm2->encoder.stride = md->register_stride;
@@ -208,14 +210,14 @@ int hm2_encoder_parse_md(hostmot2_t *hm2, int md_index) {
     r = hm2_register_tram_read_region(hm2, hm2->encoder.counter_addr, (hm2->encoder.num_instances * sizeof(u32)), &hm2->encoder.counter_reg);
     if (r < 0) {
         ERR("error registering tram read region for Encoder Counter register (%d)\n", r);
-        goto fail;
+        goto fail0;
     }
 
-
-    r = hm2_register_tram_read_region(hm2, hm2->encoder.latch_control_addr, (hm2->encoder.num_instances * sizeof(u32)), &hm2->encoder.control_reg);
-    if (r < 0) {
-        ERR("error registering tram read region for Encoder Control register (%d)\n", r);
-        goto fail;
+    hm2->encoder.control_reg = (u32 *)kmalloc(hm2->encoder.num_instances * sizeof(u32), GFP_KERNEL);
+    if (hm2->encoder.control_reg == NULL) {
+        ERR("out of memory!\n");
+        r = -ENOMEM;
+        goto fail0;
     }
 
     // export the encoders to HAL
@@ -231,35 +233,35 @@ int hm2_encoder_parse_md(hostmot2_t *hm2, int md_index) {
             r = hal_pin_s32_new(name, HAL_OUT, &(hm2->encoder.instance[i].hal.pin.count), hm2->llio->comp_id);
             if (r != HAL_SUCCESS) {
                 ERR("error adding pin '%s', aborting\n", name);
-                goto fail;
+                goto fail1;
             }
 
             rtapi_snprintf(name, HAL_NAME_LEN, "%s.encoder.%02d.position", hm2->llio->name, i);
             r = hal_pin_float_new(name, HAL_OUT, &(hm2->encoder.instance[i].hal.pin.position), hm2->llio->comp_id);
             if (r != HAL_SUCCESS) {
                 ERR("error adding pin '%s', aborting\n", name);
-                goto fail;
+                goto fail1;
             }
 
             // rtapi_snprintf(name, HAL_NAME_LEN, "%s.encoder.%02d.velocity", hm2->llio->name, i);
             // r = hal_pin_float_new(name, HAL_OUT, &(hm2->encoder.instance[i].hal.pin.velocity), hm2->llio->comp_id);
             // if (r != HAL_SUCCESS) {
             //     ERR("error adding pin '%s', aborting\n", name);
-            //     goto fail;
+            //     goto fail1;
             // }
 
             rtapi_snprintf(name, HAL_NAME_LEN, "%s.encoder.%02d.reset", hm2->llio->name, i);
             r = hal_pin_bit_new(name, HAL_IN, &(hm2->encoder.instance[i].hal.pin.reset), hm2->llio->comp_id);
             if (r != HAL_SUCCESS) {
                 ERR("error adding pin '%s', aborting\n", name);
-                goto fail;
+                goto fail1;
             }
 
             rtapi_snprintf(name, HAL_NAME_LEN, "%s.encoder.%02d.index-enable", hm2->llio->name, i);
             r = hal_pin_bit_new(name, HAL_IO, &(hm2->encoder.instance[i].hal.pin.index_enable), hm2->llio->comp_id);
             if (r != HAL_SUCCESS) {
                 ERR("error adding pin '%s', aborting\n", name);
-                goto fail;
+                goto fail1;
             }
 
 
@@ -268,14 +270,14 @@ int hm2_encoder_parse_md(hostmot2_t *hm2, int md_index) {
             r = hal_param_float_new(name, HAL_RW, &(hm2->encoder.instance[i].hal.param.scale), hm2->llio->comp_id);
             if (r != HAL_SUCCESS) {
                 ERR("error adding param '%s', aborting\n", name);
-                goto fail;
+                goto fail1;
             }
 
             rtapi_snprintf(name, HAL_NAME_LEN, "%s.encoder.%02d.index-invert", hm2->llio->name, i);
             r = hal_param_bit_new(name, HAL_RW, &(hm2->encoder.instance[i].hal.param.index_invert), hm2->llio->comp_id);
             if (r != HAL_SUCCESS) {
                 ERR("error adding param '%s', aborting\n", name);
-                goto fail;
+                goto fail1;
             }
 
 
@@ -283,7 +285,7 @@ int hm2_encoder_parse_md(hostmot2_t *hm2, int md_index) {
             r = hal_param_bit_new(name, HAL_RW, &(hm2->encoder.instance[i].hal.param.index_mask), hm2->llio->comp_id);
             if (r != HAL_SUCCESS) {
                 ERR("error adding param '%s', aborting\n", name);
-                goto fail;
+                goto fail1;
             }
 
 
@@ -291,7 +293,7 @@ int hm2_encoder_parse_md(hostmot2_t *hm2, int md_index) {
             r = hal_param_bit_new(name, HAL_RW, &(hm2->encoder.instance[i].hal.param.index_mask_invert), hm2->llio->comp_id);
             if (r != HAL_SUCCESS) {
                 ERR("error adding param '%s', aborting\n", name);
-                goto fail;
+                goto fail1;
             }
 
 
@@ -299,7 +301,7 @@ int hm2_encoder_parse_md(hostmot2_t *hm2, int md_index) {
             r = hal_param_bit_new(name, HAL_RW, &(hm2->encoder.instance[i].hal.param.counter_mode), hm2->llio->comp_id);
             if (r != HAL_SUCCESS) {
                 ERR("error adding param '%s', aborting\n", name);
-                goto fail;
+                goto fail1;
             }
 
 
@@ -307,7 +309,7 @@ int hm2_encoder_parse_md(hostmot2_t *hm2, int md_index) {
             r = hal_param_bit_new(name, HAL_RW, &(hm2->encoder.instance[i].hal.param.filter), hm2->llio->comp_id);
             if (r != HAL_SUCCESS) {
                 ERR("error adding param '%s', aborting\n", name);
-                goto fail;
+                goto fail1;
             }
 
 
@@ -331,7 +333,10 @@ int hm2_encoder_parse_md(hostmot2_t *hm2, int md_index) {
     return hm2->encoder.num_instances;
 
 
-fail:
+fail1:
+    kfree(hm2->encoder.control_reg);
+
+fail0:
     hm2->encoder.num_instances = 0;
     return r;
 }
@@ -343,6 +348,34 @@ void hm2_encoder_tram_init(hostmot2_t *hm2) {
     // all the encoders start where they are
     for (i = 0; i < hm2->encoder.num_instances; i ++) {
         hm2->encoder.instance[i].prev_counter = hm2->encoder.counter_reg[i];
+    }
+}
+
+
+// if we're looking for an index pulse, read the latch/ctrl register
+void hm2_encoder_read(hostmot2_t *hm2) {
+    int i;
+    u32 latch_ctrl;
+
+    for (i = 0; i < hm2->encoder.num_instances; i ++) {
+        if (0 == (hm2->encoder.control_reg[i] & HM2_ENCODER_CLEAR_INDEX)) continue;
+
+        // we've told this encoder to looking for index, so read the latch/ctrl register now
+        hm2->llio->read(
+            hm2->llio,
+            hm2->encoder.latch_control_addr + (i * sizeof(u32)),
+            &latch_ctrl,
+            sizeof(u32)
+        );
+
+        if (latch_ctrl & HM2_ENCODER_CLEAR_INDEX) continue;
+
+        // 
+        // if we get here, we asked for clear-on-index and we got it
+        //
+
+        *hm2->encoder.instance[i].hal.pin.index_enable = 0;
+        *hm2->encoder.instance[i].hal.pin.count = 0;
     }
 }
 
@@ -376,11 +409,6 @@ void hm2_encoder_process_tram_read(hostmot2_t *hm2) {
             *e->hal.pin.count = 0;
         }
 
-        if ((e->prev_control & HM2_ENCODER_CLEAR_INDEX) && !(hm2->encoder.control_reg[i] & HM2_ENCODER_CLEAR_INDEX)) {
-            *e->hal.pin.index_enable = 0;
-            *e->hal.pin.count = 0;
-        }
-
         if (e->hal.param.scale == 0.0) {
             WARN("encoder.%02d.scale == 0.0, bogus, setting to 1.0\n", i);
             e->hal.param.scale = 1.0;
@@ -390,13 +418,11 @@ void hm2_encoder_process_tram_read(hostmot2_t *hm2) {
         // now we're here
         e->prev_counter = hm2->encoder.counter_reg[i];
     }
-
-    // update Control register if needed
-    hm2_encoder_write(hm2);
 }
 
 
 void hm2_encoder_cleanup(hostmot2_t *hm2) {
+    kfree(hm2->encoder.control_reg);
 }
 
 
