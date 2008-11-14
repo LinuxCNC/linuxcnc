@@ -122,8 +122,9 @@ Encoders have names like "hm2_<BoardType>.<BoardNum>.encoder.<Instance>".
 "Instance" is a two-digit number that corresponds to the HostMot2 encoder
 instance number.  There are 'num_encoders' instances, starting with 00.
 
-Each encoder uses three input IO pins: A, B, and Index (sometimes also
-known as Z)
+Each encoder uses three or four input IO pins, depending on how the
+firmware was compiled.  Three-pin encoders use A, B, and Index (sometimes
+also known as Z).  Four-pin encoders use A, B, Index, and Index-mask.
 
 Each encoder instance has the following pins and parameters:
 
@@ -151,11 +152,13 @@ Parameters:
 input pin triggers the Index event (if index-enable is True).  If set
 to False, the falling edge triggers.
 
-(bit r/w) index_mask: Work in progress, currently only partially
-supported.
+(bit r/w) index_mask: If set to True, the Index input pin only has an
+effect if the Index-Mask input pin is True (or False, depending on the
+index_mask_invert pin below).
 
-(bit r/w) index_mask_invert: Work in progress, currently only partially
-supported.
+(bit r/w) index_mask_invert: If set to True, Index-Mask must be False
+for Index to have an effect.  If set to False, the Index-Mask pin must
+be True.
 
 (bit r/w) counter_mode: Set to False (the default) for Quadrature.
 Set to True for Up/Down.
@@ -163,8 +166,7 @@ Set to True for Up/Down.
 (bit r/w) filter: If set to True (the default), the quadrature counter
 needs 15 clocks to register a change on any of the three input lines
 (any pulse shorter than this is rejected as noise).  If set to False,
-the quadrature counter needs only 3 clocks to register a change.  FIXME:
-filter clock rate is not controllable yet, but it will be soon.
+the quadrature counter needs only 3 clocks to register a change.
 .SH pwmgen
 
 pwmgens have names like "hm2_<BoardType>.<BoardNum>.pwmgen.<Instance>".
