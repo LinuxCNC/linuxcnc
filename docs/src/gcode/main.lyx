@@ -8588,51 +8588,60 @@ M100 to M199 User Defined Commands
 
 \layout Standard
 
-To invoke a user-defined command, program 
-\family typewriter 
-M- P- Q-
-\family default 
- where 
-\family typewriter 
-P-
-\family default 
- and 
-\family typewriter 
-Q-
-\family default 
- are both optional.
- The external program 
-\begin_inset Quotes eld
-\end_inset 
-
-
-\family typewriter 
-Mnnn
-\family default 
-
-\begin_inset Quotes erd
-\end_inset 
-
- in the directory 
-\family typewriter 
-[DISPLAY]PROGRAM_PREFIX
-\family default 
- is executed with the 
-\family typewriter 
-P
-\family default 
- and 
-\family typewriter 
-Q
-\family default 
- values as its two arguments.
+To invoke a user-defined command, program M1nn P- Q- where P- and Q- are
+ both optional.
+ The external program "M1nn" must be in the directory named in [DISPLAY]PROGRAM_
+PREFIX in the ini file and is executed with the P and Q values as its two
+ arguments.
  Execution of the RS274NGC file pauses until the invoked program exits.
+ Any valid executable file can be used.
 \layout Standard
 
-It is an error if
+The error "Unknown M code used" denotes one of the following
 \layout Itemize
 
 The specified User Defined Command does not exist
+\layout Itemize
+
+The file is not an executable file
+\layout Standard
+
+For example to open and close a collet closer that is controlled by a paraport
+ pin using a bash script file using M101 and M102.
+ Create two files called M101 and M102.
+ Set them as executable files (typically right click/properties/permissions)
+ before running EMC2.
+ 
+\layout Standard
+
+M101
+\layout Quote
+
+#!/bin/bash
+\layout Quote
+
+# file to turn on paraport pin 14 to open the collet closer
+\layout Quote
+
+halcmd setp parport.0.pin-14-out True
+\layout Quote
+
+exit 0
+\layout Standard
+
+M102
+\layout Quote
+
+#!/bin/bash
+\layout Quote
+
+# file to turn off paraport pin 14 to open the collet closer
+\layout Quote
+
+halcmd setp parport.0.pin-14-out False
+\layout Quote
+
+exit 0
 \layout Chapter
 
 O Codes
