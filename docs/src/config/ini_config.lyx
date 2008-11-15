@@ -654,40 +654,38 @@ gedit The editor to use when selecting File > Edit or File Edit Tool
  Another valid entry is gnome-terminal -e vim.
 \layout Description
 
+
+\begin_inset Note
+collapsed false
+
+\layout Standard
+
+expand this a little
+\end_inset 
+
+
+\layout Description
+
 GEOMETRY\SpecialChar ~
 =\SpecialChar ~
-XYZBCUVW Controls the preview and backplot of rotary motion.
+XYZABCUVW Controls the preview and backplot of rotary motion.
  This item consists of a sequence of axis letters, optionally preceded by
- a 
-\begin_inset Quotes eld
-\end_inset 
-
--
-\begin_inset Quotes erd
-\end_inset 
-
- sign.
+ a "-" sign.
  Only axes defined in 
 \family typewriter 
 [TRAJ]AXES
 \family default 
  should be used.
  This sequence specifies the order in which the effect of each axis is applied,
- with a 
-\begin_inset Quotes eld
-\end_inset 
-
--
-\begin_inset Quotes erd
-\end_inset 
-
- inverting the sense of the rotation or translation.
+ with a "-" inverting the sense of the rotation or translation.
 \newline 
 The proper GEOMETRY string depends on the machine configuration and the
  kinematics used to control it.
- The example string shown is for a 5-axis machine where kinematics causes
- UVW to move in the coordinate system of the tool and XYZ to move in the
- coordinate system of the material.
+ The example string GEOMETRY=XYZBCUVW is for a 5-axis machine where kinematics
+ causes UVW to move in the coordinate system of the tool and XYZ to move
+ in the coordinate system of the material.
+ The order of the letters is important, because it expresses the order in
+ which the different transformations are applied
 \layout Subsection
 
 [FILTER] Section
