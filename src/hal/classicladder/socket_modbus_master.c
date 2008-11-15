@@ -310,6 +310,7 @@ void SocketModbusMasterLoop( void )
 	static char QuestionFrame[ 800 ];
 	int ResponseSize;
 	static char ResponseFrame[ 800 ];
+        int SendResultStatus = 0;
 
 #ifdef __XENO__
 	pthread_set_name_np(pthread_self(), __FUNCTION__);
@@ -334,7 +335,7 @@ void SocketModbusMasterLoop( void )
 			{
 				if ( ModbusSerialPortNameUsed[ 0 ]=='\0' )
 				{
-					SendSocketModbusMaster( AdrIP, 502, QuestionFrame, SizeQuestionToAsk );
+					SendResultStatus = SendSocketModbusMaster( AdrIP, 502, QuestionFrame, SizeQuestionToAsk );
 				}
 				else
 				{
@@ -342,29 +343,31 @@ void SocketModbusMasterLoop( void )
 					SerialSetResponseSize( 1/*adr*/+GetModbusResponseLenghtToReceive()+2/*crc*/, ModbusTimeOutReceipt );
 					SerialSend( QuestionFrame, SizeQuestionToAsk );
 				}
-
-				if ( ModbusTimeAfterTransmit>0 )
+                                if ( SendResultStatus==0 )
 				{
-					// usefull for USB-RS485 dongle...
-					if( ModbusDebugLevel>=3 )
-						printf("INFO CLASSICLADDER- after transmit delay now...\n");
+				    if ( ModbusTimeAfterTransmit>0 )
+				    {
+				    	// usefull for USB-RS485 dongle...
+				    	if( ModbusDebugLevel>=3 )
+						printf("INFO CLASSICLADDER- after transmit delay now...%i milliseconds\n",ModbusTimeAfterTransmit);
 					DoPauseMilliSecs( ModbusTimeAfterTransmit );
-				}
+			    	    }
 				
-				if ( ModbusSerialPortNameUsed[ 0 ]=='\0' )
+				    if ( ModbusSerialPortNameUsed[ 0 ]=='\0' )
 					ResponseSize = WaitRespSocketModbusMaster( ResponseFrame, 800, ModbusTimeOutReceipt );
-				else
+				    else
 					ResponseSize = SerialReceive( ResponseFrame, 800 );
-				NbrFrames++;
-				if ( ResponseSize==0 )
+				    NbrFrames++;
+				    if ( ResponseSize==0 )
 					printf("ERROR CLASSICLADDER-  MODBUS NO RESPONSE (Errs=%d/%d) !?\n", ++CptErrors, NbrFrames);
-				if ( !TreatModbusMasterResponse( (unsigned char *)ResponseFrame, ResponseSize ) )
-				{
+				    if ( !TreatModbusMasterResponse( (unsigned char *)ResponseFrame, ResponseSize ) )
+				    {
 					// trouble? => flush all (perhaps we can receive now responses for old asks
 					// and are shifted between ask/resp...)
 					if ( ModbusSerialPortNameUsed[ 0 ]!='\0' )
 						SerialFlush( );
-				}
+				    }
+                                }
 				DoPauseMilliSecs( ModbusTimeInterFrame );
 			}
 			else
