@@ -894,6 +894,7 @@ mill format
 
 
 \begin_inset Float table
+placement H
 wide false
 collapsed false
 
@@ -1281,6 +1282,7 @@ lathe format
 
 
 \begin_inset Float table
+placement H
 wide false
 collapsed false
 
@@ -1634,6 +1636,7 @@ The FRONTANGLE and BACKANGLE fields are used by some user interfaces to
 
 
 \begin_inset Float figure
+placement H
 wide false
 collapsed false
 
@@ -1646,7 +1649,7 @@ Tool Orientations
 
 
 \layout Standard
-
+\align center 
 
 \begin_inset Graphics
 	filename lathe_tool.png
@@ -1686,6 +1689,7 @@ In the RS274/NGC language view, a machining center maintains an array of
 
 
 \begin_inset Float table
+placement H
 wide false
 collapsed false
 
@@ -1698,7 +1702,7 @@ Parameters Used by the RS274NGC Interpreter
 
 
 \layout Standard
-
+\align center 
 
 \begin_inset  Tabular
 <lyxtabular version="3" rows="16" columns="2">
@@ -2093,6 +2097,7 @@ Each line of the file contains the index number of a parameter in the first
 
 
 \begin_inset Float table
+placement H
 wide false
 collapsed false
 
@@ -2105,7 +2110,7 @@ Parameter File Format
 
 
 \layout Standard
-
+\align center 
 
 \begin_inset  Tabular
 <lyxtabular version="3" rows="3" columns="3">
