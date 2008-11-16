@@ -53,7 +53,8 @@ GtkWidget *OutputFlagParam[ NBR_OUTPUTS_CONF ];
 
 //for modbus input/output page
 #ifdef MODBUS_IO_MASTER
-static char * ModbusReqType[] = { "Read_INPUTS  fnct- 2", "Write_COIL(S)  fnct-5/15", "Read_REGS     fnct- 4", "Write_REG(S)  fnct-6/16","Read_HOLD    fnct- 3","Slave_echo    fnct- 8",NULL };
+// ModbusReqType must be in the same order as MODBUS_REQ_ in protocol_modbus_master.h
+static char * ModbusReqType[] = {"Read_INPUTS  fnct- 2", "Write_COIL(S)  fnct-5/15", "Read_REGS     fnct- 4", "Write_REG(S)  fnct-6/16", "Read_COILS  fnct- 1","Read_HOLD    fnct- 3","Slave_echo    fnct- 8",NULL };
 #define NBR_MODBUS_PARAMS 6
 GtkWidget *ModbusParamEntry[ NBR_MODBUS_MASTER_REQ ][ NBR_MODBUS_PARAMS ];
 GtkWidget *SerialPortEntry;
@@ -481,6 +482,19 @@ void GetModbusModulesIOSettings( void )
 					strcpy( BuffValue, "" );
 				}
 				break;
+                       case     MODBUS_REQ_DIAGNOSTICS :
+                                break;
+                       case     MODBUS_REQ_COILS_READ :
+                                if ( pConf->OffsetVarMapped+pConf->NbrModbusElements>= NBR_PHYS_OUTPUTS )
+				{
+					printf("Error in I/O modbus configure table: Asking to map more modbus coils then there are Q Variables.\n" );
+					strcpy( BuffValue, "" );
+				}
+                                break;
+                       default:
+                                printf("Error in I/O modbus configure table: Modbus function not recognized");
+                                break;
+
 		}
 		/* done at the end, do not forget multi-task ! */
 		/* the first char is tested to determine a valid request => paranoia mode ;-) */
