@@ -124,7 +124,7 @@ int rtapi_app_main(void)
 	hal_exit(comp_id);
 	return -1;
     }
-    rtapi_print_msg(RTAPI_MSG_INFO, "SCOPE_RT: installed sample function\n");
+    rtapi_print_msg(RTAPI_MSG_DBG, "SCOPE_RT: installed sample function\n");
     hal_ready(comp_id);
     return 0;
 }

@@ -1377,7 +1377,7 @@ int hal_create_thread(const char *name, unsigned long period_nsec, int uses_fp)
     char buf[HAL_NAME_LEN + 1];
 #endif
 
-    rtapi_print_msg(RTAPI_MSG_INFO,
+    rtapi_print_msg(RTAPI_MSG_DBG,
 	"HAL: creating thread %s, %ld nsec\n", name, period_nsec);
     if (hal_data == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -1523,7 +1523,7 @@ int hal_create_thread(const char *name, unsigned long period_nsec, int uses_fp)
     rtapi_snprintf(buf, HAL_NAME_LEN, "%s.tmax", name);
     hal_param_s32_new(buf, HAL_RW, &(new->maxtime), lib_module_id);
 #endif
-    rtapi_print_msg(RTAPI_MSG_INFO, "HAL: thread created\n");
+    rtapi_print_msg(RTAPI_MSG_DBG, "HAL: thread created\n");
     return HAL_SUCCESS;
 }
 
@@ -1812,7 +1812,7 @@ int hal_start_threads(void)
     }
 
 
-    rtapi_print_msg(RTAPI_MSG_INFO, "HAL: starting threads\n");
+    rtapi_print_msg(RTAPI_MSG_DBG, "HAL: starting threads\n");
     hal_data->threads_running = 1;
     return HAL_SUCCESS;
 }
@@ -1833,7 +1833,7 @@ int hal_stop_threads(void)
     }
 
     hal_data->threads_running = 0;
-    rtapi_print_msg(RTAPI_MSG_INFO, "HAL: threads stopped\n");
+    rtapi_print_msg(RTAPI_MSG_DBG, "HAL: threads stopped\n");
     return HAL_SUCCESS;
 }
 
@@ -2190,7 +2190,7 @@ static int proc_write_newinst(struct file *file,
         const char *buffer, unsigned long count, void *data)
 {
     if(hal_data->pending_constructor) {
-        rtapi_print_msg(RTAPI_MSG_INFO,
+        rtapi_print_msg(RTAPI_MSG_DBG,
                 "HAL: running constructor for %s %s\n",
                 hal_data->constructor_prefix,
                 hal_data->constructor_arg);
