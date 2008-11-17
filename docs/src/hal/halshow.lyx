@@ -79,7 +79,7 @@ collapsed false
 
 Halshow Layout
 \layout Standard
-
+\align center 
 
 \begin_inset Graphics
 	filename halshow-1.png
@@ -109,6 +109,7 @@ You can also expand or collapse the tree display using the Tree View menu
 
 
 \begin_inset Float figure
+placement H
 wide false
 collapsed false
 
@@ -195,7 +196,7 @@ Below the show area on the right is a set of widgets that will allow you
  to play with the running HAL.
  The commands you enter here and the effect that they have on the running
  HAL are not saved.
- They will persist as long as the emc remains up but are gone as soon as
+ They will persist as long as the EMC2 remains up but are gone as soon as
  it is.
 \layout Standard
 
@@ -336,6 +337,7 @@ This is just for viewing so we leave position blank and get the last position
 
 
 \begin_inset Float figure
+placement H
 wide false
 collapsed false
 
@@ -348,7 +350,7 @@ collapsed false
 
 Addf Command
 \layout Standard
-
+\align center 
 
 \begin_inset Graphics
 	filename halshow-2.png
@@ -479,6 +481,7 @@ estop
 
 
 \begin_inset Float figure
+placement H
 wide false
 collapsed false
 
@@ -491,7 +494,7 @@ collapsed false
 
 Watch Display
 \layout Standard
-
+\align center 
 
 \begin_inset Graphics
 	filename halshow-4.png
