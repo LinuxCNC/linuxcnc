@@ -7,7 +7,7 @@
 
 .SH NAME
 
-hm2_5i20 \- RTAI driver for the Mesa Electronics 5i20 and 4i65 Anything IO boards, with HostMot2 firmware.
+hm2_5i20 \- EMC2 HAL driver for the Mesa Electronics 5i20 and 4i65 Anything IO boards, with HostMot2 firmware.
 .SH SYNOPSIS
 
 .HP
@@ -20,10 +20,11 @@ HostMot2 config string, described in the hostmot2(9) manpage.
 .SH DESCRIPTION
 
 NOTE: This driver has been replaced by the hm2_pci driver.  Please switch.
-No changes to HAL files should be needed.
+No changes to your HAL files should be needed.  The hm2_5i20 driver will
+be removed at some point in the future.
 
-hm2_5i20 is an RTAI device driver that interfaces the Mesa 5i20 (PCI)
-and 4i65 (PC/104-Plus) boards with the HostMot2 firmware to the EMC2 HAL.
+hm2_5i20 is a device driver that interfaces the Mesa 5i20 (PCI) and 4i65
+(PC/104-Plus) boards with the HostMot2 firmware to the EMC2 HAL.
 
 The driver programs the board's FPGA with firmware when it registers
 the board with the hostmot2 driver.  The old bfload(1) firmware loading
