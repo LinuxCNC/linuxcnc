@@ -50,7 +50,12 @@ static const char *command_table[] = {
     "linkps", "linksp", "linkpp", "unlinkp",
     "net", "newsig", "delsig", "getp", "gets", "setp", "sets", "ptype", "stype",
     "addf", "delf", "show", "list", "status", "save", "source",
-    "start", "stop", "quit", "exit", "help", 
+    "start", "stop", "quit", "exit", "help", "alias",
+    NULL,
+};
+
+static const char *alias_table[] = {
+    "param", "pin",
     NULL,
 };
 
@@ -487,6 +492,12 @@ char **halcmd_completer(const char *text, int start, int end, hal_completer_func
     } else if(startswith(buffer, "linksp ") && argno == 2) {
         check_match_type_signal(buffer + 7);
         result = func(text, pin_generator);
+    } else if(startswith(buffer, "alias ") && argno == 1) {
+        result = completion_matches_table(text, alias_table, func);
+    } else if(startswith(buffer, "alias pin") && argno == 2) {
+        result = func(text, pin_generator);
+    } else if(startswith(buffer, "alias param") && argno == 2) {
+        result = func(text, parameter_generator);
     } else if(startswith(buffer, "linkpp ") && argno == 1) {
         result = func(text, pin_generator);
     } else if(startswith(buffer, "linkpp ") && argno == 2) {
