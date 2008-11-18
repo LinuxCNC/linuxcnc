@@ -29,7 +29,20 @@
 Lathe Specifics
 \layout Standard
 
-This chapter brings together all the lathe specific information.
+This chapter attempts to bring together all the lathe specific information
+ and is currently under construction.
+\layout Section
+
+Lathe Mode
+\layout Section
+
+Tool Files
+\layout Section
+
+Lathe Tools
+\layout Section
+
+Threading
 \layout Standard
 
 \the_end
