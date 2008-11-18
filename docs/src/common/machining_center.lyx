@@ -1606,7 +1606,7 @@ Comment
 
 The Pocket, FMS, DIA and Comment fields are as for mill format tool files.
  The ZOFFSET field is the same as the TLO field of mill format tool files.
- 
+ The DIA is also used by the AXIS gui display.
 \layout Standard
 
 The XOFFSET field gives an offset for the X coordinate when tool length
