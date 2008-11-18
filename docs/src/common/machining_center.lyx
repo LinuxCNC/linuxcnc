@@ -894,6 +894,7 @@ mill format
 
 
 \begin_inset Float table
+placement H
 wide false
 collapsed false
 
@@ -1245,6 +1246,7 @@ Diameter
  tool and the nominal diameter.
  If cutter radius compensation is not used with a tool, it does not matter
  what number is in this column.
+ 
 \layout Standard
 
 The 
@@ -1281,6 +1283,7 @@ lathe format
 
 
 \begin_inset Float table
+placement H
 wide false
 collapsed false
 
@@ -1604,7 +1607,7 @@ Comment
 
 The Pocket, FMS, DIA and Comment fields are as for mill format tool files.
  The ZOFFSET field is the same as the TLO field of mill format tool files.
- 
+ The DIA is also used by the AXIS gui display.
 \layout Standard
 
 The XOFFSET field gives an offset for the X coordinate when tool length
@@ -1634,6 +1637,7 @@ The FRONTANGLE and BACKANGLE fields are used by some user interfaces to
 
 
 \begin_inset Float figure
+placement H
 wide false
 collapsed false
 
@@ -1686,6 +1690,7 @@ In the RS274/NGC language view, a machining center maintains an array of
 
 
 \begin_inset Float table
+placement H
 wide false
 collapsed false
 
@@ -1698,7 +1703,7 @@ Parameters Used by the RS274NGC Interpreter
 
 
 \layout Standard
-
+\align center 
 
 \begin_inset  Tabular
 <lyxtabular version="3" rows="16" columns="2">
@@ -2093,6 +2098,7 @@ Each line of the file contains the index number of a parameter in the first
 
 
 \begin_inset Float table
+placement H
 wide false
 collapsed false
 
@@ -2105,7 +2111,7 @@ Parameter File Format
 
 
 \layout Standard
-
+\align center 
 
 \begin_inset  Tabular
 <lyxtabular version="3" rows="3" columns="3">
