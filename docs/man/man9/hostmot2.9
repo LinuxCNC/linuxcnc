@@ -294,10 +294,10 @@ exposes this flexibility.  IO pins that are owned by an active module
 instance are constrained by the requirements of the owning module,
 and have a restricted HAL interface.
 
-GPIOs have names like
-"hm2_<BoardType>.<BoardNum>.gpio.<PortName>.<PinNum>".  PinNum is a
-three-digit number.  PortName and PinNum correspond to the I/O Pin info
-as given in Mesa Electronics' manual for the board.
+GPIOs have names like "hm2_<BoardType>.<BoardNum>.gpio.<IONum>".
+IONum is a three-digit number.  The mapping from IONum to connector
+and pin-on-that-connector is printed when the driver loads, and it's
+documented in Mesa's manual for the Anything I/O boards.
 
 Each GPIO can have the following HAL Pins:
 

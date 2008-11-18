@@ -228,12 +228,14 @@ void hm2_print_pin_usage(hostmot2_t *hm2) {
 
     for (i = 0; i < hm2->num_pins; i ++) {
         int port = i / hm2->idrom.port_width;
+        int port_pin = ((i % 24) * 2) + 1;
 
         if (hm2->pin[i].gtag == hm2->pin[i].sec_tag) {
             PRINT(
-                "    I/O Pin %s.%03d: %s #%d, pin %s (%s)\n",
-                hm2->llio->ioport_connector_name[port],
+                "    IO Pin %03d (%s-%02d): %s #%d, pin %s (%s)\n",
                 i,
+                hm2->llio->ioport_connector_name[port],
+                port_pin,
                 hm2_get_general_function_name(hm2->pin[i].gtag),
                 hm2->pin[i].sec_unit,
                 hm2_get_pin_secondary_name(&hm2->pin[i]),
@@ -241,9 +243,10 @@ void hm2_print_pin_usage(hostmot2_t *hm2) {
             );
         } else {
             PRINT(
-                "    I/O Pin %s.%03d: %s\n",
-                hm2->llio->ioport_connector_name[port],
+                "    IO Pin %03d (%s-%02d): %s\n",
                 i,
+                hm2->llio->ioport_connector_name[port],
+                port_pin,
                 hm2_get_general_function_name(hm2->pin[i].gtag)
             );
         }

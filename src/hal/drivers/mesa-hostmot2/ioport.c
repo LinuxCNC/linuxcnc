@@ -232,9 +232,8 @@ int hm2_ioport_gpio_export_hal(hostmot2_t *hm2) {
                 HAL_OUT,
                 &(hm2->pin[i].instance->hal.pin.in),
                 hm2->llio->comp_id,
-                "%s.gpio.%s.%03d.in",
+                "%s.gpio.%03d.in",
                 hm2->llio->name,
-                hm2->llio->ioport_connector_name[port],
                 i
             );
             if (r != HAL_SUCCESS) {
@@ -246,9 +245,8 @@ int hm2_ioport_gpio_export_hal(hostmot2_t *hm2) {
                 HAL_OUT,
                 &(hm2->pin[i].instance->hal.pin.in_not),
                 hm2->llio->comp_id,
-                "%s.gpio.%s.%03d.in_not",
+                "%s.gpio.%03d.in_not",
                 hm2->llio->name,
-                hm2->llio->ioport_connector_name[port],
                 i
             );
             if (r != HAL_SUCCESS) {
@@ -271,9 +269,8 @@ int hm2_ioport_gpio_export_hal(hostmot2_t *hm2) {
                 HAL_RW,
                 &(hm2->pin[i].instance->hal.param.invert_output),
                 hm2->llio->comp_id,
-                "%s.gpio.%s.%03d.invert_output",
+                "%s.gpio.%03d.invert_output",
                 hm2->llio->name,
-                hm2->llio->ioport_connector_name[port],
                 i
             );
             if (r != HAL_SUCCESS) {
@@ -285,9 +282,8 @@ int hm2_ioport_gpio_export_hal(hostmot2_t *hm2) {
                 HAL_RW,
                 &(hm2->pin[i].instance->hal.param.is_opendrain),
                 hm2->llio->comp_id,
-                "%s.gpio.%s.%03d.is_opendrain",
+                "%s.gpio.%03d.is_opendrain",
                 hm2->llio->name,
-                hm2->llio->ioport_connector_name[port],
                 i
             );
             if (r != HAL_SUCCESS) {
@@ -310,9 +306,8 @@ int hm2_ioport_gpio_export_hal(hostmot2_t *hm2) {
                 HAL_IN,
                 &(hm2->pin[i].instance->hal.pin.out),
                 hm2->llio->comp_id,
-                "%s.gpio.%s.%03d.out",
+                "%s.gpio.%03d.out",
                 hm2->llio->name,
-                hm2->llio->ioport_connector_name[port],
                 i
             );
             if (r != HAL_SUCCESS) {
@@ -327,9 +322,8 @@ int hm2_ioport_gpio_export_hal(hostmot2_t *hm2) {
                 HAL_RW,
                 &(hm2->pin[i].instance->hal.param.is_output),
                 hm2->llio->comp_id,
-                "%s.gpio.%s.%03d.is_output",
+                "%s.gpio.%03d.is_output",
                 hm2->llio->name,
-                hm2->llio->ioport_connector_name[port],
                 i
             );
             if (r != HAL_SUCCESS) {
