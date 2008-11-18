@@ -174,7 +174,8 @@ typedef struct {
 			        /* prefix of name for new instance */
     int shmem_bot;		/* bottom of free shmem (first free byte) */
     int shmem_top;		/* top of free shmem (1 past last free) */
-    int alias_list_ptr;		/* root of linked list of aliases */
+    int pin_alias_list_ptr;	/* root of linked list of aliases */
+    int param_alias_list_ptr;	/* root of linked list of aliases */
     int comp_list_ptr;		/* root of linked list of components */
     int pin_list_ptr;		/* root of linked list of pins */
     int sig_list_ptr;		/* root of linked list of signals */

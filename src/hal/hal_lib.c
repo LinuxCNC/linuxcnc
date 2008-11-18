@@ -2379,7 +2379,8 @@ static int init_hal_data(void)
     /* set version code so nobody else init's the block */
     hal_data->version = HAL_VER;
     /* initialize everything */
-    hal_data->alias_list_ptr = 0;
+    hal_data->pin_alias_list_ptr = 0;
+    hal_data->param_alias_list_ptr = 0;
     hal_data->comp_list_ptr = 0;
     hal_data->pin_list_ptr = 0;
     hal_data->sig_list_ptr = 0;
@@ -2699,7 +2700,7 @@ static void remove_alias_from_pin(hal_pin_t * pin)
 	return;
     }
     /* search the alias list */
-    prev = &(hal_data->alias_list_ptr);
+    prev = &(hal_data->pin_alias_list_ptr);
     next = *prev;
     while (next != 0) {
 	alias = SHMPTR(next);
@@ -2729,7 +2730,7 @@ static void remove_alias_from_param(hal_param_t * param)
 	return;
     }
     /* search the alias list */
-    prev = &(hal_data->alias_list_ptr);
+    prev = &(hal_data->param_alias_list_ptr);
     next = *prev;
     while (next != 0) {
 	alias = SHMPTR(next);
