@@ -3,6 +3,55 @@
 next steps:
 
 
+    feedback from jmk & cradek:
+
+        rtapi_print(format, args) is unconditional, use this for things the user *must* see
+
+        ERR should for now be used for stuff you want to show up, change the shortcut macros prolly
+
+
+        on watchdog bite, keep doing all reads (encoders, gpios, raw)?
+        
+            reading those things should still work, but what's the use?
+
+            wd bites happen for three reasons i think: 
+            
+                epp cable unplugged,
+
+                linux shutdown or crashed,
+
+                user loadrt'ing hm2_pci by hand and not getting to addf & start within 1 second
+
+            In no case does it help to keep reading the FPGA
+
+
+        to keep halcmd-experimentation from tripping the watchdog right
+        away, have the timeout default to 0, meaning no wd
+
+        let the user set wd.timeout if they want
+
+        dont start watchdog at insmod, start it at the first pet_watchdog
+        (warn if it's 0 and suggest maybe 5x the servo thread period)
+
+
+        write a little userspace helper, a "hostmot2 config wizard":
+
+            tell it what anyio board(s) you have, and what daughter boards on what connectors
+
+            it'll pick the firmware, and poop out a little hal file with well-named nets that make the daughter board work
+
+
+        When naming a pin, call it I/O Pin xxx (Py-zz): Function
+        
+            xxx matches Mesa's IO pin name (and use this for HAL)
+            
+            y is the connector, and zz is the pin on that connector
+
+
+    when reading IO Cookie & Config Name, if it fails read it many times
+    to get some more data
+
+
     > Note: Double quotes in hm2_7i43 command took me some time to figure out,
     > as the config modparam single quotes were getting stripped by Bash. This
     > might be something to add to "man hostmot2".
@@ -237,7 +286,9 @@ stepgen:
 
 watchdog:
 
-    no known issues
+    currently it's like this: if a watchdog exists, it will be
+    initialized, but if pet_watchdog doesnt run, it'll bite and we wont
+    know about it
 
 
 
