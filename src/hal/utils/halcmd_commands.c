@@ -1914,6 +1914,11 @@ static void print_mem_status()
     active = count_list(hal_data->thread_list_ptr);
     recycled = count_list(hal_data->thread_free_ptr);
     halcmd_output("  active/recycled threads:    %d/%d\n", active, recycled);
+    // count aliases
+    active = count_list(hal_data->pin_alias_list_ptr);
+    active += count_list(hal_data->param_alias_list_ptr);
+    recycled = count_list(hal_data->alias_free_ptr);
+    halcmd_output("  active/recycled aliases:  %d/%d\n", active, recycled);
 }
 
 /* Switch function for pin/sig/param type for the print_*_list functions */
