@@ -143,6 +143,17 @@ typedef struct {
     int prev;			/* previous element in list */
 } hal_list_t;
 
+/** HAL "alias" data structure.
+    This structure is used to allow an alias name to be defined for
+    a HAL object such as a pin or parameter.
+*/
+
+typedef struct {
+    int next_ptr;		/* next alias */
+    int owner_ptr;		/* the object to which this alias applies */
+    char name[HAL_NAME_LEN + 1];	/* alias name */
+} hal_alias_t;
+
 /* Master HAL data structure
    There is a single instance of this structure in the machine.
    It resides at the base of the HAL shared memory block, where it
@@ -163,6 +174,7 @@ typedef struct {
 			        /* prefix of name for new instance */
     int shmem_bot;		/* bottom of free shmem (first free byte) */
     int shmem_top;		/* top of free shmem (1 past last free) */
+    int alias_list_ptr;		/* root of linked list of aliases */
     int comp_list_ptr;		/* root of linked list of components */
     int pin_list_ptr;		/* root of linked list of pins */
     int sig_list_ptr;		/* root of linked list of signals */
@@ -171,6 +183,7 @@ typedef struct {
     int thread_list_ptr;	/* root of linked list of threads */
     long base_period;		/* timer period for realtime tasks */
     int threads_running;	/* non-zero if threads are started */
+    int alias_free_ptr;		/* list of free alias structs */
     int comp_free_ptr;		/* list of free component structs */
     int pin_free_ptr;		/* list of free pin structs */
     int sig_free_ptr;		/* list of free signal structs */
@@ -209,6 +222,7 @@ typedef struct {
     int data_ptr_addr;		/* address of pin data pointer */
     int owner_ptr;		/* component that owns this pin */
     int signal;			/* signal to which pin is linked */
+    int alias;			/* alias, if any, otherwise zero */
     hal_data_u dummysig;		/* if unlinked, data_ptr points here */
     hal_type_t type;		/* data type */
     hal_pin_dir_t dir;		/* pin direction */
@@ -235,6 +249,7 @@ typedef struct {
     int next_ptr;		/* next parameter in linked list */
     int data_ptr;		/* offset of parameter value */
     int owner_ptr;		/* component that owns this signal */
+    int alias;			/* alias, if any, otherwise zero */
     hal_type_t type;		/* data type */
     hal_param_dir_t dir;	/* data direction */
     char name[HAL_NAME_LEN + 1];	/* parameter name */
@@ -313,7 +328,7 @@ typedef struct {
 */
 
 #define HAL_KEY   0x48414C32	/* key used to open HAL shared memory */
-#define HAL_VER   0x00000008	/* version code */
+#define HAL_VER   0x00000009	/* version code */
 #define HAL_SIZE  131000
 
 /* These pointers are set by hal_init() to point to the shmem block

@@ -124,6 +124,7 @@ static void *shmalloc_dn(long int size);
     All of these functions assume that the caller has already
     grabbed the hal_data mutex.
 */
+static hal_alias_t *halpr_alloc_alias_struct(void);
 hal_comp_t *halpr_alloc_comp_struct(void);
 static hal_pin_t *alloc_pin_struct(void);
 static hal_sig_t *alloc_sig_struct(void);
@@ -136,6 +137,9 @@ static hal_funct_entry_t *alloc_funct_entry_struct(void);
 static hal_thread_t *alloc_thread_struct(void);
 #endif /* RTAPI */
 
+static void remove_alias_from_pin(hal_pin_t * pin);
+static void remove_alias_from_param(hal_param_t * param);
+static void free_alias_struct(hal_alias_t * alias);
 static void free_comp_struct(hal_comp_t * comp);
 static void unlink_pin(hal_pin_t * pin);
 static void free_pin_struct(hal_pin_t * pin);
@@ -2375,6 +2379,7 @@ static int init_hal_data(void)
     /* set version code so nobody else init's the block */
     hal_data->version = HAL_VER;
     /* initialize everything */
+    hal_data->alias_list_ptr = 0;
     hal_data->comp_list_ptr = 0;
     hal_data->pin_list_ptr = 0;
     hal_data->sig_list_ptr = 0;
@@ -2383,6 +2388,7 @@ static int init_hal_data(void)
     hal_data->thread_list_ptr = 0;
     hal_data->base_period = 0;
     hal_data->threads_running = 0;
+    hal_data->alias_free_ptr = 0;
     hal_data->comp_free_ptr = 0;
     hal_data->pin_free_ptr = 0;
     hal_data->sig_free_ptr = 0;
@@ -2459,6 +2465,30 @@ static void *shmalloc_dn(long int size)
     hal_data->shmem_top = tmp_top;
     hal_data->shmem_avail = hal_data->shmem_top - hal_data->shmem_bot;
     return retval;
+}
+
+static hal_alias_t *halpr_alloc_alias_struct(void)
+{
+    hal_alias_t *p;
+
+    /* check the free list */
+    if (hal_data->alias_free_ptr != 0) {
+	/* found a free structure, point to it */
+	p = SHMPTR(hal_data->alias_free_ptr);
+	/* unlink it from the free list */
+	hal_data->alias_free_ptr = p->next_ptr;
+	p->next_ptr = 0;
+    } else {
+	/* nothing on free list, allocate a brand new one */
+	p = shmalloc_dn(sizeof(hal_alias_t));
+    }
+    if (p) {
+	/* make sure it's empty */
+	p->next_ptr = 0;
+	p->owner_ptr = 0;
+	p->name[0] = '\0';
+    }
+    return p;
 }
 
 hal_comp_t *halpr_alloc_comp_struct(void)
@@ -2659,6 +2689,76 @@ static hal_thread_t *alloc_thread_struct(void)
 }
 #endif /* RTAPI */
 
+static void remove_alias_from_pin(hal_pin_t * pin)
+{
+    int *prev, next;
+    hal_alias_t *alias;
+
+    if ( pin->alias == 0 ) {
+	/* no alias on this pin, done */
+	return;
+    }
+    /* search the alias list */
+    prev = &(hal_data->alias_list_ptr);
+    next = *prev;
+    while (next != 0) {
+	alias = SHMPTR(next);
+	if ( next == pin->alias ) { 
+	    /* found it, unlink from list */
+	    *prev = alias->next_ptr;
+	    /* and delete it */
+	    free_alias_struct(alias);
+	    /* only one alias per pin, so we're done */
+	    pin->alias = 0;
+	    return;
+	} else {
+	    /* no match, try the next one */
+	    prev = &(alias->next_ptr);
+	}
+	next = *prev;
+    }
+}
+
+static void remove_alias_from_param(hal_param_t * param)
+{
+    int *prev, next;
+    hal_alias_t *alias;
+
+    if ( param->alias == 0 ) {
+	/* no alias on this parameter, done */
+	return;
+    }
+    /* search the alias list */
+    prev = &(hal_data->alias_list_ptr);
+    next = *prev;
+    while (next != 0) {
+	alias = SHMPTR(next);
+	if ( next == param->alias ) { 
+	    /* found it, unlink from list */
+	    *prev = alias->next_ptr;
+	    /* and delete it */
+	    free_alias_struct(alias);
+	    /* only one alias per param, so we're done */
+	    param->alias = 0;
+	    return;
+	} else {
+	    /* no match, try the next one */
+	    prev = &(alias->next_ptr);
+	}
+	next = *prev;
+    }
+}
+
+static void free_alias_struct(hal_alias_t * alias)
+{
+    /* clear contents of struct */
+    alias->owner_ptr = 0;
+    alias->name[0] = '\0';
+    /* add it to free list */
+    alias->next_ptr = hal_data->alias_free_ptr;
+    hal_data->alias_free_ptr = SHMOFF(alias);
+}
+
 static void free_comp_struct(hal_comp_t * comp)
 {
     int *prev, next;
@@ -2766,6 +2866,7 @@ static void free_pin_struct(hal_pin_t * pin)
 {
 
     unlink_pin(pin);
+    remove_alias_from_pin(pin);
     /* clear contents of struct */
     pin->data_ptr_addr = 0;
     pin->owner_ptr = 0;
@@ -2805,6 +2906,7 @@ static void free_sig_struct(hal_sig_t * sig)
 
 static void free_param_struct(hal_param_t * p)
 {
+    remove_alias_from_param(p);
     /* clear contents of struct */
     p->data_ptr = 0;
     p->owner_ptr = 0;
