@@ -54,6 +54,7 @@ static const char* hm2_get_pin_secondary_name(hm2_pin_t *pin) {
             break;
 
         case HM2_GTAG_PWMGEN:
+            // FIXME: these depend on the pwmgen mode
             switch (sec_pin) {
                 case 1: return "Out0 (PWM or Up)";
                 case 2: return "Out1 (Dir or Down)";
