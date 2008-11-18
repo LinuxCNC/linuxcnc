@@ -2539,6 +2539,7 @@ static hal_pin_t *alloc_pin_struct(void)
 	p->next_ptr = 0;
 	p->data_ptr_addr = 0;
 	p->owner_ptr = 0;
+	p->alias = 0;
 	p->type = 0;
 	p->dir = 0;
 	p->signal = 0;
@@ -2596,6 +2597,7 @@ static hal_param_t *alloc_param_struct(void)
 	p->next_ptr = 0;
 	p->data_ptr = 0;
 	p->owner_ptr = 0;
+	p->alias = 0;
 	p->type = 0;
 	p->name[0] = '\0';
     }
