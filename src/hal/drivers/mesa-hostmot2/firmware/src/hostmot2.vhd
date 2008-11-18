@@ -714,7 +714,7 @@ architecture dataflow of HostMot2 is
 			generic map (
 				size => PWMGens,
 				buswidth => BusWidth,
-				invert => false
+				invert => true			-- Must be true! got changed to false somehow 
 				)
 			port map (
 				clk  => clklow,
