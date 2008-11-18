@@ -426,22 +426,22 @@ void hm2_encoder_cleanup(hostmot2_t *hm2) {
 }
 
 
-void hm2_encoder_print_module(int msg_level, hostmot2_t *hm2) {
+void hm2_encoder_print_module(hostmot2_t *hm2) {
     int i;
-    PRINT(msg_level, "Encoders: %d\n", hm2->encoder.num_instances);
+    PRINT("Encoders: %d\n", hm2->encoder.num_instances);
     if (hm2->encoder.num_instances <= 0) return;
-    PRINT(msg_level, "    clock_frequency: %d Hz (%s MHz)\n", hm2->encoder.clock_frequency, hm2_hz_to_mhz(hm2->encoder.clock_frequency));
-    PRINT(msg_level, "    version: %d\n", hm2->encoder.version);
-    PRINT(msg_level, "    counter_addr: 0x%04X\n", hm2->encoder.counter_addr);
-    PRINT(msg_level, "    latch_control_addr: 0x%04X\n", hm2->encoder.latch_control_addr);
-    PRINT(msg_level, "    timestamp_div_addr: 0x%04X\n", hm2->encoder.timestamp_div_addr);
-    PRINT(msg_level, "    timestamp_count_addr: 0x%04X\n", hm2->encoder.timestamp_count_addr);
-    PRINT(msg_level, "    filter_rate_addr: 0x%04X\n", hm2->encoder.filter_rate_addr);
+    PRINT("    clock_frequency: %d Hz (%s MHz)\n", hm2->encoder.clock_frequency, hm2_hz_to_mhz(hm2->encoder.clock_frequency));
+    PRINT("    version: %d\n", hm2->encoder.version);
+    PRINT("    counter_addr: 0x%04X\n", hm2->encoder.counter_addr);
+    PRINT("    latch_control_addr: 0x%04X\n", hm2->encoder.latch_control_addr);
+    PRINT("    timestamp_div_addr: 0x%04X\n", hm2->encoder.timestamp_div_addr);
+    PRINT("    timestamp_count_addr: 0x%04X\n", hm2->encoder.timestamp_count_addr);
+    PRINT("    filter_rate_addr: 0x%04X\n", hm2->encoder.filter_rate_addr);
     for (i = 0; i < hm2->encoder.num_instances; i ++) {
-        PRINT(msg_level, "    instance %d:\n", i);
-        PRINT(msg_level, "        hw:\n");
-        PRINT(msg_level, "            counter = %04x.%04x\n", (hm2->encoder.counter_reg[i] >> 16), (hm2->encoder.counter_reg[i] & 0xffff));
-        PRINT(msg_level, "            latch/control = %04x.%04x\n", (hm2->encoder.control_reg[i] >> 16), (hm2->encoder.control_reg[i] & 0xffff));
+        PRINT("    instance %d:\n", i);
+        PRINT("        hw:\n");
+        PRINT("            counter = %04x.%04x\n", (hm2->encoder.counter_reg[i] >> 16), (hm2->encoder.counter_reg[i] & 0xffff));
+        PRINT("            latch/control = %04x.%04x\n", (hm2->encoder.control_reg[i] >> 16), (hm2->encoder.control_reg[i] & 0xffff));
     }
 }
 

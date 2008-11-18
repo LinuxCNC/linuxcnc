@@ -78,24 +78,24 @@ static int num_boards;
 
 static inline void hm2_7i43_epp_addr8(u8 addr, hm2_7i43_t *board) {
     outb(addr, board->ioaddr + HM2_7I43_EPP_ADDRESS_OFFSET);
-    LL_DEBUG(debug_epp, "selected address 0x%02X\n", addr);
+    LL_PRINT_IF(debug_epp, "selected address 0x%02X\n", addr);
 }
 
 static inline void hm2_7i43_epp_addr16(u16 addr, hm2_7i43_t *board) {
     outb((addr & 0x00FF), board->ioaddr + HM2_7I43_EPP_ADDRESS_OFFSET);
     outb((addr >> 8),     board->ioaddr + HM2_7I43_EPP_ADDRESS_OFFSET);
-    LL_DEBUG(debug_epp, "selected address 0x%04X\n", addr);
+    LL_PRINT_IF(debug_epp, "selected address 0x%04X\n", addr);
 }
 
 static inline void hm2_7i43_epp_write(int w, hm2_7i43_t *board) {
     outb(w, board->ioaddr + HM2_7I43_EPP_DATA_OFFSET);
-    LL_DEBUG(debug_epp, "wrote data 0x%02X\n", w);
+    LL_PRINT_IF(debug_epp, "wrote data 0x%02X\n", w);
 }
 
 static inline int hm2_7i43_epp_read(hm2_7i43_t *board) {
     int val;
     val = inb(board->ioaddr + HM2_7I43_EPP_DATA_OFFSET);
-    LL_DEBUG(debug_epp, "read data 0x%02X\n", val);
+    LL_PRINT_IF(debug_epp, "read data 0x%02X\n", val);
     return val;
 }
 
@@ -104,7 +104,7 @@ static inline u32 hm2_7i43_epp_read32(hm2_7i43_t *board) {
 
     if (epp_wide) {
 	data = inl(board->ioaddr + HM2_7I43_EPP_DATA_OFFSET);
-        LL_DEBUG(debug_epp, "read data 0x%08X\n", data);
+        LL_PRINT_IF(debug_epp, "read data 0x%08X\n", data);
     } else {
         uint8_t a, b, c, d;
         a = hm2_7i43_epp_read(board);
@@ -120,7 +120,7 @@ static inline u32 hm2_7i43_epp_read32(hm2_7i43_t *board) {
 static inline void hm2_7i43_epp_write32(uint32_t w, hm2_7i43_t *board) {
     if (epp_wide) {
 	outl(w, board->ioaddr + HM2_7I43_EPP_DATA_OFFSET);
-        LL_DEBUG(debug_epp, "wrote data 0x%08X\n", w);
+        LL_PRINT_IF(debug_epp, "wrote data 0x%08X\n", w);
     } else {
         hm2_7i43_epp_write((w) & 0xFF, board);
         hm2_7i43_epp_write((w >>  8) & 0xFF, board);
@@ -132,18 +132,18 @@ static inline void hm2_7i43_epp_write32(uint32_t w, hm2_7i43_t *board) {
 static inline uint8_t hm2_7i43_epp_read_status(hm2_7i43_t *board) {
     uint8_t val;
     val = inb(board->ioaddr + HM2_7I43_EPP_STATUS_OFFSET);
-    LL_DEBUG(debug_epp, "read status 0x%02X\n", val);
+    LL_PRINT_IF(debug_epp, "read status 0x%02X\n", val);
     return val;
 }
 
 static inline void hm2_7i43_epp_write_status(uint8_t status_byte, hm2_7i43_t *board) {
     outb(status_byte, board->ioaddr + HM2_7I43_EPP_STATUS_OFFSET);
-    LL_DEBUG(debug_epp, "wrote status 0x%02X\n", status_byte);
+    LL_PRINT_IF(debug_epp, "wrote status 0x%02X\n", status_byte);
 }
 
 static inline void hm2_7i43_epp_write_control(uint8_t control_byte, hm2_7i43_t *board) {
     outb(control_byte, board->ioaddr + HM2_7I43_EPP_CONTROL_OFFSET);
-    LL_DEBUG(debug_epp, "wrote control 0x%02X\n", control_byte);
+    LL_PRINT_IF(debug_epp, "wrote control 0x%02X\n", control_byte);
 }
 
 // returns TRUE if there's a timeout
@@ -168,7 +168,7 @@ static int hm2_7i43_epp_clear_timeout(hm2_7i43_t *board) {
     hm2_7i43_epp_write_status(status & 0xFE, board);  // Others by writing 0
 
     if (hm2_7i43_epp_check_for_timeout(board)) {
-        LL_WARN("failed to clear EPP Timeout!\n");
+        LL_PRINT("failed to clear EPP Timeout!\n");
         return 0;  // fail
     }
     return 1;  // success
@@ -217,7 +217,7 @@ int hm2_7i43_read(hm2_lowlevel_io_t *this, u32 addr, void *buffer, int size) {
     }
 
     if (hm2_7i43_epp_check_for_timeout(board)) {
-        THIS_WARN("EPP timeout on data cycle of read(addr=0x%04x, size=%d)\n", addr, size);
+        THIS_PRINT("EPP timeout on data cycle of read(addr=0x%04x, size=%d)\n", addr, size);
         (*this->io_error) = 1;
         this->needs_reset = 1;
         hm2_7i43_epp_clear_timeout(board);
@@ -247,7 +247,7 @@ int hm2_7i43_write(hm2_lowlevel_io_t *this, u32 addr, void *buffer, int size) {
     }
 
     if (hm2_7i43_epp_check_for_timeout(board)) {
-        THIS_WARN("EPP timeout on data cycle of write(addr=0x%04x, size=%d)\n", addr, size);
+        THIS_PRINT("EPP timeout on data cycle of write(addr=0x%04x, size=%d)\n", addr, size);
         (*this->io_error) = 1;
         this->needs_reset = 1;
         hm2_7i43_epp_clear_timeout(board);
@@ -292,7 +292,7 @@ int hm2_7i43_program_fpga(hm2_lowlevel_io_t *this, const bitfile_t *bitfile) {
 
     // see if it worked
     if (hm2_7i43_epp_check_for_timeout(board)) {
-        THIS_ERR("EPP Timeout while sending firmware!\n");
+        THIS_PRINT("EPP Timeout while sending firmware!\n");
         return -EIO;
     }
 
@@ -354,7 +354,7 @@ int hm2_7i43_reset(hm2_lowlevel_io_t *this) {
     // make sure the FPGA is not asserting its /DONE bit
     byte = hm2_7i43_epp_read(board);
     if ((byte & 0x01) != 0) {
-        LL_ERR("/DONE is not low after CPLD reset!\n");
+        LL_PRINT("/DONE is not low after CPLD reset!\n");
         return -EIO;
     }
 
@@ -378,7 +378,7 @@ static void hm2_7i43_cleanup(void) {
         hm2_lowlevel_io_t *this = &board[i].llio;
         // if we've initialized the board, reset it now
         if (board[i].io_region1) {
-            THIS_INFO("releasing board\n");
+            THIS_PRINT("releasing board\n");
             hm2_unregister(this);
             rtapi_release_region(board[i].ioaddr, 8);
             rtapi_release_region(board[i].ioaddr_hi, 4);
@@ -390,7 +390,7 @@ static void hm2_7i43_cleanup(void) {
 static int hm2_7i43_setup(void) {
     int i;
 
-    LL_INFO("loading HostMot2 Mesa 7i43 driver version %s\n", HM2_7I43_VERSION);
+    LL_PRINT("loading HostMot2 Mesa 7i43 driver version %s\n", HM2_7I43_VERSION);
 
     // zero the board structs
     memset(board, 0, HM2_7I43_MAX_BOARDS * sizeof(hm2_7i43_t));
@@ -486,7 +486,7 @@ static int hm2_7i43_setup(void) {
             board[i].io_region1 = NULL;
             return r;
         } else {
-            THIS_INFO(
+            THIS_PRINT(
                 "board at (ioaddr=0x%04X, ioaddr_hi=0x%04X, epp_wide %s) found\n",
                 board[i].ioaddr,
                 board[i].ioaddr_hi,
@@ -520,7 +520,7 @@ int rtapi_app_main(void) {
 
 void rtapi_app_exit(void) {
     hm2_7i43_cleanup();
-    LL_INFO("unloaded driver\n");
     hal_exit(comp_id);
+    LL_PRINT("driver unloaded\n");
 }
 

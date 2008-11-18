@@ -31,18 +31,25 @@
 #include "bitfile.h"
 
 
-#define LL_PRINT(level, fmt, args...)   rtapi_print_msg(level, HM2_LLIO_NAME ": " fmt, ## args);
-#define LL_DEBUG(enable, fmt, args...)  if (enable) { rtapi_print_msg(RTAPI_MSG_DBG, HM2_LLIO_NAME ": " fmt, ## args); }
+//
+// Note: LL_PRINT(), LL_PRINT_IF(), and THIS_PRINT() all use rtapi_print()
+//       The others all use rtapi_print_msg()
+//
 
-#define LL_ERR(fmt, args...)            rtapi_print_msg(RTAPI_MSG_ERR,  HM2_LLIO_NAME ": " fmt, ## args);
-#define LL_WARN(fmt, args...)           rtapi_print_msg(RTAPI_MSG_WARN, HM2_LLIO_NAME ": " fmt, ## args);
-#define LL_INFO(fmt, args...)           rtapi_print_msg(RTAPI_MSG_INFO, HM2_LLIO_NAME ": " fmt, ## args);
-#define LL_DBG(fmt, args...)            rtapi_print_msg(RTAPI_MSG_DBG,  HM2_LLIO_NAME ": " fmt, ## args);
+#define LL_PRINT(fmt, args...)    rtapi_print(HM2_LLIO_NAME ": " fmt, ## args);
+#define THIS_PRINT(fmt, args...)  rtapi_print("%s: " fmt, this->name, ## args);
 
-#define THIS_ERR(fmt, args...)            rtapi_print_msg(RTAPI_MSG_ERR,  "%s: " fmt, this->name, ## args);
-#define THIS_WARN(fmt, args...)           rtapi_print_msg(RTAPI_MSG_WARN, "%s: " fmt, this->name, ## args);
-#define THIS_INFO(fmt, args...)           rtapi_print_msg(RTAPI_MSG_INFO, "%s: " fmt, this->name, ## args);
-#define THIS_DBG(fmt, args...)            rtapi_print_msg(RTAPI_MSG_DBG,  "%s: " fmt, this->name, ## args);
+#define LL_PRINT_IF(enable, fmt, args...)  if (enable) { rtapi_print(HM2_LLIO_NAME ": " fmt, ## args); }
+
+#define LL_ERR(fmt, args...)   rtapi_print_msg(RTAPI_MSG_ERR,  HM2_LLIO_NAME ": " fmt, ## args);
+#define LL_WARN(fmt, args...)  rtapi_print_msg(RTAPI_MSG_WARN, HM2_LLIO_NAME ": " fmt, ## args);
+#define LL_INFO(fmt, args...)  rtapi_print_msg(RTAPI_MSG_INFO, HM2_LLIO_NAME ": " fmt, ## args);
+#define LL_DBG(fmt, args...)   rtapi_print_msg(RTAPI_MSG_DBG,  HM2_LLIO_NAME ": " fmt, ## args);
+
+#define THIS_ERR(fmt, args...)   rtapi_print_msg(RTAPI_MSG_ERR,  "%s: " fmt, this->name, ## args);
+#define THIS_WARN(fmt, args...)  rtapi_print_msg(RTAPI_MSG_WARN, "%s: " fmt, this->name, ## args);
+#define THIS_INFO(fmt, args...)  rtapi_print_msg(RTAPI_MSG_INFO, "%s: " fmt, this->name, ## args);
+#define THIS_DBG(fmt, args...)   rtapi_print_msg(RTAPI_MSG_DBG,  "%s: " fmt, this->name, ## args);
 
 
 #define ANYIO_MAX_IOPORT_CONNECTORS (8)

@@ -533,30 +533,30 @@ void hm2_pwmgen_cleanup(hostmot2_t *hm2) {
 
 
 
-void hm2_pwmgen_print_module(int msg_level, hostmot2_t *hm2) {
+void hm2_pwmgen_print_module(hostmot2_t *hm2) {
     int i;
-    PRINT(msg_level, "PWMGen: %d\n", hm2->pwmgen.num_instances);
+    PRINT("PWMGen: %d\n", hm2->pwmgen.num_instances);
     if (hm2->pwmgen.num_instances <= 0) return;
-    PRINT(msg_level, "    clock_frequency: %d Hz (%s MHz)\n", hm2->pwmgen.clock_frequency, hm2_hz_to_mhz(hm2->pwmgen.clock_frequency));
-    PRINT(msg_level, "    version: %d\n", hm2->pwmgen.version);
-    PRINT(msg_level, "    pwmgen_master_rate_dds: 0x%08X (%d)\n", hm2->pwmgen.pwmgen_master_rate_dds_reg, hm2->pwmgen.pwmgen_master_rate_dds_reg);
-    PRINT(msg_level, "    pdmgen_master_rate_dds: 0x%08X (%d)\n", hm2->pwmgen.pdmgen_master_rate_dds_reg, hm2->pwmgen.pdmgen_master_rate_dds_reg);
-    PRINT(msg_level, "    enable: 0x%08X\n", hm2->pwmgen.enable_reg);
-    PRINT(msg_level, "    pwm_value_addr: 0x%04X\n", hm2->pwmgen.pwm_value_addr);
-    PRINT(msg_level, "    pwm_mode_addr: 0x%04X\n", hm2->pwmgen.pwm_mode_addr);
-    PRINT(msg_level, "    pwmgen_master_rate_dds_addr: 0x%04X\n", hm2->pwmgen.pwmgen_master_rate_dds_addr);
-    PRINT(msg_level, "    pdmgen_master_rate_dds_addr: 0x%04X\n", hm2->pwmgen.pdmgen_master_rate_dds_addr);
-    PRINT(msg_level, "    enable_addr: 0x%04X\n", hm2->pwmgen.enable_addr);
+    PRINT("    clock_frequency: %d Hz (%s MHz)\n", hm2->pwmgen.clock_frequency, hm2_hz_to_mhz(hm2->pwmgen.clock_frequency));
+    PRINT("    version: %d\n", hm2->pwmgen.version);
+    PRINT("    pwmgen_master_rate_dds: 0x%08X (%d)\n", hm2->pwmgen.pwmgen_master_rate_dds_reg, hm2->pwmgen.pwmgen_master_rate_dds_reg);
+    PRINT("    pdmgen_master_rate_dds: 0x%08X (%d)\n", hm2->pwmgen.pdmgen_master_rate_dds_reg, hm2->pwmgen.pdmgen_master_rate_dds_reg);
+    PRINT("    enable: 0x%08X\n", hm2->pwmgen.enable_reg);
+    PRINT("    pwm_value_addr: 0x%04X\n", hm2->pwmgen.pwm_value_addr);
+    PRINT("    pwm_mode_addr: 0x%04X\n", hm2->pwmgen.pwm_mode_addr);
+    PRINT("    pwmgen_master_rate_dds_addr: 0x%04X\n", hm2->pwmgen.pwmgen_master_rate_dds_addr);
+    PRINT("    pdmgen_master_rate_dds_addr: 0x%04X\n", hm2->pwmgen.pdmgen_master_rate_dds_addr);
+    PRINT("    enable_addr: 0x%04X\n", hm2->pwmgen.enable_addr);
     for (i = 0; i < hm2->pwmgen.num_instances; i ++) {
-        PRINT(msg_level, "    instance %d:\n", i);
-        PRINT(msg_level, "        hw:\n");
-        PRINT(msg_level,
+        PRINT("    instance %d:\n", i);
+        PRINT("        hw:\n");
+        PRINT(
             "            pwm_val = 0x%08X (%s%d)\n",
             hm2->pwmgen.pwm_value_reg[i],
             ((hm2->pwmgen.pwm_value_reg[i] & 0x80000000) ? "-" : ""),
             ((hm2->pwmgen.pwm_value_reg[i]>>16) & 0x7fff)
         );
-        PRINT(msg_level, "            pwm_mode = 0x%08X\n", hm2->pwmgen.pwm_mode_reg[i]);
+        PRINT("            pwm_mode = 0x%08X\n", hm2->pwmgen.pwm_mode_reg[i]);
     }
 }
 

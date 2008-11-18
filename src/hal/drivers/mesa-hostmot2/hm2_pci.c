@@ -333,13 +333,13 @@ static int hm2_pci_probe(struct pci_dev *dev, const struct pci_device_id *id) {
 
 
     if (num_boards >= HM2_PCI_MAX_BOARDS) {
-        LL_WARN("skipping AnyIO board at %s, this driver can only handle %d\n", pci_name(dev), HM2_PCI_MAX_BOARDS);
+        LL_PRINT("skipping AnyIO board at %s, this driver can only handle %d\n", pci_name(dev), HM2_PCI_MAX_BOARDS);
         return -EINVAL;
     }
 
     // NOTE: this enables the board's BARs -- this fixes the Arty bug
     if (pci_enable_device(dev)) {
-        LL_WARN("skipping AnyIO board at %s, failed to enable PCI device\n", pci_name(dev));
+        LL_PRINT("skipping AnyIO board at %s, failed to enable PCI device\n", pci_name(dev));
         return -ENODEV;
     }
 
@@ -350,7 +350,7 @@ static int hm2_pci_probe(struct pci_dev *dev, const struct pci_device_id *id) {
 
     switch (dev->subsystem_device) {
         case HM2_PCI_SSDEV_5I20: {
-            LL_INFO("discovered 5i20 at %s\n", pci_name(dev));
+            LL_PRINT("discovered 5i20 at %s\n", pci_name(dev));
             snprintf(board->llio.name, HAL_NAME_LEN, "hm2_5i20.%d", num_5i20);
             num_5i20 ++;
             board->llio.num_ioport_connectors = 3;
@@ -362,7 +362,7 @@ static int hm2_pci_probe(struct pci_dev *dev, const struct pci_device_id *id) {
         }
 
         case HM2_PCI_SSDEV_4I65: {
-            LL_INFO("discovered 4i65 at %s\n", pci_name(dev));
+            LL_PRINT("discovered 4i65 at %s\n", pci_name(dev));
             snprintf(board->llio.name, HAL_NAME_LEN, "hm2_4i65.%d", num_4i65);
             num_4i65 ++;
             board->llio.num_ioport_connectors = 3;
@@ -376,10 +376,10 @@ static int hm2_pci_probe(struct pci_dev *dev, const struct pci_device_id *id) {
         case HM2_PCI_SSDEV_5I22_10:
         case HM2_PCI_SSDEV_5I22_15: {
             if (dev->subsystem_device == HM2_PCI_SSDEV_5I22_10) {
-                LL_INFO("discovered 5i22-1.0M at %s\n", pci_name(dev));
+                LL_PRINT("discovered 5i22-1.0M at %s\n", pci_name(dev));
                 board->llio.fpga_part_number = "3s1000fg320";
             } else {
-                LL_INFO("discovered 5i22-1.5M at %s\n", pci_name(dev));
+                LL_PRINT("discovered 5i22-1.5M at %s\n", pci_name(dev));
                 board->llio.fpga_part_number = "3s1500fg320";
             }
             snprintf(board->llio.name, HAL_NAME_LEN, "hm2_5i22.%d", num_5i22);
@@ -393,7 +393,7 @@ static int hm2_pci_probe(struct pci_dev *dev, const struct pci_device_id *id) {
         }
 
         case HM2_PCI_SSDEV_5I23: {
-            LL_INFO("discovered 5i23 at %s\n", pci_name(dev));
+            LL_PRINT("discovered 5i23 at %s\n", pci_name(dev));
             snprintf(board->llio.name, HAL_NAME_LEN, "hm2_5i23.%d", num_5i23);
             num_5i23 ++;
             board->llio.num_ioport_connectors = 3;
@@ -407,9 +407,9 @@ static int hm2_pci_probe(struct pci_dev *dev, const struct pci_device_id *id) {
         case HM2_PCI_SSDEV_4I68:
         case HM2_PCI_SSDEV_4I68_OLD: {
             if (dev->subsystem_device == HM2_PCI_SSDEV_4I68_OLD) {
-                LL_WARN("discovered OLD 4i68 at %s, please consider upgrading your EEPROM\n", pci_name(dev));
+                LL_PRINT("discovered OLD 4i68 at %s, please consider upgrading your EEPROM\n", pci_name(dev));
             } else {
-                LL_INFO("discovered 4i68 at %s\n", pci_name(dev));
+                LL_PRINT("discovered 4i68 at %s\n", pci_name(dev));
             }
             snprintf(board->llio.name, HAL_NAME_LEN, "hm2_4i68.%d", num_4i68);
             num_4i68 ++;
@@ -498,7 +498,7 @@ static int hm2_pci_probe(struct pci_dev *dev, const struct pci_device_id *id) {
         goto fail1;
     }
 
-    THIS_INFO("initialized AnyIO board at %s\n", pci_name(dev));
+    THIS_PRINT("initialized AnyIO board at %s\n", pci_name(dev));
 
     num_boards ++;
     return 0;
@@ -523,7 +523,7 @@ static void hm2_pci_remove(struct pci_dev *dev) {
         hm2_lowlevel_io_t *this = &board->llio;
 
         if (board->dev == dev) {
-            THIS_INFO("dropping AnyIO board at %s\n", pci_name(dev));
+            THIS_PRINT("dropping AnyIO board at %s\n", pci_name(dev));
 
             hm2_unregister(&board->llio);
 
@@ -552,7 +552,7 @@ static struct pci_driver hm2_pci_driver = {
 int rtapi_app_main(void) {
     int r = 0;
 
-    LL_INFO("loading Mesa AnyIO HostMot2 driver version " HM2_PCI_VERSION "\n");
+    LL_PRINT("loading Mesa AnyIO HostMot2 driver version " HM2_PCI_VERSION "\n");
 
     comp_id = hal_init(HM2_LLIO_NAME);
     if (comp_id < 0) return comp_id;
@@ -571,7 +571,7 @@ int rtapi_app_main(void) {
 
 void rtapi_app_exit(void) {
     pci_unregister_driver(&hm2_pci_driver);
-    LL_INFO("unloaded driver\n");
+    LL_PRINT("driver unloaded\n");
     hal_exit(comp_id);
 }
 

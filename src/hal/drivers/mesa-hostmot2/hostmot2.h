@@ -31,13 +31,25 @@
 #define HM2_VERSION "0.14"
 #define HM2_NAME    "hm2"
 
-#define PRINT_NO_LL(level, fmt, args...)  rtapi_print_msg(level, HM2_NAME ": " fmt, ## args);
 
-#define PRINT(level, fmt, args...)  rtapi_print_msg(level,          HM2_NAME "/%s: " fmt, hm2->llio->name, ## args);
-#define ERR(fmt, args...)           rtapi_print_msg(RTAPI_MSG_ERR,  HM2_NAME "/%s: " fmt, hm2->llio->name, ## args);
-#define WARN(fmt, args...)          rtapi_print_msg(RTAPI_MSG_WARN, HM2_NAME "/%s: " fmt, hm2->llio->name, ## args);
-#define INFO(fmt, args...)          rtapi_print_msg(RTAPI_MSG_INFO, HM2_NAME "/%s: " fmt, hm2->llio->name, ## args);
-#define DBG(fmt, args...)           rtapi_print_msg(RTAPI_MSG_DBG,  HM2_NAME "/%s: " fmt, hm2->llio->name, ## args);
+//
+// Note: PRINT() and PRINT_NO_LL() use rtapi_print(), all the others use rtapi_print_msg()
+//
+
+#define PRINT_NO_LL(fmt, args...)  rtapi_print(HM2_NAME ": " fmt, ## args);
+
+#define ERR_NO_LL(fmt, args...)    rtapi_print_msg(RTAPI_MSG_ERR,  HM2_NAME ": " fmt, ## args);
+#define WARN_NO_LL(fmt, args...)   rtapi_print_msg(RTAPI_MSG_WARN, HM2_NAME ": " fmt, ## args);
+#define INFO_NO_LL(fmt, args...)   rtapi_print_msg(RTAPI_MSG_INFO, HM2_NAME ": " fmt, ## args);
+#define DBG_NO_LL(fmt, args...)    rtapi_print_msg(RTAPI_MSG_DBG,  HM2_NAME ": " fmt, ## args);
+
+
+#define PRINT(fmt, args...)  rtapi_print(HM2_NAME "/%s: " fmt, hm2->llio->name, ## args);
+
+#define ERR(fmt, args...)    rtapi_print_msg(RTAPI_MSG_ERR,  HM2_NAME "/%s: " fmt, hm2->llio->name, ## args);
+#define WARN(fmt, args...)   rtapi_print_msg(RTAPI_MSG_WARN, HM2_NAME "/%s: " fmt, hm2->llio->name, ## args);
+#define INFO(fmt, args...)   rtapi_print_msg(RTAPI_MSG_INFO, HM2_NAME "/%s: " fmt, hm2->llio->name, ## args);
+#define DBG(fmt, args...)    rtapi_print_msg(RTAPI_MSG_DBG,  HM2_NAME "/%s: " fmt, hm2->llio->name, ## args);
 
 
 
@@ -605,7 +617,7 @@ const char *hm2_get_general_function_name(int gtag);
 
 const char *hm2_hz_to_mhz(u32 freq_hz);
 
-void hm2_print_modules(int msg_level, hostmot2_t *hm2);
+void hm2_print_modules(hostmot2_t *hm2);
 
 
 
@@ -630,7 +642,7 @@ void hm2_tram_cleanup(hostmot2_t *hm2);
 
 int hm2_read_pin_descriptors(hostmot2_t *hm2);
 void hm2_configure_pins(hostmot2_t *hm2);
-void hm2_print_pin_usage(int msg_level, hostmot2_t *hm2);
+void hm2_print_pin_usage(hostmot2_t *hm2);
 void hm2_set_pin_direction(hostmot2_t *hm2, int pin_number, int direction);  // gpio needs this
 
 
@@ -645,7 +657,7 @@ int hm2_ioport_parse_md(hostmot2_t *hm2, int md_index);
 void hm2_ioport_cleanup(hostmot2_t *hm2);
 void hm2_ioport_force_write(hostmot2_t *hm2);
 void hm2_ioport_write(hostmot2_t *hm2);
-void hm2_ioport_print_module(int msg_level, hostmot2_t *hm2);
+void hm2_ioport_print_module(hostmot2_t *hm2);
 void hm2_ioport_gpio_tram_write_init(hostmot2_t *hm2);
 
 int hm2_ioport_gpio_export_hal(hostmot2_t *hm2);
@@ -668,7 +680,7 @@ void hm2_encoder_process_tram_read(hostmot2_t *hm2);
 void hm2_encoder_read(hostmot2_t *hm2);
 void hm2_encoder_write(hostmot2_t *hm2);
 void hm2_encoder_cleanup(hostmot2_t *hm2);
-void hm2_encoder_print_module(int msg_level, hostmot2_t *hm2);
+void hm2_encoder_print_module(hostmot2_t *hm2);
 void hm2_encoder_force_write(hostmot2_t *hm2);
 
 
@@ -679,7 +691,7 @@ void hm2_encoder_force_write(hostmot2_t *hm2);
 //
 
 int hm2_pwmgen_parse_md(hostmot2_t *hm2, int md_index);
-void hm2_pwmgen_print_module(int msg_level, hostmot2_t *hm2);
+void hm2_pwmgen_print_module(hostmot2_t *hm2);
 void hm2_pwmgen_cleanup(hostmot2_t *hm2);
 void hm2_pwmgen_write(hostmot2_t *hm2);
 void hm2_pwmgen_force_write(hostmot2_t *hm2);
@@ -693,7 +705,7 @@ void hm2_pwmgen_prepare_tram_write(hostmot2_t *hm2);
 //
 
 int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index);
-void hm2_stepgen_print_module(int msg_level, hostmot2_t *hm2);
+void hm2_stepgen_print_module(hostmot2_t *hm2);
 void hm2_stepgen_force_write(hostmot2_t *hm2);
 void hm2_stepgen_write(hostmot2_t *hm2);
 void hm2_stepgen_tram_init(hostmot2_t *hm2);
@@ -708,7 +720,7 @@ void hm2_stepgen_process_tram_read(hostmot2_t *hm2, long period);
 // 
 
 int hm2_watchdog_parse_md(hostmot2_t *hm2, int md_index);
-void hm2_watchdog_print_module(int msg_level, hostmot2_t *hm2);
+void hm2_watchdog_print_module(hostmot2_t *hm2);
 void hm2_watchdog_cleanup(hostmot2_t *hm2);
 void hm2_watchdog_write(hostmot2_t *hm2);
 void hm2_watchdog_force_write(hostmot2_t *hm2);

@@ -666,33 +666,33 @@ fail0:
 
 
 
-void hm2_stepgen_print_module(int msg_level, hostmot2_t *hm2) {
+void hm2_stepgen_print_module(hostmot2_t *hm2) {
     int i;
-    PRINT(msg_level, "StepGen: %d\n", hm2->stepgen.num_instances);
+    PRINT("StepGen: %d\n", hm2->stepgen.num_instances);
     if (hm2->stepgen.num_instances <= 0) return;
-    PRINT(msg_level, "    clock_frequency: %d Hz (%s MHz)\n", hm2->stepgen.clock_frequency, hm2_hz_to_mhz(hm2->stepgen.clock_frequency));
-    PRINT(msg_level, "    version: %d\n", hm2->stepgen.version);
-    PRINT(msg_level, "    step_rate_addr: 0x%04X\n", hm2->stepgen.step_rate_addr);
-    PRINT(msg_level, "    accumulator_addr: 0x%04X\n", hm2->stepgen.accumulator_addr);
-    PRINT(msg_level, "    mode_addr: 0x%04X\n", hm2->stepgen.mode_addr);
-    PRINT(msg_level, "    dir_setup_time_addr: 0x%04X\n", hm2->stepgen.dir_setup_time_addr);
-    PRINT(msg_level, "    dir_hold_time_addr: 0x%04X\n", hm2->stepgen.dir_hold_time_addr);
-    PRINT(msg_level, "    pulse_width_addr: 0x%04X\n", hm2->stepgen.pulse_width_addr);
-    PRINT(msg_level, "    pulse_idle_width_addr: 0x%04X\n", hm2->stepgen.pulse_idle_width_addr);
-    PRINT(msg_level, "    table_sequence_data_setup_addr: 0x%04X\n", hm2->stepgen.table_sequence_data_setup_addr);
-    PRINT(msg_level, "    table_sequence_length_addr: 0x%04X\n", hm2->stepgen.table_sequence_length_addr);
-    PRINT(msg_level, "    master_dds_addr: 0x%04X\n", hm2->stepgen.master_dds_addr);
+    PRINT("    clock_frequency: %d Hz (%s MHz)\n", hm2->stepgen.clock_frequency, hm2_hz_to_mhz(hm2->stepgen.clock_frequency));
+    PRINT("    version: %d\n", hm2->stepgen.version);
+    PRINT("    step_rate_addr: 0x%04X\n", hm2->stepgen.step_rate_addr);
+    PRINT("    accumulator_addr: 0x%04X\n", hm2->stepgen.accumulator_addr);
+    PRINT("    mode_addr: 0x%04X\n", hm2->stepgen.mode_addr);
+    PRINT("    dir_setup_time_addr: 0x%04X\n", hm2->stepgen.dir_setup_time_addr);
+    PRINT("    dir_hold_time_addr: 0x%04X\n", hm2->stepgen.dir_hold_time_addr);
+    PRINT("    pulse_width_addr: 0x%04X\n", hm2->stepgen.pulse_width_addr);
+    PRINT("    pulse_idle_width_addr: 0x%04X\n", hm2->stepgen.pulse_idle_width_addr);
+    PRINT("    table_sequence_data_setup_addr: 0x%04X\n", hm2->stepgen.table_sequence_data_setup_addr);
+    PRINT("    table_sequence_length_addr: 0x%04X\n", hm2->stepgen.table_sequence_length_addr);
+    PRINT("    master_dds_addr: 0x%04X\n", hm2->stepgen.master_dds_addr);
     for (i = 0; i < hm2->stepgen.num_instances; i ++) {
-        PRINT(msg_level, "    instance %d:\n", i);
-        PRINT(msg_level, "        enable = %d\n", *hm2->stepgen.instance[i].hal.pin.enable);
-        PRINT(msg_level, "        hw:\n");
-        PRINT(msg_level, "            step_rate = 0x%08X\n", hm2->stepgen.step_rate_reg[i]);
-        PRINT(msg_level, "            accumulator = 0x%08X\n", hm2->stepgen.accumulator_reg[i]);
-        PRINT(msg_level, "            mode = 0x%08X\n", hm2->stepgen.mode_reg[i]);
-        PRINT(msg_level, "            dir_setup_time = 0x%08X (%u ns)\n", hm2->stepgen.dir_setup_time_reg[i], hm2->stepgen.instance[i].hal.param.dirsetup);
-        PRINT(msg_level, "            dir_hold_time = 0x%08X (%u ns)\n", hm2->stepgen.dir_hold_time_reg[i], hm2->stepgen.instance[i].hal.param.dirhold);
-        PRINT(msg_level, "            pulse_width = 0x%08X (%u ns)\n", hm2->stepgen.pulse_width_reg[i], hm2->stepgen.instance[i].hal.param.steplen);
-        PRINT(msg_level, "            pulse_idle_width = 0x%08X (%u ns)\n", hm2->stepgen.pulse_idle_width_reg[i], hm2->stepgen.instance[i].hal.param.stepspace);
+        PRINT("    instance %d:\n", i);
+        PRINT("        enable = %d\n", *hm2->stepgen.instance[i].hal.pin.enable);
+        PRINT("        hw:\n");
+        PRINT("            step_rate = 0x%08X\n", hm2->stepgen.step_rate_reg[i]);
+        PRINT("            accumulator = 0x%08X\n", hm2->stepgen.accumulator_reg[i]);
+        PRINT("            mode = 0x%08X\n", hm2->stepgen.mode_reg[i]);
+        PRINT("            dir_setup_time = 0x%08X (%u ns)\n", hm2->stepgen.dir_setup_time_reg[i], hm2->stepgen.instance[i].hal.param.dirsetup);
+        PRINT("            dir_hold_time = 0x%08X (%u ns)\n", hm2->stepgen.dir_hold_time_reg[i], hm2->stepgen.instance[i].hal.param.dirhold);
+        PRINT("            pulse_width = 0x%08X (%u ns)\n", hm2->stepgen.pulse_width_reg[i], hm2->stepgen.instance[i].hal.param.steplen);
+        PRINT("            pulse_idle_width = 0x%08X (%u ns)\n", hm2->stepgen.pulse_idle_width_reg[i], hm2->stepgen.instance[i].hal.param.stepspace);
     }
 }
 

@@ -117,7 +117,7 @@ void hm2_raw_read(hostmot2_t *hm2) {
     );
 
     if (*hm2->raw->hal.pin.dump_state != 0) {
-        hm2_print_modules(RTAPI_MSG_DBG, hm2);
+        hm2_print_modules(hm2);
         *hm2->raw->hal.pin.dump_state = 0;
     }
 }

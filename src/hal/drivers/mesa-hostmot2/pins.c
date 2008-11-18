@@ -83,29 +83,26 @@ static const char* hm2_get_pin_secondary_name(hm2_pin_t *pin) {
 
 
 
-static void hm2_print_pin_descriptors(int msg_level, hostmot2_t *hm2) {
+static void hm2_print_pin_descriptors(hostmot2_t *hm2) {
     int i;
 
-    PRINT(msg_level, "%d HM2 Pin Descriptors:\n", hm2->num_pins);
+    PRINT("%d HM2 Pin Descriptors:\n", hm2->num_pins);
 
     for (i = 0; i < hm2->num_pins; i ++) {
-        PRINT(msg_level, "    pin %d:\n", i);
+        PRINT("    pin %d:\n", i);
         PRINT(
-            msg_level,
             "        Primary Tag: 0x%02X (%s)\n",
             hm2->pin[i].primary_tag,
             hm2_get_general_function_name(hm2->pin[i].primary_tag)
         );
         if (hm2->pin[i].sec_tag != 0) {
             PRINT(
-                msg_level,
                 "        Secondary Tag: 0x%02X (%s)\n",
                 hm2->pin[i].sec_tag,
                 hm2_get_general_function_name(hm2->pin[i].sec_tag)
             );
-            PRINT(msg_level, "        Secondary Unit: 0x%02X\n", hm2->pin[i].sec_unit);
+            PRINT("        Secondary Unit: 0x%02X\n", hm2->pin[i].sec_unit);
             PRINT(
-                msg_level,
                 "        Secondary Pin: 0x%02X (%s, %s)\n",
                 hm2->pin[i].sec_pin,
                 hm2_get_pin_secondary_name(&hm2->pin[i]),
@@ -165,7 +162,7 @@ int hm2_read_pin_descriptors(hostmot2_t *hm2) {
     }
 
     if (debug_pin_descriptors) {
-        hm2_print_pin_descriptors(RTAPI_MSG_DBG, hm2);
+        hm2_print_pin_descriptors(hm2);
     }
 
     return 0;
@@ -224,17 +221,16 @@ void hm2_set_pin_direction(hostmot2_t *hm2, int pin_number, int direction) {
 
 
 
-void hm2_print_pin_usage(int msg_level, hostmot2_t *hm2) {
+void hm2_print_pin_usage(hostmot2_t *hm2) {
     int i;
 
-    PRINT(msg_level, "%d I/O Pins used:\n", hm2->num_pins);
+    PRINT("%d I/O Pins used:\n", hm2->num_pins);
 
     for (i = 0; i < hm2->num_pins; i ++) {
         int port = i / hm2->idrom.port_width;
 
         if (hm2->pin[i].gtag == hm2->pin[i].sec_tag) {
             PRINT(
-                msg_level,
                 "    I/O Pin %s.%03d: %s #%d, pin %s (%s)\n",
                 hm2->llio->ioport_connector_name[port],
                 i,
@@ -245,7 +241,6 @@ void hm2_print_pin_usage(int msg_level, hostmot2_t *hm2) {
             );
         } else {
             PRINT(
-                msg_level,
                 "    I/O Pin %s.%03d: %s\n",
                 hm2->llio->ioport_connector_name[port],
                 i,
