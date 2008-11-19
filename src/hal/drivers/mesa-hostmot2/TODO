@@ -170,12 +170,14 @@ clean the tree:
             firmware source: compiled into driver, sent to board at insmod time
             firmware notes: 48 gpio
             other notes: development ended
+            Remove in Jan 2009
 
             driver: m7i43_hm2 DEPRECATED!
             boards supported: 7i43
             firmware source: compiled into driver, sent to board at insmod time
             firmware notes: hostmot2, various flavors, supported by Mesa
-            other notes: in maintenance mode, new development continued in hostmot2 in TRUNK (see below)
+            other notes: in maintenance mode, new development continued in hostmot2 in TRUNK
+            Remove in Jan 2009
 
 
 
