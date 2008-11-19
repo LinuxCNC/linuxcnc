@@ -609,6 +609,8 @@ char TreatModbusMasterResponse( unsigned char * Response, int LgtResponse )
 }
 
 /* Functions abstraction for project used */
+// For EMC modbus coils/inputs must be mapped to memory bits (%B)
+// because HAL will overwrite physical input variables (%I)
 void SetVarFromModbus( StrModbusMasterReq * ModbusReq, int ModbusNum, int Value )
 {
 	int FirstEle = ModbusReq->FirstModbusElement-ModbusEleOffset;
@@ -619,16 +621,11 @@ void SetVarFromModbus( StrModbusMasterReq * ModbusReq, int ModbusNum, int Value 
 	switch( ModbusReq->TypeReq )
 	{
 		case MODBUS_REQ_INPUTS_READ:
-			// here we are in a separate thread: do not call the function calling some gtk functions for refresh
-
-			VarArray[NBR_BITS+VarNum] = Value;
-			InfosGene->CmdRefreshVarsBits = TRUE;
-			break;
                 case MODBUS_REQ_COILS_READ:
-			WriteVar( VAR_PHYS_OUTPUT, VarNum, Value );
+			WriteVar( VAR_MEM_BIT, VarNum, Value );
 			break;
 		case MODBUS_REQ_REGISTERS_READ:                case MODBUS_REQ_HOLD_READ:
-			VarWordArray[VarNum] = Value ;
+                        WriteVar( VAR_MEM_WORD, VarNum, Value );
 			break;
 	}
 }
@@ -644,7 +641,6 @@ int GetVarForModbus( StrModbusMasterReq * ModbusReq, int ModbusNum )
 		case MODBUS_REQ_COILS_WRITE:
 			return ReadVar( VAR_PHYS_OUTPUT, VarNum );
 			break;
-
 		case MODBUS_REQ_REGISTERS_WRITE:
 			return ReadVar( VAR_MEM_WORD, VarNum );
 			break;
