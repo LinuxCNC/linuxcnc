@@ -29,7 +29,7 @@
 #include "hal/drivers/mesa-hostmot2/hostmot2.h"
 
 
-#define f_period_s (l_period_ns * 1e-9)
+#define f_period_s ((hal_float_t)(l_period_ns * 1e-9))
 
 
 
