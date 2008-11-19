@@ -36,7 +36,7 @@
 
 \layout Chapter
 
-INI File
+Config Files
 \layout Section
 
 Files Used for Configuration
@@ -92,22 +92,11 @@ VAR
 
 \end_inset 
 
- The var file provide a set of numbered variables (
-\begin_inset Quotes eld
-\end_inset 
-
-parameters
-\begin_inset Quotes erd
-\end_inset 
-
-) for use by the interpreter.
- These values are saved from one run to another.
- See section 
-\begin_inset LatexCommand \ref{sub:Parameters}
-
-\end_inset 
-
-.
+ The var file is a way for the interpreter to save some values from one
+ run to the next.
+ These values are saved from one run to another but not always saved immediately.
+ See the Parameters section of the G Code Manual for information on what
+ each parameter is.
 \layout Description
 
 TBL
@@ -162,6 +151,9 @@ Items marked
  are used only by the sample HAL files and are suggested as a good convention.
  Other items are used by EMC directly, and must always have the section
  and item names given.
+\layout Chapter
+
+INI File
 \layout Section
 
 The INI File Layout
