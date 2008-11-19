@@ -243,12 +243,12 @@ int hm2_encoder_parse_md(hostmot2_t *hm2, int md_index) {
                 goto fail1;
             }
 
-            // rtapi_snprintf(name, HAL_NAME_LEN, "%s.encoder.%02d.velocity", hm2->llio->name, i);
-            // r = hal_pin_float_new(name, HAL_OUT, &(hm2->encoder.instance[i].hal.pin.velocity), hm2->llio->comp_id);
-            // if (r != HAL_SUCCESS) {
-            //     ERR("error adding pin '%s', aborting\n", name);
-            //     goto fail1;
-            // }
+            rtapi_snprintf(name, HAL_NAME_LEN, "%s.encoder.%02d.velocity", hm2->llio->name, i);
+            r = hal_pin_float_new(name, HAL_OUT, &(hm2->encoder.instance[i].hal.pin.velocity), hm2->llio->comp_id);
+            if (r != HAL_SUCCESS) {
+                ERR("error adding pin '%s', aborting\n", name);
+                goto fail1;
+            }
 
             rtapi_snprintf(name, HAL_NAME_LEN, "%s.encoder.%02d.reset", hm2->llio->name, i);
             r = hal_pin_bit_new(name, HAL_IN, &(hm2->encoder.instance[i].hal.pin.reset), hm2->llio->comp_id);
@@ -316,6 +316,7 @@ int hm2_encoder_parse_md(hostmot2_t *hm2, int md_index) {
             // init hal objects
             *hm2->encoder.instance[i].hal.pin.count = 0;  // FIXME: useless
             *hm2->encoder.instance[i].hal.pin.position = 0.0;  // FIXME: useless
+            *hm2->encoder.instance[i].hal.pin.velocity = 0.0;  // FIXME: useless
             *hm2->encoder.instance[i].hal.pin.reset = 0;
             *hm2->encoder.instance[i].hal.pin.index_enable = 0;
 
@@ -380,7 +381,11 @@ void hm2_encoder_read(hostmot2_t *hm2) {
 }
 
 
-void hm2_encoder_process_tram_read(hostmot2_t *hm2) {
+
+
+#define f_period_s ((hal_float_t)(l_period_ns * 1e-9))
+
+void hm2_encoder_process_tram_read(hostmot2_t *hm2, long l_period_ns) {
     int i;
 
     // read counters & timestamps
@@ -389,11 +394,22 @@ void hm2_encoder_process_tram_read(hostmot2_t *hm2) {
         u16 count, timestamp;
         u16 prev_count, prev_timestamp;
         s32 count_diff;
+        hal_float_t new_position;
 
         e = &hm2->encoder.instance[i];
 
+
+        //
+        // figure out current count and that count's timestamp in the FPGA
+        //
+
         count = hm2->encoder.counter_reg[i] & 0x0000ffff;
         timestamp = (hm2->encoder.counter_reg[i] >> 16) & 0x0000ffff;
+
+
+        // 
+        // figure out current count as accumulated by the driver
+        // 
 
         // FIXME: maybe hm2_encoder_t should have u16 *prev_count, *prev_timestamp instead of u32 *prev_counter
         prev_count = e->prev_counter & 0x0000ffff;
@@ -405,15 +421,34 @@ void hm2_encoder_process_tram_read(hostmot2_t *hm2) {
         if (count_diff < -32768) count_diff += 65536;
         *e->hal.pin.count += count_diff;
 
+
+        // 
+        // reset count if the user wants us to
+        //
+
         if (*e->hal.pin.reset) {
             *e->hal.pin.count = 0;
         }
+
+
+        // 
+        // figure out current scaled position & velocity
+        //
 
         if (e->hal.param.scale == 0.0) {
             WARN("encoder.%02d.scale == 0.0, bogus, setting to 1.0\n", i);
             e->hal.param.scale = 1.0;
         }
-        *e->hal.pin.position = *e->hal.pin.count / e->hal.param.scale;
+        new_position = *e->hal.pin.count / e->hal.param.scale;
+
+        *e->hal.pin.velocity = (new_position - *e->hal.pin.position) / f_period_s;
+
+        *e->hal.pin.position = new_position;
+
+
+        // 
+        // done!
+        //
 
         // now we're here
         e->prev_counter = hm2->encoder.counter_reg[i];

@@ -83,7 +83,7 @@ static void hm2_read(void *void_hm2, long period) {
     if ((*hm2->llio->io_error) != 0) return;
 
     hm2_ioport_gpio_process_tram_read(hm2);
-    hm2_encoder_process_tram_read(hm2);
+    hm2_encoder_process_tram_read(hm2, period);
     hm2_stepgen_process_tram_read(hm2, period);
 
     hm2_encoder_read(hm2);  // read the latch/ctrl register if we're looking for an index pulse
@@ -1076,7 +1076,7 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
 
     // initialize encoder count & pos to 0
     hm2_encoder_tram_init(hm2);
-    hm2_encoder_process_tram_read(hm2);
+    hm2_encoder_process_tram_read(hm2, 1000);
 
     // initialize step accumulator, hal count & position to 0
     hm2_stepgen_tram_init(hm2);

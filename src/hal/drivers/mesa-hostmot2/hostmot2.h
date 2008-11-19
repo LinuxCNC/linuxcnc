@@ -220,7 +220,7 @@ typedef struct {
         struct {
             hal_s32_t *count;
             hal_float_t *position;
-            // hal_float_t *velocity;
+            hal_float_t *velocity;
             hal_bit_t *reset;
             hal_bit_t *index_enable;
         } pin;
@@ -676,7 +676,7 @@ void hm2_ioport_gpio_write(hostmot2_t *hm2);
 
 int hm2_encoder_parse_md(hostmot2_t *hm2, int md_index);
 void hm2_encoder_tram_init(hostmot2_t *hm2);
-void hm2_encoder_process_tram_read(hostmot2_t *hm2);
+void hm2_encoder_process_tram_read(hostmot2_t *hm2, long l_period_ns);
 void hm2_encoder_read(hostmot2_t *hm2);
 void hm2_encoder_write(hostmot2_t *hm2);
 void hm2_encoder_cleanup(hostmot2_t *hm2);
