@@ -186,6 +186,11 @@ int hal_init(const char *name)
 	rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: no component name\n");
 	return HAL_INVAL;
     }
+    if (strlen(name) >= HAL_NAME_LEN) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: component name '%s' is too long\n", name);
+	return HAL_INVAL;
+    }
     rtapi_print_msg(RTAPI_MSG_DBG, "HAL: initializing component '%s'\n",
 	name);
     /* copy name to local vars, truncating if needed */
@@ -591,12 +596,17 @@ int hal_pin_new(const char *name, hal_type_t type, hal_pin_dir_t dir,
 	    "HAL: ERROR: pin direction not one of HAL_IN, HAL_OUT, or HAL_IO\n");
 	return HAL_INVAL;
     }
+    if (strlen(name) >= HAL_NAME_LEN) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: pin name '%s' is too long\n", name);
+	return HAL_INVAL;
+    }
     if (hal_data->lock & HAL_LOCK_LOAD)  {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: pin_new called while HAL locked\n");
 	return HAL_PERM;
     }
-    
+
     rtapi_print_msg(RTAPI_MSG_DBG, "HAL: creating pin '%s'\n", name);
     /* get mutex before accessing shared data */
     rtapi_mutex_get(&(hal_data->mutex));
@@ -687,6 +697,11 @@ int hal_signal_new(const char *name, hal_type_t type)
 	return HAL_INVAL;
     }
 
+    if (strlen(name) >= HAL_NAME_LEN) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: signal name '%s' is too long\n", name);
+	return HAL_INVAL;
+    }
     if (hal_data->lock & HAL_LOCK_CONFIG) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: signal_new called while HAL is locked\n");
@@ -1086,6 +1101,11 @@ int hal_param_new(const char *name, hal_type_t type, hal_param_dir_t dir, void *
 	return HAL_INVAL;
     }
 
+    if (strlen(name) >= HAL_NAME_LEN) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: parameter name '%s' is too long\n", name);
+	return HAL_INVAL;
+    }
     if (hal_data->lock & HAL_LOCK_LOAD)  {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: param_new called while HAL locked\n");
@@ -1279,6 +1299,11 @@ int hal_export_funct(const char *name, void (*funct) (void *, long),
 	return HAL_INVAL;
     }
 
+    if (strlen(name) >= HAL_NAME_LEN) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: function name '%s' is too long\n", name);
+	return HAL_INVAL;
+    }
     if (hal_data->lock & HAL_LOCK_LOAD)  {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: export_funct called while HAL locked\n");
@@ -1394,6 +1419,11 @@ int hal_create_thread(const char *name, unsigned long period_nsec, int uses_fp)
 	return HAL_INVAL;
     }
 
+    if (strlen(name) >= HAL_NAME_LEN) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: thread name '%s' is too long\n", name);
+	return HAL_INVAL;
+    }
     if (hal_data->lock & HAL_LOCK_CONFIG) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: create_thread called while HAL is locked\n");
