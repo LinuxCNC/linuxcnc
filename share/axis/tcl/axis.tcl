@@ -2178,7 +2178,15 @@ proc update_maxvel_slider_vel {newval} {
     if {$::metric} { set max_speed_units [expr {25.4 * $max_speed_units}] }
     set speed [val2vel_show $newval $max_speed_units];
     set maxvel_speed $speed
-    set_maxvel [val2vel $newval $max_speed_units]
+    set_maxvel $speed
+}
+
+proc update_maxvel_slider {} {
+    global maxvel_speed max_maxvel maxvel_slider_val
+    set max_speed_units [to_internal_linear_unit $max_maxvel]
+    if {$max_speed_units == {None}} return
+    if {$::metric} { set max_speed_units [expr {25.4 * $max_speed_units}] }
+    set maxvel_slider_val [setval $maxvel_speed $max_speed_units]
 }
 
 proc update_units {args} {

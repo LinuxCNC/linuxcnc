@@ -1522,6 +1522,7 @@ class LivePlotter:
             vupdate(vars.feedrate, int(100 * self.stat.feedrate + .5))
         if time.time() > maxvel_blackout:
             vupdate(vars.maxvel_speed, float(int(600 * self.stat.max_velocity)/10.0))
+            root_window.tk.call("update_maxvel_slider")
         vupdate(vars.override_limits, self.stat.axis[0]['override_limits'])
         on_any_limit = 0
         for i, l in enumerate(self.stat.limit):
