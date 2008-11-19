@@ -80,12 +80,12 @@ void InitSocketServer( int UseUdpMode, int PortNbr )
 	signal(SIGPIPE, SIG_IGN);
 #endif
 
-//printf("INIT SOCKET!!!\n");	
+        if( ModbusDebugLevel>=2 ){   printf("INFO CLASSICLADDER--- INIT SOCKET!!!\n");  }	
 	// Create a socket
 	server_s = socket(AF_INET, SOCK_STREAM, 0);
 	if ( server_s==SOCK_INVALID )
 	{
-		printf("Failed to open socket server...\n");
+		printf("ERROR CLASSICLADDER--- Failed to open socket server...\n");
 	}
 	else
 	{
@@ -97,7 +97,7 @@ void InitSocketServer( int UseUdpMode, int PortNbr )
 		Error = bind(server_s, (struct sockaddr *)&server_addr, sizeof(server_addr));
 		if ( Error==SOCK_INVALID )
 		{
-			printf("Failed to bind socket server...(error=%s)\n", strerror(errno));
+			printf("ERROR CLASSICLADDER--- Failed to bind socket server...(error=%s)\n", strerror(errno));
 			CloseSocketServer( );
 		}
 		else
@@ -106,13 +106,12 @@ void InitSocketServer( int UseUdpMode, int PortNbr )
 			Error = listen(server_s, 1);
 			if ( Error==SOCK_INVALID )
 			{
-				printf("Failed to listen socket server...(error=%s)\n", strerror(errno));
+				printf("ERROR CLASSICLADDER--- Failed to listen socket server...(error=%s)\n", strerror(errno));
 				CloseSocketServer( );
 			}
 			else
-			{
-				SocketRunning = 1;
-		
+			{     
+                                SocketRunning = 1;		
 #ifdef __WIN32__
 				ThreadHandle = CreateThread( NULL/*no security attributes*/, 16*1024L/*default stack size*/,                                                   
 					(LPTHREAD_START_ROUTINE)SocketServerTcpMainLoop/* thread function*/, 
@@ -125,12 +124,12 @@ void InitSocketServer( int UseUdpMode, int PortNbr )
 				if (Error)
 #endif
 				{
-					printf("Failed to create thread socket server...\n");
+					printf("ERROR CLASSICLADDER--- Failed to create thread socket server...\n");
 					CloseSocketServer( );
 				}
 				else
-				{
-					printf("INFO CLASSICLADDER---Server socket init ok (modbus - port %d)!\n", PortNbr);
+				{       SocketRunning = 1;
+					printf("INFO CLASSICLADDER--- Server socket init ok (modbus - port %d)!\n", PortNbr);
 				}
 
 			}
@@ -169,7 +168,7 @@ int AskAndAnswer( unsigned char * Ask, int LgtAsk, unsigned char * Answer )
 		Answer[ LgtHeaderReply++ ] = (unsigned char)(LgtModbusReply+1);
 		// unit identifier					
 		Answer[ LgtHeaderReply++ ] = 1;
-printf("MODBUS RESPONSE LGT=%d+%d !\n", LgtHeaderReply, LgtModbusReply );
+                printf("INFO CLASSICLADDER--- MODBUS RESPONSE LGT=%d+%d !\n", LgtHeaderReply, LgtModbusReply );   
 		printf("<- ");
 		for (i=0; i<LgtHeaderReply+LgtModbusReply; i++)
 		{
@@ -199,21 +198,21 @@ void SocketServerTcpMainLoop( void )
 
 	while( SocketRunning )
 	{
-//printf("SOCKET WAITING...\n");
+                if( ModbusDebugLevel>=2 ){   printf("INFO MODBUS SERVER--- SOCKET WAITING...\n");   }
 		addr_len = sizeof(client_addr);
 		client_s = accept(server_s, (struct sockaddr *)&client_addr, &addr_len);
 		if ( client_s!=-1 )
 		{
-//printf("SOCKET CLIENT ACCEPTED...\n");
+                  if( ModbusDebugLevel>=2 ){   printf("INFO MODBUS SERVER--- SOCKET CLIENT ACCEPTED...\n");   }
 			do
 			{
 				// Request received from the client
 				//  - The return code from recv() is the number of bytes received
 				retcode = recv(client_s, in_buf, BUF_SIZE, 0);
-//printf("SOCKED RECEIVED=%d !\n", retcode);
+                                if( ModbusDebugLevel>=2 ){   printf("INFO MODBUS SERVER--- SOCKET RECEIVED=%d !\n", retcode);   }
 				if ( retcode==-1 )
 				{
-					printf("Failed to recv socket server...(error=%s)\n", strerror(errno));
+					printf("ERROR CLASSICLADDER--- Failed to recv socket server...(error=%s)\n", strerror(errno));
 				}
 				else
 				{
@@ -227,7 +226,7 @@ void SocketServerTcpMainLoop( void )
 
 			}
 			while( retcode>0 );
-//printf("CLOSE SOCK CLIENT.\n");
+                        if( ModbusDebugLevel>=2 ){   printf("INFO MODBUS SERVER--- CLOSE SOCK CLIENT.\n");   }
 			#ifdef __WIN32__
 			closesocket(client_s);
 			#else
@@ -257,7 +256,7 @@ void CloseSocketServer( void )
 		close(server_s);
 #endif
 		SocketOpened = 0;
-		printf("INFO CLASSICLADDER---Server socket closed!\n");
+		printf("INFO CLASSICLADDER--- Server socket closed!\n");
 	}
 }
 
