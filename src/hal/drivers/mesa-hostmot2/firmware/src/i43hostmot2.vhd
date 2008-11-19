@@ -78,8 +78,8 @@ entity i43hostmot2 is
       -- the PinDesc and ModuleID records in IDParms.vhd and passed through
 		-- to the lower levels. That is, these next two assignments determine
 		-- the modules contained and the pinout of a FPGA firmware configuration 
-		ThePinDesc: PinDescType := PinDesc_SVST4_6;
-		TheModuleID: ModuleIDType := ModuleID_SVST4_6;
+		ThePinDesc: PinDescType := PinDesc_SVST4_4;
+		TheModuleID: ModuleIDType := ModuleID_SVST4_4;
 		PWMRefWidth: integer := 13;	-- PWM resolution is PWMRefWidth-1 bits 
 		IDROMType: integer := 2;		
 	   SepClocks: boolean := true;
@@ -120,7 +120,9 @@ entity i43hostmot2 is
 				SPICLK : out std_logic;
 --				SPIIN : in std_logic;
 				SPIOUT : out std_logic;
-				SPICS : out std_logic
+				SPICS : out std_logic;
+				USBRD : out std_logic;
+				USBWR : out std_logic
 		 );
 end i43hostmot2;
 
@@ -179,7 +181,7 @@ constant PWMGens : integer := NumberOfModules(TheModuleID,PWMTag);
 constant SPIs: integer := NumberOfModules(TheModuleID,SPITag);
 constant BSPIs: integer := NumberOfModules(TheModuleID,BSPITag);
 constant SSIs: integer := NumberOfModules(TheModuleID,SSITag);   
-constant UARTs: integer := NumberOfModules(TheModuleID,UARTRXTag);
+constant UARTs: integer := NumberOfModules(TheModuleID,UARTRTag);
 	-- extract the needed Stepgen table width from the max pin# used with a stepgen tag
 constant StepGenTableWidth: integer := MaxPinsPerModule(ThePinDesc,StepGenTag);
 	-- extract how many BSPI CS pins are needed from the max pin# used with a BSPI tag skipping the first 4
@@ -193,10 +195,10 @@ ahostmot2: entity HostMot2
 		themoduleid => TheModuleID,
 		stepgens  => StepGens,
 		qcounters  => QCounters,
-		muxedqcounters > MuxedQCounters,
+		muxedqcounters => MuxedQCounters,
 		pwmgens  => PWMGens,
 		spis  => SPIs,
-		bspis = BSPIs,
+		bspis => BSPIs,
 		ssis  => SSIs,
 		uarts  => UARTs,
 		pwmrefwidth  => PWMRefWidth,
@@ -225,8 +227,7 @@ ahostmot2: entity HostMot2
 		inststride1 => InstStride1,
 		regstride0 => RegStride0,
 		regstride1 => RegStride1,
-		ledcount  => LEDCount
-		)
+		ledcount  => LEDCount		)
 	port map (
 		ibus =>  wdlatch,
 		obus => obus,
@@ -533,5 +534,11 @@ ahostmot2: entity HostMot2
 		SPICLK <= '0';
 		SPIOUT <= '0';
 	end process BusDrive;	
+
+	LooseEnds: process
+	begin
+		USBRD <= '1';
+		USBWR <= '0';
+	end process LooseEnds;	
 
 end;

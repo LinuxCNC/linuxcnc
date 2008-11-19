@@ -433,7 +433,7 @@ package IDROMParms is
 		emptypin,emptypin,emptypin,emptypin,emptypin,emptypin,emptypin,emptypin);
 
 
-	constant ModuleID_2xi30 : ModuleIDType :=( 
+	constant ModuleID_SV8 : ModuleIDType :=( 
 		(WatchDogTag,	x"00",	ClockLowTag,	x"01",	WatchDogTimeAddr&PadT,		WatchDogNumRegs,		x"00",	WatchDogMPBitMask),
 		(IOPortTag,		x"00",	ClockLowTag,	x"02",	PortAddr&PadT,					IOPortNumRegs,			x"00",	IOPortMPBitMask),
 		(QcountTag,		x"02",	ClockLowTag,	x"08",	QcounterAddr&PadT,			QCounterNumRegs,		x"00",	QCounterMPBitMask),
@@ -470,7 +470,7 @@ package IDROMParms is
 		
 	
 	
-	constant PinDesc_2xi30 : PinDescType :=(
+	constant PinDesc_SV8 : PinDescType :=(
 -- 	Base func  sec unit sec func 	 sec pin		
 		IOPortTag & x"01" & QCountTag & x"02",
 		IOPortTag & x"01" & QCountTag & x"01",
