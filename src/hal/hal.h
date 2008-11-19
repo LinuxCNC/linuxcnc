@@ -400,6 +400,14 @@ extern int hal_pin_new(const char *name, hal_type_t type, hal_pin_dir_t dir,
     calls 'hal_exit()'.
 */
 
+/** 'hal_pin_alias()' assigns an alternate name, aka an alias, to
+    a pin.  Once assigned, the pin can be referred to by either its
+    original name or the alias.  Calling this function with 'alias'
+    set to NULL will remove any existing alias.
+*/
+extern int hal_pin_alias(const char *pin_name, const char *alias);
+
+
 /***********************************************************************
 *                      "SIGNAL" FUNCTIONS                              *
 ************************************************************************/
@@ -551,6 +559,13 @@ extern int hal_param_bit_set(const char *name, int value);
 extern int hal_param_float_set(const char *name, double value);
 extern int hal_param_u32_set(const char *name, unsigned long value);
 extern int hal_param_s32_set(const char *name, signed long value);
+
+/** 'hal_param_alias()' assigns an alternate name, aka an alias, to
+    a parameter.  Once assigned, the parameter can be referred to by
+    either its original name or the alias.  Calling this function
+    with 'alias' set to NULL will remove any existing alias.
+*/
+extern int hal_param_alias(const char *pin_name, const char *alias);
 
 /** 'hal_param_set()' is a generic function that sets the value of a
     parameter.  It is provided ONLY for those special cases where a

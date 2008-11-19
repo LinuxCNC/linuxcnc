@@ -658,6 +658,7 @@ int hal_pin_new(const char *name, hal_type_t type, hal_pin_dir_t dir,
 	    return HAL_SUCCESS;
 	}
 	ptr = SHMPTR(next);
+	// TODO - should use ptr->alias if present
 	cmp = strcmp(ptr->name, new->name);
 	if (cmp > 0) {
 	    /* found the right place for it, insert here */
@@ -679,6 +680,96 @@ int hal_pin_new(const char *name, hal_type_t type, hal_pin_dir_t dir,
 	next = *prev;
     }
 }
+
+int hal_pin_alias(const char *pin_name, const char *alias)
+{
+    int *prev, next, cmp;
+    hal_pin_t *pin;
+    hal_alias_t *new, *ptr;
+
+    if (hal_data == 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: pin_alias called before init\n");
+	return HAL_INVAL;
+    }
+    if (hal_data->lock & HAL_LOCK_CONFIG)  {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: pin_alias called while HAL locked\n");
+	return HAL_PERM;
+    }
+    if (alias != NULL ) {
+	if (strlen(alias) >= HAL_NAME_LEN) {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+	        "HAL: ERROR: alias name '%s' is too long\n", alias);
+	    return HAL_INVAL;
+	}
+    }
+    /* get mutex before accessing shared data */
+    rtapi_mutex_get(&(hal_data->mutex));
+    if (alias != NULL ) {
+	pin = halpr_find_pin_by_name(alias);
+	if ( pin != NULL ) {
+	    rtapi_mutex_give(&(hal_data->mutex));
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+	        "HAL: ERROR: duplicate pin/alias name '%s'\n", alias);
+	    return HAL_INVAL;
+	}
+    }
+    pin = halpr_find_pin_by_name(pin_name);
+    if ( pin == NULL ) {
+	rtapi_mutex_give(&(hal_data->mutex));
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: pin '%s' not found\n", pin_name);
+	return HAL_INVAL;
+    }
+    /* remove any existing alias */
+    remove_alias_from_pin(pin);
+    /* is that all we needed to do? */
+    if ( alias == NULL ) {
+	rtapi_mutex_give(&(hal_data->mutex));
+	return HAL_SUCCESS;
+    }
+    /* allocate a new structure */
+    new = halpr_alloc_alias_struct();
+    if (new == 0) {
+	/* alloc failed */
+	rtapi_mutex_give(&(hal_data->mutex));
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: insufficient memory for alias '%s'\n", alias);
+	return HAL_NOMEM;
+    }
+    /* initialize the structure */
+    new->owner_ptr = SHMOFF(pin);
+    rtapi_snprintf(new->name, HAL_NAME_LEN, "%s", alias);
+    /* attach it to the pin */
+    pin->alias = SHMOFF(new);
+    // TODO - unlink pin from pin list, relink using alias instead of name
+    /* insert new structure in alias list */
+    prev = &(hal_data->pin_alias_list_ptr);
+    next = *prev;
+    while (1) {
+	if (next == 0) {
+	    /* reached end of list, insert here */
+	    new->next_ptr = next;
+	    *prev = SHMOFF(new);
+	    rtapi_mutex_give(&(hal_data->mutex));
+	    return HAL_SUCCESS;
+	}
+	ptr = SHMPTR(next);
+	cmp = strcmp(ptr->name, new->name);
+	if (cmp > 0) {
+	    /* found the right place for it, insert here */
+	    new->next_ptr = next;
+	    *prev = SHMOFF(new);
+	    rtapi_mutex_give(&(hal_data->mutex));
+	    return HAL_SUCCESS;
+	}
+	/* didn't find it yet, look at next one */
+	prev = &(ptr->next_ptr);
+	next = *prev;
+    }
+}
+
 
 /***********************************************************************
 *                      "SIGNAL" FUNCTIONS                              *
@@ -1971,6 +2062,7 @@ hal_pin_t *halpr_find_pin_by_name(const char *name)
 {
     int next;
     hal_pin_t *pin;
+    hal_alias_t *alias;
 
     /* search pin list for 'name' */
     next = hal_data->pin_list_ptr;
@@ -1979,6 +2071,13 @@ hal_pin_t *halpr_find_pin_by_name(const char *name)
 	if (strcmp(pin->name, name) == 0) {
 	    /* found a match */
 	    return pin;
+	}
+	if (pin->alias != 0 ) {
+	    alias = SHMPTR(pin->alias);
+	    if (strcmp(alias->name, name) == 0) {
+		/* found a match */
+		return pin;
+	    }
 	}
 	/* didn't find it yet, look at next one */
 	next = pin->next_ptr;
@@ -2011,6 +2110,7 @@ hal_param_t *halpr_find_param_by_name(const char *name)
 {
     int next;
     hal_param_t *param;
+    hal_alias_t *alias;
 
     /* search parameter list for 'name' */
     next = hal_data->param_list_ptr;
@@ -2019,6 +2119,13 @@ hal_param_t *halpr_find_param_by_name(const char *name)
 	if (strcmp(param->name, name) == 0) {
 	    /* found a match */
 	    return param;
+	}
+	if (param->alias != 0 ) {
+	    alias = SHMPTR(param->alias);
+	    if (strcmp(alias->name, name) == 0) {
+		/* found a match */
+		return param;
+	    }
 	}
 	/* didn't find it yet, look at next one */
 	next = param->next_ptr;
