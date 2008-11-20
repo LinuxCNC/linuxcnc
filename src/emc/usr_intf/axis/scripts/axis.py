@@ -1521,6 +1521,8 @@ class LivePlotter:
         if time.time() > feedrate_blackout:
             vupdate(vars.feedrate, int(100 * self.stat.feedrate + .5))
         if time.time() > maxvel_blackout:
+            m = from_internal_linear_unit(self.stat.max_velocity)
+            if vars.metric.get(): m = m * 25.4
             vupdate(vars.maxvel_speed, float(int(600 * self.stat.max_velocity)/10.0))
             root_window.tk.call("update_maxvel_slider")
         vupdate(vars.override_limits, self.stat.axis[0]['override_limits'])
@@ -2441,8 +2443,11 @@ class TclCommands(nf.TclCommands):
         feedrate_blackout = time.time() + 1
 
     def set_maxvel(newval):
+        newval = float(newval)
+        if vars.metric.get(): newval = newval / 25.4
+        newval = to_internal_linear_unit(newval)
         global maxvel_blackout
-        c.maxvel(float(newval) / 60.)
+        c.maxvel(newval / 60.)
         maxvel_blackout = time.time() + 1
 
     def copy_line(*args):
