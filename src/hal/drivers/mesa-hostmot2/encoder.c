@@ -350,6 +350,8 @@ void hm2_encoder_tram_init(hostmot2_t *hm2) {
 void hm2_encoder_process_tram_read(hostmot2_t *hm2) {
     int i;
 
+    if (hm2->encoder.num_instances == 0) return;
+
     // read counters & timestamps
     for (i = 0; i < hm2->encoder.num_instances; i ++) {
         hm2_encoder_instance_t *e;
