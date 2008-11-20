@@ -402,7 +402,7 @@ void GetModbusModulesIOSettings( void )
 
 	for (NumLine=1; NumLine<NBR_MODBUS_MASTER_REQ; NumLine++ )
 	{
-            if (NumLine==17) {continue;}// line 16 is the header label of modbus io register page 2 
+            if (NumLine==17) {continue;}// line 17 is the header label of modbus io register page 2 
 		pConf = &ModbusMasterReq[ NumLine ];
 		strcpy( pConf->SlaveAdr, "" );
 		pConf->LogicInverted = 0;
@@ -699,12 +699,17 @@ GtkWidget * CreateModbusComParametersPage( void )
 
 void GetModbusComParameters( void )
 {
+        int update=0;
+        if ( strncmp( ModbusSerialPortNameUsed, gtk_entry_get_text(GTK_ENTRY( EntryComParam[ 0 ] )),
+            strlen( gtk_entry_get_text(GTK_ENTRY( EntryComParam[ 0 ] ))) )!=0 )               {   update=TRUE;   }
+        if ( ModbusSerialSpeed != atoi( gtk_entry_get_text(GTK_ENTRY( EntryComParam[ 1 ] )) ) ) {   update=TRUE;   }
+
 	strcpy( ModbusSerialPortNameUsed, gtk_entry_get_text(GTK_ENTRY( EntryComParam[ 0 ] )));
 	ModbusSerialSpeed = atoi( gtk_entry_get_text(GTK_ENTRY( EntryComParam[ 1 ] )) );
 	ModbusTimeAfterTransmit = atoi( gtk_entry_get_text(GTK_ENTRY( EntryComParam[ 2 ] )) );
 	ModbusTimeInterFrame = atoi( gtk_entry_get_text(GTK_ENTRY( EntryComParam[ 3 ] )) );
 	ModbusTimeOutReceipt = atoi( gtk_entry_get_text(GTK_ENTRY( EntryComParam[ 4 ] )) );
-	
+	if ( (update) && (modmaster) ) {    PrepareModbusMaster( );    }
 }
 void GetSettings( void )
 {	
