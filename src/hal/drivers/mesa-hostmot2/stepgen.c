@@ -282,7 +282,11 @@ void hm2_stepgen_write(hostmot2_t *hm2) {
 
 
 static void hm2_stepgen_force_write_mode(hostmot2_t *hm2) {
-    int size = hm2->stepgen.num_instances * sizeof(u32);
+    int size;
+
+    if (hm2->stepgen.num_instances == 0) return;
+
+    size = hm2->stepgen.num_instances * sizeof(u32);
     hm2->llio->write(hm2->llio, hm2->stepgen.mode_addr, hm2->stepgen.mode_reg, size);
 }
 

@@ -185,7 +185,6 @@ void hm2_pwmgen_force_write(hostmot2_t *hm2) {
 
     if (hm2->pwmgen.num_instances == 0) return;
 
-
     hm2_pwmgen_handle_pwm_frequency(hm2);
     hm2_pwmgen_handle_pdm_frequency(hm2);
 
@@ -304,6 +303,8 @@ void hm2_pwmgen_force_write(hostmot2_t *hm2) {
 
 void hm2_pwmgen_write(hostmot2_t *hm2) {
     int i;
+
+    if (hm2->pwmgen.num_instances == 0) return;
 
     // check output type
     for (i = 0; i < hm2->pwmgen.num_instances; i ++) {
@@ -565,6 +566,8 @@ void hm2_pwmgen_print_module(hostmot2_t *hm2) {
 
 void hm2_pwmgen_prepare_tram_write(hostmot2_t *hm2) {
     int i;
+
+    if (hm2->pwmgen.num_instances == 0) return;
 
     for (i = 0; i < hm2->pwmgen.num_instances; i ++) {
         double scaled_value;
