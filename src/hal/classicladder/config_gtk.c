@@ -254,26 +254,24 @@ GtkWidget * CreateModbusModulesIO( page )
 	static char * Labels[] = { "Slave Address", "TypeAccess", "1st Register #", "# of Regs", "Logic", "1st I/Q/W Mapped" };
 	GtkWidget *vbox;
 	GtkWidget *hbox[ NBR_MODBUS_MASTER_REQ+2 ];
-	int NumObj;
-	int NumLine;
+	int NumObj, NumLine, i,ScanDev = 0;
 	GList * ItemsDevices = NULL;
-	int ScanDev = 0;
 	StrModbusMasterReq * pConf;
 	char BuffValue[ 40 ];
 	GtkWidget *ModbusParamLabel[ NBR_MODBUS_PARAMS];	
 	GtkWidget *SerialPortLabel;
 	
 
- 	if(nomodbus) 
+ 	if(modmaster==FALSE) 
             {
              vbox = gtk_vbox_new (FALSE, 0);
               gtk_widget_show (vbox);
               SerialPortLabel = gtk_label_new( "\n  To use modbus you must specify a modbus configure file\n"
-		"                        when loading classicladder use: \n \n loadusr classicladder myprogram.clp --config=myconfigfile  " );
+		"                        when loading classicladder use: \n \n loadusr classicladder --modmaster myprogram.clp  " );
               gtk_box_pack_start(GTK_BOX (vbox), SerialPortLabel, FALSE, FALSE, 0);
               gtk_widget_show( SerialPortLabel );     
               return vbox;
-             }
+            }
 
 	do
 	{
@@ -284,18 +282,19 @@ GtkWidget * CreateModbusModulesIO( page )
 	vbox = gtk_vbox_new (FALSE, 0);
 	gtk_widget_show (vbox);
 
-	for (NumLine=(page*16); NumLine<NBR_MODBUS_MASTER_REQ-16+(page*16); NumLine++ )
+	for (i=0; i<(NBR_MODBUS_MASTER_REQ/2+1); i++ )
 	{
-		hbox[NumLine+2] = gtk_hbox_new (FALSE, 0);
-		gtk_container_add (GTK_CONTAINER (vbox), hbox[NumLine+2]);
-		gtk_widget_show (hbox[NumLine+2]);
+                NumLine=i+(page*16)+page;
+		hbox[NumLine] = gtk_hbox_new (FALSE, 0);
+		gtk_container_add (GTK_CONTAINER (vbox), hbox[NumLine]);
+		gtk_widget_show (hbox[NumLine]);
 
 		for (NumObj=0; NumObj<NBR_MODBUS_PARAMS; NumObj++)
 		{
 			switch( NumLine )
 			{
 				case 0:
-                                case 16:
+                                case 17:
 				{
 					int length;
 					GtkWidget **IOParamLabel = &ModbusParamLabel[ NumObj ];
@@ -316,13 +315,13 @@ GtkWidget * CreateModbusModulesIO( page )
 					*IOParamLabel = gtk_label_new( Labels[ NumObj ] );
 
 					gtk_widget_set_usize(*IOParamLabel,length,0);
-					gtk_box_pack_start(GTK_BOX (hbox[ NumLine+2 ]), *IOParamLabel, FALSE, FALSE, 0);
+					gtk_box_pack_start(GTK_BOX (hbox[ NumLine]), *IOParamLabel, FALSE, FALSE, 0);
 					gtk_widget_show( *IOParamLabel );
 					break;
 				}
 				default:
 				{
-					pConf = &ModbusMasterReq[ NumLine ];
+					pConf = &ModbusMasterReq[ NumLine-1-page ];
 					switch( NumObj )
 					{
 						/* For req type (combo-list) */
@@ -334,7 +333,7 @@ GtkWidget * CreateModbusModulesIO( page )
 							gtk_combo_set_value_in_list( GTK_COMBO(*IOParamDevice), TRUE /*val*/, FALSE /*ok_if_empty*/ );
 							gtk_combo_set_popdown_strings( GTK_COMBO(*IOParamDevice), ItemsDevices );
 							gtk_widget_set_usize( *IOParamDevice,185,0 );
-							gtk_box_pack_start ( GTK_BOX (hbox[NumLine+2]), *IOParamDevice, FALSE, FALSE, 0 );
+							gtk_box_pack_start ( GTK_BOX (hbox[NumLine]), *IOParamDevice, FALSE, FALSE, 0 );
 							gtk_widget_show ( *IOParamDevice );
 					        	gtk_entry_set_text((GtkEntry*)((GtkCombo *)*IOParamDevice)->entry, ModbusReqType[ ValueToDisplay ]);
 							gtk_editable_set_editable( GTK_EDITABLE((GtkEntry*)((GtkCombo *)*IOParamDevice)->entry),FALSE);
@@ -347,7 +346,7 @@ GtkWidget * CreateModbusModulesIO( page )
 							GtkWidget **IOParamFlag = &ModbusParamEntry[ NumLine ][ NumObj ];
 							*IOParamFlag = gtk_check_button_new_with_label( "Inverted" );
 							gtk_widget_set_usize( *IOParamFlag,100,0 );
-							gtk_box_pack_start( GTK_BOX (hbox[NumLine+2]), *IOParamFlag, FALSE, FALSE, 0 );
+							gtk_box_pack_start( GTK_BOX (hbox[NumLine]), *IOParamFlag, FALSE, FALSE, 0 );
 							gtk_widget_show ( *IOParamFlag );
 							if ( pConf->LogicInverted )
 								gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON( *IOParamFlag ), TRUE );
@@ -379,7 +378,7 @@ GtkWidget * CreateModbusModulesIO( page )
 								GtkWidget **IOParamEntry = &ModbusParamEntry[ NumLine ][ NumObj ];
 								*IOParamEntry = gtk_entry_new( );
 								gtk_widget_set_usize( *IOParamEntry,length,0 );
-								gtk_box_pack_start( GTK_BOX (hbox[NumLine+2]), *IOParamEntry, FALSE, FALSE, 0 );
+								gtk_box_pack_start( GTK_BOX (hbox[NumLine]), *IOParamEntry, FALSE, FALSE, 0 );
 								gtk_widget_show ( *IOParamEntry );
 								gtk_entry_set_text( GTK_ENTRY(*IOParamEntry), BuffValue );
 							}
@@ -403,7 +402,7 @@ void GetModbusModulesIOSettings( void )
 
 	for (NumLine=1; NumLine<NBR_MODBUS_MASTER_REQ; NumLine++ )
 	{
-            if (NumLine==16) {continue;}// line 16 is the header label of modbus io register page 2 
+            if (NumLine==17) {continue;}// line 16 is the header label of modbus io register page 2 
 		pConf = &ModbusMasterReq[ NumLine ];
 		strcpy( pConf->SlaveAdr, "" );
 		pConf->LogicInverted = 0;
@@ -536,12 +535,12 @@ GtkWidget * CreateModbusComParametersPage( void )
 	char BuffLabel[ 50 ];
 	char BuffValue[ 20 ];
 
-        if(nomodbus) 
+        if(modmaster==FALSE) 
             {
              vbox = gtk_vbox_new (FALSE, 0);
               gtk_widget_show (vbox);
               LabelComParam[ 0 ] = gtk_label_new( "\n  To use modbus you must specify a modbus configure file\n"
-		"                        when loading classicladder use: \n \n loadusr classicladder myprogram.clp --config=myconfigfile  " );
+		"                        when loading classicladder use: \n \n loadusr classicladder --modmaster myprogram.clp   " );
               gtk_box_pack_start(GTK_BOX (vbox),LabelComParam[ 0 ] , FALSE, FALSE, 0);
               gtk_widget_show( LabelComParam[ 0 ]  );     
               return vbox;
@@ -710,7 +709,7 @@ void GetModbusComParameters( void )
 void GetSettings( void )
 {	
 #ifdef MODBUS_IO_MASTER
-if(!nomodbus) {  GetModbusComParameters( );   
+if(modmaster) {  GetModbusComParameters( );   
                  GetModbusModulesIOSettings( );   }
 #endif
 #ifndef RT_SUPPORT
@@ -744,6 +743,12 @@ gint ConfigWindowDeleteEvent( GtkWidget * widget, GdkEvent * event, gpointer dat
 	// we do not want that the window be destroyed.
 	return TRUE;
 }
+
+void destroyConfigWindow()
+{
+        gtk_widget_destroy ( ConfigWindow );
+}
+
 void IntConfigWindowGtk()
 {
 	
