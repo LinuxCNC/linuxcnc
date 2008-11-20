@@ -423,4 +423,4 @@ void UpdateSizesOfConvVarNameTable( void );
 extern int compId;
 #endif
 extern int nogui;
-extern int nomodbus;
+extern int modmaster;

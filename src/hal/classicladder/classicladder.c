@@ -75,7 +75,7 @@
 #endif
 
 int cl_remote;
-int nogui = 0,nomodbus=1;
+int nogui = 0,modmaster=0,modserver=0;
 int ModbusServerPort = 9502; // Standard "502" requires root privileges...
 int CyclicThreadRunning = 0;
 
@@ -83,7 +83,7 @@ int CyclicThreadRunning = 0;
 void ClassicLadderEndOfAppli( void )
 {
 	CyclicThreadRunning = 0;
-	if(!nomodbus)  
+	if(modmaster)  
 		{
 	    		CloseSocketModbusMaster( );
 			CloseSocketServer( );
@@ -142,6 +142,7 @@ void process_options (int argc, char *argv[])
 			{"nogui", no_argument, 0, 'n'},
 			{"config", required_argument, 0, 'c'},
                         {"modmaster",no_argument,0,'m'},
+                        {"modserver",no_argument,0,'s'},
 			{"modbus_port", required_argument, 0, 'p'},
 			{0, 0, 0, 0},
 		};
@@ -158,16 +159,18 @@ void process_options (int argc, char *argv[])
 				nogui = 1;
 				break;
 			case 'c':
-	
-				read_config (optarg);
-				nomodbus=0;
+                                read_config (optarg);
+				modmaster=1;
 				break;
+                        case 'm':
+                                modmaster=1;
+                                break;
+                        case 's':
+                                modserver=1;
+                                break; 
 			case 'p':
 				ModbusServerPort = atoi( optarg );
 				break;
-                        case 'm':
-                                nomodbus=0;
-                                break;
 			case '?':
 				error = 1;
 				break;
@@ -222,7 +225,7 @@ void RunBackIfStopped( void )
 // after processing options and intiallising HAL, MODBUS and registering shared memory
 // the main function is divided into  NOGUI true or NOGUI FALSE
 // The difference between them is mostly about checking if a program has already been loaded (only when GUI is to be shown)
-// if rungs are used then a program is already in memory so we dont re initallise memory we just start the GUI
+// if rungs are used then a program is already in memory so we dont re initallize memory we just start the GUI
 
 int main( int   argc, char *argv[] )
 {
@@ -231,45 +234,47 @@ int main( int   argc, char *argv[] )
 	compId=hal_init("classicladder"); //emc
 	if (compId<0) return -1; //emc
 	signal(SIGTERM,do_exit); //emc
-	if(!nomodbus)  {InitModbusMasterBeforeReadConf( );}
-
+        InitModbusMasterBeforeReadConf( );
 	process_options (argc, argv);
-
+        
 
 	if (ClassicLadder_AllocAll())
 	{
 		char ProjectLoadedOk=TRUE;		
 			
-		if (nogui==TRUE) {
-			 rtapi_print("INFO CLASSICLADDER-   No ladder GUI requested-Realtime runs till HAL closes.\n");
+		if (nogui==TRUE)
+                {
+		        rtapi_print("INFO CLASSICLADDER-   No ladder GUI requested-Realtime runs till HAL closes.\n");
 			ClassicLadder_InitAllDatas( );
 			ProjectLoadedOk = LoadProjectFiles( CurrentProjectFileName );
 			InfosGene->LadderState = STATE_RUN;
 			ClassicLadder_FreeAll(TRUE);
-		if(!nomodbus) 
-		 {
-			InitSocketServer( 0/*UseUdpMode*/, ModbusServerPort/*PortNbr*/ );
-			InitSocketModbusMaster( );
-		}
 			hal_ready(compId);
 			hal_exit(compId);	
 			return 0; 
-		} else {		
-				for(NumRung=0;NumRung<NBR_RUNGS;NumRung++) 
-		 		{ if(RungArray[NumRung].Used) used++; }
-				if(used==0){	
+		} else {	
+                                		
+				for(NumRung=0;NumRung<NBR_RUNGS;NumRung++)   {   if ( RungArray[NumRung].Used ) used++;   }
+				if((used==0) || ( (argc - optind) != 0) )
+                                            {	
 						ClassicLadder_InitAllDatas( );
 						ProjectLoadedOk = LoadProjectFiles( CurrentProjectFileName );
-					   }
-				InitGtkWindows( argc, argv );
-				UpdateAllGtkWindows();				
-				MessageInStatusBar( ProjectLoadedOk?"Project loaded and running":"Project failed to load...");											
-				if (!ProjectLoadedOk)  {ClassicLadder_InitAllDatas( );}
-                                if(!nomodbus) 
-		 {
-			InitSocketServer( 0/*UseUdpMode*/, ModbusServerPort/*PortNbr*/ );
-			InitSocketModbusMaster( );
-		}
+                                                InitGtkWindows( argc, argv );
+				                UpdateAllGtkWindows();
+                                                MessageInStatusBar( ProjectLoadedOk?"Project loaded and running":"Project failed to load...");
+                                                if (!ProjectLoadedOk) 
+                                                {  
+                                                           ClassicLadder_InitAllDatas( );   
+                                                           if (modmaster) {    PrepareModbusMaster( );    }
+					        }
+                                            }else{
+                                                           InitGtkWindows( argc, argv );
+                                                           UpdateAllGtkWindows();
+                                                           MessageInStatusBar("GUI reloaded with existing ladder program");
+                                                           if (modmaster) {    PrepareModbusMaster( );    }
+                                                  } 
+							
+                                if (modserver)         {   InitSocketServer( 0/*UseUdpMode*/, ModbusServerPort/*PortNbr*/);  }
 				InfosGene->LadderState = STATE_RUN;
 				hal_ready(compId);
 				gtk_main();
