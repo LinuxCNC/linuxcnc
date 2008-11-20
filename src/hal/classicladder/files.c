@@ -41,6 +41,7 @@
 #include "files_sequential.h"
 #include "files.h"
 #include "vars_access.h"
+#include "protocol_modbus_master.h"
 
 #ifdef debug
 #define dbg_printf printf
@@ -1184,6 +1185,7 @@ char LoadComParameters(char * FileName)
 	char Okay = FALSE;
 	char Line[300];
 	char * LineOk;
+
 	File = fopen(FileName,"rt");
 	if (File)
 	{
@@ -1265,6 +1267,7 @@ void LoadAllLadderDatas(char * DatasDirectory)
 //	sprintf(FileName,"%s/"FILE_PREFIX"general.txt",DatasDirectory);
 //	LoadGeneralParameters( FileName );
         sprintf(FileName,"%s/"FILE_PREFIX"com_params.txt",DatasDirectory);
+//      printf("Loading modbus com data \n");
 	LoadComParameters( FileName );
 #ifdef OLD_TIMERS_MONOS_SUPPORT
 	sprintf(FileName,"%s/"FILE_PREFIX"timers.csv",DatasDirectory);
@@ -1315,6 +1318,7 @@ void LoadAllLadderDatas(char * DatasDirectory)
 	sprintf(FileName,"%s/"FILE_PREFIX"modbusioconf.csv",DatasDirectory);
 //	printf("Loading modbus distributed I/O configuration datas from %s\n",FileName);
 	LoadModbusIOConfParams( FileName );
+        if (modmaster) {    PrepareModbusMaster( );    }
 #endif
 	sprintf(FileName,"%s/"FILE_PREFIX"symbols.csv",DatasDirectory);
 //	printf("Loading symbols datas from %s\n",FileName);

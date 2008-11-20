@@ -537,27 +537,30 @@ void ButtonLoad_click()
 		DoLoadProject( );
 }
 
-void ButtonSaveAs_click()
+void ButtonSaveAs_click( )
 {
 	CreateFileSelection("Please select the project to save",TRUE);
 }
 
-void ButtonReset_click()
+void ButtonReset_click( )
 {
 
 	StopRunIfRunning( );
-	InitVars();
+	InitVars( );
 	PrepareAllDatasBeforeRun( );
 	RunBackIfStopped( );
+#ifdef MODBUS_IO_MASTER
+ if (modmaster) {    PrepareModbusMaster( );    }
+#endif
 	MessageInStatusBar("Reset ladder data - Now running.");
 }
 
-void ButtonConfig_click()
+void ButtonConfig_click( )
 {
     OpenConfigWindowGtk( );
 }
 
-void ButtonAbout_click()
+void ButtonAbout_click( )
 {
 	/* From the example in gtkdialog help */
 	GtkWidget *dialog, *label, *okay_button;
@@ -897,7 +900,7 @@ void RungWindowInitGtk()
 							| GDK_POINTER_MOTION_HINT_MASK);
 
 	gtk_signal_connect( GTK_OBJECT(RungWindow), "delete_event",
-		(GtkSignalFunc)RungWindowDeleteEvent, 0 );
+		(GtkSignalFunc)RungWindowDeleteEvent, NULL );
 	gtk_widget_show (RungWindow);
 
 	GetTheSizesForRung();
@@ -957,4 +960,6 @@ void UpdateAllGtkWindows( void )
 	UpdateVScrollBar();
 	ManagerDisplaySections( );
 	DisplaySymbols( );
+        destroyConfigWindow();
+        IntConfigWindowGtk( );
 }
