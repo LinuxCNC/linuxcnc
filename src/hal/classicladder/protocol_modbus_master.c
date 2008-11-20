@@ -33,6 +33,7 @@
 #include "global.h"
 #include "vars_access.h"
 #include "protocol_modbus_master.h"
+#include "socket_modbus_master.h"
 
 StrModbusMasterReq ModbusMasterReq[ NBR_MODBUS_MASTER_REQ ];
 // if '\0' => IP mode used for I/O modbus modules
@@ -53,13 +54,25 @@ unsigned char CurrentFuncCode;
 int ErrorCnt;
 
 void InitModbusMasterBeforeReadConf( void )
+{ 
+        ModbusSerialPortNameUsed[ 0 ] = '\0';
+        ModbusSerialSpeed = 9600;
+        ModbusEleOffset = 0;
+        ModbusSerialUseRtsToSend = 0;
+        ModbusTimeInterFrame = 100;
+        ModbusTimeOutReceipt = 500;
+        ModbusTimeAfterTransmit = 0;
+        ModbusDebugLevel= 0;
+        InitModbusMasterParams ( );
+}
+
+void PrepareModbusMaster( void )
 {
-	ModbusSerialPortNameUsed[ 0 ] = '\0';
-	ModbusSerialSpeed = 9600;
-	ModbusSerialUseRtsToSend = 0;
-	ModbusTimeInterFrame = 100;
-	ModbusTimeOutReceipt = 500;
-	ModbusTimeAfterTransmit = 0;
+       if(modmaster) 
+            { 
+                CloseSocketModbusMaster( );
+		InitSocketModbusMaster( );
+            }
 }
 
 void InitModbusMasterParams( void )
@@ -514,11 +527,11 @@ int ModbusMasterAsk( unsigned char * SlaveAddressIP, unsigned char * Question )
 		if ( ModbusDebugLevel>=1 )
 		{
 			int DebugFrame;
-			printf("INFO CLASSICLADDER-   Modbus I/O module to send: Lgt=%d <- ", LgtAskFrame );
+			printf("INFO CLASSICLADDER-   Modbus I/O module to send: Lgt=%d <- \n", LgtAskFrame );
 			for( DebugFrame=0; DebugFrame<LgtAskFrame; DebugFrame++ )
 			{
-                           if (DebugFrame==0) {   printf("(Slave address-%X - ", Question[ DebugFrame]);   
-                           }else{   if (DebugFrame==1) {   printf("Function code-%X ) ", Question[ DebugFrame]);   
+                           if (DebugFrame==0) {   printf("Slave address-%X \n", Question[ DebugFrame]);   
+                           }else{   if (DebugFrame==1) {   printf("Function code-%X \nData-", Question[ DebugFrame]);   
 				       }else{            printf("%X ", Question[ DebugFrame ] );     }}
 			}
 			printf("\n");
