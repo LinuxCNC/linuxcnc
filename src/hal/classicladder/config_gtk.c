@@ -391,19 +391,21 @@ GtkWidget * CreateModbusModulesIO( page )
 	}
 	return vbox;
 }
+// Have to adjust the numbering system because  &ModbusMasterReq starts at 0 ends at 31
+// but in &ModbusParamEntry 0 and 17 are header labels and it ends at 33 of course
 void GetModbusModulesIOSettings( void )
 {
 	int NumObj;
-	int NumLine;
+	int NumLine,temp=-1;
 	StrModbusMasterReq * pConf;
 	GtkWidget **IOParamEntry;
 	char * text;
 	char BuffValue[ 40 ];
 
-	for (NumLine=1; NumLine<NBR_MODBUS_MASTER_REQ; NumLine++ )
+	for (NumLine=1; NumLine<NBR_MODBUS_MASTER_REQ; NumLine++ )// start at line 1 to miss the header label at line 0
 	{
-            if (NumLine==17) {continue;}// line 17 is the header label of modbus io register page 2 
-		pConf = &ModbusMasterReq[ NumLine ];
+            if (NumLine==17)  {    temp--; continue;    }// line 17 is the header label of modbus io register page 2. (set temp to -2)
+		pConf = &ModbusMasterReq[ NumLine+temp ];
 		strcpy( pConf->SlaveAdr, "" );
 		pConf->LogicInverted = 0;
 
