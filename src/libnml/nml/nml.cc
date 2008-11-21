@@ -68,6 +68,7 @@ void set_default_nml_config_file(const char *cfg_file)
 {
     if (cfg_file == NULL) {
 	default_nml_config_file = NULL;
+        return;
     }
     default_nml_config_file = (char *) malloc(strlen(cfg_file) + 1);
     strcpy(default_nml_config_file, cfg_file);
