@@ -264,6 +264,7 @@ int mem_release_access(struct mem_access_object *mo)
 #endif
     if (NULL == mo) {
 	rcs_print_error("mem_release_access: Invalid memory object.\n");
+	return -1;
     }
     if (NULL == mo->data || mo->connection_number < 0) {
 	rcs_print_error("mem_release_access: Invalid memory object.\n");
