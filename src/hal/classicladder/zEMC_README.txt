@@ -10,6 +10,7 @@ arrays.c:
 --- added #ifndef RTAPI around INCLUDE of files.h which caused error in realtime (no directory access in realtime)
 --- this also means adding #ifndef RTAPI around 'CleanAndRemoveTmpDir' call in 'classicladder_free_all'
 --- copy GeneralParams into GeneralParamsMirror (in user code only) so config window displays proper info
+--- add CurentProjectFileName to infosgene array so filename is remembered when GUI is closed
 
 Calc.c:
 --- removed define for module and RTAI
@@ -18,19 +19,21 @@ Calc.c:
 
 classicladder.c:
 --- changed extensively. Removed most of initialization code besides what was added for HAL.
---- A config file can be loaded from the comand line for modbus info
---- to use MODBUS, MUST load a config file so nomodbus variable is set to 0
+--- A config file can be loaded from the comand line for modbus info *depreciated*
+--- to use MODBUS master use --modmaster
+--- to use MODBUS server use --modserver
+--- if a program was loaded previouly and you load classicladder again with a ladder program
+    specified it will load it instead of ignoring it.
+--- change to put CurrentProjectfileName into infosgene array
 
 classicladder.h:
 --- small amount added. Add definitions for HAL s32 pins and For HAL support.
 --- changed define for symbols comment length from 30 to 50 for long signal names
---- added external variable nomodbus
+--- added external variable modmaster
 
 classicladder gtk.c:
 --- removed define for hardware.h
 --- changed gtk_exit(0) to gtk_main_quit in function QuitAppliGtk() so program returns to where we called gtk_main in 
-
-classicladder.c
 --- run/stop and reset buttons send messages to statusbar
 
 config.c :
@@ -40,7 +43,7 @@ config_gtk.c:
 --- removed define for hardware.h
 --- added #ifndef HAL_SUPPORT around any code for direct I/O to hide it from configue window
 --- modified to show number of s32 in and out pins 
---- modified modbus page to put debug level on a line by it's self and added options for read hold register, write register(s) and echo
+--- modified modbus page to added options for read hold register, write register(s) and echo
 --- if no modbus config is loaded then the modbus config page tells you this, otherwise it displays normally.
 --- added a communication page for changing com settings radio buttons change settings immediately.
 --- split the i/o page into two pages to improve size of config window
@@ -60,6 +63,11 @@ edit.h
 
 file.c
 --- modified not to load info into GeneralParamsMirror because only realtime can do that
+--- added function to load modbus com info
+--- added call to re intialize modbus after loading a program
+
+files_project.c
+--- change to infosgene->CurrentProjectFileName
 
 emc_mods.c and emc_mods.h:
 --- added Jeffs function to check for HAL signal names (called by function GetElementPropertiesForStatusBar in edit.c) 
@@ -73,8 +81,8 @@ Module_hal.c:
 --- added code to refresh rungs at period rate unless period less then 1 MS then it waits till at least 1 MS has passed
 
 protocol_modbus_master.c
---- added code for modbus functions 3, 6,16, and 8 (read holding register, write single register, write mulitple registers, echo)
---- changed ModbusEleOffset=1 to =0 (not to modbus standard but easier and fairly common) acn change this in com page now.
+--- added code for modbus functions 1, 3, 6, 16, and 8 (read coils, read holding register, write single register, write mulitple registers, echo)
+--- changed ModbusEleOffset=1 to =0 (not to modbus standard but easier and fairly common) and can change this in com page now.
 --- improved debug messages so slave address and function code are easily identified
 
 protocol_modbus_master.h
