@@ -106,11 +106,13 @@ emc2 (1:2.3.0~alpha1) unstable; urgency=low
   * new component "near" which tells whether two values are roughly equal
     as determined by configurable parameters
   * make hal_float a double precision type
+  * "maximum velocity" that can be changed during a run.  This will slow
+    down rapids and cap feed rates (except spindle synchronized motion) for
+    dry runs.  Currently only AXIS and halui allow you to set it.
 
   * [add bugfixes from the 2.2.x branch here, before release]
 
-
- -- Jeff Epler <jepler@unpythonic.net>  Wed,  5 Nov 2008 21:36:58 -0600
+ -- Chris Radek <chris@timeguy.com>  Fri, 21 Nov 2008 10:41:42 -0600
 
 emc2 (1:2.2.0) unstable; urgency=low
 
