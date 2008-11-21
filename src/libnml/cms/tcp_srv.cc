@@ -154,6 +154,7 @@ CMS_SERVER_REMOTE_PORT(_cms_server)
 
 CMS_SERVER_REMOTE_TCP_PORT::~CMS_SERVER_REMOTE_TCP_PORT()
 {
+    if (client_ports == NULL) return;
     unregister_port();
     if (NULL != client_ports) {
 	delete client_ports;
