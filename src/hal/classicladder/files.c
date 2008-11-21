@@ -1180,18 +1180,18 @@ void SaveAllLadderDatas(char * DatasDirectory)
 #endif
 void VerifyDirectorySelected( char * NewDir )
 {
-	strcpy(LadderDirectory,NewDir);
-	if (strlen(LadderDirectory)>1)
+	strcpy(InfosGene->LadderDirectory,NewDir);
+	if (strlen(InfosGene->LadderDirectory)>1)
 	{
 		if ( strcmp( &NewDir[ strlen( NewDir ) -4 ], ".clp" )!=0 )
 		{
 			// verify if path given is really a directory (not a file in it)
 			DIR *pDir;
-			pDir = opendir(LadderDirectory);
+			pDir = opendir(InfosGene->LadderDirectory);
 			if (pDir==NULL && errno==ENOTDIR)
 			{
-				int Lgt = strlen(LadderDirectory);
-				char * End = &LadderDirectory[Lgt-1];
+				int Lgt = strlen(InfosGene->LadderDirectory);
+				char * End = &InfosGene->LadderDirectory[Lgt-1];
 				do
 				{
 					End--;
@@ -1205,17 +1205,17 @@ void VerifyDirectorySelected( char * NewDir )
 				else
 				{
 					debug_printf("ERROR whith path directory given for project !!!\n");
-					LadderDirectory[ 0 ] = '\0';
+					InfosGene->LadderDirectory[ 0 ] = '\0';
 				}
 			}
 			else
 			{
-				if (LadderDirectory[strlen(LadderDirectory)-1]!=CAR_SEP)
-					strcat( LadderDirectory, "/" );
+				if (InfosGene->LadderDirectory[strlen(InfosGene->LadderDirectory)-1]!=CAR_SEP)
+					strcat( InfosGene->LadderDirectory, "/" );
 			}
 		}
 	}
-	debug_printf("DIRECTORY = %s\n",LadderDirectory);
+	debug_printf("DIRECTORY = %s\n",InfosGene->LadderDirectory);
 }
 
 

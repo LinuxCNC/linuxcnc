@@ -450,7 +450,7 @@ char cForLoadingProject)
     if ( cForLoadingProject )
         VerifyDirectorySelected( TempDir );
     else
-        strcpy( LadderDirectory, TempDir );
+        strcpy( InfosGene->LadderDirectory, TempDir );
 }
 
 
@@ -469,7 +469,7 @@ void LoadNewLadder()
         ButtonRunStop_click();
     InfosGene->LadderState = STATE_LOADING;
 ////    LoadAllLadderDatas(LadderDirectory);
-	if ( !LoadProjectFiles( LadderDirectory ) )
+	if ( !LoadProjectFiles( InfosGene->LadderDirectory ) )
 		ShowMessageBox( "Load Error", "Failed to load the project file...", "Ok" );
 
     UpdateGtkAfterLoading( TRUE/*cCreateTimer*/ );
@@ -482,7 +482,7 @@ void LoadNewLadder()
 void ButtonSave_click()
 {
 ////    SaveAllLadderDatas(LadderDirectory);
-	if ( !SaveProjectFiles( LadderDirectory ) )
+	if ( !SaveProjectFiles( InfosGene->LadderDirectory ) )
 		ShowMessageBox( "Save Error", "Failed to save the project file...", "Ok" );
 }
 
@@ -497,7 +497,7 @@ void SaveAsLadder(void)
 	
 	, FALSE/*cForLoadingProject*/);
 ////    SaveAllLadderDatas(LadderDirectory);
-	if ( !SaveProjectFiles( LadderDirectory ) )
+	if ( !SaveProjectFiles( InfosGene->LadderDirectory ) )
 		ShowMessageBox( "Save Error", "Failed to save the project file...", "Ok" );
 }
 
@@ -944,10 +944,11 @@ void RungWindowInitGtk()
     gtk_signal_connect( GTK_OBJECT(RungWindow), "delete_event",
     (GtkSignalFunc)RungWindowDeleteEvent, 0 );
 
+
     gtk_window_set_default_size ((GtkWindow *)RungWindow,640,480);
     gtk_widget_show (RungWindow);
-
-    GetTheSizesForRung();
+ 
+   GetTheSizesForRung();
 }
 
 gint VarsWindowDeleteEvent( GtkWidget * widget, GdkEvent * event, gpointer data )

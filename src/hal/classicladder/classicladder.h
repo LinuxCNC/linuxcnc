@@ -302,8 +302,9 @@ typedef struct StrInfosGene
     StrIOConf InputsConf[ NBR_INPUTS_CONF ];
     StrIOConf OutputsConf[ NBR_OUTPUTS_CONF ];
 
-	char AskConfirmationToQuit;
-	char DisplaySymbols;
+    char AskConfirmationToQuit;
+    char DisplaySymbols;
+    char LadderDirectory[ 400 ];
 }StrInfosGene;
 
 /* Differents states of Ladder */

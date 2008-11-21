@@ -33,7 +33,6 @@ extern GtkWidget *drawing_area;
 extern GtkWidget *EditWindow;
 #endif
 
-extern char LadderDirectory[400];
 extern char TmpDirectory[ 400 ];
 
 #ifdef DYNAMIC_PLCSIZE

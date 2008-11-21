@@ -140,83 +140,67 @@ void process_options (int argc, char *argv[])
 // HAL_SUPPORT
 static void do_exit(int unused) {
 	hal_exit(compId);
-	printf("Error initialising classicladder user module");
+	printf("Error initializing classicladder user module");
 	_exit(0);
 }
 
 
 int main( int   argc, char *argv[] )
 {
-	int used=0, NumRung;
-
-//HAL_SUPPORT
-	
-	compId = hal_init("classicladder");
+        int used=0, NumRung;
+        //HAL_SUPPORT
+        compId = hal_init("classicladder");
 	if(compId < 0) return -1;
 	signal(SIGTERM, do_exit);
-	
-	process_options (argc, argv);
-if (ClassicLadderAllocAll())
+		
+        if (ClassicLadderAllocAll())
 	{
-		if ( nogui )
-		{
-            rtapi_print_msg(RTAPI_MSG_DBG, "**** NO ladder GUI! ****\n");        
-			InitAllLadderDatas( TRUE );
-            InitTempDir( );
-            LoadProjectFiles( LadderDirectory );
-// start the ladder program		    		
-			InfosGene->LadderState = STATE_RUN;
-// Let HAL know we are ready now
-            hal_ready(compId);       
-            rtapi_print_msg(RTAPI_MSG_INFO, "Ladder project loaded\n");
-			CleanTmpDirectory( TmpDirectory, TRUE/*DestroyDir*/ );
-			hal_exit(compId);			
-			return 0;
-		}
-
-
-       else{	
-//check for used rungs
-// check for previous program loaded
-				 rtapi_print_msg(RTAPI_MSG_INFO, "checking for used rungs\n");
-        		 for(NumRung=0;NumRung<NBR_RUNGS;NumRung++) 
-		 		{ if(RungArray[NumRung].Used) used++; }
-    			 rtapi_print_msg(RTAPI_MSG_INFO, "Used rungs: %d\n", used);
-			
-		   if (used==0) 
-					{ InitAllLadderDatas( TRUE );}
-
+             process_options (argc, argv);
+             if ( nogui )
+                {
+                 rtapi_print_msg(RTAPI_MSG_DBG, "INFO CLASSICLADDER--- No ladder GUI requested\n");        
+                 InitAllLadderDatas( TRUE );
+                 InitTempDir( );
+                 LoadProjectFiles( InfosGene->LadderDirectory );
+                 // start the ladder program		    		
+                 InfosGene->LadderState = STATE_RUN;
+                 // Let HAL know we are ready now
+                 hal_ready(compId);       
+                 rtapi_print_msg(RTAPI_MSG_INFO, "Ladder project loaded\n");
+                 CleanTmpDirectory( TmpDirectory, TRUE/*DestroyDir*/ );
+                 hal_exit(compId);			
+                 return 0;
+                }else{	
+                      //check for used rungs meaning previous program loaded
+                      rtapi_print_msg(RTAPI_MSG_INFO, "checking for used rungs\n");
+                      for(NumRung=0;NumRung<NBR_RUNGS;NumRung++)    {   if(RungArray[NumRung].Used) used++;   }
+                      rtapi_print_msg(RTAPI_MSG_INFO, "Used rungs: %d\n", used);
+                      if((used==0) || ( (argc - optind) != 0) )   {   InitAllLadderDatas( TRUE );    }
 #ifdef GTK_INTERFACE
-				InitGtkWindows( argc, argv );
-				rtapi_print_msg(RTAPI_MSG_INFO, "Init GTK");
+                      InitGtkWindows( argc, argv );
+                      rtapi_print_msg(RTAPI_MSG_INFO, "Init GTK");
 #endif
-				InitTempDir( );
-				rtapi_print_msg(RTAPI_MSG_INFO, "Init tmp dir=%s\n", TmpDirectory);
-	
-// if no rungs used (meaning no program previously loaded)
-//		then	Load All LadderDatas
-			if(used==0)
-				{ LoadProjectFiles( LadderDirectory );}
-			
+                      InitTempDir( );
+                      rtapi_print_msg(RTAPI_MSG_INFO, "Init tmp dir=%s\n", TmpDirectory);
+                      // if no rungs used (meaning no program previously loaded)
+                      // then Load All LadderDatas
+                      if((used==0) || ( (argc - optind) != 0) )  {   LoadProjectFiles( InfosGene->LadderDirectory );   }
 #ifdef GTK_INTERFACE
-				UpdateGtkAfterLoading( TRUE/*cCreateTimer*/ );
+                      UpdateGtkAfterLoading( TRUE/*cCreateTimer*/ );
 #endif
-// start running ladder program
-				InfosGene->LadderState = STATE_RUN;
-//let HAL know we are ready...
-				hal_ready(compId);
-				
+                      // start running ladder program
+                      InfosGene->LadderState = STATE_RUN;
+                      //let HAL know we are ready...
+                      hal_ready(compId);
 #ifdef GTK_INTERFACE
-//ProblemWithPrint		gdk_threads_enter( );
-			rtapi_print_msg(RTAPI_MSG_INFO, "Loading ladder GUI\n");
-			gtk_main();
-			printf("Ladder GUI closed. Realtime module still runs till HAL closes\n");
-//ProblemWithPrint		gdk_threads_leave( );	
-			}
-	}
-	 ClassicLadderFreeAll(); 
-	 CleanTmpDirectory( TmpDirectory, TRUE );
-	 hal_exit(compId);
-	return 0;
+                      rtapi_print_msg(RTAPI_MSG_INFO, "Loading ladder GUI\n");
+                      gtk_main();
+                      printf("Ladder GUI closed. Realtime module still runs till HAL closes\n");	
+                     }
+        }
+         ClassicLadderFreeAll(); 
+         CleanTmpDirectory( TmpDirectory, TRUE );
+         hal_exit(compId);
+         return 0;
 }
 #endif
