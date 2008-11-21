@@ -1133,7 +1133,7 @@ int Interp::read_one_item(
 
   letter = line[*counter];      /* check if in array range */
   CHKF(((letter < ' ') || (letter > 'z')),
-	("Bad character '\\%03o' used", letter));
+	("Bad character '\\%03o' used", (unsigned char)letter));
   function_pointer = _readers[(int) letter]; /* Find the function pointer in the array */
   CHKF((function_pointer == 0),
 	((!isprint(letter) || isspace(letter)) ?
