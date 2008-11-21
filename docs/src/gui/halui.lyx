@@ -159,7 +159,7 @@ max-velocity
 \layout Standard
 
 The maximum linear velocity can be adjusted from 0 to the MAX_VELOCITY that
- is set in the ini file.
+ is set in the [TRAJ] section of the ini file.
 \layout Itemize
 
 (s32) (IN) halui.max-velocity.count - lets you hook up an encoder to change
@@ -172,11 +172,13 @@ The maximum linear velocity can be adjusted from 0 to the MAX_VELOCITY that
 (bit) (IN) halui.max-velocity.increase - pin for increasing max velocity
 \layout Itemize
 
-(float) (IN) halui.max-velocity.scale - the scale of increase or decrease
+(float) (IN) halui.max-velocity.scale - the amount applied to the current
+ maximum velocity with each transition from off to on of the increase or
+ decrease pin in machine units per second.
 \layout Itemize
 
-(float) (OUT) halui.max-velocity.value - is the linear velocity in machine
- units per second.
+(float) (OUT) halui.max-velocity.value - is the maximum linear velocity in
+ machine units per second.
 \layout Subsection
 
 Mode
