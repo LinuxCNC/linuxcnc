@@ -22,7 +22,7 @@
 \topmargin 1in
 \rightmargin 0.8in
 \bottommargin 0.8in
-\secnumdepth 1
+\secnumdepth 3
 \tocdepth 5
 \paragraph_separation skip
 \defskip smallskip
@@ -81,6 +81,48 @@ in your custom.hal file.
 \end_inset 
 
 Halui pin reference
+\layout Standard
+
+
+\begin_inset Note
+collapsed false
+
+\layout Standard
+
+needs to be updated and perhaps put in order
+\end_inset 
+
+
+\layout Subsection
+
+E-Stop
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.estop.activate - pin for requesting E-Stop
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.estop.reset - pin for requesting E-Stop reset
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.estop.is-activated - indicates E-stop reset
 \layout Subsection
 
 Machine
@@ -113,34 +155,28 @@ bit
 ) halui.machine.is-on - indicates machine on
 \layout Subsection
 
-E-Stop
+max-velocity
+\layout Standard
+
+The maximum linear velocity can be adjusted from 0 to the MAX_VELOCITY that
+ is set in the ini file.
 \layout Itemize
 
-(
-\family typewriter 
-\noun on 
-bit
-\family default 
-\noun default 
-) halui.estop.activate - pin for requesting E-Stop
+(s32) (IN) halui.max-velocity.count - lets you hook up an encoder to change
+ the max velocity
 \layout Itemize
 
-(
-\family typewriter 
-\noun on 
-bit
-\family default 
-\noun default 
-) halui.estop.reset - pin for requesting E-Stop reset
+(bit) (IN) halui.max-velocity.decrease - pin for decreasing max velocity
 \layout Itemize
 
-(
-\family typewriter 
-\noun on 
-bit
-\family default 
-\noun default 
-) halui.estop.is-activated - indicates E-stop reset
+(bit) (IN) halui.max-velocity.increase - pin for increasing max velocity
+\layout Itemize
+
+(float) (IN) halui.max-velocity.scale - the scale of increase or decrease
+\layout Itemize
+
+(float) (OUT) halui.max-velocity.value - is the linear velocity in machine
+ units per second.
 \layout Subsection
 
 Mode
