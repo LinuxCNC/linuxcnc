@@ -2094,6 +2094,7 @@ static int doSave(char *type, char *filename, connectionRecType *context)
                     else {
 	              sprintf(errorStr, "HAL:%d: Unknown 'save' type '%s'", linenumber, type);
 		      sockWriteError(nakStr, context);
+                      fclose(dst);
 	              return -1;
                       }
     if (*filename != '\0' )
