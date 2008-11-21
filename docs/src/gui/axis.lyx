@@ -254,54 +254,63 @@ backplot
 A menu bar and toolbar that allow you to perform various actions
 \layout Itemize
 
-
-\begin_inset Quotes eld
-\end_inset 
-
-Manual Control
+"Manual Control Tab" 
 \begin_inset LatexCommand \index{Manual}
 
 \end_inset 
 
-
-\begin_inset Quotes erd
-\end_inset 
-
 , which allows you to make the machine move, turn the spindle on or off,
- and turn the coolant on or off
+ and turn the coolant on or off if included in the ini file.
 \layout Itemize
 
-
-\begin_inset Quotes eld
-\end_inset 
-
-Code Entry
+"MDI Tab
 \begin_inset Quotes erd
 \end_inset 
 
- (also called MDI
+ 
 \begin_inset LatexCommand \index{MDI}
 
 \end_inset 
 
-), where G-code programs can be entered manually, one line at a time.
+, where G-code programs can be entered manually, one line at a time.
+ This also shows the "Active G Codes" which shows which modal G Codes are
+ in effect.
 \layout Itemize
 
-
-\begin_inset Quotes eld
-\end_inset 
-
-Feed Override
+"Feed Override" 
 \begin_inset LatexCommand \index{feed override}
 
 \end_inset 
 
+, which allows you to increase or decrease the speed at which EMC executes
+ Feed Moves the selected program.
+ The default maximum is 120% and can be set to a different value in the
+ ini file.
+ See the Integrators Manual for more information on this setting.
+\layout Itemize
 
-\begin_inset Quotes erd
+"Spindle Override" 
+\begin_inset LatexCommand \index{Spindle Override}
+
 \end_inset 
 
-, which allows you to increase or decrease the speed at which EMC executes
- the selected program.
+, which allows you to increase or decrease the speed at which EMC commands
+ the spindle to run if spindle control is configured.
+\layout Itemize
+
+"Jog Speed" 
+\begin_inset LatexCommand \index{Jog Speed}
+
+\end_inset 
+
+, which allows you to set the jog speed within the limits set in the ini
+ file.
+ See the Integrators Manual for more information on the ini file.
+\layout Itemize
+
+"Max Velocity", which allows you to set the maximum velocity for rapids
+ and cap feed rates (except spindle synchronized motion) for dry runs.
+ Currently only AXIS and Halui allow you to set it.
 \layout Itemize
 
 A text display area that shows the G-code source of the loaded file.
