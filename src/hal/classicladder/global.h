@@ -37,7 +37,6 @@ extern GtkWidget *drawing_area;
 extern GtkWidget *EditWindow;
 #endif
 
-extern char CurrentProjectFileName[400];
 extern char TmpDirectory[ 400 ];
 
 extern StrGeneralParams GeneralParamsMirror;

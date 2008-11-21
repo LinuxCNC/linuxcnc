@@ -365,7 +365,7 @@ char cForLoadingProject)
     if ( cForLoadingProject )
         VerifyDirectorySelected( TempDir );
     else
-        strcpy( CurrentProjectFileName, TempDir );
+        strcpy( InfosGene->CurrentProjectFileName, TempDir );
 }
 
 
@@ -384,7 +384,7 @@ void LoadNewLadder()
     if (InfosGene->LadderState==STATE_RUN)
         ButtonRunStop_click();
     InfosGene->LadderState = STATE_LOADING;
-	ProjectLoadedOk = LoadProjectFiles( CurrentProjectFileName );
+	ProjectLoadedOk = LoadProjectFiles( InfosGene->CurrentProjectFileName );
 	if ( !ProjectLoadedOk )
 		ShowMessageBox( "Load Error", "Failed to load the project file...", "Ok" );
 	UpdateAllGtkWindows( );
@@ -398,10 +398,10 @@ void LoadNewLadder()
 }
 void ButtonSave_click()
 {
-	if ( !SaveProjectFiles( CurrentProjectFileName ) )
+	if ( !SaveProjectFiles( InfosGene->CurrentProjectFileName ) )
 		{
 		ShowMessageBox( "Save Error", "Failed to save the project file...", "Ok" );
-	}else{ MessageInStatusBar(CurrentProjectFileName);}
+	}else{ MessageInStatusBar(InfosGene->CurrentProjectFileName);}
 		
 
 }
@@ -416,7 +416,7 @@ void SaveAsLadder(void)
 	#endif
 	
 	, FALSE/*cForLoadingProject*/);
-	if ( !SaveProjectFiles( CurrentProjectFileName ) )
+	if ( !SaveProjectFiles( InfosGene->CurrentProjectFileName ) )
 		ShowMessageBox( "Save Error", "Failed to save the project file...", "Ok" );
 }
 

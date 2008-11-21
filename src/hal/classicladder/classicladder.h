@@ -321,7 +321,7 @@ typedef struct StrInfosGene
 	char AskConfirmationToQuit;
 	char HardwareErrMsgToDisplay[ 100 ];
 	char DisplaySymbols;
-
+        char CurrentProjectFileName[ 400 ];
 	char AskToConfHard;
 }StrInfosGene;
 

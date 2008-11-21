@@ -235,18 +235,15 @@ int main( int   argc, char *argv[] )
 	if (compId<0) return -1; //emc
 	signal(SIGTERM,do_exit); //emc
         InitModbusMasterBeforeReadConf( );
-	process_options (argc, argv);
-        
-
 	if (ClassicLadder_AllocAll())
 	{
 		char ProjectLoadedOk=TRUE;		
-			
+	        process_options (argc, argv);
 		if (nogui==TRUE)
                 {
 		        rtapi_print("INFO CLASSICLADDER-   No ladder GUI requested-Realtime runs till HAL closes.\n");
 			ClassicLadder_InitAllDatas( );
-			ProjectLoadedOk = LoadProjectFiles( CurrentProjectFileName );
+			ProjectLoadedOk = LoadProjectFiles( InfosGene->CurrentProjectFileName  );
 			InfosGene->LadderState = STATE_RUN;
 			ClassicLadder_FreeAll(TRUE);
 			hal_ready(compId);
@@ -258,7 +255,7 @@ int main( int   argc, char *argv[] )
 				if((used==0) || ( (argc - optind) != 0) )
                                             {	
 						ClassicLadder_InitAllDatas( );
-						ProjectLoadedOk = LoadProjectFiles( CurrentProjectFileName );
+						ProjectLoadedOk = LoadProjectFiles( InfosGene->CurrentProjectFileName );
                                                 InitGtkWindows( argc, argv );
 				                UpdateAllGtkWindows();
                                                 MessageInStatusBar( ProjectLoadedOk?"Project loaded and running":"Project failed to load...");

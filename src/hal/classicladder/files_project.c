@@ -47,11 +47,11 @@ static inline int dbg_printf(char *f, ...) {return 0;}
 #endif
 
 
-#ifdef GTK_INTERFACE
-char CurrentProjectFileName[400] = "../src/hal/classicladder/projects_examples/example.clp";
-#else
-char CurrentProjectFileName[400] = "projects_examples/parallel_port_test.clp";
-#endif
+//#ifdef GTK_INTERFACE
+//char CurrentProjectFileName[400] = "../src/hal/classicladder/projects_examples/example.clp";
+//#else
+//char CurrentProjectFileName[400] = "projects_examples/parallel_port_test.clp";
+//#endif
 
 
 #ifdef __WIN32__
@@ -61,18 +61,18 @@ char CurrentProjectFileName[400] = "projects_examples/parallel_port_test.clp";
 #endif
 void VerifyDirectorySelected( char * NewDir )
 {
-	strcpy( CurrentProjectFileName, NewDir );
-	if (strlen(CurrentProjectFileName)>1)
+	strcpy( InfosGene->CurrentProjectFileName, NewDir );
+	if (strlen(InfosGene->CurrentProjectFileName)>1)
 	{
 		if ( strcmp( &NewDir[ strlen( NewDir ) -4 ], ".clp" )!=0 )
 		{
 			// verify if path given is really a directory (not a file in it)
 			DIR *pDir;
-			pDir = opendir(CurrentProjectFileName);
+			pDir = opendir(InfosGene->CurrentProjectFileName);
 			if (pDir==NULL && errno==ENOTDIR)
 			{
-				int Lgt = strlen(CurrentProjectFileName);
-				char * End = &CurrentProjectFileName[Lgt-1];
+				int Lgt = strlen(InfosGene->CurrentProjectFileName);
+				char * End = &InfosGene->CurrentProjectFileName[Lgt-1];
 				do
 				{
 					End--;
@@ -86,13 +86,13 @@ void VerifyDirectorySelected( char * NewDir )
 				else
 				{
 					printf("ERROR whith path directory given for project !!!\n");
-					CurrentProjectFileName[ 0 ] = '\0';
+					InfosGene->CurrentProjectFileName[ 0 ] = '\0';
 				}
 			}
 			else
 			{
-				if (CurrentProjectFileName[strlen(CurrentProjectFileName)-1]!=CAR_SEP)
-					strcat( CurrentProjectFileName, "/" );
+				if (InfosGene->CurrentProjectFileName[strlen(InfosGene->CurrentProjectFileName)-1]!=CAR_SEP)
+					strcat( InfosGene->CurrentProjectFileName, "/" );
 			}
 			//printf("DIRECTORY PROJECT = %s\n",CurrentProjectFileName);
 		}
