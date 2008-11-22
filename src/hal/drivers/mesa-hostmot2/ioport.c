@@ -208,8 +208,6 @@ int hm2_ioport_gpio_export_hal(hostmot2_t *hm2) {
     int i;
 
     for (i = 0; i < hm2->num_pins; i ++) {
-        int port = i / hm2->idrom.port_width;
-
         // all pins get *some* gpio HAL presence
         hm2->pin[i].instance = (hm2_gpio_instance_t *)hal_malloc(sizeof(hm2_gpio_instance_t));
         if (hm2->pin[i].instance == NULL) {
