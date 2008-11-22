@@ -6,8 +6,8 @@ instead of this table.
 Also, number of special functions (counters, PWMGens etc) is determined 
 by configuration.
 Additional registers are always at increasing doubleword boundaries 
-with the exception of UART data FIFOs. 
-(this difference with UARTS make be fixed by using byte enables later)
+with the exception of UART data FIFOs and BSPI data FIFOs 
+
 
 First ID stuff
 
@@ -31,10 +31,15 @@ First ID stuff
 0x428	ClockLow		In Hz	(note:on 5I20/4I65 = PCI clock 
                                 guessed as 33.33 MHz)
 0x42C	ClockHigh		In Hz
-0x430	InstanceStride0
-0x434	InstanceStride1
-0x438	RegisterStride0
-0x43C	RegisterStride1
+0x430	InstanceStride0		Stride between register instances (option 0)
+0x434	InstanceStride1		Stride between register instances (option 1)
+0x438	RegisterStride0         Stride between different registers (option 0) 
+0x43C	RegisterStride1		Stride between different registers (option 1)
+
+Instance stride is address step to next register of same type but next channel
+For example PWMGen(0) to PWMGen(1)
+Register stride is address step to next register in functional group. 
+for example IOPort(0) to DDR(0)
 
 0x440..	Module descriptions 0 through 31
 Each module descriptor is three doublewords with the following record structure:
@@ -46,6 +51,7 @@ ClockTag(0)	(byte) = Whether module uses ClockHigh or ClockLow
 Instances(0)	(byte) = Number of instances of module in configuration
 BaseAddress(0)	(word) = offset to module. This is also specific register = Tag
 Registers(0)	(byte) = Number of registers per module
+Strides(0)	(byte) = Specifies which strides to use
 MPBitmap(0)	(Double) = bit map of which registers are multiple 
                 '1' = multiple, LSb = reg(0)
 
@@ -56,6 +62,7 @@ ClockTag(1)	(byte) = Whether module uses ClockHigh or ClockLow
 Instances(1)	(byte) = Number of instances of module in configuration
 BaseAddress(1)	(word) = offset to module. This is also specific register = Tag
 Registers(1)	(byte) = Number of registers per module
+Strides(1)	(byte) = Specifies which strides to use
 MPBitmap(1)	(Double) = bit map of which registers are multiple 
                 '1' = multiple, LSb = reg(0)
 
@@ -63,7 +70,7 @@ MPBitmap(1)	(Double) = bit map of which registers are multiple
 0 GTag marks end of module descriptors
 
 
-0x600 Pin descriptors 0 through 127. 
+0x600 Pin descriptors 0 through 143. 
 There is one Pin Descriptor for each I/O pin.
 Each pin descriptor is a doubleword with the following record structure:
 
@@ -93,19 +100,19 @@ PrimaryTag(1)	(byte) = Primary function tag (normally I/O port)
 
 0x0900	IRQDiv 
 
-16 bit divider of selected PWMreference output bit. Divides by n+2.
+16 bit divider of selected PWM reference output bit. Divides by n+2.
 
 0x0A00	IRQStatus
 
 Bit 2..4  Select which PWM reference counter bit is used as IRQ divider source:
-000 = PWMRefcount(MSB-7)
-001 = PWMRefcount(MSB-6)
-010 = PWMRefcount(MSB-5)
-011 = PWMRefcount(MSB-4)
-100 = PWMRefcount(MSB-3)
-101 = PWMRefcount(MSB-2)
-110 = PWMRefcount(MSB-1)
-111 = PWMRefcount(MSB)
+000 = PWMRefcount(MSb-7)
+001 = PWMRefcount(MSb-6)
+010 = PWMRefcount(MSb-5)
+011 = PWMRefcount(MSb-4)
+100 = PWMRefcount(MSb-3)
+101 = PWMRefcount(MSb-2)
+110 = PWMRefcount(MSb-1)
+111 = PWMRefcount(MSb)
 
 Bit 1 = Irq mask: 0 = masked
 
@@ -116,7 +123,7 @@ Bit 0 = IRQ status (R/W)
 
 0x0C00	WatchdogTimer (R/W
 
-32 bit watchdog timer.If MSB is set, watchdog is disabled.
+32 bit watchdog timer.If MSb is set, watchdog is disabled.
 Timeout is WatchdogTimer+1/CLKLOW. Currently all watchdog does 
 is clear GPIO DDR, and OpenDrain registers setting all GPIO to 
 inputs (high with pullups)
@@ -138,6 +145,7 @@ timeout value.
 0x1008  I/O port 48..71
 0x100C  I/O port 72..95
 0x1010  I/O port 96..127
+0x1014  I/O port 128..143
 
 Writes write to output register, reads read pin status
 
@@ -145,6 +153,8 @@ Writes write to output register, reads read pin status
 0x1104  DDR for I/O port  24..47
 0x1108  DDR for I/O port  48..71
 0x110C  DDR for I/O port  72..95
+0x1110  DDR for I/O port  96..127
+0x1114  DDR for I/O port  128..144
 
 '1' bit in DDR register makes corresponding GPIO bit an output
 
@@ -152,14 +162,20 @@ Writes write to output register, reads read pin status
 0x1204  AltSourceReg for I/O port  24..47
 0x1208  AltSourceReg for I/O port  48..71
 0x120C  AltSourceReg for I/O port  72..95
+0x1210  AltSourceReg for I/O port  96..127
+0x1214  AltSourceReg for I/O port  128..143
+
 
 '1' bit in AltSource register makes corresponding GPIO bit data source 
-come from Alternate source for that bit instead of output register.
+come from Alternate source for that bit instead of GPIO output register.
 
 0x1300	OpenDrainSelect for I/O port  0..23
 0x1304  OpenDrainSelect for I/O port  24..47
 0x1308  OpenDrainSelect for I/O port  48..71
 0x130C  OpenDrainSelect for I/O port  72..95
+0x1310  OpenDrainSelect for I/O port  96..127
+0x1314  OpenDrainSelect for I/O port  128..143
+
 
 '1' bit in OpenDrainSelect register makes corresponding GPIO an 
 open drain output.
@@ -169,15 +185,18 @@ If OpenDrain is selected for an I/O bit , the DDR register is ignored.
 0x1404  OutputInvert for I/O port  24..47
 0x1408  OutputInvert for I/O port  48..71
 0x140C  OutputInvert for I/O port  72..95
+0x1410  OutputInvert for I/O port  96..127
+0x1414  OutputInvert for I/O port  128..143
 
 A '1' bit in the OutputInv register inverts the cooresponding output bit.
-This may be the output register bit or alternate source. The input is not 
-inverted.
+This may be the GPIO output register bit or alternate source. The input is 
+not inverted.
 
 
 **************************************************
-Step/dir generators currently 48 bit accum = 16 bits full step, 
-32 fractional step/rate
+Step/dir generators currently 48 bit accumulator = 16 bits full step, 
+32 fractional step/rate. That is a 48 bit accumulator with a 32 bit rate 
+value (sign extended) and added to accumulator.
 
  Step rate registers : Write only
 
@@ -220,7 +239,7 @@ Mode registers (2 bits Write only)
 ...
 
 DIR Setup time = how long DIR must be valid before step 
-pulses may be issued
+pulses may be issued.
 Max time for 14 bits at ClockLow = 33 MHz = ~480 uS. 
 At ClockLow = 50 MHz = ~320 uS (dont use 0)
 
@@ -237,9 +256,9 @@ Write only
 ...
 
 DIR Hold time = how long DIR most remain valid after 
-a step pulse has been issued 
-Max time for 14 bits at ClockLow = 33 MHz = ~480 mS. 
-At ClockLow = 50 MHz = ~320 mS (dont use 0)
+a step pulse has been issued. 
+Max time for 14 bits at ClockLow = 33 MHz = ~480 uS. 
+At ClockLow = 50 MHz = ~320 uS (dont use 0)
 
 Write only
 
@@ -303,7 +322,7 @@ Table data is in LSBs of written word.
 
 TableLength register: 4 bit register that determines table sequence 
 length. Sequence length is TableLength+1, Maximum length is 16 steps
-
+Only used in table mode.
 
 0x2800	Table sequence length register for StepGen 0
 0x2804	Table sequence length register for StepGen 1
@@ -312,7 +331,7 @@ length. Sequence length is TableLength+1, Maximum length is 16 steps
 0x2810	Table sequence length register for StepGen 4
 0x2814	Table sequence length register for StepGen 5
 0x2818	Table sequence length register for StepGen 6
-x281c	Table sequence length register for StepGen 7
+0x281c	Table sequence length register for StepGen 7
 
 ...
 
@@ -321,11 +340,11 @@ may be disabled)
 
 Step generator addition rate is (ClockLow*MasterDDSVal/2^32)
 
-Probably just set to 0xffffffff for playing with
+Probably just set to 0xffffffff for most applications.
 
 QuadratureCounter Type 2 (with timestamp)
 32 bit register: bottom 16 bits are count, 
-top 16 bits are timestamp of last change
+top 16 bits are timestamp of last count change
 Writes to counter register clear the counter.
 
 0x3000 quad counter 0	
@@ -340,12 +359,12 @@ Writes to counter register clear the counter.
 
 The time stamp allows reciprocal time (DeltaCount/DeltaTime) 
 velocity calculation for better estimation of motor velocity 
-at low counts/sample interval
+at low counts/sample interval.
 
 
 QuadratureCounter latch/Control register
 32 bit register: top 16 bits are latched (by index) count, 
-bottom 16 bits is control register
+bottom 16 bits is control register.
 
 0x3100 quad counter latch/CCR 0	
 0x3104 quad counter latch/CCR 1	
@@ -361,16 +380,16 @@ Bit 31..16 = Latched count (Latch on index)
 
 Bit15	Quad Error: set if quadrature sequence error
 Bit14	AB mask polarity: A*B must be high for index gate
-Bit13	xx
-Bit12	xx
-Bit11   Quad filter (0=3 clocks 1=15 clocks)
+Bit13	LatchOnProbe 1 = Latch count on probe (Version 3 counters only)
+Bit12	ProbePolarity 1 = active high         (Version 3 counters only)
+Bit11   Quad filter (0 = 3 clocks 1 = 15 clocks)
 Bit10	CounterMode 0 = Quadrature, 1 = up/down
-Bit9	UseIndexMask 1= use mask
+Bit9	UseIndexMask 1 = use mask
 Bit8	IndexMask Polarity 1=active high
-Bit7	ABgateIndex 1=gate index signal with A,B
-Bit6	JustOnce 1= ClearOnIndex or LatchOnIndex happen only once
-Bit5	ClearOnIndex 1=Clear count on index 
-Bit4	LatchOnIndex 1=Latch count on index
+Bit7	ABgateIndex 1 = gate index signal with A,B
+Bit6	JustOnce 1 = ClearOnIndex, LatchOnIndex, LatchOnProbe happen only once
+Bit5	ClearOnIndex 1 = Clear count on index 
+Bit4	LatchOnIndex 1 = Latch count on index
 Bit3	IndexPol 1 = active high
 Bit2	read only realtime index signal
 Bit1	read only realtime B signal
@@ -381,13 +400,13 @@ Bit0	read only realtime A signal
 Sets quadrature counter reference clock for timestamp.
 
 Timestamp count rate is ClockLow/(TSDiv+2). 
-Any divisor with MSB set = divide by 1
+Any divisor with MSb set = divide by 1
 
 0x3300  TSCount 16 bit time stamp counter (read only) 
 
 0x3400  QfilterRate 12 bit Quadrature counter filter rate
 count rate is ClockLow/(QFilterRate+2). 
-Any divisor with MSB set = divide by 1
+Any divisor with MSb set = divide by 1
 
 
 MuxedQuadratureCounter Type 2 (with timestamp)
@@ -430,16 +449,16 @@ Bit 31..16 = Latched count (Latch on index)
 
 Bit15	Quad Error: set if quadrature sequence error
 Bit14	AB mask polarity: A*B must be high for index gate
-Bit13	xx
-Bit12	xx
-Bit11   Quad filter (0=3 clocks 1=15 clocks)
+Bit13	LatchOnProbe 1 = Latch count on probe (Version 3 counters only)
+Bit12	ProbePolarity 1 = active high         (Version 3 counters only)
+Bit11   Quad filter (0 = 3 clocks 1 = 15 clocks)
 Bit10	CounterMode 0 = Quadrature, 1 = up/down
-Bit9	UseIndexMask 1= use mask
+Bit9	UseIndexMask 1 = use mask
 Bit8	IndexMask Polarity 1=active high
-Bit7	ABgateIndex 1=gate index signal with A,B
-Bit6	JustOnce 1= ClearOnIndex or LatchOnIndex happen only once
-Bit5	ClearOnIndex 1=Clear count on index 
-Bit4	LatchOnIndex 1=Latch count on index
+Bit7	ABgateIndex 1 = gate index signal with A,B
+Bit6	JustOnce 1 = ClearOnIndex, LatchOnIndex, LatchOnProbe happen only once
+Bit5	ClearOnIndex 1 = Clear count on index 
+Bit4	LatchOnIndex 1 = Latch count on index
 Bit3	IndexPol 1 = active high
 Bit2	read only realtime index signal
 Bit1	read only realtime B signal
@@ -450,13 +469,13 @@ Bit0	read only realtime A signal
 Sets quadrature counter reference clock for timestamp.
 
 MuxedTimestamp count rate is ClockLow/(MuxedTSDiv+2). 
-Any divisor with MSB set = divide by 1
+Any divisor with MSb set = divide by 1
 
 0x3800  MuxedTSCount 16 bit time stamp counter (read only) 
 
 0x3900  QfilterRate 12 bit Quadrature counter filter rate
 count rate is ClockLow/(QFilterRate+2). 
-Any divisor with MSB set = divide by 1
+Any divisor with MSb set = divide by 1
 
 Notes about quadrature filter rate:
 
@@ -513,7 +532,7 @@ multiplex channel rate should not be higher than 8 MHz, with lower rates
 needed with longer cable runs. This means that the filter rate should not 
 be set higher than 16 MHz. The hardware default for the multiplexed flter 
 rate register is set to divide by 4 which gives a multiplex rate of
-4.166 MHz with a 33 MHx clklow and 6.25 MHz with a 50 MHZ clklow. 
+4.166 MHz with a 33 MHz clklow and 6.25 MHz with a 50 MHZ clklow. 
 
 The hardware default filter rate is set to divide by 1 for non-multiplexed 
 counters.
@@ -584,7 +603,7 @@ Bit 2   PWM channel 2 enable
 
 PWM/PDM Notes: 
 
-1. For 7I33, 7I33T and 7I47 that filter the PWM to generate analog voltages, 
+1. For 7I33, 7I33T and 7I48 that filter the PWM to generate analog voltages, 
    PDM mode should be used. Optimum PDM rate for best trade-off between ripple 
    and linearity for 7I33 and 7I33T is about 6 MHz (PDM rate register approx
    0x0fff) This gives about 12 bits of resolution and 10 bit linearity/ripple.
@@ -647,7 +666,7 @@ Bit 0..3 = TXEnable delay. TXEnable delay specifies the transmit data
         holdoff time from the TXenable signal valid state. This is used 
         for RS-485 
         (half duplex) operaton, to delay transmit data until the driver 
-        is enabled, llowing for driver enable delays, isolation barrier 
+        is enabled, allowing for driver enable delays, isolation barrier 
         delays etc. Delay is in units of ClockLow period.
 Bit 4 = FIFOError, it indicates that a host push has overflowed the FIFO
         (Mainly for driver debugging)
@@ -848,11 +867,12 @@ If FIFO count register is written (data is dont care), both FIFOs will be
 cleared
 
 
-
-
-Address Translation RAM (8/16 bit interfaces only = EPP, USB and PC/104)
+Address Translation RAM 
 The address translation RAM is used to eliminate expensive address cycles 
 when addressing hardwired sequences of non-contiguous bytes.
+This is useful for EPP devices to eliminate address cycles
+and for PCI devices to allow slaves to be accessed with burst transfers.
+It also allows PCI DMA to group all reads and all writes into sigle operations
 
 The address RAM give indirect access to all internal registers.
 
@@ -865,7 +885,9 @@ Translation RAM, 256 deep by 16 bit wide address translation RAM
 
 Data in translation RAM is LS 16 bits (MS 16 bits are unused) 
 of 32 bit word.
-Bit 15 is StrobeBit. For read sequences, the StrobeBit must be 
+For EPP and USB (byte wide) devices, Bit 15 is StrobeBit. 
+For PCI devices, the strobe bit is unused.
+For read sequences, the StrobeBit must be 
 OR'ed with the first translation RAM address entry of a read sequence, 
 for write sequences, the StrobeBit must be OR'ed with the last 
 translation  RAM address of the write sequence.
