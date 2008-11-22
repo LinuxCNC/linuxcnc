@@ -2138,7 +2138,11 @@ static Window Togl_CreateWindow(Tk_Window tkwin,
 static void ToglCmdDeletedProc( ClientData clientData )
 {
    struct Togl *togl = (struct Togl *)clientData;
-   Tk_Window tkwin = togl->TkWin;
+   Tk_Window tkwin;
+
+   if (togl == NULL) return;
+
+   tkwin = togl->TkWin;
 
    /*
     * This procedure could be invoked either because the window was
