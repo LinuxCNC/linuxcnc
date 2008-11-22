@@ -462,7 +462,7 @@ int rtapi_snprintf(char *buf, unsigned long int size, const char *fmt, ...)
 
 #define BUFFERLEN 1024
 
-void default_rtapi_msg_handler(msg_level_t level, char *buffer) {
+void default_rtapi_msg_handler(msg_level_t level, const char *buffer) {
     rt_printk(buffer);
 }
 static rtapi_msg_handler_t rtapi_msg_handler = default_rtapi_msg_handler;
