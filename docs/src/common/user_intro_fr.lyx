@@ -467,7 +467,7 @@ collapsed false
 \align center 
 
 \begin_inset Graphics
-	filename ../common/xemc_fr.png
+	filename tkemc_fr.png
 	width 60page%
 	keepAspectRatio
 

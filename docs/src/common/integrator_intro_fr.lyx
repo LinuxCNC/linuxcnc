@@ -565,14 +565,13 @@ Une GUI basée sur OpenGL, avec prévisualisation du G-Code, appelée AXIS
 
 \begin_inset Float figure
 wide false
-collapsed true
+collapsed false
 
 \layout Standard
 \align center 
 
 \begin_inset Graphics
 	filename axis.png
-	lyxscale 75
 	width 80page%
 	keepAspectRatio
 
@@ -592,7 +591,7 @@ L'interface graphique AXIS
 
 \begin_inset Float figure
 wide false
-collapsed true
+collapsed false
 
 \layout Standard
 \align center 
@@ -616,14 +615,13 @@ L'interface graphique Keystick
 
 \begin_inset Float figure
 wide false
-collapsed true
+collapsed false
 
 \layout Standard
 \align center 
 
 \begin_inset Graphics
-	filename mini.png
-	lyxscale 50
+	filename mini_fr.png
 	width 80page%
 	keepAspectRatio
 
@@ -643,14 +641,13 @@ L'interface graphique Mini
 
 \begin_inset Float figure
 wide false
-collapsed true
+collapsed false
 
 \layout Standard
 \align center 
 
 \begin_inset Graphics
-	filename tkemc.png
-	lyxscale 50
+	filename tkemc_fr.png
 	width 80page%
 	keepAspectRatio
 
@@ -670,7 +667,7 @@ L'interface graphique TkEmc
 
 \begin_inset Float figure
 wide false
-collapsed true
+collapsed false
 
 \layout Standard
 \added_space_top smallskip \added_space_bottom smallskip \align center 
