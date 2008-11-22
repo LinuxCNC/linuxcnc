@@ -133,7 +133,6 @@ void display_help (void)
 void process_options (int argc, char *argv[])
 {
 	int error = 0;
-
 	for (;;)
 	{
 		int option_index = 0;
@@ -143,6 +142,7 @@ void process_options (int argc, char *argv[])
 			{"config", required_argument, 0, 'c'},
                         {"modmaster",no_argument,0,'m'},
                         {"modserver",no_argument,0,'s'},
+                        {"debug",no_argument,0,'d'},
 			{"modbus_port", required_argument, 0, 'p'},
 			{0, 0, 0, 0},
 		};
@@ -168,6 +168,9 @@ void process_options (int argc, char *argv[])
                         case 's':
                                 modserver=1;
                                 break; 
+                        case 'd':
+                                rtapi_set_msg_level(RTAPI_MSG_ALL);
+                                break;
 			case 'p':
 				ModbusServerPort = atoi( optarg );
 				break;
@@ -230,7 +233,8 @@ void RunBackIfStopped( void )
 int main( int   argc, char *argv[] )
 {
 	int used=0, NumRung;
-
+        static int old_level ;
+        old_level = rtapi_get_msg_level();
 	compId=hal_init("classicladder"); //emc
 	if (compId<0) return -1; //emc
 	signal(SIGTERM,do_exit); //emc
@@ -283,6 +287,7 @@ int main( int   argc, char *argv[] )
 	}
 	 rtapi_print("ERROR CLASSICLADDER-   Ladder memory allocation error\n");
 	ClassicLadder_FreeAll(TRUE);
+        rtapi_set_msg_level(old_level);
 	hal_exit(compId);		
 	return 0;
 }
