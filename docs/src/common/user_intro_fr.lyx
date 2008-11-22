@@ -467,7 +467,7 @@ collapsed false
 \align center 
 
 \begin_inset Graphics
-	filename xemc_fr.png
+	filename ../common/xemc_fr.png
 	width 60page%
 	keepAspectRatio
 
