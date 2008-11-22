@@ -454,6 +454,7 @@ static vcp_widget_t *get_child_widget(vcp_widget_t *parent, char *name, token_fi
 	    return NULL;
 	} else if ( item_name[0] == '}' ) {
 	    /* end of widget, check for any string attribs without values */
+            free(item_name);
 	    adef = widget->type->attribs;
 	    if ( adef != NULL ) {
 		while ( adef->name != NULL ) {
@@ -474,6 +475,7 @@ static vcp_widget_t *get_child_widget(vcp_widget_t *parent, char *name, token_fi
 	} else if ( !isalnum(item_name[0]) ) {
 	    printf ( "line %d: bad widget or attribute name: '%s'\n",
 		tf->tokenline, item_name );
+            free(item_name);
 	    free_widget(widget);
 	    return NULL;
 	}
@@ -483,6 +485,7 @@ static vcp_widget_t *get_child_widget(vcp_widget_t *parent, char *name, token_fi
 	    printf ( "line %d: unexpected EOF in widget '%s'\n",
 		tf->tokenline, wdef->name );
 	    free_widget(widget);
+            free(item_name);
 	    return NULL;
 	} else if ( delim[0] == '=' ) {
 	    /* name is a attribute */
@@ -490,6 +493,7 @@ static vcp_widget_t *get_child_widget(vcp_widget_t *parent, char *name, token_fi
 		/* message already printed inside get_attrib() */
 		free_widget(widget);
                 free(delim);
+                free(item_name);
 		return NULL;
 	    }
 	} else if ( delim[0] == '{' ) {
@@ -498,6 +502,7 @@ static vcp_widget_t *get_child_widget(vcp_widget_t *parent, char *name, token_fi
 		/* message already printed inside get_child_widget() */
 		free_widget(widget);
                 free(delim);
+                free(item_name);
 		return NULL;
 	    }
 	} else {
@@ -505,9 +510,11 @@ static vcp_widget_t *get_child_widget(vcp_widget_t *parent, char *name, token_fi
 			tf->tokenline, item_name );
 	    free_widget(widget);
             free(delim);
+            free(item_name);
 	    return NULL;
 	}
         free(delim);
+        free(item_name);
     }
 }
 
