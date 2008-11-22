@@ -22,7 +22,7 @@
 \topmargin 1in
 \rightmargin 0.8in
 \bottommargin 0.8in
-\secnumdepth 1
+\secnumdepth 3
 \tocdepth 5
 \paragraph_separation skip
 \defskip smallskip
@@ -38,9 +38,8 @@ OPTO22 PCI
 \layout Standard
 
 PCI AC5 ADAPTER CARD / HAL DRIVER This page is considered current as of
- August of 2008.
- This driver is only in CVS right now I would imagine EMC 2.3 would be when
- it would be released
+ November 2008.
+ 
 \layout Section
 
 The Adapter Card
@@ -55,9 +54,17 @@ This is a card made by OPTO22 for adapting the PCI port to solid state relay
  with this card with the understanding any encoder counters, pwm etc would
  have to be done in software- The AC5 does not have any 'smart' logic on
  board it just an adapter.
- See the manufacturer's website for more info: http://www.opto22.com/site/pr_detai
-ls.aspx?item=PCI-AC5&qs=100110021011,,,1,3&; I would like to thank OPTO22
- for releasing info in their manual,easing the writing of this driver!
+ 
+\layout Standard
+
+See the manufacturer's website for more info:
+\layout Standard
+
+http://www.opto22.com/site/pr_details.aspx?item=PCI-AC5&qs=100110021011,,,1,3
+\layout Standard
+
+I would like to thank OPTO22 for releasing info in their manual, easing
+ the writing of this driver!
 \layout Section
 
 The Driver 
@@ -85,19 +92,99 @@ opto_ac5.0.port0.in-00 They would be numbered from 00 to 11
 
 opto_ac5.0.port0.out-12 They would be numbered 12 to 23 port 1 would be the
  same.
+\layout Section
+
+PINS
+\layout Standard
+
+opto_ac5.[BOARDNUMBER].port[PORTNUMBER].in-[PINNUMBER] OUT bit
+\layout Standard
+
+opto_ac5.[BOARDNUMBER].port[PORTNUMBER].in-[PINNUMBER]-not OUT bit 
+\layout Standard
+
+Connect a hal bit signal to this pin to read an I/O point from the card.
+ The PINNUMBER represents the position in the relay rack.
+ Eg.
+ PINNUMBER 0 is position 0 in a opto22 relay rack and would be pin 47 on
+ the 50 pin header connector.
+ The -not pin is inverted so that LOW gives TRUE and HIGH gives FALSE.
+ 
+\layout Standard
+
+opto_ac5.[BOARDNUMBER].port[PORTNUMBER].out-[PINNUMBER] IN bit 
+\layout Standard
+
+Connect a hal bit signal to this pin to write to an I/O point of the card.
+ The PINNUMBER represents the position in the relay rack.Eg.
+ PINNUMBER 23 is position 23 in a opto22 relay rack and would be pin 1 on
+ the 50 pin header connector.
+ 
+\layout Standard
+
+opto_ac5.[BOARDNUMBER].led[NUMBER] OUT bit 
+\layout Standard
+
+Turns one of the 4 onboard LEDS on/off.
+ LEDS are numbered 0 to 3.
+\layout Standard
+
+BOARDNUMBER can be 0-3 PORTNUMBER can be 0 or 1.
+ Port 0 is closest to the card bracket.
+ 
+\layout Section
+
+PARAMETERS
+\layout Standard
+
+opto_ac5.[BOARDNUMBER].port[PORTNUMBER].out-[PINNUMBER]-invert W bit 
+\layout Standard
+
+When TRUE, invert the meaning of the corresponding -out pin so that TRUE
+ gives LOW and FALSE gives HIGH.
+\layout Section
+
+FUNCTIONS 
+\layout Standard
+
+opto_ac5.0.digital-read Add this to a thread to read all the input points.
+ 
+\layout Standard
+
+opto_ac5.0.digital-write Add this to a thread to write all the output points
+ and LEDS.
+\layout Standard
+
+For example the pin names for the default I/O setting of port 0 would be:
+\layout Standard
+
+opto_ac5.0.port0.in-00 
+\layout Standard
+
+They would be numbered from 00 to 11
+\layout Standard
+
+opto_ac5.0.port0.out-12 
+\layout Standard
+
+They would be numbered 12 to 23 port 1 would be the same.
+\layout Section
+
+Configuring I/O Ports
 \layout Standard
 
 To change the default setting load the driver something like so:
-\layout Standard
+\layout Quote
 
 loadrt opto_ac5 portconfig0=0xffff portconfig1=0xff0000
 \layout Standard
 
 Of course changing the numbers to match the i/o you would like.
- each port can be set up different (but for now any other opto PCI ac5 boards
- will have their ports configured the same as the first board.
- I will fix that if it comes up).
- Heres how to figure out the number: The configuration number represents
+ Each port can be set up different.
+ 
+\layout Standard
+
+Heres how to figure out the number: The configuration number represents
  a 32 bit long code to tell the card which i/o points are output vrs input.
  The lower 24 bits are the i/o points of one port.
  The 2 highest bits are for 2 of the on board LEDS.
@@ -105,10 +192,14 @@ Of course changing the numbers to match the i/o you would like.
  The two highest bits must be output for the LEDS to work.
  The driver will automatically set the two highest bits for you, we won't
  talk about them.
- The easiest way to do this is to fire up the calculator under APPLICATIONS/ACCE
-SSORIES Set it to scientific (click view).
- set it BINARY (radio button Bin) Press 1 for every output you want and/or
- zero for every input.
+ 
+\layout Standard
+
+The easiest way to do this is to fire up the calculator under APPLICATIONS/ACCES
+SORIES.
+ Set it to scientific (click view).
+ Set it BINARY (radio button Bin).
+ Press 1 for every output you want and/or zero for every input.
  Remember that HAL pin 00 corresponds to the rightmost bit.
  24 numbers represent the 24 i/o points of one port.
  So for the default setting (12 inputs then 12 outputs) you would push 1
@@ -135,9 +226,9 @@ Another example : to set the port for 8 outputs and 16 inputs (the same
 
 Which converts to FF on the calculator so 0xff is the number to use for
  portconfig0 and/or portconfig1 when loading the driver.
-\layout Standard
+\layout Section
 
-Here's how the HAL pin numbering works:
+Pin Numbering
 \layout Standard
 
 HAL pin 00 corresponds to bit 1 (the rightmost) which represents position
@@ -147,9 +238,6 @@ HAL pin 00 corresponds to bit 1 (the rightmost) which represents position
  etc.
  HAL pin 23 corresponds to bit 24 (the leftmost) which represents position
  23 on an opto22 relay rack.
-\layout Standard
-
-For the electrical connections:
 \layout Standard
 
 Hal pin 00 connects to pin 47 on the 50 pin connector of each port.
