@@ -81,7 +81,7 @@ L'affichage de TkEMC
 \align center 
 
 \begin_inset Graphics
-	filename /home/francis/emc2.TRUNK/docs/src/common/xemc_fr.png
+	filename ../common/xemc_fr.png
 	lyxscale 80
 	width 80page%
 	keepAspectRatio
