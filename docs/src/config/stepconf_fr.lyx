@@ -29,19 +29,16 @@
 
 \layout Chapter
 
-Stepconf: Assistant de configuration d'EMC2
+Assistant graphique de configuration
+\begin_inset LatexCommand \label{cha:Assistant-graphique}
+
+\end_inset 
+
+ 
 \layout Standard
 
-Ce chapitre décrit certains des paramètres les plus communs que les utilisateurs
- doivent adapter lors d'une nouvelle installation.
- En raison des multiples possibilités de configuration d'EMC2, il est très
- difficile de les documenter toutes et de garder ce document relativement
- court.
- EMC2 est capable de contrôler une large gamme de machines utilisant différentes
- interfaces matérielles.
- Stepconf est un programme qui génère des fichiers de configuration EMC
- pour une classe spécifique de machine CNC: celles qui sont pilotées via
- un 
+Stepconf est un programme qui génère des fichiers de configuration EMC pour
+ une classe spécifique de machine CNC: celles qui sont pilotées via un 
 \series bold 
 port parallèle
 \series default 

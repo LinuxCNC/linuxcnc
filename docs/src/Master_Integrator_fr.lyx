@@ -156,6 +156,15 @@ Configuration d'EMC2
 \layout Standard
 
 
+\begin_inset Include \include{install/Latency_Test_fr.lyx}
+preview false
+
+\end_inset 
+
+
+\layout Standard
+
+
 \begin_inset Include \include{config/ini_config_fr.lyx}
 preview false
 
@@ -259,6 +268,15 @@ Relations entre EMC2 et HAL
 
 
 \begin_inset Include \include{config/stepper_fr.lyx}
+preview false
+
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset Include \include{hal/components_fr.lyx}
 preview false
 
 \end_inset 
@@ -396,6 +414,9 @@ preview false
 \end_inset 
 
 
+\layout Part
+
+Index de l'ouvrage
 \layout Standard
 
 

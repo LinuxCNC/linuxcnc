@@ -27,7 +27,7 @@
 
 \layout Chapter
 
-FAQ Linux
+Petite FAQ Linux
 \begin_inset LatexCommand \index{Linux FAQ}
 
 \end_inset 
@@ -431,11 +431,9 @@ Problémes matériels
 Informations sur le matériel
 \layout Standard
 
-
 Pour voir la liste du matériel utilisé par votre carte mère, tapez la commande
  suivante dans un terminal:
 \layout LyX-Code
-
 
 lspci -v
 \layout Subsection

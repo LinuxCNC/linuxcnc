@@ -125,11 +125,11 @@ pyvcp.1 = Virtual Control Panel (Panneau de Contrôle Virtuel) pour EMC2
 Composants temps réel et modules du noyau
 \layout Standard
 
-Certaines de ces descriptions sont plus approfondies dans leurs pages man.
+Certaines de ces descriptions sont plus approfondies dans leur man page.
  Certaines auront juste une description limitée.
- Chaque composant a sa page man.
+ Chaque composant a sa man page.
  A partir de cette liste vous connaîtrez quels composants existent avec
- le nom et le N° de leur page man permettant d'avoir plus de détails.
+ le nom et le N° de leur man page permettant d'avoir plus de détails.
 \layout List
 \labelwidthstring 00.00.0000
 
@@ -250,8 +250,7 @@ deadzone.9 = Retourne le centre si il est dans le seuil
 \layout List
 \labelwidthstring 00.00.0000
 
-debounce.9 = Filtre une entrée digitale bruitée, pour plus de détails voir
- (???)
+debounce.9 = Filtre une entrée digitale bruitée
 \layout List
 \labelwidthstring 00.00.0000
 
@@ -259,8 +258,7 @@ edge.9 = Détecteur de front
 \layout List
 \labelwidthstring 00.00.0000
 
-encoder.9 = Comptage logiciel des signaux en quadrature d'un codeur, pour
- plus de détails voir (???)
+encoder.9 = Comptage logiciel des signaux en quadrature d'un codeur
 \layout List
 \labelwidthstring 00.00.0000
 
@@ -434,7 +432,7 @@ serport.9 = Pilote matériel pour les circuits d'entrées/sorties digitales
 \layout List
 \labelwidthstring 00.00.0000
 
-siggen.9 = Générateur de signal, pour plus de détails voir 
+siggen.9 = Générateur de signal
 \begin_inset LatexCommand \ref{sec:Siggen}
 
 \end_inset 
@@ -448,8 +446,7 @@ sim_encoder.9 = Simulation d'un codeur en quadrature, pour plus de détails
 \layout List
 \labelwidthstring 00.00.0000
 
-stepgen.9 = Générateur d'impulsions de pas logiciel, pour plus de détails
- voir 
+stepgen.9 = Générateur d'impulsions de pas logiciel
 \begin_inset LatexCommand \ref{sec:Stepgen}
 
 \end_inset 

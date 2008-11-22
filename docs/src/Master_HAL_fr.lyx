@@ -96,10 +96,22 @@ Permission is granted to copy, distribute and/or modify this document under
 \end_inset 
 
 
+\layout Standard
+
+
+\begin_inset ERT
+status Open
+
+\layout Standard
+
+\backslash 
+addcontentsline{toc}{chapter}{Table des matières}
+\end_inset 
+
+
 \layout Part
 
 
-\lang english
 Introduction et tutoriels
 \layout Standard
 
@@ -122,7 +134,6 @@ preview false
 \layout Part
 
 
-\lang english
 Les références de HAL
 \layout Standard
 
@@ -166,7 +177,6 @@ preview false
 \layout Part
 
 
-\lang english
 La programmation de HAL
 \layout Standard
 

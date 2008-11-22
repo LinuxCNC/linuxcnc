@@ -106,12 +106,31 @@ Permission is granted to copy, distribute and/or modify this document under
 \layout Standard
 
 
+\begin_inset ERT
+status Open
+
+\layout Standard
+
+\backslash 
+addcontentsline{toc}{chapter}{Table des matières}
+\end_inset 
+
+
+\layout Part
+
+Choix matériel
+\layout Standard
+
+
 \begin_inset Include \include{common/System_Requirements_fr.lyx}
 preview false
 
 \end_inset 
 
 
+\layout Part
+
+Trouver EMC2
 \layout Standard
 
 
@@ -121,6 +140,9 @@ preview false
 \end_inset 
 
 
+\layout Part
+
+Configuration
 \layout Standard
 
 
@@ -139,6 +161,9 @@ preview false
 \end_inset 
 
 
+\layout Part
+
+FAQ Linux
 \layout Standard
 
 
@@ -148,6 +173,9 @@ preview false
 \end_inset 
 
 
+\layout Part
+
+Annexes
 \layout Standard
 
 
@@ -157,6 +185,9 @@ preview false
 \end_inset 
 
 
+\layout Part
+
+Index de l'ouvrage
 \layout Standard
 
 

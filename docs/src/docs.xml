@@ -66,7 +66,10 @@
 <doc name="gcode_mill_canned_fr" title="Les cycles préprogrammés"/>
 <doc name="gcode_tool_compensation_fr" title="Les compensations d'outil"/>
 
+<doc name="gui_mini_fr" title="L'interface graphique MINI"/>
 <doc name="gui_axis_fr" title="L'interface graphique AXIS"/>
+<doc name="gui_halui_fr" title="L'interface utilisateur halui"/>
+<doc name="gui_tkemc_fr" title="L'interface graphique TkEmc"/>
 <doc name="gui_image-to-gcode_fr" title="Les fonctionnalités d'Image-vers-gcode"/>
 
 <doc name="hal_intro_fr" title="Introduction à HAL"/>

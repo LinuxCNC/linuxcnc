@@ -49,7 +49,7 @@ Premièrement vous devez calculer le facteur d'échelle entre la vitesse broche
  notre facteur d'échelle sera donc de 0.002
 \layout Standard
 
-SI votre carte DAC ne dispose pas d'une fonction échelle, nous devrons ajouter
+Si votre carte DAC ne dispose pas d'une fonction échelle, nous devrons ajouter
  un composant 
 \begin_inset Quotes fld
 \end_inset 

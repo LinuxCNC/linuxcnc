@@ -41,7 +41,7 @@
 
 \end_inset 
 
-EMC = Enhanced Machine Control
+Le concept d'EMC 
 \layout Section
 
 Introduction
@@ -390,9 +390,8 @@ collapsed false
 \align center 
 
 \begin_inset Graphics
-	filename axis.png
-	lyxscale 50
-	width 80page%
+	filename axis_fr.png
+	width 60page%
 	keepAspectRatio
 
 \end_inset 
@@ -418,6 +417,7 @@ collapsed false
 
 \begin_inset Graphics
 	filename keystick.png
+	scale 80
 
 \end_inset 
 
@@ -441,9 +441,8 @@ collapsed false
 \align center 
 
 \begin_inset Graphics
-	filename mini.png
-	lyxscale 50
-	width 80page%
+	filename mini_fr.png
+	width 50page%
 	keepAspectRatio
 
 \end_inset 
@@ -468,9 +467,8 @@ collapsed false
 \align center 
 
 \begin_inset Graphics
-	filename tkemc.png
-	lyxscale 50
-	width 80page%
+	filename xemc_fr.png
+	width 60page%
 	keepAspectRatio
 
 \end_inset 
@@ -484,33 +482,6 @@ collapsed false
 \end_inset 
 
 L'interface graphique TkEmc
-\end_inset 
-
-
-\begin_inset Float figure
-wide false
-collapsed false
-
-\layout Standard
-\added_space_top smallskip \added_space_bottom smallskip \align center 
-
-\begin_inset Graphics
-	filename xemc.png
-	display color
-	width 80page%
-	keepAspectRatio
-
-\end_inset 
-
-
-\layout Caption
-
-
-\begin_inset LatexCommand \label{fig:L'interface_graphique_XEMC}
-
-\end_inset 
-
-L'interface graphique XEMC
 \end_inset 
 
  
@@ -538,11 +509,11 @@ Ce manuel ne prétend pas vous apprendre à utiliser un tour ou une fraiseuse.
  Devenir un opérateur expérimenté prends beaucoup de temps et demande beaucoup
  de travail.
  Un auteur a dit une fois, 
-\begin_inset Quotes eld
+\begin_inset Quotes fld
 \end_inset 
 
-Nous apprenons de l'expérience, si on l'a  toute
-\begin_inset Quotes erd
+Nous apprenons de l'expérience, si on la possède toute
+\begin_inset Quotes frd
 \end_inset 
 
 .

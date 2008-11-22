@@ -29,8 +29,11 @@ DOC_SRCS := \
 	gui/halui.lyx \
 	gui/halui_fr.lyx \
 	gui/keystick.lyx \
+	gui/keystick_fr.lyx \
 	gui/mini.lyx \
+	gui/mini_fr.lyx \
 	gui/tkemc.lyx \
+	gui/tkemc_fr.lyx \
 	gui/image-to-gcode.lyx \
 	gui/image-to-gcode_fr.lyx \
 	Master_Developer.lyx \

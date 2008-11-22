@@ -138,6 +138,9 @@ addcontentsline{toc}{chapter}{Avant-propos}
 \end_inset 
 
 
+\layout Part
+
+Les concepts
 \layout Standard
 
 
@@ -158,88 +161,7 @@ preview false
 
 \layout Part
 
-Utilisation d'EMC2
-\layout Standard
-
-
-\begin_inset Include \include{install/installing_emc2_fr.lyx}
-preview false
-
-\end_inset 
-
-
-\layout Standard
-
-
-\begin_inset Include \include{install/compiling_emc2_fr.lyx}
-preview false
-
-\end_inset 
-
-
-\layout Standard
-
-
-\begin_inset Include \include{config/copy_and_run_fr.lyx}
-preview false
-
-\end_inset 
-
-
-\layout Standard
-
-
-\begin_inset Include \include{config/stepconf_fr.lyx}
-preview false
-
-\end_inset 
-
-
-\layout Standard
-
-
-\begin_inset Include \include{config/ini_config_fr.lyx}
-preview false
-
-\end_inset 
-
-
-\layout Standard
-
-
-\begin_inset Include \include{config/ini_homing_fr.lyx}
-preview false
-
-\end_inset 
-
-
-\layout Standard
-
-
-\begin_inset Include \include{hal/intro_fr.lyx}
-preview false
-
-\end_inset 
-
-
-\layout Standard
-
-
-\begin_inset Include \include{hal/tutorial_fr.lyx}
-preview false
-
-\end_inset 
-
-
-\layout Standard
-
-
-\begin_inset Include \include{hal/drivers_fr.lyx}
-preview false
-
-\end_inset 
-
-
+Les interfaces utilisateur
 \layout Standard
 
 
@@ -249,6 +171,36 @@ preview false
 \end_inset 
 
 
+\layout Standard
+
+
+\begin_inset Include \include{gui/tkemc_fr.lyx}
+preview false
+
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset Include \include{gui/mini_fr.lyx}
+preview false
+
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset Include \include{gui/keystick_fr.lyx}
+preview false
+
+\end_inset 
+
+
+\layout Part
+
+L'utilisation d'EMC2
 \layout Standard
 
 
@@ -278,7 +230,7 @@ preview false
 
 \layout Part
 
-Exemples
+Quelques exemples
 \layout Standard
 
 
@@ -321,6 +273,9 @@ preview false
 \end_inset 
 
 
+\layout Part
+
+Index de l'ouvrage
 \layout Standard
 
 

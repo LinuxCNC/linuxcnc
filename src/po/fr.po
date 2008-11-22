@@ -11,7 +11,7 @@ msgstr ""
 "Project-Id-Version: fr\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2008-09-09 14:53+0200\n"
-"PO-Revision-Date: 2008-10-19 16:51+0200\n"
+"PO-Revision-Date: 2008-11-20 21:00+0100\n"
 "Last-Translator: Francis Tisserant <ftissera@free.fr>\n"
 "Language-Team: french <gnomefr@traduc.org>\n"
 "MIME-Version: 1.0\n"
@@ -714,7 +714,7 @@ msgstr "Programme"
 
 #: ../tcl/mini.tcl:921
 msgid "Info"
-msgstr "Information"
+msgstr "Informations"
 
 #: ../tcl/mini.tcl:926
 msgid "Backplot"
@@ -742,19 +742,19 @@ msgstr "Type de position"
 
 #: ../tcl/mini.tcl:965
 msgid "Tool Info"
-msgstr "Information outil"
+msgstr "Informations outil"
 
 #: ../tcl/mini.tcl:967
 msgid "Offset Info"
-msgstr "Information offset"
+msgstr "Informations offset"
 
 #: ../tcl/mini.tcl:970
 msgid "Show Restart"
-msgstr "Afficher « Restart »"
+msgstr "Afficher « Reprise »"
 
 #: ../tcl/mini.tcl:971
 msgid "Hide Restart"
-msgstr "Masquer « Restart »"
+msgstr "Masquer « Reprise »"
 
 #: ../tcl/mini.tcl:973
 msgid "Show Split Right"
@@ -766,7 +766,7 @@ msgstr "Afficher en mode complet"
 
 #: ../tcl/mini.tcl:977
 msgid "Show Popin Full"
-msgstr "Afficher dans une fenêtre volante"
+msgstr "Afficher dans toute la fenêtre"
 
 #: ../tcl/mini.tcl:981
 msgid "Actual Position"
@@ -790,11 +790,11 @@ msgstr "Calibration..."
 
 #: ../tcl/mini.tcl:993
 msgid "HAL Show..."
-msgstr "Afficher HAL..."
+msgstr "Montrer config. HAL..."
 
 #: ../tcl/mini.tcl:995
 msgid "HAL Config..."
-msgstr "Configuration HAL"
+msgstr "Configurer HAL"
 
 #: ../tcl/mini.tcl:1000
 msgid "Program File"
@@ -834,7 +834,7 @@ msgstr "Le fichier d'outils %s"
 
 #: ../tcl/mini.tcl:1009
 msgid "Active G Codes"
-msgstr "Gcodes actifs"
+msgstr "G-codes actifs"
 
 #: ../tcl/mini.tcl:1010
 #, tcl-format
@@ -851,7 +851,7 @@ msgstr "Aide..."
 
 #: ../tcl/mini.tcl:1030 ../tcl/tkemc.tcl:938
 msgid "ABORT"
-msgstr "ANNULER"
+msgstr "ABANDON"
 
 #: ../tcl/mini.tcl:1041 ../tcl/mini.tcl:2042
 msgid "CONTINUE"
@@ -872,7 +872,7 @@ msgstr "MANUEL"
 
 #: ../tcl/mini.tcl:1109
 msgid "Tool #:"
-msgstr "Numéro d'outil:"
+msgstr "Outil N°:"
 
 #: ../tcl/mini.tcl:1111
 msgid "Length :"
@@ -953,7 +953,7 @@ msgstr "JOG X -"
 
 #: ../tcl/mini.tcl:1513
 msgid "increment"
-msgstr "incrément"
+msgstr "incréments"
 
 #: ../tcl/mini.tcl:1515 ../tcl/tkemc.tcl:661 ../tcl/tkemc.tcl:1279
 #: ../tcl/tkemc.tcl:1283
@@ -982,11 +982,11 @@ msgstr ""
 
 #: ../tcl/mini.tcl:1582
 msgid "Spindle Forward"
-msgstr "Broche sens horaire"
+msgstr "Sens horaire"
 
 #: ../tcl/mini.tcl:1583
 msgid "Spindle Reverse"
-msgstr "Broche sens anti-horaire"
+msgstr "Sens anti-horaire"
 
 #: ../tcl/mini.tcl:1584 ../tcl/tkemc.tcl:919
 msgid "Spindle off"
@@ -1006,7 +1006,7 @@ msgstr "MDI:"
 
 #: ../tcl/mini.tcl:1663 ../tcl/tkemc.tcl:1688
 msgid "Run"
-msgstr "Démarre"
+msgstr "Lancer"
 
 #: ../tcl/mini.tcl:1665 ../tcl/tkemc.tcl:1689
 msgid "Pause"
@@ -1018,15 +1018,15 @@ msgstr "Reprise"
 
 #: ../tcl/mini.tcl:1669 ../tcl/tkemc.tcl:1691
 msgid "Step"
-msgstr "Pas"
+msgstr "Pas à pas"
 
 #: ../tcl/mini.tcl:1671 ../tcl/tkemc.tcl:1692
 msgid "Verify"
-msgstr "Vérifie"
+msgstr "Vérifier"
 
 #: ../tcl/mini.tcl:1692
 msgid "RESTART LINE"
-msgstr "REDÉMARRER À LA LIGNE"
+msgstr "LIGNE DE REPRISE"
 
 #: ../tcl/mini.tcl:1693
 msgid "Back"
@@ -1038,7 +1038,7 @@ msgstr "Avant"
 
 #: ../tcl/mini.tcl:1695
 msgid "Restart"
-msgstr "Redémarrer"
+msgstr "Reprise"
 
 #: ../tcl/mini.tcl:1705 ../tcl/mini.tcl:2817 ../tcl/mini.tcl:2876
 #: ../tcl/tkemc.tcl:524
@@ -1065,7 +1065,7 @@ msgstr ""
 
 #: ../tcl/mini.tcl:1880
 msgid "ESTOPPED"
-msgstr "A/U ACTIVÉ"
+msgstr "A/U ENGAGÉ"
 
 #: ../tcl/mini.tcl:1883
 msgid "ESTOP PUSH"
@@ -1073,7 +1073,7 @@ msgstr "A/U"
 
 #: ../tcl/mini.tcl:1886 ../tcl/tkemc.tcl:2263
 msgid "ESTOP RESET"
-msgstr "RÉINITIALISER A/U"
+msgstr "A/U LIBÉRÉ"
 
 #: ../tcl/mini.tcl:1891 ../tcl/tkemc.tcl:2328
 msgid "SPINDLE FORWARD"
@@ -1101,11 +1101,11 @@ msgstr "BROCHE ?"
 
 #: ../tcl/mini.tcl:1905 ../tcl/tkemc.tcl:2342
 msgid "BRAKE ON"
-msgstr "FREIN SERRÉ"
+msgstr "FREIN ENGAGÉ"
 
 #: ../tcl/mini.tcl:1907 ../tcl/tkemc.tcl:2344
 msgid "BRAKE OFF"
-msgstr "FREIN RELÂCHÉ"
+msgstr "FREIN LIBÉRÉ"
 
 #: ../tcl/mini.tcl:1909 ../tcl/tkemc.tcl:2346
 msgid "BRAKE ?"
@@ -1137,14 +1137,14 @@ msgstr "ARROSAGE ?"
 
 #: ../tcl/mini.tcl:2046
 msgid "FEEDHOLD"
-msgstr "FEEDHOLD"
+msgstr "VITESSE-0"
 
 #: ../tcl/mini.tcl:2118
 msgid ""
 "TOOL SETUP \n"
 " Click or tab to edit.   Press enter to return to keyboard machine control."
 msgstr ""
-"RÉGLAGE OUTIL \n"
+"RÉGLAGE DES OUTILS \n"
 " Cliquer ou « tab » pour éditer.   Presser « Entrée » pour retourner au "
 "contrôle de la machine depuis le clavier."
 
@@ -1166,7 +1166,7 @@ msgstr "  COMMENTAIRE  "
 
 #: ../tcl/mini.tcl:2182
 msgid "Add Extra Tool"
-msgstr "Ajouter un outil supplémentaire"
+msgstr "Ajouter un outil"
 
 #: ../tcl/mini.tcl:2183
 msgid "Remove Last Tool"
@@ -1191,9 +1191,9 @@ msgid ""
 "control of machine. \n"
 " "
 msgstr ""
-"RÉGLAGE COORDONNÉES SYSTÈME \n"
+"RÉGLAGE DES SYSTÈMES DE COORDONNÉES\n"
 "\n"
-"  Cliquer la valeur à éditer au clavier.  Presser « entrée » pour revenir au "
+"  Cliquer la valeur à éditer au clavier. Presser «Entrée» pour revenir au "
 "contrôle de la machine depuis le clavier. \n"
 " "
 
@@ -1211,7 +1211,7 @@ msgstr "Apprentissage"
 
 #: ../tcl/mini.tcl:2328
 msgid "Write And Load File "
-msgstr "Écrire et charger fichier"
+msgstr "Écrire et recharger"
 
 #: ../tcl/mini.tcl:2330
 msgid "Offset By Radius"
@@ -1231,43 +1231,43 @@ msgstr "Ajouter"
 
 #: ../tcl/mini.tcl:2360
 msgid "Zero All G54"
-msgstr "Mettre tous les G54 à zéro"
+msgstr "Tous les G54 à zéro"
 
 #: ../tcl/mini.tcl:2361
 msgid "Zero All G55"
-msgstr "Mettre tous les G55 à zéro"
+msgstr "Tous les G55 à zéro"
 
 #: ../tcl/mini.tcl:2362
 msgid "Zero All G56"
-msgstr "Mettre tous les G56 à zéro"
+msgstr "Tous les G56 à zéro"
 
 #: ../tcl/mini.tcl:2363
 msgid "Zero All G57"
-msgstr "Mettre tous les G57 à zéro"
+msgstr "Tous les G57 à zéro"
 
 #: ../tcl/mini.tcl:2364
 msgid "Zero All G58"
-msgstr "Mettre tous les G58 à zéro"
+msgstr "Tous les G58 à zéro"
 
 #: ../tcl/mini.tcl:2365
 msgid "Zero All G59"
-msgstr "Mettre tous les G59 à zéro"
+msgstr "Tous les G59 à zéro"
 
 #: ../tcl/mini.tcl:2366
 msgid "Zero All G59.1"
-msgstr "Mettre tous les G59.1 à zéro"
+msgstr "Tous les G59.1 à zéro"
 
 #: ../tcl/mini.tcl:2367
 msgid "Zero All G59.2"
-msgstr "Mettre tous les G59.2 à zéro"
+msgstr "Tous les G59.2 à zéro"
 
 #: ../tcl/mini.tcl:2368
 msgid "Zero All G59.3"
-msgstr "Mettre tous les G59.3 à zéro"
+msgstr "Tous les G59.3 à zéro"
 
 #: ../tcl/mini.tcl:2369
 msgid "Zero All ????"
-msgstr "Mettre tous les ???? à zéro"
+msgstr "Tous les ???? à zéro"
 
 #: ../tcl/mini.tcl:2487
 msgid "Modified..."
@@ -1474,7 +1474,7 @@ msgstr "Commande:"
 
 #: ../tcl/tkemc.tcl:349 ../tcl/tkemc.tcl:372 ../tcl/tkemc.tcl:395
 msgid "Command #:"
-msgstr "Numéro de commande :"
+msgstr "N° de commande :"
 
 #: ../tcl/tkemc.tcl:352 ../tcl/tkemc.tcl:375 ../tcl/tkemc.tcl:398
 msgid "Status:"
@@ -1504,7 +1504,7 @@ msgstr ""
 "\n"
 "Interface graphique Tcl/Tk pour Enhanced Machine Controller\n"
 "\n"
-"Domaine Publique (1999)/n Traduction française de Francis TISSERANT."
+"Domaine Publique (1999)/n Traduction française de Francis Tisserant."
 
 #: ../tcl/tkemc.tcl:449
 msgid "Set Tool Offset"
@@ -1600,11 +1600,11 @@ msgstr "Bulle d'aide"
 
 #: ../tcl/tkemc.tcl:863
 msgid "Estop on"
-msgstr "A/U activé"
+msgstr "A/U engagé"
 
 #: ../tcl/tkemc.tcl:864
 msgid "Estop off"
-msgstr "A/U désactivé"
+msgstr "A/U libéré"
 
 #: ../tcl/tkemc.tcl:866
 msgid "Machine on"
@@ -1612,7 +1612,7 @@ msgstr "Machine en marche"
 
 #: ../tcl/tkemc.tcl:867
 msgid "Machine off"
-msgstr "Machine à l'arrêt"
+msgstr "Machine arrêtée"
 
 #: ../tcl/tkemc.tcl:874
 msgid "Manual"
@@ -1656,11 +1656,11 @@ msgstr "Broche sens anti-horaire"
 
 #: ../tcl/tkemc.tcl:933
 msgid "Brake on"
-msgstr "Frein mis"
+msgstr "Frein engagé"
 
 #: ../tcl/tkemc.tcl:934
 msgid "Brake off"
-msgstr "Sans frein"
+msgstr "Frein libéré"
 
 #: ../tcl/tkemc.tcl:955
 msgid "Offset:"
@@ -1680,15 +1680,15 @@ msgstr "machine"
 
 #: ../tcl/tkemc.tcl:1266
 msgid "actual"
-msgstr "actuel"
+msgstr "actuelle"
 
 #: ../tcl/tkemc.tcl:1267
 msgid "commanded"
-msgstr "commandé"
+msgstr "commandée"
 
 #: ../tcl/tkemc.tcl:1269
 msgid "joint"
-msgstr "articulation"
+msgstr "jointure"
 
 #: ../tcl/tkemc.tcl:1270
 msgid "world"

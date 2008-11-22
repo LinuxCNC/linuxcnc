@@ -44,7 +44,7 @@ Fraisage hélicoïdal d'un orifice
 Nom du fichier: useful-subroutines.ngc
 \layout Standard
 
-Description: Programme pour fraiser un orifice avec utilisation des paramètres.
+Description: Programme pour usiner une poche avec utilisation des paramètres.
 \layout Subsection
 
 Rainurage
@@ -76,7 +76,7 @@ Amélioration du palpage d'une grille rectangulaire de points
 Nom du fichier: smartprobe.ngc
 \layout Standard
 
-Description: Relevé d'une grille rectangulaire de points à la sonde.
+Description: Relevé d'une grille rectangulaire de points au palpeur.
 \layout Standard
 
 Ce programme est une amélioration du précédent.
@@ -110,7 +110,7 @@ Description: Mesure le centre et le diamètre d'un alésage.
 \layout Standard
 
 Ce programme montre comment trouver le centre d'un alésage, comment calculer
- son diamètre et enregistrer les mesures du palpeur dans un fichier.
+ son diamètre et enregistrer les mesures dans un fichier.
 \layout Subsection
 
 Compensation de rayon d'outil

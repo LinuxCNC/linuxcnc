@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fr_rs274_err\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-10-26 14:32+0100\n"
-"PO-Revision-Date: 2008-11-01 15:23+0100\n"
+"POT-Creation-Date: 2008-11-11 13:23+0100\n"
+"PO-Revision-Date: 2008-11-18 14:44+0100\n"
 "Last-Translator: Francis Tisserant <ftissera@free.fr>\n"
 "Language-Team: french <gnomefr@traduc.org>\n"
 "MIME-Version: 1.0\n"
@@ -19,31 +19,37 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: KBabel 1.11.2\n"
 
-#: emc/task/emctaskmain.cc:411 emc/task/emctaskmain.cc:450
-msgid "exceeds +X limit"
-msgstr "limite +X dépassée"
+#: emc/task/emctaskmain.cc:411 emc/task/emctaskmain.cc:444
+#, c-format
+msgid "%s exceeds +X limit"
+msgstr "%s limite +X dépassée"
 
-#: emc/task/emctaskmain.cc:417 emc/task/emctaskmain.cc:456
-msgid "exceeds +Y limit"
-msgstr "limite +Y dépassée"
+#: emc/task/emctaskmain.cc:416 emc/task/emctaskmain.cc:449
+#, c-format
+msgid "%s exceeds +Y limit"
+msgstr "%s limite +Y dépassée"
 
-#: emc/task/emctaskmain.cc:423 emc/task/emctaskmain.cc:462
-msgid "exceeds +Z limit"
-msgstr "limite +Z dépassée"
+#: emc/task/emctaskmain.cc:421 emc/task/emctaskmain.cc:454
+#, c-format
+msgid "%s exceeds +Z limit"
+msgstr "%s limite +Z dépassée"
 
-#: emc/task/emctaskmain.cc:429 emc/task/emctaskmain.cc:468
-msgid "exceeds -X limit"
-msgstr "limite -X dépassée"
+#: emc/task/emctaskmain.cc:426 emc/task/emctaskmain.cc:459
+#, c-format
+msgid "%s exceeds -X limit"
+msgstr "%s limite -X dépassée"
 
-#: emc/task/emctaskmain.cc:435 emc/task/emctaskmain.cc:474
-msgid "exceeds -Y limit"
-msgstr "limite -Y dépassée"
+#: emc/task/emctaskmain.cc:431 emc/task/emctaskmain.cc:464
+#, c-format
+msgid "%s exceeds -Y limit"
+msgstr "%s limite -Y dépassée"
 
-#: emc/task/emctaskmain.cc:441 emc/task/emctaskmain.cc:480
-msgid "exceeds -Z limit"
-msgstr "limite -Z dépassée"
+#: emc/task/emctaskmain.cc:436 emc/task/emctaskmain.cc:469
+#, c-format
+msgid "%s exceeds -Z limit"
+msgstr "%s limite -Z dépassée"
 
-#: emc/task/emctaskmain.cc:597
+#: emc/task/emctaskmain.cc:587
 #, c-format
 msgid ""
 "command (%s) cannot be executed until the machine is out of E-stop and "
@@ -52,72 +58,68 @@ msgstr ""
 "La commande (%s) ne peut être exécutée tant que la machine n'est pas sortie "
 "de l'arrêt d'urgence et mise en marche"
 
-#: emc/task/emctaskmain.cc:708
+#: emc/task/emctaskmain.cc:699
 #, c-format
 msgid "can't do that (%s) in manual mode"
 msgstr "Commande (%s) impossible en mode manuel"
 
-#: emc/task/emctaskmain.cc:807
+#: emc/task/emctaskmain.cc:799
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter idle"
 msgstr "(%s) impossible en mode auto avec l'interpréteur en charge"
 
-#: emc/task/emctaskmain.cc:868
+#: emc/task/emctaskmain.cc:861
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter reading"
 msgstr "(%s) impossible en mode auto avec l'interpréteur en lecture"
 
-#: emc/task/emctaskmain.cc:1091
+#: emc/task/emctaskmain.cc:1085
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter paused"
 msgstr "(%s) impossible en mode auto avec l'interpréteur en pause"
 
-#: emc/task/emctaskmain.cc:1154
+#: emc/task/emctaskmain.cc:1149
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter waiting"
 msgstr "(%s) impossible en mode auto avec l'interpréteur en attente"
 
-#: emc/task/emctaskmain.cc:1269
+#: emc/task/emctaskmain.cc:1265
 #, c-format
 msgid "can't do that (%s) in MDI mode"
 msgstr "Commande (%s) impossible en mode MDI"
 
-#: emc/task/emctaskmain.cc:1861
-#, c-format
+#: emc/task/emctaskmain.cc:1862
 msgid "Can't switch mode while mode is AUTO and interpreter is not IDLE"
 msgstr "Impossible de quitter le mode AUTO si l'interpréteur est en charge"
 
-#: emc/task/emctaskmain.cc:1921
+#: emc/task/emctaskmain.cc:1922
 #, c-format
 msgid "can't open %s"
 msgstr "Impossible d'ouvrir %s "
 
-#: emc/task/emctaskmain.cc:1933
-#, c-format
+#: emc/task/emctaskmain.cc:1934
 msgid "Can't issue MDI command when not homed"
 msgstr "Pas de commande MDI avant la prise d'origine machine"
 
-#: emc/task/emctaskmain.cc:1938
-#, c-format
+#: emc/task/emctaskmain.cc:1939
 msgid "Must be in MDI mode to issue MDI command"
 msgstr "Pas de commande MDI hors du mode MDI"
 
-#: emc/task/emctaskmain.cc:1974
-#, c-format
+#: emc/task/emctaskmain.cc:1975
 msgid "Can't run a program when not homed"
 msgstr "Pas de départ cycle avant la prise d'origine machine"
 
-#: emc/task/emctaskmain.cc:3069
+#: emc/task/emctaskmain.cc:3070
 #, c-format
 msgid "Minimum Software Limit on axis %d exceeded."
 msgstr "Limite logicielle minimale de l'axe %d dépassée"
 
-#: emc/task/emctaskmain.cc:3078
+#: emc/task/emctaskmain.cc:3079
 #, c-format
 msgid "Maximum Software Limit on axis %d exceeded."
 msgstr "Limite logicielle maximale sur l'axe %d dépassée"
 
-#: emc/rs274ngc/interp_arc.cc:101 emc/rs274ngc/interp_arc.cc:258
+#: emc/rs274ngc/interp_arc.cc:109 emc/rs274ngc/interp_arc.cc:273
 #, c-format
 msgid ""
 "Radius to end of arc differs from radius to start: start=(%c%.4f,%c%.4f) "
@@ -126,12 +128,12 @@ msgstr ""
 "Le rayon de fin d'arc différe de celui de début: start=(%c%.4f,%c%.4f) "
 "center=(%c%.4f,%c%.4f) end=(%c%.4f,%c%.4f) r1=%.4f r2=%.4f"
 
-#: emc/rs274ngc/interp_convert.cc:1541
+#: emc/rs274ngc/interp_convert.cc:1569
 #, c-format
 msgid "G%d.1 with no D word"
 msgstr "G%d.1 sans mot D"
 
-#: emc/rs274ngc/interp_convert.cc:1554
+#: emc/rs274ngc/interp_convert.cc:1582
 #, c-format
 msgid "G%d requires D word to be a whole number"
 msgstr "G%d exige que le mot D soit un nombre entier"
@@ -1133,7 +1135,7 @@ msgstr "Erreur inconnue"
 msgid "The End"
 msgstr "Fin"
 
-#: emc/rs274ngc/rs274ngc_pre.cc:752
+#: emc/rs274ngc/rs274ngc_pre.cc:753
 msgid "Queue is not empty after tool change"
 msgstr "La queue n'est pas vide après changement d'outil"
 
