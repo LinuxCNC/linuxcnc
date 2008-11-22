@@ -73,6 +73,7 @@ token_file_t *tf_open(const char *name, int max_token_len, const char *delims,
     are separated by whitespace or delimiters.  Tokens can contain whitespace
     or delimiters if those characters are escaped with the escape character,
     of if the token is a quoted string.
+    If an error is encountered, NULL is returned.
 */
 
 char *tf_get_token(token_file_t *tf);
