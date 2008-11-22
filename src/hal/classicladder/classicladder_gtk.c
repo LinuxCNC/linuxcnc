@@ -677,7 +677,7 @@ void ConfirmQuit( void )
 	if ( InfosGene->AskConfirmationToQuit )
 		ShowConfirmationBox( "Sure?", "Do you really want to quit ?\nIf not saved, all modifications will be lost  \n", DoQuitGtkApplication );
 	else
-		DoQuitGtkApplication( );
+		ShowConfirmationBox( "Sure?", "Do you really want to quit ?\n", DoQuitGtkApplication );
 }
 gint RungWindowDeleteEvent( GtkWidget * widget, GdkEvent * event, gpointer data )
 {
