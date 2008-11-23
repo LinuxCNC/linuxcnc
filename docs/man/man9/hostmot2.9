@@ -136,7 +136,8 @@ Pins:
 (float out) position: Encoder position (count / scale).  (Like CDI.)
 
 (bit in) reset: When this pin is TRUE, the count and position pins are
-set to 0.  (Like CDI.)
+set to 0.  The driver does not reset this pin to FALSE after resetting
+the count to 0, that is the user's job.  (Like CDI.)
 
 (bit in/out) index-enable: When this pin is set to True, the count and
 position are reset to zero on the next Index (Phase-Z) pulse.  At the
