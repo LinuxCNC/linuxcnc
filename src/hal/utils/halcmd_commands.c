@@ -1525,20 +1525,52 @@ static void print_comp_info(char **patterns)
 
 static void print_pin_info(int type, char **patterns)
 {
-    int next;
-    hal_pin_t *pin;
+    hal_pin_t *curr_pin, *pin;
+    hal_alias_t *curr_alias, *alias;
     hal_comp_t *comp;
     hal_sig_t *sig;
     void *dptr;
+    char *name;
 
     if (scriptmode == 0) {
 	halcmd_output("Component Pins:\n");
 	halcmd_output("Owner   Type  Dir         Value  Name\n");
     }
     rtapi_mutex_get(&(hal_data->mutex));
-    next = hal_data->pin_list_ptr;
-    while (next != 0) {
-	pin = SHMPTR(next);
+    /* we want to lists pins with aliases using the alias, not the original
+       name.  So we traverse both the pin and alias lists at the same time
+       outputing whichever comes first in sort order */
+    curr_pin = hal_data->pin_list_ptr ? SHMPTR(hal_data->pin_list_ptr) : NULL;
+    curr_alias = hal_data->pin_alias_list_ptr ? SHMPTR(hal_data->pin_alias_list_ptr) : NULL;
+    while (1) {
+	while (( curr_pin != NULL ) && ( curr_pin->alias != 0 )) {
+	    /* pin has alias, skip it (will be printed using the alias) */
+	    curr_pin = curr_pin->next_ptr ? SHMPTR(curr_pin->next_ptr) : NULL;
+	}
+	if (( curr_pin != NULL ) && ( curr_alias != NULL )) {
+	    // entries in both lists, compare them
+	    if ( strcmp(curr_pin->name, curr_alias->name) < 0 ) {
+		// do pin
+		pin = curr_pin;
+		curr_pin = curr_pin->next_ptr ? SHMPTR(curr_pin->next_ptr) : NULL;
+	    } else {
+		// do alias
+		pin = SHMPTR(curr_alias->owner_ptr);
+		curr_alias = curr_alias->next_ptr ? SHMPTR(curr_alias->next_ptr) : NULL;
+	    }
+	} else if ( curr_pin != NULL ) {
+	    // no aliases left, do pin
+	    pin = curr_pin;
+	    curr_pin = curr_pin->next_ptr ? SHMPTR(curr_pin->next_ptr) : NULL;
+	} else if ( curr_alias != NULL ) {
+	    // no pins left, do alias
+	    pin = SHMPTR(curr_alias->owner_ptr);
+	    curr_alias = curr_alias->next_ptr ? SHMPTR(curr_alias->next_ptr) : NULL;
+	} else {
+	    // reached end of both lists
+	    break;
+	}
+	// test against pattern
 	if ( tmatch(type, pin->type) && match(patterns, pin->name) ) {
 	    comp = SHMPTR(pin->owner_ptr);
 	    if (pin->signal != 0) {
@@ -1548,28 +1580,33 @@ static void print_pin_info(int type, char **patterns)
 		sig = 0;
 		dptr = &(pin->dummysig);
 	    }
+	    if (pin->alias != 0) {
+		alias = SHMPTR(pin->alias);
+		name = alias->name;
+	    } else {
+		name = pin->name;
+	    }
 	    if (scriptmode == 0) {
 		halcmd_output(" %5d  %5s %-3s  %9s  %s",
 		    comp->comp_id,
 		    data_type((int) pin->type),
 		    pin_data_dir((int) pin->dir),
 		    data_value((int) pin->type, dptr),
-		    pin->name);
+		    name);
 	    } else {
 		halcmd_output("%s %s %s %s %s",
 		    comp->name,
 		    data_type((int) pin->type),
 		    pin_data_dir((int) pin->dir),
 		    data_value2((int) pin->type, dptr),
-		    pin->name);
-	    } 
+		    name);
+	    }
 	    if (sig == 0) {
 		halcmd_output("\n");
 	    } else {
 		halcmd_output(" %s %s\n", data_arrow1((int) pin->dir), sig->name);
 	    }
 	}
-	next = pin->next_ptr;
     }
     rtapi_mutex_give(&(hal_data->mutex));
     halcmd_output("\n");
