@@ -420,6 +420,8 @@ typedef struct {
             hal_u32_t stepspace;
             hal_u32_t dirsetup;
             hal_u32_t dirhold;
+
+            hal_u32_t step_type;
         } param;
 
     } hal;
@@ -435,6 +437,8 @@ typedef struct {
     u32 written_stepspace;
     u32 written_dirsetup;
     u32 written_dirhold;
+
+    u32 written_step_type;
 } hm2_stepgen_instance_t;
 
 

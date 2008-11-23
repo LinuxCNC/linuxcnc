@@ -253,6 +253,21 @@ static void hm2_stepgen_update_pulse_width(hostmot2_t *hm2, int i) {
 }
 
 
+static void hm2_stepgen_update_mode(hostmot2_t *hm2, int i) {
+    if (hm2->stepgen.instance[i].hal.param.step_type > 2) {
+        PRINT(
+            "stepgen %d has invalid step_type %d, resetting to 0 (Step/Dir)\n",
+            i,
+            hm2->stepgen.instance[i].hal.param.step_type
+        );
+        hm2->stepgen.instance[i].hal.param.step_type = 0;
+    }
+
+    hm2->stepgen.mode_reg[i] = hm2->stepgen.instance[i].hal.param.step_type;
+    hm2->stepgen.instance[i].written_step_type = hm2->stepgen.instance[i].hal.param.step_type;
+}
+
+
 void hm2_stepgen_write(hostmot2_t *hm2) {
     int i;
 
@@ -276,6 +291,11 @@ void hm2_stepgen_write(hostmot2_t *hm2) {
         if (hm2->stepgen.instance[i].hal.param.stepspace != hm2->stepgen.instance[i].written_stepspace) {
             hm2_stepgen_update_pulse_idle_width(hm2, i);
             hm2->llio->write(hm2->llio, hm2->stepgen.pulse_idle_width_addr + (i * sizeof(u32)), &hm2->stepgen.pulse_idle_width_reg[i], sizeof(u32));
+        }
+
+        if (hm2->stepgen.instance[i].hal.param.step_type != hm2->stepgen.instance[i].written_stepspace) {
+            hm2_stepgen_update_mode(hm2, i);
+            hm2->llio->write(hm2->llio, hm2->stepgen.mode_addr + (i * sizeof(u32)), &hm2->stepgen.mode_reg[i], sizeof(u32));
         }
     }
 }
@@ -614,6 +634,14 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
                 goto fail5;
             }
 
+            rtapi_snprintf(name, HAL_NAME_LEN, "%s.stepgen.%02d.step_type", hm2->llio->name, i);
+            r = hal_param_u32_new(name, HAL_RW, &(hm2->stepgen.instance[i].hal.param.step_type), hm2->llio->comp_id);
+            if (r != HAL_SUCCESS) {
+                ERR("error adding param '%s', aborting\n", name);
+                r = -ENOMEM;
+                goto fail5;
+            }
+
             // init
             *(hm2->stepgen.instance[i].hal.pin.position_cmd) = 0.0;
             *(hm2->stepgen.instance[i].hal.pin.velocity_cmd) = 0.0;
@@ -632,12 +660,14 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
             hm2->stepgen.instance[i].hal.param.dirsetup  = (double)0x3FFF * ((double)1e9 / (double)hm2->stepgen.clock_frequency);
             hm2->stepgen.instance[i].hal.param.dirhold   = (double)0x3FFF * ((double)1e9 / (double)hm2->stepgen.clock_frequency);
 
+            hm2->stepgen.instance[i].hal.param.step_type = 0;  // step & dir
+
             hm2->stepgen.instance[i].written_steplen = 0;
             hm2->stepgen.instance[i].written_stepspace = 0;
             hm2->stepgen.instance[i].written_dirsetup = 0;
             hm2->stepgen.instance[i].written_dirhold = 0;
 
-            hm2->stepgen.mode_reg[i] = 0;  // step/dir
+            hm2->stepgen.instance[i].written_step_type = 0xffffffff;
 
             hm2->stepgen.instance[i].prev_accumulator = 0;
         }

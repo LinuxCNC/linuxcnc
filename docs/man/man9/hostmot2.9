@@ -286,6 +286,9 @@ a step begins, in nanoseconds.
 
 (u32 r/w) dirhold: Minimum duration of stable Direction signal after a
 step ends, in nanoseconds.
+
+(u32 r/w) step_type: Output format, like the step_type modparam to the
+software stegen(9) component.  0 = Step/Dir, 1 = Up/Down, 2 = Quadrature.
 .SH General Purpose I/O
 
 I/O pins on the board which are not used by a module instance are exported

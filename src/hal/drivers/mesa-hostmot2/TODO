@@ -275,7 +275,7 @@ stepgen:
 
     test different steps-pre-rev on different stepgen instances
 
-    support other stepping modes
+    support table output mode
 
     support velocity control?
 
