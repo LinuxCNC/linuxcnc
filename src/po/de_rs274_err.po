@@ -6,112 +6,120 @@ msgid ""
 msgstr ""
 "Project-Id-Version: de_rs274_err\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-10-26 18:00+0100\n"
-"PO-Revision-Date: 2008-10-26 18:46+0100\n"
+"POT-Creation-Date: 2008-11-08 23:08+0100\n"
+"PO-Revision-Date: 2008-11-23 16:45+0100\n"
 "Last-Translator: Florian Hahn <flo-h@users.sourceforge.net>\n"
 "Language-Team: German Translation <emc-developers@lists.sourceforge.net>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit"
+"Content-Transfer-Encoding: 8bit\n"
 
-#: emc/task/emctaskmain.cc:410 emc/task/emctaskmain.cc:443
+#: emc/task/emctaskmain.cc:411 emc/task/emctaskmain.cc:444
 #, c-format
 msgid "%s exceeds +X limit"
 msgstr "%s überschreitet X+ Limit"
 
-#: emc/task/emctaskmain.cc:415 emc/task/emctaskmain.cc:448
+#: emc/task/emctaskmain.cc:416 emc/task/emctaskmain.cc:449
 #, c-format
 msgid "%s exceeds +Y limit"
 msgstr "%s überschreitet Y+ Limit"
 
-#: emc/task/emctaskmain.cc:420 emc/task/emctaskmain.cc:453
+#: emc/task/emctaskmain.cc:421 emc/task/emctaskmain.cc:454
 #, c-format
 msgid "%s exceeds +Z limit"
 msgstr "%s überschreitet Z+ Limit"
 
-#: emc/task/emctaskmain.cc:425 emc/task/emctaskmain.cc:458
+#: emc/task/emctaskmain.cc:426 emc/task/emctaskmain.cc:459
 #, c-format
 msgid "%s exceeds -X limit"
 msgstr "%s überschreitet X- Limit"
 
-#: emc/task/emctaskmain.cc:430 emc/task/emctaskmain.cc:463
+#: emc/task/emctaskmain.cc:431 emc/task/emctaskmain.cc:464
 #, c-format
 msgid "%s exceeds -Y limit"
 msgstr "%s überschreitet Y- Limit"
 
-#: emc/task/emctaskmain.cc:435 emc/task/emctaskmain.cc:468
+#: emc/task/emctaskmain.cc:436 emc/task/emctaskmain.cc:469
 #, c-format
 msgid "%s exceeds -Z limit"
 msgstr "%s überschreitet Z- Limit"
 
-#: emc/task/emctaskmain.cc:585
+#: emc/task/emctaskmain.cc:587
 #, c-format
 msgid ""
 "command (%s) cannot be executed until the machine is out of E-stop and "
 "turned on"
 msgstr ""
-"Befehl (%s) kann nicht ausgefürt werden, bevor die Maschine aus dem E-Stop "
-"heraus ist und eingeschaltet ist"
+"%s kann nicht ausgeführt werden, solange der Notaus  aktiv ist und die "
+"Maschine nicht eingeschaltet ist"
 
-#: emc/task/emctaskmain.cc:696
+#: emc/task/emctaskmain.cc:699
 #, c-format
 msgid "can't do that (%s) in manual mode"
-msgstr "kann (%s) im manuellen Modus nicht ausführen"
+msgstr "%s kann im manuellen Modus nicht ausgeführt werden"
 
-#: emc/task/emctaskmain.cc:795
+#: emc/task/emctaskmain.cc:799
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter idle"
 msgstr ""
-"kann (%s) im automatischen Modus nicht ausführen, wenn der Interpreter "
+"%s kann im automatischen Modus nicht ausgeführt werden, wenn der Interpreter "
 "stillsteht"
 
-#: emc/task/emctaskmain.cc:856
+#: emc/task/emctaskmain.cc:861
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter reading"
 msgstr ""
-"kann (%s) im automatischen Modus nicht ausführen, wenn der Interpreter liest"
+"%s kann im automatischen Modus nicht ausgeführt werden, wenn der Interpreter "
+"liest"
 
-#: emc/task/emctaskmain.cc:1079
+#: emc/task/emctaskmain.cc:1085
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter paused"
 msgstr ""
-"kann (%s) im automatischen Modus nicht ausführen, wenn der Interpreter Pause "
-"macht"
+"%s kann im automatischen Modus nicht ausgeführt werden, wenn der Interpreter "
+"Pause macht"
 
-#: emc/task/emctaskmain.cc:1142
+#: emc/task/emctaskmain.cc:1149
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter waiting"
 msgstr ""
-"kann (%s) im automatischen Modus nicht ausführen, wenn der Interpreter wartet"
+"%s kann im automatischen Modus nicht ausgeführt werden, wenn der Interpreter "
+"wartet"
 
-#: emc/task/emctaskmain.cc:1257
+#: emc/task/emctaskmain.cc:1265
 #, c-format
 msgid "can't do that (%s) in MDI mode"
-msgstr "kann (%s) im MDI-Modus nicht ausführen"
+msgstr "%s kann im MDI-Modus nicht ausgeführt werden"
 
-#: emc/task/emctaskmain.cc:1909
+#: emc/task/emctaskmain.cc:1862
+msgid "Can't switch mode while mode is AUTO and interpreter is not IDLE"
+msgstr ""
+"Modus kann nicht gewechselt werden, solange er auf AUTO ist und der "
+"Interpreter stillsteht"
+
+#: emc/task/emctaskmain.cc:1922
 #, c-format
 msgid "can't open %s"
-msgstr "kann %s nicht öffnen"
+msgstr "%s kann nicht geöffnet werden"
 
-#: emc/task/emctaskmain.cc:1921
+#: emc/task/emctaskmain.cc:1934
 msgid "Can't issue MDI command when not homed"
 msgstr "MDI-Befehl kann ohne vorherige Refernzfahrt nicht ausgeführt werden"
 
-#: emc/task/emctaskmain.cc:1926
+#: emc/task/emctaskmain.cc:1939
 msgid "Must be in MDI mode to issue MDI command"
 msgstr "MDI-Befehl kann nur im MDI-Modus ausgeführt werden"
 
-#: emc/task/emctaskmain.cc:1962
+#: emc/task/emctaskmain.cc:1975
 msgid "Can't run a program when not homed"
 msgstr "Programm kann ohne vorherige Referenzfahrt nicht ausgeführt werden"
 
-#: emc/task/emctaskmain.cc:3057
+#: emc/task/emctaskmain.cc:3070
 #, c-format
 msgid "Minimum Software Limit on axis %d exceeded."
 msgstr "Unteres Software-Limit der Achse %d ist erreicht."
 
-#: emc/task/emctaskmain.cc:3066
+#: emc/task/emctaskmain.cc:3079
 #, c-format
 msgid "Maximum Software Limit on axis %d exceeded."
 msgstr "Oberes Software-Limit der Achse %d ist erreicht."
@@ -121,7 +129,10 @@ msgstr "Oberes Software-Limit der Achse %d ist erreicht."
 msgid ""
 "Radius to end of arc differs from radius to start: start=(%c%.4f,%c%.4f) "
 "center=(%c%.4f,%c%.4f) end=(%c%.4f,%c%.4f) r1=%.4f r2=%.4f"
-msgstr "Radius am Kreisanfang unterscheidet sich vom Radius am Kreisende: Anfang=(%c%.4f,%c%.4f), Mittelpunkt=(%c%.4f,%c%.4f), Ende=(%c%.4f,%c%.4f), Radius 1=%.4f, Radius 2=%.4f"
+msgstr ""
+"Radius am Kreisanfang unterscheidet sich vom Radius am Kreisende: Anfang=(%c"
+"%.4f,%c%.4f), Mittelpunkt=(%c%.4f,%c%.4f), Ende=(%c%.4f,%c%.4f), Radius 1="
+"%.4f, Radius 2=%.4f"
 
 #: emc/rs274ngc/interp_convert.cc:1541
 #, c-format
@@ -131,19 +142,19 @@ msgstr "G%S.1 ohne D-Wort"
 #: emc/rs274ngc/interp_convert.cc:1554
 #, c-format
 msgid "G%d requires D word to be a whole number"
-msgstr ""
+msgstr "D-Wort bei G%d muss eine Ganzzahl sein"
 
 #: emc/rs274ngc/interp_read.cc:3310
 msgid "Multiple U words on one line"
-msgstr "Mehrere U-Worte in einer Zeile"
+msgstr "Mehrere U-Wörter in einem Satz"
 
 #: emc/rs274ngc/interp_read.cc:3328
 msgid "Multiple V words on one line"
-msgstr "Mehrere V-Worte in einer Zeile"
+msgstr "Mehrere V-Wörter in einem Satz"
 
 #: emc/rs274ngc/interp_read.cc:3346
 msgid "Multiple W words on one line"
-msgstr "Mehrere W-Worte in einer Zeile"
+msgstr "Mehrere W-Wörter in einem Satz"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:23 emc/rs274ngc/rs274ngc_errors.cc:24
 #: emc/rs274ngc/rs274ngc_errors.cc:25 emc/rs274ngc/rs274ngc_errors.cc:26
@@ -152,7 +163,7 @@ msgstr "Kein Fehler"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:27 emc/rs274ngc/rs274ngc_errors.cc:238
 msgid "File not open"
-msgstr "Datei ist nicht offen"
+msgstr "Datei ist nicht geöffnet"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:28
 msgid "A file is already open"
@@ -160,7 +171,7 @@ msgstr "Datei ist bereits geöffnet"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:29
 msgid "All axes missing with g92"
-msgstr "Keine Koordinaten für G92 angegeben"
+msgstr "Keine Weginformation für G92 angegeben"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:30
 msgid "All axes missing with motion code"
@@ -180,11 +191,12 @@ msgstr "Argument von asin außerhalb des gültigen Bereiches"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:34
 msgid "Attempt to divide by zero"
-msgstr "Versuch einer Division durch Null"
+msgstr "Division durch Null"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:35
 msgid "Attempt to raise negative to non integer power"
-msgstr "Versuch eine negative Zahl mit einem nicht-ganzzahligem Wert zu potenzieren"
+msgstr ""
+"Negative Zahl kann nicht mit einem nicht ganzzahligem Wert potenziert werden"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:36
 msgid "Bad character used"
@@ -192,7 +204,7 @@ msgstr "Ungültiges Zeichen benutzt"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:37
 msgid "Bad format unsigned integer"
-msgstr "Falsches Format bei vorzeichenloser Ganzzahl"
+msgstr "Falsches Format bei positiver Ganzzahl"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:38
 msgid "Bad number format"
@@ -200,68 +212,68 @@ msgstr "Falsches Zahlenformat"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:39
 msgid "Bug bad g code modal group 0"
-msgstr "Fehler: Falscher G-Code in Modal-Gruppe 0"
+msgstr "Falsches G-Wort in Modal-Gruppe 0"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:40
 msgid "Bug code not g0 or g1"
-msgstr "Fehler: Befehl ist nicht G0 oder G1"
+msgstr "Wort ist nicht G0 oder G1"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:41
 msgid "Bug code not g17 g18 or g19"
-msgstr "Fehler: Befehl ist nicht G17, G18 oder G19"
+msgstr "Wort ist nicht G17, G18 oder G19"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:42
 msgid "Bug code not g20 or g21"
-msgstr "Fehler: Befehl ist nicht G20 oder G21"
+msgstr "Wort ist nicht G20 oder G21"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:43
 msgid "Bug code not g28 or g30"
-msgstr "Fehler: Befehl ist nicht G28 oder G30"
+msgstr "Wort ist nicht G28 oder G30"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:44
 msgid "Bug code not g2 or g3"
-msgstr "Fehler: Befehl ist nicht G2 oder G3"
+msgstr "Wort ist nicht G2 oder G3"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:45
 msgid "Bug code not g40 g41 or g42"
-msgstr "Fehler: Befehl ist nicht G40, G41 oder G42"
+msgstr "Wort ist nicht G40, G41 oder G42"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:46
 msgid "Bug code not g43 or g49"
-msgstr "Fehler: Befehl ist nicht G43 oder G49"
+msgstr "Wort ist nicht G43 oder G49"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:47
 msgid "Bug code not g4 g10 g28 g30 g53 or g92 series"
-msgstr "Fehler: Befehl ist nicht G4, G10, G28, G30, G53 oder G92-Serie"
+msgstr "Wort ist nicht G4, G10, G28, G30, G53 oder aus G92-Serie"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:48
 msgid "Bug code not g61 g61.1 or g64"
-msgstr "Fehler: Befehl ist nicht G61, G61.1 oder G64"
+msgstr "Wort ist nicht G61, G61.1 oder G64"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:49
 msgid "Bug code not g90 or g91"
-msgstr "Fehler: Befehl ist nicht G90 oder G91"
+msgstr "Wort ist nicht G90 oder G91"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:50
 msgid "Bug code not g93 or g94"
-msgstr "Fehler: Befehl ist nicht G93 oder G94"
+msgstr "Wort ist nicht G93 oder G94"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:51
 msgid "Bug code not g98 or g99"
-msgstr "Fehler: Befehl ist nicht G98 oder G99"
+msgstr "Wort ist nicht G98 oder G99"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:52
 msgid "Bug code not in g92 series"
-msgstr "Fehler: Befehl ist nicht aus G92-Serie"
+msgstr "Wort ist nicht aus G92-Serie"
 
 # Anmerkung:FJ: g593 ???? WM: wahrscheinlich g59.3
 #: emc/rs274ngc/rs274ngc_errors.cc:53
 msgid "Bug code not in range g54 to g593"
-msgstr "Fehler: Befehl ist nicht im Bereich G54 bis G593"
+msgstr "Wort ist nicht im Bereich G54 bis G59.3"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:54
 msgid "Bug code not m0 m1 m2 m30 m60"
-msgstr "Fehler: Befehl ist nicht M0, M1, M2, M30 oder M60"
+msgstr "Wort ist nicht M0, M1, M2, M30 oder M60"
 
 # Anmerkung:FJ: distance mode? -> incremental oder absolut? Oder was ist hier gemeint!?
 # Anmerkung:FJ: Kettenmaß oder Absolutmaß -->> Bemaßungs-Modus, Maßmodus ...
@@ -273,11 +285,11 @@ msgstr "Fehler: Befehl ist nicht M0, M1, M2, M30 oder M60"
 # msgstr "Koordinaten Interpretationsmodus nicht g90 oder g91"
 #: emc/rs274ngc/rs274ngc_errors.cc:55
 msgid "Bug distance mode not g90 or g91"
-msgstr "Fehler: Maßangabe-Modus ist nicht G90 oder G91"
+msgstr "Maßangabe-Modus ist nicht G90 oder G91"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:56
 msgid "Bug function should not have been called"
-msgstr "Fehler: Funktion sollte besser nicht aufgerufen werden"
+msgstr "Funktion sollte besser nicht aufgerufen werden"
 
 # Anmerkung:FJ: Werkzeugradius-Kompensation in DIN66025: Werkzeugbahnkorrektur!
 #: emc/rs274ngc/rs274ngc_errors.cc:57
@@ -286,20 +298,20 @@ msgstr "Fehler bei Werkzeugbahnkorrektur"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:58
 msgid "Bug plane not xy yz or xz"
-msgstr "Fehler: Fläche nicht in xy-, yz- oder xz-Ebene"
+msgstr "Fläche nicht in XY-, YZ- oder XZ-Ebene"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:59
 msgid "Bug side not right or left"
-msgstr "Fehler: Seite nicht rechts oder links"
+msgstr "Seite nicht rechts oder links"
 
 # Anmerkung:FJ: Verfahrkommando laut DIN66025: Wegbedingung
 #: emc/rs274ngc/rs274ngc_errors.cc:60
 msgid "Bug unknown motion code"
-msgstr "Fehler: Unbekannte Wegbedingung"
+msgstr "Unbekannte Wegbedingung"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:61
 msgid "Bug unknown operation"
-msgstr "Fehler: Unbekannte Operation"
+msgstr "Unbekannter Befehl"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:62
 msgid "Cannot change axis offsets with cutter radius comp"
@@ -320,18 +332,18 @@ msgstr "Backup Datei kann nicht erzeugt werden."
 #: emc/rs274ngc/rs274ngc_errors.cc:65
 msgid "Cannot do g1 with zero feed rate"
 msgstr ""
-"G01 kann nicht mit einer Vorschubgeschwindigkeit von 0 ausgeführt werden"
+"G1 kann nicht mit einer Vorschubgeschwindigkeit von 0 ausgeführt werden"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:66
 msgid "Cannot do zero repeats of cycle"
-msgstr "Null Wiederholungen eines Zyklus"
+msgstr "Null Wiederholungen eines Arbeitszyklus"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:67
 msgid "Cannot make arc with zero feed rate"
 msgstr ""
 "Ein Kreisbogen mit einer Vorschubgeschwindigkeit von 0 ist nicht möglich"
 
-# Anmerkung:FJ: Probing? Abtast-Fahrt? Tast-Fahrt? Abtast-Zyklus? Tast-Zyklus? Andere Vorschläge?
+# Anmerkung:FJ: Probing? Abtast-Fahrt? Tast-Fahrt? Abtast-Arbeitszyklus? Tast-Arbeitszyklus? Andere Vorschläge?
 # Anmerkung Thomas: Antasten vielleicht ?
 # Anmerkung:FJ: Ne, ist wohl mehr als nur Antasten. EMC kann Werkstücke abtasten (-> Digitalisieren)
 #                Einen passenden Messtaster vorausgesetzt ...
@@ -341,11 +353,11 @@ msgstr "Rotations-Achse kann während einer Abtast-Fahrt nicht bewegt werden "
 
 #: emc/rs274ngc/rs274ngc_errors.cc:69
 msgid "Cannot open backup file"
-msgstr "Kann Backup-Datei nicht öffnen"
+msgstr "Backup-Datei kann nicht geöffnet werden"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:70
 msgid "Cannot open variable file"
-msgstr "Kann Variablen-Datei nicht öffnen"
+msgstr "Variablen-Datei kann nicht geöffnet werden"
 
 # Anmerkung:FJ: Who the fuck is "inverse time feed mode"?  :-)))
 #               Angabe des Weges, der in einer Minuten zurückgelegt werden soll???
@@ -358,18 +370,12 @@ msgstr "Abtast-Fahrten sind im zeitreziproken Vorschub-Modus nicht möglich"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:72
 msgid "Cannot probe with cutter radius comp on"
-msgstr "Abtast-Fahrten sind bei aktiver Werkzeugbahnkorrektur nicht möglich"
+msgstr "Abtast-Fahrt bei aktiver Werkzeugbahnkorrektur nicht möglich"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:73
 msgid "Cannot probe with zero feed rate"
-msgstr ""
-"Abtast-Fahrten mit einer Verfahrgeschwindigkeit von 0 sind nicht möglich"
+msgstr "Abtast-Fahrt mit einer Verfahrgeschwindigkeit von 0 nicht möglich"
 
-# Anmerkung:FJ: Übersetzung canned cycle!?!?!? Vorgegebener Ablauf-Zyklus oder vllt. Makro? wer hat was besseres oder
-# gar eine deutschsprachige Norm zu diesem Thema zu Hand?
-# Anmerkung Thomas: "Canned Cycle" ist im Gegensatz zum Makro ein "eingebauter" Zyklus der nicht verändert werden kann. Bsp. Bohrzyklen
-# Anmerkung:FJ: Ich meine aber, bei EMC kann man sich auch selber "Canned Cycles" zusammenstellen!?
-# Anmerkung:FJ: Laut DIN66025 heißt das wohl im offiziellem DIN-Deutsch schlicht und einfach "Arbeitszyklus"
 #: emc/rs274ngc/rs274ngc_errors.cc:74
 msgid "Cannot put a b in canned cycle"
 msgstr ""
@@ -382,11 +388,11 @@ msgstr ""
 
 #: emc/rs274ngc/rs274ngc_errors.cc:76
 msgid "Cannot put an a in canned cycle"
-msgstr "Angabe des Koordinaten-Wortes A in Arbeitszyklen ist nicht erlaubt"
+msgstr "Angabe des Koordinaten-Wörters A in Arbeitszyklen ist nicht erlaubt"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:77
 msgid "Cannot turn cutter radius comp on out of xy plane"
-msgstr "Werkzeugbahnkorrektur funktioniert nur innerhalb der xy-Ebene"
+msgstr "Werkzeugbahnkorrektur funktioniert nur innerhalb der XY-Ebene"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:78
 msgid "Cannot turn cutter radius comp on when on"
@@ -398,7 +404,7 @@ msgstr "Das Koordinaten-Wort A kann hier nicht verwendet werden"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:80
 msgid "Cannot use axis values with g80"
-msgstr "Keine Koordinaten-Angabe zusammen mit g80 möglich"
+msgstr "Keine Koordinaten-Angabe zusammen mit G80 möglich"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:81
 msgid "Cannot use axis values without a g code that uses them"
@@ -418,35 +424,35 @@ msgstr "Das Koordinaten-Wort C kann hier nicht verwendet werden"
 #: emc/rs274ngc/rs274ngc_errors.cc:84
 msgid "Cannot use g28 or g30 with cutter radius comp"
 msgstr ""
-"g28 oder g30 kann nicht mit aktiver Werkzeugbahnkorrektur verwendet werden"
+"G28 oder G30 kann nicht mit aktiver Werkzeugbahnkorrektur verwendet werden"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:85
 msgid "Cannot use g53 incremental"
-msgstr "g53 kann nicht im inkrementalen Maßangabe-Modus benutzt werden"
+msgstr "G53 kann nicht im inkrementalen Maßangabe-Modus benutzt werden"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:86
 msgid "Cannot use g53 with cutter radius comp"
-msgstr "g53 kann nicht mit aktiver Werkzeugbahnkorrektur verwendet werden"
+msgstr "G53 kann nicht mit aktiver Werkzeugbahnkorrektur verwendet werden"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:87
 msgid "Cannot use two g codes that both use axis values"
 msgstr ""
-"Es darf nur maximal eine Wegbedingung mit einer Koordinaten-Angabe pro Zeile "
+"Es darf maximal eine Wegbedingung mit einer Koordinaten-Angabe pro Satz "
 "verwendet werden"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:88
 msgid "Cannot use xz plane with cutter radius comp"
 msgstr ""
-"xz-Ebene kann nicht zusammen mit aktiver Werkzeugbahnkorrektur benutzt werden"
+"XZ-Ebene kann nicht zusammen mit aktiver Werkzeugbahnkorrektur benutzt werden"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:89
 msgid "Cannot use yz plane with cutter radius comp"
 msgstr ""
-"yz-Ebene kann nicht zusammen mit aktiver Werkzeugbahnkorrektur benutzt werden"
+"YZ-Ebene kann nicht zusammen mit aktiver Werkzeugbahnkorrektur benutzt werden"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:90
 msgid "Command too long"
-msgstr "Kommando zu lang"
+msgstr "Befehl zu lang"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:91
 msgid "Concave corner with cutter radius comp"
@@ -469,27 +475,27 @@ msgstr "Konturverletzung bei Werkzeugbahnkorrektur"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:95
 msgid "D word with no g41 or g42"
-msgstr "Benutzung eines D-Wortes ohne Angabe von g41 oder g42"
+msgstr "Benutzung eines D-Wörters ohne Angabe von G41 oder G42"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:96
 msgid "Dwell time missing with g4"
-msgstr "Verweilzeit-Angabe fehlt bei g4"
+msgstr "Verweilzeit-Angabe fehlt bei G4"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:97
 msgid "Dwell time p word missing with g82"
-msgstr "Verweilzeit-Angabe durch P-Wort fehlt bei g82"
+msgstr "Verweilzeit-Angabe durch P-Wort fehlt bei G82"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:98
 msgid "Dwell time p word missing with g86"
-msgstr "Verweilzeit-Angabe durch P-Wort fehlt bei g86"
+msgstr "Verweilzeit-Angabe durch P-Wort fehlt bei G86"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:99
 msgid "Dwell time p word missing with g88"
-msgstr "Verweilzeit-Angabe durch P-Wort fehlt bei g88"
+msgstr "Verweilzeit-Angabe durch P-Wort fehlt bei G88"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:100
 msgid "Dwell time p word missing with g89"
-msgstr "Verweilzeit-Angabe durch P-Wort fehlt bei g89"
+msgstr "Verweilzeit-Angabe durch P-Wort fehlt bei G89"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:101
 msgid "Equal sign missing in parameter setting"
@@ -498,13 +504,13 @@ msgstr "Gleichheitszeichen beim Setzen eines Parameters fehlt"
 #: emc/rs274ngc/rs274ngc_errors.cc:102
 msgid "F word missing with inverse time arc move"
 msgstr ""
-"Angabe eines F-Wortes zum Fahren eines Kreisbogens im zeitreziproken "
+"Angabe eines F-Wörters zum Fahren eines Kreisbogens im zeitreziproken "
 "Vorschub-Modus fehlt"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:103
 msgid "F word missing with inverse time g1 move"
 msgstr ""
-"Angabe eines F-Wortes zum Verfahren mit g1 im zeitreziproken Vorschub-Modus "
+"Angabe eines F-Wörters zum Verfahren mit G1 im zeitreziproken Vorschub-Modus "
 "fehlt"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:104
@@ -514,8 +520,7 @@ msgstr "Es fehlt ein Prozent-Zeichen am Ende der Datei"
 #: emc/rs274ngc/rs274ngc_errors.cc:105
 msgid "File ended with no percent sign or program end"
 msgstr ""
-"Es fehlt ein Prozent-Zeichen oder ein Programm-Ende-Kommando am Ende der "
-"Datei"
+"Es fehlt ein Prozent-Zeichen oder ein Programm-Ende-Wort am Ende der Datei"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:106
 msgid "File name too long"
@@ -523,55 +528,52 @@ msgstr "Dateiname zu lang"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:107
 msgid "G code out of range"
-msgstr "Wegbedingung außerhalb des erlaubten Bereiches"
+msgstr "G-Wort außerhalb des erlaubten Bereiches"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:108
 msgid "H word with no g43"
-msgstr "Benutzung eines H-Wortes ohne g43"
+msgstr "Benutzung eines H-Wörters ohne G43"
 
-# Anmerkung:FJ: BTW: Was ist eigentlich mit Umlauten? Klärung!
 #: emc/rs274ngc/rs274ngc_errors.cc:109
 msgid "I word given for arc in yz plane"
-msgstr "Angabe eines I-Wortes für einen Kreisbogen in der yz-Ebene"
+msgstr "Angabe eines I-Wörters für einen Kreisbogen in der YZ-Ebene"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:110
 msgid "I word missing with g87"
-msgstr "I-Wort fehlt bei g87"
+msgstr "I-Wort fehlt bei G87"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:111
 msgid "I word with no g2, g3, g87, or g43 to use it"
-msgstr ""
-"Benutzung eines I-Wortes ohne zugehörige Angabe von g2, g3, g43 oder g87"
+msgstr "I-Wörters ohne zugehörige Angabe von G2, G3, G43 oder G87"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:112
 msgid "J word given for arc in xz plane"
-msgstr "Angabe eines J-Wortes für einen Kreisbogen in der xz-Ebene"
+msgstr "Angabe eines J-Wörters für einen Kreisbogen in der XZ-Ebene"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:113
 msgid "J word missing with g87"
-msgstr "Es fehlt ein J-Wort für g87"
+msgstr "Es fehlt ein J-Wort für G87"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:114
 msgid "J word with no g2, g3 or g87 to use it"
-msgstr "Benutzung eines J-Wortes ohne zugehörige Angabe von g2, g3 oder g87"
+msgstr "J-Wörters ohne zugehörige Angabe von G2, G3 oder G87"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:115
 msgid "K word given for arc in xy plane"
-msgstr "Angabe eines K-Wortes für einen Kreisbogen in der xy-Ebene"
+msgstr "Angabe eines K-Wörters für einen Kreisbogen in der XY-Ebene"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:116
 msgid "K word missing with g87"
-msgstr "Es fehlt ein J-Wort für g87"
+msgstr "Es fehlt ein J-Wort für G87"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:117
 msgid "K word with no g2, g3, g33, g33.1, g76, g87, or g43.1 to use it"
 msgstr ""
-"Benutzung eines K-Wortes ohne zugehörige Angabe von g2, g3, g33, g33.1, g76, "
-"g87, oder g43.1"
+"K-Wort ohne zugehörige Angabe von G2, G3, G33, G33.1, G76, G87, oder G43.1"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:118
 msgid "L word with no canned cycle, g10, or g76 to use it"
-msgstr "Angabe eines L-Wortes ohne zugehörigen Arbeitszyklus, g10 oder g76"
+msgstr "Angabe eines L-Wörters ohne zugehörigen Arbeitszyklus G10 oder G76"
 
 # Anmerkung:FJ: Schrägstrich, atan? Klären? Division wie bei c-Funktion atan2(x,y) ???
 #: emc/rs274ngc/rs274ngc_errors.cc:119
@@ -580,7 +582,7 @@ msgstr "Fehlende linke Klammer nach Schrägstrich bei atan"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:120
 msgid "Left bracket missing after unary operation name"
-msgstr "Fehlende linke Klammer nach unärem Operationsnamen"
+msgstr "Fehlende linke Klammer nach unärem Befehlssnamen"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:121
 msgid "Line number greater than 99999"
@@ -592,7 +594,7 @@ msgstr "Zeile mit G10 enthält kein L2"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:123
 msgid "M code greater than 199"
-msgstr "M-Kommando größer als 199"
+msgstr "M-Wort größer als 199"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:124
 msgid "Mixed radius ijk format for arc"
@@ -600,83 +602,83 @@ msgstr "Radius- und IJK-Format durcheinandergewürfelt"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:125
 msgid "Multiple a words on one line"
-msgstr "Mehrere A-Worte in einer einzelnen Zeile"
+msgstr "Mehrere A-Wörter in einem Satz"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:126
 msgid "Multiple b words on one line"
-msgstr "Mehrere B-Worte in einer einzelnen Zeile"
+msgstr "Mehrere B-Wörter in einem Satz"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:127
 msgid "Multiple c words on one line"
-msgstr "Mehrere C-Worte in einer einzelnen Zeile"
+msgstr "Mehrere C-Wörter in einem Satz"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:128
 msgid "Multiple d words on one line"
-msgstr "Mehrere D-Worte in einer einzelnen Zeile"
+msgstr "Mehrere D-Wörter in einem Satz"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:129
 msgid "Multiple f words on one line"
-msgstr "Mehrere F-Worte in einer einzelnen Zeile"
+msgstr "Mehrere F-Wörter in einem Satz"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:130
 msgid "Multiple h words on one line"
-msgstr "Mehrere H-Worte in einer einzelnen Zeile"
+msgstr "Mehrere H-Wörter in einem Satz"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:131
 msgid "Multiple i words on one line"
-msgstr "Mehrere I-Worte in einer einzelnen Zeile"
+msgstr "Mehrere I-Wörter in einem Satz"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:132
 msgid "Multiple j words on one line"
-msgstr "Mehrere J-Worte in einer einzelnen Zeile"
+msgstr "Mehrere J-Wörter in einem Satz"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:133
 msgid "Multiple k words on one line"
-msgstr "Mehrere K-Worte in einer einzelnen Zeile"
+msgstr "Mehrere K-Wörter in einem Satz"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:134
 msgid "Multiple l words on one line"
-msgstr "Mehrere L-Worte in einer einzelnen Zeile"
+msgstr "Mehrere L-Wörter in einem Satz"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:135
 msgid "Multiple p words on one line"
-msgstr "Mehrere P-Worte in einer einzelnen Zeile"
+msgstr "Mehrere P-Wörter in einem Satz"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:136
 msgid "Multiple q words on one line"
-msgstr "Mehrere Q-Worte in einer einzelnen Zeile"
+msgstr "Mehrere Q-Wörter in einem Satz"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:137
 msgid "Multiple r words on one line"
-msgstr "Mehrere R-Worte in einer einzelnen Zeile"
+msgstr "Mehrere R-Wörter in einem Satz"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:138
 msgid "Multiple s words on one line"
-msgstr "Mehrere S-Worte in einer einzelnen Zeile"
+msgstr "Mehrere S-Wörter in einem Satz"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:139
 msgid "Multiple t words on one line"
-msgstr "Mehrere T-Worte in einer einzelnen Zeile"
+msgstr "Mehrere T-Wörter in einem Satz"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:140
 msgid "Multiple x words on one line"
-msgstr "Mehrere X-Worte in einer einzelnen Zeile"
+msgstr "Mehrere X-Wörter in einem Satz"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:141
 msgid "Multiple y words on one line"
-msgstr "Mehrere Y-Worte in einer einzelnen Zeile"
+msgstr "Mehrere Y-Wörter in einem Satz"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:142
 msgid "Multiple z words on one line"
-msgstr "Mehrere Z-Worte in einer einzelnen Zeile"
+msgstr "Mehrere Z-Wörter in einem Satz"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:143
 msgid "Must use g0 or g1 with g53"
-msgstr "g53 muß immer zusammen mit g0 oder g1 genutzt werden"
+msgstr "G53 muß immer zusammen mit G0 oder G1 benutzt werden"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:144
 msgid "Negative argument to sqrt"
-msgstr "Wurzel (sqrt-Kommando) mit negativem Argument"
+msgstr "Wurzel (sqrt-Befehl) mit negativem Argument"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:145
 msgid "Negative d word tool radius index used"
@@ -686,7 +688,7 @@ msgstr ""
 
 #: emc/rs274ngc/rs274ngc_errors.cc:146
 msgid "Negative f word used"
-msgstr "F-Kommando mit negativer Zahl"
+msgstr "F-Wort mit negativer Zahl"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:147
 msgid "Negative g code used"
@@ -694,7 +696,7 @@ msgstr "G-Wort mit negativer Zahl"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:148
 msgid "Negative h word used"
-msgstr "H-Kommando mit negativer Zahl"
+msgstr "H-Wort mit negativer Zahl"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:149
 msgid "Negative l word used"
@@ -718,7 +720,7 @@ msgstr "Geschwindigkeit der Werkzeug-Spindel kleiner Null"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:154
 msgid "Negative tool id used"
-msgstr "Negativer Werkzeugtabellen-Index verwendet"
+msgstr "Negative Werkzeugnummer verwendet"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:155
 msgid "Nested comment found"
@@ -739,7 +741,7 @@ msgstr ""
 
 #: emc/rs274ngc/rs274ngc_errors.cc:159
 msgid "Null missing after newline"
-msgstr "Fehlende Null nach Zeilenschaltung"
+msgstr "Fehlende Null nach Zeilenumbruch"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:160
 msgid "Offset index missing"
@@ -747,17 +749,17 @@ msgstr "Offset-Index fehlt"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:161
 msgid "P value not an integer with g10 l2"
-msgstr "P-Wert bei Verwendung von g10 l2 ist keine Ganzzahl"
+msgstr "P-Wert bei Verwendung von G10 L2 ist keine Ganzzahl"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:162
 msgid "P value out of range with g10 l2"
-msgstr "P-Wert ausserhalb des gültigen Bereichs bei g10 l2"
+msgstr "P-Wert ausserhalb des gültigen Bereichs bei G10 L2"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:163
 msgid "P word with no g4 g10 g64 g76 g82 g86 g88 g89"
 msgstr ""
-"Benutzung eines P-Wortes ohne zugehöriges Kommando g4, g10, g64, g76, g82, "
-"g86, g88, oder g89"
+"Benutzung eines P-Wörters ohne zugehörigen Befehl G4, G10, G64, G76, G82, "
+"G86, G88, oder G89"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:164
 msgid "Parameter file out of order"
@@ -769,11 +771,11 @@ msgstr "Parameter-Nummer ausserhalb des gültigen Bereichs"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:166
 msgid "Q word missing with g83"
-msgstr "Q-Wort fehlt bei g83"
+msgstr "Q-Wort fehlt bei G83"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:167
 msgid "Q word with no g83 or m66"
-msgstr "Angabe eines Q-Wortes ohne g83, oder m66"
+msgstr "Angabe eines Q-Wörters ohne G83, oder M66"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:168
 msgid "Queue is not empty after probing"
@@ -789,19 +791,19 @@ msgstr "Angabe von R, I, J oder K fehlt bei einem Kreisbogen"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:171
 msgid "R less than x in cycle in yz plane"
-msgstr "R ist kleiner als X während eines Zyklus in der YZ-Ebene"
+msgstr "R ist kleiner als X während eines Arbeitszyklus in der YZ-Ebene"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:172
 msgid "R less than y in cycle in xz plane"
-msgstr "R ist kleiner als Y während eines Zyklus in der XZ-Ebene"
+msgstr "R ist kleiner als Y während eines Arbeitszyklus in der XZ-Ebene"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:173
 msgid "R less than z in cycle in xy plane"
-msgstr "R ist kleiner als Z während eines Zyklus in der XY-Ebene"
+msgstr "R ist kleiner als Z während eines Arbeitszyklus in der XY-Ebene"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:174
 msgid "R word with no g code that uses it"
-msgstr "Koordinaten-Wort R ohne zugehörige Wegbedingung (g)"
+msgstr "Koordinaten-Wort R ohne zugehörige Wegbedingung (G)"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:175
 msgid "Radius to end of arc differs from radius to start"
@@ -827,19 +829,19 @@ msgstr "Fehlender Schrägstrich nach dem ersten Argument in einer atan-Funktion"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:180
 msgid "Spindle not turning clockwise in g84"
-msgstr "g84, aber Werkzeug-Spindel dreht sich nicht im Uhrzeigersinn"
+msgstr "G84, aber Werkzeug-Spindel dreht sich nicht im Uhrzeigersinn"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:181
 msgid "Spindle not turning in g86"
-msgstr "g86, aber Werkzeug-Spindel nicht in Rotation"
+msgstr "G86, aber Werkzeug-Spindel nicht in Rotation"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:182
 msgid "Spindle not turning in g87"
-msgstr "g87, aber Werkzeug-Spindel nicht in Rotation"
+msgstr "G87, aber Werkzeug-Spindel nicht in Rotation"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:183
 msgid "Spindle not turning in g88"
-msgstr "g88, aber Werkzeug-Spindel nicht in Rotation"
+msgstr "G88, aber Werkzeug-Spindel nicht in Rotation"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:184
 msgid "Sscanf failed"
@@ -851,7 +853,7 @@ msgstr "Startpunkt zu dicht am Abtast-Punkt"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:186
 msgid "Too many m codes on line"
-msgstr "Zu viele M-Codes auf einer Zeile"
+msgstr "Zu viele M-Wörter in einer Zeile"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:187
 msgid "Tool length offset index too big"
@@ -876,16 +878,16 @@ msgstr ""
 #: emc/rs274ngc/rs274ngc_errors.cc:191
 msgid "Two g codes used from same modal group"
 msgstr ""
-"Benutzung von zwei G-Kommandos aus der selben modalen Gruppe in einer Zeile"
+"Benutzung von zwei G-Wörtern aus der selben modalen Gruppe in einer Zeile"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:192
 msgid "Two m codes used from same modal group"
 msgstr ""
-"Benutzung von zwei M-Kommandos aus der selben modalen Gruppe in einer Zeile"
+"Benutzung von zwei M-Wörtern aus der selben modalen Gruppe in einer Zeile"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:193
 msgid "Unable to open file"
-msgstr "Kann Datei nicht öffnen."
+msgstr "Datei kann nicht geöffnet werden"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:194
 msgid "Unclosed comment found"
@@ -897,31 +899,31 @@ msgstr "Nicht abgeschlossener Ausdruck"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:196
 msgid "Unknown g code used"
-msgstr "Unbekanntes G-Kommando"
+msgstr "Unbekanntes G-Wort"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:197
 msgid "Unknown m code used"
-msgstr "Unbekanntes M-Kommando"
+msgstr "Unbekanntes M-Wort"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:198
 msgid "Unknown operation"
-msgstr "Unbekannte Operation"
+msgstr "Unbekannter Befehl"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:199
 msgid "Unknown operation name starting with a"
-msgstr "Unbekannte Operation beginnend mit A"
+msgstr "Unbekannter Befehl beginnend mit A"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:200
 msgid "Unknown operation name starting with m"
-msgstr "Unbekannte Operation beginnend mit M"
+msgstr "Unbekannter Befehl beginnend mit M"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:201
 msgid "Unknown operation name starting with o"
-msgstr "Unbekannte Operation beginnend mit O"
+msgstr "Unbekannter Befehl beginnend mit O"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:202
 msgid "Unknown operation name starting with x"
-msgstr "Unbekannte Operation beginnend mit X"
+msgstr "Unbekannter Befehl beginnend mit X"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:203
 msgid "Unknown word starting with a"
@@ -957,36 +959,36 @@ msgstr "Unbekanntes Wort beginnend mit T"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:211
 msgid "Unknown word where unary operation could be"
-msgstr "Unbekanntes Wort, wo unäre Operation erwartet"
+msgstr "Unbekanntes Wort, wo unärer Befehl erwartet"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:212
 msgid "X and y words missing for arc in xy plane"
-msgstr "X- und Y-Worte fehlen für einen Kreisbogen in der XY-Ebene"
+msgstr "X- und Y-Wörter fehlen für Kreisbogen in der XY-Ebene"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:213
 msgid "X and z words missing for arc in xz plane"
-msgstr "X- und Z-Worte fehlen für einen Kreisbogen in der xz-Ebene"
+msgstr "X- und Z-Wörter fehlen für Kreisbogen in XZ-Ebene"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:214
 msgid "X value unspecified in yz plane canned cycle"
-msgstr "Keine Angabe eines X-Wertes bei Arbeitszyklus in xz-Ebene"
+msgstr "Keine Angabe eines X-Wertes bei Arbeitszyklus in XZ-Ebene"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:215
 msgid "X, y, z, a, b, c, u, v, and w words all missing with g38.2"
 msgstr ""
-"Keine Angabe eines X-, Y-, Z-, A-, B-, C-, U-, V-, und W-Wortes bei g38.2"
+"Keine Angabe eines X-, Y-, Z-, A-, B-, C-, U-, V-, und W-Wörters bei g38.2"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:216
 msgid "Y and z words missing for arc in yz plane"
-msgstr "Y- und Z-Wort fehlen für Kreisbogen in der yz-Ebene"
+msgstr "Y- und Z-Wort fehlt für Kreisbogen in YZ-Ebene"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:217
 msgid "Y value unspecified in xz plane canned cycle"
-msgstr "Keine Angabe eines Y-Wertes bei Arbeitszyklus in xz-Ebene"
+msgstr "Keine Angabe eines Y-Wertes bei Arbeitszyklus in XZ-Ebene"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:218
 msgid "Z value unspecified in xy plane canned cycle"
-msgstr "Keine Angabe eines Z-Wertes bei Arbeitszyklus in xy-Ebene"
+msgstr "Keine Angabe eines Z-Wertes bei Arbeitszyklus in XY-Ebene"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:219
 msgid "Zero or negative argument to ln"
@@ -994,15 +996,15 @@ msgstr "Argument der ln-Funktion kleiner oder gleich Null"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:220
 msgid "Zero radius arc"
-msgstr "Null Radius"
+msgstr "Kreis mit Radius Null"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:221
 msgid "K word missing with g33/g33.1"
-msgstr "Es fehlt ein K-Wort für g33/g33.1"
+msgstr "Es fehlt ein K-Wort für G33/G33.1"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:222
 msgid "F word used with a g33/g33.1"
-msgstr "Benutzung eines F-Wortes mit g33/g33.1"
+msgstr "Benutzung eines F-Wörters mit G33/G33.1"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:223
 msgid "G33 not supported"
@@ -1014,19 +1016,19 @@ msgstr "Abeitszyklen werden nicht unterstützt"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:226
 msgid "Unknown operation name starting with e"
-msgstr "Unbekannte Operation beginnend mit e"
+msgstr "Unbekannter Befehl beginnend mit E"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:227
 msgid "Unknown operation name starting with n"
-msgstr "Unbekannte Operation beginnend mit n"
+msgstr "Unbekannter Befehl beginnend mit N"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:228
 msgid "Unknown operation name starting with g"
-msgstr "Unbekannte Operation beginnend mit g"
+msgstr "Unbekannter Befehl beginnend mit G"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:229
 msgid "Unknown operation name starting with l"
-msgstr "Unbekannte Operation beginnend mit l"
+msgstr "Unbekannter Befehl beginnend mit L"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:230
 msgid "Too many subroutine parameters"
@@ -1034,11 +1036,11 @@ msgstr "Zu viele Parameter für die Unterfunktion"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:231
 msgid "Too many subroutine levels"
-msgstr "Zu viele Unterfunktions-Ebenen"
+msgstr "Zu viele Ebenen für die Unterfunktion"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:232
 msgid "Unknown control command in o word"
-msgstr "Unbekanntes Kommando im O-Wort"
+msgstr "Unbekannter Befehl im O-Wort"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:233
 msgid "Too many oword labels"
@@ -1050,7 +1052,7 @@ msgstr "Unbekannte O-Wort-Nummer"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:235
 msgid "Nested subroutine definition"
-msgstr ""
+msgstr "Verschachtelte Definition einer Unterfunktion"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:236
 msgid "Not in subroutine definition"
@@ -1066,9 +1068,7 @@ msgstr ""
 
 #: emc/rs274ngc/rs274ngc_errors.cc:240
 msgid "Cannot change planes with cutter radius compensation on"
-msgstr ""
-"Die aktuelle Ebene kann nicht bei aktiver Werkzeugradiuskorrektur geändert "
-"werden"
+msgstr "Ebene kann nicht bei aktiver Werkzeugradiuskorrektur gewechselt werden"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:241
 msgid "Cutter radius compensation allowed only in XY, XZ planes"
@@ -1088,11 +1088,11 @@ msgstr "Rotations-Achse kann nicht mit G76 bewegt werden"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:247
 msgid "Multiple e words on one line"
-msgstr "Mehrere E-Worte in einer einzelnen Zeile"
+msgstr "Mehrere E-Wörter in einer einzelnen Zeile"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:248
 msgid "E word with no G76 or M66 to use it"
-msgstr "Benutzung eines E-Wortes ohne zugehörige Angabe von G76 oder M66"
+msgstr "E-Wort ohne zugehörige Angabe von G76 oder M66"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:250
 msgid "Named parameter not terminated"
@@ -1120,7 +1120,9 @@ msgstr ""
 
 #: emc/rs274ngc/rs274ngc_errors.cc:257
 msgid "X Y Z A B C J words not allowed with G43.1, G41 R, or G42 R"
-msgstr "Die Befehle G43.1, G41 R, und G42 R dürfen keine X-, Y-, Z-, A-, B-, C-. oder J-Wörter enthalten"
+msgstr ""
+"Befehle G43.1, G41 R, und G42 R dürfen keine X-, Y-, Z-, A-, B-, C-. oder J-"
+"Wörter enthalten"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:258
 msgid "S word missing with G96"
@@ -1140,11 +1142,13 @@ msgstr ""
 
 #: emc/rs274ngc/rs274ngc_errors.cc:263
 msgid "Invalid to select both a digital and an analog input with M66"
-msgstr "Der Befehl M66 kann nicht gleichtzeitig einen Analog- und Digitaleingang auswählen"
+msgstr ""
+"Befehl M66 kann nicht gleichtzeitig einen Analog- und Digitaleingang "
+"auswählen"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:264
 msgid "Need to have either a valid P or a valid E word with M66"
-msgstr "Der Befehl M66 muss ein gültiges P- oder E-Wort enthalten"
+msgstr "Befehl M66 muss ein gültiges P- oder E-Wort enthalten"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:266
 msgid "Q word missing with g73"
@@ -1152,11 +1156,11 @@ msgstr "Q-Wort fehlt bei G73"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:267
 msgid "Digital input selected out of bounds"
-msgstr "Gewählter Digitaleingang liegt auserhalb des gültigen Bereichs"
+msgstr "Gewählter Digitaleingang liegt außerhalb des gültigen Bereichs"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:268
 msgid "Analog input selected out of bounds"
-msgstr "Gewählter Analogeingang liegt auserhalb des gültigen Bereichs"
+msgstr "Gewählter Analogeingang liegt außerhalb des gültigen Bereichs"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:270
 msgid "W value unspecified in UV plane canned cycle"
@@ -1172,15 +1176,15 @@ msgstr "Keine Angabe eines V-Wertes bei Arbeitszyklus in UW-Ebene"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:273
 msgid "R less than W in cycle in UV plane"
-msgstr "R ist kleiner als W während eines Zyklus in der UV-Ebene"
+msgstr "R ist kleiner als W während eines Arbeitszyklus in der UV-Ebene"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:274
 msgid "R less than U in cycle in VW plane"
-msgstr "R ist kleiner als U während eines Zyklus in der VW-Ebene"
+msgstr "R ist kleiner als U während eines Arbeitszyklus in der VW-Ebene"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:275
 msgid "R less than V in cycle in UW plane"
-msgstr "R ist kleiner als V während eines Zyklus in der UW-Ebene"
+msgstr "R ist kleiner als V während eines Arbeitszyklus in der UW-Ebene"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:277
 msgid "Unknown error"
@@ -1193,4 +1197,3 @@ msgstr "Ende"
 #: emc/rs274ngc/rs274ngc_pre.cc:752
 msgid "Queue is not empty after tool change"
 msgstr "Warteschlange ist nach Werkzeugwechsel nicht leer"
-
