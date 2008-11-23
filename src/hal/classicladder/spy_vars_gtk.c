@@ -117,12 +117,17 @@ void UpdateAllLabelsBoolsVars( )
 			char BufNumVar[40];
 			switch( ColumnVar )
 			{
-				case 0: sprintf(BufNumVar, "<span foreground=\"black\" weight=\"bold\">%cB%d</span>",'%', OffVar+ValOffsetBoolVar[ ColumnVar ]); break;
-				case 1: sprintf(BufNumVar, "<span foreground=\"red\" weight=\"bold\">%cI%d</span>",'%', OffVar+ValOffsetBoolVar[ ColumnVar ]); break;
-				case 2: sprintf(BufNumVar, "<span foreground=\"blue\" weight=\"bold\">%cQ%d</span>",'%', OffVar+ValOffsetBoolVar[ ColumnVar ]); break;
+				case 0: sprintf(BufNumVar, "<span foreground=\"black\" weight=\"bold\">%cB%d</span>",'%', 
+                                        OffVar+ValOffsetBoolVar[ ColumnVar ]); 
+                                break;
+				case 1: sprintf(BufNumVar, "<span foreground=\"red\" weight=\"bold\">%cI%d</span>",'%',  
+                                        OffVar+ValOffsetBoolVar[ ColumnVar ]); 
+                                break;
+				case 2: sprintf(BufNumVar, "<span foreground=\"blue\" weight=\"bold\">%cQ%d</span>",'%', 
+                                        OffVar+ValOffsetBoolVar[ ColumnVar ]); 
+                                break;
 			}
 			gtk_label_set_markup (GTK_LABEL (GTK_BIN( chkvar[ ColumnVar ][ OffVar ] )->child),BufNumVar);
-			//gtk_label_set_text(GTK_LABEL(GTK_BIN( chkvar[ ColumnVar ][ OffVar ] )->child),BufNumVar);
 		}
 	}
 }
@@ -265,14 +270,19 @@ void DisplayFreeVarSpy()
 			strcpy( BufferValue, ConvToBin( Value ) );
 		gtk_entry_set_text((GtkEntry *)EntryVarSpy[NumVarSpy+(2*NBR_FREE_VAR_SPY)],BufferValue);
 
-//		if (VarSpy[NumVarSpy][1] >= ( NBR_S32IN + NBR_S32OUT )) 
-//			{ 
- VarName= "<span foreground=\"black\" weight=\"bold\" >Memory</span>";
-
-//		}else if(VarSpy[NumVarSpy][1]>= NBR_S32IN ) 
-//			{  VarName= "<span foreground=\"blue\" weight=\"bold\" >S32out pin</span>";
-//		} else { VarName="<span foreground=\"red\" weight=\"bold\" >S32in pin</span>"; }
-
+                      {  VarName= "<span foreground=\"gray\" weight=\"bold\" >Other</span>";}
+		if (VarSpy[NumVarSpy][0] == VAR_PHYS_WORD_OUTPUT )   
+                      {  VarName= "<span foreground=\"blue\" weight=\"bold\" >S32out pin</span>";}
+                if (VarSpy[NumVarSpy][0] == VAR_PHYS_WORD_INPUT )    
+                      {  VarName= "<span foreground=\"red\" weight=\"bold\" >S32in pin</span>";}
+                if (VarSpy[NumVarSpy][0] == VAR_MEM_WORD )  
+                      { VarName= "<span foreground=\"black\" weight=\"bold\" >Memory</span>";}
+                if (VarSpy[NumVarSpy][0] == VAR_COUNTER_VALUE )   
+                      { VarName= "<span foreground=\"brown\" weight=\"bold\" >Counter</span>";}
+                if (VarSpy[NumVarSpy][0] == VAR_TIMER_VALUE )     
+                      { VarName= "<span foreground=\"brown\" weight=\"bold\" >Timer</span>";}
+                if (VarSpy[NumVarSpy][0] == VAR_TIMER_IEC_VALUE ) 
+                      { VarName= "<span foreground=\"brown\" weight=\"bold\" >IEC Timer</span>";}
 			gtk_label_set_markup (GTK_LABEL (LabelFreeVars[NumVarSpy]),VarName);
 
 		if (InfosGene->DisplaySymbols!=LastTime) 
@@ -300,26 +310,25 @@ static gint EntryVarSpy_activate_event(GtkWidget *widget, int NumSpy)
 		*NumVarSpy++ = NewVarType;
 		*NumVarSpy = NewVarOffset;
 
-		if ( BufferVar[ 0 ]=='%' )
-			OtherVarName = ConvVarNameToSymbol( BufferVar );
-		else
-			OtherVarName = ConvSymbolToVarName( BufferVar );
-		if ( OtherVarName )
-				gtk_tooltips_set_tip ( TooltipsEntryVarSpy[ NumSpy ], widget, OtherVarName, NULL );
-	}
-	else
-	{
+		if ( BufferVar[ 0 ]=='%' ) 
+                       {       OtherVarName = ConvVarNameToSymbol( BufferVar );
+                       }else{  
+                               OtherVarName = ConvSymbolToVarName( BufferVar );
+                            }
+		if ( OtherVarName ) {    gtk_tooltips_set_tip ( TooltipsEntryVarSpy[ NumSpy ], widget, OtherVarName, NULL );    }
+	}else{
 		int OldType,OldOffset;
 		/* Error Message */
 		if (ErrorMessageVarParser)
-			ShowMessageBox("Error",ErrorMessageVarParser,"Ok");
-		else
-			ShowMessageBox( "Error", "Unknown variable...", "Ok" );
+                       {       ShowMessageBox("Error",ErrorMessageVarParser,"Ok");
+		       }else{
+			       ShowMessageBox( "Error", "Unknown variable...", "Ok" );
+                            }
 		OldType = *NumVarSpy++;
 		OldOffset = *NumVarSpy;
 		/* put back old correct var */
 		gtk_entry_set_text((GtkEntry *)widget,CreateVarName(OldType,OldOffset));
-	}
+	      }
 	return TRUE;
 }
 
@@ -329,8 +338,7 @@ static gint EntryVarSpy_activate_event(GtkWidget *widget, int NumSpy)
 gint FreeVarsWindowDeleteEvent( GtkWidget * widget, GdkEvent * event, gpointer data )
 {
 	gtk_widget_hide( SpyFreeVarsWindow );
-	if (toggle==2) {toggle=0;
-	}else{toggle=3;}
+	if (toggle==2) {  toggle=0;  }else{  toggle=3;  }
 	return TRUE;
 }
 
@@ -365,9 +373,6 @@ void FreeVarsWindowInitGtk( )
 			
 			if ( ColumnVar==0)
 			{
-				//if (NumVarSpy >= ( NBR_S32IN + NBR_S32OUT )) { VarName = "Memory";
-				//}else if(NumVarSpy >= NBR_S32IN ) { VarName = "S32out pin";
-				//} else {VarName = "S32in pin";
 				LabelFreeVars[NumEntry] = gtk_label_new(NULL);				
 				gtk_widget_set_usize((GtkWidget *)LabelFreeVars[NumEntry],100,0);
 				gtk_box_pack_start (GTK_BOX (hboxfreevars[ NumVarSpy ]), LabelFreeVars[NumEntry], FALSE, FALSE, 0);
