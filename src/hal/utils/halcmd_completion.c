@@ -60,12 +60,12 @@ static const char *alias_table[] = {
 };
 
 static const char *show_table[] = {
-    "all", "comp", "pin", "sig", "param", "funct", "thread",
+    "all", "comp", "pin", "sig", "param", "funct", "thread", "alias",
     NULL,
 };
 
 static const char *save_table[] = {
-    "all", "comp", "sig", "link", "linka", "net", "neta", "param", "thread",
+    "all", "comp", "sig", "link", "linka", "net", "neta", "param", "thread", "alias",
     NULL,
 };
 

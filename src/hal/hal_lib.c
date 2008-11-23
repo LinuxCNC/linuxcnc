@@ -658,7 +658,6 @@ int hal_pin_new(const char *name, hal_type_t type, hal_pin_dir_t dir,
 	    return HAL_SUCCESS;
 	}
 	ptr = SHMPTR(next);
-	// TODO - should use ptr->alias if present
 	cmp = strcmp(ptr->name, new->name);
 	if (cmp > 0) {
 	    /* found the right place for it, insert here */
@@ -743,7 +742,6 @@ int hal_pin_alias(const char *pin_name, const char *alias)
     rtapi_snprintf(new->name, HAL_NAME_LEN, "%s", alias);
     /* attach it to the pin */
     pin->alias = SHMOFF(new);
-    // TODO - unlink pin from pin list, relink using alias instead of name
     /* insert new structure in alias list */
     prev = &(hal_data->pin_alias_list_ptr);
     next = *prev;

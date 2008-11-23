@@ -60,6 +60,7 @@
 static int unloadrt_comp(char *mod_name);
 static void print_comp_info(char **patterns);
 static void print_pin_info(int type, char **patterns);
+static void print_pin_aliases(char **patterns);
 static void print_sig_info(int type, char **patterns);
 static void print_script_sig_info(int type, char **patterns);
 static void print_param_info(int type, char **patterns);
@@ -314,10 +315,22 @@ int do_addf_cmd(char *func, char *thread, char **opt) {
 }
 
 int do_alias_cmd(char *pinparam, char *name, char *alias) {
-    hal_pin_t *pin;
-    hal_param_t *param;
+    int retval;
 
-    return 0;	
+    if ( strcmp (pinparam, "pin" ) == 0 ) {
+	retval = hal_pin_alias(name, alias);
+//    } else if ( strcmp (pinparam, "param" ) == 0 ) {
+//	retval = hal_param_alias(name, alias);
+    } else {
+	retval = HAL_INVAL;
+    }
+    if(retval == 0) {
+        halcmd_info("%s '%s' aliased to '%s'\n",
+                    pinparam, name, alias);
+    } else {
+        halcmd_error("alias failed\n");
+    }
+    return retval;	
 }
 
 int do_delf_cmd(char *func, char *thread) {
@@ -885,6 +898,7 @@ int do_show_cmd(char *type, char **patterns)
 	/* print everything */
 	print_comp_info(NULL);
 	print_pin_info(-1, NULL);
+	print_pin_aliases(NULL);
 	print_sig_info(-1, NULL);
 	print_param_info(-1, NULL);
 	print_funct_info(NULL);
@@ -893,6 +907,7 @@ int do_show_cmd(char *type, char **patterns)
 	/* print everything, using the pattern */
 	print_comp_info(patterns);
 	print_pin_info(-1, patterns);
+	print_pin_aliases(patterns);
 	print_sig_info(-1, patterns);
 	print_param_info(-1, patterns);
 	print_funct_info(patterns);
@@ -920,6 +935,8 @@ int do_show_cmd(char *type, char **patterns)
 	print_funct_info(patterns);
     } else if (strcmp(type, "thread") == 0) {
 	print_thread_info(patterns);
+    } else if (strcmp(type, "alias") == 0) {
+	print_pin_aliases(patterns);
     } else {
 	halcmd_error("Unknown 'show' type '%s'\n", type);
 	return -1;
@@ -1553,6 +1570,35 @@ static void print_pin_info(int type, char **patterns)
 	    }
 	}
 	next = pin->next_ptr;
+    }
+    rtapi_mutex_give(&(hal_data->mutex));
+    halcmd_output("\n");
+}
+
+static void print_pin_aliases(char **patterns)
+{
+    int next;
+    hal_alias_t *alias;
+    hal_pin_t *pin;
+
+    if (scriptmode == 0) {
+	halcmd_output("Pin Aliases:\n");
+	halcmd_output(" %-41s  %s\n", "Alias", "Original Name");
+    }
+    rtapi_mutex_get(&(hal_data->mutex));
+    next = hal_data->pin_alias_list_ptr;
+    while (next != 0) {
+	alias = SHMPTR(next);
+	pin = SHMPTR(alias->owner_ptr);
+	if ( match(patterns, pin->name) || match(patterns, alias->name) ) {
+	    if (scriptmode == 0) {
+		/* 41 is HAL_NAME_LEN */
+		halcmd_output(" %-41s  %s\n", alias->name, pin->name);
+	    } else {
+		halcmd_output(" %s  %s\n", alias->name, pin->name);
+	    }
+	}
+	next = alias->next_ptr;
     }
     rtapi_mutex_give(&(hal_data->mutex));
     halcmd_output("\n");
