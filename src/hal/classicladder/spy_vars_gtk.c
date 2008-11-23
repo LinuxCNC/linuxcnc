@@ -265,11 +265,14 @@ void DisplayFreeVarSpy()
 			strcpy( BufferValue, ConvToBin( Value ) );
 		gtk_entry_set_text((GtkEntry *)EntryVarSpy[NumVarSpy+(2*NBR_FREE_VAR_SPY)],BufferValue);
 
-		if (VarSpy[NumVarSpy][1] >= ( NBR_S32IN + NBR_S32OUT )) 
-			{  VarName= "<span foreground=\"black\" weight=\"bold\" >Memory</span>";
-		}else if(VarSpy[NumVarSpy][1]>= NBR_S32IN ) 
-			{  VarName= "<span foreground=\"blue\" weight=\"bold\" >S32out pin</span>";
-		} else { VarName="<span foreground=\"red\" weight=\"bold\" >S32in pin</span>"; }
+//		if (VarSpy[NumVarSpy][1] >= ( NBR_S32IN + NBR_S32OUT )) 
+//			{ 
+ VarName= "<span foreground=\"black\" weight=\"bold\" >Memory</span>";
+
+//		}else if(VarSpy[NumVarSpy][1]>= NBR_S32IN ) 
+//			{  VarName= "<span foreground=\"blue\" weight=\"bold\" >S32out pin</span>";
+//		} else { VarName="<span foreground=\"red\" weight=\"bold\" >S32in pin</span>"; }
+
 			gtk_label_set_markup (GTK_LABEL (LabelFreeVars[NumVarSpy]),VarName);
 
 		if (InfosGene->DisplaySymbols!=LastTime) 

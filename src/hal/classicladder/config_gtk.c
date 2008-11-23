@@ -150,11 +150,11 @@ GtkWidget * CreateGeneralParametersPage( void )
 #endif
 			case 13:
 				sprintf( BuffLabel, "Number of S32in HAL pins             " );
-				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_s32in );
+				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_phys_inputs );
 				break;
 			case 14:
 				sprintf( BuffLabel, "Number of S32out HAL pins            " );
-				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_s32out );
+				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_phys_outputs );
 				break;
                         case 15:
 				sprintf( BuffLabel, "Current path/filename" );
@@ -469,13 +469,13 @@ void GetModbusModulesIOSettings( void )
 					printf("Error in I/O modbus configure table: Asking to map more modbus registers then there are W Variables.\n" );
 					strcpy( BuffValue, "" );
 				}
-				if ( pConf->OffsetVarMapped< NBR_S32IN )
+/*				if ( pConf->OffsetVarMapped< NBR_S32IN )
 				{
 					printf("Error in I/O modbus configure table: Cannot map modbus READ registers onto S32 in Variables.\n" );
 					strcpy( BuffValue, "" );
 				}
 				break;
-
+*/
 			case	 MODBUS_REQ_REGISTERS_WRITE :
 				if ( pConf->OffsetVarMapped+pConf->NbrModbusElements>= NBR_WORDS )
 				{

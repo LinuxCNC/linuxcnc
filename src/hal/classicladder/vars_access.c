@@ -70,6 +70,10 @@ int ReadVar(int TypeVar,int Offset)
 			return CounterArray[Offset].OutputFull;
 		case VAR_TIMER_IEC_DONE:
 			return NewTimerArray[Offset].Output;
+                case VAR_PHYS_WORD_INPUT:
+			return VarWordArray[NBR_WORDS+Offset];
+		case VAR_PHYS_WORD_OUTPUT:
+			return VarWordArray[NBR_WORDS+NBR_PHYS_WORDS_INPUTS+Offset];
 #ifdef SEQUENTIAL_SUPPORT
 		case VAR_STEP_ACTIVITY:
 //            return Sequential->Step[ Offset ].Activated;
@@ -143,6 +147,12 @@ void WriteVar(int TypeVar,int NumVar,int Value)
 		case VAR_MEM_WORD:
 			VarWordArray[NumVar] = Value;
 			break;
+                case VAR_PHYS_WORD_INPUT:
+			VarWordArray[NBR_WORDS+NumVar] = Value;
+			break;
+		case VAR_PHYS_WORD_OUTPUT:
+			VarWordArray[NBR_WORDS+NBR_PHYS_WORDS_INPUTS+NumVar] = Value;
+			break;
 #ifdef SEQUENTIAL_SUPPORT
 	        case VAR_STEP_TIME:
 			VarWordArray[NBR_WORDS+NumVar] = Value;
@@ -178,14 +188,7 @@ void WriteVar(int TypeVar,int NumVar,int Value)
 		case VAR_MEM_BIT:
 		case VAR_PHYS_INPUT:
 		case VAR_PHYS_OUTPUT:
-// with a thread for all versions, do no more call a gtk function from this thread !
-//////			// for Xenomai, do not do it now to avoid a domain mode switch !
-//////if defined( GTK_INTERFACE ) && !defined( __XENO__ )
-//////			RefreshOneBoolVar( TypeVar, NumVar, Value );
-//////else
-			/* to tell the GTK application to refresh the bits */
 			InfosGene->CmdRefreshVarsBits = TRUE;
-//////#endif
 			break;
 	}
 }

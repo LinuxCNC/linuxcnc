@@ -65,6 +65,9 @@ StrConvIdVarName TableConvIdVarName[] = {
 		{ "I%d", VAR_PHYS_INPUT, 0, /*sizes*/ NBR_PHYS_INPUTS_DEF, -1, -1, /*offsets */ 0, 0, 0, FALSE },
 		{ "Q%d", VAR_PHYS_OUTPUT, 0, /*sizes*/ NBR_PHYS_OUTPUTS_DEF, -1, -1, /*offsets */ 0, 0, 0, TRUE },
 		{ "W%d", VAR_MEM_WORD, 0, /*sizes*/ NBR_WORDS_DEF, -1, -1, /*offsets */ 0, 0, 0, TRUE },
+                { "IW%d", VAR_PHYS_WORD_INPUT, 0, /*sizes*/ NBR_PHYS_WORDS_INPUTS_DEF, -1, -1, /*offsets */ 0, 0, 0, FALSE },
+		{ "QW%d", VAR_PHYS_WORD_OUTPUT, 0, /*sizes*/ NBR_PHYS_WORDS_OUTPUTS_DEF, -1, -1, /*offsets */ 0, 0, 0, TRUE },
+
 		{ "X%d", VAR_STEP_ACTIVITY, 0, /*sizes*/ NBR_STEPS, -1, -1, /*offsets */ 0, 0, 0, FALSE },
 		{ "X%d.V", VAR_STEP_TIME, 0, /*sizes*/ NBR_STEPS, -1, -1, /*offsets */ 0, 0, 0, FALSE },
 
@@ -97,6 +100,8 @@ void UpdateSizesOfConvVarNameTable( void )
 	TableConvIdVarName[ ScanTable++ ].iSize1 = NBR_PHYS_INPUTS;
 	TableConvIdVarName[ ScanTable++ ].iSize1 = NBR_PHYS_OUTPUTS;
 	TableConvIdVarName[ ScanTable++ ].iSize1 = NBR_WORDS;
+        TableConvIdVarName[ ScanTable++ ].iSize1 = NBR_PHYS_WORDS_INPUTS;
+	TableConvIdVarName[ ScanTable++ ].iSize1 = NBR_PHYS_WORDS_OUTPUTS;
 	ScanTable++; // Nothing here (NBR_STEPS=constant!)
 	ScanTable++; // Nothing here (NBR_STEPS=constant!)
 

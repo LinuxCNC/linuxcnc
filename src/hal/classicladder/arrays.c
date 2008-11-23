@@ -110,8 +110,8 @@ StrGeneralParams GeneralParamsMirror = {
 	.SizesInfos.nbr_arithm_expr = NBR_ARITHM_EXPR_DEF,
 	.SizesInfos.nbr_sections = NBR_SECTIONS_DEF,
 	.SizesInfos.nbr_symbols = NBR_SYMBOLS_DEF,
-	.SizesInfos.nbr_s32in = NBR_S32IN_DEF,
-	.SizesInfos.nbr_s32out = NBR_S32OUT_DEF,
+        .SizesInfos.nbr_phys_words_inputs = NBR_PHYS_WORDS_INPUTS_DEF,
+	.SizesInfos.nbr_phys_words_outputs = NBR_PHYS_WORDS_OUTPUTS_DEF,
 	.PeriodicRefreshMilliSecs = PERIODIC_REFRESH_MS_DEF
 };
 
@@ -173,9 +173,8 @@ int ClassicLadder_AllocAll()
     int numBits, numWords;
     pSizesInfos = &GeneralParamsMirror.SizesInfos;
     // Calculate SHMEM size.
-    numBits = pSizesInfos->nbr_bits + pSizesInfos->nbr_phys_inputs +
-        pSizesInfos->nbr_phys_outputs;
-    numWords = pSizesInfos->nbr_words;
+    numBits = pSizesInfos->nbr_bits + pSizesInfos->nbr_phys_inputs + pSizesInfos->nbr_phys_outputs;
+    numWords = pSizesInfos->nbr_words+pSizesInfos->nbr_phys_words_inputs+pSizesInfos->nbr_phys_words_outputs;
 #ifdef SEQUENTIAL_SUPPORT
     numBits += NBR_STEPS;
     numWords += NBR_STEPS;
@@ -183,8 +182,8 @@ int ClassicLadder_AllocAll()
     bytes += pSizesInfos->nbr_rungs * sizeof(StrRung);
     bytes += pSizesInfos->nbr_timers * sizeof(StrTimer);
     bytes += pSizesInfos->nbr_monostables * sizeof(StrMonostable);
-	bytes += pSizesInfos->nbr_counters * sizeof(StrCounter);
-	bytes += pSizesInfos->nbr_timers_iec * sizeof(StrTimerIEC);
+    bytes += pSizesInfos->nbr_counters * sizeof(StrCounter);
+    bytes += pSizesInfos->nbr_timers_iec * sizeof(StrTimerIEC);
     bytes += pSizesInfos->nbr_arithm_expr * sizeof(StrArithmExpr);
     bytes += pSizesInfos->nbr_sections * sizeof(StrSection);
     bytes += pSizesInfos->nbr_symbols * sizeof(StrSymbol);
@@ -196,59 +195,57 @@ int ClassicLadder_AllocAll()
     bytes += numBits * sizeof(TYPE_FOR_BOOL_VAR);
     
     // Attach SHMEM with proper size.
-	if ((ShmemId = rtapi_shmem_new(CL_SHMEM_KEY, compId, bytes)) < 0) {
-     	   rtapi_print("Failed to alloc shared memory (%x %d %lu) !\n",
-                CL_SHMEM_KEY, compId, bytes);
-        return FALSE;
- 		 }
-    rtapi_print("Shared memory:key- %x component id-%d # of bytes-%lu\n",
-                CL_SHMEM_KEY, compId, bytes);
-    // Map SHMEM.
-	if (rtapi_shmem_getptr(ShmemId, (void **) &shmBase) < 0) {
-  	      rtapi_print("Failed to map shared memory !\n");
-  	      return FALSE;
-  	 	 }
+    if ((ShmemId = rtapi_shmem_new(CL_SHMEM_KEY, compId, bytes)) < 0) 
+              {
+                rtapi_print_msg(RTAPI_MSG_DBG,"Failed to alloc shared memory (%x %d %lu) !\n",CL_SHMEM_KEY, compId, bytes);
+               return FALSE;
+              }
+    rtapi_print_msg(RTAPI_MSG_INFO,"Shared memory:key- %x component id-%d # of bytes-%lu\n",CL_SHMEM_KEY, compId, bytes);
+    // Map SHMEM (shared memory).    if (rtapi_shmem_getptr(ShmemId, (void **) &shmBase) < 0) 
+              {
+  	       rtapi_print("Failed to map shared memory !\n");
+  	       return FALSE;
+              }
 	
-   	shmBase[0] = CL_SHMEM_KEY;
-    	shmBase[1] = bytes;
-    
-   	InfosGene = (StrInfosGene*)(shmBase+1);
-   	InfosGene->GeneralParams.SizesInfos = *pSizesInfos;
-
-	memcpy( &InfosGene->GeneralParams, &GeneralParamsMirror, sizeof( StrGeneralParams ) );
-//UpdateSizesOfConvVarNameTable();
- 	rtapi_print("INFO----REALTIME allocations for classicladder:\n");
+     shmBase[0] = CL_SHMEM_KEY;
+     shmBase[1] = bytes;
+     InfosGene = (StrInfosGene*)(shmBase+1);
+     InfosGene->GeneralParams.SizesInfos = *pSizesInfos;     memcpy( &InfosGene->GeneralParams, &GeneralParamsMirror, sizeof( StrGeneralParams ) );
+     rtapi_print_msg(RTAPI_MSG_INFO,"INFO----REALTIME allocations for classicladder:\n");
 #endif //end of realtime code
 
 #ifndef RTAPI// for user space
 
 	
     // Attach SHMEM with proper size.
-    if ((ShmemId = rtapi_shmem_new(CL_SHMEM_KEY, compId, bytes)) < 0) {
-        rtapi_print("Failed to alloc shared memory (%x %d %lu) !\n",
-                CL_SHMEM_KEY, compId, bytes);
-        return FALSE;
-    }
+    if ((ShmemId = rtapi_shmem_new(CL_SHMEM_KEY, compId, bytes)) < 0)
+              {
+               rtapi_print("Failed to alloc shared memory (%x %d %lu) !\n",
+               CL_SHMEM_KEY, compId, bytes);
+               return FALSE;
+              }
      rtapi_print_msg(RTAPI_MSG_INFO,"Shared memory:key- %x component id-%d # of bytes-%lu\n",
-                CL_SHMEM_KEY, compId, bytes);
+     CL_SHMEM_KEY, compId, bytes);
     // Map SHMEM.
-    if (rtapi_shmem_getptr(ShmemId, (void **) &shmBase) < 0) {
-        rtapi_print("Failed to map shared memory !\n");
-        return FALSE;
-    }
+    if (rtapi_shmem_getptr(ShmemId, (void **) &shmBase) < 0) 
+          {
+           rtapi_print("Failed to map shared memory !\n");
+           return FALSE;
+          }
 
     // Check signature written by RT module to make sure we have the
     // right region and RT module is loaded.
-	 rtapi_print_msg(RTAPI_MSG_INFO,"INFO----USERSPACE allocations for classicladder\n");
-    if (shmBase[0] != CL_SHMEM_KEY) {
-        rtapi_print("Shared memory conflict or RT component not loaded!\n");
-        return FALSE;
-    }
-	
-  	bytes = shmBase[1];   
-	InfosGene = (StrInfosGene*)(shmBase+1);
-	pSizesInfos = &(InfosGene->GeneralParams.SizesInfos);
-// copy generalparams to gen paramsMirror so Config window displays properly
+    rtapi_print_msg(RTAPI_MSG_INFO,"INFO----USERSPACE allocations for classicladder\n");
+    if (shmBase[0] != CL_SHMEM_KEY) 
+          {
+           rtapi_print("Shared memory conflict or RT component not loaded!\n");
+           return FALSE;
+          }
+     bytes = shmBase[1];   
+     InfosGene = (StrInfosGene*)(shmBase+1);
+     pSizesInfos = &(InfosGene->GeneralParams.SizesInfos);
+
+        // copy generalparams to gen paramsMirror so Config window displays properly
 	memcpy(  &GeneralParamsMirror,&InfosGene->GeneralParams, sizeof( StrGeneralParams ) );
   	UpdateSizesOfConvVarNameTable();
 #ifdef GTK_INTERFACE
@@ -276,7 +273,7 @@ int ClassicLadder_AllocAll()
         pSizesInfos->nbr_arithm_expr,
         pSizesInfos->nbr_sections,
         pSizesInfos->nbr_symbols,
-	pSizesInfos->nbr_s32in,	pSizesInfos->nbr_s32out);
+	pSizesInfos->nbr_phys_words_inputs,	pSizesInfos->nbr_phys_words_outputs);
 
     	// Set global SHMEM pointers for each element
     pByte = (unsigned char *) InfosGene;

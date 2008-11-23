@@ -42,7 +42,7 @@ int comedi_to_open_mask;
 #ifdef DYNAMIC_PLCSIZE
 int numRungs=NBR_RUNGS_DEF, numBits=NBR_BITS_DEF,numWords=NBR_WORDS_DEF, numTimers=NBR_TIMERS_DEF, numMonostables=NBR_MONOSTABLES_DEF;
 int numCounters=NBR_COUNTERS_DEF,numTimersIec=NBR_TIMERS_IEC_DEF,numPhysInputs=NBR_PHYS_INPUTS_DEF, numPhysOutputs=NBR_PHYS_OUTPUTS_DEF, numArithmExpr=NBR_ARITHM_EXPR_DEF, numSections=NBR_SECTIONS_DEF;
-int numSymbols=NBR_SYMBOLS_DEF,numS32in=NBR_S32IN_DEF,numS32out=NBR_S32OUT_DEF;
+int numSymbols=NBR_SYMBOLS_DEF,numS32in=NBR_PHYS_WORDS_INPUTS_DEF,numS32out=NBR_PHYS_WORDS_OUTPUTS_DEF;
 RTAPI_MP_INT(numRungs, "i");
 RTAPI_MP_INT(numBits, "i");
 RTAPI_MP_INT(numWords, "i");
@@ -88,19 +88,16 @@ void HalWritePhysicalOutputs(void) {
 	}
 }
 
-// S32 in and out pins piggy back on top of the regular word variable's array
-// so all the s32_in pins are mapped first, then all the s32_out pins, then the rest are regular word memory
-
 void HalReads32Inputs(void) {
 	int i;
-	for( i=0; i<InfosGene->GeneralParams.SizesInfos.nbr_s32in; i++) {
-		WriteVar(VAR_MEM_WORD, i, *hal_s32_inputs[i]);
+	for( i=0; i<InfosGene->GeneralParams.SizesInfos.nbr_phys_words_inputs; i++) {
+		WriteVar(VAR_PHYS_WORD_INPUT, i, *hal_s32_inputs[i]);
 	}
 }	
 void HalWrites32Outputs(void) {
 	int i;
-	for( i=0; i<InfosGene->GeneralParams.SizesInfos.nbr_s32out; i++) {
-		*(hal_s32_outputs[i]) = ReadVar(VAR_MEM_WORD, i+InfosGene->GeneralParams.SizesInfos.nbr_s32in);
+	for( i=0; i<InfosGene->GeneralParams.SizesInfos.nbr_phys_words_outputs; i++) {
+		*(hal_s32_outputs[i]) = ReadVar(VAR_PHYS_WORD_OUTPUT, i);
 	}
 }
 // This actually does the magic of periodic refresh of pins and
@@ -245,9 +242,9 @@ void CopySizesInfosFromModuleParams( void )
 	if ( numSymbols>0 )
 		GeneralParamsMirror.SizesInfos.nbr_symbols = numSymbols;
     	if ( numS32in>0 )
-		GeneralParamsMirror.SizesInfos.nbr_s32in = numS32in;
+		GeneralParamsMirror.SizesInfos.nbr_phys_words_inputs = numS32in;
 	if ( numS32out>0 )
-		GeneralParamsMirror.SizesInfos.nbr_s32out = numS32out;
+		GeneralParamsMirror.SizesInfos.nbr_phys_words_outputs = numS32out;
 
 	
 	#endif
