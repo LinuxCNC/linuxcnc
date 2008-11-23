@@ -68,6 +68,8 @@ DOC_SRCS := \
 	config/stepper_fr.lyx \
 	config/stepconf.lyx \
 	config/stepconf_fr.lyx \
+	drivers/AX5214H.lyx \
+	drivers/opto22.lyx \
 	gcode/coordinates.lyx \
 	gcode/coordinates_fr.lyx \
 	gcode/main.lyx \
@@ -253,6 +255,7 @@ SUBXML := \
     $(filter objects/common_%.xml, $(DOC_TARGETS_XML)) \
     $(filter objects/config_%.xml, $(DOC_TARGETS_XML)) \
     $(filter objects/gcode_%.xml, $(DOC_TARGETS_XML)) \
+    $(filter objects/drivers_%.xml, $(DOC_TARGETS_XML)) \
     $(filter objects/gui_%.xml, $(DOC_TARGETS_XML)) \
     $(filter objects/install_%.xml, $(DOC_TARGETS_XML)) \
     $(filter objects/ladder_%.xml, $(DOC_TARGETS_XML)) \
@@ -271,6 +274,8 @@ $(filter objects/common_%.xml,$(DOC_TARGETS_XML)): objects/common_%.xml: $(DOC_S
 	$(call lyx2xml,common,$*,$<)
 $(filter objects/config_%.xml,$(DOC_TARGETS_XML)): objects/config_%.xml: $(DOC_SRCDIR)/config/%.lyx $(XMLDEP)
 	$(call lyx2xml,config,$*,$<)
+$(filter objects/drivers_%.xml,$(DOC_TARGETS_XML)): objects/drivers_%.xml: $(DOC_SRCDIR)/drivers/%.lyx $(XMLDEP)
+	$(call lyx2xml,drivers,$*,$<)
 $(filter objects/gcode_%.xml,$(DOC_TARGETS_XML)): objects/gcode_%.xml: $(DOC_SRCDIR)/gcode/%.lyx $(XMLDEP)
 	$(call lyx2xml,gcode,$*,$<)
 $(filter objects/gui_%.xml,$(DOC_TARGETS_XML)): objects/gui_%.xml: $(DOC_SRCDIR)/gui/%.lyx $(XMLDEP)

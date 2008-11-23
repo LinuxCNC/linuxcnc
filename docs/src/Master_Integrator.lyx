@@ -332,7 +332,16 @@ Special Drivers
 \layout Standard
 
 
-\begin_inset Include \include{hal/opto22.lyx}
+\begin_inset Include \include{drivers/AX5214H.lyx}
+preview false
+
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset Include \include{drivers/opto22.lyx}
 preview false
 
 \end_inset 
