@@ -41,13 +41,6 @@ next steps:
             it'll pick the firmware, and poop out a little hal file with well-named nets that make the daughter board work
 
 
-        When naming a pin, call it I/O Pin xxx (Py-zz): Function
-        
-            xxx matches Mesa's IO pin name (and use this for HAL)
-            
-            y is the connector, and zz is the pin on that connector
-
-
     when reading IO Cookie & Config Name, if it fails read it many times
     to get some more data
 
@@ -71,7 +64,9 @@ next steps:
         JMK suggested auto-generating man pages from the PIN files...
 
 
-    better sample configs, maybe move my test scripts there, document better
+    better sample configs
+
+        ask cradek to commit his
 
 
     on driver unload, it should stop all the motors and "safe" the
@@ -201,50 +196,55 @@ translation ram (tram):
 
 encoders:
 
-    use shielded encoder wires!
+    expose QFilterRate: lets you determine encoder sample frequency, input to filter
+
+    freaks out on index...
+
+    fancy velocity computation
+
+        US Patent 4,639,884 (granted Jan 27 1987, expired ???)
+
+            requires "a large number" of clocks per quadrature transition,
+            "at all speeds"
+
+            computer periodically gets (count, timestamp) datapoints
+
+            v = (d count)/(d time)
+
+        when is encoder velocity used?  when threading, i think
+
+        performance:
+
+            my motor shaft tops out at 8K rpm, which is 133.33333 revs
+            per second
+
+            my highest-resolution encoder has 512 lines, so 2048
+            transitions per revolution, so 275K transitions per second,
+            or 1 transition every 3 or 4 us
+
+            sampling at twice that would mean ~600 Ksamples/sec
+
+            with the "quad filter" set to 3 clocks, the low-level input
+            needs about 1 Msample/sec.
+
+            with the "quad filter" set to 15 clocks, the low-level input
+            needs about 5 Msample/sec.
+
+            it's actually running at 50 MHz, so that shouldnt be a
+            problem...
+
+            The firmware is storing the quadrature count in a 16-bit
+            register, which I'm reading about every ms (1 KHz)
+
+            at 275K transitions/second, that should be max 275 counts
+            per reading, which is *fine*
 
 
-    performance:
+    parameters:
 
-        my motor shaft is spinning at 8K rpm, which is 133.33333 revs per second
+        max-index-vel (optional)
 
-        The encoder has 256 lines, so 1024 transitions per revolution, so 136533 transitions per second
-
-        sampling at twice that would mean ~300 Ksamples/sec
-
-        with the "quad filter" set to 3 clocks, the low-level input needs about 1 Msample/sec.
-
-        with the "quad filter" set to 15 clocks, the low-level input needs about 5 Msample/sec.
-
-        it's actually running at 50 MHz, so that shouldnt be a problem...
-
-        The firmware is storing the quadrature count in a 16-bit register, which I'm reading about every ms (1 KHz)
-
-        at 140K transitions/second, that should be max 140 counts per reading, which is *fine*
-
-
-    How is encoder.XX.velocity computed?
-
-
-    missing stuff:
-
-        expose filter rate to HAL (cooked prolly)
-
-        fancy velocity computation
-
-        index mask support
-
-        pins:
-
-            velocity
-
-            optional: a, b, index (available in the control register, which is getting read via fake-TRAM each cycle)
-
-        parameters:
-
-            max-index-vel (optional)
-
-            velocity-resolution (optional)
+        velocity-resolution (optional)
 
 
 

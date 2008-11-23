@@ -238,7 +238,9 @@ typedef struct {
 
     } hal;
 
-    u32 prev_counter;
+    u16 prev_count;
+    u16 prev_timestamp;
+
     u32 prev_control;
 
 } hm2_encoder_instance_t;
@@ -260,9 +262,12 @@ typedef struct {
     u32 latch_control_addr;
     u32 *control_reg;
 
+    u32 timestamp_div_addr;
+    u32 timestamp_div_reg;  // one register for the whole Function
+    hal_float_t seconds_per_tsdiv_clock;
+
     // these regs are set at init-time and then ignored, so we dont keep
     // track of their values (though we do note their addresses)
-    u32 timestamp_div_addr;
     u32 timestamp_count_addr;
     u32 filter_rate_addr;
 } hm2_encoder_t;

@@ -136,6 +136,13 @@ void hm2_encoder_force_write(hostmot2_t *hm2) {
     for (i = 0; i < hm2->encoder.num_instances; i ++) {
         hm2->encoder.instance[i].prev_control = hm2->encoder.control_reg[i];
     }
+
+    hm2->llio->write(
+        hm2->llio,
+        hm2->encoder.timestamp_div_addr,
+        &hm2->encoder.timestamp_div_reg,
+        sizeof(u32)
+    );
 }
 
 
@@ -219,6 +226,7 @@ int hm2_encoder_parse_md(hostmot2_t *hm2, int md_index) {
         r = -ENOMEM;
         goto fail0;
     }
+
 
     // export the encoders to HAL
     // FIXME: r hides the r in enclosing function, and it returns the wrong thing
@@ -331,6 +339,50 @@ int hm2_encoder_parse_md(hostmot2_t *hm2, int md_index) {
     }
 
 
+    // 
+    // Set the Timestamp Divisor Register
+    // 
+    // We want the timestamp to count as quickly as possible, so we get the
+    // best temporal resolution.
+    // 
+    // But we want it to count slow enough that the 16-bit counter doesnt
+    // overrun between successive calls to the servo thread.
+    //
+    // A resonably slow servo thread runs at 1 KHz.  A fast one runs at 10
+    // KHz.  The actual servo period is unknown at loadtime, and is likely 
+    // to fluctuate slightly when the system is under load.
+    // 
+    // It's probably about right to count no more than 1/8 of the timestamp
+    // register range on each servo cycle.
+    // 
+    // The register is 16 bits, so 2^13 (8192) clocks/servo cycle is
+    // probably about as fast as we want to go.
+    // 
+    // From the HM2 RegMap:
+    // 
+    //     Timestamp count rate is ClockLow/(TSDiv+2).
+    //     Any divisor with MSb set = divide by 1
+    // 
+    // Count rate should be about 8192/ms, which is 8,192,000 Hz, call it
+    // 8 MHz.
+    // 
+    //     rate = 8 MHz = 8e6 = ClockLow / (TSDiv+2)
+    // 
+    //     TSDiv+2 = ClockLow / 8e6
+    // 
+    //     TSDiv = (ClockLow / 8e6) - 2
+    //
+    //     seconds_per_clock = 1 / rate = (TSDiv+2) / ClockLow
+    //
+    //
+    // The 7i43 has a 50 MHz ClockLow, giving TSDiv = 4 and .12 us/clock
+    // The PCI cards have a 33 MHz ClockLow, giving TSDiv = 2 and .12 us/clock
+    //     
+
+    hm2->encoder.timestamp_div_reg = (hm2->encoder.clock_frequency / 8e6) - 2;
+    hm2->encoder.seconds_per_tsdiv_clock = (hal_float_t)(hm2->encoder.timestamp_div_reg + 2) / (hal_float_t)hm2->encoder.clock_frequency;
+
+
     return hm2->encoder.num_instances;
 
 
@@ -348,7 +400,8 @@ void hm2_encoder_tram_init(hostmot2_t *hm2) {
 
     // all the encoders start where they are
     for (i = 0; i < hm2->encoder.num_instances; i ++) {
-        hm2->encoder.instance[i].prev_counter = hm2->encoder.counter_reg[i];
+        hm2->encoder.instance[i].prev_count = hm2->encoder.counter_reg[i] & 0x0000ffff;
+        hm2->encoder.instance[i].prev_timestamp = (hm2->encoder.counter_reg[i] >> 16) & 0x0000ffff;
     }
 }
 
@@ -394,8 +447,9 @@ void hm2_encoder_process_tram_read(hostmot2_t *hm2, long l_period_ns) {
     for (i = 0; i < hm2->encoder.num_instances; i ++) {
         hm2_encoder_instance_t *e;
         u16 count, timestamp;
-        u16 prev_count, prev_timestamp;
         s32 count_diff;
+        s32 timestamp_diff_tsdiv_clocks;
+        hal_float_t timestamp_diff_s;
         hal_float_t new_position;
 
         e = &hm2->encoder.instance[i];
@@ -410,14 +464,19 @@ void hm2_encoder_process_tram_read(hostmot2_t *hm2, long l_period_ns) {
 
 
         // 
+        // figure out the time since the previous encoder change
+        // 
+
+        timestamp_diff_tsdiv_clocks = (s32)timestamp - (s32)e->prev_timestamp;
+        if (timestamp_diff_tsdiv_clocks < 0) timestamp_diff_tsdiv_clocks += 65536;
+        timestamp_diff_s = (hal_float_t)timestamp_diff_tsdiv_clocks * hm2->encoder.seconds_per_tsdiv_clock;
+
+
+        // 
         // figure out current count as accumulated by the driver
         // 
 
-        // FIXME: maybe hm2_encoder_t should have u16 *prev_count, *prev_timestamp instead of u32 *prev_counter
-        prev_count = e->prev_counter & 0x0000ffff;
-        prev_timestamp = (e->prev_counter >> 16) & 0x0000ffff;
-
-        count_diff = (s32)count - (s32)prev_count;
+        count_diff = (s32)count - (s32)e->prev_count;
 
         if (count_diff > 32768) count_diff -= 65536;
         if (count_diff < -32768) count_diff += 65536;
@@ -443,7 +502,11 @@ void hm2_encoder_process_tram_read(hostmot2_t *hm2, long l_period_ns) {
         }
         new_position = *e->hal.pin.count / e->hal.param.scale;
 
-        *e->hal.pin.velocity = (new_position - *e->hal.pin.position) / f_period_s;
+        if (timestamp_diff_s == 0.0) {
+            *e->hal.pin.velocity = 0.0;  // FIXME: exponential decay or some other better guesstimate
+        } else {
+            *e->hal.pin.velocity = (new_position - *e->hal.pin.position) / timestamp_diff_s;
+        }
 
         *e->hal.pin.position = new_position;
 
@@ -453,7 +516,8 @@ void hm2_encoder_process_tram_read(hostmot2_t *hm2, long l_period_ns) {
         //
 
         // now we're here
-        e->prev_counter = hm2->encoder.counter_reg[i];
+        e->prev_count = count;
+        e->prev_timestamp = timestamp;
     }
 }
 
@@ -474,6 +538,7 @@ void hm2_encoder_print_module(hostmot2_t *hm2) {
     PRINT("    timestamp_div_addr: 0x%04X\n", hm2->encoder.timestamp_div_addr);
     PRINT("    timestamp_count_addr: 0x%04X\n", hm2->encoder.timestamp_count_addr);
     PRINT("    filter_rate_addr: 0x%04X\n", hm2->encoder.filter_rate_addr);
+    PRINT("    timestamp_div: 0x%04X\n", (u16)hm2->encoder.timestamp_div_reg);
     for (i = 0; i < hm2->encoder.num_instances; i ++) {
         PRINT("    instance %d:\n", i);
         PRINT("        hw:\n");
