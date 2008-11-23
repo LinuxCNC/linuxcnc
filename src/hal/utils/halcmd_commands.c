@@ -313,6 +313,12 @@ int do_addf_cmd(char *func, char *thread, char **opt) {
     return retval;
 }
 
+int do_alias_cmd(char *pinparam, char *name, char *alias) {
+    hal_pin_t *pin;
+    hal_param_t *param;
+
+    return 0;	
+}
 
 int do_delf_cmd(char *func, char *thread) {
     int retval;
