@@ -5213,8 +5213,8 @@ G54
  and Y; the other coordinates are not changed.
 \layout Section
 
-G17, G18, G19 Plane Selection
-\begin_inset LatexCommand \index{G17, G18, G19 Plane Selection}
+G17 XY Plane
+\begin_inset LatexCommand \index{G17 XY Plane}
 
 \end_inset 
 
@@ -5226,8 +5226,62 @@ G17, G18, G19 Plane Selection
 
 \layout Standard
 
-Program G17 to select the XY-plane, G18 to select the XZ-plane, or G19 to
- select the YZ-plane.
+Program G17 to select the XY-plane.
+\layout Section
+
+G18 XZ Plane
+\begin_inset LatexCommand \index{G18 XZ Plane}
+
+\end_inset 
+
+
+\layout Standard
+
+Program G18 to select the XZ plane.
+ Figure(
+\begin_inset LatexCommand \ref{fig:XZ-Plane}
+
+\end_inset 
+
+) shows the orientation of the XZ plane.
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Caption
+
+XZ Plane
+\begin_inset LatexCommand \label{fig:XZ-Plane}
+
+\end_inset 
+
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename images/G18.png
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Section
+
+G19 YZ Plane
+\begin_inset LatexCommand \index{G19 YZ Plane}
+
+\end_inset 
+
+
+\layout Standard
+
+G18 to select the XZ-plane, or G19 to select the YZ-plane.
  The effects of having a plane selected are discussed in Section 
 \begin_inset LatexCommand \ref{sub:G2,-G3:-Arc}
 
@@ -8434,47 +8488,6 @@ In O-words, Parameters (section
 \end_inset 
 
 ) are particularly useful.
-\layout Section
-
-Calling Files
-\begin_inset LatexCommand \index{Calling Files}
-
-\end_inset 
-
-
-\layout Standard
-
-To call a file name the file the same as your call and include a sub and
- endsub.
- The file must be in the directory pointed to by PROGRAM_PREFIX 
-\layout LyX-Code
-
-o<myfile> call (a named file)
-\layout Standard
-
-or
-\layout LyX-Code
-
-o123 call (a number file)
-\layout Standard
-
-In the called file include the oxxx sub and endsub and the file must be
- a valid file
-\layout LyX-Code
-
-myfile.ngc
-\layout LyX-Code
-
-o<myfile> sub
-\layout LyX-Code
-
-...
-\layout LyX-Code
-
-o<myfile> endsub
-\layout LyX-Code
-
-M2
 \layout Chapter
 
 Other Codes
